@@ -44,7 +44,7 @@ export function radarSvg(doc, model, { size = 340 } = {}) {
   return svg;
 }
 
-export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor }) {
+export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verdicts = [] }) {
   if (!doc || !anchor) return null;
   doc.getElementById('regime-radar')?.remove();
   const model = buildRegimeRadar(inputs, { macroHistory: root?._aioMacroHistory || null });
@@ -58,6 +58,15 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor }) {
   head.append(el(doc, 'span', '바깥일수록 그 축의 지난 기간 중 우호적인 쪽', 'briefing-h2-note'));
   section.append(head);
   section.append(el(doc, 'p', model.lead, 'regime-radar-lead'));
+  // X-review (2026-10-13, PM/credit view): "우호" above and 9 here read as a contradiction at first glance. When an
+  // axis's absolute verdict and its position in its own past point opposite ways, say so on the face of the chart.
+  const stateOf = new Map((verdicts || []).map((row) => [row.id, row.state]));
+  const gaps = model.axes.filter((axis) => axis.now != null && ((stateOf.get(axis.id) === 'favorable' && axis.now <= 25) || (stateOf.get(axis.id) === 'burden' && axis.now >= 75)));
+  if (gaps.length) {
+    section.append(el(doc, 'p', gaps.map((axis) => stateOf.get(axis.id) === 'favorable'
+      ? `${axis.label}: 판정은 우호(절대 수준)지만 지난 ${axis.sample || 252}거래일 안에서는 부담 쪽(${axis.now})입니다 — 수준은 아직 괜찮아도 최근 1년 기준으로는 나빠진 편이라는 뜻입니다.`
+      : `${axis.label}: 판정은 부담(절대 수준)이지만 지난 ${axis.sample || 252}거래일 안에서는 우호 쪽(${axis.now})입니다 — 최근보다는 나아졌어도 수준 자체는 아직 부담입니다.`).join(' '), 'regime-radar-gap'));
+  }
   const body = el(doc, 'div', null, 'regime-radar-body');
   body.append(radarSvg(doc, model));
   const legend = el(doc, 'ul', null, 'regime-radar-legend');

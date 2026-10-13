@@ -92,7 +92,8 @@ jobs:
 
   browser:
     name: Browser / ${{ matrix.group }}
-    needs: contracts
+    # 2026-10-12: browser shards start beside the ~20 s contract shards instead of after them; attest still needs both.
+    needs: preflight
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
@@ -113,7 +114,13 @@ jobs:
       - name: Install dependencies and Chromium
         run: |
           npm ci --no-audit --no-fund
-          npx playwright install --with-deps chromium
+          # 2026-10-12: the apt mirror is occasionally ~100 kB/s (one shard in six took 3-4 min instead of ~25 s).
+          # Cap each attempt and retry on a fresh connection instead of waiting it out.
+          for attempt in 1 2 3; do
+            if timeout 100 npx playwright install --with-deps chromium; then break; fi
+            [ "$attempt" = 3 ] && { echo "::error::playwright install failed 3 times"; exit 1; }
+            echo "::warning::playwright install attempt $attempt timed out or failed; retrying"
+          done
       - name: Run all gates in shard
         env:
           AIO_QA_CACHE_DIR: ${{ runner.temp }}/aio-qa
@@ -141,6 +148,8 @@ jobs:
         with:
           ref: ${{ inputs.release_sha || github.sha }}
           fetch-depth: 0
+          # Commits and trees only: the attestation needs ancestry and a name-only diff, not file contents (48 s -> seconds).
+          filter: blob:none
       - name: Build immutable release attestation
         env:
           EXPECTED_SHA: ${{ inputs.release_sha || github.sha }}

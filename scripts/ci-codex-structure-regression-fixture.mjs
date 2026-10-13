@@ -2,6 +2,7 @@
 // counterexamples ported to synthetic assertions so the fixed behaviour cannot silently regress. Read-only, no network.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { load as loadYaml } from 'js-yaml';
 import { buildMarketRegime, movingAverageStructure } from '../src/domain/briefing/market-read.js';
 import { buildDailyChanges } from '../src/domain/briefing/daily-diff.js';
 import { resolveEntities } from '../src/ai/entity/resolver.js';
@@ -138,5 +139,42 @@ assert.equal(usPreOpenIndexPrint('^VIX', '2026-10-12T11:01:01Z'), true, 'P1656: 
 assert.equal(usPreOpenIndexPrint('^VIX', '2026-10-09T20:15:01Z'), false, 'P1656: the 16:15 ET VIX close stays a close');
 const producer = fs.readFileSync(new URL('./fetch-data.mjs', import.meta.url), 'utf8');
 assert.ok(/existing\.fieldMeta\[f\]\?\.valueBasis\) continue;/.test(producer), 'P1656: backfill does not overwrite completed-close evidence');
+
+// P1660: axis and macro-group folds teach (principle · reading · links) instead of listing sources.
+const { AXIS_DEEP_DIVES, MACRO_GROUP_DEEP_DIVES } = await import('../src/domain/content/axis-deep-dives.js');
+for (const id of ['trend', 'breadth', 'volatility', 'rates', 'credit', 'commodities']) assert.ok(AXIS_DEEP_DIVES[id]?.blocks.length === 3 && AXIS_DEEP_DIVES[id].related.length, `P1660: ${id} deep dive`);
+assert.ok(MACRO_GROUP_DEEP_DIVES.liquidity && MACRO_GROUP_DEEP_DIVES.growth && MACRO_GROUP_DEEP_DIVES['commodities-fx'], 'P1660: macro group deep dives');
+assert.ok(!/추가 근거와 출처/.test(fs.readFileSync(new URL('../src/ui/components/market-regime.js', import.meta.url), 'utf8')), 'P1660: no evidence-dump fold title');
+// P1661: past outcomes by VIX band replace the failed composite score.
+const { buildStressOutcomes, stressBandOf } = await import('../src/domain/signal/stress-outcomes.js');
+const days = Array.from({ length: 120 }, (_, i) => new Date(Date.UTC(2020, 0, 1) + i * 86400000).toISOString().slice(0, 10));
+const stress = buildStressOutcomes(days.map((d, i) => [d, 100 + i]), days.map((d, i) => [d, i < 60 ? 35 : 12]), { horizons: [21] });
+assert.equal(stressBandOf(14.8).id, 'calm'); assert.equal(stressBandOf(30).id, 'stress');
+assert.equal(stress.bands.find((b) => b.id === 'stress').episodes, 1, 'P1661: a run of days in one band is one episode');
+assert.equal(stress.bands.find((b) => b.id === 'stress').horizons[21].hitRate, 100, 'P1661: rising series is all up');
+assert.equal(stress.bands.find((b) => b.id === 'calm').horizons[21].n, 39, 'P1661: no forward window past the last close');
+
+// P1663: sentiment cards and the breadth page share the deep-dive fold renderer.
+const { SENTIMENT_DEEP_DIVES } = await import('../src/domain/content/axis-deep-dives.js');
+for (const id of ['fg', 'term', 'hy', 'pcr', 'aaii', 'composite']) assert.ok(SENTIMENT_DEEP_DIVES[id]?.blocks.length >= 2, `P1663: ${id} deep dive`);
+for (const file of ['sentiment-board.js', 'breadth-board.js', 'market-regime.js', 'macro-board.js']) assert.ok(/deepDiveFold\(/.test(fs.readFileSync(new URL(`../src/ui/components/${file}`, import.meta.url), 'utf8')), `P1663: ${file} uses the shared fold`);
+
+// P1664: a product-surface edit outside the knowledge routes does not pull the knowledge browser shard; viewport gates run pages together.
+const qaManifest = JSON.parse(fs.readFileSync(new URL('../architecture/qa-pipeline.json', import.meta.url), 'utf8'));
+const surfaceRule = qaManifest.impactRules.find((rule) => rule.patterns.includes('src/ui/**'));
+assert.ok(surfaceRule && !surfaceRule.groups.includes('browser-knowledge') && surfaceRule.groups.includes('browser-viewport'), 'P1664: src/ui edits select viewport but not the knowledge shard');
+for (const file of ['ci-responsive-browser-check.mjs', 'ci-viewport-matrix-check.mjs']) assert.ok(/Promise\.all\((RESPONSIVE_QA_VIEWPORTS|VIEWPORTS)\.map/.test(fs.readFileSync(new URL(`./${file}`, import.meta.url), 'utf8')), `P1664: ${file} runs viewports together`);
+// P1665: the watchdog's own previous run is a warning, and a missing Worker dispatch token triggers a data-plane redeploy.
+assert.ok(/selfObservation = mode === 'watchdog' && id === 'watchdog'/.test(fs.readFileSync(new URL('./ci-external-pipeline-check.mjs', import.meta.url), 'utf8')), 'P1665: watchdog does not latch on its own failure');
+assert.ok(/scheduler-dispatch-token-missing/.test(fs.readFileSync(new URL('../.github/workflows/deploy-data-plane.yml', import.meta.url), 'utf8')), 'P1665: missing dispatch token repairs the Worker');
+// P1666: the producer job alone holds the refresh lock; waiting for CI/Pages runs in a separate job, and the watchdog follows each Pages deploy.
+for (const file of ['refresh-data.yml', 'refresh-screener.yml']) {
+  const wf = loadYaml(fs.readFileSync(new URL(`../.github/workflows/${file}`, import.meta.url), 'utf8'));
+  const producer = Object.entries(wf.jobs).find(([name]) => name !== 'converge');
+  assert.ok(!wf.concurrency && producer[1].concurrency?.group === 'refresh-data' && wf.jobs.converge?.concurrency?.group === 'live-convergence', `P1666: ${file} convergence does not hold the refresh lock`);
+  assert.ok(!producer[1].steps.some((step) => /ensure-live-convergence/.test(step.run || '')), `P1666: ${file} producer does not wait for Pages`);
+}
+const watchdogWf = loadYaml(fs.readFileSync(new URL('../.github/workflows/data-watchdog.yml', import.meta.url), 'utf8'));
+assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes('Deploy GitHub Pages'), 'P1666: watchdog follows each Pages deploy');
 
 console.log('codex-structure-regression-fixture: OK');

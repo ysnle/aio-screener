@@ -194,7 +194,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     ['종가 > 50일선', sma50[n] == null ? null : last.close > sma50[n]],
     ['52주 저점 대비 +30% 이상', fullYear ? last.close >= low52 * 1.3 : null],
     ['52주 고점 대비 -25% 이내', fullYear ? last.close >= high52 * 0.75 : null],
-    ['상대강도 (S&P 500 대비 6개월 우위)', null]
+    [`상대강도 (${benchmarkLabel} 대비 6개월 우위)`, null]
   ];
   // Buy/sell pressure: volume on up days versus down days over 20 sessions.
   let upVol = 0; let downVol = 0; let seen = 0;

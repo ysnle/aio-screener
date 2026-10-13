@@ -3,6 +3,7 @@ import { chartPalette } from '../components/color-theme.js';
 import { selectSelectedThemeDetail, selectThemesItems } from '../../state/selectors/themes.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { renderThemeStrength } from '../components/theme-strength.js';
+import { renderSectorMap } from '../components/sector-map.js';
 import {
   AI_INFERENCE_EFFICIENCY_REFERENCE,
   AI_INFERENCE_ARCHITECTURE_REFERENCE,
@@ -1236,6 +1237,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
            renderThemeDetailInsights({ documentRef, root, store });
            renderAiInfrastructureLens({ documentRef, root, route });
            renderThemeStrength({ documentRef, root, store }); // P1417
+           try { renderSectorMap({ documentRef, root, store }); } catch (_) { /* the map never takes the themes route down */ } // 2026-10-13 S&P 500 map
          };
         renderNow();
         const unsubscribe = store && subscribeToSlices(store, ['themes', 'screener'], renderNow);
@@ -1308,10 +1310,10 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         let detailTriggerKey = null;
         let deepLinkHint = null;
         const currentDetailTrigger = () => detailTrigger && documentRef.contains(detailTrigger) ? detailTrigger
-          : [...(page?.querySelectorAll?.('[data-action="showThemeDetail"], [data-theme-id], .capex-flow-theme, .theme-strength-row') || [])]
+          : [...(page?.querySelectorAll?.('[data-action="showThemeDetail"], [data-theme-id], .capex-flow-theme') || [])]
             .find((node) => !detailPanel?.contains?.(node) && JSON.stringify([node.dataset.action, node.dataset.arg, node.dataset.themeId, node.getAttribute('aria-label')]) === detailTriggerKey);
         const onThemeTriggerClick = (event) => {
-          const trigger = event?.target?.closest?.('[data-action="showThemeDetail"], [data-theme-id], .capex-flow-theme, .theme-strength-row');
+          const trigger = event?.target?.closest?.('[data-action="showThemeDetail"], [data-theme-id], .capex-flow-theme');
           if (!trigger || !page?.contains?.(trigger) || detailPanel?.contains?.(trigger)) return;
           detailTrigger = trigger;
           detailTriggerKey = JSON.stringify([trigger.dataset.action, trigger.dataset.arg, trigger.dataset.themeId, trigger.getAttribute('aria-label')]);

@@ -1,0 +1,92 @@
+[
+  {
+    "gate": "generate-workspace-state.mjs --check",
+    "result": {
+      "chunk_id": "09ea8b",
+      "wall_time_seconds": 3.6626601,
+      "exit_code": 0,
+      "original_token_count": 16,
+      "output": "Workspace state OK: v57.47, 19 routes, 74 context documents.\n"
+    }
+  },
+  {
+    "gate": "ci-workspace-contract-check.mjs",
+    "result": {
+      "chunk_id": "286091",
+      "wall_time_seconds": 5.9868673999999995,
+      "exit_code": 0,
+      "original_token_count": 23,
+      "output": "Workspace contract OK: v57.47, 74 context docs, 9 skills, 4 agent profiles, 13 workflows.\n"
+    }
+  },
+  {
+    "gate": "ci-knowledge-lint-check.mjs",
+    "result": {
+      "chunk_id": "26e5af",
+      "wall_time_seconds": 4.1521594,
+      "exit_code": 0,
+      "original_token_count": 158,
+      "output": "Knowledge lint warnings:\n - _context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md contains replacement-character encoding damage: historical evidence remains explicit-only until recovered from Git history\n - _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md contains replacement-character encoding damage: historical evidence remains explicit-only until recovered from Git history\n - _context/RESEARCH-INTEGRATION-AI-INFRA-MARKET-RISK-2026-08-22.md last_verified is 52d old: threshold=45d\nKnowledge lint OK: 74 context documents, 38 prescriptive surfaces, 3 warning(s). Mechanical PASS does not certify semantic truth.\n"
+    }
+  },
+  {
+    "gate": "ci-skill-contract-check.mjs",
+    "result": {
+      "chunk_id": "ef5933",
+      "wall_time_seconds": 3.8694609,
+      "exit_code": 0,
+      "original_token_count": 15,
+      "output": "Skill contract check OK: 9 skill(s), 9 command wrapper(s).\n"
+    }
+  },
+  {
+    "gate": "ci-skill-eval-fixture-check.mjs",
+    "result": {
+      "chunk_id": "e22075",
+      "wall_time_seconds": 3.7605188,
+      "exit_code": 0,
+      "original_token_count": 25,
+      "output": "Skill eval fixtures OK: 9 skills, 27 cases; behavioral execution remains a separate evidence level.\n"
+    }
+  },
+  {
+    "gate": "ci-ledger-integrity-check.mjs",
+    "result": {
+      "chunk_id": "b66085",
+      "wall_time_seconds": 3.6998186,
+      "exit_code": 0,
+      "original_token_count": 53,
+      "output": "[ledger-integrity] QA open items: 281 | without verify_by: 168 (baseline 168) | RULES R705, gaps 65\nLedger integrity OK: R gap set is frozen and every new open QA item must declare how it will be re-verified.\n"
+    }
+  },
+  {
+    "gate": "ci-assertion-trace-check.mjs",
+    "result": {
+      "chunk_id": "ecac5c",
+      "wall_time_seconds": 4.0220314,
+      "exit_code": 0,
+      "original_token_count": 25,
+      "output": "Assertion trace OK: 2969 labelled assertions, 1111 grandfathered (baseline 1225), 0 new untraced.\n"
+    }
+  },
+  {
+    "gate": "sync-agent-profiles.mjs --check",
+    "result": {
+      "chunk_id": "1b0ea9",
+      "wall_time_seconds": 3.6787914,
+      "exit_code": 0,
+      "original_token_count": 17,
+      "output": "Agent profiles verified: 4 profile(s), Claude and Codex surfaces.\n"
+    }
+  },
+  {
+    "gate": "sync-agent-skills.mjs --check",
+    "result": {
+      "chunk_id": "926989",
+      "wall_time_seconds": 3.8100773,
+      "exit_code": 0,
+      "original_token_count": 12,
+      "output": "Agent skill mirror OK: 53 file(s) synchronized.\n"
+    }
+  }
+]

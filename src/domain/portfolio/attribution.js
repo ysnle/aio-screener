@@ -12,6 +12,7 @@ import { SECTOR_ETF } from '../entity/stock-read.js';
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 const isKr = (symbol) => /\.(KS|KQ)$/i.test(String(symbol || ''));
+const dateOf = (value) => (/^\d{4}-\d{2}-\d{2}/.test(String(value || '')) ? String(value).slice(0, 10) : null);
 
 // FX return of converting `from` into `base` over the window, from the USD/KRW close series.
 export function fxReturnInto(from, base, usdkrwReturnPct) {
@@ -38,11 +39,16 @@ export function buildAttribution({ holdings = [], cash = null, baseCurrency = nu
     const from = holding.convertedFrom || null;
     const fx = from ? fxReturnInto(from, baseCurrency, usdkrwReturnPct) : 0;
     if (r == null || m == null || fx == null) { skipped.push({ symbol: holding.symbol, value, reason: r == null ? 'no-return' : m == null ? 'no-market' : 'no-fx' }); continue; }
+    // X08 (2026-10-13): a 63-session window only means something when the stock and its index end on the same
+    // close. When both closes are dated and differ, the gap is a calendar artifact, not selection — hold it out.
+    const rBasis = dateOf(row?.factorSessionDate || row?.asOf);
+    const mBasis = dateOf(market?.asOf);
+    if (rBasis && mBasis && rBasis !== mBasis) { skipped.push({ symbol: holding.symbol, value, reason: 'basis-mismatch', rBasis, mBasis }); continue; }
     const etf = isKr(holding.symbol) ? null : SECTOR_ETF[row?.sector] || null;
     const s = etf ? finite(rowFor(etf)?.ret3m) : null;
     const local = r / 100;
     const base = (1 + local) * (1 + fx) - 1;
-    parts.push({ symbol: holding.symbol, value, r: local, m: m / 100, s: s == null ? m / 100 : s / 100, sectorKnown: s != null, base, fx, converted: !!from, marketLabel: market.label });
+    parts.push({ symbol: holding.symbol, value, r: local, m: m / 100, s: s == null ? m / 100 : s / 100, sectorKnown: s != null, base, fx, converted: !!from, marketLabel: market.label, basis: rBasis || mBasis });
   }
   const invested = parts.reduce((sum, part) => sum + part.value, 0);
   const cashValue = finite(cash) != null && cash > 0 ? Number(cash) : 0;
@@ -64,7 +70,7 @@ export function buildAttribution({ holdings = [], cash = null, baseCurrency = nu
     .sort((a, b) => Math.abs(b.stockPct) - Math.abs(a.stockPct));
   return {
     available: true,
-    window: '3개월(63거래일)',
+    window: (() => { const dates = [...new Set(parts.map((part) => part.basis).filter(Boolean))].sort(); return dates.length ? `3개월(63거래일 · ${dates.map((d) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`).join('·')} 종가까지)` : '3개월(63거래일)'; })(),
     totalPct: pct(total),
     blendedPct: pct(blended),
     blendedLabel: labels.length > 1 ? `같은 비중의 ${labels.join('·')} 혼합` : labels[0] || '지수',

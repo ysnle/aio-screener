@@ -91,11 +91,16 @@ jobs:
           ATTESTED_CHANGE: ${{ steps.release.outputs.attested_change }}
           EXPECTED_SHA: ${{ steps.release.outputs.sha }}
           FAST_QUOTES_URL: ${{ vars.AIO_FAST_QUOTES_URL || 'https://aio-screener-data-plane.zmfhd007.workers.dev' }}
+          HAS_DISPATCH_SECRET: ${{ secrets.AIO_REFRESH_DISPATCH_TOKEN != '' }}
         run: |
           set -euo pipefail
           health_status="$(curl --silent --show-error --output "$RUNNER_TEMP/aio-fast-convergence-health.json" --write-out '%{http_code}' "$FAST_QUOTES_URL/health" || true)"
           if [ "$health_status" != '200' ] && [ "$health_status" != '503' ]; then echo "::error::cannot resolve fast data-plane convergence: HTTP $health_status"; exit 1; fi
           LIVE_SHA="$(node -e "const h=require(process.argv[1]);process.stdout.write(typeof h.sourceSha==='string'?h.sourceSha:'')" "$RUNNER_TEMP/aio-fast-convergence-health.json")"
+          # 2026-10-12: the dispatch token is copied into the Worker only on a deploy, so a secret added after the last
+          # Worker change never arrived (health: schedulerDispatch.configured=false, refresh-data ran every 4-6 h).
+          DISPATCH_MISSING="$(node -e "const h=require(process.argv[1]);process.stdout.write(h.schedulerDispatch&&h.schedulerDispatch.configured===false?'true':'false')" "$RUNNER_TEMP/aio-fast-convergence-health.json")"
+          export DISPATCH_MISSING
           CURRENT_MAIN_SHA="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
           export LIVE_SHA CURRENT_MAIN_SHA
           # A newer main must exist locally to classify what it changed; an unreachable commit fails closed to the stale skip.
@@ -115,9 +120,10 @@ jobs:
           const cumulativeChanges = liveIsAncestor && !changed
             ? await getWorkerChangesBetween(liveSha, process.env.EXPECTED_SHA)
             : undefined;
-          const shouldDeploy = shouldDeployWorker({ plane: 'dataPlane', manual, attestedChanged: changed, liveSha, testedSha: process.env.EXPECTED_SHA, latestMainSha: process.env.CURRENT_MAIN_SHA, cumulativeChanges, newerMainChanges });
+          const dispatchRepair = mainAdvanceSafe && process.env.DISPATCH_MISSING === 'true' && process.env.HAS_DISPATCH_SECRET === 'true';
+          const shouldDeploy = dispatchRepair || shouldDeployWorker({ plane: 'dataPlane', manual, attestedChanged: changed, liveSha, testedSha: process.env.EXPECTED_SHA, latestMainSha: process.env.CURRENT_MAIN_SHA, cumulativeChanges, newerMainChanges });
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `should_deploy=${shouldDeploy}\n`);
-          const reason = !manual && process.env.CURRENT_MAIN_SHA !== process.env.EXPECTED_SHA && !mainAdvanceSafe ? 'stale-ci-run' : shouldDeploy ? 'worker-change-or-live-drift' : 'already-converged-or-no-worker-change';
+          const reason = !manual && process.env.CURRENT_MAIN_SHA !== process.env.EXPECTED_SHA && !mainAdvanceSafe ? 'stale-ci-run' : dispatchRepair ? 'scheduler-dispatch-token-missing' : shouldDeploy ? 'worker-change-or-live-drift' : 'already-converged-or-no-worker-change';
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `reason=${reason}\n`);
           console.log(`Data-plane automatic convergence decision: ${shouldDeploy ? 'deploy' : 'skip'} (live=${liveSha || 'unknown'}, tested=${process.env.EXPECTED_SHA})`);
           NODE

@@ -1100,8 +1100,21 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
       // loaded only on request — artifact budget). Say how much of the comparison is on screen and offer
       // the full ledger instead of letting the scope change silently after another view loads it.
       if (expected && comparisonRows.length < expected) {
-        const scope = element(documentRef, 'p', 'masters-holdings-meta masters-ledger-scope', `현재 신고 가치 상위 ${comparisonRows.length}개 보유를 먼저 불러왔습니다(전체 ${expected}개). 아래 원장은 변화가 있는 행을 먼저 놓고 왼쪽 번호를 표시 순서로 씁니다. `);
-        scope.appendChild(button(documentRef, 'masters-route-button is-secondary', state.loadingManagers?.has?.(manager.id) ? '전체 원장 불러오는 중…' : `전체 ${expected}개 보기`, 'load-manager', manager.id));
+        // X06 (2026-10-13): the manager shard is itself a bounded web projection (top rows by reported value).
+        // Once it is loaded, a "전체 N개 보기" button promised rows the site never ships — say the real scope
+        // and point to the SEC filing for the rest instead.
+        const shardLoaded = state.managerRows?.has?.(manager.id);
+        const filingUrl = filingMeta?.latestFiling?.informationTableXml || filingMeta?.latestFiling?.indexUrl || holdingMeta?.latestFiling?.indexUrl || manager.sourceUrl || 'https://www.sec.gov/edgar/search-and-access';
+        const scope = element(documentRef, 'p', 'masters-holdings-meta masters-ledger-scope', shardLoaded
+          ? `웹 화면은 신고 가치 상위 ${comparisonRows.length.toLocaleString('en-US')}개 비교 행까지만 제공합니다(전체 ${expected.toLocaleString('en-US')}개). 아래 원장은 변화가 있는 행을 먼저 놓습니다. 나머지는 `
+          : `현재 신고 가치 상위 ${comparisonRows.length}개 보유를 먼저 불러왔습니다(전체 ${expected}개). 아래 원장은 변화가 있는 행을 먼저 놓고 왼쪽 번호를 표시 순서로 씁니다. `);
+        if (shardLoaded) {
+          const link = element(documentRef, 'a', 'masters-source-link', 'SEC 원문 신고서');
+          applySafeExternalLink(link, filingUrl);
+          scope.append(link, documentRef.createTextNode('에서 확인합니다.'));
+        } else {
+          scope.appendChild(button(documentRef, 'masters-route-button is-secondary', state.loadingManagers?.has?.(manager.id) ? '원장 불러오는 중…' : (Number(state.holdings?.managerShards?.[manager.id]?.comparisonProjectionRows) > comparisonRows.length ? `상위 ${Number(state.holdings.managerShards[manager.id].comparisonProjectionRows).toLocaleString('en-US')}개까지 불러오기` : '변화 원장 더 불러오기'), 'load-manager', manager.id));
+        }
         detail.appendChild(scope);
       }
       detail.appendChild(createChangeLedger(documentRef, comparisonRows, state));

@@ -2357,6 +2357,9 @@ export function closesToFactors(closes) {
   const kalman = _kalmanTrend(closes.slice(-90), vol60);
   return {
     price: round(price, 2),
+    // 2026-10-13 (owner: S&P 500 map): one- and five-session returns on the same completed close series, so the
+    // sector map can colour a day or a week without republishing raw prices (P715 keeps prices out).
+    ret1d: _retPct(closes, 1), ret5d: _retPct(closes, 5),
     ret1m: _retPct(closes, 21), ret3m: _retPct(closes, 63), ret6m: _retPct(closes, 126),
     vol: vol60, rsi: _rsi14(closes),
     pctSma50: (sma50 && sma50 > 0) ? round((price / sma50 - 1) * 100, 2) : null,
@@ -3406,6 +3409,15 @@ export async function enrichScreener() {
   // P1170 (15 D04): 혼합 시장의 전역 max 하나는 개별 종목의 최신성을 대표하지 못한다. 시장별로
   // barStart 범위와 세션 기준일을 남기고, 값의 시간 기저를 basis로 표시한다.
   const factorScopes = factorScopesByMarket(data);
+  // 2026-10-13 S&P 500 map: the member weights refreshed just before this step (fetch-sp500-weights.mjs) travel
+  // inside the screener artifact, so the page needs no extra request and a missing file is simply an absent field.
+  let indexWeights = null;
+  try {
+    const weights = JSON.parse(await readFile(new URL('../public-data/sp500-weights.json', import.meta.url), 'utf8'));
+    if (weights?.schemaVersion === 'sp500-weights.v1' && Array.isArray(weights.rows) && weights.rows.length >= 450) {
+      indexWeights = { index: 'SP500', asOf: weights.asOf || null, source: weights.source, basis: weights.basis, columns: ['sym', 'sector', 'weight', 'name'], rows: weights.rows.map((row) => [row.sym, row.sector, row.weight, row.name]) };
+    }
+  } catch { /* weights not collected yet: the map falls back to shares x close */ }
 
   const payload = {
     asOf: new Date().toISOString(),
@@ -3444,6 +3456,7 @@ export async function enrichScreener() {
       source: 'AIO universe adjusted-close history',
       allowedUse: 'research-history-not-official-exchange'
     },
+    indexWeights,
     rankingContract: {
       allowedUse: 'research-relative-ranking-only',
       tradingSignal: false,

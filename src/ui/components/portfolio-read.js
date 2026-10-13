@@ -4,6 +4,7 @@ import { buildPortfolioRead } from '../../domain/portfolio/portfolio-read.js';
 import { readMarketRegime } from './market-regime.js';
 import { renderNextSteps } from './page-flow.js';
 import { benchmarkRowFor, indexReturns } from '../../domain/market/benchmarks.js';
+import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -32,8 +33,10 @@ function attributionBox(doc, attribution) {
   box.append(el(doc, 'p', `합계 ${sign(attribution.excessPct)}%p = 내 수익률 ${sign(attribution.totalPct)}% − ${attribution.blendedLabel} ${sign(attribution.blendedPct)}%`, 'theme-strength-basis'));
   const notes = [];
   if (attribution.sectorMappedPct < 100) notes.push(`섹터 효과는 미국 섹터 ETF가 대응되는 보유액 ${attribution.sectorMappedPct.toFixed(0)}%에서만 분리(나머지는 종목 선택에 포함)`);
-  if (!attribution.cashDeclared) notes.push('현금이 선언되지 않아 현금 효과는 0으로 계산');
+  if (!attribution.cashDeclared) notes.push('현금을 입력하지 않아 주식 부분만 계산(현금 효과 0)');
   else if (attribution.cashSharePct > 0) notes.push(`현금 ${attribution.cashSharePct.toFixed(0)}% — 지수에 투자됐다면 얻었을 수익률만큼이 현금 효과`);
+  const mismatched = (attribution.skipped || []).filter((item) => item.reason === 'basis-mismatch');
+  if (mismatched.length) notes.push(`종가 기준일이 비교 지수와 다른 ${mismatched.length}종목은 제외`);
   if (attribution.fxHoldingsPct > 0) notes.push(`환율 효과는 기준 통화로 환산한 보유액 ${attribution.fxHoldingsPct.toFixed(0)}%의 원/달러 3개월 변동`);
   notes.push('지금 비중을 3개월 동안 들고 있었다고 가정한 계산이라 실제 계좌 성과와 다릅니다');
   box.append(el(doc, 'p', `${notes.join(' · ')}.`, 'theme-strength-basis'));
@@ -52,10 +55,13 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   // as the stocks' and sector ETFs' returns); KRX holdings against the KOSPI/KOSDAQ price index.
   const marketReturnFor = (symbol) => {
     const bench = benchmarkRowFor(symbol, history);
-    if (bench.market === 'US' && spy?.ret3m != null && spy.ret3m !== '' && Number.isFinite(Number(spy.ret3m)))  // E02: null is missing, not 0% return { ret3m: Number(spy.ret3m), label: 'S&P 500(SPY)' };
+    if (bench.market === 'US' && spy?.ret3m != null && spy.ret3m !== '' && Number.isFinite(Number(spy.ret3m))) {
+      // E02: null is missing, not 0% return. X01 (2026-10-13): this return once sat inside the comment, so SPY was never used.
+      return { ret3m: Number(spy.ret3m), label: 'S&P 500(SPY)', asOf: spy.factorSessionDate || null };
+    }
     return bench;
   };
-  const read = buildPortfolioRead({ surface, rows, benchmarkFor: (symbol) => benchmarkRowFor(symbol, history), marketReturnFor, usdkrwReturnPct: indexReturns(history, 'usdkrw').ret3m, rotation: root?._serverDataMeta?.rotationHistory?.items || {}, regime: readMarketRegime(root) });
+  const read = buildPortfolioRead({ surface, rows, benchmarkFor: (symbol) => benchmarkRowFor(symbol, history), marketReturnFor, usdkrwReturnPct: indexReturns(history, 'usdkrw').ret3m, rotation: currentRotationItems(root?._serverDataMeta?.rotationHistory, Date.now()), regime: readMarketRegime(root) });
   const next = doc.getElementById('pf-next');
   if (!read.available) {
     // P1449: a hold is not an absence — the reason (currency mix without declared rates) is

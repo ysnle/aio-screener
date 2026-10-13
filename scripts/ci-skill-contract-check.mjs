@@ -24,7 +24,10 @@ const skills = [
   'data-refresh',
   'integrate',
   'knowledge-lint',
-  'post-edit-qa'
+  'post-edit-qa',
+  'create-verification-skill',
+  'maintain-verification-skill',
+  'verify-aio'
 ];
 const commandForSkill = {
   autoresearch: 'autoresearch.md',
@@ -32,7 +35,10 @@ const commandForSkill = {
   'data-refresh': 'data-refresh.md',
   integrate: 'integrate.md',
   'knowledge-lint': 'knowledge-lint.md',
-  'post-edit-qa': 'qa.md'
+  'post-edit-qa': 'qa.md',
+  'create-verification-skill': 'create-verification-skill.md',
+  'maintain-verification-skill': 'maintain-verification-skill.md',
+  'verify-aio': 'verify-aio.md'
 };
 const referencesForSkill = {
   autoresearch: ['references/workflow.md', 'references/eval-guide.md'],
@@ -40,7 +46,9 @@ const referencesForSkill = {
   'data-refresh': ['references/inventory.md', 'references/workflow.md', 'references/source-policy.md'],
   integrate: ['references/workflow.md', 'references/framework-extraction.md'],
   'knowledge-lint': ['references/workflow.md'],
-  'post-edit-qa': ['references/tiers.md', 'references/report-contract.md', 'references/scope-matrix.md', 'references/design-review.md']
+  'post-edit-qa': ['references/tiers.md', 'references/report-contract.md', 'references/scope-matrix.md', 'references/design-review.md'],
+  'create-verification-skill': ['references/feature-map-example/README.md'],
+  'verify-aio': ['features/README.md', 'scripts/verify-aio.mjs']
 };
 
 check('skill directory is .claude/skills', exists('.claude/skills'));

@@ -27,6 +27,10 @@
 .page .regime-axis-details { margin-top: 10px; color: var(--text-secondary); font-size: 14px; line-height: 1.65; }
 .page .regime-axis-details summary { cursor: pointer; min-height: 28px; }
 .page .regime-axis-details p { overflow-wrap: anywhere; }
+.page .regime-axis-deep h4 { margin: 14px 0 4px; color: var(--text-primary); font-size: 14px; }
+.page .regime-axis-deep p { margin: 0 0 6px; color: var(--text-secondary); font-size: 14.5px; line-height: 1.75; }
+.page .regime-axis-deep .flow-next-link { margin-top: 10px; }
+.page [class*="grid"] > .regime-axis-deep { grid-column: 1 / -1; }
 .page .regime-scenarios { margin: 24px 0 30px; padding-top: 20px; border-top: 1px solid var(--border); }
 .page .regime-scenario-basis, .page .regime-scenario-current { font-size: 14px; line-height: 1.75; color: var(--text-secondary); margin: 10px 0 16px; }
 .page .regime-scenario-hold { color: var(--text-primary); border-left: 3px solid var(--data-amber); padding: 10px 14px; font-size: 15px; line-height: 1.65; }
@@ -73,6 +77,7 @@
 /* P1637: regime radar — today solid, 5 and 20 sessions ago dashed. */
 .regime-radar { margin: 0 0 22px; padding: 16px 0 6px; border-top: 1px solid var(--border); }
 .regime-radar-lead { font-size: 14px; line-height: 1.6; color: var(--text-primary); margin: 4px 0 10px; }
+.regime-radar-gap { font-size: 13px; line-height: 1.6; color: var(--text-secondary); margin: -4px 0 10px; padding-left: 10px; border-left: 2px solid var(--border); }
 .regime-radar-body { display: grid; grid-template-columns: minmax(260px, 380px) minmax(0, 1fr); gap: 18px; align-items: start; }
 .regime-radar-svg { width: 100%; height: auto; overflow: visible; }
 .regime-radar-ring { fill: none; stroke: var(--border-subtle); stroke-width: 1; }
@@ -120,3 +125,48 @@ button[data-basis], a[data-basis] { cursor: pointer; }
 [data-basis]:focus-visible, .regime-radar-value:focus-visible { outline: 2px solid var(--accent, #2a64c8); outline-offset: 2px; border-radius: 2px; }
 /* P1651: latest completed KRX session line under the US regime summary. */
 .home-kr-line{font-size:13px;color:var(--text-secondary);line-height:1.6;margin:0 0 7px}
+
+/* P1661: past outcomes by VIX band */
+.page .regime-stress-outcomes { margin-top: 20px; }
+.page .stress-bars { display: grid; gap: 8px; margin: 12px 0; }
+.page .stress-bar-row { display: grid; grid-template-columns: minmax(92px, 9rem) minmax(0, 1fr) minmax(150px, auto); align-items: center; gap: 10px; font-size: 14px; color: var(--text-secondary); padding: 2px 6px; border-radius: var(--radius); }
+.page .stress-bar-row.is-current { background: var(--surface-2, rgba(0,0,0,0.04)); color: var(--text-primary); font-weight: 600; outline: 1px solid var(--border-strong); }
+.page .stress-bar-track { height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; }
+.page .stress-bar { display: block; height: 100%; border-radius: 5px; }
+.page .stress-bar.is-up { background: var(--data-green, #2e7d32); }
+.page .stress-bar.is-down { background: var(--data-red, #c62828); }
+.page .stress-bar-value { text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) { .page .stress-bar-row { grid-template-columns: 1fr; gap: 4px; } .page .stress-bar-value { text-align: left; } }
+
+/* 2026-10-13 S&P 500 map — rising red, falling blue (P1634 candle convention); every shade keeps text contrast >= 4.5:1. */
+.sector-map { margin: 0 0 26px; }
+.sector-map-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.sector-map-tabs { display: flex; gap: 4px; }
+.sector-map-tab { font: inherit; font-size: 13px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; background: transparent; color: var(--text-secondary); cursor: pointer; }
+.sector-map-tab.is-active { background: var(--text-primary); border-color: var(--text-primary); color: var(--bg-card); font-weight: 600; }
+.sector-map-tab:disabled { opacity: .45; cursor: not-allowed; }
+.sector-map-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sector-map-basis { font-size: 12px; color: var(--text-muted); margin: 4px 0 6px; line-height: 1.5; }
+.sector-map-lead { font-size: 14px; line-height: 1.65; color: var(--text-primary); margin: 0 0 12px; max-width: 72ch; }
+.sector-map-canvas { position: relative; width: 100%; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; user-select: none; }
+.sector-map-sector { position: absolute; box-sizing: border-box; border: 1px solid var(--bg-card); pointer-events: none; z-index: 2; }
+.sector-map-sector-label { position: absolute; left: 4px; top: 1px; right: 4px; font-size: 11px; font-weight: 700; letter-spacing: .02em; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 16px; }
+.sector-map-tile { position: absolute; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; line-height: 1.15; text-align: center; transition: filter .12s ease; z-index: 1; }
+.sector-map-tile strong { font-weight: 700; letter-spacing: .01em; }
+.sector-map-tile span { font-size: max(10px, .78em); font-variant-numeric: tabular-nums; }
+.sector-map-tile:hover { filter: brightness(1.08) saturate(1.05); outline: 2px solid var(--text-primary); outline-offset: -2px; z-index: 3; }
+.sector-map-detail { font-size: 13px; color: var(--text-secondary); margin: 8px 0 6px; min-height: 1.5em; line-height: 1.5; }
+.sector-map-legend { display: flex; gap: 2px; margin: 0 0 12px; max-width: 420px; }
+.sector-map-swatch { flex: 1; font-size: 11px; text-align: center; padding: 3px 0; font-variant-numeric: tabular-nums; }
+.sector-map-table { margin: 6px 0 0; }
+.sector-map-table > summary { font-size: 13px; color: var(--text-secondary); cursor: pointer; padding: 4px 0; }
+.sector-map .is-u3 { background: #b8302a; color: #fff; } .sector-map .is-u2 { background: #e08a82; color: #211d16; } .sector-map .is-u1 { background: #f0c4bd; color: #211d16; }
+.sector-map .is-n0 { background: #e7e2d8; color: #211d16; }
+.sector-map .is-d1 { background: #c4d4ee; color: #211d16; } .sector-map .is-d2 { background: #8fb0e0; color: #211d16; } .sector-map .is-d3 { background: #2f5fb3; color: #fff; }
+.sector-map .is-na { background: #d4d0c8; color: #57513f; }
+body.dark-theme .sector-map .is-u3 { background: #c9433b; color: #fff; } body.dark-theme .sector-map .is-u2 { background: #8f3a35; color: #fff; } body.dark-theme .sector-map .is-u1 { background: #4e2d2b; color: #f0f0ed; }
+body.dark-theme .sector-map .is-n0 { background: #2b2d30; color: #f0f0ed; }
+body.dark-theme .sector-map .is-d1 { background: #283447; color: #f0f0ed; } body.dark-theme .sector-map .is-d2 { background: #2f4f86; color: #fff; } body.dark-theme .sector-map .is-d3 { background: #3a6cc2; color: #fff; }
+body.dark-theme .sector-map .is-na { background: #36383b; color: #c8c6c0; }
+@media (max-width: 720px) { .sector-map-tab { padding: 5px 10px; } .sector-map-legend { max-width: none; } }
+@media (prefers-reduced-motion: reduce) { .sector-map-tile { transition: none; } }

@@ -83,9 +83,11 @@ try {
     server.on('error',reject); server.on('exit',code=>{clearTimeout(timeout);reject(new Error(`Local server exited ${code}`));});
   });
   browser = await chromium.launch({ headless:true });
-  for (const viewport of viewports) for (const dark of [false,true]) {
+  // QA speed (2026-10-12): the six viewport x theme cases are independent pages on one browser; run three at once.
+  const cases = viewports.flatMap((viewport) => [false, true].map((dark) => ({ viewport, dark })));
+  const runCase = async ({ viewport, dark }) => {
     const label = `${viewport.name}-${dark ? 'dark' : 'light'}`;
-    if(process.env.AIO_ENTITY_QUALITY_CASE && process.env.AIO_ENTITY_QUALITY_CASE!==label) continue;
+    if(process.env.AIO_ENTITY_QUALITY_CASE && process.env.AIO_ENTITY_QUALITY_CASE!==label) return;
     console.log(`Entity quality: ${label}`);
     const page = await browser.newPage({ viewport:{width:viewport.width,height:viewport.height}, hasTouch:viewport.width<1100, serviceWorkers:'block' });
     const intercepted = [], errors = [];
@@ -227,7 +229,8 @@ try {
       await page.screenshot({path:resolve(out,`browser-${label}-failure.png`)}).catch(()=>{});
     }
     finally { await page.close(); }
-  }
+  };
+  for (let index = 0; index < cases.length; index += 3) await Promise.all(cases.slice(index, index + 3).map(runCase));
 } catch(error) { failures.push({message:error.message,stack:error.stack}); }
 finally {
   await browser?.close(); server?.kill();

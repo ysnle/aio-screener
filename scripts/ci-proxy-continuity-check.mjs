@@ -139,5 +139,5 @@ vm.runInContext(section(source, 'function vixToPercentile(', 'function vixRegime
 check(observations.vixToPercentile(30)===50, 'VIX percentile uses actual observed sample');
 observations._aioHistorySeries=()=>Array.from({length:59},(_,i)=>({value:i+1}));
 check(observations.vixToPercentile(30)===null, 'insufficient VIX sample never uses a fabricated distribution');
-check(!source.includes('(82.5 -') && !/goldWeeklyPct\s*=/.test(section(source, 'function applyLiveQuotes(', 'function generateDynamicBriefing(')), 'quote application cannot invent HY spread or turn daily gold return into weekly return');
+check(!source.includes('(82.5 -') && !/goldWeeklyPct\s*=/.test(section(source, 'function applyLiveQuotes(', 'function updateScreenerFromLiveData(')), 'quote application cannot invent HY spread or turn daily gold return into weekly return');
 console.log(`Proxy continuity: ${checks} PASS (offline VM; no live/provider or browser claim)`);

@@ -74,3 +74,6 @@ debug.log
 # node_modules/ above and .claude/settings.local.json. Tracked governance that agents
 # must read lives in AGENTS.md, _context/ and .claude/skills, which stay tracked.
 .commandcode/
+
+# verify-aio skill evidence (run-local proof, survives cleanup)
+_artifacts/verify-aio/

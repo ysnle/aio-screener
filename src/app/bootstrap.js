@@ -40,7 +40,7 @@ import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/con
 import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence } from '../ai/research/native-search.js';
 import { readMarketRegime } from '../ui/components/market-regime.js';
 import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
-import { normalizeSignalScoreMode, describeSignalScoreMode, summarizeEntryChecklist, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
+import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
 import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SAMPLE, normalizeNewsSentimentHistory } from '../domain/news/scoring.js';
@@ -141,8 +141,6 @@ if (typeof window !== 'undefined') {
   window._pfBaseValues = (positions) => baseValueRows(window._aioPortfolioSurface || null, positions); // P1445
   installGlossaryBridge({ root: window, documentRef: window.document }); // P1472/P1474: one concept source + cross-surface search
   window._pfBaseNote = baseValueNote;
-  // QA-SIG-27/P1263: 체크리스트 3상 집계의 단일 소유자(모드 revision 결속)를 셸에 빌려준다.
-  window._sigSummarizeEntryChecklist = summarizeEntryChecklist;
   window._pfAssessAccountPerformance = assessAccountPerformance;
   // E3/P1188: the classic-shell form is the writer for the declared currency /
   // cash-return / RF inputs; it consumes the same keys and normalizers the
@@ -443,6 +441,15 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   if (root?.AIO) root.AIO.readPublicFundamentals = entityProvider.readFundamentals;
   if (root?.AIO) root.AIO.readPublicEarnings = createPublicEarningsReader(httpClient, clock.now);
   const syncEntity = createEntityOrchestrator({ provider: entityProvider, commands: entityCommands });
+  // P1668: only the ticker/fundamental pages read entity state, so boot and broadcast refreshes
+  // skip the SEC fundamentals projection until one of them has been shown or a ticker selected.
+  let entityConsumerSeen = false;
+  // Called only after the router below exists; a deep link can open the ticker before pageShown is heard.
+  const syncEntityForConsumers = () => {
+    if (!entityConsumerSeen && /^(page-)?(ticker|fundamental)$/.test(String(router.active() || ''))) entityConsumerSeen = true;
+    return entityConsumerSeen ? syncEntity.sync() : null;
+  };
+  const syncEntityOnDemand = (options) => { entityConsumerSeen = true; return syncEntity.sync(options); };
   const portfolioCommands = createPortfolioCommands({ store });
   // Personal holdings are read from the established AES-GCM `_AioVault` path
   // through runtimeReaders. Do not create a second consent-only/plaintext store.
@@ -646,7 +653,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const deferredStartupSyncs = [
       () => syncNews.sync(),
       () => syncThemes.sync(),
-      () => syncEntity.sync(),
+      () => syncEntityForConsumers(),
       () => syncPortfolio.sync(),
       // Server hydration commonly finishes before the staged startup reaches
       // this task. Do not rebuild and refetch that same universe a second time.
@@ -673,7 +680,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         Promise.resolve().then(() => syncSentimentProjection()),
         Promise.resolve().then(() => syncMarket.sync()),
         Promise.resolve().then(() => syncThemes.sync()),
-        Promise.resolve().then(() => syncEntity.sync()),
+        Promise.resolve().then(() => syncEntityForConsumers()),
         Promise.resolve().then(() => syncPortfolio.sync()),
         Promise.resolve().then(() => syncAnalysis.sync())
       ]);
@@ -694,7 +701,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         Promise.resolve().then(() => syncNews.sync()),
         Promise.resolve().then(() => syncMarket.sync()),
         Promise.resolve().then(() => syncThemes.sync()),
-        Promise.resolve().then(() => syncEntity.sync()),
+        Promise.resolve().then(() => syncEntityForConsumers()),
         Promise.resolve().then(() => syncPortfolio.sync()),
         Promise.resolve().then(() => syncScreenerData()),
         Promise.resolve().then(() => syncAnalysis.sync())
@@ -706,7 +713,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopThemesRefresh = compatibilityEvents.on('aio:refresh:done', syncThemes.sync);
     const stopThemesHistory = legacy.on('aio:themesHistoryLoaded', syncThemes.sync);
     const stopThemeDetail = legacy.on('aio:themeDetailShown', syncThemes.sync);
-    const stopEntityRefresh = compatibilityEvents.on('aio:refresh:done', syncEntity.sync);
+    const stopEntityRefresh = compatibilityEvents.on('aio:refresh:done', syncEntityForConsumers);
     const stopEntityChanged = legacy.on('aio:entityChanged', syncEntity.sync);
     // P1317/R663: a selected ticker outside the core quote list (e.g. most KR names) had no
     // quote request at all, so its page stayed "—" forever. Register it and request it once;
@@ -744,7 +751,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         return withScope ? sync({ scope }) : sync();
       });
     };
-    const stopEntityShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['ticker', 'fundamental']), syncEntity.sync, { withScope: true }));
+    const stopEntityShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['ticker', 'fundamental']), syncEntityOnDemand, { withScope: true }));
     const stopPortfolioShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['portfolio']), syncPortfolio.sync));
     const stopPortfolioChanged = legacy.on('aio:portfolioChanged', syncPortfolio.sync);
     const stopScreenerRefresh = compatibilityEvents.on('aio:refresh:done', syncScreenerData);

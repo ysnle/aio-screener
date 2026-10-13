@@ -299,6 +299,17 @@ function domainMap(doc, domain, labels, parts) {
   return figure;
 }
 
+// X07 (2026-10-13): industry documents are structural explanations; their folded basis names the sources and the
+// boundary (structure, not a company's current numbers) the way concept and lesson documents already do.
+function industryBasis(doc, basis) {
+  if (!basis) return null;
+  return renderBasis(doc, {
+    sources: basis.sources || [],
+    assumptions: ['산업 구조와 가치 흐름은 공개 자료에 기반한 구조 설명이며, 개별 기업의 현재 실적·점유율·가격을 뜻하지 않는다.'],
+    asOf: basis.asOf || null
+  });
+}
+
 export function renderIndustryPage(doc, { root, state, data, labels, parts, onLocal, onFrame, onConcept }) {
   ensureFrameStyle(doc);
   const { shell, nav, main, aside } = createResearchShell(doc, { root, route: 'atlas', onLocal });
@@ -320,6 +331,8 @@ export function renderIndustryPage(doc, { root, state, data, labels, parts, onLo
         if (map) article.appendChild(map);
         article.appendChild(prose(doc, text.body));
         article.append(el(doc, 'h3', 'af-section', '자주 빗나가는 해석'), el(doc, 'p', 'af-twist', text.twist));
+        const basis = industryBasis(doc, parts.basis?.(domain));
+        if (basis) article.appendChild(basis);
       } else {
         const guide = parts.domainStory(domain);
         if (guide) article.appendChild(guide);
@@ -350,6 +363,8 @@ export function renderIndustryPage(doc, { root, state, data, labels, parts, onLo
     if (deep) article.appendChild(deep);
     const roles = rolesBlock(doc, node, data.registry);
     if (roles) article.appendChild(roles);
+    const basis = industryBasis(doc, parts.basis?.(domain, node));
+    if (basis) article.appendChild(basis);
     main.appendChild(article);
     const relations = parts.relations(node.id);
     if (relations) { const box = block('연결'); box.appendChild(relations); aside.appendChild(box); }

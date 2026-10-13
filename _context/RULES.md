@@ -1,11 +1,23 @@
 ---
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
-last_verified: 2026-10-11
+last_verified: 2026-10-13
 confidence: medium
-target_version: v57.46
+target_version: v57.48
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R705. Retiring a surface retires its writers (v57.47, P1670)
+
+**Rule**: When a page rebuild removes or hides an element, the same change removes the legacy/native code that writes it, the timers, page-bus hooks and event listeners that call that code, and any button or data-action that targets it. Null-guarded writers to absent ids are dead code, not compatibility.
+
+**Validation**: node scripts/ci-architecture-contract-check.mjs (P1670 retired-writer block); dead-id audit: ids looked up by js/ or src/ but created by neither index.html nor any script
+
+## R704. Declared native surfaces must exist (v57.47, P1667)
+
+**Rule**: Every #id in architecture/route-owners.json nativePrimarySurface/nativeSecondarySurface must exist in index.html or be created by src/ (id assignment). A page rebuild that removes or renames a declared element updates the registry in the same change.
+
+**Validation**: node scripts/ci-architecture-contract-check.mjs (surface-exists block); live: node .claude/skills/verify-aio/scripts/verify-aio.mjs registry
 
 ## R703. 작은 UI 조작과 색 테마의 실행 계약 (v57.34, P1604)
 

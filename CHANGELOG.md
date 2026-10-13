@@ -1,3 +1,31 @@
+## v57.48 (2026-10-13)
+- **Benchmark, date and cohort arithmetic (P1675):** portfolio vs SPY/KOSPI selection fixed, mismatched return dates held out of attribution, stale theme members no longer rank, currency check separated from economic FX exposure, small screener cohorts named by count.
+- **AI answer and briefing integrity (P1676):** no more decimal/URL fragments, role words like PM/HW are not tickers, theme context carries all three windows, the briefing AI card shows its generation time and which numbers are closes vs intraday, ledger ids no longer leak, portfolio AI prompts ask about exposure and counter-evidence instead of trades.
+- **One currentness rule across screens (P1677):** theme ranks, '현재 주도', sector rotation in stock/screener/portfolio reads, the validation curve (same model only, pooled sample stated) and the news header follow the same latest-session/model-window rule; the home news empty state speaks plainly.
+- **Honest reading surfaces (P1678):** VaR as a past-sample boundary, conditional deep-dive education, KR chart benchmark label, 13F ledger scope with SEC link, industry document sources, document-first phone reading, stress-outcome horizon on the real session axis, and a radar note when verdict and position disagree.
+- **S&P 500 map (P1679):** finviz-style sector map on 테마 — area = index weight (IVV holdings, refreshed in Actions), colour = 1일/1주/1개월/3개월 return, one reading sentence on breadth vs mega-cap concentration; the partial-data fallback names missing members. The Telegram digest no longer blocks the boot data path.
+- **인계 재검증 보완 (P1680):** 'PM 실적' 같은 실제 종목 질문 인식 복구, 브리핑 정상 괄호어 보존, S&P 500 지도가 시세 갱신마다 다시 그려지며 접힘·선택이 풀리던 문제, verify-aio 자체 검사 실패, 스트레스 표 설명 모순을 고쳤다.
+- R1 7곳 v57.48
+
+## v57.47 (2026-10-12)
+- **더 깊이 보기 (P1660):** 시장 상태 6축과 거시 유동성·성장·원자재 그룹의 접힘 칸을 원리·전문가의 읽는 법·축 사이 연결과 관련 화면 링크로 바꿨다.
+- **과거 결과표 (P1661):** 실패한 시장 점수 대신 1990년 이후 같은 VIX 구간 뒤 S&P 500의 한 달·석 달 실제 결과를 보여준다(주 1회 생성).
+- **QA 시간 단축 (P1662):** 가장 긴 브라우저 검사를 병렬화해 148초에서 64초로 줄였다.
+- **깊이 보기 확장·QA 효율 (P1663):** 투자 심리·시장 폭 화면에도 원리·읽는 법 접힘을 붙이고, 로컬 QA 동시성을 올려 일괄 1회 실행으로 바꿨다.
+- **QA·CI 실행 시간 단축 (P1664):** 화면 파일 변경이 관련 없는 지식 화면·Worker 검사까지 끌어오지 않게 하고, 화면 크기 검사를 동시 실행으로 바꿨으며, CI 브라우저 검사가 계약 검사를 기다리지 않게 했다. 거시 화면 축 카드도 깊이 보기 형식으로 바꿨다.
+- **감시 자기 고착·갱신 토큰 미적용 수정 (P1665):** 데이터 감시가 자기 직전 실패 때문에 계속 실패하던 문제와, 30분 갱신 호출 토큰이 Worker에 실리지 않던 문제를 고쳤다(push 후 적용).
+- **갱신 잠금 분리·감시 빈도 보강 (P1666):** 데이터 갱신이 배포 대기 중에도 다음 갱신을 막던 구조를 나누고, 데이터 감시가 Pages 배포 때마다 돌도록 했다(push 후 적용).
+- **Verification skills (owner request 2026-10-13):** saved cursor/plugins pstack create-verification-skill and maintain-verification-skill (AIO-adapted), generated `verify-aio` (launch/doctor/check/drive/registry/cleanup, 11-feature map, one driver module per map file); full maintain pass with 10 source readers + live desktop/phone pass 11/11.
+- **Registry drift (P1667/R704):** route-owners.json declared 35 surfaces removed by page rebuilds on 6 routes; registry corrected to the rendered elements, LC-07 repointed, and a surface-exists gate added.
+- **Boot fetch cost (P1668):** concurrent screener syncs share one in-flight artifact fetch, and the 0.6MB SEC fundamentals projection loads only when 종목/재무 공시 is shown (or deep-linked) instead of at every boot.
+- **Chat chart card (P1669):** 차트 자세히 보기 now opens the visible stock chart on the card's ticker through the shared technical bridge instead of filling the hidden legacy deep-analysis input.
+- **Dead legacy writers (P1670/R705):** about 1,600 lines that wrote to removed elements were retired with their call sites and timers (signal dashboard gauge/bars/advice, briefing analysis, freshness panel and its no-op button, G×L frame, refreshSignal 45s+5s timers, rally verdict, ghost price alerts, technical candle writers on both sides); gates now assert their absence.
+- **KR supply plane retired (P1671/R705):** the hidden 국내 수급 and investor-flow chains (about 620 lines), their scheduler entry, retry timers, audit and health input are gone; KR macro/technical folds render only in developer mode, so 거시 and 차트 no longer fan out Naver flow and candle requests for every visitor.
+- **Gate-pinned dead writers (P1672/R705):** six legacy writers (entry checklist, breadth consensus/readout, dynamic briefing, official future calendar, S/R levels) plus the dead risk-card, news sentiment and theme-strength writes are retired; the gates that pinned them now assert their absence.
+- **Empty-state causes (P1673):** the screener says its rows are held because indicators are older than the latest session instead of 조건에 맞는 종목이 없습니다, and 오늘 shows 0개 소스 instead of a permanent 소스 확인 중.
+- **Research library shelf (P1674):** every document is now a spine on a real shelf — collection chips, topic/title/unread sort, tooltip, read ribbon, a book card with 읽기 and AI에게 이 글 묻기, and 선택한 문장 AI에게 묻기 in the reader (both only fill the AI panel). 2026-10-13 owner X packet recorded with a per-source disposition; REA reverse engineering stays blocked.
+- R1 7곳 v57.47
+
 ## v57.46 (2026-10-12)
 - **개인 검색 경로 삭제 (P1655):** 브라우저 Google/Perplexity 검색과 키 입력란을 없애고, 현재성 질문은 공용 AI 웹검색 하나로만 확인한다.
 - **종가 근거 보존 (P1656):** 일봉 보충이 최근 정규장 종가 기록을 덮어써 시장 환경 점수가 보류되던 문제와, VIX 장전 시세가 종가로 기록되던 문제를 고쳤다.

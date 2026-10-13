@@ -1,0 +1,98 @@
+{
+  "feature": "learn",
+  "title": "리서치 라이브러리 (탭별 제목 · 통합 검색 · 목차 문서 열기)",
+  "viewport": "desktop",
+  "ok": true,
+  "url": "http://127.0.0.1:8792",
+  "version": "v57.47",
+  "finishedAt": "2026-10-13T01:59:39.650Z",
+  "steps": [
+    {
+      "step": "nav 리서치 라이브러리",
+      "ok": true,
+      "ms": 4969,
+      "observed": {
+        "activePage": "page-principles",
+        "hash": "#principles",
+        "tabs": [
+          "개념·분석 프레임",
+          "산업·밸류체인",
+          "운용사·13F"
+        ]
+      }
+    },
+    {
+      "step": "허브 탭 3개",
+      "ok": true,
+      "ms": 5,
+      "observed": {
+        "tabs": [
+          "개념·분석 프레임",
+          "산업·밸류체인",
+          "운용사·13F"
+        ]
+      }
+    },
+    {
+      "step": "개념·분석 프레임 제목 + 서가",
+      "ok": true,
+      "ms": 7,
+      "observed": {
+        ".rl-shell[data-research-page=\"principles\"] h1.rl-title": "개념·분석 프레임",
+        "#page-principles .rl-shelf > summary": "서가\n394편 · 7개 컬렉션 · 82개 주제\n접기"
+      }
+    },
+    {
+      "step": "통합 검색 ROIC → 결과",
+      "ok": true,
+      "ms": 168,
+      "observed": {
+        "#page-principles .rl-result[data-research-result]": 12
+      }
+    },
+    {
+      "step": "목차 항목 열기 → 활성 표시 + 본문 변경",
+      "ok": true,
+      "ms": 126,
+      "observed": {
+        "opened": "명목·실질·상대 성과의 구분",
+        "docTitle": null
+      }
+    },
+    {
+      "step": "서가 칩 칼럼 → 책등 → 상세 카드 → 읽기",
+      "ok": true,
+      "ms": 222,
+      "observed": {
+        "columns": 12,
+        "opened": "기업은 자본을 투입해 현금흐름을 만드는 기계다",
+        "search": "?mode=story&chapter=company-economic-machine"
+      }
+    },
+    {
+      "step": "탭 산업·밸류체인",
+      "ok": true,
+      "ms": 345,
+      "observed": {
+        "activePage": "page-atlas",
+        "hash": "#atlas",
+        ".rl-shell[data-research-page=\"atlas\"] h1.rl-title": "산업·밸류체인"
+      }
+    },
+    {
+      "step": "탭 운용사·13F + 운용사 목차",
+      "ok": true,
+      "ms": 407,
+      "observed": {
+        "activePage": "page-masters",
+        "hash": "#masters",
+        ".rl-shell[data-research-page=\"masters\"] h1.rl-title": "운용사·13F",
+        "#page-masters .rl-nav-item[data-masters-action]": 41
+      }
+    }
+  ],
+  "pageErrors": [],
+  "unexpectedConsoleErrors": [],
+  "networkNoiseCount": 28,
+  "failedLocalRequests": []
+}

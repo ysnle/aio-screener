@@ -24,8 +24,6 @@
     "pc-score-big",
     "ticker-hero-name",
     "theme-detail-panel",
-    "tech-candle-chart",
-    "tech-candle-volume",
     "pf-position-donut",
     "sector-perf-bars",
     "aio-chart-cdn",
@@ -97,10 +95,15 @@
       "nativeModule": "src/ui/pages/analysis.js (createAnalysisPage route=signal)",
       "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
-        "#page-signal #score-gauge-val",
-        "#page-signal #score-decision-badge",
-        "#page-signal #score-decision-sub",
-        "#page-signal #score-adjustments-container"
+        "#page-signal #regime-overall",
+        "#page-signal #regime-basis",
+        "#page-signal #regime-headline",
+        "#page-signal #regime-board"
+      ],
+      "nativeSecondarySurface": [
+        "#page-signal #regime-counts",
+        "#page-signal #regime-conflicts",
+        "#page-signal #regime-board-kr"
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
@@ -108,7 +111,8 @@
         "index.html:renderScoreBars owns score-bars-container only; score-adjustments-container has no legacy writer"
       ],
       "p786Boundary": "analysis.js owns the score display, five-tier decision text, and the post-composite adjustment rows from trading-score.v3/signal-presentation.v1. Score timestamp, canvas, factor bars, execution window, risk monitor, and narrative remain legacy secondary boundaries.",
-      "notes": "The signal hero is native; legacy refreshSignalDashboard remains responsible for secondary signal widgets and is explicitly fenced from the three primary decision sinks. P1118 adds #score-adjustments-container to the native set so the factor bars and the total reconcile on screen. Home summary has separate ownership and is not remapped by this packet."
+      "notes": "The signal hero is native; legacy refreshSignalDashboard remains responsible for secondary signal widgets and is explicitly fenced from the three primary decision sinks. P1118 adds #score-adjustments-container to the native set so the factor bars and the total reconcile on screen. Home summary has separate ownership and is not remapped by this packet.",
+      "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM."
     },
     "breadth": {
       "lifecycleOwner": "native",
@@ -119,22 +123,13 @@
       "nativeModule": "src/ui/pages/market.js (createMarketSlicePage route=breadth)",
       "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
-        "#page-breadth [data-snap=\"breadth-5sma\"]",
-        "#page-breadth [data-snap=\"breadth-20sma\"]",
-        "#page-breadth [data-snap=\"breadth-50sma\"]",
-        "#breadth-advance-ratio"
+        "#page-breadth #breadth-state",
+        "#page-breadth #breadth-read",
+        "#page-breadth #breadth-flip"
       ],
       "nativeSecondarySurface": [
-        "#page-breadth #breadth-signal-val",
-        "#page-breadth #breadth-diag-signal",
-        "#page-breadth #breadth-diag-text",
-        "#page-breadth #breadth-stage-summary",
-        "#page-breadth #breadth-mcclellan-summary",
-        "#page-breadth #bp-price-chart",
-        "#page-breadth #bp-ad-ratio-chart",
-        "#page-breadth #bp-5ma-chart",
-        "#page-breadth #bp-20ma-chart",
-        "#page-breadth #bp-50ma-chart"
+        "#page-breadth #breadth-basis",
+        "#page-breadth #breadth-chart-grid"
       ],
       "p773Boundary": "market.js owns the three current 5/20/50SMA breadth cards, their bar/freshness readouts, and canonical advance ratio; stage/diagnostic/McClellan/RSP-SPY narrative plus historical chart canvases remain legacy secondary boundaries.",
       "p803Boundary": "market.js owns the bounded breadth signal label from the normalized advance ratio with an explicit fail-closed state; the legacy RSP/SPY signal writer is fenced from this element.",
@@ -144,7 +139,8 @@
         "js/aio-ui.js: updateBreadthBars/initBreadthPage primary card, stage, McClellan, and chart fallback writers fence native breadth elements",
         "js/aio-data.js: updateBreadthUI breadth-advance-ratio writer fences native breadth element; its RSP/SPY breadth-signal writer is fenced by aioBreadthSignalRenderer"
       ],
-      "notes": "P803 extends P773 to the bounded breadth signal label, P819 adds the current-evidence diagnostic signal/text, and P827 transfers stage/McClellan status plus five chart lifecycles. market.js reads the native screener artifact metadata first and retains the legacy breadth evidence helper as a compatibility fallback. Missing multi-day breadth history remains blocked; no synthetic breadth series is promoted."
+      "notes": "P803 extends P773 to the bounded breadth signal label, P819 adds the current-evidence diagnostic signal/text, and P827 transfers stage/McClellan status plus five chart lifecycles. market.js reads the native screener artifact metadata first and retains the legacy breadth evidence helper as a compatibility fallback. Missing multi-day breadth history remains blocked; no synthetic breadth series is promoted.",
+      "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM."
     },
     "sentiment": {
       "lifecycleOwner": "native",
@@ -183,21 +179,14 @@
       "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
         "#page-technical #tech-health-pill",
-        "#page-technical #health-score-display",
-        "#page-technical #health-grade-display",
-        "#page-technical #health-regime-display",
-        "#page-technical #hc-spy-bar",
-        "#page-technical #hc-qqq-bar",
-        "#page-technical #hc-vix-bar",
+        "#page-technical #tech-regime-overall",
+        "#page-technical #tech-regime-basis",
+        "#page-technical #tech-regime-chips",
         "#page-technical #ind-pressure-fill",
         "#page-technical #ind-buyrisk-fill",
-        "#page-technical #ind-trend-fill",
-        "#page-technical #health-interpretation"
+        "#page-technical #ind-trend-fill"
       ],
-      "nativeSecondarySurface": [
-        "#page-technical #tech-candle-title",
-        "#page-technical #tech-candle-meta"
-      ],
+      "nativeSecondarySurface": [],
       "contestedIds": [],
       "legacyWriterEvidence": [
         "index.html: computeMarketHealth compatibility wrapper and js/aio-core.js:_initTechnicalPage remain fallback writers, both fenced when #page-technical[data-aio-technical-renderer=\"native\"] is active",
@@ -206,7 +195,8 @@
       "p785Boundary": "analysis.js owns the market-health score/grade/regime, three health bars, three indicator strips, status pill, and interpretation from the canonical market-health.v1 model. Candlestick chart, RSI/MACD, Weinstein/MTF, and technical narrative remain legacy secondary boundaries.",
       "p822Boundary": "analysis.js owns the technical candle title/meta text from normalized analysis input with a fail-closed waiting state; the legacy chart keeps canvas lifecycle and indicator math but no longer writes these two text sinks.",
       "p833Boundary": "analysis.js owns the technical OHLCV and volume canvas lifecycles from normalized analysis. The legacy loadTechCandleChart action is fenced while the native technical chart marker is mounted; missing history remains visibly unavailable.",
-      "notes": "The technical primary health surface and candle title/meta are native; compatibility writers remain only for legacy fallback and are explicitly fenced or deleted. (A06 2026-10-12) The candlestick and volume charts are native (analysis.js / stock-chart.js, chartOwner=native); the legacy loadTechCandleChart is fenced by the mounted native chart. Shares analysis.js with home/signal."
+      "notes": "The technical primary health surface and candle title/meta are native; compatibility writers remain only for legacy fallback and are explicitly fenced or deleted. (A06 2026-10-12) The candlestick and volume charts are native (analysis.js / stock-chart.js, chartOwner=native); the legacy loadTechCandleChart is fenced by the mounted native chart. Shares analysis.js with home/signal.",
+      "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM."
     },
     "macro": {
       "lifecycleOwner": "native",
@@ -220,19 +210,20 @@
         "#page-macro #macro-board",
         "#page-macro [data-live-price]",
         "#page-macro [data-live-chg]",
-        "#page-macro #macro-transmission-lens"
+        "#page-macro #macro-regime"
       ],
       "nativeSecondarySurface": [
         "#page-macro #macro-board-basis",
         "#page-macro #macro-next-release",
-        "#page-macro #kr-integrated-macro [data-snap] metrics"
+        "#page-macro #macro-axes"
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
         "js/aio-data.js: shared live quote/snapshot passes fence native macro elements (WTI/Gold cells and the KR section)"
       ],
       "notes": "P1425 (owner review 2026-10-03) rebuilt 거시 경제 as one native board; rates/FX/credit moved to the 금리 · 환율 tab.",
-      "p1425Boundary": "macro-board.js renders the official monthly releases (policy rate, inflation, labor, consumption/housing) from the published data.json macro block with reference month, release date, next release and source. The legacy storyline, regime pill, thermometer, scenario tree, economic calendar, yield-curve canvas and FRED browser charts were deleted with their DOM."
+      "p1425Boundary": "macro-board.js renders the official monthly releases (policy rate, inflation, labor, consumption/housing) from the published data.json macro block with reference month, release date, next release and source. The legacy storyline, regime pill, thermometer, scenario tree, economic calendar, yield-curve canvas and FRED browser charts were deleted with their DOM.",
+      "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM."
     },
     "fxbond": {
       "lifecycleOwner": "native",
@@ -414,17 +405,11 @@
       ],
       "nativeSecondarySurface": [
         "#page-ticker #ticker-candle-symbol",
-        "#page-ticker #ticker-entry-symbol",
         "#page-ticker #ticker-hero-ext",
         "#page-ticker #ticker-hero-pnl",
         "#page-ticker #ticker-hero-value",
         "#page-ticker #ticker-back-btn-main",
         "#page-ticker #ticker-breadcrumb-main",
-        "#page-ticker #ticker-fundamental-link",
-        "#page-ticker #ticker-tab-overview",
-        "#page-ticker #ticker-tab-chart",
-        "#page-ticker #tab-overview",
-        "#page-ticker #tab-chart",
         "#page-ticker #ticker-chart-period-tabs",
         "#page-ticker #ticker-chart-meta",
         "#page-ticker #ticker-price-chart"
@@ -436,7 +421,8 @@
       ],
       "p777Boundary": "entity.js owns the ticker hero identity/name/price/change primary surface from the normalized entity state.",
       "p817Boundary": "entity.js owns the bounded candle/entry symbol labels from normalized entity id; P829 also owns the after-hours and portfolio P&L hero sinks with fail-closed output when quote or position evidence is missing.",
-      "p834Boundary": "LC-18/LC-27: entity.js owns ticker tab/panel visibility, keyboard tab navigation, 1M/3M/6M/1Y calendar windows, chart canvas lifecycle, and observed row/date metadata from normalized entity history; legacy switchTab/loadTickerChart/Stooq ticker helpers are retired."
+      "p834Boundary": "LC-18/LC-27: entity.js owns ticker tab/panel visibility, keyboard tab navigation, 1M/3M/6M/1Y calendar windows, chart canvas lifecycle, and observed row/date metadata from normalized entity history; legacy switchTab/loadTickerChart/Stooq ticker helpers are retired.",
+      "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM."
     },
     "market-news": {
       "lifecycleOwner": "native",
@@ -447,12 +433,10 @@
       "nativeModule": "src/ui/pages/news.js (createNewsPage route=market-news)",
       "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
-        "#page-market-news #news-sent-score",
-        "#page-market-news #news-sent-label",
+        "#page-market-news #news-window-label",
         "#page-market-news #news-24h-count",
         "#page-market-news #news-24h-sources",
-        "#page-market-news #news-risk-count",
-        "#page-market-news #news-risk-label",
+        "#page-market-news #market-news-count",
         "#page-market-news #last-fetch-time"
       ],
       "contestedIds": [],
@@ -462,7 +446,8 @@
       ],
       "p1209Boundary": "news.js renders normalized display text through text nodes after one bounded entity decode; URLs are excluded and hostile markup remains inert text.",
       "p1268Boundary": "news.js owns the market-news sentiment score/label, 08:00 KST cycle count/current-filter source count, risk-signal count/copy, and cut status from one normalized model. scoring.js excludes headline-only or unverified rows from article-level sentiment/risk; feed-query topics are not used for topic-specific risk signals until reviewed. Legacy summary calls retain compatibility return values without writing these sinks.",
-      "notes": "P769/P770/P1209/P1268: native news.js owns the primary live-news-feed, briefing-live-news-list, and market-news summary DOM from canonical news state. The registered-source count remains the stable registry total; filtered source counts are shown only in the 24h summary. Legacy RSS/filter/translation/model handlers remain compatibility producers; the secondary Korean rewrite, briefing digest/AI narrative, and data pipeline remain legacy-owned for the next content packet."
+      "notes": "P769/P770/P1209/P1268: native news.js owns the primary live-news-feed, briefing-live-news-list, and market-news summary DOM from canonical news state. The registered-source count remains the stable registry total; filtered source counts are shown only in the 24h summary. Legacy RSS/filter/translation/model handlers remain compatibility producers; the secondary Korean rewrite, briefing digest/AI narrative, and data pipeline remain legacy-owned for the next content packet.",
+      "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM."
     },
     "principles": {
       "lifecycleOwner": "native",

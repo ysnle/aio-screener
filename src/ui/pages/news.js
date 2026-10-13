@@ -56,17 +56,9 @@ function renderNewsSummary(documentRef, root, model, status) {
     if (node) node.textContent = value == null || value === '' ? fallback : String(value);
   };
   set('news-24h-count', model?.eligibleCount ?? summary.itemCount, '0');
-  set('news-24h-sources', summary.sourceCount ? `${summary.sourceCount}개 소스` : '소스 확인 중');
-  set('news-sent-score', summary.score);
-  set('news-sent-label', summary.label);
-  const riskCopy = summary.riskSignals.map((signal) => signal.label);
-  if (summary.pendingCount > 0) riskCopy.push(`본문/검증 필요 ${summary.pendingCount}건`);
-  set('news-risk-count', summary.riskSignals.length, '0');
-  set('news-risk-label', riskCopy.length
-    ? riskCopy.join(' · ')
-    : (summary.analyzedCount > 0 && !summary.sampleSufficient
-      ? '표본 부족'
-      : (summary.analyzedCount > 0 ? '식별된 위험 신호 없음' : '분석 보류')));
+  // P1673: once the news model has loaded, zero sources is a result, not a check still in progress.
+  set('news-24h-sources', summary.sourceCount ? `${summary.sourceCount}개 소스` : (model ? '0개 소스' : '소스 확인 중'));
+  // P1672: the keyword sentiment/risk strip left with P1391, so no news sentiment score is shown at all.
   let cut = null;
   try { cut = root?.AIO?.getSharedMarketCut?.() || null; } catch (_) {}
   const generatedAt = root?._serverDataMeta?.generatedAt || null;
@@ -78,10 +70,17 @@ function renderNewsSummary(documentRef, root, model, status) {
   const fmt = (ms) => new Date(ms).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
   // P1591 (E03): when the published cycle is older than today's 08:00 window, the header names the cycle the
   // articles actually come from instead of the wall-clock window they do not fill.
-  const cycleStart = Date.parse(root?._serverDataMeta?.newsCycleStart || '');
-  const cycleEnd = Date.parse(root?._serverDataMeta?.newsCycleEnd || '');
+  // X21 (2026-10-13): the list is filtered by the model's own window (the published cycle when it is admissible,
+  // otherwise the latest completed 08:00 window). The header used the server cycle even when the model had fallen
+  // back, so it named 10/11~10/12 above 10/12 23:00 articles. Name the window the list actually used.
+  const modelStart = Date.parse(model?.newsCycle?.start || '');
+  const modelEnd = Date.parse(model?.newsCycle?.end || '');
+  const hasModelWindow = Number.isFinite(modelStart) && Number.isFinite(modelEnd) && modelEnd > modelStart;
+  const cycleStart = hasModelWindow ? modelStart : Date.parse(root?._serverDataMeta?.newsCycleStart || '');
+  const cycleEnd = hasModelWindow ? modelEnd : Date.parse(root?._serverDataMeta?.newsCycleEnd || '');
   const olderCycle = Number.isFinite(cycleEnd) && newsWindow.end != null && cycleEnd < newsWindow.end - 60000;
   if (olderCycle && Number.isFinite(cycleStart)) set('news-window-label', `직전 수집본 · ${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사 — 이번 ${fmt(newsWindow.end)} 수집본은 아직 없습니다`);
+  else if (hasModelWindow) set('news-window-label', `오늘의 중요 뉴스와 전체 뉴스 · ${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사`);
   else if (newsWindow.start != null) set('news-window-label', `오늘의 중요 뉴스와 전체 뉴스 · ${fmt(newsWindow.start)} ~ ${fmt(newsWindow.end)} KST 기사`);
   const importantNote = documentRef?.querySelector('#news-important-title .briefing-h2-note');
   if (importantNote) importantNote.textContent = `주제별 핵심 · ${fmt(olderCycle ? cycleEnd : newsWindow.end)} KST까지 24시간`;

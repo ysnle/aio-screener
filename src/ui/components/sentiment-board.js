@@ -5,6 +5,8 @@
 // P1399 (Codex review 2026-10-03): each card carries one basis chip (its own observation date
 // against the S&P 500 close basis); an input that is stale or ahead of the basis is shown but
 // excluded from the state and the synthesis, and a missing input never reads as calm or stress.
+import { deepDiveFold } from './deep-dive.js';
+import { SENTIMENT_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { alignInput, alignMarketInputs, alignmentLabel, buildCloseSeries, isUsable } from '../../domain/briefing/market-read.js';
 import { collectMarketInputs } from './briefing-read.js';
 import { createTrendChart, seriesChange } from './trend-chart.js';
@@ -179,6 +181,8 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
       if (card.change) box.append(el(doc, 'div', card.change, 'trend-card-change'));
       if (card.series) box.append(createTrendChart(doc, { series: card.series, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }));
       box.append(el(doc, 'p', card.note, 'trend-card-note'));
+      const fold = deepDiveFold(doc, root, card.title.replace(/ \(.*\)$/, ''), SENTIMENT_DEEP_DIVES[card.id]); // P1660
+      if (fold) box.append(fold);
       return box;
     }));
   }

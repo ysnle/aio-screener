@@ -1799,8 +1799,9 @@
       !gex && !document.getElementById('page-options'),
       gex ? 'use=' + gex.getAttribute('data-operational-use') : 'gex-removed');
 
+    // P1671: the KR supply fetch and its runtime audit were retired (no rendered or AI consumer).
     _assert('T383_kr_supply_evidence_runtime_audit',
-      window.AIO && typeof window.AIO.getKrSupplyRuntimeAudit === 'function' && 'evidenceAvailable' in window.AIO.getKrSupplyRuntimeAudit(),
+      window.AIO && typeof window.AIO.getKrSupplyRuntimeAudit === 'undefined' && typeof fetchKrSupplyData === 'undefined',
       'audit=' + (window.AIO && typeof window.AIO.getKrSupplyRuntimeAudit));
 
     var fetchProxySrc383 = (typeof fetchViaProxy === 'function') ? fetchViaProxy.toString() : '';
@@ -1810,12 +1811,12 @@
 
     var krDynamicSrc383 = (typeof fetchKrDynamicData === 'function') ? fetchKrDynamicData.toString() : '';
     _assert('T863_kr_retired_investor_fanout_not_scheduled',
-      typeof _showKrSupplyFailureState === 'function' && /_krCurrentSupplyEvidence\s*=\s*null/.test(_showKrSupplyFailureState.toString()) && !/fetchKrInvestorTop10/.test(krDynamicSrc383),
+      typeof fetchKrInvestorTop10 === 'undefined' && !/fetchKrInvestorTop10/.test(krDynamicSrc383),
       'dynamic=' + krDynamicSrc383.slice(0, 180));
 
     var ops = _getFullAutoOpsAudit();
     _assert('T384_autoops_contract_and_kr_runtime_axes',
-      ops && ops.operationalDataContract && ops.krSupplyRuntime && ops.commands && ops.commands.operationalDataContract && ops.commands.krSupplyRuntime,
+      ops && ops.operationalDataContract && !ops.krSupplyRuntime && ops.commands && ops.commands.operationalDataContract && !ops.commands.krSupplyRuntime,
       ops ? JSON.stringify(ops.commands) : 'missing');
 
     _assert('T385_market_currentness_audit_available',
@@ -2711,10 +2712,13 @@
         newsCache = [{ title: 'Morgan Stanley raises its price target', desc: 'MS upgraded the bank', tickers: ['MS'], source: 'fixture', pubDate: new Date().toISOString() }];
         try { msNews1550 = _aioTickerNewsFromCache('MSFT'); } finally { newsCache = prevCache1550; }
       }
-      attr1550 = { modelNoDell: !!kr1550 && kr1550[0].indexOf('DELL') < 0 && kr1550[0].indexOf('META') < 0, dellAlone: !!kr1550 && kr1550[1].indexOf('DELL') >= 0, acronyms: !!acr1550 && acr1550.length === 0, msNotMsft: msNews1550 === '', ranNews: cacheEmpty1550 && msNews1550 !== null };
+      // P1680: role words stay out ("멀티에셋 PM 관점", "서버/HW"), but a real symbol asked about as a company resolves ("PM 실적").
+      var role1680 = typeof _extractTickers === 'function' ? [_extractTickers('멀티에셋 PM 관점에서 서버/HW 비중 분석'), _extractTickers('PM 실적 어때?'), _extractTickers('IR 주가 전망')] : null;
+      attr1550 = { modelNoDell: !!kr1550 && kr1550[0].indexOf('DELL') < 0 && kr1550[0].indexOf('META') < 0, dellAlone: !!kr1550 && kr1550[1].indexOf('DELL') >= 0, acronyms: !!acr1550 && acr1550.length === 0, msNotMsft: msNews1550 === '', ranNews: cacheEmpty1550 && msNews1550 !== null,
+        roleWordsOut: !!role1680 && role1680[0].length === 0, companyIntentIn: !!role1680 && role1680[1][0] === 'PM' && role1680[2][0] === 'IR' };
     } catch (e1550) { attr1550 = { error: String(e1550 && e1550.message || e1550) }; }
-    _assert('T535c ticker_attribution_no_substring_or_alias_leak (P1550): "모델/메타버스" are not DELL/META, "델이" is DELL, SEC/FED/USD/WTI/CEO are not tickers, a Morgan Stanley item is not MSFT news',
-      !!attr1550 && attr1550.modelNoDell === true && attr1550.dellAlone === true && attr1550.acronyms === true && attr1550.msNotMsft === true && attr1550.ranNews === true, JSON.stringify(attr1550));
+    _assert('T535c ticker_attribution_no_substring_or_alias_leak (P1550/P1680): "모델/메타버스" are not DELL/META, "델이" is DELL, SEC/FED/USD/WTI/CEO are not tickers, a Morgan Stanley item is not MSFT news, role words are not tickers but "PM 실적" is PM',
+      !!attr1550 && attr1550.modelNoDell === true && attr1550.dellAlone === true && attr1550.acronyms === true && attr1550.msNotMsft === true && attr1550.ranNews === true && attr1550.roleWordsOut === true && attr1550.companyIntentIn === true, JSON.stringify(attr1550));
 
     // T536: chatSend 통합 — 5 신규 함수 모두 호출 (followUp/autoNav/pfSim/macroSim/fuzzyResolve)
     var csSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
@@ -5212,40 +5216,11 @@
 
     // T1207 / QA-SIG-27 (P1263): 체크리스트 3상 집계는 모드 독립이고, 집계 결과가 자기 모드
     // revision·decisionThreshold를 실어 간다. 보고되지 않은 조건은 대기로 집계된다.
-    var summarizeT1207 = window._sigSummarizeEntryChecklist;
-    var statesT1207 = [{ ok: true }, { ok: true }, { ok: false }, { ok: null }, {}];
-    var swingT1207 = typeof summarizeT1207 === 'function' ? summarizeT1207(statesT1207, 'swing') : null;
-    var dayT1207 = typeof summarizeT1207 === 'function' ? summarizeT1207(statesT1207, 'day') : null;
-    _assert('T1207 checklist_three_state_and_revision_binding: 3상 집계·모드 revision 결속·모드 독립',
-      !!swingT1207 && swingT1207.passed === 2 && swingT1207.failed === 1 && swingT1207.pending === 2
-      && swingT1207.modeRevision === 'signal-score-mode.swing' && swingT1207.decisionThreshold === null
-      && !!dayT1207 && dayT1207.passed === swingT1207.passed && dayT1207.failed === swingT1207.failed
-      && dayT1207.pending === swingT1207.pending && dayT1207.label === swingT1207.label
-      && dayT1207.modeRevision === 'signal-score-mode.day' && dayT1207.decisionThreshold === null,
-      JSON.stringify({ swing: swingT1207, day: dayT1207 }));
-
-    var liveOldT1207 = window._liveData;
-    var snapOldT1207 = window.DATA_SNAPSHOT;
-    var healthOldT1207 = window.computeMarketHealth;
-    var sumT1207 = document.getElementById('entry-check-summary');
-    try {
-      window._liveData = {};
-      window.DATA_SNAPSHOT = {};
-      window.computeMarketHealth = function() { return null; };
-      updateEntryChecklist();
-      var revisionT1207 = sumT1207 ? (sumT1207.dataset.modeRevision || '') : '';
-      _assert('T1207 checklist_unreported_inputs_pending: 미보고 입력은 통과 0 · 미충족 0 · 대기 5로 집계된다',
-        !sumT1207 /* P1392: checklist retired with the score */ || /통과 0 · 미충족 0 · 대기 5/.test(sumT1207.textContent || '')
-        && /일부 조건 미수신/.test(sumT1207.textContent || '')
-        && /^signal-score-mode\.(swing|day)$/.test(revisionT1207)
-        && (sumT1207.dataset.decisionThreshold || '') === 'null',
-        JSON.stringify({ text: sumT1207 && sumT1207.textContent, revision: revisionT1207, threshold: sumT1207 && sumT1207.dataset.decisionThreshold }));
-    } finally {
-      window._liveData = liveOldT1207;
-      window.DATA_SNAPSHOT = snapOldT1207;
-      window.computeMarketHealth = healthOldT1207;
-      try { updateEntryChecklist(); } catch (_) {}
-    }
+    // P1672: the checklist writer and its window bridge were retired with the ec-* sinks; the domain
+    // summary is covered by ci-esm-core-unit-check.
+    _assert('T1207 checklist_three_state_and_revision_binding: 퇴역한 체크리스트 셸 브리지가 남아 있지 않음',
+      typeof window._sigSummarizeEntryChecklist === 'undefined' && typeof updateEntryChecklist === 'undefined',
+      'bridge=' + typeof window._sigSummarizeEntryChecklist);
 
     // T186: briefing "Week of May 4-10" section has data-aio-archive
     var briefingEls = document.querySelectorAll('#page-briefing [data-aio-archive="true"]');
@@ -5610,7 +5585,7 @@
       var reg769 = window.AIO_PAGE_NARRATIVE_RENDERERS;
       var regPages = reg769 ? Object.keys(reg769) : [];
       var hasCore = ['signal','breadth','themes','sentiment'].every(function(p){ return typeof reg769[p] === 'function'; }) && typeof reg769.macro === 'undefined'; // P1425
-      var namedOk = typeof window._aioRenderBreadthConsensus === 'function'
+      var namedOk = typeof window._aioRenderBreadthConsensus === 'undefined' // P1672: sinks retired
         && typeof window._aioRenderOptionsRec === 'undefined'
         && typeof window._aioRenderThemesCycle === 'function'
         && typeof window._aioRenderBriefingAction === 'function';
@@ -6379,11 +6354,11 @@
       // A1: 정본 full 객체 + breadthScore가 .consensus(수치)로 채워짐(이전 .score=undefined 버그 시정)
       var fullOk = !!(ms817 && ms817.breadthConsensusFull && ms817.breadthConsensusFull.verdict && ms817.cycleFull && ms817.cycleFull.phase && typeof ms817.breadthScore === 'number');
       // A2: 페이지 렌더러 4종이 marketState 우선 분기를 갖는지(소스 회귀 가드)
-      var renderers = ['_aioRenderBreadthConsensus','_aioRenderThemesCycle','_aioRenderBriefingAction'];
+      var renderers = ['_aioRenderThemesCycle','_aioRenderBriefingAction']; // P1672: breadth consensus renderer retired with its sinks
       var consumerOk = renderers.every(function(fn){ return typeof window[fn] === 'function' && /marketState/.test(window[fn].toString()); });
       // A2 실재 정합: breadth 렌더러 실행 후 verdict sink가 marketState verdict와 일치
       var breadthMatch = false;
-      try { window._aioRenderBreadthConsensus(); var bv = document.getElementById('breadth-consensus-verdict'); breadthMatch = !bv /* P1392: sink retired */ || !!(ms817.breadthConsensusFull && bv.textContent.indexOf(ms817.breadthConsensusFull.verdict) >= 0); } catch(_) {}
+      try { var bv = document.getElementById('breadth-consensus-verdict'); breadthMatch = !bv && typeof window._aioRenderBreadthConsensus === 'undefined'; /* P1392/P1672: sink and renderer retired */ } catch(_) {}
       // Track B: canonical evidence store 경로만 유지하고 폐기 구현은 제거한다.
       var canonFn = window.AIO && window.AIO.getCritical10ContentEvidenceMatrix;
       var dedupOk = !!(canonFn && /buildEvidenceStore/.test(canonFn.toString()) && typeof window.AIO._deadV49112_getCritical10ContentEvidenceMatrix === 'undefined');
@@ -7719,12 +7694,11 @@
 
     // T880 (EF-07→v53.7 P725): kr-home 수급 카드 퇴역 — 실패 상태 헬퍼가 잔존해도 예외 없이 no-op이어야 함
     try {
+      // P1671: the failure helper left with the KR supply fetch.
       var fn880 = window._showKrSupplyFailureState || (typeof _showKrSupplyFailureState === 'function' ? _showKrSupplyFailureState : null);
-      var threw880 = false;
-      if (fn880) { try { fn880('test-simulated-failure'); } catch(_e880) { threw880 = true; } }
-      _assert('T880 kr_home_supply_failure_helper_safe_after_retirement (v53.7 P725): 퇴역한 kr-home DOM 없이도 실패 헬퍼가 예외 없이 동작',
-        !threw880 && !document.getElementById('kr-home-kospi-supply'),
-        'threw=' + threw880);
+      _assert('T880 kr_home_supply_failure_helper_safe_after_retirement (v53.7 P725): 퇴역한 kr-home 수급 DOM과 실패 헬퍼가 모두 남아 있지 않음',
+        !fn880 && !document.getElementById('kr-home-kospi-supply'),
+        'helper=' + typeof fn880);
     } catch (e880) { _assert('T880 kr_home_supply_failure_helper_safe_after_retirement (v53.7 P725)', false, 'threw: ' + (e880 && e880.message)); }
 
     // T881 (EF-14): 비-라틴/비-한글 소스명(키릴 등)은 일반 라벨로, 영어/한국어 소스명은 그대로
@@ -7799,24 +7773,10 @@
         hasFutures885 && okRender885, 'hasFutures=' + hasFutures885 + ' ' + renderDetail885);
     } catch (e885) { _assert('T885 gmo_futures_rows_v5243 (EF-17)', false, 'threw: ' + (e885 && e885.message)); }
 
-    // T886 (EF-18): kr-supply fetch가 실제 살아있는 /trend 경로를 쓰고, 응답 변환이 Buy-Sell=순매수를 보존하는지
-    try {
-      // .toString()엔 설명 주석(경로 변경 이력 설명)이 포함돼 "/investorTrend" 문자열 자체는 남아있을 수 있음 —
-      // 실제 URL 대입문(kospiUrl = '...')이 /trend로 끝나는지를 구체적으로 확인(주석이 아닌 코드 검사).
-      var fnSrc886 = typeof fetchKrSupplyData === 'function' ? fetchKrSupplyData.toString() : '';
-      var usesTrendPath886 = /kospiUrl\s*=\s*'https:\/\/m\.stock\.naver\.com\/api\/index\/KOSPI\/trend'/.test(fnSrc886) &&
-        /kosdaqUrl\s*=\s*'https:\/\/m\.stock\.naver\.com\/api\/index\/KOSDAQ\/trend'/.test(fnSrc886);
-      var adaptOk886 = false, adaptDetail886 = 'n/a';
-      if (typeof _aioAdaptKrTrendResponse === 'function') {
-        var sample886 = { bizdate: '20260710', personalValue: '-100', foreignValue: '250', institutionalValue: '-150' };
-        var out886 = _aioAdaptKrTrendResponse(sample886);
-        var fNet886 = (out886.foreignBuy || 0) - (out886.foreignSell || 0);
-        adaptOk886 = fNet886 === 250 && out886.bizdate === '20260710';
-        adaptDetail886 = 'fNet=' + fNet886 + ' bizdate=' + out886.bizdate;
-      }
-      _assert('T886 kr_supply_trend_endpoint_v5243 (EF-18): fetchKrSupplyData가 확인된 살아있는 /trend 경로(404였던 /investorTrend 아님)를 쓰고, 응답 변환이 순매수 값을 보존',
-        usesTrendPath886 && adaptOk886, 'usesTrendPath=' + usesTrendPath886 + ' ' + adaptDetail886);
-    } catch (e886) { _assert('T886 kr_supply_trend_endpoint_v5243 (EF-18)', false, 'threw: ' + (e886 && e886.message)); }
+    // T886 (EF-18 -> P1671): the KR supply trend fetch and its response adapter were retired.
+    _assert('T886 kr_supply_trend_endpoint_v5243 (EF-18): KR 수급 fetch와 응답 변환기가 퇴역해 Naver 수급 요청이 없음',
+      typeof fetchKrSupplyData === 'undefined' && typeof _aioAdaptKrTrendResponse === 'undefined',
+      'fetch=' + typeof fetchKrSupplyData);
   }
 
   // ══════════════════════════════════════════════════════════════════════

@@ -10,34 +10,6 @@
 let bpChartsInitialized = false;
 const bpChartInstances = {};
 
-// v38.9: 미너비니 랠리 품질 동적 판별
-function updateRallyQualityVerdict() {
-  var el = document.getElementById('rally-quality-verdict');
-  if (!el) return;
-  var b5 = (typeof window._breadth5 === 'number') ? window._breadth5 : null;
-  var b20 = (typeof window._breadth200 === 'number') ? window._breadth200 : null;
-  var b50 = (typeof window._breadth50 === 'number') ? window._breadth50 : null;
-  if (!b5) { el.textContent = '시장폭 데이터 수신 대기 중...'; return; }
-
-  var verdict = '', color = '', bg = '';
-  if (b5 > 70 && b50 > 60) {
-    verdict = ' <b>브레드스 쓰러스트 수준</b> — 5SMA ' + b5.toFixed(0) + '% · 50SMA ' + b50.toFixed(0) + '%. 극히 높은 참여율. 과거 바닥 확인 국면에서 관측되던 조합(예측 아님).';
-    color = '#00e5a0'; bg = 'var(--data-green-faint)';
-  } else if (b5 > 50 && b20 > 40) {
-    verdict = ' <b>고품질 랠리</b> — 5SMA ' + b5.toFixed(0) + '% · 20SMA ' + b20.toFixed(0) + '%. 광범위 참여. Follow-through 진행 중 — 리테스트 통과 여부가 다음 관찰 포인트.';
-    color = '#00bcd4'; bg = 'var(--data-cyan-light)';
-  } else if (b5 > 30) {
-    verdict = ' <b>품질 미확인 랠리</b> — 5SMA ' + b5.toFixed(0) + '%. 제한적 참여. 숏커버링 주도 가능성. 첫 며칠은 노이즈 — 후속 확인 필요. 관망 유지.';
-    color = '#ffa31a'; bg = 'var(--data-amber-faint)';
-  } else {
-    verdict = ' <b>과매도/숏커버링</b> — 5SMA ' + b5.toFixed(0) + '%. 소수 종목만 반등합니다. 가장 많이 빠진 종목이 가장 크게 오르는 저품질 반등 패턴으로 볼 수 있습니다. 신규 매수 조건은 충족되지 않았고, RS 상위 종목은 관찰 목록으로 확인합니다.';
-    color = '#ff5b50'; bg = 'var(--data-red-faint)';
-  }
-  el.innerHTML = verdict;
-  el.style.borderColor = color;
-  el.style.background = bg;
-}
-
 // v42.4: 브레드쓰 바 동적 갱신 — signal 페이지 + breadth 페이지 NDX 카드
 // v49.64 Codex P332: 20-SMA 70%+ amber override (과열 신호 — v49.63 index.html 정적 변경의 동적 보강)
 function updateBreadthBars() {
@@ -52,7 +24,6 @@ function updateBreadthBars() {
     if (mcEl && mcEl.dataset.aioBreadthMcclellanRenderer !== 'native') { mcEl.innerHTML = '— <span style="font-weight:500;color:var(--text-dim);">A/D 시계열 미수신</span>'; mcEl.setAttribute('data-mcclellan-signal','unavailable'); }
     var diagEl = document.getElementById('breadth-diag-text');
     if (diagEl && diagEl.dataset.aioBreadthDiagnosticRenderer !== 'native') diagEl.textContent = '현재 5/20/50일선 breadth 및 A/D 시계열 원천이 없어 종합 진단을 보류합니다.';
-    if (typeof window._aioSyncBreadth50Readout === 'function') window._aioSyncBreadth50Readout();
     return;
   }
   window._breadth5 = currentBreadth.sma5;
@@ -150,11 +121,6 @@ function updateBreadthBars() {
       var el = document.getElementById(p[0]);
       if (el && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el)) && p[1] != null) { el.textContent = p[1] + '%'; el.style.color = _bbColor(p[1]); }
     });
-  // v50.17→v52.40: breadth 페이지 50SMA 막대(width) + 해석 readout 동적 갱신.
-  // P562/R253이 큰 숫자·막대·readout을 DATA_SNAPSHOT.breadth50sma 단일 소스로 통일했던 로직을
-  // v52.40(P655/EF-02d)에서 window._aioSyncBreadth50Readout()(js/aio-core.js)로 추출 — applyDataSnapshot()도
-  // 같은 함수를 호출해 Chart.js 로드 여부와 무관하게 항상 동기화되게 함(중복 정의 방지, R276 정신).
-  if (typeof window._aioSyncBreadth50Readout === 'function') window._aioSyncBreadth50Readout();
 }
 
 function initBreadthPage(forceReinit) {
@@ -192,7 +158,6 @@ function initBreadthPage(forceReinit) {
       if (el && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el))) el.textContent = '관측: ' + asOf + ' · ' + (evidence.source || 'AIO screener universe');
     });
     updateBreadthBars();
-    if (typeof window._aioSyncBreadth50Readout === 'function') window._aioSyncBreadth50Readout();
   }
 
   var nativeBreadthPage = document.getElementById('page-breadth');
@@ -321,11 +286,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 3000);
   // sentiment/HY 초기 fetch도 initV20DataEngine의 서버 우선 phase가 단독 소유한다.
   // v30.11: T3 _hySpreadInterval 삭제 — REFRESH_SCHEDULE.hySpread가 6h 지터 포함 단일 경로
-
-  // Trading Signal 45초 자동 갱신 타이머 (페이지가 활성일 때 경과 시간 카운터 시작)
-  refreshSignal();
-  // v48.91: 타이머 레지스트리 등록
-  window._refreshSignalInterval = _aioRegisterTimer('refreshSignal', refreshSignal, T.SIGNAL_REFRESH);
 
   // v20: Initialize data engine with all real-time integrations
   initV20DataEngine();
@@ -983,7 +943,6 @@ try { if (!window._aioPopstateRegistered) window.addEventListener('popstate', (e
     vixHistory: 'VIX 히스토리',
     hySpread: 'HY 스프레드',
     maUpdate: 'MA 갱신',
-    krSupply: 'KR 수급',
     krDynamic: 'KR 동적 데이터'
   };
 
@@ -1103,7 +1062,6 @@ async function globalRefresh() {
       var activeId = activePage ? activePage.id.replace('page-','') : (typeof prevPage !== 'undefined' ? prevPage : 'home');
       if (activeId === 'breadth' && typeof initBreadthPage === 'function') {
         initBreadthPage(true);
-        if (typeof updateRallyQualityVerdict === 'function') setTimeout(updateRallyQualityVerdict, 300);
       }
       if (activeId === 'signal' && typeof initSignalDashboard === 'function') initSignalDashboard();
       if (btn) {
@@ -1127,11 +1085,10 @@ async function globalRefresh() {
   if (typeof fetchPutCall     === 'function') tasks.push(fetchPutCall());
   if (typeof fetchHYSpread    === 'function') tasks.push(fetchHYSpread());
   if (typeof fetchAllNews     === 'function') tasks.push(fetchAllNews(true));
-  if (typeof refreshSignal    === 'function') tasks.push(Promise.resolve(refreshSignal()));
   // Re-init charts on current page
   const activePage = document.querySelector('.page.active');
   const activeId = activePage ? activePage.id.replace('page-','') : prevPage;
-  if (activeId === 'breadth')   { initBreadthPage(true); setTimeout(updateRallyQualityVerdict, 300); }
+  if (activeId === 'breadth')   { initBreadthPage(true); }
   if (activeId === 'signal')    initSignalDashboard();
 
   await Promise.allSettled(tasks);
@@ -4275,8 +4232,6 @@ setTimeout(function() {
   var loadingPatterns = ['로딩 중', '생성 중', 'Loading', '계산중', '계산 중', '분석 로딩', '데이터 로딩'];
   var candidates = document.querySelectorAll(
     '#macro-storyline, #earnings-calendar-body, #risk-radar-body, #home-news-highlights, ' +
-    '#kr-supply-analysis-text, ' +
-    '#kr-investor-foreign-buy, #kr-investor-organ-buy, #kr-foreign-hold-top10, ' +
     '#last-fetch-time, #home-quality-label'
   );
   candidates.forEach(function(el) {
@@ -4296,10 +4251,6 @@ setTimeout(function() {
     var s = document.getElementById(id);
     if (s && /로딩 중|데이터 로딩/.test(s.textContent || '')) s.textContent = '연결 실패 · API 키 확인';
   });
-  var krSupplyAnalysis = document.getElementById('kr-supply-analysis-text');
-  if (krSupplyAnalysis && /로딩 중|데이터 로딩|데이터를 불러오지 못했습니다/.test(krSupplyAnalysis.textContent || '')) {
-    krSupplyAnalysis.textContent = 'KR 수급 데이터 수신 지연 · 폴백 상태로 표시하며 현재 의사결정에는 사용하지 않음';
-  }
 }, 15000);
 
 // ═══ v27: Scroll-to-top Button ═══
@@ -5092,7 +5043,6 @@ async function analyzeTickerDeep(ticker) {
     if (input) input.value = ticker;
   });
   document.dispatchEvent(new CustomEvent('aio:entityChanged', { detail: { id: ticker, source: 'technical-selection' } }));
-  if (typeof updateSRLevels === 'function') updateSRLevels();
   initDeepAnalysisSection(ticker, requestEpoch).catch(function(error) {
     if (isCurrent()) _aioLog('warn', 'fetch', 'Deep timeframe analysis: ' + error.message);
   });
@@ -5120,7 +5070,6 @@ async function analyzeTickerDeep(ticker) {
     return { time: new Date(d.ts * 1000).toISOString().slice(0, 10), open: d.o, high: d.h, low: d.l, close: d.c, volume: d.v };
   });
   document.dispatchEvent(new CustomEvent('aio:entityChanged', { detail: { id: ticker, source: 'technical-ohlcv' } }));
-  if (typeof updateSRLevels === 'function') updateSRLevels();
   var c = _raw.map(function(d) { return d.c; });
   var o = _raw.map(function(d) { return d.o; });
   var h = _raw.map(function(d) { return d.h != null ? d.h : d.c; });
@@ -5786,19 +5735,18 @@ function calcKrHealthScore() {
   var kospiLive = ld['^KS11'] && ld['^KS11'].pct != null && Number.isFinite(Number(ld['^KS11'].pct));
   var kosdaqLive = ld['^KQ11'] && ld['^KQ11'].pct != null && Number.isFinite(Number(ld['^KQ11'].pct));
   var vkospiLive = typeof _vkospiLastOkTs !== 'undefined' && _vkospiLastOkTs && (Date.now() - _vkospiLastOkTs < 86400000) && !(typeof _vkospiIsFailedState === 'function' && _vkospiIsFailedState());
-  var supplyLive = window._krCurrentSupplyEvidence && (Date.now() - window._krCurrentSupplyEvidence.observedAt < 86400000) && window._krCurrentSupplyEvidence.foreignNet != null && Number.isFinite(Number(window._krCurrentSupplyEvidence.foreignNet));
-  var currentInputs = [kospiLive, kosdaqLive, vkospiLive, supplyLive].filter(Boolean).length;
+  // P1671: the investor-flow input left with the KR supply fetch (no rendered consumer).
+  var currentInputs = [kospiLive, kosdaqLive, vkospiLive].filter(Boolean).length;
   var missing = [];
   if (!kospiLive) missing.push('KOSPI');
   if (!kosdaqLive) missing.push('KOSDAQ');
   if (!vkospiLive) missing.push('VKOSPI');
-  if (!supplyLive) missing.push('외국인 수급');
 
   var valEl = document.getElementById('kr-health-val');
   var lblEl = document.getElementById('kr-health-label');
   var trendEl = document.getElementById('kr-health-trend');
-  if (valEl) { valEl.textContent = currentInputs + '/4'; valEl.style.color = currentInputs === 4 ? 'var(--text-primary)' : 'var(--text-muted)'; }
-  if (lblEl) { lblEl.textContent = missing.length ? '현재 입력 ' + currentInputs + '/4 · 미수신: ' + missing.join(', ') : '현재 입력 4/4 · 지표별 값을 개별로 확인'; lblEl.style.color = missing.length ? 'var(--data-amber)' : 'var(--text-muted)'; }
+  if (valEl) { valEl.textContent = currentInputs + '/3'; valEl.style.color = currentInputs === 3 ? 'var(--text-primary)' : 'var(--text-muted)'; }
+  if (lblEl) { lblEl.textContent = missing.length ? '현재 입력 ' + currentInputs + '/3 · 미수신: ' + missing.join(', ') : '현재 입력 3/3 · 지표별 값을 개별로 확인'; lblEl.style.color = missing.length ? 'var(--data-amber)' : 'var(--text-muted)'; }
   if (trendEl) {
     if (kospiLive) {
       var kospiPct = Number(ld['^KS11'].pct);
@@ -6678,44 +6626,6 @@ async function updateBenchmarkChart() {
   ctx.fillText('일별 실데이터 커버리지: ' + (coveredWeight * 100).toFixed(0) + '% · Yahoo 30일', W - 10, H - 8);
 }
 
-// ── Phase 2-6: 가격 알림 시스템 ──
-var _priceAlerts = JSON.parse(localStorage.getItem('aio_price_alerts') || '[]');
-function removePriceAlert(idx) {
-  _priceAlerts.splice(idx, 1);
-  localStorage.setItem('aio_price_alerts', JSON.stringify(_priceAlerts));
-  renderPriceAlerts();
-}
-function renderPriceAlerts() {
-  var el = document.getElementById('price-alerts-list');
-  if (!el) return;
-  if (!_priceAlerts.length) { el.innerHTML = '<span style="color:var(--text-muted);">설정된 알림이 없습니다.</span>'; return; }
-  var html = '';
-  _priceAlerts.forEach(function(a, i) {
-    var cLabel = a.cond === 'above' ? '≥' : '≤';
-    var statusColor = a.active ? 'var(--data-green)' : 'var(--text-muted)';
-    html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--surface-4);">' +
-      '<span style="color:' + statusColor + ';">●</span> ' +
-      '<span style="font-family:var(--font-mono);font-weight:700;">' + a.sym + '</span> ' +
-      cLabel + ' $' + a.price.toFixed(2) +
-      ' <button data-action="removePriceAlert" data-arg="' + escHtml(i) + '" aria-label="가격 알림 삭제" style="background:none;border:none;color:var(--data-red);cursor:pointer;font-size:12px;margin-left:auto;" title="삭제"></button></div>';
-  });
-  el.innerHTML = html;
-}
-function checkPriceAlerts() {
-  let ld = window._liveData || {};
-  _priceAlerts.forEach(function(a) {
-    if (!a.active) return;
-    var d = ld[a.sym];
-    if (!d || !d.price) return;
-    var triggered = (a.cond === 'above' && d.price >= a.price) || (a.cond === 'below' && d.price <= a.price);
-    if (triggered) {
-      a.active = false;
-      localStorage.setItem('aio_price_alerts', JSON.stringify(_priceAlerts));
-      showToast(' 알림! ' + a.sym + ' 현재가 $' + d.price.toFixed(2) + ' → 목표가 $' + a.price.toFixed(2) + ' 도달');
-      renderPriceAlerts();
-    }
-  });
-}
 
 function getNextBOK() {
   var schedule = [[0,16],[1,27],[3,17],[4,29],[6,10],[7,28],[9,16],[10,27]];
@@ -6858,10 +6768,8 @@ window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); /
 // ── 초기화 ──
 document.addEventListener('DOMContentLoaded', function() {
   window._globalUpdateInterval = _aioRegisterTimer('globalUpdate', function() {
-    checkPriceAlerts();
     applyA11yIndicators();
-  }, 30000); // 30초마다 가격 알림 체크 + 접근성 아이콘 갱신
-  renderPriceAlerts();
+  }, 30000); // 30초마다 접근성 아이콘 갱신
   applyA11yIndicators();
   updateMcClellanUI();
   // 경제 캘린더 동적 날짜 업데이트

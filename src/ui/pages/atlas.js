@@ -719,6 +719,19 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
              deep: (node) => stripReferenceChrome(createDeepTaxonomyView(documentRef, node, state.deepTaxonomy, state.selectedDeepTopicId)),
              domainStory: (domain) => stripReferenceChrome(createDomainGuide(documentRef, domain, (state.domainGuides?.guides || []).find((guide) => guide.id === domain.id), (state.domainPackets?.packets || []).find((packet) => packet.domainId === domain.id), state.claimLedger)),
              relations: (nodeId) => { const entry = coverage.find((item) => item.nodeId === nodeId); return entry ? relationList(documentRef, entry.relationGroups) : null; },
+             // X07 (2026-10-13): the reading view strips the old source chrome, so domain and node documents lost every
+             // path to their evidence. One folded "근거와 가정" carries the same sources: the domain guide and review
+             // packet for a domain; the anchored deep-taxonomy topics (then the domain packet) for a node.
+             basis: (domain, node = null) => {
+               const guide = (state.domainGuides?.guides || []).find((item) => item.id === domain?.id) || null;
+               const packet = (state.domainPackets?.packets || []).find((item) => item.domainId === domain?.id) || null;
+               const packetSources = (packet?.sources || []).map((source) => ({ label: `${source.publisher || ''}${source.title ? `${source.publisher ? ' · ' : ''}${source.title}` : ''}` || source.url, url: source.url }));
+               const topicSources = node ? (state.deepTaxonomy?.topics || []).filter((topic) => topic.anchorNodeIds?.includes(node.id)).flatMap((topic) => topic.sources || []).map((source) => ({ label: source.label, url: source.url })) : [];
+               const guideSource = guide?.sourceUrl ? [{ label: guide.sourceName || '공식 자료', url: guide.sourceUrl }] : [];
+               const seen = new Set();
+               const sources = [...topicSources, ...guideSource, ...packetSources].filter((source) => source.url && !seen.has(source.url) && seen.add(source.url)).slice(0, 8);
+               return { sources, asOf: packet?.reviewedAt || null };
+             },
            },
            onLocal: (params = {}) => {
              if (params.node) {

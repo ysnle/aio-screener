@@ -174,6 +174,24 @@ if (burnDown.retiredSentimentLegacyInitHook && !/'sentiment':\s*\{[^\n]*init:\s*
 if (burnDown.retiredSentimentLegacyBadgeWriter && /badge\.textContent\s*=\s*'심리:/.test(uiSource)) {
   fail('sentiment legacy badge writer returned');
 }
+// verify-aio registry probe (2026-10-13): six routes declared 35 native surfaces that page rebuilds had
+// removed (P1391/P1392/P1395/P1420/P1430), and one gate still pinned a retired id. Every declared #id must
+// exist in the shell markup or be created by native source; the live check is `verify-aio registry`.
+{
+  const shellHtml = read('index.html');
+  const nativeSource = srcFiles.map((file) => read(path.join('src', String(file)))).join('\n');
+  const escapeId = (id) => id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const createdBySource = (id) => new RegExp(`\\.id\\s*=\\s*['"\`]${escapeId(id)}['"\`]|id=["']${escapeId(id)}["']|setAttribute\\(\\s*['"]id['"]\\s*,\\s*['"]${escapeId(id)}['"]`).test(nativeSource);
+  const missingSurfaceIds = [];
+  for (const [route, owner] of Object.entries(routeOwners.routes || {})) {
+    for (const selector of [...(owner.nativePrimarySurface || []), ...(owner.nativeSecondarySurface || [])]) {
+      for (const [, id] of String(selector).matchAll(/#([\w-]+)/g)) {
+        if (!shellHtml.includes(`id="${id}"`) && !createdBySource(id)) missingSurfaceIds.push(`${route}: ${selector}`);
+      }
+    }
+  }
+  if (missingSurfaceIds.length) fail(`route-owners declares surfaces that no longer exist (update the registry to what the native renderer writes): ${missingSurfaceIds.join(' | ')}`);
+}
 // R352/F-01 ratchet: legacy symbols that must be absent are declared once in route-owners.json
 // (the single ownership source of truth) and enforced for every renderer-native route here,
 // instead of a hardcoded per-route array that can silently drift out of sync (F-02).
@@ -216,7 +234,7 @@ if (!newsPageSource.includes("container.dataset.aioNewsRenderer = 'native'")) fa
 }
 if (newsPageSource.includes('renderStories')) fail('news.js content-rendering helper (renderStories) returned after RM-01 removed it');
 if (!dataSource.includes("return 'headline-only'") || !dataSource.includes("row.contentDepth !== 'headline-only'") || !dataSource.includes("bodyText.length >= 40 ? 'summary' : 'headline-only'")) fail('headline-only news must remain outside verified/AI evidence');
-for (const marker of ['isNewsAnalysisEligible', 'isNewsHeadlineOnly(item)', "label: '본문 미수신'", '본문/검증 필요']) {
+for (const marker of ['isNewsAnalysisEligible', 'isNewsHeadlineOnly(item)', "label: '본문 미수신'"]) { // P1672: the '본문/검증 필요' risk copy left with the sentiment strip
   if (!newsPageSource.includes(marker)) fail(`native news evidence-depth boundary missing: ${marker}`);
 }
 // P1425: the 거시 hub is two native boards (src/ui/components/macro-board.js). The fixed-threshold
@@ -334,10 +352,34 @@ for (const marker of ['renderHomeQuality', 'home-quality-meter', 'home-quality-s
   if (!analysisPageSource.includes(marker)) fail(`native home quality renderer marker missing: ${marker}`);
 }
 if (dataSource.includes('home-quality-meter') || dataSource.includes('home-quality-score') || dataSource.includes('home-quality-label')) fail('legacy home quality writer returned after P821 cutover');
-// P822: analysis.js owns only the technical candle title/meta text. The legacy chart keeps
-// canvas lifecycle and indicator math but must not reintroduce stale/loading metadata writes.
-for (const marker of ['renderTechnicalCandleMeta', 'tech-candle-title', 'tech-candle-meta', 'aioTechnicalCandleMetaRenderer']) {
-  if (!analysisPageSource.includes(marker)) fail(`native technical candle metadata marker missing: ${marker}`);
+// P822 -> P1420/P1670: the technical candle canvases, title and meta left the page (the stock chart
+// component owns price history now), so neither side may keep a writer for them.
+for (const marker of ['renderTechnicalCandleMeta', 'renderTechnicalCharts', 'tech-candle-title', 'tech-candle-meta', 'tech-candle-chart']) {
+  if (analysisPageSource.includes(marker)) fail(`retired technical candle writer returned in analysis.js: ${marker}`);
+}
+if (read('js/aio-macro-tech.js').includes('function loadTechCandleChart')) fail('retired legacy technical candle loader returned');
+// P1670: writers, timers and controls whose sinks left the page stay retired (they ran on every
+// signal visit / quote tick or every 5-45s and painted nothing; one button did nothing).
+{
+  const legacyJs = ['js/aio-core.js', 'js/aio-data.js', 'js/aio-pages.js', 'js/aio-ui.js'].map(read).join('\n');
+  const retired = ['getExecutionWindowScore', 'drawScoreGauge', 'drawPortfolioDonut', 'renderScoreBars', 'updateBottomProcess', 'updateExitTriggers', 'updateSectorHeatmap',
+    '_aioRenderSignalRegime', '_aioRenderSignalScenario', '_aioRenderBriefingMarketAnalysis', '_aioRenderFreshness', '_aioRefreshFreshness', '_aioTickerSubmit',
+    '_aioRenderGxLFrame', 'refreshSignal', '_applyRiskMonitorFallbacks', 'updateRallyQualityVerdict', 'checkPriceAlerts', 'renderPriceAlerts', 'removePriceAlert']
+    .filter((name) => new RegExp(`(?:function\\s+${name}\\s*\\(|window\\.${name}\\s*=)`).test(legacyJs));
+  if (retired.length) fail(`P1670 retired legacy writer returned: ${retired.join(', ')}`);
+  if (/aio_price_alerts|data-action="_aioRefreshFreshness"/.test(legacyJs + indexHtmlSource)) fail('P1670 ghost price alerts or the no-op freshness button returned');
+  // P1672: writers whose sinks were retired but which gates used to pin as presence markers.
+  const pinnedRetired = ['updateEntryChecklist', '_aioRenderBreadthConsensus', '_aioSyncBreadth50Readout', 'generateDynamicBriefing', 'renderOfficialFutureCalendar', 'updateSRLevels']
+    .filter((name) => new RegExp(`(?:function\\s+${name}\\s*\\(|window\\.${name}\\s*=)`).test(legacyJs + read('js/aio-macro-tech.js')));
+  if (pinnedRetired.length) fail(`P1672 retired legacy writer returned: ${pinnedRetired.join(', ')}`);
+}
+// P1669: the chat "차트 자세히 보기" card goes through the one technical bridge, so the visible
+// chart follows the ticker instead of only the hidden legacy deep-analysis input.
+if (!/window\._aioShowTechnicalChart = function\(ticker\) \{\s*if \(!ticker\) return;\s*_aioOpenTechnicalAnalysis\(ticker\);\s*\}/.test(read('js/aio-core.js'))) fail('P1669 chat chart card must delegate to _aioOpenTechnicalAnalysis');
+// P1668: boot and broadcast refreshes leave the SEC fundamentals projection to its two consumer routes.
+{
+  const boot = read('src/app/bootstrap.js');
+  if ((boot.match(/syncEntityForConsumers\(\)/g) || []).length < 3 || /\(\) => syncEntity\.sync\(\),/.test(boot) || !boot.includes("onCurrentRouteShown(new Set(['ticker', 'fundamental']), syncEntityOnDemand")) fail('P1668 entity fundamentals must load only for the ticker/fundamental routes');
 }
 const technicalHtmlSource = read('index.html');
 if (technicalHtmlSource.includes("titleEl.textContent = symbol + ' 일봉 캔들 · 이동평균'") || technicalHtmlSource.includes("metaEl.textContent = '수신 중…'") || technicalHtmlSource.includes("metaEl.textContent = last.time + ' 종가 '")) fail('legacy technical candle metadata writer returned after P822 cutover');

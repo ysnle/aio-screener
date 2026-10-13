@@ -1,8 +1,35 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-12
+last_verified: 2026-10-13
 confidence: medium
 ---
+
+## v57.48 verify-aio user-path verification (2026-10-13)
+
+- [x] QA-VERIFY-09: Portfolio attribution uses SPY for US, KOSPI/KOSDAQ for KR and holds out mismatched basis dates; theme internal ranks exclude stale members. verify_by: Codex reproduce.mjs counterexamples + verify-aio drive portfolio
+- [ ] QA-VERIFY-10: AI answer filter drops whole numeric sentences without breaking URLs/decimals; role/industry acronyms do not become tickers; briefing AI card shows its own generation time and observation scope. verify_by: node counterexample run of stripUnverifiedCurrentNumericSentences and _extractTickers; one deployed AI question after push
+- [x] QA-VERIFY-11: Theme board, scenario outlook, stock/screener/portfolio rotation and news header all apply the latest-completed-session admission. verify_by: verify-aio drive themes/today/stock with a stale local artifact, then again after the producer reaches the latest session
+- [x] QA-VERIFY-12: Industry documents expose 근거와 가정; phone reading puts the open document before the shelf; 13F ledger scope matches the bounded shard. verify_by: verify-aio drive learn (desktop/phone) and a masters BlackRock changes view check
+- [ ] QA-VERIFY-13: S&P 500 map sizes by index weight with 1일/1주 tabs after the refresh-screener producer runs (indexWeights and ret1d/ret5d present) verify_by: after push: refresh-screener log shows '[sp500-weights] ~500 members'; screener.json has indexWeights and ret1d; verify-aio drive themes
+- [ ] QA-VERIFY-14: P1680: 테마 화면에서 '섹터별 숫자'를 열고 타일을 한 번 누른 뒤 시세 갱신이 와도 접힘과 선택이 유지된다. verify_by: 배포 사이트 테마 화면에서 장중 시세 갱신 후 확인
+
+## v57.47 깊이 보기 학습 접힘 (2026-10-12)
+
+- [ ] QA-DEEP-DIVE-01: P1660: 시장 상태 6축과 거시 3그룹의 접힘 칸은 원리·읽는 법·연결과 관련 화면 버튼을 담는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [ ] QA-STRESS-OUTCOMES-01: P1661: 과거 VIX 구간별 결과표가 생성되면 시장 상태 화면에 지금 구간을 표시하고, 생성 전에는 숨긴다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [ ] QA-SPEED-01: P1662: 종목 품질 브라우저 검사는 독립 경우를 병렬로 돌리고 PASS한다. verify_by: node scripts/ci-entity-quality-browser-check.mjs
+- [ ] QA-DEEP-DIVE-02: P1663: 투자 심리 지표 카드와 시장 폭 화면에 공용 깊이 보기 접힘이 있다. verify_by: browser: #sentiment .regime-axis-deep 6개
+- [ ] QA-QA-SPEED-01: P1664: src/ui 변경의 영향 범위에 지식 화면 브라우저 그룹이 없고, 화면 크기 검사는 기기 크기를 동시에 돈다. verify_by: node scripts/qa-runner.mjs affected --files src/ui/components/stress-outcomes.js --list
+- [ ] QA-WATCHDOG-LATCH-01: P1665: 감시 실행은 자기 직전 실패만으로 실패하지 않고, Worker 갱신 호출 토큰이 없으면 data-plane이 재배포된다. verify_by: push 후 data-watchdog 다음 실행 + data-plane /health schedulerDispatch.configured
+- [ ] QA-REFRESH-LOCK-01: P1666: 갱신 생산 job만 refresh-data 잠금을 갖고, 수렴 대기는 converge job에서 돌며, 감시는 Pages 배포 완료를 따라 실행된다. verify_by: push 후 Refresh market data 실행의 job 구성과 Data freshness watchdog 이벤트(workflow_run) 확인
+- [x] QA-VERIFY-01: verify-aio drive all passes on desktop and phone (11 features) and registry reports 19/19 routes. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs launch && ... drive all [--viewport phone] && ... registry && ... cleanup
+- [x] QA-VERIFY-02: Boot requests screener.json once and does not request sec-fundamentals-summary.json until 종목/재무 공시 is shown. verify_by: Playwright request trace on 127.0.0.1 (boot 8s, then showPage('fundamental')); ci-esm-core-unit-check P1668 block
+- [x] QA-VERIFY-03: The chat chart card and the 차트 tab show the requested company in #stock-chart-title. verify_by: verify-aio drive stock (step 차트 제목이 같은 종목); probe window._aioShowTechnicalChart('AAPL')
+- [x] QA-VERIFY-04: No legacy writer, timer or button remains for a removed element (dead-id audit) and the 20 retired writers stay absent. verify_by: ci-architecture-contract-check P1670 block; scratch dead-id audit over js/ and src/
+- [x] QA-VERIFY-05: 거시 and 차트 make no KR investor-flow or candle requests unless developer mode is on, and the KR supply plane stays absent. verify_by: ci-runtime-contract-check P1671 checks; network probe on #macro and #technical
+- [x] QA-VERIFY-06: The six gate-pinned legacy writers stay absent and no gate asserts presence of a writer for a removed element. verify_by: ci-architecture-contract-check P1672 block
+- [x] QA-VERIFY-07: Screener and 오늘 empty states distinguish held-for-data, filtered-out and zero-source results. verify_by: verify-aio drive screener / today on a stale local artifact
+- [x] QA-VERIFY-08: Research library shelf: one spine per document, chips filter, card opens the document, AI buttons only prefill the top AI panel. verify_by: verify-aio drive learn (desktop and phone); browser check of spine title clipping and page width at 375px
 
 ## v57.46 AI 웹검색 단일 경로 (2026-10-12)
 

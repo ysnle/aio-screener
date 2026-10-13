@@ -95,10 +95,8 @@ await invalid.root.fundamentalSearch();
 check(invalid.root._currentTickerId === '' && invalid.root._fundAnalysisData === null, 'invalid fundamental search clears previous identity and report data');
 check(invalid.nodes.get('vis-fundamental').style.display === 'none' && invalid.nodes.get('vis-fundamental-radar').textContent === '', 'invalid fundamental search also clears the secondary factor visualization');
 
-const levels = context({ _currentTickerId: 'NVDA', _technicalOHLCV: { NVDA: Array.from({ length: 20 }, (_, i) => ({ time: `2026-08-${String(i + 1).padStart(2, '0')}`, close: 100 + i, high: 101 + i, low: 99 + i })) } });
-vm.runInContext(section(macroTech, 'function updateSRLevels() {', '// ── Native 캔들 차트'), levels.root);
-levels.root.updateSRLevels();
-check(levels.nodes.get('sr-levels-container').dataset.symbol === 'NVDA' && levels.nodes.get('sr-levels-container').innerHTML.includes('119.00'), 'price reference lines use the selected symbol and its observed close');
+// P1672: #sr-levels-container left the technical page; the stock-chart component draws price levels now.
+check(!macroTech.includes('function updateSRLevels'), 'retired legacy price reference-line writer stays retired');
 check(!section(ui, 'function _factorRadar(d)', '// ── 4. pipeline-status').includes('|| 50') && ui.includes('Object.assign({}, row.factorScores || {}, { rsi: row.rsi })'), 'factor visualizations preserve zero/missing values and canonical scores');
 const themes = read('src/ui/pages/themes.js');
 check(themes.includes("catalog.setAttribute('aria-label', '회전 지표 미수신 테마 목록')") && themes.includes('appendUnclassified();'), 'missing RRG observations do not remove the independent theme exploration path');
@@ -174,7 +172,7 @@ check(['2095849461423456366', '2095688508597788864', '2095270553406124090', 'git
 check(['screener', 'macro', 'fxbond', 'themes', 'ticker', 'fundamental', 'masters', 'technical'].every((route) => suppliedMaterials.includes(`${route}: Object.freeze`)) && suppliedMaterials.includes("'theme-detail': Object.freeze"), 'structural frameworks are mapped to screener and major research routes');
 check(chat.includes('supplied-materials-2026-09-05') && chat.includes('AIO_SUPPLIED_MATERIALS_20260905_REFERENCE') && chat.includes('2026-09-05 자료 시계열 정렬'), 'chat context carries the direct-read packet and explicit time-series hard stops');
 check(chartContract.includes('canonicalEpochMs') && chartContract.includes('normalizeChartBar') && chartContract.includes('classifyChartUpdate') && chartContract.includes('negotiateChartRenderer'), 'Vela-derived chart boundary exposes canonical bars, update settlement and capability negotiation');
-check(entityNormalizer.includes("from '../../domain/chart/contract.js'") && entityNormalizer.includes('epochMs: bar.epochMs') && analysisPage.includes('map(normalizeChartBar)'), 'entity and technical chart inputs cross the canonical time/bar boundary');
+check(entityNormalizer.includes("from '../../domain/chart/contract.js'") && entityNormalizer.includes('epochMs: bar.epochMs'), 'entity and technical chart inputs cross the canonical time/bar boundary');
 const bump = read('scripts/bump-version.mjs');
 const recovery = vm.createContext({ resumeFrom: 'v54.67', prevVer: 'v54.67', newVer: 'v54.68' });
 vm.runInContext("const targetPattern = (pattern) => new RegExp(pattern.source.replaceAll('v54\\\\.67', 'v54\\\\.68'), pattern.flags);\n" + section(bump, 'function replaceOnce(', 'function replaceAll('), recovery);

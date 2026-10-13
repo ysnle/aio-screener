@@ -1,8 +1,8 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // js/aio-macro-tech.js — P1135/R620: index.html 인라인 블록 B(1,174줄)에서 추출한 매크로/기술 렌더 계층.
 // computeMarketHealth 인라인 구현(및 _aioIsNativeTechnicalHealth/_aioLegacyHealthElement/
-// _aioRenderLegacyMarketHealth 네이티브 fence), updateTechIndicators/updateSRLevels/_aioTechSma/
-// loadTechCandleChart/_aioTechSymSwitch/updatePatternSignals, renderOfficialFutureCalendar
+// _aioRenderLegacyMarketHealth 네이티브 fence), updateTechIndicators/_aioTechSma/
+// _aioTechSymSwitch/updatePatternSignals
 // (P1425: the 거시 writers moved to native ESM boards).
 //
 // 왜 별도 파일이고 왜 aio-pages.js보다 앞에 로드되는가: js/aio-ui.js가 자기 모듈 평가 시점에
@@ -14,64 +14,12 @@
 // P1135/R620: index.html 인라인 블록 B(매크로/기술 렌더 1,175줄)를 여기로 접었다.
 // 이 블록은 렌더러 계층이므로 새 파일을 만들지 않고 페이지 렌더러 홈(aio-pages.js)에
 // 넣는다 — 추출 모듈은 이미 등록돼 있고, 새 파일은 등록 7곳을 다시 요구한다.
-// 포함: computeMarketHealth 인라인 구현, updateTechIndicators/updateSRLevels/
-// loadTechCandleChart/updatePatternSignals, renderOfficialFutureCalendar.
+// 포함: computeMarketHealth 인라인 구현, updateTechIndicators/updatePatternSignals.
 // ───────────────────────────────────────────────────────────────────────────────
 
 // ═══════════════════════════════════════════════════════════════
 //  TECHNICAL ANALYSIS & MACRO — DYNAMIC JS ENGINE
 // ═══════════════════════════════════════════════════════════════
-
-function renderOfficialFutureCalendar() {
-  var root = document.getElementById('official-future-calendar');
-  if (!root) return;
-  var snap = window.DATA_SNAPSHOT || {};
-  var rows = [];
-  function add(date, label, source, detail) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '')) return;
-    var ts = new Date(date + 'T23:59:59+09:00').getTime();
-    if (ts < Date.now()) return;
-    rows.push({ date: date, label: label, source: source, detail: detail });
-  }
-  add(snap.bokNext, '한국은행 금통위', 'BOK', '기준금리·원화·물가·수출 반응 확인');
-  var fm = String(snap.fomcNext || '').match(/^(\d{4}-\d{2}-)(\d{2})~(\d{2})$/);
-  if (fm) add(fm[1] + fm[2], 'FOMC 회의 시작 (' + fm[2] + '~' + fm[3] + '일)', 'Fed', '정책금리·성명·기자회견 확인');
-  else add(snap.fomcNext, 'FOMC', 'Fed', '정책금리·성명 확인');
-  add(snap.pceNext, 'BEA PCE', 'BEA', '헤드라인·근원 PCE와 소비 확인');
-  add(snap.nfpNext, 'BLS 고용보고서', 'BLS', 'NFP·실업률·임금 확인');
-  add(snap.cpiNext, 'BLS CPI', 'BLS', '헤드라인·근원 CPI 확인');
-  // P875: the registry is the shared official-calendar owner. Snapshot fields
-  // cover the highest-priority releases; registry rows add ISM/retail and any
-  // future releases without inventing a browser-local cadence.
-  var registry = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases;
-  if (registry && typeof registry === 'object') {
-    Object.keys(registry).forEach(function(key) {
-      var item = registry[key] || {};
-      add(item.nextRelease, item.name || key, item.source || '공식 일정 원천', item.detail || '공식 발표 원문과 실제 관측값 대조');
-    });
-  }
-  // Avoid duplicate rows when a snapshot field and the registry describe the
-  // same release; preserve the first (snapshot-backed) provenance.
-  var seen = {};
-  rows = rows.filter(function(row) {
-    var k = row.date + '|' + row.label;
-    if (seen[k]) return false;
-    seen[k] = true;
-    return true;
-  });
-  rows.sort(function(a, b) { return a.date.localeCompare(b.date); });
-  if (!rows.length) { root.innerHTML = '<div class="cal-row"><span style="color:var(--text-muted);">등록된 미래 공식 일정 없음 · 원천 캘린더 확인</span></div>'; return; }
-  root.innerHTML = rows.map(function(row) {
-    var d = new Date(row.date + 'T00:00:00+09:00');
-    var md = (d.getMonth() + 1) + '/' + d.getDate();
-    var day = ['일','월','화','수','목','금','토'][d.getDay()];
-    return '<div class="cal-row"><span style="font-family:var(--font-mono);color:var(--text-muted);flex-shrink:0;min-width:52px;">' + md + '</span>' +
-      '<span style="color:var(--text-muted);flex-shrink:0;min-width:32px;">' + day + '</span>' +
-      '<span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">' + row.source + '</span>' +
-      '<span><b style="color:var(--text-secondary);">' + row.label + '</b> — ' + row.detail + '</span></div>';
-  }).join('');
-}
-document.addEventListener('DOMContentLoaded', renderOfficialFutureCalendar);
 
 // ── Market Health Score compatibility wrapper ──
 // P785: the formula lives in src/domain/market/health.js. This wrapper preserves the
@@ -194,38 +142,6 @@ async function updateTechIndicators() {
   }
 }
 
-// ── Support/Resistance Levels ──
-function updateSRLevels() {
-  var container = document.getElementById('sr-levels-container');
-  if (!container) return;
-  var symbol = String(window._currentTickerId || '').toUpperCase();
-  var history = (window._technicalOHLCV && window._technicalOHLCV[symbol]) || (window._tickerHistory && window._tickerHistory[symbol]) || [];
-  var rows = history.filter(function(row) { return row && row.time && row.close != null && isFinite(row.close) && row.close > 0; });
-  container.dataset.symbol = symbol;
-  if (rows.length < 20) {
-    container.textContent = (symbol || '선택 종목') + ' · 일봉 20개 이상 수신 후 가격 참고선을 표시합니다.';
-    return;
-  }
-  var last = rows[rows.length - 1];
-  var price = Number(last.close);
-  var levels = [{ label: '최근 종가', value: price }];
-  [20, 50, 200].forEach(function(period) {
-    if (rows.length < period) return;
-    var mean = rows.slice(-period).reduce(function(sum, row) { return sum + Number(row.close); }, 0) / period;
-    levels.push({ label: 'MA' + period, value: mean });
-  });
-  var recent = rows.slice(-20);
-  var highs = recent.map(function(row) { return row.high; }).filter(function(value) { return value != null && isFinite(value) && value > 0; });
-  var lows = recent.map(function(row) { return row.low; }).filter(function(value) { return value != null && isFinite(value) && value > 0; });
-  if (highs.length === 20) levels.push({ label: '20일 고가', value: Math.max.apply(null, highs) });
-  if (lows.length === 20) levels.push({ label: '20일 저가', value: Math.min.apply(null, lows) });
-  container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">' + escHtml(symbol) + ' · 관측일 ' + escHtml(last.time) + '</div>' +
-    levels.map(function(level) {
-      var distance = (level.value / price - 1) * 100;
-      return '<div style="display:flex;gap:10px;font-size:12px;padding:4px 0;"><span>' + level.label + '</span><strong>' + level.value.toFixed(2) + '</strong><span style="margin-left:auto;color:var(--text-muted);">' + (distance > 0 ? '+' : '') + distance.toFixed(1) + '%</span></div>';
-    }).join('');
-}
-
 // ── Native 캔들 차트 (US) — v52.69 아이보리 3c: TradingView 위젯을 details로 보존하고
 // kr-technical의 loadKrCandleChart() 캔들 시뮬레이션 패턴(Chart.js bar-type)을 SPY/QQQ/개별 종목에 재적용.
 // 매물대(volume profile) 히스토그램은 신규 알고리즘이 필요해 범위 밖으로 명시 제외 — 대신 표준 시간축 거래량 바 사용.
@@ -240,135 +156,6 @@ function _aioTechSma(closes, period) {
   return out;
 }
 
-async function loadTechCandleChart(symbol) {
-  symbol = (symbol || 'SPY').toString().trim().toUpperCase();
-  window._aioTechCurrentSymbol = symbol;
-  var priceCvs = document.getElementById('tech-candle-chart');
-  var volCvs = document.getElementById('tech-candle-volume');
-  // P833: the native technical route owns these canvas lifecycles.  This
-  // function remains a compatibility action for non-native fallback entry
-  // points but cannot overwrite a mounted native chart.
-  if ((priceCvs && priceCvs.closest('#page-technical[data-aio-technical-chart-renderer="native"]')) ||
-      (volCvs && volCvs.closest('#page-technical[data-aio-technical-chart-renderer="native"]'))) return;
-  if (!priceCvs || !volCvs) return;
-  priceCvs.setAttribute('aria-label', symbol + ' 일봉 캔들 및 이동평균 차트');
-  volCvs.setAttribute('aria-label', symbol + ' 일별 거래량 차트');
-
-  // 심볼 토글 활성 표시 (SPY/QQQ만 pill, 그 외 개별 티커는 둘 다 비활성)
-  var toggleWrap = document.getElementById('tech-sym-toggle');
-  if (toggleWrap) {
-    Array.prototype.forEach.call(toggleWrap.children, function(el) {
-      var active = el.getAttribute('data-arg') === symbol;
-      el.style.color = active ? 'var(--bg-base)' : 'var(--text-secondary)';
-      el.style.background = active ? 'var(--text-primary)' : 'transparent';
-    });
-  }
-
-  var rows = null;
-  try {
-    rows = typeof fetchOHLCVWithFallback === 'function' ? await fetchOHLCVWithFallback(symbol, '1day', 260) : null;
-  } catch (e) { rows = null; }
-  rows = (rows || []).filter(function(r) { return r && r.time && isFinite(r.open) && isFinite(r.high) && isFinite(r.low) && isFinite(r.close); });
-
-  if (rows.length < 20) {
-    if (typeof _showChartFallback === 'function') {
-      _showChartFallback(priceCvs, symbol + ' 일봉 차트', '데이터 수신 실패 — 잠시 후 다시 시도하거나 종목코드를 확인하세요');
-    }
-    volCvs.style.display = 'none';
-    return;
-  }
-  priceCvs.style.display = 'block'; volCvs.style.display = 'block';
-  var existingFallback = priceCvs.parentElement && priceCvs.parentElement.querySelector('.aio-chart-fallback');
-  if (existingFallback) existingFallback.remove();
-
-  // MA는 전체 수신 히스토리로 계산(MA200 확보) 후 최근 90거래일만 슬라이스해 표시
-  var closesAll = rows.map(function(r) { return r.close; });
-  var maAll = { 5: _aioTechSma(closesAll, 5), 10: _aioTechSma(closesAll, 10), 20: _aioTechSma(closesAll, 20), 50: _aioTechSma(closesAll, 50), 200: _aioTechSma(closesAll, 200) };
-  var showBars = Math.min(90, rows.length);
-  var start = rows.length - showBars;
-  var candles = rows.slice(start);
-  var ma5 = maAll[5].slice(start), ma10 = maAll[10].slice(start), ma20 = maAll[20].slice(start), ma50 = maAll[50].slice(start), ma200 = maAll[200].slice(start);
-
-  var labels = candles.map(function(c) { return c.time.slice(5); });
-  var lows = candles.map(function(c) { return Number(c.low); });
-  var highs = candles.map(function(c) { return Number(c.high); });
-  var yMin = Math.min.apply(null, lows), yMax = Math.max.apply(null, highs);
-  var yPad = Math.max((yMax - yMin) * 0.06, yMax * 0.005, 0.5);
-
-  // v52.69: canvas 2D fillStyle/strokeStyle은 var() cascade를 해석하지 않으므로 getComputedStyle로 사전 해석
-  // (loadKrCandleChart의 borderColor:'var(--data-cyan)' 직접전달 패턴은 재사용하지 않음 — 신규 코드는 안전한 쪽 채택).
-  var cs = getComputedStyle(document.documentElement);
-  var greenC = cs.getPropertyValue('--data-green').trim() || '#22754c';
-  var redC = cs.getPropertyValue('--data-red').trim() || '#b13a30';
-  var tickColor = cs.getPropertyValue('--text-muted').trim() || '#8a8271';
-  var gridColor = cs.getPropertyValue('--border-subtle').trim() || 'rgba(0,0,0,0.08)';
-  var ma5Color = cs.getPropertyValue('--text-secondary').trim() || '#57513f';
-  var ma10Color = cs.getPropertyValue('--text-muted').trim() || '#8a8271';
-  var ma20Color = cs.getPropertyValue('--text-dim').trim() || '#a29a89';
-  var ma50Color = cs.getPropertyValue('--border-strong').trim() || '#c8c0b0';
-  var colors = candles.map(function(c) { return c.close >= c.open ? greenC : redC; });
-  var volColors = candles.map(function(c) { return c.close >= c.open ? greenC + '80' : redC + '80'; });
-
-  if (window._aioChartRegistry) {
-    window._aioChartRegistry.destroyIfExists('tech-candle-chart');
-    window._aioChartRegistry.destroyIfExists('tech-candle-volume');
-  }
-
-  var priceChart = new Chart(priceCvs, {
-    data: {
-      labels: labels,
-      datasets: [
-        { type: 'bar', label: '고저', data: candles.map(function(c) { return [c.low, c.high]; }), backgroundColor: colors, barPercentage: 0.2, categoryPercentage: 0.9, borderWidth: 0 },
-        { type: 'bar', label: '시-종', data: candles.map(function(c) { return [Math.min(c.open, c.close), Math.max(c.open, c.close)]; }), backgroundColor: colors, barPercentage: 0.65, categoryPercentage: 0.9, borderWidth: 0 },
-        { type: 'line', label: 'MA5', data: ma5, borderColor: ma5Color, borderWidth: 1.2, pointRadius: 0, spanGaps: true },
-        { type: 'line', label: 'MA10', data: ma10, borderColor: ma10Color, borderWidth: 1.1, pointRadius: 0, spanGaps: true },
-        { type: 'line', label: 'MA20', data: ma20, borderColor: ma20Color, borderWidth: 1.1, pointRadius: 0, spanGaps: true },
-        { type: 'line', label: 'MA50', data: ma50, borderColor: ma50Color, borderWidth: 1, pointRadius: 0, spanGaps: true },
-        { type: 'line', label: 'MA200', data: ma200, borderColor: ma50Color, borderDash: [3, 3], borderWidth: 1, pointRadius: 0, spanGaps: true }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      scales: {
-        x: { ticks: { color: tickColor, maxRotation: 0, autoSkip: true, maxTicksLimit: 9 }, grid: { display: false } },
-        y: { beginAtZero: false, suggestedMin: yMin - yPad, suggestedMax: yMax + yPad, ticks: { color: tickColor, callback: function(v) { return Number(v).toLocaleString(); } }, grid: { color: gridColor } }
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            title: function(items) { return candles[items[0].dataIndex].time; },
-            label: function(item) {
-              if (item.datasetIndex >= 2) { var v = item.raw; return item.dataset.label + ' ' + (v != null ? Number(v).toFixed(2) : '—'); }
-              var c = candles[item.dataIndex];
-              return ['시 ' + c.open.toFixed(2), '고 ' + c.high.toFixed(2), '저 ' + c.low.toFixed(2), '종 ' + c.close.toFixed(2)];
-            }
-          }
-        }
-      }
-    }
-  });
-  var volChart = new Chart(volCvs, {
-    type: 'bar',
-    data: { labels: labels, datasets: [{ data: candles.map(function(c) { return c.volume || 0; }), backgroundColor: volColors, barPercentage: 0.8, categoryPercentage: 0.9, borderWidth: 0 }] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      scales: {
-        x: { display: false },
-        y: { ticks: { color: tickColor, maxTicksLimit: 2, callback: function(v) { return (v >= 1e6) ? (v / 1e6).toFixed(1) + 'M' : (v / 1e3).toFixed(0) + 'K'; } }, grid: { display: false } }
-      },
-      plugins: { legend: { display: false }, tooltip: { enabled: false } }
-    }
-  });
-  if (window._aioChartRegistry) {
-    window._aioChartRegistry.register('tech-candle-chart', priceChart);
-    window._aioChartRegistry.register('tech-candle-volume', volChart);
-  }
-
-  var last = candles[candles.length - 1];
-}
-window.loadTechCandleChart = loadTechCandleChart;
 function _aioTechSymSwitch(sym) { return analyzeTickerDeep(sym); }
 window._aioTechSymSwitch = _aioTechSymSwitch;
 
@@ -730,12 +517,10 @@ _aioPageBus.register('html-technical-shown', 'aio:pageShown', function(e) {
     setTimeout(function() {
       computeMarketHealth();
       updateTechIndicators();
-      updateSRLevels();
       updateWeinsteinStage();
       updateMTF();
       // P1164/B02: 한 분석 렌더의 예외가 같은 핸들러의 다음 렌더(차트 로드)를 취소하지 않게 경계를 둔다.
       try { updatePatternSignals(); } catch(e) { try { _aioLog('warn', 'technical', 'PatternSignals error: ' + (e && e.message || e)); } catch(_) {} }
-      if (typeof loadTechCandleChart === 'function') loadTechCandleChart(window._aioTechCurrentSymbol || 'SPY');
     }, 300);
   }
 });
@@ -746,7 +531,6 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
   if (techPage && techPage.classList.contains('active')) {
     computeMarketHealth();
     updateTechIndicators();
-    updateSRLevels();
     updateWeinsteinStage();
     updateMTF();
     try { updatePatternSignals(); } catch(e) { try { _aioLog('warn', 'technical', 'PatternSignals error: ' + (e && e.message || e)); } catch(_) {} }

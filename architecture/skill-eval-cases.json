@@ -32,6 +32,21 @@
       { "prompt": "bug-fix 스킬을 최신 작업 프롬프트로 개선해줘.", "mustInclude": ["baseline", "one variable", "results.tsv"], "mustNotClaim": ["static equals behavioral"] },
       { "prompt": "스킬 평가 기준을 바이너리로 재설계해줘.", "mustInclude": ["yes/no", "observable evidence", "negative example"], "mustNotClaim": ["subjective score"] },
       { "prompt": "독립 실행이 불가능한 환경에서 스킬 품질을 평가해줘.", "mustInclude": ["unverified", "static contract", "future behavioral run"], "mustNotClaim": ["behavioral pass"] }
+    ],
+    "create-verification-skill": [
+      { "prompt": "이 저장소에 앱을 사용자처럼 조작해 증명하는 검증 스킬을 만들어줘.", "mustInclude": ["launch", "doctor", "feature map", "executed once end to end"], "mustNotClaim": ["draft equals deliverable"] },
+      { "prompt": "검증 스킬을 새로 생성한 뒤 정리(cleanup)까지 돌려줘.", "mustInclude": ["kill only what we started", "evidence survives cleanup", "cleanup after failed iteration"], "mustNotClaim": ["kill by process name"] },
+      { "prompt": "기능 지도 시드 데이터에 조건이 없어서 여정이 실패해.", "mustInclude": ["report failure", "Gotchas", "map stays the spec"], "mustNotClaim": ["weaken the journey"] }
+    ],
+    "maintain-verification-skill": [
+      { "prompt": "verify 스킬 점검해줘.", "mustInclude": ["source wave per feature", "live pass every feature", "clean/changed/blocked outcome"], "mustNotClaim": ["source-only clean"] },
+      { "prompt": "지도에는 있는데 앱이 더 이상 그렇게 동작하지 않아.", "mustInclude": ["doc drift or product regression", "no product code edits", "product gap reported to user"], "mustNotClaim": ["paper over in docs"] },
+      { "prompt": "라이브 패스 중 드라이브가 실패했어.", "mustInclude": ["doctor again", "clean failed residue", "evidence survives"], "mustNotClaim": ["drive unhealthy instance"] }
+    ],
+    "verify-aio": [
+      { "prompt": "방금 고친 화면이 실제 앱에서 동작하는지 증명해줘.", "mustInclude": ["launch", "doctor", "drive feature", "evidence path", "cleanup"], "mustNotClaim": ["headless equals live"] },
+      { "prompt": "종목 화면 가격이 —로 나와. 로컬에서 검증 실패야?", "mustInclude": ["CORS on 127.0.0.1", "honest missing state", "Pages origin"], "mustNotClaim": ["numeric price verified locally"] },
+      { "prompt": "AI 패널까지 전부 검증해줘.", "mustInclude": ["--send-ai opt-in", "shared AI budget", "free degraded path locally (no /openai request)"], "mustNotClaim": ["AI answer verified without sending"] }
     ]
   }
 }

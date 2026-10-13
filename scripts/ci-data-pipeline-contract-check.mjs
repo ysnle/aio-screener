@@ -997,7 +997,7 @@ check('chat consumes Korean news translation context', /_aioGetNewsTranslation/.
 check('Telegram digest reaches SCREENER_DB memo', /_aioApplyTelegramDigestToScreenerDb/.test(data) && /_telegramMemoOverlay/.test(data) && /memoOverlay/.test(data));
 check('Telegram runtime replaces stale static narrative with dynamic artifact fields', /themes:\s*Array\.isArray\(raw\.themes\)/.test(data) && /categories:\s*Array\.isArray\(raw\.categories\)/.test(data) && /pageMap:\s*raw\.pageMap/.test(data) && /getTelegramPageCoverageAudit/.test(data));
 check('client current Telegram feed uses only the digest current24h lane', /rawCurrent24hItems/.test(data) && /AIO_TELEGRAM_CURRENT_ITEMS/.test(data) && /_aioRenderTelegramFeedHtml/.test(data));
-check('news native summary projects count, source, risk, sentiment, and shared-cut status', /renderNewsSummary/.test(newsPage) && /news-24h-count/.test(newsPage) && /news-risk-count/.test(newsPage) && /news-sent-score/.test(newsPage) && /last-fetch-time/.test(newsPage));
+check('news native summary projects count, source, risk, sentiment, and shared-cut status', /renderNewsSummary/.test(newsPage) && /news-24h-count/.test(newsPage) && !/news-risk-count|news-sent-score/.test(newsPage) && /last-fetch-time/.test(newsPage)); // P1672: sentiment/risk strip retired (P1391)
 check('browser tests cover Telegram memo injection', /T831[\s\S]{0,2400}SCREENER_DB memo/.test(tests));
 
 // v51.94/Phase 2 [B6]: getScreenerSymbols() must read the JSON artifact, not regex-scrape

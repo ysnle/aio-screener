@@ -1163,9 +1163,15 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
         });
       }
       const capLabel = { MEGA: '초대형($1T+)', LARGE: '대형($10B~1T)', MID: '중형($2~10B)', SMALL: '소형(<$2B)' }[capFilter] || capFilter;
+      // P1673: when every row of the chosen market is held because its price indicators are older than the
+      // latest session, the table is empty for lack of current data, not because no stock met the conditions.
+      const listingRows = (state?.rows || []).filter((row) => screenerMarket(row) === listingMarket);
+      const heldForData = listingRows.length > 0 && listingRows.every((row) => row.screenStatus === 'unavailable');
       const emptyMessage = state?.status === 'unavailable'
         ? '스크리너 산출물 미수신'
-        : capFilter && capHeld > 0
+        : heldForData
+          ? `${MARKET_LABELS[listingMarket] || listingMarket} ${listingRows.length}종목 모두 필수 지표가 최신 거래일 기준이 아니어서 순위 판정을 보류했습니다 — 데이터 갱신 후 표시됩니다`
+          : capFilter && capHeld > 0
           ? `조건을 충족한 0건 / 시총 정보가 없어 판정 보류 ${capHeld}건 — 시총 적격 ${rows.length - capHeld}/${rows.length} · 적용 컷 ${capLabel}`
           : '조건에 맞는 종목이 없습니다';
       // P1592 (F02): say what the search ran over and offer the way back, instead of one dead sentence.

@@ -6,6 +6,8 @@
 // leadership (52-week highs vs lows, 4% movers, with the stocks behind each count) and index
 // confirmation (S&P 500 distribution days and the index itself). Definitions live in
 // src/domain/market/breadth-signals.js; this module only presents them.
+import { deepDiveFold } from './deep-dive.js';
+import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { buildCloseSeries, buildMarketRegime, closeBasis } from '../../domain/briefing/market-read.js';
 import { collectMarketInputs } from './briefing-read.js';
 import { createTrendChart, seriesChange } from './trend-chart.js';
@@ -204,6 +206,9 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
       const members = cards.filter((card) => card.group === group.id);
       return members.length ? [el(doc, 'h2', group.title, 'breadth-group-title'), sectionLead(doc, flow.leads[group.id]), ...members.map(renderCard)] : [];
     }));
+    // P1660: the page-level teaching fold, with the link back to the 시장 상태 axis that uses these series.
+    const fold = deepDiveFold(doc, root, '시장 폭', { ...AXIS_DEEP_DIVES.breadth, related: [['signal', '시장 상태에서 추세 축과 함께 보기']] });
+    if (fold) grid.append(fold);
     renderNextSteps(doc, doc.getElementById('breadth-next'), flow.next);
     for (const [metric, date] of opened) {
       const details = grid.querySelector(`[data-metric="${metric}"] details.breadth-drill`);

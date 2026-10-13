@@ -44,7 +44,7 @@ check('research opt-out preserves non-current answer path', chat.includes('web_r
 check('required research always hands off to the shared Worker search (P1655)', chat.includes('nativeFallbackRequired: required && !decision.userOptOut'));
 check('research evidence gate is executable ESM SSOT', chat.includes('evaluateAIResearchEvidenceFloor') && !chat.includes('function _aioBuildResearchEvidenceDocuments'));
 check('Worker route does not certify native search tool', core.includes("'NATIVE_TOOL_UNVERIFIED'") && !core.includes("'NATIVE_TOOL_ROUTE_READY'") && core.includes('nativeCitationCount'));
-check('research diagnostic audit exposes contract and last preparation', core.includes('contractReady: contractReady') && core.includes('lastPreparation:') && core.includes("transport: 'shared-worker'"));
+check('P1655 research diagnostic audit exposes contract and last preparation', core.includes('contractReady: contractReady') && core.includes('lastPreparation:') && core.includes("transport: 'shared-worker'"));
 const normalizeWorkerUrl = value => String(value || '').trim().replace(/\/+$/, '');
 const configWorkerUrl = normalizeWorkerUrl(config.ai?.workerUrl);
 const operationsWorkerUrl = normalizeWorkerUrl(operations.ai?.publicChat?.workerEndpoint);

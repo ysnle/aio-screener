@@ -1,0 +1,29 @@
+{
+  "version": "v57.47",
+  "date": "2026-10-12",
+  "r": null,
+  "status": null,
+  "note": "v57.47 소유자 요청: 접힘 칸을 원리·심화 학습으로, 실패한 점수 대신 과거 결과표(나안), QA 속도(Claude). push/deploy 미실행.",
+  "p": {
+    "id": 1661,
+    "title": "검증에 실패한 0~100 시장 점수를 대신할 근거 있는 비교가 화면에 없음",
+    "symptom": "점수는 화면에서 숨겼지만, 지금 같은 불안 수준 뒤에 실제로 무슨 일이 있었는지 보여주는 자리가 없었다.",
+    "root_cause": "점수 검증(10년 21일 rho -0.17, 최근 -0.38) 뒤 숨기기만 하고 대체 정보를 만들지 않았다.",
+    "fix": "1990년 이후 VIX 구간별 S&P 500 21·63거래일 뒤 결과(평균·오른 비율·나쁜 10%·독립 구간 수)를 주 1회 Actions에서 만드는 build-stress-outcomes.mjs와 공유 순수 함수 stress-outcomes.js를 추가하고, 시장 상태 화면에 '지금과 비슷했던 날, 그 뒤 실제로는' 막대와 읽기, 깊이 보기를 붙였다. 자료 생성 전에는 숨긴다.",
+    "violated_rule": "R298 · AGENTS 근거 없는 등급 제거",
+    "prevention": "P1661: node scripts/ci-codex-structure-regression-fixture.mjs",
+    "verification": "구간 판정·독립 구간·전방 창 경계 단언, 로컬 미리보기에서 주입 자료로 표시 확인. 실제 자료는 push 후 refresh-data 운영 슬롯에서 생성."
+  },
+  "qa": [
+    {
+      "id": "QA-STRESS-OUTCOMES-01",
+      "text": "P1661: 과거 VIX 구간별 결과표가 생성되면 시장 상태 화면에 지금 구간을 표시하고, 생성 전에는 숨긴다.",
+      "verify_by": "node scripts/ci-codex-structure-regression-fixture.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "과거 불안 구간 결과",
+  "changelog": [
+    "**과거 결과표 (P1661):** 실패한 시장 점수 대신 1990년 이후 같은 VIX 구간 뒤 S&P 500의 한 달·석 달 실제 결과를 보여준다(주 1회 생성)."
+  ]
+}

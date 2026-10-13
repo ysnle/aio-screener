@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // js/aio-pages.js — P1133/R620: index.html 인라인 블록 D(3,748줄)에서 추출한 페이지 렌더러.
-// 신호 대시보드(실행 창·점수 게이지·도넛·리스크 모니터), FX/채권 페이지, 크로스에셋 매트릭스,
+// 신호 대시보드 호환 렌더러(결정 헤더·국면 파생·리스크 모니터 스냅샷 바인딩), FX/채권 페이지, 크로스에셋 매트릭스,
 // 기업분석 레거시 위젯·어닝 캘린더·리스크 레이더, RRG/섹터/테마 맵, showThemeDetail 네이티브
 // 브리지, 서브테마 상세, 가격 이력·RRG 하이드레이션, ETF/서브테마 그리드.
 //
@@ -16,184 +16,7 @@
 
 // ── Chat context: signal — 메인 CHAT_CONTEXTS에서 동적 정의됨 (중복 제거) ──
 
-// ── Execution Window Score ────────────────────────────────────────
-function getExecutionWindowScore() {
-  const now = new Date();
-  // Convert to ET: 자동으로 EDT(UTC-4)/EST(UTC-5) 구분
-  // DST: 3월 두 번째 일요일 ~ 11월 첫 번째 일요일
-  function isEDT(d) {
-    const y = d.getUTCFullYear();
-    // 3월 두 번째 일요일 (EDT 시작)
-    const marchSecondSun = new Date(Date.UTC(y, 2, 8));
-    marchSecondSun.setUTCDate(8 + (7 - marchSecondSun.getUTCDay()) % 7);
-    marchSecondSun.setUTCHours(7, 0, 0, 0); // 02:00 EST = 07:00 UTC
-    // 11월 첫 번째 일요일 (EST 복귀)
-    const novFirstSun = new Date(Date.UTC(y, 10, 1));
-    novFirstSun.setUTCDate(1 + (7 - novFirstSun.getUTCDay()) % 7);
-    novFirstSun.setUTCHours(6, 0, 0, 0); // 02:00 EDT = 06:00 UTC
-    return d >= marchSecondSun && d < novFirstSun;
-  }
-  const etOffset = isEDT(now) ? -4 * 60 : -5 * 60;
-  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-  const et = new Date(utc + etOffset * 60000);
-  const h = et.getHours(), m = et.getMinutes();
-  const hm = h * 60 + m;
-  const day = et.getDay(); // 0=Sun, 6=Sat
-
-  if (day === 0 || day === 6) return { score: 10, label: '주말 — 시장 휴장', color: 'var(--text-muted)' };
-
-  // Pre-market: 4am-9:30am ET
-  if (hm < 9*60+30) return { score: 40, label: '프리마켓 — 유동성 낮음', color: 'var(--data-amber)' };
-  // Open: 9:30-10:00 — high vol
-  if (hm < 10*60) return { score: 88, label: '개장 직후 — 최고 유동성 · 변동성↑', color: 'var(--data-green)' };
-  // Morning: 10:00-11:30
-  if (hm < 11*60+30) return { score: 80, label: '오전 주요 시간 — 좋음', color: 'var(--data-green)' };
-  // Midday slump: 11:30-14:00
-  if (hm < 14*60) return { score: 52, label: '정오 슬럼프 — 유동성 감소', color: 'var(--data-amber)' };
-  // Afternoon: 14:00-15:30
-  if (hm < 15*60+30) return { score: 75, label: '오후 회복 — 양호', color: 'var(--data-green)' };
-  // Power Hour: 15:30-16:00
-  if (hm < 16*60) return { score: 90, label: '파워아워 — 최고 거래량 · 방향성↑', color: 'var(--data-green)' };
-  // After-hours
-  return { score: 35, label: '장 마감 · 애프터마켓 — 제한적', color: 'var(--text-muted)' };
-}
-
-
-// ── Draw Score Gauge (Canvas) ─────────────────────────────────────
-function drawScoreGauge(canvasId, score, colorHex) {
-  var c = document.getElementById(canvasId);
-  if (!c) return;
-  var ctx = c.getContext('2d');
-  var W = c.width, H = c.height;
-  ctx.clearRect(0, 0, W, H);
-  var cx = W/2, cy = H/2, r = Math.min(W,H)/2 - 6;
-  var startAngle = -Math.PI * 0.8;
-  var fullArc    = Math.PI * 1.6;
-  // Background arc
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, startAngle, startAngle + fullArc);
-  ctx.strokeStyle = 'rgba(33,29,22,0.08)';  // v48.54 fix: canvas ctx는 CSS var 미해석 (Phase H sed 치환 revert)
-  ctx.lineWidth = 8;
-  ctx.lineCap = 'round';
-  ctx.stroke();
-  // Score arc
-  var pct = Math.max(0, Math.min(1, score / 100));
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, startAngle, startAngle + fullArc * pct);
-  ctx.strokeStyle = colorHex;
-  ctx.lineWidth = 8;
-  ctx.lineCap = 'round';
-  ctx.stroke();
-}
-
-// ── Draw Portfolio Donut ──────────────────────────────────────────
-function drawPortfolioDonut() {
-  var c = document.getElementById('portfolio-donut');
-  if (!c) return;
-  var ctx = c.getContext('2d');
-  var W = c.width, H = c.height;
-  ctx.clearRect(0,0,W,H);
-  var cx = W/2, cy = H/2, r = Math.min(W,H)/2 - 8, ri = r * 0.55;
-
-  // v40.4: 실제 포지션 데이터 기반 동적 도넛 차트
-  var positions = typeof getPortfolioData === 'function' ? getPortfolioData() : [];
-  let ld = window._liveData || {};
-  var SECTOR_COLORS = {'Technology':'#211d16','Healthcare':'#57513f','Financial Services':'#8a8271','Financials':'#8a8271','Consumer Cyclical':'#6f695e','Consumer':'#6f695e','Energy':'#a29a89','Industrials':'#3d3830','Consumer Defensive':'#57513f','Communication Services':'#3d3830','Utilities':'#8a8271','Real Estate':'#6f695e','Basic Materials':'#211d16','CASH':'var(--text-muted)'};
-  var TICKER_COLORS = ['#211d16','#57513f','#8a8271','#6f695e','#a29a89','#3d3830','#b8b0a0','#211d16','#57513f','#8a8271','#6f695e','#a29a89','#3d3830','#b8b0a0','#211d16'];
-
-  var data = [];
-  var totalVal = 0;
-  var legendEl = document.getElementById('pf-donut-legend');
-
-  if (positions.length === 0) {
-    // 포지션 없으면 안내 메시지
-    ctx.font = '11px Inter, sans-serif';
-    ctx.fillStyle = '#8a8271';
-    ctx.textAlign = 'center';
-    ctx.fillText('종목을 추가하면', cx, cy - 6);
-    ctx.fillText('비중이 표시됩니다', cx, cy + 10);
-    if (legendEl) legendEl.innerHTML = '';
-    return;
-  }
-
-  // 포지션별 현재 가치 계산
-  var items = [];
-  positions.forEach(function(p) {
-    var live = ld[p.ticker];
-    var price = (live && isFinite(live.price) && live.price > 0) ? live.price : p.cost;
-    var val = price * p.qty;
-    var sector = 'Unknown';
-    if (typeof _aioGetCanonicalScreenerRows === 'function') {
-      var found = _aioGetCanonicalScreenerRows().find(function(s) { return s.sym === p.ticker; });
-      if (found && found.sector) sector = found.sector;
-    }
-    items.push({ ticker: p.ticker, val: val, sector: sector, pct: 0 });
-    totalVal += val;
-  });
-
-  // 현금 포지션 체크 (CASH 티커 or localStorage)
-  var cashVal = 0;
-  try { cashVal = parseFloat(localStorage.getItem('aio_portfolio_cash') || '0'); } catch(e) {}
-  if (cashVal > 0) {
-    items.push({ ticker: 'CASH', val: cashVal, sector: 'CASH', pct: 0 });
-    totalVal += cashVal;
-  }
-
-  // 비중 계산
-  items.forEach(function(it) { it.pct = totalVal > 0 ? it.val / totalVal : 0; });
-  items.sort(function(a, b) { return b.pct - a.pct; });
-
-  // 도넛 그리기
-  var start = -Math.PI / 2;
-  items.forEach(function(d, i) {
-    if (d.pct <= 0) return;
-    var end = start + Math.PI * 2 * d.pct;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, r, start, end);
-    ctx.closePath();
-    ctx.fillStyle = d.ticker === 'CASH' ? 'var(--text-muted)' : (TICKER_COLORS[i % TICKER_COLORS.length]);
-    ctx.fill();
-    // 구분선
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(cx + r * Math.cos(start), cy + r * Math.sin(start));
-    ctx.strokeStyle = '#fbf9f5';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    start = end;
-  });
-  // Inner circle cutout
-  ctx.beginPath();
-  ctx.arc(cx, cy, ri, 0, Math.PI*2);
-  ctx.fillStyle = '#fbf9f5';
-  ctx.fill();
-  // Center text
-  ctx.font = 'bold 11px JetBrains Mono, monospace';
-  ctx.fillStyle = '#8a8271';
-  ctx.textAlign = 'center';
-  ctx.fillText(items.length + '종목', cx, cy - 2);
-  ctx.font = '10px Inter, sans-serif';
-  ctx.fillStyle = '#8a8271'; /* v48.61: Canvas는 CSS var 미해석 — hex 직접 (R43) */
-  ctx.fillText('$' + (totalVal >= 1e6 ? (totalVal/1e6).toFixed(1)+'M' : totalVal >= 1e3 ? (totalVal/1e3).toFixed(1)+'K' : totalVal.toFixed(0)), cx, cy + 12);
-
-  // 범례 생성 (도넛 아래)
-  if (legendEl) {
-    var lh = '';
-    items.slice(0, 8).forEach(function(d, i) {
-      var col = d.ticker === 'CASH' ? 'var(--text-muted)' : TICKER_COLORS[i % TICKER_COLORS.length];
-      lh += '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;font-size:11px;">';
-      lh += '<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + col + ';margin-right:4px;"></span>' + d.ticker + '</span>';
-      lh += '<span style="font-family:var(--font-mono);color:' + col + ';font-weight:700;">' + (d.pct * 100).toFixed(1) + '%</span>';
-      lh += '</div>';
-    });
-    if (items.length > 8) lh += '<div style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:4px;">+' + (items.length - 8) + '개 더</div>';
-    legendEl.innerHTML = lh;
-  }
-
-  // P831: sector allocation is owned by src/ui/pages/portfolio.js.
-}
-
+// P831: sector allocation is owned by src/ui/pages/portfolio.js.
 // v40.4: 포지션 기반 도넛 차트 (portfolio-donut과 별도)
 function drawPositionDonut() {
   var c = document.getElementById('pf-position-donut');
@@ -305,110 +128,8 @@ function saveCashPosition(val) {
 function updateRiskMonitor() {
   let ld = window._liveData || {};
 
-  // VIX
-  var vix = ld['^VIX'] ? ld['^VIX'].price : null;
-  var rmVixStatus = document.getElementById('rm-vix-status');
-  var rmVixBar = document.getElementById('rm-vix-bar');
-  if (vix !== null) {
-    var vixColor = vix < 18 ? 'var(--data-green)' : vix < 25 ? 'var(--data-cyan)' : vix < 32 ? 'var(--data-amber)' : 'var(--data-red)';
-    var vixLabel = vix < 18 ? '저변동 구간' : vix < 25 ? '통상 범위' : vix < 32 ? '변동성 경계 구간' : '고변동 구간';
-    if (rmVixStatus) { rmVixStatus.textContent = vixLabel; rmVixStatus.style.color = vixColor; rmVixStatus.style.background = vixColor.replace(')',',0.1)').replace('rgb','rgba'); }
-    if (rmVixBar) { rmVixBar.style.width = Math.min(100, (vix/40)*100) + '%'; rmVixBar.style.background = vixColor; }
-  }
-
-  // VVIX
-  var vvix = ld['^VVIX'] ? ld['^VVIX'].price : null;
-  var rmVvixStatus = document.getElementById('rm-vvix-status');
-  var rmVvixBar = document.getElementById('rm-vvix-bar');
-  if (vvix !== null) {
-    var vvixColor = vvix < 85 ? 'var(--data-green)' : vvix < 100 ? 'var(--data-amber)' : 'var(--data-red)';
-    var vvixLabel = vvix < 85 ? 'Low' : vvix < 100 ? 'Elevated' : 'Crisis';
-    if (rmVvixStatus) { rmVvixStatus.textContent = vvixLabel; rmVvixStatus.style.color = vvixColor; }
-    if (rmVvixBar) { rmVvixBar.style.width = Math.min(100, (vvix/140)*100) + '%'; rmVvixBar.style.background = vvixColor; }
-  }
-
-  // P1010: retired VXX/spot term-structure inference and dead options writers.
-  // Futures curves require maturity-specific futures quotes, not ETP returns.
-
-  // DXY
-  var dxy = ld['DX-Y.NYB'] ? ld['DX-Y.NYB'].price : null;
-  var rmDxyStatus = document.getElementById('rm-dxy-status');
-  var rmDxyBar = document.getElementById('rm-dxy-bar');
-  if (dxy !== null) {
-    var dxyColor = dxy < 100 ? 'var(--data-green)' : dxy < 104 ? 'var(--data-amber)' : 'var(--data-red)';
-    var dxyLabel = dxy < 100 ? '달러 약세' : dxy < 104 ? '보통' : dxy < 108 ? '강달러 경고' : '강달러 위험';
-    if (rmDxyStatus) { rmDxyStatus.textContent = dxyLabel; rmDxyStatus.style.color = dxyColor; }
-    if (rmDxyBar) { rmDxyBar.style.width = Math.min(100, ((dxy-90)/30)*100) + '%'; rmDxyBar.style.background = dxyColor; }
-  }
-
-  // HY 신용스프레드 — P576/P713 계열 4번째 표면(2026-07-18): HYG 달러 가격 대신 FRED HY OAS(bp) 실측만 사용
-  var hyOasBp = Number(window._hySpreadBp);
-  var hyOasOk = isFinite(hyOasBp);
-  var rmHygStatus = document.getElementById('rm-hyg-status');
-  var rmHygBar = document.getElementById('rm-hyg-bar');
-  if (hyOasOk) {
-    var hygColor = hyOasBp < 350 ? 'var(--data-green)' : hyOasBp < 450 ? 'var(--data-amber)' : 'var(--data-red)';
-    var hygLabel = hyOasBp < 350 ? '안정' : hyOasBp < 450 ? '주의' : 'HY 스트레스';
-    if (rmHygStatus) { rmHygStatus.textContent = hygLabel; rmHygStatus.style.color = hygColor; }
-    if (rmHygBar) { rmHygBar.style.width = Math.min(100, Math.max(0, ((650-hyOasBp)/400)*100)) + '%'; rmHygBar.style.background = hygColor; }
-  } else {
-    if (rmHygStatus) { rmHygStatus.textContent = '미수신'; rmHygStatus.style.color = 'var(--text-muted)'; }
-    if (rmHygBar) { rmHygBar.style.width = '0%'; }
-  }
-
-  // TNX
-  var tnx = ld['^TNX'] ? ld['^TNX'].price : null;
-  var rmTnxStatus = document.getElementById('rm-tnx-status');
-  var rmTnxBar = document.getElementById('rm-tnx-bar');
-  if (tnx !== null) {
-    var tnxColor = tnx < 4.0 ? 'var(--data-green)' : tnx < 4.5 ? 'var(--data-amber)' : 'var(--data-red)';
-    var tnxLabel = tnx < 4.0 ? '낮음' : tnx < 4.5 ? '주의' : '밸류에이션 압박';
-    if (rmTnxStatus) { rmTnxStatus.textContent = tnxLabel; rmTnxStatus.style.color = tnxColor; }
-    if (rmTnxBar) { rmTnxBar.style.width = Math.min(100, (tnx/6)*100) + '%'; rmTnxBar.style.background = tnxColor; }
-  }
-
-  // Fear & Greed
-  var _fgRiskMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-  var fg = _fgRiskMetric && _fgRiskMetric.value != null ? _fgRiskMetric.value : null;
-  var rmFgVal = document.getElementById('rm-fg-val');
-  var rmFgStatus = document.getElementById('rm-fg-status');
-  var rmFgBar = document.getElementById('rm-fg-bar');
-  if (fg !== null) {
-    var fgColor = fg <= 25 ? 'var(--data-red)' : fg <= 45 ? 'var(--data-amber)' : fg <= 55 ? 'var(--data-cyan)' : fg <= 75 ? '#22754c' : 'var(--data-green)';
-    var fgLabel = Math.round(fg) < 25 ? '극단적 공포' : Math.round(fg) < 45 ? '공포' : Math.round(fg) <= 55 ? '중립' : Math.round(fg) <= 75 ? '탐욕' : '극단적 탐욕';
-    if (rmFgVal) { rmFgVal.textContent = fg; rmFgVal.style.color = fgColor; }
-    if (rmFgStatus) { rmFgStatus.textContent = fgLabel; rmFgStatus.style.color = fgColor; }
-    if (rmFgBar) { rmFgBar.style.width = fg + '%'; rmFgBar.style.background = fgColor; }
-  }
-
-  // RSP/SPY Ratio
-  var rsp = ld['RSP'] ? ld['RSP'].price : null;
-  var spy = ld['SPY'] ? ld['SPY'].price : null;
-  var rmRspStatus = document.getElementById('rm-rspratio-status');
-  var rmRspVal = document.getElementById('rm-rspratio-val');
-  var rmRspBar = document.getElementById('rm-rspratio-bar');
-  var bbRspVal = document.getElementById('bb-rsp-val');
-  var bbRspBadge = document.getElementById('bb-rsp-badge');
-  var bbRspBar = document.getElementById('bb-rsp-bar');
-  if (rsp && spy) {
-    var ratio = rsp / spy;
-    var ratioStr = ratio.toFixed(4);
-    // 단순 가격비율은 기준시점 정규화가 없으면 시장폭·집중도를 뜻하지 않는다.
-    var rspColor = 'var(--text-secondary)';
-    var rspLabel = '가격비율 참고 · 정규화된 상대강도 아님';
-    if (rmRspVal) { rmRspVal.textContent = ratioStr; rmRspVal.style.color = rspColor; }
-    if (rmRspStatus) { rmRspStatus.textContent = rspLabel; rmRspStatus.style.color = rspColor; }
-    if (rmRspBar) { rmRspBar.style.width = Math.min(100, ratio * 300) + '%'; rmRspBar.style.background = rspColor; }
-    if (bbRspVal) { bbRspVal.textContent = ratioStr; bbRspVal.style.color = rspColor; }
-    if (bbRspBadge) { bbRspBadge.textContent = rspLabel; bbRspBadge.style.color = rspColor; }
-    if (bbRspBar) { bbRspBar.style.width = Math.min(100, ratio * 300) + '%'; bbRspBar.style.background = rspColor; }
-  } else if (rmRspStatus && typeof window._aioRenderValueSlot === 'function' && rmRspStatus.getAttribute('data-value-state') !== 'pending') {
-    // v52.41 (P656/EF-11): RSP/SPY 라이브 미수신 시 정적 "수신 대기" 시드가 무기한 잔존하던 것을 정직화.
-    window._aioRenderValueSlot(rmRspStatus, 'pending', null, { text: '수신 대기', reason: 'RSP 또는 SPY 라이브 시세 미수신' });
-  }
-
-  // P1010: individual risk observations remain; the unvalidated composite and
-  // its VIX substitution for absent HY/10Y observations are retired.
+  // P1672: the rm-* / bb-rsp-* risk cards left the page (P1010/P1392); only the [data-snap]
+  // bindings below still have sinks.
 
   // v38.8: Risk Heatmap CP1/CP6 data-snap 동적 업데이트
   // v48.51: NARRATIVE_ENGINE 실시간 바인딩 — CP1~CP8 stale 데이터 자동 갱신
@@ -452,327 +173,15 @@ function updateRiskMonitor() {
   if (typeof window._aioRenderSnapshotDateBindings === 'function') window._aioRenderSnapshotDateBindings();
 }
 
-// ── Update Sector Heatmap Colors ──────────────────────────────────
-function updateSectorHeatmap() {
-  document.querySelectorAll('#sector-heatmap .sec-tile').forEach(function(tile) {
-    var sym = tile.dataset.sym;
-    var chgEl = tile.querySelector('.sec-chg');
-    if (!chgEl) return;
-    var txt = chgEl.textContent;
-    var num = parseFloat(txt);
-    if (isNaN(num)) return;
-    var intensity = Math.min(Math.abs(num) / 3, 1);
-    if (num >= 0) {
-      tile.style.background = 'rgba(34,117,76,' + (0.05 + intensity * 0.25) + ')';
-      tile.style.borderColor = 'rgba(34,117,76,' + (0.15 + intensity * 0.25) + ')';
-      chgEl.style.color = 'var(--data-green)';
-    } else {
-      tile.style.background = 'rgba(177,58,48,' + (0.05 + intensity * 0.25) + ')';
-      tile.style.borderColor = 'rgba(177,58,48,' + (0.15 + intensity * 0.25) + ')';
-      chgEl.style.color = 'var(--data-red)';
-    }
-  });
-}
-
-// ── Render Score Bars ──────────────────────────────────────────────
-function renderScoreBars(scores) {
-  var container = document.getElementById('score-bars-container');
-  if (!container) return;
-  var components = [
-    { key: 'volScore',    label: '변동성',    weight: 25, score: scores.volScore,     page: 'sentiment' },
-    { key: 'momScore',    label: '모멘텀',    weight: 25, score: scores.momScore,     page: 'technical' },
-    { key: 'trendScore',  label: '추세',      weight: 20, score: scores.trendScore,   page: 'technical' },
-    { key: 'breadthScore',label: '시장폭',    weight: 20, score: scores.breadthScore, page: 'breadth' },
-    { key: 'macroScore',  label: '매크로',    weight: 10, score: scores.macroScore,   page: 'macro' },
-  ];
-  container.innerHTML = components.map(function(c) {
-    if (c.score == null || !isFinite(Number(c.score))) {
-      return '<div class="score-bar-row">' +
-        '<div class="sb-label cross-link" data-action="showPage" data-arg="' + escHtml(c.page) + '" title="' + c.label + ' 상세 분석 →">' + c.label + ' →</div>' +
-        '<div class="sb-wrap"><div class="sb-fill" style="width:0%;background:var(--border);"></div></div>' +
-        '<div class="sb-val" style="color:var(--text-muted);">—</div>' +
-        '<div class="sb-wt">' + c.weight + '%</div></div>';
-    }
-    var color = c.score >= 70 ? 'var(--data-green)' : c.score >= 50 ? 'var(--data-cyan)' : c.score >= 35 ? 'var(--data-amber)' : 'var(--data-red)';
-    return '<div class="score-bar-row">' +
-      '<div class="sb-label cross-link" data-action="showPage" data-arg="' + escHtml(c.page) + '" title="' + c.label + ' 상세 분석 →">' + c.label + ' →</div>' +
-      '<div class="sb-wrap"><div class="sb-fill" style="width:' + c.score + '%;background:' + color + ';"></div></div>' +
-      '<div class="sb-val" style="color:' + color + ';">' + c.score + '</div>' +
-      '<div class="sb-wt">' + c.weight + '%</div>' +
-    '</div>';
-  }).join('');
-}
-
-// ── Main: Init Signal Dashboard ───────────────────────────────────
-// ── 미너비니 4단계 바닥 프로세스 동적 판별 (v38.9) ──
-function updateBottomProcess() {
-  let ld = window._liveData || {};
-  var vix = ld['^VIX'] ? ld['^VIX'].price : null;
-  var spx = ld['^GSPC'] ? ld['^GSPC'].price : (ld['SPY'] ? ld['SPY'].price : null);
-  var _fgBottomMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-  var fg = _fgBottomMetric && _fgBottomMetric.value != null ? _fgBottomMetric.value : null;
-  var score = 0;
-  try { score = computeTradingScore('swing').total; } catch(e) {}
-
-  // 시장폭 데이터 (전역 캐시에서 읽기)
-  var b5 = (typeof window._breadth5 === 'number') ? window._breadth5 : null;
-  var b50 = (typeof window._breadth50 === 'number') ? window._breadth50 : null;
-
-  // 200SMA 관계
-  var spx200 = null;
-  var sma200El = document.querySelector('[data-field="spx200sma"]');
-  if (sma200El) spx200 = parseFloat(sma200El.textContent.replace(/,/g,''));
-  if (!spx200) {
-    var rawSma = ld['^GSPC'] ? ld['^GSPC'].sma200 : null;
-    if (rawSma) spx200 = rawSma;
-  }
-
-  var stageEl = document.getElementById('bottom-process-stage');
-  var s1 = document.getElementById('bp-step1');
-  var s2 = document.getElementById('bp-step2');
-  var s3 = document.getElementById('bp-step3');
-  var s4 = document.getElementById('bp-step4');
-  var c1 = document.getElementById('bp-step1-check');
-  var c2 = document.getElementById('bp-step2-check');
-  var c3 = document.getElementById('bp-step3-check');
-  var c4 = document.getElementById('bp-step4-check');
-  var actionEl = document.getElementById('bp-action-guide');
-
-  if (!stageEl) return;
-
-  // 판별 로직 — v46.9: b5/b50 null 안전 처리 (P91)
-  var isOversold = (vix && vix > 25) || (fg != null && fg < 30) || (score < 35) || (b5 != null && b5 < 25) || (b5 == null && score < 50);
-  var isRallying = score >= 35 && score < 60 && (b5 != null ? b5 > 30 : true);
-  var isHealthyRally = b5 != null && b5 > 50 && (b50 != null ? b50 > 40 : true);
-  var isBreadthThrust = b5 != null && b5 > 70 && (b50 != null ? b50 > 60 : true) && score >= 60;
-  var belowSma200 = spx && spx200 && spx < spx200;
-
-  var stage = 0;
-  var stageLabel = '', stageColor = '', stageBg = '';
-
-  if (isBreadthThrust) {
-    stage = 4;
-    stageLabel = '4단계: 브레드쓰 스러스트 (Breadth Thrust)';
-    stageColor = 'var(--data-green)'; stageBg = 'rgba(34,117,76,0.15)';
-  } else if (isHealthyRally) {
-    stage = 3;
-    stageLabel = '3단계: 리테스트 관찰';
-    stageColor = 'var(--data-cyan)'; stageBg = 'rgba(33,29,22,0.15)';
-  } else if (isRallying) {
-    stage = 2;
-    stageLabel = '2단계: 랠리 품질 관찰';
-    stageColor = 'var(--data-amber)'; stageBg = 'rgba(33,29,22,0.15)';
-  } else if (isOversold) {
-    stage = 1;
-    stageLabel = '1단계: 과매도';
-    stageColor = 'var(--data-red)'; stageBg = 'rgba(177,58,48,0.15)';
-  } else {
-    stage = 0;
-    stageLabel = '정상 환경';
-    stageColor = 'var(--data-green)'; stageBg = 'rgba(34,117,76,0.15)';
-  }
-
-  stageEl.textContent = stageLabel;
-  stageEl.style.color = stageColor;
-  stageEl.style.background = stageBg;
-
-  // 각 단계 카드 강조
-  var activeStyle = function(el, active) {
-    if (!el) return;
-    el.style.opacity = active ? '1' : '0.5';
-    el.style.transform = active ? 'scale(1.02)' : 'scale(1)';
-  };
-  activeStyle(s1, stage === 1);
-  activeStyle(s2, stage === 2);
-  activeStyle(s3, stage === 3);
-  activeStyle(s4, stage === 4);
-
-  // 체크 사항 표시
-  if (c1) c1.innerHTML = (vix ? '• VIX: ' + vix.toFixed(1) + (vix > 25 ? ' ' : ' ') : '') +
-    (fg ? ' • F&G: ' + fg + (fg < 30 ? ' ' : ' ') : '') +
-    (b5 ? ' • 5SMA: ' + b5.toFixed(0) + '%' + (b5 < 25 ? ' ' : ' ') : '');
-  if (c2) c2.innerHTML = (b5 ? '• 5SMA 위: ' + b5.toFixed(0) + '%' + (b5 > 50 ? ' (광범위)' : b5 > 30 ? ' (제한적)' : ' (숏커버링 의심)') : '—') +
-    (belowSma200 ? '<br>• SPX < 200SMA → 반추세(countertrend) 행동' : '');
-  if (c3) c3.innerHTML = b50 ? '• 50SMA 위: ' + b50.toFixed(0) + '%' + (b50 > 40 ? ' (매도 압력 감소)' : ' (매도 지속)') : '—';
-  if (c4) c4.innerHTML = isBreadthThrust ? '시장폭 확인 — 광범위 참여' : '대기 중';
-
-  // 행동 가이드 동적 업데이트
-  if (actionEl) {
-    if (stage <= 1) {
-      actionEl.innerHTML = ' <b>프레임워크 해석:</b> 신규 매수 조건이 충족되지 않은 상태입니다. 상대강도(RS)가 높고 가격 움직임이 좁은 종목은 관찰 목록에서 시장 전환 때의 변화를 봅니다.';
-      actionEl.style.borderColor = 'var(--data-red)';
-    } else if (stage === 2) {
-      actionEl.innerHTML = ' <b>프레임워크 해석:</b> 랠리 품질을 관찰하는 단계입니다. Follow-through가 확인되기 전에는 상승 지속 여부가 불확실합니다. 리더십 종목이 적절한 셋업(VCP, 돌파)을 형성하는지 지켜봅니다.';
-      actionEl.style.borderColor = 'var(--data-amber)';
-    } else if (stage === 3) {
-      actionEl.innerHTML = ' <b>현재 관측:</b> 리테스트 진행 구간. 프레임워크상 매도 압력 감소 여부와 리더주 셋업 완성 여부가 다음 관찰 포인트입니다(지시 아님).';
-      actionEl.style.borderColor = 'var(--data-cyan)';
-    } else {
-      actionEl.innerHTML = ' <b>프레임워크 해석:</b> 바닥 확인 단계입니다. 리더주가 셋업을 완성하는지와 시장폭이 유지되는지를 지켜봅니다.';
-      actionEl.style.borderColor = 'var(--data-green)';
-    }
-  }
-}
-
-// ── Exit Triggers 동적 수치 업데이트 (v38.8) ──
-function updateExitTriggers() {
-  var spx = _ldSafe('^GSPC','price') || _ldSafe('SPY','price');
-  var dxy = _ldSafe('DX-Y.NYB','price') || _ldSafe('UUP','price');
-  var hyg = _ldSafe('HYG','price');
-  var elSpx = document.getElementById('exit-spx-level');
-  var elDxy = document.getElementById('exit-dxy-level');
-  var elHyg = document.getElementById('exit-hyg-level');
-  if (elSpx && spx) {
-    // v50.19: 단순 -10% → 실제 기술적 손절. 200일선(주요 추세 지지)이 현재가 아래면 그 레벨, 이미 하회/미가용 시 50일선→-10% 폴백
-    var _fbX = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) || {};
-    var spx200 = (window._spxMA && window._spxMA[200]) || _fbX.spx200ma || null;
-    var spx50  = (window._spxMA && window._spxMA[50])  || _fbX.spx50ma  || null;
-    var spxTrigger, spxBasis;
-    if (spx200 && spx200 < spx * 0.995) { spxTrigger = Math.round(spx200 / 10) * 10; spxBasis = '200일선(추세 지지)'; }
-    else if (spx50 && spx50 < spx * 0.995) { spxTrigger = Math.round(spx50 / 10) * 10; spxBasis = '50일선(중기 지지)'; }
-    else { spxTrigger = Math.round(spx * 0.9 / 50) * 50; spxBasis = '-10%(이평선 폴백)'; }
-    elSpx.textContent = spxTrigger.toLocaleString();
-    var elSpxBasis = document.getElementById('exit-spx-basis');
-    if (elSpxBasis) elSpxBasis.textContent = spxBasis;
-  }
-  if (elDxy && dxy) {
-    var dxyTrigger = (Math.ceil((dxy * 1.05) * 10) / 10).toFixed(1); // +5%, 소수점 1자리
-    elDxy.textContent = dxyTrigger;
-  }
-  if (elHyg && hyg) {
-    var hygTrigger = (Math.floor((hyg * 0.95) * 100) / 100).toFixed(2); // -5%
-    elHyg.textContent = '$' + hygTrigger;
-  }
-}
-
 var _signalMode = 'swing';
 var _signalInterval = null;
 
-// ── 진입 체크리스트 실시간 업데이트 (Jeff Sun Hard Rules) ──
-function updateEntryChecklist() {
-  let ld = window._liveData || {};
-  var vixD = ld['^VIX'];
-  var spyD = ld['SPY'];
-  var health = typeof computeMarketHealth === 'function' ? computeMarketHealth() : null;
-  // QA-SIG-27/P1263: 집계는 도메인의 단일 소유자(`summarizeEntryChecklist`)가 한다 — 셸은
-  // 5조건의 판정만 수집한다. 미보고 조건도 명시적으로 대기(null)로 남긴다(통과·미충족으로
-  // 만들지 않는다). E2/LC-26의 3상 분리 문구는 그대로 유지된다.
-  var states = [];
-
-  // 섹터 ETF 상승 비율
-  var sectorETFs = ['XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLRE','XLB','XLU','XLC'];
-  var upCount = 0, totalSectors = 0;
-  sectorETFs.forEach(function(s) { var d = ld[s]; if (d && d.pct != null) { totalSectors++; if (d.pct >= 0) upCount++; } });
-  var breadthPct = totalSectors > 0 ? Math.round(upCount / totalSectors * 100) : 0;
-
-  function setCheck(id, ok, val) {
-    states.push({ id: id, ok: ok === true ? true : ok === false ? false : null });
-    var el = document.getElementById(id);
-    if (!el) return;
-    var icon = el.querySelector('.ec-icon');
-    var valEl = el.querySelector('.ec-val');
-    if (icon) {
-      icon.textContent = ok ? '통과' : (ok === null ? '대기' : '미충족');
-      icon.style.color = ok ? 'var(--data-green)' : (ok === null ? 'var(--text-muted)' : 'var(--data-red)');
-    }
-    if (valEl) valEl.textContent = val;
-    // v52.65 아이보리 2a: 셀 좌측 컬러 스트라이프 제거(원칙 §3) — 통과/미충족은 텍스트 색만으로 표시
-  }
-
-  // 1. VIX < 25
-  if (vixD && vixD.price != null) {
-    setCheck('ec-vix', vixD.price < 25, vixD.price.toFixed(1));
-  } else {
-    setCheck('ec-vix', null, '미수신');
-  }
-
-  // 2. 시장 스코어 55+ — P715: fail-closed로 score가 null일 수 있음(서버 시세 백스톱 제거 후
-  // 오프라인/미수신 부팅에서 "null점" 노출 실증). 유한값일 때만 표기, 아니면 명시적 미수신.
-  if (health && typeof health.score === 'number' && isFinite(health.score)) {
-    setCheck('ec-score', health.score >= 55, health.score + '점');
-  } else {
-    setCheck('ec-score', null, '미수신');
-  }
-
-  // 3. 섹터 폭 50%+
-  if (totalSectors > 0) {
-    setCheck('ec-breadth', breadthPct >= 50, upCount + '/' + totalSectors + ' (' + breadthPct + '%)');
-  } else {
-    setCheck('ec-breadth', null, '미수신');
-  }
-
-  // 4. 연속 상승 경고 (SPY 당일 변동으로 간이 판단)
-  if (spyD && spyD.pct != null) {
-    var streak = spyD.pct >= 0;
-    setCheck('ec-streak', !streak || spyD.pct < 1.5, spyD.pct >= 0 ? '+' + spyD.pct.toFixed(1) + '%' : spyD.pct.toFixed(1) + '%');
-  } else {
-    setCheck('ec-streak', null, '미수신');
-  }
-
-  // 5. FOMC/CPI 48시간 이내 — v46.9: 동적 FOMC + 미래 이벤트만 (P89)
-  // P1164/B01: 일정 원천이 없거나 형식을 해석할 수 없는 상태를 '이벤트 없음' 통과로 바꾸지 않는다.
-  // 수집된 일정에서 48h 안에 이벤트가 없을 때만 통과이고, 원천 부재·형식 불명은 대기(미수신)다.
-  var eventSnap = window.DATA_SNAPSHOT || {};
-  var eventDates = [];
-  var eventFieldsPresent = 0;
-  var eventFieldsParsed = 0;
-  var _collectEventField = function(raw, rangeForm) {
-    var s = String(raw == null ? '' : raw).trim();
-    if (!s) return;
-    eventFieldsPresent++;
-    var range = rangeForm ? s.match(/^(\d{4}-\d{2}-)(\d{2})~(\d{2})$/) : null;
-    if (range) { eventDates.push(range[1] + range[2], range[1] + range[3]); eventFieldsParsed++; return; }
-    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) { eventDates.push(s); eventFieldsParsed++; }
-  };
-  _collectEventField(eventSnap.fomcNext, true);
-  _collectEventField(eventSnap.cpiNext, false);
-  _collectEventField(eventSnap.bokNext, false);
-  if (eventFieldsParsed === 0) {
-    setCheck('ec-event', null, eventFieldsPresent > 0 ? '일정 형식 확인 불가' : '경제 일정 미수신');
-  } else {
-    var now = new Date();
-    var nearEvent = false;
-    eventDates.forEach(function(ds) {
-      var d = new Date(ds + 'T00:00:00');
-      var diff = (d - now) / (1000 * 60 * 60);
-      if (diff > -24 && diff < 48) nearEvent = true;
-    });
-    setCheck('ec-event', !nearEvent, nearEvent ? '48h 이내 이벤트' : '48h 이내 일정 없음');
-  }
-
-  // 요약 — QA-SIG-27/P1263: 집계 단일 소유자(bootstrap 브리지)가 모드 revision·decisionThreshold를
-  // 함께 발행한다. 브리지가 없으면 요약을 지어내지 않고 판정 보류로 남는다.
-  var sumEl = document.getElementById('entry-check-summary');
-  if (sumEl) {
-    var summarize = (typeof window._sigSummarizeEntryChecklist === 'function') ? window._sigSummarizeEntryChecklist : null;
-    var summary = summarize ? summarize(states) : null;
-    if (!summary) {
-      sumEl.textContent = '체크리스트 집계 모듈 미연결 — 판정 보류';
-      sumEl.style.color = 'var(--text-muted)';
-      delete sumEl.dataset.modeRevision;
-      delete sumEl.dataset.decisionThreshold;
-    } else {
-      var passed = summary.passed;
-      // P720: 시스템 발화형 판정("진입 검토 가능/자제")을 관측형(조건 충족도)으로 전환 — P714 정합.
-      // LC-26: 통과/미충족/대기를 분리해 표시한다. 대기가 남은 상태에서 '조건 대부분 충족'으로
-      // 단정하지 않는다 — 점수 보류와 조건부 통과가 같은 문구로 섞이던 결함.
-      var color = passed >= 4 ? 'var(--data-green)' : passed >= 3 ? 'var(--data-amber)' : 'var(--data-red)';
-      sumEl.textContent = '통과 ' + summary.passed + ' · 미충족 ' + summary.failed + ' · 대기 ' + summary.pending + ' (' + summary.passed + '/' + summary.total + ' ' + summary.label + ')';
-      sumEl.style.color = color;
-      // 모드 revision 결속: 이 집계가 어느 모드 revision·임계값 정책에서 나왔는지 결과가 실고 간다.
-      sumEl.dataset.modeRevision = summary.modeRevision;
-      sumEl.dataset.decisionThreshold = summary.decisionThreshold == null ? 'null' : String(summary.decisionThreshold);
-    }
-  }
-}
-
-// aio:liveQuotes 이벤트에서 체크리스트 + 브레드쓰 바 업데이트
+// aio:liveQuotes 이벤트에서 브레드쓰 바 업데이트
 // v48.99: _aioPageBus 마이그 (P180)
 // v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
 document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-signal-checklist-live', 'aio:liveQuotes', function() {
   if (document.getElementById('page-signal') && document.getElementById('page-signal').classList.contains('active')) {
-    updateEntryChecklist();
     // v42.7: signal 페이지의 시장 폭 바(bb-5sma-bar 등) 갱신 — breadth 페이지 미방문 시에도 최신값 표시
     if (typeof updateBreadthBars === 'function') try { updateBreadthBars(); } catch(e) {}
   }
@@ -780,8 +189,6 @@ _aioPageBus.register('html-signal-checklist-live', 'aio:liveQuotes', function() 
 });
 
 function initSignalDashboard() {
-  // Draw portfolio donut once
-  drawPortfolioDonut();
   // E2/LC-26: restore the declared mode into the pill/description. Static markup defaults to
   // swing, so a persisted day mode must be re-applied on entry or the pill would lie.
   try {
@@ -789,24 +196,9 @@ function initSignalDashboard() {
       ? window.AIO_ARCH.signalScoreMode.get() : _signalMode;
     if (typeof toggleSignalMode === 'function') toggleSignalMode(declaredMode);
   } catch(_) {}
-  // 진입 체크리스트 초기 업데이트
-  setTimeout(updateEntryChecklist, 500);
-
-  // Init ticker bar duplication for seamless loop
-  var track = document.getElementById('sig-ticker-track');
-  if (track && !track.dataset.duped) {
-    track.innerHTML += track.innerHTML;
-    track.dataset.duped = '1';
-  }
-
   refreshSignalDashboard();
-  updateExitTriggers();
-  updateBottomProcess();
   // v48.91: 타이머 레지스트리 등록
   _signalInterval = _aioRegisterTimer('signalDashboard', refreshSignalDashboard, T.SIGNAL_REFRESH);
-  // v46.9: signal 페이지 재진입 시 refreshSignal 즉시 1회 호출 (P83)
-  // v48.27 (P7): _refreshSignalInterval 이중 등록 race 방지 — 앱 초기화(23748)에서 등록한 단일 interval 유지
-  refreshSignal();
 
   // Init chat
   if (window.CHAT_DEFAULT_CHIPS) {
@@ -823,111 +215,12 @@ function _aioIsNativeSignalHero() {
 window._aioIsNativeSignalHero = _aioIsNativeSignalHero;
 
 function refreshSignalDashboard() {
-  // E2/LC-26: read the one declared revision (AIO_ARCH owner) instead of a page-local copy, so
-  // this legacy widget cannot compute a different mode than the native hero it sits beside.
-  var mode = (window.AIO_ARCH && window.AIO_ARCH.signalScoreMode && typeof window.AIO_ARCH.signalScoreMode.get === 'function')
-    ? window.AIO_ARCH.signalScoreMode.get() : _signalMode;
-  var scores = computeTradingScore(mode);
-  var total = scores.total;
-  var totalFinite = typeof total === 'number' && isFinite(total);
-  var displayTotal = totalFinite ? Math.round(total) : null;
-
-  // Decision — 5-tier system
-  var decision, decColor, decBg, decSub;
-  if (!totalFinite || scores.partial) {
-    decision = !totalFinite ? '판정 보류 — 판단 등급 입력 없음' : '판정 보류 — 부분 데이터 점수';
-    decColor = 'var(--text-muted)'; decBg = 'transparent';
-    decSub = !totalFinite ? '실시간·검증된 시장 입력이 없어 점수와 실행 판단을 표시하지 않습니다.' : '미수신 구성요소(' + (scores.componentMissing || []).join(', ') + ')는 중립값으로만 계산했습니다. 현재 진입 판단에는 사용하지 않습니다.';
-  } else if (total >= 75) {
-    decision = '스트레스 신호 적음 — 종목별 근거 별도 확인';
-    decColor = '#22754c'; decBg = 'rgba(34,117,76,0.15)';
-    decSub = '현재 시장 입력 조합에서 스트레스 신호가 적게 관측됩니다. 점수는 예측 신호가 아니며(부분 백테스트에서는 선행수익률과 음의 상관 관측) 종목별 거래량·손익비·무효화 가격은 별도로 확인할 항목입니다.';
-  } else if (total >= 60) {
-    decision = '스트레스 신호 일부 — 단독 판단 근거 아님';
-    decColor = 'var(--data-green)'; decBg = 'rgba(34,117,76,0.15)';
-    decSub = '일부 입력에서 스트레스가 관측됩니다. 2016~2026 부분 백테스트(입력 가중치 55%)에서 이 점수와 21·63일 선행수익률은 음(−)의 상관이 관측되어, 점수는 매수/매도 타이밍의 근거가 되지 않습니다.';
-  } else if (total >= 45) {
-    decision = '중립 — 신호 혼재';
-    decColor = 'var(--data-cyan)'; decBg = 'rgba(33,29,22,0.15)';
-    decSub = '시장 신호가 혼재된 환경입니다. 점수는 예측 신호가 아니므로 진입/비중 결정은 종목별 근거와 본인 리스크 한도로 판단하세요.';
-  } else if (total >= 30) {
-    decision = '주의 — 비중 부담 점검';
-    decColor = 'var(--data-amber)'; decBg = 'rgba(33,29,22,0.15)';
-    decSub = '스트레스 신호가 늘어난 구간입니다. 기존 포지션의 방어선, 현금 비중, 헤지 여부는 본인 기준으로 확인할 항목입니다.';
-  } else {
-    decision = '위험 — 방어 조건 점검';
-    decColor = '#b13a30'; decBg = 'rgba(177,58,48,0.15)';
-    decSub = '스트레스 신호가 다수인 구간입니다. 신규 진입 여부와 현금·헤지 노출, VIX 변화는 본인 기준으로 확인할 항목입니다.';
-  }
-
-  // Update the compatibility canvas only when the legacy hero owns the surface.
-  // The native analysis renderer owns the visible score sinks; drawing its hidden
-  // 110px canvas on every route/quote refresh was an avoidable first-paint cost.
-  var _nativeSignalHero = _aioIsNativeSignalHero();
-  if (!_nativeSignalHero) drawScoreGauge('score-gauge-canvas', totalFinite ? displayTotal : null, decColor);
-  // v52.65 아이보리 2a: 히어로 스코어/판단문은 시안처럼 항상 잉크색 텍스트 — decColor는 캔버스 게이지(숨김)에만 사용
-  // P786: analysis.js owns the three signal decision hero sinks. Keep this
-  // function as a compatibility/secondary renderer, but never let it win a
-  // native signal render through last-writer-wins ordering.
-  if (!_nativeSignalHero) {
-    var gv = document.querySelector('#score-gauge-val');
-    if (gv) { gv.textContent = totalFinite ? displayTotal + (scores.partial ? '*' : '') : '—'; }
-    var badge = document.querySelector('#score-decision-badge');
-    if (badge) { badge.textContent = decision; }
-    var dsub = document.querySelector('#score-decision-sub');
-    if (dsub) { dsub.textContent = decSub; }
-  }
-  var ts = document.getElementById('score-ts');
-  if (ts) ts.textContent = '갱신: ' + new Date().toLocaleTimeString('ko-KR');
-  var lr = document.getElementById('sig-last-refresh');
-  if (lr) lr.textContent = '⟳ ' + new Date().toLocaleTimeString('ko-KR');
-
-  // P559/R250: force the shared decision header to re-render in lockstep with this gauge,
-  // same fix as refreshHomeDashboard (P553) — otherwise the header (built by _aioDefaultDecision,
-  // now reading the same 'swing' mode via AIO_PAGE_SCORE_MODE) could still momentarily lag
-  // this widget's own refresh cadence.
+  // P1670: the legacy signal widgets this painted (canvas gauge, decision badge, score bars, hero
+  // factor bars, advice box, execution-window score, metric pills, phase label, timestamps) have
+  // left the page; src/ui/pages/analysis.js owns the signal hero. Keep the shared decision
+  // header, the regime/execution-window derivations and the snapshot/pulse writers that still
+  // have live sinks.
   try { if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('signal'); } catch(_) {}
-
-  // Render score bars
-  renderScoreBars(scores);
-
-  // v52.65 아이보리 2a: 히어로 인라인 5팩터 미니바 — "가중 기여도/만점" 표기(시안과 동일 포맷)
-  var heroFactorsEl = document.getElementById('signal-hero-factors');
-  if (heroFactorsEl) {
-    // P1164/B01: 미수신 구성요소를 0점으로 만들지 않는다. renderScoreBars()는 같은
-    // 구성요소의 null을 '—'로 표시하는데 이 미니바만 Number(null)=0으로 '0/25'를 만들었다.
-    var _hfClamp = function(v) { var n = Number(v); return (v == null || !isFinite(n)) ? null : Math.max(0, Math.min(100, n)); };
-    var _hfVal = function(v, weight) { var c = _hfClamp(v); return c == null ? null : Math.round(c * weight); };
-    var hfComps = [
-      { label: '변동성', v: _hfVal(scores.volScore, 0.25), max: 25 },
-      { label: '모멘텀', v: _hfVal(scores.momScore, 0.25), max: 25 },
-      { label: '추세',   v: _hfVal(scores.trendScore, 0.20), max: 20 },
-      { label: '시장폭', v: _hfVal(scores.breadthScore, 0.20), max: 20 },
-      { label: '거시',   v: _hfVal(scores.macroScore, 0.10), max: 10 }
-    ];
-    heroFactorsEl.innerHTML = hfComps.map(function(c) {
-      var pct = c.v == null ? 0 : Math.round((c.v / c.max) * 100);
-      return '<div style="display:flex;align-items:center;gap:12px;">' +
-        '<span style="font-size:12px;color:var(--text-muted);width:40px;flex-shrink:0;">' + c.label + '</span>' +
-        '<div style="flex:1;height:3px;background:var(--border-subtle);border-radius:2px;min-width:60px;"><div style="width:' + pct + '%;height:100%;background:var(--text-primary);border-radius:2px;"></div></div>' +
-        '<span style="font-size:12px;font-weight:600;color:' + (c.v == null ? 'var(--text-muted)' : 'var(--text-primary)') + ';font-variant-numeric:tabular-nums;width:44px;text-align:right;flex-shrink:0;">' + (c.v == null ? '—' : c.v) + '/' + c.max + '</span>' +
-        '</div>';
-    }).join('');
-  }
-
-  // ── Render Action Guidance (Signal Advice) — v31.2: grid 바깥 전용 컨테이너 사용
-  var adviceContainer = document.getElementById('signal-advice-container');
-  if (adviceContainer) {
-    var adv = scores.partial ? { action:'판정 보류', text:'현재 추세·시장 폭 원천이 완전하지 않아 참고 점수만 표시합니다.', color:'var(--text-muted)' } : getScoreAdvice(total);
-    adviceContainer.innerHTML = '<div style="padding:12px 16px;border-radius:4px;font-size:13px;line-height:1.5;background:' + adv.color + '15;border:1px solid ' + adv.color + '30;color:#8a8271;"><strong style="color:' + adv.color + '">[' + adv.action + ']</strong> ' + adv.text + '</div>';
-  }
-
-  // Execution window (enhanced v20+)
-  var ew = getExecutionWindowScore();
-  var ewScoreEl = document.getElementById('exec-window-score');
-  var ewLabel = document.getElementById('exec-window-label');
-  if (ewScoreEl) { ewScoreEl.textContent = ew.score; ewScoreEl.style.color = ew.color; }
-  if (ewLabel) { ewLabel.textContent = ew.label; ewLabel.style.color = ew.color; }
 
   // v20+: Execution Window 상세 계산 (셋업 실현율)
   try { computeExecutionWindow(); } catch(e) { _aioLog('warn', 'render', 'ExecutionWindow error: ' + (e && e.message || e)); }
@@ -935,48 +228,11 @@ function refreshSignalDashboard() {
   // v20+: 시장 국면 분류
   try { classifyMarketRegime(); } catch(e) { _aioLog('warn', 'regime', 'MarketRegime error: ' + (e && e.message || e)); }
 
-  // Risk monitor
+  // Risk monitor (its [data-snap] writers still reach the macro/market pages)
   updateRiskMonitor();
-
-  // Sector heatmap colors
-  setTimeout(updateSectorHeatmap, 500);
 
   // v42.1: 마켓 펄스 바 업데이트
   try { updateMarketPulse(); } catch(e) {}
-
-  // v50.77: Minervini-style 메트릭 필 + 매수 국면 레이블 업데이트
-  try {
-    var mvStrip = document.getElementById('signal-mv-strip');
-    var phaseEl = document.getElementById('signal-phase-label');
-    if (mvStrip) {
-      var ld77 = window._liveData || {};
-      var vixVal = ld77['^VIX'] && Number(ld77['^VIX'].price) > 0 ? Number(ld77['^VIX'].price) : null; // P1368: a missing VIX is not 20
-      // v52.7 P607/R261: window._fearGreedValue phantom global 시정 — window._lastFG로 전환 (aio-core.js:23234 동일 수정)
-      var _fg77m = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-      var fg77 = _fg77m && _fg77m.value != null ? _fg77m.value : null;
-      var ts77 = totalFinite ? displayTotal : null;
-      var vixCol77 = vixVal == null ? 'var(--text-muted)' : vixVal < 20 ? 'var(--data-green)' : vixVal < 25 ? 'var(--data-amber)' : 'var(--data-red)';
-      var fgCol77 = fg77 != null ? (fg77 >= 60 ? 'var(--data-green)' : fg77 >= 40 ? 'var(--data-amber)' : 'var(--data-red)') : 'var(--text-muted)';
-      var spyChg77 = (ld77['SPY'] && ld77['SPY'].pct != null) ? ld77['SPY'].pct : null;
-      var spyStr77 = spyChg77 != null ? ((spyChg77 >= 0 ? '+' : '') + spyChg77.toFixed(2) + '%') : '—';
-      var spyCol77 = spyChg77 != null ? (spyChg77 >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
-      mvStrip.innerHTML =
-        '<span class="mv-pill"><span class="mv-pill-lbl">VIX</span><span style="color:' + vixCol77 + ';">' + (vixVal == null ? '—' : vixVal.toFixed(1)) + '</span></span>' +
-        '<span class="mv-pill"><span class="mv-pill-lbl">F&amp;G</span><span style="color:' + fgCol77 + ';">' + (fg77 != null ? fg77 : '—') + '</span></span>' +
-        '<span class="mv-pill"><span class="mv-pill-lbl">SPY</span><span style="color:' + spyCol77 + ';">' + spyStr77 + '</span></span>' +
-        '<span class="mv-pill-sep"></span>' +
-         '<span class="mv-pill"><span class="mv-pill-lbl">SCORE</span><span style="color:' + (ts77 == null ? 'var(--text-muted)' : 'var(--data-cyan)') + ';font-weight:900;">' + (ts77 == null ? '—' : ts77) + '</span></span>'; // 2026-10-01: TPR letter grade and partial M7 count removed (no calibration / 1-of-7 coverage)
-    }
-    if (phaseEl) {
-      var phaseClass77, phaseText77;
-       if (!totalFinite) { phaseClass77 = 'mv-phase-alert'; phaseText77 = '○ 입력 대기'; }
-       else if (total >= 75) { phaseClass77 = 'mv-phase-sepa'; phaseText77 = '● 스트레스 신호 적음'; }
-      else if (total >= 60) { phaseClass77 = 'mv-phase-ready'; phaseText77 = '● 스트레스 신호 일부'; }
-      else if (total >= 45) { phaseClass77 = 'mv-phase-alert'; phaseText77 = '○ 중립'; }
-      else { phaseClass77 = 'mv-phase-avoid'; phaseText77 = '주의'; }
-      phaseEl.innerHTML = '<span class="mv-phase-lbl ' + phaseClass77 + '">' + phaseText77 + '</span>';
-    }
-  } catch(_) {}
 }
 
 // v42.1: 마켓 펄스 바 — 전 페이지 상단 시장 상태 요약
@@ -1138,15 +394,12 @@ _aioPageBus.register('html-signal-live', 'aio:liveQuotes', function() {
   var sigPage = document.getElementById('page-signal');
   if (sigPage && sigPage.classList.contains('active')) {
     updateRiskMonitor();
-    updateSectorHeatmap();
     refreshSignalDashboard();
-    updateExitTriggers();
-    updateBottomProcess();
   }
   // v42.1: 어떤 페이지에서든 마켓 펄스 업데이트
   try { updateMarketPulse(); } catch(e) {}
 });
-_aioPageBus.register('html-signal-shown', 'aio:pageShown', function(e) { if (e.detail === 'signal') setTimeout(function() { try { updateRiskMonitor(); updateSectorHeatmap(); refreshSignalDashboard(); updateExitTriggers(); updateBottomProcess(); updateEntryChecklist(); } catch(_) {} }, 0); }); // P1368: native navigation skips initSignalDashboard
+_aioPageBus.register('html-signal-shown', 'aio:pageShown', function(e) { if (e.detail === 'signal') setTimeout(function() { try { updateRiskMonitor(); refreshSignalDashboard(); } catch(_) {} }, 0); }); // P1368: native navigation skips initSignalDashboard
 });
 
 // P1425: the legacy FX/bond page writers (updateFxBondPage, the 10Y/JPY trend charts, the

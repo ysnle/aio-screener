@@ -2538,7 +2538,15 @@ function _extractTickers(text) {
     'ETF':1,'IPO':1,'RSI':1,'MACD':1,'VIX':1,'ATR':1,'EMA':1,'SMA':1,'VCP':1,'SEPA':1,'VWAP':1,'FOMC':1,'GDP':1,'CPI':1,'PPI':1,'NFP':1,'PCE':1,'PMI':1,'ISM':1,'YOY':1,'MOM':1,'QOQ':1,'EPS':1,'PER':1,'PBR':1,'ROE':1,'ROA':1,'FCF':1,'DCF':1,'DDM':1,'NAV':1,'PEG':1,'FFR':1,'QE':1,'QT':1};
   // P1550: finance acronyms and currency codes are not tickers (USD is a listed ETF symbol, SEC/CEO/FED/WTI are plain terms).
   var nonTickerAcronyms = {'SEC':1,'CEO':1,'CFO':1,'COO':1,'CTO':1,'USD':1,'KRW':1,'EUR':1,'JPY':1,'CNY':1,'GBP':1,'FED':1,'WTI':1,'ECB':1,'BOJ':1,'IMF':1,'OPEC':1,'NYSE':1,'FDA':1,'DOJ':1,'FTC':1,'KOSPI':1,'KRX':1};
-  if (m2) m2.forEach(function(t) { if (!seen[t] && !skipWords[t] && !nonTickerAcronyms[t]) { seen[t]=1; tickers.push(t); } });
+  // X22: role/industry words ("멀티에셋 PM", "서버/HW") are not companies by default, but several are real listed
+  // symbols (PM Philip Morris, IR, HR, UI, ACM, ESS, SW...). Treat them as tickers only when the word right after
+  // asks about a company ("PM 실적", "IR 주가"); $PM always resolves through the explicit pattern above.
+  var roleOrIndustryWords = {'PM':1,'HW':1,'SW':1,'IB':1,'PE':1,'VC':1,'HY':1,'IG':1,'IR':1,'HR':1,'PR':1,'QA':1,'UI':1,'UX':1,'OS':1,'CIO':1,'AUM':1,'CFA':1,'LP':1,'GP':1,'EM':1,'DM':1,'ESG':1,'OEM':1,'ODM':1,'SAAS':1,'API':1,'GPU':1,'CPU':1,'HBM':1,'DRAM':1,'NAND':1,'EUV':1,'LLM':1,'IDC':1,'EV':1,'ESS':1,'TAM':1,'KPI':1,'CAGR':1,'EBIT':1,'ROIC':1,'WACC':1,'OAS':1,'BEI':1,'TIPS':1,'ACM':1,'CCC':1,'RRG':1,'ADR':1,'OHLC':1,'IC':1,'VAR':1,'CAPEX':1,'OPEX':1};
+  var companyIntentAfter = function(word) {
+    var re = new RegExp('\\b' + word + '\\b\\s*(?:의\\s*)?(?:주가|실적|매출|종목|주식|티커|배당|차트|목표가|어때|전망|stock|shares|earnings)', 'i');
+    return re.test(text);
+  };
+  if (m2) m2.forEach(function(t) { if (!seen[t] && !skipWords[t] && !nonTickerAcronyms[t] && (!roleOrIndustryWords[t] || companyIntentAfter(t))) { seen[t]=1; tickers.push(t); } });
   // 한국 종목코드 (6자리 숫자)
   var m3 = text.match(/\b(\d{6})\b/g);
   if (m3) m3.forEach(function(c) { var s = c + '.KS'; if (!seen[s]) { seen[s]=1; tickers.push(s); } });

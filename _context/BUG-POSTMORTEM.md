@@ -1,10 +1,199 @@
 ---
-last_verified: 2026-10-12
+last_verified: 2026-10-13
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1680 - v57.48 - X22 수정이 PM·IR 같은 실제 종목까지 막고, S&P 500 지도가 시세 tick마다 다시 그려지며, verify-aio 자체 검사가 실패 (2026-10-13)
+
+- symptom/reproduction: AI에 'PM 실적 어때?'·'IR 주가 전망'을 물으면 종목이 인식되지 않았다(필립모리스·잉거솔랜드 등 실제 티커). 브리핑 ID 제거 정규식이 '[AI-driven]'·'[K-pop]' 같은 정상 문구도 지웠다. 테마 화면 S&P 500 지도는 라이브 시세가 들어올 때마다 약 500개 타일을 새로 만들어, 열어 둔 '섹터별 숫자'가 닫히고 첫 클릭 선택이 풀렸다. verify-aio check는 themes.md의 추가 H2 때문에 FAIL인데 기록에는 OK로 남아 있었다. 스트레스 막대 툴팁은 '독립 구간'이라 적어 접힌 설명('독립 아님')과 모순됐고, VIX 깊이 보기는 아직 생산되지 않은 표의 결과를 미리 단정했다. 종목 화면 AI 컨텍스트는 '멀티에셋 PM 관점'의 PM을 요청 종목으로 보아 기업 분석 컨텍스트를 빠뜨렸다.
+- root_cause: X22를 역할어를 티커 금지 목록에 넣는 방식으로 고쳐 실제 상장 기호와 구분하지 못했다. ID 제거 정규식에 대소문자 무시 플래그가 붙어 소문자 원장 ID 형태만이 아니라 일반 영문 괄호어까지 맞았다. 지도 렌더러가 입력이 바뀌었는지 보지 않고 매번 replaceChildren했다. 스킬 문서 수정 뒤 verify-aio check를 다시 돌리지 않았다.
+- fix: 역할·산업 약어는 바로 뒤에 실적·주가·전망 같은 기업 질문 말이 올 때만 종목으로 인식한다($PM은 항상 인식). ID 제거는 소문자 원장 ID만 지운다. 지도는 스크리너 산출물 시각·행 수·비중 기준일·기간·기대 세션으로 만든 키가 같으면 다시 그리지 않는다. themes.md의 지도 안내를 기존 섹션으로 옮겼다. 툴팁은 '구간 진입 N회(겹치는 표본)'로, VIX 깊이 보기는 결과를 표에서 확인하라는 문장으로 바꿨다. 시장 컨텍스트는 화면 종목이 아닌 역할어를 요청 종목에서 뺀다.
+- violated_rule: R3 사후 분석 · 인계 주장 재검증
+- prevention: P1680: js/aio-tests.js T535c(역할어 제외 + 'PM 실적'·'IR 주가'는 종목) · node .claude/skills/verify-aio/scripts/verify-aio.mjs check
+- verification/residual: node로 _extractTickers 9개 사례 확인(PM 실적→PM, 멀티에셋 PM 관점→[], $PM→PM, NVDA AAPL 비교→둘 다). verify-aio check OK. 수정 JS node --check 통과.
+
+## P1679 - v57.48 - S&P 500 sector map added; the Telegram digest no longer blocks the data boot path (2026-10-13)
+
+- symptom/reproduction: Owner asked for a finviz-style S&P 500 map (sectors and members by size and return). The artifact had no 1-day return, and shares x close covered only 393 of 460 collected members — META, GOOGL, GOOG and XOM had no market value. Separately the 1MB Telegram digest was awaited inside the data.json apply sequence, so the market analysis and later steps waited on a channel feed no first screen needs.
+- root_cause: No index-weight source and no short-window returns in the screener artifact; the Telegram load was written as an await in the middle of the server-data apply step.
+- fix: scripts/fetch-sp500-weights.mjs (refresh-screener only) keeps ticker/GICS sector/weight from the IVV daily holdings (no price, P715) with a plausibility gate and keep-previous on failure; fetch-data.mjs embeds them as indexWeights and adds ret1d/ret5d; the screener provider passes both; domain/market/sector-map.js (squarified treemap, cap-weighted sector returns, concentration reading, latest-session admission) and components/sector-map.js on 테마 (period tabs, Korean red-up/blue-down shades with text contrast at least 4.5:1, tile detail, folded sector table and reading guide). Until the producer runs, the map sizes by shares x close, drops implausible turnover, and names the missing members instead of making the concentration claim. The Telegram load now runs beside the boot path and fills its meta when it lands.
+- violated_rule: A map's areas must come from the index's own weights; a partial map says what is missing.
+- prevention: verify-aio themes step 'S&P 500 지도' (desktop and phone); ci-data-lineage-audit policy for sp500-weights.json; browser-architecture round trip sees no 404 because the weights travel inside screener.json.
+- verification/residual: verify-aio themes 7/7 desktop and phone; browser pane light/dark desktop and 375px dark (349x436 map, no horizontal scroll); shade contrast 4.83-12.99:1; all six browser QA groups pass. The producer and ret1d/ret5d are unverified until the next refresh-screener run.
+
+## P1678 - v57.48 - Reading surfaces over-claimed (VaR as maximum loss, causal education text) and hid scope or evidence (2026-10-13)
+
+- symptom/reproduction: Codex X06/X07/X09/X11/X13/X14/X17/X19 and the PM/credit view of the radar: VaR shown as '95% 최대 손실'; a KR chart condition labelled 'S&P 500 대비'; deep dives stating 2Y above policy = hikes priced, above-average = low selling pressure, VIX 20 = a ±5.8% range, gold up despite real rates = central-bank buying; the 13F '전체 6010개 보기' button loading a 200-row projection and staying; industry documents with no path to sources; on phones the shelf pushed the chosen document about 1,400px down; stress outcomes counting horizons on the VIX-joined subset and a heading presupposing better outcomes; radar 9 beside a '우호' credit verdict without explanation.
+- root_cause: Copy written as certainties, a hard-coded benchmark label, a ledger-scope message unaware of the bounded shard, stripReferenceChrome removing evidence without a replacement, a remembered shelf state ignoring the reading moment, and a horizon index on a filtered array.
+- fix: VaR labelled as a past-sample loss boundary that can be exceeded; chart conditions use benchmarkLabel; deep-dive and macro texts made conditional (term premium, cost basis unknown, standard deviation not a range, other causes possible, AIO 350/450bp rule vs the 500bp convention); masters.js states the web projection and links the SEC filing once loaded; atlas.js parts.basis and industry-view.js render 근거와 가정 for domain and node documents; research-shell.js folds the shelf when a document is open; stress-outcomes.js counts horizons on the full S&P 500 session axis and the copy no longer presumes the result; regime-radar.js prints when an axis verdict and its 1-year position point opposite ways.
+- violated_rule: Education and labels describe conditions and scope; they do not promise ranges, causes or coverage the data does not carry.
+- prevention: browser-a11y (basis link targets at least 24px), verify-aio learn desktop/phone, ci-esm-core-unit-check.
+- verification/residual: affected QA pass incl. browser-surface after enlarging basis links; browser pane: phone document starts at 446px (was 1,423px), an industry node shows SEC/DOE/Microsoft 10-Q/AWS sources and review date 2026-08-02.
+
+## P1677 - v57.48 - Screens disagreed on whether a 10/9 close may be read as today, and on which records validate the ranking (2026-10-13)
+
+- symptom/reproduction: Codex X03/X04/X18/X21: with the US artifact at 10/9 and the latest completed session 10/12, the screener held every rank while the theme board ranked 86 groups, the scenario outlook named '현재 주도' themes and the NVDA summary explained XLK leading/SMH improving; the validation curve joined rows from three model fingerprints (72 without one) and did not say its n=986 pools US and KR quintiles; the home news empty state printed 'reason=all-news-outside-time-window · lastFetch=unknown'; the news header named the server cycle 10/11~10/12 above articles from the model's newer window.
+- root_cause: Currentness was decided per screen: group 'current' meant only 'newest among groups', sector rotation was read raw from rotationHistory.items in three components, the validation summary filtered only the last row's fingerprint, the home empty state interpolated pipeline enums, and the news header read _serverDataMeta while the list used model.newsCycle.
+- fix: group-strength.js takes a clock and marks a group current only on the latest completed session of its market; scenario-outlook names only current themes; theme-strength labels a dated ranking as a reference; produced-rotation.js exports currentRotationItems and stock/screener/portfolio reads use it; screener-validation.js charts only same-fingerprint rows and states the pooled US+KR sample; the home news empty state uses user copy with the last collection time; news.js derives the header window from model.newsCycle.
+- violated_rule: One admission rule for 'current' across screens: a dated close is a dated reference until the latest completed session arrives.
+- prevention: esm-core P1419 fixture keeps the unfingerprinted family as one series; verify-aio drive themes/today; Codex X03 re-check after the next producer run.
+- verification/residual: affected QA (core, knowledge, six browser groups) pass; verify-aio themes 7/7 and today 9/9 on desktop; theme board basis reads '10/9 미국 종가 기준(최신 거래일 10/12 반영 전 — 지금의 주도가 아닌 기준일 참고 순위)'.
+
+## P1676 - v57.48 - AI answers lost sentences to decimal points and URLs, treated role words as tickers and missed facts the screen shows (2026-10-13)
+
+- symptom/reproduction: Codex live AI review A1/A3/A5/A8 and X02/X16/X20/X22: '84, 미 10년물 5.' fragments and 'apnews. com/...? utm_source' URLs in answers; follow-up chips 'PM의 성장률' and 'HW 관련 공시' after questions about a multi-asset PM and the server/HW theme; the theme answer said 1-month values were missing while the table showed them; the briefing AI card showed [90b7eec7]/[regime-context] ids, the render time as its time, and no basis of its own beside a parent titled '10/9 미국 종가 기준'.
+- root_cause: The numeric-claim filter split sentences on every '.', '?' and '!' and re-joined with spaces; bare uppercase words became tickers unless listed; the theme AI context carried only the 3-month median; the id stripper matched only long ids and the sink stamped new Date(); the narrative's mixed closes/intraday observations were never summarised.
+- fix: publication.js splitAnswerSentences ends a sentence only when the terminator is not glued to the next ASCII token, keeps line structure and treats ISO timestamps as dated claims; aio-chat.js adds role/industry/analysis acronyms to the non-ticker list ($PM still resolves); market-content.js gives the AI 1/3/6-month medians and both theme ranks with their meaning; aio-core.js strips short ledger ids and stamps the artifact time; aio-data.js derives the narrative scope (generation time, which metrics are completed closes vs delayed intraday, per market clock) and the card prints it; portfolio AI prompts ask for exposure, contribution, counter-evidence and next data instead of buy/sell candidates.
+- violated_rule: Post-processing must remove whole unsupported claims, never fragments; an AI card states its own basis.
+- prevention: ci-ai-intelligence-contract-check P1525 fixture plus the Codex counterexample (the URL survives intact, the numeric sentence disappears whole); ci-esm-core-unit-check.
+- verification/residual: node: Codex input leaves only the URL sentence, unbroken; '기관 멀티에셋 PM' and '서버/HW' extract no tickers, '$PM' extracts PM; scope for the current data.json reads '생성 10/12 20:16 KST · S&P 500·미 10년물 10/9 종가 · 달러지수·WTI 10/12 20:06 KST 장중 · 코스피 10/12 종가'. No paid AI request was sent.
+
+## P1675 - v57.48 - Portfolio and theme arithmetic accepted the wrong benchmark, mismatched dates, stale members and mislabelled cohorts (2026-10-13)
+
+- symptom/reproduction: Codex expert review X01/X05/X08/X10/X12: the portfolio benchmark selector returned the price index for US holdings and undefined for KR ones because the SPY return sat inside a // comment; 3-month attribution accepted a stock return ending 2025-01-01 against an index ending 2026-10-12; a STALE theme member excluded from the median came back as the group's internal No.1; an all-KRW book in a KRW base was told FX moves the whole account; a 25-row screener list called its top 10 the top 20%.
+- root_cause: Single-statement if whose body was commented out; attribution consumed numeric returns without their basis dates; rankedMembers re-ranked every listed ticker instead of the median's members; the currency check described listing-currency shares as economic FX exposure without the base currency; the top cohort floor of 10 was still labelled as a quintile.
+- fix: portfolio-read.js returns SPY (with its session date) in a block; attribution.js holds out holdings whose return basis differs from the benchmark basis (reason basis-mismatch, named in the notes) and labels the window with its closing date; group-strength.js ranks only included members and lists the rest unranked; checks.js names translation effect only against a different declared base currency and states that company revenue/cost FX is not measured; screener-read.js names a floored cohort by count and share.
+- violated_rule: A comparison is valid only on the same basis date, the same population and a label that matches its definition.
+- prevention: esm-core P1418/P1419 fixtures stay green; the Codex counterexamples (_artifacts/expert-live-review-20261013/reproduce.mjs) now yield SPY for US, the KOSPI row for KR, basis-mismatch for 2025 vs 2026 and rank null for the stale member.
+- verification/residual: node checks on the counterexamples (DDD rank null, AAA/BBB/CCC rank 1); ci-esm-core-unit-check exit 0; affected QA core/knowledge and all six browser groups pass; verify-aio drive portfolio 7/7.
+
+## P1674 - v57.47 - Research library shelf was a row of colour bars, not a library a reader could browse (2026-10-13)
+
+- symptom/reproduction: The P1642 shelf drew one small card per collection with 2-7px colour bars whose height came from the length of a 19-150 character search excerpt; clicking a card only opened the collection's first document. A reader could not see titles, pick a document from the shelf, tell what was already read, or ask about a passage, which the owner's reference video (a read-later list turned into a browsable library) shows.
+- root_cause: P1642 took the reference's visual motif (spines) but not its interaction model: no per-document spines, no collection filter or sort, no book card, no read state, and a spine height that encoded the length of a truncated excerpt rather than anything true about the document.
+- fix: src/ui/knowledge/research-shell.js renders every search-index document as a spine with its title down the spine (two columns, main title before the em dash), one hue family per collection with deep, mid and pale bindings by topic (title contrast at least 5.4:1 deep and 8.7:1 pale), packed into shelf tiers over planks (three tiers, then N편 더 보기), collection chips with counts and tone swatches, 주제/제목/안 읽은 글 sort, hover/focus tooltip, arrow-key navigation, a read ribbon from this browser's opened documents (plus the older learning-state view marks), and a book card with cover plate, excerpt, 읽기 and AI에게 이 글 묻기. Selecting a passage in the open document shows 선택한 문장 AI에게 묻기. Both AI buttons only fill the one top AI panel's input; the reader sends. Size encodes nothing but fitting the title. The 2026-10-13 X packet is recorded in supplied-materials with a disposition per source (adopted, already covered, reference only, principle only, blocked).
+- violated_rule: Adopt a reference's interaction model, not only its look, and never let a visual dimension imply a quantity the data does not carry.
+- prevention: verify-aio drive learn (step 서가 칩 칼럼 → 책등 → 상세 카드 → 읽기) checks chip count equals spine count, the card title matches the spine and 읽기 opens the document on desktop and phone; features/learn.md documents the shelf contract and that AI buttons never send in verification.
+- verification/residual: node --check on touched JS; ci-research-flow-contract-check, ci-architecture-contract-check, ci-esm-core-unit-check, ci-control-char-check, ci-chat-resilience-check and ci-knowledge-generated-parity-check exit 0; verify-aio check OK and drive learn 8/8 on desktop and phone; browser pane: 394 spines with no clipped titles, desktop light/dark and 375px phone without horizontal page scroll, tooltip, book card, AI input filled without sending, selection button fills the passage.
+
+## P1673 - v57.47 - Stale-data empty states read as 'no match' and 'still checking' (2026-10-13)
+
+- symptom/reproduction: When every US screener row was held because its price indicators predate the latest session, the table said 조건에 맞는 종목이 없습니다, as if the user's conditions excluded everything; and 오늘's news source count stayed at 소스 확인 중 after the news model had loaded with zero sources.
+- root_cause: Both empty states had one fallback string for every empty cause: the screener did not distinguish rows held for data readiness from rows filtered out, and the news summary treated sourceCount 0 the same as a model not yet loaded.
+- fix: The screener empty row names the held-for-data case (market, row count, 필수 지표가 최신 거래일 기준이 아니어서 순위 판정을 보류) when every row of the chosen market is unavailable; the news summary shows 0개 소스 once the model has loaded. verify-aio's screener driver reports the stale local artifact as the cause instead of a bare zero-row count.
+- violated_rule: An empty state names its cause: missing data, held data and filtered-out data are different messages.
+- prevention: verify-aio drive screener fails with a stale-artifact message when the held row appears; features/screener.md documents the local-artifact condition.
+- verification/residual: node --check on screener.js, news.js and the driver; verify-aio check OK; drive screener on stale local artifacts shows 미국 813종목 모두 필수 지표가 최신 거래일 기준이 아니어서 순위 판정을 보류했습니다; drive today 9/9.
+
+## P1672 - v57.47 - Gates pinned dead legacy writers as presence markers (2026-10-13)
+
+- symptom/reproduction: After P1670 a second set of writers still ran on every data tick with no element to write: the entry checklist, breadth consensus and 50-day breadth readout, the dynamic briefing, the official future-calendar renderer, support/resistance levels, the rm-*/bb-rsp-* risk cards, the news keyword sentiment/risk strip and the theme strength rows. They survived because contract checks and headless tests asserted their presence.
+- root_cause: Gates written when these surfaces were live checked for the function names or ids themselves, so later page rebuilds that removed the markup could not remove the code without failing CI; the writers stayed null-guarded and silent (R705 class).
+- fix: Removed updateEntryChecklist, _aioRenderBreadthConsensus, _aioSyncBreadth50Readout, generateDynamicBriefing, renderOfficialFutureCalendar and updateSRLevels with their call sites, listeners and page-bus hooks, the _sigSummarizeEntryChecklist bridge (domain summarizeEntryChecklist kept), the rm-*/bb-rsp-* writes in updateRiskMonitor (data-snap bindings kept), the news sentiment/risk writes and the .theme-strength-row selectors. The pinning gates in ci-runtime, ci-data-pipeline, ci-esm-core-unit, ci-research-flow and ci-proxy-continuity, and aio-tests T769/T817/T1207, now assert absence or anchor on surviving functions.
+- violated_rule: R705: retiring a surface retires its writers; a gate must pin the behavior the user sees, not the presence of a function name.
+- prevention: ci-architecture-contract-check fails if any of the six retired writers is defined again in js/ legacy sources or aio-macro-tech.js (negative control: 6 of 6 detected on the pre-fix sources).
+- verification/residual: node --check on all touched JS; ci-runtime-contract-check, ci-architecture-contract-check, ci-esm-core-unit-check, ci-data-pipeline-contract-check, ci-research-flow-contract-check and ci-proxy-continuity-check exit 0; verify-aio registry 19/19 and drive all with no new failures.
+
+## P1671 - v57.47 - KR supply plane kept fetching Naver investor flows and candles into hidden folds (2026-10-13)
+
+- symptom/reproduction: Opening 거시 or 차트 started about 14 and 18 external Naver requests respectively (investor /trend flows, foreign-holding TOP 10, fchart candles) for 국내 수급 and KR technical sections that P702 hides outside developer mode, and the krSupply scheduler entry, retry timers, QA audit and KR health input kept the retired plane alive.
+- root_cause: The KR supply/investor surface was folded into developer mode and later dropped from the 8-screen IA, but the data plane stayed wired: _aioEnsureKrDataLoaded fetched supply on every macro/technical visit, REFRESH_SCHEDULE.krSupply and its retry timers kept running, and initKoreaMacro/initKoreaTechnical rendered into folds that are display:none for every non-developer user.
+- fix: Removed the KR supply and investor chains from aio-kr-data.js (about 620 lines) and every krSupply hook in aio-data.js, aio-core.js, aio-ui.js and aio-qa-audits.js (scheduler entry, markFetch map, task lists, maxAge, retry-timer cleanup, scheduler label, fallback copy, loading selectors, runtime audit, lineage row). calcKrHealthScore now averages its three live inputs. krDynamic (BOK, KOSIS, KOSPI/KOSDAQ/VKOSPI quotes) stays because the AI chat context reads it; initKoreaMacro/initKoreaTechnical now run only when body.aio-dev-mode is on.
+- violated_rule: R705: retiring a surface retires its writers, fetchers and timers in the same change.
+- prevention: ci-runtime-contract-check asserts the supply functions and the krSupply key are absent from aio-kr-data/aio-data/aio-core, krHealth divides by 3, and the KR macro/technical renderers are gated on _aioKrDevSectionsVisible (negative control: both checks fail on the pre-fix sources). aio-tests T383/T384/T863/T880/T886 are retirement assertions.
+- verification/residual: node --check on all touched JS; ci-runtime-contract-check, ci-architecture-contract-check and ci-esm-core-unit-check exit 0; network probe on 거시/차트 shows no Naver /trend or fchart requests (only the KOSPI/KOSDAQ/VKOSPI /basic quotes krDynamic needs); verify-aio drive all on desktop and phone with no new failures.
+
+## P1670 - v57.47 - Retired surfaces left live writers, timers, a no-op button and ghost price alerts (2026-10-13)
+
+- symptom/reproduction: A dead-id audit (177 ids looked up but never created) traced about 1,600 legacy lines that ran without a sink: the signal dashboard repainted a removed gauge, score bars, advice and metric pills on every quote tick; refreshSignal kept a 45s app timer plus a 5s counter timer for a removed #sig-ts; a 30s timer re-rendered a removed freshness panel; the guide's 데이터 상태 갱신 button did nothing; and price alerts saved by old versions still fired toasts with no surface to see or delete them (a corrupt stored value would also throw while aio-ui.js loaded).
+- root_cause: Page rebuilds (P702 legacy folds, P1392 signal board, P1420 technical, P1425 macro, IA consolidation) removed markup but left the writers, their call sites, timers and controls; null-guarded lookups made the leftovers silent, and gates pinned some of them as presence markers.
+- fix: Removed the dead writers and their hooks: getExecutionWindowScore, drawScoreGauge, drawPortfolioDonut, renderScoreBars, updateBottomProcess, updateExitTriggers, updateSectorHeatmap, the dead half of refreshSignalDashboard (kept the decision header, execution-window/regime derivations, risk-monitor snapshot bindings and market pulse), _aioRenderSignalRegime/_aioRenderSignalScenario (registry entry kept as a no-op), _aioRenderBriefingMarketAnalysis, the freshness panel renderer/timer/hook and its button, _aioTickerSubmit, _aioRenderGxLFrame, refreshSignal and its timers, _applyRiskMonitorFallbacks, updateRallyQualityVerdict, the price-alert system, and the technical candle writers on both sides (loadTechCandleChart, renderTechnicalCandleMeta/renderTechnicalCharts and their allowlist entries). Gates that pinned the candle renderers now assert their absence.
+- violated_rule: Retiring a surface retires its writers: removing an element removes the code that writes it, the timers and hooks that call that code, and any control that targets it, in the same change.
+- prevention: R705: ci-architecture-contract-check fails if any of the 20 retired legacy writers, the price-alert storage key or the freshness button returns, and if analysis.js or aio-macro-tech.js regains a technical candle writer (negative control: all 20 names detected on the pre-fix sources).
+- verification/residual: node --check on all touched JS; ci-architecture-contract-check and ci-esm-core-unit-check exit 0; verify-aio drive all 11/11 on desktop and phone and registry 19/19; probe: 시장 상태 renders 6 axes with no page errors after the dashboard cleanup.
+
+## P1669 - v57.47 - Chat '차트 자세히 보기' opened the chart tab on the previous company (2026-10-13)
+
+- symptom/reproduction: The AI chat beginner chart card's 차트 자세히 보기 button navigated to 종목 › 차트, but the visible stock chart kept the previous symbol (SPY by default) instead of the ticker the card described.
+- root_cause: _aioShowTechnicalChart still wrote only the legacy #deep-sym-input and ran the deep-analysis widget, then scrolled to #deep-analysis-section. P702 hides that fold outside developer mode and the visible chart is the native stock-chart component, which follows _aioChartRequest / the stock subject. P1430/P1449 moved _aioOpenTechnicalAnalysis to that contract but this second entry point kept its own copy (P1215 residual class).
+- fix: _aioShowTechnicalChart delegates to _aioOpenTechnicalAnalysis, the one bridge that sets the stock subject, requests the native chart and keeps the legacy runDeepAnalysis call.
+- violated_rule: One bridge per navigation intent: every 'open this ticker's chart' entry point goes through the same function, so a contract change cannot leave a stale copy.
+- prevention: ci-architecture-contract-check asserts _aioShowTechnicalChart's body is a delegation to _aioOpenTechnicalAnalysis (fails on the pre-fix source). verify-aio stock checks #stock-chart-title names the subject on the 차트 tab.
+- verification/residual: Probe on the local instance: _aioShowTechnicalChart('AAPL') from 오늘 -> page-technical with #stock-chart-title 'AAPL 일봉', no page errors. verify-aio drive stock 9/9 on desktop and phone.
+
+## P1668 - v57.47 - Boot fetched screener.json twice and the 0.6MB SEC fundamentals projection on every route (2026-10-13)
+
+- symptom/reproduction: A boot fetch trace (desktop and phone) showed /public-data/screener.json requested twice by platform/http.js about 2.1s after navigation, and sec-fundamentals-summary.json (0.6MB) loaded on every route even though only the ticker and fundamental pages read entity state.
+- root_cause: Several boot paths (aio:serverDataLoaded hydration, the staged deferred startup task, refresh:done) each called syncScreenerData; the provider only reused its last completed response, so overlapping reads each started a fetch. syncEntity.sync ran in the deferred startup queue, on every live-quote flush, on server-data hydration and on refresh:done, and its provider always loads the SEC table before returning.
+- fix: The screener provider shares a fetch already in flight unless its caller aborted (an aborted shared result is refetched). Bootstrap routes boot and broadcast entity syncs through syncEntityForConsumers, which runs only after the ticker or fundamental route has been shown (or is the active deep-link route); showing either route switches it on. Ticker selection (aio:entityChanged) still syncs directly.
+- violated_rule: Fetch on demand: a shared artifact is fetched once per freshness window and a route-specific projection is loaded by the route that renders it, not by boot.
+- prevention: ci-esm-core-unit-check: two concurrent screener reads issue one set of requests, a later refresh fetches again, an aborted caller's fetch is not reused (fails on the pre-fix provider with 6 requests). ci-architecture-contract-check: boot/broadcast entity syncs go through syncEntityForConsumers and the ticker/fundamental pageShown hook enables them.
+- verification/residual: Boot fetch trace after the fix: screener.json once, sec-fundamentals-summary.json zero times at boot on desktop and phone; probe: showing 재무 공시 loads it once, a #fundamental deep link loads it once. verify-aio drive all 11/11 desktop and phone.
+
+## P1667 - v57.47 - route-owners.json declared 35 native surfaces that page rebuilds had removed (2026-10-13)
+
+- symptom/reproduction: A live verify-aio registry probe found 6 of 19 routes (signal, breadth, technical, macro, ticker, market-news) declaring surfaces absent from the rendered page: the retired 0-100 score gauge, the old breadth/health/candle widgets, the in-page ticker tabs and the keyword-sentiment strip. ci-runtime-contract-check LC-07 even required the retired #news-sent-score to stay declared.
+- root_cause: Page rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced markup without updating the ownership registry, and no gate checked that a declared surface still exists. The registry only had absence ratchets for legacy symbols, never presence checks for its own claims.
+- fix: Replaced the stale selectors with the elements the native renderers write today (regime-*, breadth-*, tech-regime-*, macro-regime/axes, news-window/24h/count), dropped the retired ticker tab ids, pointed LC-07 at #news-24h-count, and added a surface-exists block to ci-architecture-contract-check: every declared #id must be in index.html or created by src/.
+- violated_rule: Registry claims must be executable: an ownership manifest that is never checked against the page drifts silently (same class as R352 F-02 hardcoded arrays).
+- prevention: R704: ci-architecture-contract-check fails when route-owners declares an id that neither the shell markup nor native source creates; verify-aio registry checks the live DOM for every route.
+- verification/residual: Negative control: the gate fails on the pre-fix registry (35 ids) and passes on the fix. verify-aio registry 13/19 -> 19/19 routes on the local instance. ci-runtime/baseline/desktop-continuity/operations-status/retirement/operations/data-pipeline/esm-core-unit gates all exit 0.
+
+## P1666 - v57.47 - 데이터 갱신 작업이 배포 대기로 갱신 잠금을 5~9분 붙잡고, 감시는 GitHub 예약이 빠져 3일에 11번만 돔 (2026-10-13)
+
+- symptom/reproduction: 시장 데이터 갱신 한 번은 실제 수집·커밋 1분 남짓에 '라이브 배포 수렴' 대기가 522초(스크리너 341초) 붙었다. 시장 데이터·스크리너 갱신은 같은 동시성 그룹이라 그 사이 다음 갱신 슬롯이 밀렸다. 매시 예약된 데이터 감시는 2026-10-10~12 사흘 동안 11번만 실행됐다(예상 약 72번).
+- root_cause: R606 수렴 단계(CI 완료와 attestation을 기다려 Pages 배포를 넘기는 단계)가 데이터를 만드는 같은 job 안에 있었고, 동시성 그룹이 워크플로 전체에 걸려 있었다. 감시는 GitHub 예약 실행에만 의존했는데, GitHub는 부하가 높을 때 예약 실행을 건너뛴다.
+- fix: 갱신 잠금(refresh-data 그룹)은 데이터를 만드는 job에만 걸고, 수렴 대기는 별도 converge job(live-convergence 그룹, 생산 job이 실패해도 실행)으로 옮겼다. 수렴 로직과 배포 검증은 그대로다. 데이터 감시는 Pages 배포가 끝날 때마다도 실행되고, 예약 실행은 배포가 멈춘 경우의 안전장치로 남겼다.
+- violated_rule: 소유자 원칙: 늦은 데이터 금지 · 자동화 효율
+- prevention: P1666: node scripts/ci-codex-structure-regression-fixture.mjs · ci-qa-pipeline-contract-check
+- verification/residual: 워크플로 YAML 구조 확인(js-yaml)과 계약 검사 통과. 실제 효과는 push 후 갱신 실행 시간과 감시 실행 빈도로 확인 필요.
+
+## P1665 - v57.47 - 데이터 감시 작업이 한 번 실패하면 계속 실패하고, 30분 갱신 호출 토큰이 Worker에 한 번도 실리지 않음 (2026-10-13)
+
+- symptom/reproduction: 데이터 신선도 감시가 2026-10-11 09시부터 6회 연속 실패했다. 스크리너 갱신이 복구된 뒤에도 실패가 이어졌다. 시장 데이터 갱신은 30분 주기 대신 4~6시간마다 돌았고 Worker 상태는 schedulerDispatch.configured=false였다.
+- root_cause: 감시 검사가 자기 워크플로의 직전 실행 결과를 오류 등급으로 확인해, 한 번의 상류 실패(스크리너 갱신)가 이후 모든 감시 실행을 실패로 고정했다. 저장소 비밀값 AIO_REFRESH_DISPATCH_TOKEN은 2026-10-11에 추가됐지만 data-plane 배포는 Worker 코드가 바뀔 때만 돌아 토큰이 Worker에 실리지 않았다.
+- fix: 감시 모드에서 감시 자신의 직전 결과는 경고로 낮췄다. deploy-data-plane 수렴 단계가 Worker 상태의 configured=false와 비밀값 존재를 함께 보면 코드 변경이 없어도 재배포한다(reason scheduler-dispatch-token-missing).
+- violated_rule: 소유자 원칙: 늦은 데이터 금지 · 자동화 신뢰성
+- prevention: P1665: node scripts/ci-codex-structure-regression-fixture.mjs
+- verification/residual: 실패 감시 실행 2건의 산출물에서 실패 항목 확인(첫 실패=스크리너 갱신, 이후=자기 직전 실패). 적용은 push 후 확인 필요.
+
+## P1664 - v57.47 - 화면 파일 하나만 고쳐도 대부분의 브라우저 검사가 선택되고, 화면 크기 검사가 순서대로만 돌아 QA가 길어짐 (2026-10-13)
+
+- symptom/reproduction: UI 컴포넌트 하나를 고쳐도 지식 화면 브라우저 검사 8개와 Worker 정적 검사 6개까지 선택됐다(이번 묶음 161개). 화면 크기 검사 3개(약 354초)가 기기 크기별로 한 장씩 차례로 돌았다. CI 푸시 실행은 계약 검사가 끝날 때까지 브라우저 검사를 기다렸고, Playwright 설치가 느린 미러에 걸리면 3~4분을 그대로 썼다.
+- root_cause: 영향 규칙이 src/** 전체를 지식 화면 그룹과 Worker 그룹에 묶어 두었다. 화면 크기 검사는 서로 독립된 페이지인데도 for 루프로 직렬 실행했다. CI 브라우저 매트릭스가 계약 매트릭스 뒤에 매여 있었다.
+- fix: src/ui·src/ai 변경은 지식 화면 브라우저 그룹을 빼고(지식 화면 파일은 자기 규칙으로 계속 선택), Worker 그룹은 src/ai·src/data·bootstrap 변경에만 묶었다. 반응형·화면 크기 검사를 기기 크기별 동시 실행으로 바꿨다(111초→37초, 93초→31초). CI 브라우저 매트릭스는 preflight 직후 시작하고, Playwright 설치는 시간 제한 재시도, attest 체크아웃은 blob 필터를 쓴다. CI 푸시 실행은 계속 전체 검사다.
+- violated_rule: 소유자 2026-10-12 QA·검증 효율
+- prevention: P1664: node scripts/ci-codex-structure-regression-fixture.mjs · ci-qa-pipeline-contract-check
+- verification/residual: UI 컴포넌트 단일 변경 선택 101→82개(브라우저 27→19). 반응형·화면 크기 검사 단독 실행 PASS.
+
+## P1663 - v57.47 - 투자 심리·시장 폭 화면에 지표 원리를 배울 자리가 없고, 로컬 QA가 작업보다 오래 걸림 (2026-10-12)
+
+- symptom/reproduction: 투자 심리 6개 지표 카드와 시장 폭 화면에는 접힘 칸이 하나도 없었다. 작은 변경마다 영향 범위 QA(약 9분)를 돌려 작업 시간보다 QA 시간이 길었다.
+- root_cause: 깊이 보기 콘텐츠가 시장 상태 카드에만 연결됐고, 접힘 렌더러가 화면마다 따로 있었다. QA는 12코어 개발 PC에서도 정적 4개·브라우저 2개만 동시에 돌렸고 작업 절차에 일괄 실행 규칙이 없었다.
+- fix: 공용 접힘 렌더러 deep-dive.js로 통일하고 투자 심리 6개 지표와 시장 폭 화면에 원리·읽는 법을 붙였다. 로컬 QA 기본 동시성을 정적 6·브라우저 3으로 올리고(CI는 1 유지), post-edit-qa 스킬에 '작업을 모두 끝낸 뒤 QA 1회' 규칙을 넣었다.
+- violated_rule: 소유자 2026-10-12 깊이 학습 연결 · QA 효율
+- prevention: P1663: node scripts/ci-codex-structure-regression-fixture.mjs · ci-skill-contract-check
+- verification/residual: 로컬 미리보기에서 투자 심리 6개·시장 폭 1개·시장 상태 6개 접힘 표시 확인. 일괄 QA 1회.
+
+## P1662 - v57.47 - 종목 품질 브라우저 검사가 독립된 6개 경우를 순서대로 돌려 QA가 길어짐 (2026-10-12)
+
+- symptom/reproduction: 영향 범위 QA 한 번이 약 9분이었고, 그중 종목 품질 검사 하나가 148초였다.
+- root_cause: 3개 화면 크기 × 2개 테마가 서로 독립인데 한 브라우저에서 하나씩 차례로 부팅했다.
+- fix: 같은 브라우저에서 세 경우씩 동시에 실행한다. 148초 → 64초.
+- violated_rule: QA 효율(owner 2026-10-12)
+- prevention: P1662: node scripts/ci-entity-quality-browser-check.mjs
+- verification/residual: 단독 실행 PASS 64초.
+
+## P1661 - v57.47 - 검증에 실패한 0~100 시장 점수를 대신할 근거 있는 비교가 화면에 없음 (2026-10-12)
+
+- symptom/reproduction: 점수는 화면에서 숨겼지만, 지금 같은 불안 수준 뒤에 실제로 무슨 일이 있었는지 보여주는 자리가 없었다.
+- root_cause: 점수 검증(10년 21일 rho -0.17, 최근 -0.38) 뒤 숨기기만 하고 대체 정보를 만들지 않았다.
+- fix: 1990년 이후 VIX 구간별 S&P 500 21·63거래일 뒤 결과(평균·오른 비율·나쁜 10%·독립 구간 수)를 주 1회 Actions에서 만드는 build-stress-outcomes.mjs와 공유 순수 함수 stress-outcomes.js를 추가하고, 시장 상태 화면에 '지금과 비슷했던 날, 그 뒤 실제로는' 막대와 읽기, 깊이 보기를 붙였다. 자료 생성 전에는 숨긴다.
+- violated_rule: R298 · AGENTS 근거 없는 등급 제거
+- prevention: P1661: node scripts/ci-codex-structure-regression-fixture.mjs
+- verification/residual: 구간 판정·독립 구간·전방 창 경계 단언, 로컬 미리보기에서 주입 자료로 표시 확인. 실제 자료는 push 후 refresh-data 운영 슬롯에서 생성.
+
+## P1660 - v57.47 - 카드 접힘 칸이 근거·출처 목록이라 더 배우려는 사용자에게 원리를 알려주지 않음 (2026-10-12)
+
+- symptom/reproduction: 시장 상태 6축 카드의 접힘 칸 이름이 '추가 근거와 출처'였고, 안에는 남은 숫자와 공급자 이름만 있었다. 거시 유동성·성장·원자재 그룹에는 접힘 칸이 없었다.
+- root_cause: 접힘 칸을 증거 보관 장소로만 설계했고, 지표의 원리·해석 관행·축 사이 연결을 담을 정적 학습 콘텐츠가 없었다.
+- fix: src/domain/content/axis-deep-dives.js에 6축과 거시 3그룹의 '무엇을 재나 · 전문가는 이렇게 읽는다 · 다른 축과의 연결'을 두고, 접힘 칸을 '더 깊이 보기 · 원리와 읽는 법'으로 바꿨다. 남은 숫자는 '지금 숫자 더 보기'로, 관련 화면으로 가는 버튼을 붙였다. 출처는 호버에만 남긴다.
+- violated_rule: 소유자 2026-10-12 깊이 학습 연결 · 출처 화면 밖(2026-10-06)
+- prevention: P1660: node scripts/ci-codex-structure-regression-fixture.mjs
+- verification/residual: 6축·3그룹 콘텐츠 존재와 옛 제목 부재 단언, 로컬 미리보기에서 펼침 확인.
 
 ## P1659 - v57.46 - 시장 상태 6축 카드가 길어 한 화면 흐름이 끊김 (2026-10-12)
 

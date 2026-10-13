@@ -94,7 +94,7 @@ const STYLE = `
 .af-basis{margin:22px 0 0;border-top:1px solid var(--border-subtle);padding-top:10px}
 .af-basis summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--text-secondary)}
 .af-basis ul{margin:8px 0 0;padding-left:18px;font-size:12px;line-height:1.65;color:var(--text-secondary)}
-.af-basis a{color:var(--text-primary)}
+.af-basis a{color:var(--text-primary);display:inline-block;min-height:24px;line-height:24px}
 `;
 
 export function ensureFrameStyle(doc) {

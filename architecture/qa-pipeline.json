@@ -2041,7 +2041,9 @@
       "patterns": [
         "index.html",
         "js/**",
-        "src/**",
+        "src/ai/**",
+        "src/data/**",
+        "src/app/bootstrap.js",
         "scripts/ci-extension-api-runtime-check.mjs",
         "scripts/fetch-data.mjs",
         "scripts/lib/ai-shared-analysis.mjs",
@@ -2195,8 +2197,6 @@
         "index.html",
         "js/**",
         "src/app/**",
-        "src/ui/**",
-        "src/ai/**",
         "src/platform/**",
         "src/storage/**",
         "src/legacy/**",
@@ -2213,6 +2213,20 @@
         "browser-viewport",
         "browser-surface",
         "browser-knowledge"
+      ]
+    },
+    {
+      "patterns": [
+        "src/ui/**",
+        "src/ai/**"
+      ],
+      "groups": [
+        "core",
+        "browser-unit",
+        "browser-runtime",
+        "browser-resilience",
+        "browser-viewport",
+        "browser-surface"
       ]
     },
     {

@@ -453,7 +453,9 @@ check('workflow syntax gate includes untracked newly-created workflows', /readdi
 check('CI does not deploy Pages', !/deploy-pages/.test(ciSource));
 check('CI has cheap preflight job', /preflight:[\s\S]*?qa-runner\.mjs --group preflight --no-cache/.test(ciSource));
 check('contract matrix waits for preflight', /contracts:[\s\S]*?needs:\s*preflight/.test(ciSource));
-check('browser matrix waits for contracts', /browser:[\s\S]*?needs:\s*contracts/.test(ciSource));
+// P1664: the browser matrix starts beside the contract matrix after the cheap preflight (public repo, free minutes;
+// the attest job still requires both), which removes the contracts wait from every push's wall time.
+check('P1664 browser matrix waits for preflight', /browser:[\s\S]*?needs:\s*preflight/.test(ciSource));
 check('contract matrix aggregates shard failures', /contracts:[\s\S]*?fail-fast:\s*false/.test(ciSource));
 check('browser matrix aggregates shard failures', /browser:[\s\S]*?fail-fast:\s*false/.test(ciSource));
 

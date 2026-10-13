@@ -232,6 +232,7 @@ export function createScreenerProvider({
   let cachedResponses = null;
   let fetchGeneration = 0;
   let pendingResponses = null;
+  let pendingSignal = null;
   // P1173: the previous read's member revisions, so a set assembled across publication transitions can
   // be recognised instead of being served as one complete observation.
   let previousPublicationSet = null;
@@ -240,8 +241,14 @@ export function createScreenerProvider({
     async readCurrent({ signal, refresh = true } = {}) {
       const checkAborted = () => { if (signal?.aborted) throw new DOMException('Screener read cancelled', 'AbortError'); };
       checkAborted();
-      let responses = !refresh && pendingResponses ? await pendingResponses : cachedResponses;
-      if (refresh || !responses) {
+      // P1668: boot fires several screener syncs at once (server data, deferred startup, refresh:done);
+      // a fetch already in flight is as fresh as a new one, so share it unless its caller aborted.
+      let responses = null;
+      if (pendingResponses && !pendingSignal?.aborted) {
+        responses = await pendingResponses;
+        if (responses.some((response) => response.error === 'HTTP_ABORTED')) responses = null;
+      } else if (!refresh) responses = cachedResponses;
+      if (!responses) {
         const generation = ++fetchGeneration;
         const pending = Promise.all([
           httpClient.requestJson(url, { cache: 'no-store', signal }),
@@ -249,8 +256,9 @@ export function createScreenerProvider({
           httpClient.requestJson(modelValidationUrl, { cache: 'no-store', signal })
         ]);
         pendingResponses = pending;
+        pendingSignal = signal;
         try { responses = await pending; }
-        finally { if (pendingResponses === pending) pendingResponses = null; }
+        finally { if (pendingResponses === pending) { pendingResponses = null; pendingSignal = null; } }
         if (generation === fetchGeneration && !signal?.aborted) cachedResponses = responses;
       }
       const [artifactResponse, universeResponse, modelValidationResponse] = responses;
@@ -443,6 +451,8 @@ export function createScreenerProvider({
           _mcapQuality: live._mcapQuality,
           _mcapRevision: live._mcapRevision,
           rsi: finite(factor.rsi),
+          ret1d: finite(factor.ret1d), // 2026-10-13 sector map: one/five completed sessions (absent until the producer adds them)
+          ret5d: finite(factor.ret5d),
           ret1m: finite(factor.ret1m),
           ret3m: finite(factor.ret3m),
           ret6m: finite(factor.ret6m),
@@ -611,6 +621,8 @@ export function createScreenerProvider({
           factorSessionDateByMarket: artifact.factorSessionDateByMarket && typeof artifact.factorSessionDateByMarket === 'object' ? { ...artifact.factorSessionDateByMarket } : null,
           factorBarStartByMarket: artifact.factorBarStartByMarket && typeof artifact.factorBarStartByMarket === 'object' ? { ...artifact.factorBarStartByMarket } : null,
           factorComputedAt: artifact.factorComputedAt || null,
+          // 2026-10-13 S&P 500 map weights (absent until the producer embeds them).
+          indexWeights: artifact.indexWeights && Array.isArray(artifact.indexWeights.rows) ? artifact.indexWeights : null,
           universe: Number(artifact.universe) || symbols.length,
           artifactRows: Object.keys(artifact.data).length,
           universeRows: universe.length,

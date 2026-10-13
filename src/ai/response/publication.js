@@ -43,12 +43,34 @@ export function claimSourceUrl(value) {
 // slip through because its unit was not on the list. Counts (개/곳/건/명/종목) and Korean magnitudes (조/억/만) are
 // covered; 개월/개년 stay out so a period like "3개월" is not read as a current figure.
 export function hasCurrentNumericContent(value) {
-  return /(?:[$₩€]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|bp|bps|원|달러|USD|배|포인트|pt|지수)|(?:VIX|PER|PBR|PSR|PEG|ROE|RSI|주가|시세|환율|금리|시가총액|매출|영업이익)\s*(?:는|은|이|:)?\s*\d[\d,.]*|(?:현재|최신|지금|오늘)[^.!?。！？\n]{0,40}?\d[\d,.]*|\d[\d,.]*\s*(?:개(?![월년])|곳|건|명|종목|조|억|만)|\b(?:19|20)\d{2}-\d{2}-\d{2}\b)/i.test(String(value || ''));
+  return /(?:[$₩€]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|bp|bps|원|달러|USD|배|포인트|pt|지수)|(?:VIX|PER|PBR|PSR|PEG|ROE|RSI|주가|시세|환율|금리|시가총액|매출|영업이익)\s*(?:는|은|이|:)?\s*\d[\d,.]*|(?:현재|최신|지금|오늘)[^.!?。！？\n]{0,40}?\d[\d,.]*|\d[\d,.]*\s*(?:개(?![월년])|곳|건|명|종목|조|억|만)|\b(?:19|20)\d{2}-\d{2}-\d{2}(?!\d))/i.test(String(value || ''));
+}
+
+// X02 (2026-10-13): a period/question mark only ends a sentence when it is not glued to the next
+// ASCII token — "14.84", "apnews.com" and "?utm_source" stay whole, so a dropped numeric claim
+// leaves no "84, 미 10년물 5." fragment and a kept URL is never re-joined with inserted spaces.
+export function splitAnswerSentences(line) {
+  var text = String(line || '');
+  var pieces = [];
+  var start = 0;
+  for (var i = 0; i < text.length; i++) {
+    var ch = text[i];
+    var ends = '。！？'.indexOf(ch) >= 0 || ('.!?'.indexOf(ch) >= 0 && !/[A-Za-z0-9_%\/=&#~+\-]/.test(text[i + 1] || ''));
+    if (!ends) continue;
+    while (i + 1 < text.length && '.!?。！？'.indexOf(text[i + 1]) >= 0) i++;
+    pieces.push(text.slice(start, i + 1));
+    start = i + 1;
+  }
+  if (start < text.length) pieces.push(text.slice(start));
+  return pieces.map(function(piece) { return piece.trim(); }).filter(Boolean);
 }
 
 export function stripUnverifiedCurrentNumericSentences(value) {
-  var sentences = String(value || '').match(/[^.!?。！？\n]+[.!?。！？]?/g) || [];
-  return sentences.filter(function(sentence) { return !hasCurrentNumericContent(sentence); }).join(' ').trim();
+  return String(value || '').split('\n').map(function(line) {
+    if (!line.trim()) return '';
+    var kept = splitAnswerSentences(line).filter(function(sentence) { return !hasCurrentNumericContent(sentence); }).join(' ');
+    return kept || null;
+  }).filter(function(line) { return line !== null; }).join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
 export function extractAnswerFallback(rawText, currentSensitive) {

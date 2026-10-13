@@ -3,8 +3,14 @@ name: Data freshness watchdog
 # Independent operating check. Local artifacts, Pages, proxy, fast plane and live
 # invariants share one aggregate profile, so one red plane never hides the others.
 on:
+  # P1666: GitHub ran the hourly schedule 11 times in 3 days (2026-10-10~12), so the watchdog also follows
+  # each Pages deployment — the moment live data changes. The schedule stays as the backstop for a stalled
+  # pipeline that deploys nothing.
   schedule:
     - cron: '23 * * * *'
+  workflow_run:
+    workflows: ['Deploy GitHub Pages']
+    types: [completed]
   workflow_dispatch:
     inputs:
       max_age_minutes:

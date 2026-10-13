@@ -27,7 +27,8 @@ try {
     server.on('error', reject); server.on('exit', (code) => { clearTimeout(timeout); reject(new Error(`Responsive server exited ${code}`)); });
   });
   browser = await chromium.launch({ headless: true });
-  for (const viewport of RESPONSIVE_QA_VIEWPORTS) {
+  // Viewports are independent pages (own context), so they run together; one failure no longer hides the others.
+  await Promise.all(RESPONSIVE_QA_VIEWPORTS.map(async (viewport) => { try {
     const page = await browser.newPage({ viewport, deviceScaleFactor: 1, hasTouch: true });
     page.on('pageerror', (error) => failures.push({ message: `${viewport.name}: runtime error (P1618)`, detail: error.message }));
     await page.route('**/*', (route) => route.request().url().startsWith(base) || route.request().url().startsWith('data:') ? route.continue() : route.abort());
@@ -174,7 +175,7 @@ try {
     await page.waitForTimeout(100);
     check(await page.evaluate(() => { const active = document.activeElement; return !document.querySelector('.main').inert && active !== document.body && active.getClientRects().length > 0 && getComputedStyle(active).display !== 'none'; }), `${viewport.name}: compact-to-desktop transition lost visible focus (P1618)`);
     await page.close();
-  }
+  } catch (error) { failures.push({ message: `${viewport.name}: ${error.message}`, stack: error.stack }); } }));
 } catch (error) { failures.push({ message: error.message, stack: error.stack }); }
 finally {
   await browser?.close(); server?.kill();

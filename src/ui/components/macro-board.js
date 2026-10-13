@@ -14,6 +14,8 @@ import { buildMacroBoard } from '../../domain/macro/indicators.js';
 import { buildRatesFx, signed } from '../../domain/macro/rates-fx.js';
 import { createTrendChart } from './trend-chart.js';
 import { buildLiquidityGrowthGroups } from '../../domain/macro/liquidity-growth.js';
+import { AXIS_DEEP_DIVES, MACRO_AXIS_DEEP_DIVES, MACRO_GROUP_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
+import { deepDiveFold } from './deep-dive.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 
@@ -164,7 +166,7 @@ export function gaugeBar(doc, g) {
   return wrap;
 }
 
-function axisCard(doc, row) {
+function axisCard(doc, row, root = null) {
   const card = el(doc, 'section', null, 'regime-axis macro-axis');
   card.id = `macro-axis-${row.id}`;
   card.dataset.axis = row.id;
@@ -182,21 +184,22 @@ function axisCard(doc, row) {
     if (band && row.state !== 'unknown' && band.tone !== row.state) card.append(el(doc, 'p', `막대는 ${TONE_WORD[band.tone]} 구간이지만 다른 조건 때문에 ${row.stateLabel}입니다 — 아래 판정 기준 참고.`, 'macro-gauge-note'));
   }
   card.append(el(doc, 'p', row.read, 'regime-read'));
-  const more = el(doc, 'details', null, 'macro-axis-more');
-  more.append(el(doc, 'summary', '근거 · 증시 연결 · 판정 기준'));
-  if (row.shared) more.append(el(doc, 'span', '시장 상태와 같은 판정', 'basis-chip'));
+  // P1660: the fold teaches first (principle · reading · links), then today's numbers, the equity link and the rule.
+  const extra = [];
+  if (row.shared) extra.push(el(doc, 'span', '시장 상태와 같은 판정', 'basis-chip'));
   if (row.evidence?.length) {
     const list = el(doc, 'dl', null, 'regime-evidence');
     for (const [label, value] of row.evidence) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
-    more.append(list);
+    extra.push(el(doc, 'h4', '지금 숫자'), list);
   }
   if (row.link) {
     const link = el(doc, 'p', null, 'macro-axis-link');
     link.append(el(doc, 'span', '증시 연결', 'briefing-hypothesis-tag'), doc.createTextNode(` ${row.link}`));
-    more.append(link);
+    extra.push(link);
   }
-  if (row.flip) more.append(el(doc, 'p', `판정 기준: ${row.flip}`, 'regime-flip'));
-  card.append(more);
+  if (row.flip) extra.push(el(doc, 'p', `판정 기준: ${row.flip}`, 'regime-flip'));
+  const fold = deepDiveFold(doc, root, row.title, MACRO_AXIS_DEEP_DIVES[row.id] || AXIS_DEEP_DIVES[row.id], extra);
+  if (fold) { fold.classList.add('macro-axis-more'); card.append(fold); }
   return card;
 }
 
@@ -354,7 +357,7 @@ function renderCommodities(doc, root) {
   };
   grid.replaceChildren(
     card('wti', 'WTI 원유', 2, '유가는 휘발유·운송비를 거쳐 물가(에너지는 CPI의 약 7%)와 소비 여력을 움직입니다. 빠르게 오르면 기대인플레이션과 금리를 밀어 올리고, 에너지주에는 유리하지만 항공·운송·소비재에는 비용 부담입니다. 시장 상태에서는 1년 범위 85% 이상이나 20일 +10% 이상을 부담으로 봅니다.'),
-    card('gold', '금', 0, '금은 이자가 없는 자산이라 보통 실질금리가 오르면 약해집니다. 실질금리가 높은데도 금이 오르면 중앙은행 매입이나 위험 회피 수요가 강하다는 뜻으로 읽습니다.')
+    card('gold', '금', 0, '금은 이자가 없는 자산이라 보통 실질금리가 오르면 약해집니다. 실질금리가 높은데도 금이 오르면 중앙은행 매입·위험 회피·달러 약세 같은 다른 수요가 작용했을 수 있습니다. 어느 쪽인지는 이 화면만으로 확정하지 않습니다.')
   );
 }
 
@@ -369,7 +372,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   if (basis) basis.textContent = board.available ? '공식 발표와 미국 종가 기준 · 각 판정의 기준은 카드 아래에 표시' : '공식 발표 자료를 불러오는 중입니다.';
   renderRegime(doc, read);
   const axesHost = doc.getElementById('macro-axes');
-  if (axesHost) axesHost.replaceChildren(...read.axes.map((row) => axisCard(doc, row)));
+  if (axesHost) axesHost.replaceChildren(...read.axes.map((row) => axisCard(doc, row, root)));
   renderChain(doc, read.chain);
   host.replaceChildren(...board.groups.map((group) => {
     const section = el(doc, 'section', null, 'macro-group');
@@ -387,6 +390,8 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     const grid = el(doc, 'div', null, 'macro-stat-grid');
     grid.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.changeText], meta: `${shortDate(item.asOf)} 기준 · FRED`, note: item.reading, series: item.series, unit: item.unit })));
     section.append(el(doc, 'h3', group.title, 'macro-group-title'), el(doc, 'p', group.fact, 'macro-group-fact'), grid);
+    const fold = deepDiveFold(doc, root, group.title, MACRO_GROUP_DEEP_DIVES[group.id]); // P1660: a teaching fold
+    if (fold) section.append(fold);
     host.append(section);
   }
   renderCommodities(doc, root);
@@ -464,7 +469,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     // P1505: only the FX axis is unique to this tab; the other four are on the 거시 경제 six-axis board.
     void byId;
     const rows = [fxAxis && { ...fxAxis, shared: true, gauge: read.sharedGauges?.korea?.gauge || null, headline: read.sharedGauges?.korea?.headline || null, link: '원화가 약해지면 외국인이 한국 주식을 팔 유인이 커지고 수입 물가가 오릅니다. 엔화가 짧은 기간에 급등하면 엔으로 빌려 투자한 자금(엔 캐리)이 청산되며 전 세계 위험자산이 함께 흔들릴 수 있습니다.' }].filter(Boolean);
-    axesHost.replaceChildren(...rows.map((row) => axisCard(doc, row)));
+    axesHost.replaceChildren(...rows.map((row) => axisCard(doc, row, root)));
   }
   set('rates-basis', model.basis ? `${shortDate(model.basis)} 미국 종가 기준 · 국채 금리 ${t.asOf ? `${shortDate(t.asOf)} ` : ''}공식 고시 기준` : '종가 기록을 불러오는 중입니다.');
 

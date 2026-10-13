@@ -1,0 +1,29 @@
+{
+  "version": "v57.47",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.47 소유자 요청: QA·CI 최적화(Claude). push/deploy 미실행.",
+  "p": {
+    "id": 1664,
+    "title": "화면 파일 하나만 고쳐도 대부분의 브라우저 검사가 선택되고, 화면 크기 검사가 순서대로만 돌아 QA가 길어짐",
+    "symptom": "UI 컴포넌트 하나를 고쳐도 지식 화면 브라우저 검사 8개와 Worker 정적 검사 6개까지 선택됐다(이번 묶음 161개). 화면 크기 검사 3개(약 354초)가 기기 크기별로 한 장씩 차례로 돌았다. CI 푸시 실행은 계약 검사가 끝날 때까지 브라우저 검사를 기다렸고, Playwright 설치가 느린 미러에 걸리면 3~4분을 그대로 썼다.",
+    "root_cause": "영향 규칙이 src/** 전체를 지식 화면 그룹과 Worker 그룹에 묶어 두었다. 화면 크기 검사는 서로 독립된 페이지인데도 for 루프로 직렬 실행했다. CI 브라우저 매트릭스가 계약 매트릭스 뒤에 매여 있었다.",
+    "fix": "src/ui·src/ai 변경은 지식 화면 브라우저 그룹을 빼고(지식 화면 파일은 자기 규칙으로 계속 선택), Worker 그룹은 src/ai·src/data·bootstrap 변경에만 묶었다. 반응형·화면 크기 검사를 기기 크기별 동시 실행으로 바꿨다(111초→37초, 93초→31초). CI 브라우저 매트릭스는 preflight 직후 시작하고, Playwright 설치는 시간 제한 재시도, attest 체크아웃은 blob 필터를 쓴다. CI 푸시 실행은 계속 전체 검사다.",
+    "violated_rule": "소유자 2026-10-12 QA·검증 효율",
+    "prevention": "P1664: node scripts/ci-codex-structure-regression-fixture.mjs · ci-qa-pipeline-contract-check",
+    "verification": "UI 컴포넌트 단일 변경 선택 101→82개(브라우저 27→19). 반응형·화면 크기 검사 단독 실행 PASS."
+  },
+  "qa": [
+    {
+      "id": "QA-QA-SPEED-01",
+      "text": "P1664: src/ui 변경의 영향 범위에 지식 화면 브라우저 그룹이 없고, 화면 크기 검사는 기기 크기를 동시에 돈다.",
+      "verify_by": "node scripts/qa-runner.mjs affected --files src/ui/components/stress-outcomes.js --list",
+      "done": false
+    }
+  ],
+  "qa_section": "QA 실행 효율",
+  "changelog": [
+    "**QA·CI 실행 시간 단축 (P1664):** 화면 파일 변경이 관련 없는 지식 화면·Worker 검사까지 끌어오지 않게 하고, 화면 크기 검사를 동시 실행으로 바꿨으며, CI 브라우저 검사가 계약 검사를 기다리지 않게 했다. 거시 화면 축 카드도 깊이 보기 형식으로 바꿨다."
+  ]
+}

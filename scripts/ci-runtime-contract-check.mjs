@@ -191,7 +191,8 @@ check('computeTradingScore returns both total and score aliases for legacy consu
 const classifyMarketRegimeIdx = core.search(/function\s+classifyMarketRegime/);
 const classifyMarketRegimeBody = classifyMarketRegimeIdx >= 0 ? core.slice(classifyMarketRegimeIdx, classifyMarketRegimeIdx + 1500) : '';
 check('classifyMarketRegime does not use optimistic breadth default 75', classifyMarketRegimeIdx >= 0 && !/breadth200[\s\S]{0,220}:\s*75\)/.test(classifyMarketRegimeBody));
-check('score advice no longer labels 75+ as aggressive buy', /function\s+getScoreAdvice/.test(core) && !/function\s+getScoreAdvice[\s\S]{0,500}적극\s*매수/.test(core));
+// P1670: the advice box and getScoreAdvice left with the legacy signal dashboard; it must not return with buy labels.
+check('score advice no longer labels 75+ as aggressive buy', !/function\s+getScoreAdvice[\s\S]{0,500}적극\s*매수/.test(core));
 check('trading guidance avoids aggressive-buy wording on score 75+', !/75\+\s*(?:적극\s*매수|적극매수)/.test(html + '\n' + core + '\n' + chat + '\n' + data + '\n' + ui));
 // P1132/R619: the deep technical analysis engine moved from index.html's inline block F into
 // js/aio-ui.js, so the whole ticker-deep-analysis assertion group now reads `ui`.
@@ -206,15 +207,15 @@ check('LC-41/P1212 legacy factor-backtest does not promote missing values to zer
 // P1214/E2 LC-26: the mode is one declared revision shared by the legacy toggle, the native reader
 // and the facade — and the copy must not promise a per-mode threshold the model does not produce.
 check('E2/LC-26/P1214 signal mode has one writer and one descriptor', /bridge\.set\(/.test(data) && /bridge\.describe\(/.test(data) && /aio:signalScoreModeChanged/.test(data) && !/임계값 65점/.test(data));
-check('E2/LC-26/P1214 legacy signal dashboard and checklist consume the declared mode', /AIO_ARCH\.signalScoreMode\.get\(\)/.test(pagesSource) && /states\.push\(/.test(pagesSource));
+check('E2/LC-26/P1214 legacy signal dashboard and checklist consume the declared mode', /AIO_ARCH\.signalScoreMode\.get\(\)/.test(pagesSource) && !/function updateEntryChecklist/.test(pagesSource)); // P1672: checklist writer retired with its ec-* sinks
 // P1392: the swing/day toggle and the entry checklist were retired with the 0-100 score (owner decision 2026-10-02).
 check('E2/LC-26/P1214 checklist is stated independent of the score mode', !/스윙 환경 체크리스트/.test(html) && !/id="sig-sw-btn"/.test(html) && !/id="sig-dy-btn"/.test(html));
 // QA-SIG-27/P1263: the market-health checklist is mode-independent by product decision and its
 // 3-state aggregate is owned by one revision-bound domain function; the shell renders through
 // the bootstrap bridge and never invents a threshold copy.
-check('QA-SIG-27/P1263 entry checklist aggregates via the revision-bound domain summary', /window\._sigSummarizeEntryChecklist = summarizeEntryChecklist/.test(bootstrap)
-  && /_sigSummarizeEntryChecklist/.test(pagesSource)
-  && /dataset\.modeRevision/.test(pagesSource)
+// P1672: the legacy checklist writer and its window bridge left with the ec-* sinks (P1392); the
+// revision-bound domain summary stays covered by ci-esm-core-unit-check.
+check('QA-SIG-27/P1263 entry checklist aggregates via the revision-bound domain summary', !/_sigSummarizeEntryChecklist/.test(bootstrap + pagesSource)
   && /checklistPolicy/.test(read('src/domain/signal/mode.js'))
   && /export function summarizeEntryChecklist/.test(read('src/domain/signal/mode.js')));
 check('ticker deep analysis includes institutional Minervini engine', /function\s+_buildMinerviniTechnicalEngine/.test(ui) && /_calcMinerviniMAStack/.test(ui) && /_buildHorizontalVolumeZones/.test(ui) && /_calcVcpQuality/.test(ui) && /_calcFibonacciConfluence/.test(ui));
@@ -276,7 +277,9 @@ check('LC-07/LC-87/P1268 one owner for market-news summary and source-count deno
   && /deriveNewsSummary/.test(nativeNewsSummaryWriter)
   && !/data-news-source-count/.test(nativeNewsSummaryWriter)
   && /AIO_NEWS_SOURCES\.length/.test(data)
-  && (newsRouteOwner?.nativePrimarySurface || []).includes('#page-market-news #news-sent-score')
+  // verify-aio registry probe (2026-10-13): the keyword-sentiment strip left the page in P1391, so the
+  // registry names the summary elements that are still rendered.
+  && (newsRouteOwner?.nativePrimarySurface || []).includes('#page-market-news #news-24h-count')
   && /compatibility scoring producer/.test(newsRouteOwner?.legacyWriterEvidence?.join(' ') || ''));
 // LC-31/P1230/P1268: query topics stay review-only for topic-driven scoring while text sentiment remains possible.
 check('LC-31/P1230/P1268 feed-query topics do not drive article-topic risk signals',
@@ -510,7 +513,10 @@ check('theme composition audit indexes canonical semantic evidence once instead 
     && !/_aioGetCanonicalScreenerRows\(\) : \[\]\)\.some/.test(audit);
 })());
 check('proxy layer rejects HTML block pages for JSON endpoints before caching success', /_aioProxyUrlExpectsJson/.test(data) && /_aioValidateProxyResponse/.test(data) && /aioProxyBlockedHtml/.test(data) && /proxy returned HTML for JSON endpoint/.test(data));
-check('KR supply failure state clears canonical evidence and retired investor fanout is not scheduled', /function _showKrSupplyFailureState[\s\S]{0,180}?_krCurrentSupplyEvidence\s*=\s*null/.test(krData) && /T863_kr_retired_investor_fanout_not_scheduled/.test(tests));
+// P1671: the KR supply/investor data plane had no rendered or AI consumer and was retired, and the
+// developer-mode-only KR macro/technical folds (P702) no longer render or fetch candles for nobody.
+check('P1671 KR macro/technical folds render only in developer mode', /if \(_aioKrDevSectionsVisible\(\)\) initKoreaMacro\(\)/.test(krData) && /if \(_aioKrDevSectionsVisible\(\)\) initKoreaTechnical\(\)/.test(krData) && /pid === 'technical' && _aioKrDevSectionsVisible\(\)/.test(krData));
+check('KR supply failure state clears canonical evidence and retired investor fanout is not scheduled', !/function (?:fetchKrSupplyData|fetchKrInvestorTop10|updateKrSupplyDOM|_showKrSupplyFailureState)\b/.test(krData) && /T863_kr_retired_investor_fanout_not_scheduled/.test(tests));
 check('Cloudflare worker handles Naver JSON endpoints with browser-like headers and HTML block guard', /targetExpectsJson/.test(worker) && /m\.stock\.naver\.com/.test(worker) && /Upstream returned HTML block page for JSON endpoint/.test(worker) && /Referer = 'https:\/\/m\.stock\.naver\.com\/'/.test(worker));
 check('viewport matrix CI script covers desktop-only viewports, topbar clipping, and SVG text geometry', qaHas('scripts/ci-viewport-matrix-check.mjs', 'browser-viewport') && qaHas('scripts/ci-desktop-scope-check.mjs', 'core') && /desktop-qa-config\.mjs/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /'theme-detail'/.test(read('scripts/ci-viewport-matrix-check.mjs')) && !/mobile390|tablet768/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /desktop1440/.test(read('scripts/desktop-qa-config.mjs')) && /topbarClipCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTextOverlapCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTinyTextCount/.test(read('scripts/ci-viewport-matrix-check.mjs')));
 check('proxy registry ranks active proxies by success-rate score, not only static order', /okCount/.test(data) && /failCount/.test(data) && /getScore:\s*function/.test(data) && /self\.getScore\(b\)\s*-\s*self\.getScore\(a\)/.test(data));
@@ -675,8 +681,8 @@ check('portfolio comp order and CTA-gated entry form are wired', /id="pf-holding
 check('screener comp default exposes 1M/3M/6M/RSI/vs50MA/trend confidence/VCP fields', /data-scr-sort="ret1m"/.test(html) && /data-scr-sort="ret3m"/.test(html) && /data-scr-sort="ret6m"/.test(html) && /data-scr-sort="pctSma50"/.test(html) && /ret1m/.test(screenerPage) && /ret6m/.test(screenerPage) && /vcpScore/.test(screenerPage));
 check('runtime-injected decision headers and related-news strips stay out of the 13-route default surface', /body:not\(\.aio-dev-mode\) \.page > \.aio-decision-header[\s\S]{0,160}display:none !important/.test(html) && /#page-signal > \.aio-page-news-strip[\s\S]{0,1200}display:none !important/.test(html));
 check('home operational details stay collapsed while completed-24h Telegram feeds remain user-visible', /#page-home > details\.aio-card[\s\S]{0,1200}display:none !important/.test(html) && !/body:not\(\.aio-dev-mode\) #tg-feed-signal[\s\S]{0,1600}display:none !important/.test(html) && /body:not\(\.aio-dev-mode\) \.tg-live-feed/.test(html));
-check('P1425 macro route has no legacy yield-curve owner and replays both official calendars after the shared cut', !/_lazyInitChartPage\('macro', 'yieldCurveChart'/.test(core) && /renderOfficialFutureCalendar\(\)/.test(core) && /aio:sharedMarketCut/.test(core)); // P1425
-check('official future calendar merges the registry beyond snapshot-only CPI/PCE/NFP/FOMC fields', /AIO_MACRO_CALENDAR[\s\S]{0,900}Object\.keys\(registry\)/.test(macroTech) && /item\.nextRelease/.test(macroTech) && /renderMacroNextRelease/.test(core));
+check('P1425 macro route has no legacy yield-curve owner and replays both official calendars after the shared cut', !/_lazyInitChartPage\('macro', 'yieldCurveChart'/.test(core) && !/renderOfficialFutureCalendar/.test(core) && /renderMacroNextRelease\(\)/.test(core) && /aio:sharedMarketCut/.test(core)); // P1672: #official-future-calendar left with P1425 // P1425
+check('official future calendar merges the registry beyond snapshot-only CPI/PCE/NFP/FOMC fields', !/function renderOfficialFutureCalendar/.test(macroTech) && /renderMacroNextRelease/.test(core)); // P1672: the legacy calendar sink left with P1425; renderMacroNextRelease owns the macro calendar
 check('P1425 the legacy yield-curve renderer stays retired with its canvas', !/function renderYieldCurve/.test(macroTech) && !/id="yieldCurveChart"/.test(html));
 check('news and screener use 12-row progressive reveal instead of unbounded first paint', /_aioNewsVisibleLimit\s*\|\|\s*12/.test(data) && /_scrVisibleLimit\s*=\s*12/.test(data) && /id="news-load-more-wrap"/.test(html) && /id="scr-load-more-wrap"/.test(html));
 check('briefing news wall is capped and can be explicitly expanded', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && /_aioCapBriefingNews/.test(core) && /_aioToggleBriefingNews/.test(core));
@@ -707,16 +713,18 @@ check('fundamental search has one bounded total deadline and parallel bounded pr
 check('all news acquisition paths converge on one visible summary state updater', /function _aioUpdateNewsSummaryFromItems\(items, meta\)/.test(data) && (data.match(/_aioUpdateNewsSummaryFromItems\(/g) || []).length >= 4 && /kind: 'server-cache'/.test(data) && /kind: 'idb-cache'/.test(data) && /kind: 'direct'/.test(data));
 check('closed AI panel is inert and its trigger owns expanded state and focus return', /id="topbar-ai-btn"[\s\S]{0,300}aria-expanded="false"[\s\S]{0,300}aria-controls="ai-panel"/.test(html) && /id="ai-panel"[\s\S]{0,220}aria-hidden="true" inert/.test(html) && /p\.setAttribute\('inert', ''\)/.test(chat) && /p\.removeAttribute\('inert'\)/.test(chat) && /btn\.focus\(\)/.test(chat));
 check('KR theme cards preserve progressive density after live updates', /stockIdx < 5/.test(krData) && /kr-theme-card-more/.test(html + krData) && /catalyst\.length > 260/.test(krData) && /catFullEl\.textContent = catalyst/.test(krData) && /closest\('\.kr-ticker-pill, details, summary, \[data-stop\]'\)/.test(krData));
-check('KR supply requests are bounded and failure copy has a single owner', /sorted\.slice\(0, 24\)/.test(krData) && /종목별 공용 프록시 연쇄 호출 생략/.test(krData) && !/top100\.slice\(0, 6\)/.test(krData) && /_krInvestorFetchState/.test(krData) && /_investorState\.inFlight/.test(krData) && /10 \* 60 \* 1000/.test(krData) && /querySelectorAll\('\.kr-supply-fallback-notice'\)[\s\S]{0,180}\.remove\(\)/.test(krData));
+check('P1671 KR supply requests are retired with their schedule entry', !/krSupply/.test(data + core) && !/fetchKrSupplyData/.test(data + core + krData + ui));
 check('empty portfolio hides non-computable panels and exposes one first-position CTA', /var _pfEmpty = positions\.length === 0/.test(html + workspace) && /el\.hidden = _pfEmpty/.test(html + workspace) && /class="pf-empty-state"/.test(html + workspace) && />첫 종목 추가</.test(html + workspace));
-check('briefing and news display titles reject failed or non-Korean cached translations', /!cached\.ko_title \|\| !isKoreanText\(cached\.ko_title\)/.test(data) && /class="briefing-news-title"/.test(data + core) && /visibleTitle = \(typeof getDisplayTitle/.test(core) && /\.briefing-news-title\s*\{[\s\S]{0,500}-webkit-line-clamp:2/.test(html));
+// P1670: the briefing news list (and its .briefing-news-title clamp) left with _aioRenderBriefingMarketAnalysis;
+// news titles render through getDisplayTitle in news.js / daily-loop.js, which keep this translation guard.
+check('briefing and news display titles reject failed or non-Korean cached translations', /!cached\.ko_title \|\| !isKoreanText\(cached\.ko_title\)/.test(data) && !/class="briefing-news-title"/.test(data + core));
 check('headless tests exercise the final human UX state contracts', /_testV5290HumanUXStateContracts/.test(tests) && /T1015/.test(tests) && /T1020/.test(tests));
 // v52.40 (P655): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 1 (EF-01/02/04/13) structural gates
 check('EF-13: FOMC decision-header footnote prefixes the registry eventDate on every consuming page (previously date-less outside macro calendar table)', /_fomcFoot\.eventDate\s*\?\s*_fomcFoot\.eventDate\s*\+/.test(core) && /_fomcAsOfAge/.test(core));
 check('EF-13: FOMC footnote auto-badges past 21 days and collapses past 30 days instead of asserting a dateless "today" frame forever', /_fomcAsOfAge\s*>\s*21/.test(core) && /_fomcTooStale/.test(core));
 check('EF-04: briefing date-line is a named, mockable-`now` renderer instead of an unconditional new Date() write', /window\._aioRenderBriefingDateLine\s*=\s*function\(nowOverride\)/.test(html) && /isPreCutoff/.test(html));
-check('EF-02d: breadth 50SMA readout/bar sync is a single shared function called from both the Chart.js-independent snapshot path and updateBreadthBars, not duplicated', (core.match(/_aioSyncBreadth50Readout\s*=\s*function/g) || []).length === 1 && /window\._aioSyncBreadth50Readout\(\)/.test(core) && /window\._aioSyncBreadth50Readout\(\)/.test(ui));
-check('EF-02b: breadth header-badge and diag-signal consume the same canonical consensus object as the signal-page verdict (no independent re-derivation)', /_aioRenderBreadthConsensus\s*=\s*function/.test(core) && /breadth-header-badge/.test(core) && /breadth-diag-signal/.test(core));
+check('EF-02d: breadth 50SMA readout/bar sync is a single shared function called from both the Chart.js-independent snapshot path and updateBreadthBars, not duplicated', !/_aioSyncBreadth50Readout/.test(core + ui + data)); // P1672: readout/bar sinks retired (P1395)
+check('EF-02b: breadth header-badge and diag-signal consume the same canonical consensus object as the signal-page verdict (no independent re-derivation)', !/_aioRenderBreadthConsensus/.test(core)); // P1672: badge sinks retired (P1395)
 check('EF-02b: home market-pulse breadth strip uses NARRATIVE_ENGINE.getBreadthRegime instead of an independent 60/30 threshold', /NARRATIVE_ENGINE\.getBreadthRegime\(bVal\)/.test(pagesSource));
 check('EF-02c: NYSE new-high/new-low/hl-ratio cards render an explicit na state instead of a perpetual unstated dash', /breadth-new-highs.*breadth-new-lows.*breadth-hl-ratio|breadth-new-highs['"]\s*,\s*['"]breadth-new-lows/.test(ui.replace(/\s+/g, ' ')));
 check('EF-01/P1425: the macro "now/live" mini-card stays retired with the hand-written cycle timeline', !/function _aioSyncMacroLiveSpxMini/.test(macroTech) && !/id="macro-now-spx"/.test(html));
@@ -726,7 +734,7 @@ check('headless tests cover Batch 1 efficacy fixes (EF-01/02/04/13)', /_testV524
 check('EF-08/P1425: the legacy carry-unwind composite and its page-bus triggers stay retired', !/data-carry-unwind-shown/.test(data) && !/function _aioRenderCarryUnwindRisk/.test(data) && !/id="carry-unwind-risk"/.test(html));
 check('EF-08/P1419: the carry read never labels a Korea rate as a US-Japan gap', !/BOJ 수동 확인값 기준/.test(data) && !/bokRate/.test(read('src/domain/macro/rates-fx.js')) && /YEN_RALLY_RULE/.test(read('src/domain/macro/rates-fx.js')));
 check('EF-10/P1010: retired dead ticker metrics and action slots route to the shared SEC report', !/_tickerGapIds|ticker-action-btn|ticker-m-mcap/.test(core) && /{ id: 'fundamental', label: '재무 공시' }/.test(read('src/ui/navigation/route-hubs.js')) /* P1430: the 종목 hub tab replaced the in-page link */ && !/id="ticker-f-ni"|id="tab-financials"/.test(html));
-check('EF-11/P1010: unsupported VXX futures inference is retired while RSP/SPY retains explicit missing state', !/rm-vixstr-status|var rollCost = vxxPct/.test(pagesSource) && /RSP 또는 SPY 라이브 시세 미수신/.test(pagesSource));
+check('EF-11/P1010: unsupported VXX futures inference is retired while RSP/SPY retains explicit missing state', !/rm-vixstr-status|var rollCost = vxxPct/.test(pagesSource) && !/rm-rspratio/.test(pagesSource)); // P1672: the RSP/SPY ratio card was retired
 check('EF-12: TV OHLC fallback strip sync is extracted into a standalone function reachable from page-shown/live-quotes, not only as a loadTVChart side effect', /function _aioSyncTvOhlcFallback/.test(ui) && /html-tv-ohlc-fallback-shown/.test(ui) && /html-tv-ohlc-fallback-live/.test(ui));
 check('EF-19: kr-technical KOSPI/KOSDAQ refresh buttons call analyzeKrIndex with the correct target ids, and the analyzeKrTickerDeep mis-wiring is gone', /data-action="analyzeKrIndex"\s+data-arg="\^KS11"\s+data-arg2="kr-kospi-tech-result"/.test(html) && /data-action="analyzeKrIndex"\s+data-arg="\^KQ11"\s+data-arg2="kr-kosdaq-tech-result"/.test(html) && !/data-action="analyzeKrTickerDeep"\s+data-arg="\^K[SQ]11"/.test(html));
 // P1134/R620: the codetabs fallback is declared in js/aio-data.js and consumed by the KR fetchers
@@ -739,7 +747,6 @@ check('EF-06: VIX term-structure seed fallback values render a distinguishable n
   (/_aioRenderVixTermRegime/.test(core) && /\(정적\)/.test(core) && /라이브 미수신 — DATA_SNAPSHOT 시드값/.test(core))
   || /ratioSeries = vix\.filter\(\(point\) => vix3m\.get\(point\.date\)\)/.test(read('src/ui/components/sentiment-board.js')) /* P1396: no seed path exists */
   || (sentimentDomain.includes('export function vixTermStructure') && sentimentDomain.includes('blocked: true') && /points:\s*(?:Object\.freeze\()?\{ short, spot, medium, long \}/.test(sentimentDomain) && sentimentPage.includes('summary.vixTermStructure.regime') && sentimentPage.includes('canvas.dataset.aioRenderer')));
-check('EF-07: kr-home supply title dates are overridden to an honest fallback label when the failure state renders, instead of coexisting with a confident "N/D 기준" date next to the failure warning', /_showKrSupplyFailureState/.test(krData) && /#page-kr-home \.kr-supply-title/.test(krData) && /폴백 데이터/.test(krData + ui));
 check('EF-14: news source names are guarded by a non-Latin/non-Hangul script check separate from the title translation guard, so an untranslated source name cannot leak raw', /function _aioSafeSourceLabel/.test(data) && /root\._aioSafeSourceLabel\(item\?\.source/.test(read('src/ui/pages/news.js'))); // P1411: guard moved to the native news card
 check('EF-15/P1428: the home F&G day change uses the completed-close history, the same basis as 투자 심리 (not CNN previous_close)', !/_aioSetDeltaEl\('home-fg-delta'/.test(data) && /aioFgDeltaRenderer = 'native'/.test(read('src/ui/components/market-regime.js')) && /buildCloseSeries\(history, 'fg'/.test(read('src/ui/components/market-regime.js')));
 check('EF-16: kr-macro rate/CPI/PMI cards expose a shared _fieldTs-based freshness badge instead of inconsistent per-card date disclosure', /_aioRenderKrMacroFreshnessBadges/.test(core) && /kr-macro-bokrate-freshness/.test(html) && /kr-macro-cpi-freshness/.test(html) && /kr-macro-pmi-freshness/.test(html));
@@ -756,7 +763,6 @@ check('EF-03/P713: US FOMC calendar entry has valid ISO lastRelease < nextReleas
   return !!m && Date.parse(m[1]) < Date.parse(m[2]) && m[2] !== '2026-06-17';
 })());
 check('EF-17 (user-approved scope addition): home GLOBAL MARKETS table includes ES=F/NQ=F futures rows with a regular-hours-aware highlight, and the underlying symbols are already part of the live-quote fetch set (no new fetch pipeline required)', /sym:\s*'ES=F',\s*label:\s*'S&P Futures',\s*isFutures:\s*true/.test(ui) && /isRegularHours/.test(ui));
-check('EF-18: kr-supply fetch uses the confirmed-live /api/index/{market}/trend path (curl-verified 200) instead of the confirmed-404 /investorTrend path, with a response-shape adapter preserving net-flow semantics', /_aioAdaptKrTrendResponse/.test(krData) && /api\/index\/KOSPI\/trend'/.test(krData) && /api\/index\/KOSDAQ\/trend'/.test(krData));
 check('headless tests cover Batch 4 efficacy fixes (EF-03/17/18)', /_testV5243Batch4Efficacy/.test(tests) && /T884/.test(tests) && /T885/.test(tests) && /T886/.test(tests));
 
 // v52.44 (P659): B8 Cloudflare Worker anycast 403(forbidden) auto-retry mitigation
@@ -834,7 +840,7 @@ if (exists('scripts/backtest-trading-score-longrun.mjs')) {
 // overlap) bug this immediately found and fixed, and F-02 (zeroCanvases dead code, no
 // pageerror/console.error collection) gaps it closed.
 const viewportScript = exists('scripts/ci-viewport-matrix-check.mjs') ? read('scripts/ci-viewport-matrix-check.mjs') : '';
-check('WO-4: viewport-matrix runs with FULL_INIT=1 as a blocking browser shard before Pages deployment', qaPipeline.groups?.['browser-viewport']?.gates?.some((gate) => gate.script === 'scripts/ci-viewport-matrix-check.mjs' && gate.env?.AIO_VIEWPORT_FULL_INIT === '1') && /browser:[\s\S]*?needs:\s*contracts/.test(ciWorkflow) && /workflows:\s*\['CI'/.test(pagesWorkflow));
+check('WO-4: viewport-matrix runs with FULL_INIT=1 as a blocking browser shard before Pages deployment', qaPipeline.groups?.['browser-viewport']?.gates?.some((gate) => gate.script === 'scripts/ci-viewport-matrix-check.mjs' && gate.env?.AIO_VIEWPORT_FULL_INIT === '1') && /browser:[\s\S]*?needs:\s*(contracts|preflight)/.test(ciWorkflow) && /workflows:\s*\['CI'/.test(pagesWorkflow));
 check('WO-4: viewport matrix collects real pageerror/console.error signal per route, not just static DOM shape checks', /page\.on\('pageerror'/.test(viewportScript) && /page\.on\('console'/.test(viewportScript) && /jsErrorCount/.test(viewportScript));
 check('WO-4: viewport matrix\'s console.error allowlist only excludes verified-expected noise (the offline-test-harness net::ERR_FAILED side effect and the app\'s own intentional API-health warn→error escalation log), not a blanket suppression', /net::ERR_FAILED/.test(viewportScript) && /warn\\s\*→\\s\*error/.test(viewportScript));
 check('WO-4: zeroCanvases detection actually queries and filters real <canvas> elements instead of the previous always-empty declared-but-unpopulated array', /querySelectorAll\('canvas'\)/.test(viewportScript) && /clientWidth === 0 \|\| cv\.clientHeight === 0/.test(viewportScript));
@@ -912,7 +918,7 @@ check('H3-H: Critical-10 content hierarchy audit requires decision header, evide
 check('H3-I: Critical-10 accessibility audit covers accessible names, keyboard reachability, positive tabindex, and canvas names', /getCritical10AccessibilityAudit/.test(core) && /nameless-controls/.test(core) && /unfocusable-controls/.test(core) && /positive-tabindex/.test(core) && /unnamed-canvas/.test(core));
 check('headless tests cover H3-G element lineage and H3-H/I surface contracts', /_testV5258HumanSurfaceContracts/.test(tests) && /T914/.test(tests) && /T915/.test(tests) && /T916/.test(tests) && /T917/.test(tests));
 check('H3-F/H3-H: breadth route blocks synthetic chart fallbacks and uses history artifacts only', /data-operational-use/.test(ui) && /_aioHistorySeries\(['"]spx/.test(ui) && !/Chart\.register/.test(ui) && /T918 breadth_chart_runtime_only_contract/.test(tests));
-check('H3-H/I: the real Chromium human-surface audit is a blocking full-profile browser shard', exists('scripts/ci-critical10-human-surface-check.mjs') && qaHas('scripts/ci-critical10-human-surface-check.mjs', 'browser-surface') && /browser:[\s\S]*?needs:\s*contracts/.test(ciWorkflow));
+check('H3-H/I: the real Chromium human-surface audit is a blocking full-profile browser shard', exists('scripts/ci-critical10-human-surface-check.mjs') && qaHas('scripts/ci-critical10-human-surface-check.mjs', 'browser-surface') && /browser:[\s\S]*?needs:\s*(contracts|preflight)/.test(ciWorkflow));
 check('H2-04: one normalized AI error contract is shared by browser AI surfaces and Worker failures', /normalizeAiError/.test(core) && /_aioChatError/.test(chat) && /_aioSetLastAiError/.test(data) && /aioAiError/.test(worker) && /T919/.test(tests) && /T920/.test(tests));
 check('H2-05: portfolio Vault has a blocking deterministic Chromium E2E covering PIN, reload, wrong/correct PIN, KDF migration, opt-out, and input boundary', exists('scripts/ci-portfolio-vault-e2e.mjs') && qaHas('scripts/ci-portfolio-vault-e2e.mjs', 'browser-surface') && /PFE2-01/.test(read('scripts/ci-portfolio-vault-e2e.mjs')) && /PFE2-08/.test(read('scripts/ci-portfolio-vault-e2e.mjs')) && /PFE2-09/.test(read('scripts/ci-portfolio-vault-e2e.mjs')));
 check('H2-05: native portfolio bootstrap cannot create a second consent-only plaintext vault', !/createPrivacyVault/.test(read('src/app/bootstrap.js')) && /disabled-no-encrypted-repository/.test(read('src/storage/vault.js')) && /encryptedAtRest === true/.test(read('src/storage/vault.js')));
@@ -1044,8 +1050,11 @@ check('LIVE3-03: 20SMA breadth uses its value-specific server observation timest
 check('LIVE3-04: Yahoo/FRED bridge never fabricates a missing 2Y or overwrites official T10Y2Y', !/:\s*4\.0\s*\)/.test(String((data.match(/function _syncYahooToFred\([\s\S]*?\n\}/) || [''])[0])) && /!fd\['T10Y2Y'\]/.test(data) && /Number\(window\._live2Y\)/.test(data));
 check('LIVE3-05: MOVE/SKEW regimes require live observations, missing values render unavailable, and SKEW has one native read model', /quote\('\^SKEW'\)/.test(core) && /quote\('\^MOVE'\)/.test(core) && /'move':\s*'—'/.test(core) && /'skew':\s*'—'/.test(core) && !/sent-skew-value/.test(html) /* P1396: the sourceless SKEW card and its page read model were retired */ && !/_bridge\('\^SKEW'/.test(ui));
 check('LIVE3-06: late breadth producer refreshes breadth, signal, and home consumers atomically', /updateBreadthBars\(\)/.test(data) && /refreshSignalDashboard\(\)/.test(data) && /refreshHomeDashboard\(\)/.test(data));
-check('LIVE3-04: briefing labels the actual S&P index and reads the canonical pct field', /var spx = _ldSafe\('\^GSPC', 'price'\), spxChg = _ldSafe\('\^GSPC', 'pct'\)/.test(core) && /S&amp;P 500 지수/.test(core) && !/_ldSafe\('SPY', 'chgPct'\)/.test(core));
-check('LIVE3-05: KR supply parses formatted values and renders missing as unknown rather than zero', /String\(v\)\.replace\(\/\[,\+\\s\]\/g/.test(krData) && /streakEl\.textContent = '수급 미수신'/.test(krData) && /미수신을 0원\/매도 우위로 해석하지 않는다/.test(krData) && /기관 세부 수급 미수신/.test(krData) && /프로그램 매매 미수신/.test(krData));
+// P1670: the briefing index sub-card left with _aioRenderBriefingMarketAnalysis; keep the guard that no
+// legacy writer reads the non-canonical SPY chgPct field.
+check('LIVE3-04: briefing labels the actual S&P index and reads the canonical pct field', !/briefing-sub-index/.test(core) && !/_ldSafe\('SPY', 'chgPct'\)/.test(core));
+// P1671: the KR supply renderer this pinned was retired with the supply fetch.
+check('LIVE3-05: KR supply parses formatted values and renders missing as unknown rather than zero', !/function updateKrSupplyDOM/.test(krData) && !/streakEl.textContent = '수급 미수신'/.test(krData));
 check('LIVE3-06: conflicting stale Naver KR index quotes cannot overwrite a materially different server quote', /_aioKrQuoteConflicts/.test(data) && /_krDiff > 0\.0075/.test(data));
 check('LIVE3-07: Telegram collection attempts and last success have separate semantics', /collectionStatus/.test(telegramFetcher) && /attemptedAt/.test(telegramFetcher) && /lastSuccessfulAt/.test(telegramFetcher) && /generatedAt means successful collection time/.test(telegramFetcher));
 check('LIVE3-08: glossary expectancy math and tactical-score wording are non-predictive', /거래당 \+0\.4R/.test(glossary) && /예측·매수 신호가 아니며/.test(glossary) && !/승률 40% × R 2\.5 = \+100% 수익/.test(glossary));
@@ -1107,7 +1116,7 @@ check('R340/P712: Treasury maturity fields are separated and 2s10s uses the cano
 const krHealthBody = ui.slice(ui.indexOf('function calcKrHealthScore()'), ui.indexOf('// ── 한국 금리 스프레드'));
 check('R340/P712 + P1538: KR theme breadth fails closed on missing current inputs and the KR health card adds nothing up',
   /evaluateKrThemeQuoteCoverage/.test(krData) && /weightedCoverage\s*>=\s*0\.7/.test(krData) && /테마 종합판정 보류/.test(krData)
-    && krHealthBody.length > 500 && /currentInputs \+ '\/4'/.test(krHealthBody) && /미수신: /.test(krHealthBody) && !/\bscore\s*[-+]?=|grade\s*=/.test(krHealthBody));
+    && krHealthBody.length > 500 && /currentInputs \+ '\/3'/.test(krHealthBody) && /미수신: /.test(krHealthBody) && !/\bscore\s*[-+]?=|grade\s*=/.test(krHealthBody));
 check('R340/P712: future-event calendar is data-driven and no stale 7\/10 BOK row remains',
   // P1389: the briefing schedule (buildBriefingSchedule over AIO_MACRO_CALENDAR) replaced the archived calendar block.
   /export function buildBriefingSchedule/.test(read('src/domain/briefing/schedule.js')) && /id="briefing-schedule-rows"/.test(html) && !/>7\/10<\/span>[\s\S]{0,260}한국은행 금통위/.test(html + macroTech));
@@ -1133,9 +1142,9 @@ check('R345/P728: quote batches defer per-symbol lineage scans and keep one cano
 check('R345/P728: targeted lineage annotation covers data-live-field without a document-wide selector',
   /if \(target\) \{[\s\S]{0,700}?data-live-field\^=/.test(core) &&
   /getAttribute\('data-live-field'\)/.test(core));
-check('R345/P728: retired KR investor ranking fanout is not scheduled and the runtime audit follows evidence',
+check('R345/P728: retired KR investor ranking fanout is not scheduled (P1671: the supply runtime audit left with it)',
   !/async function fetchKrDynamicData\(\)[\s\S]{0,900}?fetchKrInvestorTop10/.test(data) &&
-  /evidenceAvailable:\s*valid/.test(krData) &&
+  !/getKrSupplyRuntimeAudit/.test(krData) &&
   !/missing-kr-supply-target/.test(krData));
 check('P782: service-worker controller changes re-query the active version instead of preserving a stale mismatch',
   /serviceWorker\.addEventListener\('controllerchange'/.test(data) &&
@@ -1275,7 +1284,7 @@ check('P1118: signal page renders post-composite adjustments in a native-owned s
 let breadthParityP1274 = false;
 try {
   const start = core.indexOf('window.AIO.getCurrentBreadthEvidence = function(maxAgeMs) {');
-  const end = core.indexOf('\nwindow._aioSyncBreadth50Readout', start);
+  const end = core.indexOf('\nfunction applyDataSnapshot()', start);
   if (start >= 0 && end > start) {
     const segment = { observedAt:new Date(Date.now() - 86400000).toISOString(), above5:41.7, above20:34.1, above50:35.5, above200:52.2, advanceRatio:0.6117, coveragePct:97.1, eligible:707 };
     const breadth = { schemaVersion:'1.0', source:'github-actions:yahoo-1y-adjusted-close', segments:{ us:segment } };

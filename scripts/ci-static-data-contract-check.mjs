@@ -142,7 +142,7 @@ const categories = [
   ['commodities-fx', historyHas('wti','gold','dxy'), 'history/live artifact'],
   ['global-indices', historyHas('spx','kospi','kosdaq'), 'history/live artifact'],
   ['crypto', historyHas('btc'), 'history/live artifact'],
-  ['kr-macro-vkospi-supply', /bokPolicy:[\s\S]*?official/.test(core) && /VKOSPI 시계열 미수신/.test(core) && /수급.*판단을 보류/.test(runtime), 'official reference + explicit unavailable']
+  ['kr-macro-vkospi-supply', /bokPolicy:[\s\S]*?official/.test(core) && /VKOSPI 시계열 미수신/.test(core) && !/fetchKrSupplyData|updateKrSupplyDOM/.test(runtime), 'official reference + explicit unavailable (P1671: KR supply plane retired)']
 ];
 
 assert(categories.length === 22, `audit category count must be 22, got ${categories.length}`);

@@ -4,6 +4,7 @@ import { themeStrengthLead } from '../../domain/market/page-flow.js';
 import { sectionLead } from './page-flow.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { buildGroupStrength, GROUP_WINDOWS } from '../../domain/themes/group-strength.js';
+import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
 import { AI_CAPEX_FLOW, AI_BOTTLENECK_LEAD_TIMES } from '../../domain/themes/ai-capex-flow.js';
 
 const SESSIONS = Object.freeze({ ret1m: 21, ret3m: 63, ret6m: 126 });
@@ -43,7 +44,13 @@ function basisOf(rows, metadata = null, history = []) {
   if (sessions && typeof sessions === 'object') {
     const us = /^\d{4}-\d{2}-\d{2}$/.test(sessions.US || '') ? sessions.US : null;
 
-    if (us) return { label: `${shortDate(us)} 미국 종가 기준` };
+    if (us) {
+      // X03 (2026-10-13): the date alone does not say whether the ranking may be read as today's leaders.
+      const expected = latestCompletedUsSession(Date.now(), { requirePrevious: false })?.date || null;
+      return expected && us < expected
+        ? { label: `${shortDate(us)} 미국 종가 기준(최신 거래일 ${shortDate(expected)} 반영 전 — 지금의 주도가 아닌 기준일 참고 순위)`, stale: true }
+        : { label: `${shortDate(us)} 미국 종가 기준` };
+    }
   }
   // Without per-market dates, the completed US close of the shared history is the basis (the same date the
   // S&P 500 comparison in this line uses); the bar start is the last resort.

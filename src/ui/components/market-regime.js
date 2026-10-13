@@ -1,5 +1,8 @@
 // P1392: 시장 상태 = six-axis regime board (owner decision 2026-10-02: the 0-100 score and the
 // swing/day toggle are retired from user surfaces). The home card shows the same board compactly.
+import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
+import { renderStressOutcomes } from './stress-outcomes.js';
+import { deepDiveFold } from './deep-dive.js';
 import { buildCloseSeries, buildMarketRegime, buildMarketRead, closeBasis } from '../../domain/briefing/market-read.js';
 import { collectMarketInputs } from './briefing-read.js';
 import { regimeFlow } from '../../domain/market/page-flow.js';
@@ -171,17 +174,19 @@ export function renderRegimePage({ documentRef: doc, root }) {
         changes.append(el(doc, 'h4', '상태가 바뀌는 조건'), el(doc, 'p', row.flip));
         card.append(changes);
       }
-      const details = el(doc, 'details', null, 'regime-axis-details');
-      details.append(el(doc, 'summary', row.evidence.length > 1 || watch?.observe ? '추가 근거와 출처' : '출처'));
-      if (row.evidence.length > 1) { const extra = el(doc, 'dl', null, 'regime-evidence'); for (const [label, value] of row.evidence.slice(1)) extra.append(el(doc, 'dt', label), el(doc, 'dd', value)); details.append(extra); }
-      if (row.flip && watch?.observe) details.append(el(doc, 'h4', '다음 확인'), el(doc, 'p', watch.observe));
-      details.append(el(doc, 'p', AXIS_SOURCES[row.id] || 'AIO 완료 관측 기록'));
-      card.append(details);
+      // P1660 (owner 2026-10-12): the fold teaches — the principle, how practitioners read it, how it links to the
+      // other axes — then today's remaining numbers and a link to the page that goes deeper. Sources stay on hover.
+      const extra = [];
+      if (row.evidence.length > 1) { const list = el(doc, 'dl', null, 'regime-evidence'); for (const [label, value] of row.evidence.slice(1)) list.append(el(doc, 'dt', label), el(doc, 'dd', value)); extra.push(el(doc, 'h4', '지금 숫자 더 보기'), list); }
+      if (row.flip && watch?.observe) extra.push(el(doc, 'h4', '다음 확인'), el(doc, 'p', watch.observe));
+      const details = deepDiveFold(doc, root, row.title, AXIS_DEEP_DIVES[row.id], extra);
+      if (details) card.append(details);
       if (AXIS_SOURCES[row.id]) card.title = `출처: ${AXIS_SOURCES[row.id]}`; // P1505: on hover, not on the face of the card
       return card;
     };
     board.replaceChildren(...regime.axes.filter((row) => row.id !== 'korea').map(card));
-    if (regime.available) renderRegimeRadar({ documentRef: doc, root, inputs, anchor: board }); // P1637
+    if (regime.available) renderRegimeRadar({ documentRef: doc, root, inputs, anchor: board, verdicts: regime.axes }); // P1637
+    renderStressOutcomes({ documentRef: doc, root, anchor: board }); // P1661: past outcomes by stress band
     if (boardKr) {
       boardKr.classList.add('regime-quality-board', 'regime-quality-korea');
       const korea = buildKoreaRegimeObservations(inputs, { through: regime.asOf || null });

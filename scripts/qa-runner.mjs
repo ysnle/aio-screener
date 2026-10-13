@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { spawn, spawnSync } from 'node:child_process';
+import { freemem } from 'node:os';
 import { createHash } from 'node:crypto';
 import { createReadStream, createWriteStream, existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, unlinkSync, rmSync } from 'node:fs';
 import { Transform } from 'node:stream';
@@ -87,10 +88,13 @@ const positiveInteger = (value, fallback) => {
   const number = Number(value);
   return Number.isFinite(number) && number >= 1 ? Math.floor(number) : fallback;
 };
+// 2026-10-13: 6 static + 3 browser jobs (each heavy gate now opening 3 pages) froze the owner's 16 GB laptop.
 const maxStaticJobs = positiveInteger(option('--jobs') || process.env.AIO_QA_JOBS, 4);
 // Browser gates own separate ports and processes. Timing measurements run alone;
 // CI keeps one worker inside each existing matrix shard.
-const maxBrowserJobs = Math.min(4, positiveInteger(option('--browser-jobs') || process.env.AIO_QA_BROWSER_JOBS, process.env.CI === 'true' ? 1 : 2));
+// Locally, one browser job when free memory is under 6 GB; heavy viewport gates already run their pages in parallel.
+const localBrowserJobs = freemem() < 6 * 1024 ** 3 ? 1 : 2;
+const maxBrowserJobs = Math.min(4, positiveInteger(option('--browser-jobs') || process.env.AIO_QA_BROWSER_JOBS, process.env.CI === 'true' ? 1 : localBrowserJobs));
 
 function globRegex(pattern) {
   const escaped = String(pattern)

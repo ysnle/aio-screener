@@ -2420,7 +2420,6 @@ window.AIO.getAutoOpsReadiness = function(opts) {
   var dataQuality = window.AIO.getDataQualityIssueAudit ? window.AIO.getDataQualityIssueAudit() : null;
   var snapshotDateSources = window.AIO.getSnapshotDateSourceAudit ? window.AIO.getSnapshotDateSourceAudit() : null;
   var operationalDataContract = window.AIO.getOperationalDataContractAudit ? window.AIO.getOperationalDataContractAudit() : null;
-  var krSupplyRuntime = window.AIO.getKrSupplyRuntimeAudit ? window.AIO.getKrSupplyRuntimeAudit() : null;
   var marketCurrentness = window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit() : null;
   trace('operational-done');
   var critical10MarketSurface = full && window.AIO.getCritical10MarketSurfaceAudit ? window.AIO.getCritical10MarketSurfaceAudit() : null;
@@ -2487,7 +2486,6 @@ window.AIO.getAutoOpsReadiness = function(opts) {
   if (dataQuality && dataQuality.issueCount) issues.push(dataQuality.issueCount + ' data quality issue(s) [v49.52/R105]');
   if (snapshotDateSources && snapshotDateSources.issueCount) issues.push(snapshotDateSources.issueCount + ' snapshot date source issue(s) [v49.52/R106]');
   if (operationalDataContract && operationalDataContract.issueCount) issues.push(operationalDataContract.issueCount + ' operational data contract issue(s) [v49.54/R107]');
-  if (krSupplyRuntime && krSupplyRuntime.issueCount) issues.push(krSupplyRuntime.issueCount + ' KR supply runtime issue(s) [v49.54/R108]');
   if (marketCurrentness && marketCurrentness.issueCount) issues.push(marketCurrentness.issueCount + ' market currentness issue(s) [v49.58/R111]');
   if (critical10MarketSurface && critical10MarketSurface.issuePageCount) issues.push(critical10MarketSurface.issuePageCount + ' critical page market surface issue page(s) [v49.110/R197]');
   if (critical10MarketSituation && critical10MarketSituation.status !== 'ok') issues.push(critical10MarketSituation.issuePageCount + ' critical page market-situation mismatch/coverage page(s) [v49.111/R198]');
@@ -2568,7 +2566,6 @@ window.AIO.getAutoOpsReadiness = function(opts) {
       snapshotDateSources: 'AIO.getSnapshotDateSourceAudit()',
       operationalDataContract: 'AIO.getOperationalDataContractAudit()',
       dataTruth: 'AIO.getDataTruthAudit({critical10:true})',
-      krSupplyRuntime: 'AIO.getKrSupplyRuntimeAudit()',
       marketCurrentness: 'AIO.getMarketCurrentnessAudit({ includeHidden: true })',
       critical10MarketSurface: 'AIO.getCritical10MarketSurfaceAudit()',
       critical10MarketSituation: 'AIO.getCritical10MarketSituationAudit()',
@@ -2623,7 +2620,6 @@ window.AIO.getAutoOpsReadiness = function(opts) {
     snapshotDateSources: snapshotDateSources,
     operationalDataContract: operationalDataContract,
     dataTruth: dataTruth,
-    krSupplyRuntime: krSupplyRuntime,
     marketCurrentness: marketCurrentness,
       critical10MarketSurface: critical10MarketSurface,
       critical10MarketSituation: critical10MarketSituation,
@@ -3159,7 +3155,6 @@ window.AIO.getDataLineageAudit = function() {
       { id:'technicals', label:'기술 지표 (SPY)',   source:'fetchTechnicalIndicators',                  schedKey:'technicals', transform:'applyTechIndicators',        renderAttr:null,              tier:'auto' },
       { id:'hySpread',   label:'HY 스프레드',       source:'FRED BAMLH0A0HYM2 (키 필요)',                schedKey:'hySpread',   transform:'fetchHYSpread',              renderAttr:'data-snap',       tier:'auto', needsKey:true },
       { id:'news',       label:'뉴스',             source:'RSS 다중 (fetchOneFeed)',                    schedKey:'news',       transform:'scoreItem + classifyTopic',  renderAttr:null,              tier:'auto' },
-      { id:'krSupply',   label:'KR 수급',          source:'Naver investorTrend API (프록시)',           schedKey:'krSupply',   transform:'updateKrSupplyDOM',          renderAttr:null,              tier:'auto' },
       { id:'krDynamic',  label:'VKOSPI/KR 동적',    source:'Naver VKOSPI/basic (프록시)',                schedKey:'krDynamic',  transform:'fetchVkospiDynamic→DATA_SNAPSHOT.vkospi', renderAttr:'data-snap', tier:'auto' },
       { id:'breadth',    label:'Breadth %above MA', source:'GitHub Actions Yahoo 1y adjusted-close · AIO US universe', schedKey:'breadth', transform:'computeScreenerBreadth → _aioApplyScreenerBreadth', renderAttr:'data-snap', tier:'auto', note:'공식 거래소 breadth가 아닌 AIO 미국 스크리너 유니버스 비가중 집계. 관측시각·85% 커버리지·값 범위 게이트 통과 시에만 의사결정 입력 허용.' },
       { id:'officialServerMacro',label:'CPI/PCE/NFP/국채곡선/AAII', source:'GitHub Actions · BLS/BEA/Treasury/AAII official public + bounded relay', schedKey:null, transform:'fetch-data → typed evidence → DATA_SNAPSHOT', renderAttr:'data-snap', tier:'server-auto', note:'서버 자동 갱신. AAII relay는 publisher direct automation 차단 시에만 사용하며 reference-only/현재 판단 제외를 유지.' },

@@ -11,13 +11,16 @@ permissions:
   contents: write
   actions: write
 
-concurrency:
-  group: refresh-data
-  cancel-in-progress: false
-
 jobs:
   refresh-screener:
     runs-on: ubuntu-latest
+    # P1666: the producer job alone owns the shared refresh lock. Waiting for CI and Pages moved to the
+    # converge job below, which used to hold this lock for 5-9 minutes and delay the next refresh slot.
+    concurrency:
+      group: refresh-data
+      cancel-in-progress: false
+    outputs:
+      sha: ${{ steps.dispatch.outputs.sha }}
     # Includes waiting for the dispatched CI run to produce its attestation.
     timeout-minutes: 45
     steps:
@@ -75,6 +78,13 @@ jobs:
           node scripts/fetch-earnings-calendar.mjs
           # A09 (2026-10-12): the CFTC positioning producer was retired with its screen widget (owner request, P1628).
 
+      - name: Refresh S&P 500 member weights (sector map)
+        run: |
+          set -euo pipefail
+          # 2026-10-13: ticker/sector/weight only from the IVV daily holdings file; the script keeps the
+          # previous artifact and annotates a warning when the source is unreachable or reshaped.
+          node scripts/fetch-sp500-weights.mjs
+
       - name: Build bounded SEC runtime projection
         run: |
           node scripts/build-sec-runtime-projection.mjs
@@ -131,6 +141,7 @@ jobs:
           }
           git add -- public-data/screener.json public-data/sec-fundamentals.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
           stage_if_exists public-data/earnings-calendar.json
+          stage_if_exists public-data/sp500-weights.json # 2026-10-13: S&P 500 sector map weights
           stage_if_exists public-data/kr-fundamentals.json # P1654: OpenDART Korean fundamentals
           stage_if_exists public-data/backtest-history.json
           stage_if_exists public-data/breadth-contributors.json # P1416: breadth drilldown
@@ -172,17 +183,34 @@ jobs:
           echo "sha=$final_sha" >> "$GITHUB_OUTPUT"
           echo "Dispatched CI for exact screener refresh commit $final_sha"
 
+  converge:
+    needs: refresh-screener
+    # Runs even when the producer failed so a lost hand-over self-heals (R606).
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: live-convergence
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: '20'
+
       - name: Converge live deployment to the attested revision
         # R606: this run owns the SEC/screener revision, so it must also hand the
         # attested CI run id to the Pages deploy workflow. See refresh-data.yml for
         # the full GITHUB_TOKEN/workflow_run explanation.
-        if: ${{ !cancelled() }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          if [ -n "${{ steps.dispatch.outputs.sha }}" ]; then
-            node scripts/ensure-live-convergence.mjs --await-sha "${{ steps.dispatch.outputs.sha }}"
+          if [ -n "${{ needs.refresh-screener.outputs.sha }}" ]; then
+            node scripts/ensure-live-convergence.mjs --await-sha "${{ needs.refresh-screener.outputs.sha }}"
           else
             node scripts/ensure-live-convergence.mjs
           fi

@@ -1,0 +1,175 @@
+{
+  "capturedAt": "2026-10-13T03:19:42.704Z",
+  "evidenceLevel": "offline current-source counterexample; not actual holdings or live generation",
+  "aiSentenceFilter": {
+    "input": "VIX 14.84, 미 10년물 5.24%입니다. 시장 폭 50.7%입니다. 출처 https://apnews.com/article/example?utm_source=openai 입니다.",
+    "output": "출처 https://apnews.com/article/example?utm_source=openai 입니다."
+  },
+  "aiEntityExtraction": {
+    "roleQuery": [],
+    "industryQuery": [],
+    "explicitTicker": [
+      "PM"
+    ]
+  },
+  "portfolioBenchmark": {
+    "validSpyUS": {
+      "ret3m": 11,
+      "label": "S&P 500(SPY)",
+      "asOf": null
+    },
+    "validSpyKR": {
+      "market": "KR",
+      "ret3m": 10,
+      "label": "price-index"
+    },
+    "missingSpyUS": {
+      "market": "US",
+      "ret3m": 10,
+      "label": "price-index"
+    }
+  },
+  "mismatchedReturnDates": {
+    "available": false
+  },
+  "themeExcludedMember": {
+    "median": 10,
+    "leader": {
+      "sym": "AAA",
+      "name": "",
+      "value": 10
+    },
+    "current": true,
+    "basis": "2026-10-09",
+    "rankedMembers": [
+      {
+        "sym": "AAA",
+        "rank": 1,
+        "basis": "2026-10-09"
+      },
+      {
+        "sym": "BBB",
+        "rank": 1,
+        "basis": "2026-10-09"
+      },
+      {
+        "sym": "CCC",
+        "rank": 1,
+        "basis": "2026-10-09"
+      },
+      {
+        "sym": "DDD",
+        "rank": null,
+        "basis": "2026-10-01"
+      }
+    ]
+  },
+  "baselineDrift": {
+    "baselineFiles": 2964,
+    "paths": [
+      ".agents/skills/verify-aio/features/learn.md",
+      ".agents/skills/verify-aio/features/themes.md",
+      ".agents/skills/verify-aio/scripts/features/learn.mjs",
+      ".agents/skills/verify-aio/scripts/features/themes.mjs",
+      ".claude/skills/verify-aio/features/learn.md",
+      ".claude/skills/verify-aio/features/themes.md",
+      ".claude/skills/verify-aio/scripts/features/learn.mjs",
+      ".claude/skills/verify-aio/scripts/features/themes.mjs",
+      "src/domain/content/axis-deep-dives.js",
+      "src/domain/signal/stress-outcomes.js",
+      "src/ui/components/stress-outcomes.js",
+      ".github/workflows/refresh-screener.yml",
+      "CHANGELOG.md",
+      "CLAUDE.md",
+      "_artifacts/accessibility-matrix-audit.json",
+      "_artifacts/boot-interaction-report.json",
+      "_artifacts/critical10-human-surface-audit.json",
+      "_artifacts/entity-quality-20261012/browser-desktop-light-fiscal.png",
+      "_artifacts/entity-quality-20261012/browser-phone-dark-fiscal.png",
+      "_artifacts/entity-quality-20261012/browser-phone-dark-summary.png",
+      "_artifacts/entity-quality-20261012/browser-phone-dark-technical.png",
+      "_artifacts/entity-quality-20261012/browser-phone-light-fiscal.png",
+      "_artifacts/entity-quality-20261012/browser-phone-light-summary.png",
+      "_artifacts/entity-quality-20261012/browser-phone-light-technical.png",
+      "_artifacts/entity-quality-20261012/browser-report.json",
+      "_artifacts/entity-quality-20261012/browser-tablet-dark-fiscal.png",
+      "_artifacts/entity-quality-20261012/browser-tablet-light-fiscal.png",
+      "_artifacts/entity-quality-20261012/browser-tablet-light-summary.png",
+      "_artifacts/entity-quality-20261012/browser-tablet-light-technical.png",
+      "_artifacts/portfolio-vault/report.json",
+      "_artifacts/responsive-browser/phone390-market-regime.png",
+      "_artifacts/responsive-browser/phone390-theme-1.png",
+      "_artifacts/responsive-browser/phone390-theme-comparison.png",
+      "_artifacts/responsive-browser/report.json",
+      "_artifacts/responsive-browser/tablet1024-ai.png",
+      "_artifacts/responsive-browser/tablet1024-glossary-dark.png",
+      "_artifacts/responsive-browser/tablet1024-glossary-light.png",
+      "_artifacts/responsive-browser/tablet1024-market-regime.png",
+      "_artifacts/responsive-browser/tablet1024-theme-1.png",
+      "_artifacts/responsive-browser/tablet1024-theme-comparison.png",
+      "_artifacts/responsive-browser/tablet768-ai.png",
+      "_artifacts/responsive-browser/tablet768-glossary-dark.png",
+      "_artifacts/responsive-browser/tablet768-glossary-light.png",
+      "_artifacts/responsive-browser/tablet768-market-regime.png",
+      "_artifacts/responsive-browser/tablet768-theme-1.png",
+      "_artifacts/responsive-browser/tablet768-theme-comparison.png",
+      "_artifacts/route-soak-report.json",
+      "_artifacts/structural-quality-20260906/browser.json",
+      "_artifacts/structural-quality-20260906/guide.png",
+      "_context/BUG-POSTMORTEM.md",
+      "_context/CLAUDE.md",
+      "_context/CONTEXT-CATALOG.json",
+      "_context/CURRENT-STATE.md",
+      "_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json",
+      "_context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json",
+      "_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md",
+      "_context/QA-CHECKLIST.md",
+      "_context/RULES.md",
+      "_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md",
+      "architecture/asset-manifest.json",
+      "architecture/operations-slo.json",
+      "architecture/public-readiness.json",
+      "architecture/release-manifest.json",
+      "architecture/visual-state-matrix.json",
+      "index.html",
+      "js/aio-chat.js",
+      "js/aio-core.js",
+      "js/aio-data.js",
+      "js/aio-workspace.js",
+      "public-config.json",
+      "public-data/operations-status.json",
+      "scripts/ci-data-lineage-audit.mjs",
+      "scripts/fetch-data.mjs",
+      "src/ai/context/market-content.js",
+      "src/ai/response/publication.js",
+      "src/data/providers/screener.js",
+      "src/domain/portfolio/attribution.js",
+      "src/domain/portfolio/checks.js",
+      "src/domain/research/supplied-materials.js",
+      "src/domain/screener/screener-read.js",
+      "src/domain/technical/chart-analysis.js",
+      "src/domain/themes/group-strength.js",
+      "src/domain/themes/produced-rotation.js",
+      "src/ui/components/macro-board.js",
+      "src/ui/components/market-regime.js",
+      "src/ui/components/portfolio-read.js",
+      "src/ui/components/regime-radar.js",
+      "src/ui/components/scenario-outlook.js",
+      "src/ui/components/screener-read.js",
+      "src/ui/components/screener-validation.js",
+      "src/ui/components/stock-read.js",
+      "src/ui/components/theme-strength.js",
+      "src/ui/knowledge/analysis-frames.js",
+      "src/ui/knowledge/industry-view.js",
+      "src/ui/knowledge/research-shell.js",
+      "src/ui/pages/atlas.js",
+      "src/ui/pages/masters.js",
+      "src/ui/pages/news.js",
+      "src/ui/pages/themes.js",
+      "src/ui/styles/regime-quality.css",
+      "sw.js",
+      "version.json",
+      "worker/wrangler.proxy.toml"
+    ]
+  }
+}

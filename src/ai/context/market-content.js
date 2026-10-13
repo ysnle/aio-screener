@@ -28,7 +28,9 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
   }
   const cached = root.__aioStockChartAnalysis;
   const company = root.__aioCompanyAnalysis;
-  const requested = (text.match(/\b[A-Z]{1,6}(?:\.(?:KS|KQ))?\b|\b\d{6}(?:\.(?:KS|KQ))?\b/g) || []).filter(id => !['RSI','MACD','EMA','SMA','ADX','VCP','OHLCV','USD','KRW'].includes(id));
+  // X22: role/industry words ("멀티에셋 PM 관점", "서버/HW") are not a requested company unless they are the screen's own symbol.
+  const roleWords = ['AI','PM','HW','SW','IR','HR','PR','UI','UX','IB','PE','VC','EM','DM','CEO','CFO','CIO','ESG','GPU','CPU','HBM','LLM','EV','ESS'];
+  const requested = (text.match(/\b[A-Z]{1,6}(?:\.(?:KS|KQ))?\b|\b\d{6}(?:\.(?:KS|KQ))?\b/g) || []).filter(id => !['RSI','MACD','EMA','SMA','ADX','VCP','OHLCV','USD','KRW'].includes(id) && (!roleWords.includes(id) || id === company?.symbol || id === cached?.symbol));
   const sameIssuer = requested.some(id => id === cached?.symbol || (/^\d{6}$/.test(id) && cached?.symbol === `${id}.KS`) || (/^\d{6}$/.test(id) && cached?.symbol === `${id}.KQ`));
   if(company?.symbol && /기업|회사|사업|경쟁|해자|재무|실적|현금|위험|분석/.test(text) && (requested.includes(company.symbol) || (ctxId==='ticker' && !requested.length))) parts.push(companyAnalysisContext(company));
   if (cached?.symbol && /차트|시나리오|매물대|가격대|돌파|저항|지지/i.test(text) && (sameIssuer || (ctxId === 'technical' && !requested.length))) {
@@ -49,9 +51,11 @@ export function buildMarketContentContext({ query = '', history = [], themes = [
     const model = buildGroupStrength({ themes, rows });
     const exact = model.groups.filter((group) => query.includes(group.name) || (group.themeName && query.includes(group.themeName)));
     const groups = exact.length ? exact : model.groups.slice(0, 15);
-    if (groups.length) parts.push('AIO 하위 테마 · 선택 기간 3개월 수익률 중앙값. 아래는 자료가 있는 테마이며 전체 시장이 아니다.\n' + groups.slice(0, 30).map((group) => {
+    if (groups.length) parts.push('AIO 하위 테마 · 1/3/6개월 수익률 중앙값. 아래는 자료가 있는 테마이며 전체 시장이 아니다.\n' + groups.slice(0, 30).map((group) => {
       const dates = [...new Set(group.constituents.map((item) => rows.find((row) => String(row.sym).toUpperCase() === item.sym)?.factorSessionDate).filter(Boolean))];
-      return `${group.themeName} / ${group.name}: 3개월 ${group.ret3m == null ? '기준일 불일치/미확인으로 보류' : `${group.ret3m.toFixed(1)}%`}, 수익률 표본 ${group.members}/${group.listed}개, 구성 ${group.constituents.map((item) => item.sym).join(', ')}. 미국/한국 각각의 종가 기준일 ${dates.join(', ') || '미확인(현재 수치로 단정 금지)'}. 그룹 내부 3개월 수익률 순위: ${group.rankedMembers.map((member) => `${member.sym} ${member.rank == null ? '순위 보류/수익률 없음' : `${member.rank}위 ${member.ret3m.toFixed(1)}%`}`).join('; ')}.`;
+      // X16 (2026-10-13): the theme table shows 1/3/6-month medians; the AI got only 3 months and said 1-month was missing.
+      const pct = (value) => (value == null ? '보류' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);
+      return `${group.themeName} / ${group.name}: 중앙값 1개월 ${pct(group.ret1m)} · 3개월 ${group.ret3m == null ? '기준일 불일치/미확인으로 보류' : pct(group.ret3m)} · 6개월 ${pct(group.ret6m)}${group.rank1m != null && group.rank3m != null ? ` (테마 순위 1개월 ${group.rank1m}위 / 3개월 ${group.rank3m}위 — 같은 날 끝나는 두 기간의 비교이며 과거 순위 변화가 아님)` : ''}, 수익률 표본 ${group.members}/${group.listed}개, 구성 ${group.constituents.map((item) => item.sym).join(', ')}. 미국/한국 각각의 종가 기준일 ${dates.join(', ') || '미확인(현재 수치로 단정 금지)'}. 그룹 내부 3개월 수익률 순위: ${group.rankedMembers.map((member) => `${member.sym} ${member.rank == null ? '순위 보류/수익률 없음' : `${member.rank}위 ${member.ret3m.toFixed(1)}%`}`).join('; ')}.`;
     }).join('\n'));
   }
   return parts.join('\n\n');

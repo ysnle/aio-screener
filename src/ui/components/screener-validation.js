@@ -19,7 +19,13 @@ const pct = (value, digits = 2) => (value == null || !Number.isFinite(Number(val
 export function summarizeValidation(history = [], status = null, liveWeights = null) {
   const rows = (Array.isArray(history) ? history : []).filter((row) => /^\d{4}-\d{2}-\d{2}$/.test(String(row?.date || '')));
   const last = rows[rows.length - 1] || null;
-  const series = rows.filter((row) => Number.isFinite(Number(row.quantileSpreadNet))).map((row) => ({ date: row.date, value: Number(row.quantileSpreadNet) }));
+  // X04 (2026-10-13): the curve joined rows of three model fingerprints (and rows with none) into one line. Only rows
+  // computed by the same model as the latest record belong on it.
+  const lastFingerprint = last?.modelFingerprint != null ? String(last.modelFingerprint) : null;
+  const sameModel = rows.filter((row) => String(row.modelFingerprint ?? '') === (lastFingerprint ?? ''));
+  const series = sameModel.filter((row) => Number.isFinite(Number(row.quantileSpreadNet))).map((row) => ({ date: row.date, value: Number(row.quantileSpreadNet) }));
+  let pooledMarkets = false;
+  try { pooledMarkets = /market-separated/.test(JSON.parse(lastFingerprint || '{}').populationPolicy || ''); } catch (_) { pooledMarkets = false; }
   const wins = last && Number.isFinite(Number(last.netHitRate)) && Number.isFinite(Number(last.dates)) ? Math.round(Number(last.netHitRate) / 100 * Number(last.dates)) : null;
   const tone = !last || !Number.isFinite(Number(last.quantileSpreadNet)) ? 'unknown' : Number(last.quantileSpreadNet) > 0 ? 'favorable' : 'burden';
   // P1449: stored rows must carry the model fingerprint. A mismatch — or no fingerprint at all
@@ -38,6 +44,8 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
     wins,
     ic: last?.ic?.composite ?? null,
     series,
+    sameModelRecords: sameModel.length,
+    pooledMarkets,
     modelMatch,
     tone,
     verdict: !last ? '사후 검증 기록 수신 대기'
@@ -64,7 +72,10 @@ export function renderScreenerValidation({ documentRef: doc, root }) {
   details.append(el(doc, 'p', summary.verdict, 'pf-check-detail'));
   if (summary.available) {
     details.append(el(doc, 'p', `${summary.date} 계산 · ${summary.stocks}종목 · 과거 ${summary.rebalances}번 시점(147~42거래일 전)에서 순위를 매기고 21거래일 보유 · 거래비용 ${pct(summary.costPct)} 반영 · 순위-수익 상관(IC) ${summary.ic == null ? '—' : Number(summary.ic).toFixed(3)}`, 'theme-strength-basis'));
-    details.append(createTrendChart(doc, { series: summary.series, refLines: [0], format: (value) => `${value.toFixed(1)}%`, label: '상위−하위 20% 수익률 차이(비용 반영)' }));
+    // X04: the stored sample re-joins the market-separated ranks (US + KR quintiles in one pool) — say so.
+    if (summary.pooledMarkets) details.append(el(doc, 'p', `표본 ${summary.stocks}종목은 미국·한국을 각각 순위 매긴 뒤 합친 상위·하위 20%입니다 — 미국 순위나 한국 순위 하나의 검증이 아닙니다.`, 'theme-strength-basis'));
+    if (summary.series.length >= 2) details.append(createTrendChart(doc, { series: summary.series, refLines: [0], format: (value) => `${value.toFixed(1)}%`, label: '상위−하위 20% 수익률 차이(비용 반영 · 같은 모델 기록만)' }));
+    else details.append(el(doc, 'p', `같은 모델로 계산된 기록이 ${summary.sameModelRecords}개뿐이라 추이 그림은 기록이 쌓인 뒤 표시합니다.`, 'theme-strength-basis'));
   }
   if (summary.validation) details.append(el(doc, 'p', summary.validation, 'theme-strength-basis'));
   host.append(details);

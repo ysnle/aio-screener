@@ -39,5 +39,6 @@ export function refreshSharedArtifact(root, { key, url, schemas, maxAgeMs = 60 *
   return entry.inFlight;
 }
 
+export const STRESS_OUTCOMES = Object.freeze({ key: '_aioStressOutcomes', url: './public-data/stress-outcomes.json', schemas: ['stress-outcomes.v1'], maxAgeMs: 12 * 60 * 60 * 1000, maxBytes: 256 * 1024 }); // P1661
 export const MACRO_HISTORY = Object.freeze({ key: '_aioMacroHistory', url: './public-data/macro-history.json', schemas: ['macro-history.v1'], maxAgeMs: 60 * 60 * 1000 });
 export const BREADTH_CONTRIBUTORS = Object.freeze({ key: '_aioBreadthContributors', url: './public-data/breadth-contributors.json', schemas: ['breadth-contributors.v1', 'breadth-contributors.v2'], maxAgeMs: 30 * 60 * 1000, maxBytes: 1024 * 1024 });

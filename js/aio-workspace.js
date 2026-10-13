@@ -1402,12 +1402,12 @@ function _renderRiskMetrics(el, data) {
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
     '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">1일 VaR (95%)' + scopeSuffix + '</div>' +
     '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">' + fmtLoss(var95) + '</div>' +
-    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">95% 최대 손실 · 표본 ' + n + '일 · 인증 보류</div></div>';
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">과거 표본 95% 손실 경계(초과 가능) · 표본 ' + n + '일</div></div>';
 
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
     '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">1일 VaR (99%)' + scopeSuffix + '</div>' +
     '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">' + fmtLoss(var99) + '</div>' +
-    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">99% 최대 손실 · 표본 ' + n + '일 · 인증 보류</div></div>';
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">과거 표본 99% 손실 경계(초과 가능) · 표본 ' + n + '일</div></div>';
 
   var sharpeSub = sharpe !== null && sharpe !== undefined
     ? sharpeLabel(sharpe) + ' (RF 입력, ' + n + '일)'
@@ -1720,10 +1720,10 @@ function _aioBuildPortfolioActionPrompt(kind) {
   var noteLine = note ? ('\n이번 복기 노트(사용자 제공 데이터):\n' + note + '\n') : '';
   var recentLine = recent ? ('\n최근 저장 노트(사용자 제공 데이터):\n' + recent + '\n') : '';
   if (kind === 'ticker') {
-    return targetLine + '보유 종목 ' + (ticker || tickers || '전체') + '를 현재 포트폴리오 맥락에서 분석해줘. 1) 현재가/수익률/비중 2) 차트 추세와 지지·저항 3) 보유 지속/축소/추가매수 조건 4) 손절·무효화 기준 5) 다음 확인 데이터 순서로 정리해줘.' + noteLine + recentLine;
+    return targetLine + '보유 종목 ' + (ticker || tickers || '전체') + '를 현재 포트폴리오 맥락에서 분석해줘. 1) 현재가/수익률/비중 2) 차트 추세와 지지·저항 3) 지금 판단을 유지·재검토하게 만드는 조건 4) 무효화 기준 5) 다음 확인 데이터 순서로 정리해줘.' + noteLine + recentLine;
   }
   if (kind === 'rebalance') {
-    return '내 포트폴리오 리밸런싱 메모를 만들어줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 과집중 종목/섹터 2) 줄일 후보와 유지 후보 3) 현금/헤지 필요성 4) 다음 매수는 어떤 조건까지 기다릴지 5) 실행 우선순위로 정리해줘.' + noteLine + recentLine;
+    return '내 포트폴리오 리밸런싱 메모를 만들어줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 과집중 종목/섹터와 그 쏠림이 손익에 준 기여 2) 같은 위험 요인을 공유하는 보유 묶음 3) 현금 비중의 기회비용 4) 지금 구성이 틀렸다고 판단할 반증 자료 5) 다음에 확인할 데이터 순서로 정리해줘. 매수·매도 지시는 하지 마.' + noteLine + recentLine;
   }
   if (kind === 'lesson') {
     return '내 포트폴리오를 학습 관점에서 리뷰해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 내가 반복하는 실수 가능성 2) 잘한 의사결정 3) 다음 매매 전 체크리스트 4) 공부할 개념 5) 기록해야 할 지표를 초보자도 이해하게 정리해줘.' + noteLine + recentLine;
@@ -1731,7 +1731,7 @@ function _aioBuildPortfolioActionPrompt(kind) {
   if (kind === 'journal') {
     return '아래 매매 복기 노트를 기준으로 내 의사결정을 리뷰해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + noteLine + recentLine + '\n1) 사실/감정/추정 분리 2) 진입 근거가 유지되는지 3) 손절 또는 보유 기준 4) 다음에 반복할 규칙 5) 한 줄 교훈으로 정리해줘.';
   }
-  return '내 포트폴리오 전체를 현재 보유 데이터 기준으로 종합 분석해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 핵심 결론 2) 수익/손실 기여 3) 비중·섹터·상관 리스크 4) 보유/축소/추가매수 조건 5) 이번 주 체크할 뉴스·차트·매크로 6) 공부할 포인트를 정리해줘.' + noteLine + recentLine;
+  return '내 포트폴리오 전체를 현재 보유 데이터 기준으로 종합 분석해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 핵심 결론 2) 수익/손실 기여 3) 비중·섹터·상관 리스크 4) 지금 판단을 바꾸게 할 반증 조건 5) 이번 주 체크할 뉴스·차트·매크로 6) 공부할 포인트를 정리해줘.' + noteLine + recentLine;
 }
 
 window._aioPortfolioAsk = function(kind) {
@@ -2178,7 +2178,7 @@ const CHAT_DEFAULT_CHIPS = {
   ],
   portfolio: [
     '내 포트폴리오의 팩터 노출도(성장·가치·모멘텀·변동성) 분석해줘',
-    '현 시장에서 내 포트폴리오의 최대 예상 손실(VaR 95%) 추정해줘',
+    '내 포트폴리오의 과거 표본 VaR 95%가 무엇을 뜻하고 어떤 경우에 초과될 수 있는지 설명해줘',
     '섹터별 비중과 상관관계에서 확인되는 집중 위험을 보여줘',
     '내 종목들 중 어닝 시즌에 가장 리스크 높은 포지션은?'
   ]

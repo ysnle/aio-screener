@@ -4,6 +4,7 @@ import { buildScreenerRead } from '../../domain/screener/screener-read.js';
 import { summarizeValidation } from './screener-validation.js';
 import { readMarketRegime } from './market-regime.js';
 import { renderNextSteps } from './page-flow.js';
+import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -14,7 +15,7 @@ function el(doc, tag, text, className) {
 
 function mixVisual(doc, read) {
   const box = el(doc, 'div', null, 'screener-mix');
-  box.append(el(doc, 'span', '상위 20%의 업종 비중 vs 전체', 'stock-read-vis-title'));
+  box.append(el(doc, 'span', `${read.topName || '상위 20%'}의 업종 비중 vs 전체`, 'stock-read-vis-title'));
   const max = Math.max(...read.mix.slice(0, 6).map((row) => Math.max(row.top, row.all)), 1);
   for (const row of read.mix.slice(0, 6)) {
     const line = el(doc, 'div', null, 'stock-read-bars');
@@ -31,7 +32,7 @@ function mixVisual(doc, read) {
     box.append(line);
   }
   const legend = el(doc, 'div', null, 'stock-read-legend');
-  legend.append(el(doc, 'span', '상위 20%', 'is-stock'), el(doc, 'span', '전체 유니버스', 'is-bench'));
+  legend.append(el(doc, 'span', read.topName || '상위 20%', 'is-stock'), el(doc, 'span', '전체 유니버스', 'is-bench'));
   box.append(legend);
   return box;
 }
@@ -63,7 +64,7 @@ export function renderScreenerRead({ documentRef: doc, root, rows = [] }) {
   host.dataset.aioScreenerReadRenderer = 'native';
   const read = buildScreenerRead({
     rows,
-    rotation: root?._serverDataMeta?.rotationHistory?.items || {},
+    rotation: currentRotationItems(root?._serverDataMeta?.rotationHistory, Date.now()),
     regime: readMarketRegime(root),
     validation: summarizeValidation(root?._aioScreenerBacktestHistory || [], root?._aioModelValidationStatus || null, root?._aioRankingWeights || null)
   });

@@ -6,6 +6,7 @@ import { renderNextSteps } from './page-flow.js';
 import { emptyState } from './empty-state.js';
 import { benchmarkRowFor } from '../../domain/market/benchmarks.js';
 import { marketRows, screenerMarket } from '../../domain/screener/market-scope.js';
+import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -85,7 +86,7 @@ export function renderStockRead({ documentRef: doc, root, symbol }) {
   const row = rawRow ? { ...rawRow, screenRank: rank >= 0 ? rank+1 : null } : null;
   // P1447: compare with the stock's own market index (KOSPI/KOSDAQ for KRX listings) over the same windows.
   const benchmark = benchmarkRowFor(sym, root?._aioHistory || []);
-  const rotation = root?._serverDataMeta?.rotationHistory?.items || {};
+  const rotation = currentRotationItems(root?._serverDataMeta?.rotationHistory, Date.now());
   const alignedBenchmark = row?.factorSessionDate && benchmark.asOf === row.factorSessionDate ? benchmark : { ...benchmark, ret1m:null, ret3m:null, ret6m:null };
   const read = buildStockRead({ symbol: sym, row, benchmark: alignedBenchmark, rotation, themes: themesFor(root, sym), regime: readMarketRegime(root), universeSize: ranked.length || null });
   host.replaceChildren(el(doc, 'h2', '이 종목의 지금', 'briefing-h2'));

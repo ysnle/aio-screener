@@ -1196,9 +1196,9 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     fail('P1288/R638: the bootstrap minimum-news threshold did not cross the legacy AIO_ARCH facade used by aio-core');
   }
   const nativeNewsSource = readFileSync(path.join(root, 'src/ui/pages/news.js'), 'utf8');
-  if (!/set\('news-sent-score', summary\.score\);/.test(nativeNewsSource)
-    || !/summary\.analyzedCount > 0 && !summary\.sampleSufficient\s*\? '표본 부족'/.test(nativeNewsSource)) {
-    fail('P1284/R633: the native news summary must display a dash and explicit insufficient-sample state instead of a sentiment score');
+  // P1672: the keyword sentiment strip left with P1391, so the native news page shows no sentiment score at all.
+  if (/news-sent-score|news-risk-label/.test(nativeNewsSource)) {
+    fail('P1284/R633: the native news summary must not display a keyword sentiment score');
   }
   const headlineOnly = { title: 'Markets crash and plunge', desc: longNewsBody, pubDate: '2026-09-07T12:00:00Z', contentDepth: 'summary', verificationStatus: 'headline-only' };
   if (computeNewsSentimentScore({ items: [headlineOnly], now: fixedNewsNow }).total !== 0) fail('LC-32/P1268: verificationStatus headline-only remained sentiment evidence when contentDepth disagreed');
@@ -3862,6 +3862,35 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const dangling = Object.values(COLUMN_FRAME_LINKS).flat().filter((id) => !lessonById(id));
   const signatures = new Set(Object.values(COLUMN_FRAME_LINKS).map((ids) => ids.join('|')));
   if (missing.length || dangling.length || signatures.size < chapterIds.length - 1) fail(`P1592 column note links must cover every chapter with existing, chapter-specific notes: ${JSON.stringify({ missing, dangling, distinct: signatures.size })}`);
+}
+// P1668: concurrent screener reads share one in-flight artifact fetch; a later refresh fetches again,
+// and a read whose caller aborted is not reused by the next caller.
+{
+  const { createScreenerProvider } = await load('src/data/providers/screener.js');
+  let calls = 0;
+  const gates = [];
+  const httpClient = { requestJson: (url, { signal } = {}) => { calls++; return new Promise((resolve) => gates.push(() => resolve(signal?.aborted ? { ok: false, error: 'HTTP_ABORTED' } : { ok: false, status: 404, data: null }))); } };
+  const provider = createScreenerProvider({ httpClient, yieldImpl: () => Promise.resolve() });
+  const flush = async () => { while (gates.length) gates.shift()(); await new Promise((resolve) => setTimeout(resolve, 0)); };
+  const first = provider.readCurrent();
+  const second = provider.readCurrent();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await flush();
+  await Promise.all([first, second]);
+  if (calls !== 3) fail(`P1668 two concurrent screener reads must share one artifact fetch (3 requests), saw ${calls}`);
+  const third = provider.readCurrent();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await flush();
+  await third;
+  if (calls !== 6) fail(`P1668 a later refresh must fetch again, saw ${calls} requests`);
+  const controller = new AbortController();
+  const aborted = provider.readCurrent({ signal: controller.signal }).catch(() => null);
+  controller.abort();
+  const after = provider.readCurrent();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await flush();
+  await Promise.all([aborted, after]);
+  if (calls !== 12) fail(`P1668 a read must not reuse a fetch whose caller aborted, saw ${calls} requests`);
 }
 // P1518: shared request/event/router lifecycle ownership under adversarial scheduling.
 await import('./fixtures/architecture-lifecycle-regressions.mjs');

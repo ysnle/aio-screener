@@ -1,4 +1,5 @@
 import { screenerMarket } from '../screener/market-scope.js';
+import { latestCompletedKrSession, latestCompletedUsSession } from '../market/market-calendar.js';
 // P1417 (owner request 2026-10-03, open-source comparison): sub-theme relative strength. The
 // reference (xang1234/stock-screener group rankings) averages per-stock 1-99 RS ratings built from
 // fixed horizon weights (0.2/0.3/0.2/0.15/0.15). Those weights are a composite rating, which this
@@ -32,7 +33,7 @@ function rankBy(groups, key) {
 /**
  * @param {{ themes: Array, rows: Array<{sym:string,name?:string,ret1m?:number,ret3m?:number,ret6m?:number,pctSma50?:number}>, sortKey?: 'ret1m'|'ret3m'|'ret6m', benchmark?: {ret1m?:number,ret3m?:number,ret6m?:number} }} input
  */
-export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', benchmark = {}, market = 'US' } = {}) {
+export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', benchmark = {}, market = 'US', now = null } = {}) {
   const key = GROUP_WINDOWS[sortKey] ? sortKey : 'ret3m';
   const bySymbol = new Map((Array.isArray(rows) ? rows : []).filter((row) => row?.sym).map((row) => [String(row.sym).toUpperCase(), row]));
   const groups = [];
@@ -50,15 +51,18 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
       // P1623: period comparisons require one known completed-session basis.
       const dates = [...new Set(members.map((row) => row.factorSessionDate).filter(Boolean))];
       const comparisonAligned = dates.length === 1 && members.every((row) => row.factorSessionDate === dates[0]);
+      // X05 (2026-10-13): members held out of the median (stale or unmeasured) stay listed but are not ranked —
+      // an old 100% return must not become the group's internal No.1 while the median and leader exclude it.
+      const memberSet = new Set(members.map((row) => String(row.sym).toUpperCase()));
       const rankedMembers = tickers.map((sym) => {
         const row = bySymbol.get(sym);
-        return { sym, name: row?.name || '', ret1m: finite(row?.ret1m), ret3m: finite(row?.ret3m), ret6m: finite(row?.ret6m), pctSma50: finite(row?.pctSma50), basis: row?.factorSessionDate || null };
-      }).sort((a, b) => a[key] == null ? (b[key] == null ? 0 : 1) : b[key] == null ? -1 : b[key] - a[key]);
+        return { sym, name: row?.name || '', ret1m: finite(row?.ret1m), ret3m: finite(row?.ret3m), ret6m: finite(row?.ret6m), pctSma50: finite(row?.pctSma50), basis: row?.factorSessionDate || null, included: memberSet.has(sym) };
+      }).sort((a, b) => (a.included !== b.included ? (a.included ? -1 : 1) : a[key] == null ? (b[key] == null ? 0 : 1) : b[key] == null ? -1 : b[key] - a[key]));
       let rank = null, previousValue = null;
       rankedMembers.forEach((member, index) => {
-        if (member[key] != null) { if (previousValue !== member[key]) rank = index + 1; previousValue = member[key]; }
-        member.rank = member[key] == null || !comparisonAligned ? null : rank;
-        member.vsBenchmark = member[key] != null && member.basis && member.basis === benchmark.asOf && finite(benchmark?.[key]) != null ? member[key] - finite(benchmark[key]) : null;
+        if (member.included && member[key] != null) { if (previousValue !== member[key]) rank = index + 1; previousValue = member[key]; }
+        member.rank = !member.included || member[key] == null || !comparisonAligned ? null : rank;
+        member.vsBenchmark = member.included && member[key] != null && member.basis && member.basis === benchmark.asOf && finite(benchmark?.[key]) != null ? member[key] - finite(benchmark[key]) : null;
       });
       groups.push({
         id, themeId: theme.id, themeName: theme.nameKr, name: sub.name,
@@ -74,7 +78,12 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
     }
   }
   const latestBasis = groups.map((group) => group.basis).filter(Boolean).sort().at(-1) || null;
-  for (const group of groups) group.current = !!group.basis && group.basis === latestBasis;
+  // X03 (2026-10-13): "current" meant only "the newest basis among the groups". With a clock it also has to be the
+  // latest completed session of the market — a 10/9 ranking read on 10/13 is a dated reference, not today's leaders.
+  const expectedSession = Number.isFinite(Number(now)) && now != null
+    ? (market === 'KR' ? latestCompletedKrSession(Number(now))?.date : latestCompletedUsSession(Number(now), { requirePrevious: false })?.date) || null
+    : null;
+  for (const group of groups) group.current = !!group.basis && group.basis === latestBasis && (!expectedSession || group.basis === expectedSession);
   const rank1m = rankBy(groups, 'ret1m');
   const rank3m = rankBy(groups, 'ret3m');
   const rankSort = rankBy(groups, key);
@@ -98,5 +107,5 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
     const aligned = dates.length === 1 && members.every((row) => row.factorSessionDate === dates[0]);
     themeSummary[theme.id] = { id: theme.id, name: theme.nameKr, members: members.length, value: aligned && members.length >= MIN_GROUP_MEMBERS ? median(members.map((row) => finite(row[key]))) : null };
   }
-  return { model: GROUP_STRENGTH_MODEL_VERSION, market, sortKey: key, windowLabel: GROUP_WINDOWS[key], total, benchmark: bench, groups: out, excluded, themes: themeSummary };
+  return { model: GROUP_STRENGTH_MODEL_VERSION, market, sortKey: key, windowLabel: GROUP_WINDOWS[key], total, benchmark: bench, groups: out, excluded, themes: themeSummary, latestBasis, expectedSession, sessionCurrent: expectedSession ? latestBasis === expectedSession : null };
 }

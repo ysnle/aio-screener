@@ -1,0 +1,29 @@
+{
+  "version": "v57.47",
+  "date": "2026-10-12",
+  "r": null,
+  "status": null,
+  "note": "v57.47 소유자 요청: 접힘 칸을 원리·심화 학습으로, 실패한 점수 대신 과거 결과표(나안), QA 속도(Claude). push/deploy 미실행.",
+  "p": {
+    "id": 1662,
+    "title": "종목 품질 브라우저 검사가 독립된 6개 경우를 순서대로 돌려 QA가 길어짐",
+    "symptom": "영향 범위 QA 한 번이 약 9분이었고, 그중 종목 품질 검사 하나가 148초였다.",
+    "root_cause": "3개 화면 크기 × 2개 테마가 서로 독립인데 한 브라우저에서 하나씩 차례로 부팅했다.",
+    "fix": "같은 브라우저에서 세 경우씩 동시에 실행한다. 148초 → 64초.",
+    "violated_rule": "QA 효율(owner 2026-10-12)",
+    "prevention": "P1662: node scripts/ci-entity-quality-browser-check.mjs",
+    "verification": "단독 실행 PASS 64초."
+  },
+  "qa": [
+    {
+      "id": "QA-SPEED-01",
+      "text": "P1662: 종목 품질 브라우저 검사는 독립 경우를 병렬로 돌리고 PASS한다.",
+      "verify_by": "node scripts/ci-entity-quality-browser-check.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "QA 실행 시간",
+  "changelog": [
+    "**QA 시간 단축 (P1662):** 가장 긴 브라우저 검사를 병렬화해 148초에서 64초로 줄였다."
+  ]
+}

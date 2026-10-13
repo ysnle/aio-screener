@@ -19,3 +19,14 @@ export function selectProducedRotation(artifact, symbol, nowMs = Date.now()) {
   return Object.freeze({ ...row, source: 'Yahoo daily adjusted-close · SPY aligned research reference', sourceKind: artifact.sourceKind,
     revision: `${artifact.modelVersion}:${row.sessionDate}`, changeBasis: row.performanceBasis, allowedUse: 'reference', decisionEligible: false });
 }
+
+// X03 (2026-10-13): every reader of sector rotation (stock, screener, portfolio) goes through the same
+// session check, so a 10/9 quadrant is not explained as "지금 선도" on 10/13 while 테마 RRG holds it.
+export function currentRotationItems(artifact, nowMs = Date.now()) {
+  const out = {};
+  for (const symbol of Object.keys(artifact?.items || {})) {
+    const row = selectProducedRotation(artifact, symbol, nowMs);
+    if (row) out[symbol] = row;
+  }
+  return out;
+}

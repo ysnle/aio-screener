@@ -48,6 +48,7 @@ export function derivePortfolioChecks({ surface = null, assetTypeOf = () => null
   const bySector = shares(valued.map((row) => [sectorOf(symbolOf(row)) || row.sector || '미분류', finite(row.value)]), invested);
   const top = byHolding[0];
   const topCurrency = byCurrency[0];
+  const baseCurrency = String(surface?.baseCurrency || '').toUpperCase() || null;
   const holdingTier = concentrationPenaltyForWeight(top.pct);
   const checks = [
     { id: 'single-holding', label: '한 종목 쏠림', value: `${top.name} ${top.pct.toFixed(1)}%`,
@@ -56,9 +57,16 @@ export function derivePortfolioChecks({ surface = null, assetTypeOf = () => null
         : top.pct > SINGLE_HOLDING_TIERS[1] ? '한 종목이 15%를 넘습니다.' : top.pct > SINGLE_HOLDING_TIERS[0] ? '한 종목이 10%를 넘습니다.' : '가장 큰 종목도 투자금의 10% 이하입니다.',
       basis: '기준: 10% · 15% · 25% 구간(기존 쏠림 모델)', tier: holdingTier },
     { id: 'single-currency', label: '한 통화 쏠림', value: `${topCurrency.name} ${topCurrency.pct.toFixed(0)}%`,
+      // X10 (2026-10-13): this is the valuation (listing) currency mix. Translation risk exists only against a
+      // different base currency; the companies' own revenue/cost FX exposure is not measured here.
       status: topCurrency.pct / 100 > SINGLE_CURRENCY_MAX ? (byCurrency.length === 1 ? 'info' : 'attention') : 'ok',
-      detail: byCurrency.length === 1 ? `모든 종목이 ${topCurrency.name} 자산입니다 — 환율 변동이 계좌 전체에 같은 방향으로 작용합니다.`
-        : topCurrency.pct / 100 > SINGLE_CURRENCY_MAX ? `${topCurrency.name} 자산이 절반을 넘습니다 — 환율 변동의 영향이 한쪽으로 쏠립니다.` : '통화가 한쪽으로 절반 이상 쏠리지 않았습니다.',
+      detail: (byCurrency.length === 1
+        ? (baseCurrency && topCurrency.name === baseCurrency
+          ? `모든 종목이 기준 통화(${baseCurrency})로 평가돼 환산에 따른 환율 효과는 없습니다`
+          : `모든 종목이 ${topCurrency.name}로 평가됩니다${baseCurrency ? ` — 기준 통화(${baseCurrency})로 환산할 때 환율 변동이 평가액 전체에 같은 방향으로 작용합니다` : ' — 기준 통화를 선언하면 환산 효과를 따로 봅니다'}`)
+        : topCurrency.pct / 100 > SINGLE_CURRENCY_MAX
+          ? `${topCurrency.name} 평가 자산이 절반을 넘습니다${baseCurrency && topCurrency.name !== baseCurrency ? ` — 기준 통화(${baseCurrency})로 환산한 평가액이 환율에 크게 움직입니다` : ''}`
+          : '평가 통화가 한쪽으로 절반 이상 쏠리지 않았습니다') + '. 기업 매출·원가에서 생기는 환노출은 이 계산에 들어 있지 않습니다.',
       basis: '기준: 한 통화 50% 초과(Ghostfolio 기본값)' },
     { id: 'region', label: '상장 지역 비중', value: byRegion.map((row) => `${row.name} ${row.pct.toFixed(0)}%`).join(' · '), status: 'info',
       detail: '판정하지 않는 참고 비중입니다. 세계 주식 시가총액에서 북미 비중은 약 65~69%로 쓰입니다(Ghostfolio 기본 비교 구간).', basis: '상장 시장 기준(거래소 접미사)' },

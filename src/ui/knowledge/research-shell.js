@@ -5,6 +5,7 @@
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
 import { searchKnowledgeIndex } from './glossary-bridge.js';
 import { createStorageGateway } from '../../platform/storage.js';
+import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
 
 export const RESEARCH_PAGES = Object.freeze([
   { route: 'principles', title: '개념·분석 프레임', summary: '쟁점별 분석 노트, 개념 정의, 원리 레슨, 칼럼' },
@@ -64,15 +65,70 @@ const STYLE = `
 .rl-chip.is-on{border-color:var(--accent);color:var(--text-primary);font-weight:700}
 .rl-main .af-root .af-shell{grid-template-columns:minmax(0,1fr)}
 .rl-main .af-root .af-nav,.rl-main .af-root .af-side{display:none}
-.rl-shelf{margin:0 0 18px;border-bottom:1px solid var(--border-subtle);padding-bottom:12px}
-.rl-shelf>summary{font-size:12px;font-weight:700;color:var(--text-secondary);cursor:pointer;margin-bottom:8px}
-.rl-shelf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px}
-.rl-shelf-card{display:flex;flex-direction:column;gap:6px;text-align:left;border:1px solid var(--border-subtle);border-radius:6px;background:var(--surface-1);padding:10px 10px 8px;cursor:pointer;font:inherit;color:var(--text-primary)}
-.rl-shelf-card:hover,.rl-shelf-card:focus-visible{border-color:var(--accent)}
-.rl-shelf-name{font-size:13px;font-weight:700}
-.rl-shelf-meta{font-size:11px;color:var(--text-muted)}
-.rl-shelf-spines{display:flex;align-items:flex-end;gap:2px;height:44px;border-bottom:3px solid var(--border)}
-.rl-shelf-spines span{flex:1 1 0;min-width:2px;max-width:7px;border-radius:1px 1px 0 0}
+.rl-shelf{margin:0 0 22px;padding:0 0 16px;border-bottom:1px solid var(--border-subtle)}
+.rl-shelf>summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 14px;padding:2px 0 14px}
+.rl-shelf>summary::-webkit-details-marker{display:none}
+.rl-shelf-name{font-family:var(--font-display);font-size:22px;font-weight:600;letter-spacing:-.01em;color:var(--text-primary)}
+.rl-shelf-stats{font-size:12.5px;color:var(--text-secondary);font-variant-numeric:tabular-nums}
+.rl-shelf-stats b{font-weight:700;color:var(--text-primary)}
+.rl-shelf-toggle{margin-left:auto;font-size:12px;color:var(--text-muted);border-bottom:1px solid var(--border-subtle)}
+.rl-shelf-tools{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 18px;margin:0 0 6px}
+.rl-shelf-chips{display:flex;flex-wrap:wrap;gap:6px}
+.rl-shelf-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border-subtle);border-radius:999px;background:var(--bg-card,#fbf9f5);padding:5px 12px 5px 10px;font:inherit;font-size:12.5px;color:var(--text-secondary);cursor:pointer;min-height:30px;transition:border-color .15s ease,background-color .15s ease}
+.rl-shelf-chip i{width:9px;height:9px;border-radius:2px;background:var(--chip-tone,var(--text-muted));flex:none}
+.rl-shelf-chip span{font-size:11.5px;color:var(--text-muted);font-variant-numeric:tabular-nums}
+.rl-shelf-chip:hover{border-color:var(--text-muted)}
+.rl-shelf-chip[aria-pressed="true"]{background:var(--text-primary);border-color:var(--text-primary);color:var(--bg-card,#fbf9f5);font-weight:700}
+.rl-shelf-chip[aria-pressed="true"] span{color:inherit;opacity:.72}
+.rl-shelf-sort{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border-subtle)}
+.rl-shelf-sort-label{font-size:11.5px;color:var(--text-muted);padding:0 6px 0 5px}
+.rl-shelf-seg{border:0;background:none;border-radius:6px;padding:4px 10px;font:inherit;font-size:12px;color:var(--text-secondary);cursor:pointer;min-height:26px}
+.rl-shelf-seg[aria-pressed="true"]{background:var(--bg-card,#fbf9f5);color:var(--text-primary);font-weight:700;box-shadow:0 1px 2px rgba(33,29,22,.14)}
+.rl-shelf-chip:focus-visible,.rl-shelf-seg:focus-visible,.rl-spine:focus-visible,.rl-shelf-btn:focus-visible,.rl-shelf-more:focus-visible,.rl-book-close:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.rl-shelf-stage{position:relative}
+.rl-shelf-tier{display:flex;align-items:flex-end;gap:2px;padding:22px 12px 0;min-height:236px}
+.rl-shelf-plank{height:13px;margin:0 0 20px;border-radius:2px 2px 4px 4px;background:linear-gradient(180deg,var(--rl-plank-top,#ded1ba) 0,var(--rl-plank,#c9b797) 70%,var(--rl-plank-edge,#b29f7e) 100%);box-shadow:0 7px 12px -7px rgba(33,29,22,.5)}
+body.dark-theme .rl-shelf-plank{--rl-plank-top:#45403a;--rl-plank:#36322c;--rl-plank-edge:#2a2722}
+.rl-shelf-gap{flex:0 0 16px}
+.rl-spine{position:relative;flex:0 0 auto;border:0;padding:0;margin:0;border-radius:3px 3px 1px 1px;color:var(--ink,#f6f1e7);font:inherit;cursor:pointer;background-color:var(--tone);background-image:linear-gradient(90deg,rgba(255,255,255,.16) 0,rgba(255,255,255,.05) 11%,rgba(0,0,0,0) 38%,rgba(0,0,0,.07) 76%,rgba(0,0,0,.28) 100%);box-shadow:1px 0 0 rgba(0,0,0,.16);transition:transform .2s cubic-bezier(.2,.7,.3,1),box-shadow .2s ease}
+.rl-spine::before,.rl-spine::after{content:"";position:absolute;left:5px;right:5px;height:4px;border-top:1px solid currentColor;border-bottom:1px solid currentColor;opacity:.38}
+.rl-spine::before{top:10px}
+.rl-spine::after{bottom:10px}
+.rl-spine-title{position:absolute;top:24px;bottom:24px;left:0;right:0;display:flex;justify-content:center}
+.rl-spine-title span{writing-mode:vertical-rl;font-family:var(--font-display);font-size:12px;font-weight:600;line-height:1.38;letter-spacing:.02em;max-height:100%;overflow:hidden;word-break:break-all}
+.rl-spine-ribbon{position:absolute;top:-2px;right:5px;width:7px;height:22px;background:#efe1bd;clip-path:polygon(0 0,100% 0,100% 100%,50% 76%,0 100%)}
+.rl-spine:hover,.rl-spine:focus-visible{transform:translateY(-10px);box-shadow:0 12px 14px -9px rgba(33,29,22,.55)}
+.rl-spine[aria-current="true"]{transform:translateY(-16px);box-shadow:0 14px 18px -9px rgba(33,29,22,.6)}
+.rl-shelf-more{display:block;margin:-6px auto 4px;border:1px solid var(--border-subtle);border-radius:999px;background:var(--bg-card,#fbf9f5);padding:6px 16px;font:inherit;font-size:12px;color:var(--text-secondary);cursor:pointer;min-height:32px}
+.rl-shelf-tip{position:absolute;z-index:5;pointer-events:none;max-width:280px;padding:8px 11px;border-radius:6px;background:#211d16;color:#f7f4ee;font-size:12.5px;line-height:1.45;box-shadow:0 10px 24px rgba(0,0,0,.24)}
+.rl-shelf-tip small{display:block;margin-top:3px;font-size:11px;color:#d6cdbd}
+.rl-shelf-tip[hidden]{display:none}
+body.dark-theme .rl-shelf-tip{background:#f0f0ed;color:#1b1d20}
+body.dark-theme .rl-shelf-tip small{color:#4d4a44}
+.rl-book{display:grid;grid-template-columns:210px minmax(0,1fr);margin:6px 0 4px;border:1px solid var(--border-subtle);border-radius:10px;background:var(--bg-card,#fbf9f5);overflow:hidden;box-shadow:0 14px 34px -20px rgba(33,29,22,.5)}
+.rl-book[hidden]{display:none}
+.rl-book-cover{display:flex;flex-direction:column;justify-content:space-between;gap:16px;padding:20px 18px 16px;color:#f6f1e7;background-color:var(--tone);background-image:radial-gradient(rgba(246,241,231,.12) 1px,transparent 1.5px),linear-gradient(90deg,rgba(0,0,0,.24),rgba(0,0,0,0) 9%);background-size:10px 10px,100% 100%}
+.rl-book-plate{border:1px solid rgba(246,241,231,.55);border-radius:4px;padding:16px 12px 14px;text-align:center;background:rgba(0,0,0,.14)}
+.rl-book-plate small{display:block;font-size:10.5px;letter-spacing:.16em;opacity:.88}
+.rl-book-plate i{display:block;width:34px;height:1px;margin:10px auto;background:rgba(246,241,231,.6)}
+.rl-book-plate strong{display:block;font-family:var(--font-display);font-size:15px;font-weight:600;line-height:1.45}
+.rl-book-cover-foot{font-size:11.5px;line-height:1.4;opacity:.9}
+.rl-book-body{position:relative;display:flex;flex-direction:column;gap:10px;min-width:0;padding:18px 22px 18px 20px}
+.rl-book-tags{display:flex;flex-wrap:wrap;gap:6px;padding-right:34px}
+.rl-book-tag{font-size:11px;padding:2px 9px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary)}
+.rl-book-body h3{font-family:var(--font-display);font-size:19px;font-weight:600;line-height:1.42;margin:0;color:var(--text-primary)}
+.rl-book-body p{margin:0;font-size:13.5px;line-height:1.72;color:var(--text-secondary)}
+.rl-book-status{font-size:12px;color:var(--text-muted)}
+.rl-book-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:6px}
+.rl-book-close{position:absolute;top:10px;right:10px;width:32px;height:32px;border:0;border-radius:6px;background:none;color:var(--text-muted);font:inherit;font-size:20px;line-height:1;cursor:pointer}
+.rl-book-close:hover{background:var(--surface-2);color:var(--text-primary)}
+.rl-shelf-btn{border:1px solid var(--border-subtle);border-radius:6px;background:var(--bg-card,#fbf9f5);padding:8px 16px;font:inherit;font-size:12.5px;color:var(--text-primary);cursor:pointer;white-space:nowrap;min-height:36px}
+.rl-shelf-btn:hover{border-color:var(--text-muted)}
+.rl-shelf-btn.is-primary{background:var(--text-primary);border-color:var(--text-primary);color:var(--bg-card,#fbf9f5);font-weight:700}
+.rl-ask-selection{position:fixed;z-index:60;border:1px solid var(--text-primary);border-radius:6px;background:var(--text-primary);color:var(--bg-card,#fbf9f5);padding:7px 12px;font:inherit;font-size:12px;font-weight:700;box-shadow:0 8px 20px rgba(33,29,22,.25);cursor:pointer;min-height:32px}
+.rl-ask-selection[hidden]{display:none}
+@media (max-width: 720px){.rl-shelf-chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:0 12px 4px}.rl-shelf-chips::-webkit-scrollbar{display:none}.rl-shelf-chip{flex:none}.rl-book{grid-template-columns:minmax(0,1fr)}.rl-book-cover{flex-direction:row;align-items:center;padding:14px}.rl-book-plate{flex:1}.rl-book-cover-foot{display:none}.rl-shelf-tier{min-height:216px;padding:20px 6px 0}.rl-shelf-name{font-size:20px}}
+@media (prefers-reduced-motion: reduce){.rl-spine,.rl-shelf-chip{transition:none}.rl-spine:hover,.rl-spine:focus-visible,.rl-spine[aria-current="true"]{transform:none}}
 @media (max-width: 1366px){.rl-grid{grid-template-columns:minmax(180px,200px) minmax(0,1fr) minmax(220px,240px)}}
 `;
 
@@ -205,20 +261,89 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   const aside = el(doc, 'aside', 'rl-aside');
   aside.setAttribute('aria-label', '연결');
   grid.append(nav, main, aside);
-  // P1642 (owner reference 2026-10-12, a "read later" list turned into a library): the collections as
-  // shelves — each spine is one document, its height its length, its tint its topic group.
+  // P1642 (owner reference 2026-10-12, a "read later" list turned into a library) and P1674 (owner
+  // 2026-10-13, the same library on video): every document is a spine on a shelf — the title runs down
+  // the spine, the tint is its topic group, a light band marks what this browser has opened. Chips pick
+  // the collection, a spine opens a card with the excerpt, and the card opens the document or asks AI.
   const shelf = el(doc, 'details', 'rl-shelf');
   const prefs = createStorageGateway({ prefix: 'aio' });
   const shelfPref = prefs.get('research_shelf');
-  shelf.open = shelfPref ? shelfPref === 'open' : !root?.location?.search?.includes('node=');
-  shelf.addEventListener('toggle', () => { prefs.set('research_shelf', shelf.open ? 'open' : 'closed'); });
+  // X17 (2026-10-13): browsing and reading are different moments. With no document chosen the shelf is the
+  // way in (remembered open/closed); once a document is open the text comes first and the shelf folds to its
+  // one-line summary — on a phone it otherwise pushed the chosen document several screens down.
+  const documentOpen = /[?&](?:node|chapter|lesson|domain|manager)=/.test(String(root?.location?.search || ''));
+  shelf.open = documentOpen ? false : shelfPref ? shelfPref === 'open' : true;
+  shelf.addEventListener('toggle', () => { if (!documentOpen) prefs.set('research_shelf', shelf.open ? 'open' : 'closed'); });
   const shelfTitle = el(doc, 'summary', null, '서가 · 컬렉션 불러오는 중');
-  const shelfGrid = el(doc, 'div', 'rl-shelf-grid');
-  shelf.append(shelfTitle, shelfGrid);
-  loadIndex(root).then((index) => renderShelf(doc, root, { shelfTitle, shelfGrid, entries: index?.entries || [], currentPage: route, onLocal }));
+  const shelfBody = el(doc, 'div', 'rl-shelf-body');
+  shelf.append(shelfTitle, shelfBody);
+  loadIndex(root).then((index) => renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries: index?.entries || [], currentPage: route, onLocal }));
   shell.append(head, shelf, grid);
+  attachSelectionAsk(doc, root, main, route);
   revealActiveNav(nav); // runs after this task, once the view has filled the TOC
   return { shell, nav, main, aside, input };
+}
+
+// The one top AI panel answers every question (owner 2026-10-12): fill its input and leave sending to the
+// reader, so nothing here spends the shared AI budget by itself.
+export function askLibraryAi(root, prompt, context = 'principles') {
+  const doc = root?.document;
+  if (!doc || !prompt) return false;
+  try { if (typeof root.updateAIPanelContext === 'function') root.updateAIPanelContext(context); } catch (_) { /* context label is optional */ }
+  const panel = doc.getElementById('ai-panel');
+  if (panel && !panel.classList.contains('open') && typeof root.toggleAIPanel === 'function') root.toggleAIPanel();
+  const fill = () => {
+    const input = doc.getElementById('ai-panel-inp');
+    if (!input) return;
+    input.value = prompt;
+    input.dispatchEvent(new root.Event('input', { bubbles: true }));
+    input.focus();
+  };
+  if (typeof root.setTimeout === 'function') root.setTimeout(fill, 120); else fill();
+  return true;
+}
+
+// Gloss-style reading: select a passage in the open document and ask about it.
+function attachSelectionAsk(doc, root, main, route) {
+  const view = doc.defaultView || root;
+  const button = el(doc, 'button', 'rl-ask-selection', '선택한 문장 AI에게 묻기');
+  button.type = 'button';
+  button.hidden = true;
+  let passage = '';
+  const hide = () => {
+    button.hidden = true; passage = '';
+    // A re-rendered page builds a new shell; the old one drops its listener and button.
+    if (!main.isConnected) { view.removeEventListener?.('scroll', hide); button.remove(); }
+  };
+  const place = () => {
+    const selection = view.getSelection?.();
+    const text = String(selection?.toString() || '').replace(/\s+/g, ' ').trim();
+    if (!selection || selection.rangeCount === 0 || text.length < 6 || text.length > 600 || !main.contains(selection.anchorNode)) { hide(); return; }
+    const rect = selection.getRangeAt(0).getBoundingClientRect();
+    if (!rect || (!rect.width && !rect.height)) { hide(); return; }
+    passage = text;
+    if (!button.isConnected) { doc.querySelectorAll('.rl-ask-selection').forEach((node) => node.remove()); doc.body.appendChild(button); }
+    button.hidden = false;
+    const width = button.offsetWidth || 180;
+    const left = Math.min(Math.max(8, rect.left + rect.width / 2 - width / 2), (view.innerWidth || 800) - width - 8);
+    const below = rect.bottom + 8 + 36 < (view.innerHeight || 600);
+    button.style.left = `${Math.round(left)}px`;
+    button.style.top = `${Math.round(below ? rect.bottom + 8 : Math.max(8, rect.top - 44))}px`;
+  };
+  let timer = null;
+  const schedule = () => { clearTimeout(timer); timer = setTimeout(place, 160); };
+  main.addEventListener('mouseup', schedule);
+  main.addEventListener('keyup', schedule);
+  main.addEventListener('touchend', schedule);
+  view.addEventListener?.('scroll', hide, { passive: true });
+  button.addEventListener('mousedown', (event) => event.preventDefault()); // keep the selection while clicking
+  button.addEventListener('click', () => {
+    const title = main.querySelector('.rl-doc-title, h1, h2, h3')?.textContent?.trim() || '이 글';
+    const quoted = passage.length > 400 ? `${passage.slice(0, 400)}…` : passage;
+    askLibraryAi(root, `「${title}」에서 이 문장을 쉬운 말로 풀어 설명하고, 이 주장이 성립하지 않을 조건도 알려줘. 문장: "${quoted}"`, route);
+    view.getSelection?.()?.removeAllRanges?.();
+    hide();
+  });
 }
 
 // P1592 (F75): the TOC is its own scroll box; after a render, bring the selected entry into it so the
@@ -249,40 +374,299 @@ export function asideBlock(doc, title) {
   return block;
 }
 
-const SHELF_TINTS = ['#8a6f4e', '#5b7a8c', '#7c6a92', '#5f8a6e', '#9a6158', '#6d7b4f', '#4f6f9a', '#8c7a3e'];
-function tintFor(group) { let h = 0; for (const ch of String(group || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return SHELF_TINTS[h % SHELF_TINTS.length]; }
+// One hue family per collection; topic groups step through its bindings (deep, mid, pale, deep with a
+// shifted hue) so a collection reads as one set with visible topics. Deep bindings carry a light title
+// (lightness at most 34%), pale ones a dark title (lightness at least 80%); both stay above 4.5:1.
+const COLLECTION_HUES = Object.freeze({
+  frame: [252, 30], column: [352, 34], 'principles-lesson': [150, 26], 'principles-node': [210, 30],
+  'atlas-node': [30, 34], 'atlas-foundation': [182, 32], manager: [36, 10]
+});
+const hashOf = (text) => { let h = 0; for (const ch of String(text || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h; };
+function toneFor(entry, groupIndex = 0, { deep = false } = {}) {
+  const [hue, sat] = COLLECTION_HUES[entry.surface] || [28, 18];
+  const jitter = (hashOf(entry.id) % 3) - 1;
+  const variant = deep ? groupIndex % 2 * 3 : groupIndex % 4;
+  if (variant === 2) return { bg: `hsl(${hue + jitter * 3} ${Math.min(48, sat + 14)}% ${84 + jitter}%)`, ink: '#2a2620' };
+  const shift = variant === 3 ? 14 : 0;
+  const light = variant === 1 ? 31 : 25;
+  return { bg: `hsl(${hue + shift + jitter * 4} ${sat}% ${light + jitter * 2}%)`, ink: '#f6f1e7' };
+}
+const collectionTone = (surface) => { const [hue, sat] = COLLECTION_HUES[surface] || [28, 18]; return `hsl(${hue} ${sat}% 34%)`; };
 
-function renderShelf(doc, root, { shelfTitle, shelfGrid, entries, currentPage, onLocal }) {
-  const bySurface = new Map();
-  for (const entry of entries) {
-    if (!entry?.route?.page) continue;
-    const key = entry.surfaceLabel || entry.surface;
-    if (!bySurface.has(key)) bySurface.set(key, []);
-    bySurface.get(key).push(entry);
+const SHELF_SORTS = Object.freeze([['topic', '주제'], ['title', '제목'], ['unread', '안 읽은 글']]);
+const SHELF_ROWS = 3;
+const READ_KEY = 'research_read';
+const READ_LIMIT = 600;
+// Older pages record opened documents in the learning state under their own ids; count those as read too.
+const LEGACY_VIEWED = Object.freeze({
+  frame: (id) => `principles-frame:${id}`,
+  'principles-lesson': (id) => `principles:${id}`,
+  'principles-node': (id) => `principles-node:${id}`,
+  'atlas-node': (id) => `atlas-node:${id}`
+});
+let shelfCollection = null; // a collection the reader picked this session; otherwise the open document's
+
+function readIds(prefs) {
+  try {
+    const list = JSON.parse(prefs.get(READ_KEY) || '[]');
+    return new Set(Array.isArray(list) ? list.filter((id) => typeof id === 'string') : []);
+  } catch (_) {
+    return new Set();
   }
+}
+function markRead(prefs, id) {
+  const ids = readIds(prefs);
+  if (!ids.has(id)) { ids.add(id); prefs.set(READ_KEY, JSON.stringify([...ids].slice(-READ_LIMIT))); }
+  return ids;
+}
+function legacyViewed(root) {
+  try { return createAppKnowledgeLearningState(root).snapshot().progress || {}; } catch (_) { return {}; }
+}
+// The document the page has open, from the same URL params the search index routes to.
+function openEntry(entries, page, search) {
+  const params = new URLSearchParams(search || '');
+  return entries
+    .filter((entry) => entry.route?.page === page && Object.keys(entry.route.params || {}).length
+      && Object.entries(entry.route.params).every(([key, value]) => params.get(key) === String(value)))
+    .sort((a, b) => Object.keys(b.route.params).length - Object.keys(a.route.params).length)[0] || null;
+}
+// The spine shows the main title (before " — ") in at most two columns; size follows that text and a
+// stable per-document variation, and encodes nothing else.
+function spineShape(entry) {
+  const chars = [...String(entry.title).split(' — ')[0].trim()];
+  const perColumn = Math.min(14, Math.max(8, Math.ceil(chars.length / 2) + 1));
+  const shown = chars.length > perColumn * 2 ? `${chars.slice(0, perColumn * 2 - 1).join('')}…` : chars.join('');
+  const h = hashOf(entry.id);
+  return { shown, width: 40 + (h % 4) * 4, height: Math.round(48 + perColumn * 12.5 + (h % 5) * 3) };
+}
+
+function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, currentPage, onLocal }) {
+  const docs = entries.filter((entry) => entry?.route?.page && entry.title);
+  if (!docs.length) { shelfTitle.textContent = '서가'; return; }
+  const view = doc.defaultView || root;
+  const open = openEntry(docs, currentPage, root?.location?.search);
+  let read = open ? markRead(prefs, open.id) : readIds(prefs);
+  const legacy = legacyViewed(root);
+  const isRead = (entry) => read.has(entry.id)
+    || Boolean(LEGACY_VIEWED[entry.surface] && legacy[LEGACY_VIEWED[entry.surface](String(entry.id).split(':').slice(1).join(':'))]?.viewed);
   const rank = (surface) => { const at = SURFACE_ORDER.indexOf(surface); return at < 0 ? SURFACE_ORDER.length : at; };
-  const collections = [...bySurface].sort((a, b) => rank(a[1][0].surface) - rank(b[1][0].surface));
-  if (!collections.length) { shelfTitle.textContent = '서가'; return; }
-  shelfTitle.textContent = `서가 · ${collections.length}개 컬렉션 · ${entries.length}편`;
-  shelfGrid.replaceChildren(...collections.map(([label, items]) => {
-    const card = el(doc, 'button', 'rl-shelf-card');
-    card.type = 'button';
-    card.dataset.shelf = items[0].surface;
-    const groups = new Set(items.map((item) => item.group).filter(Boolean));
-    const spines = el(doc, 'div', 'rl-shelf-spines');
-    spines.setAttribute('aria-hidden', 'true');
-    const step = Math.max(1, Math.ceil(items.length / 40));
-    const lengths = items.map((item) => String(item.text || '').length);
-    const longest = Math.max(1, ...lengths);
-    items.filter((_, i) => i % step === 0).forEach((item) => {
-      const spine = el(doc, 'span');
-      spine.style.height = `${Math.round(38 + 62 * String(item.text || '').length / longest)}%`;
-      spine.style.background = tintFor(item.group);
-      spines.append(spine);
+  const bySurface = new Map();
+  for (const entry of docs) {
+    if (!bySurface.has(entry.surface)) bySurface.set(entry.surface, { surface: entry.surface, label: entry.surfaceLabel || entry.surface, items: [], groups: [] });
+    const collection = bySurface.get(entry.surface);
+    collection.items.push(entry);
+    if (entry.group && !collection.groups.includes(entry.group)) collection.groups.push(entry.group);
+  }
+  const collections = [...bySurface.values()].sort((a, b) => rank(a.surface) - rank(b.surface));
+  const groupCount = new Set(docs.map((entry) => `${entry.surface}/${entry.group}`)).size;
+  const toneOf = (entry, options) => toneFor(entry, Math.max(0, bySurface.get(entry.surface).groups.indexOf(entry.group)), options);
+  const pageDefault = collections.find((collection) => collection.items[0].route.page === currentPage);
+  let active = shelfCollection === 'all' || collections.some((collection) => collection.surface === shelfCollection)
+    ? shelfCollection : (open?.surface || pageDefault?.surface || collections[0].surface);
+  const savedSort = prefs.get('research_shelf_sort');
+  let sort = SHELF_SORTS.some(([key]) => key === savedSort) ? savedSort : 'topic';
+  let selected = open;
+  let expanded = false;
+
+  const tools = el(doc, 'div', 'rl-shelf-tools');
+  const chips = el(doc, 'div', 'rl-shelf-chips');
+  chips.setAttribute('role', 'group');
+  chips.setAttribute('aria-label', '컬렉션');
+  const sorts = el(doc, 'div', 'rl-shelf-sort');
+  sorts.setAttribute('role', 'group');
+  sorts.setAttribute('aria-label', '정렬');
+  tools.append(chips, sorts);
+  const stage = el(doc, 'div', 'rl-shelf-stage');
+  stage.setAttribute('role', 'group');
+  stage.setAttribute('aria-label', '책장 — 화살표 키로 이동, Enter로 책 펼치기');
+  const tip = el(doc, 'div', 'rl-shelf-tip');
+  tip.hidden = true;
+  tip.setAttribute('aria-hidden', 'true');
+  const book = el(doc, 'section', 'rl-book');
+  book.hidden = true;
+  book.setAttribute('aria-live', 'polite');
+  shelfBody.replaceChildren(tools, stage, book);
+
+  const stat = (value, unit) => { const span = el(doc, 'span'); span.append(el(doc, 'b', null, String(value)), doc.createTextNode(unit)); return span; };
+  const updateTitle = () => {
+    const done = docs.filter(isRead).length;
+    const stats = el(doc, 'span', 'rl-shelf-stats');
+    const parts = [stat(docs.length, '편'), stat(collections.length, '개 컬렉션'), stat(groupCount, '개 주제')];
+    if (done) parts.push(stat(done, '편 읽음'));
+    parts.forEach((part, index) => { if (index) stats.appendChild(doc.createTextNode(' · ')); stats.appendChild(part); });
+    const toggle = el(doc, 'span', 'rl-shelf-toggle', shelfBody.parentElement?.open === false ? '펼치기' : '접기');
+    shelfTitle.replaceChildren(el(doc, 'span', 'rl-shelf-name', '서가'), stats, toggle);
+  };
+  shelfBody.parentElement?.addEventListener('toggle', () => { updateTitle(); if (shelfBody.parentElement.open) drawShelf(); });
+
+  const drawTools = () => {
+    chips.replaceChildren(...[{ surface: 'all', label: '전체', items: docs }, ...collections].map((collection) => {
+      const button = el(doc, 'button', 'rl-shelf-chip');
+      button.type = 'button';
+      if (collection.surface !== 'all') { const swatch = el(doc, 'i'); swatch.style.setProperty('--chip-tone', collectionTone(collection.surface)); button.appendChild(swatch); }
+      button.append(doc.createTextNode(collection.label), el(doc, 'span', null, String(collection.items.length)));
+      button.setAttribute('aria-pressed', collection.surface === active ? 'true' : 'false');
+      button.addEventListener('click', () => { active = collection.surface; shelfCollection = active; expanded = false; drawTools(); drawShelf(); });
+      return button;
+    }));
+    const label = el(doc, 'span', 'rl-shelf-sort-label', '정렬');
+    label.setAttribute('aria-hidden', 'true');
+    sorts.replaceChildren(label, ...SHELF_SORTS.map(([key, text]) => {
+      const button = el(doc, 'button', 'rl-shelf-seg', text);
+      button.type = 'button';
+      button.setAttribute('aria-pressed', key === sort ? 'true' : 'false');
+      button.addEventListener('click', () => { sort = key; prefs.set('research_shelf_sort', key); drawTools(); drawShelf(); });
+      return button;
+    }));
+  };
+  const visible = () => {
+    const list = [...(active === 'all' ? docs : bySurface.get(active)?.items || [])];
+    if (sort === 'title') return list.sort((a, b) => a.title.localeCompare(b.title, 'ko'));
+    if (sort === 'unread') return list.sort((a, b) => Number(isRead(a)) - Number(isRead(b)));
+    // Topic order keeps each collection's authored order inside a group (Array.sort is stable).
+    return list.sort((a, b) => rank(a.surface) - rank(b.surface) || String(a.group || '').localeCompare(String(b.group || ''), 'ko'));
+  };
+  const spines = () => [...stage.querySelectorAll('.rl-spine')];
+  const showTip = (spine, entry) => {
+    tip.replaceChildren(doc.createTextNode(entry.title), el(doc, 'small', null, [entry.surfaceLabel, entry.group, isRead(entry) ? '읽음' : null].filter(Boolean).join(' · ')));
+    tip.hidden = false;
+    const s = spine.getBoundingClientRect();
+    const box = stage.getBoundingClientRect();
+    const width = tip.offsetWidth;
+    tip.style.left = `${Math.round(Math.min(Math.max(0, s.left - box.left + s.width / 2 - width / 2), box.width - width))}px`;
+    tip.style.top = `${Math.round(s.top - box.top - tip.offsetHeight - 8)}px`;
+  };
+  const hideTip = () => { tip.hidden = true; };
+  const openBook = (entry) => {
+    selected = entry;
+    for (const spine of spines()) spine.setAttribute('aria-current', spine.dataset.entry === entry.id ? 'true' : 'false');
+    const tone = toneOf(entry, { deep: true }).bg; // the cover always takes a deep binding under its light lettering
+    const cover = el(doc, 'div', 'rl-book-cover');
+    cover.style.setProperty('--tone', tone);
+    const plate = el(doc, 'div', 'rl-book-plate');
+    plate.append(el(doc, 'small', null, '리서치 라이브러리'), el(doc, 'i'), el(doc, 'strong', null, entry.surfaceLabel || '문서'));
+    cover.append(plate, el(doc, 'span', 'rl-book-cover-foot', entry.group || ''));
+    const body = el(doc, 'div', 'rl-book-body');
+    const tags = el(doc, 'div', 'rl-book-tags');
+    [entry.surfaceLabel, entry.group].filter(Boolean).forEach((tag) => tags.appendChild(el(doc, 'span', 'rl-book-tag', tag)));
+    const close = el(doc, 'button', 'rl-book-close', '×');
+    close.type = 'button';
+    close.setAttribute('aria-label', '책 닫기');
+    close.addEventListener('click', () => {
+      book.hidden = true;
+      const spine = spines().find((node) => node.dataset.entry === entry.id);
+      spine?.focus();
     });
-    card.append(spines, el(doc, 'span', 'rl-shelf-name', label), el(doc, 'span', 'rl-shelf-meta', `${items.length}편${groups.size ? ` · 주제 ${groups.size}개` : ''}`));
-    card.title = `${label} — 첫 문서부터 열기`;
-    card.addEventListener('click', () => openResearchRoute(root, items[0].route, { currentPage, onLocal }));
-    return card;
-  }));
+    const actions = el(doc, 'div', 'rl-book-actions');
+    const openButton = el(doc, 'button', 'rl-shelf-btn is-primary', '읽기');
+    openButton.type = 'button';
+    openButton.addEventListener('click', () => {
+      read = markRead(prefs, entry.id);
+      openResearchRoute(root, entry.route, { currentPage, onLocal });
+    });
+    const askButton = el(doc, 'button', 'rl-shelf-btn', 'AI에게 이 글 묻기');
+    askButton.type = 'button';
+    askButton.addEventListener('click', () => askLibraryAi(root,
+      `「${entry.title}」(${entry.surfaceLabel || '리서치 라이브러리'})의 핵심 논리를 3~5줄로 정리하고, 이 관점이 틀릴 수 있는 조건과 함께 확인할 지표를 알려줘.`, currentPage));
+    actions.append(openButton, askButton);
+    body.append(tags, close, el(doc, 'h3', null, entry.title), el(doc, 'p', null, entry.text || ''),
+      el(doc, 'span', 'rl-book-status', isRead(entry) ? '이 브라우저에서 읽은 글' : '아직 열지 않은 글'), actions);
+    book.replaceChildren(cover, body);
+    book.hidden = false;
+    const rect = book.getBoundingClientRect();
+    if (rect.bottom > (view.innerHeight || 0) && typeof book.scrollIntoView === 'function') book.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  };
+  const makeSpine = (entry) => {
+    const shape = spineShape(entry);
+    const spine = el(doc, 'button', 'rl-spine');
+    spine.type = 'button';
+    spine.dataset.entry = entry.id;
+    const tone = toneOf(entry);
+    spine.style.setProperty('--tone', tone.bg);
+    spine.style.setProperty('--ink', tone.ink);
+    spine.style.width = `${shape.width}px`;
+    spine.style.height = `${shape.height}px`;
+    const title = el(doc, 'span', 'rl-spine-title');
+    title.appendChild(el(doc, 'span', null, shape.shown));
+    spine.appendChild(title);
+    if (isRead(entry)) { spine.classList.add('is-read'); spine.appendChild(el(doc, 'span', 'rl-spine-ribbon')); }
+    spine.setAttribute('aria-label', `${entry.title} — ${[entry.surfaceLabel, entry.group].filter(Boolean).join(' · ')}${isRead(entry) ? ' · 읽음' : ''}`);
+    spine.setAttribute('aria-current', selected?.id === entry.id ? 'true' : 'false');
+    spine.tabIndex = -1;
+    spine.addEventListener('click', () => openBook(entry));
+    spine.addEventListener('pointerenter', () => showTip(spine, entry));
+    spine.addEventListener('pointerleave', hideTip);
+    spine.addEventListener('focus', () => showTip(spine, entry));
+    spine.addEventListener('blur', hideTip);
+    return { node: spine, width: shape.width };
+  };
+  // Pack the spines into shelf tiers that fit the stage width; the first three tiers show until the
+  // reader asks for the rest.
+  let packedWidth = 0;
+  const drawShelf = () => {
+    hideTip();
+    const list = visible();
+    const width = Math.max(260, (stage.clientWidth || 880) - 24);
+    packedWidth = stage.clientWidth;
+    const tiers = [[]];
+    let used = 0;
+    let lastGroup = null;
+    for (const entry of list) {
+      const spine = makeSpine(entry);
+      const gap = sort === 'topic' && lastGroup !== null && entry.group !== lastGroup ? 16 : 0;
+      if (used + gap + spine.width > width && tiers.at(-1).length) { tiers.push([]); used = 0; }
+      else if (gap) { const spacer = el(doc, 'span', 'rl-shelf-gap'); spacer.setAttribute('aria-hidden', 'true'); tiers.at(-1).push(spacer); used += gap; }
+      tiers.at(-1).push(spine.node);
+      used += spine.width + 2;
+      lastGroup = entry.group;
+    }
+    const selectedTier = tiers.findIndex((tier) => tier.some((node) => node.dataset?.entry === selected?.id));
+    const limit = expanded ? tiers.length : Math.max(SHELF_ROWS, selectedTier + 1);
+    const nodes = [];
+    tiers.slice(0, limit).forEach((tier) => {
+      const row = el(doc, 'div', 'rl-shelf-tier');
+      row.append(...tier);
+      const plank = el(doc, 'div', 'rl-shelf-plank');
+      plank.setAttribute('aria-hidden', 'true');
+      nodes.push(row, plank);
+    });
+    if (tiers.length > limit) {
+      const hiddenCount = tiers.slice(limit).reduce((sum, tier) => sum + tier.filter((node) => node.dataset?.entry).length, 0);
+      const more = el(doc, 'button', 'rl-shelf-more', `${hiddenCount}편 더 보기`);
+      more.type = 'button';
+      more.addEventListener('click', () => { expanded = true; drawShelf(); });
+      nodes.push(more);
+    }
+    stage.replaceChildren(...nodes, tip);
+    const all = spines();
+    const current = all.find((spine) => spine.dataset.entry === selected?.id) || all[0];
+    if (current) current.tabIndex = 0;
+    if (selected && !list.includes(selected)) book.hidden = true;
+    updateTitle();
+  };
+  stage.addEventListener('keydown', (event) => {
+    const all = spines();
+    const at = all.indexOf(doc.activeElement);
+    if (at < 0) return;
+    if (event.key === 'Escape') { book.hidden = true; return; }
+    const next = event.key === 'ArrowRight' ? at + 1 : event.key === 'ArrowLeft' ? at - 1 : event.key === 'Home' ? 0 : event.key === 'End' ? all.length - 1 : null;
+    if (next == null || !all[next]) return;
+    event.preventDefault();
+    all[at].tabIndex = -1;
+    all[next].tabIndex = 0;
+    all[next].focus();
+  });
+  if (typeof view.ResizeObserver === 'function') {
+    let timer = null;
+    const observer = new view.ResizeObserver(() => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        if (!stage.isConnected) { observer.disconnect(); return; }
+        if (Math.abs(stage.clientWidth - packedWidth) > 40) drawShelf();
+      }, 150);
+    });
+    observer.observe(stage);
+  }
+  drawTools();
+  drawShelf();
 }

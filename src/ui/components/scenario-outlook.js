@@ -20,8 +20,9 @@ function outlookThemes(root) {
   try { rows = root?.AIO?.store?.getState?.()?.screener?.rows || root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) { rows = []; }
   const typed = rows.map((row) => row?.fieldReadiness ? { ...row, ...Object.fromEntries(['ret1m', 'ret3m', 'ret6m', 'pctSma50'].map((key) => [key, finite(fieldValueForPurpose(row, `price.${key}`, 'display'))])) } : row);
   try {
-    const model = buildGroupStrength({ themes: root?.THEME_MAP || [], rows: typed, sortKey: 'ret3m' });
-    return (model.groups || []).filter((group) => group.ret3m != null && group.rankable !== false).map((group) => ({ name: group.name || group.subTheme || group.id, ret3m: group.ret3m }));
+    // X03 (2026-10-13): "현재 주도" may name only themes measured on the latest completed session.
+    const model = buildGroupStrength({ themes: root?.THEME_MAP || [], rows: typed, sortKey: 'ret3m', now: Date.now() });
+    return (model.groups || []).filter((group) => group.ret3m != null && group.rankable !== false && group.current).map((group) => ({ name: group.name || group.subTheme || group.id, ret3m: group.ret3m }));
   } catch (_) { return []; }
 }
 

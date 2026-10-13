@@ -24,6 +24,7 @@ Read only what the current task needs; this is not an all-files reading checklis
 
 ## Core Workflow
 
+0. Batch first (owner 2026-10-12): finish every edit in the task, checking only syntax (`node --check`) and the one script you touched, then run QA once. Do not run `affected` after each small change.
 1. Before editing, capture `node scripts/qa-runner.mjs session-start --session <task-id>`. This isolates task changes from user-owned dirty files. If work already began, keep an exact task file list and use `affected --files`.
 2. Identify touched surfaces and likely blast radius.
 3. Run `node scripts/qa-runner.mjs affected --session <task-id> --explain` (or `affected --files <paths> --explain`) and verify the impact selection before executing it.

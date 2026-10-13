@@ -240,7 +240,8 @@ async function main() {
   const jsErrors = [];
 
   try {
-    for (const vp of VIEWPORTS) {
+    // Viewports are independent pages, so they run together; error counts are kept per viewport.
+    await Promise.all(VIEWPORTS.map(async (vp) => {
       console.log(`[ci-viewport-matrix] viewport ${vp.name} begin`);
       const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height } });
       let currentRouteId = null;
@@ -272,7 +273,8 @@ async function main() {
       }, FULL_INIT);
 
       for (const routeId of ROUTES) {
-        const errCountBefore = jsErrors.length;
+        const viewportErrors = () => jsErrors.filter((e) => e.viewport === vp.name).length;
+        const errCountBefore = viewportErrors();
         currentRouteId = routeId;
         const activation = await activateRoute(page, routeId);
         let settleFailure = null;
@@ -321,7 +323,7 @@ async function main() {
           r.samples.unhandledRejections = (r.samples.unhandledRejections || []).concat(late).slice(0, 20);
         }
         r.viewport = vp.name;
-        r.jsErrorCount = jsErrors.length - errCountBefore;
+        r.jsErrorCount = viewportErrors() - errCountBefore;
         reports.push(r);
         if (SCREENSHOTS) await page.screenshot({ path: resolve(OUT_DIR, `${vp.name}-${routeId}.png`), fullPage: false });
         const routeFailures = [];
@@ -347,7 +349,8 @@ async function main() {
       }
       console.log(`[ci-viewport-matrix] ${vp.name} checked (${ROUTES.length} routes)`);
       await page.close();
-    }
+    }));
+    reports.sort((a, b) => VIEWPORTS.findIndex((v) => v.name === a.viewport) - VIEWPORTS.findIndex((v) => v.name === b.viewport));
 
     const worstOverflow = Math.max(...reports.map((r) => r.docOverflowX || 0));
     const totalTiny = reports.reduce((n, r) => n + (r.tinyTextCount || 0), 0);

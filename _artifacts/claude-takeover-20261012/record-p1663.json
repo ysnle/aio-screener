@@ -1,0 +1,29 @@
+{
+  "version": "v57.47",
+  "date": "2026-10-12",
+  "r": null,
+  "status": null,
+  "note": "v57.47 소유자 요청: 깊이 보기 확장과 QA 일괄 실행(Claude). push/deploy 미실행.",
+  "p": {
+    "id": 1663,
+    "title": "투자 심리·시장 폭 화면에 지표 원리를 배울 자리가 없고, 로컬 QA가 작업보다 오래 걸림",
+    "symptom": "투자 심리 6개 지표 카드와 시장 폭 화면에는 접힘 칸이 하나도 없었다. 작은 변경마다 영향 범위 QA(약 9분)를 돌려 작업 시간보다 QA 시간이 길었다.",
+    "root_cause": "깊이 보기 콘텐츠가 시장 상태 카드에만 연결됐고, 접힘 렌더러가 화면마다 따로 있었다. QA는 12코어 개발 PC에서도 정적 4개·브라우저 2개만 동시에 돌렸고 작업 절차에 일괄 실행 규칙이 없었다.",
+    "fix": "공용 접힘 렌더러 deep-dive.js로 통일하고 투자 심리 6개 지표와 시장 폭 화면에 원리·읽는 법을 붙였다. 로컬 QA 기본 동시성을 정적 6·브라우저 3으로 올리고(CI는 1 유지), post-edit-qa 스킬에 '작업을 모두 끝낸 뒤 QA 1회' 규칙을 넣었다.",
+    "violated_rule": "소유자 2026-10-12 깊이 학습 연결 · QA 효율",
+    "prevention": "P1663: node scripts/ci-codex-structure-regression-fixture.mjs · ci-skill-contract-check",
+    "verification": "로컬 미리보기에서 투자 심리 6개·시장 폭 1개·시장 상태 6개 접힘 표시 확인. 일괄 QA 1회."
+  },
+  "qa": [
+    {
+      "id": "QA-DEEP-DIVE-02",
+      "text": "P1663: 투자 심리 지표 카드와 시장 폭 화면에 공용 깊이 보기 접힘이 있다.",
+      "verify_by": "browser: #sentiment .regime-axis-deep 6개",
+      "done": false
+    }
+  ],
+  "qa_section": "깊이 보기 학습 접힘",
+  "changelog": [
+    "**깊이 보기 확장·QA 효율 (P1663):** 투자 심리·시장 폭 화면에도 원리·읽는 법 접힘을 붙이고, 로컬 QA 동시성을 올려 일괄 1회 실행으로 바꿨다."
+  ]
+}
