@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1794 - v57.63 - 무료 뉴스 번역(Workers AI)이 매번 실패하고 유료 OpenAI로 넘어감 (2026-10-14)
+
+- symptom/reproduction: v57.58부터 headline translation이 매 실행 'workers-ai-failed'로 실패해 공용 OpenAI 예산으로 번역했다.
+- root_cause: Cloudflare 계정이 @cf/google/gemma-3-12b-it에 접근할 권한이 없어(오류 5018) env.AI.run이 매번 거절됐다. v57.59 이전에는 실패 상세가 로그에 남지 않아 원인이 보이지 않았다.
+- fix: 번역 모델을 순서대로 시도한다(Llama 3.3 70B fast → Llama 3.1 8B fast → Gemma 3 12B). 접근·미존재 오류일 때만 다음 모델로 넘어가고, 다른 오류는 바로 실패해 OpenAI로 대체한다.
+- violated_rule: 외부 모델을 고를 때는 계정에서 실제로 호출 가능한지 확인한다
+- prevention: P1794: worker-relay 계약 검사에 5018 대체·비접근 오류 비대체 단언 추가.
+- verification/residual: ci-worker-relay-check 통과; 배포 후 refresh-data 로그 'via workers-ai'는 QA-VERIFY-26.
+
 ## P1793 - v57.61 - AI 답변 자동 재시도가 늘 409로 실패하고 다시 물으면 한도가 두 번 차감됨 (2026-10-14)
 
 - symptom/reproduction: 응답 조각이 늦어 자동 재시도하면 '이미 예약된 요청' 409로 실패했고, 사용자가 다시 물어 연결별 일일 한도(150회)가 빨리 소진됐다.

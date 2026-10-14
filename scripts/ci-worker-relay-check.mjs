@@ -294,6 +294,13 @@ async function main() {
     const good = await worker.fetch(translate(titles(2)), ok);
     const goodBody = await good.json();
     check('v57.61 translate returns one translation per title', good.status === 200 && goodBody.translations?.length === 2, goodBody);
+    const tried = [];
+    const gatedFirst = { AIO_AUTOMATION_TOKEN: AUTOMATION, AI: { run: async (model) => { tried.push(model); if (tried.length === 1) throw new Error('5018: This account is not allowed to access ' + model); return { response: '["번역 0", "번역 1"]' }; } } };
+    const fellBack = await worker.fetch(translate(titles(2)), gatedFirst), fellBackBody = await fellBack.json();
+    const brokenOnce = []; const parseError = { AIO_AUTOMATION_TOKEN: AUTOMATION, AI: { run: async (model) => { brokenOnce.push(model); throw new Error('upstream timeout'); } } };
+    const noFallback = await worker.fetch(translate(titles(2)), parseError);
+    check('v57.63 translate moves to the next model only when the account cannot access one (5018), not on other errors',
+      fellBack.status === 200 && tried.length === 2 && tried[0] !== tried[1] && fellBackBody.model === tried[1] && noFallback.status === 503 && brokenOnce.length === 1, { tried, brokenOnce, status: noFallback.status });
     const truncated = await worker.fetch(translate(titles(2)), aiEnv({ response: `["번역 0", "${MODEL_TEXT}` }));
     const mismatch = await worker.fetch(translate(titles(2)), aiEnv({ response: `["${MODEL_TEXT}"]` }));
     const empty = await worker.fetch(translate(titles(2)), aiEnv({ response: '["번역 0", ""]' }));

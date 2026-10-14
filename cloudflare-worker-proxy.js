@@ -1402,7 +1402,11 @@ async function handleRelay(request, env, origin) {
 // (free daily neurons) instead of the shared OpenAI budget. Automation token only — browsers never reach it, so it
 // cannot be spent from outside. Any failure (no binding, model error, unparsable output) returns 503 and the caller
 // falls back to the shared OpenAI path; the response carries translations only, never a judgement.
-export const WORKERS_AI_TRANSLATE_MODEL = '@cf/google/gemma-3-12b-it';
+// v57.63: the account answered 5018 "not allowed to access @cf/google/gemma-3-12b-it", so every free translation fell
+// back to paid OpenAI. Models are tried in order and only an access/availability error moves to the next one.
+export const WORKERS_AI_TRANSLATE_MODELS = Object.freeze(['@cf/meta/llama-3.3-70b-instruct-fp8-fast', '@cf/meta/llama-3.1-8b-instruct-fast', '@cf/google/gemma-3-12b-it']);
+export const WORKERS_AI_TRANSLATE_MODEL = WORKERS_AI_TRANSLATE_MODELS[0];
+const workersAiModelUnavailable = (error) => /\b(5018|5007)\b|not allowed to access|no such model|model not found/i.test(String(error?.message || error));
 // v57.61: at most 20 titles per call (callers chunk) so the reply fits max_tokens; a truncated reply used to
 // surface as a count mismatch carrying model text. Error bodies carry short codes only — they are written to
 // Actions logs by scripts/lib/ai-shared-analysis.mjs, so no model output and no exception message.
@@ -1423,12 +1427,22 @@ async function handleWorkersAiTranslate(request, env) {
   if (!titles || !titles.length || titles.length > WORKERS_AI_TRANSLATE_MAX_TITLES || titles.some((title) => typeof title !== 'string' || !title.trim() || title.length > 300)) {
     return privateOperatorResponse({ error: 'titles-invalid', maxTitles: WORKERS_AI_TRANSLATE_MAX_TITLES, maxTitleLength: 300 }, 400);
   }
-  const model = env.WORKERS_AI_TRANSLATE_MODEL || WORKERS_AI_TRANSLATE_MODEL;
+  const models = [...new Set([env.WORKERS_AI_TRANSLATE_MODEL, ...WORKERS_AI_TRANSLATE_MODELS].filter(Boolean))];
+  let model = models[0];
   try {
-    const result = await env.AI.run(model, { max_tokens: Math.min(2400, 400 + titles.length * 100), temperature: 0.1, messages: [
-      { role: 'system', content: '너는 금융 뉴스 번역가다. 영어 헤드라인을 자연스러운 한국어 기사 제목으로 옮긴다. 고유명사·티커·숫자는 그대로 두고, 뜻을 더하거나 빼지 않는다. 출력은 JSON 문자열 배열 하나뿐이다.' },
-      { role: 'user', content: `입력과 같은 순서로 정확히 ${titles.length}개를 JSON 배열로만 출력하라.\n${JSON.stringify(titles)}` }
-    ] });
+    let result = null;
+    for (const candidate of models) {
+      model = candidate;
+      try {
+        result = await env.AI.run(model, { max_tokens: Math.min(2400, 400 + titles.length * 100), temperature: 0.1, messages: [
+          { role: 'system', content: '너는 금융 뉴스 번역가다. 영어 헤드라인을 자연스러운 한국어 기사 제목으로 옮긴다. 고유명사·티커·숫자는 그대로 두고, 뜻을 더하거나 빼지 않는다. 출력은 JSON 문자열 배열 하나뿐이다.' },
+          { role: 'user', content: `입력과 같은 순서로 정확히 ${titles.length}개를 JSON 배열로만 출력하라.\n${JSON.stringify(titles)}` }
+        ] });
+        break;
+      } catch (error) {
+        if (!workersAiModelUnavailable(error) || candidate === models[models.length - 1]) throw error;
+      }
+    }
     // v57.59: some Workers AI models hand back already-parsed JSON in `response`; a text reply is parsed from its array.
     const raw = result?.response;
     const text = String(typeof raw === 'string' ? raw : result?.choices?.[0]?.message?.content || '');
