@@ -1502,10 +1502,11 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && cron('2027-12-31T23:00:00Z').mode === 'full' && /calendar-unregistered/.test(cron('2027-12-31T23:00:00Z').reason));
   check('P1757 a weekday holiday is never quiet (futures, FX and the other market still print)',
     marketQuietWindow(Date.parse('2026-10-09T03:00:00Z')).quiet === false && marketQuietWindow(Date.parse('2026-11-26T15:00:00Z')).quiet === false);
-  check('P1757 weekend news runs at most every 2 hours: skip below the due age, news at or past it or when the clock is unknown',
-    cron('2026-10-17T12:00:00Z', '2026-10-17T11:00:00Z').mode === 'skip'
+  // v57.54: weekend news hourly (was 2 hours) — weekend policy/geopolitical news lands while both markets are closed.
+  check('P1757 weekend news runs about every hour: skip below the due age, news at or past it or when the clock is unknown',
+    cron('2026-10-17T12:00:00Z', '2026-10-17T11:30:00Z').mode === 'skip'
       && cron('2026-10-17T12:00:00Z', new Date(Date.parse('2026-10-17T12:00:00Z') - WEEKEND_NEWS_DUE_MIN * 60000).toISOString()).mode === 'news'
-      && cron('2026-10-17T12:00:00Z', null).mode === 'news' && WEEKEND_NEWS_DUE_MIN < WEEKEND_NEWS_INTERVAL_MIN && WEEKEND_NEWS_INTERVAL_MIN <= 120);
+      && cron('2026-10-17T12:00:00Z', null).mode === 'news' && WEEKEND_NEWS_DUE_MIN < WEEKEND_NEWS_INTERVAL_MIN && WEEKEND_NEWS_INTERVAL_MIN <= 60);
   check('P1757 operator dispatch and the daily cron are always full; a Worker scheduler dispatch follows the weekend rule',
     decideRefreshCadence({ nowMs: Date.parse('2026-10-17T12:00:00Z'), eventName: 'workflow_dispatch', trigger: 'operator', lastNewsAt: '2026-10-17T11:55:00Z' }).mode === 'full'
       && decideRefreshCadence({ nowMs: Date.parse('2026-10-17T12:00:00Z'), eventName: 'workflow_dispatch', trigger: '', lastNewsAt: '2026-10-17T11:55:00Z' }).mode === 'full'

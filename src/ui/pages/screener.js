@@ -28,6 +28,8 @@ import { MARKET_LABELS, screenerMarket, marketRows, marketRankingMetadata, forma
 import { EXTENSION_BANDS } from '../../domain/screener/setup-profile.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { sectorsForEtf } from '../../domain/entity/stock-read.js';
+import { consensusView } from '../../domain/fundamental/consensus-read.js';
+import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { sectorLabel } from '../../domain/screener/screener-read.js';
 import { themeStagesFor } from '../../domain/scenarios/theme-stage.js';
 import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
@@ -107,6 +109,8 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'lowvol', label: '저변동', sortable: true, align: 'right', width: 78, group: 'factor' },
   { key: 'value', label: '밸류', sortable: true, align: 'right', width: 70, group: 'factor' },
   { key: 'quality', label: '퀄리티', sortable: true, align: 'right', width: 78, group: 'factor' },
+  // v57.54: forward multiple on analyst consensus (reference only; the 밸류 factor stays on reported earnings).
+  { key: 'fwdPe', label: 'Forward PER', hint: '종가 ÷ 향후 4개 분기 컨센서스 EPS 합(조정 EPS) — 점수에 쓰지 않는 참고값, 미국 종목만', sortable: true, align: 'right', width: 92, group: 'market' },
   { key: 'price', label: '가격', sortable: true, align: 'right', width: 86, group: 'market' },
   { key: 'pctFrom52wHigh', label: '52주 고점 대비', sortable: true, align: 'right', width: 96, group: 'market' },
   { key: 'ret1m', label: '1개월', sortable: true, align: 'right', width: 70, group: 'market' },
@@ -132,7 +136,7 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
 // stays in the registry for the 전체/직접 고른 컬럼.
 const COLUMN_PRESETS = Object.freeze({
   discovery: ['watchlist', 'rank', 'sym', 'price', 'pctFrom52wHigh', 'ret1m', 'ret3m', 'rsi', 'extension', 'vcpScore'],
-  fundamentals: ['watchlist', 'rank', 'sym', 'value', 'quality', 'price', 'pctFrom52wHigh', 'ret3m', 'news'],
+  fundamentals: ['watchlist', 'rank', 'sym', 'value', 'quality', 'fwdPe', 'price', 'pctFrom52wHigh', 'ret3m', 'news'],
   trend: ['watchlist', 'rank', 'sym', 'momentum', 'trend', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'extension', 'kalman', 'vcpScore', 'entry'],
   risk: ['watchlist', 'rank', 'sym', 'lowvol', 'rsi', 'pctSma50', 'mcap', 'entry', 'news'],
   events: ['watchlist', 'rank', 'sym', 'entry', 'vcpScore', 'news'],
@@ -380,6 +384,9 @@ export function extensionMultiple(row) {
   return pct != null && adr != null && adr > 0 ? pct / adr : null;
 }
 
+let consensusRoot = globalThis;
+export function forwardPe(row) { return consensusView(row, consensusRowFor(consensusRoot, row?.sym || row?.symbol))?.fwdPe ?? null; }
+
 export function sortRows(rows, sortColumn, ascending, readLiveData) {
   return rows.map(row => ({ row, view: liveRow(row, readLiveData) })).sort(({ view: a }, { view: b }) => {
     const factorColumn = ['momentum', 'trend', 'lowvol', 'value', 'quality', 'kalman'].includes(sortColumn);
@@ -387,6 +394,7 @@ export function sortRows(rows, sortColumn, ascending, readLiveData) {
     let bv = factorColumn ? b.factorScores?.[sortColumn] : b[sortColumn];
     if (sortColumn === 'price') { av = a.price; bv = b.price; }
     if (sortColumn === 'extension') { av = extensionMultiple(a); bv = extensionMultiple(b); }
+    if (sortColumn === 'fwdPe') { av = forwardPe(a); bv = forwardPe(b); }
     if (sortColumn === 'rank') { av = visibleRank(a); bv = visibleRank(b); }
     const missing = (value) => value == null || value === '' || (typeof value === 'number' && !Number.isFinite(value));
     if (missing(av) || missing(bv)) return missing(av) === missing(bv) ? 0 : missing(av) ? 1 : -1;
@@ -540,6 +548,13 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     node.style.color = row.vcpScore == null ? 'var(--text-muted)' : 'var(--text-secondary)';
     return node;
   }
+  if (key === 'fwdPe') {
+    const view = consensusView(row, consensusRowFor(consensusRoot, row.sym || row.symbol));
+    const node = text(documentRef, view?.fwdPe != null ? `${numberText(view.fwdPe, 1)}배` : view ? '적자 예상' : '—');
+    node.title = view ? `종가 ${view.price}${view.priceDate ? ` (${view.priceDate})` : ''} ÷ 향후 4개 분기(${view.fwdFrom}~${view.fwdTo}) 컨센서스 EPS 합 ${view.fwdEps} · 애널리스트 최소 ${view.minEstimates ?? '?'}명 · ${view.asOf} 수집 — 참고값` : '컨센서스 자료 없음(미국 종목만, 애널리스트 추정이 있는 경우)';
+    if (!view) node.style.color = 'var(--text-muted)';
+    return node;
+  }
   if (key === 'mcap') {
     if (live.mcap != null) return live.mcap >= 1000 ? `$${(live.mcap / 1000).toFixed(1)}T` : `$${live.mcap}B`;
     const native = row.nativeMarketCap;
@@ -612,7 +627,7 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
     td.className = `scr-column-cell scr-column-${column.key}${column.sticky ? ' scr-column-sticky' : ''}`;
     td.style.cssText = `text-align:${column.align};min-width:${column.width}px;padding:7px 8px;`;
     if (column.sticky) td.style.left = `${stickyLeft}px`;
-    if (['price', 'pctFrom52wHigh', 'rank', 'momentum', 'trend', 'lowvol', 'value', 'quality', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'kalman', 'vcpScore', 'mcap'].includes(column.key)) {
+    if (['price', 'pctFrom52wHigh', 'rank', 'momentum', 'trend', 'lowvol', 'value', 'quality', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'kalman', 'vcpScore', 'mcap', 'fwdPe'].includes(column.key)) {
       td.style.fontFamily = 'var(--font-mono)';
       td.style.fontVariantNumeric = 'tabular-nums';
     }
@@ -1250,7 +1265,7 @@ function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavai
   }
 }
 
-function render({ documentRef, root = globalThis, store, readLiveData, readWatchlist, readAliases, sortState, visibleLimit, onWatchlistToggle, onExplain, onCompare, onVisibleSymbols, selectedSymbols, compareSymbols, columnPreset = 'discovery', customColumns = [], rowsOverride = null, workbenchResult = null, previewResult = null }) {
+function render({ documentRef, root = globalThis, store, readLiveData, readWatchlist, readAliases, sortState, visibleLimit, onWatchlistToggle, onExplain, onCompare, onVisibleSymbols, selectedSymbols, compareSymbols, columnPreset = 'discovery', customColumns = [], rowsOverride = null, workbenchResult = null, previewResult = null, onDataChange = null }) {
   const rawState = selectScreenerState(store?.getState?.() || {});
   const listingMarket = selectedValue(documentRef, 'scr-listing-market') || 'US';
   const currentState = { ...rawState, metadata: { ...rawState?.metadata, ranking: marketRankingMetadata(rawState?.metadata, listingMarket) } };
@@ -1271,6 +1286,8 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     presetOrder.textContent = `조건 순위 · ${field?.label || field?.name || (ranking.field === 'rank' ? '선택 비중의 팩터 백분위' : ranking.field)} ${ranking.direction === 'asc' ? '낮은 순' : '높은 순'}`;
   }
   const visibleColumns = getVisibleColumns(columnPreset, customColumns);
+  consensusRoot = root;
+  if (visibleColumns.some((column) => column.key === 'fwdPe') || sortState.column === 'fwdPe') requestConsensusEstimates(root, onDataChange);
   const table = documentRef.getElementById('screener-results-table');
   renderTableHeader(documentRef, table, visibleColumns, sortState);
   const body = documentRef.getElementById('screener-results-body');
@@ -2152,7 +2169,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            else if (compareSymbols.size < 5) compareSymbols.add(symbol);
            renderCompareTray();
            renderNow();
-         }, onVisibleSymbols: requestVisibleQuotes, selectedSymbols, compareSymbols, columnPreset: columnState.preset, customColumns: columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); rerender(); }, rowsOverride: activeRows || preview?.rows || null, workbenchResult: activeResult, previewResult: preview });
+         }, onVisibleSymbols: requestVisibleQuotes, selectedSymbols, compareSymbols, columnPreset: columnState.preset, customColumns: columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); rerender(); }, rowsOverride: activeRows || preview?.rows || null, workbenchResult: activeResult, previewResult: preview, onDataChange: () => renderNow() });
          // P1165 (12 U01): 실행 전 상태 줄도 선택한 정의의 미리보기를 인용한다 — 파이프라인 기본
          // 수치를 '선택한 정의의 통과'로 읽히게 두지 않는다. 실행하면 activeResult가 대신한다.
          if (!activeResult && preview && workbenchStatus) {
@@ -2190,7 +2207,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          if (header) {
            const column = header.dataset.scrSort;
            if (sortState.column === column) sortState.ascending = !sortState.ascending;
-           else { sortState.column = column; sortState.ascending = column === 'sym' || column === 'sector'; }
+           else { sortState.column = column; sortState.ascending = column === 'sym' || column === 'sector' || column === 'fwdPe'; }
            const orderSelect = documentRef.getElementById('scr-order');
            if (orderSelect) {
              let option = [...orderSelect.options].find(item => item.value === column);

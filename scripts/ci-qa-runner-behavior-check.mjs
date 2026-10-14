@@ -387,6 +387,14 @@ try {
   const dataGates = JSON.parse(dataEdit.stdout).gates.map((gate) => gate.id).sort();
   if (dataGates.join(',') !== 'data-other,data-plane,preflight') fail(`group impact must keep its own gates, got ${dataGates.join(',')}`, dataEdit);
 
+  // v57.54: a failure reports its cause rows first, even when warnings fill the 30-line tail.
+  const { failureCauseLines } = await import('./lib/qa-failure-cause.mjs');
+  const noisy = ['Data lineage audit: 38 artifacts | mode=strict PASS=33 WARN=4 FAIL=1', 'PASS a.json', 'FAIL market-temperature.json policy=x', '     FAIL: lineage timestamp is unexpectedly in the future',
+    ...Array.from({ length: 40 }, (_, i) => `     NESTED-WARN n${i}.json nested artifact declares no freshness timestamp`), 'Data lineage audit: 38 artifacts | mode=strict PASS=38 WARN=0 FAIL=0'].join('\n');
+  const causes = failureCauseLines(noisy);
+  if (causes.length !== 3 || !causes.some((line) => line.startsWith('FAIL: lineage timestamp')) || causes.some((line) => /NESTED-WARN|FAIL=0/.test(line))) fail(`failure cause lines must pick the FAIL rows out of warning noise, got ${JSON.stringify(causes)}`);
+  if (failureCauseLines('AssertionError [ERR_ASSERTION]: x\nAssertionError [ERR_ASSERTION]: x\n    at check').length !== 1) fail('failure cause lines must drop duplicates');
+
   console.log('QA runner behavior OK: phase barriers, failed-only retry, content cache invalidation, task scope, test dependencies, bounded concurrency, exclusive timing gates, failed-batch preservation, corrupt cache/report causes, concurrent run isolation and commit-candidate binding.');
 } finally {
   rmSync(temp, { recursive: true, force: true });

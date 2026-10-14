@@ -8,7 +8,7 @@
     {
       "routeId": "home",
       "status": "ok",
-      "focusableCount": 25,
+      "focusableCount": 31,
       "pageTitle": "시장 현황",
       "audit": {
         "status": "ok",
@@ -36,10 +36,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "오늘 결론점수 보류 — 완료 종가 근거 부족 데이터: 기준 미확인공통컷 10/13/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 2026-09-16: 25bp 인상 · 3.75-4.00% (12-0 만장일치) (오래된 컨텍스트 · 28일 경과)현재 결과로 AI 분석10/13 미국 정규장 종가 기준 · 시장 폭 · 거시: 완료 종가 기준의 필수 근거가 부족해 점수를"
+              "headerText": "오늘 결론시장환경 관찰 — 양호 구간 · 예측 검증 미확립 데이터: 참고10/13 미국 정규장 종가 기준공통컷 10/14/08:00 KST시점 불일치근거 상태 참고 관측 · 예측 검증 미확립 2026-09-16: 25bp 인상 · 3.75-4.00% (12-0 만장일치) (오래된 컨텍스트 · 28일 경과)현재 결과로 AI 분석10/13 미국 정규장 종가 기준. 시장 폭 자료가 없어 나머지 항"
             }
           ],
-          "generatedAt": "2026-10-13T23:06:47.761Z"
+          "generatedAt": "2026-10-14T02:03:37.474Z"
         },
         "accessibility": {
           "status": "ok",
@@ -62,9 +62,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-13T23:06:47.764Z"
+          "generatedAt": "2026-10-14T02:03:37.476Z"
         },
-        "generatedAt": "2026-10-13T23:06:47.764Z"
+        "generatedAt": "2026-10-14T02:03:37.476Z"
       },
       "tabSequence": [
         {
@@ -82,7 +82,7 @@
         {
           "tag": "BUTTON",
           "id": "",
-          "name": "국내 K-방산·반도체·전력기기 외 3개 →",
+          "name": "한국 K-방산·반도체·전력기기 외 3개 →",
           "tabindex": ""
         },
         {
@@ -112,13 +112,19 @@
         {
           "tag": "BUTTON",
           "id": "",
-          "name": "국내 반도체·AI·2차전지 외 15개 →",
+          "name": "한국 반도체·AI·2차전지 외 15개 →",
           "tabindex": ""
         },
         {
           "tag": "BUTTON",
           "id": "",
           "name": "모든 갈림길과 선택지 →",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "모든 테마의 단계 →",
           "tabindex": ""
         },
         {
@@ -136,13 +142,13 @@
         {
           "tag": "DIV",
           "id": "",
-          "name": "나스닥 100 현물 30,664.710/12 종가 -0.71% · 선물 시세 미수신 — — 나스닥 100 현물 — — 20거래일 +5.3%",
+          "name": "나스닥 100 현물 30,569.4810/13 종가 -0.31% · 선물 시세 미수신 — — 나스닥 100 현물 — — 20거래일 +5.6%",
           "tabindex": "0"
         },
         {
           "tag": "DIV",
           "id": "",
-          "name": "20거래일 +5.3%",
+          "name": "20거래일 +5.6%",
           "tabindex": "0"
         },
         {
@@ -160,13 +166,13 @@
         {
           "tag": "DIV",
           "id": "",
-          "name": "WTI 원유 선물($) 94.77 +1.03 (+1.10%) 20거래일 -7.5%",
+          "name": "WTI 원유 선물($) 94.71 +0.97 (+1.03%) 20거래일 -11.4%",
           "tabindex": "0"
         },
         {
           "tag": "DIV",
           "id": "",
-          "name": "20거래일 -7.5%",
+          "name": "20거래일 -11.4%",
           "tabindex": "0"
         },
         {
@@ -184,19 +190,19 @@
         {
           "tag": "SPAN",
           "id": "",
-          "name": "DXY102.22-0.36%",
+          "name": "DXY102.17-0.40%",
           "tabindex": "0"
         },
         {
           "tag": "SPAN",
           "id": "",
-          "name": "금4,184.40-0.15%",
+          "name": "금4,183.90-0.16%",
           "tabindex": "0"
         },
         {
           "tag": "SPAN",
           "id": "",
-          "name": "KOSPI6,035.35-8.91%",
+          "name": "KOSPI6,074.40-4.85%",
           "tabindex": "0"
         },
         {
@@ -204,22 +210,16 @@
           "id": "",
           "name": "상승 · 하락 종목 집계 기준",
           "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "52주 신고가 · 신저가 집계 기준",
-          "tabindex": ""
         }
       ]
     },
     {
       "routeId": "signal",
-      "status": "warn",
-      "focusableCount": 42,
+      "status": "ok",
+      "focusableCount": 36,
       "pageTitle": "시장 상태",
       "audit": {
-        "status": "warn",
+        "status": "ok",
         "hierarchy": {
           "status": "ok",
           "pagesChecked": 1,
@@ -244,88 +244,41 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "시장 환경 참고점수 보류 — 완료 종가 근거 부족 데이터: 미수신공통컷 10/13/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 2026-09-16: 25bp 인상 · 3.75-4.00% (12-0 만장일치) (오래된 컨텍스트 · 28일 경과)현재 결과로 AI 분석10/13 미국 정규장 종가 기준 · 시장 폭 · 거시: 완료 종가 기준의 필수 근거가 부족해 점수를"
+              "headerText": "시장 환경 참고시장환경 관찰 — 양호 구간 · 예측 검증 미확립 데이터: 참고10/13 미국 정규장 종가 기준공통컷 10/14/08:00 KST시점 불일치근거 상태 참고 관측 · 예측 검증 미확립 2026-09-16: 25bp 인상 · 3.75-4.00% (12-0 만장일치) (오래된 컨텍스트 · 28일 경과)현재 결과로 AI 분석10/13 미국 정규장 종가 기준. 시장 폭 자료가 없어 나머"
             }
           ],
-          "generatedAt": "2026-10-13T23:06:48.675Z"
+          "generatedAt": "2026-10-14T02:03:38.254Z"
         },
         "accessibility": {
-          "status": "warn",
+          "status": "ok",
           "pagesChecked": 1,
           "issueCount": 0,
-          "warningCount": 1,
+          "warningCount": 0,
           "blockers": [],
-          "warnings": [
-            "small-targets:7"
-          ],
+          "warnings": [],
           "pages": [
             {
               "pageId": "signal",
               "pageExists": true,
               "active": true,
               "blockers": [],
-              "warnings": [
-                "small-targets:7"
-              ],
+              "warnings": [],
               "nameless": [],
               "unfocusable": [],
               "positiveTabindex": [],
-              "smallTargets": [
-                {
-                  "id": "",
-                  "selector": "#page-signal div.regime-board.regime-quality-board > section.regime-axis > button.aio-basis-btn",
-                  "width": 1,
-                  "height": 1
-                },
-                {
-                  "id": "",
-                  "selector": "#page-signal div.regime-board.regime-quality-board > section.regime-axis > button.aio-basis-btn",
-                  "width": 1,
-                  "height": 1
-                },
-                {
-                  "id": "",
-                  "selector": "#page-signal div.regime-board.regime-quality-board > section.regime-axis > button.aio-basis-btn",
-                  "width": 1,
-                  "height": 1
-                },
-                {
-                  "id": "",
-                  "selector": "#page-signal div.regime-board.regime-quality-board > section.regime-axis > button.aio-basis-btn",
-                  "width": 1,
-                  "height": 1
-                },
-                {
-                  "id": "",
-                  "selector": "#page-signal div.regime-board.regime-quality-board > section.regime-axis > button.aio-basis-btn",
-                  "width": 1,
-                  "height": 1
-                },
-                {
-                  "id": "",
-                  "selector": "#page-signal div.regime-board.regime-quality-board > section.regime-axis > button.aio-basis-btn",
-                  "width": 1,
-                  "height": 1
-                },
-                {
-                  "id": "",
-                  "selector": "#page-signal section.briefing-block.regime-stress-outcomes > button.aio-basis-btn",
-                  "width": 1,
-                  "height": 1
-                }
-              ],
+              "smallTargets": [],
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-13T23:06:48.678Z"
+          "generatedAt": "2026-10-14T02:03:38.257Z"
         },
-        "generatedAt": "2026-10-13T23:06:48.678Z"
+        "generatedAt": "2026-10-14T02:03:38.257Z"
       },
       "tabSequence": [
         {
           "tag": "text",
           "id": "",
-          "name": "46 (-18)",
+          "name": "47 (-16)",
           "tabindex": "0"
         },
         {
@@ -355,13 +308,13 @@
         {
           "tag": "text",
           "id": "",
-          "name": "11 (-6)",
+          "name": "12 (-5)",
           "tabindex": "0"
         },
         {
           "tag": "DD",
           "id": "",
-          "name": "46 · 5일 -18 · 20일 +42",
+          "name": "47 · 5일 -16 · 20일 +43",
           "tabindex": "0"
         },
         {
@@ -391,7 +344,7 @@
         {
           "tag": "DD",
           "id": "",
-          "name": "11 · 5일 -6 · 20일 -4",
+          "name": "12 · 5일 -5 · 20일 -3",
           "tabindex": "0"
         },
         {
@@ -404,12 +357,6 @@
           "tag": "SUMMARY",
           "id": "",
           "name": "추세 더 깊이 보기 · 원리와 읽는 법",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "추세 근거 보기",
           "tabindex": ""
         },
         {
@@ -439,12 +386,6 @@
         {
           "tag": "BUTTON",
           "id": "",
-          "name": "시장 폭 근거 보기",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
           "name": "VIX",
           "tabindex": ""
         },
@@ -463,7 +404,19 @@
         {
           "tag": "BUTTON",
           "id": "",
-          "name": "변동성 근거 보기",
+          "name": "미 10년물 명목금리",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "10년 TIPS 실질금리",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "10년 기대인플레이션",
           "tabindex": ""
         }
       ]
@@ -499,10 +452,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "시장 폭 판단판단 보류 · 일부 근거 부분 확보 데이터: 스냅샷공통컷 10/13/08:00 KST시점 부분 일치근거 상태 저장 관측 · 예측 검증 미확립 Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다.현재 결과로 AI 분석"
+              "headerText": "시장 폭 판단판단 보류 · 일부 근거 부분 확보 데이터: 스냅샷공통컷 10/14/08:00 KST시점 부분 일치근거 상태 저장 관측 · 예측 검증 미확립 Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다.현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-10-13T23:06:49.179Z"
+          "generatedAt": "2026-10-14T02:03:38.656Z"
         },
         "accessibility": {
           "status": "ok",
@@ -525,21 +478,21 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-13T23:06:49.182Z"
+          "generatedAt": "2026-10-14T02:03:38.657Z"
         },
-        "generatedAt": "2026-10-13T23:06:49.182Z"
+        "generatedAt": "2026-10-14T02:03:38.657Z"
       },
       "tabSequence": [
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "종목 보기",
+          "name": "종목 목록 수집 대기",
           "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "종목 보기",
+          "name": "종목 목록 수집 대기",
           "tabindex": ""
         },
         {
@@ -678,11 +631,11 @@
     },
     {
       "routeId": "sentiment",
-      "status": "warn",
-      "focusableCount": 6,
+      "status": "ok",
+      "focusableCount": 4,
       "pageTitle": "투자 심리",
       "audit": {
-        "status": "warn",
+        "status": "ok",
         "hierarchy": {
           "status": "ok",
           "pagesChecked": 1,
@@ -707,64 +660,41 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "심리 결론판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 10/13/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다. · 10/13 미국 정규장 종가 기준 · 시장 폭 · 거시: 완료 종가 기준의 필수 근거가 부족해 점수를 보류합니다. 개별 관측값은 별도로 확인하세요."
+              "headerText": "심리 결론판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 10/14/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다. · 10/13 미국 정규장 종가 기준. 시장 폭 자료가 없어 나머지 항목(80점 만점)을 100점으로 환산했습니다. 변동성·추세·위험선호·시장 폭·거시"
             }
           ],
-          "generatedAt": "2026-10-13T23:06:50.125Z"
+          "generatedAt": "2026-10-14T02:03:39.062Z"
         },
         "accessibility": {
-          "status": "warn",
+          "status": "ok",
           "pagesChecked": 1,
           "issueCount": 0,
-          "warningCount": 1,
+          "warningCount": 0,
           "blockers": [],
-          "warnings": [
-            "small-targets:2"
-          ],
+          "warnings": [],
           "pages": [
             {
               "pageId": "sentiment",
               "pageExists": true,
               "active": true,
               "blockers": [],
-              "warnings": [
-                "small-targets:2"
-              ],
+              "warnings": [],
               "nameless": [],
               "unfocusable": [],
               "positiveTabindex": [],
-              "smallTargets": [
-                {
-                  "id": "",
-                  "selector": "#page-sentiment div.trend-grid > section.trend-card > button.aio-basis-btn",
-                  "width": 1,
-                  "height": 1
-                },
-                {
-                  "id": "",
-                  "selector": "#page-sentiment div.trend-grid.trend-grid-3 > section.trend-card > button.aio-basis-btn",
-                  "width": 1,
-                  "height": 1
-                }
-              ],
+              "smallTargets": [],
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-13T23:06:50.126Z"
+          "generatedAt": "2026-10-14T02:03:39.063Z"
         },
-        "generatedAt": "2026-10-13T23:06:50.126Z"
+        "generatedAt": "2026-10-14T02:03:39.063Z"
       },
       "tabSequence": [
         {
           "tag": "SUMMARY",
           "id": "",
           "name": "공포·탐욕 지수 더 깊이 보기 · 원리와 읽는 법",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "공포·탐욕 지수 (F&G) 근거 보기",
           "tabindex": ""
         },
         {
@@ -783,12 +713,6 @@
           "tag": "SUMMARY",
           "id": "",
           "name": "풋/콜 비율 더 깊이 보기 · 원리와 읽는 법",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "풋/콜 비율 근거 보기",
           "tabindex": ""
         },
         {
@@ -898,13 +822,25 @@
           "id": "sidebar-theme-btn",
           "name": "다크 모드로 전환",
           "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "연결 상태",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "연결·키 보안 설정",
+          "tabindex": ""
         }
       ]
     },
     {
       "routeId": "briefing",
       "status": "warn",
-      "focusableCount": 1,
+      "focusableCount": 14,
       "pageTitle": "오늘의 브리핑",
       "audit": {
         "status": "warn",
@@ -932,10 +868,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "시장 요약점수 보류 — 완료 종가 근거 부족 데이터: 미수신공통컷 10/13/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 2026-09-16: 25bp 인상 · 3.75-4.00% (12-0 만장일치) (오래된 컨텍스트 · 28일 경과)현재 결과로 AI 분석10/13 미국 정규장 종가 기준 · 시장 폭 · 거시: 완료 종가 기준의 필수 근거가 부족해 점수를 보류"
+              "headerText": "시장 요약시장환경 관찰 — 양호 구간 · 예측 검증 미확립 데이터: 참고10/13 미국 정규장 종가 기준공통컷 10/14/08:00 KST시점 불일치근거 상태 참고 관측 · 예측 검증 미확립 2026-09-16: 25bp 인상 · 3.75-4.00% (12-0 만장일치) (오래된 컨텍스트 · 28일 경과)현재 결과로 AI 분석10/13 미국 정규장 종가 기준. 시장 폭 자료가 없어 나머지 항"
             }
           ],
-          "generatedAt": "2026-10-13T23:06:51.514Z"
+          "generatedAt": "2026-10-14T02:03:39.683Z"
         },
         "accessibility": {
           "status": "warn",
@@ -969,15 +905,57 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-13T23:06:51.515Z"
+          "generatedAt": "2026-10-14T02:03:39.684Z"
         },
-        "generatedAt": "2026-10-13T23:06:51.515Z"
+        "generatedAt": "2026-10-14T02:03:39.684Z"
       },
       "tabSequence": [
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "해설 이어 읽기 · 4줄",
+          "name": "해설 이어 읽기 · 5줄",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "반도체 →",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "소프트웨어/클라우드 →",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "산업재/물류 →",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "금융 →",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "한국 반도체·AI·2차전지 외 15개 →",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "해외 대형 ADR →",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "한국 K-방산·반도체·전력기기 외 3개 →",
           "tabindex": ""
         },
         {
@@ -1075,48 +1053,6 @@
           "id": "",
           "name": "종목 페이지",
           "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "스크리너 페이지",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "포트폴리오 페이지",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "리서치 라이브러리 페이지",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "용어 사전 페이지",
-          "tabindex": "0"
-        },
-        {
-          "tag": "BUTTON",
-          "id": "sidebar-theme-btn",
-          "name": "다크 모드로 전환",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "연결 상태",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "연결·키 보안 설정",
-          "tabindex": ""
         }
       ]
     },
@@ -1151,10 +1087,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "차트 판단판단 보류 · 필수 현재성 근거 미수신 데이터: 기준 미확인공통컷 10/13/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 기술 점수는 live 가격과 스냅샷 보조지표의 혼합입니다. 단독 매수 신호가 아닙니다.현재 결과로 AI 분석"
+              "headerText": "차트 판단판단 보류 · 필수 현재성 근거 미수신 데이터: 기준 미확인공통컷 10/14/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 기술 점수는 live 가격과 스냅샷 보조지표의 혼합입니다. 단독 매수 신호가 아닙니다.현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-10-13T23:06:52.185Z"
+          "generatedAt": "2026-10-14T02:03:40.081Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1177,9 +1113,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-13T23:06:52.188Z"
+          "generatedAt": "2026-10-14T02:03:40.084Z"
         },
-        "generatedAt": "2026-10-13T23:06:52.188Z"
+        "generatedAt": "2026-10-14T02:03:40.084Z"
       },
       "tabSequence": [
         {
@@ -1359,10 +1295,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "오늘 매크로 판단판단 보류 · 필수 현재성 근거 미수신 데이터: 기준 미확인공통컷 10/13/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 2026-09-16: 25bp 인상 · 3.75-4.00% (12-0 만장일치) (오래된 컨텍스트 · 28일 경과)현재 결과로 AI 분석FRED/FMP 키 미수신 구간은 스냅샷 매크로로 표시하고 현재 판단 강도를 낮춥니다."
+              "headerText": "오늘 거시 판단판단 보류 · 필수 현재성 근거 미수신 데이터: 기준 미확인공통컷 10/14/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 2026-09-16: 25bp 인상 · 3.75-4.00% (12-0 만장일치) (오래된 컨텍스트 · 28일 경과)현재 결과로 AI 분석FRED/FMP 키 미수신 구간은 스냅샷 거시로 표시하고 현재 판단 강도를 낮춥니다."
             }
           ],
-          "generatedAt": "2026-10-13T23:06:53.226Z"
+          "generatedAt": "2026-10-14T02:03:40.909Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1385,9 +1321,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-13T23:06:53.233Z"
+          "generatedAt": "2026-10-14T02:03:40.913Z"
         },
-        "generatedAt": "2026-10-13T23:06:53.233Z"
+        "generatedAt": "2026-10-14T02:03:40.913Z"
       },
       "tabSequence": [
         {
@@ -1465,7 +1401,7 @@
         {
           "tag": "BUTTON",
           "id": "",
-          "name": "유가 · 달러부담WTI 20일 −7.5%(최근 5일 +4.8%) · 달러 +3.1%",
+          "name": "유가 · 달러부담WTI 20일 −11.4%(최근 5일 +4.8%) · 달러 +2.9%",
           "tabindex": ""
         },
         {
@@ -1538,11 +1474,11 @@
     },
     {
       "routeId": "fxbond",
-      "status": "warn",
-      "focusableCount": 9,
+      "status": "ok",
+      "focusableCount": 5,
       "pageTitle": "금리 · 환율",
       "audit": {
-        "status": "warn",
+        "status": "ok",
         "hierarchy": {
           "status": "ok",
           "pagesChecked": 1,
@@ -1567,64 +1503,35 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "FX/Rates 판단판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 10/13/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 2026-09-16: 25bp 인상 · 3.75-4.00% (12-0 만장일치) (오래된 컨텍스트 · 28일 경과)현재 결과로 AI 분석금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다."
+              "headerText": "FX/Rates 판단판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 10/14/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 2026-09-16: 25bp 인상 · 3.75-4.00% (12-0 만장일치) (오래된 컨텍스트 · 28일 경과)현재 결과로 AI 분석금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다."
             }
           ],
-          "generatedAt": "2026-10-13T23:06:53.688Z"
+          "generatedAt": "2026-10-14T02:03:41.518Z"
         },
         "accessibility": {
-          "status": "warn",
+          "status": "ok",
           "pagesChecked": 1,
           "issueCount": 0,
-          "warningCount": 1,
+          "warningCount": 0,
           "blockers": [],
-          "warnings": [
-            "small-targets:4"
-          ],
+          "warnings": [],
           "pages": [
             {
               "pageId": "fxbond",
               "pageExists": true,
               "active": true,
               "blockers": [],
-              "warnings": [
-                "small-targets:4"
-              ],
+              "warnings": [],
               "nameless": [],
               "unfocusable": [],
               "positiveTabindex": [],
-              "smallTargets": [
-                {
-                  "id": "",
-                  "selector": "#page-fxbond section.briefing-block.rates-block > div.macro-stat-grid > article.macro-stat > button.aio-basis-btn",
-                  "width": 1,
-                  "height": 1
-                },
-                {
-                  "id": "",
-                  "selector": "#page-fxbond section.briefing-block.rates-block > div.macro-stat-grid > article.macro-stat > button.aio-basis-btn",
-                  "width": 1,
-                  "height": 1
-                },
-                {
-                  "id": "",
-                  "selector": "#page-fxbond section.briefing-block.rates-block > div.macro-stat-grid > article.macro-stat > button.aio-basis-btn",
-                  "width": 1,
-                  "height": 1
-                },
-                {
-                  "id": "",
-                  "selector": "#page-fxbond section.briefing-block.rates-block > div.macro-stat-grid > article.macro-stat > button.aio-basis-btn",
-                  "width": 1,
-                  "height": 1
-                }
-              ],
+              "smallTargets": [],
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-13T23:06:53.690Z"
+          "generatedAt": "2026-10-14T02:03:41.519Z"
         },
-        "generatedAt": "2026-10-13T23:06:53.690Z"
+        "generatedAt": "2026-10-14T02:03:41.519Z"
       },
       "tabSequence": [
         {
@@ -1804,10 +1711,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "기업 분석 준비판단 보류 · 일부 근거 부분 확보 데이터: 스냅샷공통컷 10/13/08:00 KST시점 부분 일치근거 상태 저장 관측 · 예측 검증 미확립 티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다.현재 결과로 AI 분석"
+              "headerText": "기업 분석 준비판단 보류 · 일부 근거 부분 확보 데이터: 스냅샷공통컷 10/14/08:00 KST시점 부분 일치근거 상태 저장 관측 · 예측 검증 미확립 티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다.현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-10-13T23:06:54.080Z"
+          "generatedAt": "2026-10-14T02:03:41.913Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1830,9 +1737,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-13T23:06:54.083Z"
+          "generatedAt": "2026-10-14T02:03:41.916Z"
         },
-        "generatedAt": "2026-10-13T23:06:54.083Z"
+        "generatedAt": "2026-10-14T02:03:41.916Z"
       },
       "tabSequence": [
         {
@@ -2012,10 +1919,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "테마 회전 지도판단 보류 · 일부 근거 부분 확보 데이터: 스냅샷공통컷 10/13/08:00 KST시점 부분 일치근거 상태 저장 관측 · 예측 검증 미확립 테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다.현재 결과로 AI 분석"
+              "headerText": "테마 회전 지도판단 보류 · 일부 근거 부분 확보 데이터: 스냅샷공통컷 10/14/08:00 KST시점 부분 일치근거 상태 저장 관측 · 예측 검증 미확립 테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다.현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-10-13T23:06:55.090Z"
+          "generatedAt": "2026-10-14T02:03:42.644Z"
         },
         "accessibility": {
           "status": "ok",
@@ -2038,9 +1945,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-13T23:06:55.122Z"
+          "generatedAt": "2026-10-14T02:03:42.664Z"
         },
-        "generatedAt": "2026-10-13T23:06:55.122Z"
+        "generatedAt": "2026-10-14T02:03:42.664Z"
       },
       "tabSequence": [
         {
@@ -2191,6 +2098,6 @@
     }
   ],
   "consoleErrors": [],
-  "generatedAt": "2026-10-13T23:06:45.897Z",
+  "generatedAt": "2026-10-14T02:03:35.875Z",
   "status": "pass"
 }

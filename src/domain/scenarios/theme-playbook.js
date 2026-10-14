@@ -18,7 +18,7 @@ export const THEME_PLAYBOOK_VERSION = 'theme-playbook.v1';
 const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;
 const median = (values) => { const list = values.filter((v) => finite(v) != null).sort((a, b) => a - b); if (!list.length) return null; const m = Math.floor(list.length / 2); return list.length % 2 ? list[m] : (list[m - 1] + list[m]) / 2; };
 const pct = (value) => value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
-const marketWord = (row) => (row.market === 'KR' ? '국내' : '미국');
+const marketWord = (row) => (row.market === 'KR' ? '한국' : '미국');
 
 const FAVOURED = {
   leading: { tail: ['hold'], head: ['hold'], mixed: ['hold'], none: ['hold'] },
@@ -139,29 +139,37 @@ export function buildThemePlaybook({ usGroups = [], krThemes = [], crossroads = 
     asOf: rows.map((row) => row.basis).filter(Boolean).sort().at(-1) || null };
 }
 
-/** Which exposure tags gained and lost over the month, across every measured theme. */
-export function rotationOf(rows) {
+function tagMedians(rows) {
   const tally = new Map();
   for (const row of rows) for (const tag of row.tags) {
     if (!tally.has(tag)) tally.set(tag, []);
     tally.get(tag).push(row.ret1m);
   }
-  const tags = [...tally].filter(([, values]) => values.length >= 2).map(([tag, values]) => ({ tag, label: EXPOSURE_TAGS[tag], ret1m: median(values), n: values.length })).sort((a, b) => b.ret1m - a.ret1m);
-  const sorted = [...rows].sort((a, b) => b.ret1m - a.ret1m);
-  const gainers = sorted.slice(0, 4), losers = sorted.slice(-4).reverse();
+  return [...tally].filter(([, values]) => values.length >= 2).map(([tag, values]) => ({ tag, label: EXPOSURE_TAGS[tag], ret1m: median(values), n: values.length })).sort((a, b) => b.ret1m - a.ret1m);
+}
+
+/**
+ * Which exposure tags gained and lost over the month. v57.54 (owner: US-first screener): the rotation is read on the
+ * US themes and the Korean ones follow in one short line; all themes together only when the US set has fewer than two
+ * tags with two themes each. A named theme carries its market word only when the sentence mixes markets.
+ */
+export function rotationOf(rows) {
+  const us = rows.filter((row) => row.market !== 'KR'), kr = rows.filter((row) => row.market === 'KR');
+  const usTags = tagMedians(us);
+  const usFirst = usTags.length >= 2;
+  const tags = usFirst ? usTags : tagMedians(rows);
+  const scope = usFirst ? '미국' : '미국·한국';
+  const ends = (list, k) => { const sorted = [...list].sort((a, b) => b.ret1m - a.ret1m); return { up: sorted.slice(0, k), down: sorted.slice(-k).reverse().filter((row) => !sorted.slice(0, k).includes(row)) }; };
+  const main = ends(usFirst ? us : rows, 3);
+  const sub = usFirst && kr.length >= 4 ? ends(kr, 2) : null;
   const top = tags[0], bottom = tags[tags.length - 1];
   const spread = top && bottom ? top.ret1m - bottom.ret1m : null;
-  // US and KR themes share names (반도체, 에너지): every named theme carries its market, and the sentence says where
-  // the named moves sit when one market dominates them.
-  const named = (row) => `${marketWord(row)} ${row.label}(${pct(row.ret1m)})`;
-  const listed = [...gainers, ...losers.filter((row) => !gainers.includes(row))];
-  const kr = listed.filter((row) => row.market === 'KR').length;
-  const dominant = listed.length >= 4 && kr >= Math.ceil(listed.length * 0.75) ? ['국내', kr] : listed.length >= 4 && listed.length - kr >= Math.ceil(listed.length * 0.75) ? ['미국', listed.length - kr] : null;
-  const where = dominant ? ` 이름이 나온 ${listed.length}개 중 ${dominant[1]}개가 ${dominant[0]} 테마라 이 움직임은 주로 ${dominant[0]} 시장의 것입니다.` : listed.length ? ' 미국·국내 테마에 함께 나타난 움직임입니다.' : '';
+  const named = (row) => `${usFirst ? '' : `${marketWord(row)} `}${row.label}(${pct(row.ret1m)})`;
+  const krLine = sub ? ` 한국은 강한 쪽 ${sub.up.map((row) => `${row.label}(${pct(row.ret1m)})`).join('·')}, 약한 쪽 ${sub.down.map((row) => `${row.label}(${pct(row.ret1m)})`).join('·')}입니다.` : '';
   const text = !top || !bottom || top === bottom ? '테마 기록이 부족해 가격 기준 강약 이동을 읽지 않습니다.'
-    : spread < 3 ? `최근 1개월 테마 성격별 차이가 작습니다(가장 강한 '${top.label}' ${pct(top.ret1m)}, 가장 약한 '${bottom.label}' ${pct(bottom.ret1m)}) — 뚜렷한 가격 기준 강약 이동은 보이지 않습니다.`
-      : `최근 1개월 가격 기준으로 '${bottom.label}' 성격의 테마(중앙값 ${pct(bottom.ret1m)})에서 '${top.label}' 성격의 테마(중앙값 ${pct(top.ret1m)})로 힘이 옮겨 갔습니다. 강한 쪽: ${gainers.map(named).join(', ')} · 약한 쪽: ${losers.map(named).join(', ')}.${where} 가격 흐름만으로 본 강약 이동이며 실제 자금 유출입 자료는 아닙니다.`;
-  return { tags, gainers, losers, market: dominant ? dominant[0] : null, text };
+    : spread < 3 ? `최근 1개월 ${scope} 테마는 성격별 차이가 작습니다(가장 강한 '${top.label}' ${pct(top.ret1m)}, 가장 약한 '${bottom.label}' ${pct(bottom.ret1m)}) — 뚜렷한 가격 기준 강약 이동은 보이지 않습니다.${krLine}`
+      : `최근 1개월 ${scope} 테마는 '${bottom.label}' 성격(중앙값 ${pct(bottom.ret1m)})에서 '${top.label}' 성격(중앙값 ${pct(top.ret1m)})으로 힘이 옮겨 갔습니다. 강한 쪽 ${main.up.map(named).join(', ')} · 약한 쪽 ${main.down.map(named).join(', ')}.${krLine} 가격 흐름 기준이며 자금 유출입 자료는 아닙니다.`;
+  return { tags, gainers: [...main.up, ...(sub?.up || [])], losers: [...main.down, ...(sub?.down || [])], market: scope, text };
 }
 
 /** Theme block for the AI: rotation, the notable combinations, and the themes a question names (or the most notable). */

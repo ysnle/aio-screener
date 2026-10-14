@@ -58,7 +58,7 @@ export const SCREEN_TERMS = Object.freeze({
   'yield-curve': Object.freeze(['수익률 곡선', 'Yield Curve', '장단기 금리차', 'Term Spread']),
   'real-rate': Object.freeze(['실질금리', 'TIPS', 'BEI', '기대인플레이션']),
   'net-liquidity': Object.freeze(['순유동성', '연준 대차대조표', '역RP', 'Reverse Repo', 'TGA']),
-  'market-regime': Object.freeze(['마켓 레짐', 'Market Regime', '시장 국면'])
+  'market-regime': Object.freeze(['마켓 레짐', 'Market Regime', '시장 국면', '시장 국면(Market Regime · 레짐)'])
 });
 
 export const SCREEN_ROUTE_LABELS = Object.freeze({ sentiment: '투자 심리', technical: '차트·기술 분석', breadth: '시장 폭', fxbond: '금리 · 환율', macro: '거시 경제', signal: '시장 상태' });

@@ -7,6 +7,8 @@ import { renderNextSteps } from './page-flow.js';
 import { emptyState } from './empty-state.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
 import { secFilingUrl } from '../../domain/fundamental/sec-report.js';
+import { buildConsensusPoint } from '../../domain/fundamental/consensus-read.js';
+import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 
 // P1436: "YYYY-MM-DD:revenue:netIncome;…" in USD millions (public-data/sec-fiscal-history.json).
 export function parseFiscalHistory(text) {
@@ -270,6 +272,9 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
   const fundamentals = series ? { ...(state?.fundamentals || {}), fiscalHistory: parseFiscalHistory(series) } : state?.fundamentals || null;
   const quarterText = root?._aioSecQuarterHistory?.[symbol];
   const read = buildFiscalRead({ symbol, fundamentals, row, quarters: quarterText ? parseQuarterHistory(quarterText) : [] });
+  // v57.54: the forward view (consensus, reference only) follows the reported reading.
+  if (!/\.K[SQ]$/.test(symbol)) requestConsensusEstimates(root, () => renderFiscalRead({ documentRef: doc, root, state }));
+  const consensusPoint = buildConsensusPoint(row, consensusRowFor(root, symbol));
   host.replaceChildren(el(doc, 'h2', '재무 흐름', 'briefing-h2'));
   if (!read.available) {
     // 2026-10-13 review S12: a KRX listing is read from Korean filings (DART), not as "SEC 미수신".
@@ -308,7 +313,7 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
       host.append(missing);
     }
     const list = el(doc, 'ul', null, 'stock-read-points');
-    for (const point of read.points) {
+    for (const point of consensusPoint ? [...read.points, consensusPoint] : read.points) {
       const li = el(doc, 'li', null, `stock-read-point is-${point.tone}`);
       const text = el(doc, 'div', null, 'stock-read-point-text');
       const separator = point.text.indexOf(' — ');

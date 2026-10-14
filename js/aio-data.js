@@ -1574,7 +1574,7 @@ var _TG_PAGE_CFG = {
   'themes':      ['테마·CAPEX 피드',            4,  false, 'score', true ],
   'theme-detail':['테마 상세 피드',             4,  false, 'score', true ],
   'market-news': ['텔레그램 전체 피드',         12, true,  'date',  false],
-  'kr-macro':    ['한국 매크로 소식',            4,  true,  'score', false],
+  'kr-macro':    ['한국 거시 소식',            4,  true,  'score', false],
   'kr-technical':['한국 차트 소식',              3,  false, 'score', true ],
 };
 // 카테고리 → 한국어 라벨 + CSS 클래스
@@ -1582,7 +1582,7 @@ var _TG_CAT_MAP = {
   'kr-market':  { label:'한국장',     cls:'tg-cat-kr'     },
   'semi':       { label:'반도체',     cls:'tg-cat-semi'   },
   'credit':     { label:'신용·자금',  cls:'tg-cat-macro'  },
-  'macro':      { label:'매크로',     cls:'tg-cat-macro'  },
+  'macro':      { label:'거시',     cls:'tg-cat-macro'  },
   'geo':        { label:'지정학',     cls:'tg-cat-geo'    },
   'ai-policy':  { label:'AI정책',     cls:'tg-cat-ai'     },
   'equity':     { label:'주식분석',   cls:'tg-cat-equity' },
@@ -6729,10 +6729,10 @@ function _aioRenderPipelineStatus() {
       msgs.push({ icon: '!', text: '스크리너 종목 유니버스 갱신 필요', detail: '팩터 파일과 종목 식별 유니버스의 기준일이 다릅니다. 현재 결과는 연구용 부분 상태입니다.', color: '#f59e0b' });
     }
     if (!meta.fredHasKey) {
-      msgs.push({ icon: '', text: 'FRED 매크로 서버갱신 비활성', detail: 'GitHub Secrets → FRED_API_KEY 등록 시 자동 활성화 (클라이언트 키로 대체 가능)', color: '#94a3b8' });
+      msgs.push({ icon: '', text: 'FRED 거시 서버갱신 비활성', detail: 'GitHub Secrets → FRED_API_KEY 등록 시 자동 활성화 (클라이언트 키로 대체 가능)', color: '#94a3b8' });
     }
     if (meta.fredHasKey && meta.fredFetchOk === false) {
-      msgs.push({ icon: '', text: 'FRED 매크로 수집 실패', detail: 'FRED_API_KEY 등록됨 → API 오류 또는 레이트리밋. 키 유효성 확인', color: '#ef4444' });
+      msgs.push({ icon: '', text: 'FRED 거시 수집 실패', detail: 'FRED_API_KEY 등록됨 → API 오류 또는 레이트리밋. 키 유효성 확인', color: '#ef4444' });
     }
 
     var reconciliation = meta.reconciliation || null;
@@ -7194,7 +7194,7 @@ async function initV20DataEngine() {
         if(typeof _reportApiError==='function') _reportApiError('fred','FRED fallback/no key');
       }
     }
-    catch(e) { showDataError('FRED', 'FRED 매크로 데이터 수신 실패', 'warn'); if(typeof _reportApiError==='function') _reportApiError('fred','FRED 실패'); }
+    catch(e) { showDataError('FRED', 'FRED 거시 데이터 수신 실패', 'warn'); if(typeof _reportApiError==='function') _reportApiError('fred','FRED 실패'); }
     try {
       if (!_aioServerHyReady && typeof fetchHYSpread === 'function') await fetchHYSpread();
     } catch(e) { showDataError('HY OAS', 'HY 스프레드 수신 실패', 'warn'); }
@@ -7726,8 +7726,8 @@ const MACRO_KW = [
   'Fifty Two Week Sentiment','52주 센티먼트','52-week position','52주 위치',
   'Stock Price Strength','Stock Price Breadth','주가 강도','주가 확장성',
   'Put Call ratio 70','put call extreme','옵션 과매수 구간',
-  'RiskBot','위험봇','RiskBot STABLE','STABLE regime','안정 레짐',
-  'RiskBot WARNING','WARNING regime','경고 레짐','RiskBot DANGER','위험 레짐',
+  'RiskBot','위험봇','RiskBot STABLE','STABLE regime','안정 국면',
+  'RiskBot WARNING','WARNING regime','경고 국면','RiskBot DANGER','위험 국면',
   'SKEW index 139','SKEW index 141','SKEW 141.86','SKEW 고점','tail risk hedge','꼬리위험 헤지','crash protection bid',
   'VVIX 98','VVIX 90','VVIX 90.10','VVIX VIX convexity','VIX of VIX','변동성의 변동성',
   'MOVE index 68','MOVE index 62','MOVE 62.36','MOVE rates volatility','채권 변동성 저점','rates vol floor',
@@ -7735,7 +7735,7 @@ const MACRO_KW = [
   'VIX contango','VIX backwardation','콘탱고','백워데이션','term structure inversion',
   'SKEW MOVE paradox','SKEW-MOVE divergence','채권 주식 꼬리위험 역설',
   'bond complacency equity protection','채권 안심 주식 보험',
-  'market regime diagnosis','시장 레짐 진단','regime signature',
+  'market regime diagnosis','시장 국면 진단','regime signature',
   '2000.01 topping','2007.10 topping','2021.11 topping','분배 단계 3/3','distribution 3/3',
   'Mag7 pullback distribution','Mag7 조정 분배','SPX new high Mag7 lag','지수 신고 Mag7 이탈',
   'retail FOMO capitulation','리테일 FOMO','retail peak sentiment',
@@ -7757,7 +7757,7 @@ const MACRO_KW = [
   'risk calibration','portfolio concentration risk','personal black swan event',
   'optimism tipping point','risk accumulation threshold','macro risk management tool',
   '개인 블랙스완','포지션 쏠림','리스크 임계점','낙관 한계','낙관 붕괴',
-  '양방향 시나리오','매크로 리스크 도구','시나리오 분기',
+  '양방향 시나리오','거시 리스크 도구','시나리오 분기',
   'Golden Dome budget','SHIELD IDIQ defense','space defense budget',
   'Artemis III lunar','Artemis IV crew landing','SpaceX IPO 2026',
   'space economy 2026','commercial space station','Starlab station',
@@ -10161,7 +10161,7 @@ function _isKoreanTranslationValid(text) {
 function _aioNewsTopicKo(topic) {
   var t = String(topic || 'general').toLowerCase();
   var map = {
-    macro: '매크로', fed: '연준/금리', rates: '금리', bond: '채권', credit: '크레딧', fx: '환율',
+    macro: '거시', fed: '연준/금리', rates: '금리', bond: '채권', credit: '크레딧', fx: '환율',
     geo: '지정학', geopolitics: '지정학', energy: '에너지', oil: '에너지',
     semi: '반도체/AI 인프라', ai: 'AI', 'ai-policy': 'AI 정책',
     earnings: '실적', equity: '주식', analyst: '애널리스트', policy: '정책',
@@ -11025,7 +11025,7 @@ function setNewsTypeTab(type, el) {
 
 /* ── v42.0: 카테고리별 그룹 뷰 렌더링 ─────────────────────────── */
 var _TOPIC_GROUP_ORDER = [
-  { key:'macro',     label:'매크로·경제',       icon:'' },
+  { key:'macro',     label:'거시·경제',       icon:'' },
   { key:'geo',       label:'국제 정치·지정학',  icon:'' },
   { key:'market-note',label:'시장 노트',         icon:'' },
   { key:'equity',    label:'주식·시장',         icon:'' },

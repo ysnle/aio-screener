@@ -389,7 +389,13 @@ export function renderHomeRegime({ documentRef: doc, root }) {
       toStructure.addEventListener('click', () => { root.showPage?.('signal'); setTimeout(() => doc.getElementById('regime-structure')?.scrollIntoView?.({ block: 'start' }), 60); });
       // v57.54 audit (9): 오늘 shows the related sectors/themes only as named links; without current names the line is omitted.
       const named = (lead.opportunityLinks || []).some((part) => part?.links?.length);
-      structure.push(el(doc, 'p', `지금 구조: '${lead.title}'(${lead.fit}) — ${lead.posture}`, 'xr-structure'), ...(named ? [opportunityNode(doc, root, lead, 'home-outlook-opportunity')] : []), toStructure);
+      // v57.54 (owner review 2026-10-14): the first sentence of the posture and its 반증 line; the middle sentence lives
+      // with the three structures on 시장 상태.
+      const sentences = String(lead.posture || '').split(/(?<=니다\.)\s+/);
+      const counter = sentences.find((line) => line.startsWith('반증'));
+      const line = el(doc, 'p', null, 'xr-structure');
+      line.append(el(doc, 'strong', `지금 구조 '${lead.title}'`), el(doc, 'span', lead.fit, 'basis-chip'), doc.createTextNode(` ${sentences[0] || ''}`));
+      structure.push(line, ...(counter ? [el(doc, 'p', counter, 'xr-structure-note')] : []), ...(named ? [opportunityNode(doc, root, lead, 'home-outlook-opportunity')] : []), toStructure);
     } else if (scenarios?.held) structure.push(el(doc, 'p', `지금 구조: 판단 보류 — ${scenarios.reason}`, 'xr-structure'));
     renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: outlookBox, id: 'home-crossroads', structure, title: '지금 구조와 앞으로' }); // P1742/P1745
   }

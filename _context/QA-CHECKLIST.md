@@ -1,8 +1,12 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-13
+last_verified: 2026-10-14
 confidence: medium
 ---
+
+## v57.54 검증 스킬 (2026-10-14)
+
+- [x] QA-VERIFY-21: v57.54 지수별 가격 온도: 배포 후 refresh-data에서 market-temperature.json이 status current로 발행되고 spx·nasdaq·kospi·kosdaq·nikkei 다섯 시장의 asOf가 각 시장의 최근 완료 세션이며(장중 서울·도쿄 값 없음), gaps가 비었거나 원인 날짜만 담기고, 투자 심리 화면 타일이 미국 묶음 먼저·한국·일본(보조) 다음으로 표시된다. 같은 시점 scenario-state.json의 rotation.text가 '최근 1개월 미국 테마는'으로 시작하고 '국내'가 없다. verify_by: push 뒤 refresh-data 1회 실행 후 산출물과 운영 사이트 투자 심리·오늘 화면 확인
 
 ## v57.53 검증 스킬 (2026-10-13)
 

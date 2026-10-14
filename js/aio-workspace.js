@@ -1727,7 +1727,7 @@ function _aioBuildPortfolioActionPrompt(kind) {
   if (kind === 'journal') {
     return '아래 매매 복기 노트를 기준으로 내 의사결정을 리뷰해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + noteLine + recentLine + '\n1) 사실/감정/추정 분리 2) 진입 근거가 유지되는지 3) 손절 또는 보유 기준 4) 다음에 반복할 규칙 5) 한 줄 교훈으로 정리해줘.';
   }
-  return '내 포트폴리오 전체를 현재 보유 데이터 기준으로 종합 분석해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 핵심 결론 2) 수익/손실 기여 3) 비중·섹터·상관 리스크 4) 지금 판단을 바꾸게 할 반증 조건 5) 이번 주 체크할 뉴스·차트·매크로 6) 공부할 포인트를 정리해줘.' + noteLine + recentLine;
+  return '내 포트폴리오 전체를 현재 보유 데이터 기준으로 종합 분석해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 핵심 결론 2) 수익/손실 기여 3) 비중·섹터·상관 리스크 4) 지금 판단을 바꾸게 할 반증 조건 5) 이번 주 체크할 뉴스·차트·거시 6) 공부할 포인트를 정리해줘.' + noteLine + recentLine;
 }
 
 window._aioPortfolioAsk = function(kind) {

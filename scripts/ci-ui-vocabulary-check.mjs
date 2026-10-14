@@ -110,6 +110,10 @@ const sources = [{ file: 'index.html', strings: markupStrings(readFileSync(resol
 for (const file of walk(resolve(root, 'src/ui')).filter((path) => path.endsWith('.js')).sort()) {
   sources.push({ file: relative(root, file).replace(/\\/g, '/'), strings: scriptStrings(readFileSync(file, 'utf8')) });
 }
+// v57.54: the legacy classic-script owners still render most screens; they are scanned too (dictionary scope.legacyScripts).
+for (const rel of dictionary.scope?.legacyScripts || []) {
+  if (existsSync(resolve(root, rel))) sources.push({ file: rel, strings: scriptStrings(readFileSync(resolve(root, rel), 'utf8')) });
+}
 
 const offenders = [];
 for (const { file, strings } of sources) {

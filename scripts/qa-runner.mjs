@@ -9,6 +9,7 @@ import { StringDecoder } from 'node:string_decoder';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateBrowserEvidence, evidenceDigest } from './lib/browser-evidence.mjs';
+import { failureCauseLines } from './lib/qa-failure-cause.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const manifestPath = process.env.AIO_QA_MANIFEST_PATH ? resolve(process.env.AIO_QA_MANIFEST_PATH) : join(root, 'architecture', 'qa-pipeline.json');
@@ -775,6 +776,10 @@ function runGate(gate) {
           console.log(`[qa] PASS ${gate.id} (${durationMs}ms)`);
         } else {
           console.error(`[qa] FAIL ${gate.id} (${durationMs}ms${timedOut ? ', timeout' : ''})`);
+          // v57.54: the failing lines first — the 30-line tail can be all warnings (data-lineage printed 30 NESTED-WARN
+          // rows after its one FAIL row), which sent the reader into a 34KB failure file to find the cause.
+          const causes = failureCauseLines(redactText([stdout, stderr].filter(Boolean).join('\n'), secrets));
+          if (causes.length) console.error(`[qa] CAUSE ${gate.id}: ${causes.join(' | ')}`);
           const capturedDetail = [stderr, stdout].filter(Boolean).join('\n').split(/\r?\n/).slice(-30).join('\n');
           const detail = redactText(capturedDetail, secrets);
           const truncation = '\n...[console detail truncated; full redacted output is in the run artifact]';

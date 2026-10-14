@@ -1930,6 +1930,60 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const byBench = Object.fromEntries(spyRows.map((row) => [row.sym, row.benchmarkRet]));
   if (byBench.AAA !== 3.75 || byBench.OLD !== null || byBench['005930.KS'] !== null || byBench.SPY !== null) fail(`S04 SPY benchmark must apply only to same-session US rows, got ${JSON.stringify(byBench)}`);
 
+  // v57.54: Forward PER — close over next-four-quarter consensus EPS; growth on the same adjusted basis; stale or
+  // missing consensus shows nothing; a big expected jump carries the cyclical-peak caution; never a score input.
+  const consensus = await load('src/domain/fundamental/consensus-read.js');
+  const consensusNow = Date.parse('2026-10-14T00:00:00Z');
+  const consensusRow = { asOf: '2026-10-13T22:00:00Z', fwd: { from: '2026-10', to: '2027-07', eps: 11.91, hi: 13.11, lo: 11, minEstimates: 11, up4w: 2, down4w: 0 }, trailing: { from: '2025-10', to: '2026-07', eps: 6.9 } };
+  const consensusPoint = consensus.buildConsensusPoint({ valuationPrice: 226.32, factorSessionDate: '2026-10-12' }, consensusRow, { now: consensusNow });
+  if (!consensusPoint || Math.abs(consensusPoint.fwdPe - 19.0) > 0.05 || Math.abs(consensusPoint.trailingPe - 32.8) > 0.05 || Math.round(consensusPoint.growth) !== 73
+    || !/^Forward PER 약 19\.0배 · 직전 4개 분기 조정 기준 32\.8배 · 예상 이익 \+73% — 종가 \$226\.32\(2026-10-12\)/.test(consensusPoint.text) || !/정점 근처/.test(consensusPoint.text) || !/점수에는 쓰지 않습니다/.test(consensusPoint.text) || consensusPoint.tone !== 'favorable') fail(`v57.54 forward PER reading drifted: ${JSON.stringify(consensusPoint)}`);
+  if (consensus.consensusView({ valuationPrice: 226.32 }, { ...consensusRow, asOf: '2026-09-01T00:00:00Z' }, { now: consensusNow }) !== null
+    || consensus.consensusView({}, consensusRow, { now: consensusNow }) !== null || consensus.consensusView({ valuationPrice: 10 }, { unavailable: true }, { now: consensusNow }) !== null) fail('v57.54 stale, priceless or unavailable consensus must read as nothing');
+  const lossView = consensus.consensusView({ valuationPrice: 10 }, { ...consensusRow, fwd: { ...consensusRow.fwd, eps: -0.4 } }, { now: consensusNow });
+  if (!lossView || lossView.fwdPe !== null) fail('v57.54 an expected loss has no forward PER');
+  const { buildConsensusRow, nextConsensusRow } = await load('scripts/fetch-consensus-estimates.mjs');
+  const goodRow = { asOf: '2026-10-01T00:00:00Z', fwd: { eps: 4 } };
+  if (nextConsensusRow(goodRow, null, '2026-10-14T00:00:00Z') !== goodRow
+    || !nextConsensusRow(goodRow, null, '2026-10-30T00:00:00Z').unavailable || !nextConsensusRow(undefined, null, '2026-10-14T00:00:00Z').unavailable
+    || nextConsensusRow(goodRow, { asOf: 'x' }, '2026-10-14T00:00:00Z').asOf !== 'x') fail('v57.54 an empty consensus answer keeps a good row inside 21 days instead of hiding it for 14');
+  const builtRow = buildConsensusRow({ quarterlyForecast: { rows: ['Jul 2026', 'Oct 2026', 'Jan 2027', 'Apr 2027', 'Jul 2027'].map((fiscalEnd, i) => ({ fiscalEnd, consensusEPSForecast: 1 + i, highEPSForecast: 2 + i, lowEPSForecast: i, noOfEstimates: 5, up: 1, down: 0 })) } },
+    { earningsSurpriseTable: { rows: ['Jul 2026', 'Apr 2026', 'Jan 2026', 'Oct 2025'].map((fiscalQtrEnd) => ({ fiscalQtrEnd, eps: 1, dateReported: '8/26/2026' })) } }, 'now');
+  if (builtRow?.fwd?.from !== '2026-10' || builtRow.fwd.eps !== 14 || builtRow.trailing.eps !== 4 || builtRow.fwd.up4w !== 4) fail(`v57.54 a forecast row already reported is not "ahead", got ${JSON.stringify(builtRow)}`);
+
+  // v57.54 (owner image 3): per-market price temperature — five three-year ranks side by side, an extreme spell only
+  // when three components sit in the same decile, no average (D02); US markets first; the producer never ranks an
+  // intraday print and fills an empty provider close from the exchange series.
+  const temp = await load('src/domain/sentiment/market-temperature.js');
+  const tempDates = [];
+  for (let t = Date.UTC(2020, 0, 1); tempDates.length < 1300; t += 86400000) { const day = new Date(t).getUTCDay(); if (day && day < 6) tempDates.push(new Date(t).toISOString().slice(0, 10)); }
+  const wave = (i) => 100 * Math.exp(i * 0.0004) * (1 + 0.01 * Math.sin(i / 7) + 0.006 * Math.sin(i / 3.1));
+  const selloff = tempDates.map((date, i) => [date, i < 1285 ? wave(i) : wave(1284) * (1 - 0.018 * (i - 1284))]);
+  const cold = temp.buildMarketTemperature(selloff);
+  if (!cold || cold.state !== 'cold' || cold.cold < 3 || cold.streak < 1 || cold.components.length !== 5 || cold.history.length !== 504 || !cold.outcomes.all?.h63?.n || !('h21' in cold.outcomes.cold)) fail(`v57.54 a sharp selloff after a steady rise must read as a cold spell with outcomes, got ${JSON.stringify(cold && { state: cold.state, cold: cold.cold, streak: cold.streak })}`);
+  if ('score' in cold || 'average' in cold || cold.components.some((row) => !(row.score >= 0 && row.score <= 100))) fail('v57.54 D02: the temperature carries component ranks, never an averaged score');
+  if (temp.buildMarketTemperature(selloff.slice(0, 400)) !== null) fail('v57.54 fewer than two years of closes is not ranked');
+  if (temp.TEMPERATURE_MARKETS.slice(0, 2).some((market) => market.region !== 'us') || temp.TEMPERATURE_MARKETS.findIndex((market) => market.id === 'kospi') < 2) fail('v57.54 US markets lead the temperature list; Korea and Japan follow');
+  const { mergeSessions } = await load('scripts/build-market-temperature.mjs');
+  const merged = mergeSessions([['2026-10-12', 6384.24], ['2026-10-13', null], ['2026-10-14', 6123.29]], [['2026-10-13', 6035.35]], 'kospi', Date.parse('2026-10-14T03:00:00Z'));
+  if (JSON.stringify(merged.rows) !== JSON.stringify([['2026-10-12', 6384.24], ['2026-10-13', 6035.35]]) || merged.gaps.length) fail(`v57.54 the exchange close fills the empty provider session and today's intraday KOSPI print is not a close, got ${JSON.stringify(merged)}`);
+  const gapped = mergeSessions([['2026-10-09', 69030.92], ['2026-10-13', null]], [], 'nikkei', Date.parse('2026-10-14T03:00:00Z'));
+  if (gapped.rows.length !== 1 || gapped.gaps[0] !== '2026-10-13') fail(`v57.54 a session still empty after reconciliation is dropped and listed, got ${JSON.stringify(gapped)}`);
+  const tempUi = await load('src/ui/components/market-temperature.js');
+  const spans = tempUi.extremeSpans([['2026-01-01', 1, 3, 0], ['2026-01-02', 1, 4, 0], ['2026-01-05', 1, 0, 0], ['2026-01-06', 1, 0, 3]]);
+  if (JSON.stringify(spans) !== JSON.stringify([{ start: '2026-01-01', end: '2026-01-02', tone: 'cold' }, { start: '2026-01-06', end: '2026-01-06', tone: 'hot' }])) fail(`v57.54 extreme spans group consecutive sessions by tone, got ${JSON.stringify(spans)}`);
+  const evidence = tempUi.temperatureEvidence({ label: '코스피', from: '1999-01-05', state: 'cold', outcomes: { cold: { h63: { n: 39, mean: 5.6, se: 2.5, hitRate: 67, p10: -11.8 } }, all: { h63: { n: 6800, mean: 3.1, se: 1.25, hitRate: 60 } } } });
+  if (!/1999년 이후 극단 저온 구간이 시작된 첫날 39회/.test(evidence) || !/두 범위가 겹쳐 평균 차이는 구별되지 않습니다/.test(evidence) || !/예측은 아닙니다/.test(evidence)) fail(`v57.54 the past-spell line names n, the ± range and whether it clears the baseline, got ${evidence}`);
+  const staleIds = tempUi.staleMarketIds({ retained: ['kosdaq'] }, [{ id: 'spx', asOf: '2026-10-13' }, { id: 'kosdaq', asOf: '2026-10-13' }, { id: 'nikkei', asOf: '2026-10-02' }, { id: 'kospi', asOf: '2026-10-09' }]);
+  if ([...staleIds].sort().join(',') !== 'kosdaq,nikkei') fail(`v57.54 a retained market or one more than a week behind is stale and leaves the "now" lead, got ${[...staleIds]}`);
+  if (!/사례가 3회뿐/.test(tempUi.temperatureEvidence({ label: 'x', from: '2000', state: 'hot', outcomes: { hot: { h63: { n: 3 } }, all: { h63: { n: 10 } } } }))) fail('v57.54 fewer than five spells are not summarised');
+  // v57.54: the 2026-10-14 packet — three frames reach the lessons and the claim ledger; dated claims carry a verification state.
+  const packet = await load('src/domain/research/packet-20261014.js');
+  const learning = await load('src/domain/knowledge/learning-core.js');
+  if (packet.PACKET_20261014_FRAMES.some((frame) => !learning.lessonById(frame.id)) || packet.PACKET_20261014_CLAIMS.length !== 3) fail('v57.54 packet frames must be lessons and claims');
+  const checks = packet.PACKET_20261014_SOURCES.flatMap((row) => row.checks);
+  if (packet.PACKET_20261014_SOURCES.length !== 16 || !checks.length || checks.some((check) => !['VERIFIED', 'CONSISTENT', 'UNVERIFIED'].includes(check.state) || !check.basis)) fail('v57.54 every dated claim in the packet carries a verification state and its basis');
+
   // S12: the Korean filing button opens a receipt only when one is published; otherwise the DART search.
   const fiscalUi = await load('src/ui/components/fiscal-read.js');
   if (fiscalUi.dartLinkHref({ receiptNo: '20250311001085' }) !== 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250311001085' || fiscalUi.dartLinkHref(null) !== 'https://dart.fss.or.kr/dsab007/main.do') fail('S12 DART link format drifted');

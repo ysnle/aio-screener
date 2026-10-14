@@ -48,7 +48,11 @@ for (const doc of catalog.documents) {
   if (doc.kind === 'historical-snapshot' && !doc.autoRefresh) continue;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(doc.lastVerified || '')) continue;
   const ageDays = Math.floor((now - new Date(`${doc.lastVerified}T00:00:00Z`).getTime()) / 86400000);
-  if (ageDays > STALE_DAYS) staleDocs.push(`${doc.path} (${ageDays}d)`);
+  // v57.54: a dated research record of a supplied packet (source_kind REFERENCE, no auto_refresh) keeps its claims as
+  // REFERENCE/UNVERIFIED as of that packet; its date is provenance like a snapshot's. It still warns below, but it does
+  // not grow the ratchet — otherwise the calendar alone failed every push (08-29 crossed 45d on 10-14, 08-30 the next day).
+  const datedReferenceRecord = doc.kind === 'research-record' && !doc.autoRefresh && /^source_kind:\s*REFERENCE\s*$/m.test(text.slice(0, 600));
+  if (ageDays > STALE_DAYS && !datedReferenceRecord) staleDocs.push(`${doc.path} (${ageDays}d)`);
   warn(`${doc.path} last_verified is ${ageDays}d old`, ageDays <= STALE_DAYS, `threshold=${STALE_DAYS}d`);
 }
 

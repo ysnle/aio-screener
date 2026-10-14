@@ -1937,7 +1937,7 @@ window._aioDiagram = (function () {
   function _scoreBreakdown(d) {
     var total = _cl(d.total || 0, 0, 100);
     var comps = d.components || [
-      { label: 'VIX 레짐',   value: d.vixScore || 0,  max: 20 },
+      { label: 'VIX 국면',   value: d.vixScore || 0,  max: 20 },
       { label: 'SPX 추세',   value: d.spxScore || 0,  max: 20 },
       { label: '시장 폭',    value: d.breadth  || 0,  max: 20 },
       { label: 'F&G 심리',  value: d.fg       || 0,  max: 20 },
@@ -1979,7 +1979,7 @@ window._aioDiagram = (function () {
     var vixPct = _cl(d.vixScore || 50, 0, 100);
     var W = 440, H = 200, out = '';
     out += _r(0, 0, W, H, C.bg, 8, C.border);
-    out += _t(14, 18, '시장 레짐 포지셔닝', C.text, 10, 700);
+    out += _t(14, 18, '시장 국면 포지셔닝', C.text, 10, 700);
     var qx = 110, qy = 26, qw = 200, qh = 155;
     out += _r(qx, qy, qw / 2, qh / 2, _alphaRgb(C.red, 0.07), 0, C.border, 0.5);
     out += _r(qx + qw / 2, qy, qw / 2, qh / 2, _alphaRgb(C.green, 0.07), 0, C.border, 0.5);
@@ -2070,7 +2070,7 @@ window._aioDiagram = (function () {
     var items = [
       { label: 'Yahoo 시세',   ok: (meta.symbolsOk || 0) >= 60, val: (meta.symbolsOk || 0) + ' 심볼' },
       { label: 'Fear & Greed', ok: !!meta.fearGreedOk,           val: d.fg != null ? String(d.fg) : '—' },
-      { label: 'FRED 매크로',  ok: !!meta.fredFetchOk,           val: meta.fredHasKey ? (meta.fredFetchOk ? (meta.macroKeyCount || '?') + '개' : '키↑실패') : 'Secret 미등록' },
+      { label: 'FRED 거시',  ok: !!meta.fredFetchOk,           val: meta.fredHasKey ? (meta.fredFetchOk ? (meta.macroKeyCount || '?') + '개' : '키↑실패') : 'Secret 미등록' },
       { label: '뉴스 RSS',     ok: !!meta.newsOk,                val: (meta.newsCount || 0) + '건' },
       { label: 'Telegram',     ok: !!d.telegramOk,               val: d.telegramCount ? d.telegramCount + '건' : '—' },
       { label: 'Screener',     ok: !!d.screenerOk,               val: d.screenerCount ? d.screenerCount + '/' + (d.screenerUniverse || '?') : '—' },
@@ -4071,7 +4071,7 @@ window.AIO = window.AIO || {};
 // ══════════════════════════════════════════════════════════════════
 
 var _glossaryCat = 'all';
-var _GLOSSARY_GROUPS = [['기초·회계', ['기초', '금융수학·통계', '회계·재무제표']], ['거시·금리·외환', ['경제', '경제 기본', '거시·돈', '매크로', '외환', '채권']], ['시장·차트·전략', ['기술적분석', '기술', '전략', '시장·밸류에이션']], ['옵션', ['옵션']], ['한국', ['한국시장', '한국 기업·시장']], ['산업', ['은행', '보험', '부동산·리츠', '소비·유통', '소프트웨어·플랫폼', '바이오·의료', '에너지·화학·소재', '운송·물류', '농업·식품', '반도체·AI 인프라']], ['배경·심화', ['배경지식', '심화']]];
+var _GLOSSARY_GROUPS = [['기초·회계', ['기초', '금융수학·통계', '회계·재무제표']], ['거시·금리·외환', ['경제', '경제 기본', '거시·돈', '거시', '외환', '채권']], ['시장·차트·전략', ['기술적분석', '기술', '전략', '시장·밸류에이션']], ['옵션', ['옵션']], ['한국', ['한국시장', '한국 기업·시장']], ['산업', ['은행', '보험', '부동산·리츠', '소비·유통', '소프트웨어·플랫폼', '바이오·의료', '에너지·화학·소재', '운송·물류', '농업·식품', '반도체·AI 인프라']], ['배경·심화', ['배경지식', '심화']]];
 function _glossaryGroupOf(cat) { for (var i = 0; i < _GLOSSARY_GROUPS.length; i++) if (_GLOSSARY_GROUPS[i][1].indexOf(cat) !== -1) return _GLOSSARY_GROUPS[i][0]; return '기타'; }
 var _glossaryPreviousFocus = null;
 
@@ -4145,7 +4145,7 @@ function renderGlossaryItems(query) {
     html += '<div style="text-align:center;color:var(--text-muted);padding:40px;">검색 결과가 없습니다</div>';
   } else {
     filtered.forEach(function(g) {
-      var catColors = {'기초':'var(--data-green)','기술적분석':'var(--data-cyan)','경제':'var(--data-amber)','외환':'var(--text-secondary)','채권':'var(--text-secondary)','매크로':'var(--data-amber)','옵션':'var(--text-secondary)','한국시장':'var(--data-purple)','전략':'var(--text-secondary)','배경지식':'var(--text-secondary)','기술':'var(--data-cyan)','심화':'var(--data-green)'};
+      var catColors = {'기초':'var(--data-green)','기술적분석':'var(--data-cyan)','경제':'var(--data-amber)','외환':'var(--text-secondary)','채권':'var(--text-secondary)','거시':'var(--data-amber)','옵션':'var(--text-secondary)','한국시장':'var(--data-purple)','전략':'var(--text-secondary)','배경지식':'var(--text-secondary)','기술':'var(--data-cyan)','심화':'var(--data-green)'};
       html += '<div class="aio-glossary-item" style="padding:12px 0;border-bottom:1px solid var(--surface-4);">';
       html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">';
       html += '<span class="aio-glossary-term" style="font-weight:600;color:#8a8271;font-size:14px;">' + escHtml(g.term) + '</span>';

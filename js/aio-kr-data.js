@@ -513,7 +513,7 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
   if (kti) {
     ss.push('');
     ss.push(' <b>테마 인사이트</b>');
-    if (kti.macro) ss.push('<b>매크로 조건:</b> ' + kti.macro);
+    if (kti.macro) ss.push('<b>거시 조건:</b> ' + kti.macro);
     if (kti.foreignFlow) ss.push(' <b>외국인 수급:</b> ' + kti.foreignFlow);
     if (kti.linkedUS) ss.push(' <b>미국 연동:</b> ' + kti.linkedUS);
     if (kti.breakSignals && kti.breakSignals.length) {
@@ -1573,7 +1573,7 @@ function initKoreaMacro() {
   // Check if required data is available, if not retry (max 20 attempts = 10s)
   if (!ld['KRW=X'] || !ld['^TNX']) {
     if (_krMacroRetry++ < 20) { _krMacroRetryTimer = setTimeout(initKoreaMacro, 500); return; }
-    _aioLog('warn', 'init', 'initKoreaMacro: 한국 매크로 데이터 로딩 타임아웃');
+    _aioLog('warn', 'init', 'initKoreaMacro: 한국 거시 데이터 로딩 타임아웃');
     return;
   }
   _krMacroRetry = 0;
@@ -1932,7 +1932,7 @@ function _generateKrThemesAnalysis(ld) {
   var krMacroWti = usLd['CL=F'] ? usLd['CL=F'].price : null;
   var krMacroKrw = usLd['KRW=X'] ? usLd['KRW=X'].price : null;
   if (krMacroVix || krMacroWti || krMacroKrw) {
-    h += '<br><br><b>【매크로 환경 → 테마 영향】</b><br>';
+    h += '<br><br><b>【거시 환경 → 테마 영향】</b><br>';
     if (krMacroWti && krMacroWti > 100) {
       h += '<span style="color:var(--red);">유가 $' + krMacroWti.toFixed(0) + ' → 에너지·정유 수혜, 항공·운송·2차전지 역풍. 원자재 비용 부담이 테마 전반에 영향.</span><br>';
     }
@@ -2026,7 +2026,7 @@ function _generatePortfolioAnalysis(positions, ld, surf) {
   var tnxNow = macroLd['^TNX'] ? macroLd['^TNX'].price : 0;
   var dxyNow = macroLd['DX-Y.NYB'] ? macroLd['DX-Y.NYB'].price : 0;
   if (positions.length >= 2 && (vixNow > 0 || tnxNow > 0)) {
-    h += '<br><b>【매크로 민감도 프로파일】</b><br>';
+    h += '<br><b>【거시 민감도 프로파일】</b><br>';
     // VIX 민감도
     var techCount = 0, defCount = 0;
     if (Array.isArray(_aioScreenerRows)) {
@@ -2060,7 +2060,7 @@ function _generatePortfolioAnalysis(positions, ld, surf) {
     if (tnxNow > 4.5) riskFlags.push('고금리(10Y ' + tnxNow.toFixed(1) + '%)');
     if (dxyNow > 106) riskFlags.push('강달러(DXY ' + dxyNow.toFixed(0) + ')');
     if (riskFlags.length >= 2) {
-      h += '<span style="color:var(--red);">복합 매크로 리스크: ' + riskFlags.join(' + ') + ' 조건이 겹쳐 있습니다.</span>';
+      h += '<span style="color:var(--red);">복합 거시 리스크: ' + riskFlags.join(' + ') + ' 조건이 겹쳐 있습니다.</span>';
     } else if (riskFlags.length === 1) {
       h += '<span style="color:var(--yellow);">' + riskFlags[0] + ' 주의.</span>';
     } else {

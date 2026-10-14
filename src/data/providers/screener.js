@@ -520,6 +520,7 @@ export function createScreenerProvider({
           _fundamentalFetchedAt: factor.fundamentalFetchedAt || null,
           _fundamentalAccession: factor.fundamentalAccession || null,
           _valuationPePrice: finite(factor.pePrice),
+          _valuationPrice: finite(factor.valuationPrice) ?? finite(factor.pePrice) ?? finite(factor.pbPrice), // v57.54: Forward PER close (F10 order)
           _valuationPePriceBasis: factor.pePriceBasis || null,
           _valuationPbPrice: finite(factor.pbPrice),
           _valuationPbPriceBasis: factor.pbPriceBasis || null,

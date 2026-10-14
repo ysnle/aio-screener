@@ -3321,7 +3321,7 @@ if (typeof document !== 'undefined') {
       var riskLabelKo = { high: '높음', elevated: '경계', moderate: '보통', low: '낮음', unknown: '판정 대기' }[ms.riskLevel] || ms.riskLevel;
       var riskPart = '종합 리스크 ' + riskLabelKo + (ms.riskScore != null ? '(' + ms.riskScore + '/100)' : '');
       // 4) 주도 뉴스/감성
-      var topicKo = { macro: '매크로', geo: '지정학', semi: '반도체', earnings: '실적', energy: '에너지', crypto: '크립토', equity: '주식', defense: '방산', analyst: '애널리스트' };
+      var topicKo = { macro: '거시', geo: '지정학', semi: '반도체', earnings: '실적', energy: '에너지', crypto: '크립토', equity: '주식', defense: '방산', analyst: '애널리스트' };
       var newsPart = '';
       if (ns.available) {
         var biasKo = ns.bias === 'bullish' ? '긍정 우위' : ns.bias === 'bearish' ? '부정 우위' : '중립';
@@ -3892,7 +3892,7 @@ var AIO_PAGE_BRIEFS = {
     use: '매일 장 시작 전 체크리스트입니다.',
     steps: ['오늘의 리스크와 이벤트 확인', '관심 섹터·종목 트리거 확인', '확인이 필요한 항목만 남기기'],
     focus: '긴 설명보다 오늘 값이 바뀔 수 있는 변수(이벤트·지표 발표)만 보세요.',
-    links: [['market-news','뉴스'], ['macro','매크로'], ['signal','시그널']]
+    links: [['market-news','뉴스'], ['macro','거시'], ['signal','시그널']]
   },
   technical: {
     title: '추세선 위치와 과열·약화 신호 확인',
@@ -3903,7 +3903,7 @@ var AIO_PAGE_BRIEFS = {
   },
   macro: {
     title: '금리, 인플레, 성장 중 무엇이 시장을 지배하는지 확인',
-    use: '매크로는 시장 국면의 배경 설명입니다.',
+    use: '거시는 시장 국면의 배경 설명입니다.',
     steps: ['FOMC·CPI·PCE·고용의 방향 확인', '달러·유가·금리와 연결', '주식시장에 부담이 되는 요인인지 근거만 남기기'],
     focus: '좋은 뉴스인지보다 연준 반응 함수와 금리 방향을 먼저 보세요.',
     links: [['fxbond','금리 · 환율'], ['briefing','브리핑'], ['themes','테마']]
@@ -3913,7 +3913,7 @@ var AIO_PAGE_BRIEFS = {
     use: '주식 밸류에이션과 글로벌 자금 흐름의 입력값입니다.',
     steps: ['DXY와 USD/KRW로 달러 스트레스 확인', '2Y·10Y·커브로 금리 압박 확인', 'HY/OAS가 벌어지는지 확인'],
     focus: '주식 차트가 좋아도 달러와 금리가 동시에 올라가면 위험자산에는 부담이 되는 조합입니다.',
-    links: [['macro','매크로'], ['signal','시그널'], ['themes','테마']]
+    links: [['macro','거시'], ['signal','시그널'], ['themes','테마']]
   },
   fundamental: {
     title: '좋은 회사인지보다 지금 가격의 근거가 무엇인지 확인',
@@ -3961,13 +3961,13 @@ var AIO_PAGE_BRIEFS = {
   guide: {
     title: '처음 쓰는 순서만 익히면 됩니다',
     use: '모든 설명을 읽기보다 루틴을 먼저 잡으세요.',
-    steps: ['대시보드에서 오늘의 시장 상태 확인', '시그널/기술/포트폴리오에서 근거 확인', '뉴스/매크로/테마로 이유 확인'],
+    steps: ['대시보드에서 오늘의 시장 상태 확인', '시그널/기술/포트폴리오에서 근거 확인', '뉴스/거시/테마로 이유 확인'],
     focus: '처음에는 대시보드 → 시그널 → 포트폴리오 3개만 반복해도 충분합니다.',
     links: [['home','대시보드'], ['signal','시그널'], ['portfolio','포트폴리오']]
   },
   screener: {
     title: '전체 종목을 팩터로 줄 세웁니다',
-    use: '먼저 시장(시그널 페이지)을 보고, 여기서 어떤 종목을 살지 고릅니다.',
+    use: '먼저 시장(시장 상태 화면)을 보고, 여기서 어떤 종목을 살지 고릅니다.',
     steps: ['퀀트 백분위 상위부터 확인', '섹터/시총 필터로 좁히기', '헤더 클릭으로 모멘텀·추세·저변동 정렬'],
     focus: '랭크는 객관 멀티팩터, 시그널/메모는 애널리스트 의견 — 둘을 구분해 보세요.',
     links: [['signal','시그널'], ['technical','기술 분석'], ['fundamental','기업 분석']]
@@ -4280,7 +4280,7 @@ window.AIO_PAGE_EVIDENCE_CONTRACT = {
   portfolio: { maxSourceKind: 'DELAYED', caveat: '가격 fallback 티커는 포트폴리오 판단에서 신뢰도를 낮춥니다.' },
   themes: { maxSourceKind: 'DELAYED', caveat: '테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다.' },
   'theme-detail': { maxSourceKind: 'SNAPSHOT', caveat: '테마 상세는 선택 테마의 리더/후발/촉매를 비교하는 보드이며 live 가격이 없으면 참고용입니다.' },
-  macro: { maxSourceKind: 'SNAPSHOT', caveat: 'FRED/FMP 키 미수신 구간은 스냅샷 매크로로 표시하고 현재 판단 강도를 낮춥니다.' },
+  macro: { maxSourceKind: 'SNAPSHOT', caveat: 'FRED/FMP 키 미수신 구간은 스냅샷 거시로 표시하고 현재 판단 강도를 낮춥니다.' },
   fxbond: { maxSourceKind: 'DELAYED', caveat: '금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다.' },
   fundamental: { maxSourceKind: 'DELAYED', requireLiveDom: true, emptyKind: 'UNAVAILABLE', caveat: '티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다.' },
   guide: { maxSourceKind: 'REFERENCE', caveat: '가이드 페이지는 방법론 문서이며 현재 시장 데이터 판단 페이지가 아닙니다.' },
@@ -4523,7 +4523,7 @@ function _aioDefaultDecision(pageId) {
       action: '테마 내 3~5개 후보를 비교하고 현재 결과로 AI 분석을 실행한다.'
     },
     macro: {
-      title: '오늘 매크로 판단',
+      title: '오늘 거시 판단',
       decision: _fomcState.allowedUse && _fomcReg.status === 'RESULT_REVIEW' ? 'FOMC 결과 확인 구간 · 유가 리스크 완화 모니터' : '금리·달러·유가 방향 확인',
       reasons: [_fomcReason, tnxTxt + ' · DXY ' + (dxy.value != null ? _aioDecisionNum(dxy.value, 1) : '미수신'), _iranReason],
       action: '관찰 프레임: 2Y/10Y·달러·WTI 동시 상승은 역사적으로 성장주에 역풍, 완화 지속은 순풍으로 서술되던 조합(지시 아님).'
@@ -4698,7 +4698,7 @@ window._aioAskAiFromPageDecision = function(pageId) {
 window.AIO_PAGE_ACTION_HUBS = {
   home: {
     title:'시장 Cockpit',
-    subtitle:'시장 레짐, 리스크, 주도 흐름을 한 화면에서 교차 확인합니다.',
+    subtitle:'시장 국면, 리스크, 주도 흐름을 한 화면에서 교차 확인합니다.',
     cards:[['핵심 지표','SPX·VIX·F&G·금리·주도 섹터'],['운용 포인트','포지션 크기와 신규 매수 가능 여부 확인'],['AI 분석','시장 요약과 리스크 3가지를 분석']],
     links:[['시장 환경','signal'],['브리핑','briefing'],['뉴스','market-news']]
   },
@@ -4723,14 +4723,14 @@ window.AIO_PAGE_ACTION_HUBS = {
   briefing: {
     title:'오늘 브리핑',
     subtitle:'시장 요약, 운용 포인트, 핵심 뉴스, 확인 필요 이벤트를 분리합니다.',
-    cards:[['핵심 지표','시장 레짐 · 핵심 뉴스 · 확인 필요 이벤트'],['운용 포인트','포지션 영향이 큰 이슈만 추적'],['AI 분석','내 포트폴리오 영향 분석']],
+    cards:[['핵심 지표','시장 국면 · 핵심 뉴스 · 확인 필요 이벤트'],['운용 포인트','포지션 영향이 큰 이슈만 추적'],['AI 분석','내 포트폴리오 영향 분석']],
     links:[['시장 뉴스','market-news'],['홈','home'],['AI 분석','ai']]
   },
   'market-news': {
     title:'뉴스 인텔리전스',
     subtitle:'Top 뉴스와 시장 영향은 상단, 필터는 분석 목적에 맞게 직접 조정합니다.',
     cards:[['핵심 지표','Top 5 뉴스 · 24h 건수 · 리스크 뉴스'],['운용 포인트','시장/섹터/보유 종목 영향만 선별'],['상세 도구','소스 상태와 원문 목록은 상세에서 확인']],
-    links:[['브리핑','briefing'],['매크로','macro'],['AI 분석','ai']]
+    links:[['브리핑','briefing'],['거시','macro'],['AI 분석','ai']]
   },
   technical: {
     title:'차트 거래 계획',
@@ -4769,7 +4769,7 @@ window.AIO_PAGE_ACTION_HUBS = {
     links:[['테마','themes'],['스크리너','screener'],['AI 분석','ai']]
   },
   macro: {
-    title:'매크로 판단',
+    title:'거시 판단',
     subtitle:'정책, 물가, 고용, 이벤트가 오늘 시장에 주는 압력을 먼저 봅니다.',
     cards:[['핵심 지표','FOMC 결과 · 금리 · 달러 · 유가 · 고용/물가'],['운용 포인트','다음 체크포인트와 시장 반응 분리'],['AI 분석','FOMC/이란/유가 포지션 영향']],
     links:[['금리 · 환율','fxbond'],['브리핑','briefing'],['AI 분석','ai']]
@@ -4778,7 +4778,7 @@ window.AIO_PAGE_ACTION_HUBS = {
     title:'FX·Rates·Credit',
     subtitle:'달러, 금리곡선, 크레딧, 원유를 설명문보다 지표 중심으로 읽습니다.',
     cards:[['핵심 지표','DXY · 2Y/10Y · HYG · WTI · USD/KRW'],['운용 포인트','달러·금리·유가가 동시에 위험선호인지 확인'],['상세 도구','인과 설명은 상세에서 확인']],
-    links:[['매크로','macro'],['시장 뉴스','market-news'],['AI 분석','ai']]
+    links:[['거시','macro'],['시장 뉴스','market-news'],['AI 분석','ai']]
   },
   fundamental: {
     title:'기업 분석 17관점',
@@ -4790,7 +4790,7 @@ window.AIO_PAGE_ACTION_HUBS = {
     title:'시장 원리 학습',
     subtitle:'구조적 참고 콘텐츠를 Tree·Graph·Path로 탐색합니다.',
     cards:[['핵심 축','금리 · AI workload · 메모리 · 전력'],['운용 포인트','출처와 검토일을 먼저 확인'],['주의','현재 가격·목표가·매매 신호를 제공하지 않음']],
-    links:[['금리 · 환율','fxbond'],['테마·트렌드','themes'],['사용 설명서','guide']]
+    links:[['금리 · 환율','fxbond'],['테마 · 섹터','themes'],['사용 설명서','guide']]
   },
   // v53.7 (P725): KR 전용 5페이지 액션 허브 제거 — 통합 섹션은 themes/macro/technical 허브를 따름
   guide: {
@@ -7932,7 +7932,7 @@ window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
         { id: 'signal-pyramiding',       order: 10, topic: '피라미딩 + Add-on 규칙',         lines: 'L4700~4900' },
         { id: 'signal-spx-tech-dash',    order: 11, topic: 'SPX 실시간 기술 지표 대시보드',  lines: 'L4900~5050' },
         { id: 'signal-breadth-consensus', order: 12, topic: '다중 신호 합의 (v49.29 R61)',   lines: 'L5040~5050' },
-        { id: 'signal-macro-scenario',   order: 13, topic: '매크로 시나리오 트리 (낙관/기본/비관)', lines: 'L5150~5224' },
+        { id: 'signal-macro-scenario',   order: 13, topic: '거시 시나리오 트리 (낙관/기본/비관)', lines: 'L5150~5224' },
         { id: 'signal-exit-triggers',    order: 14, topic: 'Exit Triggers (VIX/SPX/HYG/DXY)', lines: 'L5226~5237' }
       ],
       // v49.41 signal 2차: auditStatus partial → 6축 객체 전환
@@ -8079,17 +8079,17 @@ window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
       lineRange: 'L6730~7323',
       subSections: [
         { id: 'macro-explain-header',     order:  1, topic: '헤더 + Dalio 경제 기계',                lines: 'L6793~6857' },
-        { id: 'macro-storyline',          order:  2, topic: '매크로 스토리라인 (서사형)',             lines: 'L6877~6895' },
-        { id: 'macro-interconnection',    order:  3, topic: '매크로 인터커넥션 맵 (6 카드)',          lines: 'L6897~6977' },
+        { id: 'macro-storyline',          order:  2, topic: '거시 스토리라인 (서사형)',             lines: 'L6877~6895' },
+        { id: 'macro-interconnection',    order:  3, topic: '거시 인터커넥션 맵 (6 카드)',          lines: 'L6897~6977' },
         { id: 'macro-cycle-timeline',     order:  4, topic: '경제 사이클 타임라인 (Phase 1~6)',       lines: 'L6979~7050' },
         { id: 'macro-fred-charts',        order:  5, topic: 'FRED 차트 + R81 nextUpdate',           lines: 'L7052~7075' },
-        { id: 'macro-live-grid',          order:  6, topic: '핵심 매크로 8 카드',                    lines: 'L7077~7134' },
+        { id: 'macro-live-grid',          order:  6, topic: '핵심 거시 8 카드',                    lines: 'L7077~7134' },
         { id: 'macro-extra-indicators',   order:  7, topic: '추가 지표 (소매/임금/심리/주택)',         lines: 'L7136~7162' },
         { id: 'macro-fx-summary',         order:  8, topic: '외환·채권 요약',                        lines: 'L7164~7178' },
         { id: 'macro-yield-curve',        order:  9, topic: '수익률 곡선 분석기',                    lines: 'L7180~7206' },
         { id: 'macro-thermometer',        order: 10, topic: '글로벌 경기 체온계',                    lines: 'L7208~7242' },
         { id: 'macro-oil-monitor',        order: 11, topic: '유가·에너지 위기 모니터',                lines: 'L7244~7307' },
-        { id: 'macro-scenario-tree',      order: 12, topic: '매크로 시나리오 트리 (R72/R85 hook)',    lines: 'L7309~7323+' }
+        { id: 'macro-scenario-tree',      order: 12, topic: '거시 시나리오 트리 (R72/R85 hook)',    lines: 'L7309~7323+' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
@@ -14550,8 +14550,8 @@ const DataHealth = {
     const issues = [];
     if (p.stale > p.total * 0.3) issues.push(`시세 ${p.stale}/${p.total} stale`);
     if (p.rejected > 10) issues.push(`시세 거부 ${p.rejected}건`);
-    if (m.stale > 0) issues.push(`매크로 ${m.stale}/${m.total} stale`);
-    if (m.rejected > 0) issues.push(`매크로 거부 ${m.rejected}건`);
+    if (m.stale > 0) issues.push(`거시 ${m.stale}/${m.total} stale`);
+    if (m.rejected > 0) issues.push(`거시 거부 ${m.rejected}건`);
     if (n.deadFeeds.length > 0) issues.push(`죽은 피드 ${n.deadFeeds.length}개`);
     if (n.duplicatesRemoved > n.totalProcessed * 0.3) issues.push(`뉴스 중복률 ${(n.duplicatesRemoved/n.totalProcessed*100).toFixed(0)}%`);
     return { status: issues.length === 0 ? '정상' : issues.length <= 2 ? '주의' : ' 점검 필요', issues };
@@ -14561,7 +14561,7 @@ const DataHealth = {
     console.log('%c[DataHealth] 데이터 파이프라인 헬스 리포트', 'color:#60a5fa;font-weight:bold;font-size:12px;');
     console.log(`  상태: ${r.summary.status}`);
     console.log(`  시세: ${r.price.fresh} fresh / ${r.price.stale} stale / ${r.price.rejected} rejected (${r.price.rejectRate})`);
-    console.log(`  매크로: ${r.macro.fresh} fresh / ${r.macro.stale} stale / ${r.macro.rejected} rejected`);
+    console.log(`  거시: ${r.macro.fresh} fresh / ${r.macro.stale} stale / ${r.macro.rejected} rejected`);
     console.log(`  뉴스: ${r.news.uniqueArticles} unique / ${r.news.duplicatesRemoved} dupes / ${r.news.deadFeeds.length} dead feeds`);
     if (r.summary.issues.length > 0) _aioLog('warn', 'debug', '이슈: ' + r.summary.issues.join(' | '));
     return r;

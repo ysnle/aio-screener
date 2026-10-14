@@ -210,7 +210,7 @@ function updatePatternSignals() {
   if (chg > 2) {
     signals.push({ name: '메가 갭 상승 (+2%↑)', type: 'bullish', icon: '',
       color: 'var(--data-green)',
-      detail: 'SPY +' + chg.toFixed(2) + '% 메가 갭! 기관 매수 또는 매크로 이벤트 반응. 종가까지 갭을 메우지 않으면 "브레이크어웨이 갭"으로 추세 전환 신호 가능.',
+      detail: 'SPY +' + chg.toFixed(2) + '% 메가 갭! 기관 매수 또는 거시 이벤트 반응. 종가까지 갭을 메우지 않으면 "브레이크어웨이 갭"으로 추세 전환 신호 가능.',
       why: '2%+ 갭은 연간 3~5회 정도만 발생하는 희소한 이벤트로, 강한 방향성 신호입니다.',
       importance: 'HIGH' });
   } else if (chg > 1) {

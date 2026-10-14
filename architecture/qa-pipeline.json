@@ -1511,6 +1511,14 @@
           ]
         },
         {
+          "id": "text-pin-ratchet",
+          "script": "scripts/ci-text-pin-ratchet-check.mjs",
+          "inputs": [
+            "scripts/ci-*.mjs",
+            "_context/text-pin-baseline.json"
+          ]
+        },
+        {
           "id": "qa-pipeline-contract",
           "script": "scripts/ci-qa-pipeline-contract-check.mjs",
           "inputs": [
@@ -2214,6 +2222,8 @@
         "scripts/ci-record-fix-check.mjs",
         "scripts/record-fix.mjs",
         "scripts/ci-assertion-trace-check.mjs",
+        "scripts/ci-text-pin-ratchet-check.mjs",
+        "_context/text-pin-baseline.json",
         "_context/rule-gap-manifest.json",
         "_context/open-item-baseline.json",
         "_context/assertion-trace-baseline.json",

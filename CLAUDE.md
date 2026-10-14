@@ -76,4 +76,4 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - 모르면 솔직히 말하기 (경로/함수명 날조 금지)
 - 대형 RULES/QA/BUG/KNOWLEDGE 원장은 관련 용어만 검색한다. 기본 컨텍스트는 CURRENT-STATE로 제한하고 GOVERNANCE/INDEX와 스킬은 필요한 부분만 읽는다. 승인·완료·병렬 위임 원칙은 AGENTS.md를 따른다.
 - 자동 커밋 훅을 추가하지 않는다. 훅은 파괴 명령 차단과 advisory 검증만 수행한다.
-- 위임·검토 루틴: 서브에이전트 프롬프트는 `.claude/skills/_shared/agent-prompt-anatomy.md`(목표→반환 형식→경고→컨텍스트). 큰 작업 전 `/restate`, 가정 점검은 `/assumptions`(검증/추정 표시, 적용 전 정지), 큰 PR 뒤에는 새 컨텍스트 `/trim-pr`로 덜어낼 것부터 찾는다.
+- 위임·검토 루틴: 서브에이전트 프롬프트는 `.claude/skills/_shared/agent-prompt-anatomy.md`(목표→반환 형식→경고→컨텍스트). 주간 회고 `/retro`, 큰 작업 전 `/restate`, 가정 점검은 `/assumptions`(검증/추정 표시, 적용 전 정지), 큰 PR 뒤에는 새 컨텍스트 `/trim-pr`로 덜어낼 것부터 찾는다.

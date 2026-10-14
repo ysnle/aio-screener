@@ -38,9 +38,9 @@ function datedShort(date) {
 
 /**
  * @param {Document} doc
- * @param {{ series: Array<{date:string,value:number}>, refLines?: number[], format?: (v:number)=>string, label?: string, domain?: [number, number], range?: [string, string] }} options
+ * @param {{ series: Array<{date:string,value:number}>, refLines?: number[], format?: (v:number)=>string, label?: string, domain?: [number, number], range?: [string, string], spans?: Array<{start:string,end:string,tone:string}> }} options
  */
-export function createTrendChart(doc, { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null, range = null } = {}) {
+export function createTrendChart(doc, { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null, range = null, spans = [] } = {}) {
   const wrap = doc.createElement('div');
   wrap.className = 'trend-chart-wrap';
   const svg = svgEl(doc, 'svg', { viewBox: `0 0 ${W} ${H}`, class: 'trend-chart', role: 'img' });
@@ -108,6 +108,13 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
     const note = svgEl(doc, 'text', { x: ((PAD.left + firstX) / 2).toFixed(1), y: PAD.top + plotH / 2, 'text-anchor': 'middle', class: 'trend-chart-empty' });
     note.textContent = '기록 이전';
     svg.append(note);
+  }
+  // v57.54: shaded date spans behind the line (market temperature extremes); tone picks the class.
+  for (const span of spans) {
+    if (!span?.start || !span?.end || span.end < start || span.start > end) continue;
+    const x0 = xd(span.start < start ? start : span.start);
+    const x1 = Math.max(x0 + 2, xd(span.end > end ? end : span.end));
+    svg.append(svgEl(doc, 'rect', { x: x0.toFixed(1), y: PAD.top, width: (x1 - x0).toFixed(1), height: plotH, class: `trend-chart-span is-${span.tone}` }));
   }
   // Area + line.
   const line = points.map((point, index) => `${index ? 'L' : 'M'}${x(index).toFixed(1)},${y(point.value).toFixed(1)}`).join(' ');

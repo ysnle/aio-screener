@@ -69,7 +69,7 @@ function linkButton(doc, root, label, route, anchor = null) {
 }
 
 // v57.54 audit (13): each path links straight to the themes its exposure tags favour (US: the theme's detail; KR: the
-// domestic theme stages on 테마). The same registry the playbook uses; no ticker is named.
+// Korean theme stages on 테마, after the US ones). The same registry the playbook uses; no ticker is named.
 function themeLinkRow(doc, root, item, { max = 4 } = {}) {
   if (!item) return null;
   const { wind, themes } = themesForBranch(item);
@@ -78,7 +78,7 @@ function themeLinkRow(doc, root, item, { max = 4 } = {}) {
   const kr = themes.filter((theme) => theme.market === 'KR');
   if (!us.length && !kr.length) return null;
   const row = el(doc, 'div', null, 'xr-explore xr-theme-links');
-  row.append(el(doc, 'span', `'${item.title.split(' — ')[0]}' 길에서 ${wind === 'tail' ? '순풍인' : '업종·기업마다 갈리는'} 테마:`, 'xr-explore-label'));
+  row.append(el(doc, 'span', `${wind === 'tail' ? '순풍인' : '업종·기업마다 갈리는'} 테마`, 'xr-explore-label'));
   for (const theme of us) {
     const button = el(doc, 'button', `${usNames.get(theme.id)} →`, 'flow-next-link');
     button.type = 'button';
@@ -88,8 +88,8 @@ function themeLinkRow(doc, root, item, { max = 4 } = {}) {
   }
   if (kr.length) {
     const names = kr.slice(0, 3).map((theme) => krThemeLabel(theme.id).split(' / ')[0]);
-    const button = linkButton(doc, root, `국내 ${names.join('·')}${kr.length > 3 ? ` 외 ${kr.length - 3}개` : ''}`, 'themes', 'theme-playbook-title');
-    button.title = '테마 화면의 국내 테마 단계';
+    const button = linkButton(doc, root, `한국 ${names.join('·')}${kr.length > 3 ? ` 외 ${kr.length - 3}개` : ''}`, 'themes', 'theme-playbook-title');
+    button.title = '테마 화면의 한국 테마 단계';
     row.append(button);
   }
   return row;
@@ -279,6 +279,26 @@ function themeLines(doc, root) {
   return lines;
 }
 
+// One branch as a card: name, condition fit and market-price direction, what fares relatively better, the structure the
+// path leads to and the themes it touches (US first, Korean themes as one link).
+function pathCard(doc, root, item, { kicker, fit }) {
+  const card = el(doc, 'div', null, 'xr-path-card');
+  const tone = item.pricing.tone === 'same' ? '시장 가격도 이 방향' : item.pricing.tone === 'against' ? '시장 가격은 반대 방향' : '시장 가격 보류';
+  const head = el(doc, 'div', null, 'xr-path-head');
+  head.append(el(doc, 'span', kicker, 'xr-path-kicker'), el(doc, 'strong', `'${item.title.split(' — ')[0]}'`, 'xr-path-name'));
+  const tags = el(doc, 'div', null, 'xr-path-tags');
+  if (fit) tags.append(el(doc, 'span', fit, 'basis-chip'));
+  tags.append(el(doc, 'span', tone, `basis-chip xr-price is-${item.pricing.tone || 'none'}`));
+  const rows = el(doc, 'dl', null, 'xr-path-rows');
+  rows.append(el(doc, 'dt', '유리한 쪽'), el(doc, 'dd', item.favored.map((key) => CHOICES[key]).join(' · ')));
+  if (item.shape && SHAPES[item.shape]) rows.append(el(doc, 'dt', '이어지는 구조'), el(doc, 'dd', `'${SHAPES[item.shape]}'`));
+  card.append(head, tags, rows);
+  const themes = themeLinkRow(doc, root, item);
+  if (themes) card.append(themes);
+  card.title = item.favoredWhy || '';
+  return card;
+}
+
 /** Compact block on 오늘 and 시장 상태: one forward view — the present structure (when given), the branch the next
  * releases would most likely confirm and the structure it leads to, its chain and favoured choice, the alternative,
  * the rate tension and the theme side — then links to 거시 and 테마. */
@@ -293,31 +313,27 @@ export function renderCrossroadsCompact({ documentRef: doc, root, regime = null,
   if (box.hidden) return model;
   const alt = model.items.find((item) => item.id === model.altId) || null;
   const short = (item) => item.title.split(' — ')[0];
-  const priced = (item) => item.pricing.tone === 'same' ? ', 시장 가격도 이 방향' : item.pricing.tone === 'against' ? ', 시장 가격은 반대 방향' : '';
-  const toShape = (item) => item.shape && SHAPES[item.shape] ? ` 이 길이면 시장 구조는 '${SHAPES[item.shape]}' 쪽으로 갑니다.` : '';
   const links = el(doc, 'div', null, 'xr-explore');
   links.append(linkButton(doc, root, '모든 갈림길과 선택지', 'macro', 'macro-crossroads-title'));
   if (root?.[SCENARIO_STATE.key]?.themes?.length) links.append(linkButton(doc, root, '모든 테마의 단계', 'themes', 'theme-playbook-title'));
   const parts = [el(doc, 'h3', title, 'xr-h3')];
   if (structure) parts.push(...structure);
   // v57.54 audit (8): the same tie rule as 거시 (tiedIds, P1747) — a tie names both paths up front and says why one is
-  // written first, instead of featuring one as "the" path and the other as a footnote.
+  // written first. v57.54 (owner review 2026-10-14, "조금만 압축하고 정렬"): one lead line, the lead path's chain,
+  // then the two paths side by side as cards (market-price direction, what fares better, the structure it leads to,
+  // its themes) instead of three run-on sentences.
   const tied = lead && alt && model.tiedIds?.includes(lead.id) && model.tiedIds.includes(alt.id);
-  if (lead && tied) {
-    const sameFit = lead.met === alt.met && lead.total === alt.total;
-    const order = lead.pricing.tone === 'same' && alt.pricing.tone !== 'same' ? ` 시장 가격이 같은 방향인 '${short(lead)}'${josa(short(lead), '을', '를')} 먼저 적습니다.` : '';
-    parts.push(el(doc, 'p', `다음 발표가 가를 길 — 조건 부합이 같은 두 길${sameFit ? `(${lead.met}/${lead.total})` : ''}: '${short(lead)}'(${[sameFit ? '' : lead.fit, priced(lead).replace(/^, /, '')].filter(Boolean).join(', ') || '시장 가격 보류'})${josa(short(lead), '과', '와')} '${short(alt)}'(${[sameFit ? '' : alt.fit, priced(alt).replace(/^, /, '')].filter(Boolean).join(', ') || '시장 가격 보류'})${model.nextEvent ? ` · ${md(model.nextEvent.date)} ${model.nextEvent.name} 발표가 둘을 가릅니다` : ''}.${order}`, 'xr-lead'),
-      chainRow(doc, lead.chain),
-      el(doc, 'p', `'${short(lead)}'${josa(short(lead), '이라면', '라면')} 상대적으로 유리: ${lead.favored.map((key) => CHOICES[key]).join(' · ')}.${toShape(lead)} '${short(alt)}'${josa(short(alt), '이라면', '라면')} ${alt.favored.map((key) => CHOICES[key]).join(' · ')}.${toShape(alt)}`, 'xr-reading'));
-    parts.push(...[themeLinkRow(doc, root, lead), themeLinkRow(doc, root, alt)].filter(Boolean));
-    if (model.rateHub.tension) parts.push(el(doc, 'p', model.rateHub.tension, 'xr-tension'));
-  } else if (lead) {
-    parts.push(el(doc, 'p', `다음 발표가 가를 길: '${short(lead)}'(${lead.fit}${priced(lead)})${model.nextEvent ? ` · 다음 분기점 ${md(model.nextEvent.date)} ${model.nextEvent.name}` : ''}.${toShape(lead)}`, 'xr-lead'),
-      chainRow(doc, lead.chain),
-      el(doc, 'p', `이 길이라면 상대적으로 유리한 쪽: ${lead.favored.map((key) => CHOICES[key]).join(' · ')} — ${lead.favoredWhy}`, 'xr-reading'));
-    const leadThemes = themeLinkRow(doc, root, lead);
-    if (leadThemes) parts.push(leadThemes);
-    if (alt) parts.push(el(doc, 'p', `함께 볼 길: '${short(alt)}'(${alt.fit}${priced(alt)}) — 이 길이라면 ${alt.favored.map((key) => CHOICES[key]).join(' · ')} 쪽이 상대적으로 유리합니다.${toShape(alt)}`, 'xr-reading'));
+  if (lead) {
+    const sameFit = tied && lead.met === alt.met && lead.total === alt.total;
+    const event = model.nextEvent ? `${md(model.nextEvent.date)} ${model.nextEvent.name}` : '';
+    const leadLine = tied
+      ? `${event ? `${event} 발표가` : '다음 발표가'} 가를 두 길 — 조건 부합이 같습니다${sameFit ? `(${lead.met}/${lead.total})` : ''}.${lead.pricing.tone === 'same' && alt.pricing.tone !== 'same' ? ` 시장 가격이 같은 방향인 '${short(lead)}'${josa(short(lead), '을', '를')} 먼저 둡니다.` : ''}`
+      : `다음 발표가 가를 길${event ? ` · ${event}` : ''} — 지금은 '${short(lead)}' 쪽 조건이 더 맞습니다.`;
+    parts.push(el(doc, 'p', leadLine, 'xr-lead'), chainRow(doc, lead.chain));
+    const cards = el(doc, 'div', null, 'xr-path-cards');
+    cards.append(pathCard(doc, root, lead, { kicker: tied ? '먼저 볼 길' : '조건이 더 맞는 길', fit: sameFit ? null : lead.fit }));
+    if (alt) cards.append(pathCard(doc, root, alt, { kicker: '함께 볼 길', fit: sameFit ? null : alt.fit }));
+    parts.push(cards);
     if (model.rateHub.tension) parts.push(el(doc, 'p', model.rateHub.tension, 'xr-tension'));
   } else parts.push(el(doc, 'p', model.headline, 'xr-reading'));
   parts.push(...themeLines(doc, root), links);

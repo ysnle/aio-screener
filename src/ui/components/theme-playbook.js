@@ -16,7 +16,7 @@ import { readMarketRegime } from './market-regime.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 const pct = (value) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);
-const mkt = (row) => (row.market === 'KR' ? '국내' : '미국');
+const mkt = (row) => (row.market === 'KR' ? '한국' : '미국'); // v57.54: '국내' read as ambiguous on a US-first screen
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
   if (text != null) node.textContent = text;
@@ -57,7 +57,7 @@ function momentumMap(doc, themes, size = 'wide') {
   const corner = (text, x, y, anchor) => { const t = svg(doc, 'text', { x, y, 'text-anchor': anchor, class: 'tp-quad' }); t.textContent = text; box.append(t); };
   corner('주도 지속', W - pad / 2, pad / 2 + 4, 'end'); corner('추세 속 조정', W - pad / 2, H - pad / 2 - 2, 'end');
   corner('반등 시도', pad / 2, pad / 2 + 4, 'start'); corner('약세 지속', pad / 2, H - pad / 2 - 2, 'start');
-  const axisLabel = svg(doc, 'text', { x: W / 2, y: H - 4, 'text-anchor': 'middle', class: 'tp-axis-label' }); axisLabel.textContent = '긴 추세 (미국 6개월 · 국내 3개월) →'; box.append(axisLabel);
+  const axisLabel = svg(doc, 'text', { x: W / 2, y: H - 4, 'text-anchor': 'middle', class: 'tp-axis-label' }); axisLabel.textContent = '긴 추세 (미국 6개월 · 한국 3개월) →'; box.append(axisLabel);
   const yLabel = svg(doc, 'text', { x: 12, y: H / 2, 'text-anchor': 'middle', class: 'tp-axis-label', transform: `rotate(-90 12 ${H / 2})` }); yLabel.textContent = '최근 1개월 →'; box.append(yLabel);
   // Label only the extremes so the map stays readable; every point still has its own tooltip.
   const ranked = [...points].sort((a, b) => b.ret1m - a.ret1m);
@@ -66,9 +66,9 @@ function momentumMap(doc, themes, size = 'wide') {
   for (const row of points) {
     const x = X(row.ret6m ?? row.ret3m), y = Y(row.ret1m);
     const mark = row.market === 'KR' ? svg(doc, 'rect', { x: x - 5, y: y - 5, width: 10, height: 10, class: `tp-dot is-${row.wind.lead}` }) : svg(doc, 'circle', { cx: x, cy: y, r: 6, class: `tp-dot is-${row.wind.lead}` });
-    const title = svg(doc, 'title'); title.textContent = `[${row.market === 'KR' ? '국내' : '미국'}] ${row.label}: ${row.stateLabel.split(' (')[0]} · 1개월 ${pct(row.ret1m)} · 긴 추세 ${pct(row.ret6m ?? row.ret3m)} · ${WIND_LABELS[row.wind.lead]}`;
+    const title = svg(doc, 'title'); title.textContent = `[${mkt(row)}] ${row.label}: ${row.stateLabel.split(' (')[0]} · 1개월 ${pct(row.ret1m)} · 긴 추세 ${pct(row.ret6m ?? row.ret3m)} · ${WIND_LABELS[row.wind.lead]}`;
     mark.append(title); box.append(mark);
-    if (labelled.has(`${row.market}:${row.id}`)) wanted.push({ x, y, text: `${row.market === 'KR' ? '국내 ' : ''}${row.label.split(/[ /]/)[0]}` });
+    if (labelled.has(`${row.market}:${row.id}`)) wanted.push({ x, y, text: `${row.market === 'KR' ? '한국 ' : ''}${row.label.split(/[ /]/)[0]}` });
   }
   // Labels never overlap each other or a quadrant caption: try right, left, above, below; skip if none fits.
   const placed = [
@@ -94,7 +94,7 @@ function momentumMap(doc, themes, size = 'wide') {
 function legend(doc) {
   const row = el(doc, 'div', null, 'tp-legend');
   for (const key of ['tail', 'head', 'mixed', 'none']) { const item = el(doc, 'span', null, 'tp-legend-item'); item.append(el(doc, 'span', null, `tp-swatch is-${key}`), doc.createTextNode(WIND_LABELS[key])); row.append(item); }
-  row.append(el(doc, 'span', '원: 미국 · 네모: 국내 · 선두 거시 길 기준', 'tp-legend-note'));
+  row.append(el(doc, 'span', '원: 미국 · 네모: 한국 · 선두 거시 길 기준', 'tp-legend-note'));
   return row;
 }
 
@@ -121,7 +121,7 @@ function themeCard(doc, root, row, screenerSector = null) {
   const card = el(doc, 'details', null, 'tp-card');
   card.dataset.theme = `${row.market}:${row.id}`;
   const summary = el(doc, 'summary', null, 'tp-card-summary');
-  summary.append(el(doc, 'span', `${row.market === 'KR' ? '국내' : '미국'} · ${row.label}`, 'tp-card-title'), el(doc, 'span', `1개월 ${pct(row.ret1m)}`, 'tp-card-num'),
+  summary.append(el(doc, 'span', `${mkt(row)} · ${row.label}`, 'tp-card-title'), el(doc, 'span', `1개월 ${pct(row.ret1m)}`, 'tp-card-num'),
     el(doc, 'span', WIND_LABELS[row.wind.lead], `xr-tag is-wind-${row.wind.lead}`), el(doc, 'span', `유리: ${row.favored.map((key) => CHOICES[key]).join(' · ') || '보류'}`, 'xr-tag is-choice'));
   card.append(summary);
   card.append(el(doc, 'p', `${row.stateLabel} · ${row.ret3m != null ? `3개월 ${pct(row.ret3m)}` : ''}${row.ret6m != null ? ` · 6개월 ${pct(row.ret6m)}` : ''}${row.above50 != null ? ` · 50일선 위 ${row.above50}%` : ''}${row.tagLabels.length ? ` · 성격: ${row.tagLabels.join(', ')}` : ''}`, 'xr-basis'));
@@ -150,7 +150,7 @@ function themeCard(doc, root, row, screenerSector = null) {
     detail.dataset.themeId = row.id; // the 테마 page places the detail panel right after this section (themes.js trigger rule)
     explore.append(detail);
   }
-  if (row.market === 'KR') explore.append(link('국내 테마 흐름', () => {
+  if (row.market === 'KR') explore.append(link('한국 테마 흐름', () => {
     // The KR theme read sits inside a fold that starts closed: open it before scrolling to it.
     const target = doc.getElementById('kr-themes-artifact-read');
     const fold = doc.getElementById('kr-integrated-themes') || target?.closest?.('details');
@@ -160,7 +160,7 @@ function themeCard(doc, root, row, screenerSector = null) {
   // The screener opens on the theme's dominant sector (the same typed handoff the sector rotation uses).
   const sector = screenerSector?.(row) || null;
   const screener = link('스크리너', () => {
-    if (sector) setResearchHandoff({ root, routeId: 'screener', context: sector, label: `${row.market === 'KR' ? '국내' : '미국'} ${row.label}` });
+    if (sector) setResearchHandoff({ root, routeId: 'screener', context: sector, label: `${mkt(row)} ${row.label}` });
     root?.showPage?.('screener');
   });
   if (sector) screener.title = `${row.label} 구성 종목이 가장 많은 섹터(${sector.sector})부터 엽니다`;

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // P1757: refresh-data cadence decision (owner decision 2026-10-14). When the US and KRX markets are both closed over
-// the weekend no new prices exist, so the 30-minute refresh skips and only a news cycle runs, at most every 2 hours.
+// the weekend no new prices exist, so the 30-minute refresh skips and only a news cycle runs, about every hour
+// (v57.54: was 2 hours — weekend policy, tariff and geopolitical news arrive while no market is open).
 // Used by the `cadence` job of refresh-data.yml before any install; it reads only the exchange calendar (the one
 // holiday/half-day source, src/domain/market/market-calendar.js) and the published data.json clock.
 //
@@ -21,10 +22,10 @@ import { resolveMarketCalendarSession, MARKET_CALENDAR_ADAPTERS, dateInTimezone 
 
 export const FINAL_CLOSE_GRACE_MIN = 60;
 export const PRE_OPEN_LEAD_MIN = 120;
-// Slots arrive every ~30 min (cron :17/:47 plus the Worker dispatcher), so "due at >= 105 min" yields one news cycle
-// per 2 hours without drifting to 2.5 h when a slot lands a few minutes early.
-export const WEEKEND_NEWS_INTERVAL_MIN = 120;
-export const WEEKEND_NEWS_DUE_MIN = 105;
+// Slots arrive every ~30 min (cron :17/:47 plus the Worker dispatcher), so "due at >= 45 min" yields one news cycle
+// per hour without drifting to 1.5 h when a slot lands a few minutes early.
+export const WEEKEND_NEWS_INTERVAL_MIN = 60;
+export const WEEKEND_NEWS_DUE_MIN = 45;
 export const DAILY_LANE_CRON = '33 7 * * *';
 const SESSION_SCAN_DAYS = 6;
 const MINUTE = 60000;

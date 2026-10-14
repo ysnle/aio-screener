@@ -27,7 +27,7 @@ permissions: {}
 jobs:
   # P1757 (owner decision 2026-10-14): weekend cadence. While NYSE and KRX are both closed (Sat ~06:00 KST after the
   # Friday US close is final, until Mon 07:00 KST; derived from the exchange-calendar registry in
-  # scripts/refresh-cadence.mjs) no new prices exist, so the producer runs only as a news cycle at most every 2 hours
+  # scripts/refresh-cadence.mjs) no new prices exist, so the producer runs only as a news cycle about every hour (v57.54)
   # and the other slots stop here, before the full checkout and installs. Operator dispatches and the daily cron are
   # always full; Worker scheduler dispatches (trigger=scheduler) follow the same rule as the :17/:47 cron. A failed
   # decision leaves mode empty, which the refresh job treats as full (fail open).
@@ -172,6 +172,14 @@ jobs:
         if: ${{ !cancelled() && steps.daily-lane.outputs.due == 'true' }}
         continue-on-error: true
         run: node scripts/build-scenario-outcomes.mjs
+
+      - name: Refresh per-market price temperature (every refresh, self-throttled to 4 hours, v57.54)
+        # S&P 500, Nasdaq, KOSPI, KOSDAQ, Nikkei daily closes → component ranks, extreme spells and past-spell outcomes.
+        # A failure keeps the previous artifact; a market that fails keeps its previous body.
+        id: market-temperature
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: node scripts/build-market-temperature.mjs
 
       - name: Refresh weekly SEC 13F and daily 13D-G discovery
         id: masters
@@ -376,6 +384,7 @@ jobs:
           stage_if_exists public-data/stress-outcomes.json # P1661: VIX-band forward outcomes
           stage_if_exists public-data/scenario-outcomes.json # P1743: long-history branch/theme-stage outcomes (weekly)
           stage_if_exists public-data/scenario-state.json # P1743: per-refresh branches, themes, transitions, scored releases
+          stage_if_exists public-data/market-temperature.json # v57.54: per-market price temperature (4-hour throttle)
           stage_if_exists public-data/official-references.json # P1734: page-verified official web references
           stage_if_exists public-data/market-snapshot.json
           stage_if_exists public-data/market-snapshot-status.json
@@ -466,7 +475,7 @@ jobs:
   converge:
     needs: [cadence, refresh]
     # Runs even when the producer failed so a lost hand-over self-heals (R606). A weekend skip slot (P1757) has
-    # nothing to hand over; the next news cycle, at most 2 hours later, converges instead.
+    # nothing to hand over; the next news cycle, about an hour later, converges instead.
     if: ${{ !cancelled() && needs.cadence.outputs.mode != 'skip' }}
     runs-on: ubuntu-latest
     # The driver gives up waiting after 12 min (AWAITING_CI_ATTESTATION) and the next cycle's converge

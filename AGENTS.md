@@ -15,10 +15,10 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - 사용자의 현재 지시와 이전에 승인된 범위를 따른다. “할 수 있나”, “원한다”, “도와줘”는 실행 요청으로 해석하고, 합리적인 일상 선택은 직접 결정한다.
 - 완료는 요청한 변경의 구현·필요한 실행·결과 확인·발견된 관련 실패 수정까지다. 중간 질문에 답한 뒤에도 원래 목표를 유지한다. 범위가 넓으면 항목별 미검증 상태를 남기고 자동 PASS를 의미 검수 완료로 바꾸지 않는다.
 - 사용자 지시가 스킬 지침보다 우선한다. 스킬 때문에 멈출 때는 정확한 파일과 해당 문구, 실제 적용 이유를 밝힌다. 로컬 수정·생성·격리 테스트에는 중복 확인을 요구하지 않는다. 아래 commit/push/deploy 경계는 유지한다.
-- 독립적인 조사·리뷰를 병렬 위임하면 실제로 도움이 되는 큰 작업에서는 범위가 명확한 서브에이전트를 사용한다. 파일 소유권을 분리하고 기존 변경을 보존하며, 작은 일이나 같은 조사에는 위임을 늘리지 않는다. 결과는 주 담당자가 통합 검증한다.
+- 큰 작업의 독립 조사·리뷰는 범위가 명확한 서브에이전트에 위임한다. 파일 소유권을 분리하고 기존 변경을 보존하며, 작은 일이나 같은 조사에는 위임을 늘리지 않는다. 결과는 주 담당자가 통합 검증한다.
 - 한국어로 결과와 근거를 간결하게 설명한다. 에이전트 간 메시지도 정상적인 문장과 띄어쓰기를 사용한다. 통과한 검사는 새 변경·실패·미해결 위험이 있을 때만 다시 실행한다.
-- **코딩 규율 (Karpathy guidelines, owner 2026-10-12):** ① 코딩 전 가정·해석 후보를 밝히고, 더 단순한 방법이 있으면 먼저 말한다. ② 요청을 푸는 최소 코드만 쓴다 — 추측성 기능, 한 번 쓰는 추상화, 요청 없는 설정 옵션, 일어날 수 없는 경우의 오류 처리 금지. ③ 요청에 필요한 줄만 수정하고 주변 스타일을 따른다. 자기 변경이 만든 미사용 코드만 지우고, 무관한 죽은 코드는 보고만 한다. ④ 작업을 검증 가능한 목표로 바꾼다(버그는 재현 게이트 먼저). 여러 단계면 단계별 확인 방법을 붙인 계획을 세우고 검증될 때까지 반복한다. 사소한 변경은 이 절차를 판단껏 줄인다.
-- **협업 원칙 (owner 2026-10-01):** 소유자는 스크리너 개발·운영 비전문가이며 명령-수행 관계가 아니라 함께 판단하는 관계를 원한다. 요청·기존 설계·이전 에이전트 작업을 무조건 옳다고 가정하지 않는다. 데이터 무결성·비용·권리·사용자 가치와 충돌하면 근거(실측·공식 문서)와 함께 반대 의견과 대안을 먼저 제시하고, 소유자 전제가 사실과 다르면 바로잡는다(예: 13D는 분기 공시가 아니라 수시 공시). 기능을 없애거나 합치는 제품 결정은 제안 후 승인받아 진행한다.
+- **코딩 규율 (Karpathy guidelines, owner 2026-10-12):** ① 코딩 전 가정·해석 후보를 밝히고, 더 단순한 방법이 있으면 먼저 말한다. Large or image-based work: search existing screens first and state a 3-line plan; small fixes proceed without asking (owner 2026-10-14). ② 요청을 푸는 최소 코드만 쓴다 — 추측성 기능, 한 번 쓰는 추상화, 요청 없는 설정 옵션, 일어날 수 없는 경우의 오류 처리 금지. ③ 요청에 필요한 줄만 수정하고 주변 스타일을 따른다. 자기 변경이 만든 미사용 코드만 지우고, 무관한 죽은 코드는 보고만 한다. ④ 작업을 검증 가능한 목표로 바꾼다(버그는 재현 게이트 먼저). 여러 단계면 단계별 확인 방법을 붙인 계획을 세우고 검증될 때까지 반복한다. 사소한 변경은 이 절차를 판단껏 줄인다.
+- **협업 원칙 (owner 2026-10-01):** 소유자는 스크리너 개발·운영 비전문가이며 명령-수행 관계가 아니라 함께 판단하는 관계를 원한다. 요청·기존 설계·이전 에이전트 작업을 무조건 옳다고 가정하지 않는다. 데이터 무결성·비용·권리·사용자 가치와 충돌하면 근거(실측·공식 문서)와 함께 반대 의견과 대안을 먼저 제시하고, 소유자 전제가 사실과 다르면 바로잡는다. 기능을 없애거나 합치는 제품 결정은 제안 후 승인받아 진행한다.
 
 ## Product decisions (fixed)
 
@@ -35,7 +35,7 @@ Owner decisions that every agent (Claude, Codex, subagents) applies without re-a
 - No ticker guessing: company names resolve only by exact registry match, and a ticker-shaped input is never rewritten to another issuer (P1339).
 - Data producers (`scripts/fetch-*`, `build-*`, `sync-*`, `refresh-*`) run only in GitHub Actions; locally, read artifacts and run gates.
 - Korean themes and Korean-market content are user-facing features, not experiments.
-- Work in large batches: implement several items, then verify and record once. Use scoped parallel subagents for independent areas.
+- Work in large batches: implement several items, run one code-reviewer subagent (low/medium effort) on the batch diff, then verify and record once.
 - **Information architecture (2026-10-01):** consolidate the 19 routes into 8 screens — 오늘(home+briefing+market-news), 시장 상태(signal+breadth+sentiment), 거시(macro+fxbond), 종목(ticker+fundamental+technical), 테마(themes+theme-detail), 스크리너, 포트폴리오, 배우기(principles+masters+atlas+guide+glossary). Each merge also moves that page's legacy `js/` ownership to `src/` and deletes the replaced legacy code; old route ids stay as aliases.
 - **Screen honesty without clutter:** keep evidence status, but as one status per card (최신/지연/참고/없음) with details on demand and one global disclaimer — not repeated caveats. Hide widgets whose source does not exist instead of showing a permanent "—". Remove grades/scores that have no calibration or source (e.g. letter grades derived from the reference score, uncalibrated composite "n/100" readings); a reference score is shown only with its basis.
 - **Slow-changing data is static:** 13F (quarterly, filing-season import), knowledge base, principles and glossary are versioned static JSON updated only when the source changes. Content-addressed artifacts hash content only, never build/review timestamps (P1370). 13D/G is event-driven, so its light daily ownership poll stays (P1309/R654).

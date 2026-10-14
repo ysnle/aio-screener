@@ -6250,7 +6250,7 @@
       var fxBlock = domFn ? window._fetchDomainContextForChat('fxbond') : '';
       var themeBlock = domFn ? window._fetchDomainContextForChat('themes') : '';
       var nonDomain = domFn ? window._fetchDomainContextForChat('fundamental') : 'x'; // 도메인 무관 → ''
-      var macroNonEmpty = typeof macroBlock === 'string' && macroBlock.indexOf('매크로 도메인') >= 0; // DATA_SNAPSHOT cpi/coreCpi 정적 → 항상 채워짐
+      var macroNonEmpty = typeof macroBlock === 'string' && macroBlock.indexOf('거시 도메인') >= 0; // DATA_SNAPSHOT cpi/coreCpi 정적 → 항상 채워짐
       var csSrc811 = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
       var wired811 = csSrc811.indexOf('_aioDomainContextForQuestion') >= 0 && csSrc811.indexOf('domainDataStr') >= 0 && typeof window.AIO?.buildQuestionDomainContext === 'function' && window.AIO.buildQuestionDomainContext({ctxId:'macro',root:window,readDomain:window._fetchDomainContextForChat}).indexOf(macroBlock)>=0; // P1621 native shared context executes the original source reader.
       var gate811 = (nonDomain === ''); // 도메인 무관 ctx는 빈 문자열(자기 게이팅)

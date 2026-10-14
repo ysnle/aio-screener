@@ -4,6 +4,7 @@
   "scope": {
     "markup": ["index.html"],
     "scripts": ["src/ui/**/*.js"],
+    "legacyScripts": ["js/aio-core.js", "js/aio-data.js", "js/aio-ui.js", "js/aio-pages.js", "js/aio-chat.js", "js/aio-kr-data.js", "js/aio-macro-tech.js", "js/aio-workspace.js", "js/aio-glossary.js"],
     "visibleAttributes": ["title", "aria-label", "placeholder", "alt"],
     "note": "Markup text nodes and visible attributes (no <script>, <style> or comments); JS string literals and template text (no comments). Only strings with Hangul or a pattern match are inspected."
   },
@@ -14,7 +15,7 @@
       "pattern": "레짐",
       "preferred": "국면",
       "reason": "2026-10 IA: the 시장 상태 screen judges a 국면; the loan word is not used on screen.",
-      "allowedContexts": []
+      "allowedContexts": [{ "file": "js/aio-glossary.js", "pattern": "[(][^)]*레짐[^)]*[)]", "note": "v57.54: the glossary keeps the loan word in parentheses so a search for 레짐 still finds 시장 국면" }]
     },
     {
       "id": "signal-screen",

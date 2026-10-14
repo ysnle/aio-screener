@@ -19,19 +19,19 @@ last_verified: 2026-10-13
 | Source | Lines | Bytes |
 |---|---:|---:|
 | `index.html` | 8,006 | 616,091 |
-| `js/aio-core.js` | 21,795 | 1,316,554 |
-| `js/aio-data.js` | 16,504 | 1,033,275 |
-| `js/aio-ui.js` | 5,923 | 357,030 |
-| `js/aio-chat.js` | 8,292 | 610,274 |
-| `js/aio-tests.js` | 9,478 | 743,053 |
-| `js/aio-glossary.js` | 409 | 110,037 |
+| `js/aio-core.js` | 21,795 | 1,316,500 |
+| `js/aio-data.js` | 16,504 | 1,033,251 |
+| `js/aio-ui.js` | 5,923 | 357,021 |
+| `js/aio-chat.js` | 8,292 | 610,247 |
+| `js/aio-tests.js` | 9,478 | 743,050 |
+| `js/aio-glossary.js` | 409 | 110,005 |
 
 ## Workspace
 
-- Context documents: 74; preflight reads current state once; governance and INDEX are targeted references.
-- Skills: 9; command wrappers: 15; agent profiles: 4.
-- Workflows: 13; CI scripts: 165.
-- Ledgers: latest rule R705; latest postmortem P1766; open QA 268 unique IDs (272 rows, 5 explicitly superseded).
+- Context documents: 76; preflight reads current state once; governance and INDEX are targeted references.
+- Skills: 9; command wrappers: 16; agent profiles: 4.
+- Workflows: 13; CI scripts: 166.
+- Ledgers: latest rule R705; latest postmortem P1768; open QA 268 unique IDs (272 rows, 5 explicitly superseded).
 - Canonical skills: `.claude/skills`; Codex mirror: `.agents/skills`.
 
 ## Knowledge Boundary

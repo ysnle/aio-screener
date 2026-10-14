@@ -133,6 +133,7 @@ const targets = [
   'public-data/knowledge/learning-graph.json',
   'public-data/knowledge/articles',
   'public-data/knowledge/route-targets.json',
+  'public-data/knowledge/search-index.json', // v57.54 P1768: built from LESSONS but unchecked, it missed the 2026-10-11 frames
   'public-data/knowledge/coverage-matrix.json',
   'public-data/knowledge/domain-dossiers.json',
   'public-data/knowledge/domain-dossiers',

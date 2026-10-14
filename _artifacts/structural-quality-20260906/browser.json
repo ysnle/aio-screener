@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-13T23:05:33.016Z",
+  "generatedAt": "2026-10-14T02:01:20.964Z",
   "routes": [
     {
       "id": "home",
@@ -32,7 +32,27 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 K-방산·반도체·전력기기 외 3개 →"
+          "name": "한국 K-방산·반도체·전력기기 외 3개 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "반도체 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "소프트웨어/클라우드 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산업재/물류 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금융 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "한국 반도체·AI·2차전지 외 15개 →"
         },
         {
           "tag": "BUTTON",
@@ -48,15 +68,19 @@
         },
         {
           "tag": "A",
-          "name": "Goldman Sachs raises December oil price target to $90, citing 'significant' risk from Iran war — 원문 새 창에서 열기"
+          "name": "Oil Prices Steady After Trump Appears to Rule Out Iran Strikes Before Midterms — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "코스피·코스닥, 삼전닉스 약세에 2~3%대 급락…외국인 '팔자' — 원문 새 창에서 열기"
+          "name": "S&P 500 futures muted as investors await big bank earnings; chip weakness weighs — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "SCYB: Rising Credit Spreads Provide An Opportunity As Yield Approaches 8% (NYSEARCA:SCYB) — 원문 새 창에서 열기"
+          "name": "중동발 유가상승·증시 급락에…환율 10원 오른 1,345.1원 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Gold doesn't need a dovish Fed. It needs fiscal repression — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -209,7 +233,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 K-방산·반도체·전력기기 외 3개 →"
+          "name": "한국 K-방산·반도체·전력기기 외 3개 →"
         },
         {
           "tag": "BUTTON",
@@ -229,11 +253,15 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 반도체·AI·2차전지 외 15개 →"
+          "name": "한국 반도체·AI·2차전지 외 15개 →"
         },
         {
           "tag": "BUTTON",
           "name": "모든 갈림길과 선택지 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "모든 테마의 단계 →"
         },
         {
           "tag": "BUTTON",
@@ -286,6 +314,358 @@
       "exists": true,
       "moduleState": "ready",
       "controls": [
+        {
+          "tag": "SELECT",
+          "name": "52주 신고가 − 신저가 종목 수 날짜 선택"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MRNA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "GME"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "RNR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "EBAY"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "OKTA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DDOG"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SU"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ABBV"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "GTLB"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "BIIB"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "RGA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SHEL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "E"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DINO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FFIV"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "BP"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "V"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FTNT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NTAP"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NTNX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PBR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TEAM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "EXEL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PLTR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SOUN"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "OKLO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SMR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NNE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "JOBY"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "RKT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "LEU"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "LAC"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AVAV"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PLUG"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ARRY"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "BROS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "BLDR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CHTR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MOS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "HRL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "WYNN"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MGM"
+        },
+        {
+          "tag": "SELECT",
+          "name": "4% 이상 상승 − 하락 종목 수 (5일 합계) 날짜 선택"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FICO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PRCT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SHOP"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "XNDU"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SMTC"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "LITE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "LCID"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FCEL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "IONQ"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SATL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "WOLF"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "VIAV"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "POET"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SOUN"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AEHR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "UCTT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NVTS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CRDO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "OKLO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MTSI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ONTO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SMR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SITM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "QUBT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NNE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FORM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CVNA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "BE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SIMO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FN"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MP"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "GLW"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SNDK"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SPIR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "QBTS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "RGTI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MKSI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "RKT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "BKSY"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "LEU"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MOD"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NBIS"
+        },
         {
           "tag": "BUTTON",
           "name": "시장 상태에서 추세 축과 함께 보기 →"
@@ -403,7 +783,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 반도체·AI·2차전지 외 15개 →"
+          "name": "한국 반도체·AI·2차전지 외 15개 →"
         },
         {
           "tag": "BUTTON",
@@ -411,7 +791,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 K-방산·반도체·전력기기 외 3개 →"
+          "name": "한국 K-방산·반도체·전력기기 외 3개 →"
         },
         {
           "tag": "A",
@@ -525,40 +905,494 @@
     {
       "id": "macro",
       "exists": true,
-      "moduleState": "loading",
-      "controls": [],
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "에너지 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금융 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "원자재 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "한국 조선·금융·철강 외 2개 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리 · 환율 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "테마 · 섹터 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "반도체 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "소프트웨어/클라우드 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산업재/물류 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금융 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "리츠/부동산 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "임의소비재 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "한국 반도체·AI·2차전지 외 15개 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "테마 · 섹터 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "스크리너 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "방산/항공우주 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "필수소비재 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어/제약 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "유틸리티 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "리츠/부동산 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "한국 K-푸드·통신·풍력 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "테마 · 섹터 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "한국 에너지 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리 · 환율 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "테마 · 섹터 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "방산/항공우주 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "필수소비재 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어/제약 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "유틸리티 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "한국 K-푸드·통신 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "해외 대형 ADR →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "한국 K-방산·반도체·전력기기 외 3개 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리 · 환율 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "테마 · 섹터 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "에너지 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "반도체 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산업재/물류 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금융 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "임의소비재 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "원자재 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "한국 반도체·조선·2차전지 외 9개 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "테마 · 섹터 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "스크리너 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "방산/항공우주 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "필수소비재 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어/제약 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "유틸리티 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "한국 K-푸드·통신 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "성장중립일자리 3개월 평균 +51천 명"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "물가부담근원 PCE 3.0%"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "통화정책부담2년물이 기준금리보다 0.92%p 높음"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리 · 할인율중립10년물 20일 +22bp"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "유가 · 달러부담WTI 20일 −11.4%(최근 5일 +4.8%) · 달러 +2.9%"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "신용중립HY 311bp (5거래일 −1bp)"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "물가 둔화 + 고용 완만"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "고용 급랭"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "성장 재가속"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "브리핑에서 이번 주 지표 발표 일정 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 노트 · 계절조정과 수정치 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "물가 재가속"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "물가 둔화 + 고용 완만"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리·환율 화면에서 기대인플레이션 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 노트 · 수준과 변화율 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "물가 재가속"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "달러 급등"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리·환율 화면에서 수익률 곡선 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 노트 · 정책금리와 장기금리 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "달러 급등"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "성장 재가속"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리·환율 화면에서 실질금리와 기간 프리미엄 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 노트 · 현재가치(할인) →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "유가 충격"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "달러 급등"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "거시 화면에서 물가·유동성 흐름 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 노트 · 한 상품의 가격 상승과 전반적 물가 상승 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "고용 급랭"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "신용 경색"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "변동성 충격"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리·환율 화면에서 하이일드 스프레드 추이 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리 · 환율에서 달러·원·엔 추이 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리에서 신용·변동성 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리·환율 화면에서 기간 프리미엄과 스프레드 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "브리핑에서 이번 주 발표 일정과 해석 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 노트 · 수준과 변화율 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "테마 화면에서 에너지·소재 흐름 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 노트 · 한 상품의 가격 상승과 전반적 물가 상승 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리 · 환율 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "테마 · 섹터 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "데일리 브리핑 →"
+        }
+      ],
       "headings": [
         "거시 경제",
+        "앞으로의 갈림길 — 다음 발표가 가를 길",
+        "왜 금리가 중심인가",
+        "8갈래의 길 — 눌러서 근거와 선택지 보기",
+        "자동 기록 — 무엇이 바뀌었나",
         "지금의 거시 국면",
         "증시에 주는 영향 — 6개 축",
+        "성장 (고용 · 소비)",
+        "물가",
+        "통화정책",
+        "금리 · 할인율",
+        "유가 · 달러",
+        "신용",
         "어떻게 연결되나 — 유가에서 주가까지",
         "경제 지표",
-        "유가 · 금 — 최근 1년"
+        "정책금리",
+        "연준 목표 범위",
+        "실효 연방기금금리 (월평균)",
+        "물가",
+        "CPI (전년 대비)",
+        "근원 CPI (전년 대비)",
+        "PCE 물가 (전년 대비)",
+        "근원 PCE (전년 대비)",
+        "고용",
+        "실업률",
+        "비농업 고용 증감",
+        "시간당 임금 (전년 대비)",
+        "경제활동참가율",
+        "소비 · 주택",
+        "소매판매 (전월 대비)",
+        "주택 착공 (연율)",
+        "유동성 · 금융 여건",
+        "순유동성 (연준 자산 − TGA − 역레포)",
+        "금융여건지수 (시카고 연은)",
+        "SOFR 단기 자금 금리",
+        "성장 · 고용 선행",
+        "실질 GDP 성장률 (전기 대비 연율)",
+        "구인 건수 (JOLTS)",
+        "미시간대 소비자심리",
+        "생산자물가 (최종수요, 전년 대비)",
+        "원자재 · 아시아 통화",
+        "브렌트유 (유럽 현물)",
+        "천연가스 (헨리허브)",
+        "구리 (월평균)",
+        "위안 / 달러",
+        "유가 · 금 — 최근 1년",
+        "WTI 원유",
+        "금",
+        "이어서 볼 곳"
       ]
     },
     {
       "id": "fxbond",
       "exists": true,
-      "moduleState": "loading",
+      "moduleState": "ready",
       "controls": [
         {
           "tag": "BUTTON",
           "name": "거시 경제의 6축 판정"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태에서 한국 시장 카드 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 노트 · 외국인 투자자의 달러 기준 수익 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "거시 경제 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "데일리 브리핑 →"
         }
       ],
       "headings": [
         "금리 · 환율",
-        "미 국채 수익률 곡선",
+        "미 국채 수익률 곡선 재무부 공식 곡선 · 10/13 기준",
         "실질금리 · 기대인플레이션 · 신용",
+        "10년 실질금리 (TIPS)",
+        "10년 기대인플레이션",
+        "하이일드 스프레드",
+        "10년 기간 프리미엄 (Kim-Wright)",
         "환율이 증시에 주는 영향",
+        "환율 (원 · 엔)",
         "달러 · 원화 · 엔화 · 10년물 — 최근 6개월",
-        "그 밖의 통화 시세 대기"
+        "달러 인덱스 (DXY)",
+        "원/달러",
+        "엔/달러",
+        "미 10년물 금리 (일별 종가)",
+        "그 밖의 통화 시세 대기",
+        "이어서 볼 곳"
       ]
     },
     {
       "id": "fundamental",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
         {
           "tag": "INPUT",
@@ -740,7 +1574,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -748,7 +1582,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -756,7 +1590,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -764,7 +1598,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -772,7 +1606,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -780,7 +1614,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -788,7 +1622,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -796,7 +1630,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -804,7 +1638,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -812,7 +1646,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -820,7 +1654,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -828,7 +1662,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -836,7 +1670,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -844,7 +1678,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -852,7 +1686,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -860,7 +1694,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -868,7 +1702,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -876,7 +1710,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -884,7 +1718,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -892,7 +1726,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -900,7 +1734,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -908,7 +1742,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -916,7 +1750,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -924,7 +1758,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -932,7 +1766,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -940,7 +1774,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -948,7 +1782,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -956,7 +1790,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "국내 테마 흐름 →"
+          "name": "한국 테마 흐름 →"
         },
         {
           "tag": "BUTTON",
@@ -1606,43 +2440,23 @@
         },
         {
           "tag": "A",
-          "name": "Trump says Houthis trying to drive up oil prices ahead of US midterm elections"
+          "name": "외국인 증시 순매도·달러 실수요에 ↑⋯\"1340원대 중반서 등락\" [환율전망] — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "외국인 환차익 러시…‘환율 하락=증시 상승’ 공식 깼다"
+          "name": "Oil Prices Steady After Trump Appears to Rule Out Iran Strikes Before Midterms — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Oil Prices Steady After Trump Appears to Rule Out Iran Strikes Before Midterms"
+          "name": "Gold doesn't need a dovish Fed. It needs fiscal repression — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Paul Tudor Jones is bullish on oil, says it could rally another $20-$25 because of Iran conflict"
+          "name": "S&P 500 futures muted as investors await big bank earnings; chip weakness weighs — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "‘환율 하락=증시 상승’ 공식 옛말…외국인 매도 부추기는 원화 강세"
-        },
-        {
-          "tag": "A",
-          "name": "중동발 유가상승·증시 급락에…환율 10원 오른 1,345.1원"
-        },
-        {
-          "tag": "A",
-          "name": "코스피·코스닥, 삼전닉스 약세에 2~3%대 급락…외국인 '팔자' — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Goldman Sachs raises December oil price target to $90, citing 'significant' risk from Iran war — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "SCYB: Rising Credit Spreads Provide An Opportunity As Yield Approaches 8% (NYSEARCA:SCYB) — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Guggenheim raises Elevance stock price target to $460 on earnings outlook — 원문 새 창에서 열기"
+          "name": "Nvidia: The Share Price Already Assumes No China Data Center Sales (NASDAQ:NVDA) — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -1670,109 +2484,108 @@
         },
         {
           "tag": "A",
-          "name": "Energy prices rise after Trump’s ‘energy ceasefire’ fails to move Russia or Ukraine — 원문 새 창에서 열기"
+          "name": "Diesel futures jump, signaling higher prices to come despite Trump’s Russia deal — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Why an Analyst Sees Marvell Beating Its Own Long-Term Earnings Target — 원문 새 창에서 열기"
+          "name": "The Fed vs. the Bond Market — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Gold defies multi-decade high bond yields, but Q4 headwinds remain – Invesco — 원문 새 창에서 열기"
+          "name": "S&P 500 Rally May Rest On AI Guidance As Earnings Season Gets Underway — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Jamie Dimon Sharpened His Warning About a Looming Corporate Credit Squeeze, Saying Global Competition for Capi"
+          "name": "Kontoor Brands (KTB) Stock Trades Up, Here Is Why — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "European stocks close higher. Spain leads while the dollar strengthens — 원문 새 창에서 열기"
+          "name": "BlackRock shifts to US Treasuries, cuts stocks to neutral as yields climb — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "CMCSA Stock Quote Price and Forecast — 원문 새 창에서 열기"
+          "name": "외국인 환차익 러시…‘환율 하락=증시 상승’ 공식 깼다 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Netflix’s Q3 Guidance Calls for About 12% Revenue Growth. Here’s the Bar for Oct. 20 — 원문 새 창에서 열기"
+          "name": "What happens after a US Treasury market crash — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Dell Technologies (NYSE: DELL) stock price forecast: AI growth and price targets — 원문 새 창에서 열기"
+          "name": "Stock market movers today. Bumble, JPMorgan and AI stocks: Why market reactions reversed — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Gold price needs a dovish Fed or renewed debasement fears to reverse its downtrend – Bank of America — 원문 새 창에"
+          "name": "Stock market mixed as investors assess big bank earnings — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "The AI Story Has Flipped From Boom to Bubble 26 Times — 원문 새 창에서 열기"
+          "name": "Bond Math: Why Rising Treasury Rates Accelerate Income Growth — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "What's next for Micron Technology after blockbuster Q4, guidance beat? — 원문 새 창에서 열기"
+          "name": "ASML and TSMC earnings: Can they restore confidence in the AI trade? | FXStreet — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Gold ETF demand defies rising bond yields as investors pour $31 billion into record third quarter – WGC — 원문 새"
+          "name": "Nvidia’s China AI-chip share falls to 34% as Huawei gains — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "10개 더 보기"
+          "name": "8개 더 보기"
         },
         {
           "tag": "A",
-          "name": "반도체@HANAchina · 중국·신흥국 · 10-13• AI 및 반도체 장비 수요 호조에 힘입어 1~3분기 누적 기계 수출액이 279억 8,000만 달러(YoY +20.3%)를 기록함. 4분기 월"
+          "name": "실적@bornlupin · 한국 반도체·증권사 자료 · 10-14[신한투자증권 정유/화학/2차전지 이진명, 김명주] ** 삼성SDI(006400) 삼성SDI; 일회성 너머의 ESS 성장 신한생각: "
         },
         {
           "tag": "A",
-          "name": "실적@HANAchina · 중국·신흥국 · 10-13• 대만 상장사는 AI 산업 수요 호조로 9월 매출이 6조 5,900억 TWD(역대 월간 최고, 2개월 연속 6조 돌파), 3분기 매출 18조 4"
+          "name": "실적@insidertracking · 미국 속보 · 10-14ASML, 금일 3분기 실적 발표 예정. • 3분기 매출 가이던스: 110억~120억 유로 • 매출총이익률 가이던스: 55~57% • 시"
         },
         {
           "tag": "A",
-          "name": "반도체@HANAchina · 중국·신흥국 · 10-13>>최대 3만 2,000개 CPU 코어 지원…AMD, 순수 CPU 및 CPU·GPU 혼합 구성의 에이전틱 AI 랙 ‘Helion’ 출시 •AMD"
+          "name": "실적@HANAchina · 중국·신흥국 · 10-14• 마이크로소프트는 엔비디아와 AMD 의존도를 낮추기 위해 최신 AI 칩 '마이아 300(Maia 300)'을 공개, 내년에 100만 개 이상을 "
         },
         {
           "tag": "A",
-          "name": "반도체@HANAchina · 중국·신흥국 · 10-13>>중국, 공업박람회서 반도체 자립 역량 과시…국산 반도체 공급망 총망라, 상하이마이크로일렉트로닉스 DUV 실물은 미공개 (대만경제일보) •12"
+          "name": "시장소식@insidertracking · 미국 속보 · 10-14예멘 후티 반군의 미사일 공격으로 사우디아라비아 담맘에 위치한 사우디 아람코 시설이 타격받음."
         },
         {
           "tag": "A",
-          "name": "실적@HANAchina · 중국·신흥국 · 10-13>>난야테크, 3분기 매출총이익률 85.7%로 대만 반도체 사상 최고치 기록 (대만경제일보) •난야테크(2408)는 3분기 매출총이익률 85.7%"
+          "name": "전력인프라@insidertracking · 미국 속보 · 10-14미국 중부사령부(CENTCOM) 발표 주장: 이란 이슬람혁명수비대(IRGC) 해군 사령관은 오늘 호르무즈 해협이 혁명수비대의 통제하"
         },
         {
           "tag": "A",
-          "name": "지정학@HANAchina · 중국·신흥국 · 10-13>>영국 기관: 호르무즈 해협 및 인근 해역에서 선박 6척 하루 동안 잇따라 피격 •영국 UKMTO가 발표한 여러 해사 공지에 따르면, 11일 "
+          "name": "실적@HANAchina · 중국·신흥국 · 10-14>>AI 투자 논리 변화…글로벌 반도체주 급락, Firmus IPO 중단·CXMT 기술 진전이 경고 (중국언론) •AI 인프라 투자 열기가 약 4"
         },
         {
           "tag": "A",
-          "name": "반도체@bornlupin · 한국 반도체·증권사 자료 · 10-13일론 머스크 중국이 어떤 제품의 제조 방법을 알아내면, 생산 규모를 확대하는 능력은 종종 전 세계 나머지 국가를 모두 합친 것보다 "
+          "name": "반도체@bornlupin · 한국 반도체·증권사 자료 · 10-14일론 머스크 \"마이크론은 향후 메모리 가격 책정에 있어 합리적인 태도를 보여왔습니다. 반면 다른 업체들은 터무니없이 높은 가격을 요"
         },
         {
           "tag": "A",
-          "name": "실적@HANAchina · 중국·신흥국 · 10-13>>중국 사업 부진에 명품 브랜드 실적 타격…LVMH 3분기 핵심 사업 매출 5% 감소, 예상 하회 •LVMH의 3분기 매출은 예상에 부합했지만,"
+          "name": "시장소식@insidertracking · 미국 속보 · 10-14모하메드 엘사예드가 흑인들을 공개적으로 경멸하고, 조롱하고, 무시하는데 흑인들이 왜 그에게 투표하겠는가? 절대 투표하지 않을 것이다!"
         },
         {
           "tag": "A",
-          "name": "반도체@HANAchina · 중국·신흥국 · 10-13>>AI 팩토리 연결 구조 재편: 엔비디아와 시스코, 단일 채널 400Gb/s 플러그형 광모듈 최초 공개 •엔비디아와 시스코가 차세대 초고밀도 "
+          "name": "시장소식@aetherjapanresearch · 일본·아시아 반도체 · 10-14프로요금제인데 제미니4 아르곤 쓸수 있네요"
         },
         {
           "tag": "A",
-          "name": "매크로@HANAchina · 중국·신흥국 · 10-13>>미 모기지 금리 7%대로 재상승…미국 기존주택 계약 건수 12년만의 최저치 •프레디맥에 따르면 30년 만기 고정 모기지 금리는 7.4%로 상"
+          "name": "반도체@HANAchina · 중국·신흥국 · 10-14>>젠슨 황, 유럽 방문…일주일 내 20억 달러 이상 투자 발표, 오픈소스로 유럽의 AI 시장 진입 지원 •엔비디아 젠슨 황이 유럽을 집중 방문"
         },
         {
           "tag": "A",
-          "name": "실적@bornlupin · 한국 반도체·증권사 자료 · 10-13Evercore ISI, 루멘텀( $LITE ), 목표주가 1,100달러에서 1,500달러로 상향 9월 분기 실적 발표를 앞두고 LI"
+          "name": "거시@HANAchina · 중국·신흥국 · 10-14>>텐센트, AI 투자 확대 자금 조달 위해 57억 달러 이상 채권 발행 •텐센트홀딩스는 260억 위안(38억8,000만 달러) 규모의 역외 채권"
         },
         {
           "tag": "A",
-          "name": "반도체@insidertracking · 미국 속보 · 10-1310월 13일 미주인 브리핑 • 나스닥 하락 · 다우 상승, 미국 증시 혼조 • 연준 추가 금리 인상 경고 · 국채금리 5.24% • "
+          "name": "지정학@HANAchina · 중국·신흥국 · 10-14>>이스라엘 매체: 네타냐후, 트럼프와 대이란 전쟁 재개 논의 •이스라엘 채널12는 네타냐후 총리가 지난주 트럼프 대통령과 통화해 미국 중간선거"
         }
       ],
       "headings": [
         "시장 뉴스",
-        "08:00 이후 장중 속보 · 잠정 10/13 08:00 이후 헤드라인 · 다음 08:00 수집본 전까지",
-        "중요 뉴스 주제별 핵심 · 10/13 08:00 KST까지 24시간"
+        "중요 뉴스 주제별 핵심 · 10/14 08:00 KST까지 24시간"
       ]
     },
     {
@@ -1786,11 +2599,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "전체394"
+          "name": "전체402"
         },
         {
           "tag": "BUTTON",
-          "name": "분석 노트29"
+          "name": "분석 노트37"
         },
         {
           "tag": "BUTTON",
@@ -1850,6 +2663,22 @@
         },
         {
           "tag": "BUTTON",
+          "name": "분석의 개수와 판단의 질을 구분하는 사고 순서 — 분석 노트 · 주제 가격·기대"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "섹터 조정·시장 폭과 AI 병목 전이의 구분 — 분석 노트 · 주제 가격·기대"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "주가 조정·이익 정점·산업 둔화의 구분과 병목 해소의 이익 경로 — 분석 노트 · 주제 가격·기대"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "지수 신고가 아래의 좁은 참여, 포지션 쏠림, 투매의 흔적 — 분석 노트 · 주제 가격·기대"
+        },
+        {
+          "tag": "BUTTON",
           "name": "정책금리 인하 국면의 장기채 약세 — 기간 프리미엄 — 분석 노트 · 주제 금리·채권·환율"
         },
         {
@@ -1874,7 +2703,15 @@
         },
         {
           "tag": "BUTTON",
+          "name": "많이 시험할수록 그럴듯한 가짜 우위가 쉬워지는 다중 검정 문제 — 분석 노트 · 주제 금융수학·통계"
+        },
+        {
+          "tag": "BUTTON",
           "name": "AI 설비투자 확대기의 잉여현금흐름 감소와 ROIC — 분석 노트 · 주제 기업 수익 구조"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "거래 관계의 중첩과 법인별 손실 책임 — 분석 노트 · 주제 기업 수익 구조"
         },
         {
           "tag": "BUTTON",
@@ -1934,6 +2771,10 @@
         },
         {
           "tag": "BUTTON",
+          "name": "측정 기준 변경과 실제 실적 변화의 구분 — 분석 노트 · 주제 재무제표·회계"
+        },
+        {
+          "tag": "BUTTON",
           "name": "디스인플레이션 국면의 높은 물가 수준 — 분석 노트 · 주제 통화·신용·물가"
         },
         {
@@ -1946,7 +2787,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "분석 노트  34"
+          "name": "평균이 감추는 신용 분산과 차환의 시간차 — 분석 노트 · 주제 통화·신용·물가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "분석 노트  37"
         },
         {
           "tag": "BUTTON",
@@ -1971,6 +2816,10 @@
         {
           "tag": "BUTTON",
           "name": "명목·실질·상대 성과의 구분"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "많이 시험할수록 그럴듯한 가짜 우위가 쉬워지는 다중 검정 문제"
         },
         {
           "tag": "BUTTON",
@@ -2110,6 +2959,14 @@
         },
         {
           "tag": "BUTTON",
+          "name": "주가 조정·이익 정점·산업 둔화의 구분과 병목 해소의 이익 경로"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "지수 신고가 아래의 좁은 참여, 포지션 쏠림, 투매의 흔적"
+        },
+        {
+          "tag": "BUTTON",
           "name": "포트폴리오펀드·전략 성과는 연평균 복리 수익률(CAGR)과 최대 낙폭을 함께 확인"
         },
         {
@@ -2156,11 +3013,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "전체394"
+          "name": "전체402"
         },
         {
           "tag": "BUTTON",
-          "name": "분석 노트29"
+          "name": "분석 노트37"
         },
         {
           "tag": "BUTTON",
@@ -2605,11 +3462,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "전체394"
+          "name": "전체402"
         },
         {
           "tag": "BUTTON",
-          "name": "분석 노트29"
+          "name": "분석 노트37"
         },
         {
           "tag": "BUTTON",

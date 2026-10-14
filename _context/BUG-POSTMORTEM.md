@@ -6,6 +6,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1768 - v57.54 - 분석 노트 검색 색인이 LESSONS에서 만들어지면서도 동기화 검사 대상이 아니어서 2026-10-11 패킷 노트 5개가 검색되지 않음 (2026-10-14)
+
+- symptom/reproduction: public-data/knowledge/search-index.json의 frame 항목이 29개로, learning-core LESSONS 34개 중 packet-20261011 노트(credit-distribution-refinancing 등 5개)가 없어 리서치 라이브러리 검색으로 찾을 수 없었다.
+- root_cause: build-knowledge-search-index.mjs는 LESSONS를 읽어 색인을 만들지만 ci-knowledge-generated-parity-check의 targets에 search-index.json이 없어, 노트를 추가한 변경이 색인 재생성 없이 통과했다.
+- fix: 색인을 다시 만들어 frame 37개(10/11 노트 5개 + 이번 노트 3개 포함)를 싣고, search-index.json을 동기화 검사 대상에 추가.
+- violated_rule: 원천에서 생성되는 산출물은 그 원천을 바꾸는 변경과 같은 동기화 검사에 묶인다
+- prevention: P1768: ci-knowledge-generated-parity-check targets에 public-data/knowledge/search-index.json 추가. 수정 전 색인으로 실행하면 'knowledge generated outputs drifted'로 실패하는 것 확인.
+- verification/residual: parity 18 builders·656 files OK, 음성 대조 실패 확인, 브라우저에서 새 노트가 분석 노트 목록·본문에 표시.
+
+## P1767 - v57.54 - 예약 AI 시장 분석이 직전 결과로 유지되면 운영 상태 산출물이 계약 검증에 걸려 그 회차 데이터 갱신 전체가 실패함 (2026-10-14)
+
+- symptom/reproduction: refresh-data 2026-10-13T23:20Z 회차가 'OPERATIONS_STATUS_INVALID:undeclared_status:operations.ai.scheduledAnalysis'로 실패해 시세·뉴스가 그 회차에 게시되지 않았다. 다음 회차는 분석이 새로 성공해 통과했다.
+- root_cause: v57.52(P1718–1730)가 유지된 분석을 status 'STALE'로 표시했는데, STALE은 statusCode 어휘이고 status 어휘(CURRENT/DEGRADED/BLOCKED/OPERATOR_REQUIRED/NO_ROUTE/UNKNOWN)에는 없다. 생산자가 자기 산출물을 검증하다 거부했다.
+- fix: 유지된 분석은 status DEGRADED + statusCode STALE(deriveOperationalState stale)로 게시.
+- violated_rule: 운영 상태 산출물은 스스로 선언한 어휘로만 상태를 게시한다
+- prevention: P1767: ci-operations-status-check가 build-operations-status의 모든 status 리터럴이 선언 어휘인지 정적으로 확인(다른 계약의 PASS·MATCH만 예외). 수정 전 코드에서 STALE로 실패하는 것 확인.
+- verification/residual: 실패 회차 로그로 원인 확인, 게이트 변이 검사 통과.
+
 ## P1766 - v57.54 - AI 번역 응답이 배치의 일부 기사를 빠뜨리면 그 기사는 캐시에도 대체 번역에도 들어가지 않고 사라짐 (2026-10-14)
 
 - symptom/reproduction: P1765 수정 후 browser-ai-public 검사가 5회 중 5회 시간 초과로 실패했다(수정 전 3/3 통과). 추적 결과 부팅 중 대기열에 들어간 대시보드 기사 3건과 검사 기사가 한 배치로 묶였고, 응답이 1번 기사만 돌려주자 나머지 2건이 캐시·대기열·요청 어디에도 남지 않았다.

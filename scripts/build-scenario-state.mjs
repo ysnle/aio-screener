@@ -80,7 +80,8 @@ export function diffSnapshots(previous, current, at) {
   }
   if (stageMoves.length) push('theme', `테마 단계 변화 ${stageMoves.length}건 — ${stageMoves.slice(0, 6).join(' · ')}${stageMoves.length > 6 ? ' 외' : ''}.`);
   const topBefore = previous.rotation?.top, topNow = current.rotation?.top;
-  if (topBefore && topNow && (topBefore.strong !== topNow.strong || topBefore.weak !== topNow.weak)) push('rotation', `1개월 기준 가장 강한 테마 성격 '${topNow.strong}', 가장 약한 성격 '${topNow.weak}'(직전: '${topBefore.strong}' / '${topBefore.weak}').`);
+  // v57.54 review: compare only within the same theme scope (US-only vs all themes), so a scope change is not a market move.
+  if (topBefore && topNow && topBefore.scope === topNow.scope && (topBefore.strong !== topNow.strong || topBefore.weak !== topNow.weak)) push('rotation', `1개월 기준 가장 강한 테마 성격 '${topNow.strong}', 가장 약한 성격 '${topNow.weak}'(직전: '${topBefore.strong}' / '${topBefore.weak}').`);
   return out;
 }
 
@@ -114,7 +115,7 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
       nextEvent: crossroads.nextEvent, pathsDown: (crossroads.rateHub?.pathsDown || []).map((row) => ({ id: row.id, label: row.label, ok: row.ok })),
       items: (crossroads.items || []).map((item) => ({ id: item.id, title: item.title, met: item.met, total: item.total, known: item.known, fit: item.fit, conditions: item.conditions, pricingTone: item.pricing?.tone || 'unknown', favored: item.favored, pastN: item.past?.n ?? 0, pastSource: item.past?.source || null })) },
     themes: (playbook.themes || []).map((row) => ({ market: row.market, id: row.id, label: row.label, state: row.state, ret1m: row.ret1m, ret3m: row.ret3m, ret6m: row.ret6m, above50: row.above50, windLead: row.wind.lead, windAlt: row.wind.alt, favored: row.favored, fit: row.fit })),
-    rotation: { text: playbook.rotation?.text || '', top: playbook.rotation?.tags?.length >= 2 ? { strong: playbook.rotation.tags[0].label, weak: playbook.rotation.tags.at(-1).label } : null, tags: playbook.rotation?.tags || [] },
+    rotation: { text: playbook.rotation?.text || '', top: playbook.rotation?.tags?.length >= 2 ? { strong: playbook.rotation.tags[0].label, weak: playbook.rotation.tags.at(-1).label, scope: playbook.rotation.market || null } : null, tags: playbook.rotation?.tags || [] },
     highlights: Object.fromEntries(Object.entries(playbook.highlights || {}).map(([key, list]) => [key, list.map(themeKey)]))
   };
   const transitions = [...(previous?.transitions || []), ...diffSnapshots(previous, snapshot, at)].slice(-MAX_TRANSITIONS);

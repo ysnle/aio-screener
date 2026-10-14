@@ -98,6 +98,13 @@ jobs:
           node scripts/fetch-earnings-calendar.mjs
           # A09 (2026-10-12): the CFTC positioning producer was retired with its screen widget (owner request, P1628).
 
+      - name: Refresh analyst consensus estimates (rotating batch, reference only)
+        run: |
+          set -euo pipefail
+          # v57.54: next-four-quarter consensus EPS for the Forward PER (US listings). R262 self-throttle: at most
+          # CONSENSUS_BATCH_LIMIT symbols per run, oldest rows first; a blocked source keeps every previous row.
+          node scripts/fetch-consensus-estimates.mjs
+
       - name: Refresh S&P 500 member weights (sector map)
         run: |
           set -euo pipefail
@@ -166,6 +173,7 @@ jobs:
           git add -- public-data/screener.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
           stage_if_exists public-data/earnings-calendar.json
           stage_if_exists public-data/sp500-weights.json # 2026-10-13: S&P 500 sector map weights
+          stage_if_exists public-data/consensus-estimates.json # v57.54: Forward PER consensus (reference)
           stage_if_exists public-data/kr-fundamentals.json # P1654: OpenDART Korean fundamentals
           stage_if_exists public-data/backtest-history.json
           stage_if_exists public-data/breadth-contributors.json # P1416: breadth drilldown

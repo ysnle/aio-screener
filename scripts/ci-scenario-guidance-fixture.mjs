@@ -246,8 +246,14 @@ console.log('scenario guidance fixture (basis card): PASS');
   {
     const mk = (market, id, ret1m) => ({ market, id, label: id, ret1m, tags: ['growth'] });
     const krHeavy = rotationOf([mk('KR', 'a', 12), mk('KR', 'b', 10), mk('KR', 'c', 9), mk('US', 'd', 8), mk('KR', 'e', -9), mk('KR', 'f', -10), mk('KR', 'g', -11), mk('KR', 'h', -12)].map((row, i) => ({ ...row, tags: [i < 4 ? 'growth' : 'energy'] })));
-    assert.match(krHeavy.text, /강한 쪽: 국내 a\(\+12\.0%\)/, 'audit 15: every named theme carries its market');
-    assert.match(krHeavy.text, /주로 국내 시장/, 'audit 15: the rotation says which market the named moves sit in');
+    // v57.54: one US theme is too thin for a US read, so the sentence mixes markets and every name carries its market word.
+    assert.match(krHeavy.text, /미국·한국 테마는/, 'v57.54: a thin US set falls back to all themes and says so');
+    assert.match(krHeavy.text, /강한 쪽 한국 a\(\+12\.0%\)/, 'audit 15: in a mixed sentence every named theme carries its market');
+    assert.doesNotMatch(krHeavy.text, /국내/, "v57.54: the market word is '한국', not the ambiguous '국내'");
+    const usFirst = rotationOf([mk('US', 'u1', 9), mk('US', 'u2', 7), mk('US', 'u3', -6), mk('US', 'u4', -8), mk('KR', 'k1', 20), mk('KR', 'k2', 12), mk('KR', 'k3', -15), mk('KR', 'k4', -23)].map((row, i) => ({ ...row, tags: [i % 4 < 2 ? 'growth' : 'energy'] })));
+    assert.match(usFirst.text, /^최근 1개월 미국 테마는/, 'v57.54: with enough US themes the rotation is read on the US set first');
+    assert.match(usFirst.text, /강한 쪽 u1\(\+9\.0%\)/, 'v57.54: US names lead without a market word');
+    assert.match(usFirst.text, / 한국은 강한 쪽 k1\(\+20\.0%\)·k2\(\+12\.0%\), 약한 쪽 k4\(−?-?23\.0%\)/, 'v57.54: Korea follows as one short secondary line');
   }
   const themeText = renderThemePlaybookContext(playbook, { query: '반도체 지금 분할로 들어가도 돼?' });
   assert.match(themeText, /반도체: 추세 속 조정/, 'P1743: a named theme is always in the AI block');
@@ -270,6 +276,9 @@ console.log('scenario guidance fixture (basis card): PASS');
   moved.themes[0].state = moved.themes[0].state === 'leading' ? 'weak' : 'leading';
   const diffs = diffSnapshots(moved, state1, 'T');
   assert.ok(diffs.some((row) => row.kind === 'lead') && diffs.some((row) => row.kind === 'theme'), 'P1743: lead and theme-stage changes are logged');
+  const rotationNow = { rotation: { top: { strong: 'a', weak: 'b', scope: '미국' } } };
+  assert.ok(!diffSnapshots({ rotation: { top: { strong: 'c', weak: 'b' } } }, rotationNow, 'T').some((row) => row.kind === 'rotation'), 'v57.54: a theme-scope change (all themes to US-only) is not logged as a rotation');
+  assert.ok(diffSnapshots({ rotation: { top: { strong: 'c', weak: 'b', scope: '미국' } } }, rotationNow, 'T').some((row) => row.kind === 'rotation'), 'v57.54: a rotation within the same scope is logged');
   const series = (n, f) => Array.from({ length: n }, (_, i) => [new Date(Date.UTC(1990, 0, 1) + i * 86400000).toISOString().slice(0, 10), f(i)]);
   const outcomes = buildScenarioOutcomes({ market: { spx: series(3000, (i) => 100 + i * 0.05 + 10 * Math.sin(i / 40)), tnx: series(3000, (i) => 5 + Math.sin(i / 30)), vix: series(3000, (i) => 18 + 12 * Math.sin(i / 25)), wti: series(3000, (i) => 50 + 20 * Math.sin(i / 35)), dxy: series(3000, (i) => 95 + 5 * Math.sin(i / 50)) }, proxies: { SMH: series(3000, (i) => 50 + i * 0.02 + 8 * Math.sin(i / 20)) }, themeProxy: { semiconductor: 'SMH' } });
   assert.ok(Object.keys(outcomes.branches).length >= 6 && outcomes.branches.reheat.n > 0 && outcomes.branches.reheat.h63, 'P1743: weekly producer computes 20/63-session branch outcomes');
@@ -281,7 +290,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.equal(chooseAnswerMode({ intent: { canonical: ['OUTLOOK'] } }), 'outlook', 'P1742: a market outlook question is answered as branches');
   assert.equal(chooseAnswerMode({ asksDecision: true, hasTicker: true, intent: { canonical: ['OUTLOOK'] } }), 'decision', 'P1742: a single-company decision stays a decision');
   const component = readFileSync(new URL('../src/ui/components/macro-crossroads.js', import.meta.url), 'utf8');
-  assert.match(component, /함께 볼 길: /, 'P1742: the compact block never shows one path alone');
+  assert.match(component, /if \(alt\) cards\.append\(pathCard\(doc, root, alt, \{ kicker: '함께 볼 길'/, 'P1742: the compact block never shows one path alone (v57.54: as the second path card)');
   assert.match(component, /refreshScenarioArtifacts/, 'P1743: screens load the long-history outcomes and the per-refresh state');
   const themesPage = readFileSync(new URL('../src/ui/pages/themes.js', import.meta.url), 'utf8');
   assert.match(themesPage, /renderThemePlaybook\(/, 'P1743: 테마 renders the theme playbook');

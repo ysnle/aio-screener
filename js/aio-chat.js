@@ -1087,7 +1087,7 @@ var AIO_SUPPLIED_MATERIALS_20260905_REFERENCE = {
   mediaAuditCount: 11,
   directRead: true,
   frames: {
-    eventCluster: '지정학·원유·고용·중앙은행·실적·AI·규제 이벤트는 발표시각·출처등급·자산 반응·후속 확인을 event ID로 묶습니다. same-day 반응과 1~5세션 follow-through를 분리하고 headline 하나로 레짐을 확정하지 않습니다.',
+    eventCluster: '지정학·원유·고용·중앙은행·실적·AI·규제 이벤트는 발표시각·출처등급·자산 반응·후속 확인을 event ID로 묶습니다. same-day 반응과 1~5세션 follow-through를 분리하고 headline 하나로 국면을 확정하지 않습니다.',
     oilShock: '외부 원유 공급충격은 원유→기대인플레이션→실질소득·마진→성장과 정책 반응으로 이어질 수 있지만 국내 수요충격과 같지 않습니다. 고용·core inflation·소비·신용·장기금리의 독립 시계열을 확인하기 전 정책 오류나 1970년대 유사성을 확정하지 않습니다.',
     expectation: '실현 이익·12M forward 기대·컨센서스 vintage·revision·guidance·가격 수용을 분리합니다. CAPEX·계약·backlog·사용량·가동률이 감가상각·이자·교체 reserve·owner FCF를 흡수하는지를 기대치 버블·신용 전환과 함께 확인합니다.',
     capexFlow: 'AI CAPEX 흐름은 반도체/accelerator/memory/CPU·WFE·패키징·네트워킹·광학·전력·냉각·시설로 분해합니다. $100 Sankey 비중은 공급망 taxonomy일 뿐 현재 기업 노출·가격·밸류에이션 입력이 아닙니다.',
@@ -1416,7 +1416,7 @@ function _aioSuppliedMaterialsContext(focus) {
 
 const CHAT_CONTEXTS = {
   technical:_aioCreateEvidenceContext('AI 기술적 분석가','technical'),
-  macro:_aioCreateEvidenceContext('AI 매크로 분석가','macro'),
+  macro:_aioCreateEvidenceContext('AI 거시 분석가','macro'),
   fundamental:_aioCreateEvidenceContext('AI 펀더멘털 분석가','fundamental'),
   themes:_aioCreateEvidenceContext('AI 테마 분석가','themes'),
   'theme-detail':_aioCreateEvidenceContext('AI 테마 상세 분석가','themes'),
@@ -2824,7 +2824,7 @@ function _fetchDomainContextForChat(ctxId) {
     var lines = [];
 
     if (ctxId === 'macro' || ctxId === 'kr-macro') { // 'kr-macro' = the question-selected Korean domain block (P1740, market-content.js), not a chat context
-      if (reg && (reg.vix != null || reg.fg != null)) lines.push('• 시장 레짐: VIX ' + (reg.vix != null ? Number(reg.vix).toFixed(1) : '—') + ' · F&G ' + (reg.fg != null ? Math.round(reg.fg) : '—'));
+      if (reg && (reg.vix != null || reg.fg != null)) lines.push('• 시장 국면: VIX ' + (reg.vix != null ? Number(reg.vix).toFixed(1) : '—') + ' · F&G ' + (reg.fg != null ? Math.round(reg.fg) : '—'));
       var cpi = num(pick('cpi','cpiYoy')), core = num(pick('coreCpi','coreCpiYoy')), pce = num(pick('pce','pceYoy')), cpce = num(pick('corePce','corePceYoy'));
       var obsM = function(k) { var ev = window._serverMacroEvidence && window._serverMacroEvidence[k]; var d = String((ev && ev.observedAt) || (snap._fieldTs && snap._fieldTs['macro_' + k]) || ''); return /^\d{4}-\d{2}/.test(d) ? '(' + d.slice(0, 7) + ' 관측분)' : '(관측월 미확인)'; }, infl = []; /* P1681 (X16): monthly prints carry their observed month, as on screen */ if (cpi != null) infl.push('CPI ' + cpi + '%' + obsM('cpi')); if (core != null) infl.push('Core CPI ' + core + '%' + obsM('coreCpi')); if (pce != null) infl.push('PCE ' + pce + '%' + obsM('pce')); if (cpce != null) infl.push('Core PCE ' + cpce + '%' + obsM('corePce'));
       if (infl.length) lines.push('• 인플레(FRED/스냅샷): ' + infl.join(' · '));
@@ -2839,7 +2839,7 @@ function _fetchDomainContextForChat(ctxId) {
       (window.AIO && typeof window.AIO.buildChatPolicyLines === 'function' ? window.AIO.buildChatPolicyLines({ root: window, includeKorea: ctxId === 'kr-macro' }) : []).forEach(function(line) { lines.push(line); });
       if (tnx != null || twoY != null) lines.push('• 금리: ' + (tnx != null ? '10Y ' + tnx.toFixed(2) + '%' : '') + (twoY != null ? ' · 2Y ' + twoY.toFixed(2) + '%' : '') + (spreadBp != null ? ' · 2s10s ' + spreadBp + ' (' + spreadBasis + (spread < 0 ? ' · 역전·침체 선행' : '') + ')' : ''));
       try { if (window.AIO && typeof window.AIO.getCycleFromMacro === 'function') { var cyc = window.AIO.getCycleFromMacro({ vix: reg && reg.vix, breadth50: br50, yield2s10s: spread, spxTrend: (spxPct || 0) >= 0 ? 'up' : 'down' }); if (cyc && cyc.phase) lines.push('• 경기 사이클 국면(동적): ' + cyc.phase + (cyc.label ? ' — ' + cyc.label : '')); } } catch(_) {}
-      if (lines.length) { lines.unshift('【매크로 도메인 혼합 데이터 (FRED 스냅샷 + 라이브 금리/레짐 + 동적 사이클) · ' + timeLabel + '】'); }
+      if (lines.length) { lines.unshift('【거시 도메인 혼합 데이터 (FRED 스냅샷 + 라이브 금리/국면 + 동적 사이클) · ' + timeLabel + '】'); }
     } else if (ctxId === 'fxbond') {
       var dxy = liveNum('DX-Y.NYB', 'price'); if (dxy == null) dxy = num(pick('dxy'));
       var hyg = liveNum('HYG', 'price');
@@ -2852,7 +2852,7 @@ function _fetchDomainContextForChat(ctxId) {
       else if (hyg != null) lines.push('• 크레딧(HYG 가격, OAS 미수신): ' + hyg.toFixed(2) + ' — 절대 스프레드 수준 아님, 방향 참고만');
       var kr3 = num(pick('krBond3y','kr-bond-3y','krBond3Y')), kr10 = num(pick('krBond10y','kr-bond-10y','krBond10Y'));
       if (kr3 != null || kr10 != null) lines.push('• 한국 금리(스냅샷): ' + (kr3 != null ? '3Y ' + kr3 + '%' : '') + (kr10 != null ? (kr3 != null ? ' · ' : '') + '10Y ' + kr10 + '%' : ''));
-      try { if (window.AIO && typeof window.AIO.computeCrossAssetCorrelation === 'function') { var ca = window.AIO.computeCrossAssetCorrelation(); if (ca && (ca.regime || ca.verdict)) lines.push('• Cross-Asset 레짐: ' + (ca.regime || ca.verdict)); } } catch(_) {}
+      try { if (window.AIO && typeof window.AIO.computeCrossAssetCorrelation === 'function') { var ca = window.AIO.computeCrossAssetCorrelation(); if (ca && (ca.regime || ca.verdict)) lines.push('• Cross-Asset 국면: ' + (ca.regime || ca.verdict)); } } catch(_) {}
       if (lines.length) { lines.unshift('【외환·채권 도메인 혼합 데이터 (DXY/금리/크레딧 라이브 + KR 금리 스냅샷 + Cross-Asset) · ' + timeLabel + '】'); }
     } else if (ctxId === 'themes' || ctxId === 'theme-detail') {
       var secNames = { XLK:'기술', XLF:'금융', XLE:'에너지', XLV:'헬스케어', XLI:'산업재', XLY:'임의소비', XLP:'필수소비', XLRE:'부동산', XLB:'소재', XLU:'유틸', XLC:'커뮤니케이션' };
@@ -2900,7 +2900,7 @@ var AIO_CHAT_SOURCE_REGISTRY = [
   { key:'fcf',          label:'FCF Yield',           fn:'computeFcfYield',               tier:'fundamental', free:true, requiresKey:null, appliesTo:function(){return true;} },
   { key:'balance',      label:'대차대조표 비율',      fn:'computeBalanceSheetRatios',     tier:'fundamental', free:true, requiresKey:null, appliesTo:function(){return true;} },
   { key:'evEbitda',     label:'EV/EBITDA',           fn:'computeEvEbitda',               tier:'fundamental', free:true, requiresKey:null, appliesTo:function(){return true;} },
-  { key:'macroBeta',    label:'매크로 민감도(베타)',  fn:'computeMacroBeta',              tier:'fundamental', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
+  { key:'macroBeta',    label:'거시 민감도(베타)',  fn:'computeMacroBeta',              tier:'fundamental', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'shortInterest',label:'공매도 비중',          fn:'fetchFinnhubShortInterest',     tier:'sentiment',   free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
   { key:'riskFactors',  label:'SEC 리스크요인(1A)',   fn:'fetchSECRiskFactors',           tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'supplyChain',  label:'공급망(10-K)',         fn:'fetchSECSupplyChain',           tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
@@ -2923,8 +2923,8 @@ var AIO_CHAT_PIPELINE_REGISTRY = [
   { key:'technicalOHLCV', label:'차트·기술 지표', tier:'analysis', kind:'quant', pages:['technical','signal'] },
   { key:'screener', label:'퀀트 스크리너 후보군', tier:'analysis', kind:'quant', pages:['screener','themes'] },
   { key:'breadthSentiment', label:'시장 폭·심리', tier:'context', kind:'quant', pages:['breadth','sentiment'] },
-  { key:'macroRatesFx', label:'매크로·금리·환율', tier:'context', kind:'quant', pages:['macro','fxbond'] },
-  { key:'userResearchReference', label:'사용자 연구자료 · AI 추론·매크로 전이', tier:'reference', kind:'qual', pages:['macro','themes','briefing','market-news'] },
+  { key:'macroRatesFx', label:'거시·금리·환율', tier:'context', kind:'quant', pages:['macro','fxbond'] },
+  { key:'userResearchReference', label:'사용자 연구자료 · AI 추론·거시 전이', tier:'reference', kind:'qual', pages:['macro','themes','briefing','market-news'] },
   { key:'companyFundamentals', label:'기업 펀더멘털·밸류에이션', tier:'analysis', kind:'mixed', pages:['fundamental'] },
   { key:'newsFilings', label:'뉴스·공시·촉매·리스크', tier:'current', kind:'qual', pages:['market-news','briefing','fundamental'] },
   { key:'themes', label:'테마·섹터 로테이션', tier:'context', kind:'mixed', pages:['themes','theme-detail'] },
@@ -3360,7 +3360,7 @@ async function _fetchTickerDataForChat(tickers, opts) {
         var rf = riskFactorsPromise ? await riskFactorsPromise : null;
         if (rf && rf.available) {
           results.push('  [Risk Factors · source SEC 10-K Item 1A] ' + (rf.riskFactorsUrl || '') + ' · SIC: ' + (rf.sicDescription || 'N/A'));
-          results.push('  [Risk Factors 가이드] Item 1A 섹션은 동일 10-K 문서 내 (위 [SEC 10-K] URL과 동일 파일). 종목별 사업/규제/매크로/경쟁/소송/사이버 리스크 정성 분석 시 위 URL 직접 fetch + Item 1A 섹션 인용. 학습 데이터로 "주요 리스크" 추정 절대 금지 (R117).');
+          results.push('  [Risk Factors 가이드] Item 1A 섹션은 동일 10-K 문서 내 (위 [SEC 10-K] URL과 동일 파일). 종목별 사업/규제/거시/경쟁/소송/사이버 리스크 정성 분석 시 위 URL 직접 fetch + Item 1A 섹션 인용. 학습 데이터로 "주요 리스크" 추정 절대 금지 (R117).');
         }
       } catch(_rfErr) {}
 
@@ -5765,7 +5765,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
     _dataVerify += '\n[AIO INTELLIGENCE SAFETY CONTRACT]\nFor current-sensitive claims, use only an observedAt timestamp, source, and evidence IDs from the QuestionPlan. Do not emit Bull/Base/Bear probability percentages unless a calibrated model ID and calibration metadata are present; otherwise compare scenarios by triggers, alternatives, and invalidation signals.\n';
   } else if (detectedTickers.length === 0) {
     // v50.37 트랙3: 일반·교육·비종목 질문 유연성 — 개념·전략·시장 해석은 충실히, 시점성 수치만 주의
-    _dataVerify += '\n【일반·교육 질문 유연성 규칙】\n이 질문은 특정 종목을 지목하지 않았다. 개념·투자 전략·시장 해석·용어·교육성 질문에는 너의 일반 지식 + 아래 주입된 현재 시장 맥락(VIX·F&G·지수·매크로)을 활용해 충실하고 구체적으로 답하라(일반 개념 설명을 막지 마라). 다만 (a) 특정 종목의 현재 주가·시총·목표가·실적 수치, (b) 학습 커트오프 이후의 날짜·사건·발표는 주입된 데이터에 없으면 단정하지 말고 "현재 데이터 미확인"이라 밝혀라.\n\n';
+    _dataVerify += '\n【일반·교육 질문 유연성 규칙】\n이 질문은 특정 종목을 지목하지 않았다. 개념·투자 전략·시장 해석·용어·교육성 질문에는 너의 일반 지식 + 아래 주입된 현재 시장 맥락(VIX·F&G·지수·거시)을 활용해 충실하고 구체적으로 답하라(일반 개념 설명을 막지 마라). 다만 (a) 특정 종목의 현재 주가·시총·목표가·실적 수치, (b) 학습 커트오프 이후의 날짜·사건·발표는 주입된 데이터에 없으면 단정하지 말고 "현재 데이터 미확인"이라 밝혀라.\n\n';
   }
 
   if (_answerPolicyCS.needsFullStockMemo) {
@@ -6229,7 +6229,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
           if (_macro && _macro.scenario && _macro.impacts) {
             var _mcDiv = document.createElement('div');
             _mcDiv.style.cssText = 'margin:8px 0;padding:8px 10px;background:rgba(255,163,26,0.06);border-left:3px solid var(--data-amber);border-radius:4px;font-size:11px;color:var(--text-primary);';
-            var _mcHTML = '<div style="font-weight:700;color:var(--data-amber);margin-bottom:6px;">매크로 시나리오 점검 (' + escHtml(_macro.scenario.type) + ' · 입력값: ' + _macro.scenario.magnitude + ')</div>';
+            var _mcHTML = '<div style="font-weight:700;color:var(--data-amber);margin-bottom:6px;">거시 시나리오 점검 (' + escHtml(_macro.scenario.type) + ' · 입력값: ' + _macro.scenario.magnitude + ')</div>';
             _mcHTML += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">프레임: ' + escHtml(_macro.scenario.framework) + '</div>';
             _mcHTML += '<div style="display:grid;grid-template-columns:1fr 1.5fr 1.5fr;gap:4px;font-size:10px;">';
             _mcHTML += '<div style="color:var(--text-muted);font-weight:600;">자산</div><div style="color:var(--text-muted);font-weight:600;">일반적 해석</div><div style="color:var(--text-muted);font-weight:600;">확인 항목</div>';
@@ -7335,7 +7335,7 @@ var _aiDefaultChips = {
   'screener':['조건이 고른 이유','섹터 쏠림 점검','결측·저신뢰 종목','검증 결과 읽기'],
   'ticker':['투자 논지 점검','이 논지가 틀릴 조건','재무/뉴스 검증','17관점 리포트'],
   'theme-detail':['이 테마가 강한 근거','밸류체인 해석','구성 종목 간 차이','깨지는 신호'],
-  'briefing':['오늘 시장 요약','주요 촉매','매크로 리스크','포트폴리오 영향'],
+  'briefing':['오늘 시장 요약','주요 촉매','거시 리스크','포트폴리오 영향'],
   'market-news':['오늘 핵심 뉴스','뉴스가 시장에 미친 영향','섹터별 뉴스 흐름','추가 확인할 이슈'],
   'breadth':['시장 폭 건강도','상승/하락 종목 해석','브레드스와 추세 비교','숨은 약세 신호'],
   'sentiment':['공포탐욕 해석','VIX와 심리 연결','심리와 신용이 엇갈리는 이유','이 심리 판단이 틀릴 조건'],

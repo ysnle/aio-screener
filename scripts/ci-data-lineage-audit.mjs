@@ -101,6 +101,7 @@ const POLICIES = {
   // Mon~Fri window, so a stale artifact is a WARN (the client falls back to the
   // explicit key-required state), never a silent success (P1102).
   'earnings-calendar.json': { kind: 'weekly-calendar-reference', timestamp: ['generatedAt'], custom: 'earnings-week', maxAgeHours: 24 * 8 },
+  'consensus-estimates.json': { kind: 'rotating-consensus-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 },
   'factor-backtest-longrun.json': { kind: 'research-horizon', timestamp: ['generatedAt', 'meta.generatedAt'] },
   'history.json': { kind: 'daily-history', custom: 'history-date', maxAgeHours: 24 * 3 },
   'macro-history.json': { kind: 'official-macro-history', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // P1426: FRED observations behind the 거시 direction reads (refresh-data)
@@ -108,6 +109,7 @@ const POLICIES = {
   'sp500-weights.json': { kind: 'index-weight-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // 2026-10-13: IVV holdings weights for the S&P 500 sector map (refresh-screener)
   'stress-outcomes.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1661: VIX-band forward outcomes (refresh-data operator slot, weekly)
   'scenario-outcomes.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1743: long-history branch/theme-stage outcomes (refresh-data operator slot, weekly)
+  'market-temperature.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v57.54: per-market price temperature (refresh-data, 4-hour throttle)
   'scenario-state.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 48 }, // P1743: recomputed every refresh from published artifacts (no network)
   'official-references.json': { kind: 'official-web-reference', timestamp: ['checkedAt'], maxAgeHours: 48 }, // P1734: page-verified KR references (NAAIM retired) (refresh-data, 12h heartbeat)
   'kr-fundamentals.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1654: OpenDART annual accounts (refresh-screener, weekly; needs DART_API_KEY)

@@ -12,7 +12,7 @@
   ],
   "boundary": "Search index of learning surfaces; titles and short texts only. Glossary entries are searched in the page itself.",
   "counts": {
-    "frame": 29,
+    "frame": 37,
     "column": 12,
     "principles-lesson": 112,
     "principles-node": 60,
@@ -740,6 +740,169 @@
         "params": {
           "mode": "frames",
           "node": "agri"
+        }
+      }
+    },
+    {
+      "id": "frame:credit-distribution-refinancing",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "평균이 감추는 신용 분산과 차환의 시간차",
+      "text": "시장 전체의 신용 스프레드가 안정돼도 가장 약한 차주의 자금조달은 먼저 막힐 수 있습니다. 산업의 성장성과 그 성장이 현금으로 돌아올 때까지 버틸 능력은 별개의 질문입니다.",
+      "group": "통화·신용·물가",
+      "keys": [
+        "평균 신용과 취약 차주의 시간",
+        "fcf-vs-funding",
+        "capex"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "credit-distribution-refinancing"
+        }
+      }
+    },
+    {
+      "id": "frame:financing-perimeter-overlap",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "거래 관계의 중첩과 법인별 손실 책임",
+      "text": "고객에게 투자하는 공급자는 투자 가치와 매출을 함께 얻지만, 고객이 흔들릴 때는 두 경로에서 충격을 받을 수 있습니다. 이 연결이 존재한다는 사실과 같은 돈을 돌려 썼다는 증명은 다릅니다.",
+      "group": "기업 수익 구조",
+      "keys": [
+        "투자와 매출이 겹치는 자금 구조",
+        "fcf-vs-funding",
+        "capex"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "financing-perimeter-overlap"
+        }
+      }
+    },
+    {
+      "id": "frame:measurement-scope-comparison",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "측정 기준 변경과 실제 실적 변화의 구분",
+      "text": "같은 매출·환매·부실이라는 이름 아래에서도 기간과 분모가 달라질 수 있습니다. 숫자가 달라진 원인을 성과 변화로 해석하기 전에 두 숫자가 같은 대상을 재는지 확인해야 합니다.",
+      "group": "재무제표·회계",
+      "keys": [
+        "숫자를 비교하기 전에 맞출 범위",
+        "three-statements",
+        "pct-vs-pp"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "measurement-scope-comparison"
+        }
+      }
+    },
+    {
+      "id": "frame:evidence-role-conflict",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "분석의 개수와 판단의 질을 구분하는 사고 순서",
+      "text": "신용은 취약 차주를 경고하면서 주도 기업의 실적과 가격 추세는 강할 수 있습니다. 서로 다른 대상과 기간을 설명하는 증거를 한 점수로 평균내면 이 구조가 사라집니다.",
+      "group": "가격·기대",
+      "keys": [
+        "충돌하는 증거를 제자리에 놓기",
+        "fcf-vs-funding",
+        "capex"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "evidence-role-conflict"
+        }
+      }
+    },
+    {
+      "id": "frame:rotation-bottleneck-confirmation",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "섹터 조정·시장 폭과 AI 병목 전이의 구분",
+      "text": "한 업종이 쉬는 동안 다른 업종이 참여하면 순환일 수 있고, 참여가 함께 줄면 위험회피일 수 있습니다. AI의 관심 이동도 정해진 순서가 아니라 실제 공급 제약과 현금 수익화로 확인해야 합니다.",
+      "group": "가격·기대",
+      "keys": [
+        "순환매와 위험회피를 구분하는 확인",
+        "fcf-vs-funding",
+        "capex"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "rotation-bottleneck-confirmation"
+        }
+      }
+    },
+    {
+      "id": "frame:supply-relief-margin",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "주가 조정·이익 정점·산업 둔화의 구분과 병목 해소의 이익 경로",
+      "text": "반도체 주가가 빠질 때 세 가지는 서로 다른 사건입니다. 가격만 조정된 것인지, 이익 증가율이 정점을 지난 것인지, 산업 수요가 꺾인 것인지에 따라 같은 하락도 뜻이 다릅니다. 병목이 풀리면 물량은 늘어도 단가가 먼저 내려가 공급자의 초과 이익이 줄어들 수 있습니다.",
+      "group": "가격·기대",
+      "keys": [
+        "병목 해소와 공급자 프리미엄",
+        "price-volume-mix",
+        "capex",
+        "cyclical-per"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "supply-relief-margin"
+        }
+      }
+    },
+    {
+      "id": "frame:backtest-rejection",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "많이 시험할수록 그럴듯한 가짜 우위가 쉬워지는 다중 검정 문제",
+      "text": "전략을 100개 시험해 가장 좋은 하나를 고르면, 아무 우위가 없어도 성적이 좋아 보이는 전략이 나옵니다. 동전 던지기로 매매하는 가상 봇 1만 개 중 최고 성적은 과거 구간에서 샤프 지수 약 2.3을 냈지만 새 구간에서는 평균 0으로 돌아갔다는 가상 실험이 그 예입…",
+      "group": "금융수학·통계",
+      "keys": [
+        "백테스트를 기각하는 순서",
+        "expected-value",
+        "base-rate",
+        "correlation"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "backtest-rejection"
+        }
+      }
+    },
+    {
+      "id": "frame:crowding-breadth-extreme",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "지수 신고가 아래의 좁은 참여, 포지션 쏠림, 투매의 흔적",
+      "text": "지수가 최고치 근처인데 대부분의 종목이 각자의 고점에서 멀다면 시장은 소수 종목의 힘으로 서 있습니다. 급락장에서 강제 매도와 대량 매도가 겹친 뒤 지수가 앞선 저점을 지키면 투매가 끝나 가는 흔적일 수 있습니다. 둘 다 심리의 극단이지만 확인하는 지표가 다릅니다.",
+      "group": "가격·기대",
+      "keys": [
+        "쏠림과 투매를 구분하는 확인",
+        "base-rate",
+        "correlation",
+        "expected-value"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "crowding-breadth-extreme"
         }
       }
     },

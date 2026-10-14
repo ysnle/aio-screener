@@ -310,3 +310,64 @@ body.dark-theme .sector-map .is-na { background: #36383b; color: #c8c6c0; }
 /* The detail panels' close buttons were empty (an icon glyph was removed with the emoji sweep): name them, 44px wide. */
 .page .btn-close:empty::before { content: '닫기'; font-size: 13px; }
 .page .btn-close { min-width: 44px; }
+/* v57.54: per-market price temperature (sentiment screen) — component rank bars with the decile edges marked, and
+   the extreme spells shaded behind the index line. Tone is also written in text, never colour only. */
+.page .temp-tiles { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 12px 18px; margin: 12px 0 16px; }
+.page .temp-group { display: grid; gap: 6px; align-content: start; }
+.page .temp-group-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.page .temp-tiles-group { font-size: 12px; font-weight: 700; color: var(--text-muted); letter-spacing: .02em; }
+.page .temp-tile { display: grid; gap: 6px; text-align: left; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-elevated); color: var(--text-primary); cursor: pointer; font: inherit; min-height: 44px; transition: border-color .15s, box-shadow .15s; }
+.page .temp-tile:hover { border-color: var(--border-strong); }
+.page .temp-tile:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
+.page .temp-tile.is-selected { border-color: var(--text-primary); box-shadow: inset 0 0 0 1px var(--text-primary); }
+.page .temp-tile.is-cold { background: rgba(var(--ink-rgb),0.05); }
+.page .temp-tile.is-hot { background: var(--data-amber-soft); }
+.page .temp-tile-name { font-size: 14px; font-weight: 700; }
+.page .temp-tile.is-sub { padding: 10px 12px; }
+.page .temp-tile.is-sub .temp-tile-spark { height: 26px; }
+.page .temp-tile-state { font-size: 13px; color: var(--text-secondary); }
+.page .temp-tile.is-cold .temp-tile-state { color: var(--text-primary); font-weight: 700; }
+.page .temp-tile.is-hot .temp-tile-state { color: var(--data-amber); font-weight: 700; }
+.page .temp-tile.is-stale .temp-tile-spark { opacity: .45; }
+.page .temp-tile.is-stale .temp-tile-state { color: var(--text-secondary); font-weight: 400; }
+.page .temp-tile-spark { display: grid; grid-template-columns: repeat(5, 1fr); align-items: end; gap: 3px; height: 34px; padding-bottom: 2px; border-bottom: 1px solid var(--border); background: linear-gradient(to top, rgba(var(--ink-rgb),0.07) 0 10%, transparent 10% 90%, var(--data-amber-faint) 90% 100%); }
+.page .temp-tile-bar { display: block; border-radius: 2px 2px 0 0; background: var(--border-strong); }
+.page .temp-tile-bar.is-cold { background: var(--text-primary); }
+.page .temp-tile-bar.is-hot { background: var(--data-amber); }
+.page .temp-tile-meta { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.page .temp-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+.page .temp-swatch { display: inline-flex; align-items: center; gap: 5px; }
+.page .temp-swatch::before { content: ''; width: 12px; height: 12px; border-radius: 2px; }
+.page .temp-swatch.is-cold::before { background: rgba(var(--ink-rgb),0.3); }
+.page .temp-swatch.is-hot::before { background: var(--data-amber); opacity: .3; }
+.page .temp-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin: 6px 0 10px; }
+.page .temp-head-value { font-size: 18px; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+.page .temp-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 12px 24px; align-items: start; }
+.page .temp-plot .regime-chart-caption { margin-top: 0; }
+.page .temp-bars { display: grid; gap: 8px; margin: 4px 0 12px; align-content: start; }
+.page .temp-bar-row { display: grid; grid-template-columns: minmax(96px, 9rem) minmax(0, 1fr) minmax(96px, auto); align-items: center; gap: 10px; font-size: 14px; color: var(--text-secondary); }
+.page .temp-bar-track { position: relative; height: 10px; border-radius: 5px; overflow: hidden; background: linear-gradient(90deg, rgba(var(--ink-rgb),0.10) 0 10%, var(--border) 10% 90%, rgba(var(--ink-rgb),0.10) 90% 100%); }
+.page .temp-bar { display: block; height: 100%; border-radius: 5px; background: var(--text-muted); }
+.page .temp-bar.is-cold { background: var(--data-cyan); }
+.page .temp-bar.is-hot { background: var(--data-amber); }
+.page .temp-bar-value { text-align: right; font-variant-numeric: tabular-nums; }
+.trend-chart-span.is-cold { fill: var(--data-cyan); opacity: .3; }
+.trend-chart-span.is-hot { fill: var(--data-amber); opacity: .2; }
+@media (max-width: 900px) { .page .temp-body, .page .temp-tiles { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 600px) { .page .temp-bar-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'label value' 'track track'; gap: 2px 8px; } .page .temp-bar-label { grid-area: label; } .page .temp-bar-value { grid-area: value; } .page .temp-bar-track { grid-area: track; } }
+/* v57.54 (owner review 2026-10-14): the compact forward block — structure line with its fit chip, the 반증 line in a
+   quieter register, and the two paths as aligned cards (two columns from 720px, stacked on a phone). */
+.page .xr-structure .basis-chip { margin: 0 6px; vertical-align: 1px; }
+.page .xr-structure-note { font-size: 13.5px; line-height: 1.6; color: var(--text-secondary); margin: 0 0 8px; }
+.page .xr-path-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; margin: 10px 0; }
+.page .xr-path-card { display: grid; gap: 8px; align-content: start; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-elevated); }
+.page .xr-path-head { display: grid; gap: 2px; }
+.page .xr-path-kicker { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+.page .xr-path-name { font-size: 16px; color: var(--text-primary); }
+.page .xr-path-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.page .xr-price.is-same { color: var(--text-primary); font-weight: 700; }
+.page .xr-price.is-against { color: var(--data-amber); }
+.page .xr-path-rows { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; margin: 0; font-size: 14px; }
+.page .xr-path-rows dt { color: var(--text-muted); }
+.page .xr-path-rows dd { margin: 0; color: var(--text-primary); }
+.page .xr-path-card .xr-explore { margin-top: 2px; gap: 4px 8px; }

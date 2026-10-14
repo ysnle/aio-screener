@@ -12,6 +12,13 @@ const data = JSON.parse(read('public-data/data.json'));
 const routeOwners = JSON.parse(read('architecture/route-owners.json'));
 const validation = validateOperationsStatus(status);
 if (!validation.ok) throw new Error(`[operations-status] ${validation.errors.join(',')}`);
+// v57.54: every status literal the builder can publish is in the declared vocabulary. A retained AI analysis wrote
+// 'STALE' (a statusCode, not a status), the contract rejected the artifact, and that refresh failed outright.
+// PASS (readiness criteria) and MATCH (reconciliation tier) belong to other contracts outside the walked surface.
+const builderStatusLiterals = [...read('scripts/build-operations-status.mjs').matchAll(/\bstatus:\s*([^,\n]+)/g)]
+  .flatMap((match) => [...match[1].matchAll(/'([A-Z_]+)'/g)].map((literal) => literal[1]))
+  .filter((literal) => !OPERATIONS_STATUS.includes(literal) && !['PASS', 'MATCH'].includes(literal));
+if (builderStatusLiterals.length) throw new Error(`[operations-status] v57.54 builder publishes undeclared status: ${[...new Set(builderStatusLiterals)].join(',')}`);
 // P1271: a healthy endpoint without rights/soak remains disabled in public-config
 // and must not become an AVAILABLE quote feature in operations-status.
 const healthyUncertified = deriveFastQuoteAvailability({ configured: true, healthy: true, rightsReviewed: false, soakObservedDays: 0 });

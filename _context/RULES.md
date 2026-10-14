@@ -7,6 +7,18 @@ target_version: v57.54
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
 
+## 핵심 규칙 (먼저 읽기 · v57.54)
+
+아래 32개가 지금 작업 판단에 쓰이는 규칙이다. 게이트·가이드에서 인용되는 빈도와 현재 제품 결정을 기준으로 골랐다. 나머지 R 항목은 재발 추적용 이력이며 ID·키워드로 검색할 때만 읽는다. 본문은 각 `R<n>.` 헤딩에 있다.
+
+- **기록·버전**: R1 버전 표면은 `bump-version`으로 일괄 패치 · R2 `v{major}.{patch}` 단조 증가 · R3 수정 기록은 `record-fix`로 · R27 스킬과 command wrapper 동시 생성 · R618 원장 루프는 서술이 아니라 게이트로 닫는다 · R690 QA 증명은 실제 검사 범위와 커밋 index에 묶는다
+- **구조**: R619 같은 의미의 구현은 하나 · R620 분해 압력은 래칫(레거시 파일은 커지지 않는다) · R624 전역은 한 구현, 로드 순서는 계약 · R352 이관은 실행 owner를 옮기고 레거시 결합을 줄인다 · R704 선언된 native 표면은 실제로 존재 · R705 화면을 없애면 그 writer·타이머·리스너도 함께 없앤다
+- **생성물**: R560 병렬 검사에 노출된 JSON은 원자 교체 · R626 생성물 병합은 필드 소유권으로 · R605 정적 DB는 갱신 주기에 맞추거나 명시적으로 보류
+- **데이터 정직성**: R670 참고 점수는 직전 미국장 종가 기준이라고 밝힌다 · R671 현재성 라벨은 관측·달력에서 한 presenter로 · R340 필수 입력의 의미·기준일·coverage가 갖춰질 때만 결론 표시 · R447 시장 시간은 event/observed/collected/published를 구분 · R650 지난 일정 날짜는 발표 완료의 증거가 아니다 · R265 외부 도구와 같다고 주장하면 그 정의와 정확히 일치 · R672 한국 테마는 사용자 콘텐츠이며 라벨 owner는 하나
+- **수집·신선도**: R262 외부 피드 수집은 저장된 커서로 스스로 속도를 조절 · R634 신선도 감사에 stale을 통과시키는 모드가 없다 · R641 화면 판단과 운영 상태는 같은 신선도 경계 · R654 SEC 소유 공시와 13F는 서로 다른 주기 · R701 blocking 게이트 PASS를 전체 정상으로 올리지 않는다
+- **운영·보안**: R652 Worker 자동 배포는 CI 증거와 롤백 대상이 있어야 · R657 운영 알림은 증거를 남기고 닫힌 쪽으로 실패 · R658 운영 AI 사용량 증거는 인증·비공개 유지
+- **화면 문장**: R700 템플릿 슬롯 뒤 조사는 받침으로 고른다 · R703 한 사용자 입력은 한 owner가 처리하고 색 테마는 storage 실패와 무관
+
 ## R705. Retiring a surface retires its writers (v57.47, P1670)
 
 **Rule**: When a page rebuild removes or hides an element, the same change removes the legacy/native code that writes it, the timers, page-bus hooks and event listeners that call that code, and any button or data-action that targets it. Null-guarded writers to absent ids are dead code, not compatibility.

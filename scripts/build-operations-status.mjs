@@ -478,6 +478,8 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   // P1719: a retained (previous verified) analysis is shown, but this run's call was blocked — not CURRENT.
   const scheduledAnalysisRetained = data?.meta?.marketAnalysisRetained || null;
   const scheduledAnalysisOk = data?.meta?.marketAnalysisOk === true && !scheduledAnalysisRetained;
+  // v57.54: a retained analysis is DEGRADED with statusCode STALE — 'STALE' is not an OPERATIONS_STATUS and made the
+  // operations contract reject the artifact, failing the whole refresh whenever the analysis was retained.
   const fastConfigured = fastEndpoint !== 'not-configured';
   const [fastObserved, fastRequired] = String(fastEvidence.fastCoverage || '').split('/').map(Number);
   const fastHealthy = fastEvidence.fastEvidenceFresh === true && Number(fastEvidence.fastHealthStatus) === 200 && Number.isFinite(fastObserved) && fastObserved === fastRequired && fastRequired === 16;
@@ -607,7 +609,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
       }
     },
     ai: {
-      scheduledAnalysis: { status: scheduledAnalysisOk ? 'CURRENT' : (scheduledAnalysisRetained ? 'STALE' : 'BLOCKED'), statusCode: deriveOperationalState({ configured: true, healthy: scheduledAnalysisOk }), source: 'github-actions', lastCallSucceeded: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', evidence: { marketAnalysisOk: scheduledAnalysisOk, retainedFrom: scheduledAnalysisRetained?.from || null, generatedAt: data?.meta?.generatedAt || null } },
+      scheduledAnalysis: { status: scheduledAnalysisOk ? 'CURRENT' : (scheduledAnalysisRetained ? 'DEGRADED' : 'BLOCKED'), statusCode: deriveOperationalState({ configured: true, healthy: scheduledAnalysisOk, stale: !!scheduledAnalysisRetained }), source: 'github-actions', lastCallSucceeded: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', evidence: { marketAnalysisOk: scheduledAnalysisOk, retainedFrom: scheduledAnalysisRetained?.from || null, generatedAt: data?.meta?.generatedAt || null } },
       publicChat: {
         status: proxyHealthy ? 'CURRENT' : 'NO_ROUTE', statusCode: deriveOperationalState({ configured: proxyConfigured, healthy: proxyHealthy, stale: proxyConfigured && fastEvidence.proxyHealthStatus != null && fastEvidence.proxyEvidenceFresh !== true }),
         personalKey: 'UNSUPPORTED',

@@ -360,7 +360,7 @@ function _updateAllConclusionBars() {
   // 3) 거시경제 (레짐 pill 동기화)
   try {
     var mEl = document.getElementById('macro-regime-pill');
-    var mText = mEl ? mEl.textContent.trim().replace(/^—\s*/, '').replace(/\s*레짐\s*분석\s*중$/, '') : '';
+    var mText = mEl ? mEl.textContent.trim().replace(/^—\s*/, '').replace(/\s*(?:레짐|국면)\s*분석\s*중$/, '') : '';
     if (mText && mText.length > 2) {
       var mCls = mEl ? mEl.className : '';
       var mColor = mCls.indexOf('sp-risk-on') > -1 ? 'var(--data-green)' :
@@ -1604,11 +1604,11 @@ function showSubThemeDetail(subThemeId) {
   sections.push('');
   sections.push(' <b>테마 인사이트:</b>');
   if (sti) {
-    sections.push('<b>핵심 매크로 변수 [' + sti.macroKey + ']:</b> ' + sti.upCondition);
+    sections.push('<b>핵심 거시 변수 [' + sti.macroKey + ']:</b> ' + sti.upCondition);
     sections.push('<b>깨지는 신호:</b> ' + sti.breakSignal);
     sections.push('<b>비직관적 인사이트:</b> ' + sti.insight);
   } else {
-    sections.push('• 이 테마의 핵심 매크로 변수와 깨지는 신호를 AI 분석에서 확인해보세요.');
+    sections.push('• 이 테마의 핵심 거시 변수와 깨지는 신호를 AI 분석에서 확인해보세요.');
   }
 
   // v48.14: 구조적 내러티브 (기관 애널리스트 스타일 — why/valueChain/playerRoles)

@@ -4,6 +4,7 @@ import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bri
 import { subscribeToSlice } from '../../state/memoize.js';
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { MACRO_HISTORY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { renderMarketTemperature } from '../components/market-temperature.js';
 
 // P1396: the page is the five-card sentiment board (../components/sentiment-board.js).
 // P1412 (Codex structural review): the board's inputs come from one adapter, collectMarketInputs
@@ -46,6 +47,9 @@ export function createSentimentPage({ documentRef, evidenceStore, store, chartFa
         bag.add(subscribeToSlice(store, (state) => state.sentiment, render));
       }
       renderSentiment(documentRef);
+      // v57.54: per-market price temperature (KOSPI·KOSDAQ·S&P·Nasdaq·Nikkei) under the US sentiment cards.
+      renderMarketTemperature({ documentRef, root: documentRef?.defaultView || globalThis, anchor: documentRef?.getElementById('sentiment-mini-grid') });
+      bag.add(() => documentRef?.getElementById('sentiment-temperature')?.remove());
       // v57.50 I05: research documents (N chapter, formerly the options route) land here with what to check.
       renderKnowledgeArrival({ documentRef, root: documentRef?.defaultView || globalThis, routeId: 'sentiment' });
       bag.add(() => clearKnowledgeArrival({ documentRef, routeId: 'sentiment' }));
