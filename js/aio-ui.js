@@ -4118,7 +4118,7 @@ function renderGlossaryItems(query) {
   var filtered = GLOSSARY.filter(function(g) {
     if (_glossaryCat !== 'all' && _glossaryGroupOf(g.cat) !== _glossaryCat) return false;
     return matches(g);
-  });
+  }); if (q) { var _rank = function(g) { var t = g.term.toLowerCase(); return t === q ? 0 : t.indexOf(q) === 0 ? 1 : t.indexOf(q) !== -1 ? 2 : 3; }; filtered.sort(function(a, b) { return _rank(a) - _rank(b); }); } // v57.55 (2b): the searched term itself first
   // P1248: 검색이 선택 분류 안에서만 이뤄진다는 사실을 드러내고, 선택 분류에서 0건이면
   // 전체 검색으로 자동 전환한다(구 LC-56 — "차트분석에서 RRG 검색 0건" 혼동 방지).
   var scopeNote = '';

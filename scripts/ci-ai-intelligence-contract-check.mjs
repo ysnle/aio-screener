@@ -553,6 +553,8 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
       && tnxRow?.value === 5.24 && tnxRow.unit === 'percent' && tnxMove?.unit === 'bp' && tnxMove.value === -0.4
       && answerPublication.evidenceCanPublish(vixRow, Date.parse('2026-10-13T04:00:00Z')) && closeBasisSubstituteFor('^VIX', closeRows) === vixRow,
     JSON.stringify(closeRows.slice(0, 8)));
+  const tnx20 = closeRows.find((row) => row.metric === 'close.us10y.chg20d');
+  detail('v57.55 review (6b): the 10-year 20-session move the screen shows is published as bp evidence', tnx20?.unit === 'bp' && Number.isFinite(tnx20.value) && /20거래일 변화/.test(tnx20.label || ''), JSON.stringify(tnx20));
   // Review negative control: a basis more than two sessions behind the latest close is held (regime-board M05 parity).
   const staleRows = buildCloseBasisEvidence({ history: history.filter((row) => row.date <= '2026-10-02'), credit: {}, rates: {}, now: Date.parse('2026-10-13T04:00:00Z') });
   detail('#7 an old close basis publishes no close-basis evidence (same hold as the regime board)', staleRows.length === 0, String(staleRows.length));

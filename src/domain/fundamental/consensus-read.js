@@ -35,12 +35,16 @@ export function consensusView(row, estimate, { now = Date.now() } = {}) {
 export function buildConsensusPoint(row, estimate, options = {}) {
   const view = consensusView(row, estimate, options);
   if (!view) return null;
-  const range = `${view.fwdFrom}~${view.fwdTo}`;
+  // v57.55 review (E1/8j): the window is the next four quarters not yet reported (the usual forward-EPS convention). When the
+  // first of them has already ended — results due, not yet out — that is said, so '향후' does not read as all-future quarters.
+  const [fy, fm] = String(view.fwdFrom || '').split('-').map(Number);
+  const firstEnded = Number.isFinite(fy) && Number.isFinite(fm) && Date.UTC(fy, fm, 1) <= Date.parse(`${view.priceDate || view.asOf}T00:00:00Z`);
+  const range = `${view.fwdFrom}~${view.fwdTo}${firstEnded ? `, 첫 분기 ${view.fwdFrom}는 끝났고 실적 발표 전` : ''}`;
   // The visible line leads with the multiple; the stock page folds everything after the first ' — '.
   const lead = view.fwdPe != null
     ? `Forward PER 약 ${view.fwdPe.toFixed(1)}배${view.trailingPe != null ? ` · 직전 4개 분기 조정 기준 ${view.trailingPe.toFixed(1)}배` : ''}${view.growth != null ? ` · 예상 이익 ${signed(view.growth)}` : ''}`
     : '향후 4개 분기 적자 예상';
-  const basis = `종가 ${usd(view.price)}${view.priceDate ? `(${view.priceDate})` : ''} ÷ 향후 4개 분기(${range}) 예상 EPS 합 ${usd(view.fwdEps)}`
+  const basis = `종가 ${usd(view.price)}${view.priceDate ? `(${view.priceDate})` : ''} ÷ 실적 발표 전 4개 분기(${range}) 예상 EPS 합 ${usd(view.fwdEps)}`
     + (view.growth != null ? `, 직전 4개 분기 실적 ${usd(view.trailingEps)}과 같은 조정 EPS 기준으로 비교했습니다` : '');
   const revisions = view.up4w || view.down4w ? `최근 4주 추정치 상향 ${view.up4w} · 하향 ${view.down4w}` : '최근 4주 추정치 변경 없음';
   const cautions = [];

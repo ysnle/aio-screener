@@ -129,9 +129,17 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   }
   const excluded = holdings.length - known.length;
   const excludedValue = total - knownValue;
-  const headline = [trendMix.length ? `상승 추세 비중 ${trendMix.find((row) => row.state === 'up').pct.toFixed(0)}%${trendBasisNote}` : null,
-    book3 != null && bench3 != null ? `3개월 지수 대비 ${signed(book3 - bench3, 1, '%p')}${relativeBasisNote}` : null,
-    regime?.available ? `시장 ${regime.overall}` : null].filter(Boolean).join(' · ');
+  // v57.55 review (8g, beginner panel): the first line is a plain sentence that names its own denominator, not a row of chips.
+  const unpriced = (Array.isArray(surface?.rows) ? surface.rows : []).filter((row) => (row?.symbol || row?.ticker) && !(finite(row?.value) > 0)).length;
+  const unpricedNote = unpriced ? `(가격을 아직 못 받은 ${unpriced}종목 제외)` : '';
+  const plainBasis = trendContainedPct >= 99.5
+    ? (unpriced ? `가격을 확인한 보유분${unpricedNote} 기준으로` : '보유 종목 전체 기준으로')
+    : `추세를 확인한 보유분(평가액의 ${trendContainedPct.toFixed(0)}%${unpriced ? ` · 가격 미확인 ${unpriced}종목 제외` : ''}) 기준으로`;
+  const upPct = trendMix.find((row) => row.state === 'up')?.pct;
+  const downPct = trendMix.find((row) => row.state === 'down')?.pct;
+  const headline = [trendMix.length ? `${plainBasis} ${upPct.toFixed(0)}%는 오르는 흐름(50·200일선 위), ${downPct.toFixed(0)}%는 내리는 흐름입니다.` : null,
+    book3 != null && bench3 != null ? `최근 3개월은 지수보다 ${Math.abs(book3 - bench3).toFixed(1)}%p ${book3 >= bench3 ? '앞섰습니다' : '뒤처졌습니다'}${relativeBasisNote}.` : null,
+    regime?.available ? `시장 상태는 '${regime.overall}'입니다.` : null].filter(Boolean).join(' ');
   const next = [];
   if (weakest[0]) next.push({ action: 'showTicker', arg: weakest[0].symbol, route: 'ticker', label: weakest[0].symbol, why: '하락 추세 중 비중이 가장 큰 종목의 요약·차트' });
   next.push({ route: 'themes', label: '테마 · 섹터', why: '보유 섹터가 회전의 어느 단계에 있는지' });

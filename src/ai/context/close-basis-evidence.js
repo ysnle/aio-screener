@@ -59,6 +59,11 @@ export function buildCloseBasisEvidence(input = {}) {
     } else if (def.change === 'bp' && finite(stat.d1)) {
       out.push(row({ ...shared, metric: `${def.metric}.chg1d`, label: `${def.label.replace(/ 종가$/, '')} 1거래일 변화`, value: round((stat.value - stat.d1) * 100, 1), unit: 'bp' }));
     }
+    // v57.55 review (6b): rate questions were answered with "최신 수치 확인 안 됨" although the screen shows the 20-session
+    // move ("20거래일 +22bp"). The same value is published as typed evidence so the answer can cite it.
+    if (def.change === 'bp' && finite(stat.d20)) {
+      out.push(row({ ...shared, metric: `${def.metric}.chg20d`, label: `${def.label.replace(/ 종가$/, '')} 20거래일 변화${stat.d20Date ? `(${stat.d20Date} 종가 대비)` : ''}`, value: round((stat.value - stat.d20) * 100, 1), unit: 'bp' }));
+    }
   }
   if (finite(c?.hyBp) && alignments?.hy?.date) {
     out.push(row({ metric: 'close.hy_oas', entity: 'HY_OAS', label: '하이일드 스프레드', value: round(c.hyBp, 0), unit: 'bp', date: alignments.hy.date, observedAt: input.credit?.hyAsOf || alignments.hy.date, basis, alignment: alignments.hy.status, market: 'US' }));

@@ -1,0 +1,19 @@
+{
+  "version": "v57.56",
+  "date": "2026-10-14",
+  "r": null,
+  "status": null,
+  "note": "v57.56: 라이브 10인 점검의 남은 항목(정렬·클래스주·Forward 기간·쉬운 첫 줄·AI 금리 근거·폰 표·핵심 숫자·ETF·용어 표시·읽기 입구).",
+  "p": {
+    "title": "SPY 단계 카드가 이동평균 배열을 'Weinstein Stage'로 표기",
+    "symptom": "차트 탭의 접힌 SPY 카드가 '시장(SPY) Weinstein 단계'·'Weinstein Stage(장기 MA 스택 모델)'로 썼다.",
+    "root_cause": "v57.50 C19에서 이동평균 배열 이름표(MA_STRUCTURE_LABELS)를 만들었지만 어디에도 연결되지 않았다.",
+    "fix": "이름표를 전역으로 노출해 SPY 카드가 같은 이름을 쓰고, 제목을 '이동평균 배열(Weinstein 30주 단계와 다름)'로 바꾼다.",
+    "violated_rule": "만든 이름표는 실제 표시 경로에 연결한다(R675)",
+    "prevention": "{P}: 로컬에서 카드 제목 확인.",
+    "verification": "로컬 미리보기에서 해당 화면을 열어 확인했고 관련 단위 검사를 통과했다(배포 후 라이브 재확인은 QA-VERIFY-23)."
+  },
+  "changelog": [
+    "**이동평균 배열 이름 ({P}):** SPY 카드가 Weinstein 단계가 아니라 이동평균 배열이라고 정확히 씁니다."
+  ]
+}

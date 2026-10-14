@@ -399,7 +399,7 @@ updateWeinsteinStage = function(snapshot) {
   if (!complete) {
     // P1253: 이 카드는 고정 SPY 스냅샷의 장기 MA 스택 모델(classifyMovingAverageStructure)이다.
     // 티커별 _detectStage(단기 SMA150·고저점 모델, js/aio-ui.js)와 다른 판정이므로 모델·대상을 명시한다.
-    if (analysis) analysis.innerHTML = '<div style="font-weight:700;color:var(--text-muted);margin-bottom:4px;">Weinstein Stage(장기 MA 스택 모델) · 대상 SPY · 판정 보류</div>' +
+    if (analysis) analysis.innerHTML = '<div style="font-weight:700;color:var(--text-muted);margin-bottom:4px;">이동평균 배열(장기 MA 스택 모델) · 대상 SPY · 판정 보류</div>' +
       '<div style="font-size:12px;color:var(--text-muted);line-height:1.7;">최소 200거래일 OHLCV와 50·100·200일 이동평균이 모두 필요합니다. 현재가·당일 등락률·정적 시장폭으로 Stage를 추정하지 않습니다.</div>';
     return { available: false, reason: 'observed_ohlcv_200_required' };
   }
@@ -410,7 +410,7 @@ updateWeinsteinStage = function(snapshot) {
     STAGE_4_OR_BASE_REPAIR: { stage: 4, desc: '하락 또는 기반 복구 구간', color: 'var(--data-red)' },
     STAGE_1_OR_3_TRANSITION: { stage: 1, desc: '1·3단계 전환 구간', color: 'var(--data-cyan)' }
   };
-  var state = stageMap[snap.stageEstimate] || { stage: 1, desc: '전환 구간', color: 'var(--text-muted)' };
+  var maLabel = (window.AIO_MA_STRUCTURE_LABELS || {})[snap.stageEstimate], state = Object.assign({}, stageMap[snap.stageEstimate] || { stage: 1, desc: '전환 구간', color: 'var(--text-muted)' }, maLabel ? { desc: maLabel } : {}); // v57.56 (C19 wiring): moving-average order reading, not Weinstein's 30-week stage
   var active = document.getElementById('ws-stage' + state.stage);
   if (active) {
     active.style.background = 'var(--surface-2)'; active.style.borderRadius = '6px'; active.style.margin = '0 -12px'; active.style.paddingLeft = '12px'; active.style.paddingRight = '12px';
@@ -418,7 +418,7 @@ updateWeinsteinStage = function(snapshot) {
     if (activeLabel) activeLabel.textContent = activeLabel.textContent.replace(' — 현재', '') + ' — 현재';
   }
   // P1253: 모델·대상·표본을 제목에 명시 — 티커별 Stage(단기 SMA150·고저점 모델)와 한 판정으로 읽히지 않게 한다.
-  if (analysis) analysis.innerHTML = '<div style="font-weight:700;color:' + state.color + ';margin-bottom:4px;">Weinstein Stage(장기 MA 스택 모델) · 대상 SPY · 표본 ' + snap.bars + '거래일 — ' + state.stage + '단계 ' + state.desc + '</div>' +
+  if (analysis) analysis.innerHTML = '<div style="font-weight:700;color:' + state.color + ';margin-bottom:4px;">이동평균 배열(장기 MA 스택 모델 · Weinstein 30주 단계와 다름) · 대상 SPY · 표본 ' + snap.bars + '거래일 — ' + state.stage + '단계 ' + state.desc + '</div>' +
     '<div style="font-size:12px;color:var(--text-muted);line-height:1.7;">기준 ' + (snap.time || '최근 거래일') + ' · ' + snap.bars + '거래일 · 종가 ' + Number(snap.price).toFixed(2) + '<br>' +
     '50일선 ' + Number(snap.sma50).toFixed(2) + ' · 100일선 ' + Number(snap.sma100).toFixed(2) + ' · 200일선 ' + Number(snap.sma200).toFixed(2) + ' · 50일선 기울기 ' + (snap.sma50Rising ? '상승' : '비상승') + '<br>' +
     'Stage는 보조 분류이며 단독 매매 신호가 아닙니다.</div>';

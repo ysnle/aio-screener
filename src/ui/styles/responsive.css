@@ -166,4 +166,19 @@ body.dark-theme .explain-label.is-amber,
 body.dark-theme .sp-neutral,
 body.dark-theme .btn-accent.--orange,
 body.dark-theme .scr-star.active { color: var(--text-secondary) !important; }
+/* v57.55 review (5e): on a phone the screener's 관심·비교 + 백분위 columns took half the visible width before the symbol,
+   and the sub-theme name column wrapped one word per line (rows 100–160px tall). Both tables already scroll sideways. */
+@media (max-width: 767px) {
+  #page-screener table [data-column-key="watchlist"] { min-width: 60px !important; padding: 6px 2px !important; }
+  #page-screener table [data-column-key="rank"] { min-width: 50px !important; padding: 6px 4px !important; }
+  #page-screener .scr-row-actions { gap: 2px; }
+  .theme-strength-table td:nth-child(2) { min-width: 150px; }
+}
+/* v57.55 review (2b): a term's first use in reading text is a quiet dotted underline; pressing it shows one line of the glossary. */
+.aio-term { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: help; text-decoration: underline dotted; text-decoration-color: var(--text-muted); text-underline-offset: 3px; display: inline; min-height: 0 !important; }
+.aio-term:hover, .aio-term:focus-visible { text-decoration-color: var(--text-primary); }
+.aio-term-pop { position: fixed; z-index: 300; max-width: calc(100vw - 16px); box-sizing: border-box; padding: 12px 14px; border: 1px solid var(--border-strong, var(--border)); border-radius: 6px; background: var(--bg-elevated, var(--bg-card)); color: var(--text-primary); box-shadow: 0 6px 20px rgba(0,0,0,0.14); font-size: 13px; line-height: 1.6; }
+.aio-term-pop strong { display: block; margin-bottom: 4px; font-size: 14px; }
+.aio-term-pop p { margin: 0 0 8px; color: var(--text-secondary); }
+.aio-term-more { font: inherit; font-size: 12px; min-height: 28px; padding: 2px 10px; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--text-primary); cursor: pointer; }
 

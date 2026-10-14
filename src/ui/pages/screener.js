@@ -110,7 +110,7 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'value', label: '밸류', sortable: true, align: 'right', width: 70, group: 'factor' },
   { key: 'quality', label: '퀄리티', sortable: true, align: 'right', width: 78, group: 'factor' },
   // v57.54: forward multiple on analyst consensus (reference only; the 밸류 factor stays on reported earnings).
-  { key: 'fwdPe', label: 'Forward PER', hint: '종가 ÷ 향후 4개 분기 컨센서스 EPS 합(조정 EPS) — 점수에 쓰지 않는 참고값, 미국 종목만', sortable: true, align: 'right', width: 92, group: 'market' },
+  { key: 'fwdPe', label: 'Forward PER', hint: '종가 ÷ 실적 발표 전 4개 분기 컨센서스 EPS 합(조정 EPS) — 점수에 쓰지 않는 참고값, 미국 종목만', sortable: true, align: 'right', width: 92, group: 'market' },
   { key: 'price', label: '가격', sortable: true, align: 'right', width: 86, group: 'market' },
   { key: 'pctFrom52wHigh', label: '52주 고점 대비', sortable: true, align: 'right', width: 96, group: 'market' },
   { key: 'ret1m', label: '1개월', sortable: true, align: 'right', width: 70, group: 'market' },
@@ -406,6 +406,7 @@ export function sortRows(rows, sortColumn, ascending, readLiveData) {
     if (sortColumn === 'price') { av = a.price; bv = b.price; }
     if (sortColumn === 'extension') { av = extensionMultiple(a); bv = extensionMultiple(b); }
     if (sortColumn === 'fwdPe') { av = forwardPe(a); bv = forwardPe(b); }
+    if (sortColumn === 'mcap') { av = capFilterValue(a); bv = capFilterValue(b); } // v57.55 (8n): the same value the cap filter uses (reference cap when no live cap)
     if (sortColumn === 'rank') { av = visibleRank(a); bv = visibleRank(b); }
     const missing = (value) => value == null || value === '' || (typeof value === 'number' && !Number.isFinite(value));
     if (missing(av) || missing(bv)) return missing(av) === missing(bv) ? 0 : missing(av) ? 1 : -1;
@@ -579,7 +580,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     const partial = !view && /^[A-Z.-]+$/.test(String(row.sym || '')) && finite(coverage?.covered) != null && coverage.covered < coverage.universeUs;
     const node = text(documentRef, view?.fwdPe != null ? `${numberText(view.fwdPe, 1)}배` : view ? '적자 예상' : partial ? '수집 전' : '—');
     if (partial) node.title = `컨센서스는 실행마다 일부 종목씩 수집합니다(지금 ${coverage.covered}/${coverage.universeUs}종목). 다음 수집 차례에 채워집니다.`;
-    else node.title = view ? `종가 ${view.price}${view.priceDate ? ` (${view.priceDate})` : ''} ÷ 향후 4개 분기(${view.fwdFrom}~${view.fwdTo}) 컨센서스 EPS 합 ${view.fwdEps} · 애널리스트 최소 ${view.minEstimates ?? '?'}명 · ${view.asOf} 수집 — 참고값` : '컨센서스 자료 없음(미국 종목만, 애널리스트 추정이 있는 경우)';
+    else node.title = view ? `종가 ${view.price}${view.priceDate ? ` (${view.priceDate})` : ''} ÷ 실적 발표 전 4개 분기(${view.fwdFrom}~${view.fwdTo}) 컨센서스 EPS 합 ${view.fwdEps} · 애널리스트 최소 ${view.minEstimates ?? '?'}명 · ${view.asOf} 수집 — 참고값` : '컨센서스 자료 없음(미국 종목만, 애널리스트 추정이 있는 경우)';
     if (!view) node.style.color = 'var(--text-muted)';
     return node;
   }
@@ -1568,7 +1569,9 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
 
 export function createScreenerPage({ documentRef, store, root = globalThis, workbench = {}, onProfileChange, onTicker, onWatchlistToggle, readWatchlist, readAliases, readLiveData } = {}) {
   // P1625: use the selected screen's declared order until the user selects another metric.
-  const sortState = { column: 'screenRank', ascending: true };
+  // v57.55 review (8n, 3-person consult): the first view is ordered by market cap. The preset's own rank lost its validation
+  // check (GME·AMC led the list), so it is applied when a reader picks a preset, not as the default reading.
+  const sortState = { column: 'mcap', ascending: false };
   const visibleLimit = { value: 12 };
   const columnState = { preset: 'discovery', custom: [] };
   const selectedSymbols = new Set();
@@ -1607,7 +1610,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         marketControls = documentRef.createElement('div'); marketControls.id = 'scr-market-scope'; marketControls.className = 'scr-market-scope';
         for (const [id, label, entries] of [
           ['scr-listing-market', '주식 시장', Object.entries(MARKET_LABELS)],
-          ['scr-order', '정렬 기준', [['screenRank','선택 조건의 순위'], ['rank','선택 비중의 팩터 백분위'], ['trend','추세 팩터'], ['ret3m','3개월 수익률'], ['momentum','모멘텀 팩터'], ['lowvol','저변동 팩터']]]
+          ['scr-order', '정렬 기준', [['mcap','시가총액 큰 순(시총 확인된 종목 먼저)'], ['screenRank','선택 조건의 순위'], ['rank','선택 비중의 팩터 백분위'], ['trend','추세 팩터'], ['ret3m','3개월 수익률'], ['momentum','모멘텀 팩터'], ['lowvol','저변동 팩터']]]
         ]) {
           const holder = documentRef.createElement('label'); holder.textContent = label;
           const select = documentRef.createElement('select'); select.id = id; select.setAttribute('aria-label', label);

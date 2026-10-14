@@ -7,6 +7,24 @@ import { searchKnowledgeIndex } from './glossary-bridge.js';
 import { createStorageGateway } from '../../platform/storage.js';
 import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
+import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
+
+// v57.55 review (2e, beginner panel): two ways in before the 400-book shelf — the start of the column series (written as a
+// sequence from money to the stock market) and the notes that match the next release the 오늘/거시 screens are waiting for.
+const EVENT_TOPICS = Object.freeze([
+  [/cpi|pce|ppi|물가/i, ['물가', '디스인플레이션', '금리']],
+  [/fomc|연준|금리 결정/i, ['정책금리', '금리', '채권']],
+  [/고용|nfp|jobs|실업/i, ['고용', '실업', '경기']],
+  [/ism|gdp|소매|retail/i, ['경기', '성장', '매출']]
+]);
+export function readingPicks(entries, scenario) {
+  const docs = (entries || []).filter((entry) => entry?.route?.page && entry.title);
+  const first = docs.filter((entry) => entry.surface === 'column').slice(0, 5);
+  const event = scenario?.crossroads?.nextEvent;
+  const topics = event ? (EVENT_TOPICS.find(([pattern]) => pattern.test(`${event.id} ${event.name}`))?.[1] || []) : [];
+  const today = topics.length ? docs.filter((entry) => topics.some((word) => String(entry.title).includes(word))).slice(0, 4) : [];
+  return { first, today, eventLabel: event?.name || null };
+}
 
 export const RESEARCH_PAGES = Object.freeze([
   { route: 'principles', title: '개념·분석 프레임', summary: '쟁점별 분석 노트, 개념 정의, 원리 레슨, 칼럼' },
@@ -73,6 +91,7 @@ const STYLE = `
 .rl-shelf-stats{font-size:12.5px;color:var(--text-secondary);font-variant-numeric:tabular-nums}
 .rl-shelf-stats b{font-weight:700;color:var(--text-primary)}
 .rl-shelf-toggle{margin-left:auto;font-size:12px;color:var(--text-muted);border-bottom:1px solid var(--border-subtle)}
+.rl-picks{display:grid;gap:8px;margin:0 0 14px;padding:0 0 12px;border-bottom:1px solid var(--border)}.rl-picks-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}.rl-picks-label{font-size:12px;font-weight:700;color:var(--text-secondary);margin-right:4px}.rl-picks-item{font:inherit;font-size:13px;min-height:28px;padding:3px 10px;border:1px solid var(--border);border-radius:4px;background:var(--bg-card);color:var(--text-primary);cursor:pointer;text-align:left}.rl-picks-item:hover{border-color:var(--text-primary)}
 .rl-shelf-tools{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 18px;margin:0 0 6px}
 .rl-shelf-chips{display:flex;flex-wrap:wrap;gap:6px}
 .rl-shelf-legend{margin:0 0 2px;font-size:12px;color:var(--text-muted)}
@@ -497,7 +516,25 @@ function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, current
   const book = el(doc, 'section', 'rl-book');
   book.hidden = true;
   book.setAttribute('aria-live', 'polite');
-  shelfBody.replaceChildren(tools, legend, stage, book);
+  const picks = el(doc, 'div', 'rl-picks');
+  const drawPicks = () => {
+    const chosen = readingPicks(docs, root?.[SCENARIO_STATE.key]);
+    const rows = [['처음이라면', chosen.first], [chosen.eventLabel ? `다음 발표(${chosen.eventLabel})와 이어지는 글` : null, chosen.today]].filter(([label, items]) => label && items.length);
+    picks.replaceChildren(...rows.map(([label, items]) => {
+      const row = el(doc, 'div', 'rl-picks-row');
+      row.append(el(doc, 'span', 'rl-picks-label', label), ...items.map((entry) => {
+        const go = el(doc, 'button', 'rl-picks-item', entry.title);
+        go.type = 'button';
+        go.addEventListener('click', () => openResearchRoute(root, entry.route, { currentPage, onLocal }));
+        return go;
+      }));
+      return row;
+    }));
+    picks.hidden = !rows.length;
+  };
+  drawPicks();
+  refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed) drawPicks(); }).catch(() => {});
+  shelfBody.replaceChildren(picks, tools, legend, stage, book);
 
   const stat = (value, unit) => { const span = el(doc, 'span'); span.append(el(doc, 'b', null, String(value)), doc.createTextNode(unit)); return span; };
   const updateTitle = () => {

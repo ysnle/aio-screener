@@ -4,9 +4,13 @@ last_verified: 2026-10-14
 confidence: medium
 ---
 
+## v57.56 라이브 10인 점검 후속 v57.56 (2026-10-14)
+
+- [ ] QA-VERIFY-23: v57.56 배포 후: 스크리너 첫 순서가 시총 순인지, BRK.B 입력이 BRK-B 화면을 여는지, AMD 종목 요약 핵심 숫자 줄과 '실적 발표 전 4개 분기' 문구, SPY 상품 요약, 거시 화면 용어 점선 밑줄과 팝업, 리서치 서가의 읽기 입구를 라이브에서 확인한다. GOOGL·META 시총은 SEC 클래스별 공시라 비어 있음(별도 과제) verify_by: browser
+
 ## v57.55 라이브 10인 점검 v57.55 (2026-10-14)
 
-- [ ] QA-VERIFY-22: v57.55 라이브 점검 반영: 배포 후 refresh-data 로그의 headline translation 줄과 data.json news의 titleKo, #ticker/NVDA·#nonexistent 주소, 포트폴리오 105560 시세(105560.KS 요청), 차트 탭·오늘·시장 상태의 같은 판정 집계, 다크 기기에서 첫 방문 다크 시작을 라이브에서 확인한다. verify_by: browser
+- [x] QA-VERIFY-22: v57.55 라이브 점검 반영: 2026-10-14 라이브(v57.55)에서 #ticker/NVDA 종목 화면, #nonexistent → #home, 차트 탭·오늘·시장 상태의 같은 판정 집계, 헤드라인 번역(titleKo)과 refresh 로그, 다크 기기 첫 방문 다크 시작(aio_theme 없음 → body.dark-theme)을 확인했다. 포트폴리오 105560 평가는 한국 지연 시세 기준(15분 실시간·72시간 지연 규칙)과 P715(공개 산출물에 종목별 원시 가격 없음) 때문에 아직 비어 있어 별도 과제로 넘겼다. verify_by: browser
 
 ## v57.54 검증 스킬 (2026-10-14)
 

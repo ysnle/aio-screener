@@ -114,6 +114,8 @@ import { normalizeTickerInput, tickerDisplayName } from '../domain/entity/ticker
 import { describeQuoteCurrentness } from '../domain/market/quote-currentness.js';
 import { KR_THEME_LABELS, krThemesForSymbol } from '../domain/themes/kr-themes.js';
 import { installTermTooltips } from '../ui/components/term-tooltip.js';
+import { installTermMarks } from '../ui/components/term-marks.js';
+import { MA_STRUCTURE_LABELS } from '../domain/technical/stage.js';
 import { installValueBasis } from '../ui/components/value-basis.js';
 import { buildEvidenceContext } from '../ai/context-builder.js';
 import { createEvidenceRetriever } from '../ai/retrieval/evidence.js';
@@ -203,7 +205,9 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
   // P1339: registered company names (엔비디아 / nvidia / 퀄컴) resolve by exact registry match when the KRX
   // normalizer left the input unchanged — no fuzzy guessing.
   window._aioNormalizeTickerInput = (raw) => {
-    const normalized = normalizeTickerInput(raw, { krStockDb: window.KR_STOCK_DB, krToYahoo: window.krTickerToYahoo });
+    const rows = typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [];
+    const isListed = (symbol) => rows.some((row) => (row?.sym || row?.symbol) === symbol);
+    const normalized = normalizeTickerInput(raw, { krStockDb: window.KR_STOCK_DB, krToYahoo: window.krTickerToYahoo, isListed });
     if (normalized !== String(raw || '').trim().toUpperCase()) return normalized;
     return resolveRegisteredName(raw, window.AIO_TICKER_NAME_REGISTRY?.entries) || normalized;
   };
@@ -261,6 +265,7 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
   // P1327/R672: Korean theme names and ticker → theme membership have one owner; the ticker
   // overview links a KRX stock to its themes and opens the theme detail on the themes page.
   window.AIO_KR_THEME_LABELS = KR_THEME_LABELS;
+  window.AIO_MA_STRUCTURE_LABELS = MA_STRUCTURE_LABELS; // v57.55 (C19 wiring): the legacy SPY card reads the same moving-average order names
   window._aioKrThemesForSymbol = (symbol) => krThemesForSymbol(symbol, window.KR_THEME_MAP);
   window.openKrThemeDetail = (themeId) => {
     if (!window.KR_THEME_MAP?.[themeId]) return false;
@@ -850,6 +855,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // P1320/R665: "?" term tooltips open on hover, focus or tap and stay inside the viewport.
     const stopTermTooltips = installTermTooltips(documentRef, { root });
     const stopValueBasis = installValueBasis(documentRef, { root }); // P1643
+    const stopTermMarks = installTermMarks(documentRef, { root }); // v57.55 review (2b): first-use term marks in reading text
     const stopTickerQuotes = legacy.on('aio:liveQuotes', () => {
       if (disposed || String(router.active() || '').replace(/^page-/, '') !== 'ticker') return;
       const id = String(root?._currentTickerId || '').trim().toUpperCase();
@@ -1063,6 +1069,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopTickerQuotes();
       stopTermTooltips();
       stopValueBasis();
+      stopTermMarks();
       stopEntityShown();
       stopPortfolioShown();
       stopPortfolioChanged();

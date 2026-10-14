@@ -6,6 +6,60 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1785 - v57.56 - SPY 단계 카드가 이동평균 배열을 'Weinstein Stage'로 표기 (2026-10-14)
+
+- symptom/reproduction: 차트 탭의 접힌 SPY 카드가 '시장(SPY) Weinstein 단계'·'Weinstein Stage(장기 MA 스택 모델)'로 썼다.
+- root_cause: v57.50 C19에서 이동평균 배열 이름표(MA_STRUCTURE_LABELS)를 만들었지만 어디에도 연결되지 않았다.
+- fix: 이름표를 전역으로 노출해 SPY 카드가 같은 이름을 쓰고, 제목을 '이동평균 배열(Weinstein 30주 단계와 다름)'로 바꾼다.
+- violated_rule: 만든 이름표는 실제 표시 경로에 연결한다(R675)
+- prevention: P1785: 로컬에서 카드 제목 확인.
+- verification/residual: 로컬 미리보기에서 해당 화면을 열어 확인했고 관련 단위 검사를 통과했다(배포 후 라이브 재확인은 QA-VERIFY-23).
+
+## P1784 - v57.56 - ETF(SPY) 화면이 '기업 요약·재무 분석·AI로 기업 분석·같은 섹터(ETF) 비교'로 표시 (2026-10-14)
+
+- symptom/reproduction: SPY에 기업 요약, 재무 공시 링크, '섹터 ETF', 기업 프라이머 질문이 나왔다.
+- root_cause: 종목 요약·다음 링크가 자산 유형(ETF·지수)을 보지 않았다.
+- fix: ETF·지수는 '상품 요약 · 상품 카드 · 무엇을 추종하는 상품인가 · AI로 상품 분석(추종 지수·구성·총보수·수익률 비교)', 재무 카드·재무 공시 링크와 'ETF' 섹터 표기를 빼고 스크리너 링크는 '다른 ETF와 비교'.
+- violated_rule: 화면 문구는 자산 유형에 맞춘다
+- prevention: P1784: 로컬에서 SPY 화면 문구 확인.
+- verification/residual: 로컬 미리보기에서 해당 화면을 열어 확인했고 관련 단위 검사를 통과했다(배포 후 라이브 재확인은 QA-VERIFY-23).
+
+## P1783 - v57.56 - 금리 질문 답변에 '최신 수치 확인 안 됨'이 붙고 화면의 20거래일 변화를 쓰지 못함 (2026-10-14)
+
+- symptom/reproduction: 화면에는 '10년물 20거래일 +22bp'가 있는데 AI 답변은 최신 수치를 확인하지 못했다고 표시했다.
+- root_cause: AI에 넘기는 종가 근거에 10년물 종가와 1거래일 변화만 있고 20거래일 변화가 없었다.
+- fix: 10년물 20거래일 변화(기준 종가 날짜 포함)를 같은 종가 근거로 넘긴다.
+- violated_rule: 화면에 보이는 숫자는 AI도 같은 근거로 인용할 수 있어야 한다
+- prevention: P1783: ci-ai-intelligence-contract에 20거래일 변화 근거 검사 추가.
+- verification/residual: 로컬 미리보기에서 해당 화면을 열어 확인했고 관련 단위 검사를 통과했다(배포 후 라이브 재확인은 QA-VERIFY-23).
+
+## P1782 - v57.56 - Forward PER의 '향후 4개 분기'에 이미 끝난 분기가 들어 있음(AMD 2026-09~) (2026-10-14)
+
+- symptom/reproduction: AMD Forward 기간이 2026-09~2027-06인데 10월 중순에 '향후 4개 분기'로 읽혔다.
+- root_cause: 기간은 아직 실적이 나오지 않은 4개 분기(시장 관행)인데 문구가 모두 미래 분기처럼 썼다.
+- fix: 문구를 '실적 발표 전 4개 분기'로 바꾸고, 첫 분기가 이미 끝났으면 '첫 분기 2026-09는 끝났고 실적 발표 전'을 붙인다(빼면 4번째 분기 예상치가 없는 경우가 많아 제외하지 않음).
+- violated_rule: 기간 이름은 실제 포함 범위를 말한다
+- prevention: P1782: 로컬에서 Forward 문구 확인.
+- verification/residual: 로컬 미리보기에서 해당 화면을 열어 확인했고 관련 단위 검사를 통과했다(배포 후 라이브 재확인은 QA-VERIFY-23).
+
+## P1781 - v57.56 - BRK.B·BF.B로 찾으면 이름·데이터 없는 빈 종목 화면 (2026-10-14)
+
+- symptom/reproduction: BRK.B는 이름 없이 코드만, BF.B는 빈 화면이 열렸다(등록부·스크리너는 BRK-B·BF-B).
+- root_cause: 입력 정규화가 대문자화만 하고 클래스주 표기(점·슬래시·대시)를 같은 종목으로 보지 않았다.
+- fix: X.Y·X/Y 형태는 대시 형태가 스크리너 목록에 있고 입력 형태가 없을 때만 대시 형태로 연다(정확 일치, 추정 아님).
+- violated_rule: 티커는 정확히 일치할 때만 열되, 같은 종목의 표기 차이는 목록 기준으로 맞춘다
+- prevention: P1781: esm-core에 클래스주 표기 사례 추가, 로컬에서 BRK.B → BRK-B 화면 확인.
+- verification/residual: 로컬 미리보기에서 해당 화면을 열어 확인했고 관련 단위 검사를 통과했다(배포 후 라이브 재확인은 QA-VERIFY-23).
+
+## P1780 - v57.56 - 스크리너 첫 화면이 자체 검증에서 진 순위로 정렬돼 GME·AMC가 맨 위 (2026-10-14)
+
+- symptom/reproduction: 첫 화면 순서가 선택 조건 순위였고, 그 순위는 스크리너 자체 검증에서 이후 수익과 구별되지 않는다고 표시돼 있었다.
+- root_cause: 기본 정렬이 screenRank였고 시가총액 정렬은 실시간 시총(mcap)만 봐서 시세가 없는 행은 순서가 없었다.
+- fix: 첫 화면은 시가총액 큰 순(시총 필터와 같은 값 — 실시간 시총, 없으면 공시 주식 수 × 종가 참고 시총), 프리셋을 고르면 그 조건 순위로 바뀐다. 시총을 확인하지 못한 종목은 뒤에 두고 옵션 이름에 그렇게 쓴다.
+- violated_rule: 검증에서 효과가 확인되지 않은 순위를 기본 읽기 순서로 쓰지 않는다
+- prevention: P1780: 로컬에서 첫 화면이 NVDA·AAPL·MSFT 순으로 정렬되는 것 확인.
+- verification/residual: 로컬 미리보기에서 해당 화면을 열어 확인했고 관련 단위 검사를 통과했다(배포 후 라이브 재확인은 QA-VERIFY-23).
+
 ## P1779 - v57.55 - 종목 검색 '삼성'은 1초 알림만 뜨고, 없는 티커는 '잠시 후 다시'로 안내 (2026-10-14)
 
 - symptom/reproduction: 부분 이름이 사라지는 토스트로만 거절됐고, NVDAA 같은 오타는 일시 장애처럼 안내됐다.

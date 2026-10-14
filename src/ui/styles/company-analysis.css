@@ -1,6 +1,7 @@
 /* P1624: reusable company analysis keeps all issuer facts inside their cards. */
 .company-analysis { margin:24px 0; min-width:0; }
 .company-analysis-lead { font-weight:600; line-height:1.7; overflow-wrap:anywhere; }
+.company-analysis-keys { margin:4px 0 10px; font-size:13px; line-height:1.6; color:var(--text-secondary); font-variant-numeric:tabular-nums; }
 .company-analysis-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr)); gap:12px; min-width:0; }
 .company-analysis-card { min-width:0; padding:16px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; }
 .company-analysis-card-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; flex-wrap:wrap; }

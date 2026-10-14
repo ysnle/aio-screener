@@ -264,15 +264,17 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     relative3?.gap != null ? `3개월 지수 대비 ${signed(relative3.gap, 1, '%p')}` : null,
     sector?.quadrant ? `섹터 ${sector.quadrant.label}` : null
   ].filter(Boolean).join(' · ');
+  // v57.55 review (8o): an ETF has no filings to read and no sector peers — its links say so.
+  const fund = /^ETF$/i.test(String(row.sector || ''));
   const next = [{ route: 'technical', label: '차트', why: trend ? `${trend.label}의 셋업 — 이동평균·피벗·거래량으로 지금 자리가 돌파 전인지 확인` : '일봉과 이동평균 위치' },
-    { route: 'fundamental', label: '재무 공시', why: '이 추세를 매출·이익·현금흐름이 뒷받침하는지' }];
+    ...(fund ? [] : [{ route: 'fundamental', label: '재무 공시', why: '이 추세를 매출·이익·현금흐름이 뒷받침하는지' }])];
   if (topTheme?.id) next.push({ action: 'showThemeDetail', arg: topTheme.id, route: 'themes', label: `테마 · ${topTheme.label}`, why: '같은 테마 안에서 누가 앞서는지' });
   // v57.50 I01: the Korean label (기술) is for the sentence; the screener filters on the artifact's own sector value
   // (Technology), so the handoff carries that value, not a search word that matches no row.
   // v57.54: one Korean sector name on the page ("섹터 기술" above, "같은 섹터(Technology)" here) — the label map is the
   // same SECTOR_ETF → SECTOR_KO path the sector point uses, for KR listings too; the handoff ctx keeps the raw value.
   const sectorName = sector?.label || SECTOR_KO[SECTOR_ETF[normalizeSectorKey(row.sector)]] || row.sector || '';
-  next.push({ route: 'screener', label: '스크리너', why: `같은 섹터(${sectorName || '—'})에서 상대 순위가 높은 종목과 비교`, ctx: row.sector ? { sector: row.sector, ticker: symbol } : { ticker: symbol } });
+  next.push({ route: 'screener', label: '스크리너', why: fund ? '다른 ETF와 수익률·추세 비교' : `같은 섹터(${sectorName || '—'})에서 상대 순위가 높은 종목과 비교`, ctx: row.sector ? { sector: row.sector, ticker: symbol } : { ticker: symbol } });
   // v57.50 I12: 13F holders only when the reference ledger lists this ticker; the ledger's scope is stated.
   if (thirteenF?.covered && !isKr) {
     next.push({ route: 'masters', label: '운용사·13F', why: `이 종목을 신고한 운용사 — 13F 역조회 원장 ${finite(thirteenF.tickerCount) ?? '—'}개 종목 범위, 분기 지연 신고`, ctx: { ticker: symbol } });

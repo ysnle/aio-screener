@@ -78,7 +78,7 @@ async function main() {
         const smallTargets = controls.filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && (r.width < 24 || r.height < 24); }).map((el) => {
           const r = el.getBoundingClientRect();
           const parentText = (el.parentElement?.textContent || '').replace(/\s+/g, ' ').trim();
-          const inlineTextException = el.tagName === 'A' && getComputedStyle(el).display === 'inline' && parentText.length > name(el).length;
+          const inlineTextException = (el.tagName === 'A' || el.classList.contains('aio-term')) && getComputedStyle(el).display === 'inline' && parentText.length > name(el).length;
           // P1658: a clipped keyboard-only control is not a pointer target until focus, when it renders full size.
           const focusOnlyException = /rect\(0(px)?,? 0(px)?,? 0(px)?,? 0(px)?\)/.test(getComputedStyle(el).clip) && el.classList.contains('aio-basis-btn');
           return { id:el.id || '', text:name(el).slice(0, 60), width:Math.round(r.width), height:Math.round(r.height), exception:inlineTextException ? 'wcag-inline-text' : focusOnlyException ? 'keyboard-focus-only' : null };
