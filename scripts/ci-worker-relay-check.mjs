@@ -229,14 +229,107 @@ async function main() {
     }
   }
 
+  // ── v57.61 non-AI Worker hardening ─────────────────────────────────────────
+  {
+    const stubbed = globalThis.fetch;
+    try {
+      // A failing upstream that answered still used an operator-key call: the reservation stays counted.
+      for (const [label, reply] of [['>=400', () => new Response('{"error":"quota"}', { status: 500, headers: { 'content-type': 'application/json' } })],
+        ['HTML', () => new Response('<!doctype html><title>blocked</title>', { status: 200, headers: { 'content-type': 'text/html' } })]]) {
+        let calls = 0;
+        globalThis.fetch = async () => { calls += 1; return reply(); };
+        const quota = atomicQuota();
+        const capped = { BOK_API_KEY: SECRET, AIO_QUOTA_DO: quota, RELAY_DAILY_CAP: '1' };
+        const query = 'provider=bok&statCode=722Y001&cycle=M&start=202601&end=202602&item=0101000';
+        const first = await worker.fetch(relayRequest(query), capped);
+        const second = await worker.fetch(relayRequest(query), capped);
+        check(`v57.61 a ${label} upstream reply counts toward RELAY_DAILY_CAP`, first.status >= 500 && second.status === 429 && calls === 1 && quota.count === 1, `${first.status} ${second.status} ${calls} ${quota.count}`);
+      }
+      // Error responses carry the configured dev origin's CORS header (errorResponse receives env).
+      const DEV = 'http://localhost:8891';
+      const devEnv = { AIO_DEV_ORIGINS: DEV, AIO_QUOTA_DO: atomicQuota() };
+      const devProxy = await worker.fetch(new Request('https://worker.example/', { headers: { Origin: DEV } }), devEnv);
+      const devRelay = await worker.fetch(relayRequest('provider=evil', { origin: DEV }), devEnv);
+      const devTombstone = await worker.fetch(new Request('https://worker.example/anthropic', { headers: { Origin: DEV } }), devEnv);
+      check('v57.61 proxy, relay and tombstone errors echo a configured dev origin', [devProxy, devRelay, devTombstone].every((r) => r.headers.get('Access-Control-Allow-Origin') === DEV)
+        && devProxy.status === 400 && devRelay.status === 400 && devTombstone.status === 410, [devProxy, devRelay, devTombstone].map((r) => `${r.status}:${r.headers.get('Access-Control-Allow-Origin')}`));
+      check('v57.61 every errorResponse call site passes env', !/errorResponse\([^\n]*,\s*\d{3},\s*(?:origin|requestOrigin)\)/.test(source));
+      // Rate-limit buckets: IPv6 grouped per /64 and the isolate map is bounded.
+      globalThis.fetch = async () => new Response(JSON.stringify({ observations: [] }), { status: 200, headers: { 'content-type': 'application/json' } });
+      const keys = [];
+      const keyed = { FRED_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota(), RATE_LIMIT_RELAY: { limit: async ({ key }) => { keys.push(key); return { success: true }; } } };
+      for (const ip of ['2001:db8:1:2:aaaa::1', '2001:db8:1:2:bbbb:cccc:dddd:eeee']) {
+        await worker.fetch(new Request('https://worker.example/relay?provider=fred&series_id=DGS10', { headers: { Origin: PROD_ORIGIN, 'X-AIO-Provider-Key': SECRET, 'cf-connecting-ip': ip } }), keyed);
+      }
+      check('v57.61 rate-limit buckets group IPv6 by /64', keys.length === 2 && keys[0] === keys[1] && keys[0] === '2001:db8:1:2::/64', keys);
+      const { checkRateLimit, RATE_LIMIT_MAP_MAX_KEYS } = await import('../cloudflare-worker-proxy.js');
+      const bounded = new Map();
+      for (let i = 0; i < RATE_LIMIT_MAP_MAX_KEYS; i += 1) bounded.set('10.0.' + i, { count: 1, resetTime: Date.now() + 60000 });
+      const admitted = checkRateLimit('192.0.2.1', bounded, 10);
+      check('v57.61 the isolate rate-limit map never grows past its bound', RATE_LIMIT_MAP_MAX_KEYS === 5000 && admitted && bounded.size <= RATE_LIMIT_MAP_MAX_KEYS && bounded.has('192.0.2.1'), bounded.size);
+    } finally {
+      globalThis.fetch = stubbed;
+    }
+  }
+
+  // ── /workers-ai/translate (v57.61) ─────────────────────────────────────────
+  {
+    const AUTOMATION = 'automation-fixture-token-' + 'y'.repeat(32);
+    const MODEL_TEXT = 'MODEL-OUTPUT-MUST-NOT-LEAK';
+    const aiEnv = (reply) => ({ AIO_AUTOMATION_TOKEN: AUTOMATION, AI: { run: async () => (typeof reply === 'function' ? reply() : reply) } });
+    const translate = (titles, { token = AUTOMATION, method = 'POST', raw } = {}) => new Request('https://worker.example/workers-ai/translate', {
+      method, headers: token ? { 'X-AIO-Automation-Token': token, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' },
+      ...(method === 'POST' ? { body: raw ?? JSON.stringify({ titles }) } : {}) });
+    const titles = (n) => Array.from({ length: n }, (_, i) => `Headline ${i}`);
+    const ok = aiEnv((() => ({ response: JSON.stringify(titles(2).map((_, i) => `번역 ${i}`)) })));
+    const noToken = await worker.fetch(translate(titles(2), { token: '' }), ok);
+    const anonGet = await worker.fetch(translate(null, { token: '', method: 'GET' }), ok);
+    const authedGet = await worker.fetch(translate(null, { method: 'GET' }), ok);
+    check('v57.61 translate hides itself (404) from a caller without the automation token, for every method', noToken.status === 404 && anonGet.status === 404 && authedGet.status === 405, [noToken.status, anonGet.status, authedGet.status]);
+    const big = await worker.fetch(translate(null, { raw: JSON.stringify({ titles: ['x'.repeat(40 * 1024)] }) }), ok);
+    check('v57.61 translate answers 413 for an oversized body', big.status === 413, big.status);
+    const over41 = await worker.fetch(translate(titles(41)), ok);
+    const over21 = await worker.fetch(translate(titles(21)), ok);
+    check('v57.61 translate refuses more than 20 titles with 400', over41.status === 400 && over21.status === 400, [over41.status, over21.status]);
+    const good = await worker.fetch(translate(titles(2)), ok);
+    const goodBody = await good.json();
+    check('v57.61 translate returns one translation per title', good.status === 200 && goodBody.translations?.length === 2, goodBody);
+    const truncated = await worker.fetch(translate(titles(2)), aiEnv({ response: `["번역 0", "${MODEL_TEXT}` }));
+    const mismatch = await worker.fetch(translate(titles(2)), aiEnv({ response: `["${MODEL_TEXT}"]` }));
+    const empty = await worker.fetch(translate(titles(2)), aiEnv({ response: '["번역 0", ""]' }));
+    const nonString = await worker.fetch(translate(titles(2)), aiEnv({ response: ['번역 0', 7] }));
+    const thrown = await worker.fetch(translate(titles(2)), aiEnv(() => { throw new Error(MODEL_TEXT); }));
+    const failures = [truncated, mismatch, empty, nonString, thrown];
+    const failureBodies = await Promise.all(failures.map((r) => r.text()));
+    check('v57.61 translate fails (503) on a truncated, short, empty-item, non-string or thrown reply', failures.every((r) => r.status === 503), failures.map((r) => r.status));
+    check('v57.61 translate error bodies carry short codes only, never model output or exception text',
+      failureBodies.every((text) => !text.includes(MODEL_TEXT) && !/"detail"/.test(text) && /"error":"[a-z0-9:-]+"/.test(text))
+      && JSON.parse(failureBodies[1]).error === 'workers-ai-unparsed:count-mismatch' && JSON.parse(failureBodies[2]).error === 'workers-ai-unparsed:empty-item', failureBodies);
+    // Client side: larger lists are chunked to <=20 titles per request, and a failure reason keeps the code only.
+    const { requestWorkersAiTranslation } = await import('./lib/ai-shared-analysis.mjs');
+    const sizes = [];
+    const clientEnv = { AIO_AUTOMATION_TOKEN: AUTOMATION, AI_PROXY_URL: 'https://worker.example' };
+    const chunked = await requestWorkersAiTranslation(titles(30), { env: clientEnv, fetchImpl: async (_url, init) => {
+      const sent = JSON.parse(init.body).titles; sizes.push(sent.length);
+      return Response.json({ model: 'm', translations: sent.map((t) => '번역 ' + t) });
+    } });
+    check('v57.61 the translation client sends at most 20 titles per request and keeps order', JSON.stringify(sizes) === '[20,10]' && chunked.translations?.length === 30 && chunked.translations[29] === '번역 Headline 29', { sizes, n: chunked.translations?.length });
+    const failedClient = await requestWorkersAiTranslation(titles(2), { env: clientEnv, fetchImpl: async () => Response.json({ error: 'workers-ai-unparsed:count-mismatch', detail: MODEL_TEXT }, { status: 503 }) });
+    check('v57.61 the translation client logs the Worker code only', failedClient.translations === null && failedClient.reason === 'workers-ai-http-503-workers-ai-unparsed:count-mismatch', failedClient);
+  }
+
   // ── Health surface ─────────────────────────────────────────────────────────
-  const healthEnv = { FRED_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota(), AI_DAILY_CAP: '321', AIO_OPERATOR_TOKEN: 'operator-private-fixture-' + 'x'.repeat(32) };
+  const healthEnv ={ FRED_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota(), AI_DAILY_CAP: '321', AIO_OPERATOR_TOKEN: 'operator-private-fixture-' + 'x'.repeat(32) };
   const health = await worker.fetch(new Request('https://worker.example/health', { headers: { Origin: PROD_ORIGIN } }), healthEnv);
   const healthText = await health.text();
   const healthBody = JSON.parse(healthText);
   check('P1151 health lists the relay providers', Array.isArray(healthBody.relay?.providers) && healthBody.relay.providers.includes('fred'), healthBody.relay);
   check('P1422 health reports FRED personal credential policy separately from operator key presence', healthBody.relay?.configured?.fred === false && healthBody.relay?.configured?.bok === false && healthBody.relay?.personalKeyRequired?.includes('fred'), healthBody.relay);
   check('P1151 health never exposes a relay key', !healthText.includes(SECRET));
+  {
+    const bound = await (await worker.fetch(new Request('https://worker.example/health', { headers: { Origin: PROD_ORIGIN } }), { ...healthEnv, AI: { run: async () => ({}) } })).json();
+    check('v57.61 health reports the Workers AI binding as a presence boolean', healthBody.workersAiBound === false && bound.workersAiBound === true, [healthBody.workersAiBound, bound.workersAiBound]);
+  }
   // The token check is `if (env.AIO_APP_TOKEN && …)`, so an unset token means no check at all.
   // /health has to say which state the operator is in instead of implying the gate is closed.
   check('P1156 health reports whether the app token is required', healthBody.relay?.appTokenRequired === false, healthBody.relay);

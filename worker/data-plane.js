@@ -318,7 +318,11 @@ export default {
       // P1578: report whether the refresh dispatcher can run (never the token itself), so the
       // watchdog can tell "GitHub schedule only" from a working 30-minute driver.
       const receipt = await readPublicJson(env, 'scheduler:dispatch');
-      const schedulerDispatch = { configured: !!env?.GITHUB_DISPATCH_TOKEN, workflow: REFRESH_DISPATCH_POLICY.workflow, slotMinutes: REFRESH_DISPATCH_POLICY.slotMinutes, lastObservation: receipt || null };
+      // v57.61: the screener backup dispatcher writes its own receipt; report it beside the refresh one so a
+      // stalled screener slot is visible from /health without reading KV.
+      const screenerReceipt = await readPublicJson(env, SCREENER_DISPATCH_POLICY.kvKey);
+      const schedulerDispatch = { configured: !!env?.GITHUB_DISPATCH_TOKEN, workflow: REFRESH_DISPATCH_POLICY.workflow, slotMinutes: REFRESH_DISPATCH_POLICY.slotMinutes, lastObservation: receipt || null,
+        screenerDispatch: { workflow: SCREENER_DISPATCH_POLICY.workflow, slotTimesUtc: SCREENER_DISPATCH_POLICY.slotTimesUtc, lastObservation: screenerReceipt || null } };
       return jsonResponse({ ok: !!current, heartbeat, revision: current?.revision || null, sourceSha: env?.AIO_SOURCE_SHA || null, coverage: current?.coverage || null, schedulerDispatch }, request, env, current ? 200 : 503);
     }
     if (url.pathname === '/quotes') {

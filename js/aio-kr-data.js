@@ -312,7 +312,7 @@ function renderKrThemeCardsFromMap() {
 
     // 카드 HTML 조립
     html += '<div class="kr-theme-card" data-heat="' + heat + '" data-theme-id="' + tid + '">' +
-      '<div class="kr-theme-header">' +
+      '<div class="kr-theme-header" role="button" tabindex="0" aria-label="' + escHtml(String(meta.name || tid) + ' · ' + heatLabel + ' — 테마 자세히 보기') + '">' +
         '<span class="kr-theme-icon" style="background:' + meta.bg + ';"></span>' +
         '<div><div class="kr-theme-name">' + meta.name + '</div><div class="kr-theme-en">' + meta.en + '</div></div>' +
         '<span class="kr-theme-heat heat-' + heat + '">' + heatLabel + '</span>' +
@@ -345,6 +345,8 @@ function renderKrThemeCardsFromMap() {
       if (e.target.closest('.kr-ticker-pill') || e.target.closest('.kr-theme-card-more')) return;
       if (typeof showKrThemeDetail === 'function') showKrThemeDetail(themeId);
     });
+    var header = card.querySelector('.kr-theme-header'); // v57.61 WCAG 2.1.1: the header (no nested controls) is the keyboard entry
+    if (header) header.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (typeof showKrThemeDetail === 'function') showKrThemeDetail(themeId); } });
   });
 }
 

@@ -144,6 +144,32 @@ if (/javascript|index\.html|aio-core\.js|sw\.js/.test(coreTable)) fail('the core
   if (dataKeys.some((key) => /[?&]t=/.test(key))) fail(`P1410 data cache keyed by the cache-buster: ${dataKeys.join(', ')}`);
 }
 
+// v57.61 (perf): an unchanged 200 (same ETag) is not copied into DATA_CACHE again while the cached copy is
+// younger than half its TTL; a changed ETag is. Purge is throttled, not removed.
+{
+  const vm = await import('node:vm');
+  const store = new Map(); let puts = 0;
+  const keyOf = (input) => (typeof input === 'string' ? input : input.url);
+  const cache = { put: async (req, res) => { puts += 1; store.set(keyOf(req), res.clone()); }, match: async (req) => store.get(keyOf(req))?.clone(), keys: async () => [...store.keys()].map((url) => new Request(url)), delete: async (req) => store.delete(keyOf(req)) };
+  const caches = { open: async () => cache, match: async (req) => store.get(keyOf(req))?.clone(), keys: async () => [], delete: async () => true };
+  const handlers = {}; let etag = '"a"';
+  const origin = 'https://example.test';
+  const self = { addEventListener: (type, fn) => { handlers[type] = fn; }, registration: { scope: `${origin}/aio/` }, location: { origin }, clients: { claim: async () => {} }, skipWaiting: async () => {} };
+  const fetchImpl = async () => new Response('{"ok":1}', { status: 200, headers: { 'content-type': 'application/json', etag } });
+  vm.runInNewContext(source, { self, caches, fetch: fetchImpl, Request, Response, Headers, URL, console, setTimeout, Date });
+  const dispatch = async (url) => {
+    let responded; const pending = [];
+    handlers.fetch({ request: new Request(url), respondWith: (p) => { responded = p; }, waitUntil: (p) => pending.push(p) });
+    const response = await responded; await response.text(); await Promise.all(pending);
+  };
+  const url = `${origin}/aio/public-data/data.json`;
+  await dispatch(url); await dispatch(url);
+  if (puts !== 1) fail(`v57.61 an unchanged (same ETag) data response was re-copied into DATA_CACHE: ${puts} puts`);
+  etag = '"b"'; await dispatch(url);
+  if (puts !== 2) fail(`v57.61 a changed ETag did not refresh DATA_CACHE: ${puts} puts`);
+  if (!/PURGE_INTERVAL_MS/.test(source) || !/maybePurgeExpiredData\(c\)/.test(source)) fail('v57.61 DATA_CACHE purge is no longer throttled');
+}
+
 // P1755: behaviour of the shell branch. A classic script carrying THIS worker's ?v= is served
 // cache-first from this version's shell cache; any other ?v= and every unversioned shell asset go
 // to the network with HTTP revalidation ('no-cache', never 'no-store'); a version bump renames the

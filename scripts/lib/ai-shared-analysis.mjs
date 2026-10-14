@@ -103,23 +103,38 @@ export async function requestSharedWebSearch(prompt, { env = process.env, fetchI
 
 // 2026-10-14: headline translation on the Worker's Workers AI binding (free daily allowance). Returns the translated
 // strings, or null with a reason — the caller then uses the shared OpenAI path, so a missing binding costs nothing.
+// v57.61: the Worker accepts at most 20 titles per call (WORKERS_AI_TRANSLATE_MAX_TITLES), so larger lists go in
+// sequential chunks; any failed chunk fails the whole list (the caller then uses one shared-model request). The
+// reason carries the Worker's short error code only — never model output — because it lands in Actions logs.
+export const WORKERS_AI_TRANSLATE_CHUNK = 20;
 export async function requestWorkersAiTranslation(titles, { env = process.env, fetchImpl = fetch, timeoutMs = 45000 } = {}) {
   const config = resolveSharedAiConfig(env);
   if (!config) return { translations: null, reason: 'shared-ai-not-configured' };
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetchImpl(config.url.replace(/\/openai$/, '/workers-ai/translate'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-AIO-Automation-Token': config.token },
-      body: JSON.stringify({ titles }),
-      signal: controller.signal,
-      redirect: 'error',
-    });
-    const body = await response.json().catch(() => null);
-    if (!response.ok || !Array.isArray(body?.translations)) return { translations: null, reason: `workers-ai-http-${response.status}${body?.error ? `-${String(body.error).slice(0, 40)}` : ''}${body?.detail ? ` (${String(body.detail).replace(/\s+/g, ' ').slice(0, 120)})` : ''}` };
-    return { translations: body.translations, model: body.model || null, reason: null };
-  } catch (error) {
-    return { translations: null, reason: error?.name === 'AbortError' ? 'workers-ai-timeout' : 'workers-ai-error' };
-  } finally { clearTimeout(timeout); }
+  const list = Array.isArray(titles) ? titles : [];
+  const translations = [];
+  let model = null;
+  for (let start = 0; start < list.length; start += WORKERS_AI_TRANSLATE_CHUNK) {
+    const chunk = list.slice(start, start + WORKERS_AI_TRANSLATE_CHUNK);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetchImpl(config.url.replace(/\/openai$/, '/workers-ai/translate'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-AIO-Automation-Token': config.token },
+        body: JSON.stringify({ titles: chunk }),
+        signal: controller.signal,
+        redirect: 'error',
+      });
+      const body = await response.json().catch(() => null);
+      if (!response.ok || !Array.isArray(body?.translations) || body.translations.length !== chunk.length) {
+        const code = typeof body?.error === 'string' && /^[a-z0-9:-]{1,48}$/.test(body.error) ? `-${body.error}` : '';
+        return { translations: null, reason: `workers-ai-http-${response.status}${code}` };
+      }
+      translations.push(...body.translations);
+      model = model || body.model || null;
+    } catch (error) {
+      return { translations: null, reason: error?.name === 'AbortError' ? 'workers-ai-timeout' : 'workers-ai-error' };
+    } finally { clearTimeout(timeout); }
+  }
+  return { translations, model, reason: null };
 }

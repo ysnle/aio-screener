@@ -10,7 +10,12 @@
     "role": "durable-fast-quote-plane",
     "soakRequiredDays": 7,
     "rightsReviewed": false,
-    "consumerGate": "public-config.json marketData.fastQuotes.enabled is derived from this flag plus the measured soak and the live coverage probe (scripts/ci-fast-plane-consumer-gate.mjs)"
+    "consumerGate": "public-config.json marketData.fastQuotes.enabled is derived from this flag plus the measured soak and the live coverage probe (scripts/ci-fast-plane-consumer-gate.mjs)",
+    "routes": [
+      { "path": "/health", "methods": ["GET", "HEAD"], "access": "public", "notes": "quote heartbeat, revision, sourceSha, coverage and schedulerDispatch (refresh + screener receipts; token presence only)" },
+      { "path": "/quotes", "methods": ["GET", "HEAD"], "access": "public" },
+      { "path": "/admin/run", "methods": ["POST"], "access": "X-AIO-Cron-Token must equal AIO_CRON_SECRET; otherwise 401", "notes": "publishes quotes on demand; the cron trigger is the normal writer" }
+    ]
   },
   "proxy": {
     "name": "aio-proxy",
@@ -21,7 +26,17 @@
     "aiPath": "/openai",
     "aiProvider": "openai",
     "aiModel": "gpt-6-luna",
-    "readiness": "verify-at-runtime"
+    "readiness": "verify-at-runtime",
+    "translatePath": "/workers-ai/translate",
+    "routes": [
+      { "path": "/health", "methods": ["GET", "HEAD", "OPTIONS"], "access": "public", "notes": "readiness metadata only; workersAiBound is a presence boolean" },
+      { "path": "/_ops/ai-usage", "methods": ["GET"], "access": "X-AIO-Operator-Token (AIO_OPERATOR_TOKEN); anonymous callers get 404 for every method; no CORS; no-store" },
+      { "path": "/workers-ai/translate", "methods": ["POST"], "access": "X-AIO-Automation-Token (AIO_AUTOMATION_TOKEN); anonymous callers get 404 for every method; no CORS; no-store", "binding": "AI", "maxTitles": 20, "maxTitleLength": 300, "maxBodyBytes": 32768, "errors": "short codes only (titles-invalid 400, body-too-large 413, workers-ai-unbound / workers-ai-unparsed:* / workers-ai-failed 503); never model output", "budget": "Workers AI account allowance, not the shared OpenAI ledger" },
+      { "path": "/openai", "methods": ["POST", "OPTIONS"], "access": "allowed Origin (+ AIO_APP_TOKEN when set) or origin-less X-AIO-Automation-Token" },
+      { "path": "/anthropic", "methods": ["*"], "access": "public", "status": 410, "notes": "retired tombstone (also any path with ?anthropic=1); never calls a provider" },
+      { "path": "/relay", "methods": ["GET", "OPTIONS"], "access": "allowed Origin (+ AIO_APP_TOKEN when set)" },
+      { "path": "*", "query": "url", "methods": ["GET", "OPTIONS"], "access": "allowed Origin (+ bot UA refusal)", "notes": "generic CORS proxy for ALLOWED_DOMAINS only; private hosts and redirects off the allowlist refused; 5 MB / 10 s bounds" }
+    ]
   },
   "relay": {
     "name": "aio-proxy",
@@ -48,7 +63,8 @@
       "OPENAI_API_KEY",
       "AIO_QUOTA_DO"
     ],
-    "proxyOptional": ["AIO_DEV_ORIGINS", "AIO_APP_TOKEN", "AIO_OPERATOR_TOKEN"],
+    "proxyOptional": ["AIO_DEV_ORIGINS", "AIO_APP_TOKEN", "AIO_OPERATOR_TOKEN", "AI_CLIENT_KEY_SALT", "AI_KILL_SWITCH", "WORKERS_AI_TRANSLATE_MODEL", "AI"],
+    "proxyOptionalNotes": "AI is the Workers AI binding ([ai] in wrangler.proxy.toml; deploy drops it only on a Workers AI permission error); AI_KILL_SWITCH='1' disables /openai; AI_CLIENT_KEY_SALT separates the per-client HMAC from OPENAI_API_KEY; WORKERS_AI_TRANSLATE_MODEL overrides the translation model",
     "operatorObservationRequires": ["AIO_OPERATOR_TOKEN"],
     "automationAiRequires": ["AIO_AUTOMATION_TOKEN"],
     "relayRequires": [
@@ -61,11 +77,12 @@
     "proxyQuotaContract": {
       "binding": "AIO_QUOTA_DO",
       "authority": "single durable object",
-      "operations": ["reserve", "release", "usage", "start", "settle"],
+      "operations": ["reserve", "release", "usage", "start", "settle", "status"],
+      "durableObjectRoutes": ["health", "proxy"],
       "operatorUsage": "GET /_ops/ai-usage; separate AIO_OPERATOR_TOKEN; no CORS; no-store; never add counts or AI cap to public /health",
       "budgetScope": "browser chat, translation and Actions analysis and conditional cited web search share one UTC-month $20 reservation ledger (owner 2026-10-11)",
       "automationAuthentication": "origin-less POST /openai requires X-AIO-Automation-Token; not a public browser credential",
-      "idempotency": "X-AIO-Idempotency-Key or SHA-256 request-body digest",
+      "idempotency": "X-AIO-Idempotency-Key (or X-AIO-Request-Id) matching [A-Za-z0-9._:-]{8,160}; otherwise a random UUID per attempt, so identical bodies are separate billable attempts (SHA-256 of time+random only when randomUUID is missing)",
       "legacyKv": "unsupported-fail-closed",
       "productionOrigins": ["https://ysnle.github.io"],
       "developmentOrigins": "explicit exact http://localhost:<port> or http://127.0.0.1:<port> values in AIO_DEV_ORIGINS"

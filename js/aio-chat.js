@@ -2011,7 +2011,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   var requestedMaxTokens = opts.maxTokens || 4000;
   var workerMaxTokens = Number(routeState && routeState.health && routeState.health.ai && routeState.health.ai.maxTokens);
   var effectiveMaxTokens = isFinite(workerMaxTokens) && workerMaxTokens > 0 ? Math.min(requestedMaxTokens, workerMaxTokens) : requestedMaxTokens;
-  var useExtendedThinking = modelCfg.reasoningEffort === 'low';
+  var useExtendedThinking = modelCfg.reasoningEffort === 'low' || modelCfg.reasoningEffort === 'medium';
   var reqBody = {
     model: 'gpt-6-luna', instructions: system || '',
     input: _trimmedMessages.map(function(message) { return { role: message.role, content: String(message.content || '') }; }),
@@ -2022,7 +2022,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   if (window.AIO?.attachNativeSearch) reqBody = window.AIO.attachNativeSearch(reqBody, { enabled: searchEnabledNow, health: routeState.health });
   if (reqBody.tools && window._aioAIBudgetPolicy) window._aioAIBudgetPolicy.preparePaidWebSearch({ serverKey: true, health: routeState.health, state: window });
   var _claudeHeaders = { 'Content-Type': 'application/json', 'X-AIO-App-Token': _aioAppToken() };
-  if (_streamRequestId) _claudeHeaders['X-AIO-Idempotency-Key'] = _streamRequestId;
+  if (_streamRequestId) _claudeHeaders['X-AIO-Idempotency-Key'] = _streamRequestId + (opts.retryAttempt > 0 ? ':retry' + Math.min(2, opts.retryAttempt) : ''); // v57.61: a retry is a new paid attempt (reusing the key got 409) that the Worker counts as the same question
   try {
     var res = await _aioFetchClaudeWithRetry(_claudeTarget.url, {
       method: 'POST', signal: ctrl.signal, headers: _claudeHeaders, body: JSON.stringify(reqBody)
@@ -2077,7 +2077,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
       while (true) {
         // v30.5: 청크 간 15초 타임아웃 — 서버가 멈추면 자동 중단
         // v49.78 C4 P418: T 객체 미정의 가능성 방어 — typeof 체크 + 명시적 15000ms fallback
-        var _chunkTimeoutMs = (typeof T !== 'undefined' && T && T.CHUNK_TIMEOUT) ? T.CHUNK_TIMEOUT : 15000;
+        var _chunkTimeoutMs = Math.max((typeof T !== 'undefined' && T && T.CHUNK_TIMEOUT) ? T.CHUNK_TIMEOUT : 15000, modelCfg.reasoningEffort === 'medium' ? 90000 : (modelCfg.thinking || opts.webSearch === true) ? 45000 : 0); // v57.61: reasoning/search streams are silent until the first text
         var chunkTimer;
         var chunkPromise = Promise.race([
           reader.read(),
@@ -6480,7 +6480,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
       if (!_isCurrentChatRun()) return;
       var _retryable = /시간 초과|timeout|네트워크|AbortError|500|502|503|529|overloaded/i.test(errMsg);
       var _retried = state._retryCount || 0;
-      var _fallbackOrder = ['luna-low','luna'];
+      var _fallbackOrder = ['luna-medium','luna-low','luna'];
       var _currentIdx = _fallbackOrder.indexOf(selectedModelKey);
 
       if (_retryable && _retried < 2) {
@@ -6498,7 +6498,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
           _aioChatRun.retryTimer = null;
           if (!_isCurrentChatRun()) return;
           if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_pageAIRequest, nextModel);
-          callClaude((window.AIO && window.AIO.promptWithoutWebSearch || String)(systemPrompt), state.messages, _pageOnChunk, _pageOnDone, _pageOnError, { modelKey: nextModel, webSearch: false, signal: _chatSignal, requestId: _pageRequestId });
+          callClaude((window.AIO && window.AIO.promptWithoutWebSearch || String)(systemPrompt), state.messages, _pageOnChunk, _pageOnDone, _pageOnError, { modelKey: nextModel, webSearch: false, signal: _chatSignal, requestId: _pageRequestId, retryAttempt: _retried + 1 });
         }, 5000);
         return;
       }
@@ -7840,7 +7840,7 @@ async function chatSendUnified(_aioDispatchOptions) {
       try {
         var _uniDomainStr = _aioDomainContextForQuestion(ctxId, q);
         if (!_isCurrentUnifiedRun()) throw (typeof _aioChatAbortError === 'function' ? _aioChatAbortError('stale') : new Error('stale'));
-        if (_uniDomainStr) { sysPrompt += _wrapUnifiedExternal('DOMAIN_LIVE_DATA', _uniDomainStr, { maxChars: 14000 }); _uniDomainData = true; }
+        if (_uniDomainStr) { sysPrompt += _wrapUnifiedExternal('DOMAIN_LIVE_DATA', _uniDomainStr, { maxChars: 24000 }); _uniDomainData = true; }
       } catch(de2) {
         if (!_isCurrentUnifiedRun() || (de2 && de2.name === 'AbortError')) throw de2;
         _aioLog('warn', 'fetch', '도메인 데이터 주입 실패: ' + de2.message);
@@ -8037,9 +8037,9 @@ async function chatSendUnified(_aioDispatchOptions) {
   var selectedModelKey = 'luna';
   try { selectedModelKey = typeof _detectQueryComplexity === 'function' ? _detectQueryComplexity(q, ctxId) : 'luna'; } catch(e) {}
   // P1740: analysis/decision/comparison answers reason before writing; a quick fact or definition stays on the fast model.
-  if (selectedModelKey === 'luna' && /^(analysis|decision|comparison|outlook)$/.test(_uniMode)) selectedModelKey = 'luna-low';
+  if (/^(analysis|decision|comparison|outlook)$/.test(_uniMode)) selectedModelKey = 'luna-medium'; // v57.61: medium reasoning for multi-step answers (+~$0.002 each)
   var selectedModelCfg = typeof getModelConfig === 'function' ? getModelConfig(selectedModelKey) : { label: selectedModelKey };
-  var modelOpts = { modelKey: selectedModelKey, maxTokens: _uniDeepData ? 16000 : (_uniMode === 'quick' ? 4000 : 8000) };
+  var modelOpts = { modelKey: selectedModelKey, maxTokens: _uniDeepData ? 16000 : (_uniMode === 'quick' ? 4000 : selectedModelKey === 'luna-medium' ? 12000 : 8000) }; // v57.61: reasoning tokens share this cap
   sysPrompt += window.AIO && typeof window.AIO.answerModeGuide === 'function' ? window.AIO.answerModeGuide(_uniMode) : '';
   // P1741: tell the model which app-drawn figures will sit under its answer, so the prose can point to them.
   try {
@@ -8228,7 +8228,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (_uniSignal && _uniSignal.aborted) { _releaseUnifiedRun(); return; }
     var _retryable = /시간 초과|timeout|네트워크|AbortError|500|502|503|529|overloaded/i.test(errMsg);
     var _retried = state._retryCount || 0;
-    var _fallbackOrder = ['luna-low','luna'];
+    var _fallbackOrder = ['luna-medium','luna-low','luna'];
     var _currentIdx = _fallbackOrder.indexOf(selectedModelKey);
 
     if (_retryable && _retried < 2) {
@@ -8246,7 +8246,7 @@ async function chatSendUnified(_aioDispatchOptions) {
         try {
           if (!_isCurrentUnifiedRun() || (_uniSignal && _uniSignal.aborted)) return;
           if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_uniAIRequest, nextModel);
-          callClaude((window.AIO && window.AIO.promptWithoutWebSearch || String)(sysPrompt), state.messages, _uniOnChunk, _uniOnDone, _uniOnError, Object.assign({}, modelOpts, { modelKey: nextModel, webSearch: false, signal: _uniSignal, requestId: _uniRequestId }));
+          callClaude((window.AIO && window.AIO.promptWithoutWebSearch || String)(sysPrompt), state.messages, _uniOnChunk, _uniOnDone, _uniOnError, Object.assign({}, modelOpts, { modelKey: nextModel, webSearch: false, signal: _uniSignal, requestId: _uniRequestId, retryAttempt: _retried + 1 }));
         } catch(rtEx) {
           // v47.8: 재시도 callClaude 동기 throw 방어
           state._retryCount = 0;

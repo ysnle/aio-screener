@@ -88,6 +88,7 @@ export function markTerms(page, glossary, documentRef = page?.ownerDocument) {
     mark.dataset.term = text;
     mark.dataset.glossaryTerm = term;
     mark.setAttribute('aria-haspopup', 'dialog');
+    mark.setAttribute('aria-expanded', 'false');
     mark.textContent = target.nodeValue;
     target.replaceWith(mark);
     added += 1;
@@ -100,13 +101,24 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
   documentRef.__aioTermMarks = true;
   let timer = null;
   let pop = null;
+  let opener = null;
   const activePage = () => documentRef.querySelector('.page.active');
   const run = () => { timer = null; try { markTerms(activePage(), root.GLOSSARY, documentRef); } catch (_) { /* reading text only */ } };
   const schedule = () => { if (!timer) timer = setTimeout(run, 700); };
   // While a popover is open the back-to-top button (bottom-right, fixed) is hidden so it cannot sit on top of it.
-  const close = () => { if (pop) { pop.remove(); pop = null; documentRef.body?.classList.remove('aio-term-pop-open'); } };
+  // v57.61 WCAG 2.4.3: when focus was inside the popover, closing it (Escape, scroll) returns focus to the term.
+  const close = ({ restore = true } = {}) => {
+    if (!pop) return;
+    const hadFocus = pop.contains(documentRef.activeElement);
+    pop.remove(); pop = null;
+    documentRef.body?.classList.remove('aio-term-pop-open');
+    const mark = opener;
+    opener = null;
+    mark?.setAttribute('aria-expanded', 'false');
+    if (restore && hadFocus && mark?.isConnected) mark.focus({ preventScroll: true });
+  };
   const open = (mark) => {
-    close();
+    close({ restore: false });
     const entry = (root.GLOSSARY || []).find((item) => item?.term === mark.dataset.glossaryTerm);
     if (!entry) return;
     pop = documentRef.createElement('div');
@@ -122,13 +134,17 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     more.className = 'aio-term-more';
     more.textContent = '용어 사전에서 보기';
     more.addEventListener('click', () => {
-      close();
+      close({ restore: false });
       if (typeof root.openGlossary !== 'function') return;
       root.openGlossary();
       const search = documentRef.getElementById('glossary-search');
       if (search) { search.value = entry.term.replace(/\s*\(.*$/, ''); search.dispatchEvent(new Event('input', { bubbles: true })); }
     });
     pop.append(name, body, more);
+    // Tabbing out of the popover closes it; a pointer press elsewhere is handled by the document click.
+    pop.addEventListener('focusout', (event) => { if (pop && event.relatedTarget && !pop.contains(event.relatedTarget)) close({ restore: false }); });
+    opener = mark;
+    mark.setAttribute('aria-expanded', 'true');
     documentRef.body.append(pop);
     documentRef.body.classList.add('aio-term-pop-open');
     const viewport = { width: root.innerWidth || 1024, height: root.innerHeight || 768 };
@@ -154,10 +170,11 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
   observer.observe(content, { childList: true, subtree: true, characterData: true });
   documentRef.addEventListener('click', onClick);
   documentRef.addEventListener('keydown', onKey);
-  root.addEventListener?.('scroll', close, { passive: true });
+  const onScroll = () => close();
+  root.addEventListener?.('scroll', onScroll, { passive: true });
   // The reading column scrolls inside .content, not the window; a fixed popover must not stay behind when it moves.
   const scroller = documentRef.querySelector('.content');
-  scroller?.addEventListener('scroll', close, { passive: true });
+  scroller?.addEventListener('scroll', onScroll, { passive: true });
   schedule();
   return () => {
     observer.disconnect();
@@ -165,8 +182,8 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     close();
     documentRef.removeEventListener('click', onClick);
     documentRef.removeEventListener('keydown', onKey);
-    root.removeEventListener?.('scroll', close);
-    scroller?.removeEventListener('scroll', close);
+    root.removeEventListener?.('scroll', onScroll);
+    scroller?.removeEventListener('scroll', onScroll);
     documentRef.__aioTermMarks = false;
   };
 }

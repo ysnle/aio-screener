@@ -4,6 +4,10 @@ last_verified: 2026-10-14
 confidence: medium
 ---
 
+## v57.61 라이브 10인 점검 후속 v57.56 (2026-10-14)
+
+- [ ] QA-VERIFY-26: v57.61 Worker 배포 후: /health의 ai.maxTokens 16000·workersAiBound true·client.dailyLimit 200, 분석 질문 답변이 luna-medium으로 끝까지 오는지, 재시도가 409 없이 끝나는지, refresh-data 번역 로그가 'via workers-ai'인지(아니면 실패 코드), 테마 상세 열기·닫기 포커스와 다크 모드 상승·하락 글자 대비를 라이브에서 확인한다. verify_by: browser
+
 ## v57.59 라이브 10인 점검 후속 v57.56 (2026-10-14)
 
 - [ ] QA-VERIFY-25: v57.59 배포 후: refresh-data 로그의 headline translation이 'via workers-ai'인지(아니면 실패 상세), 맞춤 조건 VCP 수렴 수(vcpShrinking 게시 후)와 한국 시장에서 재무 조건 흐림, 테마 상세 닫기 포커스, 거시 갈림길 접기·'거시 6요인' 제목, 종목 화면 불러오기 실패 문구, 홈 VIX 결측 '—'를 라이브에서 확인한다. verify_by: browser

@@ -1,0 +1,3 @@
+{ "version": "v57.61", "date": "2026-10-14", "note": "v57.61: AI 품질 제약 해제(중간 추론·출력 한도·검색 깊이·재시도 차감)와 Worker·접근성·다크모드·성능 정리.", "changelog": ["**확인 항목 (v57.61):** Worker 배포 뒤 AI 중간 추론·재시도·번역 경로를 라이브에서 확인합니다(QA-VERIFY-26)."],
+  "qa_section": "라이브 10인 점검 후속 v57.56",
+  "qa": [{"id": "QA-VERIFY-26", "done": false, "verify_by": "browser", "text": "v57.61 Worker 배포 후: /health의 ai.maxTokens 16000·workersAiBound true·client.dailyLimit 200, 분석 질문 답변이 luna-medium으로 끝까지 오는지, 재시도가 409 없이 끝나는지, refresh-data 번역 로그가 'via workers-ai'인지(아니면 실패 코드), 테마 상세 열기·닫기 포커스와 다크 모드 상승·하락 글자 대비를 라이브에서 확인한다."}] }

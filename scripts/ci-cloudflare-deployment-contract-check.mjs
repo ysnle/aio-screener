@@ -22,12 +22,47 @@ check('proxy health exposes its deployment revision', /AIO_APP_REVISION/.test(pr
 check('P1312/R658/QA-OPS-02 private AI usage route and Durable Object query are explicit without changing public health requirements',
   workerEndpoints.proxy?.operatorAiUsagePath === '/_ops/ai-usage'
   && workerEndpoints.security?.operatorObservationRequires?.includes('AIO_OPERATOR_TOKEN')
-  && workerEndpoints.security?.proxyQuotaContract?.operations?.join('|') === 'reserve|release|usage|start|settle'
+  && ['reserve', 'release', 'usage', 'start', 'settle'].every((op) => workerEndpoints.security?.proxyQuotaContract?.operations?.includes(op))
   && /operation === 'settle'/.test(worker)
   && /operation === 'start'/.test(worker)
   && /handleOperatorAiUsage/.test(worker)
   && /AIO_OPERATOR_TOKEN/.test(worker)
   && /operation === 'usage'/.test(worker));
+// v57.61: the endpoint registry and the fetch handlers must list the same routes, both ways, so a new route
+// (e.g. /workers-ai/translate) cannot ship undocumented and a retired one cannot linger in the registry.
+{
+  const sameSet = (a, b) => a.size === b.size && [...a].every((item) => b.has(item));
+  const proxyHandler = worker.slice(worker.indexOf('export default {'));
+  const proxyCodeRoutes = new Set([...proxyHandler.matchAll(/_u\.pathname === '([^']+)'/g)].map((m) => m[1]));
+  const proxyRegistry = workerEndpoints.proxy?.routes || [];
+  const proxyRegistryRoutes = new Set(proxyRegistry.filter((route) => route.path !== '*').map((route) => route.path));
+  check('v57.61 proxy fetch-handler routes and architecture/worker-endpoints.json proxy.routes match both ways', proxyCodeRoutes.size > 0 && sameSet(proxyCodeRoutes, proxyRegistryRoutes));
+  check('v57.61 the generic ?url= proxy, the /anthropic 410 tombstone and the translate route are registered',
+    proxyRegistry.some((route) => route.path === '*' && route.query === 'url') && /searchParams\.get\('url'\)/.test(proxyHandler)
+    && proxyRegistry.some((route) => route.path === '/anthropic' && route.status === 410) && /'\/anthropic'[^\n]*410/.test(proxyHandler)
+    && workerEndpoints.proxy?.translatePath === '/workers-ai/translate'
+    && proxyRegistry.find((route) => route.path === '/workers-ai/translate')?.maxTitles === Number(worker.match(/WORKERS_AI_TRANSLATE_MAX_TITLES = (\d+)/)?.[1]));
+  const dataPlaneSource = read('worker/data-plane.js');
+  const dataHandler = dataPlaneSource.slice(dataPlaneSource.indexOf('export default {'));
+  const dataCodeRoutes = new Set([...dataHandler.matchAll(/url\.pathname === '([^']+)'/g)].map((m) => m[1]));
+  const dataRegistryRoutes = new Set((workerEndpoints.fastQuotes?.routes || []).map((route) => route.path));
+  check('v57.61 data-plane fetch-handler routes (incl. POST /admin/run) and fastQuotes.routes match both ways', dataCodeRoutes.has('/admin/run') && sameSet(dataCodeRoutes, dataRegistryRoutes));
+  const codeOperations = new Set([...worker.matchAll(/operation === '([a-z]+)'/g)].map((m) => m[1]));
+  const contract = workerEndpoints.security?.proxyQuotaContract || {};
+  check('v57.61 proxyQuotaContract.operations + durableObjectRoutes cover every Durable Object operation in code',
+    sameSet(codeOperations, new Set([...(contract.operations || []), ...(contract.durableObjectRoutes || [])])));
+  check('v57.61 idempotency description matches the random-UUID fallback', /random UUID/i.test(contract.idempotency || '') && /crypto\.randomUUID\(\)/.test(worker));
+  const optionalNames = new Set(workerEndpoints.security?.proxyOptional || []);
+  check('v57.61 proxyOptional names every optional proxy secret, var and binding the code reads',
+    ['AIO_DEV_ORIGINS', 'AIO_APP_TOKEN', 'AIO_OPERATOR_TOKEN', 'AI_CLIENT_KEY_SALT', 'AI_KILL_SWITCH', 'WORKERS_AI_TRANSLATE_MODEL', 'AI'].every((name) => optionalNames.has(name))
+    && /env\.AI\b/.test(worker) && /AI_CLIENT_KEY_SALT/.test(worker) && /AI_KILL_SWITCH/.test(worker) && /WORKERS_AI_TRANSLATE_MODEL/.test(worker));
+  const deployStep = proxyWorkflow.slice(proxyWorkflow.indexOf('- name: Deploy canonical Worker'), proxyWorkflow.indexOf('- name: Publish OpenAI'));
+  check('v57.61 the AI-proxy deploy drops the [ai] binding only on a captured Workers AI permission error',
+    /2>&1 \| tee "\$deploy_log"/.test(deployStep)
+    && deployStep.indexOf('grep -Eqi') > 0 && deployStep.indexOf('grep -Eqi') < deployStep.indexOf("sed -i '/^\\[ai\\]")
+    && /not retrying without the binding"\s*\n\s*exit 1/.test(deployStep)
+    && /workersAiBound: !!\(env && env\.AI\)/.test(worker));
+}
 check('both Workers expose an exact deployment source SHA', [proxyToml, dataToml].every((toml) => /AIO_SOURCE_SHA/.test(toml)) && /env\.AIO_SOURCE_SHA/.test(worker) && /sourceSha:\s*env\?\.AIO_SOURCE_SHA/.test(read('worker/data-plane.js')));
 for (const [name, workflow, workerKey] of [['proxy', proxyWorkflow, 'aiProxy'], ['data-plane', dataWorkflow, 'dataPlane']]) {
   check(`P1307/R652/QA-DATA-49 ${name} deployment consumes successful main CI and explicit exact-CI dispatch`,

@@ -1513,7 +1513,7 @@ function _aioApplyTelegramDigestPayload(raw) {
 
 async function _aioLoadServerTelegramDigest() {
   try {
-    var url = './public-data/telegram-digest.json?t=' + Math.floor(Date.now() / 3600000);
+    var url = './public-data/telegram-digest.json'; // v57.61 (perf): no-cache revalidation, no hourly buster
     var r = await fetch(url, { cache: 'no-cache' });
     if (!r.ok) {
       window._aioTelegramDigestMeta = { status:'unavailable', checkedAt:Date.now(), detail:'HTTP ' + r.status };
@@ -5493,7 +5493,7 @@ function _aioIsStrictLiveCoreFreshnessAge(ageMs) {
 async function _aioLoadServerData() {
   globalThis._aioScreenerLoadState = { status:'loading', checkedAt:Date.now() };
   try {
-    var url = './public-data/data.json?t=' + Math.floor(Date.now() / 60000); // 분 단위 캐시버스터
+    var url = './public-data/data.json?t=' + Math.floor(Date.now() / 60000); // 분 단위 캐시버스터 — v57.61 kept: bypasses the 10-min CDN copy so data.json and reconciliation-status (revision-matched below) come from the same origin minute
     var r = await fetch(url, { cache: 'no-cache' });
     if (!r.ok) {
       globalThis._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'data.json HTTP ' + r.status };
@@ -6403,7 +6403,7 @@ window._aioUpdatePipelineStatusToggle = _aioUpdatePipelineStatusToggle;
 var _aioOfficialReferencesInFlight = null;
 function _aioLoadOfficialReferences() {
   if (_aioOfficialReferencesInFlight) return _aioOfficialReferencesInFlight;
-  var url = './public-data/official-references.json?t=' + Math.floor(Date.now() / 600000);
+  var url = './public-data/official-references.json'; // v57.61 (perf): no-cache revalidation, no buster
   _aioOfficialReferencesInFlight = fetch(url, { cache: 'no-cache' }).then(function(r) {
     return r.ok ? r.json() : null;
   }).then(function(payload) {
@@ -6427,7 +6427,7 @@ function _aioIsOperatorNotePlaceholder(note) {
 }
 async function _aioLoadOperatorNote() {
   try {
-    var url = './public-data/operator-note.json?t=' + Math.floor(Date.now() / 300000);
+    var url = './public-data/operator-note.json'; // v57.61 (perf): no-cache revalidation, no buster
     var r = await fetch(url, { cache: 'no-cache' });
     if (!r.ok) return;
     var d = await r.json();
@@ -6993,7 +6993,7 @@ window._aioStartServerDataPolling = _aioStartServerDataPolling;
 // ─────────────────────────────────────────────────────────────────────────
 async function _aioLoadHistory() {
   try {
-    var url = './public-data/history.json?t=' + Math.floor(Date.now() / 3600000); // 시간 단위 캐시버스터
+    var url = './public-data/history.json'; // v57.61 (perf): no ?t= — the no-cache fetch revalidates (304) instead of re-downloading 3MB each hour
     var r = await fetch(url, { cache: 'no-cache' });
     if (!r.ok) return null;
     var arr = await r.json();

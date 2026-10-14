@@ -37,8 +37,8 @@ export function refreshScenarioArtifacts(root, repaint) {
 
 function meter(doc, item) {
   const box = el(doc, 'span', null, 'xr-meter');
-  box.setAttribute('role', 'img');
-  box.setAttribute('aria-label', item.fit);
+  // v57.61 WCAG 1.1.1: the fit text is printed right beside the dots, so the meter is decorative for assistive tech.
+  box.setAttribute('aria-hidden', 'true');
   const order = (ok) => ok === true ? 0 : ok === false ? 1 : 2; // filled dots first, so 3/4 reads as three filled
   for (const [, ok] of [...item.conditions].sort((a, b) => order(a[1]) - order(b[1]))) box.append(el(doc, 'span', null, `xr-dot ${ok == null ? 'is-unknown' : ok ? 'is-met' : 'is-unmet'}`));
   return box;

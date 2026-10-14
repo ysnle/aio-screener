@@ -211,10 +211,16 @@ jobs:
           SOURCE_SHA: ${{ steps.release.outputs.sha }}
         run: |
           set -euo pipefail
-          if ! wrangler deploy --config worker/wrangler.proxy.deploy.toml --message "AIO AI proxy $SOURCE_SHA"; then
+          deploy_log="$(mktemp)"
+          if ! wrangler deploy --config worker/wrangler.proxy.deploy.toml --message "AIO AI proxy $SOURCE_SHA" 2>&1 | tee "$deploy_log"; then
             # 2026-10-14: a deploy token without the Workers AI permission refuses the [ai] binding. Deploy without it so
             # the release still lands; headline translation then stays on the shared OpenAI path (the route answers 503).
+            # v57.61: only that permission failure may drop the binding; any other deploy error fails the job as-is.
             grep -q '^\[ai\]' worker/wrangler.proxy.deploy.toml || exit 1
+            if ! grep -Eqi 'workers[ -]?ai|binding[^[:alnum:]]+ai([^[:alnum:]]|$)|ai[^[:alnum:]]+binding|authentication error|\[code: 10000\]|not authori[sz]ed|permission' "$deploy_log"; then
+              echo "::error::Worker deploy failed for a reason other than the Workers AI permission; not retrying without the binding"
+              exit 1
+            fi
             echo "::warning::Worker deploy with the Workers AI binding failed; retrying without it"
             sed -i '/^\[ai\]$/,/^binding = "AI"$/d' worker/wrangler.proxy.deploy.toml
             wrangler deploy --config worker/wrangler.proxy.deploy.toml --message "AIO AI proxy $SOURCE_SHA (no Workers AI)"

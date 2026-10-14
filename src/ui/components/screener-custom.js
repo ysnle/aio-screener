@@ -86,13 +86,14 @@ export function installCustomConditions(documentRef) {
     recipes.append(button);
   });
   const list = el(documentRef, 'div', 'scr-custom-list');
-  list.setAttribute('aria-live', 'polite');
   const note = el(documentRef, 'div', 'scr-custom-note');
+  note.setAttribute('role', 'status');
   host.append(head, textRow, recipes, pickRow, list, note);
 
   let current = parseConditionValue(input.value);
   if (!current.length) current = normalizeConditions(sessionConditions);
   let lastCounts = new Map();
+  let lastSignature = '';
   let parseNote = '';
   let searchFromPanel = '';
   // The words this panel put into the name·sector search leave with the conditions they came with.
@@ -101,30 +102,56 @@ export function installCustomConditions(documentRef) {
     if (search && searchFromPanel && search.value === searchFromPanel) { search.value = ''; search.dispatchEvent(new Event('change', { bubbles: true })); }
     searchFromPanel = '';
   };
+  const buildChip = (condition) => {
+    const chip = el(documentRef, 'span', 'scr-custom-chip');
+    chip.dataset.chip = condition.id;
+    const template = CUSTOM_CONDITIONS.find((item) => item.id === condition.id);
+    const [before, after] = template.label.split('{n}');
+    chip.append(before);
+    if (after != null) {
+      const value = el(documentRef, 'input');
+      value.type = 'number';
+      value.step = 'any';
+      value.dataset.condition = condition.id;
+      chip.append(value, after);
+    }
+    const remove = el(documentRef, 'button', '', '빼기');
+    remove.type = 'button';
+    remove.dataset.remove = condition.id;
+    chip.append(remove);
+    return chip;
+  };
+  const findIn = (attr, id) => [...list.querySelectorAll(`[data-${attr}]`)].find((node) => node.dataset[attr] === id) || null;
+  // v57.61 WCAG 2.4.3: chips are keyed by condition id and only rebuilt when the set or order changes; otherwise the
+  // values and counts are synced in place so a focused chip input or 빼기 button keeps focus across screener renders.
   const renderChips = () => {
-    list.replaceChildren(...current.map((condition) => {
-      const chip = el(documentRef, 'span', 'scr-custom-chip');
-      const template = CUSTOM_CONDITIONS.find((item) => item.id === condition.id);
-      const [before, after] = template.label.split('{n}');
-      chip.append(before);
-      if (after != null) {
-        const value = el(documentRef, 'input');
-        value.type = 'number';
-        value.step = 'any';
-        value.value = String(condition.value);
-        value.dataset.condition = condition.id;
+    const ids = current.map((condition) => condition.id);
+    const chips = [...list.children];
+    if (chips.length !== ids.length || chips.some((chip, index) => chip.dataset.chip !== ids[index])) {
+      const active = documentRef.activeElement;
+      const focusKey = active && list.contains(active)
+        ? (active.dataset.condition ? ['condition', active.dataset.condition] : active.dataset.remove ? ['remove', active.dataset.remove] : null)
+        : null;
+      list.replaceChildren(...current.map(buildChip));
+      if (focusKey) findIn(focusKey[0], focusKey[1])?.focus();
+    }
+    current.forEach((condition) => {
+      const chip = findIn('chip', condition.id);
+      if (!chip) return;
+      const value = chip.querySelector('input[data-condition]');
+      if (value) {
+        if (documentRef.activeElement !== value && value.value !== String(condition.value)) value.value = String(condition.value);
         value.setAttribute('aria-label', `${conditionLabel({ id: condition.id, value: condition.value })} 기준값`);
-        chip.append(value, after);
       }
-      const count = lastCounts.get(condition.id);
-      if (count) chip.append(el(documentRef, 'em', '', count.withData ? `${count.pass}종목` : '자료 없음'));
-      const remove = el(documentRef, 'button', '', '빼기');
-      remove.type = 'button';
-      remove.dataset.remove = condition.id;
+      const remove = chip.querySelector('button[data-remove]');
       remove.setAttribute('aria-label', `${conditionLabel(condition)} 조건 빼기`);
-      chip.append(remove);
-      return chip;
-    }));
+      const count = lastCounts.get(condition.id);
+      let em = chip.querySelector('em');
+      if (!count) { em?.remove(); return; }
+      if (!em) { em = el(documentRef, 'em'); chip.insertBefore(em, remove); }
+      const label = count.withData ? `${count.pass}종목` : '자료 없음';
+      if (em.textContent !== label) em.textContent = label;
+    });
   };
   const commit = (next) => {
     current = normalizeConditions(next);
@@ -156,7 +183,11 @@ export function installCustomConditions(documentRef) {
       releaseSearch();
       commit(CUSTOM_RECIPES[Number(target.dataset.recipe)]?.conditions || []);
     } else if (target.dataset?.remove) {
+      const index = current.findIndex((condition) => condition.id === target.dataset.remove);
       commit(current.filter((condition) => condition.id !== target.dataset.remove));
+      // The removed button is gone: move focus to the next chip's 빼기 (or the previous one), else the picker.
+      const removes = list.querySelectorAll('button[data-remove]');
+      (removes[index] || removes[index - 1] || select).focus();
     }
   };
   const onChange = (event) => {
@@ -183,11 +214,17 @@ export function installCustomConditions(documentRef) {
       }
       const fromInput = parseConditionValue(input.value);
       if (JSON.stringify(fromInput) !== JSON.stringify(current)) { current = fromInput; store(current); }
-      lastCounts = new Map(counts.map((item) => [item.id, item]));
-      renderChips();
+      const signature = JSON.stringify([current, counts.map((item) => [item.id, item.pass, item.withData])]);
+      if (signature !== lastSignature) {
+        lastSignature = signature;
+        lastCounts = new Map(counts.map((item) => [item.id, item]));
+        renderChips();
+      }
       const missing = counts.filter((item) => !item.withData).length;
-      note.textContent = [current.length && shown != null ? `조건을 모두 만족하고 다른 필터도 통과한 종목 ${shown}개` : '',
+      // role=status: only touch the text when it changes so the count is not re-announced on every render.
+      const noteText = [current.length && shown != null ? `조건을 모두 만족하고 다른 필터도 통과한 종목 ${shown}개` : '',
         missing ? '자료 없음 조건은 이 시장 종목에 해당 자료가 없거나(재무는 미국만) 다음 데이터 갱신부터 채워집니다.' : '', parseNote].filter(Boolean).join(' · ');
+      if (note.textContent !== noteText) note.textContent = noteText;
     },
     dispose() {
       host.removeEventListener('click', onClick);

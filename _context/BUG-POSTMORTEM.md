@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1793 - v57.61 - AI 답변 자동 재시도가 늘 409로 실패하고 다시 물으면 한도가 두 번 차감됨 (2026-10-14)
+
+- symptom/reproduction: 응답 조각이 늦어 자동 재시도하면 '이미 예약된 요청' 409로 실패했고, 사용자가 다시 물어 연결별 일일 한도(150회)가 빨리 소진됐다.
+- root_cause: 재시도가 원래 요청과 같은 X-AIO-Idempotency-Key를 보내, 상위 호출이 시작된 뒤에는 Durable Object가 duplicate로 거절했다.
+- fix: 재시도는 '<id>:retry1/2' 키로 보내고, 같은 연결의 원 질문이 오늘 집계돼 있으면 연결 일일 질문 수를 다시 차감하지 않는다(금액·전역 일일 한도는 그대로 예약, 질문당 최대 3시도).
+- violated_rule: 한 질문은 한 번만 센다(재시도는 같은 질문)
+- prevention: P1793: openai-contract 테스트에 재시도 키·차감 규칙 단언 추가.
+- verification/residual: worker/openai-contract.test.mjs 통과; Worker 배포 후 라이브 확인은 QA-VERIFY-26.
+
 ## P1792 - v57.60 - 배포 진행 중에 데이터 감시가 버전 불일치로 실패함 (2026-10-14)
 
 - symptom/reproduction: v57.59 푸시 직후 감시 실행이 라이브 v57.58과 저장소 v57.59 차이를 오류로 보고 실패했다(배포는 정상 완료).

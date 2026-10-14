@@ -1140,6 +1140,17 @@ function renderTableHeader(documentRef, table, visibleColumns, sortState) {
     if (column.hint) th.title = column.hint;
     const fwdCoverage = column.key === 'fwdPe' ? consensusRoot?._aioConsensusEstimates?.coverage : null; // v57.55 E1-01
     if (fwdCoverage?.universeUs) th.title = `${th.title} · 수집 ${fwdCoverage.covered}/${fwdCoverage.universeUs}종목`;
+    // v57.61 WCAG 1.3.1: hover-only hints are also exposed to keyboard and screen-reader users via aria-describedby.
+    let hintId = '';
+    if (th.title) {
+      hintId = `scr-col-hint-${column.key}`;
+      const hint = documentRef.createElement('span');
+      hint.id = hintId;
+      // hidden: not part of the header's own name (cells stay short), still read as the description it is pointed at.
+      hint.hidden = true;
+      hint.textContent = th.title;
+      th.appendChild(hint);
+    }
     if (column.sticky) th.style.left = `${stickyLeft}px`;
     if (column.sortable) {
       const button = documentRef.createElement('button');
@@ -1152,12 +1163,13 @@ function renderTableHeader(documentRef, table, visibleColumns, sortState) {
       arrow.setAttribute('aria-hidden', 'true');
       button.appendChild(arrow);
       const active = sortState.column === column.key;
-      button.setAttribute('aria-label', `${column.label} 정렬 ${active ? (sortState.ascending ? '오름차순' : '내림차순') : '적용'}`);
+      button.setAttribute('aria-label', active ? `${column.label} 정렬 ${sortState.ascending ? '오름차순' : '내림차순'}` : `${column.label}로 정렬`);
+      if (hintId) button.setAttribute('aria-describedby', hintId);
       th.setAttribute('aria-sort', active ? (sortState.ascending ? 'ascending' : 'descending') : 'none');
-      th.appendChild(button);
+      th.prepend(button);
     } else {
-      th.textContent = column.label;
-      th.setAttribute('aria-sort', 'none');
+      th.prepend(column.label);
+      if (hintId) th.setAttribute('aria-describedby', hintId);
     }
     if (column.researchOnly) {
       const note = documentRef.createElement('span');
@@ -2288,6 +2300,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            }
           // P1592 (F03): sorting reorders the same rows — keep what the reader already expanded.
           renderNow();
+          // v57.61 WCAG 2.4.3: the header row is rebuilt on render — return focus to the same column's sort button.
+          [...page.querySelectorAll('[data-scr-sort]')].find((node) => node.dataset.scrSort === column)?.focus?.();
           return;
         }
          const action = actionNode.dataset.aioScreenerAction;
@@ -2466,10 +2480,18 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            renderNow();
          } else if (event.target.matches?.('#scr-market, #scr-sector, #scr-cap, #scr-setup, #scr-min-rank, #scr-rsi-min, #scr-rsi-max, #scr-min-mom, #scr-text-search, #scr-watchlist-only, #scr-passed-only, #scr-custom-conditions')) {
            event.stopPropagation();
+           // v57.61: typing in the name·sector search re-renders at most once per pause (150ms); change renders at once.
+           if (searchTimer) { clearTimeout(searchTimer); searchTimer = null; }
+           if (event.type === 'input' && event.target.id === 'scr-text-search') {
+             searchTimer = setTimeout(() => { searchTimer = null; visibleLimit.value = 12; renderNow(); }, 150);
+             return;
+           }
            visibleLimit.value = 12;
            renderNow();
          }
        };
+       let searchTimer = null;
+       bag.add(() => { if (searchTimer) clearTimeout(searchTimer); searchTimer = null; });
        // LC-65: 키보드 Enter도 클릭과 같은 parser/validator를 통과한다.
        const handleBuilderKeydown = (event) => {
          if (event.key !== 'Enter') return;

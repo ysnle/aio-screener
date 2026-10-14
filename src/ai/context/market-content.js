@@ -12,6 +12,7 @@ import { renderMacroCrossroadsContext } from '../../domain/market/macro-crossroa
 import { crossroadsForRoot } from '../../ui/components/macro-crossroads.js';
 import { renderThemePlaybookContext } from '../../domain/scenarios/theme-playbook.js';
 import { themePlaybookForRoot } from '../../ui/components/theme-playbook.js';
+import { conditionLabel, parseConditionValue } from '../../domain/screener/custom-conditions.js';
 
 // P1621: share page-independent selection between both legacy chat callers.
 export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readDomain = () => '' } = {}) {
@@ -26,6 +27,9 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
   if (/한국은행|한은|기준금리|금통위|한국\s*(?:물가|소비자물가|cpi|경제|수출)|국내\s*물가|수출\s*(?:잠정|동향|증가|감소)/i.test(text)) contexts.add('kr-macro');
   if (contexts.has('kr-macro')) contexts.delete('macro');
   const parts = [...contexts].map(readDomain).filter(Boolean);
+  // v57.61: the screener's 맞춤 조건 decide which rows the table shows; without them the AI judged a different list.
+  const custom = ctxId === 'screener' ? parseConditionValue(root.document?.getElementById?.('scr-custom-conditions')?.value).map(conditionLabel).filter(Boolean) : [];
+  if (custom.length) parts.push(`스크리너 화면에 적용된 맞춤 조건(모두 만족하는 종목만 표에 남음, 매매 신호 아님): ${custom.join(' · ')}`);
   const state = root.AIO_ARCH?.getScreenerState?.();
   const facts = buildMarketContentContext({ query: text, history: root._aioHistory || [], themes: root.THEME_MAP || [], rows: state?.rows || root.SCREENER_DB || [] });
   if (facts) parts.push(facts);

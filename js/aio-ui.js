@@ -118,8 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // 모델 가격과 환율은 시점 의존 데이터이므로 코드에 저장하지 않는다.
 // 비용 표시는 공급자 청구 내역을 연결하기 전까지 unavailable로 유지한다.
 const LLM_MODELS = {
-  luna: { id: 'gpt-6-luna', label: 'GPT-6 Luna', reasoningEffort: 'none' },
-  'luna-low': { id: 'gpt-6-luna', label: 'GPT-6 Luna · 심층', reasoningEffort: 'low', thinking: true }
+  luna: { id: 'gpt-6-luna', label: 'GPT-6 Luna', reasoningEffort: 'none' }, 'luna-low': { id: 'gpt-6-luna', label: 'GPT-6 Luna · 심층', reasoningEffort: 'low', thinking: true },
+  'luna-medium': { id: 'gpt-6-luna', label: 'GPT-6 Luna · 분석', reasoningEffort: 'medium', thinking: true } // v57.61: analysis/decision/comparison/outlook; medium reasoning adds ~2-5k output tokens (~$0.002)
 };
 // v31.3: 질문 복잡도 감지 → 모델 자동 선택
 function _detectQueryComplexity(query, ctxId) {

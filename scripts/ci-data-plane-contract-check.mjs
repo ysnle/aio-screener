@@ -211,6 +211,12 @@ try {
   store.clear();
   const cronMissed = await dispatchRefreshScreener({ env, scheduledTime: Date.parse('2026-10-01T22:25:00Z'), fetchImpl: runsAt('2026-10-01T18:40:00Z') });
   if (cronRan.dispatched || cronRan.reason !== 'recent-success' || !cronMissed.dispatched) fail(`screener backup dispatch must skip an on-time cron run and cover a missed one: ${JSON.stringify({ cronRan, cronMissed })}`);
+  {
+    const health = await (await dataPlane.fetch(new Request('https://fast.example/health'), env)).json();
+    const screener = health.schedulerDispatch?.screenerDispatch;
+    if (screener?.workflow !== 'refresh-screener.yml' || !screener.lastObservation || screener.lastObservation.reason !== JSON.parse(store.get(SCREENER_DISPATCH_POLICY.kvKey)).reason
+        || JSON.stringify(health).includes(env.GITHUB_DISPATCH_TOKEN + '"')) fail('v57.61 /health must expose the screener dispatch receipt (scheduler:dispatch:screener) beside the refresh receipt');
+  }
   // The refresh-data slot at :20/:50 must not dispatch the screener and vice versa.
   const dataAtScreenerSlot = await dispatchRefreshData({ env, scheduledTime: Date.parse('2026-10-01T07:25:00Z'), fetchImpl });
   if (dataAtScreenerSlot.reason !== 'not-a-dispatch-slot') fail('refresh-data must not dispatch at screener slots');

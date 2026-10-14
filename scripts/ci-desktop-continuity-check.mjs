@@ -147,7 +147,8 @@ vm.runInContext(entitySource.slice(entitySource.indexOf('function tickerElement(
 for (const route of ['screener', 'themes', 'portfolio', 'technical', 'fundamental']) {
   uiContext.renderTickerNavigation(documentRef, { id: 'NVDA' }, { AIO: { state: { tickerReturnRoute: route } } });
   assert.equal(nodes.get('ticker-back-btn-main').getAttribute('data-arg'), route);
-  assert.equal(nodes.get('ticker-back-btn-main').getAttribute('aria-label'), nodes.get('ticker-back-btn-main').textContent, 'accessible name follows visible origin');
+  const backName = nodes.get('ticker-back-btn-main').getAttribute('aria-label');
+  assert(backName.includes(nodes.get('ticker-back-btn-main').textContent.replace(/^←\s*/, '')) && !backName.includes('←'), 'v57.61 accessible name contains the visible origin and does not read the arrow');
   assert.equal(nodes.get('ticker-breadcrumb-main').getAttribute('aria-label'), nodes.get('ticker-breadcrumb-main').textContent);
   assert.equal(nodes.get('ticker-fundamental-link').textContent, 'NVDA SEC 재무 보기');
   assert.equal(nodes.get('ticker-fundamental-link').disabled, false);

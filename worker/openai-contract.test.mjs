@@ -44,7 +44,13 @@ async function main() {
   const charge = verifiedOpenAiCharge(usageResponse(), budget);
   const searchBody = { ...body, tools: [{ type: 'web_search', search_context_size: 'low', return_token_budget: 'default' }], max_tool_calls: 2, tool_choice: 'required' };
   const searchBudget = prepareOpenAiBudget(searchBody, { AI_WEB_SEARCH_ENABLED: 'true' });
-  check('P1608 hosted search shares twenty dollar admission and retained reserve', searchBudget.monthlyCapMicroUsd === 20000000 && searchBudget.searchReserveMicroUsd === 200000 && searchBudget.body.reasoning.effort === 'low');
+  check('P1608 hosted search shares twenty dollar admission and retained reserve', searchBudget.monthlyCapMicroUsd === 20000000 && searchBudget.searchReserveMicroUsd === 80000 && searchBudget.body.reasoning.effort === 'low');
+  const deepSearch = prepareOpenAiBudget({ ...searchBody, reasoning: { effort: 'medium' }, tools: [{ ...searchBody.tools[0], search_context_size: 'medium' }] }, { AI_WEB_SEARCH_ENABLED: 'true' });
+  const highSearch = prepareOpenAiBudget({ ...searchBody, reasoning: { effort: 'high' } }, { AI_WEB_SEARCH_ENABLED: 'true' });
+  check('v57.61 analysis search keeps medium reasoning/context; higher effort is clamped to low', deepSearch.body.reasoning.effort === 'medium' && deepSearch.body.tools[0].search_context_size === 'medium' && highSearch.body.reasoning.effort === 'low');
+  rejects('v57.61 search context above medium stays unbudgeted', () => prepareOpenAiBudget({ ...searchBody, tools: [{ ...searchBody.tools[0], search_context_size: 'high' }] }, { AI_WEB_SEARCH_ENABLED: 'true' }));
+  check('v57.61 output cap admits 16384 reasoning-inclusive tokens and refuses more', prepareOpenAiBudget({ ...body, max_output_tokens: 20000 }, { AI_MAX_OUTPUT_TOKENS: '16384' }).body.max_output_tokens === 16384);
+  rejects('v57.61 output cap above 16384 is invalid configuration', () => prepareOpenAiBudget(body, { AI_MAX_OUTPUT_TOKENS: '16385' }));
   for (const attempt of [
     { ...searchBody, max_tool_calls: 3 }, { ...searchBody, max_tool_calls: 0 },
     { ...searchBody, tools: [{ ...searchBody.tools[0], return_token_budget: 'unlimited' }] },
@@ -263,6 +269,14 @@ async function main() {
     const clientLedger = clientCap.saved().clients['claude:' + currentDay], clientLedgerText = JSON.stringify(clientCap.saved());
     check('P1759 ledger stores only HMAC client keys, never raw addresses', Object.keys(clientLedger).length === 2 && Object.keys(clientLedger).every(key => /^[0-9a-f]{32}$/.test(key))
       && Object.values(clientLedger).sort().join(',') === '1,3' && !clientLedgerText.includes('203.0.113'));
+    const retryCap = harness(undefined, { AI_PER_CLIENT_DAILY_CAP: '1' }), retrySend = async (key, address = '203.0.113.20') => { const response = await worker.fetch(req(body, { headers: ip(address, { 'X-AIO-Idempotency-Key': key }) }), retryCap.env); await response.arrayBuffer(); return response.status; };
+    const retryStatuses = [await retrySend('question-one'), await retrySend('question-one:retry1'), await retrySend('question-one:retry2'), await retrySend('question-one:retry3'), await retrySend('question-two'), await retrySend('question-three', '203.0.113.21'), await retrySend('question-three:retry1')];
+    check('v57.61 retries of one counted question do not spend the connection daily questions; other ids and connections still do', retryStatuses.join(',') === '200,200,200,429,429,200,429'
+      && Object.values(retryCap.saved().clients['claude:' + currentDay]).join(',') === '1,1' && retryCap.saved().days['claude:' + currentDay] === 4, retryStatuses);
+    const waiverCap = harness(undefined, { AI_PER_CLIENT_DAILY_CAP: '30', AI_FREE_RETRIES_PER_DAY: '3' }), waiverSend = async (key) => { const response = await worker.fetch(req(body, { headers: ip('203.0.113.30', { 'X-AIO-Idempotency-Key': key }) }), waiverCap.env); await response.arrayBuffer(); return response.status; };
+    const waiverStatuses = []; for (let n = 0; n < 4; n += 1) for (const suffix of ['', ':retry1', ':retry2']) waiverStatuses.push(await waiverSend(`waiver-${n}${suffix}`));
+    check('v57.61 free retries are bounded per connection-day, so invented retry keys cannot multiply the per-client cap',
+      waiverStatuses.every((status) => status === 200) && Object.values(waiverCap.saved().clients['claude:' + currentDay]).join(',') === '9' && Object.values(waiverCap.saved().retryWaivers['claude:' + currentDay]).join(',') === '3', waiverStatuses);
     const keyEnv = { OPENAI_API_KEY: 'fake-not-a-live-key' };
     const [keyToday, keyTomorrow, keySame64, keyOther64, keySalted] = await Promise.all([
       deriveClientKey(keyEnv, '2001:db8:1:2::1', '2026-10-14'), deriveClientKey(keyEnv, '2001:db8:1:2::1', '2026-10-15'),

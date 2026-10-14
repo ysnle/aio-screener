@@ -32,12 +32,15 @@ export function splitReading(text, { max = 230, lead = 200, min = 60 } = {}) {
   return cut < 0 ? { lead: value, rest: '' } : { lead: value.slice(0, cut), rest: value.slice(cut).trim() };
 }
 
-function readingNodes(doc, text, className) {
+function readingNodes(doc, text, className, topic = '') {
   const { lead, rest } = splitReading(text);
   const nodes = [el(doc, 'p', lead, className)];
   if (rest) {
     const more = el(doc, 'details', null, 'regime-read-more');
-    more.append(el(doc, 'summary', '이어서 읽기'), el(doc, 'p', rest, className));
+    // v57.61 WCAG 2.4.6: several cards fold under the same words — the summary names its card for screen readers.
+    const summary = el(doc, 'summary', '이어서 읽기');
+    if (topic) summary.append(el(doc, 'span', ` — ${topic}`, 'sr-only'));
+    more.append(summary, el(doc, 'p', rest, className));
     nodes.push(more);
   }
   return nodes;
@@ -210,7 +213,7 @@ export function renderRegimePage({ documentRef: doc, root }) {
       card.append(head);
       // P1399: one basis chip per card — the axis's own observation date against the close basis.
       if (row.basis) card.append(el(doc, 'span', row.basis, `basis-chip${row.basisStatus === 'aligned' ? '' : ' is-off'}`));
-      card.append(...readingNodes(doc, row.read, 'regime-read'));
+      card.append(...readingNodes(doc, row.read, 'regime-read', row.title));
       const chart = chartPanel(doc, history.axes[row.id] || [], history.range);
       if (chart) card.append(chart);
       // P1659 (owner reading standard: one visual, a short reading, folded details): the face keeps the chart, the

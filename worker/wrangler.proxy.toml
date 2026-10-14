@@ -13,7 +13,8 @@ AI_DAILY_CAP = "300"
 # most this many AI requests per UTC day inside the same DO admission. Bounded 1-1000 and clamped to
 # AI_DAILY_CAP. Authenticated GitHub Actions requests are not per-client limited. Optional secret
 # AI_CLIENT_KEY_SALT separates the client-key HMAC from OPENAI_API_KEY (the fallback key material).
-AI_PER_CLIENT_DAILY_CAP = "150"
+# v57.61: 200 (2/3 of the day). Retries of one question no longer count; the $20 month stays the hard stop.
+AI_PER_CLIENT_DAILY_CAP = "200"
 # P1421: all AIO browser + GitHub Actions AI shares one UTC-month authority.
 # Reserve worst input/output cost before dispatch, settle only verified usage.
 # Failed/cancelled/unknown usage retains its full reservation. Never an invoice.
@@ -26,11 +27,12 @@ AI_WEB_SEARCH_ENABLED = "true"
 AI_LEGACY_MONTH_ACK = "2026-10:0"
 # P1740 (2026-10-13): analysis/comparison answers request up to 8000 output tokens (reasoning included); the
 # reservation grows by at most 4000 x $0.55/1M per call, inside the same $20 monthly admission budget.
-AI_MAX_OUTPUT_TOKENS = "8000"
+# v57.61: medium-effort analysis spends reasoning inside this cap; 16000 x $0.55/1M = $0.0088 reserved per call.
+AI_MAX_OUTPUT_TOKENS = "16000"
 # Per-provider daily ceiling for /relay (operator-key server-side fetches).
 RELAY_DAILY_CAP = "2000"
 # Must equal version.json — enforced by ci-version-check.mjs and synchronized by bump-version.mjs.
-AIO_APP_REVISION = "v57.60"
+AIO_APP_REVISION = "v57.61"
 AIO_SOURCE_SHA = "__AIO_SOURCE_SHA__"
 
 # 2026-10-14: Workers AI for headline translation (/workers-ai/translate, automation token only).

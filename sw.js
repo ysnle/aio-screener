@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v57.60';
-const SW_BUILD = '2026-10-14T20:41:00+09:00';
+const SW_VERSION = 'v57.61';
+const SW_BUILD = '2026-10-14T21:45:00+09:00';
 // v57.54 review: code can ship without a version bump (post-deploy fixes), so the cache-first shell is also keyed
 // on the shipped code. pages-deploy.yml replaces 'local' with a hash of the staged index.html + js/ + src/; a data-only
 // deploy keeps the same hash (no cache churn), a code change renames SHELL_CACHE and the old one is deleted on activate.
@@ -114,6 +114,26 @@ async function purgeExpiredData(cache) {
       if (t > 0 && now - t > ttl) cache.delete(keys[i]);
     }
   } catch(e) {}
+}
+
+// v57.61 (perf): purge walks every key with a sequential match, so it runs at most once per 10 minutes
+// per worker lifetime instead of after every data write.
+const PURGE_INTERVAL_MS = 10 * 60 * 1000;
+var lastPurgeAt = 0;
+function maybePurgeExpiredData(cache) {
+  var now = Date.now();
+  if (now - lastPurgeAt < PURGE_INTERVAL_MS) return;
+  lastPurgeAt = now;
+  purgeExpiredData(cache);
+}
+
+// v57.61 (perf): an unchanged 200 (same ETag, or same Last-Modified when no ETag) need not be copied into
+// DATA_CACHE again while the cached copy is younger than half its TTL; the age bound still refreshes it.
+function sameValidator(prev, resp) {
+  var etagA = prev.headers.get('etag'), etagB = resp.headers.get('etag');
+  if (etagA || etagB) return !!etagA && etagA === etagB;
+  var lmA = prev.headers.get('last-modified'), lmB = resp.headers.get('last-modified');
+  return !!lmA && lmA === lmB;
 }
 
 // 읽기 경로의 최대 허용 나이. TTL은 쓰기 시점 정리에만 쓰였고, 폴백 읽기는
@@ -301,16 +321,25 @@ self.addEventListener('fetch', function(event) {
           var now = String(Date.now());
           // TTL 헤더를 주입한 래핑 응답 저장 (body 복사 필요). P1410: the write is tied to the event's
           // lifetime (waitUntil) so the worker is not stopped before the copy lands.
-          event.waitUntil(resp.clone().arrayBuffer().then(function(body) {
-            var headers = new Headers(resp.headers);
-            headers.set('x-cache-time', now);
-            headers.set('x-cache-ttl', String(ttl));
-            var wrapped = new Response(body, { status: resp.status, statusText: resp.statusText, headers: headers });
-            return caches.open(DATA_CACHE).then(function(c) {
-              return c.put(dataCacheKey(request), wrapped).then(function() {
-                purgeExpiredData(c); // TTL 만료 항목 비동기 정리
-                return c.keys().then(function(keys) {
-                  if (keys.length > 500) return c.delete(keys[0]); // FIFO 폴백
+          var copy = resp.clone(); // cloned before the page consumes the body
+          var key = dataCacheKey(request);
+          event.waitUntil(caches.open(DATA_CACHE).then(function(c) {
+            return c.match(key).then(function(prev) {
+              var prevAt = prev ? parseInt(prev.headers.get('x-cache-time') || '0', 10) : 0;
+              if (prev && prevAt > 0 && Date.now() - prevAt < ttl * 500 && sameValidator(prev, resp)) {
+                if (copy.body && copy.body.cancel) copy.body.cancel().catch(function() {});
+                return;
+              }
+              return copy.arrayBuffer().then(function(body) {
+                var headers = new Headers(resp.headers);
+                headers.set('x-cache-time', now);
+                headers.set('x-cache-ttl', String(ttl));
+                var wrapped = new Response(body, { status: resp.status, statusText: resp.statusText, headers: headers });
+                return c.put(key, wrapped).then(function() {
+                  maybePurgeExpiredData(c); // TTL 만료 항목 비동기 정리 (v57.61: 10분 간격)
+                  return c.keys().then(function(keys) {
+                    if (keys.length > 500) return c.delete(keys[0]); // FIFO 폴백
+                  });
                 });
               });
             });

@@ -125,7 +125,10 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
   let scanFrame = null;
   const scan = () => {
     scanFrame = null;
-    for (const cardEl of doc.querySelectorAll('.page article[title], .page article[data-basis], .page section[title], .page section[data-basis]')) {
+    // v57.61 (perf): only the shown page is scanned; a route change rescans (aio:pageShown below).
+    const active = doc.querySelector('.page.active');
+    if (!active) return;
+    for (const cardEl of active.querySelectorAll('article[title], article[data-basis], section[title], section[data-basis]')) {
       if (cardEl.querySelector(':scope > .aio-basis-btn') || cardEl.matches('a, button, [tabindex]')) continue;
       const button = doc.createElement('button');
       button.type = 'button';
@@ -137,7 +140,13 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
     }
   };
   const queueScan = () => { if (scanFrame === null) scanFrame = root.setTimeout ? root.setTimeout(scan, 400) : (scan(), null); };
-  const observer = typeof root.MutationObserver === 'function' ? new root.MutationObserver(queueScan) : null;
+  // Mutations inside hidden pages (background renders) no longer queue a rescan.
+  const touchesActive = (records) => records.some((record) => {
+    const node = record.target?.nodeType === 1 ? record.target : record.target?.parentElement;
+    return !node?.closest || !!node.closest('.page.active') || !node.closest('.page');
+  });
+  const observer = typeof root.MutationObserver === 'function' ? new root.MutationObserver((records) => { if (touchesActive(records)) queueScan(); }) : null;
+  doc.addEventListener('aio:pageShown', queueScan);
   observer?.observe(doc.body, { childList: true, subtree: true });
   queueScan();
   return () => {
@@ -152,6 +161,7 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
     doc.removeEventListener('keydown', onKey);
     root.removeEventListener?.('scroll', hide, true);
     doc.removeEventListener('aio:pageShown', hide);
+    doc.removeEventListener('aio:pageShown', queueScan);
     doc.__aioValueBasis = false;
   };
 }

@@ -121,10 +121,13 @@ function renderTickerHero(documentRef, state, root) {
   if (priceNode) {
     let status = documentRef.getElementById('ticker-summary-price-basis');
     if (!status) { status = documentRef.createElement('div'); status.id = 'ticker-summary-price-basis'; status.className = 'entity-summary-price-basis'; priceNode.after(status); }
+    // v57.61 WCAG 4.1.3: loading -> failure/ready is announced without moving focus.
+    if (status.getAttribute('role') !== 'status') status.setAttribute('role', 'status');
     const meta = root?._aioEntitySummaries?.[id];
     const valueBasis = root?._liveData?.[id]?.quoteEnvelope?.valueBasis || meta?.quote?.valueBasis;
     // Live review 2026-10-14: a failed fetch says so; only a request still in flight reads as loading.
-    status.textContent = price == null ? root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다 · 종목을 다시 선택해 확인' : root?._aioEntitySummaryStatus?.[id] === 'ready' ? '현재 시세 미수신' : '현재 시세 불러오는 중' : `${valueBasis === 'completed-daily-close' ? '완료 일봉 종가' : '정규장 관측가'}${quote.observedAt ? ` · ${formatKstStamp(quote.observedAt) || String(quote.observedAt)}` : ' · 관측 시각 미확인'}${quote.changeCheck === 'corrected' && quote.changeBasisDate ? ` · 등락률은 ${String(quote.changeBasisDate).slice(5).replace('-', '/')} ${quote.changeBasis === 'screener-reconciled-session-change' ? '거래소 종가 기준' : '거래소 종가 대비'}` : ''}`;
+    const statusText = price == null ? root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다 · 종목을 다시 선택해 확인' : root?._aioEntitySummaryStatus?.[id] === 'ready' ? '현재 시세 미수신' : '현재 시세 불러오는 중' : `${valueBasis === 'completed-daily-close' ? '완료 일봉 종가' : '정규장 관측가'}${quote.observedAt ? ` · ${formatKstStamp(quote.observedAt) || String(quote.observedAt)}` : ' · 관측 시각 미확인'}${quote.changeCheck === 'corrected' && quote.changeBasisDate ? ` · 등락률은 ${String(quote.changeBasisDate).slice(5).replace('-', '/')} ${quote.changeBasis === 'screener-reconciled-session-change' ? '거래소 종가 기준' : '거래소 종가 대비'}` : ''}`;
+    if (status.textContent !== statusText) status.textContent = statusText;
   }
   // P1317/N27: showPage titles the route from the stale hero before this render runs, so the tab,
   // history and bookmarks kept "종목 선택 대기" (or the previous symbol). The owner of the hero owns the title.
@@ -264,7 +267,7 @@ function renderTickerNavigation(documentRef, state, root) {
   documentRef.getElementById?.('page-ticker')?.classList.toggle('is-empty', !hasSelection);
   if (!hasSelection) {
     if (breadcrumb) { breadcrumb.textContent = '종목 선택 대기'; breadcrumb.setAttribute('aria-label', '종목 선택 대기'); }
-    if (backButton) { backButton.textContent = '← 돌아가기'; backButton.setAttribute('aria-label', '← 돌아가기'); }
+    if (backButton) { backButton.textContent = '← 돌아가기'; backButton.setAttribute('aria-label', '돌아가기'); }
     return;
   }
   const origins = { screener: '스크리너', themes: '테마 분석', portfolio: '포트폴리오', fundamental: '재무 공시', technical: '차트', 'market-news': '시장 뉴스', briefing: '오늘의 브리핑', masters: '대가의 포트폴리오', home: '대시보드' };
@@ -291,7 +294,7 @@ function renderTickerNavigation(documentRef, state, root) {
   }
   if (backButton) {
     backButton.textContent = `← ${label}`;
-    backButton.setAttribute('aria-label', `← ${label}`);
+    backButton.setAttribute('aria-label', `${label} 화면으로 돌아가기`);
     backButton.setAttribute('data-action', 'showPage');
     backButton.setAttribute('data-arg', origin);
   }
@@ -377,6 +380,8 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
   const meta = page.querySelector?.('#ticker-chart-meta');
   if (meta) meta.textContent = periodMeta;
   const loading = page.querySelector('#ticker-chart-loading');
+  // v57.61 WCAG 4.1.3: the chart loading line becomes a failure line in place; announce it as a status.
+  if (loading && loading.getAttribute('role') !== 'status') loading.setAttribute('role', 'status');
   // P1591 (S02): without a price history the 380px frame and period buttons stay empty and repeat the same
   // sentence; the box collapses to one line and the buttons hide until rows arrive.
   const box = canvas.parentElement;
@@ -388,7 +393,7 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
     if (meta) meta.textContent = '';
     if (loading) {
       loading.style.display = 'flex';
-      loading.textContent = periodMeta;
+      if (loading.textContent !== periodMeta) loading.textContent = periodMeta;
     }
     return;
   }

@@ -1060,7 +1060,33 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         let restoreDetailFocus = null;
         let closeObserver = null; // one at a time; disconnected on success, after 10s, or on unmount
         bag.add(() => closeObserver?.disconnect?.());
+        // v57.61 (perf): the nine detail renderers only fill hosts inside #theme-detail-panel. While the panel is
+        // closed the close handler has emptied them, so they are skipped; opening the panel renders them once.
+        const renderDetail = () => {
+          if (detailPanel && detailPanel.style.display !== 'block') return;
+          renderThemeDetailSummary({ documentRef, root, store });
+          renderThemeDetailComposition({ documentRef, root, store });
+          renderThemeDetailLeaders({ documentRef, root, store });
+          renderThemeDetailTemperature({ documentRef, root, store });
+          renderThemeDetailSpread({ documentRef, root, store });
+          renderThemeDetailBreadthHealth({ documentRef, root, store });
+          renderThemeDetailSubthemeGap({ documentRef, root, store });
+          renderThemeDetailBenchmark({ documentRef, root, store });
+          renderThemeDetailInsights({ documentRef, root, store });
+        };
+        // v57.61 (perf): event-driven renders coalesce into one per animation frame (one aio:liveQuotes tick used to
+        // render here and again after bootstrap's syncThemes store update). Store-slice renders stay synchronous and
+        // cancel a pending frame, so the store path remains the single renderer for that tick.
+        let pendingFrame = null;
+        const cancelScheduledRender = () => {
+          if (!pendingFrame) return;
+          const view = documentRef.defaultView;
+          if (pendingFrame.raf != null) view?.cancelAnimationFrame?.(pendingFrame.raf);
+          if (pendingFrame.timer != null) view?.clearTimeout?.(pendingFrame.timer);
+          pendingFrame = null;
+        };
         const renderNow = () => {
+          cancelScheduledRender();
            renderThemes({ documentRef, root, store, route });
           renderRRGStatus({ documentRef, root, store, route });
           renderRRGCanvas({ documentRef, root, store, route });
@@ -1068,21 +1094,24 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
            renderThemePerformanceNarrative({ documentRef, root, store, route });
            renderThemePerformanceBars({ documentRef, root, store, route });
            renderKrThemeArtifact({ documentRef, root, store });
-          renderThemeDetailSummary({ documentRef, root, store });
-          renderThemeDetailComposition({ documentRef, root, store });
-          renderThemeDetailLeaders({ documentRef, root, store });
-          renderThemeDetailTemperature({ documentRef, root, store });
-          renderThemeDetailSpread({ documentRef, root, store });
-          renderThemeDetailBreadthHealth({ documentRef, root, store });
-           renderThemeDetailSubthemeGap({ documentRef, root, store });
-           renderThemeDetailBenchmark({ documentRef, root, store });
-           renderThemeDetailInsights({ documentRef, root, store });
+          renderDetail();
            renderAiInfrastructureLens({ documentRef, root, route });
            renderThemeStrength({ documentRef, root, store }); // P1417
            try { renderThemePlaybook({ documentRef, root, store }); renderThemeDetailPlaybook({ documentRef, root }); } catch (_) { /* the forward read never takes the themes route down */ } // P1743
            try { renderSectorMap({ documentRef, root, store }); } catch (_) { /* the map never takes the themes route down */ } // 2026-10-13 S&P 500 map
            restoreDetailFocus?.();
          };
+        const scheduleRender = () => {
+          if (pendingFrame) return;
+          const view = documentRef.defaultView;
+          const run = () => { if (pendingFrame) renderNow(); };
+          pendingFrame = {};
+          // A hidden tab never runs rAF; the timer bounds the wait so a background refresh still lands.
+          if (typeof view?.requestAnimationFrame === 'function') pendingFrame.raf = view.requestAnimationFrame(run);
+          pendingFrame.timer = typeof view?.setTimeout === 'function' ? view.setTimeout(run, 250) : null;
+          if (pendingFrame.raf == null && pendingFrame.timer == null) { pendingFrame = null; renderNow(); }
+        };
+        bag.add(() => cancelScheduledRender());
         renderNow();
         // v57.50 I22: a link that asked for a section (국내 테마 from the KR screener) opens and shows it once.
         const handoff = consumeResearchHandoff({ root, routeId: 'themes' });
@@ -1097,14 +1126,14 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         if (unsubscribe) bag.add(unsubscribe);
         const eventTarget = documentRef || root;
         ['aio:themesViewChanged', 'aio:themesHistoryLoaded', 'aio:historyLoaded', 'aio:refresh:done', 'aio:liveQuotes', 'aio:sectorPerfChanged', 'aio:colorThemeChanged'].forEach((eventName) => {
-          eventTarget?.addEventListener?.(eventName, renderNow);
-          bag.add(() => eventTarget?.removeEventListener?.(eventName, renderNow));
+          eventTarget?.addEventListener?.(eventName, scheduleRender);
+          bag.add(() => eventTarget?.removeEventListener?.(eventName, scheduleRender));
         });
         // P1417: history.json announces itself on window (js/aio-data.js), not on document.
         const windowTarget = root && root !== eventTarget ? root : null;
         if (windowTarget?.addEventListener) {
-          windowTarget.addEventListener('aio:historyLoaded', renderNow);
-          bag.add(() => windowTarget.removeEventListener?.('aio:historyLoaded', renderNow));
+          windowTarget.addEventListener('aio:historyLoaded', scheduleRender);
+          bag.add(() => windowTarget.removeEventListener?.('aio:historyLoaded', scheduleRender));
         }
         const onThemeDetailShown = (event) => {
           // P800: the native detail surfaces consume the normalized store selection;
@@ -1114,6 +1143,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
             detailPanel.style.display = 'block';
             if (event?.detail?.themeId) detailPanel.dataset.currentTheme = String(event.detail.themeId);
           }
+          renderDetail(); // v57.61: detail renderers skip while closed, so the opening render happens here
           try { renderThemeDetailPlaybook({ documentRef, root }); } catch (_) {} // P1743: needs the theme id set above
           // The architecture listener synchronously refreshes the store before this
           // compatibility event reaches the mounted page. The store subscription is

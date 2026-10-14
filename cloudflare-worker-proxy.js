@@ -1,4 +1,4 @@
-import { OPENAI_MODEL, AI_MONTHLY_MAX_MICRO_USD, paidWebSearchEnabled, quotaInteger, aiMonthlyBudgetMicroUsd, prepareOpenAiBudget, verifiedOpenAiCharge } from './worker/openai-budget.mjs';
+import { OPENAI_MODEL, AI_MONTHLY_MAX_MICRO_USD, AI_MAX_OUTPUT_TOKENS_LIMIT, paidWebSearchEnabled, quotaInteger, aiMonthlyBudgetMicroUsd, prepareOpenAiBudget, verifiedOpenAiCharge } from './worker/openai-budget.mjs';
 import { createOpenAiReceiptObserver } from './worker/openai-usage.mjs';
 export { aiMonthlyBudgetMicroUsd, prepareOpenAiBudget } from './worker/openai-budget.mjs';
 /**
@@ -9,7 +9,7 @@ export { aiMonthlyBudgetMicroUsd, prepareOpenAiBudget } from './worker/openai-bu
  * Required: OPENAI_API_KEY, AIO_QUOTA_DO. Actions additionally requires the
  * same 32+ character AIO_AUTOMATION_TOKEN in GitHub and Worker secrets.
  * AI_MONTHLY_BUDGET_USD defaults to $20 and accepts only $0-$20. AI_DAILY_CAP
- * defaults to 300; AI_MAX_OUTPUT_TOKENS defaults to 4000 (up to 8192).
+ * defaults to 300; AI_MAX_OUTPUT_TOKENS defaults to 4000 (up to 16384, v57.61).
  * P1759: AI_PER_CLIENT_DAILY_CAP (default 150, 1-1000, clamped to AI_DAILY_CAP) bounds each browser
  * connection per UTC day in the same DO admission; below 20% of the month hosted search is removed.
  * The stable anthropic-authority-v1 DO identity/claude: day keys intentionally
@@ -284,10 +284,18 @@ const RELAY_RATE_LIMIT = 60; // 요청/분 — 운영자 키로 나가는 공유
 const healthRateLimitMap = new Map();
 const HEALTH_RATE_LIMIT = 120; // 요청/분 — /health 전용
 
-function checkRateLimit(ip, map, limit) {
+// v57.61: an isolate-local bucket map is bounded. Past this many keys (a scan rotating addresses) expired
+// entries are dropped first and, if that is not enough, the map is reset — a reset only forgets counts
+// inside one isolate, while the binding and the DO caps stay the authority.
+export const RATE_LIMIT_MAP_MAX_KEYS = 5000;
+export function checkRateLimit(ip, map, limit) {
   map = map || rateLimitMap;
   limit = limit || RATE_LIMIT;
   const now = Date.now();
+  if (!map.has(ip) && map.size >= RATE_LIMIT_MAP_MAX_KEYS) {
+    cleanupRateLimitMap(map, true);
+    if (map.size >= RATE_LIMIT_MAP_MAX_KEYS) map.clear();
+  }
   if (!map.has(ip)) {
     map.set(ip, { count: 1, resetTime: now + 60000 });
     return true;
@@ -312,7 +320,9 @@ function checkRateLimit(ip, map, limit) {
 // 바인딩이 없으면(구버전 배포·`wrangler dev`·계정 미지원) isolate 로컬 Map으로 폴백해
 // 이전 동작을 그대로 유지한다 — 조용히 열리지도, 이유 없이 막히지도 않게 한다.
 async function enforceRateLimit(env, bindingName, fallbackMap, limit, key) {
-  const bucket = String(key || 'unknown');
+  // v57.61: IPv6 is bucketed per /64 (normalizeClientAddress), so rotating addresses inside one
+  // allocation share one allowance instead of minting a fresh bucket per request.
+  const bucket = normalizeClientAddress(key);
   const binding = env && env[bindingName];
   if (binding && typeof binding.limit === 'function') {
     try {
@@ -332,11 +342,12 @@ function logDenial(route, reason) {
   console.warn({ route, reason });
 }
 
-function cleanupRateLimitMap(map) {
+function cleanupRateLimitMap(map, expiredNow = false) {
   map = map || rateLimitMap;
   const now = Date.now();
+  const grace = expiredNow ? 0 : 60000;
   for (const [key, val] of map) {
-    if (now > val.resetTime + 60000) map.delete(key);
+    if (now > val.resetTime + grace) map.delete(key);
   }
 }
 
@@ -444,7 +455,7 @@ async function healthResponse(origin, env, method = 'GET', appToken = '', client
   const quotaConfigured = hasAtomicQuotaBinding(env);
   const killSwitch = !!(env && env.AI_KILL_SWITCH === '1');
   let configurationValid = false;
-  try { aiMonthlyBudgetMicroUsd(env); quotaInteger(env?.AI_DAILY_CAP, 300); quotaInteger(env?.AI_MAX_OUTPUT_TOKENS, 4000, 8192); perClientDailyCap(env); configurationValid = true; } catch (_) {}
+  try { aiMonthlyBudgetMicroUsd(env); quotaInteger(env?.AI_DAILY_CAP, 300); quotaInteger(env?.AI_MAX_OUTPUT_TOKENS, 4000, AI_MAX_OUTPUT_TOKENS_LIMIT); perClientDailyCap(env); configurationValid = true; } catch (_) {}
   const authority = hasDurableObjectNamespace(env)
     ? await readAuthorityHealth(env)
     : { ready: false, jurisdiction: null, reason: 'us-authority-unavailable' };
@@ -489,7 +500,10 @@ async function healthResponse(origin, env, method = 'GET', appToken = '', client
       // nor the Origin allowlist authenticates a non-browser caller.
       appTokenRequired: !!(env && env.AIO_APP_TOKEN)
     },
-    dataProxy: { ready: true }
+    dataProxy: { ready: true },
+    // v57.61: presence only. The deploy retries without the [ai] binding when the token lacks Workers AI
+    // permission; this boolean shows whether headline translation can use the free path at all.
+    workersAiBound: !!(env && env.AI)
   };
   return new Response(method === 'HEAD' ? null : JSON.stringify(payload), {
     status: 200,
@@ -630,6 +644,7 @@ const QUOTA_STATE_RETENTION_MS = 3 * 24 * 60 * 60 * 1000;
 // The client key is HMAC-SHA256(secret, UTC day | address): raw IPs are never stored or sent to the DO,
 // and the same address maps to unrelated keys on different days. IPv6 is grouped by /64 so rotating
 // addresses inside one allocation does not mint new allowances.
+const AI_FREE_RETRIES_PER_DAY = 20; // v57.61: retries of a counted question that do not use the connection's daily questions
 const AI_PER_CLIENT_DAILY_CAP_DEFAULT = 150; // v57.54: a household shares one IP; half the 300/day global cap still stops one outsider draining it
 const AI_PER_CLIENT_DAILY_CAP_MAX = 1000;
 // Entries <= admitted browser requests today <= AI_DAILY_CAP; this ceiling only binds if an operator raises
@@ -722,7 +737,10 @@ function withAiMetaHeaders(response, extra) {
 // Actions search client (scripts/lib/ai-shared-analysis.mjs) waits 115 s, inside this 120 s bound.
 const OPENAI_DEADLINE_MS = 60000;
 const OPENAI_LONG_DEADLINE_MS = 120000;
+// v57.61: medium reasoning or a >8192-token answer (search included) needs more wall time than 120 s.
+const OPENAI_DEEP_DEADLINE_MS = 180000;
 function openAiDeadlineMs(budget) {
+  if (budget?.body?.reasoning?.effort === 'medium' || Number(budget?.body?.max_output_tokens) > 8192) return OPENAI_DEEP_DEADLINE_MS;
   return (budget?.searchReserveMicroUsd > 0 || Number(budget?.body?.max_output_tokens) > 4000) ? OPENAI_LONG_DEADLINE_MS : OPENAI_DEADLINE_MS;
 }
 
@@ -816,7 +834,7 @@ export class AIOQuotaDurableObject {
     this.state = state;
     this.storage = state.storage;
     this.env = env;
-    this.counts = { schemaVersion: BUDGET_SCHEMA, days: {}, months: {}, reservations: {}, legacyUnknownMonths: {}, clients: {} };
+    this.counts = { schemaVersion: BUDGET_SCHEMA, days: {}, months: {}, reservations: {}, legacyUnknownMonths: {}, clients: {}, retryWaivers: {} };
     // Validated state stays in memory for this object's lifetime (every caller runs under
     // blockConcurrencyWhile, so there is one writer); a failed save drops it so the next call re-reads storage.
     this.loaded = false;
@@ -843,6 +861,7 @@ export class AIOQuotaDurableObject {
     const clientsValid = record(this.counts.clients) && Object.entries(this.counts.clients).every(([day, bucket]) => /^claude:\d{4}-\d{2}-\d{2}$/.test(day)
       && record(bucket) && Object.entries(bucket).every(([key, used]) => AI_CLIENT_KEY_RE.test(key) && Number.isSafeInteger(used) && used >= 0));
     if (!clientsValid) this.counts.clients = {};
+    if (!record(this.counts.retryWaivers)) this.counts.retryWaivers = {}; // v57.61: bounded free retries per connection-day
     for (const count of Object.values(this.counts.days)) if (!Number.isSafeInteger(count) || count < 0) throw new Error('corrupt daily quota count');
     for (const [month, amount] of Object.entries(this.counts.months)) {
       if (!/^\d{4}-(?:0[1-9]|1[0-2])$/.test(month) || !Number.isSafeInteger(amount) || amount < 0) throw new Error('corrupt monthly quota count');
@@ -914,6 +933,9 @@ export class AIOQuotaDurableObject {
     for (const day of Object.keys(this.counts.clients || {})) {
       if (day !== currentClientDay) { delete this.counts.clients[day]; changed = true; }
     }
+    for (const day of Object.keys(this.counts.retryWaivers || {})) {
+      if (day !== currentClientDay) { delete this.counts.retryWaivers[day]; changed = true; }
+    }
     for (const dayKey of Object.keys(this.counts.days || {})) {
       const match = dayKey.match(/(\d{4}-\d{2}-\d{2})$/);
       if (match && Date.parse(`${match[1]}T00:00:00Z`) < cutoff) {
@@ -976,7 +998,7 @@ export class AIOQuotaDurableObject {
         const cap = quotaInteger(body.cap, 300);
         const isAi = dayKey.startsWith('claude:');
         const monthKey = dayKey.slice(7, 14);
-        let amount = body.reservationMicroUsd, budgetState = null, budgetSaverApplied = false, clientKey = null, clientCap = null, clientUsed = 0;
+        let amount = body.reservationMicroUsd, budgetState = null, budgetSaverApplied = false, clientKey = null, clientCap = null, clientUsed = 0, waiverKey = null;
         if (isAi) {
           const day = dayKey.slice(7);
           const instant = Date.parse(`${day}T00:00:00Z`);
@@ -987,6 +1009,12 @@ export class AIOQuotaDurableObject {
             if (typeof body.clientKey !== 'string' || !AI_CLIENT_KEY_RE.test(body.clientKey)) throw new Error('valid client key required');
             clientKey = body.clientKey;
             clientCap = quotaInteger(body.clientCap, AI_PER_CLIENT_DAILY_CAP_DEFAULT, AI_PER_CLIENT_DAILY_CAP_MAX);
+            // v57.61: one question counts once. Its retries (<id>:retry1/2) reserve money and the global day as usual
+            // but not the connection's daily questions when the same connection's counted original exists today.
+            // The waiver is bounded per connection-day (AI_FREE_RETRIES_PER_DAY), so invented retry keys cannot multiply the cap.
+            const retryBase = /^client:(.+):retry[12]$/.exec(String(requestId))?.[1];
+            const waived = this.counts.retryWaivers?.[dayKey]?.[clientKey] || 0;
+            if (retryBase && this.counts.reservations[dayKey + ':client:' + retryBase]?.clientKey === clientKey && waived < quotaInteger(this.env?.AI_FREE_RETRIES_PER_DAY, AI_FREE_RETRIES_PER_DAY, 100)) { waiverKey = clientKey; clientKey = null; }
           }
           const monthlyReservedMicroUsd = this.counts.months[monthKey] || 0;
           const legacyUnknown = this.counts.legacyUnknownMonths[monthKey] === true;
@@ -1018,6 +1046,7 @@ export class AIOQuotaDurableObject {
           this.counts.months[monthKey] = (this.counts.months[monthKey] || 0) + amount;
           this.counts.reservations[key] = { createdAt: Date.now(), dayKey, monthKey, reservationMicroUsd: amount, started: false, ...(clientKey ? { clientKey } : {}) };
           if (clientKey) (this.counts.clients[dayKey] ||= {})[clientKey] = clientUsed + 1;
+          if (waiverKey) { const waivers = ((this.counts.retryWaivers ||= {})[dayKey] ||= {}); waivers[waiverKey] = (waivers[waiverKey] || 0) + 1; }
           budgetState = aiBudgetState(this.counts.months[monthKey], body.monthlyCapMicroUsd, false);
         } else this.counts.reservations[key] = Date.now();
         await this.save();
@@ -1289,9 +1318,9 @@ async function handleOpenAi(request, env, origin) {
  */
 async function handleRelay(request, env, origin) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(origin, env) });
-  if (request.method !== 'GET') return errorResponse('GET required for /relay', 405, origin);
-  if (!resolveAllowedOrigin(origin, env)) return errorResponse('Origin not allowed', 403, origin);
-  if (env.AIO_APP_TOKEN && !await constantTimeTokenEquals(env.AIO_APP_TOKEN, request.headers.get('X-AIO-App-Token'))) return errorResponse('Forbidden', 403, origin);
+  if (request.method !== 'GET') return errorResponse('GET required for /relay', 405, origin, null, env);
+  if (!resolveAllowedOrigin(origin, env)) return errorResponse('Origin not allowed', 403, origin, null, env);
+  if (env.AIO_APP_TOKEN && !await constantTimeTokenEquals(env.AIO_APP_TOKEN, request.headers.get('X-AIO-App-Token'))) return errorResponse('Forbidden', 403, origin, null, env);
   cleanupRateLimitMap(relayRateLimitMap);
   const clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
   if (!await enforceRateLimit(env, 'RATE_LIMIT_RELAY', relayRateLimitMap, RELAY_RATE_LIMIT, clientIp)) { logDenial('/relay', 'rate-limit'); return errorResponse('Too many relay requests', 429, origin, null, env); }
@@ -1299,34 +1328,34 @@ async function handleRelay(request, env, origin) {
   const url = new URL(request.url);
   const providerId = String(url.searchParams.get('provider') || '').toLowerCase();
   const provider = RELAY_PROVIDERS[providerId];
-  if (!provider) return errorResponse('Unknown relay provider', 400, origin);
+  if (!provider) return errorResponse('Unknown relay provider', 400, origin, null, env);
 
   // P1422: a browser FRED query uses its user's own key, never the operator's key.
   const key = providerId === 'fred' ? request.headers.get('X-AIO-Provider-Key') : env && env[provider.keyEnv];
-  if (providerId === 'fred' && (!key || !/^[A-Za-z0-9_-]{16,128}$/.test(key))) return errorResponse('Personal FRED key required', 400, origin);
-  if (!key) return errorResponse('Relay key is not configured for ' + providerId, 503, origin);
+  if (providerId === 'fred' && (!key || !/^[A-Za-z0-9_-]{16,128}$/.test(key))) return errorResponse('Personal FRED key required', 400, origin, null, env);
+  if (!key) return errorResponse('Relay key is not configured for ' + providerId, 503, origin, null, env);
 
   const params = {};
   for (const [name, spec] of Object.entries(provider.params)) {
     const raw = url.searchParams.get(name);
     if (raw === null || raw === '') {
-      if (spec.required) return errorResponse('Missing relay parameter: ' + name, 400, origin);
+      if (spec.required) return errorResponse('Missing relay parameter: ' + name, 400, origin, null, env);
       continue;
     }
-    if (!spec.re.test(raw)) return errorResponse('Invalid relay parameter: ' + name, 400, origin);
+    if (!spec.re.test(raw)) return errorResponse('Invalid relay parameter: ' + name, 400, origin, null, env);
     params[name] = raw;
   }
 
-  if (!hasAtomicQuotaBinding(env)) return errorResponse('Relay quota is not configured', 503, origin);
+  if (!hasAtomicQuotaBinding(env)) return errorResponse('Relay quota is not configured', 503, origin, null, env);
   const cap = Math.max(1, parseInt(env.RELAY_DAILY_CAP || '2000', 10));
   const dayKey = 'relay:' + providerId + ':' + new Date().toISOString().slice(0, 10);
   const requestId = 'relay:' + (typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : String(Date.now()) + ':' + Math.random());
   let ownedReservation = false;
   try {
     const reservation = await quotaRpc(env, 'reserve', { dayKey, cap, requestId });
-    if (!reservation?.ok || !reservation.reserved) { logDenial('/relay', reservation?.reason || 'daily-cap'); return errorResponse('Daily relay quota exceeded', 429, origin); }
+    if (!reservation?.ok || !reservation.reserved) { logDenial('/relay', reservation?.reason || 'daily-cap'); return errorResponse('Daily relay quota exceeded', 429, origin, null, env); }
     ownedReservation = !reservation.duplicate;
-  } catch { return errorResponse('Relay quota unavailable', 503, origin); }
+  } catch { return errorResponse('Relay quota unavailable', 503, origin, null, env); }
 
   try {
     const controller = new AbortController();
@@ -1349,11 +1378,9 @@ async function handleRelay(request, env, origin) {
       clearTimeout(timeoutId);
     }
     const body = redactRelayKey(rawBody, key);
-    if (looksLikeHtml(body)) {
-      if (ownedReservation) await releaseQuota(env, dayKey, requestId);
-      return errorResponse('Upstream returned HTML block page', 502, origin);
-    }
-    if (response.status >= 400 && ownedReservation) await releaseQuota(env, dayKey, requestId);
+    // v57.61: an upstream that answered (>=400 or an HTML block page) still consumed an operator-key call, so the
+    // reservation stays counted toward RELAY_DAILY_CAP; releasing it let a failing upstream be retried without bound.
+    if (looksLikeHtml(body)) return errorResponse('Upstream returned HTML block page', 502, origin, null, env);
     return new Response(body, {
       status: response.status,
       headers: {
@@ -1367,7 +1394,7 @@ async function handleRelay(request, env, origin) {
   } catch (error) {
     if (ownedReservation) await releaseQuota(env, dayKey, requestId);
     const kind = transportFailureMessage(error);
-    return errorResponse(kind === 'timeout' ? 'Relay timeout' : kind === 'too-large' ? 'Response too large' : kind === 'redirect-refused' ? 'Relay redirect refused' : 'Relay upstream error', 502, origin);
+    return errorResponse(kind === 'timeout' ? 'Relay timeout' : kind === 'too-large' ? 'Response too large' : kind === 'redirect-refused' ? 'Relay redirect refused' : 'Relay upstream error', 502, origin, null, env);
   }
 }
 
@@ -1376,21 +1403,29 @@ async function handleRelay(request, env, origin) {
 // cannot be spent from outside. Any failure (no binding, model error, unparsable output) returns 503 and the caller
 // falls back to the shared OpenAI path; the response carries translations only, never a judgement.
 export const WORKERS_AI_TRANSLATE_MODEL = '@cf/google/gemma-3-12b-it';
+// v57.61: at most 20 titles per call (callers chunk) so the reply fits max_tokens; a truncated reply used to
+// surface as a count mismatch carrying model text. Error bodies carry short codes only — they are written to
+// Actions logs by scripts/lib/ai-shared-analysis.mjs, so no model output and no exception message.
+export const WORKERS_AI_TRANSLATE_MAX_TITLES = 20;
 async function handleWorkersAiTranslate(request, env) {
-  if (request.method !== 'POST') return privateOperatorResponse({ error: 'POST required' }, 405);
+  // Token first: an anonymous caller sees 404 for every method, like /_ops/ai-usage.
   if (!await matchesOperatorToken(env?.AIO_AUTOMATION_TOKEN, request.headers.get('X-AIO-Automation-Token'))) return privateOperatorResponse(null, 404);
+  if (request.method !== 'POST') return privateOperatorResponse({ error: 'post-required' }, 405);
   if (!env?.AI || typeof env.AI.run !== 'function') return privateOperatorResponse({ error: 'workers-ai-unbound' }, 503);
   let titles;
   try {
     const body = JSON.parse(await readBoundedAiRequestBody(request, 32 * 1024));
     titles = Array.isArray(body?.titles) ? body.titles : null;
-  } catch { titles = null; }
-  if (!titles || !titles.length || titles.length > 40 || titles.some((title) => typeof title !== 'string' || !title.trim() || title.length > 300)) {
-    return privateOperatorResponse({ error: 'titles must be 1-40 strings of at most 300 characters' }, 400);
+  } catch (error) {
+    if (error?.status === 413) return privateOperatorResponse({ error: 'body-too-large' }, 413);
+    titles = null;
+  }
+  if (!titles || !titles.length || titles.length > WORKERS_AI_TRANSLATE_MAX_TITLES || titles.some((title) => typeof title !== 'string' || !title.trim() || title.length > 300)) {
+    return privateOperatorResponse({ error: 'titles-invalid', maxTitles: WORKERS_AI_TRANSLATE_MAX_TITLES, maxTitleLength: 300 }, 400);
   }
   const model = env.WORKERS_AI_TRANSLATE_MODEL || WORKERS_AI_TRANSLATE_MODEL;
   try {
-    const result = await env.AI.run(model, { max_tokens: 2400, temperature: 0.1, messages: [
+    const result = await env.AI.run(model, { max_tokens: Math.min(2400, 400 + titles.length * 100), temperature: 0.1, messages: [
       { role: 'system', content: '너는 금융 뉴스 번역가다. 영어 헤드라인을 자연스러운 한국어 기사 제목으로 옮긴다. 고유명사·티커·숫자는 그대로 두고, 뜻을 더하거나 빼지 않는다. 출력은 JSON 문자열 배열 하나뿐이다.' },
       { role: 'user', content: `입력과 같은 순서로 정확히 ${titles.length}개를 JSON 배열로만 출력하라.\n${JSON.stringify(titles)}` }
     ] });
@@ -1399,12 +1434,14 @@ async function handleWorkersAiTranslate(request, env) {
     const text = String(typeof raw === 'string' ? raw : result?.choices?.[0]?.message?.content || '');
     let parsed = Array.isArray(raw) ? raw : null;
     if (!parsed) { try { parsed = JSON.parse(text.slice(text.indexOf('['), text.lastIndexOf(']') + 1)); } catch { parsed = null; } }
-    if (!Array.isArray(parsed) || parsed.length !== titles.length) {
-      return privateOperatorResponse({ error: 'workers-ai-unparsed', model, detail: `${Array.isArray(parsed) ? `${parsed.length}/${titles.length} items` : typeof raw}: ${text.slice(0, 80)}` }, 503);
-    }
-    return privateOperatorResponse({ model, translations: parsed.map((item) => (typeof item === 'string' ? item.replace(/\s+/g, ' ').trim().slice(0, 200) : '')) });
-  } catch (error) {
-    return privateOperatorResponse({ error: 'workers-ai-failed', model, detail: String(error?.message || error).slice(0, 160) }, 503);
+    if (!Array.isArray(parsed)) return privateOperatorResponse({ error: 'workers-ai-unparsed:not-array', model }, 503);
+    if (parsed.length !== titles.length) return privateOperatorResponse({ error: 'workers-ai-unparsed:count-mismatch', model }, 503);
+    const translations = parsed.map((item) => (typeof item === 'string' ? item.replace(/\s+/g, ' ').trim().slice(0, 200) : ''));
+    // An empty or non-string item is a failed translation, not a blank title: fail so the caller falls back.
+    if (translations.some((item) => !item)) return privateOperatorResponse({ error: 'workers-ai-unparsed:empty-item', model }, 503);
+    return privateOperatorResponse({ model, translations });
+  } catch (_) {
+    return privateOperatorResponse({ error: 'workers-ai-failed', model }, 503);
   }
 }
 
@@ -1418,7 +1455,7 @@ export default {
 
     if (_u.pathname === '/health') {
       if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(requestOrigin, env) });
-      if (request.method !== 'GET' && request.method !== 'HEAD') return errorResponse('GET required for /health', 405, requestOrigin);
+      if (request.method !== 'GET' && request.method !== 'HEAD') return errorResponse('GET required for /health', 405, requestOrigin, null, env);
       // P1759: /health reaches the Durable Object (memoized) and must not be a free amplifier, but it has its
       // own per-IP bucket so readiness polls never consume the data proxy's allowance.
       cleanupRateLimitMap(healthRateLimitMap);
@@ -1433,7 +1470,7 @@ export default {
     // P1421: AI provider route branches before the independent data proxy.
     if (_u.pathname === '/openai') return handleOpenAi(request, env, requestOrigin);
     // Retired route never sends an Anthropic request or spends outside the shared ledger.
-    if (_u.pathname === '/anthropic' || _u.searchParams.get('anthropic') === '1') return errorResponse('AI provider migrated; use /openai', 410, requestOrigin);
+    if (_u.pathname === '/anthropic' || _u.searchParams.get('anthropic') === '1') return errorResponse('AI provider migrated; use /openai', 410, requestOrigin, null, env);
 
     // v56: 서버측 키 릴레이 (GET /relay?provider=…). 클라이언트가 목적지를 지정하지
     // 않으므로 일반 ?url= 프록시의 도메인 화이트리스트 경로와 완전히 분리되어 있다.
@@ -1448,7 +1485,7 @@ export default {
 
     // GET 만 허용
     if (request.method !== 'GET') {
-      return errorResponse('GET 요청만 지원됩니다', 405, requestOrigin);
+      return errorResponse('GET 요청만 지원됩니다', 405, requestOrigin, null, env);
     }
 
     // v56: 이 라우트에서 Origin 허용목록은 지금까지 403을 내지 않았다 — 어떤 ACAO 값을 돌려줄지
@@ -1457,13 +1494,13 @@ export default {
     // (비브라우저 클라이언트는 Origin을 위조할 수 있으므로 이것은 인증이 아니라 최소 방어선이며,
     //  isolate 독립적인 실효 상한은 헤더에 적힌 Cloudflare WAF 레이트리밋 규칙뿐이다.)
     if (!resolveAllowedOrigin(requestOrigin, env)) {
-      return errorResponse('Origin not allowed', 403, requestOrigin);
+      return errorResponse('Origin not allowed', 403, requestOrigin, null, env);
     }
 
     // 봇/스캐너 UA 차단
     const ua = request.headers.get('User-Agent') || '';
     if (isBotUA(ua)) {
-      return errorResponse('Forbidden', 403, requestOrigin);
+      return errorResponse('Forbidden', 403, requestOrigin, null, env);
     }
 
     // 클라이언트 IP
@@ -1480,28 +1517,28 @@ export default {
     const url = new URL(request.url);
     const targetUrl = url.searchParams.get('url');
     if (!targetUrl) {
-      return errorResponse('url parameter required', 400, requestOrigin);
+      return errorResponse('url parameter required', 400, requestOrigin, null, env);
     }
 
     // URL 유효성
     let parsedUrl;
     try { parsedUrl = new URL(targetUrl); }
-    catch { return errorResponse('Invalid URL', 400, requestOrigin); }
+    catch { return errorResponse('Invalid URL', 400, requestOrigin, null, env); }
 
     // 프로토콜
     if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
-      return errorResponse('Only http/https supported', 400, requestOrigin);
+      return errorResponse('Only http/https supported', 400, requestOrigin, null, env);
     }
 
     // SSRF: Private IP 차단
     if (isPrivateHost(parsedUrl.hostname)) {
-      return errorResponse('Forbidden', 403, requestOrigin);
+      return errorResponse('Forbidden', 403, requestOrigin, null, env);
     }
 
     // 도메인 화이트리스트
     const targetHost = parsedUrl.hostname.toLowerCase();
     if (!ALLOWED_DOMAINS.some(d => targetHost === d || targetHost.endsWith('.' + d))) {
-      return errorResponse('Domain not allowed', 403, requestOrigin);
+      return errorResponse('Domain not allowed', 403, requestOrigin, null, env);
     }
 
     try {
@@ -1545,7 +1582,7 @@ export default {
       }
       const contentType = response.headers.get('content-type') || 'application/json';
       if (_expectsJson && looksLikeHtml(data)) {
-        return errorResponse('Upstream returned HTML block page for JSON endpoint', 502, requestOrigin);
+        return errorResponse('Upstream returned HTML block page for JSON endpoint', 502, requestOrigin, null, env);
       }
 
       return new Response(data, {
@@ -1562,7 +1599,7 @@ export default {
     } catch (error) {
       const kind = transportFailureMessage(error);
       const msg = kind === 'timeout' ? 'Request timeout' : kind === 'too-large' ? 'Response too large' : kind === 'redirect-refused' ? 'Redirect refused' : 'Upstream error';
-      return errorResponse(msg, 502, requestOrigin);
+      return errorResponse(msg, 502, requestOrigin, null, env);
     }
   },
 };

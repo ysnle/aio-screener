@@ -10,7 +10,17 @@ export const WEB_SEARCH_MAX_CALLS = 2;
 // Hosted search exposes no numeric token budget or cumulative billing bound.
 // Retain this policy reserve per permitted call even after a completed receipt;
 // it is admission accounting, not a promise about the provider's invoice.
-export const WEB_SEARCH_RESERVE_MICRO_USD_PER_CALL = 100000;
+// v57.61: the pricing page (checked 2026-10-14) lists web search at $10/1k calls plus search content tokens at
+// model input rates. $0.04/call still covers the $0.01 fee plus ~218k content tokens at the worst input rate;
+// $0.10 retained 6-10x the real cost and let ~93 searched answers exhaust the $20 month.
+export const WEB_SEARCH_RESERVE_MICRO_USD_PER_CALL = 40000;
+// v57.61: analysis may ask for medium reasoning and medium search context; both stay inside max_output_tokens
+// and the per-call reserve above. Higher effort is never admitted with search.
+const SEARCH_EFFORTS = ['low', 'medium'];
+const SEARCH_CONTEXT_SIZES = ['low', 'medium'];
+// v57.61: reasoning tokens are counted inside max_output_tokens, so medium-effort analysis needs room beyond 8192
+// or the visible answer is cut. Reservation = tokens x output price: 16384 x $0.55/M = $0.009 per request.
+export const AI_MAX_OUTPUT_TOKENS_LIMIT = 16384;
 export const paidWebSearchEnabled = env => env?.AI_WEB_SEARCH_ENABLED === 'true';
 const INPUT_MICRO_USD_PER_TOKEN = 0.1 * 1.25 * 1.1;
 const OUTPUT_MICRO_USD_PER_TOKEN = 0.5 * 1.1;
@@ -42,7 +52,7 @@ export function prepareOpenAiBudget(requestBody, env = {}) {
   if (!onlyKeys(body, allowed)) throw new Error('unsupported AI request parameter: no safe cost bound');
   if (requestBody.store !== undefined && requestBody.store !== false) throw new Error('shared AI requires store:false');
   if (requestBody.service_tier !== undefined && requestBody.service_tier !== 'default') throw new Error('only standard default service tier is budgeted');
-  const maximum = quotaInteger(env.AI_MAX_OUTPUT_TOKENS, 4000, 8192);
+  const maximum = quotaInteger(env.AI_MAX_OUTPUT_TOKENS, 4000, AI_MAX_OUTPUT_TOKENS_LIMIT);
   body.max_output_tokens = Math.min(maximum, quotaInteger(body.max_output_tokens, maximum));
   if (body.instructions !== undefined && typeof body.instructions !== 'string') throw new Error('text instructions required');
   if (body.stream !== undefined && typeof body.stream !== 'boolean') throw new Error('boolean stream required');
@@ -73,7 +83,7 @@ export function prepareOpenAiBudget(requestBody, env = {}) {
     if (tool?.type === 'web_search') {
       if (!paidWebSearchEnabled(env)) throw new Error('공용 AI 웹검색이 아직 활성화되지 않았습니다.');
       if (++searchToolCount > 1 || !onlyKeys(tool, ['type','search_context_size','return_token_budget','filters'])
-        || tool.search_context_size !== 'low' || tool.return_token_budget !== 'default') throw new Error('bounded web_search configuration required');
+        || !SEARCH_CONTEXT_SIZES.includes(tool.search_context_size) || tool.return_token_budget !== 'default') throw new Error('bounded web_search configuration required');
       if (tool.filters !== undefined && (!onlyKeys(tool.filters, ['allowed_domains']) || !Array.isArray(tool.filters.allowed_domains)
         || tool.filters.allowed_domains.length < 1 || tool.filters.allowed_domains.length > 100
         || tool.filters.allowed_domains.some(domain => typeof domain !== 'string' || !/^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,63}$/.test(domain)))) throw new Error('invalid search domain filter');
@@ -85,7 +95,7 @@ export function prepareOpenAiBudget(requestBody, env = {}) {
   }
   if (searchToolCount) {
     body.max_tool_calls = quotaInteger(body.max_tool_calls, WEB_SEARCH_MAX_CALLS, WEB_SEARCH_MAX_CALLS);
-    body.reasoning = { effort: 'low' };
+    body.reasoning = { effort: SEARCH_EFFORTS.includes(body.reasoning?.effort) ? body.reasoning.effort : 'low' };
     if (body.tools.length !== 1) throw new Error('hosted search cannot mix with custom functions');
   } else if (body.max_tool_calls !== undefined) throw new Error('max_tool_calls requires hosted search');
   if (body.tool_choice !== undefined && !['auto','required','none'].includes(body.tool_choice)
