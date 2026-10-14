@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-14T11:51:51.451Z",
-  "attemptedAt": "2026-10-14T11:51:51.451Z",
-  "lastSuccessfulAt": "2026-10-14T11:51:51.451Z",
+  "generatedAt": "2026-10-14T12:21:45.508Z",
+  "attemptedAt": "2026-10-14T12:21:45.508Z",
+  "lastSuccessfulAt": "2026-10-14T12:21:45.508Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-30T11:51:45.565Z",
-  "until": "2026-10-14T11:51:45.565Z",
+  "since": "2026-09-30T12:21:37.944Z",
+  "until": "2026-10-14T12:21:37.944Z",
   "current24hWindow": {
     "start": "2026-10-12T23:00:00.000Z",
     "end": "2026-10-13T23:00:00.000Z",
@@ -81,24 +81,24 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 247,
+      "count": 248,
       "freshCount": 35,
-      "eligibleTextCount": 171,
+      "eligibleTextCount": 173,
       "selectedCount": 92,
       "error": null,
-      "lastPostId": 25834
+      "lastPostId": 25836
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1101,
-      "freshCount": 38,
-      "eligibleTextCount": 576,
+      "count": 1100,
+      "freshCount": 39,
+      "eligibleTextCount": 582,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 66233
+      "lastPostId": 66240
     },
     {
       "channel": "bornlupin",
@@ -117,52 +117,58 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 669,
-      "freshCount": 38,
-      "eligibleTextCount": 411,
+      "count": 671,
+      "freshCount": 37,
+      "eligibleTextCount": 414,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 70420
+      "lastPostId": 70423
     }
   ],
-  "count": 2235,
-  "retainedItemCount": 485,
+  "count": 2237,
+  "retainedItemCount": 488,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2235,
-    "eligibleTextCount": 1291,
-    "mediaOnlyCount": 944,
+    "observedCount": 2237,
+    "eligibleTextCount": 1302,
+    "mediaOnlyCount": 935,
     "highSignalCount": 503,
-    "broadSignalCount": 1023,
+    "broadSignalCount": 1024,
     "selectedRawCount": 410,
     "selectedEligibleCount": 402,
-    "selectedRawCoveragePct": 31.1,
+    "selectedRawCoveragePct": 30.9,
     "selectedOfObservedPct": 18.3,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "geo": 344,
-    "semi": 588,
-    "healthcare": 109,
     "macro": 764,
-    "ai-policy": 194,
     "equity": 165,
-    "insider": 47,
     "earnings": 425,
-    "flows": 179,
     "market-note": 688,
     "power": 340,
+    "semi": 590,
     "credit": 93,
+    "ai-policy": 195,
+    "healthcare": 109,
+    "japan": 141,
+    "geo": 344,
     "kr-market": 218,
-    "media-only": 51,
-    "japan": 140,
+    "insider": 47,
+    "flows": 179,
+    "media-only": 50,
     "optical": 54,
     "crypto": 6
   },
   "tickerCounts": {
+    "VZ": 2,
+    "ASTS": 1,
+    "GOOG": 53,
+    "BE": 20,
+    "AMD": 61,
+    "ORCL": 9,
     "META": 23,
     "MS": 2,
     "BAC": 2,
@@ -171,7 +177,6 @@
     "TSM": 95,
     "005930.KS": 64,
     "MSFT": 30,
-    "GOOG": 51,
     "AMZN": 32,
     "000660.KS": 41,
     "MU": 37,
@@ -179,7 +184,6 @@
     "TSLA": 9,
     "V": 3,
     "NVDA": 63,
-    "AMD": 61,
     "LITE": 13,
     "COHR": 7,
     "AAOI": 5,
@@ -190,13 +194,11 @@
     "ACN": 2,
     "WDC": 5,
     "STX": 7,
-    "ORCL": 8,
     "PLTR": 7,
     "MRVL": 15,
     "BMY": 1,
     "IONQ": 2,
     "AAPL": 5,
-    "BE": 19,
     "178320.KQ": 1,
     "INTC": 3,
     "QCOM": 4,
@@ -251,7 +253,6 @@
     "DINO": 1,
     "VLO": 1,
     "MPC": 1,
-    "VZ": 1,
     "NOW": 1,
     "SPOT": 1,
     "AEE": 2,
@@ -268,14 +269,14 @@
     "MDB": 1
   },
   "themes": [
-    "Macro/Rates (764 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고...",
-    "Market Notes (688 posts in 14-day research window): 2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우...",
-    "Semiconductors/Memory (588 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고...",
-    "Earnings/Corporate (425 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고...",
-    "Geopolitics (344 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고...",
-    "AI Power/Grid (340 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고...",
+    "Macro/Rates (764 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단 AI 모델 접근 권한과 총 300만 달러 규모의 컴퓨팅 크레딧을 제공할 예정. • 오라클 (ORCL) —...",
+    "Market Notes (688 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록....",
+    "Semiconductors/Memory (590 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단 AI 모델 접근 권한과 총 300만 달러 규모의 컴퓨팅 크레딧을 제공할 예정. • 오라클 (ORCL) —...",
+    "Earnings/Corporate (425 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단 AI 모델 접근 권한과 총 300만 달러 규모의 컴퓨팅 크레딧을 제공할 예정. • 오라클 (ORCL) —...",
+    "Geopolitics (344 posts in 14-day research window): 2026년 10월 13일 미국 증시 브리핑 미국 증시는 중동발 에너지 가격 상승과 연준의 추가 긴축 우려 속에 혼조 마감. S&P500 -0.06%, 나스닥 -0.44%, 다우 +0.38%, 러셀2000...",
+    "AI Power/Grid (340 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단 AI 모델 접근 권한과 총 300만 달러 규모의 컴퓨팅 크레딧을 제공할 예정. • 오라클 (ORCL) —...",
     "Korea Market (218 posts in 14-day research window): JP모건 APAC테크 코멘트 테크 탑다운 어제는 7월과 같은 항복(capitulation)의 느낌이 있었습니다…. AI 공급망은 매도(한국 반도체 -4%)되었고 AI 패자는 매수(인도 IT 서비스 +5%)되었습니다. 실적 시즌(테크 실적이 견조할 것으로 예상되는)에 진입하는 바로 이 시점에 투매가 나타나고 있다는...",
-    "AI Policy/Export Controls (194 posts in 14-day research window): JP모건 APAC테크 코멘트 테크 탑다운 어제는 7월과 같은 항복(capitulation)의 느낌이 있었습니다…. AI 공급망은 매도(한국 반도체 -4%)되었고 AI 패자는 매수(인도 IT 서비스 +5%)되었습니다. 실적 시즌(테크 실적이 견조할 것으로 예상되는)에 진입하는 바로 이 시점에 투매가 나타나고 있다는..."
+    "AI Policy/Export Controls (195 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단 AI 모델 접근 권한과 총 300만 달러 규모의 컴퓨팅 크레딧을 제공할 예정. • 오라클 (ORCL) —..."
   ],
   "catalysts": [
     {
@@ -296,12 +297,12 @@
     {
       "key": "AMD",
       "count": 61,
-      "text": "2026년 10월 13일 미국 증시 브리핑 미국 증시는 중동발 에너지 가격 상승과 연준의 추가 긴축 우려 속에 혼조 마감. S&P500 -0.06%, 나스닥 -0.44%, 다우 +0.38%, 러셀2000..."
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단 AI 모델 접근 권한과 총 300만 달러 규모의 컴퓨팅 크레딧을 제공할 예정. • 오라클 (ORCL) —..."
     },
     {
       "key": "GOOG",
-      "count": 51,
-      "text": "JP모건 APAC테크 코멘트 테크 탑다운 어제는 7월과 같은 항복(capitulation)의 느낌이 있었습니다…. AI 공급망은 매도(한국 반도체 -4%)되었고 AI 패자는 매수(인도 IT 서비스 +5%)되었습니다. 실적 시즌(테크 실적이 견조할 것으로 예상되는)에 진입하는 바로 이 시점에 투매가 나타나고 있다는..."
+      "count": 53,
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단 AI 모델 접근 권한과 총 300만 달러 규모의 컴퓨팅 크레딧을 제공할 예정. • 오라클 (ORCL) —..."
     },
     {
       "key": "000660.KS",
@@ -311,7 +312,7 @@
     {
       "key": "MU",
       "count": 37,
-      "text": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
+      "text": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록...."
     },
     {
       "key": "AMZN",
@@ -321,12 +322,12 @@
     {
       "key": "MSFT",
       "count": 30,
-      "text": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
+      "text": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록...."
     },
     {
       "key": "META",
       "count": 23,
-      "text": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
+      "text": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록...."
     },
     {
       "key": "AVGO",
@@ -335,7 +336,7 @@
     },
     {
       "key": "BE",
-      "count": 19,
+      "count": 20,
       "text": "블룸에너지, AI 광통신 공급망 진출… SOFC로 AAOI의 대만 생산시설 증설 지원 AI 데이터센터 확대로 고속 광통신 수요가 지속적으로 증가하는 가운데, 미국 연료전지 기업 블룸에너지(Bloom..."
     }
   ],
@@ -347,7 +348,7 @@
         "macro"
       ],
       "count": 764,
-      "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단 AI 모델 접근 권한과 총 300만 달러 규모의 컴퓨팅 크레딧을 제공할 예정. • 오라클 (ORCL) —..."
     },
     {
       "id": "geo",
@@ -356,7 +357,7 @@
         "geo"
       ],
       "count": 344,
-      "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
+      "focus": "2026년 10월 13일 미국 증시 브리핑 미국 증시는 중동발 에너지 가격 상승과 연준의 추가 긴축 우려 속에 혼조 마감. S&P500 -0.06%, 나스닥 -0.44%, 다우 +0.38%, 러셀2000..."
     },
     {
       "id": "credit",
@@ -365,7 +366,7 @@
         "credit"
       ],
       "count": 93,
-      "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단 AI 모델 접근 권한과 총 300만 달러 규모의 컴퓨팅 크레딧을 제공할 예정. • 오라클 (ORCL) —..."
     },
     {
       "id": "semi",
@@ -373,8 +374,8 @@
       "topics": [
         "semi"
       ],
-      "count": 588,
-      "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
+      "count": 590,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단 AI 모델 접근 권한과 총 300만 달러 규모의 컴퓨팅 크레딧을 제공할 예정. • 오라클 (ORCL) —..."
     },
     {
       "id": "optical",
@@ -392,7 +393,7 @@
         "power"
       ],
       "count": 340,
-      "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단 AI 모델 접근 권한과 총 300만 달러 규모의 컴퓨팅 크레딧을 제공할 예정. • 오라클 (ORCL) —..."
     },
     {
       "id": "ai-policy",
@@ -400,8 +401,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 194,
-      "focus": "JP모건 APAC테크 코멘트 테크 탑다운 어제는 7월과 같은 항복(capitulation)의 느낌이 있었습니다…. AI 공급망은 매도(한국 반도체 -4%)되었고 AI 패자는 매수(인도 IT 서비스 +5%)되었습니다. 실적 시즌(테크 실적이 견조할 것으로 예상되는)에 진입하는 바로 이 시점에 투매가 나타나고 있다는..."
+      "count": 195,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단 AI 모델 접근 권한과 총 300만 달러 규모의 컴퓨팅 크레딧을 제공할 예정. • 오라클 (ORCL) —..."
     },
     {
       "id": "kr-market",
@@ -419,7 +420,7 @@
         "equity"
       ],
       "count": 165,
-      "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
+      "focus": ">>AI 투자 논리 변화…글로벌 반도체주 급락, Firmus IPO 중단·CXMT 기술 진전이 경고 (중국언론) •AI 인프라 투자 열기가 약 4년간 이어진 가운데 시장의 관심이 성장 기대에서 실제..."
     },
     {
       "id": "crypto",
@@ -437,7 +438,7 @@
         "earnings"
       ],
       "count": 425,
-      "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단 AI 모델 접근 권한과 총 300만 달러 규모의 컴퓨팅 크레딧을 제공할 예정. • 오라클 (ORCL) —..."
     },
     {
       "id": "healthcare",
@@ -446,7 +447,7 @@
         "healthcare"
       ],
       "count": 109,
-      "focus": "JPM) OCP 2026 1일차 인사이트: AI 인프라 확장의 복잡성 증가 (2026.10.13) JP모건은 캘리포니아 산호세에서 열린 OCP 2026 1일차에 참석했으며, 기조연설과 경영진 세션 전반을 관통한 핵심 주제는 AI 인프라 확장의 복잡성 증가였다고 전했습니다. 추론 및 에이전틱 워크로드가 빠르게 늘면서..."
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단 AI 모델 접근 권한과 총 300만 달러 규모의 컴퓨팅 크레딧을 제공할 예정. • 오라클 (ORCL) —..."
     },
     {
       "id": "japan",
@@ -454,7 +455,7 @@
       "topics": [
         "japan"
       ],
-      "count": 140,
+      "count": 141,
       "focus": "다음주 일정 (11일): 한국 1~10일 수출입 12일: 일본 휴장, IMF, 세계은행 연차총회(~18일) OCP Global Summit 2026(~15일): 주제:“Scaling Innovation for..."
     },
     {
@@ -464,7 +465,7 @@
         "flows"
       ],
       "count": 179,
-      "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
+      "focus": "JP모건 APAC테크 코멘트 테크 탑다운 어제는 7월과 같은 항복(capitulation)의 느낌이 있었습니다…. AI 공급망은 매도(한국 반도체 -4%)되었고 AI 패자는 매수(인도 IT 서비스 +5%)되었습니다. 실적 시즌(테크 실적이 견조할 것으로 예상되는)에 진입하는 바로 이 시점에 투매가 나타나고 있다는..."
     },
     {
       "id": "insider",
@@ -482,7 +483,7 @@
         "market-note"
       ],
       "count": 688,
-      "focus": "2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우..."
+      "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록...."
     }
   ],
   "pageMap": {
@@ -726,30 +727,47 @@
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
     {
+      "id": "insidertracking/66235",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66235",
+      "datetime": "2026-10-14T12:03:30.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "credit",
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "AMD",
+        "GOOG",
+        "ORCL"
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단..."
+    },
+    {
       "id": "insidertracking/66191",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/66191",
       "datetime": "2026-10-14T04:55:08.000Z",
       "localDateKst": "2026-10-14",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "equity",
-        "earnings",
-        "flows"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록....",
       "tickers": [
         "MSFT",
         "META",
         "MU",
         "SNDK"
-      ],
-      "summary": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록...."
+      ]
     },
     {
       "id": "insidertracking/66174",
@@ -1381,30 +1399,6 @@
       ]
     },
     {
-      "id": "insidertracking/65830",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/65830",
-      "datetime": "2026-10-09T21:57:02.000Z",
-      "localDateKst": "2026-10-10",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 10월 10일 미국 증시 브리핑 미국 증시는 경기 둔화 우려에도 AI 인프라와 대형 기술주 중심의 매수세가 유입되며 상승 마감. S&P500 +0.59% 상승한 7,811.54, 다우 +0.83%,...",
-      "tickers": [],
-      "listTickers": [
-        "AMD",
-        "TSM",
-        "MRVL",
-        "LITE",
-        "COHR",
-        "AAOI",
-        "T",
-        "IONQ"
-      ]
-    },
-    {
       "id": "aetherjapanresearch/25726",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25726",
@@ -1696,6 +1690,101 @@
   ],
   "broadItems": [
     {
+      "id": "aetherjapanresearch/25836",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25836",
+      "datetime": "2026-10-14T12:17:23.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "macro",
+        "equity",
+        "earnings"
+      ],
+      "score": 65,
+      "hasText": true,
+      "tickers": [
+        "VZ",
+        "ASTS"
+      ],
+      "summary": "Piper Sandler) ASTS: 발사 역량 부족과 SpaceX(SPCX)와의 갈등 심화로 Neutral 하향, 목표주가 98달러에서 54달러로 하향 (2026.10.12) Piper Sandler는..."
+    },
+    {
+      "id": "insidertracking/66238",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66238",
+      "datetime": "2026-10-14T12:10:43.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "macro",
+        "power"
+      ],
+      "score": 63,
+      "hasText": true,
+      "tickers": [
+        "GOOG",
+        "BE"
+      ],
+      "summary": "💡 💡 💡 아메리칸 일렉트릭 파워(AEP)가 와이오밍주에서 구글에 전력을 공급하기 위해 블룸에너지의 702MW 규모 연료전지 발전소에 약 40억 달러 투자 계획. 이번 프로젝트는 구글과 체결한 20년..."
+    },
+    {
+      "id": "insidertracking/66236",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66236",
+      "datetime": "2026-10-14T12:10:13.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "score": 55,
+      "hasText": true,
+      "tickers": [],
+      "summary": "마이크로칩 테크놀로지가 차세대 우주 컴퓨팅 시스템을 위한 방사선 내성 질화갈륨(GaN) 전력 변환기 출시. 신제품 POL-05-20S-T는 무게 25g의 소형 패키지에서 최대 20A의 연속 전류 공급 가능...."
+    },
+    {
+      "id": "insidertracking/66235",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66235",
+      "datetime": "2026-10-14T12:03:30.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "credit",
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "AMD",
+        "GOOG",
+        "ORCL"
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단..."
+    },
+    {
+      "id": "insidertracking/66234",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66234",
+      "datetime": "2026-10-14T12:02:13.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "kr-market",
+        "japan"
+      ],
+      "score": 97,
+      "hasText": true,
+      "tickers": [],
+      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 14일 > 오후 2시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 행정부는 우크라이나에 대한 정보 공유 정책 재검토를 논의 중이라고..."
+    },
+    {
       "id": "HANAchina/70420",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70420",
@@ -1708,7 +1797,7 @@
       "score": 52,
       "hasText": true,
       "tickers": [],
-      "summary": ">>중국 국산 EUV 광원 시제품 국산화율 90%, 양산까지 3~5년 전망 •중국 랑다오수옌이 국산 EUV 광원 시제품을 처음 공개함. 시제품의 국산화율은 90%로, 핵심 부품 대부분을 자체 개발했으며 반도체..."
+      "summary": ">>중국 국산 EUV 광원 시제품 국산화율 90%, 양산까지 3~5년 전망 (중국언론) •중국 랑다오수옌이 국산 EUV 광원 시제품을 처음 공개함. 시제품의 국산화율은 90%로, 핵심 부품 대부분을 자체..."
     },
     {
       "id": "aetherjapanresearch/25834",
@@ -2020,24 +2109,17 @@
       "datetime": "2026-10-14T04:55:08.000Z",
       "localDateKst": "2026-10-14",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "equity",
-        "earnings",
-        "flows"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록....",
       "tickers": [
         "MSFT",
         "META",
         "MU",
         "SNDK"
-      ],
-      "summary": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록...."
+      ]
     },
     {
       "id": "insidertracking/66190",
@@ -2279,14 +2361,13 @@
       "datetime": "2026-10-14T00:49:12.000Z",
       "localDateKst": "2026-10-14",
       "tags": [
-        "macro",
         "kr-market",
         "flows"
       ],
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>골드만삭스: 브라질 대선 1차 투표 결과로 ‘역대 가장 바쁜 한 주’ 촉발…외국인 자금은 보우소나루 승리에 베팅 (중국언론) •골드만삭스는 브라질 대선 1차 투표 이후 시장 움직임을 분석. 지난주 월요일..."
+      "summary": ">>골드만삭스: 브라질 대선 1차 투표 결과로 ‘역대 가장 바쁜 한 주’ 촉발…외국인 자금은 보우소나루 승리에 베팅 (중국언론) •골드만삭스는 브라질 대선 1차 투표 이후 시장 움직임을 분석. 지난주 월요일...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70381",
@@ -2300,10 +2381,10 @@
       ],
       "score": 64,
       "hasText": true,
+      "summary": ">>마이크로소프트, 데이터센터 임대 계약 1,300억달러 추가…컴퓨팅 용량 3배 이상 확대 계획 •마이크로소프트는 전 세계 데이터센터 용량을 약 12GW에서 38GW 이상으로 확대할 계획임. 한 분기에...",
       "tickers": [
         "MSFT"
-      ],
-      "summary": ">>마이크로소프트, 데이터센터 임대 계약 1,300억달러 추가…컴퓨팅 용량 3배 이상 확대 계획 •마이크로소프트는 전 세계 데이터센터 용량을 약 12GW에서 38GW 이상으로 확대할 계획임. 한 분기에..."
+      ]
     },
     {
       "id": "HANAchina/70380",
@@ -2313,13 +2394,12 @@
       "localDateKst": "2026-10-14",
       "tags": [
         "macro",
-        "semi",
         "flows"
       ],
       "score": 64,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>15년 만에 최대 주간 순매수…Citadel 애널리스트: 개인투자자들, 다시 AI주 집중 매수 •개인투자자들이 AI주 저가 매수에 나서면서 주간 순매수액이 91억 달러로 15년 만에 최대치를 기록했음...."
+      "summary": ">>15년 만에 최대 주간 순매수…Citadel 애널리스트: 개인투자자들, 다시 AI주 집중 매수 •개인투자자들이 AI주 저가 매수에 나서면서 주간 순매수액이 91억 달러로 15년 만에 최대치를 기록했음....",
+      "tickers": []
     },
     {
       "id": "HANAchina/70378",
@@ -3677,18 +3757,14 @@
       "datetime": "2026-10-13T04:15:34.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "earnings"
+        "market-note"
       ],
       "score": 91,
       "hasText": true,
+      "summary": "JP모건) 마이크로소프트 — Maia 제품군이 주력 추론 역할을 맡고, Maia 300은 상당한 성능 향상을 제공하며 강력한 램프업 계획을 뒷받침할 것으로 예상 요약 마이크로소프트는 10월 12일 Azure...",
       "tickers": [
         "MSFT"
-      ],
-      "summary": "JP모건) 마이크로소프트 — Maia 제품군이 주력 추론 역할을 맡고, Maia 300은 상당한 성능 향상을 제공하며 강력한 램프업 계획을 뒷받침할 것으로 예상 요약 마이크로소프트는 10월 12일 Azure..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25795",
@@ -3697,18 +3773,15 @@
       "datetime": "2026-10-13T04:11:05.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "macro",
-        "semi",
-        "ai-policy",
-        "earnings"
+        "macro"
       ],
       "score": 78,
       "hasText": true,
+      "summary": "JP모건) 메타 — 뮤즈 원더 모델이 개인 에이전트 및 엔터프라이즈 서비스를 뒷받침, 비중확대 및 목표주가 920달러 유지 요약 메타가 큰 기대를 모았던 뮤즈 원더(코드명 워터멜론) 모델 시리즈를...",
       "tickers": [],
       "relatedTickers": [
         "GOOG"
-      ],
-      "summary": "JP모건) 메타 — 뮤즈 원더 모델이 개인 에이전트 및 엔터프라이즈 서비스를 뒷받침, 비중확대 및 목표주가 920달러 유지 요약 메타가 큰 기대를 모았던 뮤즈 원더(코드명 워터멜론) 모델 시리즈를..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25794",
@@ -7505,52 +7578,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/65804",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/65804",
-      "datetime": "2026-10-09T06:20:46.000Z",
-      "localDateKst": "2026-10-09",
-      "tags": [
-        "geo"
-      ],
-      "score": 70,
-      "hasText": true,
-      "summary": "오픈AI, 챗GPT 이용해 여론조작 벌인 러시아·이란 계정 차단…가짜 기자 동원해 기사 100건 유포 > 오픈AI가 10월 8일 러시아와 이란에서 시작된 조직적인 AI 기반 여론조작 활동을 적발하고 관련...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/65799",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/65799",
-      "datetime": "2026-10-09T05:47:12.000Z",
-      "localDateKst": "2026-10-09",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 10월 9일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 다우 선물 +0.19%, S&P500 선물 +0.33%, 나스닥100 선물 +0.65%, 러셀2000 선물...",
-      "tickers": [
-        "PANW",
-        "CRWD",
-        "ACN"
-      ]
-    },
-    {
-      "id": "insidertracking/65798",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/65798",
-      "datetime": "2026-10-09T05:42:24.000Z",
-      "localDateKst": "2026-10-09",
-      "tags": [
-        "geo"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 9일 > 오전 7시~오후 2시 30분 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 외교 협상이 생산적으로 진행되고 있다며 11월 3일...",
-      "tickers": []
-    },
-    {
       "id": "aetherjapanresearch/25714",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25714",
@@ -7659,23 +7686,6 @@
       "score": 67,
       "hasText": true,
       "summary": "이전에 OpenAI와 Anthropic을 동일한 기준으로 비교하려다 만들어낸 수치만 생각하다 OpenAI쪽에서 직접 나온 수치가 적은거 같으니 일단 팔고보자가 나온듯 하네요 Anthropic은 클라우드 서비스...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/65784",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/65784",
-      "datetime": "2026-10-08T22:26:42.000Z",
-      "localDateKst": "2026-10-09",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "earnings"
-      ],
-      "score": 74,
-      "hasText": true,
-      "summary": "🎙 10월 9일 미주인 브리핑 • 나스닥 1.25% 하락 · AI 기술주 매도 집중 • 오픈AI 매출 논란 · 엔비디아·오라클 급락 • 국제유가 91달러 돌파 · 중동 긴장 지속 • 연준 추가 긴축 경고 ·...",
       "tickers": []
     },
     {
@@ -8240,24 +8250,6 @@
       "summary": "Wells Fargo) 메타 플랫폼스: 3Q26 실적 프리뷰, 뮤즈에 대한 기대는 타당하나 2027년 실적에는 신중함 필요 (2026.10.05). TP $1000 웰스파고는 메타에 대해 비중확대...",
       "tickers": [
         "WFC"
-      ]
-    },
-    {
-      "id": "aetherjapanresearch/25692",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25692",
-      "datetime": "2026-10-07T13:26:10.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "score": 95,
-      "hasText": true,
-      "summary": "Citi) TSMC ( 2330.TW )|매수; 또 한 차례의 컨센서스 이익 상향이 나올 가능성이 높습니다. TP NT$4000(상향) 씨티의 견해 TSMC는 10월 15일 3Q26 실적 발표 콜을...",
-      "tickers": [
-        "AMD",
-        "TSM"
       ]
     }
   ],
@@ -9532,18 +9524,14 @@
       "datetime": "2026-10-13T04:15:34.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "earnings"
+        "market-note"
       ],
       "score": 91,
       "hasText": true,
+      "summary": "JP모건) 마이크로소프트 — Maia 제품군이 주력 추론 역할을 맡고, Maia 300은 상당한 성능 향상을 제공하며 강력한 램프업 계획을 뒷받침할 것으로 예상 요약 마이크로소프트는 10월 12일 Azure...",
       "tickers": [
         "MSFT"
-      ],
-      "summary": "JP모건) 마이크로소프트 — Maia 제품군이 주력 추론 역할을 맡고, Maia 300은 상당한 성능 향상을 제공하며 강력한 램프업 계획을 뒷받침할 것으로 예상 요약 마이크로소프트는 10월 12일 Azure..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25795",
@@ -9552,18 +9540,15 @@
       "datetime": "2026-10-13T04:11:05.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "macro",
-        "semi",
-        "ai-policy",
-        "earnings"
+        "macro"
       ],
       "score": 78,
       "hasText": true,
+      "summary": "JP모건) 메타 — 뮤즈 원더 모델이 개인 에이전트 및 엔터프라이즈 서비스를 뒷받침, 비중확대 및 목표주가 920달러 유지 요약 메타가 큰 기대를 모았던 뮤즈 원더(코드명 워터멜론) 모델 시리즈를...",
       "tickers": [],
       "relatedTickers": [
         "GOOG"
-      ],
-      "summary": "JP모건) 메타 — 뮤즈 원더 모델이 개인 에이전트 및 엔터프라이즈 서비스를 뒷받침, 비중확대 및 목표주가 920달러 유지 요약 메타가 큰 기대를 모았던 뮤즈 원더(코드명 워터멜론) 모델 시리즈를..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25794",
