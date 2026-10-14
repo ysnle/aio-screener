@@ -19,6 +19,7 @@ import { AXIS_DEEP_DIVES, MACRO_AXIS_DEEP_DIVES, MACRO_GROUP_DEEP_DIVES } from '
 import { deepDiveFold } from './deep-dive.js';
 import { renderMacroCrossroads, openCrossroadsBranch } from './macro-crossroads.js';
 import { BRANCHES } from '../../domain/market/macro-crossroads.js';
+import { longHistoryRows } from '../../domain/macro/long-history.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 
@@ -479,6 +480,17 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     section.append(el(doc, 'h3', group.title, 'macro-group-title'), el(doc, 'p', group.fact, 'macro-group-fact'), grid);
     const fold = deepDiveFold(doc, root, group.title, MACRO_GROUP_DEEP_DIVES[group.id]); // P1660: a teaching fold
     if (fold) section.append(fold);
+    host.append(section);
+  }
+  // 2026-10-14 (live review 4f): where this month sits in decades of history — a level, not a direction.
+  const longRows = longHistoryRows(macroHistory?.long || null);
+  if (longRows.length) {
+    const section = el(doc, 'section', null, 'macro-group');
+    section.dataset.group = 'long-history';
+    const grid = el(doc, 'div', null, 'macro-stat-grid');
+    grid.append(...longRows.map((row) => statCard(doc, { label: row.label, valueText: row.valueText, lines: [row.monthText, row.positionText], series: row.series, unit: row.unit, format: (value) => `${value.toFixed(2)}${row.unit}`, status: row.stale ? 'stale' : 'observed', staleText: '이번 수집 실패 · 직전 값', meta: 'FRED 월평균' })));
+    section.append(el(doc, 'h3', '수십 년 속 지금 위치', 'macro-group-title'),
+      el(doc, 'p', `1990년(또는 자료 시작) 이후 매달 평균 가운데 이번 달 값이 어디쯤인지 봅니다. 높은 편·낮은 편은 과거 분포 안의 위치일 뿐, 앞으로의 방향을 말하지 않습니다. 같은 수준이라도 오르는 중인지 내리는 중인지는 위 카드의 6개월 추세로 함께 읽습니다.`, 'macro-group-fact'), grid);
     host.append(section);
   }
   renderCommodities(doc, root, read.oil);

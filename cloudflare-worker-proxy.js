@@ -1371,12 +1371,45 @@ async function handleRelay(request, env, origin) {
   }
 }
 
+// 2026-10-14 (owner: use Workers AI where it fits): headline translation runs on the account's Workers AI allowance
+// (free daily neurons) instead of the shared OpenAI budget. Automation token only — browsers never reach it, so it
+// cannot be spent from outside. Any failure (no binding, model error, unparsable output) returns 503 and the caller
+// falls back to the shared OpenAI path; the response carries translations only, never a judgement.
+export const WORKERS_AI_TRANSLATE_MODEL = '@cf/google/gemma-3-12b-it';
+async function handleWorkersAiTranslate(request, env) {
+  if (request.method !== 'POST') return privateOperatorResponse({ error: 'POST required' }, 405);
+  if (!await matchesOperatorToken(env?.AIO_AUTOMATION_TOKEN, request.headers.get('X-AIO-Automation-Token'))) return privateOperatorResponse(null, 404);
+  if (!env?.AI || typeof env.AI.run !== 'function') return privateOperatorResponse({ error: 'workers-ai-unbound' }, 503);
+  let titles;
+  try {
+    const body = JSON.parse(await readBoundedAiRequestBody(request, 32 * 1024));
+    titles = Array.isArray(body?.titles) ? body.titles : null;
+  } catch { titles = null; }
+  if (!titles || !titles.length || titles.length > 40 || titles.some((title) => typeof title !== 'string' || !title.trim() || title.length > 300)) {
+    return privateOperatorResponse({ error: 'titles must be 1-40 strings of at most 300 characters' }, 400);
+  }
+  const model = env.WORKERS_AI_TRANSLATE_MODEL || WORKERS_AI_TRANSLATE_MODEL;
+  try {
+    const result = await env.AI.run(model, { max_tokens: 2400, temperature: 0.1, messages: [
+      { role: 'system', content: '너는 금융 뉴스 번역가다. 영어 헤드라인을 자연스러운 한국어 기사 제목으로 옮긴다. 고유명사·티커·숫자는 그대로 두고, 뜻을 더하거나 빼지 않는다. 출력은 JSON 문자열 배열 하나뿐이다.' },
+      { role: 'user', content: `입력과 같은 순서로 정확히 ${titles.length}개를 JSON 배열로만 출력하라.\n${JSON.stringify(titles)}` }
+    ] });
+    const text = String(typeof result?.response === 'string' ? result.response : result?.choices?.[0]?.message?.content || '');
+    const parsed = JSON.parse(text.slice(text.indexOf('['), text.lastIndexOf(']') + 1));
+    if (!Array.isArray(parsed) || parsed.length !== titles.length) return privateOperatorResponse({ error: 'workers-ai-unparsed', model }, 503);
+    return privateOperatorResponse({ model, translations: parsed.map((item) => (typeof item === 'string' ? item.replace(/\s+/g, ' ').trim().slice(0, 200) : '')) });
+  } catch (error) {
+    return privateOperatorResponse({ error: 'workers-ai-failed', model, detail: String(error?.message || error).slice(0, 160) }, 503);
+  }
+}
+
 export default {
   async fetch(request, env) {
     const requestOrigin = request.headers.get('Origin') || '';
     const _u = new URL(request.url);
 
     if (_u.pathname === '/_ops/ai-usage') return handleOperatorAiUsage(request, env);
+    if (_u.pathname === '/workers-ai/translate') return handleWorkersAiTranslate(request, env);
 
     if (_u.pathname === '/health') {
       if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(requestOrigin, env) });

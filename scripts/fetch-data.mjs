@@ -35,7 +35,7 @@ import { reconcileSecRecord, secSharesTrust } from '../src/domain/fundamental/se
 import { evaluateSymbolSignals, distributionDaySeries, BREADTH_SIGNAL_MODEL_VERSION } from '../src/domain/market/breadth-signals.js'; // P1416
 import { collectRotationHistory } from './lib/rotation-history.mjs';
 import { updateCandidateArchive } from './lib/candidate-archive.mjs'; // P1465
-import { SHARED_AI_MODEL, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
+import { SHARED_AI_MODEL, requestSharedAnalysis, requestWorkersAiTranslation, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
 import { analysisLevelsAfterLabels, analysisProse, isNonMetricNumber } from './lib/market-analysis-numbers.mjs';
 import { buildMarketRegime } from '../src/domain/briefing/market-read.js'; // P1635
 import { buildMarketScenarios, renderMarketScenarioContext } from '../src/domain/market/regime-scenarios.js';
@@ -2804,6 +2804,10 @@ export function closesToFactors(closes) {
     vol: vol60, rsi: _rsi14(closes),
     pctSma50: (sma50 && sma50 > 0) ? round((price / sma50 - 1) * 100, 2) : null,
     pctSma200: (sma200 && sma200 > 0) ? round((price / sma200 - 1) * 100, 2) : null,
+    // 2026-10-14 (owner: custom screener conditions): short averages and the 1-year closing high as distances on the
+    // same series, so "5/10/20 정배열" and "52주 신고가" are read without publishing a raw price (P715).
+    ...Object.fromEntries([5, 10, 20].map((n) => { const sma = _mean(closes.slice(-n)); return [`pctSma${n}`, sma > 0 ? round((price / sma - 1) * 100, 2) : null]; })),
+    pctFromCloseHigh52w: closes.length >= 250 ? (() => { const high = Math.max(...closes.slice(-252)); return high > 0 ? round((price / high - 1) * 100, 2) : null; })() : null,
     kalmanVel:    kalman ? kalman.vel     : null,
     kalmanPt:     kalman ? kalman.pt      : null,
     kalmanInnovZ: kalman ? kalman.innovZ  : null,
@@ -4862,6 +4866,44 @@ export function parseFredObservations(payload) {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
+// 2026-10-14 (live review 4f): decades of context for the few gauges a reader compares with history — monthly means since
+// 1990 (or the series' start) via FRED's own aggregation/transformation, refreshed at most once a day. The screen reads
+// where today's value sits in that history; it is a range, not a forecast.
+// 2026-10-14 (live review 4f): decades of context for the few gauges a reader compares with history — monthly means since
+// 1990 (or the series' start) via FRED's own aggregation/transformation. Carried inside macro-history.json as `long`
+// and refetched at most once a day. The screen reads where today's value sits in that history; a range, not a forecast.
+export const MACRO_LONG_SERIES = Object.freeze({
+  fedFunds:     { id: 'FEDFUNDS',     units: 'lin', unit: 'percent', label: '기준금리(실효 연방기금금리)' },
+  dgs10:        { id: 'DGS10',        units: 'lin', unit: 'percent', label: '미국 10년물 금리' },
+  dgs2:         { id: 'DGS2',         units: 'lin', unit: 'percent', label: '미국 2년물 금리' },
+  t10y3m:       { id: 'T10Y3M',       units: 'lin', unit: 'percentage-points', label: '10년물 − 3개월물 금리차' },
+  realYield10:  { id: 'DFII10',       units: 'lin', unit: 'percent', label: '10년 실질금리' },
+  coreCpiYoY:   { id: 'CPILFESL',     units: 'pc1', unit: 'percent', label: '근원 CPI 전년 대비' },
+  unemployment: { id: 'UNRATE',       units: 'lin', unit: 'percent', label: '실업률' },
+  vix:          { id: 'VIXCLS',       units: 'lin', unit: 'index', label: 'VIX' }
+});
+export async function collectMacroLongHistory(key, previousLong, { fetchFn = fetchJSON, nowMs = Date.now(), minAgeMs = 20 * 3600000 } = {}) {
+  const previousMs = Date.parse(previousLong?.generatedAt || '');
+  if (previousLong?.series && Number.isFinite(previousMs) && nowMs - previousMs >= 0 && nowMs - previousMs < minAgeMs) return previousLong; // a series FRED cannot serve is retried next day, not every run
+  const series = {};
+  const failed = [];
+  for (const [field, spec] of Object.entries(MACRO_LONG_SERIES)) {
+    const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${spec.id}&api_key=${key}&file_type=json&observation_start=1990-01-01&frequency=m&aggregation_method=avg&units=${spec.units}`;
+    try {
+      const observations = parseFredObservations(await fetchFn(url));
+      if (observations.length < 120) throw new Error('too-few-observations');
+      series[field] = { id: spec.id, label: spec.label, unit: spec.unit, transform: spec.units === 'pc1' ? 'percent-change-from-year-ago' : 'monthly-mean', observations: observations.map((row) => [row.date.slice(0, 7), Math.round(row.value * 100) / 100]) };
+    } catch (error) {
+      failed.push(field);
+      const kept = previousLong?.series?.[field];
+      if (kept?.observations?.length) series[field] = { ...kept, stale: true };
+      console.warn(`[fetch-data] macro long history ${spec.id} failed: ${error?.message || error}`);
+    }
+  }
+  if (!Object.keys(series).length) return previousLong || null;
+  return { generatedAt: new Date(nowMs).toISOString(), frequency: 'monthly', columns: ['month', 'value'], failed, series };
+}
+
 async function writeMacroHistory(key, { fetchFn = fetchJSON, nowMs = Date.now() } = {}) {
   let previous = null;
   try { previous = JSON.parse(await readFile(MACRO_HISTORY_OUT, 'utf8')); } catch { /* first producer run */ }
@@ -4890,7 +4932,8 @@ async function writeMacroHistory(key, { fetchFn = fetchJSON, nowMs = Date.now() 
     status: failed.length ? 'partial' : 'ok',
     failed,
     columns: ['date', 'value'],
-    series
+    series,
+    long: await collectMacroLongHistory(key, previous?.long || null, { fetchFn, nowMs }).catch(() => previous?.long || null)
   };
   await atomicWriteFile(MACRO_HISTORY_OUT, JSON.stringify(payload));
   return { written: true, series: Object.keys(series).length, failed };
@@ -5181,7 +5224,7 @@ export function retainVerifiedMarketAnalysis(previous, { reason, nowMs = Date.no
 // come back as a Korean line keeps no titleKo (the browser then translates as before). A failure never blocks the cycle.
 export const HEADLINE_TRANSLATION_MAX = 30;
 const hasHangul = (text) => /[가-힣]/.test(String(text || ''));
-export async function translateHeadlines(items, { previous = [], request = null } = {}) {
+export async function translateHeadlines(items, { previous = [], request = null, translate = null } = {}) {
   const list = (Array.isArray(items) ? items : []).filter((item) => item && typeof item.title === 'string' && item.title.trim());
   const known = new Map((Array.isArray(previous) ? previous : []).filter((item) => item?.title && hasHangul(item.titleKo)).map((item) => [item.title, item.titleKo]));
   let reused = 0;
@@ -5190,7 +5233,27 @@ export async function translateHeadlines(items, { previous = [], request = null 
     if (known.has(item.title)) { item.titleKo = known.get(item.title); reused += 1; }
   }
   const pending = list.filter((item) => !hasHangul(item.title) && !item.titleKo).slice(0, HEADLINE_TRANSLATION_MAX);
-  if (!pending.length || typeof request !== 'function') return { reused, translated: 0, pending: pending.length, reason: pending.length ? 'no-request' : null };
+  const accept = (strings) => {
+    let count = 0;
+    pending.forEach((item, index) => {
+      const ko = typeof strings[index] === 'string' ? strings[index].replace(/\s+/g, ' ').trim() : '';
+      if (hasHangul(ko) && ko.length <= 200) { item.titleKo = ko; count += 1; }
+    });
+    return count;
+  };
+  // 2026-10-14: Workers AI first (free daily allowance on the Worker); a refusal or a short answer falls to the shared model.
+  let freeReason = null;
+  if (pending.length && typeof translate === 'function') {
+    let free = null;
+    try { free = await translate(pending.map((item) => item.title.slice(0, 300))); } catch (_) { free = null; }
+    if (Array.isArray(free?.translations) && free.translations.length === pending.length) {
+      const translated = accept(free.translations);
+      if (translated >= Math.ceil(pending.length * 0.8)) return { reused, translated, pending: pending.length, provider: 'workers-ai', model: free.model || null, reason: null };
+      pending.forEach((item) => { delete item.titleKo; });
+      freeReason = 'workers-ai-low-yield';
+    } else freeReason = free?.reason || 'workers-ai-unavailable';
+  }
+  if (!pending.length || typeof request !== 'function') return { reused, translated: 0, pending: pending.length, reason: pending.length ? 'no-request' : null, ...(freeReason ? { freeReason } : {}) };
   const prompt = ['다음 영어 금융 뉴스 헤드라인을 자연스러운 한국어 기사 제목으로 옮겨라. 고유명사·티커·숫자는 그대로 두고, 뜻을 더하거나 빼지 마라.',
     `출력은 JSON 문자열 배열 하나만, 입력과 같은 순서로 정확히 ${pending.length}개.`,
     JSON.stringify(pending.map((item) => item.title.slice(0, 300)))].join('\n');
@@ -5199,13 +5262,8 @@ export async function translateHeadlines(items, { previous = [], request = null 
   const text = String(result?.text || '');
   let parsed = null;
   try { parsed = JSON.parse(text.slice(text.indexOf('['), text.lastIndexOf(']') + 1)); } catch (_) { parsed = null; }
-  if (!Array.isArray(parsed) || parsed.length !== pending.length) return { reused, translated: 0, pending: pending.length, reason: result?.reason || 'unparsed' };
-  let translated = 0;
-  pending.forEach((item, index) => {
-    const ko = typeof parsed[index] === 'string' ? parsed[index].replace(/\s+/g, ' ').trim() : '';
-    if (hasHangul(ko) && ko.length <= 200) { item.titleKo = ko; translated += 1; }
-  });
-  return { reused, translated, pending: pending.length, reason: null };
+  if (!Array.isArray(parsed) || parsed.length !== pending.length) return { reused, translated: 0, pending: pending.length, reason: result?.reason || 'unparsed', ...(freeReason ? { freeReason } : {}) };
+  return { reused, translated: accept(parsed), pending: pending.length, provider: 'shared-openai', reason: null, ...(freeReason ? { freeReason } : {}) };
 }
 
 export function reusableMarketAnalysis(previous, { metricEvidence = [], newsEvidence = [], headlineContext = [], nowMs = Date.now() } = {}) {
@@ -5759,9 +5817,10 @@ async function main() {
   try {
     const headlineTranslation = await translateHeadlines([...(data.news || []), ...(data.newsIntraday || [])], {
       previous: [...(previous?.news || []), ...(previous?.newsIntraday || [])],
-      request: resolveSharedAiConfig() ? (prompt) => requestSharedAnalysis(prompt) : null });
+      request: resolveSharedAiConfig() ? (prompt) => requestSharedAnalysis(prompt) : null,
+      translate: resolveSharedAiConfig() ? (titles) => requestWorkersAiTranslation(titles) : null });
     data.meta.headlineTranslation = headlineTranslation;
-    console.log(`[fetch-data] headline translation: reused ${headlineTranslation.reused}, new ${headlineTranslation.translated}/${headlineTranslation.pending}${headlineTranslation.reason ? ` (${headlineTranslation.reason})` : ''}`);
+    console.log(`[fetch-data] headline translation: reused ${headlineTranslation.reused}, new ${headlineTranslation.translated}/${headlineTranslation.pending}${headlineTranslation.provider ? ` via ${headlineTranslation.provider}` : ''}${headlineTranslation.freeReason ? ` (free path: ${headlineTranslation.freeReason})` : ''}${headlineTranslation.reason ? ` (${headlineTranslation.reason})` : ''}`);
   } catch (error) { console.warn(`[fetch-data] headline translation skipped: ${error?.message || error}`); }
   const marketAnalysis = await genMarketAnalysis(data, marketSnapshotForConsumers, { previous: previous?.marketAnalysis || null });
   if (marketAnalysis) {

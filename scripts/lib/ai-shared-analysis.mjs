@@ -100,3 +100,26 @@ export async function requestSharedWebSearch(prompt, { env = process.env, fetchI
     return { text: null, reason: error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error' };
   } finally { clearTimeout(timeout); }
 }
+
+// 2026-10-14: headline translation on the Worker's Workers AI binding (free daily allowance). Returns the translated
+// strings, or null with a reason — the caller then uses the shared OpenAI path, so a missing binding costs nothing.
+export async function requestWorkersAiTranslation(titles, { env = process.env, fetchImpl = fetch, timeoutMs = 45000 } = {}) {
+  const config = resolveSharedAiConfig(env);
+  if (!config) return { translations: null, reason: 'shared-ai-not-configured' };
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetchImpl(config.url.replace(/\/openai$/, '/workers-ai/translate'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-AIO-Automation-Token': config.token },
+      body: JSON.stringify({ titles }),
+      signal: controller.signal,
+      redirect: 'error',
+    });
+    const body = await response.json().catch(() => null);
+    if (!response.ok || !Array.isArray(body?.translations)) return { translations: null, reason: `workers-ai-http-${response.status}${body?.error ? `-${String(body.error).slice(0, 40)}` : ''}` };
+    return { translations: body.translations, model: body.model || null, reason: null };
+  } catch (error) {
+    return { translations: null, reason: error?.name === 'AbortError' ? 'workers-ai-timeout' : 'workers-ai-error' };
+  } finally { clearTimeout(timeout); }
+}

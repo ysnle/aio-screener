@@ -64,6 +64,8 @@ export function normalizeScreener(raw = {}) {
     benchmarkRelativeStrength: finite(row?.benchmarkRelativeStrength),
     pctSma50: finite(row?.pctSma50),
     pctSma200: finite(row?.pctSma200),
+    pctSma5: finite(row?.pctSma5), pctSma10: finite(row?.pctSma10), pctSma20: finite(row?.pctSma20), // 2026-10-14 custom conditions
+    pctFromCloseHigh52w: finite(row?.pctFromCloseHigh52w),
     kalmanVel: finite(row?.kalmanVel),
     kalmanPt: finite(row?.kalmanPt),
     kalmanInnovZ: finite(row?.kalmanInnovZ),

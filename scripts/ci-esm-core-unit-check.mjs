@@ -2134,6 +2134,32 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (partial.positionValue !== null || partial.totalPnl !== null || partial.dailyChange !== null || partial.sectorBreakdown.length !== 0) fail(`portfolio-surface: partial holdings must not sum unknown rows as zero, got ${JSON.stringify(partial)}`);
   const closed = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10 }, { symbol: 'XYZ', shares: 1, avgCost: 20 }], cash: 0 }, liveData: { ABC: currentQuote(12, { pct: 2 }) }, vix: null, now: quoteNow, closeOf: (symbol) => (symbol === 'XYZ' ? { price: 25, date: '2026-10-13' } : { price: 99, date: '2026-10-13' }) });
   if (closed.valuationState !== 'complete' || closed.positionValue !== 49 || closed.closeValuedCount !== 1 || closed.closeDate !== '2026-10-13' || closed.rows[0].price !== 12 || closed.rows[1].sourceKind !== 'completed-close' || closed.decisionEligible === true) fail(`v57.54 review: a holding without a live quote is valued at the dated completed close (live still wins), got ${JSON.stringify({ state: closed.valuationState, value: closed.positionValue, n: closed.closeValuedCount })}`);
+  // v57.58 (KRX holdings): a ~20-minute delayed public KRX quote values a Korean holding as a delayed reference; a
+  // quote older than 72 h, or a snapshot source, still does not; a published close keeps priority.
+  const krxQuote = (minutesAgo, source = 'live:yahoo-proxy') => ({ price: 160100, currency: 'KRW', source, sourceKind: 'LIVE', stale: true, observedAt: new Date(quoteNow - minutesAgo * 60000).toISOString() });
+  const krx = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: '105560.KS', shares: 3, avgCost: 150000 }], cash: 0 }, liveData: { '105560.KS': krxQuote(20) }, vix: null, now: quoteNow });
+  if (krx.rows[0].value !== 480300 || krx.rows[0].sourceKind !== 'delayed-reference-quote' || krx.delayedValuedCount !== 1 || krx.decisionEligible === true) fail(`v57.58: a delayed KRX quote values the holding as a delayed reference, got ${JSON.stringify({ value: krx.rows[0].value, kind: krx.rows[0].sourceKind })}`);
+  const krxOld = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: '105560.KS', shares: 3, avgCost: 150000 }], cash: 0 }, liveData: { '105560.KS': krxQuote(73 * 60) }, vix: null, now: quoteNow });
+  const krxSnap = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: '105560.KS', shares: 3, avgCost: 150000 }], cash: 0 }, liveData: { '105560.KS': krxQuote(20, 'snapshot:data.json') }, vix: null, now: quoteNow });
+  const krxClose = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'XYZ', shares: 1, avgCost: 20 }], cash: 0 }, liveData: { XYZ: krxQuote(20) }, vix: null, now: quoteNow, closeOf: () => ({ price: 25, date: '2026-10-13' }) });
+  if (krxOld.rows[0].value != null || krxSnap.rows[0].value != null || krxClose.rows[0].sourceKind !== 'completed-close') fail('v57.58: an old or snapshot quote must not value a holding, and a completed close keeps priority over a delayed quote');
+  // v57.58 custom screener conditions: sentence parsing, MA order from distances, missing data never passes.
+  const custom = await load('src/domain/screener/custom-conditions.js');
+  const parsedCustom = custom.parseConditionText('5/10/20 정배열이면서 신고가 종목, PER 20 이하 반도체');
+  if (parsedCustom.conditions.map((item) => item.id).sort().join() !== 'ma-short,new-high,pe-max' || parsedCustom.unknown !== '반도체') fail(`v57.58: custom condition parser, got ${JSON.stringify(parsedCustom)}`);
+  const screenWords = custom.parseConditionText('52주 신고가 · 50일선 200일선 정배열');
+  if (screenWords.unknown || screenWords.conditions.map((item) => item.id).sort().join() !== 'ma-long,new-high' || custom.normalizeConditions([{ id: 'pe-max', value: '' }])[0].value !== 20) fail(`v57.58: the screen's own words parse fully and an emptied threshold returns to its default, got ${JSON.stringify(screenWords)}`);
+  const readRaw = (row, key) => row[key] ?? null;
+  const stacked = { pctSma5: 1, pctSma10: 2, pctSma20: 3, pctFromCloseHigh52w: 0, pe: 15 };
+  if (!custom.matchesConditions(stacked, parsedCustom.conditions, readRaw)
+    || custom.matchesConditions({ ...stacked, pctSma10: 0.5 }, parsedCustom.conditions, readRaw)
+    || custom.matchesConditions({ ...stacked, pe: null }, parsedCustom.conditions, readRaw)
+    || custom.matchesConditions({ ...stacked, pe: -5 }, parsedCustom.conditions, readRaw)) fail('v57.58: custom conditions must require the MA order, a positive PER under the cap and present data');
+  // v57.58 (live review 4f): the long-history position is the share of months at or below the latest one.
+  const { longHistoryRows } = await load('src/domain/macro/long-history.js');
+  const months = Array.from({ length: 200 }, (_, index) => [`${1990 + Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, '0')}`, index < 199 ? index : 49.5]);
+  const [longRow] = longHistoryRows({ series: { vix: { label: 'VIX', unit: 'index', observations: months } } });
+  if (!longRow || longRow.percentile !== 26 || longRow.max.value !== 198 || longRow.min.value !== 0 || longHistoryRows({ series: { vix: { observations: months.slice(0, 50) } } }).length !== 0) fail(`v57.58: long-history position, got ${JSON.stringify(longRow && { p: longRow.percentile, max: longRow.max, min: longRow.min })}`);
   const daily = derivePortfolioSurface({ state: { holdings: [{ symbol: 'ABC', shares: 10, avgCost: 80, price: 110, dailyPct: 10 }], cash: 0 } });
   if (daily.dailyChange !== null || daily.dailyPct !== null) fail('portfolio-surface: non-envelope dailyPct must not enter aggregate daily return');
   const missingCost = derivePortfolioSurface({ state: { holdings: [{ symbol: 'ABC', shares: 10, avgCost: null, price: 110 }], cash: 0, totals: { totalCost: 0, totalPnl: 1100, totalPnlPct: 100 } } });

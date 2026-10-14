@@ -29,6 +29,8 @@ import { EXTENSION_BANDS } from '../../domain/screener/setup-profile.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { sectorsForEtf } from '../../domain/entity/stock-read.js';
 import { consensusView } from '../../domain/fundamental/consensus-read.js';
+import { parseConditionValue, matchesConditions, conditionCoverage } from '../../domain/screener/custom-conditions.js';
+import { installCustomConditions } from '../components/screener-custom.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { sectorLabel } from '../../domain/screener/screener-read.js';
 import { themeStagesFor } from '../../domain/scenarios/theme-stage.js';
@@ -303,6 +305,7 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
   const rsiMax = Number.parseFloat(selectedValue(documentRef, 'scr-rsi-max'));
   const minMomentum = Number.parseFloat(selectedValue(documentRef, 'scr-min-mom'));
   const setupFilter = selectedValue(documentRef, 'scr-setup');
+  const custom = parseConditionValue(selectedValue(documentRef, 'scr-custom-conditions'));
   const watchlistOnly = !!documentRef.getElementById('scr-watchlist-only')?.checked;
   // Codex browser audit H44: after a run the table mixed rejected rows into "the result". 실행 통과만 keeps
   // the table on the run's passed set; it is switched on when a run completes and can be turned off.
@@ -342,6 +345,7 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
     if (setupFilter === 'CLIMAX' && row.setupProfile?.climaxRisk !== 'watch') return false;
     if (watchlist && !watchlist.has(row.sym)) return false;
     if (passedOnly && row.screenStatus !== 'passed') return false;
+    if (custom.length && !matchesConditions(row, custom, customRead)) return false;
     if (!query) return true;
     if (exactSymbol) return row.sym?.toLowerCase() === exactSymbol;
     const setupText = Array.isArray(row.setupProfile?.tags) ? row.setupProfile.tags.join(' ') : '';
@@ -397,6 +401,21 @@ export function extensionMultiple(row) {
 
 let consensusRoot = globalThis;
 export function forwardPe(row) { return consensusView(row, consensusRowFor(consensusRoot, row?.sym || row?.symbol))?.fwdPe ?? null; }
+// 2026-10-14 custom conditions: a registered field is read through its readiness (as the factor columns are); the new
+// distance fields read straight from the row; Forward PER from the consensus view.
+const FILING_KEYS = new Set(['pe', 'pb', 'roe', 'margin', 'revGrowth']);
+const FILING_STATUSES = new Set(['CURRENT', 'DELAYED', 'INFERRED', 'STALE', 'LAST_GOOD']);
+const FIELD_BY_ROW_KEY = new Map(SCREENER_FIELD_REGISTRY.fields.map((definition) => [definition.rowKey, definition.fieldId]));
+export function customRead(row, key) {
+  if (key === 'fwdPe') return forwardPe(row);
+  const fieldId = FIELD_BY_ROW_KEY.get(key);
+  // Annual filing figures (PER·PBR·ROE·이익률·성장률) read STALE against the 30-day budget the rank uses; a filter labelled
+  // '최근 회계연도' reads them as the table displays them, but never a CONFLICT value.
+  if (row?.fieldReadiness && fieldId && FILING_KEYS.has(key)) return FILING_STATUSES.has(row.fieldReadiness.fields?.[fieldId]?.status) ? finite(row[key]) : null;
+  if (row?.fieldReadiness && fieldId) return fieldValueForPurpose(row, fieldId, 'calculation');
+  return typeof row?.[key] === 'string' ? row[key] : finite(row?.[key]);
+}
+let customPanel = null;
 
 export function sortRows(rows, sortColumn, ascending, readLiveData) {
   return rows.map(row => ({ row, view: liveRow(row, readLiveData) })).sort(({ view: a }, { view: b }) => {
@@ -1326,7 +1345,9 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   const scored = (key) => rows.some((row) => finite(row?.factorScores?.[key]) != null);
   const visibleColumns = getVisibleColumns(columnPreset, customColumns).filter((column) => !['value', 'quality'].includes(column.key) || scored(column.key));
   consensusRoot = root;
-  if (visibleColumns.some((column) => column.key === 'fwdPe') || sortState.column === 'fwdPe') requestConsensusEstimates(root, onDataChange);
+  const custom = parseConditionValue(selectedValue(documentRef, 'scr-custom-conditions'));
+  customPanel?.update(conditionCoverage(marketRows(rows, listingMarket), custom, customRead), filtered.length);
+  if (visibleColumns.some((column) => column.key === 'fwdPe') || sortState.column === 'fwdPe' || custom.some((item) => item.id === 'fwdpe-max')) requestConsensusEstimates(root, onDataChange);
   const table = documentRef.getElementById('screener-results-table');
   renderTableHeader(documentRef, table, visibleColumns, sortState);
   const body = documentRef.getElementById('screener-results-body');
@@ -1605,6 +1626,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       bag.add(() => { mountActive = false; });
       const page = documentRef?.getElementById('page-screener');
       if (!page) return () => {};
+      customPanel = installCustomConditions(documentRef);
+      bag.add(() => { customPanel?.dispose(); customPanel = null; });
       let marketControls = documentRef.getElementById('scr-market-scope');
       if (!marketControls) {
         marketControls = documentRef.createElement('div'); marketControls.id = 'scr-market-scope'; marketControls.className = 'scr-market-scope';
@@ -2385,7 +2408,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            visibleLimit.value = 12;
            renderNow();
          } else if (action === 'reset-all-filters') {
-           ['scr-market', 'scr-sector', 'scr-cap', 'scr-text-search', 'scr-setup', 'scr-rsi-min', 'scr-rsi-max', 'scr-min-mom'].forEach((id) => { const field = documentRef.getElementById(id); if (field) field.value = ''; });
+           ['scr-market', 'scr-sector', 'scr-cap', 'scr-text-search', 'scr-setup', 'scr-rsi-min', 'scr-rsi-max', 'scr-min-mom', 'scr-custom-conditions'].forEach((id) => { const field = documentRef.getElementById(id); if (field) field.value = ''; });
            const rank = documentRef.getElementById('scr-min-rank'); if (rank) rank.value = '0';
            const watchlist = documentRef.getElementById('scr-watchlist-only'); if (watchlist) watchlist.checked = false;
            const passedOnly = documentRef.getElementById('scr-passed-only'); if (passedOnly) passedOnly.checked = true;
@@ -2433,7 +2456,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            columnState.preset = event.target.value || 'discovery';
            columnState.custom = [];
            renderNow();
-         } else if (event.target.matches?.('#scr-market, #scr-sector, #scr-cap, #scr-setup, #scr-min-rank, #scr-rsi-min, #scr-rsi-max, #scr-min-mom, #scr-text-search, #scr-watchlist-only, #scr-passed-only')) {
+         } else if (event.target.matches?.('#scr-market, #scr-sector, #scr-cap, #scr-setup, #scr-min-rank, #scr-rsi-min, #scr-rsi-max, #scr-min-mom, #scr-text-search, #scr-watchlist-only, #scr-passed-only, #scr-custom-conditions')) {
            event.stopPropagation();
            visibleLimit.value = 12;
            renderNow();

@@ -80,7 +80,7 @@ jobs:
           set -euo pipefail
           # P1654: free FSS disclosure API. Without the operator key the script exits 0 and keeps the artifact;
           # annotate so the missing key is visible instead of silently freezing Korean fundamentals.
-          if [ -z "${DART_API_KEY}" ]; then echo "::warning::operator_required: DART_API_KEY secret is not set — Korean fundamentals are not collected"; fi
+          if [ -z "${DART_API_KEY}" ]; then echo "::notice::DART_API_KEY is not set (owner decision 2026-10-14: not registered) — Korean fundamentals are not collected"; fi
           node scripts/fetch-dart-fundamentals.mjs
 
       - name: Refresh weekly earnings calendar (Finnhub free tier)

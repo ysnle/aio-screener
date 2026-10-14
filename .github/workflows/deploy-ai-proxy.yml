@@ -209,7 +209,16 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           SOURCE_SHA: ${{ steps.release.outputs.sha }}
-        run: wrangler deploy --config worker/wrangler.proxy.deploy.toml --message "AIO AI proxy $SOURCE_SHA"
+        run: |
+          set -euo pipefail
+          if ! wrangler deploy --config worker/wrangler.proxy.deploy.toml --message "AIO AI proxy $SOURCE_SHA"; then
+            # 2026-10-14: a deploy token without the Workers AI permission refuses the [ai] binding. Deploy without it so
+            # the release still lands; headline translation then stays on the shared OpenAI path (the route answers 503).
+            grep -q '^\[ai\]' worker/wrangler.proxy.deploy.toml || exit 1
+            echo "::warning::Worker deploy with the Workers AI binding failed; retrying without it"
+            sed -i '/^\[ai\]$/,/^binding = "AI"$/d' worker/wrangler.proxy.deploy.toml
+            wrangler deploy --config worker/wrangler.proxy.deploy.toml --message "AIO AI proxy $SOURCE_SHA (no Workers AI)"
+          fi
 
       - name: Publish OpenAI, automation, and server-side relay secrets
         id: publish-secrets

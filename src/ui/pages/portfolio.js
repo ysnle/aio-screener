@@ -174,7 +174,8 @@ const closeNote = (surface) => {
   const n = surface?.closeValuedCount || 0;
   const date = String(surface?.closeDate || '');
   const md = /^\d{4}-\d{2}-\d{2}$/.test(date) ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))} ` : '';
-  return n ? ` · ${n}종목은 실시간 시세 대신 ${md}종가 기준` : '';
+  const delayed = surface?.delayedValuedCount || 0;
+  return `${n ? ` · ${n}종목은 실시간 시세 대신 ${md}종가 기준` : ''}${delayed ? ` · ${delayed}종목은 지연 시세(참고) 기준` : ''}`;
 };
 
 function screenerSectorOf(root) {

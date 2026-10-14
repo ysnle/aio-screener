@@ -131,20 +131,34 @@ function runtimeQuoteEvidence(row, { now = Date.now(), maxAgeMs = null } = {}) {
 
 // v57.54 review: live quotes cover ~30 market symbols, so most holdings never got a price and the page stayed on
 // "수신 대기". A holding without a live quote is valued at the latest completed close (screener row), labelled with its date.
+// 2026-10-14 (KRX holdings): Yahoo's KRX feed is ~20 minutes delayed by nature, so it never passes the decision-grade
+// check above, and Korean rows publish no close (P715). A public quote observed within 72 h values such a holding as a
+// delayed reference — after a decision-grade quote and a completed close, labelled as delayed, never as live.
+function delayedReferenceQuote(live, { now = Date.now() } = {}) {
+  const envelope = live?.quoteEnvelope && typeof live.quoteEnvelope === 'object' ? live.quoteEnvelope : live || {};
+  const price = firstPositive(envelope.price, envelope.regularMarketPrice);
+  const observedMs = parseObservedMs(envelope.observedAt);
+  const source = String(envelope.source || envelope._source || '').trim();
+  if (price == null || observedMs == null || !/^live:/i.test(source) || /snapshot|fallback|last[-_ ]known/i.test(source)) return null;
+  const ageMs = Number(now) - observedMs;
+  return ageMs >= 0 && ageMs <= DELAYED_QUOTE_MAX_AGE_MS ? { price, observedAt: envelope.observedAt } : null;
+}
+
 function holdingValue(holding, live, options, close = null) {
   const sharesRaw = finite(holding?.shares);
   const shares = sharesRaw != null && sharesRaw >= 0 ? sharesRaw : null;
   const liveQuote = runtimeQuoteEvidence(live, options);
   const livePrice = liveQuote?.price ?? null;
   const closePrice = livePrice == null ? firstPositive(close?.price) : null;
-  const price = firstPositive(livePrice, closePrice, holding?.price);
+  const delayed = livePrice == null && closePrice == null ? delayedReferenceQuote(live, options) : null;
+  const price = firstPositive(livePrice, closePrice, delayed?.price, holding?.price);
   const explicitValue = firstPositive(holding?.value);
   if (shares != null && price != null && price > 0) return {
     value: shares * price,
     price,
-    sourceKind: livePrice != null ? 'live-quote' : closePrice != null ? 'completed-close' : 'portfolio-state',
+    sourceKind: livePrice != null ? 'live-quote' : closePrice != null ? 'completed-close' : delayed ? 'delayed-reference-quote' : 'portfolio-state',
     closeDate: livePrice == null && closePrice != null ? close?.date || null : null,
-    observedAt: liveQuote?.observedAt || (closePrice != null ? close?.date || null : null) || holding?.quoteObservedAt || null,
+    observedAt: liveQuote?.observedAt || (closePrice != null ? close?.date || null : null) || delayed?.observedAt || holding?.quoteObservedAt || null,
     quoteAllowedUse: liveQuote?.allowedUse || 'reference-only',
     fallbackUsed: livePrice == null,
     dailyPct: liveQuote?.dailyPct ?? finite(holding?.dailyPct),
@@ -390,6 +404,7 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     cashKnown,
     valuedHoldingCount: rows.filter((row) => row.value != null).length,
     closeValuedCount: rows.filter((row) => row.value != null && row.sourceKind === 'completed-close').length,
+    delayedValuedCount: rows.filter((row) => row.value != null && row.sourceKind === 'delayed-reference-quote').length,
     closeDate: rows.map((row) => row.closeDate).filter(Boolean).sort().at(-1) || null,
     status: hasCanonicalValue ? 'current' : (state?.status || 'unavailable'),
     holdingCount: rows.length,

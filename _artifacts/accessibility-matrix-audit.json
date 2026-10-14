@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-14T06:01:55.883Z",
-  "appRevision": "v57.56",
-  "gitHead": "394288d6a9f9ebcaf52e1155a8791ddbe210f0b3",
+  "observedAt": "2026-10-14T10:03:58.778Z",
+  "appRevision": "v57.58",
+  "gitHead": "5f5b1110fb99a2f70737245f1ec3bbdb21fca88b",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -77,8 +77,23 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 2,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "공포·탐욕 지수 (F&G) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "풋/콜 비율 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },

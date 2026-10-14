@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-portfolio-vault-evidence.v1",
-  "observedAt": "2026-10-14T06:01:39.254Z",
-  "appRevision": "v57.56",
-  "gitHead": "394288d6a9f9ebcaf52e1155a8791ddbe210f0b3",
+  "observedAt": "2026-10-14T10:01:16.811Z",
+  "appRevision": "v57.58",
+  "gitHead": "5f5b1110fb99a2f70737245f1ec3bbdb21fca88b",
   "checks": [
     {
       "id": "P1277 evidence revision bound",
@@ -132,12 +132,12 @@
     {
       "id": "PFE2-21 undeclared_policy_is_never_invented (P1198)",
       "ok": true,
-      "detail": "{\"retrospective\":\"\\n      \\n        \\n          리스크 분석\\n          VaR · Sharpe · MDD · 상관계수\\n        \\n        ⟳ 계산\\n      \\n      현재 구성을 표본 기간에 그대로 적용한 소급 계산 · 분모 계좌 전체 · RF 입력 · 표본 39일 · 실제 계좌 이력 아님 · 선언 정책 monthly 미사용계산 식별자path current_composition_retrospective · rebalance monthly(미사용) · scope whole_account · lineage legacy-risk-path · snapshot pfcomp-0f42887a0a8ac420 @ 2026-10-14T06:01:47.783Z1일 VaR (95%) · 계좌 전체 · 최근 \",\"undeclared\":\"\\n      \\n        \\n          리스크 분석\\n          VaR · Sharpe · MDD · 상관계수\\n        \\n        ⟳ 계산\\n      \\n      위험 추정 입력을 확정하지 못해 보류합니다: rebalance-policy-required.\\n      \\n      실제 계좌 성과 TWR(기간 누적) +10.00% · MWR(연율) +8.01% — USD · end-of-period · 1기간 2026-01-01~2027-01-01 (시세 이력 검증과 무관하게 원장 규약 선언만으로 계산됩니다)\\n      \\n      익스포저 · 집중도 (주식 부분 중)기타100%상위3 집중100%평균 상관0.58평균 퀀트 랭크—종목/섹터 수1/1기타 섹터 100% 집중(>40%) · 상\",\"declared\":\"\\n      \\n        \\n          리스크 분석\\n          VaR · Sharpe · MDD · 상관계수\\n        \\n        ⟳ 계산\\n      \\n      고정 목표비중 전략 · 분모 주식 부분 · RF 입력 · 표본 39일 · 고정 목표비중 전략 · 실제 계좌 이력 아님 · 목표 AAA 50.0%/BBB 50.0%현금 보류: 전략 경로의 계좌 범위 미선언 — 계좌 전체 위험은 게시하지 않습니다(주식 부분만 게시).계산 식별자path fixed_target_weight_strategy · rebalance monthly · scope invested_sleeve · lineage fixed-target-weight-strategy · snapshot pfcomp-6dd63c6\"}"
+      "detail": "{\"retrospective\":\"\\n      \\n        \\n          리스크 분석\\n          VaR · Sharpe · MDD · 상관계수\\n        \\n        ⟳ 계산\\n      \\n      현재 구성을 표본 기간에 그대로 적용한 소급 계산 · 분모 계좌 전체 · RF 입력 · 표본 39일 · 실제 계좌 이력 아님 · 선언 정책 monthly 미사용계산 식별자path current_composition_retrospective · rebalance monthly(미사용) · scope whole_account · lineage legacy-risk-path · snapshot pfcomp-fa821a6b048ef211 @ 2026-10-14T10:02:36.878Z1일 VaR (95%) · 계좌 전체 · 최근 \",\"undeclared\":\"\\n      \\n        \\n          리스크 분석\\n          VaR · Sharpe · MDD · 상관계수\\n        \\n        ⟳ 계산\\n      \\n      위험 추정 입력을 확정하지 못해 보류합니다: rebalance-policy-required.\\n      \\n      실제 계좌 성과 TWR(기간 누적) +10.00% · MWR(연율) +8.01% — USD · end-of-period · 1기간 2026-01-01~2027-01-01 (시세 이력 검증과 무관하게 원장 규약 선언만으로 계산됩니다)\\n      \\n      익스포저 · 집중도 (주식 부분 중)기타100%상위3 집중100%평균 상관0.58평균 퀀트 랭크—종목/섹터 수1/1기타 섹터 100% 집중(>40%) · 상\",\"declared\":\"\\n      \\n        \\n          리스크 분석\\n          VaR · Sharpe · MDD · 상관계수\\n        \\n        ⟳ 계산\\n      \\n      고정 목표비중 전략 · 분모 주식 부분 · RF 입력 · 표본 39일 · 고정 목표비중 전략 · 실제 계좌 이력 아님 · 목표 AAA 50.0%/BBB 50.0%현금 보류: 전략 경로의 계좌 범위 미선언 — 계좌 전체 위험은 게시하지 않습니다(주식 부분만 게시).계산 식별자path fixed_target_weight_strategy · rebalance monthly · scope invested_sleeve · lineage fixed-target-weight-strategy · snapshot pfcomp-c36518a\"}"
     },
     {
       "id": "PFE2-22 strategy_cash_share_and_inert_policy_ux (P1200/P1201)",
       "ok": true,
-      "detail": "{\"partial\":\"고정 목표비중 전략 · 분모 계좌 전체 · RF 입력 · 표본 39일 · 고정 목표비중 전략 · 실제 계좌 이력 아님 · 현금 20.0% · 목표 AAA 40.0%/BBB 40.0%계산 식별자path fixed_target_weight_strategy · rebalance monthly · scope whole_account · lineage fixed-target-weight-strategy · snapshot pfcomp-6ee13e15352cfd2f @ 2026-10-14T06:01:49.023Z1일 VaR (95%) · 계좌\",\"over\":\"위험 추정 입력을 확정하지 못해 보류합니다: strategy-target-weights-invalid.\",\"retrospective\":{\"panel\":\"현재 구성을 표본 기간에 그대로 적용한 소급 계산 · 분모 계좌 전체 · RF 입력 · 표본 39일 · 실제 계좌 이력 아님 · 선언 정책 monthly 미사용계산 식별자path current_composition_retrospective · rebalance monthly(미사용) · scope whole_account · lineage legacy-ri\",\"disabled\":true}}"
+      "detail": "{\"partial\":\"고정 목표비중 전략 · 분모 계좌 전체 · RF 입력 · 표본 39일 · 고정 목표비중 전략 · 실제 계좌 이력 아님 · 현금 20.0% · 목표 AAA 40.0%/BBB 40.0%계산 식별자path fixed_target_weight_strategy · rebalance monthly · scope whole_account · lineage fixed-target-weight-strategy · snapshot pfcomp-23aae23f46ad1b29 @ 2026-10-14T10:02:45.313Z1일 VaR (95%) · 계좌\",\"over\":\"위험 추정 입력을 확정하지 못해 보류합니다: strategy-target-weights-invalid.\",\"retrospective\":{\"panel\":\"현재 구성을 표본 기간에 그대로 적용한 소급 계산 · 분모 계좌 전체 · RF 입력 · 표본 39일 · 실제 계좌 이력 아님 · 선언 정책 monthly 미사용계산 식별자path current_composition_retrospective · rebalance monthly(미사용) · scope whole_account · lineage legacy-ri\",\"disabled\":true}}"
     },
     {
       "id": "PFE2-23 var_certification_render_states (P1203)",

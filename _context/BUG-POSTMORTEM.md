@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1786 - v57.58 - 한국 보유 종목(105560)이 평가액 없이 '—'로 남음 (2026-10-14)
+
+- symptom/reproduction: 포트폴리오에 105560을 넣으면 시세(105560.KS, 약 20분 지연)를 받아도 평가액·손익이 비어 있었다.
+- root_cause: 보유 평가가 의사결정 등급 실시간 시세(15분 이내)나 공개 종가만 받는데, 야후 KRX 시세는 본래 지연이라 늘 거절됐고 한국 종목은 공개 종가가 없다(P715).
+- fix: 의사결정 시세와 공개 종가가 모두 없을 때만 72시간 이내 공개 지연 시세로 '지연 시세(참고)' 평가를 하고, 화면에 몇 종목이 지연 시세 기준인지 밝힌다. 스냅샷·72시간 초과 시세는 쓰지 않는다.
+- violated_rule: 값을 못 받은 이유가 자료 부재가 아니라 규칙 불일치면 표시 등급을 낮춰서라도 보여 준다
+- prevention: P1786: esm-core에 지연 KRX 시세·오래된 시세·스냅샷·종가 우선 사례 추가.
+- verification/residual: 로컬 미리보기(헤드리스 브라우저)와 단위 검사로 확인했다. 배포 후 라이브 확인은 QA-VERIFY-24.
+
 ## P1785 - v57.56 - SPY 단계 카드가 이동평균 배열을 'Weinstein Stage'로 표기 (2026-10-14)
 
 - symptom/reproduction: 차트 탭의 접힌 SPY 카드가 '시장(SPY) Weinstein 단계'·'Weinstein Stage(장기 MA 스택 모델)'로 썼다.

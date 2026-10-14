@@ -519,7 +519,7 @@ function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, current
   const picks = el(doc, 'div', 'rl-picks');
   const drawPicks = () => {
     const chosen = readingPicks(docs, root?.[SCENARIO_STATE.key]);
-    const rows = [['처음이라면', chosen.first], [chosen.eventLabel ? `다음 발표(${chosen.eventLabel})와 이어지는 글` : null, chosen.today]].filter(([label, items]) => label && items.length);
+    const rows = [['처음이라면', chosen.first], [chosen.eventLabel ? `다음 발표(${chosen.eventLabel.replace(/\s*\(.*\)\s*$/, '')})와 이어지는 글` : null, chosen.today]].filter(([label, items]) => label && items.length);
     picks.replaceChildren(...rows.map(([label, items]) => {
       const row = el(doc, 'div', 'rl-picks-row');
       row.append(el(doc, 'span', 'rl-picks-label', label), ...items.map((entry) => {

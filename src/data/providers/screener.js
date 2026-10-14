@@ -482,6 +482,8 @@ export function createScreenerProvider({
           benchmarkRelativeStrength: finite(factor.benchmarkRelativeStrength),
           pctSma50: finite(factor.pctSma50),
           pctSma200: finite(factor.pctSma200),
+          pctSma5: finite(factor.pctSma5), pctSma10: finite(factor.pctSma10), pctSma20: finite(factor.pctSma20), // 2026-10-14 custom conditions
+          pctFromCloseHigh52w: finite(factor.pctFromCloseHigh52w),
           kalmanVel: finite(factor.kalmanVel),
           kalmanPt: finite(factor.kalmanPt),
           kalmanInnovZ: finite(factor.kalmanInnovZ),
