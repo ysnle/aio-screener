@@ -1,5 +1,6 @@
 // P1462–P1469 (v57.19 takeover review): executable negative controls for the meaning fixes.
 import { readFileSync } from 'node:fs';
+import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
 import { liveScreenerModelFingerprint, buildRankingIdentity } from '../src/domain/screener/model-fingerprint.js';
 import { SCREENER_COLUMN_REGISTRY } from '../src/ui/pages/screener.js';
 import { buildAttribution, fxReturnInto } from '../src/domain/portfolio/attribution.js';
@@ -66,7 +67,7 @@ if (!overlap || overlap.pairs[0].label !== '모멘텀–추세' || overlap.pairs
 if (!/독립된 신호 약/.test(overlapSentence(overlap)) || measureFactorOverlap(synthetic.slice(0, 10), ['momentum', 'trend'])) fail('P1468 overlap sentence or minimum sample drifted');
 
 // P1469: the term premium comes from the official FRED series and is named by its model.
-if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(read('scripts/fetch-data.mjs')) || !/Kim-Wright/.test(read('src/ui/components/macro-board.js'))) fail('P1469 term premium series or model label missing');
+if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim-Wright/.test(read('src/ui/components/macro-board.js'))) fail('P1469 term premium series or model label missing');
 
 // v57.48 expert review (portfolio · 13F · research). Hypothetical holdings only.
 {

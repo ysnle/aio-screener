@@ -16,7 +16,7 @@
 //   node scripts/ci-ui-render-hygiene-check.mjs --prune-baseline   drop fixed entries (shrink only)
 //   node scripts/ci-ui-render-hygiene-check.mjs --write-baseline   record every current offender (deliberate)
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -84,12 +84,7 @@ function collect(minTarget) {
 
 let server, browser;
 try {
-  server = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
-  await new Promise((resolveReady, reject) => {
-    const timeout = setTimeout(() => reject(new Error('UI render local server did not start')), 15000);
-    server.stdout.on('data', (data) => { if (String(data).includes('AIO local server')) { clearTimeout(timeout); resolveReady(); } });
-    server.on('error', reject); server.on('exit', (code) => { clearTimeout(timeout); reject(new Error(`UI render server exited ${code}`)); });
-  });
+  server = await startLocalServer(port, { label: 'ui-render-hygiene/server' }); // v57.62 shared lifecycle (15 s ready-line timeout)
   browser = await chromium.launch({ headless: true });
   const open = async (viewport) => {
     const page = await browser.newPage({ viewport, deviceScaleFactor: 1, hasTouch: viewport.width < 700 });
@@ -145,7 +140,7 @@ try {
   await phone.screenshot({ path: resolve(out, 'phone360-topbar.png'), clip: { x: 0, y: 0, width: 360, height: 140 } });
   await phone.close();
 } catch (error) { failures.push({ message: error.message, stack: error.stack }); }
-finally { await browser?.close(); server?.kill(); }
+finally { await closeAll({ browser, server }); }
 
 const keyOf = (entry) => `${entry.kind}|${entry.viewport}|${entry.route}|${entry.signature}`;
 const current = [...new Set(offenders.map(keyOf))].sort();

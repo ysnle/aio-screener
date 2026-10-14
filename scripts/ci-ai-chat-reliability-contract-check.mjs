@@ -38,9 +38,11 @@ check('route readiness follows the selected target and never bypasses Worker hea
 check('Worker health is deduplicated and transient failures have a short cache', chat.includes('_aioWorkerHealthInFlight[target.workerUrl]') && chat.includes('cached && cached.ok ? 60000 : 5000') && chat.includes('ctrl.abort(); }, 12000'));
 // P1131/R619: the unified chat surface moved from index.html's inline block G into js/aio-chat.js,
 // so these three `_uni*` assertions now read the chat module.
-check('research preparation is shared and cancellable in both chat surfaces', chat.includes('async function _aioPrepareAIResearch') && chat.includes('_aioPrepareAIResearch(_activeQuestionPlanForResearch, { signal: _chatSignal })') && chat.includes('_aioPrepareAIResearch(_uniQuestionPlan, { signal: _uniResearchAbort.signal })'));
-check('knowledge reference retrieval is shared through the existing orchestrator facade boundary', chat.includes('knowledgeOrchestrator.buildAIKnowledgeContext(q') && chat.includes('_uniKnowledgeOrchestrator.buildAIKnowledgeContext(q') && read('src/ai/retrieval/knowledge.js').includes('currentClaimsAllowed: false'));
-check('research opt-out preserves non-current answer path', chat.includes('web_research_disabled_by_user') && !/userOptOut\)[\s\S]{0,600}state\._chatSendEntered = 0;[\s\S]{0,180}return;/.test(chat));
+// v57.62: the dead per-page chatSend was retired, so these read the one remaining (unified) chat surface.
+check('v57.62 per-page chatSend retired (unified panel is the only chat surface)', !chat.includes('async function chatSend(') && chat.includes('async function chatSendUnified('));
+check('v57.62 research preparation is shared and cancellable in the chat surface', chat.includes('async function _aioPrepareAIResearch') && chat.includes('_aioPrepareAIResearch(_uniQuestionPlan, { signal: _uniResearchAbort.signal })'));
+check('knowledge reference retrieval is shared through the existing orchestrator facade boundary', chat.includes('_uniKnowledgeOrchestrator.buildAIKnowledgeContext(q') && read('src/ai/retrieval/knowledge.js').includes('currentClaimsAllowed: false'));
+check('research opt-out preserves non-current answer path', chat.includes("_uniResearchFailure.code === 'DISABLED_BY_USER') _uniUseClaudeWebSearch = false;") && !/DISABLED_BY_USER'\)[^\n]{0,200}return;/.test(chat));
 check('required research always hands off to the shared Worker search (P1655)', chat.includes('nativeFallbackRequired: required && !decision.userOptOut'));
 check('research evidence gate is executable ESM SSOT', chat.includes('evaluateAIResearchEvidenceFloor') && !chat.includes('function _aioBuildResearchEvidenceDocuments'));
 check('Worker route does not certify native search tool', core.includes("'NATIVE_TOOL_UNVERIFIED'") && !core.includes("'NATIVE_TOOL_ROUTE_READY'") && core.includes('nativeCitationCount'));
@@ -73,7 +75,7 @@ const bootRouteContract = publicRoutePublished
   : core.includes('workerUrl: workerUrl || null') && core.includes('loadPublicConfig');
 check('P1421 boot fallback follows the generated shared policy without storing a provider secret', bootRouteContract && !/(?:ANTHROPIC|OPENAI)_API_KEY/.test(read('public-config.json')));
 check('P1421: AI target is exclusively the published Worker', chat.includes("publicWorker + '/openai'") && !chat.includes('api.anthropic.com') && !chat.includes("source: 'personal-key'") && !chat.includes("source: 'local-config'"));
-check('both chat surfaces share the expanded evidence registry', chat.includes('function _aioCollectAIClaimEvidence') && chat.includes('evidence: _pageClaimEvidence') && chat.includes('evidence: _uniClaimEvidence'));
+check('v57.62 the chat surface uses the expanded evidence registry', chat.includes('function _aioCollectAIClaimEvidence') && chat.includes('evidence: _uniClaimEvidence')); // v57.62: per-page copy retired
 check('invalid or unbound AnswerPlan claims degrade claim scope instead of erasing the answer', chat.includes('answer-plan-claim-degraded') && chat.includes('droppedClaims') && !chat.includes("blocked: true,\n      text: 'AI 베타 안전 모드\\n\\n현재성 수치의 AnswerPlan claim"));
 check('partial structured streams hide control JSON until completion', chat.includes("visible = 'AI 답변을 구성하고 근거를 검증하는 중…'") && chat.includes("var isPartialStream = meta.streamPhase === 'partial'"));
 check('Worker token cap and stop reason are consumed by the client', chat.includes('workerMaxTokens') && chat.includes('effectiveMaxTokens') && chat.includes("stopReason === 'max_tokens'") && chat.includes('completion: completion || null'));

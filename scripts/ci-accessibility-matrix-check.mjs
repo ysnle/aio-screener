@@ -1,12 +1,12 @@
 // H2-10: all-route Chromium accessibility contract.  This is a deterministic
 // structural/keyboard audit; screen-reader/NVDA evidence remains manual.
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DESKTOP_PRIMARY_VIEWPORT, DESKTOP_QA_SCOPE } from './desktop-qa-config.mjs';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { ROUTE_IDS } from '../src/app/routes.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -19,23 +19,10 @@ const outPath = process.env.CI_A11Y_OUT
   ? resolve(root, process.env.CI_A11Y_OUT)
   : resolve(root, '_artifacts', 'accessibility-matrix-audit.json');
 
-function startServer() {
-  return new Promise((resolvePromise, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
-    let ready = false;
-    const onReady = () => { if (!ready) { ready = true; resolvePromise(child); } };
-    child.stdout.on('data', (data) => { if (String(data).includes('AIO local server')) onReady(); });
-    child.stderr.on('data', (data) => process.stderr.write(`[server] ${data}`));
-    child.on('error', reject);
-    child.on('exit', (code) => { if (!ready) reject(new Error(`server exited early (${code})`)); });
-    setTimeout(onReady, 2000);
-  });
-}
-
 async function main() {
   mkdirSync(dirname(outPath), { recursive: true });
-  const server = await startServer();
-  const browser = await chromium.launch();
+  const server = await startLocalServer(port, { label: 'accessibility-matrix/server' }); // v57.62 shared lifecycle
+  const browser = await chromium.launch().catch(async (error) => { await closeAll({ server }); throw error; });
   const result = {
     schemaVersion: 'aio-accessibility-evidence.v2',
     observedAt: new Date().toISOString(),
@@ -99,8 +86,7 @@ async function main() {
     result.error = error.stack || error.message;
   } finally {
     writeFileSync(outPath, JSON.stringify(result, null, 2) + '\n', 'utf8');
-    await browser.close();
-    server.kill();
+    await closeAll({ browser, server });
   }
   console.log(`[ci-accessibility-matrix] routes=${result.routes.length}, status=${result.status}, consoleErrors=${result.consoleErrors.length}, artifact=${outPath}`);
   if (result.status === 'fail') {

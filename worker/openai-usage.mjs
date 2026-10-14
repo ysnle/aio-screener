@@ -7,10 +7,14 @@ export function createOpenAiReceiptObserver(contentType) {
   let bytes = 0;
   let invalid = false;
   let completedResponse = null;
+  // v57.62: a 16k-token streamed answer sends ~200-250 bytes per delta frame, so a 2 MB total cap left long answers
+  // unsettled (reservation kept). SSE bounds memory per pending frame (2 MB) and the whole stream at 32 MB; JSON stays 2 MB.
   const maximum = 2 * 1024 * 1024;
+  const streamMaximum = isSse ? 32 * 1024 * 1024 : maximum;
   const parseFrame = frame => {
     const data = frame.split(/\r?\n/).filter(line => line.startsWith('data:')).map(line => line.slice(5).trimStart()).join('\n');
     if (!data || data === '[DONE]') return;
+    if (data.startsWith('{"type":"response.output_text.delta"')) return; // text deltas carry no usage; skip the parse
     try {
       const event = JSON.parse(data);
       if (event.type === 'response.completed') completedResponse = event.response;
@@ -29,7 +33,7 @@ export function createOpenAiReceiptObserver(contentType) {
     push(chunk) {
       if (invalid) return;
       bytes += chunk.byteLength;
-      if (bytes > maximum) { invalid = true; buffer = ''; return; }
+      if (bytes > streamMaximum) { invalid = true; buffer = ''; return; }
       buffer += decoder.decode(chunk, { stream: true });
       if (isSse) consumeFrames();
     },

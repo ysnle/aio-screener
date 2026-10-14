@@ -9,6 +9,9 @@ import { sortRows, visibleRank, vcpStageLabel } from '../src/ui/pages/screener.j
 import { SCREENER_FIELD_REGISTRY, fieldValueForPurpose, createScreenDefinition } from '../src/data/contracts/screener.js';
 import { deriveQuotePresentation, quoteDisplayKind } from '../src/domain/market/quote-presentation.js';
 import { MARKET_LABELS, screenerMarket, formatScreenerPrice } from '../src/domain/screener/market-scope.js';
+// v57.62: the page's pure row helpers live in this module; the vm harness below strips the page's imports, so it
+// receives them as context globals (same functions the page imports).
+import * as rowPresentation from '../src/domain/screener/row-presentation.js';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const owners = JSON.parse(read('architecture/route-owners.json')).routes;
 assert.deepEqual(Object.keys(owners).sort(), [...ROUTE_IDS].sort());
@@ -178,7 +181,7 @@ assert(analysisSource.includes("'aio:serverDataLoaded', renderNow"), 'late snaps
 
 const screenerSource = read('src/ui/pages/screener.js');
 const compareContext = vm.createContext({
-  documentRef, compareSymbols: new Set(['A', 'B']), activeRows: rows,
+  ...rowPresentation, documentRef, compareSymbols: new Set(['A', 'B']), activeRows: rows,
   SCREENER_FIELD_REGISTRY, fieldValueForPurpose, createScreenDefinition,
   MARKET_LABELS, screenerMarket, formatScreenerPrice,
   liveReader: () => ({}), tickerHandler: () => {}

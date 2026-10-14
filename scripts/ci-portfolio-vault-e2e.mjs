@@ -2,11 +2,11 @@
 // External data is blocked; this test proves storage/lock behavior only, never
 // live quote availability or operator secret configuration.
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.CI_PORTFOLIO_PORT || 8894);
@@ -17,19 +17,6 @@ const url = `${baseUrl}/index.html`;
 const artifactDir = resolve(root, '_artifacts', isLive ? 'portfolio-vault-live' : 'portfolio-vault');
 const localRevision = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).version;
 const localGitHead = (() => { try { return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(); } catch (_) { return null; } })();
-
-function startServer() {
-  return new Promise((resolvePromise, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
-    let ready = false;
-    const onReady = () => { if (!ready) { ready = true; resolvePromise(child); } };
-    child.stdout.on('data', (chunk) => { if (String(chunk).includes('AIO local server')) onReady(); });
-    child.stderr.on('data', (chunk) => process.stderr.write(`[server] ${chunk}`));
-    child.on('error', reject);
-    child.on('exit', (code) => { if (!ready) reject(new Error(`server exited early (${code})`)); });
-    setTimeout(onReady, 2000);
-  });
-}
 
 // P1350: invoke the production helper with deferred crypto dependencies, never a substitute helper.
 export async function runFinancialSecurityRaceFixtures(api = window._aioFinancialSecurity) {
@@ -104,8 +91,8 @@ export async function runFinancialSecurityRaceFixtures(api = window._aioFinancia
 
 async function main() {
   mkdirSync(artifactDir, { recursive: true });
-  const server = isLive ? null : await startServer();
-  const browser = await chromium.launch();
+  const server = isLive ? null : await startLocalServer(port, { label: 'portfolio-vault/server' }); // v57.62 shared lifecycle
+  const browser = await chromium.launch().catch(async (error) => { await closeAll({ server }); throw error; });
   const report = {
     schemaVersion: 'aio-portfolio-vault-evidence.v1',
     observedAt: new Date().toISOString(),
@@ -892,8 +879,7 @@ async function main() {
     report.errors.push(String(error && error.stack || error));
   } finally {
     writeFileSync(resolve(artifactDir, 'report.json'), JSON.stringify(report, null, 2) + '\n', 'utf8');
-    await browser.close();
-    if (server) server.kill();
+    await closeAll({ browser, server });
   }
   const failed = report.checks.filter((item) => !item.ok);
   console.log(JSON.stringify(report, null, 2));

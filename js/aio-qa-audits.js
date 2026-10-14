@@ -1065,7 +1065,7 @@ window.AIO.getDataActionHandlerAudit = function() {
       // v49.40 P294: _aioRefreshActionPlan 제거 (이제 window에 실제 정의됨 — has_aio로 통과).
       // knownAliases는 비-_aio 접두 글로벌 함수(showPage, toggleLLM 등)만 유지.
       var knownAliases = ['showPage', 'toggleLLM', 'toggleGmoExpand', 'unlockPortfolio', 'exportPortfolio',
-                          'setupPortfolioPin', 'resetPortfolioPin', 'chatSend', 'fundamentalSearch',
+                          'setupPortfolioPin', 'resetPortfolioPin', 'fundamentalSearch',
                           'runInstitutionalTechnicalBrief'];
       var isAlias = knownAliases.indexOf(act) !== -1;
       if (isGlobal || isAio || has_aio || isAlias) {
@@ -1411,13 +1411,11 @@ window.AIO.assertChatAdvancedFeaturesAudit = function() {
     exportFromBtn: typeof window._aioExportFromBtn === 'function',
     simulateAmount: typeof window._aioSimulateAmountOrPct === 'function'
   };
-  var chatSendSrc = (typeof window.chatSend === 'function') ? window.chatSend.toString() : '';
   var v48Src = (typeof window._getV48IntegratedContext === 'function') ? window._getV48IntegratedContext.toString() : '';
+  // v57.62: alert/amount-simulation/download wiring lived only in the dead per-page chatSend (retired); the unified
+  // panel never carried it, so those integration probes were removed rather than repointed.
   var integrations = {
     profileInV48: v48Src.indexOf('_buildUserProfileContext') >= 0,
-    alertInChatSend: chatSendSrc.indexOf('_aioParseAlertIntent') >= 0,
-    amountSimInChatSend: chatSendSrc.indexOf('_aioSimulateAmountOrPct') >= 0,
-    downloadBtnInChatSend: chatSendSrc.indexOf('_aioExportFromBtn') >= 0,
     notificationApi: typeof Notification !== 'undefined'
   };
   var apiChecks = {
@@ -1461,13 +1459,11 @@ window.AIO.assertChatInteractivityAudit = function() {
     resolveTickerFromFuzzy: typeof window._resolveTickerFromFuzzy === 'function',
     chatFromChip: typeof window.chatFromChip === 'function'
   };
-  // _fetchTickerDataForChat 자체에 chip 렌더링 통합 검증
-  var chatSendSrc = (typeof window.chatSend === 'function') ? window.chatSend.toString() : '';
+  // v57.62: reads the unified panel (the only chat path). autoNav/pfSim/macroSim were wired only into the dead
+  // per-page chatSend (retired), so those integration probes were removed rather than repointed.
+  var chatSendSrc = (typeof window.chatSendUnified === 'function') ? window.chatSendUnified.toString() : '';
   var integrations = {
     followUpInChatSend: chatSendSrc.indexOf('_suggestFollowUpQuestions') >= 0,
-    autoNavInChatSend: chatSendSrc.indexOf('_autoNavigatePage') >= 0,
-    pfSimInChatSend: chatSendSrc.indexOf('_simulatePortfolioAddition') >= 0,
-    macroSimInChatSend: chatSendSrc.indexOf('_simulateMacroScenario') >= 0,
     fuzzyResolveInTickerExtract: chatSendSrc.indexOf('_resolveTickerFromFuzzy') >= 0 || chatSendSrc.indexOf('_aioResolveChatTickers(') >= 0 // P1740 shared resolver passes the fuzzy table
   };
   var fnCount = Object.values(checks).filter(Boolean).length;

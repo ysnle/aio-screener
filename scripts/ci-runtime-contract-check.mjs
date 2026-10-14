@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
+import { readProducerSource } from './lib/producer-source.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -49,7 +50,7 @@ const tradingScoreDomain = read('src/domain/signal/trading-score.js');
 const secReportDomain = read('src/domain/fundamental/sec-report.js');
 const entityPage = read('src/ui/pages/entity.js');
 const glossary = read('js/aio-glossary.js');
-const fetchData = read('scripts/fetch-data.mjs');
+const fetchData = readProducerSource(); // v57.62: fetch-data.mjs plus the lib modules split out of it
 const telegramFetcher = read('scripts/fetch-telegram-digest.mjs');
 const worker = exists('cloudflare-worker-proxy.js') ? read('cloudflare-worker-proxy.js') : '';
 const packageJson = read('package.json');
@@ -322,7 +323,7 @@ check('E2/S-C/P1241 screener row resolution has one owner and a declared intent'
   && /export function resolveScreenerRows\(root, intent/.test(read('src/data/screener-row-policy.js'))
   && /function screenerNativePublished\(/.test(read('src/data/screener-row-policy.js')));
 // E2/S-E/P1239: one helper owns the screener AI context for both chats.
-check('E2/S-E/P1239 both chats consume one screener AI context helper', /function _aioBuildScreenerAiContext\(/.test(data) && (chat.match(/_aioBuildScreenerAiContext\(/g) || []).length >= 2 && !/_aioRunScreenerQuery\(q, \{ recentTickers/.test(chat));
+check('E2/S-E/P1239 the chat consumes one screener AI context helper', /function _aioBuildScreenerAiContext\(/.test(data) && /_aioBuildScreenerAiContext\(q, state\.messages/.test(chat) && !/_aioRunScreenerQuery\(q, \{ recentTickers/.test(chat)); // v57.62: per-page chatSend retired
 // E2/S-F/P1238: the news cache DB is news-scoped and migrates the legacy name without deleting it.
 check('E2/S-F/P1238 the news cache DB is news-scoped and migrates the legacy name', /_AIO_IDB_NAME = 'AIOScreenerNewsCache'/.test(data) && /_AIO_IDB_LEGACY_NAME = 'AIOScreenerDB'/.test(data) && /function _idbMigrateLegacyNews\(/.test(data) && /store-not-empty/.test(data));
 // P1753: the retired US deep-analysis renderer carried its own MA-stack and volume-profile copy; the shared
@@ -557,7 +558,7 @@ check('C06/P1699: briefing decision summary F&G uses the shared close reader, no
 // calcKrHealthScore lives in js/aio-ui.js (block F) — the check spans two owners, so each token is
 // asserted against the file that actually holds it.
 check('VKOSPI failure state is surfaced after repeated failures and calcKrHealthScore does not overwrite it', /function _showVkospiFailureState/.test(krData) && /function _vkospiIsFailedState/.test(krData) && /_vkospiIsFailedState\(\)/.test(ui.slice(ui.indexOf('function calcKrHealthScore'), ui.indexOf('function calcKrHealthScore') + 4000)) && /T868 vkospi_failure_state_contract_v5234/.test(tests));
-check('AI chat key gates accept configured server-key route and disclose personal-key boundary', /function _aioHasClaudeRoute/.test(chat) && /window\._aioHasClaudeRoute/.test(chat) && /_aioHasClaudeRoute\(_chatApiKey\)/.test(chat) && /_aioHasClaudeRoute\(_uniClaudeKey\)/.test(chat) && /브리핑\/번역은 운영자 서버키/.test(chat + html) && /T865 claude_chat_route_server_key_awareness_v5230/.test(tests));
+check('AI chat key gates accept configured server-key route and disclose personal-key boundary', /function _aioHasClaudeRoute/.test(chat) && /window\._aioHasClaudeRoute/.test(chat) && /_aioHasClaudeRoute\(_uniClaudeKey\)/.test(chat) && /브리핑\/번역은 운영자 서버키/.test(chat + html) && /T865 claude_chat_route_server_key_awareness_v5230/.test(tests));
 check(
   'T866 v57.60 breadth surfaces share canonical regime color and zero delta renders neutral (the legacy _bbRegime ladder retired with updateBreadthBars)',
   !/function\s+_bbRegime/.test(ui + core + data)
@@ -610,7 +611,7 @@ for (const field of snapshotSignalFields) {
 }
 
 // [B] fetchQuote OHLCV 기반 일간 Pct (P545 근본 수정 — chartPreviousClose 주간 오표시 방지)
-const fetchScript = exists('scripts/fetch-data.mjs') ? read('scripts/fetch-data.mjs') : '';
+const fetchScript = exists('scripts/fetch-data.mjs') ? readProducerSource() : ''; // v57.62: producer + split lib modules
 check(
   'fetchQuote uses OHLCV closes array for daily pct (not chartPreviousClose only)',
   /indicators\?\.\s*quote\?\.\s*\[0\]\?\.\s*close|indicators\?\.quote\?\[0\]\?\.close|indicators\.quote\[0\]\.close/.test(fetchScript),
@@ -838,6 +839,8 @@ check('WO-3: backtestFactors() accepts optional offsets/fwdDays that default to 
 check('WO-3: backtestFactors() additionally returns a per-rebalance-date IC list (icByDate) needed to compute ICIR/t-stat, not just the averaged IC', /icByDate/.test(backtestFactorsBody));
 check('WO-3: fetch-data.mjs guards its direct execution and allows an isolated screener-only task without import side effects', /const __entryArg = process\.argv\[1\] \? process\.argv\[1\]\.replace/.test(fetchScript) && /if \(__entryArg && \(import\.meta\.url === `file:\/\/\$\{__entryArg\}`/.test(fetchScript) && /process\.env\.SCREENER_ONLY === '1' \? enrichScreener\(\) : main\(\)/.test(fetchScript) && /task\.catch\(e => \{ console\.error\('\[fetch-data\] 치명적 오류:', e\); process\.exit\(1\); \}\);\s*\}/.test(fetchScript));
 check('WO-3: closesToFactors/backtestFactors/_mean are exported from fetch-data.mjs for reuse by the longrun script (no formula duplication)', /export function closesToFactors/.test(fetchScript) && /export function backtestFactors/.test(fetchScript) && /export const _mean/.test(fetchScript));
+// v57.62: the factor math lives once in scripts/lib/factors.mjs; fetch-data.mjs re-exports it, so the longrun script's import still resolves to the same formula.
+check('v57.62 fetch-data.mjs re-exports closesToFactors/backtestFactors/_mean from scripts/lib/factors.mjs (one definition)', /export \{[^}]*_mean[^}]*closesToFactors[^}]*backtestFactors[^}]*\} from '\.\/lib\/factors\.mjs';/.test(read('scripts/fetch-data.mjs')) && !/export function (?:closesToFactors|backtestFactors)\(/.test(read('scripts/fetch-data.mjs')));
 if (exists('scripts/backtest-factors-longrun.mjs')) {
   const factorLongrun = read('scripts/backtest-factors-longrun.mjs');
   check('WO-3: backtest-factors-longrun.mjs selects a bounded top-mcap subset (not the full universe) and caps fetch concurrency at 4, given this repo\'s documented prior Yahoo IP-blocking history', /rows\.sort\(\(a, b\) => b\.mcap - a\.mcap\)/.test(factorLongrun) && /const CONCURRENCY = 4/.test(factorLongrun));
@@ -971,7 +974,7 @@ check('PERF-BOOT-06: shell FCP is presented before synthetic route timing and al
 
 // v52.75 (WP-AI0): public AI beta safety boundary + unverified auto-analysis block.
 check('WP-AI0: one shared public AI policy exposes beta/research wording, action gate, and Evidence/as-of disclosure helpers', /_AIO_PUBLIC_AI_POLICY/.test(chat) && /_aioPublicAIActionPolicyPrompt/.test(chat) && /_aioApplyAIActionGate/.test(chat) && /_aioBuildAIResponseDisclosure/.test(chat) && /_aioAppendAIPublicDisclosure/.test(chat));
-check('WP-AI0: embedded and unified chat paths gate streaming/final output and persist gated text only', (/_publicChunkGate|_pageChunkResult/.test(chat)) && (/_publicGate|_pageDoneResult/.test(chat)) && /state\.messages\.push\(\{ role: 'assistant', content: visible \}\)/.test(chat) && /extractChips\(visible\)/.test(chat));
+check('v57.62 WP-AI0: the unified chat path gates streaming/final output and persists gated text only', /_uniChunkResult\.text/.test(chat) && /_publicGate = _uniDoneResult\.actionGate/.test(chat) &&/state\.messages\.push\(\{ role: 'assistant', content: visible \}\)/.test(chat) && /extractChips\(visible\)/.test(chat));
 check('R460/P905: public surfaces identify read-only conditional analysis scope and current-data recheck', /id="ai-panel-policy"/.test(html) && /AI 도우미 · 읽기 전용 리서치/.test(html) && /투자·법률·세무 조건부 분석/.test(html) && /불법 실행 절차·주문 실행·확정적 보장/.test(html) && /data-ai-public-policy="beta-research"/.test(chat));
 check('WP-AI0: server market prose requires explicit semantic verification before sink selection', /marketAnalysisSemanticOk/.test(data) && /status: _serverMarketAnalysisVerified \? 'verified' : 'blocked-unverified'/.test(data) && /_serverMarketAnalysis\.status === 'verified'/.test(core));
 check('WP-AI0: regression fixtures cover action block, educational pass, strong wording, disclosure metadata, and unverified market prose', /_testV5275PublicAIContract/.test(tests) && /T932/.test(tests) && /T933/.test(tests) && /T934/.test(tests) && /T935/.test(tests) && /T936/.test(tests));
@@ -979,7 +982,8 @@ check('WP-AI0: regression fixtures cover action block, educational pass, strong 
 // v52.76 (WP-AI1): one request envelope/response pipeline across all public
 // AI entry points; retries must reuse the named completion handlers/request.
 check('WP-AI1: shared request envelope records pipeline, validator, block-policy versions and bounded audit metadata', /_AIO_AI_PIPELINE_VERSION/.test(chat) && /_aioCreateAIRequestObject/.test(chat) && /_aioBeginAIRequestAttempt/.test(chat) && /_aioRunAIResponsePipeline/.test(chat) && /getAIResponsePipelineAudit/.test(chat));
-check('WP-AI1: embedded retry reuses one completion callback contract and request object', /var _pageOnChunk = function/.test(chat) && /var _pageOnDone = function/.test(chat) && /callClaude\((?:\(window\.AIO && window\.AIO\.promptWithoutWebSearch \|\| String\)\()?systemPrompt\)?, state\.messages, _pageOnChunk, _pageOnDone/.test(chat) && /_aioBeginAIRequestAttempt\(_pageAIRequest, nextModel\)/.test(chat));
+// v57.62: the dead per-page chatSend (no #chat-<ctx>-inp since P1653) and its embedded retry were retired.
+check('v57.62 per-page chatSend and its embedded retry are retired', !/async function chatSend\(/.test(chat) && !/var _pageOnChunk = function|var _pageOnDone = function|var _pageOnError = function/.test(chat));
 // P1131/R619: the unified retry/completion contract moved with inline block G into js/aio-chat.js.
 check('WP-AI1: unified retry reuses one completion callback contract and request object', /var _uniOnChunk = function/.test(chat) && /var _uniOnDone = function/.test(chat) && /callClaude\((?:\(window\.AIO && window\.AIO\.promptWithoutWebSearch \|\| String\)\()?sysPrompt\)?, state\.messages, _uniOnChunk, _uniOnDone/.test(chat) && /_aioBeginAIRequestAttempt\(_uniAIRequest, nextModel\)/.test(chat));
 check('WP-AI1: translation uses the shared response pipeline and fails closed to local/deterministic fallback while briefing is owned by the native news renderer', /_translationRequest/.test(data) && /_aioRunAIResponsePipeline/.test(data) && /auto-translation/.test(data) && /AI response pipeline unavailable/.test(data) && /route === 'briefing'/.test(newsPage) && /buildNewsSurfaceModel/.test(newsPage) && !/_briefingRequest/.test(data));
@@ -988,9 +992,8 @@ check('WP-AI1: briefing route is defined in the unified context map and regressi
 // v52.77 (WP-AI2): typed claim schema and fail-closed claim/evidence validation.
 check('WP-AI2: typed claim schema exposes metric/unit/scale/direction/asOf/source/evidenceId fields', /_AIO_CLAIM_SCHEMA_VERSION/.test(core) && /createTypedClaim/.test(core) && /validateTypedClaim/.test(core) && /getAIClaimSchemaPrompt/.test(core));
 check('WP-AI2: structured claim envelopes are parsed and validated by the shared response pipeline', /extractAIClaimEnvelope/.test(core) && /validateAIClaimEnvelope/.test(core) && /validateAIResponseClaims/.test(core) && /claimAudit/.test(chat) && /typed-claim-validation/.test(chat));
-check('WP-AI2: per-page and unified AI responses merge injected evidence once and pass the canonical registry into the shared typed-claim audit',
-  /var _pageClaimEvidence = _aioCollectAIClaimEvidence/.test(chat) && /evidence: _pageClaimEvidence/.test(chat)
-  && /var _uniClaimEvidence = typeof window\._aioCollectAIClaimEvidence/.test(chat) && /evidence: _uniClaimEvidence/.test(chat));
+check('v57.62 WP-AI2: unified AI responses merge injected evidence once and pass the canonical registry into the shared typed-claim audit',
+  /var _uniClaimEvidence = typeof window\._aioCollectAIClaimEvidence/.test(chat) && /evidence: _uniClaimEvidence/.test(chat));
 check('WP-AI2: counterexample fixtures cover F&G/VIX, NFP 10x, bp/percent, sign, FX inversion, missing evidence, parser, and pipeline block', /_testV5277TypedClaimContract/.test(tests) && /T941/.test(tests) && /T942/.test(tests) && /T943/.test(tests) && /T944/.test(tests) && /T945/.test(tests) && /T946/.test(tests) && /T947/.test(tests) && /T948/.test(tests) && /T949/.test(tests));
 
 // v52.78 (WP-AI3): intent-aware reference retrieval, deterministic compaction,
@@ -998,7 +1001,7 @@ check('WP-AI2: counterexample fixtures cover F&G/VIX, NFP 10x, bp/percent, sign,
 check('WP-AI3: shared retriever exposes intent classification, required evidence, route aliases, and bounded top-k reference retrieval', /classifyAIQueryIntent/.test(core) && /retrieveImportedResearch/.test(core) && /requiredEvidence/.test(core) && /topK/.test(core) && /sourceKind: 'REFERENCE'/.test(core));
 check('WP-AI3: reference context is deterministically compacted within the 2K-6K token contract and preserves the reference-only rule', /compactAIContext/.test(core) && /budgetTokens/.test(core) && /deterministic line trim/.test(core) && /sourceKind policy=REFERENCE/.test(core) && /estimatedInputTokens/.test(core));
 check('WP-AI3: P95 input-token and cost measurement audit is exposed with a stated +/-10 percent target', /recordAIContextBudget/.test(core) && /p95InputTokens/.test(core) && /targetErrorPct: 10/.test(core));
-check('WP-AI3: page and unified entry points bind the active query and carry retrieval/context audits through the shared response pipeline', /_aioActiveAIQuery = q/.test(chat) && /retrievalAudit: _pageRetrievalAudit/.test(chat) && /retrievalAudit: _uniRetrievalAudit/.test(chat) && /contextBudgetAudit/.test(chat + html));
+check('v57.62 WP-AI3: the unified entry point binds the active query and carries retrieval/context audits through the shared response pipeline', /_aioActiveAIQuery = q/.test(chat) && /retrievalAudit: _uniRetrievalAudit/.test(chat) && /contextBudgetAudit/.test(chat + html));
 check('WP-AI3: regression fixtures cover intent, relevance, deterministic order, live/reference separation, recall, trim, P95 meter, and pipeline audit', /_testV5278AIRetrievalCompression/.test(tests) && /T950/.test(tests) && /T951/.test(tests) && /T952/.test(tests) && /T953/.test(tests) && /T954/.test(tests) && /T955/.test(tests) && /T956/.test(tests) && /T957/.test(tests));
 
 // v52.79 (WP-AI4/5): external data boundary, portfolio privacy consent, and
@@ -1007,15 +1010,16 @@ check('WP-AI4: untrusted external text is normalized, injection-audited, and wra
 check('WP-AI4: chat history has explicit off mode, 30-day retention, bounded entries, and sanitized storage', /getChatHistoryPolicy/.test(core) && /setChatHistoryEnabled/.test(core) && /prepareChatHistoryEntry/.test(core) && /CHAT_HISTORY_MAX = 50/.test(html + workspace) && /retentionDays/.test(html + workspace) && /_aioChatHistoryToggle/.test(core));
 check('WP-AI5: portfolio AI uses a field allowlist, redaction preview, and session-only opt-in before unified send', /redactPortfolioForAI/.test(core) && /getPortfolioAIPrivacyPreview/.test(core) && /setPortfolioAIConsent/.test(core) && /포트폴리오 AI 전송 미리보기/.test(html + workspace) && /계좌ID.*제외/.test(html + workspace));
 check('WP-AI5/P1120: prohibited conduct still blocks while personalized direct action and probability gaps remain explicit limitations', /evaluateAIActionPermission/.test(core) && /conductAudit/.test(chat) && /prohibited-conduct/.test(core) && /suitability-context-missing/.test(core) && /current-evidence-limited/.test(core) && /decision-grade/.test(core) && /uncalibrated-probability-claim/.test(core) && !/safeText: 'AI 안전 모드\\n\\n적합성 정보와 현재 decision-grade/.test(core));
-const preProviderPermissionIdx = chat.indexOf('var _aioPreProviderPermission');
-const quotaAwaitIdx = chat.indexOf('await consumeLLMQuery()');
+// v57.62: the per-page chatSend copy was retired; these read the unified chat entry point.
+const preProviderPermissionIdx = chat.indexOf('var _uniPreProviderPermission');
+const quotaAwaitIdx = chat.indexOf('_qOk = await consumeLLMQuery()');
 const publicationPermissionIdx = chat.indexOf('var conductAudit');
 const publicationGateIdx = chat.indexOf('if (conductAudit.blocked === true)');
 check('WP-AI5: action permission runs before provider quota/retrieval and again before publication',
   preProviderPermissionIdx >= 0 && quotaAwaitIdx > preProviderPermissionIdx && publicationPermissionIdx >= 0 && publicationGateIdx > publicationPermissionIdx && /evaluateAIActionPermission\(/.test(chat.slice(publicationPermissionIdx, publicationPermissionIdx + 700)));
-check('WP-AI5: legacy chat awaits the async quota confirmation and rejects a cancelled epoch before provider work',
-  /var _chatQuotaAllowed\s*;[\s\S]{0,220}await consumeLLMQuery\(\)/.test(chat) && quotaAwaitIdx >= 0 && chat.indexOf('if (!_isCurrentChatRun())', quotaAwaitIdx) > quotaAwaitIdx && chat.indexOf('if (!_isCurrentChatRun())', quotaAwaitIdx) - quotaAwaitIdx < 320);
-check('WP-AI5: per-page freshness preflight uses abortable bounded tasks and no uncancelled race', /_aioRunChatTask\(function\(signal\)[\s\S]{0,420}ensureFreshChatAnswerData[\s\S]{0,220}timeoutMs: 6500/.test(chat) && /_aioRunChatTask\(function\(signal\)[\s\S]{0,420}ensureFreshDataForUse[\s\S]{0,220}timeoutMs: 4500/.test(chat) && !/Promise\.race\(\[[\s\S]{0,500}ensureFreshChatAnswerData/.test(chat));
+check('v57.62 WP-AI5: chat awaits the async quota confirmation and rejects a cancelled epoch before provider work',
+  /_uniRun\.quotaPending = true;[\s\S]{0,120}await consumeLLMQuery\(\)/.test(chat) && quotaAwaitIdx >= 0 && chat.indexOf('if (!_isCurrentUnifiedRun())', quotaAwaitIdx) > quotaAwaitIdx && chat.indexOf('if (!_isCurrentUnifiedRun())', quotaAwaitIdx) - quotaAwaitIdx < 320);
+check('v57.62 WP-AI5: chat freshness preflight uses abortable bounded tasks and no uncancelled race', /_withTimeout\(window\.AIO\.ensureFreshChatAnswerData\([\s\S]{0,260}\), 6500, 'chatFresh', function\(\)\{ _uniFreshAbort\.abort\(\); \}\)/.test(chat) && /_withTimeout\(window\.AIO\.ensureFreshDataForUse\([\s\S]{0,260}\), 4500, 'freshness', function\(\)\{ _uniDataAbort\.abort\(\); \}\)/.test(chat) && !/Promise\.race\(\[[\s\S]{0,500}ensureFreshChatAnswerData/.test(chat));
 check('WP-AI5: ticker quote lookup carries the active chat AbortSignal and ignores cancelled cache paths', /async function _fetchTickerDataForChat\([\s\S]{0,600}_aioThrowIfChatAborted\(opts\.signal\)/.test(chat) && /dynamicTickerLookup\(t,[\s\S]{0,220}signal: opts\.signal/.test(chat));
 // P1131/R619: both the page and the unified entry points now live in js/aio-chat.js.
 check('WP-AI4/5: page and unified entry points pass the active query to the common policy and untrusted wrappers', /query: q/.test(chat) && /buildAIUntrustedBlock/.test(chat));

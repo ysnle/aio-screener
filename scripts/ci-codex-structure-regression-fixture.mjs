@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { load as loadYaml } from 'js-yaml';
+import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
 import { buildMarketRegime, movingAverageStructure } from '../src/domain/briefing/market-read.js';
 import { buildDailyChanges } from '../src/domain/briefing/daily-diff.js';
 import { resolveEntities } from '../src/ai/entity/resolver.js';
@@ -137,7 +138,7 @@ assert.ok(!/aio_google_cse_key_input/.test(shell) && !/_googleSearch|_aiWebSearc
 const { usPreOpenIndexPrint } = await import('./fetch-data.mjs');
 assert.equal(usPreOpenIndexPrint('^VIX', '2026-10-12T11:01:01Z'), true, 'P1656: Monday 07:01 ET VIX is a pre-open print');
 assert.equal(usPreOpenIndexPrint('^VIX', '2026-10-09T20:15:01Z'), false, 'P1656: the 16:15 ET VIX close stays a close');
-const producer = fs.readFileSync(new URL('./fetch-data.mjs', import.meta.url), 'utf8');
+const producer = readProducerSource();
 assert.ok(/existing\.fieldMeta\[f\]\?\.valueBasis\) continue;/.test(producer), 'P1656: backfill does not overwrite completed-close evidence');
 
 // P1660: axis and macro-group folds teach (principle · reading · links) instead of listing sources.

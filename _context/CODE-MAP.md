@@ -222,7 +222,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | `fetchLiveQuotes` / `applyLiveQuotes` | `js/aio-data.js:13732` / `15186` |
 | `_aioApplyNativeScreenerState` / `_aioComputeFactorRanks` | `js/aio-data.js:4864` / `15357` |
 | native sentiment page (legacy `initBreadthPage` 삭제 v57.60) | `src/ui/pages/sentiment.js:243` |
-| `CHAT_CONTEXTS` / `chatSend` | `js/aio-chat.js:549` / `4576` |
+| `CHAT_CONTEXTS` / `chatSendUnified` (per-page `chatSend` 삭제 v57.62) | `js/aio-chat.js` |
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
 > 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `grep -n`/부분 Read로 한 번 더 확인한다.
@@ -245,6 +245,10 @@ The tables in this subsection supersede older detailed line snapshots retained b
 > 변경이 누적될 수 있으므로 함수명 검색을 최종 근거로 사용한다.
 
 ---
+
+## v57.62 structure pass (2026-10-14)
+
+Producer: `scripts/fetch-data.mjs` keeps `main()` and the market-analysis/translation block; pure blocks live in `scripts/lib/factors.mjs`, `macro-sources.mjs`, `news-selection.mjs`, `market-analysis-validate.mjs`, with shared `producer-http.mjs` / `producer-math.mjs`. fetch-data re-exports every name it exported before. Gates read producer text through `scripts/lib/producer-source.mjs` `readProducerSource()`. App: `src/app/compatibility-globals.js` `installCompatibilityGlobals(root)` holds the window.* block from bootstrap; `src/domain/screener/row-presentation.js` holds the screener row helpers (the page re-exports them). Chat: only the unified panel path (`chatSendUnified`) remains in `js/aio-chat.js`. AI ledger: searched answers settle from usage in `worker/openai-budget.mjs` `verifiedOpenAiCharge`.
 
 ## v57.60 structure pass (2026-10-14)
 
@@ -514,7 +518,6 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | `_aioChatAnswerPolicy` | 3700 | 일반/스크리너/단순 종목/매매 판단 답변 정책 분리(R212) |
 | `_buildAioIntegratedAnswerContext` | 3777 | 현재 시장+정량+정성+페이지 연결 계약(R214) |
 | `_googleSearch` | 4208 | Google CSE fallback |
-| `chatSend` | 5160 | 컨텍스트별 AI 전송 |
 | `fundamentalSearch` | 6559 | 기업 분석 수집/렌더 |
 | `_aioBuildDiversifiedRecommendationRows` / `_aioRunScreenerQuery` / `_formatScreenerResultPrompt` | 1890~1892 (alias) | **실제 정의는 aio-data.js**(17286/17352/17486) — 로드순서 의존 alias |
 | `_fmtNum` | 6443 (alias) | **실제 정의는 aio-core.js:24102** |

@@ -2885,7 +2885,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (!/cashValue: cashValue/.test(p1188Workspace) || !/declarations: declarations/.test(p1188Workspace)) {
     fail('P1188/11 P11-02 the shell must hand its declarations to the assembled risk input');
   }
-  const p1188Bootstrap = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  const p1188Bootstrap = readFileSync(path.join(root, 'src/app/compatibility-globals.js'), 'utf8'); // v57.62: window.* bridge moved out of bootstrap
   if (!/window\._pfPortfolioAssumptions = \{ keys: PORTFOLIO_ASSUMPTION_KEYS/.test(p1188Bootstrap)) {
     fail('P1188/11 P11-02 bootstrap must expose the shared assumption keys/normalizers to the writer');
   }
@@ -3036,7 +3036,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     || !/function _pfLedgerApi\(\)/.test(p1191Workspace)) {
     fail('P1191/E4 the classic shell must own the ledger writer through the Vault path, delegate the contract, and expose every handler');
   }
-  if (!/window\._pfPortfolioLedger = \{/.test(readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8'))) {
+  if (!/window\._pfPortfolioLedger = \{/.test(readFileSync(path.join(root, 'src/app/compatibility-globals.js'), 'utf8'))) { // v57.62
     fail('P1191/E4 bootstrap must expose the ledger contract to the shell');
   }
   if (!/ledger: accountLedger/.test(p1191Workspace) || !/status === 'ready'/.test(p1191Workspace)) {
@@ -3232,7 +3232,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const failedPanels = panelChecks.filter(([, ok]) => !ok).map(([name]) => name);
   if (failedPanels.length) fail(`P1195 declared-panel checks failed: ${failedPanels.join(' | ')}`);
   const p1195Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
-  const p1195Bootstrap = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  const p1195Bootstrap = readFileSync(path.join(root, 'src/app/compatibility-globals.js'), 'utf8'); // v57.62
   if (/data-action="_aioRemoveLedgerEntry"/.test(p1195Workspace) || /data-action="_aioRemoveFxLeg"/.test(p1195Workspace)
     || /function _pfVaultListPersist\(options\)/.test(p1195Workspace) === false
     || !/window\._pfDeclarationPanels = \{/.test(p1195Bootstrap)
@@ -3395,7 +3395,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const failedP1199 = p1199Checks.filter(([, ok]) => !ok).map(([name]) => name);
   if (failedP1199.length) fail(`P1199 declaration-store checks failed: ${failedP1199.join(' | ')}`);
   const p1199Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
-  if (!/window\._pfDeclarationsStore = \{ create: createDeclarationsStore \}/.test(readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8'))
+  if (!/window\._pfDeclarationsStore = \{ create: createDeclarationsStore \}/.test(readFileSync(path.join(root, 'src/app/compatibility-globals.js'), 'utf8')) // v57.62
     || /function _pfVaultListWrite\(/.test(p1199Workspace)
     || !/_pfDeclarationWrite\(options\.key, options\.value\)/.test(p1199Workspace)
     || !/showDeclarationStatus\(\{ documentRef: document, statusId: statusId/.test(p1199Workspace)) {
@@ -4008,7 +4008,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const failedP1316 = p1316Checks.filter(([, ok]) => !ok).map(([name]) => name);
   if (failedP1316.length) fail(`P1316 portfolio backup checks failed: ${failedP1316.join(' | ')}`);
   const p1316Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
-  const p1316Bootstrap = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  const p1316Bootstrap = readFileSync(path.join(root, 'src/app/compatibility-globals.js'), 'utf8'); // v57.62
   if (!/window\._pfPortfolioBackup = \{/.test(p1316Bootstrap)
     || !/api\.build\(_pfBackupSnapshot\(\)/.test(p1316Workspace)
     || !/getPortfolioLedger\(\), fxLegs: getPortfolioFxLegs\(\)/.test(p1316Workspace)

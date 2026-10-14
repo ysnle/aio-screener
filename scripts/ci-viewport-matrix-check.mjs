@@ -2,11 +2,11 @@
 // Internal route x viewport surface check for every primary page plus derived views.
 
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DESKTOP_QA_VIEWPORTS } from './desktop-qa-config.mjs';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { ROUTE_IDS } from '../src/app/routes.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
@@ -26,22 +26,6 @@ const VIEWPORTS = DESKTOP_QA_VIEWPORTS
   .filter((viewport) => !VIEWPORT_FILTER.size || VIEWPORT_FILTER.has(viewport.name));
 
 if (!VIEWPORTS.length) throw new Error('AIO_VIEWPORT_NAMES did not match a known viewport');
-
-function startServer() {
-  return new Promise((resolvePromise, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(PORT)], {
-      cwd: root,
-      stdio: ['ignore', 'pipe', 'pipe']
-    });
-    let started = false;
-    const onReady = () => { if (!started) { started = true; resolvePromise(child); } };
-    child.stdout.on('data', (d) => { if (String(d).includes('AIO local server')) onReady(); });
-    child.stderr.on('data', (d) => process.stderr.write(`[server] ${d}`));
-    child.on('error', reject);
-    child.on('exit', (code) => { if (!started) reject(new Error(`server exited early (code ${code})`)); });
-    setTimeout(onReady, 2000);
-  });
-}
 
 async function activateRoute(page, routeId) {
   return page.evaluate((id) => {
@@ -219,9 +203,9 @@ async function settleRoute(page, routeId) {
 async function main() {
   if (SCREENSHOTS) mkdirSync(OUT_DIR, { recursive: true });
   console.log(`[ci-viewport-matrix] starting local server on ${PORT}`);
-  const server = await startServer();
+  const server = await startLocalServer(PORT, { label: 'viewport-matrix/server' }); // v57.62 shared lifecycle
   console.log('[ci-viewport-matrix] launching chromium');
-  const browser = await chromium.launch();
+  const browser = await chromium.launch().catch(async (error) => { await closeAll({ server }); throw error; });
   const failures = [];
   const reports = [];
 
@@ -374,8 +358,7 @@ async function main() {
       console.log('[ci-viewport-matrix] ✅ route x viewport surface checks passed');
     }
   } finally {
-    await browser.close();
-    server.kill();
+    await closeAll({ browser, server });
   }
 }
 

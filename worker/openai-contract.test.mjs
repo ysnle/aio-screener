@@ -44,7 +44,7 @@ async function main() {
   const charge = verifiedOpenAiCharge(usageResponse(), budget);
   const searchBody = { ...body, tools: [{ type: 'web_search', search_context_size: 'low', return_token_budget: 'default' }], max_tool_calls: 2, tool_choice: 'required' };
   const searchBudget = prepareOpenAiBudget(searchBody, { AI_WEB_SEARCH_ENABLED: 'true' });
-  check('P1608 hosted search shares twenty dollar admission and retained reserve', searchBudget.monthlyCapMicroUsd === 20000000 && searchBudget.searchReserveMicroUsd === 80000 && searchBudget.body.reasoning.effort === 'low');
+  check('P1608 hosted search shares twenty dollar admission and reserves above the text-only price', searchBudget.monthlyCapMicroUsd === 20000000 && searchBudget.searchReserveMicroUsd > 0 && searchBudget.reservationMicroUsd > searchBudget.searchReserveMicroUsd && searchBudget.body.reasoning.effort === 'low');
   const deepSearch = prepareOpenAiBudget({ ...searchBody, reasoning: { effort: 'medium' }, tools: [{ ...searchBody.tools[0], search_context_size: 'medium' }] }, { AI_WEB_SEARCH_ENABLED: 'true' });
   const highSearch = prepareOpenAiBudget({ ...searchBody, reasoning: { effort: 'high' } }, { AI_WEB_SEARCH_ENABLED: 'true' });
   check('v57.61 analysis search keeps medium reasoning/context; higher effort is clamped to low', deepSearch.body.reasoning.effort === 'medium' && deepSearch.body.tools[0].search_context_size === 'medium' && highSearch.body.reasoning.effort === 'low');
@@ -59,8 +59,39 @@ async function main() {
     { ...searchBody, tools: [searchBody.tools[0], { type: 'function', name: 'x', parameters: {} }] }
   ]) rejects('P1608 hosted search expansion cannot bypass admission', () => prepareOpenAiBudget(attempt, { AI_WEB_SEARCH_ENABLED: 'true' }));
   rejects('P1608 search disabled without explicit Worker configuration', () => prepareOpenAiBudget(searchBody));
-  for (const action of ['search', 'open_page', 'find_in_page']) check('P1608 token receipt cannot refund unverified hosted search costs ' + action,
-    verifiedOpenAiCharge(usageResponse({ output: [{ type: 'web_search_call', status: 'completed', action: { type: action } }] }), searchBudget) === null);
+  // v57.62: searched reservation is a worst-case bound; completed searched receipts settle from usage + per-call fee.
+  const searchCall = action => ({ type: 'web_search_call', id: 'ws_' + action, status: 'completed', action: { type: action } });
+  const answer = usageResponse().output[0];
+  const maxPrompt = { ...searchBody, input: [{ role: 'user', content: 'x'.repeat(150000) }], max_output_tokens: 16384, reasoning: { effort: 'medium' }, tools: [{ ...searchBody.tools[0], search_context_size: 'medium' }] };
+  for (const [label, data] of [['small low-context', searchBody], ['max-prompt medium-context', maxPrompt]]) {
+    const b = prepareOpenAiBudget(data, { AI_WEB_SEARCH_ENABLED: 'true', AI_MAX_OUTPUT_TOKENS: '16384' });
+    const calls = b.body.max_tool_calls, content = { low: 32000, medium: 64000 }[b.body.tools[0].search_context_size];
+    const turn = b.inputTokenUpperBound + calls * content + b.body.max_output_tokens, long = turn > 272000;
+    const worst = calls * 11000 + (1 + calls) * turn * (long ? 0.275 : 0.1375) + b.body.max_output_tokens * (long ? 0.825 : 0.55);
+    check('v57.62 searched reservation >= worst-case charge (prompt re-read every turn, content per call, fee per call) ' + label,
+      b.reservationMicroUsd >= worst && b.billedInputTokenUpperBound === (1 + calls) * turn && b.longContextPricing === long, { reservation: b.reservationMicroUsd, worst });
+    const worstReceipt = usageResponse({ output: [searchCall('search'), searchCall('open_page'), answer], usage: { input_tokens: b.billedInputTokenUpperBound, output_tokens: b.body.max_output_tokens, total_tokens: b.billedInputTokenUpperBound + b.body.max_output_tokens } });
+    const worstCharge = verifiedOpenAiCharge(worstReceipt, b);
+    check('v57.62 a receipt at every reserved bound settles at or below the reservation ' + label, worstCharge !== null && worstCharge <= b.reservationMicroUsd, { worstCharge, reservation: b.reservationMicroUsd });
+  }
+  check('v57.62 the max-prompt medium search crosses 272k per turn and is priced at long-context rates', prepareOpenAiBudget(maxPrompt, { AI_WEB_SEARCH_ENABLED: 'true', AI_MAX_OUTPUT_TOKENS: '16384' }).longContextPricing === true && searchBudget.longContextPricing === false);
+  const oneCall = verifiedOpenAiCharge(usageResponse({ output: [searchCall('search'), answer], usage: { input_tokens: 30000, output_tokens: 60, total_tokens: 30060 } }), searchBudget);
+  check('v57.62 settle with one search call charges one fee plus usage and refunds the unused call and token difference',
+    oneCall === Math.ceil(11000 + 30000 * 0.1375 + 60 * 0.55) && searchBudget.reservationMicroUsd - oneCall > 11000, { oneCall, reservation: searchBudget.reservationMicroUsd });
+  const twoCalls = verifiedOpenAiCharge(usageResponse({ output: [searchCall('search'), searchCall('find_in_page'), answer], usage: { input_tokens: 30000, output_tokens: 60, total_tokens: 30060 } }), searchBudget);
+  check('v57.62 every web_search_call item is billed, whatever its action', twoCalls === oneCall + 11000);
+  for (const [label, response] of [
+    ['incomplete', usageResponse({ status: 'incomplete', output: [searchCall('search')] })],
+    ['missing output', usageResponse({ output: undefined })],
+    ['malformed output item', usageResponse({ output: [searchCall('search'), null] })],
+    ['more calls than admitted', usageResponse({ output: [searchCall('search'), searchCall('search'), searchCall('search'), answer] })],
+    ['missing usage', usageResponse({ output: [searchCall('search'), answer], usage: undefined })],
+    ['total mismatch', usageResponse({ output: [searchCall('search'), answer], usage: { input_tokens: 30000, output_tokens: 60, total_tokens: 1 } })],
+    ['input above reserved bound', usageResponse({ output: [searchCall('search'), answer], usage: { input_tokens: searchBudget.billedInputTokenUpperBound + 1, output_tokens: 1, total_tokens: searchBudget.billedInputTokenUpperBound + 2 } })],
+    ['other model', usageResponse({ model: 'gpt-6-sol', output: [searchCall('search'), answer] })]
+  ]) check('v57.62 malformed/incomplete searched receipt keeps the reservation: ' + label, verifiedOpenAiCharge(response, searchBudget) === null);
+  check('v57.62 settle never exceeds the reservation even when every bound is individually met', verifiedOpenAiCharge(usageResponse({ output: [searchCall('search'), answer], usage: { input_tokens: 0, output_tokens: 1, total_tokens: 1 } }), { ...searchBudget, reservationMicroUsd: 11000 }) === null);
+  check('v57.62 a text-only budget never settles a receipt that ran hosted search', verifiedOpenAiCharge(usageResponse({ output: [searchCall('search'), answer] }), budget) === null);
   check('P1421 verified charge uses worst premium without cache discount', charge === Math.ceil(16 * 0.1375 + 8 * 0.55));
   for (const response of [usageResponse({ model: 'gpt-6-sol' }), usageResponse({ status: 'incomplete' }), usageResponse({ usage: { input_tokens: 16, output_tokens: 8 } }), usageResponse({ usage: { input_tokens: 16, output_tokens: 65, total_tokens: 81 } }), usageResponse({ usage: { input_tokens: 16, output_tokens: -1, total_tokens: 15 } }), usageResponse({ service_tier: 'priority' })]) check('P1421 invalid receipt cannot replenish', verifiedOpenAiCharge(response, budget) === null);
   const originalFetch = globalThis.fetch; let upstreamCalls = 0, lastRequest;
@@ -96,7 +127,7 @@ async function main() {
     const searchRaceResponses = await Promise.all(Array.from({ length: 6 }, (_, i) => worker.fetch(req(searchBody, { origin: i % 2 ? '' : PROD,
       headers: { ...(i % 2 ? { 'X-AIO-Automation-Token': TOKEN } : {}), 'X-AIO-Idempotency-Key': 'search-race-' + i, 'cf-connecting-ip': '198.18.0.' + i } }), searchRace.env)));
     await Promise.all(searchRaceResponses.map(response => response.arrayBuffer()));
-    check('P1608 mixed browser and automation searches atomically share one budget without per-user allowance', searchRaceResponses.filter(response => response.status === 200).length === 2 && searchRaceResponses.filter(response => response.status === 429).length === 4 && searchRace.saved().months[currentMonth] === searchBudget.reservationMicroUsd * 2);
+    check('P1608 mixed browser and automation searches atomically share one budget without per-user allowance', searchRaceResponses.filter(response => response.status === 200).length === 2 && searchRaceResponses.filter(response => response.status === 429).length === 4 && searchRace.saved().months[currentMonth] === verifiedOpenAiCharge(usageResponse(), searchBudget) * 2);
     const searchOff = harness(undefined, { AI_WEB_SEARCH_ENABLED: 'false' }), searchOffCalls = upstreamCalls;
     check('P1608 disabled hosted search never spends', (await worker.fetch(req(searchBody), searchOff.env)).status === 400 && upstreamCalls === searchOffCalls && searchOff.saved() === undefined);
     const health = await worker.fetch(req(undefined, { path: '/health', method: 'GET' }), fixture.env), healthJson = await health.json();
@@ -225,6 +256,11 @@ async function main() {
     const truncated = createOpenAiReceiptObserver('text/event-stream'); truncated.push(new TextEncoder().encode('data: ' + JSON.stringify({ type: 'response.completed', response: usageResponse() }))); check('P1421 incomplete SSE frame cannot settle', truncated.finish() === null);
     const failedObserver = createOpenAiReceiptObserver('text/event-stream'); failedObserver.push(new TextEncoder().encode('data: ' + JSON.stringify({ type: 'response.completed', response: usageResponse() }) + '\n\ndata: {"type":"response.failed"}\n\n')); check('P1421 late SSE failure keeps full reserve', failedObserver.finish() === null);
     const oversizedObserver = createOpenAiReceiptObserver('application/json'); oversizedObserver.push(new Uint8Array(2 * 1024 * 1024 + 1)); check('P1421 oversized receipt keeps full reserve', oversizedObserver.finish() === null);
+    const longStream = createOpenAiReceiptObserver('text/event-stream'), deltaFrame = new TextEncoder().encode('data: ' + JSON.stringify({ type: 'response.output_text.delta', delta: 'x'.repeat(200) }) + '\n\n');
+    for (let n = 0; n < 12000; n += 1) longStream.push(deltaFrame);
+    longStream.push(new TextEncoder().encode('data: ' + JSON.stringify({ type: 'response.completed', response: usageResponse() }) + '\n\n'));
+    const hugeStream = createOpenAiReceiptObserver('text/event-stream'); hugeStream.push(new Uint8Array(32 * 1024 * 1024 + 1));
+    check('v57.62 a long streamed answer (>2 MB of text deltas) still settles; a stream over 32 MB keeps the reserve', longStream.finish() !== null && hugeStream.finish() === null);
     const timeoutFixture = harness(); const originalTimeout = globalThis.setTimeout; let deadlineAbort = false;
     globalThis.setTimeout = (callback, delay, ...args) => originalTimeout(callback, delay === 60000 ? 5 : delay, ...args);
     try {
@@ -324,7 +360,7 @@ async function main() {
     const okSearch = harness(ledgerAt(0), { AI_MONTHLY_BUDGET_USD: '1' }); lastRequest = null;
     const okSearchResponse = await worker.fetch(req(searchBody, { headers: ip('198.51.100.70') }), okSearch.env); await okSearchResponse.arrayBuffer();
     check('P1759 healthy month keeps hosted search and says so', okSearchResponse.status === 200 && JSON.parse(lastRequest.init.body).tools?.[0]?.type === 'web_search' && okSearchResponse.headers.get('X-AIO-Budget-State') === 'ok' && !okSearchResponse.headers.has('X-AIO-Web-Search-Removed')
-      && okSearch.saved().months[currentMonth] === searchBudget.reservationMicroUsd);
+      && okSearch.saved().months[currentMonth] === verifiedOpenAiCharge(usageResponse(), searchBudget) && Object.values(okSearch.saved().reservations)[0].originalReservationMicroUsd === searchBudget.reservationMicroUsd);
     const lowSearch = harness(ledgerAt(lowSpent), { AI_MONTHLY_BUDGET_USD: '1' }); lastRequest = null;
     const lowSearchResponse = await worker.fetch(req(searchBody, { headers: ip('198.51.100.71') }), lowSearch.env); await lowSearchResponse.arrayBuffer();
     const lowSent = JSON.parse(lastRequest.init.body);

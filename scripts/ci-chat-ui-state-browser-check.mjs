@@ -25,7 +25,7 @@ try {
     const run = _aioBeginChatRequest('home', '중단 질문');
     run.userMessage = { role: 'user', content: '중단 질문' };
     state.messages.push(run.userMessage);
-    chatShowLoading('home');
+    chatAppendMsg('home', 'ai', '<span class="chat-dots"><span>·</span><span>·</span><span>·</span></span>', 'chat-home-loading'); // v57.62: chatShowLoading (per-page only) retired
     chatAppendMsg('home', 'ai', '부분 답변<span class="chat-cursor">▌</span>', 'chat-home-streaming');
     window.fixtureRun = run;
   });
@@ -40,7 +40,7 @@ try {
   })), { aborted: true, active: false, messages: 2, pending: 0, status: '답변 생성이 중지되었습니다.' });
   assert(await page.evaluate(() => {
     const run = _aioBeginChatRequest('home', '이동 중단');
-    chatShowLoading('home');
+    chatAppendMsg('home', 'ai', '<span class="chat-dots"><span>·</span><span>·</span><span>·</span></span>', 'chat-home-loading'); // v57.62: chatShowLoading (per-page only) retired
     document.dispatchEvent(new CustomEvent('aio:pageShown', { detail: { pageId: 'market' } }));
     return run.controller.signal.aborted && !document.querySelector('.chat-dots') && !getChatState('home').streaming;
   }));

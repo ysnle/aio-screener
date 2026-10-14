@@ -3,10 +3,10 @@
 // route's real showPage() lifecycle and records the human-surface contract per page.
 
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { DESKTOP_PRIMARY_VIEWPORT } from './desktop-qa-config.mjs';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
@@ -18,26 +18,10 @@ const OUT_PATH = process.env.CI_HUMAN_SURFACE_OUT
   : resolve(root, '_artifacts', 'critical10-human-surface-audit.json');
 const ROUTES = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
 
-function startServer() {
-  return new Promise((resolvePromise, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(PORT)], {
-      cwd: root,
-      stdio: ['ignore', 'pipe', 'pipe']
-    });
-    let started = false;
-    const ready = () => { if (!started) { started = true; resolvePromise(child); } };
-    child.stdout.on('data', (data) => { if (String(data).includes('AIO local server')) ready(); });
-    child.stderr.on('data', (data) => process.stderr.write(`[server] ${data}`));
-    child.on('error', reject);
-    child.on('exit', (code) => { if (!started) reject(new Error(`server exited early (code ${code})`)); });
-    setTimeout(ready, 2000);
-  });
-}
-
 async function main() {
   mkdirSync(dirname(OUT_PATH), { recursive: true });
-  const server = await startServer();
-  const browser = await chromium.launch();
+  const server = await startLocalServer(PORT, { label: 'critical10/server' }); // v57.62 shared lifecycle
+  const browser = await chromium.launch().catch(async (error) => { await closeAll({ server }); throw error; });
   const result = { version: null, viewport: null, routes: [], consoleErrors: [], generatedAt: new Date().toISOString() };
   let exitCode = 0;
   try {
@@ -105,8 +89,7 @@ async function main() {
     console.error(`[ci-critical10-human-surface] ${result.error}`);
     exitCode = 1;
   } finally {
-    await browser.close();
-    server.kill();
+    await closeAll({ browser, server });
   }
   process.exitCode = exitCode;
 }

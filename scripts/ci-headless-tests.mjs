@@ -10,7 +10,8 @@
 // Yahoo/FMP 등에 부하를 주지 않고 항상 동일한 offline/seed-fallback 상태로 측정되게 한다.
 
 import { chromium } from 'playwright';
-import { spawn, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
+import { startLocalServer } from './lib/browser-gate.mjs';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve, dirname, join } from 'node:path';
@@ -131,26 +132,11 @@ async function readBrowserFailureState(page) {
   }
 }
 
-function startServer() {
-  return new Promise((resolvePromise, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(PORT)], {
-      cwd: root,
-      stdio: ['ignore', 'pipe', 'pipe']
-    });
-    let started = false;
-    const onReady = () => { if (!started) { started = true; resolvePromise(child); } };
-    child.stdout.on('data', (d) => { if (String(d).includes('AIO local server')) onReady(); });
-    child.stderr.on('data', (d) => process.stderr.write(`[server] ${d}`));
-    child.on('error', reject);
-    child.on('exit', (code) => { if (!started) reject(new Error(`server exited early (code ${code})`)); });
-    setTimeout(onReady, 2000); // fallback if stdout match races
-  });
-}
-
 async function main() {
   const skipList = loadSkipList();
   const runtimeAllowlist = loadRuntimeAllowlist();
-  const server = await startServer();
+  // v57.62: shared ready-line start (no assume-ready fallback); cleanup() keeps the Windows process-tree kill.
+  const server = await startLocalServer(PORT, { label: 'headless/server' });
   activeServer = server;
   const browser = await chromium.launch();
   activeBrowser = browser;

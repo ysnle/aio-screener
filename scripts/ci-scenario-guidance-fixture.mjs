@@ -5,6 +5,7 @@ import { buildMarketScenarios } from '../src/domain/market/regime-scenarios.js';
 import { buildScenarioOutlook, renderScenarioOutlookContext } from '../src/domain/market/scenario-outlook.js';
 import { CHART_INTERVALS, intervalBars, intervalSpec, intervalStructure } from '../src/ui/components/stock-chart.js';
 import { buildMarketAnalysisRegimeContext } from './fetch-data.mjs';
+import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
 import { liveCurrentObservations } from '../src/ui/knowledge/current-observations.js';
 
 // P1633: short (close>5>10>20) and long (20>50>100>200) moving-average order.
@@ -85,7 +86,7 @@ const tierMacro = { series: { cccOas: { observations: rows.slice(-130).map((row)
 const tiers = buildRegimeAxisHistory({ history: rows, credit: {}, rates: {} }, { macroHistory: tierMacro });
 const gap = tiers.axes.credit.find((item) => item.id === 'ccc-b');
 assert.ok(gap && gap.series.every((point) => point.value === 900), 'P1638: CCC-B gap in bp');
-assert.match(readFileSync(new URL('./fetch-data.mjs', import.meta.url), 'utf8'), /cccOas:\s+\{ id: 'BAMLH0A3HYC'/, 'P1638: producer requests the CCC series');
+assert.match(readProducerSource(), /cccOas:\s+\{ id: 'BAMLH0A3HYC'/, 'P1638: producer requests the CCC series');
 
 // P1639: chart evidence adds ATR extension, distance from the 52-week low and the 5/20 EMA order.
 const { analyzeChart } = await import('../src/domain/technical/chart-analysis.js');

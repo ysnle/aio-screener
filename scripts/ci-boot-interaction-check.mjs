@@ -1,10 +1,10 @@
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve, dirname } from 'node:path';
 import { DESKTOP_PRIMARY_VIEWPORT } from './desktop-qa-config.mjs';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.CI_BOOT_PORT || 8898);
@@ -14,21 +14,6 @@ const version = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).
 const indexSource = readFileSync(resolve(root, 'index.html'), 'utf8');
 const operationsSlo = JSON.parse(readFileSync(resolve(root, 'architecture', 'operations-slo.json'), 'utf8'));
 const git = (args) => { try { return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim(); } catch { return null; } };
-
-function startServer() {
-  return new Promise((resolveServer, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], {
-      cwd: root,
-      stdio: ['ignore', 'pipe', 'pipe']
-    });
-    let done = false;
-    const ready = () => { if (!done) { done = true; resolveServer(child); } };
-    child.stdout.on('data', (data) => { if (String(data).includes('AIO local server')) ready(); });
-    child.on('error', reject);
-    child.on('exit', (code) => { if (!done) reject(new Error(`server exited early (${code})`)); });
-    setTimeout(ready, 1500);
-  });
-}
 
 // P1756: Chart.js loads on first chart use. A boot requests nothing; the first `new Chart()` requests the primary, a
 // slow primary (2 s) still wins without a secondary request or the local fallback, the pending chart is built on the
@@ -92,10 +77,12 @@ async function verifyDelayedPrimaryChart(browserInstance) {
   }
 }
 
-const server = await startServer();
-const browser = await chromium.launch();
+// v57.62: shared lifecycle — resolves only on the server ready line; the server is closed even if launch throws.
+const server = await startLocalServer(port, { label: 'boot-interaction/server' });
+let browser;
 let evidence = null;
 try {
+  browser = await chromium.launch();
   const page = await browser.newPage({ viewport: DESKTOP_PRIMARY_VIEWPORT });
   const externalRequests = [];
   const quoteRequests = [];
@@ -200,6 +187,5 @@ try {
   console.log(JSON.stringify(evidence, null, 2));
   if (failures.length) throw new Error(`boot interaction gate failed: ${failures.join('; ')}`);
 } finally {
-  await browser.close();
-  server.kill();
+  await closeAll({ browser, server });
 }

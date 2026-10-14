@@ -1,13 +1,12 @@
 import { chromium } from 'playwright';
 import { writeFileSync, mkdirSync } from 'node:fs';
-import { spawn } from 'node:child_process';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { ROUTE_IDS } from '../src/app/routes.js';
 mkdirSync('_artifacts/structural-quality-20260906', { recursive: true });
 const PORT = Number(process.env.CI_USER_JOURNEY_PORT || 8921);
 const BASE_URL = 'http://127.0.0.1:' + PORT + '/';
-const server = spawn(process.execPath, ['scripts/start-local-node.mjs', String(PORT)], { stdio: ['ignore', 'pipe', 'pipe'] });
-await new Promise((resolve, reject) => { server.stdout.on('data', data => { if (String(data).includes('AIO local server')) resolve(); }); server.on('error', reject); server.on('exit', code => reject(new Error('server exited: ' + code))); });
-const browser = await chromium.launch();
+const server = await startLocalServer(PORT, { label: 'user-journey/server' }); // v57.62 shared lifecycle
+const browser = await chromium.launch().catch(async (error) => { await closeAll({ server }); throw error; });
 const report = { generatedAt: new Date().toISOString(), routes: [], checks: [], errors: [] };
 const check = (name, ok) => { report.checks.push({ name, ok }); if (!ok) throw new Error(name); };
 try {
@@ -62,5 +61,5 @@ try {
   for (const [name, ok] of Object.entries(fixtures)) check(name, ok);
   await page.screenshot({ path: '_artifacts/structural-quality-20260906/guide.png' });
 } catch (e) { report.errors.push(String(e)); process.exitCode = 1; }
-finally { writeFileSync('_artifacts/structural-quality-20260906/browser.json', JSON.stringify(report, null, 2)); await browser.close(); server.kill(); }
+finally { writeFileSync('_artifacts/structural-quality-20260906/browser.json', JSON.stringify(report, null, 2)); await closeAll({ browser, server }); }
 console.log(JSON.stringify({ routes: report.routes.length, checks: report.checks, errors: report.errors }));

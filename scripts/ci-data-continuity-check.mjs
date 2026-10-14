@@ -15,6 +15,7 @@ import { derivePublicAiConfig } from './build-operations-status.mjs';
 import { deriveFredCycle } from './lib/refresh-continuity.mjs';
 import { atomicWriteFile, atomicWriteFileSync } from './lib/atomic-write.mjs';
 import { parseFredHyOasCsv, parseTreasuryYieldCurveHtml } from './fetch-data.mjs';
+import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = new Set(process.argv.slice(2));
@@ -129,7 +130,7 @@ function runFocusedRegression() {
 }
 
 function runProducerChecks() {
-  const fetchData = readText('scripts/fetch-data.mjs');
+  const fetchData = readProducerSource();
   const snapshot = readText('scripts/build-market-snapshot.mjs');
   const operations = readText('scripts/build-operations-status.mjs');
   const reconciliation = readText('scripts/build-reconciliation-status.mjs');

@@ -16,8 +16,8 @@ export { aiMonthlyBudgetMicroUsd, prepareOpenAiBudget } from './worker/openai-bu
  * retain historical reservations. They identify the ledger, not the provider.
  * Text/function Responses and bounded opt-in web search share the ledger;
  * images/files/audio, previous-response IDs, fast/long-context inputs fail closed.
- * Successful verified usage settles conservatively; missing/failed/cancelled
- * receipts retain the full reserve. This ledger is not an account invoice: use
+ * Successful verified usage settles conservatively (v57.62: searched answers too, at usage tokens plus
+ * one fee per web_search_call item); missing/failed/cancelled receipts retain the full reserve. This ledger is not an account invoice: use
  * a dedicated OpenAI project/key exclusively through the shared Worker.
  * Browser Origin/app token is an abuse speed bump, not user authentication.
  * Missing Origin requires the private automation token and never bypasses quota.

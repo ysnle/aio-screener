@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { deriveMarketSession } from './build-market-snapshot.mjs';
+import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
 import { mergeMacroLastKnownGood, normalizeHistoryRows, parseBeaPceHtml, validateMarketAnalysisText, HIST_FIELD_PLAUSIBILITY, histValueWithinPlausibility, parseFredDexkousCsv, compareUsdKrwCrossCheck } from './fetch-data.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -13,7 +14,7 @@ const history = readJson('public-data/history.json');
 if (!Array.isArray(history) || history.length < 2) fail('history.json must contain at least two rows');
 const fields = ['spx', 'nasdaq', 'dow', 'rut', 'vix', 'vvix', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'kosdaq', 'btc', 'usdkrw'];
 const errors = [];
-const fetchDataSource = readText('scripts/fetch-data.mjs');
+const fetchDataSource = readProducerSource();
 if (!/regularMarketPreviousCloseObservedAt:[\s\S]{0,260}closeBars\[closeBars\.length - 1\]\.timestamp/.test(fetchDataSource)) {
   errors.push('fetch-data: previous completed close must use the current daily bar opening boundary, not the previous bar opening time');
 }

@@ -72,12 +72,15 @@ let resolveLoad; const shared=createAIKnowledgeRetriever({timeoutMs:100,fetchImp
 const cancel=new AbortController(); const a=shared.buildContext('금리',{signal:cancel.signal}), b=shared.buildContext('AI');
 await Promise.resolve(); cancel.abort(); assert.equal((await a).audit.status,'CANCELLED');
 resolveLoad({ok:true,json:async()=>({articles:[]})}); assert.equal((await b).audit.status,'NO_RELEVANT_MATCH');
-for(const marker of ['var _pageOnChunk = function(fullText) {','var _pageOnDone = function(fullText, completion) {','var _pageOnError = function(errMsg) {']) {
-  assert(source.slice(source.indexOf(marker),source.indexOf(marker)+150).includes('if (!_isCurrentChatRun()) return;'));
+// v57.62: the dead per-page chatSend (P1653 removed every #chat-<ctx>-inp it needed) is gone; the unified panel is the
+// only chat path, so its stream callbacks carry the stale-epoch guard.
+assert(!source.includes('async function chatSend(') && !source.includes('var _pageOnError = function'), 'v57.62 per-page chatSend retired');
+for(const marker of ['var _uniOnChunk = function(fullText) {','var _uniOnDone = function(fullText, completion) {','var _uniOnError = function(errMsg) {']) {
+  assert(source.indexOf(marker)>=0 && source.slice(source.indexOf(marker),source.indexOf(marker)+150).includes('if (!_isCurrentUnifiedRun()) return;'), 'v57.62 unified callback is epoch-guarded: '+marker);
 }
 // P1740: the uncalled per-page chatClear (no .acp-clear button exists) was removed; any clear entry point must cancel first.
 assert(!/function chatClear\(/.test(source) || source.includes("_aioCancelChatRequest(ctxId, 'history-cleared')"));
-vm.runInContext(section('window._aioChatFreshnessInfo = function()', 'async function chatSend('), root);
+vm.runInContext(section('window._aioChatFreshnessInfo = function()', '// ── Click a suggestion chip'), root);
 root._liveData={AAA:{price:100,observedAt:new Date(Date.now()-60000).toISOString()}};
 assert(!root._aioChatFreshnessInfo().liveStatus.includes('인용 자체 금지'));
 root._liveData={AAA:{price:100}}; root._quoteTimestamps={AAA:Date.now()};
@@ -105,12 +108,11 @@ assert(quotaUi.includes('if (isOn && !route.ready)') && !quotaUi.includes("track
 const consumeUi=ui.slice(ui.indexOf('function consumeLLMQuery()'),ui.indexOf('// Init on load'));
 assert(consumeUi.indexOf('if (!route.ready)') >= 0 && consumeUi.indexOf('if (!getLLMState()) return true') > consumeUi.indexOf('if (!route.ready)'));
 assert(consumeUi.includes('settle(false)') && consumeUi.includes('saveQuota(quota)'));
-const pageChat=section('async function chatSend(', '// ── Click a suggestion chip');
-assert(pageChat.includes('_aioChatRun.quotaPending = true') && pageChat.includes('_chatQuotaAllowed = await consumeLLMQuery();'));
-const quotaAwait=pageChat.indexOf('_chatQuotaAllowed = await consumeLLMQuery();');
-assert(pageChat.indexOf('if (!_isCurrentChatRun())', quotaAwait) > quotaAwait && pageChat.indexOf('if (!_isCurrentChatRun())', quotaAwait) < pageChat.indexOf("inp.value = '';", quotaAwait));
-assert(!/Promise\.race\(\[[\s\S]{0,500}ensureFreshChatAnswerData/.test(pageChat));
-assert(pageChat.includes('ensureFreshChatAnswerData') && pageChat.includes('timeoutMs: 6500') && pageChat.includes('ensureFreshDataForUse') && pageChat.includes('timeoutMs: 4500'));
+// v57.62: quota and freshness preflight contracts read the unified panel (the per-page chatSend copy was retired).
+const quotaAwait=unifiedChat.indexOf('_qOk = await consumeLLMQuery();');
+assert(quotaAwait>=0 && unifiedChat.indexOf('if (!_isCurrentUnifiedRun())', quotaAwait) > quotaAwait && unifiedChat.indexOf('if (!_isCurrentUnifiedRun())', quotaAwait) < unifiedChat.indexOf("inp.value = '';", quotaAwait), 'v57.62 unified quota await rejects a cancelled epoch before clearing the input');
+assert(!/Promise\.race\(\[[\s\S]{0,500}ensureFreshChatAnswerData/.test(unifiedChat));
+assert(/_withTimeout\(window\.AIO\.ensureFreshChatAnswerData\([\s\S]{0,260}\), 6500, 'chatFresh'/.test(unifiedChat) && /_withTimeout\(window\.AIO\.ensureFreshDataForUse\([\s\S]{0,260}\), 4500, 'freshness'/.test(unifiedChat), 'v57.62 unified freshness preflight is bounded (6.5s / 4.5s)');
 const tickerChat=section('async function _fetchTickerDataForChat(', 'function _detectDeepCompareIntent(');
 assert(tickerChat.includes('signal: opts.signal || null') && tickerChat.includes('_aioThrowIfChatAborted(opts.signal)'));
 assert(!source.includes('function _aioChatAbortPromise('));
@@ -122,20 +124,18 @@ assert(!source.includes('function _aioChatAbortPromise('));
 }
 assert(source.includes('function _aioCanonicalSuppliedMaterialsContext(') && source.includes('var canonicalRegistry = window.AIO && window.AIO.SUPPLIED_MATERIALS_REFERENCE;'));
 assert(source.includes("'kr-market': 'macro'") && !source.includes("'kr-tech'") && !source.includes("'kr-themes':") && !/'kr-macro':\s*(?:'|_aio)/.test(source)); // P1758/v57.54: kr-tech, kr-themes, kr-macro retired
-assert(source.includes('function _aioWrapChatExternalContext(') && source.includes("_aioWrapChatExternalContext('TECHNICAL_ENRICHMENT'"));
+assert(source.includes('function _aioWrapChatExternalContext(') && unifiedChat.includes('window._aioWrapChatExternalContext') && unifiedChat.includes("_wrapUnifiedExternal('TECHNICAL_ENRICHMENT'")); // v57.62: per-page caller retired
 assert(unifiedChat.includes('_wrapUnifiedExternal') && unifiedChat.includes("_wrapUnifiedExternal('DEEP_COMPARISON'"));
 // P1756: the first attempt keeps automatic web search; a retry after a timeout/5xx repeats the request without it (each
 // searched attempt is billed and reserves search budget), says so in its status line, and every attempt resets the
 // citation collector so a failed searched attempt's sources are never bound to the retry's answer.
 {
-  const pageRetry = section('var _pageOnError = function(errMsg) {', 'state.streaming = false;');
   const uniRetry = section('var _uniOnError = function(errMsg) {', "var loadEl = document.getElementById('ai-panel-loading');");
-  assert(/webSearch: false, signal: _chatSignal, requestId: _pageRequestId/.test(pageRetry) && !/webSearch: _useClaudeWebSearch/.test(pageRetry), 'P1756 per-page retry runs without web search');
   assert(/modelKey: nextModel, webSearch: false, signal: _uniSignal/.test(uniRetry), 'P1756 unified-panel retry runs without web search');
-  assert(pageRetry.includes("' · 웹 검색 없이'") && uniRetry.includes("' · 웹 검색 없이'"), 'P1756 retry status says search is off');
-  assert(/promptWithoutWebSearch \|\| String\)\(systemPrompt\)/.test(pageRetry) && /promptWithoutWebSearch \|\| String\)\(sysPrompt\)/.test(uniRetry), 'v57.54 a retry without search also tells the model it did not search (prompt line swapped)');
-  assert(/webSearch: _useClaudeWebSearch, signal: _chatSignal, requestId: _pageRequestId \}/.test(source) && /modelOpts\.webSearch = true;/.test(source), 'P1756 first attempts keep automatic web search');
+  assert(uniRetry.includes("' · 웹 검색 없이'"), 'P1756 retry status says search is off');
+  assert(/promptWithoutWebSearch \|\| String\)\(sysPrompt\)/.test(uniRetry), 'v57.54 a retry without search also tells the model it did not search (prompt line swapped)');
+  assert(/modelOpts\.webSearch = true;/.test(unifiedChat) && /callClaude\(sysPrompt, state\.messages, _uniOnChunk, _uniOnDone, _uniOnError, Object\.assign\(\{\}, modelOpts, \{ signal: _uniSignal, requestId: _uniRequestId \}\)\)/.test(unifiedChat), 'P1756 first attempts keep automatic web search (modelOpts carries it)');
   const stream = section('async function callClaude(', 'function _pushWebCite(');
   assert(/\n\s*if \(_streamState\) \{[^\n]*\n\s*_streamState\.citations\.length = 0;/.test(stream), 'P1756 each attempt resets its citation collector');
 }
-console.log('Chat resilience PASS: shared cancellation/epochs across unified+per-page, retry, route/quota fail-closed, modal liveness, empty+timeout search fallback, evidence objects, source spoofing, safe links, deduplication and shared knowledge retry/cancellation (offline).');
+console.log('Chat resilience PASS: shared cancellation/epochs on the unified chat path (per-page retired v57.62), retry, route/quota fail-closed, modal liveness, empty+timeout search fallback, evidence objects, source spoofing, safe links, deduplication and shared knowledge retry/cancellation (offline).');

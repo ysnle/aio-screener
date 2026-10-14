@@ -13,7 +13,7 @@
 
 
 // ════════════════════════════════════════════════════════════════════════
-// AI Chat Engine — callClaude · chatSend · chatFromChip
+// AI Chat Engine — callClaude · chatSendUnified · chatFromChip
 // ════════════════════════════════════════════════════════════════════════
 
 // AI credentials are server-only; these compatibility helpers never read a saved key.

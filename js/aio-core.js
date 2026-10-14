@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.61';
+const APP_VERSION = 'v57.62';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -8945,7 +8945,7 @@ window.AIO.getAnalysisFrameworkCoverageAudit = function() {
 // ─────────────────────────────────────────────────────────────────
 // v49.72 P387 R138~R139: assertFinancialChartsAudit — fundamental 7 차트 + 채팅 버튼 자동 진단
 // 검증: (1) FMP/Naver 분기 fetcher 함수 정의 (2) 7 canvas DOM 존재 (3) render 함수 정의
-//       (4) fundamentalSearch 통합 (5) chatSend 버튼 통합 (6) cache 동작
+//       (4) fundamentalSearch 통합 (5) cache 동작 (v57.62: per-page chatSend 차트 버튼 퇴역)
 // ─────────────────────────────────────────────────────────────────
 window.AIO.assertFinancialChartsAudit = function() {
   var fnChecks = {
@@ -8960,10 +8960,8 @@ window.AIO.assertFinancialChartsAudit = function() {
   var gridFound = !!document.getElementById('fundamental-financials-grid');
   var valuationCards = !!document.getElementById('fund-valuation-cards');
   var fundSrc = (typeof window.fundamentalSearch === 'function') ? window.fundamentalSearch.toString() : '';
-  var chatSendSrc = (typeof window.chatSend === 'function') ? window.chatSend.toString() : '';
   var integrations = {
     fundamentalSearchIntegrated: fundSrc.indexOf('fetchQuarterlyFinancials') >= 0 && fundSrc.indexOf('_renderFundamentalFinancialsCharts') >= 0,
-    chatButtonIntegrated:        chatSendSrc.indexOf('_aioShowFundamentalChart') >= 0,
     cacheObject:                 typeof window._fmpQuarterlyCache === 'object' && window._fmpQuarterlyCache !== null,
     cacheStatsObject:            typeof window._fmpQuarterlyCacheStats === 'object'
   };
@@ -9163,7 +9161,7 @@ window.AIO.diagnose = async function(ticker) {
 // ─────────────────────────────────────────────────────────────────
 // v49.75 P399 R147: assertChatPanelDomAudit — CHAT_CONTEXTS DOM 매트릭스 정합 검증
 // 사용자 라이브 발견 — home CHAT_CONTEXTS 등록만 하고 DOM 패널 부재 (v49.74 P398).
-// Pattern A 일반화: 모든 ctxId × inline panel DOM 존재 여부 + chatSend 호환성 자동 진단.
+// Pattern A 일반화: 모든 ctxId × 통합 AI 패널 매핑 자동 진단 (v57.62: per-page chatSend 퇴역).
 // ─────────────────────────────────────────────────────────────────
 window.AIO.assertChatPanelDomAudit = function() {
   var ctxs = window.CHAT_CONTEXTS || {};
@@ -9188,8 +9186,8 @@ window.AIO.assertChatPanelDomAudit = function() {
     var btnEl   = document.getElementById('chat-' + id + '-btn');
     var hasInlinePanel = !!(panelEl && msgsEl && inpEl && btnEl);
     var hasUnifiedPanel = !!(unifiedPanelReady && unifiedCtxIds[id]);
-    // chatSend(ctxId)는 inline input, chatSendUnified()는 통합 패널 매핑이 필요하다.
-    var chatSendCompatible = !!inpEl || hasUnifiedPanel;
+    // v57.62: per-page chatSend(ctxId) was retired, so an inline input alone no longer answers; only chatSendUnified() does.
+    var chatSendCompatible = hasUnifiedPanel;
     return {
       id: id, hasContext: hasContext, hasInlinePanel: hasInlinePanel,
       hasUnifiedPanel: hasUnifiedPanel,
@@ -9212,7 +9210,7 @@ window.AIO.assertChatPanelDomAudit = function() {
     unifiedPanelReady: unifiedPanelReady,
     unifiedContextCount: details.filter(function(d){ return d.hasUnifiedPanel; }).length,
     perContextDetail: details,
-    note: 'v50.65 R147+: CHAT_CONTEXTS 등록 후 inline 패널 또는 통합 AI 패널 매핑 누락을 자동 감지. CONTEXT_NO_DOM gap = inline/chatSend 및 unified/chatSendUnified 경로 모두 없음.',
+    note: 'v50.65 R147+: CHAT_CONTEXTS 등록 후 inline 패널 또는 통합 AI 패널 매핑 누락을 자동 감지. CONTEXT_NO_DOM gap = unified/chatSendUnified 경로 매핑 없음 (v57.62 per-page 퇴역).',
     generatedAt: new Date().toISOString()
   };
 };
@@ -9429,7 +9427,7 @@ window.AIO.assertChatFunctionCoverage = function() {
 };
 
 // v50.37 트랙2: AIO.getChatSourceRegistryAudit — AIO_CHAT_SOURCE_REGISTRY ↔ 채팅 데이터 주입 코드 정합 감사.
-//   레지스트리에 wired(=배선 의도) 소스의 fn이 (1) 정의돼 있고 (2) ticker fetch/chatSend/domain injector 소스에 실제 호출되는지 확인.
+//   레지스트리에 wired(=배선 의도) 소스의 fn이 (1) 정의돼 있고 (2) ticker fetch/chatSendUnified/domain injector 소스에 실제 호출되는지 확인.
 //   planned/wired:false(KR DART 등 확장점)는 미배선 정상 → unused에서 제외. R121 toString-scan 패턴 재사용.
 window.AIO.getChatSourceRegistryAudit = function() {
   var reg = window.AIO_CHAT_SOURCE_REGISTRY;
@@ -9438,7 +9436,7 @@ window.AIO.getChatSourceRegistryAudit = function() {
     typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '',
     typeof window._fetchTechnicalDataForChat === 'function' ? window._fetchTechnicalDataForChat.toString() : '',
     typeof window._fetchDomainContextForChat === 'function' ? window._fetchDomainContextForChat.toString() : '',
-    typeof window.chatSend === 'function' ? window.chatSend.toString() : ''
+    typeof window.chatSendUnified === 'function' ? window.chatSendUnified.toString() : '' // v57.62: per-page chatSend retired
   ].join('\n');
   var wired = reg.filter(function(s) { return s.wired !== false; });
   var planned = reg.filter(function(s) { return s.wired === false || s.planned; });
@@ -16855,11 +16853,11 @@ const NARRATIVE_ENGINE = (function() {
 
   function current() {
     var ds = window.DATA_SNAPSHOT || {};
-    var live = window._liveData || {};
-    function quote(symbol) { var row = live[symbol] || {}; return num(row.price); }
+    function quote(symbol) { var row = (window._liveData || {})[symbol] || {}; return num(row.price); }
+    var breadthNow = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : null; // v57.62: never-cleared _breadth50 is not current evidence
     return {
       vix: quote('^VIX'), wti: quote('CL=F'), skew: quote('^SKEW'), move: quote('^MOVE'), vvix: quote('^VVIX'),
-      fg: num(ds.fg), breadth: num(window._breadth50)
+      fg: num(ds.fg), breadth: breadthNow && breadthNow.available ? num(breadthNow.sma50) : null
     };
   }
   function valueText(label, value, suffix) {
@@ -19830,7 +19828,8 @@ function _aioExternalReferenceMap(externalReferences) {
       };
     }
     var snap = window.DATA_SNAPSHOT || {};
-    var raw = window[input.globalVar];
+    var currentBreadth = input && input.id === 'breadth200-participation' ? (window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false }) : null; // v57.62: _breadth200 is never cleared — stale/absent breadth is missing
+    var raw = currentBreadth ? (currentBreadth.available ? currentBreadth.sma20 : null) : window[input.globalVar];
     var rawValue = _aioStrictFinite(raw);
     var evidence = null;
     if (input && input.id === 'pcr-putcall') {
@@ -19850,18 +19849,17 @@ function _aioExternalReferenceMap(externalReferences) {
         quality: pcrMetric && (pcrMetric.quality || pcrMetric.contract) || pcrPayload.quality || null
       };
     } else if (input && input.id === 'breadth200-participation') {
-      var breadthState = window._aioScreenerBreadthState || {};
-      var breadthData = window._breadthLiveData || {};
+      var breadthState = window._aioScreenerBreadthState || {}, breadthData = window._breadthLiveData || {};
       evidence = {
-        value: breadthData.sma20 != null ? breadthData.sma20 : null,
-        source: breadthData.source || breadthState.source || null,
+        value: currentBreadth.available ? currentBreadth.sma20 : null, // v57.62: value, source and time come from one observation
+        source: (currentBreadth.available && currentBreadth.source) || breadthData.source || breadthState.source || null,
         sourceKind: breadthData.sourceKind || breadthState.sourceKind || null,
         sourceTier: breadthData.sourceTier || breadthState.sourceTier || null,
         rightsId: breadthData.rightsId || breadthState.rightsId || null,
         revisionId: breadthData.revisionId || breadthState.revisionId || null,
         allowedUseCeiling: breadthData.allowedUseCeiling || breadthState.allowedUseCeiling || null,
         allowedUse: breadthData.allowedUse != null ? breadthData.allowedUse : breadthState.allowedUse,
-        observedAt: breadthData.observedAt || breadthState.observedAt || null,
+        observedAt: (currentBreadth.available && typeof currentBreadth.ts === 'string' && currentBreadth.ts) || breadthData.observedAt || breadthState.observedAt || null,
         freshnessMs: breadthData.freshnessMs || breadthState.freshnessMs || null,
         quality: breadthData.quality || breadthState.quality || null
       };

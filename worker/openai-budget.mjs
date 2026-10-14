@@ -7,15 +7,20 @@ export const PRICING_AS_OF = '2026-10-03';
 // P1608: owner approved $20 including conditional hosted search (2026-10-11).
 export const AI_MONTHLY_MAX_MICRO_USD = 20000000;
 export const WEB_SEARCH_MAX_CALLS = 2;
-// Hosted search exposes no numeric token budget or cumulative billing bound.
-// Retain this policy reserve per permitted call even after a completed receipt;
-// it is admission accounting, not a promise about the provider's invoice.
-// v57.61: the pricing page (checked 2026-10-14) lists web search at $10/1k calls plus search content tokens at
-// model input rates. $0.04/call still covers the $0.01 fee plus ~218k content tokens at the worst input rate;
-// $0.10 retained 6-10x the real cost and let ~93 searched answers exhaust the $20 month.
-export const WEB_SEARCH_RESERVE_MICRO_USD_PER_CALL = 40000;
+// v57.62: a searched response is a loop of up to 1 + max_tool_calls model turns. Every turn re-reads the whole
+// prompt, the search content returned so far and the earlier turns' output items (reasoning/tool calls), so the
+// pre-answer reservation bills each turn at its worst context instead of counting the prompt once:
+//   reservation = calls x fee + (1 + calls) x (prompt + calls x content allowance + max_output) x input rate
+//               + max_output x output rate, at long-context rates when that worst turn exceeds 272k tokens.
+// Pricing page (https://developers.openai.com/api/docs/pricing, checked 2026-10-14): web search $10/1k calls plus
+// search content tokens at model input rates; the only published block size is 8,000 tokens/call (mini models).
+// The fee carries the same 1.1 regional uplift as tokens. Hosted search has no numeric content cap, so the per-call
+// allowance is policy: 4x (low) / 8x (medium) the published block. A completed receipt then settles from usage.
+export const WEB_SEARCH_FEE_MICRO_USD_PER_CALL = 11000; // $0.01 x 1.1
+export const SEARCH_CONTENT_TOKENS_PER_CALL = Object.freeze({ low: 32000, medium: 64000 });
+const LONG_CONTEXT_TOKENS = 272000;
 // v57.61: analysis may ask for medium reasoning and medium search context; both stay inside max_output_tokens
-// and the per-call reserve above. Higher effort is never admitted with search.
+// and the per-call content allowance above (v57.62). Higher effort is never admitted with search.
 const SEARCH_EFFORTS = ['low', 'medium'];
 const SEARCH_CONTEXT_SIZES = ['low', 'medium'];
 // v57.61: reasoning tokens are counted inside max_output_tokens, so medium-effort analysis needs room beyond 8192
@@ -24,6 +29,10 @@ export const AI_MAX_OUTPUT_TOKENS_LIMIT = 16384;
 export const paidWebSearchEnabled = env => env?.AI_WEB_SEARCH_ENABLED === 'true';
 const INPUT_MICRO_USD_PER_TOKEN = 0.1 * 1.25 * 1.1;
 const OUTPUT_MICRO_USD_PER_TOKEN = 0.5 * 1.1;
+// v57.62: above 272k input tokens per model turn the page lists $0.20 input / $0.75 output per 1M.
+const LONG_INPUT_MICRO_USD_PER_TOKEN = 0.2 * 1.25 * 1.1;
+const LONG_OUTPUT_MICRO_USD_PER_TOKEN = 0.75 * 1.1;
+const tokenRates = longContext => longContext ? [LONG_INPUT_MICRO_USD_PER_TOKEN, LONG_OUTPUT_MICRO_USD_PER_TOKEN] : [INPUT_MICRO_USD_PER_TOKEN, OUTPUT_MICRO_USD_PER_TOKEN];
 
 export function quotaInteger(value, fallback, maximum = 1000000) {
   const raw = value === undefined ? String(fallback) : String(value);
@@ -111,9 +120,19 @@ export function prepareOpenAiBudget(requestBody, env = {}) {
   if (bytes > 200 * 1024) throw new Error('AI request exceeds the budgeted text limit');
   const inputTokenUpperBound = bytes + 8192 + (Array.isArray(body.input) ? body.input.length : 1) * 1024 + (body.tools?.length || 0) * 4096;
   if (inputTokenUpperBound > 272000) throw new Error('long-context pricing is outside the shared budget protocol');
-  const searchReserveMicroUsd = searchToolCount ? body.max_tool_calls * WEB_SEARCH_RESERVE_MICRO_USD_PER_CALL : 0;
-  const reservationMicroUsd = searchReserveMicroUsd + Math.ceil(inputTokenUpperBound * INPUT_MICRO_USD_PER_TOKEN + body.max_output_tokens * OUTPUT_MICRO_USD_PER_TOKEN);
-  return { body, reservationMicroUsd, monthlyCapMicroUsd: aiMonthlyBudgetMicroUsd(env), inputTokenUpperBound,
+  const textReservationMicroUsd = Math.ceil(inputTokenUpperBound * INPUT_MICRO_USD_PER_TOKEN + body.max_output_tokens * OUTPUT_MICRO_USD_PER_TOKEN);
+  let reservationMicroUsd = textReservationMicroUsd, billedInputTokenUpperBound = inputTokenUpperBound, longContextPricing = false;
+  if (searchToolCount) {
+    const calls = body.max_tool_calls;
+    const turnContextUpperBound = inputTokenUpperBound + calls * SEARCH_CONTENT_TOKENS_PER_CALL[body.tools[0].search_context_size] + body.max_output_tokens;
+    longContextPricing = turnContextUpperBound > LONG_CONTEXT_TOKENS;
+    billedInputTokenUpperBound = (1 + calls) * turnContextUpperBound;
+    const [inputRate, outputRate] = tokenRates(longContextPricing);
+    reservationMicroUsd = Math.ceil(calls * WEB_SEARCH_FEE_MICRO_USD_PER_CALL + billedInputTokenUpperBound * inputRate + body.max_output_tokens * outputRate);
+  }
+  // searchReserveMicroUsd = the search-attributable part (fees + repeated turns + content); > 0 marks a searched budget.
+  const searchReserveMicroUsd = reservationMicroUsd - textReservationMicroUsd;
+  return { body, reservationMicroUsd, monthlyCapMicroUsd: aiMonthlyBudgetMicroUsd(env), inputTokenUpperBound, billedInputTokenUpperBound, longContextPricing,
     searchReserveMicroUsd, accountingBasis: 'conservative-reservation-and-verified-usage-not-invoice', pricingAsOf: PRICING_AS_OF };
 }
 
@@ -127,16 +146,30 @@ export function isApprovedOpenAiModel(model) {
   return id === OPENAI_MODEL || (id.startsWith(`${OPENAI_MODEL}-`) && /^\d{4}-\d{2}-\d{2}$/.test(id.slice(OPENAI_MODEL.length + 1)));
 }
 
+// v57.62: a completed searched receipt settles too. Responses usage aggregates every model turn of the hosted-search
+// loop (prompt re-reads and search content tokens are input_tokens); each web_search_call output item is one billed
+// call, whatever its action or status. Missing output, an unknown item shape, more calls than admitted, usage above
+// the reserved bounds or a total above the reservation keeps the whole reservation.
 export function verifiedOpenAiCharge(response, budget) {
-  // P1608: response token usage alone cannot prove the complete hosted-search
-  // charge. Keep its entire reservation instead of inventing a refund.
-  if (budget.searchReserveMicroUsd > 0) return null;
   if (!record(response) || response.object !== 'response' || !isApprovedOpenAiModel(response.model) || response.status !== 'completed'
     || typeof response.id !== 'string' || !response.id || !record(response.usage)) return null;
+  const searched = budget.searchReserveMicroUsd > 0;
+  let calls = 0;
+  if (Array.isArray(response.output)) {
+    if (response.output.length > 256) return null;
+    for (const item of response.output) {
+      if (!record(item) || typeof item.type !== 'string') return null;
+      if (item.type === 'web_search_call') calls++;
+    }
+  } else if (searched) return null;
+  if (calls > (searched ? budget.body.max_tool_calls : 0)) return null;
   const { input_tokens: input, output_tokens: output, total_tokens: total } = response.usage;
   if (![input, output, total].every(value => Number.isSafeInteger(value) && value >= 0)
-    || total !== input + output || input > budget.inputTokenUpperBound || output > budget.body.max_output_tokens
+    || total !== input + output || input > (searched ? budget.billedInputTokenUpperBound : budget.inputTokenUpperBound) || output > budget.body.max_output_tokens
     || response.service_tier !== undefined && response.service_tier !== 'default') return null;
-  const amount = Math.max(1, Math.ceil(input * INPUT_MICRO_USD_PER_TOKEN + output * OUTPUT_MICRO_USD_PER_TOKEN));
+  // v57.62 review: search content has no numeric cap, so one real turn can pass 272k even when the reservation-time
+  // estimate did not. Any searched receipt whose billed input passes 272k settles at long-context rates (conservative).
+  const [inputRate, outputRate] = tokenRates(searched && (budget.longContextPricing === true || input > LONG_CONTEXT_TOKENS));
+  const amount = Math.max(1, Math.ceil(calls * WEB_SEARCH_FEE_MICRO_USD_PER_CALL + input * inputRate + output * outputRate));
   return amount <= budget.reservationMicroUsd ? amount : null;
 }

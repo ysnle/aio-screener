@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawn } from 'node:child_process';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { createBrowserEvidence, addBrowserEvidenceStep, evidenceDigest, validateBrowserEvidence } from './lib/browser-evidence.mjs';
 import { PACKET_20261011_CLAIMS, PACKET_20261011_LESSONS } from '../src/domain/research/packet-20261011.js';
 import { getSuppliedMaterialClaims } from '../src/domain/research/supplied-materials.js';
@@ -32,10 +32,9 @@ mkdirSync(dirname(output), { recursive: true });
 const fixture = { profile: 'isolated-local-artifacts', initialMode: 'light', personalData: 'none', source: 'local published artifacts; synthetic stock bars' };
 const pinnedLibraries = ['https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'];
 const report = createBrowserEvidence({ root, runId, fixture, providerVersion: createRequire(import.meta.url)('playwright/package.json').version, operation: 'theme-research-journeys', environment: { mode: 'headless-fixture', viewport: { width: 1440, height: 900 }, locale: 'ko-KR', timezone: 'Asia/Seoul', initialStateId: fixture.profile, networkPolicy: 'local-artifacts+two-pinned-chart-libraries; remote-data-blocked' } });
-const server = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
+const server = await startLocalServer(port, { label: 'theme-research/server' }); // v57.62 shared lifecycle (15 s ready-line timeout)
 let browser;
 try {
-  await new Promise((done, reject) => { const timer = setTimeout(() => reject(Error('server readiness timeout')), 15000); server.stdout.on('data', (data) => { if (String(data).includes('AIO local server')) { clearTimeout(timer); done(); } }); server.on('error', reject); });
   browser = await chromium.launch();
   const context = await browser.newContext({ viewport: report.environment.viewport, locale: 'ko-KR', timezoneId: 'Asia/Seoul', serviceWorkers: 'block' });
   await context.route('**/*', (request) => request.request().url().startsWith(base) || pinnedLibraries.includes(request.request().url()) ? request.continue() : request.abort());
@@ -124,4 +123,4 @@ try {
   const errors=validateBrowserEvidence(report,{root}); assert.deepEqual(errors,[], 'P1604: bounded evidence schema');
   writeFileSync(output,JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify({ok:true,steps:report.steps.length,modes:['light','dark'],screens:screens.length,frameworks:PACKET_20261011_CLAIMS.length,evidence:output,semanticReview:'unverified'}));
-} finally { if(browser) await browser.close(); server.kill(); }
+} finally { await closeAll({ browser, server }); }

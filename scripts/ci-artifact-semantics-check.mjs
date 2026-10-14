@@ -21,6 +21,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { RECONCILIATION_STATUS } from '../src/data/contracts/reconciliation.js';
+import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
 
 const read = (path) => readFileSync(path, 'utf8');
 const json = (path) => JSON.parse(read(path).replace(/^\uFEFF/, ''));
@@ -44,7 +45,7 @@ const inTransition = (label) => {
   return false;
 };
 
-const fetchData = read('scripts/fetch-data.mjs');
+const fetchData = readProducerSource();
 const history = readIf('public-data/history.json');
 const data = readIf('public-data/data.json');
 const snapshot = readIf('public-data/market-snapshot.json');

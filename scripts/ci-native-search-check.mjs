@@ -84,7 +84,9 @@ context._uniResearchDecision = plan.researchDecision;
 for (const name of ['tickerDataStr', 'singleDeepStr', 'deepCompareStr', 'sectorCompareStr', 'domainDataStr', 'newsContextStr', '_uniTickerData', '_uniDeepData', '_uniDomainData', '_uniNewsCtx']) context[name] = '';
 const helperStart = chat.indexOf('function _shouldUseClaudeWebSearch(');
 vm.runInContext(chat.slice(helperStart, chat.indexOf('\nwindow._shouldUseClaudeWebSearch', helperStart)), context);
-for (const [variable, marker] of [['_useClaudeWebSearch', 'var _useClaudeWebSearch = false;'], ['_uniUseClaudeWebSearch', 'var _uniUseClaudeWebSearch = false;']]) {
+// v57.62: the per-page chatSend caller was retired; the unified panel is the only production chat caller.
+assert.ok(!chat.includes('var _useClaudeWebSearch = false;') && !chat.includes('async function chatSend('), 'v57.62 per-page chatSend caller retired');
+for (const [variable, marker] of [['_uniUseClaudeWebSearch', 'var _uniUseClaudeWebSearch = false;']]) {
   const blockStart = chat.indexOf(marker);
   // P1740: the unified caller decides once in _uniDecideWebSearch (before its status blocks); run that actual function.
   const block = variable === '_uniUseClaudeWebSearch'
@@ -106,15 +108,14 @@ for (const [variable, marker] of [['_useClaudeWebSearch', 'var _useClaudeWebSear
   assert.equal(context[variable], true, 'P1655 a required question always reaches the shared Worker search (no opt-out)');
   context.chatFreshPreflight = { status: 'ok', after: { quoteRows: [row] } }; context._uniFreshPreflight = context.chatFreshPreflight;
 }
-console.log('PASS: P1608 both production chat callers preserve internal/external evidence; required research always reaches the Worker.');
+console.log('PASS: P1608 the production chat caller preserves internal/external evidence; required research always reaches the Worker.');
 // P1653/P1655: the opt-out toggle is retired; neither the transport nor core keeps a per-browser preference.
 const core = readFileSync(new URL('../js/aio-core.js', import.meta.url), 'utf8');
 assert.equal(/aio_web_search_enabled/.test(chat) || /aio_web_search_enabled/.test(core), false, 'P1655 no web-search opt-out preference remains');
 console.log('PASS: P1655 web search is automatic (no opt-out preference).');
 
-// P1621: exercise both real single-company blocks with an already-loaded screen cache.
+// P1621: exercise the real single-company block with an already-loaded screen cache (v57.62: per-page copy retired).
 for (const [startMarker, endMarker, outputName] of [
-  ['var singleDeepStr =', '\n  // P1655: current-information research', 'singleDeepStr'],
   ['var _isFundCtx =', '\n    // 5. 웹검색', 'sysPrompt']
 ]) {
   const startAt = outputName === 'sysPrompt' ? chat.indexOf(startMarker, chat.indexOf('// 4. 단일 기업')) : chat.indexOf(startMarker);
@@ -137,4 +138,4 @@ const domain = vm.createContext({ window: { AIO: { buildQuestionDomainContext },
 vm.runInContext(chat.slice(domainStart, domainEnd), domain);
 assert.ok(domain._aioDomainContextForQuestion('home', 'CPI와 채권 및 섹터, 시장 폭').includes('34.7%'), 'P1621 native facts reach cross-page questions through the production facade');
 assert.deepEqual(domainCalls, ['macro', 'fxbond', 'themes'], 'P1621 home questions select existing macro, bonds and themes contexts');
-console.log('PASS: P1621 both financial caller blocks and question-selected internal domains (offline).');
+console.log('PASS: P1621 the financial caller block and question-selected internal domains (offline).');

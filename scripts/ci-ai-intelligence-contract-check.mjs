@@ -462,7 +462,8 @@ check('single-orchestrator-export', /getAIOrchestrator/.test(bootstrap) && /crea
 check('knowledge-retrieval-is-lazy-and-exposed-by-existing-orchestrator-boundary', /createAIKnowledgeRetriever/.test(bootstrap) && /knowledgeRetriever: aiKnowledgeRetriever/.test(bootstrap) && /buildAIKnowledgeContext/.test(read('src/ai/orchestrator/answer-orchestrator.js')));
 // P1131/R619: the unified chat surface moved from index.html's inline block G into js/aio-chat.js,
 // so every `_uni*` assertion in this file now reads the chat module.
-check('both-chat-surfaces-consume-market-principles-and-ai-era-knowledge', /knowledgeOrchestrator\.buildAIKnowledgeContext\(q/.test(chat) && /knowledgeContextStr/.test(chat) && /_uniKnowledgeOrchestrator\.buildAIKnowledgeContext\(q/.test(chat) && /_uniKnowledgeAudit/.test(chat));
+// v57.62: the dead per-page chatSend was retired; the unified panel is the only chat surface.
+check('v57.62 chat-surface-consumes-market-principles-and-ai-era-knowledge', !/async function chatSend\(/.test(chat) && /_uniKnowledgeOrchestrator\.buildAIKnowledgeContext\(q/.test(chat) && /_uniKnowledgeAudit/.test(chat));
 check('knowledge-pages-have-chat-contexts-and-unified-panel-mapping', /principles:_aioCreateEvidenceContext/.test(chat) && /atlas:_aioCreateEvidenceContext/.test(chat) && /'principles':'principles','atlas':'atlas'/.test(chat));
 const publishedKnowledgeIndex = JSON.parse(read('public-data/knowledge/ai-retrieval-index.json'));
 const knowledgeSourceLessons = new Map([
@@ -498,16 +499,15 @@ check('knowledge-concept-links-match-explicit-source-not-word-overlap', publishe
 }));
 check('knowledge-concept-coverage-reports-unmapped-truthfully', publishedKnowledgeIndex.counts.withConcepts === publishedKnowledgeIndex.articles.filter((article) => article.conceptIds.length).length && publishedKnowledgeIndex.counts.unmappedConcepts === publishedKnowledgeIndex.articles.filter((article) => !article.conceptIds.length).length);
 check('knowledge-loader-never-fetches-article-monolith', read('src/ai/retrieval/knowledge.js').includes('ai-retrieval-index.json') && !read('src/ai/retrieval/knowledge.js').includes("indexUrl = './public-data/knowledge/articles.json'"));
-// Both the per-page and the unified surface now live in js/aio-chat.js, so the invariant is that the
-// wrapper appears at least twice there rather than once per file.
-check('knowledge-reference-is-wrapped-as-untrusted-data', (chat.match(/buildAIUntrustedBlock\('KNOWLEDGE_REFERENCE'/g) || []).length >= 2);
+// v57.62: only the unified surface remains (per-page chatSend retired), so its knowledge block must be wrapped.
+check('knowledge-reference-is-wrapped-as-untrusted-data', /buildAIUntrustedBlock\('KNOWLEDGE_REFERENCE', _uniKnowledge\.context/.test(chat));
 check('unified-chat-renders-native-claude-citations', /_uniCitationResult/.test(chat) && /engine:'claude'/.test(chat) && /_aioAIRequestCitations\(_uniRequestId\)/.test(chat));
 check('public-policy-allows-conditional-analysis-without-blanket-refusal', /가격 범위·무효화 수준·손절 기준·포트폴리오 비중은 시나리오와 계산 입력으로 분석할 수 있다/.test(chat) && /답변 전체를 안전 모드로 바꾸지 말고/.test(chat) && !/현재 답변에서는 구체적인 매수·매도·진입·청산 지시/.test(chat));
-check('research-optout-degrades-current-claims-without-ending-chat', /web_research_disabled_by_user/.test(chat) && !/userOptOut\)[\s\S]{0,600}state\._chatSendEntered = 0;[\s\S]{0,180}return;/.test(chat));
+check('research-optout-degrades-current-claims-without-ending-chat', /_uniResearchFailure\.code === 'DISABLED_BY_USER'\) _uniUseClaudeWebSearch = false;/.test(chat) && !/DISABLED_BY_USER'\)[^\n]{0,200}return;/.test(chat)); // v57.62: unified opt-out drops search only
 check('chat-dispatches-through-orchestrator', /AIO_ARCH\.getAIOrchestrator/.test(chat) && /_aioOrchestrated/.test(chat));
 check('orchestrator-downgrades-action-permission-to-a-disclosure', /actionPermission\.allowed === false/.test(read('src/ai/orchestrator/answer-orchestrator.js')) && /actionLimitations/.test(read('src/ai/orchestrator/answer-orchestrator.js')) && !/blocked-action-permission/.test(read('src/ai/orchestrator/answer-orchestrator.js')));
-check('both-chat-surfaces-have-pre-provider-action-boundary', /_aioPreProviderPermission/.test(chat) && /_uniPreProviderPermission/.test(chat));
-check('both-chat-surfaces-hide-unverified-research-streams', /Web Research 검증 중/.test(chat) && /Web Research 근거를 검증 중/.test(chat));
+check('v57.62 chat-surface-has-pre-provider-action-boundary', /_uniPreProviderPermission/.test(chat) && !/_aioPreProviderPermission/.test(chat)); // v57.62: per-page copy retired
+check('v57.62 chat-surface-hides-unverified-research-streams', /Web Research 근거를 검증 중/.test(chat));
 check('no-confirmed-verdict', !/verdict\s*=\s*[^;]*CONFIRMED/.test(data) && /RESEARCH_CANDIDATE/.test(data) && /research-relative-ranking-only/.test(data));
 check('producer-observed-time', /producer observation time/.test(data) && /관측시각 미확인/.test(data));
 check('probability-policy-is-strict', /calibrated !== true/.test(core) && /보정\(calibration\).*확률/.test(chat));
@@ -631,7 +631,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     heldMix.available === false && /환율이 선언되지 않아/.test(heldMix.reason)
       && krw.available === true && krw.currency === 'KRW' && krw.currencySymbol === '₩' && krw.currentTotal === 2400000 && krw.weights.find((row) => row.symbol === 'AAPL').currentPct === 58.33
       && foreignNew.available === false && /기준 통화\(KRW\)와 달라/.test(foreignNew.reason)
-      && !/현재 총 가치: \$'/.test(chatSource) && /_pfSim\.currencySymbol/.test(chatSource), JSON.stringify({ heldMix, krw, foreignNew }));
+      && !/현재 총 가치: \$'/.test(chatSource) && !/_pfSim\b/.test(chatSource), JSON.stringify({ heldMix, krw, foreignNew })); // v57.62: the only chat renderer (per-page chatSend) was retired
   // #20: portfolio and research pages receive the close-basis block; live values carry an observation time.
   detail('#20 portfolio/research contexts get the screen basis and live values carry their observation time',
     /home\|briefing\|signal\|breadth\|sentiment\|macro\|fxbond\|themes\|market-news\|portfolio\|principles\|atlas\|masters/.test(chatSource) && /실시간 관측 ' \+ _aioPublicAIFormatAsOf/.test(chatSource), 'source');
@@ -673,7 +673,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     chooseAnswerMode({ asksDecision: true, hasTicker: true, intent: {} }) === 'decision' && chooseAnswerMode({ intent: { wantsCompare: true, canonical: ['COMPARISON'] } }) === 'comparison'
     && chooseAnswerMode({ intent: { intents: ['EXPLAIN_BEGINNER'] } }) === 'explain' && chooseAnswerMode({ isBroadRecommendation: true }) === 'screen' && chooseAnswerMode(null) === 'analysis'
     && /mode=comparison/.test(answerModeGuide('comparison')) && /mode=analysis/.test(answerModeGuide('unknown'))
-    && /answerModeGuide\(_uniMode\)/.test(chat) && /answerModeGuide\(window\.AIO\.chooseAnswerMode\(_answerPolicyCS\)\)/.test(chat));
+    && /answerModeGuide\(_uniMode\)/.test(chat)); // v57.62: per-page chatSend copy retired
   const principlesPlain = buildAnswerPrinciples({ today: '2026-10-13', mode: 'explain', liveStatus: 'ok' });
   const principlesStock = buildAnswerPrinciples({ today: '2026-10-13', mode: 'decision', hasTickers: true, webSearch: true, liveStatus: 'ok', snapAgeHours: 80 });
   check('P1740 principles follow the question and state the real web-search decision',

@@ -125,8 +125,8 @@ const numericOnlyQuote = sandbox.window._aioBuildChatAnalysisContext(noPeriodPla
 assert.equal(numericOnlyQuote.questionPlan.premise.status, 'UNVERIFIED', 'numeric quote cannot infer a requested period');
 assert.equal(numericOnlyQuote.audit.requestedPeriod, null, 'numeric quote cannot create a requested period');
 
-assert.ok(/_pageClaimEvidence[\s\S]{0,900}_aioBuildChatAnalysisContext/.test(chat), 'per-page chat calls the shared helper after evidence collection');
-assert.ok(/_pageAnalysisSlice\.questionPlan/.test(chat) && /systemPrompt \+= _pageAnalysisSlice\.context/.test(chat), 'per-page chat adopts the updated plan and context');
+// v57.62: the dead per-page chatSend (no #chat-<ctx>-inp since P1653) was retired; only the unified surface remains.
+assert.ok(!/async function chatSend\(/.test(chat) && !/_pageAnalysisSlice/.test(chat), 'v57.62 per-page chatSend retired');
 // P1131/R619: the unified chat surface moved from index.html's inline block G into js/aio-chat.js.
 // All three assertions below follow the code there — including the chip markup, which is emitted by
 // _aiDefaultChips (also block G) rather than authored in the shell. The gate caught that assumption
@@ -139,4 +139,4 @@ assert.ok((chat.match(/<button type="button" class="ai-chip"/g) || []).length >=
 assert.ok(/function aiChipClick\(el\)[\s\S]{0,220}chatSendUnified\(\)/.test(chat), 'keyboard chip activation retains the unified send path');
 assert.ok(boundaryKinds.filter(kind => kind === 'DOMAIN_ANALYSIS').length >= 4, 'all analysis contexts use the untrusted boundary');
 
-console.log('PASS ai-chat-analysis-integration: production helper, orchestrator premise states, period safety, both chat surfaces and limitation pipeline');
+console.log('PASS ai-chat-analysis-integration: production helper, orchestrator premise states, period safety, the unified chat surface and limitation pipeline');

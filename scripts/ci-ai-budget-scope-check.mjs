@@ -5,6 +5,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { derivePublicAiConfig, reuseWorkerHealthEvidence } from './build-operations-status.mjs';
+import { PRODUCER_SOURCE_FILES } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + its split lib modules
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const read = path => readFileSync(resolve(root, path), 'utf8');
@@ -18,7 +19,7 @@ function sources(directory) {
 }
 const production = [
   ...sources('js'), ...sources('src'), ...sources('.github/workflows'),
-  'scripts/fetch-data.mjs', 'scripts/lib/ai-shared-analysis.mjs'
+  ...PRODUCER_SOURCE_FILES, 'scripts/lib/ai-shared-analysis.mjs'
 ];
 for (const path of production) {
   const text = read(path);

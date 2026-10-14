@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { runInNewContext } from 'node:vm';
+import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
 import { backtestFactors, classifyCboePutCallCurrentness, deriveCyclePublication, deriveFactorQuality, deriveTickerNewsLineage, writeMacroCalendar } from './fetch-data.mjs';
 import { FOMC_RECHECK_MS, buildIsmRuleEvents, deriveFedPolicyRate, parseFomcCalendarHtml, selectFomcMeetings } from './lib/official-calendars.mjs';
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
@@ -108,7 +109,7 @@ const ci = read('.github/workflows/ci.yml');
 const externalPipeline = read('scripts/ci-external-pipeline-check.mjs');
 const qaPipeline = JSON.parse(read('architecture/qa-pipeline.json'));
 const watchdogScripts = (qaPipeline.profiles?.watchdog || []).flatMap((group) => qaPipeline.groups?.[group]?.gates || []).map((gate) => gate.script);
-const fetchData = read('scripts/fetch-data.mjs');
+const fetchData = readProducerSource();
 {
   // Saturday 2026-10-10 12:00Z: latest completed US session is Fri 10-09, the one before is Thu 10-08.
   const now = Date.parse('2026-10-10T12:00:00Z');
@@ -299,7 +300,7 @@ check('Telegram producer atomically synchronizes and stages Atlas lineage', /atl
 check('screener refresh is an independent six-hour validated publish job', /cron:\s*'\d{1,2} \*\/6 \* \* \*'/.test(screenerRefresh) && /SCREENER_ONLY:\s*'1'/.test(screenerRefresh) && /SCREENER_ENRICH:\s*'1'/.test(screenerRefresh) && /validate-screener-artifact\.mjs/.test(screenerRefresh));
 check('screener producer never promotes filing-only records into the factor row map', /if \(!data\[sym\]\) continue;/.test(fetchData) && !/else data\[sym\] = fmpResult\.data\[sym\]/.test(fetchData));
 check('screener workflow default automation uses only free SEC path', /fetch-sec-fundamentals\.mjs/.test(screenerRefresh) && /SEC_USER_AGENT/.test(screenerRefresh) && /sec-fundamentals\.json/.test(screenerRefresh) && !/FMP_API_KEY/.test(screenerRefresh));
-check('trading-score backtest harness is wired into the refresh pipeline', /runBacktest as runTradingScoreBacktest/.test(read('scripts/fetch-data.mjs')) && exists('scripts/backtest-trading-score.mjs'));
+check('trading-score backtest harness is wired into the refresh pipeline', /runBacktest as runTradingScoreBacktest/.test(readProducerSource()) && exists('scripts/backtest-trading-score.mjs'));
 check('refresh workflow publishes status summary', /GITHUB_STEP_SUMMARY/.test(refresh) && /fearGreedOk/.test(refresh) && /fredFetchOk/.test(refresh) && /marketAnalysisOk/.test(refresh));
 check('refresh summary exposes automated AAII relay and same-date Treasury producer states', /AAII weekly/.test(refresh) && /aaiiRelayUsed/.test(refresh) && /Treasury curve/.test(refresh) && /treasuryObservedAt/.test(refresh));
 // The producer runs the whole CI data QA group (which contains ci-reconciliation-contract-check.mjs) before commit.
@@ -503,7 +504,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const english = validateMarketAnalysisText('The KOSPI is at 6,813.15 while the S&P 500 stood at 7,651.54 and volatility stays contained.', data, snapshot);
     const closedWording = validateMarketAnalysisText('KOSPI는 6,813.15로 마감했고 SPX는 7,651.54로 마감했습니다. 위험 선호는 제한적입니다.', data, snapshot);
     const intraday = validateMarketAnalysisText('KOSPI는 장중 6,813.15이고 SPX는 전일 7,651.54로 마감했습니다. 위험 선호는 제한적입니다.', data, snapshot);
-    const source = readFileSync(new URL('./fetch-data.mjs', import.meta.url), 'utf8');
+    const source = readProducerSource();
     ok = english.issues.includes('language-not-korean')
       && closedWording.issues.includes('session-wording-mismatch:market.kospi')
       && !closedWording.issues.includes('session-wording-mismatch:market.spx')
@@ -567,7 +568,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       JSON.stringify({ boundOk: boundOk.issues, boundWrong: boundWrong.issues, wayWrong: wayWrong.issues }));
     check('P1688/T03 review: other rate tenors, multi-period moves and shares do not trip the one-session check',
       !otherRates.issues.length && !multiPeriod.issues.length, JSON.stringify({ otherRates: otherRates.issues, multiPeriod: multiPeriod.issues }));
-    const source = readFileSync(new URL('./fetch-data.mjs', import.meta.url), 'utf8');
+    const source = readProducerSource();
     check('P1688/T03 a % move is checked against its own metric (Korean names included) and a rate moves only in bp',
       published.issues.includes('metric-change-mismatch:market.wti') && published.issues.includes('rate-change-not-bp:market.us10y')
         && !correct.issues.length && wrongBp.issues.includes('metric-change-mismatch:market.us10y'),
@@ -640,7 +641,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
         && reusableMarketAnalysis({ ...fresh, semanticIssues: ['x'] }, { metricEvidence: fresh.metricEvidence, newsEvidence: fresh.newsEvidence, headlineContext: fresh.headlineContext, nowMs: now }) === null,
       JSON.stringify({ fresh: fresh.status, reused: reusedRun.generatedAt, moved: moved.generatedAt, calls: prompts.length - firstPrompts }));
   }
-  const source = readFileSync(new URL('./fetch-data.mjs', import.meta.url), 'utf8');
+  const source = readProducerSource();
   check('P1719 a rejected text is logged (400 chars) and never published; the run passes the previous artifact analysis',
     /\.slice\(0, 400\)/.test(source) && /genMarketAnalysis\(data, marketSnapshotForConsumers, \{ previous: previous\?\.marketAnalysis \|\| null \}\)/.test(source)
       && /data\.meta\.marketAnalysisRetained = marketAnalysis\.retained \|\| null/.test(source));
@@ -680,7 +681,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && picked.filter((item) => item.source === 'CNBC').length <= 2
       && selectNewsIntraday([], { cycleEndMs: end, nowMs: now }).length === 0,
     JSON.stringify(titles));
-  const source = readFileSync(new URL('./fetch-data.mjs', import.meta.url), 'utf8');
+  const source = readProducerSource();
   check('P1720 the slot is published beside the canonical bundle and the bundle window is unchanged',
     /newsIntraday,\n\s*\};/.test(source) && /newsIntradayCount: newsIntraday\.length/.test(source)
       && /if \(!isFinite\(t\) \|\| t < cycle\.startMs \|\| t >= cycle\.endMs\) continue;/.test(source)
@@ -698,7 +699,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   const bySym = { 'KRW=X': tue?.close };
   const bySymQuote = { 'KRW=X': { observationRelation: 'previous-completed-close', observedAt: tue?.observedAt, previousBarOpenedAt: tue?.previousBoundary } };
   const bound = boundPreviousCloseToCut({ bySym, bySymQuote, cycleEnd: '2026-10-12T23:00:00.000Z' });
-  const source = readFileSync(new URL('./fetch-data.mjs', import.meta.url), 'utf8');
+  const source = readProducerSource();
   check('P1721 FX previous close is the hourly close at the KST 08:00 cut (Monday close on Tuesday, Friday close on Monday) and stays within the row cut',
     tue?.close === 1334.2 && tue?.observedAt === '2026-10-12T23:00:00.000Z' && mon?.close === 1340.02 && mon?.observedAt === '2026-10-09T21:00:00.000Z'
       && none === null && !bound.adjusted.length && !bound.dropped.length && bySym['KRW=X'] === 1334.2
@@ -734,7 +735,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   // P1119/P1122: the headline-only rights boundary stays (no article body is retained), but
   // its absence no longer withholds the narrative — causal prose is attributed and warned,
   // not blocked. Both halves are asserted so neither can drift silently.
-  const fetchDataSource = read('scripts/fetch-data.mjs');
+  const fetchDataSource = readProducerSource();
   check('news producer retains no article body and publishes a headline-attributed narrative policy',
     /MARKET_ANALYSIS_NEWS_CONTENT_POLICY/.test(fetchDataSource)
       && /causalNarrative:\s*'headline-attributed-with-disclosure'/.test(fetchDataSource)
@@ -1367,7 +1368,7 @@ check('P1170 D04 a global max does not stand in for per-market recency',
   && mixedScopes.US?.sessionDate === '2026-09-16' && mixedScopes.KR?.sessionDate === '2026-09-18',
   JSON.stringify(mixedScopes));
 
-const producerSource = read('scripts/fetch-data.mjs');
+const producerSource = readProducerSource();
 for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionDateByMarket', 'factorBarStartByMarket', "factorTimeBasis: 'bar-start'", 'factorScopesByMarket', 'factorComputedAt']) {
   check(`P1170 D04 the factor producer publishes ${token}`, producerSource.includes(token));
 }
@@ -1509,7 +1510,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && fed({ _asOf_fedTargetLower: '2026-10-01', _asOf_fedTargetUpper: '2026-10-01' }).status === 'stale'
       && fed({ fedTargetLower: null }).status === 'stale');
   check('P1732 the producer publishes data.policyRates.fed from the merged macro block',
-    /policyRates: \{ fed: deriveFedPolicyRate\(macro, Date\.parse\(attemptedAt\)\) \}/.test(read('scripts/fetch-data.mjs')));
+    /policyRates: \{ fed: deriveFedPolicyRate\(macro, Date\.parse\(attemptedAt\)\) \}/.test(readProducerSource()));
 }
 
 // P1757 (owner decision 2026-10-14): weekend cadence + producer-only SEC ledger.

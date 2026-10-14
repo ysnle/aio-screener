@@ -1,6 +1,7 @@
 // P1358: isolated producer regression, no real network, no data artifact writes.
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
 import { buildRotationHistory, collectRotationHistory, ROTATION_SYMBOLS } from './lib/rotation-history.mjs';
 import { latestCompletedUsSession, resolveMarketCalendarSession } from '../src/ai/time/market-session.js';
 
@@ -107,7 +108,7 @@ const all=await collectRotationHistory({now,symbols:ROTATION_SYMBOLS,concurrency
 assert.equal(all.counts.updated,ROTATION_SYMBOLS.length,'P1358/P1590 every configured sector/subsector ETF can produce evidence');
 assert.equal(requests,ROTATION_SYMBOLS.length+1,'P1358 SPY is fetched once for common benchmark');
 assert.ok(peak<=3,'P1358 collector preserves bounded concurrency');
-const source=await readFile(new URL('./fetch-data.mjs',import.meta.url),'utf8');
+const source=readProducerSource();
 assert.match(source,/collectRotationHistory\(\{ fetchHistory, previous: previous\?\.rotationHistory/,'P1358 production collector consumes durable previous evidence');
 assert.match(source,/data\.rotationHistory = await rotationHistoryTask;[\s\S]{0,120}atomicWriteFile\(OUT/,'P1358 derived evidence is connected to actual public producer write');
 const definitions=await readFile(new URL('../js/aio-pages.js',import.meta.url),'utf8');
