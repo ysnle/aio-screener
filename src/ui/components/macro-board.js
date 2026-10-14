@@ -332,8 +332,9 @@ function heldRegimeLine(r) {
   if (!r.growthDir) reasons.push(r.held?.growth === '근소(경계)' ? ['성장 방향이 기준과 차이가 작고', '성장 방향이 기준과 차이가 작아'] : r.held?.growth ? ['성장 방향이 견조·둔화 어느 기준에도 닿지 않고', '성장 방향이 견조·둔화 어느 기준에도 닿지 않아'] : ['성장 방향 자료가 부족하고', '성장 방향 자료가 부족해']);
   if (!r.inflationDir) reasons.push(r.held?.inflation ? ['물가 속도가 기준과 차이가 작고', '물가 속도가 기준과 차이가 작아'] : ['물가 방향 자료가 부족하고', '물가 방향 자료가 부족해']);
   const why = reasons.map(([and, so], index) => (index === reasons.length - 1 ? so : and)).join(' ');
-  const settled = [r.growthDir ? `성장 ${r.growthDir === 'up' ? '견조' : '둔화'}` : null, r.inflationDir ? `물가 속도 ${r.inflationDir === 'up' ? '상승' : '둔화'}` : null].filter(Boolean);
-  return `${why || '방향이 정해지지 않아'} 국면을 정하지 않습니다${settled.length ? ` — 확정된 것은 ${settled.join(' · ')}입니다` : ''}.`;
+  const settled = [r.growthDir ? `성장 ${r.growthDir === 'up' ? '견조' : '둔화'}` : null, r.inflationDir ? `근원 물가 속도 ${r.inflationDir === 'up' ? '상승' : '둔화'}` : null].filter(Boolean);
+  // v57.55 review (E2-14): "확정된 것은 물가 속도 둔화" beside a rising headline CPI — the settled direction is core pace only.
+  return `${why || '방향이 정해지지 않아'} 국면을 정하지 않습니다${settled.length ? ` — 기준을 넘은 방향은 ${settled.join(' · ')}입니다(헤드라인 물가는 에너지 가격에 따라 다를 수 있습니다)` : ''}.`;
 }
 
 function renderRegime(doc, read) {

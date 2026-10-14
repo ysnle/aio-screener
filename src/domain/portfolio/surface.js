@@ -129,23 +129,27 @@ function runtimeQuoteEvidence(row, { now = Date.now(), maxAgeMs = null } = {}) {
   });
 }
 
-function holdingValue(holding, live, options) {
+// v57.54 review: live quotes cover ~30 market symbols, so most holdings never got a price and the page stayed on
+// "수신 대기". A holding without a live quote is valued at the latest completed close (screener row), labelled with its date.
+function holdingValue(holding, live, options, close = null) {
   const sharesRaw = finite(holding?.shares);
   const shares = sharesRaw != null && sharesRaw >= 0 ? sharesRaw : null;
   const liveQuote = runtimeQuoteEvidence(live, options);
   const livePrice = liveQuote?.price ?? null;
-  const price = firstPositive(livePrice, holding?.price);
+  const closePrice = livePrice == null ? firstPositive(close?.price) : null;
+  const price = firstPositive(livePrice, closePrice, holding?.price);
   const explicitValue = firstPositive(holding?.value);
   if (shares != null && price != null && price > 0) return {
     value: shares * price,
     price,
-    sourceKind: livePrice != null ? 'live-quote' : 'portfolio-state',
-    observedAt: liveQuote?.observedAt || holding?.quoteObservedAt || null,
+    sourceKind: livePrice != null ? 'live-quote' : closePrice != null ? 'completed-close' : 'portfolio-state',
+    closeDate: livePrice == null && closePrice != null ? close?.date || null : null,
+    observedAt: liveQuote?.observedAt || (closePrice != null ? close?.date || null : null) || holding?.quoteObservedAt || null,
     quoteAllowedUse: liveQuote?.allowedUse || 'reference-only',
     fallbackUsed: livePrice == null,
     dailyPct: liveQuote?.dailyPct ?? finite(holding?.dailyPct),
     dailyPctEligible: liveQuote?.dailyPctEligible === true && liveQuote?.changeBasis ? true : false,
-    changeBasis: liveQuote?.changeBasis || holding?.changeBasis || holding?.valueBasis || null
+    changeBasis: liveQuote?.changeBasis || (closePrice != null ? 'completed-close' : null) || holding?.changeBasis || holding?.valueBasis || null
   };
   if (explicitValue != null) return {
     value: explicitValue,
@@ -171,7 +175,7 @@ function holdingValue(holding, live, options) {
  */
 // v57.50 C24: `sectorOf(symbol)` is the one sector source for the bars and the 포트폴리오 해석 (the screener row the read
 // already uses); an imported holding.sector is the fallback, then 'Unclassified'.
-export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, now = Date.now(), sectorOf = null } = {}) {
+export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, now = Date.now(), sectorOf = null, closeOf = null } = {}) {
   const readState = PORTFOLIO_READ_STATES.includes(state?.readState) ? state.readState : (state?.status === 'locked' ? 'locked' : state?.status === 'loading' ? 'loading' : state?.status === 'failed' ? 'failed' : state?.status === 'unavailable' ? 'unavailable' : 'ready');
   const holdingsKnown = Array.isArray(state?.holdings) && (readState === 'ready' || state?.holdingsKnown === true);
   const holdings = holdingsKnown ? state.holdings : [];
@@ -179,7 +183,7 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   const live = liveData && typeof liveData === 'object' ? liveData : {};
   const rows = holdings.map((holding) => {
     const symbol = String(holding?.symbol || holding?.ticker || '').toUpperCase();
-    const quote = holdingValue(holding, live[symbol] || {}, { now });
+    const quote = holdingValue(holding, live[symbol] || {}, { now }, typeof closeOf === 'function' ? closeOf(symbol) : null);
     const sharesValue = finite(holding?.shares);
     const shares = sharesValue != null && sharesValue >= 0 ? sharesValue : null;
     const avgCostValue = finite(holding?.avgCost);
@@ -198,6 +202,7 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
       sector: String((typeof sectorOf === 'function' ? sectorOf(symbol) : null) || holding?.sector || 'Unclassified'),
       dailyPct,
       sourceKind: quote.sourceKind,
+      closeDate: quote.closeDate || null,
       observedAt: quote.observedAt,
       quoteAllowedUse: quote.quoteAllowedUse,
       fallbackUsed: quote.fallbackUsed,
@@ -384,6 +389,8 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     holdingsKnown,
     cashKnown,
     valuedHoldingCount: rows.filter((row) => row.value != null).length,
+    closeValuedCount: rows.filter((row) => row.value != null && row.sourceKind === 'completed-close').length,
+    closeDate: rows.map((row) => row.closeDate).filter(Boolean).sort().at(-1) || null,
     status: hasCanonicalValue ? 'current' : (state?.status || 'unavailable'),
     holdingCount: rows.length,
     rows: Object.freeze(rows),
@@ -393,6 +400,9 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     totalPnl,
     totalPnlPct,
     cash,
+    // v57.55 review (B4-F3/F4): the amount the user typed, kept even when a currency mix holds it out of the total, so the
+    // screen can say "환산 보류" instead of "미입력".
+    cashEntered: cashValue != null && cashValue >= 0 ? cashValue : null,
     cashPct: cash != null && totalAssets != null && totalAssets > 0 ? cash / totalAssets * 100 : null,
     dailyChange,
     dailyPct,

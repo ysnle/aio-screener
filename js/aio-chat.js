@@ -1713,7 +1713,7 @@ function renderMarkdownLight(text) {
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
   function inlineFmt(s) {
-    return s
+    return s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s"<>]+)\)/g, function(_, label, url) { var u = url.replace(/&amp;/g, '&'), hashAt = u.indexOf('#'), hash = hashAt >= 0 ? u.slice(hashAt) : '', base = hashAt >= 0 ? u.slice(0, hashAt) : u, q = base.indexOf('?'), keep = q < 0 ? [] : base.slice(q + 1).split('&').filter(function(kv) { return kv && !/^(?:utm_[a-z]+|ftag|oc|fbclid|gclid)=/i.test(kv); }); var plain = (q < 0 ? base : base.slice(0, q)) + (keep.length ? '?' + keep.join('&') : '') + hash, clean = plain.replace(/&/g, '&amp;'); var host = ''; try { host = new URL(plain).hostname.replace(/^www\./, ''); } catch (_) {} return '<a href="' + clean + '" target="_blank" rel="noopener noreferrer"' + (host ? ' title="' + host + '"' : '') + '>' + label + '</a>'; }) // v57.55 review (B5-F7): citations render as links without tracking parameters
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
       .replace(/`([^`]+)`/g, '<code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:0.88em">$1</code>');
@@ -4325,18 +4325,18 @@ function _buildAioIntegratedAnswerContext(ctxId, query, flags) {
     active.forEach(function(key) {
       var row = registry.filter(function(r) { return r.key === key; })[0];
       (row && row.pages || []).forEach(function(p) {
-        if (p === 'technical') pushPage('차트·기술 분석');
-        else if (p === 'signal') pushPage('매매 시그널');
+        if (p === 'technical') pushPage('종목 · 차트');
+        else if (p === 'signal') pushPage('시장 상태');
         else if (p === 'screener') pushPage('퀀트 스크리너');
-        else if (p === 'breadth') pushPage('시장 폭');
-        else if (p === 'sentiment') pushPage('투자 심리');
-        else if (p === 'macro') pushPage('거시 · 금리');
-        else if (p === 'fxbond') pushPage('금리 · 환율');
-        else if (p === 'fundamental') pushPage('기업 분석');
+        else if (p === 'breadth') pushPage('시장 상태 · 시장 폭');
+        else if (p === 'sentiment') pushPage('시장 상태 · 투자 심리');
+        else if (p === 'macro') pushPage('거시 · 금리 · 거시 경제');
+        else if (p === 'fxbond') pushPage('거시 · 금리 · 금리 · 환율');
+        else if (p === 'fundamental') pushPage('종목 · 재무 공시');
         else if (p === 'themes' || p === 'theme-detail') pushPage('테마 · 섹터');
         else if (p === 'portfolio') pushPage('포트폴리오');
-        else if (p === 'market-news' || p === 'briefing') pushPage('시장 뉴스·브리핑');
-        else if (p === 'home') pushPage('시장 현황');
+        else if (p === 'market-news' || p === 'briefing') pushPage('오늘 · 브리핑·뉴스');
+        else if (p === 'home') pushPage('오늘 · 대시보드');
       });
     });
     if (nav && nav.target && nav.target !== lowerCtx) pushPage('관련 페이지: ' + nav.label);
@@ -5179,15 +5179,15 @@ function _autoNavigatePage(userQuery, currentCtxId) {
   else if (/(시그널|signal|매매|trade|점수|score|ACTION)/i.test(q)) intent = { page: 'signal', label: '매매 시그널', emoji: '' };
   else if (/(시장 폭|breadth|McClellan|AD line|NHNL)/i.test(q)) intent = { page: 'breadth', label: '시장 폭', emoji: '' };
   else if (/(심리|sentiment|VIX|F&G|공포|탐욕|AAII|Put.?Call|PCR)/i.test(q)) intent = { page: 'sentiment', label: '투자 심리', emoji: '' };
-  else if (/(매크로|macro|Fed|CPI|PCE|유가|달러|환율|FOMC|금리)/i.test(q)) intent = { page: 'macro', label: '거시경제', emoji: '' };
-  else if (/(외환|FX|채권|bond|10Y|2Y|국채|금리)/i.test(q) && !/(macro|매크로)/i.test(q)) intent = { page: 'fxbond', label: '환율/채권', emoji: '' };
-  else if (/(기업 분석|fundamental|재무|earnings|EPS|PER|밸류에이션|valuation|owner earnings|moat)/i.test(q)) intent = { page: 'fundamental', label: '기업 분석', emoji: '' };
-  else if (/(테마|theme|섹터|sector|RRG|rotation)/i.test(q)) intent = { page: 'themes', label: '테마/섹터', emoji: '' };
+  else if (/(매크로|macro|Fed|CPI|PCE|유가|달러|환율|FOMC|금리)/i.test(q)) intent = { page: 'macro', label: '거시 · 금리', emoji: '' };
+  else if (/(외환|FX|채권|bond|10Y|2Y|국채|금리)/i.test(q) && !/(macro|매크로)/i.test(q)) intent = { page: 'fxbond', label: '거시 · 금리 · 금리 · 환율', emoji: '' };
+  else if (/(기업 분석|fundamental|재무|earnings|EPS|PER|밸류에이션|valuation|owner earnings|moat)/i.test(q)) intent = { page: 'fundamental', label: '종목 · 재무 공시', emoji: '' };
+  else if (/(테마|theme|섹터|sector|RRG|rotation)/i.test(q)) intent = { page: 'themes', label: '테마 · 섹터', emoji: '' };
   else if (/(포트폴리오|portfolio|보유|holdings|리밸런싱|rebalancing)/i.test(q)) intent = { page: 'portfolio', label: '포트폴리오', emoji: '' };
   else if (/(옵션|option|GEX|put|call|delta|gamma|theta|vega)/i.test(q)) intent = { page: 'sentiment', label: '옵션·변동성 지표', emoji: '' }; // P1321: options route retired
-  else if (/(브리핑|briefing|오늘|today|이번 주|this week)/i.test(q)) intent = { page: 'briefing', label: '데일리 브리핑', emoji: '' };
-  else if (/(뉴스|news|헤드라인|headline)/i.test(q)) intent = { page: 'market-news', label: '실시간 뉴스', emoji: '' };
-  else if (/(한국|KOSPI|KOSDAQ|KRX|코스피|코스닥|원화|BOK|한은|VKOSPI)/i.test(q)) intent = { page: 'macro', label: '한국 거시(거시경제 페이지 통합 섹션)', emoji: '' };
+  else if (/(브리핑|briefing|오늘|today|이번 주|this week)/i.test(q)) intent = { page: 'briefing', label: '오늘 · 브리핑', emoji: '' };
+  else if (/(뉴스|news|헤드라인|headline)/i.test(q)) intent = { page: 'market-news', label: '오늘 · 뉴스', emoji: '' };
+  else if (/(한국|KOSPI|KOSDAQ|KRX|코스피|코스닥|원화|BOK|한은|VKOSPI)/i.test(q)) intent = { page: 'macro', label: '거시 · 금리(한국 섹션)', emoji: '' };
   // 현재 컨텍스트와 동일하면 이동 불필요
   if (intent && intent.page === currentCtxId) return null;
   return intent;

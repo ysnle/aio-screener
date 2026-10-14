@@ -152,7 +152,7 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
     const deep = el(doc, 'details', null, 'regime-axis-details regime-axis-deep');
     deep.append(el(doc, 'summary', '더 깊이 보기 · 온도를 재는 방법과 과거 결과'));
     deep.append(el(doc, 'h4', '다섯 요소와 극단 구간의 정의'), el(doc, 'p', `${TEMPERATURE_COMPONENTS.map((item) => `${item.label}(${item.basis})`).join(', ')}를 각각 그 지수의 최근 3년(756거래일) 안에서 순위로 바꿨습니다. 높을수록 뜨거운 쪽입니다. 다섯 개 중 ${rules.extremeMinComponents}개 이상이 동시에 하위 ${rules.coldAtOrBelow}%면 극단 저온, 상위 ${100 - rules.hotAtOrAbove}%면 극단 고온입니다. 서로 다른 쪽을 가리키는 요소를 평균해 한 점수로 만들지 않습니다 — 평균은 차가운 요소와 뜨거운 요소가 상쇄된 50을 '중립'으로 보이게 하기 때문입니다.`));
-    deep.append(el(doc, 'h4', '외부 온도계와의 관계'), el(doc, 'p', '시장 심리 온도계를 공개하는 곳들은 계산식을 밝히지 않아 같은 값을 만들 수 없습니다. 이 표는 가격만으로 다시 만든 AIO의 계산이라 거래대금·신용잔고·수급은 들어 있지 않고, 같은 날 비교에서 방향은 대체로 비슷하지만 값은 다릅니다. 신용잔고 반대매매나 외국인 매도처럼 가격 밖의 압력은 수급 화면과 함께 확인해야 합니다.'));
+    deep.append(el(doc, 'h4', '외부 온도계와의 관계'), el(doc, 'p', '시장 심리 온도계를 공개하는 곳들은 계산식을 밝히지 않아 같은 값을 만들 수 없습니다. 이 표는 가격만으로 다시 만든 AIO의 계산이라 거래대금·신용잔고·수급은 들어 있지 않고, 같은 날 비교에서 방향은 대체로 비슷하지만 값은 다릅니다. 신용잔고 반대매매나 외국인 매도처럼 가격 밖의 압력은 이 표에 잡히지 않으니 뉴스와 거래소 공시로 따로 확인해야 합니다.'));
     const table = el(doc, 'dl', null, 'regime-evidence');
     for (const item of markets) {
       for (const state of ['cold', 'hot']) {

@@ -1,3 +1,4 @@
+import { hasFinalConsonant } from '../content/korean-particle.js';
 // P1743: one definition of "a similar market move in the past" per branch, shared by the weekly long-history producer
 // (scripts/build-scenario-outcomes.mjs, decades of daily closes) and the browser (AIO's own close record as fallback).
 // Episodes never overlap: after a hit, the scan jumps past its outcome window, so one long episode counts once.
@@ -87,5 +88,5 @@ export function frequencyText(freq, label, { source = 'AIO 종가 기록' } = {}
   const span = `${String(freq.from || '').slice(0, 4)}~${String(freq.to || '').slice(0, 7)}`;
   if (freq.n < 3) return `${label}: ${source}(${span})에서 같은 움직임이 ${freq.n}번뿐이라 빈도로 말하지 않습니다.`;
   const signed = (value) => `${value > 0 ? '+' : ''}${value}%`;
-  return `${label}: ${source}(${span})의 겹치지 않는 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 ${freq.subject || 'S&P 500'}이(가) 올랐습니다 (중앙값 ${signed(freq.median)}${freq.p25 != null && freq.n >= 8 ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''}).${freq.n < 10 ? ' 표본이 작아 경향 참고용입니다.' : ''}`;
+  return `${label}: ${source}(${span})의 겹치지 않는 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 ${hasFinalConsonant(freq.subject || 'S&P 500') ? `${freq.subject || 'S&P 500'}이` : `${freq.subject || 'S&P 500'}가`} 올랐습니다 (중앙값 ${signed(freq.median)}${freq.p25 != null && freq.n >= 8 ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''}).${freq.n < 10 ? ' 표본이 작아 경향 참고용입니다.' : ''}`;
 }

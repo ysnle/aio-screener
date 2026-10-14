@@ -1,8 +1,8 @@
 // P1397: 종목 차트 — candles with the evidence drawn on the price (Lightweight Charts, Apache-2.0,
 // already loaded by the shell) and an evidence panel with a setup state. No composite grade.
 import { TEMPLATE_LABEL, analyzeChart, chartReading } from '../../domain/technical/chart-analysis.js';
-import { buildCloseSeries, buildMarketRegime, maOrder } from '../../domain/briefing/market-read.js';
-import { collectMarketInputs } from './briefing-read.js';
+import { buildCloseSeries, maOrder } from '../../domain/briefing/market-read.js';
+import { readMarketRegime } from './market-regime.js';
 import { emptyState } from './empty-state.js';
 import { setStockSubject } from '../navigation/route-hubs.js';
 import { renderNextSteps } from './page-flow.js';
@@ -209,7 +209,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   await library;
   if (ticket !== root.__aioStockChartTicket) return null;
   root.__aioStockChartInstance = drawChart(root, host, analysis, root.__aioStockChartInstance);
-  const regime = buildMarketRegime(collectMarketInputs(root));
+  const regime = readMarketRegime(root); // v57.55 review (E1-02): the same regime reader (and credit history) as 시장 상태
   // P1435: reading first (state → why → market → flip), two pictures (Weinstein stage, trend template),
   // and the full evidence list folded underneath.
   const reading = chartReading(analysis, regime);

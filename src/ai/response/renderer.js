@@ -1,4 +1,3 @@
-export const AI_RENDERER_VERSION = 'answer-renderer.v1';
 
 function line(value) { return String(value == null ? '' : value).trim(); }
 

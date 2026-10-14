@@ -36,9 +36,3 @@ export function themeStagesFor(root, { symbol = '', market = null, themeIds = []
   }
   return out;
 }
-
-/** One reading line per theme; the favoured choice is the theme's, not an instruction on the stock. */
-export function themeStageLine(stage) {
-  if (!stage) return '';
-  return `테마 ${stage.label}: ${stage.stateLabel}${stage.wind ? ` · 거시 ${stage.wind}` : ''}${stage.favoured.length ? ` · 상대적으로 유리한 쪽: ${stage.favoured.join(', ')}` : ''}`;
-}

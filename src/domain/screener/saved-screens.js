@@ -75,7 +75,3 @@ export function decodeScreenSharePayload(payload) {
   if (!value.startsWith('scr1.')) throw new Error('SCREEN_SHARE_VERSION_UNSUPPORTED');
   return importSavedScreen(base64UrlDecode(value.slice(5)));
 }
-
-export function findSavedScreen(screens, screenId) {
-  return (Array.isArray(screens) ? screens : []).find((screen) => screen.definition?.screenId === screenId || screen.savedId === screenId) || null;
-}

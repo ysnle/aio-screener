@@ -46,11 +46,6 @@ export const DEFAULT_SCREENER_CAPABILITY_CATALOG = createCapabilityCatalog([
   { providerId: 'aio-local-snapshot', independenceGroup: 'aio-snapshot', tier: 'T4_REFERENCE', markets: ['US', 'KR'], fields: ['price.close', 'price.ret1m', 'price.ret3m', 'price.ret6m', 'price.volatility', 'price.rsi14', 'price.pctSma50', 'price.pctSma200', 'price.rvol20', 'technical.kalmanVelocity', 'technical.kalmanConfidence', 'technical.vcpScore', 'technical.vcpStage', 'technical.ema8', 'technical.ema21', 'technical.ema60'], cadence: 'snapshot', revisionPolicy: 'immutable', rights: 'VERIFIED', cost: 'none', fallbackProviderIds: [] }
 ]);
 
-export function capabilityHealth(catalog = DEFAULT_SCREENER_CAPABILITY_CATALOG, observed = {}) {
-  const providers = (catalog.providers || []).map((provider) => ({ providerId: provider.providerId, independenceGroup: provider.independenceGroup, status: observed[provider.providerId]?.status || 'UNKNOWN', lastSuccessAt: observed[provider.providerId]?.lastSuccessAt || null, errorType: observed[provider.providerId]?.errorType || null, rights: provider.rights, fields: provider.fields.length }));
-  return Object.freeze({ catalogVersion: catalog.version, providers: Object.freeze(providers), independentGroups: new Set(providers.map((provider) => provider.independenceGroup)).size });
-}
-
 export function observationFromProvider({ provider, instrumentId, fieldId, value, unit, observedAt, fetchedAt, revisionId, qualityStatus = 'CURRENT', rightsId } = {}) {
   return createObservationEnvelope({ providerId: provider?.providerId, sourceId: provider?.providerId, sourceKind: provider?.tier, instrumentId, fieldId, value, unit, observedAt, fetchedAt, revisionId, qualityStatus, rightsId: rightsId || provider?.rights || 'UNKNOWN', allowedUse: provider?.tier === 'T1_OFFICIAL' ? 'research-relative-ranking-only' : 'reference-only' });
 }

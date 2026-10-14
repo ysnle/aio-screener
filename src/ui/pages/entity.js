@@ -402,9 +402,9 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
     const isUp = prices.at(-1) >= prices[0];
     const chart = new ChartConstructor(canvas, {
       type: 'line',
-      data: { labels, datasets: [{ label: state?.id || '가격', data: prices, borderColor: isUp ? '#22754c' : '#b13a30', backgroundColor: isUp ? 'rgba(34,117,76,0.14)' : 'rgba(177,58,48,0.14)', borderWidth: 1.6, pointRadius: 0, tension: 0.2, fill: true }] },
+      data: { labels, datasets: [{ label: state?.id || '가격', data: prices, borderColor: isUp ? '#22754c' : '#b13a30', backgroundColor: isUp ? 'rgba(34,117,76,0.14)' : 'rgba(177,58,48,0.14)', borderWidth: 1.6, pointRadius: 0, tension: 0, fill: true }] }, // v57.55 review (E3-F9): no smoothing — a curve drew prices that never traded
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: {
-        x: { title: { display: true, text: '관측 날짜' }, ticks: { maxTicksLimit: 8, maxRotation: 0 }, grid: { display: false } },
+        x: { title: { display: true, text: '관측 날짜' }, ticks: { maxTicksLimit: (canvas.clientWidth || 600) < 480 ? 4 : 8, maxRotation: 0, autoSkip: true }, grid: { display: false } },
         y: { title: { display: true, text: `가격${state?.quote?.currency ? ` (${state.quote.currency})` : ''}` },
           ticks: { maxTicksLimit: 4, callback: value => formatMoney(Number(value), state?.quote?.currency) } } } }
     });
@@ -789,7 +789,7 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
           const page = documentRef?.getElementById('page-ticker');
           if (page) page.dataset.summaryHydrationStatus = status;
           const label = documentRef?.getElementById('ticker-summary-price-basis');
-          if (label && status === 'unavailable' && !root?._liveData?.[id]?.price) label.textContent = '시세 원천 응답 없음 · 잠시 후 다시 확인하세요';
+          if (label && status === 'unavailable' && !root?._liveData?.[id]?.price) label.textContent = typeof root?._aioIsKnownTicker === 'function' && !root._aioIsKnownTicker(id) ? 'AIO에 등록된 종목이 아닙니다 · 티커 철자를 확인하세요' : '시세 원천 응답 없음 · 잠시 후 다시 확인하세요'; // v57.54 review: NVDAA is not a slow source
         } }) : null;
       if (hydrator) bag.add(() => hydrator.dispose());
       const renderNow = () => {

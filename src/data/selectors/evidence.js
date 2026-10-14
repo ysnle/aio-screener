@@ -1,12 +1,5 @@
 import { evaluateEvidence, normalizeAllowedUse, restrictAllowedUse } from '../contracts/evidence.js';
 
-function entriesOf(source) {
-  if (source instanceof Map) return [...source.entries()];
-  if (Array.isArray(source)) return source.map((value, index) => [value?.metric || value?.evidenceId || String(index), value]);
-  if (source && typeof source === 'object') return Object.entries(source);
-  return [];
-}
-
 function readEvidence(source, metric) {
   if (!metric) return null;
   if (source instanceof Map) return source.get(metric) || null;
@@ -61,9 +54,4 @@ export function selectCompleteness(source, requiredMetrics = [], purpose = 'deci
   });
   const available = rows.filter((row) => row.ok).length;
   return Object.freeze({ required: required.length, available, missing: rows.filter((row) => !row.ok).map((row) => row.metric), coveragePct: required.length ? (available / required.length) * 100 : 100, rows });
-}
-
-export function selectEvidenceMap(source, purpose = 'display') {
-  const selector = purpose === 'decision' ? selectForDecision : selectForDisplay;
-  return Object.fromEntries(entriesOf(source).map(([metric]) => [metric, selector(source, metric)]));
 }

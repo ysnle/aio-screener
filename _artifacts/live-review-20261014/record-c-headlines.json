@@ -1,0 +1,17 @@
+{
+  "version": "v57.55",
+  "date": "2026-10-14",
+  "note": "v57.55: 라이브 10인 점검 뒤 개선.",
+  "changelog": [
+    "**헤드라인 번역 (v57.55):** 영어 헤드라인을 데이터 수집 단계에서 한 번만 번역해 저장합니다(직전 번역 재사용, 새 제목만 1회 요청). 화면은 저장된 번역을 그대로 쓰고, 브라우저마다 다시 번역하거나 기계번역으로 덮지 않습니다."
+  ],
+  "qa": [
+    {
+      "id": "QA-VERIFY-22",
+      "text": "v57.55 라이브 점검 반영: 배포 후 refresh-data 로그의 headline translation 줄과 data.json news의 titleKo, #ticker/NVDA·#nonexistent 주소, 포트폴리오 105560 시세(105560.KS 요청), 차트 탭·오늘·시장 상태의 같은 판정 집계, 다크 기기에서 첫 방문 다크 시작을 라이브에서 확인한다",
+      "verify_by": "browser",
+      "done": false
+    }
+  ],
+  "qa_section": "라이브 10인 점검 v57.55"
+}

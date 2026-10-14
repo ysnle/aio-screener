@@ -273,11 +273,11 @@ function renderKrThemeArtifact({ documentRef, root, store }) {
   const read = krThemeArtifactRead({ themeMap, rows: store?.getState?.()?.screener?.rows || [] });
   const krClose = krCloseSession(store?.getState?.()?.screener?.rows || []);
   const summary = documentRef.getElementById('kr-themes-summary');
-  if (summary) summary.textContent = `한국 시장 — 국내 테마 (${read.totalThemes}개 중 ${read.coveredThemes}개를 ${krClose ? `${shortSession(krClose)} ` : ''}완료 종가로 비교)`;
+  if (summary) summary.textContent = `한국 테마 (${read.totalThemes}개 중 ${read.coveredThemes}개를 ${krClose ? `${shortSession(krClose)} ` : ''}완료 종가로 비교)`;
   host.dataset.aioKrThemeArtifactRenderer = 'native';
   host.hidden = false;
   const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
-  host.replaceChildren(el('h2', '국내 테마 흐름', 'briefing-h2'), el('p', read.read, 'flow-lead'));
+  host.replaceChildren(el('h2', '한국 테마 흐름', 'briefing-h2'), el('p', read.read, 'flow-lead'));
   const max = Math.max(1, ...read.usable.map((theme) => Math.abs(theme.ret1m)));
   // P1591 (T09/T10): the strongest and the weakest six both show (the reading names the weak ones), and bars
   // grow from a zero line so a loss never looks like a long gain.

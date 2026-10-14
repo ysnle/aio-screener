@@ -5175,6 +5175,39 @@ export function retainVerifiedMarketAnalysis(previous, { reason, nowMs = Date.no
 // Every 30-minute refresh used to call the model even when nothing it reads had moved (nights, weekends). A verified,
 // un-flagged previous analysis under 12 h old whose metric/news evidence ids and headline ids equal this run's is
 // reused as-is (its generatedAt keeps aging, so it still expires at 12 h). Anything else calls as before.
+// v57.55 review (news trust): every browser re-translated the same English headlines through the shared AI budget, and on a
+// rate limit fell back to machine translation ("금 회사 - Kitco AM 보고서"). Headlines are translated once here: titles
+// already translated last run are reused, only new English titles go in one bounded request, and anything that does not
+// come back as a Korean line keeps no titleKo (the browser then translates as before). A failure never blocks the cycle.
+export const HEADLINE_TRANSLATION_MAX = 30;
+const hasHangul = (text) => /[가-힣]/.test(String(text || ''));
+export async function translateHeadlines(items, { previous = [], request = null } = {}) {
+  const list = (Array.isArray(items) ? items : []).filter((item) => item && typeof item.title === 'string' && item.title.trim());
+  const known = new Map((Array.isArray(previous) ? previous : []).filter((item) => item?.title && hasHangul(item.titleKo)).map((item) => [item.title, item.titleKo]));
+  let reused = 0;
+  for (const item of list) {
+    if (hasHangul(item.title) || item.titleKo) continue;
+    if (known.has(item.title)) { item.titleKo = known.get(item.title); reused += 1; }
+  }
+  const pending = list.filter((item) => !hasHangul(item.title) && !item.titleKo).slice(0, HEADLINE_TRANSLATION_MAX);
+  if (!pending.length || typeof request !== 'function') return { reused, translated: 0, pending: pending.length, reason: pending.length ? 'no-request' : null };
+  const prompt = ['다음 영어 금융 뉴스 헤드라인을 자연스러운 한국어 기사 제목으로 옮겨라. 고유명사·티커·숫자는 그대로 두고, 뜻을 더하거나 빼지 마라.',
+    `출력은 JSON 문자열 배열 하나만, 입력과 같은 순서로 정확히 ${pending.length}개.`,
+    JSON.stringify(pending.map((item) => item.title.slice(0, 300)))].join('\n');
+  let result = null;
+  try { result = await request(prompt); } catch (_) { result = null; }
+  const text = String(result?.text || '');
+  let parsed = null;
+  try { parsed = JSON.parse(text.slice(text.indexOf('['), text.lastIndexOf(']') + 1)); } catch (_) { parsed = null; }
+  if (!Array.isArray(parsed) || parsed.length !== pending.length) return { reused, translated: 0, pending: pending.length, reason: result?.reason || 'unparsed' };
+  let translated = 0;
+  pending.forEach((item, index) => {
+    const ko = typeof parsed[index] === 'string' ? parsed[index].replace(/\s+/g, ' ').trim() : '';
+    if (hasHangul(ko) && ko.length <= 200) { item.titleKo = ko; translated += 1; }
+  });
+  return { reused, translated, pending: pending.length, reason: null };
+}
+
 export function reusableMarketAnalysis(previous, { metricEvidence = [], newsEvidence = [], headlineContext = [], nowMs = Date.now() } = {}) {
   if (!previous || previous.status !== 'verified' || previous.semanticStatus !== 'verified') return null;
   if (Array.isArray(previous.semanticIssues) && previous.semanticIssues.length) return null;
@@ -5723,6 +5756,13 @@ async function main() {
   // M01: append this cycle's completed close first, so the narrative's regime context reads the same session the
   // published history (and therefore the screen) will show.
   const histInfo = await updateHistory(data, marketSnapshotForConsumers, fredDexkous);
+  try {
+    const headlineTranslation = await translateHeadlines([...(data.news || []), ...(data.newsIntraday || [])], {
+      previous: [...(previous?.news || []), ...(previous?.newsIntraday || [])],
+      request: resolveSharedAiConfig() ? (prompt) => requestSharedAnalysis(prompt) : null });
+    data.meta.headlineTranslation = headlineTranslation;
+    console.log(`[fetch-data] headline translation: reused ${headlineTranslation.reused}, new ${headlineTranslation.translated}/${headlineTranslation.pending}${headlineTranslation.reason ? ` (${headlineTranslation.reason})` : ''}`);
+  } catch (error) { console.warn(`[fetch-data] headline translation skipped: ${error?.message || error}`); }
   const marketAnalysis = await genMarketAnalysis(data, marketSnapshotForConsumers, { previous: previous?.marketAnalysis || null });
   if (marketAnalysis) {
     data.marketAnalysis = marketAnalysis;

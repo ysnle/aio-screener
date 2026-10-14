@@ -6817,8 +6817,8 @@
         ctx828.indexOf('Qualitative answer') >= 0 &&
         ctx828.indexOf('Page linkage') >= 0 &&
         ctx828.indexOf('퀀트 스크리너') >= 0 &&
-        ctx828.indexOf('차트·기술 분석') >= 0 &&
-        ctx828.indexOf('시장 뉴스·브리핑') >= 0 &&
+        ctx828.indexOf('종목 · 차트') >= 0 && // v57.55: current screen names (was 차트·기술 분석)
+        ctx828.indexOf('브리핑·뉴스') >= 0 &&
         csSrc828.indexOf('_buildAioIntegratedAnswerContext') >= 0 &&
         csSrc828.indexOf('integratedContextStr') >= 0);
       t828detail = JSON.stringify({

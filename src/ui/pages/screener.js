@@ -214,7 +214,9 @@ function entryTiming(row) {
   if (rsi != null && rsi <= RULES.technical.rsi.oversold) return [`RSI 과매도권(${RULES.technical.rsi.oversold} 이하)`, 'entry-wait'];
   if (setup.relativeStrengthPullback === 'candidate') return ['상대강도 눌림', 'entry-watch'];
   if (setup.support200 === 'near') return ['200일선 부근', 'entry-watch'];
-  if (rank >= 65 && (rsi == null || (rsi >= 38 && rsi <= 68)) && (momentum == null || momentum > 0)) return ['상위권·추세 양호', 'entry-ready'];
+  // v57.55 review (E1-12): '추세 양호' beside a price 6% under its 50-day line — the label now needs the price above that line.
+  const above50 = finite(row.pctSma50) == null || finite(row.pctSma50) >= 0;
+  if (rank >= 65 && above50 && (rsi == null || (rsi >= 38 && rsi <= 68)) && (momentum == null || momentum > 0)) return ['상위권·추세 양호', 'entry-ready'];
   if (rank >= 48 && (rsi == null || (rsi >= 30 && rsi <= 74))) return ['중상위권', 'entry-watch'];
   return ['중립권', 'entry-wait'];
 }
@@ -236,6 +238,10 @@ function liveRow(row, readLiveData) {
   const liveBasis = livePrice != null
     ? { priceObservedAt: live.observedAt || live.ts || null, priceSource: live.source || null, priceRevision: live.revision || null }
     : null;
+  // v57.54 review: without a live quote the price column read "—" on every row and price sorting dropped those rows.
+  // The completed close the valuation already uses (valuationPrice, already in the public artifact) fills it, dated.
+  const closePrice = livePrice == null ? finite(row._valuationPePrice ?? row._valuationPbPrice ?? row.valuationPrice) : null;
+  const closeBasis = closePrice != null && closePrice > 0 ? { price: closePrice, priceCloseDate: row.factorSessionDate || null } : null;
 
   if (row.fieldReadiness) {
     const display = { ...row };
@@ -247,14 +253,16 @@ function liveRow(row, readLiveData) {
     // owner at all between the narrowed legacy updater (mcap only) and native
     // state, so every row would read 미수신 forever (P1074).
     if (display.price == null && livePrice != null) Object.assign(display, { price: livePrice }, liveBasis);
+    else if (display.price == null && closeBasis) Object.assign(display, closeBasis);
     if (display.mcap == null && liveMcap != null) display.mcap = liveMcap;
     return display;
   }
   return {
     ...row,
-    price: livePrice ?? row.price,
+    price: livePrice ?? row.price ?? closeBasis?.price ?? null,
     mcap: liveMcap ?? row.mcap,
-    ...(livePrice != null && row.price == null ? liveBasis : {})
+    ...(livePrice != null && row.price == null ? liveBasis : {}),
+    ...(livePrice == null && row.price == null && closeBasis ? { priceCloseDate: closeBasis.priceCloseDate } : {})
   };
 }
 
@@ -339,7 +347,10 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
     const setupText = Array.isArray(row.setupProfile?.tags) ? row.setupProfile.tags.join(' ') : '';
     // 2026-10-13 news audit N03: the headline memo is not searchable — a word in another company's headline (or in
     // this company's) is not a property of the stock, and it made searches return unrelated rows.
-    const haystack = `${row.sym} ${row.name} ${row.memo || ''} ${row.sector || ''} ${setupText}`.toLowerCase();
+    // v57.55 review (S1-F11): '엔비디아' found nothing — the registered Korean name joins the searchable text (a list
+    // filter the reader scans, not an automatic pick).
+    const koName = globalThis.AIO_TICKER_NAME_REGISTRY?.entries?.[row.sym]?.kr || globalThis.KR_STOCK_DB?.[String(row.sym || '').replace(/\.K[SQ]$/, '')]?.name || '';
+    const haystack = `${row.sym} ${row.name} ${koName} ${row.memo || ''} ${row.sector || ''} ${setupText}`.toLowerCase();
     const direct = haystack.includes(query);
     const residualWords = words.filter((word) => !Array.isArray(aliases[word]));
     const allWords = residualWords.length > 0 && residualWords.every((word) => haystack.includes(word));
@@ -506,6 +517,18 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
       return missing;
     }
     const currency = String(row.instrumentRef?.currency || row.currency || '').trim().toUpperCase() || null;
+    if (row.priceCloseDate !== undefined && row.priceObservedAt == null) {
+      const cell = documentRef.createElement('span');
+      const date = String(row.priceCloseDate || '');
+      const md = /^\d{4}-\d{2}-\d{2}$/.test(date) ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '';
+      cell.appendChild(text(documentRef, formatScreenerPrice(price, currency)));
+      const note = documentRef.createElement('small');
+      note.textContent = md ? `${md} 종가` : '종가';
+      note.style.cssText = 'display:block;font-size:11px;color:var(--text-muted);';
+      cell.appendChild(note);
+      cell.title = `${currency || '통화 미확인'} · ${md ? `${md} ` : ''}완료 종가(수정 종가) · 실시간 시세가 아닙니다`;
+      return cell;
+    }
     const observedAt = row.priceObservedAt || row.priceObserved || null;
     const source = row.priceSource || null;
     const stamp = observedAt ? `관측 ${String(observedAt).slice(0, 16).replace('T', ' ')}` : '관측 시각 미확인';
@@ -550,8 +573,13 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
   }
   if (key === 'fwdPe') {
     const view = consensusView(row, consensusRowFor(consensusRoot, row.sym || row.symbol));
-    const node = text(documentRef, view?.fwdPe != null ? `${numberText(view.fwdPe, 1)}배` : view ? '적자 예상' : '—');
-    node.title = view ? `종가 ${view.price}${view.priceDate ? ` (${view.priceDate})` : ''} ÷ 향후 4개 분기(${view.fwdFrom}~${view.fwdTo}) 컨센서스 EPS 합 ${view.fwdEps} · 애널리스트 최소 ${view.minEstimates ?? '?'}명 · ${view.asOf} 수집 — 참고값` : '컨센서스 자료 없음(미국 종목만, 애널리스트 추정이 있는 경우)';
+    // v57.55 review (E1-01): the estimates arrive in batches (214/904 on the first runs), so a missing value before full
+    // coverage is "not collected yet", not "no estimate".
+    const coverage = consensusRoot?._aioConsensusEstimates?.coverage;
+    const partial = !view && /^[A-Z.-]+$/.test(String(row.sym || '')) && finite(coverage?.covered) != null && coverage.covered < coverage.universeUs;
+    const node = text(documentRef, view?.fwdPe != null ? `${numberText(view.fwdPe, 1)}배` : view ? '적자 예상' : partial ? '수집 전' : '—');
+    if (partial) node.title = `컨센서스는 실행마다 일부 종목씩 수집합니다(지금 ${coverage.covered}/${coverage.universeUs}종목). 다음 수집 차례에 채워집니다.`;
+    else node.title = view ? `종가 ${view.price}${view.priceDate ? ` (${view.priceDate})` : ''} ÷ 향후 4개 분기(${view.fwdFrom}~${view.fwdTo}) 컨센서스 EPS 합 ${view.fwdEps} · 애널리스트 최소 ${view.minEstimates ?? '?'}명 · ${view.asOf} 수집 — 참고값` : '컨센서스 자료 없음(미국 종목만, 애널리스트 추정이 있는 경우)';
     if (!view) node.style.color = 'var(--text-muted)';
     return node;
   }
@@ -587,15 +615,18 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     // N21: an empty cell says why — waiting for its rotation turn, fetch failed, no headline that names the
     // company, or not collected for this market. Sources stay in the hover only.
     const newsEmpty = { 'rotation-pending': '순환 대기', 'fetch-failed': '수신 실패', 'no-verified-article': '확인된 기사 없음', 'not-covered': '수집 대상 아님' };
-    memo.textContent = row.newsMemo ? row.newsMemo.slice(0, 70) : (newsEmpty[row.newsStatus] || '근거 미수신');
+    // v57.55 review (E1-10): an empty memo is a quiet dash (its reason in the hover), not a word repeated down the column.
+    memo.textContent = row.newsMemo ? row.newsMemo.slice(0, 70) : '—';
+    if (!row.newsMemo) memo.style.color = 'var(--text-muted)';
     const newsSources = Array.isArray(row.newsMemoSources) ? row.newsMemoSources.filter(Boolean) : [];
     if (row.newsMemo) memo.title = `${row.newsMemo}${newsSources.length ? `\n출처: ${newsSources.join(', ')}` : ''}`;
     else if (row.newsStatus === 'rotation-pending') memo.title = '종목 뉴스는 실행마다 일부 종목씩 돌아가며 수집합니다. 다음 차례에 갱신됩니다.';
+    else memo.title = newsEmpty[row.newsStatus] || '근거 미수신';
     const why = documentRef.createElement('button');
     why.type = 'button';
-    why.textContent = 'Why';
+    why.textContent = '근거';
     why.className = 'scr-why-btn';
-    why.title = 'WhyRanked / WhyRejected와 필드 provenance 보기';
+    why.title = '이 순위가 나온 이유와 각 값의 출처 보기';
     why.setAttribute('aria-label', `${row.sym} 순위·탈락 근거 보기`);
     why.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); onExplain?.(row); });
     provenance.append(memo, why);
@@ -1086,6 +1117,8 @@ function renderTableHeader(documentRef, table, visibleColumns, sortState) {
     th.style.cssText = `text-align:${column.align};min-width:${column.width}px;padding:8px;`;
     // v57.54: jargon columns carry a one-line explanation on hover.
     if (column.hint) th.title = column.hint;
+    const fwdCoverage = column.key === 'fwdPe' ? consensusRoot?._aioConsensusEstimates?.coverage : null; // v57.55 E1-01
+    if (fwdCoverage?.universeUs) th.title = `${th.title} · 수집 ${fwdCoverage.covered}/${fwdCoverage.universeUs}종목`;
     if (column.sticky) th.style.left = `${stickyLeft}px`;
     if (column.sortable) {
       const button = documentRef.createElement('button');
@@ -1252,10 +1285,12 @@ function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavai
   const executed = !!runId;
   const originLabel = origin === 'user' ? '사용자 실행'
     : origin === 'pipeline' ? '파이프라인 실행'
-      : origin === 'preview' ? '미리보기(미고정)' : null;
+      : origin === 'preview' ? '미리보기(아직 고정 전)' : null;
   setText('scr-funnel-runid', executed
-    ? `실행 기록 ${String(runId).slice(-12).toUpperCase()}${originLabel ? ` · ${originLabel}` : ''}`
+    ? `실행 기록${originLabel ? ` · ${originLabel}` : ''}`
     : '실행 전');
+  const runNode = documentRef.getElementById('scr-funnel-runid'); // v57.55 review (S1-F8): the run id stays in the hover, off the face
+  if (runNode) runNode.title = executed ? `실행 ID ${String(runId)}` : '';
   const scope = documentRef.getElementById('scr-funnel-scope-note');
   if (scope) {
     scope.textContent = executed
@@ -1285,7 +1320,10 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     const field = SCREENER_FIELD_REGISTRY.get(ranking.field);
     presetOrder.textContent = `조건 순위 · ${field?.label || field?.name || (ranking.field === 'rank' ? '선택 비중의 팩터 백분위' : ranking.field)} ${ranking.direction === 'asc' ? '낮은 순' : '높은 순'}`;
   }
-  const visibleColumns = getVisibleColumns(columnPreset, customColumns);
+  // v57.55 review (E1-06): 밸류·퀄리티 stay switched off until fundamentals cover enough of the universe, so the columns were
+  // '—' on every row. A factor column with no score in any row is left out instead of shown empty.
+  const scored = (key) => rows.some((row) => finite(row?.factorScores?.[key]) != null);
+  const visibleColumns = getVisibleColumns(columnPreset, customColumns).filter((column) => !['value', 'quality'].includes(column.key) || scored(column.key));
   consensusRoot = root;
   if (visibleColumns.some((column) => column.key === 'fwdPe') || sortState.column === 'fwdPe') requestConsensusEstimates(root, onDataChange);
   const table = documentRef.getElementById('screener-results-table');
@@ -1636,7 +1674,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           const ranked = rows.filter((row) => finite(row?.screenRank) != null).sort((a, b) => a.screenRank - b.screenRank);
           const lead = ranked[0] || null;
           renderNextSteps(documentRef, documentRef.getElementById('screener-next'), [
-            { route: 'themes', label: '국내 테마', why: '상위권 한국 종목이 몰린 테마가 완료 종가 기준으로 어떻게 움직였는지', ctx: { anchor: 'kr-integrated-themes' } },
+            { route: 'themes', label: '한국 테마', why: '상위권 한국 종목이 몰린 테마가 완료 종가 기준으로 어떻게 움직였는지', ctx: { anchor: 'kr-integrated-themes' } },
             ...(lead ? [{ action: 'showTicker', arg: lead.sym, route: 'ticker', label: `순위 맨 앞 ${lead.sym}`, why: `${lead.name || lead.sym} — 한국 순위 맨 앞 종목을 요약·차트·재무로 확인(검증 전이라 후보로 읽음)` }] : [])
           ]);
           reapplyScreenerNextLead(documentRef);

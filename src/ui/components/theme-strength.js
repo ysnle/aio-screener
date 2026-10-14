@@ -85,7 +85,9 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   const table = el(doc, 'table', null, 'theme-strength-table');
   const thead = el(doc, 'thead');
   const hr = el(doc, 'tr');
-  ['순위', '하위 테마', '1개월', '3개월', '6개월', 'S&P 대비', '50일선 위', '순위 변화(1개월 vs 3개월)', '구성 종목 전체'].forEach((label) => hr.append(el(doc, 'th', label)));
+  // v57.55 review (S2/E3): without the S&P 500 return every 'S&P 대비' cell was '—'; the column is left out until it has values.
+  const showVs = model.groups.some((group) => Number.isFinite(group.vsBenchmark));
+  ['순위', '하위 테마', '1개월', '3개월', '6개월', ...(showVs ? ['S&P 대비'] : []), '50일선 위', '순위 변화(1개월 vs 3개월)', '구성 종목 전체'].forEach((label) => hr.append(el(doc, 'th', label)));
   thead.append(hr);
   const tbody = el(doc, 'tbody');
   const visible = expanded ? model.groups : model.groups.slice(0, 15);
@@ -103,7 +105,7 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     compare.addEventListener('click', () => onCompare(group.id)); nameCell.append(compare);
     tr.append(nameCell);
     for (const key of ['ret1m', 'ret3m', 'ret6m']) tr.append(el(doc, 'td', pct(group[key]), `is-num${key === model.sortKey ? ' is-sorted' : ''}${group[key] >= 0 ? ' is-up' : ' is-down'}`));
-    tr.append(el(doc, 'td', pct(group.vsBenchmark), `is-num${group.vsBenchmark >= 0 ? ' is-up' : ' is-down'}`));
+    if (showVs) tr.append(el(doc, 'td', pct(group.vsBenchmark), `is-num${group.vsBenchmark >= 0 ? ' is-up' : ' is-down'}`));
     tr.append(el(doc, 'td', group.above50Pct == null ? '—' : `${group.above50Pct}%`, 'is-num'));
     const dir = DIRECTION[group.direction];
     const dirCell = el(doc, 'td');
@@ -122,7 +124,7 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     tr.append(leaderCell);
     tbody.append(tr);
     if (root._aioThemeMemberGroup === group.id) {
-      const detailRow = el(doc, 'tr'), detailCell = el(doc, 'td'); detailCell.colSpan = 9; detailCell.className = 'theme-member-detail'; detailRow.id = `theme-members-${visible.indexOf(group)}`;
+      const detailRow = el(doc, 'tr'), detailCell = el(doc, 'td'); detailCell.colSpan = showVs ? 9 : 8; detailCell.className = 'theme-member-detail'; detailRow.id = `theme-members-${visible.indexOf(group)}`;
       detailCell.append(el(doc, 'p', `${group.name} 안의 ${model.windowLabel} 수익률 비교 · ${group.basis ? `${group.basis} 종가 기준` : '기준일 불일치/미확인으로 순위·중앙값 비교 보류'} · 선두는 이 기간 수익률 순위입니다.`, 'theme-strength-basis'));
       const available = group.rankedMembers.filter((member) => member.rank != null);
       if (available.length) {
@@ -147,7 +149,9 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     }
   }
   table.append(thead, tbody);
-  host.append(table);
+  const scroll = el(doc, 'div', null, 'aio-table-scroll'); // v57.55 cleanup: on a phone the 9-column table ran past the screen with no way to scroll
+  scroll.append(table);
+  host.append(scroll);
   const footer = el(doc, 'div', null, 'theme-strength-footer');
   if (model.groups.length > 15) {
     const more = el(doc, 'button', expanded ? '상위 15개만 보기' : `전체 ${model.groups.length}개 보기`, 'theme-strength-more');

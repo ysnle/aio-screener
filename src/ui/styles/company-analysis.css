@@ -9,7 +9,7 @@
 .company-analysis-card p,.company-analysis-card li { color:var(--text-secondary); line-height:1.7; font-size:12px; overflow-wrap:anywhere; }
 .company-analysis-card ul { padding-left:18px; margin:12px 0; }
 .company-analysis-card li+li { margin-top:8px; }
-.company-analysis-identity,.company-analysis-price { font-weight:600; color:var(--text-primary)!important; }
+.company-analysis-identity { font-weight:600; color:var(--text-primary)!important; }
 .company-analysis-themes { display:flex; flex-wrap:wrap; gap:6px; }
 .company-analysis-themes button { color:var(--text-primary); border:1px solid var(--border); background:var(--surface-3); border-radius:5px; padding:6px 8px; max-width:100%; overflow-wrap:anywhere; text-align:left; }
 .company-analysis-details { margin-top:12px; font-size:12px; color:var(--text-secondary); }

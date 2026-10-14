@@ -43,7 +43,8 @@ export function describeQuoteCurrentness({ observations = [], nowMs = Date.now()
   // P1599 (G05): name what the count is — the number of quotes with a confirmed observation time.
   const durable = Number.isFinite(durableCount) && durableCount > 0 ? durableCount : null;
   const suffix = durable != null
-    ? ` · 시세 ${durable}종` + (count ? ` (라이브 ${count}종)` : '')
+    // v57.55 review (E2-18): '시세 16종 (라이브 17종)' read as 17 of 16 — they are two different sets, named as such.
+    ? ` · 시세 ${durable}종` + (count ? ` · 실시간 관측 ${count}종` : '')
     : (count ? ` · 시세 ${count}종` : '');
   if (basis?.inSession) {
     if (ageMs <= LIVE_MAX_MS) return result('live', 'LIVE', `${at.hm} 기준${suffix}`, `미국 정규장 중 · 최신 관측 ${at.md} ${at.hm} KST`);

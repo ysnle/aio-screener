@@ -145,6 +145,7 @@ export function openCrossroadsBranch(doc, root, branchId) {
 function rateHub(doc, model) {
   const hub = el(doc, 'div', null, 'xr-hub');
   hub.append(el(doc, 'h3', '왜 금리가 중심인가', 'xr-h3'));
+  if (model.rateHub.policy) hub.append(el(doc, 'p', model.rateHub.policy, 'xr-hub-now')); // v57.55 review (E2-03): policy path first
   if (model.rateHub.now) hub.append(el(doc, 'p', model.rateHub.now, 'xr-hub-now'));
   if (model.rateHub.pricingNote) hub.append(el(doc, 'p', model.rateHub.pricingNote, 'xr-hub-note'));
   hub.append(el(doc, 'p', model.rateHub.whyHigherHurts, 'xr-reading'));
@@ -211,6 +212,9 @@ function branchCard(doc, root, item, lead, open = false) {
 }
 
 const shortDate = (iso) => md(String(iso || '').slice(0, 10));
+// v57.54 review: a release is named by its own period (8월분, 9/17 결정), and the day AIO judged it comes after —
+// "10/13 CPI (2026-08-01 기준)" read as if the August CPI came out on 10/13.
+const periodLabel = (period) => { const text = String(period || ''); const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?/.exec(text); if (!m) return text ? `(${text})` : ''; return !m[3] || m[3] === '01' ? `${Number(m[2])}월분` : `${Number(m[2])}/${Number(m[3])}`; };
 /** P1743: what the automated record saw change — branch lead/alt shifts, condition flips, and scored releases. */
 function changeLog(doc, state) {
   const transitions = (state?.transitions || []).slice(-6).reverse();
@@ -221,7 +225,7 @@ function changeLog(doc, state) {
   if (scored.length) {
     box.append(el(doc, 'h4', '지난 발표 판정', 'xr-h4'));
     const list = el(doc, 'ul', null, 'xr-scored');
-    for (const row of scored) list.append(el(doc, 'li', `${shortDate(row.at)} ${row.name} (${row.period} 기준): ${row.actualText} → ${row.matched.length ? `${row.matched.map((m) => `'${m.title}'`).join(' · ')} 길의 기준 충족` : '어느 길의 기준에도 해당하지 않음'}`));
+    for (const row of scored) list.append(el(doc, 'li', `${row.name} ${periodLabel(row.period)}: ${row.actualText} → ${row.matched.length ? `${row.matched.map((m) => `'${m.title}'`).join(' · ')} 길의 기준 충족` : '어느 길의 기준에도 해당하지 않음'} (판정 ${shortDate(row.at)})`));
     box.append(list);
   }
   if (transitions.length) {
@@ -290,7 +294,10 @@ function pathCard(doc, root, item, { kicker, fit }) {
   if (fit) tags.append(el(doc, 'span', fit, 'basis-chip'));
   tags.append(el(doc, 'span', tone, `basis-chip xr-price is-${item.pricing.tone || 'none'}`));
   const rows = el(doc, 'dl', null, 'xr-path-rows');
-  rows.append(el(doc, 'dt', '유리한 쪽'), el(doc, 'dd', item.favored.map((key) => CHOICES[key]).join(' · ')));
+  // v57.55 review (E1-13/E2-16): the owner-approved "상대적으로 유리한 쪽" (2026-10-13); its scope note is written once under the cards.
+  const favoredRow = el(doc, 'dd', item.favored.map((key) => CHOICES[key]).join(' · '));
+  favoredRow.title = item.favoredWhy || '';
+  rows.append(el(doc, 'dt', '이 길이라면 상대적으로 유리한 쪽'), favoredRow);
   if (item.shape && SHAPES[item.shape]) rows.append(el(doc, 'dt', '이어지는 구조'), el(doc, 'dd', `'${SHAPES[item.shape]}'`));
   card.append(head, tags, rows);
   const themes = themeLinkRow(doc, root, item);
@@ -333,7 +340,7 @@ export function renderCrossroadsCompact({ documentRef: doc, root, regime = null,
     const cards = el(doc, 'div', null, 'xr-path-cards');
     cards.append(pathCard(doc, root, lead, { kicker: tied ? '먼저 볼 길' : '조건이 더 맞는 길', fit: sameFit ? null : lead.fit }));
     if (alt) cards.append(pathCard(doc, root, alt, { kicker: '함께 볼 길', fit: sameFit ? null : alt.fit }));
-    parts.push(cards);
+    parts.push(cards, el(doc, 'p', "'상대적으로 유리한 쪽'은 그 길이 실제로 이어질 때의 비용 비교이며, 따라 하라는 뜻은 아닙니다.", 'xr-scope-note'));
     if (model.rateHub.tension) parts.push(el(doc, 'p', model.rateHub.tension, 'xr-tension'));
   } else parts.push(el(doc, 'p', model.headline, 'xr-reading'));
   parts.push(...themeLines(doc, root), links);

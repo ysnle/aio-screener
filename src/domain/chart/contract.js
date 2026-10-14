@@ -3,7 +3,6 @@
 // input must have one canonical time representation and an explicit update
 // state before it crosses into a renderer.
 
-export const CHART_CORE_CONTRACT_VERSION = 'chart-core.v1';
 export const CHART_UPDATE_CAUSES = Object.freeze(['history', 'tick', 'bar', 'inputs', 'viewport', 'market']);
 
 function finite(value) {

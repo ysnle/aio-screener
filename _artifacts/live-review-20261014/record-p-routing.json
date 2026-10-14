@@ -1,0 +1,21 @@
+{
+  "version": "v57.55",
+  "date": "2026-10-14",
+  "r": null,
+  "status": null,
+  "qa_section": "라이브 10인 점검 v57.55",
+  "qa": [],
+  "note": "v57.55: 라이브 10인 점검(전문가 3·준전문가 2·초보자 5)과 3인 계획 협의 뒤 고친 결함·개선.",
+  "p": {
+    "title": "#ticker/NVDA 주소가 빈 화면이 되고, 없는 주소는 이전 화면을 잘못된 주소 아래 남김",
+    "symptom": "#ticker/NVDA를 열면 오늘 탭 아래 빈 본문, 다른 화면에서 해시만 바꾸면 이전 화면이 그대로였다. #nonexistent·#glossaryx도 이전 화면을 남겼다(리뷰어 4명 공통).",
+    "root_cause": "경로형 주소의 두 번째 조각을 라우트 id로 읽었고, popstate는 page 요소가 있을 때만 화면을 바꿨으며 showPage는 없는 id에서 활성 화면만 지웠다.",
+    "fix": "#ticker/SYM을 #ticker?sym=SYM으로 읽고 주소를 정리(legacy·native 라우터 양쪽), 없는 id는 오늘로 보내고 주소를 #home으로 교체.",
+    "violated_rule": "모든 주소는 실제 화면 하나로 끝난다 — 빈 화면이나 이전 화면을 남기지 않는다",
+    "prevention": "{P}: esm-core 라우터 검사 + 로컬 브라우저에서 #nonexistent→#home, #ticker/NVDA→NVDA 확인.",
+    "verification": "로컬 미리보기에서 해당 화면을 열어 확인하고 esm-core·시나리오·리뷰 무결성 단위 검사를 통과했다(배포 후 라이브 재확인은 QA-VERIFY-22)."
+  },
+  "changelog": [
+    "**주소 처리 ({P}):** `#ticker/NVDA` 같은 주소가 그 종목 화면으로 열리고, 없는 주소는 빈 화면 대신 오늘로 갑니다."
+  ]
+}

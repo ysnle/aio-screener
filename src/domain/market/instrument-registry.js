@@ -9,8 +9,6 @@
 // the inference axes explicitly marked as inferred, and returns UNKNOWN rather than a guess. It
 // also decides per-type analysis eligibility so a fund is never fed into an issuer-ratio model.
 
-export const INSTRUMENT_VERIFICATION = Object.freeze(['VERIFIED', 'INFERRED', 'UNKNOWN']);
-
 // Declared instrument metadata. This is the single source of truth: a second JSON copy would drift.
 //
 // MIC is intentionally unpopulated — the published universe, the screener artifact and the SEC facts

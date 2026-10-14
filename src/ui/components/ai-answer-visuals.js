@@ -199,7 +199,7 @@ async function buildThemesVisual({ documentRef: doc, root }) {
   const pct = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
   const color = { tail: 'var(--data-green)', head: 'var(--data-red)', mixed: 'var(--text-primary)', none: 'var(--text-muted)' };
   const { figure, body } = frame(doc, '테마 단계와 거시 바람 (모든 테마, 같은 규칙)',
-    `${esc(playbook.asOf || '')} 완료 종가 · 긴 추세(미국 6개월, 국내 3개월)와 1개월 움직임 · 색은 선두 거시 길에서의 순풍(초록)·역풍(빨강).`);
+    `${esc(playbook.asOf || '')} 완료 종가 · 긴 추세(미국 6개월, 한국 3개월)와 1개월 움직임 · 색은 선두 거시 길에서의 순풍(초록)·역풍(빨강).`);
   body.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;">${Object.keys(THEME_STATES).map((stage) => {
     const list = playbook.themes.filter((row) => row.state === stage).sort((a, b) => b.ret1m - a.ret1m);
     return `<div><div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:3px;">${esc(THEME_STATES[stage].split(' (')[0])} · ${list.length}</div>${list.slice(0, 6).map((row) => `<div style="font-size:12px;color:${color[row.wind.lead]};" title="${esc(WIND_LABELS[row.wind.lead])}">${row.market === 'KR' ? '국내' : '미국'} ${esc(row.label)} ${pct(row.ret1m)}</div>`).join('')}${list.length > 6 ? `<div style="font-size:12px;color:var(--text-muted);">외 ${list.length - 6}개</div>` : ''}</div>`;

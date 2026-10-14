@@ -27,7 +27,13 @@ function shortDate(date) {
   return month && day ? `${month}/${day}` : '';
 }
 
-export function readMarketRegime(root) {
+// v57.55 review (E1-02/B4-F7): the credit axis needs the 20-session HY change from macro-history. Only 오늘 and 시장 상태
+// asked for it, so the 차트 tab and 포트폴리오 judged credit without it ('우호 3' beside '우호 2 · 중립 2'). Every reader
+// now asks for the same record (deduplicated in-flight) and redraws once it lands.
+export function readMarketRegime(root, onHistory = null) {
+  if (root && sharedArtifactIsStale(root, MACRO_HISTORY.key, MACRO_HISTORY)) {
+    refreshSharedArtifact(root, MACRO_HISTORY).then(({ changed }) => { if (changed && typeof onHistory === 'function') onHistory(); }).catch(() => {});
+  }
   return buildMarketRegime(collectMarketInputs(root));
 }
 
@@ -133,7 +139,8 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
     if (view) card.dataset.likelihood = view.likelihood;
     if (outlook?.leadId === scenario.id) card.dataset.lead = 'true';
     const head = el(doc, 'div', null, 'regime-scenario-head');
-    head.append(el(doc, 'h3', scenario.title), el(doc, 'span', view ? view.fit : scenario.status, 'regime-scenario-status'));
+    head.append(el(doc, 'h3', scenario.title), el(doc, 'span', view ? `${view.fit}${view.shortfall ? ' · 아직 성립 아님' : ''}` : scenario.status, 'regime-scenario-status'));
+    if (view?.shortfall) head.lastChild.title = view.shortfall; // v57.55 review (E2-06)
     card.append(head);
     if (view) {
       card.append(el(doc, 'p', view.posture, 'regime-scenario-reading'));
@@ -394,7 +401,7 @@ export function renderHomeRegime({ documentRef: doc, root }) {
       const sentences = String(lead.posture || '').split(/(?<=니다\.)\s+/);
       const counter = sentences.find((line) => line.startsWith('반증'));
       const line = el(doc, 'p', null, 'xr-structure');
-      line.append(el(doc, 'strong', `지금 구조 '${lead.title}'`), el(doc, 'span', lead.fit, 'basis-chip'), doc.createTextNode(` ${sentences[0] || ''}`));
+      line.append(el(doc, 'strong', `지금 구조 '${lead.title}'`), el(doc, 'span', `${lead.fit}${lead.shortfall ? ` · ${lead.shortfall}` : ''}`, 'basis-chip'), doc.createTextNode(` ${sentences[0] || ''}`));
       structure.push(line, ...(counter ? [el(doc, 'p', counter, 'xr-structure-note')] : []), ...(named ? [opportunityNode(doc, root, lead, 'home-outlook-opportunity')] : []), toStructure);
     } else if (scenarios?.held) structure.push(el(doc, 'p', `지금 구조: 판단 보류 — ${scenarios.reason}`, 'xr-structure'));
     renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: outlookBox, id: 'home-crossroads', structure, title: '지금 구조와 앞으로' }); // P1742/P1745

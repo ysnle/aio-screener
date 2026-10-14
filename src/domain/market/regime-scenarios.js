@@ -46,7 +46,7 @@ export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime
     rates: [chart('tnx', '미 10년물 명목금리', '%', daily('tnx'), { format: percent }),
       chart('tips', '10년 TIPS 실질금리', '%', macro('realYield10'), { format: percent, note: '명목금리와 실질금리는 서로 다른 관측일일 수 있습니다. 같은 날짜의 자료가 없으면 분해해 단정하지 않습니다.' }),
       chart('breakeven', '10년 기대인플레이션', '%', macro('breakeven10'), { format: percent, note: '물가 예상만이 아니라 유동성·위험 프리미엄도 포함하는 인플레이션 보상 지표입니다.' })],
-    credit: [chart('hy', '하이일드 OAS', 'bp', macro('hyOas', 100), { refs: [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], note: 'ICE BofA 하이일드 OAS. 수준과 5거래일 확대·축소를 구분해서 읽습니다.' }),
+    credit: [chart('hy', '하이일드 OAS', 'bp', macro('hyOas', 100), { refs: [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], note: '하이일드 채권 금리차(OAS)는 수준과 5거래일 확대·축소를 구분해서 읽습니다.' }),
       // P1638: the weakest tier against B — the average can stay calm while CCC borrowers lose access first.
       chart('ccc-b', 'CCC − B 등급 스프레드 격차', 'bp', tierGap(macro('cccOas', 100), macro('bOas', 100)), { note: '가장 약한 등급(CCC 이하)과 B 등급의 OAS 차이. 격차는 상대 차이입니다. 벌어지면 시장이 가장 약한 기업을 더 따로 가려내고 있다는 뜻이며, CCC 금리 수준 자체가 올랐는지는 하이일드 OAS와 함께 확인합니다.' })],
     commodities: [chart('wti', 'WTI 선물', 'USD / 배럴', daily('wti'), { format: value => `$${value.toFixed(1)}` }),
@@ -63,7 +63,7 @@ const OBSERVE = Object.freeze({
   rates: '명목금리의 20일 변화와 최근 5일 되돌림을 구분하고, 같은 날짜의 TIPS·기대인플레가 원인을 뒷받침하는지 봅니다.',
   credit: 'HY OAS의 높은 수준과 빠른 확대를 구분합니다. 폭이 좁아지는지, 확대가 연속되는지 확인합니다.',
   commodities: '유가와 달러가 동시에 부담을 만드는지, 하나의 상승을 다른 자산까지 확대해 읽고 있지 않은지 봅니다.',
-  korea: '원·엔의 환율과 국내 주가를 따로 확인합니다. 미국 6개 축의 합계에는 넣지 않습니다.'
+  korea: '원·엔의 환율과 한국·일본 주가를 따로 확인합니다. 미국 6개 축의 합계에는 넣지 않습니다.'
 });
 
 export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(input) } = {}) {

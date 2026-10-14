@@ -95,7 +95,7 @@ function renderHomeQuality({ documentRef, home }) {
 // retired. The page now shows that screen's six-axis judgement (one source of truth) and leads with
 // the stock chart. The legacy health writer stays fenced by the native renderer marker.
 function renderTechnicalHealth({ documentRef, root }) {
-  const regime = readMarketRegime(root);
+  const regime = readMarketRegime(root, () => renderTechnicalHealth({ documentRef, root }));
   const overall = documentRef?.getElementById('tech-regime-overall');
   if (overall) { overall.textContent = regime.available ? regime.overall : '판정 대기'; overall.dataset.overall = regime.overall || ''; }
   const basis = documentRef?.getElementById('tech-regime-basis');

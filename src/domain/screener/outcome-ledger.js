@@ -1,39 +1,6 @@
-import { OUTCOME_HORIZONS, createOutcomeObservation, stableHash, validateOutcomeObservation } from '../../data/contracts/screener.js';
-
-export const OUTCOME_LEDGER_VERSION = 'outcome-ledger.v4';
+import { OUTCOME_HORIZONS, createOutcomeObservation } from '../../data/contracts/screener.js';
 
 const horizonDays = { 'T+1': 1, 'T+5': 5, 'T+21': 21, 'T+63': 63 };
-
-export function createOutcomeLedger(initial = []) {
-  const records = new Map();
-  (Array.isArray(initial) ? initial : []).forEach((record) => {
-    // v2 stored the cost-adjusted result under `rawReturn`. Reconstruct the
-    // gross value when loading that legacy shape so persisted observations are
-    // migrated instead of silently discarded.
-    const legacyCost = typeof record?.costBps === 'number' && Number.isFinite(record.costBps) ? record.costBps : null;
-    const migrated = record?.status === 'observed' && record?.netReturn == null && record?.costsApplied === true && legacyCost != null && typeof record?.rawReturn === 'number'
-      ? { ...record, netReturn: record.rawReturn, rawReturn: record.rawReturn + legacyCost / 100 }
-      : record;
-    const canonical = createOutcomeObservation(migrated);
-    if (validateOutcomeObservation(canonical).ok) records.set(canonical.outcomeId, canonical);
-  });
-  function record(input) {
-    const outcome = createOutcomeObservation(input);
-    const validation = validateOutcomeObservation(outcome);
-    if (!validation.ok) return Object.freeze({ ok: false, errors: validation.errors, outcome });
-    records.set(outcome.outcomeId, outcome);
-    return Object.freeze({ ok: true, outcome });
-  }
-  function recordForRun(runId, observations = []) {
-    const results = (Array.isArray(observations) ? observations : []).map((observation) => record({ ...observation, runId }));
-    return Object.freeze({ runId, ok: results.every((result) => result.ok), records: Object.freeze(results.map((result) => result.outcome)) });
-  }
-  function list({ runId = null, instrumentId = null, horizon = null } = {}) {
-    return Object.freeze([...records.values()].filter((record) => (!runId || record.runId === runId) && (!instrumentId || record.instrumentId === instrumentId) && (!horizon || record.horizon === horizon)));
-  }
-  function snapshot() { return Object.freeze({ schemaVersion: OUTCOME_LEDGER_VERSION, count: records.size, hash: stableHash([...records.values()]), records: list() }); }
-  return Object.freeze({ record, recordForRun, list, snapshot });
-}
 
 export function calculateOutcome({ runId, instrumentId, entry, exit, benchmarkEntry = null, benchmarkExit = null, horizon = 'T+21', costBps = null, liquidityFlags = [], sessionDates = [] } = {}) {
   if (!OUTCOME_HORIZONS.includes(horizon)) return createOutcomeObservation({ runId, instrumentId, horizon, status: 'unavailable', liquidityFlags: ['invalid_horizon'] });

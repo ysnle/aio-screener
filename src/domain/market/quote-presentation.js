@@ -1,4 +1,3 @@
-export const QUOTE_DISPLAY_STATES = Object.freeze(['current', 'delayed', 'stale-reference', 'missing', 'disputed']);
 
 const CURRENT_QUALITY = new Set(['CURRENT', 'CLOSED_CURRENT', 'LIVE', 'FRESH', 'VERIFIED_CURRENT']);
 const DELAYED_QUALITY = new Set(['DELAYED']);

@@ -24,7 +24,7 @@ const RELEASE_PROFILES = Object.freeze({
   'us-ism-svc': { label: 'ISM 서비스업 지수', et: [10, 0], why: '미국 경제의 대부분인 서비스 경기 확인', last: (snap) => snap.ismSvc != null ? `직전 ${snap.ismSvc}` : null },
   'us-retail': { label: '미국 소매판매', et: [8, 30], why: '소비 경기 확인', last: (snap) => snap.retailSales != null ? `직전 ${snap.retailSales}%` : null },
   'us-fomc': { label: 'FOMC 금리 결정', et: [14, 0], why: '정책금리와 향후 경로 — 모든 자산 가격의 기준', last: (_snap, extra) => extra.policyRange ? `현재 ${extra.policyRange}` : null },
-  'kr-bok': { label: '한국은행 기준금리 결정', kst: [10, 0], why: '원화·국내 금리의 기준', last: () => null }
+  'kr-bok': { label: '한국은행 기준금리 결정', kst: [10, 0], why: '원화·한국 금리의 기준', last: () => null }
 });
 
 function etWallClockToMs(date, [hour, minute]) {
@@ -96,13 +96,13 @@ export function marketStructureEvents({ fomcDecisions = [], nowMs = Date.now(), 
     const y = start.getUTCFullYear() + Math.floor((start.getUTCMonth() + offset) / 12);
     const m = ((start.getUTCMonth() + offset) % 12) + 1;
     const krx = previousKrxBusinessDay(isoDate(y, m, nthWeekday(y, m, 4, 2)));
-    push(`krx-expiry-${krx}`, Date.parse(`${krx}T15:20:00+09:00`), QUARTER_MONTHS.has(m) ? '국내 선물·옵션 동시 만기' : '국내 옵션 만기',
+    push(`krx-expiry-${krx}`, Date.parse(`${krx}T15:20:00+09:00`), QUARTER_MONTHS.has(m) ? '한국 선물·옵션 동시 만기' : '한국 옵션 만기',
       '만기 정산과 지수 추종 자금의 리밸런싱이 장 마감 무렵 대형주 수급을 흔들 수 있음');
     const us = isoDate(y, m, nthWeekday(y, m, 5, 3));
     push(`us-expiry-${us}`, etWallClockToMs(us, [16, 0]), QUARTER_MONTHS.has(m) ? '미국 지수 선물·옵션 분기 만기' : '미국 월물 옵션 만기',
       '대규모 옵션 포지션이 정리되며 만기 주간 지수 변동이 커지거나 눌릴 수 있음');
   }
-  for (const date of registeredHolidays('KRX')) push(`krx-holiday-${date}`, Date.parse(`${date}T09:00:00+09:00`), holidayLabel('한국 증시 휴장', 'KRX', date), '국내 거래가 없는 날 — 해외 시장 변화는 다음 거래일에 한꺼번에 반영');
+  for (const date of registeredHolidays('KRX')) push(`krx-holiday-${date}`, Date.parse(`${date}T09:00:00+09:00`), holidayLabel('한국 증시 휴장', 'KRX', date), '한국 거래가 없는 날 — 해외 시장 변화는 다음 거래일에 한꺼번에 반영');
   for (const date of registeredHolidays('NYSE')) push(`nyse-holiday-${date}`, etWallClockToMs(date, [9, 30]), holidayLabel('미국 증시 휴장', 'NYSE', date), '미국 거래가 없는 날 — 다음 거래일 갭에 유의');
   return rows;
 }

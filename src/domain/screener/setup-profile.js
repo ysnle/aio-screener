@@ -21,7 +21,6 @@ export function extensionStateFor(multiple) {
     : value >= EXTENSION_BANDS.stretched ? 'stretched' : value >= EXTENSION_BANDS.extended ? 'extended'
       : value <= EXTENSION_BANDS.nearBase ? 'near-base' : 'normal';
 }
-export const EXTENSION_STATE_LABELS = Object.freeze({ 'near-base': '기준선 가까이', normal: '기준선에서 보통 거리', extended: '기준선에서 확장', stretched: '확장 7배 이상(참고 구간)', unavailable: '자료 없음' });
 
 /**
  * @param {object} row normalized screener row, optionally after factor ranking

@@ -1,5 +1,3 @@
-import { evaluateInferredClaim } from './inference.js';
-
 export function evaluateEvidenceUse(evidence, purpose = 'reference') {
   const status = String(evidence?.status || '').trim().toLowerCase();
   if (!evidence || ['missing', 'failed', 'unavailable', 'invalid', 'rejected', 'stale', 'unknown'].includes(status) || (purpose === 'decision' && !status)) {
@@ -20,7 +18,3 @@ export function evaluateClaim({ evidence, claimType = 'text', sourceClass = 'OBS
 }
 
 export { createInferredClaim, validateInferredClaim } from './inference.js';
-
-export function evaluateSearchClaim(claim) {
-  return evaluateInferredClaim(claim);
-}

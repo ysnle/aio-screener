@@ -60,7 +60,8 @@ import { classifyBreadthParticipation } from '../domain/market/breadth.js';
 import { computeMarketHealth } from '../domain/market/health.js';
 import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
 import { latestCompletedUsSession, latestCompletedKrSession } from '../ai/time/market-session.js';
-import { resolveRegisteredName } from '../domain/ticker/resolve-name.js';
+import { isKnownSymbol, resolveRegisteredName, searchCandidates } from '../domain/ticker/resolve-name.js';
+import { hasFinalConsonant } from '../domain/content/korean-particle.js';
 import { groupNewsStories, isNewsRevision, newsArticleKey, resolveNewsIssuers } from '../domain/news/stories.js';
 import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
 import { deriveConcentrationRisk, concentrationPenaltyForWeight } from '../domain/portfolio/concentration.js';
@@ -207,6 +208,51 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
     return resolveRegisteredName(raw, window.AIO_TICKER_NAME_REGISTRY?.entries) || normalized;
   };
   window._aioResolveRegisteredName = (raw) => resolveRegisteredName(raw, window.AIO_TICKER_NAME_REGISTRY?.entries);
+  // v57.54 review: a search with no exact match keeps a message under the box with candidates to pick (no auto-open).
+  window._aioIsKnownTicker = (symbol) => isKnownSymbol(symbol, { entries: window.AIO_TICKER_NAME_REGISTRY?.entries, krStockDb: window.KR_STOCK_DB,
+    universe: typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [] });
+  // v57.55 review (B4-F3): the cash box had a fixed "$" — a won amount read as dollars. The quick picker writes the same
+  // cash-currency declaration as the settings field (one writer: savePortfolioAssumption).
+  window._aioSaveCashCurrencyQuick = (el) => {
+    const twin = document.getElementById('pf-cash-currency-input');
+    if (twin) twin.value = el?.value || '';
+    window.savePortfolioAssumption?.('pf-cash-currency-input', el?.value || '');
+  };
+  window._aioTickerSearchMiss = (raw) => {
+    const input = document.getElementById('ticker-direct-search');
+    const row = input?.parentElement;
+    if (!row) { window.showToast?.('올바른 티커를 입력하세요.'); return; }
+    let hint = document.getElementById('ticker-search-hint');
+    if (!hint) {
+      hint = document.createElement('div');
+      hint.id = 'ticker-search-hint';
+      hint.className = 'ticker-search-hint';
+      hint.style.cssText = 'margin:-4px 0 12px;font-size:13px;line-height:1.6;color:var(--text-secondary);display:grid;gap:6px;';
+      hint.setAttribute('role', 'status');
+      row.insertAdjacentElement('afterend', hint);
+      const clear = () => hint.replaceChildren();
+      input.addEventListener('input', clear);
+      document.addEventListener('aio:tickerViewReset', clear);
+    }
+    const query = String(raw || '').trim();
+    const picks = searchCandidates(query, { entries: window.AIO_TICKER_NAME_REGISTRY?.entries, krStockDb: window.KR_STOCK_DB, krToYahoo: window.krTickerToYahoo });
+    const lead = document.createElement('p');
+    lead.textContent = query
+      ? `'${query.slice(0, 40)}'${hasFinalConsonant(query.slice(0, 40)) ? '과' : '와'} 정확히 일치하는 종목이 없습니다. ${picks.length ? '아래에서 고르거나 티커·종목코드로 검색해 주세요.' : '티커(예: NVDA)·종목코드(예: 005930)·정확한 회사명으로 검색해 주세요.'}`
+      : '티커·종목코드·회사명을 입력해 주세요.';
+    const list = document.createElement('div');
+    list.className = 'ticker-search-picks';
+    list.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;';
+    for (const pick of picks) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'q-chip';
+      button.textContent = `${pick.label} · ${pick.symbol}`;
+      button.addEventListener('click', () => window.showTicker?.(pick.symbol));
+      list.append(button);
+    }
+    hint.replaceChildren(lead, ...(picks.length ? [list] : []));
+  };
   window._aioNewsStories = { key: newsArticleKey, group: groupNewsStories, isRevision: isNewsRevision,
     issuers: (row, candidates) => resolveNewsIssuers(row, candidates, window.AIO_TICKER_NAME_REGISTRY?.entries) };
   window._aioTickerDisplayName = (symbol) => tickerDisplayName(symbol, { krStockDb: window.KR_STOCK_DB });

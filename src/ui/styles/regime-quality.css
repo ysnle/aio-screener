@@ -3,7 +3,7 @@
 .page .regime-quality-board { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; align-items: stretch; }
 .page .regime-quality-board .regime-axis { min-width: 0; padding: 22px 24px; border-radius: 6px; }
 .page .regime-quality-board .regime-axis-head { gap: 12px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 10px; }
-.page .regime-quality-board .regime-axis-title { font-size: 19px; line-height: 1.45; }
+.page .regime-quality-board .regime-axis-title { font-size: 16px; line-height: 1.45; }
 .page .regime-quality-board .regime-state { font-size: 14px; white-space: nowrap; }
 .page .regime-quality-board .basis-chip { font-size: 13px; margin-bottom: 8px; }
 .page .regime-quality-board .regime-read { font-size: 16px; line-height: 1.7; margin: 6px 0 16px; }
@@ -32,13 +32,13 @@
 .page .regime-axis-deep .flow-next-link { margin-top: 10px; }
 .page [class*="grid"] > .regime-axis-deep { grid-column: 1 / -1; }
 .page .regime-scenarios { margin: 24px 0 30px; padding-top: 20px; border-top: 1px solid var(--border); }
-.page .regime-scenario-basis, .page .regime-scenario-current { font-size: 14px; line-height: 1.75; color: var(--text-secondary); margin: 10px 0 16px; }
+.page .regime-scenario-basis { font-size: 14px; line-height: 1.75; color: var(--text-secondary); margin: 10px 0 16px; }
 .page .regime-scenario-hold { color: var(--text-primary); border-left: 3px solid var(--data-amber); padding: 10px 14px; font-size: 15px; line-height: 1.65; }
 .page .regime-scenario-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
 .page .regime-scenario-card { min-width: 0; padding: 20px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); }
 .page .regime-scenario-card[data-confirmed="true"] { border-color: var(--text-primary); }
 .page .regime-scenario-head { display: flex; flex-wrap: wrap; gap: 8px 12px; justify-content: space-between; align-items: baseline; }
-.page .regime-scenario-head h3 { margin: 0; color: var(--text-primary); font-size: 18px; line-height: 1.5; }
+.page .regime-scenario-head h3 { margin: 0; color: var(--text-primary); font-size: 16px; line-height: 1.5; }
 .page .regime-scenario-status { font-size: 13px; color: var(--text-secondary); }
 .page .regime-scenario-card h4 { font-size: 14px; color: var(--text-primary); margin: 18px 0 6px; }
 .page .regime-scenario-card p, .page .regime-scenario-card li { color: var(--text-secondary); font-size: 15px; line-height: 1.75; overflow-wrap: anywhere; }
@@ -70,8 +70,6 @@
 .page .regime-scenario-list ul { margin: 4px 0 8px; padding-left: 18px; }
 .page .regime-scenario-list li { font-size: 14px; line-height: 1.65; color: var(--text-secondary); }
 .home-outlook { margin: 14px 0 4px; padding: 14px 16px; border: 1px solid var(--border); border-left: 3px solid var(--text-primary); border-radius: 6px; background: var(--bg-card); }
-.home-outlook-lead { margin: 0 0 6px; font-weight: 700; font-size: 15px; color: var(--text-primary); line-height: 1.6; }
-.home-outlook-posture { margin: 0 0 6px; font-size: 14px; line-height: 1.7; color: var(--text-primary); }
 .home-outlook-opportunity { margin: 0 0 8px; font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
 /* v57.50 I03: sector/theme names in the scenario read are links (theme detail or 테마 · 섹터). */
 .regime-opportunity-chip { font: inherit; font-size: 12px; min-height: 24px; min-width: 24px; display: inline-flex; align-items: center; box-sizing: border-box; padding: 2px 8px; margin: 2px 4px 2px 0; border: 1px solid var(--border-subtle); border-radius: 999px; background: none; color: var(--text-primary); cursor: pointer; }
@@ -185,7 +183,8 @@ body.dark-theme .sector-map .is-na { background: #36383b; color: #c8c6c0; }
 .page .xr-basis, .page .xr-caveat { font-size: 13.5px; line-height: 1.7; color: var(--text-secondary); margin: 6px 0 14px; }
 .page .xr-reading { font-size: 15px; line-height: 1.75; color: var(--text-secondary); margin: 8px 0; }
 .page .xr-tension { font-size: 15px; line-height: 1.75; color: var(--text-primary); margin: 10px 0; padding: 10px 14px; border-left: 3px solid var(--data-red); background: var(--bg-elevated); border-radius: 4px; }
-.page .xr-h3 { font-size: 17px; margin: 18px 0 6px; color: var(--text-primary); }
+.page .xr-scope-note { margin: 6px 0 0; font-size: 12px; line-height: 1.6; color: var(--text-muted); }
+.page .xr-h3 { font-size: 16px; margin: 18px 0 6px; color: var(--text-primary); }
 .page .xr-h4 { font-size: 14px; margin: 16px 0 6px; color: var(--text-primary); }
 .page .xr-timeline { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 14px; padding: 0; }
 .page .xr-event { display: inline-flex; gap: 6px; align-items: baseline; padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-card); font-size: 13.5px; }
@@ -213,7 +212,7 @@ body.dark-theme .sector-map .is-na { background: #36383b; color: #c8c6c0; }
 .page .xr-compact .xr-structure, .page .xr-structure { font-size: 15px; font-weight: 600; line-height: 1.6; color: var(--text-primary); margin: 0 0 6px; }
 .page .xr-map-branch[data-lead="true"] { border-color: var(--text-primary); box-shadow: inset 3px 0 0 var(--text-primary); }
 .page .xr-map-head, .page .xr-branch-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
-.page .xr-map-title, .page .xr-branch-title { font-weight: 600; font-size: 15px; color: var(--text-primary); }
+.page .xr-map-title { font-weight: 600; font-size: 15px; color: var(--text-primary); }
 .page .xr-map-fit { font-size: 13px; color: var(--text-secondary); }
 .page .xr-map-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .page .xr-map-tags > .xr-tag { display: inline-block; }

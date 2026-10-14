@@ -8,6 +8,9 @@
 @import url('./regime-quality.css');
 @import url('./chat-sessions.css');
 .regime-kr-participation { margin:24px 0; padding:24px; border:1px solid var(--border); border-radius:8px; font-size:14px; line-height:1.7; background:var(--bg-surface); color:var(--text-primary); }
+/* v57.55 cleanup: one type scale — page 27 · section 18 (.briefing-h2) · card 16 · sub 14. This block used browser h2/h3 sizes (21px). */
+.regime-kr-participation > h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin: 0 0 12px; }
+.regime-kr-participation > h3 { font-size: 15px; font-weight: 700; margin: 16px 0 6px; }
 .regime-kr-metrics { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:8px 20px; }
 .regime-kr-metrics dd { margin:0; font-variant-numeric:tabular-nums; }
 .regime-kr-tickers { color:var(--text-secondary); font-size:12px; overflow-wrap:anywhere; }
@@ -53,11 +56,9 @@
   .page, .page > *, .page :is(section, article, .aio-section, .aio-card, .card) { min-width: 0; max-width: 100%; box-sizing: border-box; }
   .page :is(canvas, img, svg) { max-width: 100%; }
   .page :is(input, textarea, select) { max-width: 100%; box-sizing: border-box; }
-  .page :is(.page-header, .section-header, .regime-summary-head) { flex-wrap: wrap; }
-  :is(.atlas-learning-workspace, .atlas-industry-workspace, .atlas-relationship-workspace,
-      .principles-workspace, .principles-graph-workspace, .principles-narrative-layout,
-      .principles-path-layout, .masters-layout, .stock-chart-layout, .ticker-ov-grid,
-      .macro-overview, .rates-curve-row, .desk-layout, .scr-workflow-grid,
+  .page :is(.section-header, .regime-summary-head) { flex-wrap: wrap; }
+  :is(.principles-graph-workspace, .masters-layout, .stock-chart-layout, .ticker-ov-grid,
+      .macro-overview, .rates-curve-row, .scr-workflow-grid,
       .page .screener-read-layout, .page .stock-read-visuals, .page .daily-loop,
       .knowledge-learning-controls) { grid-template-columns: minmax(0, 1fr); }
   .page .aio-responsive-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
@@ -77,6 +78,8 @@
   #ai-panel input, .acp-input-row input { font-size: 16px !important; }
   .ai-ph-close, #topbar-ai-btn, #topbar-help-btn { min-height: 44px; }
   .page .aio-table-scroll { scrollbar-width: thin; }
+  /* v57.55 cleanup: macro tiles cut their value line ("2년물이 기준금리보다 0.92%p…") on a phone; it wraps instead. */
+  .page .macro-tile-value { white-space: normal; text-overflow: clip; }
   .page .aio-table-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 }
 @media (max-width: 700px) {
@@ -107,14 +110,9 @@
   #page-portfolio .aio-table-scroll > table { min-width: 680px; }
   #page-portfolio .pf-hero-divider { display: none; }
   .page :is(.home-participation-grid, .briefing-move-chart, .breadth-drill-body, .scr-why-grid,
-      .principles-reference-body, .principles-explainer, .atlas-domain-grid, .atlas-claim-grid,
-      .atlas-source-grid, .atlas-curriculum-layer-grid, .masters-principles-list, .aio-vis-panel) { grid-template-columns: minmax(0, 1fr); }
-  .page :is(.principles-chapter-grid, .principles-learning-grid, .principles-lesson-library-grid,
-      .atlas-packet-grid, .atlas-track-grid, .atlas-node-grid, .atlas-curriculum-module-grid,
-      .aio-action-hub-grid, .energy-grid) { grid-template-columns: minmax(0, 1fr); }
-  .page :is(.rates-yields, .rates-other, .macro-tiles, .kr-index-grid,
-      .breadth-summary, .sig-guide-grid, .metric-explainer, .scr-funnel, .atlas-metric-grid,
-      .atlas-telegram-channel-grid, .atlas-level-rail, .principles-reference-loop,
+      .principles-reference-body, .masters-principles-list, .aio-vis-panel,
+      .principles-chapter-grid, .atlas-node-grid) { grid-template-columns: minmax(0, 1fr); }
+  .page :is(.rates-yields, .rates-other, .macro-tiles, .kr-index-grid, .scr-funnel, .principles-reference-loop,
       .integrated-framework-flow, .page .daily-moves, .chart-stage-steps) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .page .aio-responsive-card-grid { grid-template-columns: minmax(0, 1fr) !important; }
   .page :is(.briefing-event, .daily-event, .macro-chain-branch, .theme-detail-flow .stock-read-bar-row) { grid-template-columns: minmax(0, 1fr); }
@@ -130,7 +128,6 @@
   .page :is(button, [role="button"], select) { min-height: 36px; }
   .acp-input-row { flex-wrap: wrap; }
   .acp-input-row input { min-width: 0; flex: 1 1 190px; }
-  .page .aio-responsive-local-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
   #glossary-modal > div { width: calc(100% - 20px) !important; max-height: calc(var(--aio-visual-height, 100dvh) - 20px) !important; }
   #glossary-modal > div > div, #glossary-body { padding: 12px !important; }
   #glossary-search { font-size: 16px !important; }
@@ -151,3 +148,22 @@
 }
 /* Same screenshots: the 방향 badge in the theme table broke "유/지" inside its pill. State pills never wrap. */
 .regime-state { white-space: nowrap; }
+/* v57.54 live review (E3·S2·B3): Korean wraps between words, not mid-syllable ("정 / 확한 시각은"). */
+body { word-break: keep-all; overflow-wrap: break-word; }
+/* v57.54 live review: touch targets reach 44px on coarse pointers (buttons were 36px, folds 24px). Table cells keep
+   their density; scrollable tables already give each row a full-width tap area. */
+@media (pointer: coarse) {
+  .page button:not(td button):not(th button), .page summary, .page [role="tab"], #ai-panel button { min-height: 44px; }
+}
+
+/* v57.55 review (E3-F6/F7): dark-mode contrast. The active screener chip kept the light-theme "dark text on solid
+   accent" override over a 5% white surface (1.0:1); amber badges and chips hard-code #57513f, which is ~2.3:1 on the
+   dark base; and the red token sat near 4.0:1 on cards at 12-14px. */
+body.dark-theme { --data-red: #e0685d !important; --red: #e0685d !important; }
+body.dark-theme #page-screener .scr-screen-chip.active { color: var(--accent) !important; }
+body.dark-theme .aio-badge.is-amber,
+body.dark-theme .explain-label.is-amber,
+body.dark-theme .sp-neutral,
+body.dark-theme .btn-accent.--orange,
+body.dark-theme .scr-star.active { color: var(--text-secondary) !important; }
+

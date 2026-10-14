@@ -494,16 +494,3 @@ export const INTEGRATED_MARKET_AI_FRAMEWORK_PACK = Object.freeze({
   crossPageSpine: INTEGRATED_MARKET_AI_CROSS_PAGE_SPINE,
   boundary: '문헌에서 추출한 영구 원리와 분석 절차만 보존한다. 현재 수치·기업 주장·가격·매매 신호는 별도 최신 근거가 없으면 생성하지 않는다.'
 });
-
-export function matchIntegratedFrameworks(query, { page = null, limit = 6 } = {}) {
-  const normalized = clean(query).toLocaleLowerCase('ko-KR');
-  if (!normalized) return Object.freeze([]);
-  const rows = frameworks.map((framework) => {
-    const pageMatch = !page || framework.page === page;
-    const matchedAliases = framework.aliases.filter((alias) => normalized.includes(alias.toLocaleLowerCase('ko-KR')));
-    const titleMatch = normalized.includes(framework.title.toLocaleLowerCase('ko-KR'));
-    const score = (pageMatch ? 2 : 0) + (titleMatch ? 8 : 0) + matchedAliases.length * 3;
-    return { framework, score, matchedAliases };
-  }).filter((row) => row.score > 2 && (!page || row.framework.page === page)).sort((a, b) => b.score - a.score || a.framework.id.localeCompare(b.framework.id)).slice(0, Math.min(8, Number.isInteger(limit) && limit > 0 ? limit : 6));
-  return Object.freeze(rows.map(({ framework, score, matchedAliases }) => Object.freeze({ frameworkId: framework.id, conceptId: framework.conceptId, page: framework.page, score, matchedAliases: Object.freeze(matchedAliases), linkedConceptIds: framework.linkedConceptIds, confirmation: framework.confirmation, invalidation: framework.invalidation, question: framework.question })));
-}

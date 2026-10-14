@@ -22,14 +22,27 @@ function vsLine(label, actual, estimate, format) {
   return null;
 }
 
+const LEGAL_SUFFIX = /\b(?:Inc|Incorporated|Corp|Corporation|Co|Company|Ltd|Limited|plc|Holdings|Group|N\.?V|S\.?A|AG|SE)\b\.?/gi;
+const GENERIC_FIRST = /^(?:bank|first|general|american|united|international|global|national|new|digital|energy|health|capital|financial|technology|technologies|systems|industries|motors|group|royal|china|south|north|west|east)$/i;
+const EARNINGS_WORDS = /earnings|results|quarter|beats?|miss(?:es)?|revenue|profit|EPS|guidance|outlook|실적|분기|매출|순이익|영업이익|가이던스/i;
+const ANALYST_ACTION = /\b(?:raises?|lifts?|cuts?|lowers?|upgrades?|downgrades?|reiterates?|initiates?|boosts?|trims?)\b[^.]*\b(?:target|rating|price objective|outlook on)\b|목표\s?(?:주)?가/i;
 export function earningsContextForHeadline(title, { earnings = [], names = {}, nowMs = Date.now(), windowDays = 3 } = {}) {
   const text = String(title || '');
   if (!text) return null;
+  // v57.55 review (S2-F3): the first word of the name ('Bank' of Bank of America) matched "big bank earnings" and
+  // "Bank of America raises TSMC's target". The full name (legal suffix dropped) or the ticker must appear, the headline
+  // must be about results, and a firm acting as the analyst is not its own earnings story.
+  if (!EARNINGS_WORDS.test(text) || ANALYST_ACTION.test(text)) return null;
   for (const row of Array.isArray(earnings) ? earnings : []) {
     const name = String(names[row?.symbol] || '');
-    const token = name.split(/[\s,.]+/).find((part) => part.length >= 4);
-    const escaped = token ? token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
-    if (!token || !new RegExp(`\\b${escaped}\\b`, 'i').test(text)) continue;
+    const core = name.replace(LEGAL_SUFFIX, ' ').replace(/[\s,.]+$/, '').replace(/\s+/g, ' ').trim();
+    const escape = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const symbol = String(row?.symbol || '');
+    const first = core.split(' ')[0];
+    const short = core.includes(' ') && first.length >= 4 && !GENERIC_FIRST.test(first) ? first : null; // "Micron beats …" (P1382)
+    const named = [core, short].filter((value) => value && value.length >= 3).some((value) => new RegExp(`(^|[^A-Za-z])${escape(value)}([^A-Za-z]|$)`, 'i').test(text));
+    const tickered = symbol && new RegExp(`(\\$${escape(symbol)}\\b|\\(${escape(symbol)}\\))`).test(text);
+    if (!named && !tickered) continue;
     const reportedMs = Date.parse(`${row.date}T12:00:00Z`);
     if (!Number.isFinite(reportedMs) || nowMs - reportedMs > windowDays * DAY || reportedMs - nowMs > DAY) continue;
     const parts = [vsLine('EPS', row.epsActual, row.epsEstimate, (v) => v.toFixed(2)), vsLine('매출', row.revenueActual, row.revenueEstimate, money)].filter(Boolean);

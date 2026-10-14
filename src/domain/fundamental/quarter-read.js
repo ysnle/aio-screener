@@ -32,9 +32,14 @@ export function buildQuarterRead(quarters = []) {
   });
   const latest = withYoy[withYoy.length - 1];
   const yoys = withYoy.map((q) => q.revenueYoy).filter((value) => value != null);
+  // v57.55 review (E1-03): comparing only the last and the third-last value called MRNA's +260% → +2.1% "빨라졌다".
+  // A direction is named only when both of the last two steps agree; otherwise the series is uneven.
+  const [a, b, c] = yoys.slice(-3);
   const trend = yoys.length >= 3
-    ? (yoys[yoys.length - 1] > yoys[yoys.length - 3] + 3 ? '전년 대비 성장률이 최근 분기로 갈수록 빨라졌다'
-      : yoys[yoys.length - 1] < yoys[yoys.length - 3] - 3 ? '전년 대비 성장률이 최근 분기로 갈수록 느려졌다' : '전년 대비 성장률이 비슷하게 유지된다')
+    ? (b > a + 3 && c > b + 3 ? '전년 대비 성장률이 최근 분기로 갈수록 빨라졌다'
+      : b < a - 3 && c < b - 3 ? '전년 대비 성장률이 최근 분기로 갈수록 느려졌다'
+        : Math.max(a, b, c) - Math.min(a, b, c) <= 6 ? '전년 대비 성장률이 비슷하게 유지된다'
+          : `전년 대비 성장률이 분기마다 들쭉날쭉하다(직전 분기 ${b >= 0 ? '+' : ''}${b.toFixed(1)}%)`)
     : null;
   const signed = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
   const headline = latest.revenueYoy != null

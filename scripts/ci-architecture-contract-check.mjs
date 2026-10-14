@@ -474,8 +474,8 @@ for (const marker of ['MARKET_HEALTH_MODEL_VERSION', 'export function computeMar
   if (!marketHealthSource.includes(marker)) fail(`market-health model marker missing: ${marker}`);
 }
 // P1420: the technical page shows the 시장 상태 six-axis summary instead of the 0-100 health score;
-// the score surface must not return to the page.
-for (const marker of ['renderTechnicalHealth', "page.dataset.aioTechnicalRenderer = 'native'", 'readMarketRegime(root)', 'tech-regime-chips']) {
+// the score surface must not return to the page. v57.55 review: the reader takes a rerender callback for late credit history.
+for (const marker of ['renderTechnicalHealth', "page.dataset.aioTechnicalRenderer = 'native'", 'readMarketRegime(root, ', 'tech-regime-chips']) {
   if (!analysisPageSource.includes(marker)) fail(`native technical regime summary marker missing: ${marker}`);
 }
 if (read('index.html').includes('id="health-score-display"') || analysisPageSource.includes('health.score')) fail('P1420 retired technical health score returned to the page');

@@ -95,7 +95,7 @@ async function main() {
   let previous = null;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { /* first run */ }
   const universe = JSON.parse(await readFile(`${ROOT}/public-data/screener-universe.json`, 'utf8'));
-  const symbols = [...new Set((universe.universe || []).map((row) => String(row.sym || '').toUpperCase()).filter((sym) => sym && !/\.K[SQ]$/.test(sym)))];
+  const symbols = [...new Set((universe.universe || []).map((row) => String(row.sym || '').toUpperCase()).filter((sym) => sym && !/\.(?:KS|KQ|T|TW)$/.test(sym)))]; // US listings only (v57.54: Tokyo/Taiwan rows were asked too)
   const rows = {};
   const keep = new Set(symbols);
   for (const [sym, row] of Object.entries(previous?.rows || {})) if (keep.has(sym)) rows[sym] = row;

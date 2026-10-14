@@ -1,5 +1,4 @@
 import { allowedUseForStatus, parseEvidenceTime, restrictAllowedUse } from '../contracts/evidence.js';
-import { selectForDecision, selectForDisplay } from '../selectors/evidence.js';
 
 export function classifyFreshness({ observedAt, now = Date.now(), maxAgeMs = 86_400_000 } = {}) {
   const observedMs = parseEvidenceTime(observedAt);
@@ -25,8 +24,4 @@ export function applyFreshness(evidence, { now = Date.now(), maxAgeMs = 86_400_0
     allowedUse: restrictAllowedUse(evidence?.allowedUse ?? allowedUseForStatus(evidence?.status), evidence?.allowedUseCeiling ?? 'reference', allowedUseForStatus(status)),
     freshnessMs: Number.isFinite(age) && age >= 0 ? age : null
   });
-}
-
-export function canUseEvidence(evidence, purpose = 'reference') {
-  return !!(purpose === 'decision' ? selectForDecision(evidence) : selectForDisplay(evidence));
 }

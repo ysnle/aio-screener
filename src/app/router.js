@@ -23,7 +23,7 @@ function setLazyModuleState({ documentRef, route, state, errorMessage } = {}) {
   status.dataset.aioRouteModuleError = route;
   status.className = 'info-box warning';
   status.setAttribute?.('role', 'alert');
-  status.textContent = errorMessage || '이 화면 모듈을 불러오지 못했습니다. 다른 화면으로 이동한 뒤 다시 열어 주세요.';
+  status.textContent = errorMessage || '이 화면을 불러오지 못했습니다(세 번 시도). 잠시 뒤 다른 화면에 갔다가 다시 열거나 새로고침해 주세요.';
   if (!marker) page.prepend?.(status);
 }
 
@@ -32,7 +32,7 @@ function setLazyModuleState({ documentRef, route, state, errorMessage } = {}) {
  * transition contract. Successful imports/factories are cached; failed loads are cleared so
  * re-entering the route retries. A disposed route scope can never mount after its import settles.
  */
-export function createLazyPage({ route, loader, factory, errorMessage } = {}) {
+export function createLazyPage({ route, loader, factory, errorMessage, retryDelaysMs = [1500, 6000] } = {}) {
   if (!isRouteId(route)) throw new Error(`LAZY_ROUTE_INVALID:${route || ''}`);
   if (typeof loader !== 'function') throw new Error(`LAZY_ROUTE_LOADER_INVALID:${route}`);
   if (typeof factory !== 'function') throw new Error(`LAZY_ROUTE_FACTORY_INVALID:${route}`);
@@ -42,8 +42,13 @@ export function createLazyPage({ route, loader, factory, errorMessage } = {}) {
   function resolvePage() {
     if (resolvedPage) return Promise.resolve(resolvedPage);
     if (pendingPage) return pendingPage;
-    pendingPage = Promise.resolve()
-      .then(loader)
+    // v57.55 review (S1-F14/E2-17): GitHub Pages answers bursts with 429, and one failed import left the screen empty
+    // until the reader navigated away and back. A failed load is retried twice with a growing pause first.
+    const loadWithRetry = (attempt = 0) => Promise.resolve().then(loader).catch((error) => {
+      if (attempt >= retryDelaysMs.length) throw error;
+      return new Promise((resolve) => setTimeout(resolve, retryDelaysMs[attempt])).then(() => loadWithRetry(attempt + 1));
+    });
+    pendingPage = loadWithRetry()
       .then((module) => factory(module))
       .then((page) => {
         if (!page || typeof page.mount !== 'function') throw new Error(`LAZY_ROUTE_MODULE_INVALID:${route}`);
@@ -128,11 +133,12 @@ const THEME_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$/;
 export function parseRouteDeepLink(hash) {
   const match = String(hash || '').match(/^#([^?]*)(?:\?(.*))?$/);
   if (!match) return null;
-  const rawRoute = match[1] || 'home';
+  // v57.54: a path-style link (#ticker/NVDA) is the same as #ticker?sym=NVDA; it used to open a blank page.
+  const [rawRoute = 'home', pathArg = ''] = (match[1] || 'home').split('/');
   const routeId = rawRoute === 'theme-detail' ? 'themes' : rawRoute;
   if (!isRouteId(routeId)) return null;
   const params = new URLSearchParams(match[2] || '');
-  const entityId = routeId === 'ticker' ? normalizeEntityId(params.get('sym')) : null;
+  const entityId = routeId === 'ticker' ? normalizeEntityId(params.get('sym') || pathArg) : null;
   // #theme-detail?… keeps its own reader in the themes page; only #themes?theme= is read here.
   const theme = rawRoute === 'themes' ? String(params.get('theme') || '').trim() : '';
   return Object.freeze({ routeId, entityId, themeId: THEME_ID_PATTERN.test(theme) ? theme : null });
@@ -162,6 +168,7 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
   const applyAddress = () => {
     const link = parseRouteDeepLink(location.hash);
     if (!link) return;
+    if (link.entityId && /^#ticker\//.test(location.hash)) writeHash('ticker', 'sym', link.entityId); // canonical address
     if (link.entityId) {
       const current = String(runtimeRoot.AIO?.state?._currentTickerSym || runtimeRoot._currentTickerSym || '').toUpperCase();
       if (current !== link.entityId && typeof runtimeRoot.showTicker === 'function') runtimeRoot.showTicker(link.entityId);

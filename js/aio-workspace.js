@@ -16,9 +16,7 @@
 // AI Chat Engine — callClaude · chatSend · chatFromChip
 // ════════════════════════════════════════════════════════════════════════
 
-// AI credentials are server-only. Existing saved secrets are preserved but
-// cannot be read or used by these compatibility helpers.
-const CLAUDE_KEY_LS = 'aio_claude_api_key';
+// AI credentials are server-only; these compatibility helpers never read a saved key.
 function getApiKey() { return ''; }
 async function setApiKey() { return { ok: false, state: 'SERVER_ONLY_AI' }; }
 async function saveSidebarApiKey() { return { ok: false, state: 'SERVER_ONLY_AI' }; }
@@ -389,7 +387,7 @@ function addFxLeg() {
   var values = _pfReadFields('fx');
   return _pfFxApply(api.appendLeg(_pfFxRead(), {
     from: values['pf-fx-from'], to: values['pf-fx-to'], rate: values['pf-fx-rate'], observedAt: values['pf-fx-date']
-  }), 'FX leg를 저장했습니다.').then(function(result) {
+  }), '환율 기록을 저장했습니다.').then(function(result) {
     if (result.ok) _pfClearFields('fx');
     return result;
   });
@@ -397,7 +395,7 @@ function addFxLeg() {
 function removeFxLeg(index) {
   var api = _pfFxApi();
   if (!api) return Promise.resolve({ ok: false, reason: 'fx-api-unavailable' });
-  return _pfFxApply(api.removeLeg(_pfFxRead(), index), 'FX leg를 삭제했습니다.');
+  return _pfFxApply(api.removeLeg(_pfFxRead(), index), '환율 기록을 삭제했습니다.');
 }
 window._aioAddFxLeg = function() { return addFxLeg(); };
 window._aioRemoveFxLeg = function(arg) { return removeFxLeg(Number(arg)); };
@@ -492,7 +490,7 @@ window._aioTogglePortfolioEntry = function(forceOpen) {
 
 // Add/Edit Position
 // E3/P1181 (11 P11-01): 완료 알림은 durable ack 뒤에 온다 — persist가 거부되면 '완료'를 말하지 않는다.
-async function addPortfolioPosition() {
+var _pfConfirmedAdd = null; async function addPortfolioPosition() { // v57.55 review (B4-F2/F6): one-shot confirm for an unlisted six-digit code or a won-sized USD cost
   // P1592 (F14): '005930.KS' / '000660.KQ' (the screener's own format) is the same listed code — keep the six digits.
   const ticker = (document.getElementById('pf-add-ticker').value || '').trim().toUpperCase().replace(/^(\d{6})\.K[SQ]$/, '$1');
   const qty = parseFloat(document.getElementById('pf-add-qty').value) || 0;
@@ -517,8 +515,8 @@ async function addPortfolioPosition() {
   var knownTickers = (typeof KNOWN_TICKERS !== 'undefined') ? KNOWN_TICKERS : [];
   var snapFb = (typeof _SNAP_FALLBACK !== 'undefined') ? _SNAP_FALLBACK : {};
   let ld = window._liveData || {};
-  // v46.6: KNOWN_TICKERS가 Set이므로 .has() 사용 (기존 .indexOf()는 Set에서 TypeError)
-  var isKnown = (knownTickers.has ? knownTickers.has(ticker) : (knownTickers.indexOf ? knownTickers.indexOf(ticker) >= 0 : false)) || snapFb[ticker] || ld[ticker] || /^\d{6}$/.test(ticker);
+  var isKnown = (knownTickers.has ? knownTickers.has(ticker) : (knownTickers.indexOf ? knownTickers.indexOf(ticker) >= 0 : false)) || snapFb[ticker] || ld[ticker] || /^\d{6}$/.test(ticker); // v46.6: KNOWN_TICKERS is a Set — .has()
+  var krCode = /^\d{6}$/.test(ticker), krListed = krCode && typeof window._aioIsKnownTicker === 'function' && (window._aioIsKnownTicker(ticker) || window._aioIsKnownTicker(ticker + '.KS') || window._aioIsKnownTicker(ticker + '.KQ')), pfRefPrice = (ld[ticker] && +ld[ticker].price) || 0, pfWarn = krCode && !krListed ? '"' + ticker + '"는 AIO 한국 종목 목록에 없는 코드입니다. 시세·차트를 받지 못할 수 있어요. 코드가 맞으면 그대로 저장할까요?' : (!krCode && (costCurrency || 'USD') === 'USD' && (pfRefPrice > 0 ? cost > pfRefPrice * 10 : cost >= 50000 && ticker !== 'BRK-A')) ? '매수 단가(' + cost.toLocaleString() + ')는 달러로 저장됩니다' + (pfRefPrice > 0 ? '(현재가 $' + pfRefPrice.toFixed(2) + '의 10배 이상)' : '') + '. 원화로 산 금액이라면 원가 통화 칸에 KRW를 적어 주세요. 그대로 저장할까요?' : ''; if (isKnown && pfWarn && _pfConfirmedAdd !== ticker + '|' + cost) { showConfirmModal('입력값 확인', pfWarn, function() { _pfConfirmedAdd = ticker + '|' + cost; addPortfolioPosition(); }); return; } _pfConfirmedAdd = null;
   if (!isKnown) {
     showToast('"' + ticker + '" 검증되지 않은 티커라 저장하지 않았습니다. 정확한 심볼인지 확인하세요. (예: AAPL, NVDA, 005930 또는 005930.KS)');
     return;
@@ -893,7 +891,7 @@ function _aioRenderPortfolioHoldingCharts(positions, ld) {
 
   tickers.forEach(function(ticker) {
     var live = ld[ticker] || {};
-    window._fetchYahooChartData(ticker, '3mo', '1d').then(function(data) {
+    window._fetchYahooChartData(/^\d{6}$/.test(ticker) && typeof krTickerToYahoo === 'function' ? krTickerToYahoo(ticker) : ticker, '3mo', '1d').then(function(data) { // v57.55 B4-F5: 105560 -> 105560.KS
       var card = document.getElementById('pf-hc-' + ticker);
       if (!card) return;
       var closes = data && data.closes ? data.closes.filter(function(v) { return v != null && isFinite(v); }) : [];

@@ -1,46 +1,45 @@
 # AIO Screener — Agent Guide
 
-AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + native ESM 투자 리서치 터미널이다. 현재 버전·라우트·파일 크기·지식 상태는 사람이 이 문서에 복사하지 않는다. 항상 [`_context/CURRENT-STATE.md`](./_context/CURRENT-STATE.md)와 원본 레지스트리에서 파생한다.
+AIO Screener는 GitHub Pages의 하이브리드 정적 셸 + native ESM 투자 리서치 터미널이다. 버전·라우트·파일 크기·지식 상태는 이 문서에 복사하지 않고 [`_context/CURRENT-STATE.md`](./_context/CURRENT-STATE.md)와 원본 레지스트리에서 파생한다.
 
 ## Mandatory preflight
 
-1. `git status --short`와 `version.json`으로 작업 트리 경계를 확인한다. 기존 dirty 변경은 사용자 소유다. 수정 전에 `node scripts/qa-runner.mjs session-start --session <task-id>`로 content-hash 기준선을 잡는다.
-2. `_context/CURRENT-STATE.md`는 작업 시작에 한 번 확인한다. `_context/INDEX.md`는 위치 탐색이 필요할 때, `_context/WORKFLOW-GOVERNANCE.md`는 QA·권한·워크플로 상세가 필요할 때만 읽는다. 이미 읽은 변경 없는 문서는 반복 로드하지 않는다.
-3. 작업 판단에 실제로 도움이 되는 스킬만 사용한다. 사용할 `SKILL.md`를 읽고 현재 작업에 필요한 reference만 선택한다. 키워드 일치만으로 스킬이나 전체 절차를 강제하지 않는다. **스킬은 참조 문서이며 트리거 체인이 아니다** — 라우팅의 단일 트리거는 아래 Task routing 표이고, 스킬 발동이 작업 범위를 좁히거나 넓히지 않는다. 강제는 게이트 실행과 보고 형식에만 둔다(R618).
-4. `RULES.md`, `BUG-POSTMORTEM.md`, `QA-CHECKLIST.md`, `KNOWLEDGE-BASE.md`는 전체 로드하지 않는다. 관련 함수·R/P/QA ID·키워드로 검색한 범위만 읽는다.
-5. `index.html`은 `_context/CODE-MAP.md`에서 담당 구간을 찾은 뒤 필요한 범위만 수정한다.
+1. `git status --short`와 `version.json`으로 작업 트리 경계를 확인한다. 기존 dirty 변경은 사용자 소유다. 수정 전 `node scripts/qa-runner.mjs session-start --session <task-id>`로 기준선을 잡는다.
+2. `CURRENT-STATE.md`는 시작 시 한 번 읽는다. `_context/INDEX.md`(위치 탐색)와 `_context/WORKFLOW-GOVERNANCE.md`(QA·권한 상세)는 필요할 때만, 읽은 문서는 반복 로드하지 않는다.
+3. 스킬은 참조 문서이지 트리거 체인이 아니다. 도움이 될 때만 `SKILL.md`와 필요한 reference를 읽는다. 라우팅의 단일 트리거는 아래 Task routing 표이고, 강제는 게이트 실행과 보고 형식에만 둔다(R618).
+4. `RULES.md`(맨 앞 핵심 규칙 색인부터), `BUG-POSTMORTEM.md`, `QA-CHECKLIST.md`, `KNOWLEDGE-BASE.md`는 관련 ID·키워드로 검색한 범위만 읽는다.
+5. `index.html`은 `_context/CODE-MAP.md`에서 담당 구간을 찾아 그 범위만 수정한다.
 
 ## Working agreement
 
-- 사용자의 현재 지시와 이전에 승인된 범위를 따른다. “할 수 있나”, “원한다”, “도와줘”는 실행 요청으로 해석하고, 합리적인 일상 선택은 직접 결정한다.
-- 완료는 요청한 변경의 구현·필요한 실행·결과 확인·발견된 관련 실패 수정까지다. 중간 질문에 답한 뒤에도 원래 목표를 유지한다. 범위가 넓으면 항목별 미검증 상태를 남기고 자동 PASS를 의미 검수 완료로 바꾸지 않는다.
-- 사용자 지시가 스킬 지침보다 우선한다. 스킬 때문에 멈출 때는 정확한 파일과 해당 문구, 실제 적용 이유를 밝힌다. 로컬 수정·생성·격리 테스트에는 중복 확인을 요구하지 않는다. 아래 commit/push/deploy 경계는 유지한다.
-- 큰 작업의 독립 조사·리뷰는 범위가 명확한 서브에이전트에 위임한다. 파일 소유권을 분리하고 기존 변경을 보존하며, 작은 일이나 같은 조사에는 위임을 늘리지 않는다. 결과는 주 담당자가 통합 검증한다.
-- 한국어로 결과와 근거를 간결하게 설명한다. 에이전트 간 메시지도 정상적인 문장과 띄어쓰기를 사용한다. 통과한 검사는 새 변경·실패·미해결 위험이 있을 때만 다시 실행한다.
-- **코딩 규율 (Karpathy guidelines, owner 2026-10-12):** ① 코딩 전 가정·해석 후보를 밝히고, 더 단순한 방법이 있으면 먼저 말한다. Large or image-based work: search existing screens first and state a 3-line plan; small fixes proceed without asking (owner 2026-10-14). ② 요청을 푸는 최소 코드만 쓴다 — 추측성 기능, 한 번 쓰는 추상화, 요청 없는 설정 옵션, 일어날 수 없는 경우의 오류 처리 금지. ③ 요청에 필요한 줄만 수정하고 주변 스타일을 따른다. 자기 변경이 만든 미사용 코드만 지우고, 무관한 죽은 코드는 보고만 한다. ④ 작업을 검증 가능한 목표로 바꾼다(버그는 재현 게이트 먼저). 여러 단계면 단계별 확인 방법을 붙인 계획을 세우고 검증될 때까지 반복한다. 사소한 변경은 이 절차를 판단껏 줄인다.
-- **협업 원칙 (owner 2026-10-01):** 소유자는 스크리너 개발·운영 비전문가이며 명령-수행 관계가 아니라 함께 판단하는 관계를 원한다. 요청·기존 설계·이전 에이전트 작업을 무조건 옳다고 가정하지 않는다. 데이터 무결성·비용·권리·사용자 가치와 충돌하면 근거(실측·공식 문서)와 함께 반대 의견과 대안을 먼저 제시하고, 소유자 전제가 사실과 다르면 바로잡는다. 기능을 없애거나 합치는 제품 결정은 제안 후 승인받아 진행한다.
+- 현재 지시와 승인된 범위를 따른다. “할 수 있나”, “원한다”, “도와줘”는 실행 요청이고, 일상적인 선택은 직접 결정한다. 사용자 지시가 스킬 지침보다 우선하며, 스킬 때문에 멈출 때는 파일·문구·적용 이유를 밝힌다.
+- 완료 = 구현 + 필요한 실행 + 결과 확인 + 발견된 관련 실패 수정. 중간 질문에 답한 뒤에도 원래 목표를 유지한다. 넓은 범위는 항목별 미검증 상태를 남기고, 자동 PASS를 의미 검수로 바꾸지 않는다. 로컬 수정·생성·격리 테스트에는 중복 확인을 요구하지 않는다.
+- 큰 작업의 독립 조사·리뷰는 범위가 명확한 서브에이전트(읽기 전용은 low/medium effort)에 위임하고, 파일 소유권을 나누며 결과는 주 담당자가 통합 검증한다.
+- 한국어로 결과와 근거를 간결하게 설명한다(에이전트 간 메시지도 정상 문장). 통과한 검사는 새 변경·실패·위험이 있을 때만 다시 돌린다.
+- **코딩 규율 (owner 2026-10-12):** ① 가정·해석 후보를 먼저 밝히고 더 단순한 방법이 있으면 말한다. 큰 작업·이미지 참조 작업은 기존 화면부터 찾고 3줄 계획을 밝힌다. 작은 수정은 묻지 않는다(2026-10-14). ② 요청을 푸는 최소 코드만 쓴다 — 추측성 기능, 한 번 쓰는 추상화, 요청 없는 옵션, 일어날 수 없는 오류 처리 금지. ③ 필요한 줄만 고치고 주변 스타일을 따른다. 자기 변경이 만든 미사용 코드만 지우고 무관한 죽은 코드는 보고만 한다. ④ 검증 가능한 목표로 바꾼다(버그는 재현 게이트 먼저, 여러 단계면 단계별 확인 방법). 사소한 변경은 판단껏 줄인다.
+- **협업 원칙 (owner 2026-10-01):** 소유자는 개발·운영 비전문가이며 함께 판단하는 관계를 원한다. 요청·기존 설계·이전 작업을 무조건 옳다고 보지 않는다. 데이터 무결성·비용·권리·사용자 가치와 충돌하면 근거(실측·공식 문서)와 함께 반대 의견과 대안을 먼저 내고, 틀린 전제는 바로잡는다. 기능을 없애거나 합치는 결정은 제안 후 승인받는다.
 
 ## Product decisions (fixed)
 
-Owner decisions that every agent (Claude, Codex, subagents) applies without re-asking. Change them only when the user says so.
+Owner decisions every agent applies without re-asking; change only when the user says so.
 
-- Audience: the operator's family and friends (~5 users, 2–4 concurrent). Free to run, operated by one person, automated. No public-SaaS features (sign-up, billing, multi-tenant).
-- Budget (owner 2026-10-11): prefer free public sources. Shared AI allocation is at most $20/month including conditional OpenAI web search, superseding the earlier $10 AI allocation. Additional paid data requires a demonstrated quality/coverage gap and owner approval. Public discoverability does not establish automated reuse rights or historical-data quality. Request-count limits are not billing caps; only AI calls routed through the shared Worker (including AIO Actions analysis) share its reservation ledger. Personal data-provider accounts and unrelated applications are outside that ledger.
-- Scores are reference descriptions of the market on the **latest completed US regular-session close** ("직전 미국장 종가 기준", R670), labelled with that basis and never decision-grade. Missing inputs hold the score; they are never guessed.
-- Responsive scope reopened by owner (2026-10-11): desktop, mobile and iPad share the same routes and data. Layout adapts automatically to viewport size; preserve desktop density and test compact navigation, tables, charts, theme and AI input.
-- The options route is retired (`#options` aliases to `sentiment`). Do not revive it.
-- Screen design (owner 2026-10-02~03): conclusion first (one line), then the chart, then the evidence; information reaches users best as short well-organised text → an image understood in 3 seconds → narrated visuals. Trends are shown as charts with labelled axes, not single numbers. No developer copy on user surfaces.
-- No composite grades or letter scores without predictive evidence (0-100 market score retired from UI; stock charts show evidence + a setup state, never A~D). No trade instructions (entry/stop/target/pyramid/trim); show facts such as the pivot, the invalidation price and extension instead. Owner 2026-10-12: possibility and opportunity cost are allowed and expected — each scenario says what to check, what to watch, what can be ignored, which choices tend to fare better on that path (e.g. holding cash, a leading group) and its likelihood as a count of met rule conditions; never a specific price, size, timing or an invented probability percentage. Owner 2026-10-13 (supersedes the 2026-10-13 expert-review T06 removal): screens and AI look forward, not only summarise — each scenario is a branch from upcoming official events and current conditions with its cause→effect chain (e.g. what would have to happen for rates to fall, and which release shows it), the user's choices (wait, stage in, hold, defend) with their opportunity cost and which one tends to fare better on that branch. Likelihood uses three evidence lines only: met-condition count, the direction market prices imply (e.g. 2-year yield vs the policy range) and past frequency in our own history shown with its sample size. Structural-theme views (bottlenecks such as photonics, memory, power) combine curated structure tags, measured strength/pullback and AI prose with its evidence. Stock-level selection stays with the user through the chart, company, theme and screener screens.
-- Freshness (owner 2026-10-12): data, deterministic readings and AI-written text on every screen must follow the latest produced artifacts automatically; a value hours old can be stale and one 1-2 days old is unusable unless it is a dated reference (filings, company targets, research). New features must state their producer and cadence.
-- No ticker guessing: company names resolve only by exact registry match, and a ticker-shaped input is never rewritten to another issuer (P1339).
-- Data producers (`scripts/fetch-*`, `build-*`, `sync-*`, `refresh-*`) run only in GitHub Actions; locally, read artifacts and run gates.
-- Korean themes and Korean-market content are user-facing features, not experiments.
-- Work in large batches: implement several items, run one code-reviewer subagent (low/medium effort) on the batch diff, then verify and record once.
-- **Information architecture (2026-10-01):** consolidate the 19 routes into 8 screens — 오늘(home+briefing+market-news), 시장 상태(signal+breadth+sentiment), 거시(macro+fxbond), 종목(ticker+fundamental+technical), 테마(themes+theme-detail), 스크리너, 포트폴리오, 배우기(principles+masters+atlas+guide+glossary). Each merge also moves that page's legacy `js/` ownership to `src/` and deletes the replaced legacy code; old route ids stay as aliases.
-- **Screen honesty without clutter:** keep evidence status, but as one status per card (최신/지연/참고/없음) with details on demand and one global disclaimer — not repeated caveats. Hide widgets whose source does not exist instead of showing a permanent "—". Remove grades/scores that have no calibration or source (e.g. letter grades derived from the reference score, uncalibrated composite "n/100" readings); a reference score is shown only with its basis.
-- **Slow-changing data is static:** 13F (quarterly, filing-season import), knowledge base, principles and glossary are versioned static JSON updated only when the source changes. Content-addressed artifacts hash content only, never build/review timestamps (P1370). 13D/G is event-driven, so its light daily ownership poll stays (P1309/R654).
-- **Filling data gaps (owner 2026-10-11):** prefer existing artifacts, knowledge and official free structured sources (FRED, Treasury, BLS, BEA, SEC, CBOE, BOK/ECOS, KOSIS, KRX). Use cited OpenAI web search when those sources cannot adequately answer, or to corroborate qualitative context. Search never supplies numeric inputs to scores, tables or charts. Citation availability does not certify publication/event freshness; collection time must never replace it.
-- **AI provider/budget (owner 2026-10-11):** all AIO AI generation uses OpenAI `gpt-6-luna` through the shared Worker. The operator's `OPENAI_API_KEY` stays in Worker Secrets; browser chat, translation, Actions analysis and conditional web search share one atomic UTC-month admission budget of at most $20. No per-user search allowance; optimise existing evidence first. Personal AI keys, direct provider calls and other paid AI providers do not bypass that budget. Hosted search: at most two calls per response, and its reservation is kept (token usage does not certify the search bill); reservations are not an invoice or billing cap. Completed text-only responses may settle with validated usage; incomplete attempts retain the reservation. Production migration requires explicit commit/push/deploy and provisioning; local gates do not certify deployed service or answer quality. Owner 2026-10-12: AI is always on (no user ON/OFF switch), web search is used automatically when existing evidence is insufficient (no user toggle), and every AI question goes through the one top AI panel (no per-page inline chat). P1759: per-connection cap 150/day (half the global cap; a household shares one IP); the month's last 20% answers without search ("예산 절약 모드").
+- **Audience:** the operator's family and friends (~5 users, 2–4 concurrent); free, one operator, automated. No public-SaaS features (sign-up, billing, multi-tenant).
+- **Budget (2026-10-11):** prefer free public sources. Shared AI ≤ $20/month including conditional web search. Paid data needs a demonstrated gap and owner approval. Discoverability ≠ reuse rights or data quality. Request-count limits are not billing caps; only AI routed through the shared Worker shares its reservation ledger (personal data-provider accounts are outside it).
+- **Scores** describe the market on the **latest completed US regular-session close** ("직전 미국장 종가 기준", R670), labelled with that basis, never decision-grade; missing inputs hold the score and are never guessed.
+- **Responsive (2026-10-11):** desktop, phone and iPad share routes and data; layout adapts; keep desktop density and test compact navigation, tables, charts, theme and AI input.
+- The options route is retired (`#options` → `sentiment`).
+- **Screen design (2026-10-02~03):** conclusion first (one line) → chart → evidence; short organised text, a visual understood in 3 seconds, narrated visuals. Trends are charts with labelled axes. No developer copy on user surfaces.
+- **No grades or trade instructions:** no composite/letter scores without predictive evidence (0–100 market score retired; stock charts show evidence + a setup state). No entry/stop/target/pyramid/trim; show facts such as the pivot, invalidation price and extension. Possibility and opportunity cost are expected (2026-10-12/13): screens and AI look forward — each scenario is a branch from upcoming official events and current conditions with its cause→effect chain, what to check/watch/ignore, the user's choices (wait, stage in, hold, defend) with their opportunity cost and which tends to fare better. Likelihood uses only met-condition count, market-implied direction (e.g. 2-year yield vs the policy range) and past frequency in our own history with sample size — never a price, size, timing or invented probability. Structural-theme views combine curated structure tags, measured strength/pullback and AI prose with evidence. Stock selection stays with the user.
+- **Freshness (2026-10-12):** data, readings and AI text follow the latest artifacts automatically; hours old can be stale, 1–2 days old is unusable unless a dated reference. New features state their producer and cadence.
+- **No ticker guessing:** names resolve only by exact registry match; a ticker-shaped input is never rewritten to another issuer (P1339).
+- **Producers** (`scripts/fetch-*`, `build-*`, `sync-*`, `refresh-*`) run only in GitHub Actions; locally, read artifacts and run gates.
+- **Markets:** US first; Korean themes and Korean-market content are real user features, labelled '한국' and secondary.
+- **Batches:** implement several items, run one code-reviewer subagent on the batch diff, then verify and record once.
+- **Information architecture (2026-10-01):** 8 screens — 오늘(home+briefing+market-news), 시장 상태(signal+breadth+sentiment), 거시(macro+fxbond), 종목(ticker+fundamental+technical), 테마(themes+theme-detail), 스크리너, 포트폴리오, 배우기(principles+masters+atlas+guide+glossary). Each merge moves legacy `js/` ownership to `src/` and deletes the replaced code; old ids stay as aliases.
+- **Honesty without clutter:** one status per card (최신/지연/참고/없음), details on demand, one global disclaimer. Hide widgets whose source does not exist; remove uncalibrated grades/scores; a reference score always shows its basis.
+- **Slow data is static:** 13F, knowledge base, principles and glossary are versioned static JSON updated when the source changes; content-addressed artifacts hash content only (P1370). 13D/G keeps its light daily poll (P1309/R654).
+- **Filling gaps (2026-10-11):** existing artifacts and official free sources first (FRED, Treasury, BLS, BEA, SEC, CBOE, BOK/ECOS, KOSIS, KRX); cited OpenAI web search when they cannot answer or to corroborate. Search never supplies numeric inputs to scores, tables or charts; citations do not certify freshness and collection time never replaces publication time.
+- **AI (2026-10-11/12):** all generation uses OpenAI `gpt-6-luna` via the shared Worker; `OPENAI_API_KEY` stays in Worker Secrets. Chat, translation, Actions analysis and web search share one atomic UTC-month budget ≤ $20; personal keys or other paid providers never bypass it. No per-user search allowance; optimise existing evidence first. Hosted search ≤ 2 calls per response with its reservation kept; completed text-only responses may settle with validated usage, incomplete attempts keep the reservation, and reservations are not an invoice. AI is always on, search is automatic, one top AI panel (no per-page chat). Per-connection cap 150/day; the month's last 20% answers without search (P1759). Production changes need explicit commit/push/deploy; local gates do not certify the deployed service.
 
 ## Task routing
 
@@ -52,27 +51,24 @@ Owner decisions that every agent (Claude, Codex, subagents) applies without re-a
 | Supplied research or market framework | `integrate` |
 | Docs, skills, agents, hooks or knowledge drift | `knowledge-lint` |
 | Skill experiments and eval design | `autoresearch` |
-| Delegation, assumption check, post-PR trim | `.agents/skills/_shared/agent-prompt-anatomy.md`; the routines in `.claude/commands/{restate,assumptions,trim-pr}.md` apply as written |
+| Delegation, assumptions, post-PR trim, weekly retro | `.agents/skills/_shared/agent-prompt-anatomy.md`; `.claude/commands/{restate,assumptions,trim-pr,retro}.md` apply as written |
 | Recording a fix (P/R/QA/CHANGELOG/status) | `node scripts/record-fix.mjs <entry.json>` after `bump-version`, then `generate-workspace-state --write` |
 
 ## Non-negotiable boundaries
 
-- Automatic commit, push and deployment are forbidden. Run them only after an explicit user request for that action. Ask once at each batch end whether to push.
-- Use `node scripts/bump-version.mjs <version>` for versioned changes. R1 covers every version surface patched by `scripts/bump-version.mjs` (it also regenerates `_context/CURRENT-STATE.md`) and is verified by `ci-version-check.mjs`.
-- Bug fixes require a new P entry; features/cleanups use a change-only `record-fix` entry (no `p`). Promote recurring defect classes to RULES/QA and a gate. New assertions cite evidence — the P/R entry, or the introducing release (`vNN.NN` with a CHANGELOG heading); `ci-assertion-trace-check.mjs` enforces this, and `ci-ledger-integrity-check.mjs` freezes the R-number gap set and requires new open QA items to declare `verify_by:`.
-- Generated workspace files are never hand-edited: run `node scripts/generate-workspace-state.mjs --write`, `node scripts/sync-agent-profiles.mjs`, and `node scripts/sync-agent-skills.mjs` as applicable.
-- Static, runtime/headless, browser and live evidence are separate. Never promote a lower evidence level to a higher one.
-- No commit or deployment is implied by “finish”, “fix all”, QA completion, or a passing local gate.
-- Change flow (owner decision 2026-09-30): work on `main` directly. Local full QA (`npm run qa:full`) → commit on `main` → push `main` only when the user asks. CI on main is the release gate: Pages and the Workers deploy only the CI-attested SHA, so a red CI never ships. No PR step for routine work.
-- Before pushing, `git pull --no-rebase origin main`; the data bot's commits conflict on the generated release manifests, so run `node scripts/resolve-generated-conflicts.mjs` and the release gates it prints instead of hand-editing.
-- Branches are only for parallel agents or risky experiments: one worktree per agent (`git worktree add <dir> -b <agent>/<topic> main`), disjoint file ownership; the main agent merges them back into `main` and runs the gates once.
-- Line endings are LF everywhere (`.gitattributes`, P1344); do not add CRLF files except `*.cmd`/`*.ps1`.
+- Automatic commit, push and deployment are forbidden; run them only on an explicit user request. Ask once at each batch end whether to push. “Finish”, “fix all”, QA completion or a passing gate imply no commit or deploy.
+- Versioned changes use `node scripts/bump-version.mjs <version>` (R1, every version surface; verified by `ci-version-check.mjs`).
+- Bug fixes get a new P entry; features/cleanups a change-only `record-fix` entry. Recurring defect classes become RULES/QA plus a gate. New assertions cite the P/R entry or the introducing release (`vNN.NN` with a CHANGELOG heading) — `ci-assertion-trace-check.mjs`; `ci-ledger-integrity-check.mjs` freezes the R gap set and requires `verify_by:` on new open QA items. New text pins on product source are frozen by `ci-text-pin-ratchet-check.mjs` — test behaviour instead.
+- Generated workspace files are never hand-edited: `generate-workspace-state.mjs --write`, `sync-agent-profiles.mjs`, `sync-agent-skills.mjs`.
+- Static, headless, browser and live evidence are separate; never promote a lower level to a higher one.
+- Change flow (2026-09-30): work on `main`; local full QA (`npm run qa:full`) → commit → push only when asked. CI on main is the release gate (Pages and Workers deploy only the CI-attested SHA). No PR step for routine work.
+- Before pushing, `git pull --no-rebase origin main`; on generated-manifest conflicts run `node scripts/resolve-generated-conflicts.mjs` and the gates it prints.
+- Branches only for parallel agents or risky experiments: one worktree per agent (`git worktree add <dir> -b <agent>/<topic> main`), disjoint files; the main agent merges and gates once.
+- LF line endings everywhere (`.gitattributes`, P1344) except `*.cmd`/`*.ps1`.
 
 ## Closeout
 
-Use `architecture/qa-pipeline.json` through `node scripts/qa-runner.mjs affected --session <task-id>` for normal closeout. If no baseline was captured, pass the exact task-owned list with `--files <comma-separated-paths>`; never let unrelated pre-existing dirty files silently widen the run. Fix the complete failure batch, then use `rerun-failed`, which rechecks the exact failed gates and declared dependencies. Reserve `full --no-cache` for release/shared-shell certification and `external --no-cache` for deployed claims.
-
-For workspace-facing changes run at minimum:
+Run `node scripts/qa-runner.mjs affected --session <task-id>` (pipeline: `architecture/qa-pipeline.json`); without a baseline pass the task-owned list via `--files <paths>` so unrelated dirty files never widen the run. Fix the whole failure batch, then `rerun-failed`. `full --no-cache` is for release/shared-shell certification (never two at once — they collide on `_artifacts/`), `external --no-cache` for deployed claims. Workspace-facing changes also run:
 
 ```text
 node scripts/generate-workspace-state.mjs --check
@@ -87,4 +83,4 @@ node scripts/sync-agent-skills.mjs --check
 git diff --check
 ```
 
-Add the code/data/browser gates selected by the touched surface. Final reports must separate verified, blocked and unverified work and state whether commit/deploy occurred.
+Add the code/data/browser gates the touched surface selects. Final reports separate verified, blocked and unverified work and state whether commit/deploy occurred.

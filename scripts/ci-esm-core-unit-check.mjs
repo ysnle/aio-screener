@@ -70,18 +70,8 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (item.rsRatio !== 101 || item.pct !== 1.2 || item.weeklyPct !== 3.5 || item.price !== null || item.changeBasis !== 'adjusted-close-total-return') fail('P1358 provider bypassed durable rotation or fabricated a raw price');
 }
 
-// P1357: delayed observations inform reference cards without becoming score/trade evidence.
-{
-  const { selectReferenceObservation } = await load('src/domain/market/reference-observation.js');
-  const nowMs = Date.parse('2026-10-01T00:34:00Z');
-  const oil = { value: 90.4, source: 'Yahoo chart', observedAt: '2026-10-01T00:24:00Z', session: 'DELAYED_IN_SESSION', quality: 'DELAYED', allowedUse: 'current-with-session-and-delay-gate' };
-  const selected = selectReferenceObservation([oil], { nowMs });
-  if (selected?.value !== 90.4 || selected.allowedUse !== 'reference' || selected.decisionEligible !== false) fail('P1357 latest delayed observation lost or granted a trade decision');
-  for (const bad of [{ value: true }, { source: '' }, { observedAt: '2026-10-01T01:00:00Z' }, { observedAt: '2026-09-01T00:00:00Z' }, { quality: 'BLOCKED' }, { allowedUse: 'none' }]) {
-    if (selectReferenceObservation([{ ...oil, ...bad }], { nowMs })) fail('P1357 invalid reference observation was accepted');
-  }
-  // P1727: the briefing decision-summary model (no product consumer since the briefing read replaced it) was deleted.
-}
+// P1357's reference-observation selector had no runtime caller and was deleted (v57.55 review cleanup, R675).
+// P1727: the briefing decision-summary model (no product consumer since the briefing read replaced it) was deleted.
 
 // P1353: refuse unsupported paid search before incrementing counters; personal-key cost stays separate.
 {
@@ -574,7 +564,9 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
 // A sidebar click passes a DOM node via data-pass-el; the typed command must
 // reject it to null instead of mounting a scope keyed by "[OBJECT HTMLDIVELEMENT]".
 {
-  const { createLifecycleRouter, createRouteRegistry, normalizeNavigationCommand } = await load('src/app/router.js');
+  const { createLifecycleRouter, createRouteRegistry, normalizeNavigationCommand, parseRouteDeepLink } = await load('src/app/router.js');
+  const pathLink = parseRouteDeepLink('#ticker/nvda');
+  if (pathLink?.routeId !== 'ticker' || pathLink.entityId !== 'NVDA' || parseRouteDeepLink('#ticker?sym=AAPL')?.entityId !== 'AAPL' || parseRouteDeepLink('#ticker/<x>')?.entityId !== null) fail(`v57.54 a path-style #ticker/NVDA link opens that company (it was a blank page), got ${JSON.stringify(pathLink)}`);
   if (normalizeNavigationCommand({ routeId: 'ticker', args: [{}] })?.entityId !== null) fail('W00/P1143 navigation: a DOM-like arg became an entity id');
   if (normalizeNavigationCommand({ routeId: 'ticker', entityId: 'aapl' })?.entityId !== 'AAPL') fail('W00/P1143 navigation: explicit string identity was not normalized');
   if (normalizeNavigationCommand({ routeId: 'theme-detail' })?.routeId !== 'themes') fail('W00/P1143 navigation: theme-detail was not canonicalized to themes');
@@ -1408,9 +1400,26 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     if (completeBase.componentCoveragePct !== 100 || completeBase.missingOptionalInputs.length !== 3
       || !/보조 입력 미수신/.test(deriveTradingScoreDecisionPresentation({ score: completeBase }).description)) fail('P1349: base-axis coverage hid missing optional risk observations');
   }
+  // v57.55 review (S2-F3): an earnings line attaches only to a results story about that company.
+  {
+    const { earningsContextForHeadline } = await load('src/domain/news/earnings-context.js');
+    const opts = { earnings: [{ symbol: 'BAC', date: '2026-10-14', hour: 'bmo', epsEstimate: 1.16 }, { symbol: 'MU', date: '2026-10-13', hour: 'amc', epsEstimate: 2, epsActual: 2.2 }], names: { BAC: 'Bank of America Corporation', MU: 'Micron Technology, Inc.' }, nowMs: Date.parse('2026-10-14T00:00:00Z') };
+    const pick = (title) => earningsContextForHeadline(title, opts)?.symbol || null;
+    if (pick('S&P 500 futures quiet as investors await big bank earnings') || pick('Bank of America raises Taiwan Semiconductor target price ahead of earnings') || pick('Micron beats on AI memory') !== 'MU' || pick('Bank of America earnings preview') !== 'BAC') fail('v57.55 review: earnings context must need the full name or ticker, a results word, and not an analyst action');
+  }
+  // v57.55 review (E1-03): a quarterly trend is named only when the last two steps agree.
+  {
+    const { buildQuarterRead } = await load('src/domain/fundamental/quarter-read.js');
+    const q = (end, revenue) => ({ periodEnd: end, revenue, netIncome: 1 });
+    const uneven = buildQuarterRead([q('2024-03-31', 100), q('2024-06-30', 100), q('2024-09-30', 100), q('2025-03-31', 55), q('2025-06-30', 70), q('2025-09-30', 360)].concat([q('2025-12-31', 1), q('2024-12-31', 1)]));
+    const slowing = buildQuarterRead([q('2024-03-31', 100), q('2024-06-30', 100), q('2024-09-30', 100), q('2025-03-31', 160), q('2025-06-30', 140), q('2025-09-30', 120)]);
+    if (/빨라졌다/.test(uneven.headline) || !/느려졌다/.test(slowing.headline)) fail(`v57.55 review: quarterly trend wording must follow the last two YoY steps, got "${uneven.headline}" / "${slowing.headline}"`);
+  }
   // ── P1339: company names resolve exactly; ticker-shaped input is never rewritten through an alias ──
   {
-    const { resolveRegisteredName } = await load('src/domain/ticker/resolve-name.js');
+    const { resolveRegisteredName, searchCandidates, isKnownSymbol } = await load('src/domain/ticker/resolve-name.js');
+    const picks = searchCandidates('삼성', { entries: { '005930.KS': { kr: '삼성전자' } }, krStockDb: { '006400': { name: '삼성SDI' }, '005930': { name: '삼성전자' } } });
+    if (picks.map((row) => row.symbol).join(',') !== '005930.KS,006400.KS' || searchCandidates('삼', {}).length || isKnownSymbol('NVDAA', { entries: { NVDA: {} } }) || !isKnownSymbol('nvda', { entries: { NVDA: {} } })) fail(`v57.54 review: a partial name lists candidates to pick (deduplicated, never auto-opened) and an unregistered ticker is recognised as unknown, got ${JSON.stringify(picks)}`);
     const entries = { GOOGL: { en: 'Alphabet', kr: '알파벳', alt: ['google', 'goog'] }, NVDA: { en: 'NVIDIA', kr: '엔비디아', alt: ['nvidia'] }, WDAY: { en: 'Workday', alt: ['hr'] }, '000660.KS': { en: 'SK hynix', kr: 'SK하이닉스', alt: ['sk hynix'] } };
     const cases = [['GOOG', null], ['HR', null], ['googl', 'GOOGL'], ['google', 'GOOGL'], ['Alphabet', 'GOOGL'], ['엔비디아', 'NVDA'], ['nvidia', 'NVDA'], ['sk hynix', '000660.KS'], ['', null], ['삼성전자', null]];
     for (const [input, expected] of cases) {
@@ -2071,8 +2080,18 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
       if (mastersLoads === 1) throw new Error('fixture-load-failure');
       return { createMastersPage: () => ({ mount: () => { mastersMounts += 1; } }) };
     },
-    factory: (module) => module.createMastersPage()
+    factory: (module) => module.createMastersPage(),
+    retryDelaysMs: [] // the automatic retry (v57.55) is exercised below; this case checks the fail-closed state
   });
+  // v57.55 review: a transient import failure (429) is retried automatically before the route reads 'failed'.
+  {
+    let flakyLoads = 0;
+    const flaky = createLazyPage({ route: 'breadth', loader: async () => { flakyLoads += 1; if (flakyLoads < 3) throw new Error('429'); return { page: { mount: () => () => {} } }; }, factory: (module) => module.page, retryDelaysMs: [1, 1] });
+    const flakyNode = { dataset: {}, querySelector: () => null, prepend() {} };
+    flaky.mount({ documentRef: { getElementById: (id) => (id === 'page-breadth' ? flakyNode : null), createElement: () => ({ dataset: {}, setAttribute() {} }) } });
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    if (flakyLoads !== 3 || flakyNode.dataset.aioRouteModuleState !== 'ready') fail(`lazy-router: a transient import failure must be retried before failing, got ${flakyLoads}/${flakyNode.dataset.aioRouteModuleState}`);
+  }
   const target = new EventTarget();
   const registry = createRouteRegistry({ modules: {
     guide,
@@ -2113,6 +2132,8 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (live.modelVersion !== 'portfolio-surface.v3' || live.positionValue !== 24 || live.totalAssets !== 74 || live.totalPnl !== 4 || 'exposureCap' in live ||live.sectorBreakdown.length !== 2 || live.valuationState !== 'complete' || live.allowedUse !== 'reference-only' || live.decisionEligible !== false || live.snapshotFallbackBlocked !== true || live.costFallbackBlocked !== true) fail(`portfolio-surface: live/cash derivation or reference boundary drifted, got ${JSON.stringify(live)}`);
   const partial = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10 }, { symbol: 'XYZ', shares: 1, avgCost: 20 }], cash: null }, liveData: { ABC: currentQuote(12, { pct: 2 }) }, vix: currentQuote(22), now: quoteNow });
   if (partial.positionValue !== null || partial.totalPnl !== null || partial.dailyChange !== null || partial.sectorBreakdown.length !== 0) fail(`portfolio-surface: partial holdings must not sum unknown rows as zero, got ${JSON.stringify(partial)}`);
+  const closed = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10 }, { symbol: 'XYZ', shares: 1, avgCost: 20 }], cash: 0 }, liveData: { ABC: currentQuote(12, { pct: 2 }) }, vix: null, now: quoteNow, closeOf: (symbol) => (symbol === 'XYZ' ? { price: 25, date: '2026-10-13' } : { price: 99, date: '2026-10-13' }) });
+  if (closed.valuationState !== 'complete' || closed.positionValue !== 49 || closed.closeValuedCount !== 1 || closed.closeDate !== '2026-10-13' || closed.rows[0].price !== 12 || closed.rows[1].sourceKind !== 'completed-close' || closed.decisionEligible === true) fail(`v57.54 review: a holding without a live quote is valued at the dated completed close (live still wins), got ${JSON.stringify({ state: closed.valuationState, value: closed.positionValue, n: closed.closeValuedCount })}`);
   const daily = derivePortfolioSurface({ state: { holdings: [{ symbol: 'ABC', shares: 10, avgCost: 80, price: 110, dailyPct: 10 }], cash: 0 } });
   if (daily.dailyChange !== null || daily.dailyPct !== null) fail('portfolio-surface: non-envelope dailyPct must not enter aggregate daily return');
   const missingCost = derivePortfolioSurface({ state: { holdings: [{ symbol: 'ABC', shares: 10, avgCost: null, price: 110 }], cash: 0, totals: { totalCost: 0, totalPnl: 1100, totalPnlPct: 100 } } });
@@ -3155,14 +3176,14 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     ['ledger rows keep kind and index', ledgerMarkup.includes('data-arg="transaction:0"') && ledgerMarkup.includes('data-arg="valuation:0"') && ledgerMarkup.includes('출금')],
     ['empty ledger says so', ledgerListMarkup(null) === '원장 항목 없음' && ledgerListMarkup({ transactions: [], valuations: [] }) === '원장 항목 없음'],
     ['usable fx leg stays plain', usableFxRow.includes('USD→KRW') && !usableFxRow.includes('opacity:0.7;') && !usableFxRow.includes('사용 불가')],
-    ['unusable fx leg names the declared budget', fxMarkup.includes('사용 불가(선언 창 72h 초과 또는 컷 이후)') && fxMarkup.includes('opacity:0.7;')],
+    ['unusable fx leg names the declared budget', fxMarkup.includes('지금은 쓰지 않음(입력한 지 72시간이 지났거나 기준 시각 이후 관측)') && fxMarkup.includes('opacity:0.7;')],
     ['fx list indexes its remove buttons', fxMarkup.includes('data-arg="0"') && fxMarkup.includes('data-arg="1"')],
     ['persist failure never reads as success', persistFail.ok === false && persistFail.tone === 'var(--data-amber)' && persistFail.text.includes('영구 저장 실패')],
     ['persist failure must not borrow the invalid-entry wording', !persistFail.text.includes('FX leg는') && !persistFail.text.includes('날짜(YYYY-MM-DD)')],
     ['invalid fx names what is missing', invalidFx.text.includes('FX leg는 통화 2개')],
     ['invalid ledger names what is missing', invalidLedger.text.includes('원장 항목은 날짜(YYYY-MM-DD)')],
     ['a durable success keeps its message', saved.ok === true && saved.tone === 'var(--text-muted)' && saved.text === '원장 항목을 삭제했습니다.'],
-    ['apply writes the list and reports it', applied === true && fakeList.innerHTML.includes('FX leg 없음')],
+    ['apply writes the list and reports it', applied === true && fakeList.innerHTML.includes('입력한 환율 없음')],
     ['apply without its elements reports false', appliedEmpty === false],
     ['fields read from the document', readBack['pf-fx-from'] === 'USD' && readBack['pf-fx-to'] === ''],
     ['status write lands on the element', statusWritten && statusWritten.text.includes('FX leg는')]
@@ -3612,6 +3633,17 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const smallcap = buildMarketRead({ history: rows.map((row, i) => ({ ...row, rut: 2400 - i * 4 })), credit: { hyBp: 300, hyAsOf: last, hyDelta5Bp: -2 } }).statements.find((row) => row.id === 'smallcap-lags');
   if (!smallcap || /원인은/.test(smallcap.text) || !/그럴듯한 설명/.test(smallcap.reading || '')) fail('P1399 an interpretation must be worded as a hypothesis apart from the observation');
   const { isSessionComplete } = await import('./fetch-data.mjs');
+  {
+    // v57.55 review: headlines are translated once in Actions — last run's translation reused, only new English titles
+    // asked, a reply that is not a matching Korean list leaves titleKo unset.
+    const { translateHeadlines } = await import('./fetch-data.mjs');
+    const items = [{ title: 'Fed holds rates' }, { title: 'Oil jumps 5%' }, { title: '코스피 급반등' }];
+    let asked = null;
+    const done = await translateHeadlines(items, { previous: [{ title: 'Fed holds rates', titleKo: '연준 금리 동결' }], request: async (prompt) => { asked = prompt; return { text: '["유가 5% 급등"]' }; } });
+    const bad = [{ title: 'Gold rises' }];
+    await translateHeadlines(bad, { request: async () => ({ text: '["Gold rises"]' }) });
+    if (items[0].titleKo !== '연준 금리 동결' || items[1].titleKo !== '유가 5% 급등' || items[2].titleKo || done.reused !== 1 || done.translated !== 1 || /Fed holds/.test(asked) || bad[0].titleKo) fail(`v57.55 review: headline translation reuse/new/guard wrong ${JSON.stringify({ items, done, bad })}`);
+  }
   if (isSessionComplete('2026-10-01', 'us', Date.parse('2026-10-01T13:52:00Z')) || !isSessionComplete('2026-10-01', 'us', Date.parse('2026-10-01T20:30:00Z')) || !isSessionComplete('2026-09-30', 'us', Date.parse('2026-10-01T13:52:00Z'))) fail('P1399 an in-session bar must not count as a completed close');
   const nowMs = Date.parse('2026-10-02T01:00:00Z');
   const schedule = buildBriefingSchedule({ releases: { 'us-nfp': { nextRelease: '2026-10-02' }, 'us-cpi': { nextRelease: '2026-10-14' } }, snapshot: { nfp: 162, unemployment: 4.1 }, nowMs,
@@ -3620,9 +3652,9 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   // P1501: rule-derived market-structure dates (FOMC minutes, KRX expiry, exchange holidays).
   const week = buildBriefingSchedule({ fomcDecisions: ['2026-09-16', '2026-10-28'], nowMs: Date.parse('2026-10-06T12:00:00+09:00'), days: 7 });
   const labels = week.map((row) => `${row.when} ${row.label}`);
-  if (labels.join('|') !== '10/8(목) 03:00 KST FOMC 의사록 (9/16 회의)|10/8(목) 15:20 KST 국내 옵션 만기|10/9(금) 09:00 KST 한국 증시 휴장 (한글날)') fail(`P1501 structure events wrong: ${JSON.stringify(labels)}`);
+  if (labels.join('|') !== '10/8(목) 03:00 KST FOMC 의사록 (9/16 회의)|10/8(목) 15:20 KST 한국 옵션 만기|10/9(금) 09:00 KST 한국 증시 휴장 (한글날)') fail(`P1501 structure events wrong: ${JSON.stringify(labels)}`);
   const december = buildBriefingSchedule({ fomcDecisions: [], nowMs: Date.parse('2026-12-07T00:00:00Z'), days: 14 }).map((row) => row.label);
-  if (!december.includes('국내 선물·옵션 동시 만기') || !december.includes('미국 지수 선물·옵션 분기 만기')) fail(`P1501 quarterly expiry missing: ${JSON.stringify(december)}`);
+  if (!december.includes('한국 선물·옵션 동시 만기') || !december.includes('미국 지수 선물·옵션 분기 만기')) fail(`P1501 quarterly expiry missing: ${JSON.stringify(december)}`);
 }
 
 // ── P1416: breadth signals — 4% movers, 52-week highs/lows, 40-day ratio, distribution days ────
@@ -3784,6 +3816,10 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (result.excluded !== 1 || byId['single-holding'].status !== 'attention' || !/AAA 60\.0%/.test(byId['single-holding'].value)) fail(`P1418 single-holding check wrong: ${JSON.stringify(byId['single-holding'])}`);
   if (byId['single-currency'].status !== 'info' || byId.region.status !== 'info' || byId.fees.status !== 'unknown') fail('P1418 only rules with a published default may carry a verdict');
   if (derivePortfolioChecks({ surface: { ...surface, currencyState: 'mixed-without-conversion' } }).status !== 'unavailable') fail('P1418 an unconverted currency mix must hold the checks');
+  // v57.55 review (B4-F4/F5): entered cash is read from surface.cash, and a mostly-unpriced book holds the concentration verdict.
+  const sparse = derivePortfolioChecks({ surface: { currencyState: 'declared-single', baseCurrency: 'USD', totalAssets: null, positionValue: null, cash: 5000, rows: [{ symbol: 'QQQ', value: 900, currency: 'USD' }, { symbol: 'TSLA', value: null }, { symbol: '105560', value: null }] } });
+  const sparseById = Object.fromEntries(sparse.checks.map((check) => [check.id, check]));
+  if (sparseById['single-holding'].value !== '판정 보류' || sparseById['single-holding'].status !== 'unknown' || sparseById.cash.value !== '비중 보류') fail(`v57.55 review: unpriced holdings must hold the concentration verdict and entered cash must not read '미입력', got ${JSON.stringify([sparseById['single-holding'], sparseById.cash])}`);
   // Undeclared US + Korean holdings are a hidden mix: held, not summed as one unit.
   const hidden = derivePortfolioSurface({ state: { readState: 'ready', holdingsKnown: true, status: 'current', cash: 0, cashKnown: true, holdings: [{ symbol: 'AAPL', shares: 1, price: 100 }, { symbol: '005930.KS', shares: 1, price: 100000 }] }, liveData: {}, vix: null });
   if (hidden.totalAssets === 100100 || hidden.currencyState !== 'mixed-without-conversion') fail(`P1418 undeclared USD + KRW holdings were summed: ${hidden.totalAssets} ${hidden.currencyState}`);

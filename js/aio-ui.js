@@ -831,9 +831,9 @@ window.addEventListener('offline', () => {
 function _aioParseRouteHash(hashValue) {
   var raw = String(hashValue || '').replace(/^#/, '');
   var separator = raw.indexOf('?');
-  var routeId = separator >= 0 ? raw.slice(0, separator) : raw;
-  var query = separator >= 0 ? raw.slice(separator + 1) : '';
-  return { routeId: routeId || 'home', params: new URLSearchParams(query) };
+  var path = (separator >= 0 ? raw.slice(0, separator) : raw).split('/'), routeId = path[0];
+  var params = new URLSearchParams(separator >= 0 ? raw.slice(separator + 1) : ''); // v57.54: #ticker/NVDA reads as #ticker?sym=NVDA (was a blank page)
+  if (routeId === 'ticker' && path[1] && !params.has('sym')) params.set('sym', path[1]); return { routeId: routeId || 'home', params: params };
 }
 function _aioSyncKnowledgeRouteContext() {
   var parsed = _aioParseRouteHash(location.hash);
@@ -5488,7 +5488,7 @@ window._aioRenderTickerOverview = function(tkr) {
   if (prov) {
     var srcs = [];
     var dsrc = window._dataSource && window._dataSource[tkr];
-    if (price > 0) srcs.push('시세: ' + (live.source || (dsrc && dsrc.source) || 'live'));
+    if (price > 0) { srcs.push('시세: 실시간 관측'); prov.title = '시세 출처: ' + (live.source || (dsrc && dsrc.source) || 'live'); } // v57.54: provider id moved to hover (was "live:yahoo-proxy" on screen)
     if (scr) srcs.push('수익률·팩터: 완료 종가 기준');
     prov.textContent = srcs.length ? srcs.join(' · ') : '원천 미수신 — 표시값 없음';
   }
@@ -5822,7 +5822,7 @@ function toggleTheme() {
 (function() {
   var saved = null;
   try { saved = localStorage.getItem('aio_theme'); } catch (_) {}
-  if (saved === 'dark') {
+  if (saved === 'dark' || (saved == null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) { // v57.54: no saved choice follows the device setting
     document.body.classList.add('dark-theme');
     var btn = document.getElementById('theme-toggle');
     if (btn) btn.textContent = 'Dark';
@@ -5889,7 +5889,7 @@ window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); /
     bar.id = 'aio-first-visit-disclaimer';
     bar.setAttribute('role', 'region');
     bar.setAttribute('aria-label', '투자 면책 고지');
-    bar.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:99990;background:var(--bg-elevated,#f5f1e8);border-top:1px solid var(--border,#d8d2c4);box-shadow:0 -2px 12px rgba(33,29,22,0.12);padding:10px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:12px;line-height:1.6;color:var(--text-secondary,#57513f);';
+    bar.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:190;background:var(--bg-elevated,#f5f1e8);border-top:1px solid var(--border,#d8d2c4);box-shadow:0 -2px 12px rgba(33,29,22,0.12);padding:10px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:12px;line-height:1.6;color:var(--text-secondary,#57513f);';
     var txt = document.createElement('div');
     txt.style.cssText = 'flex:1;min-width:240px;';
     txt.innerHTML = '<b style="color:var(--text-primary);">투자 면책 고지</b> — 본 도구의 모든 수치·점수·시그널·AI 답변은 지연/스냅샷/참고용일 수 있으며 <b>투자 권유·자문·매매 지시가 아닙니다</b>. 투자 결정과 그 결과는 이용자 본인에게 있습니다.';

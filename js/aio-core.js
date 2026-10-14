@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.54';
+const APP_VERSION = 'v57.55';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -192,7 +192,7 @@ function _aioNormalizeAiError(error, context) {
   var messages = {
     success: 'AI 요청이 완료되었습니다.',
     timeout: 'AI 응답이 시간 초과되었습니다.',
-    rate_limit: 'AI 사용 한도에 도달했습니다.',
+    rate_limit: 'AI 질문이 잠시 몰렸습니다.',
     regional_forbidden: '현재 네트워크 지역에서 AI 요청이 거부되었습니다.',
     auth_or_origin: 'AI 인증 또는 허용 출처 확인이 필요합니다.',
     upstream_unavailable: 'AI 서버를 일시적으로 사용할 수 없습니다.',
@@ -204,7 +204,7 @@ function _aioNormalizeAiError(error, context) {
   var nextActions = {
     success: '결과를 확인하세요.',
     timeout: '잠시 후 다시 시도하세요.',
-    rate_limit: '1분 후 다시 시도하거나 사용량을 확인하세요.',
+    rate_limit: '1분쯤 뒤 다시 보내 주세요. 화면의 숫자와 설명은 그대로 볼 수 있습니다.',
     regional_forbidden: '다시 시도하고 계속되면 운영자에게 공용 연결 확인을 요청하세요.',
     auth_or_origin: '운영자에게 공용 연결의 인증·허용 출처 확인을 요청하세요.',
     upstream_unavailable: '잠시 후 다시 시도하거나 로컬/참고용 폴백을 확인하세요.',
@@ -220,8 +220,8 @@ function _aioNormalizeAiError(error, context) {
     source: context.source || e.source || 'unknown',
     reason: reason,
     rawMessage: raw.slice(0, 240),
-    userMessage: messages[reason] || messages.unknown,
-    nextAction: nextActions[reason] || nextActions.unknown,
+    userMessage: reason === 'rate_limit' && /daily|오늘 ai 질문|일일/.test(lower) ? '오늘 쓸 수 있는 AI 질문을 모두 썼습니다.' : reason === 'rate_limit' && /monthly|월 ai 예산/.test(lower) ? '이번 달 공용 AI 예산을 모두 썼습니다.' : (messages[reason] || messages.unknown), // v57.55 B4-F11/E1-16: per-minute vs daily vs monthly
+    nextAction: reason === 'rate_limit' && /daily|오늘 ai 질문|일일/.test(lower) ? '한국 시간 오전 9시에 다시 열립니다. 화면의 숫자와 설명은 그대로 볼 수 있습니다.' : reason === 'rate_limit' && /monthly|월 ai 예산/.test(lower) ? '다음 달 1일에 다시 열립니다. 화면의 숫자와 설명은 그대로 볼 수 있습니다.' : (nextActions[reason] || nextActions.unknown),
     retryable: retryable,
     referenceOnly: reason !== 'success'
   };
@@ -3925,9 +3925,9 @@ var AIO_PAGE_BRIEFS = {
   themes: {
     title: '어떤 테마가 실제 돈을 끌어오는지 확인',
     use: '테마 이름보다 구성 종목과 상대강도가 중요합니다.',
-    steps: ['테마별 성과와 주도주 확인', '밸류체인에서 병목 위치 확인', '개별 종목은 기업분석/기술분석으로 검증'],
+    steps: ['테마별 성과와 주도주 확인', '밸류체인에서 병목 위치 확인', '개별 종목은 종목 화면의 재무 공시·차트로 검증'],
     focus: '같은 AI 테마라도 인프라, 반도체, 전력, 소프트웨어는 사이클과 리스크가 다릅니다.',
-    links: [['fundamental','기업 분석'], ['technical','기술 분석'], ['market-news','뉴스']]
+    links: [['fundamental','종목 · 재무 공시'], ['technical','종목 · 차트'], ['market-news','오늘 · 뉴스']]
   },
   portfolio: {
     title: '내 계좌가 시장 충격에 얼마나 취약한지 확인',
@@ -16442,7 +16442,6 @@ window.AIO.getTacticalTraderFrameworkAudit = getTacticalTraderFrameworkAudit;
 window.calcBlowoffTopChecklist = calcBlowoffTopChecklist;
 window.calcSellPressure = calcSellPressure;
 window.calcSemiHeatMap = calcSemiHeatMap;
-window.calcSemiHeat = calcSemiHeatMap;
 window.calcAIInfraHeat = calcAIInfraHeat;
 window.calcExitPlan = calcExitPlan;
 window.calcDataQuality = calcDataQuality;
@@ -21388,7 +21387,7 @@ function showPage(id, navEl) {
     } catch (_) {}
   }
   // P1631: an overlay id (#glossary) has no page — open it over the guide instead of blanking the screen.
-  if ((window.AIO_ROUTE_REGISTRY.classes.OVERLAY || []).indexOf(id) >= 0) { id = 'guide'; try { history.replaceState(Object.assign({}, history.state || {}, { page: id }), '', '#guide'); } catch (_) {} setTimeout(function() { if (typeof window.openGlossary === 'function') window.openGlossary(); }, 0); }
+  if ((window.AIO_ROUTE_REGISTRY.classes.OVERLAY || []).indexOf(id) >= 0) { id = 'guide'; try { history.replaceState(Object.assign({}, history.state || {}, { page: id }), '', '#guide'); } catch (_) {} setTimeout(function() { if (typeof window.openGlossary === 'function') window.openGlossary(); }, 0); } else if (id !== 'theme-detail' && !document.getElementById('page-' + id)) { id = 'home'; try { history.replaceState(Object.assign({}, history.state || {}, { page: id }), '', '#home'); } catch (_) {} } // v57.55 E3-F2: unknown id → 오늘
   // v52.27 P642: theme-detail is an inline panel on #themes, not a separate user route.
   if (id === 'theme-detail') {
     try {
@@ -21512,7 +21511,7 @@ if (typeof window !== 'undefined' && !window._aioPopstateRegistered) {
     try { if (typeof window._aioSyncKnowledgeRouteContext === 'function') window._aioSyncKnowledgeRouteContext(); } catch (_) {}
     if (!pageId) pageId = 'home';
     // 유효 페이지인지 확인
-    if (document.getElementById('page-' + pageId)) {
+    if (!document.getElementById('page-' + pageId) && !(window.AIO_ROUTE_REGISTRY && (window.AIO_ROUTE_REGISTRY.canonical[pageId] || (window.AIO_ROUTE_REGISTRY.classes.OVERLAY || []).indexOf(pageId) >= 0))) { pageId = 'home'; try { history.replaceState({ page: 'home' }, '', '#home'); } catch (_) {} } { // v57.55 review (E3-F2): an unknown hash lands on 오늘 instead of leaving the previous screen under a wrong address
       _aioInPopstate = true; // showPage 내 pushState 스킵 플래그
       try { showPage(pageId, null); } finally { _aioInPopstate = false; }
     }
@@ -21570,9 +21569,9 @@ function showTicker(tkr) {
   if (window.AIO && window.AIO.state && tickerOriginRoute && !/^(ticker|technical|fundamental)$/.test(tickerOriginRoute)) { // P1430: 종목 tabs keep the outer origin
     window.AIO.state.tickerReturnRoute = tickerOriginRoute === 'theme-detail' ? 'themes' : tickerOriginRoute;
   }
-  tkr = typeof window._aioNormalizeTickerInput === 'function' ? window._aioNormalizeTickerInput(tkr) : String(tkr || '').trim().toUpperCase(); // P1317: 005930/삼성전자 → 005930.KS
+  var _rawTicker = tkr; tkr = typeof window._aioNormalizeTickerInput === 'function' ? window._aioNormalizeTickerInput(tkr) : String(tkr || '').trim().toUpperCase(); // P1317: 005930/삼성전자 → 005930.KS
   if (!/^[A-Z0-9.\-]{1,12}$/.test(tkr)) {
-    if (typeof showToast === 'function') showToast('올바른 티커를 입력하세요.');
+    if (typeof window._aioTickerSearchMiss === 'function') window._aioTickerSearchMiss(_rawTicker); else if (typeof showToast === 'function') showToast('올바른 티커를 입력하세요.'); // v57.54: persistent message + candidates
     return;
   }
   window._aioTickerSelectionEpoch = (window._aioTickerSelectionEpoch || 0) + 1;

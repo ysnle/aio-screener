@@ -1,5 +1,4 @@
 import {
-  SCREENER_CONTRACT_VERSION,
   SCREENER_FIELD_REGISTRY,
   CALCULABLE_FIELD_STATUSES,
   LIVE_QUOTE_MCAP_INPUT_ROW_KEYS,
@@ -328,12 +327,4 @@ export function createDefaultScreenDefinitions() {
     preset('preset-quality', '퀄리티 결합', 'quality-research', { type: 'and', children: [{ type: 'range', field: 'quality.roe', min: 10, nullPolicy: 'unknown' }, { type: 'range', field: 'quality.margin', min: 5, nullPolicy: 'unknown' }] }, ['quality.roe', 'quality.margin', 'quality.revGrowth']),
     preset('preset-breakout-observation', '돌파 관찰', 'breakout-observation', { type: 'and', children: [{ type: 'range', field: 'technical.vcpScore', min: 50, nullPolicy: 'unknown' }, { type: 'range', field: 'price.rvol20', min: 1, nullPolicy: 'unknown' }] }, ['technical.vcpScore', 'price.rvol20', 'technical.ema8', 'technical.ema21'])
   ]);
-}
-
-export function runDefaultScreens({ rows = [], snapshotId = 'unknown', providerSet = [] } = {}) {
-  return Object.freeze(createDefaultScreenDefinitions().map((definition) => ({ definition, ...runScreen({ definition, rows, snapshotId, providerSet }) })));
-}
-
-export function createExplanationIndex(result) {
-  return Object.freeze(Object.fromEntries((result?.rows || []).map((row) => [row.sym || row.symbol, row.rankExplanation])));
 }

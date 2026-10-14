@@ -266,10 +266,15 @@ function carriedTickerRoles(it) {
 }
 
 // 채널 공지/일정/단순 안내 여부 감지 (저점수 패널티용)
+// v57.55 review (B5-F4/S2-F6): a campaign post ("…왜 그에게 투표하겠는가? … 트럼프") and personal chatter ("프로요금제인데
+// 제미니4 … 쓸 수 있네요") reached the news screen. Both are dropped unless they also name a market subject.
+const MARKET_SUBJECT = /market|stock|shares|index|rate|yield|bond|oil|crude|tariff|economy|inflation|earnings|fed\b|증시|주가|주식|지수|금리|국채|채권|유가|관세|경제|물가|실적|연준|코스피|나스닥|환율/i;
 function isLowSignalPost(text) {
   const t = String(text || '').toLowerCase();
   if (/executive time|event schedule|holiday notice|webinar only/.test(t)) return true;
   if (/humanitarian/.test(t) && !/market|oil|rate|risk|supply|shipping/.test(t)) return true;
+  if (/\bvote\b|voting|voter|ballot|endorse|campaign rally|투표|유권자|선거 유세|지지 선언/.test(t) && !MARKET_SUBJECT.test(t)) return true;
+  if (t.length < 80 && /요금제|쓸\s?수\s?있네|ㅋㅋ|ㅎㅎ|구독자|이벤트 당첨|좋은 아침|굿모닝/.test(t) && !MARKET_SUBJECT.test(t)) return true;
   return false;
 }
 
@@ -423,10 +428,12 @@ for (const it of [...previousObservedPool, ...freshItems]) {
   });
 }
 const observedItems = [...observedById.values()].sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+const lowSignalDropped = items.filter(it => typeof it.text === 'string' && isLowSignalPost(it.text)).length;
 const current24hItems = items.filter(it => {
   const d = new Date(it.datetime);
-  return d >= marketCycle.start && d < marketCycle.end;
+  return d >= marketCycle.start && d < marketCycle.end && !(typeof it.text === 'string' && isLowSignalPost(it.text));
 });
+console.log(`[telegram] low-signal posts left out of the reading list: ${lowSignalDropped}`);
 const current24hObservedItems = observedItems.filter(it => {
   const d = new Date(it.datetime);
   return d >= marketCycle.start && d < marketCycle.end;

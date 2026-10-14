@@ -79,6 +79,8 @@ assert.deepEqual(sortRows(rows, 'rank', true).map((row) => row.sym), ['B', 'A', 
 assert.deepEqual(sortRows(rows, 'ret1m', true).map((row) => row.sym), ['B', 'A', 'UNKNOWN', 'REJECTED']);
 assert.deepEqual(sortRows(rows, 'ret1m', false).map((row) => row.sym), ['A', 'B', 'UNKNOWN', 'REJECTED']);
 assert.deepEqual(rows.map((row) => row.sym), ['UNKNOWN', 'B', 'A', 'REJECTED'], 'sorting must not mutate the canonical rows');
+const priced = [{ sym: 'LIVE', currency: 'USD', valuationPrice: 50 }, { sym: 'CLOSE', currency: 'USD', valuationPrice: 900, factorSessionDate: '2026-10-13' }, { sym: 'NONE', currency: 'USD' }];
+assert.deepEqual(sortRows(priced, 'price', false, () => ({ LIVE: { price: 100 } })).map((row) => row.sym), ['CLOSE', 'LIVE', 'NONE'], 'v57.54 review: price sorts on the shown price — live, else the dated completed close');
 const emptyPresentation = deriveTradingScoreDecisionPresentation({ score: computeTradingScoreModel({}) });
 assert.equal(emptyPresentation.displayScore, '—');
 assert.equal(emptyPresentation.components.length, 5);

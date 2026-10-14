@@ -6586,7 +6586,7 @@ function _aioApplyNewsBackstop(force) {
         correctionOf: n.correctionOf, retractionOf: n.retractionOf, supersedes: n.supersedes, revisionType: n.revisionType,
         issuerId: n.issuerId, issuerCik: n.issuerCik, issuerSymbol: n.issuerSymbol, evidenceKind: n.evidenceKind,
         observedAt: n.observedAt || null, fetchedAt: n.fetchedAt || null,
-        title: n.title, headline: n.title,
+        title: n.title, headline: n.title, titleKo: n.titleKo || null, // v57.55: translated once in Actions
         link: n.link, url: n.link,
         source: n.source || 'News', feed: n.source || 'News',
         // Missing publication time is undated reference material, not a
@@ -10504,7 +10504,7 @@ async function freeTranslateNews(items) {
 }
 
 /* ── v27.2: 뉴스 fetch 후 자동 번역 + 해석 + 티커 추출 ────────── */
-async function autoTranslateNews(items) {
+async function autoTranslateNews(items) { (items || []).forEach(function(i) { if (i && i.title && i.titleKo && isKoreanText(i.titleKo) && !_tcHas(i.title)) _tcPut(i.title, Object.assign({}, _aioBuildNewsLocalKoreanInsight(i, i.titleKo), { ko_title: i.titleKo, ko_desc: i.desc || '' })); }); // v57.55 review: a headline translated once in Actions (titleKo) is used as-is — no per-browser AI call or machine translation
   if (_aioBootPhase.translationReady === false) {
     _aioQueueDeferredNewsTranslation(items);
     return;

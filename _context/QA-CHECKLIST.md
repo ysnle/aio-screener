@@ -4,6 +4,10 @@ last_verified: 2026-10-14
 confidence: medium
 ---
 
+## v57.55 라이브 10인 점검 v57.55 (2026-10-14)
+
+- [ ] QA-VERIFY-22: v57.55 라이브 점검 반영: 배포 후 refresh-data 로그의 headline translation 줄과 data.json news의 titleKo, #ticker/NVDA·#nonexistent 주소, 포트폴리오 105560 시세(105560.KS 요청), 차트 탭·오늘·시장 상태의 같은 판정 집계, 다크 기기에서 첫 방문 다크 시작을 라이브에서 확인한다. verify_by: browser
+
 ## v57.54 검증 스킬 (2026-10-14)
 
 - [x] QA-VERIFY-21: v57.54 지수별 가격 온도: 배포 후 refresh-data에서 market-temperature.json이 status current로 발행되고 spx·nasdaq·kospi·kosdaq·nikkei 다섯 시장의 asOf가 각 시장의 최근 완료 세션이며(장중 서울·도쿄 값 없음), gaps가 비었거나 원인 날짜만 담기고, 투자 심리 화면 타일이 미국 묶음 먼저·한국·일본(보조) 다음으로 표시된다. 같은 시점 scenario-state.json의 rotation.text가 '최근 1개월 미국 테마는'으로 시작하고 '국내'가 없다. verify_by: push 뒤 refresh-data 1회 실행 후 산출물과 운영 사이트 투자 심리·오늘 화면 확인

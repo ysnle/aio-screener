@@ -23,11 +23,6 @@ export const LIVE_QUOTE_DERIVED_ROW_KEYS = Object.freeze([
   'mcap', 'nativeMarketCap', '_mcapObservedAt', '_mcapFetchedAt', '_mcapSource', '_mcapSourceKind',
   '_mcapAllowedUse', '_mcapQuality', '_mcapRevision'
 ]);
-// Display-only overlay: diagnostics and the reference-labelled native cap are rendered but
-// never consumed by ranking/filters, so a tick in these keys must not mint a calculation identity.
-export const LIVE_QUOTE_DISPLAY_ONLY_ROW_KEYS = Object.freeze([
-  'nativeMarketCap', 'livePriceRejectedReason', 'liveQuoteDiagnostic', 'priceCurrencyConflict'
-]);
 // Price family — calculation input only when a definition actually references the price row key.
 export const LIVE_QUOTE_PRICE_ROW_KEYS = Object.freeze([
   'price', 'priceObservedAt', 'priceFetchedAt', 'priceSource', 'priceSourceKind',
@@ -46,11 +41,6 @@ export const RUN_STATUSES = Object.freeze(['completed', 'partial', 'blocked', 'u
 export const OUTCOME_HORIZONS = Object.freeze(['T+1', 'T+5', 'T+21', 'T+63']);
 
 const DAY = 86_400_000;
-
-function freeze(value) {
-  if (value && typeof value === 'object' && !Object.isFrozen(value)) Object.freeze(value);
-  return value;
-}
 
 export function immutableCopy(value) {
   if (!value || typeof value !== 'object') return value;
@@ -597,15 +587,6 @@ export function createRankExplanation(input = {}) {
   });
 }
 
-export function validateRankExplanation(explanation) {
-  const errors = [];
-  if (!explanation?.instrumentId) errors.push('instrument_id_missing');
-  if (!Array.isArray(explanation?.passedGates) || !Array.isArray(explanation?.failedGates)) errors.push('gate_arrays_missing');
-  if (!Array.isArray(explanation?.missingEvidence) || !Array.isArray(explanation?.contraryEvidence)) errors.push('evidence_arrays_missing');
-  if (explanation?.status !== 'unavailable' && explanation?.status !== 'explained') errors.push('status_invalid');
-  return Object.freeze({ ok: errors.length === 0, errors });
-}
-
 export function createScreenRun(input = {}) {
   const run = {
     schemaVersion: SCREENER_CONTRACT_VERSION,
@@ -675,16 +656,6 @@ export function createOutcomeObservation(input = {}) {
     observedAt: iso(input.observedAt) || null,
     allowedUse: 'research-relative-ranking-only'
   });
-}
-
-export function validateOutcomeObservation(outcome) {
-  const errors = [];
-  for (const field of ['outcomeId', 'runId', 'instrumentId', 'horizon', 'entryConvention']) if (!outcome?.[field]) errors.push(`${field}_missing`);
-  if (!OUTCOME_HORIZONS.includes(outcome?.horizon)) errors.push('horizon_invalid');
-  if (outcome?.status === 'observed' && (outcome.rawReturn == null || !outcome.entryObservedAt || !outcome.exitObservedAt)) errors.push('observed_outcome_incomplete');
-  if (!outcome?.costsApplied && outcome?.status === 'observed') errors.push('costs_not_applied');
-  if (outcome?.status === 'observed' && outcome?.costsApplied && outcome.netReturn == null) errors.push('net_return_missing');
-  return Object.freeze({ ok: errors.length === 0, errors });
 }
 
 export function createRegimeState(input = {}) {

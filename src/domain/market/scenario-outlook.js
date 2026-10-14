@@ -81,13 +81,17 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
     const list = checks[scenario.id] || [];
     const met = list.filter(([, ok]) => ok).length;
     const level = scenario.held ? '판단 보류' : likelihoodOf(met, list.length, scenario.confirmed);
-    return { id: scenario.id, title: scenario.title, likelihood: level, fit: scenario.held ? '판단 보류' : fitLabel(met, list.length), met, total: list.length,
+    // v57.55 review (E2-06): every listed condition is required for the flow (scenarios.confirmed needs all of them), so
+    // '3/4' with credit failing is not "almost there" — the missing condition is named and the flow reads as not formed.
+    const missingNames = list.filter(([, ok]) => !ok).map(([label]) => label.split('(')[0]);
+    const shortfall = !scenario.held && met > 0 && met < list.length ? `${missingNames.join('·')} 미충족이라 아직 성립하지 않음` : null;
+    return { id: scenario.id, title: scenario.title, likelihood: level, fit: scenario.held ? '판단 보류' : fitLabel(met, list.length), shortfall, met, total: list.length,
       basis: list.map(([label, ok, note]) => `${label} ${ok ? '충족' : `미충족${note ? `(${note})` : ''}`}`).join(' · '), ...guide[scenario.id] };
   });
   const order = { 높음: 3, 중간: 2, 낮음: 1, '판단 보류': 0 };
   const lead = [...items].sort((a, b) => order[b.likelihood] - order[a.likelihood] || b.met / b.total - a.met / a.total)[0];
   const headline = scenarios.held ? '필요한 관측이 없어 지금 어느 흐름에 가까운지 판단을 보류합니다.'
-    : `조건이 가장 많이 맞는 흐름은 '${lead.title}'(${lead.fit})입니다.`;
+    : `조건이 가장 많이 맞는 흐름은 '${lead.title}'(${lead.fit}${lead.shortfall ? ` · ${lead.shortfall}` : ''})입니다.`;
   // I02: the rotation names travel with the outlook so 시장 상태's "이어서 볼 곳" can quote the same leaders.
   return { available: true, version: SCENARIO_OUTLOOK_VERSION, asOf: scenarios.asOf, headline, leadId: scenarios.held ? null : lead?.id || null, items,
     rotation: { Leading: sectors.filter((row) => row.quadrant === 'Leading'), Improving: sectors.filter((row) => row.quadrant === 'Improving') } }; // M07: no lead while held

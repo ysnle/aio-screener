@@ -5,6 +5,7 @@
 //  2. installGlossaryBridge: after the legacy modal renders a search, append "다른 학습 영역" results from
 //     public-data/knowledge/search-index.json (loaded on first search) with links that open the surface.
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
+import { appendScreenTerms } from '../../domain/knowledge/screen-term-additions.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { LESSONS, PATHS } from '../../domain/knowledge/learning-core.js';
 import { CONCEPT_SURFACES, SCREEN_TERMS, SCREEN_ROUTE_LABELS, screenRoutesFor } from '../../domain/knowledge/concept-surfaces.js';
@@ -87,7 +88,7 @@ function routeUrl(root, route) {
 export function installGlossaryBridge({ root = globalThis, documentRef = root.document } = {}) {
   if (!documentRef || root._aioGlossaryBridgeInstalled) return;
   root._aioGlossaryBridgeInstalled = true;
-  try { if (Array.isArray(root.GLOSSARY)) root._aioGlossaryConceptMerge = mergeConceptCore(root.GLOSSARY); } catch (_) { /* legacy glossary absent */ }
+  try { if (Array.isArray(root.GLOSSARY)) { root._aioGlossaryScreenTerms = appendScreenTerms(root.GLOSSARY); root._aioGlossaryConceptMerge = mergeConceptCore(root.GLOSSARY); } } catch (_) { /* legacy glossary absent */ }
   let index = null;
   let loading = null;
   const load = () => {

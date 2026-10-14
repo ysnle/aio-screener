@@ -250,6 +250,8 @@ console.log('scenario guidance fixture (basis card): PASS');
     assert.match(krHeavy.text, /미국·한국 테마는/, 'v57.54: a thin US set falls back to all themes and says so');
     assert.match(krHeavy.text, /강한 쪽 한국 a\(\+12\.0%\)/, 'audit 15: in a mixed sentence every named theme carries its market');
     assert.doesNotMatch(krHeavy.text, /국내/, "v57.54: the market word is '한국', not the ambiguous '국내'");
+    const krOnly = rotationOf([mk('KR', 'a', 12), mk('KR', 'b', 10), mk('KR', 'e', -9), mk('KR', 'f', -10)].map((row, i) => ({ ...row, tags: [i < 2 ? 'growth' : 'defensive'] })));
+    assert.ok(krOnly.market === '한국' && /^최근 1개월 한국 테마는/.test(krOnly.text) && !/미국·한국/.test(krOnly.text), `v57.54 review: with no US rows the read says '한국', not '미국·한국' (${krOnly.text})`);
     const usFirst = rotationOf([mk('US', 'u1', 9), mk('US', 'u2', 7), mk('US', 'u3', -6), mk('US', 'u4', -8), mk('KR', 'k1', 20), mk('KR', 'k2', 12), mk('KR', 'k3', -15), mk('KR', 'k4', -23)].map((row, i) => ({ ...row, tags: [i % 4 < 2 ? 'growth' : 'energy'] })));
     assert.match(usFirst.text, /^최근 1개월 미국 테마는/, 'v57.54: with enough US themes the rotation is read on the US set first');
     assert.match(usFirst.text, /강한 쪽 u1\(\+9\.0%\)/, 'v57.54: US names lead without a market word');

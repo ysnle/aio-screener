@@ -7,7 +7,7 @@
 // Likelihood has three evidence lines only (AGENTS 2026-10-13): met-condition count, the direction market prices
 // lean, and past frequency (long history from scenario-outcomes.json when published, else AIO's own closes) with its
 // sample size. Never a probability percentage, a price, a size, a date to act or a named stock.
-import { buildCloseSeries } from '../briefing/market-read.js';
+import { buildCloseSeries, sessionPointBack } from '../briefing/market-read.js';
 import { seriesOf, yoySeries, annualised3m } from '../macro/macro-read.js';
 import { RULES } from '../rules/thresholds.js';
 import { BRANCH_ANALOGS, analogOutcome, frequencyText } from '../scenarios/analogs.js';
@@ -19,8 +19,10 @@ const G = RULES.growth;
 const P = RULES.policy;
 const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;
 const last = (series) => series.length ? series[series.length - 1] : null;
-const changeOver = (series, n) => series.length > n ? series[series.length - 1].value - series[series.length - 1 - n].value : null;
-const pctOver = (series, n) => series.length > n && series[series.length - 1 - n].value ? (series[series.length - 1].value / series[series.length - 1 - n].value - 1) * 100 : null;
+// v57.54 review: "20거래일" counts open sessions like 시장 상태 and 거시 (sessionPointBack), not array slots — a gap
+// in the record made WTI read -7.2% here and -11.4% there on the same day.
+const changeOver = (series, n) => { const back = sessionPointBack(series, n); return back ? series[series.length - 1].value - back.value : null; };
+const pctOver = (series, n) => { const back = sessionPointBack(series, n); return back?.value ? (series[series.length - 1].value / back.value - 1) * 100 : null; };
 const fmt = (value, digits = 1) => value == null ? '—' : value.toFixed(digits);
 const signed = (value, digits = 1, unit = '') => value == null ? '—' : `${value > 0 ? '+' : value < 0 ? '−' : '±'}${Math.abs(value).toFixed(digits)}${unit}`;
 // v57.54 audit (5): a change in a yield or a yield spread is written in bp everywhere (briefing already did: 10년물 +28bp).
@@ -122,7 +124,17 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
     tnx: last(tnx), tnx20: changeOver(tnx, 20), spx5: pctOver(spx, 5), spx20: pctOver(spx, 20), dxy20: pctOver(dxy, 20), krw20: pctOver(krw, 20),
     vix: vixLast?.value ?? null, vixRatio: vixLast && vix3mLast && vixLast.date === vix3mLast.date && vix3mLast.value ? vixLast.value / vix3mLast.value : null,
     pricing, mid: finite(policy.mid), lean: pricing == null ? 'unknown' : pricing >= P.pricedMovePp ? 'hike' : pricing <= -P.pricedMovePp ? 'cut' : 'hold',
-    credit: axis('credit')?.state || 'unknown',
+    credit: axis('credit')?.state || 'unknown', growthState: axis('growth')?.state || 'unknown',
+    // v57.55 review (E2-03/E2-15): the policy path — last target change and the 3-month bill (10y − (10y−3m)) against the range.
+    policy: (() => {
+      const fed = mh('fedTargetUpper'), d10 = mh('dgs10'), c = mh('t10y3m');
+      if (fed.length < 2) return null;
+      let i = fed.length - 1; while (i > 0 && fed[i - 1].value === fed[i].value) i -= 1;
+      const cByDate = new Map(c.map((row) => [row.date, row.value]));
+      const pair = [...d10].reverse().find((row) => cByDate.has(row.date));
+      return { upper: last(fed).value, changeDate: i > 0 ? fed[i].date : null, change: i > 0 ? fed[i].value - fed[i - 1].value : 0,
+        bill: pair ? pair.value - cByDate.get(pair.date) : null, billDate: pair?.date || null };
+    })(),
     commodities: axis('commodities')?.state || 'unknown', breadth: read?.breadthState ?? null,
     asOf: [growth.sahm?.date, inflation.pace?.date, last(tnx)?.date].filter(Boolean).sort().at(-1) || null
   };
@@ -146,7 +158,7 @@ const deltaPricing = (key, label, unit, digits, wantUp) => (s) => {
  *  axes — the 거시 six-axis cards whose observations the conditions test (each card links to these branches). */
 export const BRANCHES = Object.freeze([
   { id: 'reheat', shape: 'concentration', axes: ['inflation', 'policy'], title: '물가 재가속 — 금리가 더 오르는 길',
-    conditions: [['근원 물가 재가속 (3개월 속도가 1년치보다 0.5%p 이상 빠름)', (s) => s.accelerating], ['유가 급등 (WTI 20거래일 +10% 이상 또는 1년 평균 대비 +25% 이상)', (s) => s.oilSurging], ['임금 상승률 전년 대비 3.5% 이상', (s) => has(s.wageYoy) ? s.wageYoy >= 3.5 : null], [`고용 견조 (Sahm ${G.sahmWatchAt}%p 미만)`, (s) => has(s.sahm) ? s.sahm < G.sahmWatchAt : null]],
+    conditions: [['근원 물가 재가속 (3개월 속도가 1년치보다 0.5%p 이상 빠름)', (s) => s.accelerating], ['유가 급등 (WTI 20거래일 +10% 이상 또는 1년 평균 대비 +25% 이상)', (s) => s.oilSurging], ['임금 상승률 전년 대비 3.5% 이상', (s) => has(s.wageYoy) ? s.wageYoy >= 3.5 : null], [`고용 견조 (Sahm ${G.sahmWatchAt}%p 미만 + 일자리 3개월 평균 ${G.payrollSolidK / 10}만 명 이상)`, (s) => s.growthState === 'unknown' ? null : s.growthState === 'favorable']],
     chain: ['물가 재가속', '연준 인상·동결 연장 기대', '2년·10년 금리 상승', '할인율 상승 → 고PER 성장주 압박', '달러 강세 · 자금 조달 비용 상승'],
     firmer: ['energy', 'financials'], weaker: ['growth', 'yield', 'liquidity', 'consumer'],
     triggers: [['us-cpi', '근원 CPI 전월 대비 0.4% 이상 (연율 약 5%)', (a) => a.coreMoM >= 0.4], ['us-nfp', '일자리 25만 명 이상 + 시간당 임금 전월 대비 0.4% 이상', (a) => a.payroll >= 250 && (a.wageMoM ?? 0) >= 0.4], ['us-pce', '근원 PCE 전월 대비 0.3% 이상', (a) => a.coreMoM >= 0.3], ['us-fed-rate', '기준금리 인상', (a) => a.upperDelta > 0]],
@@ -195,7 +207,7 @@ export const BRANCHES = Object.freeze([
     chain: ['미국 금리 우위 · 안전자산 선호', '달러 강세', '신흥국·한국에서 외국인 자금 유출', '원자재 가격 하락 압력 · 해외 매출 환산 감소', '수출 기업은 환율 이익, 내수·수입 기업은 부담'],
     firmer: [], weaker: ['liquidity', 'energy'], mixed: ['dollar'],
     triggers: [['us-fed-rate', '기준금리 인상', (a) => a.upperDelta > 0], ['us-cpi', '근원 CPI 전월 대비 0.4% 이상', (a) => a.coreMoM >= 0.4]],
-    pricing: leanPricing('hike'),
+    pricing: leanPricing('hike'), pricingInConditions: true, chainNeeds: { 2: 1 },
     choices: { wait: '달러가 오르는 동안 원화 자산을 서둘러 늘릴 이유가 작습니다. 달러 현금성 자산은 환율 이익도 줍니다.', stage: '분할 접근은 환율 상승이 멈추는 신호와 함께 나누는 편이 맞습니다.', hold: '수출 비중이 큰 보유 종목은 환율 이익이 일부 상쇄합니다. 내수·수입 의존 종목을 점검합니다.', defend: '달러 자산과 수출 기업 비중이 원화 약세의 충격을 덜어 줍니다.' },
     favored: ['wait', 'hold'], favoredWhy: '달러 급등기에는 외국인 수급이 약해지기 쉬워 서두를 이유가 작고, 수출 기업 보유는 환율로 일부 상쇄됩니다.',
     explore: [['fxbond', '금리 · 환율', '달러·원화·엔화 추이'], ['themes', '테마 · 섹터', '한국 수출 테마의 상대강도']] },
@@ -270,7 +282,9 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
     if (cashText) choices.wait = choices.wait.replace('현금성 자산의 이자', cashText);
     const mixed = (branch.mixed || []).map((tag) => EXPOSURE_TAGS[tag]).join(', ');
     const past = pastFor(branch.id, { history, outcomes });
-    return { id: branch.id, shape: branch.shape || null, axes: branch.axes || [], title: branch.title, chain: branch.chain, conditions, choices, favored: branch.favored, favoredWhy: branch.favoredWhy,
+    // v57.55 review (E2-05): a chain link whose own condition is unmet this time (외국인 자금 유출 while the won is not weak) says so.
+    const chain = branch.chain.map((text, index) => (branch.chainNeeds?.[index] != null && conditions[branch.chainNeeds[index]]?.[1] === false ? `${text} (이번엔 미확인)` : text));
+    return { id: branch.id, shape: branch.shape || null, axes: branch.axes || [], title: branch.title, chain, conditions, pricingInConditions: !!branch.pricingInConditions, choices, favored: branch.favored, favoredWhy: branch.favoredWhy,
       firmer: branch.firmer, weaker: branch.weaker, mixed: branch.mixed || [],
       // A branch with only a split exposure (달러: 수출은 이익, 수입은 부담) is not "no beneficiary" — the split is named.
       impact: { firmer: branch.firmer.map((tag) => EXPOSURE_TAGS[tag]).join(', ') || (mixed ? '한쪽으로 뚜렷하게 강해지는 영역은 없음' : '뚜렷한 수혜 영역 없음'), weaker: branch.weaker.map((tag) => EXPOSURE_TAGS[tag]).join(', ') || '—', mixed },
@@ -283,13 +297,15 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
       explore: branch.explore.map(([route, label, why]) => ({ route, label, why })) };
   });
   const ratio = (item) => item.known < 2 ? -1 : item.met / item.total;
-  const ranked = [...items].sort((a, b) => ratio(b) - ratio(a) || (b.pricing.tone === 'same') - (a.pricing.tone === 'same'));
+  // v57.55 review (E2-04): a branch whose conditions already count 2y − midpoint does not get the same gauge again as a tie-break.
+  const pricedSame = (item) => item.pricing.tone === 'same' && !item.pricingInConditions;
+  const ranked = [...items].sort((a, b) => ratio(b) - ratio(a) || pricedSame(b) - pricedSame(a));
   const lead = ranked[0];
   const held = !lead || ratio(lead) <= 0;
   const others = ranked.filter((item) => item !== lead && item.known >= 2 && item.met > 0);
   // Branches level with the lead on met conditions are a tie, not a lead and a runner-up: the headline says so.
   const tied = held ? [] : ranked.filter((item) => item.known >= 2 && ratio(item) === ratio(lead));
-  const alt = held ? null : tied[1] || others.find((item) => item.pricing.tone === 'same') || others[0] || null;
+  const alt = held ? null : tied[1] || others.find(pricedSame) || others[0] || null;
   const nextEvent = events.find((row) => ['us-cpi', 'us-nfp', 'us-fed-rate', 'us-pce'].includes(row.id)) || events[0] || null;
 
   // The rate hub: why higher rates hurt, what would have to happen for them to fall, and which release shows it.
@@ -297,17 +313,21 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
   // "유가 하락 진행 중". European spot Brent (no futures record yet) is quoted for reference only (P1726).
   const brentComparable = has(s.oil20) && has(s.brent20) && s.brentBasis === 'futures';
   const oilSplit = brentComparable && (s.oil20 < 0) !== (s.brent20 < 0);
+  const p = s.policy;
+  const policyLine = p ? `연준 ${p.changeDate ? `${md(p.changeDate)} ${p.change > 0 ? '인상' : '인하'}(${bpChange(p.change)}) 뒤 ` : ''}상단 ${fmt(p.upper, 2)}%${p.bill != null ? ` · 3개월물 ${fmt(p.bill, 2)}%(${md(p.billDate)}) — ${p.bill > p.upper ? '상단보다 높아 시장은 추가 인상 쪽을 반영' : p.bill < p.upper - 0.25 ? '하단보다 낮아 시장은 인하 쪽을 반영' : '목표 범위 안이라 시장은 동결 쪽을 반영'}` : ''}` : null;
   const rateHub = {
+    policy: policyLine,
     now: s.tnx ? `미 10년물 ${fmt(s.tnx.value, 2)}% (20거래일 ${bpChange(s.tnx20)})${s.pricing != null ? ` · 2년물 − 기준금리 ${signed(s.pricing, 2, '%p')}` : ''}` : null,
     pricingNote: s.pricing != null ? `${PRICING_NOTE.replace('기준금리 중간값', `기준금리 중간값(${fmt(s.mid, 2)}%)`)} 아래 각 길의 '시장 가격'도 같은 대용 지표입니다.` : null,
     whyHigherHurts: '금리가 더 오르면 미래 이익을 오늘 가치로 바꾸는 할인율이 높아져 PER이 높은 성장주부터 눌리고, 기업·가계의 차입 비용이 올라 이익과 투자가 둔화하며, 달러 강세가 해외 매출과 신흥국 자금을 압박합니다.',
     pathsDown: [
       { id: 'disinflation', label: '물가 둔화', ok: all(s.corePace, s.coreYoy) ? s.corePace <= s.coreYoy : null,
         evidence: has(s.corePace) ? `근원 PCE 3개월 속도 ${fmt(s.corePace)}% · 1년치 ${fmt(s.coreYoy)}%${s.coreCpiPace != null ? ` · 근원 CPI 3개월 속도 ${fmt(s.coreCpiPace)}%` : ''}` : '물가 기록 대기', next: [when('us-cpi'), when('us-pce')].filter(Boolean).join(' · ') },
-      { id: 'oil', label: '유가 하락', ok: oilSplit ? null : has(s.oil20) ? s.oil20 < 0 : null, stateText: oilSplit ? '엇갈림' : null,
-        evidence: has(s.oil20) ? `WTI 20거래일 ${signed(s.oil20, 1, '%')}${has(s.brent20) ? ` · 브렌트${s.brentBasis === 'futures' ? '' : ' 현물'} ${signed(s.brent20, 1, '%')}` : ''}${s.oilVsYear != null ? ` · WTI 1년 평균 대비 ${signed(s.oilVsYear, 0, '%')}` : ''}${oilSplit ? ' — 두 유가의 방향이 달라 하락으로 보지 않습니다' : ''}` : '유가 기록 대기', next: '매일 유가 종가' },
-      { id: 'cooling', label: '고용·경기 둔화', ok: all(s.sahm, s.payroll3) ? s.sahm >= G.sahmWatchAt || s.payroll3 < G.payrollSolidK : null,
-        evidence: has(s.sahm) ? `Sahm ${fmt(s.sahm, 2)}%p · 일자리 3개월 평균 ${s.payroll3 == null ? '—' : `${Math.round(s.payroll3)}천 명`}` : '고용 기록 대기', next: [when('us-nfp'), '매주 목요일 실업수당 청구'].filter(Boolean).join(' · ') }
+      { id: 'oil', label: '유가 하락', ok: oilSplit ? null : has(s.oil20) ? s.oil20 < 0 && !(s.oilVsYear >= 10) : null, stateText: oilSplit ? '엇갈림' : has(s.oil20) && s.oil20 < 0 && s.oilVsYear >= 10 ? '내려도 높은 수준' : null,
+        evidence: has(s.oil20) ? `WTI 20거래일 ${signed(s.oil20, 1, '%')}${has(s.brent20) ? ` · 브렌트${s.brentBasis === 'futures' ? '' : ' 현물'} ${signed(s.brent20, 1, '%')}` : ''}${s.oilVsYear != null ? ` · WTI 1년 평균 대비 ${signed(s.oilVsYear, 0, '%')}` : ''}${oilSplit ? ' — 두 유가의 방향이 달라 하락으로 보지 않습니다' : s.oil20 < 0 && s.oilVsYear >= 10 ? ' — 최근엔 내렸지만 1년 평균보다 아직 높아 물가 부담이 풀렸다고 보지 않습니다' : ''}` : '유가 기록 대기', next: '매일 유가 종가' },
+      { id: 'cooling', label: '고용·경기 둔화', ok: s.growthState === 'unknown' ? null : s.growthState === 'burden' ? true : s.growthState === 'favorable' ? false : null,
+        stateText: s.growthState === 'neutral' ? '채용만 둔화' : null,
+        evidence: has(s.sahm) ? `Sahm ${fmt(s.sahm, 2)}%p · 일자리 3개월 평균 ${s.payroll3 == null ? '—' : `${Math.round(s.payroll3)}천 명`}${s.growthState === 'neutral' ? ' — 채용은 기준 아래지만 실업률은 아직 오르지 않았습니다(고용 축 중립)' : ''}` : '고용 기록 대기', next: [when('us-nfp'), '매주 목요일 실업수당 청구'].filter(Boolean).join(' · ') }
     ],
     tension: null,
     caveat: '고용·경기 둔화로 금리가 내려가는 길은 이익 둔화가 함께 오기 때문에 주식에 늘 좋은 것은 아닙니다 — 물가 둔화로 내려가는 길과 구분해서 봅니다.'
@@ -315,7 +335,7 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
   // When the conditions for lower rates and the actual move in long rates disagree, that gap is the story.
   const downPaths = rateHub.pathsDown.filter((path) => path.ok).length;
   if (downPaths >= 2 && s.tnx20 != null && s.tnx20 >= 0.15) {
-    rateHub.tension = `금리를 낮출 조건 ${downPaths}개가 진행 중인데도 10년물은 20거래일 ${bpChange(s.tnx20)} 올랐습니다${s.termPremium20 != null ? ` (10년 기간 프리미엄 ${bpChange(s.termPremium20)}, ${md(last(s.termPremium).date)})` : ''}. 물가·경기 밖의 요인(국채 공급, 기간 프리미엄, 해외 금리)이 금리를 올리고 있을 수 있어, ${nextEvent ? `${md(nextEvent.date)} ${nextEvent.name} 발표가` : '다음 물가 발표가'} 이 괴리를 어느 쪽으로 푸는지가 핵심입니다.`;
+    rateHub.tension = `금리를 낮출 조건 ${downPaths}개가 보이는데도${p?.change > 0 ? ` 연준은 ${md(p.changeDate)}에 올렸고` : ''} 10년물은 20거래일 ${bpChange(s.tnx20)} 올랐습니다${s.termPremium20 != null ? ` (10년 기간 프리미엄 ${bpChange(s.termPremium20)}, ${md(last(s.termPremium).date)})` : ''}. 물가·경기 밖의 요인(국채 공급, 기간 프리미엄, 해외 금리)이 금리를 올리고 있을 수 있어, ${nextEvent ? `${md(nextEvent.date)} ${nextEvent.name} 발표가` : '다음 물가 발표가'} 이 괴리를 어느 쪽으로 푸는지가 핵심입니다.`;
   } else if (downPaths === 0 && s.tnx20 != null && s.tnx20 <= -0.15) {
     rateHub.tension = `금리를 낮출 조건이 뚜렷하지 않은데 10년물은 20거래일 ${bpChange(s.tnx20)} 내렸습니다. 안전자산 선호나 해외 요인일 수 있어, 위험 회피가 원인인지 신용·변동성 축과 함께 확인합니다.`;
   }

@@ -162,7 +162,7 @@ const BRIEFING_ROUTES = Object.freeze({
 const BRIEFING_NEWS = Object.freeze({
   commodities: { route: 'market-news', label: '뉴스 · 에너지', why: '유가를 움직인 공급·지정학 기사', ctx: { topic: 'energy' } },
   risk: { route: 'market-news', label: '뉴스 · 지정학', why: '변동성·위험 회피를 부른 사건 기사', ctx: { topic: 'geo' } },
-  korea: { route: 'market-news', label: '뉴스 · 한국', why: '한국 증시 움직임과 관련된 국내 기사', ctx: { country: 'kr' } }
+  korea: { route: 'market-news', label: '뉴스 · 한국', why: '한국 증시 움직임과 관련된 기사', ctx: { country: 'kr' } }
 });
 
 export function briefingFlow({ read = null } = {}) {

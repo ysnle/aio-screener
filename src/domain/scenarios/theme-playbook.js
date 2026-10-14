@@ -158,13 +158,14 @@ export function rotationOf(rows) {
   const usTags = tagMedians(us);
   const usFirst = usTags.length >= 2;
   const tags = usFirst ? usTags : tagMedians(rows);
-  const scope = usFirst ? '미국' : '미국·한국';
+  // v57.54 review: with no US rows (screener not read yet) the read is Korea-only and says so, not '미국·한국'.
+  const scope = usFirst ? '미국' : us.length ? '미국·한국' : '한국';
   const ends = (list, k) => { const sorted = [...list].sort((a, b) => b.ret1m - a.ret1m); return { up: sorted.slice(0, k), down: sorted.slice(-k).reverse().filter((row) => !sorted.slice(0, k).includes(row)) }; };
   const main = ends(usFirst ? us : rows, 3);
   const sub = usFirst && kr.length >= 4 ? ends(kr, 2) : null;
   const top = tags[0], bottom = tags[tags.length - 1];
   const spread = top && bottom ? top.ret1m - bottom.ret1m : null;
-  const named = (row) => `${usFirst ? '' : `${marketWord(row)} `}${row.label}(${pct(row.ret1m)})`;
+  const named = (row) => `${scope === '미국·한국' ? `${marketWord(row)} ` : ''}${row.label}(${pct(row.ret1m)})`;
   const krLine = sub ? ` 한국은 강한 쪽 ${sub.up.map((row) => `${row.label}(${pct(row.ret1m)})`).join('·')}, 약한 쪽 ${sub.down.map((row) => `${row.label}(${pct(row.ret1m)})`).join('·')}입니다.` : '';
   const text = !top || !bottom || top === bottom ? '테마 기록이 부족해 가격 기준 강약 이동을 읽지 않습니다.'
     : spread < 3 ? `최근 1개월 ${scope} 테마는 성격별 차이가 작습니다(가장 강한 '${top.label}' ${pct(top.ret1m)}, 가장 약한 '${bottom.label}' ${pct(bottom.ret1m)}) — 뚜렷한 가격 기준 강약 이동은 보이지 않습니다.${krLine}`
