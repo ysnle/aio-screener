@@ -35,7 +35,7 @@ const pitRows = secRows.filter((row) => row?.pit?.schemaVersion === 'sec-pit-fac
 if (byId.get('point-in-time-fundamentals')?.status !== 'PARTIAL') fail('PIT fundamentals must be partial, not complete or blocked');
 if (!pitRows.length) fail('SEC PIT artifact coverage is missing');
 if (ledger.present && sec.pointInTimeCoverage !== pitRows.length) fail('SEC PIT artifact coverage is inconsistent with the ledger counter');
-if (!ledger.present) console.log(secLedgerSkipNote('professional-data-gap', 'ledger pointInTimeCoverage counter cross-check (PIT rows counted from the projection)'));
+if (!ledger.present) console.log(secLedgerSkipNote('professional-data-gap', 'ledger pointInTimeCoverage counter cross-check (PIT rows counted from the projection)', ledger));
 if (!/SEC_SUBMISSIONS_BASE/.test(read('scripts/fetch-sec-fundamentals.mjs')) || !/acceptanceDateTime/.test(read('scripts/fetch-sec-fundamentals.mjs'))) fail('SEC submissions acceptance-time adapter missing');
 
 const pitFixture = {
@@ -75,7 +75,7 @@ console.log(JSON.stringify({
   partial: CRITICAL_DATA_GAP_REGISTRY.filter((gap) => gap.status === 'PARTIAL').map((gap) => gap.id),
   blocked: expectedBlocked,
   secPitRows: pitRows.length,
-  secLedger: ledger.present ? 'present' : 'P1757-projection-fallback',
+  secLedger: ledger.present ? 'present' : (ledger.stale ? 'P1757-projection-fallback-stale' : 'P1757-projection-fallback'),
   secPitAcceptedRows: secRows.filter((row) => row?.pit?.acceptedTimeCount > 0).length,
   institutionalManagers: masters.reconciledManagers,
   institutionalHistoryPeriods: history.totalPeriods,

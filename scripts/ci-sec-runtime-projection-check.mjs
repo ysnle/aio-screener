@@ -27,7 +27,7 @@ if (canonicalBytes(runtimeText) > 1024 * 1024) fail(`runtime projection exceeds 
 const runtimeSymbols = Object.keys(runtime.data || {});
 if (manifest.runtimeSha256 !== sha256(runtimeText) || manifest.runtimeBytes !== canonicalBytes(runtimeText) || manifest.records !== runtimeSymbols.length) fail('projection runtime digest/byte/count manifest drifted');
 if (!/^[0-9a-f]{64}$/.test(String(manifest.sourceSha256 || '')) || !(manifest.sourceBytes > 0)) fail('projection manifest does not name its canonical source digest');
-if (!source) console.log(secLedgerSkipNote('sec-runtime-projection', 'source-vs-projection field, equity, digest and published-receipt checks'));
+if (!source) console.log(secLedgerSkipNote('sec-runtime-projection', 'source-vs-projection field, equity, digest and published-receipt checks', ledger));
 const sourceSymbols = source ? Object.keys(source.data || {}) : [];
 // 2026-10-13 F03/F05: the publish-time heal is idempotent, so a healed source passes through the projection unchanged.
 for (const symbol of sourceSymbols) {
@@ -144,4 +144,4 @@ if (source?.domainReceipt) {
   console.log('[sec-runtime-projection] domain receipt not yet published in the checked-in artifact; it is written by the next SEC producer run.');
 }
 
-console.log(JSON.stringify({ ok: true, ledger: source ? 'compared' : 'P1757-skipped-absent', records: runtimeSymbols.length, sourceBytes: manifest.sourceBytes, runtimeBytes: manifest.runtimeBytes, reductionPct: Math.round((1 - manifest.runtimeBytes / manifest.sourceBytes) * 1000) / 10, receiptFixtures: 5 }));
+console.log(JSON.stringify({ ok: true, ledger: source ? 'compared' : `P1757-skipped-${ledger.stale ? 'stale' : 'absent'}`, records: runtimeSymbols.length, sourceBytes: manifest.sourceBytes, runtimeBytes: manifest.runtimeBytes, reductionPct: Math.round((1 - manifest.runtimeBytes / manifest.sourceBytes) * 1000) / 10, receiptFixtures: 5 }));

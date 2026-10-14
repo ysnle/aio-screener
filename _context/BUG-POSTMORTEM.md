@@ -1,10 +1,28 @@
 ---
-last_verified: 2026-10-14
+last_verified: 2026-10-15
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1797 - v57.65 - 테마 상세를 닫은 뒤 포커스가 가끔 문서 본문으로 떨어짐(CI 간헐 실패 재발) (2026-10-15)
+
+- symptom/reproduction: v57.64 푸시 CI의 browser-reference-adoption이 'theme close focus not restored'(triggerStillMounted=false, active BODY)로 실패해 배포가 건너뛰어졌다. v57.54·v57.59에 이은 같은 증상의 세 번째 실패.
+- root_cause: 닫기 후 재렌더가 버튼을 교체하면 관찰자가 새 버튼을 찾아 focus()를 부르고 바로 관찰을 멈췄다. 새 버튼이 렌더 도중 아직 숨김(접힌 상태·hidden)이면 focus()가 조용히 거절되는데도 성공으로 간주했고, 관찰자는 자식 추가만 보아 이후 숨김 해제를 놓쳤다.
+- fix: 포커스가 실제로 그 버튼에 옮겨졌을 때만 멈추고(최대 10초), 관찰 대상에 hidden·style·open·class 속성 변화를 더해 버튼이 보이게 되는 순간 다시 시도한다.
+- violated_rule: focus() 호출은 성공을 보장하지 않는다 — 복원 루프는 document.activeElement로 결과를 확인한 뒤 끝낸다
+- prevention: P1797: browser-reference-adoption이 교체 버튼 포커스 복원을 계속 단언한다; 복원 종료 조건을 activeElement 확인으로 바꿨다.
+- verification/residual: 로컬 ci-reference-adoption-browser-check 4회 통과; 라이브 닫기 후 포커스가 연 버튼으로 복귀.
+
+## P1796 - v57.65 - SEC 원장 게이트가 git-ignored 낡은 로컬 원장을 정본으로 읽어 오탐 실패 (2026-10-15)
+
+- symptom/reproduction: 로컬에서 node scripts/ci-sec-runtime-projection-check.mjs가 'runtime symbol coverage differs from canonical source'로 실패했다. 이전 다운로드로 남은 public-data/sec-fundamentals.json(data-store 생산자 전용 원장)이 커밋된 projection을 만든 원장이 아니었다.
+- root_cause: scripts/lib/sec-ledger.mjs readSecLedger()가 파일 존재만 확인하고 sec-fundamentals-summary.manifest.json의 sourceSha256과 대조하지 않았다. CI는 restore --match-manifest로 일치 사본만 복원하지만, 로컬에 남은 불일치 사본은 그대로 정본으로 취급됐다.
+- fix: readSecLedger()가 로컬 원장의 정규화(CRLF->LF) sha256을 manifest.sourceSha256과 비교해 다르면 { present: false, stale: true }로 반환한다. secLedgerSkipNote(gate, what, ledger)는 'stale local ledger' 라벨과 두 digest 접두, restore --match-manifest 안내를 출력한다. ci-sec-runtime-projection-check는 P1757-skipped-stale, ci-professional-data-gap-check는 P1757-projection-fallback-stale로 요약한다. 생산자는 방금 쓴 원장으로 manifest를 만들므로 digest가 일치해 전체 비교가 그대로 돈다.
+- violated_rule: P1757 계약(CI는 manifest digest가 일치하는 원장만 복원)이 로컬 읽기 경로에는 적용되지 않았다.
+- prevention: ci-data-pipeline-contract-check P1757 항목이 sec-ledger.mjs의 digest 불일치->stale 분기와 두 게이트의 secLedgerSkipNote(..., ledger) 전달을 고정한다 (v57.65).
+- verification/residual: 변경 전: 낡은 원장 존재 시 게이트 실패 재현. 변경 후: 낡은 원장 존재 시 stale 라벨로 skip(ok), 원장 제거 시 absent 라벨로 skip(ok). manifest sourceSha256을 로컬 원장 digest로 임시 교체하면 원장이 present로 읽혀 전체 비교가 실행됨을 확인 후 manifest 원복. qa-runner --group data --keep-going.
 
 ## P1795 - v57.64 - 홈 VIX 칸이 게시된 종가가 있어도 '—'로 남음 (2026-10-14)
 

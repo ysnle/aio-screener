@@ -1,8 +1,12 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-14
+last_verified: 2026-10-15
 confidence: medium
 ---
+
+## v57.65 SEC 원장 digest 대조 (2026-10-15)
+
+- [x] QA-SEC-STALE-LEDGER-01: v57.65 (P1796): manifest sourceSha256과 다른 로컬 public-data/sec-fundamentals.json이 있으면 ci-sec-runtime-projection-check와 ci-professional-data-gap-check가 'stale local ledger' 라벨로 원장 비교를 건너뛰고 통과하며, 일치하는 원장이면 전체 비교를 실행한다. verify_by: automated
 
 ## v57.61 라이브 10인 점검 후속 v57.56 (2026-10-14)
 

@@ -1573,7 +1573,9 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && /--exclude 'sec-fundamentals\.json'/.test(read('.github/workflows/pages-deploy.yml')));
   check('P1757 CI restores the ledger only when its digest matches the checkout manifest, and gates degrade with a labelled skip otherwise',
     /sec-fundamentals-store\.mjs restore --match-manifest/.test(ci)
-      && ['scripts/ci-sec-runtime-projection-check.mjs', 'scripts/ci-professional-data-gap-check.mjs'].every((file) => /readSecLedger/.test(read(file)) && /secLedgerSkipNote/.test(read(file)))
+      && ['scripts/ci-sec-runtime-projection-check.mjs', 'scripts/ci-professional-data-gap-check.mjs'].every((file) => /readSecLedger/.test(read(file)) && /secLedgerSkipNote\(.*, ledger\)\)/.test(read(file)))
+      // v57.65: a git-ignored local ledger whose digest differs from the manifest is stale and reads as absent.
+      && /digest !== expected\) return \{ present: false, stale: true/.test(read('scripts/lib/sec-ledger.mjs'))
       && /fullRebuild/.test(read('scripts/fetch-sec-fundamentals.mjs')) && /GITHUB_ACTIONS === 'true' && !fullRebuild/.test(read('scripts/fetch-sec-fundamentals.mjs')));
 }
 

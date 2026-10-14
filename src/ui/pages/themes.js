@@ -1164,10 +1164,14 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
             const active = documentRef.activeElement;
             if (active && active !== documentRef.body) return;
             const next = currentDetailTrigger();
-            if (next) { next.setAttribute?.('aria-expanded', 'false'); next.focus?.({ preventScroll: true }); stop(); }
+            if (!next) return;
+            next.setAttribute?.('aria-expanded', 'false');
+            next.focus?.({ preventScroll: true });
+            // v57.64: a replacement still hidden mid-render refuses focus; keep watching until focus actually lands.
+            if (documentRef.activeElement === next) stop();
           };
           const Observer = documentRef.defaultView?.MutationObserver;
-          if (Observer && page) { observer = closeObserver = new Observer(() => restoreDetailFocus?.()); observer.observe(page, { childList: true, subtree: true }); }
+          if (Observer && page) { observer = closeObserver = new Observer(() => restoreDetailFocus?.()); observer.observe(page, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'style', 'open', 'class'] }); }
           documentRef.defaultView?.setTimeout?.(() => { if (closeObserver === observer) stop(); }, 10500);
           if (detailPanel) {
             detailPanel.style.display = 'none';

@@ -1,0 +1,9 @@
+{ "version": "v57.65", "date": "2026-10-15", "note": "v57.65: 테마 상세 닫기 포커스 복원이 숨은 교체 버튼에서 멈추던 결함 수정.", "r": null, "status": null,
+  "p": { "title": "테마 상세를 닫은 뒤 포커스가 가끔 문서 본문으로 떨어짐(CI 간헐 실패 재발)",
+    "symptom": "v57.64 푸시 CI의 browser-reference-adoption이 'theme close focus not restored'(triggerStillMounted=false, active BODY)로 실패해 배포가 건너뛰어졌다. v57.54·v57.59에 이은 같은 증상의 세 번째 실패.",
+    "root_cause": "닫기 후 재렌더가 버튼을 교체하면 관찰자가 새 버튼을 찾아 focus()를 부르고 바로 관찰을 멈췄다. 새 버튼이 렌더 도중 아직 숨김(접힌 상태·hidden)이면 focus()가 조용히 거절되는데도 성공으로 간주했고, 관찰자는 자식 추가만 보아 이후 숨김 해제를 놓쳤다.",
+    "fix": "포커스가 실제로 그 버튼에 옮겨졌을 때만 멈추고(최대 10초), 관찰 대상에 hidden·style·open·class 속성 변화를 더해 버튼이 보이게 되는 순간 다시 시도한다.",
+    "violated_rule": "focus() 호출은 성공을 보장하지 않는다 — 복원 루프는 document.activeElement로 결과를 확인한 뒤 끝낸다",
+    "prevention": "{P}: browser-reference-adoption이 교체 버튼 포커스 복원을 계속 단언한다; 복원 종료 조건을 activeElement 확인으로 바꿨다.",
+    "verification": "로컬 ci-reference-adoption-browser-check 4회 통과; 라이브 닫기 후 포커스가 연 버튼으로 복귀." },
+  "changelog": ["**테마 상세 닫기 포커스 안정화 ({P}):** 상세를 닫은 뒤 화면이 다시 그려져도 키보드 위치가 연 버튼으로 돌아갑니다."] }
