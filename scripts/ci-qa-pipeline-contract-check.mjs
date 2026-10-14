@@ -347,8 +347,14 @@ for (const [groupName, group] of Object.entries(manifest.groups || {})) {
     check(`${groupName}/${gate.id} script exists`, existsSync(gate.script));
     // Optional `remedy`: a one-line next action printed by qa-runner on FAIL (never part of the fingerprint).
     if ('remedy' in gate) check(`R690 ${groupName}/${gate.id} remedy is a non-empty one-line string`, typeof gate.remedy === 'string' && gate.remedy.trim().length > 0 && !/[\r\n]/.test(gate.remedy));
+    // Optional `weight`: pool budget units for heavy browser gates (default 1).
+    if ('weight' in gate) check(`v57.60 ${groupName}/${gate.id} weight is a positive integer on a browser gate`, Number.isInteger(gate.weight) && gate.weight >= 1 && group.kind === 'browser');
   }
 }
+check('v57.60 heavy multi-page browser gates declare pool weight 2', ['browser-viewport', 'browser-responsive', 'browser-entity-quality'].every((id) => Object.values(manifest.groups).flatMap((group) => group.gates).find((gate) => gate.id === id)?.weight === 2));
+check('v57.60 qa-runner pool budgets summed gate weight, not job count', /const gateWeight = \(gate\) =>/.test(runnerSource) && /activeWeight \+ weight > concurrency/.test(runnerSource) && /activeWeight -= weight/.test(runnerSource));
+const browserGateHelperSource = read('scripts/lib/browser-gate.mjs');
+check('v57.60 shared browser-gate server start has no assume-ready fallback', /export function startLocalServer/.test(browserGateHelperSource) && /export async function closeAll/.test(browserGateHelperSource) && !/setTimeout\(\s*(?:readyOnce|done|settle\(\))/.test(browserGateHelperSource));
 const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
 check(`gate ids are globally unique: ${[...new Set(duplicateIds)].join(', ')}`, duplicateIds.length === 0);
 
@@ -477,6 +483,8 @@ for (const entry of manifest.retiredGateScripts || []) {
 const ciScripts = (await import('node:fs')).readdirSync('scripts').filter((name) => /^ci-.*\.mjs$/.test(name)).map((name) => `scripts/${name}`);
 const orphanScripts = ciScripts.filter((script) => !reachableScripts.has(script) && !retiredScripts.has(script));
 check(`every ci-* script is reachable or explicitly retired: ${orphanScripts.join(', ')}`, orphanScripts.length === 0);
+const assumeReadyGates = ciScripts.filter((script) => /setTimeout\(\s*(?:readyOnce|done)\s*,\s*2000\s*\)|resolveServer\(child\);\s*\}\s*\},\s*2000\)/.test(read(script)));
+check(`v57.60 browser gates wait for the local server ready line, never a 2s assume-ready timer: ${assumeReadyGates.join(', ')}`, assumeReadyGates.length === 0);
 
 check('CI does not rerun for data workflow completion', !/workflow_run:/.test(ciSource));
 check('workflow syntax gate includes untracked newly-created workflows', /readdirSync\(join\(root, '\.github', 'workflows'\)\)/.test(workflowSyntaxSource) && !/git ls-files \.github\/workflows/.test(workflowSyntaxSource));

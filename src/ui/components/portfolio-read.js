@@ -6,13 +6,7 @@ import { renderNextSteps } from './page-flow.js';
 import { benchmarkRowFor, indexReturns } from '../../domain/market/benchmarks.js';
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 import { buildCloseSeries } from '../../domain/briefing/market-read.js';
-
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
+import { el } from './dom.js';
 
 // P1466: the 3-month gap to the blended index split into sector, stock selection, FX and cash —
 // bars on one scale, the total underneath, then what the arithmetic does not claim.

@@ -6,24 +6,14 @@ import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.
 import { buildGroupStrength, GROUP_WINDOWS } from '../../domain/themes/group-strength.js';
 import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
 import { AI_CAPEX_FLOW, AI_BOTTLENECK_LEAD_TIMES } from '../../domain/themes/ai-capex-flow.js';
+import { el } from './dom.js';
+import { shortDate } from '../../domain/content/date-labels.js';
 
 const SESSIONS = Object.freeze({ ret1m: 21, ret3m: 63, ret6m: 126 });
 // Audit 19: rank movement words, kept apart from the playbook's stage words (주도·조정·반등·약세).
 const DIRECTION = Object.freeze({ improving: ['순위 상승', 'favorable'], steady: ['순위 유지', 'neutral'], weakening: ['순위 하락', 'burden'] });
 
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
-
 const pct = (value, digits = 1) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(digits)}%`);
-
-function shortDate(date) {
-  const [, month, day] = String(date || '').split('-').map(Number);
-  return month && day ? `${month}/${day}` : '';
-}
 
 // S&P 500 return over the same number of sessions, on the close basis (P1399).
 export function benchmarkReturns(history = []) {

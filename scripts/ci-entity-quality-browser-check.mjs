@@ -1,8 +1,9 @@
 // P1624/P1625/P1626/P1627: real route consumers; intercepted Yahoo fixture, local published artifacts.
 // External requests are aborted except this identity-checked chart fixture. No paid AI/provider call executes.
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
@@ -18,6 +19,8 @@ const sourceFiles = ['index.html','src/ui/pages/entity.js','src/ui/pages/screene
   'src/data/providers/screener.js','src/domain/fundamental/fiscal-read.js','src/domain/technical/chart-scenarios.js'];
 const sourceHashes = Object.fromEntries(sourceFiles.map(file=>[file,createHash('sha256').update(readFileSync(resolve(root,file))).digest('hex')]));
 const failures = [], observations = [];
+// v57.60: screenshots are captured as buffers and written atomically (retries Windows EPERM/EBUSY locks).
+const snap = async (page, name, options = {}) => atomicWriteFile(resolve(out, name), await page.screenshot(options));
 const viewports = [{ name: 'phone', width:390, height:844 }, { name:'tablet', width:820, height:1180 }, { name:'desktop', width:1440, height:1000 }];
 const check = (condition, message, detail) => { if (!condition) failures.push({ message, detail }); };
 mkdirSync(out, { recursive:true });
@@ -76,12 +79,7 @@ async function captureLayout(page, label) {
 }
 let server, browser;
 try {
-  server = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd:root, stdio:['ignore','pipe','pipe'] });
-  await new Promise((ready,reject) => {
-    const timeout = setTimeout(()=>reject(new Error('Entity quality local server startup timed out')),15000);
-    server.stdout.on('data', data=>{ if (String(data).includes('AIO local server')) { clearTimeout(timeout); ready(); } });
-    server.on('error',reject); server.on('exit',code=>{clearTimeout(timeout);reject(new Error(`Local server exited ${code}`));});
-  });
+  server = await startLocalServer(port, { label: 'entity-quality/server' });
   browser = await chromium.launch({ headless:true });
   // QA speed (2026-10-12): the six viewport x theme cases are independent pages on one browser; run three at once.
   const cases = viewports.flatMap((viewport) => [false, true].map((dark) => ({ viewport, dark })));
@@ -141,7 +139,7 @@ try {
       check(summary.basis.includes('2026-10-10 05:00 한국 시간') && !/UTC|실시간/.test(summary.basis),`${label}: observation basis lost/promoted or not in Korean time (P1624/S21)`,summary);
       check(summary.signed.some(bar=>bar.down && bar.width>0) && summary.signed.every(bar=>bar.down ? Math.abs(bar.left+bar.width-50)<.05 : Math.abs(bar.left-50)<.05),`${label}: signed returns cross common zero incorrectly (P1624)`,summary.signed);
       await captureLayout(page,`${label}/summary`);
-      await page.screenshot({path:resolve(out,`browser-${label}-summary.png`)});
+      await snap(page, `browser-${label}-summary.png`);
       // P1640 supersedes P1624's collapsed default: the stock+company summary opens on first render and leads to
       // the technical and fundamental analyses.
       check(await page.locator('#ticker-company-analysis').isVisible() && await page.locator('.company-analysis-expanded').evaluate(el=>el.open)
@@ -208,7 +206,7 @@ try {
       check(fiscal.loss.length>0 && fiscal.loss.every(bar=>Math.abs(bar.top-bar.zero)<.02 && bar.height>0),`${label}: fiscal losses extend above zero (P1627)`,fiscal);
       check(/순이익/.test(fiscal.tableText) && /[−-]\$/.test(fiscal.tableText),`${label}: explicit monetary losses absent from table (P1627)`,fiscal.tableText);
       await captureLayout(page,`${label}/fiscal`);
-      await page.screenshot({path:resolve(out,`browser-${label}-fiscal.png`),fullPage:true});
+      await snap(page, `browser-${label}-fiscal.png`, { fullPage:true });
 
       await page.locator('#aio-hub-tabs [data-arg="technical"]').click();
       await page.waitForFunction(()=>document.querySelector('.page.active')?.id==='page-technical');
@@ -223,7 +221,7 @@ try {
       check(technical.zones>0 && /일봉 추정/.test(technical.volume) && /실제 가격별 체결량/.test(technical.volume),`${label}: estimated price distribution lacks method/limit (P1626)`,technical);
       check(/완료된 일봉/.test(technical.logic) && /미래 방향을 확정하지/.test(technical.logic),`${label}: chart logic/conditional basis absent (P1626)`,technical);
       await captureLayout(page,`${label}/technical`);
-      await page.screenshot({path:resolve(out,`browser-${label}-technical.png`),fullPage:true});
+      await snap(page, `browser-${label}-technical.png`, { fullPage:true });
       check(errors.length===0,`${label}: route runtime errors (P1624/P1625/P1626/P1627)`,errors);
     } catch(error) {
       const runtime = await page.evaluate(()=>({active:document.querySelector('.page.active')?.id,
@@ -232,17 +230,17 @@ try {
         proxies:(typeof _PROXY_REGISTRY!=='undefined'?_PROXY_REGISTRY.list.map(p=>({id:p.id,yahoo:p.scopes?.['query1.finance.yahoo.com']})):null),
         text:document.querySelector('.page.active')?.innerText?.slice(0,3000)})).catch(()=>null);
       failures.push({message:`${label}: ${error.message}`,stack:error.stack,fixtureRequests:intercepted,runtime,errors});
-      await page.screenshot({path:resolve(out,`browser-${label}-failure.png`)}).catch(()=>{});
+      await snap(page, `browser-${label}-failure.png`).catch(()=>{});
     }
     finally { await page.close(); }
   };
   for (let index = 0; index < cases.length; index += 3) await Promise.all(cases.slice(index, index + 3).map(runCase));
 } catch(error) { failures.push({message:error.message,stack:error.stack}); }
 finally {
-  await browser?.close(); server?.kill();
+  await closeAll({ browser, server });
   const changed=sourceFiles.filter(file=>createHash('sha256').update(readFileSync(resolve(root,file))).digest('hex')!==sourceHashes[file]);
   check(changed.length===0,'Source changed during browser run; rerun the final integrated snapshot (P1624)',changed);
-  writeFileSync(resolve(out,'browser-report.json'),JSON.stringify({
+  await atomicWriteFile(resolve(out,'browser-report.json'),JSON.stringify({
     status:failures.length?'FAIL':'PASS',postmortems:['P1624','P1625','P1626','P1627'],
     version:sourceVersion,sourceHashes,
     evidence:'Headless real route lifecycle with intercepted synthetic AEHR Yahoo chart fixture; unrelated Yahoo tickers return explicit offline 404, other external calls aborted; local published screener/SEC artifacts. Not live market/provider certification.',

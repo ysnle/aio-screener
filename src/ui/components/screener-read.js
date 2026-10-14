@@ -5,13 +5,7 @@ import { summarizeValidation } from './screener-validation.js';
 import { readMarketRegime } from './market-regime.js';
 import { renderNextSteps } from './page-flow.js';
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
-
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
+import { el } from './dom.js';
 
 function mixVisual(doc, read) {
   const box = el(doc, 'div', null, 'screener-mix');

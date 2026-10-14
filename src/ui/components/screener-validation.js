@@ -6,13 +6,7 @@
 // with it: a present-day universe means survivorship bias, so this is accountability, not proof.
 import { createTrendChart } from './trend-chart.js';
 import { liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
-
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
+import { el } from './dom.js';
 
 export const VALIDATION_MIN_REBALANCES = 12;
 export const VALIDATION_MIN_ABS_T = 2;

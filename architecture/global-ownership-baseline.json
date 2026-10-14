@@ -8,18 +8,13 @@
     "setApiKey": "Same documented pair as getApiKey (js/aio-core.js:1435-1441): the one-argument legacy call delegates to the Claude-only path and returns a Promise so saveSidebarApiKey()'s result/readback verification still holds, while the two-argument call keeps the provider storage contract. Intentional, order-safe, and covered by the same gates."
   },
   "frozenStateOwners": [
-    "_breadth5",
-    "_breadth20",
-    "_breadth50",
-    "_breadth200",
     "_currentTickerId",
     "_currentTickerName",
     "_currentTickerSym",
-    "_glossaryCat",
-    "_newsSentChart"
+    "_glossaryCat"
   ],
   "frozenStateOwnerNotes": {
-    "whyFrozen": "Each of these is shared mutable state with exactly one writer per moment, not two implementations: e.g. js/aio-data.js:15173 writes window._breadth5 from the screener artifact while js/aio-ui.js:58/170/180 write it from current breadth evidence; js/aio-core.js, js/aio-ui.js and js/aio-chat.js each set window._currentTickerId when their own surface changes the selected entity. Freezing them makes a NEW dual owner impossible to add unnoticed without rewriting behaviour that has worked for many versions.",
+    "whyFrozen": "Each of these is shared mutable state with exactly one writer per moment, not two implementations: e.g. js/aio-core.js, js/aio-ui.js and js/aio-chat.js each set window._currentTickerId when their own surface changes the selected entity. Freezing them makes a NEW dual owner impossible to add unnoticed without rewriting behaviour that has worked for many versions.",
     "notFrozenBecauseBroken": "They are frozen as visibility, not as approval. Converging them (one owner per state variable) is real work with real behaviour risk and needs its own evidence, so it is tracked as QA-EXHAUST-95 rather than done blind in a refactor commit.",
     "ratchet": "scripts/ci-structural-check.mjs fails if a frozen name stops being dual-owned — the list can only shrink."
   }

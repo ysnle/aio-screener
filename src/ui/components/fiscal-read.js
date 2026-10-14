@@ -9,6 +9,7 @@ import { loadJsonArtifact } from '../../data/artifact-cache.js';
 import { secFilingUrl } from '../../domain/fundamental/sec-report.js';
 import { buildConsensusPoint } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
+import { el } from './dom.js';
 
 // P1436: "YYYY-MM-DD:revenue:netIncome;…" in USD millions (public-data/sec-fiscal-history.json).
 export function parseFiscalHistory(text) {
@@ -43,13 +44,6 @@ export function requestFiscalHistory(root, onReady) {
     .then((artifact) => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; root._aioSecQuarterHistory = artifact?.quarters && typeof artifact.quarters === 'object' ? artifact.quarters : null; root._aioSecFiscalPrecision = artifact?.precision || null; })
     .catch(() => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistory = null; })
     .finally(() => { root._aioSecFiscalHistoryRequested = false; const ready = root._aioSecFiscalHistoryOnReady; delete root._aioSecFiscalHistoryOnReady; ready?.(); });
-}
-
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
 }
 
 const number = (value) => value != null && value !== '' && typeof value !== 'boolean' && Number.isFinite(Number(value)) ? Number(value) : null;

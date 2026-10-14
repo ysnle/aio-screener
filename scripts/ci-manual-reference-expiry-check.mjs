@@ -147,7 +147,7 @@ check('P1736 fixture: the holiday tables enter review 61 days before the last re
 const ui = read('js/aio-ui.js');
 const dataJs = read('js/aio-data.js');
 check('P1736 applyDataSnapshot holds expired BOK/KR CPI values as 기한 지남', /'bok-rate':\s*refHeld\('bokPolicy'/.test(core) && /'kr-cpi':\s*refHeld\('krInflation'/.test(core) && /'kr-cpi-yoy':\s*refHeld\('krInflation'/.test(core));
-check('P1737 fed-target fallback and both CP2 writers use AIO.getFedPolicyRange', /'fed-target':[^\n]*_fedRange/.test(core) && /cp2Fed = typeof window\.AIO\.getFedPolicyRange/.test(core) && /function getCP2Text\(\)[\s\S]{0,700}getFedPolicyRange\(\)/.test(core));
+check('P1737 v57.60 fed-target fallback and the CP2 text writer use AIO.getFedPolicyRange (the retired cp2-detail DOM sink stays gone)', /'fed-target':[^\n]*_fedRange/.test(core) && !/getElementById\('cp2-detail'\)/.test(core) && /function getCP2Text\(\)[\s\S]{0,700}getFedPolicyRange\(\)/.test(core));
 for (const file of ['src/ui/components/daily-loop.js', 'src/ui/components/briefing-read.js', 'src/ui/pages/market.js']) check(`P1737 ${file} reads the Fed range through AIO.getFedPolicyRange`, /getFedPolicyRange/.test(read(file)));
 check('P1736 the BOK next-meeting helper has no hand-typed month/day list', !/function getNextBOK\(\)\s*\{[\s\S]{0,200}var schedule = \[\[/.test(ui) && /function getNextBOK\(\)[\s\S]{0,300}releases\['kr-bok'\]/.test(ui));
 check('P1737 data.json and official-references.json reach applyProducedReferences', /applyProducedReferences\(\{ policyRates:/.test(dataJs) && /official-references\.json/.test(dataJs) && /applyProducedReferences\(\{ officialReferences: payload \}\)/.test(dataJs));

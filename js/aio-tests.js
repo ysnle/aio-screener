@@ -3783,7 +3783,6 @@
       weeklySrc690.indexOf('currentCount <') >= 0 && weeklySrc690.indexOf('.some(') >= 0 && weeklySrc690.indexOf('.every(') < 0,
       weeklySrc690.slice(0, 120));
 
-    var breadthSrc690 = (typeof initBreadthPage === 'function') ? initBreadthPage.toString() : '';
     var aaiiReferenceBound = DATA_SNAPSHOT.aaiiBear == null || (
       typeof DATA_SNAPSHOT.aaiiBear === 'number' &&
       window._serverDataMeta && window._serverDataMeta.marketSurveys &&
@@ -5849,14 +5848,14 @@
     } catch(e) { t786detail = 'ERR:' + e.message; }
     _assert('T786 spx_ath_has_no_static_floor (null or observation-derived positive)', t786ok, t786detail);
 
-    // T787 (WO-2): topbar 레짐 라벨 "Near ATH"는 -2% 이내만 (급락일 "Near ATH" 오표시 차단)
+    // T787 (v57.60): the retired mkt-regime-sub ATH-gap writer ("Near ATH" label) is gone with its node; no stale label can be written.
     var t787ok = false, t787detail = '';
     try {
       var aqSrc787 = (typeof applyLiveQuotes === 'function') ? applyLiveQuotes.toString() : '';
-      t787ok = /_athLbl/.test(aqSrc787) && /소폭 하락/.test(aqSrc787);
-      t787detail = 'hasAthLbl=' + /_athLbl/.test(aqSrc787) + ' has소폭하락=' + /소폭 하락/.test(aqSrc787);
+      t787ok = aqSrc787.length > 0 && !/getElementById\('mkt-regime-sub'\)/.test(aqSrc787) && !/_athLbl/.test(aqSrc787) && !document.getElementById('mkt-regime-sub');
+      t787detail = 'writer=' + /getElementById\('mkt-regime-sub'\)/.test(aqSrc787) + ' node=' + !!document.getElementById('mkt-regime-sub');
     } catch(e) { t787detail = 'ERR:' + e.message; }
-    _assert('T787 v5024_regime_label_honest: topbar 레짐 라벨 -2% 이내만 Near ATH (소폭 하락 밴드)', t787ok, t787detail);
+    _assert('T787 v57.60 retired_regime_sub_writer_absent: mkt-regime-sub ATH 라벨 writer 퇴역 (노드 부재)', t787ok, t787detail);
 
     // T788 (WO-3/P499): CONTRACT_TASK_ALIAS — applyPageContractCompatibility 후 AIO_PAGE_REFRESH_MAP 전 값이 실존 REFRESH_SCHEDULE 키 (unknown task 0)
     var t788ok = false, t788detail = '';
@@ -7581,17 +7580,9 @@
 
       var okC873 = false, detailC873 = 'n/a';
       try {
-        if (typeof initBreadthPage === 'function') {
-          // na-state 렌더는 함수 최상단, Chart.js 가드보다도 먼저 무조건 실행되므로 그 뒤 Chart.js
-          // 관련 코드가 (헤드리스 offline 환경에서든, 실사용자의 CDN 실패 상황에서든) 던지더라도
-          // 이미 완료된 na-state DOM 반영과는 무관 — 그 throw를 이 assert의 관심사와 분리해 흡수.
-          try { initBreadthPage(); } catch (_chartErr) {}
-          var states873 = ['breadth-new-highs', 'breadth-new-lows', 'breadth-hl-ratio'].map(function(id) {
-            var el = document.getElementById(id); return el ? el.getAttribute('data-value-state') : null;
-          });
-          okC873 = states873.every(function(s) { return s === 'na' || s === null; }); // P1395: dead new-high/low cards removed
-          detailC873 = 'states=' + states873.join(',');
-        }
+        // v57.60: the legacy breadth init (and its na-state writer) is retired with the P1395 new-high/low cards.
+        okC873 = typeof initBreadthPage !== 'function' && !document.getElementById('breadth-new-highs');
+        detailC873 = 'v57.60 legacy init=' + typeof initBreadthPage + ' cards=' + !!document.getElementById('breadth-new-highs');
       } catch (eC873) { detailC873 = 'threw: ' + (eC873 && eC873.message); }
 
       window._breadthLiveData = oldBreadth873;
@@ -8079,10 +8070,10 @@
       !!lineage91 && !!element91 && element91.fieldCount === required91.length && element91.incomplete === 0 && element91.orphanSinks === 0,
       JSON.stringify({ fieldCount: element91 && element91.fieldCount, incomplete: element91 && element91.incomplete, orphanSinks: element91 && element91.orphanSinks }));
 
-    var breadthUi91 = window.initBreadthPage && window.initBreadthPage.toString ? window.initBreadthPage.toString() : '';
-    _assert('T918 breadth_chart_runtime_only_contract: history uses artifacts and synthetic breadth charts stay blocked',
-      /data-operational-use/.test(breadthUi91) && /_aioHistorySeries\(['"]spx/.test(breadthUi91) && !/Chart\.register/.test(breadthUi91),
-      breadthUi91.slice(0, 700));
+    // v57.60: the legacy breadth chart writers are gone; market.js is the only breadth chart owner.
+    _assert('T918 breadth_chart_runtime_only_contract v57.60: no legacy breadth chart writer (initBreadthPage / _aioBreadthCanvasRender) remains',
+      typeof window.initBreadthPage !== 'function' && typeof window._aioBreadthCanvasRender !== 'function',
+      'init=' + typeof window.initBreadthPage + ' canvas=' + typeof window._aioBreadthCanvasRender);
     var svgHolder919 = null, svgIssues919 = [];
     try {
       var svgHtml919 = window._aioDiagram && window._aioDiagram.getSvg('price-position', { sym:'FIX', price:700, sma50:725, sma200:669, ath:759, ret3m:3, rsi:55 });
@@ -8954,20 +8945,20 @@
         JSON.stringify(rrgMissing));
     } finally { window._liveData = rrgOldLd; }
 
-    var mcSrc = typeof updateMcClellanUI === 'function' ? String(updateMcClellanUI) : '';
-    _assert('T1031 mcclellan_requires_advance_decline_history: 50MA breadth cannot be inverted into A/D counts',
-      !!mcSrc && mcSrc.indexOf('500 * abv50') < 0 && mcSrc.indexOf('adHistory') >= 0,
-      'updateMcClellanUI proxy=' + (mcSrc.indexOf('500 * abv50') >= 0));
+    // v57.60: the legacy McClellan row writer is retired, so no path can invert 50MA breadth into A/D counts.
+    _assert('T1031 mcclellan_requires_advance_decline_history: 50MA breadth cannot be inverted into A/D counts (v57.60 legacy writer retired)',
+      typeof window.updateMcClellanUI !== 'function' && typeof window.calcMcClellan !== 'function',
+      'updateMcClellanUI=' + typeof window.updateMcClellanUI);
 
     var sentimentSrc = typeof fetchHYSpread === 'function' ? String(fetchHYSpread) : '';
     _assert('T1032 hy_oas_official_only: HYG price cannot be converted to OAS with a synthetic formula',
       !!sentimentSrc && sentimentSrc.indexOf('(85 - p)') < 0 && sentimentSrc.indexOf('BAMLH0A0HYM2') >= 0,
       'HYG-to-OAS formula=' + (sentimentSrc.indexOf('(85 - p)') >= 0));
 
-    var breadthCanvasSrc = window._aioBreadthCanvasRender ? String(window._aioBreadthCanvasRender) : '';
-    _assert('T1033 breadth_chart_no_random_series: a latest point cannot be expanded into fake history',
-      !!breadthCanvasSrc && breadthCanvasSrc.indexOf('Math.random') < 0,
-      'breadth random=' + (breadthCanvasSrc.indexOf('Math.random') >= 0));
+    // v57.60: the legacy canvas fallback that could synthesise a series is gone.
+    _assert('T1033 breadth_chart_no_random_series: a latest point cannot be expanded into fake history (v57.60 legacy canvas fallback retired)',
+      typeof window._aioBreadthCanvasRender !== 'function',
+      'canvasFallback=' + typeof window._aioBreadthCanvasRender);
 
     var healthOldLd = window._liveData;
     try {
@@ -8994,15 +8985,14 @@
       var breadthMissing = window.AIO && window.AIO.getCurrentBreadthEvidence ? window.AIO.getCurrentBreadthEvidence() : null;
       window._breadthLiveData = { sma5:61, sma20:57, sma50:52, ts:Date.now(), source:'test-observed' };
       var breadthObserved = window.AIO && window.AIO.getCurrentBreadthEvidence ? window.AIO.getCurrentBreadthEvidence() : null;
-      var breadthUiSrc = typeof updateBreadthBars === 'function' ? String(updateBreadthBars) : '';
       var nativeBreadth1036 = window.AIO_ARCH && window.AIO_ARCH.getScreenerState && window.AIO_ARCH.getScreenerState()?.metadata?.breadth;
       var missingSourceValid1036 = breadthMissing && (breadthMissing.available
         ? nativeBreadth1036 && breadthMissing.source === nativeBreadth1036.source && breadthMissing.sma50 === nativeBreadth1036.segments.us.above50
         : breadthMissing.sma50 === null);
       _assert('T1036 P1274 breadth_current_evidence_gate: missing legacy reads only eligible native evidence; dated legacy still works',
         missingSourceValid1036 && breadthObserved && breadthObserved.available === true && breadthObserved.sma50 === 52 &&
-        breadthUiSrc.indexOf("['breadth-5sma-big','—']") >= 0 && breadthUiSrc.indexOf("['breadth-50sma-big','—']") >= 0,
-        JSON.stringify({ missing:breadthMissing, observed:breadthObserved, failClosedUi:breadthUiSrc.indexOf("['breadth-5sma-big','—']") >= 0 }));
+        typeof window.updateBreadthBars !== 'function' /* v57.60: legacy breadth DOM writer retired */,
+        JSON.stringify({ missing:breadthMissing, observed:breadthObserved, legacyWriter:typeof window.updateBreadthBars }));
     } finally { window._breadthLiveData = breadthOld; }
 
     var fredBridgeSrc = typeof _syncYahooToFred === 'function' ? String(_syncYahooToFred) : '';
@@ -9016,8 +9006,8 @@
     _assert('T1038 tail_risk_render_fails_closed_without_live_observations', window.AIO_STATIC_DATA_POLICY.chartFallbacks === 'message-only' && skewUnavailable1038 && moveUnavailable1038, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     var breadthProducerSrc = typeof _aioApplyScreenerBreadth === 'function' ? String(_aioApplyScreenerBreadth) : '';
-    _assert('T1039 breadth_producer_refreshes_all_consumers: late current breadth cannot leave stale pending diagnostics or scores',
-      !!breadthProducerSrc && breadthProducerSrc.indexOf('updateBreadthBars()') >= 0 && breadthProducerSrc.indexOf('refreshSignalDashboard()') >= 0 && breadthProducerSrc.indexOf('refreshHomeDashboard()') >= 0,
+    _assert('T1039 breadth_producer_refreshes_all_consumers v57.60: late current breadth cannot leave stale pending diagnostics or scores (legacy updateBreadthBars retired)',
+      !!breadthProducerSrc && breadthProducerSrc.indexOf('updateBreadthBars') < 0 && breadthProducerSrc.indexOf('refreshSignalDashboard()') >= 0 && breadthProducerSrc.indexOf('refreshHomeDashboard()') >= 0,
       'breadth refresh hooks=' + breadthProducerSrc.length);
 
     var scenarioBlocked1040 = document.querySelector('#page-macro [data-scenario-provider-state="unavailable"][data-runtime-state="unavailable"][data-operational-use="blocked"]');

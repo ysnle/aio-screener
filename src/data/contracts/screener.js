@@ -4,6 +4,7 @@
 import { CANONICAL_SOURCE_TIERS, canonicalSourceTier } from './source-kind.js';
 import { latestCompletedUsSession, latestCompletedKrSession, nyParts } from '../../ai/time/market-session.js';
 import { listingMarketOfSymbol, timeZoneForSymbol } from '../../domain/market/session-time.js';
+import { finiteNumber as finite } from '../../domain/shared/number.js';
 
 export const SCREENER_CONTRACT_VERSION = 'screener-workbench.v1';
 export const FIELD_STATUS = Object.freeze([
@@ -64,8 +65,6 @@ function iso(value) {
   }
   return result;
 }
-
-function finite(value) { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 
 // A stable, browser-safe hash is enough for snapshot/result parity. It is not
 // a cryptographic signature and must never be used for credentials or auth.

@@ -20,20 +20,10 @@ import { deepDiveFold } from './deep-dive.js';
 import { renderMacroCrossroads, openCrossroadsBranch } from './macro-crossroads.js';
 import { BRANCHES } from '../../domain/market/macro-crossroads.js';
 import { longHistoryRows } from '../../domain/macro/long-history.js';
+import { el } from './dom.js';
+import { shortDate } from '../../domain/content/date-labels.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
-
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
-
-function shortDate(date) {
-  const [, month, day] = String(date || '').split('-').map(Number);
-  return month && day ? `${month}/${day}` : '';
-}
 
 function signedNumber(value, digits) {
   return `${value < 0 ? '−' : ''}${Math.abs(value).toFixed(digits)}`;

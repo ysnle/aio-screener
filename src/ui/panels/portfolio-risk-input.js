@@ -5,6 +5,7 @@
 // 수행해, 보류 사유를 코드로 돌려주고 셸이 사유별 문구를 고른다.
 import { createCompositionSnapshot, deriveRiskEstimate } from '../../domain/portfolio/risk.js';
 import { convertWithDeclaredRates, listingCurrency } from '../../domain/portfolio/fx.js';
+import { finiteNumber as finite } from '../../domain/shared/number.js';
 
 // P1407 (Codex review 2026-10-03): quantity × price is in the holding's price currency. The listing
 // market fixes it when the position does not declare one (a .KS quote is in won); it is not a guess
@@ -12,10 +13,6 @@ import { convertWithDeclaredRates, listingCurrency } from '../../domain/portfoli
 export function holdingPriceCurrency(position, evidence = null) {
   const declared = String(position?.currency || position?.priceCurrency || evidence?.currency || '').trim().toUpperCase();
   return declared || listingCurrency(position?.ticker);
-}
-
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
 export function assembleRiskEstimateInput({

@@ -221,7 +221,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | `destroyPageCharts` / `showPage` | `js/aio-core.js:24983` / `25758` |
 | `fetchLiveQuotes` / `applyLiveQuotes` | `js/aio-data.js:13732` / `15186` |
 | `_aioApplyNativeScreenerState` / `_aioComputeFactorRanks` | `js/aio-data.js:4864` / `15357` |
-| `initBreadthPage` / native sentiment page | `js/aio-ui.js:172` / `src/ui/pages/sentiment.js:243` |
+| native sentiment page (legacy `initBreadthPage` 삭제 v57.60) | `src/ui/pages/sentiment.js:243` |
 | `CHAT_CONTEXTS` / `chatSend` | `js/aio-chat.js:549` / `4576` |
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
@@ -245,6 +245,10 @@ The tables in this subsection supersede older detailed line snapshots retained b
 > 변경이 누적될 수 있으므로 함수명 검색을 최종 근거로 사용한다.
 
 ---
+
+## v57.60 structure pass (2026-10-14)
+
+Shared modules (import these instead of re-declaring): `src/ui/components/dom.js` (`el(doc, tag, text, className)`), `src/domain/content/date-labels.js` (`shortDate`), `src/domain/shared/number.js` (`finiteNumber`, no coercion), `src/data/selectors/market-inputs.js` (`collectMarketInputs`; re-exported by `briefing-read.js`). Split-outs: `src/domain/portfolio/return-stats.js` (backtest statistics), `src/ui/components/ai-infrastructure-lens.js` (themes), `src/domain/masters/holdings-format.js` (masters registry/formatters). Tooling: `scripts/lib/browser-gate.mjs` (`startLocalServer`, `closeAll`, `withBrowserGate`); `qa-pipeline.json` gate `weight`. Removed from legacy js: breadth DOM cluster (`updateBreadthBars`, `initBreadthPage`, McClellan UI, `_aioBreadthCanvasRender`), dead VIX/news-sentiment/conclusion/options/FRED sinks; `AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY` lives in `js/aio-qa-audits.js`. Line numbers in the older sections below are historical.
 
 ## 1. 현재 파일 구조
 
@@ -350,7 +354,6 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | 매매점수 런타임 입력 | `js/aio-core.js:21919` (`computeTradingScore`) |
 | 22-route page contract | `js/aio-core.js:23653` (`AIO_PAGE_CONTRACTS`) |
 | 페이지 전환 | `js/aio-core.js:25874` (`showPage`) |
-| synthetic breadth 차단/히스토리 artifact | `js/aio-ui.js:475` (`initBreadthPage`) |
 | evidence-first 채팅 context factory/map | `js/aio-chat.js:385`, `js/aio-chat.js:418` |
 | 22-category CI 계약 | `scripts/ci-static-data-contract-check.mjs` |
 
@@ -482,7 +485,6 @@ The tables in this subsection supersede older detailed line snapshots retained b
 
 | 항목 | line | 비고 |
 |------|-----:|------|
-| `initBreadthPage` | 172 | breadth init |
 | `LLM_MODELS` | 351 | Claude 모델 설정(haiku-4-5/sonnet-4-6, 2026-07 기준 유효) |
 | `LLM_BUDGET` | 483 | 예산/쿼터 |
 | `updateQuotaBadge` | 540 | LLM UI 동기화 |

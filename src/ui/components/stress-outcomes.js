@@ -5,13 +5,8 @@ import { refreshSharedArtifact, STRESS_OUTCOMES } from '../../data/shared-artifa
 import { CLUSTER_GAP_SESSIONS, stressBandOf } from '../../domain/signal/stress-outcomes.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { RULES } from '../../domain/rules/thresholds.js';
+import { el } from './dom.js';
 
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
 const pct = (value, digits = 1) => (Number.isFinite(value) ? `${value >= 0 ? '+' : ''}${value.toFixed(digits)}%` : '—');
 const Z10 = 1.2816; // standard normal 10th percentile
 

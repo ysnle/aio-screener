@@ -9,15 +9,9 @@ import { renderNextSteps } from './page-flow.js';
 import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/chart-scenarios.js';
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
 import { normalizeTickerInput } from '../../domain/entity/ticker-symbol.js';
+import { el } from './dom.js';
 
 const STATE_TONE = Object.freeze({ breakout: 'favorable', setup: 'favorable', extended: 'neutral', none: 'neutral', failed: 'burden', downtrend: 'burden' });
-
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
 
 // v57.54: the chart library is loaded on demand by the shell (window._aioEnsureChartLibrary). The first visit to 차트
 // could read window.LightweightCharts before that load finished and print the failure text. Wait for it here, bounded,

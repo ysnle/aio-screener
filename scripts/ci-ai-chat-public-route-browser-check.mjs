@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { readFileSync } from 'node:fs';
-import { spawn } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -9,24 +9,12 @@ const port = Number(process.env.AIO_AI_CHAT_PORT || 8912);
 const localBase = `http://127.0.0.1:${port}`;
 const workerBase = 'https://aio-proxy.zmfhd007.workers.dev';
 
-function startServer() {
-  return new Promise((resolveServer, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
-    let ready = false;
-    const readyOnce = () => { if (!ready) { ready = true; resolveServer(child); } };
-    child.stdout.on('data', (data) => { if (String(data).includes('AIO local server')) readyOnce(); });
-    child.stderr.on('data', (data) => process.stderr.write(`[ai-chat-public-route/server] ${data}`));
-    child.on('error', reject);
-    child.on('exit', (code) => { if (!ready) reject(new Error(`server exited early (${code})`)); });
-    setTimeout(readyOnce, 2000);
-  });
-}
-
-const server = await startServer();
-const browser = await chromium.launch();
+const server = await startLocalServer(port, { label: 'ai-chat-public-route/server' });
+let browser;
 const errors = [];
 const observedRequests = [];
 try {
+  browser = await chromium.launch();
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   await context.addInitScript(() => localStorage.clear());
   const page = await context.newPage();
@@ -176,6 +164,5 @@ try {
   console.error(JSON.stringify({ ok: false, errors: [...errors, String(error?.stack || error)] }));
   process.exitCode = 1;
 } finally {
-  await browser.close();
-  server.kill();
+  await closeAll({ browser, server });
 }

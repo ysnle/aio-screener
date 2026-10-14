@@ -6,7 +6,7 @@ import { koreaParticipationContext } from '../../domain/market/korea-participati
 import { companyAnalysisContext } from '../../domain/entity/company-analysis.js';
 import { renderMarketScenarioContext } from '../../domain/market/regime-scenarios.js';
 import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
-import { collectMarketInputs } from '../../ui/components/briefing-read.js';
+import { collectMarketInputs } from '../../data/selectors/market-inputs.js';
 import { buildMarketRegime } from '../../domain/briefing/market-read.js';
 import { renderMacroCrossroadsContext } from '../../domain/market/macro-crossroads.js';
 import { crossroadsForRoot } from '../../ui/components/macro-crossroads.js';

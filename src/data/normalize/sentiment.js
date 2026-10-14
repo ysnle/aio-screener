@@ -1,3 +1,4 @@
+import { finiteNumber as finite } from '../../domain/shared/number.js';
 const SENTIMENT_FIELDS = Object.freeze([
   { metric: 'fearGreed', unit: 'score', sourceKind: 'legacy-runtime', observedAt: 'fearGreedObservedAt', maxAgeMs: 172_800_000 },
   { metric: 'vix9d', unit: 'index', sourceKind: 'legacy-runtime', observedAt: 'vix9dObservedAt', maxAgeMs: 120_000 },
@@ -9,10 +10,6 @@ const SENTIMENT_FIELDS = Object.freeze([
   { metric: 'aaiiBear', unit: 'percent', sourceKind: 'snapshot', observedAt: 'aaiiObservedAt', maxAgeMs: null },
   { metric: 'aaiiBull', unit: 'percent', sourceKind: 'snapshot', observedAt: 'aaiiObservedAt', maxAgeMs: null }
 ]);
-
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
 
 function nullPreserving(value) {
   if (value == null || typeof value === 'boolean' || (typeof value === 'string' && !value.trim())) return null;

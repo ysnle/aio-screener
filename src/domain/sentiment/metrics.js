@@ -1,8 +1,5 @@
 import { RULES } from '../rules/thresholds.js';
-
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
+import { finiteNumber as finite } from '../shared/number.js';
 
 export function fearGreedBand(value) {
   const score = finite(value);

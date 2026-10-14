@@ -6,191 +6,8 @@
 // ║  주의: MODULE 1/2의 함수 호출은 모두 이벤트/타이머 콜백 내부 (즉시 호출 X) ║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 // AAII Chart.js stacked bar + P/C sparkline
-// ── Market Breadth 전용 페이지 Charts ─────────────────────────────────
-let bpChartsInitialized = false;
-const bpChartInstances = {};
-
-// v42.4: 브레드쓰 바 동적 갱신 — signal 페이지 + breadth 페이지 NDX 카드
-// v49.64 Codex P332: 20-SMA 70%+ amber override (과열 신호 — v49.63 index.html 정적 변경의 동적 보강)
-function updateBreadthBars() {
-  var currentBreadth = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
-  if (!currentBreadth.available) {
-    var pendingText = '현재 원천 미수신';
-    [['breadth-header-badge','판정 보류'],['breadth-diag-signal','판정 보류'],['breadth-5sma-big','—'],['breadth-20sma-big','—'],['breadth-50sma-big','—'],['breadth-5sma-label',pendingText],['breadth-20sma-label',pendingText],['breadth-50sma-label',pendingText],['breadth-5sma-freshness',pendingText],['breadth-20sma-freshness',pendingText],['breadth-50sma-freshness',pendingText],['breadth-advance-ratio','—'],['breadth-signal-val','—']].forEach(function(p){ var el=document.getElementById(p[0]); if(el && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el))){ el.textContent=p[1]; el.style.color='var(--text-muted)'; } });
-    ['breadth-5sma-bar','breadth-20sma-bar','breadth-50sma-bar','bb-5sma-bar','bb-20sma-bar','bb-50sma-bar'].forEach(function(id){ var el=document.getElementById(id); if(el && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el))) el.style.width='0%'; });
-    var stageEl = document.getElementById('breadth-stage-summary');
-    if (stageEl && stageEl.dataset.aioBreadthStageRenderer !== 'native') { stageEl.textContent = '— 20·50일선 breadth 미수신'; stageEl.style.color = 'var(--text-muted)'; }
-    var mcEl = document.getElementById('breadth-mcclellan-summary');
-    if (mcEl && mcEl.dataset.aioBreadthMcclellanRenderer !== 'native') { mcEl.innerHTML = '— <span style="font-weight:500;color:var(--text-dim);">A/D 시계열 미수신</span>'; mcEl.setAttribute('data-mcclellan-signal','unavailable'); }
-    var diagEl = document.getElementById('breadth-diag-text');
-    if (diagEl && diagEl.dataset.aioBreadthDiagnosticRenderer !== 'native') diagEl.textContent = '현재 5/20/50일선 breadth 및 A/D 시계열 원천이 없어 종합 진단을 보류합니다.';
-    return;
-  }
-  window._breadth5 = currentBreadth.sma5;
-  window._breadth20 = currentBreadth.sma20;
-  window._breadth200 = currentBreadth.sma20; // v57.50 C07: legacy global name — the value is the 20-day-SMA share
-  window._breadth50 = currentBreadth.sma50;
-  var diagSummary = '5/20/50일선 상회 ' + Math.round(currentBreadth.sma5) + '/' + Math.round(currentBreadth.sma20) + '/' + Math.round(currentBreadth.sma50) + '%';
-  var breadthHeader = document.getElementById('breadth-header-badge');
-  if (breadthHeader) { breadthHeader.textContent = '현재 관측'; breadthHeader.style.color = 'var(--data-green)'; }
-  var breadthDiagSignal = document.getElementById('breadth-diag-signal');
-  if (breadthDiagSignal && breadthDiagSignal.dataset.aioBreadthDiagnosticRenderer !== 'native') { breadthDiagSignal.textContent = diagSummary; breadthDiagSignal.style.color = 'var(--text-primary)'; }
-  // P746 후속(2026-07-21, Fable 어드바이저 2차 설계): breadth-stage-summary는 다일 breadth 이력이
-  // 전혀 없어(history.json에 breadth 필드 자체가 없음 — reconciliation-status.json도 이 항목을
-  // "BLOCKED"로 이미 기록 중) Weinstein류 추세국면 "Stage"를 만들 수 없다는 결론에 따라, 오늘
-  // 시점의 참여 수준(level: broad/neutral/narrow) + 가능하면 1스텝 delta 방향만 정직하게 표시한다
-  // (delta 없으면 방향 생략, 조작하지 않음). 그래서 UI 라벨도 "Weinstein Stage"에서 "시장 참여도"로
-  // 바꿨다(index.html) — 아래 로직은 그 이름에 맞는 산식이다.
-  var stageSummaryEl = document.getElementById('breadth-stage-summary');
-  if (stageSummaryEl && stageSummaryEl.dataset.aioBreadthStageRenderer !== 'native') {
-    var prevDeltaRef = (typeof _aioGetPrevDeltaRef === 'function') ? _aioGetPrevDeltaRef() : null;
-    var sma20Delta = (prevDeltaRef && typeof currentBreadth.sma20 === 'number' && typeof prevDeltaRef.breadth20sma === 'number') ? currentBreadth.sma20 - prevDeltaRef.breadth20sma : null;
-    var sma5Delta = (prevDeltaRef && typeof currentBreadth.sma5 === 'number' && typeof prevDeltaRef.breadth5sma === 'number') ? currentBreadth.sma5 - prevDeltaRef.breadth5sma : null;
-    var participationFn = window.AIO_ARCH && typeof window.AIO_ARCH.classifyBreadthParticipation === 'function' ? window.AIO_ARCH.classifyBreadthParticipation : null;
-    var participation = participationFn ? participationFn({ sma20: currentBreadth.sma20, sma50: currentBreadth.sma50, sma20Delta: sma20Delta, sma5Delta: sma5Delta }) : { available: false };
-    if (!participation.available) {
-      stageSummaryEl.textContent = '— 20·50일선 breadth 미수신';
-      stageSummaryEl.style.color = 'var(--text-muted)';
-    } else {
-      var LEVEL_LABEL = { broad: '광범위 참여', neutral: '중립', narrow: '쏠림 장세' };
-      var LEVEL_COLOR = { broad: 'var(--data-green)', neutral: 'var(--data-amber)', narrow: 'var(--data-red)' };
-      var DIRECTION_SUFFIX = { rising: ' · 확대', falling: ' · 위축', flat: ' · 보합' };
-      stageSummaryEl.textContent = LEVEL_LABEL[participation.level] + (participation.direction ? DIRECTION_SUFFIX[participation.direction] : '');
-      stageSummaryEl.style.color = LEVEL_COLOR[participation.level];
-    }
-  }
-  var breadthDiagText = document.getElementById('breadth-diag-text');
-  if (breadthDiagText && breadthDiagText.dataset.aioBreadthDiagnosticRenderer !== 'native') breadthDiagText.textContent = diagSummary + ' · ' + (currentBreadth.source || 'AIO screener universe') + '의 현재 관측입니다. 시장 참여도는 오늘 수준(추세국면 아님), McClellan은 A/D 시계열이 없어 판정을 보류합니다.';
-  var breadthAdvance = document.getElementById('breadth-advance-ratio');
-  if (breadthAdvance && breadthAdvance.dataset.aioBreadthSignalRenderer !== 'native') breadthAdvance.textContent = currentBreadth.advanceRatio != null ? (currentBreadth.advanceRatio * 100).toFixed(1) + '%' : '—';
-  var breadthSignal = document.getElementById('breadth-signal-val');
-  if (breadthSignal && breadthSignal.dataset.aioBreadthSignalRenderer !== 'native') breadthSignal.textContent = '현재 5/20/50SMA 관측 · 방향 예측 아님';
-  function _bbRegime(v) {
-    if (typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.getBreadthRegime) {
-      var reg = NARRATIVE_ENGINE.getBreadthRegime(v);
-      if (reg && reg.color && reg.label) return reg;
-    }
-    return v >= 70 ? { level:'broad', label:'광폭 랠리', color:'#00e5a0' } :
-           v >= 55 ? { level:'healthy', label:'건강', color:'#ffa31a' } :
-           v >= 40 ? { level:'narrow', label:'좁은 랠리', color:'#ffa31a' } :
-                     { level:'fearful', label:'공포 영역', color:'#ff5b50' };
-  }
-  function _bbToneBg(color) {
-    if (color === '#00e5a0') return 'var(--data-green-mid)';
-    if (color === '#ff5b50') return 'var(--data-red-mid)';
-    return 'var(--data-amber-mid)';
-  }
-  function _bbColor(v) { return _bbRegime(v).color; }
-  function _bbBg(v)    { return _bbToneBg(_bbRegime(v).color); }
-  function _bbLbl(v)   { return _bbRegime(v).label; }
-  // v49.64 Codex P332: 20-SMA 전용 라벨 — 70%+ "과열" amber override (강세/과열 구분)
-  function _bb20smaLbl(v) {
-    if (v >= 70) return '과열';
-    if (v >= 60) return '강세';
-    if (v >= 50) return '중립↑';
-    if (v >= 35) return '중립↓';
-    return '약세';
-  }
-  function _bb20smaColor(v) {
-    if (v >= 70) return '#ffa31a';            // amber: 과열
-    return _bbColor(v);
-  }
-  function _bb20smaBg(v) {
-    if (v >= 70) return 'var(--data-amber-mid)';
-    return _bbBg(v);
-  }
-  var rows = [
-    { bar:'bb-5sma-bar',  val:'bb-5sma-val',  badge:'bb-5sma-badge',  v: window._breadth5 },
-    { bar:'bb-20sma-bar', val:'bb-20sma-val', badge:'bb-20sma-badge', v: (window._breadth200 != null ? window._breadth200 : window._breadth20), is20Sma: true }, // v50.17: _breadth200(레거시 20일선) 미설정 시 _breadth20 폴백
-    { bar:'bb-50sma-bar', val:'bb-50sma-val', badge:'bb-50sma-badge', v: window._breadth50 },
-  ];
-  rows.forEach(function(r) {
-    if (r.v == null) return;
-    // v49.64 Codex P332: 20-SMA는 amber override 적용 (70%+ 과열 신호)
-    var c   = r.is20Sma ? _bb20smaColor(r.v) : _bbColor(r.v);
-    var bg  = r.is20Sma ? _bb20smaBg(r.v)    : _bbBg(r.v);
-    var lbl = r.is20Sma ? _bb20smaLbl(r.v)   : _bbLbl(r.v);
-    var barEl = document.getElementById(r.bar), valEl = document.getElementById(r.val), bdgEl = document.getElementById(r.badge);
-    if (barEl)  { barEl.style.width = r.v + '%'; barEl.style.background = c; }
-    if (valEl)  { valEl.textContent = r.v + '%'; valEl.style.color = c; }
-    if (bdgEl)  { bdgEl.textContent = lbl; bdgEl.style.color = c; bdgEl.style.background = bg; }
-  });
-  // breadth 페이지 NDX 카드
-  [ ['bp-ndx5-val', window._breadthNDX5], ['bp-ndx20-val', window._breadthNDX20], ['bp-ndx50-val', window._breadthNDX50] ]
-    .forEach(function(p) {
-      var el = document.getElementById(p[0]);
-      if (el && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el)) && p[1] != null) { el.textContent = p[1] + '%'; el.style.color = _bbColor(p[1]); }
-    });
-}
-
-function initBreadthPage(forceReinit) {
-  if (typeof window._aioRenderValueSlot === 'function') {
-    ['breadth-new-highs','breadth-new-lows','breadth-hl-ratio'].forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el) window._aioRenderValueSlot(el, 'na', null, { text:'해당 없음', reason:'NYSE 신고가/신저가 검증 원천 미수신' });
-    });
-  }
-  renderStaleWarning('page-breadth');
-  var evidence = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
-  if (!evidence.available) {
-    window._breadth5 = window._breadth20 = window._breadth50 = window._breadth200 = null;
-    window._breadthSeries = window._breadthLabels = null;
-    updateBreadthBars();
-    ['breadth-5sma','breadth-20sma','breadth-50sma'].forEach(function(key) {
-      document.querySelectorAll('[data-snap="' + key + '"]').forEach(function(el) {
-        if (typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el)) return;
-        el.textContent = '—';
-      });
-    });
-  } else {
-    window._breadth5 = evidence.sma5;
-    window._breadth20 = window._breadth200 = evidence.sma20;
-    window._breadth50 = evidence.sma50;
-    [['breadth-5sma-label',evidence.sma5,false],['breadth-20sma-label',evidence.sma20,true],['breadth-50sma-label',evidence.sma50,false]].forEach(function(p) {
-      var el = document.getElementById(p[0]);
-      if (!el || (typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el))) return;
-      el.textContent = p[2] ? _bb20smaLbl(p[1]) : _bbLbl(p[1]);
-      el.style.color = p[2] ? _bb20smaColor(p[1]) : _bbColor(p[1]);
-    });
-    var asOf = evidence.ts ? new Date(evidence.ts).toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit'}) : '현재';
-    ['breadth-5sma-freshness','breadth-20sma-freshness','breadth-50sma-freshness'].forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el))) el.textContent = '관측: ' + asOf + ' · ' + (evidence.source || 'AIO screener universe');
-    });
-    updateBreadthBars();
-  }
-
-  var nativeBreadthPage = document.getElementById('page-breadth');
-  var nativeBreadthCharts = !!(nativeBreadthPage && nativeBreadthPage.dataset.aioArchitectureRenderer === 'native');
-  if (!nativeBreadthCharts) Object.keys(bpChartInstances).forEach(function(k) { try { bpChartInstances[k].destroy(); } catch(_) {} delete bpChartInstances[k]; });
-  ['bp-ad-ratio-chart','bp-5ma-chart','bp-20ma-chart','bp-50ma-chart'].forEach(function(id) {
-    var canvas = document.getElementById(id);
-    if (!canvas) return;
-    if (canvas.dataset.aioBreadthChartRenderer === 'native') return;
-    canvas.setAttribute('data-source-kind','unavailable');
-    canvas.setAttribute('data-operational-use','blocked');
-    canvas.setAttribute('title','브레드쓰 과거 시계열 미수신 — 현재 단면값만 표시');
-  });
-  if (!nativeBreadthCharts) window._breadthSeries = window._breadthLabels = null;
-
-  var priceCanvas = document.getElementById('bp-price-chart');
-  if (priceCanvas && priceCanvas.dataset.aioBreadthChartRenderer === 'native') { bpChartsInitialized = true; return; }
-  var spxSeries = typeof _aioHistorySeries === 'function' ? _aioHistorySeries('spx', 5) : null;
-  if (priceCanvas && spxSeries && typeof Chart === 'function') {
-    var rows = spxSeries.slice(-60);
-    priceCanvas.setAttribute('data-source-kind','server-history');
-    priceCanvas.setAttribute('data-source-label','public-data/history.json:spx');
-    bpChartInstances.price = new Chart(priceCanvas, {
-      type:'line',
-      data:{labels:rows.map(function(p){return String(p.date).slice(5).replace('-','/');}),datasets:[{label:'S&P 500',data:rows.map(function(p){return p.value;}),borderColor:'#00bcd4',borderWidth:2,pointRadius:0,tension:0.25,fill:false}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:7}},y:{ticks:{maxTicksLimit:5}}}}
-    });
-  } else if (priceCanvas) {
-    priceCanvas.setAttribute('data-source-kind','unavailable');
-    priceCanvas.setAttribute('title','S&P 500 히스토리 미수신');
-  }
-  bpChartsInitialized = true;
-}
+// v57.60: the legacy breadth-page DOM writers and their bp-* chart registry were removed;
+// the breadth route is rendered by src/ui/pages/market.js and window._breadth* globals are set by the screener breadth producer.
 
 function _aioGetKstDateParts(input) {
   var date = input instanceof Date ? input : new Date(input == null ? Date.now() : input);
@@ -1041,9 +858,6 @@ async function globalRefresh() {
         : await window.AIO.runScheduledRefresh({ forceRefresh: true });
       var activePage = document.querySelector('.page.active');
       var activeId = activePage ? activePage.id.replace('page-','') : (typeof prevPage !== 'undefined' ? prevPage : 'home');
-      if (activeId === 'breadth' && typeof initBreadthPage === 'function') {
-        initBreadthPage(true);
-      }
       if (activeId === 'signal' && typeof initSignalDashboard === 'function') initSignalDashboard();
       if (btn) {
         btn.textContent = result && result.status === 'warn' ? '확인 필요' : '완료';
@@ -1069,7 +883,6 @@ async function globalRefresh() {
   // Re-init charts on current page
   const activePage = document.querySelector('.page.active');
   const activeId = activePage ? activePage.id.replace('page-','') : prevPage;
-  if (activeId === 'breadth')   { initBreadthPage(true); }
   if (activeId === 'signal')    initSignalDashboard();
 
   await Promise.allSettled(tasks);
@@ -5546,54 +5359,7 @@ try {
   }
 } catch(_registerTickerOvErr) {}
 
-// ── Phase 2-2: McClellan Oscillator 계산 ──
-var _mcData = { advEma19: null, advEma39: null, decEma19: null, decEma39: null, summation: 0, history: [] };
-function calcMcClellan(advances, declines) {
-  // EMA 계산 함수
-  function ema(prev, val, period) {
-    var k = 2 / (period + 1);
-    return prev === null ? val : val * k + prev * (1 - k);
-  }
-  var adDiff = advances - declines;
-  _mcData.advEma19 = ema(_mcData.advEma19, adDiff, 19);
-  _mcData.advEma39 = ema(_mcData.advEma39, adDiff, 39);
-  var oscillator = _mcData.advEma19 - _mcData.advEma39;
-  _mcData.summation += oscillator;
-  _mcData.history.push({ osc: oscillator, sum: _mcData.summation });
-  if (_mcData.history.length > 100) _mcData.history.shift();
-  return { oscillator: oscillator, summation: _mcData.summation };
-}
-function updateMcClellanUI() {
-  // McClellan은 실제 일별 상승·하락 종목수 시계열이 필요하다. 50MA 상회율에서 역산하지 않는다.
-  var breadthData = window._breadthLiveData || {};
-  var advances = Number(breadthData.advances);
-  var declines = Number(breadthData.declines);
-  var historyOk = Array.isArray(breadthData.adHistory) && breadthData.adHistory.length >= 39;
-  var mc = historyOk && isFinite(advances) && isFinite(declines) ? calcMcClellan(advances, declines) : null;
-  var labels = document.querySelectorAll('.bb-label');
-  labels.forEach(function(el) {
-    if (el.textContent.indexOf('매클렐란') !== -1) {
-      var row = el.closest('.breadth-bar-row');
-      if (!row) return;
-      var valEl = row.querySelector('.bb-val');
-      var barEl = row.querySelector('.bb-bar');
-      var badgeEl = row.querySelector('.bb-badge');
-      if (!mc) {
-        if (valEl) { valEl.textContent = '—'; valEl.style.color = 'var(--text-muted)'; valEl.title = '실제 일별 상승·하락 종목수 39일 시계열 미수신'; }
-        if (barEl) { barEl.style.width = '0%'; barEl.style.background = 'var(--border)'; }
-        if (badgeEl) { badgeEl.textContent = '판정 보류'; badgeEl.style.color = 'var(--text-muted)'; badgeEl.style.background = 'transparent'; }
-        return;
-      }
-      var osc = mc.oscillator;
-      var color = osc > 50 ? 'var(--data-green)' : osc > 0 ? 'var(--data-amber)' : osc > -50 ? 'var(--data-amber)' : 'var(--data-red)';
-      var pct = Math.min(100, Math.max(5, 50 + osc / 2));
-      var label = osc > 100 ? '강한 매수' : osc > 50 ? '매수 우세' : osc > 0 ? '약한 매수' : osc > -50 ? '약한 매도' : osc > -100 ? '매도 우세' : '강한 매도';
-      if (valEl) { valEl.textContent = osc.toFixed(0); valEl.style.color = color; }
-      if (barEl) { barEl.style.width = pct + '%'; barEl.style.background = color; }
-      if (badgeEl) { badgeEl.textContent = label; badgeEl.style.color = color; badgeEl.style.background = color.replace(')', ',0.1)').replace('rgb', 'rgba'); }
-    }
-  });
-}
+// v57.60: legacy McClellan row writer and its EMA state removed — no .bb-label rows and no A/D history source.
 
 // ── Phase 2-4: 포트폴리오 SPY 벤치마크 비교 차트 ──
 // v48.13: 포트폴리오 vs SPY 벤치마크 차트 — 기존 stub 수정 + SPY 30일 실데이터 + 필드명 교정
@@ -5916,7 +5682,6 @@ document.addEventListener('DOMContentLoaded', function() {
     applyA11yIndicators();
   }, 30000); // 30초마다 접근성 아이콘 갱신
   applyA11yIndicators();
-  updateMcClellanUI();
   // 경제 캘린더 동적 날짜 업데이트
   var bokEl = document.querySelector('[data-snap="bok-next"]');
   if (bokEl) bokEl.textContent = getNextBOK();

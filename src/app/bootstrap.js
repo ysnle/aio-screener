@@ -48,7 +48,7 @@ import { buildChatPolicyLines } from '../ai/context/policy-lines.js';
 import { resolveChatTickers } from '../ai/entity/chat-tickers.js';
 import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence } from '../ai/research/native-search.js';
 import { readMarketRegime } from '../ui/components/market-regime.js';
-import { collectMarketInputs } from '../ui/components/briefing-read.js';
+import { collectMarketInputs } from '../data/selectors/market-inputs.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../domain/briefing/market-read.js';
 import { createCloseBasisEvidenceReader, closeBasisSubstituteFor, renderCloseBasisEvidenceContext } from '../ai/context/close-basis-evidence.js';
 import { earningsContextForHeadline } from '../domain/news/earnings-context.js';

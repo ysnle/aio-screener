@@ -14,13 +14,8 @@ import { buildRegimeAxisHistory, buildMarketScenarios, buildKoreaRegimeObservati
 import { renderRegimeRadar } from './regime-radar.js';
 import { outlookForRoot } from './scenario-outlook.js';
 import { renderCrossroadsCompact } from './macro-crossroads.js';
-
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
+import { el } from './dom.js';
+import { shortDate } from '../../domain/content/date-labels.js';
 
 // Live review 2026-10-14 (owner reading standard: 3–5 lines, ~130–230자 per block): a longer reading keeps its first
 // sentences on the face (up to ~200자, cut at a sentence end) and folds the rest under '이어서 읽기'.
@@ -46,11 +41,6 @@ function readingNodes(doc, text, className) {
     nodes.push(more);
   }
   return nodes;
-}
-
-function shortDate(date) {
-  const [, month, day] = String(date || '').split('-').map(Number);
-  return month && day ? `${month}/${day}` : '';
 }
 
 // v57.55 review (E1-02/B4-F7): the credit axis needs the 20-session HY change from macro-history. Only 오늘 and 시장 상태

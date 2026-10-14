@@ -1,7 +1,7 @@
 import { buildKoreaParticipation } from '../../domain/market/korea-participation.js';
 import { koreaMoveRecord } from '../../domain/briefing/market-read.js';
 import { heavyweightLine } from '../../domain/themes/group-strength.js';
-const el=(doc,tag,text)=>{const node=doc.createElement(tag);if(text!=null)node.textContent=text;return node;};
+import { el } from './dom.js';
 export function renderKoreaParticipation({documentRef:doc,root}) {
   const board=doc.getElementById('regime-board-kr');if(!board)return;
   let host=doc.getElementById('regime-kr-participation');

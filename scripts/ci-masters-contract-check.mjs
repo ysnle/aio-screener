@@ -35,6 +35,7 @@ const routes = read('src/app/routes.js');
 const slices = read('src/app/vertical-slices.js');
 const bootstrap = read('src/app/bootstrap.js');
 const page = read('src/ui/pages/masters.js');
+const mastersFormat = read('src/domain/masters/holdings-format.js'); // v57.60: page registry/coverage/formatters moved here
 const worker = read('sw.js');
 const golden = JSON.parse(read('architecture/golden-routes.json'));
 const mastersIndex = JSON.parse(read('public-data/masters/index.json'));
@@ -85,7 +86,7 @@ for (const [label, source, marker] of [
   ['capability error isolation', page, 'Promise.allSettled'],
   ['route abort signal', page, 'scope?.signal'],
   ['shared artifact cache', page, 'loadJsonArtifact'],
-  ['pending state', page, "status: 'PENDING'"]
+  ['pending state', mastersFormat, "status: 'PENDING'"] // v57.60: MASTER_REGISTRY moved to domain/masters/holdings-format.js
 ]) if (!source.includes(marker)) fail(`${label} missing marker: ${marker}`);
 
 if (/^import\s+\{[^\n]*createMastersPage[^\n]*from\s+['"]\.\.\/ui\/pages\/masters\.js['"]/m.test(bootstrap)) fail('masters page returned to the initial static module graph');
@@ -95,10 +96,10 @@ if (!/data-masters-content/.test(index)) fail('page markup lacks renderer mount'
 // 2026-10-05: the disclosure moved from the retired page hero into the style-overview reading text.
 const managersView = fs.readFileSync(new URL('../src/ui/knowledge/managers-view.js', import.meta.url), 'utf8');
 if (!/13F는 전체 포트폴리오가 아니다/.test(managersView) || /재검산된 경우에만 전체 포트폴리오로 표시/.test(index + managersView)) fail('page must carry the bounded 13F coverage disclosure without calling it the complete portfolio');
-if (/data-live-price|data-live-chg|targetPrice|target-price/.test(page)) fail('masters page must not promote live market or target claims');
-if (/currentPrice|targetPrice|BUY|SELL/.test(page)) fail('masters page must not promote current market or trading claims');
+if (/data-live-price|data-live-chg|targetPrice|target-price/.test(page + mastersFormat)) fail('masters page must not promote live market or target claims');
+if (/currentPrice|targetPrice|BUY|SELL/.test(page + mastersFormat)) fail('masters page must not promote current market or trading claims');
 if (/\bnoop\b/.test(page)) fail('masters detail tabs must not be noop controls');
-if (!/replaceChildren/.test(page) || /innerHTML/.test(page)) fail('masters renderer must use safe DOM construction');
+if (!/replaceChildren/.test(page) || /innerHTML/.test(page + mastersFormat)) fail('masters renderer must use safe DOM construction');
 if (!page.includes('FILINGS_URL') || !page.includes('HOLDINGS_URL') || !page.includes('SECURITY_MASTER_URL') || !page.includes('SECURITY_MASTER_REFERENCE_URL') || !page.includes('createTopHoldingTable') || !page.includes('createFullHoldingsView') || !page.includes('createChangeLedger') || !page.includes("valueReconciliationStatus === 'MISMATCH'") || !page.includes('aioMastersHoldings') || !page.includes('aioMastersSecurityMaster') || !/^REFERENCE_METADATA_(?:CONNECTED|CURRENT|PARTIAL)$/.test(filings.status)) fail('SEC metadata/holdings/security-master artifacts are not connected');
 // P1325: the reverse lookup must have an explicit error state (it used to stay on '불러오는 중' forever
 // after a failed fetch), start its ledger load at mount, and the manager cards must precede lookup/coverage.
@@ -137,7 +138,7 @@ const currentClassification = {
 };
 if (currentClassification.currentFull + currentClassification.staleFull + currentClassification.previewOnly + currentClassification.metadataOnly !== filerIds.size || currentClassification.latestPeriodMissing !== filerIds.size - currentClassification.currentFull || currentClassification.methodOnly !== 1) fail(`current user-visible coverage partition is inconsistent: ${JSON.stringify(currentClassification)}`);
 if (filingDiscovery.status !== 'CURRENT' || filingDiscovery.coverage.discovered !== filerIds.size || filingDiscovery.coverage.blocked !== 0 || filingDiscovery.coverage.holdingsRowsCurrent !== holdings.reconciledManagers || filingDiscovery.coverage.holdingsRowsPending !== filerIds.size - holdings.reconciledManagers) fail('current discovery/row artifact reconciliation is incomplete');
-if (/aioMastersData\s*=\s*['"]connected['"]/.test(page) || !page.includes('coverageSummary.state') || !page.includes('discoveryComplete && rowCoverageComplete && enrichmentComplete') || !page.includes('mastersEnrichmentState')) fail('aioMastersData can still overstate discovery/row/enrichment coverage as complete');
+if (/aioMastersData\s*=\s*['"]connected['"]/.test(page) || !page.includes('coverageSummary.state') || !mastersFormat.includes('discoveryComplete && rowCoverageComplete && enrichmentComplete') || !page.includes('mastersEnrichmentState')) fail('aioMastersData can still overstate discovery/row/enrichment coverage as complete');
 if (!page.includes('masters-compare-period-mismatch') || !page.includes('row.reportPeriod === commonPeriod') || !page.includes("'행 확인 필요'")) fail('mixed-period comparison or unknown-row fail-closed contract is missing');
 for (const marker of ['masters-coverage-classification', 'masters-latest-quarter-boundary', 'masters-discovery-boundary', 'masters-enrichment-boundary', '최신 전체 행', '지연 전체 행', '원문 미리보기만', '메타데이터만', '공식 투자 원칙 원고', '검증 issuer·ticker·sector master']) {
   if (!page.includes(marker)) fail(`user-visible Masters coverage boundary missing: ${marker}`);
@@ -337,7 +338,7 @@ if (rowPreviews.managers.some((manager) => ['berkshire-hathaway', 'duquesne-fami
     ['withheld sector rows are not summed as zero dollars', /scaleWithheld \? '금액 단위 확인 중'/]
   ];
   for (const [label, pattern] of wired) if (!pattern.test(page)) fail(`P1522 masters page wiring missing: ${label}`);
-  if (/\*\s*1000\b|\/\s*1000\b/.test(page.replace(/Intl|toLocaleString|1e3|1000\) \/ 1000/g, ''))) fail('P1522 the masters page must never rescale a filed amount by 1,000');
+  if (/\*\s*1000\b|\/\s*1000\b/.test((page + read('src/domain/masters/holdings-format.js')).replace(/Intl|toLocaleString|1e3|1000\) \/ 1000/g, ''))) fail('P1522 the masters page must never rescale a filed amount by 1,000');
 }
 
 const result = {

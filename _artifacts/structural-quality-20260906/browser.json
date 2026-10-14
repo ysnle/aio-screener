@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-14T10:53:01.047Z",
+  "generatedAt": "2026-10-14T12:04:58.788Z",
   "routes": [
     {
       "id": "home",
@@ -21,18 +21,6 @@
         {
           "tag": "BUTTON",
           "name": "헬스케어"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "정유"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "서버/HW"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "데이터/AI 플랫폼"
         },
         {
           "tag": "BUTTON",
@@ -125,13 +113,212 @@
     {
       "id": "signal",
       "exists": true,
-      "moduleState": "loading",
-      "controls": [],
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "기술 분석에서 이동평균 직접 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "20일선 위 종목 비율 (단기)"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "50일선 위 종목 비율"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "200일선 위 종목 비율"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 폭 화면에서 구성 종목 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "VIX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "VIX / 3개월 VIX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리 화면에서 기간 구조 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "미 10년물 명목금리"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "10년 TIPS 실질금리"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "10년 기대인플레이션"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리·환율 화면에서 실질금리와 기간 프리미엄 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 노트 · 현재가치(할인) →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "하이일드 OAS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CCC − B 등급 스프레드 격차"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리·환율 화면에서 하이일드 스프레드 추이 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "WTI 선물"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "달러 인덱스"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "거시 화면에서 물가·유동성 흐름 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 노트 · 한 상품의 가격 상승과 전반적 물가 상승 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "통신서비스"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "기술"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "에너지"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "기술"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "에너지"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "정유"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "서버/HW"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "데이터/AI 플랫폼"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "반도체 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "소프트웨어/클라우드 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산업재/물류 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금융 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "한국 반도체·AI·2차전지 외 15개 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "해외 대형 ADR →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "한국 K-방산·반도체·전력기기 외 3개 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "모든 갈림길과 선택지 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "모든 테마의 단계 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 폭 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "거시 경제 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리 · 환율 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "S&P 500 지도 · 섹터 →"
+        }
+      ],
       "headings": [
         "시장 상태",
-        "판정 대기",
+        "혼조",
         "미국 시장 6개 축",
-        "한국 시장 참고 위 6개 축 합계에는 넣지 않습니다"
+        "국면 레이더 · 과거 대비 지금 위치숫자 = 최근 1년(최대 252거래일) 중 지금 위치(0~100, 클수록 우호) — 카드의 우호·중립·부담 판정과는 다른 잣대",
+        "추세",
+        "시장 폭",
+        "변동성",
+        "금리",
+        "신용 · 위험선호",
+        "달러 · 원자재",
+        "지금 구조와 앞으로의 갈림길",
+        "확산 회복",
+        "집중 유지",
+        "동반 약화",
+        "다음 발표가 가를 길",
+        "한국 시장 참고 위 6개 축 합계에는 넣지 않습니다",
+        "코스피",
+        "코스닥",
+        "원 / 달러",
+        "한국 종목의 참여도와 강한 테마",
+        "한국 테마 표본 · 3개월 수익률 중앙값",
+        "이어서 볼 곳"
       ]
     },
     {
@@ -147,76 +334,11 @@
     {
       "id": "sentiment",
       "exists": true,
-      "moduleState": "ready",
-      "controls": [
-        {
-          "tag": "BUTTON",
-          "name": "시장 상태에서 변동성·신용 축 함께 보기 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "개념 노트 · 기저율 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 상태에서 과거 VIX 구간별 결과 보기 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금리·환율 화면에서 스프레드 추이 보기 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "개념 노트 · 기저율 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "개념 노트 · 상관관계와 인과 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "S&P 500: 극단 구간 밖 — 다섯 요소 순위 32~82"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "나스닥 종합: 극단 구간 밖 — 다섯 요소 순위 31~75"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "코스피: 5개 요소 중 3개가 최근 3년 하위 10% — 극단 저온 3거래일째"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "코스닥: 극단 구간 밖 — 다섯 요소 순위 13~37"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "닛케이 225: 극단 구간 밖 — 다섯 요소 순위 38~62"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 폭 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 상태 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "거시 갈림길 →"
-        }
-      ],
+      "moduleState": "loading",
+      "controls": [],
       "headings": [
         "투자 심리",
-        "심리 종합",
-        "공포·탐욕 지수 (F&G)",
-        "VIX 기간 구조 (VIX ÷ 3개월 VIX)",
-        "HY 신용 스프레드",
-        "풋/콜 비율",
-        "AAII 개인 설문",
-        "심리 구성 요소 백분위 (참고)",
-        "지수별 가격 온도 (참고)",
-        "이어서 볼 곳"
+        "심리 종합"
       ]
     },
     {
@@ -1574,7 +1696,7 @@
         },
         {
           "tag": "A",
-          "name": "Oil prices rise after reported attacks on ships in Strait of Hormuz"
+          "name": "UBS Highlights Top European Capital Goods Stocks Ahead of Earnings Season"
         },
         {
           "tag": "A",
@@ -1599,6 +1721,10 @@
         {
           "tag": "A",
           "name": "대형 은행 실적 발표 앞두고 S&P 500 선물 보합…반도체 약세 부담 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "실적 발표를 앞두고 뱅크오브아메리카, Taiwan Semiconductor 목표주가 상향: 2nm 생산능력 확대에 매출 전망과 이익률 개선 기대 — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -1626,11 +1752,7 @@
         },
         {
           "tag": "A",
-          "name": "강화된 가이던스 이후 트레이더들이 3분기 실적을 앞두고 포지션을 잡으면서 ADM 주가 상승 — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Newell Brands 3분기 실적: 조정 EPS 가이던스, 애널리스트 예상 하회 — 원문 새 창에서 열기"
+          "name": "ADM stock rises as traders position for Q3 earnings after stronger guidance — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -1642,15 +1764,15 @@
         },
         {
           "tag": "A",
+          "name": "금값에는 비둘기파적인 연준이 필요하지 않다. 필요한 것은 재정 억압이다 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
           "name": "연준 대 채권시장 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Kontoor Brands (KTB) Stock Trades Up, Here Is Why — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "수익률 상승에 BlackRock, 미국 국채 비중 늘리고 주식 비중 중립으로 낮춰 — 원문 새 창에서 열기"
+          "name": "BlackRock shifts to US Treasuries, cuts stocks to neutral as yields climb — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -1658,11 +1780,11 @@
         },
         {
           "tag": "A",
-          "name": "미국 국채시장 붕괴 뒤에는 어떤 일이 벌어질까 — 원문 새 창에서 열기"
+          "name": "What happens after a US Treasury market crash — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "오늘의 증시 변동 종목: Bumble, JPMorgan, AI 주식… 시장 반응이 뒤집힌 이유 — 원문 새 창에서 열기"
+          "name": "Stock market movers today. Bumble, JPMorgan and AI stocks: Why market reactions reversed — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -1671,6 +1793,10 @@
         {
           "tag": "A",
           "name": "Stock market mixed as investors assess big bank earnings — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "엔비디아: 주가는 이미 중국 데이터센터 매출이 없을 것으로 반영 (NASDAQ:NVDA) — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",

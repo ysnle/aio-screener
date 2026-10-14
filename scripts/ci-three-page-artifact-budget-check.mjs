@@ -1,25 +1,12 @@
 import fs from 'node:fs/promises';
-import { spawn } from 'node:child_process';
 import { chromium } from 'playwright';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_THREE_PAGE_BUDGET_PORT || 8938);
 const origin = `http://127.0.0.1:${port}`;
-
-function startServer() {
-  return new Promise((resolveServer, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
-    let ready = false;
-    const done = () => { if (!ready) { ready = true; resolveServer(child); } };
-    child.stdout.on('data', (data) => { if (String(data).includes('AIO local server')) done(); });
-    child.stderr.on('data', (data) => process.stderr.write(`[three-page-budget/server] ${data}`));
-    child.on('error', reject);
-    child.on('exit', (code) => { if (!ready) reject(new Error(`server exited early (${code})`)); });
-    setTimeout(done, 2000);
-  });
-}
 
 const fileSize = async (pathname) => (await fs.stat(resolve(root, `.${decodeURIComponent(pathname)}`))).size;
 async function summarize(urls, predicate) {
@@ -31,10 +18,11 @@ const assertBudget = (summary, limit, label) => {
   if (summary.bytes > limit) throw new Error(`${label} exceeded ${limit} bytes: ${JSON.stringify(summary)}`);
 };
 
-const server = await startServer();
-const browser = await chromium.launch();
+const server = await startLocalServer(port, { label: 'three-page-budget/server' });
+let browser;
 const errors = [];
 try {
+  browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   let requests = [];
   page.on('request', (request) => {
@@ -156,6 +144,5 @@ try {
   console.error(JSON.stringify({ ok: false, errors: [...errors, String(error?.stack || error)] }));
   process.exitCode = 1;
 } finally {
-  await browser.close();
-  server.kill();
+  await closeAll({ browser, server });
 }

@@ -1,11 +1,8 @@
 import { fearGreedBand, vixTermStructure } from './metrics.js';
 import { RULES } from '../rules/thresholds.js';
+import { finiteNumber as finite } from '../shared/number.js';
 
 export const SENTIMENT_NARRATIVE_MODEL_VERSION = 'sentiment-narrative.v1';
-
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
 
 // v57.50 D24/C04: one put/call table for the card, the credit axis and this narrative — RULES.credit
 // (1.1 and above heavy hedging, below 0.7 call-heavy); the separate 1.3 / 1.0 / 0.7 and 1.2 / 0.7 edges had no source.

@@ -5,12 +5,9 @@ import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../research/supplied-materials.js';
 import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../research/nathan-previous-threads.js';
 import { NATHAN_ANALYSIS_PROTOCOL } from '../knowledge/nathan-framework-pack.js';
 import { RULES } from '../rules/thresholds.js';
+import { finiteNumber as finite } from '../shared/number.js';
 
 export const SCREENER_SETUP_MODEL_VERSION = 'screener-setup.v3';
-
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
 
 // 2026-10-13 review S09: one set of reference bands for "50-day distance in units of the average daily range".
 // The stock summary called 3.8x "near the line" while the screener called only <=2x near; both read these now.

@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
@@ -8,22 +8,10 @@ const port = Number(process.env.AIO_SA04_PORT || 8900);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const QUOTE_REQUEST_CEILING = 100;
 
-function startServer() {
-  return new Promise((resolveServer, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
-    let ready = false;
-    const readyOnce = () => { if (!ready) { ready = true; resolveServer(child); } };
-    child.stdout.on('data', (data) => { if (String(data).includes('AIO local server')) readyOnce(); });
-    child.stderr.on('data', (data) => process.stderr.write(`[sa04/server] ${data}`));
-    child.on('error', reject);
-    child.on('exit', (code) => { if (!ready) reject(new Error(`server exited early: ${code}`)); });
-    setTimeout(readyOnce, 2000);
-  });
-}
-
-const server = await startServer();
-const browser = await chromium.launch();
+const server = await startLocalServer(port, { label: 'sa04/server' });
+let browser;
 try {
+  browser = await chromium.launch();
   const page = await browser.newPage();
   const external = [];
   await page.route('**/*', (route) => {
@@ -53,6 +41,5 @@ try {
   console.log(JSON.stringify({ ok, fixture: 'SA-04 boot-network-budget', quoteRequestCeiling: QUOTE_REQUEST_CEILING, totalExternalRequests: external.length, quoteRequests, fredHyRequests, evidence }, null, 2));
   if (!ok) process.exitCode = 1;
 } finally {
-  await browser.close();
-  server.kill();
+  await closeAll({ browser, server });
 }

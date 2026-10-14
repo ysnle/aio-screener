@@ -13,16 +13,11 @@ import { MACRO_HISTORY, refreshSharedArtifact } from '../../data/shared-artifact
 import { crossroadsForRoot, refreshScenarioArtifacts } from './macro-crossroads.js';
 import { setResearchHandoff } from '../../app/research-handoff.js';
 import { readMarketRegime } from './market-regime.js';
+import { el } from './dom.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 const pct = (value) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);
 const mkt = (row) => (row.market === 'KR' ? '한국' : '미국'); // v57.54: '국내' read as ambiguous on a US-first screen
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
 function svg(doc, tag, attrs = {}) {
   const node = doc.createElementNS(SVG, tag);
   for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));

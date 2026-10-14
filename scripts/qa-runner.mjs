@@ -797,19 +797,30 @@ function runGate(gate) {
   });
 }
 
+// v57.60: the pool budgets gate weight, not job count. A gate's optional manifest `weight` (default 1)
+// marks heavy multi-page browser gates; a single gate heavier than the limit still runs alone.
+const gateWeight = (gate) => {
+  const weight = Number(gate.weight);
+  return Number.isFinite(weight) && weight > 0 ? weight : 1;
+};
+
 async function runPool(gates, concurrency) {
   const results = [];
   const active = new Set();
   let cursor = 0;
+  let activeWeight = 0;
   let exclusiveRunning = false;
   while (cursor < gates.length || active.size) {
-    while (cursor < gates.length && active.size < concurrency && !exclusiveRunning) {
+    while (cursor < gates.length && !exclusiveRunning) {
       const gate = gates[cursor];
-      if (gate.exclusive && active.size) break;
+      const weight = gateWeight(gate);
+      if (active.size && (gate.exclusive || activeWeight + weight > concurrency)) break;
       cursor++;
+      activeWeight += weight;
       exclusiveRunning = !!gate.exclusive;
       const task = runGate(gate).then((result) => results.push(result)).finally(() => {
         active.delete(task);
+        activeWeight -= weight;
         if (gate.exclusive) exclusiveRunning = false;
       });
       active.add(task);

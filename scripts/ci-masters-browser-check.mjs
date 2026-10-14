@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -11,19 +11,6 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_MASTERS_PORT || 8905);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 
-function startServer() {
-  return new Promise((resolveServer, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
-    let ready = false;
-    const readyOnce = () => { if (!ready) { ready = true; resolveServer(child); } };
-    child.stdout.on('data', (data) => { if (String(data).includes('AIO local server')) readyOnce(); });
-    child.stderr.on('data', (data) => process.stderr.write(`[masters-browser/server] ${data}`));
-    child.on('error', reject);
-    child.on('exit', (code) => { if (!ready) reject(new Error(`server exited early (${code})`)); });
-    setTimeout(readyOnce, 2000);
-  });
-}
-
 async function openMasters(page) {
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.AIO_ARCH === 'object' && typeof window.AIO_ARCH.navigate === 'function', { timeout: 30000 });
@@ -32,10 +19,11 @@ async function openMasters(page) {
   await page.evaluate(() => window.AIO_ARCH.navigate('masters'));
 }
 
-const server = await startServer();
-const browser = await chromium.launch();
+const server = await startLocalServer(port, { label: 'masters-browser/server' });
+let browser;
 const errors = [];
 try {
+  browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   page.on('pageerror', (error) => errors.push(String(error)));
   page.on('console', (message) => { if (message.type() === 'error' && !/ERR_FAILED|favicon|AIO:api|proxy-primary/i.test(message.text())) errors.push(message.text()); });
@@ -163,6 +151,5 @@ try {
   console.error(JSON.stringify({ ok: false, errors: [...errors, String(error?.stack || error)] }));
   process.exitCode = 1;
 } finally {
-  await browser.close();
-  server.kill();
+  await closeAll({ browser, server });
 }

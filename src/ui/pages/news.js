@@ -7,15 +7,12 @@ import { selectNewsItems, selectNewsStatus } from '../../state/selectors/news.js
 import { subscribeToSlices } from '../../state/memoize.js';
 import { groupNewsStories, newsArticleKey, newsEvidence, resolveNewsIssuers, selectIntradayNews } from '../../domain/news/stories.js';
 import { briefingWindowKST, deriveNewsSummary, isNewsAnalysisEligible, isNewsHeadlineOnly, isNewsTopicReviewRequired } from '../../domain/news/scoring.js';
+import { finiteNumber as finite } from '../../domain/shared/number.js';
 
 function text(documentRef, value, fallback = '—') {
   const node = documentRef.createElement('span');
   node.textContent = value == null || value === '' ? fallback : String(value);
   return node;
-}
-
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
 // LC-33: `emptyReason` is a pipeline enum (`_aioNewsEmptyReason`), not user copy. The old empty

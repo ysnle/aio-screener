@@ -1,9 +1,6 @@
 import { computeRelativeRotation } from '../../domain/themes/rrg.js';
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
-
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
+import { finiteNumber as finite } from '../../domain/shared/number.js';
 
 function asDefinitions(value) {
   if (!value || typeof value !== 'object') return { sectors: [], subsectors: [], themes: {}, insights: {}, membershipPolicy: null };

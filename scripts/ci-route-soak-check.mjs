@@ -2,7 +2,7 @@
 // This is intentionally a local deterministic gate. It does not certify live
 // provider SLOs or a deployed Pages revision.
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -20,32 +20,21 @@ const canonical = (route) => route === 'theme-detail' ? 'themes' : route;
 const isExpectedOfflineConsole = (message) => /net::ERR_FAILED/.test(message)
   || /^\[AIO:api\]\s+[\w-]+:\s+warn\s+.*error/.test(message);
 
-function startServer() {
-  return new Promise((resolveServer, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
-    let ready = false;
-    const readyOnce = () => { if (!ready) { ready = true; resolveServer(child); } };
-    child.stdout.on('data', (data) => { if (String(data).includes('AIO local server')) readyOnce(); });
-    child.stderr.on('data', (data) => process.stderr.write(`[route-soak/server] ${data}`));
-    child.on('error', reject);
-    child.on('exit', (code) => { if (!ready) reject(new Error(`server exited early (${code})`)); });
-    setTimeout(readyOnce, 2000);
-  });
-}
-
-const server = await startServer();
-const browser = await chromium.launch();
+const server = await startLocalServer(port, { label: 'route-soak/server' });
+let browser;
 const report = {
   schemaVersion: 'aio-route-soak-evidence.v1',
   observedAt: new Date().toISOString(),
   appRevision: version,
   gitHead: git(['rev-parse', 'HEAD']),
   gitClean: (git(['status', '--short']) || '').length === 0,
-  environment: { browser: 'chromium', browserVersion: browser.version(), platform: process.platform, node: process.version, viewport: `${DESKTOP_PRIMARY_VIEWPORT.width}x${DESKTOP_PRIMARY_VIEWPORT.height}` },
+  environment: { browser: 'chromium', browserVersion: null, platform: process.platform, node: process.version, viewport: `${DESKTOP_PRIMARY_VIEWPORT.width}x${DESKTOP_PRIMARY_VIEWPORT.height}` },
   command: 'node scripts/ci-route-soak-check.mjs',
   ok: true, routes: ROUTES.length, laps: 3, lapReports: [], errors: [], entityRoundTrip: null
 };
 try {
+  browser = await chromium.launch();
+  report.environment.browserVersion = browser.version();
   const page = await browser.newPage({ viewport: DESKTOP_PRIMARY_VIEWPORT });
   page.on('pageerror', (error) => report.errors.push(`pageerror:${error.message}`));
   page.on('console', (message) => {
@@ -104,8 +93,7 @@ try {
   report.ok = false;
   report.errors.push(String(error?.stack || error));
 } finally {
-  await browser.close();
-  server.kill();
+  await closeAll({ browser, server });
 }
 writeFileSync(resolve(root, '_artifacts/route-soak-report.json'), `${JSON.stringify(report, null, 2)}\n`);
 console.log(JSON.stringify(report, null, 2));

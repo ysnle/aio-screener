@@ -1,7 +1,4 @@
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
-
+import { finiteNumber as finite } from '../../domain/shared/number.js';
 function numeric(value) {
   if (value == null || (typeof value === 'string' && !value.trim())) return null;
   return finite(Number(value));

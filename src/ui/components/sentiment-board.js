@@ -16,26 +16,16 @@ import { buildMarketRegime } from '../../domain/briefing/market-read.js';
 import { sentimentFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 import { computeCompositeFearGreed } from '../../domain/sentiment/composite-fear-greed.js';
+import { el } from './dom.js';
+import { shortDate } from '../../domain/content/date-labels.js';
 
 // AAII published long-run averages (since 1987; https://www.aaii.com/sentimentsurvey): bullish 37.5%, neutral 31.5%, bearish 31.0%.
 const AAII_AVERAGE = Object.freeze({ bull: 37.5, bear: 31.0 });
 const EXCLUDED = Object.freeze({ label: '판정 제외', tone: 'unknown' });
 
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
-
 function finite(value) {
   const number = Number(value);
   return value != null && value !== '' && Number.isFinite(number) ? number : null;
-}
-
-function shortDate(date) {
-  const [, month, day] = String(date || '').split('-').map(Number);
-  return month && day ? `${month}/${day}` : '';
 }
 
 // P1534: the band comes from the one domain function (CNN integer edges).

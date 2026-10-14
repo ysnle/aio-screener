@@ -3485,18 +3485,6 @@ async function fetchAllFredData() {
 }
 
 function applyFredToUI(data) {
-  // v31.9: 소스 표시 헬퍼 — FRED 원본 vs Yahoo 실시간 구분
-  function _fredSourceLabel(entry) {
-    if (!entry) return '';
-    if (entry._source && entry._source.startsWith('yahoo-')) {
-      return '실시간 (' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ')';
-    }
-    if (entry._source && entry._source.indexOf('treasury-official') >= 0) {
-      return 'U.S. Treasury ' + (entry.date || '');
-    }
-    return 'FRED ' + (entry.date || '');
-  }
-
   // HY Spread
   if (data['BAMLH0A0HYM2']) {
     const spread = data['BAMLH0A0HYM2'].value;
@@ -3637,27 +3625,7 @@ function applyFredToUI(data) {
     window._liveVIXCLS = data['VIXCLS'].value;
   }
 
-  // 10Y-2Y Spread
-  var _spreadEl = document.getElementById('spread-2s10s-val');
-  if (data['T10Y2Y']) {
-    const spread = data['T10Y2Y'].value;
-    if (_spreadEl) {
-      _spreadEl.textContent = (spread >= 0 ? '+' : '') + spread.toFixed(2) + '%';
-      _spreadEl.style.color = spread < 0 ? '#ff5b50' : '#00e5a0';
-      // v31.9: 소스 표시
-      const spreadSub = document.getElementById('spread-2s10s-src');
-      if (spreadSub) spreadSub.textContent = _fredSourceLabel(data['T10Y2Y']);
-    }
-  } else if (_spreadEl && _spreadEl.textContent === '—') {
-    // v30.13d: FRED 실패 시 Yahoo 수익률 데이터로 폴백 계산
-    var _tnxFb = _ldSafe('^TNX','price');
-    var _y2Fb = window._live2Y;
-    if (_tnxFb > 0 && typeof _y2Fb === 'number' && isFinite(_y2Fb)) {
-      var _s2s10 = _tnxFb - _y2Fb;
-      _spreadEl.textContent = (_s2s10 >= 0 ? '+' : '') + _s2s10.toFixed(2) + '%';
-      _spreadEl.style.color = _s2s10 < 0 ? '#ff5b50' : '#00e5a0';
-    }
-  }
+  // v57.60: retired spread-2s10s-* writers removed (nodes no longer exist); DATA_SNAPSHOT.t10y2y above stays.
 
   // Unemployment, CPI, Fed Funds for macro page
   if (data['FEDFUNDS']) {
@@ -3677,27 +3645,7 @@ function applyFredToUI(data) {
     });
   }
 
-  // v35.8: 2Y 금리 → yc-2y, yc-2y-track 동적 연결
-  if (data['DGS2']) {
-    var rate2yVal = data['DGS2'].value;
-    var yc2yEl = document.getElementById('yc-2y');
-    if (yc2yEl && yc2yEl.dataset.aioFxbondTwoYearRenderer !== 'native') { yc2yEl.textContent = rate2yVal.toFixed(2) + '%'; yc2yEl.style.color = rate2yVal > 4.5 ? '#ff5b50' : rate2yVal > 4.0 ? '#ffa31a' : '#00e5a0'; }
-    var yc2yTrack = document.getElementById('yc-2y-track');
-    if (yc2yTrack && yc2yTrack.dataset.aioFxbondTwoYearRenderer !== 'native') { yc2yTrack.textContent = rate2yVal.toFixed(2) + '%'; yc2yTrack.style.color = rate2yVal > 4.5 ? '#ff5b50' : rate2yVal > 4.0 ? '#ffa31a' : '#00e5a0'; }
-  }
-
-  // v35.8: DXY 1개월 변화율 동적 연결 (Yahoo DX-Y.NYB에서 계산)
-  var dxyLive = _ldSafe('DX-Y.NYB', 'price');
-  var dxyPrev = _ldSafe('DX-Y.NYB', 'prevClose');
-  if (dxyLive > 0) {
-    var dxy1mEl = document.getElementById('dxy-1m');
-    if (dxy1mEl) {
-      // 1개월 변화율은 정확한 30일 전 데이터가 필요하지만, 당일 변화율로 대체 표시
-      var dxyDayPct = dxyPrev > 0 ? ((dxyLive - dxyPrev) / dxyPrev * 100) : 0;
-      dxy1mEl.textContent = (dxyDayPct >= 0 ? '+' : '') + dxyDayPct.toFixed(1) + '%';
-      dxy1mEl.style.color = dxyDayPct > 0.5 ? '#ff5b50' : dxyDayPct < -0.5 ? '#00e5a0' : '#ffa31a';
-    }
-  }
+  // v57.60: retired yc-2y / yc-2y-track / dxy-1m writers removed (nodes no longer exist).
 
   // v31.9: FRED 데이터 신선도 요약 콘솔 로그
   const fredSummary = Object.entries(data).map(([id, d]) => {
@@ -12296,23 +12244,13 @@ async function fetchAllNews(forceRefresh = false) {
   const updateBar = (name) => {
     done++;
     const pct = Math.round(done / total * 100);
-    const bar = document.getElementById('load-bar');
-    const st  = document.getElementById('load-status');
+    // v57.60: retired load-bar/load-status/home-news-progress-* writers removed (nodes no longer exist).
     const pageBar = document.getElementById('news-progress-bar');
     const progLabel = document.getElementById('news-progress-label');
-    // v29.5: 홈 페이지 진행률도 함께 업데이트
-    const homeBar = document.getElementById('home-news-progress-bar');
-    const homeText = document.getElementById('home-news-progress-text');
-    if (bar) bar.style.width = pct + '%';
     if (pageBar) pageBar.style.width = pct + '%';
-    if (st)  st.textContent = `(${done}/${total}) ${name} 완료`;
     if (progLabel) progLabel.textContent = Date.now() - _fetchStartTime > 12000
       ? `백그라운드 갱신 · ${done}/${total}`
       : `뉴스 수집 중... ${done}/${total}`;
-    if (homeBar) homeBar.style.width = pct + '%';
-    if (homeText) homeText.textContent = Date.now() - _fetchStartTime > 12000
-      ? `${done}/${total} 소스 백그라운드 갱신`
-      : `${done}/${total} 소스 수집 중...`;
   };
 
   // v21: 배치 분할 (3개씩 순차 배치 → CF Worker 100req/분 rate limit 안전)
@@ -12664,36 +12602,7 @@ async function fetchAllNews(forceRefresh = false) {
     _nsh = _normalizeNewsHistory(_nsh); // drops pre-contract points and caps the chart history at 24.
     window._newsSentimentHistory = _nsh;
     try { localStorage.setItem('aio_news_sent_hist', JSON.stringify(_nsh.slice(-24))); } catch (_nshW) {}
-    // 라이브 스코어 표시
-    var _nsLiveScore = document.getElementById('news-sent-live-score');
-    var _nsLiveLabel = document.getElementById('news-sent-live-label');
-    if (_nsLiveScore) {
-      _nsLiveScore.textContent = ns.score == null ? '—' : String(ns.score);
-      _nsLiveScore.style.color = ns.score == null ? 'var(--text-muted)' : ns.score > 55 ? '#00e5a0' : ns.score < 45 ? '#ff5b50' : '#ffa31a';
-    }
-    if (_nsLiveLabel) _nsLiveLabel.textContent = ns.label;
-    // 차트 렌더
-    var _nsCanvas = document.getElementById('news-sentiment-chart');
-    if (_nsCanvas && _nsh.length >= 2) {
-      if (window._newsSentChart) window._newsSentChart.destroy();
-      window._newsSentChart = new Chart(_nsCanvas, {
-        type: 'line',
-        data: {
-          labels: _nsh.map(function(h) { return h.time; }),
-          datasets: [{
-            label: '감성 점수', data: _nsh.map(function(h) { return h.score; }),
-            borderColor: '#ffa31a', backgroundColor: 'rgba(255,163,26,0.1)',
-            borderWidth: 2, pointRadius: 3, pointBackgroundColor: _nsh.map(function(h) { return h.score > 55 ? '#00e5a0' : h.score < 45 ? '#ff5b50' : '#ffa31a'; }),
-            fill: true, tension: 0.3
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          scales: { y: { min: 0, max: 100, grid: { color: 'var(--surface-4)' }, ticks: { color: '#a0b4c8', font: { size: 11 } } }, x: { grid: { display: false }, ticks: { color: '#a0b4c8', font: { size: 11 } } } },
-          plugins: { legend: { display: false }, annotation: { annotations: { neutralLine: { type: 'line', yMin: 50, yMax: 50, borderColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderDash: [4,4] } } } }
-        }
-      });
-    }
+    // v57.60: retired news-sent-live-* / news-sentiment-chart writers removed (nodes no longer exist); _nsh history above is still persisted.
 
   } catch(e) { _aioLog('warn', 'render', 'News sentiment bar error: ' + (e && e.message || e)); }
 
@@ -14153,10 +14062,6 @@ function _aioIsLivePlaceholder(text) {
 // P771/P772 / ARX-07: native macro and FX/bond primary sinks are rendered by
 // src/ui/pages/market.js. Legacy global passes remain responsible for secondary
 // surfaces only and use this shared fence to prevent last-writer races.
-function _aioIsNativeBreadthElement(el) {
-  try { return !!(el && el.closest && el.closest('#page-breadth[data-aio-architecture-renderer="native"]')); }
-  catch (_) { return false; }
-}
 function _aioIsNativeFxbondElement(el) {
   try { return !!(el && el.closest && el.closest('#page-fxbond[data-aio-architecture-renderer="native"]')); }
   catch (_) { return false; }
@@ -14169,7 +14074,6 @@ function _aioIsNativeMacroElement(el) {
 }
 window._aioIsNativeMacroElement = _aioIsNativeMacroElement;
 window._aioIsNativeFxbondElement = _aioIsNativeFxbondElement;
-window._aioIsNativeBreadthElement = _aioIsNativeBreadthElement;
 
 window.AIO = window.AIO || {};
 window.AIO.applyLiveDataToDom = function(opts) {
@@ -14909,21 +14813,7 @@ function applyLiveQuotes(quotes) {
     // Track SPX vs ATH for Market Regime display
     if (q.symbol === '^GSPC') {
       window._spxATH = Math.max(_aioSpxAthFloor(), q.regularMarketPrice);  // v50.24/WO-2: 단일 출처 헬퍼 (stale 하드코딩 제거, P498)
-      const SPX_ATH = window._spxATH;
-      const spxPrice = q.regularMarketPrice;
-      const pctFromATH = ((spxPrice - SPX_ATH) / SPX_ATH * 100).toFixed(1);
-      const regimeSub = document.getElementById('mkt-regime-sub');
-      if (regimeSub) {
-        // v50.24/WO-2: "Near ATH"는 -2% 이내만 — 그 아래는 정직한 라벨(소폭 하락/조정/하락장)
-        var _athN = parseFloat(pctFromATH);
-        var _athLbl = _athN < -20 ? '하락장(Bear)' : _athN < -10 ? '조정(Correction)' : _athN < -5 ? '조정' : _athN < -2 ? '소폭 하락' : 'Near ATH';
-        regimeSub.textContent = 'ATH ' + (pctFromATH >= 0 ? '+' : '') + pctFromATH + '% · ' + _athLbl;
-        // v49.64 P334: derived sink lineage (R114 가시 sink 보호)
-        regimeSub.setAttribute('data-operational-use', 'decision');
-        regimeSub.setAttribute('data-source-kind', 'derived');
-        regimeSub.setAttribute('data-source-label', 'derived:spx-ath-gap');
-        regimeSub.setAttribute('data-source-ts', String(now));
-      }
+      // v57.60: retired mkt-regime-sub ATH-gap writer removed (node no longer exists); window._spxATH stays for computeMarketHealth.
     }
     // price 요소 — 스테일 데이터 지시자 포함
     const isMarketHours = (() => {
@@ -15097,66 +14987,12 @@ function applyLiveQuotes(quotes) {
     else if (DATA_SNAPSHOT && DATA_SNAPSHOT.vix > 0) vixQ = { symbol: '^VIX', regularMarketPrice: DATA_SNAPSHOT.vix };
   }
   if (vixQ) {
-    const _vixFixed = window._aioSafeFixed || function(v, d, fb) { const n = Number(v); return Number.isFinite(n) ? n.toFixed(d || 2) : (fb || '—'); };
     let vp = Number(vixQ.regularMarketPrice);
     if (!Number.isFinite(vp)) vp = Number(DATA_SNAPSHOT && DATA_SNAPSHOT.vix);
     var _vixLiveValue = (Number.isFinite(vp) && vp > 0) ? vp : null;
-    if (!Number.isFinite(vp) || vp <= 0) vp = 0;
-    // P1557: same 18 / 25 / 32 edges and names as vixRegime / RULES.volatility (this ladder used 15 / 20 / 25 / 30 and 'panic' wording).
-    const _vixBandNow = vixRegime(vp);
-    const lvl = _vixBandNow.label;
-    const col = vp >= 32 ? '#dc2626' : vp >= 25 ? '#ffa31a' : '#00e5a0';
-    const vixLbl = document.getElementById('snap-vix-lbl');
-    const vixVal = document.getElementById('snap-vix-val');
-    if (vixLbl) vixLbl.textContent = lvl;
-    if (vixVal) { vixVal.textContent = _vixFixed(vp, 2, '—'); vixVal.style.color = col; }
-    const vixCard = document.getElementById('snap-vix');
-    if (vixCard) vixCard.style.borderLeftColor = col;
-    // Update home page vol regime card
-    const vrVal = document.getElementById('vol-regime-val');
-    const vrSub = document.getElementById('vol-regime-sub');
-    if (vrVal) { vrVal.textContent = vixRegime(vp).label; vrVal.style.color = col; }
-    const observedRank = _aioVixPercentile(vp);
-    const rankLabel = observedRank == null ? '분위 표본 부족' : '관측 표본 ' + observedRank + '%ile';
-    if (vrSub) vrSub.textContent = 'VIX ' + _vixFixed(vp, 2, '—') + ' · ' + rankLabel;
-    // v49.64 P334: VIX 파생 sink lineage (snap-vix-lbl/vol-regime-val/sub) — gauge 결과 표시
-    var _vixTs = vixQ._atomicObservedAt || (window._liveData['^VIX'] && window._liveData['^VIX'].observedAt) || '';
-    [vixLbl, vrVal, vrSub].forEach(function(el) {
-      if (!el) return;
-      el.setAttribute('data-operational-use', 'reference-only');
-      el.setAttribute('data-source-kind', 'derived');
-      el.setAttribute('data-source-label', 'derived:vix-regime');
-      el.setAttribute('data-source-ts', _vixTs);
-    });
-    // Update VIX %ile cell in radar table
-    const vixPctCell = document.getElementById('vix-pct-cell');
-    if (vixPctCell) {
-      vixPctCell.textContent = rankLabel + ' · ' + vixRegime(vp).label;
-      vixPctCell.style.color = col;
-      vixPctCell.setAttribute('data-operational-use', 'reference-only');
-      vixPctCell.setAttribute('data-source-kind', 'derived');
-      vixPctCell.setAttribute('data-source-label', 'derived:vix-percentile');
-      vixPctCell.setAttribute('data-source-ts', _vixTs);
-    }
+    // v57.60: retired VIX DOM writers (snap-vix*, vol-regime-*, vix-pct-cell, vix-pct-table-cell, .options-vix-pct-label) removed — no such nodes remain.
     // P1508: without a live quote the header showed 'VIX —' although the last close is in the daily history; show that close, labelled.
     _aioUpdateVixBadge(_vixLiveValue);
-    // ── Options 페이지 VIX %ile 동적 업데이트 (v14: 하드코딩 90.9%ile 제거) ──
-    const optVixLbl = vixRegime(vp).label;
-    document.querySelectorAll('.options-vix-pct-label').forEach(el => {
-      el.textContent = optVixLbl + ' · ' + rankLabel;
-      el.style.color = col;
-    });
-    // 추가 하드코딩 셀 업데이트
-    const vixPctTableCell = document.getElementById('vix-pct-table-cell');
-    if (vixPctTableCell) {
-      vixPctTableCell.textContent = rankLabel;
-      vixPctTableCell.style.color = col;
-      // v49.64 P334: options 페이지 VIX %ile 셀 lineage
-      vixPctTableCell.setAttribute('data-operational-use', 'reference-only');
-      vixPctTableCell.setAttribute('data-source-kind', 'derived');
-      vixPctTableCell.setAttribute('data-source-label', 'derived:vix-percentile');
-      vixPctTableCell.setAttribute('data-source-ts', _vixTs);
-    }
   }
 
   // v53.9 P728: per-symbol 반영 뒤의 두 번째 전체 price/chg rewrite를 제거한다.
@@ -15298,7 +15134,6 @@ function _aioApplyScreenerBreadth(sd) {
   }
   try {
     if (typeof applyDataSnapshot === 'function') applyDataSnapshot();
-    if (typeof updateBreadthBars === 'function') updateBreadthBars();
     // Native analysis owns the visible home/signal decision surfaces.  The
     // breadth producer still updates its canonical store, but must not trigger
     // a full legacy signal repaint across the 7k-node document during boot.
@@ -15558,12 +15393,6 @@ function _syncYahooToFred() {
       unit: 'percentage-point',
       _source: 'yahoo-calc:^TNX-DGS2'
     };
-    // UI 즉시 갱신
-    const spreadEl = document.getElementById('spread-2s10s-val');
-    if (spreadEl) {
-      spreadEl.textContent = (spread10y2y >= 0 ? '+' : '') + spread10y2y.toFixed(2) + '%';
-      spreadEl.style.color = spread10y2y < 0 ? '#ff5b50' : '#00e5a0';
-    }
   }
 
   // P1541: the 10Y-3M spread is no longer rebuilt from ^TNX minus ^IRX. It mixed a constant-maturity yield with a discount rate and
@@ -15758,14 +15587,6 @@ _aioPageBus.register('data-page-activation', 'aio:pageShown', function(e) {
   if (!pageId) return;
   if (pageId === 'home') {
     setTimeout(refreshHomeDashboard, 100);
-  }
-  // v48.51: Breadth 페이지 진입 시 9-canvas fallback 렌더러 실행
-  if (pageId === 'breadth') {
-    setTimeout(function(){
-      if (typeof window._aioBreadthCanvasRender === 'function') {
-        try { window._aioBreadthCanvasRender(); } catch(e) {}
-      }
-    }, 150);
   }
   // v48.59: FRED/BOK/KOSIS 지연 fetch (페이지 진입 시만)
   if (pageId === 'macro' || pageId === 'fxbond') {

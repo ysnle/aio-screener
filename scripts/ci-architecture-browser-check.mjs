@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { ROUTE_IDS } from '../src/app/routes.js';
@@ -19,23 +19,11 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_ARCH_TEST_PORT || 8897);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 
-function startServer() {
-  return new Promise((resolveServer, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
-    let ready = false;
-    const readyOnce = () => { if (!ready) { ready = true; resolveServer(child); } };
-    child.stdout.on('data', (data) => { if (String(data).includes('AIO local server')) readyOnce(); });
-    child.stderr.on('data', (data) => process.stderr.write(`[architecture-browser/server] ${data}`));
-    child.on('error', reject);
-    child.on('exit', (code) => { if (!ready) reject(new Error(`server exited early: ${code}`)); });
-    setTimeout(readyOnce, 2000);
-  });
-}
-
-const server = await startServer();
-const browser = await chromium.launch();
+const server = await startLocalServer(port, { label: 'architecture-browser/server' });
+let browser;
 const errors = [];
 try {
+  browser = await chromium.launch();
   const page = await browser.newPage({ viewport: DESKTOP_PRIMARY_VIEWPORT });
   page.on('pageerror', (error) => errors.push(error.message));
   page.on('console', (message) => {
@@ -837,6 +825,5 @@ try {
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
   console.log(JSON.stringify({ ok: true, boot, quoteTopbar, sentimentRoute, guideRoute, contentRoutes, macroRoute, fxbondRoute, breadthRoute, technicalRoute, signalRoute, homeRoute, themesRoute, themeDetailRoute, tickerRoute, optionsRetired, fundamentalRoute, portfolioRoute, homeSurface, roundTripEvidence, routeRoundTrip: true, browserErrors: 0 }));
 } finally {
-  await browser.close();
-  server.kill();
+  await closeAll({ browser, server });
 }

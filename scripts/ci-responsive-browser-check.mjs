@@ -1,8 +1,9 @@
 // P1618: real route lifecycle, local overflow, drawer, theme and AI input acceptance.
 // This gate uses local artifacts and aborts external requests; no paid AI is called.
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ROUTE_IDS } from '../src/app/routes.js';
@@ -17,15 +18,15 @@ const version = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).
 const failures = [];
 const observations = [];
 const check = (condition, message, detail) => { if (!condition) failures.push({ message, detail }); };
+// v57.60: screenshots are captured as buffers and written atomically so a Windows file lock
+// (viewer/indexer holding the previous PNG) retries instead of failing the viewport.
+const snap = async (page, name, options = {}) => atomicWriteFile(resolve(out, name), await page.screenshot(options));
+// v57.60: wait for the state the next check reads instead of a fixed sleep; on timeout the check reports it.
+const settle = (page, predicate, arg) => page.waitForFunction(predicate, arg, { timeout: 5000 }).catch(() => {});
 mkdirSync(out, { recursive: true });
 let server, browser;
 try {
-  server = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
-  await new Promise((resolveReady, reject) => {
-    const timeout = setTimeout(() => reject(new Error('Responsive local server did not start')), 15000);
-    server.stdout.on('data', (data) => { if (String(data).includes('AIO local server')) { clearTimeout(timeout); resolveReady(); } });
-    server.on('error', reject); server.on('exit', (code) => { clearTimeout(timeout); reject(new Error(`Responsive server exited ${code}`)); });
-  });
+  server = await startLocalServer(port, { label: 'responsive/server' });
   browser = await chromium.launch({ headless: true });
   // Viewports are independent pages (own context), so they run together; one failure no longer hides the others.
   await Promise.all(RESPONSIVE_QA_VIEWPORTS.map(async (viewport) => { try {
@@ -85,7 +86,7 @@ try {
     check(!await page.locator('#regime-positioning').count(), `${viewport.name}: retired weekly positioning widget remains (P1628)`);
     check(await page.locator('#regime-board-kr [data-market="KR"]').count() >= 2 && await page.locator('#regime-kr-participation').isVisible(), `${viewport.name}: Korean index and participation consumers absent (P1628)`);
     check(await page.locator('.regime-scenario-card .regime-scenario-more[open]').count() === 0, `${viewport.name}: scenario conditions are not folded behind the reading (P1630)`);
-    await page.screenshot({path:resolve(out, `${viewport.name}-market-regime.png`),fullPage:true});
+    await snap(page, `${viewport.name}-market-regime.png`, { fullPage: true });
     const overlayRoute = await page.evaluate(async () => { window.showPage('glossary', null); await new Promise(r => setTimeout(r, 50)); const state = { active: document.querySelector('.page.active')?.id || null, modal: document.getElementById('glossary-modal')?.style.display !== 'none' }; window._aioCloseGlossary?.(); return state; });
     check(overlayRoute.active === 'page-guide' && overlayRoute.modal, `${viewport.name}: #glossary overlay route left a blank screen (P1630)`, overlayRoute);
     await page.evaluate(() => window.showPage('home', null));
@@ -104,7 +105,7 @@ try {
     await page.locator('#sidebar-theme-btn').click();
     await page.keyboard.press('Escape');
     const firstTheme = await page.locator('body').evaluate((el) => el.classList.contains('dark-theme'));
-    await page.screenshot({ path: resolve(out, `${viewport.name}-theme-1.png`) });
+    await snap(page, `${viewport.name}-theme-1.png`);
     await page.locator('#sidebar-toggle-btn').click(); await page.locator('#sidebar-theme-btn').click(); await page.keyboard.press('Escape');
     const secondTheme = await page.locator('body').evaluate((el) => el.classList.contains('dark-theme'));
     check(firstTheme !== secondTheme, `${viewport.name}: theme did not change`, { firstTheme, secondTheme });
@@ -113,7 +114,7 @@ try {
       await page.locator('#sidebar-toggle-btn').click();
       if (await page.locator('body').evaluate((el) => el.classList.contains('dark-theme')) !== dark) await page.locator('#sidebar-theme-btn').click();
       await page.locator('.sidebar [data-action="openGlossary"]').click();
-      await page.waitForTimeout(100);
+      await settle(page, () => { const modal = document.getElementById('glossary-modal'); return !!modal && getComputedStyle(modal).display !== 'none' && modal.contains(document.activeElement) && !document.body.classList.contains('aio-navigation-open'); });
       const glossary = await page.locator('#glossary-modal').evaluate((modal) => {
         const rgb = (color) => color.match(/[\d.]+/g).slice(0, 3).map(Number);
         const luminance = (color) => rgb(color).map((value) => value / 255).map((value) => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4).reduce((sum, value, index) => sum + value * [.2126, .7152, .0722][index], 0);
@@ -129,12 +130,12 @@ try {
       check(glossary.left >= 0 && glossary.right <= viewport.width && glossary.bottom <= viewport.height && glossary.focused && !glossary.drawer, `${viewport.name}: glossary modal conflicts with compact navigation (P1620)`, glossary);
       await page.locator('#glossary-search').fill('RRG');
       check(await page.locator('.aio-glossary-item').count() > 0, `${viewport.name}: glossary search unavailable (P1620)`);
-      await page.screenshot({ path: resolve(out, `${viewport.name}-glossary-${dark ? 'dark' : 'light'}.png`) });
+      await snap(page, `${viewport.name}-glossary-${dark ? 'dark' : 'light'}.png`);
       await page.keyboard.press('Escape');
       check(!await page.locator('#glossary-modal').isVisible() && await page.locator('#sidebar-toggle-btn').evaluate((el) => document.activeElement === el), `${viewport.name}: glossary Escape failed to restore a visible focus (P1620)`);
     }
     await page.evaluate(() => window.showPage('themes', null));
-    await page.waitForTimeout(180);
+    await settle(page, () => !!document.querySelector('.theme-strength-table > tbody > tr[data-group]'));
     const constituents = await page.evaluate(async () => {
       const { buildGroupStrength } = await import('./src/domain/themes/group-strength.js');
       const model = buildGroupStrength({ themes: window.THEME_MAP || [], rows: window.AIO_ARCH?.getScreenerState?.()?.rows || [], sortKey: window._aioThemeStrengthSort || 'ret3m' });
@@ -145,11 +146,11 @@ try {
     await page.locator('[data-compare-group]').first().click();
     check(await page.locator('.theme-member-table tbody tr').count() === constituents[0].expected?.length, `${viewport.name}: intra-theme comparison loses constituents (P1622)`);
     check(await page.locator('[data-compare-group]').first().evaluate((el) => el.getAttribute('aria-expanded') === 'true' && document.activeElement === el), `${viewport.name}: comparison expansion loses focus (P1622)`);
-    await page.screenshot({ path: resolve(out, `${viewport.name}-theme-comparison.png`) });
+    await snap(page, `${viewport.name}-theme-comparison.png`);
     await page.evaluate(() => window.showPage('home', null));
     check(await page.locator('.home-breadth-cards section').count() === 5, `${viewport.name}: same-session home breadth cards missing (P1620)`);
     await page.locator('#topbar-ai-btn').click();
-    await page.waitForTimeout(350);
+    await settle(page, () => { const panel = document.getElementById('ai-panel'); return !!panel?.classList.contains('open') && !!document.querySelector('.app')?.inert && !panel.getAnimations().some((animation) => animation.playState === 'running'); });
     const ai = await page.locator('#ai-panel').evaluate((el) => {
       const panel = el.getBoundingClientRect(), input = document.getElementById('ai-panel-inp').getBoundingClientRect();
       return { open: el.classList.contains('open'), panel: { left: panel.left, right: panel.right, bottom: panel.bottom }, input: { left: input.left, right: input.right, bottom: input.bottom }, mainWidth: document.querySelector('.app').getBoundingClientRect().width, height: innerHeight };
@@ -161,25 +162,25 @@ try {
     await page.keyboard.press('Tab'); await page.keyboard.press('Tab');
     check(await page.locator('#ai-panel').evaluate((el) => el.contains(document.activeElement)), `${viewport.name}: AI focus escaped overlay`);
     await page.locator('#ai-panel-inp').fill('화면 검증용 질문');
-    await page.screenshot({ path: resolve(out, `${viewport.name}-ai.png`) });
+    await snap(page, `${viewport.name}-ai.png`);
     // A shortened viewport models keyboard space without claiming real iOS keyboard evidence.
     await page.setViewportSize({ width: viewport.width, height: Math.max(360, Math.round(viewport.height * .6)) });
-    await page.waitForTimeout(150);
+    await settle(page, () => { const input = document.getElementById('ai-panel-inp'); return !!input && input.getBoundingClientRect().bottom <= innerHeight + 2; });
     check(await page.locator('#ai-panel-inp').evaluate((el) => el.getBoundingClientRect().bottom <= innerHeight + 2), `${viewport.name}: input disappears in shortened keyboard viewport`);
     await page.locator('.ai-ph-close').click();
-    await page.waitForTimeout(80);
+    await settle(page, () => document.activeElement === document.getElementById('topbar-ai-btn') && !document.querySelector('.app').inert);
     check(await page.locator('#topbar-ai-btn').evaluate((el) => document.activeElement === el && !document.querySelector('.app').inert), `${viewport.name}: AI close did not release modal background and restore focus (P1618)`);
     await page.setViewportSize(viewport);
     await page.locator('#sidebar-toggle-btn').click();
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.waitForTimeout(100);
+    await settle(page, () => { const active = document.activeElement; return !document.querySelector('.main').inert && active !== document.body && active.getClientRects().length > 0 && getComputedStyle(active).display !== 'none'; });
     check(await page.evaluate(() => { const active = document.activeElement; return !document.querySelector('.main').inert && active !== document.body && active.getClientRects().length > 0 && getComputedStyle(active).display !== 'none'; }), `${viewport.name}: compact-to-desktop transition lost visible focus (P1618)`);
     await page.close();
   } catch (error) { failures.push({ message: `${viewport.name}: ${error.message}`, stack: error.stack }); } }));
 } catch (error) { failures.push({ message: error.message, stack: error.stack }); }
 finally {
-  await browser?.close(); server?.kill();
-  writeFileSync(resolve(out, 'report.json'), JSON.stringify({ postmortem: 'P1618', isolatedInjection, status: failures.length ? 'FAIL' : 'PASS', observations, failures }, null, 2) + '\n');
+  await closeAll({ browser, server });
+  await atomicWriteFile(resolve(out, 'report.json'), JSON.stringify({ postmortem: 'P1618', isolatedInjection, status: failures.length ? 'FAIL' : 'PASS', observations, failures }, null, 2) + '\n');
 }
 if (failures.length) { console.error(`Responsive browser check FAIL (${failures.length})`); failures.forEach((failure) => console.error(JSON.stringify(failure))); process.exit(1); }
 console.log(`Responsive browser check PASS: ${ROUTE_IDS.length} routes × ${RESPONSIVE_QA_VIEWPORTS.length} viewports; drawer, themes, AI input and local overflow verified${isolatedInjection ? ' (isolated stylesheet/module injection)' : ''}.`);

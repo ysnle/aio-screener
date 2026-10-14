@@ -6563,10 +6563,19 @@ async function chatSend(ctxId, _aioDispatchOptions) {
 }
 
 // ── Click a suggestion chip ────────────────────────────────────────────
+// v57.60: the per-page #chat-<ctx>-inp inputs were retired (P1653), so a chip routed to the per-page chatSend
+// only produced a "채팅 입력창 DOM 부재" toast. Chips now open the one AI panel, fill #ai-panel-inp and send there.
 function chatFromChip(ctxId, q) {
-  var inp = document.getElementById('chat-' + ctxId + '-inp');
-  if (inp) { inp.value = q; }
-  chatSend(ctxId);
+  var question = String(q == null ? '' : q).trim();
+  if (!question) return;
+  var panel = document.getElementById('ai-panel');
+  if (panel && !panel.classList.contains('open') && typeof toggleAIPanel === 'function') toggleAIPanel();
+  if (!_aiCurrentCtx && ctxId && (window.CHAT_CONTEXTS || {})[ctxId] && typeof updateAIPanelContext === 'function') updateAIPanelContext(ctxId);
+  var inp = document.getElementById('ai-panel-inp'), state = inp && _aiCurrentCtx && typeof getChatState === 'function' ? getChatState(_aiCurrentCtx) : null;
+  if (!inp || (state && (state._activeRequest || state.streaming))) return; // a running answer keeps the reader's draft
+  inp.value = question;
+  if (inp.disabled || !_aiCurrentCtx) return;
+  return chatSendUnified();
 }
 
 // v29.1: 모든 채팅 헤더에 "대화 기록" 버튼 자동 주입
@@ -6974,9 +6983,6 @@ async function fundamentalSearch() {
       var _srcList = (collected.sources || []).map(function(s){ return escHtml(String(s || '')); });
       loadingEl.innerHTML = '<div style="font-size:11px;font-weight:700;color:#3ddba5;margin-bottom:6px;">캐시 데이터 (' + _ageMin + '분 전) — ' + _srcList.length + '개 소스</div><div style="font-size:11px;color:var(--text-muted);">' + _srcList.join(' · ') + '</div>';
     }
-    // AI 채팅 입력창 세팅 (기존 동작 유지)
-    var _chatInpC = document.getElementById('chat-fundamental-inp');
-    if (_chatInpC) _chatInpC.value = ticker + ' 종합 기업 분석해줘. 17개 관점과 데이터 가용성 매트릭스 적용.';
     try {
       if (typeof window._aioRenderFundamentalRadar === 'function') {
         var _scrRowsC = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
@@ -7247,18 +7253,10 @@ async function fundamentalSearch() {
 
   // ─── LLM에 실제 데이터 전달하여 종합 분석 요청 ───
   var _fundPrompt = ticker + ' 종합 기업 분석해줘. 아래 17개 관점과 데이터 가용성 매트릭스를 모두 다뤄줘:\n1)기업 개요 2)설립 배경&성장 과정 3)경영진 분석 4)비즈니스 모델 5)제품 포트폴리오 6)기술력&해자 7)수익 구조 8)재무제표 분석 9)밸류에이션 10)시장 분석(TAM) 11)수요·공급망 12)파트너십 13)경쟁 구조 14)리스크 15)촉매·실적수정 16)포트폴리오 적합성 17)투자 포인트';
-  var chatInp = document.getElementById('chat-fundamental-inp');
-  if (chatInp) {
-    // per-page 채팅 패널이 있으면 자동 전송 (현재 per-page는 home만, fundamental은 통합 패널 사용)
-    chatInp.value = _fundPrompt;
-    // AI 분석은 명시적인 전송으로만 실행한다. 검색만으로 호출량을 소비하지 않는다.
-  } else {
-    // v50.22 P497: fundamental은 통합 AI 패널(ai-panel-inp) 사용 — 존재하지 않는 chat-fundamental-inp로의
-    // 무조건 자동 전송(매 검색마다 "DOM input missing" 에러 + 공유 Claude 쿼터 자동 소진) 제거.
-    // 통합 입력창에 분석 프롬프트만 프리필 → 사용자 opt-in 전송. 수집 데이터는 window._fundAnalysisData/_currentTickerId에 보존.
-    var _uInp = document.getElementById('ai-panel-inp');
-    if (_uInp && !_uInp.value.trim()) _uInp.value = _fundPrompt;
-  }
+  // v50.22 P497: fundamental은 통합 AI 패널(ai-panel-inp) 사용 — 분석 프롬프트만 프리필 → 사용자 opt-in 전송.
+  // 수집 데이터는 window._fundAnalysisData/_currentTickerId에 보존. v57.60: 퇴역한 per-page 입력창 분기 제거.
+  var _uInp = document.getElementById('ai-panel-inp');
+  if (_uInp && !_uInp.value.trim()) _uInp.value = _fundPrompt;
 }
 
 // ── 기업분석 렌더러 — aio-ui.js로 이동됨 (v51.17). window.* 전역 alias ──

@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
@@ -8,26 +8,10 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_SCREENER_AUTO_TEST_PORT || 8913);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 
-function startServer() {
-  return new Promise((resolveServer, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
-    let ready = false;
-    child.stdout.on('data', (data) => {
-      if (!ready && String(data).includes('AIO local server')) {
-        ready = true;
-        resolveServer(child);
-      }
-    });
-    child.stderr.on('data', (data) => process.stderr.write(`[screener-auto/server] ${data}`));
-    child.on('error', reject);
-    child.on('exit', (code) => { if (!ready) reject(new Error(`server exited early (${code})`)); });
-    setTimeout(() => { if (!ready) { ready = true; resolveServer(child); } }, 2000);
-  });
-}
-
-const server = await startServer();
-const browser = await chromium.launch();
+const server = await startLocalServer(port, { label: 'screener-auto/server' });
+let browser;
 try {
+  browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const fixtureEpoch = Date.parse(JSON.parse(readFileSync(resolve(root, 'public-data/screener.json'), 'utf8')).asOf) + 3600000;
   // A deterministic runtime fixture; actual artifact age remains owned by the
@@ -261,6 +245,5 @@ try {
     runtimeErrors: 0
   }));
 } finally {
-  await browser.close();
-  server.kill();
+  await closeAll({ browser, server });
 }

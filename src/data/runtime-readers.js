@@ -6,15 +6,12 @@ import { normalizeSignalScoreMode } from '../domain/signal/mode.js';
 import { resolveCloseBasis, selectCloseBasisObservation, describeCloseBasis, CLOSE_BASIS_QUOTE_KEYS, CLOSE_BASIS_DAILY_KEYS } from '../domain/signal/close-basis.js';
 import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
+import { finiteNumber as finite } from '../domain/shared/number.js';
 
 // Native runtime readers.  These readers are deliberately kept in the data
 // layer so route providers do not depend on the legacy compatibility facade.
 // The legacy shell still owns the mutable runtime globals, but the native data
 // contract now has one explicit, read-only boundary for every route slice.
-
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
 
 // P1176 (22 PFR01): Number(null) === 0, so a numeric coercion here turns "no target was
 // entered" into "the target is 0" — which then renders as $0.00 and a -100% potential

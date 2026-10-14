@@ -6,6 +6,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1792 - v57.60 - 배포 진행 중에 데이터 감시가 버전 불일치로 실패함 (2026-10-14)
+
+- symptom/reproduction: v57.59 푸시 직후 감시 실행이 라이브 v57.58과 저장소 v57.59 차이를 오류로 보고 실패했다(배포는 정상 완료).
+- root_cause: watchdog 모드의 pages-repository-revision 검사가 Pages 배포가 아직 진행 중인 경우를 구분하지 않았다.
+- fix: watchdog 모드에서 Pages 실행이 진행 중일 때만 버전 차이를 경고로 낮추고 진행 중 실행 주소를 남긴다. 배포가 끝난 뒤의 차이는 계속 오류다.
+- violated_rule: 진행 중인 배포는 실패가 아니라 대기 상태로 읽는다
+- prevention: P1792: 외부 파이프라인 검사에 진행 중 배포 예외를 명시.
+- verification/residual: 로컬 watchdog 모드 실행 DEGRADED(경고) 확인; 다음 푸시 때 감시 결과로 재확인.
+
+## P1791 - v57.60 - 한국 테마 칩을 누르면 '채팅 입력창 DOM 부재' 토스트만 뜸 (2026-10-14)
+
+- symptom/reproduction: 한국 화면의 테마 질문 칩을 누르면 AI에게 질문이 가지 않고 입력창이 없다는 안내만 나왔다.
+- root_cause: chatFromChip이 화면별 채팅 입력(#chat-<화면>-inp)으로 보내는데, 그 입력들은 P1653에서 통합 AI 패널로 대체돼 사라졌다.
+- fix: chatFromChip이 통합 AI 패널을 열고(#ai-panel-inp에 질문을 채움) chatSendUnified로 보낸다. 패널이 꺼진 화면은 입력만 채운다.
+- violated_rule: 입력 경로를 통합할 때 모든 호출자를 새 경로로 옮긴다
+- prevention: P1791: chat-resilience 게이트에 칩 → 통합 패널 경로 단언 추가.
+- verification/residual: ci-chat-resilience·headless 테스트 통과.
+
 ## P1790 - v57.59 - 거시 _failedSeries가 지난 실행의 실패를 계속 끌고 감 (2026-10-14)
 
 - symptom/reproduction: 한 번 실패한 거시 시리즈가 이후 실행에서 정상 수집돼도 _failedSeries에 남아 '이번 수집 실패'로 읽혔다.

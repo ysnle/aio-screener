@@ -175,18 +175,6 @@ function updateRiskMonitor() {
 var _signalMode = 'swing';
 var _signalInterval = null;
 
-// aio:liveQuotes 이벤트에서 브레드쓰 바 업데이트
-// v48.99: _aioPageBus 마이그 (P180)
-// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
-document.addEventListener('DOMContentLoaded', function() {
-_aioPageBus.register('html-signal-checklist-live', 'aio:liveQuotes', function() {
-  if (document.getElementById('page-signal') && document.getElementById('page-signal').classList.contains('active')) {
-    // v42.7: signal 페이지의 시장 폭 바(bb-5sma-bar 등) 갱신 — breadth 페이지 미방문 시에도 최신값 표시
-    if (typeof updateBreadthBars === 'function') try { updateBreadthBars(); } catch(e) {}
-  }
-});
-});
-
 function initSignalDashboard() {
   // E2/LC-26: restore the declared mode into the pill/description. Static markup defaults to
   // swing, so a persisted day mode must be re-applied on entry or the pill would lie.
@@ -285,20 +273,12 @@ function updateMarketPulse() {
     }
   } catch(e) {}
 
-  // 4) 매크로 국면 — home-market-regime 동기화 + 아이콘/라벨 분리 (v45.5: 정렬 통일)
+  // 4) 매크로 국면 — v57.60: the #home-market-regime source card left index.html (v57.50 I16), so the slot stays pending.
   try {
-    var regEl = document.getElementById('home-market-regime');
     var elIcon = document.getElementById('mp-macro-icon');
     var elM = document.getElementById('mp-macro-val');
-    var regText = (regEl && regEl.textContent) ? regEl.textContent.trim() : '';
-    if (regText && regText !== '—') {
-      var regColor = (regEl && regEl.style && regEl.style.color) ? regEl.style.color : 'var(--data-amber)';
-      if (elIcon) { elIcon.style.color = regColor; }
-      if (elM)    window._aioRenderValueSlot(elM, 'value', regText, { color: regColor });
-    } else {
-      if (elIcon) { elIcon.style.color = 'var(--text-muted)'; }
-      window._aioRenderValueSlot(elM, 'pending', null, { text: '대기', reason: '시장 국면 산출 대기' });
-    }
+    if (elIcon) { elIcon.style.color = 'var(--text-muted)'; }
+    window._aioRenderValueSlot(elM, 'pending', null, { text: '대기', reason: '시장 국면 산출 대기' });
   } catch(e) {}
 
   // v48.62: 결론 바 업데이트
@@ -322,9 +302,8 @@ function _renderConclusionBar(id, opts) {
     '<div class="pcb-value">' + upd + '</div></div></div>';
 }
 
-// v48.62: 4개 우선 페이지 결론 바 일괄 업데이트
+// v48.62: 결론 바 업데이트 — v57.60: only #home-conclusion-bar remains (signal/sentiment/macro bars and macro-regime-pill retired).
 function _updateAllConclusionBars() {
-  // 1) 시그널 (홈·시그널 공유)
   try {
     var sc = (typeof computeTradingScore === 'function') ? computeTradingScore('swing') : null;
     var t = (sc && typeof sc.total === 'number' && isFinite(sc.total)) ? sc.total : null;
@@ -336,41 +315,6 @@ function _updateAllConclusionBars() {
                     '역사적으로 방어적 대응이 우선시되던 환경(지시 아님)';
       var sOpts = { conclusion: t + '점 · ' + sLabel, conclusionColor: sColor, action: sAction, fetchKey: 'quote' };
       _renderConclusionBar('home-conclusion-bar', sOpts);
-      _renderConclusionBar('signal-conclusion-bar', sOpts);
-    }
-  } catch(e) {}
-
-  // 2) 투자 심리 (Fear & Greed)
-  try {
-    var _fgPulseMetric2 = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-    var fv = _fgPulseMetric2 && _fgPulseMetric2.value != null ? _fgPulseMetric2.value : null;
-    if (fv != null && !isNaN(fv)) {
-      var _fgZoneNow = window._aioFgZoneIndex(fv); // P1564: colour, label and note from one zone index (raw edges disagreed with the rounded label at 25 and 45)
-      var fColor = ['var(--data-red)', 'var(--data-amber)', 'var(--text-secondary)', 'var(--data-green)', '#22754c'][_fgZoneNow];
-      var fLabel = Math.round(fv) < 25 ? '극단 공포' : Math.round(fv) < 45 ? '공포' : Math.round(fv) <= 55 ? '중립' : Math.round(fv) <= 75 ? '탐욕' : '극단 탐욕';
-      var fAction = ['심리가 극단적으로 위축된 구간 — 예측 신호가 아니며 종목 근거는 따로 확인',
-                     '심리가 위축된 구간 — 종목 근거가 우선',
-                     '심리 중립 — 뚜렷한 쏠림 없음',
-                     '심리가 과열 쪽으로 기운 구간 — 예측 신호가 아님',
-                     '심리가 극단적으로 과열된 구간 — 예측 신호가 아니며 종목 근거는 따로 확인'][_fgZoneNow];
-      _renderConclusionBar('sentiment-conclusion-bar', { conclusion: 'F&G ' + fv + ' · ' + fLabel, conclusionColor: fColor, action: fAction, fetchKey: 'fearGreed' });
-    }
-  } catch(e) {}
-
-  // 3) 거시경제 (레짐 pill 동기화)
-  try {
-    var mEl = document.getElementById('macro-regime-pill');
-    var mText = mEl ? mEl.textContent.trim().replace(/^—\s*/, '').replace(/\s*(?:레짐|국면)\s*분석\s*중$/, '') : '';
-    if (mText && mText.length > 2) {
-      var mCls = mEl ? mEl.className : '';
-      var mColor = mCls.indexOf('sp-risk-on') > -1 ? 'var(--data-green)' :
-                   mCls.indexOf('sp-risk-off') > -1 ? 'var(--data-red)' : 'var(--data-amber)';
-      var mAction = (mText.indexOf('Early') > -1 || mText.indexOf('회복') > -1) ? '성장주·소형주 비중 확대 (Early Cycle)' :
-                    (mText.indexOf('Mid') > -1 || mText.indexOf('중반') > -1) ? '섹터 로테이션 주시, 기술→산업재 점검' :
-                    (mText.indexOf('Late') > -1 || mText.indexOf('후반') > -1) ? 'Defensive 섹터 이동, 비중 점진 축소' :
-                    (mText.indexOf('Recession') > -1 || mText.indexOf('침체') > -1) ? '현금·단기채·금 위주, 주식 최소화' :
-                    'FRED 데이터 수신 후 재확인';
-      _renderConclusionBar('macro-conclusion-bar', { conclusion: mText, conclusionColor: mColor, action: mAction, fetchKey: 'fred' });
     }
   } catch(e) {}
 }

@@ -1,10 +1,7 @@
 import { computeMarketHealth } from '../domain/market/health.js';
 import { SCREENER_ROW_INTENT, resolveScreenerRows } from '../data/screener-row-policy.js';
 import { createRuntimeReaders } from '../data/runtime-readers.js';
-
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
+import { finiteNumber as finite } from '../domain/shared/number.js';
 
 function clone(value) {
   if (value == null) return value;

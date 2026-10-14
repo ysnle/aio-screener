@@ -9,13 +9,8 @@ import { buildMacroCrossroads, upcomingMacroEvents, CHOICES, SHAPES } from '../.
 import { refreshSharedArtifact, SCENARIO_OUTCOMES, SCENARIO_STATE } from '../../data/shared-artifacts.js';
 import { themesForBranch } from '../../domain/scenarios/exposures.js';
 import { krThemeLabel } from '../../domain/themes/kr-themes.js';
+import { el } from './dom.js';
 
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
 // Korean particles follow the last Hangul syllable of a quoted path name (quotes are skipped).
 const batchim = (text) => { const syllables = String(text || '').match(/[가-힣]/g); return syllables ? (syllables.at(-1).charCodeAt(0) - 0xac00) % 28 !== 0 : false; };

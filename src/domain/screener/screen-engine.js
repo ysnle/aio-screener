@@ -11,6 +11,7 @@ import {
   stableHash,
   validateScreenDefinition
 } from '../../data/contracts/screener.js';
+import { finiteNumber as finite } from '../shared/number.js';
 
 // P1180/R24-04: engine v6 introduces the calculation input identity; screen-engine.v5 records
 // keep legacy_identity_semantics in replayScreenRun.
@@ -23,8 +24,6 @@ export const SCREEN_ENGINE_VERSION = 'screen-engine.v6';
 export const FACTOR_INPUT_POLICY = 'live_capture';
 
 const USABLE_REQUIRED_FIELD_STATUSES = new Set(CALCULABLE_FIELD_STATUSES);
-
-function finite(value) { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 
 function valueAt(row, field) {
   if (!field) return null;

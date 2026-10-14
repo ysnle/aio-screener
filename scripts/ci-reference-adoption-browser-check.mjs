@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawn } from 'node:child_process';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { createBrowserEvidence, addBrowserEvidenceStep, evidenceDigest, validateBrowserEvidence } from './lib/browser-evidence.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_REFERENCE_TEST_PORT || 8943);
@@ -17,12 +17,17 @@ const fixture = { now: '2026-10-10T03:00:00Z', profile: 'empty-isolated',
 const report = createBrowserEvidence({ root, runId, providerVersion: createRequire(import.meta.url)('playwright/package.json').version,
   operation: 'reference-adoption-journeys', fixture,
   environment: { mode: 'headless-fixture', viewport: { width: 1440, height: 900 }, locale: 'ko-KR', timezone: 'Asia/Seoul', initialStateId: fixture.profile, networkPolicy: 'local-only' } });
-const server = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
-await new Promise((done, reject) => {
-  const timer = setTimeout(() => reject(Error('local server readiness timeout')), 15000);
-  server.stdout.on('data', (data) => { if (String(data).includes('AIO local server')) { clearTimeout(timer); done(); } });
-  server.on('error', reject); server.on('exit', (code) => reject(Error(`server exit ${code}`)));
-});
+// v57.60: the shared helper clears its readiness timer on exit and kills the server on timeout.
+const server = await startLocalServer(port, { label: 'reference-adoption/server' });
+// v57.60: poll a DOM condition for a bounded window instead of one instantaneous read.
+const pollTrue = async (probe, timeoutMs = 2000, intervalMs = 100) => {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    if (await probe().catch(() => false)) return true;
+    if (Date.now() >= deadline) return false;
+    await new Promise((resolvePoll) => setTimeout(resolvePoll, intervalMs));
+  }
+};
 let browser;
 let currentStep = null;
 try {
@@ -62,14 +67,18 @@ try {
   await article.locator('.news-evidence summary').click();
   assert.equal(popups, 0, 'P1601: evidence disclosure must not open article');
   assert.ok(await article.locator('.news-evidence').evaluate((node) => node.open), 'P1601: source disclosure opens');
-  await article.locator('a[href]').first().focus();
+  const focusedLink = article.locator('a[href]').first();
+  await focusedLink.focus();
+  // v57.60: confirm focus actually landed before the update events fire, so the retention check below
+  // measures the arrival path rather than a focus() that had not taken yet.
+  assert.ok(await pollTrue(() => focusedLink.evaluate((node) => document.activeElement === node)), 'v57.60: article link focus took before data arrival');
   await page.evaluate((news) => {
     window._allNewsItems = [news, { ...news, id: 'fixture-correction', newsId: 'fixture-correction', title: 'Correction: NVIDIA earnings fixture', correctionOf: 'fixture-original', revisionType: 'correction', link: 'https://example.test/article?id=2', pubDate: '2026-10-09T19:00:00Z', score: 1 }];
     document.dispatchEvent(new CustomEvent('aio:newsUpdated'));
     document.dispatchEvent(new CustomEvent('aio:newsSurfaceInvalidated', { detail: { reason: 'news-fetch-complete' } }));
   }, fixture.news);
   await page.waitForFunction(() => document.querySelector('[data-news-updates]')?.hidden === false);
-  assert.ok(await article.locator('a[href]').first().evaluate((node) => document.activeElement === node), 'P1601: arrival retains focused article');
+  assert.ok(await pollTrue(() => article.locator('a[href]').first().evaluate((node) => document.activeElement === node)), 'P1601: arrival retains focused article');
   assert.ok(!(await article.textContent()).includes('Correction:'), 'P1601: update remains pending');
   await capture({ stepId: 'news-arrival-pending', route: 'market-news', stateId: 'arrival', action: { type: 'data-arrival', target: 'fixture-feed' }, locator: '#page-market-news', expected: 'focused original retained, update offered', actual: 'focused original retained, update offered' });
   await page.locator('[data-news-updates]').click();
@@ -145,5 +154,5 @@ try {
   console.error(error.stack); process.exitCode = 1;
 } finally {
   writeFileSync(evidencePath, JSON.stringify(report, null, 2) + '\n');
-  await browser?.close(); server.kill();
+  await closeAll({ browser, server });
 }

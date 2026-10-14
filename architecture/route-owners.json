@@ -132,7 +132,7 @@
       "p819Boundary": "market.js owns the bounded breadth diagnostic signal/text from the normalized current 5/20/50SMA and advance-ratio evidence; P827 also transfers the participation/McClellan status and all five chart lifecycle surfaces, with unavailable history remaining explicitly blocked.",
       "contestedIds": [],
       "legacyWriterEvidence": [
-        "js/aio-ui.js: updateBreadthBars/initBreadthPage primary card, stage, McClellan, and chart fallback writers fence native breadth elements",
+        "js/aio-ui.js: v57.60 retired updateBreadthBars/initBreadthPage/updateMcClellanUI and the aio-core _aioBreadthCanvasRender fallback (no legacy breadth DOM writer remains)",
         "js/aio-data.js: the updateBreadthUI KPI writer (breadth-advance-ratio, RSP/SPY breadth-signal-val, breadth-source) was retired with its sinks; fetchBreadthData no longer renders"
       ],
       "notes": "P803 extends P773 to the bounded breadth signal label, P819 adds the current-evidence diagnostic signal/text, and P827 transfers stage/McClellan status plus five chart lifecycles. market.js reads the native screener artifact metadata first and retains the legacy breadth evidence helper as a compatibility fallback. Missing multi-day breadth history remains blocked; no synthetic breadth series is promoted.",
@@ -658,6 +658,40 @@
   "retiredLegacySymbolsMustBeAbsent": {
     "theme-detail": [
       "function renderPageThemeDetail"
+    ],
+    "breadth": [
+      "function updateBreadthBars",
+      "function initBreadthPage",
+      "function updateMcClellanUI",
+      "function calcMcClellan",
+      "window._aioBreadthCanvasRender =",
+      "function _aioIsNativeBreadthElement"
+    ],
+    "home": [
+      "getElementById('mkt-regime-sub')",
+      "getElementById('vol-regime-val')",
+      "getElementById('home-news-progress-bar')"
+    ],
+    "market-news": [
+      "getElementById('news-sent-live-score')",
+      "getElementById('news-sentiment-chart')",
+      "getElementById('load-bar')"
+    ],
+    "macro": [
+      "getElementById('cp2-detail')",
+      "getElementById('macro-fed-meaning')",
+      "getElementById('spread-2s10s-val')"
+    ],
+    "fxbond": [
+      "getElementById('yc-2y-track')",
+      "getElementById('dxy-1m')"
+    ],
+    "signal": [
+      "getElementById('snap-vix-val')",
+      "getElementById('vix-pct-cell')",
+      "getElementById('vix-pct-table-cell')",
+      "'.options-vix-pct-label'",
+      "getElementById('opt-vvix-desc')"
     ]
   },
   "legacySymbolPatternsMustBeAbsent": {

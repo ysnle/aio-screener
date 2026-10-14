@@ -1,8 +1,5 @@
 import { normalizeChartBar } from '../../domain/chart/contract.js';
-
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
+import { finiteNumber as finite } from '../../domain/shared/number.js';
 
 export function normalizeEntity(raw = {}) {
   const quote = raw.quote ? Object.freeze({

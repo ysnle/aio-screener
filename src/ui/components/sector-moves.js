@@ -3,8 +3,8 @@
 // whose row is not current for that session is left out rather than shown with an old number.
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
 import { SECTOR_ETF_LABELS } from '../../domain/market/scenario-outlook.js';
+import { el } from './dom.js';
 
-const el = (doc, tag, text, className) => { const node = doc.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
 const particle = (word) => { const code = word.charCodeAt(word.length - 1) - 0xac00; return code >= 0 && code < 11172 && code % 28 ? '이' : '가'; };
 // Audit 2026-10-14: one date format on 오늘 (M/D), and the block is an h2 like its sibling sections.
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : String(date || ''); };

@@ -1,6 +1,5 @@
+import { finiteNumber as finite } from '../../domain/shared/number.js';
 export const AI_BENCHMARK_CONTRACT_VERSION = 'ai-benchmark.v1';
-
-function finite(value) { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 
 export function createBenchmarkManifest({ snapshotRevision = null, modelVersion = null, promptVersion = null, retrieverVersion = null, validatorVersion = null, costLimitUsd = null } = {}) {
   return Object.freeze({

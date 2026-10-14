@@ -6,18 +6,8 @@ import { readMarketRegime } from './market-regime.js';
 import { renderSectorMoves } from './sector-moves.js';
 import { emptyState } from './empty-state.js';
 import { withObjectParticle } from '../../domain/content/korean-particle.js';
-
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
-
-function shortDate(date) {
-  const [, month, day] = String(date || '').split('-').map(Number);
-  return month && day ? `${month}/${day}` : '';
-}
+import { el } from './dom.js';
+import { shortDate } from '../../domain/content/date-labels.js';
 
 function call(root, name, arg, fallback) {
   try { const fn = root?.[name]; return typeof fn === 'function' ? (fn(arg) ?? fallback) : fallback; } catch (_) { return fallback; }

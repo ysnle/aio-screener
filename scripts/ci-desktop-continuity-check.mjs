@@ -58,7 +58,7 @@ assert(source.includes('renderMacro(documentRef, root, page)') && source.include
 assert(!source.includes('renderMacroTransmissionLens')); // P1426: lens retired; macro-board.js renders through documentRef only
 assert(!/\bdocument\.createElement/.test(read('src/ui/components/macro-board.js')));
 const themes = read('src/ui/pages/themes.js');
-assert(!/비중 유지|진입 후보|익절 검토|회피/.test(themes));
+assert(!/비중 유지|진입 후보|익절 검토|회피/.test(themes + read('src/ui/components/ai-infrastructure-lens.js'))); // v57.60: the lens moved out of themes.js
 assert(themes.includes('appendUnclassified()'));
 assert(read('src/ui/pages/principles.js').includes('principles-graph-node-list principles-sr-only'));
 assert(!read('src/app/bootstrap.js').includes('mountDesktopResearchFlow'));

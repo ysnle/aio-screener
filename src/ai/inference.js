@@ -1,12 +1,9 @@
+import { finiteNumber as finite } from '../domain/shared/number.js';
 export const INFERENCE_DIRECTIONS = Object.freeze(['BULLISH', 'BEARISH', 'MIXED', 'NEUTRAL', 'UNKNOWN']);
 export const INFERENCE_CONFIDENCE = Object.freeze(['LOW', 'MEDIUM', 'HIGH']);
 
 function text(value, fallback = '') {
   return value == null ? fallback : String(value).trim();
-}
-
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
 function urls(value) {

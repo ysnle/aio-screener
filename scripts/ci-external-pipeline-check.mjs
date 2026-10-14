@@ -198,6 +198,11 @@ async function observeOnce() {
     } else result.warnings.push(`GitHub CI observation unavailable: ${ciEntry?.reason?.message || String(ciEntry?.reason || 'unknown')}`);
   }
 
+  // v57.60: a watchdog run that lands while the Pages deploy of a new version is still running sees the old live
+  // version; that is a deploy in flight (warning), not a stale release. A finished deploy keeps the error.
+  const pagesActive = ['queued', 'in_progress', 'waiting', 'pending', 'requested'].includes(result.github?.pages?.latest?.status);
+  const revision = result.checks.find((item) => item.id === 'pages-repository-revision' && !item.ok);
+  if (mode === 'watchdog' && revision && pagesActive) Object.assign(revision, { severity: 'warning', detail: `${revision.detail} (Pages deploy in progress: ${result.github.pages.latest.url})` });
   const failed = result.checks.filter((item) => !item.ok && item.severity === 'error');
   Object.assign(result, summarizeOperationalChecks(result.checks, result.warnings));
   return failed;

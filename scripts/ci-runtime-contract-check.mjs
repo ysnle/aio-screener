@@ -559,9 +559,8 @@ check('C06/P1699: briefing decision summary F&G uses the shared close reader, no
 check('VKOSPI failure state is surfaced after repeated failures and calcKrHealthScore does not overwrite it', /function _showVkospiFailureState/.test(krData) && /function _vkospiIsFailedState/.test(krData) && /_vkospiIsFailedState\(\)/.test(ui.slice(ui.indexOf('function calcKrHealthScore'), ui.indexOf('function calcKrHealthScore') + 4000)) && /T868 vkospi_failure_state_contract_v5234/.test(tests));
 check('AI chat key gates accept configured server-key route and disclose personal-key boundary', /function _aioHasClaudeRoute/.test(chat) && /window\._aioHasClaudeRoute/.test(chat) && /_aioHasClaudeRoute\(_chatApiKey\)/.test(chat) && /_aioHasClaudeRoute\(_uniClaudeKey\)/.test(chat) && /브리핑\/번역은 운영자 서버키/.test(chat + html) && /T865 claude_chat_route_server_key_awareness_v5230/.test(tests));
 check(
-  'breadth surfaces share canonical regime color and zero delta renders neutral',
-  /function\s+_bbRegime/.test(ui)
-    && /NARRATIVE_ENGINE\.getBreadthRegime/.test(ui)
+  'T866 v57.60 breadth surfaces share canonical regime color and zero delta renders neutral (the legacy _bbRegime ladder retired with updateBreadthBars)',
+  !/function\s+_bbRegime/.test(ui + core + data)
     && /bar\.style\.background\s*=\s*reg\.color/.test(core)
     && /text:\s*'0'\s*\+\s*suffix/.test(data)
     && !/text:\s*'±0'\s*\+\s*suffix/.test(data)
@@ -743,7 +742,7 @@ check('EF-04: briefing date-line is a named, mockable-`now` renderer instead of 
 check('EF-02d: breadth 50SMA readout/bar sync is a single shared function called from both the Chart.js-independent snapshot path and updateBreadthBars, not duplicated', !/_aioSyncBreadth50Readout/.test(core + ui + data)); // P1672: readout/bar sinks retired (P1395)
 check('EF-02b: breadth header-badge and diag-signal consume the same canonical consensus object as the signal-page verdict (no independent re-derivation)', !/_aioRenderBreadthConsensus/.test(core)); // P1672: badge sinks retired (P1395)
 check('EF-02b: home market-pulse breadth strip uses NARRATIVE_ENGINE.getBreadthRegime instead of an independent 60/30 threshold', /NARRATIVE_ENGINE\.getBreadthRegime\(bVal\)/.test(pagesSource));
-check('EF-02c: NYSE new-high/new-low/hl-ratio cards render an explicit na state instead of a perpetual unstated dash', /breadth-new-highs.*breadth-new-lows.*breadth-hl-ratio|breadth-new-highs['"]\s*,\s*['"]breadth-new-lows/.test(ui.replace(/\s+/g, ' ')));
+check('EF-02c v57.60: retired NYSE new-high/new-low/hl-ratio cards (P1395) have no legacy writer left', !/breadth-new-highs|breadth-new-lows|breadth-hl-ratio/.test(ui + core + data + html));
 check('EF-01/P1425: the macro "now/live" mini-card stays retired with the hand-written cycle timeline', !/function _aioSyncMacroLiveSpxMini/.test(macroTech) && !/id="macro-now-spx"/.test(html));
 check('headless tests cover Batch 1 efficacy fixes (EF-01/02/04/13)', /_testV5240Batch1Efficacy/.test(tests) && /T870/.test(tests) && /T871/.test(tests) && /T872/.test(tests) && /T873/.test(tests));
 
@@ -944,7 +943,7 @@ check('H3-G: element lineage inventory exposes the full listed field set and is 
 check('H3-H: Critical-10 content hierarchy audit requires decision header, evidence/status, action affordance, and hidden developer surfaces', /getCritical10ContentHierarchyAudit/.test(core) && /evidenceAndStatus/.test(core) && /developerSurfaceVisible/.test(core) && /decision-not-first-visible-block/.test(core));
 check('H3-I: Critical-10 accessibility audit covers accessible names, keyboard reachability, positive tabindex, and canvas names', /getCritical10AccessibilityAudit/.test(core) && /nameless-controls/.test(core) && /unfocusable-controls/.test(core) && /positive-tabindex/.test(core) && /unnamed-canvas/.test(core));
 check('headless tests cover H3-G element lineage and H3-H/I surface contracts', /_testV5258HumanSurfaceContracts/.test(tests) && /T914/.test(tests) && /T915/.test(tests) && /T916/.test(tests) && /T917/.test(tests));
-check('H3-F/H3-H: breadth route blocks synthetic chart fallbacks and uses history artifacts only', /data-operational-use/.test(ui) && /_aioHistorySeries\(['"]spx/.test(ui) && !/Chart\.register/.test(ui) && /T918 breadth_chart_runtime_only_contract/.test(tests));
+check('H3-F/H3-H v57.60: breadth charts have no legacy fallback renderer (initBreadthPage / _aioBreadthCanvasRender / bpChartInstances retired; market.js owns them)', !/function\s+initBreadthPage|_aioBreadthCanvasRender|bpChartInstances/.test(ui + core + data) && !/Chart\.register/.test(ui) && /T918 breadth_chart_runtime_only_contract/.test(tests));
 check('H3-H/I: the real Chromium human-surface audit is a blocking full-profile browser shard', exists('scripts/ci-critical10-human-surface-check.mjs') && qaHas('scripts/ci-critical10-human-surface-check.mjs', 'browser-surface') && /browser:[\s\S]*?needs:\s*(contracts|preflight)/.test(ciWorkflow));
 check('H2-04: one normalized AI error contract is shared by browser AI surfaces and Worker failures', /normalizeAiError/.test(core) && /_aioChatError/.test(chat) && /_aioSetLastAiError/.test(data) && /aioAiError/.test(worker) && /T919/.test(tests) && /T920/.test(tests));
 check('H2-05: portfolio Vault has a blocking deterministic Chromium E2E covering PIN, reload, wrong/correct PIN, KDF migration, opt-out, and input boundary', exists('scripts/ci-portfolio-vault-e2e.mjs') && qaHas('scripts/ci-portfolio-vault-e2e.mjs', 'browser-surface') && /PFE2-01/.test(read('scripts/ci-portfolio-vault-e2e.mjs')) && /PFE2-08/.test(read('scripts/ci-portfolio-vault-e2e.mjs')) && /PFE2-09/.test(read('scripts/ci-portfolio-vault-e2e.mjs')));
@@ -1076,7 +1075,7 @@ check('LIVE3-02: early snapshot-date rendering uses the post-initialization wind
 check('LIVE3-03: 20SMA breadth uses its value-specific server observation timestamp and fails closed', /id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadthScreener'/.test(core) && /_aioApplyScreenerBreadth/.test(data) && /coveragePct\s*>=\s*85/.test(data) && /ageHours\s*<=\s*96/.test(data) && /window\._breadthLiveData\s*=/.test(data) && /getCurrentBreadthEvidence/.test(core) && /snapshotKey:null/.test(core));
 check('LIVE3-04: Yahoo/FRED bridge never fabricates a missing 2Y or overwrites official T10Y2Y', !/:\s*4\.0\s*\)/.test(String((data.match(/function _syncYahooToFred\([\s\S]*?\n\}/) || [''])[0])) && /!fd\['T10Y2Y'\]/.test(data) && /Number\(window\._live2Y\)/.test(data));
 check('LIVE3-05: MOVE/SKEW regimes require live observations, missing values render unavailable, and SKEW has one native read model', /quote\('\^SKEW'\)/.test(core) && /quote\('\^MOVE'\)/.test(core) && /'move':\s*'—'/.test(core) && /'skew':\s*'—'/.test(core) && !/sent-skew-value/.test(html) /* P1396: the sourceless SKEW card and its page read model were retired */ && !/_bridge\('\^SKEW'/.test(ui));
-check('LIVE3-06: late breadth producer refreshes breadth, signal, and home consumers atomically', /updateBreadthBars\(\)/.test(data) && /refreshSignalDashboard\(\)/.test(data) && /refreshHomeDashboard\(\)/.test(data));
+check('LIVE3-06 v57.60: late breadth producer refreshes signal and home consumers atomically; the retired updateBreadthBars DOM writer stays gone', !/updateBreadthBars/.test(data + ui + core + pagesSource) && /refreshSignalDashboard\(\)/.test(data) && /refreshHomeDashboard\(\)/.test(data));
 // P1670: the briefing index sub-card left with _aioRenderBriefingMarketAnalysis; keep the guard that no
 // legacy writer reads the non-canonical SPY chgPct field.
 check('LIVE3-04: briefing labels the actual S&P index and reads the canonical pct field', !/briefing-sub-index/.test(core) && !/_ldSafe\('SPY', 'chgPct'\)/.test(core));
@@ -1153,7 +1152,7 @@ check('R340/P712: synthetic market-series formulas are absent from decision path
   !/50\s*\+\s*\(chg\s*\*\s*5\)/.test(html) && !/500\s*\*\s*abv50/.test(html) && !/\(85\s*-\s*p\)\s*\*\s*20\s*\+\s*250/.test(ui) && !/latestLiveVal\s*\*\s*\(1\s*\+\s*\(Math\.random/.test(core));
 check('R340/P712: KR yields and US breadth require timestamped current evidence and fail closed otherwise',
   /T1035 kr_yield_current_source_fail_closed/.test(tests) && /T1036 P1274 breadth_current_evidence_gate/.test(tests) && /getCurrentBreadthEvidence/.test(core)
-  && (/_breadthSeriesReferenceAsOf\s*=\s*null/.test(ui) || (/getCurrentBreadthEvidence/.test(ui) && /if\s*\(!currentBreadth\.available\)/.test(ui) && /현재 원천 미수신/.test(ui)))
+  && !/function\s+updateBreadthBars/.test(ui) /* v57.60: the legacy breadth DOM writer retired; market.js renders current evidence */
   && !/DATA_SNAPSHOT\.krBond3y/.test(html.slice(html.indexOf('function updateKrMacroFromLive'), html.indexOf('function updateKrMacroFromLive') + 5000)));
 check('R344/P727: retired fxbond commentary has no orphan function, call, or DOM sink (P1425: the whole legacy updater is gone)',
   !/function\s+(?:updateFxDynamicComments|generateFxBondCommentary|updateFxBondPage|updateCrossAssetMatrix)\s*\(/.test(pagesSource) &&
@@ -1343,8 +1342,9 @@ try {
 check('P1755 P1274: native current 50SMA reaches theme selector (facade dot-path read); stale legacy and inadequate coverage do not replace it', breadthParityP1274);
 // P1275: the CP2 text must use the same official FOMC decision as the registry.
 // P1737: both CP2 writers read the one Fed-range answer (producer policyRates.fed -> FRED -> manual within its window).
-check('P1275/P1737: CP2 Fed range comes from AIO.getFedPolicyRange and prior 3.50-3.75% literal cannot override the September result',
-  /var cp2Fed = typeof window\.AIO\.getFedPolicyRange === 'function'[\s\S]{0,200}cp2\.textContent\s*=\s*claimPrefix\s*\+\s*'Fed '\s*\+\s*\(cp2Fed\.range/.test(core)
+// v57.60: the retired cp2-detail / macro-fed-meaning DOM sinks left _aioApplyEventFreshnessGate; getCP2Text is the one CP2 text owner.
+check('P1275/P1737 v57.60: CP2 Fed range comes from AIO.getFedPolicyRange, retired cp2-detail sink stays gone, and prior 3.50-3.75% literal cannot override the September result',
+  !/getElementById\('cp2-detail'\)/.test(core) && !/getElementById\('macro-fed-meaning'\)/.test(core)
     && /function getCP2Text\(\)[\s\S]{0,900}getFedPolicyRange\(\)[\s\S]{0,900}Fed 목표범위/.test(core)
     && !/공식 정책금리 참고 '\s*\+\s*c\.fedRate/.test(core)
     && !/cp2\.textContent\s*=\s*claimPrefix\s*\+\s*'Fed 3\.50-3\.75%/.test(core)

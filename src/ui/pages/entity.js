@@ -15,6 +15,7 @@ import { createSummaryHydrator } from '../../domain/entity/summary-hydration.js'
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { renderCompanyAnalysis } from '../components/company-analysis.js';
 import { sectorLabel } from '../../domain/screener/screener-read.js';
+import { finiteNumber as finite } from '../../domain/shared/number.js';
 
 // 2026-10-13 review S21: observation times read in Korean time, not "… 20:00:00 UTC".
 export function formatKstStamp(value) {
@@ -23,10 +24,6 @@ export function formatKstStamp(value) {
   return `${new Date(ms).toLocaleString('sv-SE', { timeZone: 'Asia/Seoul', hour12: false }).slice(0, 16)} 한국 시간`;
 }
 const isKrSymbol = (symbol) => /\.K[SQ]$/i.test(String(symbol || ''));
-
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
 
 export const TICKER_CHART_RANGES = Object.freeze({
   '1m': Object.freeze({ key: '1m', label: '1개월', days: 30 }),

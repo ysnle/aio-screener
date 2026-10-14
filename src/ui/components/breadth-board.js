@@ -9,24 +9,14 @@
 import { deepDiveFold } from './deep-dive.js';
 import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { buildCloseSeries, buildMarketRegime, closeBasis } from '../../domain/briefing/market-read.js';
-import { collectMarketInputs } from './briefing-read.js';
+import { collectMarketInputs } from '../../data/selectors/market-inputs.js';
 import { createTrendChart, seriesChange } from './trend-chart.js';
 import { breadthFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps, sectionLead } from './page-flow.js';
+import { el } from './dom.js';
+import { shortDate } from '../../domain/content/date-labels.js';
 
 const WINDOW = 126; // about six months of sessions
-
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
-
-function shortDate(date) {
-  const [, month, day] = String(date || '').split('-').map(Number);
-  return month && day ? `${month}/${day}` : '';
-}
 
 function rolling(series, n, { sum = false } = {}) {
   return series.map((point, index) => {

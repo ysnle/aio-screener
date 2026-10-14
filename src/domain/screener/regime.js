@@ -1,9 +1,8 @@
 import { createRegimeState, stableHash } from '../../data/contracts/screener.js';
+import { finiteNumber as finite } from '../shared/number.js';
 
 export const REGIME_MODEL_VERSION = 'regime.v2';
 const STATES = Object.freeze(['RISK_ON', 'NEUTRAL', 'RISK_OFF', 'LOW_CONFIDENCE']);
-
-function finite(value) { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 
 function normalizeInput(value, low, high) {
   const numeric = finite(value);

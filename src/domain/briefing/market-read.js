@@ -11,6 +11,7 @@
 
 import { RULES } from '../rules/thresholds.js';
 import { countOpenSessionsBetween, latestCompletedKrSession, latestCompletedUsSession, resolveMarketCalendarSession } from '../market/market-calendar.js';
+import { shortDate } from '../content/date-labels.js';
 
 const DAY_MS = 86400000;
 
@@ -156,11 +157,6 @@ export function alignInput(date, basis, maxLag = 2) {
 }
 
 export const isUsable = (alignment) => alignment?.status === 'aligned' || alignment?.status === 'lagged';
-
-function shortDate(date) {
-  const [, month, day] = String(date || '').split('-').map(Number);
-  return month && day ? `${month}/${day}` : '';
-}
 
 /** One short basis chip per card: "9/30", "9/29 · 1거래일 전", "9/24 · 오래됨(판정 제외)". */
 export function alignmentLabel(alignment) {

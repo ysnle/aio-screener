@@ -1,7 +1,4 @@
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
-
+import { finiteNumber as finite } from '../../domain/shared/number.js';
 const NAMED_TEXT_ENTITIES = Object.freeze({
   amp: '&',
   lt: '<',

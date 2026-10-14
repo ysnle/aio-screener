@@ -1,5 +1,4 @@
-function finite(value) { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
-
+import { finiteNumber as finite } from '../../domain/shared/number.js';
 export function normalizeScreener(raw = {}) {
   const rows = Array.isArray(raw.rows) ? raw.rows.map((row) => ({
     symbol: String(row?.symbol || row?.sym || '').toUpperCase(),

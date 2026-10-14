@@ -5,13 +5,8 @@
 import { MARKET_TEMPERATURE, refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { TEMPERATURE_COMPONENTS, TEMPERATURE_MARKETS, TEMPERATURE_RULES } from '../../domain/sentiment/market-temperature.js';
 import { createTrendChart } from './trend-chart.js';
+import { el } from './dom.js';
 
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
 // A value that rounds to zero prints without a sign ('-0.0%' read as a fall).
 const pct = (value, digits = 1) => { if (!Number.isFinite(value)) return '—'; const text = Math.abs(value).toFixed(digits); return Number(text) === 0 ? `${text}%` : `${value > 0 ? '+' : '−'}${text}%`; };
 const md = (date) => (date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '—');

@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
@@ -10,22 +10,10 @@ const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const appVersion = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).version;
 const oldVersion = 'v53.17';
 
-function startServer() {
-  return new Promise((resolveServer, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
-    let ready = false;
-    const readyOnce = () => { if (!ready) { ready = true; resolveServer(child); } };
-    child.stdout.on('data', (data) => { if (String(data).includes('AIO local server')) readyOnce(); });
-    child.stderr.on('data', (data) => process.stderr.write(`[sa03/server] ${data}`));
-    child.on('error', reject);
-    child.on('exit', (code) => { if (!ready) reject(new Error(`server exited early: ${code}`)); });
-    setTimeout(readyOnce, 2000);
-  });
-}
-
-const server = await startServer();
-const browser = await chromium.launch();
+const server = await startLocalServer(port, { label: 'sa03/server' });
+let browser;
 try {
+  browser = await chromium.launch();
   const page = await browser.newPage();
   await page.addInitScript(({ oldVersion, appVersion }) => {
     const versionKey = '__aio_sa03_controller_version';
@@ -110,6 +98,5 @@ try {
   console.log(JSON.stringify({ ok, fixture: 'SA-03 SW-controller-fixture', appVersion, oldVersion, before, after, navigations, navigationsBeforeControllerChange }, null, 2));
   if (!ok) process.exitCode = 1;
 } finally {
-  await browser.close();
-  server.kill();
+  await closeAll({ browser, server });
 }

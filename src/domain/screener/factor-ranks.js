@@ -19,6 +19,7 @@ import { MODEL_DEFAULT_WEIGHTS } from './factor-weights.js';
 import { screenerMarket, MARKET_POPULATION_POLICY } from './market-scope.js';
 import { latestCompletedUsSession, latestCompletedKrSession, resolveMarketCalendarSession } from '../market/market-calendar.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../fundamental/period.js';
+import { finiteNumber as finite } from '../shared/number.js';
 
 export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v6';
 export const FACTOR_RANKS_ALLOWED_USE = 'research-relative-ranking-only';
@@ -55,10 +56,6 @@ const UNKNOWN_SECTOR = null;
 // ("the live model runs the same weights") silently validated the wrong model — see
 // scripts/lib and ci-data-pipeline-contract-check for the fixture pinning the two together.
 const DEFAULT_WEIGHTS = MODEL_DEFAULT_WEIGHTS;
-
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
 
 function avg(values) {
   return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;

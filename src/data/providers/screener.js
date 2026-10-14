@@ -6,6 +6,7 @@ import { createPublicationPolicy, evaluatePublicationSet } from './publication-s
 import { evaluateQuoteContract } from './quote-contract.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../../domain/fundamental/period.js';
 import { SEC_REFERENCE_TURNOVER_BOUNDS, SEC_MARGIN_HOLD_ABOVE_PCT } from '../../domain/fundamental/sec-report.js';
+import { finiteNumber as finite } from '../../domain/shared/number.js';
 
 // P1173 (17 작업 단위 4 / O07): this consumer declares which input set it can combine. The three
 // artifacts may be refreshed on their own cadence, so equal generation dates are not required; what is
@@ -43,9 +44,6 @@ export function snapshotIdentityRows(rows = []) {
 export { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld };
 function fundamentalHeld(factor) {
   return fundamentalPeriodTooOld(factor?.fundamentalPeriodEnd, factor?.factorSessionDate || factor?.factorObservedAt);
-}
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
 // P1318/R664: the market-cap filter accepted only a decision-grade *live* market cap, which

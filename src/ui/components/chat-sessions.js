@@ -3,13 +3,8 @@
 // The classic panel (js/aio-chat.js) keeps its send/stream path; this module only (1) gives it one shared conversation
 // state instead of one per screen, (2) records each completed turn, (3) adds the header controls and the list.
 import { appendTurn, consentState, deleteSession, loadSessions, newSessionId, sessionMessages, sessionWhen, setConsent, ACTIVE_KEY } from '../../ai/session/chat-sessions.js';
+import { el } from './dom.js';
 
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
 const SCREEN = { home: '대시보드', briefing: '브리핑', macro: '거시', fxbond: '금리·환율', themes: '테마', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리', ticker: '종목', technical: '차트', fundamental: '재무', screener: '스크리너', portfolio: '포트폴리오', 'market-news': '뉴스', principles: '개념', atlas: '산업 지도', masters: '투자 대가', guide: '안내' };
 
 // The device store is handed in by the app layer (ui/ai modules never open browser storage themselves).

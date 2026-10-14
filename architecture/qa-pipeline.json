@@ -1345,6 +1345,7 @@
           "id": "masters-contract",
           "script": "scripts/ci-masters-contract-check.mjs",
           "inputs": [
+            "src/domain/masters/**",
             "public-data/knowledge/**",
             "public-data/principles/**",
             "public-data/atlas/**",
@@ -1691,6 +1692,7 @@
         "public-config.json",
         "architecture/**",
         "scripts/start-local-node.mjs",
+        "scripts/lib/browser-gate.mjs",
         "scripts/desktop-qa-config.mjs",
         "package.json",
         "package-lock.json",
@@ -1755,6 +1757,7 @@
         "public-config.json",
         "architecture/**",
         "scripts/start-local-node.mjs",
+        "scripts/lib/browser-gate.mjs",
         "scripts/desktop-qa-config.mjs",
         "package.json",
         "package-lock.json",
@@ -1842,6 +1845,7 @@
         "public-config.json",
         "architecture/**",
         "scripts/start-local-node.mjs",
+        "scripts/lib/browser-gate.mjs",
         "scripts/desktop-qa-config.mjs",
         "package.json",
         "package-lock.json",
@@ -1884,6 +1888,8 @@
         "public-config.json",
         "architecture/**",
         "scripts/start-local-node.mjs",
+        "scripts/lib/browser-gate.mjs",
+        "scripts/lib/atomic-write.mjs",
         "scripts/desktop-qa-config.mjs",
         "package.json",
         "package-lock.json",
@@ -1896,17 +1902,20 @@
           "env": {
             "AIO_VIEWPORT_FULL_INIT": "1"
           },
-          "timeoutMs": 600000
+          "timeoutMs": 600000,
+          "weight": 2
         },
         {
           "id": "browser-responsive",
           "script": "scripts/ci-responsive-browser-check.mjs",
-          "timeoutMs": 300000
+          "timeoutMs": 300000,
+          "weight": 2
         },
         {
           "id": "browser-entity-quality",
           "script": "scripts/ci-entity-quality-browser-check.mjs",
-          "timeoutMs": 300000
+          "timeoutMs": 300000,
+          "weight": 2
         }
       ]
     },
@@ -2323,6 +2332,7 @@
         "src/storage/**",
         "src/legacy/**",
         "scripts/start-local-node.mjs",
+        "scripts/lib/browser-gate.mjs",
         "scripts/desktop-qa-config.mjs",
         "sw.js",
         "public-config.json"
@@ -2335,6 +2345,17 @@
         "browser-viewport",
         "browser-surface",
         "browser-knowledge"
+      ]
+    },
+    {
+      "patterns": [
+        "scripts/lib/atomic-write.mjs"
+      ],
+      "groups": [],
+      "gates": [
+        "browser-viewport",
+        "browser-responsive",
+        "browser-entity-quality"
       ]
     },
     {

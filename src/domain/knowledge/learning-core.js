@@ -7,13 +7,6 @@
 // can be compared. Sources are attached only where they directly support the lesson's claim.
 // Pure data; the studio renderer lives in src/ui/knowledge/learning-studio.js.
 
-export const CONTENT_KINDS = Object.freeze({
-  column: { label: '칼럼', note: '작성자의 문제의식과 관점 — 보편 법칙이 아닙니다' },
-  concept: { label: '개념', note: '다른 화면에서도 같은 뜻으로 쓰는 기본 정의' },
-  case: { label: '사례', note: '날짜와 출처가 있는 실제 사건' },
-  scenario: { label: '시나리오', note: '성립 조건과 반증 조건이 있는 해석' }
-});
-
 import { PACKET_20261011_LESSONS, PACKET_20261011_FRAMES } from '../research/packet-20261011.js';
 import { PACKET_20261014_LESSONS, PACKET_20261014_FRAMES } from '../research/packet-20261014.js';
 const L = (lesson) => Object.freeze(lesson);

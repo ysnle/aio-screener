@@ -1,6 +1,5 @@
+import { finiteNumber as finite } from '../../domain/shared/number.js';
 export const AI_SECTOR_ENGINE_VERSION = 'sector-decomposition.v1';
-
-function finite(value) { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 
 export function buildSectorDecomposition({ sector = null, constituents = [], observedAt = null, source = null } = {}) {
   const rows = (Array.isArray(constituents) ? constituents : []).map((row) => Object.freeze({

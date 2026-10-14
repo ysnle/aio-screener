@@ -1,6 +1,7 @@
 // P1637: the regime radar on 시장 상태 — six axes, today against 5 and 20 sessions ago. Plain SVG so it
 // follows the theme tokens; numbers are one-year positions of each series, not a composite score.
 import { buildRegimeRadar } from '../../domain/market/regime-radar.js';
+import { el } from './dom.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 const node = (doc, tag, attrs = {}, text = null) => {
@@ -9,7 +10,6 @@ const node = (doc, tag, attrs = {}, text = null) => {
   if (text != null) out.textContent = text;
   return out;
 };
-const el = (doc, tag, text, className) => { const out = doc.createElement(tag); if (text != null) out.textContent = text; if (className) out.className = className; return out; };
 
 export function radarSvg(doc, model, { size = 340 } = {}) {
   const center = size / 2, radius = size / 2 - 64, count = model.axes.length;

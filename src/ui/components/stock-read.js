@@ -13,6 +13,7 @@ import { themeStagesFor } from '../../domain/scenarios/theme-stage.js';
 import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
 import { summarizeValidation } from './screener-validation.js';
+import { el } from './dom.js';
 
 const TICKER_INDEX_REFERENCE_URL = './public-data/masters/ticker-index-reference.json';
 
@@ -44,13 +45,6 @@ function thirteenFFor(root, sym, onLoaded) {
       .catch(() => {});
   }
   return null;
-}
-
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
 }
 
 function call(root, name, fallback) {

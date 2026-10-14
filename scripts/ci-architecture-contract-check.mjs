@@ -273,7 +273,8 @@ if (!dataSource.includes('function _aioIsNativeMacroElement') || !dataSource.inc
 // P1133/R620: the fxbond MOVE snapshot writer moved from index.html's inline block D to js/aio-pages.js.
 if (!pagesSource.includes("el.closest('#page-fxbond[data-aio-architecture-renderer=\"native\"]')")) fail('legacy inline MOVE snapshot writer fence missing');
 if (!marketPageSource.includes("page.dataset.aioBreadthRenderer = 'native'") || !marketPageSource.includes('renderBreadth')) fail('market.js native breadth primary renderer marker missing');
-if (!dataSource.includes('function _aioIsNativeBreadthElement') || !dataSource.includes('_aioIsNativeBreadthElement(el)') || !uiSource.includes('_aioIsNativeBreadthElement(el)') || !coreSource.includes('#page-breadth[data-aio-architecture-renderer="native"]')) fail('legacy breadth native-element writer fence missing');
+// v57.60: the legacy breadth writers (updateBreadthBars/initBreadthPage/updateMcClellanUI/_aioBreadthCanvasRender) and their fence helper were deleted.
+if (/_aioIsNativeBreadthElement|function\s+(?:updateBreadthBars|initBreadthPage|updateMcClellanUI|calcMcClellan)\s*\(|_aioBreadthCanvasRender|bpChartInstances/.test(dataSource + uiSource + coreSource + pagesSource)) fail('v57.60 retired legacy breadth writer or fence returned');
 if (!read('src/domain/macro/treasury-curve.js').includes("TREASURY_CURVE_SPREAD_VERSION = 'treasury-curve-spread.v2'")) fail('Treasury curve v2 domain contract missing');
 // P817: entity.js owns the ticker candle/entry symbol labels from normalized entity id;
 // showTicker remains a compatibility path but must skip the native-marked sinks.
@@ -335,13 +336,11 @@ for (const marker of ['data-aio-entity-symbol', 'aio:entityChanged', 'sec-watchl
 }
 if (/\b(?:FUND_FALLBACK|buildFundCard|initFundamentalCards)\b/.test(pagesSource)) fail('legacy hardcoded fundamental watchlist writer returned');
 if (/function\s+fundamentalCardClick\s*\(/.test(pagesSource)) fail('legacy fundamental card provider-search delegate returned');
-// P819: market.js owns the current-evidence breadth diagnostic signal/text;
-// updateBreadthBars remains compatibility-only for these marked sinks.
+// P819: market.js owns the current-evidence breadth diagnostic signal/text (v57.60: the legacy updateBreadthBars writer is gone).
 for (const marker of ['breadth-diag-signal', 'breadth-diag-text', 'aioBreadthDiagnosticRenderer']) {
   if (!marketPageSource.includes(marker)) fail(`native breadth diagnostic renderer marker missing: ${marker}`);
 }
-const breadthUiSource = read('js/aio-ui.js');
-if (!breadthUiSource.includes("diagEl.dataset.aioBreadthDiagnosticRenderer !== 'native'") || !breadthUiSource.includes("breadthDiagSignal.dataset.aioBreadthDiagnosticRenderer !== 'native'") || !breadthUiSource.includes("breadthDiagText.dataset.aioBreadthDiagnosticRenderer !== 'native'")) fail('legacy breadth diagnostic writer fences missing');
+if (/aioBreadthDiagnosticRenderer/.test(uiSource)) fail('v57.60 retired legacy breadth diagnostic writer returned');
 // P1010 completes P820: one native owner for score and label.
 for (const marker of ['renderHomeFearGreed', 'home-fg-score', 'aioHomeFearGreedRenderer', 'selectSentimentValues']) {
   if (!analysisPageSource.includes(marker)) fail(`native home Fear & Greed renderer marker missing: ${marker}`);

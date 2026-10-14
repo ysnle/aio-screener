@@ -1,7 +1,7 @@
 // Visit each vertical slice with external network blocked and verify its
 // canonical page contract/state. Leave/return coverage belongs to route-soak.
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { VERTICAL_SLICE_CONTRACTS } from '../src/app/vertical-slices.js';
@@ -11,23 +11,11 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_VERTICAL_SLICE_PORT || 8902);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 
-function startServer() {
-  return new Promise((resolveServer, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
-    let ready = false;
-    const readyOnce = () => { if (!ready) { ready = true; resolveServer(child); } };
-    child.stdout.on('data', (data) => { if (String(data).includes('AIO local server')) readyOnce(); });
-    child.stderr.on('data', (data) => process.stderr.write(`[vertical-slice/server] ${data}`));
-    child.on('error', reject);
-    child.on('exit', (code) => { if (!ready) reject(new Error(`server exited early (${code})`)); });
-    setTimeout(readyOnce, 2000);
-  });
-}
-
-const server = await startServer();
-const browser = await chromium.launch();
+const server = await startLocalServer(port, { label: 'vertical-slice/server' });
+let browser;
 const report = { ok: true, scope: DESKTOP_QA_SCOPE, viewport: DESKTOP_PRIMARY_VIEWPORT, slices: [], errors: [] };
 try {
+  browser = await chromium.launch();
   const page = await browser.newPage({ viewport: DESKTOP_PRIMARY_VIEWPORT });
   await page.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
@@ -66,8 +54,7 @@ try {
   report.ok = false;
   report.errors.push(String(error?.stack || error));
 } finally {
-  await browser.close();
-  server.kill();
+  await closeAll({ browser, server });
 }
 console.log(JSON.stringify(report, null, 2));
 if (!report.ok || report.errors.length || report.slices.length !== VERTICAL_SLICE_CONTRACTS.length) process.exitCode = 1;

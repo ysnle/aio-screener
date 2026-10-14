@@ -3,13 +3,7 @@
 // reads the map; the sector table and the reading guide stay folded. A tile opens the stock page.
 import { buildSectorMap, layoutSectorMap, SECTOR_MAP_PERIODS, shadeOf } from '../../domain/market/sector-map.js';
 import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
-
-function el(doc, tag, text, className) {
-  const node = doc.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
+import { el } from './dom.js';
 
 const signed = (value, digits = 2) => (value == null ? '수익률 없음' : `${value >= 0 ? '+' : ''}${value.toFixed(digits)}%`);
 const shortDate = (date) => (date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '');

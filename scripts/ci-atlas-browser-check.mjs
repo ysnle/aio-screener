@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
+import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -13,19 +13,6 @@ const port = Number(process.env.AIO_ATLAS_PORT || 8904);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const INTERNAL_COPY = /REVIEWED_CANDIDATE|REFERENCE_CONNECTED|PS-\d+|TG-C\d+|출처|source seed|텔레그램|근거·경계 보기|검토된 참고|최신성 검증 경계/;
 
-function startServer() {
-  return new Promise((resolveServer, reject) => {
-    const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(port)], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
-    let ready = false;
-    const readyOnce = () => { if (!ready) { ready = true; resolveServer(child); } };
-    child.stdout.on('data', (data) => { if (String(data).includes('AIO local server')) readyOnce(); });
-    child.stderr.on('data', (data) => process.stderr.write(`[atlas-browser/server] ${data}`));
-    child.on('error', reject);
-    child.on('exit', (code) => { if (!ready) reject(new Error(`server exited early (${code})`)); });
-    setTimeout(readyOnce, 2000);
-  });
-}
-
 async function openApp(page, query = '') {
   await page.goto(`${baseUrl}${query}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.AIO_ARCH === 'object' && typeof window.AIO_ARCH.navigate === 'function', { timeout: 30000 });
@@ -33,8 +20,8 @@ async function openApp(page, query = '') {
   if (await disclaimerButton.count()) await disclaimerButton.click();
 }
 
-const server = await startServer();
-const browser = await chromium.launch();
+const server = await startLocalServer(port, { label: 'atlas-browser/server' });
+let browser;
 const errors = [];
 const watch = (page) => {
   page.on('pageerror', (error) => errors.push(String(error)));
@@ -46,6 +33,7 @@ const article = (page) => page.evaluate(() => {
   return { node: node?.dataset.atlasNode || null, domain: node?.dataset.atlasDomain || null, module: node?.dataset.atlasModule || null, guide: node?.dataset.atlasRelationshipGuide || null, lead: node?.querySelector('.af-lead')?.textContent || '', paragraphs: node?.querySelectorAll('.af-prose p').length || 0, twist: node?.querySelector('.af-twist')?.textContent || '', text: node?.textContent || '' };
 });
 try {
+  browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   watch(page);
   await local(page);
@@ -138,6 +126,5 @@ try {
   console.error(JSON.stringify({ ok: false, errors: [...errors, String(error?.stack || error)] }));
   process.exitCode = 1;
 } finally {
-  await browser.close();
-  server.kill();
+  await closeAll({ browser, server });
 }

@@ -2,12 +2,9 @@
 // Vela architecture. The app may keep Chart.js as a renderer, but every chart
 // input must have one canonical time representation and an explicit update
 // state before it crosses into a renderer.
+import { finiteNumber as finite } from '../shared/number.js';
 
 export const CHART_UPDATE_CAUSES = Object.freeze(['history', 'tick', 'bar', 'inputs', 'viewport', 'market']);
-
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
 
 export function canonicalEpochMs(value) {
   if (value == null || value === '') return null;

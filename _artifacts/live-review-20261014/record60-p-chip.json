@@ -1,0 +1,9 @@
+{ "version": "v57.60", "date": "2026-10-14", "note": "v57.60: 코드베이스 구조 정리(공용 모듈·죽은 레거시 코드 삭제·브라우저 게이트 하네스)와 KR 테마 칩 결함 수정.", "r": null, "status": null,
+  "p": { "title": "한국 테마 칩을 누르면 '채팅 입력창 DOM 부재' 토스트만 뜸",
+    "symptom": "한국 화면의 테마 질문 칩을 누르면 AI에게 질문이 가지 않고 입력창이 없다는 안내만 나왔다.",
+    "root_cause": "chatFromChip이 화면별 채팅 입력(#chat-<화면>-inp)으로 보내는데, 그 입력들은 P1653에서 통합 AI 패널로 대체돼 사라졌다.",
+    "fix": "chatFromChip이 통합 AI 패널을 열고(#ai-panel-inp에 질문을 채움) chatSendUnified로 보낸다. 패널이 꺼진 화면은 입력만 채운다.",
+    "violated_rule": "입력 경로를 통합할 때 모든 호출자를 새 경로로 옮긴다",
+    "prevention": "{P}: chat-resilience 게이트에 칩 → 통합 패널 경로 단언 추가.",
+    "verification": "ci-chat-resilience·headless 테스트 통과." },
+  "changelog": ["**한국 테마 칩 ({P}):** 한국 화면의 테마 질문 칩이 통합 AI 패널로 질문을 보냅니다."] }

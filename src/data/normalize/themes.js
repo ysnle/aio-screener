@@ -1,7 +1,4 @@
-function finite(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
-
+import { finiteNumber as finite } from '../../domain/shared/number.js';
 function normalizeThemeDetail(detail) {
   if (!detail || typeof detail !== 'object') return null;
   const leaders = Array.isArray(detail.leaders)

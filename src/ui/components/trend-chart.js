@@ -5,6 +5,7 @@
 // P1399 (Codex review 2026-10-03): x is placed by calendar date, not array index. Charts shown side
 // by side pass one `range`, so the same horizontal position is the same date on every card and a
 // series whose record starts later begins later on the axis.
+import { shortDate } from '../../domain/content/date-labels.js';
 const SVG = 'http://www.w3.org/2000/svg';
 const W = 520;
 const H = 210;
@@ -24,11 +25,6 @@ function niceStep(range, target = 4) {
   const power = 10 ** Math.floor(Math.log10(raw));
   const unit = raw / power;
   return (unit <= 1 ? 1 : unit <= 2 ? 2 : unit <= 2.5 ? 2.5 : unit <= 5 ? 5 : 10) * power;
-}
-
-function shortDate(date) {
-  const [, month, day] = String(date || '').split('-').map(Number);
-  return month && day ? `${month}/${day}` : '';
 }
 
 function datedShort(date) {
