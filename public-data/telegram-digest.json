@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-14T10:38:16.188Z",
-  "attemptedAt": "2026-10-14T10:38:16.188Z",
-  "lastSuccessfulAt": "2026-10-14T10:38:16.188Z",
+  "generatedAt": "2026-10-14T11:21:16.349Z",
+  "attemptedAt": "2026-10-14T11:21:16.349Z",
+  "lastSuccessfulAt": "2026-10-14T11:21:16.349Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-30T10:38:12.255Z",
-  "until": "2026-10-14T10:38:12.255Z",
+  "since": "2026-09-30T11:21:10.269Z",
+  "until": "2026-10-14T11:21:10.269Z",
   "current24hWindow": {
     "start": "2026-10-12T23:00:00.000Z",
     "end": "2026-10-13T23:00:00.000Z",
@@ -78,15 +78,15 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 245,
-      "freshCount": 19,
-      "eligibleTextCount": 169,
+      "count": 246,
+      "freshCount": 35,
+      "eligibleTextCount": 170,
       "selectedCount": 92,
       "error": null,
-      "lastPostId": 25831
+      "lastPostId": 25832
     },
     {
       "channel": "insidertracking",
@@ -95,10 +95,10 @@
       "reachedKnown": true,
       "count": 1097,
       "freshCount": 37,
-      "eligibleTextCount": 568,
+      "eligibleTextCount": 572,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 66223
+      "lastPostId": 66227
     },
     {
       "channel": "bornlupin",
@@ -125,44 +125,46 @@
       "lastPostId": 70418
     }
   ],
-  "count": 2230,
-  "retainedItemCount": 466,
+  "count": 2231,
+  "retainedItemCount": 473,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2230,
-    "eligibleTextCount": 1280,
-    "mediaOnlyCount": 950,
-    "highSignalCount": 500,
-    "broadSignalCount": 1020,
+    "observedCount": 2231,
+    "eligibleTextCount": 1285,
+    "mediaOnlyCount": 946,
+    "highSignalCount": 502,
+    "broadSignalCount": 1021,
     "selectedRawCount": 410,
     "selectedEligibleCount": 402,
-    "selectedRawCoveragePct": 31.4,
+    "selectedRawCoveragePct": 31.3,
     "selectedOfObservedPct": 18.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 687,
-    "geo": 343,
-    "semi": 586,
-    "earnings": 421,
-    "power": 338,
-    "macro": 761,
-    "kr-market": 219,
-    "credit": 92,
+    "market-note": 688,
+    "earnings": 423,
+    "macro": 763,
+    "semi": 588,
+    "power": 340,
+    "credit": 93,
+    "equity": 164,
+    "flows": 178,
+    "healthcare": 108,
+    "geo": 341,
+    "kr-market": 218,
     "ai-policy": 193,
-    "flows": 177,
     "media-only": 51,
     "insider": 45,
-    "equity": 163,
     "japan": 140,
     "optical": 55,
-    "healthcare": 107,
     "crypto": 6
   },
   "tickerCounts": {
+    "BAC": 2,
+    "SMCI": 2,
     "AVGO": 23,
     "TSM": 95,
     "005930.KS": 64,
@@ -203,7 +205,6 @@
     "247540.KQ": 2,
     "096770.KS": 2,
     "MPWR": 1,
-    "SMCI": 1,
     "T": 4,
     "ADBE": 1,
     "EBAY": 1,
@@ -260,7 +261,6 @@
     "HOOD": 3,
     "RBRK": 1,
     "KEYS": 1,
-    "BAC": 1,
     "GS": 1,
     "DB": 1,
     "NET": 1,
@@ -268,13 +268,13 @@
     "MDB": 1
   },
   "themes": [
-    "Macro/Rates (761 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고...",
-    "Market Notes (687 posts in 14-day research window): 2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우...",
-    "Semiconductors/Memory (586 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고...",
-    "Earnings/Corporate (421 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고...",
-    "Geopolitics (343 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고...",
-    "AI Power/Grid (338 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고...",
-    "Korea Market (219 posts in 14-day research window): JP모건 APAC테크 코멘트 테크 탑다운 어제는 7월과 같은 항복(capitulation)의 느낌이 있었습니다…. AI 공급망은 매도(한국 반도체 -4%)되었고 AI 패자는 매수(인도 IT 서비스 +5%)되었습니다. 실적 시즌(테크 실적이 견조할 것으로 예상되는)에 진입하는 바로 이 시점에 투매가 나타나고 있다는...",
+    "Macro/Rates (763 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고...",
+    "Market Notes (688 posts in 14-day research window): 2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우...",
+    "Semiconductors/Memory (588 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고...",
+    "Earnings/Corporate (423 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고...",
+    "Geopolitics (341 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고...",
+    "AI Power/Grid (340 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고...",
+    "Korea Market (218 posts in 14-day research window): JP모건 APAC테크 코멘트 테크 탑다운 어제는 7월과 같은 항복(capitulation)의 느낌이 있었습니다…. AI 공급망은 매도(한국 반도체 -4%)되었고 AI 패자는 매수(인도 IT 서비스 +5%)되었습니다. 실적 시즌(테크 실적이 견조할 것으로 예상되는)에 진입하는 바로 이 시점에 투매가 나타나고 있다는...",
     "AI Policy/Export Controls (193 posts in 14-day research window): JP모건 APAC테크 코멘트 테크 탑다운 어제는 7월과 같은 항복(capitulation)의 느낌이 있었습니다…. AI 공급망은 매도(한국 반도체 -4%)되었고 AI 패자는 매수(인도 IT 서비스 +5%)되었습니다. 실적 시즌(테크 실적이 견조할 것으로 예상되는)에 진입하는 바로 이 시점에 투매가 나타나고 있다는..."
   ],
   "catalysts": [
@@ -346,7 +346,7 @@
       "topics": [
         "macro"
       ],
-      "count": 761,
+      "count": 763,
       "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
     },
     {
@@ -355,7 +355,7 @@
       "topics": [
         "geo"
       ],
-      "count": 343,
+      "count": 341,
       "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "credit"
       ],
-      "count": 92,
+      "count": 93,
       "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
     },
     {
@@ -373,7 +373,7 @@
       "topics": [
         "semi"
       ],
-      "count": 586,
+      "count": 588,
       "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
     },
     {
@@ -391,7 +391,7 @@
       "topics": [
         "power"
       ],
-      "count": 338,
+      "count": 340,
       "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
     },
     {
@@ -409,7 +409,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 219,
+      "count": 218,
       "focus": "JP모건 APAC테크 코멘트 테크 탑다운 어제는 7월과 같은 항복(capitulation)의 느낌이 있었습니다…. AI 공급망은 매도(한국 반도체 -4%)되었고 AI 패자는 매수(인도 IT 서비스 +5%)되었습니다. 실적 시즌(테크 실적이 견조할 것으로 예상되는)에 진입하는 바로 이 시점에 투매가 나타나고 있다는..."
     },
     {
@@ -418,7 +418,7 @@
       "topics": [
         "equity"
       ],
-      "count": 163,
+      "count": 164,
       "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
     },
     {
@@ -436,7 +436,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 421,
+      "count": 423,
       "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
     },
     {
@@ -445,7 +445,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 107,
+      "count": 108,
       "focus": "JPM) OCP 2026 1일차 인사이트: AI 인프라 확장의 복잡성 증가 (2026.10.13) JP모건은 캘리포니아 산호세에서 열린 OCP 2026 1일차에 참석했으며, 기조연설과 경영진 세션 전반을 관통한 핵심 주제는 AI 인프라 확장의 복잡성 증가였다고 전했습니다. 추론 및 에이전틱 워크로드가 빠르게 늘면서..."
     },
     {
@@ -463,7 +463,7 @@
       "topics": [
         "flows"
       ],
-      "count": 177,
+      "count": 178,
       "focus": "2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록. VIX는 16.70으로 하락하며 위험자산 선호 심리 유지. 다만 미국 소비자물가지수(CPI) 발표를 앞두고..."
     },
     {
@@ -473,7 +473,7 @@
         "insider"
       ],
       "count": 45,
-      "focus": "TD Cowen) MU의 자사주 매입 및 HDD에 대한 생각 - 토시바의 TDK 사업부 인수 가능성 TD 코웬 인사이트 MU의 330억 달러 추가 자사주 매입은 저희의 200억 달러 초반대 전망을..."
+      "focus": "TD Cowen) MU의 자사주 매입 및 HDD에 대한 생각 - 토시바의 TDK 사업부 인수 가능성 TD 코웬 인사이트 MU의 330억 달러 추가 자사주 매입은 저희의 200억 달러 초반대 전망을 상회했으며(기대치가 다소 공격적이었습니다), MU의 규모가 더 작음에도 불구하고 하이닉스의 자사주 매입보다 크다는..."
     },
     {
       "id": "market-note",
@@ -481,7 +481,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 687,
+      "count": 688,
       "focus": "2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우..."
     }
   ],
@@ -1696,6 +1696,45 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/66224",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66224",
+      "datetime": "2026-10-14T10:57:45.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "macro",
+        "semi",
+        "power"
+      ],
+      "score": 77,
+      "hasText": true,
+      "tickers": [],
+      "summary": "인공지능(AI) 산업의 급성장으로 반도체 제조업체들의 생산능력 확대가 가속화되는 가운데, 올해 300mm 실리콘 웨이퍼 가공용 설비 투자액이 1,490억 달러에 달하고 2029년에는 연간 2,270억 달러까지..."
+    },
+    {
+      "id": "aetherjapanresearch/25832",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25832",
+      "datetime": "2026-10-14T10:43:26.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "credit",
+        "macro",
+        "semi",
+        "power",
+        "equity",
+        "earnings",
+        "flows",
+        "healthcare"
+      ],
+      "score": 93,
+      "hasText": true,
+      "tickers": [
+        "SMCI"
+      ],
+      "summary": "Bernstein) 서버 OEM: DELL에 대한 투자자 우려 3가지와 리스크가 관리 가능하다고 보는 이유 (2026.10.13) Bernstein은 Dell의 파이낸싱 채권이 FQ2'27에 급증하면서..."
+    },
+    {
       "id": "HANAchina/70417",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70417",
@@ -2033,8 +2072,8 @@
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": "로이터통신에 따르면 이란 고위 관계자 2명이 글로벌 유가를 높은 수준으로 유지하고 다가오는 미국 중간선거에 영향을 미치기 위해 호르무즈 해협에서 선박을 공격하는 새로운 전술을 도입했다고 밝힘. 이란 지도부..."
+      "summary": "로이터통신에 따르면 이란 고위 관계자 2명이 글로벌 유가를 높은 수준으로 유지하고 다가오는 미국 중간선거에 영향을 미치기 위해 호르무즈 해협에서 선박을 공격하는 새로운 전술을 도입했다고 밝힘. 이란 지도부...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70396",
@@ -3039,14 +3078,17 @@
       "datetime": "2026-10-13T11:53:14.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "optical"
+        "semi",
+        "optical",
+        "power",
+        "healthcare"
       ],
       "score": 64,
       "hasText": true,
-      "summary": "JP모건) Coherent Corp; 포톤링크 관련 경영진 후속 논의 주요 내용 당사는 ECOC에서 발표된 포톤링크(PhotonLink)에 대한 후속 콜에 참석했습니다. 이번 콜은 코히런트의 광부품 부문...",
       "tickers": [
         "COHR"
-      ]
+      ],
+      "summary": "JP모건) Coherent Corp; 포톤링크 관련 경영진 후속 논의 주요 내용 당사는 ECOC에서 발표된 포톤링크(PhotonLink)에 대한 후속 콜에 참석했습니다. 이번 콜은 코히런트의 광부품 부문..."
     },
     {
       "id": "insidertracking/66124",
@@ -3154,8 +3196,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "summary": ">>Anthropic, 모델 증류 공격 방어 성과 공개…데이터 추출량 90~99% 감소, 공격 계정 수만 개 차단 •Anthropic이 처음으로 모델 증류 공격에 대한 방어 체계와 성과를 공개함. 3단계 방어...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>Anthropic, 모델 증류 공격 방어 성과 공개…데이터 추출량 90~99% 감소, 공격 계정 수만 개 차단 •Anthropic이 처음으로 모델 증류 공격에 대한 방어 체계와 성과를 공개함. 3단계 방어..."
     },
     {
       "id": "HANAchina/70359",
@@ -3210,18 +3252,20 @@
       "localDateKst": "2026-10-13",
       "tags": [
         "macro",
-        "insider"
+        "semi",
+        "insider",
+        "earnings"
       ],
       "score": 89,
       "hasText": true,
-      "summary": "TD Cowen) MU의 자사주 매입 및 HDD에 대한 생각 - 토시바의 TDK 사업부 인수 가능성 TD 코웬 인사이트 MU의 330억 달러 추가 자사주 매입은 저희의 200억 달러 초반대 전망을...",
       "tickers": [
         "NVDA",
         "MU",
         "WDC",
         "STX",
         "000660.KS"
-      ]
+      ],
+      "summary": "TD Cowen) MU의 자사주 매입 및 HDD에 대한 생각 - 토시바의 TDK 사업부 인수 가능성 TD 코웬 인사이트 MU의 330억 달러 추가 자사주 매입은 저희의 200억 달러 초반대 전망을..."
     },
     {
       "id": "aetherjapanresearch/25804",
@@ -3234,12 +3278,12 @@
       ],
       "score": 69,
       "hasText": true,
-      "summary": "ARK의 캐시우드, '악랄한' 사이클 리스크로 메모리 반도체 섹터 기피 ARK 인베스트먼트 매니지먼트의 캐시 우드에 따르면, 메모리 반도체 섹터는 '악랄한' 호황과 불황의 사이클에 취약하며, 중국 기업들이...",
       "tickers": [
         "AVGO",
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "ARK의 캐시우드, '악랄한' 사이클 리스크로 메모리 반도체 섹터 기피 ARK 인베스트먼트 매니지먼트의 캐시 우드에 따르면, 메모리 반도체 섹터는 '악랄한' 호황과 불황의 사이클에 취약하며, 중국 기업들이..."
     },
     {
       "id": "HANAchina/70355",
@@ -3282,10 +3326,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "메모리 랙 시대가 오나 봅니다 - SK하이닉스가 OCP(Open Compute Project) 서밋에서 '메모리 중심 AI 랙 시스템(MARS)'를 소개. 김호식 SK하이닉스 부사장은 \"지금이 메모리 중심...",
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "메모리 랙 시대가 오나 봅니다 - SK하이닉스가 OCP(Open Compute Project) 서밋에서 '메모리 중심 AI 랙 시스템(MARS)'를 소개. 김호식 SK하이닉스 부사장은 \"지금이 메모리 중심..."
     },
     {
       "id": "aetherjapanresearch/25801",
@@ -3300,10 +3344,10 @@
       ],
       "score": 59,
       "hasText": true,
-      "summary": "외인들이 전닉에 갖는 의문점을 취합해보면 - SK하이닉스의 솔리다임 IPO 추진 명분 부족 - SKH ADR 락업 만료에 따른 추가 발행 가능성 - SKH의 무분별한 CAPEX 계획(호남, 미국, 일본) …...",
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "외인들이 전닉에 갖는 의문점을 취합해보면 - SK하이닉스의 솔리다임 IPO 추진 명분 부족 - SKH ADR 락업 만료에 따른 추가 발행 가능성 - SKH의 무분별한 CAPEX 계획(호남, 미국, 일본) …..."
     },
     {
       "id": "insidertracking/66118",
@@ -3344,16 +3388,19 @@
       "datetime": "2026-10-13T07:18:46.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
+        "geo",
         "semi",
-        "power"
+        "power",
+        "kr-market",
+        "equity"
       ],
       "score": 91,
       "hasText": true,
-      "summary": "중국 CXMT, 삼성·하이닉스보다 앞서 메모리 기술 돌파 주장 요약 중국 메모리 선두업체 CXMT(창신메모리)의 차오칸위 총재는 주말 상하이에서 열린 업계 콘퍼런스에서 4F² 설계를 적용한 데이터센터 서버용...",
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "중국 CXMT, 삼성·하이닉스보다 앞서 메모리 기술 돌파 주장 요약 중국 메모리 선두업체 CXMT(창신메모리)의 차오칸위 총재는 주말 상하이에서 열린 업계 콘퍼런스에서 4F² 설계를 적용한 데이터센터 서버용..."
     },
     {
       "id": "insidertracking/66117",
@@ -3569,14 +3616,18 @@
       "datetime": "2026-10-13T04:15:34.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings"
       ],
       "score": 91,
       "hasText": true,
-      "summary": "JP모건) 마이크로소프트 — Maia 제품군이 주력 추론 역할을 맡고, Maia 300은 상당한 성능 향상을 제공하며 강력한 램프업 계획을 뒷받침할 것으로 예상 요약 마이크로소프트는 10월 12일 Azure...",
       "tickers": [
         "MSFT"
-      ]
+      ],
+      "summary": "JP모건) 마이크로소프트 — Maia 제품군이 주력 추론 역할을 맡고, Maia 300은 상당한 성능 향상을 제공하며 강력한 램프업 계획을 뒷받침할 것으로 예상 요약 마이크로소프트는 10월 12일 Azure..."
     },
     {
       "id": "aetherjapanresearch/25795",
@@ -3585,15 +3636,18 @@
       "datetime": "2026-10-13T04:11:05.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "macro"
+        "macro",
+        "semi",
+        "ai-policy",
+        "earnings"
       ],
       "score": 78,
       "hasText": true,
-      "summary": "JP모건) 메타 — 뮤즈 원더 모델이 개인 에이전트 및 엔터프라이즈 서비스를 뒷받침, 비중확대 및 목표주가 920달러 유지 요약 메타가 큰 기대를 모았던 뮤즈 원더(코드명 워터멜론) 모델 시리즈를...",
       "tickers": [],
       "relatedTickers": [
         "GOOG"
-      ]
+      ],
+      "summary": "JP모건) 메타 — 뮤즈 원더 모델이 개인 에이전트 및 엔터프라이즈 서비스를 뒷받침, 비중확대 및 목표주가 920달러 유지 요약 메타가 큰 기대를 모았던 뮤즈 원더(코드명 워터멜론) 모델 시리즈를..."
     },
     {
       "id": "aetherjapanresearch/25794",
@@ -3603,17 +3657,18 @@
       "localDateKst": "2026-10-13",
       "tags": [
         "semi",
+        "optical",
         "insider"
       ],
       "score": 76,
       "hasText": true,
-      "summary": "JP모건 APAC테크 코멘트(삼전/이비덴/엔비) 삼성전자(SEC): 시장이 재매입을 요구하는 가운데, 거래소에 공시된 대로 15조 원 규모의 자사주 매입을 완료했습니다(링크). SK하이닉스의 자사주 매입도 곧...",
       "tickers": [
         "NVDA",
         "TSM",
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "JP모건 APAC테크 코멘트(삼전/이비덴/엔비) 삼성전자(SEC): 시장이 재매입을 요구하는 가운데, 거래소에 공시된 대로 15조 원 규모의 자사주 매입을 완료했습니다(링크). SK하이닉스의 자사주 매입도 곧..."
     },
     {
       "id": "HANAchina/70343",
@@ -7607,20 +7662,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/65781",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/65781",
-      "datetime": "2026-10-08T22:08:11.000Z",
-      "localDateKst": "2026-10-09",
-      "tags": [
-        "geo"
-      ],
-      "score": 62,
-      "hasText": true,
-      "summary": "뉴욕타임즈에 따르면 미국이 중동과 영국 내 군사기지에서 병력을 철수해야 하는 상황에 직면. 워싱턴은 이를 예방적 조치라고 설명하고 있지만, 실제 상황은 훨씬 심각하다는 평가. 미국의 힘을 과시하기 위해 시작된...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20544",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20544",
@@ -8202,20 +8243,6 @@
       "tickers": [
         "NVDA"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25688",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25688",
-      "datetime": "2026-10-07T11:51:54.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "power"
-      ],
-      "score": 55,
-      "hasText": true,
-      "summary": "코어위브($CRWV)가 인도 시장에 진출합니다. 나비뭄바이에 240MW 규모의 데이터센터 용량을 확보하며, 향후 480MW까지 두 배로 확대할 수 있는 옵션도 갖췄습니다. 첫 번째 용량은 2028년...",
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -8881,14 +8908,31 @@
       "datetime": "2026-10-13T11:53:14.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "optical"
+        "semi",
+        "optical",
+        "power",
+        "healthcare"
       ],
       "score": 64,
       "hasText": true,
-      "summary": "JP모건) Coherent Corp; 포톤링크 관련 경영진 후속 논의 주요 내용 당사는 ECOC에서 발표된 포톤링크(PhotonLink)에 대한 후속 콜에 참석했습니다. 이번 콜은 코히런트의 광부품 부문...",
       "tickers": [
         "COHR"
-      ]
+      ],
+      "summary": "JP모건) Coherent Corp; 포톤링크 관련 경영진 후속 논의 주요 내용 당사는 ECOC에서 발표된 포톤링크(PhotonLink)에 대한 후속 콜에 참석했습니다. 이번 콜은 코히런트의 광부품 부문..."
+    },
+    {
+      "id": "aetherjapanresearch/25809",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25809",
+      "datetime": "2026-10-13T11:48:47.000Z",
+      "localDateKst": "2026-10-13",
+      "tags": [
+        "market-note"
+      ],
+      "score": 40,
+      "hasText": true,
+      "tickers": [],
+      "summary": "테슬라, 로보택시 스쿨존 과속 주장으로 미국 당국 조사 직면 요약: 미국 도로교통안전국(NHTSA)은 자율주행 시스템을 사용하는 테슬라 사이버캡과 모델 Y 차량이 운영 중인 스쿨존에서 제한속도를 초과해..."
     },
     {
       "id": "insidertracking/66124",
@@ -8986,6 +9030,20 @@
       "tickers": []
     },
     {
+      "id": "aetherjapanresearch/25808",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25808",
+      "datetime": "2026-10-13T09:09:18.000Z",
+      "localDateKst": "2026-10-13",
+      "tags": [
+        "media-only"
+      ],
+      "score": 0,
+      "hasText": false,
+      "tickers": [],
+      "summary": ""
+    },
+    {
       "id": "aetherjapanresearch/25806",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25806",
@@ -8996,8 +9054,22 @@
       ],
       "score": 50,
       "hasText": true,
-      "summary": ">>Anthropic, 모델 증류 공격 방어 성과 공개…데이터 추출량 90~99% 감소, 공격 계정 수만 개 차단 •Anthropic이 처음으로 모델 증류 공격에 대한 방어 체계와 성과를 공개함. 3단계 방어...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>Anthropic, 모델 증류 공격 방어 성과 공개…데이터 추출량 90~99% 감소, 공격 계정 수만 개 차단 •Anthropic이 처음으로 모델 증류 공격에 대한 방어 체계와 성과를 공개함. 3단계 방어..."
+    },
+    {
+      "id": "aetherjapanresearch/25807",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25807",
+      "datetime": "2026-10-13T09:08:53.000Z",
+      "localDateKst": "2026-10-13",
+      "tags": [
+        "market-note"
+      ],
+      "score": 35,
+      "hasText": true,
+      "tickers": [],
+      "summary": "중국 AI는 이제 급격히 발전속도가 줄어들듯..."
     },
     {
       "id": "HANAchina/70359",
@@ -9052,18 +9124,20 @@
       "localDateKst": "2026-10-13",
       "tags": [
         "macro",
-        "insider"
+        "semi",
+        "insider",
+        "earnings"
       ],
       "score": 89,
       "hasText": true,
-      "summary": "TD Cowen) MU의 자사주 매입 및 HDD에 대한 생각 - 토시바의 TDK 사업부 인수 가능성 TD 코웬 인사이트 MU의 330억 달러 추가 자사주 매입은 저희의 200억 달러 초반대 전망을...",
       "tickers": [
         "NVDA",
         "MU",
         "WDC",
         "STX",
         "000660.KS"
-      ]
+      ],
+      "summary": "TD Cowen) MU의 자사주 매입 및 HDD에 대한 생각 - 토시바의 TDK 사업부 인수 가능성 TD 코웬 인사이트 MU의 330억 달러 추가 자사주 매입은 저희의 200억 달러 초반대 전망을..."
     },
     {
       "id": "aetherjapanresearch/25804",
@@ -9076,12 +9150,12 @@
       ],
       "score": 69,
       "hasText": true,
-      "summary": "ARK의 캐시우드, '악랄한' 사이클 리스크로 메모리 반도체 섹터 기피 ARK 인베스트먼트 매니지먼트의 캐시 우드에 따르면, 메모리 반도체 섹터는 '악랄한' 호황과 불황의 사이클에 취약하며, 중국 기업들이...",
       "tickers": [
         "AVGO",
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "ARK의 캐시우드, '악랄한' 사이클 리스크로 메모리 반도체 섹터 기피 ARK 인베스트먼트 매니지먼트의 캐시 우드에 따르면, 메모리 반도체 섹터는 '악랄한' 호황과 불황의 사이클에 취약하며, 중국 기업들이..."
     },
     {
       "id": "HANAchina/70355",
@@ -9124,10 +9198,24 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "메모리 랙 시대가 오나 봅니다 - SK하이닉스가 OCP(Open Compute Project) 서밋에서 '메모리 중심 AI 랙 시스템(MARS)'를 소개. 김호식 SK하이닉스 부사장은 \"지금이 메모리 중심...",
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "메모리 랙 시대가 오나 봅니다 - SK하이닉스가 OCP(Open Compute Project) 서밋에서 '메모리 중심 AI 랙 시스템(MARS)'를 소개. 김호식 SK하이닉스 부사장은 \"지금이 메모리 중심..."
+    },
+    {
+      "id": "aetherjapanresearch/25802",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25802",
+      "datetime": "2026-10-13T07:37:56.000Z",
+      "localDateKst": "2026-10-13",
+      "tags": [
+        "market-note"
+      ],
+      "score": 40,
+      "hasText": true,
+      "tickers": [],
+      "summary": "난 어차피 한국 하닉본주나 미국ADR이나 똑같이 세금 20%니까 미국ADR로 바꾸게해주라..."
     },
     {
       "id": "aetherjapanresearch/25801",
@@ -9142,10 +9230,10 @@
       ],
       "score": 59,
       "hasText": true,
-      "summary": "외인들이 전닉에 갖는 의문점을 취합해보면 - SK하이닉스의 솔리다임 IPO 추진 명분 부족 - SKH ADR 락업 만료에 따른 추가 발행 가능성 - SKH의 무분별한 CAPEX 계획(호남, 미국, 일본) …...",
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "외인들이 전닉에 갖는 의문점을 취합해보면 - SK하이닉스의 솔리다임 IPO 추진 명분 부족 - SKH ADR 락업 만료에 따른 추가 발행 가능성 - SKH의 무분별한 CAPEX 계획(호남, 미국, 일본) …..."
     },
     {
       "id": "insidertracking/66118",
@@ -9186,16 +9274,19 @@
       "datetime": "2026-10-13T07:18:46.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
+        "geo",
         "semi",
-        "power"
+        "power",
+        "kr-market",
+        "equity"
       ],
       "score": 91,
       "hasText": true,
-      "summary": "중국 CXMT, 삼성·하이닉스보다 앞서 메모리 기술 돌파 주장 요약 중국 메모리 선두업체 CXMT(창신메모리)의 차오칸위 총재는 주말 상하이에서 열린 업계 콘퍼런스에서 4F² 설계를 적용한 데이터센터 서버용...",
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "중국 CXMT, 삼성·하이닉스보다 앞서 메모리 기술 돌파 주장 요약 중국 메모리 선두업체 CXMT(창신메모리)의 차오칸위 총재는 주말 상하이에서 열린 업계 콘퍼런스에서 4F² 설계를 적용한 데이터센터 서버용..."
     },
     {
       "id": "insidertracking/66117",
@@ -9348,6 +9439,20 @@
       "tickers": []
     },
     {
+      "id": "aetherjapanresearch/25797",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25797",
+      "datetime": "2026-10-13T05:36:20.000Z",
+      "localDateKst": "2026-10-13",
+      "tags": [
+        "market-note"
+      ],
+      "score": 35,
+      "hasText": true,
+      "tickers": [],
+      "summary": "아무도 관심이 없는 카카오AI 이벤트 우리도 오픈클로, 뮤즈처럼 자체 AI에이전트 만들었어요~ 그리고 우리는 모든 일을 똑똑하고 비싼 프론티어AI가 처리하는게 아니라 시킨 일 수준에 맞는 지능의 AI를 불러서..."
+    },
+    {
       "id": "insidertracking/66111",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/66111",
@@ -9411,14 +9516,18 @@
       "datetime": "2026-10-13T04:15:34.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings"
       ],
       "score": 91,
       "hasText": true,
-      "summary": "JP모건) 마이크로소프트 — Maia 제품군이 주력 추론 역할을 맡고, Maia 300은 상당한 성능 향상을 제공하며 강력한 램프업 계획을 뒷받침할 것으로 예상 요약 마이크로소프트는 10월 12일 Azure...",
       "tickers": [
         "MSFT"
-      ]
+      ],
+      "summary": "JP모건) 마이크로소프트 — Maia 제품군이 주력 추론 역할을 맡고, Maia 300은 상당한 성능 향상을 제공하며 강력한 램프업 계획을 뒷받침할 것으로 예상 요약 마이크로소프트는 10월 12일 Azure..."
     },
     {
       "id": "aetherjapanresearch/25795",
@@ -9427,15 +9536,18 @@
       "datetime": "2026-10-13T04:11:05.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "macro"
+        "macro",
+        "semi",
+        "ai-policy",
+        "earnings"
       ],
       "score": 78,
       "hasText": true,
-      "summary": "JP모건) 메타 — 뮤즈 원더 모델이 개인 에이전트 및 엔터프라이즈 서비스를 뒷받침, 비중확대 및 목표주가 920달러 유지 요약 메타가 큰 기대를 모았던 뮤즈 원더(코드명 워터멜론) 모델 시리즈를...",
       "tickers": [],
       "relatedTickers": [
         "GOOG"
-      ]
+      ],
+      "summary": "JP모건) 메타 — 뮤즈 원더 모델이 개인 에이전트 및 엔터프라이즈 서비스를 뒷받침, 비중확대 및 목표주가 920달러 유지 요약 메타가 큰 기대를 모았던 뮤즈 원더(코드명 워터멜론) 모델 시리즈를..."
     },
     {
       "id": "aetherjapanresearch/25794",
@@ -9445,17 +9557,18 @@
       "localDateKst": "2026-10-13",
       "tags": [
         "semi",
+        "optical",
         "insider"
       ],
       "score": 76,
       "hasText": true,
-      "summary": "JP모건 APAC테크 코멘트(삼전/이비덴/엔비) 삼성전자(SEC): 시장이 재매입을 요구하는 가운데, 거래소에 공시된 대로 15조 원 규모의 자사주 매입을 완료했습니다(링크). SK하이닉스의 자사주 매입도 곧...",
       "tickers": [
         "NVDA",
         "TSM",
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "JP모건 APAC테크 코멘트(삼전/이비덴/엔비) 삼성전자(SEC): 시장이 재매입을 요구하는 가운데, 거래소에 공시된 대로 15조 원 규모의 자사주 매입을 완료했습니다(링크). SK하이닉스의 자사주 매입도 곧..."
     },
     {
       "id": "HANAchina/70343",
