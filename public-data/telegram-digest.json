@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-14T03:51:15.808Z",
-  "attemptedAt": "2026-10-14T03:51:15.808Z",
-  "lastSuccessfulAt": "2026-10-14T03:51:15.808Z",
+  "generatedAt": "2026-10-14T04:21:24.193Z",
+  "attemptedAt": "2026-10-14T04:21:24.193Z",
+  "lastSuccessfulAt": "2026-10-14T04:21:24.193Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-30T03:51:11.605Z",
-  "until": "2026-10-14T03:51:11.605Z",
+  "since": "2026-09-30T04:21:18.894Z",
+  "until": "2026-10-14T04:21:18.894Z",
   "current24hWindow": {
     "start": "2026-10-12T23:00:00.000Z",
     "end": "2026-10-13T23:00:00.000Z",
@@ -90,15 +90,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1087,
-      "freshCount": 20,
-      "eligibleTextCount": 533,
+      "count": 1091,
+      "freshCount": 39,
+      "eligibleTextCount": 537,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 66184
+      "lastPostId": 66188
     },
     {
       "channel": "bornlupin",
@@ -117,45 +117,45 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 662,
+      "count": 659,
       "freshCount": 40,
-      "eligibleTextCount": 390,
+      "eligibleTextCount": 391,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 70396
+      "lastPostId": 70397
     }
   ],
-  "count": 2215,
-  "retainedItemCount": 454,
+  "count": 2216,
+  "retainedItemCount": 469,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2215,
-    "eligibleTextCount": 1213,
-    "mediaOnlyCount": 1002,
+    "observedCount": 2216,
+    "eligibleTextCount": 1218,
+    "mediaOnlyCount": 998,
     "highSignalCount": 499,
-    "broadSignalCount": 1017,
+    "broadSignalCount": 1016,
     "selectedRawCount": 411,
     "selectedEligibleCount": 402,
-    "selectedRawCoveragePct": 33.1,
-    "selectedOfObservedPct": 18.6,
+    "selectedRawCoveragePct": 33,
+    "selectedOfObservedPct": 18.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "semi": 584,
-    "power": 339,
+    "japan": 143,
+    "market-note": 679,
     "macro": 757,
+    "geo": 350,
+    "semi": 583,
+    "power": 339,
     "optical": 55,
     "equity": 164,
-    "earnings": 414,
-    "market-note": 678,
+    "earnings": 413,
     "media-only": 50,
-    "geo": 349,
     "credit": 90,
     "ai-policy": 193,
-    "japan": 141,
     "kr-market": 222,
     "flows": 178,
     "insider": 46,
@@ -163,6 +163,7 @@
     "crypto": 6
   },
   "tickerCounts": {
+    "V": 3,
     "NVDA": 65,
     "AMD": 62,
     "LITE": 14,
@@ -184,7 +185,6 @@
     "ACN": 2,
     "WDC": 5,
     "STX": 7,
-    "V": 2,
     "ORCL": 8,
     "PLTR": 7,
     "MRVL": 16,
@@ -270,10 +270,10 @@
   },
   "themes": [
     "Macro/Rates (757 posts in 14-day research window): 골드만삭스(GS) Q3 2026 어닝콜 요약 🟢 긍정 요인: • 역대 두 번째로 높은 분기 매출과 강력한 수익성. 3분기 순매출은 187억달러로 역대 두 번째로 높은 수준을 기록했으며 EPS는 17.01달러 달성. 연초 이후 누적 자기자본이익률(ROE)은 20.7%, 유형자기자본이익률(ROTE)은 22.4%를...",
-    "Market Notes (678 posts in 14-day research window): 2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우...",
-    "Semiconductors/Memory (584 posts in 14-day research window): JP모건 APAC테크 코멘트 테크 탑다운 어제는 7월과 같은 항복(capitulation)의 느낌이 있었습니다…. AI 공급망은 매도(한국 반도체 -4%)되었고 AI 패자는 매수(인도 IT 서비스 +5%)되었습니다. 실적 시즌(테크 실적이 견조할 것으로 예상되는)에 진입하는 바로 이 시점에 투매가 나타나고 있다는...",
-    "Earnings/Corporate (414 posts in 14-day research window): 골드만삭스(GS) Q3 2026 어닝콜 요약 🟢 긍정 요인: • 역대 두 번째로 높은 분기 매출과 강력한 수익성. 3분기 순매출은 187억달러로 역대 두 번째로 높은 수준을 기록했으며 EPS는 17.01달러 달성. 연초 이후 누적 자기자본이익률(ROE)은 20.7%, 유형자기자본이익률(ROTE)은 22.4%를...",
-    "Geopolitics (349 posts in 14-day research window): 골드만삭스(GS) Q3 2026 어닝콜 요약 🟢 긍정 요인: • 역대 두 번째로 높은 분기 매출과 강력한 수익성. 3분기 순매출은 187억달러로 역대 두 번째로 높은 수준을 기록했으며 EPS는 17.01달러 달성. 연초 이후 누적 자기자본이익률(ROE)은 20.7%, 유형자기자본이익률(ROTE)은 22.4%를...",
+    "Market Notes (679 posts in 14-day research window): 2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우...",
+    "Semiconductors/Memory (583 posts in 14-day research window): JP모건 APAC테크 코멘트 테크 탑다운 어제는 7월과 같은 항복(capitulation)의 느낌이 있었습니다…. AI 공급망은 매도(한국 반도체 -4%)되었고 AI 패자는 매수(인도 IT 서비스 +5%)되었습니다. 실적 시즌(테크 실적이 견조할 것으로 예상되는)에 진입하는 바로 이 시점에 투매가 나타나고 있다는...",
+    "Earnings/Corporate (413 posts in 14-day research window): 골드만삭스(GS) Q3 2026 어닝콜 요약 🟢 긍정 요인: • 역대 두 번째로 높은 분기 매출과 강력한 수익성. 3분기 순매출은 187억달러로 역대 두 번째로 높은 수준을 기록했으며 EPS는 17.01달러 달성. 연초 이후 누적 자기자본이익률(ROE)은 20.7%, 유형자기자본이익률(ROTE)은 22.4%를...",
+    "Geopolitics (350 posts in 14-day research window): 골드만삭스(GS) Q3 2026 어닝콜 요약 🟢 긍정 요인: • 역대 두 번째로 높은 분기 매출과 강력한 수익성. 3분기 순매출은 187억달러로 역대 두 번째로 높은 수준을 기록했으며 EPS는 17.01달러 달성. 연초 이후 누적 자기자본이익률(ROE)은 20.7%, 유형자기자본이익률(ROTE)은 22.4%를...",
     "AI Power/Grid (339 posts in 14-day research window): 골드만삭스(GS) Q3 2026 어닝콜 요약 🟢 긍정 요인: • 역대 두 번째로 높은 분기 매출과 강력한 수익성. 3분기 순매출은 187억달러로 역대 두 번째로 높은 수준을 기록했으며 EPS는 17.01달러 달성. 연초 이후 누적 자기자본이익률(ROE)은 20.7%, 유형자기자본이익률(ROTE)은 22.4%를...",
     "Korea Market (222 posts in 14-day research window): JP모건 APAC테크 코멘트 테크 탑다운 어제는 7월과 같은 항복(capitulation)의 느낌이 있었습니다…. AI 공급망은 매도(한국 반도체 -4%)되었고 AI 패자는 매수(인도 IT 서비스 +5%)되었습니다. 실적 시즌(테크 실적이 견조할 것으로 예상되는)에 진입하는 바로 이 시점에 투매가 나타나고 있다는...",
     "AI Policy/Export Controls (193 posts in 14-day research window): JP모건 APAC테크 코멘트 테크 탑다운 어제는 7월과 같은 항복(capitulation)의 느낌이 있었습니다…. AI 공급망은 매도(한국 반도체 -4%)되었고 AI 패자는 매수(인도 IT 서비스 +5%)되었습니다. 실적 시즌(테크 실적이 견조할 것으로 예상되는)에 진입하는 바로 이 시점에 투매가 나타나고 있다는..."
@@ -356,7 +356,7 @@
       "topics": [
         "geo"
       ],
-      "count": 349,
+      "count": 350,
       "focus": "골드만삭스(GS) Q3 2026 어닝콜 요약 🟢 긍정 요인: • 역대 두 번째로 높은 분기 매출과 강력한 수익성. 3분기 순매출은 187억달러로 역대 두 번째로 높은 수준을 기록했으며 EPS는 17.01달러 달성. 연초 이후 누적 자기자본이익률(ROE)은 20.7%, 유형자기자본이익률(ROTE)은 22.4%를..."
     },
     {
@@ -374,7 +374,7 @@
       "topics": [
         "semi"
       ],
-      "count": 584,
+      "count": 583,
       "focus": "JP모건 APAC테크 코멘트 테크 탑다운 어제는 7월과 같은 항복(capitulation)의 느낌이 있었습니다…. AI 공급망은 매도(한국 반도체 -4%)되었고 AI 패자는 매수(인도 IT 서비스 +5%)되었습니다. 실적 시즌(테크 실적이 견조할 것으로 예상되는)에 진입하는 바로 이 시점에 투매가 나타나고 있다는..."
     },
     {
@@ -437,7 +437,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 414,
+      "count": 413,
       "focus": "골드만삭스(GS) Q3 2026 어닝콜 요약 🟢 긍정 요인: • 역대 두 번째로 높은 분기 매출과 강력한 수익성. 3분기 순매출은 187억달러로 역대 두 번째로 높은 수준을 기록했으며 EPS는 17.01달러 달성. 연초 이후 누적 자기자본이익률(ROE)은 20.7%, 유형자기자본이익률(ROTE)은 22.4%를..."
     },
     {
@@ -455,7 +455,7 @@
       "topics": [
         "japan"
       ],
-      "count": 141,
+      "count": 143,
       "focus": ">>AI 투자 논리 변화…글로벌 반도체주 급락, Firmus IPO 중단·CXMT 기술 진전이 경고 (중국언론) •AI 인프라 투자 열기가 약 4년간 이어진 가운데 시장의 관심이 성장 기대에서 실제 투자수익으로 이동중. 10월 13일 한국 KOSPI는 5.5% 하락했고, 일본 Kioxia는 13% 굽럭, 필라델피아..."
     },
     {
@@ -482,7 +482,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 678,
+      "count": 679,
       "focus": "2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우..."
     }
   ],
@@ -1707,6 +1707,21 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/66186",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66186",
+      "datetime": "2026-10-14T03:52:11.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "score": 57,
+      "hasText": true,
+      "tickers": [],
+      "summary": "로이터통신에 따르면 이란 고위 관계자 2명이 글로벌 유가를 높은 수준으로 유지하고 다가오는 미국 중간선거에 영향을 미치기 위해 호르무즈 해협에서 선박을 공격하는 새로운 전술을 도입했다고 밝힘. 이란 지도부..."
+    },
+    {
       "id": "HANAchina/70396",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70396",
@@ -2234,12 +2249,15 @@
       "datetime": "2026-10-13T21:05:46.000Z",
       "localDateKst": "2026-10-14",
       "tags": [
-        "semi"
+        "macro",
+        "geo",
+        "semi",
+        "earnings"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "💬 💬 💬 💬 💬 💬 🎙 10월 14일 미주인 브리핑 • 미국 증시 하락후 낙폭 축소 · 반도체 6거래일 연속 약세 • 마이크론 하락 · 중국 메모리 반도체 경쟁 심화 • 엔비디아 유럽 AI 투자...",
-      "tickers": []
+      "tickers": [],
+      "summary": "💬 💬 💬 💬 💬 💬 🎙 10월 14일 미주인 브리핑 • 미국 증시 하락후 낙폭 축소 · 반도체 6거래일 연속 약세 • 마이크론 하락 · 중국 메모리 반도체 경쟁 심화 • 엔비디아 유럽 AI 투자..."
     },
     {
       "id": "bornlupin/20601",
@@ -2269,8 +2287,8 @@
       ],
       "score": 57,
       "hasText": true,
-      "summary": "기자: 푸틴이 젤렌스키보다 전쟁을 끝내기를 더 원한다고 그렇게 확신하는 이유가 무엇인가요? 트럼프: 단순히 내가 협상하고 거래를 성사시켜 온 경험 때문이다. 나는 평생 이 일을 해왔다. 푸틴도 전쟁이 끝나기를...",
-      "tickers": []
+      "tickers": [],
+      "summary": "기자: 푸틴이 젤렌스키보다 전쟁을 끝내기를 더 원한다고 그렇게 확신하는 이유가 무엇인가요? 트럼프: 단순히 내가 협상하고 거래를 성사시켜 온 경험 때문이다. 나는 평생 이 일을 해왔다. 푸틴도 전쟁이 끝나기를..."
     },
     {
       "id": "insidertracking/66145",
@@ -7535,20 +7553,6 @@
       ]
     },
     {
-      "id": "insidertracking/65764",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/65764",
-      "datetime": "2026-10-08T21:54:28.000Z",
-      "localDateKst": "2026-10-09",
-      "tags": [
-        "earnings"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": "펩시코(PEP) Q3 2026 어닝콜 요약 🟢 긍정 요인: • 견조한 매출 성장 지속. 3분기 유기적 매출은 전년 대비 3.1% 증가했으며 보고 기준 매출은 5% 이상 성장. 핵심 영업이익은 3%, EPS는...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20544",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20544",
@@ -8516,12 +8520,15 @@
       "datetime": "2026-10-13T21:05:46.000Z",
       "localDateKst": "2026-10-14",
       "tags": [
-        "semi"
+        "macro",
+        "geo",
+        "semi",
+        "earnings"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "💬 💬 💬 💬 💬 💬 🎙 10월 14일 미주인 브리핑 • 미국 증시 하락후 낙폭 축소 · 반도체 6거래일 연속 약세 • 마이크론 하락 · 중국 메모리 반도체 경쟁 심화 • 엔비디아 유럽 AI 투자...",
-      "tickers": []
+      "tickers": [],
+      "summary": "💬 💬 💬 💬 💬 💬 🎙 10월 14일 미주인 브리핑 • 미국 증시 하락후 낙폭 축소 · 반도체 6거래일 연속 약세 • 마이크론 하락 · 중국 메모리 반도체 경쟁 심화 • 엔비디아 유럽 AI 투자..."
     },
     {
       "id": "bornlupin/20601",
@@ -8540,6 +8547,48 @@
       "summary": "엔비디아, 향후 일주일간 유럽 AI 분야에 20억 달러 투자 계획 젠슨 황 CEO, 파리 행사에서 \" 유럽은 AI 경쟁에 뛰어들어야 한다\"며 오픈소스 모델을 해결책으로 제시 * 유럽 투자 확대 계획 * 젠슨..."
     },
     {
+      "id": "insidertracking/66161",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66161",
+      "datetime": "2026-10-13T20:49:12.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "market-note"
+      ],
+      "score": 35,
+      "hasText": true,
+      "tickers": [],
+      "summary": "새로운 백악관 대변인 출근"
+    },
+    {
+      "id": "insidertracking/66160",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66160",
+      "datetime": "2026-10-13T20:48:08.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "market-note"
+      ],
+      "score": 35,
+      "hasText": true,
+      "tickers": [],
+      "summary": "폴리티코에 따르면 트럼프 대통령이 우크라이나에 대한 정보 제공과 스타링크 지원을 중단할 가능성 제기. 트럼프 대통령은 우크라이나에 대한 정보 공유를 중단하고, 일론 머스크에게 우크라이나군이 적극적으로 활용..."
+    },
+    {
+      "id": "insidertracking/66159",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66159",
+      "datetime": "2026-10-13T20:47:51.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "market-note"
+      ],
+      "score": 35,
+      "hasText": true,
+      "tickers": [],
+      "summary": "폴리티코에 따르면 독일, 이탈리아, 벨기에가 새로운 유럽연합(EU) 법안의 입법을 차단할 수 있는 제도 도입을 제안. 3개국 정상들은 EU 지도부에 불필요한 행정 절차를 축소하고 기업에 대한 규제 부담을..."
+    },
+    {
       "id": "insidertracking/66158",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/66158",
@@ -8551,8 +8600,150 @@
       ],
       "score": 57,
       "hasText": true,
-      "summary": "기자: 푸틴이 젤렌스키보다 전쟁을 끝내기를 더 원한다고 그렇게 확신하는 이유가 무엇인가요? 트럼프: 단순히 내가 협상하고 거래를 성사시켜 온 경험 때문이다. 나는 평생 이 일을 해왔다. 푸틴도 전쟁이 끝나기를...",
-      "tickers": []
+      "tickers": [],
+      "summary": "기자: 푸틴이 젤렌스키보다 전쟁을 끝내기를 더 원한다고 그렇게 확신하는 이유가 무엇인가요? 트럼프: 단순히 내가 협상하고 거래를 성사시켜 온 경험 때문이다. 나는 평생 이 일을 해왔다. 푸틴도 전쟁이 끝나기를..."
+    },
+    {
+      "id": "insidertracking/66157",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66157",
+      "datetime": "2026-10-13T20:46:26.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "market-note"
+      ],
+      "score": 40,
+      "hasText": true,
+      "tickers": [],
+      "summary": "백악관 대변인 케이티 자카리아가 오늘 오전 트럼프 대통령이 킴벌리 길포일 주그리스 미국 대사에게 사임을 요청했다고 발표. 이에 길포일 대사는 엑스(X)를 통해 트럼프 대통령과 마코 루비오 국무장관에게 감사를..."
+    },
+    {
+      "id": "insidertracking/66156",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66156",
+      "datetime": "2026-10-13T20:46:03.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "media-only"
+      ],
+      "score": 0,
+      "hasText": false,
+      "tickers": [],
+      "summary": ""
+    },
+    {
+      "id": "insidertracking/66155",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66155",
+      "datetime": "2026-10-13T20:45:06.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "market-note"
+      ],
+      "score": 35,
+      "hasText": true,
+      "tickers": [],
+      "summary": "사우디아라비아 합동군사령부가 후티 반군 소유 석유회사의 사바 중앙시설에 대피 경고를 발령. 이는 해당 시설에 대한 공습을 준비하는 조치일 가능성이 높은 것으로 분석. 사우디아라비아가 후티 반군의 석유·가스..."
+    },
+    {
+      "id": "insidertracking/66153",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66153",
+      "datetime": "2026-10-13T20:43:55.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "geo"
+      ],
+      "score": 45,
+      "hasText": true,
+      "tickers": [],
+      "summary": "영국 해상무역기구(UKMTO)에 따르면 10월 13일 호르무즈 해협에서 유조선과 컨테이너선이 각각 정체불명의 발사체에 피격되는 사건 발생. UKMTO는 검증된 정보원을 통해 두 선박의 피격 사실을..."
+    },
+    {
+      "id": "insidertracking/66152",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66152",
+      "datetime": "2026-10-13T20:42:16.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "semi",
+        "equity",
+        "earnings"
+      ],
+      "score": 47,
+      "hasText": true,
+      "tickers": [],
+      "summary": "중국 낸드플래시 메모리 제조업체 YMTC(양쯔메모리)가 중국 증시 상장을 위한 기업공개(IPO) 신청서를 제출. 조달 목표 금액은 아직 공개되지 않았으며, YMTC는 이미 매출과 낸드플래시 출하량 기준 모두..."
+    },
+    {
+      "id": "insidertracking/66151",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66151",
+      "datetime": "2026-10-13T20:41:42.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "market-note"
+      ],
+      "score": 35,
+      "hasText": true,
+      "tickers": [],
+      "summary": "사이버보안 전문매체 더 레코드에 따르면 북한 해킹 조직 김수키(Kimsuky)가 우크라이나 외교·안보·정책 전문가들을 대상으로 정보 탈취를 시도한 것으로 확인. 한국 사이버보안 기업 지니언스에 따르면 김수키는..."
+    },
+    {
+      "id": "insidertracking/66150",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66150",
+      "datetime": "2026-10-13T20:41:09.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "media-only"
+      ],
+      "score": 0,
+      "hasText": false,
+      "tickers": [],
+      "summary": ""
+    },
+    {
+      "id": "insidertracking/66149",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66149",
+      "datetime": "2026-10-13T20:39:28.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "macro"
+      ],
+      "score": 47,
+      "hasText": true,
+      "tickers": [],
+      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 금일 한국시간 (KST) 기준 경제지표 및 주요 일정 > 21:30 – 근원 소비자물가지수 (MoM) (9월) 21:30 – 소비자물가지수 (MoM) (9월) 21:30 –..."
+    },
+    {
+      "id": "insidertracking/66148",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66148",
+      "datetime": "2026-10-13T20:38:48.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "earnings"
+      ],
+      "score": 35,
+      "hasText": true,
+      "tickers": [],
+      "summary": "금일 실적 발표 리스트 장전에 ASML, 뱅크오브아메리카, 블랙락, 모건스탠리 실적 발표 예정입니다."
+    },
+    {
+      "id": "insidertracking/66147",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66147",
+      "datetime": "2026-10-13T20:37:45.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "market-note"
+      ],
+      "score": 35,
+      "hasText": true,
+      "tickers": [],
+      "summary": "오늘은 정보가 안나왔네요!"
     },
     {
       "id": "insidertracking/66145",
@@ -9297,21 +9488,6 @@
       "hasText": true,
       "tickers": [],
       "summary": ">>IMF 경고 : 선진국 재정적자 2021년 이후 최고치…재정 건전화 시급 •IMF는 선진국의 재정적자가 코로나19 이후 최고 수준에 도달할 것으로 경고함. 특히 미국의 재정 부담이 두드러지며, 2026년..."
-    },
-    {
-      "id": "HANAchina/70356",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70356",
-      "datetime": "2026-10-13T09:03:10.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "macro",
-        "japan"
-      ],
-      "score": 47,
-      "hasText": true,
-      "tickers": [],
-      "summary": ">>BOJ, 10월 연속 금리 인상은 피하는 쪽으로 기울어 (블룸버그) •소식통에 따르면 일본은행 관계자들은 이례적인 연속 금리 인상을 피하기 위해 이달 추가 금리 인상을 하지 않는 쪽으로 기울고 있음. 다만..."
     },
     {
       "id": "aetherjapanresearch/25805",
