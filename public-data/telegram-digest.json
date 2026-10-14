@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-14T14:51:55.078Z",
-  "attemptedAt": "2026-10-14T14:51:55.078Z",
-  "lastSuccessfulAt": "2026-10-14T14:51:55.078Z",
+  "generatedAt": "2026-10-14T15:51:46.178Z",
+  "attemptedAt": "2026-10-14T15:51:46.178Z",
+  "lastSuccessfulAt": "2026-10-14T15:51:46.178Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-30T14:51:51.594Z",
-  "until": "2026-10-14T14:51:51.594Z",
+  "since": "2026-09-30T15:51:39.879Z",
+  "until": "2026-10-14T15:51:39.879Z",
   "current24hWindow": {
     "start": "2026-10-12T23:00:00.000Z",
     "end": "2026-10-13T23:00:00.000Z",
@@ -78,15 +78,15 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 252,
-      "freshCount": 19,
-      "eligibleTextCount": 180,
+      "count": 253,
+      "freshCount": 37,
+      "eligibleTextCount": 181,
       "selectedCount": 90,
       "error": null,
-      "lastPostId": 25843
+      "lastPostId": 25844
     },
     {
       "channel": "insidertracking",
@@ -117,7 +117,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 677,
+      "count": 676,
       "freshCount": 19,
       "eligibleTextCount": 423,
       "selectedCount": 121,
@@ -126,31 +126,31 @@
     }
   ],
   "count": 2242,
-  "retainedItemCount": 444,
+  "retainedItemCount": 453,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
     "observedCount": 2242,
-    "eligibleTextCount": 1328,
-    "mediaOnlyCount": 914,
-    "highSignalCount": 502,
+    "eligibleTextCount": 1329,
+    "mediaOnlyCount": 913,
+    "highSignalCount": 503,
     "broadSignalCount": 1021,
     "selectedRawCount": 408,
     "selectedEligibleCount": 402,
-    "selectedRawCoveragePct": 30.3,
+    "selectedRawCoveragePct": 30.2,
     "selectedOfObservedPct": 18.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
     "macro": 765,
+    "earnings": 422,
     "geo": 347,
     "power": 340,
     "healthcare": 109,
     "market-note": 696,
     "semi": 584,
-    "earnings": 421,
     "flows": 176,
     "credit": 94,
     "kr-market": 216,
@@ -272,7 +272,7 @@
     "Macro/Rates (765 posts in 14-day research window): JP모건) 메모리에 대한 아시아 투자자 마케팅 피드백 JP모건은 최근 2주간 싱가포르, 쿠알라룸푸르, 홍콩에서 100명 이상의 투자자를 만난 결과, 탑다운 관점의 AI 지속 가능성과 바텀업 관점의 메모리 수급 펀더멘털 사이의 괴리로 인해 메모리 섹터에 대한 투자 심리가 크게 엇갈리고 있다고 밝혔습니다. 메모리...",
     "Market Notes (696 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록....",
     "Semiconductors/Memory (584 posts in 14-day research window): JP모건) 메모리에 대한 아시아 투자자 마케팅 피드백 JP모건은 최근 2주간 싱가포르, 쿠알라룸푸르, 홍콩에서 100명 이상의 투자자를 만난 결과, 탑다운 관점의 AI 지속 가능성과 바텀업 관점의 메모리 수급 펀더멘털 사이의 괴리로 인해 메모리 섹터에 대한 투자 심리가 크게 엇갈리고 있다고 밝혔습니다. 메모리...",
-    "Earnings/Corporate (421 posts in 14-day research window): JP모건) 메모리에 대한 아시아 투자자 마케팅 피드백 JP모건은 최근 2주간 싱가포르, 쿠알라룸푸르, 홍콩에서 100명 이상의 투자자를 만난 결과, 탑다운 관점의 AI 지속 가능성과 바텀업 관점의 메모리 수급 펀더멘털 사이의 괴리로 인해 메모리 섹터에 대한 투자 심리가 크게 엇갈리고 있다고 밝혔습니다. 메모리...",
+    "Earnings/Corporate (422 posts in 14-day research window): JP모건) 메모리에 대한 아시아 투자자 마케팅 피드백 JP모건은 최근 2주간 싱가포르, 쿠알라룸푸르, 홍콩에서 100명 이상의 투자자를 만난 결과, 탑다운 관점의 AI 지속 가능성과 바텀업 관점의 메모리 수급 펀더멘털 사이의 괴리로 인해 메모리 섹터에 대한 투자 심리가 크게 엇갈리고 있다고 밝혔습니다. 메모리...",
     "Geopolitics (347 posts in 14-day research window): 2026년 10월 13일 미국 증시 브리핑 미국 증시는 중동발 에너지 가격 상승과 연준의 추가 긴축 우려 속에 혼조 마감. S&P500 -0.06%, 나스닥 -0.44%, 다우 +0.38%, 러셀2000...",
     "AI Power/Grid (340 posts in 14-day research window): JP모건) 메모리에 대한 아시아 투자자 마케팅 피드백 JP모건은 최근 2주간 싱가포르, 쿠알라룸푸르, 홍콩에서 100명 이상의 투자자를 만난 결과, 탑다운 관점의 AI 지속 가능성과 바텀업 관점의 메모리 수급 펀더멘털 사이의 괴리로 인해 메모리 섹터에 대한 투자 심리가 크게 엇갈리고 있다고 밝혔습니다. 메모리...",
     "Korea Market (216 posts in 14-day research window): JP모건 APAC테크 코멘트 테크 탑다운 어제는 7월과 같은 항복(capitulation)의 느낌이 있었습니다…. AI 공급망은 매도(한국 반도체 -4%)되었고 AI 패자는 매수(인도 IT 서비스 +5%)되었습니다. 실적 시즌(테크 실적이 견조할 것으로 예상되는)에 진입하는 바로 이 시점에 투매가 나타나고 있다는...",
@@ -437,7 +437,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 421,
+      "count": 422,
       "focus": "JP모건) 메모리에 대한 아시아 투자자 마케팅 피드백 JP모건은 최근 2주간 싱가포르, 쿠알라룸푸르, 홍콩에서 100명 이상의 투자자를 만난 결과, 탑다운 관점의 AI 지속 가능성과 바텀업 관점의 메모리 수급 펀더멘털 사이의 괴리로 인해 메모리 섹터에 대한 투자 심리가 크게 엇갈리고 있다고 밝혔습니다. 메모리..."
     },
     {
@@ -963,11 +963,16 @@
       "datetime": "2026-10-13T12:26:46.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "optical",
+        "power",
+        "ai-policy",
+        "equity",
+        "healthcare"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "JPM) OCP 2026 1일차 인사이트: AI 인프라 확장의 복잡성 증가 (2026.10.13) JP모건은 캘리포니아 산호세에서 열린 OCP 2026 1일차에 참석했으며, 기조연설과 경영진 세션 전반을...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -979,7 +984,8 @@
         "LITE",
         "CLS",
         "TEL"
-      ]
+      ],
+      "summary": "JPM) OCP 2026 1일차 인사이트: AI 인프라 확장의 복잡성 증가 (2026.10.13) JP모건은 캘리포니아 산호세에서 열린 OCP 2026 1일차에 참석했으며, 기조연설과 경영진 세션 전반을..."
     },
     {
       "id": "aetherjapanresearch/25811",
@@ -988,11 +994,14 @@
       "datetime": "2026-10-13T12:04:31.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "power"
+        "macro",
+        "optical",
+        "power",
+        "kr-market",
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -1005,7 +1014,8 @@
         "CIEN",
         "GLW",
         "APH"
-      ]
+      ],
+      "summary": "JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터..."
     },
     {
       "id": "insidertracking/66123",
@@ -1676,6 +1686,21 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/25844",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25844",
+      "datetime": "2026-10-14T15:29:54.000Z",
+      "localDateKst": "2026-10-15",
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "score": 67,
+      "hasText": true,
+      "tickers": [],
+      "summary": "Citi) 미국 경제; 강한 근원 CPI로 금리 인상 기대 강화 씨티의 견해 전월 대비 0.33%의 근원 CPI는 저희 및 컨센서스 예상치를 크게 상회했으며, 목표치를 웃도는 전월 대비 0.30%의 근원..."
+    },
     {
       "id": "HANAchina/70432",
       "channel": "HANAchina",
@@ -3090,12 +3115,12 @@
       "datetime": "2026-10-13T15:50:18.000Z",
       "localDateKst": "2026-10-14",
       "tags": [
-        "market-note"
+        "ai-policy"
       ],
       "score": 50,
       "hasText": true,
-      "summary": "뮤즈, 성인용 대화 가능해.. 와이어드(WIRED) 기자는 메타가 최근 출시한 AI 에이전트 '뮤즈(Muse)'를 테스트한 결과, 간단한 프롬프트만으로도 노골적인 성적 대화와 포르노성 묘사가 생성되었다고...",
-      "tickers": []
+      "tickers": [],
+      "summary": "뮤즈, 성인용 대화 가능해.. 와이어드(WIRED) 기자는 메타가 최근 출시한 AI 에이전트 '뮤즈(Muse)'를 테스트한 결과, 간단한 프롬프트만으로도 노골적인 성적 대화와 포르노성 묘사가 생성되었다고..."
     },
     {
       "id": "HANAchina/70365",
@@ -3138,8 +3163,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "summary": "유니트리 CEO 왕싱싱: 내년 GPT-7이 \"체화 지능 문제를 단번에 돌파\"할 수도 10월 12일, 제26회 중국국제공업박람회(약칭 '공박회') 개막식에서 유니트리(宇树科技) 창업자 왕싱싱이 다시 목소리를...",
-      "tickers": []
+      "tickers": [],
+      "summary": "유니트리 CEO 왕싱싱: 내년 GPT-7이 \"체화 지능 문제를 단번에 돌파\"할 수도 10월 12일, 제26회 중국국제공업박람회(약칭 '공박회') 개막식에서 유니트리(宇树科技) 창업자 왕싱싱이 다시 목소리를..."
     },
     {
       "id": "bornlupin/20599",
@@ -3165,14 +3190,16 @@
       "datetime": "2026-10-13T12:53:29.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "semi"
+        "macro",
+        "semi",
+        "power"
       ],
       "score": 81,
       "hasText": true,
-      "summary": "AMD, LPDDR5X 메모리와 최대 192코어를 탑재해 에이전틱 AI 워크로드를 가속하는 차세대 EPYC 베라노 CPU 공개 요약: AMD는 2026년 10월 12일 산호세에서 열린 OCP 글로벌 서밋에서...",
       "tickers": [
         "AMD"
-      ]
+      ],
+      "summary": "AMD, LPDDR5X 메모리와 최대 192코어를 탑재해 에이전틱 AI 워크로드를 가속하는 차세대 EPYC 베라노 CPU 공개 요약: AMD는 2026년 10월 12일 산호세에서 열린 OCP 글로벌 서밋에서..."
     },
     {
       "id": "bornlupin/20597",
@@ -3228,14 +3255,16 @@
       "localDateKst": "2026-10-13",
       "tags": [
         "semi",
-        "equity"
+        "power",
+        "equity",
+        "earnings"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "카운터포인트) YMTC, 글로벌 NAND 경쟁에서 3위로 올라선 뒤 역사적 IPO 신청… 다음은 DRAM 1. YMTC가 '쌍둥이 별'인 CXMT의 2026년 7월 대형 상장에 이어 상하이 과창판(STAR...",
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "카운터포인트) YMTC, 글로벌 NAND 경쟁에서 3위로 올라선 뒤 역사적 IPO 신청… 다음은 DRAM 1. YMTC가 '쌍둥이 별'인 CXMT의 2026년 7월 대형 상장에 이어 상하이 과창판(STAR..."
     },
     {
       "id": "insidertracking/66132",
@@ -3267,11 +3296,16 @@
       "datetime": "2026-10-13T12:26:46.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "optical",
+        "power",
+        "ai-policy",
+        "equity",
+        "healthcare"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "JPM) OCP 2026 1일차 인사이트: AI 인프라 확장의 복잡성 증가 (2026.10.13) JP모건은 캘리포니아 산호세에서 열린 OCP 2026 1일차에 참석했으며, 기조연설과 경영진 세션 전반을...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -3283,7 +3317,8 @@
         "LITE",
         "CLS",
         "TEL"
-      ]
+      ],
+      "summary": "JPM) OCP 2026 1일차 인사이트: AI 인프라 확장의 복잡성 증가 (2026.10.13) JP모건은 캘리포니아 산호세에서 열린 OCP 2026 1일차에 참석했으며, 기조연설과 경영진 세션 전반을..."
     },
     {
       "id": "insidertracking/66128",
@@ -3338,11 +3373,14 @@
       "datetime": "2026-10-13T12:04:31.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "power"
+        "macro",
+        "optical",
+        "power",
+        "kr-market",
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -3355,7 +3393,8 @@
         "CIEN",
         "GLW",
         "APH"
-      ]
+      ],
+      "summary": "JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터..."
     },
     {
       "id": "aetherjapanresearch/25810",
@@ -3364,14 +3403,17 @@
       "datetime": "2026-10-13T11:53:14.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "optical"
+        "semi",
+        "optical",
+        "power",
+        "healthcare"
       ],
       "score": 64,
       "hasText": true,
-      "summary": "JP모건) Coherent Corp; 포톤링크 관련 경영진 후속 논의 주요 내용 당사는 ECOC에서 발표된 포톤링크(PhotonLink)에 대한 후속 콜에 참석했습니다. 이번 콜은 코히런트의 광부품 부문...",
       "tickers": [
         "COHR"
-      ]
+      ],
+      "summary": "JP모건) Coherent Corp; 포톤링크 관련 경영진 후속 논의 주요 내용 당사는 ECOC에서 발표된 포톤링크(PhotonLink)에 대한 후속 콜에 참석했습니다. 이번 콜은 코히런트의 광부품 부문..."
     },
     {
       "id": "insidertracking/66124",
@@ -3479,8 +3521,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "summary": ">>Anthropic, 모델 증류 공격 방어 성과 공개…데이터 추출량 90~99% 감소, 공격 계정 수만 개 차단 •Anthropic이 처음으로 모델 증류 공격에 대한 방어 체계와 성과를 공개함. 3단계 방어...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>Anthropic, 모델 증류 공격 방어 성과 공개…데이터 추출량 90~99% 감소, 공격 계정 수만 개 차단 •Anthropic이 처음으로 모델 증류 공격에 대한 방어 체계와 성과를 공개함. 3단계 방어..."
     },
     {
       "id": "HANAchina/70359",
@@ -3535,18 +3577,20 @@
       "localDateKst": "2026-10-13",
       "tags": [
         "macro",
-        "insider"
+        "semi",
+        "insider",
+        "earnings"
       ],
       "score": 89,
       "hasText": true,
-      "summary": "TD Cowen) MU의 자사주 매입 및 HDD에 대한 생각 - 토시바의 TDK 사업부 인수 가능성 TD 코웬 인사이트 MU의 330억 달러 추가 자사주 매입은 저희의 200억 달러 초반대 전망을...",
       "tickers": [
         "NVDA",
         "MU",
         "WDC",
         "STX",
         "000660.KS"
-      ]
+      ],
+      "summary": "TD Cowen) MU의 자사주 매입 및 HDD에 대한 생각 - 토시바의 TDK 사업부 인수 가능성 TD 코웬 인사이트 MU의 330억 달러 추가 자사주 매입은 저희의 200억 달러 초반대 전망을..."
     },
     {
       "id": "aetherjapanresearch/25804",
@@ -8201,23 +8245,6 @@
       "tickers": [
         "005930.KS"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25699",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25699",
-      "datetime": "2026-10-07T22:46:40.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "<삼성전자 3Q26 실적 리뷰> * 매출액: 195.0조원(126.6% YoY, 컨센 2.6% 하회) * 영업이익: 107.4조원(782.8% YoY, 컨센 1.3% 상회) * OPM: 55.1%(40.9%p...",
-      "tickers": [
-        "005930.KS"
-      ]
     }
   ],
   "current24hItems": [
@@ -8567,12 +8594,26 @@
       "datetime": "2026-10-13T15:50:18.000Z",
       "localDateKst": "2026-10-14",
       "tags": [
-        "market-note"
+        "ai-policy"
       ],
       "score": 50,
       "hasText": true,
-      "summary": "뮤즈, 성인용 대화 가능해.. 와이어드(WIRED) 기자는 메타가 최근 출시한 AI 에이전트 '뮤즈(Muse)'를 테스트한 결과, 간단한 프롬프트만으로도 노골적인 성적 대화와 포르노성 묘사가 생성되었다고...",
-      "tickers": []
+      "tickers": [],
+      "summary": "뮤즈, 성인용 대화 가능해.. 와이어드(WIRED) 기자는 메타가 최근 출시한 AI 에이전트 '뮤즈(Muse)'를 테스트한 결과, 간단한 프롬프트만으로도 노골적인 성적 대화와 포르노성 묘사가 생성되었다고..."
+    },
+    {
+      "id": "aetherjapanresearch/25818",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25818",
+      "datetime": "2026-10-13T15:43:42.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "market-note"
+      ],
+      "score": 35,
+      "hasText": true,
+      "tickers": [],
+      "summary": "## 오픈AI, 탐지되지 않은 AI 에이전트의 일탈 행위가 추가로 존재할 가능성 경고 오픈AI 임원 톰 더프 고든(Tom Duff Gordon)은 영국 의회 의원들에게 AI 에이전트가 의도된 작동 범위를..."
     },
     {
       "id": "HANAchina/70365",
@@ -8615,8 +8656,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "summary": "유니트리 CEO 왕싱싱: 내년 GPT-7이 \"체화 지능 문제를 단번에 돌파\"할 수도 10월 12일, 제26회 중국국제공업박람회(약칭 '공박회') 개막식에서 유니트리(宇树科技) 창업자 왕싱싱이 다시 목소리를...",
-      "tickers": []
+      "tickers": [],
+      "summary": "유니트리 CEO 왕싱싱: 내년 GPT-7이 \"체화 지능 문제를 단번에 돌파\"할 수도 10월 12일, 제26회 중국국제공업박람회(약칭 '공박회') 개막식에서 유니트리(宇树科技) 창업자 왕싱싱이 다시 목소리를..."
     },
     {
       "id": "bornlupin/20600",
@@ -8656,14 +8697,16 @@
       "datetime": "2026-10-13T12:53:29.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "semi"
+        "macro",
+        "semi",
+        "power"
       ],
       "score": 81,
       "hasText": true,
-      "summary": "AMD, LPDDR5X 메모리와 최대 192코어를 탑재해 에이전틱 AI 워크로드를 가속하는 차세대 EPYC 베라노 CPU 공개 요약: AMD는 2026년 10월 12일 산호세에서 열린 OCP 글로벌 서밋에서...",
       "tickers": [
         "AMD"
-      ]
+      ],
+      "summary": "AMD, LPDDR5X 메모리와 최대 192코어를 탑재해 에이전틱 AI 워크로드를 가속하는 차세대 EPYC 베라노 CPU 공개 요약: AMD는 2026년 10월 12일 산호세에서 열린 OCP 글로벌 서밋에서..."
     },
     {
       "id": "bornlupin/20597",
@@ -8719,14 +8762,16 @@
       "localDateKst": "2026-10-13",
       "tags": [
         "semi",
-        "equity"
+        "power",
+        "equity",
+        "earnings"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "카운터포인트) YMTC, 글로벌 NAND 경쟁에서 3위로 올라선 뒤 역사적 IPO 신청… 다음은 DRAM 1. YMTC가 '쌍둥이 별'인 CXMT의 2026년 7월 대형 상장에 이어 상하이 과창판(STAR...",
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "카운터포인트) YMTC, 글로벌 NAND 경쟁에서 3위로 올라선 뒤 역사적 IPO 신청… 다음은 DRAM 1. YMTC가 '쌍둥이 별'인 CXMT의 2026년 7월 대형 상장에 이어 상하이 과창판(STAR..."
     },
     {
       "id": "insidertracking/66132",
@@ -8758,11 +8803,16 @@
       "datetime": "2026-10-13T12:26:46.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "optical",
+        "power",
+        "ai-policy",
+        "equity",
+        "healthcare"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "JPM) OCP 2026 1일차 인사이트: AI 인프라 확장의 복잡성 증가 (2026.10.13) JP모건은 캘리포니아 산호세에서 열린 OCP 2026 1일차에 참석했으며, 기조연설과 경영진 세션 전반을...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -8774,7 +8824,8 @@
         "LITE",
         "CLS",
         "TEL"
-      ]
+      ],
+      "summary": "JPM) OCP 2026 1일차 인사이트: AI 인프라 확장의 복잡성 증가 (2026.10.13) JP모건은 캘리포니아 산호세에서 열린 OCP 2026 1일차에 참석했으며, 기조연설과 경영진 세션 전반을..."
     },
     {
       "id": "insidertracking/66128",
@@ -8829,11 +8880,14 @@
       "datetime": "2026-10-13T12:04:31.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "power"
+        "macro",
+        "optical",
+        "power",
+        "kr-market",
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -8846,7 +8900,8 @@
         "CIEN",
         "GLW",
         "APH"
-      ]
+      ],
+      "summary": "JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터..."
     },
     {
       "id": "aetherjapanresearch/25810",
@@ -8855,14 +8910,31 @@
       "datetime": "2026-10-13T11:53:14.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "optical"
+        "semi",
+        "optical",
+        "power",
+        "healthcare"
       ],
       "score": 64,
       "hasText": true,
-      "summary": "JP모건) Coherent Corp; 포톤링크 관련 경영진 후속 논의 주요 내용 당사는 ECOC에서 발표된 포톤링크(PhotonLink)에 대한 후속 콜에 참석했습니다. 이번 콜은 코히런트의 광부품 부문...",
       "tickers": [
         "COHR"
-      ]
+      ],
+      "summary": "JP모건) Coherent Corp; 포톤링크 관련 경영진 후속 논의 주요 내용 당사는 ECOC에서 발표된 포톤링크(PhotonLink)에 대한 후속 콜에 참석했습니다. 이번 콜은 코히런트의 광부품 부문..."
+    },
+    {
+      "id": "aetherjapanresearch/25809",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25809",
+      "datetime": "2026-10-13T11:48:47.000Z",
+      "localDateKst": "2026-10-13",
+      "tags": [
+        "market-note"
+      ],
+      "score": 40,
+      "hasText": true,
+      "tickers": [],
+      "summary": "테슬라, 로보택시 스쿨존 과속 주장으로 미국 당국 조사 직면 요약: 미국 도로교통안전국(NHTSA)은 자율주행 시스템을 사용하는 테슬라 사이버캡과 모델 Y 차량이 운영 중인 스쿨존에서 제한속도를 초과해..."
     },
     {
       "id": "insidertracking/66124",
@@ -8960,6 +9032,20 @@
       "tickers": []
     },
     {
+      "id": "aetherjapanresearch/25808",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25808",
+      "datetime": "2026-10-13T09:09:18.000Z",
+      "localDateKst": "2026-10-13",
+      "tags": [
+        "media-only"
+      ],
+      "score": 0,
+      "hasText": false,
+      "tickers": [],
+      "summary": ""
+    },
+    {
       "id": "aetherjapanresearch/25806",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25806",
@@ -8970,8 +9056,22 @@
       ],
       "score": 50,
       "hasText": true,
-      "summary": ">>Anthropic, 모델 증류 공격 방어 성과 공개…데이터 추출량 90~99% 감소, 공격 계정 수만 개 차단 •Anthropic이 처음으로 모델 증류 공격에 대한 방어 체계와 성과를 공개함. 3단계 방어...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>Anthropic, 모델 증류 공격 방어 성과 공개…데이터 추출량 90~99% 감소, 공격 계정 수만 개 차단 •Anthropic이 처음으로 모델 증류 공격에 대한 방어 체계와 성과를 공개함. 3단계 방어..."
+    },
+    {
+      "id": "aetherjapanresearch/25807",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25807",
+      "datetime": "2026-10-13T09:08:53.000Z",
+      "localDateKst": "2026-10-13",
+      "tags": [
+        "market-note"
+      ],
+      "score": 35,
+      "hasText": true,
+      "tickers": [],
+      "summary": "중국 AI는 이제 급격히 발전속도가 줄어들듯..."
     },
     {
       "id": "HANAchina/70359",
@@ -9026,18 +9126,20 @@
       "localDateKst": "2026-10-13",
       "tags": [
         "macro",
-        "insider"
+        "semi",
+        "insider",
+        "earnings"
       ],
       "score": 89,
       "hasText": true,
-      "summary": "TD Cowen) MU의 자사주 매입 및 HDD에 대한 생각 - 토시바의 TDK 사업부 인수 가능성 TD 코웬 인사이트 MU의 330억 달러 추가 자사주 매입은 저희의 200억 달러 초반대 전망을...",
       "tickers": [
         "NVDA",
         "MU",
         "WDC",
         "STX",
         "000660.KS"
-      ]
+      ],
+      "summary": "TD Cowen) MU의 자사주 매입 및 HDD에 대한 생각 - 토시바의 TDK 사업부 인수 가능성 TD 코웬 인사이트 MU의 330억 달러 추가 자사주 매입은 저희의 200억 달러 초반대 전망을..."
     },
     {
       "id": "aetherjapanresearch/25804",
