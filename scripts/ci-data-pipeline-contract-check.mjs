@@ -133,6 +133,39 @@ const fetchData = readProducerSource();
       implied?.sharesBasis === 'eps-implied' && Math.abs(implied?.sharesOutstanding - 774.1e6 / 8.62) < 1 && Math.abs(implied?.pe - 26.7) < 0.2
         && implied?.revenue === 8.6e9 && noEps?.sharesOutstanding == null && bad?.sharesBasis == null,
       JSON.stringify({ implied: implied && { b: implied.sharesBasis, s: implied.sharesOutstanding, pe: implied.pe, r: implied.revenue }, noEps: noEps && noEps.sharesOutstanding }));
+    // v57.66 P1798: class-dimensioned 10-K instance facts (shapes of the V, WMG, COKE and BRK FY2025 filings).
+    const { parseClassShareFacts, selectClassDimensionedShares, classInstanceUrl } = await import('./fetch-sec-fundamentals.mjs');
+    const instance = (symbols, classes) => {
+      const ctx = (id, member, period) => `<xbrli:context id="${id}"><xbrli:entity><xbrli:identifier scheme="http://www.sec.gov/CIK">1</xbrli:identifier>${member ? `<xbrli:segment><xbrldi:explicitMember dimension="us-gaap:StatementClassOfStockAxis">us-gaap:${member}</xbrldi:explicitMember></xbrli:segment>` : ''}</xbrli:entity><xbrli:period>${period}</xbrli:period></xbrli:context>`;
+      const fyPeriod = '<xbrli:startDate>2025-01-01</xbrli:startDate><xbrli:endDate>2025-12-31</xbrli:endDate>';
+      const parts = ['<xbrli:xbrl>', ctx('noise', null, fyPeriod)];
+      symbols.forEach(([symbol, member], i) => parts.push(ctx(`s${i}`, member, fyPeriod), `<dei:TradingSymbol contextRef="s${i}">${symbol}</dei:TradingSymbol>`));
+      classes.forEach(([member, eps, count], i) => parts.push(ctx(`c${i}`, member, fyPeriod),
+        `<us-gaap:EarningsPerShareDiluted contextRef="c${i}" unitRef="usdPerShare" decimals="2">${eps}</us-gaap:EarningsPerShareDiluted>`,
+        `<us-gaap:WeightedAverageNumberOfDilutedSharesOutstanding contextRef="c${i}" unitRef="shares" decimals="-6">${count}</us-gaap:WeightedAverageNumberOfDilutedSharesOutstanding>`));
+      // A second dimension (equity component) is never read as a class fact.
+      parts.push('<xbrli:context id="two"><xbrli:entity><xbrli:segment><xbrldi:explicitMember dimension="us-gaap:StatementClassOfStockAxis">us-gaap:CommonClassAMember</xbrldi:explicitMember><xbrldi:explicitMember dimension="us-gaap:StatementEquityComponentsAxis">us-gaap:RetainedEarningsMember</xbrldi:explicitMember></xbrli:segment></xbrli:entity><xbrli:period>' + fyPeriod + '</xbrli:period></xbrli:context>',
+        '<us-gaap:WeightedAverageNumberOfDilutedSharesOutstanding contextRef="two" unitRef="shares">1</us-gaap:WeightedAverageNumberOfDilutedSharesOutstanding>', '</xbrli:xbrl>');
+      return parseClassShareFacts(parts.join('\n'));
+    };
+    const visa = selectClassDimensionedShares(instance([['V', 'CommonClassAMember'], ['V26', 'A2026NotesMember']], [['CommonClassAMember', 10.20, 1966000000], ['CommonClassB1Member', 15.95, 5000000], ['CommonClassCMember', 40.82, 9000000]]), 'V', 20058e6, '2025-12-31');
+    const wmg = selectClassDimensionedShares(instance([['WMG', null]], [['CommonClassAMember', 0.69, 145128000], ['CommonClassBMember', 0.69, 375380000]]), 'WMG', 365e6, '2025-12-31');
+    const coke = selectClassDimensionedShares(instance([['COKE', null]], [['CommonClassUndefinedMember', 6.81, 83807000], ['CommonClassBMember', 6.76, 10149000]]), 'COKE', 570582000, '2025-12-31');
+    const brk = selectClassDimensionedShares(instance([['BRK.A', 'CommonClassAMember'], ['BRK.B', 'CommonClassBMember']], [['EquivalentClassAMember', 46563, 1438223], ['EquivalentClassBMember', 31.04, 2157335139]]), 'BRK-B', 66968e6, '2025-12-31');
+    const differ = selectClassDimensionedShares(instance([], [['CommonClassAMember', 10.20, 1966000000], ['CommonClassCMember', 40.82, 9000000]]), 'X', 20058e6, '2025-12-31');
+    const multiClassFacts = { facts: { 'us-gaap': { Revenues: multiClass.facts['us-gaap'].RegulatedAndUnregulatedOperatingRevenue, NetIncomeLoss: { units: { USD: [fy(365e6)] } } } } };
+    const submissions = { filings: { recent: { accessionNumber: ['a'], primaryDocument: ['wmg-20251231.htm'], acceptanceDateTime: [null] } } };
+    const priced = normalizeSecCompanyFacts('WMG', multiClassFacts, 30, submissions, instance([['WMG', null]], [['CommonClassAMember', 0.69, 145128000], ['CommonClassBMember', 0.69, 375380000]]));
+    const withheld = normalizeSecCompanyFacts('BRK-B', multiClassFacts, 30, submissions, instance([['BRK.B', 'CommonClassBMember']], [['EquivalentClassBMember', 31.04, 2157335139]]));
+    const secSource = read('scripts/fetch-sec-fundamentals.mjs');
+    check('v57.66 P1798: multi-class 10-K counts price the traded class or the same-EPS class sum, never a double count or an unmatched class',
+      visa.value === 1966000000 && visa.method === 'traded-class' && wmg.value === 520508000 && wmg.method === 'class-sum'
+        && coke.value === 83807000 && brk.value == null && brk.reason === 'class-member-unmatched' && differ.value == null
+        && priced?.sharesBasis === 'class-dimensioned-10k' && priced?.sharesCheck === 'consistent' && priced?.sharesClassMethod === 'class-sum' && Math.abs(priced?.pe - 30 * 520508000 / 365e6) < 0.01
+        && withheld?.sharesOutstanding == null && withheld?.sharesClassCheck === 'class-member-unmatched' && withheld?.pe == null
+        && classInstanceUrl('0001319161', '0001319161-25-000034', { filings: { recent: { accessionNumber: ['0001319161-25-000034'], primaryDocument: ['wmg-20250930.htm'] } } }) === 'https://www.sec.gov/Archives/edgar/data/1319161/000131916125000034/wmg-20250930_htm.xml'
+        && /Number\(b\.sharesMissing\) - Number\(a\.sharesMissing\)/.test(secSource) && /classInstanceUrl\(meta\.cik, normalized\.accession, submissions\)/.test(secSource),
+      JSON.stringify({ visa, wmg, coke, brk, differ, priced: priced && { b: priced.sharesBasis, s: priced.sharesOutstanding, pe: priced.pe }, withheld: withheld && withheld.sharesClassCheck }));
   }
   {
     // 2026-10-14: the BLS cache is bypassed on a scheduled CPI/NFP date from 12:35Z when it was filled before 13:35Z.

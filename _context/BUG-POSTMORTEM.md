@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1798 - v57.66 - 다중 클래스 메가캡(GOOGL·META·V 등)의 SEC 주식 수 공백 — 시총·PER·가치 팩터 빈칸 (2026-10-15)
+
+- symptom/reproduction: sec-fundamentals-summary.json에서 GOOGL·GOOG·META 주식 수가 null, V·BRK-B·MA·CMCSA는 stale-period라 스크리너 기준 시총·PER·가치 팩터가 비고 기본 시총 정렬에서 맨 아래로 밀렸다.
+- root_cause: 두 원인. (1) GOOGL·META·MA·CMCSA 등은 companyfacts에 차원 없는 희석 가중 주식 수·EPS가 있어 v57.59 정규화기로 풀리지만, 원장 747건 중 723건이 재수집 대기였고 대기열이 오래된 순 24건/회라 GOOGL 214번·META 327번·V 543번째였다. (2) V·COKE·WMG·BRK는 표지 주식 수·EPS·가중 주식 수를 모두 StatementClassOfStockAxis 차원으로만 보고하고 companyfacts는 차원 사실을 빼므로 어떤 후보도 없었다.
+- fix: fetch-sec-fundamentals.mjs: (1) 재수집 대기열에서 주식 수가 없는 레코드를 먼저 처리한다. (2) companyfacts 후보가 하나도 없을 때만 같은 10-K의 XBRL 인스턴스(_htm.xml)를 1회 더 받아 클래스 차원 사실을 읽는다. 표지 TradingSymbol로 정한 거래 클래스의 공시 희석 가중 수량이 순이익÷그 클래스 EPS와 맞으면 그 값(V Class A 1,966M·COKE 보통주 83.8M), 모든 클래스 EPS가 같고 합계가 맞으면 합계(WMG A+B 520.5M), 그 밖(BRK.B: EPS가 '환산 Class B' member에만 태깅)은 보류하고 sharesClassCheck에 사유를 남긴다. 값은 항상 공시 수량이며 sharesBasis 'class-dimensioned-10k'와 class member를 기록한다. 정규화기 버전 2026-10-15.
+- violated_rule: 없음(데이터 원천 범위 한계 + 재수집 순서)
+- prevention: ci-data-pipeline-contract-check에 V·WMG·COKE·BRK 형태 XBRL 픽스처 검사(거래 클래스·합계·이중계산 방지·불일치 보류·인스턴스 URL·대기열 우선순위) 추가. P1587 배율 검사는 그대로 유지.
+- verification/residual: 실제 SEC 응답(메모리 실행, public-data 쓰기 없음): GOOGL 12.23B·META 2.574B·MA 906M·CMCSA 3.709B weighted-diluted consistent; 10-K 인스턴스에서 V 1,966M·COKE 83.8M·WMG 520.5M, BRK-B·BRK.B 보류. node scripts/ci-data-pipeline-contract-check.mjs 통과.
+
 ## P1797 - v57.65 - 테마 상세를 닫은 뒤 포커스가 가끔 문서 본문으로 떨어짐(CI 간헐 실패 재발) (2026-10-15)
 
 - symptom/reproduction: v57.64 푸시 CI의 browser-reference-adoption이 'theme close focus not restored'(triggerStillMounted=false, active BODY)로 실패해 배포가 건너뛰어졌다. v57.54·v57.59에 이은 같은 증상의 세 번째 실패.

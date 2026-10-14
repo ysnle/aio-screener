@@ -4,6 +4,10 @@ last_verified: 2026-10-15
 confidence: medium
 ---
 
+## v57.66 SEC 다중 클래스 주식 수 (v57.66) (2026-10-15)
+
+- [ ] QA-VERIFY-27: P1798 배포 후: refresh-screener 1~2회 뒤 sec-fundamentals-summary.json에서 GOOGL·GOOG·META·MA·CMCSA가 weighted-diluted, V·COKE·WMG가 class-dimensioned-10k로 주식 수를 갖고, BRK-B는 sharesClassCheck class-member-unmatched로 비어 있으며, 스크리너 기본 시총 정렬 상단에 GOOGL·META가 다시 보인다. verify_by: push 뒤 refresh-screener 2회 후 산출물과 운영 사이트 스크리너 확인
+
 ## v57.65 SEC 원장 digest 대조 (2026-10-15)
 
 - [x] QA-SEC-STALE-LEDGER-01: v57.65 (P1796): manifest sourceSha256과 다른 로컬 public-data/sec-fundamentals.json이 있으면 ci-sec-runtime-projection-check와 ci-professional-data-gap-check가 'stale local ledger' 라벨로 원장 비교를 건너뛰고 통과하며, 일치하는 원장이면 전체 비교를 실행한다. verify_by: automated

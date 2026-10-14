@@ -37,7 +37,7 @@ function round(n, digits = 2) {
   return Math.round(n * p) / p;
 }
 
-async function fetchJSON(url, tries = 3) {
+async function fetchJSON(url, tries = 3, as = 'json') {
   let lastError;
   for (let i = 0; i < tries; i++) {
     const ctrl = new AbortController();
@@ -46,13 +46,13 @@ async function fetchJSON(url, tries = 3) {
       const response = await fetch(url, {
         headers: {
           'User-Agent': USER_AGENT,
-          'Accept': 'application/json',
+          'Accept': as === 'json' ? 'application/json' : 'application/xml',
           'Accept-Encoding': 'gzip, deflate'
         },
         signal: ctrl.signal
       });
       if (!response.ok) throw new Error(`${url} HTTP ${response.status}`);
-      return await response.json();
+      return as === 'json' ? await response.json() : await response.text();
     } catch (error) {
       lastError = error;
       if (i + 1 < tries) await new Promise(resolve => setTimeout(resolve, 900 * (i + 1)));
@@ -130,7 +130,8 @@ function acceptedAtByAccession(submissions) {
 // fiscal year end, period.js) instead of its own 550-day budget, so its quality label and the screener agree.
 const REPORT_RECENCY_MAX_DAYS = FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
 // Stored records written by an older normalizer are due for re-fetch (in addition to the publish-time heal).
-export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-10-14';
+// 2026-10-15 (P1798): class-dimensioned 10-K share counts for multi-class filers.
+export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-10-15';
 
 // The earliest instant a single operand could have been known: its accession acceptance time
 // when available, otherwise the filing date (which is a date, not an intraday time).
@@ -302,7 +303,7 @@ function migrateLegacyPointInTimeData(data = {}) {
 // 2026-10-14: when no reported count exists at all (multi-class filers whose dei counts are class-dimensioned),
 // net income ÷ diluted EPS of the same fiscal year is the last candidate. It is not used after a reported
 // count was rejected, so a P1587 scale mismatch is still withheld rather than repriced.
-function selectShareCount(companyFacts, currentRevenue, netIncome, eps, dilutedEpsRow = null) {
+function selectShareCount(companyFacts, currentRevenue, netIncome, eps, dilutedEpsRow = null, classFacts = null, symbol = '') {
   const fiscalEnd = currentRevenue.end;
   const gap = (row) => shareGapDays(row.end, fiscalEnd);
   const withinYear = (rows) => rows.filter((row) => { const days = gap(row); return days != null && days <= SEC_SHARES_MAX_GAP_DAYS; });
@@ -336,7 +337,92 @@ function selectShareCount(companyFacts, currentRevenue, netIncome, eps, dilutedE
     const row = { val: impliedDiluted, end: dilutedEpsRow.end, filed: dilutedEpsRow.filed, accn: dilutedEpsRow.accn, form: dilutedEpsRow.form };
     return { row, value: impliedDiluted, basis: 'eps-implied', check: 'consistent' };
   }
-  return { row: null, value: null, basis: null, check: dei.length ? 'stale-period' : 'unreported' };
+  // P1798: filers whose EPS and share counts are all class-dimensioned (V, COKE, WMG) are read from the 10-K instance.
+  const byClass = classFacts ? selectClassDimensionedShares(classFacts, symbol, netIncome, fiscalEnd) : null;
+  if (byClass?.value > 0) {
+    const row = { val: byClass.value, end: fiscalEnd, filed: currentRevenue.filed, accn: currentRevenue.accn, form: currentRevenue.form };
+    return { row, value: byClass.value, basis: 'class-dimensioned-10k', check: 'consistent', classMembers: byClass.members, classMethod: byClass.method };
+  }
+  return { row: null, value: null, basis: null, check: dei.length ? 'stale-period' : 'unreported', classCheck: byClass?.reason || null };
+}
+
+// P1798 (2026-10-15): multi-class filers tag EPS, weighted share counts and cover counts only on
+// StatementClassOfStockAxis, which companyfacts omits. The filing's own XBRL instance carries them. Only
+// single-axis class contexts and undimensioned contexts are kept; values are reported counts, never derived.
+const CLASS_FACT_CONCEPTS = ['TradingSymbol', 'EarningsPerShareDiluted', 'EarningsPerShareBasic', 'WeightedAverageNumberOfDilutedSharesOutstanding', 'WeightedAverageNumberOfSharesOutstandingBasic'];
+export function parseClassShareFacts(xml) {
+  const text = String(xml || '');
+  const contexts = new Map();
+  for (const match of text.matchAll(/<(?:[\w-]+:)?context\b[^>]*\bid="([^"]+)"[^>]*>([\s\S]*?)<\/(?:[\w-]+:)?context>/g)) {
+    const body = match[2];
+    const members = [...body.matchAll(/<(?:[\w-]+:)?explicitMember\b[^>]*\bdimension="([^"]+)"[^>]*>\s*([^<\s]+)\s*</g)];
+    if (members.length > 1 || (members.length === 1 && !/:StatementClassOfStockAxis$/.test(members[0][1]))) continue;
+    if (/<(?:[\w-]+:)?typedMember\b/.test(body)) continue;
+    const date = (tag) => (body.match(new RegExp(`<(?:[\\w-]+:)?${tag}>\\s*([0-9-]{10})`)) || [])[1] || null;
+    contexts.set(match[1], { member: members.length ? members[0][2].replace(/^[\w-]+:/, '') : null, start: date('startDate'), end: date('endDate') || date('instant') });
+  }
+  const facts = [];
+  for (const match of text.matchAll(/<(?:dei|us-gaap):(\w+)\b([^>]*)>([^<]*)<\/(?:dei|us-gaap):\1>/g)) {
+    if (!CLASS_FACT_CONCEPTS.includes(match[1])) continue;
+    const context = contexts.get((match[2].match(/\bcontextRef="([^"]+)"/) || [])[1]);
+    if (!context) continue;
+    const raw = match[3].trim();
+    if (match[1] === 'TradingSymbol') { if (raw) facts.push({ concept: match[1], ...context, value: raw }); continue; }
+    const value = finiteFact(raw);
+    if (value != null) facts.push({ concept: match[1], ...context, value });
+  }
+  return facts;
+}
+
+// The traded class (cover TradingSymbol on the class axis) is priced on its own reported count when net income ÷ its
+// EPS matches that count (as-converted classes: V Class A 1,966M, COKE common 83.8M); otherwise, when every class
+// earns the same EPS, on the sum of the class counts (WMG A+B). With no class-axis symbol, a class whose own count
+// matches is used only when all classes earn the same EPS. Anything else — a traded class without its own EPS
+// (BRK.B, whose EPS is tagged on an "equivalent class B" member) — is withheld.
+export const CLASS_EPS_TOLERANCE = 0.03;
+export function selectClassDimensionedShares(classFacts, symbol, netIncome, fiscalEnd) {
+  if (!Array.isArray(classFacts) || !classFacts.length || !Number.isFinite(netIncome) || netIncome === 0) return { value: null, reason: 'class-facts-unavailable' };
+  const annual = classFacts.filter((row) => row.member && row.end === fiscalEnd && row.start && shareGapDays(row.start, row.end) >= 300 && shareGapDays(row.start, row.end) <= 400);
+  const classes = new Map();
+  for (const row of annual) {
+    const entry = classes.get(row.member) || {};
+    if (entry[row.concept] == null) entry[row.concept] = row.value;
+    classes.set(row.member, entry);
+  }
+  const perClass = [...classes.entries()].map(([member, row]) => {
+    const diluted = row.EarningsPerShareDiluted != null && row.WeightedAverageNumberOfDilutedSharesOutstanding > 0;
+    const eps = diluted ? row.EarningsPerShareDiluted : row.EarningsPerShareBasic;
+    const count = diluted ? row.WeightedAverageNumberOfDilutedSharesOutstanding : row.WeightedAverageNumberOfSharesOutstandingBasic;
+    return { member, eps, count };
+  }).filter((row) => Number.isFinite(row.eps) && row.eps !== 0 && Math.sign(row.eps) === Math.sign(netIncome) && row.count > 0);
+  if (!perClass.length) return { value: null, reason: 'class-facts-unavailable' };
+  // EPS is published to the cent, so the tolerance carries half a cent on top of the relative band.
+  const matches = (count, eps) => Math.abs(netIncome / count - eps) <= 0.005 + CLASS_EPS_TOLERANCE * Math.abs(eps);
+  const sameEps = perClass.every((row) => Math.abs(row.eps - perClass[0].eps) <= 0.005 + CLASS_EPS_TOLERANCE * Math.abs(perClass[0].eps));
+  const sum = perClass.reduce((total, row) => total + row.count, 0);
+  const summed = () => sameEps && matches(sum, perClass[0].eps) ? { value: sum, members: perClass.map((row) => row.member).sort(), method: 'class-sum' } : null;
+  const symbolRows = classFacts.filter((row) => row.concept === 'TradingSymbol');
+  const traded = symbolRows.find((row) => row.member && tickerKey(row.value) === tickerKey(symbol));
+  if (traded) {
+    const own = perClass.find((row) => row.member === traded.member);
+    if (!own) return { value: null, reason: 'class-member-unmatched' };
+    if (matches(own.count, own.eps)) return { value: own.count, members: [own.member], method: 'traded-class' };
+    return summed() || { value: null, reason: 'class-count-inconsistent' };
+  }
+  if (symbolRows.some((row) => row.member)) return { value: null, reason: 'class-member-unmatched' };
+  if (!sameEps) return { value: null, reason: 'class-eps-differs' };
+  const own = perClass.filter((row) => matches(row.count, row.eps));
+  if (own.length === 1) return { value: own[0].count, members: [own[0].member], method: 'traded-class' };
+  return summed() || { value: null, reason: 'class-count-inconsistent' };
+}
+
+// The 10-K instance document EDGAR extracts from an inline XBRL primary document (v-20250930.htm → v-20250930_htm.xml).
+export function classInstanceUrl(cik, accession, submissions) {
+  const recent = submissions?.filings?.recent || {};
+  const index = (recent.accessionNumber || []).indexOf(accession);
+  const doc = index >= 0 ? String(recent.primaryDocument?.[index] || '') : '';
+  if (!/^\d{10}-\d{2}-\d{6}$/.test(String(accession || '')) || !/^[\w.-]+\.htm$/i.test(doc) || !(Number(cik) > 0)) return null;
+  return `https://www.sec.gov/Archives/edgar/data/${Number(cik)}/${accession.replace(/-/g, '')}/${doc.replace(/\.htm$/i, '_htm.xml')}`;
 }
 
 // N20 (2026-10-13): the issuer's own recent filings from the submissions document this job already reads —
@@ -360,7 +446,7 @@ export function recentFilingsFrom(submissions, nowMs = Date.now()) {
   return rows.sort((a, b) => b.filedAt.localeCompare(a.filedAt) || b.accession.localeCompare(a.accession)).slice(0, RECENT_FILING_MAX);
 }
 
-export function normalizeSecCompanyFacts(symbol, companyFacts, price, submissions = null) {
+export function normalizeSecCompanyFacts(symbol, companyFacts, price, submissions = null, classFacts = null) {
   // F05/F06: every annual revenue concept is collected; bestRevenueRowsByPeriod picks one row per fiscal period
   // (largest primary concept, assessed-tax-inclusive only as a fallback). P1374 bank net revenue stays a
   // primary concept.
@@ -395,7 +481,7 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   const eps = finiteFact(epsRow?.val);
   const dilutedEpsRow = dedupeLatestFiled(factRows(companyFacts, 'us-gaap', ['EarningsPerShareDiluted'], 'USD/shares')
     .filter((row) => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && row.end === currentRevenue.end && finiteFact(row.val) != null))[0] || null;
-  const shareSelection = selectShareCount(companyFacts, currentRevenue, netIncome, eps, dilutedEpsRow);
+  const shareSelection = selectShareCount(companyFacts, currentRevenue, netIncome, eps, dilutedEpsRow, classFacts, symbol);
   const currentShares = shareSelection.row;
   const sharesCheck = shareSelection.check;
   const sharesOutstanding = shareSelection.value;
@@ -473,7 +559,10 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     // P1587 + F03/F04: consistent | scale-mismatch (withheld) | unchecked | stale-period / unreported (no count
     // within 400 days of the fiscal year end — withheld, P/E·P/B·reference market cap stay empty)
     sharesCheck,
-    sharesBasis: Number.isFinite(sharesOutstanding) ? shareSelection.basis : null, // dei-cover | weighted-diluted | common-shares-outstanding | eps-implied
+    sharesBasis: Number.isFinite(sharesOutstanding) ? shareSelection.basis : null, // dei-cover | weighted-diluted | common-shares-outstanding | eps-implied | class-dimensioned-10k
+    // P1798: which class members fed a class-dimensioned count, or why the 10-K's class facts were withheld.
+    ...(shareSelection.classMembers ? { sharesClassMembers: shareSelection.classMembers, sharesClassMethod: shareSelection.classMethod } : {}),
+    ...(shareSelection.classCheck ? { sharesClassCheck: shareSelection.classCheck } : {}),
     sharesObservedAt: Number.isFinite(sharesOutstanding) ? currentShares?.end || null : null,
     normalizerVersion: SEC_NORMALIZER_VERSION,
     revenueConcept: currentRevenue.concept || null,
@@ -592,6 +681,9 @@ export async function refreshSecFundamentals(priceHints = null) {
       // 2026-10-13 F04: a record from an older normalizer (494 of 659 lacked the P1587 share check) is due now;
       // the publish-time heal below covers what its stored observations allow until then.
       normalizerOutdated: Boolean(previous.data && previous.data[symbol] && previous.data[symbol].normalizerVersion !== SEC_NORMALIZER_VERSION),
+      // P1798: a stored record without a share count leaves market cap, P/E and the value factor blank (GOOGL/META
+      // waited 2-5 days behind 700 outdated records), so it is refreshed first among the due records.
+      sharesMissing: Boolean(previous.data && previous.data[symbol] && !(Number(previous.data[symbol].sharesOutstanding) > 0)),
       lastFailureAt: previousFailureAt.get(symbol) || null,
       priorFailure: previousFailureRecords.get(symbol) || null
     }))
@@ -607,7 +699,7 @@ export async function refreshSecFundamentals(priceHints = null) {
     })
     // Prefer never-attempted and retryable candidates. Terminal taxonomy
     // failures remain in the audit but cannot starve fresh coverage.
-    .sort((a, b) => Number(Boolean(a.priorFailure)) - Number(Boolean(b.priorFailure)) || String(a.fetchedAt || '').localeCompare(String(b.fetchedAt || '')) || a.symbol.localeCompare(b.symbol))
+    .sort((a, b) => Number(Boolean(a.priorFailure)) - Number(Boolean(b.priorFailure)) || Number(b.sharesMissing) - Number(a.sharesMissing) || String(a.fetchedAt || '').localeCompare(String(b.fetchedAt || '')) || a.symbol.localeCompare(b.symbol))
     .slice(0, limit);
 
   const data = { ...(previous.data || {}) };
@@ -643,7 +735,18 @@ export async function refreshSecFundamentals(priceHints = null) {
         });
         continue;
       }
-      const normalized = normalizeSecCompanyFacts(target.symbol, facts, price, submissions);
+      let normalized = normalizeSecCompanyFacts(target.symbol, facts, price, submissions);
+      // P1798: no count in companyfacts — read the class-dimensioned facts from the same 10-K's XBRL instance.
+      const instanceUrl = normalized && normalized.sharesOutstanding == null && ['stale-period', 'unreported'].includes(normalized.sharesCheck)
+        ? classInstanceUrl(meta.cik, normalized.accession, submissions) : null;
+      if (instanceUrl) {
+        try {
+          const classFacts = parseClassShareFacts(await fetchJSON(instanceUrl, 2, 'xml'));
+          normalized = normalizeSecCompanyFacts(target.symbol, facts, price, submissions, classFacts);
+        } catch (error) {
+          normalized = { ...normalized, sharesClassCheck: 'class-instance-unavailable' };
+        }
+      }
       if (!normalized) {
         failuresBySymbol.set(target.symbol, {
           symbol: target.symbol,
