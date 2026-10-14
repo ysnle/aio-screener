@@ -15482,6 +15482,16 @@ function toggleSignalMode(mode) {
 // v52.65 아이보리 리디자인 1b: 종합 거래 점수 히어로 (레거시 _aioDiagram score-breakdown/market-regime
 // 원형게이지+2x2쿼드런트 완전 대체). P787 transfers the four score/decision summary sinks to
 // the native analysis renderer; factor details, quality meter, and other home surfaces remain legacy.
+// v57.64: own sink so applyDataSnapshot can paint it; the native runtime skips the legacy home repaint below.
+function _aioRenderHomeVix(vixQuote) {
+  const vixValueEl = document.getElementById('home-vix-value'), vixStatusEl = document.getElementById('home-vix-status');
+  if (!vixValueEl) return;
+  const num = function(v) { if (v == null || v === '' || typeof v === 'boolean') return null; const n = Number(v); return Number.isFinite(n) && n > 0 ? n : null; }; // VIX is never 0: a 0 is a missing quote
+  const quote = vixQuote || (window._liveData && window._liveData['^VIX']) || {}, vp = num(quote.price) != null ? num(quote.price) : num(window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.vix);
+  vixValueEl.textContent = window._aioSafeFixed ? window._aioSafeFixed(vp, 2, '—') : (vp == null ? '—' : String(Math.round(vp * 100) / 100));
+  vixValueEl.style.color = vp == null ? 'var(--text-muted)' : (vp >= 32 ? 'var(--data-red)' : vp >= 25 ? 'var(--data-amber)' : vp >= 18 ? 'var(--text-secondary)' : 'var(--data-green)'); // P1499: theme tokens, not the retired neon palette
+  if (vixStatusEl) vixStatusEl.textContent = vp == null ? '—' : (vp >= 32 ? '고변동 구간' : vp >= 25 ? '변동성 경계 구간' : vp >= 18 ? '통상 범위' : '저변동 구간'); // P1367: one VIX band (aio-core _vixBand 18/25/32)
+}
 function refreshHomeDashboard() {
   try { if (typeof _aioRenderOperatorNote === 'function') _aioRenderOperatorNote(); } catch(_) {}
   const ld = window._liveData || {};
@@ -15541,16 +15551,7 @@ function refreshHomeDashboard() {
   }
 
   // SECTION 2: VIX Status
-  const vixValueEl = document.getElementById('home-vix-value');
-  const vixStatusEl = document.getElementById('home-vix-status');
-  if (vixValueEl) {
-    const vpRaw = _homeNum(vix.price != null ? vix.price : DATA_SNAPSHOT.vix); const vp = vpRaw != null && vpRaw > 0 ? vpRaw : null; // VIX is never 0: a 0 is a missing quote
-    vixValueEl.textContent = _homeFixed(vp, 2, '—');
-    const vixLabel = vp == null ? '—' : (vp >= 32 ? '고변동 구간' : vp >= 25 ? '변동성 경계 구간' : vp >= 18 ? '통상 범위' : '저변동 구간'); // P1367: one VIX band (aio-core _vixBand 18/25/32)
-    const vixCol = vp == null ? 'var(--text-muted)' : (vp >= 32 ? 'var(--data-red)' : vp >= 25 ? 'var(--data-amber)' : vp >= 18 ? 'var(--text-secondary)' : 'var(--data-green)'); // P1499: theme tokens, not the retired neon palette
-    vixValueEl.style.color = vixCol;
-    if (vixStatusEl) vixStatusEl.textContent = vixLabel;
-  }
+  _aioRenderHomeVix(vix);
 
   // P1010: native analysis owns both the Fear & Greed score and its label.
 

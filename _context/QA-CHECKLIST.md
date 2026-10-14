@@ -6,11 +6,11 @@ confidence: medium
 
 ## v57.61 라이브 10인 점검 후속 v57.56 (2026-10-14)
 
-- [ ] QA-VERIFY-26: v57.61 Worker 배포 후: /health의 ai.maxTokens 16000·workersAiBound true·client.dailyLimit 200, 분석 질문 답변이 luna-medium으로 끝까지 오는지, 재시도가 409 없이 끝나는지, refresh-data 번역 로그가 'via workers-ai'인지(아니면 실패 코드), 테마 상세 열기·닫기 포커스와 다크 모드 상승·하락 글자 대비를 라이브에서 확인한다. verify_by: browser
+- [x] QA-VERIFY-26: v57.61 Worker 배포 후: 2026-10-14 라이브 /health에서 ai.maxTokens 16000·workersAiBound true·client.dailyLimit 200, 분석 질문(반도체 대 방어주 비교)이 화면 수치와 웹 검색 근거로 끝까지 답했고, refresh-data 번역이 Workers AI로 처리됐으며(v57.63 모델 대체 후), 다크 모드 상승·하락 글자 대비 5.49~7.27을 확인했다. 409 없는 재시도는 계약 테스트(worker-relay)로만 확인. verify_by: browser
 
 ## v57.59 라이브 10인 점검 후속 v57.56 (2026-10-14)
 
-- [ ] QA-VERIFY-25: v57.59 배포 후: refresh-data 로그의 headline translation이 'via workers-ai'인지(아니면 실패 상세), 맞춤 조건 VCP 수렴 수(vcpShrinking 게시 후)와 한국 시장에서 재무 조건 흐림, 테마 상세 닫기 포커스, 거시 갈림길 접기·'거시 6요인' 제목, 종목 화면 불러오기 실패 문구, 홈 VIX 결측 '—'를 라이브에서 확인한다. verify_by: browser
+- [x] QA-VERIFY-25: v57.59 배포 후: 2026-10-14 라이브(v57.63)에서 refresh-data 38584180751 'new 4/4 via workers-ai', 맞춤 조건 VCP 수렴 48종목, 한국 시장 재무 조건 6개·52주 신고가 '이 시장 자료 없음' 비활성, 테마 상세 닫기 후 포커스가 연 버튼(에너지)으로 복귀, 거시 '증시에 주는 영향 — 거시 6요인' 제목을 확인했다. 홈 VIX는 실시간 시세가 늦은 접속에서 스냅샷 종가가 있어도 '—'로 남는 결함이 드러나 v57.64(P1795)에서 고쳤다. 종목 화면 불러오기 실패 문구는 로컬 확인만. verify_by: browser
 
 ## v57.58 라이브 10인 점검 후속 v57.56 (2026-10-14)
 

@@ -77,6 +77,16 @@ try {
   if (!boot.navigationInstalled || !boot.hasNavigate) throw new Error(`typed navigation facade not installed: ${JSON.stringify(boot)}`);
   if (!boot.summaryBlocked) throw new Error('offline sentiment must remain blocked');
   await waitForTopbar('서버 ', 'initial snapshot', 15000);
+  // v57.64: the native runtime skips the legacy home repaint after the snapshot, so the home VIX cell has its own
+  // sink; with a published VIX close it must not stay '—'.
+  const homeVix = await page.evaluate(() => {
+    const cell = document.getElementById('home-vix-value');
+    if (!cell) return { cell: null, snap: null };
+    cell.textContent = '—';
+    window.applyDataSnapshot?.();
+    return { cell: cell.textContent.trim(), snap: Math.max(Number(window.DATA_SNAPSHOT?.vix) || 0, Number(window._liveData?.['^VIX']?.price) || 0) };
+  });
+  if (homeVix.cell != null && homeVix.snap > 0 && !/^\d+\.\d{2}$/.test(homeVix.cell)) throw new Error(`home VIX cell ignored the snapshot close: ${JSON.stringify(homeVix)}`);
   const quoteTopbar = await page.evaluate(() => {
     const el = document.getElementById('live-quote-ts');
     return {

@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.63';
+const APP_VERSION = 'v57.64';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -17637,6 +17637,7 @@ function applyDataSnapshot() {
       renderStaleWarning('risk-monitor-grid');
       renderStaleWarning('risk-extra-grid');
     }
+    if (typeof _aioRenderHomeVix === 'function') _aioRenderHomeVix(); // v57.64: home VIX cell repaints from every snapshot apply
   } catch (e) {
     if (typeof _aioLog === 'function') _aioLog('error', 'render', 'applyDataSnapshot failed: ' + e.message); else console.warn('[AIO] applyDataSnapshot error:', e.message);
   }

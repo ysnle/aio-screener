@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1795 - v57.64 - 홈 VIX 칸이 게시된 종가가 있어도 '—'로 남음 (2026-10-14)
+
+- symptom/reproduction: 라이브 홈에서 DATA_SNAPSHOT.vix가 15.74인데 VIX 칸은 '—'였다. 실시간 시세가 늦거나 실패한 접속에서만 나타났다(v57.59 이전에는 같은 상황에서 초록 0.00).
+- root_cause: VIX 칸은 레거시 refreshHomeDashboard만 칠했는데, 네이티브 런타임은 스냅샷 적용 뒤 이 전체 재그리기를 건너뛰고 DOMContentLoaded 500ms 호출은 스냅샷 도착 전에 실행됐다. 실시간 시세 이벤트가 오지 않으면 칸을 칠할 경로가 없었다. v57.59(P1788)는 0.00을 '—'로 바꿨을 뿐 원인을 고치지 않았다.
+- fix: VIX 칸을 _aioRenderHomeVix 한 함수로 분리해 refreshHomeDashboard와 applyDataSnapshot 끝에서 모두 호출한다. 실시간 시세가 0·결측이면 스냅샷 종가로 넘어간다.
+- violated_rule: 표시 칸은 자기 데이터가 도착하는 모든 경로에서 칠해져야 한다 — 전체 재그리기에 묶인 칸은 그 재그리기를 건너뛰는 런타임에서 비어 있다
+- prevention: P1795: architecture-browser 검사가 칸을 '—'로 되돌린 뒤 applyDataSnapshot()을 불러 VIX 값이 다시 숫자로 칠해지는지 단언한다(수정 제거 시 실패 확인).
+- verification/residual: 로컬 홈 VIX 15.22·'저변동 구간' 표시; ci-architecture-browser-check 통과·수정 제거 시 실패.
+
 ## P1794 - v57.63 - 무료 뉴스 번역(Workers AI)이 매번 실패하고 유료 OpenAI로 넘어감 (2026-10-14)
 
 - symptom/reproduction: v57.58부터 headline translation이 매 실행 'workers-ai-failed'로 실패해 공용 OpenAI 예산으로 번역했다.
