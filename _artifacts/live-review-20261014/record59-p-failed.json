@@ -1,0 +1,9 @@
+{ "version": "v57.59", "date": "2026-10-14", "note": "v57.59: 전체 점검(데이터·전문가·초보자·제품 관점) 후속 개선과 CI 간헐 실패 정리.", "r": null, "status": null,
+  "p": { "title": "거시 _failedSeries가 지난 실행의 실패를 계속 끌고 감",
+    "symptom": "한 번 실패한 거시 시리즈가 이후 실행에서 정상 수집돼도 _failedSeries에 남아 '이번 수집 실패'로 읽혔다.",
+    "root_cause": "mergeMacroLastKnownGood가 이전 산출물의 _failedSeries를 합쳐 다시 게시했다.",
+    "fix": "_failedSeries는 이번 실행에서 실패한 시리즈만 중복 없이 게시한다.",
+    "violated_rule": "실패 표시는 현재 실행의 사실만 말한다",
+    "prevention": "{P}: history-field-time 계약 검사에 이전 실패가 이어지지 않는 사례 추가.",
+    "verification": "ci-history-field-time-contract-check 통과." },
+  "changelog": ["**거시 수집 실패 표시 ({P}):** 이번 수집에서 실패한 지표만 '수집 실패'로 표시합니다."] }

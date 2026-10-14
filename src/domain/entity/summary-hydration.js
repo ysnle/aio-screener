@@ -103,7 +103,7 @@ export function createSummaryHydrator({ root = globalThis, now = () => Date.now(
       controller = null;
       if (!id || !/^[A-Z0-9.^=\-]{1,24}$/.test(id)) return;
       if (fresh) {
-        if (saved.data) { apply(saved.data); onStatus('ready', id); }
+        if (saved.data) { onStatus('ready', id); apply(saved.data); } // v57.59: status first so the ready render reads it
         else onStatus('unavailable', id);
         return;
       }
@@ -123,8 +123,8 @@ export function createSummaryHydrator({ root = globalThis, now = () => Date.now(
           cache.delete(id);
           cache.set(id, { at: now(), data });
           while (cache.size > 20) cache.delete(cache.keys().next().value);
-          if (data) apply(data);
           onStatus(data ? 'ready' : 'unavailable', id);
+          if (data) apply(data);
         }).catch(() => {
           if (disposed || signal.aborted || token !== revision) return;
           controller = null;

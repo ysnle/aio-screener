@@ -197,9 +197,10 @@ if (!fixtureColumns[0].includes('breadth200,') || !fixtureColumns[0].includes('m
 }
 const lkg = mergeMacroLastKnownGood(
   { _source: 'fred:no-key', _failedSeries: ['pce'] },
-  { cpi: 3.5, _asOf_cpi: '2026-06-01', _source_cpi: 'fred-official-primary', hyOAS: 2.71, _source_hyOAS: 'fred-official-public-csv' }
+  { cpi: 3.5, _asOf_cpi: '2026-06-01', _source_cpi: 'fred-official-primary', hyOAS: 2.71, _source_hyOAS: 'fred-official-public-csv', _failedSeries: ['vix'] }
 );
-if (lkg.cpi !== 3.5 || lkg.hyOAS !== 2.71 || !lkg._failedSeries.includes('pce')
+// 2026-10-14: `_failedSeries` lists only the current run's failures (an earlier run's 'vix' is not accumulated).
+if (lkg.cpi !== 3.5 || lkg.hyOAS !== 2.71 || !lkg._failedSeries.includes('pce') || lkg._failedSeries.includes('vix')
   || lkg._source_cpi !== 'last-known-good' || lkg._source_hyOAS !== 'last-known-good'
   || lkg._originSource_cpi !== 'fred-official-primary' || lkg._freshness_cpi !== 'stale-reference') {
   fail(`macro LKG merge fixture failed: ${JSON.stringify(lkg)}`);

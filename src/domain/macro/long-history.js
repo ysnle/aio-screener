@@ -7,6 +7,10 @@
  */
 const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 
+// Expert review 2026-10-14: these are monthly means of daily observations, so the artifact's own calendar month is still
+// in progress (a partial mean). That month is left out and the card names the completed month it compares.
+const DAILY_MEANS = new Set(['dgs10', 'dgs2', 't10y3m', 'realYield10', 'vix']);
+
 export const LONG_HISTORY_ORDER = Object.freeze(['fedFunds', 'dgs10', 'dgs2', 't10y3m', 'realYield10', 'coreCpiYoY', 'unemployment', 'vix']);
 
 function monthLabel(month) {
@@ -16,11 +20,14 @@ function monthLabel(month) {
 
 export function longHistoryRows(artifact) {
   const series = artifact?.series || {};
+  const openMonth = /^\d{4}-\d{2}/.test(String(artifact?.generatedAt || '')) ? String(artifact.generatedAt).slice(0, 7) : null;
   return LONG_HISTORY_ORDER.map((field) => {
     const entry = series[field];
-    const points = (Array.isArray(entry?.observations) ? entry.observations : [])
+    const all = (Array.isArray(entry?.observations) ? entry.observations : [])
       .map(([month, value]) => ({ month: String(month || ''), value: finite(value) }))
       .filter((point) => /^\d{4}-\d{2}$/.test(point.month) && point.value != null);
+    const partial = DAILY_MEANS.has(field) && openMonth && all.length && all[all.length - 1].month >= openMonth ? all[all.length - 1] : null;
+    const points = partial ? all.slice(0, -1) : all;
     if (points.length < 120) return null;
     const last = points[points.length - 1];
     const below = points.filter((point) => point.value <= last.value).length;
@@ -42,9 +49,10 @@ export function longHistoryRows(artifact) {
       startMonth: points[0].month,
       series: points.map((point) => ({ date: `${point.month}-01`, value: point.value })),
       valueText: fmt(last.value),
-      positionText: `${monthLabel(points[0].month)} 이후 ${points.length}개월 중 ${percentile}%가 지금 이하 · ${place}`,
+      positionText: `${monthLabel(points[0].month)} 이후 ${points.length}개월 중 ${percentile}%가 ${monthLabel(last.month)} 값 이하 · ${place}`,
       rangeText: `최고 ${fmt(max.value)}(${monthLabel(max.month)}) · 최저 ${fmt(min.value)}(${monthLabel(min.month)})`,
-      monthText: `${monthLabel(last.month)} 월평균`
+      partialMonth: partial ? partial.month : null,
+      monthText: `${monthLabel(last.month)} 월평균${partial ? ` · 진행 중인 ${monthLabel(partial.month)}은 빼고 비교` : ''}`
     });
   }).filter(Boolean);
 }

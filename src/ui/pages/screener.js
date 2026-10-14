@@ -29,7 +29,7 @@ import { EXTENSION_BANDS } from '../../domain/screener/setup-profile.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { sectorsForEtf } from '../../domain/entity/stock-read.js';
 import { consensusView } from '../../domain/fundamental/consensus-read.js';
-import { parseConditionValue, matchesConditions, conditionCoverage } from '../../domain/screener/custom-conditions.js';
+import { parseConditionValue, matchesConditions, conditionCoverage, availableConditionIds } from '../../domain/screener/custom-conditions.js';
 import { installCustomConditions } from '../components/screener-custom.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { sectorLabel } from '../../domain/screener/screener-read.js';
@@ -413,9 +413,10 @@ export function customRead(row, key) {
   // '최근 회계연도' reads them as the table displays them, but never a CONFLICT value.
   if (row?.fieldReadiness && fieldId && FILING_KEYS.has(key)) return FILING_STATUSES.has(row.fieldReadiness.fields?.[fieldId]?.status) ? finite(row[key]) : null;
   if (row?.fieldReadiness && fieldId) return fieldValueForPurpose(row, fieldId, 'calculation');
-  return typeof row?.[key] === 'string' ? row[key] : finite(row?.[key]);
+  return typeof row?.[key] === 'string' || typeof row?.[key] === 'boolean' ? row[key] : finite(row?.[key]);
 }
 let customPanel = null;
+let availableCache = {};
 
 export function sortRows(rows, sortColumn, ascending, readLiveData) {
   return rows.map(row => ({ row, view: liveRow(row, readLiveData) })).sort(({ view: a }, { view: b }) => {
@@ -1346,7 +1347,14 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   const visibleColumns = getVisibleColumns(columnPreset, customColumns).filter((column) => !['value', 'quality'].includes(column.key) || scored(column.key));
   consensusRoot = root;
   const custom = parseConditionValue(selectedValue(documentRef, 'scr-custom-conditions'));
-  customPanel?.update(conditionCoverage(marketRows(rows, listingMarket), custom, customRead), filtered.length);
+  const scopeRows = marketRows(rows, listingMarket);
+  // v57.59: a condition the market has no data for (e.g. SEC financials for 한국) is greyed out instead of returning 0.
+  // Forward PER loads on demand, so it stays offered for 미국 even before the estimates arrive.
+  if (availableCache.rows !== scopeRows.length || availableCache.market !== listingMarket || availableCache.source !== rows) {
+    availableCache = { rows: scopeRows.length, market: listingMarket, source: rows, ids: availableConditionIds(scopeRows, customRead) };
+    if (listingMarket === 'US') availableCache.ids.add('fwdpe-max');
+  }
+  customPanel?.update(conditionCoverage(scopeRows, custom, customRead), filtered.length, availableCache.ids);
   if (visibleColumns.some((column) => column.key === 'fwdPe') || sortState.column === 'fwdPe' || custom.some((item) => item.id === 'fwdpe-max')) requestConsensusEstimates(root, onDataChange);
   const table = documentRef.getElementById('screener-results-table');
   renderTableHeader(documentRef, table, visibleColumns, sortState);

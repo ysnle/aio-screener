@@ -490,7 +490,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     const grid = el(doc, 'div', null, 'macro-stat-grid');
     grid.append(...longRows.map((row) => statCard(doc, { label: row.label, valueText: row.valueText, lines: [row.monthText, row.positionText], series: row.series, unit: row.unit, format: (value) => `${value.toFixed(2)}${row.unit}`, status: row.stale ? 'stale' : 'observed', staleText: '이번 수집 실패 · 직전 값', meta: 'FRED 월평균' })));
     section.append(el(doc, 'h3', '수십 년 속 지금 위치', 'macro-group-title'),
-      el(doc, 'p', `1990년(또는 자료 시작) 이후 매달 평균 가운데 이번 달 값이 어디쯤인지 봅니다. 높은 편·낮은 편은 과거 분포 안의 위치일 뿐, 앞으로의 방향을 말하지 않습니다. 같은 수준이라도 오르는 중인지 내리는 중인지는 위 카드의 6개월 추세로 함께 읽습니다.`, 'macro-group-fact'), grid);
+      el(doc, 'p', `1990년(또는 자료 시작) 이후 매달 평균 가운데 가장 최근 달의 값이 어디쯤인지 봅니다. 날마다 관측하는 금리·VIX는 아직 끝나지 않은 달을 빼고 마감된 달로 비교합니다. 높은 편·낮은 편은 과거 분포 안의 위치일 뿐, 앞으로의 방향을 말하지 않습니다. 같은 수준이라도 오르는 중인지 내리는 중인지는 위 카드의 6개월 추세로 함께 읽습니다.`, 'macro-group-fact'), grid);
     host.append(section);
   }
   renderCommodities(doc, root, read.oil);

@@ -22,6 +22,9 @@ export function analogOutcome(rows, analog, { horizon = 20, lookback = 20 } = {}
   const list = Array.isArray(rows) ? rows.filter((row) => finite(row?.spx) > 0) : [];
   if (list.length <= lookback + horizon) return null;
   const outcomes = [];
+  // Base rate: every session in the same window, condition or not, so the reader can see whether the condition adds anything.
+  let baseN = 0, baseUp = 0;
+  for (let i = lookback; i + horizon < list.length; i += 1) { baseN += 1; if (list[i + horizon].spx > list[i].spx) baseUp += 1; }
   for (let i = lookback; i + horizon < list.length; i += 1) {
     const now = list[i], then = list[i - lookback];
     if (analog.needs.some((field) => finite(now[field]) == null || finite(then[field]) == null)) continue;
@@ -34,8 +37,10 @@ export function analogOutcome(rows, analog, { horizon = 20, lookback = 20 } = {}
     outcomes.push((list[i + horizon].spx / now.spx - 1) * 100);
     i += horizon;
   }
-  return summarise(outcomes, { from: list[0].date, to: list[list.length - 1].date, horizon });
+  return summarise(outcomes, { from: list[0].date, to: list[list.length - 1].date, horizon, ...baseRate(baseUp, baseN) });
 }
+
+const baseRate = (up, n) => n > 0 ? { baseN: n, baseUpPct: Math.round(up / n * 100) } : {};
 
 export function summarise(outcomes, meta) {
   const sorted = [...outcomes].sort((a, b) => a - b);
@@ -71,6 +76,8 @@ export function themeStateOutcomes(closes, { horizon = 63 } = {}) {
   const list = (closes || []).filter(([, value]) => finite(value) > 0);
   const buckets = { leading: [], pullback: [], rebound: [], weak: [] };
   const next = { leading: 0, pullback: 0, rebound: 0, weak: 0 };
+  let baseN = 0, baseUp = 0;
+  for (let i = 126; i + horizon < list.length; i += 1) { baseN += 1; if (list[i + horizon][1] > list[i][1]) baseUp += 1; }
   for (let i = 126; i + horizon < list.length; i += 1) {
     const trend = (list[i][1] / list[i - 126][1] - 1) * 100;
     const recent = (list[i][1] / list[i - 21][1] - 1) * 100;
@@ -79,7 +86,7 @@ export function themeStateOutcomes(closes, { horizon = 63 } = {}) {
     buckets[state].push((list[i + horizon][1] / list[i][1] - 1) * 100);
     next[state] = i + horizon;
   }
-  const meta = { from: list[0]?.[0] || null, to: list[list.length - 1]?.[0] || null, horizon };
+  const meta = { from: list[0]?.[0] || null, to: list[list.length - 1]?.[0] || null, horizon, ...baseRate(baseUp, baseN) };
   return Object.fromEntries(Object.entries(buckets).map(([state, values]) => [state, summarise(values, meta)]));
 }
 
@@ -88,5 +95,6 @@ export function frequencyText(freq, label, { source = 'AIO 종가 기록' } = {}
   const span = `${String(freq.from || '').slice(0, 4)}~${String(freq.to || '').slice(0, 7)}`;
   if (freq.n < 3) return `${label}: ${source}(${span})에서 같은 움직임이 ${freq.n}번뿐이라 빈도로 말하지 않습니다.`;
   const signed = (value) => `${value > 0 ? '+' : ''}${value}%`;
-  return `${label}: ${source}(${span})의 겹치지 않는 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 ${hasFinalConsonant(freq.subject || 'S&P 500') ? `${freq.subject || 'S&P 500'}이` : `${freq.subject || 'S&P 500'}가`} 올랐습니다 (중앙값 ${signed(freq.median)}${freq.p25 != null && freq.n >= 8 ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''}).${freq.n < 10 ? ' 표본이 작아 경향 참고용입니다.' : ''}`;
+  const base = Number.isFinite(freq.baseUpPct) ? ` 비슷한 때 ${Math.round(freq.up / freq.n * 100)}% · 같은 기록 전체 거래일에서는 ${freq.baseUpPct}%가 올라, 둘의 차이가 이 조건이 더하는 정보입니다.` : '';
+  return `${label}: ${source}(${span})의 겹치지 않는 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 ${hasFinalConsonant(freq.subject || 'S&P 500') ? `${freq.subject || 'S&P 500'}이` : `${freq.subject || 'S&P 500'}가`} 올랐습니다 (중앙값 ${signed(freq.median)}${freq.p25 != null && freq.n >= 8 ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''}).${base}${freq.n < 10 ? ' 표본이 작아 경향 참고용입니다.' : ''}`;
 }

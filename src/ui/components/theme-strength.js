@@ -211,8 +211,12 @@ function renderCapexFlow(doc, root, host, model) {
     const card = el(doc, 'section', null, 'capex-flow-card');
     card.dataset.layer = layer.id;
     const head = el(doc, 'div', null, 'trend-card-head');
-    head.append(el(doc, 'h3', layer.label, 'trend-card-title'), el(doc, 'span', `$${layer.share}`, 'trend-card-value'));
-    card.append(head, el(doc, 'p', layer.parts, 'trend-card-note'));
+    // Live review 2026-10-14: the number is a share of a hypothetical 100달러 of AI capex (an estimate), not a spend or a
+    // growth rate — the value and the note both say so.
+    const value = el(doc, 'span', `$${layer.share} / $100`, 'trend-card-value');
+    value.title = `AI 설비투자 100달러 중 ${layer.label}에 가는 몫 (${AI_CAPEX_FLOW.asOf} 추정 배분)`;
+    head.append(el(doc, 'h3', layer.label, 'trend-card-title'), value);
+    card.append(head, el(doc, 'p', `100달러 중 추정 배분 · ${layer.parts}`, 'trend-card-note'));
     const links = el(doc, 'div', null, 'capex-flow-themes');
     for (const themeId of layer.themes) {
       const theme = model.themes?.[themeId];

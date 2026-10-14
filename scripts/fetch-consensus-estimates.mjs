@@ -78,7 +78,15 @@ export function nextConsensusRow(previousRow, row, asOf) {
   return { unavailable: true, checkedAt: asOf };
 }
 
-export function pickBatch(symbols, previousRows, now, limit) {
+// 2026-10-14: never-fetched symbols go largest first — S&P 500 index weight, then 30-session dollar volume — so a
+// fresh universe reaches the names that matter before alphabetical tails. `priority` maps sym -> { weight, dollarVolume30d }.
+const priorityCompare = (priority, a, b) => {
+  const pa = priority?.[a] || {}; const pb = priority?.[b] || {};
+  const key = (value) => (Number.isFinite(value) ? value : -1);
+  return key(pb.weight) - key(pa.weight) || key(pb.dollarVolume30d) - key(pa.dollarVolume30d);
+};
+
+export function pickBatch(symbols, previousRows, now, limit, priority = null) {
   const age = (sym) => {
     const row = previousRows[sym];
     if (!row) return Infinity;
@@ -87,8 +95,26 @@ export function pickBatch(symbols, previousRows, now, limit) {
     if (row.unavailable && now - at < NO_COVERAGE_RETRY_DAYS * DAY_MS) return -1;
     return now - at;
   };
-  return symbols.map((sym) => ({ sym, age: age(sym) })).filter((item) => item.age >= 0)
-    .sort((a, b) => b.age - a.age || a.sym.localeCompare(b.sym)).slice(0, limit).map((item) => item.sym);
+  return symbols.map((sym) => ({ sym, age: age(sym), fresh: !previousRows[sym] })).filter((item) => item.age >= 0)
+    .sort((a, b) => b.fresh - a.fresh || (a.fresh && b.fresh ? priorityCompare(priority, a.sym, b.sym) : 0) || b.age - a.age || a.sym.localeCompare(b.sym))
+    .slice(0, limit).map((item) => item.sym);
+}
+
+// Index weights and dollar volume from the screener artifact this workflow writes before this step; best effort.
+export function consensusPriority(screener) {
+  const priority = {};
+  const weights = screener?.indexWeights;
+  const columns = Array.isArray(weights?.columns) ? weights.columns : [];
+  const symAt = columns.indexOf('sym'); const weightAt = columns.indexOf('weight');
+  if (symAt >= 0 && weightAt >= 0) for (const row of Array.isArray(weights.rows) ? weights.rows : []) {
+    const sym = String(row?.[symAt] || '').toUpperCase(); const weight = Number(row?.[weightAt]);
+    if (sym && Number.isFinite(weight)) priority[sym] = { ...(priority[sym] || {}), weight };
+  }
+  for (const [sym, row] of Object.entries(screener?.data || {})) {
+    const value = Number(row?.dollarVolume30d);
+    if (Number.isFinite(value) && (!row?.dollarVolumeCurrency || row.dollarVolumeCurrency === 'USD')) priority[sym.toUpperCase()] = { ...(priority[sym.toUpperCase()] || {}), dollarVolume30d: value };
+  }
+  return priority;
 }
 
 async function main() {
@@ -100,7 +126,9 @@ async function main() {
   const keep = new Set(symbols);
   for (const [sym, row] of Object.entries(previous?.rows || {})) if (keep.has(sym)) rows[sym] = row;
   const now = Date.now();
-  const batch = pickBatch(symbols, rows, now, BATCH_LIMIT);
+  let priority = null;
+  try { priority = consensusPriority(JSON.parse(await readFile(`${ROOT}/public-data/screener.json`, 'utf8'))); } catch { /* order by age only */ }
+  const batch = pickBatch(symbols, rows, now, BATCH_LIMIT, priority);
   let refreshed = 0; let unavailable = 0; let kept = 0; let failed = 0; let consecutive = 0; let blocked = false;
   for (const sym of batch) {
     const code = encodeURIComponent(nasdaqSymbol(sym));

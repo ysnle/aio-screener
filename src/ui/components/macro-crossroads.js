@@ -109,16 +109,33 @@ function timeline(doc, model) {
 
 // The map is the only list of branches: each row is a <details class="xr-branch"> whose summary is the map row (keyboard
 // operable, expanded state announced) and whose body is that branch's detail, opened in place.
-function branchMap(doc, root, model, openIds) {
+// Expert review 2026-10-14: the branches the current state points to (lead, tied, alternative) come first and the lead
+// opens on first paint; the rest sit in one fold so the page reads the current branch before the others.
+function branchMap(doc, root, model, openIds, { firstPaint = false, restOpen = false } = {}) {
   const map = el(doc, 'div', null, 'xr-map');
   map.append(el(doc, 'div', '지금', 'xr-map-now'));
   const list = el(doc, 'ul', null, 'xr-map-branches');
-  for (const item of model.items) {
-    const row = el(doc, 'li', null, 'xr-map-branch');
-    row.dataset.branch = item.id;
-    if (item.id === model.leadId) row.dataset.lead = 'true';
-    row.append(branchCard(doc, root, item, item.id === model.leadId, openIds.has(item.id)));
-    list.append(row);
+  const current = new Set([model.leadId, model.altId, ...(model.tiedIds || [])].filter(Boolean));
+  const rank = (item) => (item.id === model.leadId ? 0 : (model.tiedIds || []).includes(item.id) ? 1 : item.id === model.altId ? 2 : 3);
+  const row = (item) => {
+    const li = el(doc, 'li', null, 'xr-map-branch');
+    li.dataset.branch = item.id;
+    if (item.id === model.leadId) li.dataset.lead = 'true';
+    li.append(branchCard(doc, root, item, item.id === model.leadId, openIds.has(item.id) || (firstPaint && item.id === model.leadId)));
+    return li;
+  };
+  const ordered = current.size ? [...model.items].sort((a, b) => rank(a) - rank(b)) : model.items;
+  const rest = current.size ? ordered.filter((item) => !current.has(item.id)) : [];
+  for (const item of ordered.filter((item) => !rest.includes(item))) list.append(row(item));
+  if (rest.length) {
+    const holder = el(doc, 'li', null, 'xr-map-branch xr-map-rest-row');
+    const fold = el(doc, 'details', null, 'xr-map-rest');
+    fold.open = restOpen || rest.some((item) => openIds.has(item.id));
+    const inner = el(doc, 'ul', null, 'xr-map-branches');
+    inner.append(...rest.map(row));
+    fold.append(el(doc, 'summary', `지금 조건과 덜 맞는 길 ${rest.length}개 — 펼쳐 보기`, 'xr-map-rest-summary'), inner);
+    holder.append(fold);
+    list.append(holder);
   }
   map.append(list);
   return map;
@@ -129,6 +146,8 @@ export function openCrossroadsBranch(doc, root, branchId) {
   const reveal = () => {
     const card = doc?.querySelector?.(`.xr-branch[data-branch="${branchId}"]`);
     if (!card) return false;
+    const fold = card.closest?.('.xr-map-rest');
+    if (fold) fold.open = true;
     card.open = true;
     card.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
     card.querySelector('summary')?.focus?.({ preventScroll: true });
@@ -258,12 +277,14 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   root.__aioMacroCrossroads = model;
   if (!target.dataset.aioScenarioLoad) { target.dataset.aioScenarioLoad = 'on'; refreshScenarioArtifacts(root, () => renderMacroCrossroads({ documentRef: doc, root, regime, host: target })); }
   const openIds = new Set([...target.querySelectorAll('.xr-branch[open]')].map((node) => node.dataset.branch));
+  const firstPaint = !target.querySelector('.xr-branch');
+  const restOpen = !!target.querySelector('.xr-map-rest[open]');
   const focused = target.contains?.(doc.activeElement) ? doc.activeElement?.closest?.('.xr-branch')?.dataset.branch : null;
   if (!model.available) { target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead')); return model; }
   const basis = el(doc, 'p', `${model.asOf || '기준일 미확인'} 관측 기준 · 예측이 아니라, 다음 발표가 어느 길로 갈지 가를 때 무엇을 보고 어떻게 대응할지의 지도입니다. 가능성은 조건 부합 수 · 시장 가격 방향 · 과거 빈도로만 말하고 확률 숫자는 쓰지 않습니다.`, 'xr-basis');
   // The rate hub (why rates lead, the proxy caveat once) comes first; the map below opens each branch in place.
   const mapHead = el(doc, 'h3', `${model.items.length}갈래의 길 — 눌러서 근거와 선택지 보기`, 'xr-h3');
-  target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), basis, timeline(doc, model), rateHub(doc, model), mapHead, branchMap(doc, root, model, openIds), ...[changeLog(doc, root?.[SCENARIO_STATE.key])].filter(Boolean),
+  target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), basis, timeline(doc, model), rateHub(doc, model), mapHead, branchMap(doc, root, model, openIds, { firstPaint, restOpen }), ...[changeLog(doc, root?.[SCENARIO_STATE.key])].filter(Boolean),
     el(doc, 'p', '세부 종목 선택은 차트·기업·테마·스크리너에서 직접 합니다. 이 지도는 가격·수량·시점을 제시하지 않습니다.', 'xr-caveat'));
   target.dataset.aioCrossroads = 'native';
   if (focused) target.querySelector(`.xr-branch[data-branch="${focused}"] > summary`)?.focus?.({ preventScroll: true }); // a repaint keeps keyboard focus
@@ -279,7 +300,8 @@ function themeLines(doc, root) {
   const pullbacks = (state.highlights?.structuralPullbacks || []).map((key) => byKey.get(key)).filter(Boolean).slice(0, 4);
   const lines = [];
   if (state.rotation?.text) lines.push(el(doc, 'p', `테마: ${state.rotation.text}`, 'xr-reading'));
-  if (pullbacks.length) lines.push(el(doc, 'p', `긴 추세 속 조정이면서 거시 역풍이 아닌 테마: ${pullbacks.map((row) => row.label).join(', ')} — 나눠 접근하는 쪽의 기회비용이 상대적으로 작은 조합입니다(구조 가설이 깨지면 중단).`, 'xr-reading'));
+  const ret1m = (value) => (Number.isFinite(value) ? `1개월 ${value >= 0 ? '+' : ''}${value.toFixed(1)}%` : '1개월 —');
+  if (pullbacks.length) lines.push(el(doc, 'p', `긴 추세 속 조정이면서 거시 역풍이 아닌 테마: ${pullbacks.map((row) => `${row.market === 'KR' ? '한국' : '미국'} ${row.label}(${ret1m(row.ret1m)})`).join(', ')} — 나눠 접근하는 쪽의 기회비용이 상대적으로 작은 조합입니다(구조 가설이 깨지면 중단).`, 'xr-reading'));
   return lines;
 }
 
@@ -338,7 +360,9 @@ export function renderCrossroadsCompact({ documentRef: doc, root, regime = null,
       : `다음 발표가 가를 길${event ? ` · ${event}` : ''} — 지금은 '${short(lead)}' 쪽 조건이 더 맞습니다.`;
     parts.push(el(doc, 'p', leadLine, 'xr-lead'), chainRow(doc, lead.chain));
     const cards = el(doc, 'div', null, 'xr-path-cards');
-    cards.append(pathCard(doc, root, lead, { kicker: tied ? '먼저 볼 길' : '조건이 더 맞는 길', fit: sameFit ? null : lead.fit }));
+    // Expert review 2026-10-14: a tie is not a ranking — the first card says why it is first, or both read '함께 볼 길'.
+    const pricedFirst = tied && lead.pricing.tone === 'same' && alt.pricing.tone !== 'same';
+    cards.append(pathCard(doc, root, lead, { kicker: !tied ? '조건이 더 맞는 길' : pricedFirst ? '시장 가격도 같은 방향인 길' : '함께 볼 길', fit: sameFit ? null : lead.fit }));
     if (alt) cards.append(pathCard(doc, root, alt, { kicker: '함께 볼 길', fit: sameFit ? null : alt.fit }));
     parts.push(cards, el(doc, 'p', "'상대적으로 유리한 쪽'은 그 길이 실제로 이어질 때의 비용 비교이며, 따라 하라는 뜻은 아닙니다.", 'xr-scope-note'));
     if (model.rateHub.tension) parts.push(el(doc, 'p', model.rateHub.tension, 'xr-tension'));

@@ -117,7 +117,7 @@ export async function requestWorkersAiTranslation(titles, { env = process.env, f
       redirect: 'error',
     });
     const body = await response.json().catch(() => null);
-    if (!response.ok || !Array.isArray(body?.translations)) return { translations: null, reason: `workers-ai-http-${response.status}${body?.error ? `-${String(body.error).slice(0, 40)}` : ''}` };
+    if (!response.ok || !Array.isArray(body?.translations)) return { translations: null, reason: `workers-ai-http-${response.status}${body?.error ? `-${String(body.error).slice(0, 40)}` : ''}${body?.detail ? ` (${String(body.detail).replace(/\s+/g, ' ').slice(0, 120)})` : ''}` };
     return { translations: body.translations, model: body.model || null, reason: null };
   } catch (error) {
     return { translations: null, reason: error?.name === 'AbortError' ? 'workers-ai-timeout' : 'workers-ai-error' };

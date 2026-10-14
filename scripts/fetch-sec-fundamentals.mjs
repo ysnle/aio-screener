@@ -130,7 +130,7 @@ function acceptedAtByAccession(submissions) {
 // fiscal year end, period.js) instead of its own 550-day budget, so its quality label and the screener agree.
 const REPORT_RECENCY_MAX_DAYS = FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
 // Stored records written by an older normalizer are due for re-fetch (in addition to the publish-time heal).
-export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-10-13';
+export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-10-14';
 
 // The earliest instant a single operand could have been known: its accession acceptance time
 // when available, otherwise the filing date (which is a date, not an intraday time).
@@ -154,7 +154,9 @@ function latestIso(values) {
 // P1374: concept-coverage failures are only terminal for the concept set that produced them.
 // Bump when the annual revenue/income concept lists change so those rows are rechecked once.
 // v3 (2026-10-13 F06): RevenueFromContractWithCustomerIncludingAssessedTax added (VLO; XOM rechecked).
-export const SEC_CONCEPT_SET_VERSION = 'sec-annual-concepts.v3';
+// v4 (2026-10-14): utility revenue (RegulatedAndUnregulatedOperatingRevenue, ElectricUtilityRevenue) as primary,
+// SalesRevenueGoodsNet as fallback; EPS-implied share count as the last share candidate.
+export const SEC_CONCEPT_SET_VERSION = 'sec-annual-concepts.v4';
 
 export function classifyIssuerCapability(companyFacts, submissions = null) {
   const taxonomies = Object.keys(companyFacts?.facts || {});
@@ -297,7 +299,10 @@ function migrateLegacyPointInTimeData(data = {}) {
 // shares, P/E 2-9) and multi-class filers (GOOGL/META) whose cover counts are only class-dimensioned — which
 // companyfacts omits, so a per-class sum is not available here — had none. Each candidate is checked against
 // net income ÷ diluted EPS (P1587); a scale mismatch moves on to the next candidate.
-function selectShareCount(companyFacts, currentRevenue, netIncome, eps) {
+// 2026-10-14: when no reported count exists at all (multi-class filers whose dei counts are class-dimensioned),
+// net income ÷ diluted EPS of the same fiscal year is the last candidate. It is not used after a reported
+// count was rejected, so a P1587 scale mismatch is still withheld rather than repriced.
+function selectShareCount(companyFacts, currentRevenue, netIncome, eps, dilutedEpsRow = null) {
   const fiscalEnd = currentRevenue.end;
   const gap = (row) => shareGapDays(row.end, fiscalEnd);
   const withinYear = (rows) => rows.filter((row) => { const days = gap(row); return days != null && days <= SEC_SHARES_MAX_GAP_DAYS; });
@@ -325,6 +330,12 @@ function selectShareCount(companyFacts, currentRevenue, netIncome, eps) {
     return { row, value, basis, check };
   }
   if (rejected) return { row: rejected.row, value: null, basis: rejected.basis, check: 'scale-mismatch' };
+  const dilutedEps = finiteFact(dilutedEpsRow?.val);
+  const impliedDiluted = Number.isFinite(netIncome) && Number.isFinite(dilutedEps) && dilutedEps !== 0 ? netIncome / dilutedEps : null;
+  if (Number.isFinite(impliedDiluted) && impliedDiluted > 0) {
+    const row = { val: impliedDiluted, end: dilutedEpsRow.end, filed: dilutedEpsRow.filed, accn: dilutedEpsRow.accn, form: dilutedEpsRow.form };
+    return { row, value: impliedDiluted, basis: 'eps-implied', check: 'consistent' };
+  }
   return { row: null, value: null, basis: null, check: dei.length ? 'stale-period' : 'unreported' };
 }
 
@@ -382,7 +393,9 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   const epsRow = dedupeLatestFiled(factRows(companyFacts, 'us-gaap', ['EarningsPerShareDiluted', 'EarningsPerShareBasic'], 'USD/shares')
     .filter((row) => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && row.end === currentRevenue.end && finiteFact(row.val) != null))[0] || null;
   const eps = finiteFact(epsRow?.val);
-  const shareSelection = selectShareCount(companyFacts, currentRevenue, netIncome, eps);
+  const dilutedEpsRow = dedupeLatestFiled(factRows(companyFacts, 'us-gaap', ['EarningsPerShareDiluted'], 'USD/shares')
+    .filter((row) => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && row.end === currentRevenue.end && finiteFact(row.val) != null))[0] || null;
+  const shareSelection = selectShareCount(companyFacts, currentRevenue, netIncome, eps, dilutedEpsRow);
   const currentShares = shareSelection.row;
   const sharesCheck = shareSelection.check;
   const sharesOutstanding = shareSelection.value;
@@ -460,7 +473,7 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     // P1587 + F03/F04: consistent | scale-mismatch (withheld) | unchecked | stale-period / unreported (no count
     // within 400 days of the fiscal year end — withheld, P/E·P/B·reference market cap stay empty)
     sharesCheck,
-    sharesBasis: Number.isFinite(sharesOutstanding) ? shareSelection.basis : null, // dei-cover | weighted-diluted | common-shares-outstanding
+    sharesBasis: Number.isFinite(sharesOutstanding) ? shareSelection.basis : null, // dei-cover | weighted-diluted | common-shares-outstanding | eps-implied
     sharesObservedAt: Number.isFinite(sharesOutstanding) ? currentShares?.end || null : null,
     normalizerVersion: SEC_NORMALIZER_VERSION,
     revenueConcept: currentRevenue.concept || null,

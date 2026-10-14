@@ -173,14 +173,21 @@ export function installCustomConditions(documentRef) {
   renderChips();
   return {
     /** rows: the listing market's rows; counts: conditionCoverage result; shown: rows left after every filter. */
-    update(counts = [], shown = null) {
+    update(counts = [], shown = null, available = null) {
+      if (available) {
+        for (const option of select.querySelectorAll('option[value]')) {
+          if (!option.value) continue;
+          option.disabled = !available.has(option.value);
+          option.textContent = `${conditionLabel({ id: option.value })}${option.disabled ? ' — 이 시장 자료 없음' : ''}`;
+        }
+      }
       const fromInput = parseConditionValue(input.value);
       if (JSON.stringify(fromInput) !== JSON.stringify(current)) { current = fromInput; store(current); }
       lastCounts = new Map(counts.map((item) => [item.id, item]));
       renderChips();
       const missing = counts.filter((item) => !item.withData).length;
       note.textContent = [current.length && shown != null ? `조건을 모두 만족하고 다른 필터도 통과한 종목 ${shown}개` : '',
-        missing ? '자료 없음 조건은 다음 데이터 갱신부터 채워집니다(새로 추가한 지표).' : '', parseNote].filter(Boolean).join(' · ');
+        missing ? '자료 없음 조건은 이 시장 종목에 해당 자료가 없거나(재무는 미국만) 다음 데이터 갱신부터 채워집니다.' : '', parseNote].filter(Boolean).join(' · ');
     },
     dispose() {
       host.removeEventListener('click', onClick);

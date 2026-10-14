@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v57.58 — 올인원 투자 터미널</title>
+  <title>AIO Screener v57.59 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -33,14 +33,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=57.58" defer></script>
-<script src="./js/aio-macro-tech.js?v=57.58" defer></script>
-<script src="./js/aio-kr-data.js?v=57.58" defer></script>
-<script src="./js/aio-pages.js?v=57.58" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=57.58">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=57.58">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.58">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.58">
+<script src="./js/aio-workspace.js?v=57.59" defer></script>
+<script src="./js/aio-macro-tech.js?v=57.59" defer></script>
+<script src="./js/aio-kr-data.js?v=57.59" defer></script>
+<script src="./js/aio-pages.js?v=57.59" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=57.59">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=57.59">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.59">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.59">
   <!-- v48.31 perf: CDN 스크립트 다운로드 hint. P1756: Chart.js / lightweight-charts are no longer preloaded — they load on first chart use. -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js">
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
@@ -1443,7 +1443,7 @@ body {
 .guide-rules td { padding: 7px 8px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); vertical-align: top; font-variant-numeric: tabular-nums; }
 .guide-rules td.is-favorable { color: var(--data-green); }
 .guide-rules td.is-burden { color: var(--data-red); }
-.guide-ref summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-secondary); min-height: 24px; display: list-item; }
+.guide-ref summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-secondary); min-height: 24px; display: list-item; } #page-guide a, #page-guide a:visited { color: var(--accent-text); text-decoration: underline; text-underline-offset: 2px; } /* live review 2026-10-14: browser-default blue/purple failed AA on the dark card */
 .rates-guide { border: 1px solid var(--border-subtle); border-radius: 6px; padding: 8px 12px; margin: 0 0 18px; background: var(--surface-1, var(--bg-card)); }
 .rates-guide summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-primary); min-height: 24px; display: list-item; }
 .rates-guide ul { margin: 8px 0 2px; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
@@ -4200,7 +4200,7 @@ button[data-filter-active="true"] {
           </span>
           <span id="live-quote-ts" style="font-size:var(--fs-xs);color:var(--text-muted);font-family:var(--font-sans);font-weight:500;">연결 중...</span>
           <!-- R1: visible release identity; market volatility stays in the market card. -->
-          <span class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;" id="app-version-badge">v57.58</span>
+          <span class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;" id="app-version-badge">v57.59</span>
           <!-- v48.43: AI 분석가 버튼 -->
           <button id="topbar-help-btn" class="aio-btn-table" data-action="showPage" data-arg="guide" title="도움말 · 화면 안내와 판정 기준">도움말</button>
           <button id="topbar-ai-btn" class="aio-btn-table" data-action="toggleAIPanel" aria-label="AI 도우미 열기/닫기" aria-expanded="false" aria-controls="ai-panel" title="AI 도우미 · 교육/리서치 보조 사이드바">AI 도우미</button>
@@ -5121,7 +5121,7 @@ button[data-filter-active="true"] {
     <div id="macro-regime"></div>
   </section>
   <section class="briefing-block macro-section" aria-labelledby="macro-axes-title">
-    <h2 class="briefing-h2" id="macro-axes-title">증시에 주는 영향 — 6개 축</h2>
+    <h2 class="briefing-h2" id="macro-axes-title">증시에 주는 영향 — 거시 6요인</h2>
     <p class="briefing-footnote macro-section-lead">각 축은 공개된 기준으로 우호·중립·부담을 판정합니다. 기준은 카드 맨 아래에 있고, 금리·유가와 달러·신용은 시장 상태 화면과 같은 판정입니다.</p>
     <div class="regime-board" id="macro-axes"></div>
   </section>
@@ -5389,7 +5389,7 @@ button[data-filter-active="true"] {
     <h2 class="briefing-h2" id="rates-axes-title">환율이 증시에 주는 영향</h2>
     <!-- P1505: the policy, rate, oil-dollar and credit cards repeated the 거시 경제 six-axis board word for word. This tab keeps
          only the axis it owns (원·엔) and points to the full judgment once. -->
-    <p class="briefing-footnote macro-section-lead">통화정책·금리·유가·신용이 증시에 주는 영향은 <button type="button" class="flow-next-link" data-action="showPage" data-arg="macro">거시 경제의 6축 판정</button>에서 함께 봅니다.</p>
+    <p class="briefing-footnote macro-section-lead">통화정책·금리·유가·신용이 증시에 주는 영향은 <button type="button" class="flow-next-link" data-action="showPage" data-arg="macro">거시 경제의 6요인 판정</button>에서 함께 봅니다.</p>
     <div class="regime-board" id="rates-axes"></div>
   </section>
   <section class="briefing-block rates-block" aria-labelledby="rates-fx-title">
@@ -7062,7 +7062,7 @@ button[data-filter-active="true"] {
     <div role="tablist" aria-label="스크리너 보조 분석" style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:12px;">
       <button id="scr-tab-button-ranking" role="tab" aria-selected="true" aria-controls="scr-tab-ranking" data-aio-screener-action="tab" data-aio-screener-arg="ranking" style="background:none;border:none;border-bottom:2px solid var(--accent);color:var(--accent);font-size:12px;font-weight:700;padding:8px 14px;cursor:pointer;letter-spacing:.03em;">랭킹</button>
       <button id="scr-tab-button-factors" role="tab" aria-selected="false" aria-controls="scr-tab-factors" data-aio-screener-action="tab" data-aio-screener-arg="factors" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:12px;font-weight:600;padding:8px 14px;cursor:pointer;letter-spacing:.03em;">팩터·국면</button>
-      <button id="scr-tab-button-backtest" role="tab" aria-selected="false" aria-controls="scr-tab-backtest" data-aio-screener-action="tab" data-aio-screener-arg="backtest" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:12px;font-weight:600;padding:8px 14px;cursor:pointer;letter-spacing:.03em;" title="정보계수(IC): 팩터 순위와 이후 수익률 순위가 얼마나 같은 방향이었는지 과거 자료로 잰 값">과거 검증(IC)</button>
+      <button id="scr-tab-button-backtest" role="tab" aria-selected="false" aria-controls="scr-tab-backtest" data-aio-screener-action="tab" data-aio-screener-arg="backtest" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:12px;font-weight:600;padding:8px 14px;cursor:pointer;letter-spacing:.03em;" title="정보계수(IC): 팩터 순위와 이후 수익률 순위가 얼마나 같은 방향이었는지 과거 자료로 잰 값">과거 검증</button>
       <button id="scr-tab-button-evidence" role="tab" aria-selected="false" aria-controls="scr-tab-evidence" data-aio-screener-action="tab" data-aio-screener-arg="evidence" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:12px;font-weight:600;padding:8px 14px;cursor:pointer;letter-spacing:.03em;">조건부 증거</button>
     </div>
 
@@ -7104,7 +7104,7 @@ button[data-filter-active="true"] {
     <!-- 탭: 백테스트 IC -->
     <div id="scr-tab-backtest" role="tabpanel" aria-labelledby="scr-tab-button-backtest" style="display:none;">
       <div class="aio-vis-card" style="margin-bottom:12px;">
-        <div class="aio-vis-card-title" title="정보계수(IC): 팩터 순위와 이후 수익률 순위가 얼마나 같은 방향이었는지 과거 자료로 잰 값">팩터 과거 검증 · 정보계수(IC)</div>
+        <div class="aio-vis-card-title" title="정보계수(IC): 팩터 순위와 이후 수익률 순위가 얼마나 같은 방향이었는지 과거 자료로 잰 값">팩터 과거 검증 · 순위와 이후 수익률이 같은 방향으로 움직인 정도</div>
         <div id="screener-backtest-panel"><div style="font-size:11px;color:var(--text-muted);">팩터 검증 파일 확인 중...</div></div>
       </div>
     </div>
@@ -7140,7 +7140,7 @@ button[data-filter-active="true"] {
     <div id="scr-adv-filter-row">
       <span style="font-size:10px;color:var(--data-cyan);font-weight:700;letter-spacing:.03em;text-transform:uppercase;flex-shrink:0;" title="조건·순위 결과는 그대로이고 표에 보이는 행만 줄어듭니다">표 범위만 좁히기</span>
       <select id="scr-setup" aria-label="구조·근거 필터" class="aio-btn-table" style="font-size:11px;padding:3px 7px;">
-        <option value="">전체 구조·근거</option><option value="WINNER" title="TradingView 승자 화면 조건 기준">승자 필터(가격·ADR·유동성·EMA)</option>
+        <option value="">전체 구조·근거</option><option value="WINNER" title="TradingView 승자 화면 조건 기준">승자 필터(가격·하루 평균 변동폭(ADR)·유동성·EMA)</option>
         <option value="RSPULLBACK">상대강도 풀백 후보</option><option value="SUPPORT200">200일선 부근</option><option value="CLIMAX">클라이맥스 탑 주의</option>
       </select>
       <label style="font-size:11px;color:var(--text-muted);">랭크 ≥</label>
@@ -7228,7 +7228,7 @@ button[data-filter-active="true"] {
           <span style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);">과거 검증</span>
           <button class="aio-btn-table" style="font-size:10px;" data-aio-screener-action="tab" data-aio-screener-arg="backtest">과거 검증 보기</button>
         </div>
-        <div id="scr-backtest-summary-compact" style="font-size:12px;color:var(--text-dim);line-height:1.7;">과거 검증(IC) 탭에서 팩터별 검증 상세 확인</div>
+        <div id="scr-backtest-summary-compact" style="font-size:12px;color:var(--text-dim);line-height:1.7;">과거 검증 탭에서 팩터별 검증 상세 확인</div>
       </div>
     </div>
     </div><!-- /scr-tab-ranking -->
@@ -7616,7 +7616,7 @@ button[data-filter-active="true"] {
           <strong>시장 환경:</strong> NASDAQ 10MA &gt; 20MA·상향 = 단기 추세가 유지되는 관찰. 10MA &lt; 20MA = 환경이 불리했다는 관찰이며, 현금 비중 확대 같은 대응은 개인 판단·계좌 상황에 따릅니다. 나쁜 장세에서 무리한 포지션은 피하는 것이 일반적 교육 원칙입니다
         </div>
         <div class="aio-info-box" style="font-size:10px;">
-          <strong>스캔 루틴:</strong> 장마감 후 1M/3M/6M 상위 1~7% 스캔 → ADR 5%+ → 50종목 이내 압축 → 10/20/50MA 지지 + Higher Lows + Tight Range 확인
+          <strong>스캔 루틴:</strong> 장마감 후 1M/3M/6M 상위 1~7% 스캔 → 하루 평균 변동폭(ADR) 5%+ → 50종목 이내 압축 → 10/20/50MA 지지 + Higher Lows + Tight Range 확인
         </div>
         <div class="aio-info-box" style="font-size:10px;">
            <strong>실적 전 주의:</strong> 어닝 발표 2~3일 전에는 갭다운·유동성 리스크와 무효화 계획을 먼저 확인합니다. EP 셋업은 발표 '이후' 반응을 관찰
@@ -7819,15 +7819,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=57.58" defer></script>
-  <script src="./js/aio-data.js?v=57.58" defer></script>
-  <script src="./js/aio-ui.js?v=57.58" defer></script>
+  <script src="./js/aio-core.js?v=57.59" defer></script>
+  <script src="./js/aio-data.js?v=57.59" defer></script>
+  <script src="./js/aio-ui.js?v=57.59" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=57.58" defer></script>
+<script src="./js/aio-chat.js?v=57.59" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -7878,7 +7878,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=57.58" defer></script>
+<script src="./js/aio-glossary.js?v=57.59" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

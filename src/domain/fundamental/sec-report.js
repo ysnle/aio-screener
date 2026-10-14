@@ -159,8 +159,11 @@ export const SEC_MARGIN_HOLD_ABOVE_PCT = 100;
 // Primary revenue concepts compete on size for the same fiscal period: a customer-contract subtotal never
 // exceeds total revenues (REITs, insurers, banks report rent/premium/interest outside ASC 606). The
 // assessed-tax-inclusive concept (XOM/VLO style) is used only when no primary concept reported the period.
-export const SEC_PRIMARY_REVENUE_CONCEPTS = Object.freeze(['Revenues', 'RevenueFromContractWithCustomerExcludingAssessedTax', 'SalesRevenueNet', 'RevenuesNetOfInterestExpense']);
-export const SEC_FALLBACK_REVENUE_CONCEPTS = Object.freeze(['RevenueFromContractWithCustomerIncludingAssessedTax']);
+// 2026-10-14 (sec-annual-concepts.v4): utility totals compete as primary; a goods-only line is a fallback because the
+// selection takes one row per period (never a sum), so a goods or services component must not outrank a total.
+// SalesRevenueServicesNet is not added: without summation it would publish a partial revenue for mixed filers.
+export const SEC_PRIMARY_REVENUE_CONCEPTS = Object.freeze(['Revenues', 'RevenueFromContractWithCustomerExcludingAssessedTax', 'SalesRevenueNet', 'RevenuesNetOfInterestExpense', 'RegulatedAndUnregulatedOperatingRevenue', 'ElectricUtilityRevenue']);
+export const SEC_FALLBACK_REVENUE_CONCEPTS = Object.freeze(['RevenueFromContractWithCustomerIncludingAssessedTax', 'SalesRevenueGoodsNet']);
 // Reference market-cap plausibility (P1318): a share basis whose implied daily turnover falls outside this band is
 // a scale, ADR-ratio or share-class error, not a company size.
 export const SEC_REFERENCE_TURNOVER_BOUNDS = Object.freeze({ min: 0.0005, max: 0.2 });

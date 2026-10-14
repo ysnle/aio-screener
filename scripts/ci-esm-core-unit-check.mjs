@@ -1959,6 +1959,13 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const builtRow = buildConsensusRow({ quarterlyForecast: { rows: ['Jul 2026', 'Oct 2026', 'Jan 2027', 'Apr 2027', 'Jul 2027'].map((fiscalEnd, i) => ({ fiscalEnd, consensusEPSForecast: 1 + i, highEPSForecast: 2 + i, lowEPSForecast: i, noOfEstimates: 5, up: 1, down: 0 })) } },
     { earningsSurpriseTable: { rows: ['Jul 2026', 'Apr 2026', 'Jan 2026', 'Oct 2025'].map((fiscalQtrEnd) => ({ fiscalQtrEnd, eps: 1, dateReported: '8/26/2026' })) } }, 'now');
   if (builtRow?.fwd?.from !== '2026-10' || builtRow.fwd.eps !== 14 || builtRow.trailing.eps !== 4 || builtRow.fwd.up4w !== 4) fail(`v57.54 a forecast row already reported is not "ahead", got ${JSON.stringify(builtRow)}`);
+  // 2026-10-14: never-fetched symbols go by index weight, then 30-session dollar volume, before older rows.
+  const { pickBatch, consensusPriority } = await load('scripts/fetch-consensus-estimates.mjs');
+  const consensusPriorityMap = consensusPriority({ indexWeights: { columns: ['sym', 'sector', 'weight', 'name'], rows: [['MSFT', 'IT', 6.1, 'Microsoft'], ['AAPL', 'IT', 6.5, 'Apple']] },
+    data: { AAPL: { dollarVolume30d: 1e10, dollarVolumeCurrency: 'USD' }, ZZZ: { dollarVolume30d: 5e9, dollarVolumeCurrency: 'USD' }, AAA: { dollarVolume30d: 1e6, dollarVolumeCurrency: 'USD' } } });
+  const pickNow = Date.parse('2026-10-14T00:00:00Z');
+  const picked = pickBatch(['AAA', 'OLD', 'ZZZ', 'MSFT', 'AAPL'], { OLD: { asOf: '2026-09-01T00:00:00Z' } }, pickNow, 5, consensusPriorityMap);
+  if (picked.join(',') !== 'AAPL,MSFT,ZZZ,AAA,OLD' || pickBatch(['B', 'A'], {}, pickNow, 2).join(',') !== 'A,B') fail(`consensus batch must order first-time symbols by weight then dollar volume, got ${picked.join(',')}`);
 
   // v57.54 (owner image 3): per-market price temperature — five three-year ranks side by side, an extreme spell only
   // when three components sit in the same decile, no average (D02); US markets first; the producer never ranks an
@@ -2155,6 +2162,14 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     || custom.matchesConditions({ ...stacked, pctSma10: 0.5 }, parsedCustom.conditions, readRaw)
     || custom.matchesConditions({ ...stacked, pe: null }, parsedCustom.conditions, readRaw)
     || custom.matchesConditions({ ...stacked, pe: -5 }, parsedCustom.conditions, readRaw)) fail('v57.58: custom conditions must require the MA order, a positive PER under the cap and present data');
+  const vcpOnly = [{ id: 'vcp' }];
+  const usable = custom.availableConditionIds([{ vcpStage: 'base', pe: null }], readRaw);
+  if (!custom.matchesConditions({ vcpStage: 'contracting' }, vcpOnly, readRaw) || !custom.matchesConditions({ vcpStage: 'near_pivot' }, vcpOnly, readRaw)
+    || custom.matchesConditions({ vcpStage: 'near_pivot', vcpShrinking: false }, vcpOnly, readRaw) || custom.matchesConditions({ vcpStage: 'breakout' }, vcpOnly, readRaw)
+    || custom.matchesConditions({ vcpStage: 'near_pivot', vcpContractions: 1, vcpShrinking: null }, vcpOnly, readRaw)
+    || !custom.matchesConditions({ vcpStage: 'near_pivot', vcpContractions: 3, vcpShrinking: true }, vcpOnly, readRaw)
+    || custom.matchesConditions({ vcpStage: 'near_pivot', vcpContractions: 3, vcpShrinking: false }, vcpOnly, (await load('src/ui/pages/screener.js')).customRead)
+    || !usable.has('vcp') || usable.has('pe-max')) fail('v57.59: VCP 수렴 needs contraction (near pivot only while still shrinking) and a market without a field greys that condition out');
   // v57.58 (live review 4f): the long-history position is the share of months at or below the latest one.
   const { longHistoryRows } = await load('src/domain/macro/long-history.js');
   const months = Array.from({ length: 200 }, (_, index) => [`${1990 + Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, '0')}`, index < 199 ? index : 49.5]);

@@ -101,7 +101,7 @@ function renderTickerHero(documentRef, state, root) {
   const krName = isKr ? (registryName || (state?.name && state.name !== id ? state.name : null)) : null;
   setText(documentRef, 'ticker-hero-name', krName || id || '종목 분석');
   setText(documentRef, 'ticker-hero-fullname', id
-    ? (krName ? id : (state?.name || (state?.id ? id : `${root?._currentTickerName || id} · 시세 수신 대기`)))
+    ? (krName ? id : (state?.name || (state?.id ? id : `${root?._currentTickerName || id} · ${root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다' : '시세 불러오는 중'}`)))
     : '종목을 검색하세요');
   // P1317: a KRX listing (.KS/.KQ) trades only in KRW — the venue, not a guess, fixes the quote currency.
   // P1689: a fallback quote can arrive without a currency; use one already observed for this symbol (live envelope or
@@ -126,7 +126,8 @@ function renderTickerHero(documentRef, state, root) {
     if (!status) { status = documentRef.createElement('div'); status.id = 'ticker-summary-price-basis'; status.className = 'entity-summary-price-basis'; priceNode.after(status); }
     const meta = root?._aioEntitySummaries?.[id];
     const valueBasis = root?._liveData?.[id]?.quoteEnvelope?.valueBasis || meta?.quote?.valueBasis;
-    status.textContent = price == null ? root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세 제공처 응답 없음 · 다시 선택해 확인' : '현재 시세 확인 중' : `${valueBasis === 'completed-daily-close' ? '완료 일봉 종가' : '정규장 관측가'}${quote.observedAt ? ` · ${formatKstStamp(quote.observedAt) || String(quote.observedAt)}` : ' · 관측 시각 미확인'}${quote.changeCheck === 'corrected' && quote.changeBasisDate ? ` · 등락률은 ${String(quote.changeBasisDate).slice(5).replace('-', '/')} ${quote.changeBasis === 'screener-reconciled-session-change' ? '거래소 종가 기준' : '거래소 종가 대비'}` : ''}`;
+    // Live review 2026-10-14: a failed fetch says so; only a request still in flight reads as loading.
+    status.textContent = price == null ? root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다 · 종목을 다시 선택해 확인' : root?._aioEntitySummaryStatus?.[id] === 'ready' ? '현재 시세 미수신' : '현재 시세 불러오는 중' : `${valueBasis === 'completed-daily-close' ? '완료 일봉 종가' : '정규장 관측가'}${quote.observedAt ? ` · ${formatKstStamp(quote.observedAt) || String(quote.observedAt)}` : ' · 관측 시각 미확인'}${quote.changeCheck === 'corrected' && quote.changeBasisDate ? ` · 등락률은 ${String(quote.changeBasisDate).slice(5).replace('-', '/')} ${quote.changeBasis === 'screener-reconciled-session-change' ? '거래소 종가 기준' : '거래소 종가 대비'}` : ''}`;
   }
   // P1317/N27: showPage titles the route from the stale hero before this render runs, so the tab,
   // history and bookmarks kept "종목 선택 대기" (or the previous symbol). The owner of the hero owns the title.
@@ -362,7 +363,7 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
   const signature = `${range}|${rows.map((row) => `${row.epochMs}:${row.close}`).join('|')}`;
   const periodLabel = TICKER_CHART_RANGES[range].label;
   const periodMeta = unavailable
-    ? rows.length < 2 ? `${state?.id || '종목'} ${periodLabel} 가격 이력을 불러오는 중이거나 제공처 응답이 없습니다. 종목을 다시 선택해 확인할 수 있습니다.` : '가격 이력은 수신했지만 차트 표시를 준비하지 못했습니다. 새로고침해 다시 확인할 수 있습니다.'
+    ? rows.length < 2 ? (root?._aioEntitySummaryStatus?.[state?.id] === 'unavailable' ? `${state?.id || '종목'} ${periodLabel} 가격 이력을 불러오지 못했습니다. 종목을 다시 선택해 확인할 수 있습니다.` : root?._aioEntitySummaryStatus?.[state?.id] === 'loading' ? `${state?.id || '종목'} ${periodLabel} 가격 이력을 불러오는 중입니다.` : `${state?.id || '종목'} ${periodLabel} 가격 이력이 아직 없습니다. 종목을 다시 선택해 확인할 수 있습니다.`) : '가격 이력은 수신했지만 차트 표시를 준비하지 못했습니다. 새로고침해 다시 확인할 수 있습니다.'
     // P1255 (07:M04 계열 잔여 D4): 차트는 close 계열(배당 미조정)이다 — "수익률"과 섞이지 않도록
     // 가격 기준을 메타에 함께 말한다. S21: 내부 용어 대신 한 줄 독자 문장.
     : `${periodLabel} · ${view.rowCount}개 관측 · ${formatTickerChartDate(view.startEpochMs)} ~ ${formatTickerChartDate(view.endEpochMs)} · 배당 제외 가격 · 요약 수익률은 배당 포함`;
@@ -788,8 +789,13 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
           root._aioEntitySummaryStatus ||= {}; root._aioEntitySummaryStatus[id] = status;
           const page = documentRef?.getElementById('page-ticker');
           if (page) page.dataset.summaryHydrationStatus = status;
-          const label = documentRef?.getElementById('ticker-summary-price-basis');
-          if (label && status === 'unavailable' && !root?._liveData?.[id]?.price) label.textContent = typeof root?._aioIsKnownTicker === 'function' && !root._aioIsKnownTicker(id) ? 'AIO에 등록된 종목이 아닙니다 · 티커 철자를 확인하세요' : '시세 원천 응답 없음 · 잠시 후 다시 확인하세요'; // v57.54 review: NVDAA is not a slow source
+          if (status !== 'unavailable') return;
+          // Live review 2026-10-14: a failure arrives without onReady, so the hero and chart re-render once to drop '불러오는 중'.
+          Promise.resolve().then(() => {
+            if (root?._currentTickerId && String(root._currentTickerId).toUpperCase() === id) renderNow();
+            const label = documentRef?.getElementById('ticker-summary-price-basis');
+            if (label && !root?._liveData?.[id]?.price) label.textContent = typeof root?._aioIsKnownTicker === 'function' && !root._aioIsKnownTicker(id) ? 'AIO에 등록된 종목이 아닙니다 · 티커 철자를 확인하세요' : '시세를 불러오지 못했습니다 · 잠시 후 종목을 다시 선택해 확인하세요'; // v57.54 review: NVDAA is not a slow source
+          });
         } }) : null;
       if (hydrator) bag.add(() => hydrator.dispose());
       const renderNow = () => {

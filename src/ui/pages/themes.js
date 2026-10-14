@@ -1294,6 +1294,8 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         // v57.54 (CI flake, 1 in ~12 under 4x CPU): a refresh/store re-render right after the detail panel closes can
         // replace the trigger the close handler just focused, dropping focus to <body>. Re-focus it once after render.
         let restoreDetailFocus = null;
+        let closeObserver = null; // one at a time; disconnected on success, after 10s, or on unmount
+        bag.add(() => closeObserver?.disconnect?.());
         const renderNow = () => {
            renderThemes({ documentRef, root, store, route });
           renderRRGStatus({ documentRef, root, store, route });
@@ -1358,13 +1360,21 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           trigger?.setAttribute?.('aria-expanded', 'false');
           trigger?.focus?.({ preventScroll: true });
           const closedAt = Date.now();
+          // v57.59: CI still lost focus when the replacing render came from a host outside renderNow (or after 3s under
+          // CPU throttling), so a short-lived observer on the page also retries, for up to 10s.
+          closeObserver?.disconnect?.();
+          let observer = null;
+          const stop = () => { restoreDetailFocus = null; observer?.disconnect?.(); observer = null; closeObserver = null; };
           restoreDetailFocus = () => {
-            if (Date.now() - closedAt > 3000) { restoreDetailFocus = null; return; }
+            if (Date.now() - closedAt > 10000) { stop(); return; }
             const active = documentRef.activeElement;
             if (active && active !== documentRef.body) return;
             const next = currentDetailTrigger();
-            if (next) { next.setAttribute?.('aria-expanded', 'false'); next.focus?.({ preventScroll: true }); restoreDetailFocus = null; }
+            if (next) { next.setAttribute?.('aria-expanded', 'false'); next.focus?.({ preventScroll: true }); stop(); }
           };
+          const Observer = documentRef.defaultView?.MutationObserver;
+          if (Observer && page) { observer = closeObserver = new Observer(() => restoreDetailFocus?.()); observer.observe(page, { childList: true, subtree: true }); }
+          documentRef.defaultView?.setTimeout?.(() => { if (closeObserver === observer) stop(); }, 10500);
           if (detailPanel) {
             detailPanel.style.display = 'none';
             delete detailPanel.dataset.currentTheme;
@@ -1404,15 +1414,20 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         // ranking, CAPEX flow) instead of at the page bottom, and offers a way back to that row.
         let detailTrigger = null;
         let detailTriggerKey = null;
+        let detailTriggerId = '';
         let deepLinkHint = null;
         const currentDetailTrigger = () => detailTrigger && documentRef.contains(detailTrigger) ? detailTrigger
           : [...(page?.querySelectorAll?.('[data-action="showThemeDetail"], [data-theme-id], .capex-flow-theme') || [])]
-            .find((node) => !detailPanel?.contains?.(node) && JSON.stringify([node.dataset.action, node.dataset.arg, node.dataset.themeId, node.getAttribute('aria-label')]) === detailTriggerKey);
+            .find((node) => !detailPanel?.contains?.(node) && JSON.stringify([node.dataset.action, node.dataset.arg, node.dataset.themeId, node.getAttribute('aria-label')]) === detailTriggerKey)
+          // A re-render may refresh the label (numbers in it); the theme id alone still names the same trigger.
+          || (detailTriggerId ? [...(page?.querySelectorAll?.('[data-action="showThemeDetail"], [data-theme-id]') || [])]
+            .find((node) => !detailPanel?.contains?.(node) && (node.dataset.arg || node.dataset.themeId) === detailTriggerId) : null);
         const onThemeTriggerClick = (event) => {
           const trigger = event?.target?.closest?.('[data-action="showThemeDetail"], [data-theme-id], .capex-flow-theme');
           if (!trigger || !page?.contains?.(trigger) || detailPanel?.contains?.(trigger)) return;
           detailTrigger = trigger;
           detailTriggerKey = JSON.stringify([trigger.dataset.action, trigger.dataset.arg, trigger.dataset.themeId, trigger.getAttribute('aria-label')]);
+          detailTriggerId = trigger.dataset.arg || trigger.dataset.themeId || '';
           trigger.setAttribute('aria-controls', 'theme-detail-panel');
           trigger.setAttribute('aria-expanded', 'true');
           // Only page-level blocks are anchors: a block inside a re-rendered host would take the panel with it.

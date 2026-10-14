@@ -6,6 +6,42 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1790 - v57.59 - 거시 _failedSeries가 지난 실행의 실패를 계속 끌고 감 (2026-10-14)
+
+- symptom/reproduction: 한 번 실패한 거시 시리즈가 이후 실행에서 정상 수집돼도 _failedSeries에 남아 '이번 수집 실패'로 읽혔다.
+- root_cause: mergeMacroLastKnownGood가 이전 산출물의 _failedSeries를 합쳐 다시 게시했다.
+- fix: _failedSeries는 이번 실행에서 실패한 시리즈만 중복 없이 게시한다.
+- violated_rule: 실패 표시는 현재 실행의 사실만 말한다
+- prevention: P1790: history-field-time 계약 검사에 이전 실패가 이어지지 않는 사례 추가.
+- verification/residual: ci-history-field-time-contract-check 통과.
+
+## P1789 - v57.59 - 장기 거시 이력이 생산되자 CI가 실패해 v57.58 Pages 배포가 건너뛰어짐 (2026-10-14)
+
+- symptom/reproduction: v57.58 푸시 뒤 첫 데이터 갱신이 macro-history.json long을 만들자 browser-architecture가 실패했고 Pages 배포가 건너뛰어져 라이브가 v57.56에 머물렀다.
+- root_cause: 거시 보드 그룹 허용 목록(P1425)에 자료가 생길 때만 나타나는 long-history 그룹이 없었다. 로컬에는 long 자료가 없어 로컬 QA는 통과했다.
+- fix: 허용 목록에 long-history를 넣어 즉시 푸시(80eebe02)했고 배포가 이어졌다.
+- violated_rule: 자료가 생겨야 나타나는 화면 그룹은 게이트 허용 목록에 함께 등록한다
+- prevention: P1789: 새 자료 의존 그룹을 추가할 때 P1425 목록을 같이 고친다(로컬 자료 부재로 가려짐).
+- verification/residual: 14cb1958 CI·Pages 배포 성공, 로컬 browser-architecture 통과.
+
+## P1788 - v57.59 - VIX 미수신이 초록색 '0.00'으로 표시됨 (2026-10-14)
+
+- symptom/reproduction: 홈 시세 위젯에서 VIX 값이 오지 않으면 '0.00'이 상승색으로 보였다.
+- root_cause: js/aio-data.js _homeNum이 Number(null)=0을 그대로 숫자로 받아 결측을 0으로 바꿨고, 네이티브 시세 렌더러도 가격 0을 값으로 그렸다.
+- fix: _homeNum이 null·빈 문자열·불리언을 결측으로 돌려주고 VIX 0 이하를 미수신으로 처리해 중립색 '—'로 표시한다. 네이티브 렌더러도 가격 0을 '—'로 그린다.
+- violated_rule: 없는 값을 0으로 채우지 않는다
+- prevention: P1788: 결측→0 변환을 숫자 도우미에서 막음.
+- verification/residual: 로컬 미리보기에서 VIX 결측 시 '—'(중립색) 확인.
+
+## P1787 - v57.59 - 테마 상세를 닫은 뒤 포커스가 사라지는 간헐 실패(CI browser-knowledge) (2026-10-14)
+
+- symptom/reproduction: 테마 상세 패널을 닫으면 가끔 포커스가 원래 버튼이 아닌 문서 본문으로 떨어져 CI browser-reference-adoption이 실패했다(2026-10-14 봇 커밋 CI).
+- root_cause: 닫은 직후 다른 렌더 경로가 트리거 버튼을 새로 그리면, 복원 로직이 renderNow 안에서 3초 동안만 돌고 aria-label까지 같아야 버튼을 찾아 새 버튼을 놓쳤다.
+- fix: 닫은 뒤 10초 동안 페이지 변경을 관찰해 포커스를 다시 돌려주고, 이름표가 바뀌어도 테마 id로 같은 버튼을 찾는다.
+- violated_rule: 닫기 후 포커스는 현재 DOM의 같은 트리거로 돌아가야 한다(재렌더 후 포함)
+- prevention: P1787: browser-reference-adoption이 원인(트리거 교체 여부)을 이름으로 남기는 기존 진단 유지.
+- verification/residual: 로컬 브라우저 게이트로 확인; CI 반복 관찰은 다음 배포 후.
+
 ## P1786 - v57.58 - 한국 보유 종목(105560)이 평가액 없이 '—'로 남음 (2026-10-14)
 
 - symptom/reproduction: 포트폴리오에 105560을 넣으면 시세(105560.KS, 약 20분 지연)를 받아도 평가액·손익이 비어 있었다.

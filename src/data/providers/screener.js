@@ -492,6 +492,7 @@ export function createScreenerProvider({
           vcpScore: finite(factor.vcpScore),
           vcpStage: factor.vcpStage || null,
           vcpPivot: finite(factor.vcpPivot),
+          vcpContractions: finite(factor.vcpContractions), vcpShrinking: typeof factor.vcpShrinking === 'boolean' ? factor.vcpShrinking : null, // 2026-10-14 custom conditions
           // P1652: P/E under 2 or P/B under 0.1 means earnings or equity near the whole market value — a share-class or
           // unit mismatch (BRK-B 0.01/0, IBKR 0.85), not a bargain; held so it cannot top the value rank.
           pe: fundamentalHeld(factor) || !(finite(factor.pe) >= 2) ? null : finite(factor.pe),

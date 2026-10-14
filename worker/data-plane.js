@@ -12,7 +12,7 @@ const KV_FREE_TIER_DAILY_LIMIT = 1000;
 const KV_WARNING_DAILY_TARGET = 500;
 const SCHEDULED_RUNS_PER_DAY = Math.ceil(24 * 60 * 60 * 1000 / SCHEDULE_INTERVAL_MS);
 const HEARTBEAT_LIVENESS_WRITES_PER_DAY = Math.ceil(24 * 60 * 60 * 1000 / HEARTBEAT_WRITE_INTERVAL_MS);
-const DISPATCH_RECEIPTS_PER_DAY = 48; // P1595: one receipt per half-hour fallback slot.
+const DISPATCH_RECEIPTS_PER_DAY = 48 + 2; // P1595: one receipt per half-hour fallback slot, plus the two daily screener slots.
 
 export const FAST_PLANE_WRITE_POLICY = Object.freeze({
   schedule: '*/5 * * * *',
@@ -33,16 +33,40 @@ export const FAST_PLANE_WRITE_POLICY = Object.freeze({
 // 5-minute cron dispatches the workflow at :20 and :50. Without GITHUB_DISPATCH_TOKEN (a
 // fine-grained PAT with Actions: read/write on this repository only) it does nothing.
 export const REFRESH_DISPATCH_POLICY = Object.freeze({ workflow: 'refresh-data.yml', ref: 'main', slotMinutes: [20, 50], trigger: 'scheduler' });
+// The screener workflow's GitHub crons (06:53Z after the KR close, 21:53Z after the US close) are
+// best-effort too, so the same 5-minute cron backs them up 32 minutes later (07:25Z, 22:25Z): it
+// dispatches only when no run is active and none succeeded in the last 30 minutes, so an on-time
+// cron run is not repeated. refresh-screener has `workflow_dispatch: {}` with no inputs, so the body
+// is {ref} only; its receipt lives under its own KV key so the two dispatchers never dedupe each other.
+export const SCREENER_DISPATCH_POLICY = Object.freeze({ workflow: 'refresh-screener.yml', ref: 'main', slotTimesUtc: Object.freeze(['07:25', '22:25']), kvKey: 'scheduler:dispatch:screener', recentSuccessMs: 30 * 60000 });
+const REFRESH_DATA_DISPATCH = Object.freeze({
+  workflow: REFRESH_DISPATCH_POLICY.workflow, ref: REFRESH_DISPATCH_POLICY.ref, kvKey: 'scheduler:dispatch', recentSuccessMs: 25 * 60000,
+  isSlot: at => REFRESH_DISPATCH_POLICY.slotMinutes.includes(at.getUTCMinutes()),
+  body: () => ({ ref: REFRESH_DISPATCH_POLICY.ref, inputs: { trigger: REFRESH_DISPATCH_POLICY.trigger } })
+});
+const REFRESH_SCREENER_DISPATCH = Object.freeze({
+  workflow: SCREENER_DISPATCH_POLICY.workflow, ref: SCREENER_DISPATCH_POLICY.ref, kvKey: SCREENER_DISPATCH_POLICY.kvKey, recentSuccessMs: SCREENER_DISPATCH_POLICY.recentSuccessMs,
+  isSlot: at => SCREENER_DISPATCH_POLICY.slotTimesUtc.includes(at.toISOString().slice(11, 16)),
+  body: () => ({ ref: SCREENER_DISPATCH_POLICY.ref })
+});
 
-export async function dispatchRefreshData({ env, scheduledTime = Date.now(), fetchImpl = fetch, timeoutMs = 8000 } = {}) {
+export async function dispatchRefreshData(options = {}) {
+  return dispatchWorkflow(REFRESH_DATA_DISPATCH, options);
+}
+
+export async function dispatchRefreshScreener(options = {}) {
+  return dispatchWorkflow(REFRESH_SCREENER_DISPATCH, options);
+}
+
+async function dispatchWorkflow(policy, { env, scheduledTime = Date.now(), fetchImpl = fetch, timeoutMs = 8000 } = {}) {
   const at = new Date(scheduledTime);
   if (!Number.isFinite(at.getTime())) return { dispatched: false, reason: 'invalid-schedule-time' };
-  if (!REFRESH_DISPATCH_POLICY.slotMinutes.includes(at.getUTCMinutes())) return { dispatched: false, reason: 'not-a-dispatch-slot' };
+  if (!policy.isSlot(at)) return { dispatched: false, reason: 'not-a-dispatch-slot' };
   const observedAt = at.toISOString();
   const finish = async result => {
     const receipt = { schemaVersion: 'refresh-dispatch-receipt.v1', observedAt, ...result, executionStatus: 'NOT_OBSERVED' };
     // P1595: the receipt contains no credentials/remote response text; 204 is acceptance, not execution.
-    try { await env?.AIO_QUOTES_KV?.put?.('scheduler:dispatch', JSON.stringify(receipt), { expirationTtl: KV_TTL_SECONDS }); }
+    try { await env?.AIO_QUOTES_KV?.put?.(policy.kvKey, JSON.stringify(receipt), { expirationTtl: KV_TTL_SECONDS }); }
     catch { receipt.receiptStored = false; }
     console.info('[refresh-dispatch]', JSON.stringify(receipt));
     return receipt;
@@ -52,26 +76,26 @@ export async function dispatchRefreshData({ env, scheduledTime = Date.now(), fet
   const repo = env?.GITHUB_DISPATCH_REPO || 'ysnle/aio-screener';
   if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)) return finish({ dispatched: false, reason: 'invalid-repository' });
   try {
-    const previous = await env?.AIO_QUOTES_KV?.get?.('scheduler:dispatch', 'json');
+    const previous = await env?.AIO_QUOTES_KV?.get?.(policy.kvKey, 'json');
     if (previous?.observedAt === observedAt) return { ...previous, dispatched: false, previousAccepted: previous.dispatched, reason: 'duplicate-slot' };
     const client = createHttpClient({ fetchImpl, defaultTimeoutMs: timeoutMs });
-    const base = `https://api.github.com/repos/${repo}/actions/workflows/${REFRESH_DISPATCH_POLICY.workflow}`;
+    const base = `https://api.github.com/repos/${repo}/actions/workflows/${policy.workflow}`;
     const headers = { authorization: `Bearer ${token}`, accept: 'application/vnd.github+json', 'x-github-api-version': '2022-11-28', 'user-agent': 'aio-data-plane-scheduler', 'content-type': 'application/json' };
     // P1718: Workers throw TypeError on the "error" redirect mode (P1433), which left every slot at status 0 and dispatched nothing.
     // 'manual' returns any 3xx as a non-ok response, which the checks below already refuse.
     const recent = await client.requestJson(`${base}/runs?branch=main&per_page=20`, { headers, redirect: 'manual' });
     if (!recent.ok || !Array.isArray(recent.data?.workflow_runs)) return finish({ dispatched: false, reason: 'workflow-observation-failed', status: recent.status });
-    const runs = recent.data.workflow_runs.filter(run => run.head_branch === REFRESH_DISPATCH_POLICY.ref);
+    const runs = recent.data.workflow_runs.filter(run => run.head_branch === policy.ref);
     const active = runs.find(run => ['queued', 'in_progress', 'waiting', 'requested', 'pending'].includes(run.status));
     if (active) return finish({ dispatched: false, reason: 'workflow-active', runId: active.id });
     const latest = runs[0];
     const completedAge = at.getTime() - Date.parse(latest?.updated_at || '');
-    if (latest?.conclusion === 'success' && completedAge >= 0 && completedAge < 25 * 60000) {
+    if (latest?.conclusion === 'success' && completedAge >= 0 && completedAge < policy.recentSuccessMs) {
       return finish({ dispatched: false, reason: 'recent-success', runId: latest.id });
     }
     const response = await client.requestJson(`${base}/dispatches`, {
       method: 'POST', headers, redirect: 'manual',
-      body: JSON.stringify({ ref: REFRESH_DISPATCH_POLICY.ref, inputs: { trigger: REFRESH_DISPATCH_POLICY.trigger } })
+      body: JSON.stringify(policy.body())
     });
     return finish({ dispatched: response.status === 204, reason: response.status === 204 ? 'accepted' : 'dispatch-failed', status: response.status });
   } catch { return finish({ dispatched: false, reason: 'dispatch-error' }); }
@@ -308,5 +332,6 @@ export default {
   async scheduled(controller, env, ctx) {
     ctx.waitUntil(publishQuotes({ env }));
     ctx.waitUntil(dispatchRefreshData({ env, scheduledTime: controller?.scheduledTime ?? Date.now() }).catch(() => ({ dispatched: false, reason: 'dispatch-error' })));
+    ctx.waitUntil(dispatchRefreshScreener({ env, scheduledTime: controller?.scheduledTime ?? Date.now() }).catch(() => ({ dispatched: false, reason: 'dispatch-error' })));
   }
 };

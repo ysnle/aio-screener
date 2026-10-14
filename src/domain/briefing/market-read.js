@@ -388,8 +388,16 @@ export function alignMarketInputs({ history = [], credit = {}, rates = {}, now =
   return { basis, s, c, r, alignments, fgSeries };
 }
 
+// Expert review 2026-10-14: the narrow-market read names S&P 500 members (screener breadth.segments.sp500) when that
+// segment covers >= 90% of members on the same close; otherwise it keeps the AIO watch-list wording.
+export function sp500BreadthOn(segment, date) {
+  const above50 = finite(segment?.above50);
+  if (above50 == null || !(finite(segment?.coveragePct) >= 90) || !date || String(segment?.observedAt || '').slice(0, 10) !== String(date).slice(0, 10)) return null;
+  return { above50, above200: finite(segment?.above200), eligible: finite(segment?.eligible) };
+}
+
 /**
- * @param {object} input see alignMarketInputs
+ * @param {object} input see alignMarketInputs; input.breadthSp500 = screener breadth.segments.sp500 (optional)
  */
 export function buildMarketRead(input = {}) {
   const { basis, s, c, r } = alignMarketInputs(input);
@@ -454,8 +462,11 @@ export function buildMarketRead(input = {}) {
 
   // 2. Index vs participation.
   const b50 = s.breadth50?.value ?? null;
+  const members = sp500BreadthOn(input.breadthSp500, spx.date);
+  const narrowB50 = members ? members.above50 : b50;
+  const narrowWho = members ? 'S&P 500 구성 종목' : 'AIO 관찰 종목';
   if (b50 != null && spxFromHigh != null) {
-    if (spxFromHigh > -3 && b50 < 40) add('narrow-rally', 85, `S&P 500은 1년 고점 대비 ${signed(spxFromHigh)}로 고점권인데 AIO 관찰 종목 중 50일선 위 종목은 ${fmt(b50, 0)}%뿐입니다.`, 'index', { reading: '지수 상승이 일부 대형주에 집중된 좁은 장세일 수 있습니다.', check: `50일선 위 종목 비율이 40% 위로 회복되는지(현재 ${fmt(b50, 0)}%) — 회복 없이 대형주가 꺾이면 지수 하락 폭이 커질 수 있음` });
+    if (spxFromHigh > -3 && narrowB50 < 40) add('narrow-rally', 85, `S&P 500은 1년 고점 대비 ${signed(spxFromHigh)}로 고점권인데 ${narrowWho} 중 50일선 위 종목은 ${fmt(narrowB50, 0)}%뿐입니다.`, 'index', { reading: '지수 상승이 일부 대형주에 집중된 좁은 장세일 수 있습니다.', check: `${narrowWho} 중 50일선 위 비율이 40% 위로 회복되는지(현재 ${fmt(narrowB50, 0)}%) — 회복 없이 대형주가 꺾이면 지수 하락 폭이 커질 수 있음` });
     else if (b50 >= 60 && spx20 != null && spx20 > 0) add('broad-rally', 55, `AIO 관찰 종목 중 50일선 위 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 상승이 대형주에 그치지 않고 넓게 퍼져 있습니다.`, 'index');
     else if (b50 < 30 && spx20 != null && spx20 < 0) add('broad-weakness', 70, `AIO 관찰 종목 중 50일선 위 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 약세가 시장 전반에 퍼져 있습니다.`, 'index');
   }
@@ -707,6 +718,9 @@ export function buildMarketRegime(input = {}) {
     else if (b50 != null && b200 != null && b50 >= RULES.breadth.broadAtLeast && b200 >= RULES.breadth.broadAtLeast) state = 'favorable';
     const fromHigh = pct(spx.value, spx.yearMax);
     const narrow = state === 'burden' && fromHigh != null && fromHigh > -3;
+    const members = sp500BreadthOn(input.breadthSp500, spx.date);
+    const narrowWho = members && members.above50 < RULES.breadth.weakBelow ? `S&P 500 구성 종목 중 50일선 위 ${fmt(members.above50, 0)}%로`
+      : `AIO 관찰 종목 가운데 이동평균선 위 비율이 낮은${members ? `(S&P 500 구성 종목은 50일선 위 ${fmt(members.above50, 0)}%)` : ''}`;
     const partial = state !== 'unknown' && (b50 == null || b200 == null) ? ` (${b50 == null ? '50일선' : '200일선'} 비율 미수신 — 나머지 하나로만 판단)` : '';
     // v57.50 D20: the 40/60 lines are conventions; beside them, where today's ratio sits in AIO's own record
     // (one-year window, provisional while the record is shorter than 252 sessions).
@@ -716,7 +730,7 @@ export function buildMarketRegime(input = {}) {
     const recordText = (rec) => rec?.pct == null ? '' : ` · 기록 ${rec.n}일 중 ${rec.pct}백분위${rec.provisional ? '(잠정)' : ''}`;
     const recordRead = rec50?.pct == null ? '' : ` 50일선 위 비율 ${fmt(b50, 0)}%는 AIO 자체 기록 ${rec50.n}일 중 ${rec50.pct}백분위입니다${rec50.provisional ? `(기록 ${RECORD_FULL_YEAR}거래일 미만 · 잠정)` : ''}.`;
     const read = (state === 'favorable' ? '상승이 다수 종목으로 퍼져 있습니다.'
-      : state === 'burden' ? (narrow ? `지수는 고점권(${signed(fromHigh)})인데 AIO 관찰 종목 가운데 이동평균선 위 비율이 낮은 좁은 장세 — 지수가 소수 대형주에 기대고 있을 수 있습니다(어느 종목이 끌어올렸는지는 테마 화면의 S&P 500 지도에서 확인).` : '약세가 시장 전반에 퍼져 있습니다.')
+      : state === 'burden' ? (narrow ? `지수는 고점권(${signed(fromHigh)})인데 ${narrowWho} 좁은 장세 — 지수가 소수 대형주에 기대고 있을 수 있습니다(어느 종목이 끌어올렸는지는 테마 화면의 S&P 500 지도에서 확인).` : '약세가 시장 전반에 퍼져 있습니다.')
         : state === 'unknown' ? staleRead('시장 폭', alignments.breadth50) : '참여 종목 비율이 중간 — 확산도 위축도 뚜렷하지 않습니다.') + partial + recordRead
       // P1633: the 20-day ratio moves first; a gap to the 50-day ratio says which way participation is turning.
       + (state !== 'unknown' && b20 != null && b50 != null && Math.abs(b20 - b50) >= 10

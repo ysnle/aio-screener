@@ -66,12 +66,13 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
   // v57.50 D22: each axis has its own comparison window (추세 69, 시장 폭 182 sessions while their records are short), so the
   // sentence names that window instead of "최근 1년".
   const windowOf = (axis) => axis.sample ? `지난 ${axis.sample}거래일${axis.sample >= 252 ? '(약 1년)' : ''}` : '비교 표본';
+  // Live review 2026-10-14: one short paragraph per axis (two axes joined into one 274자 block before).
   if (gaps.length) {
-    section.append(el(doc, 'p', gaps.map((axis) => stateOf.get(axis.id) === 'favorable'
+    section.append(...gaps.map((axis) => el(doc, 'p', stateOf.get(axis.id) === 'favorable'
       ? `${axis.label}: 판정은 우호(절대 수준)지만 ${windowOf(axis)} 안에서는 부담 쪽(${axis.now})입니다 — 수준은 아직 괜찮아도 그 기간 기준으로는 나빠진 편이라는 뜻입니다.`
       : stateOf.get(axis.id) === 'neutral'
         ? `${axis.label}: 판정은 중립(절대 수준)이지만 ${windowOf(axis)} 안에서는 가장 나쁜 쪽 가까이(${axis.now})까지 밀렸습니다${axis.change20 != null ? ` (20거래일 ${axis.change20 >= 0 ? '+' : ''}${axis.change20})` : ''}${axis.change20 != null && axis.change20 > 0 ? ' — 최근 20거래일은 나아지는 쪽이지만 아직 바닥권이라, 다음 갱신에서 반등이 이어지는지 먼저 확인할 축입니다.' : ' — 이 속도가 이어지면 판정이 부담으로 바뀔 수 있어 다음 갱신에서 먼저 확인할 축입니다.'}` // v57.54 review: an improving +20일 move no longer reads "이 속도가 이어지면 부담으로"
-      : `${axis.label}: 판정은 부담(절대 수준)이지만 ${windowOf(axis)} 안에서는 우호 쪽(${axis.now})입니다 — 그 기간보다는 나아졌어도 수준 자체는 아직 부담입니다.`).join(' '), 'regime-radar-gap'));
+      : `${axis.label}: 판정은 부담(절대 수준)이지만 ${windowOf(axis)} 안에서는 우호 쪽(${axis.now})입니다 — 그 기간보다는 나아졌어도 수준 자체는 아직 부담입니다.`, 'regime-radar-gap')));
   }
   const body = el(doc, 'div', null, 'regime-radar-body');
   body.append(radarSvg(doc, model));

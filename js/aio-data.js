@@ -15665,7 +15665,7 @@ function refreshHomeDashboard() {
 
   // SECTION 0: One-line market summary
   const _homeFixed = window._aioSafeFixed || function(v, d, fb) { const n = Number(v); return Number.isFinite(n) ? n.toFixed(d || 2) : (fb || '—'); };
-  const _homeNum = function(v) { const n = Number(v); return Number.isFinite(n) ? n : null; };
+  const _homeNum = function(v) { if (v == null || v === '' || typeof v === 'boolean') return null; const n = Number(v); return Number.isFinite(n) ? n : null; }; // live review 2026-10-14: Number(null) is 0 — a missing VIX printed a green 0.00
   const spxPct = _homeNum(spx.pct);
   const vixPrice = _homeNum(vix.price != null ? vix.price : DATA_SNAPSHOT.vix);
   if (typeof window._aioRenderMarketAnalysisSinks === 'function') window._aioRenderMarketAnalysisSinks(); // P1383: the verified server analysis owns the home summary (old S&P/VIX mood line removed)
@@ -15715,7 +15715,7 @@ function refreshHomeDashboard() {
   const vixValueEl = document.getElementById('home-vix-value');
   const vixStatusEl = document.getElementById('home-vix-status');
   if (vixValueEl) {
-    const vp = _homeNum(vix.price != null ? vix.price : DATA_SNAPSHOT.vix);
+    const vpRaw = _homeNum(vix.price != null ? vix.price : DATA_SNAPSHOT.vix); const vp = vpRaw != null && vpRaw > 0 ? vpRaw : null; // VIX is never 0: a 0 is a missing quote
     vixValueEl.textContent = _homeFixed(vp, 2, '—');
     const vixLabel = vp == null ? '—' : (vp >= 32 ? '고변동 구간' : vp >= 25 ? '변동성 경계 구간' : vp >= 18 ? '통상 범위' : '저변동 구간'); // P1367: one VIX band (aio-core _vixBand 18/25/32)
     const vixCol = vp == null ? 'var(--text-muted)' : (vp >= 32 ? 'var(--data-red)' : vp >= 25 ? 'var(--data-amber)' : vp >= 18 ? 'var(--text-secondary)' : 'var(--data-green)'); // P1499: theme tokens, not the retired neon palette

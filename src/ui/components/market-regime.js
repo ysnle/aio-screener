@@ -22,6 +22,32 @@ function el(doc, tag, text, className) {
   return node;
 }
 
+// Live review 2026-10-14 (owner reading standard: 3–5 lines, ~130–230자 per block): a longer reading keeps its first
+// sentences on the face (up to ~200자, cut at a sentence end) and folds the rest under '이어서 읽기'.
+export function splitReading(text, { max = 230, lead = 200, min = 60 } = {}) {
+  const value = String(text || '').trim();
+  if (value.length <= max) return { lead: value, rest: '' };
+  let cut = -1;
+  const pattern = /[.?!)](?=\s)/g;
+  for (let match = pattern.exec(value); match; match = pattern.exec(value)) {
+    const end = match.index + 1;
+    if (end > lead) break;
+    if (end >= min && (match[0] !== ')' || value[match.index - 1] === '.')) cut = end;
+  }
+  return cut < 0 ? { lead: value, rest: '' } : { lead: value.slice(0, cut), rest: value.slice(cut).trim() };
+}
+
+function readingNodes(doc, text, className) {
+  const { lead, rest } = splitReading(text);
+  const nodes = [el(doc, 'p', lead, className)];
+  if (rest) {
+    const more = el(doc, 'details', null, 'regime-read-more');
+    more.append(el(doc, 'summary', '이어서 읽기'), el(doc, 'p', rest, className));
+    nodes.push(more);
+  }
+  return nodes;
+}
+
 function shortDate(date) {
   const [, month, day] = String(date || '').split('-').map(Number);
   return month && day ? `${month}/${day}` : '';
@@ -194,7 +220,7 @@ export function renderRegimePage({ documentRef: doc, root }) {
       card.append(head);
       // P1399: one basis chip per card — the axis's own observation date against the close basis.
       if (row.basis) card.append(el(doc, 'span', row.basis, `basis-chip${row.basisStatus === 'aligned' ? '' : ' is-off'}`));
-      card.append(el(doc, 'p', row.read, 'regime-read'));
+      card.append(...readingNodes(doc, row.read, 'regime-read'));
       const chart = chartPanel(doc, history.axes[row.id] || [], history.range);
       if (chart) card.append(chart);
       // P1659 (owner reading standard: one visual, a short reading, folded details): the face keeps the chart, the

@@ -1705,7 +1705,7 @@ function renderExtensionHeatPanel(extensionHeat) {
   extensionHeat = extensionHeat || {};
   var tone = extensionHeat.score >= 50 ? 'risk' : extensionHeat.score >= 25 ? 'warn' : 'bull';
   _renderMiniPanel('tech-lockout-extension', '이격 과열', _itbStateLabel(extensionHeat.state || 'NORMAL'), extensionHeat.state === 'DATA_INSUFFICIENT' ? 'info' : tone, extensionHeat.score,
-    '20MA ATR: ' + _itbNum(extensionHeat.dist20Atr, 1) + 'x<br>20MA ADR: ' + _itbNum(extensionHeat.dist20Adr, 1) + 'x<br>50SMA ATR: ' + _itbNum(extensionHeat.dist50Atr, 1) + 'x',
+    '20MA ATR: ' + _itbNum(extensionHeat.dist20Atr, 1) + 'x<br>20MA 하루 평균 변동폭(ADR): ' + _itbNum(extensionHeat.dist20Adr, 1) + 'x<br>50SMA ATR: ' + _itbNum(extensionHeat.dist50Atr, 1) + 'x',
     extensionHeat.flags);
 }
 
@@ -2305,7 +2305,7 @@ window._aioDiagram = (function () {
     ];
     var W = 400, H = 192, out = '';
     out += _r(0, 0, W, H, C.bg, 8, C.border);
-    out += _t(14, 18, '팩터 IC 백테스트', C.text, 10, 700);
+    out += _t(14, 18, '팩터 과거 검증 · 순위와 수익률의 같은 방향 정도', C.text, 10, 700);
     out += _t(W - 14, 18, hasSample ? 'n=' + n : (n === 0 ? 'n=0 · 표본 없음' : 'n 미수신'), C.muted, 10, 400, 'end');
     factors.forEach(function (f, i) {
       var v = num(ic[f.key]);
@@ -2322,7 +2322,7 @@ window._aioDiagram = (function () {
       } else if (measured) {
         out += _r(Math.max(midX - Math.min(barW, 112), 70), y + 3, Math.min(barW, 112), 12, _alphaRgb(col, 0.55), 2);
       }
-      out += _t(300, y + 13, measured ? 'IC ' + _n(v, 3) : '계산 불가', col, 10, 700);
+      out += _t(300, y + 13, measured ? _n(v, 3) : '계산 불가', col, 10, 700);
     });
     out += _r(14, H - 46, 180, 36, 'color-mix(in srgb, var(--text-primary) 6%, transparent)', 4, C.border, 1);
     out += _t(20, H - 29, '분위 스프레드', C.muted, 10);
@@ -2675,7 +2675,7 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
         return { type: 'economic-cycle',  data: _buildEcon(),     label: '경기 사이클' };
       }
       if (/팩터 백테스트|factor backtest|정보계수|ic.*모멘텀|spearman/.test(q)) {
-        return { type: 'factor-backtest', data: _buildBacktest(), label: '팩터 백테스트 IC' };
+        return { type: 'factor-backtest', data: _buildBacktest(), label: '팩터 과거 검증' };
       }
       if (tickers && tickers.length > 0 && /팩터 레이더|factor radar|퀀트 랭크|quantrank|rsi.*팩터|팩터.*분석/.test(q)) {
         var row = _findRow(tickers[0]);

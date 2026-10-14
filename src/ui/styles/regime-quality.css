@@ -370,3 +370,7 @@ body.dark-theme .sector-map .is-na { background: #36383b; color: #c8c6c0; }
 .page .xr-path-rows dt { color: var(--text-muted); }
 .page .xr-path-rows dd { margin: 0; color: var(--text-primary); }
 .page .xr-path-card .xr-explore { margin-top: 2px; gap: 4px 8px; }
+/* Live review 2026-10-14: the folded remainder of a long axis reading. */
+.page .regime-read-more { margin: -10px 0 14px; color: var(--text-secondary); }
+.page .regime-read-more summary { cursor: pointer; min-height: 28px; display: list-item; font-size: 13px; color: var(--text-secondary); }
+.page .regime-read-more p { margin-top: 4px; }

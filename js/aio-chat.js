@@ -2745,14 +2745,14 @@ async function _fetchTechnicalDataForChat(tickers, opts) {
       : _krDay ? (_krDay.pct >= 0 ? '+' : '') + f(_krDay.pct) + '%, ' + (_krDay.basis === 'screener-reconciled-session-change' ? _lastBarDate + ' 거래소 종가 기준 1일 변화' : '거래소 종가 기준 직전 ' + _krDay.basisDate + ' 대비')
       : '전일 대비 미확인 — 직전 거래소 종가를 검증하지 못함, 등락률을 만들지 말 것';
     lines += '• 종가 ' + (_isKrSym ? '' : '$') + f(snap.price) + (_lastBarDate ? ' (' + _lastBarDate + ')' : '') + ' (' + _dayChangeText + ') · RSI(14) ' + f(_rsiShown, 1) + _rsiBasis + (_rsiShown >= 70 ? ' 과매수' : _rsiShown <= 30 ? ' 과매도' : ' 중립') + '\n';
-    lines += '• 이동평균: 5SMA ' + f(snap.sma5) + ' · 10SMA ' + f(snap.sma10) + ' · 20SMA ' + f(snap.sma20) + ' · 50SMA ' + f(snap.sma50) + ' · 100SMA ' + f(snap.sma100) + ' · 200SMA ' + f(snap.sma200) + ' → ' + maAlign + ' (배열점수 ' + (snap.maStackScore != null ? snap.maStackScore : 'N/A') + '/100)\n';
+    lines += '• 이동평균: 5SMA ' + f(snap.sma5) + ' · 10SMA ' + f(snap.sma10) + ' · 20SMA ' + f(snap.sma20) + ' · 50SMA ' + f(snap.sma50) + ' · 100SMA ' + f(snap.sma100) + ' · 200SMA ' + f(snap.sma200) + ' → ' + maAlign + '\n'; // expert review 2026-10-14: facts only, no 0-100 composite for the model to repeat
     lines += '• 추세/Stage: ' + snap.trendState + ' · ' + stageKr + '\n';
     lines += '• 50SMA 이격 ' + (snap.dist50Atr != null ? f(snap.dist50Atr, 1) + ' ATR' : 'N/A') + ' · 20SMA 이격 ' + (snap.dist20Atr != null ? f(snap.dist20Atr, 1) + ' ATR' : 'N/A') + ' · ATR(14) $' + f(snap.atr14) + '\n';
     lines += '• MACD 히스토그램 ' + (snap.macd && snap.macd.hist != null ? f(snap.macd.hist) + (snap.macd.hist > 0 ? ' 상승모멘텀' : ' 하락모멘텀') : 'N/A') + ' · 볼린저 ' + (snap.bbReentry ? '상단 재진입(소진주의)' : snap.bbOutsideUpper ? '상단 돌파' : '밴드 내') + ' · RVOL20 ' + f(snap.rvol20, 1) + 'x\n';
     lines += '• 20일 고/저 $' + f(snap.recentHigh20) + '/$' + f(snap.recentLow20) + (posVs20 != null ? ' (레인지 ' + posVs20 + '% 위치)' : '') + ' · 50일 고/저 $' + f(snap.recentHigh50) + '/$' + f(snap.recentLow50) + '\n';
     if (snap.vcp) {
       var vcpLabel = snap.vcpStage === 'breakout' ? '돌파' : snap.vcpStage === 'near_pivot' ? '피벗 근접' : snap.vcpStage === 'contracting' ? '수축 진행' : snap.vcpStage === 'basing' ? '베이스' : snap.vcpStage === 'stage2_only' ? 'Stage2 단독' : snap.vcpStage === 'not_stage2' ? 'Stage2 미충족' : '데이터 부족';
-      lines += '• VCP: ' + vcpLabel + ' · 점수 ' + (snap.vcpScore != null ? snap.vcpScore : 'N/A') + '/100' + (snap.vcpPivot ? ' · 피벗 $' + f(snap.vcpPivot) : '') + (snap.vcp.volumeDrying ? ' · 거래량 고갈 확인' : '') + '\n';
+      lines += '• VCP: ' + vcpLabel + (snap.vcp.contractionCount != null ? ' · 수축 ' + snap.vcp.contractionCount + '회' + ((snap.vcp.contractionDepths || []).length ? '(깊이 ' + snap.vcp.contractionDepths.map(function(d) { return f(d, 1) + '%'; }).join('→') + ')' : '') : '') + (snap.vcpPivot ? ' · 피벗 $' + f(snap.vcpPivot) : '') + (snap.vcp.volumeDrying ? ' · 거래량 고갈 확인' : '') + '\n';
     }
     if (snap.fibNearest || snap.volProfile) {
       var fibLine = snap.fibNearest ? (snap.fibNearest.label + ' $' + f(snap.fibNearest.price) + ' (' + (snap.fibNearest.distPct >= 0 ? '+' : '') + f(snap.fibNearest.distPct, 1) + '%)') : 'N/A';
@@ -2772,7 +2772,7 @@ async function _fetchTechnicalDataForChat(tickers, opts) {
       var wTrendLabel = wc.wTrend === 'bullish' ? '주봉 상승' : wc.wTrend === 'bearish' ? '주봉 하락' : '주봉 혼조/부족';
       lines += '• RSI 다이버전스: ' + divLabel + ' · 주봉 컨텍스트: ' + wTrendLabel + (wClose != null ? ' 종가 $' + f(wClose) : '') + (wc.wSma20 != null ? ' / W20 $' + f(wc.wSma20) : '') + (wc.wSma50 != null ? ' / W50 $' + f(wc.wSma50) : '') + (wRsi != null ? ' / W-RSI ' + f(wRsi, 1) : '') + '\n';
     }
-    if (ext) lines += '• 확장도(Blow-off Risk): ' + ext.state + ' (' + ext.score + '/100' + (ext.flags && ext.flags.length ? ', ' + ext.flags.slice(0, 3).join('/') : '') + ')\n';
+    if (ext) lines += '• 확장도(Blow-off Risk): ' + ext.state + (ext.flags && ext.flags.length ? ' (' + ext.flags.slice(0, 3).join('/') + ')' : '') + '\n';
     lines += qLine;
     lines += '※ 위는 OHLCV 관측 기반 계산값이다. observedAt이 미확인이면 현재값으로 단정하지 않는다. 지지·저항·추세 무효화 조건을 설명하되, 매매 지시·손절가·목표가로 전환하지 말고 학습데이터 추측을 금지한다.';
     blocks.push(lines);

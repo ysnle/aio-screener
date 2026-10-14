@@ -314,7 +314,7 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
   const brentComparable = has(s.oil20) && has(s.brent20) && s.brentBasis === 'futures';
   const oilSplit = brentComparable && (s.oil20 < 0) !== (s.brent20 < 0);
   const p = s.policy;
-  const policyLine = p ? `연준 ${p.changeDate ? `${md(p.changeDate)} ${p.change > 0 ? '인상' : '인하'}(${bpChange(p.change)}) 뒤 ` : ''}상단 ${fmt(p.upper, 2)}%${p.bill != null ? ` · 3개월물 ${fmt(p.bill, 2)}%(${md(p.billDate)}) — ${p.bill > p.upper ? '상단보다 높아 시장은 추가 인상 쪽을 반영' : p.bill < p.upper - 0.25 ? '하단보다 낮아 시장은 인하 쪽을 반영' : '목표 범위 안이라 시장은 동결 쪽을 반영'}` : ''}` : null;
+  const policyLine = p ? `연준 ${p.changeDate ? `${md(p.changeDate)} ${p.change > 0 ? '인상' : '인하'}(${bpChange(p.change)}) 뒤 ` : ''}상단 ${fmt(p.upper, 2)}%${p.bill != null ? ` · 3개월물 ${fmt(p.bill, 2)}%(${md(p.billDate)}) — ${p.bill > p.upper ? `목표 범위 상단보다 ${Math.round((p.bill - p.upper) * 100)}bp 높게 거래` : p.bill < p.upper - 0.25 ? `목표 범위 하단보다 ${Math.round((p.upper - 0.25 - p.bill) * 100)}bp 낮게 거래` : '목표 범위 안에서 거래'}${p.bill > p.upper || p.bill < p.upper - 0.25 ? '(국채 수급도 섞인 관측값이라 정책 예상으로 단정하지 않음)' : ''}` : ''}` : null;
   const rateHub = {
     policy: policyLine,
     now: s.tnx ? `미 10년물 ${fmt(s.tnx.value, 2)}% (20거래일 ${bpChange(s.tnx20)})${s.pricing != null ? ` · 2년물 − 기준금리 ${signed(s.pricing, 2, '%p')}` : ''}` : null,

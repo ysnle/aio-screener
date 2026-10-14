@@ -123,7 +123,8 @@ function renderLiveQuotes(root, page) {
   page.querySelectorAll('[data-live-price]').forEach((node) => {
     const symbol = node.getAttribute('data-live-price');
     const value = quoteValue(root, symbol);
-    if (!value || value.price == null) {
+    // Live review 2026-10-14: an exactly-zero price is a provider placeholder (VIX showed 0.00), not an observation.
+    if (!value || value.price == null || value.price === 0) {
       clearRenderedValue(node, `${symbol || '종목'} 현재 관측값 미수신`);
       return;
     }

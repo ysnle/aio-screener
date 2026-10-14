@@ -1394,9 +1394,14 @@ async function handleWorkersAiTranslate(request, env) {
       { role: 'system', content: '너는 금융 뉴스 번역가다. 영어 헤드라인을 자연스러운 한국어 기사 제목으로 옮긴다. 고유명사·티커·숫자는 그대로 두고, 뜻을 더하거나 빼지 않는다. 출력은 JSON 문자열 배열 하나뿐이다.' },
       { role: 'user', content: `입력과 같은 순서로 정확히 ${titles.length}개를 JSON 배열로만 출력하라.\n${JSON.stringify(titles)}` }
     ] });
-    const text = String(typeof result?.response === 'string' ? result.response : result?.choices?.[0]?.message?.content || '');
-    const parsed = JSON.parse(text.slice(text.indexOf('['), text.lastIndexOf(']') + 1));
-    if (!Array.isArray(parsed) || parsed.length !== titles.length) return privateOperatorResponse({ error: 'workers-ai-unparsed', model }, 503);
+    // v57.59: some Workers AI models hand back already-parsed JSON in `response`; a text reply is parsed from its array.
+    const raw = result?.response;
+    const text = String(typeof raw === 'string' ? raw : result?.choices?.[0]?.message?.content || '');
+    let parsed = Array.isArray(raw) ? raw : null;
+    if (!parsed) { try { parsed = JSON.parse(text.slice(text.indexOf('['), text.lastIndexOf(']') + 1)); } catch { parsed = null; } }
+    if (!Array.isArray(parsed) || parsed.length !== titles.length) {
+      return privateOperatorResponse({ error: 'workers-ai-unparsed', model, detail: `${Array.isArray(parsed) ? `${parsed.length}/${titles.length} items` : typeof raw}: ${text.slice(0, 80)}` }, 503);
+    }
     return privateOperatorResponse({ model, translations: parsed.map((item) => (typeof item === 'string' ? item.replace(/\s+/g, ' ').trim().slice(0, 200) : '')) });
   } catch (error) {
     return privateOperatorResponse({ error: 'workers-ai-failed', model, detail: String(error?.message || error).slice(0, 160) }, 503);

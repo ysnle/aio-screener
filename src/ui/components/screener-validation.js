@@ -85,7 +85,7 @@ export function renderScreenerValidation({ documentRef: doc, root }) {
   details.append(head);
   details.append(el(doc, 'p', summary.verdict, 'pf-check-detail'));
   if (summary.available) {
-    details.append(el(doc, 'p', `${summary.date} 계산 · ${summary.stocks}종목 · 과거 ${summary.rebalances}번 시점(147~42거래일 전)에서 순위를 매기고 21거래일 보유 · 거래비용 ${pct(summary.costPct)} 반영 · 순위-수익 상관(IC) ${summary.ic == null ? '—' : Number(summary.ic).toFixed(3)}`, 'theme-strength-basis'));
+    details.append(el(doc, 'p', `${summary.date} 계산 · ${summary.stocks}종목 · 과거 ${summary.rebalances}번 시점(147~42거래일 전)에서 순위를 매기고 21거래일 보유 · 거래비용 ${pct(summary.costPct)} 반영 · 순위와 이후 수익률이 같은 방향으로 움직인 정도 ${summary.ic == null ? '—' : Number(summary.ic).toFixed(3)}(정보계수 IC)`, 'theme-strength-basis'));
     // X04: the stored sample re-joins the market-separated ranks (US + KR quintiles in one pool) — say so.
     if (summary.pooledMarkets) details.append(el(doc, 'p', `표본 ${summary.stocks}종목은 미국·한국을 각각 순위 매긴 뒤 합친 상위·하위 20%입니다 — 미국 순위나 한국 순위 하나의 검증이 아닙니다.`, 'theme-strength-basis'));
     if (summary.series.length >= 2) details.append(createTrendChart(doc, { series: summary.series, refLines: [0], format: (value) => `${value.toFixed(1)}%`, label: '상위−하위 20% 수익률 차이(비용 반영 · 같은 모델 기록만)' }));

@@ -74,6 +74,7 @@ export function normalizeScreener(raw = {}) {
     vcpScore: finite(row?.vcpScore),
     vcpStage: row?.vcpStage || null,
     vcpPivot: finite(row?.vcpPivot),
+    vcpContractions: finite(row?.vcpContractions), vcpShrinking: typeof row?.vcpShrinking === 'boolean' ? row.vcpShrinking : null, // 2026-10-14 custom conditions
     pe: finite(row?.pe),
     pb: finite(row?.pb),
     evEbitda: finite(row?.evEbitda),

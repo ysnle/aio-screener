@@ -96,13 +96,14 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   });host.append(ask);
   const expanded=element(doc,'details',null,'company-analysis-expanded');expanded.open=host.dataset.signature ? wasOpen : true;expanded.append(element(doc,'summary',fund ? '상품 카드' : '사업·재무 카드'));
   const grid=element(doc,'div',null,'company-analysis-grid');
-  const identity=card(doc,fund ? '무엇을 추종하는 상품인가' : '무엇을 하는 기업·종목인가','참고');
+  // Live review 2026-10-14: '무엇을 하는 회사' (the profile section above) already carries the description; this card keeps the classification only.
+  const identity=card(doc,fund ? '상품 분류·연결 테마' : '분류·연결 테마','참고');
   const meta=model.identity;
   // 2026-10-14 audit #10: an unknown asset type is left out rather than printed as '유형 미확인'.
   const assetLabel = meta.assetType==='ETF' ? '상장지수펀드(ETF)' : meta.assetType==='INDEX' ? '지수' : meta.assetType==='STOCK' ? '상장 기업' : null;
   identity.append(element(doc,'p',[`${meta.name} (${id})`,MARKET_LABELS[meta.market] || '시장 미확인',assetLabel].filter(Boolean).join(' · '),'company-analysis-identity'));
-  if (model.business.description) identity.append(element(doc,'p',model.business.description));
-  if ((meta.sector && !(fund && /^ETF$/i.test(meta.sector))) || meta.industry) identity.append(element(doc,'p',[meta.sector && !(fund && /^ETF$/i.test(meta.sector)) ? `섹터 ${sectorLabel(meta.sector)}` : null,meta.industry ? `산업 ${meta.industry}` : null].filter(Boolean).join(' · '),'company-analysis-meta'));
+  // Sector · industry are the profile section's fallback text when no description exists — shown here only when it is not already there.
+  if (model.business.description && ((meta.sector && !(fund && /^ETF$/i.test(meta.sector))) || meta.industry)) identity.append(element(doc,'p',[meta.sector && !(fund && /^ETF$/i.test(meta.sector)) ? `섹터 ${sectorLabel(meta.sector)}` : null,meta.industry ? `산업 ${meta.industry}` : null].filter(Boolean).join(' · '),'company-analysis-meta'));
   if (model.associations.length) {
     const themes=element(doc,'div',null,'company-analysis-themes');
     // P1743 / 2026-10-14 audit #5: the same stage rows as 테마 갈림길, for this listing's own market (US or KR).

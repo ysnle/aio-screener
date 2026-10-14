@@ -936,8 +936,9 @@ export function mergeMacroLastKnownGood(current, previous) {
     merged[`_source_${field}`] = 'last-known-good';
     merged[`_freshness_${field}`] = 'stale-reference';
   }
-  const failed = new Set([...(Array.isArray(previous._failedSeries) ? previous._failedSeries : []), ...(Array.isArray(current?._failedSeries) ? current._failedSeries : [])]);
-  merged._failedSeries = [...failed];
+  // `_failedSeries` names this run's failures only; a series that failed in an earlier run and recovered (or is
+  // carried as last-known-good above, marked by its own `_source_*`/`_freshness_*`) is not re-listed.
+  merged._failedSeries = [...new Set(Array.isArray(current?._failedSeries) ? current._failedSeries : [])];
   merged._lastKnownGoodAt = previous._lastKnownGoodAt || previous._asOf_hyOAS || null;
   return merged;
 }
@@ -1247,11 +1248,26 @@ export function normalizeBlsSeriesResponse(payload, fetchedAt = new Date().toISO
   };
 }
 
-export async function fetchBlsSeries(previous = null) {
-  const now = new Date();
+// CPI and NFP print at 08:30 ET (12:30Z in EDT, 13:30Z in EST). On a scheduled release date a cache filled before
+// 13:35Z is bypassed from 12:35Z on, so the new print is not held back for the full cache age. `schedules` is the
+// macro-calendar.json `schedules` object (arrays of YYYY-MM-DD under 'us-cpi' / 'us-nfp').
+export const BLS_RELEASE_SCHEDULE_IDS = Object.freeze(['us-cpi', 'us-nfp']);
+export function blsReleaseCacheBypass(previousFetchedAtMs, nowMs, schedules = null) {
+  if (!Number.isFinite(previousFetchedAtMs) || !Number.isFinite(nowMs) || !schedules || typeof schedules !== 'object') return false;
+  return BLS_RELEASE_SCHEDULE_IDS.some((id) => (Array.isArray(schedules[id]) ? schedules[id] : []).some((date) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) return false;
+    const opens = Date.parse(`${date}T12:35:00Z`);
+    const settles = Date.parse(`${date}T13:35:00Z`);
+    return nowMs >= opens && previousFetchedAtMs < settles;
+  }));
+}
+
+export async function fetchBlsSeries(previous = null, { releaseSchedules = null, nowMs = Date.now() } = {}) {
+  const now = new Date(nowMs);
   const nowIso = now.toISOString();
   const previousFetchedAt = previous && previous.fetchedAt ? new Date(previous.fetchedAt).getTime() : NaN;
-  if (previous && Number.isFinite(previousFetchedAt) && Date.now() - previousFetchedAt <= BLS_CACHE_MAX_AGE_MS) {
+  if (previous && Number.isFinite(previousFetchedAt) && nowMs - previousFetchedAt <= BLS_CACHE_MAX_AGE_MS
+      && !blsReleaseCacheBypass(previousFetchedAt, nowMs, releaseSchedules)) {
     return { ...previous, attemptedAt: nowIso, status: 'cached-fresh', cacheHit: true };
   }
 
@@ -3505,8 +3521,10 @@ function _calcVCPServer(closes, highs, lows, volumes) {
   if (brk)       score += 10;
   score = Math.min(100, Math.round(score));
   const vcpStage = !stage2 ? 'not_stage2' : brk ? 'breakout' : nearPivot ? 'near_pivot' : (cnt >= 2 && shrink) ? 'contracting' : cnt >= 1 ? 'basing' : 'stage2_only';
+  // 2026-10-14: the latest contraction against the one before it (isShrinking requires every step to shrink).
+  const latestShrinking = cnt >= 2 ? ctrs[cnt - 1].depth < ctrs[cnt - 2].depth : null;
   return { vcpScore: score, vcpStage, pivotLevel: pivot,
-           contractionCount: cnt, isShrinking: shrink, volumeDrying: volDry,
+           contractionCount: cnt, isShrinking: shrink, latestShrinking, volumeDrying: volDry,
            pctFrom52wHigh: pct52 !== null ? Math.round(pct52 * 10) / 10 : null };
 }
 
@@ -3705,7 +3723,7 @@ async function _enrichPriceFactors(syms) {
       // v51.68: VCP 패턴 인식 — OHLCV 60봉 이상일 때 계산 (raw close, 조정종가 아님 — 위 주석 참조)
       if (r.closes.length >= 60 && r.highs && r.lows && r.volumes) {
         const vcp = _calcVCPServer(r.closes, r.highs, r.lows, r.volumes);
-        if (vcp) { f.vcpScore = vcp.vcpScore; f.vcpStage = vcp.vcpStage; f.vcpPivot = vcp.pivotLevel; }
+        if (vcp) { f.vcpScore = vcp.vcpScore; f.vcpStage = vcp.vcpStage; f.vcpPivot = vcp.pivotLevel; f.vcpContractions = vcp.contractionCount; f.vcpShrinking = vcp.latestShrinking; }
       }
       const setupFields = _calcSetupScreenFields(
         r.closes,
@@ -5404,6 +5422,8 @@ async function main() {
   // provider exception must not abort the other free-source collectors or
   // turn a complete cycle into an unlabelled empty artifact.
   const attemptedAt = new Date().toISOString();
+  // CPI/NFP release dates for the BLS cache bypass, read from the previous calendar artifact before this run rewrites it.
+  const blsReleaseSchedules = await readFile(MACRO_CALENDAR_OUT, 'utf8').then((text) => JSON.parse(text)?.schedules || null).catch(() => null);
   // P1358: collect bounded completed-session ETF research once per session.
   // This independent lane reuses the existing free delayed Yahoo path; it
   // publishes only derived rotation/returns, preserving P715 raw-price stripping.
@@ -5417,7 +5437,7 @@ async function main() {
     fetchFearGreed(previousFearGreed),
     fetchNews(Date.parse(attemptedAt)),
     fetchCboePutCall(),
-    fetchBlsSeries(previousBls),
+    fetchBlsSeries(previousBls, { releaseSchedules: blsReleaseSchedules }),
     fetchBeaPce(previousBea),
     fetchTreasuryYieldCurve(previousTreasury),
     fetchFredHyOasPublic(previousFredHyOas),

@@ -11,7 +11,6 @@
  */
 
 const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
-const VCP_CONTRACTING = new Set(['contracting', 'near_pivot']);
 
 // [id, group, label (with {n} for the threshold), default threshold or null, unit, fields read, test]
 export const CUSTOM_CONDITIONS = Object.freeze([
@@ -23,25 +22,28 @@ export const CUSTOM_CONDITIONS = Object.freeze([
     test: ({ pctFromCloseHigh52w: a }) => a >= 0 },
   { id: 'near-high', group: '추세', label: '52주 고점 대비 {n}% 이내', value: 5, unit: '%', fields: ['pctFrom52wHigh'],
     test: ({ pctFrom52wHigh: a }, n) => a >= -n },
-  { id: 'vcp', group: '패턴', label: 'VCP 수렴 중 (흔들림이 2번 이상 줄어듦 · 피벗 근처 포함)', fields: ['vcpStage'],
-    test: ({ vcpStage }) => VCP_CONTRACTING.has(vcpStage) },
+  // v57.59 review: "near pivot" alone is not contraction — it counts only while the latest swing is smaller than the one
+  // before (vcpShrinking true; null when fewer than two swings). Rows from before these fields existed keep the old reading.
+  { id: 'vcp', group: '패턴', label: 'VCP 수렴 중 (흔들림이 2번 이상 줄어듦 · 피벗 근처는 마지막 흔들림이 직전보다 작을 때만)', fields: ['vcpStage'], optional: ['vcpShrinking', 'vcpContractions'],
+    test: ({ vcpStage, vcpShrinking, vcpContractions }) => vcpStage === 'contracting'
+      || (vcpStage === 'near_pivot' && (vcpShrinking === true || (vcpShrinking == null && vcpContractions == null))) },
   { id: 'vcp-breakout', group: '패턴', label: 'VCP 돌파 (피벗 위 · 거래량 평소의 1.4배 이상)', fields: ['vcpStage'],
     test: ({ vcpStage }) => vcpStage === 'breakout' },
-  { id: 'tight', group: '패턴', label: '하루 변동폭(ADR) {n}% 이하', value: 3, unit: '%', fields: ['adrPct'],
+  { id: 'tight', group: '패턴', label: '하루 평균 변동폭(ADR) {n}% 이하', value: 3, unit: '%', fields: ['adrPct'],
     test: ({ adrPct: a }, n) => a <= n },
   { id: 'rvol', group: '패턴', label: '거래량 20일 평균의 {n}배 이상', value: 1.5, unit: '배', fields: ['rvol20'],
     test: ({ rvol20: a }, n) => a >= n },
-  { id: 'pe-max', group: '밸류에이션', label: 'PER {n}배 이하 (최근 회계연도 이익 · 적자 제외)', value: 20, unit: '배', fields: ['pe'],
+  { id: 'pe-max', group: '밸류에이션', label: 'PER {n}배 이하 (최근 회계연도 이익 · 적자 제외 · 미국)', value: 20, unit: '배', fields: ['pe'],
     test: ({ pe }, n) => pe > 0 && pe <= n },
   { id: 'fwdpe-max', group: '밸류에이션', label: 'Forward PER {n}배 이하 (컨센서스 · 미국)', value: 25, unit: '배', fields: ['fwdPe'],
     test: ({ fwdPe }, n) => fwdPe > 0 && fwdPe <= n },
-  { id: 'pb-max', group: '밸류에이션', label: 'PBR {n}배 이하', value: 3, unit: '배', fields: ['pb'],
+  { id: 'pb-max', group: '밸류에이션', label: 'PBR {n}배 이하 (미국)', value: 3, unit: '배', fields: ['pb'],
     test: ({ pb }, n) => pb > 0 && pb <= n },
-  { id: 'roe-min', group: '수익성·성장', label: 'ROE {n}% 이상', value: 15, unit: '%', fields: ['roe'],
+  { id: 'roe-min', group: '수익성·성장', label: 'ROE {n}% 이상 (미국)', value: 15, unit: '%', fields: ['roe'],
     test: ({ roe }, n) => roe >= n },
-  { id: 'margin-min', group: '수익성·성장', label: '순이익률 {n}% 이상', value: 10, unit: '%', fields: ['margin'],
+  { id: 'margin-min', group: '수익성·성장', label: '순이익률 {n}% 이상 (미국)', value: 10, unit: '%', fields: ['margin'],
     test: ({ margin }, n) => margin >= n },
-  { id: 'growth-min', group: '수익성·성장', label: '매출 성장률 {n}% 이상 (최근 회계연도)', value: 10, unit: '%', fields: ['revGrowth'],
+  { id: 'growth-min', group: '수익성·성장', label: '매출 성장률 {n}% 이상 (최근 회계연도 · 미국)', value: 10, unit: '%', fields: ['revGrowth'],
     test: ({ revGrowth }, n) => revGrowth >= n },
   { id: 'liquidity-min', group: '거래', label: '하루 거래대금 ${n}백만 이상 (30일 평균)', value: 20, unit: '$M', fields: ['dollarVolume30d'],
     test: ({ dollarVolume30d: a }, n) => a >= n * 1e6 }
@@ -92,7 +94,16 @@ export function evaluateCondition(condition, row, read) {
     if (value == null || value === '') return null;
     values[key] = value;
   }
+  for (const key of template.optional || []) values[key] = read(row, key);
   return template.test(values, finite(condition.value) ?? template.value) === true;
+}
+
+/** Ids of conditions that at least one row can be judged on (a market without the data greys them out). */
+export function availableConditionIds(rows, read) {
+  return new Set(CUSTOM_CONDITIONS.filter((template) => rows.some((row) => template.fields.every((key) => {
+    const value = read(row, key);
+    return value != null && value !== '';
+  }))).map((template) => template.id));
 }
 
 export function matchesConditions(row, conditions, read) {

@@ -123,6 +123,31 @@ const fetchData = read('scripts/fetch-data.mjs');
     check('P1587: SEC share counts far from net income / diluted EPS are withheld before P/E and P/B',
       bad?.sharesCheck === 'scale-mismatch' && bad?.sharesOutstanding === null && bad?.pe == null && good?.sharesCheck === 'consistent' && Math.abs(good?.pe - 26.5) < 0.2,
       JSON.stringify({ bad: bad && { c: bad.sharesCheck, pe: bad.pe }, good: good && { c: good.sharesCheck, pe: good.pe } }));
+    // 2026-10-14: a filer with no reported share count (class-dimensioned dei) is priced on net income / diluted EPS;
+    // utility revenue concepts count as annual revenue.
+    const multiClass = { facts: { 'us-gaap': { RegulatedAndUnregulatedOperatingRevenue: { units: { USD: [fy(8.6e9), fy(8.4e9, { start: '2024-01-01', end: '2024-12-31', fy: 2024, accn: 'b' })] } }, NetIncomeLoss: { units: { USD: [fy(774.1e6)] } }, EarningsPerShareDiluted: { units: { 'USD/shares': [fy(8.62)] } } } } };
+    const implied = normalizeSecCompanyFacts('MULTI', multiClass, 229.94, null);
+    const noEps = normalizeSecCompanyFacts('MULTI', { facts: { 'us-gaap': { ...multiClass.facts['us-gaap'], EarningsPerShareDiluted: undefined } } }, 229.94, null);
+    check('v57.59 SEC share count falls back to net income / diluted EPS only when no reported count exists; utility revenue is annual revenue',
+      implied?.sharesBasis === 'eps-implied' && Math.abs(implied?.sharesOutstanding - 774.1e6 / 8.62) < 1 && Math.abs(implied?.pe - 26.7) < 0.2
+        && implied?.revenue === 8.6e9 && noEps?.sharesOutstanding == null && bad?.sharesBasis == null,
+      JSON.stringify({ implied: implied && { b: implied.sharesBasis, s: implied.sharesOutstanding, pe: implied.pe, r: implied.revenue }, noEps: noEps && noEps.sharesOutstanding }));
+  }
+  {
+    // 2026-10-14: the BLS cache is bypassed on a scheduled CPI/NFP date from 12:35Z when it was filled before 13:35Z.
+    const { blsReleaseCacheBypass, fetchBlsSeries } = await import('./fetch-data.mjs');
+    const schedules = { 'us-cpi': ['2026-10-14'], 'us-nfp': ['2026-11-06'], 'us-pce': ['2026-10-15'] };
+    const at = (iso) => Date.parse(iso);
+    const cached = await fetchBlsSeries({ fetchedAt: '2026-10-15T09:00:00Z', series: {} }, { releaseSchedules: schedules, nowMs: at('2026-10-15T13:00:00Z') });
+    check('v57.59 BLS cache bypass only on a scheduled CPI/NFP date after 12:35Z for a cache filled before 13:35Z',
+      blsReleaseCacheBypass(at('2026-10-14T08:00:00Z'), at('2026-10-14T12:40:00Z'), schedules)
+        && blsReleaseCacheBypass(at('2026-11-06T13:00:00Z'), at('2026-11-06T13:40:00Z'), schedules)
+        && !blsReleaseCacheBypass(at('2026-10-14T08:00:00Z'), at('2026-10-14T12:30:00Z'), schedules)
+        && !blsReleaseCacheBypass(at('2026-10-14T13:36:00Z'), at('2026-10-14T14:00:00Z'), schedules)
+        && !blsReleaseCacheBypass(at('2026-10-15T08:00:00Z'), at('2026-10-15T13:00:00Z'), schedules)
+        && !blsReleaseCacheBypass(at('2026-10-14T08:00:00Z'), at('2026-10-14T12:40:00Z'), null)
+        && cached.cacheHit === true,
+      JSON.stringify({ cached: cached.status }));
   }
   check('P1576: an in-session quote without a previous close is never written to history as a completed close', /bySym\[q\.symbol\] = usePreviousClose \? previousClose : \(isOpenPoint \|\| preOpenPrint\) \? null : q\.regularMarketPrice;/.test(fetchData));
   check('P1573: Cboe put/call is current only within one session of the latest completed close',

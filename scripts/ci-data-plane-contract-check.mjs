@@ -182,6 +182,41 @@ try {
   if (offenders.length) fail(`P1718 Worker sources must not use redirect:'error' (TypeError on Workers): ${offenders.join(', ')}`);
 }
 
+// Screener dispatch: refresh-screener at 07:25Z/22:25Z only (backup after the 06:53/21:53 crons), body {ref} (no inputs), own KV dedupe key.
+{
+  const { dispatchRefreshScreener, dispatchRefreshData, SCREENER_DISPATCH_POLICY } = await import('../worker/data-plane.js');
+  const store = new Map();
+  const env = { GITHUB_DISPATCH_TOKEN: 'fixture', AIO_QUOTES_KV: {
+    get: async key => store.has(key) ? JSON.parse(store.get(key)) : null,
+    put: async (key, value) => store.set(key, value)
+  } };
+  const calls = [];
+  const fetchImpl = async (url, init) => { calls.push({ url, init }); return init.method === 'POST' ? new Response(null, { status: 204 }) : Response.json({ workflow_runs: [] }); };
+  const offSlot = await dispatchRefreshScreener({ env, scheduledTime: Date.parse('2026-10-01T13:20:00Z'), fetchImpl });
+  const krSlot = await dispatchRefreshScreener({ env, scheduledTime: Date.parse('2026-10-01T07:25:00Z'), fetchImpl });
+  const krRepeat = await dispatchRefreshScreener({ env, scheduledTime: Date.parse('2026-10-01T07:25:00Z'), fetchImpl });
+  const usSlot = await dispatchRefreshScreener({ env, scheduledTime: Date.parse('2026-10-01T22:25:00Z'), fetchImpl });
+  const posts = calls.filter(call => call.init.method === 'POST');
+  const bodies = posts.map(call => call.init.body);
+  if (offSlot.dispatched || offSlot.reason !== 'not-a-dispatch-slot' || !krSlot.dispatched || krRepeat.reason !== 'duplicate-slot' || !usSlot.dispatched
+      || posts.length !== 2 || !posts.every(call => /\/actions\/workflows\/refresh-screener\.yml\/dispatches$/.test(call.url))
+      || !bodies.every(body => body === JSON.stringify({ ref: 'main' }))
+      || !store.has(SCREENER_DISPATCH_POLICY.kvKey) || store.has('scheduler:dispatch') || SCREENER_DISPATCH_POLICY.kvKey === 'scheduler:dispatch'
+      || !calls.every(call => call.init?.redirect === 'manual')) fail(`screener dispatch contract regressed: ${JSON.stringify({ offSlot, krSlot, krRepeat, usSlot, bodies })}`);
+  // The backup slot skips when the post-close cron run already succeeded (within 30 min) and fires when it did not.
+  const runsAt = (updatedAt) => async (url, init) => init.method === 'POST' ? new Response(null, { status: 204 })
+    : Response.json({ workflow_runs: [{ id: 9, head_branch: 'main', status: 'completed', conclusion: 'success', updated_at: updatedAt }] });
+  store.clear();
+  const cronRan = await dispatchRefreshScreener({ env, scheduledTime: Date.parse('2026-10-01T22:25:00Z'), fetchImpl: runsAt('2026-10-01T22:15:00Z') });
+  store.clear();
+  const cronMissed = await dispatchRefreshScreener({ env, scheduledTime: Date.parse('2026-10-01T22:25:00Z'), fetchImpl: runsAt('2026-10-01T18:40:00Z') });
+  if (cronRan.dispatched || cronRan.reason !== 'recent-success' || !cronMissed.dispatched) fail(`screener backup dispatch must skip an on-time cron run and cover a missed one: ${JSON.stringify({ cronRan, cronMissed })}`);
+  // The refresh-data slot at :20/:50 must not dispatch the screener and vice versa.
+  const dataAtScreenerSlot = await dispatchRefreshData({ env, scheduledTime: Date.parse('2026-10-01T07:25:00Z'), fetchImpl });
+  if (dataAtScreenerSlot.reason !== 'not-a-dispatch-slot') fail('refresh-data must not dispatch at screener slots');
+  if (!/dispatchRefreshScreener\(\{ env, scheduledTime: controller\?\.scheduledTime/.test(worker)) fail('scheduled() must dispatch refresh-screener');
+}
+
 // P1595: fallback dispatch coalesces healthy work, persists safe receipts and bounds stalled bodies.
 {
   const { dispatchRefreshData } = await import('../worker/data-plane.js');

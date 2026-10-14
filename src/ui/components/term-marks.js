@@ -7,7 +7,22 @@
  * changed (textContent stays the same), only prose is marked (p · li · dd — not headings, tables, buttons or chips),
  * and a term without a glossary entry is left alone.
  */
-import { placeTooltipBody } from './term-tooltip.js';
+const EDGE = 8;
+
+/**
+ * Live review 2026-10-14: the popover opens below the term (the finger covers what is above it) and moves above only
+ * when there is no room below; with room on neither side it takes the larger side, clamped inside the viewport.
+ */
+export function placeTermPopover(anchorRect, size, viewport) {
+  const width = Math.min(size.width, viewport.width - EDGE * 2);
+  const left = Math.max(EDGE, Math.min(anchorRect.left + anchorRect.width / 2 - width / 2, viewport.width - width - EDGE));
+  const below = anchorRect.bottom + 6;
+  const above = anchorRect.top - size.height - 6;
+  const roomBelow = viewport.height - EDGE - below;
+  const top = roomBelow >= size.height ? below : above >= EDGE ? above
+    : roomBelow >= anchorRect.top - EDGE ? Math.min(below, viewport.height - size.height - EDGE) : EDGE;
+  return { left: Math.round(left), top: Math.round(Math.max(EDGE, top)), width: Math.round(width), side: top >= anchorRect.bottom ? 'below' : 'above' };
+}
 
 // [text as written on screen, glossary term]. Longer forms first so 'Forward PER' is not read as 'PER'.
 export const TERM_MARKS = Object.freeze([
@@ -88,7 +103,8 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
   const activePage = () => documentRef.querySelector('.page.active');
   const run = () => { timer = null; try { markTerms(activePage(), root.GLOSSARY, documentRef); } catch (_) { /* reading text only */ } };
   const schedule = () => { if (!timer) timer = setTimeout(run, 700); };
-  const close = () => { if (pop) { pop.remove(); pop = null; } };
+  // While a popover is open the back-to-top button (bottom-right, fixed) is hidden so it cannot sit on top of it.
+  const close = () => { if (pop) { pop.remove(); pop = null; documentRef.body?.classList.remove('aio-term-pop-open'); } };
   const open = (mark) => {
     close();
     const entry = (root.GLOSSARY || []).find((item) => item?.term === mark.dataset.glossaryTerm);
@@ -114,8 +130,13 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     });
     pop.append(name, body, more);
     documentRef.body.append(pop);
-    const place = placeTooltipBody(mark.getBoundingClientRect(), { width: Math.min(320, pop.offsetWidth || 320), height: pop.offsetHeight || 90 }, { width: root.innerWidth || 1024, height: root.innerHeight || 768 });
+    documentRef.body.classList.add('aio-term-pop-open');
+    const viewport = { width: root.innerWidth || 1024, height: root.innerHeight || 768 };
+    // The width is fixed first so the measured height is the wrapped height the popover will really have.
+    pop.style.width = `${Math.min(320, viewport.width - EDGE * 2)}px`;
+    const place = placeTermPopover(mark.getBoundingClientRect(), { width: pop.offsetWidth || 320, height: pop.offsetHeight || 90 }, viewport);
     Object.assign(pop.style, { left: `${place.left}px`, top: `${place.top}px`, width: `${place.width}px` });
+    pop.dataset.side = place.side;
     more.focus({ preventScroll: true });
   };
   const onClick = (event) => {
@@ -134,6 +155,9 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
   documentRef.addEventListener('click', onClick);
   documentRef.addEventListener('keydown', onKey);
   root.addEventListener?.('scroll', close, { passive: true });
+  // The reading column scrolls inside .content, not the window; a fixed popover must not stay behind when it moves.
+  const scroller = documentRef.querySelector('.content');
+  scroller?.addEventListener('scroll', close, { passive: true });
   schedule();
   return () => {
     observer.disconnect();
@@ -142,6 +166,7 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     documentRef.removeEventListener('click', onClick);
     documentRef.removeEventListener('keydown', onKey);
     root.removeEventListener?.('scroll', close);
+    scroller?.removeEventListener('scroll', close);
     documentRef.__aioTermMarks = false;
   };
 }
