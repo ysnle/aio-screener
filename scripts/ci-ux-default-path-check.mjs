@@ -50,9 +50,8 @@ const staleWarningIndex = html.indexOf('id="snapshot-stale-warning"');
 check('home operator note placeholder must exist exactly once', (html.match(/id="home-operator-note"/g) || []).length === 1);
 check('home operator note must be before the home header/status flow', operatorNoteIndex >= 0 && staleWarningIndex >= 0 && operatorNoteIndex < staleWarningIndex);
 check('home operator note must use prominent first-screen styling', /aio-operator-note-title[\s\S]*font-size:18px/.test(html) && /aio-operator-note-body[\s\S]*font-size:14px/.test(html));
-check('operator note renderer must filter sample tags', /_isPlaceholderTag/.test(data) && /aio-operator-note-tag/.test(data));
 check('visual hierarchy refresh must move away from one-note terminal styling', /v51\.43: visual hierarchy refresh/.test(html) && /--data-amber:[\s\S]*--data-red:[\s\S]*--data-purple:/.test(html));
-check('operator note must expose a short first-screen lead with expandable full memo', /aio-operator-note-lead/.test(html) && /leadText/.test(data) && /전체 메모 보기/.test(data));
+// v57.71 (owner 2026-10-15): the card is "오늘의 한 문장" — one dated sentence, no memo body or tags.
 // v53.7 (P725): kr-technical 페이지 퇴역 — 레거시 intro 은닉 규칙 대신 페이지 자체가 없어야 하고,
 // 이관된 통합 섹션에는 insight-box가 애초에 포함되지 않아야 한다.
 check('KR technical default path is retired into the technical page (v53.7 P725)', !/id="page-kr-technical"/.test(html) && /id="kr-integrated-technical"/.test(html) && !/<details[^>]*id="kr-integrated-technical"[\s\S]{0,400}insight-box/.test(html));

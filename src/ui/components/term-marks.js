@@ -143,6 +143,10 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     pop.append(name, body, more);
     // Tabbing out of the popover closes it; a pointer press elsewhere is handled by the document click.
     pop.addEventListener('focusout', (event) => { if (pop && event.relatedTarget && !pop.contains(event.relatedTarget)) close({ restore: false }); });
+    // v57.71 (2026-10-15 audit, WCAG 2.4.3): the popover sits at the end of <body>, so Tab from its button landed on BODY.
+    // Tab (either direction) closes it and returns focus to the term, where reading order continues.
+    pop.addEventListener('keydown', (event) => { if (event.key === 'Tab') { event.preventDefault(); close(); } });
+    pop.setAttribute('aria-modal', 'false');
     opener = mark;
     mark.setAttribute('aria-expanded', 'true');
     documentRef.body.append(pop);

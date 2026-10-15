@@ -4,6 +4,10 @@ last_verified: 2026-10-15
 confidence: medium
 ---
 
+## v57.71 오늘의 한 문장 (v57.71) (2026-10-15)
+
+- [ ] QA-VERIFY-32: v57.71 배포 후 08:00 KST 이후 첫 refresh-data에서 data.json marketAnalysis.sentence가 그날 날짜로 채워지고(숫자·종목·지시 없음), 같은 날 이후 실행에서 바뀌지 않으며, 홈 첫 화면에 "오늘의 한 문장" 카드로 표시된다. verify_by: push 뒤 다음 날 08:00 KST 이후 data.json과 운영 사이트 홈 확인
+
 ## v57.70 직전 종가 세션 날짜 (v57.70) (2026-10-15)
 
 - [ ] QA-VERIFY-31: P1805 배포 후 장중 refresh-data 2회 뒤 history.json 최신 행의 wti·gold·dxy fieldMeta에 sessionDate가 있고, 브리핑 자산별 흐름의 WTI·금·달러 1일 변화가 Yahoo 일봉 직전 두 종가의 변화와 같다. verify_by: push 뒤 장중 refresh-data 두 번 이후 history.json과 운영 사이트 브리핑 확인

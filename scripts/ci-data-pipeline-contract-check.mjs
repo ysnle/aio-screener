@@ -822,6 +822,27 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && benchmarkFieldFor('005930.KS') === 'kospi' && benchmarkFieldFor('247540.KQ') === 'kosdaq' && benchmarkFieldFor('^KS11') === null);
 }
 {
+  // v57.71 (owner 2026-10-15): "오늘의 한 문장" — written on the analysis call's last line, validated on its own, fixed
+  // once per 08:00 KST day; the Korean wire's market feed is read directly.
+  const { splitMarketSentence, validateMarketSentence, dailyMarketSentence, marketSentenceDay } = await import('./lib/market-analysis-validate.mjs');
+  const { NEWS_FEEDS } = await import('./lib/news-selection.mjs');
+  const split = splitMarketSentence('S&P 500은 1.11% 하락했다.\n코스피는 장중 급락했다.\n오늘의 한 문장: "누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다."');
+  const at = (iso) => Date.parse(iso);
+  const morning = dailyMarketSentence({ candidate: '오늘의 하락은 기회인가, 서사의 끝을 알리는 신호인가?', previous: null, nowMs: at('2026-10-15T00:30:00.000Z') });
+  const sameDay = dailyMarketSentence({ candidate: '다른 문장이 와도 같은 날에는 바뀌지 않는가?', previous: morning, nowMs: at('2026-10-15T06:30:00.000Z') });
+  const nextDay = dailyMarketSentence({ candidate: '하루가 지나면 새 문장이 그 자리를 잇는가?', previous: morning, nowMs: at('2026-10-15T23:30:00.000Z') });
+  const rejected = dailyMarketSentence({ candidate: 'NVDA를 지금 사세요', previous: morning, nowMs: at('2026-10-15T23:30:00.000Z') });
+  check('v57.71 the daily sentence is split from the reading, carries no number/ticker/instruction, and changes once per 08:00 KST day',
+    split.sentence === '누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다.' && !/오늘의 한 문장/.test(split.body)
+      && validateMarketSentence('AI 서사는 끝났는가, 쉬어 가는 것인가?') && !validateMarketSentence('코스피 6% 급락, 기회인가') && !validateMarketSentence('지금 비중을 늘리세요, 바닥입니다')
+      && morning?.day === '2026-10-15' && sameDay === morning && nextDay?.day === '2026-10-16' && nextDay.text !== morning.text && rejected === morning
+      && marketSentenceDay(at('2026-10-14T22:59:00.000Z')) === '2026-10-14' && marketSentenceDay(at('2026-10-14T23:00:00.000Z')) === '2026-10-15',
+    JSON.stringify({ split, morning, sameDay, nextDay, rejected }));
+  const yonhap = NEWS_FEEDS.find((feed) => /yna\.co\.kr/.test(feed.url));
+  check('v57.71 the Korean wire\'s market feed is read on the refresh cadence as a tier-2 Korean feed',
+    yonhap?.country === 'kr' && yonhap.tier === 2 && yonhap.source === '연합뉴스' && NEWS_FEEDS.filter((feed) => /news\.google\.com/.test(feed.url)).length >= 8, JSON.stringify(yonhap));
+}
+{
   // P1720: post-08:00 articles go to a separate provisional slot (tier 1-2, curation filters, one per event, max 6,
   // Korean items first); the completed 08:00 bundle is unchanged.
   const { selectNewsIntraday, NEWS_INTRADAY_MAX } = await import('./fetch-data.mjs');

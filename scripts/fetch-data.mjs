@@ -42,7 +42,7 @@ import { _mean, closesToFactors, backtestFactors, _calcVCPServer, _calcSetupScre
 import { fetchJSON, _fetchRss } from './lib/producer-http.mjs'; // v57.62 split
 import { FRED_SERIES, compareUsdKrwCrossCheck, fetchAaiiSentiment, fetchBeaPce, fetchBlsSeries, fetchCboePutCall, fetchFearGreed, fetchFredDexkousPublic, fetchFredHyOasPublic, fetchTreasuryYieldCurve, mergeMacroLastKnownGood, officialTreasuryDeltas } from './lib/macro-sources.mjs'; // v57.62 split
 import { MINIMUM_CURRENT_NEWS, NEWS_FEEDS, NEWS_INTRADAY_LABEL, NEWS_INTRADAY_MAX, NEWS_INTRADAY_POLICY, TICKER_NEWS_MAX_AGE_MS, deriveCyclePublication, deriveTickerNewsLineage, fetchNews, fetchTickerNewsItems, getKst0800NewsCycle, planTickerNewsTargets, selectTickerNewsMemo } from './lib/news-selection.mjs'; // v57.62 split
-import { KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText } from './lib/market-analysis-validate.mjs'; // v57.62 split
+import { KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, MARKET_SENTENCE_LABEL, dailyMarketSentence, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText } from './lib/market-analysis-validate.mjs'; // v57.62 split
 export { buildMarketAnalysisEvidence, MARKET_ANALYSIS_CLOSED_SESSIONS, analysisMetricMentions, validateAnalysisMetricMentions, validateAnalysisAdmission, analysisNumberMarkedAsReference, validateMarketAnalysisText, MARKET_ANALYSIS_NEWS_CONTENT_POLICY, isMarketAnalysisNewsEligible, buildMarketAnalysisNewsEvidence, buildMarketAnalysisHeadlineContext, describeMarketAnalysisIssues, MARKET_ANALYSIS_RETAIN_MAX_MS, retainVerifiedMarketAnalysis, reusableMarketAnalysis } from './lib/market-analysis-validate.mjs';
 export { deriveCyclePublication, newsSourceLabel, serverNewsHeadlineMonthStale, scoreServerNewsItem, newsHeadlineSignature, newsSameEvent, cleanNewsTitle, newsKeyEntities, createNewsTopicCap, NEWS_INTRADAY_MAX, NEWS_INTRADAY_POLICY, NEWS_INTRADAY_LABEL, selectNewsIntraday, tickerNewsCoreName, TICKER_NEWS_WORD_SYMBOLS, tickerNewsHeadlineNamesIssuer, TICKER_NEWS_MAX_AGE_MS, selectTickerNewsMemo, TICKER_NEWS_RUN_CAP, TICKER_NEWS_FIXED_HEAD, TICKER_NEWS_ROTATION_SLOT_MS, planTickerNewsTargets, deriveTickerNewsLineage } from './lib/news-selection.mjs';
 export { parseFredHyOasCsv, fetchFredHyOasPublic, parseFredDexkousCsv, fetchFredDexkousPublic, compareUsdKrwCrossCheck, parseTreasuryYieldCurveHtml, parseTreasuryYieldCurveXml, officialTreasuryDeltas, fetchTreasuryYieldCurve, parseAaiiSentimentText, fetchAaiiSentiment, mergeMacroLastKnownGood, parseBeaPceHtml, normalizeBlsSeriesResponse, BLS_RELEASE_SCHEDULE_IDS, blsReleaseCacheBypass, fetchBlsSeries, parseCboePutCallHtml, classifyCboePutCallCurrentness } from './lib/macro-sources.mjs';
@@ -2583,10 +2583,12 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       'HEADLINE_CONTEXT (retained headlines — titles only; these are the only news material available):\n' + (headlineLines || 'none')
         + (intradayLines ? '\n08:00 이후 장중 속보(잠정 — 다음 08:00 묶음 전의 미확정 헤드라인, 인용 시 "잠정"으로 표시):\n' + intradayLines : ''),
       'DIRECTIONAL/CAUSAL PROSE: you may offer a directional or causal reading, but attribute it to the named headline ("헤드라인에 따르면", "According to <source>") and present it as one reading among alternatives, never as a confirmed fact. End with what would invalidate the reading and what the reader should check. The final decision belongs to the reader, not to this text.',
+      // v57.71 (owner 2026-10-15): the home's one-sentence line, written by the same call (no extra request).
+      `마지막에 7~9줄과 별도로 한 줄을 더 쓴다: "${MARKET_SENTENCE_LABEL} " 뒤에 지금 시장을 관통하는 긴장을 질문이나 대비로 담은 한 문장(40자 안팎). 숫자·%·종목명·티커·매매 지시 없이, 오늘의 근거(METRIC_EVIDENCE·HEADLINE_CONTEXT·REGIME_CONTEXT)에서 나온 갈림을 담는다. 문체 예시(그대로 쓰지 말 것): "오늘의 하락은 기회인가, 서사의 끝을 알리는 신호인가?" / "누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다."`,
     ].join('\n\n');
     const result = await ask(prompt);
     if (!result.text) return buildMarketAnalysisFallback(data, result.reason, metricEvidence, newsEvidence);
-    let text = result.text;
+    let { body: text, sentence: sentenceCandidate } = splitMarketSentence(result.text);
     let semantic = validateMarketAnalysisText(text, data, snapshot, { context: regimeContext });
     // P1719: the rejected text goes to the Actions log only (400 chars), never into a public artifact.
     const logRejected = (attempt, body, issues) => console.warn(`[fetch-data] marketAnalysis ${attempt} blocked: ${issues.join(',').slice(0, 300)} :: ${String(body || '').replace(/\s+/g, ' ').slice(0, 400)}`);
@@ -2597,7 +2599,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
         + describeMarketAnalysisIssues(text, semantic.issues, metricEvidence, changeOf);
       const retry = await ask(retryPrompt).catch(() => ({ text: null }));
       if (retry.text) {
-        text = retry.text;
+        ({ body: text, sentence: sentenceCandidate } = splitMarketSentence(retry.text));
         semantic = validateMarketAnalysisText(text, data, snapshot, { context: regimeContext });
         if (!semantic.ok) logRejected('attempt-2', text, semantic.issues);
       }
@@ -2611,7 +2613,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       }
       return buildMarketAnalysisFallback(data, reason, metricEvidence, newsEvidence);
     }
-    return buildStructuredMarketAnalysis({ data, text: semantic.text || text, model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic });
+    return { ...buildStructuredMarketAnalysis({ data, text: semantic.text || text, model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic }), sentenceCandidate };
   } catch (error) {
     return buildMarketAnalysisFallback(data, error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error', metricEvidence, newsEvidence);
   }
@@ -3081,7 +3083,9 @@ async function main() {
   } catch (error) { console.warn(`[fetch-data] headline translation skipped: ${error?.message || error}`); }
   const marketAnalysis = await genMarketAnalysis(data, marketSnapshotForConsumers, { previous: previous?.marketAnalysis || null });
   if (marketAnalysis) {
-    data.marketAnalysis = marketAnalysis;
+    // v57.71: one sentence a day — kept from the earlier run of the same 08:00 KST day, else this run's validated line.
+    const { sentenceCandidate = null, ...analysis } = marketAnalysis;
+    data.marketAnalysis = { ...analysis, sentence: dailyMarketSentence({ candidate: sentenceCandidate, previous: previous?.marketAnalysis?.sentence || null, nowMs: Date.now() }) };
     data.meta.marketAnalysisOk = marketAnalysis.status === 'verified';
     // P1719: a retained previous verification is still verified prose, but this run's attempt was blocked.
     data.meta.marketAnalysisRetained = marketAnalysis.retained || null;

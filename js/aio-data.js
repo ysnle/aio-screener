@@ -6011,6 +6011,10 @@ async function _aioLoadServerData() {
     // v52.75/WP-AI0: do not expose generated-but-unverified LLM prose to any
     // public sink. A future typed/semantic producer must opt in explicitly.
     window._serverMarketAnalysis = null;
+    // v57.71 (owner 2026-10-15): the producer's one-sentence line is validated on its own (no number, ticker or
+    // instruction) and shown on the home card even when this run's long reading was held.
+    window._aioMarketSentence = d.marketAnalysis && d.marketAnalysis.sentence && d.marketAnalysis.sentence.text ? d.marketAnalysis.sentence : null;
+    try { if (typeof _aioRenderOperatorNote === 'function') _aioRenderOperatorNote(); } catch(_) {}
     if (d.marketAnalysis && (d.marketAnalysis.full || d.marketAnalysis.oneLine)) {
       var _serverMarketMetricEvidence = Array.isArray(d.marketAnalysis.metricEvidence) ? d.marketAnalysis.metricEvidence : [];
       var _serverMarketMetricEvidenceValid = _serverMarketMetricEvidence.length >= 2 && _serverMarketMetricEvidence.every(function(row) {
@@ -6444,59 +6448,28 @@ window._aioLoadOperatorNote = _aioLoadOperatorNote;
 // silently overwrote the previous one), so the two earlier ~25-line copies were fully dead:
 // any future fix applied to them would compile fine and have zero effect. Removed rather than
 // left as unreachable code.
-// v51.43: concise first-screen operator note renderer.
+// v57.71 (owner 2026-10-15): the operator note becomes "오늘의 한 문장" — one sentence that names the day's market
+// tension. The producer writes it once per 08:00 KST day (data.json marketAnalysis.sentence); an operator line in
+// operator-note.json (`sentence`, `updated` = that day) takes its place. Older than the previous day, nothing shows.
 function _aioRenderOperatorNote() {
   var el = document.getElementById('home-operator-note');
   if (!el) return;
+  var day = new Date(Date.now() + 3600000).toISOString().slice(0, 10);
+  var yesterday = new Date(Date.now() + 3600000 - 86400000).toISOString().slice(0, 10);
   var note = window._aioOperatorNote;
-  if (!note || note.visible === false || _aioIsOperatorNotePlaceholder(note)) { el.style.display = 'none'; return; }
-  function _isPlaceholderTag(t) {
-    var text = String(t || '').trim();
-    return !text || /^(sample|placeholder|tag)\d*$/i.test(text) || /placeholder|예시|작성|샘플/i.test(text);
-  }
-  var tags = (Array.isArray(note.tags) ? note.tags : []).filter(function(t) {
-    return !_isPlaceholderTag(t);
-  }).map(function(t) {
-    return '<span class="aio-operator-note-tag">' + escHtml(t) + '</span>';
-  }).join('');
-  var bodyText = String(note.body || '').trim();
-  var normalizedBody = bodyText.replace(/\s+/g, ' ');
-  var firstStop = normalizedBody.search(/[.!?。！？]|다\.|요\.|음\./);
-  var leadText = firstStop > 40 ? normalizedBody.slice(0, firstStop + 1) : normalizedBody.slice(0, 220);
-  var restText = normalizedBody.slice(leadText.length).trim();
-  if (!restText && bodyText.length > leadText.length) restText = bodyText.slice(leadText.length).trim();
-  var bodyHtml = _esc(restText || bodyText).replace(/\n/g, '<br>');
-  // v52.14 P6/P614: 홈 최상단 고정 노트가 며칠 경과했는지 안 보이던 문제 — 기존 _aioStaleDaysLabel
-  // 헬퍼(jensen-interview-stale-days 등과 동일 계산 로직) 재사용해 경과일 배지 추가.
-  var staleInfo = (typeof window._aioStaleDaysLabel === 'function')
-    ? window._aioStaleDaysLabel(note.updated, { warnDays: 3, staleDays: 7 })
-    : { text: '', color: 'var(--text-muted)' };
-  var noteIsHardStale = staleInfo && staleInfo.days != null && staleInfo.days > 7;
-  var staleHtml = staleInfo.text
-    ? ' <span class="aio-operator-note-stale-days" id="home-operator-note-stale-days" style="color:' + staleInfo.color + ';font-weight:600;">' + _esc(staleInfo.text) + '</span>'
-    : '';
-  var staleBoundaryHtml = noteIsHardStale
-    ? '<div class="aio-operator-note-stale-boundary" data-source-kind="REFERENCE" data-operational-use="reference-only" style="margin:8px 0;padding:6px 8px;border-left:3px solid var(--data-amber);background:rgba(160,106,18,0.08);color:var(--data-amber);font-size:11px;line-height:1.5;font-weight:700;">오래된 참고 메모 · 현재 시장 판단에 사용하지 않음 · 최신 데이터와 공식 원문을 우선 확인하세요.</div>'
-    : '';
-  var noteHasSource = !!(note.source || note.sourceUrl);
-  var noteHasObservation = !!(note.observedAt || note.releaseAt || note.updated);
-  var provenanceBoundaryHtml = (!noteHasSource || !noteHasObservation)
-    ? '<div class="aio-operator-note-provenance-boundary" data-source-kind="REFERENCE" data-operational-use="reference-only" style="margin:8px 0;padding:6px 8px;border-left:3px solid var(--data-amber);background:rgba(160,106,18,0.06);color:var(--data-amber);font-size:11px;line-height:1.5;font-weight:700;">근거 출처 또는 관측시각 미제공 · 참고 전용 · 현재 판단에 사용하지 않음</div>'
-    : '';
+  var manual = note && note.visible !== false && !_aioIsOperatorNotePlaceholder(note) && note.sentence && note.updated === day
+    ? { text: String(note.sentence), day: note.updated, by: '운영자' } : null;
+  var produced = window._aioMarketSentence;
+  var line = manual || (produced && produced.text && (produced.day === day || produced.day === yesterday) ? { text: String(produced.text), day: produced.day, by: null } : null);
+  if (!line) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  var md = Number(line.day.slice(5, 7)) + '/' + Number(line.day.slice(8, 10));
   el.innerHTML =
-    '<div class="aio-operator-note-card aio-operator-note-priority" data-source-kind="REFERENCE" data-operational-use="reference-only" data-stale-state="' + (noteIsHardStale ? 'stale' : 'current') + '">' +
+    '<div class="aio-operator-note-card aio-operator-note-priority aio-market-sentence" data-source-kind="REFERENCE" data-operational-use="reference-only" data-sentence-day="' + escHtml(line.day) + '">' +
       '<div class="aio-operator-note-meta">' +
-        '<span class="aio-operator-note-kicker">운영자 노트</span>' +
-        '<span class="aio-operator-note-date">' + _esc(note.updated || '') + '</span>' + staleHtml +
+        '<span class="aio-operator-note-kicker">오늘의 한 문장</span>' +
+        '<span class="aio-operator-note-date">' + escHtml(md) + (line.by ? ' · ' + escHtml(line.by) : '') + '</span>' +
       '</div>' +
-      staleBoundaryHtml +
-      provenanceBoundaryHtml +
-      '<div class="aio-operator-note-title">' + _esc(note.title || '') + '</div>' +
-      (leadText ? '<div class="aio-operator-note-lead">' + _esc(leadText) + '</div>' : '') +
-      (restText
-        ? '<details class="aio-operator-note-more"><summary>전체 메모 보기</summary><div class="aio-operator-note-body">' + bodyHtml + '</div></details>'
-        : '<div class="aio-operator-note-body">' + bodyHtml + '</div>') +
-      (tags ? '<div class="aio-operator-note-tags">' + tags + '</div>' : '') +
+      '<div class="aio-operator-note-title">' + escHtml(line.text) + '</div>' +
     '</div>';
   el.style.display = 'block';
 }

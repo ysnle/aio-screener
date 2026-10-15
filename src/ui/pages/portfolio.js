@@ -8,6 +8,7 @@ import { derivePortfolioChecks } from '../../domain/portfolio/checks.js';
 import { renderPortfolioRead } from '../components/portfolio-read.js';
 import { portfolioRowsForAI, portfolioSectorLabel } from '../../domain/portfolio/portfolio-read.js';
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
+import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 
 // RM-01 (2026-07-19): this module used to fully repaint pf-total-value/pf-total-pnl/etc. and
@@ -246,6 +247,23 @@ function renderPortfolioSurface(documentRef, page, surface) {
   setSurfaceText(documentRef, 'pf-exposure-rule', rule + (band.blocked ? '' : krNote), band.blocked ? null : band.value, surface);
   const current = surface.exposurePct == null ? (surface.holdingCount ? '현재 노출 —' : '보유 내역을 입력하면 계산됩니다') : `현재 노출 ${surface.exposurePct.toFixed(1)}%`;
   setSurfaceText(documentRef, 'pf-exposure-current', current, surface.exposurePct, surface, 'var(--text-dim)');
+  // v57.71 (2026-10-15 audit): the volatility card led nowhere on a crash morning; the sizing and survival lessons are one
+  // step away (principles J3·J4), the same research-library links the market screens use.
+  const currentNode = documentRef?.getElementById('pf-exposure-current');
+  if (currentNode && !documentRef.getElementById('pf-learn-links')) {
+    const links = documentRef.createElement('div');
+    links.id = 'pf-learn-links';
+    links.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;';
+    for (const [lesson, label] of [['J3', '원리 레슨 · 포지션 사이징'], ['J4', '원리 레슨 · 손실과 생존']]) {
+      const button = documentRef.createElement('button');
+      button.type = 'button';
+      button.className = 'flow-next-link';
+      button.textContent = `${label} →`;
+      button.addEventListener('click', () => navigateKnowledgeRoute({ root: documentRef.defaultView || globalThis, page: 'principles', params: { lesson } }));
+      links.append(button);
+    }
+    currentNode.after(links);
+  }
 
   const sectorElement = documentRef?.getElementById('pf-sector-breakdown');
   if (sectorElement) {

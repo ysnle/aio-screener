@@ -83,7 +83,10 @@ export const NEWS_FEEDS = [
   { query: 'upgrade OR downgrade OR price target OR analyst rating OR earnings guidance stock when:2d', source: 'Google News - Analyst/Earnings', topic: 'analyst', country: 'us', tier: 2 },
   // P1373: the ko/KR edition was queried with English terms and returned no in-cycle items.
   { query: '코스피 OR 코스닥 OR 삼성전자 OR SK하이닉스 OR 외국인 순매수 OR 원달러 환율 when:2d', source: 'Google News - Korea markets', topic: 'korea', country: 'kr', tier: 2 },
-].map(feed => ({ ...feed, url: _googleNewsSearchUrl(feed.query, feed.country === 'kr' ? 'ko' : 'en-US', feed.country === 'kr' ? 'KR' : 'US', feed.country === 'kr' ? 'KR:ko' : 'US:en') }));
+  // v57.71 (owner 2026-10-15): Google News indexed no Korean article after 08:00 KST by 09:56 on a -6% KOSPI morning. The
+  // wire's own market feed (newest first, minutes old) is read on the same refresh cadence; no per-user request.
+  { url: 'https://www.yna.co.kr/rss/market.xml', source: '연합뉴스', topic: 'korea', country: 'kr', tier: 2 },
+].map(feed => feed.url ? feed : ({ ...feed, url: _googleNewsSearchUrl(feed.query, feed.country === 'kr' ? 'ko' : 'en-US', feed.country === 'kr' ? 'KR' : 'US', feed.country === 'kr' ? 'KR:ko' : 'US:en') }));
 
 const SERVER_NEWS_PRIORITY_RULES = [
   { label: 'macro-rates', points: 14, re: /\b(fed|fomc|powell|rate cut|rate hike|inflation|cpi|ppi|pce|payroll|jobs report|recession|soft landing|treasury yield|bond yield)\b/i },

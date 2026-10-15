@@ -599,3 +599,32 @@ export function reusableMarketAnalysis(previous, { metricEvidence = [], newsEvid
   if (idSet(previous.headlineContext) !== idSet(headlineContext)) return null;
   return previous;
 }
+
+// v57.71 (owner 2026-10-15): the home's operator note becomes "오늘의 한 문장" — one sentence that names the market's
+// tension of the day ("오늘의 하락이 기회인가, 서사의 끝을 알리는 신호인가"). The same model call writes it on its last
+// line; it carries no number, ticker or trade instruction, and it is fixed once per day from the 08:00 KST cycle so it
+// does not change every 30-minute refresh.
+export const MARKET_SENTENCE_LABEL = '오늘의 한 문장:';
+export function splitMarketSentence(text) {
+  const lines = String(text || '').split('\n');
+  const index = lines.findIndex((line) => line.trim().replace(/^[-*]\s*/, '').startsWith(MARKET_SENTENCE_LABEL));
+  if (index < 0) return { body: String(text || ''), sentence: null };
+  const sentence = lines[index].trim().replace(/^[-*]\s*/, '').slice(MARKET_SENTENCE_LABEL.length).trim().replace(/^["“'「]|["”'」]$/g, '').trim();
+  return { body: lines.filter((_, i) => i !== index).join('\n').trim(), sentence: sentence || null };
+}
+const SENTENCE_INSTRUCTION = /(?:사세요|사라|사야|매수하|매도하|팔아|팔세요|담아|담으세요|들어가라|들어가세요|비중을\s?(?:늘|줄)|추천|확실히|반드시\s?오른|보장)/;
+export function validateMarketSentence(sentence) {
+  const text = String(sentence || '').replace(/\s+/g, ' ').trim();
+  if (!text || text.length < 12 || text.length > 90 || !/[가-힣]/.test(text)) return null;
+  if (/[0-9%$₩]/.test(text) || /\p{Extended_Pictographic}/u.test(text) || /\b[A-Z]{2,5}\b(?<!\bAI)/.test(text) || SENTENCE_INSTRUCTION.test(text)) return null;
+  if ((text.match(/[.?!。？！]/g) || []).length > 2) return null;
+  return text;
+}
+export const marketSentenceDay = (nowMs) => new Date(nowMs + 3600000).toISOString().slice(0, 10); // KST date of (now - 08:00)
+export function dailyMarketSentence({ candidate = null, previous = null, nowMs = Date.now() } = {}) {
+  const day = marketSentenceDay(nowMs);
+  if (previous?.day === day && previous?.text) return previous;
+  const text = validateMarketSentence(candidate);
+  if (text) return { text, day, generatedAt: new Date(nowMs).toISOString(), source: 'shared-model' };
+  return previous?.text ? previous : null;
+}

@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1813 - v57.71 - 용어 팝업에서 Tab을 누르면 포커스가 문서 끝(BODY)으로 빠짐 (2026-10-15)
+
+- symptom/reproduction: 홈 용어 표시(분배일·50일선)를 열고 Tab을 누르면 포커스가 BODY로 이동(전체 화면 감사 에이전트).
+- root_cause: 팝업이 body 끝에 붙어 있어 그 버튼 다음 포커스 대상이 없었다.
+- fix: 팝업 안에서 Tab(앞·뒤)을 누르면 팝업을 닫고 포커스를 용어로 돌려 읽기 순서를 잇는다. aria-modal=false 명시.
+- violated_rule: 없음
+- prevention: 브라우저 접근성 감사 항목으로 확인.
+- verification/residual: 로컬 브라우저 확인 예정(QA 브라우저 그룹).
+
 ## P1812 - v57.70 - 텔레그램 요약에 이모지·구분선·중국어 원문이 그대로 노출 (2026-10-15)
 
 - symptom/reproduction: 시장 뉴스 텔레그램 칸에 "▶️ 주요 코멘트", "☁️ CRWV", "━━━", "韩国首尔综指下跌6%。" 노출(이모지 금지 원칙 위반).

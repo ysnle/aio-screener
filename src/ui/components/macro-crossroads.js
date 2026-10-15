@@ -73,7 +73,9 @@ function themeLinkRow(doc, root, item, { max = 4 } = {}) {
   const kr = themes.filter((theme) => theme.market === 'KR');
   if (!us.length && !kr.length) return null;
   const row = el(doc, 'div', null, 'xr-explore xr-theme-links');
-  row.append(el(doc, 'span', `${wind === 'tail' ? '순풍인' : '업종·기업마다 갈리는'} 테마`, 'xr-explore-label'));
+  // v57.71 (owner 2026-10-15): "순풍인 테마 반도체" on a -4% chip day read as a call on today's move. The row lists the
+  // themes this path's exposure tags favour, so it is named as that condition.
+  row.append(el(doc, 'span', wind === 'tail' ? '이 길이 오면 유리한 테마' : '이 길에서 업종·기업마다 갈리는 테마', 'xr-explore-label'));
   for (const theme of us) {
     const button = el(doc, 'button', `${usNames.get(theme.id)} →`, 'flow-next-link');
     button.type = 'button';
