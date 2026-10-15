@@ -49,15 +49,15 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
   doc.getElementById('regime-radar')?.remove();
   const model = buildRegimeRadar(inputs, { macroHistory: root?._aioMacroHistory || null });
   if (!model.available) return null;
-  const section = el(doc, 'section', null, 'regime-radar');
+  // v57.76: the radar is the visual of the six-indicator section — the shell's h2 "미국 시장 6개 지표 — 1년 중 지금
+  // 위치" heads it, so the radar carries no heading of its own (two stacked h2s read as two sections).
+  const section = el(doc, 'div', null, 'regime-radar');
   section.id = 'regime-radar';
   if (model.asOf) section.setAttribute('data-observed-at', model.asOf); // P1643
   const short = (date) => date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '—';
   // Codex M-screen: the radar is a position inside each axis's own past, not the 양호/부담 verdict above.
-  const head = el(doc, 'h2', '시장 레이더 · 1년 중 지금 위치', 'briefing-h2');
-  // v57.54 audit (6): the numbers are a position (0~100), not a grade — the subtitle says so and each row names its card verdict.
-  head.append(el(doc, 'span', '숫자 = 최근 1년 중 지금 위치(0~100, 높을수록 양호) · 위 판정과 기준이 다름', 'briefing-h2-note'));
-  section.append(head);
+  // v57.54 audit (6): the numbers are a position (0~100), not a grade — the caption says so and each row names its card verdict.
+  section.append(el(doc, 'p', '숫자 = 최근 1년(최대 252거래일) 중 지금 위치(0~100, 클수록 양호) — 아래 카드의 양호·중립·부담 판정과는 다른 잣대', 'regime-chart-caption'));
   section.append(el(doc, 'p', model.lead, 'regime-radar-lead'));
   // X-review (2026-10-13, PM/credit view): "양호" above and 9 here read as a contradiction at first glance. When an
   // axis's absolute verdict and its position in its own past point opposite ways, say so on the face of the chart.

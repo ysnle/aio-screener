@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
@@ -22,6 +22,20 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_ARCH_TEST_PORT || 8899);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const OUT_PATH = resolve(root, 'architecture/fixtures/weinstein-mtf-golden.json');
+
+// v57.76: the legacy index.html updateMTF writer was retired with the 차트 tab multi-timeframe panel, so this dump
+// can no longer run against the current tree. The golden fixture stays as the frozen legacy record that
+// scripts/ci-domain-parity-check.mjs compares src/domain/technical/stage.js against. The dump still works from a
+// pre-extraction checkout, where updateMTF is defined.
+{
+  const legacySources = await Promise.all(['index.html', 'js/aio-core.js', 'js/aio-macro-tech.js', 'js/aio-ui.js']
+    .map((file) => readFile(resolve(root, file), 'utf8').catch(() => '')));
+  if (!legacySources.some((source) => /function updateMTF\s*\(|updateMTF\s*=\s*function/.test(source))) {
+    console.error('dump-weinstein-mtf-fixtures: retired in v57.76 — updateMTF no longer exists in this tree. The golden fixture '
+      + 'architecture/fixtures/weinstein-mtf-golden.json is frozen; regenerate it only from a pre-extraction checkout.');
+    process.exit(2);
+  }
+}
 
 function startServer() {
   return new Promise((resolveServer, reject) => {

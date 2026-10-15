@@ -2283,32 +2283,7 @@ function getCountryFlag(country) {
 
 // ── API Endpoints (모두 무료 또는 CORS 허용) ──────────────────
 const DATA_APIS = {
-  // 1. Alpha Vantage (무료 25회/일, 키 필수 — 기술적 지표)
-  alphaVantage: {
-    base: 'https://www.alphavantage.co/query',
-    key: () => _getApiKey('aio_av_key') || '', // v57.75: through the retired-key guard (safeLSGetSync read stored retired keys)
-    limit: '25/day free · $50/mo for 75/min'
-  },
-  // 2. Twelve Data (무료 800회/일 — 시세, 차트, 기술지표)
-  twelveData: {
-    base: 'https://api.twelvedata.com',
-    key: () => _getApiKey('aio_td_key') || '', // v57.75: through the retired-key guard (safeLSGetSync read stored retired keys)
-    limit: '800/day free · 8 symbols/request'
-  },
-  // FMP는 이 표에 없었다 — FMP 호출부는 모두 `_getApiKey('aio_fmp_key')`를 직접 읽는다.
-  // v56 이전에는 key()가 아무데서도 호출되지 않는 항목이 남아 있었다(dead entry).
-  // 3. FRED (무료, 키 필수 — 매크로 경제지표)
-  fred: {
-    base: 'https://api.stlouisfed.org/fred/series/observations',
-    key: () => _getApiKey('aio_fred_key') || '', // v57.75: through the retired-key guard (safeLSGetSync read stored retired keys)
-    limit: 'Unlimited free · CORS friendly'
-  },
-  // 4. Finnhub (무료 60회/분 — 실시간 시세, 뉴스, 기업정보)
-  finnhub: {
-    base: 'https://finnhub.io/api/v1',
-    key: () => _getApiKey('aio_finnhub_key') || '', // v57.75: through the retired-key guard (safeLSGetSync read stored retired keys)
-    limit: '60/min free · real-time US quotes'
-  },
+  // v57.76: the Alpha Vantage / Twelve Data / FRED / Finnhub entries held only personal-key getters (retired v57.67).
   // 5. CoinGecko (기존 유지 — 암호화폐)
   coingecko: { base: 'https://api.coingecko.com/api/v3', key: () => '', limit: '30/min free' },
   // v47.10: exchangeRate / altFearGreed 제거 — 선언만 있고 호출 0건 (dead code P112)
@@ -2355,13 +2330,9 @@ const _aioRelayUrl = (provider, params) => {
 
 // The relay destination is the AIO Worker itself, never a third-party relay, so a
 // direct fetch with the shared app token is the correct transport.
-function _aioFredRelayConsent() {
-  try { return localStorage.getItem('aio_fred_relay_consent') === 'true'; } catch (_) { return false; }
-}
-function _aioRelayFetch(url, timeoutMs, personalKey) {
+function _aioRelayFetch(url, timeoutMs) {
   const headers = {};
   try { if (typeof _aioAppToken === 'function') headers['X-AIO-App-Token'] = _aioAppToken(); } catch (_) {}
-  if (personalKey) headers['X-AIO-Provider-Key'] = personalKey;
   return fetchWithTimeout(url, { headers }, timeoutMs || 8000);
 }
 
@@ -2705,241 +2676,8 @@ async function fetchViaProxy(url, timeout) {
   throw failure;
 }
 
-// ═══ 1. Finnhub source-confirmed quotes (WebSocket with Enhanced Reconnection) ═════════════════════════
-let _finnhubWS = null;
-let _finnhubPrices = {};
-let _finnhubReconnectAttempts = 0;
-let _finnhubReconnectTimer = null;
-let _finnhubErrorLogged = false; // Track if error already logged for this connection
-const _finnhubMaxDelay = 60; // Max 60 seconds between retries (fast phase)
-const _finnhubSlowDelay = 300; // 5 minutes between retries (slow phase, after 10 fast attempts)
-
-function initFinnhubWebSocket() {
-  const key = DATA_APIS.finnhub.key();
-  if (!key) { console.log('[AIO] Finnhub key not set — skipping WebSocket'); return; }
-
-  // v48.14 (Agent W15): 서킷 브레이커 — 1시간 20회 fail 누적 시 24시간 완전 disable
-  window._finnhubCircuit = window._finnhubCircuit || { failsInWindow: 0, windowStart: Date.now(), disabledUntil: 0 };
-  var circuit = window._finnhubCircuit;
-  var now = Date.now();
-  // 1시간 window 리셋
-  if (now - circuit.windowStart > 3600000) { circuit.failsInWindow = 0; circuit.windowStart = now; }
-  // 서킷 disable 상태 체크
-  if (circuit.disabledUntil > now) {
-    var hrsLeft = Math.ceil((circuit.disabledUntil - now) / 3600000);
-    if (typeof _aioLog === 'function') _aioLog('warn', 'finnhub', 'circuit breaker open — skip for ' + hrsLeft + 'h');
-    const badge = document.querySelector('.freshness-badge.fb-live');
-    if (badge) badge.innerHTML = '서킷 차단 (' + hrsLeft + 'h)';
-    return;
-  }
-  // fail 누적 확인
-  if (circuit.failsInWindow >= 20) {
-    circuit.disabledUntil = now + 24 * 3600000; // 24시간 완전 disable
-    if (typeof _aioLog === 'function') _aioLog('error', 'finnhub', '서킷 브레이커 OPEN — 24시간 비활성화 (1h 20회 fail)');
-    const badge = document.querySelector('.freshness-badge.fb-live');
-    if (badge) badge.innerHTML = '서킷 차단 (24h)';
-    return;
-  }
-
-  // v38.3: 10회 빠른 재연결 실패 후 → 5분 간격 슬로우 모드 (영구 포기 안 함)
-  if (_finnhubReconnectAttempts >= 10 && _finnhubReconnectAttempts % 5 !== 0) {
-    // 슬로우 모드: 5회마다 1회만 시도 (실질 25분 간격)
-    _finnhubReconnectAttempts++;
-    if (_finnhubReconnectTimer) clearTimeout(_finnhubReconnectTimer);
-    _finnhubReconnectTimer = setTimeout(initFinnhubWebSocket, _finnhubSlowDelay * 1000);
-    return;
-  }
-  if (_finnhubReconnectAttempts === 10) {
-    _aioLog('warn', 'fetch', 'Finnhub WS: 빠른 재연결 10회 실패 → 슬로우 모드 전환 (5분 간격)');
-    if (typeof _aioLog === 'function') _aioLog('warn', 'finnhub', '빠른 재연결 10회 실패 → 슬로우 모드');
-    const badge = document.querySelector('.freshness-badge.fb-live');
-    if (badge) badge.innerHTML = '재연결 대기';
-  }
-
-  try {
-    _finnhubErrorLogged = false; // Reset error logging flag for new connection attempt
-    _finnhubWS = new WebSocket('wss://ws.finnhub.io?token=' + key);
-
-    _finnhubWS.onopen = () => {
-      console.log('[AIO v20] Finnhub WebSocket connected — real-time mode');
-      _finnhubReconnectAttempts = 0; // Reset on successful connection
-      _finnhubErrorLogged = false;
-      // Subscribe to key symbols (all symbols that appear on active page)
-      const wsSymbols = [
-        'AAPL','NVDA','TSLA','MSFT','AMZN','GOOGL','META','AMD','AVGO','MU','ARM',
-        'SPY','QQQ','IWM','EEM','GLD','TLT','HYG', 'LQD' // Include ETFs & indices where available
-      ];
-      wsSymbols.forEach(s => _finnhubWS.send(JSON.stringify({ type: 'subscribe', symbol: s })));
-      const badge = document.getElementById('live-source-static-badge') || document.querySelector('.freshness-badge.fb-live');
-      if (badge) badge.textContent = '실시간 시세';
-      if (badge) {
-        badge.textContent = '실시간 시세';
-        badge.className = 'freshness-badge fb-static';
-      }
-    };
-
-    _finnhubWS.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data);
-        if (msg.type === 'trade' && msg.data) {
-          msg.data.forEach(trade => {
-            const sym = trade.s;
-            const price = trade.p;
-            if (typeof price === 'number' && !isNaN(price) && price > 0) {
-              _finnhubPrices[sym] = price;
-              // Route through PriceStore for validation & global sync
-              if (window.PriceStore) {
-                // Finnhub trade `t` is provider observation time (ms).  Do
-                // not let the receive time promote an undated quote.
-                PriceStore.set(sym, price, null, 'live:finnhub', { observedAt: trade.t || null, fetchedAt: Date.now(), policyKey: 'quote' });
-              } else {
-                if (typeof window._aioSetLiveData === 'function') {
-                  window._aioSetLiveData(sym, { price: price, pct: null }, { source: 'live:finnhub', bypassPriceStore: true, policyKey: 'quote', reason: 'PriceStore unavailable' });
-                } else {
-                  window._liveData = window._liveData || {};
-                  if (window._liveData[sym]) { window._liveData[sym].price = price; }
-                  else { window._liveData[sym] = { price, pct: null, pctMissing: true }; }
-                }
-                window._quoteTimestamps = window._quoteTimestamps || {};
-                window._quoteTimestamps[sym] = Date.now();
-              }
-              // Update DOM elements
-              document.querySelectorAll(`[data-live-price="${sym}"]`).forEach(el => {
-                if (_aioIsNativeMacroElement(el)) return;
-                // v38.3: P24 일반 보호 — children 있는 복합 요소는 전용 업데이트에 위임
-                if (el.children.length > 0) {
-                  var _pp = el.querySelector('.pill-price') || el.querySelector('.kr-etf-price');
-                  if (_pp) _pp.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                } else { el.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-                el.style.borderBottom = ''; // Clear stale indicator
-              });
-            }
-          });
-        }
-      } catch(e) { _aioLog('warn', 'fetch', 'Finnhub parse error: ' + (e && e.message || e)); }
-    };
-
-    _finnhubWS.onerror = (e) => {
-      // Only log error once per connection attempt to avoid console spam
-      if (!_finnhubErrorLogged) {
-        _aioLog('warn', 'fetch', 'Finnhub WS error: ' + (e.message || 'connection error'));
-        _finnhubErrorLogged = true;
-        // v48.14 (W15): 서킷 브레이커 fail 카운트 증가
-        if (window._finnhubCircuit) window._finnhubCircuit.failsInWindow++;
-        if (typeof _aioLog === 'function') _aioLog('warn', 'finnhub', 'WS error (circuit fails: ' + (window._finnhubCircuit ? window._finnhubCircuit.failsInWindow : '?') + '/20)');
-      }
-    };
-
-    _finnhubWS.onclose = () => {
-      console.log('[AIO] Finnhub WS closed');
-      _finnhubReconnectAttempts++;
-      // 10회까지: 지수 백오프 (3s→6s→12s→...→60s), 이후: 슬로우 모드 (initFinnhub 내부 처리)
-      const delay = _finnhubReconnectAttempts <= 10
-        ? Math.min(_finnhubMaxDelay, 3 * Math.pow(2, _finnhubReconnectAttempts - 1))
-        : _finnhubSlowDelay;
-      console.log(`[AIO] Finnhub reconnecting in ${delay}s (attempt ${_finnhubReconnectAttempts})`);
-      if (_finnhubReconnectTimer) clearTimeout(_finnhubReconnectTimer);
-      _finnhubReconnectTimer = setTimeout(initFinnhubWebSocket, delay * 1000);
-    };
-  } catch(e) { _aioLog('warn', 'fetch', 'Finnhub WS init failed: ' + (e && e.message || e)); }
-}
-
-// ═══ 2. Twelve Data — 기술적 지표 & 차트 데이터 ═══════════════
-// v47.11: 6 sequential → 1 POST /complex_data 일괄 요청으로 교체
-// P1422: batching reduces HTTP overhead, not weighted provider credits.
-// 폴백: complex_data 응답 파싱 실패 시 개별 순차 호출로 복귀 (계정 플랜 미지원 대비)
-function _aioReserveTwelveCredits(weight) { return window._aioPersonalProviderTransport.reserveTwelveCredits(weight); }
-async function fetchTechnicalIndicators(symbol = 'SPY') {
-  const key = DATA_APIS.twelveData.key();
-  if (!key) return null;
-  // v48.9: 공유 키 쿼터 사전 체크 (800/day 도달 시 스킵)
-  if (typeof _isQuotaExceeded === 'function' && _isQuotaExceeded('twelveData')) return null;
-  const indicators = ['rsi','macd','stoch','adx','bbands','ema'];
-  // v47.11 주 경로: POST /complex_data
-  try {
-    const body = {
-      symbols: [symbol],
-      intervals: ['1day'],
-      methods: indicators.map(function(n){ return { name: n }; })
-    };
-    const url = `${DATA_APIS.twelveData.base}/complex_data?apikey=${key}`;
-    if (!_aioReserveTwelveCredits(indicators.length)) return null;
-    const r = await fetchWithTimeout(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    }, 10000);
-    if (r.status === 429 || r.status === 401 || r.status === 403) return null;
-    if (r.ok) {
-      const json = await r.json();
-      if (json && (json.code === 429 || json.code === 401 || json.code === 403)) return null;
-      if (json && Array.isArray(json.data) && json.data.length > 0) {
-        const entry = json.data[0];
-        const results = {};
-        let matched = 0;
-        indicators.forEach(function(ind) {
-          if (entry[ind]) { results[ind] = entry[ind]; matched++; }
-        });
-        if (matched > 0) return results;
-      }
-    }
-  } catch(e) { _aioLog('warn', 'fetch', 'Twelve Data complex_data error: ' + e.message); }
-  // v47.11 폴백: 개별 순차 호출 (complex_data 미지원 시)
-  try {
-    const results = {};
-    for (const ind of indicators) {
-      if (!_aioReserveTwelveCredits(1)) break;
-      const url2 = `${DATA_APIS.twelveData.base}/${ind}?symbol=${symbol}&interval=1day&apikey=${key}`;
-      const r2 = await fetchWithTimeout(url2, {}, 6000);
-      if (r2.status === 429 || r2.status === 401 || r2.status === 403) break;
-      if (r2.ok) results[ind] = await r2.json();
-      await new Promise(ok => setTimeout(ok, 200));
-    }
-    return results;
-  } catch(e) { _aioLog('warn', 'fetch', 'Twelve Data sequential fallback error: ' + (e && e.message || e)); return null; }
-}
-
-// v47.10: fetchChartData / fetchBreadthFromAV / fetchFundamentals 제거 — 정의만 있고 호출 0건 (dead code P112)
-
-// ═══ v48.78: OHLCV fetch — 심층 종목 기술 분석 패널용 ═══════════════════════
-var _ohlcvCache = {};
-
-async function fetchOHLCV(symbol, interval, bars) {
-  bars = bars || 120;
-  var ck = symbol + '_' + interval;
-  var ttl = interval === '1month' ? 86400000 : interval === '1week' ? 14400000 : 3600000;
-  if (_ohlcvCache[ck] && (Date.now() - _ohlcvCache[ck]._ts < ttl)) return _ohlcvCache[ck].data;
-  var key = DATA_APIS.twelveData.key();
-  if (!key) return null;
-  if (typeof _isQuotaExceeded === 'function' && _isQuotaExceeded('twelveData')) return null;
-  if (!_aioReserveTwelveCredits(1)) return null;
-  try {
-    var url = DATA_APIS.twelveData.base + '/time_series?symbol=' + encodeURIComponent(symbol) +
-              '&interval=' + interval + '&outputsize=' + bars + '&apikey=' + key;
-    var r = await fetchWithTimeout(url, {}, 12000);
-    if (typeof window._markFetch === 'function') window._markFetch('twelveData');
-    if (!r.ok) return null;
-    var json = await r.json();
-    if (!json || json.status !== 'ok' || !Array.isArray(json.values) || !json.values.length) return null;
-    // Twelve Data는 최신순(내림차순) — LWC용 오름차순으로 역순 변환
-    var data = json.values.slice().reverse().map(function(v) {
-      return {
-        time: v.datetime.substring(0, 10),
-        open: parseFloat(v.open),
-        high: parseFloat(v.high),
-        low: parseFloat(v.low),
-        close: parseFloat(v.close),
-        volume: parseInt(v.volume, 10) || 0
-      };
-    }).filter(function(d) { return !isNaN(d.open) && !isNaN(d.close); });
-    if (!data.length) return null;
-    _ohlcvCache[ck] = { _ts: Date.now(), data: data };
-    return data;
-  } catch(e) {
-    if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'fetchOHLCV error: ' + (e && e.message || e));
-    return null;
-  }
-}
+// v57.76: the personal-key Finnhub WebSocket, Twelve Data indicators (fetchTechnicalIndicators) and Twelve Data
+// OHLCV (fetchOHLCV) were removed with the retired personal keys; fetchOHLCVWithFallback reads Yahoo through the Worker.
 
 // ═══ 4-1. Naver — US 주식 재무/컨센서스/기업개요 (무료, 프록시 필요) ═══
 
@@ -2982,13 +2720,6 @@ async function fetchOHLCVWithFallback(symbol, interval, bars) {
   symbol = (symbol || 'SPY').toString().trim().toUpperCase();
   interval = interval || '1day';
   bars = bars || 120;
-  try {
-    var td = await fetchOHLCV(symbol, interval, bars);
-    var norm = _normalizeOHLCVRows(td, bars);
-    if (norm && norm.length >= Math.min(20, bars)) return _attachOHLCVQuality(norm, { source: 'twelvedata-or-primary', interval: interval, observedAt: norm[norm.length - 1].time, timestamp: Date.now() });
-  } catch(e) {
-    if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'fetchOHLCV primary failed: ' + (e && e.message || e));
-  }
   try {
     if (typeof window._fetchYahooChartData !== 'function') return _attachOHLCVQuality([], { source: 'fallback-empty', missing: true });
     var yahooInterval = interval === '1month' ? '1mo' : interval === '1week' ? '1wk' : '1d';
@@ -3136,89 +2867,6 @@ async function fetchNaverUSData(sym, includeFinance) {
   }
 }
 
-// ═══ 5. FRED — 매크로 경제 지표 실시간 ═══════════════════════
-async function fetchFredSeries(seriesId, limit = 30) {
-  const key = DATA_APIS.fred.key();
-  // P1422: FRED requires an application's users to supply their own keys.
-  // Scheduled operator artifacts remain separate from a personal live query.
-  if (!key) return null;
-  const url = key ? `${DATA_APIS.fred.base}?series_id=${seriesId}&api_key=${key}&file_type=json&sort_order=desc&limit=${limit}` : '';
-
-  // v31.5: JSON 응답에서 observations 추출 (allorigins 래핑 자동 해제)
-  function _extractObs(data) {
-    if (data.contents && typeof data.contents === 'string') {
-      try { data = JSON.parse(data.contents); } catch(e) {}
-    }
-    return data.observations || [];
-  }
-
-  // 1차: 사용자 개인 Worker — 개인 키를 본인 도메인으로만 보낸다.
-  const cfWorker = _getApiKey('aio_cf_worker_url');
-  if (cfWorker && url) {
-    try {
-      const r = await fetchWithTimeout(cfWorker + '?url=' + encodeURIComponent(url), {}, 8000);
-      if (r.ok) { const obs = _extractObs(await r.json()); if (obs.length) return obs; }
-      if ((r.status === 400 || r.status === 403) && window.AIO && typeof window.AIO.updateProviderStatus === 'function') {
-        window.AIO.updateProviderStatus('aio_fred_key', { authentication:'FAILED', connection:'REACHABLE', lastError:'FRED_HTTP_' + r.status });
-      }
-    } catch(e) { /* CF Worker failed — try the shared relay */ }
-  }
-
-  // P1422: trusted AIO relay forwards this user's key in a header; no URL/log/cache copy.
-  const relayUrl = _aioRelayUrl('fred', { series_id: seriesId, sort_order: 'desc', limit: limit });
-  if (relayUrl && _aioFredRelayConsent()) {
-    try {
-      const r = await _aioRelayFetch(relayUrl, 8000, key);
-      if (r.ok) {
-        const obs = _extractObs(await r.json());
-        if (obs.length) {
-          if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') {
-            window.AIO.updateProviderStatus('aio_fred_key', { authentication:'VERIFIED', connection:'VERIFIED', lastSuccessAt: Date.now(), lastError: null });
-          }
-          return obs;
-        }
-      } else if (r.status === 503) {
-        // 운영자 FRED 키 미등록 — fail-closed가 설계대로 동작한 것이므로 조용히 넘어간다.
-        if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'FRED 릴레이 미구성(운영자 키 없음) — 서버 data.json 폴백 사용');
-      }
-    } catch(e) { /* relay unavailable — try the personal key directly */ }
-  }
-
-  // 3차: 개인 키 직접 호출 (FRED가 CORS를 허용하는 환경에서만 성공)
-  if (url) {
-    try {
-      const r = await fetchWithTimeout(url, {}, 6000);
-      if (r.ok) { return _extractObs(await r.json()); }
-      if (r.status === 429) { _aioLog('warn', 'fetch', 'FRED rate limit hit — 60s 대기'); await new Promise(ok => setTimeout(ok, T.COOLDOWN)); return null; }
-      if (r.status === 403 || r.status === 400) {
-        if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') {
-          window.AIO.updateProviderStatus('aio_fred_key', { authentication:'FAILED', connection:'REACHABLE', lastError:'FRED_HTTP_' + r.status });
-        }
-        showDataError('FRED', 'API 키가 유효하지 않거나 한도 초과', 'error');
-        return null;
-      }
-    } catch(e) { /* CORS blocked — fall through to the documented give-up path */ }
-  }
-  // v51.85 P573/R264: 3차 서드파티 CORS 프록시 폴백 제거 (키 유출 차단).
-  //   이 url 은 `?api_key=<사용자 개인 FRED 키>` 를 포함한다. corsproxy.io/allorigins/
-  //   codetabs 같은 제3자 프록시로 보내면 그 운영자 로그에 키가 평문 노출된다
-  //   (fetchViaProxy 의 _isSensitive 플래그는 캐시 저장만 막고 전송은 못 막음 — 이름이
-  //   방어를 암시하지만 실제로는 안 막는 함정). 신뢰 가능한 경로(사용자 CF Worker = 본인
-  //   도메인, /relay = 운영자 키라 애초에 키가 실리지 않음, 직접 호출 = 브라우저→FRED TLS)
-  //   만 허용한다. 전부 실패하면 라이브 갱신을 포기하고 null 반환 → 서버 data.json
-  //   (GitHub Actions 가 FRED_API_KEY 로 이미 공급) / 정적 폴백 사용.
-  if (typeof _aioLog === 'function') {
-    _aioLog('warn', 'fetch', 'FRED live 갱신 스킵 (' + seriesId + '): 개인 Worker/릴레이/직접 호출 모두 실패 — 서버 data.json/정적 폴백 사용.');
-  }
-  if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') {
-    var _fredStatus = window.AIO.getProviderStatus ? window.AIO.getProviderStatus('aio_fred_key') : null;
-    if (!_fredStatus || _fredStatus.authentication !== 'FAILED') {
-      window.AIO.updateProviderStatus('aio_fred_key', { authentication:'NOT_CHECKED', connection:'BLOCKED', lastError:'FRED_CORS_OR_WORKER_UNAVAILABLE' });
-    }
-  }
-  return null;
-}
-
 // v47.11: 5개 시리즈 추가 — DFEDTARU(기존 참조 L12997 있으나 등록 누락된 dead branch 해결)
 //   + PAYEMS(비농업고용), M2SL(M2 통화량), DCOILWTICO(WTI 유가), MORTGAGE30US(30년 모기지)
 //   → macro 페이지 + 브리핑 AI 프롬프트에서 활용 가능
@@ -3270,18 +2918,6 @@ async function fetchBokEcos(statCode, cycle, startDate, endDate, itemCode1) {
     if (data && data.contents && typeof data.contents === 'string') { try { data = JSON.parse(data.contents); } catch(e) {} }
     return (data && data.StatisticSearch && data.StatisticSearch.row) || null;
   }
-  const ecosPath = (key) => 'https://ecos.bok.or.kr/api/StatisticSearch/' + key + '/json/kr/1/10/' + statCode + '/' + cycle + '/' + startDate + '/' + endDate + (itemCode1 ? ('/' + itemCode1) : '');
-  const key = _getApiKey('aio_bok_key') || '';
-
-  // 1차: 사용자 개인 Worker — 개인 키를 본인 도메인으로만 보낸다.
-  const cfWorker = _getApiKey('aio_cf_worker_url');
-  if (key && cfWorker) {
-    try {
-      const r = await fetchWithTimeout(cfWorker + '?url=' + encodeURIComponent(ecosPath(key)), {}, 8000);
-      if (r.ok) { const rows = _extractBok(await r.json()); if (rows) return rows; }
-    } catch(e) { /* fall through to the relay */ }
-  }
-
   // 2차: Worker 릴레이 — ECOS는 CORS 헤더를 보내지 않아 브라우저 직접 호출이 불가능하다.
   const relayUrl = _aioRelayUrl('bok', { statCode, cycle, start: startDate, end: endDate, item: itemCode1 });
   if (relayUrl) {
@@ -3292,14 +2928,6 @@ async function fetchBokEcos(statCode, cycle, startDate, endDate, itemCode1) {
     } catch(e) { /* fall through to the direct attempt */ }
   }
 
-  // 3차: 개인 키 직접 호출 — CORS 미허용 환경에서는 실패한다.
-  if (key) {
-    try {
-      const r = await fetchWithTimeout(ecosPath(key), {}, 8000);
-      if (r.ok) return _extractBok(await r.json());
-    } catch(e) { _aioLog('warn', 'fetch', 'BOK ECOS error: ' + e.message); }
-  }
-
   // ECOS는 실패해도 화면이 조용히 비지 않도록 호출자가 알 수 있게 상태를 남긴다.
   if (typeof _reportApiError === 'function') _reportApiError('bok', 'BOK ECOS 사용 가능한 경로 없음');
   return null;
@@ -3307,9 +2935,8 @@ async function fetchBokEcos(statCode, cycle, startDate, endDate, itemCode1) {
 
 // v48.59: 한국 거시 지표 일괄 수집 → data-snap 바인딩
 async function fetchAllBokData() {
-  const key = _getApiKey('aio_bok_key') || '';
-  // v56: /relay(운영자 키)만으로도 동작하므로 개인 키 부재는 더 이상 스킵 사유가 아니다.
-  if (!key && !_cfWorkerUrl()) { console.log('[AIO] BOK ECOS key/relay not set'); return null; }
+  // v56: /relay(운영자 키)만으로 동작한다. v57.76: 개인 키 경로 제거.
+  if (!_cfWorkerUrl()) { console.log('[AIO] BOK ECOS relay not set'); return null; }
   try {
     // 최근 12개월 범위
     const now = new Date();
@@ -3347,26 +2974,10 @@ async function fetchAllBokData() {
 
 // v48.59: KOSIS 통계청 API fetcher — CPI/수출입/실업률 (무료, 회원가입)
 async function fetchKosisStat(orgId, tblId, itmId, prdSe) {
-  const kosisUrl = (key) => 'https://kosis.kr/openapi/Param/statisticsParameterData.do' +
-    '?method=getList&apiKey=' + key +
-    '&itmId=' + itmId + '&objL1=ALL&format=json' +
-    '&jsonVD=Y&prdSe=' + prdSe + '&newEstPrdCnt=3' +
-    '&orgId=' + orgId + '&tblId=' + tblId;
   const unwrap = (data) => {
     if (data && data.contents && typeof data.contents === 'string') { try { return JSON.parse(data.contents); } catch(e) {} }
     return data;
   };
-  const key = _getApiKey('aio_kosis_key') || '';
-
-  // 1차: 사용자 개인 Worker
-  const cfWorker = _getApiKey('aio_cf_worker_url');
-  if (key && cfWorker) {
-    try {
-      const r = await fetchWithTimeout(cfWorker + '?url=' + encodeURIComponent(kosisUrl(key)), {}, 8000);
-      if (r.ok) return unwrap(await r.json());
-    } catch(e) { /* fall through to the relay */ }
-  }
-
   // 2차: Worker 릴레이 — KOSIS도 CORS 헤더를 보내지 않아 직접 호출이 불가능하다.
   const relayUrl = _aioRelayUrl('kosis', { orgId, tblId, itmId, prdSe });
   if (relayUrl) {
@@ -3377,23 +2988,14 @@ async function fetchKosisStat(orgId, tblId, itmId, prdSe) {
     } catch(e) { /* fall through to the direct attempt */ }
   }
 
-  // 3차: 개인 키 직접 호출
-  if (key) {
-    try {
-      const r = await fetchWithTimeout(kosisUrl(key), {}, 8000);
-      if (r.ok) return unwrap(await r.json());
-    } catch(e) { _aioLog('warn', 'fetch', 'KOSIS error: ' + e.message); }
-  }
-
   if (typeof _reportApiError === 'function') _reportApiError('kosis', 'KOSIS 사용 가능한 경로 없음');
   return null;
 }
 
 // v48.59: 한국 통계청 주요 지표 일괄 (CPI · 실업률 · 수출입)
 async function fetchAllKosisData() {
-  const key = _getApiKey('aio_kosis_key') || '';
-  // v56: /relay(운영자 키)만으로도 동작하므로 개인 키 부재는 더 이상 스킵 사유가 아니다.
-  if (!key && !_cfWorkerUrl()) { console.log('[AIO] KOSIS key/relay not set'); return null; }
+  // v56: /relay(운영자 키)만으로 동작한다. v57.76: 개인 키 경로 제거.
+  if (!_cfWorkerUrl()) { console.log('[AIO] KOSIS relay not set'); return null; }
   try {
     // CPI — 통계청 인플레이션 (DT_1J17001, 소비자물가지수)
     const cpiData = await fetchKosisStat('101', 'DT_1J17001', 'T10', 'M');
@@ -3414,62 +3016,11 @@ async function fetchAllKosisData() {
   } catch(e) { _aioLog('warn', 'fetch', 'KOSIS batch error: ' + e.message); return null; }
 }
 
+// v57.76: the personal-key FRED live query (fetchFredSeries: personal Worker, consented relay, direct call) was removed
+// with the retired personal keys. Macro series come from the server artifact (data.json) applied by the boot path.
 async function fetchAllFredData() {
-  const key = DATA_APIS.fred.key();
-  if (!key) {
-    console.log('[AIO] FRED key not set - using fallback data');
-    if (typeof _reportApiError === 'function') _reportApiError('fred', 'FRED API key missing; fallback data active');
-    return null;
-  }
-
-  const results = {};
-  const seriesIds = Object.keys(FRED_SERIES);
-
-  // Fetch in batches of 3 to be nice to FRED
-  for (let i = 0; i < seriesIds.length; i += 3) {
-    const batch = seriesIds.slice(i, i + 3);
-    // v50.5: YoY 시리즈는 13개월 관측치 필요 (obs[0] vs obs[12])
-    const promises = batch.map(id => fetchFredSeries(id, (FRED_SERIES[id] && FRED_SERIES[id].yoy) ? 13 : 5).then(obs => ({ id, obs })));
-    const batchResults = await Promise.allSettled(promises);
-    batchResults.forEach(r => {
-      if (r.status === 'fulfilled' && r.value.obs && r.value.obs.length > 0) {
-        const { id, obs } = r.value;
-        const latest = obs[0];
-        const prev = obs.length > 1 ? obs[1] : null;
-        // v31.8: MacroStore 검증 레이어 경유 (결측치/범위 체크)
-        const accepted = MacroStore.set(id, latest.value, prev ? prev.value : null, latest.date);
-        if (accepted) {
-          results[id] = { value: MacroStore._data[id].value, prevValue: MacroStore._data[id].prevValue, date: latest.date };
-          // v50.5: 인플레 지표 YoY 계산 (최신 index vs 12개월 전 index)
-          if (FRED_SERIES[id] && FRED_SERIES[id].yoy && obs.length >= 13) {
-            const yearAgo = parseFloat(obs[12] && obs[12].value);
-            const cur = parseFloat(latest.value);
-            if (isFinite(yearAgo) && yearAgo > 0 && isFinite(cur)) {
-              results[id].yoy = ((cur - yearAgo) / yearAgo) * 100;
-            }
-          }
-        }
-      }
-    });
-    if (i + 3 < seriesIds.length) await new Promise(ok => setTimeout(ok, 300)); // rate limit
-  }
-
-  window._fredData = results;
-  try { applyFredToUI(results); } catch(e) { _aioLog('warn', 'render', 'applyFredToUI error: ' + e.message); }
-  console.log('[AIO v20] FRED data loaded:', Object.keys(results).length, 'series (MacroStore 검증)');
-  if (!Object.keys(results).length) return null;
-  if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') {
-    window.AIO.updateProviderStatus('aio_fred_key', { authentication:'VERIFIED', connection:'HEALTHY', lastSuccessAt:new Date().toISOString(), lastError:null });
-  }
-  if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) {
-    window.DATA_SNAPSHOT._fieldTs.macro_fred = new Date().toISOString();
-  }
-  try {
-    var _macroDetail = { provider:'fred', count:Object.keys(results).length };
-    window.dispatchEvent(new CustomEvent('aio:macroUpdated', { detail:_macroDetail }));
-    if (document && typeof document.dispatchEvent === 'function') document.dispatchEvent(new CustomEvent('aio:macroUpdated', { detail:_macroDetail }));
-  } catch(_) {}
-  return results;
+  if (typeof _reportApiError === 'function') _reportApiError('fred', 'FRED live query retired; server data active');
+  return null;
 }
 
 function applyFredToUI(data) {
@@ -3647,154 +3198,6 @@ function applyFredToUI(data) {
 
 // P1425: the FRED 12-month browser charts (personal-key only since P1422) left with the 거시 rebuild;
 // the 거시 경제 board shows the producer-published official releases.
-
-// ═══ 6. Finnhub — 실시간 뉴스 & 기업 뉴스 ═══════════════════
-async function fetchFinnhubNews(category = 'general') {
-  const key = DATA_APIS.finnhub.key();
-  if (!key) return [];
-  try {
-    const url = `${DATA_APIS.finnhub.base}/news?category=${category}&token=${key}`;
-    const r = await fetchWithTimeout(url, {}, 6000);
-    if (r.ok) {
-      const data = await r.json();
-      return Array.isArray(data) ? data : [];
-    }
-  } catch(e) { _aioLog('warn', 'fetch', 'Finnhub news error: ' + (e.message || String(e))); }
-  return [];
-}
-
-// v47.10: fetchFinnhubCompanyNews 제거 — 정의만 있고 호출 0건 (dead code P112)
-// v48.13: 재도입 — 기업 분석 페이지에서 '최근 기업 뉴스' 섹션에 활용 (Finnhub 무료 60/min)
-//         headline/datetime/source/url 수집 → _renderFundNews UI + AI 프롬프트 근거
-async function fetchFinnhubCompanyNews(symbol, daysBack) {
-  var key = DATA_APIS.finnhub.key();
-  if (!key) return [];
-  daysBack = daysBack || 14;
-  try {
-    var to = new Date().toISOString().slice(0,10);
-    var from = new Date(Date.now() - daysBack * 86400000).toISOString().slice(0,10);
-    var url = DATA_APIS.finnhub.base + '/company-news?symbol=' + encodeURIComponent(symbol) + '&from=' + from + '&to=' + to + '&token=' + key;
-    var r = await fetchWithTimeout(url, {}, 6000);
-    if (!r.ok) return [];
-    var d = await r.json();
-    if (!Array.isArray(d)) return [];
-    // 최신순 정렬 + 중복 제거(headline 기준) + 상위 15건
-    var seen = {};
-    var items = d.filter(function(n){ if (!n || !n.headline || seen[n.headline]) return false; seen[n.headline] = 1; return true; });
-    items.sort(function(a,b){ return (b.datetime||0) - (a.datetime||0); });
-    return items.slice(0, 15).map(function(n){
-      return {
-        headline: n.headline || '',
-        summary: (n.summary || '').replace(/\s+/g,' ').trim(),
-        url: n.url || '',
-        source: n.source || 'Finnhub',
-        datetime: n.datetime || 0,
-        date: n.datetime ? new Date(n.datetime * 1000).toISOString().slice(0,10) : '',
-        image: n.image || null
-      };
-    });
-  } catch(e) { _aioLog('warn', 'fetch', 'Finnhub company-news error: ' + e.message); return []; }
-}
-
-// v48.0: Finnhub 무료 티어 확장 활용 — /stock/metric (PE/PB/ROE/52W 통합), /stock/recommendation (애널리스트), /calendar/earnings
-// FMP 유료 키 없는 사용자에게도 유사 품질의 밸류에이션 제공. 무료 60/min.
-async function fetchFinnhubMetrics(symbol) {
-  const key = DATA_APIS.finnhub.key();
-  if (!key) return null;
-  try {
-    const url = `${DATA_APIS.finnhub.base}/stock/metric?symbol=${encodeURIComponent(symbol)}&metric=all&token=${key}`;
-    const r = await fetchWithTimeout(url, {}, 6000);
-    if (!r.ok) return null;
-    const d = await r.json();
-    return d && d.metric ? d.metric : null;  // {peBasicExclExtraTTM, pb, beta, 52WeekHigh, 52WeekLow, epsTTM, roeTTM, ...}
-  } catch(e) { _aioLog('warn', 'fetch', 'Finnhub metric error: ' + e.message); return null; }
-}
-async function fetchFinnhubRecommendation(symbol) {
-  const key = DATA_APIS.finnhub.key();
-  if (!key) return null;
-  try {
-    const url = `${DATA_APIS.finnhub.base}/stock/recommendation?symbol=${encodeURIComponent(symbol)}&token=${key}`;
-    const r = await fetchWithTimeout(url, {}, 6000);
-    if (!r.ok) return null;
-    const arr = await r.json();
-    return Array.isArray(arr) && arr.length > 0 ? arr[0] : null;  // {buy, hold, sell, strongBuy, strongSell, period}
-  } catch(e) { _aioLog('warn', 'fetch', 'Finnhub recommendation error: ' + e.message); return null; }
-}
-async function fetchFinnhubEarningsCalendar(fromDate, toDate, symbol) {
-  const key = DATA_APIS.finnhub.key();
-  if (!key) return [];
-  try {
-    let url = `${DATA_APIS.finnhub.base}/calendar/earnings?from=${fromDate}&to=${toDate}&token=${key}`;
-    if (symbol) url += `&symbol=${encodeURIComponent(symbol)}`;
-    const r = await fetchWithTimeout(url, {}, 6000);
-    if (!r.ok) return [];
-    const d = await r.json();
-    return d && Array.isArray(d.earningsCalendar) ? d.earningsCalendar : [];
-  } catch(e) { _aioLog('warn', 'fetch', 'Finnhub earnings calendar error: ' + e.message); return []; }
-}
-
-// v48.56: Finnhub IPO 캘린더 — 무료 tier 60 req/min
-async function fetchFinnhubIpoCalendar(fromDate, toDate) {
-  const key = DATA_APIS.finnhub.key();
-  if (!key) return [];
-  try {
-    const url = `${DATA_APIS.finnhub.base}/calendar/ipo?from=${fromDate}&to=${toDate}&token=${key}`;
-    const r = await fetchWithTimeout(url, {}, 6000);
-    if (!r.ok) return [];
-    const d = await r.json();
-    return d && Array.isArray(d.ipoCalendar) ? d.ipoCalendar : [];
-  } catch(e) { _aioLog('warn', 'fetch', 'Finnhub IPO calendar error: ' + e.message); return []; }
-}
-
-
-// ═══ 6b. NewsData.io — CORS 지원 뉴스 API (무료 200건/일) ═══════
-async function fetchNewsDataIO(category = 'business') {
-  const key = _getApiKey('aio_newsdata_key') || '';
-  if (!key) return [];
-  // v48.9: 공유 키 쿼터 사전 체크 (200/day 도달 시 스킵)
-  if (typeof _isQuotaExceeded === 'function' && _isQuotaExceeded('newsdata')) return [];
-  try {
-    const url = `https://newsdata.io/api/1/latest?apikey=${key}&category=${category}&language=en&size=10`;
-    const r = await fetchWithTimeout(url, {}, 8000);
-    if (!r.ok) return [];
-    if (typeof _bumpApiCounter === 'function') _bumpApiCounter('newsdata');
-    const data = await r.json();
-    if (data.status === 'success' && Array.isArray(data.results)) {
-      return data.results.map(item => ({
-        title: (item.title || '').trim(),
-        desc: (item.description || '').trim().slice(0, 280),
-        link: item.link || '#',
-        pubDate: item.pubDate || '',
-        source: item.source_name || 'NewsData.io',
-        country: item.country?.[0] || 'us',
-        tier: 1,
-        flag: '',
-        topics: ['macro', 'equity'],
-        _api: 'newsdata',
-        sourceKind: 'personal-provider', operationalUse: 'reference-only', providerDelayPolicy: 'plan-dependent-free-12h'
-      })).filter(i => i.title.length > 10);
-    }
-  } catch(e) { _aioLog('warn', 'fetch', 'NewsData.io error: ' + (e.message || String(e))); }
-  return [];
-}
-
-// ═══ 6c. Finnhub News → 통합 뉴스 포맷 변환 ═══════════════════
-async function fetchFinnhubNewsFormatted() {
-  const items = await fetchFinnhubNews('general');
-  if (!items || !items.length) return [];
-  return items.slice(0, 20).map(item => ({
-    title: (item.headline || '').trim(),
-    desc: (item.summary || '').trim().slice(0, 280),
-    link: item.url || '#',
-    pubDate: item.datetime ? new Date(item.datetime * 1000).toISOString() : '',
-    source: item.source || 'Finnhub',
-    country: 'us',
-    tier: 1,
-    flag: '',
-    topics: ['macro', 'equity'],
-    _api: 'finnhub'
-  })).filter(i => i.title.length > 10);
-}
 
 // ═══ 7. 시장 폭 (Breadth) — 서버 산출물 소유 (클라이언트 수집 없음) ═══════
 async function fetchBreadthData() {
@@ -4060,17 +3463,8 @@ function _assignRefreshScheduleFunctions() {
   };
   REFRESH_SCHEDULE.breadth.fn    = fetchBreadthData;
   REFRESH_SCHEDULE.fred.fn       = fetchAllFredData;
-  REFRESH_SCHEDULE.technicals.fn = (opts) => {
-    var optSymbols = opts && Array.isArray(opts.symbols) ? opts.symbols : [];
-    var symbol = optSymbols.filter(function(s) { return s && String(s).charAt(0) !== '^'; })[0] || _aioGetActiveTechnicalSymbol(opts && opts.pageId);
-    return fetchTechnicalIndicators(symbol).then(d => {
-      if (d) {
-        applyTechIndicators(d);
-        return { ok: true, updated: true, symbol: symbol };
-      }
-      return { ok: false, skipped: true, updated: false, reason: 'technical indicators unavailable', symbol: symbol };
-    });
-  };
+  // v57.76: Twelve Data indicators needed a personal key (retired v57.67); the producer stays registered and reports skipped.
+  REFRESH_SCHEDULE.technicals.fn = () => Promise.resolve({ ok: false, skipped: true, updated: false, reason: 'technical indicators unavailable' });
   REFRESH_SCHEDULE.vixHistory.fn = fetchSentimentHistory;
   REFRESH_SCHEDULE.hySpread.fn   = () => { return (typeof fetchHYSpread === 'function') ? fetchHYSpread() : null; };
   REFRESH_SCHEDULE.maUpdate.fn   = () => { return (typeof autoUpdateMA === 'function') ? autoUpdateMA() : null; };
@@ -4078,23 +3472,6 @@ function _assignRefreshScheduleFunctions() {
   window.REFRESH_SCHEDULE = REFRESH_SCHEDULE;
   _normalizeRefreshSchedule();
 }
-
-function _aioGetActiveTechnicalSymbol(pageId) {
-  var symbol = '';
-  try {
-    if (pageId === 'signal') {
-      var input = document.getElementById('signal-lockout-symbol');
-      if (input && input.value) symbol = String(input.value);
-    }
-    if (!symbol && window.AIO && typeof window.AIO.collectPageDataSymbols === 'function') {
-      var symbols = window.AIO.collectPageDataSymbols(pageId || 'technical') || [];
-      symbol = (symbols || []).filter(function(s) { return s && String(s).charAt(0) !== '^'; })[0] || symbols[0] || '';
-    }
-  } catch(e) {}
-  symbol = String(symbol || 'SPY').trim().toUpperCase();
-  return symbol || 'SPY';
-}
-window._aioGetActiveTechnicalSymbol = _aioGetActiveTechnicalSymbol;
 
 _assignRefreshScheduleFunctions();
 
@@ -5070,67 +4447,6 @@ try {
   });
 } catch (_) {}
 
-// Apply technical indicators to UI
-function applyTechIndicators(data) {
-  // v48.96 P1-4: 진입 즉시 stale 마킹, 성공 완료 시 해제
-  var _techContainer = document.getElementById('tech-indicators-live');
-  if (_techContainer) _techContainer.dataset.stale = '1';
-  if (!data) return;
-  try {
-    // RSI — v48.94 P161: NaN 가드 (_aioRenderNum)
-    if (data.rsi?.values?.[0]) {
-      const rsi = parseFloat(data.rsi.values[0].rsi);
-      const el = document.getElementById('tech-rsi-val');
-      if (el) {
-        el.textContent = window._aioRenderNum ? window._aioRenderNum(rsi, '', 1) : (Number.isFinite(rsi) ? rsi.toFixed(1) : '—');
-        el.style.color = rsi > 70 ? 'var(--data-red)' : rsi < 30 ? 'var(--data-green)' : 'var(--text-primary)';
-      }
-    }
-    // MACD — v48.94 P161: NaN 가드
-    // One card must not mean two things: index.html's OHLCV writer publishes the
-    // histogram (macd − signal) with an explicit sign, so this provider writer uses
-    // the same basis when available and labels the line-only fallback (P1078).
-    if (data.macd?.values?.[0]) {
-      const point = data.macd.values[0];
-      const el = document.getElementById('tech-macd-val');
-      const line = parseFloat(point.macd);
-      const signal = parseFloat(point.signal);
-      const hist = parseFloat(point.histogram != null ? point.histogram : point.hist);
-      const basis = Number.isFinite(hist) ? hist : (Number.isFinite(line) && Number.isFinite(signal) ? line - signal : null);
-      const value = basis != null ? basis : (Number.isFinite(line) ? line : null);
-      if (el && value != null) {
-        const isHist = basis != null;
-        el.textContent = window._aioRenderNum
-          ? window._aioRenderNum(value, isHist && value >= 0 ? '+' : '', isHist ? 1 : 2)
-          : value.toFixed(isHist ? 1 : 2);
-        el.style.color = value > 0 ? 'var(--data-green)' : 'var(--data-red)';
-        el.title = isHist ? '관측 MACD − 시그널(히스토그램) · 시그널선 대비' : 'MACD 라인(제로선 기준) — 히스토그램 아님';
-      }
-    }
-    // Stochastic — v48.94 P161: NaN 가드
-    if (data.stoch?.values?.[0]) {
-      const k = parseFloat(data.stoch.values[0].slow_k);
-      const el = document.getElementById('tech-stoch-val');
-      if (el) {
-        el.textContent = window._aioRenderNum ? window._aioRenderNum(k, '', 1) : (Number.isFinite(k) ? k.toFixed(1) : '—');
-        el.style.color = k > 80 ? 'var(--data-red)' : k < 20 ? 'var(--data-green)' : 'var(--text-primary)';
-      }
-    }
-    // ADX — v48.94 P161: NaN 가드
-    if (data.adx?.values?.[0]) {
-      const adx = parseFloat(data.adx.values[0].adx);
-      const el = document.getElementById('tech-adx-val');
-      if (el) {
-        el.textContent = window._aioRenderNum ? window._aioRenderNum(adx, '', 1) : (Number.isFinite(adx) ? adx.toFixed(1) : '—');
-        el.style.color = adx > 25 ? 'var(--data-green)' : 'var(--data-amber)';
-      }
-    }
-    // v48.96 P1-4: 성공 완료 — stale 마커 해제
-    if (_techContainer) delete _techContainer.dataset.stale;
-    console.log('[AIO v20] Technical indicators applied');
-  } catch(e) { _aioLog('warn', 'render', 'Tech indicator apply error: ' + (e && e.message || e)); }
-}
-
 // ═══ 10. 초기화 (마스터 부팅 시퀀스) ═══════════════════════════
 function cleanupProxyCache() {
   // 6시간 초과 aio_proxy_cache_* 항목 삭제 (boot 시 1회)
@@ -5937,16 +5253,6 @@ async function _aioLoadServerData() {
     }
     _aioServerMacroReady = !!(d.meta.fredFetchOk && _serverFredApplied > 0);
     _aioServerHyReady = !!(window._serverDataMeta && window._serverDataMeta.hyOAS);
-    // v50.78: 서버 FRED 공백(fredHasKey=false 또는 fredFetchOk=false) + 클라이언트 키 있으면 자동 브릿지.
-    // GitHub Actions Secret에 FRED_API_KEY 미등록이어도 사용자 브라우저 키(aio_fred_key)로 매크로 갱신.
-    if (!d.meta.fredFetchOk) {
-      var _clientFredKey = (typeof DATA_APIS !== 'undefined' && DATA_APIS.fred) ? DATA_APIS.fred.key() : '';
-      if (_clientFredKey && typeof fetchAllFredData === 'function') {
-        setTimeout(function() {
-          fetchAllFredData().catch(function(){});
-        }, 1500);
-      }
-    }
     setTimeout(function() {
       try {
         if (typeof window._aioRenderAllPageDecisionHeaders === 'function') window._aioRenderAllPageDecisionHeaders();
@@ -6536,7 +5842,6 @@ function _aioApplyNewsBackstop(force) {
     newsCache = items;
     window._allNewsItems = items;
     _aioNotifyNewsSurfaceInvalidated('news-server-cache');
-    if (typeof renderHomeFeed === 'function') renderHomeFeed(items);
     if (typeof renderBriefingFeed === 'function') renderBriefingFeed(items);
     _aioUpdateNewsSummaryFromItems(items, { kind: 'server-cache', generatedAt: serverMeta.generatedAt || null });
     window._newsBackstopApplied = { count: items.length, at: Date.now() };
@@ -7050,7 +6355,6 @@ async function initV20DataEngine() {
       newsCache = cached;
       window._allNewsItems = cached;
       _aioNotifyNewsSurfaceInvalidated('news-idb-cache');
-      if (typeof renderHomeFeed === 'function') renderHomeFeed(newsCache);
       if (typeof renderBriefingFeed === 'function') renderBriefingFeed(newsCache);
       if (typeof _aioUpdateNewsSummaryFromItems === 'function') _aioUpdateNewsSummaryFromItems(newsCache, { kind: 'idb-cache' });
       _aioLog('info', 'idb', 'IDB 캐시 뉴스 즉시 렌더: ' + cached.length + '건');
@@ -7118,9 +6422,6 @@ async function initV20DataEngine() {
     try { if (typeof fetchAllNews === 'function') await fetchAllNews(false); if(typeof _reportApiOk==='function') _reportApiOk('rss-news','뉴스 로딩 성공'); if(typeof window._markFetch==='function') window._markFetch('news'); }
     catch(e) { showDataError('뉴스', '뉴스 피드 수신 실패', 'warn'); if(typeof _reportApiError==='function') _reportApiError('rss-news','뉴스 실패'); }
   }, 8000);
-
-  // Phase 6: WebSocket (if key available)
-  setTimeout(() => { initFinnhubWebSocket(); }, 2000);
 
   // Phase 7: Start recurring scheduler
   setTimeout(() => { startDataScheduler(); }, 15000);
@@ -9256,29 +8557,8 @@ const _FINANCE_RELEVANCE_KW = [
 ];
 
 
-// pubDate 기반 나이 필터. 날짜가 없거나 해석되지 않는 항목은 현재성
-// 근거가 없으므로 current window에 넣지 않는다(참고 화면에서는 별도 노출 가능).
-function filterByAge(items, maxHours) {
-  if (!maxHours || !items) return items || [];
-  const nowMs = Date.now();
-  const cutoff = nowMs - maxHours * 3600000;
-  return items.filter(i => {
-    if (!i || !i.pubDate) return false;
-    const t = new Date(i.pubDate).getTime();
-    return Number.isFinite(t) && t <= nowMs && t >= cutoff;
-  });
-}
-
-function filterByKst0800NewsCycle(items) {
-  if (!items) return [];
-  var bw = typeof _getBriefingWindowKST === 'function' ? _getBriefingWindowKST() : null;
-  if (!bw) return filterByAge(items, 24);
-  return items.filter(function(i) {
-    if (!i || !i.pubDate) return false;
-    var t = new Date(i.pubDate).getTime();
-    return isFinite(t) && t >= bw.start && t < bw.end;
-  });
-}
+// v57.76: filterByAge/filterByKst0800NewsCycle left with the home news list (their only caller); the native news
+// model (src/domain/news/scoring.js) owns the KST 08:00 cycle filter.
 
 // ═══════════════════════════════════════════════════════════════
 // v20: 기관급 뉴스 선별 엔진 (scoreItem + classifyTopic + render)
@@ -9819,7 +9099,6 @@ function setNewsSortMode(mode, el) {
   if (scoreBtn) scoreBtn.classList.toggle('active', mode === 'score');
   if (newsCache.length > 0) {
     _aioNotifyNewsSurfaceInvalidated('news-sort');
-    renderHomeFeed(newsCache);
   }
 }
 
@@ -10348,7 +9627,6 @@ async function freeTranslateNews(items) {
     if (b + BATCH < needTrans.length) await new Promise(function(r) { setTimeout(r, 800); });
     // 매 배치마다 중간 렌더링
     _aioNotifyNewsSurfaceInvalidated('news-translation-batch');
-    renderHomeFeed(newsCache);
   }
 
   // v30.12: 실패 항목 2차 재시도 (3초 후, 개별 번역, 상위 16건)
@@ -10401,7 +9679,6 @@ async function freeTranslateNews(items) {
   // P4 수정: 번역 완료 후 캐시 저장
   _tcSaveToStorage();
   _aioNotifyNewsSurfaceInvalidated('news-translation-complete');
-  renderHomeFeed(newsCache);
   renderBriefingFeed(newsCache);
 }
 
@@ -10451,7 +9728,6 @@ async function autoTranslateNews(items) { (items || []).forEach(function(i) { if
     _translationInProgress = false;
     if (statusEl) statusEl.textContent = `✓ ${_translationCache.size}건 처리됨`;
     _aioNotifyNewsSurfaceInvalidated('news-translation-retry');
-    renderHomeFeed(newsCache);
     renderBriefingFeed(newsCache);
     if (typeof _aioRenderActivePageNewsStrip === 'function') _aioRenderActivePageNewsStrip();
     return;
@@ -10591,7 +9867,6 @@ ${prompt}`
       await new Promise(r => setTimeout(r, 600));
       if (statusEl) statusEl.textContent = `번역·해석 중... (${translated}/${needTranslation.length})`;
       _aioNotifyNewsSurfaceInvalidated('news-translation-progress');
-      renderHomeFeed(newsCache);
       if (typeof _aioRenderActivePageNewsStrip === 'function') _aioRenderActivePageNewsStrip();
     }
   }
@@ -10607,7 +9882,6 @@ ${prompt}`
 
   // 최종 렌더링 업데이트
   _aioNotifyNewsSurfaceInvalidated('news-translation-final');
-  renderHomeFeed(newsCache);
   renderBriefingFeed(newsCache);
   if (typeof _aioRenderActivePageNewsStrip === 'function') _aioRenderActivePageNewsStrip();
 }
@@ -11392,7 +10666,7 @@ window._aioNewsLoadMore = function() {
   _aioNotifyNewsSurfaceInvalidated('news-load-more');
 };
 
-/* ── renderHomeFeed(): 홈 "오늘의 시장" 하단에 핵심 뉴스 불릿 (v39.0) ── */
+/* ── HOME_WEEKLY_NEWS: retained for _aioGetCurrentHomeWeeklyNews readers (v57.76: the home news list itself is retired) ── */
 // Current news comes only from server/runtime producers. No embedded event digest.
 var HOME_WEEKLY_NEWS = [];
 window.HOME_WEEKLY_NEWS = HOME_WEEKLY_NEWS;
@@ -11415,14 +10689,6 @@ function _aioGetCurrentHomeWeeklyNews(nowMs) {
   });
 }
 window._aioGetCurrentHomeWeeklyNews = _aioGetCurrentHomeWeeklyNews;
-
-// P1273: a publisher headline can rank for discovery, but it is not article-level evidence.
-function _aioHomeNewsHeadlineOnly(item) {
-  var depth = String(item && item.contentDepth || '').trim().toLowerCase();
-  var status = String(item && item.verificationStatus || '').trim().toLowerCase();
-  var body = String(item && (item.summary || item.desc || item.description) || '').trim();
-  return depth === 'headline-only' || status === 'headline-only' || body.length < 40;
-}
 
 // X20 (2026-10-13): which observations the AI narrative actually cites, in each market's own clock —
 // "생성 10/12 20:16 KST · S&P 500·미 10년물 10/9 종가 · WTI·달러지수 10/12 20:06 KST 장중 · 코스피 10/12 종가".
@@ -11457,177 +10723,13 @@ function _aioMarketAnalysisScope(analysis, generatedAt) {
   } catch (_) { return ''; }
 }
 
-function renderHomeFeed(items) {
-  const container = document.getElementById('home-news-highlights');
-  if (!container) return;
-  if (window.AIO && typeof window.AIO.buildNewsSurfaceModel === 'function') {
-    var homeModelV502 = window.AIO.buildNewsSurfaceModel('home', items || [], {});
-    if (!homeModelV502.items.length) {
-      // X18 (2026-10-13): the pipeline enum and "lastFetch=unknown" read as a bug; say it in the user's words.
-      var homeEmptyCopy = {
-        'no-input-news': '아직 수신된 뉴스가 없습니다.',
-        'all-news-outside-time-window': '최근 24시간 창 안에 들어온 기사가 없습니다.',
-        'below-score-threshold-or-policy-excluded': '수신된 기사가 중요도·검증 기준을 통과하지 못했습니다.',
-        'filters-removed-all-eligible-news': '현재 조건에 맞는 기사가 없습니다.',
-        'no-verified-current-news-for-surface-policy': '확인된 최신 뉴스가 없습니다.'
-      }[homeModelV502.emptyReason] || '표시할 검증 기사가 없습니다.';
-      var lastFetchText = homeModelV502.lastFetch ? new Date(homeModelV502.lastFetch).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
-      container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);line-height:1.55;padding:4px 0;">' +
-        '<strong style="color:var(--text-secondary);">현재 검증 뉴스 없음</strong><br>' +
-        '<span style="font-size:11px;">' + escHtml(homeEmptyCopy) + (lastFetchText ? ' 마지막 수집 ' + escHtml(lastFetchText) + '.' : '') + ' 다음 수집을 기다립니다.</span>' +
-        '</div>';
-      return;
-    }
-    try { var _homeUntr = homeModelV502.items.filter(function(i) { return i.title && !_tcHas(i.title); }); if (_homeUntr.length && !_translationInProgress) autoTranslateNews(_homeUntr).catch(function(){}); } catch(_) {} // v57.54: P554 trigger on the model path too (server news never ran it)
-    container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.05em;margin-bottom:4px;">핵심 뉴스</div>' +
-      homeModelV502.items.map(function(item) {
-        var headlineOnly = _aioHomeNewsHeadlineOnly(item);
-        // P1729: word-count sentiment dots are retired with the badges (an up/down word count is not a reading).
-        var sent = headlineOnly ? null : 'neut';
-        var sentIcon = headlineOnly ? '' : sent === 'bull' ? '<span class="sd sd-g"></span>' : sent === 'bear' ? '<span class="sd sd-r"></span>' : sent === 'warn' ? '<span class="sd sd-y"></span>' : '<span class="sd sd-w"></span>';
-        var timeAgo = item.pubDate ? getTimeAgo(new Date(item.pubDate)) : '';
-        // P1380: a real translation of the headline may be shown; without one keep the original headline (never a generated fallback sentence).
-        var koTitle = ''; try { var tc = _translationCache.has(_tcKey(item.title)) ? _translationCache.get(_tcKey(item.title)) : null; var kt = (tc && !tc._failed && tc.ko_title) || item.ko_title; koTitle = kt && isKoreanText(kt) ? (typeof _aioTitleWithoutSource === 'function' ? _aioTitleWithoutSource(item, kt) : kt) : ''; } catch (_) { koTitle = item.ko_title && /[가-힣]/.test(item.ko_title) ? item.ko_title : ''; }
-        var displayTitle = escHtml(headlineOnly ? (koTitle || (typeof _aioTitleWithoutSource === 'function' ? _aioTitleWithoutSource(item) : item.title) || '제목 없음') : getDisplayTitle(item));
-        var articleUrl = escUrl(item.link || '');
-        var titleMarkup = headlineOnly && articleUrl
-          ? '<a href="' + escHtml(articleUrl) + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;min-height:24px;line-height:1.4;color:inherit;text-decoration:none;" aria-label="' + displayTitle + ' — 원문 새 창에서 열기">' + displayTitle + '</a>'
-          : displayTitle;
-        var displaySummary = headlineOnly ? '' : escHtml(getDisplaySummary(item));
-        var earn = null; try { if (window._aioEarningsSnapshot === undefined && typeof _fetchEarningsCalendarSnapshot === 'function') { window._aioEarningsSnapshot = null; _fetchEarningsCalendarSnapshot().then(function(snap) { window._aioEarningsSnapshot = snap || false; if (snap) renderHomeFeed(items); }); } if (window._aioEarningsSnapshot && window._aioEarningsContext) { if (!window._aioSymNames) { window._aioSymNames = {}; (typeof SCREENER_DB !== 'undefined' ? SCREENER_DB : []).forEach(function(r) { if (r && r.sym) window._aioSymNames[r.sym] = r.name; }); } earn = window._aioEarningsContext(item.title, { earnings: window._aioEarningsSnapshot.earnings, names: window._aioSymNames }); } } catch (_) { earn = null; } // P1382
-        var summaryLine = headlineOnly
-          ? (earn ? '<div style="font-size:11px;color:var(--text-secondary);margin-top:2px;line-height:1.4;font-variant-numeric:tabular-nums;" title="' + escHtml(earn.source) + '">' + escHtml(earn.text) + '</div>' : '')
-          : displaySummary ?'<div style="font-size:10px;color:var(--text-secondary);margin-top:1px;line-height:1.35;">' + displaySummary + '</div>' : '';
-      var hMacroTopics = ['macro','geopolitics','policy','fed','rates','trade','geo','bond','credit','fx','fxbond'];
-        var tickers = headlineOnly || hMacroTopics.indexOf(item.topic) !== -1 ? [] : getDisplayTickers(item);
-        var tickerStr = tickers.length > 0
-          ? tickers.slice(0,2).map(function(t) { var s = t.replace('$',''); return '<span data-action="_aioNewsTickerClick" data-arg="' + escHtml(s) + '" role="button" tabindex="0" style="font-size:11px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);cursor:pointer;" title="' + escHtml(s) + ' 분석">' + escHtml(t.charAt(0) === '$' ? t : '$' + t) + '</span>'; }).join(' ') + ' '
-          : '';
-        return '<div class="aio-hover-news-item" data-open-url="' + escHtml(escUrl(item.link)) + '" style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;cursor:pointer;border-bottom:1px solid var(--surface-2);">' +
-          '<span style="flex-shrink:0;font-size:10px;line-height:1.6;">' + sentIcon + '</span>' +
-          '<div style="flex:1;min-width:0;">' +
-            '<div style="font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.4;">' + tickerStr + titleMarkup + '</div>' +
-            summaryLine +
-            '<div style="font-size:10px;color:var(--text-muted);margin-top:1px;font-family:var(--font-mono);">' + escHtml(item.source || '') + ' · ' + escHtml(timeAgo) + '</div>' +
-          '</div>' +
-        '</div>';
-      }).join('');
-    return;
-  }
-
-  // v40.4: 정적 주간 큐레이션 우선 표시
-  var currentWeeklyNews = _aioGetCurrentHomeWeeklyNews();
-  if (currentWeeklyNews && currentWeeklyNews.length > 0) {
-    const sentIcons = { bull: '<span class="sd sd-g"></span>', bear: '<span class="sd sd-r"></span>', warn: '<span class="sd sd-y"></span>', neutral: '<span class="sd sd-w"></span>' };
-    container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.05em;margin-bottom:4px;">핵심 뉴스</div>' +
-      currentWeeklyNews.map(function(n) {
-        // v46.4: 필드 누락 방어
-        if (!n) return '';
-        n.title = n.title || ''; n.source = n.source || ''; n.date = n.date || ''; n.sentiment = n.sentiment || 'neutral';
-        var icon = sentIcons[n.sentiment] || '<span class="sd sd-w"></span>';
-        return '<div style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;border-bottom:1px solid var(--surface-2);">' +
-          '<span style="flex-shrink:0;font-size:10px;line-height:1.6;">' + icon + '</span>' +
-          '<div style="flex:1;min-width:0;">' +
-          '<div style="font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.4;">' + escHtml(n.title) + '</div>' +
-          '<div style="font-size:11px;color:var(--text-muted);margin-top:1px;">' + escHtml(n.source) + ' · ' + n.date + '</div>' +
-          '</div></div>';
-      }).join('');
-    return;
-  }
-  // v51.30 P531: 정적 큐레이션이 만료돼 비었을 때도 동적 RSS 뉴스는 홈 계약 시간창 안에서만 표시.
-  // (이전엔 정적이 만료되면 items가 있어도 안내문만 띄워 홈 핵심뉴스가 영구 공백처럼 보였음 = 사용자 보고 "브리핑/뉴스 부실"의 근본)
-  if (!items || items.length === 0) {
-    // 동적 뉴스도 없으면 안내문 (정적 큐레이션 존재 시에만 — 완전 초기엔 로딩 표시 유지)
-    if (HOME_WEEKLY_NEWS && HOME_WEEKLY_NEWS.length > 0) {
-      container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);line-height:1.55;">최근 30시간 핵심 뉴스 수집 중... 실시간 뉴스가 도착하면 자동 표시됩니다.</div>';
-    }
-    return;
-  }
-
-  // v51.30 P531: 홈 계약 시간창 이내 + score 90+ 진짜 시장 이동 이벤트만
-  // v49.97 P462: 단계적 완화 — 90+ 가 0건이면 70+, 그래도 0이면 50+ 로 완화해 홈 핵심뉴스 영구공백 방지.
-  //   (정적 큐레이션 만료 후 동적 뉴스가 90점 미만뿐이면 이전엔 빈 화면이었음 = "브리핑/뉴스 부실" 근본 2)
-  let base = filterByKst0800NewsCycle(items).filter(i => !i._blacklisted && i.topic !== 'analyst');
-  let filtered = base.filter(i => (i.score || 0) >= 90);
-  if (filtered.length === 0) filtered = base.filter(i => (i.score || 0) >= 70);
-  if (filtered.length === 0) filtered = base.filter(i => (i.score || 0) >= 50);
-
-  // 중요도 가중: 매크로/지정학/정책 > 실적 > 기업 뉴스
-  filtered.forEach(i => {
-    i._homeBoost = (i.score || 0);
-    // 시장 전체에 영향 주는 이벤트 최우선
-    if (['geopolitics','policy','fed','rates'].includes(i.topic)) i._homeBoost += 30;
-    else if (i.topic === 'macro') i._homeBoost += 25;
-    else if (i.topic === 'earnings') i._homeBoost += 15;
-    else if (i.topic === 'trade') i._homeBoost += 20;
-    // 프리미엄 소스 부스트
-    if (['Reuters','Bloomberg','WSJ','CNBC','FT Markets','NYT Business'].some(s => (i.source||'').includes(s))) i._homeBoost += 10;
-  });
-  filtered.sort((a, b) => (b._homeBoost || 0) - (a._homeBoost || 0));
-
-  // 제목 유사도 기반 중복 제거 (같은 이벤트에 대한 다른 기사 방지)
-  const seenKeys = new Set();
-  filtered = filtered.filter(i => {
-    const key = (getDisplayTitle(i) || i.title || '').slice(0, 30).toLowerCase().replace(/[^a-z0-9가-힣]/g, '');
-    if (seenKeys.has(key)) return false;
-    seenKeys.add(key);
-    return true;
-  });
-  filtered = filtered.slice(0, 3);
-
-  // 미달 시 score 70+로 완화
-  if (filtered.length < 2) {
-    const existing = new Set(filtered.map(i => i.link));
-    const backup = filterByKst0800NewsCycle(items)
-      .filter(i => !existing.has(i.link) && !i._blacklisted && (i.score || 0) >= 70)
-      .sort((a, b) => (b.score || 0) - (a.score || 0))
-      .slice(0, 3 - filtered.length);
-    filtered = filtered.concat(backup);
-  }
-
-  if (filtered.length === 0) {
-    container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">현재 핵심 뉴스가 없습니다.</div>';
-    return;
-  }
-
-  // P554/R245: 홈 "핵심 뉴스"는 _homeBoost(지정학/매크로/Tier-1 우대)로 선택되지만, 번역은
-  // newsCache 원본 순서 앞 6건만 즉시 처리하고 나머지는 data-news-idx 뷰포트 진입 시에만
-  // 번역되는 lazy observer에 의존한다. 홈 카드 DOM에는 data-news-idx가 없어 그 observer
-  // 대상이 아니므로, 정확히 "중요해서 부스트된" 뉴스일수록 [번역 대기]가 영구 고정되는
-  // 구조적 문제가 있었다. 선택된 상위 뉴스가 캐시에 없으면 즉시 번역을 요청한다(완료 시 재렌더).
-  try {
-    var _untranslated = filtered.filter(function(i) { return i.title && !_tcHas(i.title); });
-    if (_untranslated.length && typeof autoTranslateNews === 'function' && !_translationInProgress) {
-      autoTranslateNews(_untranslated).catch(function(){});
-    }
-  } catch(_) {}
-
-  // v39.0c: 간결 불릿 — 한국어 제목, 기업 뉴스에만 티커, 클릭 시 원문
-  container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.05em;margin-bottom:4px;">핵심 뉴스</div>' +
-    filtered.map(item => {
-    const sent = 'neut'; // P1729: word-count sentiment dot retired
-    const sentIcon = sent === 'bull' ? '<span class="sd sd-g"></span>' : sent === 'bear' ? '<span class="sd sd-r"></span>' : sent === 'warn' ? '<span class="sd sd-y"></span>' : '<span class="sd sd-w"></span>';
-    const timeAgo = item.pubDate ? getTimeAgo(new Date(item.pubDate)) : '';
-    const displayTitle = escHtml(getDisplayTitle(item));
-    // v39.0e: 티커는 매크로/지정학/정책 뉴스에서 숨김
-    const displaySummary = escHtml(getDisplaySummary(item));
-    const summaryLine = displaySummary ? `<div style="font-size:10px;color:var(--text-secondary);margin-top:1px;line-height:1.35;">${displaySummary}</div>` : '';
-    const _hMacroTopics = ['macro','geopolitics','policy','fed','rates','trade','bond','credit','fx','fxbond'];
-    const tickers = !_hMacroTopics.includes(item.topic) ? getDisplayTickers(item) : [];
-    // v48.55: 홈 피드 티커 클릭 → ticker 페이지 이동
-    const tickerStr = tickers.length > 0
-      ? tickers.slice(0,2).map(t => { const _s = t.replace('$',''); return `<span data-action="_aioNewsTickerClick" data-arg="${escHtml(_s)}" role="button" tabindex="0" style="font-size:11px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);cursor:pointer;" title="${escHtml(_s)} 분석">${escHtml(t.startsWith('$') ? t : '$'+t)}</span>`; }).join(' ') + ' '
-      : '';
-    return `<div class="aio-hover-news-item" data-open-url="${escHtml(escUrl(item.link))}" style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;cursor:pointer;border-bottom:1px solid var(--surface-2);">
-      <span style="flex-shrink:0;font-size:10px;line-height:1.6;">${sentIcon}</span>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.4;">${tickerStr}${displayTitle}</div>
-        ${summaryLine}
-        <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">${escHtml(item.source||'')} · ${timeAgo}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
+// v57.76: the home "핵심 뉴스" list is retired with the "오늘의 시장" banner (it duplicated the 뉴스 screen). Its call
+// sites are gone; the name stays as a no-op only because ci-data-pipeline-contract-check and the runtime function
+// audit (aio-qa-audits requiredFns) pin it. It writes nothing.
+function renderHomeFeed(_items) {}
+// src/ui/pages/news.js reads these two by name from window; this export is now their only runtime reference.
+window.getTimeAgo = getTimeAgo;
+window.getDisplaySummary = getDisplaySummary;
 
 /* ── renderBriefingFeed(): 브리핑 뉴스 (24시간) ───────────── */
 // v42.0: 브리핑 8AM KST 앵커 — 오전 8시 기준 24시간 윈도우
@@ -11841,9 +10943,7 @@ async function fetchOneFeed(source) {
   async function rss2jsonFallback() {
   if (_rss2jsonFailed < 2 && !(typeof _isQuotaExceeded === 'function' && _isQuotaExceeded('rss2json'))) {
     try {
-      const apiKey = _getApiKey('aio_rss2json_key') || '';
-      const keyParam = apiKey ? '&api_key=' + encodeURIComponent(apiKey) + '&count=12' : '';
-      const r2jUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(source.url) + keyParam;
+      const r2jUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(source.url);
       const r = await fetchWithTimeout(r2jUrl, {}, 5000);
       if (r.ok) {
         if (typeof _bumpApiCounter === 'function') _bumpApiCounter('rss2json');
@@ -12120,9 +11220,6 @@ function _aioServerNewsFresh() {
   var age = Date.now() - Date.parse(meta.generatedAt);
   return isFinite(age) && age > -300000 && age < 7200000;
 }
-function _aioPersonalNewsKeys() {
-  try { return !!((DATA_APIS.finnhub && DATA_APIS.finnhub.key()) || _getApiKey('aio_newsdata_key')); } catch (_) { return false; }
-}
 
 async function fetchAllNews(forceRefresh = false) {
   // v39.0: isFetching 안전장치 — 180초로 확장 (80소스 x 1.5초 딜레이 + 프록시 타임아웃 고려)
@@ -12134,9 +11231,9 @@ async function fetchAllNews(forceRefresh = false) {
   if (isFetching) return;
   // P1756: while the server news bundle is fresh the browser RSS run is skipped. The news screens render that bundle
   // whenever the run returns nothing, and in production it always did: the shared Worker refuses every feed host and
-  // the public relays abort, so a run was ~300 failed requests for an identical screen. Personal-key APIs still merge.
+  // the public relays abort, so a run was ~300 failed requests for an identical screen.
   var _serverNewsFresh = _aioServerNewsFresh();
-  if (_serverNewsFresh && !_aioPersonalNewsKeys()) {
+  if (_serverNewsFresh) {
     if (!newsCache.length || forceRefresh) _aioApplyNewsBackstop(!!forceRefresh); if (forceRefresh && typeof showToast === 'function') showToast('뉴스는 서버가 ' + Math.max(1, Math.round((Date.now() - Date.parse((window._serverDataMeta || {}).generatedAt)) / 60000)) + '분 전에 모은 최신본입니다', 'info'); // v57.54: a forced refresh says why nothing new arrived
     return;
   }
@@ -12144,7 +11241,6 @@ async function fetchAllNews(forceRefresh = false) {
   if (!forceRefresh && Date.now() - lastFetchTime < 600000) {
     if (newsCache.length) {
       _aioNotifyNewsSurfaceInvalidated('news-cache-reuse');
-      renderHomeFeed(newsCache);
       renderBriefingFeed(newsCache);
     }
     var cachedProgLabel = document.getElementById('news-progress-label');
@@ -12189,7 +11285,6 @@ async function fetchAllNews(forceRefresh = false) {
   // tier:1 소스를 앞으로 정렬 → 핵심 15~20개 먼저 렌더링
   activeSources.sort(function(a, b) { return (a.tier || 9) - (b.tier || 9); });
   const _skippedCount = AIO_NEWS_SOURCES.length - activeSources.length;
-  if (_serverNewsFresh) activeSources = []; // P1756: only the personal-key APIs below run (see the gate at the top).
   if (_skippedCount > 0) {
     _aioLog('info', 'rss-health', _skippedCount + '개 RSS 소스 헬스체크로 자동 스킵');
   }
@@ -12404,22 +11499,6 @@ async function fetchAllNews(forceRefresh = false) {
 
   let allItems = results.flatMap(r => r.status === 'fulfilled' ? r.value : []);
 
-  // ═══ v20+: 추가 뉴스 API 병합 (Finnhub + NewsData.io) ═══
-  try {
-    const [finnhubItems, newsDataItems] = await Promise.allSettled([
-      fetchFinnhubNewsFormatted(),
-      fetchNewsDataIO('business')
-    ]);
-    if (finnhubItems.status === 'fulfilled' && finnhubItems.value.length) {
-      allItems = allItems.concat(finnhubItems.value);
-      console.log(`[AIO v20+] Finnhub News: +${finnhubItems.value.length}건`);
-    }
-    if (newsDataItems.status === 'fulfilled' && newsDataItems.value.length) {
-      allItems = allItems.concat(newsDataItems.value);
-      console.log(`[AIO v20+] NewsData.io: +${newsDataItems.value.length}건`);
-    }
-  } catch(e) { _aioLog('warn', 'fetch', 'Extra news API merge error: ' + (e && e.message || e)); }
-
   // P1601: retain distinct articles and every changed version; no prefix/wordbag inference.
   const seen = new Set();
   allItems = allItems.filter(i => {
@@ -12503,7 +11582,6 @@ async function fetchAllNews(forceRefresh = false) {
   if (sl) sl.textContent = `${allItems.length}건 수집 · ${AIO_NEWS_SOURCES.length}개 소스 · 최종 갱신 ${new Date().toLocaleTimeString('ko-KR')}`;
 
   _aioNotifyNewsSurfaceInvalidated('news-fetch-complete');
-  renderHomeFeed(newsCache);
   // v46.6: 최종 렌더 시 조기 렌더 캐시 무효화 → 완전한 데이터로 갱신
   _briefingCacheKey = null;
   renderBriefingFeed(newsCache);
@@ -12560,10 +11638,8 @@ async function fetchAllNews(forceRefresh = false) {
 
   } catch(e) { _aioLog('warn', 'render', 'News sentiment bar error: ' + (e && e.message || e)); }
 
-  // v27.2: 뉴스 0건이면 홈 뉴스 섹션에 안내 메시지 표시
+  // v27.2: 뉴스 0건이면 진행 라벨에 안내 메시지 표시 (v57.76: the retired home news list message is gone)
   if (allItems.length === 0) {
-    const hn = document.getElementById('home-news-highlights');
-    if (hn) hn.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;color:var(--text-muted);font-size:10px;grid-column:1/-1;">현재 뉴스를 불러올 수 없습니다. <button data-action="_aioRetryNews" style="background:var(--data-cyan-soft);border:1px solid var(--border-accent-dim);color:#60a5fa;font-size:11px;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:6px;">↻ 다시 시도</button></div>';
     const pl = document.getElementById('news-progress-label');
     if (pl) pl.textContent = '뉴스 소스 연결 실패 — 새로고침하거나 잠시 후 다시 시도하세요.';
   }
@@ -12579,23 +11655,7 @@ async function fetchAllNews(forceRefresh = false) {
   }
 }
 
-// v34.5: 뉴스 로딩 타임아웃 — 60초로 늘리고, 이미 뉴스가 렌더된 경우 덮어쓰지 않음
-setTimeout(function() {
-  var hn = document.getElementById('home-news-highlights');
-  if (!hn) return;
-  // 이미 뉴스 카드가 렌더됐으면(점진 렌더링 성공) 건드리지 않음
-  if (hn.querySelector('.news-item-card')) return;
-  // 아직 "로딩 중" 상태일 때만 처리
-  if (hn.innerHTML.indexOf('뉴스 로딩 중') !== -1 || hn.innerHTML.indexOf('로딩') !== -1) {
-    var items = window._allNewsItems || [];
-    if (items.length > 0) {
-      // 부분 결과 있으면 렌더
-      if (typeof renderHomeFeed === 'function') renderHomeFeed(items);
-    } else {
-      hn.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;color:var(--text-muted);font-size:10px;">뉴스 수신 시간 초과 (네트워크 지연). <button data-action="_aioRetryNews" style="background:var(--data-cyan-soft);border:1px solid var(--border-accent-dim);color:#60a5fa;font-size:11px;padding:3px 9px;border-radius:4px;cursor:pointer;margin-left:6px;font-weight:600;">↻ 다시 시도</button></div>';
-    }
-  }
-}, 60000);
+// v57.76: the 60s home news loading-timeout writer was deleted with #home-news-highlights.
 
 // ── 필터 함수 ───────────────────────────────────────────────────
 
@@ -13686,8 +12746,6 @@ window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
   symbols = symbols.slice(0, limit);
   var now = Date.now();
   var cache = window.AIO_CROSS_SOURCE_QUOTE_CACHE = window.AIO_CROSS_SOURCE_QUOTE_CACHE || {};
-  var fmpKey = (typeof _getApiKey === 'function') ? (_getApiKey('aio_fmp_key') || '') : '';
-  var finnhubKey = (typeof _getApiKey === 'function') ? (_getApiKey('aio_finnhub_key') || '') : '';
 
   function _record(sym, source, price, pct, meta) {
     try {
@@ -13699,7 +12757,6 @@ window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
   function _isKr(sym) { return /\.KS$|\.KQ$|^\d{6}$|\^KS11$|\^KQ11$/.test(sym); }
   function _isCrypto(sym) { return /^(BTC|ETH|SOL|BNB)-USD$/.test(sym); }
   function _isFx(sym) { return /=X$/.test(sym); }
-  function _isStockLike(sym) { return !_isKr(sym) && !_isCrypto(sym) && !_isFx(sym) && !/^\^/.test(sym) && !/=F$/.test(sym) && /^[A-Z][A-Z0-9.-]{0,7}$/.test(sym); }
   async function _fetchJson(url, ms) {
     var r = await fetchWithTimeout(url, {}, ms || 6500);
     if (!r || !r.ok) return null;
@@ -13724,30 +12781,6 @@ window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
       if (_krCross) { pct = _krCross.pct; prev = _krCross.prevClose; }
       if (price > 0) { _record(sym, 'yahoo:cross-chart', price, pct, { previousClose: prev || null }); return true; }
     } catch(_yahooErr) {}
-    return false;
-  }
-  async function _finnhubCross(sym) {
-    if (!finnhubKey || !_isStockLike(sym)) return false;
-    try {
-      var d = await _fetchJson('https://finnhub.io/api/v1/quote?symbol=' + encodeURIComponent(sym) + '&token=' + encodeURIComponent(finnhubKey), 6500);
-      if (d && d.c > 0) {
-        var pct = d.pc > 0 ? (d.c - d.pc) / d.pc * 100 : null;
-        _record(sym, 'finnhub:quote-cross', d.c, pct, { previousClose: d.pc || null });
-        return true;
-      }
-    } catch(_fhErr) {}
-    return false;
-  }
-  async function _fmpCross(sym) {
-    if (!fmpKey || !_isStockLike(sym)) return false;
-    try {
-      var d = await _fetchJson('https://financialmodelingprep.com/api/v3/quote/' + encodeURIComponent(sym) + '?apikey=' + encodeURIComponent(fmpKey), 6500);
-      var row = Array.isArray(d) ? d[0] : null;
-      if (row && row.price > 0) {
-        _record(sym, 'fmp:quote-cross', row.price, row.changesPercentage != null ? row.changesPercentage : null, { previousClose: row.previousClose || null });
-        return true;
-      }
-    } catch(_fmpErr) {}
     return false;
   }
   async function _coingeckoCross(sym) {
@@ -13795,8 +12828,6 @@ window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
     await Promise.allSettled([
       _yahooCross(sym),
       // P1756: Stooq cross-check removed (every symbol answered 404, direct and via the Worker).
-      _finnhubCross(sym),
-      _fmpCross(sym),
       _coingeckoCross(sym),
       _fxCross(sym)
     ]);
@@ -15454,7 +14485,6 @@ function refreshHomeDashboard() {
   const dxy = ld['DX-Y.NYB'] || {};
   // v57.50 C06: the unused F&G read with a default of 35 is removed — the native home card owns F&G (P1010), and a
   // missing value is '—', never a substitute number.
-  const ts = new Date();
 
   // SECTION 0: One-line market summary
   const _homeFixed = window._aioSafeFixed || function(v, d, fb) { const n = Number(v); return Number.isFinite(n) ? n.toFixed(d || 2) : (fb || '—'); };
@@ -15462,8 +14492,6 @@ function refreshHomeDashboard() {
   const spxPct = _homeNum(spx.pct);
   const vixPrice = _homeNum(vix.price != null ? vix.price : DATA_SNAPSHOT.vix);
   if (typeof window._aioRenderMarketAnalysisSinks === 'function') window._aioRenderMarketAnalysisSinks(); // P1383: the verified server analysis owns the home summary (old S&P/VIX mood line removed)
-  const summaryTimeEl = document.getElementById('home-summary-time');
-  if (summaryTimeEl) summaryTimeEl.textContent = ts.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
 
   // SECTION 1: Trading Decision Dashboard
   let tradingScore;
@@ -15482,13 +14510,11 @@ function refreshHomeDashboard() {
   try { if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('home'); } catch(_) {}
   // v57.50 I16: the retired home trading grid ("지금 매매해도 될까?" score bands, Quality, the four-step Regime card)
   // is no longer written from here. The score is still computed above for its legacy readers (_liveSnap); the only
-  // remaining home sinks are the S&P 500 distance-from-high badge, the action items and the heatmap, each of which
-  // is skipped when its element is absent. A missing S&P input no longer returns early and skips the VIX/news blocks.
+  // remaining home sinks are the S&P 500 distance-from-high badge and the action items, each of which
+  // is skipped when its element is absent (v57.76: the heatmap and the home news list are retired). A missing S&P input no longer returns early and skips the VIX/news blocks.
   var riskBadgeEl = document.getElementById('home-risk-regime-badge');
   // v49.28 E1 → v50.43: home Action Item 갱신은 단일 경로(_aioRefreshActionPlan). 실패해도 home 렌더 차단 X.
   try { if (typeof window._aioRefreshActionPlan === 'function') window._aioRefreshActionPlan(); } catch(actErr) {}
-  // v50.75: 실데이터 시장 팩터 히트맵 갱신
-  try { if (typeof window._aioRenderMarketHeatmap === 'function' && document.getElementById('home-market-heatmap')) window._aioRenderMarketHeatmap('home-market-heatmap'); } catch(_) {}
   if (riskBadgeEl) {
     const SPX_ATH = _aioSpxAthFloor();  // v50.24/WO-2: 단일 출처 헬퍼 (L12303과 동일 floor — 레짐 오표시 방지)
     const spxPrice = Number(spx.price || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.spx));
@@ -15510,28 +14536,7 @@ function refreshHomeDashboard() {
   // P1010: native analysis owns both the Fear & Greed score and its label.
 
 
-  // v27.2: SECTION 4 — newsCache 기반으로 통합 (renderHomeFeed와 동일 메커니즘)
-  // newsCache가 있으면 renderHomeFeed 호출, _newsItems 폴백은 유지
-  const newsEl = document.getElementById('home-news-highlights');
-  if (newsEl) {
-    if (typeof newsCache !== 'undefined' && newsCache.length > 0) {
-      renderHomeFeed(newsCache);
-    } else if (window._newsItems && window._newsItems.length > 0) {
-      const top3 = window._newsItems.slice(0, 3);
-      newsEl.innerHTML = top3.map(item => {
-        const sent = 'neut'; // P1729: word-count sentiment colour retired
-        const sentColor = sent === 'bull' ? 'var(--data-green)' : sent === 'bear' ? 'var(--data-red)' : sent === 'warn' ? 'var(--data-amber)' : 'var(--text-muted)';
-        const tickers = typeof getDisplayTickers === 'function' && item.title ? getDisplayTickers(item) : [];
-        const tickerStr = tickers.length > 0 ? `<div style="margin-top:3px;">${tickers.map(t => `<span style="font-size:11px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:var(--data-cyan-soft);padding:1px 4px;border-radius:3px;margin-right:2px;">${escHtml(t)}</span>`).join('')}</div>` : '';
-        return `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px;border-top:2px solid ${sentColor};">
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:700;">${escHtml(item.source || 'NEWS')}</div>
-          <div style="font-size:11px;font-weight:600;line-height:1.3;margin-bottom:4px;">${escHtml(item.headline || '뉴스 수집 중')}</div>
-          ${tickerStr}
-          <div style="font-size:11px;color:var(--text-muted);">${escHtml(item.timeAgo || '방금')}</div>
-        </div>`;
-      }).join('');
-    }
-  }
+  // v57.76: SECTION 4 (home news list, #home-news-highlights) is retired; news lives on the 뉴스 screen only.
 }
 
 // v53.15: page activation은 canonical aio:pageShown 이벤트만 구독한다.

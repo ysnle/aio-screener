@@ -46,7 +46,7 @@
     "glossary-search": "A05: glossary-bridge.js reads the search query; aio-ui.js/aio-core.js own the input.",
     "fg-score-big": "W01-B (2026-09-19): legacy `_generateSentimentAnalysis` retired to an inert entry point and its aio-data.js deferred timers removed; sentiment.js is the sole writer of fg-score-big/pc-score-big/sent-analysis-text from one ViewModel revision.",
     "pc-score-big": "W01-B (2026-09-19): same single-writer cutover as fg-score-big — legacy only retired stubs remain, not readers.",
-    "ticker-hero-name": "js/aio-core.js:_aioDetectTickerPattern and _aioFillEntryFromTicker read textContent only; entity.js is the sole writer after P777.",
+    "ticker-hero-name": "entity.js is the sole writer after P777; the former textContent readers (_aioDetectTickerPattern, _aioFillEntryFromTicker) were deleted (P1430, v57.76).",
     "theme-detail-panel": "After P818, themes.js is the sole panel display/current-theme writer; index.html showThemeDetail/closeThemeDetail only read the panel to retain selection/event compatibility. Legitimate read dependency, not a write race.",
     "tech-candle-chart": "P833: analysis.js owns the native technical price chart; index.html loadTechCandleChart is fenced by the mounted native technical chart marker.",
     "tech-candle-volume": "P833: analysis.js owns the native technical volume chart; index.html loadTechCandleChart is fenced by the mounted native technical chart marker.",
@@ -176,10 +176,7 @@
       "nativePrimarySurface": [
         "#page-technical #tech-regime-overall",
         "#page-technical #tech-regime-basis",
-        "#page-technical #tech-regime-chips",
-        "#page-technical #ind-pressure-fill",
-        "#page-technical #ind-buyrisk-fill",
-        "#page-technical #ind-trend-fill"
+        "#page-technical #tech-regime-chips"
       ],
       "nativeSecondarySurface": [],
       "contestedIds": [],
@@ -293,7 +290,7 @@
       "p799Boundary": "themes.js owns the rrg-canvas drawing lifecycle from normalized ratio/momentum evidence; drawRRG is a fenced compatibility fallback and no longer writes the native canvas.",
       "p800Boundary": "the themes provider/orchestrator now reads explicit runtime definitions, quote data, and history inputs directly; legacy.readThemes is no longer the route data source.",
       "p801Boundary": "themes.js owns the RRG-derived theme-cycle-pill status; legacy sector prose is fenced from this bounded status while deeper sector analysis remains legacy narrative.",
-      "p802Boundary": "themes.js owns the sector-perf-analysis bounded leaders/laggards narrative from normalized sector items; the legacy HTML generator is fenced while other secondary sector narratives remain legacy.",
+      "p802Boundary": "v57.76: the sector-perf-analysis leaders/laggards narrative (P802) is retired with its box — it repeated the rotation read and the 1일·1주 bars; the fenced legacy generator in js/aio-pages.js has no host.",
       "p859Boundary": "themes.js owns the sector-perf-bars bounded daily/weekly bar projection from normalized current and weekly evidence; missing weekly evidence remains a visible pending state and the legacy renderer is fenced.",
       "notes": "P775 transfers the RRG quadrant cards and rotation read to native themes.js. P798 transfers the chart status text, P799 transfers the canvas drawing, P800 transfers the themes data provider, P801 transfers the cycle status pill, P802 transfers the bounded sector performance narrative, and P859 transfers the sector performance bars to the native projection; other secondary sector narratives and 20-day history loading remain legacy.",
       "nativePrimarySurface": [
@@ -302,7 +299,6 @@
         "#page-themes #rrg-chart-status",
         "#page-themes #rrg-canvas",
         "#page-themes #theme-cycle-pill",
-        "#page-themes #sector-perf-analysis",
         "#page-themes #sector-perf-bars"
       ]
     },
@@ -399,7 +395,6 @@
         "#page-ticker #ticker-hero-chg"
       ],
       "nativeSecondarySurface": [
-        "#page-ticker #ticker-candle-symbol",
         "#page-ticker #ticker-hero-ext",
         "#page-ticker #ticker-hero-pnl",
         "#page-ticker #ticker-hero-value",

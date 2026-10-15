@@ -2187,30 +2187,11 @@ var _aioBuildDiversifiedRecommendationRows = window._aioBuildDiversifiedRecommen
 var _aioRunScreenerQuery = window._aioRunScreenerQuery;
 var _formatScreenerResultPrompt = window._formatScreenerResultPrompt;
 
-// FMP API 다중 종목 밸류에이션 일괄 조회 (PER, PBR, 매출성장, FCF Yield, ROE 등)
+// 섹터 비교 — 다중 종목 현재가(_liveData) + Naver 컨센서스·한국어명 (v57.76: personal FMP branch removed)
 async function _fetchSectorCompareData(stocks, opts) {
   opts = opts || {};
   _aioThrowIfChatAborted(opts.signal);
-  var fmpKey = _getApiKey('aio_fmp_key') || '';
   var results = [];
-
-  // v47.11: FMP profile 쉼표 구분 배치 호출 — N종목 개별 호출(N회) → 1회 배치
-  // 예: /v3/profile/AAPL,MSFT,GOOGL — 응답 배열 순서 보장되지 않으므로 symbol 키로 맵핑
-  var profileMap = {};
-  if (fmpKey && stocks.length > 1) {
-    try {
-      var syms = stocks.map(function(s){ return s.sym; }).join(',');
-      var urlBatch = 'https://financialmodelingprep.com/api/v3/profile/' + encodeURIComponent(syms) + '?apikey=' + fmpKey;
-      var rBatch = await fetchWithTimeout(urlBatch, { signal: opts.signal }, 8000);
-      if (rBatch.ok) {
-        var batch = await rBatch.json();
-        if (Array.isArray(batch)) batch.forEach(function(p){ if (p && p.symbol) profileMap[p.symbol] = p; });
-      }
-    } catch(e) {
-      if (opts.signal && opts.signal.aborted) throw e;
-      _aioLog('warn', 'fetch', 'FMP profile batch error: ' + e.message);
-    }
-  }
 
   for (var i = 0; i < stocks.length; i++) {
     _aioThrowIfChatAborted(opts.signal);
@@ -2222,137 +2203,6 @@ async function _fetchSectorCompareData(stocks, opts) {
     var ld = (window._liveData || {})[sym];
     if (ld && ld.price) { line.price = ld.price; line.pct = ld.pct != null ? ld.pct : null; }
 
-    // FMP에서 밸류에이션 + 재무 데이터 (키가 있을 때만)
-    if (fmpKey) {
-      // 1. Ratios TTM (PER, PBR, PEG, PSR, ROE, ROA, 마진, 부채, 배당, FCF)
-      try {
-        var url = 'https://financialmodelingprep.com/api/v3/ratios-ttm/' + sym + '?apikey=' + fmpKey;
-        var r = await fetchWithTimeout(url, { signal: opts.signal }, 6000);
-        if (r.ok) {
-          var d = await r.json();
-          if (Array.isArray(d) && d[0]) {
-            var rt = d[0];
-            line.peRatio = rt.peRatioTTM;
-            line.pbRatio = rt.priceToBookRatioTTM;
-            line.pegRatio = rt.pegRatioTTM;
-            line.psRatio = rt.priceToSalesRatioTTM;
-            line.evToEbitda = rt.enterpriseValueOverEBITDATTM;
-            line.evToRev = null; // v35.4: evToSales는 key-metrics-ttm에서 별도 조회
-            line.roe = rt.returnOnEquityTTM;
-            line.roa = rt.returnOnAssetsTTM;
-            line.grossMargin = rt.grossProfitMarginTTM;
-            line.operatingMargin = rt.operatingProfitMarginTTM;
-            line.netMargin = rt.netProfitMarginTTM;
-            line.debtEquity = rt.debtEquityRatioTTM;
-            line.currentRatio = rt.currentRatioTTM;
-            line.dividendYield = rt.dividendYieldTTM;
-            line.payoutRatio = rt.payoutRatioTTM;
-            line.fcfYield = rt.freeCashFlowPerShareTTM && line.price ? (rt.freeCashFlowPerShareTTM / line.price * 100) : null;
-          }
-        }
-      } catch(e) { if (opts.signal && opts.signal.aborted) throw e; }
-
-      // 2. Key Metrics TTM (EV/EBITDA, EV/Revenue, FCF per share 보완)
-      try {
-        var urlKm = 'https://financialmodelingprep.com/api/v3/key-metrics-ttm/' + sym + '?apikey=' + fmpKey;
-        var rKm = await fetchWithTimeout(urlKm, { signal: opts.signal }, 6000);
-        if (rKm.ok) {
-          var km = await rKm.json();
-          if (Array.isArray(km) && km[0]) {
-            var k = km[0];
-            if (!line.evToEbitda && k.enterpriseValueOverEBITDATTM) line.evToEbitda = k.enterpriseValueOverEBITDATTM;
-            if (k.evToSalesTTM) line.evToRev = k.evToSalesTTM; // v35.4: 정확한 EV/Sales
-            line.revenuePerShare = k.revenuePerShareTTM;
-            line.netIncomePerShare = k.netIncomePerShareTTM;
-            line.bookValuePerShare = k.bookValuePerShareTTM;
-            line.fcfPerShare = k.freeCashFlowPerShareTTM;
-            if (k.marketCapTTM) line.mcapLive = k.marketCapTTM;
-          }
-        }
-      } catch(e) { if (opts.signal && opts.signal.aborted) throw e; }
-
-      // 3. Income Statement (최근 2년 → 매출성장률 + EPS성장률 + 분기 실적)
-      try {
-        var urlInc = 'https://financialmodelingprep.com/api/v3/income-statement/' + sym + '?limit=3&apikey=' + fmpKey;
-        var rInc = await fetchWithTimeout(urlInc, { signal: opts.signal }, 6000);
-        if (rInc.ok) {
-          var inc = await rInc.json();
-          if (Array.isArray(inc) && inc.length >= 2 && inc[1].revenue > 0) {
-            line.revGrowth = ((inc[0].revenue - inc[1].revenue) / inc[1].revenue * 100);
-            line.latestRev = inc[0].revenue;
-            line.latestEps = inc[0].epsdiluted;
-            line.latestEbitda = inc[0].ebitda;
-            if (inc[1].epsdiluted && inc[1].epsdiluted > 0) {
-              line.epsGrowth = ((inc[0].epsdiluted - inc[1].epsdiluted) / Math.abs(inc[1].epsdiluted) * 100);
-            }
-            // 2개년 매출 CAGR (inc[0] vs inc[2] = 2년 간격)
-            if (inc.length >= 3 && inc[2].revenue > 0 && inc[0].revenue > 0) {
-              line.rev2yCagr = (Math.pow(inc[0].revenue / inc[2].revenue, 0.5) - 1) * 100;
-            }
-          }
-        }
-      } catch(e) { if (opts.signal && opts.signal.aborted) throw e; }
-
-      // 4. Profile (52주 고저, 베타, 산업분류)
-      // v47.11: profileMap(배치 결과) 우선 사용 — 없을 때만 개별 호출 폴백
-      if (profileMap[sym]) {
-        var pB = profileMap[sym];
-        line.range52w = pB.range;
-        line.beta = pB.beta;
-        line.industry = pB.industry;
-        line.employees = pB.fullTimeEmployees;
-        if (!line.price && pB.price) { line.price = pB.price; line.pct = pB.changes; }
-        if (pB.mktCap) line.mcapLive = pB.mktCap;
-      } else {
-        try {
-          var urlProf = 'https://financialmodelingprep.com/api/v3/profile/' + sym + '?apikey=' + fmpKey;
-          var rProf = await fetchWithTimeout(urlProf, { signal: opts.signal }, 6000);
-          if (rProf.ok) {
-            var prof = await rProf.json();
-            if (Array.isArray(prof) && prof[0]) {
-              var p = prof[0];
-              line.range52w = p.range;
-              line.beta = p.beta;
-              line.industry = p.industry;
-              line.employees = p.fullTimeEmployees;
-              if (!line.price && p.price) { line.price = p.price; line.pct = p.changes; }
-              if (p.mktCap) line.mcapLive = p.mktCap;
-            }
-          }
-        } catch(e) { if (opts.signal && opts.signal.aborted) throw e; }
-      }
-
-      // 5. Analyst Consensus (목표가, 추천 등급)
-      try {
-        var urlAn = 'https://financialmodelingprep.com/api/v3/analyst-stock-recommendations/' + sym + '?limit=1&apikey=' + fmpKey;
-        var rAn = await fetchWithTimeout(urlAn, { signal: opts.signal }, 6000);
-        if (rAn.ok) {
-          var an = await rAn.json();
-          if (Array.isArray(an) && an[0]) {
-            line.analystBuy = an[0].analystRatingsbuy || 0;
-            line.analystHold = an[0].analystRatingsHold || 0;
-            line.analystSell = an[0].analystRatingsSell || 0;
-            line.analystStrong = an[0].analystRatingsStrongBuy || 0;
-          }
-        }
-      } catch(e) { if (opts.signal && opts.signal.aborted) throw e; }
-
-      try {
-        var urlTgt = 'https://financialmodelingprep.com/api/v3/price-target-consensus/' + sym + '?apikey=' + fmpKey;
-        var rTgt = await fetchWithTimeout(urlTgt, { signal: opts.signal }, 6000);
-        if (rTgt.ok) {
-          var tgt = await rTgt.json();
-          if (Array.isArray(tgt) && tgt[0]) {
-            line.targetHigh = tgt[0].targetHigh;
-            line.targetLow = tgt[0].targetLow;
-            line.targetConsensus = tgt[0].targetConsensus;
-            if (line.price && line.targetConsensus) {
-              line.upside = ((line.targetConsensus - line.price) / line.price * 100);
-            }
-          }
-        }
-      } catch(e) { if (opts.signal && opts.signal.aborted) throw e; }
-    }
     // v41.9: Naver 컨센서스/한국어명 보충
     try {
       var naverD = await fetchNaverUSData(sym, false);
@@ -2397,7 +2247,7 @@ function _formatSectorComparePrompt(sectorLabel, compareData) {
   var lines = [];
   lines.push('═══════════════════════════════════════════════════');
   lines.push('【섹터 비교 분석 — "' + sectorLabel + '" 관련 주요 종목 source 확인 밸류에이션】');
-  lines.push('FMP API + Yahoo Finance 조회 결과(각 항목의 source·관측일 확인 필요). 학습 데이터의 과거 수치 사용 금지.');
+  lines.push('Yahoo Finance·Naver 조회 결과(각 항목의 source·관측일 확인 필요). 학습 데이터의 과거 수치 사용 금지.');
   lines.push('═══════════════════════════════════════════════════');
   lines.push('');
 
@@ -2854,28 +2704,22 @@ var AIO_CHAT_SOURCE_REGISTRY = [
   { key:'quote',        label:'실시간 시세',         fn:'dynamicTickerLookup',           tier:'quote',       free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'trend',        label:'주가 추이(5D/20D/3M)', fn:'_fetchTickerTrend',             tier:'quote',       free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'technicalOHLCV', label:'OHLCV 기술지표(RSI/MACD/MA/ATR)', fn:'_fetchTechnicalDataForChat', tier:'technical', free:true, requiresKey:null, appliesTo:function(){return true;} },
-  { key:'analystRec',   label:'애널리스트 컨센서스',  fn:'fetchFinnhubRecommendation',    tier:'sentiment',   free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
   { key:'nextEarnings', label:'다음 어닝 일정',       fn:'readPublicEarnings',  tier:'fundamental', free:true, requiresKey:null, appliesTo:function(){return true;} },
   // 펀더멘털 (window.AIO.*)
   { key:'secBusiness',  label:'SEC 10-K 사업개요',    fn:'fetchSECBusinessDescription',   tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'wikipedia',    label:'Wikipedia 기업개요',   fn:'fetchWikipediaCompany',         tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'sec8K',        label:'SEC 8-K 최근공시',     fn:'fetchSECRecentFilings',         tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
-  { key:'fhNews',       label:'Finnhub 기업뉴스(14일)', fn:'fetchFinnhubCompanyNews',     tier:'sentiment',   free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
-  { key:'insider',      label:'내부자 거래',          fn:'fetchFinnhubInsider',           tier:'sentiment',   free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
   { key:'thirteenF',    label:'13F 기관보유',         fn:'fetchSEC13F',                   tier:'sentiment',   free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'fcf',          label:'FCF Yield',           fn:'computeFcfYield',               tier:'fundamental', free:true, requiresKey:null, appliesTo:function(){return true;} },
   { key:'balance',      label:'대차대조표 비율',      fn:'computeBalanceSheetRatios',     tier:'fundamental', free:true, requiresKey:null, appliesTo:function(){return true;} },
   { key:'evEbitda',     label:'EV/EBITDA',           fn:'computeEvEbitda',               tier:'fundamental', free:true, requiresKey:null, appliesTo:function(){return true;} },
   { key:'macroBeta',    label:'거시 민감도(베타)',  fn:'computeMacroBeta',              tier:'fundamental', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
-  { key:'shortInterest',label:'공매도 비중',          fn:'fetchFinnhubShortInterest',     tier:'sentiment',   free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
   { key:'riskFactors',  label:'SEC 리스크요인(1A)',   fn:'fetchSECRiskFactors',           tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'supplyChain',  label:'공급망(10-K)',         fn:'fetchSECSupplyChain',           tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'partnership',  label:'파트너십(8-K)',        fn:'fetchPartnershipAlerts',        tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'platform',     label:'플랫폼/생태계',        fn:'fetchPlatformEcosystem',        tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'moat',         label:'경제적 해자(Moat)',    fn:'computeMoatScore',              tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
-  { key:'fmpSegments',  label:'FMP 사업 세그먼트',    fn:'fetchFMPSegments',              tier:'fundamental', free:false, requiresKey:'aio_fmp_key', appliesTo:function(){return true;} },
   { key:'tam',          label:'TAM/시장규모 추정',    fn:'computeTAMEstimate',            tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
-  { key:'earningsCall', label:'어닝콜 전사(ASP/로드맵)', fn:'fetchFMPEarningsCallTranscript', tier:'fundamental', free:false, requiresKey:'aio_fmp_key', appliesTo:function(){return true;} },
   // 확장점(미배선) — KR DART: .KS/.KQ 종목 재무. OpenDART 키 + 프록시 필요. wired:false로 카탈로그에 명시.
   { key:'dartFinancials', label:'KR DART 재무(.KS/.KQ)', fn:'fetchDartFinancials',         tier:'fundamental', free:true, requiresKey:'aio_dart_key', wired:false, planned:true, appliesTo:function(t){return /\.(KS|KQ)$/i.test(t||'');} }
 ];
@@ -2954,7 +2798,6 @@ async function _fetchTickerDataForChat(tickers, opts) {
   var _forceScenarioAnswer = !!(_tickerPolicy.needsFullStockMemo || _tickerPolicy.asksDecision);
   var _f = function(v, dec) { return v != null && !isNaN(v) ? Number(v).toFixed(dec || 1) : 'N/A'; };
   var _fm = function(v) { if (!v) return 'N/A'; if (v >= 1e12) return '$' + (v/1e12).toFixed(1) + 'T'; if (v >= 1e9) return '$' + (v/1e9).toFixed(1) + 'B'; if (v >= 1e6) return '$' + (v/1e6).toFixed(0) + 'M'; return '$' + v; };
-  var fmpKey = _getApiKey('aio_fmp_key') || '';
   var results = [];
 
   // v50.37 트랙2: 출처 매니페스트 — 이번 질의에서 시도(가용) 가능한 소스 카탈로그 기록 (provenance/디버깅/감사 기반).
@@ -3071,8 +2914,6 @@ async function _fetchTickerDataForChat(tickers, opts) {
     var secPromise         = (_needsFilings || _needsQualitative) && window.AIO && window.AIO.fetchSECBusinessDescription ? _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(function(){return null;}), _T, null) : null;
     var wikiPromise        = _needsQualitative && window.AIO && window.AIO.fetchWikipediaCompany ? _withTimeout(window.AIO.fetchWikipediaCompany(t).catch(function(){return null;}), _T, null) : null;
     var sec8KPromise       = (_needsNews || _needsFilings) && window.AIO && window.AIO.fetchSECRecentFilings ? _withTimeout(window.AIO.fetchSECRecentFilings(t).catch(function(){return null;}), _T, null) : null;
-    var fhNewsPromise      = _needsNews && window.AIO && window.AIO.fetchFinnhubCompanyNews ? _withTimeout(window.AIO.fetchFinnhubCompanyNews(t, 14).catch(function(){return null;}), _T, null) : null;
-    var insiderPromise     = _needsOwnership && window.AIO && window.AIO.fetchFinnhubInsider ? _withTimeout(window.AIO.fetchFinnhubInsider(t).catch(function(){return null;}), _T, null) : null;
     var thirteenFPromise   = _needsOwnership && window.AIO && window.AIO.fetchSEC13F ? _withTimeout(window.AIO.fetchSEC13F(t).catch(function(){return null;}), _T, null) : null;
     // v49.58 신규 5: v49.35 Roadmap 미연결 함수 채팅 통합
     var fcfPromise         = _needsFundamentals && window.AIO && window.AIO.computeFcfYield ? _withTimeout(window.AIO.computeFcfYield(t).catch(function(){return null;}), _T, null) : null;
@@ -3080,7 +2921,6 @@ async function _fetchTickerDataForChat(tickers, opts) {
     var evEbitdaPromise    = _needsFundamentals && window.AIO && window.AIO.computeEvEbitda ? _withTimeout(window.AIO.computeEvEbitda(t).catch(function(){return null;}), _T, null) : null;
     // v50.9 P482: computeMacroBeta는 동기 함수(plain object 반환) — Promise.resolve로 감싸야 .catch 가능. 미감쌈 시 TypeError로 _fetchTickerDataForChat 전체 reject(펀더멘털 블록 silent 누락).
     var macroBetaPromise   = _needsFundamentals && window.AIO && window.AIO.computeMacroBeta ? _withTimeout(Promise.resolve(window.AIO.computeMacroBeta(t)).catch(function(){return null;}), _T, null) : null;
-    var shortPromise       = _needsOwnership && window.AIO && window.AIO.fetchFinnhubShortInterest ? _withTimeout(window.AIO.fetchFinnhubShortInterest(t).catch(function(){return null;}), _T, null) : null;
     // v49.66 P348 R121: fetchSECRiskFactors Dead code 해소 (#16 리스크 SEC 10-K Item 1A 직접 URL 인용)
     var riskFactorsPromise = (_needsFilings || _deepRequested) && window.AIO && window.AIO.fetchSECRiskFactors ? _withTimeout(window.AIO.fetchSECRiskFactors(t).catch(function(){return null;}), _T, null) : null;
     // v49.65 P340/P341 R116: 17 관점 분석 프레임워크 완성 — 6 신규 promise
@@ -3088,10 +2928,7 @@ async function _fetchTickerDataForChat(tickers, opts) {
     var partnershipPromise = _needsQualitative && window.AIO && window.AIO.fetchPartnershipAlerts ? _withTimeout(window.AIO.fetchPartnershipAlerts(t, 6).catch(function(){return null;}), _T, null) : null;
     var platformPromise    = _needsQualitative && window.AIO && window.AIO.fetchPlatformEcosystem ? _withTimeout(window.AIO.fetchPlatformEcosystem(t).catch(function(){return null;}), _T, null) : null;
     var moatPromise        = _needsQualitative && window.AIO && window.AIO.computeMoatScore ? _withTimeout(window.AIO.computeMoatScore(t).catch(function(){return null;}), _T, null) : null;
-    var fmpSegPromise      = _needsQualitative && window.AIO && window.AIO.fetchFMPSegments ? _withTimeout(window.AIO.fetchFMPSegments(t).catch(function(){return null;}), _T, null) : null;
     var tamPromise         = _needsQualitative && window.AIO && window.AIO.computeTAMEstimate ? _withTimeout(window.AIO.computeTAMEstimate(t).catch(function(){return null;}), _T, null) : null;
-    // v49.83 P446/R175 신규 (#4): FMP earnings call transcript — ASP/제품 로드맵/고객 commentary 정성 분석용
-    var earningsCallPromise = _needsQualitative && /실적|가이던스|콜|transcript/i.test(_queryText) && window.AIO && window.AIO.fetchFMPEarningsCallTranscript ? _withTimeout(window.AIO.fetchFMPEarningsCallTranscript(t).catch(function(){return null;}), _T, null) : null;
 
     if (data) {
       var line = '• ' + data.ticker + (data.name ? ' (' + data.name + ')' : '') + ': $' + Number(data.price).toFixed(2) + (data.pct != null ? (' (' + (data.pct >= 0 ? '+' : '') + Number(data.pct).toFixed(2) + '%)') : '');
@@ -3105,62 +2942,17 @@ async function _fetchTickerDataForChat(tickers, opts) {
         if (trendText) results.push('  [주가 추이] ' + trendText);
       } catch(e) {}
 
-      // v48.12: Finnhub 애널리스트 추천 + 향후 어닝 일정 자동 주입 — 기관 뷰 반영
-      try {
-        var _fhRec = _needsConsensus ? await fetchFinnhubRecommendation(data.ticker) : null;
-        if (_fhRec) {
-          var _total = (_fhRec.strongBuy||0) + (_fhRec.buy||0) + (_fhRec.hold||0) + (_fhRec.sell||0) + (_fhRec.strongSell||0);
-          if (_total > 0) {
-            var _bull = (_fhRec.strongBuy||0) + (_fhRec.buy||0);
-            var _bear = (_fhRec.sell||0) + (_fhRec.strongSell||0);
-            var _verdict = _bull/_total >= 0.6 ? '매수 우세' : _bull/_total >= 0.4 ? '완만 매수' : _bear/_total >= 0.4 ? '매도 우세' : '중립';
-            results.push('  [애널리스트 컨센서스] ' + _total + '명 · StrongBuy ' + (_fhRec.strongBuy||0) + '/Buy ' + (_fhRec.buy||0) + '/Hold ' + (_fhRec.hold||0) + '/Sell ' + (_fhRec.sell||0) + '/StrongSell ' + (_fhRec.strongSell||0) + ' → ' + _verdict + ' (Finnhub · ' + (_fhRec.period||'') + ')');
-          }
-        }
-      } catch(e) {}
+      // v48.12: 향후 어닝 일정 자동 주입 (공개 실적 일정 artifact)
       try {
         var _today = new Date().toISOString().slice(0,10);
         var _60d = new Date(Date.now() + 60*86400000).toISOString().slice(0,10);
         var _fhEarn = _needsConsensus && window.AIO.readPublicEarnings ? await window.AIO.readPublicEarnings(data.ticker, _today, _60d) : null;
-        if (_needsConsensus && (!_fhEarn || !_fhEarn.length)) _fhEarn = await fetchFinnhubEarningsCalendar(_today, _60d, data.ticker);
         if (_fhEarn && _fhEarn.length > 0) {
           var _e = _fhEarn[0];
           var _hour = _e.hour === 'bmo' ? '장전' : _e.hour === 'amc' ? '장후' : _e.hour === 'dmh' ? '장중' : '미정';
-          results.push('  [다음 어닝] ' + (_e.date||'미정') + ' ' + _hour + ' · 예상 EPS $' + (_e.epsEstimate != null ? Number(_e.epsEstimate).toFixed(2) : 'N/A') + (_e.revenueEstimate ? ' · 예상 매출 ' + _fm(_e.revenueEstimate) : '') + ' · 출처: ' + (_e.source || 'Finnhub 개인 조회') + (_e.fetchedAt ? ' · 수집: ' + _e.fetchedAt : ''));
+          results.push('  [다음 어닝] ' + (_e.date||'미정') + ' ' + _hour + ' · 예상 EPS $' + (_e.epsEstimate != null ? Number(_e.epsEstimate).toFixed(2) : 'N/A') + (_e.revenueEstimate ? ' · 예상 매출 ' + _fm(_e.revenueEstimate) : '') + ' · 출처: ' + (_e.source || '공개 실적 일정') + (_e.fetchedAt ? ' · 수집: ' + _e.fetchedAt : ''));
         }
       } catch(e) {}
-
-      // v34.2: FMP 키가 있으면 핵심 밸류에이션도 조회하여 추가
-      if (fmpKey && _needsFundamentals) {
-        try {
-          var [ratioRes, profRes, incRes, tgtRes] = await Promise.all([
-            fetchWithTimeout('https://financialmodelingprep.com/api/v3/ratios-ttm/' + t + '?apikey=' + fmpKey, {}, 5000).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
-            fetchWithTimeout('https://financialmodelingprep.com/api/v3/profile/' + t + '?apikey=' + fmpKey, {}, 5000).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
-            fetchWithTimeout('https://financialmodelingprep.com/api/v3/income-statement/' + t + '?limit=2&apikey=' + fmpKey, {}, 5000).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
-            fetchWithTimeout('https://financialmodelingprep.com/api/v3/price-target-consensus/' + t + '?apikey=' + fmpKey, {}, 5000).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
-          ]);
-          var extras = [];
-          if (ratioRes && Array.isArray(ratioRes) && ratioRes[0]) {
-            var rt = ratioRes[0];
-            extras.push('  PER: ' + _f(rt.peRatioTTM) + 'x | PBR: ' + _f(rt.priceToBookRatioTTM) + 'x | PEG: ' + _f(rt.pegRatioTTM) + ' | EV/EBITDA: ' + _f(rt.enterpriseValueOverEBITDATTM) + 'x | PSR: ' + _f(rt.priceToSalesRatioTTM) + 'x');
-            extras.push('  ROE: ' + _f(rt.returnOnEquityTTM ? rt.returnOnEquityTTM*100 : null) + '% | 순이익률: ' + _f(rt.netProfitMarginTTM ? rt.netProfitMarginTTM*100 : null) + '% | 부채비율: ' + _f(rt.debtEquityRatioTTM) + ' | 배당: ' + _f(rt.dividendYieldTTM ? rt.dividendYieldTTM*100 : null) + '%');
-          }
-          if (profRes && Array.isArray(profRes) && profRes[0]) {
-            var p = profRes[0];
-            extras.push('  시가총액: ' + _fm(p.mktCap) + ' | 52주: ' + (p.range||'N/A') + ' | 베타: ' + _f(p.beta,2) + ' | 산업: ' + (p.industry||'N/A'));
-          }
-          if (incRes && Array.isArray(incRes) && incRes.length >= 2 && incRes[1].revenue > 0) {
-            var revG = ((incRes[0].revenue - incRes[1].revenue) / incRes[1].revenue * 100);
-            extras.push('  매출: ' + _fm(incRes[0].revenue) + ' (YoY ' + (revG >= 0 ? '+' : '') + _f(revG) + '%) | EPS: $' + _f(incRes[0].epsdiluted,2) + ' | EBITDA: ' + _fm(incRes[0].ebitda));
-          }
-          if (tgtRes && Array.isArray(tgtRes) && tgtRes[0] && tgtRes[0].targetConsensus) {
-            var tg = tgtRes[0];
-            var up = data.price ? ((tg.targetConsensus - data.price) / data.price * 100) : null;
-            extras.push('  애널리스트 목표가: $' + _f(tg.targetConsensus,2) + ' ($' + _f(tg.targetLow,2) + '~$' + _f(tg.targetHigh,2) + ') | 업사이드: ' + (up != null ? (up>=0?'+':'') + _f(up) + '%' : 'N/A'));
-          }
-          if (extras.length > 0) results.push(extras.join('\n'));
-        } catch(e) { /* FMP 조회 실패 무시 */ }
-      }
 
       // v41.9: Naver 보충 데이터 (한국어명, 업종, 컨센서스, 기업개요)
       try {
@@ -3206,30 +2998,11 @@ async function _fetchTickerDataForChat(tickers, opts) {
         }
       } catch(_8kErr) {}
 
-      // v49.57 P317 R104 신규: Finnhub 종목 뉴스 (최근 14일)
-      try {
-        var fhNews = fhNewsPromise ? await fhNewsPromise : null;
-        if (fhNews && fhNews.available && fhNews.topHeadlines && fhNews.topHeadlines.length > 0) {
-          var _newsLines = fhNews.topHeadlines.map(function(n) {
-            return '    · ' + (n.datetime || '?') + ' [' + (n.source || 'unknown') + '] ' + (n.headline || '');
-          }).join('\n');
-          results.push('  [News · source Finnhub /company-news · ' + fhNews.period + ' · 총 ' + fhNews.articleCount + '건 · Top ' + fhNews.topHeadlines.length + ']\n' + _newsLines);
-        }
-      } catch(_newsErr) {}
-
       // v50.15 (사용자 지적: 개별 기업 뉴스 약함): RSS/텔레그램 자동수집 캐시(60+ 소스·기관 리포트 포함)를 종목별로 필터 주입 — API 키 불요
       try {
         var _cacheNews = (_needsNews && typeof _aioTickerNewsFromCache === 'function') ? _aioTickerNewsFromCache(t, { windowHours: 168, max: 6 }) : '';
         if (_cacheNews) results.push(_cacheNews);
       } catch(_cnErr) {}
-
-      // v49.57 P317 R104 신규: Finnhub 임원 매수/매도 (12주)
-      try {
-        var insider = insiderPromise ? await insiderPromise : null;
-        if (insider && insider.available) {
-          results.push('  [Insider · source Finnhub /insider-transactions · 12주 ' + insider.period + '] 거래 ' + insider.transactionCount + '건 · 매수 ' + insider.buyCount + ' / 매도 ' + insider.sellCount + ' · Net ' + (insider.netShares >= 0 ? '+' : '') + insider.netShares + '주 → ' + insider.verdict + ' (' + insider.note + ')');
-        }
-      } catch(_inErr) {}
 
       // v54.67: bounded SEC-row ticker reverse lookup. Reference-only until
       // the CUSIP/share-class/security-master mapping is verified.
@@ -3294,14 +3067,6 @@ async function _fetchTickerDataForChat(tickers, opts) {
         }
       } catch(_mbErr) {}
 
-      // v49.58 P320 R104 신규: Short Interest (% float)
-      try {
-        var sh = shortPromise ? await shortPromise : null;
-        if (sh && sh.available && sh.shortInterestPct != null) {
-          results.push('  [Short Interest] ' + Number(sh.shortInterestPct).toFixed(2) + '% float · ' + sh.verdict + (sh.note ? ' (' + sh.note + ')' : ''));
-        }
-      } catch(_shErr) {}
-
       // v49.71 P377 R135 신규: SCREENER_DB.memo + 신선도 자동 주입 (사용자 정직 질의 "MEMO 활용 + 신선도" 시정)
       try {
         var _memoData = (typeof _aioGetMemoForTicker === 'function') ? _aioGetMemoForTicker(t) : null;
@@ -3329,17 +3094,6 @@ async function _fetchTickerDataForChat(tickers, opts) {
           results.push('  [Risk Factors 가이드] Item 1A 섹션은 동일 10-K 문서 내 (위 [SEC 10-K] URL과 동일 파일). 종목별 사업/규제/거시/경쟁/소송/사이버 리스크 정성 분석 시 위 URL 직접 fetch + Item 1A 섹션 인용. 학습 데이터로 "주요 리스크" 추정 절대 금지 (R117).');
         }
       } catch(_rfErr) {}
-
-      // v49.83 P446 R175 신규 (#4 earnings call transcript): FMP /earning_call_transcript
-      try {
-        var ec = earningsCallPromise ? await earningsCallPromise : null;
-        if (ec && ec.available) {
-          results.push('  [Earnings Call (Q' + (ec.quarter || '?') + ' ' + (ec.year || '') + ' · ' + (ec.date || '') + ') · source FMP /earning_call_transcript] excerpt ' + ec.excerptLength + '자');
-          var snip = (ec.excerpt || '').slice(0, 600).replace(/\s+/g, ' ').trim();
-          if (snip) results.push('  [Earnings Call 발췌] ' + snip + (ec.excerpt.length > 600 ? '...' : ''));
-          results.push('  [Earnings Call 가이드] ASP/제품 로드맵/고객 commentary 정성 분석 시 위 발췌 직접 인용. 인용 부분 외 추측 금지.');
-        }
-      } catch(_ecErr) {}
 
       // v49.65 P340 R116 신규 (#12 공급망): Supply Chain — SEC 10-K Item 1/1C 가이드
       try {
@@ -3388,19 +3142,6 @@ async function _fetchTickerDataForChat(tickers, opts) {
           results.push('  [가이드] 위 값은 수익성과 R&D 강도의 관측값이다. 경쟁우위(해자)의 등급이나 점수를 만들지 말고, 해자는 근거가 있는 정성 설명으로만 다룬다. Morningstar 공식 등급 추정 금지 (R117).');
         }
       } catch(_moErr) {}
-
-      // v49.65 P341 R116 신규 (#6 제품 포트폴리오 + #8 수익 구조): FMP Segments
-      try {
-        var seg = fmpSegPromise ? await fmpSegPromise : null;
-        if (seg && seg.available && Array.isArray(seg.segments) && seg.segments.length > 0) {
-          var _segLines = seg.segments.slice(0, 8).map(function(s) {
-            var rev = s.revenue ? _fm(s.revenue) : 'N/A';
-            return '    · ' + (s.name || 'segment') + ': ' + rev + (s.year ? ' (' + s.year + ')' : '');
-          }).join('\n');
-          results.push('  [Segments] (FMP /revenue-product-segmentation)\n' + _segLines);
-          results.push('  [Segments 가이드] 세그먼트별 매출 비중 — 제품 포트폴리오/수익 구조 정량 분석 시 위 데이터만 인용. Wiki 학습 데이터로 신규 제품 환각 금지.');
-        }
-      } catch(_segErr) {}
 
       // v49.65 P341 R116 신규 (#11 TAM/시장 분석): TAM Estimate — SEC SIC + memo grep
       try {
@@ -3580,7 +3321,6 @@ function _detectDeepCompareIntent(text) {
 async function _fetchDeepCompareData(tickers) {
   var options = arguments.length > 1 && arguments[1] ? arguments[1] : {};
   _aioThrowIfChatAborted(options.signal);
-  var fmpKey = _getApiKey('aio_fmp_key') || '';
   var results = {};
   // P1607: share the stock screen's public SEC provider/cache, without personal keys.
   var publicFacts = {};
@@ -3590,78 +3330,8 @@ async function _fetchDeepCompareData(tickers) {
   for (var symbol of tickers) {
     if (publicFacts[symbol] && window.AIO.formatSecResearchEvidence(publicFacts[symbol])) results[symbol] = { secFundamentals: publicFacts[symbol] };
   }
-  if (!fmpKey) return Object.keys(results).length ? results : null;
-
-  for (var i = 0; i < tickers.length; i++) {
-    _aioThrowIfChatAborted(options.signal);
-    var t = tickers[i];
-    try {
-      var _fmpUrl = 'https://financialmodelingprep.com/api/';
-      var _fmpGet = function(ep) { return fetchWithTimeout(_fmpUrl + ep + (ep.indexOf('?')>-1?'&':'?') + 'apikey=' + fmpKey, { signal: options.signal }, 6000).then(function(r){return r.ok?r.json():null;}).catch(function(error){
-        if (error && (error.name === 'AbortError' || error.code === 'ABORTED')) throw error;
-        return null;
-      }); };
-      var [profRes, revSegRes, revGeoRes, incRes, cfRes, growthRes, execRes, insiderRes, instRes, ratioRes,
-           balRes, metricsRes, metricsTTMRes, peersRes, surprisesRes, evRes, estimatesRes, tgtRes, dcfRes] = await Promise.all([
-        _fmpGet('v3/profile/' + t),
-        _fmpGet('v4/revenue-product-segmentation?symbol=' + t + '&structure=flat&period=annual'),
-        _fmpGet('v4/revenue-geographic-segmentation?symbol=' + t + '&structure=flat&period=annual'),
-        _fmpGet('v3/income-statement/' + t + '?limit=3'),
-        _fmpGet('v3/cash-flow-statement/' + t + '?limit=3'),
-        _fmpGet('v3/financial-growth/' + t + '?limit=3'),
-        _fmpGet('v3/key-executives/' + t),
-        _fmpGet('v4/insider-trading?symbol=' + t + '&limit=15'),
-        _fmpGet('v3/institutional-holder/' + t),
-        _fmpGet('v3/ratios-ttm/' + t),
-        // v34.2: 누락된 8개 엔드포인트 추가 — fundamentalSearch() 18개 완전 정합
-        _fmpGet('v3/balance-sheet-statement/' + t + '?limit=3'),
-        _fmpGet('v3/key-metrics/' + t + '?limit=3'),  // Annual (추이용)
-        _fmpGet('v3/key-metrics-ttm/' + t),  // v35.4: TTM 추가
-        _fmpGet('v4/stock_peers?symbol=' + t),
-        _fmpGet('v3/earnings-surprises/' + t),
-        _fmpGet('v3/enterprise-values/' + t + '?limit=1'),
-        _fmpGet('v3/analyst-estimates/' + t + '?period=quarter&limit=4'),
-        _fmpGet('v4/price-target-consensus?symbol=' + t),
-        _fmpGet('v3/discounted-cash-flow/' + t)
-      ]);
-      _aioThrowIfChatAborted(options.signal);
-      results[t] = {
-        secFundamentals: publicFacts[t] || null,
-        profile: (profRes && profRes[0]) || null,
-        revSegment: revSegRes || null,
-        revGeo: revGeoRes || null,
-        income: incRes || null,
-        cashflow: cfRes || null,
-        growth: growthRes || null,
-        executives: execRes || null,
-        insider: insiderRes || null,
-        institutional: instRes || null,
-        ratios: (ratioRes && ratioRes[0]) || null,
-        balance: balRes || null,
-        metrics: metricsRes || null,
-        metricsTTM: (metricsTTMRes && metricsTTMRes[0]) || null,
-        peers: (peersRes && peersRes[0] && peersRes[0].peersList) ? peersRes[0].peersList : null,
-        surprises: surprisesRes ? (surprisesRes.slice ? surprisesRes.slice(0, 8) : null) : null,
-        ev: (evRes && evRes[0]) || null,
-        estimates: estimatesRes || null,
-        priceTarget: (tgtRes && tgtRes[0]) || null,
-        dcf: (dcfRes && dcfRes[0]) || null
-      };
-      // v41.9: Naver 보충 (한국어명, 기업개요, 컨센서스, 재무, 동종업종)
-      try {
-        var naverD = await fetchNaverUSData(t, true);
-        _aioThrowIfChatAborted(options.signal);
-        if (naverD) {
-          results[t].naver = naverD;
-        }
-      } catch(e2) {}
-    } catch(e) {
-      if (e && (e.name === 'AbortError' || e.code === 'ABORTED') || options.signal && options.signal.aborted) throw e;
-      _aioLog('warn', 'fetch', '심층 데이터 조회 실패: ' + t + ' ' + e.message);
-      results[t] = publicFacts[t] ? { secFundamentals: publicFacts[t] } : null;
-    }
-  }
-  return results;
+  // v57.76: the personal-key FMP loop (19 endpoints + Naver supplement) was removed; public SEC facts only.
+  return Object.keys(results).length ? results : null;
 }
 
 // 기업 내부 비교 데이터 → LLM 프롬프트 포맷
@@ -5336,13 +5006,12 @@ function fundSearchQuick(ticker) {
 // ── Fundamental page: search handler ────────────────────────────
 // ══════════════════════════════════════════════════════════════════════════
 //  COMPREHENSIVE FUNDAMENTAL ANALYSIS ENGINE v33
-// SEC EDGAR XBRL + FMP API + Yahoo Finance → 실제 데이터 수집 → UI 렌더 + LLM 주입
+// SEC EDGAR XBRL + Yahoo Finance + Naver → 실제 데이터 수집 → UI 렌더 + LLM 주입
 // ══════════════════════════════════════════════════════════════════════════
 
 // 글로벌 캐시: 마지막 검색 기업의 수집된 데이터 (LLM 프롬프트에 주입용)
 window._fundAnalysisData = null;
 
-// FMP API fetch helper
 // v48.8: FMP 무료 250/day 쿼터 카운터 — 하루 단위 리셋. 200+ 시 UI 경고.
 // v48.9: 범용 쿼터 카운터로 확장 — 공유 키 API 전체 커버 (Twelve Data/AV/NewsData)
 //        각 API의 공식 무료 한도를 _QUOTA_LIMITS에 선언. localStorage aio_quota_{provider} 일일 키별 관리.
@@ -5388,20 +5057,6 @@ function _isQuotaExceeded(providerKey) {
     var today = new Date().toISOString().slice(0,10);
     return q.date === today && q.count >= lim.daily;
   } catch(e) { return false; }
-}
-async function _fmpFetch(endpoint) {
-  var key = _getApiKey('aio_fmp_key') || '';
-  if (!key) return null;
-  // v48.8: 쿼터 사전 체크 — 한도 도달 시 즉시 중단 (네트워크 낭비 방지)
-  if (_isQuotaExceeded('fmp')) return null;
-  try {
-    var url = 'https://financialmodelingprep.com/api/' + endpoint + (endpoint.indexOf('?') >= 0 ? '&' : '?') + 'apikey=' + key;
-    var r = await fetchWithTimeout(url, {}, 10000);
-    if (r.ok) {
-      return await r.json();
-    }
-  } catch(e) { _aioLog('warn', 'fetch', 'FMP ' + endpoint + ': ' + e.message); }
-  return null;
 }
 
 // SEC EDGAR XBRL → 핵심 재무 지표 파싱 (매출, 순이익, 자산, 자본, EPS, FCF)
@@ -5528,91 +5183,6 @@ function _fundRecentSearches(ticker) {
 }
 
 // 메인 종합 분석 함수
-// v46.4: FMP 데이터 검증 레이어 — ticker 불일치, 가격 괴리, 수치 범위, 데이터 결함 감지
-function _validateFMPData(collected) {
-  var warnings = [];
-  var ticker = collected.ticker;
-
-  // 1. Ticker 매칭: FMP profile.symbol vs 요청 ticker
-  if (collected.fmpProfile && collected.fmpProfile.symbol) {
-    var fmpSym = collected.fmpProfile.symbol.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    var reqSym = ticker.replace(/[^A-Z0-9]/g, '');
-    if (fmpSym !== reqSym) {
-      warnings.push('티커 불일치: 요청=' + ticker + ', FMP 응답=' + collected.fmpProfile.symbol + ' — 다른 종목 데이터일 수 있음');
-      collected._tickerMismatch = true;
-    }
-  }
-
-  // 2. 가격 괴리: Yahoo vs FMP (10% 이상이면 경고)
-  if (collected.price && collected.fmpProfile && collected.fmpProfile.price && collected.fmpProfile.price > 0) {
-    try {
-      if (window.AIO && typeof window.AIO.recordCrossSourceQuote === 'function') {
-        window.AIO.recordCrossSourceQuote(ticker, 'fmp:profile', collected.fmpProfile.price, null, Date.now(), {
-          delayed: true,
-          reason: 'fundamental-fmp-profile-price'
-        });
-      }
-    } catch(_fmpCrossRecord) {}
-    var priceDiff = Math.abs(collected.price - collected.fmpProfile.price) / collected.price * 100;
-    if (priceDiff > 10) {
-      warnings.push('가격 괴리 ' + priceDiff.toFixed(1) + '%: Yahoo $' + collected.price.toFixed(2) + ' vs FMP $' + collected.fmpProfile.price.toFixed(2));
-    }
-  }
-
-  // 3. 매출 합리성: 최신 연도 매출이 0 또는 null
-  if (collected.fmpIncome && collected.fmpIncome.length > 0) {
-    var latestRev = collected.fmpIncome[0].revenue;
-    if (latestRev === 0 || latestRev == null) {
-      warnings.push('최신 매출 $0 또는 null — 데이터 결함 또는 프리 IPO 기업');
-    }
-    // 매출 급감 경고 (YoY -50% 이상)
-    if (collected.fmpIncome.length >= 2) {
-      var prevRev = collected.fmpIncome[1].revenue;
-      if (prevRev > 0 && latestRev > 0 && (latestRev - prevRev) / prevRev < -0.5) {
-        warnings.push('매출 YoY -' + (Math.abs((latestRev - prevRev) / prevRev) * 100).toFixed(0) + '% 급감 — 구조 변화 확인 필요');
-      }
-    }
-  }
-
-  // 4. PE 범위 경고
-  var pe = null;
-  if (collected.fmpRatiosTTM && collected.fmpRatiosTTM.peRatioTTM) pe = collected.fmpRatiosTTM.peRatioTTM;
-  else if (collected.fmpMetricsTTM && collected.fmpMetricsTTM.peRatioTTM) pe = collected.fmpMetricsTTM.peRatioTTM;
-  if (pe !== null && (pe < -100 || pe > 1000)) {
-    warnings.push('P/E ' + pe.toFixed(1) + ' — 비정상 범위 (데이터 오류 가능)');
-  }
-
-  // 5. 시가총액 0 이하
-  if (collected.fmpProfile && collected.fmpProfile.mktCap != null && collected.fmpProfile.mktCap <= 0) {
-    warnings.push('시가총액 $0 — 상장폐지 또는 데이터 결함');
-  }
-
-  // 6. 이익의 질 경고 (순이익 > 영업CF = 발생액 기반)
-  if (collected.fmpIncome && collected.fmpIncome[0] && collected.fmpCashflow && collected.fmpCashflow[0]) {
-    var ni = collected.fmpIncome[0].netIncome || 0;
-    var ocf = collected.fmpCashflow[0].operatingCashFlow || 0;
-    if (ni > 0 && ocf > 0 && ni > ocf * 1.5) {
-      warnings.push('이익의 질 경고: 순이익($' + _fmtNum(ni) + ') > 영업CF($' + _fmtNum(ocf) + ') × 1.5 — 발생액 기반 이익 비중 높음');
-    }
-  }
-
-  // 7. 주식 희석 경고
-  if (collected.fmpIncome && collected.fmpIncome.length >= 2) {
-    var curShares = collected.fmpIncome[0].weightedAverageShsOutDil || 0;
-    var prevShares = collected.fmpIncome[1].weightedAverageShsOutDil || 0;
-    if (curShares > 0 && prevShares > 0) {
-      var dilution = (curShares - prevShares) / prevShares * 100;
-      if (dilution > 5) {
-        warnings.push('주식 희석 ' + dilution.toFixed(1) + '% YoY — SBC 또는 유상증자 영향 확인');
-      }
-    }
-  }
-
-  collected._dataWarnings = warnings;
-  if (warnings.length > 0) _aioLog('warn', 'fund', 'FMP-Validate ' + ticker + ': ' + warnings.join(' | '));
-  return warnings;
-}
-
 // v48.8: 세션 단위 기업 분석 캐시 — FMP 무료 250/day 보호 (18 req/분석 × 4 사용자 소진 방지)
 // 30분 TTL. 같은 티커 재검색 시 네트워크 생략 + 즉시 렌더 + AI 프롬프트 재주입.
 window._fundCache = window._fundCache || {};
@@ -5790,103 +5360,8 @@ async function fundamentalSearch() {
     }
   } catch(e) { _aioLog('warn', 'fetch', 'SEC Frames 조회 실패: ' + e.message); }
 
-  // ─── 3. FMP API 데이터 (키가 있을 때만) ───
-  // v47.12: 18개 엔드포인트 순차 await → Promise.allSettled 병렬화
-  //         기존: 16×~1.5s ≈ 24s / 변경: ~2~3s (~85% 단축, FMP rate limit 250/day는 동일 소모)
-  var fmpKey = _getApiKey('aio_fmp_key') || '';
-  if (fmpKey) {
-    updateProgress('FMP 18개 엔드포인트 병렬 조회 중...');
-    var fmpJobs = [
-      { url: 'v3/profile/' + ticker, handler: function(r){ if(r&&r[0]){collected.fmpProfile=r[0]; collected.sources.push('FMP (기업 프로필)'); updateProgress('프로필: '+(r[0].companyName||'')+' | CEO: '+(r[0].ceo||'N/A')+' | 직원: '+(r[0].fullTimeEmployees||'N/A')+'명 | 섹터: '+(r[0].sector||''));} } },
-      { url: 'v3/income-statement/' + ticker + '?limit=5', handler: function(r){ if(r&&r.length){collected.fmpIncome=r; collected.sources.push('FMP (손익계산서)'); updateProgress('손익계산서: '+r.length+'개년 데이터');} } },
-      { url: 'v3/balance-sheet-statement/' + ticker + '?limit=5', handler: function(r){ if(r&&r.length){collected.fmpBalance=r; collected.sources.push('FMP (대차대조표)'); updateProgress('대차대조표: '+r.length+'개년 데이터');} } },
-      { url: 'v3/cash-flow-statement/' + ticker + '?limit=5', handler: function(r){ if(r&&r.length){collected.fmpCashflow=r; collected.sources.push('FMP (현금흐름표)'); updateProgress('현금흐름표: '+r.length+'개년 데이터');} } },
-      { url: 'v3/ratios/' + ticker + '?limit=5', handler: function(r){ if(r&&r.length){collected.fmpRatios=r; collected.sources.push('FMP (재무비율·Annual)'); updateProgress('재무비율: '+r.length+'개년 데이터');} } },
-      { url: 'v3/key-metrics/' + ticker + '?limit=5', handler: function(r){ if(r&&r.length){collected.fmpMetrics=r; collected.sources.push('FMP (핵심 지표·Annual)'); updateProgress('핵심 지표: PE/PB/EV/EBITDA/ROE/ROIC 등');} } },
-      { url: 'v3/ratios-ttm/' + ticker, handler: function(r){ if(r&&r[0]){collected.fmpRatiosTTM=r[0]; updateProgress('재무비율 TTM 데이터 수집 완료');} } },
-      { url: 'v3/key-metrics-ttm/' + ticker, handler: function(r){ if(r&&r[0]){collected.fmpMetricsTTM=r[0]; updateProgress('핵심 지표 TTM 데이터 수집 완료');} } },
-      { url: 'v4/stock_peers?symbol=' + ticker, handler: function(r){ if(r&&r[0]&&r[0].peersList){collected.peers=r[0].peersList; collected.sources.push('FMP (경쟁사)'); updateProgress('경쟁사 그룹: '+r[0].peersList.join(', '));} } },
-      { url: 'v3/earnings-surprises/' + ticker, handler: function(r){ if(r&&r.length){collected.fmpSurprises=r.slice(0,8); collected.sources.push('FMP (실적 서프라이즈)'); updateProgress('실적 서프라이즈: 최근 '+Math.min(8,r.length)+'분기');} } },
-      { url: 'v3/enterprise-values/' + ticker + '?limit=3', handler: function(r){ if(r&&r.length){collected.fmpEV=r; updateProgress('Enterprise Value 데이터');} } },
-      { url: 'v3/key-executives/' + ticker, handler: function(r){ if(r&&r.length){collected.fmpExecutives=r.slice(0,10); collected.sources.push('FMP (경영진)'); updateProgress('경영진: '+r.length+'명 데이터');} } },
-      { url: 'v4/insider-trading?symbol=' + ticker + '&limit=20', handler: function(r){ if(r&&r.length){collected.fmpInsiderTrades=r.slice(0,15); collected.sources.push('FMP (내부자 거래)'); updateProgress('내부자 거래: 최근 '+Math.min(15,r.length)+'건');} } },
-      { url: 'v3/institutional-holder/' + ticker, handler: function(r){ if(r&&r.length){collected.fmpInstitutional=r.slice(0,15); collected.sources.push('FMP (기관 보유)'); updateProgress('기관 투자자: 상위 '+Math.min(15,r.length)+'개 기관');} } },
-      { url: 'v3/analyst-estimates/' + ticker + '?period=quarter&limit=4', handler: function(r){ if(r&&r.length){collected.fmpEstimates=r; collected.sources.push('FMP (애널리스트 추정)'); updateProgress('애널리스트 추정: '+r.length+'개 분기 전망');} } },
-      { url: 'v4/price-target-consensus?symbol=' + ticker, handler: function(r){ if(r&&r[0]){collected.fmpPriceTarget=r[0]; collected.sources.push('FMP (목표가)'); updateProgress('목표가 컨센서스: $'+(r[0].targetConsensus||'N/A'));} } },
-      { url: 'v4/revenue-product-segmentation?symbol=' + ticker + '&structure=flat&period=annual', handler: function(r){ if(r&&r.length){collected.fmpRevSegment=r.slice(0,3); collected.sources.push('FMP (매출 세그먼트)'); updateProgress('매출 세그먼트: 제품별 분해');} } },
-      { url: 'v4/revenue-geographic-segmentation?symbol=' + ticker + '&structure=flat', handler: function(r){ if(r&&r.length){collected.fmpRevGeo=r.slice(0,3); collected.sources.push('FMP (지역별 매출)'); updateProgress('지역별 매출 분해');} } },
-      { url: 'v3/financial-growth/' + ticker + '?limit=5', handler: function(r){ if(r&&r.length){collected.fmpGrowth=r; collected.sources.push('FMP (성장률)'); updateProgress('재무 성장률: '+r.length+'개년');} } },
-      { url: 'v3/discounted-cash-flow/' + ticker, handler: function(r){ if(r&&r[0]){collected.fmpDCF=r[0]; collected.sources.push('FMP (DCF)'); updateProgress('DCF 적정가: $'+(typeof r[0].dcf==='number'?r[0].dcf.toFixed(2):'N/A'));} } },
-      { url: 'v4/short-interest?symbol=' + ticker, handler: function(r){ if(r&&r.length){collected.fmpShortInterest=r.slice(0,5); collected.sources.push('FMP (공매도)'); updateProgress('공매도: '+((r[0].shortPercentOfFloat||0)*100).toFixed(1)+'% of Float');} } }
-    ];
-    // v48.8: concurrency 6 제한 — 18개 완전 병렬은 CF Worker rate limit 300/min 스파이크 유발 가능
-    //        (4명 동시 분석 시 18×4=72 req 순간 부하). 6개씩 청크로 분할하여 안정화.
-    //        총 레이턴시는 약간 증가(3라운드 ~4.5s)하나 안정성 우선.
-    var _fmpChunks = [];
-    for (var _fi = 0; _fi < fmpJobs.length; _fi += 6) _fmpChunks.push(fmpJobs.slice(_fi, _fi + 6));
-    for (var _fc = 0; _fc < _fmpChunks.length; _fc++) {
-      if (!_isFundRequestCurrent()) return;
-      var _fmpRemain = _fundRemaining(1400);
-      if (_fmpRemain < 250) { updateFail('FMP 추가 데이터는 시간 예산 초과로 생략'); break; }
-      await _withTimeout(Promise.allSettled(_fmpChunks[_fc].map(function(j){
-        return _fmpFetch(j.url).then(function(result) { if (_isFundRequestCurrent()) j.handler(result); }).catch(function(e){ _aioLog('warn', 'fetch', 'FMP ' + j.url + ' error: ' + e.message); });
-      })), _fmpRemain, []);
-    }
-  } else {
-    updateFail('FMP API 키 미설정 — SEC EDGAR + Finnhub 무료 데이터로 분석 진행');
-  }
-
-  // v48.1: Finnhub 무료 티어 통합 — FMP 미구독 사용자에게 유사 품질 보강
-  //   /stock/metric (PE/PB/ROE/52W/beta/epsTTM/margin 통합)
-  //   /stock/recommendation (애널리스트 buy/hold/sell)
-  //   /calendar/earnings (다음 분기 어닝 일정)
-  // FMP 키가 있어도 fmpMetricsTTM/fmpPriceTarget에 누락된 필드(beta/52W 등)가 있을 수 있으므로 보조 주입
-  var _finnhubKey = _getApiKey('aio_finnhub_key') || '';
-  if (!_isFundRequestCurrent()) return;
-  if (_finnhubKey) {
-    updateProgress('Finnhub 무료 보조 데이터 조회 중...');
-    try {
-      var _fhRemain = _fundRemaining(1200);
-      if (_fhRemain < 250) throw new Error('전체 분석 시간 예산 초과');
-      var _today = new Date().toISOString().slice(0,10);
-      var _90d = new Date(Date.now() + 90*86400000).toISOString().slice(0,10);
-      var _fhResults = await _withTimeout(Promise.allSettled([
-        fetchFinnhubMetrics(ticker),
-        fetchFinnhubRecommendation(ticker),
-        fetchFinnhubEarningsCalendar(_today, _90d, ticker),
-        fetchFinnhubCompanyNews(ticker, 14)  // v48.13: 최근 14일 기업 뉴스
-      ]), _fhRemain, []);
-      if (!_isFundRequestCurrent()) return;
-      if (_fhResults[0] && _fhResults[0].status === 'fulfilled' && _fhResults[0].value) {
-        collected.finnhubMetrics = _fhResults[0].value;
-        collected.sources.push('Finnhub (무료 밸류에이션)');
-        var _fm = _fhResults[0].value;
-        var _bits = [];
-        if (_fm.peBasicExclExtraTTM != null) _bits.push('PE ' + Number(_fm.peBasicExclExtraTTM).toFixed(1));
-        if (_fm['52WeekHigh'] != null) _bits.push('52W고 $' + Number(_fm['52WeekHigh']).toFixed(2));
-        if (_fm['52WeekLow'] != null) _bits.push('52W저 $' + Number(_fm['52WeekLow']).toFixed(2));
-        if (_fm.beta != null) _bits.push('β ' + Number(_fm.beta).toFixed(2));
-        if (_bits.length > 0) updateProgress('Finnhub 지표: ' + _bits.join(' | '));
-      }
-      if (_fhResults[1] && _fhResults[1].status === 'fulfilled' && _fhResults[1].value) {
-        collected.finnhubRecommendation = _fhResults[1].value;
-        collected.sources.push('Finnhub (애널리스트)');
-        var _fr = _fhResults[1].value;
-        updateProgress('애널리스트 추천: strongBuy ' + (_fr.strongBuy||0) + ' / buy ' + (_fr.buy||0) + ' / hold ' + (_fr.hold||0) + ' / sell ' + (_fr.sell||0) + ' / strongSell ' + (_fr.strongSell||0));
-      }
-      if (_fhResults[2] && _fhResults[2].status === 'fulfilled' && _fhResults[2].value && _fhResults[2].value.length > 0) {
-        collected.finnhubEarnings = _fhResults[2].value.slice(0, 5);
-        collected.sources.push('Finnhub (어닝 일정)');
-        updateProgress('어닝 일정: ' + collected.finnhubEarnings.length + '건 (향후 90일)');
-      }
-      // v48.13: 기업 뉴스 (최근 14일)
-      if (_fhResults[3] && _fhResults[3].status === 'fulfilled' && _fhResults[3].value && _fhResults[3].value.length > 0) {
-        collected.finnhubNews = _fhResults[3].value;
-        collected.sources.push('Finnhub (기업 뉴스)');
-        updateProgress('기업 뉴스: ' + collected.finnhubNews.length + '건 (최근 14일)');
-      }
-    } catch(e) { _aioLog('warn', 'fetch', 'Finnhub 보조 조회 실패: ' + e.message); }
-  }
+  // v57.76: the personal FMP/Finnhub fetch blocks were removed — personal data keys are retired (v57.67) and the
+  // getter always returned '', so this report runs on SEC EDGAR, Yahoo and Naver only.
 
   // ─── 데이터 수집 완료 ───
   if (!_isFundRequestCurrent()) return;
@@ -5906,9 +5381,6 @@ async function fundamentalSearch() {
     loadingEl.innerHTML = loadHtml;
   }
   if (!collected.sources.length) return;
-
-  // v46.4: FMP 데이터 검증 레이어 — 잘못된 데이터 감지 + AI에 경고 주입
-  _validateFMPData(collected);
 
   // 글로벌에 저장 (LLM 프롬프트 주입용)
   window._fundAnalysisData = collected;

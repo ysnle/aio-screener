@@ -90,6 +90,20 @@ selectors[1].listeners.click();
 assert.equal(descendants(breadthCard).find(node => node.className === 'regime-axis-plot').dataset.historySeries, 'breadth200', 'P1628 switching SMA50/200 must render the chosen actual series');
 assert.equal(selectors[1].attributes['aria-pressed'], 'true', 'P1628 chart selection must expose its active state');
 assert.equal(descendants(page).filter(node => node.dataset.scenario).length, 3, 'P1628 screen must show the three model-backed conditional paths');
+// v57.76: 시장 상태 reads current state then links once to 거시 for the branches by release (no compact branch block), and
+// the VIX-only past-outcome table is a fold inside the volatility card, not a separate unbridged section.
+assert.ok(!descendants(page).some(node => node.id === 'signal-crossroads' || String(node.className).includes('xr-compact')), 'v57.76 시장 상태 no longer repeats the 거시 branch block');
+const macroLinks = descendants(page).filter(node => node.tagName === 'button' && node.textContent === '다음 발표별 시나리오 → 거시');
+assert.equal(macroLinks.length, 1, 'v57.76 the flow section ends with exactly one link line to the 거시 scenarios');
+{
+  const shown = []; root.showPage = (route) => shown.push(route);
+  macroLinks[0].listeners.click();
+  assert.deepEqual(shown, ['macro'], 'v57.76 the scenario link navigates through root.showPage to 거시');
+  delete root.showPage;
+}
+const vixCard = ids.get('regime-board').children.find(card => card.dataset.axis === 'volatility');
+const stressFold = descendants(vixCard).find(node => node.id === 'regime-stress-outcomes');
+assert.ok(stressFold?.tagName === 'details' && !descendants(page).some(node => node.id === 'regime-stress-outcomes' && node.parentElement !== vixCard), 'v57.76 the VIX past-outcome table folds inside the volatility card only');
 const css = readFileSync(new URL('../src/ui/styles/regime-quality.css', import.meta.url), 'utf8');
 assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && css.includes('@media (max-width: 900px)'), 'P1628 six-axis layout must fill desktop in two columns and stack compact screens');
 // P1723-P1727 (2026-10-13 market responsiveness): a rare KOSPI day reaches the briefing lead and the axis reads without

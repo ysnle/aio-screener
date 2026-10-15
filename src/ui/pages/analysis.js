@@ -153,7 +153,7 @@ function render({ root, documentRef, store, route }) {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioTechnicalRenderer = 'native';
       renderTechnicalHealth({ documentRef, root });
-      installStockChart({ documentRef, root }); // P1397: idempotent (installs once per form)
+      installStockChart({ documentRef, root }); // P1397: idempotent (installs once per #stock-chart-section, v57.76)
     }
     if (route === 'home') {
       page.dataset.aioArchitectureRenderer = 'native';

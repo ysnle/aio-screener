@@ -446,7 +446,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   const read = buildMacroRead({ macro: root._aioServerMacro || null, macroHistory, regime: regime.available ? regime : null, history: root._aioHistory || [] });
   const basis = doc.getElementById('macro-board-basis');
   if (basis) basis.textContent = board.available ? '공식 발표와 미국 종가 기준 · 각 판정의 기준은 카드 아래에 표시' : '공식 발표 자료를 불러오는 중입니다.';
-  renderMacroCrossroads({ documentRef: doc, root, regime }); // P1742: the forward branches lead the page
+  renderMacroCrossroads({ documentRef: doc, root, regime }); // P1742; v57.76: the forward branches follow the chain (current state first)
   renderRegime(doc, read);
   const axesHost = doc.getElementById('macro-axes');
   if (axesHost) axesHost.replaceChildren(...read.axes.map((row) => axisCard(doc, row, root)));

@@ -32,6 +32,8 @@ export default {
       return { tiles, sym, basis: (await visibleText(p, '#sector-map .sector-map-basis')).slice(0, 90) };
     }],
     ['첫 테마 열기 → 같은 화면 안 상세 패널', async (p) => {
+      // v57.76: the quadrant chips sit in the 사분면별 섹터 fold under the scatter chart.
+      await p.evaluate(() => { const fold = document.querySelector('#rrg-quadrant-fold'); if (fold) fold.open = true; });
       const t = p.locator(CHIP).first();
       const arg = await t.getAttribute('data-arg');
       await t.scrollIntoViewIfNeeded();

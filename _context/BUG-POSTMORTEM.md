@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1819 - v57.76 - The sector RRG scatter chart was visible only in developer mode (2026-10-15)
+
+- symptom/reproduction: On 테마 · 섹터 the real relative-rotation scatter sat in a fold labelled in English that ordinary users never saw; they got four text cards instead.
+- root_cause: The fold carried the aio-page-advanced-toggle class, and #page-themes .aio-page-advanced-toggle is hidden outside developer mode.
+- fix: The scatter is now the visible visual of 섹터 회전 판정 with Korean axis and quadrant labels, a responsive canvas (height follows width, device pixel ratio), and the quadrant chips folded beneath it as 사분면별 섹터.
+- violated_rule: A section visual must be reachable on the default path, not only in developer mode.
+- prevention: ci-architecture-contract-check and ci-architecture-browser-check assert the canvas sits inside #themes-verdict outside any advanced fold and fits its frame.
+- verification/residual: node scripts/ci-architecture-contract-check.mjs
+
 ## P1818 - v57.75 - Korea FX axis read 양호 (won strong) on a crash day when the won had turned weak (2026-10-15)
 
 - symptom/reproduction: On 10/15 the FX axis said 원화 강세 — 외국인 자금 유입에 우호적 while KOSPI fell 7.8% and USD/KRW rose 0.70%.

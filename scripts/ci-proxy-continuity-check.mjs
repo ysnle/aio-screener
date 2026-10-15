@@ -30,7 +30,8 @@ function harness({ fetcher, personal = '', clock = Date.now() } = {}) {
   };
   root.window = root;
   const context = vm.createContext(root);
-  vm.runInContext(section(source, 'const _cfWorkerUrl =', '// ═══ 1. Finnhub source-confirmed quotes') + '\nwindow.registry = _PROXY_REGISTRY;', context);
+  // v57.76: the Finnhub WebSocket section that used to follow was removed; the Naver section heading is the next boundary.
+  vm.runInContext(section(source, 'const _cfWorkerUrl =', '// ═══ 4-1. Naver') + '\nwindow.registry = _PROXY_REGISTRY;', context);
   return { root, context, store, calls, events, advance:ms=>{now+=ms;} };
 }
 const chart = (symbol='NVDA', interval='1d') => ({chart:{result:[{meta:{symbol,dataGranularity:interval,regularMarketPrice:124,regularMarketTime:1787918400},timestamp:[1787918400],indicators:{quote:[{open:[123],high:[125],low:[122],close:[124],volume:[100]}]}}]}});
@@ -145,8 +146,9 @@ const fresh = vm.createContext({ Date, isFinite, window:{}, DATA_APIS:{ finnhub:
 vm.runInContext(section(source, 'function _aioServerNewsFresh()', 'async function fetchAllNews('), fresh);
 const freshAt = (ms) => { fresh.window._serverNewsBackstop=[{title:'x'}]; fresh.window._serverDataMeta={generatedAt:new Date(Date.now()-ms).toISOString()}; return fresh._aioServerNewsFresh(); };
 check(freshAt(30*60000) && !freshAt(3*3600000) && (fresh.window._serverNewsBackstop=[], !fresh._aioServerNewsFresh()), 'P1756 server news is fresh only when present and generated under 2 hours ago');
-const fetchAll = section(source, 'async function fetchAllNews(', '// ═══ v20+: 추가 뉴스 API 병합');
-check(/_serverNewsFresh && !_aioPersonalNewsKeys\(\)\) \{[\s\S]{0,480}return;/.test(fetchAll) && /if \(forceRefresh && typeof showToast === 'function'\) showToast\('뉴스는 서버가 /.test(fetchAll) && /if \(_serverNewsFresh\) activeSources = \[\];/.test(fetchAll), 'P1756 fetchAllNews skips the feed fan-out while server news is fresh; personal-key APIs still merge');
+const fetchAll = section(source, 'async function fetchAllNews(', '// P1601: retain distinct articles');
+// v57.76: the personal Finnhub/NewsData merge was removed, so a fresh server bundle always ends the run at the top.
+check(/if \(_serverNewsFresh\) \{[\s\S]{0,480}return;/.test(fetchAll) && /if \(forceRefresh && typeof showToast === 'function'\) showToast\('뉴스는 서버가 /.test(fetchAll) && !/_aioPersonalNewsKeys|fetchFinnhubNewsFormatted|fetchNewsDataIO/.test(fetchAll), 'P1756 fetchAllNews skips the feed fan-out while server news is fresh; v57.76 no personal-key news merge remains');
 const pagesSource = readFileSync(new URL('../js/aio-pages.js', import.meta.url), 'utf8');
 const krDataSource = readFileSync(new URL('../js/aio-kr-data.js', import.meta.url), 'utf8');
 check(![source, pagesSource, krDataSource].some((text) => /stooq\.com\/q\//.test(text)) && !/_stooqCross/.test(source), 'P1756 Stooq (404 on every symbol) is out of the quote, cross-check, sector and ticker-detail fallbacks');

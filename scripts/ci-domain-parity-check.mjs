@@ -152,7 +152,7 @@ for (const fixture of rrgGolden.fixtures) {
 // (calcTechnicalSnapshot/updateMTF) ───────────────────────────────────────────────────────────
 const stageGoldenPath = path.join(root, 'architecture/fixtures/weinstein-mtf-golden.json');
 const stageGolden = JSON.parse(readFileSync(stageGoldenPath, 'utf8'));
-if (!Array.isArray(stageGolden.fixtures) || stageGolden.fixtures.length < 5) fail('weinstein-mtf golden fixture missing or too small — re-run scripts/dump-weinstein-mtf-fixtures.mjs');
+if (!Array.isArray(stageGolden.fixtures) || stageGolden.fixtures.length < 5) fail('weinstein-mtf golden fixture missing or too small — it is frozen since v57.76 (legacy updateMTF retired); restore it from git history or re-run scripts/dump-weinstein-mtf-fixtures.mjs from a pre-extraction checkout');
 const STAGE_FIELDS = ['shortMAState', 'longMAState', 'fullMAState', 'maStackScore', 'sma50Rising', 'trendState', 'stageEstimate'];
 const MTF_DAILY_LABELS = { up: '상승', down: '하락', neutral: '중립', pending: '판정 보류' };
 const MTF_TREND_LABELS = { up: '상승', down: '하락', mixed: '혼조', pending: '판정 보류' };

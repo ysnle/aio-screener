@@ -231,59 +231,15 @@ const marketNewsHtml = marketNewsStart >= 0 ? html.slice(marketNewsStart, market
 const newsEmptyStart = data.indexOf('현재 조건에서');
 const newsEmptyBlock = newsEmptyStart >= 0 ? data.slice(newsEmptyStart, newsEmptyStart + 1400) : '';
 
-// P1273: exercise the home renderer with a ranked headline that has no article body.
-// Discovery rank may select a card; translation, impact text and sentiment remain withheld.
-const homeNewsStart = data.indexOf('function _aioHomeNewsHeadlineOnly(');
-const homeNewsEnd = data.indexOf('\n/* ── renderBriefingFeed()', homeNewsStart);
-let homeHeadlineBoundary = false;
-let homeArticleSummaryPreserved = false;
-let homeNewsFixtureError = '';
-if (homeNewsStart >= 0 && homeNewsEnd > homeNewsStart) {
-  const source = data.slice(homeNewsStart, homeNewsEnd);
-  const renderFixture = (item) => {
-    const host = { innerHTML: '' };
-    const calls = { sentiment: 0, summary: 0, translatedTitle: 0, tickers: 0, translateRequested: 0 };
-    const sandbox = {
-      window: { AIO: { buildNewsSurfaceModel: () => ({ items: [item] }) } },
-      document: { getElementById: (id) => id === 'home-news-highlights' ? host : null },
-      escHtml: (value) => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'),
-      escUrl: (value) => String(value || ''),
-      getSentimentFromText: () => { calls.sentiment++; return 'bull'; },
-      getDisplayTitle: () => { calls.translatedTitle++; return '근거 없는 번역 제목'; },
-      getDisplaySummary: () => { calls.summary++; return '확인되지 않은 시장 영향과 수혜 해석'; },
-      getDisplayTickers: () => { calls.tickers++; return ['$FAKE']; },
-      getTimeAgo: () => '방금',
-      // v57.54: the model path must request a real translation for uncached cards (P554 trigger).
-      _tcHas: () => false, _translationInProgress: false,
-      autoTranslateNews: (items) => { calls.translateRequested += items.length; return Promise.resolve(); }
-    };
-    runInNewContext(`${source}\nrenderHomeFeed([]);`, sandbox, { timeout: 2000 });
-    return { html: host.innerHTML, calls };
-  };
-  try {
-    const headline = renderFixture({ title: 'Original wire headline', link: 'https://example.com/article', score: 62, topic: 'semi', source: 'Reuters', contentDepth: 'headline-only', pubDate: '2026-09-25T20:00:00Z' });
-    const translated = renderFixture({ title: 'Original wire headline', ko_title: '한국어 번역 제목', link: 'https://example.com/article', score: 62, topic: 'semi', source: 'Reuters', contentDepth: 'headline-only', pubDate: '2026-09-25T20:00:00Z' });
-    homeHeadlineBoundary = headline.html.includes('Original wire headline')
-      && headline.html.includes('href="https://example.com/article"')
-      // P1380: developer rank/verification notes are not user content; source and time remain.
-      && !headline.html.includes('헤드라인 전용·본문 미검증') && !headline.html.includes('선별 점수')
-      && headline.html.includes('Reuters · 방금')
-      && translated.html.includes('한국어 번역 제목') && !translated.html.includes('근거 없는 번역 제목')
-      && !headline.html.includes('근거 없는 번역 제목')
-      && !headline.html.includes('확인되지 않은 시장 영향과 수혜 해석')
-      && !headline.html.includes('$FAKE')
-      && headline.calls.sentiment === 0 && headline.calls.summary === 0 && headline.calls.translatedTitle === 0 && headline.calls.tickers === 0
-      && headline.calls.translateRequested === 1;
-    const article = renderFixture({ title: 'Article with an excerpt', desc: 'This independently reviewed excerpt is longer than forty characters and supplies article-level context.', link: 'https://example.com/full', score: 75, topic: 'macro', source: 'Reuters', contentDepth: 'summary', pubDate: '2026-09-25T20:00:00Z' });
-    homeArticleSummaryPreserved = article.html.includes('확인되지 않은 시장 영향과 수혜 해석')
-      && !article.html.includes('헤드라인 전용·본문 미검증')
-      && article.calls.summary === 1;
-  } catch (error) {
-    homeNewsFixtureError = error.message;
-  }
+// v57.76: the home news list (and its P1273 headline-only fixture) is retired with the "오늘의 시장" banner; news
+// lives on the 뉴스 screen only. renderHomeFeed stays as a no-op stub (its fetch-path call sites were removed in v57.76) and writes nothing.
+{
+  const homeStart = html.indexOf('id="page-home"');
+  const homeEnd = html.indexOf('id="page-signal"', homeStart);
+  const homeHtml = homeStart >= 0 && homeEnd > homeStart ? html.slice(homeStart, homeEnd) : '';
+  const stubAt = data.indexOf('function renderHomeFeed(_items) {}');
+  check('v57.76 home carries no news list and renderHomeFeed writes nothing', homeHtml.length > 0 && homeHtml.indexOf('id="home-news-highlights"') < 0 && homeHtml.indexOf('id="home-market-summary-banner"') < 0 && stubAt >= 0 && data.indexOf('function renderHomeFeed(', stubAt + 1) < 0);
 }
-check('P1273 home headline-only card withholds interpretation while exposing original article and rank meaning', homeHeadlineBoundary, homeNewsFixtureError);
-check('P1273 home full-article card retains its summary path', homeArticleSummaryPreserved, homeNewsFixtureError);
 
 check('refresh workflow runs twice hourly', /cron:\s*'17,47 \* \* \* \*'/.test(refresh));
 check('P1309/R654/QA-DATA-51 daily 13D/G poll runs ownership-only while filing-season Monday, unconnected HR/HR-A, and manual runs can invoke the full 13F chain',
@@ -413,7 +369,8 @@ check('fetch-data exposes an isolated screener-only refresh path', /SCREENER_ONL
 check('ticker news keeps publication and fetch timestamps separate and provider prioritizes explicit lineage', /deriveTickerNewsLineage/.test(fetchData) && /newsObservedAt\s*=\s*lineage\.newsObservedAt/.test(fetchData) && /newsFetchedAt\s*=\s*lineage\.newsFetchedAt/.test(fetchData) && !/newsTs\s*=\s*Date\.now\(\)/.test(fetchData) && /newsObservedAt:\s*newsObservedAt/.test(screenerProvider) && /newsFetchedAt:\s*newsFetchedAt/.test(screenerProvider));
 check('core refresh ingests official delayed Cboe statistics without a public CORS proxy', /parseCboePutCallHtml/.test(fetchData) && /Cboe Daily Market Statistics/.test(fetchData) && /sourceKind:\s*'T3_PUBLIC_DELAYED'/.test(fetchData) && /fetchCboePutCall\(\)/.test(fetchData));
 check('client applies server Cboe data first and protects it from failed legacy proxy fallback', /d\.putCall\.totalPutCall/.test(data) && /sourceLabel:\s*'Cboe Daily Market Statistics'/.test(data) && /must not overwrite a fresher official/.test(data));
-check('client preserves the server shared cycle and retries a saved personal FRED key when server FRED failed', /newsCycleStart:\s*d\.meta\.newsCycleStart/.test(data) && /marketSnapshotRevision:\s*d\.meta\.marketSnapshotRevision/.test(data) && /cycleManifestRevision:\s*d\.meta\.cycleManifestRevision/.test(data) && /marketCycleFreshnessSlaHours/.test(data) && /if \(!d\.meta\.fredFetchOk\)/.test(data) && /authentication:'VERIFIED'/.test(data));
+// v57.76: the personal-FRED-key retry after a server FRED failure was removed with the retired personal keys.
+check('client preserves the server shared cycle; v57.76 no personal FRED retry remains', /newsCycleStart:\s*d\.meta\.newsCycleStart/.test(data) && /marketSnapshotRevision:\s*d\.meta\.marketSnapshotRevision/.test(data) && /cycleManifestRevision:\s*d\.meta\.cycleManifestRevision/.test(data) && /marketCycleFreshnessSlaHours/.test(data) && !/_clientFredKey|DATA_APIS\.fred/.test(data));
 check('cold server-data projection performs a bounded full-loader replay until DATA_SNAPSHOT exists', /_snapshotBridgeWait\s*<\s*60/.test(data) && /_aioServerDataBridgeAttempts\s*<=\s*5/.test(data) && /_aioLoadServerData\(\)/.test(data) && /waiting-for-snapshot/.test(data));
 check('P1518 free SEC fundamentals use bounded batches and shared atomic persistence', exists('scripts/fetch-sec-fundamentals.mjs') && /SEC_BATCH_LIMIT/.test(read('scripts/fetch-sec-fundamentals.mjs')) && /SEC_USER_AGENT/.test(read('scripts/fetch-sec-fundamentals.mjs')) && /import \{ atomicWriteFile \} from '\.\/lib\/atomic-write\.mjs'/.test(read('scripts/fetch-sec-fundamentals.mjs')) && /await atomicWriteFile\(path, JSON\.stringify\(value, null, 1\)\)/.test(read('scripts/fetch-sec-fundamentals.mjs')));
 check('BLS direct adapter is keyless, bounded, cadence-gated, and merged as typed official evidence',
@@ -1404,6 +1361,15 @@ check('telegram digest separates the completed 24h lane from the rolling researc
 check('telegram ticker extraction expands through SCREENER_DB aliases', /loadScreenerAliases/.test(fetchTelegram) && /SCREENER_ALIASES/.test(fetchTelegram) && /screener alias load failed/.test(fetchTelegram));
 check('telegram digest registers four channels and fail-closed source catalog', /CHANNEL_CATALOG/.test(fetchTelegram) && /HANAchina/.test(fetchTelegram) && /sourceCatalog/.test(fetchTelegram) && /CHANNELS\.map\(slug/.test(fetchTelegram) && /collectionStatus:'failed'/.test(fetchTelegram));
 {
+  // v57.76: the 뉴스 데이터 출처 fold names as many Telegram channels as the digest catalog registers.
+  const catalogCount = (fetchTelegram.match(/\{\s*slug:'[^']+'/g) || []).length;
+  const guideStart = html.indexOf('id="news-source-guide"');
+  const guide = guideStart >= 0 ? html.slice(guideStart, html.indexOf('</ul>', html.indexOf('</ul>', guideStart) + 5)) : '';
+  const countLine = (guide.match(/텔레그램: 공개 채널 (\d+)곳/) || [])[1];
+  const listLine = (guide.match(/<li>텔레그램: ([^<]+)<\/li>/g) || []).map((line) => line.replace(/<\/?li>|텔레그램: /g, '')).find((line) => !/공개 채널/.test(line)) || '';
+  check('v57.76 news source fold telegram count and channel list match the digest catalog', catalogCount === 4 && Number(countLine) === catalogCount && listLine.split('·').map((name) => name.trim()).filter(Boolean).length === catalogCount);
+}
+{
   // P1544: ticker symbols match case-sensitively; ordinary English words must not become tickers.
   const { matchTickers } = await import('./lib/telegram-tickers.mjs');
   const plain = matchTickers('To be or not to be: a cat, a mu, a meta lite plan, a coherent oracle of apple and azure gemini');
@@ -1466,7 +1432,7 @@ check('P1391 market news title shows the original headline when no translation e
 check('P1753 market news native surface consumes normalized server/RSS items before Telegram fallback', /buildNewsSurfaceModel/.test(newsPage) && /selectNewsItems/.test(newsPage) && /_aioApplyNewsBackstop/.test(data) && /_aioApplyTelegramDigestToScreenerDb/.test(data) && /id="live-news-feed"/.test(read('index.html')));
 check('news selection audit exposes score criteria and surface eligibility', /getNewsSelectionAudit/.test(data) && /scoreBuckets/.test(data) && /scoreReasons/.test(data) && /homeEligible/.test(data) && /marketNewsEligible/.test(data) && /unverified=-8/.test(data));
 check('server news backstop preserves score tier and news-cycle metadata', /newsCycleStart/.test(data) && /newsCycleEnd/.test(data) && /serverCycleTrusted/.test(data) && /isFinite\(Number\(n\.score\)\)/.test(data));
-check('all primary news surfaces use KST 08:00 completed 24h cycle', /home:\s*\{[\s\S]{0,260}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /market-news'[\s\S]{0,320}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /filterByKst0800NewsCycle/.test(data) && /newsCycle:\s*cycleWindow/.test(data));
+check('all primary news surfaces use KST 08:00 completed 24h cycle', /home:\s*\{[\s\S]{0,260}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /market-news'[\s\S]{0,320}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /newsCycle:\s*cycleWindow/.test(data)); // v57.76: the legacy filterByKst0800NewsCycle left with the home news list
 // P1391: the developer timestamp bar was removed; the user-facing window wording lives in the subtitle and the important-news heading.
 check('P1601 market-news labels derive completed 24h cycle rather than a stale today label', /표시 기간 기준/.test(marketNewsHtml) && /id="news-important-list"/.test(marketNewsHtml) && /fmt\(olderCycle \? cycleEnd : newsWindow.end\)/.test(newsPage) && !/최근 48시간|48시간 이내|필터:\s*48시간/.test(marketNewsHtml));
 check('market-news empty state uses 24h completed-cycle wording', /08:00 KST까지 24시간/.test(newsPage) && !/완료 24h/.test(newsPage) && !/48.?\uC2DC\uAC04/.test(newsPage));

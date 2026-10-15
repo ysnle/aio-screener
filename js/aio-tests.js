@@ -1087,11 +1087,11 @@
     // P1558: missing readings are not calm, and no raw identifier or action verb reaches the reader as a badge.
     var emptyLockout = window.calcLockoutAction ? window.calcLockoutAction({}) : null;
     var noReadingLockout = window.calcLockoutAction ? window.calcLockoutAction({ extension: { score: 0, flags: ['DATA_INSUFFICIENT'] }, candle: { score: 0, flags: ['DATA_INSUFFICIENT'] } }) : null;
-    var flagLabels1558 = typeof _itbFlagLabel === 'function' ? ['DIST_50SMA_PLUS_4ATR_NO_ADD_TRIM_CANDIDATE', 'CLOSE_BELOW_10EMA_TRIM_TRADING_LOT', 'NOT_A_KNOWN_FLAG', 'LOCKOUT_ACTION_TRIM_50'].map(_itbFlagLabel) : null;
-    _assert('P1558 T131b 입력 없는 Lockout은 판단 보류이고, 플래그 배지에 영어 식별자·행동 동사가 나오지 않는다',
+    // v57.76: the flag-badge panels (and _itbFlagLabel) left with the 차트 tab brief, so no flag identifier reaches a reader badge.
+    _assert('P1558 T131b 입력 없는 Lockout은 판단 보류이고, 플래그 배지 경로는 퇴역 유지 (v57.76)',
       !!emptyLockout && emptyLockout.action === 'WAIT' && emptyLockout.score === null && !!noReadingLockout && noReadingLockout.action === 'WAIT' &&
-      !!flagLabels1558 && flagLabels1558.every(function(label) { return !/TRIM|REDUCE|NO_ADD|_/.test(label); }) && flagLabels1558[2] === '기타 신호',
-      JSON.stringify({ empty: emptyLockout && emptyLockout.action, none: noReadingLockout && noReadingLockout.action, labels: flagLabels1558 }));
+      typeof window._itbFlagLabel !== 'function' && typeof window.renderLockoutDashboard !== 'function',
+      JSON.stringify({ empty: emptyLockout && emptyLockout.action, none: noReadingLockout && noReadingLockout.action, flagLabel: typeof window._itbFlagLabel }));
 
     var promptOk = false;
     try {
@@ -1523,10 +1523,9 @@
       !jensenSpan && !/58일 경과 \(60일 임박\)/.test(jensenParent), // P1389: archived interview cards retired with the briefing rebuild
       'span exists + static text removed');
 
-    // T336 (P306/R94 보강): technical RSI 카드 data-threshold-key="RSI" 마커
-    var rsiCard = document.querySelector('[data-threshold-key="RSI"]');
-    _assert('T336 technical_rsi_threshold_key: RSI 카드 data-threshold-key 마커 부착',
-      !!rsiCard, rsiCard ? 'OK' : 'marker missing');
+    // T336 (P306/R94 보강) → v57.76: the RSI card that carried data-threshold-key="RSI" was retired with the SPY indicator card.
+    _assert('T336 technical_rsi_threshold_key: 퇴역한 SPY RSI 카드의 마커가 다시 생기지 않음 (v57.76)',
+      !document.querySelector('#page-technical [data-threshold-key="RSI"]'), 'retired');
 
     // T337: signal/breadth findings 누적 유지 + sentiment/briefing/technical/macro findings 등록
     var sentF = pages.sentiment && pages.sentiment.findings;
@@ -1574,9 +1573,9 @@
       pages && pages.fundamental && Array.isArray(pages.fundamental.subSections) && pages.fundamental.subSections.length === 5,
       'count=' + (pages && pages.fundamental && pages.fundamental.subSections ? pages.fundamental.subSections.length : '?'));
 
-    // T344: themes subSections 8 enumerate
-    _assert('T344 themes_subsections_8: enumerate',
-      pages && pages.themes && Array.isArray(pages.themes.subSections) && pages.themes.subSections.length === 8,
+    // T344: themes subSections 8 → v57.76 7 (the cycle-dynamic readout is retired)
+    _assert('T344 v57.76 themes_subsections_7: enumerate, cycle-dynamic readout retired',
+      pages && pages.themes && Array.isArray(pages.themes.subSections) && pages.themes.subSections.length === 7,
       'count=' + (pages && pages.themes && pages.themes.subSections ? pages.themes.subSections.length : '?'));
 
     // T345: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.47+
@@ -1934,9 +1933,9 @@
       fetchAudit && fetchAudit.status === 'ok' && fetchAudit.tickers > 0 && fetchAudit.fetchable && typeof fetchAudit.fetchable.yahoo === 'number',
       fetchAudit ? 'tickers=' + fetchAudit.tickers : 'missing');
 
-    // T399: fetchFinnhubCompanyNews 신설 검증
-    _assert('T399 fetchFinnhubCompanyNews_defined: window.AIO.fetchFinnhubCompanyNews function',
-      typeof window.AIO.fetchFinnhubCompanyNews === 'function',
+    // T399 (v57.76): the personal-key Finnhub company-news fetcher was removed with the retired personal keys.
+    _assert('T399 v57.76 personal Finnhub company-news fetcher is gone: window.AIO.fetchFinnhubCompanyNews undefined',
+      typeof window.AIO.fetchFinnhubCompanyNews === 'undefined',
       typeof (window.AIO && window.AIO.fetchFinnhubCompanyNews));
 
     // T400: fetchSECRecentFilings 강화 — recent8KList 반환 capability
@@ -1947,9 +1946,9 @@
 
     // T401: _fetchTickerDataForChat에 [SEC 8-K] / [News] / [Insider] / [13F] 라벨 + ABSOLUTE RULES 5조
     var fnSrc = window._fetchTickerDataForChat ? window._fetchTickerDataForChat.toString() : '';
-    var hasAll = /\[SEC 8-K/.test(fnSrc) && /\[News /.test(fnSrc) && /\[Insider /.test(fnSrc) && /\[13F/.test(fnSrc);
-    _assert('T401 chat_fetch_4_new_labels: SEC 8-K / News / Insider / 13F 라벨 포함',
-      hasAll, '4 labels present=' + hasAll);
+    var hasAll = /\[SEC 8-K/.test(fnSrc) && /\[13F/.test(fnSrc) && /_aioTickerNewsFromCache/.test(fnSrc) && !/\[News · source Finnhub|\[Insider · source Finnhub/.test(fnSrc);
+    _assert('T401 chat_fetch_labels + v57.76: SEC 8-K / 13F 라벨 + 캐시 뉴스, personal Finnhub news/insider blocks absent',
+      hasAll, 'labels present=' + hasAll);
     _assert('T402 chat_absolute_rules_5_clause: ABSOLUTE RULES 5조 (학습 데이터 환각 금지)',
       /5\.\s*\[SEC 8-K\]/.test(fnSrc) || /5\..*SEC 8-K.*News.*Insider/.test(fnSrc),
       '5조 present');
@@ -2291,13 +2290,13 @@
 
     // T481: _fetchTickerDataForChat source에 6 신규 promise + 6 신규 라벨 포함
     var chatFn = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
-    var sixNewPromises = ['supplyChainPromise', 'partnershipPromise', 'platformPromise', 'moatPromise', 'fmpSegPromise', 'tamPromise'];
+    var sixNewPromises = ['supplyChainPromise', 'partnershipPromise', 'platformPromise', 'moatPromise', 'tamPromise'];
     var sixNewLabels = ['[Supply Chain]', '[Partnerships', '[Platform Eco]', '[Moat Score]', '[Segments]', '[TAM]'];
     var promiseHits = sixNewPromises.filter(function(p) { return chatFn.indexOf(p) >= 0; }).length;
     var labelHits = sixNewLabels.filter(function(l) { return chatFn.indexOf(l) >= 0; }).length;
-    _assert('T481 chat_fetch_17_promises_v4965: 6 신규 promise + 6 신규 라벨 _fetchTickerDataForChat 통합',
-      promiseHits === 6 && labelHits === 6,
-      'promiseHits=' + promiseHits + '/6 labelHits=' + labelHits + '/6');
+    _assert('T481 chat_fetch_17_promises_v4965 + v57.76: 5 promise + 6 라벨 _fetchTickerDataForChat 통합, fmpSegPromise absent',
+      promiseHits === 5 && labelHits === 6 && chatFn.indexOf('fmpSegPromise') < 0,
+      'promiseHits=' + promiseHits + '/5 labelHits=' + labelHits + '/6 fmpSeg=' + (chatFn.indexOf('fmpSegPromise') >= 0));
 
     // T482: ANALYSIS_FRAMEWORK_REGISTRY 17 entries + Platform/Ecosystem 신규
     var afReg = window.AIO_ANALYSIS_FRAMEWORK_REGISTRY;
@@ -2482,8 +2481,8 @@
 
     var chartGuardSrc = window.AIO && window.AIO.charts && window.AIO.charts.createLineChart ? window.AIO.charts.createLineChart.toString() : '';
     _assert('T562 lightweight_chart_disposal_guard_v4971: removed charts are not resized/updated again',
-      chartGuardSrc.indexOf('disposed') >= 0 && typeof window._itbSafeRemoveChart === 'function',
-      'disposed=' + (chartGuardSrc.indexOf('disposed') >= 0) + ' safeRemove=' + (typeof window._itbSafeRemoveChart));
+      chartGuardSrc.indexOf('disposed') >= 0 && typeof window._itbSafeRemoveChart !== 'function', // v57.76: the brief mini-chart remover left with the brief
+      'disposed=' + (chartGuardSrc.indexOf('disposed') >= 0) + ' briefRemover=' + (typeof window._itbSafeRemoveChart));
 
     var fxbond2yText = (document.querySelector('#page-fxbond [data-snap-date="tnx-2y"]') || {}).parentElement;
     fxbond2yText = fxbond2yText ? fxbond2yText.textContent : '';
@@ -3560,18 +3559,18 @@
     _assert('T663 quant_ratio_returns_v4983: status returned (ok / warn / fail / no_data)',
       qr && (qr.status === 'ok' || qr.status === 'warn' || qr.status === 'fail' || qr.status === 'no_data'),
       qr ? 'status=' + qr.status + ' pct=' + (qr.quantitativeRatioPct || 0) : 'no result');
-    // T664 R175/P446: fetchFMPEarningsCallTranscript
-    _assert('T664 fmp_earnings_call_defined_v4983: AIO.fetchFMPEarningsCallTranscript fn 정의',
-      window.AIO && typeof window.AIO.fetchFMPEarningsCallTranscript === 'function',
+    // T664 (v57.76): the personal-key FMP earnings-call fetcher was removed with the retired personal keys.
+    _assert('T664 v57.76 personal FMP earnings-call fetcher is gone: AIO.fetchFMPEarningsCallTranscript undefined',
+      window.AIO && typeof window.AIO.fetchFMPEarningsCallTranscript === 'undefined',
       typeof (window.AIO && window.AIO.fetchFMPEarningsCallTranscript));
     // T665 R176/P447: _aioBuildSparklineSvg sparkline generator (#8)
     _assert('T665 sparkline_svg_defined_v4983: window._aioBuildSparklineSvg fn 정의',
       typeof window._aioBuildSparklineSvg === 'function',
       typeof window._aioBuildSparklineSvg);
-    // T666 _fetchTickerDataForChat source에 earningsCallPromise 포함
+    // T666 (v57.76): the personal-key FMP earnings-call block left _fetchTickerDataForChat with its fetcher.
     var chatSrc = (typeof window._fetchTickerDataForChat === 'function') ? window._fetchTickerDataForChat.toString() : '';
-    _assert('T666 chat_earnings_call_integrated_v4983: _fetchTickerDataForChat source에 earningsCallPromise',
-      chatSrc.indexOf('earningsCallPromise') >= 0 && chatSrc.indexOf('Earnings Call') >= 0,
+    _assert('T666 v57.76 chat_earnings_call_removed: _fetchTickerDataForChat has no personal-key earnings-call block',
+      chatSrc.length > 0 && chatSrc.indexOf('earningsCallPromise') < 0 && chatSrc.indexOf('[Earnings Call') < 0,
       'srcLen=' + chatSrc.length);
     // T667 (v57.62): the sparkline under a per-page answer was retired with chatSend; the unified panel draws app-owned
     // figures (completed bars/filings, never model numbers) under the answer via AIO.attachAnswerVisuals.
@@ -3735,8 +3734,6 @@
     var bootCount = document.getElementById('aio-boot-count');
     var bootBar = document.getElementById('aio-boot-bar-fill');
     var loaderOk = (!bootCount && !bootBar) || (bootCount && bootBar);   // 로더는 도착 후 제거 가능 → 부재도 PASS
-    var rhfSrc = (typeof renderHomeFeed === 'function') ? renderHomeFeed.toString() : '';
-    var gradFallback = rhfSrc.indexOf('>= 70') >= 0 && rhfSrc.indexOf('>= 50') >= 0;
     _assert('T689 boot_does_not_require_static_home_feed', window.AIO_STATIC_DATA_POLICY && window.AIO_STATIC_DATA_POLICY.quoteFallbacks === 'blocked', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     // T690: v49.98 P463/R187 — 종합 5페이지 on-enter 즉시 갱신 매핑 + 트리거 함수
     var prMap = window.AIO_PAGE_REFRESH_MAP;
@@ -4030,9 +4027,9 @@
     var validateSrc722 = window.AIO && typeof window.AIO.validateQuoteCrossSources === 'function' ? window.AIO.validateQuoteCrossSources.toString() : '';
     var fetchSrc722 = typeof fetchLiveQuotes === 'function' ? fetchLiveQuotes.toString() : '';
     var scheduleSrc722 = typeof scheduleQuoteCrossSourceValidation === 'function' ? scheduleQuoteCrossSourceValidation.toString() : '';
-    _assert('T722 cross_source_fetch_pipeline_v49109: refresh pipeline can query Finnhub/FMP/Stooq/CoinGecko/FX validators',
-      validateSrc722.indexOf('finnhub.io/api/v1/quote') >= 0 &&
-        validateSrc722.indexOf('financialmodelingprep.com/api/v3/quote') >= 0 &&
+    _assert('T722 cross_source_fetch_pipeline_v49109 + v57.76: refresh pipeline queries keyless CoinGecko/FX validators; no personal Finnhub/FMP cross-check',
+      validateSrc722.indexOf('finnhub.io/api/v1/quote') < 0 &&
+        validateSrc722.indexOf('financialmodelingprep.com/api/v3/quote') < 0 &&
         validateSrc722.indexOf('coingecko.com/api/v3/simple/price') >= 0 &&
         (fetchSrc722.indexOf('post-live-quotes-cross-source') >= 0 || scheduleSrc722.indexOf('validateQuoteCrossSources') >= 0),
       'validateLen=' + validateSrc722.length + ' fetchHook=' + (fetchSrc722.indexOf('post-live-quotes-cross-source') >= 0) + ' scheduler=' + (scheduleSrc722.indexOf('validateQuoteCrossSources') >= 0));
@@ -4250,11 +4247,12 @@
       audit && typeof audit.issueCount === 'number',
       audit ? ('issueCount=' + audit.issueCount + ' tables=' + audit.inlineTables.length) : 'api missing');
 
-    // T310: home subSections 15개 enumerate (v49.37 8 → v49.38 15)
+    // T310: home subSections (v49.37 8 → v49.38 15 → v57.76 12: conclusion bar, market-summary banner, GMO table retired)
     var pageReg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
     var subCount = pageReg && pageReg.pages && pageReg.pages.home && pageReg.pages.home.subSections.length;
-    _assert('T310 home_subsections_15: subSections 15개 (v49.37 8 → v49.38 15)',
-      subCount === 15, 'count=' + subCount);
+    var homeRetired310 = pageReg && pageReg.pages && pageReg.pages.home ? pageReg.pages.home.subSections.filter(function(s) { return ['home-conclusion-bar', 'home-market-summary', 'home-gmo-bloomberg'].indexOf(s.id) >= 0; }).length : -1;
+    _assert('T310 v57.76 home_subsections_12: subSections 12개, 퇴역 결론바·배너·GMO 표 미등재',
+      subCount === 12 && homeRetired310 === 0, 'count=' + subCount + ' retiredListed=' + homeRetired310);
 
     // T311: home findings 배열 (점검 결과 누적)
     var findings = pageReg && pageReg.pages && pageReg.pages.home && pageReg.pages.home.findings;
@@ -4326,11 +4324,11 @@
 
   // ── Group44: v49.36 페이지 15 기준 100% 커버 (7 신규 함수 + 가용성 갱신) ──
   function _testV4936Coverage100() {
-    // T291: 7 신규 함수 정의
-    var fns = ['computeFcfYield', 'computeBalanceSheetRatios', 'computeEvEbitda', 'computeMacroBeta', 'fetchFinnhubInsider', 'fetchFinnhubShortInterest', 'fetchSEC13F'];
-    var allDefined = fns.every(function(fn) { return typeof window.AIO[fn] === 'function'; });
-    _assert('T291 v4936_funcs_defined: 7 신규 함수 모두 정의',
-      allDefined, fns.filter(function(fn){return typeof window.AIO[fn] !== 'function';}).join(',') || 'all ok');
+    // T291: 신규 함수 정의 — v57.76: personal-key fetchFinnhubInsider / fetchFinnhubShortInterest removed (must stay absent)
+    var fns = ['computeFcfYield', 'computeBalanceSheetRatios', 'computeEvEbitda', 'computeMacroBeta', 'fetchSEC13F'], retired291 = ['fetchFinnhubInsider', 'fetchFinnhubShortInterest'];
+    var allDefined = fns.every(function(fn) { return typeof window.AIO[fn] === 'function'; }) && retired291.every(function(fn) { return typeof window.AIO[fn] === 'undefined'; });
+    _assert('T291 v4936_funcs_defined + v57.76: 5 함수 정의, personal Finnhub insider/short fetchers absent',
+      allDefined, fns.filter(function(fn){return typeof window.AIO[fn] !== 'function';}).concat(retired291.filter(function(fn){return typeof window.AIO[fn] !== 'undefined';})).join(',') || 'all ok');
 
     // T292: FUNDAMENTAL_PAGE_CRITERIA coverage 93%+ (14/15)
     var audit = window.AIO.getFundamentalPageCriteriaAudit();
@@ -4370,9 +4368,9 @@
       typeof window.AIO.fetchSECRecentFilings === 'function',
       typeof window.AIO.fetchSECRecentFilings);
 
-    // T298: fetchFMPSegments 신규 (v49.34 잔존)
-    _assert('T298 fmp_segments: fetchFMPSegments 정의',
-      typeof window.AIO.fetchFMPSegments === 'function',
+    // T298 (v57.76): the personal-key FMP segment fetcher was removed with the retired personal keys.
+    _assert('T298 v57.76 personal FMP segment fetcher is gone: AIO.fetchFMPSegments undefined',
+      typeof window.AIO.fetchFMPSegments === 'undefined',
       typeof window.AIO.fetchFMPSegments);
   }
 
@@ -4653,12 +4651,11 @@
     _assert('T255 fred_chart_next_release: 다음 갱신 NFP 표기',
       hasNextRelease, macroNextEl ? macroNextEl.textContent : 'not found');
 
-    // T256: themes Late Cycle 정적 라벨 일반화 ("◀ 현재" 제거)
+    // T256 (v57.76 retired): the textbook sector-cycle map left the themes page for the concept dictionary
+    // (sector-rotation-cycle), so its static Late-cycle cell must not return.
     var cycleLate = document.getElementById('cycle-late');
-    var cycleLateText = cycleLate ? cycleLate.textContent : '';
-    _assert('T256 themes_late_static: "◀ 현재" 라벨 제거 + Late (참고)',
-      !/◀\s*현재/.test(cycleLateText) && /Late\s*\(참고\)/.test(cycleLateText),
-      cycleLate ? 'text=' + cycleLateText.slice(0, 80) : 'missing');
+    _assert('T256 themes_late_static (v57.76 retired): sector-cycle map cell absent from the themes page',
+      !cycleLate, cycleLate ? 'text=' + cycleLate.textContent.slice(0, 80) : 'absent');
 
     // T257: getAutoOpsReadiness 13축 통합 (geopolitical 포함)
     var ops = _getFullAutoOpsAudit();
@@ -4802,10 +4799,10 @@
       !optPageT236 && optRecGone,
       'shell=' + !!optPageT236 + ' recGone=' + optRecGone);
 
-    // T237: technical OHLC fallback 마킹
-    var ohlc = document.querySelector('[data-aio-fallback="tradingview-iframe"]');
-    _assert('T237 technical_fallback: OHLC strip data-aio-fallback 마킹',
-      !!ohlc, ohlc ? 'found' : 'missing');
+    // T237 → v57.76: the SPY TradingView fold and its OHLC fallback strip left the 차트 tab (the native stock chart replaces it).
+    var ohlc = document.querySelector('#page-technical [data-aio-fallback="tradingview-iframe"]');
+    _assert('T237 technical_fallback: 퇴역한 TradingView 대체 strip이 차트 탭에 다시 생기지 않음 (v57.76)',
+      !ohlc, ohlc ? 'returned' : 'retired');
 
     // T238 (P1436): the how-to search guide was retired; the page leads with the native fiscal reading.
     var fundGuide = document.getElementById('fund-pre-search-guide');
@@ -4853,13 +4850,9 @@
     _assert('T226 home_action_card: #home-action-item-card 존재 또는 퇴역 후 갱신 경로 no-op',
       !!actionCard || actionNoThrow, actionCard ? 'found' : 'retired; refresh no-throw=' + actionNoThrow);
 
-    // T227: technical RSI 카드에 임계값 라벨 (<30 과매도 · 70+ 과매수)
-    var rsiCard = document.querySelector('#page-technical #tech-rsi-val');
-    var rsiParent = rsiCard ? rsiCard.parentElement : null;
-    var rsiText = rsiParent ? rsiParent.textContent : '';
-    _assert('T227 technical_rsi_threshold: RSI 카드에 <30 과매도 / 70+ 과매수 표기',
-      /<30\s*과매도|70\+\s*과매수/.test(rsiText),
-      rsiParent ? 'text=' + rsiText.slice(0, 100) : 'card missing');
+    // T227: v57.76 — the market-level SPY RSI card left the 차트 tab (시장 상태 요약 carries the market judgement).
+    _assert('T227 technical_rsi_threshold: SPY RSI 카드 퇴역 유지 (v57.76)',
+      !document.querySelector('#page-technical #tech-rsi-val'), 'retired');
 
     // T228: macro 시나리오 lastUpdated DOM
     var scenUpdated = document.getElementById('macro-scenario-updated');
@@ -4868,11 +4861,11 @@
       !scenUpdated && !scenSum,
       'updated=' + !!scenUpdated + ' sum=' + !!scenSum);
 
-    // T229: themes cycle 동적 readout DOM
+    // T229 (v57.76 retired): the developer-only cycle readout left with the sector-cycle map fold.
     var cyclePhase = document.getElementById('cycle-dynamic-phase');
     var cycleInputs = document.getElementById('cycle-dynamic-inputs');
-    _assert('T229 themes_cycle_dom: themes에 cycle-dynamic-phase + inputs DOM',
-      !!cyclePhase && !!cycleInputs,
+    _assert('T229 themes_cycle_dom (v57.76 retired): cycle-dynamic readout absent from the themes page',
+      !cyclePhase && !cycleInputs,
       'phase=' + !!cyclePhase + ' inputs=' + !!cycleInputs);
 
     // T230 (v50.29 스펙 갱신): 콘솔 가이드 텍스트는 declutter로 제거(가시 dev 마커이기도 했음 — R206 정합)
@@ -5579,7 +5572,7 @@
       var hasCore = ['signal','breadth','themes','sentiment'].every(function(p){ return typeof reg769[p] === 'function'; }) && typeof reg769.macro === 'undefined'; // P1425
       var namedOk = typeof window._aioRenderBreadthConsensus === 'undefined' // P1672: sinks retired
         && typeof window._aioRenderOptionsRec === 'undefined'
-        && typeof window._aioRenderThemesCycle === 'function'
+        && typeof window._aioRenderThemesCycle === 'undefined' // v57.76: themes cycle readout sinks retired
         && typeof window._aioRenderBriefingAction === 'undefined'; // briefing action sinks retired
       var hasRefresh = typeof window.AIO.refreshActivePageNarratives === 'function';
       var hasStamp = typeof window._aioStampNarrativeUpdate === 'function';
@@ -6112,13 +6105,13 @@
       var ph804 = document.getElementById('page-home');
       var k804 = ph804 ? Array.from(ph804.children) : [];
       var hi = function(id){ var e=document.getElementById(id); return e?k804.indexOf(e):-1; };
-      var ci = hi('home-conclusion-bar'), gi = hi('home-trading-grid'), ai = hi('home-action-item-card');
-      // v57.50 I16: 퇴역 그리드/액션 카드가 DOM에서 빠졌으면 이동 대상이 없으므로 결론바 존재만 확인한다.
-      t804ok = gi < 0 ? (ci >= 0 && (ai < 0 || ai === ci + 1))
-        : ci >= 0 && gi === ci + 1 && ai === gi + 1; // 결론→근거(grid)→액션 연속
-      t804detail = 'conc=' + ci + ' grid=' + gi + ' action=' + ai + ' grouped=' + t804ok;
+      var ci = hi('home-conclusion-bar'), gi = hi('home-trading-grid'), hero = hi('home-score-hero'), dc = hi('home-daily-changes');
+      // v57.76: the hidden 0-100 conclusion bar and the retired grid are gone; the close verdict hero leads and the
+      // close comparison follows it directly.
+      t804ok = ci < 0 && gi < 0 && hero >= 0 && dc === hero + 1;
+      t804detail = 'conc=' + ci + ' grid=' + gi + ' hero=' + hero + ' changes=' + dc + ' ok=' + t804ok;
     } catch(e) { t804detail = 'ERR:' + e.message; }
-    _assert('T804 v5034_home_conclusion_group: home 결론바 직후 [매매판단 그리드 → Action Items] 연속 (결론→근거→액션)', t804ok, t804detail);
+    _assert('T804 v57.76 home_close_verdict_then_changes: 결론바·그리드 퇴역, 판정 히어로 바로 아래 직전 종가 대비 변화', t804ok, t804detail);
 
     // ─── v50.35 피드백·게시판·옵션 제거 (사용자 요청) ───
     var t805ok = false, t805detail = '';
@@ -6183,14 +6176,14 @@
     var t808ok = false, t808detail = '';
     try {
       var reg808 = window.AIO_CHAT_SOURCE_REGISTRY;
-      var regOk808 = Array.isArray(reg808) && reg808.length >= 20 && reg808.every(function(s){ return s.key && s.label && s.fn && s.tier; });
+      var regOk808 = Array.isArray(reg808) && reg808.length >= 18 && reg808.every(function(s){ return s.key && s.label && s.fn && s.tier && !(s.wired !== false && /^aio_(rss2json|av|finnhub|fred|td|fmp|newsdata|bok|kosis)_key$/.test(s.requiresKey || '')); }); // v57.76: 6 personal-key rows left (25 -> 19)
       var audit808 = (window.AIO && typeof window.AIO.getChatSourceRegistryAudit === 'function') ? window.AIO.getChatSourceRegistryAudit() : null;
       // 배선 정합: undefinedFn 0 + notInCode(드리프트) 0. planned(DART)은 미배선 정상.
       var auditOk808 = !!(audit808 && audit808.status === 'ok' && audit808.unused === 0 && (audit808.undefinedFn||[]).length === 0 && audit808.plannedCount >= 1);
       t808ok = regOk808 && auditOk808;
       t808detail = 'regLen=' + (reg808 ? reg808.length : 'null') + ' regOk=' + regOk808 + ' status=' + (audit808 ? audit808.status : 'null') + ' unused=' + (audit808 ? audit808.unused : '-') + ' undef=' + (audit808 ? (audit808.undefinedFn||[]).join(',') : '-') + ' planned=' + (audit808 ? audit808.plannedCount : '-');
     } catch(e) { t808detail = 'ERR:' + e.message; }
-    _assert('T808 v5037_chat_source_registry: AIO_CHAT_SOURCE_REGISTRY 20+ 정의 + getChatSourceRegistryAudit 드리프트 0', t808ok, t808detail);
+    _assert('T808 v5037_chat_source_registry + v57.76: AIO_CHAT_SOURCE_REGISTRY 18+ 정의, retired-key row 없음 + getChatSourceRegistryAudit 드리프트 0', t808ok, t808detail);
 
     // T809 (v57.62): answer flexibility on the unified panel (per-page chatSend retired) — stock rules only when a ticker is
     // named, the answer mode follows the question policy (general/screener/decision), and the screener helper is wired.
@@ -6347,8 +6340,9 @@
       // A1: 정본 full 객체 + breadthScore가 .consensus(수치)로 채워짐(이전 .score=undefined 버그 시정)
       var fullOk = !!(ms817 && ms817.breadthConsensusFull && ms817.breadthConsensusFull.verdict && ms817.cycleFull && ms817.cycleFull.phase && typeof ms817.breadthScore === 'number');
       // A2: 페이지 렌더러 4종이 marketState 우선 분기를 갖는지(소스 회귀 가드)
-      var renderers = ['_aioRenderThemesCycle']; // P1672: breadth consensus renderer retired with its sinks; briefing action renderer retired with its sinks
-      var consumerOk = renderers.every(function(fn){ return typeof window[fn] === 'function' && /marketState/.test(window[fn].toString()); });
+      // P1672: breadth consensus and briefing action renderers retired with their sinks; v57.76: the themes cycle
+      // renderer (_aioRenderThemesCycle) retired with #cycle-dynamic-*, so no legacy page renderer may come back.
+      var consumerOk = ['_aioRenderThemesCycle', '_aioRenderBreadthConsensus', '_aioRenderBriefingAction'].every(function(fn){ return typeof window[fn] === 'undefined'; });
       // A2 실재 정합: breadth 렌더러 실행 후 verdict sink가 marketState verdict와 일치
       var breadthMatch = false;
       try { var bv = document.getElementById('breadth-consensus-verdict'); breadthMatch = !bv && typeof window._aioRenderBreadthConsensus === 'undefined'; /* P1392/P1672: sink and renderer retired */ } catch(_) {}
@@ -7140,21 +7134,10 @@
     } catch(e) { t838detail = 'ERR:' + e.message; }
     _assert('T838 page_contexts_are_evidence_first_without_stale_event_copy', ['home','screener','ticker'].every(function(k){ return window.CHAT_CONTEXTS[k] && /현재 검증된 런타임 관측치/.test(window.CHAT_CONTEXTS[k].system()); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
-    // T839: v50.75 시장 팩터 히트맵 — 실데이터(SPX/VIX/F&G/TNX) 기반 4×4 그리드 렌더 (Codex 가짜 해시 데이터 제거 검증)
-    var t839ok = false, t839detail = '';
-    try {
-      var hasFn839 = typeof window._aioRenderMarketHeatmap === 'function';
-      var el839 = document.getElementById('home-market-heatmap');
-      if (hasFn839 && el839) {
-        try { window._aioRenderMarketHeatmap('home-market-heatmap'); } catch(_) {}
-      }
-      var grid839 = el839 && el839.querySelector('.mhc-grid');
-      var rows839 = el839 ? el839.querySelectorAll('.mhc-row:not(.mhc-header)') : [];
-      var cells839 = el839 ? el839.querySelectorAll('.mhc-cell') : [];
-      t839ok = !!(hasFn839 && el839 && grid839 && rows839.length === 4 && cells839.length === 16);
-      t839detail = JSON.stringify({ hasFn:hasFn839, el:!!el839, rows:rows839.length, cells:cells839.length });
-    } catch(e) { t839detail = 'ERR:' + e.message; }
-    _assert('T839 v5075_market_factor_heatmap: _aioRenderMarketHeatmap renders 4 rows x 4 cols = 16 cells from real data', t839ok, t839detail);
+    // T839 → v57.76: the home factor heatmap (fixed -2..+2 bands) and the GMO price table are retired with their folded section.
+    _assert('T839 v57.76 home_factor_heatmap_and_gmo_retired: 히트맵·글로벌 마켓 표 DOM과 렌더러가 없음',
+      typeof window._aioRenderMarketHeatmap === 'undefined' && !document.getElementById('home-market-heatmap') && !document.getElementById('bloomberg-global-overview') && !document.getElementById('gmo-tbody') && typeof renderGmoTable === 'undefined' && typeof toggleGmoExpand === 'undefined',
+      'heatmapFn=' + typeof window._aioRenderMarketHeatmap + ' gmoFn=' + typeof renderGmoTable);
 
     // T840: v50.75 가짜 premium-board/research-bridge 완전 제거 확인
     var t840ok = false, t840detail = '';
@@ -7163,11 +7146,11 @@
       var noFakeBridge840 = !document.querySelector('.aio-research-bridge');
       var noFakeReg840 = typeof window.AIO_IMPORTED_RESEARCH_20260618 === 'undefined';
       var noFakeContract840 = typeof window.AIO_RESEARCH_REFRESH_CONTRACT === 'undefined';
-      var heatmapFn840 = typeof window._aioRenderMarketHeatmap === 'function';
-      t840ok = !!(noFakeBoard840 && noFakeBridge840 && noFakeReg840 && noFakeContract840 && heatmapFn840);
-      t840detail = JSON.stringify({ noBoard:noFakeBoard840, noBridge:noFakeBridge840, noFakeReg:noFakeReg840, noContract:noFakeContract840, hasHeatmap:heatmapFn840 });
+      // v57.76: the real heatmap that replaced the fake board is itself retired (T839); only the fake-board absence remains.
+      t840ok = !!(noFakeBoard840 && noFakeBridge840 && noFakeReg840 && noFakeContract840);
+      t840detail = JSON.stringify({ noBoard:noFakeBoard840, noBridge:noFakeBridge840, noFakeReg:noFakeReg840, noContract:noFakeContract840 });
     } catch(e) { t840detail = 'ERR:' + e.message; }
-    _assert('T840 v5075_fake_heatmap_removed: aio-premium-board/aio-research-bridge/AIO_IMPORTED_RESEARCH removed, real _aioRenderMarketHeatmap wired', t840ok, t840detail);
+    _assert('T840 v5075_fake_heatmap_removed: aio-premium-board/aio-research-bridge/AIO_IMPORTED_RESEARCH removed (v57.76: heatmap retired)', t840ok, t840detail);
 
     // T841: v50.74 structural fix — decision engine reads live score, FOMC uses registry, footer is conditional.
     var t841ok = false, t841detail = '';
@@ -7233,7 +7216,7 @@
     try {
       var signalStrip843 = document.getElementById('signal-mv-strip') || !document.getElementById('score-gauge-val'); // P1392: signal strip retired with the score
       var tickerStrip843 = document.getElementById('ticker-mv-strip');
-      var ind843 = ['ind-pressure-fill','ind-buyrisk-fill','ind-trend-fill'].every(function(id) { return !!document.getElementById(id); });
+      var ind843 = ['ind-pressure-fill','ind-buyrisk-fill','ind-trend-fill'].every(function(id) { return !document.getElementById(id); }); // v57.76: SPY indicator strips retired
       var css843 = Array.from(document.querySelectorAll('style')).some(function(s) {
         return (s.textContent || '').indexOf('.mv-metric-strip') >= 0 && (s.textContent || '').indexOf('.aio-visual-report') >= 0;
       });
@@ -7243,7 +7226,7 @@
       t843ok = !!(signalStrip843 && tickerStrip843 && ind843 && css843 && screenerHead843);
       t843detail = JSON.stringify({ signal:!!signalStrip843, ticker:!!tickerStrip843, indicators:ind843, css:css843, grade:screenerHead843 });
     } catch(e) { t843detail = 'ERR:' + e.message; }
-    _assert('T843 v5077_minervini_ui_contract: metric strips, indicator strips, visual CSS, and screener grade column are present', t843ok, t843detail);
+    _assert('T843 v5077_minervini_ui_contract: metric strips, visual CSS and screener grade column are present; the SPY indicator strips stay retired (v57.76)', t843ok, t843detail);
 
     // T844: v50.79 runtime/share gate — prompts, digest artifacts, cachebusters, and public-share status share one contract.
     var t844ok = false, t844detail = '';
@@ -7627,21 +7610,9 @@
       }
     } catch (e876) { _assert('T876 risk_monitor_pending_state_v5241 (EF-11)', false, 'threw: ' + (e876 && e876.message)); }
 
-    // T877 (EF-12): TV OHLC 대체 strip — TV 위젯을 로드하지 않고도(차트 로드 버튼 클릭 없이) 채워지는지
-    try {
-      if (typeof window._aioSyncTvOhlcFallback === 'function' && document.querySelector('[data-tvohlc-close]')) {
-        window._liveData = window._liveData || {};
-        window._liveData['SPY'] = { price: 645.12, pct: 0.34 };
-        var closeElBefore877 = document.querySelector('[data-tvohlc-close]');
-        closeElBefore877.textContent = '—';
-        window._aioSyncTvOhlcFallback('SPY');
-        var closeEl877 = document.querySelector('[data-tvohlc-close]');
-        _assert('T877 tv_ohlc_fallback_independent_v5241 (EF-12): _aioSyncTvOhlcFallback가 loadTVChart 호출 없이도(차트 미로드 상태) SPY 종가를 채움',
-          closeEl877 && closeEl877.textContent.indexOf('645.12') !== -1, 'closeText=' + (closeEl877 && closeEl877.textContent));
-      } else {
-        _assert('T877 tv_ohlc_fallback_independent_v5241 (EF-12)', false, 'fn or element missing');
-      }
-    } catch (e877) { _assert('T877 tv_ohlc_fallback_independent_v5241 (EF-12)', false, 'threw: ' + (e877 && e877.message)); }
+    // T877 (EF-12) → v57.76: the SPY TradingView fold and its OHLC fallback strip were deleted with the sync function.
+    _assert('T877 tv_ohlc_fallback_independent_v5241 (EF-12): SPY TradingView 대체 strip과 sync 함수 퇴역 유지 (v57.76)',
+      typeof window._aioSyncTvOhlcFallback !== 'function' && !document.querySelector('[data-tvohlc-close]'), 'sync=' + typeof window._aioSyncTvOhlcFallback);
 
     // T878 (EF-19): kr-technical 새로고침 버튼이 analyzeKrIndex를 올바른 targetId로 호출하도록 배선됐는지
     try {
@@ -7736,27 +7707,10 @@
         'bokNext=' + bokNext884 + ' calNext=' + (cal884 && cal884.nextRelease));
     } catch (e884) { _assert('T884 bok_next_meeting_date_valid (EF-03/P713)', false, 'threw: ' + (e884 && e884.message)); }
 
-    // T885 (EF-17): 홈 글로벌 마켓 표에 ES=F/NQ=F 선물이 있고, 정규장 여부에 따라 강조가 갈리는지
-    try {
-      var esItem885 = null, nqItem885 = null;
-      if (typeof GMO_MARKETS !== 'undefined') {
-        GMO_MARKETS.forEach(function(g) { g.items.forEach(function(it) {
-          if (it.sym === 'ES=F') esItem885 = it;
-          if (it.sym === 'NQ=F') nqItem885 = it;
-        }); });
-      }
-      var hasFutures885 = !!esItem885 && !!nqItem885 && esItem885.isFutures === true && nqItem885.isFutures === true;
-      var okRender885 = false, renderDetail885 = 'n/a';
-      if (hasFutures885 && typeof renderGmoTable === 'function' && document.getElementById('gmo-tbody')) {
-        renderGmoTable();
-        var tbody885 = document.getElementById('gmo-tbody');
-        // innerHTML 직렬화 시 "&"가 "&amp;"로 왕복 인코딩되므로 "S&P Futures"는 매칭 실패 — "Nasdaq Futures"(& 없음)로 확인
-        okRender885 = tbody885 && tbody885.innerHTML.indexOf('Nasdaq Futures') !== -1 && /P Futures/.test(tbody885.innerHTML);
-        renderDetail885 = 'rendered=' + okRender885;
-      }
-      _assert('T885 gmo_futures_rows_v5243 (EF-17): GMO_MARKETS에 ES=F/NQ=F(isFutures) 등록 + renderGmoTable()이 실제로 두 행을 렌더',
-        hasFutures885 && okRender885, 'hasFutures=' + hasFutures885 + ' ' + renderDetail885);
-    } catch (e885) { _assert('T885 gmo_futures_rows_v5243 (EF-17)', false, 'threw: ' + (e885 && e885.message)); }
+    // T885 (EF-17) → v57.76: the GMO table and its futures rows are retired; ES=F/NQ=F stay in the home KPI strip.
+    _assert('T885 v57.76 home_futures_in_kpi_strip: GMO 표 퇴역, S&P·나스닥 선물은 홈 시세 줄에 유지',
+      typeof GMO_MARKETS === 'undefined' && !!document.querySelector('#home-kpi-strip [data-live-price="ES=F"]') && !!document.querySelector('#home-kpi-strip [data-live-price="NQ=F"]'),
+      'gmo=' + typeof GMO_MARKETS);
 
     // T886 (EF-18 -> P1671): the KR supply trend fetch and its response adapter were retired.
     _assert('T886 kr_supply_trend_endpoint_v5243 (EF-18): KR 수급 fetch와 응답 변환기가 퇴역해 Naver 수급 요청이 없음',
@@ -8906,10 +8860,10 @@
       !!coverageFn && sparse && sparse.sufficient === false && full && full.sufficient === true,
       JSON.stringify({ sparse: sparse, full: full }));
 
-    var techSrc = typeof updateTechIndicators === 'function' ? String(updateTechIndicators) : '';
-    _assert('T1028 technical_indicator_no_intraday_synthesis: RSI/MACD remain unavailable when OHLCV is absent',
-      !!techSrc && techSrc.indexOf('50 + (chg * 5)') < 0 && techSrc.indexOf("macdValue = macdHist !== null") >= 0 && techSrc.indexOf("'—'") >= 0,
-      'updateTechIndicators synthesis contract');
+    // v57.76: the SPY RSI/MACD/Stochastic/ADX card and both writers were deleted, so no path can synthesise those values.
+    _assert('T1028 technical_indicator_no_intraday_synthesis: the retired SPY indicator card and its writers stay deleted (v57.76)',
+      typeof window.updateTechIndicators !== 'function' && typeof window.applyTechIndicators !== 'function' && !document.getElementById('tech-indicators-live') && !document.getElementById('tech-rsi-val'),
+      'updateTechIndicators=' + typeof window.updateTechIndicators + ' applyTechIndicators=' + typeof window.applyTechIndicators);
 
     var tickerTabCount = document.querySelectorAll('#page-ticker [data-ticker-tab]').length;
     var tickerRangeCount = document.querySelectorAll('#page-ticker [data-ticker-range]').length;
@@ -9153,32 +9107,12 @@
         JSON.stringify({ visible: oldOnly.visibleCount, reason: oldOnly.emptyReason, outOfWindow: oldOnly.outOfWindowCount, stats: oldOnly.stats }));
     }
 
-    var savedLive = window._liveData;
-    var threw = false;
-    var signalText = '';
-    try {
-      window._liveData = { SPY: { pct: 0.1 } };
-      window.updatePatternSignals();
-      var host = document.getElementById('pattern-signals');
-      signalText = host ? String(host.textContent || '') : '';
-    } catch (e) { threw = true; } finally { window._liveData = savedLive; }
-    _assert('P1164/B02 T_p1164_9 HYG/VIX 미수신에서 예외·위기 문장이 없다',
-      !threw && !/신용 스프레드|고수익채권 급락/.test(signalText), 'threw=' + threw + ' text=' + signalText.slice(0, 120));
-
-    // P1551: a missing SPY change is unknown, not 0%, so the quiet-tape signal must not fire; a real quiet tape still does.
-    var quietMissing = '', quietKnown = '', quietThrew = false;
-    try {
-      window._liveData = { SPY: { price: 500 }, '^VIX': { price: 15, pct: 0 } };
-      window.updatePatternSignals();
-      var quietHost = document.getElementById('pattern-signals');
-      quietMissing = quietHost ? String(quietHost.textContent || '') : '';
-      window._liveData = { SPY: { price: 500, pct: 0.05 }, '^VIX': { price: 15, pct: 0 } };
-      window.updatePatternSignals();
-      quietKnown = quietHost ? String(quietHost.textContent || '') : '';
-    } catch (e) { quietThrew = true; } finally { window._liveData = savedLive; try { window.updatePatternSignals(); } catch (_) {} }
-    _assert('P1551 T_p1551_1 SPY 변동률 결측은 저변동성 압축 신호를 만들지 않고, 관측된 조용한 장은 만든다',
-      !quietThrew && quietMissing.indexOf('저변동성 압축') < 0 && quietKnown.indexOf('저변동성 압축') >= 0,
-      JSON.stringify({ threw: quietThrew, missing: quietMissing.slice(0, 80), known: quietKnown.slice(0, 80) }));
+    // v57.76: the SPY/VIX pattern-signal fold and updatePatternSignals were deleted (market-level copy of 시장 상태), so the
+    // P1164/B02 and P1551 guards now pin that the writer and its host stay gone.
+    _assert('P1164/B02 T_p1164_9 HYG/VIX 미수신에서 예외·위기 문장이 없다 — 패턴 감지 writer 퇴역 유지 (v57.76)',
+      typeof window.updatePatternSignals !== 'function' && !document.getElementById('pattern-signals'), 'updatePatternSignals=' + typeof window.updatePatternSignals);
+    _assert('P1551 T_p1551_1 SPY 변동률 결측으로 저변동성 압축 신호를 만들 경로가 없다 (v57.76: writer 퇴역)',
+      typeof window.updatePatternSignals !== 'function', 'updatePatternSignals=' + typeof window.updatePatternSignals);
 
     // P1551: the chat diagram path applies the same unavailable guard as the page renderer.
     var svgGuard = window._aioDiagram && typeof window._aioDiagram.getSvg === 'function'

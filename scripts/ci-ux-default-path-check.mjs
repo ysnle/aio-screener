@@ -49,7 +49,9 @@ const operatorNoteIndex = html.indexOf('id="home-operator-note"');
 const staleWarningIndex = html.indexOf('id="snapshot-stale-warning"');
 check('home operator note placeholder must exist exactly once', (html.match(/id="home-operator-note"/g) || []).length === 1);
 check('home operator note must be before the home header/status flow', operatorNoteIndex >= 0 && staleWarningIndex >= 0 && operatorNoteIndex < staleWarningIndex);
-check('home operator note must use prominent first-screen styling', /aio-operator-note-title[\s\S]*font-size:18px/.test(html) && /aio-operator-note-body[\s\S]*font-size:14px/.test(html));
+check('home operator note must use prominent first-screen styling', /aio-operator-note-title[\s\S]*font-size:18px/.test(html));
+// v57.76: the note is one dated sentence (v57.71); its body/tag/lead/more styles had no DOM producer and left the shell.
+check('v57.76 operator-note CSS carries no selector without a DOM producer', !/aio-operator-note-(?:body|tags?|lead|more)\b/.test(html)); // text-pin-ok: asserts removed CSS is absent
 check('visual hierarchy refresh must move away from one-note terminal styling', /v51\.43: visual hierarchy refresh/.test(html) && /--data-amber:[\s\S]*--data-red:[\s\S]*--data-purple:/.test(html));
 // v57.71 (owner 2026-10-15): the card is "오늘의 한 문장" — one dated sentence, no memo body or tags.
 // v53.7 (P725): kr-technical 페이지 퇴역 — 레거시 intro 은닉 규칙 대신 페이지 자체가 없어야 하고,

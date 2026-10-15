@@ -188,14 +188,8 @@ function renderTickerSecondarySymbols(documentRef, state, root) {
   // P1405: display continuity only (the 차트 · 기술 chart opens on it). The AI context scope stays
   // _currentTickerId, which the router clears outside entity routes.
   if (state?.id && root) setStockSubject({ root, documentRef, symbol: state.id, name: state.name && state.name !== state.id ? state.name : '' });
-  ['ticker-candle-symbol', 'ticker-entry-symbol'].forEach((id) => {
-    const element = setText(documentRef, id, symbol);
-    if (!element) return;
-    element.dataset.aioTickerSymbolRenderer = 'native';
-    element.setAttribute('data-source-kind', state?.id ? 'entity-state' : 'unavailable');
-    element.setAttribute('data-source-label', state?.id ? 'normalized entity state' : 'entity unavailable');
-    element.setAttribute('data-operational-use', 'reference-only');
-  });
+  // v57.76: the candle/entry symbol labels left with the 요약 tab's 최근 3봉 형태 section; only the subject hand-off remains.
+  return symbol;
 }
 
 function tickerElement(documentRef, id) {
@@ -714,7 +708,7 @@ function renderFundamentalReport(documentRef, page, state) {
 }
 
 // RM-01 (2026-07-19): every id this module used to write (ticker-m-*,
-// fund-analysis-text, opt-pcr-val-secondary, ticker-candle-symbol, ticker-entry-symbol) has a
+// fund-analysis-text, opt-pcr-val-secondary, the candle/entry symbol labels retired in v57.76) has a
 // live legacy writer in js/aio-core.js/aio-data.js or an inline index.html script
 // (route-owners.json legacyWriterEvidence). P777 transfers only the ticker hero
 // name/fullname/price/change primary surface; P817 transfers ticker candle/entry symbol labels.
@@ -954,7 +948,7 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
         bag.add(() => eventTarget?.removeEventListener?.('keydown', onTickerControlKeydown, true));
         bag.add(() => eventTarget?.removeEventListener?.('aio:tickerViewReset', resetTickerView));
         if (page) page.dataset.aioTickerChartRenderer = 'native';
-        ['ticker-candle-symbol', 'ticker-entry-symbol', 'ticker-hero-ext', 'ticker-hero-pnl', 'ticker-hero-value'].forEach((id) => {
+        ['ticker-hero-ext', 'ticker-hero-pnl', 'ticker-hero-value'].forEach((id) => { // v57.76: candle/entry symbol labels retired
           const element = documentRef?.getElementById(id);
           if (!element) return;
           if (id === 'ticker-hero-ext') element.dataset.aioTickerExtensionRenderer = 'native';

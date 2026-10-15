@@ -13,7 +13,7 @@ import { MACRO_HISTORY, refreshSharedArtifact, sharedArtifactIsStale } from '../
 import { buildRegimeAxisHistory, buildMarketScenarios, buildKoreaRegimeObservations, buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
 import { renderRegimeRadar } from './regime-radar.js';
 import { outlookForRoot } from './scenario-outlook.js';
-import { renderCrossroadsCompact } from './macro-crossroads.js';
+import { renderCrossroadsCompact, showCrossroadsSection } from './macro-crossroads.js';
 import { el } from './dom.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 
@@ -144,9 +144,12 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
   const section = el(doc, 'section', null, 'regime-scenarios');
   section.dataset.aioRegimeScenarios = 'native';
   section.id = 'regime-structure';
-  section.append(el(doc, 'h2', '지금 시장과 향후 시나리오', 'briefing-h2'),
-    el(doc, 'p', `${model.asOf || '기준일 미확인'} 종가 기준 · 지금 시장이 세 흐름 중 어디에 가까운지(맞는 조건 수, 확률 아님)와 다음 발표의 영향을 봅니다.`, 'regime-scenario-basis'));
-  if (!model.available) { section.append(el(doc, 'p', model.reason, 'regime-scenario-hold')); return section; }
+  // v57.76: this section is the current-state reading (which of three flows the market is closest to); the forward
+  // branches by release live in full on 거시 only, so the heading no longer says 향후 시나리오 and the section ends
+  // with one link there.
+  section.append(el(doc, 'h2', '지금 시장 흐름 — 세 가지 중 어디에 가까운가', 'briefing-h2'),
+    el(doc, 'p', `${model.asOf || '기준일 미확인'} 종가 기준 · 지금 시장이 세 흐름 중 어디에 가까운지(맞는 조건 수, 확률 아님)를 봅니다. 다음 발표가 이 흐름을 어느 쪽으로 옮길지는 거시에서 이어집니다.`, 'regime-scenario-basis'));
+  if (!model.available) { section.append(el(doc, 'p', model.reason, 'regime-scenario-hold'), scenarioLink(doc, root)); return section; }
   if (model.reason) section.append(el(doc, 'p', model.reason, 'regime-scenario-hold'));
   if (outlook?.available) section.append(el(doc, 'p', outlook.headline, 'regime-scenario-lead'));
   const byId = Object.fromEntries((outlook?.items || []).map((item) => [item.id, item]));
@@ -178,8 +181,19 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
     card.append(more);
     grid.append(card);
   }
-  section.append(grid);
+  section.append(grid, scenarioLink(doc, root));
   return section;
+}
+
+// v57.76: the compact "다음 발표에 달린 시나리오" block repeated 거시's branches here; one link line replaces it, using the
+// same root.showPage + section scroll as the other cross-screen links (home's 세 구조 link, the crossroads links).
+function scenarioLink(doc, root) {
+  const line = el(doc, 'p', null, 'regime-scenario-next');
+  const button = el(doc, 'button', '다음 발표별 시나리오 → 거시', 'flow-next-link');
+  button.type = 'button';
+  button.addEventListener('click', () => showCrossroadsSection(doc, root));
+  line.append(button);
+  return line;
 }
 
 export function renderRegimePage({ documentRef: doc, root }) {
@@ -228,6 +242,8 @@ export function renderRegimePage({ documentRef: doc, root }) {
         changes.append(el(doc, 'h4', '상태가 바뀌는 조건'), el(doc, 'p', row.flip));
         card.append(changes);
       }
+      // P1661 / v57.76: past outcomes after days with a similar VIX fold inside the volatility card (VIX-only table).
+      if (row.id === 'volatility') renderStressOutcomes({ documentRef: doc, root, host: card });
       // P1660 (owner 2026-10-12): the fold teaches — the principle, how practitioners read it, how it links to the
       // other axes — then today's remaining numbers and a link to the page that goes deeper. Sources stay on hover.
       const extra = [];
@@ -240,7 +256,6 @@ export function renderRegimePage({ documentRef: doc, root }) {
     };
     board.replaceChildren(...regime.axes.filter((row) => row.id !== 'korea').map(card));
     if (regime.available) renderRegimeRadar({ documentRef: doc, root, inputs, anchor: board, verdicts: regime.axes }); // P1637
-    renderStressOutcomes({ documentRef: doc, root, anchor: board }); // P1661: past outcomes by stress band
     if (boardKr) {
       boardKr.classList.add('regime-quality-board', 'regime-quality-korea');
       const korea = buildKoreaRegimeObservations(inputs, { through: regime.asOf || null });
@@ -275,7 +290,7 @@ export function renderRegimePage({ documentRef: doc, root }) {
   previous?.remove();
   root.__aioScenarioOutlook = scenarios.available ? outlookForRoot(root, { scenarios, regime }) : null;
   const scenarioNode = board ? scenarioSection(doc, root, scenarios, root.__aioScenarioOutlook, openIds) : null;
-  if (scenarioNode) { board.insertAdjacentElement('afterend', scenarioNode); renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: scenarioNode.lastElementChild || scenarioNode, id: 'signal-crossroads', title: '다음 발표에 달린 시나리오' }); } // P1742: the branches continue the structure section
+  if (scenarioNode) board.insertAdjacentElement('afterend', scenarioNode); // v57.76: the branches by release are on 거시; the section ends with a link there
   renderNextSteps(doc, doc.getElementById('regime-next'), regimeFlow({ regime, groups: root.__aioScenarioOutlook?.rotation || {} }).next); // P1431, I02
   // P1727: a link that asked for a section of this page (the briefing's Korea sentence -> 한국 시장 참고) shows it once.
   const handoff = consumeResearchHandoff({ root, routeId: 'signal' });

@@ -1,4 +1,5 @@
-// P1742 (owner 2026-10-13): "향후 시나리오" — the forward branches on 거시 (full), 오늘 and 시장 상태 (compact).
+// P1742 (owner 2026-10-13): "향후 시나리오" — the forward branches on 거시 (full) and 오늘 (compact); v57.76: 시장 상태
+// links to 거시 instead of repeating them.
 // One visual (the upcoming releases and the branch map with each branch's met-condition dots), a short reading
 // (why rates matter and what would have to happen for them to fall), then per-branch detail folded inside each map
 // row (one list, not the map plus a second accordion of the same branches): the
@@ -58,7 +59,9 @@ function linkButton(doc, root, label, route, anchor = null) {
   button.type = 'button';
   button.addEventListener('click', () => {
     root.showPage?.(route);
-    if (anchor) setTimeout(() => doc.getElementById(anchor)?.scrollIntoView?.({ block: 'start' }), 60);
+    // v57.76: 거시's scenarios now follow the current-state blocks, which can still grow after the route change — the
+    // scroll repeats briefly (one 60ms try landed ~2,000px short on desktop).
+    if (anchor) for (const delay of [80, 400, 1200]) setTimeout(() => doc.getElementById(anchor)?.scrollIntoView?.({ block: 'start' }), delay);
   });
   return button;
 }
@@ -136,6 +139,13 @@ function branchMap(doc, root, model, openIds, { firstPaint = false, restOpen = f
   }
   map.append(list);
   return map;
+}
+
+/** v57.76: open 거시 at the 향후 시나리오 heading. The section now follows the current-state blocks, whose content can
+ * still grow after the route change, so the scroll repeats briefly once the heading exists. */
+export function showCrossroadsSection(doc, root) {
+  root?.showPage?.('macro');
+  for (const delay of [80, 400, 1200]) setTimeout(() => doc?.getElementById?.('macro-crossroads-title')?.scrollIntoView?.({ block: 'start' }), delay);
 }
 
 /** Open one branch's detail on 거시 (from the six-axis cards or another screen) and bring it into view. */
@@ -257,17 +267,19 @@ function changeLog(doc, state) {
 /** Full section on 거시. */
 export function renderMacroCrossroads({ documentRef: doc, root, regime = null, host = null } = {}) {
   let target = host || doc?.getElementById('macro-crossroads');
-  // The section is created here (the shell stays unchanged): first on 거시, before the current-regime section.
-  const before = !target ? doc?.getElementById('macro-regime')?.closest('section') : null;
-  if (before) {
+  // The section is created here (the shell stays unchanged). v57.76: 거시 reads current state first — 지금의 거시 국면 →
+  // 거시 6요인 → 어떻게 연결되나 — and the scenarios follow the chain, before 경제 지표 and 유가·금.
+  const after = !target ? doc?.getElementById('macro-chain')?.closest('section') : null;
+  if (after) {
     const section = el(doc, 'section', null, 'briefing-block macro-section xr-section');
     section.setAttribute('aria-labelledby', 'macro-crossroads-title');
     const title = el(doc, 'h2', '향후 시나리오 — 다음 발표로 확인', 'briefing-h2');
     title.id = 'macro-crossroads-title';
     target = el(doc, 'div');
     target.id = 'macro-crossroads';
-    section.append(title, target);
-    before.insertAdjacentElement('beforebegin', section);
+    // v57.76: one bridge line ties the branches to the chain right above.
+    section.append(title, el(doc, 'p', '위 연결이 다음 발표에서 어느 쪽으로 갈지 봅니다.', 'briefing-footnote macro-section-lead'), target);
+    after.insertAdjacentElement('afterend', section);
   }
   if (!target) return null;
   const model = crossroadsForRoot(root, { regime });
@@ -325,7 +337,7 @@ function pathCard(doc, root, item, { kicker, fit }) {
   return card;
 }
 
-/** Compact block on 오늘 and 시장 상태: one forward view — the present structure (when given), the branch the next
+/** Compact block on 오늘 (v57.76: no longer on 시장 상태): one forward view — the present structure (when given), the branch the next
  * releases would most likely confirm and the structure it leads to, its chain and favoured choice, the alternative,
  * the rate tension and the theme side — then links to 거시 and 테마. */
 export function renderCrossroadsCompact({ documentRef: doc, root, regime = null, anchor = null, id = 'home-crossroads', structure = null, title = '향후 시나리오' } = {}) {

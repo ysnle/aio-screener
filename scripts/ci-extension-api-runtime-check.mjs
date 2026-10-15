@@ -31,7 +31,9 @@ assert.equal(JSON.parse(context.localStorage.getItem('aio_quota_fmp')).count, 1,
 await context.fetchWithTimeout('public-data/data.json');
 assert.equal(dispatched.length, 2, 'P1422 relative non-provider requests still work');
 context.localStorage.setItem('aio_quota_fmp', JSON.stringify({ date: new Date().toISOString().slice(0,10), count: 250 }));
-assert.equal(await context._fmpFetch('v3/profile/AAPL'), null, 'P1422 FMP local exhausted quota blocks helper');
+// v57.76: the personal-key FMP/Finnhub fetchers (_fmpFetch, sector compare, deep compare, fundamental report, ticker
+// chat blocks) were removed from aio-chat; the transport contract above still covers any FMP URL that reaches it.
+assert(!/_fmpFetch|_getApiKey\('aio_(?:fmp|finnhub)_key'\)|financialmodelingprep\.com\/api|finnhub\.io\/api|fetchFinnhub[A-Za-z]*\(|fetchFMP(?:Segments|EarningsCallTranscript)\(/.test(chat), 'v57.76 no personal FMP/Finnhub fetch remains in aio-chat'); // text-pin-ok: asserts removed code is absent
 assert.equal((await context.fetchWithTimeout('https://financialmodelingprep.com/api/v3/profile/AAPL?apikey=x')).status, 429, 'P1422 direct FMP call also obeys quota');
 assert.equal(dispatched.length, 2, 'P1422 no exhausted FMP upstream dispatch');
 assert.equal((await context.fetchWithTimeout('https://financialmodelingprep.com/api/v3/institutional-holder/AAPL?apikey=x')).status, 422, 'P1422 missing ownership date is not guessed');
@@ -48,38 +50,12 @@ for (const endpoint of ['income-statement','balance-sheet-statement','cash-flow-
   assert.equal(new URL(urls[0]).searchParams.get('symbol'), 'MSFT', 'P1422 caller ticker survives mapping');
 }
 
-vm.runInContext(slice(data, 'function _aioFredRelayConsent(', '// P715:'), context);
-context.DATA_APIS = { fred: { key: () => 'personal-fred-fixture-key', base: 'https://api.stlouisfed.org/fred/series/observations' }, twelveData: { key: () => 'td-fixture-key', base: 'https://api.twelvedata.com' } };
-vm.runInContext(slice(data, 'async function fetchFredSeries(', '// v47.11: 5개 시리즈'), context);
-let relayCalls = [];
-context._aioRelayUrl = () => 'https://worker.fixture/relay?provider=fred&series_id=UNRATE';
-context._aioRelayFetch = async (url, ms, key) => { relayCalls.push({ url, key }); return Response.json({ observations: [{ value:'4.0', date:'2026-10-01' }] }); };
-context.fetchWithTimeout = async () => { throw new Error('fixture CORS unavailable'); };
-assert.equal(await context.fetchFredSeries('UNRATE'), null, 'P1422 existing personal keys are not silently sent to the operator');
-assert.equal(relayCalls.length, 0, 'P1422 shared personal-key relay requires opt-in');
-context.localStorage.setItem('aio_fred_relay_consent', 'true');
-assert.equal((await context.fetchFredSeries('UNRATE'))[0].value, '4.0', 'P1422 consented personal query succeeds');
-assert.equal(relayCalls[0].key, 'personal-fred-fixture-key', 'P1422 own key is used');
-context.DATA_APIS.fred.key = () => '';
-assert.equal(await context.fetchFredSeries('UNRATE'), null, 'P1422 missing personal key does not borrow the operator key');
-assert.equal(relayCalls.length, 1, 'P1422 no keyless relay dispatch');
-
-vm.runInContext(slice(data, 'function _aioReserveTwelveCredits(', '// v47.10: fetchChartData'), context);
-context.localStorage.store.clear();
-let tdCalls = 0;
-context.fetchWithTimeout = async () => { tdCalls++; return Response.json({ data: [{ rsi: { values: [1] } }] }); };
-await context.fetchTechnicalIndicators('AAPL');
-assert.equal(JSON.parse(context.localStorage.getItem('aio_quota_twelveData')).count, 6, 'P1422 six batched indicators reserve six weighted credits');
-context.localStorage.store.clear();
-context.fetchWithTimeout = async () => { tdCalls++; return new Response('', { status: 429 }); };
-const before = tdCalls;
-await context.fetchTechnicalIndicators('AAPL');
-assert.equal(tdCalls - before, 1, 'P1422 provider quota refusal does not trigger six more attempts');
-context.localStorage.setItem('aio_quota_twelveData', JSON.stringify({ date: new Date().toISOString().slice(0,10), count: 798 }));
-const prior = tdCalls;
-await context.fetchTechnicalIndicators('AAPL');
-assert.equal(tdCalls, prior, 'P1422 insufficient batch credit prevents dispatch');
-assert.equal(JSON.parse(context.localStorage.getItem('aio_quota_twelveData')).count, 798, 'P1422 no reservation for a known undispatched batch');
+// v57.76: the personal-key FRED query (fetchFredSeries + opt-in relay consent + X-AIO-Provider-Key header), the Twelve Data
+// indicator/OHLCV fetchers and the Finnhub WebSocket were removed from aio-data with the retired personal keys. The relay
+// helper keeps only the shared app token, and BOK/KOSIS keep their operator-key relay path.
+assert(!/function fetchFredSeries\(|function _aioFredRelayConsent\(|aio_fred_relay_consent|X-AIO-Provider-Key/.test(data), 'v57.76 no personal-key FRED query or provider-key relay header remains in aio-data'); // text-pin-ok: asserts removed code is absent
+assert(!/function fetchTechnicalIndicators\(|function fetchOHLCV\(|function _aioReserveTwelveCredits\(|https:\/\/api\.twelvedata\.com|initFinnhubWebSocket|wss:\/\/ws\.finnhub\.io/.test(data), 'v57.76 no personal Twelve Data or Finnhub WebSocket path remains in aio-data'); // text-pin-ok: asserts removed code is absent
+assert(!/_getApiKey\('aio_(?:bok|kosis|rss2json|newsdata|av|td|fred|finnhub|fmp)_key'\)/.test(data), 'v57.76 aio-data reads no retired personal data key (BOK/KOSIS keep the operator-key relay)'); // text-pin-ok: asserts removed code is absent
 
 context._rssIsSkipped = () => false; context._rssMarkOk = () => {}; context._rssMarkFail = () => {};
 context._rss2jsonFailed = 0; context._cfWorkerUrl = () => 'https://worker.fixture';
@@ -96,10 +72,8 @@ await context.fetchOneFeed({ name:'fixture', url:'https://feed.fixture/rss' });
 assert.equal(order[0], 'worker', 'P1422 Worker precedes fallback');
 assert.equal(new URL(order[1]).searchParams.has('count'), false, 'P1422 keyless rss2json uses supported default count');
 assert.equal(new URL(order[1]).searchParams.has('api_key'), false, 'P1422 keyless rss2json sends no credential');
-vm.runInContext(slice(data, 'async function fetchNewsDataIO(', '// ═══ 6c.'), context);
-context._getApiKey = () => 'news-fixture';
-context.fetchWithTimeout = async () => Response.json({ status:'success', results:[{ title:'Fixture NewsData delayed news headline', pubDate:'2026-10-01 12:00:00' }] });
-assert.equal((await context.fetchNewsDataIO())[0].providerDelayPolicy, 'plan-dependent-free-12h', 'P1422 NewsData cannot silently claim zero delivery delay');
+// v57.76: the personal NewsData.io and Finnhub news fetchers (and their merge into fetchAllNews) were removed.
+assert(!/function fetchNewsDataIO\(|function fetchFinnhub[A-Za-z]*\(|newsdata\.io\/api|_aioPersonalNewsKeys/.test(data), 'v57.76 no personal NewsData/Finnhub news fetcher remains in aio-data'); // text-pin-ok: asserts removed code is absent
 
 assert(!/<input[^>]+(?:claude-api-key|openai-api-key|aio_perplexity_key_input)/.test(shell), 'P1422 public UI has no personal AI-key input');
 // v57.67 (owner 2026-10-15): personal data-provider keys are retired; the shell asks for none and the getter never
@@ -132,4 +106,4 @@ assert.equal(context.getLLMRouteReadiness().label, '공용 연결 준비 중', '
 assert.equal(context.getLLMRouteReadiness().ready, false, 'P1424 held AI route never advertises capacity');
 vm.runInContext(slice(chat, 'function _aioClaudeTarget(', 'window._aioClaudeTarget ='), context);
 assert.equal(context._aioClaudeTarget(), null, 'P1424 disabled public configuration also blocks the generation transport');
-console.log('Extension API runtime PASS: FMP stable/quota/error, personal FRED consent, weighted Twelve Data, RSS priority/fallback, retired personal data keys.');
+console.log('Extension API runtime PASS: FMP stable/quota/error transport, RSS priority/fallback, retired personal data keys and their removed fetchers.');

@@ -18,11 +18,12 @@ import { benchmarkReturns, basisOf } from '../components/theme-strength.js';
 import { readMarketRegime } from '../components/market-regime.js';
 import { renderNextSteps } from '../components/page-flow.js';
 
+// v57.76: plain-Korean quadrant notes (no 모멘텀 jargon). 100 is the sector's own 100-session average relative price.
 const QUADRANTS = Object.freeze([
-  { key: 'Leading', label: '선도', sub: '상대강도 우위', note: '상대강도·모멘텀 모두 우위' },
-  { key: 'Improving', label: '개선', sub: '개선 관찰', note: '상대모멘텀 개선 중' },
-  { key: 'Weakening', label: '약화', sub: '둔화 관찰', note: '상대강도 대비 모멘텀 둔화' },
-  { key: 'Lagging', label: '후행', sub: '상대 약세', note: '상대강도·모멘텀 모두 열위' }
+  { key: 'Leading', label: '선도', note: '시장 대비 흐름이 평소보다 강하고, 계속 강해지는 중' },
+  { key: 'Improving', label: '개선', note: '시장 대비 흐름이 평소보다 약하지만, 나아지는 중' },
+  { key: 'Weakening', label: '약화', note: '시장 대비 흐름이 평소보다 강하지만, 힘이 빠지는 중' },
+  { key: 'Lagging', label: '후행', note: '시장 대비 흐름이 평소보다 약하고, 더 약해지는 중' }
 ]);
 
 function finite(value) {
@@ -74,15 +75,17 @@ function renderRRGStatus({ documentRef, root, store, route }) {
   const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
   if (!total) {
     status.textContent = items.length
-      ? 'RRG 판정 보류 · 상대강도·모멘텀 증거 부족'
-      : 'RRG 데이터 수신 대기 · 시세 데이터가 들어오면 표시됩니다';
+      ? '섹터 회전 판정 보류 · 상대강도 기록이 부족합니다'
+      : '섹터 상대강도 기록 수신 대기';
     status.style.color = 'var(--text-muted)';
     return;
   }
   // Expert review M08: no grade or risk colour from the quadrant counts. The benchmark (SPY) is cap-weighted, so a
   // few mega-caps lifting the index put most sectors below 100 without any sector "weakening" on its own.
-  // v57.50 D14: the full caveat sits under the scatter (rrg-method-note); the status keeps the counts and the basis.
-  status.textContent = `선도 ${counts.Leading} · 개선 ${counts.Improving} · 약화 ${counts.Weakening} · 후행 ${counts.Lagging} — 시가총액 가중 SPY 대비라 초대형주가 지수를 끄는 국면에서는 여러 섹터가 함께 100 아래에 놓일 수 있습니다.`;
+  // v57.76: that caveat lives once, in the 사분면별 섹터 fold (rrg-method-note); the line above the chart keeps the
+  // counts and the close it was measured on.
+  const close = usCloseSession(root);
+  status.textContent = `선도 ${counts.Leading} · 개선 ${counts.Improving} · 약화 ${counts.Weakening} · 후행 ${counts.Lagging} · ${close ? `${shortSession(close)} 미국 종가 기준` : '완료 종가 기준'}`;
   status.style.color = 'var(--text-dim)';
 }
 
@@ -93,15 +96,24 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   canvas.dataset.aioRrgChartRenderer = 'native';
   const items = viewItems(selectThemesItems(store?.getState?.() || {}), activeView(root));
   const validItems = items.filter((item) => finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null);
-  const containerWidth = canvas.parentElement ? canvas.parentElement.clientWidth - 8 : 900;
-  const width = Math.max(300, containerWidth || 900);
-  const height = Math.max(180, Math.min(520, Math.round(width * 0.52)));
-  if (canvas.width !== width || canvas.height !== height) {
-    canvas.width = width;
-    canvas.height = height;
+  // v57.76: the scatter is the section's visual. Its height follows the frame width (taller ratio on a phone so the
+  // eleven dots do not crowd), and the backing store follows devicePixelRatio so text stays sharp. Drawing below is in
+  // CSS pixels; a hidden frame (no judged sector) falls back to a desktop size.
+  const frameWidth = canvas.parentElement ? canvas.parentElement.clientWidth : 0;
+  const width = frameWidth > 0 ? Math.round(frameWidth) : 900;
+  const compact = width < 520;
+  const height = Math.max(260, Math.min(520, Math.round(width * (compact ? 0.9 : 0.55))));
+  const ratio = Math.max(1, Math.min(3, Number(root?.devicePixelRatio) || 1));
+  const backingWidth = Math.round(width * ratio);
+  const backingHeight = Math.round(height * ratio);
+  if (canvas.width !== backingWidth || canvas.height !== backingHeight) {
+    canvas.width = backingWidth;
+    canvas.height = backingHeight;
   }
+  if (canvas.style) canvas.style.height = `${height}px`;
   const context = canvas.getContext('2d');
   if (!context) return;
+  context.setTransform?.(ratio, 0, 0, ratio, 0, 0);
   const palette = chartPalette(root);
   // Expert review M19: the point colours are the legend's own CSS tokens, so the 개선 dot matches its legend entry
   // and every colour follows the dark theme (the old hard-coded ink vanished on the dark canvas).
@@ -112,7 +124,7 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   const muted = token('--text-muted', '#8a8271');
   // M09: axes span the plotted points (and the 100 baseline) instead of clipping at ±3.5.
   const domain = rrgAxisDomain(validItems);
-  const plot = { left: 46, right: width - 14, top: 30, bottom: height - 40 };
+  const plot = { left: compact ? 40 : 46, right: width - (compact ? 10 : 14), top: 24, bottom: height - (compact ? 36 : 40) };
   const px = (value) => plot.left + (value - domain.x.min) / (domain.x.max - domain.x.min) * (plot.right - plot.left);
   const py = (value) => plot.bottom - (value - domain.y.min) / (domain.y.max - domain.y.min) * (plot.bottom - plot.top);
   const baseX = px(100);
@@ -128,11 +140,13 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   context.font = '10px Inter, sans-serif';
   context.fillStyle = palette.text;
   context.textAlign = 'center';
-  for (const tick of domain.x.ticks) {
+  // On a phone, every other x tick is labelled so neighbouring values do not overlap.
+  const xLabelEvery = compact && domain.x.ticks.length > 6 ? 2 : 1;
+  domain.x.ticks.forEach((tick, index) => {
     const x = px(tick);
     context.beginPath(); context.moveTo(x, plot.bottom); context.lineTo(x, plot.bottom + 4); context.stroke();
-    context.fillText(String(tick), x, plot.bottom + 15);
-  }
+    if (index % xLabelEvery === 0) context.fillText(String(tick), x, plot.bottom + 15);
+  });
   context.textAlign = 'right';
   for (const tick of domain.y.ticks) {
     const y = py(tick);
@@ -147,20 +161,15 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   context.font = '11px Inter, sans-serif';
   context.textAlign = 'center';
   // v57.50 D13: 100 is the sector's own 100-session average relative price, not "the same as SPY".
-  context.fillText('RS-Ratio (100 = 100일 평균 상대강도) →', (plot.left + plot.right) / 2, height - 6);
+  // v57.76: plain-Korean axis titles; the precise definitions sit once in the 사분면별 섹터 fold.
+  context.fillText(compact ? '상대강도(시장 대비) →' : '상대강도(시장 대비 · 100 = 100일 평균) →', (plot.left + plot.right) / 2, height - 6);
   context.save();
   context.translate(11, (plot.top + plot.bottom) / 2);
   context.rotate(-Math.PI / 2);
-  context.fillText('RS-Momentum (50일 전 대비) ↑', 0, 0);
+  context.fillText(compact ? '상대강도 변화 속도 ↑' : '상대강도 변화 속도(약 50일 전 대비) ↑', 0, 0);
   context.restore();
-  // v57.50 D13/D14: the axis definitions and the cap-weighted benchmark caveat sit under the (folded) scatter.
-  if (canvas.parentElement && !documentRef.getElementById('rrg-method-note')) {
-    const note = documentRef.createElement('p');
-    note.id = 'rrg-method-note';
-    note.className = 'theme-strength-basis';
-    note.textContent = `${RRG_DEFINITION.ratio} · ${RRG_DEFINITION.momentum}. ${RRG_DEFINITION.benchmarkBias}`;
-    canvas.insertAdjacentElement?.('afterend', note);
-  }
+  const note = documentRef.getElementById('rrg-method-note');
+  if (note) note.textContent = `이 그림은 흔히 RRG(상대 회전 그래프)라 부르는 방식입니다. ${RRG_DEFINITION.ratio}. ${RRG_DEFINITION.momentum}. ${RRG_DEFINITION.benchmarkBias}`;
   context.font = 'bold 12px Inter, sans-serif';
   context.textAlign = 'right'; context.fillStyle = colors.Leading; context.fillText('선도', plot.right - 6, plot.top + 14);
   context.fillStyle = colors.Weakening; context.fillText('약화', plot.right - 6, plot.bottom - 6);
@@ -170,16 +179,21 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   if (!validItems.length) {
     context.fillStyle = muted;
     context.font = '12px Inter, sans-serif';
-    context.fillText('상대강도·모멘텀 데이터 수신 대기', (plot.left + plot.right) / 2, (plot.top + plot.bottom) / 2);
+    context.fillText('상대강도 기록 수신 대기', (plot.left + plot.right) / 2, (plot.top + plot.bottom) / 2);
     return;
   }
   const placed = [];
+  // v57.76: a label is kept inside the canvas (a dot at the right edge used to cut its ticker in half on a phone).
+  const inside = (text, x) => {
+    const half = (context.measureText?.(text)?.width || text.length * 6) / 2;
+    return Math.min(Math.max(x, half + 2), width - half - 2);
+  };
   validItems.forEach((item) => {
     const x = px(item.rsRatio);
     const y = py(item.rsMomentum);
     const color = colors[item.quadrant] || muted;
     context.beginPath();
-    context.arc(x, y, 6, 0, Math.PI * 2);
+    context.arc(x, y, compact ? 5 : 6, 0, Math.PI * 2);
     context.fillStyle = color;
     context.fill();
     context.strokeStyle = palette.grid;
@@ -188,13 +202,16 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
     let labelY = y - 9;
     while (placed.some((spot) => Math.abs(spot.x - x) < 34 && Math.abs(spot.y - labelY) < 11)) labelY -= 11;
     placed.push({ x, y: labelY });
+    const symbol = String(item.symbol || item.id || '');
     context.font = 'bold 11px system-ui';
     context.fillStyle = color;
-    context.fillText(String(item.symbol || item.id || ''), x, labelY);
-    if (activeView(root) !== 'all' && labelY === y - 9) {
+    context.fillText(symbol, inside(symbol, x), labelY);
+    // The Korean name under the dot is a desktop extra; on a phone it overlapped the neighbouring tickers.
+    if (!compact && activeView(root) !== 'all' && labelY === y - 9) {
+      const name = String(item.label || '');
       context.font = '10px system-ui';
       context.fillStyle = muted;
-      context.fillText(String(item.label || ''), x, y + 16);
+      context.fillText(name, inside(name, x), y + 16);
     }
   });
 }
@@ -231,30 +248,8 @@ function renderThemeCyclePill({ documentRef, root, store, route }) {
   pill.textContent = `${viewLabel} 상대강도 · 선도·개선 ${counts.Leading + counts.Improving}/${total} · 약화·후행 ${counts.Weakening + counts.Lagging}/${total}`;
 }
 
-function renderThemePerformanceNarrative({ documentRef, root, store, route }) {
-  if (route !== 'themes') return;
-  const host = documentRef?.getElementById('sector-perf-analysis');
-  if (!host) return;
-  host.dataset.aioThemePerformanceRenderer = 'native';
-  // Codex review 2026-10-05: the bars switched to 1주 while this summary kept the 1-day returns. Both read
-  // the same selected period now.
-  const mode = root?._sectorPerfMode === '1w' ? '1w' : '1d';
-  const periodLabel = mode === '1w' ? '1주' : '1일';
-  const rows = viewItems(selectThemesItems(store?.getState?.() || {}), 'sectors')
-    .map((item) => ({ label: themeItemLabel(root, item), pct: finite(mode === '1w' ? item?.weeklyPct : item?.pct) }))
-    .filter((row) => row.label && row.pct != null)
-    .sort((a, b) => b.pct - a.pct);
-  if (rows.length < 2) {
-    host.textContent = `섹터 ${periodLabel} 성과 요약 보류 · 비교할 섹터 등락률이 2개 이상 필요합니다.`;
-    host.style.color = 'var(--text-muted)';
-    return;
-  }
-  const leaders = rows.slice(0, 2).map((row) => `${row.label} ${row.pct >= 0 ? '+' : ''}${row.pct.toFixed(2)}%`).join(' · ');
-  const laggards = rows.slice(-2).reverse().map((row) => `${row.label} ${row.pct >= 0 ? '+' : ''}${row.pct.toFixed(2)}%`).join(' · ');
-  const close = usCloseSession(root);
-  host.textContent = `섹터 ETF ${periodLabel} 가격 성과${close ? ` · ${shortSession(close)} 미국 종가 기준` : ''} · 강세 ${leaders} · 약세 ${laggards}. 가격 성과는 자금 유입량과 같지 않습니다.`;
-  host.style.color = 'var(--text-secondary)';
-}
+// v57.76: the 섹터 흐름 분석 box (sector-perf-analysis) and its writer are retired — it repeated the 섹터 회전 판정
+// sentence and the 1일·1주 bars right above it.
 
 // P1444: KR themes from the published screener rows; the summary states what is actually covered.
 function renderKrThemeArtifact({ documentRef, root, store }) {
@@ -460,8 +455,8 @@ function renderThemes({ documentRef, root, store, route }) {
   const legend = documentRef.createElement('div');
   legend.dataset.themeDetailLegend = 'true';
   // Codex browser audit H22: the quadrant and the chip return answer different windows; the legend says which.
-  // v57.50 D13: the quadrant's real definition (100-session average position · change against ~50 sessions ago).
-  legend.textContent = `사분면 = SPY 대비 상대가격이 100일 평균보다 위인지와 50일 전보다 나아졌는지 · 확정 종가 기준 · 칩 옆 % = 1일 등락률(아래 섹터 막대의 1일·1주 전환과 별개) — 그래서 후행 사분면 종목이 그날은 올랐을 수 있습니다. 상세 제공 ${detailCount}개 · 점선 칩 ${Math.max(0, items.length - detailCount)}개는 하위 테마 순위로 연결됩니다.`;
+  // v57.76: the quadrant definition is the fold's method note (rrg-method-note); the legend keeps only the chip facts.
+  legend.textContent = `칩 옆 % = 1일 등락률로, 사분면(약 100일 흐름)과 별개라 후행 섹터가 그날은 올랐을 수 있습니다. 실선 칩 ${detailCount}개는 테마 상세, 점선 칩 ${Math.max(0, items.length - detailCount)}개는 하위 테마 순위로 연결됩니다.`;
   legend.style.cssText = 'grid-column:1/-1;font-size:12px;color:var(--text-muted);padding:2px 0 6px;';
   if (classifiedCount) container.appendChild(legend); // P1591 (T01): no quadrant legend over an empty quadrant area
   const appendUnclassified = () => {
@@ -475,10 +470,16 @@ function renderThemes({ documentRef, root, store, route }) {
   };
   // v57.54 audit (2): with no sector judged, the page shows one status line (the verdict) instead of empty quadrants and
   // hides the dead view tabs. The sector chips stay as a flat row: they are the page's entry to each theme's detail.
-  const quadrantBlock = container.parentElement;
+  // v57.76: the scatter (rrg-chart-block) is the section's visual and hides with nothing to plot; the chips then sit in
+  // the fold, opened once so the entry stays visible (a reader's own close is kept), and closed again once quadrants exist.
+  const chartBlock = documentRef.getElementById('rrg-chart-block');
+  const fold = documentRef.getElementById('rrg-quadrant-fold');
+  const foldSummary = fold?.querySelector?.('summary');
   const viewTabs = documentRef.getElementById('rrg-view-tabs');
   if (!classifiedCount) {
-    if (quadrantBlock) quadrantBlock.hidden = false;
+    if (chartBlock) chartBlock.hidden = true;
+    if (foldSummary) foldSummary.textContent = '섹터 목록 · 상대강도 판정 전';
+    if (fold && !fold.dataset.aioAutoOpened) { fold.open = true; fold.dataset.aioAutoOpened = 'true'; }
     appendUnclassified();
     const anyJudged = viewItems(selectThemesItems(store?.getState?.() || {}), 'all')
       .some((item) => QUADRANTS.some((q) => q.key === String(item?.quadrant || '')) && finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null);
@@ -488,17 +489,22 @@ function renderThemes({ documentRef, root, store, route }) {
     if (read) read.textContent = `섹터 회전은 최신 확정 종가의 상대강도 기록이 들어오면 표시합니다${close ? ` (지금 기록은 ${shortSession(close)} 종가까지)` : ''} — 그 전에는 아래 S&P 500 지도와 하위 테마 순위로 읽습니다.`;
     return;
   }
-  if (quadrantBlock) quadrantBlock.hidden = false;
+  if (chartBlock) chartBlock.hidden = false;
+  if (foldSummary) foldSummary.textContent = '사분면별 섹터';
+  if (fold?.dataset.aioAutoOpened) { fold.open = false; delete fold.dataset.aioAutoOpened; }
   if (viewTabs) viewTabs.hidden = false;
 
   QUADRANTS.forEach((quadrant) => {
     const card = documentRef.createElement('section');
     card.dataset.themeQuadrant = quadrant.key;
-    card.style.cssText = 'background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:20px 24px;';
+    card.style.cssText = 'background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:14px 16px;min-width:0;';
     const heading = documentRef.createElement('div');
-    heading.textContent = `${quadrant.label} · ${quadrant.sub}`;
-    heading.style.cssText = 'font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:12px;';
-    card.appendChild(heading);
+    heading.textContent = quadrant.label;
+    heading.style.cssText = 'font-size:13px;font-weight:600;color:var(--text-primary);';
+    const note = documentRef.createElement('div');
+    note.textContent = quadrant.note;
+    note.style.cssText = 'font-size:12px;color:var(--text-dim);margin:2px 0 10px;';
+    card.append(heading, note);
     const chips = documentRef.createElement('div');
     chips.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;';
     const group = groups.get(quadrant.key) || [];
@@ -510,10 +516,6 @@ function renderThemes({ documentRef, root, store, route }) {
       chips.appendChild(empty);
     }
     card.appendChild(chips);
-    const note = documentRef.createElement('div');
-    note.textContent = quadrant.note;
-    note.style.cssText = 'font-size:12px;color:var(--text-dim);margin-top:10px;';
-    card.appendChild(note);
     container.appendChild(card);
   });
   appendUnclassified();
@@ -1027,7 +1029,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         const rrgStatusHost = documentRef.getElementById('rrg-chart-status');
         const rrgCanvasHost = documentRef.getElementById('rrg-canvas');
         const cyclePillHost = documentRef.getElementById('theme-cycle-pill');
-         const performanceNarrativeHost = documentRef.getElementById('sector-perf-analysis');
          const performanceBarsHost = documentRef.getElementById('sector-perf-bars');
          const detailPanel = documentRef.getElementById('theme-detail-panel');
          const detailHost = documentRef.getElementById('theme-detail-native-summary');
@@ -1053,7 +1054,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         if (rrgStatusHost) rrgStatusHost.dataset.aioRrgStatusRenderer = 'native';
         if (rrgCanvasHost) rrgCanvasHost.dataset.aioRrgChartRenderer = 'native';
         if (cyclePillHost) cyclePillHost.dataset.aioThemeCycleRenderer = 'native';
-         if (performanceNarrativeHost) performanceNarrativeHost.dataset.aioThemePerformanceRenderer = 'native';
          if (performanceBarsHost) performanceBarsHost.dataset.aioThemePerformanceBarsRenderer = 'native';
          if (detailPanel) detailPanel.dataset.aioThemeDetailPanelRenderer = 'native';
         // v57.54 (CI flake, 1 in ~12 under 4x CPU): a refresh/store re-render right after the detail panel closes can
@@ -1092,7 +1092,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           renderRRGStatus({ documentRef, root, store, route });
           renderRRGCanvas({ documentRef, root, store, route });
           renderThemeCyclePill({ documentRef, root, store, route });
-           renderThemePerformanceNarrative({ documentRef, root, store, route });
            renderThemePerformanceBars({ documentRef, root, store, route });
            renderKrThemeArtifact({ documentRef, root, store });
           renderDetail();
@@ -1114,6 +1113,21 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         };
         bag.add(() => cancelScheduledRender());
         renderNow();
+        // v57.76: the scatter redraws when its frame changes width (rotation, sidebar, window resize). Height changes
+        // from the redraw itself are ignored, so the observer cannot loop.
+        const rrgFrame = documentRef.getElementById('rrg-canvas-frame');
+        const FrameObserver = documentRef.defaultView?.ResizeObserver;
+        if (rrgFrame && typeof FrameObserver === 'function') {
+          let lastFrameWidth = rrgFrame.clientWidth;
+          const frameObserver = new FrameObserver(() => {
+            const frameWidth = rrgFrame.clientWidth;
+            if (!frameWidth || frameWidth === lastFrameWidth) return;
+            lastFrameWidth = frameWidth;
+            renderRRGCanvas({ documentRef, root, store, route });
+          });
+          frameObserver.observe(rrgFrame);
+          bag.add(() => frameObserver.disconnect());
+        }
         // v57.50 I22: a link that asked for a section (국내 테마 from the KR screener) opens and shows it once.
         const handoff = consumeResearchHandoff({ root, routeId: 'themes' });
         const anchorId = handoff?.context?.anchor ? String(handoff.context.anchor) : '';
@@ -1150,8 +1164,12 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           // compatibility event reaches the mounted page. The store subscription is
           // the sole detail renderer; this listener owns visibility only.
         };
+        // v57.76: a quadrant chip can sit in the 사분면별 섹터 fold, which closes itself once quadrants render; returning
+        // focus opens the fold first, since a node inside a closed <details> cannot take focus.
+        const revealTrigger = (node) => { const fold = node?.closest?.('details'); if (fold && !fold.open) fold.open = true; };
         const onThemeDetailClosed = () => {
           const trigger = currentDetailTrigger();
+          revealTrigger(trigger);
           trigger?.setAttribute?.('aria-expanded', 'false');
           trigger?.focus?.({ preventScroll: true });
           const closedAt = Date.now();
@@ -1166,6 +1184,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
             if (active && active !== documentRef.body) return;
             const next = currentDetailTrigger();
             if (!next) return;
+            revealTrigger(next);
             next.setAttribute?.('aria-expanded', 'false');
             next.focus?.({ preventScroll: true });
             // v57.64: a replacement still hidden mid-render refuses focus; keep watching until focus actually lands.
@@ -1245,6 +1264,9 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           back.textContent = '← 선택한 목록으로';
           back.addEventListener('click', () => {
             const target = currentDetailTrigger() || page;
+            // v57.76: a quadrant chip sits in the 사분면별 섹터 fold; the way back reopens it so the row is visible.
+            const fold = target?.closest?.('details');
+            if (fold && !fold.open) fold.open = true;
             target?.scrollIntoView?.({ block: 'center' });
             target?.focus?.({ preventScroll: true });
           });
@@ -1286,7 +1308,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           if (rrgStatusHost?.dataset.aioRrgStatusRenderer === 'native') delete rrgStatusHost.dataset.aioRrgStatusRenderer;
           if (rrgCanvasHost?.dataset.aioRrgChartRenderer === 'native') delete rrgCanvasHost.dataset.aioRrgChartRenderer;
           if (cyclePillHost?.dataset.aioThemeCycleRenderer === 'native') delete cyclePillHost.dataset.aioThemeCycleRenderer;
-            if (performanceNarrativeHost?.dataset.aioThemePerformanceRenderer === 'native') delete performanceNarrativeHost.dataset.aioThemePerformanceRenderer;
             if (performanceBarsHost?.dataset.aioThemePerformanceBarsRenderer === 'native') delete performanceBarsHost.dataset.aioThemePerformanceBarsRenderer;
            if (detailPanel?.dataset.aioThemeDetailPanelRenderer === 'native') {
              detailPanel.style.display = 'none';

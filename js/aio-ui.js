@@ -73,8 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // v17: 정적 기본값 즉시 로드 (API 연결 전에 빈칸/— 없애기)
   applyStaticFallbacks();
-  // v40.4: 홈 핵심뉴스 정적 큐레이션 즉시 표시 (뉴스 수집 대기 불필요)
-  if (typeof renderHomeFeed === 'function') renderHomeFeed([]);
   // v30.3: DATA_SNAPSHOT → HTML 매핑 (단일 진실 원천)
   if (typeof applyDataSnapshot === 'function') applyDataSnapshot();
   // v52.55/H3-A: 스냅샷을 _lastFG에 복사하지 않는다. 현재값과 참고값을
@@ -415,16 +413,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof _aioEnsureClaudeRoute === 'function') _aioEnsureClaudeRoute('').then(updateQuotaBadge).catch(updateQuotaBadge);
   // 실제 비밀값은 런타임 조회 경로만 사용한다. password input의 value에 원문을 넣으면
   // 접근성 트리/브라우저 자동화 스냅샷에서 노출될 수 있다.
+  // v57.76: the personal data/AI key inputs left the shell (v57.67); only the self-proxy URL input remains.
   var _keyMap = [
-    ['aio_av_key', 'aio_av_key_input'],
-    ['aio_finnhub_key', 'aio_finnhub_key_input'],
-    ['aio_fred_key', 'aio_fred_key_input'],
-    ['aio_td_key', 'aio_td_key_input'],
-    ['aio_fmp_key', 'aio_fmp_key_input'],
-    ['aio_perplexity_key', 'aio_perplexity_key_input'],
-    ['aio_newsdata_key', 'aio_newsdata_key_input'],
-    ['aio_bok_key', 'aio_bok_key_input'],
-    ['aio_kosis_key', 'aio_kosis_key_input'],
     ['aio_cf_worker_url', 'aio_cf_worker_input']
   ];
   _keyMap.forEach(function(pair) {
@@ -1150,14 +1140,8 @@ window._aioFundTabSwitch = function(tab) {
   }, 50);
 };
 
-// v49.2: Institutional Technical Brief renderers
-window._techBriefChartInstances = window._techBriefChartInstances || [];
-function _itbSafeRemoveChart(chart) {
-  if (!chart || chart.__aioDisposed) return;
-  chart.__aioDisposed = true;
-  try { chart.remove(); } catch(e) {}
-}
-
+// v49.2: Institutional Technical Brief helpers. v57.76: the 차트 tab brief (runInstitutionalTechnicalBrief and its panel
+// renderers) was deleted with its DOM; these label helpers stay for the portfolio technical-risk table.
 function _itbNum(v, digits) {
   if (v === null || v === undefined || !isFinite(Number(v))) return '--';
   return Number(v).toFixed(digits == null ? 2 : digits);
@@ -1185,9 +1169,6 @@ function _itbActionLabel(action) {
   return _ITB_ACTION_LABELS[action] || '판단 보류';
 }
 
-var _ITB_HEAT_LABELS = { SEMI_MANIA: '과열 매우 높음', SEMI_HEATED: '과열 일부', NORMAL: '평상 범위', DATA_INSUFFICIENT: '판단 보류', AI_INFRA_MANIA: '과열 매우 높음', AI_INFRA_HEATED: '과열 일부' };
-function _itbHeatLabel(state) { return _ITB_HEAT_LABELS[state] || '판단 보류'; }
-
 function _itbPortfolioObserved(result) {
   var items = (result && result.items) || [];
   if (!items.length || result.heatScore == null) return '판단 보류';
@@ -1204,42 +1185,7 @@ function _itbObservedCount(sp) {
   return n ? '확인된 조건 ' + n + '개' : '확인된 조건 없음';
 }
 
-// P1558: the engines push English flag literals that carry action verbs (TRIM, REDUCE, NO_ADD, SHORT_BAN). Readers see a measured
-// condition in Korean; a literal without an entry reads as a generic signal, never as the raw identifier with underscores removed.
-var _ITB_FLAG_LABELS = {
-  DIST_50SMA_PLUS_3ATR_WARNING: '50일선 +3ATR 이격', DIST_50SMA_PLUS_4ATR_NO_ADD_TRIM_CANDIDATE: '50일선 +4ATR 이격', DIST_50SMA_PLUS_6ATR_STRONG_TRIM_HEDGE: '50일선 +6ATR 이격',
-  DIST_21EMA_PLUS_2_5ATR_SHORT_TERM_EXTENSION: '21일선 +2.5ATR 이격', RSI_80_OVERHEAT_NOT_AUTO_SELL: 'RSI 80 이상', RSI_85_EXTREME_OVERHEAT: 'RSI 85 이상',
-  CLIMAX_REVERSAL_RISK_DAY_GAIN_RVOL_WEAK_CLOSE: '급등일 거래량 급증 + 약한 종가', UPPER_BOLLINGER_REENTRY_EXHAUSTION: '볼린저 상단 재진입',
-  CLOSE_BELOW_10EMA_TRIM_TRADING_LOT: '10일선 종가 이탈', CLOSE_BELOW_21EMA_REDUCE_SWING_LOT: '21일선 종가 이탈', CLOSE_BELOW_50SMA_SWING_THESIS_DAMAGED: '50일선 종가 이탈',
-  SEMI_HEATED_CONTEXT: '반도체 과열 일부', SEMI_MANIA_CONTEXT: '반도체 과열 매우 높음', TREND_HEALTHY_NO_EXIT_SIGNAL: '이탈 신호 없음', DATA_INSUFFICIENT: '데이터 부족',
-  '20MA_PLUS_3ATR_WARNING': '20일선 +3ATR 이격', '20MA_PLUS_4ATR_TRIM_ZONE': '20일선 +4ATR 이격', '20MA_PLUS_6ATR_BLOWOFF_RISK': '20일선 +6ATR 이격',
-  '20MA_PLUS_4ADR_EXTENDED': '20일선 +4ADR 이격', '20MA_PLUS_6ADR_EXTREME': '20일선 +6ADR 이격', '21EMA_PLUS_2_5ATR_SHORT_EXTENSION': '21일선 +2.5ATR 이격',
-  '50SMA_PLUS_6ATR_MANIA_CONTEXT': '50일선 +6ATR 이격', EXTENSION_NORMAL: '이격 평상 범위',
-  GAP_UP_UPPER_WICK_EXHAUSTION: '갭상승 후 긴 윗꼬리', SHOOTING_STAR_AFTER_EXTENSION: '이격 확대 후 유성형', CLOSE_BELOW_PREV_LOW_ON_RVOL: '거래량 급증 + 전일 저가 하회',
-  FAILED_RETEST_OF_PRIOR_HIGH: '전고점 재시험 실패', WEAK_CLOSE_WITH_SUPPLY: '약한 종가 + 윗꼬리', STRONG_CLOSE_MOMENTUM_THRUST: '강한 종가 모멘텀', NO_TERMINAL_CANDLE: '특이 캔들 없음',
-  QQQ_UP_BREADTH_DOWN: 'QQQ 상승 · 시장 폭 하락', RSP_LAGGING_SPY: 'RSP가 SPY에 뒤처짐', IWM_FAILED_BREAKOUT: 'IWM 돌파 실패', IWM_PARTICIPATION: 'IWM 참여',
-  EQUAL_WEIGHT_CONFIRMATION: '동일가중 확인', INDUSTRIALS_CONFIRMATION: '산업재 확인', KRE_CYCLICAL_CONFIRMATION: '지역은행 경기민감 확인', XBI_SPEC_GROWTH_CONFIRMATION: 'XBI 성장 확인',
-  CYCLICAL_SPEC_ROTATION_FAILED: '경기민감·투기 로테이션 실패', SEMI_LEADERSHIP_CONFIRMATION: '반도체 주도 확인', IGV_TO_SMH_ROTATION: '소프트웨어→반도체 로테이션',
-  SEMI_DIGESTING_WHILE_BREADTH_BROADENS: '반도체 소화 + 시장 폭 확산', BREADTH_NEUTRAL_OR_INSUFFICIENT: '시장 폭 중립 또는 입력 부족',
-  OPEX_WITHIN_3_SESSIONS: 'OPEX 3거래일 이내', EQUITY_PUT_CALL_COMPLACENCY: '주식 P/C 낮음', INDEX_HEDGE_EQUITY_CALL_CHASE_SPLIT: '지수 헤지 · 주식 콜 쏠림', TOTAL_PUT_CALL_LOW: '전체 P/C 낮음',
-  VIX_RISING_WHILE_INDEX_UP: '지수 상승 중 VIX 상승', NO_OPEX_STRESS_GAMMA_UNMEASURED: 'OPEX 스트레스 없음(감마 미측정)', NO_OPEX_GAMMA_STRESS: 'OPEX 스트레스 없음',
-  LOCKOUT_ACTION_NEUTRAL: '특이 조건 없음'
-};
-function _itbFlagLabel(flag) {
-  var match = /^(LOCKOUT_ACTION|BLOWOFF_TOP)_(.+)$/.exec(String(flag));
-  if (match && _ITB_ACTION_LABELS[match[2]]) return (match[1] === 'LOCKOUT_ACTION' ? 'Lockout 판정 · ' : 'Blow-off 판정 · ') + _ITB_ACTION_LABELS[match[2]];
-  return _ITB_FLAG_LABELS[String(flag)] || '기타 신호';
-}
-
-var _ITB_STATE_LABELS = {
-  BLOW_OFF_RISK: '이격 매우 큼', EXTREME_EXTENSION: '이격 매우 큼', EXTENDED: '이격 큼', NORMAL: '평상 범위', DATA_INSUFFICIENT: '판단 보류',
-  FAILED_ROTATION: '로테이션 실패 신호', BREADTH_BROADENING: '시장 폭 확산', NARROW_LEADERSHIP: '소수 주도',
-  MOMENTUM_THRUST: '모멘텀 강세 캔들', GAP_UP_EXHAUSTION: '갭상승 후 소진형', SHOOTING_STAR_RISK: '유성형', BEARISH_CONFIRMATION: '약세 확인 캔들',
-  FAILED_RETEST: '재시험 실패', WEAK_CLOSE_WARNING: '약한 종가', NEUTRAL: '특이 캔들 없음',
-  DISTRIBUTION_REVERSAL: '분배·반전 패턴', OPEX_PIN_OR_DECAY: 'OPEX 영향 구간', LATE_STAGE_GAMMA_CHASE: '이격 과열 추격 국면', LOCKOUT_CONTINUATION: '추세 지속 국면',
-  BLOW_OFF_TOP_RISK: '과열 신호 다수', EVENT_EXHAUSTION_WATCH: '이벤트 소진 점검', NO_CHASE_DIGESTION: '소화 구간', LOCKOUT_CAN_CONTINUE: '추세 지속 가능 조건'
-};
-function _itbStateLabel(state) { return _ITB_STATE_LABELS[state] || (/[가-힣]/.test(String(state || '')) ? String(state) : '판단 보류'); }
+// P1558 → v57.76: the Korean flag-label map (_itbFlagLabel) left with the brief panels that showed flag badges.
 
 function renderDataQualityBadge(quality) {
   quality = quality || {};
@@ -1281,411 +1227,6 @@ function renderPortfolioTechnicalRisk(result) {
     '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="color:var(--text-muted);text-align:left;"><th style="padding:4px;">종목</th><th style="padding:4px;text-align:right;">비중</th><th style="padding:4px;text-align:right;">손익</th><th style="padding:4px;text-align:right;">확인 조건</th><th style="padding:4px;">부담 수준</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
 }
 
-function _itbRenderMiniChart(slotId, label, ohlcv) {
-  var el = document.getElementById(slotId);
-  if (!el) return;
-  el.innerHTML = '<div style="height:22px;padding:5px 7px;font-size:10px;font-weight:800;color:var(--text-muted);display:flex;justify-content:space-between;"><span>' + escHtml(label) + '</span><span>OHLCV</span></div><div class="itb-chart-body" style="height:166px;"></div>';
-  var body = el.querySelector('.itb-chart-body');
-  var bars = (ohlcv || []).slice(-160);
-  if (!body || !bars.length) {
-    el.innerHTML += '<div style="padding:18px 8px;font-size:11px;color:var(--text-muted);">Chart data unavailable</div>';
-    return;
-  }
-  if (typeof LightweightCharts === 'undefined') {
-    var w = Math.max(240, body.clientWidth || 260), h = 166, pad = 10;
-    var closes = bars.map(function(d) { return d.close; });
-    var min = Math.min.apply(null, bars.map(function(d) { return d.low; }));
-    var max = Math.max.apply(null, bars.map(function(d) { return d.high; }));
-    var span = Math.max(0.0001, max - min);
-    function x(i) { return pad + (i / Math.max(1, bars.length - 1)) * (w - pad * 2); }
-    function y(v) { return h - pad - ((v - min) / span) * (h - pad * 2); }
-    var line = closes.map(function(v, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1); }).join(' ');
-    var step = Math.max(2, (w - pad * 2) / bars.length);
-    var candles = bars.filter(function(_, i) { return i % Math.ceil(bars.length / 60) === 0 || i === bars.length - 1; }).map(function(d, i) {
-      var idx = bars.indexOf(d), cx = x(idx), yo = y(d.open), yc = y(d.close), yh = y(d.high), yl = y(d.low);
-      var up = d.close >= d.open, color = up ? '#00e5a0' : '#ff5b50';
-      var top = Math.min(yo, yc), height = Math.max(1, Math.abs(yo - yc));
-      return '<line x1="' + cx.toFixed(1) + '" y1="' + yh.toFixed(1) + '" x2="' + cx.toFixed(1) + '" y2="' + yl.toFixed(1) + '" stroke="' + color + '" stroke-opacity=".65"/>' +
-        '<rect x="' + (cx - step * 0.35).toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + (step * 0.7).toFixed(1) + '" height="' + height.toFixed(1) + '" fill="' + color + '" opacity=".85"/>';
-    }).join('');
-    body.innerHTML = '<svg role="img" aria-label="' + escHtml(label) + ' fallback OHLC chart" viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="166" style="display:block;background:#0b1222;">' +
-      '<path d="' + line + '" fill="none" stroke="#00bcd4" stroke-width="1.4" opacity=".75"/>' + candles +
-      '<text x="10" y="158" fill="#8fa3b5" font-size="10">SVG fallback</text></svg>';
-    return;
-  }
-  try {
-    var chart = LightweightCharts.createChart(body, {
-      width: body.clientWidth || 260,
-      height: 166,
-      layout: { background: { color: '#0b1222' }, textColor: '#8fa3b5' },
-      grid: { vertLines: { color: 'rgba(255,255,255,0.04)' }, horzLines: { color: 'rgba(255,255,255,0.05)' } },
-      rightPriceScale: { borderColor: 'rgba(255,255,255,0.08)', scaleMargins: { top: 0.08, bottom: 0.18 } },
-      timeScale: { borderColor: 'rgba(255,255,255,0.08)', timeVisible: false },
-      crosshair: { mode: 0 }
-    });
-    window._techBriefChartInstances.push(chart);
-    var cs = chart.addCandlestickSeries({ upColor: '#00e5a0', downColor: '#ff5b50', borderUpColor: '#00e5a0', borderDownColor: '#ff5b50', wickUpColor: '#00e5a0', wickDownColor: '#ff5b50' });
-    cs.setData(bars.map(function(d) { return { time: d.time, open: d.open, high: d.high, low: d.low, close: d.close }; }));
-    var closes = bars.map(function(d) { return d.close; });
-    var ema10 = _calcEMAFull(closes, 10) || [];
-    var ema21 = _calcEMAFull(closes, 21) || [];
-    var l10 = chart.addLineSeries({ color: '#ffa31a', lineWidth: 1, priceLineVisible: false });
-    var l21 = chart.addLineSeries({ color: '#4da6ff', lineWidth: 1, priceLineVisible: false });
-    l10.setData(ema10.map(function(v, i) { return v ? { time: bars[i].time, value: v } : null; }).filter(Boolean));
-    l21.setData(ema21.map(function(v, i) { return v ? { time: bars[i].time, value: v } : null; }).filter(Boolean));
-    chart.timeScale().fitContent();
-    if (typeof window._aioMarkChartCanvases === 'function') window._aioMarkChartCanvases(el, label + ' technical brief chart');
-  } catch(e) {
-    if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'ITB chart failed: ' + (e && e.message || e));
-  }
-}
-
-function renderTechnicalRegimeRow(result) {
-  var el = document.getElementById('tech-brief-regime-row');
-  if (!el || !result) return;
-  var s = result.snapshot || {};
-  var sp = result.sellPressure || {};
-  var heat = result.semiHeat || {};
-  var regimeTone = s.above50SMA === false ? 'risk' : sp.score >= 38 ? 'warn' : 'bull';
-  el.innerHTML =
-    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;">' +
-      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">판정</div><div style="margin-top:4px;">' + _itbBadge(_itbActionLabel(sp.action), _itbActionTone(sp.action)) + '</div></div>' +
-    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;">' +
-      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">매도 압력 관측</div><div style="font-size:14px;font-weight:900;color:var(--text-primary);font-family:var(--font-mono);">' + _itbObservedCount(sp) + '</div></div>' +
-    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;">' +
-      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">추세 위치</div><div style="margin-top:4px;">' + _itbBadge((s.above50SMA === false ? '50SMA 아래' : '주요 이평 위'), regimeTone) + '</div></div>' +
-    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;">' +
-      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">반도체 과열도</div><div style="margin-top:4px;">' + _itbBadge(_itbHeatLabel(heat.state), heat.state === 'SEMI_MANIA' ? 'risk' : heat.state === 'SEMI_HEATED' ? 'warn' : 'bull') + '</div></div>';
-}
-
-function renderKeyLevelsPanel(snapshot) {
-  var el = document.getElementById('tech-brief-key-levels');
-  if (!el) return;
-  if (!snapshot || !snapshot.ok) { el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">Key levels unavailable</div>'; return; }
-  var rows = [
-    ['Price', snapshot.price],
-    ['10EMA', snapshot.ema10],
-    ['21EMA', snapshot.ema21],
-    ['50SMA', snapshot.sma50],
-    ['20D High', snapshot.recentHigh20],
-    ['20D Low', snapshot.recentLow20],
-    ['ATR(14)', snapshot.atr14]
-  ];
-  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">Key Levels</div>' +
-    rows.map(function(r) { return '<div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.05);padding:3px 0;font-size:11px;"><span style="color:var(--text-muted);">' + r[0] + '</span><span style="font-family:var(--font-mono);font-weight:800;color:var(--text-primary);">' + _itbNum(r[1], 2) + '</span></div>'; }).join('');
-}
-
-function renderSellPressurePanel(sellPressure) {
-  var el = document.getElementById('tech-brief-sell-pressure');
-  if (!el) return;
-  sellPressure = sellPressure || {};
-  var tone = _itbActionTone(sellPressure.action);
-  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">매도 압력 관측</div>' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;"><span style="font-size:14px;font-weight:900;font-family:var(--font-mono);">' + _itbObservedCount(sellPressure) + '</span>' + _itbBadge(_itbActionLabel(sellPressure.action), tone) + '</div>' +
-    '<div style="display:flex;gap:4px;flex-wrap:wrap;">' + (sellPressure.flags || []).slice(0, 6).map(function(f) { return _itbBadge(_itbFlagLabel(f), f.indexOf('DAMAGED') >= 0 || f.indexOf('CLIMAX') >= 0 ? 'risk' : 'warn'); }).join('') + '</div>';
-}
-
-function renderExitPlanPanel(plan) {
-  var el = document.getElementById('tech-brief-exit-plan');
-  if (!el) return;
-  plan = plan || {};
-  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">추세선 기준 (참고)</div>' +
-    '<div style="font-size:11px;color:var(--text-primary);line-height:1.5;font-weight:700;margin-bottom:7px;">' + escHtml(plan.primary || '판단 보류') + '</div>' +
-    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;">' + escHtml(plan.tradingLot || '') + '<br>' + escHtml(plan.swingLot || '') + '<br>' + escHtml(plan.thesisLine || '') + '</div>';
-}
-
-function renderBeginnerExplanation(result) {
-  var el = document.getElementById('tech-brief-beginner');
-  if (!el || !result) return;
-  var s = result.snapshot || {}, sp = result.sellPressure || {}, plan = result.exitPlan || {};
-  el.innerHTML = '<b style="color:var(--data-cyan);">쉬운 설명:</b> RSI 70+ 자체는 매도 버튼이 아닙니다. 강한 장에서는 과열이 오래 유지될 수 있습니다. 지금 엔진은 50일선 대비 ATR 이격(' + _itbNum(s.dist50Atr, 1) + 'x), RVOL(' + _itbNum(s.rvol20, 1) + 'x), 종가 위치(' + _itbNum((s.closePosition || 0) * 100, 0) + '%), 볼린저 재진입, 10/21/50선 이탈을 함께 보며, 현재 부담 수준은 <b>' + escHtml(_itbActionLabel(sp.action)) + '</b>으로 관측됩니다. ' + escHtml(plan.beginner || '');
-}
-
-function _renderSemiHeatPanel(heat) {
-  var el = document.getElementById('tech-brief-semi-heat');
-  if (!el) return;
-  heat = heat || {};
-  var tone = heat.state === 'SEMI_MANIA' ? 'risk' : heat.state === 'SEMI_HEATED' ? 'warn' : 'bull';
-  var ai = heat && heat.aiInfraHeat ? heat.aiInfraHeat : null;
-  var aiTone = ai && ai.state === 'AI_INFRA_MANIA' ? 'risk' : ai && ai.state === 'AI_INFRA_HEATED' ? 'warn' : 'bull';
-  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">반도체 과열도</div>' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">' + _itbBadge(_itbHeatLabel(heat.state), tone) + '</div>' +
-    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;">SPY/QQQ 대비 상대강도: ' + _itbNum(heat.relativeStrengthPct, 2) + '%p<br>50SMA 최대 이격: ' + _itbNum(heat.maxDist50Atr, 1) + ' ATR<br>최대 RSI: ' + _itbNum(heat.maxRsi, 1) + '</div>' +
-    (ai ? '<div style="margin-top:9px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;"><span style="font-size:10px;font-weight:900;color:var(--text-secondary);">AI 인프라 과열도</span>' + _itbBadge(_itbHeatLabel(ai.state), aiTone) + '</div><div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:5px;">바스켓 중 과열 ' + _itbNum(ai.overheatCount, 0) + '/' + _itbNum(ai.count, 0) + '개</div>' : '');
-}
-
-function _renderFlagList(flags, riskWords) {
-  flags = flags || [];
-  riskWords = riskWords || /RISK|FAILED|BELOW|UNWIND|EXHAUSTION|BLOWOFF|TRIM|EXIT/i;
-  return '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:7px;">' +
-    flags.slice(0, 8).map(function(f) {
-      var tone = riskWords.test(String(f)) ? 'risk' : /WARNING|DECAY|EXTENDED|WATCH|PIN/i.test(String(f)) ? 'warn' : 'bull';
-      return _itbBadge(_itbFlagLabel(f), tone);
-    }).join('') + '</div>';
-}
-
-function renderLockoutDashboard(result) {
-  result = result || {};
-  var lock = result.lockoutAction || {};
-  var ext = result.extensionHeat || {};
-  var candle = result.candleRisk || {};
-  var opex = result.opexGammaRisk || {};
-  var breadth = result.breadthRotation || {};
-  var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;">' +
-    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Lockout 판정</div><div style="margin-top:5px;">' + _itbBadge(_itbActionLabel(lock.action), _itbActionTone(lock.action)) + '</div></div>' +
-    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">국면</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(_itbStateLabel(lock.regime || 'LOCKOUT_CONTINUATION')) + '</div></div>' +
-    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">확인된 위험 조건</div><div style="font-size:14px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbObservedCount(lock) + '</div></div>' +
-    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">OPEX</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(opex.daysToOpex == null ? 'n/a' : ('D-' + opex.daysToOpex)) + '</div></div>' +
-    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">캔들</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(candle.type || 'NEUTRAL') + '</div></div>' +
-  '</div>' +
-  '<div style="font-size:10px;color:var(--text-muted);line-height:1.55;margin-top:8px;">Lockout rallies do not end because RSI is hot. Risk rises when demand weakens, breakouts fail, OPEX gamma support decays, or price loses the 10/21/50-day lines.</div>' +
-  _renderFlagList([].concat(lock.flags || [], ext.flags || [], breadth.flags || []).slice(0, 10));
-  ['tech-lockout-dashboard', 'signal-lockout-dashboard'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.innerHTML = html;
-  });
-}
-
-function renderBlowoffTopPanel(blowoffTop) {
-  var el = document.getElementById('tech-blowoff-top-panel');
-  if (!el) return;
-  blowoffTop = blowoffTop || {};
-  var tone = blowoffTop.action === 'TRIM_50' || blowoffTop.action === 'EXIT_OR_HEDGE'
-    ? 'risk'
-    : blowoffTop.action === 'TRIM_25_33' || blowoffTop.action === 'NO_ADD_RAISE_STOP'
-      ? 'warn'
-      : 'bull';
-  var checks = blowoffTop.checks || [];
-  var supports = blowoffTop.supports || [];
-  var eventCtx = blowoffTop.eventContext || {};
-  function renderLine(item, positive) {
-    var ok = !!(item && item.ok);
-    var color = positive ? (ok ? '#5cff95' : '#8fa3b5') : (ok ? '#ff6b6b' : '#8fa3b5');
-    var dot = positive ? (ok ? '●' : '○') : (ok ? '●' : '○');
-    return '<div style="display:flex;gap:7px;align-items:flex-start;font-size:11px;line-height:1.55;margin:6px 0;color:var(--text-secondary);">' +
-      '<span aria-hidden="true" style="color:' + color + ';font-size:12px;line-height:1.3;">' + dot + '</span>' +
-      '<span><b style="color:' + color + ';">' + escHtml(item && item.label || '--') + '</b><br><span style="color:var(--text-muted);">' + escHtml(item && item.detail || '') + '</span></span>' +
-    '</div>';
-  }
-  var timeline = (eventCtx.timeline || []).map(function(e) {
-    var etone = e.tone === 'risk' ? 'risk' : e.tone === 'hope' ? 'bull' : 'warn';
-    return '<div style="border-left:2px solid ' + (etone === 'risk' ? '#ff5b50' : etone === 'bull' ? '#5cff95' : '#f6c85f') + ';padding:4px 0 5px 8px;">' +
-      '<div style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);">' + escHtml(e.date || '') + '</div>' +
-      '<div style="font-size:11px;font-weight:800;color:var(--text-primary);">' + escHtml(e.label || '') + '</div>' +
-    '</div>';
-  }).join('');
-  el.innerHTML =
-    '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px;">' +
-      '<div><div style="font-size:10px;font-weight:900;color:var(--data-cyan);letter-spacing:.18em;">BLOW-OFF TOP CHECKLIST</div>' +
-      '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;">이격 과열, CPI/유가, OPEX, 이벤트 소진을 한 화면에서 확인합니다.</div></div>' +
-      '<div style="display:flex;gap:6px;align-items:center;">' + _itbBadge(_itbStateLabel(blowoffTop.state || 'DATA_INSUFFICIENT'), tone) + _itbBadge(_itbActionLabel(blowoffTop.action), tone) + '<span style="font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbObservedCount(blowoffTop) + '</span></div>' +
-    '</div>' +
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">' +
-      '<div style="background:var(--surface-1);border:1px solid rgba(255,91,80,0.28);border-radius:3px;padding:10px;border-left:3px solid #ff5b50;">' +
-        '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:5px;">현재 충족 조건 (위험 신호)</div>' +
-        checks.map(function(c) { return renderLine(c, false); }).join('') +
-      '</div>' +
-      '<div style="background:var(--surface-1);border:1px solid rgba(92,255,149,0.24);border-radius:3px;padding:10px;border-left:3px solid #5cff95;">' +
-        '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:5px;">아직 미충족 조건 (상승 유지 근거)</div>' +
-        supports.map(function(c) { return renderLine(c, true); }).join('') +
-      '</div>' +
-    '</div>' +
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:10px;">' +
-      '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:10px;">' +
-        '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:7px;">Event Runway</div>' + (timeline || '<div style="font-size:11px;color:var(--text-muted);">No event context</div>') +
-      '</div>' +
-      '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:10px;">' +
-        '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:7px;">쉬운 설명</div>' +
-        '<div style="font-size:11px;color:var(--text-secondary);line-height:1.65;">상승장이 강해도 가격이 20일선·50일선에서 너무 멀고, 거래량 급증 뒤 종가가 약하거나 이벤트가 끝나면 이런 조건에서는 추격 진입의 위험이 커지는 구간으로 봅니다(손절선 상향·일부 이익 실현은 개인이 정하는 점검 항목입니다). 반대로 10/21EMA와 수급 확산이 살아 있으면 전량 매도 신호로 보지 않습니다.</div>' +
-      '</div>' +
-    '</div>';
-}
-
-function _renderMiniPanel(elId, title, badge, tone, score, metricsHtml, flags) {
-  var el = document.getElementById(elId);
-  if (!el) return;
-  el.innerHTML =
-    '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">' + title + '</div>' +
-    '<div style="display:flex;justify-content:space-between;align-items:center;">' + _itbBadge(badge, tone) + '<span style="font-size:14px;font-weight:900;font-family:var(--font-mono);">' + _itbObservedCount({ score: score, flags: flags }) + '</span></div>' +
-    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:7px;">' + metricsHtml + '</div>' +
-    _renderFlagList(flags);
-}
-
-function renderExtensionHeatPanel(extensionHeat) {
-  extensionHeat = extensionHeat || {};
-  var tone = extensionHeat.score >= 50 ? 'risk' : extensionHeat.score >= 25 ? 'warn' : 'bull';
-  _renderMiniPanel('tech-lockout-extension', '이격 과열', _itbStateLabel(extensionHeat.state || 'NORMAL'), extensionHeat.state === 'DATA_INSUFFICIENT' ? 'info' : tone, extensionHeat.score,
-    '20MA ATR: ' + _itbNum(extensionHeat.dist20Atr, 1) + 'x<br>20MA 하루 평균 변동폭(ADR): ' + _itbNum(extensionHeat.dist20Adr, 1) + 'x<br>50SMA ATR: ' + _itbNum(extensionHeat.dist50Atr, 1) + 'x',
-    extensionHeat.flags);
-}
-
-function renderOpexGammaPanel(opexGamma) {
-  opexGamma = opexGamma || {};
-  // P1253: calcOpexGammaRisk 라벨 개명(감마 미측정)에 맞춰 톤 분기·폴백 라벨도 갱신 — 점수 로직 불변.
-  var tone = opexGamma.regime === 'OPEX 스트레스 높음(감마 미측정)' ? 'risk' : opexGamma.regime === 'OPEX 스트레스 중간(감마 미측정)' ? 'warn' : 'bull';
-  _renderMiniPanel('tech-lockout-opex', 'OPEX 스트레스(감마 미측정)', opexGamma.regime || 'OPEX 스트레스 낮음(감마 미측정)', tone, opexGamma.score,
-    'Next OPEX: ' + escHtml(opexGamma.nextOpexDate || '--') + '<br>Equity PCR: ' + _itbNum(opexGamma.equityPutCall, 2) + '<br>Index PCR: ' + _itbNum(opexGamma.indexPutCall, 2),
-    opexGamma.flags);
-}
-
-function renderBreadthRotationPanel(breadthRotation) {
-  breadthRotation = breadthRotation || {};
-  var tone = breadthRotation.regime === 'FAILED_ROTATION' ? 'risk' : breadthRotation.regime === 'BREADTH_BROADENING' ? 'bull' : 'warn';
-  _renderMiniPanel('tech-lockout-breadth', '시장 폭 · 로테이션', _itbStateLabel(breadthRotation.regime || 'NARROW_LEADERSHIP'), tone, breadthRotation.score,
-    'IWM vs QQQ: ' + _itbNum(breadthRotation.iwmVsQqqRS_5d, 2) + '%<br>RSP vs SPY: ' + _itbNum(breadthRotation.rspVsSpyRS_5d, 2) + '%',
-    breadthRotation.flags);
-}
-
-function renderCandleRiskBadge(candleRisk) {
-  candleRisk = candleRisk || {};
-  var m = candleRisk.metrics || {};
-  var tone = candleRisk.score >= 55 ? 'risk' : candleRisk.score >= 25 ? 'warn' : 'bull';
-  _renderMiniPanel('tech-lockout-candle', '고점 캔들', _itbStateLabel(candleRisk.type || 'NEUTRAL'), candleRisk.type === 'DATA_INSUFFICIENT' ? 'info' : tone, candleRisk.score,
-    'Close position: ' + _itbNum((m.closePosition || 0) * 100, 0) + '%<br>Upper wick: ' + _itbNum((m.upperWickPct || 0) * 100, 0) + '%<br>Gap: ' + _itbNum(m.gapUpPct, 2) + '%',
-    candleRisk.flags);
-}
-
-function renderTechnicalBrief(symbol, result) {
-  result = result || {};
-  var s = result.snapshot;
-  renderTechnicalRegimeRow(result);
-  var qEl = document.getElementById('tech-brief-data-quality');
-  if (qEl) qEl.innerHTML = renderDataQualityBadge(result.dataQuality || (s && s.raw && s.raw.dataQuality));
-  renderKeyLevelsPanel(s);
-  renderSellPressurePanel(result.sellPressure);
-  renderExitPlanPanel(result.exitPlan);
-  _renderSemiHeatPanel(result.semiHeat);
-  renderLockoutDashboard(result);
-  renderBlowoffTopPanel(result.blowoffTop);
-  renderExtensionHeatPanel(result.extensionHeat);
-  renderOpexGammaPanel(result.opexGammaRisk);
-  renderBreadthRotationPanel(result.breadthRotation);
-  renderCandleRiskBadge(result.candleRisk);
-  renderBeginnerExplanation(result);
-  window._techBriefChartInstances.forEach(_itbSafeRemoveChart);
-  window._techBriefChartInstances = [];
-  _itbRenderMiniChart('tech-brief-chart-monthly', symbol + ' Monthly', result.monthly || []);
-  _itbRenderMiniChart('tech-brief-chart-weekly', symbol + ' Weekly', result.weekly || []);
-  _itbRenderMiniChart('tech-brief-chart-daily', symbol + ' Daily', result.daily || []);
-  _itbRenderMiniChart('tech-brief-chart-zoom', symbol + ' Zoom', (result.daily || []).slice(-50));
-}
-
-async function runInstitutionalTechnicalBrief(arg) {
-  var symbol = (typeof arg === 'string' ? arg : '').trim().toUpperCase();
-  if (!symbol) {
-    var input = document.getElementById('tech-brief-symbol');
-    var signalInput = document.getElementById('signal-lockout-symbol');
-    var techVal = input && input.value ? input.value : '';
-    var signalVal = signalInput && signalInput.value ? signalInput.value : '';
-    symbol = ((signalVal && (!techVal || techVal.toUpperCase() === 'NVDA')) ? signalVal : (techVal || signalVal || 'NVDA')).trim().toUpperCase();
-  }
-  if (!symbol || symbol === '[OBJECT HTMLBUTTONELEMENT]') symbol = 'NVDA';
-  var row = document.getElementById('tech-brief-regime-row');
-  if (row) row.innerHTML = '<div style="grid-column:1/-1;padding:10px;color:var(--text-muted);font-size:11px;">Institutional technical brief input pending for ' + escHtml(symbol) + '...</div>';
-  try {
-    var fetcher = window.fetchOHLCVWithFallback || window.fetchOHLCV;
-    var settled = await Promise.allSettled([
-      fetcher(symbol, '1month', 80),
-      fetcher(symbol, '1week', 160),
-      fetcher(symbol, '1day', 260),
-      fetcher('SPY', '1day', 220),
-      fetcher('QQQ', '1day', 220),
-      fetcher('SMH', '1day', 220),
-      fetcher('SOXX', '1day', 220),
-      fetcher('IWM', '1day', 220),
-      fetcher('RSP', '1day', 220),
-      fetcher('KRE', '1day', 220),
-      fetcher('XBI', '1day', 220)
-    ]);
-    var data = settled.map(function(r) { return r.status === 'fulfilled' ? (r.value || []) : []; });
-    var aiSymbols = ['NVDA','AVGO','AMD','MU','TSM','ASML','MRVL','ARM','ALAB','CRDO'];
-    var aiSettled = await Promise.allSettled(aiSymbols.map(function(t) { return fetcher(t, '1day', 160); }));
-    var aiSnaps = {};
-    aiSettled.forEach(function(r, i) { aiSnaps[aiSymbols[i]] = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(r.status === 'fulfilled' ? (r.value || []) : []) : { ok: false }; });
-    var daily = data[2] || [];
-    var snapshot = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(daily) : { ok: false };
-    var spySnap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(data[3] || []) : { ok: false };
-    var qqqSnap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(data[4] || []) : { ok: false };
-    var smhSnap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(data[5] || []) : { ok: false };
-    var soxxSnap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(data[6] || []) : { ok: false };
-    var iwmSnap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(data[7] || []) : { ok: false };
-    var rspSnap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(data[8] || []) : { ok: false };
-    var kreSnap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(data[9] || []) : { ok: false };
-    var xbiSnap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(data[10] || []) : { ok: false };
-    var semiHeat = window.calcSemiHeatMap ? window.calcSemiHeatMap(spySnap, qqqSnap, smhSnap, soxxSnap) : null;
-    if (semiHeat && window.calcAIInfraHeat) semiHeat.aiInfraHeat = window.calcAIInfraHeat(aiSnaps, qqqSnap, spySnap);
-    var extensionHeat = window.calcExtensionHeat ? window.calcExtensionHeat(snapshot) : null;
-    var candleRisk = window.classifyTerminalCandle ? window.classifyTerminalCandle(snapshot && snapshot.lastBar, snapshot && snapshot.prevBar, snapshot) : null;
-    var optionSentiment = window.fetchOptionSentiment ? await window.fetchOptionSentiment() : { opex: {}, putCall: {} };
-    var opexGammaRisk = window.calcOpexGammaRisk ? window.calcOpexGammaRisk({
-      daysToOpex: optionSentiment.opex && optionSentiment.opex.daysToOpex,
-      nextOpexDate: optionSentiment.opex && optionSentiment.opex.nextOpexDate,
-      equityPutCall: optionSentiment.putCall && optionSentiment.putCall.equityPutCall,
-      indexPutCall: optionSentiment.putCall && optionSentiment.putCall.indexPutCall,
-      totalPutCall: optionSentiment.putCall && optionSentiment.putCall.totalPutCall,
-      vixRisingWhileIndexUp: false,
-      dataQuality: optionSentiment.putCall && optionSentiment.putCall.dataQuality
-    }) : null;
-    var breadthRotation = window.calcBreadthRotation ? window.calcBreadthRotation({
-      iwmUp: !!(iwmSnap && iwmSnap.ok && iwmSnap.dayGainPct > 0),
-      rspUp: !!(rspSnap && rspSnap.ok && rspSnap.dayGainPct > 0),
-      kreUp: !!(kreSnap && kreSnap.ok && kreSnap.dayGainPct > 0),
-      xbiUp: !!(xbiSnap && xbiSnap.ok && xbiSnap.dayGainPct > 0),
-      kreDown: !!(kreSnap && kreSnap.ok && kreSnap.dayGainPct < 0),
-      xbiDown: !!(xbiSnap && xbiSnap.ok && xbiSnap.dayGainPct < 0),
-      qqqUpButBreadthDown: !!(qqqSnap && qqqSnap.ok && qqqSnap.dayGainPct > 0 && iwmSnap && iwmSnap.ok && iwmSnap.dayGainPct < 0 && rspSnap && rspSnap.ok && rspSnap.dayGainPct < 0),
-      iwmVsQqqRS_5d: (iwmSnap.dayGainPct || 0) - (qqqSnap.dayGainPct || 0),
-      rspVsSpyRS_5d: (rspSnap.dayGainPct || 0) - (spySnap.dayGainPct || 0),
-      smhSidewaysNotDown: !!(smhSnap && smhSnap.ok && smhSnap.dayGainPct > -1)
-    }) : null;
-    // Missing reference context must remain missing.  In particular, an
-    // unavailable AI-infrastructure basket is not evidence of zero heat and
-    // must not silently lower the lockout score or appear as a numeric signal.
-    var semiScore = semiHeat && semiHeat.state !== 'DATA_INSUFFICIENT' && typeof semiHeat.score === 'number' && isFinite(semiHeat.score) ? semiHeat.score : null;
-    var aiHeat = semiHeat && semiHeat.aiInfraHeat ? semiHeat.aiInfraHeat : null;
-    var aiScore = aiHeat && aiHeat.scoreAvailable === true && typeof aiHeat.score === 'number' && isFinite(aiHeat.score) ? aiHeat.score : null;
-    var portfolioExposureFlags = semiHeat && semiHeat.state ? ['SEMI_CONTEXT_' + semiHeat.state] : [];
-    if (semiScore == null) portfolioExposureFlags.push('SEMI_DATA_INSUFFICIENT');
-    if (aiHeat && aiScore == null) portfolioExposureFlags.push('AI_INFRA_DATA_INSUFFICIENT');
-    var portfolioExposure = {
-      score: semiScore == null ? null : Math.min(100, semiScore + (aiScore == null ? 0 : aiScore * 0.35)),
-      scoreAvailable: semiScore != null,
-      allowedUse: 'reference',
-      referenceOnly: true,
-      flags: portfolioExposureFlags
-    };
-    var lockoutAction = window.calcLockoutAction ? window.calcLockoutAction({ extension: extensionHeat, candle: candleRisk, opexGamma: opexGammaRisk, breadth: breadthRotation, portfolioExposure: portfolioExposure }) : null;
-    var blowoffTop = window.calcBlowoffTopChecklist ? window.calcBlowoffTopChecklist(snapshot, {
-      semiHeat: semiHeat,
-      opexGammaRisk: opexGammaRisk,
-      breadthRotation: breadthRotation,
-      weeklyOhlcv: data[1] || [],
-      referenceDate: window.AIO_EVENT_RISK_CONTEXT && window.AIO_EVENT_RISK_CONTEXT.asOf
-    }) : null;
-    var sellPressure = window.calcSellPressure ? window.calcSellPressure(snapshot, { semiHeat: semiHeat, lockoutAction: lockoutAction, blowoffTop: blowoffTop }) : null;
-    var regime = snapshot && snapshot.above50SMA === false ? 'TREND_DAMAGED' : semiHeat && semiHeat.state === 'SEMI_MANIA' ? 'LOCKOUT_RALLY_RISK' : 'TREND_FOLLOW';
-    var exitPlan = window.calcExitPlan ? window.calcExitPlan(snapshot, sellPressure, regime) : null;
-    var result = { monthly: data[0] || [], weekly: data[1] || [], daily: daily, snapshot: snapshot, semiHeat: semiHeat, extensionHeat: extensionHeat, candleRisk: candleRisk, opexGammaRisk: opexGammaRisk, breadthRotation: breadthRotation, lockoutAction: lockoutAction, blowoffTop: blowoffTop, sellPressure: sellPressure, exitPlan: exitPlan, dataQuality: daily.dataQuality || null, optionSentiment: optionSentiment };
-    window._lastTechnicalBrief = { symbol: symbol, result: result, ts: Date.now() };
-    renderTechnicalBrief(symbol, result);
-  } catch(e) {
-    if (typeof _aioLog === 'function') _aioLog('error', 'render', 'runInstitutionalTechnicalBrief failed: ' + (e && e.message || e));
-    if (row) row.innerHTML = '<div style="grid-column:1/-1;padding:10px;color:var(--data-red);font-size:11px;">Technical brief failed gracefully. Try another ticker.</div>';
-  }
-}
-
-window.renderTechnicalBrief = renderTechnicalBrief;
-window.renderTechnicalRegimeRow = renderTechnicalRegimeRow;
-window.renderSellPressurePanel = renderSellPressurePanel;
-window.renderExitPlanPanel = renderExitPlanPanel;
-window.renderKeyLevelsPanel = renderKeyLevelsPanel;
-window.renderBeginnerExplanation = renderBeginnerExplanation;
-window.renderLockoutDashboard = renderLockoutDashboard;
-window.renderBlowoffTopPanel = renderBlowoffTopPanel;
-window.renderExtensionHeatPanel = renderExtensionHeatPanel;
-window.renderOpexGammaPanel = renderOpexGammaPanel;
-window.renderBreadthRotationPanel = renderBreadthRotationPanel;
-window.renderCandleRiskBadge = renderCandleRiskBadge;
 window.renderDataQualityBadge = renderDataQualityBadge;
 window.renderPortfolioTechnicalRisk = renderPortfolioTechnicalRisk;
 
@@ -2186,7 +1727,6 @@ window._aioDiagram = (function () {
     types: function () { return Object.keys(_fns); },
   };
 })();
-window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
 
 // ──────────────────────────────────────────────────────────────────────────────
 // v50.82 Phase 2: 페이지별 SVG 다이어그램 렌더러
@@ -2294,20 +1834,8 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
     };
   }
 
-  function _buildPrice() {
-    var snap = _snap();
-    var price  = Number(_ld('SPY'));
-    var sma50  = window._spxMA && Number(window._spxMA[50]) / 10;
-    var sma200 = window._spxMA && Number(window._spxMA[200]) / 10;
-    var ath = snap.spxATH == null || snap.spxATH === '' ? null : Number(snap.spxATH) / 10;
-    // v52.16 P5l/P619: snap.spy3m/spyRsi는 어디서도 대입되지 않는 phantom field라 항상 0/50 기본값이었음 —
-    // updateTechIndicators()(index.html)이 실계산해 저장하는 window._spyPositionStats로 전환.
-    var posStats = window._spyPositionStats;
-    var ret3m = posStats && Number(posStats.ret3m);
-    var rsi = posStats && Number(posStats.rsi);
-    if (![price,sma50,sma200,ath,ret3m,rsi].every(Number.isFinite) || price <= 0 || sma50 <= 0 || sma200 <= 0 || ath <= 0) return { available:false };
-    return { sym: 'SPY', price: price, sma50: sma50, sma200: sma200, ath: ath, ret3m: ret3m, rsi: rsi };
-  }
+  // v57.76: _buildPrice (SPY 가격 포지션 card on the 차트 tab and its chat auto-visual) was deleted with the card; its only input
+  // (window._spyPositionStats from the deleted updateTechIndicators) no longer exists.
 
   function _buildYield() {
     var curve = window.AIO && typeof window.AIO.getUsTreasuryCurveEvidence === 'function' ? window.AIO.getUsTreasuryCurveEvidence() : null;
@@ -2392,9 +1920,6 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
           _render('vis-briefing-pipeline', 'pipeline-status', _buildPipeline());
           _render('vis-briefing-cycle',    'economic-cycle',   _buildEcon());
           break;
-        case 'technical':
-          _render('vis-technical-price', 'price-position', _buildPrice());
-          break;
         case 'macro':
           _render('vis-macro-cycle', 'economic-cycle', _buildEcon());
           _render('vis-macro-yield', 'yield-curve',    _buildYield());
@@ -2422,7 +1947,7 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
     }
   }
 
-  var VIS_PAGES = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','screener','portfolio'];
+  var VIS_PAGES = ['home','signal','breadth','sentiment','briefing','macro','fxbond','screener','portfolio']; // v57.76: technical has no diagram slot
 
   // 페이지 전환 훅
   if (window._aioPageBus) {
@@ -2500,9 +2025,6 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
             },
           };
         }
-      }
-      if (/200일선|50일선|spy.*sma|sma.*spy|price position|가격 포지션|지지.*저항/.test(q)) {
-        return { type: 'price-position',  data: _buildPrice(),    label: 'SPY 가격 포지션' };
       }
     } catch (e) {}
     return null;
@@ -3995,7 +3517,7 @@ document.querySelectorAll('.insight-box').forEach(function(el) {
 setTimeout(function() {
   var loadingPatterns = ['로딩 중', '생성 중', 'Loading', '계산중', '계산 중', '분석 로딩', '데이터 로딩'];
   var candidates = document.querySelectorAll(
-    '#macro-storyline, #earnings-calendar-body, #risk-radar-body, #home-news-highlights, ' +
+    '#macro-storyline, #earnings-calendar-body, #risk-radar-body, ' +
     '#last-fetch-time, #home-quality-label'
   );
   candidates.forEach(function(el) {
@@ -4039,132 +3561,8 @@ setTimeout(function() {
   }
 })();
 
-// ═══ v34: Bloomberg-Style Global Market Overview ═══════════════════════
-const GMO_MARKETS = [
-  { region: 'Americas', items: [
-    { sym: '^GSPC', label: 'S&P 500' },
-    // v52.42 (P657/EF-17, 사용자 승인): 정규장 외(한국 아침 등) "오늘 미장 분위기" 첫 질문에 답하도록
-    // ES=F/NQ=F 선물 2행 추가. renderGmoTable()이 정규장 시간대에는 이 2행을 시각적으로 절제하고
-    // 정규장 외에만 강조(futures 전용 클래스)한다.
-    { sym: 'ES=F', label: 'S&P Futures', isFutures: true },
-    { sym: 'NQ=F', label: 'Nasdaq Futures', isFutures: true },
-    { sym: '^IXIC', label: 'NASDAQ' },
-    { sym: '^DJI',  label: 'DOW 30' },
-    { sym: '^RUT',  label: 'Russell 2K' },
-    { sym: 'BTC-USD', label: 'Bitcoin' },
-    { sym: 'ETH-USD', label: 'Ethereum' },
-  ]},
-  { region: 'Rates & Commodities', items: [
-    { sym: '^VIX',    label: 'VIX' },
-    { sym: '^TNX',    label: 'US 10Y' },
-    { sym: 'DX-Y.NYB', label: 'DXY' },
-    { sym: 'GC=F',   label: 'Gold' },
-    { sym: 'CL=F',   label: 'WTI Crude' },
-    { sym: 'SI=F',   label: 'Silver' },
-  ]},
-  { region: 'Asia-Pacific', items: [
-    { sym: '^N225',  label: 'Nikkei 225' },
-    { sym: '^HSI',   label: 'Hang Seng' },
-    { sym: '000001.SS', label: 'Shanghai' },
-    { sym: '^KS11', label: 'KOSPI' },
-  ]},
-  { region: 'EMEA', items: [
-    { sym: '^GDAXI', label: 'DAX' },
-    { sym: '^FTSE',  label: 'FTSE 100' },
-    { sym: '^FCHI',  label: 'CAC 40' },
-  ]},
-];
-
-let _gmoExpanded = false;
-let _gmoPrevData = {};
-
-function toggleGmoExpand() {
-  _gmoExpanded = !_gmoExpanded;
-  const btn = document.getElementById('gmo-expand-btn');
-  if (btn) btn.textContent = _gmoExpanded ? 'COMPACT' : 'EXPAND';
-  renderGmoTable();
-}
-
-function getGmoSignal(pct) {
-  if (pct == null || isNaN(pct)) return { text: '—', cls: 'gmo-flat' };
-  if (pct > 1.5) return { text: '▲▲', cls: 'gmo-pos' };
-  if (pct > 0.3) return { text: '▲', cls: 'gmo-pos' };
-  if (pct > -0.3) return { text: '—', cls: 'gmo-flat' };
-  if (pct > -1.5) return { text: '▼', cls: 'gmo-neg' };
-  return { text: '▼▼', cls: 'gmo-neg' };
-}
-
-function renderGmoTable() {
-  const tbody = document.getElementById('gmo-tbody');
-  if (!tbody) return;
-  let ld = window._liveData || {};
-  let html = '';
-  const regions = _gmoExpanded ? GMO_MARKETS : GMO_MARKETS.slice(0, 2);
-  // v52.42 (P657/EF-17): 정규장(open)일 때는 현물 지수가 이미 실시간이라 선물 행이 정보 중복 —
-  // 옅게 처리. 정규장 외(pre/after/closed/futures_only)일 때만 강조해 "오늘 미장 분위기"에 바로 답한다.
-  var usSession = (typeof _getUsSession === 'function') ? _getUsSession() : 'unknown';
-  var isRegularHours = usSession === 'open';
-
-  for (const group of regions) {
-    html += `<tr class="gmo-region-header"><td colspan="4">${group.region}</td></tr>`;
-    for (const item of group.items) {
-      const d = ld[item.sym];
-      const price = d && d.price != null ? d.price : null;
-      const pct = d && d.pct != null ? d.pct : null;
-      const prevPrice = _gmoPrevData[item.sym];
-      const flashCls = (prevPrice != null && price != null && prevPrice !== price) ? ' gmo-flash' : '';
-      const priceFmt = price != null
-        ? (price >= 10000 ? price.toLocaleString(undefined,{maximumFractionDigits:0}) :
-           price >= 100 ? price.toLocaleString(undefined,{maximumFractionDigits:1}) :
-           price >= 1 ? price.toFixed(2) : price.toFixed(4))
-        : '—';
-      const pctFmt = pct != null ? ((pct >= 0 ? '+' : '') + pct.toFixed(2) + '%') : '—';
-      const pctCls = pct != null ? (pct >= 0 ? 'gmo-pos' : 'gmo-neg') : 'gmo-flat';
-      const sig = getGmoSignal(pct);
-      const futuresRowStyle = item.isFutures
-        ? (isRegularHours ? ' style="opacity:0.55;"' : ' style="background:rgba(var(--ink-rgb),0.08);"')
-        : '';
-      const futuresLabelSuffix = item.isFutures && !isRegularHours ? ' <span style="font-size:10px;color:var(--data-amber);">시간외</span>' : '';
-      html += `<tr${futuresRowStyle}>
-        <td style="padding:3px 10px;" class="gmo-sym">${item.label}${futuresLabelSuffix}</td>
-        <td style="padding:3px 8px;" class="gmo-price${flashCls}">${priceFmt}</td>
-        <td style="padding:3px 8px;" class="gmo-chg ${pctCls}">${pctFmt}</td>
-        <td style="padding:3px 8px;" class="gmo-sig ${sig.cls}">${sig.text}</td>
-      </tr>`;
-      if (price != null) _gmoPrevData[item.sym] = price;
-    }
-  }
-  tbody.innerHTML = html;
-
-  // Update freshness dot
-  updateGmoFreshness();
-}
-
-function updateGmoFreshness() {
-  const dot = document.getElementById('gmo-freshness-dot');
-  const timeEl = document.getElementById('gmo-update-time');
-  if (!dot) return;
-  const ts = window._liveQuoteTimestamp;
-  if (!ts) { dot.style.background = 'var(--text-muted)'; return; }
-  const age = (Date.now() - ts) / 1000;
-  if (age < 15) { dot.style.background = 'var(--data-green)'; dot.classList.add('gmo-live'); }
-  else if (age < 60) { dot.style.background = 'var(--data-amber)'; dot.classList.remove('gmo-live'); }
-  else if (age < 180) { dot.style.background = 'var(--data-amber)'; dot.classList.remove('gmo-live'); }
-  else { dot.style.background = 'var(--data-red)'; dot.classList.remove('gmo-live'); }
-  if (timeEl) {
-    const d = new Date(ts);
-    timeEl.textContent = d.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  }
-}
-
-// Initialize GMO on page load + live data events
-// v48.99: _aioPageBus 마이그 (P180)
-// v51.99/Phase3[A2]: register() 호출만 DOMContentLoaded 래핑(P556/R247 템플릿) — 아래
-// setTimeout(renderGmoTable, 2000)는 2초 지연이라 defer 완료 후에만 실행되므로 원래도 안전.
-document.addEventListener('DOMContentLoaded', function() {
-_aioPageBus.register('html-gmo-live', 'aio:liveQuotes', renderGmoTable);
-});
-setTimeout(renderGmoTable, 2000);
+// v57.76: the home GMO table (GMO_MARKETS, renderGmoTable, toggleGmoExpand) is retired with its folded home
+// section — a third price surface beside the KPI strip and the cross-asset row.
 
 // v50.5: 꼬리위험 지표(SKEW/MOVE) live→data-snap 브릿지.
 // ^SKEW(기존 fetch)·^MOVE(v50.5 신규 fetch) 라이브 값을 data-snap 정적 sink에 흘리고
@@ -4715,11 +4113,9 @@ function calcKrHealthScore() {
   if (!kosdaqLive) missing.push('KOSDAQ');
   if (!vkospiLive) missing.push('VKOSPI');
 
-  var valEl = document.getElementById('kr-health-val');
-  var lblEl = document.getElementById('kr-health-label');
+  // v57.76: the big input-count slot (#kr-health-val/#kr-health-label, the old 0-100 건강 점수 position) was deleted; each
+  // input row below reports its own value or 미수신, and the count stays only in the return value.
   var trendEl = document.getElementById('kr-health-trend');
-  if (valEl) { valEl.textContent = currentInputs + '/3'; valEl.style.color = currentInputs === 3 ? 'var(--text-primary)' : 'var(--text-muted)'; }
-  if (lblEl) { lblEl.textContent = missing.length ? '현재 입력 ' + currentInputs + '/3 · 미수신: ' + missing.join(', ') : '현재 입력 3/3 · 지표별 값을 개별로 확인'; lblEl.style.color = missing.length ? 'var(--data-amber)' : 'var(--text-muted)'; }
   if (trendEl) {
     if (kospiLive) {
       var kospiPct = Number(ld['^KS11'].pct);
@@ -5194,17 +4590,13 @@ window.loadKrCandleChart = loadKrCandleChart;
 
 // ── Phase 2-1: TradingView 위젯 로드 ──
 function loadTVChart(page) {
-  var sym, containerId, ohlcSym;
-  if (page === 'technical') {
-    sym = (document.getElementById('tv-tech-sym') || {}).value || 'SPY';
-    containerId = 'tv-widget-technical';
-    ohlcSym = sym;
-  } else if (page === 'fundamental') {
+  // v57.76: the 차트 tab's SPY TradingView fold (technical branch) and its OHLC fallback strip were deleted.
+  var sym, containerId;
+  if (page === 'fundamental') {
     sym = (document.getElementById('fund-search-input') || {}).value || 'AAPL';
     containerId = 'tv-widget-fundamental';
     var wrap = document.getElementById('tv-chart-fundamental');
     if (wrap) wrap.style.display = 'block';
-    ohlcSym = sym;
   } else if (page === 'kr') {
     var krCode = (document.getElementById('tv-kr-sym') || {}).value || '005930';
     krCode = krCode.replace(/\.(KS|KQ)$/i, '').trim();
@@ -5215,7 +4607,6 @@ function loadTVChart(page) {
     sym = (window._currentTickerSym || 'NVDA').toUpperCase();
     if (/\.(KS|KQ)$/i.test(sym)) return;
     containerId = 'tv-widget-ticker';
-    ohlcSym = sym;
   }
   var container = document.getElementById(containerId);
   if (!container) return;
@@ -5227,47 +4618,9 @@ function loadTVChart(page) {
     '&withdateranges=1&showpopupbutton=1&locale=kr" style="width:100%;height:100%;border:none;" allowtransparency="true"></iframe>';
   container.appendChild(widget.firstChild);
 
-  // v48.52→v52.41 (P656/EF-12): TradingView 하단 OHLC fallback strip 동기화
-  if (page === 'technical') { try { _aioSyncTvOhlcFallback(ohlcSym); } catch(_e){} }
 }
 
-// v52.41 (P656/EF-12): 라이브 실측(Chrome MCP, v52.34) 결과 이 strip은 항상 "—"였다 — 원인은
-// "차트가 안 보일 때 표시되는 대체 정보"라는 취지와 반대로, 이 sync 로직이 loadTVChart()(= "차트 로드"
-// 버튼을 눌러 TradingView iframe을 실제로 로드할 때)의 부수효과로만 실행됐기 때문. 즉 대체 정보가
-// 필요한 바로 그 상황(차트를 안 띄운 상태)에서는 절대 채워지지 않는 구조였다. 로직을 분리해
-// technical 페이지 진입/라이브 시세 갱신 시에도 독립적으로 채우도록 함(차트 로드 여부와 무관).
-function _aioSyncTvOhlcFallback(symOverride) {
-  try {
-    var sym = symOverride || (document.getElementById('tv-tech-sym') || {}).value || 'SPY';
-    var ld = window._liveData || {};
-    var live = ld[sym] || {};
-    var strip = document.querySelector('#tv-tech-ohlc, .tv-ohlc-strip');
-    if (!strip) return;
-    var symEl = strip.querySelector('[data-tvohlc-sym]');
-    var closeEl = strip.querySelector('[data-tvohlc-close]');
-    var chgEl = strip.querySelector('[data-tvohlc-chg]');
-    if (symEl) symEl.textContent = sym;
-    if (closeEl) closeEl.textContent = (live.price != null) ? ('$' + live.price.toFixed(2)) : '—';
-    if (chgEl) {
-      if (live.pct != null) {
-        chgEl.textContent = (live.pct >= 0 ? '+' : '') + live.pct.toFixed(2) + '%';
-        chgEl.style.color = live.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
-      } else chgEl.textContent = '—';
-    }
-  } catch(_e) {}
-}
-try {
-  if (typeof _aioPageBus !== 'undefined' && _aioPageBus.register) {
-    _aioPageBus.register('html-tv-ohlc-fallback-shown', 'aio:pageShown', function(e) {
-      if (e.detail !== 'technical') return;
-      setTimeout(function() { _aioSyncTvOhlcFallback(); }, 200);
-    });
-    _aioPageBus.register('html-tv-ohlc-fallback-live', 'aio:liveQuotes', function() {
-      var p = document.getElementById('page-technical');
-      if (p && p.classList.contains('active')) _aioSyncTvOhlcFallback();
-    });
-  }
-} catch(_registerTvOhlcErr) {}
+// v57.76 (EF-12 retired): _aioSyncTvOhlcFallback and its page-bus hooks were deleted with the #tv-tech-ohlc strip.
 
 // ═══ v53.6: ticker 종목 개요(밸리AI 참조 레이아웃) 렌더러 ═══════════════════
 // 원칙: 실데이터만 표기(결측은 정직한 '—' + 사유 title), 새 병렬 계산 경로 없음(R276) —

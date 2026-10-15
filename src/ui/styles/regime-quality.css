@@ -32,6 +32,7 @@
 .page .regime-axis-deep .flow-next-link { margin-top: 10px; }
 .page [class*="grid"] > .regime-axis-deep { grid-column: 1 / -1; }
 .page .regime-scenarios { margin: 24px 0 30px; padding-top: 20px; border-top: 1px solid var(--border); }
+.page .regime-scenario-next { margin: 14px 0 0; } /* v57.76: one link line to 거시의 다음 발표별 시나리오 */
 .page .regime-scenario-basis { font-size: 14px; line-height: 1.75; color: var(--text-secondary); margin: 10px 0 16px; }
 .page .regime-scenario-hold { color: var(--text-primary); border-left: 3px solid var(--data-amber); padding: 10px 14px; font-size: 15px; line-height: 1.65; }
 .page .regime-scenario-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
@@ -76,7 +77,7 @@
 .regime-opportunity-chip:hover, .regime-opportunity-chip:focus-visible { border-color: var(--border-strong); }
 
 /* P1637: regime radar — today solid, 5 and 20 sessions ago dashed. */
-.regime-radar { margin: 0 0 22px; padding: 16px 0 6px; border-top: 1px solid var(--border); }
+.regime-radar { margin: 0 0 22px; padding: 4px 0 6px; } /* v57.76: sits right under the 6개 지표 h2 — no rule between a heading and its visual */
 .regime-radar-lead { font-size: 14px; line-height: 1.6; color: var(--text-primary); margin: 4px 0 10px; }
 .regime-radar-gap { font-size: 13px; line-height: 1.6; color: var(--text-secondary); margin: -4px 0 10px; padding-left: 10px; border-left: 2px solid var(--border); }
 .regime-radar-body { display: grid; grid-template-columns: minmax(260px, 380px) minmax(0, 1fr); gap: 18px; align-items: start; }
@@ -132,7 +133,9 @@ button[data-basis], a[data-basis] { cursor: pointer; }
 .home-kr-line{font-size:13px;color:var(--text-secondary);line-height:1.6;margin:0 0 7px}
 
 /* P1661: past outcomes by VIX band */
-.page .regime-stress-outcomes { margin-top: 20px; }
+/* v57.76: a fold inside the 변동성 card — the value line goes under the label and bar so the bar keeps its width in a half-width card. */
+.page .regime-axis .stress-bar-row { grid-template-columns: minmax(84px, 7.5rem) minmax(0, 1fr); }
+.page .regime-axis .stress-bar-value { grid-column: 1 / -1; text-align: left; font-size: 13px; }
 .page .stress-bars { display: grid; gap: 8px; margin: 12px 0; }
 .page .stress-bar-row { display: grid; grid-template-columns: minmax(92px, 9rem) minmax(0, 1fr) minmax(150px, auto); align-items: center; gap: 10px; font-size: 14px; color: var(--text-secondary); padding: 2px 6px; border-radius: var(--radius); }
 .page .stress-bar-row.is-current { background: var(--surface-2, rgba(0,0,0,0.04)); color: var(--text-primary); font-weight: 600; outline: 1px solid var(--border-strong); }

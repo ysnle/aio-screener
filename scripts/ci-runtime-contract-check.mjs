@@ -723,8 +723,10 @@ const marketNewsAt = html.indexOf('id="page-market-news"');
 const screenerAt = html.indexOf('id="page-screener"');
 // P1494 (owner screen design 2026-10-02~03, Codex review 2026-10-05): conclusion first — the close-basis
 // verdict, then the labelled live-quote strip, cross assets and the today summary; static order, no runtime reorder.
-const homeOrder = ['home-score-hero', 'home-quote-basis', 'home-kpi-strip', 'home-cross-assets', 'home-market-summary-banner'].map((id) => html.indexOf(`id="${id}"`));
-check('home leads with the verdict, then labelled live numbers and today summary in static order with no runtime reorder (P1322/P1494)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && !/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = regime\.available/.test(read('src/ui/components/market-regime.js')));
+// v57.76: the close comparison (#home-daily-changes) moves directly under the verdict, the live strip follows under
+// one "지금 시세" heading, and the "오늘의 시장" banner is gone (the daily loop closes the page).
+const homeOrder = ['home-score-hero', 'home-daily-changes', 'home-quote-basis', 'home-kpi-strip', 'home-cross-assets', 'home-daily-loop'].map((id) => html.indexOf(`id="${id}"`));
+check('v57.76 home leads with the close verdict and close changes, then labelled live numbers and the daily loop in static order with no runtime reorder (P1322/P1494)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && html.indexOf('id="home-market-summary-banner"') < 0 &&!/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = regime\.available/.test(read('src/ui/components/market-regime.js')));
 check('news progressive reveal belongs to the market-news page rather than screener', newsMoreAt > marketNewsAt && newsMoreAt < screenerAt && /id="live-news-feed"[\s\S]{0,800}id="news-load-more-wrap"/.test(html));
 check('fundamental search has one bounded total deadline and parallel bounded primary providers', /var _fundDeadline = Date\.now\(\) \+ 8000/.test(chat) && /Promise\.all\(\[[\s\S]{0,500}dynamicTickerLookup[\s\S]{0,500}fetchSECFilings[\s\S]{0,500}fetchSECFinancials/.test(chat) && /_fundRemaining\(5200\)/.test(chat) && /_fundRemaining\(1400\)/.test(chat));
 check('all news acquisition paths converge on one visible summary state updater', /function _aioUpdateNewsSummaryFromItems\(items, meta\)/.test(data) && (data.match(/_aioUpdateNewsSummaryFromItems\(/g) || []).length >= 4 && /kind: 'server-cache'/.test(data) && /kind: 'idb-cache'/.test(data) && /kind: 'direct'/.test(data));
@@ -752,7 +754,8 @@ check('EF-08/P1425: the legacy carry-unwind composite and its page-bus triggers 
 check('EF-08/P1419: the carry read never labels a Korea rate as a US-Japan gap', !/BOJ 수동 확인값 기준/.test(data) && !/bokRate/.test(read('src/domain/macro/rates-fx.js')) && /YEN_RALLY_RULE/.test(read('src/domain/macro/rates-fx.js')));
 check('EF-10/P1010: retired dead ticker metrics and action slots route to the shared SEC report', !/_tickerGapIds|ticker-action-btn|ticker-m-mcap/.test(core) && /{ id: 'fundamental', label: '재무 공시' }/.test(read('src/ui/navigation/route-hubs.js')) /* P1430: the 종목 hub tab replaced the in-page link */ && !/id="ticker-f-ni"|id="tab-financials"/.test(html));
 check('EF-11/P1010: unsupported VXX futures inference is retired while RSP/SPY retains explicit missing state', !/rm-vixstr-status|var rollCost = vxxPct/.test(pagesSource) && !/rm-rspratio/.test(pagesSource)); // P1672: the RSP/SPY ratio card was retired
-check('EF-12: TV OHLC fallback strip sync is extracted into a standalone function reachable from page-shown/live-quotes, not only as a loadTVChart side effect', /function _aioSyncTvOhlcFallback/.test(ui) && /html-tv-ohlc-fallback-shown/.test(ui) && /html-tv-ohlc-fallback-live/.test(ui));
+// v57.76: the 차트 tab's SPY TradingView fold and its OHLC fallback strip were deleted, so EF-12's sync function retired with them.
+check('EF-12 (v57.76 retired): the SPY TradingView fold, its OHLC fallback strip and the sync hooks stay deleted', !/function _aioSyncTvOhlcFallback/.test(ui) && !/html-tv-ohlc-fallback-(?:shown|live)/.test(ui)); // the retired DOM ids are pinned once in ci-architecture-contract-check (v57.76 block)
 check('EF-19: kr-technical KOSPI/KOSDAQ refresh buttons call analyzeKrIndex with the correct target ids, and the analyzeKrTickerDeep mis-wiring is gone', /data-action="analyzeKrIndex"\s+data-arg="\^KS11"\s+data-arg2="kr-kospi-tech-result"/.test(html) && /data-action="analyzeKrIndex"\s+data-arg="\^KQ11"\s+data-arg2="kr-kosdaq-tech-result"/.test(html) && !/data-action="analyzeKrTickerDeep"\s+data-arg="\^K[SQ]11"/.test(html));
 // P1134/R620: the codetabs fallback is declared in js/aio-data.js and consumed by the KR fetchers
 // that moved to js/aio-kr-data.js — assert both owners so removing either leg is caught.
@@ -779,7 +782,14 @@ check('EF-03/P713: US FOMC calendar entry has valid ISO lastRelease < nextReleas
   const m = core.match(/'us-fed-rate':\s*\{[^}]*lastRelease:\s*'(\d{4}-\d{2}-\d{2})',\s*nextRelease:\s*'(\d{4}-\d{2}-\d{2})'/);
   return !!m && Date.parse(m[1]) < Date.parse(m[2]) && m[2] !== '2026-06-17';
 })());
-check('EF-17 (user-approved scope addition): home GLOBAL MARKETS table includes ES=F/NQ=F futures rows with a regular-hours-aware highlight, and the underlying symbols are already part of the live-quote fetch set (no new fetch pipeline required)', /sym:\s*'ES=F',\s*label:\s*'S&P Futures',\s*isFutures:\s*true/.test(ui) && /isRegularHours/.test(ui));
+// v57.76: the folded GMO table is retired; the EF-17 futures answer ("오늘 미장 분위기" outside regular hours) is the
+// home KPI strip, which leads with the S&P 500 and Nasdaq-100 futures.
+{
+  const kpiAt = html.indexOf('id="home-kpi-strip"');
+  const kpiEnd = html.indexOf('id="home-cross-assets"', kpiAt);
+  const kpi = kpiAt >= 0 && kpiEnd > kpiAt ? html.slice(kpiAt, kpiEnd) : '';
+  check('EF-17 v57.76: the home KPI strip carries the ES=F/NQ=F futures and the GMO table is gone', kpi.indexOf('data-live-price="ES=F"') >= 0 && kpi.indexOf('data-live-price="NQ=F"') >= 0 && html.indexOf('id="gmo-tbody"') < 0 && ui.indexOf('const GMO_MARKETS') < 0 && ui.indexOf('function renderGmoTable') < 0);
+}
 check('headless tests cover Batch 4 efficacy fixes (EF-03/17/18)', /_testV5243Batch4Efficacy/.test(tests) && /T884/.test(tests) && /T885/.test(tests) && /T886/.test(tests));
 
 // v52.44 (P659): B8 Cloudflare Worker anycast 403(forbidden) auto-retry mitigation
@@ -1144,9 +1154,12 @@ check('R340/P712: Treasury maturity fields are separated and 2s10s uses the cano
 // P1538 (owner decision: no composite grades or scores without predictive evidence): the KR health card no longer sums points, so
 // "fails closed" now means it reports which current inputs exist and invents no total.
 const krHealthBody = ui.slice(ui.indexOf('function calcKrHealthScore()'), ui.indexOf('// ── 한국 금리 스프레드'));
-check('R340/P712 + P1538: KR theme breadth fails closed on missing current inputs and the KR health card adds nothing up',
+// v57.76: the big input-count slot that sat where the 0-100 건강 점수 used to be (#kr-health-val/#kr-health-label) was deleted;
+// each input row reports its own value or 미수신.
+check('R340/P712 + P1538 + v57.76: KR theme breadth fails closed on missing current inputs, the KR input card adds nothing up, and the score slot stays retired',
   /evaluateKrThemeQuoteCoverage/.test(krData) && /weightedCoverage\s*>=\s*0\.7/.test(krData) && /테마 종합판정 보류/.test(krData)
-    && krHealthBody.length > 500 && /currentInputs \+ '\/3'/.test(krHealthBody) && /미수신: /.test(krHealthBody) && !/\bscore\s*[-+]?=|grade\s*=/.test(krHealthBody));
+    && krHealthBody.length > 500 && /missing\.push\('KOSPI'\)/.test(krHealthBody) && /trendEl\.textContent = '미수신'/.test(krHealthBody)
+    && !/getElementById\('kr-health-(?:val|label)'\)/.test(krHealthBody) && !/\bscore\s*[-+]?=|grade\s*=/.test(krHealthBody));
 check('R340/P712: future-event calendar is data-driven and no stale 7\/10 BOK row remains',
   // P1389: the briefing schedule (buildBriefingSchedule over AIO_MACRO_CALENDAR) replaced the archived calendar block.
   /export function buildBriefingSchedule/.test(read('src/domain/briefing/schedule.js')) && /id="briefing-schedule-rows"/.test(html) && !/>7\/10<\/span>[\s\S]{0,260}한국은행 금통위/.test(html + macroTech));

@@ -1060,13 +1060,13 @@ window.AIO.getDataActionHandlerAudit = function() {
       var isAio = window.AIO && typeof window.AIO[act] === 'function';
       // 3. _aio 접두 함수 (window에 정의)
       var has_aio = (act.indexOf('_aio') === 0) && typeof window[act] === 'function';
-      // 4. data-action 이벤트 위임 핸들러 (예: showPage, runInstitutionalTechnicalBrief)
+      // 4. data-action 이벤트 위임 핸들러 (예: showPage)
       // — 페이지 진입 시점에 등록되므로 window/AIO 직접 검사 + alias 허용
       // v49.40 P294: _aioRefreshActionPlan 제거 (이제 window에 실제 정의됨 — has_aio로 통과).
       // knownAliases는 비-_aio 접두 글로벌 함수(showPage, toggleLLM 등)만 유지.
-      var knownAliases = ['showPage', 'toggleLLM', 'toggleGmoExpand', 'unlockPortfolio', 'exportPortfolio',
-                          'setupPortfolioPin', 'resetPortfolioPin', 'fundamentalSearch',
-                          'runInstitutionalTechnicalBrief'];
+      // v57.76: toggleGmoExpand and runInstitutionalTechnicalBrief left with the GMO table and the 차트 tab brief.
+      var knownAliases = ['showPage', 'toggleLLM', 'unlockPortfolio', 'exportPortfolio',
+                          'setupPortfolioPin', 'resetPortfolioPin', 'fundamentalSearch'];
       var isAlias = knownAliases.indexOf(act) !== -1;
       if (isGlobal || isAio || has_aio || isAlias) {
         registeredActions.push({ action: act, count: actionCounts[act], source: isGlobal ? 'window' : isAio ? 'AIO' : isAlias ? 'event-delegate' : 'unknown' });
@@ -1686,11 +1686,11 @@ window.AIO.assertTickerDataIntegrity = async function(ticker, opts) {
     }
     // 2. 추세 함수 존재
     result.sources.trend.available = typeof window._fetchTickerTrend === 'function';
-    // 3. Finnhub 컨센서스
-    result.sources.consensus.available = typeof window.fetchFinnhubRecommendation === 'function';
-    result.sources.consensus.source = 'Finnhub';
-    // 4. Finnhub 어닝
-    result.sources.earnings.available = typeof window.fetchFinnhubEarningsCalendar === 'function';
+    // 3-4. v57.76: the personal-key Finnhub consensus/earnings fetchers are retired, so both channels stay unavailable
+    // (the same value the removed typeof checks always produced once the fetchers were deleted).
+    result.sources.consensus.available = false;
+    result.sources.consensus.source = 'retired (personal Finnhub key, v57.76)';
+    result.sources.earnings.available = false;
     // 5. Naver (KR 종목 또는 보조)
     result.sources.naver.available = typeof window.fetchNaverUSData === 'function';
     // 6. SCREENER_DB 메모 신선도
@@ -3146,8 +3146,8 @@ window.AIO.getDataLineageAudit = function() {
       { id:'vix',        label:'VIX',              source:'Yahoo ^VIX 3mo',                            schedKey:'vixHistory', transform:'_aioVixPercentile',           renderAttr:'data-live-price', tier:'auto' },
       { id:'fearGreed',  label:'F&G (공포탐욕)',    source:'CNN dataviz → CORS_PROXY → snapshot (3단)', schedKey:'sentiment',  transform:'_applyFearGreedScore',       renderAttr:'data-snap',       tier:'auto' },
       { id:'putCall',    label:'Put/Call',         source:'CBOE cdn (CORS_PROXY 경유)',                 schedKey:'sentiment',  transform:'_applyFearGreedScore',       renderAttr:'data-snap',       tier:'auto' },
-      { id:'fred',       label:'FRED 매크로',       source:'api.stlouisfed.org (CORS 친화, 키 필요)',     schedKey:'fred',       transform:'applyTechIndicators',        renderAttr:null,              tier:'auto', needsKey:true },
-      { id:'technicals', label:'기술 지표 (SPY)',   source:'fetchTechnicalIndicators',                  schedKey:'technicals', transform:'applyTechIndicators',        renderAttr:null,              tier:'auto' },
+      { id:'fred',       label:'FRED 매크로',       source:'api.stlouisfed.org (CORS 친화, 키 필요)',     schedKey:'fred',       transform:'fetchAllFredData',           renderAttr:null,              tier:'auto', needsKey:true },
+      { id:'technicals', label:'기술 지표 (SPY)',   source:'fetchTechnicalIndicators',                  schedKey:'technicals', transform:'none (v57.76: SPY indicator writers retired; producer reports skipped)', renderAttr:null, tier:'auto' },
       { id:'hySpread',   label:'HY 스프레드',       source:'FRED BAMLH0A0HYM2 (키 필요)',                schedKey:'hySpread',   transform:'fetchHYSpread',              renderAttr:'data-snap',       tier:'auto', needsKey:true },
       { id:'news',       label:'뉴스',             source:'RSS 다중 (fetchOneFeed)',                    schedKey:'news',       transform:'scoreItem + classifyTopic',  renderAttr:null,              tier:'auto' },
       { id:'krDynamic',  label:'VKOSPI/KR 동적',    source:'Naver VKOSPI/basic (프록시)',                schedKey:'krDynamic',  transform:'fetchVkospiDynamic→DATA_SNAPSHOT.vkospi', renderAttr:'data-snap', tier:'auto' },
@@ -4238,8 +4238,7 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
         { id: 'home-api-onboarding',    order:  2, topic: 'API 키 onboarding',         lines: 'L3953~3956' },
         { id: 'home-header',            order:  3, topic: '헤더 (타이틀+버전+배지)',   lines: 'L3958~3974' },
         { id: 'home-score-legend',      order:  4, topic: '스코어 해석 범례',          lines: 'L3975~3982' },
-        { id: 'home-conclusion-bar',    order:  5, topic: 'conclusion-bar 동적',        lines: 'L3984~3985' },
-        { id: 'home-market-summary',    order:  6, topic: '오늘의 시장 배너',          lines: 'L3987~4007' },
+        // v57.76: home-conclusion-bar (order 5), home-market-summary banner (order 6) and the GMO table (order 14) are retired.
         { id: 'home-quick-nav',         order:  7, topic: '빠른 이동 chips 7개',       lines: 'L4009~4018' },
         { id: 'home-3-cards-decision',  order:  8, topic: '3 카드 (Primary/Quality/Regime)', lines: 'L4020~4051' },
         { id: 'home-action-item-card',  order:  9, topic: 'Action Item 카드 (v49.28)', lines: 'L4053~4068' },
@@ -4247,7 +4246,6 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
         { id: 'home-kpi-4cards',        order: 11, topic: 'KPI 4 카드 (SPX/NASDAQ/VIX/FG)', lines: 'L4144~4170' },
         { id: 'home-sub-indicators',    order: 12, topic: '서브 지표 chips 6개 (DXY/10Y/Gold/WTI/KOSPI/BTC)', lines: 'L4173~4180' },
         { id: 'home-explain-top',       order: 13, topic: '상단 지표 펼쳐보기 (VIX/FG 표 포함)', lines: 'L4182~4263' },
-        { id: 'home-gmo-bloomberg',     order: 14, topic: 'Bloomberg-Style GMO 표',    lines: 'L4265~4292' },
         { id: 'home-explain-gmo',       order: 15, topic: 'GMO + DXY/10Y/Gold/WTI/BTC 해설', lines: 'L4300~4400+' }
       ],
       // v49.40 home 3차 점검 완료 후 audit status
@@ -4269,7 +4267,7 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
         // v49.40 home 3차 — 인터랙션 + 페이지 간 정합 + 라이브 데이터 sink 실 검증
         { sub: 'home-action-item-card', axis: '로직성', severity: 'critical', note: '↻ 갱신 버튼 data-action="_aioRefreshActionPlan" 핸들러 미정의 — click 무동작 (silent no-op). R96 audit이 knownAliases로 false-positive 통과', fixedIn: 'v49.40 P294 (window._aioRefreshActionPlan 신설 + knownAliases에서 제거)' },
         { sub: 'home-kpi-4cards',  axis: '정합성', severity: 'ok',       note: 'home 9 ticker (^GSPC/^IXIC/^VIX/^TNX/GC=F/CL=F/DX-Y.NYB/^KS11/BTC-USD) 모두 LIVE_SYMBOLS 등록 + 다른 페이지(signal/sentiment/options/technical/macro/fxbond/kr-home/kr-technical) 분포 검증 OK. fetchLiveQuotes bulk update가 모든 [data-live-price="T"] 동시 갱신', verifiedIn: 'v49.40 home 3차 (R95)' },
-        { sub: 'home-3-cards-decision', axis: '로직성', severity: 'ok', note: 'data-action 7종 (_aioHideParentOnboard/_aioRefreshActionPlan/_aioScrollApiSection/_aioToggleExplain/showPage/toggleGmoExpand/toggleLLM) 모두 핸들러 등록 확인 (P294 시정 후)', verifiedIn: 'v49.40 home 3차 (R96)' }
+        { sub: 'home-3-cards-decision', axis: '로직성', severity: 'ok', note: 'data-action 6종 (_aioHideParentOnboard/_aioRefreshActionPlan/_aioScrollApiSection/_aioToggleExplain/showPage/toggleLLM) 모두 핸들러 등록 확인 (P294 시정 후; v57.76 GMO 표 토글 퇴역)', verifiedIn: 'v49.40 home 3차 (R96)' }
       ]
     },
     // v49.39 P292: signal 1차 enumerate (14 sub-section)
@@ -4354,7 +4352,7 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
       subSections: [
         { id: 'sentiment-insight-box',    order:  1, topic: '핵심 메시지 (F&G 25↓/75+)',           lines: 'L5638~5640' },
         { id: 'sentiment-explain-page',   order:  2, topic: '투자 심리 심층 해설 (펼쳐보기)',         lines: 'L5642~5693' },
-        { id: 'sentiment-conclusion-bar', order:  3, topic: '페이지 결론 바 (_renderConclusionBar)',  lines: 'L5695~5696' },
+        { id: 'sentiment-conclusion-bar', order:  3, topic: '페이지 결론 바 (v57.76 퇴역 — 기록용)',  lines: 'retired' },
         { id: 'sentiment-header',         order:  4, topic: '헤더 + sent-overall-badge',             lines: 'L5698~5715' },
         { id: 'sentiment-guide-cards',    order:  5, topic: '심리 지표 가이드 3 카드',                lines: 'L5717~5734' },
  { id: 'sentiment-fg-gauge',       order:  6, topic: 'F&G Gauge + fg-needle SVG',             lines: 'src/ui/pages/sentiment.js' },
@@ -4368,7 +4366,7 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
         // verify-only (agent false alarm 차단)
-        { sub: 'sentiment-conclusion-bar', axis: '정합성', severity: 'ok', note: '_renderConclusionBar(\'sentiment-conclusion-bar\', ...) 범용 함수 index.html L22898 호출 — agent "_aioRenderSentimentConclusion 미구현" 클레임 false alarm', verifiedIn: 'v49.42 (P294 패턴 verify)' },
+        { sub: 'sentiment-conclusion-bar', axis: '정합성', severity: 'ok', note: 'v49.42 범용 결론 바 호출 확인(agent 미구현 클레임 false alarm) — v57.76에 결론 바와 범용 렌더러 모두 퇴역, 기록용으로만 유지', verifiedIn: 'v49.42 (P294 패턴 verify)' },
  { sub: 'sentiment-header',         axis: '정확성', severity: 'ok', note: 'sent-overall-badge는 src/ui/pages/sentiment.js native renderer가 갱신', verifiedIn: 'v53.15/ARX-01' },
  { sub: 'sentiment-analysis-text',  axis: '정확성', severity: 'ok', note: 'sent-analysis-text는 src/ui/pages/sentiment.js native renderer가 갱신', verifiedIn: 'v53.15/ARX-01' },
  { sub: 'sentiment-fg-gauge',       axis: '직관성', severity: 'ok', note: 'fg-needle SVG는 src/ui/pages/sentiment.js native renderer가 evidence/state에서 갱신', verifiedIn: 'v53.15/ARX-01' },
@@ -4511,7 +4509,7 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
       lineRange: 'L8336~8730',
       subSections: [
         { id: 'themes-explain-header',     order: 1, topic: '헤더 + 섹터 로테이션 심층 해설',     lines: 'L8340~8420' },
-        { id: 'themes-cycle-dynamic',      order: 2, topic: '경기 사이클 동적 readout (v49.28 I7 getCycleFromMacro)', lines: 'L8422~8480' },
+        // v57.76: the order-2 경기 사이클 동적 readout (#cycle-dynamic-*) is retired.
         { id: 'themes-sector-rotation-table', order: 3, topic: '11 섹터 로테이션 표 (Early/Mid/Late/Recession)', lines: 'L8482~8540' },
         { id: 'themes-ai-infra-matrix',    order: 4, topic: 'AI 인프라 매트릭스 (메가캡/팹리스/장비/EDA/메모리)', lines: 'L8542~8600' },
         { id: 'themes-thematic-cards',     order: 5, topic: '테마별 카드 (Defense/Nuclear/Quantum/Hydrogen 등)', lines: 'L8602~8660' },
@@ -4521,7 +4519,6 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
-        { sub: 'themes-cycle-dynamic', axis: '로직성', severity: 'ok', note: 'getCycleFromMacro 동적 (v49.28 I7) — VIX/Breadth/yield2s10s/spxTrend 기반 phase 자동 판정', verifiedIn: 'v49.47' },
         { sub: 'themes-sector-rotation-table', axis: '정합성', severity: 'ok', note: '"Late Cycle" 라벨 themes 페이지 인라인 vs JS getCycleFromMacro 결과 — v49.31 H5 일반화 + v49.42 P308 verify (의도된 동적)', verifiedIn: 'v49.47' }
       ],
       note: 'v49.47 1차+2차 통합 — themes 페이지 인프라 v49.28+v49.31에서 완성. 라이브 데이터는 theme-detail로 위임.'

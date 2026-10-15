@@ -281,42 +281,7 @@ function updateMarketPulse() {
     window._aioRenderValueSlot(elM, 'pending', null, { text: '대기', reason: '시장 국면 산출 대기' });
   } catch(e) {}
 
-  // v48.62: 결론 바 업데이트
-  try { _updateAllConclusionBars(); } catch(e) {}
-}
-
-// v48.62: 페이지 결론 바 렌더 유틸 — 결론·액션·업데이트 3열
-function _renderConclusionBar(id, opts) {
-  var el = document.getElementById(id);
-  if (!el) return;
-  var lf = window._lastFetch || {};
-  var ts = opts.fetchKey ? lf[opts.fetchKey] : null;
-  var DE = window.DATE_ENGINE;
-  var upd = (ts && DE) ? DE.formatRelative(ts) : '—';
-  el.innerHTML = '<div class="page-conclusion-bar">' +
-    '<div class="pcb-conclusion"><div class="pcb-label">오늘 결론</div>' +
-    '<div class="pcb-value" style="color:' + (opts.conclusionColor || 'var(--text-primary)') + '">' + (typeof escHtml === 'function' ? escHtml(opts.conclusion || '—') : (opts.conclusion || '—')) + '</div></div>' +
-    '<div class="pcb-action"><div class="pcb-label">즉시 행동</div>' +
-    '<div class="pcb-value">' + (typeof escHtml === 'function' ? escHtml(opts.action || '—') : (opts.action || '—')) + '</div></div>' +
-    '<div class="pcb-updated"><div class="pcb-label">업데이트</div>' +
-    '<div class="pcb-value">' + upd + '</div></div></div>';
-}
-
-// v48.62: 결론 바 업데이트 — v57.60: only #home-conclusion-bar remains (signal/sentiment/macro bars and macro-regime-pill retired).
-function _updateAllConclusionBars() {
-  try {
-    var sc = (typeof computeTradingScore === 'function') ? computeTradingScore('swing') : null;
-    var t = (sc && typeof sc.total === 'number' && isFinite(sc.total)) ? sc.total : null;
-    if (t !== null) {
-      var sColor = t >= 70 ? 'var(--data-green)' : t >= 50 ? 'var(--data-cyan)' : t >= 35 ? 'var(--data-amber)' : 'var(--data-red)';
-      var sLabel = t >= 75 ? '스트레스 신호 적음' : t >= 60 ? '스트레스 신호 일부' : t >= 45 ? '중립 · 신호 혼재' : t >= 30 ? '주의 · 부담 점검' : '위험 · 방어 조건 점검';
-      var sAction = t >= 60 ? '환경 설명값(예측 신호 아님) — 종목 근거·손익비는 별도로 확인할 항목' :
-                    t >= 45 ? '신호 혼재 — 점수 단독 판단 금지' :
-                    '역사적으로 방어적 대응이 우선시되던 환경(지시 아님)';
-      var sOpts = { conclusion: t + '점 · ' + sLabel, conclusionColor: sColor, action: sAction, fetchKey: 'quote' };
-      _renderConclusionBar('home-conclusion-bar', sOpts);
-    }
-  } catch(e) {}
+  // v57.76: the hidden #home-conclusion-bar and its 0-100 score line are retired (no caller left).
 }
 
 // Signal page live update hook
@@ -399,35 +364,25 @@ async function loadEarningsCalendar() {
 
   body.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--text-muted);font-size:10px;"><span class="aio-spinner" style="margin-right:8px;"></span>어닝 캘린더 요청 중… (' + fromStr + ' ~ ' + toStr + ')</div>';
 
-  var finnhubKey = _getApiKey('aio_finnhub_key');
-  var earnings = [], ipos = [];
-
+  // v57.76: personal API keys are retired, so the Finnhub branch (always skipped) is gone; the stored
+  // public-data snapshot is the only source.
   try {
-    if (finnhubKey && typeof fetchFinnhubEarningsCalendar === 'function') {
-      earnings = await fetchFinnhubEarningsCalendar(fromStr, toStr);
-      if (typeof fetchFinnhubIpoCalendar === 'function') ipos = await fetchFinnhubIpoCalendar(fromStr, toStr);
-    } else {
-      var snapshot = await _fetchEarningsCalendarSnapshot();
-      if (snapshot && (snapshot.earnings.length > 0 || snapshot.ipos.length > 0)) {
-        _renderEarningsCalendarWeekly(body, snapshot.earnings, snapshot.ipos, monday, friday);
-        var snapSt = document.getElementById('earn-cal-status');
-        if (snapSt) {
-          snapSt.textContent = snapshot.earnings.length + '건 어닝 + ' + snapshot.ipos.length + 'IPO · '
-            + fromStr.slice(5) + '~' + toStr.slice(5)
-            + ' (저장 스냅샷 ' + String(snapshot.weekStart || '—').slice(5) + '~' + String(snapshot.weekEnd || '—').slice(5) + ')';
-          // Most listed large caps simply do not report in a given week, so the gap list is hover context only:
-          // it lets a reader see that a name like ASML/TSM is absent from the provider window, without a weekly count.
-          snapSt.title = snapshot.unconfirmed.length ? '이 목록에 없는 대형주(이번 주 발표가 없거나 공급자 목록에서 빠졌을 수 있음 — 날짜는 추정하지 않음): ' + snapshot.unconfirmed.join(', ') : '';
-        }
-        return;
+    var snapshot = await _fetchEarningsCalendarSnapshot();
+    if (snapshot && (snapshot.earnings.length > 0 || snapshot.ipos.length > 0)) {
+      _renderEarningsCalendarWeekly(body, snapshot.earnings, snapshot.ipos, monday, friday);
+      var snapSt = document.getElementById('earn-cal-status');
+      if (snapSt) {
+        snapSt.textContent = snapshot.earnings.length + '건 어닝 + ' + snapshot.ipos.length + 'IPO · '
+          + fromStr.slice(5) + '~' + toStr.slice(5)
+          + ' (저장 스냅샷 ' + String(snapshot.weekStart || '—').slice(5) + '~' + String(snapshot.weekEnd || '—').slice(5) + ')';
+        // Most listed large caps simply do not report in a given week, so the gap list is hover context only:
+        // it lets a reader see that a name like ASML/TSM is absent from the provider window, without a weekly count.
+        snapSt.title = snapshot.unconfirmed.length ? '이 목록에 없는 대형주(이번 주 발표가 없거나 공급자 목록에서 빠졌을 수 있음 — 날짜는 추정하지 않음): ' + snapshot.unconfirmed.join(', ') : '';
       }
-      body.innerHTML = '<div style="grid-column:1/-1;padding:26px;text-align:center;color:var(--text-muted);font-size:10px;line-height:1.7;">이번 주 실적 발표 일정을 아직 받지 못했습니다. 다음 자동 갱신 때 다시 표시됩니다.</div>';
-      var st = document.getElementById('earn-cal-status'); if (st) st.textContent = '일정 없음';
       return;
     }
-    _renderEarningsCalendarWeekly(body, earnings, ipos, monday, friday);
-    var st = document.getElementById('earn-cal-status');
-    if (st) st.textContent = earnings.length + '건 어닝 + ' + ipos.length + 'IPO · ' + fromStr.slice(5) + '~' + toStr.slice(5) + ' (Finnhub)';
+    body.innerHTML = '<div style="grid-column:1/-1;padding:26px;text-align:center;color:var(--text-muted);font-size:10px;line-height:1.7;">이번 주 실적 발표 일정을 아직 받지 못했습니다. 다음 자동 갱신 때 다시 표시됩니다.</div>';
+    var st = document.getElementById('earn-cal-status'); if (st) st.textContent = '일정 없음';
   } catch(e) {
     _aioLog('warn', 'fetch', 'earnings calendar error: ' + e.message);
     body.innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--text-muted);font-size:10px;">실적 발표 일정을 불러오지 못했습니다</div>';
@@ -1201,22 +1156,7 @@ function renderSectorPerfBars() {
     '</div>';
   });
   container.innerHTML = html;
-  generateSectorAnalysis(sectors);
-}
-
-function generateSectorAnalysis(sectors) {
-  var el = document.querySelector('[id="sector-perf-analysis"]');
-  // P1267: the fallback may describe observed sector returns, but not infer breadth, cycle, flows, or strategy from them.
-  if (!el || el.dataset.aioThemePerformanceRenderer === 'native' || !Array.isArray(sectors)) return;
-  var rows = sectors.filter(function(row) { return row && row.chg != null && Number.isFinite(Number(row.chg)); })
-    .map(function(row) { return { name: String(row.name || row.sym || '섹터'), symbol: String(row.sym || ''), change: Number(row.chg) }; })
-    .sort(function(a, b) { return b.change - a.change; });
-  if (rows.length < 2) {
-    el.textContent = '섹터 성과 요약 보류 · 비교 가능한 등락률이 2개 이상 수신되면 표시합니다.';
-    return;
-  }
-  var format = function(row) { return row.name + (row.symbol ? ' (' + row.symbol + ')' : '') + ' ' + (row.change >= 0 ? '+' : '') + row.change.toFixed(2) + '%'; };
-  el.textContent = '현재 선택 기간의 섹터 등락률 · 강세 ' + format(rows[0]) + ' · 약세 ' + format(rows[rows.length - 1]) + ' · 단일 등락률은 시장폭·사이클·자금 흐름을 입증하지 않습니다.';
+  // v57.76: the fenced legacy 섹터 흐름 분석 prose writer was deleted with its box.
 }
 
 function _themeFinitePct(v) {
@@ -1602,7 +1542,7 @@ async function hydrateRRGDailyHistory() {
       if (!tp || !tp.classList.contains('active')) return;
       try { drawRRG(); } catch(_e) {}
       try { document.dispatchEvent(new CustomEvent('aio:themesViewChanged')); } catch(_e) {}
-      try { renderSectorPerfBars(); } catch(_e) {} // 사이클 pill(generateSectorAnalysis) 포함
+      try { renderSectorPerfBars(); } catch(_e) {}
     };
     // 동시 3개 제한 — 프록시/Yahoo 부하 억제. 배치마다 점진 재렌더(부분 실패에도 확보분은 표시).
     for (var i = 0; i < syms.length; i += 3) {

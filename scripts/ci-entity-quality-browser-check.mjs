@@ -226,7 +226,7 @@ try {
     } catch(error) {
       const runtime = await page.evaluate(()=>({active:document.querySelector('.page.active')?.id,
         current:window._currentTickerId,subject:window._aioLastOpenedSymbol,chart:document.getElementById('stock-chart-status')?.textContent,
-        helper:typeof window._aioFetchYahooChartData,form:document.getElementById('stock-chart-form')?.dataset.aioStockChart,
+        helper:typeof window._aioFetchYahooChartData,form:document.getElementById('stock-chart-section')?.dataset.aioStockChart,
         proxies:(typeof _PROXY_REGISTRY!=='undefined'?_PROXY_REGISTRY.list.map(p=>({id:p.id,yahoo:p.scopes?.['query1.finance.yahoo.com']})):null),
         text:document.querySelector('.page.active')?.innerText?.slice(0,3000)})).catch(()=>null);
       failures.push({message:`${label}: ${error.message}`,stack:error.stack,fixtureRequests:intercepted,runtime,errors});

@@ -35,15 +35,19 @@ export function spellText(band, stats, horizon = 21) {
   return Number.isFinite(stats?.n) ? `겹치지 않는 ${horizon === 63 ? '석 달' : '한 달'} 약 ${Math.max(1, Math.round(stats.n / horizon))}개` : '';
 }
 
-export function renderStressOutcomes({ documentRef: doc, root, anchor }) {
-  if (!doc || !anchor) return;
+// v57.76: the table matches days on VIX only, so it is a fold inside the 변동성 card (host) instead of a separate
+// page section after the board with no bridge. A repaint of the board moves the existing fold into the new card,
+// so an open fold stays open.
+const STRESS_TITLE = '과거 빈도 — VIX가 비슷했던 날, 그 뒤 한 달';
+export function renderStressOutcomes({ documentRef: doc, root, host }) {
+  if (!doc || !host) return;
   let section = doc.getElementById('regime-stress-outcomes');
   if (!section) {
-    section = el(doc, 'section', null, 'briefing-block regime-stress-outcomes');
+    section = el(doc, 'details', null, 'regime-axis-details regime-stress-outcomes');
     section.id = 'regime-stress-outcomes';
     section.hidden = true;
-    anchor.insertAdjacentElement('afterend', section);
   }
+  if (section.parentElement !== host) host.append(section);
   const paint = (payload) => {
     if (payload?.status !== 'current' || !Array.isArray(payload.bands) || !payload.bands.length) { section.hidden = true; return; }
     const history = root?._aioHistory || [];
@@ -99,8 +103,9 @@ export function renderStressOutcomes({ documentRef: doc, root, anchor }) {
     // P1745: the retired-score history paragraph was a changelog, not analysis — removed from the screen.
 
     // T14: the title names the one thing that was matched (VIX), and the bands are said to differ from the judgement bands.
-    section.replaceChildren(el(doc, 'h2', '과거 빈도 — VIX가 비슷했던 날, 그 뒤 한 달', 'briefing-h2'),
-      el(doc, 'p', '위 시나리오의 가능성을 재는 세 번째 근거입니다. 지금 변동성 구간에서 시작했던 과거의 한 달이 실제로 어떻게 끝났는지를 봅니다 — 변동성 충격 시나리오(VIX 30 이상)과 신용 경색 시나리오를 가늠할 때 특히 씁니다.', 'regime-read'),
+    // v57.76: the fold summary is the title; the first line bridges from this card's VIX level to the table.
+    section.replaceChildren(el(doc, 'summary', STRESS_TITLE),
+      el(doc, 'p', '위 VIX 수준과 비슷했던 날에서 시작한 과거의 한 달이 실제로 어떻게 끝났는지입니다.', 'regime-read'),
       el(doc, 'p', `변동성(VIX) 구간별 S&P 500 한 달 뒤 평균 · ${from}~${String(payload.to || '').slice(0, 4)}`, 'regime-chart-caption'), chart, el(doc, 'p', reading, 'regime-read'),
       el(doc, 'p', `이 표의 VIX 구간(${payload.bands.map((band) => band.label.replace(/^VIX /, '')).join(' · ')})은 과거 결과를 나누는 구간이라, 시장 상태 변동성 축의 판정 기준(${RULES.volatility.calmBelow} · ${RULES.volatility.stressAt} · ${RULES.volatility.highAt})과 다릅니다.`, 'regime-chart-caption'), deep);
     section.title = `출처: ${payload.source || 'Yahoo Finance'}`;

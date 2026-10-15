@@ -9,7 +9,6 @@
 import { buildCloseSeries, closeBasis, sessionPointBack } from '../../domain/briefing/market-read.js';
 import { countOpenSessionsBetween } from '../../domain/market/market-calendar.js';
 import { createTrendChart } from './trend-chart.js';
-import { buildBreadthSnapshot } from '../../domain/market/breadth-snapshot.js';
 
 // C25: the second cell is the Nasdaq-100 (^NDX); the briefing's "나스닥 종합" is the Composite.
 const CELLS = Object.freeze([
@@ -87,7 +86,7 @@ export function renderHomeKpiTrends({ documentRef: doc, root }) {
     box.title = `${cell.label} ${points[0].date} 종가 → ${points[points.length - 1].date} 종가 (${sessions}거래일) · 기간 저점 ${lo.toFixed(digits)} · 고점 ${hi.toFixed(digits)} · 카드마다 세로 범위가 달라 카드끼리 높이를 비교하지 않습니다`;
     drawn += 1;
   }
-  renderHomeParticipation({ documentRef: doc, root, history });
+  renderHomeParticipation({ documentRef: doc, history });
   return drawn;
 }
 
@@ -99,8 +98,10 @@ export function homeParticipationSeries(history = []) {
   const basis = closeBasis(history);
   return { spx: buildCloseSeries(history, 'spx', { through: basis }).slice(-PARTICIPATION_SESSIONS), b50: buildCloseSeries(history, 'breadth50', { through: basis }) }; // P1623: producer declares percent, including values below 1%.
 }
-function renderHomeParticipation({ documentRef: doc, root, history }) {
-  const anchor = doc?.getElementById?.('home-cross-assets');
+// v57.76: anchored after the close comparison (#home-daily-changes) so every completed-close block sits above the
+// "지금 시세 (실시간·지연)" heading instead of under it.
+function renderHomeParticipation({ documentRef: doc, history }) {
+  const anchor = doc?.getElementById?.('home-daily-changes');
   if (!anchor) return;
   let host = doc.getElementById('home-participation');
   const { spx, b50 } = homeParticipationSeries(history);
@@ -135,31 +136,19 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
     card('S&P 500 종가', createTrendChart(doc, { series: spx, format: (value) => value.toFixed(0), label: 'S&P 500 종가', range })),
     card('50일선 위 종목 비율(%) · AIO 관찰 종목 기준', createTrendChart(doc, { series: b50In, refLines: [40, 60], format: (value) => `${value.toFixed(0)}%`, label: '50일선 위 종목 비율', domain: [0, 100], range }))
   );
-  host.replaceChildren(head, grid);
-  const snapshot = buildBreadthSnapshot(history);
-  if (snapshot.cards.length) {
-    const summary = doc.createElement('div'); summary.className = 'home-breadth-snapshot';
-    const caption = doc.createElement('p'); caption.className = 'home-participation-label';
-    const md = (date) => String(date || '').split('-').slice(1).map(Number).join('/');
-    caption.textContent = `${md(snapshot.asOf)} 미국 종가 · AIO 관찰 종목의 시장 폭${snapshot.laggingFrom ? ` (${md(snapshot.laggingFrom)} 종가 집계 전)` : ''}`;
-    const cards = doc.createElement('div'); cards.className = 'home-breadth-cards';
-    for (const item of snapshot.cards) {
-      const box = doc.createElement('section'); box.dataset.metric = item.id;
-      const title = doc.createElement('h3'); title.textContent = item.title;
-      const values = doc.createElement('p'); values.textContent = `${item.first} · ${item.second}`;
-      box.append(title, values);
-      if (item.share != null) {
-        const bar = doc.createElement('div'); bar.className = 'home-breadth-bar'; bar.setAttribute('aria-hidden', 'true');
-        const fill = doc.createElement('span'); fill.style.width = `${item.share}%`; bar.append(fill); box.append(bar);
-      }
-      const detail = doc.createElement('details'), label = doc.createElement('summary'), text = doc.createElement('p');
-      label.textContent = '집계 기준';
-      label.setAttribute('aria-label', `${item.title} 집계 기준`); // v57.54 audit (11/14): five identical folds named by their card
-      text.textContent = `${item.detail}${item.eligible != null ? ` 판정 표본 ${item.eligible}개` : ''}${item.universe != null ? ` / 수집 대상 ${item.universe}개` : ''}. ETF를 뺀 AIO 관찰 목록의 개별 주식 표본으로 거래소 전체 집계와 다릅니다.`;
-      detail.append(label, text); box.append(detail); cards.append(box);
-    }
-    const link = doc.createElement('button'); link.type = 'button'; link.textContent = '시장 폭 추세와 구성 종목 보기'; link.className = 'theme-strength-more';
-    link.addEventListener('click', () => root?.showPage?.('breadth', null));
-    summary.append(caption, cards, link); host.append(summary);
-  }
+  // v57.76: the five same-session breadth cards repeated the 시장 폭 screen on the home; the two charts and their
+  // one-line read stay, the counting basis folds, and one link leads to the full breadth screen.
+  const detail = doc.createElement('details');
+  const label = doc.createElement('summary');
+  label.textContent = '집계 기준';
+  const text = doc.createElement('p');
+  text.textContent = '50일선 위 종목 비율은 ETF를 뺀 AIO 관찰 목록의 개별 주식으로 계산해 거래소 전체 집계와 다릅니다. 두 차트는 같은 기간을 쓰지만 세로축은 각자의 단위입니다.';
+  detail.append(label, text);
+  const link = doc.createElement('button');
+  link.type = 'button';
+  link.className = 'flow-next-link home-breadth-link';
+  link.textContent = '시장 폭 자세히 →';
+  link.dataset.action = 'showPage';
+  link.dataset.arg = 'breadth';
+  host.replaceChildren(head, grid, detail, link);
 }

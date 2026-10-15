@@ -1,3 +1,11 @@
+## v57.76 (2026-10-15)
+- **Sector scatter visible (P1819):** the RRG scatter is the main visual of 섹터 회전 판정 in plain Korean and fits a phone; the duplicate 섹터 흐름 분석 box is gone and the sector-cycle map moved to the concept dictionary.
+- **Home (v57.76):** the full AI analysis and news list that duplicated 브리핑 and 뉴스 left home (오늘의 한 문장 stays); the evidence-free factor heatmap and the third price table were removed; 지난 마감 이후 변화 now sits directly under the close-based verdict, followed by 지금 시세 (실시간·지연); the five breadth cards became one 시장 폭 link.
+- **시장 상태 and 거시 (v57.76):** one heading 미국 시장 6개 지표 — 1년 중 지금 위치 with the radar as its visual; the VIX past-frequency table folds inside the volatility card; the compact scenario block became one link to 거시; 거시 now reads 국면 → 6요인 → 연결 → 향후 시나리오.
+- **종목 (v57.76):** the 차트 tab lost its market-level SPY copies, the institutional brief, the how-to setup and term cards (setup words moved to the glossary), the unvalidated 건강 점수 and sourceless 외국인 수급 row, and its own ticker form (the chart follows the 종목 search); 요약 puts search first, folds the factor radar as 섹터 대비 성격 (참고) and drops the text-only 3-candle section.
+- **Dead code (v57.76):** the personal FMP/Finnhub/Twelve Data/FRED/NewsData paths retired in v57.67 were removed from chat, core and data (about 95KB) with their pins replaced by absence checks; 뉴스 moved its source list into a bottom 데이터 출처 fold.
+- R1 7곳 v57.76
+
 ## v57.75 (2026-10-15)
 - **Retired keys fully closed (P1814):** DATA_APIS key() and the Vault restore no longer read retired personal data keys; the user-visible API-key hints (loading fallback, earnings calendar, chat transcript note) and the dead FMP earnings path, onboarding timer and key-status log were removed.
 - **Reading attribution (P1815):** citation ids and refusals no longer count as naming a cause; the KOSPI intraday cause comes only from post-08:00 headlines; qualitative likelihood and sample-free frequency are blocked; the US CPI direction is stated in the prompt.

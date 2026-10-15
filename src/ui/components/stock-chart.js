@@ -4,7 +4,6 @@ import { TEMPLATE_LABEL, analyzeChart, benchmarkFieldFor, chartReading } from '.
 import { buildCloseSeries, maOrder } from '../../domain/briefing/market-read.js';
 import { readMarketRegime } from './market-regime.js';
 import { emptyState } from './empty-state.js';
-import { setStockSubject } from '../navigation/route-hubs.js';
 import { renderNextSteps } from './page-flow.js';
 import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/chart-scenarios.js';
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
@@ -147,7 +146,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     note.style.cssText = 'display:block;font-size:12px;font-weight:400;color:var(--text-muted);margin-top:2px;';
     const back = el(doc, 'button', `${subject} 차트로`, 'aio-btn-table');
     back.type = 'button';
-    back.addEventListener('click', () => { const input = doc.getElementById('stock-chart-input'); if (input) input.value = subject; renderStockChart({ documentRef: doc, root, symbol: subject }); });
+    back.addEventListener('click', () => renderStockChart({ documentRef: doc, root, symbol: subject }));
     note.append(back);
     title.insertAdjacentElement('afterend', note);
   }
@@ -445,46 +444,38 @@ function renderIntervalButtons(doc, root, sym, active) {
   }
 }
 
-// P1405/P1430: the chart follows the 종목 screen's company (root._aioLastOpenedSymbol, display-only).
-// A symbol typed here becomes that company for 요약 · 재무 공시 too; the SPY/QQQ chips and an index
-// card on 오늘 (root._aioChartRequest) open a market chart without changing the company.
+// P1405/P1430: the chart follows the 종목 screen's company (root._aioLastOpenedSymbol, display-only); an index card on
+// 오늘 (root._aioChartRequest) opens a market chart without changing the company.
+// v57.76: the tab's own ticker form (SPY/QQQ chips + input) was retired — the 종목 search drives the chart through
+// aio:subjectChanged, and the install state lives on #stock-chart-section.
 export function installStockChart({ documentRef: doc, root }) {
-  const form = doc.getElementById('stock-chart-form');
-  if (!form) return;
-  const input = doc.getElementById('stock-chart-input');
+  const section = doc.getElementById('stock-chart-section');
+  if (!section) return;
   // E06: the chart uses the same symbol normalization as the 종목 summary (005930 / 삼성전자 → 005930.KS).
   const normalize = (value) => normalizeTickerInput(value, { krStockDb: root?.KR_STOCK_DB || {}, krToYahoo: root?.krTickerToYahoo }) || '';
   const historyMark = () => { const rows = root?._aioHistory; return Array.isArray(rows) && rows.length ? String(rows[rows.length - 1]?.date || '') : ''; };
   const show = (value) => {
     const sym = normalize(value) || 'SPY';
-    if (input) input.value = sym;
-    form.dataset.aioStockChartEntity = sym;
-    form.dataset.aioStockChartAt = String(Date.now());
-    form.dataset.aioStockChartMark = historyMark();
+    section.dataset.aioStockChartEntity = sym;
+    section.dataset.aioStockChartAt = String(Date.now());
+    section.dataset.aioStockChartMark = historyMark();
     renderStockChart({ documentRef: doc, root, symbol: sym });
   };
   const request = String(root._aioChartRequest || '').trim().toUpperCase();
   root._aioChartRequest = null;
   const entity = String(root._aioLastOpenedSymbol || '').trim().toUpperCase();
-  const target = normalize(request || entity || String(input?.value || '').trim()) || 'SPY';
-  if (form.dataset.aioStockChart === 'installed') {
+  const target = normalize(request || entity || section.dataset.aioStockChartEntity || '') || 'SPY';
+  if (section.dataset.aioStockChart === 'installed') {
     // E04: re-entering with the same symbol redraws when a new close arrived or the chart is older than 5 minutes.
-    const age = Date.now() - Number(form.dataset.aioStockChartAt || 0);
-    if (target !== form.dataset.aioStockChartEntity || age > 5 * 60 * 1000 || historyMark() !== (form.dataset.aioStockChartMark || '')) show(target);
+    const age = Date.now() - Number(section.dataset.aioStockChartAt || 0);
+    if (target !== section.dataset.aioStockChartEntity || age > 5 * 60 * 1000 || historyMark() !== (section.dataset.aioStockChartMark || '')) show(target);
     return;
   }
-  form.dataset.aioStockChart = 'installed';
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const typed = normalize(String(input?.value || '').trim());
-    show(typed || form.dataset.aioStockChartEntity);
-    if (typed) setStockSubject({ root, documentRef: doc, symbol: typed });
-  });
-  doc.querySelectorAll('[data-stock-chart-symbol]').forEach((chip) => chip.addEventListener('click', () => show(chip.dataset.stockChartSymbol)));
+  section.dataset.aioStockChart = 'installed';
   doc.addEventListener?.('aio:subjectChanged', () => {
     if (!doc.getElementById?.('page-technical')?.classList?.contains('active')) return;
     const subject = String(root._aioLastOpenedSymbol || '').trim().toUpperCase();
-    if (subject && subject !== form.dataset.aioStockChartEntity) show(subject);
+    if (subject && subject !== section.dataset.aioStockChartEntity) show(subject);
   });
   show(target);
 }

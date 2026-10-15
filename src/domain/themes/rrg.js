@@ -11,8 +11,9 @@ export const RRG_MODEL_VERSION = 'rrg.v2';
 // It is not the JdK smoothed/normalized RS-Ratio. The benchmark is cap-weighted SPY, so a few mega-caps leading the
 // index put many sectors below 100 at once without any of them weakening on its own.
 export const RRG_DEFINITION = Object.freeze({
-  ratio: 'RS-Ratio = 지금의 상대가격(섹터 ÷ SPY)이 최근 100거래일 평균의 몇 %인지(100 = 자기 평균 수준)',
-  momentum: 'RS-Momentum = 그 값이 약 50거래일 전 같은 방식으로 잰 값보다 높은지(100 초과 = 개선)',
+  // v57.76: plain-Korean axis names (the themes scatter is the only reader).
+  ratio: '가로축 상대강도(시장 대비)는 지금의 상대가격(섹터 ÷ SPY)이 최근 100거래일 평균의 몇 %인지입니다(100 = 자기 평균 수준)',
+  momentum: '세로축 상대강도 변화 속도는 그 값이 약 50거래일 전 같은 방식으로 잰 값보다 높은지입니다(100 초과 = 나아지는 중)',
   benchmarkBias: '기준인 SPY는 시가총액 가중이라, 소수 초대형주가 지수를 끄는 국면에서는 여러 섹터가 동시에 100 아래(후행·약화)로 보일 수 있습니다 — 각 섹터가 스스로 약해졌다는 뜻은 아닙니다.'
 });
 

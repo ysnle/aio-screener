@@ -143,9 +143,7 @@ if (!inferenceEfficiencySource.includes('const rawPct = quote?.pct ?? quote?.reg
 if (marketPageContractSource.includes('number === 0 ? null') || !read('src/domain/macro/macro-read.js').includes("return value != null && value !== '' && Number.isFinite(number) ? number : null;") || read('index.html').includes('id="macro-transmission-lens"')) {
   fail('macro read must preserve finite zero observations and the retired transmission lens must stay off the page');
 }
-if (!dataSource.includes("var hMacroTopics = ['macro','geopolitics','policy','fed','rates','trade','geo','bond','credit','fx','fxbond'];")) {
-  fail('home news ticker suppression must cover credit and fxbond topics');
-}
+// v57.76: the home news ticker-suppression pin (hMacroTopics) left with the retired home news list (renderHomeFeed is a no-op).
 // P1132/R619: the deep-chart teardown moved from index.html's inline block F into js/aio-ui.js,
 // so the disconnect half of the lifecycle is asserted there; the registration half stays in core.
 // P1753: the deep technical chart (and its ResizeObserver lifecycle) was retired with the dead deep-analysis fold;
@@ -276,12 +274,24 @@ if (!marketPageSource.includes("page.dataset.aioBreadthRenderer = 'native'") || 
 // v57.60: the legacy breadth writers (updateBreadthBars/initBreadthPage/updateMcClellanUI/_aioBreadthCanvasRender) and their fence helper were deleted.
 if (/_aioIsNativeBreadthElement|function\s+(?:updateBreadthBars|initBreadthPage|updateMcClellanUI|calcMcClellan)\s*\(|_aioBreadthCanvasRender|bpChartInstances/.test(dataSource + uiSource + coreSource + pagesSource)) fail('v57.60 retired legacy breadth writer or fence returned');
 if (!read('src/domain/macro/treasury-curve.js').includes("TREASURY_CURVE_SPREAD_VERSION = 'treasury-curve-spread.v2'")) fail('Treasury curve v2 domain contract missing');
-// P817: entity.js owns the ticker candle/entry symbol labels from normalized entity id;
-// showTicker remains a compatibility path but must skip the native-marked sinks.
-for (const marker of ['renderTickerSecondarySymbols', 'ticker-candle-symbol', 'ticker-entry-symbol', 'aioTickerSymbolRenderer']) {
-  if (!entityPageSource.includes(marker)) fail(`native ticker symbol renderer marker missing: ${marker}`);
+// P817 → v57.76: the 요약 tab's text-only 최근 3봉 형태 section (candle symbol label, pattern text, _aioDetectTickerPattern)
+// was deleted; entity.js keeps only the stock-subject hand-off, and no writer of the retired ids may return.
+for (const marker of ['renderTickerSecondarySymbols', 'setStockSubject({ root, documentRef, symbol: state.id']) {
+  if (!entityPageSource.includes(marker)) fail(`native ticker subject hand-off marker missing: ${marker}`);
 }
-if (!coreSource.includes("_tcs.dataset.aioTickerSymbolRenderer !== 'native'") || !coreSource.includes("_tes.dataset.aioTickerSymbolRenderer !== 'native'")) fail('legacy ticker symbol writer fence missing');
+if (/['"](?:ticker-candle-symbol|ticker-entry-symbol|realtime-pattern-indicator|ticker-candle-section)['"]|_aioDetectTickerPattern\s*=/.test(entityPageSource + coreSource + read('index.html'))) fail('v57.76 retired 요약 최근 3봉 형태 section or its writer returned'); // text-pin-ok: retirement absence
+// v57.76: the 차트 tab keeps 시장 상태 요약 + the stock chart + its evidence panel. The market-level SPY copies (price position,
+// indicator card, MA order, multi-timeframe, pattern signals, indicator strips, TradingView fold), the institutional brief,
+// the how-to setup/term cards, the KR 건강 점수 slot and the tab's own ticker form must not return, nor their writers.
+{
+  // Retirement-absence pins: a removed block or writer coming back is exactly what this guards; the 차트 tab's live surfaces
+  // (시장 상태 요약 via route-owners surface-exists, the stock chart install via the architecture browser check) are tested elsewhere.
+  const technicalPage = read('index.html').slice(read('index.html').indexOf('id="page-technical"'), read('index.html').indexOf('id="page-macro"'));
+  const retiredTechnicalIds = ['vis-technical', 'tech-indicators-live', 'tech-rsi-val', 'ws-analysis', 'ind-pressure-fill', 'tv-chart-technical', 'tv-tech-ohlc', 'tv-widget-technical', 'institutional-technical-brief', 'tech-brief-symbol', 'mtf-analysis', 'pattern-signals', 'kr-health-val', 'kr-health-label', 'kr-health-foreign-streak', 'stock-chart-form', 'stock-chart-input'];
+  const returnedIds = retiredTechnicalIds.filter((id) => technicalPage.includes(`id="${id}"`)); // text-pin-ok: retirement absence pin (v57.76)
+  if (returnedIds.length || /12가지 매매 셋업|기술 분석 핵심 용어/.test(technicalPage)) fail(`v57.76 retired 차트 tab block returned: ${returnedIds.join(', ') || 'how-to/score text'}`); // text-pin-ok: retirement absence pin (v57.76)
+  if (/function\s+(?:updateTechIndicators|updatePatternSignals|applyTechIndicators|runInstitutionalTechnicalBrief|renderTechnicalBrief|_aioSyncTvOhlcFallback)\s*\(|updateWeinsteinStage\s*=|updateMTF\s*=|function _buildPrice|getElementById\('kr-health-(?:val|label)'\)/.test(macroTechSource + uiSource + dataSource + coreSource)) fail('v57.76 retired 차트 tab writer returned'); // text-pin-ok: retirement absence pin (v57.76)
+}
 // P818: themes.js owns the derived detail-panel display/current-theme marker after
 // the compatibility event; inline selection/close helpers retain only compatibility
 // selection/event behavior and must not write the panel DOM.
@@ -538,11 +548,25 @@ for (const marker of ['renderThemeCyclePill', 'theme-cycle-pill', 'aioThemeCycle
 if (pagesSource.includes('P801: the RRG-derived cycle pill is native; legacy sector prose must not overwrite it.')
   || pagesSource.includes("pill.dataset.aioThemeCycleRenderer !== 'native'")
   || !themesPageSource.includes("pill.dataset.aioThemeCycleRenderer = 'native'")) fail('retired theme cycle writer returned or native owner missing');
-for (const marker of ['renderThemePerformanceNarrative', 'sector-perf-analysis', 'aioThemePerformanceRenderer']) {
-  if (!themesPageSource.includes(marker)) fail(`native theme performance marker missing: ${marker}`);
+// v57.76: the 섹터 흐름 분석 box (#sector-perf-analysis) repeated the 섹터 회전 판정 sentence and the 1일·1주 bars;
+// the box and its native writer are retired and must not return.
+if (indexHtmlSource.includes('id="sector-perf-analysis"') || themesPageSource.includes('renderThemePerformanceNarrative')
+  || themesPageSource.includes('aioThemePerformanceRenderer =')) fail('v57.76 retired sector-perf-analysis narrative returned'); // text-pin-ok: retirement absence
+// v57.76: the fenced legacy writer (generateSectorAnalysis in js/aio-pages.js) left with the box.
+if (/function generateSectorAnalysis\s*\(|sector-perf-analysis/.test(pagesSource)) fail('v57.76 retired legacy sector-perf-analysis writer returned'); // text-pin-ok: retirement absence
+// v57.76: the RRG scatter is the visible visual of 섹터 회전 판정 (not a developer-mode fold), the quadrant chips
+// fold beneath it as 사분면별 섹터, and the textbook sector-cycle map moved to the concept dictionary.
+{
+  const verdictStart = indexHtmlSource.indexOf('id="themes-verdict"');
+  const verdictEnd = indexHtmlSource.indexOf('</section>', verdictStart);
+  const verdict = verdictStart >= 0 && verdictEnd > verdictStart ? indexHtmlSource.slice(verdictStart, verdictEnd) : '';
+  if (!verdict.includes('id="rrg-canvas"') || !verdict.includes('id="rrg-quadrant-fold"') || !/<summary[^>]*>사분면별 섹터<\/summary>/.test(verdict)
+    || verdict.includes('aio-page-advanced-toggle')) fail('v57.76 RRG scatter must be the visible visual of 섹터 회전 판정 with the quadrant fold beneath it');
+  if (indexHtmlSource.indexOf('id="rrg-quadrant-fold"') < indexHtmlSource.indexOf('id="rrg-canvas"')) fail('v57.76 quadrant fold must sit beneath the RRG scatter');
+  if (/RRG — Relative Rotation Graph|RRG 산점도 차트 보기|섹터 ETF 퍼포먼스|섹터 순환 참고 지도|id="themes-cycle-reference"/.test(indexHtmlSource)) fail('v57.76 retired themes headings or the sector-cycle fold returned'); // text-pin-ok: retirement absence
+  if (/fillText\('RS-(Ratio|Momentum)/.test(themesPageSource) || /\b(Leading|Improving|Weakening|Lagging)\)/.test(verdict)) fail('v57.76 RRG axis and quadrant labels must be plain Korean'); // text-pin-ok: retirement absence
+  if (!themesPageSource.includes("getElementById('rrg-canvas-frame')") || !themesPageSource.includes('devicePixelRatio')) fail('v57.76 RRG canvas must follow its frame width and the device pixel ratio');
 }
-if (!pagesSource.includes("el.dataset.aioThemePerformanceRenderer === 'native'")
-  || !pagesSource.includes('단일 등락률은 시장폭·사이클·자금 흐름을 입증하지 않습니다.')) fail('theme performance legacy writer fence or bounded-copy contract missing');
 for (const marker of ['renderThemePerformanceBars', 'sector-perf-bars', 'aioThemePerformanceBarsRenderer', 'weeklyPct']) {
   if (!themesPageSource.includes(marker) && marker !== 'sector-perf-bars' && marker !== 'weeklyPct') fail(`native theme performance-bars marker missing: ${marker}`);
 }

@@ -27,14 +27,6 @@
 .theme-strength-table .theme-member-detail { white-space: normal; background: var(--surface-2); padding: 16px; }
 .theme-member-table { width: 100%; font-size: 12px; }
 .theme-member-table th, .theme-member-table td { white-space: nowrap; }
-.home-breadth-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 12px 0; }
-.home-breadth-cards section { min-width: 0; }
-.home-breadth-cards h3 { font-size: 12px; color: var(--text-secondary); margin: 0 0 8px; }
-.home-breadth-cards p { font-size: 12px; line-height: 1.6; margin: 6px 0; }
-.home-breadth-cards details { font-size: 11px; color: var(--text-secondary); margin-top: 8px; }
-.home-breadth-cards summary { cursor: pointer; }
-.home-breadth-bar { height: 5px; background: var(--data-red); overflow: hidden; border-radius: 2px; }
-.home-breadth-bar span { display: block; height: 100%; background: var(--data-green); }
 @media (max-width: 1100px) {
   .app { width: 100% !important; max-width: 100% !important; }
   .main { min-width: 0; width: 100%; }
@@ -57,12 +49,11 @@
   .page :is(canvas, img, svg) { max-width: 100%; }
   .page :is(input, textarea, select) { max-width: 100%; box-sizing: border-box; }
   .page :is(.section-header, .regime-summary-head) { flex-wrap: wrap; }
-  :is(.principles-graph-workspace, .masters-layout, .stock-chart-layout, .ticker-ov-grid,
+  :is(.principles-graph-workspace, .masters-layout, .stock-chart-layout,
       .macro-overview, .rates-curve-row, .scr-workflow-grid,
       .page .screener-read-layout, .page .stock-read-visuals, .page .daily-loop,
       .knowledge-learning-controls) { grid-template-columns: minmax(0, 1fr); }
   .page .aio-responsive-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-  .home-breadth-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .page .aio-responsive-layout { grid-template-columns: minmax(0, 1fr) !important; }
   .page .aio-responsive-row { flex-wrap: wrap; gap: 10px !important; }
   .page .rl-grid, .page .rl-head { grid-template-columns: minmax(0, 1fr); }

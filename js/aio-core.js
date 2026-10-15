@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.75';
+const APP_VERSION = 'v57.76';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1999,10 +1999,7 @@ if (typeof document !== 'undefined') {
   }
 }
 
-window._aioRetryNews = function() {
-  if (typeof window.isFetching !== 'undefined') window.isFetching = false;
-  if (typeof window.fetchAllNews === 'function') window.fetchAllNews(true);
-};
+// v57.76: _aioRetryNews (data-action of the retired home news-list error/timeout buttons) was deleted with them.
 window._aioScreenerTicker = function(sym) {
   if (typeof window.prevPage !== 'undefined') window.prevPage = 'screener';
   if (typeof window.showTicker === 'function') window.showTicker(sym);
@@ -2014,12 +2011,6 @@ window._aioPortfolioTicker = function(sym) {
 window._aioHideEl = function(id) {
   var el = document.getElementById(id);
   if (el) el.style.display = 'none';
-};
-window._aioHideParentOnboard = function(el) {
-  if (el && el.parentElement) {
-    el.parentElement.style.display = 'none';
-    try { localStorage.setItem('aio_onboard_dismissed', '1'); } catch(_){}
-  }
 };
 window._aioToggleNext = function(el, showTxt, hideTxt, displayWhenShown) {
   if (!el) return;
@@ -2303,61 +2294,7 @@ window._aioToggleWhiteSpace = function(el) {
   t.style.whiteSpace = t.style.whiteSpace === 'normal' ? 'nowrap' : 'normal';
 };
 
-// Ticker 페이지 — 실제 최근 OHLCV만 사용한 형태 관측. 단일 등락률로 캔들명을 합성하지 않는다.
-window._aioDetectTickerPattern = function(symbol, requestEpoch) {
-  var sym = String(symbol || window._currentTickerId || '').trim().toUpperCase();
-  var ind = document.getElementById('realtime-pattern-indicator');
-  if (!ind) return;
-  if (!sym || sym === '—') { ind.textContent = '종목 검색 필요'; return; }
-  var epoch = requestEpoch == null ? window._aioTickerSelectionEpoch : requestEpoch;
-  var history = (window._technicalOHLCV && window._technicalOHLCV[sym]) || (window._tickerHistory && window._tickerHistory[sym]) || [];
-  var bars = (Array.isArray(history) ? history : []).filter(function(bar) {
-    return bar && [bar.open, bar.high, bar.low, bar.close].every(function(value) { return value != null && isFinite(Number(value)) && Number(value) > 0; }) && Number(bar.high) >= Math.max(Number(bar.open), Number(bar.close)) && Number(bar.low) <= Math.min(Number(bar.open), Number(bar.close));
-  });
-  function renderPattern(series) {
-    if (epoch !== window._aioTickerSelectionEpoch || sym !== window._currentTickerId) return;
-    // Codex browser audit H31: classify completed bars only — drop a bar dated after the latest completed
-    // session of the ticker's market (the US session still trading at Korean night time).
-    var completedDate = typeof window._aioLatestCompletedSessionDate === 'function' ? window._aioLatestCompletedSessionDate(/^\d{6}(\.K[SQ])?$/.test(sym) ? 'KR' : 'US') : null; // C18: backslashes restored (lost in an edit)
-    var droppedForming = false;
-    if (completedDate && Array.isArray(series)) {
-      var kept = series.filter(function(bar) { var d = String((bar && (bar.time || bar.date)) || '').slice(0, 10); return !/^\d{4}-\d{2}-\d{2}$/.test(d) || d <= completedDate; });
-      if (kept.length !== series.length) { droppedForming = true; kept.dataQuality = series.dataQuality; series = kept; }
-    }
-    if (series.length < 3 || !series.slice(-3).every(function(bar) { return bar && [bar.open, bar.high, bar.low, bar.close].every(function(value) { return value != null && isFinite(Number(value)) && Number(value) > 0; }); })) { ind.textContent = sym + ' · 최근 봉 자료가 아직 없어 판단을 보류합니다'; return; }
-    var prev = series[series.length - 2], cur = series[series.length - 1];
-    var po = Number(prev.open), pc = Number(prev.close), o = Number(cur.open), h = Number(cur.high), l = Number(cur.low), c = Number(cur.close);
-    var range = Math.max(0, h - l), body = Math.abs(c - o), upper = h - Math.max(o, c), lower = Math.min(o, c) - l;
-    var label = '방향성 없는 단일 봉';
-    if (range <= 0) label = '가격 범위 없음';
-    else if (body / range <= 0.1) label = '도지형';
-    else if (pc < po && c > o && o <= pc && c >= po) label = '상승 장악형';
-    else if (pc > po && c < o && o >= pc && c <= po) label = '하락 장악형';
-    else if (lower >= Math.max(body * 2, range * 0.45) && upper <= Math.max(body, range * 0.15)) label = '긴 아래꼬리형';
-    else if (upper >= Math.max(body * 2, range * 0.45) && lower <= Math.max(body, range * 0.15)) label = '긴 위꼬리형';
-    else label = c > o ? '양봉 · 복합 패턴 미확정' : c < o ? '음봉 · 복합 패턴 미확정' : '보합봉';
-    // LC-55/P1249: 관측 봉 수·기준일·원천을 결과에 함께 말한다(형태 관측의 자격 표시).
-    var lastBar = series[series.length - 1] || {};
-    var asOf = lastBar.time || lastBar.date || null;
-    var q = series.dataQuality || null;
-    var src = (q && q.source) || null;
-    ind.textContent = sym + ' · ' + label + ' · 완료된 봉 기준 ' + (asOf || '미확인') + (droppedForming ? ' (형성 중인 당일 봉 제외)' : '');
-    ind.title = '최근 실제 일봉 3개 중 마지막 2개 봉의 형태만 분류한 관측입니다. 방향 예측이나 거래 신호가 아니며, 기준일 ' + (asOf || '미확인') + (src ? ' · 원천 ' + src : '') + ' 자격을 함께 확인하세요.';
-  }
-  if (bars.length >= 3) { renderPattern(bars); return; }
-  ind.textContent = sym + ' · 최근 봉 자료 확인 중';
-  if (typeof window.fetchOHLCVWithFallback !== 'function') { renderPattern([]); return; }
-  Promise.resolve(window.fetchOHLCVWithFallback(sym, '1day', 5)).then(function(rows) {
-    if (epoch !== window._aioTickerSelectionEpoch || sym !== window._currentTickerId) return;
-    // P1449 (검토판 부가·가격 기간): 5 bars is a PATTERN-DETECTOR view, not the chart's history.
-    // It used to land in window._tickerHistory — the runtime-readers chart-history fallback —
-    // so every 1M/3M/6M/1Y tab showed the same 5 observations. Pattern bars get their own key.
-    window._aioPatternBars = window._aioPatternBars || {};
-    window._aioPatternBars[sym] = Array.isArray(rows) ? rows : [];
-    renderPattern(Array.isArray(rows) ? rows : []);
-  }).catch(function() { renderPattern([]); });
-};
-
+// v57.76: _aioDetectTickerPattern (the 요약 tab 최근 3봉 형태 text) was deleted with its section; the 차트 tab chart shows the bars.
 // P1430: the manual 가격·추세 위치 점검 calculator (_aioFillEntryFromTicker) was retired with its ticker section.
 
 // v48.47: Portfolio 페이지 — 보유 포지션 선택 시 R:R 계산기 진입가 자동 입력
@@ -2511,28 +2448,8 @@ if (typeof document !== 'undefined') {
 }
 
 if (typeof document !== 'undefined') {
-  // v49.28 I7 적용: themes getCycleFromMacro 결과 표시 (v50.7: named 함수 추출 — VIX/breadth/금리 라이브 반영)
-  window._aioRenderThemesCycle = function() {
-    try {
-      if (!window.AIO || !window.AIO.getCycleFromMacro) return;
-      // v50.44: 단일 두뇌(marketState.cycleFull) 정본 우선 — fresh(<15분) 아니면 기존 독립 compute 폴백.
-      var cycle = null;
-      var ms = window.AIO.marketState;
-      if (ms && ms.cycleFull && (Date.now() - (ms.ts || 0) < 15 * 60 * 1000)) cycle = ms.cycleFull;
-      else cycle = window.AIO.getCycleFromMacro({});
-      var phaseEl = document.getElementById('cycle-dynamic-phase');
-      var inputsEl = document.getElementById('cycle-dynamic-inputs');
-      var rationaleEl = document.getElementById('cycle-dynamic-rationale');
-      if (phaseEl) phaseEl.textContent = cycle.phase + ' ·  시장 지표 조합 참고';
-      var cycleInputs = cycle.inputs || {};
-      if (inputsEl) inputsEl.textContent = 'VIX ' + window._aioSafeFixed(cycleInputs.vix, 1, '—') + ' · Breadth50 ' + (cycleInputs.breadth50 != null && Number.isFinite(Number(cycleInputs.breadth50)) ? Number(cycleInputs.breadth50) + '%' : '—') + ' · 2s10s ' + window._aioSafeFixed(cycleInputs.yield2s10s, 2, '—') + ' · SPX ' + (cycleInputs.spxTrend || '—');
-      if (rationaleEl) rationaleEl.textContent = '참고 근거: ' + cycle.rationale.join(' · ') + ' · 공식 경기 국면이나 예측 확률을 뜻하지 않습니다.';
-    } catch(_e) { /* themes 페이지 진입 동적 사이클 실패 — 정적 진단으로 폴백 */ }
-  };
-  _aioPageBus.register('core-themes-cycle-dynamic', 'aio:pageShown', function(e){
-    if (e.detail !== 'themes') return;
-    setTimeout(window._aioRenderThemesCycle, 200);
-  });
+  // v57.76: _aioRenderThemesCycle (the themes #cycle-dynamic-* readout writer) was deleted with its sinks;
+  // marketState.cycleFull is still computed by computeMarketState for its other consumers.
 
   // P1425: the macro scenario tree (fixed probabilities) was retired with the 거시 page rebuild.
 
@@ -2549,7 +2466,9 @@ if (typeof document !== 'undefined') {
     // P1672: the breadth consensus badge/verdict sinks were retired (P1395); keep the entry so a live
     // refresh still recomputes the shared market state while breadth is visible.
     breadth:   function(){ return true; },
-    themes:    function(){ window._aioRenderThemesCycle && window._aioRenderThemesCycle(); },
+    // v57.76: the themes cycle readout sinks were retired; keep the entry so a live refresh still
+    // recomputes the shared market state while themes is visible.
+    themes:    function(){ return true; },
     // Native sentiment owns the full page render; its store/event projection
     // is already refreshed by the architecture bootstrap on live updates.
     sentiment: function(){ return true; }
@@ -2818,29 +2737,8 @@ if (typeof document !== 'undefined') {
         var lock = _directChildOf(pSig, '#signal-lockout-control');
         if (lock && lock !== cursor) { cursor.insertAdjacentElement('afterend', lock); cursor = lock; }
       }
-      // v50.34: 홈 결론 흐름 그룹화 — 결론바 직후로 [매매 판단 그리드(점수·근거) → Action Items(액션)] 묶음.
-      //   기존엔 결론바와 그 근거/액션 사이에 '오늘의 시장' 배너+경고+내비가 끼어 결론→근거→액션이 분절됐음.
-      //   결과 흐름: 결론바 → 매매 판단(점수) → 액션 → 오늘의 시장 → 지수/매크로 → 글로벌 → 채팅. (insertAdjacentElement 이동)
-      var ph = document.getElementById('page-home');
-      var concBar = document.getElementById('home-conclusion-bar');
-      if (ph && concBar && concBar.parentElement === ph) {
-        var cur = concBar;
-        ['home-trading-grid', 'home-action-item-card'].forEach(function(id){
-          var el = document.getElementById(id);
-          if (el && el.parentElement === ph && el !== cur) { cur.insertAdjacentElement('afterend', el); cur = el; }
-        });
-      }
-      // v50.32 (항목3) 홈 첫 화면 = 시장: 운영 경고 배너(데이터 불안정·API 키 안내)를 시장 요약 아래로 이동.
-      var anchorH = document.getElementById('home-market-summary-banner');
-      if (ph && anchorH && anchorH.parentElement === ph) {
-        ['snapshot-stale-warning', 'api-key-onboarding'].forEach(function(bid){
-          var b = document.getElementById(bid);
-          if (b && b.parentElement === ph && b.compareDocumentPosition(anchorH) & Node.DOCUMENT_POSITION_FOLLOWING) {
-            anchorH.insertAdjacentElement('afterend', b);
-          }
-        });
-        // P1322: home order (KPI → cross assets → score → today's summary) is static in index.html; no runtime move.
-      }
+      // v57.76: the home conclusion-bar and market-summary-banner reorders were deleted with both anchors.
+      // P1322: home order (KPI → cross assets → score → today's summary) is static in index.html; no runtime move.
       // v50.36: technical verdict-first — 시장 건강도(페이지 결론)를 헤더 직후로(TV차트보다 먼저) +
       //   Institutional Brief(per-ticker 심화 도구)를 라이브 지표 섹션 직후로 하향 → 상단 declutter.
       //   신규 콘텐츠 0 (기존 섹션 이동). _directChildOf로 inner id를 감싸는 직속 자식 섹션을 잡음.
@@ -2851,11 +2749,7 @@ if (typeof document !== 'undefined') {
         if (hdrT && verdictT && verdictT.parentElement === pt && hdrT.nextElementSibling !== verdictT) {
           hdrT.insertAdjacentElement('afterend', verdictT);
         }
-        var liveT = _directChildOf(pt, '#tech-indicators-live');
-        var briefT = document.getElementById('institutional-technical-brief');
-        if (liveT && briefT && briefT.parentElement === pt && liveT.nextElementSibling !== briefT) {
-          liveT.insertAdjacentElement('afterend', briefT);
-        }
+        // v57.76: the SPY indicator card and the institutional brief were deleted, so there is nothing to reorder below the verdict.
       }
       // v50.36: themes verdict-first — 경기 사이클 국면 판정(페이지 결론)을 헤더 직후로(RRG 차트보다 먼저).
       var pth = document.getElementById('page-themes');
@@ -3400,7 +3294,6 @@ if (typeof document !== 'undefined') {
       try {
         if (window._aioApplyRegimeDriftMarkers) window._aioApplyRegimeDriftMarkers();
         if (window._aioRefreshActionPlan) window._aioRefreshActionPlan();
-        if (window._aioRenderThemesCycle) window._aioRenderThemesCycle();
         if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); // v50.47 자동 텍스트 합성 전파
         window._aioRenderActivePageNewsStrip();
       } catch(_){}
@@ -3449,7 +3342,6 @@ window.AIO.loadTests = function() {
     } catch (e) { reject(e); }
   }); });
 };
-
 
 // v48.58: 포트폴리오 시세 신선도 UI 업데이터 (Blocker #2 해소)
 window._aioUpdateFreshness = function() {
@@ -3635,10 +3527,6 @@ window._aioRRPopulateSelect = function() {
       return '<option value="' + p.ticker + '">' + p.ticker + ' · ' + p.qty + '주 @ $' + Number(p.cost).toFixed(2) + '</option>';
     }).join('');
   if (current && positions.some(function(p){return p.ticker===current;})) sel.value = current;
-};
-window._aioScrollApiSection = function() {
-  var s = document.querySelector('.sidebar-api-section');
-  if (s) s.scrollIntoView({ behavior: 'smooth' });
 };
 window._aioScrollContentTop = function() {
   var c = document.querySelector('.content');
@@ -5577,101 +5465,8 @@ setTimeout(function() {
 }, 1800);
 
 
-// v50.75: 실데이터 기반 시장 팩터 히트맵 — history.json SPX/VIX/F&G/TNX로 실제 신호 계산
-// Codex 가짜 해시 데이터(_aioPremiumBoardModel) 완전 대체
-window._aioRenderMarketHeatmap = function(containerId) {
-  var el = document.getElementById(containerId || 'home-market-heatmap');
-  if (!el) return;
-  var hist = window._aioHistory || [];
-  var live = window._liveData || {};
-
-  function histVal(field, daysAgo) {
-    var idx = hist.length - 1 - (daysAgo || 0);
-    if (idx < 0 || !hist[idx]) return null;
-    return hist[idx][field] || null;
-  }
-  function liveOrHist(ticker, field, daysAgo) {
-    if (daysAgo === 0 && live[ticker] && live[ticker].price) return live[ticker].price;
-    return histVal(field, daysAgo);
-  }
-
-  // Momentum: SPX 수익률 기반
-  function momentumSignal(daysAgo) {
-    var now = liveOrHist('^GSPC', 'spx', 0);
-    var past = histVal('spx', daysAgo);
-    if (!now || !past || past === 0) return null;
-    var pct = (now - past) / past * 100;
-    if (pct >= 5) return 2; if (pct >= 1.5) return 1;
-    if (pct >= -1.5) return 0; if (pct >= -5) return -1; return -2;
-  }
-  // Risk: VIX 레벨 (낮을수록 양호)
-  function vixSignal(daysAgo) {
-    var v = daysAgo === 0 ? (liveOrHist('^VIX', 'vix', 0) || histVal('vix', 0)) : histVal('vix', daysAgo);
-    if (!v) return null;
-    if (v < 15) return 2; if (v < 20) return 1;
-    if (v < 25) return 0; if (v < 30) return -1; return -2;
-  }
-  // Sentiment: F&G 지수
-  function fgSignal(daysAgo) {
-    var f = histVal('fg', daysAgo);
-    if (f === null) return null;
-    if (f >= 70) return 2; if (f >= 55) return 1;
-    if (f >= 45) return 0; if (f >= 30) return -1; return -2;
-  }
-  // Macro: TNX 방향 (금리 하락 = 채권우호 = 양수)
-  function tnxSignal(daysAgo) {
-    var now = liveOrHist('^TNX', 'tnx', 0);
-    var past = histVal('tnx', daysAgo);
-    if (!now || !past) return null;
-    var chg = now - past;
-    if (chg < -0.3) return 2; if (chg < -0.08) return 1;
-    if (chg <= 0.08) return 0; if (chg <= 0.3) return -1; return -2;
-  }
-
-  var periods = [
-    { label:'1W', days:5 }, { label:'1M', days:21 },
-    { label:'3M', days:63 }, { label:'6M', days:126 }
-  ];
-  var rows = [
-    { label:'Momentum (SPX)', fn: momentumSignal },
-    { label:'Risk (VIX)',     fn: vixSignal },
-    { label:'Sentiment (F&G)',fn: fgSignal },
-    { label:'Macro (TNX)',    fn: tnxSignal }
-  ].map(function(r) {
-    return { label:r.label, values:periods.map(function(p) { return r.fn(p.days); }) };
-  });
-
-  var hasData = hist.length >= 5;
-  function cellClass(v) {
-    if (v === null) return 'mhc-na';
-    return ['mhc-n2','mhc-n1','mhc-z','mhc-p1','mhc-p2'][v + 2] || 'mhc-na';
-  }
-  function cellText(v) {
-    if (v === null) return '—';
-    return ['▼▼','▼','—','▲','▲▲'][v + 2] || '—';
-  }
-
-  var hdrs = periods.map(function(p) {
-    return '<div class="mhc-head">' + p.label + '</div>';
-  }).join('');
-  var tableRows = rows.map(function(r) {
-    var cells = r.values.map(function(v) {
-      return '<div class="mhc-cell ' + cellClass(v) + '">' + cellText(v) + '</div>';
-    }).join('');
-    return '<div class="mhc-row"><div class="mhc-label">' + r.label + '</div>' + cells + '</div>';
-  }).join('');
-  var freshNote = hasData
-    ? ('실측 ' + hist.length + '일 · ' + ((hist[hist.length - 1] && hist[hist.length - 1].date) || ''))
-    : '데이터 수집 중 (20일+ 누적 후 표시)';
-
-  el.innerHTML = '<div class="mhc-wrap">'
-    + '<div class="mhc-top"><span class="mhc-title">시장 팩터 신호</span>'
-    + '<span class="mhc-meta">▲▲ 강세 &nbsp;▲ 양호 &nbsp;— 중립 &nbsp;▼ 경계 &nbsp;▼▼ 약세</span></div>'
-    + '<div class="mhc-grid"><div class="mhc-row mhc-header"><div class="mhc-label"></div>' + hdrs + '</div>'
-    + tableRows + '</div>'
-    + '<div class="mhc-foot">' + freshNote + '</div>'
-    + '</div>';
-};
+// v57.76: the home market-factor heatmap (_aioRenderMarketHeatmap) is retired with its folded home section — it
+// scored SPX/VIX/F&G/TNX -2..+2 from fixed bands with no evidence behind the bands.
 
 // P867/R419: every route consumes one server-authored completed 24-hour cut.
 // Live/delayed quote overlays may update inside that frame, but a page must not
@@ -7223,8 +7018,9 @@ window.AIO.getWebSearchAudit = function() {
 window.AIO.getThemeFetchCoverageAudit = function(themeId) {
   var aliases = window.SCR_KEYWORD_ALIASES;
   if (!aliases) return { status: 'error', error: 'SCR_KEYWORD_ALIASES 미정의' };
-  var hasFinnhub = (typeof _getApiKey === 'function' && !!_getApiKey('aio_finnhub_key')) || (window._getApiKey && !!window._getApiKey('aio_finnhub_key'));
-  var hasFMP     = (typeof _getApiKey === 'function' && !!_getApiKey('aio_fmp_key'))     || (window._getApiKey && !!window._getApiKey('aio_fmp_key'));
+  // v57.76: personal Finnhub/FMP keys are retired (v57.67), so neither channel is ever fetchable from the browser.
+  var hasFinnhub = false;
+  var hasFMP     = false;
   // CIK_MAP은 fetchSECBusinessDescription 내부 — 휴리스틱으로 REGISTRY 등록 여부로 대리 (CIK 있을 가능성 high)
   var reg = window.AIO_TICKER_NAME_REGISTRY;
   var registered = {};
@@ -8155,74 +7951,6 @@ window.AIO.computeTAMEstimate = async function(ticker) {
   return resp;
 };
 
-// (5) fetchFinnhubInsider: 임원 매수/매도 12주 누적 — Finnhub /stock/insider-transactions
-window.AIO.fetchFinnhubInsider = async function(ticker, opts) {
-  opts = opts || {};
-  if (!ticker) return null;
-  ticker = ticker.toUpperCase().trim();
-  var key = (typeof _getApiKey === 'function') ? _getApiKey('aio_finnhub_key') : (typeof window._getApiKey === 'function' ? window._getApiKey('aio_finnhub_key') : '');
-  if (!key) return { ticker: ticker, available: false, reason: 'Finnhub API key 필요 (aio_finnhub_key)' };
-  var now = Date.now();
-  var fromDate = new Date(now - 12 * 7 * 86400000).toISOString().slice(0, 10);
-  var toDate = new Date(now).toISOString().slice(0, 10);
-  try {
-    var url = 'https://finnhub.io/api/v1/stock/insider-transactions?symbol=' + encodeURIComponent(ticker) + '&from=' + fromDate + '&to=' + toDate + '&token=' + key;
-    var r = await (typeof fetchWithTimeout === 'function' ? fetchWithTimeout(url, {}, 10000) : fetch(url));
-    if (r && r.ok) {
-      var raw = await r.json();
-      var txns = raw && raw.data || [];
-      var netShares = 0, buyCount = 0, sellCount = 0;
-      txns.forEach(function(t) {
-        var shares = Number(t.change || 0);
-        netShares += shares;
-        if (shares > 0) buyCount++; else if (shares < 0) sellCount++;
-      });
-      return {
-        ticker: ticker,
-        available: true,
-        source: 'Finnhub /stock/insider-transactions',
-        period: fromDate + ' ~ ' + toDate,
-        transactionCount: txns.length,
-        buyCount: buyCount,
-        sellCount: sellCount,
-        netShares: netShares,
-        verdict: netShares > 0 ? 'insider-buying' : netShares < 0 ? 'insider-selling' : 'neutral',
-        note: '내부자 매수 = 강력 신호 (역사적으로 +6~10%/연 초과수익)'
-      };
-    }
-  } catch(e) {}
-  return { ticker: ticker, available: false, reason: 'Finnhub insider fetch 실패' };
-};
-
-// (6) fetchFinnhubShortInterest: Short Interest % — Finnhub
-window.AIO.fetchFinnhubShortInterest = async function(ticker) {
-  if (!ticker) return null;
-  ticker = ticker.toUpperCase().trim();
-  var key = (typeof _getApiKey === 'function') ? _getApiKey('aio_finnhub_key') : (typeof window._getApiKey === 'function' ? window._getApiKey('aio_finnhub_key') : '');
-  if (!key) return { ticker: ticker, available: false, reason: 'Finnhub API key 필요' };
-  try {
-    var url = 'https://finnhub.io/api/v1/stock/metric?symbol=' + encodeURIComponent(ticker) + '&metric=all&token=' + key;
-    var r = await (typeof fetchWithTimeout === 'function' ? fetchWithTimeout(url, {}, 10000) : fetch(url));
-    if (r && r.ok) {
-      var raw = await r.json();
-      var m = raw && raw.metric;
-      if (m) {
-        var siPct = m.shortInterestPercent || m.shortInterestRatio || null;
-        return {
-          ticker: ticker,
-          available: true,
-          source: 'Finnhub /stock/metric',
-          shortInterestPct: siPct,
-          shortRatio: m.shortRatio,
-          verdict: siPct == null ? 'unknown' : siPct < 5 ? 'normal' : siPct < 15 ? 'elevated' : 'squeeze-candidate',
-          note: '5% 이하 정상, 5~15% 약한 하방, 15%+ Short Squeeze 가능성'
-        };
-      }
-    }
-  } catch(e) {}
-  return { ticker: ticker, available: false, reason: 'Finnhub short interest fetch 실패' };
-};
-
 // (7) fetchSEC13F: bounded ticker reverse lookup — SEC rows + unverified
 // reference CUSIP crosswalk. A missing match is not absence of ownership.
 window.AIO.fetchSEC13F = async function(ticker) {
@@ -8456,147 +8184,20 @@ window.AIO.fetchPartnershipAlerts = async function(ticker, monthsBack) {
 
 // ─────────────────────────────────────────────────────────────────
 // v49.65 P340 (#13 플랫폼/생태계/Platform Ecosystem): fetchPlatformEcosystem
-// P1538 (owner decision: no composite grades or scores without a source or calibration): the 0-100 ecosystem score and its
-// 'Strong Platform / Moderate / Limited' verdict were built from keyword counts in a free-text memo and in headlines. Mentions are not
-// evidence of a platform. The function now returns the one observation with a source, the share of revenue in service / subscription /
-// cloud / platform segments reported by FMP, and nothing is scored.
+// P1538 (owner decision: no composite grades or scores without a source or calibration): nothing is scored.
+// v57.76: its one sourced observation was the FMP segment revenue share, read through the retired personal FMP key.
+// No public source replaces it yet, so the result stays unavailable and the chat block that reads it stays silent.
 // ─────────────────────────────────────────────────────────────────
 window.AIO.fetchPlatformEcosystem = async function(ticker) {
   if (!ticker) return null;
   ticker = ticker.toUpperCase().trim();
-  window._platformEcoCache = window._platformEcoCache || {};
-  var cached = window._platformEcoCache[ticker];
-  if (cached && (Date.now() - cached.ts < 10 * 60 * 1000)) return cached.data;
-  var indicators = [];
-  var segData = null;
-  try {
-    if (typeof window.AIO.fetchFMPSegments === 'function') {
-      segData = await window.AIO.fetchFMPSegments(ticker);
-    }
-  } catch(_segErr) {}
-  if (segData && segData.available && Array.isArray(segData.segments)) {
-    var platformSegments = segData.segments.filter(function(s) {
-      var n = String(s.name || '').toLowerCase();
-      return /service|subscription|platform|cloud|marketplace|saas|recurring/.test(n);
-    });
-    var totalRev = segData.segments.reduce(function(a, s) { return a + (Number(s.revenue) || 0); }, 0);
-    if (platformSegments.length > 0 && totalRev > 0) {
-      var platformRev = platformSegments.reduce(function(a, s) { return a + (Number(s.revenue) || 0); }, 0);
-      indicators.push({ source: 'FMP segments', platformRevPct: Math.round(platformRev / totalRev * 100), count: platformSegments.length, segments: platformSegments.map(function(s) { return s.name; }).slice(0, 5) });
-    }
-  }
-  var confidence = indicators.length ? 'low-medium' : 'low';
-  var resp = {
-    ticker: ticker,
-    available: indicators.length > 0,
-    source: 'FMP segments (service / subscription / cloud / platform segment revenue share)',
-    dataConfidence: confidence,
-    indicators: indicators,
-    note: '부문 매출 비중 하나만 보고한다. 점수나 등급은 만들지 않고, 구체적 플랫폼 규모·사용자 수 추정 금지 (R117). 부문 이름 분류는 단순 규칙이다.'
-  };
-  window._platformEcoCache[ticker] = { data: resp, ts: Date.now() };
-  return resp;
-};
-
-// (10) fetchFinnhubCompanyNews — 종목별 최근 N일 뉴스 (v49.57 P317 신설)
-// Finnhub /company-news?symbol=X&from=Y&to=Z — 무료 60req/min
-// 반환: { articleCount, topHeadlines: [{datetime, headline, source, url, summary, category}, ...max 5] }
-window.AIO.fetchFinnhubCompanyNews = async function(ticker, daysBack) {
-  if (!ticker) return null;
-  ticker = ticker.toUpperCase().trim();
-  daysBack = daysBack || 14;
-  // 캐시 30분
-  window._fhNewsCache = window._fhNewsCache || {};
-  var cacheKey = ticker + '_' + daysBack;
-  var cached = window._fhNewsCache[cacheKey];
-  if (cached && (Date.now() - cached.ts < 30 * 60 * 1000)) return cached.data;
-  var key = (typeof _getApiKey === 'function') ? _getApiKey('aio_finnhub_key') : (typeof window._getApiKey === 'function' ? window._getApiKey('aio_finnhub_key') : '');
-  if (!key) {
-    var noKey = { ticker: ticker, available: false, reason: 'Finnhub API key 필요 (aio_finnhub_key)' };
-    window._fhNewsCache[cacheKey] = { data: noKey, ts: Date.now() };
-    return noKey;
-  }
-  var now = Date.now();
-  var fromDate = new Date(now - daysBack * 86400000).toISOString().slice(0, 10);
-  var toDate = new Date(now).toISOString().slice(0, 10);
-  try {
-    var url = 'https://finnhub.io/api/v1/company-news?symbol=' + encodeURIComponent(ticker) + '&from=' + fromDate + '&to=' + toDate + '&token=' + key;
-    var r = await (typeof fetchWithTimeout === 'function' ? fetchWithTimeout(url, {}, 10000) : fetch(url));
-    if (r && r.ok) {
-      var raw = await r.json();
-      if (Array.isArray(raw)) {
-        // 최신 순으로 5개
-        var sorted = raw.slice().sort(function(a, b) { return (b.datetime || 0) - (a.datetime || 0); });
-        var top = sorted.slice(0, 5).map(function(n) {
-          return {
-            datetime: n.datetime ? new Date(n.datetime * 1000).toISOString().slice(0, 16).replace('T', ' ') : null,
-            headline: n.headline || '',
-            source: n.source || '',
-            url: n.url || '',
-            summary: (n.summary || '').substring(0, 240),
-            category: n.category || ''
-          };
-        });
-        var resp = {
-          ticker: ticker,
-          available: true,
-          source: 'Finnhub /company-news',
-          period: fromDate + ' ~ ' + toDate,
-          articleCount: raw.length,
-          topHeadlines: top
-        };
-        window._fhNewsCache[cacheKey] = { data: resp, ts: Date.now() };
-        return resp;
-      }
-    }
-  } catch(e) {}
-  var failResp = { ticker: ticker, available: false, reason: 'Finnhub company-news fetch 실패' };
-  window._fhNewsCache[cacheKey] = { data: failResp, ts: Date.now() };
-  return failResp;
-};
-
-window.AIO.normalizeFMPSegments = function(raw) {
-  var out = [];
-  function add(name, revenue, year) {
-    if (!name || /^(symbol|date|period|calendarYear|reportedCurrency|cik|fillingDate|acceptedDate|link|finalLink)$/i.test(name)) return;
-    var n = Number(String(revenue).replace(/,/g, ''));
-    if (!isFinite(n) || n === 0) return;
-    out.push({ name: String(name), revenue: n, year: year || null });
-  }
-  function walk(obj, year) {
-    if (!obj) return;
-    if (Array.isArray(obj)) { obj.forEach(function(x) { walk(x, year); }); return; }
-    if (typeof obj !== 'object') return;
-    var y = obj.calendarYear || obj.year || (obj.date ? String(obj.date).slice(0, 4) : year);
-    if (Array.isArray(obj.segments)) {
-      obj.segments.forEach(function(s) { add(s.name || s.segment || s.product || s.label, s.revenue || s.value || s.amount, y); });
-    }
-    if (obj.data && typeof obj.data === 'object') walk(obj.data, y);
-    if ((obj.name || obj.segment || obj.product) && (obj.revenue || obj.value || obj.amount)) {
-      add(obj.name || obj.segment || obj.product, obj.revenue || obj.value || obj.amount, y);
-    }
-    Object.keys(obj).forEach(function(k) {
-      var v = obj[k];
-      if (v && typeof v === 'object') {
-        if (/^\d{4}$/.test(k)) walk(v, k);
-        return;
-      }
-      add(k, v, y);
-    });
-  }
-  walk(raw, null);
-  var seen = {};
-  return out.filter(function(s) {
-    var key = s.name + '|' + (s.year || '') + '|' + s.revenue;
-    if (seen[key]) return false;
-    seen[key] = true;
-    return true;
-  }).sort(function(a, b) { return Math.abs(b.revenue) - Math.abs(a.revenue); });
+  return { ticker: ticker, available: false, source: 'none', dataConfidence: 'low', indicators: [],
+    note: '부문 매출 비중 공개 자료 미수신. 점수나 등급은 만들지 않고, 플랫폼 규모·사용자 수 추정 금지 (R117).' };
 };
 
 // ─────────────────────────────────────────────────────────────────
 // v49.72 신규: fetchFMP5YQuarterly + fetchKRQuarterly — fundamental 페이지 7 차트 데이터 소스
-// FMP 4 endpoints (income/balance/cash-flow/ratios) period=quarter limit=20 병렬 fetch + 5분 캐시
+// US 경로는 v57.76부터 미제공 표시만 반환 (개인 FMP 키 퇴역)
 // KR (.KS/.KQ) ticker는 Naver 분기 재무 fallback
 // R138 신규 (fundamental 종목 검색 시 7 차트 자동 렌더 의무) / P384 (FMP 분기 미구현 갭)
 // ─────────────────────────────────────────────────────────────────
@@ -8606,66 +8207,9 @@ window._fmpQuarterlyCacheStats = window._fmpQuarterlyCacheStats || { hits: 0, mi
 window.AIO.fetchFMP5YQuarterly = async function(ticker) {
   if (!ticker) return null;
   ticker = ticker.toUpperCase().trim();
-  // 캐시 5분 TTL (LRU 50 종목 cap, v49.66 패턴)
-  var _TTL = 5 * 60 * 1000;
-  var cached = window._fmpQuarterlyCache[ticker];
-  if (cached && (Date.now() - cached._ts < _TTL)) {
-    window._fmpQuarterlyCacheStats.hits++;
-    return cached.data;
-  }
-  window._fmpQuarterlyCacheStats.misses++;
-  var key = (typeof _getApiKey === 'function') ? _getApiKey('aio_fmp_key') : (typeof window._getApiKey === 'function' ? window._getApiKey('aio_fmp_key') : '');
-  if (!key) {
-    return { ticker: ticker, available: false, dataSource: 'FMP-key-missing', reason: 'FMP API 키 필요 (aio_fmp_key) — 사이드바 → API 설정', asOf: new Date().toISOString() };
-  }
-  var base = 'https://financialmodelingprep.com/api/v3/';
-  function _fetch(url) {
-    return (typeof fetchWithTimeout === 'function' ? fetchWithTimeout(url, {}, 7000) : fetch(url))
-      .then(function(r){ return r && r.ok ? r.json() : null; })
-      .catch(function(){ return null; });
-  }
-  try {
-    var jobs = [
-      _fetch(base + 'income-statement/'        + encodeURIComponent(ticker) + '?period=quarter&limit=20&apikey=' + key),
-      _fetch(base + 'balance-sheet-statement/' + encodeURIComponent(ticker) + '?period=quarter&limit=20&apikey=' + key),
-      _fetch(base + 'cash-flow-statement/'     + encodeURIComponent(ticker) + '?period=quarter&limit=20&apikey=' + key),
-      _fetch(base + 'ratios/'                  + encodeURIComponent(ticker) + '?period=quarter&limit=20&apikey=' + key)
-    ];
-    var settled = await Promise.allSettled(jobs);
-    var income   = settled[0].status === 'fulfilled' ? (settled[0].value || []) : [];
-    var balance  = settled[1].status === 'fulfilled' ? (settled[1].value || []) : [];
-    var cashflow = settled[2].status === 'fulfilled' ? (settled[2].value || []) : [];
-    var ratios   = settled[3].status === 'fulfilled' ? (settled[3].value || []) : [];
-    var available = (income.length || balance.length || cashflow.length || ratios.length) > 0;
-    var asOf = new Date().toISOString();
-    var latestQuarter = (income[0] && income[0].date) || (balance[0] && balance[0].date) || null;
-    var data = {
-      ticker: ticker,
-      available: available,
-      dataSource: 'FMP',
-      period: 'quarter',
-      latestQuarter: latestQuarter,
-      asOf: asOf,
-      income: income,
-      balance: balance,
-      cashflow: cashflow,
-      ratios: ratios,
-      note: 'FMP 5년 분기 (최대 20분기). period=quarter, limit=20.'
-    };
-    // LRU eviction (50 종목 cap)
-    window._fmpQuarterlyCache[ticker] = { data: data, _ts: Date.now() };
-    var keys = Object.keys(window._fmpQuarterlyCache);
-    if (keys.length > 50) {
-      keys.sort(function(a, b){ return (window._fmpQuarterlyCache[a]._ts||0) - (window._fmpQuarterlyCache[b]._ts||0); });
-      for (var i = 0; i < keys.length - 50; i++) {
-        delete window._fmpQuarterlyCache[keys[i]];
-        window._fmpQuarterlyCacheStats.evictions++;
-      }
-    }
-    return data;
-  } catch(e) {
-    return { ticker: ticker, available: false, dataSource: 'FMP-error', reason: 'FMP 분기 fetch 오류: ' + (e && e.message || e), asOf: new Date().toISOString() };
-  }
+  // v57.76: the personal-key FMP quarterly fetch (income/balance/cash-flow/ratios, period=quarter) was removed with
+  // the retired personal keys. No public artifact carries a US quarterly series, so the card says so plainly.
+  return { ticker: ticker, available: false, dataSource: '공개 데이터', reason: '미국 종목 분기 재무 시계열은 아직 제공하지 않습니다', asOf: new Date().toISOString() };
 };
 
 // KR 종목 분기 재무 fallback — Naver 스크래핑 (.KS/.KQ)
@@ -8732,31 +8276,6 @@ window.AIO.fetchQuarterlyFinancials = async function(ticker) {
     return await window.AIO.fetchKRQuarterly(ticker);
   }
   return await window.AIO.fetchFMP5YQuarterly(ticker);
-};
-
-// 보조 (9): fetchFMPSegments — 매출 세그먼트 (FMP key 필요)
-window.AIO.fetchFMPSegments = async function(ticker) {
-  if (!ticker) return null;
-  ticker = ticker.toUpperCase().trim();
-  var key = (typeof _getApiKey === 'function') ? _getApiKey('aio_fmp_key') : (typeof window._getApiKey === 'function' ? window._getApiKey('aio_fmp_key') : '');
-  if (!key) return { ticker: ticker, available: false, reason: 'FMP API key 필요 (aio_fmp_key)' };
-  try {
-    var url = 'https://financialmodelingprep.com/api/v3/revenue-product-segmentation/' + encodeURIComponent(ticker) + '?period=annual&apikey=' + key;
-    var r = await (typeof fetchWithTimeout === 'function' ? fetchWithTimeout(url, {}, 10000) : fetch(url));
-    if (r && r.ok) {
-      var raw = await r.json();
-      var segments = window.AIO.normalizeFMPSegments ? window.AIO.normalizeFMPSegments(raw) : [];
-      return {
-        ticker: ticker,
-        available: segments.length > 0,
-        source: 'FMP /revenue-product-segmentation',
-        segments: segments,
-        rawSegments: raw || [],
-        note: '제품/서비스별 매출 세그먼트 (annual). AI가 비즈니스 모델/수익 구조 분석에 활용.'
-      };
-    }
-  } catch(e) {}
-  return { ticker: ticker, available: false, reason: 'FMP segments fetch 실패' };
 };
 
 // ─────────────────────────────────────────────────────────────────
@@ -9348,8 +8867,6 @@ window.AIO.assertChatFunctionCoverage = function() {
     'fetchFMPEstimates': true,        // 내부 helper
     'fetchFMPExecutives': true,       // 내부 helper
     'fetchFMPMetrics': true,          // 내부 helper
-    'fetchFinnhubEarningsCalendar': true,    // 이미 _fetchTickerDataForChat에 직접 호출
-    'fetchFinnhubRecommendation': true,      // 이미 _fetchTickerDataForChat에 직접 호출
     'fetchNaverUSData': true,                // 이미 _fetchTickerDataForChat에 직접 호출
     'fetchPolygonOptions': true,             // options 페이지 전용
     'fetchFMP5YQuarterly': true,             // fundamentals 페이지 장기 재무 차트 전용
@@ -10229,67 +9746,6 @@ window.AIO.computeCrossAssetCorrelation = function(opts) {
   };
 };
 
-
-// ─────────────────────────────────────────────────────────────────
-// v49.83 P446/R175: fetchFMPEarningsCallTranscript — 분기 earnings call 발췌
-// FMP /earning_call_transcript/{ticker}?quarter=N&year=N (Free tier에 일부 종목만)
-// 결과: 최근 quarter transcript의 첫 1500자 + URL + 호출일.
-// ─────────────────────────────────────────────────────────────────
-window.AIO.fetchFMPEarningsCallTranscript = async function(ticker) {
-  if (!ticker) return { available: false, reason: 'ticker required' };
-  var key = '';
-  try { key = (typeof window._getApiKey === 'function') ? (window._getApiKey('aio_fmp_key') || '') : ''; } catch(_) {}
-  if (!key) {
-    return {
-      available: false,
-      ticker: ticker,
-      reason: 'personal-keys-retired',
-      sourceUrl: 'https://financialmodelingprep.com/developer/docs#earning-call-transcript',
-      generatedAt: new Date().toISOString()
-    };
-  }
-  // 캐시 (10분 TTL)
-  window._fmpEarningsCallCache = window._fmpEarningsCallCache || {};
-  var cached = window._fmpEarningsCallCache[ticker];
-  if (cached && (Date.now() - cached.ts < 10 * 60 * 1000)) {
-    return cached.data;
-  }
-  try {
-    var url = 'https://financialmodelingprep.com/api/v3/earning_call_transcript/' + encodeURIComponent(ticker) + '?apikey=' + encodeURIComponent(key);
-    var ctrl = new AbortController();
-    var to = setTimeout(function(){ ctrl.abort(); }, 5000);
-    var res = await fetchWithTimeout(url, { signal: ctrl.signal }, 5000);
-    clearTimeout(to);
-    if (!res.ok) {
-      var msg = 'FMP HTTP ' + res.status + ' (paid tier required for ' + ticker + ' or rate limit)';
-      var failResult = { available: false, ticker: ticker, reason: msg, generatedAt: new Date().toISOString() };
-      // 실패는 캐시 안 함 (v49.67 R122)
-      return failResult;
-    }
-    var arr = await res.json();
-    if (!Array.isArray(arr) || arr.length === 0) {
-      return { available: false, ticker: ticker, reason: '데이터 없음 (FMP free tier 제한 가능)', generatedAt: new Date().toISOString() };
-    }
-    var latest = arr[0];
-    var excerpt = (latest.content || '').slice(0, 1500);
-    var data = {
-      available: true,
-      ticker: ticker,
-      quarter: latest.quarter,
-      year: latest.year,
-      date: latest.date,
-      excerpt: excerpt,
-      excerptLength: excerpt.length,
-      sourceUrl: url.replace(/apikey=[^&]+/, 'apikey=***'),
-      note: 'v49.83 R175: FMP earnings call transcript. 첫 1500자 발췌.',
-      generatedAt: new Date().toISOString()
-    };
-    window._fmpEarningsCallCache[ticker] = { data: data, ts: Date.now() };
-    return data;
-  } catch(e) {
-    return { available: false, ticker: ticker, reason: 'fetch error: ' + (e && e.message || e), generatedAt: new Date().toISOString() };
-  }
-};
 
 // ─────────────────────────────────────────────────────────────────
 // v49.30 M5 근본 수정: KR_MACRO_RELEASE — 한국 거시 발표 캘린더
@@ -11476,7 +10932,8 @@ function _aioCollectDynamicPageSymbols(pageId, scope) {
     _aioPushInputSymbol(out, 'signal-lockout-symbol');
   }
   if (id === 'technical') {
-    ['tech-brief-symbol', 'tv-tech-sym', 'ticker-analysis-input'].forEach(function(inputId) { _aioPushInputSymbol(out, inputId); });
+    // v57.76: the brief/TradingView ticker inputs were deleted; the 차트 tab shows the 종목 subject.
+    _aioPushSymbol(out, window._aioLastOpenedSymbol);
   }
   if (id === 'fundamental' || id === 'ticker') {
     ['fund-search-input', 'ticker-analysis-input'].forEach(function(inputId) { _aioPushInputSymbol(out, inputId); });
@@ -12369,7 +11826,6 @@ async function _retryAllFailedApis() {
     if (hasKey('fred') && typeof fetchAllFredData === 'function') retryTasks.push(fetchAllFredData());
     if (hasKey('coingecko') && typeof fetchLiveQuotes === 'function') retryTasks.push(fetchLiveQuotes()); // coingecko는 시세에 포함
     if (hasKey('rss-news') && typeof fetchAllNews === 'function') retryTasks.push(fetchAllNews(true));
-    if (hasKey('finnhub') && typeof initFinnhubWebSocket === 'function') { try { initFinnhubWebSocket(); } catch(e){} }
     // exchange-rate는 globalRefresh 내에서 시세와 함께 처리됨
     if (hasKey('exchange-rate') && typeof globalRefresh === 'function') { /* globalRefresh에서 처리 */ }
     await Promise.allSettled(retryTasks);
@@ -19992,11 +19448,7 @@ function _aioExternalReferenceMap(externalReferences) {
         'Ticker entry checklist can use static screener RSI/signal before fresh per-symbol technical evidence is loaded.',
         'Gate entry guidance on fresh ticker OHLCV/quote evidence and label static screener values reference-only.');
     }
-    if (typeof document !== 'undefined' && document.documentElement && /_vixLow52\s*=\s*12\s*,\s*_vixHigh52\s*=\s*82/.test(document.documentElement.innerHTML)) {
-      add('options-ivrank-static-vix-range', 'block', 'options',
-        'Options IV Rank uses a static 52-week VIX range, which can materially distort volatility state.',
-        'Compute range from verified VIX series or mark IV Rank unavailable/reference-only.');
-    }
+    // v57.76: the options IV-rank check (static _vixLow52/_vixHigh52 in the shell) left with the retired options page (P1321).
 
     var inputEvidence = window.AIO.getTradingDecisionInputEvidence(opts);
     inputEvidence.criticalMissing.forEach(function(r) {
@@ -20916,15 +20368,12 @@ function showTicker(tkr) {
     return;
   }
   window._aioTickerSelectionEpoch = (window._aioTickerSelectionEpoch || 0) + 1;
-  var _tickerEpoch = window._aioTickerSelectionEpoch;
   ['eq-price','eq-ema20','eq-rsi'].forEach(function(id) {
     var input = document.getElementById(id);
     if (input) { input.value = ''; delete input.dataset.evidenceSource; }
   });
   var _entryResult = document.getElementById('entry-quality-result');
   if (_entryResult) _entryResult.style.display = 'none';
-  var _patternIndicator = document.getElementById('realtime-pattern-indicator');
-  if (_patternIndicator) _patternIndicator.textContent = tkr + ' · OHLCV 확인 중';
   _currentTickerSym = tkr; // v27.1: chart에서 사용할 현재 티커 저장
   if (window.AIO && window.AIO.state) window.AIO.state._currentTickerSym = tkr; // v49.1 P184
   // v49.58 R106: 채팅 컨텍스트가 활성 종목 라이브 가격을 자동 주입하도록 전역 마커
@@ -20935,19 +20384,14 @@ function showTicker(tkr) {
   // P1449 (검토판 9): the three 종목-screen search boxes must move with the selection. A previous
   // typed query ("ZZZZ") that failed to resolve survived the entity switch, so the next visit of
   // the same screen silently reported the old subject. Sync: the selected symbol rules the box.
-  ['#ticker-direct-search', '#fund-search-input', '#stock-chart-input'].forEach(function(selector) {
+  ['#ticker-direct-search', '#fund-search-input'].forEach(function(selector) { // v57.76: the 차트 tab's own ticker form was retired
     try {
       var input = document.querySelector(selector);
       if (input && input.value !== tkr) input.value = tkr;
     } catch (_) {}
   });
   const d = tickerData[tkr] || {name:tkr, value:'—', action:'hold'};
-  // v48.47: 캔들/진입 섹션 심볼 라벨 동기화 + 자동 감지
-  var _tcs = document.getElementById('ticker-candle-symbol');
-  if (_tcs && _tcs.dataset.aioTickerSymbolRenderer !== 'native') _tcs.textContent = tkr;
-  var _tes = document.getElementById('ticker-entry-symbol');
-  if (_tes && _tes.dataset.aioTickerSymbolRenderer !== 'native') _tes.textContent = tkr;
-  try { if (typeof window._aioDetectTickerPattern === 'function') window._aioDetectTickerPattern(tkr, _tickerEpoch); } catch(_){}
+  // v57.76: the 요약 tab's text-only 최근 3봉 형태 section (symbol label + _aioDetectTickerPattern) was deleted.
   // v52.16 P5f/P620: pnlEl.textContent 대입이 자식 span(#ticker-hero-value)을 통째로 파괴해
   // 바로 다음 줄의 _thv 갱신이 이후 영구 무력화(getElementById가 null)되던 버그 — span은
   // 건드리지 않고 그 안의 텍스트만 갱신하도록 순서 변경.
