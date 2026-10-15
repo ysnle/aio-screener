@@ -1,10 +1,15 @@
 // 2026-10-14 audit #5: one accessor for "which stage is this stock's theme in", shared by the stock summary, the
 // company card and the screener reading so all three say exactly what 테마 시나리오 says (scenario-state.json rows).
 // Theme-level only: the favoured choice belongs to the theme, never a buy/sell instruction on a single stock.
-// When the per-refresh state is not 'ok' the accessor returns [] and callers render nothing (no placeholder).
+// When the per-refresh state is not current the accessor returns [] and callers render nothing (no placeholder).
 import { THEME_STATES } from './analogs.js';
 import { WIND_LABELS } from './exposures.js';
 import { CHOICES } from '../market/macro-crossroads.js';
+
+// v57.81 (audit): the producer writes status 'current' (scripts/build-scenario-state.mjs) while the readers required 'ok',
+// so the stage chips never rendered. One constant for the writer and every reader.
+export const SCENARIO_STATE_CURRENT = 'current';
+export const scenarioStateCurrent = (scenario) => scenario?.status === SCENARIO_STATE_CURRENT;
 
 export const themeMarketOf = (symbol) => /\.K[SQ]$/i.test(String(symbol || '').trim()) ? 'KR' : 'US';
 
@@ -18,7 +23,7 @@ export const themeStageName = (state) => THEME_STATES[state] ? THEME_STATES[stat
  */
 export function themeStagesFor(root, { symbol = '', market = null, themeIds = [] } = {}) {
   const scenario = root?._aioScenarioState;
-  if (!scenario || scenario.status !== 'ok' || !Array.isArray(scenario.themes)) return [];
+  if (!scenarioStateCurrent(scenario) || !Array.isArray(scenario.themes)) return [];
   const want = market || themeMarketOf(symbol);
   const ids = [...new Set((themeIds || []).map((id) => String(id || '').trim()).filter(Boolean))];
   const out = [];

@@ -7,6 +7,7 @@ import { buildGroupStrength, GROUP_WINDOWS } from '../../domain/themes/group-str
 import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
 import { AI_CAPEX_FLOW, AI_BOTTLENECK_LEAD_TIMES } from '../../domain/themes/ai-capex-flow.js';
 import { el } from './dom.js';
+import { attachScrollCue } from './scroll-cue.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 
 const SESSIONS = Object.freeze({ ret1m: 21, ret3m: 63, ret6m: 126 });
@@ -70,14 +71,15 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   // reading is held — the same admission the US screener applies when it holds its ranks.
   const lead = basis?.stale ? '최신 거래일 종가가 아직 반영되지 않아 지금의 주도·개선 판단은 보류합니다. 아래 순위와 방향은 기준일 시점의 참고 값입니다.' : themeStrengthLead(model);
   if (lead) host.append(sectionLead(doc, lead));
-  host.append(el(doc, 'p', `${basis ? basis.label : '스크리너 수익률 수신 대기'} · 구성 종목 ${model.windowLabel} 수익률의 중앙값으로 순위 · S&P 500 ${model.windowLabel} ${pct(model.benchmark)} · 순위 변화는 1개월 순위와 3개월 순위 비교(1개월 순위가 크게 앞서면 순위 상승)`, 'theme-strength-basis'));
+  host.append(el(doc, 'p', `${basis ? basis.label : '스크리너 수익률 수신 대기'} · 구성 종목 ${model.windowLabel} 수익률의 중앙값으로 순위 · S&P 500 ${model.windowLabel} ${pct(model.benchmark)} · 1주 = 최근 5거래일 · 순위 변화는 1개월 순위와 3개월 순위 비교(1개월 순위가 크게 앞서면 순위 상승)`, 'theme-strength-basis'));
   if (!model.groups.length) { host.append(el(doc, 'p', '스크리너 수익률이 들어오면 순위가 표시됩니다.', 'briefing-empty')); return; }
   const table = el(doc, 'table', null, 'theme-strength-table');
   const thead = el(doc, 'thead');
   const hr = el(doc, 'tr');
   // v57.55 review (S2/E3): without the S&P 500 return every 'S&P 대비' cell was '—'; the column is left out until it has values.
   const showVs = model.groups.some((group) => Number.isFinite(group.vsBenchmark));
-  ['순위', '하위 테마', '1개월', '3개월', '6개월', ...(showVs ? ['S&P 대비'] : []), '50일선 위', '순위 변화(1개월 vs 3개월)', '구성 종목 전체'].forEach((label) => hr.append(el(doc, 'th', label)));
+  // v57.81 (audit): the 1주 column (5-session median) sits beside the month so a rank gain during a sharp week shows.
+  ['순위', '하위 테마', '1주', '1개월', '3개월', '6개월', ...(showVs ? ['S&P 대비'] : []), '50일선 위', '순위 변화(1개월 vs 3개월)', '구성 종목 전체'].forEach((label) => hr.append(el(doc, 'th', label)));
   thead.append(hr);
   const tbody = el(doc, 'tbody');
   const visible = expanded ? model.groups : model.groups.slice(0, 15);
@@ -97,6 +99,10 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     compare.setAttribute('aria-expanded', String(root._aioThemeMemberGroup === group.id));
     compare.addEventListener('click', () => onCompare(group.id)); nameCell.append(compare);
     tr.append(nameCell);
+    // v57.81: a week that fell beyond the group's typical weekly move (group.recent, recent-check.js) is said in the title.
+    const week = el(doc, 'td', pct(group.ret5d ?? null), `is-num${group.ret5d == null ? '' : group.ret5d >= 0 ? ' is-up' : ' is-down'}`);
+    if (group.recent?.broken) { week.title = '평소 1주 움직임의 2배를 넘는 하락'; week.dataset.recentBreak = 'true'; }
+    tr.append(week);
     for (const key of ['ret1m', 'ret3m', 'ret6m']) tr.append(el(doc, 'td', pct(group[key]), `is-num${key === model.sortKey ? ' is-sorted' : ''}${group[key] >= 0 ? ' is-up' : ' is-down'}`));
     if (showVs) tr.append(el(doc, 'td', pct(group.vsBenchmark), `is-num${group.vsBenchmark >= 0 ? ' is-up' : ' is-down'}`));
     tr.append(el(doc, 'td', group.above50Pct == null ? '—' : `${group.above50Pct}%`, 'is-num'));
@@ -117,7 +123,7 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     tr.append(leaderCell);
     tbody.append(tr);
     if (root._aioThemeMemberGroup === group.id) {
-      const detailRow = el(doc, 'tr'), detailCell = el(doc, 'td'); detailCell.colSpan = showVs ? 9 : 8; detailCell.className = 'theme-member-detail'; detailRow.id = `theme-members-${visible.indexOf(group)}`;
+      const detailRow = el(doc, 'tr'), detailCell = el(doc, 'td'); detailCell.colSpan = showVs ? 10 : 9; detailCell.className = 'theme-member-detail'; detailRow.id = `theme-members-${visible.indexOf(group)}`;
       detailCell.append(el(doc, 'p', `${group.name} 안의 ${model.windowLabel} 수익률 비교 · ${group.basis ? `${group.basis} 종가 기준` : '기준일 불일치/미확인으로 순위·중앙값 비교 보류'} · 선두는 이 기간 수익률 순위입니다.`, 'theme-strength-basis'));
       const available = group.rankedMembers.filter((member) => member.rank != null);
       if (available.length) {
@@ -151,17 +157,9 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   scroll.tabIndex = 0;
   const frame = el(doc, 'div', null, 'theme-strength-scroll');
   frame.append(scroll);
-  const edges = () => {
-    const rest = scroll.scrollWidth - scroll.clientWidth - scroll.scrollLeft;
-    frame.classList.toggle('has-more-left', scroll.scrollLeft > 2);
-    frame.classList.toggle('has-more-right', rest > 2);
-  };
-  scroll.addEventListener('scroll', edges, { passive: true });
   host._aioScrollEdges?.disconnect?.();
-  host._aioScrollEdges = typeof root?.ResizeObserver === 'function' ? new root.ResizeObserver(edges) : null;
-  host._aioScrollEdges?.observe(scroll);
   host.append(frame);
-  edges();
+  host._aioScrollEdges = attachScrollCue(scroll, { frame, root }); // v57.81: shared helper (scroll-cue.js)
   const footer = el(doc, 'div', null, 'theme-strength-footer');
   if (model.groups.length > 15) {
     const more = el(doc, 'button', expanded ? '상위 15개만 보기' : `전체 ${model.groups.length}개 보기`, 'theme-strength-more');

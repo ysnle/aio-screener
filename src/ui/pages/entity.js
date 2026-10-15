@@ -432,7 +432,16 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
   }
 }
 
-function renderFundamentalStatus(documentRef, state) {
+// v57.81: why an out-of-universe listing has no SEC filing on screen (never an estimate in its place).
+const ON_DEMAND_SEC_STATUS = Object.freeze({
+  'no-cik': '○ 랭킹 대상 밖 종목 · SEC 등록번호(CIK) 미확인 — 공시 미조회',
+  unavailable: '○ 랭킹 대상 밖 종목 · SEC 공시 조회 실패',
+  'no-annual-facts': '○ 랭킹 대상 밖 종목 · SEC 연간 공시 항목 없음',
+  'no-current-fields': '○ 랭킹 대상 밖 종목 · 현재 기준에 맞는 연간 공시 없음',
+  'not-applicable': '○ ETF · 기업 재무 공시 대상 아님'
+});
+
+function renderFundamentalStatus(documentRef, state, onDemand = null) {
   const element = documentRef?.getElementById('fund-data-status');
   if (!element) return;
   const fundamentals = state?.fundamentals;
@@ -440,7 +449,7 @@ function renderFundamentalStatus(documentRef, state) {
     && Array.isArray(fundamentals.coverage) && fundamentals.coverage.length > 0;
   const observedAt = fundamentals?.observedAt || fundamentals?.filedAt || null;
   const unselected = !String(state?.id || '').trim(); // P1365: no selection ≠ SEC 미수신.
-  element.textContent = available ? `● SEC 연간 공시 · ${observedAt ? `회계연도 말 ${String(observedAt).slice(0, 10)}` : '회계연도 말 미수신'}` : unselected ? '○ 종목 선택 전' : isKrSymbol(state?.id) ? '○ 한국 공시(DART) 기준 · SEC 대상 아님' : '○ SEC 데이터 미수신';
+  element.textContent = available ? `● SEC 연간 공시 · ${observedAt ? `회계연도 말 ${String(observedAt).slice(0, 10)}` : '회계연도 말 미수신'}` : unselected ? '○ 종목 선택 전' : isKrSymbol(state?.id) ? '○ 한국 공시(DART) 기준 · SEC 대상 아님' : ON_DEMAND_SEC_STATUS[onDemand?.secStatus] || '○ SEC 데이터 미수신';
   element.className = 'freshness-badge fb-static';
   element.setAttribute('data-source-kind', available ? (fundamentals.sourceTier || 'official-regulator') : 'unavailable');
   element.setAttribute('data-source-label', available ? (fundamentals.source || 'SEC EDGAR companyfacts') : 'sec-fundamentals.json');
@@ -778,7 +787,12 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
       returnContext: knowledge?.returnContext || null,
       root
     });
-    renderFundamentalStatus(documentRef, state);
+    // v57.81: a US listing outside the screener universe reads its SEC filing on demand (session cache, two at a time);
+    // the record's arrival re-renders through 'aio:entityChanged', and a missing CIK says so instead of '미수신'.
+    const onDemandId = String(state?.id || '').trim().toUpperCase();
+    const onDemand = onDemandId && !isKrSymbol(onDemandId) && !state?.fundamentals ? root?._aioOnDemandSymbol?.(onDemandId) || null : null;
+    if (onDemandId && !isKrSymbol(onDemandId) && !state?.fundamentals && !onDemand) root?._aioRequestOnDemandSymbol?.(onDemandId)?.catch?.(() => {});
+    renderFundamentalStatus(documentRef, state, onDemand);
     renderFundamentalSummary(documentRef, state);
     renderFundamentalWatchlist(documentRef, state);
     renderFundamentalReport(documentRef, routeNode, state);
@@ -809,7 +823,17 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
           Promise.resolve().then(() => {
             if (root?._currentTickerId && String(root._currentTickerId).toUpperCase() === id) renderNow();
             const label = documentRef?.getElementById('ticker-summary-price-basis');
-            if (label && !root?._liveData?.[id]?.price && documentRef?.getElementById('ticker-hero-price')?.dataset.priceBasis !== 'last-close') label.textContent = typeof root?._aioIsKnownTicker === 'function' && !root._aioIsKnownTicker(id) ? 'AIO에 등록된 종목이 아닙니다 · 티커 철자를 확인하세요' : '시세를 불러오지 못했습니다 · 잠시 후 종목을 다시 선택해 확인하세요'; // v57.54 review: NVDAA is not a slow source
+            if (!label || root?._liveData?.[id]?.price || documentRef?.getElementById('ticker-hero-price')?.dataset.priceBasis === 'last-close') return;
+            const quoteFailed = '시세를 불러오지 못했습니다 · 잠시 후 종목을 다시 선택해 확인하세요';
+            if (typeof root?._aioIsKnownTicker !== 'function' || root._aioIsKnownTicker(id)) { label.textContent = quoteFailed; return; }
+            // v57.81: a symbol outside AIO's registries may still be US-listed — the lazy official listing decides (exact
+            // symbol). Unchecked (listing unavailable) reads as a quote failure, never as "not listed".
+            label.textContent = quoteFailed;
+            Promise.resolve(typeof root?._aioCheckUsListing === 'function' ? root._aioCheckUsListing(id) : { listed: false }).then((listing) => {
+              if (String(root?._currentTickerId || '').toUpperCase() !== id || root?._liveData?.[id]?.price) return;
+              label.textContent = listing?.listed === true ? `미국 상장 종목${listing.name ? `(${listing.name})` : ''} · ${quoteFailed}`
+                : listing?.listed === false ? 'AIO에 등록된 종목이 아니고 미국 상장 목록에도 없습니다 · 티커 철자를 확인하세요' : quoteFailed; // v57.54 review: NVDAA is not a slow source
+            }).catch(() => {});
           });
         } }) : null;
       if (hydrator) bag.add(() => hydrator.dispose());

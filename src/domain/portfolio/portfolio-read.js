@@ -12,20 +12,44 @@ export function portfolioSectorLabel(name) {
   return PORTFOLIO_ONLY_SECTORS[name] || sectorLabel(name === 'Financial Services' ? 'Financials' : name);
 }
 import { buildAttribution } from './attribution.js';
+import { rrgRecentReading } from '../themes/recent-check.js';
+import { koreaRecordText, KR_SHOCK_TAIL_PCT } from '../briefing/market-read.js';
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 const signed = (value, digits = 1, unit = '%') => `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
 const QUADRANT = Object.freeze({ Leading: { label: '선도', tone: 'favorable' }, Improving: { label: '개선', tone: 'neutral' }, Weakening: { label: '약화', tone: 'neutral' }, Lagging: { label: '후행', tone: 'burden' } });
 
+// v57.81 (analysis audit 2026-10-15): a quadrant is a ~50-session reading. XLK sat at RS-Ratio 100.33 — inside the RRG
+// neutral band — and trailed the S&P 500 by 4.5%p in five sessions, yet 59% of the book read '선도'. A point in the band
+// is 판정 보류(경계); a last-five-session move against the quadrant beyond the line's own noise is 약화 중/반등 중. Neither
+// counts toward the favourable/burden tone. Band and reversal come from the themes owner (recent-check.js).
+function rotationQuadrant(item) {
+  const base = QUADRANT[item?.quadrant] || null;
+  if (!base) return null;
+  const reading = rrgRecentReading(item, item?.relativeStrength || null);
+  if (reading?.border) return { label: '판정 보류(경계)', tone: 'neutral', held: true, base: base.label, why: `상대강도가 100 부근(${reading.between} 사이)${reading.clause ? `이고 ${reading.clause.replace(/^ · /, '')}` : ''}` };
+  if (reading?.reversal) return { label: `${base.label} · ${reading.reversal === 'fell' ? '약화 중' : '반등 중'}`, tone: 'neutral', held: true, base: base.label, why: reading.clause.replace(/^ · /, '') };
+  return { ...base, held: false, base: base.label, why: '' };
+}
+
+// v57.81: a holding 0.38% above its 50-day line (QQQ, 5 sessions -3.8%) is on the line, not in an uptrend. Within
+// ±max(1%, the holding's average daily range) of either line the state is 선 근처(판정 보류) — the same idea as the
+// market-read trend buffer, with a per-holding band because one day's ordinary range can cross the line.
+export const TREND_BUFFER_MIN_PCT = 1;
+// v57.81: the Korean part of a book is read beside the US verdict once it is at least this share of the holdings.
+export const KR_BOOK_SHARE_PCT = 30;
 function trendState(row) {
   const s50 = finite(row?.pctSma50);
   const s200 = finite(row?.pctSma200);
   if (s50 == null || s200 == null) return null;
+  const band = Math.max(TREND_BUFFER_MIN_PCT, finite(row?.adrPct) ?? 0);
+  if (Math.abs(s50) < band || Math.abs(s200) < band) return 'near';
   return s50 >= 0 && s200 >= 0 ? 'up' : s50 < 0 && s200 >= 0 ? 'pullback' : s50 >= 0 ? 'rebound' : 'down';
 }
-export const TREND_LABEL = Object.freeze({ up: '상승 추세', pullback: '추세 속 조정', rebound: '장기 추세 아래 반등', down: '하락 추세' });
+export const TREND_LABEL = Object.freeze({ up: '상승 추세', near: '선 근처(판정 보류)', pullback: '추세 속 조정', rebound: '장기 추세 아래 반등', down: '하락 추세' });
+const isKr = (symbol) => /\.(KS|KQ)$/i.test(String(symbol || ''));
 
-export function buildPortfolioRead({ surface = null, rows = [], benchmark = null, benchmarkFor = null, marketReturnFor = null, usdkrwReturnPct = null, usdkrwAsOf, rotation = {}, regime = null } = {}) {
+export function buildPortfolioRead({ surface = null, rows = [], benchmark = null, benchmarkFor = null, marketReturnFor = null, usdkrwReturnPct = null, usdkrwAsOf, rotation = {}, regime = null, krRecord = null } = {}) {
   // P1449: like the checks panel, this read refuses sums it cannot honestly stand behind.
   // A mixed surface without declared FX legs holds only local-unit values — summing them is
   // the same fabrication the surface already refuses (P1175), while an undeclared-single
@@ -44,7 +68,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   const knownValue = known.reduce((sum, row) => sum + row.value, 0);
   const points = [];
 
-  const trends = { up: 0, pullback: 0, rebound: 0, down: 0 };
+  const trends = { up: 0, near: 0, pullback: 0, rebound: 0, down: 0 };
   let trendTotal = 0;
   for (const row of known) { const state = trendState(row.data); if (state) { trends[state] += row.value; trendTotal += row.value; } }
   const trendMix = trendTotal > 0 ? Object.entries(trends).map(([state, value]) => ({ state, label: TREND_LABEL[state], pct: value / trendTotal * 100 })) : [];
@@ -57,9 +81,16 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   const breadth = regime?.axes?.find((axis) => axis.id === 'breadth');
   if (trendMix.length) {
     const up = trendMix.find((row) => row.state === 'up').pct;
+    const near = trendMix.find((row) => row.state === 'near').pct;
     const down = trendMix.find((row) => row.state === 'down').pct;
+    // v57.81: the breadth axis is the US sample's, so its clause speaks only to the US holdings (on the same denominator).
+    const usTrend = known.filter((row) => !isKr(row.symbol) && trendState(row.data));
+    const usDown = usTrend.filter((row) => trendState(row.data) === 'down').reduce((sum, row) => sum + row.value, 0) / trendTotal * 100;
+    const breadthClause = breadth?.state !== 'burden' || !usTrend.length ? ''
+      : usDown > 0 ? ` 미국 시장 폭이 좁은 지금은 미국 보유 중 하락 추세 종목(${usDown.toFixed(0)}%)이 지수보다 먼저 흔들리기 쉬운 환경입니다.`
+        : ' 미국 시장 폭이 좁은 가운데 미국 보유 종목은 하락 추세에 있지 않습니다.';
     points.push({ id: 'trend', tone: up >= 60 ? 'favorable' : down >= 30 ? 'burden' : 'neutral', title: '보유 종목 추세',
-      text: `${trendBasisNote ? trendBasisNote + ': ' : ''}그중 ${up.toFixed(0)}%가 상승 추세(50·200일선 위), ${down.toFixed(0)}%가 하락 추세에 있습니다${weakest.length ? ` — 하락 추세 중 가장 큰 비중은 ${weakest.slice(0, 2).map((row) => `${row.symbol}(${(row.value / trendTotal * 100).toFixed(0)}%, 평가액의 ${(row.value / total * 100).toFixed(0)}%)`).join(' · ')}` : ''}.${breadth?.state === 'burden' && down > 0 ? ' 시장 폭이 좁은 지금은 하락 추세 종목이 지수보다 먼저 흔들리기 쉬운 환경입니다.' : breadth?.state === 'burden' ? ' 시장 폭이 좁은 가운데 보유 종목은 추세를 지키는 쪽에 있습니다.' : ''}` });
+      text: `${trendBasisNote ? trendBasisNote + ': ' : ''}그중 ${up.toFixed(0)}%가 상승 추세(50·200일선 위), ${down.toFixed(0)}%가 하락 추세에 있습니다${near > 0 ? `. ${near.toFixed(0)}%는 50일선이나 200일선과의 차이가 하루 평균 변동폭(최소 ${TREND_BUFFER_MIN_PCT}%) 안이라 방향 판정을 보류합니다` : ''}${weakest.length ? ` — 하락 추세 중 가장 큰 비중은 ${weakest.slice(0, 2).map((row) => `${row.symbol}(${(row.value / trendTotal * 100).toFixed(0)}%, 평가액의 ${(row.value / total * 100).toFixed(0)}%)`).join(' · ')}` : ''}.${breadthClause}` });
   }
 
   // v57.50 C24: one denominator and one classification with the 비중 · 섹터 배분 bars (surface.sectorBreakdown) — total
@@ -85,19 +116,22 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
     // display says 비중만, and the KR share inside the bucket is disclosed.
     const krShare = entry.value > 0 ? entry.krValue / entry.value : 0;
     const etf = krShare >= 0.999 ? null : SECTOR_ETF[entry.sector];
-    const quadrant = etf && rotation[etf] ? QUADRANT[rotation[etf].quadrant] || null : null;
+    const quadrant = etf && rotation[etf] ? rotationQuadrant(rotation[etf]) : null;
     return { ...entry, pct: entry.value / denom * 100, quadrant, krShare, basis: assetBasis ? 'total-assets-including-cash' : 'stock-part' };
   }).sort((a, b) => b.value - a.value);
   const rated = sectorMix.filter((row) => row.quadrant);
   if (rated.length) {
     // E03: only the US part of a bucket inherits a US sector-ETF quadrant; a KRX holding in the same sector does not.
     const usPct = (row) => (row.value - row.krValue) / denom * 100;
-    const favourable = rated.filter((row) => row.quadrant.tone === 'favorable').reduce((sum, row) => sum + usPct(row), 0);
-    const lagging = rated.filter((row) => row.quadrant.tone === 'burden').reduce((sum, row) => sum + usPct(row), 0);
+    const favourable = rated.filter((row) => !row.quadrant.held && row.quadrant.tone === 'favorable').reduce((sum, row) => sum + usPct(row), 0);
+    const lagging = rated.filter((row) => !row.quadrant.held && row.quadrant.tone === 'burden').reduce((sum, row) => sum + usPct(row), 0);
+    const heldRows = rated.filter((row) => row.quadrant.held);
+    const heldPct = heldRows.reduce((sum, row) => sum + usPct(row), 0);
     const krPct = sectorMix.reduce((sum, row) => sum + row.krValue, 0) / denom * 100;
     const krNote = krPct > 0 ? ` 한국 보유(${krPct.toFixed(0)}%)는 미국 섹터 회전으로 분류하지 않아 위 비율에서 빠집니다.` : '';
-    points.push({ id: 'rotation', tone: favourable >= lagging ? 'favorable' : 'burden', title: '섹터 회전과',
-      text: `${basisWord} 중 ${favourable.toFixed(0)}%가 시장보다 강해지는 '선도' 섹터, ${lagging.toFixed(0)}%가 '후행' 섹터에 있습니다 (${sectorMix.slice(0, 3).map((row) => `${row.label} ${row.pct.toFixed(0)}%${row.quadrant ? (row.krShare > 0 ? `(미국 보유분 ${usPct(row).toFixed(0)}% ${row.quadrant.label})` : ` ${row.quadrant.label}`) : ''}`).join(' · ')}).${krNote}` });
+    const heldNote = heldPct > 0 ? ` ${heldPct.toFixed(0)}%는 판정을 보류합니다 — ${heldRows.map((row) => `${row.label} ${row.pct.toFixed(0)}%: '${row.quadrant.base}' 사분면이지만 ${row.quadrant.why}`).join(' · ')}.` : '';
+    points.push({ id: 'rotation', tone: favourable === 0 && lagging === 0 ? 'neutral' : favourable >= lagging ? 'favorable' : 'burden', title: '섹터 회전과',
+      text: `${basisWord} 중 ${favourable.toFixed(0)}%가 시장보다 강해지는 '선도' 섹터, ${lagging.toFixed(0)}%가 '후행' 섹터에 있습니다(약 50거래일 상대강도 기준) (${sectorMix.slice(0, 3).map((row) => `${row.label} ${row.pct.toFixed(0)}%${row.quadrant ? (row.krShare > 0 ? `(미국 보유분 ${usPct(row).toFixed(0)}% ${row.quadrant.label})` : ` ${row.quadrant.label}`) : ''}`).join(' · ')}).${heldNote}${krNote}` });
   }
 
   // P1466: one decomposition answers both "how did the book do against its index" and "why".
@@ -123,9 +157,23 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
     points.push({ id: 'relative', tone: gap >= 0 ? 'favorable' : 'burden', title: '지수 대비',
       text: `지금 구성의 3개월 수익률 ${signed(book3)}(환율·현금 포함) vs ${attribution.blendedLabel} ${signed(bench3)}${relativeBasisNote} — ${Math.abs(gap).toFixed(1)}%p ${gap >= 0 ? '앞섭니다' : '뒤처집니다'}. 차이의 구성: ${parts || '모두 0.1%p 미만'}${lead && Math.abs(lead.stockPct) >= 0.1 ? `(종목 선택에서 가장 큰 기여는 ${lead.symbol} ${signed(lead.stockPct, 1, '%p')})` : ''}. 실제 매매 시점과 다를 수 있는 현재 구성 기준 값입니다.` });
   }
+  // v57.81 (analysis audit 2026-10-15): the tally is the six US axes, so it is named as the US state, and its sentence
+  // follows the overall label (부담 우세 at burden 3 · favourable 1 read "극단적이지 않아"). A book whose Korean part is at
+  // least KR_BOOK_SHARE_PCT gets its own line from the KOSPI record (koreaMoveRecord): a record-low KOSPI week beside a
+  // 70%-Korean book is not a calm environment for that book.
+  const krHeldPct = holdings.filter((row) => isKr(row.symbol)).reduce((sum, row) => sum + row.value, 0) / total * 100;
+  const krLine = krHeldPct >= KR_BOOK_SHARE_PCT ? koreanBookLine(krRecord, krHeldPct) : null;
   if (regime?.available) {
-    points.push({ id: 'market', tone: regime.counts?.burden >= 4 ? 'burden' : 'neutral', title: '시장 환경',
-      text: `시장 상태는 ‘${regime.overall}’(양호 ${regime.counts.favorable} · 부담 ${regime.counts.burden})입니다. ${regime.counts.burden >= 4 ? '부담 지표가 많은 환경이라, 위 하락 추세 비중과 후행 섹터 비중이 시장 약세에 함께 노출된 부분입니다.' : '환경이 극단적이지 않아 종목별 추세가 더 중요한 국면입니다.'}` });
+    const overall = regime.overall;
+    const burdenSide = overall === '부담 우세' || overall === '다소 부담';
+    const usSentence = overall === '판정 보류' ? (regime.holdReason || '미국 지표가 부족해 판정을 보류합니다.')
+      : burdenSide ? '부담 지표가 많은 환경이라, 위 하락 추세 비중과 후행 섹터 비중이 시장 약세에 함께 노출된 부분입니다.'
+        : overall === '양호 우세' || overall === '다소 양호' ? '양호한 지표가 많아, 하락 추세 보유 종목은 시장보다 종목 자체의 이유를 먼저 확인할 국면입니다.'
+          : krLine ? '미국 지표는 엇갈립니다.' : '미국 지표가 엇갈려 지수 방향보다 보유 종목별 추세가 더 많은 것을 말해 주는 국면입니다.';
+    points.push({ id: 'market', tone: burdenSide || krLine?.tone === 'burden' ? 'burden' : 'neutral', title: '시장 환경',
+      text: `미국 시장 상태(6개 지표)는 ‘${overall}’(양호 ${regime.counts.favorable} · 부담 ${regime.counts.burden})입니다. ${usSentence}${krLine ? ` ${krLine.text}` : ''}` });
+  } else if (krLine) {
+    points.push({ id: 'market', tone: krLine.tone, title: '시장 환경', text: krLine.text });
   }
   const excluded = holdings.length - known.length;
   const excludedValue = total - knownValue;
@@ -137,14 +185,30 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
     : `추세를 확인한 보유분(평가액의 ${trendContainedPct.toFixed(0)}%${unpriced ? ` · 가격 미확인 ${unpriced}종목 제외` : ''}) 기준으로`;
   const upPct = trendMix.find((row) => row.state === 'up')?.pct;
   const downPct = trendMix.find((row) => row.state === 'down')?.pct;
-  const headline = [trendMix.length ? `${plainBasis} ${upPct.toFixed(0)}%는 오르는 흐름(50·200일선 위), ${downPct.toFixed(0)}%는 내리는 흐름입니다.` : null,
+  const nearPct = trendMix.find((row) => row.state === 'near')?.pct;
+  const headline = [trendMix.length ? `${plainBasis} ${upPct.toFixed(0)}%는 오르는 흐름(50·200일선 위), ${downPct.toFixed(0)}%는 내리는 흐름입니다${nearPct > 0 ? `(${nearPct.toFixed(0)}%는 선 근처라 판정 보류)` : ''}.` : null,
     book3 != null && bench3 != null ? `최근 3개월은 지수보다 ${Math.abs(book3 - bench3).toFixed(1)}%p ${book3 >= bench3 ? '앞섰습니다' : '뒤처졌습니다'}${relativeBasisNote}.` : null,
-    regime?.available ? `시장 상태는 '${regime.overall}'입니다.` : null].filter(Boolean).join(' ');
+    regime?.available ? `미국 시장 상태는 '${regime.overall}'입니다.` : null, krLine?.headline || null].filter(Boolean).join(' ');
   const next = [];
   if (weakest[0]) next.push({ action: 'showTicker', arg: weakest[0].symbol, route: 'ticker', label: weakest[0].symbol, why: '하락 추세 중 비중이 가장 큰 종목의 요약·차트' });
   next.push({ route: 'themes', label: '테마 · 섹터', why: '보유 섹터가 회전의 어느 단계에 있는지' });
   next.push({ route: 'signal', label: '시장 상태', why: '부담 지표가 무엇이고 무엇이 바뀌면 완화되는지' });
   return { available: true, total, headline, points, trendMix, sectorMix, attribution, excluded, excludedValue, containedPct: trendContainedPct, next };
+}
+
+// v57.81: the Korean part of the book against the KOSPI's own record (koreaMoveRecord). The record position is named
+// only in the tail (KR_SHOCK_TAIL_PCT, the briefing's cut); otherwise the moves alone.
+function koreanBookLine(record, krPct) {
+  const share = `한국 보유(평가액의 ${krPct.toFixed(0)}%)는 미국 6개 지표 판정에 들어가지 않습니다`;
+  if (!record || record.d1 == null || !record.date) return { tone: 'neutral', text: `${share}. 코스피 종가 기록을 확인하지 못해 한국 쪽은 따로 판정하지 않습니다.`, headline: null };
+  const md = `${Number(record.date.slice(5, 7))}/${Number(record.date.slice(8, 10))}`;
+  const moves = `코스피 ${md} 하루 ${signed(record.d1)}${record.d5 != null ? `, 5거래일 ${signed(record.d5)}` : ''}`;
+  const rare = record.extreme ? koreaRecordText(record, { maxTail: KR_SHOCK_TAIL_PCT }) : '';
+  if (!rare) return { tone: 'neutral', text: `${share} — ${moves}.`, headline: null };
+  const falling = Math.min(record.d1 ?? 0, record.d5 ?? 0) < 0;
+  return { tone: falling ? 'burden' : 'neutral',
+    text: `${share} — ${moves}로 ${rare}입니다. 한국 보유분은 이 드문 ${falling ? '하락' : '상승'}에 직접 노출돼 있어 미국 판정과 따로 읽어야 합니다.`,
+    headline: `한국 보유가 평가액의 ${krPct.toFixed(0)}%이고, ${moves}로 ${rare}입니다.` };
 }
 
 // v57.48 expert review #12: what the portfolio AI request may carry — ticker, sector, weight and return
@@ -166,5 +230,7 @@ export function portfolioRowsForAI(surface, { sectorOf = () => null } = {}) {
     };
   });
   const asOf = /^\d{4}-\d{2}-\d{2}/.test(String(surface.observedAt || '')) ? String(surface.observedAt).slice(0, 10) : null;
-  return { available: true, baseCurrency: surface.baseCurrency || null, currencyState: surface.currencyState || null, asOf, cashPct: finite(surface.cashPct) == null ? null : round1(surface.cashPct), rows };
+  // v57.81: which currencies the cash is held in and the rate basis of its total — currencies only, never amounts.
+  const cashCurrencies = (Array.isArray(surface.cashBalances) ? surface.cashBalances : []).filter((row) => row?.currency && finite(row.amount) > 0).map((row) => row.currency);
+  return { available: true, baseCurrency: surface.baseCurrency || null, currencyState: surface.currencyState || null, asOf, cashPct: finite(surface.cashPct) == null ? null : round1(surface.cashPct), cashCurrencies, cashBasis: surface.cashConversion?.converted ? surface.cashConversion.basisLabel || null : null, rows };
 }

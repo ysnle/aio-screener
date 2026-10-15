@@ -53,7 +53,9 @@ function knownSymbol(symbol, root, entries) {
   if (entries && variants.some((variant) => entries[variant])) return variants.find((variant) => entries[variant]);
   const screener = Array.isArray(root?.SCREENER_DB) ? root.SCREENER_DB : [];
   const row = screener.find((item) => variants.includes(String(item?.sym || '').toUpperCase()));
-  return row ? String(row.sym).toUpperCase() : null;
+  if (row) return String(row.sym).toUpperCase();
+  // v57.81: a US listing the directory confirmed this session (ticker screen, watchlist, alerts) is a verified symbol too.
+  return /^[A-Z]/.test(upper) && typeof root?._aioOnDemandSymbol === 'function' && root._aioOnDemandSymbol(upper)?.status === 'ready' ? upper : null;
 }
 
 // A Korean name matches a token that is the name itself or the name plus a particle.

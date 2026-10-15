@@ -29,6 +29,8 @@ import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { finalizePageDecision } from '../domain/signal/page-decision.js';
 import { installRouteHubTabs, setStockSubject } from '../ui/navigation/route-hubs.js';
 import { installScreenShortcuts } from '../ui/navigation/screen-shortcuts.js';
+import { installRouteScrollMemory } from '../ui/navigation/scroll-memory.js';
+import { installShellOverlays } from '../ui/components/shell-overlays.js';
 import { openMarketChart } from '../ui/components/stock-chart.js';
 import { installColorTheme } from '../ui/components/color-theme.js';
 import { installConnectionPanel } from '../ui/panels/connections.js';
@@ -74,6 +76,7 @@ import { createPortfolioProvider } from '../data/providers/portfolio.js';
 import { createPortfolioOrchestrator } from '../data/orchestrators/portfolio.js';
 import { createScreenerProvider } from '../data/providers/screener.js';
 import { createScreenerOrchestrator } from '../data/orchestrators/screener.js';
+import { readUniverseScope } from '../data/screener-extended.js'; // v57.81
 import { createRuntimeReaders } from '../data/runtime-readers.js';
 import { installTermTooltips } from '../ui/components/term-tooltip.js';
 import { installTermMarks } from '../ui/components/term-marks.js';
@@ -107,6 +110,7 @@ import { classifyAIConduct, buildScopedConductFallback, getAIConductPolicy } fro
 import { coalesceMicrotask, createDeferredTaskQueue } from './lifecycle.js';
 import { renderPageSources } from '../ui/components/page-sources.js';
 import { renderHomeKpiTrends } from '../ui/components/home-kpi-trend.js';
+import { krIndexStressRows } from '../domain/portfolio/kr-stress.js';
 import { SUPPLIED_MATERIALS_REFERENCE, SUPPLIED_MATERIAL_CLAIM_IDS } from '../domain/research/supplied-materials.js';
 import { NATHAN_PREVIOUS_THREADS_REFERENCE, NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../domain/research/nathan-previous-threads.js';
 import { NATHAN_FRAMEWORK_PACK, NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_ALIASES } from '../domain/knowledge/nathan-framework-pack.js';
@@ -229,6 +233,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     } catch (_) { return null; }
   };
   root._aioLatestCompletedSessionDate = (market = 'US') => (market === 'KR' ? latestCompletedKrSession(clock.now()) : latestCompletedUsSession(clock.now()))?.date || null;
+  root._aioKrIndexStress = () => krIndexStressRows(root._aioHistory || [], { now: clock.now() }); // v57.81: KOSPI's own worst moves for the stress panel
   // P1339: when the live Yahoo 1y chart (autoUpdateMA) has not produced MAs, derive them from the
   // committed daily history so the trend input follows the close basis instead of holding the score.
   const applyHistoryMa = () => {
@@ -353,8 +358,18 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // ARX-04/P977: entity fundamentals use the bounded SEC current-facts projection; append-only
   // PIT observations stay outside the interactive payload.
   // — see src/data/providers/entity.js. id/quote/options remain legacy.readEntity projections.
-  const entityProvider = createEntityProvider({ read: runtimeReaders.readEntity, httpClient, now: clock.now });
-  if (root?.AIO) root.AIO.readPublicFundamentals = entityProvider.readFundamentals;
+  const entityProvider = createEntityProvider({ read: runtimeReaders.readEntity, httpClient, now: clock.now,
+    readOnDemand: (symbol) => root?._aioOnDemandSymbol?.(symbol)?.sec || null }); // v57.81: out-of-universe listings
+  // v57.81: the AI's public-facts reader asks for an out-of-universe US listing on demand (at most three per question,
+  // the reader's own two-at-a-time cap) before reading, so a listed name outside the universe is not "no filings".
+  if (root?.AIO) root.AIO.readPublicFundamentals = async (symbols = []) => {
+    const first = await entityProvider.readFundamentals(symbols);
+    const missing = (Array.isArray(symbols) ? symbols : []).map((symbol) => String(symbol || '').trim().toUpperCase())
+      .filter((symbol) => symbol && !first[symbol] && !/\.K[SQ]$/.test(symbol)).slice(0, 3);
+    if (!missing.length || typeof root?._aioRequestOnDemandSymbol !== 'function') return first;
+    await Promise.all(missing.map((symbol) => root._aioRequestOnDemandSymbol(symbol)));
+    return entityProvider.readFundamentals(symbols);
+  };
   if (root?.AIO) root.AIO.readPublicEarnings = createPublicEarningsReader(httpClient, clock.now);
   const syncEntity = createEntityOrchestrator({ provider: entityProvider, commands: entityCommands });
   // P1668: only the ticker/fundamental pages read entity state, so boot and broadcast refreshes
@@ -410,7 +425,16 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   };
   root._aioScreenRegimeWeightInput = screenRegimeWeightInput; // the legacy _aioFactorWeights wrapper reads the same input
   const syncScreener = createScreenerOrchestrator({
-    provider: createScreenerProvider({ httpClient, readLiveData: () => root?._liveData || {} }),
+    // v57.81: 확장 (Russell 2000 + Nasdaq beyond the core) is the reader's remembered choice; its shard is first fetched
+    // only while the screener route is showing, so another screen never pays for the download.
+    provider: createScreenerProvider({
+      httpClient,
+      readLiveData: () => root?._liveData || {},
+      readUniverseScope: () => readUniverseScope(root),
+      allowExtendedFetch: () => {
+        try { return String(store.getState()?.route || router.active() || '').replace(/^page-/, '') === 'screener'; } catch (_) { return false; }
+      }
+    }),
     commands: screenerCommands,
     getState: () => store.getState(),
     getSuppliedMaterialsReference: () => SUPPLIED_MATERIALS_REFERENCE,
@@ -507,7 +531,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         return root?.showTicker?.(symbol);
       },
       onWatchlistToggle: (symbol) => root?._aioWLToggle?.(symbol),
-      onProfileChange: (profile) => profile ? syncScreenerData() : null
+      onProfileChange: (profile) => profile ? syncScreenerData() : null,
+      onUniverseScopeChange: () => syncScreenerData() // v57.81
     })
   });
   modules.home = createLazyPage({ route: 'home', loader: () => import('../ui/pages/analysis.js'), factory: ({ createAnalysisPage }) => createAnalysisPage({ root, documentRef, store, route: 'home' }) });
@@ -806,6 +831,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // W00-B: the initial route commits through the same typed boundary. router.start()
     // first so observers of aio:navigationCommitted see the very first commit.
     const stopHubTabs = installRouteHubTabs({ root, documentRef, activeRoute: () => router.active() }); // 8-screen IA
+    const stopScrollMemory = installRouteScrollMemory({ root, documentRef, activeRoute: () => router.active() }); // v57.81: back restores scroll
+    const stopShellOverlays = installShellOverlays({ root, documentRef }); // v57.81: banner/disclaimer offsets, glossary backdrop
     installScreenShortcuts({ root, documentRef }); // v57.54: ? help rows and 1..8 keys from ROUTE_HUBS
     root.aioOpenMarketChart = (symbol) => openMarketChart(root, symbol); // P1430: 오늘 index cards → that index's chart
     const initialRoute = resolveInitialRoute({ root });
@@ -912,6 +939,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopTimelineStore();
       stopDecisionHeaders();
       stopHubTabs();
+      stopScrollMemory();
+      stopShellOverlays();
       compatibilityEvents.dispose();
       clearInterval(timelineWatchdog);
       documentRef?.removeEventListener?.('visibilitychange', onVisibilityTimelineCheck);

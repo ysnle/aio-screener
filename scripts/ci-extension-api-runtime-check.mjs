@@ -2,7 +2,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import { createPersonalProviderTransport, _aioFmpStableUrls } from '../src/data/providers/personal-transport.js';
+import * as personalTransport from '../src/data/providers/personal-transport.js';
+const { createPersonalProviderTransport } = personalTransport;
 const data = readFileSync('js/aio-data.js', 'utf8');
 const chat = readFileSync('js/aio-chat.js', 'utf8');
 const shell = readFileSync('index.html', 'utf8');
@@ -17,38 +18,27 @@ const context = vm.createContext({ URL, Response, AbortController, Date, console
   _getApiKey: () => 'fixture-personal-key', _aioAppToken: () => '',
   localStorage: { store: new Map(), getItem(k) { return this.store.get(k) || null; }, setItem(k,v) { this.store.set(k,v); } }
 });
-vm.runInContext(slice(chat, 'var _QUOTA_LIMITS =', '// SEC EDGAR XBRL'), context);
-context._aioFmpStableUrls = _aioFmpStableUrls;
-context.window._aioPersonalProviderTransport = createPersonalProviderTransport({ fetch: (...args) => context.fetch(...args), localStorage: context.localStorage, _isQuotaExceeded: (...args) => context._isQuotaExceeded(...args), _bumpApiCounter: (...args) => context._bumpApiCounter(...args), _QUOTA_LIMITS: context._QUOTA_LIMITS });
+// v57.81: the P1422 FMP /stable rewrite, payload aliasing, quota counting and Twelve Data credit reservation were
+// retired from the transport (no live caller produces those URLs); it keeps only the timeout and caller-abort relay.
+context.window._aioPersonalProviderTransport = createPersonalProviderTransport({ fetch: (...args) => context.fetch(...args) });
 vm.runInContext(slice(data, 'function fetchWithTimeout(', '// ── v30.11 Task 11:'), context);
+assert(!('_aioFmpStableUrls' in personalTransport) && !('_aioNormalizeFmpStable' in personalTransport) && !('reserveTwelveCredits' in context.window._aioPersonalProviderTransport), 'v57.81 the transport exports no FMP mapping or Twelve Data reservation'); // text-pin-ok: retirement absence
 let dispatched = [];
-context.fetch = async (url, options) => { dispatched.push({ url: String(url), options }); return Response.json([{ symbol: 'AAPL', marketCap: 12, priceToEarningsRatioTTM: 4 }]); };
-const result = await context.fetchWithTimeout('https://financialmodelingprep.com/api/v3/ratios-ttm/AAPL?apikey=fixture-key');
-assert.equal(new URL(dispatched[0].url).pathname, '/stable/ratios-ttm', 'P1422 legacy FMP callers use current endpoint');
-assert.equal(new URL(dispatched[0].url).searchParams.get('symbol'), 'AAPL', 'P1422 ticker identity is preserved');
-assert.equal((await result.json())[0].peRatioTTM, 4, 'P1422 documented ratio rename preserves its value');
-assert.equal(JSON.parse(context.localStorage.getItem('aio_quota_fmp')).count, 1, 'P1422 FMP attempt counts once');
+context.fetch = async (url, options) => { dispatched.push({ url: String(url), options }); return Response.json({ ok: true }); };
 await context.fetchWithTimeout('public-data/data.json');
-assert.equal(dispatched.length, 2, 'P1422 relative non-provider requests still work');
-context.localStorage.setItem('aio_quota_fmp', JSON.stringify({ date: new Date().toISOString().slice(0,10), count: 250 }));
-// v57.76: the personal-key FMP/Finnhub fetchers (_fmpFetch, sector compare, deep compare, fundamental report, ticker
-// chat blocks) were removed from aio-chat; the transport contract above still covers any FMP URL that reaches it.
-assert(!/_fmpFetch|_getApiKey\('aio_(?:fmp|finnhub)_key'\)|financialmodelingprep\.com\/api|finnhub\.io\/api|fetchFinnhub[A-Za-z]*\(|fetchFMP(?:Segments|EarningsCallTranscript)\(/.test(chat), 'v57.76 no personal FMP/Finnhub fetch remains in aio-chat'); // text-pin-ok: asserts removed code is absent
-assert.equal((await context.fetchWithTimeout('https://financialmodelingprep.com/api/v3/profile/AAPL?apikey=x')).status, 429, 'P1422 direct FMP call also obeys quota');
-assert.equal(dispatched.length, 2, 'P1422 no exhausted FMP upstream dispatch');
-assert.equal((await context.fetchWithTimeout('https://financialmodelingprep.com/api/v3/institutional-holder/AAPL?apikey=x')).status, 422, 'P1422 missing ownership date is not guessed');
-context.localStorage.store.clear();
-await context.fetchWithTimeout('https://financialmodelingprep.com/api/v3/profile/AAPL,MSFT?apikey=x');
-assert.equal(dispatched.length, 4, 'P1422 multi-profile uses supported single-symbol contracts');
-assert.equal(JSON.parse(context.localStorage.getItem('aio_quota_fmp')).count, 2, 'P1422 batch counter counts actual dispatches');
-context.fetch = async () => Response.json({ 'Error Message': 'plan unavailable' });
-assert.equal((await context.fetchWithTimeout('https://financialmodelingprep.com/api/v3/profile/AAPL?apikey=x')).status, 502, 'P1422 HTTP 200 provider error is not a data success');
-for (const endpoint of ['income-statement','balance-sheet-statement','cash-flow-statement','ratios','key-metrics','key-metrics-ttm','financial-growth','key-executives','enterprise-values','analyst-estimates','price-target-consensus','discounted-cash-flow','earnings-surprises']) {
-  const urls = context._aioFmpStableUrls('https://financialmodelingprep.com/api/v3/' + endpoint + '/MSFT?period=quarter&limit=3&apikey=fixture');
-  assert.equal(urls.length, 1, 'P1422 core FMP contract maps: ' + endpoint);
-  assert.equal(new URL(urls[0]).searchParams.get('period'), 'quarter', 'P1422 caller reporting period survives mapping');
-  assert.equal(new URL(urls[0]).searchParams.get('symbol'), 'MSFT', 'P1422 caller ticker survives mapping');
+assert.equal(dispatched.length, 1, 'P1422 relative non-provider requests still work');
+assert.equal(dispatched[0].url, 'public-data/data.json', 'v57.81 the transport dispatches the caller URL unchanged');
+assert(dispatched[0].options.signal && dispatched[0].options.signal.aborted === false, 'v57.81 the transport attaches its own timeout signal');
+{
+  const caller = new AbortController();
+  let seen = null;
+  context.fetch = async (url, options) => { seen = options.signal; caller.abort(); return Response.json({}); };
+  await context.fetchWithTimeout('public-data/data.json', { signal: caller.signal });
+  assert.equal(seen && seen.aborted, true, 'v57.81 a caller abort reaches the dispatched request');
 }
+// v57.76: the personal-key FMP/Finnhub fetchers (_fmpFetch, sector compare, deep compare, fundamental report, ticker
+// chat blocks) were removed from aio-chat.
+assert(!/_fmpFetch|_getApiKey\('aio_(?:fmp|finnhub)_key'\)|financialmodelingprep\.com\/api|finnhub\.io\/api|fetchFinnhub[A-Za-z]*\(|fetchFMP(?:Segments|EarningsCallTranscript)\(/.test(chat), 'v57.76 no personal FMP/Finnhub fetch remains in aio-chat'); // text-pin-ok: asserts removed code is absent
 
 // v57.76: the personal-key FRED query (fetchFredSeries + opt-in relay consent + X-AIO-Provider-Key header), the Twelve Data
 // indicator/OHLCV fetchers and the Finnhub WebSocket were removed from aio-data with the retired personal keys. The relay
@@ -117,4 +107,4 @@ assert.equal(context.getLLMRouteReadiness().label, '공용 연결 준비 중', '
 assert.equal(context.getLLMRouteReadiness().ready, false, 'P1424 held AI route never advertises capacity');
 vm.runInContext(slice(chat, 'function _aioClaudeTarget(', 'window._aioClaudeTarget ='), context);
 assert.equal(context._aioClaudeTarget(), null, 'P1424 disabled public configuration also blocks the generation transport');
-console.log('Extension API runtime PASS: FMP stable/quota/error transport, RSS priority/fallback, retired personal data keys and their removed fetchers.');
+console.log('Extension API runtime PASS: plain timeout/abort transport (v57.81), RSS priority/fallback, retired personal data keys and their removed fetchers.');

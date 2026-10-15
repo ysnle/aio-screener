@@ -63,22 +63,14 @@ const ALLOWED_DOMAINS = [
   // 뉴스/RSS
   'api.rss2json.com',
   'rss2json.com',
-  // 주요 API
-  'www.alphavantage.co',
-  'api.twelvedata.com',
-  'finnhub.io',
-  'api.stlouisfed.org',
-  'financialmodelingprep.com',
-  'newsdata.io',
+  // v57.81: Alpha Vantage, Twelve Data, Finnhub, FRED API, FMP, NewsData, Stooq and Nitter left the list.
+  // Their personal-key and fallback clients were retired (v57.67-v57.79) and no browser path relays them;
+  // Actions producers call providers directly. js/aio-data.js _AIO_SHARED_WORKER_HOSTS mirrors this list.
   // SEC
   'efts.sec.gov',
   'data.sec.gov',
-  // Stooq
-  'stooq.com',
-  'www.stooq.com',
   // RSS 수집
   'rsshub.app',
-  'nitter.net',
   't.me',
   // Naver 증권
   'm.stock.naver.com',
@@ -1480,7 +1472,7 @@ export default {
     }
 
     // v56: 이 라우트에서 Origin 허용목록은 지금까지 403을 내지 않았다 — 어떤 ACAO 값을 돌려줄지
-    // 고르는 데만 쓰였으므로, 비브라우저 클라이언트는 ALLOWED_DOMAINS 전체(약 35개 호스트)로 가는
+    // 고르는 데만 쓰였으므로, 비브라우저 클라이언트는 ALLOWED_DOMAINS 전체(v57.81 기준 24개 호스트)로 가는
     // 익명 릴레이로 이 Worker를 쓸 수 있었다. /openai·/relay와 동일하게 게이트로 강제한다.
     // (비브라우저 클라이언트는 Origin을 위조할 수 있으므로 이것은 인증이 아니라 최소 방어선이며,
     //  isolate 독립적인 실효 상한은 헤더에 적힌 Cloudflare WAF 레이트리밋 규칙뿐이다.)
@@ -1536,12 +1528,11 @@ export default {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      // TTL: 뉴스/RSS 30분, FRED/MA 1시간, 시세/기타 2분
+      // TTL: 뉴스/RSS 30분, 시세/기타 2분 (v57.81: the FRED API host left the allowlist, so its 1-hour tier went with it)
       const _host = parsedUrl.hostname;
       const _path = parsedUrl.pathname;
       const _isNews = /\/rss|\/feed|\.xml|\.rss|reuters|cnbc|bloomberg|wsj|nikkei|digitimes/i.test(_path + _host);
-      const _isFred = /stlouisfed|fred/i.test(_host);
-      const _cacheTtl = _isNews ? 1800 : _isFred ? 3600 : 120;
+      const _cacheTtl = _isNews ? 1800 : 120;
 
       const _expectsJson = targetExpectsJson(parsedUrl);
       const _isNaver = /(^|\.)naver\.com$/i.test(parsedUrl.hostname);

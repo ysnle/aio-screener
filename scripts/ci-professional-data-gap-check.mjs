@@ -36,7 +36,16 @@ if (byId.get('point-in-time-fundamentals')?.status !== 'PARTIAL') fail('PIT fund
 if (!pitRows.length) fail('SEC PIT artifact coverage is missing');
 if (ledger.present && sec.pointInTimeCoverage !== pitRows.length) fail('SEC PIT artifact coverage is inconsistent with the ledger counter');
 if (!ledger.present) console.log(secLedgerSkipNote('professional-data-gap', 'ledger pointInTimeCoverage counter cross-check (PIT rows counted from the projection)', ledger));
-if (!/SEC_SUBMISSIONS_BASE/.test(read('scripts/fetch-sec-fundamentals.mjs')) || !/acceptanceDateTime/.test(read('scripts/fetch-sec-fundamentals.mjs'))) fail('SEC submissions acceptance-time adapter missing');
+// v57.81: the acceptance-time reader moved with the normalizer to src/domain/fundamental/sec-normalize.js (shared with
+// the browser's out-of-universe issuer read); the producer still owns the submissions fetch. Tested by behaviour: a
+// filing's submissions acceptance time reaches the normalized record (not a source-text pin).
+{
+  const { normalizeSecCompanyFacts } = await import('../src/domain/fundamental/sec-normalize.js');
+  const { companyFactsFixture, submissionsFixture } = await import('./lib/out-of-universe-fixtures.mjs');
+  const cik = '0000914156';
+  const record = normalizeSecCompanyFacts('UFPT', companyFactsFixture({ cik, name: 'UFP Technologies' }), 100, submissionsFixture({ cik, name: 'UFP Technologies', ticker: 'UFPT' }));
+  if (!/SEC_SUBMISSIONS_BASE/.test(read('scripts/fetch-sec-fundamentals.mjs')) || record?.acceptedAt !== '2026-02-20T21:05:00.000Z') fail(`SEC submissions acceptance-time adapter missing: ${record?.acceptedAt}`);
+}
 
 const pitFixture = {
   symbol: 'PIT',

@@ -19,6 +19,12 @@ target_version: v57.79
 - **운영·AI**: R652 Worker 자동 배포는 CI 증거와 롤백 대상이 있어야 · R657 운영 알림은 증거를 남기고 닫힌 쪽으로 실패 · R681 모든 AI는 공용 Worker 한 경로로, 웹검색 포함 월 $20 이하 예산을 함께 쓴다
 - **화면**: R697 등급·검증 안 된 합산·행동 지시 없이 측정한 조건과 근거만 보인다 · R669 데스크톱·휴대폰·아이패드가 같은 라우트·데이터를 쓰고 레이아웃만 적응한다 · R703 한 사용자 입력은 한 owner가 처리하고 색 테마는 storage 실패와 무관
 
+## R707. A judgement needs a noise buffer, a recent-move check and its window (v57.81, P1829)
+
+**Rule**: A label (양호/부담, 주도/선도, 상승 추세, entry-ready) is decided with a buffer sized from the series' own noise (ADR or its own n-period change distribution) and hysteresis where it toggles; a slow-window verdict (RRG, 1-6 month rank, monthly macro) names its window and, when the last 5 sessions move against it beyond 2x their normal weekly move, says so and drops present-tense direction words; a scenario cannot lead without its defining condition; a missing input fails closed; extremes (최저/최고) are rank facts.
+
+**Validation**: node scripts/ci-scenario-guidance-fixture.mjs; node scripts/ci-esm-core-unit-check.mjs; src/domain/themes/recent-check.js; src/domain/technical/bands.js; src/domain/macro/macro-signals.js
+
 ## R706. Past frequencies need non-overlapping cases and a sample floor (v57.79, P1824)
 
 **Rule**: A past-frequency statement counts non-overlapping cases using only data available at each case date (no look-ahead, no outcome-selected samples). Below 10 cases it shows counts only (no rate, no "mostly" claim); 10-29 cases carry a small-sample note; a rate is shown next to the base rate of the same history. Inference on overlapping forward windows reports effective n or uses HAC/block-bootstrap intervals.

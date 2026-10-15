@@ -146,8 +146,15 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
     tip.style.top = `${(y(point.value) / H) * box.height - 30}px`;
   };
   const hide = () => { cursor.setAttribute('visibility', 'hidden'); marker.setAttribute('visibility', 'hidden'); tip.hidden = true; };
-  overlay.addEventListener('mousemove', show);
-  overlay.addEventListener('mouseleave', hide);
+  // v57.81 (phone/iPad audit): mouse-only events left touch with no readout. Pointer events serve mouse, pen and
+  // finger; pan-y keeps a vertical swipe scrolling the page while a sideways drag scrubs. A lifted finger keeps the
+  // last reading; the browser taking the gesture for a scroll (pointercancel) clears it.
+  overlay.style.touchAction = 'pan-y';
+  svg.style.touchAction = 'pan-y';
+  overlay.addEventListener('pointerdown', show);
+  overlay.addEventListener('pointermove', show);
+  overlay.addEventListener('pointerleave', (event) => { if (event.pointerType !== 'touch') hide(); });
+  overlay.addEventListener('pointercancel', hide);
   svg.setAttribute('aria-label', `${label} ${datedShort(points[0].date)}~${datedShort(last.date)} 추이, 최근 ${format(last.value)}`);
   return wrap;
 }

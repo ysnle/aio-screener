@@ -4,8 +4,10 @@
 // Pure: every input is the published screener row, the SPY row of the same artifact, the sector /
 // theme rotation items and the market regime. A missing input drops its sentence; nothing is guessed.
 import { withTopicParticle } from '../content/korean-particle.js';
-import { EXTENSION_BANDS, extensionStateFor } from '../screener/setup-profile.js';
+import { EXTENSION_BANDS } from '../screener/setup-profile.js';
 import { RULES } from '../rules/thresholds.js';
+import { NEAR_LINE_ADR, bufferedTrend, extensionBand } from '../technical/bands.js';
+import { rrgZone, rsRecentCheck, relativeBand, signedPct } from '../themes/recent-check.js';
 import { secFilingUrl } from '../fundamental/sec-report.js';
 
 // N20 (2026-10-13): the issuer's own recent filings, from the annual-facts record's submissions snapshot (8-K with
@@ -111,14 +113,28 @@ export function rangePosition(pctFromLow, pctFromHigh) {
   return Math.max(0, Math.min(1, (1 - low) / (high - low)));
 }
 
-function trendOf(row) {
-  const s50 = finite(row?.pctSma50);
-  const s200 = finite(row?.pctSma200);
-  if (s50 == null || s200 == null) return null;
-  if (s50 >= 0 && s200 >= 0) return { id: 'up', tone: 'favorable', label: '상승 추세', text: `50일선(${signed(s50)})과 200일선(${signed(s200)}) 위 — 단기·장기 추세가 모두 위쪽입니다` };
-  if (s50 < 0 && s200 >= 0) return { id: 'pullback', tone: 'neutral', label: '장기 추세 속 조정', text: `200일선 위(${signed(s200)})지만 50일선 아래(${signed(s50)}) — 장기 추세 안에서 쉬는 구간입니다` };
-  if (s50 >= 0 && s200 < 0) return { id: 'rebound', tone: 'neutral', label: '장기 추세 아래 반등', text: `50일선은 회복(${signed(s50)})했지만 200일선 아래(${signed(s200)}) — 반등이 장기 추세를 되돌릴지는 아직입니다` };
-  return { id: 'down', tone: 'burden', label: '하락 추세', text: `50일선(${signed(s50)})과 200일선(${signed(s200)}) 아래 — 단기·장기 추세가 모두 아래쪽입니다` };
+// v57.81: the 50·200-day trend passes the ADR buffers in technical/bands.js (50일선 부근, five-session break) — the
+// same states the screener's 상대 상태 column uses.
+const trendOf = bufferedTrend;
+
+// v57.81: an RRG quadrant is a ~50-session reading. Within the themes' neutral band around 100 it is 경계, and when the
+// relative-strength line's last five sessions run against the quadrant's direction its favourable tone and its
+// "더 강해지는 중" clause are withheld. The five-session relative move is always shown when the series exists.
+function rotationView(item) {
+  const base = item ? QUADRANT[item.quadrant] || null : null;
+  if (!base) return null;
+  const zone = rrgZone(finite(item.rsRatio), finite(item.rsMomentum));
+  const check = rsRecentCheck(item.relativeStrength);
+  const strengthening = finite(item.rsMomentum) != null && finite(item.rsMomentum) >= 100;
+  // Opposite sign = the last five sessions moved against the quadrant's direction; a missing series fails closed.
+  const opposed = check == null ? null : strengthening ? check.change < 0 : check.change > 0;
+  const recent = check ? `최근 5거래일 상대강도 ${signedPct(check.change)}` : '';
+  const border = !!zone?.border;
+  const label = border ? '경계' : base.label;
+  const tone = base.tone === 'favorable' && !border && opposed === false ? 'favorable' : base.tone === 'burden' && !border && opposed !== true ? 'burden' : 'neutral';
+  const read = border ? '시장 대비 상대강도가 기준선(100) 근처라 사분면을 가르기 어렵습니다'
+    : opposed ? `${base.label} 사분면이지만 최근 5거래일은 반대 방향입니다` : base.read;
+  return { ...base, label, tone, read, border, between: border ? zone.between : null, opposed, recent, headLabel: border ? '경계' : opposed ? `${base.label}(최근 반대 방향)` : base.label };
 }
 
 // 2026-10-14 audit #13: the screener's own validation verdict for its ranking, said in one clause — or nothing.
@@ -127,7 +143,8 @@ function rankVerdict(validation) {
   if (validation.distinguishable === false) return ' — 과거 검증상 이 순위와 이후 수익의 관계는 아직 구별 불가';
   const spread = finite(validation.spreadNet);
   if (spread == null) return '';
-  return spread > 0 ? ` — 과거 검증에서 상위 20%가 하위보다 앞섬(${validation.rebalances}회 중 ${validation.wins ?? '—'}회)` : ` — 과거 검증에서 상위 20%가 하위보다 뒤처짐(${validation.rebalances}회 중 ${validation.wins ?? '—'}회 앞섬)`;
+  // v57.81: the count is the net-of-cost one (screener-validation summarizeValidation), named as such everywhere.
+  return spread > 0 ? ` — 과거 검증에서 상위 20%가 하위보다 앞섬(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회)` : ` — 과거 검증에서 상위 20%가 하위보다 뒤처짐(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회 앞섬)`;
 }
 
 export function buildStockRead({ symbol, row = null, benchmark = null, rotation = {}, themes = [], themeStages = [], regime = null, universeSize = null, validation = null, sessionLag = null, holding = null, thirteenF = null, fundamentals = null, now = Date.now() } = {}) {
@@ -138,7 +155,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   // v57.50 C19: this is the 50·200-day line position. The screener's 이동평균 배열 gate (vcpStage: price > 150 > 200-day
   // line, above the 50-day line, within 30% of the 52-week high) is a stricter, separate test — MSFT read "상승 추세"
   // here and "추세 조건 미충족" there with nothing saying they were different questions.
-  const templateNote = row.vcpStage === 'not_stage2' && (trend?.id === 'up' || trend?.id === 'pullback')
+  const templateNote = row.vcpStage === 'not_stage2' && ['up', 'up-shaken', 'unconfirmed', 'pullback'].includes(trend?.id)
     ? ' 스크리너의 이동평균 배열 조건(가격 > 150일선 > 200일선, 52주 고점 대비 -30% 이내)은 이보다 엄격한 별도 기준이며, 이 종목은 아직 충족하지 않습니다.'
     : '';
   if (trend) points.push({ id: 'trend', tone: trend.tone, title: '이동평균 위치', text: `${trend.text}.${templateNote}` });
@@ -161,8 +178,16 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     const anchor = three?.gap != null ? three : compared[compared.length - 1];
     const ahead = compared.filter((span) => span.gap > 0).length;
     const consistency = ahead === compared.length ? '모든 기간에서 지수를 앞섰습니다' : ahead === 0 ? '모든 기간에서 지수에 뒤졌습니다' : `${compared.length}개 기간 중 ${ahead}개에서 앞섰습니다`;
-    points.push({ id: 'relative', tone: anchor.gap > 0 ? 'favorable' : 'burden', title: '지수 대비',
-      text: `${anchor.label} ${signed(anchor.stock)} vs ${benchmark?.label || 'S&P 500'} ${signed(anchor.bench)} — ${Math.abs(anchor.gap).toFixed(1)}%p ${anchor.gap >= 0 ? '강함' : '약함'}. ${consistency}.` });
+    // v57.81: "ahead" needs a gap beyond the window's relative band (a typical tracking error, themes recent-check), and
+    // the last five sessions against the same index are named when both returns exist (fail closed: no line otherwise).
+    const band = relativeBand(anchor.key) ?? 0;
+    const stock5 = finite(row.ret5d);
+    const bench5 = finite(benchmark?.ret5d);
+    const recent5 = stock5 != null && bench5 != null ? stock5 - bench5 : null;
+    const against = recent5 != null && Math.sign(recent5) !== 0 && Math.sign(recent5) !== Math.sign(anchor.gap);
+    const verdict = Math.abs(anchor.gap) <= band ? `${Math.abs(anchor.gap).toFixed(1)}%p 차이로 비슷(±${band.toFixed(1)}%p 안)` : `${Math.abs(anchor.gap).toFixed(1)}%p ${anchor.gap >= 0 ? '강함' : '약함'}`;
+    points.push({ id: 'relative', tone: anchor.gap > band && !against ? 'favorable' : anchor.gap < -band && !against ? 'burden' : 'neutral', title: '지수 대비',
+      text: `${anchor.label} ${signed(anchor.stock)} vs ${benchmark?.label || 'S&P 500'} ${signed(anchor.bench)} — ${verdict}. ${consistency}.${recent5 != null ? ` 최근 5거래일은 ${signed(stock5)} vs ${signed(bench5)}(${signed(recent5, 1, '%p')})${against ? '로 반대 방향입니다' : ''}.` : ''}` });
   }
 
   // P1507: distance from the 50-day line in units of the stock's own average daily range — how late an entry
@@ -172,9 +197,13 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   // 2026-10-13 review S09: the bands are the screener's (setup-profile EXTENSION_BANDS) — 3.8x is not "near".
   if (pct50 != null && adr != null && adr > 0) {
     const multiple = Math.round(pct50 / adr * 10) / 10;
-    const band = extensionStateFor(multiple);
-    const text = multiple < 0
-      ? `50일선보다 ${Math.abs(pct50).toFixed(1)}% 아래 — 50일선 아래에 있는 상태입니다.`
+    // v57.81: a price under the line has its own band ('below'); within one daily range either side is 부근 (bands.js).
+    const band = extensionBand(multiple);
+    const nearLine = Math.abs(pct50) < NEAR_LINE_ADR * adr;
+    const text = nearLine
+      ? `50일선과 ${signed(pct50)} 차이, 일평균 변동폭(${adr.toFixed(1)}%)의 ${NEAR_LINE_ADR}배 안 — 50일선 부근이라 위아래를 아직 가를 수 없는 자리입니다.`
+      : band === 'below'
+      ? `50일선보다 ${Math.abs(pct50).toFixed(1)}% 아래, 일평균 변동폭의 ${Math.abs(multiple).toFixed(1)}배 — 50일선 아래로 내려온 상태입니다.`
       : band === 'stretched'
         // Codex browser audit H32: the distance is an observed fact; entry/stop wording read as a trade instruction.
         ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭(${adr.toFixed(1)}%)의 ${multiple.toFixed(1)}배 — 50일선에서 크게 벌어져, 50일선까지 되돌리기만 해도 지금 가격에서 ${(pct50 / (100 + pct50) * 100).toFixed(1)}% 하락하는 거리입니다.`
@@ -183,7 +212,9 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
           : band === 'near-base'
             ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 50일선 가까이에 있는 상태입니다(${EXTENSION_BANDS.nearBase}배 이하).`
             : `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 50일선 가까이(${EXTENSION_BANDS.nearBase}배 이하)와 확장(${EXTENSION_BANDS.extended}배 이상) 사이입니다.`;
-    points.push({ id: 'extension', tone: band === 'stretched' ? 'burden' : band === 'near-base' || multiple < 0 ? 'favorable' : 'neutral', title: '50일선과의 거리', text });
+    // Favourable only above the 부근 band and inside the near-base band; under the line past one daily range is a burden.
+    const tone = band === 'stretched' || (band === 'below' && !nearLine) ? 'burden' : band === 'near-base' && !nearLine && !trend?.drop?.broken ? 'favorable' : 'neutral';
+    points.push({ id: 'extension', tone, title: '50일선과의 거리', text });
   }
 
   // 2026-10-13 review S02: 69.9 printed as "RSI 70" next to "not overheated". The value is shown to one decimal
@@ -193,15 +224,16 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     const shown = rsi.toFixed(1);
     // v57.50 C16: one RSI table (RULES.technical.rsi) for this summary, the screener state label and the climax watch.
     const { overbought: hot, oversold: cold, climax } = RULES.technical.rsi;
-    points.push({ id: 'rsi', tone: rsi >= hot || rsi <= cold ? 'neutral' : 'favorable', title: '단기 과열',
+    // v57.81: "neither overbought nor oversold" is the absence of a signal, not a favourable one — neutral throughout.
+    points.push({ id: 'rsi', tone: 'neutral', title: '단기 과열',
       text: rsi >= climax ? `RSI ${shown} — 과열권(${hot} 이상) 중에서도 스크리너가 '과열 정점 주의'로 표시하는 ${climax} 이상 구간입니다.` : rsi >= hot ? `RSI ${shown} — 과열권(${hot} 이상)이라 추세가 강해도 쉬어 가기 쉬운 자리입니다.` : rsi <= cold ? `RSI ${shown} — 과매도권(${cold} 이하)이라 반등 시도가 나오기 쉬운 자리이지만 추세 확인이 먼저입니다.` : rsi >= hot - 5 ? `RSI ${shown} — 과열 기준(${hot}) 바로 아래 구간입니다.` : rsi <= cold + 5 ? `RSI ${shown} — 과매도 기준(${cold}) 바로 위 구간입니다.` : `RSI ${shown} — 과열도 과매도도 아닌 구간입니다.` });
   }
 
   // P1447: US sector ETFs describe US sectors; a KRX listing is not read against them.
   const isKr = /\.(KS|KQ)$/i.test(String(symbol || ''));
   const etf = isKr ? null : SECTOR_ETF[normalizeSectorKey(row.sector)] || null;
-  const sector = etf && rotation[etf] ? { etf, label: SECTOR_KO[etf] || etf, quadrant: QUADRANT[rotation[etf].quadrant] || null, sessionDate: rotation[etf].sessionDate || null } : null;
-  const themed = (themes || []).map((theme) => ({ ...theme, quadrant: theme.etf && rotation[theme.etf] ? QUADRANT[rotation[theme.etf].quadrant] || null : null }));
+  const sector = etf && rotation[etf] ? { etf, label: SECTOR_KO[etf] || etf, quadrant: rotationView(rotation[etf]), sessionDate: rotation[etf].sessionDate || null } : null;
+  const themed = (themes || []).map((theme) => ({ ...theme, quadrant: theme.etf && rotation[theme.etf] ? rotationView(rotation[theme.etf]) : null }));
   const topTheme = themed.find((theme) => theme.quadrant) || themed[0] || null;
   // 2026-10-14 audit #5: the theme's stage (same rows as 테마 시나리오) leads this point, one line per theme. The favoured
   // choice is the theme's, never an instruction on this stock. The rotation-quadrant wording stays as folded evidence.
@@ -214,13 +246,16 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     const parts = [];
     // v57.70 (2026-10-15 audit): "선도 — 더 강해지는 중" on a -3% sector day read as today's move; it is the multi-week
     // relative-rotation position as of a dated close, and says so.
-    const rotationAsOf = /^\d{4}-\d{2}-\d{2}$/.test(String(sector?.sessionDate || '')) ? `(${Number(sector.sessionDate.slice(5, 7))}/${Number(sector.sessionDate.slice(8, 10))} 종가까지 몇 주의 상대 흐름)` : '(몇 주의 상대 흐름)';
-    if (sector?.quadrant) parts.push(`섹터 ${sector.label}(${sector.etf})${topic(sector.label)} ${sector.quadrant.label}${rotationAsOf} — ${sector.quadrant.read}`);
-    if (topTheme?.quadrant && topTheme.etf !== sector?.etf) parts.push(`테마 ${topTheme.label}(${topTheme.etf})${topic(topTheme.label)} ${topTheme.quadrant.label}`);
+    const rotationAsOf = /^\d{4}-\d{2}-\d{2}$/.test(String(sector?.sessionDate || '')) ? `${Number(sector.sessionDate.slice(5, 7))}/${Number(sector.sessionDate.slice(8, 10))} 종가까지 몇 주의 상대 흐름` : '몇 주의 상대 흐름';
+    if (sector?.quadrant) parts.push(`섹터 ${sector.label}(${sector.etf})${topic(sector.label)} ${sector.quadrant.label}(${sector.quadrant.between ? `${sector.quadrant.between} 사이 · ` : ''}${rotationAsOf}) — ${sector.quadrant.read}${sector.quadrant.recent ? `(${sector.quadrant.recent})` : ''}`);
+    if (topTheme?.quadrant && topTheme.etf !== sector?.etf) parts.push(`테마 ${topTheme.label}(${topTheme.etf})${topic(topTheme.label)} ${topTheme.quadrant.label}${topTheme.quadrant.between ? `(${topTheme.quadrant.between} 사이)` : ''}${topTheme.quadrant.recent ? ` · ${topTheme.quadrant.recent}${topTheme.quadrant.opposed ? '로 반대 방향' : ''}` : ''}`);
     tailwind = sector?.quadrant?.tone === 'favorable' || topTheme?.quadrant?.tone === 'favorable';
     const stockStrong = trend?.id === 'up';
-    const tie = tailwind && stockStrong ? '종목 강세가 섹터 흐름과 같은 방향입니다' : !tailwind && stockStrong ? '섹터 흐름이 약한데 종목만 강한 개별 강세입니다' : tailwind && !stockStrong ? '섹터는 강한데 종목은 뒤처져 있습니다' : '섹터와 종목이 함께 약합니다';
-    rotationText = `${parts.join(' · ')}. ${tie}.`;
+    // v57.81: the tie is said only when both sides have a definite tone (경계·반대 방향 sectors and 부근 stocks say none).
+    const headwind = !tailwind && (sector?.quadrant?.tone === 'burden' || topTheme?.quadrant?.tone === 'burden');
+    const tie = tailwind && stockStrong ? '종목 강세가 섹터 흐름과 같은 방향입니다' : headwind && stockStrong ? '섹터 흐름이 약한데 종목만 강한 개별 강세입니다'
+      : tailwind && trend && trend.tone !== 'favorable' ? '섹터는 강한데 종목은 뒤처져 있습니다' : headwind && trend?.id === 'down' ? '섹터와 종목이 함께 약합니다' : '';
+    rotationText = `${parts.join(' · ')}.${tie ? ` ${tie}.` : ''}`;
   }
   if (stageLines.length) {
     points.push({ id: 'sector', tone: 'neutral', title: '섹터·테마', text: stageLines.map((line) => line.text).join(' / '), lines: stageLines,
@@ -234,7 +269,10 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     points.push({ id: 'market', tone: 'neutral', title: '시장 환경', text: `미국 시장 상태는 ‘${regime.overall}’ — 한국 종목에는 환율·외국인 수급을 거쳐 간접적으로 작용합니다(시장 상태의 원·엔 카드 참고).` });
   } else if (regime?.available && regime.overall) {
     const narrow = breadth?.state === 'burden';
-    const text = narrow && trend?.id === 'up' ? `시장 상태는 ‘${regime.overall}’이고 시장 폭이 좁습니다(50일선 위 종목이 적음). 이 종목은 그 적은 수의 상승 추세 종목에 속합니다. 지수에 얼마나 기여했는지는 이 화면 자료로 계산하지 않습니다.`
+    // v57.81: breadth counts stocks; an ETF (SPY, QQQ…) is not "one of the few up-trend stocks", so that clause is skipped.
+    const isFund = /^ETF$/i.test(String(row.sector || ''));
+    const text = narrow && isFund ? `시장 상태는 ‘${regime.overall}’이고 시장 폭이 좁습니다(50일선 위 종목이 적음).`
+      : narrow && trend?.id === 'up' ? `시장 상태는 ‘${regime.overall}’이고 시장 폭이 좁습니다(50일선 위 종목이 적음). 이 종목은 그 적은 수의 상승 추세 종목에 속합니다. 지수에 얼마나 기여했는지는 이 화면 자료로 계산하지 않습니다.`
       : narrow ? `시장 상태는 ‘${regime.overall}’이고 시장 폭이 좁아, 추세가 약한 종목은 지수보다 먼저 흔들리기 쉬운 환경입니다.`
         : `시장 상태는 ‘${regime.overall}’${breadth ? `, 시장 폭은 ${breadth.stateLabel}` : ''}입니다.`;
     points.push({ id: 'market', tone: regime.counts?.burden >= 4 ? 'burden' : 'neutral', title: '시장 환경', text });
@@ -256,7 +294,9 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   const ranking = rank != null && rank >= 1 && finite(universeSize) && rank <= universeSize ? { rank, of: universeSize, topPct: Math.max(1, Math.round(rank / universeSize * 100)) } : null;
   // 2026-10-14 audit #13: the rank lives in the reading (not the heading), on the screener's denominator, with the
   // screener's own validation verdict when it is loaded — otherwise the rank alone, without a claim.
-  if (ranking) points.push({ id: 'rank', tone: 'neutral', title: '순위', text: `가격 흐름 순위 ${ranking.rank}/${ranking.of}${rankVerdict(validation)}.` });
+  // v57.81: under the screener's 확장 range the denominator includes Russell 2000·Nasdaq stocks — the rank says so.
+  const rankScope = row.rankingUniverse === 'extended' ? '(확장 유니버스 기준: 기본 + 러셀2000·나스닥) ' : '';
+  if (ranking) points.push({ id: 'rank', tone: 'neutral', title: '순위', text: `가격 흐름 순위 ${rankScope}${ranking.rank}/${ranking.of}${rankVerdict(validation)}.` });
   const relative3 = spans.find((span) => span.key === 'ret3m');
   // 2026-10-13 review S07: a factor file older than the market's latest completed session says so in the headline.
   const lagSessions = finite(sessionLag?.sessions);
@@ -265,7 +305,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     trend ? trend.label : null,
     position != null ? `52주 범위 ${Math.round(position * 100)}% 지점` : null,
     relative3?.gap != null ? `3개월 지수 대비 ${signed(relative3.gap, 1, '%p')}` : null,
-    sector?.quadrant ? `섹터 ${sector.quadrant.label}` : null
+    sector?.quadrant ? `섹터 ${sector.quadrant.headLabel}` : null
   ].filter(Boolean).join(' · ');
   // v57.55 review (8o): an ETF has no filings to read and no sector peers — its links say so.
   const fund = /^ETF$/i.test(String(row.sector || ''));

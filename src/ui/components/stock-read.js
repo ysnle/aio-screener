@@ -14,6 +14,7 @@ import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifac
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
 import { summarizeValidation } from './screener-validation.js';
 import { el } from './dom.js';
+import { buildOutOfUniverseRead } from '../../domain/entity/out-of-universe-read.js';
 
 const TICKER_INDEX_REFERENCE_URL = './public-data/masters/ticker-index-reference.json';
 
@@ -45,6 +46,60 @@ function thirteenFFor(root, sym, onLoaded) {
       .catch(() => {});
   }
   return null;
+}
+
+// v57.81: the session's on-demand record for an out-of-universe listing; the first ask starts the read and re-renders
+// when it settles. Records live in the reader's session cache (src/data/on-demand-symbol.js), not on this host.
+function onDemandRecord(root, sym, onSettled) {
+  const record = typeof root?._aioOnDemandSymbol === 'function' ? root._aioOnDemandSymbol(sym) : null;
+  if (record) return record;
+  if (typeof root?._aioRequestOnDemandSymbol !== 'function') return null;
+  Promise.resolve(root._aioRequestOnDemandSymbol(sym)).then((settled) => { if (settled) onSettled(); }).catch(() => {});
+  return { symbol: sym, status: 'loading' };
+}
+
+// v57.81: where the listing would sit against the current universe (one visual), the short reading, and the inputs
+// that were used or missing folded under it. Labelled as computed on request, outside the published ranking.
+function outOfUniverseBlock(doc, root, record) {
+  const read = buildOutOfUniverseRead(record);
+  const box = el(doc, 'section', null, 'stock-read-ou');
+  box.id = 'ticker-out-of-universe';
+  box.dataset.onDemandState = read.state;
+  box.setAttribute('aria-label', read.title || '랭킹 대상 밖 종목');
+  box.append(el(doc, 'h3', read.title, 'stock-read-ou-title'));
+  if (read.state === 'ready' && read.rank != null) {
+    const visual = el(doc, 'div', null, 'stock-read-range');
+    visual.append(el(doc, 'span', `현재 유니버스 ${read.ranked ? `${read.ranked}종목 ` : ''}안의 위치(백분위)`, 'stock-read-vis-title'));
+    const track = el(doc, 'div', null, 'stock-read-track');
+    const marker = el(doc, 'span', null, 'stock-read-marker');
+    marker.style.left = `${Math.max(0, Math.min(100, read.rank)).toFixed(1)}%`;
+    track.append(marker);
+    const scale = el(doc, 'div', null, 'stock-read-scale');
+    scale.append(el(doc, 'span', '하위'), el(doc, 'span', `상위 약 ${read.topPct}%`), el(doc, 'span', '상위'));
+    visual.append(track, scale);
+    box.append(visual);
+  }
+  if (read.state === 'ready') read.lines.forEach((line) => box.append(el(doc, 'p', line, 'stock-read-ou-line')));
+  else box.append(el(doc, 'p', read.text, 'stock-read-ou-line'));
+  if (read.inputs?.length) {
+    const fold = el(doc, 'details', null, 'stock-read-fold');
+    fold.append(el(doc, 'summary', '계산에 쓴 입력과 빠진 입력'));
+    const list = el(doc, 'ul', null, 'stock-read-ou-inputs');
+    read.inputs.forEach((input) => { const item = el(doc, 'li', `${input.label}: ${input.status} — ${input.detail}`); item.dataset.factor = input.key; item.dataset.status = input.usable ? 'used' : input.active ? 'missing' : 'inactive'; list.append(item); });
+    fold.append(list);
+    box.append(fold);
+  }
+  if (read.state === 'ready') {
+    const compare = el(doc, 'button', '스크리너 비교에 넣기', 'stock-read-point-link');
+    compare.type = 'button';
+    compare.setAttribute('aria-label', `${record.symbol}를 스크리너 비교 목록에 넣기`);
+    compare.addEventListener('click', () => {
+      const added = typeof root?._aioAddScreenerCompare === 'function' ? root._aioAddScreenerCompare(record.symbol) : ((root._aioPendingCompare ||= []).push(record.symbol), true);
+      compare.textContent = added ? '스크리너 비교 목록에 넣었습니다' : '비교 목록이 가득 찼습니다(최대 5종목)';
+    });
+    box.append(compare);
+  }
+  return box;
 }
 
 function call(root, name, fallback) {
@@ -134,7 +189,12 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   const screened = list.filter(item => Number.isFinite(item?.screenRank)).sort((a, b) => a.screenRank - b.screenRank);
   const ranked = screened.length ? screened : list.filter(item => item.rankingEligibility === 'eligible' && Number.isFinite(item.rank)).sort((a,b) => b.rank-a.rank);
   const rank = rawRow ? ranked.findIndex(item => item.sym === sym) : -1;
-  const row = rawRow ? { ...rawRow, screenRank: rank >= 0 ? rank+1 : null } : null;
+  // v57.81 (owner 2026-10-15): a US listing outside the published universe is read on demand with the screener's own
+  // formulas (src/data/on-demand-symbol.js) instead of "기록 없음"; its row has no published rank.
+  const onDemand = !rawRow && list.length && screenerMarket({ sym }) !== 'KR' ? onDemandRecord(root, sym, () => {
+    if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, fundamentals });
+  }) : null;
+  const row = rawRow ? { ...rawRow, screenRank: rank >= 0 ? rank+1 : null } : onDemand?.status === 'ready' && onDemand.row ? { ...onDemand.row, screenRank: null } : null;
   // P1447: compare with the stock's own market index (KOSPI/KOSDAQ for KRX listings) over the same windows.
   // 2026-10-13 review S07: cut the index at the row's own factor session (same-date comparison), and say how many
   // sessions behind the market's latest completed close that factor session is.
@@ -156,7 +216,9 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   if (title && read.available && read.name && read.name !== sym) title.textContent = `종목 · ${read.name} (${sym})`;
   host.replaceChildren(el(doc, 'h2', '이 종목의 지금', 'briefing-h2'));
   if (!read.available) {
-    host.append(emptyState(doc, { title: '추세·상대강도 기록 없음', reason: read.reason, compact: true }));
+    // v57.81: an out-of-universe listing says what is happening (reading, not listed, chart unavailable), not "기록 없음".
+    if (onDemand) host.append(outOfUniverseBlock(doc, root, onDemand));
+    else host.append(emptyState(doc, { title: '추세·상대강도 기록 없음', reason: read.reason, compact: true }));
     renderNextSteps(doc, next, [{ route: 'technical', label: '차트', why: '일봉과 이동평균 위치' }, { route: 'fundamental', label: '재무 공시', why: '매출·이익·현금흐름' }]);
     return read;
   }
@@ -165,7 +227,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   // P1599 (S03): the position and returns below are completed-close figures, not the live quote at the top (which
   // can be '—'). Name that basis once, beside the figures it governs — by its date, not by its collection.
   const basisDate = String(row?.factorSessionDate || row?.priceDate || '').slice(0, 10);
-  host.append(el(doc, 'p', `아래 위치·수익률은 ${basisDate ? `${Number(basisDate.slice(5, 7))}/${Number(basisDate.slice(8, 10))} ` : '완료 '}종가 기준입니다 — 위 현재가와 시점이 다를 수 있습니다.`, 'briefing-footnote'));
+  host.append(el(doc, 'p', `아래 위치·수익률은 ${basisDate ? `${Number(basisDate.slice(5, 7))}/${Number(basisDate.slice(8, 10))} ` : '완료 '}종가 기준입니다 — 위 현재가와 시점이 다를 수 있습니다.${onDemand?.status === 'ready' ? ' 이 종목은 스크리너 랭킹 대상 밖이라 같은 공식으로 요청 시 계산했습니다.' : ''}`, 'briefing-footnote'));
   const visuals = el(doc, 'div', null, 'stock-read-visuals');
   if (read.position != null) visuals.append(rangeVisual(doc, read));
   if (read.spans.some((span) => span.stock != null)) visuals.append(relativeVisual(doc, read));
@@ -217,6 +279,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
     fold.append(list);
     host.append(fold);
   }
+  if (onDemand) host.append(outOfUniverseBlock(doc, root, onDemand));
   renderNextSteps(doc, next, read.next);
   return read;
 }

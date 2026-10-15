@@ -6,7 +6,7 @@
 // cause→effect chain, the dated triggers, the three likelihood lines and the reader's choices with their
 // opportunity cost. Reads only published artifacts already loaded for the 거시 and 시장 상태 screens.
 import { buildMacroRead } from '../../domain/macro/macro-read.js';
-import { buildMacroCrossroads, upcomingMacroEvents, CHOICES, SHAPES } from '../../domain/market/macro-crossroads.js';
+import { buildMacroCrossroads, upcomingMacroEvents, CHOICES, SHAPES, COUNT_WORDS } from '../../domain/market/macro-crossroads.js';
 import { refreshSharedArtifact, SCENARIO_OUTCOMES, SCENARIO_STATE } from '../../data/shared-artifacts.js';
 import { themesForBranch } from '../../domain/scenarios/exposures.js';
 import { krThemeLabel } from '../../domain/themes/kr-themes.js';
@@ -125,7 +125,8 @@ function branchMap(doc, root, model, openIds, { firstPaint = false, restOpen = f
     return li;
   };
   // v57.79: within the same rank the branches run by share of conditions met, so the heading's "조건 충족 순" holds.
-  const fit = (item) => (item.known >= 2 && item.total ? item.met / item.total : -1);
+  // v57.81 (audit X2): a branch whose core condition is met comes before one that only matches side conditions.
+  const fit = (item) => (item.known >= 2 && item.total ? item.met / item.total + (item.gate?.met === true ? 1 : 0) : -1);
   const ordered = [...model.items].sort((a, b) => (current.size ? rank(a) - rank(b) : 0) || fit(b) - fit(a));
   const rest = current.size ? ordered.filter((item) => !current.has(item.id)) : [];
   for (const item of ordered.filter((item) => !rest.includes(item))) list.append(row(item));
@@ -198,7 +199,7 @@ function branchCard(doc, root, item, lead, open = false) {
   const summary = el(doc, 'summary', null, 'xr-branch-summary');
   const [name, sub] = item.title.split(' — ');
   const head = el(doc, 'span', null, 'xr-map-head');
-  head.append(el(doc, 'span', name, 'xr-map-title'), meter(doc, item), el(doc, 'span', item.fit, 'xr-map-fit'));
+  head.append(el(doc, 'span', name, 'xr-map-title'), meter(doc, item), el(doc, 'span', item.status || item.fit, 'xr-map-fit'));
   const tags = el(doc, 'span', null, 'xr-map-tags');
   tags.append(el(doc, 'span', TONE[item.pricing.tone] || TONE.unknown, `xr-tag is-${item.pricing.tone}`),
     el(doc, 'span', `유리한 대응: ${item.favored.map((key) => CHOICES[key]).join(' · ')}`, 'xr-tag is-choice'));
@@ -313,7 +314,9 @@ function themeLines(doc, root) {
   const lines = [];
   if (state.rotation?.text) lines.push(el(doc, 'p', `테마: ${state.rotation.text}`, 'xr-reading'));
   const ret1m = (value) => (Number.isFinite(value) ? `1개월 ${value >= 0 ? '+' : ''}${value.toFixed(1)}%` : '1개월 —');
-  if (pullbacks.length) lines.push(el(doc, 'p', `상승 추세 속 쉬어 가는 테마(거시 부담 없음): ${pullbacks.map((row) => `${row.market === 'KR' ? '한국' : '미국'} ${row.label}(${ret1m(row.ret1m)})`).join(', ')} — 분할 접근의 부담이 비교적 작은 경우입니다(핵심 논리가 깨지면 멈춤).`, 'xr-reading'));
+  // v57.81 (audit): the line names the condition exactly (the lead branch's wind is not a headwind) and carries no action
+  // suggestion — "분할 접근의 부담이 비교적 작은 경우" read as one.
+  if (pullbacks.length) lines.push(el(doc, 'p', `상승 추세 속 쉬어 가는 테마(중심 시나리오에서 역풍이 아닌): ${pullbacks.map((row) => `${row.market === 'KR' ? '한국' : '미국'} ${row.label}(${ret1m(row.ret1m)})`).join(', ')}.`, 'xr-reading'));
   return lines;
 }
 
@@ -321,7 +324,7 @@ function themeLines(doc, root) {
 // path leads to and the themes it touches (US first, Korean themes as one link).
 function pathCard(doc, root, item, { kicker, fit }) {
   const card = el(doc, 'div', null, 'xr-path-card');
-  const tone = item.pricing.tone === 'same' ? '시장 가격도 이 방향' : item.pricing.tone === 'against' ? '시장 가격은 반대 방향' : '시장 가격 확인 불가';
+  const tone = item.pricing.tone === 'same' ? '시장 가격도 이 방향' : item.pricing.tone === 'against' ? '시장 가격은 반대 방향' : item.pricing.tone === 'neutral' ? '시장 가격은 중립' : '시장 가격 확인 불가';
   const head = el(doc, 'div', null, 'xr-path-head');
   head.append(el(doc, 'span', kicker, 'xr-path-kicker'), el(doc, 'strong', `'${item.title.split(' — ')[0]}'`, 'xr-path-name'));
   const tags = el(doc, 'div', null, 'xr-path-tags');
@@ -365,10 +368,14 @@ export function renderCrossroadsCompact({ documentRef: doc, root, regime = null,
   // its themes) instead of three run-on sentences.
   const tied = lead && alt && model.tiedIds?.includes(lead.id) && model.tiedIds.includes(alt.id);
   if (lead) {
-    const sameFit = tied && lead.met === alt.met && lead.total === alt.total;
+    // v57.81 (audit X7): the tie count comes from tiedIds (거시 said "셋" while 홈 hard-coded "두").
+    const tiedItems = tied ? model.tiedIds.map((id) => model.items.find((item) => item.id === id)).filter(Boolean) : [];
+    const sameFit = tied && tiedItems.every((item) => item.met === lead.met && item.total === lead.total);
     const event = model.nextEvent ? `${md(model.nextEvent.date)} ${model.nextEvent.name}` : '';
+    const count = COUNT_WORDS[tiedItems.length] || `${tiedItems.length}개`;
+    const rest = tiedItems.filter((item) => item !== lead && item !== alt).map((item) => `'${short(item)}'`);
     const leadLine = tied
-      ? `${event ? `${event} 발표에 달린` : '다음 발표에 달린'} 두 시나리오 — 조건 충족이 같습니다${sameFit ? `(${lead.met}/${lead.total})` : ''}.${lead.pricing.tone === 'same' && alt.pricing.tone !== 'same' ? ` 시장 가격이 같은 방향인 '${short(lead)}'${josa(short(lead), '을', '를')} 먼저 둡니다.` : ''}`
+      ? `${event ? `${event} 발표에 달린` : '다음 발표에 달린'} 시나리오 ${count} — 조건 충족이 같습니다${sameFit ? `(${lead.met}/${lead.total})` : ''}.${rest.length ? ` 아래 두 카드 외에 ${rest.join(', ')}도 같은 수준이며, 거시 화면에 함께 있습니다.` : ''}${lead.pricing.tone === 'same' && alt.pricing.tone !== 'same' ? ` 시장 가격이 같은 방향인 '${short(lead)}'${josa(short(lead), '을', '를')} 먼저 둡니다.` : ''}`
       : `다음 발표에 달린 시나리오${event ? ` · ${event}` : ''} — 지금은 '${short(lead)}' 쪽 조건이 더 맞습니다.`;
     parts.push(el(doc, 'p', leadLine, 'xr-lead'), chainRow(doc, lead.chain));
     const cards = el(doc, 'div', null, 'xr-path-cards');

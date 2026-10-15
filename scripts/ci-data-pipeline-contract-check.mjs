@@ -844,6 +844,101 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     JSON.stringify({ bold, nextLine, replaced, twice }));
 }
 {
+  // v57.81 (10/15 crash day, KOSPI -7.57%): the commentary stayed blocked from 05:55Z — causal-attribution-missing,
+  // metric-change-mismatch:market.vix ("변동성지수 +10.48%, 미국 주가지수 -1.11%" read -1.11% as VIX's move), labels read
+  // from citation brackets ("[7890d4bb]" as S&P 500 7890) — the 05:52Z verified reading was dropped because its
+  // time-stamped "코스피 장중 14:31 KST 기준 -8.28%" failed against the next tick, and the fallback printed
+  // "SPX=7718.94 index (2026-10-14T20:36:08.000Z)". Fixtures use recorded values and stubbed model text only.
+  const { validateMarketAnalysisText, genMarketAnalysis } = await import('./fetch-data.mjs');
+  const { buildCompletedCloseBasis, retainVerifiedMarketAnalysis, retainedReadingIssues, plainMarketFallbackSummary, analysisAttributesCause } = await import('./lib/market-analysis-validate.mjs');
+  const news = [{ title: 'Nasdaq ends sharply lower as hot inflation data stokes rate-hike bets', source: 'Reuters', link: 'https://example.test/cpi', pubDate: '2026-10-14T21:00:00.000Z', score: 80 }];
+  const data = { meta: { generatedAt: '2026-10-15T06:51:27.000Z' }, news, macro: { cpiDelta: 0.3 } };
+  const closedSnapshot = { quotes: [
+    { instrumentId: '^GSPC', evidenceId: 'market.index.spx:7890d4bb', value: 7718.94, changePct: -1.1083, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-14T20:36:08.000Z', session: 'MARKET_CLOSED' },
+    { instrumentId: '^VIX', evidenceId: 'market.volatility.vix:d94fc971', value: 16.87, changePct: 10.4781, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-14T20:15:01.000Z', session: 'MARKET_CLOSED' },
+    { instrumentId: '^TNX', evidenceId: 'market.rates.us10y:487c3511', value: 5.19, changePct: -0.5167, unit: 'percent', source: 'Yahoo chart', observedAt: '2026-10-14T18:59:54.000Z', session: 'MARKET_CLOSED' },
+    { instrumentId: '^KS11', evidenceId: 'market.index.kospi:d71ff855', value: 5554.27, changePct: -7.5646, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-15T06:31:20.000Z', session: 'MARKET_CLOSED' }
+  ] };
+  const issues = (text, snapshot = closedSnapshot, options = {}) => validateMarketAnalysisText(text, data, snapshot, options).issues;
+  // (a) a large-move day with the cause attributed publishes; a hedge after a comma does not erase the attribution.
+  const recorded0652 = '완료 종가에서 코스피 -7.56%, 변동성지수 +10.48%, 미국 주가지수 -1.11%, 미국 10년물 금리 -2.7bp로 변했습니다 [market.index.kospi:d71ff855; market.volatility.vix:d94fc971; market.index.spx:7890d4bb; market.rates.us10y:487c3511]. 헤드라인에 따르면 뜨거운 물가와 인공지능 매도세가 미국 주가 하락의 배경으로 거론됐지만, 이는 가능한 해석 중 하나입니다.';
+  const hedged = issues('S&P 500 -1.11%, 코스피 -7.56%로 마감했다. 헤드라인에 따르면 뜨거운 물가가 하락 배경으로 거론됐지만, 확정 원인은 확인되지 않았다.');
+  const intradayNews = issues('S&P 500 -1.11%, 코스피 -7.56%로 마감했다. 08:00 이후 장중 속보(잠정)는 반도체 대형주 급락을 전했다.');
+  const bareRefusal = issues('S&P 500 -1.11%, 코스피 -7.56%로 마감했다. 보도만으로는 하락 원인을 단정할 수 없다.');
+  const brackets = issues('코스피 -7.57%로 급락했고 [da45da46], S&P 500 -1.11%로 하락했으며 [7890d4bb], 미 10년물 금리 -2.7bp로 내렸습니다 [487c3511]. 헤드라인에 따르면 뜨거운 물가가 배경으로 거론됐다.');
+  const listed = issues('S&P 500 -1.11%, 공포·탐욕 지수 32점, VIX +10.48%, 미 10년물 금리 -2.7bp, 코스피 -7.56%였다. 헤드라인에 따르면 뜨거운 물가가 배경으로 거론됐다.');
+  const wrongVix = issues('VIX +12.5%, 코스피 -7.56%로 마감했다. 헤드라인에 따르면 뜨거운 물가가 배경으로 거론됐다.');
+  check('v57.81 a large-move day with the cause attributed publishes: hedge after a comma, post-08:00 속보, list items and citation brackets do not block; a bare refusal and a wrong VIX move still do',
+    !issues(recorded0652).length && !hedged.length && !intradayNews.length && !brackets.length && !listed.length
+      && bareRefusal.includes('causal-attribution-missing') && wrongVix.includes('metric-change-mismatch:market.vix')
+      && analysisAttributesCause('Reuters 헤드라인에 따르면 물가가 배경이다.') && !analysisAttributesCause('[headline:x] 원인으로 단정할 수 없다.'),
+    JSON.stringify({ recorded0652: issues(recorded0652), hedged, intradayNews, bareRefusal, brackets, listed, wrongVix }));
+  // (b) VIX change on the same basis the model was given. At 07:52Z the VIX row was AFTER_HOURS (17.52, +3.85%); the
+  // prompt keeps it out and REGIME_CONTEXT carries the 10/14 close (16.87, +10.48%). history.json's 10/15 row repeats the
+  // 10/14 US closes (cycleEnd 10/14), so the basis is one value per market session date, not the last two rows.
+  const afterHours = { quotes: closedSnapshot.quotes.map((row) => row.instrumentId === '^VIX' ? { ...row, evidenceId: 'market.volatility.vix:1bc1545e', value: 17.52, changePct: 3.853, observedAt: '2026-10-15T07:36:31.000Z', session: 'AFTER_HOURS' } : row) };
+  const meta = (observedAt) => ({ vix: { observedAt }, spx: { observedAt } });
+  const history = [
+    { date: '2026-10-13', vix: 15.27, spx: 7805.45, fieldMeta: meta('2026-10-13T20:15:01.000Z') },
+    { date: '2026-10-14', vix: 16.87, spx: 7718.94, fieldMeta: meta('2026-10-14T20:15:01.000Z') },
+    { date: '2026-10-15', cycleEnd: '2026-10-14T23:00:00.000Z', vix: 16.87, spx: 7718.94, fieldMeta: meta('2026-10-14T13:30:00.000Z') }
+  ];
+  const vixText = 'VIX는 10/14 종가 16.87로 +10.48% 올랐고, 코스피 -7.56%로 마감했다. 헤드라인에 따르면 뜨거운 물가가 배경으로 거론됐다.';
+  const basis = buildCompletedCloseBasis(validateMarketAnalysisText('', data, afterHours).metricEvidence, history).get('market.volatility.vix:1bc1545e');
+  const sameBasis = issues(vixText, afterHours, { history });
+  const noHistory = issues(vixText, afterHours);
+  const intradayAsClose = issues('VIX는 17.52로 마감했고 코스피 -7.56%였다. 헤드라인에 따르면 뜨거운 물가가 배경으로 거론됐다.', afterHours, { history });
+  const prompts = [];
+  const stub = (answers) => async (prompt) => { prompts.push(prompt); return { text: answers.shift() ?? null }; };
+  const warn = console.warn; console.warn = () => {};
+  let promptRun;
+  // v57.81: the producer reads the published history (KOSPI 10/15 vs S&P 500 10/14), so the comparing sentence names both
+  // sessions; the undated 06:52 wording is checked against a two-session history below.
+  const dated0652 = recorded0652.replace('완료 종가에서 코스피 -7.56%', '완료 종가에서 코스피(10/15) -7.56%').replace('미국 주가지수 -1.11%', '미국 주가지수(10/14) -1.11%');
+  try { promptRun = await genMarketAnalysis(data, closedSnapshot, { request: stub([dated0652]), nowMs: Date.parse('2026-10-15T06:52:00.000Z') }); } finally { console.warn = warn; }
+  check('v57.81 VIX change is judged on the basis the prompt gave: the prompt\'s closed-row change is the validator\'s, and an in-session row also accepts its last completed close (duplicate history session ignored)',
+    Math.abs((basis?.changePct ?? 0) - 10.478) < 0.01 && basis?.value === 16.87 && !sameBasis.length
+      && noHistory.some((issue) => /market\.vix/.test(issue)) && intradayAsClose.includes('session-wording-mismatch:market.vix')
+      && /market\.volatility\.vix:d94fc971 VIX=16\.87 index change=\+10\.48% vs previous close/.test(prompts[0] || '') && promptRun?.status === 'verified'
+      && /LARGE_MOVE \(S&P 500 1% 이상 또는 코스피 3% 이상\)/.test(prompts[0] || ''),
+    JSON.stringify({ basis, sameBasis, noHistory, intradayAsClose, status: promptRun?.status, reason: promptRun?.reason }));
+  // (c) the last verified reading is kept, labelled with its time, while later attempts are blocked — also across a run
+  // whose own fallback carried it — and dropped once the market has moved past a large move since it was written.
+  const verifiedAt = '2026-10-15T05:52:08.516Z';
+  const reading = 'S&P 500 -1.11%, VIX +10.48%, 미 10년물 금리 -2.7bp로 확정 종가가 바뀌었습니다. 헤드라인에 따르면 뜨거운 물가가 하락 배경이라는 해석이 가능합니다. 코스피 장중 14:31 KST 기준 -8.28%입니다.';
+  const inSession = (value, changePct, id) => ({ quotes: closedSnapshot.quotes.map((row) => row.instrumentId === '^KS11' ? { ...row, evidenceId: `market.index.kospi:${id}`, value, changePct, observedAt: '2026-10-15T05:35:00.000Z', session: 'DELAYED_IN_SESSION' } : row) });
+  const at0552 = inSession(5511.51, -8.2762, '3337d0b0');
+  const at0555 = inSession(5498.42, -8.494, '4a08d20e');
+  const crashed = inSession(5100, -15.12, 'crash');
+  const previous = { status: 'verified', semanticStatus: 'verified', semanticIssues: [], generatedAt: verifiedAt, full: reading, summary: reading, oneLine: 'x', metricEvidence: validateMarketAnalysisText('', data, at0552).metricEvidence };
+  const bad = 'S&P 500 -1.11%로 마감했다. 코스피 -7.56%였다.';
+  const now = Date.parse('2026-10-15T05:55:30.000Z');
+  console.warn = () => {};
+  let kept; let fallback; let carried; let dropped;
+  try {
+    kept = await genMarketAnalysis(data, at0555, { previous, request: stub([bad, bad]), nowMs: now });
+    fallback = await genMarketAnalysis(data, at0555, { previous: null, request: stub([bad, bad]), nowMs: now });
+    const blockedWithReading = { ...fallback, lastVerified: { ...previous } };
+    carried = await genMarketAnalysis(data, at0555, { previous: blockedWithReading, request: stub([bad, bad]), nowMs: Date.parse('2026-10-15T07:52:00.000Z') });
+    dropped = await genMarketAnalysis(data, crashed, { previous, request: stub([bad, bad]), nowMs: now });
+  } finally { console.warn = warn; }
+  const exact = validateMarketAnalysisText(reading, data, at0555);
+  check('v57.81 a verified reading is kept (labelled with its time) while later attempts are blocked, survives one blocked run, and is dropped after a large move',
+    kept?.status === 'verified' && kept.retained?.from === verifiedAt && /metric-value-mismatch|causal-attribution/.test(kept.retained?.reason || '')
+      && exact.issues.includes('metric-change-mismatch:market.kospi') && !retainedReadingIssues(previous, exact).length
+      && fallback?.status === 'blocked' && !fallback.lastVerified
+      && carried?.status === 'verified' && carried.retained?.from === verifiedAt && !carried.lastVerified
+      && dropped?.status === 'blocked' && dropped.lastVerified?.generatedAt === verifiedAt
+      && retainVerifiedMarketAnalysis({ status: 'blocked', lastVerified: { ...previous, generatedAt: '2026-10-14T12:00:00.000Z' } }, { nowMs: now }) === null,
+    JSON.stringify({ kept: kept?.retained, fallback: fallback?.status, carried: carried?.retained, dropped: dropped?.status, exact: exact.issues }));
+  // (d) the fallback reads as plain Korean with session dates, never a code label or an ISO timestamp.
+  const plain = plainMarketFallbackSummary(validateMarketAnalysisText('', data, at0555).metricEvidence);
+  check('v57.81 the blocked fallback names values in Korean with "10/14 종가" / "HH:MM 장중", never "SPX=" or an ISO timestamp',
+    /S&P 500 7,718\.94\(10\/14 종가\)/.test(plain) && /코스피 5,498\.42\(10\/15 14:35 장중\)/.test(plain) && /미국 10년물 금리 5\.19%\(10\/14 종가\)/.test(plain)
+      && !/\d{4}-\d{2}-\d{2}T|[A-Z]{2,}=|index\b/.test(plain) && fallback?.summary === plain && !/\d{4}-\d{2}-\d{2}T|SPX=/.test(fallback?.oneLine || ''),
+    plain);
+}
+{
   // P1720: post-08:00 articles go to a separate provisional slot (tier 1-2, curation filters, one per event, max 6,
   // Korean items first); the completed 08:00 bundle is unchanged.
   const { selectNewsIntraday, NEWS_INTRADAY_MAX } = await import('./fetch-data.mjs');
@@ -1446,6 +1541,36 @@ check('P827 v57.60 breadth primary current-metric surface has a native artifact 
 check('news consumers do not directly reuse rolling 48h newsCache filters', !/filterByAge\(newsCache,\s*48\)/.test(data) && !/48시간 이내 한국 관련 뉴스|뉴스 피드 자동 추출[\s\S]{0,80}48시간/.test(html));
 check('chat consumes Korean news translation context', /_aioGetNewsTranslation/.test(chat) && /ko_rewrite/.test(chat) && /ko_market/.test(chat) && /ko_explain/.test(chat) && /ko_impact/.test(chat) && /ko_action/.test(chat));
 check('Telegram digest reaches SCREENER_DB memo', /_aioApplyTelegramDigestToScreenerDb/.test(data) && /_telegramMemoOverlay/.test(data) && /memoOverlay/.test(data));
+// v57.81 (analysis audit 2026-10-15): the 000660.KS memo carried an unrelated "프리마켓 주요 종목 동향 GLND (+69.70%)" post and
+// 005930.KS an ASML call. A post reaches a memo only when its shown text names the ticker or the company; and a
+// category's focus is a post whose primary tag it is, so one post never stands for several categories.
+{
+  const memoSrc = ['_aioTelegramDigestMemoDate', '_aioCleanTelegramMemoText', '_aioTelegramTextNames', '_aioBuildTelegramMemoOverlay'].map((name) => extractFunctionSource(data, name)).join('\n');
+  const sandbox = { SCREENER_DB: [{ sym: '000660.KS', name: 'SK하이닉스' }, { sym: '005930.KS', name: '삼성전자' }, { sym: 'NVDA', name: 'NVIDIA' }] };
+  let overlay = null;
+  try {
+    overlay = runInNewContext(`${memoSrc}\n_aioBuildTelegramMemoOverlay(raw, {})`, { ...sandbox, raw: { generatedAt: '2026-10-15T07:00:00Z', current24hItems: [
+      { tickers: ['000660.KS'], score: 90, summary: '2026년 10월 14일 프리마켓 주요 종목 동향 상승 종목 GLND (+69.70%) 트럼프가 그린란드에서 대규모 석유·가스·광물 탐사를 시작할 것이라고 발표. LQDA...' },
+      { tickers: ['TSM', '005930.KS'], score: 80, summary: 'ASML FY3Q26 컨퍼런스콜 주요 코멘트 AI 투자 가시성 확대 — 주문 시계 2029~2030년까지 연장' },
+      { tickers: ['000660.KS'], score: 70, summary: "SK하이닉스, HBM4 후공정 장비 일부 물량 내년으로 '연기' - 딜사이트" },
+      { tickers: ['NVDA', '005930.KS'], score: 60, summary: 'NVDA 실적 발표 전 삼성전자 HBM 공급 기대' }
+    ] } });
+  } catch (error) { overlay = { error: error.message }; }
+  const memo = overlay?.byTicker || {};
+  check('v57.81 the 000660 memo does not get the GLND post', !!memo['000660.KS'] && !/GLND/.test(memo['000660.KS']), JSON.stringify(overlay));
+  check('v57.81 a post that names neither the ticker nor the company is not attached (ASML call → 005930.KS)', !/ASML/.test(memo['005930.KS'] || ''), memo['005930.KS'] || '');
+  check('v57.81 clean: a ticker or company named in a post still gets its memo', /SK하이닉스, HBM4/.test(memo['000660.KS'] || '') && /삼성전자 HBM/.test(memo['005930.KS'] || '') && /NVDA 실적/.test(memo.NVDA || ''), JSON.stringify(memo));
+  const sampleSrc = extractFunctionSource(data, '_aioBuildTelegramRuntimeNarrative');
+  let narrative = null;
+  try {
+    narrative = runInNewContext(`${sampleSrc}\n_aioBuildTelegramRuntimeNarrative(raw)`, { _TG_PAGE_TAGS: {}, raw: { topicCounts: { macro: 3, geo: 2, semi: 2 }, broadItems: [
+      { tags: ['macro', 'geo', 'semi'], summary: '프리마켓 브리핑 — 금리·중동·반도체' }, { tags: ['geo'], summary: '호르무즈 해협 긴장' }, { tags: ['semi', 'earnings'], summary: 'HBM4 공급 계약' }
+    ] } });
+  } catch (error) { narrative = { error: error.message }; }
+  const focus = Object.fromEntries((narrative?.categories || []).map((row) => [row.id, row.focus]));
+  check('v57.81 a category focus comes from its primary-tag posts, with no reuse across categories', /프리마켓 브리핑/.test(focus.macro || '') && /호르무즈/.test(focus.geo || '') && /HBM4/.test(focus.semi || ''), JSON.stringify(focus));
+  check('v57.81 the producer picks a category focus by primary tag', /function bestTextForTag\(tag\) \{\s*const hit = items\.filter\(it => Array\.isArray\(it\.tags\) && it\.tags\[0\] === tag && it\.text\)/.test(fetchTelegram));
+}
 check('Telegram runtime replaces stale static narrative with dynamic artifact fields', /themes:\s*Array\.isArray\(raw\.themes\)/.test(data) && /categories:\s*Array\.isArray\(raw\.categories\)/.test(data) && /pageMap:\s*raw\.pageMap/.test(data) && /getTelegramPageCoverageAudit/.test(data));
 check('client current Telegram feed uses only the digest current24h lane', /rawCurrent24hItems/.test(data) && /AIO_TELEGRAM_CURRENT_ITEMS/.test(data) && /_aioRenderTelegramFeedHtml/.test(data));
 check('news native summary projects count, source, risk, sentiment, and shared-cut status', /renderNewsSummary/.test(newsPage) && /news-24h-count/.test(newsPage) && !/news-risk-count|news-sent-score/.test(newsPage) && /last-fetch-time/.test(newsPage)); // P1672: sentiment/risk strip retired (P1391)
@@ -1453,6 +1578,12 @@ check('browser tests cover Telegram memo injection', /T831[\s\S]{0,2400}SCREENER
 
 // v51.94/Phase 2 [B6]: getScreenerSymbols() must read the JSON artifact, not regex-scrape
 // js/aio-data.js source text (the old "\n];" boundary search was a fragile string-search bound).
+// v57.81: the official US listing is produced by refresh-screener (the workflow that owns screener-universe), staged
+// with the other screener artifacts and validated in the same run; its producer contract is ci-us-listings-check.mjs.
+check('v57.81 us-listings producer runs, validates and is staged in refresh-screener',
+  /node scripts\/build-us-listings\.mjs\n\s+node scripts\/ci-us-listings-check\.mjs/.test(screenerRefresh)
+  && /stage_if_exists public-data\/us-listings\.json/.test(screenerRefresh)
+  && !/us-listings/.test(read('.github/workflows/refresh-data.yml')));
 check('getScreenerSymbols reads screener-universe.json, not source-text regex', /screener-universe\.json/.test(fetchData) && !/src\.indexOf\('\\n\];'/.test(fetchData));
 // Drift check: public-data/screener-universe.json must be exactly what
 // scripts/sync-screener-universe.mjs would regenerate from js/aio-data.js's current SCREENER_DB

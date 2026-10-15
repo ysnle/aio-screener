@@ -26,23 +26,28 @@ import { buildDomainReceipt } from './lib/domain-receipt.mjs';
 import { deriveFredCycle } from './lib/refresh-continuity.mjs';
 import { factorScopesByMarket, listingMarketOfSymbol, sessionDateInMarket, timeZoneForMarket, timeZoneForSymbol } from '../src/domain/market/session-time.js';
 import { latestCompletedUsSession, nyParts, resolveMarketCalendarSession } from '../src/ai/time/market-session.js';
+import { barSessionDateForField, historyFieldSessionDate, observationSessionDate } from '../src/domain/market/history-session.js'; // v57.81
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
-import { reconcileSecRecord, secSharesTrust } from '../src/domain/fundamental/sec-report.js'; // P1402 + 2026-10-13 F03-F05
+import { reconcileSecRecord } from '../src/domain/fundamental/sec-report.js'; // P1402 + 2026-10-13 F03-F05
+import { secFundamentalRowFields } from '../src/domain/fundamental/sec-row-fields.js'; // v57.81: shared with the browser's out-of-universe read
 import { evaluateSymbolSignals, distributionDaySeries, BREADTH_SIGNAL_MODEL_VERSION } from '../src/domain/market/breadth-signals.js'; // P1416
 import { collectRotationHistory } from './lib/rotation-history.mjs';
 import { updateCandidateArchive } from './lib/candidate-archive.mjs'; // P1465
 import { SHARED_AI_MODEL, requestSharedAnalysis, requestWorkersAiTranslation, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
-import { buildMarketRegime } from '../src/domain/briefing/market-read.js'; // P1635
+import { buildMarketRegime, buildCloseSeries } from '../src/domain/briefing/market-read.js'; // P1635; v57.81 session dates
 import { buildMarketScenarios, renderMarketScenarioContext } from '../src/domain/market/regime-scenarios.js';
 import { buildScenarioOutlook, renderScenarioOutlookContext } from '../src/domain/market/scenario-outlook.js';
 import { buildMacroRead } from '../src/domain/macro/macro-read.js';
 import { buildMacroCrossroads, upcomingMacroEvents, renderMacroCrossroadsContext } from '../src/domain/market/macro-crossroads.js';
 import { round } from './lib/producer-math.mjs';
-import { _mean, closesToFactors, backtestFactors, _calcVCPServer, _calcSetupScreenFields, dailyNotionalAverage, fxRateOnOrBefore } from './lib/factors.mjs'; // v57.62 split
+import { EXTENDED_SHARD_SCHEMA, RANKING_CONTRACTS, encodeShardRows, isValidShard } from '../src/data/screener-extended.js'; // v57.81
+import { _mean, closesToFactors, backtestFactors } from './lib/factors.mjs'; // v57.62 split
+import { deriveFactorQuality, isSessionComplete, sessionSegmentOfSymbol, listingCurrencyOf, dailyRowsFromYahooChart, priceHistoryFromRows, priceFactorRow } from '../src/domain/screener/price-factors.js'; // v57.81: shared with the browser
+export { deriveFactorQuality, isSessionComplete, sessionSegmentOfSymbol, listingCurrencyOf } from '../src/domain/screener/price-factors.js';
 import { fetchJSON, _fetchRss } from './lib/producer-http.mjs'; // v57.62 split
 import { FRED_SERIES, compareUsdKrwCrossCheck, fetchAaiiSentiment, fetchBeaPce, fetchBlsSeries, fetchCboePutCall, fetchFearGreed, fetchFredDexkousPublic, fetchFredHyOasPublic, fetchTreasuryYieldCurve, mergeMacroLastKnownGood, officialTreasuryDeltas } from './lib/macro-sources.mjs'; // v57.62 split
 import { MINIMUM_CURRENT_NEWS, NEWS_FEEDS, NEWS_INTRADAY_LABEL, NEWS_INTRADAY_MAX, NEWS_INTRADAY_POLICY, TICKER_NEWS_MAX_AGE_MS, deriveCyclePublication, deriveTickerNewsLineage, fetchNews, fetchTickerNewsItems, getKst0800NewsCycle, planTickerNewsTargets, selectTickerNewsMemo } from './lib/news-selection.mjs'; // v57.62 split
-import { KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, MARKET_SENTENCE_LABEL, dailyMarketSentence, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText } from './lib/market-analysis-validate.mjs'; // v57.62 split
+import { KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, MARKET_SENTENCE_LABEL, dailyMarketSentence, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary, LARGE_MOVE_ATTRIBUTION_PCT } from './lib/market-analysis-validate.mjs'; // v57.62 split
 export { buildMarketAnalysisEvidence, MARKET_ANALYSIS_CLOSED_SESSIONS, analysisMetricMentions, validateAnalysisMetricMentions, validateAnalysisAdmission, analysisNumberMarkedAsReference, validateMarketAnalysisText, MARKET_ANALYSIS_NEWS_CONTENT_POLICY, isMarketAnalysisNewsEligible, buildMarketAnalysisNewsEvidence, buildMarketAnalysisHeadlineContext, describeMarketAnalysisIssues, MARKET_ANALYSIS_RETAIN_MAX_MS, retainVerifiedMarketAnalysis, reusableMarketAnalysis } from './lib/market-analysis-validate.mjs';
 export { deriveCyclePublication, newsSourceLabel, serverNewsHeadlineMonthStale, scoreServerNewsItem, newsHeadlineSignature, newsSameEvent, cleanNewsTitle, newsKeyEntities, createNewsTopicCap, NEWS_INTRADAY_MAX, NEWS_INTRADAY_POLICY, NEWS_INTRADAY_LABEL, selectNewsIntraday, tickerNewsCoreName, TICKER_NEWS_WORD_SYMBOLS, tickerNewsHeadlineNamesIssuer, TICKER_NEWS_MAX_AGE_MS, selectTickerNewsMemo, TICKER_NEWS_RUN_CAP, TICKER_NEWS_FIXED_HEAD, TICKER_NEWS_ROTATION_SLOT_MS, planTickerNewsTargets, deriveTickerNewsLineage } from './lib/news-selection.mjs';
 export { parseFredHyOasCsv, fetchFredHyOasPublic, parseFredDexkousCsv, fetchFredDexkousPublic, compareUsdKrwCrossCheck, parseTreasuryYieldCurveHtml, parseTreasuryYieldCurveXml, officialTreasuryDeltas, fetchTreasuryYieldCurve, parseAaiiSentimentText, fetchAaiiSentiment, mergeMacroLastKnownGood, parseBeaPceHtml, normalizeBlsSeriesResponse, BLS_RELEASE_SCHEDULE_IDS, blsReleaseCacheBypass, fetchBlsSeries, parseCboePutCallHtml, classifyCboePutCallCurrentness } from './lib/macro-sources.mjs';
@@ -212,7 +217,9 @@ async function fetchQuote(symbol) {
             quote.regularMarketChangePercent = ((price - cut.close) / cut.close) * 100;
             quote.regularMarketPreviousCloseObservedAt = cut.observedAt;
             quote.previousBarOpenedAt = cut.previousBoundary;
-            quote.previousCloseSessionDate = null; // the cut close is dated by its own stamp (P1721)
+            // P1721 dated the cut close by its own stamp; v57.81 writes that date (New York trading day of the cut, at or
+            // before 19:00 ET) so a later read of the same cut is recognised as the same session, not a new one.
+            quote.previousCloseSessionDate = exchangeLocalDate(Date.parse(cut.observedAt || ''), 'America/New_York');
             quote._pctSource = 'fx-hourly-cut-close';
           }
         } catch (_) { /* daily path stays */ }
@@ -514,40 +521,8 @@ async function fetchHistory(symbol, range = '6mo') {
       // function's other consumer (backfillHistory, index-level symbols only) stay on raw values.
       const adjArr = res?.indicators?.adjclose?.[0]?.adjclose;
       if (!Array.isArray(ts) || !Array.isArray(closes)) throw new Error('no history arrays');
-      const out = [];
-      // P1683: a session the provider lists with an empty close (KRX 2026-10-12 on Yahoo) is a gap, not a
-      // non-session — remember its date so short-window returns across it are not labelled one session.
-      out.nullCloseDates = [];
-      // 2026-10-13 F07: the listing's own currency and exchange zone travel with the series so a Tokyo or
-      // Taipei row is never published as USD on a New York session date.
-      out.meta = { currency: res.meta?.currency || null, exchangeTimezoneName: res.meta?.exchangeTimezoneName || null, symbol: res.meta?.symbol || null };
-      for (let i = 0; i < ts.length; i++) {
-        const c = closes[i];
-        if (typeof c !== 'number' || !isFinite(c)) { if (Number.isFinite(ts[i])) out.nullCloseDates.push(new Date(ts[i] * 1000).toISOString().slice(0, 10)); continue; }
-        const h = q0.high?.[i], l = q0.low?.[i], v = q0.volume?.[i];
-        const a = Array.isArray(adjArr) ? adjArr[i] : undefined;
-        out.push({
-          date: new Date(ts[i] * 1000).toISOString().slice(0, 10),
-          observedAt: new Date(ts[i] * 1000).toISOString(),
-          instrumentId: res.meta?.symbol || null,
-          timeframe: res.meta?.dataGranularity || null,
-          currency: res.meta?.currency || null,
-           close: round(c, 2),
-          // Missing adjusted-close evidence stays missing. A raw-close fallback
-          // would silently turn a total-return backtest into a price-only test.
-          adjClose: (typeof a === 'number' && isFinite(a) && a > 0) ? round(a, 2) : null,
-           // Missing OHLC bars are unknown.  Falling back to close creates a
-           // fabricated zero-range bar and can make ADR/VCP look complete.
-           high:   typeof h === 'number' && isFinite(h) ? round(h, 2)    : null,
-           low:    typeof l === 'number' && isFinite(l) ? round(l, 2)    : null,
-           // Missing volume is unknown, not zero.  Zero is a real observation
-           // for some instruments and would otherwise corrupt VCP/liquidity
-           // factors while making a partial provider response look complete.
-           volume: typeof v === 'number' && isFinite(v) ? Math.round(v)  : null,
-           fetchedAt,
-         });
-      }
-      return out;
+      // v57.81: the row assembly is shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
+      return dailyRowsFromYahooChart(res, { fetchedAt });
     } catch (e) { /* 호스트 폴백 */ }
   }
   return [];
@@ -804,7 +779,15 @@ async function backfillHistory(hist) {
   for (const r of results) {
     if (!r || r.__error || !Array.isArray(r.rows)) continue;
     const field = HIST_SYMBOLS[r.sym];
-    for (const row of r.rows) {
+    // v57.81: a futures/FX/DXY/BTC bar is still trading until the next bar opens, so the newest bar of a continuous
+    // instrument is never written as a completed close (the market lane records it as a previous close once closed).
+    const continuous = /(=F|=X)$|^DX-Y\.NYB$|-USD$/.test(r.sym);
+    for (const [barIndex, bar] of r.rows.entries()) {
+      if (continuous && barIndex === r.rows.length - 1) continue;
+      // v57.81: a bar is keyed by its own session in its zone. Yahoo FX bars open at 00:00 London (23:00Z in summer),
+      // so the UTC date of the stamp filed the 10/9 won bar under 10/8.
+      const sessionDate = barSessionDateForField(field, bar.observedAt) || bar.date;
+      const row = { ...bar, date: sessionDate };
       // P1246: 품질 경계는 백필 레인에도 똑같이 적용된다. 선언된 타당 범위를 벗어난 공급자 값은
       // 관측으로 승격하지 않는다 — 그 날짜의 행 자체를 만들지 않는다(값도 fieldMeta도 없음).
       if (!histValueWithinPlausibility(field, row.close)) continue;
@@ -824,6 +807,7 @@ async function backfillHistory(hist) {
         // the artifact gate that requires an observation relation on every market field.
         observationRelation: 'latest-completed-close',
         observedAtSource: row.observedAt ? 'provider-current' : 'unavailable',
+        sessionDate, // v57.81: the bar's own session (its open stamp's local date)
       };
     }
   }
@@ -883,6 +867,53 @@ function carryForwardHistoryEvidence(hist) {
   return hist;
 }
 
+// v57.81: history.json carried one market session under two row dates. A row is keyed by the UTC run date and holds
+// the latest completed close known at that run, so the backfill lane's 10/12 DXY bar (row 10/12) and the market lane's
+// previous close at the 10/13 23:51Z run (the same 10/12 close, row 10/13) were two "observations" of 102.58, and a
+// weekend row repeated Friday's close as if new. Each field's session is now compared across rows: the earliest row
+// that records a session owns it, and a later row with the same session is marked held (carried-forward, carriedFrom,
+// heldReason) — never deleted. When two producer-dated reads of one session differ, the later read (the provider's
+// settled bar) revises the owner and the replaced value is kept in `revisions`. Legacy pairs that differ keep both
+// values; readers resolve them by settle time. Idempotent: a held field is skipped on the next run.
+export function holdRepeatedSessions(hist, { at = new Date().toISOString(), fields = HIST_MARKET_FIELDS } = {}) {
+  const rows = (Array.isArray(hist) ? hist : []).filter((row) => row && typeof row === 'object' && /^\d{4}-\d{2}-\d{2}$/.test(String(row.date || '')))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const held = [];
+  const revised = [];
+  const dated = (meta) => /^\d{4}-\d{2}-\d{2}$/.test(String(meta?.sessionDate || ''));
+  for (const field of fields) {
+    const owners = new Map();
+    for (const row of rows) {
+      const value = row[field];
+      const meta = row.fieldMeta?.[field];
+      if (typeof value !== 'number' || !Number.isFinite(value) || !meta?.observedAt || meta.observationRelation === 'carried-forward') continue;
+      const session = historyFieldSessionDate(meta, field) || observationSessionDate(field, meta.observedAt);
+      if (!session) continue;
+      const owner = owners.get(session);
+      if (!owner) { owners.set(session, row); continue; }
+      const ownerMeta = owner.fieldMeta[field];
+      if (owner[field] !== value) {
+        if (!dated(ownerMeta) || !dated(meta)) continue;
+        ownerMeta.revisions = [...(Array.isArray(ownerMeta.revisions) ? ownerMeta.revisions : []),
+          { value: owner[field], observedAt: ownerMeta.observedAt || null, fetchedAt: ownerMeta.fetchedAt || null, revisedAt: at, revisedFromRow: row.date }].slice(-5);
+        revised.push({ date: owner.date, field, session, from: owner[field], to: value, by: row.date });
+        owner[field] = value;
+      }
+      row.fieldMeta[field] = {
+        ...meta,
+        allowedUse: 'reference-only',
+        observationRelation: 'carried-forward',
+        heldRelation: meta.observationRelation || null,
+        heldReason: 'session-already-recorded',
+        carriedFrom: owner.date,
+        sessionDate: session,
+      };
+      held.push({ date: row.date, field, session, carriedFrom: owner.date });
+    }
+  }
+  return { held, revised };
+}
+
 export function usPreOpenIndexPrint(symbol, observedAt) {
   if (!/^\^(VIX|VIX3M|VVIX|GSPC|IXIC|NDX|DJI|RUT|TNX)$/.test(String(symbol || ''))) return false;
   const at = Date.parse(observedAt || '');
@@ -890,6 +921,17 @@ export function usPreOpenIndexPrint(symbol, observedAt) {
   const parts = nyParts(at);
   const day = new Date(at).toLocaleDateString('en-US', { timeZone: 'America/New_York', weekday: 'short' });
   return !['Sat', 'Sun'].includes(day) && parts.minute < 9 * 60 + 30;
+}
+
+// v57.81: futures, DXY and FX reopen at 18:00 ET for the next trading day. A print from that evening (the 10/04 and 10/11
+// Sunday 23:01-23:26Z WTI/DXY/gold/won prints filed as MARKET_CLOSED) belongs to a session that has not completed, so
+// it is never a completed close; the history takes the previous completed close instead.
+export function continuousReopenPrint(symbol, observedAt) {
+  if (!/(=F|=X)$|^DX-Y\.NYB$/.test(String(symbol || ''))) return false;
+  const at = Date.parse(observedAt || '');
+  if (!Number.isFinite(at)) return false;
+  const day = new Date(at).toLocaleDateString('en-US', { timeZone: 'America/New_York', weekday: 'short' });
+  return !['Fri', 'Sat'].includes(day) && nyParts(at).minute >= 18 * 60;
 }
 
 // ── WO-7 (ops): 일별 히스토리 축적 (public-data/history.json) ──
@@ -914,7 +956,8 @@ async function updateHistory(data, marketSnapshot = null, officialFx = null) {
       const previousObservedAt = q.regularMarketPreviousCloseObservedAt || null;
       // P1656: VIX-family indices also print in Cboe's extended hours; a weekday print before the 09:30 ET open
       // is that session's pre-open value, not a completed close (10/12 07:01 ET VIX 15.48 was filed as one).
-      const preOpenPrint = !isOpenPoint && usPreOpenIndexPrint(q.symbol, q.observedAt);
+      // v57.81: an evening reopen print of a futures/FX/DXY session is the same case (continuousReopenPrint).
+      const preOpenPrint = !isOpenPoint && (usPreOpenIndexPrint(q.symbol, q.observedAt) || continuousReopenPrint(q.symbol, q.observedAt));
       const usePreviousClose = (isOpenPoint || preOpenPrint) && Number.isFinite(previousClose) && previousClose > 0;
       // P1576: in session without a previous close there is no completed close to record; the
       // intraday price must not be written as one (fail closed, like P1095's timestamp rule).
@@ -999,6 +1042,13 @@ async function updateHistory(data, marketSnapshot = null, officialFx = null) {
       if (value === null) continue;
       fieldValues[field] = value;
       fieldMeta[field] = historyMeta(field, bySymQuote[sym]);
+      // v57.81: every completed close names its session. A previous close takes the provider bar's own trading date
+      // (v57.70) or, when the provider gave none, the session its bar-boundary stamp determines; a closing print takes
+      // its exchange-local date. holdRepeatedSessions then compares sessions, not row dates.
+      if (!fieldMeta[field].sessionDate) {
+        const session = historyFieldSessionDate(fieldMeta[field], field) || observationSessionDate(field, fieldMeta[field].observedAt);
+        if (session) fieldMeta[field].sessionDate = session;
+      }
     }
     if (typeof data.fearGreed?.score === 'number') {
       const rawAsOf = data.fearGreed.asOf;
@@ -1070,6 +1120,9 @@ async function updateHistory(data, marketSnapshot = null, officialFx = null) {
     hist = carryForwardHistoryEvidence(hist);
     const idx = hist.findIndex(h => h && h.date === today);
     if (idx >= 0) hist[idx] = { ...hist[idx], ...rec, fieldMeta: { ...(hist[idx].fieldMeta || {}), ...fieldMeta } }; else hist.push(rec); // 같은 날 = upsert
+    // v57.81: a session already recorded on an earlier row is held on this one, never a second observation.
+    const held = holdRepeatedSessions(hist, { at: fetchedAt });
+    if (held.held.length || held.revised.length) console.log(`[fetch-data] history: 같은 세션 반복 ${held.held.length}건 보류 표시, 재조회 갱신 ${held.revised.length}건`);
     hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
     if (hist.length > 420) hist = hist.slice(hist.length - 420);  // 14개월 cap
     await atomicWriteFile(HIST, JSON.stringify(normalizeHistoryRows(hist)));
@@ -1282,9 +1335,10 @@ async function enrichFundamentals(syms) {
   return { data: out, hasKey: true, ok, total: us.length, planError: false };
 }
 
-export async function enrichSecFundamentals(syms, priceData, priceResults = null, assetTypeOf = {}) {
+export async function enrichSecFundamentals(syms, priceData, priceResults = null, assetTypeOf = {}, { ledgerPath = SEC_FUNDAMENTALS_OUT } = {}) {
   try {
-    const payload = JSON.parse(await readFile(SEC_FUNDAMENTALS_OUT, 'utf8'));
+    // v57.81: the extended universe reads its own compact ledger (public-data/sec-fundamentals-extended.json).
+    const payload = JSON.parse(await readFile(ledgerPath, 'utf8'));
     const rows = payload && payload.data || {};
     const out = {};
     let available = 0;
@@ -1306,82 +1360,10 @@ export async function enrichSecFundamentals(syms, priceData, priceResults = null
       // P1402 parent equity + F03/F05 heal (revenue per period, margin > 100% withheld, other-year shares dropped).
       const row = reconcileSecRecord(rows[sym]);
       if (!row || !row.fetchedAt || Date.now() - new Date(row.fetchedAt).getTime() > maxFetchAge) continue;
-      const rec = {};
-      const px = priceBySym.get(sym);
-      // F04/F10: only a share count matched to EPS by the producer, or (older/unchecked records) one whose implied
-      // daily turnover is plausible, may price P/E, P/B or the reference market cap. PKG's stored 1000x cover count
-      // (P/E 26,255) fails the turnover band; a stale-period or scale-mismatched count is never used.
-      const trust = secSharesTrust(row, { price: px, dollarVolume30d: priceData?.[sym]?.dollarVolume30d });
-      ['roe','margin','revGrowth'].concat(trust.shares ? ['pe','pb'] : []).forEach(key => {
-        if (typeof row[key] === 'number' && Number.isFinite(row[key])) rec[key] = row[key];
-      });
-      if (Number.isFinite(px) && px > 0 && trust.shares) {
-        const shares = trust.shares;
-        const netIncome = Number(row.netIncome);
-        const equity = Number(row.equity);
-        const mcap = px * shares;
-        if (rec.pe == null && Number.isFinite(netIncome) && netIncome > 0) {
-          rec.pe = Math.round(mcap / netIncome * 100) / 100;
-          rec.pePrice = px;
-          rec.pePriceBasis = 'adjusted-close';
-        }
-        if (rec.pb == null && Number.isFinite(equity) && equity > 0) {
-          rec.pb = Math.round(mcap / equity * 100) / 100;
-          rec.pbPrice = px;
-          rec.pbPriceBasis = 'adjusted-close';
-        }
-        // F10: the reference market cap needs only a close and a verified count, not positive earnings or equity.
-        rec.valuationPrice = px;
-        rec.valuationPriceBasis = 'adjusted-close';
-        rec.valuationSharesOutstanding = shares;
-        rec.valuationSharesObservedAt = row.sharesObservedAt || null;
-        rec.valuationSharesCheck = trust.check;
-        rec.valuationSharesBasis = row.sharesBasis || 'dei-cover';
-      }
-      // P1652: a filing whose period ended over 15 months ago is not current fundamentals (companyfacts concept gaps
-      // left WFC on FY2019 and NEE on FY2012); the fields stay missing rather than ranking on a stale year.
-      // F15: the same 456-day fiscal-year-end age (period.js FUNDAMENTAL_MAX_PERIOD_AGE_DAYS) sets the quality label.
-      const sessionMs = Date.parse(String(priceData?.[sym]?.factorSessionDate || '').slice(0, 10));
-      const reportAgeDays = row.observedAt ? Math.floor(((Number.isFinite(sessionMs) ? sessionMs : Date.now()) - Date.parse(row.observedAt)) / 86400000) : null;
-      if (row.observedAt && (Date.now() - Date.parse(row.observedAt)) / 86400000 > 456) continue;
-      // P1652: P/E under 2 or P/B under 0.1 is a share-class/unit mismatch (BRK-B, IBKR), not a valuation — and the
-      // same share basis cannot size a reference market cap either.
-      const shareBasisMismatch = (rec.pe != null && !(rec.pe >= 2)) || (rec.pb != null && !(rec.pb >= 0.1));
-      if (rec.pe != null && !(rec.pe >= 2)) { delete rec.pe; delete rec.pePrice; delete rec.pePriceBasis; }
-      if (rec.pb != null && !(rec.pb >= 0.1)) { delete rec.pb; delete rec.pbPrice; delete rec.pbPriceBasis; }
-      if (shareBasisMismatch) {
-        ['valuationPrice', 'valuationPriceBasis', 'valuationSharesOutstanding', 'valuationSharesObservedAt', 'valuationSharesCheck', 'valuationSharesBasis'].forEach((key) => delete rec[key]);
-        rec.valuationHeldReason = 'share-class-or-unit-mismatch';
-      }
-      if (!trust.shares) rec.valuationHeldReason = trust.reason;
-      if (!['pe', 'pb', 'roe', 'margin', 'revGrowth', 'valuationSharesOutstanding'].some((key) => rec[key] != null)) continue;
-      Object.assign(rec, {
-        fundamentalSource: 'SEC EDGAR companyfacts',
-        fundamentalModel: row.model || payload.model || 'sec-fy-normalized-v2',
-        fundamentalPeriod: row.periodType || 'FY',
-        // Period end is not availability. Ranking may use only the first time
-        // the filing was public; retain period end separately for display.
-        fundamentalPeriodEnd: row.observedAt || null,
-        fundamentalObservedAt: row.availableAt || row.acceptedAt || row.filedAt || null,
-        fundamentalFiledAt: row.filedAt || null,
-        fundamentalFetchedAt: row.fetchedAt,
-        fundamentalAccession: row.accession || null,
-        fundamentalSourceKind: 'T1_OFFICIAL',
-        fundamentalAllowedUse: 'research-relative-ranking-only',
-        // F15: CURRENT meant "has a filing date" (624/624 rows). The label now follows the fiscal-year-end age
-        // against the factor session (456-day rule); rows past it are not merged at all (above).
-        fundamentalQuality: {
-          status: !(row.availableAt || row.acceptedAt || row.filedAt) ? 'MISSING' : reportAgeDays != null && reportAgeDays <= 456 ? 'CURRENT' : 'STALE',
-          stale: !(row.availableAt || row.acceptedAt || row.filedAt) || !(reportAgeDays != null && reportAgeDays <= 456),
-          basis: 'fiscal-year-end-age',
-          period: 'FY',
-          reportAgeDays,
-          maxAgeDays: 456,
-          decisionUse: false,
-          allowedUse: 'reference'
-        },
-        fundamentalRightsId: 'PUBLIC_REFERENCE'
-      });
+      // v57.81: the per-symbol SEC row fields are one shared pure function (src/domain/fundamental/sec-row-fields.js),
+      // so the browser's out-of-universe read builds them the same way.
+      const rec = secFundamentalRowFields(row, { price: priceBySym.get(sym), dollarVolume30d: priceData?.[sym]?.dollarVolume30d, factorSessionDate: priceData?.[sym]?.factorSessionDate, payloadModel: payload.model });
+      if (!rec) continue;
       out[sym] = rec;
       available++;
     }
@@ -1403,24 +1385,10 @@ export async function enrichSecFundamentals(syms, priceData, priceResults = null
 // 돌려준 날에도 artifact에 CURRENT가 남는다(소비측은 같은 행을 4일 경과로 차단한다). 소비측
 // factor-ranks와 같은 신선도 예산을 공유해 처음부터 같은 판정을 쓴다 — 라벨이 다르면
 // 'CURRENT인데 차단되는' 행이 생긴다.
-export function deriveFactorQuality({ observedAt, computedAt } = {}) {
-  const observedMs = observedAt ? Date.parse(observedAt) : NaN;
-  const computedMs = computedAt ? Date.parse(computedAt) : NaN;
-  const ageMs = Number.isFinite(observedMs) && Number.isFinite(computedMs) ? computedMs - observedMs : NaN;
-  const fresh = Number.isFinite(ageMs) && ageMs >= 0 && ageMs <= FACTOR_FRESHNESS_MS;
-  return {
-    status: !Number.isFinite(observedMs) ? 'MISSING' : fresh ? 'CURRENT' : 'STALE',
-    stale: !fresh,
-    ageMs: Number.isFinite(ageMs) ? ageMs : null,
-    basis: 'bar-start-to-computedAt',
-    decisionUse: false,
-    allowedUse: 'reference'
-  };
-}
 
-async function _enrichPriceFactors(syms) {
+async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
   const computedAt = new Date().toISOString();
-  const results = await mapLimit(syms, 5, async (sym) => {
+  const results = await mapLimit(syms, concurrency, async (sym) => {
     // P1442 (review 2026-10-04): factors are labelled "세션 종가 기준", but a refresh 22 minutes after the
     // US open used the in-progress daily bar for returns, volume, ranges and VCP. Only bars whose session
     // has closed (isSessionComplete, the same guard the breadth path uses) enter any factor.
@@ -1437,37 +1405,8 @@ async function _enrichPriceFactors(syms) {
       providerNullCloseDates = reconciled.nullCloseDates;
       closeReconciliation = reconciled.report;
     }
-    const rows = (fetched || []).filter((row) => !row?.date || isSessionComplete(row.date, market));
-    const partialSessionDropped = (fetched || []).length - rows.length;
-    const nullCloseDates = providerNullCloseDates.filter((date) => isSessionComplete(date, market));
-    if (closeReconciliation) {
-      closeReconciliation.providerMissingSessions = nullCloseDates;
-      closeReconciliation.filledDates = closeReconciliation.filledDates.filter((date) => isSessionComplete(date, market));
-      closeReconciliation.filledSessions = closeReconciliation.filledDates.length;
-    }
-    return {
-      sym,
-      partialSessionDropped,
-      providerMeta,
-      closeReconciliation,
-      nullCloseDates,
-      dates:     (rows || []).map(r => r.date),
-      observedAts:(rows || []).map(r => r.observedAt || null),
-      closes:    (rows || []).map(r => r.close),
-      // Keep adjusted closes separate from raw OHLC. Return/factor/backtest
-      // consumers must opt into this series explicitly; a missing adjusted value
-      // remains null instead of silently becoming a raw close.
-      adjCloses: (rows || []).map(r => (typeof r.adjClose === 'number' && Number.isFinite(r.adjClose) ? r.adjClose : null)),
-      highs:     (rows || []).map(r => (typeof r.high === 'number' && Number.isFinite(r.high) ? r.high : null)),
-      lows:      (rows || []).map(r => (typeof r.low === 'number' && Number.isFinite(r.low) ? r.low : null)),
-      // Preserve unknown volume as null; downstream factor helpers ignore
-      // incomplete volume windows instead of treating missing data as zero.
-      volumes:   (rows || []).map(r => (typeof r.volume === 'number' && Number.isFinite(r.volume) ? r.volume : null)),
-      observedAt:(rows && rows.length && rows[rows.length - 1].observedAt) || null,
-      adjustedCloseStatus: (rows || []).length > 0 && (rows || []).every(r => typeof r.adjClose === 'number' && Number.isFinite(r.adjClose) && r.adjClose > 0)
-        ? 'complete'
-        : (rows || []).some(r => typeof r.adjClose === 'number' && Number.isFinite(r.adjClose) && r.adjClose > 0) ? 'partial' : 'unavailable',
-    };
+    // v57.81: shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
+    return priceHistoryFromRows(sym, fetched, { providerMeta, nullCloseDates: providerNullCloseDates, closeReconciliation, market });
   });
   // 2026-10-13 F13: non-USD traded value is converted session by session at that currency's daily USD
   // close (one 1y FX series per currency), so KR/JP/TW rows carry a USD figure with its basis instead of null.
@@ -1484,87 +1423,9 @@ async function _enrichPriceFactors(syms) {
   let ok = 0;
   for (const r of results) {
     if (!r || r.__error || !r.closes) continue;
-    const hasCompleteAdjusted = r.adjustedCloseStatus === 'complete'
-      && r.adjCloses && r.adjCloses.length === r.closes.length
-      && r.adjCloses.every(v => typeof v === 'number' && Number.isFinite(v) && v > 0);
-    // The screener may still expose a raw-price technical snapshot when the
-    // provider omits adjusted closes, but it is explicitly partial and never
-    // enters the adjusted-close backtest below.
-    const factorPriceSeries = hasCompleteAdjusted ? r.adjCloses : r.closes;
-    const f = closesToFactors(factorPriceSeries);
+    // v57.81: shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
+    const f = priceFactorRow(r, { computedAt, fxSeries });
     if (f) {
-      // P1683: a completed session with an empty provider close inside the 1- or 5-session window makes that
-      // return span an extra session — publish null (the map greys it) instead of a mislabelled move.
-      const gaps = Array.isArray(r.nullCloseDates) ? r.nullCloseDates : [];
-      const dates = Array.isArray(r.dates) ? r.dates : [];
-      const gapInside = (n) => dates.length > n && gaps.some((date) => date > dates[dates.length - 1 - n] && date < dates[dates.length - 1]);
-      if (gapInside(1)) f.ret1d = null;
-      if (gapInside(5)) f.ret5d = null;
-      // v51.68: VCP 패턴 인식 — OHLCV 60봉 이상일 때 계산 (raw close, 조정종가 아님 — 위 주석 참조)
-      if (r.closes.length >= 60 && r.highs && r.lows && r.volumes) {
-        const vcp = _calcVCPServer(r.closes, r.highs, r.lows, r.volumes);
-        if (vcp) { f.vcpScore = vcp.vcpScore; f.vcpStage = vcp.vcpStage; f.vcpPivot = vcp.pivotLevel; f.vcpContractions = vcp.contractionCount; f.vcpShrinking = vcp.latestShrinking; }
-      }
-      const setupFields = _calcSetupScreenFields(
-        r.closes,
-        hasCompleteAdjusted ? r.adjCloses : r.closes,
-        r.highs || [], r.lows || [], r.volumes || []
-      );
-      if (setupFields) Object.assign(f, setupFields);
-      // Yahoo's KR suffix is part of the upstream instrument identifier. Persist
-      // the quote currency with the derived price/liquidity fields so consumers
-      // never have to infer that a numeric amount is USD.
-      f.currency = quoteCurrencyOf(r);
-      f.listingMarket = listingMarketOfSymbol(r.sym);
-      f.dollarVolumeCurrency = f.currency;
-      const nativeNotional = dailyNotionalAverage(r.closes, r.volumes, { window: 30 });
-      f.tradedValue30d = nativeNotional ? Math.round(nativeNotional.value) : null;
-      f.tradedValueCurrency = f.currency;
-      f.tradedValueBasis = 'mean-session-close-x-volume-30-sessions';
-      if (f.currency && f.currency !== 'USD') {
-        const fx = fxSeries.get(f.currency) || null;
-        const divisors = fx ? (r.dates || []).map((date) => fxRateOnOrBefore(fx, date)) : null;
-        const lastDivisor = divisors && divisors.length ? divisors[divisors.length - 1] : null;
-        if (divisors && lastDivisor > 0) {
-          const usd = dailyNotionalAverage(r.closes, r.volumes, { window: 30, divisors });
-          f.dollarVolume30d = usd ? Math.round(usd.value) : null;
-          f.dollarVolume = f.dollarVolume != null ? Math.round(f.dollarVolume / lastDivisor) : null;
-          f.dollarVolumeCurrency = 'USD';
-          f.dollarVolumeFx = { symbol: `${f.currency}=X`, quote: `${f.currency} per USD`, basis: 'daily-close-on-or-before-session-date', maxLagDays: 4 };
-        } else {
-          // No rate: the native figure stays in tradedValue30d; the USD fields are not published.
-          f.dollarVolume30d = null;
-          f.dollarVolume = null;
-        }
-      }
-      f.priceBasis = hasCompleteAdjusted ? 'adjusted-close' : 'raw-close-partial-no-adjusted-series';
-      f.adjustedCloseStatus = r.adjustedCloseStatus;
-      f.backtestEligible = hasCompleteAdjusted;
-      f.observedAt = r.observedAt;
-      f.source = hasCompleteAdjusted
-        ? 'Yahoo chart 1y adjusted-close history'
-        : 'Yahoo chart 1y raw-close history (adjusted-close unavailable)';
-      f.sourceKind = 'T3_PUBLIC_DELAYED';
-      f.allowedUse = 'research-relative-ranking-only';
-      f.allowedUseCeiling = 'reference';
-      f.rightsId = 'PUBLIC_REFERENCE';
-      f.factorObservedAt = r.observedAt;
-      // P1170 (15 D04): barStart와 그 세션 날짜를 분리해 남긴다. factorObservedAt은 호환 필드로
-      // 유지하되 'bar-start' basis를 함께 발행해 관측시각으로 읽히지 않게 한다.
-      f.factorBarStart = r.observedAt;
-      // F07: the session date is read in the listing's exchange zone (provider zone first, suffix map second).
-      const sessionZone = timeZoneForMarket(r.providerMeta?.exchangeTimezoneName || timeZoneForSymbol(r.sym));
-      f.factorSessionDate = sessionDateInMarket(r.observedAt, sessionZone);
-      f.factorSessionTimezone = sessionZone;
-      if (r.closeReconciliation) f.closeReconciliation = r.closeReconciliation;
-      else if (Array.isArray(r.nullCloseDates) && r.nullCloseDates.length) f.providerMissingSessions = r.nullCloseDates;
-      f.factorTimeBasis = 'bar-start';
-      f.factorComputedAt = computedAt;
-      f.factorSourceKind = 'T3_PUBLIC_DELAYED';
-      f.factorAllowedUse = 'research-relative-ranking-only';
-      f.factorQuality = deriveFactorQuality({ observedAt: r.observedAt, computedAt });
-      f.factorBarCompleteness = 'completed-sessions-only';
-      if (r.partialSessionDropped) f.partialSessionDropped = r.partialSessionDropped;
       data[r.sym] = f; ok++;
     }
   }
@@ -1735,6 +1596,32 @@ async function _enrichTickerNews(prioSyms, data) {
   return counts.collected + counts.retained;
 }
 
+// v57.81: one merge for the core artifact and the extended shard (the same rule, not a copy).
+export function mergeSecIntoFactorRows(data, secData = {}) {
+  for (const sym in secData) {
+    // A screener row represents a successfully derived factor observation. A
+    // filing-only row belongs in sec-fundamentals.json, not in this factor map.
+    // Injecting it here makes `ok`, row count and factor readiness disagree.
+    if (!data[sym]) continue;
+    const sec = secData[sym];
+    ['pe','pb','roe','margin','revGrowth'].forEach(key => {
+      if (typeof data[sym][key] !== 'number' && typeof sec[key] === 'number') data[sym][key] = sec[key];
+    });
+    if (!data[sym].fundamentalSource) {
+      ['fundamentalSource','fundamentalModel','fundamentalPeriod','fundamentalPeriodEnd','fundamentalObservedAt','fundamentalFiledAt','fundamentalFetchedAt','fundamentalAccession','fundamentalSourceKind','fundamentalAllowedUse','fundamentalQuality','fundamentalRightsId','fundamentalUseBlockedReason'].forEach(key => {
+        if (sec[key] != null) data[sym][key] = sec[key];
+      });
+      // 메모리 한정 가격으로 재계산한 pe/pb는 계산 근거(가격·기저·발행주식·관측일)를
+      // 행에 함께 남긴다. 발행 아티팩트에 원시가를 기록하지 않는다.
+      // 2026-10-13 F04/F10: the verified share basis and the close it multiplies travel with the row.
+      ['pePrice','pePriceBasis','pbPrice','pbPriceBasis','valuationPrice','valuationPriceBasis','valuationSharesOutstanding','valuationSharesObservedAt','valuationSharesCheck','valuationSharesBasis','valuationHeldReason'].forEach(key => {
+        if (sec[key] != null) data[sym][key] = sec[key];
+      });
+    }
+  }
+  return data;
+}
+
 export async function enrichScreener() {
   // 자가 스로틀: screener.json이 20시간 내면 스킵(일 1회). BACKFILL/SCREENER_ENRICH=1로 강제.
   if (process.env.SCREENER_ENRICH !== '1' && process.env.BACKFILL !== '1') {
@@ -1779,27 +1666,7 @@ export async function enrichScreener() {
   // 3단계: 무료 공식 SEC annual facts를 FMP 결측 필드에 병합.
   // SEC는 annual filing facts이고 FMP는 TTM이므로 서로 같은 모델처럼 섞지 않는다.
   const secResult = await enrichSecFundamentals(syms, data, results, universeInfo.assetType || {}); // F08: ETFs excluded
-  for (const sym in secResult.data) {
-    // A screener row represents a successfully derived factor observation. A
-    // filing-only row belongs in sec-fundamentals.json, not in this factor map.
-    // Injecting it here makes `ok`, row count and factor readiness disagree.
-    if (!data[sym]) continue;
-    const sec = secResult.data[sym];
-    ['pe','pb','roe','margin','revGrowth'].forEach(key => {
-      if (typeof data[sym][key] !== 'number' && typeof sec[key] === 'number') data[sym][key] = sec[key];
-    });
-    if (!data[sym].fundamentalSource) {
-      ['fundamentalSource','fundamentalModel','fundamentalPeriod','fundamentalPeriodEnd','fundamentalObservedAt','fundamentalFiledAt','fundamentalFetchedAt','fundamentalAccession','fundamentalSourceKind','fundamentalAllowedUse','fundamentalQuality','fundamentalRightsId','fundamentalUseBlockedReason'].forEach(key => {
-        if (sec[key] != null) data[sym][key] = sec[key];
-      });
-      // 메모리 한정 가격으로 재계산한 pe/pb는 계산 근거(가격·기저·발행주식·관측일)를
-      // 행에 함께 남긴다. 발행 아티팩트에 원시가를 기록하지 않는다.
-      // 2026-10-13 F04/F10: the verified share basis and the close it multiplies travel with the row.
-      ['pePrice','pePriceBasis','pbPrice','pbPriceBasis','valuationPrice','valuationPriceBasis','valuationSharesOutstanding','valuationSharesObservedAt','valuationSharesCheck','valuationSharesBasis','valuationHeldReason'].forEach(key => {
-        if (sec[key] != null) data[sym][key] = sec[key];
-      });
-    }
-  }
+  mergeSecIntoFactorRows(data, secResult.data);
 
   // 4단계: 개별 종목 뉴스 메모 (지수/선물/FX/크립토/KR 제외)
   const prioSyms = syms.filter(s => !/^\^|=F$|=X$|-USD$|\.KS$|\.KQ$/i.test(s));
@@ -1935,45 +1802,137 @@ export async function enrichScreener() {
   return { count: ok, universe: syms.length, asOf: payload.asOf, backtestIC: backtest && backtest.ic && backtest.ic.composite, tickerNews: tickerNewsOk, fmpOk: fmpResult.ok > 0, fmpCount: fmpResult.ok, fmpHasKey: fmpResult.hasKey, fmpPlanError: fmpResult.planError, secFundamentalsOk: secResult.ok > 0, secFundamentalsCount: secResult.ok, fundamentalCount, fundamentalCoveragePct };
 }
 
-// P1399: a daily bar is a completed close only after its session ends. A run during the US
-// session (or before the KR close) sees a partial bar for today; breadth built from it was
-// stamped 'latest-completed-close' while the index inputs used the previous close.
-// 2026-10-13 F07: Tokyo (close 15:30) and Taiwan (close 13:30) listings are judged on their own clock with
-// the same 15-minute settlement margin; any other segment keeps the US rule.
-const SESSION_CLOSE_RULES = Object.freeze({
-  us: { zone: 'America/New_York', closeMinutes: 16 * 60 + 15 },
-  kr: { zone: 'Asia/Seoul', closeMinutes: 15 * 60 + 45 },
-  jp: { zone: 'Asia/Tokyo', closeMinutes: 15 * 60 + 45 },
-  tw: { zone: 'Asia/Taipei', closeMinutes: 13 * 60 + 45 },
-});
+// ── v57.81: extended universe shard (Russell 2000 + Nasdaq-listed common stocks outside the core) ──
+// Owner (2026-10-15): every Russell 2000 member and every Nasdaq-listed stock must be ranked with the same factors.
+// The core artifact (screener.json) keeps its size and contract; the extra rows go to screener-extended.json with the
+// same row schema, produced by the same _enrichPriceFactors / enrichSecFundamentals / mergeSecIntoFactorRows path.
+// It runs as its own job after the core refresh (refresh-screener.yml), so a failure here never touches the core.
+const SCREENER_EXTENDED_OUT = `${__dir}/../public-data/screener-extended.json`;
+const SCREENER_EXTENDED_UNIVERSE = `${__dir}/../public-data/screener-extended-universe.json`;
+const SEC_EXTENDED_LEDGER_PATH = `${__dir}/../public-data/sec-fundamentals-extended.json`;
+// Below this share of fetched histories the run is treated as a provider failure: the previous shard stays.
+export const EXTENDED_SHARD_COVERAGE_FLOOR = 0.6;
+// A full refresh runs once per new US session (the core's US factor session advanced past the shard's), with an age
+// backstop so a missed trigger heals within a day. Rows all describe one session, so no rotation is needed.
+export const EXTENDED_REFRESH_MAX_AGE_MS = 26 * 3600 * 1000;
 
-export function sessionSegmentOfSymbol(sym) {
-  const text = String(sym || '').toUpperCase();
-  if (/\.(KS|KQ)$/.test(text)) return 'kr';
-  if (/\.T$/.test(text) && listingMarketOfSymbol(text) === 'INTL') return 'jp';
-  if (/\.TWO?$/.test(text)) return 'tw';
-  return 'us';
+export function extendedRefreshDue({ previousShard = null, coreScreener = null, nowMs = Date.now(), force = false } = {}) {
+  if (force) return { due: true, reason: 'forced' };
+  if (!previousShard?.asOf || !isValidShard(previousShard)) return { due: true, reason: 'no-previous-shard' };
+  const previousSession = previousShard.factorSessionDateByMarket?.US || null;
+  const coreSession = coreScreener?.factorSessionDateByMarket?.US || null;
+  if (coreSession && (!previousSession || previousSession < coreSession)) return { due: true, reason: `core-session-advanced:${previousSession || 'none'}->${coreSession}` };
+  const ageMs = nowMs - Date.parse(previousShard.asOf);
+  if (!(ageMs < EXTENDED_REFRESH_MAX_AGE_MS)) return { due: true, reason: 'age-backstop' };
+  return { due: false, reason: `shard-current:${previousSession || 'unknown'}` };
 }
 
-// Quote currency of a listing: the provider's declared currency first; the suffix rule only for US/KR.
-// An overseas listing without a declared currency stays unknown rather than defaulting to USD.
-export function listingCurrencyOf(sym, providerMeta = null) {
-  const declared = String(providerMeta?.currency || '').trim().toUpperCase();
-  if (/^[A-Z]{3}$/.test(declared)) return declared;
-  const market = listingMarketOfSymbol(sym);
-  return market === 'KR' ? 'KRW' : market === 'US' ? 'USD' : null;
+export function buildExtendedShardPayload({ data, syms, identityRows, membership, secResult, computedAt, ok, nowIso = new Date().toISOString() }) {
+  const factorScopes = factorScopesByMarket(data);
+  const fundamentalCount = syms.filter((sym) => ['pe', 'pb', 'roe', 'margin', 'revGrowth'].some((key) => typeof data[sym]?.[key] === 'number' && Number.isFinite(data[sym][key]))).length;
+  const sources = membership?.meta?.sources || {};
+  const encoded = encodeShardRows(data);
+  return {
+    schemaVersion: EXTENDED_SHARD_SCHEMA,
+    asOf: nowIso,
+    factorObservedAt: factorScopes.US?.barStart || null,
+    factorTimeBasis: 'bar-start',
+    factorSessionDateByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.sessionDate])),
+    factorBarStartByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.barStart])),
+    factorComputedAt: computedAt,
+    source: 'github-actions:yahoo-1y',
+    universe: syms.length,
+    ok,
+    unfetchedSymbols: syms.filter((sym) => !data[sym]).sort(),
+    coverage: { pricePct: syms.length ? round(ok / syms.length * 100, 1) : 0, floorPct: EXTENDED_SHARD_COVERAGE_FLOOR * 100, fundamentalCount, fundamentalCoveragePct: syms.length ? round(fundamentalCount / syms.length * 100, 1) : 0 },
+    membership: {
+      artifact: 'public-data/screener-extended-universe.json',
+      generatedAt: membership?.generatedAt || null,
+      asOf: { r2000: sources.r2000?.asOf || null, nasdaq: sources.nasdaq?.asOf || null },
+      status: { r2000: sources.r2000?.status || 'UNKNOWN', nasdaq: sources.nasdaq?.status || 'UNKNOWN' },
+      counts: membership?.meta?.counts || null
+    },
+    fmpHasKey: false,
+    secFundamentalsOk: secResult.ok > 0,
+    secFundamentalsCount: secResult.ok,
+    secFundamentalsStored: secResult.stored,
+    secFundamentalsEligible: secResult.eligible,
+    secFundamentalsModel: secResult.model,
+    secFundamentalsGeneratedAt: secResult.generatedAt,
+    fundamentalCount,
+    fundamentalCoveragePct: syms.length ? round(fundamentalCount / syms.length * 100, 1) : 0,
+    fundamentalCoverageDenominator: syms.length,
+    fundamentalModels: ['sec-fy-normalized-v2'],
+    fundamentalCoverageScope: 'extended universe (Russell 2000 + Nasdaq common stocks outside the core); SEC annual facts from the compact extended ledger, filled over daily batches',
+    rankingContract: {
+      contract: RANKING_CONTRACTS.extended.id,
+      label: RANKING_CONTRACTS.extended.label,
+      population: RANKING_CONTRACTS.extended.population,
+      allowedUse: 'research-relative-ranking-only',
+      tradingSignal: false,
+      predictiveValidation: 'not-established',
+      liveModelParity: false,
+      validationReadiness: { status: 'BLOCKED', blockers: ['extended-universe-not-backtested'] },
+      percentilePolicy: 'The browser recomputes factor percentiles over core + extended rows of the same market. The core view ranks the core universe only, so a core stock can hold a different percentile in each view.',
+      coreOnly: ['backtest', 'candidate-archive', 'conditional-evidence', 'model-validation'],
+      weightPolicy: 'fixed-neutral-until-explicit-promotion',
+      reason: 'same factor model as the core artifact; the extended population has no backtest or forward candidate record'
+    },
+    universeLineage: {
+      generatedFrom: 'public-data/screener-extended-universe.json',
+      membershipPolicy: 'current-membership-applied-retrospectively',
+      lookaheadBias: 'historical-membership-not-available',
+      survivorshipBias: 'uncontrolled-current-membership-only',
+      allowedUse: 'research-reference-not-predictive-validation'
+    },
+    coreMembership: membership?.coreMembership && typeof membership.coreMembership === 'object' ? membership.coreMembership : {},
+    identity: identityRows.map((row) => ({
+      sym: row.sym, name: row.name || row.sym, sector: row.sector || null, index: row.index || null,
+      membership: Array.isArray(row.membership) ? row.membership : [], exchange: row.exchange || null,
+      ...(row.nasdaqFinancialStatus ? { nasdaqFinancialStatus: row.nasdaqFinancialStatus } : {})
+    })),
+    ...encoded
+  };
 }
 
-export function isSessionComplete(date, segment, nowMs = Date.now()) {
-  const rule = SESSION_CLOSE_RULES[segment] || SESSION_CLOSE_RULES.us;
-  const zone = rule.zone;
-  const closeMinutes = rule.closeMinutes;
-  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
-    .formatToParts(new Date(nowMs)).map((part) => [part.type, part.value]));
-  const today = `${parts.year}-${parts.month}-${parts.day}`;
-  if (date !== today) return date < today;
-  return Number(parts.hour) * 60 + Number(parts.minute) >= closeMinutes;
+export async function enrichScreenerExtended({ nowMs = Date.now() } = {}) {
+  let membership = null;
+  try { membership = JSON.parse(await readFile(SCREENER_EXTENDED_UNIVERSE, 'utf8')); } catch { /* not produced yet */ }
+  if (!Array.isArray(membership?.universe) || !membership.universe.length) return { skipped: true, reason: 'no-extended-universe' };
+  let previous = null;
+  try { previous = JSON.parse(await readFile(SCREENER_EXTENDED_OUT, 'utf8')); } catch { /* first run */ }
+  let core = null;
+  try { core = JSON.parse(await readFile(SCREENER_OUT, 'utf8')); } catch { /* core missing: the age rule decides */ }
+  const due = extendedRefreshDue({ previousShard: previous, coreScreener: core, nowMs, force: process.env.SCREENER_EXTENDED_FORCE === '1' });
+  if (!due.due) { console.log(`[fetch-data] extended shard not due (${due.reason})`); return { skipped: true, reason: due.reason }; }
+  // The core universe may have grown since the membership file was written; a core symbol is never duplicated here.
+  const coreSymbols = new Set((await getScreenerUniverse()).symbols);
+  const identityRows = membership.universe.filter((row) => row && row.sym && !coreSymbols.has(row.sym));
+  const syms = identityRows.map((row) => row.sym);
+  const assetType = Object.fromEntries(identityRows.map((row) => [row.sym, screenerAssetType(row)]));
+  const concurrency = Math.max(1, Math.min(8, Number(process.env.SCREENER_EXTENDED_CONCURRENCY) || 5));
+  const startedAt = Date.now();
+  const { data, results, ok, computedAt } = await _enrichPriceFactors(syms, { concurrency });
+  console.log(`[fetch-data] extended price factors ${ok}/${syms.length} in ${Math.round((Date.now() - startedAt) / 1000)}s (concurrency ${concurrency}, due: ${due.reason})`);
+  const secResult = await enrichSecFundamentals(syms, data, results, assetType, { ledgerPath: SEC_EXTENDED_LEDGER_PATH });
+  mergeSecIntoFactorRows(data, secResult.data);
+  // P715: no raw price is published. Ticker news is collected for the core only; the status says so per row.
+  for (const sym in data) {
+    if (data[sym] && 'price' in data[sym]) delete data[sym].price;
+    data[sym].newsStatus = 'not-covered';
+  }
+  if (syms.length && ok / syms.length < EXTENDED_SHARD_COVERAGE_FLOOR) {
+    console.log(`::warning::extended shard: ${ok}/${syms.length} histories (< ${EXTENDED_SHARD_COVERAGE_FLOOR * 100}%) — ${previous ? 'previous shard kept' : 'nothing written'}`);
+    return { retained: !!previous, count: ok, universe: syms.length };
+  }
+  const payload = buildExtendedShardPayload({ data, syms, identityRows, membership, secResult, computedAt, ok });
+  await atomicWriteFile(SCREENER_EXTENDED_OUT, JSON.stringify(payload));
+  console.log(`[fetch-data] extended shard ${ok}/${syms.length} rows · fundamentals ${payload.fundamentalCount} (${payload.fundamentalCoveragePct}%) · US session ${payload.factorSessionDateByMarket.US || '-'}`);
+  return { count: ok, universe: syms.length, asOf: payload.asOf };
 }
+
+// v57.81: SESSION_CLOSE_RULES, sessionSegmentOfSymbol, listingCurrencyOf and isSessionComplete live in
+// src/domain/screener/price-factors.js (shared with the browser's out-of-universe read).
 
 // Reconstruct daily breadth from the same dated adjusted-close rows used by
 // the screener. Date alignment is explicit; array position is never used to
@@ -2381,12 +2340,13 @@ async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), distributi
   return { updated: true, rows: rows.length, totalHistoryRows: history.length, distributionRows };
 }
 
-function buildMarketAnalysisFallback(data, reason, metricEvidence = buildMarketAnalysisEvidence(data), newsEvidence = buildMarketAnalysisNewsEvidence(data)) {
-  const observed = metricEvidence.slice(0, 4).map(row => `${row.label}=${row.value} ${row.unit} (${row.observedAt})`).join(' · ');
-  const summary = observed
-    ? `시장 분석 대기: 검증된 관측치만 표시합니다 — ${observed}. 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.`
-    : '시장 분석 대기: 유효한 관측 증거가 부족해 방향성·인과 해석을 보류합니다.';
-  return buildStructuredMarketAnalysis({ data, text: summary, model: 'none', status: 'blocked', reason, metricEvidence, newsEvidence, semantic: { ok: false, issues: [reason], causalEvidenceCount: 0 } });
+// v57.81: plain Korean values with their session ("10/14 종가"), never "SPX=… (ISO)"; the last verified reading rides along
+// as `lastVerified` so the next run can still keep it (retainVerifiedMarketAnalysis).
+function buildMarketAnalysisFallback(data, reason, metricEvidence = buildMarketAnalysisEvidence(data), newsEvidence = buildMarketAnalysisNewsEvidence(data), { previous = null, nowMs = Date.now() } = {}) {
+  const summary = plainMarketFallbackSummary(metricEvidence);
+  const fallback = buildStructuredMarketAnalysis({ data, text: summary, model: 'none', status: 'blocked', reason, metricEvidence, newsEvidence, semantic: { ok: false, issues: [reason], causalEvidenceCount: 0 } });
+  const lastVerified = lastVerifiedMarketAnalysis(previous, nowMs);
+  return lastVerified ? { ...fallback, lastVerified } : fallback;
 }
 
 // P1635: the published narrative read only levels, so it filled its lines with statements such as
@@ -2434,7 +2394,18 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     const scenarios = buildMarketScenarios(input, { regime });
     const axes = (regime.axes || []).map((axis) => `${axis.label || axis.id}: ${axis.state}${axis.read ? ` — ${axis.read}` : ''}`).join('\n');
     const outlook = buildScenarioOutlook({ scenarios, regime });
-    return [`종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, axes,
+    // v57.81 (owner 2026-10-15): the trend state with the Nasdaq-100 / Russell 2000 evidence rows and the leadership-break
+    // flag travel as their own lines, so the narrative cannot call the trend 양호 or say semis lead while the flag is on.
+    const trend = (regime.axes || []).find((axis) => axis.id === 'trend');
+    const trendLine = trend ? `추세 판정: ${trend.stateLabel || trend.state}${trend.testing ? ' (50일선 시험 구간)' : ''}${trend.capped ? ' (나스닥 100·러셀 2000 동반 약세로 중립 상한)' : ''} · 근거: ${(trend.evidence || []).map(([label, value]) => `${label} ${value}`).join('; ')}` : '';
+    const leadership = regime.leadership;
+    const leadershipLine = leadership?.break ? `주도 영역 이탈(leadershipBreak): 예 — ${leadership.summary}. 반도체·AI가 지금도 주도한다고 쓰지 말고, 최근 하락을 함께 적을 것.`
+      : leadership?.state === 'holding' ? '주도 영역 이탈(leadershipBreak): 아니오.' : '주도 영역 이탈(leadershipBreak): 확인 불가.';
+    const conflicts = (regime.conflicts || []).length ? `엇갈리는 신호: ${regime.conflicts.join(' ')}` : '';
+    // v57.81: the validator rejects a Korea-vs-US sentence without both session dates when they differ; the packet says so.
+    const krDate = buildCloseSeries(input.history, 'kospi').at(-1)?.date || null;
+    const sessions = krDate && regime.asOf && krDate !== regime.asOf ? `세션 기준일: 미국 ${regime.asOf.slice(5).replace('-', '/').replace(/^0/, '')} · 한국 ${krDate.slice(5).replace('-', '/').replace(/^0/, '')} — 두 시장을 한 문장에서 함께 말하면 두 날짜(M/D)를 모두 적을 것.` : '';
+    return [`종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, trendLine, leadershipLine, conflicts, axes,
       renderMarketScenarioContext(input, { regime }), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(data, input, regime)].filter(Boolean).join('\n');
   } catch (error) {
     return '';
@@ -2463,14 +2434,20 @@ export function scenarioStateThemeLines(state) {
   const themes = Array.isArray(state?.themes) ? state.themes : [];
   if (!themes.length) return '';
   const byKey = new Map(themes.map((row) => [`${row.market}:${row.id}`, row]));
-  const named = (keys = []) => keys.map((key) => byKey.get(key)).filter(Boolean).map((row) => `${row.label}(1개월 ${row.ret1m >= 0 ? '+' : ''}${Number(row.ret1m).toFixed(1)}%)`).slice(0, 6).join(', ');
+  // v57.81 (themes audit): each named theme carries its stage window and its last five sessions beside the month, so the
+  // narrative cannot call a theme leading from the month while the week broke (validator: themeLeadClaimIssues).
+  const signedPct = (value) => `${value >= 0 ? '+' : ''}${Number(value).toFixed(1)}%`;
+  const named = (keys = []) => keys.map((key) => byKey.get(key)).filter(Boolean).map((row) => `${row.label}(${row.market === 'KR' ? '3개월' : '6개월'}·1개월 기준 · 1개월 ${signedPct(row.ret1m)}${Number.isFinite(row.ret5d) ? ` · 5거래일 ${signedPct(row.ret5d)}` : ''})`).slice(0, 6).join(', ');
   const h = state.highlights || {};
   // v57.75 (crash audit): theme returns lag the macro read by a session when the theme producer has not run yet; the
   // header says so, so the model does not present them as today's moves.
   const themeAsOf = state.basis?.themeAsOf || null, macroAsOf = state.basis?.macroAsOf || null;
   const lag = themeAsOf && macroAsOf && themeAsOf < macroAsOf ? ` — 거시 기준일 ${macroAsOf}보다 오래된 값, 최근 세션 움직임 반영 전이므로 오늘의 움직임으로 쓰지 마라` : '';
-  return [`【테마 시나리오 — 모든 테마를 같은 규칙으로(${themeAsOf || '기준일 미확인'} 확정 종가, 직전 갱신${lag})】`, state.rotation?.text ? `가격 기준 강약 이동: ${state.rotation.text}` : '',
-    h.structuralPullbacks?.length ? `긴 추세 속 조정 + 거시 부담 아님: ${named(h.structuralPullbacks)}` : '',
+  // v57.81: KR themes close a session after the US ones; the header prints each market's date and the stage rule.
+  const byMarket = state.basis?.themeAsOfByMarket || null;
+  const dates = byMarket && (byMarket.US || byMarket.KR) ? [byMarket.US ? `미국 ${byMarket.US}` : '', byMarket.KR ? `한국 ${byMarket.KR}` : ''].filter(Boolean).join(' · ') : (themeAsOf || '기준일 미확인');
+  return [`【테마 시나리오 — 모든 테마를 같은 규칙으로(${dates} 확정 종가, 직전 갱신${lag}) · 단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수와 비교하고 최근 5거래일로 점검】`, state.rotation?.text ? `가격 기준 강약 이동: ${state.rotation.text}` : '',
+    h.structuralPullbacks?.length ? `긴 추세 속 조정 + 중심 시나리오에서 역풍 아님: ${named(h.structuralPullbacks)}` : '',
     h.headwindLeaders?.length ? `거시 부담에도 주도: ${named(h.headwindLeaders)}` : '',
     h.tailwindLaggards?.length ? `거시 수혜인데 약세: ${named(h.tailwindLaggards)}` : ''].filter(Boolean).join('\n');
 }
@@ -2540,14 +2517,15 @@ export async function translateHeadlines(items, { previous = [], request = null,
 export async function genMarketAnalysis(data, snapshot = null, { previous = null, request = null, nowMs = Date.now() } = {}) {
   const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   const newsEvidence = buildMarketAnalysisNewsEvidence(data);
-  if (metricEvidence.length < 2) return buildMarketAnalysisFallback(data, 'metric-evidence-insufficient', metricEvidence, newsEvidence);
+  const keep = { previous, nowMs }; // v57.81: every fallback carries the last verified reading forward
+  if (metricEvidence.length < 2) return buildMarketAnalysisFallback(data, 'metric-evidence-insufficient', metricEvidence, newsEvidence, keep);
   const reused = reusableMarketAnalysis(previous, { metricEvidence, newsEvidence, headlineContext: buildMarketAnalysisHeadlineContext(data), nowMs });
   if (reused) {
     console.log(`[fetch-data] marketAnalysis evidence and headlines unchanged — reusing verified analysis from ${reused.generatedAt} (no AI call)`);
     return reused;
   }
   // `request` is a fixture seam (ci contract); production always uses the shared Worker.
-  if (!request && !resolveSharedAiConfig()) return buildMarketAnalysisFallback(data, 'shared-ai-not-configured', metricEvidence, newsEvidence);
+  if (!request && !resolveSharedAiConfig()) return buildMarketAnalysisFallback(data, 'shared-ai-not-configured', metricEvidence, newsEvidence, keep);
   const ask = request || requestSharedAnalysis;
   try {
     const changeOf = new Map((snapshot?.quotes || []).filter(row => row?.evidenceId && Number.isFinite(Number(row.changePct))).map(row => [row.evidenceId, Number(row.changePct)]));
@@ -2569,7 +2547,15 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     const koreaIntradayLines = metricEvidence
       .filter((row) => row.metricId === 'market.kospi' && row.session && !MARKET_ANALYSIS_CLOSED_SESSIONS.includes(row.session) && Math.abs(changeOf.get(row.evidenceId)) >= KOREA_MOVE_MENTION_PCT)
       .map((row) => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit}${changeText(row)} 장중 ${kstTime(row.observedAt)} KST 기준(지연 값) session=${row.session}`).join('\n');
-    const regimeContext = buildMarketAnalysisRegimeContext(data, await readHistoryRows());
+    // v57.81: the same completed closes feed REGIME_CONTEXT and the validator's completed-close basis for in-session rows.
+    const historyRows = await readHistoryRows();
+    const regimeContext = buildMarketAnalysisRegimeContext(data, historyRows);
+    const validate = (body) => validateMarketAnalysisText(body, data, snapshot, { context: regimeContext, history: historyRows });
+    // v57.75: a large equity move (KOSPI 3% / S&P 500 1%) lets the day's sentence be replaced once (dailyMarketSentence).
+    // v57.81: computed before the prompt so the first attempt is told a cause must be attributed (the validator blocks
+    // an unattributed reading on such a day; before, only the retry was told and both 10/15 05:55Z/07:52Z attempts failed).
+    const largeMove = metricEvidence.some((row) => (row.metricId === 'market.kospi' && Math.abs(changeOf.get(row.evidenceId)) >= KOREA_MOVE_MENTION_PCT)
+      || (row.metricId === 'market.spx' && Math.abs(changeOf.get(row.evidenceId)) >= LARGE_MOVE_ATTRIBUTION_PCT));
     const newsLines = newsEvidence.map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     const headlineLines = buildMarketAnalysisHeadlineContext(data).map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     // P1719/P1720: post-08:00 headlines are the only news on a Korean session's events before the next bundle; they are
@@ -2606,15 +2592,35 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       'HEADLINE_CONTEXT (retained headlines — titles only; these are the only news material available):\n' + (headlineLines || 'none')
         + (intradayLines ? '\n08:00 이후 장중 속보(잠정 — 다음 08:00 묶음 전의 미확정 헤드라인, 인용 시 "잠정"으로 표시):\n' + intradayLines : ''),
       'DIRECTIONAL/CAUSAL PROSE: you may offer a directional or causal reading, but attribute it to the named headline ("헤드라인에 따르면", "According to <source>") and present it as one reading among alternatives, never as a confirmed fact. End with what would invalidate the reading and what the reader should check. The final decision belongs to the reader, not to this text.',
+      ...(largeMove ? ['LARGE_MOVE (S&P 500 1% 이상 또는 코스피 3% 이상): 보도된 배경을 반드시 한 문장으로 쓴다 — "헤드라인에 따르면 …이 배경으로 거론됐다"처럼 HEADLINE_CONTEXT(장중 움직임이면 08:00 이후 장중 속보) 헤드라인 하나를 이름과 함께 든다. 그 문장 안에서 "단정할 수 없다·확인되지 않았다"로 귀속을 지우지 말고, 다른 해석이 있다는 점은 다음 문장에 쓴다.'] : []),
       // v57.71 (owner 2026-10-15): the home's one-sentence line, written by the same call (no extra request).
       `마지막에 7~9줄과 별도로 한 줄을 더 쓴다: "${MARKET_SENTENCE_LABEL} " 뒤에 지금 시장을 관통하는 긴장을 질문이나 대비로 담은 한 문장(40자 안팎). 숫자·%·종목명·티커·매매 지시 없이, 오늘의 근거(METRIC_EVIDENCE·HEADLINE_CONTEXT·REGIME_CONTEXT)에서 나온 갈림을 담는다. 문체 예시(그대로 쓰지 말 것): "오늘의 하락은 기회인가, 서사의 끝을 알리는 신호인가?" / "누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다."`,
     ].join('\n\n');
+    // v57.75: the retained text is re-checked against this run's data — on 10/15 a reading verified before the crash
+    // ("원화 강세", easing inflation) would otherwise be re-served for 12 h after the evidence turned.
+    // v57.81: the full result goes back so a value quoted for an observation that has since moved a little is not fatal
+    // (retainedReadingIssues), and a provider failure keeps the verified reading too instead of the plain fallback.
+    const retainOrFallback = (reason) => {
+      const retained = retainVerifiedMarketAnalysis(previous, { reason, nowMs, revalidate: (summary) => validateMarketAnalysisText(summary, data, snapshot, { context: regimeContext, history: historyRows }) });
+      if (retained) {
+        console.warn(`[fetch-data] marketAnalysis retained previous verified analysis from ${retained.retained.from}`);
+        return retained;
+      }
+      return buildMarketAnalysisFallback(data, reason, metricEvidence, newsEvidence, keep);
+    };
     const result = await ask(prompt);
-    if (!result.text) return buildMarketAnalysisFallback(data, result.reason, metricEvidence, newsEvidence);
+    if (!result.text) return retainOrFallback(result.reason || 'provider-empty');
     let { body: text, sentence: sentenceCandidate } = splitMarketSentence(result.text);
-    let semantic = validateMarketAnalysisText(text, data, snapshot, { context: regimeContext });
+    let semantic = validate(text);
     // P1719: the rejected text goes to the Actions log only (400 chars), never into a public artifact.
-    const logRejected = (attempt, body, issues) => console.warn(`[fetch-data] marketAnalysis ${attempt} blocked: ${issues.join(',').slice(0, 300)} :: ${String(body || '').replace(/\s+/g, ' ').slice(0, 400)}`);
+    // v57.81: an attribution block also logs the sentences that named news (300 chars), so the next block is diagnosable —
+    // the 10/15 log cut off before the sentence the validator judged.
+    const logRejected = (attempt, body, issues) => {
+      const newsSentences = issues.includes('causal-attribution-missing')
+        ? String(body || '').replace(/\[[^\]]*\]/g, '').split(/(?<=[.?!。])\s+|\n+/).filter((sentence) => /헤드라인|보도|기사|언론|속보|뉴스|according to|headline|reported/i.test(sentence)).join(' / ').replace(/\s+/g, ' ').slice(0, 300)
+        : '';
+      console.warn(`[fetch-data] marketAnalysis ${attempt} blocked: ${issues.join(',').slice(0, 300)} :: ${String(body || '').replace(/\s+/g, ' ').slice(0, 400)}${issues.includes('causal-attribution-missing') ? ` :: news-sentences=${newsSentences || 'none'}` : ''}`);
+    };
     if (!semantic.ok) {
       // P1719: one retry with the validator's reasons; a second block is final for this run.
       logRejected('attempt-1', text, semantic.issues);
@@ -2623,27 +2629,14 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       const retry = await ask(retryPrompt).catch(() => ({ text: null }));
       if (retry.text) {
         ({ body: text, sentence: sentenceCandidate } = splitMarketSentence(retry.text));
-        semantic = validateMarketAnalysisText(text, data, snapshot, { context: regimeContext });
+        semantic = validate(text);
         if (!semantic.ok) logRejected('attempt-2', text, semantic.issues);
       }
     }
-    if (!text || !semantic.ok) {
-      const reason = semantic.issues.join(',');
-      // v57.75: the retained text is re-checked against this run's data — on 10/15 a reading verified before the crash
-      // ("원화 강세", easing inflation) would otherwise be re-served for 12 h after the evidence turned.
-      const retained = retainVerifiedMarketAnalysis(previous, { reason, nowMs, revalidate: (summary) => validateMarketAnalysisText(summary, data, snapshot, { context: regimeContext }).ok });
-      if (retained) {
-        console.warn(`[fetch-data] marketAnalysis retained previous verified analysis from ${retained.retained.from}`);
-        return retained;
-      }
-      return buildMarketAnalysisFallback(data, reason, metricEvidence, newsEvidence);
-    }
-    // v57.75: a large equity move (KOSPI 3% / S&P 500 1%) lets the day's sentence be replaced once (dailyMarketSentence).
-    const largeMove = metricEvidence.some((row) => (row.metricId === 'market.kospi' && Math.abs(changeOf.get(row.evidenceId)) >= KOREA_MOVE_MENTION_PCT)
-      || (row.metricId === 'market.spx' && Math.abs(changeOf.get(row.evidenceId)) >= 1));
+    if (!text || !semantic.ok) return retainOrFallback(semantic.issues.join(','));
     return { ...buildStructuredMarketAnalysis({ data, text: semantic.text || text, model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic }), sentenceCandidate, largeMove };
   } catch (error) {
-    return buildMarketAnalysisFallback(data, error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error', metricEvidence, newsEvidence);
+    return buildMarketAnalysisFallback(data, error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error', metricEvidence, newsEvidence, keep);
   }
 }
 
@@ -3300,6 +3293,6 @@ export function boundPreviousCloseToCut({ bySym, bySymQuote, cycleEnd } = {}) {
 // fetch 파이프라인 전체(실 네트워크 호출+public-data/*.json 덮어쓰기)가 부작용으로 실행돼버린다.
 const __entryArg = process.argv[1] ? process.argv[1].replace(/\\/g, '/') : '';
 if (__entryArg && (import.meta.url === `file://${__entryArg}` || import.meta.url === `file:///${__entryArg}`)) {
-  const task = process.env.SCREENER_ONLY === '1' ? enrichScreener() : main();
+  const task = process.env.SCREENER_EXTENDED === '1' ? enrichScreenerExtended() : process.env.SCREENER_ONLY === '1' ? enrichScreener() : main();
   task.catch(e => { console.error('[fetch-data] 치명적 오류:', e); process.exit(1); });
 }

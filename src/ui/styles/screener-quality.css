@@ -4,6 +4,10 @@
 .scr-market-scope select { min-height:40px; max-width:100%; padding:6px 10px; background:var(--bg-elevated); color:var(--text-primary); border:1px solid var(--border); border-radius:6px; }
 .scr-market-scope p { flex-basis:100%; margin:0; color:var(--text-secondary); line-height:1.6; font-size:12px; overflow-wrap:anywhere; }
 .scr-market-scope select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+/* v57.81: 종목 범위 control (hidden for the Korean market) and the core-only line in the validation tabs. */
+.scr-market-scope label[hidden], .scr-market-scope p[hidden], .scr-core-only-note[hidden] { display:none; }
+#scr-universe-scope { max-width:min(100%, 320px); }
+.scr-core-only-note { margin:0 0 10px; color:var(--text-secondary); font-size:12px; line-height:1.6; overflow-wrap:anywhere; }
 .scr-ranking-method { flex-basis:100%; max-width:100%; color:var(--text-secondary); font-size:12px; }
 .scr-ranking-method summary { cursor:pointer; padding:6px 0; }
 .scr-ranking-method p { padding:8px 0; }
@@ -21,7 +25,7 @@
   #screener-results-table .scr-registry-header > th:not(:has(.scr-sort-btn)) { align-self: center; padding: 0 8px !important; font-size: 11px; color: var(--text-muted); white-space: nowrap; }
   #screener-results-table > tbody > tr { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px 14px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
   #screener-results-table > tbody > tr > td { display: block; flex: 0 0 auto; min-width: 0 !important; padding: 0 !important; text-align: left !important; position: static; box-shadow: none; background: transparent; border: 0; order: 3; font-size: 12px; }
-  #screener-results-table > tbody > tr > td::before { content: attr(data-label); display: block; font-size: 10px; font-family: var(--font-sans, inherit); color: var(--text-muted); line-height: 1.4; }
+  #screener-results-table > tbody > tr > td::before { content: attr(data-label); display: block; font-size: 11px; /* v57.81: 11px floor */ font-family: var(--font-sans, inherit); color: var(--text-muted); line-height: 1.4; }
   #screener-results-table > tbody > tr > td[data-column-key="sym"] { order: 0; flex: 1 0 calc(100% - 128px); }
   #screener-results-table > tbody > tr > td[data-column-key="price"] { order: 1; flex: 0 0 114px; text-align: right !important; }
   #screener-results-table > tbody > tr > td:is([data-column-key="sym"], [data-column-key="price"], [data-column-key="watchlist"])::before,
@@ -34,3 +38,23 @@
   .scr-reading-row { flex-direction: column; gap: 2px !important; }
   .scr-reading-row > span:first-child { width: auto !important; }
 }
+/* v57.81 (phone/iPad parity audit): at 700px and below the Why drawer opens inline under the tapped row, as one full-width
+   table row; between 600 and 700px the table still scrolls sideways, so the drawer stays pinned to the visible area. */
+#screener-results-table > tbody > tr.scr-why-inline-row > td.scr-why-inline-cell { padding: 0 0 10px; white-space: normal; font-family: var(--font-sans, inherit); text-align: left; background: transparent; }
+.scr-why-inline-cell > .scr-why-drawer { position: sticky; left: 0; box-sizing: border-box; margin-top: 4px; }
+@media (max-width: 599px) {
+  #screener-results-table > tbody > tr.scr-why-inline-row { display: block; padding: 0 0 10px; }
+  #screener-results-table > tbody > tr.scr-why-inline-row > td.scr-why-inline-cell { display: block; padding: 0 !important; }
+}
+.scr-why-drawer { scroll-margin-top: 12px; }
+.scr-why-drawer:focus { outline: none; }
+.scr-why-drawer:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#screener-results-body > tr[data-aio-screener-ticker] { scroll-margin-top: 12px; }
+.scr-compare-tray:focus { outline: none; }
+/* v57.81: the compare "+" says what changed where the reader is looking and links to the tray further down. */
+.scr-compare-feedback { position: fixed; left: 50%; bottom: max(16px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 195; /* above the first-visit disclaimer bar (190) while shown, below the AI panel (200) */ display: flex; align-items: center; gap: 12px; max-width: calc(100vw - 32px); box-sizing: border-box; padding: 8px 8px 8px 14px; border: 1px solid var(--accent-border); border-radius: 6px; background: var(--bg-surface, var(--surface-1)); color: var(--text-primary); font-size: 13px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14); }
+.scr-compare-feedback[hidden] { display: none; }
+.scr-compare-feedback > span { overflow-wrap: anywhere; }
+.scr-compare-feedback > button { flex: 0 0 auto; min-height: 36px; }
+@media (pointer: coarse) { .scr-compare-feedback > button { min-height: 44px; } }
+.scr-compare-btn[aria-pressed="true"] { background: var(--accent-soft, var(--surface-2)); }

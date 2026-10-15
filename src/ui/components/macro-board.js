@@ -151,9 +151,19 @@ export function gaugeBar(doc, g) {
     return node;
   };
   for (const band of g.bands) add('rect', { x: x(band.from), y: 16, width: Math.max(0, x(band.to) - x(band.from)), height: 8, class: `macro-gauge-band is-${band.tone}` });
-  for (const marker of g.markers) {
-    add('line', { x1: x(marker.at), x2: x(marker.at), y1: 13, y2: 27, class: 'macro-gauge-tick' });
-    add('text', { x: x(marker.at), y: 40, 'text-anchor': 'middle', class: 'macro-gauge-label' }, marker.label);
+  // v57.81: markers close together (0 and "+0.5 재가속") overlapped; a label that would collide with its neighbour
+  // is anchored away from it (left one ends at its tick, right one starts at its tick).
+  const labelWidth = (text) => [...String(text || '')].reduce((sum, ch) => sum + (/[ㄱ-힝]/.test(ch) ? 11 : 6.5), 0);
+  const placed = [...g.markers].sort((a, b) => a.at - b.at).map((marker) => ({ marker, at: x(marker.at), anchor: 'middle' }));
+  placed.forEach((item, i) => {
+    const prev = placed[i - 1];
+    if (!prev) return;
+    const edge = (p, side) => p.anchor === 'middle' ? p.at + side * labelWidth(p.marker.label) / 2 : p.anchor === 'end' ? (side < 0 ? p.at - labelWidth(p.marker.label) : p.at) : (side < 0 ? p.at : p.at + labelWidth(p.marker.label));
+    if (edge(prev, 1) + 4 > edge(item, -1)) { if (i - 1 > 0 || prev.anchor === 'middle') prev.anchor = 'end'; item.anchor = 'start'; }
+  });
+  for (const item of placed) {
+    add('line', { x1: item.at, x2: item.at, y1: 13, y2: 27, class: 'macro-gauge-tick' });
+    add('text', { x: item.anchor === 'middle' ? item.at : item.at + (item.anchor === 'start' ? 2 : -2), y: 40, 'text-anchor': item.anchor, class: 'macro-gauge-label' }, item.marker.label);
   }
   const px = x(g.value);
   add('path', { d: `M${px - 6},4 L${px + 6},4 L${px},14 Z`, class: 'macro-gauge-pin' });
@@ -226,7 +236,9 @@ function chainNode(doc, node) {
   // P1599 (A03): an inferred node (no direct observation) is drawn dashed so it never reads as a measured move.
   const box = el(doc, 'div', null, `macro-chain-node is-${node.impact || node.dir}${node.inferred ? ' is-inferred' : ''}`);
   box.append(el(doc, 'span', node.label, 'macro-chain-label'), el(doc, 'span', node.value, 'macro-chain-value'));
-  if (node.dir === 'up' || node.dir === 'down') box.append(el(doc, 'span', node.dir === 'up' ? '▲' : '▼', 'macro-chain-arrow'));
+  // v57.81 (audit X4): a held node (WTI not confirmed by Brent) draws no arrow — the rate hub says 혼재 for the same pair.
+  if (node.held) box.append(el(doc, 'span', '방향 보류', 'macro-chain-arrow is-held'));
+  else if (node.dir === 'up' || node.dir === 'down') box.append(el(doc, 'span', node.dir === 'up' ? '▲' : '▼', 'macro-chain-arrow'));
   return box;
 }
 
@@ -328,7 +340,9 @@ function overviewTiles(doc, axes) {
 function heldRegimeLine(r) {
   const reasons = [];
   if (!r.growthDir) reasons.push(r.held?.growth === '근소(경계)' ? ['성장 방향이 기준과 차이가 작고', '성장 방향이 기준과 차이가 작아'] : r.held?.growth ? ['성장 방향이 견조·둔화 어느 기준에도 닿지 않고', '성장 방향이 견조·둔화 어느 기준에도 닿지 않아'] : ['성장 방향 자료가 부족하고', '성장 방향 자료가 부족해']);
-  if (!r.inflationDir) reasons.push(r.held?.inflation ? ['물가 속도가 기준과 차이가 작고', '물가 속도가 기준과 차이가 작아'] : ['물가 방향 자료가 부족하고', '물가 방향 자료가 부족해']);
+  // v57.81 (audit X1): core PCE and core CPI pointing opposite ways is 엇갈림, named with each series' month.
+  if (!r.inflationDir) reasons.push(r.held?.inflation === '엇갈림' ? [`근원 물가 속도가 지표마다 엇갈리고(${r.inflationSplit || '근원 PCE·CPI'})`, `근원 물가 속도가 지표마다 엇갈려(${r.inflationSplit || '근원 PCE·CPI'})`]
+    : r.held?.inflation ? ['물가 속도가 기준과 차이가 작고', '물가 속도가 기준과 차이가 작아'] : ['물가 방향 자료가 부족하고', '물가 방향 자료가 부족해']);
   const why = reasons.map(([and, so], index) => (index === reasons.length - 1 ? so : and)).join(' ');
   const settled = [r.growthDir ? `성장 ${r.growthDir === 'up' ? '견조' : '둔화'}` : null, r.inflationDir ? `근원 물가 속도 ${r.inflationDir === 'up' ? '상승' : '둔화'}` : null].filter(Boolean);
   // v57.55 review (E2-14): "확정된 것은 물가 속도 둔화" beside a rising headline CPI — the settled direction is core pace only.
@@ -537,7 +551,10 @@ function curveSvg(doc, yields) {
   const path = yields.map((row, index) => (row.value == null ? null : `${x(index)},${y(row.value)}`)).filter(Boolean).join(' ');
   add('polyline', { points: path, class: 'trend-chart-line' });
   yields.forEach((row, index) => {
-    add('text', { x: x(index), y: H - 6, 'text-anchor': 'middle', class: 'trend-chart-axis' }, row.label);
+    // v57.81: the last two tenors (20년·30년) sit 37 units apart; the narrow-screen label floor (responsive.css) turns them
+    // away from each other instead of letting them touch. The classes do not change the drawn chart on their own.
+    const edge = index === yields.length - 1 ? ' is-last' : index === yields.length - 2 ? ' is-penult' : '';
+    add('text', { x: x(index), y: H - 6, 'text-anchor': 'middle', class: `trend-chart-axis rates-curve-tenor${edge}` }, row.label);
     if (row.value == null) return;
     add('circle', { cx: x(index), cy: y(row.value), r: 3.5, class: 'rates-curve-dot' });
     add('text', { x: x(index), y: y(row.value) - 8, 'text-anchor': 'middle', class: 'rates-curve-label' }, row.value.toFixed(2));

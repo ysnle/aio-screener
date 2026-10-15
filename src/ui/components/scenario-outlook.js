@@ -1,6 +1,6 @@
 // P1633: one reader for the scenario outlook, shared by 시장 상태 and 오늘. It reads only existing
 // current-session artifacts (produced sector rotation, screener rows, theme map); no provider calls.
-import { buildScenarioOutlook, SECTOR_ETF_LABELS } from '../../domain/market/scenario-outlook.js';
+import { buildScenarioOutlook, SECTOR_ETF_LABELS, sectorRecentCheck } from '../../domain/market/scenario-outlook.js';
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
 import { buildGroupStrength } from '../../domain/themes/group-strength.js';
 import { fieldValueForPurpose } from '../../data/contracts/screener.js';
@@ -11,7 +11,7 @@ function outlookSectors(root, nowMs) {
   const artifact = root?._serverDataMeta?.rotationHistory;
   return Object.entries(SECTOR_ETF_LABELS).map(([symbol, label]) => {
     const row = selectProducedRotation(artifact, symbol, nowMs);
-    return row ? { symbol, label, quadrant: row.quadrant } : null;
+    return row ? { symbol, label, quadrant: row.quadrant, rsRatio: row.rsRatio, rsMomentum: row.rsMomentum, ...(sectorRecentCheck(row) || {}) } : null; // v57.81: RRG band + five-session check
   }).filter(Boolean);
 }
 

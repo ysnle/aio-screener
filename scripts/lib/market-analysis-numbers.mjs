@@ -15,8 +15,14 @@ export function isNonMetricNumber(text, index, length) {
   return NON_METRIC_AFTER.test(after) || prev === ':' || prev === '/' || CLOCK_BEFORE.test(source.slice(Math.max(0, index - 8), index));
 }
 
+// v57.81 (10/15 crash day): one number per list item. "S&P 500 -1.11%, 공포·탐욕 지수 32점" read 32 as the S&P 500 level and
+// "VIX +10.48%, 미국 주가지수 -1.11%" read -1.11% as VIX's move — the next item's subject is a name the label list does not
+// know. Once a number of the clause has been read, a list comma before the next number ends the clause.
+export const LIST_ITEM_BREAK = /[,，、]/;
+
 export function analysisLevelsAfterLabels(text, labels, { allLabels = labels, unit = null } = {}) {
-  const body = String(text).replace(/https?:\/\/\S+/g, ' ').replace(/\b[a-z][a-z0-9-]*(?:\.[a-z0-9-]+)+(?::[a-zA-Z0-9_-]+)?/g, ' ');
+  // v57.81: citation brackets ("[7890d4bb]", "[d94fc971]") were read as levels — 7890 for the S&P 500 on 10/15.
+  const body = String(text).replace(/https?:\/\/\S+/g, ' ').replace(/\[[^\]]*\]/g, ' ').replace(/\b[a-z][a-z0-9-]*(?:\.[a-z0-9-]+)+(?::[a-zA-Z0-9_-]+)?/g, ' ');
   const values = [];
   const mentions = new RegExp(labelPattern(labels), 'gi');
   for (const label of body.matchAll(mentions)) {
@@ -25,11 +31,14 @@ export function analysisLevelsAfterLabels(text, labels, { allLabels = labels, un
     if (nextMetric >= 0) clause = clause.slice(0, nextMetric);
     clause = clause.split(/(?<!\d)[.。](?!\d)|\n|[;；]/)[0];
     const numbers = /([+\-±]?)(\d[\d,]*(?:\.\d+)?)\s*(%포인트|%p|bp|포인트|%)?/gi;
+    let previousEnd = -1;
     for (const match of clause.matchAll(numbers)) {
       const [, sign, digits, suffix = ''] = match;
       const after = clause.slice(match.index + match[0].length);
       // P1688 review: a count ("상위 10개 기업", "500종목") is not the metric's level. P1719: nor a date or clock time.
       if (isNonMetricNumber(clause, match.index, match[0].length)) continue;
+      if (previousEnd >= 0 && LIST_ITEM_BREAK.test(clause.slice(previousEnd, match.index))) break;
+      previousEnd = match.index + match[0].length;
       if (/^(?:%p|%포인트|bp|포인트)$/i.test(suffix) || moveVerb.test(after)
           || (suffix === '%' && unit !== 'percent') || sign === '+' || sign === '±') continue;
       const value = Number((sign + digits).replace(/,/g, ''));

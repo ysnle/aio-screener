@@ -7,6 +7,7 @@ import { buildGroupStrength } from '../../domain/themes/group-strength.js';
 import { krThemeArtifactRead } from '../../domain/themes/kr-themes.js';
 import { buildThemePlaybook } from '../../domain/scenarios/theme-playbook.js';
 import { THEME_STATES } from '../../domain/scenarios/analogs.js';
+import { relativeBand } from '../../domain/themes/recent-check.js';
 import { WIND_LABELS } from '../../domain/scenarios/exposures.js';
 import { CHOICES } from '../../domain/market/macro-crossroads.js';
 import { MACRO_HISTORY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
@@ -32,7 +33,8 @@ export function themePlaybookForRoot(root, store, { nowMs = Date.now() } = {}) {
   const krThemes = root?.KR_THEME_MAP && typeof root.KR_THEME_MAP === 'object' ? krThemeArtifactRead({ themeMap: root.KR_THEME_MAP, rows }).themes : [];
   const labels = Object.fromEntries((root?.THEME_MAP || []).map((theme) => [theme.id, theme.nameKr]));
   const credit = regime?.axes?.find((axis) => axis.id === 'credit')?.state || null;
-  return { crossroads, playbook: buildThemePlaybook({ usGroups, krThemes, crossroads, credit, outcomes: root?._aioScenarioOutcomes || null, labels }) };
+  // v57.81: the shared close history lets each stage be read against the S&P 500 / KOSPI over the same windows.
+  return { crossroads, playbook: buildThemePlaybook({ usGroups, krThemes, crossroads, credit, outcomes: root?._aioScenarioOutcomes || null, labels, history: Array.isArray(root?._aioHistory) ? root._aioHistory : null }) };
 }
 
 // Two drawings of the same map: the wide one (640 × 360) and a narrow one (320 × 300, fewer labels) shown when the
@@ -43,11 +45,15 @@ const MAP_SIZES = Object.freeze({ wide: { W: 640, H: 360, pad: 40, font: 13, lab
 const isHangul = (ch) => { const c = ch.codePointAt(0); return (c >= 0x1100 && c <= 0x11ff) || (c >= 0x3131 && c <= 0x318e) || (c >= 0xac00 && c <= 0xd7a3); };
 const textWidth = (text, font) => [...text].reduce((sum, ch) => sum + (isHangul(ch) ? font : font * 0.62), 0);
 
-/** Momentum map: x = long trend (6-month, KR 3-month), y = 1-month; colour = wind under the lead branch. */
+// v57.81: the map plots what the stage is read from — the gap to the index over the same window when it is known.
+const mapX = (row) => row.relative?.trend ?? row.ret6m ?? row.ret3m;
+const mapY = (row) => row.relative?.recent ?? row.ret1m;
+
+/** Momentum map: x = long trend (6-month, KR 3-month), y = 1-month, both against the index; colour = wind under the lead branch. */
 function momentumMap(doc, themes, size = 'wide', onPick = null) {
   const { W, H, pad, font, labels: maxLabels } = MAP_SIZES[size];
-  const points = themes.filter((row) => row.ret1m != null && (row.ret6m ?? row.ret3m) != null);
-  const xs = points.map((row) => row.ret6m ?? row.ret3m), ys = points.map((row) => row.ret1m);
+  const points = themes.filter((row) => mapY(row) != null && mapX(row) != null);
+  const xs = points.map(mapX), ys = points.map(mapY);
   const span = (values) => Math.max(5, ...values.map((value) => Math.abs(value))) * 1.1;
   const sx = span(xs), sy = span(ys);
   const X = (value) => pad + (value + sx) / (2 * sx) * (W - 2 * pad), Y = (value) => H - pad - (value + sy) / (2 * sy) * (H - 2 * pad);
@@ -56,21 +62,21 @@ function momentumMap(doc, themes, size = 'wide', onPick = null) {
   const corner = (text, x, y, anchor) => { const t = svg(doc, 'text', { x, y, 'text-anchor': anchor, class: 'tp-quad' }); t.textContent = text; box.append(t); };
   corner('주도 지속', W - pad / 2, pad / 2 + 4, 'end'); corner('추세 속 조정', W - pad / 2, H - pad / 2 - 2, 'end');
   corner('반등 시도', pad / 2, pad / 2 + 4, 'start'); corner('약세 지속', pad / 2, H - pad / 2 - 2, 'start');
-  const axisLabel = svg(doc, 'text', { x: W / 2, y: H - 4, 'text-anchor': 'middle', class: 'tp-axis-label' }); axisLabel.textContent = '긴 추세 (미국 6개월 · 한국 3개월) →'; box.append(axisLabel);
-  const yLabel = svg(doc, 'text', { x: 12, y: H / 2, 'text-anchor': 'middle', class: 'tp-axis-label', transform: `rotate(-90 12 ${H / 2})` }); yLabel.textContent = '최근 1개월 →'; box.append(yLabel);
+  const axisLabel = svg(doc, 'text', { x: W / 2, y: H - 4, 'text-anchor': 'middle', class: 'tp-axis-label' }); axisLabel.textContent = points.some((row) => row.relative) ? '긴 추세, 지수 대비 (미국 6개월 · 한국 3개월) →' : '긴 추세 (미국 6개월 · 한국 3개월) →'; box.append(axisLabel);
+  const yLabel = svg(doc, 'text', { x: 12, y: H / 2, 'text-anchor': 'middle', class: 'tp-axis-label', transform: `rotate(-90 12 ${H / 2})` }); yLabel.textContent = points.some((row) => row.relative) ? '1개월, 지수 대비 →' : '최근 1개월 →'; box.append(yLabel);
   // v57.79 (375 review): labels covered markers and each other. Only the themes farthest from the centre are labelled
   // (both axes scaled to the drawing), a label never sits on any marker, another label, a quadrant caption or an axis
   // title, and every point keeps its hover title; a tap prints the same line under the map.
   const marks = [];
-  const describe = (row) => `[${mkt(row)}] ${row.label}: ${row.stateLabel.split(' (')[0]} · 1개월 ${pct(row.ret1m)} · 긴 추세 ${pct(row.ret6m ?? row.ret3m)} · ${WIND_LABELS[row.wind.lead]}`;
+  const describe = (row) => `[${mkt(row)}] ${row.label}: ${row.stateLabel.split(' (')[0]} · 1개월 ${pct(row.ret1m)} · 긴 추세 ${pct(row.ret6m ?? row.ret3m)}${row.relative ? ` (${row.relative.name} 대비 ${pct(row.relative.recent)}p · ${pct(row.relative.trend)}p)` : ''}${row.ret5d != null ? ` · 5거래일 ${pct(row.ret5d)}` : ''} · ${WIND_LABELS[row.wind.lead]}`;
   const located = points.map((row) => {
-    const x = X(row.ret6m ?? row.ret3m), y = Y(row.ret1m);
+    const x = X(mapX(row)), y = Y(mapY(row));
     const mark = row.market === 'KR' ? svg(doc, 'rect', { x: x - 5, y: y - 5, width: 10, height: 10, class: `tp-dot is-${row.wind.lead}` }) : svg(doc, 'circle', { cx: x, cy: y, r: 6, class: `tp-dot is-${row.wind.lead}` });
     const title = svg(doc, 'title'); title.textContent = describe(row);
     mark.append(title); box.append(mark);
     if (onPick) mark.addEventListener('click', () => onPick(describe(row)));
     marks.push({ x0: x - 7, x1: x + 7, y0: y - 7, y1: y + 7 });
-    return { row, x, y, distance: Math.hypot((row.ret6m ?? row.ret3m) / sx, row.ret1m / sy) };
+    return { row, x, y, distance: Math.hypot(mapX(row) / sx, mapY(row) / sy) };
   });
   const wanted = located.sort((a, b) => b.distance - a.distance).map(({ row, x, y }) => ({ x, y, text: `${row.market === 'KR' ? '한국 ' : ''}${row.label.split(/[ /]/)[0]}` }));
   const placed = [
@@ -127,7 +133,7 @@ function themeCard(doc, root, row, screenerSector = null) {
   const card = el(doc, 'details', null, 'tp-card');
   card.dataset.theme = `${row.market}:${row.id}`;
   const summary = el(doc, 'summary', null, 'tp-card-summary');
-  summary.append(el(doc, 'span', `${mkt(row)} · ${row.label}`, 'tp-card-title'), el(doc, 'span', `1개월 ${pct(row.ret1m)}`, 'tp-card-num'),
+  summary.append(el(doc, 'span', `${mkt(row)} · ${row.label}`, 'tp-card-title'), el(doc, 'span', `1개월 ${pct(row.ret1m)}${row.ret5d != null ? ` · 5거래일 ${pct(row.ret5d)}` : ''}`, 'tp-card-num'),
     el(doc, 'span', WIND_LABELS[row.wind.lead], `xr-tag is-wind-${row.wind.lead}`), el(doc, 'span', `유리: ${row.favored.map((key) => CHOICES[key]).join(' · ') || '보류'}`, 'xr-tag is-choice'));
   card.append(summary);
   card.append(el(doc, 'p', `${row.stateLabel} · ${row.ret3m != null ? `3개월 ${pct(row.ret3m)}` : ''}${row.ret6m != null ? ` · 6개월 ${pct(row.ret6m)}` : ''}${row.above50 != null ? ` · 50일선 위 ${row.above50}%` : ''}${row.tagLabels.length ? ` · 성격: ${row.tagLabels.join(', ')}` : ''}`, 'xr-basis'));
@@ -206,10 +212,12 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   const [headline, ...restOfRotation] = playbook.rotation.text.split(/(?<=니다\.)\s+/);
   const reading = [headline, ...(restOfRotation.length ? [restOfRotation.join(' ')] : [])];
   const h = playbook.highlights;
-  if (h.structuralPullbacks.length) reading.push(`긴 추세는 살아 있는데 최근 1개월 밀렸고 중심 시나리오에서 부담이 아닌 테마: ${h.structuralPullbacks.slice(0, 6).map((row) => `${mkt(row)} ${row.label}(${pct(row.ret1m)})`).join(', ')} — 분할 접근의 부담이 비교적 작은 경우입니다(핵심 논리가 깨지면 멈춤).`);
-  if (h.headwindLeaders.length) reading.push(`거시 부담에도 주도하는 테마: ${h.headwindLeaders.slice(0, 4).map((row) => `${mkt(row)} ${row.label}`).join(', ')} — 업종 고유 동력(실적·구조 수요)이 있는지 확인이 필요합니다.`);
+  // v57.81 (audit): no action suggestion in the reading ("분할 접근의 부담이 비교적 작은 경우" was one), and leaders are
+  // only those that pass the index-relative, confirmed stage — each named with its last five sessions.
+  if (h.structuralPullbacks.length) reading.push(`긴 추세는 지수보다 앞서 있는데 최근 1개월 뒤처졌고 중심 시나리오에서 역풍이 아닌 테마: ${h.structuralPullbacks.slice(0, 6).map((row) => `${mkt(row)} ${row.label}(${pct(row.ret1m)})`).join(', ')} — 핵심 논리가 깨지는 신호가 없는지 함께 봅니다.`);
+  if (h.headwindLeaders.length) reading.push(`거시 부담에도 주도하는 테마(6개월·1개월 지수 대비, 최근 5거래일 확인): ${h.headwindLeaders.slice(0, 4).map((row) => `${mkt(row)} ${row.label}${row.ret5d != null ? `(5거래일 ${pct(row.ret5d)})` : ''}`).join(', ')} — 업종 고유 동력(실적·구조 수요)이 있는지 확인이 필요합니다.`);
   if (h.tailwindLaggards.length) reading.push(`거시 수혜에도 약세인 테마: ${h.tailwindLaggards.slice(0, 4).map((row) => `${mkt(row)} ${row.label}`).join(', ')} — 업종 고유의 문제가 있는지 먼저 봅니다.`);
-  const basis = el(doc, 'p', `${playbook.asOf ? `${playbook.asOf} ` : ''}확정 종가 · 테마 ${playbook.themes.length}개${playbook.rotation?.market === '한국' ? ' (미국 테마 수익률을 받기 전이라 한국만)' : ''} · 중심 시나리오 ${lead ? `'${lead.title.split(' — ')[0]}'` : '판단 보류'} 기준. 단계는 긴 추세와 1개월 움직임으로, 바람은 테마 성격과 거시 시나리오가 강하게·약하게 만드는 영역의 겹침으로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다. 레버리지·포지션 쏠림을 직접 재는 자료는 없어 가격 단서(1개월 낙폭·50일선 위 비율)로만 봅니다.`, 'xr-basis');
+  const basis = el(doc, 'p', `${playbook.asOfText || `${playbook.asOf ? `${playbook.asOf} ` : ''}확정 종가`} · 테마 ${playbook.themes.length}개${playbook.rotation?.market === '한국' ? ' (미국 테마 수익률을 받기 전이라 한국만)' : ''} · 중심 시나리오 ${lead ? `'${lead.title.split(' — ')[0]}'` : '판단 보류'} 기준. 단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500 · 한국 코스피)와 비교해 정하고(1개월 ±${relativeBand('ret1m')}%p, 6개월 ±${relativeBand('ret6m')}%p 안의 차이는 앞선 것으로 보지 않음), 최근 5거래일이 평소 1주 움직임의 2배를 넘게 반대로 움직이면 1개월 판정을 보류합니다. 바람은 테마 성격과 거시 시나리오가 강하게·약하게 만드는 영역의 겹침으로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다. 레버리지·포지션 쏠림을 직접 재는 자료는 없어 가격 단서(1개월 낙폭·50일선 위 비율)로만 봅니다.`, 'xr-basis');
   const screenerSector = screenerSectorFor(root, store);
   const mapWrap = el(doc, 'div', null, 'tp-map-wrap');
   const pick = el(doc, 'p', null, 'tp-pick');
@@ -253,7 +261,7 @@ export function renderThemeDetailPlaybook({ documentRef: doc, root } = {}) {
   links.append(link('모든 테마 시나리오와 비교', () => doc.getElementById('theme-playbook-title')?.scrollIntoView?.({ block: 'start', behavior: 'smooth' })),
     link('거시 시나리오의 근거', () => { root?.showPage?.('macro'); setTimeout(() => doc.getElementById('macro-crossroads-title')?.scrollIntoView?.({ block: 'start' }), 60); }));
   host.replaceChildren(el(doc, 'h4', '이 테마의 시나리오', 'xr-h4'),
-    el(doc, 'p', `${row.stateLabel} · 1개월 ${pct(row.ret1m)}${row.ret6m != null ? ` · 6개월 ${pct(row.ret6m)}` : ''} · ${row.fit}`, 'xr-basis'),
+    el(doc, 'p', `${row.stateLabel}${row.stateLabel.includes('5거래일') || row.ret5d == null ? '' : ` · 5거래일 ${pct(row.ret5d)}`} · 1개월 ${pct(row.ret1m)}${row.ret6m != null ? ` · 6개월 ${pct(row.ret6m)}` : ''} · ${row.fit}`, 'xr-basis'),
     el(doc, 'p', `거시 영향: ${row.windText}. 유리한 대응: ${row.favored.map((key) => CHOICES[key]).join(' · ') || '판단 보류'} — ${row.favoredWhy}`, 'xr-reading'),
     ...(row.thesis ? [el(doc, 'p', `핵심 논리: ${row.thesis}. 점검 신호: ${row.breaks.join(', ')}.`, 'xr-reading')] : []),
     el(doc, 'p', '아래 구성 종목·대장주에서 추세가 살아 있는 종목을 직접 고릅니다.', 'xr-caveat'), links);

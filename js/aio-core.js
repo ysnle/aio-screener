@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.80';
+const APP_VERSION = 'v57.81';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -19,13 +19,7 @@ const APP_VERSION = 'v57.80';
   });
 })();
 
-document.addEventListener('error', function(e) {
-  var img = e && e.target;
-  if (!img || !img.matches || !img.matches('img[data-logo-fallback="1"]')) return;
-  img.style.display = 'none';
-  var fallback = img.nextElementSibling;
-  if (fallback) fallback.style.display = 'block';
-}, true);
+// v57.81: the logo-image error fallback left with its only writer (the earnings-card logo hotlink in aio-pages).
 
 // ═══════════════════════════════════════════════════════════════════
 // v48.14: 중앙 로거 — _aioLog + ring-buffer 500건 + rate 임계 모니터 (Agent P2-3/W9)
@@ -2063,8 +2057,11 @@ window._aioAddToPortfolio = function(ticker) {
 // on SPY while the legacy analysis widget moved (P1215 residual). P1753: that legacy deep-analysis
 // fold and its runner were retired — its result sink left in v56.96 — so the native 차트 route
 // is the only target.
+// P1430: the 종목 screen's "← origin" link returns to the outer screen it was opened from (its own tabs keep that origin).
+function _aioRecordTickerOrigin() { var page = document.querySelector('.page.active'), route = page && page.id.replace(/^page-/, ''); if (window.AIO && window.AIO.state && route && !/^(ticker|technical|fundamental)$/.test(route)) window.AIO.state.tickerReturnRoute = route === 'theme-detail' ? 'themes' : route; }
 function _aioOpenTechnicalAnalysis(ticker) {
   var sym = String(ticker == null ? '' : ticker).toUpperCase().trim();
+  _aioRecordTickerOrigin(); // v57.81: 차트 opened from 포트폴리오 named the origin of an earlier, unrelated visit
   try {
     if (sym && typeof window.AIO_ARCH?.setStockSubject === 'function') {
       var ok = window.AIO_ARCH.setStockSubject({ root: window, symbol: sym });
@@ -2109,7 +2106,7 @@ window._aioFundSearchFill = function(preset) {
 })();
 
 // API 사용량 추적. 변동하는 공급자 가격은 내장하지 않는다.
-// callClaude에서 응답 후 _aioTrackApiUsage({model, inputTokens, outputTokens}) 호출.
+// callSharedAi에서 응답 후 _aioTrackApiUsage({model, inputTokens, outputTokens}) 호출.
 window._aioTrackApiUsage = function(opts) {
   if (!opts || typeof opts !== 'object') return;
   var model = opts.model || 'unknown';
@@ -2138,7 +2135,7 @@ window._aioTrackApiUsage = function(opts) {
   } catch(_) {}
 };
 
-// v49.77 P411 R154: 데이터 새로고침 핸들러 — callClaude 실패 시 사용자가 즉시 액션 가능
+// v49.77 P411 R154: 데이터 새로고침 핸들러 — callSharedAi 실패 시 사용자가 즉시 액션 가능
 window._aioRefreshAllData = function() {
   try {
     if (window.AIO && typeof window.AIO.forceRefreshAllData === 'function') {
@@ -6148,8 +6145,7 @@ window.AIO_NUMERIC_GUIDELINE_SAFELIST = {
 
 
 // ─────────────────────────────────────────────────────────────────
-// v49.32 M4 근본 수정: TICKER_NAME_REGISTRY — 종목명-티커 단일 출처
-// 한글/영문/별명/한자 모두 → 표준 ticker. R85 신규.
+// v49.32 M4 근본 수정: TICKER_NAME_REGISTRY — 종목명-티커 단일 출처. 한글/영문/별명/한자 모두 → 표준 ticker. R85 신규.
 // 기존 KR_TICKER_MAP (aio-data.js)을 흡수 + 영문 별명 보강
 // ─────────────────────────────────────────────────────────────────
 window.AIO_TICKER_NAME_REGISTRY = {
@@ -6239,6 +6235,7 @@ window.AIO_TICKER_NAME_REGISTRY = {
     'LUNR':  { en: 'Intuitive Machines', kr: '인튜이티브머신', alt: ['intuitive machines', 'lunr'] },
     'PL':    { en: 'Planet Labs',      kr: '플래닛랩',     alt: ['planet labs', 'planet', 'pl'] },
     'RDW':   { en: 'Redwire',          kr: '레드와이어',   alt: ['redwire', 'rdw'] },
+    'SPCX':  { en: 'SpaceX',           kr: '스페이스X',    alt: ['spacex', 'space exploration technologies', '스페이스엑스', '스엑'] }, // v57.81: Space Exploration Technologies Corp. Class A, Nasdaq since 2026-06-12 (SEC CIK 0001181412 ticker SPCX; Nasdaq symbol directory 2026-10-15). The SPAC ETF moved to SPCK.
 
     // ── v49.57 신규: 양자컴퓨팅 (4) ──
     'IONQ':  { en: 'IonQ',             kr: '아이온큐',     alt: ['ionq'] },
@@ -10845,9 +10842,8 @@ window._aioTriggerPortfolioImport = function() {
   var input = document.getElementById('pf-import-file');
   if (input && typeof input.click === 'function') input.click();
 };
-window._aioSaveCashPosition = function(el) {
-  if (typeof window.saveCashPosition === 'function') window.saveCashPosition(el ? el.value : '');
-};
+// v57.81: the single cash box and its _aioSaveCashPosition handler are retired — cash is saved per currency by
+// window._aioSaveCashBalance (src/app/compatibility-globals.js).
 window._aioSavePortfolioAssumption = function(el) {
   if (typeof window.savePortfolioAssumption === 'function') window.savePortfolioAssumption(el ? el.id : '', el ? el.value : '');
 };
@@ -13687,7 +13683,7 @@ function _calcVCP(bars, indicators) {
   else if (swH.length) pivot = swH[swH.length - 1].p;
   var nearPivot = !!(pivot && price >= pivot * 0.97 && price <= pivot * 1.03);
   var rvol20 = (ind.rvol20 != null) ? ind.rvol20 : null;
-  var brk = !!(pivot && price > pivot && rvol20 !== null && rvol20 > 1.4);
+  var _bk = bars[n - 1], brk = !!(pivot && price > pivot && rvol20 !== null && rvol20 > 1.4 && (price > closes[n - 2] || (_bk.high > _bk.low && (price - _bk.low) / (_bk.high - _bk.low) >= 0.5)) && closes.slice(-6, -1).some(function(c) { return c <= pivot; })); // v57.81: same breakout rule as _calcVCPServer
   // VCP 점수 (0~100)
   var score = 0;
   if (stage2)    score += 25;
@@ -15820,7 +15816,7 @@ function applyDataSnapshot() {
     document.querySelectorAll('[data-snap]').forEach(function(el) {
       var key = el.getAttribute('data-snap');
       if (!key) return;
-    if (el.closest && (el.closest('#page-macro[data-aio-architecture-renderer="native"]') || el.closest('#page-fxbond[data-aio-architecture-renderer="native"]') || el.closest('#page-breadth[data-aio-architecture-renderer="native"]'))) return;
+    if (el.closest && (el.closest('#kr-integrated-macro') ? /^(fed-target|kr-cpi|cpi)$/.test(key) : (el.closest('#page-macro[data-aio-architecture-renderer="native"]') || el.closest('#page-fxbond[data-aio-architecture-renderer="native"]') || el.closest('#page-breadth[data-aio-architecture-renderer="native"]')))) return; // v57.81: 한국 거시 fold is shell-written except its native Korea/US table (same split as _aioIsNativeMacroElement)
       try {
         var val = map[key];
         if (val !== undefined) { el.textContent = String(val); _snapApplied++; }
@@ -19109,11 +19105,7 @@ function krTvSymSearchFromInput() {
 function showTicker(tkr) {
   // Capture origin before showPage updates the legacy prevPage projection.
   // Entity switches within ticker retain that origin; the native renderer owns navigation.
-  var tickerOrigin = document.querySelector('.page.active');
-  var tickerOriginRoute = tickerOrigin && tickerOrigin.id.replace(/^page-/, '');
-  if (window.AIO && window.AIO.state && tickerOriginRoute && !/^(ticker|technical|fundamental)$/.test(tickerOriginRoute)) { // P1430: 종목 tabs keep the outer origin
-    window.AIO.state.tickerReturnRoute = tickerOriginRoute === 'theme-detail' ? 'themes' : tickerOriginRoute;
-  }
+  _aioRecordTickerOrigin();
   var _rawTicker = tkr; tkr = typeof window._aioNormalizeTickerInput === 'function' ? window._aioNormalizeTickerInput(tkr) : String(tkr || '').trim().toUpperCase(); // P1317: 005930/삼성전자 → 005930.KS
   if (!/^[A-Z0-9.\-]{1,12}$/.test(tkr)) {
     if (typeof window._aioTickerSearchMiss === 'function') window._aioTickerSearchMiss(_rawTicker); else if (typeof showToast === 'function') showToast('올바른 티커를 입력하세요.'); // v57.54: persistent message + candidates

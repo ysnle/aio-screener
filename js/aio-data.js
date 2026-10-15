@@ -911,7 +911,7 @@ var SCREENER_DB = [
   { sym:'018260.KS', name:'삼성SDS', sector:'Technology', index:'KOSPI' },
 
   //  크립토 (crypto)
-  { sym:'294870.KS', name:'HDC현대산업개발', sector:'Industrials', index:'KOSPI' },
+  { sym:'294870.KS', name:'IPARK현대산업개발', sector:'Industrials', index:'KOSPI' }, // v57.81: KRX KIND 상장법인목록 회사명 (2026-10-15 확인, 구 HDC현대산업개발)
   { sym:'094480.KQ', name:'갤럭시아머니트리', sector:'Financials', index:'KOSDAQ' },
 
   // 유통/소비재 (retail)
@@ -933,11 +933,11 @@ var SCREENER_DB = [
   //  기타 대형주/우량주
   { sym:'028260.KS', name:'삼성물산', sector:'Industrials', index:'KOSPI' },
   { sym:'034730.KS', name:'SK', sector:'Industrials', index:'KOSPI' },
-  { sym:'036570.KS', name:'엔씨소프트', sector:'Communication Services', index:'KOSPI' },
+  { sym:'036570.KS', name:'NC', sector:'Communication Services', index:'KOSPI' }, // v57.81: KRX KIND 상장법인목록 회사명 (2026-10-15 확인, 구 엔씨소프트)
   { sym:'030000.KS', name:'제일기획', sector:'Communication Services', index:'KOSPI' },
   { sym:'004020.KS', name:'현대제철', sector:'Materials', index:'KOSPI' },
   { sym:'011780.KS', name:'금호석유', sector:'Materials', index:'KOSPI' },
-  { sym:'009830.KS', name:'한화솔루션', sector:'Technology', index:'KOSPI' },  { sym:'030520.KQ', name:'한글과컴퓨터', sector:'Technology', index:'KOSDAQ' },
+  { sym:'009830.KS', name:'한화솔루션', sector:'Technology', index:'KOSPI' },  { sym:'030520.KQ', name:'한컴', sector:'Technology', index:'KOSDAQ' }, // v57.81: KRX KIND 상장법인목록 회사명 (2026-10-15 확인, 구 한글과컴퓨터)
   { sym:'041020.KQ', name:'폴라리스오피스', sector:'Technology', index:'KOSDAQ' },
   { sym:'304100.KQ', name:'솔트룩스', sector:'Technology', index:'KOSDAQ' },
   { sym:'005940.KS', name:'NH투자증권', sector:'Financials', index:'KOSPI' },
@@ -1086,7 +1086,7 @@ var SCREENER_DB = [
   { sym:'138080.KQ', name:'오이솔루션', sector:'Technology', index:'KOSDAQ' },
   { sym:'112610.KS', name:'씨에스윈드', sector:'Industrials', index:'KOSPI' },
   { sym:'336260.KS', name:'두산퓨얼셀', sector:'Industrials', index:'KOSPI' },
-  { sym:'017390.KS', name:'서울가스', sector:'Utilities', index:'KOSPI' },
+  { sym:'017390.KS', name:'서울도시가스', sector:'Utilities', index:'KOSPI' }, // v57.81: KRX KIND 상장법인목록 회사명 (2026-10-15 확인, 구 서울가스)
   { sym:'003830.KS', name:'대한화섬', sector:'Materials', index:'KOSPI' },
   { sym:'007310.KS', name:'오뚜기', sector:'Consumer Defensive', index:'KOSPI' },
   // 2026-10-13 universe review (V01·V05·V06·V10·V14·V18, worker D4): members taken only from the official
@@ -1324,7 +1324,7 @@ function _aioBuildTelegramRuntimeNarrative(raw) {
   }
   function sampleFor(tag, ticker) {
     var row = items.find(function(it) {
-      return it && (tag ? Array.isArray(it.tags) && it.tags.indexOf(tag) >= 0 : Array.isArray(it.tickers) && it.tickers.indexOf(ticker) >= 0);
+      return it && (tag ? Array.isArray(it.tags) && it.tags[0] === tag : Array.isArray(it.tickers) && it.tickers.indexOf(ticker) >= 0); // v57.81: a category's sample is a post whose primary tag it is (no reuse)
     });
     return row ? clean(row.text || row.title || row.summary || '', 180) : '';
   }
@@ -1403,17 +1403,17 @@ function _aioCleanTelegramMemoText(text) {
   return s;
 }
 
+function _aioTelegramTextNames(text, sym, name) { var code = sym.replace(/\.(KS|KQ)$/, ''), bare = String(name || '').replace(/[\s,]*(Inc\.?|Corp\.?|Corporation|Co\.?|Ltd\.?|Holdings|plc|주식회사|\(주\))\s*$/i, '').trim(); return new RegExp('(^|[^A-Za-z0-9])' + code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^A-Za-z0-9])').test(text) || (bare.length >= 2 && text.toLowerCase().indexOf(bare.toLowerCase()) >= 0); }
 function _aioBuildTelegramMemoOverlay(raw, merged) {
   var items = [];
-  // broadItems 우선 (더 많은 티커 커버), 없으면 topItems 폴백. v51.98/Phase3[A1,B3] P598: 이전엔
-  // 여기 raw.items(서버가 보내던 미압축 전체 배열, ~1.04MB) 폴백이 3번째로 있었으나, 서버가 더 이상
-  // items를 보내지 않음(topItems/broadItems만 전송, 페이로드 46% 절감) — topItems/broadItems가 둘 다
-  // 비어야만 타던 경로라 실질적으로 거의 트리거되지 않았고, 이제 그 데이터 자체가 없다.
+  // current24h → broadItems → topItems 순서 (P598: 서버는 더 이상 미압축 raw.items를 보내지 않는다).
   if (raw && Array.isArray(raw.current24hItems) && raw.current24hItems.length) items = raw.current24hItems;
   else if (raw && Array.isArray(raw.broadItems) && raw.broadItems.length) items = raw.broadItems;
   else if (raw && Array.isArray(raw.topItems) && raw.topItems.length) items = raw.topItems;
   var date = _aioTelegramDigestMemoDate(raw, merged);
   var byTicker = {};
+  // v57.81: a post reaches a memo only when its shown text names the ticker or the company (a premarket list tagged 000660.KS was the SK하이닉스 memo).
+  var names = {}; (typeof SCREENER_DB !== 'undefined' && Array.isArray(SCREENER_DB) ? SCREENER_DB : []).forEach(function(r) { if (r && r.sym) names[String(r.sym).toUpperCase()] = String(r.name || ''); });
   items.forEach(function(item) {
     if (!item || !Array.isArray(item.tickers) || !item.tickers.length) return;
     var text = _aioCleanTelegramMemoText(item.text || item.title || item.summary || '');
@@ -1421,7 +1421,7 @@ function _aioBuildTelegramMemoOverlay(raw, merged) {
     var score = Number(item.score || 0) || 0;
     item.tickers.forEach(function(t) {
       var sym = String(t || '').toUpperCase().trim();
-      if (!sym) return;
+      if (!sym || !_aioTelegramTextNames(text, sym, names[sym])) return;
       if (!byTicker[sym]) byTicker[sym] = [];
       if (byTicker[sym].length < 3) byTicker[sym].push({ text:text, score:score, channel:item.channel || '', url:item.url || '' });
     });
@@ -2349,10 +2349,8 @@ try { window._scrSignalLabel = _scrSignalLabel; } catch(_) {}
 const _AIO_SHARED_WORKER_HOSTS = [
   'query1.finance.yahoo.com', 'query2.finance.yahoo.com', 'finance.yahoo.com',
   'api.rss2json.com', 'rss2json.com',
-  'www.alphavantage.co', 'api.twelvedata.com', 'finnhub.io', 'api.stlouisfed.org', 'financialmodelingprep.com', 'newsdata.io',
   'efts.sec.gov', 'data.sec.gov',
-  'stooq.com', 'www.stooq.com',
-  'rsshub.app', 'nitter.net', 't.me',
+  'rsshub.app', 't.me',
   'm.stock.naver.com', 'api.stock.naver.com', 'polling.finance.naver.com', 'api.finance.naver.com', 'fchart.stock.naver.com',
   'api.fear-and-greed.com', 'production.dataviz.cnn.io', 'api.alternative.me',
   'api.coingecko.com',
@@ -4612,8 +4610,9 @@ window._aioSpxAthFloor = _aioSpxAthFloor;
 // 경계로 남아 있으며, native rows가 비어 있는 필드만 bootstrap read boundary가 보완한다.
 function _aioApplyNativeScreenerState(nativeState) {
   var arch = window.AIO_ARCH || null;
-  var state = nativeState || (arch && typeof arch.getScreenerState === 'function' ? arch.getScreenerState() : null);
-  if (!state || typeof state !== 'object') return false;
+  // v57.81 (P1755 path read): with no event payload, read only the fields used here; the bare call cloned the whole slice.
+  var state = nativeState || (arch && typeof arch.getScreenerState === 'function' ? { status: arch.getScreenerState('status'), revision: arch.getScreenerState('revision'), metadata: arch.getScreenerState('metadata'), rowCount: arch.getScreenerState('rows.length') } : null);
+  if (!state || typeof state !== 'object' || (!nativeState && state.status == null && state.metadata == null)) return false;
   var metadata = state.metadata && typeof state.metadata === 'object' ? state.metadata : {};
   var hasArtifact = state.status === 'current' || state.status === 'partial' || state.status === 'ready';
   var status = hasArtifact ? (metadata.universeFreshnessStatus === 'stale' ? 'partial' : (metadata.backtest ? 'ready' : 'partial')) : (state.status || 'unavailable');
@@ -4623,7 +4622,7 @@ function _aioApplyNativeScreenerState(nativeState) {
     checkedAt: Date.now(),
     asOf: metadata.asOf || state.revision || null,
     factorObservedAt: metadata.factorObservedAt || null,
-    count: Number(metadata.artifactRows) || (Array.isArray(state.rows) ? state.rows.length : 0),
+    count: Number(metadata.artifactRows) || (Array.isArray(state.rows) ? state.rows.length : (Number(state.rowCount) || 0)),
     universe: Number(metadata.universe) || null,
     fundamentalCoverageDenominator: numberOrNull(metadata.fundamentalCoverageDenominator),
     fundamentalModels: Array.isArray(metadata.fundamentalModels) ? metadata.fundamentalModels.slice() : [],
@@ -12952,7 +12951,7 @@ function _aioIsNativeFxbondElement(el) {
 }
 function _aioIsNativeMacroElement(el) {
   try {
-    return !!(el && el.closest && (el.closest('#page-macro[data-aio-architecture-renderer="native"]') || _aioIsNativeFxbondElement(el)));
+    return !!(el && el.closest && (el.closest('#kr-integrated-macro') ? /^(fed-target|kr-cpi|cpi)$/.test(el.getAttribute('data-snap') || '') : (el.closest('#page-macro[data-aio-architecture-renderer="native"]') || _aioIsNativeFxbondElement(el)))); // v57.81: the 한국 거시 user fold is shell-written except its native Korea/US table (src/ui/pages/market.js)
   }
   catch (_) { return false; }
 }

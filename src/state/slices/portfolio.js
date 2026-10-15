@@ -26,6 +26,8 @@ export function portfolioReducer(state = createInitialPortfolioState(), action =
       // P1181의 provider 드롭과 같은 클래스(선언이 경계에서 사라진다).
       baseCurrency: String(payload.baseCurrency || '').trim().toUpperCase() || null,
       cashCurrency: String(payload.cashCurrency || '').trim().toUpperCase() || null,
+      // v57.81: per-currency cash balances; enumerated here so the reducer does not drop them (the P1194 class).
+      ...(Array.isArray(payload.cashBalances) ? { cashBalances: payload.cashBalances.map((row) => ({ ...row })) } : {}),
       fxLegs: Array.isArray(payload.fxLegs) ? payload.fxLegs.map((leg) => ({ ...leg })) : [],
       updatedAt: action.meta?.updatedAt || payload.updatedAt || state.updatedAt || null
     };

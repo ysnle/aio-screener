@@ -4,10 +4,10 @@ import vm from 'node:vm';
 import assert from 'node:assert/strict';
 
 const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
-const start = source.indexOf('async function callClaude(');
+const start = source.indexOf('async function callSharedAi(');
 const end = source.indexOf('// ── 스크리너 함수', start);
 assert(start >= 0 && end > start);
-// P1245 (05 A05): callClaude records native citations and research tool errors in the per-request
+// P1245 (05 A05): callSharedAi records native citations and research tool errors in the per-request
 // stream store, so this isolated transport context must execute the real store rather than a stub
 // that can drift from it. The fixture passes no requestId, so the store returns no record and the
 // transport assertions below are unchanged.
@@ -71,7 +71,7 @@ for (const serverKey of [true]) {
     context._lastClaudeUsage = { input_tokens: 99999 };
     vm.createContext(context);
     vm.runInContext(source.slice(storeStart, storeEnd) + '\n' + source.slice(start, end), context);
-    await context.callClaude('fixture', [{ role: 'user', content: 'test' }], () => {},
+    await context.callSharedAi('fixture', [{ role: 'user', content: 'test' }], () => {},
       (...args) => result.done.push(args), error => result.errors.push(error),
       { signal: caller.signal, requestId: 'fixture-stream-' + kind, onCancel() { result.cancelled++; } });
     if (kind === 'complete' || kind === 'citations') {

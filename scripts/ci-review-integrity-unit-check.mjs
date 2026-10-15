@@ -121,4 +121,34 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   if (!['VaR (Value at Risk)', '최대낙폭(MDD)', 'TWR(시간가중수익률)', 'MWR(금액가중수익률)', '13F (기관 보유 공시)', 'CUSIP', 'ROIC (투하자본이익률)'].every((term) => glossary.includes(`{term:'${term}'`))) fail('#15 glossary must define VaR·MDD·TWR·MWR·13F·CUSIP·ROIC');
 }
 
-console.log(JSON.stringify({ ok: true, checks: ['P1462', 'P1463', 'P1464', 'P1466', 'P1467', 'P1468', 'P1469', 'v57.48-review-1·2·3·6·8·9·10·12·15·16·17·18·22·25'] }));
+// v57.81 (analysis audit 2026-10-15, data of 10/14-10/15): the portfolio market read.
+{
+  const regime = { available: true, overall: '혼조', counts: { favorable: 2, neutral: 2, burden: 2 }, axes: [{ id: 'breadth', state: 'burden' }] };
+  const krRecord = { date: '2026-10-15', d1: -7.57, d5: -18.4, rec1: { n: 252, pct: 2 }, rec5: { n: 252, pct: 0 }, tail1: 2, tail5: 0, tail: 0, extreme: true };
+  const krRows = [{ sym: '005930.KS', sector: 'Technology', pctSma50: -19.4, pctSma200: -10.09, adrPct: 4 }, { sym: '000660.KS', sector: 'Technology', pctSma50: -25.62, pctSma200: -14.36, adrPct: 5 }, { sym: 'QQQ', sector: 'ETF', pctSma50: 0.38, pctSma200: 8.37, adrPct: 1.04 }];
+  const krBook = buildPortfolioRead({ surface: { rows: [{ symbol: '005930.KS', value: 40 }, { symbol: '000660.KS', value: 30 }, { symbol: 'QQQ', value: 30 }] }, rows: krRows, regime, krRecord });
+  const market = krBook.points.find((point) => point.id === 'market');
+  if (!market || /극단적이지 않아/.test(market.text) || !/한국 보유\(평가액의 70%\)/.test(market.text) || !/코스피 10\/15 하루 -7\.6%, 5거래일 -18\.4%로 최근 252거래일 기록에서/.test(market.text) || market.tone !== 'burden' || !/^미국 시장 상태\(6개 지표\)는/.test(market.text)) fail(`v57.81 a 70%-KR book on 10/15 gets the KR line, the US-labelled tally and no "극단적이지 않아": ${market?.text}`);
+  if (!/한국 보유가 평가액의 70%/.test(krBook.headline) || !/미국 시장 상태는 '혼조'/.test(krBook.headline)) fail(`v57.81 the headline names the US state and the Korean part: ${krBook.headline}`);
+  const trend = krBook.points.find((point) => point.id === 'trend');
+  if (krBook.trendMix.find((row) => row.state === 'near').pct !== 30 || krBook.trendMix.find((row) => row.state === 'up').pct !== 0) fail(`v57.81 QQQ at +0.38% vs its 50-day line reads 선 근처, not 오르는 흐름: ${JSON.stringify(krBook.trendMix)}`);
+  if (/미국 보유 중 하락 추세/.test(trend.text) || !/선 근처라 판정 보류/.test(krBook.headline)) fail(`v57.81 the US breadth clause covers only US holdings (KRX names in a downtrend are not "시장 폭" exposure): ${trend.text}`);
+  // Contradiction: '부담 우세' (burden 3 · favourable 1) can never be read as a calm environment.
+  const heavy = buildPortfolioRead({ surface: { rows: [{ symbol: 'QQQ', value: 100 }] }, rows: krRows, regime: { ...regime, overall: '부담 우세', counts: { favorable: 1, neutral: 2, burden: 3 } } });
+  const heavyMarket = heavy.points.find((point) => point.id === 'market');
+  if (/극단적이지 않아/.test(heavyMarket.text) || heavyMarket.tone !== 'burden' || /한국 보유/.test(heavyMarket.text)) fail(`v57.81 the market sentence follows regime.overall: ${heavyMarket.text}`);
+  // Clean case: a holding well above both lines stays 상승 추세.
+  const clean = buildPortfolioRead({ surface: { rows: [{ symbol: 'MSFT', value: 100 }] }, rows: [{ sym: 'MSFT', sector: 'Technology', pctSma50: 5.95, pctSma200: 23.1, adrPct: 1.6 }], regime });
+  if (clean.trendMix.find((row) => row.state === 'up').pct !== 100) fail('v57.81 clean: MSFT 5.95% above its 50-day line is still 상승 추세');
+  // Rotation: XLK in the neutral band (RS-Ratio 100.33) and falling 4.5% against the S&P 500 in 5 sessions is held, not 선도.
+  const rs = Array.from({ length: 60 }, (_, i) => ({ sessionDate: `d${i}`, value: 100 + Math.sin(i / 3) * 0.6 }));
+  rs.push(...[100.4, 99.2, 98.0, 96.9, 95.9].map((value, i) => ({ sessionDate: `e${i}`, value })));
+  const rotationRows = [{ sym: 'MSFT', sector: 'Technology', pctSma50: 5.95, pctSma200: 23.1 }];
+  const xlkHeld = buildPortfolioRead({ surface: { rows: [{ symbol: 'MSFT', value: 100 }] }, rows: rotationRows, rotation: { XLK: { quadrant: 'Leading', rsRatio: 100.33, rsMomentum: 102.02, relativeStrength: rs } } });
+  const rotation = xlkHeld.points.find((point) => point.id === 'rotation');
+  if (!/0%가 시장보다 강해지는 '선도' 섹터/.test(rotation.text) || !/판정을 보류합니다/.test(rotation.text) || rotation.tone !== 'neutral' || xlkHeld.sectorMix[0].quadrant.label !== '판정 보류(경계)') fail(`v57.81 a quadrant inside the RRG band is 판정 보류, kept out of the tone: ${rotation.text}`);
+  const xlkClear = buildPortfolioRead({ surface: { rows: [{ symbol: 'MSFT', value: 100 }] }, rows: rotationRows, rotation: { XLK: { quadrant: 'Leading', rsRatio: 105, rsMomentum: 103, relativeStrength: rs.slice(0, 60) } } });
+  if (!/100%가 시장보다 강해지는 '선도' 섹터/.test(xlkClear.points.find((point) => point.id === 'rotation').text)) fail('v57.81 clean: a clear 선도 point without a recent reversal still reads 선도');
+}
+
+console.log(JSON.stringify({ ok: true, checks: ['P1462', 'P1463', 'P1464', 'P1466', 'P1467', 'P1468', 'P1469', 'v57.48-review-1·2·3·6·8·9·10·12·15·16·17·18·22·25', 'v57.81-portfolio-read'] }));

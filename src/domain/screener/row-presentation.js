@@ -47,7 +47,8 @@ export function rankGrade(rank) {
 export function vcpStageLabel(stage) {
   // v57.50 C19: the producer's gate is a moving-average order (price > 150 > 200-day line, above the 50-day line, within
   // 30% of the 52-week high) — not a Weinstein stage and not the 50·200-day position the stock summary calls 상승 추세.
-  return ({ not_stage2: '이동평균 배열 미충족', breakout: '피벗 돌파', near_pivot: '피벗 근접', contracting: '변동폭 수축', basing: '기반 형성', stage2_only: '이동평균 배열 충족' })[stage] || '관측';
+  // v57.81: a close above the pivot on heavy volume that closed down is not a breakout (price-factors.js).
+  return ({ not_stage2: '이동평균 배열 미충족', breakout: '피벗 돌파', pivot_down: '피벗 위 하락(거래량 증가)', near_pivot: '피벗 근접', contracting: '변동폭 수축', basing: '기반 형성', stage2_only: '이동평균 배열 충족' })[stage] || '관측';
 }
 
 // P1319/N12: one honest statement of staleness per table instead of one per cell.

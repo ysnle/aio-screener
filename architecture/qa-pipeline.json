@@ -63,7 +63,9 @@
         "scripts/ci-professional-data-gap-check.mjs",
         "scripts/ci-static-data-contract-check.mjs",
         "scripts/ci-sec-runtime-projection-check.mjs",
-        "scripts/ci-candidate-archive-check.mjs"
+        "scripts/ci-candidate-archive-check.mjs",
+        "scripts/ci-us-listings-check.mjs",
+        "scripts/ci-screener-extended-contract-check.mjs"
       ],
       "requiredTokens": [
         "public-data/history.json"
@@ -835,6 +837,21 @@
           "script": "scripts/ci-screener-workbench-contract.mjs"
         },
         {
+          "id": "screener-extended",
+          "script": "scripts/ci-screener-extended-contract-check.mjs",
+          "timeoutMs": 120000,
+          "inputs": [
+            "public-data/**",
+            "architecture/**",
+            "scripts/**",
+            "src/data/**",
+            "src/domain/**",
+            "src/state/**",
+            ".github/workflows/refresh-screener.yml",
+            "version.json"
+          ]
+        },
+        {
           "id": "conditional-evidence",
           "script": "scripts/ci-conditional-evidence-contract.mjs"
         },
@@ -1003,6 +1020,28 @@
         {
           "id": "candidate-archive",
           "script": "scripts/ci-candidate-archive-check.mjs"
+        },
+        {
+          "id": "us-listings",
+          "script": "scripts/ci-us-listings-check.mjs",
+          "inputs": [
+            "scripts/lib/us-listings.mjs",
+            "scripts/fixtures/us-listings/**",
+            "scripts/build-us-listings.mjs",
+            "src/data/us-listings.js",
+            "src/data/artifact-cache.js",
+            "src/app/compatibility-globals.js",
+            "src/app/bootstrap.js",
+            "js/aio-workspace.js",
+            "js/aio-core.js",
+            "js/aio-data.js",
+            "index.html",
+            "sw.js",
+            ".github/workflows/refresh-screener.yml",
+            "scripts/ci-data-lineage-audit.mjs",
+            "scripts/ci-artifact-size-headroom-check.mjs",
+            "public-data/us-listings.json"
+          ]
         },
         {
           "id": "review-integrity",
@@ -1749,6 +1788,11 @@
           "timeoutMs": 120000
         },
         {
+          "id": "browser-screener-extended",
+          "script": "scripts/ci-screener-extended-browser-check.mjs",
+          "timeoutMs": 180000
+        },
+        {
           "id": "browser-boot",
           "script": "scripts/ci-boot-interaction-check.mjs",
           "timeoutMs": 120000,
@@ -1938,6 +1982,18 @@
           "script": "scripts/ci-entity-quality-browser-check.mjs",
           "timeoutMs": 300000,
           "weight": 2
+        },
+        {
+          "id": "browser-touch-ergonomics",
+          "script": "scripts/ci-touch-ergonomics-browser-check.mjs",
+          "timeoutMs": 180000,
+          "remedy": "v57.81: touch rules live in src/ui/styles/responsive.css under @media (pointer: coarse); inputs 16px, primary navigation and page buttons 44px, targets 24px, text 11px"
+        },
+        {
+          "id": "browser-out-of-universe-ticker",
+          "script": "scripts/ci-out-of-universe-ticker-browser-check.mjs",
+          "timeoutMs": 300000,
+          "weight": 1
         }
       ]
     },
@@ -2031,7 +2087,8 @@
             "architecture/**",
             "scripts/**",
             "version.json",
-            "js/aio-workspace.js"
+            "js/aio-workspace.js",
+            "src/domain/fundamental/sec-normalize.js"
           ]
         },
         {
@@ -2392,7 +2449,9 @@
       "gates": [
         "browser-viewport",
         "browser-responsive",
-        "browser-entity-quality"
+        "browser-entity-quality",
+        "browser-touch-ergonomics",
+        "browser-out-of-universe-ticker"
       ]
     },
     {
@@ -3008,6 +3067,30 @@
       "groups": [],
       "gates": [
         "qa-pipeline-contract"
+      ]
+    },
+    {
+      "patterns": [
+        "scripts/lib/us-listings.mjs",
+        "scripts/fixtures/us-listings/**",
+        "scripts/build-us-listings.mjs",
+        "src/data/us-listings.js",
+        "src/data/artifact-cache.js",
+        "src/app/compatibility-globals.js",
+        "src/app/bootstrap.js",
+        "js/aio-workspace.js",
+        "js/aio-core.js",
+        "js/aio-data.js",
+        "index.html",
+        "sw.js",
+        ".github/workflows/refresh-screener.yml",
+        "scripts/ci-data-lineage-audit.mjs",
+        "scripts/ci-artifact-size-headroom-check.mjs",
+        "public-data/us-listings.json"
+      ],
+      "groups": [],
+      "gates": [
+        "us-listings"
       ]
     }
   ]

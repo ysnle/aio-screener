@@ -1,0 +1,21 @@
+/* v57.81 (phone/iPad parity audit): fixed shell overlays never cover what they sit on.
+   State classes and sizes come from src/ui/components/shell-overlays.js. */
+
+/* Update banner: the close button reads 닫기 (index.html), the text keeps clear of it, and the app moves down by the
+   banner height while it shows, so the topbar menu button is not under the banner. */
+body #update-banner { padding-left: 72px; padding-right: 72px; }
+body.aio-update-banner-open .app { padding-top: var(--aio-update-banner-h, 0px); box-sizing: border-box; }
+@media (max-width: 1100px) {
+  body.aio-update-banner-open .sidebar { top: var(--aio-update-banner-h, 0px); height: calc(100dvh - var(--aio-update-banner-h, 0px)); }
+}
+
+/* viewport-fit=cover (index.html meta) makes env(safe-area-inset-*) apply; in iPhone landscape the app keeps clear of
+   the side notch. Every inset is 0 on devices without one. */
+.app { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); box-sizing: border-box; }
+
+/* First-visit disclaimer bar: toasts and the scroll-top button sit above it, and the content and sidebar end with its
+   height of room, so nothing under the bar (the sidebar 보안 설정 included) is unreachable. */
+body.aio-disclaimer-open .content { padding-bottom: calc(var(--aio-disclaimer-h, 0px) + 20px); }
+body.aio-disclaimer-open .sidebar { padding-bottom: var(--aio-disclaimer-h, 0px); }
+body.aio-disclaimer-open #scroll-top-btn { bottom: calc(var(--aio-disclaimer-h, 0px) + 16px); }
+body.aio-disclaimer-open .aio-toast { bottom: calc(var(--aio-disclaimer-h, 0px) + 16px) !important; }

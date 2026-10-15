@@ -12,8 +12,9 @@ import { buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch } 
 import { buildChatPolicyLines } from '../ai/context/policy-lines.js';
 import { resolveChatTickers } from '../ai/entity/chat-tickers.js';
 import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence } from '../ai/research/native-search.js';
-import { isKnownSymbol, resolveRegisteredName, searchCandidates } from '../domain/ticker/resolve-name.js';
+import { isKnownSymbol, resolveHoldingInput, resolveRegisteredName, searchCandidates } from '../domain/ticker/resolve-name.js';
 import { hasFinalConsonant } from '../domain/content/korean-particle.js';
+import { isListedUsSymbol, usListingSymbol } from '../data/us-listings.js';
 import { groupNewsStories, isNewsRevision, newsArticleKey, resolveNewsIssuers } from '../domain/news/stories.js';
 // Portfolio statistics/backtest is a native ESM module; importing it during
 // bootstrap keeps the classic regression surface available before lazy route
@@ -28,6 +29,8 @@ import { assembleRiskEstimateInput } from '../ui/panels/portfolio-risk-input.js'
 import { baseValueRows, baseValueNote } from '../ui/panels/portfolio-base-values.js';
 import { createDeclarationsStore } from '../data/portfolio-declarations-store.js';
 import { BACKUP_SECTIONS, buildPortfolioBackup, describeBackupCounts, parsePortfolioBackup } from '../data/portfolio-backup.js';
+import { CASH_INPUT_CURRENCIES, PORTFOLIO_CASH_KEY, LEGACY_CASH_KEY, readCashBalances, setCashBalance, writeCashBalances } from '../data/portfolio-cash.js';
+import { appUsdKrwClose } from '../domain/portfolio/cash.js';
 import { normalizeTickerInput, tickerDisplayName } from '../domain/entity/ticker-symbol.js';
 import { describeQuoteCurrentness } from '../domain/market/quote-currentness.js';
 import { KR_THEME_LABELS, krThemesForSymbol } from '../domain/themes/kr-themes.js';
@@ -36,7 +39,7 @@ import { MA_STRUCTURE_LABELS } from '../domain/technical/stage.js';
 export function installCompatibilityGlobals(root = globalThis) {
   const window = root;
   const document = root.document;
-  window._aioPersonalProviderTransport = createPersonalProviderTransport({ fetch: (...args) => window.fetch(...args), localStorage: window.localStorage, _isQuotaExceeded: (...args) => window._isQuotaExceeded(...args), _bumpApiCounter: (...args) => window._bumpApiCounter(...args), _QUOTA_LIMITS: window._QUOTA_LIMITS });
+  window._aioPersonalProviderTransport = createPersonalProviderTransport({ fetch: (...args) => window.fetch(...args) });
   window._statMean = _statMean;
   window._statStdDev = _statStdDev;
   window._calcDailyReturns = _calcDailyReturns;
@@ -119,15 +122,82 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
   };
   window._aioResolveRegisteredName = (raw) => resolveRegisteredName(raw, window.AIO_TICKER_NAME_REGISTRY?.entries);
   // v57.54 review: a search with no exact match keeps a message under the box with candidates to pick (no auto-open).
+  // v57.81: a symbol the US listing directory confirmed this session is known as well (it is a real listing, not a typo).
+  const listedSeen = new Set();
   window._aioIsKnownTicker = (symbol) => isKnownSymbol(symbol, { entries: window.AIO_TICKER_NAME_REGISTRY?.entries, krStockDb: window.KR_STOCK_DB,
-    universe: typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [] });
-  // v57.55 review (B4-F3): the cash box had a fixed "$" — a won amount read as dollars. The quick picker writes the same
-  // cash-currency declaration as the settings field (one writer: savePortfolioAssumption).
-  window._aioSaveCashCurrencyQuick = (el) => {
-    const twin = document.getElementById('pf-cash-currency-input');
-    if (twin) twin.value = el?.value || '';
-    window.savePortfolioAssumption?.('pf-cash-currency-input', el?.value || '');
+    universe: typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [] }) || listedSeen.has(String(symbol || '').trim().toUpperCase());
+  // v57.81 (owner 2026-10-15): a US-listed symbol outside the published universe is read on demand with the producer's
+  // own functions (src/data/on-demand-symbol.js). Nothing loads at boot — the reader, the listing directory and a
+  // symbol's chart/filings load only when a screen asks for that one symbol (session cache, two symbols at a time).
+  const checkListed = (symbol) => import('../data/us-listings.js').then((module) => module.isListedUsSymbol(symbol))
+    .then((listing) => { if (listing?.listed) listedSeen.add(String(symbol || '').trim().toUpperCase()); return listing || { listed: false }; })
+    .catch(() => ({ listed: false, directoryAvailable: false }));
+  let onDemandReader = null;
+  const onDemandReady = () => (onDemandReader ? Promise.resolve(onDemandReader) : import('../data/on-demand-symbol.js').then((module) => (onDemandReader ||= module.createOnDemandSymbolReader({
+    fetchChart: (id) => (typeof window._fetchYahooChartData === 'function' ? window._fetchYahooChartData(id, '1y', '1d') : null),
+    fetchJson: (url) => (typeof window.fetchViaProxy === 'function' ? window.fetchViaProxy(url, { parseJson: true, timeout: 12000 }) : null),
+    isListed: checkListed,
+    isKnown: (id) => window._aioIsKnownTicker?.(id) === true,
+    universeRows: () => window._aioGetCanonicalScreenerRows?.() || [],
+    // The inputs the screener's own ranking run uses (js/aio-data.js _aioComputeFactorRanks).
+    rankInputs: () => {
+      const weights = typeof window._aioFactorWeights === 'function' ? window._aioFactorWeights(window.AIO?.marketState) : null;
+      const server = window._aioServerScreener || {};
+      return { weights: weights?.weights || null, weightsPolicy: weights?.source === 'explicit-user-profile' ? 'explicit' : 'model-default',
+        regimeLabel: weights?.regimeLabel || null, fundamentalCoveragePct: Number(server.fundamentalCoveragePct || 0), fmpOk: !!server.fmpOk };
+    },
+    readLiveData: () => window._liveData || {},
+    onRecord: (record) => {
+      if (record?.status === 'ready') window.AIO?.registerLiveSymbol?.(record.symbol, { reason: 'on-demand-symbol' });
+      try {
+        document?.dispatchEvent?.(new CustomEvent('aio:onDemandSymbol', { detail: { symbol: record?.symbol, status: record?.status } }));
+        if (String(window._currentTickerId || '').toUpperCase() === record?.symbol) document?.dispatchEvent?.(new CustomEvent('aio:entityChanged', { detail: { id: record.symbol, source: 'on-demand-symbol' } }));
+      } catch (_) { /* event construction unavailable */ }
+    }
+  }))));
+  window._aioRequestOnDemandSymbol = (symbol) => onDemandReady().then((reader) => reader.load(symbol)).catch(() => null);
+  window._aioOnDemandSymbol = (symbol) => onDemandReader?.peek(symbol) || null;
+  window._aioCheckListedSymbol = checkListed;
+  // v57.81: the chat's per-symbol data block carries the on-demand placement text (empty for universe/unlisted symbols).
+  window._aioOnDemandChatContext = (symbol) => window._aioRequestOnDemandSymbol(symbol)
+    .then((record) => (record?.status === 'ready' ? import('../domain/entity/out-of-universe-read.js').then((module) => module.outOfUniverseContext(record)) : ''))
+    .catch(() => '');
+  // v57.81: a watchlist or alert symbol is accepted when AIO knows it or the US listing directory lists it, and an
+  // accepted symbol joins the live-quote request set (the next scheduled quote refresh fetches it).
+  window._aioAcceptSymbol = (raw) => {
+    const id = typeof window._aioNormalizeTickerInput === 'function' ? window._aioNormalizeTickerInput(raw) : String(raw || '').trim().toUpperCase();
+    if (!/^[A-Z0-9.^=\-]{1,12}$/.test(id)) return Promise.resolve({ ok: false, id, reason: 'shape' });
+    const accept = (basis) => { window.AIO?.registerLiveSymbol?.(id, { reason: `accepted:${basis}` }); return { ok: true, id, basis }; };
+    if (window._aioIsKnownTicker?.(id)) return Promise.resolve(accept('known'));
+    return checkListed(id).then((listing) => (listing?.listed ? accept('us-listing')
+      : { ok: false, id, reason: listing?.directoryAvailable === false ? 'listing-unavailable' : 'not-listed' }));
   };
+  // v57.81: the portfolio entry box shares this owner — it had its own narrower hand list and rejected universe symbols (SPCX).
+  window._aioResolveHoldingInput = (raw) => resolveHoldingInput(raw, { entries: window.AIO_TICKER_NAME_REGISTRY?.entries, krStockDb: window.KR_STOCK_DB,
+    universe: typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [] });
+  // v57.81: cash is one balance per currency (원화 현금 · 달러 현금). Storage shape and the legacy single-value migration are
+  // owned by src/data/portfolio-cash.js; the shell reads, writes and re-renders through this one bridge.
+  window._pfPortfolioCash = {
+    key: PORTFOLIO_CASH_KEY,
+    legacyKey: LEGACY_CASH_KEY,
+    currencies: CASH_INPUT_CURRENCIES,
+    read: () => readCashBalances(window.localStorage),
+    write: (balances) => writeCashBalances(window.localStorage, balances),
+    appFx: () => appUsdKrwClose(window._aioHistory || [])
+  };
+  window._aioSaveCashBalance = (el) => {
+    const currency = el?.dataset?.currency;
+    if (!currency) return;
+    const next = setCashBalance(readCashBalances(window.localStorage).balances, currency, el.value);
+    const ack = writeCashBalances(window.localStorage, next);
+    if (!ack.ok) window.showToast?.('현금을 저장하지 못했습니다 — 이전 금액이 그대로 남아 있습니다.');
+    try { document.dispatchEvent(new CustomEvent('aio:portfolioChanged')); } catch (_) {}
+    try { window.renderPortfolio?.(); } catch (_) {}
+  };
+  // v57.81: the official US listing (public-data/us-listings.json) is fetched only when a symbol is unknown to the
+  // registries above — never at boot. Exact symbol only; listed:null means it could not be checked (never accept).
+  window._aioCheckUsListing = (symbol) => isListedUsSymbol(symbol);
+  window._aioUsListingSymbol = (symbol) => usListingSymbol(symbol);
   window._aioTickerSearchMiss = (raw) => {
     const input = document.getElementById('ticker-direct-search');
     const row = input?.parentElement;

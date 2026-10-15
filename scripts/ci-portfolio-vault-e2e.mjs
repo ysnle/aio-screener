@@ -7,6 +7,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
+import { buildArtifact, buildListingRows, joinSecCik, secCikMap } from './lib/us-listings.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.CI_PORTFOLIO_PORT || 8894);
@@ -87,6 +88,123 @@ export async function runFinancialSecurityRaceFixtures(api = window._aioFinancia
     outcomes['restore-keeps-new-session'] = await pending === 'vault-operation-cancelled' && vault.isUnlocked() && vault._keyRuntime.newSession === 'keep' && !('aio_portfolio_data' in vault._keyRuntime);
   }
   return outcomes;
+}
+
+// v57.81: a symbol outside AIO's registries but on the official US listing (the canned Nasdaq Trader sample) saves, is
+// requested for a quote like any holding and values at that quote; a listed symbol with no quote shows 가격 없음 and is
+// left out of the totals; an unlisted symbol (APPL) is rejected; an unreachable listing never saves.
+const LISTING_WORKER_HOST = 'aio-proxy.zmfhd007.workers.dev';
+function cannedUsListingArtifact() {
+  const fixture = (name) => readFileSync(resolve(root, 'scripts/fixtures/us-listings', name), 'utf8');
+  const built = buildListingRows(fixture('nasdaqlisted.txt'), fixture('otherlisted.txt'));
+  const joined = joinSecCik(built.rows, secCikMap(JSON.parse(fixture('sec-company-tickers-exchange.json'))));
+  return buildArtifact(joined.rows, { generatedAt: new Date().toISOString(), asOf: '2026-10-15', fileCreationTime: built.fileCreationTime, dropped: built.dropped, coverage: {}, secJoin: { status: 'joined' } });
+}
+function sparkStub(requestUrl, quotes) {
+  let upstream = '';
+  try { upstream = new URL(requestUrl).searchParams.get('url') || ''; } catch (_) {}
+  const nowSec = Math.floor(Date.now() / 1000);
+  const meta = (symbol) => ({ symbol, currency: 'USD', exchangeName: 'NMS', regularMarketPrice: quotes[symbol].price, previousClose: quotes[symbol].previousClose, chartPreviousClose: quotes[symbol].previousClose, regularMarketTime: nowSec, marketState: 'REGULAR', dataGranularity: '1d', range: '1d' });
+  if (/\/v7\/finance\/spark/.test(upstream)) {
+    const symbols = (new URL(upstream).searchParams.get('symbols') || '').split(',').map((s) => s.trim().toUpperCase()).filter((s) => quotes[s]);
+    return { status: 200, body: JSON.stringify({ spark: { result: symbols.map((symbol) => ({ symbol, response: [{ meta: meta(symbol), timestamp: [nowSec], indicators: { quote: [{ close: [quotes[symbol].price] }] } }] })), error: null } }) };
+  }
+  const chart = upstream.match(/\/v8\/finance\/chart\/([^?]+)/);
+  const symbol = chart ? decodeURIComponent(chart[1]).toUpperCase() : '';
+  if (quotes[symbol]) return { status: 200, body: JSON.stringify({ chart: { result: [{ meta: meta(symbol), timestamp: [nowSec], indicators: { quote: [{ close: [quotes[symbol].price] }] } }], error: null } }) };
+  return { status: 404, body: '{"chart":{"result":null,"error":{"code":"Not Found"}}}' };
+}
+async function openListingPage(browser, { listing }) {
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  const artifact = JSON.stringify(cannedUsListingArtifact());
+  const quotes = { HWKN: { price: 52.1, previousClose: 51 } };
+  await page.route('**/*', (route) => {
+    const requestUrl = route.request().url();
+    if (/\/public-data\/us-listings\.json(?:\?|$)/.test(requestUrl)) {
+      return listing === 'ok' ? route.fulfill({ status: 200, contentType: 'application/json', body: artifact }) : route.abort();
+    }
+    if (requestUrl.startsWith(`http://127.0.0.1:${port}/`)) return route.continue();
+    if (new URL(requestUrl).hostname === LISTING_WORKER_HOST) {
+      const { status, body } = sparkStub(requestUrl, quotes);
+      return route.fulfill({ status, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body });
+    }
+    return route.abort();
+  });
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.waitForFunction(() => typeof window.addPortfolioPosition === 'function' && typeof window._aioCheckUsListing === 'function' && typeof window.showPage === 'function', { timeout: 30000 });
+  return page;
+}
+async function addListedHoldings(page, symbols) {
+  return page.evaluate(async (list) => {
+    localStorage.clear(); sessionStorage.clear(); _AioVault.lock();
+    localStorage.setItem('aio_portfolio_vault_optout', '1');
+    window.showPage('portfolio');
+    const toasts = [];
+    const originalToast = window.showToast;
+    window.showToast = (msg) => { toasts.push(String(msg)); };
+    try {
+      for (const ticker of list) {
+        document.getElementById('pf-add-ticker').value = ticker;
+        document.getElementById('pf-add-qty').value = '3';
+        document.getElementById('pf-add-cost').value = '40';
+        document.getElementById('pf-add-target').value = '';
+        document.getElementById('pf-add-memo').value = '';
+        await window.addPortfolioPosition();
+      }
+    } finally { window.showToast = originalToast; }
+    return { toasts, stored: window.getPortfolioData().map((row) => ({ ticker: row.ticker, qty: row.qty, cost: row.cost })) };
+  }, symbols);
+}
+async function runUsListingHoldingFixture(browser, check) {
+  const page = await openListingPage(browser, { listing: 'ok' });
+  try {
+    const added = await addListedHoldings(page, ['HWKN', 'GHC', 'APPL']);
+    const tickers = added.stored.map((row) => row.ticker);
+    check('v57.81 listed out-of-universe symbol saves with its official name', tickers.includes('HWKN') && added.toasts.some((msg) => msg.includes('HWKN 포지션 추가 완료') && msg.includes('Hawkins, Inc.')), JSON.stringify(added));
+    check('v57.81 unlisted APPL is rejected, not rewritten to AAPL', !tickers.includes('APPL') && !tickers.includes('AAPL') && added.toasts.some((msg) => msg.includes('"APPL" 검증되지 않은 티커')), JSON.stringify(added));
+    const read = () => page.evaluate(() => {
+      const cell = (ticker, header) => (document.querySelector(`#pf-positions-tbody tr[data-arg="${ticker}"] td[headers="${header}"]`)?.textContent || '').trim();
+      return {
+        hwknPrice: cell('HWKN', 'pf-th-price'), hwknPnl: cell('HWKN', 'pf-th-pnl'), hwknQty: cell('HWKN', 'pf-th-qty'), hwknCost: cell('HWKN', 'pf-th-cost'), hwknWeight: cell('HWKN', 'pf-th-weight'),
+        ghcPrice: cell('GHC', 'pf-th-price'), ghcQty: cell('GHC', 'pf-th-qty'), ghcCost: cell('GHC', 'pf-th-cost'), ghcPnl: cell('GHC', 'pf-th-pnl'),
+        status: document.getElementById('pf-analysis-status')?.textContent || '',
+        dailyPct: document.getElementById('pf-daily-pct')?.textContent || '',
+        live: window._liveData?.HWKN ? { price: window._liveData.HWKN.price, pct: window._liveData.HWKN.pct ?? window._liveData.HWKN.regularMarketChangePercent ?? null } : null,
+        requested: (window._aioQuoteRequestSymbols || []).filter((s) => s === 'HWKN' || s === 'GHC')
+      };
+    });
+    let state = await read();
+    const started = Date.now();
+    while (Date.now() - started < 45000 && !/52\.10/.test(state.hwknPrice)) {
+      await page.evaluate(() => { try { window.renderPortfolio?.(); } catch (_) {} });
+      await page.waitForTimeout(1000);
+      state = await read();
+    }
+    check('v57.81 every holding joins the quote request set (in or out of the universe)', state.requested.includes('HWKN') && state.requested.includes('GHC'), JSON.stringify(state));
+    check('v57.81 listed out-of-universe holding values at the live quote (3 x (52.10 - 40))', /\$52\.10/.test(state.hwknPrice) && state.hwknPnl === '+$36.30' && Math.abs((state.live?.pct ?? 0) - 2.157) < 0.01, JSON.stringify(state));
+    check('v57.81 listed holding with no quote shows 가격 없음 and keeps quantity and cost', state.ghcPrice === '가격 없음' && state.ghcQty === '3' && /^\$40\.00$/.test(state.ghcCost) && state.ghcPnl === '—', JSON.stringify(state));
+    check('v57.81 totals say the 가격 없음 holding is left out', /가격 없음 1종목은 총자산과 손익에서 뺐습니다/.test(state.status), JSON.stringify(state));
+    // With the unpriced holding removed every holding is valued: the hero total, weight and day change come from the quote.
+    const solo = await page.evaluate(async () => {
+      await window.savePortfolioData(window.getPortfolioData().filter((row) => row.ticker === 'HWKN'));
+      window.renderPortfolio();
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      const cell = (header) => (document.querySelector(`#pf-positions-tbody tr[data-arg="HWKN"] td[headers="${header}"]`)?.textContent || '').trim();
+      return { total: document.getElementById('pf-total-value')?.textContent || '', pnl: document.getElementById('pf-total-pnl')?.textContent || '', dailyChg: document.getElementById('pf-daily-chg')?.textContent || '', dailyPct: document.getElementById('pf-daily-pct')?.textContent || '', weight: cell('pf-th-weight'), status: document.getElementById('pf-analysis-status')?.textContent || '' };
+    });
+    // The portfolio-wide day change and the cash-inclusive total keep their existing rules (a reference quote is not
+    // decision-grade; the total needs declared cash); the quote's own day change is checked above via _liveData.
+    check('v57.81 fully priced listed holding: P&L total, weight and complete valuation from the live quote', solo.pnl === '+$36' && /^100\.0%/.test(solo.weight) && /1종목 평가 완료/.test(solo.status), JSON.stringify(solo));
+  } finally {
+    await page.close();
+  }
+  const offline = await openListingPage(browser, { listing: 'offline' });
+  try {
+    const added = await addListedHoldings(offline, ['HWKN']);
+    check('v57.81 unreachable listing never accepts an unchecked symbol', added.stored.length === 0 && added.toasts.some((msg) => msg.includes('상장 목록을 불러오지 못해 저장하지 않았습니다')), JSON.stringify(added));
+  } finally {
+    await offline.close();
+  }
 }
 
 async function main() {
@@ -316,6 +434,47 @@ async function main() {
       currencyWriter.declared === 'KRW' && currencyWriter.undeclared === null && currencyWriter.invalidRejected,
       JSON.stringify(currencyWriter));
 
+    // v57.81: SPCX (SpaceX, Nasdaq since 2026-06-12) sat in the screener universe but the portfolio box checked only its own
+    // hand list and rejected it. The box now shares the ticker-route owner: exact universe match is accepted, a registered
+    // nickname resolves to it, and a near-miss ticker is neither rewritten nor saved.
+    const listedSymbol = await page.evaluate(async () => {
+      localStorage.setItem('aio_portfolio_vault_optout', '1');
+      _AioVault.lock();
+      localStorage.removeItem('aio_portfolio_data');
+      window.showPage('portfolio');
+      const originalToast = window.showToast;
+      const toasts = [];
+      window.showToast = (message) => { toasts.push(String(message)); };
+      const fill = (ticker) => {
+        document.getElementById('pf-add-ticker').value = ticker;
+        document.getElementById('pf-add-qty').value = '1';
+        document.getElementById('pf-add-cost').value = '150';
+        document.getElementById('pf-add-target').value = '';
+        document.getElementById('pf-add-memo').value = '';
+        document.getElementById('pf-add-cost-currency').value = '';
+        return window.addPortfolioPosition();
+      };
+      try {
+        await fill('SPCXX');
+        await fill('SPACEX');
+        const nearMissSaved = window.getPortfolioData().map((entry) => entry.ticker);
+        await fill('spcx');
+        const exact = window.getPortfolioData().map((entry) => entry.ticker);
+        localStorage.removeItem('aio_portfolio_data');
+        window.renderPortfolio?.();
+        await fill('스엑');
+        const alias = window.getPortfolioData().map((entry) => entry.ticker);
+        return { nearMissSaved, exact, alias, toasts };
+      } finally { window.showToast = originalToast; }
+    });
+    check('PFE2-24 listed_universe_symbol_accepted_exactly (v57.81)',
+      listedSymbol.nearMissSaved.length === 0 && listedSymbol.exact.join() === 'SPCX'
+      && listedSymbol.toasts.filter((message) => /(검증되지 않은 티커라|상장 목록을 불러오지 못해) 저장하지 않았습니다/.test(message)).length === 2, // v57.81: with no listing artifact a near-miss is refused as unchecked
+      JSON.stringify(listedSymbol));
+    check('PFE2-25 verified_nickname_resolves_by_registry (v57.81)',
+      listedSymbol.alias.join() === 'SPCX' && listedSymbol.toasts.some((message) => /"스엑" = SPCX/.test(message)),
+      JSON.stringify(listedSymbol));
+
     // E3/P1187 (11 P11-01): 가져오기·전체 삭제 경로는 savePortfolioData의 반환을 버려 persist가
     // 거부돼도 완료를 말했다. 두 경로 모두 실패 ack에서 성공 문구를 내지 않아야 한다.
     const ackPaths = await page.evaluate(async () => {
@@ -378,21 +537,23 @@ async function main() {
         window.savePortfolioAssumption(id, el.value);
         return true;
       };
-      const present = set('pf-cash-currency-input', 'krw') && set('pf-base-currency-input', 'USD')
+      // v57.81: the cash-currency field is retired (each cash balance carries its own currency); the base field carries
+      // the invalid-declaration probe instead.
+      const retiredCashCurrencyField = !document.getElementById('pf-cash-currency-input');
+      const present = set('pf-base-currency-input', 'usd')
         && set('pf-rf-input', '3') && set('pf-cash-return-input', '4');
       const read = (key) => localStorage.getItem(key);
       const declared = {
-        cashCurrency: read('aio_portfolio_cash_currency'),
         baseCurrency: read('aio_portfolio_base_currency'),
         rf: read('aio_portfolio_rf'),
         cashReturn: read('aio_portfolio_cash_return')
       };
-      set('pf-cash-currency-input', 'US'); // invalid → the declaration must not survive
-      const invalidRemoved = read('aio_portfolio_cash_currency') === null;
-      return { present, declared, invalidRemoved };
+      set('pf-base-currency-input', 'US'); // invalid → the declaration must not survive
+      const invalidRemoved = read('aio_portfolio_base_currency') === null;
+      return { present, retiredCashCurrencyField, declared, invalidRemoved };
     });
-    check('PFE2-15 assumption_writer_declares_and_rejects (P1188)',
-      assumptionWriter.present === true && assumptionWriter.declared.cashCurrency === 'KRW'
+    check('PFE2-15 assumption_writer_declares_and_rejects (P1188, v57.81)',
+      assumptionWriter.present === true && assumptionWriter.retiredCashCurrencyField === true
       && assumptionWriter.declared.baseCurrency === 'USD' && assumptionWriter.declared.rf === '3'
       && assumptionWriter.declared.cashReturn === '4' && assumptionWriter.invalidRemoved === true,
       JSON.stringify(assumptionWriter));
@@ -875,6 +1036,55 @@ async function main() {
     check('P1350 journal_separate_consent_and_preview',aiPrivacy.noUnexpectedNotes && aiPrivacy.preview.noteIncluded && aiPrivacy.preview.fields.includes('currentJournal') && aiPrivacy.revoked,JSON.stringify(aiPrivacy));
     check('P1350 journal_storage_failure_is_not_success',aiPrivacy.journalFailure,JSON.stringify(aiPrivacy));
     check('P1350 journal_storage_success_positive_control',aiPrivacy.journalSuccess,JSON.stringify(aiPrivacy));
+    // v57.81: cash is one balance per currency. A legacy single value reads as one balance without a write; the per-currency
+    // boxes save through the bridge (legacy copy dropped only after the new key reads back); a PIN lock/unlock and the
+    // backup bundle (old single-cash bundles included) round-trip the balances.
+    const cashModel = await page.evaluate(async () => {
+      localStorage.clear(); sessionStorage.clear(); _AioVault.lock();
+      localStorage.setItem('aio_portfolio_cash', '5000');
+      localStorage.setItem('aio_portfolio_cash_currency', 'KRW');
+      const bridge = window._pfPortfolioCash;
+      const legacyRead = bridge.read();
+      const legacyKeptAfterRead = localStorage.getItem('aio_portfolio_cash') === '5000' && localStorage.getItem('aio_portfolio_cash_balances') === null;
+      const secondRead = JSON.stringify(bridge.read()) === JSON.stringify(legacyRead);
+      window.savePortfolioData([{ ticker: 'AAPL', qty: 1, cost: 100 }]);
+      document.getElementById('pf-pin-input').value = '1357';
+      await window.unlockPortfolio(); // test PIN in this throwaway context only
+      window.showPage('portfolio');
+      await new Promise((r) => setTimeout(r, 120));
+      const krwBox = document.getElementById('pf-cash-krw-input');
+      const usdBox = document.getElementById('pf-cash-usd-input');
+      const restoredBox = krwBox?.value === '5000';
+      usdBox.value = '1200';
+      window._aioSaveCashBalance(usdBox);
+      const saved = localStorage.getItem('aio_portfolio_cash_balances');
+      const legacyDropped = localStorage.getItem('aio_portfolio_cash') === null;
+      _AioVault.lock();
+      document.getElementById('pf-pin-input').value = '1357';
+      await window.unlockPortfolio();
+      const afterUnlock = JSON.stringify(bridge.read().balances);
+      const bundle = window._pfPortfolioBackup.build(_pfBackupSnapshot(), { exportedAt: '2026-10-15T00:00:00Z' });
+      const exported = JSON.stringify(bundle.contents.cashBalances);
+      // An old (pre-v57.81) bundle: one cash value, its unit declared as the base currency.
+      const oldBundle = window._pfPortfolioBackup.parse(JSON.stringify({ format: 'aio-backup', version: 1, contents: { positions: [{ ticker: 'AAPL', qty: 1, cost: 1 }], cash: '250000', assumptions: { baseCurrency: 'KRW' } } }));
+      await _pfRestoreBackupSections(oldBundle.contents);
+      const oldRestored = JSON.stringify(bridge.read().balances);
+      const roundTrip = window._pfPortfolioBackup.parse(JSON.stringify(bundle));
+      await _pfRestoreBackupSections(roundTrip.contents);
+      const newRestored = JSON.stringify(bridge.read().balances);
+      return { legacyRead, legacyKeptAfterRead, secondRead, restoredBox, saved, legacyDropped, afterUnlock, exported, oldRestored, newRestored, encrypted: (localStorage.getItem('aio_portfolio_data') || '').startsWith('aio_enc::') };
+    });
+    const twoBalances = '[{"currency":"KRW","amount":5000},{"currency":"USD","amount":1200}]';
+    check('v57.81 legacy_single_cash_reads_as_one_balance_without_write',
+      cashModel.legacyRead.source === 'legacy-single' && JSON.stringify(cashModel.legacyRead.balances) === '[{"currency":"KRW","amount":5000}]'
+      && cashModel.legacyKeptAfterRead && cashModel.secondRead, JSON.stringify(cashModel));
+    check('v57.81 per_currency_boxes_save_and_drop_legacy_copy',
+      cashModel.restoredBox && cashModel.saved === twoBalances && cashModel.legacyDropped, JSON.stringify(cashModel));
+    check('v57.81 cash_balances_survive_pin_lock_unlock', cashModel.encrypted && cashModel.afterUnlock === twoBalances, JSON.stringify(cashModel));
+    check('v57.81 backup_round_trips_cash_balances_and_old_single_cash',
+      cashModel.exported === twoBalances && cashModel.newRestored === twoBalances
+      && cashModel.oldRestored === '[{"currency":"KRW","amount":250000}]', JSON.stringify(cashModel));
+    if (!isLive) await runUsListingHoldingFixture(browser, check);
     report.page = await page.evaluate(() => ({ encryptedMarker: localStorage.getItem('aio_portfolio_data')?.slice(0, 9), optOut: localStorage.getItem('aio_portfolio_vault_optout') }));
   } catch (error) {
     report.errors.push(String(error && error.stack || error));

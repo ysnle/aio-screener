@@ -121,7 +121,7 @@ export function guideRuleRows(R = RULES) {
 
 function guideRuleRowsRaw(R) {
   return [
-    ['시장 상태', '추세 (S&P 500)', `오르는 ${R.trend.maShort}일선 위 · ${R.trend.maShort}일선 > ${R.trend.maLong}일선`, `${R.trend.maLong}일선 아래 또는 하락하는 ${R.trend.maShort}일선 아래`, '이동평균 추세'],
+    ['시장 상태', '추세 (S&P 500)', `오르는 ${R.trend.maShort}일선보다 ${R.trend.bufferPct}% 이상 위 · ${R.trend.maShort}일선 > ${R.trend.maLong}일선 (±${R.trend.bufferPct}% 안은 중립)`, `${R.trend.maLong}일선 아래 또는 하락하는 ${R.trend.maShort}일선 아래`, '이동평균 추세'],
     ['시장 상태', `시장 폭 (${R.trend.maShort}·${R.trend.maLong}일선 위 종목 비율)`, `둘 다 ${R.breadth.broadAtLeast}% 이상`, `하나라도 ${R.breadth.weakBelow}% 미만`, '참여 폭'],
     ['시장 상태', '변동성 (VIX · VIX/3개월)', `VIX ${R.volatility.calmBelow} 미만 · 비율 ${R.volatility.calmRatioBelow} 미만`, `VIX ${R.volatility.stressAt} 이상 · 비율 ${R.volatility.invertedRatioAt} 이상 · 5일 +${R.volatility.spike5dPct}%`, '기간 구조 역전'],
     ['시장 상태 · 금리', '10년물 20일 변화', `−${R.rates.move20dBp}bp 이하`, `+${R.rates.move20dBp}bp 이상 · 1년 범위 ${R.rates.rangeHighAt * 100}% 위에서 상승`, '할인율'],

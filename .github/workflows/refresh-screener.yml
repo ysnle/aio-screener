@@ -112,6 +112,17 @@ jobs:
           # previous artifact and annotates a warning when the source is unreachable or reshaped.
           node scripts/fetch-sp500-weights.mjs
 
+      - name: Refresh US exchange listing (Nasdaq Trader symbol directory, daily)
+        env:
+          SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
+        run: |
+          set -euo pipefail
+          # v57.81: every Nasdaq/NYSE/NYSE American/NYSE Arca/Cboe BZX/IEX symbol for exact-match checks (portfolio entry,
+          # ticker page) with the SEC CIK joined by symbol. A copy under 20h old is kept; a failed fetch or a list below
+          # the floors (8000 rows, universe index members) keeps the previous file and annotates a warning.
+          node scripts/build-us-listings.mjs
+          node scripts/ci-us-listings-check.mjs
+
       - name: Build bounded SEC runtime projection
         run: |
           set -euo pipefail
@@ -173,6 +184,7 @@ jobs:
           git add -- public-data/screener.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
           stage_if_exists public-data/earnings-calendar.json
           stage_if_exists public-data/sp500-weights.json # 2026-10-13: S&P 500 sector map weights
+          stage_if_exists public-data/us-listings.json # v57.81: official US exchange listing (daily)
           stage_if_exists public-data/consensus-estimates.json # v57.54: Forward PER consensus (reference)
           stage_if_exists public-data/kr-fundamentals.json # P1654: OpenDART Korean fundamentals
           stage_if_exists public-data/backtest-history.json
@@ -229,6 +241,145 @@ jobs:
           gh workflow run ci.yml --ref main -f release_sha="$final_sha" -f origin="refresh-screener"
           echo "sha=$final_sha" >> "$GITHUB_OUTPUT"
           echo "Dispatched CI for exact screener refresh commit $final_sha"
+
+  # v57.81: the extended universe — every Russell 2000 member and every Nasdaq-listed common stock outside the core —
+  # is its own job after the core job. It commits only its own three files, so a failure or timeout here can never
+  # block or roll back the core screener. It refreshes once per new US session (screener-extended-due.mjs); the other
+  # cycles exit after the due check. Budget per due run: membership ~10 s; SEC batch <= 600 issuers x ~0.4 s ~ 4 min
+  # (2 requests per issuer at the 150 ms pace, under SEC's 10 req/s); ~4,200 one-year Yahoo histories at concurrency 5
+  # (~19 req/s measured on the core's 1,143 in ~60 s) ~ 4-7 min; validate/commit ~1 min. ~12 min expected, 40 min cap.
+  refresh-screener-extended:
+    needs: refresh-screener
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: refresh-screener-extended
+      cancel-in-progress: false
+    outputs:
+      sha: ${{ steps.dispatch.outputs.sha }}
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          # The core job has just pushed; read its screener.json (US session) and push on top of it.
+          ref: main
+
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: '24'
+
+      - name: Decide whether the extended shard is due
+        id: due
+        env:
+          SCREENER_EXTENDED_FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+        run: node scripts/screener-extended-due.mjs
+
+      - name: Refresh extended membership (Russell 2000 holdings + Nasdaq symbol directory)
+        if: steps.due.outputs.due == 'true'
+        run: node scripts/fetch-extended-universe.mjs
+
+      - name: Refresh bounded SEC companyfacts batch for the extended universe
+        if: steps.due.outputs.due == 'true'
+        env:
+          SEC_LEDGER_SCOPE: extended
+          SEC_EXTENDED_BATCH_LIMIT: 600
+          SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
+        run: |
+          set -euo pipefail
+          # The core job already fails closed on a missing contact; here the shard still ranks on price factors.
+          if ! printf '%s' "$SEC_USER_AGENT" | grep -Eq '[^[:space:]]@[^[:space:]]+\.[^[:space:]]+'; then
+            echo "::warning::SEC_USER_AGENT is not configured — the extended SEC ledger is not refreshed this cycle"
+            exit 0
+          fi
+          node scripts/fetch-sec-fundamentals.mjs
+
+      - name: Refresh extended screener shard
+        if: steps.due.outputs.due == 'true'
+        env:
+          SCREENER_EXTENDED: '1'
+          # The due step above already decided; the producer must not second-guess it.
+          SCREENER_EXTENDED_FORCE: '1'
+        run: node scripts/fetch-data.mjs
+
+      - name: Validate extended shard contract
+        if: steps.due.outputs.due == 'true'
+        run: |
+          set -euo pipefail
+          node scripts/validate-screener-extended.mjs public-data/screener-extended.json
+          node scripts/ci-screener-extended-contract-check.mjs
+          node scripts/ci-artifact-size-headroom-check.mjs
+
+      - name: Commit only extended screener artifacts
+        if: steps.due.outputs.due == 'true'
+        id: commit
+        run: |
+          set -euo pipefail
+          git config user.name "aio-data-bot"
+          git config user.email "actions@github.com"
+          for extended_file in public-data/screener-extended.json public-data/screener-extended-universe.json public-data/sec-fundamentals-extended.json; do
+            if [ -e "$extended_file" ]; then git add -- "$extended_file"; fi
+          done
+          if git diff --staged --quiet; then
+            echo "No extended screener changes to commit"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          ts=$(date -u +"%Y-%m-%dT%H:%MZ")
+          git commit -m "data: refresh extended screener universe ${ts}"
+          attempt=1
+          until git push; do
+            if [ "$attempt" -ge 5 ]; then
+              echo "::error::git push failed after 5 attempts"
+              exit 1
+            fi
+            git fetch origin main
+            git rebase origin/main
+            attempt=$((attempt + 1))
+            sleep $((attempt * 3))
+          done
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch exact produced commit to CI
+        if: steps.commit.outputs.changed == 'true'
+        id: dispatch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          final_sha="$(git rev-parse HEAD)"
+          gh workflow run ci.yml --ref main -f release_sha="$final_sha" -f origin="refresh-screener"
+          echo "sha=$final_sha" >> "$GITHUB_OUTPUT"
+          echo "Dispatched CI for exact extended screener commit $final_sha"
+
+  # v57.81: deploys the extended commit on its own, so the core's converge never waits for the extended job.
+  converge-extended:
+    needs: refresh-screener-extended
+    if: ${{ !cancelled() && needs.refresh-screener-extended.outputs.sha != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: write
+    concurrency:
+      group: live-convergence
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: '24'
+
+      - name: Converge live deployment to the attested extended revision
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ensure-live-convergence.mjs --await-sha "${{ needs.refresh-screener-extended.outputs.sha }}" --timeout-min 12
 
   converge:
     needs: refresh-screener

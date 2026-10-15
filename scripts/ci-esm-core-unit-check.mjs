@@ -1422,6 +1422,23 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
       const got = resolveRegisteredName(input, entries);
       if (got !== expected) fail(`ticker name resolution: ${JSON.stringify(input)} expected ${expected}, got ${got} (P1339, no ticker guessing)`);
     }
+    // v57.81: the portfolio box shares the ticker-route owner. A newly listed universe symbol (SPCX) is accepted by exact match;
+    // a near-miss ticker is never rewritten; a nickname resolves only when the registry carries it.
+    const { resolveHoldingInput } = await load('src/domain/ticker/resolve-name.js');
+    const universe = [{ sym: 'SPCX' }, { sym: 'NVDA' }];
+    const withAlias = { SPCX: { en: 'SpaceX', kr: '스페이스X', alt: ['spacex', '스엑'] } };
+    const holdingCases = [
+      ['spcx', {}, 'SPCX', true, null],
+      ['SPCXX', withAlias, 'SPCXX', false, null],
+      ['SPACEX', withAlias, 'SPACEX', false, null],
+      ['스엑', withAlias, 'SPCX', true, '스엑'],
+      ['스엑', {}, '스엑', false, null],
+      ['SPCK', withAlias, 'SPCK', false, null]
+    ];
+    for (const [input, entries, symbol, known, resolvedFrom] of holdingCases) {
+      const got = resolveHoldingInput(input, { entries, universe });
+      if (got.symbol !== symbol || got.known !== known || got.resolvedFrom !== resolvedFrom) fail(`v57.81 portfolio symbol: ${JSON.stringify(input)} expected ${symbol}/${known}/${resolvedFrom}, got ${JSON.stringify(got)} (exact match only, no fuzzy rewrite)`);
+    }
   }
   // ── P1327/R672: Korean theme names and membership have one owner ──
   {
@@ -1876,6 +1893,70 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const { benchmarkRowFor } = await load('src/domain/market/benchmarks.js');
   const benchHistory = ['2026-10-06', '2026-10-07', '2026-10-08', '2026-10-12'].map((date, index) => ({ date, kospi: 100 + index }));
   if (benchmarkRowFor('005930.KS', benchHistory, { through: '2026-10-08' }).asOf !== '2026-10-08' || benchmarkRowFor('005930.KS', benchHistory).asOf !== '2026-10-12') fail('S07 benchmark must cut at the factor session when asked');
+
+  // v57.81 (analysis audit 2026-10-15, screener + stock): trend labels pass ADR buffers (technical/bands.js), the why-drawer
+  // has model-level contrary evidence, the MA stack reads the close first, and one validation count basis. Rows are the
+  // audit's 10/14 closes.
+  const bands = await load('src/domain/technical/bands.js');
+  const { entryTiming } = await load('src/ui/pages/screener.js');
+  const pointOf = (read, id) => read.points.find((point) => point.id === id);
+  const muRead = buildStockRead({ symbol: 'MU', row: { name: 'MU', pctSma50: -6.94, pctSma200: 28.48, adrPct: 3.82, ret5d: -15.97, rsi: 36.3 } });
+  if (pointOf(muRead, 'extension')?.tone !== 'burden' || bands.extensionBand(-1.8) !== 'below') fail(`v57.81 MU -6.9% under the 50-day line must not be favourable, got ${JSON.stringify(pointOf(muRead, 'extension'))}`);
+  if (pointOf(muRead, 'rsi')?.tone !== 'neutral') fail('v57.81 RSI between 30 and 70 is neutral, not favourable');
+  const pyplRead = buildStockRead({ symbol: 'PYPL', row: { name: 'PYPL', pctSma50: 0.01, pctSma200: 12.55, adrPct: 2.29, ret5d: 2.09 } });
+  if (!/^50일선 부근/.test(pyplRead.headline) || pointOf(pyplRead, 'trend')?.tone !== 'neutral' || pointOf(pyplRead, 'extension')?.tone === 'favorable') fail(`v57.81 PYPL +0.01% must read 50일선 부근, got ${pyplRead.headline}`);
+  const mrvlRow = { sym: 'MRVL', name: 'MRVL', rank: 81, pctSma20: -4.1, pctSma50: 2.18, pctSma200: 40.72, adrPct: 5.11, ret5d: -13.82, ret1d: -8.73, ret1m: 10.66, rsi: 44.5 };
+  const mrvlRead = buildStockRead({ symbol: 'MRVL', row: mrvlRow });
+  if (/상승 추세/.test(mrvlRead.headline) || entryTiming(mrvlRow)[0] === '상위권·추세 양호') fail(`v57.81 MRVL after -13.8% in five sessions must not read 상승 추세 / 추세 양호, got ${mrvlRead.headline} / ${entryTiming(mrvlRow)[0]}`);
+  const shaken = buildStockRead({ symbol: 'HPE', row: { name: 'HPE', pctSma50: 6.74, pctSma200: 63.71, adrPct: 5.02, ret5d: -12.46 } });
+  if (pointOf(shaken, 'trend')?.tone === 'favorable' || /^상승 추세 ·/.test(shaken.headline)) fail(`v57.81 a five-session break past two daily ranges demotes 상승 추세, got ${shaken.headline}`);
+  const krRow = { sym: '315640.KQ', name: 'KR fixture', rank: 66, pctSma50: 12, pctSma200: -29.63, adrPct: 4, ret5d: 1, ret1m: 7.25, rsi: 50 };
+  if (entryTiming(krRow)[1] === 'entry-ready') fail('v57.81 a price under its 200-day line is not entry-ready');
+  if (entryTiming({ ...krRow, pctSma200: 10, pctSma50: null })[1] === 'entry-ready') fail('v57.81 a null 50-day distance must fail the entry-ready label');
+  if (!bands.modelContraryEvidence(mrvlRow).hits.some((hit) => /최근 5거래일 -13\.8%/.test(hit))) fail(`v57.81 why-drawer contrary evidence must list MRVL's five-session drop, got ${JSON.stringify(bands.modelContraryEvidence(mrvlRow))}`);
+  if (!bands.modelContraryEvidence({ pctSma50: 1 }).unchecked.includes('RSI')) fail('v57.81 a missing input is listed as not checked, never as clear');
+  const cleanRow = { sym: 'CLEAN', name: 'clean', rank: 80, pctSma20: 2, pctSma50: 6, pctSma200: 15, adrPct: 2, ret5d: 1.5, ret1m: 4, rsi: 55 };
+  const cleanRead = buildStockRead({ symbol: 'CLEAN', row: cleanRow });
+  if (!/^상승 추세/.test(cleanRead.headline) || pointOf(cleanRead, 'trend')?.tone !== 'favorable' || entryTiming(cleanRow)[1] !== 'entry-ready' || bands.modelContraryEvidence(cleanRow).hits.length) fail(`v57.81 a stock 3 ADR above its 50-day line, above its 200-day line with a positive week stays 상승 추세 and entry-ready, got ${cleanRead.headline} / ${entryTiming(cleanRow)}`);
+  const etfRead = buildStockRead({ symbol: 'SPY', row: { name: 'SPY', sector: 'ETF', pctSma50: 3, pctSma200: 7, adrPct: 0.7, ret5d: 0.5 }, regime: { available: true, overall: '혼조', axes: [{ id: 'breadth', state: 'burden' }], counts: { burden: 1 } } });
+  if (/상승 추세 종목에 속합니다/.test(pointOf(etfRead, 'market')?.text || '')) fail('v57.81 an ETF is not one of the few up-trend stocks');
+  // RRG: a ratio inside the themes' neutral band is 경계, and a last week against the quadrant withholds the favourable tone.
+  const rs = (end) => Array.from({ length: 40 }, (_, index) => ({ value: 100 + (index < 35 ? index * 0.05 : 1.75 + (index - 34) * end) }));
+  const sectorRead = (item) => pointOf(buildStockRead({ symbol: 'NVDA', row: { name: 'NVDA', sector: 'Technology', pctSma50: 6, pctSma200: 15, adrPct: 2, ret5d: 1 }, rotation: { XLK: { quadrant: 'Leading', sessionDate: '2026-10-14', ...item } } }), 'sector');
+  if (sectorRead({ rsRatio: 100.33, rsMomentum: 102, relativeStrength: rs(0.05) })?.tone !== 'neutral' || !/경계/.test(sectorRead({ rsRatio: 100.33, rsMomentum: 102, relativeStrength: rs(0.05) })?.text || '')) fail('v57.81 an RS-Ratio within the neutral band is 경계, not 선도');
+  const reversed = sectorRead({ rsRatio: 104, rsMomentum: 102, relativeStrength: rs(-0.9) });
+  if (reversed?.tone !== 'neutral' || !/최근 5거래일 상대강도 -/.test(reversed?.text || '')) fail(`v57.81 a Leading sector whose last five sessions fell is not favourable, got ${JSON.stringify(reversed)}`);
+  if (sectorRead({ rsRatio: 104, rsMomentum: 102, relativeStrength: rs(0.05) })?.tone !== 'favorable') fail('v57.81 a clear Leading sector still reads favourable');
+  // MA stack: the close is read against the 20- and 50-day lines before the stack (DELL closed 9.1% under its 20-day line).
+  const stage = await load('src/domain/technical/stage.js');
+  const stack = { sma5: 590, sma10: 585, sma20: 580, sma50: 540, sma100: 500, sma200: 420, sma50Prior: 530 };
+  const pulled = stage.classifyMovingAverageStructure({ ...stack, lastClose: 560 });
+  const broken = stage.classifyMovingAverageStructure({ ...stack, lastClose: 527 });
+  const bearStack = stage.classifyMovingAverageStructure({ sma5: 400, sma10: 410, sma20: 420, sma50: 450, sma100: 480, sma200: 520, sma50Prior: 460, lastClose: 390 });
+  if (pulled.trendState === 'UPTREND' || /정배열/.test(stage.MA_STRUCTURE_LABELS[pulled.stageEstimate] || '') || broken.trendState !== 'TREND_DAMAGED' || !/역배열/.test(stage.MA_STRUCTURE_LABELS[bearStack.stageEstimate] || '')
+    || Object.values({ pulled, broken, bearStack }).some((s) => !stage.MA_STRUCTURE_LABELS[s.stageEstimate])) fail(`v57.81 MA stack must read the close first and every stage must have one label, got ${pulled.stageEstimate}/${broken.stageEstimate}/${bearStack.stageEstimate}`);
+  const dropBars = Array.from({ length: 220 }, (_, index) => ({ date: new Date(Date.UTC(2026, 0, 1) + index * 86400000).toISOString().slice(0, 10), close: index < 219 ? 100 + index * 0.5 : (100 + 218 * 0.5) * 0.97 }));
+  const dellLike = stage.deriveTechnicalStageFromOhlcv({ symbol: 'dell', ohlcv: dropBars, now: Date.UTC(2026, 7, 9) });
+  // One validation count basis (net of cost) for the screener read, the stock read and the 과거 검증 tab.
+  const { summarizeValidation: summarizeForBasis } = await load('src/ui/components/screener-validation.js');
+  const basisSummary = summarizeForBasis([{ date: '2026-10-15', n: 1138, dates: 6, quantileSpreadNet: -1.83, hitRate: 50, netHitRate: 33.3, ic: { composite: -0.005 } }]);
+  const { buildScreenerRead } = await load('src/domain/screener/screener-read.js');
+  const basisRows = Array.from({ length: 25 }, (_, index) => ({ sym: `R${index}`, sector: 'Technology', screenRank: index + 1, pctSma50: 5, adrPct: 2, ret5d: index < 3 ? -6 : 1, factorScores: { trend: 70 } }));
+  const basisRead = buildScreenerRead({ rows: basisRows, validation: { ...basisSummary, modelMatch: true } });
+  if (basisSummary.wins !== 2 || basisSummary.winsBasis !== 'net' || !/비용 후 2회/.test(basisRead.headline)) fail(`v57.81 one validation count basis (net) must be named, got ${basisRead.headline}`);
+  const health = basisRead.points.find((point) => point.id === 'health');
+  if (health?.tone !== 'neutral' || !/추세 팩터/.test(health.text) || !/일평균 변동폭 2배 넘게 하락/.test(health.text)) fail(`v57.81 상위권 추세 is neutral, names the trend factor and the five-session drawdown share, got ${JSON.stringify(health)}`);
+  // The fiscal headline carries its FY; an annual filing past the longest 10-K deadline after the next FY end is flagged.
+  const { buildFiscalRead: fiscalForHero } = await load('src/domain/fundamental/fiscal-read.js');
+  const fyHistory = [{ periodEnd: '2024-06-30', revenue: 10e9, netIncome: 1e9, equity: 8e9 }, { periodEnd: '2025-06-30', revenue: 12e9, netIncome: 1.3e9, equity: 9e9 }];
+  const overdueHero = fiscalForHero({ symbol: 'OLD', row: { factorSessionDate: '2026-10-14' }, fundamentals: { symbol: 'OLD', fiscalHistory: fyHistory } });
+  const onTimeHero = fiscalForHero({ symbol: 'OLD', row: { factorSessionDate: '2026-08-14' }, fundamentals: { symbol: 'OLD', fiscalHistory: fyHistory } });
+  if (!/^FY2025 매출 \+20\.0%/.test(overdueHero.headline || '') || !/다음 연간 공시 예정 지남/.test(overdueHero.headline) || /예정 지남/.test(onTimeHero.headline || '')) fail(`v57.81 fiscal hero FY / overdue flag drifted, got ${overdueHero.headline} | ${onTimeHero.headline}`);
+  const flatMargin = fiscalForHero({ symbol: 'FLAT', fundamentals: { symbol: 'FLAT', fiscalHistory: [{ periodEnd: '2024-12-31', revenue: 10e9, netIncome: 1e9 }, { periodEnd: '2025-12-31', revenue: 10.1e9, netIncome: 1.02e9 }] } });
+  if (flatMargin.points.some((point) => (point.id === 'margin' || point.id === 'growth') && point.tone !== 'neutral')) fail('v57.81 a change inside the ±2 flat band reads neutral');
+  const oneRevision = (await load('src/domain/fundamental/consensus-read.js')).buildConsensusPoint({ valuationPrice: 226.32, factorSessionDate: '2026-10-12' }, { asOf: '2026-10-13T22:00:00Z', fwd: { from: '2026-10', to: '2027-07', eps: 11.91, minEstimates: 11, up4w: 1, down4w: 0 }, trailing: { eps: 6.9 } }, { now: Date.parse('2026-10-14T00:00:00Z') });
+  if (oneRevision?.tone !== 'neutral') fail('v57.81 a margin of one revision is not a consensus direction');
+  if (!dellLike.structure.fullBull ||dellLike.indicators.trend === 'above-ma20' || dellLike.indicators.current >= dellLike.indicators.ma20 || dellLike.structure.stageEstimate === 'STAGE_2_ADVANCE') fail(`v57.81 a close under the 20-day line is not above-ma20 nor 정배열, got ${JSON.stringify(dellLike.indicators)} ${dellLike.structure.stageEstimate}`);
 
   // S11: the company headline keeps the return only (the factor rank above has a different denominator).
   const { buildCompanyAnalysis } = await load('src/domain/entity/company-analysis.js');
@@ -2877,7 +2958,9 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
 
   // 소스 계약 — writer/reader 두 끝이 실제로 존재하고 같은 키를 쓴다(R632).
   const p1188Index = readFileSync(path.join(root, 'index.html'), 'utf8');
-  ['pf-base-currency-input', 'pf-cash-currency-input', 'pf-cash-return-input', 'pf-rf-input'].forEach((id) => {
+  // v57.81: the cash-currency field is retired — each cash balance carries its own currency (src/data/portfolio-cash.js).
+  if (p1188Index.includes('id="pf-cash-currency-input"')) fail('v57.81 the retired cash-currency declaration field came back'); // text-pin-ok: retirement absence
+  ['pf-base-currency-input', 'pf-cash-return-input', 'pf-rf-input'].forEach((id) => {
     if (!p1188Index.includes(`id="${id}"`) || !/data-on-change="_aioSavePortfolioAssumption"/.test(p1188Index)) {
       fail(`P1188/11 P11-02 the risk surface must expose the ${id} declaration input`);
     }
@@ -2888,7 +2971,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   }
   // P1258: 위험 입력 조립이 네이티브 모듈로 분해됐다 — 선언 전달 계약은 모듈이, 셸은 브리지 배선이 소유한다.
   const p1188RiskInput = readFileSync(path.join(root, 'src/ui/panels/portfolio-risk-input.js'), 'utf8');
-  if (!/cash: \{ amount: cashAmount, currency: decl\.cashCurrency \}/.test(p1188RiskInput)
+  if (!/cash: \{ amount: cashAmount, currency: cashCurrency \}/.test(p1188RiskInput) // v57.81: cash converted into the base, or unresolved
     || !/const baseCurrency = String\(decl0\.baseCurrency \|\| ''\)/.test(p1188RiskInput) // P1407: declared base wins, then the single shared price currency
     || !/cashReturn: decl\.cashReturn != null/.test(p1188RiskInput)
     || !/rfAnnual: decl\.riskFreeRate/.test(p1188RiskInput)) {
@@ -4361,7 +4444,9 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (fx?.state !== 'neutral') fail(`T01 a flat weekday won must not read as 원화 강세·양호 (got ${fx?.state})`);
   // v57.75 (10/15 crash): a 20-day won strength that turned weak on the last session holds the verdict at neutral.
   {
-    const withLast = (prev, last) => history.map((row) => row.date === sessions.at(-2) ? { ...row, usdkrw: prev } : row.date === sessions.at(-1) ? { ...row, usdkrw: last } : row);
+    // v57.81: the won must move across the window (the 20-session mean agrees), not only on the last two closes.
+    const glide = sessions.slice(-20, -1);
+    const withLast = (prev, last) => history.map((row) => glide.includes(row.date) ? { ...row, usdkrw: 1400 - (1400 - prev) * (glide.indexOf(row.date) + 1) / glide.length } : row.date === sessions.at(-1) ? { ...row, usdkrw: last } : row);
     const axisFor = (prev, last) => buildMarketRegime({ history: withLast(prev, last), now: Date.parse(`${sessions.at(-1)}T23:00:00Z`) }).axes.find((axis) => axis.id === 'korea');
     const strong = axisFor(1345, 1340), turned = axisFor(1340, 1360);
     if (strong?.state !== 'favorable' || turned?.state !== 'neutral' || !/약세로 돌아섰/.test(turned?.read || JSON.stringify(turned))) fail(`v57.75 a won that turned weak on the last session must not stay 양호 (got ${strong?.state}/${turned?.state})`);
@@ -4442,4 +4527,217 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (liveSinceClose('tnx', { price: 5.19, pct: -0.5, observedAt: '2026-10-15T14:00:00Z' }, '2026-10-14')?.text !== '지금 5.19% -3bp') fail('v57.79 the 10-year 지금 line moves in basis points');
 }
 
+// v57.81: history.json held one session under two row dates. Rows before v57.70 stamp a previous close with a bar
+// boundary and no sessionDate; the 10/14 23:21Z run's WTI 94.14 (the 10/13 close) read as a 10/14 value beside the
+// 10/15 row's real 10/14 close 95.09, and the 10/12 DXY close sat on both 10/12 and 10/13.
+{
+  const { buildCloseSeries } = await load('src/domain/briefing/market-read.js');
+  const { buildDailyChanges } = await load('src/domain/briefing/daily-diff.js');
+  const { historyFieldSessionDate, inferPreviousCloseSession } = await load('src/domain/market/history-session.js');
+  const prev = (observedAt, fetchedAt, extra = {}) => ({ observedAt, fetchedAt, valueBasis: 'previous-completed-close', observationRelation: 'previous-completed-close', observedAtSource: 'provider-previous-close', ...extra });
+  const spxMeta = (date) => ({ observedAt: `${date}T20:30:00Z`, valueBasis: 'latest-completed-close', observationRelation: 'latest-completed-close' });
+  const rows = [
+    { date: '2026-10-12', spx: 7807.24, dxy: 102.58, wti: 91.85, fieldMeta: { spx: spxMeta('2026-10-12'), dxy: { observedAt: '2026-10-12T04:00:00Z', observationRelation: 'latest-completed-close' }, wti: prev('2026-10-09T04:00:00Z', '2026-10-12T19:23:21Z') } },
+    { date: '2026-10-13', spx: 7805.45, dxy: 102.58, wti: 93.74, fieldMeta: { spx: spxMeta('2026-10-13'), dxy: prev('2026-10-13T04:00:00Z', '2026-10-13T23:51:06Z'), wti: prev('2026-10-13T04:00:00Z', '2026-10-13T23:51:06Z') } },
+    { date: '2026-10-14', spx: 7718.94, dxy: 102.18, wti: 94.14, fieldMeta: { spx: spxMeta('2026-10-14'), dxy: prev('2026-10-14T04:00:00Z', '2026-10-14T23:21:26Z'), wti: prev('2026-10-14T04:00:00Z', '2026-10-14T23:21:26Z') } },
+    { date: '2026-10-15', spx: 7718.94, dxy: 102.55, wti: 95.09, fieldMeta: { spx: { ...spxMeta('2026-10-14'), observationRelation: 'carried-forward', carriedFrom: '2026-10-14' }, dxy: prev('2026-10-14T04:00:00Z', '2026-10-15T07:51:34Z', { sessionDate: '2026-10-14' }), wti: prev('2026-10-14T04:00:00Z', '2026-10-15T07:51:34Z', { sessionDate: '2026-10-14' }) } },
+  ];
+  // The same bar-boundary stamp names two sessions: whether a newer bar had opened by the fetch decides which.
+  if (inferPreviousCloseSession(rows[2].fieldMeta.wti, 'wti') !== '2026-10-13' || inferPreviousCloseSession({ ...rows[3].fieldMeta.wti, sessionDate: null }, 'wti') !== '2026-10-14'
+    || historyFieldSessionDate(rows[0].fieldMeta.wti, 'wti') !== '2026-10-09' || historyFieldSessionDate(rows[3].fieldMeta.spx, 'spx') !== null) fail('v57.81 a previous close is dated by its bar boundary and fetch time; a held copy has no session of its own');
+  // Duplicate-session rows collapse to one session.
+  const wti = buildCloseSeries(rows, 'wti');
+  if (JSON.stringify(wti) !== JSON.stringify([{ date: '2026-10-09', value: 91.85 }, { date: '2026-10-12', value: 93.74 }, { date: '2026-10-13', value: 94.14 }, { date: '2026-10-14', value: 95.09 }])) fail(`v57.81 one WTI value per session (the 10/14 row holds the 10/13 close): ${JSON.stringify(wti)}`);
+  const dxy = buildCloseSeries(rows, 'dxy');
+  if (dxy.filter((point) => point.value === 102.58).length !== 1 || dxy.find((point) => point.date === '2026-10-13')?.value !== 102.18) fail(`v57.81 the repeated 10/12 DXY close collapses to one session: ${JSON.stringify(dxy)}`);
+  // A held value is not a change, and the 1-day change compares the previous distinct session.
+  const spx = buildCloseSeries(rows, 'spx');
+  if (spx.length !== 3 || spx.at(-1).date !== '2026-10-14') fail(`v57.81 a held (carried-forward) S&P 500 copy is not a session: ${JSON.stringify(spx)}`);
+  const diff = buildDailyChanges(rows, { now: Date.parse('2026-10-15T08:00:00Z') });
+  const move = (key) => diff.moves.find((item) => item.key === key)?.value;
+  if (diff.date !== '2026-10-14' || diff.prevDate !== '2026-10-13' || Math.abs(move('wti') - (95.09 / 94.14 - 1) * 100) > 1e-9 || Math.abs(move('dxy') - (102.55 / 102.18 - 1) * 100) > 1e-9) fail(`v57.81 the 1-day change uses the previous distinct session (WTI 94.14 -> 95.09, DXY 102.18 -> 102.55): ${JSON.stringify(diff.moves)}`);
+}
+
+// v57.81 (owner 2026-10-15): cash is one balance per currency (원화·달러). A legacy single value migrates by a pure read,
+// the legacy copy is dropped only after the new key reads back, totals convert with the app's published USD/KRW close
+// (or a declared rate) with its date, and with no rate the total is held — never estimated. Backups old and new round-trip.
+{
+  const { readCashBalances, writeCashBalances, setCashBalance, legacyCashCurrency, PORTFOLIO_CASH_KEY, LEGACY_CASH_KEY } = await load('src/data/portfolio-cash.js');
+  const { appUsdKrwClose, convertCashBalances } = await load('src/domain/portfolio/cash.js');
+  const { derivePortfolioSurface } = await load('src/domain/portfolio/surface.js');
+  const { buildPortfolioBackup, parsePortfolioBackup, describeBackupCounts } = await load('src/data/portfolio-backup.js');
+  const memory = (initial = {}, { failWrite = false, mangle = false } = {}) => {
+    const values = new Map(Object.entries(initial));
+    return { writes: 0, getItem: (k) => (values.has(k) ? values.get(k) : null), setItem(k, v) { this.writes++; if (failWrite) throw new Error('quota'); values.set(k, mangle ? `${v} ` : String(v)); }, removeItem(k) { this.writes++; values.delete(k); }, dump: () => Object.fromEntries(values) };
+  };
+  // Migration: the legacy value keeps its declared currency (then the base, then USD); reading never writes and is stable.
+  const legacy = memory({ [LEGACY_CASH_KEY]: '5000', aio_portfolio_cash_currency: 'KRW' });
+  const first = readCashBalances(legacy);
+  const second = readCashBalances(legacy);
+  if (first.source !== 'legacy-single' || JSON.stringify(first.balances) !== '[{"currency":"KRW","amount":5000}]' || legacy.writes !== 0 || JSON.stringify(first) !== JSON.stringify(second)) fail(`v57.81 a legacy single cash value must read as one KRW balance without a write, twice the same: ${JSON.stringify({ first, writes: legacy.writes })}`);
+  if (readCashBalances(memory({ [LEGACY_CASH_KEY]: '700', aio_portfolio_base_currency: 'krw' })).balances[0]?.currency !== 'KRW'
+    || readCashBalances(memory({ [LEGACY_CASH_KEY]: '700' })).balances[0]?.currency !== 'USD' || legacyCashCurrency({}) !== 'USD') fail('v57.81 an undeclared legacy cash value takes the base currency, else USD (the unit the screen printed)');
+  if (readCashBalances(memory({})).known !== false || readCashBalances(memory({ [PORTFOLIO_CASH_KEY]: '[]' })).known !== true) fail('v57.81 never-entered cash and cleared cash must stay distinct');
+  const next = setCashBalance(first.balances, 'usd', '1200');
+  const ack = writeCashBalances(legacy, next);
+  const after = legacy.dump();
+  if (!ack.ok || after[PORTFOLIO_CASH_KEY] !== '[{"currency":"KRW","amount":5000},{"currency":"USD","amount":1200}]' || LEGACY_CASH_KEY in after || readCashBalances(legacy).source !== 'balances') fail(`v57.81 the new model must save both balances and only then drop the legacy copy: ${JSON.stringify(after)}`);
+  for (const [label, store] of [['write failure', memory({ [LEGACY_CASH_KEY]: '5000' }, { failWrite: true })], ['readback mismatch', memory({ [LEGACY_CASH_KEY]: '5000' }, { mangle: true })]]) {
+    const failed = writeCashBalances(store, next);
+    if (failed.ok || store.getItem(LEGACY_CASH_KEY) !== '5000') fail(`v57.81 a ${label} must keep the legacy cash copy: ${JSON.stringify(store.dump())}`);
+  }
+  if (JSON.stringify(setCashBalance(next, 'KRW', '')) !== '[{"currency":"USD","amount":1200}]') fail('v57.81 a blank box removes only its own currency');
+  // Totals with and without FX.
+  const history = [{ date: '2026-10-13', spx: 6000, usdkrw: 1340 }, { date: '2026-10-14', spx: 6010, usdkrw: 1350 }];
+  const now = Date.parse('2026-10-15T03:00:00Z');
+  const fx = appUsdKrwClose(history, { now });
+  if (fx?.rate !== 1350 || fx.label !== 'USD/KRW 10/14 종가 기준' || appUsdKrwClose(history, { now: Date.parse('2026-11-30T00:00:00Z') }) !== null || appUsdKrwClose([], { now }) !== null) fail(`v57.81 the app USD/KRW close carries its date and a stale or missing close is refused: ${JSON.stringify(fx)}`);
+  const state = { readState: 'ready', holdingsKnown: true, status: 'current', baseCurrency: 'USD', cashKnown: true, cashBalances: [{ currency: 'KRW', amount: 1350000 }, { currency: 'USD', amount: 500 }], holdings: [{ symbol: 'AAA', shares: 10, avgCost: 90, price: 100, currency: 'USD' }] };
+  const withFx = derivePortfolioSurface({ state, liveData: {}, now, cashFx: fx });
+  if (withFx.cash !== 1500 || withFx.totalAssets !== 2500 || withFx.cashPct !== 60 || withFx.currencyState !== 'declared-single' || withFx.cashConversion.basisLabel !== 'USD/KRW 10/14 종가 기준' || withFx.cashConversion.appRate !== 1350 || withFx.cashBalances.length !== 2) fail(`v57.81 KRW+USD cash must total in the base with the app close named: ${JSON.stringify({ cash: withFx.cash, total: withFx.totalAssets, conv: withFx.cashConversion })}`);
+  const noFx = derivePortfolioSurface({ state, liveData: {}, now, cashFx: null });
+  if (noFx.cash !== null || noFx.totalAssets !== null || noFx.cashHeld !== true || noFx.cashConversion.held.join() !== 'KRW' || noFx.positionValue !== 1000 || noFx.cashBalances.map((row) => row.amount).join() !== '1350000,500') fail(`v57.81 without a rate the cash total is held (never estimated) and each balance is kept: ${JSON.stringify({ cash: noFx.cash, total: noFx.totalAssets, held: noFx.cashConversion })}`);
+  const declaredLeg = derivePortfolioSurface({ state: { ...state, fxLegs: [{ from: 'USD', to: 'KRW', rate: 1500, observedAt: '2026-10-14T20:00:00Z' }] }, liveData: {}, now, cashFx: fx });
+  if (declaredLeg.cash !== 1400 || declaredLeg.cashConversion.basisLabel !== '선언 환율 기준') fail(`v57.81 a rate the user declared wins over the app close: ${JSON.stringify(declaredLeg.cashConversion)}`);
+  const cashOnly = derivePortfolioSurface({ state: { ...state, baseCurrency: null, holdings: [] }, liveData: {}, now, cashFx: null });
+  if (cashOnly.valuationState !== 'cash-only' || cashOnly.totalAssets !== null || !cashOnly.cashHeld) fail(`v57.81 two-currency cash with no rate stays a cash-only portfolio with the total held: ${JSON.stringify({ state: cashOnly.valuationState, total: cashOnly.totalAssets })}`);
+  if (convertCashBalances({ balances: [{ currency: 'EUR', amount: 10 }], target: 'USD', appFx: fx }).ok !== false) fail('v57.81 the app close converts USD/KRW only; another pair without a declared rate is held');
+  // Backup: the new bundle carries the balances; a pre-v57.81 bundle's single cash becomes one balance in its declared unit.
+  const deps = { assumptionKinds: { baseCurrency: 'currency', cashCurrency: 'currency' }, assumptionNormalizers: { currency: (v) => (/^[A-Za-z]{3}$/.test(String(v || '').trim()) ? String(v).trim().toUpperCase() : null) } };
+  const bundle = buildPortfolioBackup({ positions: [{ ticker: 'AAA', qty: 1, cost: 1 }], cashBalances: next }, { exportedAt: '2026-10-15T00:00:00Z' });
+  const round = parsePortfolioBackup(JSON.stringify(bundle), deps);
+  const old = parsePortfolioBackup(JSON.stringify({ format: 'aio-backup', version: 1, contents: { cash: '250000', assumptions: { cashCurrency: 'usd' } } }), deps);
+  const none = parsePortfolioBackup(JSON.stringify({ format: 'aio-backup', version: 1, contents: { positions: [{ ticker: 'AAA', qty: 1, cost: 1 }] } }), deps);
+  if (JSON.stringify(round.contents?.cashBalances) !== JSON.stringify(next) || !/현금 2개 통화/.test(describeBackupCounts(round.counts))
+    || JSON.stringify(old.contents?.cashBalances) !== '[{"currency":"USD","amount":250000}]' || none.contents?.cashBalances !== null) fail(`v57.81 backup cash round-trip failed: ${JSON.stringify({ round: round.contents?.cashBalances, old: old.contents?.cashBalances, none: none.contents?.cashBalances })}`);
+}
+
+// v57.81 (owner 2026-10-15): a US listing outside the screener universe is read on demand with the producer's own
+// functions and placed against the published universe by the same ranking model; missing inputs stay missing, an
+// unlisted symbol is never fetched, two symbols load at a time and a symbol is read once per session.
+{
+  const pf = await load('src/domain/screener/price-factors.js');
+  const secNorm = await load('src/domain/fundamental/sec-normalize.js');
+  const { secFundamentalRowFields } = await load('src/domain/fundamental/sec-row-fields.js');
+  const producer = await load('scripts/fetch-data.mjs');
+  const factorsLib = await load('scripts/lib/factors.mjs');
+  const producerMath = await load('scripts/lib/producer-math.mjs');
+  const secProducer = await load('scripts/fetch-sec-fundamentals.mjs');
+  const od = await load('src/data/on-demand-symbol.js');
+  const { computeFactorRanks } = await load('src/domain/screener/factor-ranks.js');
+  const { buildOutOfUniverseRead, OUT_OF_UNIVERSE_TITLE } = await load('src/domain/entity/out-of-universe-read.js');
+  const fx = await load('scripts/lib/out-of-universe-fixtures.mjs');
+  // One implementation: the producer's exports are the browser module's own function objects.
+  for (const [label, a, b] of [['deriveFactorQuality', producer.deriveFactorQuality, pf.deriveFactorQuality], ['isSessionComplete', producer.isSessionComplete, pf.isSessionComplete],
+    ['closesToFactors', factorsLib.closesToFactors, pf.closesToFactors], ['_calcVCPServer', factorsLib._calcVCPServer, pf._calcVCPServer], ['round', producerMath.round, pf.round],
+    ['normalizeSecCompanyFacts', secProducer.normalizeSecCompanyFacts, secNorm.normalizeSecCompanyFacts]]) if (!a || a !== b) fail(`v57.81 producer ${label} must be the shared src function`);
+  const producerText = readFileSync(path.join(root, 'scripts/fetch-data.mjs'), 'utf8');
+  for (const call of ['dailyRowsFromYahooChart(res', 'priceHistoryFromRows(sym, fetched', 'priceFactorRow(r, { computedAt, fxSeries })', 'secFundamentalRowFields(row,']) if (!producerText.includes(call)) fail(`v57.81 the producer must build rows through ${call}`);
+  const nowMs = Date.parse('2026-10-15T12:00:00Z');
+  const computedAt = new Date(nowMs).toISOString();
+  // The on-demand raw row equals the producer path run on the same chart.
+  const chart = fx.chartFixture('UFPT', { nowMs, name: 'UFP Technologies' }).chart.result[0];
+  const built = od.buildOnDemandArtifactRow('UFPT', chart, { nowMs });
+  const fetched = pf.dailyRowsFromYahooChart(chart, { fetchedAt: computedAt });
+  const direct = pf.priceFactorRow(pf.priceHistoryFromRows('UFPT', fetched, { providerMeta: fetched.meta, nullCloseDates: fetched.nullCloseDates, market: 'us', nowMs }), { computedAt });
+  if (!built.raw || JSON.stringify(built.raw) !== JSON.stringify(direct)) fail('v57.81 the on-demand factor row must equal the producer factor row for the same chart');
+  // A synthetic published universe (same session) built through the same provider normalization.
+  const peers = [];
+  for (let i = 0; i < 24; i += 1) {
+    const sym = `PEER${String.fromCharCode(65 + i)}`;
+    const cik = String(1000 + i).padStart(10, '0');
+    // Peers carry annual filings so the quality family is active in the universe (above the 80% coverage floor).
+    const raw = od.buildOnDemandArtifactRow(sym, fx.chartFixture(sym, { nowMs, drift: -0.0012 + i * 0.0001, wave: 0.02 + (i % 5) * 0.02, start: 20 + i }).chart.result[0],
+      { nowMs, secFacts: fx.companyFactsFixture({ cik, name: sym, revenue: [500e6 + i * 10e6, 520e6 + i * 25e6], netIncome: [40e6 + i * 2e6, 45e6 + i * 3e6], shares: 30e6 + i * 1e6 }), secSubmissions: fx.submissionsFixture({ cik, name: sym, ticker: sym }) }).raw;
+    peers.push(await od.canonicalOnDemandRow(sym, raw, { name: sym, computedAt, now: () => nowMs }));
+  }
+  if (peers.some((row) => !row)) fail('v57.81 fixture peers must normalize');
+  const calls = { chart: [], json: [] };
+  const listing = { UFPT: { listed: true, name: 'UFP Technologies', exchange: 'Q', etf: false, asOf: '2026-10-15', cik: '0000914156' }, HALO: { listed: true, name: 'Halozyme', exchange: 'Q', etf: false, asOf: '2026-10-15' } };
+  const charts = { UFPT: chart, HALO: fx.chartFixture('HALO', { nowMs, drift: 0.0004 }).chart.result[0] };
+  const toTransport = (result) => ({ meta: result.meta, timestamps: result.timestamp, closes: result.indicators.quote[0].close, highs: result.indicators.quote[0].high, lows: result.indicators.quote[0].low, volumes: result.indicators.quote[0].volume, adjCloses: result.indicators.adjclose[0].adjclose });
+  const reader = od.createOnDemandSymbolReader({
+    fetchChart: async (id) => { calls.chart.push(id); return charts[id] ? toTransport(charts[id]) : null; },
+    fetchJson: async (url) => { calls.json.push(url); return /companyfacts/.test(url) ? fx.companyFactsFixture({ cik: '0000914156', name: 'UFP Technologies' }) : fx.submissionsFixture({ cik: '0000914156', name: 'UFP Technologies', ticker: 'UFPT' }); },
+    isListed: async (id) => listing[id] || { listed: false, directoryAvailable: true },
+    universeRows: () => peers, rankInputs: () => ({ fundamentalCoveragePct: 0, fmpOk: false }), now: () => nowMs
+  });
+  const ufpt = await reader.load('UFPT');
+  if (ufpt?.status !== 'ready' || ufpt.secStatus !== 'ready' || !(ufpt.row.roe > 0) || ufpt.row.identitySource !== 'on-demand:us-listing') fail(`v57.81 a listed symbol with a CIK reads chart and SEC facts: ${JSON.stringify({ status: ufpt?.status, sec: ufpt?.secStatus })}`);
+  if (!calls.json.every((url) => url.startsWith('https://data.sec.gov/'))) fail(`v57.81 SEC reads stay on the allowlisted data.sec.gov host: ${calls.json.join(' ')}`);
+  const expected = computeFactorRanks({ rows: [...peers, ufpt.row], fundamentalCoveragePct: 0, fmpOk: false, now: nowMs, inputVersion: `${od.ON_DEMAND_MODEL_VERSION}:UFPT` }).rows.find((row) => row.sym === 'UFPT');
+  if (!ufpt.placement?.available || ufpt.placement.rank !== expected?.rank || ufpt.placement.ranked !== peers.length + 1) fail(`v57.81 the placement must be the ranking model's own rank over universe + candidate: ${ufpt.placement?.rank} vs ${expected?.rank}`);
+  if (ufpt.row.screenRank != null || ufpt.lastClose?.date !== ufpt.sessionDate) fail('v57.81 an on-demand row carries no published screen rank and its close keeps its session date');
+  // No CIK: fundamentals stay missing (never estimated) and the read says which inputs were missing.
+  const halo = await reader.load('HALO');
+  if (halo?.status !== 'ready' || halo.secStatus !== 'no-cik' || halo.sec !== null) fail(`v57.81 a listing without a CIK reads no filing: ${halo?.secStatus}`);
+  if (['pe', 'pb', 'roe', 'margin', 'revGrowth', 'mcap'].some((key) => halo.row[key] != null)) fail('v57.81 missing fundamentals must stay null on the on-demand row');
+  const quality = halo.placement.inputs.find((input) => input.key === 'quality');
+  if (!ufpt.placement.inputs.find((input) => input.key === 'quality')?.usable) fail('v57.81 fixture: the CIK-bearing candidate uses the active quality family');
+  if (!quality || !quality.active || quality.usable || quality.present.length || quality.missing.length !== 3) fail(`v57.81 the quality input must be reported missing: ${JSON.stringify(quality)}`);
+  const read = buildOutOfUniverseRead(halo);
+  if (read.title !== OUT_OF_UNIVERSE_TITLE || read.inputs.find((input) => input.key === 'quality')?.status !== '빠짐' || !read.lines.some((line) => /요청 시 계산/.test(line))) fail('v57.81 the read labels its placement as on-demand and lists the missing inputs');
+  if (calls.json.length !== 2) fail(`v57.81 only the CIK-bearing listing reads SEC (2 calls), got ${calls.json.length}`);
+  // Session cache: a second ask is the same record without another fetch; unlisted and in-universe symbols never fetch.
+  const before = calls.chart.length;
+  if ((await reader.load('UFPT')) !== ufpt || reader.peek('UFPT') !== ufpt) fail('v57.81 a ready record is reused for the session');
+  if ((await reader.load('ZZZZ'))?.status !== 'not-listed' || (await reader.load('PEERA'))?.status !== 'in-universe' || calls.chart.length !== before) fail('v57.81 unlisted / in-universe symbols must not fetch a chart');
+  if (od.onDemandEligibleSymbol('005930.KS') !== null || od.onDemandEligibleSymbol('BTC-USD') !== null) fail('v57.81 KRX codes and crypto pairs are not on-demand US listings');
+  // Two at a time.
+  let active = 0, peak = 0;
+  const slow = od.createOnDemandSymbolReader({ fetchChart: async () => { active += 1; peak = Math.max(peak, active); await new Promise((resolve) => setTimeout(resolve, 5)); active -= 1; return null; },
+    isListed: async () => ({ listed: true }), universeRows: () => peers, now: () => nowMs });
+  const results = await Promise.all(['AAA', 'BBB', 'CCC', 'DDD', 'EEE'].map((sym) => slow.load(sym)));
+  if (peak > od.ON_DEMAND_MAX_CONCURRENT || od.ON_DEMAND_MAX_CONCURRENT !== 2 || results.some((record) => record?.status !== 'unavailable' || record.reason !== 'chart-unavailable')) fail(`v57.81 on-demand reads run at most two at once (peak ${peak}) and a failed chart is unavailable, not estimated`);
+  if (typeof secFundamentalRowFields !== 'function') fail('v57.81 the SEC row-field builder is shared');
+}
+
+// v57.81: a 5-session move ranked 2nd lowest of 252 rounded to 0% and read as 최저 (KOSPI -18.4% on 10/15; 7/30 was -21.2%).
+{
+  const { recordPercentile, recordSide } = await load('src/domain/briefing/market-read.js');
+  const series = Array.from({ length: 252 }, (_, i) => ({ date: `d${i}`, value: i === 10 ? -21.2 : i === 251 ? -18.4 : (i % 17) - 5 }));
+  const second = recordPercentile(series);
+  if (recordSide(second) === '최저' || second.lowest !== false || recordSide(second) !== '하위 1% 이내(252거래일 중 2번째로 낮음)') fail(`v57.81 the second-lowest of 252 is not 최저: ${JSON.stringify(second)} ${recordSide(second)}`);
+  const lowest = recordPercentile(series.map((point, i) => (i === 10 ? { ...point, value: 0 } : point)));
+  if (recordSide(lowest) !== '최저') fail(`v57.81 the lowest of 252 still reads 최저: ${JSON.stringify(lowest)}`);
+}
+
 await import('./fixtures/architecture-lifecycle-regressions.mjs');
+
+// v57.81 (거시 analysis audit, group X): the shared macro signal rules — dead zone, PCE·CPI direction, one Brent/WTI rule,
+// the shared 4-week window and the sentiment record rank.
+{
+  const ms = await load('src/domain/macro/macro-signals.js');
+  // Dead zone: +2bp against a 7.9bp spread of 20-session changes (band 0.5 sd = 3.95bp) is not a move.
+  if (ms.bandDirection(0.02, 0.5 * 0.079) !== 'flat' || ms.bandDirection(0.2, 0.5 * 0.079) !== 'up' || ms.bandDirection(-0.05, 0.0395) !== 'down') fail('v57.81 a change counts only past 0.5 sd of its own n-period changes');
+  if (ms.bandDirection(0.001, null) !== 'up' || ms.bandDirection(null, 0.1) !== null) fail('v57.81 without a band the sign decides; without a value there is no direction');
+  const wave = Array.from({ length: 300 }, (_, i) => ({ date: `d${String(i).padStart(3, '0')}`, value: 2.3 + 0.05 * Math.sin(i / 4) }));
+  const band = ms.changeBand(wave, 20);
+  if (!band || !(band.sd > 0) || Math.abs(band.band - band.sd * 0.5) > 1e-12 || band.samples !== 252) fail(`v57.81 changeBand is 0.5 sd over one year of 20-observation changes: ${JSON.stringify(band)}`);
+  if (ms.changeBand(wave.slice(0, 30), 20) !== null) fail('v57.81 fewer than 20 changes give no band');
+  // PCE slowing (8월 2.05 vs 3.01) and CPI re-accelerating (9월 3.41 vs 2.57) is 엇갈림 with both months named.
+  const mixed = ms.inflationDirection({ pce: { pace: 2.05, yoy: 3.01, date: '2026-08-01' }, cpi: { pace: 3.41, yoy: 2.57, date: '2026-09-01' } });
+  if (mixed.state !== 'mixed' || mixed.dir !== null || mixed.label !== '엇갈림' || !/근원 PCE\(8월\) 둔화/.test(mixed.text) || !/근원 CPI\(9월\) 재가속/.test(mixed.text) || !mixed.anyUp) fail(`v57.81 PCE slowing with CPI re-accelerating is 엇갈림: ${JSON.stringify(mixed)}`);
+  if (ms.inflationDirection({ pce: { pace: 2.0, yoy: 3.0 }, cpi: { pace: 2.0, yoy: 2.8 } }).dir !== 'down') fail('v57.81 both measures slowing past the step is 둔화');
+  if (ms.inflationDirection({ pce: { pace: 3.6, yoy: 3.0 }, cpi: { pace: 2.9, yoy: 2.8 } }).state !== 'flat') fail('v57.81 one measure past the step and the other flat is held, not a direction');
+  if (ms.inflationDirection({ pce: { pace: 2.5, yoy: 3.0 } }).dir !== 'down' || ms.inflationDirection({}).state !== 'unknown') fail('v57.81 one published measure decides alone; none is unknown');
+  // One Brent/WTI rule.
+  const base = { basis: 'futures', abnormal: false, diverges: false };
+  if (!ms.oilDivergence({ ...base, brent20: 0.2, wti20: -7.2 }).held) fail('v57.81 Brent +0.2% beside WTI −7.2% holds the WTI read');
+  if (ms.oilDivergence({ ...base, brent20: -1, wti20: -8 }).kind !== 'unconfirmed') fail('v57.81 a WTI fall Brent does not follow by half is unconfirmed');
+  if (ms.oilDivergence({ ...base, brent20: -6, wti20: -8 }).held || ms.oilDivergence({ ...base, basis: 'spot', brent20: 5, wti20: -8 }).held) fail('v57.81 a confirmed move, or a spot Brent, does not hold the WTI read');
+  if (!ms.oilDivergence({ abnormal: true }).held) fail('v57.81 an abnormal same-day gap holds every oil read');
+  const day = (i) => new Date(Date.UTC(2026, 0, 2) + i * 86400000).toISOString().slice(0, 10);
+  const wti = Array.from({ length: 60 }, (_, i) => ({ date: day(i), value: i < 39 ? 100 : 100 * (1 - 0.072 * (i - 39) / 20) }));
+  const brent = wti.map((row, i) => ({ date: row.date, value: i < 39 ? 103.4 : 103.4 * (1 + 0.002 * (i - 39) / 20) }));
+  const fromSeries = ms.brentWtiFromSeries({ brent, wti });
+  if (!fromSeries?.held || Math.abs(fromSeries.wti20 + 7.2) > 0.01 || !(fromSeries.spread > 10) || Math.abs(fromSeries.spread20Back - 3.4) > 0.01) fail(`v57.81 brentWtiFromSeries (the helper market-read wires) holds the 10/14 pair: ${JSON.stringify(fromSeries)}`);
+  // Shared 4-week window on a weekly series (a session count read one week).
+  const weekly = Array.from({ length: 10 }, (_, i) => ({ date: new Date(Date.UTC(2026, 6, 3) + i * 7 * 86400000).toISOString().slice(0, 10), value: -0.6 + 0.0125 * i }));
+  if (Math.abs(ms.changeOverDays(weekly, 28).value - 0.05) > 1e-9) fail('v57.81 changeOverDays reads the 4-week change of a weekly series');
+  // Survey rebased on its own record, with its month.
+  const survey = Array.from({ length: 36 }, (_, i) => ({ date: `${2023 + Math.floor((i + 9) / 12)}-${String(((i + 9) % 12) + 1).padStart(2, '0')}-01`, value: 50 + (i % 10) }));
+  const rank = ms.sentimentRank(survey);
+  if (!rank || rank.month !== `${Number(survey.at(-1).date.slice(5, 7))}월` || !(rank.percentile >= 0 && rank.percentile <= 100)) fail(`v57.81 sentimentRank names the month and a percentile: ${JSON.stringify(rank)}`);
+  if (ms.sentimentRank(survey.slice(-10)).percentile !== null) fail('v57.81 fewer than 24 releases give no percentile');
+}

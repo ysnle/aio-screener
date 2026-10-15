@@ -408,7 +408,7 @@ export function deriveRiskEstimate(input) {
     warnings.push('선언된 리밸런싱 정책(' + declaredRebalancePolicy + ')은 지금 구성 그대로 방식에서 쓰이지 않습니다 — 결과에 영향이 없습니다.');
   }
   if (wholeAccountHold === 'cash-declaration-unresolved') {
-    warnings.push('현금 통화가 선언되지 않아 계좌 전체 위험을 계산하지 않습니다 — 주식 부분(invested sleeve) 결과만 게시합니다.');
+    warnings.push('현금을 기준 통화로 바꿀 환율이 없어 계좌 전체 위험을 계산하지 않습니다 — 주식 부분(invested sleeve) 결과만 게시합니다.');
   } else if (wholeAccountHold === 'cash-return-unresolved') {
     warnings.push('현금 수익률이 입력되지 않아 계좌 전체 위험을 보류합니다 — 주식 부분(invested sleeve) 결과만 게시합니다.');
   } else if (wholeAccountHold === 'strategy-account-scope-not-declared') {

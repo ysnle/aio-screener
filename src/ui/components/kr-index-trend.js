@@ -2,7 +2,8 @@
 // "확도 NN%", a setup state and MACD/Bollinger boxes in English, from a live chart fetch. Each card now draws the
 // index's completed KRX closes (the same close series the briefing and 시장 상태 read), says where the last close
 // sits against its 50- and 200-day averages, and reads three lines of computed facts. No grade, no verdict.
-import { buildCloseSeries, krSessionThrough, sessionPointBack } from '../../domain/briefing/market-read.js';
+import { buildCloseSeries, koreaRecordText, krSessionThrough, sessionPointBack, KR_SHOCK_TAIL_PCT } from '../../domain/briefing/market-read.js';
+import { krIndexMoveRecord, KR_MONTH_SESSIONS } from '../../domain/market/kr-index-record.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { createTrendChart } from './trend-chart.js';
 import { el } from './dom.js';
@@ -20,7 +21,7 @@ const signed = (value) => value == null ? '—' : `${value >= 0 ? '+' : ''}${val
 const side = (value, average) => value > average ? '위' : value < average ? '아래' : '같은 자리';
 
 /** Facts from one index's completed KRX closes; null when fewer than two closes exist. */
-export function krIndexTrendFacts(history = [], field, { through = null } = {}) {
+export function krIndexTrendFacts(history = [], field, { through = null, now = null } = {}) {
   const series = buildCloseSeries(history, field, { through });
   if (series.length < 2) return null;
   const last = series[series.length - 1];
@@ -33,9 +34,11 @@ export function krIndexTrendFacts(history = [], field, { through = null } = {}) 
   const window = series.slice(-YEAR_SESSIONS).map((point) => point.value);
   const high = Math.max(...window);
   const low = Math.min(...window);
+  // v57.81: the same record as 시장 상태's KR card and the briefing (kr-index-record.js), on the same last close only.
+  const record = now != null ? krIndexMoveRecord(history, field, { now }) : null;
   return {
     field, date: last.date, value: last.value, sessions: series.length, series,
-    d1: change(1), d20: change(20), ma50, ma200,
+    d1: change(1), d5: change(5), d20: change(KR_MONTH_SESSIONS), ma50, ma200, record: record?.date === last.date ? record : null,
     position50: ma50 == null ? null : side(last.value, ma50),
     position200: ma200 == null ? null : side(last.value, ma200),
     cross: ma50 != null && ma200 != null ? side(ma50, ma200) : null,
@@ -54,7 +57,8 @@ export function krIndexPositionText(facts) {
 /** Three lines, each a computed fact: the move, the averages, the range. */
 export function krIndexReading(facts, label) {
   if (!facts) return [];
-  const lines = [`${shortDate(facts.date)} ${label} 종가 ${close(facts.value)} — 하루 ${signed(facts.d1)}, 20거래일 ${signed(facts.d20)}.`];
+  const rare = facts.record ? koreaRecordText(facts.record, { maxTail: KR_SHOCK_TAIL_PCT }) : '';
+  const lines = [`${shortDate(facts.date)} ${label} 종가 ${close(facts.value)} — 하루 ${signed(facts.d1)} · 5거래일 ${signed(facts.d5)} · ${KR_MONTH_SESSIONS}거래일 ${signed(facts.d20)}${rare ? `. ${rare}입니다` : ''}.`];
   if (facts.ma50 != null && facts.ma200 != null) {
     lines.push(`종가는 50일선(${level(facts.ma50)}) ${facts.position50}, 200일선(${level(facts.ma200)}) ${facts.position200}에 있고, 50일선은 200일선보다 ${facts.cross}에 있습니다.`);
   } else if (facts.ma50 != null) {
@@ -98,7 +102,7 @@ export function renderKrIndexTrends({ documentRef: doc, root, now = Date.now() }
   for (const def of KR_INDEX_TRENDS) {
     const host = doc?.getElementById?.(def.hostId);
     if (!host) continue;
-    const facts = krIndexTrendFacts(history, def.field, { through });
+    const facts = krIndexTrendFacts(history, def.field, { through, now });
     const key = facts ? `${facts.date}|${facts.value}|${facts.sessions}` : 'none';
     if (facts) drawn += 1;
     if (host.dataset.krTrendKey === key) continue;

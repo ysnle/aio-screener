@@ -65,6 +65,8 @@ export function normalizePortfolio(raw = {}) {
     cashKnown: raw.cashKnown === true || numeric(raw.cash) != null,
     baseCurrency: String(raw.baseCurrency || raw.currency || '').trim().toUpperCase() || null,
     cashCurrency: String(raw.cashCurrency || '').trim().toUpperCase() || null,
+    // v57.81: per-currency cash balances pass through (the surface converts them); absent stays absent.
+    ...(Array.isArray(raw.cashBalances) ? { cashBalances: Object.freeze(raw.cashBalances.map((row) => Object.freeze({ currency: String(row?.currency || '').trim().toUpperCase() || null, amount: numeric(row?.amount) }))) } : {}),
     // E3/P1194: 선언된 FX leg는 환산의 유일한 근거다 — 정규화가 지우면 surface는 영원히 보류만 한다.
     // 여기서는 통과만 시키고 유효성(관측 시각·창)은 surface의 fx 계약이 판정한다.
     fxLegs: Object.freeze((Array.isArray(raw.fxLegs) ? raw.fxLegs : []).map((leg) => Object.freeze({

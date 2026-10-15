@@ -7,6 +7,7 @@ import { NATHAN_PREVIOUS_THREADS_REFERENCE } from '../../domain/research/nathan-
 import { NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_CONCEPTS } from '../../domain/knowledge/nathan-framework-pack.js';
 import { CONDITIONAL_EVIDENCE_VERSION } from '../../domain/screener/conditional-evidence.js';
 import { EVIDENCE_LINEAGE_VERSION } from '../../domain/screener/evidence-lineage.js';
+import { RANKING_CONTRACTS } from '../screener-extended.js';
 
 const SCREENER_RESEARCH_MAPPING = Object.freeze(SUPPLIED_MATERIALS_REFERENCE.routeMappings?.screener || {});
 const SCREENER_REFERENCE_FRAMEWORK_IDS = Object.freeze([
@@ -55,10 +56,12 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
       try { onRankingResult(ranking, context); } catch (_) {}
     }
     const bySymbol = new Map((ranking?.rows || []).map((row) => [row.sym || row.symbol, row]));
+    const universeScope = normalized.metadata?.universeScope === 'extended' ? 'extended' : 'core';
     const rankedRows = normalized.rows.map((row) => {
       const result = bySymbol.get(row.sym || row.symbol);
       const merged = result ? { ...row, ...result, symbol: row.symbol, sym: row.sym } : { ...row, rank: null, score: null, factorScores: {}, quantSignal: null };
-      return { ...merged, setupProfile: deriveScreenerSetupProfile(calculationRow(merged)) };
+      // v57.81: under the extended contract every row says so (the ticker page labels its rank from this).
+      return { ...merged, ...(universeScope === 'extended' ? { rankingUniverse: 'extended' } : {}), setupProfile: deriveScreenerSetupProfile(calculationRow(merged)) };
     });
     const screenDefinition = createScreenDefinition({
       screenId: 'native-screener-workbench',
@@ -133,6 +136,10 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
           rankingUse: 'none'
         },
         ranking: ranking ? {
+          // v57.81: the population this ranking was computed over (core universe, or core + extended shard).
+          contract: RANKING_CONTRACTS[universeScope].id,
+          contractLabel: RANKING_CONTRACTS[universeScope].label,
+          universeScope,
           modelVersion: ranking.modelVersion,
           populationPolicy: ranking.populationPolicy,
           populationMarket: ranking.populationMarket,

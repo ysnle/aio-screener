@@ -11,7 +11,8 @@ for (let instant = Date.parse('2025-10-01T12:00:00Z'); instant <= Date.parse('20
   const current = new Date(instant), date = current.toISOString().slice(0, 10), weekday = current.getUTCDay();
   if (weekday !== 0 && weekday !== 6 && resolveMarketCalendarSession({ market: 'US', date }).status !== 'closed') dates.push(date);
 }
-const history = dates.map((date, index) => ({ date, spx: 6000 + index * 6, nasdaq: 22000 + index * 20, vix: 14, vix3m: 17,
+// v57.81: the Nasdaq-100 is the leadership proxy 소수 종목 주도 now needs (a missing proxy is 확인 불가, never holding).
+const history = dates.map((date, index) => ({ date, spx: 6000 + index * 6, nasdaq: 22000 + index * 20, ndx: 20000 + index * 20, vix: 14, vix3m: 17,
   breadth50: 65, breadth200: 68, advanceRatio: .58, tnx: 4.1, wti: 80, dxy: 100, gold: 2000 }));
 const asOf = history.at(-1).date;
 const input = { history, credit: { hyBp: 300, hyAsOf: asOf, hyDelta5Bp: -10, pcr: .9, pcrAsOf: asOf },
@@ -168,6 +169,6 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   const scenarios = buildMarketScenarios(neutralCredit, { regime: neutralRegime });
   const outlook = buildScenarioOutlook({ scenarios, regime: neutralRegime });
   assert.equal(neutralRegime.axes.find((row) => row.id === 'credit').state, 'neutral', 'P1727 fixture: a 20-session widening makes credit neutral');
-  assert.ok(scenarios.scenarios.find((item) => item.id === 'concentration').confirmed === false && outlook.items.find((item) => item.id === 'concentration').met === 3, 'P1727 a neutral credit axis neither confirms 소수 종목 주도 nor counts as 신용 안정');
+  assert.ok(scenarios.scenarios.find((item) => item.id === 'concentration').confirmed === false && outlook.items.find((item) => item.id === 'concentration').met === 4 && outlook.items.find((item) => item.id === 'concentration').total === 5, 'P1727 (v57.81: 5th check 주도 영역 유지) a neutral credit axis neither confirms 소수 종목 주도 nor counts as 신용 안정');
 }
 console.log('[regime-scenarios] PASS P1628: six actual charts, conditional recovery/concentration/weakness, missing/stale holds, units/date bounds, KR holiday/KST separation, chart selection; P1723-P1727 Korean shock lead/axis notes, KRX daily change, mixed-date chip, WTI rebound, Brent hold, one credit rule. Offline.');

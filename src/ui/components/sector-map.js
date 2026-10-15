@@ -7,6 +7,8 @@ import { el } from './dom.js';
 
 const signed = (value, digits = 2) => (value == null ? '수익률 없음' : `${value >= 0 ? '+' : ''}${value.toFixed(digits)}%`);
 const shortDate = (date) => (date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '');
+// v57.81: rough bold label width in px (Hangul a full em, capitals ~0.78em, digits and signs ~0.62em) so a label is drawn only where it fits.
+const labelWidth = (text, size) => [...String(text)].reduce((sum, ch) => { const code = ch.charCodeAt(0); return sum + (code >= 0x3131 && code <= 0xd7a3 ? 1 : ch >= 'A' && ch <= 'Z' ? 0.78 : 0.62); }, 0) * size;
 
 // The S&P 500 member weights arrive inside the screener artifact (metadata.indexWeights, compact rows).
 function weightsOf(metadata) {
@@ -110,11 +112,16 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
       const node = el(doc, 'div', null, `sector-map-tile is-${shade}`);
       Object.assign(node.style, { left: `${tile.x}px`, top: `${tile.y}px`, width: `${Math.max(0, tile.w - 1)}px`, height: `${Math.max(0, tile.h - 1)}px` });
       node.dataset.sym = tile.sym;
-      if (tile.w >= 30 && tile.h >= 18) {
-        const size = Math.max(10, Math.min(20, Math.sqrt(tile.w * tile.h) / 5.2));
-        node.style.fontSize = `${size.toFixed(1)}px`;
+      // v57.81 (phone/iPad parity audit): labels never go below 11px; a tile too small to hold its ticker at that size
+      // shows colour only (tap still names it in the detail line and opens the stock on a second tap).
+      const size = Math.max(11, Math.min(20, Math.sqrt(tile.w * tile.h) / 5.2));
+      if (tile.w - 4 >= labelWidth(tile.sym, size) && tile.h - 2 >= size * 1.2) {
+        // A custom property, not an inline font-size: the legacy `.page [style*="font-size: 11px"]` floor rules bump an
+        // inline 10/11px to 12-13px !important, which made the smallest labels overflow their tiles.
+        node.style.setProperty('--sector-tile-fs', `${size.toFixed(1)}px`);
         node.append(el(doc, 'strong', tile.sym));
-        if (tile.h >= size * 2.6 && tile.w >= 40) node.append(el(doc, 'span', tile.staleRet != null ? '기준일 다름' : signed(tile.ret, Math.abs(tile.ret ?? 0) >= 10 ? 1 : 2)));
+        const sub = tile.staleRet != null ? '기준일 다름' : signed(tile.ret, Math.abs(tile.ret ?? 0) >= 10 ? 1 : 2);
+        if (tile.h >= size * 2.6 && tile.w - 4 >= labelWidth(sub, Math.max(11, size * 0.78))) node.append(el(doc, 'span', sub));
       }
       const describe = () => `${tile.sym}${tile.name ? ` · ${tile.name}` : ''} · ${tile.sectorLabel} · ${model.sizeBasis === 'index-weight' ? `지수 비중 ${tile.value.toFixed(2)}%` : `시가총액 약 ${tile.value >= 1e12 ? `${(tile.value / 1e12).toFixed(2)}조` : `${Math.round(tile.value / 1e8).toLocaleString('ko-KR')}억`} 달러`} · ${model.periodLabel} ${tile.staleRet != null ? `${signed(tile.staleRet)} (${shortDate(tile.basis)} 종가 · 기준일이 달라 색과 평균에서 제외)` : `${signed(tile.ret)}${tile.basis && tile.basis !== model.basis ? ` (${shortDate(tile.basis)} 종가)` : ''}`}`;
       node.addEventListener('mouseenter', () => { detail.setAttribute('aria-live', 'off'); detail.textContent = describe(); }); // v57.77 (a11y): hover is silent; a click announces

@@ -63,22 +63,29 @@ export function alignCloses(seriesByField) {
   });
 }
 
-/** Theme-proxy state outcomes: state from the 6-month and 1-month return, outcome = the next 63 sessions. */
+/**
+ * Theme stages. v57.81 (analysis audit): the screen measures them against the S&P 500 (KR: KOSPI) over the same window with
+ * a ± band (src/domain/themes/recent-check.js), so the labels speak of the index. 'fading' is a leading trend that its
+ * 50-day share, its conditions or the last five sessions no longer support (theme-playbook.js decides it; the long-history
+ * proxy outcomes below never produce it). The weekly proxy outcomes still use absolute returns with no band.
+ */
 export const THEME_STATES = Object.freeze({
-  leading: '주도 지속 (긴 추세↑ · 1개월↑)',
-  pullback: '추세 속 조정 (긴 추세↑ · 1개월↓)',
-  rebound: '반등 시도 (긴 추세↓ · 1개월↑)',
-  weak: '약세 지속 (긴 추세↓ · 1개월↓)'
+  leading: '주도 지속 (긴 추세가 지수보다 앞서고 1개월도 뒤처지지 않음)',
+  fading: '추세 약화 확인 중 (긴 추세는 앞서나 50일선 위 비율·조건·최근 5거래일이 받쳐 주지 않음)',
+  pullback: '추세 속 조정 (긴 추세는 앞서나 1개월은 뒤처짐)',
+  rebound: '반등 시도 (긴 추세는 앞서지 못하나 1개월은 앞섬)',
+  weak: '약세 지속 (긴 추세도 1개월도 앞서지 못함)'
 });
-export function themeStateOf(trend, recent) {
+/** `band` / `recentBand` (%p, ≥ 0): a trend must clear +band to count as ahead; with 0 this is the plain sign rule. */
+export function themeStateOf(trend, recent, { band = 0, recentBand = 0 } = {}) {
   if (trend == null || recent == null) return null;
-  if (trend > 0) return recent >= 0 ? 'leading' : 'pullback';
-  return recent > 0 ? 'rebound' : 'weak';
+  if (trend > band) return recent >= -recentBand ? 'leading' : 'pullback';
+  return recent > recentBand ? 'rebound' : 'weak';
 }
 export function themeStateOutcomes(closes, { horizon = 63 } = {}) {
   const list = (closes || []).filter(([, value]) => finite(value) > 0);
-  const buckets = { leading: [], pullback: [], rebound: [], weak: [] };
-  const next = { leading: 0, pullback: 0, rebound: 0, weak: 0 };
+  const buckets = Object.fromEntries(Object.keys(THEME_STATES).map((state) => [state, []])); // 'fading' stays empty here
+  const next = Object.fromEntries(Object.keys(THEME_STATES).map((state) => [state, 0]));
   let baseN = 0, baseUp = 0;
   for (let i = 126; i + horizon < list.length; i += 1) { baseN += 1; if (list[i + horizon][1] > list[i][1]) baseUp += 1; }
   for (let i = 126; i + horizon < list.length; i += 1) {

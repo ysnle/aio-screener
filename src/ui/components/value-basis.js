@@ -58,10 +58,13 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
   card.hidden = true;
   doc.body.append(card);
   let anchor = null;
+  let openedBy = null;
 
   const target = (event) => {
     const el = event.target?.closest?.('[title], [data-basis]');
-    if (!el || !el.closest('.page') || el.closest('.term-tooltip, .aio-tooltip')) return null;
+    // v57.81: outside the pages only opted-in shell elements ([data-basis-zone], the topbar quote status) read their
+    // basis; their full sentence lived in `title` alone and could not be reached by a tap.
+    if (!el || !el.closest('.page, [data-basis-zone]') || el.closest('.term-tooltip, .aio-tooltip')) return null;
     // Take the text out of `title` so the browser's own tooltip does not double the card.
     const title = el.getAttribute('title');
     if (title) { el.setAttribute('data-basis', title); el.removeAttribute('title'); if (!el.getAttribute('aria-label') && !el.textContent.trim()) el.setAttribute('aria-label', title); }
@@ -72,11 +75,12 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
     if (!anchor) return;
     describe(anchor, card.id, false);
     anchor = null;
+    openedBy = null;
     card.hidden = true;
   };
 
   // U05: content is rebuilt on every show, so a reopened card reflects the element's current value and date.
-  const show = (el) => {
+  const show = (el, via) => {
     if (anchor && anchor !== el) describe(anchor, card.id, false);
     const lines = [doc.createElement('p')];
     lines[0].className = 'aio-basis-text';
@@ -98,17 +102,30 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
     card.style.cssText = `left:${place.left}px;top:${place.top}px;max-width:${place.width}px;`;
     describe(el, card.id, true);
     anchor = el;
+    openedBy = via;
   };
 
-  const onOver = (event) => { if (event.pointerType === 'touch') return; const el = target(event); if (el) show(el); };
-  const onOut = (event) => { if (anchor && !anchor.contains(event.relatedTarget)) hide(); };
-  const onFocus = (event) => { const el = target(event); if (el) show(el); else hide(); };
+  const onOver = (event) => { if (event.pointerType === 'touch') return; const el = target(event); if (el) show(el, 'hover'); };
+  // v57.81 (phone/iPad audit): a tap fires pointerout right after pointerup (relatedTarget null), which closed the
+  // card inside the same tap, so no basis was readable on touch. Touch pointerout is ignored; a touch card closes on
+  // the next pointerdown outside its element, on scroll, or on Escape. Mouse hover and keyboard focus are unchanged.
+  const onOut = (event) => { if (event.pointerType === 'touch') return; if (anchor && !anchor.contains(event.relatedTarget)) hide(); };
+  const onFocus = (event) => {
+    const el = target(event);
+    if (el) { show(el, 'focus'); return; }
+    // A tap on a titled child of a focusable control focuses the control; that focus must not close the card it opened.
+    if (openedBy === 'touch' && anchor && (event.target === anchor || event.target?.contains?.(anchor) || anchor.contains(event.target))) return;
+    hide();
+  };
   // Phones have no hover: a tap shows the card and the next tap elsewhere closes it. The tap still reaches the
   // element, so buttons and links keep working.
   const onPointerDown = (event) => {
-    if (event.pointerType !== 'touch') return;
+    if (event.pointerType !== 'touch') {
+      if (openedBy === 'touch' && anchor && !anchor.contains(event.target)) hide();
+      return;
+    }
     const el = target(event);
-    if (el) show(el); else hide();
+    if (el) show(el, 'touch'); else hide();
   };
   const onKey = (event) => { if (event.key === 'Escape') hide(); };
 

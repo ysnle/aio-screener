@@ -12,6 +12,7 @@ const WORKER_ENDPOINTS_PATH = new URL('../architecture/worker-endpoints.json', i
 const PUBLIC_READINESS_PATH = new URL('../architecture/public-readiness.json', import.meta.url);
 const PUBLIC_CONFIG_PATH = new URL('../public-config.json', import.meta.url);
 const SLO_WINDOW_PATH = new URL('../public-data/operations-slo-window.json', import.meta.url);
+const SCREENER_EXTENDED_PATH = new URL('../public-data/screener-extended.json', import.meta.url); // v57.81
 const WORKER_HEALTH_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const MARKET_CYCLE_FRESHNESS_SLA_MS = 12 * 60 * 60 * 1000;
 const DURABLE_QUOTE_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
@@ -256,6 +257,23 @@ export function deriveDomainStatus(domainReceipts = null) {
   }));
 }
 
+// v57.81: availability of the extended screener shard. Absent → UNAVAILABLE (the screener offers only the core view's
+// data then); older than two days, below its coverage floor, or built on a retained membership source → DEGRADED.
+export const EXTENDED_SHARD_MAX_AGE_HOURS = 48;
+export function deriveExtendedScreenerAvailability(shard, now = new Date().toISOString()) {
+  if (!shard || shard.schemaVersion !== 'screener-extended.v1' || !shard.asOf) {
+    return { availability: 'UNAVAILABLE', asOf: null, missingReason: 'extended-shard-not-produced', sources: ['durable'] };
+  }
+  const ageHours = (Date.parse(now) - Date.parse(shard.asOf)) / 3_600_000;
+  const pricePct = Number(shard.coverage?.pricePct);
+  const floorPct = Number(shard.coverage?.floorPct ?? 60);
+  const retained = Object.entries(shard.membership?.status || {}).filter(([, status]) => status !== 'CURRENT').map(([id]) => id);
+  const reason = !(ageHours <= EXTENDED_SHARD_MAX_AGE_HOURS) ? `extended-shard-${Math.round(ageHours)}h-old`
+    : !(pricePct >= floorPct) ? `extended-price-coverage-${pricePct}pct-below-${floorPct}`
+      : retained.length ? `membership-source-not-current:${retained.join('+')}` : null;
+  return { availability: reason ? 'DEGRADED' : 'AVAILABLE', asOf: shard.asOf, missingReason: reason, sources: ['durable'] };
+}
+
 export function deriveFredProviderStatus({ fetchOk, keyPresent } = {}) {
   if (fetchOk === true) return 'CURRENT';
   return keyPresent === true ? 'BLOCKED' : 'OPERATOR_REQUIRED';
@@ -449,6 +467,8 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
     try { sec = JSON.parse(await readFile(SEC_FUNDAMENTALS_SUMMARY_PATH, 'utf8')); } catch (_) { sec = null; }
   }
   const secCoverage = deriveSecCoverage(sec, data?.meta?.fundamentalCoveragePct);
+  let extendedShard = null;
+  try { extendedShard = JSON.parse(await readFile(SCREENER_EXTENDED_PATH, 'utf8')); } catch (_) { extendedShard = null; }
   const ownership = deriveRouteOwnership(routeOwners);
   const fastConfig = workerEndpoints.fastQuotes || {};
   const shouldObserveWorkerHealth = process.env.AIO_OBSERVE_PROXY_HEALTH === '1';
@@ -547,6 +567,8 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
         missingReason: proxyHealthy ? null : !proxyConfigured ? 'ai-shared-proxy-not-configured' : 'ai-shared-proxy-not-ready',
         sources: ['fast']
       },
+      // v57.81: the extended screener shard (Russell 2000 + Nasdaq beyond the core) is published by its own job.
+      'screener-extended': deriveExtendedScreenerAvailability(extendedShard, now),
       // 브라우저 평면은 이 producer가 관측하지 않는다. 정상이 아니라 UNKNOWN이고, 그 이유가 사용자에게
       // 전달된다 — `overall`이 이 평면을 포함하지 않는다는 사실도 overallBasis.excludes가 말한다.
       'browser-shell': {

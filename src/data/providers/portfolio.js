@@ -36,6 +36,8 @@ export function createPortfolioProvider({ read = () => ({}) } = {}) {
         // Pass the declarations through untouched — absent stays null, never inferred.
         baseCurrency: runtime.baseCurrency ?? null,
         cashCurrency: runtime.cashCurrency ?? null,
+        // v57.81: one balance per currency; absent stays absent so older reads keep the single-value path.
+        ...(Array.isArray(runtime.cashBalances) ? { cashBalances: runtime.cashBalances.map((row) => ({ currency: row?.currency ?? null, amount: row?.amount ?? null })) } : {}),
         // E3/P1194 (11 §23): 선언된 FX leg도 같은 규칙으로 통과시킨다 — 없으면 null이 아니라 빈 배열이고,
         // 환산 여부는 surface의 fx 계약이 판정한다.
         fxLegs: Array.isArray(runtime.fxLegs) ? runtime.fxLegs : [],

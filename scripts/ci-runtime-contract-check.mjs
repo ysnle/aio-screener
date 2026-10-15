@@ -122,6 +122,18 @@ check('P768: native screener is the sole runtime artifact fetch and legacy recei
 check('P1186 native screener state has exactly one projection trigger (the readiness event)',
   (data.match(/_aioApplyNativeScreenerState\(/g) || []).length === 2 && /nativeScreenerReady/.test(data) && /nativeStateApplied/.test(data),
   'a second projection path for native screener state returned');
+// v57.81: without an event payload the projection reads only the screener fields it uses (P1755 path read), never the
+// whole slice; run the real function against a recording facade.
+{
+  const start = data.indexOf('function _aioApplyNativeScreenerState(');
+  const end = data.indexOf('window._aioApplyNativeScreenerState = _aioApplyNativeScreenerState;', start);
+  const reads = [];
+  const slice = { status: 'current', revision: 'r1', metadata: { asOf: '2026-10-15' }, rows: [{}, {}, {}] };
+  const sandbox = { window: { AIO_ARCH: { getScreenerState: (path) => { reads.push(path); return path ? path.split('.').reduce((n, k) => (n == null ? undefined : n[k]), slice) : slice; } } }, isFinite, Number, Array, Date, String };
+  let applied = false;
+  try { applied = start >= 0 && end > start && runInNewContext(data.slice(start, end) + '\n_aioApplyNativeScreenerState();', sandbox); } catch (_) { applied = false; }
+  check('v57.81 the native screener projection reads named paths, never the whole slice', applied === true && reads.length > 0 && reads.every((path) => typeof path === 'string' && path) && sandbox.window._aioScreenerLoadState?.count === 3, JSON.stringify({ applied, reads }));
+}
 const canonicalScreenerConsumerNames = ['_aioExtractRecentRecommendationTickers', '_detectSectorQuery', '_aioRunScreenerQuery', '_aioMakerCheckerVerify'];
 for (const name of canonicalScreenerConsumerNames) {
   const start = data.indexOf(`function ${name}`);
@@ -1008,7 +1020,7 @@ check('WP-AI1: shared request envelope records pipeline, validator, block-policy
 // v57.62: the dead per-page chatSend (no #chat-<ctx>-inp since P1653) and its embedded retry were retired.
 check('v57.62 per-page chatSend and its embedded retry are retired', !/async function chatSend\(/.test(chat) && !/var _pageOnChunk = function|var _pageOnDone = function|var _pageOnError = function/.test(chat));
 // P1131/R619: the unified retry/completion contract moved with inline block G into js/aio-chat.js.
-check('WP-AI1: unified retry reuses one completion callback contract and request object', /var _uniOnChunk = function/.test(chat) && /var _uniOnDone = function/.test(chat) && /callClaude\((?:\(window\.AIO && window\.AIO\.promptWithoutWebSearch \|\| String\)\()?sysPrompt\)?, state\.messages, _uniOnChunk, _uniOnDone/.test(chat) && /_aioBeginAIRequestAttempt\(_uniAIRequest, nextModel\)/.test(chat));
+check('WP-AI1: unified retry reuses one completion callback contract and request object', /var _uniOnChunk = function/.test(chat) && /var _uniOnDone = function/.test(chat) && /callSharedAi\((?:\(window\.AIO && window\.AIO\.promptWithoutWebSearch \|\| String\)\()?sysPrompt\)?, state\.messages, _uniOnChunk, _uniOnDone/.test(chat) && /_aioBeginAIRequestAttempt\(_uniAIRequest, nextModel\)/.test(chat));
 check('WP-AI1: translation uses the shared response pipeline and fails closed to local/deterministic fallback while briefing is owned by the native news renderer', /_translationRequest/.test(data) && /_aioRunAIResponsePipeline/.test(data) && /auto-translation/.test(data) && /AI response pipeline unavailable/.test(data) && /route === 'briefing'/.test(newsPage) && /buildNewsSurfaceModel/.test(newsPage) && !/_briefingRequest/.test(data));
 check('WP-AI1: briefing route is defined in the unified context map and regression tests cover all entry points', /briefing:\s*_aioCreateEvidenceContext/.test(chat) && /T937/.test(tests) && /T938/.test(tests) && /T939/.test(tests) && /T940/.test(tests));
 

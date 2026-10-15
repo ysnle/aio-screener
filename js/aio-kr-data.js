@@ -736,7 +736,7 @@ var KR_STOCK_DB = {
   '035420': {name:'NAVER', sector:'IT플랫폼', themes:['ai-sw','telecom']},
   '035720': {name:'카카오', sector:'IT플랫폼', themes:['ai-sw','crypto']},
   '041020': {name:'폴라리스오피스', sector:'SW', themes:['ai-sw']},
-  '030520': {name:'한글과컴퓨터', sector:'SW', themes:['ai-sw']},
+  '030520': {name:'한컴', sector:'SW', themes:['ai-sw']},
   '018260': {name:'삼성SDS', sector:'IT서비스', themes:['ai-sw']},
   '304100': {name:'솔트룩스', sector:'AI', themes:['ai-sw']},
   // ════════ 전력기기 (8) ════════
@@ -849,7 +849,7 @@ var KR_STOCK_DB = {
   '006360': {name:'GS건설', sector:'건설', themes:['construction']},
   '375500': {name:'DL이앤씨', sector:'건설', themes:['construction']},
   '028050': {name:'삼성E&A', sector:'플랜트', themes:['construction']},
-  '294870': {name:'HDC현대산업개발', sector:'건설', themes:['construction']},
+  '294870': {name:'IPARK현대산업개발', sector:'건설', themes:['construction']},
   '139480': {name:'이마트', sector:'대형마트', themes:['retail']},
   '004170': {name:'신세계', sector:'백화점', themes:['retail']},
   '069960': {name:'현대백화점', sector:'백화점', themes:['retail']},
@@ -869,7 +869,7 @@ var KR_STOCK_DB = {
   '010820': {name:'퍼스텍', sector:'방산/무인기', themes:['defense','drone']},
   '024060': {name:'흥구석유', sector:'석유유통', themes:['energy_kr']},
   '032820': {name:'우리기술', sector:'원전제어', themes:['nuclear']},
-  '036570': {name:'엔씨소프트', sector:'게임', themes:['kcontent']},
+  '036570': {name:'NC', sector:'게임', themes:['kcontent']},
   '039130': {name:'하나투어', sector:'여행', themes:['travel']},
   '049950': {name:'미래컴퍼니', sector:'수술로봇', themes:['medtech_kr']},
   '089590': {name:'제주항공', sector:'항공', themes:['travel']},
@@ -902,7 +902,7 @@ var KR_STOCK_DB = {
   // ════════ v41.9 신규: 신재생/양자/UAM/수소/우주 테마 종목 ════════
   '112610': {name:'씨에스윈드', sector:'풍력타워', themes:['wind_solar']},
   '336260': {name:'두산퓨얼셀', sector:'연료전지', themes:['wind_solar','hydrogen']},
-  '017390': {name:'서울가스', sector:'가스유틸리티', themes:['wind_solar','hydrogen']},
+  '017390': {name:'서울도시가스', sector:'가스유틸리티', themes:['wind_solar','hydrogen']},
   '003830': {name:'대한화섬', sector:'신재생', themes:['wind_solar']},
   '050890': {name:'쏠리드', sector:'광중계기', themes:['photonics_kr','quantum']},
   '032500': {name:'케이엠더블유', sector:'통신장비', themes:['photonics_kr','quantum']},
@@ -965,7 +965,7 @@ var KR_THEME_MAP = {
     {code:'035420'}, // NAVER (HyperCLOVA X, AI 대장)
     {code:'018260'}, // 삼성SDS (AI ERP/Brity)
     {code:'035720'}, // 카카오 (카나나/AI)
-    {code:'030520'},  // 한글과컴퓨터 (한컴AI)
+    {code:'030520'},  // 한컴 (한컴AI)
     {code:'041020'},  // 폴라리스오피스 (글로벌 오피스)
     {code:'304100'}   // 솔트룩스 (한국어 LLM)
   ],
@@ -1137,7 +1137,7 @@ var KR_THEME_MAP = {
     {code:'112610'}, // 씨에스윈드 (풍력타워 글로벌 1위, 대장)
     {code:'009830'}, // 한화솔루션 (태양광+케미칼, 규모 1위)
     {code:'336260'}, // 두산퓨얼셀 (연료전지 발전)
-    {code:'017390'}, // 서울가스 (수소충전 인프라)
+    {code:'017390'}, // 서울도시가스 (수소충전 인프라)
     {code:'003830'}  // 대한화섬 (풍력발전단지 개발)
   ],
   'quantum': [
@@ -1162,7 +1162,7 @@ var KR_THEME_MAP = {
     {code:'298040'}, // 효성중공업 (수소충전소 1위, 린데 JV)
     {code:'096770'}, // SK이노베이션 (수소 생산/유통)
     {code:'003490'},  // 대한항공 (수소항공기 연구)
-    {code:'017390'},  // 서울가스 (수소충전 인프라)
+    {code:'017390'},  // 서울도시가스 (수소충전 인프라)
     {code:'005380'}   // 현대차 (수소차 NEXO, 수소 상용차)
   ],
   'space': [

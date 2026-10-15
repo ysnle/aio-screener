@@ -37,3 +37,18 @@ export function isKnownSymbol(symbol, { entries = {}, krStockDb = {}, universe =
   if (entries?.[id] || krStockDb?.[id.replace(/\.K[SQ]$/, '')]) return true;
   return (Array.isArray(universe) ? universe : []).some((row) => String(row?.sym || row || '').toUpperCase() === id);
 }
+
+/**
+ * v57.81: the portfolio entry box. A ticker-shaped input stays exactly what was typed (never rewritten to another issuer);
+ * only a non-ticker-shaped input (a Korean name or a registered nickname such as "스엑") resolves, and only by an exact
+ * registry match. `known` uses the same owner as the ticker route (isKnownSymbol: name registry, KRX list, screener universe).
+ */
+export function resolveHoldingInput(raw, { entries = {}, krStockDb = {}, universe = [] } = {}) {
+  const text = String(raw || '').trim();
+  if (!text) return { symbol: '', known: false, resolvedFrom: null };
+  const typed = text.toUpperCase();
+  const tickerShaped = /^[A-Z0-9.^=-]{1,10}$/.test(typed);
+  const named = tickerShaped ? null : resolveRegisteredName(text, entries);
+  const symbol = named || typed;
+  return { symbol, known: isKnownSymbol(symbol, { entries, krStockDb, universe }), resolvedFrom: named && named !== typed ? text : null };
+}

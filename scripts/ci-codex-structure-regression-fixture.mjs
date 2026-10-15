@@ -218,6 +218,8 @@ assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes(
   assert.match(items.sofr.changeText, /목표 범위 3\.75–4\.00% 안/, 'M22: SOFR shows the target range');
   assert.equal(items.sofr.stale, false, 'M14: a 2-day-old daily series is current');
   assert.equal(buildLiquidityGrowthGroups(mh, { history, referenceMs: referenceMs + 6 * 86400000 }).flatMap((g) => g.items).find((i) => i.id === 'brent').stale, true, 'M14: a daily series 8 days old is stale');
+  assert.ok(/ 현물 기준$/.test(items.brent.period) && items.brent.basis === 'spot' && /선물 종가와 숫자가 다를 수/.test(items.brent.reading)
+    && Object.values(items).filter((i) => / 현물 기준$/.test(i.period || '')).length === 1, 'v57.81: the spot Brent card names its basis and date on its face, and only that card');
   const oil = brentWtiCheck(mh, history);
   assert.ok(oil.diverges && oil.basis === 'futures' && Math.round(oil.spread) === 28 && /보류/.test(oil.sentence), 'M06: Brent up 25% with WTI flat is flagged with the same-day spread');
   const spotOnly = brentWtiCheck(mh, history.map(({ brent, ...row }) => row));

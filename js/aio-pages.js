@@ -55,8 +55,9 @@ function drawPositionDonut() {
     items.push({ ticker: p.ticker, val: val, sector: sector, pct: 0 });
     totalVal += val;
   });
+  // v57.81: cash is per-currency balances; this fenced fallback reads the surface's converted total, never a raw sum.
   var cashVal = 0;
-  try { cashVal = parseFloat(localStorage.getItem('aio_portfolio_cash') || '0'); } catch(e) {}
+  try { var _pfSurface = window._aioPortfolioSurface; if (_pfSurface && _pfSurface.cash != null) cashVal = _pfSurface.cash; } catch(e) {}
   if (cashVal > 0) {
     items.push({ ticker: 'CASH', val: cashVal, sector: 'CASH', pct: 0 });
     totalVal += cashVal;
@@ -115,13 +116,7 @@ function drawPositionDonut() {
   // P831: sector allocation is owned by src/ui/pages/portfolio.js.
 }
 
-// v40.4: 현금 포지션 저장
-function saveCashPosition(val) {
-  var cash = parseFloat(val) || 0;
-  try { localStorage.setItem('aio_portfolio_cash', cash > 0 ? cash.toString() : '0'); } catch(e) {}
-  drawPositionDonut();
-  renderPortfolio();
-}
+// v57.81: saveCashPosition retired — cash is saved per currency (window._aioSaveCashBalance).
 
 // v57.77: updateRiskMonitor retired. Its [data-snap] writes inside #page-macro raced
 // renderSnapshotMetrics (src/ui/pages/market.js); its other keys had no sinks.
@@ -409,11 +404,9 @@ function _renderEarnSection(icon, label, items, maxVisible, bgColor, borderColor
   html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;">';
   items.slice(0, maxVisible).forEach(function(e) {
     var sym = e.symbol || '?';
-    var logoUrl = 'https://financialmodelingprep.com/image-stock/' + encodeURIComponent(sym) + '.png';
     var epsEst = e.epsEstimate != null ? '$' + parseFloat(e.epsEstimate).toFixed(2) : '';
+    // v57.81: the third-party logo hotlink (a retired provider's image host) is gone; the ticker text is the card face.
     html += '<div class="aio-earn-card" data-action="_aioNewsTickerClick" data-arg="' + escHtml(sym) + '" role="button" tabindex="0" style="background:var(--surface-4);border:1px solid var(--border);border-radius:4px;padding:3px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;transition:border-color var(--dur-fast);" title="' + escHtml(sym) + ' 어닝 ' + epsEst + '">';
-    html += '<img src="' + escHtml(logoUrl) + '" alt="' + escHtml(sym) + '" loading="lazy" data-logo-fallback="1" style="width:22px;height:22px;object-fit:contain;border-radius:3px;background:#ffffff;">';
-    html += '<span style="display:none;font-size:11px;font-weight:800;color:var(--text-primary);">' + escHtml(sym.slice(0,4)) + '</span>';
     html += '<span style="font-size:11px;font-weight:700;color:var(--text-secondary);font-family:var(--font-mono);">' + escHtml(sym) + '</span>';
     html += '</div>';
   });

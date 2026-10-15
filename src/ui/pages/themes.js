@@ -14,17 +14,33 @@ import { krThemeArtifactRead } from '../../domain/themes/kr-themes.js';
 import { buildGroupStrength } from '../../domain/themes/group-strength.js';
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
 import { rrgAxisDomain, RRG_DEFINITION } from '../../domain/themes/rrg.js';
+import { rrgRecentReading, RRG_NEUTRAL_BAND } from '../../domain/themes/recent-check.js';
 import { benchmarkReturns, basisOf } from '../components/theme-strength.js';
 import { readMarketRegime } from '../components/market-regime.js';
 import { renderNextSteps } from '../components/page-flow.js';
 
 // v57.76: plain-Korean quadrant notes (no 모멘텀 jargon). 100 is the sector's own 100-session average relative price.
+// v57.81 (audit): the notes name both windows and no longer say "계속 강해지는 중 / 나아지는 중" — the vertical axis
+// compares with about 50 sessions ago, so a sector can sit in 선도 while its last week fell hard (the chip then says so).
+// A point within the neutral band around 100 on either axis is 경계 and stays out of the four verdicts.
 const QUADRANTS = Object.freeze([
-  { key: 'Leading', label: '선도', note: '시장 대비 흐름이 평소보다 강하고, 계속 강해지는 중' },
-  { key: 'Improving', label: '개선', note: '시장 대비 흐름이 평소보다 약하지만, 나아지는 중' },
-  { key: 'Weakening', label: '약화', note: '시장 대비 흐름이 평소보다 강하지만, 힘이 빠지는 중' },
-  { key: 'Lagging', label: '후행', note: '시장 대비 흐름이 평소보다 약하고, 더 약해지는 중' }
+  { key: 'Leading', label: '선도', note: '시장 대비 상대가격이 100일 평균보다 높고, 약 50일 전보다 올라섬' },
+  { key: 'Improving', label: '개선', note: '시장 대비 상대가격이 100일 평균보다 낮지만, 약 50일 전보다 올라섬' },
+  { key: 'Weakening', label: '약화', note: '시장 대비 상대가격이 100일 평균보다 높지만, 약 50일 전보다 내려옴' },
+  { key: 'Lagging', label: '후행', note: '시장 대비 상대가격이 100일 평균보다 낮고, 약 50일 전보다도 내려옴' },
+  { key: 'Border', label: '경계', note: `두 축 중 하나가 100에서 ±${RRG_NEUTRAL_BAND} 안이라 사분면을 정하지 않음`, optional: true }
 ]);
+
+// v57.81: the banded zone and the five-session relative-strength check of one item, from the session-checked artifact row.
+function readingOf(root, item) {
+  const symbol = String(item?.symbol || item?.id || '');
+  const produced = symbol ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, symbol, Date.now()) : null;
+  return rrgRecentReading(item, produced?.relativeStrength || null);
+}
+function zoneKey(root, item) {
+  const reading = readingOf(root, item);
+  return reading?.border ? 'Border' : String(item?.quadrant || '');
+}
 
 function finite(value) {
   if (value == null || value === '' || typeof value === 'boolean') return null;
@@ -66,11 +82,11 @@ function renderRRGStatus({ documentRef, root, store, route }) {
   if (!status) return;
   status.dataset.aioRrgStatusRenderer = 'native';
   const items = viewItems(selectThemesItems(store?.getState?.() || {}), activeView(root));
-  const counts = { Leading: 0, Improving: 0, Weakening: 0, Lagging: 0 };
+  const counts = { Leading: 0, Improving: 0, Weakening: 0, Lagging: 0, Border: 0 };
   items.forEach((item) => {
     const quadrant = String(item?.quadrant || '');
-    if (Object.prototype.hasOwnProperty.call(counts, quadrant)
-      && finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null) counts[quadrant] += 1;
+    if (Object.prototype.hasOwnProperty.call(counts, quadrant) && quadrant !== 'Border'
+      && finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null) counts[zoneKey(root, item)] += 1;
   });
   const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
   if (!total) {
@@ -85,7 +101,7 @@ function renderRRGStatus({ documentRef, root, store, route }) {
   // v57.76: that caveat lives once, in the 사분면별 섹터 fold (rrg-method-note); the line above the chart keeps the
   // counts and the close it was measured on.
   const close = usCloseSession(root);
-  status.textContent = `선도 ${counts.Leading} · 개선 ${counts.Improving} · 약화 ${counts.Weakening} · 후행 ${counts.Lagging} · ${close ? `${shortSession(close)} 미국 종가 기준` : '완료 종가 기준'}`;
+  status.textContent = `선도 ${counts.Leading} · 개선 ${counts.Improving} · 약화 ${counts.Weakening} · 후행 ${counts.Lagging}${counts.Border ? ` · 경계 ${counts.Border}` : ''} · 약 50일 상대강도 · ${close ? `${shortSession(close)} 미국 종가 기준` : '완료 종가 기준'}`;
   status.style.color = 'var(--text-dim)';
 }
 
@@ -228,11 +244,11 @@ function renderThemeCyclePill({ documentRef, root, store, route }) {
   const view = activeView(root);
   const viewLabel = { sectors: '섹터', subsectors: '하위 테마', all: '전체 관측' }[view] || '섹터';
   const items = viewItems(selectThemesItems(store?.getState?.() || {}), view);
-  const counts = { Leading: 0, Improving: 0, Weakening: 0, Lagging: 0 };
+  const counts = { Leading: 0, Improving: 0, Weakening: 0, Lagging: 0, Border: 0 };
   items.forEach((item) => {
     const quadrant = String(item?.quadrant || '');
-    if (Object.prototype.hasOwnProperty.call(counts, quadrant)
-      && finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null) counts[quadrant] += 1;
+    if (Object.prototype.hasOwnProperty.call(counts, quadrant) && quadrant !== 'Border'
+      && finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null) counts[zoneKey(root, item)] += 1;
   });
   const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
   // v57.54 audit (2): with nothing judged the verdict line below is the one status line; the pill would repeat it.
@@ -245,7 +261,7 @@ function renderThemeCyclePill({ documentRef, root, store, route }) {
   // Expert review M08: the split is a count, not a risk-on/off grade — one neutral pill colour.
   pill.className = 'status-pill sp-neutral';
   // P1352: quadrant counts describe relative strength, not sector identity or the business cycle.
-  pill.textContent = `${viewLabel} 상대강도 · 선도·개선 ${counts.Leading + counts.Improving}/${total} · 약화·후행 ${counts.Weakening + counts.Lagging}/${total}`;
+  pill.textContent = `${viewLabel} 상대강도 · 선도·개선 ${counts.Leading + counts.Improving}/${total} · 약화·후행 ${counts.Weakening + counts.Lagging}/${total}${counts.Border ? ` · 경계 ${counts.Border}/${total}` : ''}`;
 }
 
 // v57.76: the 섹터 흐름 분석 box (sector-perf-analysis) and its writer are retired — it repeated the 섹터 회전 판정
@@ -412,6 +428,16 @@ function createChip(documentRef, item, root) {
     change.style.color = pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
     chip.append(change);
   }
+  // v57.81: a 경계 chip names the quadrants it sits between; a chip whose last five sessions of relative strength ran
+  // against its quadrant says so (rrgRecentReading), so 선도 is never read as "still strengthening" during a break.
+  const reading = item?.rrgReading || null;
+  if (reading?.border || reading?.reversal) {
+    chip.dataset.rrgReading = reading.label;
+    const note = documentRef.createElement('span');
+    note.textContent = `${reading.border ? ` · ${reading.between} 사이` : ''}${item.recentReversal ? ` · 최근 5거래일 ${item.recentReversal}` : ''}`;
+    note.style.color = 'var(--text-secondary)';
+    chip.append(note);
+  }
   chip.style.cssText = `font-size:12px;border:1px ${detailId ? 'solid' : 'dashed'} var(--border-subtle);border-radius:6px;padding:4px 10px;background:var(--bg-elevated);color:var(--text-primary);font-variant-numeric:tabular-nums;${detailId ? 'cursor:pointer;text-align:left;' : ''}`; // v57.77 (a11y): the dashed border marks summary-only; opacity dropped the % below 4.5:1
   if (detailId) {
     chip.type = 'button';
@@ -443,8 +469,11 @@ function renderThemes({ documentRef, root, store, route }) {
   const groups = new Map(QUADRANTS.map((quadrant) => [quadrant.key, []]));
   items.forEach((item) => {
     const quadrant = String(item?.quadrant || 'unknown');
-    if (groups.has(quadrant) && finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null) {
-      groups.get(quadrant).push(item);
+    if (groups.has(quadrant) && quadrant !== 'Border' && finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null) {
+      // v57.81: the neutral band (경계) and the five-session reversal travel with the item to the chip and the verdict line.
+      const reading = readingOf(root, item);
+      const reversal = reading?.reversal ? `상대강도 ${reading.check.change >= 0 ? '+' : ''}${reading.check.change.toFixed(1)}% ${reading.reversal === 'fell' ? '반락' : '반등'}` : null;
+      groups.get(reading?.border ? 'Border' : quadrant).push({ ...item, rrgReading: reading, recentReversal: reversal });
     }
   });
   groups.forEach((group) => group.sort((a, b) => (finite(b?.pct) ?? -Infinity) - (finite(a?.pct) ?? -Infinity)));
@@ -456,11 +485,11 @@ function renderThemes({ documentRef, root, store, route }) {
   legend.dataset.themeDetailLegend = 'true';
   // Codex browser audit H22: the quadrant and the chip return answer different windows; the legend says which.
   // v57.76: the quadrant definition is the fold's method note (rrg-method-note); the legend keeps only the chip facts.
-  legend.textContent = `칩 옆 % = 1일 등락률로, 사분면(약 100일 흐름)과 별개라 후행 섹터가 그날은 올랐을 수 있습니다. 실선 칩 ${detailCount}개는 테마 상세, 점선 칩 ${Math.max(0, items.length - detailCount)}개는 하위 테마 순위로 연결됩니다.`;
+  legend.textContent = `칩 옆 % = 1일 등락률로, 사분면(가로 100일 평균 대비 · 세로 약 50일 전 대비)과 별개라 후행 섹터가 그날은 올랐을 수 있습니다. '최근 5거래일 상대강도'는 그 주 움직임이 평소 1주 움직임의 2배를 넘게 사분면과 반대일 때만 붙습니다. 실선 칩 ${detailCount}개는 테마 상세, 점선 칩 ${Math.max(0, items.length - detailCount)}개는 하위 테마 순위로 연결됩니다.`;
   legend.style.cssText = 'grid-column:1/-1;font-size:12px;color:var(--text-muted);padding:2px 0 6px;';
   if (classifiedCount) container.appendChild(legend); // P1591 (T01): no quadrant legend over an empty quadrant area
   const appendUnclassified = () => {
-    const pending = items.filter((item) => !groups.has(String(item?.quadrant || 'unknown')) || finite(item?.rsRatio) == null || finite(item?.rsMomentum) == null);
+    const pending = items.filter((item) => !groups.has(String(item?.quadrant || 'unknown')) || String(item?.quadrant) === 'Border' || finite(item?.rsRatio) == null || finite(item?.rsMomentum) == null);
     if (!pending.length) return;
     const catalog = documentRef.createElement('section');
     catalog.style.cssText = 'grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;padding:12px 0;';
@@ -495,6 +524,7 @@ function renderThemes({ documentRef, root, store, route }) {
   if (viewTabs) viewTabs.hidden = false;
 
   QUADRANTS.forEach((quadrant) => {
+    if (quadrant.optional && !(groups.get(quadrant.key) || []).length) return; // 경계 card only when something sits on the band
     const card = documentRef.createElement('section');
     card.dataset.themeQuadrant = quadrant.key;
     card.style.cssText = 'background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:14px 16px;min-width:0;';
@@ -603,7 +633,7 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
       const value = documentRef.createElement('span');
       value.className = 'stock-read-bar-value';
       const dir = { improving: '순위 상승', steady: '순위 유지', weakening: '순위 하락' }[group.direction] || ''; // 1개월 vs 3개월 순위 (audit 19: not the playbook stage words)
-      value.textContent = `3개월 ${group.ret3m == null ? '—' : `${group.ret3m >= 0 ? '+' : ''}${group.ret3m.toFixed(1)}%`} · 1개월 ${group.ret1m == null ? '—' : `${group.ret1m >= 0 ? '+' : ''}${group.ret1m.toFixed(1)}%`}${group.above50Pct != null ? ` · 50일선 위 ${group.above50Pct}%` : ''}${dir ? ` · ${dir}` : ''}`;
+      value.textContent = `3개월 ${group.ret3m == null ? '—' : `${group.ret3m >= 0 ? '+' : ''}${group.ret3m.toFixed(1)}%`} · 1개월 ${group.ret1m == null ? '—' : `${group.ret1m >= 0 ? '+' : ''}${group.ret1m.toFixed(1)}%`}${group.ret5d != null ? ` · 5거래일 ${group.ret5d >= 0 ? '+' : ''}${group.ret5d.toFixed(1)}%` : ''}${group.above50Pct != null ? ` · 50일선 위 ${group.above50Pct}%` : ''}${dir ? ` · ${dir}` : ''}`;
       item.append(bar, value);
       line.append(name, item);
       box.append(line);

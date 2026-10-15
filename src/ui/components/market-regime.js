@@ -64,7 +64,7 @@ function summaryLine(regime) {
 // P1505 (owner 2026-10-06: no source text on the face of the screen): each axis keeps its source as a hover title and
 // in the page-level 데이터 출처 fold, so a user checking a number can still find the series.
 const AXIS_SOURCES = Object.freeze({
-  trend: 'S&P 500·나스닥 일봉 종가 (Yahoo Finance)',
+  trend: 'S&P 500·나스닥 100·나스닥 종합·러셀 2000 일봉 종가 (Yahoo Finance)', // v57.81: the cross-index evidence rows
   breadth: '스크리너 유니버스 구성 종목의 수정 종가로 자체 계산',
   volatility: 'VIX·VIX3M (Cboe 지수, Yahoo Finance 경유)',
   rates: '미 국채 수익률 (미 재무부 공시 par curve · FRED DGS2/DGS10)',
@@ -161,7 +161,8 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
     if (view) card.dataset.likelihood = view.likelihood;
     if (outlook?.leadId === scenario.id) card.dataset.lead = 'true';
     const head = el(doc, 'div', null, 'regime-scenario-head');
-    head.append(el(doc, 'h3', scenario.title), el(doc, 'span', view ? `${view.fit}${view.shortfall ? ' · 아직 성립 아님' : ''}` : scenario.status, 'regime-scenario-status'));
+    // v57.81: while the leadership break holds, the weakness card is titled as the transition and its count names 동반 약세.
+    head.append(el(doc, 'h3', view?.transition ? view.title : scenario.title), el(doc, 'span', view ? `${view.transition ? '동반 약세 ' : ''}${view.fit}${view.shortfall ? ' · 아직 성립 아님' : ''}` : scenario.status, 'regime-scenario-status'));
     if (view?.shortfall) head.lastChild.title = view.shortfall; // v57.55 review (E2-06)
     card.append(head);
     if (view) {
@@ -439,7 +440,8 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
       // v57.54 (owner review 2026-10-14): the first sentence of the posture and its 반증 line; the middle sentence lives
       // with the three structures on 시장 상태.
       const sentences = String(lead.posture || '').split(/(?<=니다\.)\s+/);
-      const counter = sentences.find((line) => line.startsWith('반증'));
+      // v57.81: the transition reading also carries its next checkpoint on home.
+      const counter = [sentences.find((line) => line.startsWith('반증')), sentences.find((line) => line.startsWith('다음 확인'))].filter(Boolean).join(' ');
       const line = el(doc, 'p', null, 'xr-structure');
       line.append(el(doc, 'strong', `지금 시장 흐름 '${lead.title}'`), el(doc, 'span', `${lead.fit}${lead.shortfall ? ` · ${lead.shortfall}` : ''}`, 'basis-chip'), doc.createTextNode(` ${sentences[0] || ''}`));
       structure.push(line, ...(counter ? [el(doc, 'p', counter, 'xr-structure-note')] : []), ...(named ? [opportunityNode(doc, root, lead, 'home-outlook-opportunity')] : []), toStructure);

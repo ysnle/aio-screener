@@ -55,13 +55,15 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
     if (root?._currentTickerId === id && doc.getElementById('page-ticker')?.classList.contains('active')) renderCompanyAnalysis({documentRef:doc,root,state});
   });
   let rows=[]; try { rows=root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) {}
-  const row=rows.find(item=>String(item.sym || item.symbol || '').toUpperCase()===id) || null;
+  // v57.81: an out-of-universe US listing reads its on-demand row and SEC record (same formulas, computed on request).
+  const onDemand=!/\.K[SQ]$/.test(id) && typeof root?._aioOnDemandSymbol==='function' ? root._aioOnDemandSymbol(id) : null;
+  const row=rows.find(item=>String(item.sym || item.symbol || '').toUpperCase()===id) || (onDemand?.status==='ready' ? onDemand.row : null);
   const candidate=root?._aioEntitySummaries?.[id];
   const summary=candidate?.symbol===id ? candidate : null;
   const profile=businessProfileFor(id,row || {},summary || {});
-  const fundamentals=state?.id===id && state?.fundamentals?.symbol?.toUpperCase()===id ? state.fundamentals : null;
+  const fundamentals=state?.id===id && state?.fundamentals?.symbol?.toUpperCase()===id ? state.fundamentals : onDemand?.sec?.symbol===id ? onDemand.sec : null;
   const history=root?._aioSecFiscalHistory?.[id];
-  const model=buildCompanyAnalysis({symbol:id,row,rows,summary,profile,fundamentals,fiscalHistory:typeof history==='string' ? parseFiscalHistory(history) : Array.isArray(history) ? history : [],themes:[...(root?.THEME_MAP || []),...koreanThemeGroups(root?.KR_THEME_MAP||{},rows)]});
+  const model=buildCompanyAnalysis({symbol:id,row,rows,summary,profile,fundamentals,fiscalHistory:typeof history==='string' ? parseFiscalHistory(history) : Array.isArray(history) ? history : [],themes:[...(root?.THEME_MAP || []),...koreanThemeGroups(root?.KR_THEME_MAP||{},rows)],onDemand:onDemand?.status==='ready' ? onDemand : null});
   root.__aioCompanyAnalysis = model;
   // P1630: the page re-renders on every quote tick. An unchanged model keeps its DOM so open
   // details and keyboard focus survive; a changed model restores both after rebuilding.

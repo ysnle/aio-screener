@@ -23,6 +23,7 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
   const series = sameModel.filter((row) => Number.isFinite(Number(row.quantileSpreadNet))).map((row) => ({ date: row.date, value: Number(row.quantileSpreadNet) }));
   let pooledMarkets = false;
   try { pooledMarkets = /market-separated/.test(JSON.parse(lastFingerprint || '{}').populationPolicy || ''); } catch (_) { pooledMarkets = false; }
+  // v57.81: the one count basis for every "N회 중 M회 앞섬" (screener read, stock read, 과거 검증 tab): net of cost.
   const wins = last && Number.isFinite(Number(last.netHitRate)) && Number.isFinite(Number(last.dates)) ? Math.round(Number(last.netHitRate) / 100 * Number(last.dates)) : null;
   // v57.50 D11: six rebalances with a composite IC t of about -0.26 were read as "뒤처졌습니다" in a burden colour.
   // A sign is a finding only with |t| >= 2 on at least 12 rebalances; otherwise the record says it cannot tell yet.
@@ -46,6 +47,7 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
     spreadNet: last?.quantileSpreadNet ?? null,
     costPct: last?.transactionCostPct ?? null,
     wins,
+    winsBasis: 'net',
     ic: last?.ic?.composite ?? null,
     series,
     sameModelRecords: sameModel.length,

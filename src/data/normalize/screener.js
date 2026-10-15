@@ -6,6 +6,9 @@ export function normalizeScreener(raw = {}) {
     name: row?.name || row?.company || '',
     index: row?.index || null,
     shareClassOf: row?.shareClassOf || null,
+    // v57.81: present only when the extended shard is loaded (core|extended, and RUSSELL2000/NASDAQ/index tags).
+    ...(row?.universeTier ? { universeTier: row.universeTier === 'extended' ? 'extended' : 'core' } : {}),
+    ...(Array.isArray(row?.membership) ? { membership: row.membership.map(String) } : {}),
     market: row?.market || row?.instrumentRef?.market || null,
     currency: row?.currency || row?.instrumentRef?.currency || null,
     signal: row?.signal || null,

@@ -1,3 +1,21 @@
+## v57.81 (2026-10-15)
+- **Market read (P1829):** the trend needs a 1% buffer and a cross-index check, a leadership break turns 소수 종목 주도 into 동반 약세 전환 확인 중, credit/rates/volatility/won/dollar gain buffers or hysteresis, and 최저 means rank 1.
+- **Themes and sectors (P1830):** 주도/선도 are relative to the index, borderline RRG reads 경계, a 5-session reversal is named, and the AI can no longer call a falling theme 주도.
+- **Macro (P1831):** scenarios need their core condition to lead, noise-level moves no longer count, inflation direction needs PCE and CPI to agree, and oil has one rule.
+- **Screener and stock (P1832):** 50-day labels use ADR bands, entry-ready needs margin and no 5-day break, the drawer lists model contrary evidence, and the MA stack checks the close first.
+- **Portfolio and Korea (P1833):** a Korea-heavy book gets the KR read and KR stress rows, KR cards show the day and its rarity, a broad selloff is named, a down day is not a breakout, and memos need the name.
+- **Ticker entry (P1834):** the portfolio accepts any symbol the registry or the official US listing knows, by exact match.
+- **Allocation layout (P1835):** the 비중 현황 card no longer covers 섹터 배분, and cash can be entered before the first holding.
+- **Touch parity (P1836):** tap opens and keeps basis cards, back returns to the same scroll and theme, user folds show on every device, and touch targets/inputs meet iOS sizes.
+- **Session dating (P1837):** each history value is read by its own session, so held copies and duplicated closes no longer count as moves.
+- **Coverage (v57.81):**
+- Full US listing: public-data/us-listings.json from the Nasdaq Trader directory with SEC CIKs, built daily in refresh-screener and loaded only for unknown symbols.
+- Out-of-universe symbols work across the app: live quote, chart, on-demand SEC facts, a same-formula score placed against the universe, compare, watchlist, alerts, portfolio and AI context.
+- Extended ranking: Russell 2000 (IWM holdings) and Nasdaq-listed common stocks rank in an opt-in 확장 view backed by screener-extended.json, with its own job and ranking contract.
+- **Portfolio (v57.81):** cash is held per currency (원화·달러), migrated from the single value, and totalled with the app's USD/KRW close and its date, or held when no rate exists.
+- **Hygiene (v57.81):** Worker allowlist pruned to live providers, the FMP logo hotlink and FMP mapping retired, callClaude renamed callSharedAi, Actions pins updated (cache kept at v4.2.3), KR names corrected, the roadmap rewritten.
+- R1 7곳 v57.81
+
 ## v57.80 (2026-10-15)
 - **Watchdog false alarm (P1828):** a push no longer turns the freshness watchdog red while its CI run is still attesting the new version.
 - R1 7곳 v57.80

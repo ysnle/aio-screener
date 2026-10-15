@@ -68,6 +68,10 @@ export function krThemeArtifactRead({ themeMap = {}, rows = [] } = {}) {
     return {
       id, label: krThemeLabel(id).split(' / ')[0], members: (members || []).length, covered: found.length,
       ret1m: median(found.map((row) => row.ret1m)), ret3m: median(found.map((row) => row.ret3m)),
+      // v57.81: the week and the members' typical volatility (recent-check.js), and the KR close the values sit on —
+      // KR rows close a session after the US ones, so the theme screen prints both dates instead of one.
+      ret5d: median(found.map((row) => row.ret5d)), vol: median(found.map((row) => row.vol)),
+      basis: found.map((row) => String(row.factorSessionDate || '')).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort().at(-1) || null,
       above50Pct: above.length ? Math.round(above.filter((row) => row.pctSma50 > 0).length / above.length * 100) : null,
       // P1723: the same largest-traded check as the group-strength table, so the theme screen cannot read a +12.6%
       // semiconductor median while its two largest names fell 12-18% over the month.
@@ -79,8 +83,13 @@ export function krThemeArtifactRead({ themeMap = {}, rows = [] } = {}) {
   // of two names is their average). One inclusion rule for both regions.
   const usable = themes.filter((theme) => theme.covered >= KR_THEME_MIN_COVERED && theme.ret1m != null).sort((a, b) => b.ret1m - a.ret1m);
   const pct = (value) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);
+  // v57.81 (audit): "강한 테마는 … 광통신(-3.2%)" named a falling theme strong (5 sessions -20.4%). A top theme at or below
+  // 0 is only the least weak, and each name carries its last five sessions beside the month.
+  const top = usable.slice(0, 3);
+  const strongWord = top.every((t) => t.ret1m > 0) ? '강한 테마는' : '상대적으로 덜 약한 테마는';
+  const named = (t) => `${t.label}(1개월 ${pct(t.ret1m)}${t.ret5d != null ? ` · 5거래일 ${pct(t.ret5d)}` : ''})`;
   const read = usable.length >= 4
-    ? `확정 종가 기준 1개월 중앙값으로 강한 테마는 ${usable.slice(0, 3).map((t) => `${t.label}(${pct(t.ret1m)})`).join(' · ')}, 약한 테마는 ${usable.slice(-2).reverse().map((t) => `${t.label}(${pct(t.ret1m)})`).join(' · ')}입니다.`
+    ? `확정 종가 기준 1개월 중앙값으로 ${strongWord} ${top.map(named).join(' · ')}, 약한 테마는 ${usable.slice(-2).reverse().map(named).join(' · ')}입니다.`
     : `구성 종목 기록이 ${KR_THEME_MIN_COVERED}개 이상인 테마가 적어 순위를 매기지 않습니다.`;
   const hidden = usable.slice(0, 3).find((theme) => theme.heavyweightNote);
   const readWithWeight = hidden ? `${read} ${hidden.label}: ${hidden.heavyweightNote}` : read;

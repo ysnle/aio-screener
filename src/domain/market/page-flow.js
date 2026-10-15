@@ -4,7 +4,8 @@
 // a section with missing inputs says what it cannot add instead of inventing a reading.
 import { RULES } from '../rules/thresholds.js';
 import { withTopicParticle } from '../content/korean-particle.js';
-import { recordPercentile, RECORD_FULL_YEAR } from '../briefing/market-read.js';
+import { recordPercentile, RECORD_FULL_YEAR, recoveryCheck } from '../briefing/market-read.js';
+import { rrgRecentReading } from '../themes/recent-check.js';
 
 const last = (series) => (Array.isArray(series) && series.length ? series[series.length - 1] : null);
 const back = (series, n) => (Array.isArray(series) && series.length > n ? series[series.length - 1 - n] : null);
@@ -35,6 +36,11 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
   const b20 = last(cardOf(cards, 'b20')?.series)?.value ?? null;
   const b50d20 = delta(cardOf(cards, 'b50')?.series, 20);
   const b50d5 = delta(cardOf(cards, 'b50')?.series, 5);
+  // v57.81 (audit 2026-10-15): "5거래일 +4.0%p 회복 … 반등이 진행 중" on a day the share fell 37.6 -> 33.6. The bounce is
+  // "진행 중" only when the last session kept it (recoveryCheck); otherwise the last session's give-back is named.
+  const b50Series = cardOf(cards, 'b50')?.series;
+  const b50d1 = delta(b50Series, 1);
+  const bounce = b50d5 != null && b50d5 >= 3 ? recoveryCheck(b50, back(b50Series, 1)?.value, back(b50Series, 5)?.value) : null;
   const spxSeries = cardOf(cards, 'spx')?.series || [];
   const spx20 = pctDelta(spxSeries, 20);
   const hl = last(cardOf(cards, 'hl')?.series)?.value ?? null;
@@ -49,7 +55,8 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
     const both = b50 < B.weakBelow && b200 < B.weakBelow ? `둘 다 ${B.weakBelow}% 아래라 중기·장기 참여가 모두 위축된 상태입니다`
       : b50 >= B.broadAtLeast && b200 >= B.broadAtLeast ? `둘 다 ${B.broadAtLeast}% 이상이라 상승이 넓게 퍼져 있습니다`
         // Codex browser audit H08: the 20-day verdict hid a 5-day recovery; both windows are named.
-        : b50 < B.weakBelow ? `장기 추세 위 종목(${round(b200)}%)은 남아 있지만 중기 참여가 ${B.weakBelow}% 아래로 줄었습니다${b50d5 != null && b50d5 >= 3 ? ` — 다만 최근 5거래일은 ${signed(b50d5, 1, '%p')} 회복해 중기 약화 속 단기 반등이 진행 중입니다` : ' — 조정이 종목 전반으로 번지는 단계입니다'}`
+        : b50 < B.weakBelow ? `장기 추세 위 종목(${round(b200)}%)은 남아 있지만 중기 참여가 ${B.weakBelow}% 아래로 줄었습니다${bounce === 'holding' ? ` — 다만 최근 5거래일은 ${signed(b50d5, 1, '%p')} 회복해 중기 약화 속 단기 반등이 진행 중입니다`
+          : bounce ? ` — 최근 5거래일 ${signed(b50d5, 1, '%p')} 반등 뒤 마지막 거래일 ${signed(b50d1, 1, '%p')} 되밀려, 반등이 이어지는지 확인할 단계입니다` : ' — 조정이 종목 전반으로 번지는 단계입니다'}`
           : `중기와 장기 참여가 ${B.weakBelow}~${B.broadAtLeast}% 사이에서 엇갈립니다`;
     const shortTerm = b20 == null ? '' : b20 < b50 - 5 ? ` 20일선 위 비율(${round(b20)}%)이 더 낮아 단기 이탈이 아직 이어지는 중입니다.`
       : b20 > b50 + 5 ? ` 20일선 위 비율(${round(b20)}%)이 먼저 올라 단기 반등이 시작됐는지 확인할 구간입니다.` : ' 단기(20일선)와 중기 참여가 같은 흐름입니다.';
@@ -67,13 +74,18 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
 
   let index = 'S&P 500과 참여도를 같은 기간으로 비교할 기록이 부족합니다.';
   if (spx20 != null && b50d20 != null) {
+    // v57.81 (audit 2026-10-15): "함께 넓어졌지만" fired on +1.2%p. A 20-session participation change inside
+    // ±indexConfirmDeadZonePp is "거의 변하지 않음", not widening or narrowing.
+    const zone = RULES.breadth.indexConfirmDeadZonePp;
+    const up = b50d20 >= zone, down = b50d20 <= -zone;
     const gap = spx20 > -2 && b50d20 <= -10 ? '지수보다 참여가 훨씬 빨리 줄어 괴리가 커졌습니다. 지수가 버티는 동안 소수 종목 의존이 깊어진 상태입니다'
-      : spx20 < 0 && b50d20 < 0 ? '지수와 참여가 함께 약해지는 중입니다'
+      : spx20 < 0 && down ? '지수와 참여가 함께 약해지는 중입니다'
         // v57.69 (2026-10-15 audit): "healthy" sat beside six distribution days (84th percentile) on the same screen.
-        : spx20 > 0 && b50d20 > 0 ? (dd != null && dd >= 5 ? '지수와 참여가 함께 넓어졌지만 분배일이 경고 구간(5회 이상)이라 건강하다고 단정하지 않습니다' : '지수와 참여가 함께 넓어지는 건강한 흐름입니다')
-          : spx20 <= 0 && b50d20 > 0 ? '지수는 쉬지만 참여는 오히려 넓어져 바닥 다지기 쪽입니다'
-            // P1591 (M05): the remaining case is index up / participation down but smaller than the -10%p gap rule.
-            : spx20 > 0 && b50d20 <= 0 ? '지수는 올랐지만 참여는 소폭 줄었습니다 — 아직 큰 괴리(10%p 이상 감소)는 아닙니다' : '지수와 참여가 모두 거의 변하지 않았습니다';
+        : spx20 > 0 && up ? (dd != null && dd >= 5 ? '지수와 참여가 함께 넓어졌지만 분배일이 경고 구간(5회 이상)이라 건강하다고 단정하지 않습니다' : '지수와 참여가 함께 넓어지는 건강한 흐름입니다')
+          : spx20 <= 0 && up ? '지수는 쉬지만 참여는 오히려 넓어져 바닥 다지기 쪽입니다'
+            // P1591 (M05): index up / participation down but smaller than the -10%p gap rule.
+            : spx20 > 0 && down ? '지수는 올랐지만 참여는 소폭 줄었습니다 — 아직 큰 괴리(10%p 이상 감소)는 아닙니다'
+              : !up && !down ? `참여 비율의 20거래일 변화가 ±${zone}%p 안이라 지수 움직임을 참여가 확인하지도 부정하지도 않습니다` : '지수와 참여가 모두 거의 변하지 않았습니다';
     const ddText = dd == null ? '' : ddRecord?.pct == null ? ` 최근 25거래일 분배일은 ${round(dd)}회입니다.`
       : ` 최근 25거래일 분배일은 ${round(dd)}회로, AIO 기록 ${ddRecord.n}일 중 ${ddRecord.pct}백분위입니다${ddRecord.provisional ? `(기록 ${RECORD_FULL_YEAR}거래일 미만 · 잠정)` : ''}.`;
     index = `S&P 500은 20일 ${signed(spx20, 1, '%')}, 50일선 위 종목 비율은 20일 ${signed(b50d20, 1, '%p')} — ${gap}.${ddText}`;
@@ -142,9 +154,12 @@ export function regimeFlow({ regime = null, groups = {} } = {}) {
   const breadth = regime.axes.find((row) => row.id === 'breadth');
   const leaders = rotationLeaders(groups);
   const narrow = breadth?.state === 'burden' && breadth?.narrow;
-  next.push(narrow
-    ? { route: 'themes', label: 'S&P 500 지도 · 섹터', why: `지수는 고점권인데 참여가 좁음 — 지수를 끌어올린 종목(지도 타일 넓이 = 지수 비중)${leaders ? `과 상대강도 ${leaders}` : ''}` }
-    : { route: 'themes', label: '테마 · 섹터', why: leaders ? `섹터 회전의 상대강도 ${leaders} — 6개 지표의 판정이 어느 업종에서 나타나는지` : '6개 지표의 판정이 어느 섹터·테마에서 나타나는지' });
+  // v57.81: while the leadership break holds, the map link says the leaders are falling too and that RRG trails price.
+  next.push(narrow && regime.leadershipBreak
+    ? { route: 'themes', label: 'S&P 500 지도 · 섹터', why: `주도 영역까지 밀리는 중 — 어느 종목·섹터가 지수를 끌어내렸는지(지도 타일 넓이 = 지수 비중)${leaders ? `. 상대강도(수 주 기준) ${leaders}는 몇 주 늦게 반영됩니다` : ''}` }
+    : narrow
+    ? { route: 'themes', label: 'S&P 500 지도 · 섹터', why: `지수는 고점권인데 참여가 좁음 — 지수를 끌어올린 종목(지도 타일 넓이 = 지수 비중)${leaders ? `과 상대강도(수 주 기준) ${leaders}` : ''}` }
+    : { route: 'themes', label: '테마 · 섹터', why: leaders ? `섹터 회전의 상대강도(수 주 기준) ${leaders} — 6개 지표의 판정이 어느 업종에서 나타나는지` : '6개 지표의 판정이 어느 섹터·테마에서 나타나는지' });
   return { next };
 }
 
@@ -194,8 +209,13 @@ const DEFENSIVE = new Set(['XLU', 'XLP', 'XLV', 'XLRE']);
 const QUADRANT_WORDS = Object.freeze({ Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행' });
 
 // The leader names one rotation read and every link that quotes it share: "선도 기술·통신서비스 · 개선 유틸리티".
+// v57.81: a sector whose last five sessions of relative strength ran hard against its quadrant carries that clause
+// (src/domain/themes/recent-check.js rrgRecentReading), so "선도 XLK" is not read as leading now.
 export function rotationLeaders(groups = {}) {
-  const names = (key) => (groups?.[key] || []).map((item) => item.label || item.symbol).filter(Boolean);
+  const names = (key) => (groups?.[key] || []).map((item) => {
+    const name = item.label || item.symbol;
+    return name && item.recentReversal ? `${name}(최근 5거래일 ${item.recentReversal})` : name;
+  }).filter(Boolean);
   return [names('Leading').length ? `선도 ${names('Leading').join('·')}` : null, names('Improving').length ? `개선 ${names('Improving').join('·')}` : null].filter(Boolean).join(' · ');
 }
 
@@ -216,7 +236,7 @@ export function rotationFlow({ groups = {}, regime = null } = {}) {
   const defensiveAhead = ahead.filter((item) => DEFENSIVE.has(String(item.symbol || '').toUpperCase())).length;
   // Coordinator follow-up (M08 class, 2026-10-13): quadrant membership alone does not establish a "위험 선호/회피 회전"
   // verdict, so the line only counts which kinds of sectors sit ahead of the benchmark.
-  const style = !ahead.length ? '시장보다 강해지는 섹터가 없습니다'
+  const style = !ahead.length ? '시장 대비 나아진 섹터(선도·개선)가 없습니다'
     : `선도·개선 ${ahead.length}개 중 방어 업종(유틸리티·필수소비·헬스케어·부동산) ${defensiveAhead}개, 경기 민감 업종 ${ahead.length - defensiveAhead}개입니다`;
   const concentration = lead.length <= 2 && lagging.length >= Math.ceil(total / 2)
     ? ` ${total}개 중 선도 ${lead.length}개, 후행 ${lagging.length}개입니다. 기준이 시가총액 가중 S&P 500(SPY)이라 대형 기술주 비중이 클수록 나머지 섹터가 후행에 몰리기 쉽습니다.` : '';
@@ -227,7 +247,11 @@ export function rotationFlow({ groups = {}, regime = null } = {}) {
   // cards right below, so listing all eleven here made the one-line read a paragraph.
   const counts = concentration ? '' : ` 약화 ${(groups.Weakening || []).length} · 후행 ${lagging.length}.`;
   const leaders = lead.length ? rotationLeaders(groups) : ['선도 섹터 없음', rotationLeaders({ Improving: improving })].filter(Boolean).join(' · ');
-  const read = `${leaders}. ${style}.${concentration}${counts}${tie}`;
+  // v57.81 (audit): the quadrants are a ~50-session reading, and a point within the neutral band around 100 (경계) is
+  // kept out of the verdict leaders and named apart.
+  const border = groups.Border || [];
+  const borderText = border.length ? ` 경계(100 근처라 사분면을 정하지 않음) ${border.map((item) => `${item.label || item.symbol}${item.recentReversal ? `(최근 5거래일 ${item.recentReversal})` : ''}`).join('·')}.` : '';
+  const read = `약 50일 상대강도 기준 ${leaders}. ${style}.${concentration}${counts}${borderText}${tie}`;
   const next = [];
   // I09: the screener opens on the first improving sector (the screener reads ctx.sector, an English universe sector).
   const firstSector = improving.map((item) => SECTOR_ETF_SCREENER_SECTOR[String(item.symbol || '').toUpperCase()]).find(Boolean) || null;
@@ -256,7 +280,11 @@ export function themeStrengthLead(model = null) {
   const topic = (text) => { const code = String(text).charCodeAt(String(text).length - 1) - 0xac00; return code >= 0 && code <= 11171 && code % 28 ? '은' : '는'; };
   const joined = (list) => list.map(label).join(' · ');
   if (cooling.length) parts.push(`그중 ${joined(cooling)}${topic(label(cooling[cooling.length - 1]))} 1개월 순위가 3개월보다 크게 낮아 강세가 식는 중`);
-  if (improving.length) parts.push(`${cooling.length ? '반대로 ' : ''}${joined(improving)}${topic(label(improving[improving.length - 1]))} 1개월 순위가 3개월보다 크게 앞서 최근 강해지는 곳`);
+  // v57.81 (audit): "최근 강해지는 곳" only when the last five sessions did not fall beyond the group's typical weekly move
+  // (group.recent, recent-check.js); otherwise the rank gain is said with the week that contradicts it.
+  const rising = improving.filter((group) => !group.recent?.broken), held = improving.filter((group) => group.recent?.broken);
+  if (rising.length) parts.push(`${cooling.length ? '반대로 ' : ''}${joined(rising)}${topic(label(rising[rising.length - 1]))} 1개월 순위가 3개월보다 크게 앞서 최근 강해지는 곳`);
+  if (held.length) parts.push(`${held.map((group) => `${group.name}(최근 5거래일 ${signed(group.recent.ret5d, 1, '%')})`).join(' · ')}${topic(held[held.length - 1].name)} 1개월 순위는 올랐지만 최근 5거래일에 평소 1주 움직임의 2배를 넘게 밀려 강해지는 중으로 보지 않습니다`);
   parts.push(`상위 5개 중 ${healthy}개는 구성 종목 대부분이 50일선 위`);
   return `${parts.join('. ')}입니다.`;
 }
@@ -272,9 +300,12 @@ export function themeDetailFlow({ themeId, groups = [], etf = null, rotation = {
   const byThree = [...(headline.length ? headline : mine)].sort((a, b) => (b.ret3m ?? -1e9) - (a.ret3m ?? -1e9));
   const strongest = byThree[0];
   const weakest = byThree[byThree.length - 1];
-  const moving = mine.filter((group) => group.direction === 'improving');
+  const improving = mine.filter((group) => group.direction === 'improving');
+  // v57.81: a rank gain whose last five sessions fell beyond the group's typical weekly move is not "moving toward".
+  const moving = improving.filter((group) => !group.recent?.broken), held = improving.filter((group) => group.recent?.broken);
   const cooling = mine.filter((group) => group.direction === 'weakening');
-  const quadrant = etf && rotation[etf] ? { Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행' }[rotation[etf].quadrant] : null;
+  // v57.81: the ETF's quadrant names its ~50-session window, the neutral band (경계) and a five-session reversal.
+  const quadrant = etf && rotation[etf] ? rrgRecentReading(rotation[etf], rotation[etf].relativeStrength)?.label || null : null;
   const pct = (value) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);
   const parts = [];
   const rotationDate = etf && rotation[etf]?.sessionDate ? `(${Number(rotation[etf].sessionDate.slice(5, 7))}/${Number(rotation[etf].sessionDate.slice(8, 10))} 종가 기준)` : '';
@@ -287,6 +318,8 @@ export function themeDetailFlow({ themeId, groups = [], etf = null, rotation = {
     parts.push('하위 테마 전부가 1개월 순위를 크게 끌어올렸습니다 — 특정 종목이 아니라 테마 전체의 상대 강세가 같은 방향입니다(가격 기준 관측이며 자금 유입의 증거는 아닙니다)');
   }
   else if (moving.length) parts.push(`1개월 흐름은 ${moving.map((group) => group.name).join(' · ')} 쪽으로 옮겨 가는 중`);
+  const subject = (text) => { const code = String(text).charCodeAt(String(text).length - 1) - 0xac00; return code >= 0 && code <= 11171 && code % 28 ? '이' : '가'; };
+  if (held.length) parts.push(`1개월 순위는 ${held.map((group) => group.name).join(' · ')}${subject(held[held.length - 1].name)} 올랐지만 최근 5거래일 ${held.map((group) => signed(group.recent.ret5d, 1, '%')).join(' · ')}로 크게 밀렸습니다`);
   const topic = (text) => { const code = String(text).charCodeAt(String(text).length - 1) - 0xac00; return code >= 0 && code <= 11171 && code % 28 ? '은' : '는'; };
   if (cooling.length) parts.push(`${cooling.map((group) => group.name).join(' · ')}${topic(cooling[cooling.length - 1].name)} 최근 1개월 강세가 식는 중`);
   // I09: the theme read continues to the stocks (screener) and to whether the move is broad (시장 폭).

@@ -467,8 +467,11 @@ function toSummaryItem(it) {
   return { ...rest, summary: previewText(text, 120) };
 }
 
+// v57.81 (analysis audit 2026-10-15): one premarket briefing was the focus of macro, geo, semi and power at once, because
+// any post carrying the tag qualified. A category's focus is now a post whose PRIMARY tag (the first classify() rule it
+// matched) is that category, so no post stands for two categories; a category without one says so.
 function bestTextForTag(tag) {
-  const hit = items.filter(it => Array.isArray(it.tags) && it.tags.includes(tag) && it.text)
+  const hit = items.filter(it => Array.isArray(it.tags) && it.tags[0] === tag && it.text)
     .sort((a, b) => Number(b.score || 0) - Number(a.score || 0))[0];
   return hit ? previewText(hit.text) : '';
 }

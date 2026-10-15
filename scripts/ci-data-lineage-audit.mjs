@@ -107,6 +107,7 @@ const POLICIES = {
   'macro-history.json': { kind: 'official-macro-history', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // P1426: FRED observations behind the 거시 direction reads (refresh-data)
   'macro-calendar.json': { kind: 'official-calendar-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // P1654: FRED release dates (refresh-data)
   'sp500-weights.json': { kind: 'index-weight-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // 2026-10-13: IVV holdings weights for the S&P 500 sector map (refresh-screener)
+  'us-listings.json': { kind: 'exchange-listing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v57.81: Nasdaq Trader symbol directory, daily in refresh-screener (+ weekend/holiday tolerance)
   'stress-outcomes.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1661: VIX-band forward outcomes (refresh-data operator slot, weekly)
   'scenario-outcomes.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1743: long-history branch/theme-stage outcomes (refresh-data operator slot, weekly)
   'market-temperature.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v57.54: per-market price temperature (refresh-data, 4-hour throttle)
@@ -123,6 +124,10 @@ const POLICIES = {
   'screener-universe.json': { kind: 'universe-reference', custom: 'universe-bulk-update' },
   'screener.json': { kind: 'research-screener', timestamp: ['asOf', 'meta.asOf'], maxAgeHours: 48 },
   'screener-validation-gate.json': { kind: 'research-validation-gate', timestamp: ['observedAt', 'generatedAt'], maxAgeHours: 24 * 90 },
+  // v57.81: extended universe (Russell 2000 + Nasdaq common stocks beyond the core), refresh-screener extended job.
+  'screener-extended.json': { kind: 'research-screener', timestamp: ['asOf'], maxAgeHours: 72 },
+  'screener-extended-universe.json': { kind: 'universe-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 },
+  'sec-fundamentals-extended.json': { kind: 'incremental-official-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 },
   'sec-fundamentals.json': { kind: 'incremental-official-reference', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 }, // P1757: producer-only (data-store branch); audited when a local or restored copy exists
   'sec-fundamentals-summary.json': { kind: 'bounded-runtime-projection', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 },
   'sec-fundamentals-summary.manifest.json': { kind: 'bounded-runtime-projection', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 },

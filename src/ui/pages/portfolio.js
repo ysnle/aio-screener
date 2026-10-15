@@ -2,6 +2,7 @@ import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { derivePortfolioSurface } from '../../domain/portfolio/surface.js';
+import { appUsdKrwClose } from '../../domain/portfolio/cash.js';
 import { vixBand } from '../../domain/sentiment/narrative.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { derivePortfolioChecks } from '../../domain/portfolio/checks.js';
@@ -32,11 +33,14 @@ function renderPortfolioStatus(documentRef, state, surface) {
   } else if (readState === 'failed') {
     element.textContent = '포트폴리오 읽기 실패 — 입력 유무를 단정하지 않습니다. 재시도해 주세요.';
   } else if (valuation === 'cash-only') {
-    element.textContent = '현금만 보유 중입니다 · 총자산 = 현금';
+    element.textContent = surface?.totalAssets == null ? '현금만 보유 중입니다 · 환율 자료가 없어 통화별 금액만 표시합니다' : '현금만 보유 중입니다 · 총자산 = 현금';
   } else if (valuation === 'empty') {
     element.textContent = '포트폴리오 등록 후 자동 계산됩니다.';
   } else if (valuation === 'partial') {
-    element.textContent = `${surface?.valuedHoldingCount ?? 0}/${surface?.holdingCount ?? 0}종목 평가 · 시세를 받지 못한 종목은 총자산에 넣지 않았습니다${closeNote(surface)}`;
+    element.textContent = `${surface?.valuedHoldingCount ?? 0}/${surface?.holdingCount ?? 0}종목 평가 · 가격 없음 ${(surface?.holdingCount ?? 0) - (surface?.valuedHoldingCount ?? 0)}종목은 총자산과 손익에서 뺐습니다${closeNote(surface)}`; // v57.81: same words as the row state
+  } else if (valuation === 'unavailable' && readState === 'ready' && (surface?.holdingCount ?? 0) > 0) {
+    // v57.81: every holding is on 가격 없음 (no quote and no close yet), so no total is shown rather than a partial one.
+    element.textContent = `${surface.holdingCount}종목 모두 가격 없음 · 가격을 받으면 총자산과 손익을 계산합니다`;
   } else if (valuation === 'complete') {
     element.textContent = `${surface?.holdingCount ?? 0}종목 평가 완료${closeNote(surface)} · 참고용 계산이며 실제 계좌 손익과 다를 수 있습니다`;
   } else {
@@ -159,10 +163,32 @@ function screenerRowsBySymbol(root, store) {
   if (!rows.length && Array.isArray(root?.SCREENER_DB)) rows = root.SCREENER_DB;
   return new Map(rows.map((row) => [String(row?.sym || '').toUpperCase(), row]));
 }
-function screenerCloseOf(root, bySymbol) {
+// v57.81: a holding that is a US listing outside the screener universe is read on demand (session cache, the reader's
+// two-at-a-time cap, at most eight new requests per render) and joins the symbol map with its own row; missing inputs
+// stay missing (the listing carries no sector, so none is invented). The record's arrival re-renders ('aio:onDemandSymbol').
+const ON_DEMAND_HOLDING_REQUESTS = 8;
+function withOnDemandHoldings(root, bySymbol, holdings) {
+  const records = new Map();
+  if (typeof root?._aioOnDemandSymbol !== 'function') return records;
+  let requested = 0;
+  for (const holding of Array.isArray(holdings) ? holdings : []) {
+    const symbol = String(holding?.symbol || holding?.ticker || '').trim().toUpperCase();
+    if (!symbol || records.has(symbol) || bySymbol.has(symbol) || /\.K[SQ]$/.test(symbol)) continue;
+    const record = root._aioOnDemandSymbol(symbol);
+    if (record?.status === 'ready' && record.row) { records.set(symbol, record); bySymbol.set(symbol, record.row); }
+    else if (!record && requested < ON_DEMAND_HOLDING_REQUESTS && typeof root._aioRequestOnDemandSymbol === 'function') {
+      requested += 1;
+      Promise.resolve(root._aioRequestOnDemandSymbol(symbol)).catch(() => {});
+    }
+  }
+  return records;
+}
+function screenerCloseOf(root, bySymbol, onDemand = new Map()) {
   return (symbol) => {
     const row = bySymbol.get(String(symbol || '').toUpperCase()) || bySymbol.get(quoteSymbolOf(root, symbol));
     const price = finite(row?._valuationPePrice ?? row?._valuationPbPrice ?? row?.valuationPrice ?? row?.pePrice);
+    const own = onDemand.get(String(symbol || '').toUpperCase())?.lastClose;
+    if ((price == null || price <= 0) && own) return { price: own.price, date: own.date };
     return price != null && price > 0 ? { price, date: row?.factorSessionDate || null } : null;
   };
 }
@@ -194,6 +220,38 @@ function screenerSectorOf(bySymbol) {
   return (symbol) => bySymbol.get(String(symbol || '').toUpperCase())?.sector || null;
 }
 
+// v57.81: cash is one balance per currency. Each box shows its own currency's amount; the hero shows the total in the
+// unit the surface converted to (with the rate basis below the boxes), or each balance when no rate exists.
+function renderCashBalances(documentRef, surface) {
+  const balances = Array.isArray(surface?.cashBalances) ? surface.cashBalances : [];
+  const amountOf = (code) => balances.find((row) => row.currency === code)?.amount;
+  for (const [id, code] of [['pf-cash-krw-input', 'KRW'], ['pf-cash-usd-input', 'USD']]) {
+    const input = documentRef?.getElementById(id);
+    if (!input || documentRef.activeElement === input) continue;
+    const amount = amountOf(code);
+    input.value = amount == null ? '' : String(amount);
+  }
+  const conversion = surface?.cashConversion || {};
+  const each = balances.filter((row) => row.amount > 0).map((row) => formatSurfaceMoney(row.amount, row.currency || conversion.target || surface.declaredBaseCurrency));
+  const unit = conversion.target || surface.declaredCashCurrency || surface.declaredBaseCurrency;
+  const heroText = surface.cash != null ? formatSurfaceMoney(surface.cash, unit) : each.length ? `${each.join(' · ')} · 합계 보류` : '—';
+  setSurfaceText(documentRef, 'pf-cash-hero', heroText, surface.cash, surface);
+  const line = documentRef?.getElementById('pf-cash-total');
+  if (!line) return;
+  const rateText = conversion.basisLabel || '';
+  let text = '';
+  if (surface.cashHeld) {
+    const names = (conversion.held || []).map((code) => ({ KRW: '원화', USD: '달러' }[code] || code)).join('·');
+    text = `환율 자료가 없어 합계를 계산하지 않았습니다 · ${names ? `${names} 현금은 ` : ''}통화별 금액만 표시`;
+  } else if (surface.cash != null && conversion.converted) {
+    const undeclared = !surface.declaredBaseCurrency && !surface.holdingCount ? ' · 기준 통화 미선언이라 달러로 표시' : '';
+    text = `합계 ${formatSurfaceMoney(surface.cash, unit)} · ${rateText}${undeclared}`;
+  }
+  line.textContent = text;
+  line.title = conversion.appRate ? `원/달러 ${conversion.appRate.toLocaleString('en-US', { maximumFractionDigits: 2 })}원` : '';
+  line.dataset.cashBasis = surface.cashHeld ? 'held' : conversion.converted ? 'converted' : balances.length ? 'single-unit' : 'empty';
+}
+
 function renderPortfolioSurface(documentRef, page, surface) {
   if (!page) return;
   page.dataset.aioPortfolioSurface = 'native';
@@ -209,11 +267,7 @@ function renderPortfolioSurface(documentRef, page, surface) {
   setSurfaceText(documentRef, 'pf-total-pnl-pct', surface.totalPnlPct == null ? '—' : `${surface.totalPnlPct >= 0 ? '+' : ''}${surface.totalPnlPct.toFixed(1)}%`, surface.totalPnlPct, surface, surface.totalPnl == null ? 'var(--text-dim)' : surface.totalPnl >= 0 ? 'var(--green)' : 'var(--red)');
   setSurfaceText(documentRef, 'pf-daily-chg', formatSurfaceMoney(surface.dailyChange, surface.declaredBaseCurrency), surface.dailyChange, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
   setSurfaceText(documentRef, 'pf-daily-pct', surface.dailyPct == null ? '—' : `오늘 ${surface.dailyPct >= 0 ? '+' : ''}${surface.dailyPct.toFixed(2)}%`, surface.dailyPct, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
-  // P1449: cash is denominated in the declared cash currency, not the base currency — that
-  // is exactly the "cash currency = KRW로 선언했는데 $100,000" repro this fixes.
-  const cashPicker = documentRef?.getElementById('pf-cash-currency-quick'); // v57.55 B4-F3: the picker shows the declared cash currency
-  if (cashPicker && documentRef.activeElement !== cashPicker) cashPicker.value = ['USD', 'KRW'].includes(surface.declaredCashCurrency) ? surface.declaredCashCurrency : '';
-  setSurfaceText(documentRef, 'pf-cash-hero', surface.cash == null && surface.cashEntered > 0 ? `${formatSurfaceMoney(surface.cashEntered, surface.declaredCashCurrency || surface.declaredBaseCurrency)} · 환산 보류` : formatSurfaceMoney(surface.cash, surface.declaredCashCurrency || surface.declaredBaseCurrency), surface.cash, surface); // v57.55 B4-F3
+  renderCashBalances(documentRef, surface);
   setSurfaceText(documentRef, 'pf-cash-pct-hero', surface.cashPct == null ? '—' : `${surface.cashPct.toFixed(1)}%`, surface.cashPct, surface);
   // E3/P1181 (11 P11-02): 통화 상태를 표시에 드러낸다 — 혼합 통화는 환산근거가 없어 합계를 만들지
   // 않았고, 그 이유를 화면이 말해야 '값 소실'과 '의도된 보류'를 구분할 수 있다.
@@ -311,7 +365,7 @@ function renderPortfolioSurface(documentRef, page, surface) {
       }
     } else {
       const empty = documentRef.createElement('div');
-      empty.textContent = surface.holdingCount ? '평가액이 확인되면 섹터 비중이 표시됩니다' : '종목을 추가하면 섹터 비중이 표시됩니다';
+      empty.textContent = surface.cashHeld ? '현금 합계가 보류돼 총자산 대비 섹터 비중을 계산하지 않았습니다' : surface.holdingCount ? '평가액이 확인되면 섹터 비중이 표시됩니다' : '종목을 추가하면 섹터 비중이 표시됩니다'; // v57.81
       empty.style.cssText = 'font-size:12px;color:var(--text-muted);padding:4px 0;';
       sectorElement.appendChild(empty);
     }
@@ -407,8 +461,10 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     const costCell = tableCell(documentRef, 'pf-th-cost', money(avgCost, costCurrency), 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;');
     costCell.title = `원가 통화 ${holding?.costCurrency ? costCurrency : `${costCurrency}(추정)`}`;
     row.appendChild(costCell);
-    const priceCellNode = tableCell(documentRef, 'pf-th-price', money(price, priceCurrency), 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;color:var(--text-primary);');
-    priceCellNode.title = `시세 통화 ${priceCurrency}`;
+    // v57.81: one failure state for a holding whose quote and close both came back empty (any listed symbol is requested).
+    const priceCellNode = tableCell(documentRef, 'pf-th-price', price == null ? '가격 없음' : money(price, priceCurrency), `text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;color:${price == null ? 'var(--text-muted)' : 'var(--text-primary)'};`);
+    priceCellNode.title = price == null ? '시세와 종가를 받지 못했습니다 · 총자산과 손익 합계에서 뺐습니다' : `시세 통화 ${priceCurrency}`;
+    if (price == null) priceCellNode.dataset.priceState = 'missing';
     row.appendChild(priceCellNode);
     const pnlCell = tableCell(documentRef, 'pf-th-pnl', pnl == null ? '—' : `${pnl >= 0 ? '+' : '-'}${money(Math.abs(pnl), baseCurrency)}`, 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;font-weight:700;');
     if (pnl == null) pnlCell.title = '손익 보류 · 원가/시세 통화 불일치 또는 시세 미수신';
@@ -526,7 +582,11 @@ function render({ root, documentRef, store, charts }) {
   }
   const liveData = root?._liveData || {};
   const bySymbol = screenerRowsBySymbol(root, store);
-  const surface = derivePortfolioSurface({ state, liveData: liveDataFor(root, state?.holdings, liveData), vix: liveData?.['^VIX'] || null, sectorOf: screenerSectorOf(bySymbol), closeOf: screenerCloseOf(root, bySymbol) });
+  // v57.81: cash balances in other currencies convert with the app's own published USD/KRW close (date in the label).
+  const cashFx = appUsdKrwClose(root?._aioHistory || globalThis._aioHistory || []);
+  const onDemand = withOnDemandHoldings(root, bySymbol, state?.holdings);
+  if (root) root._aioPortfolioOnDemandRows = [...onDemand.values()].map((record) => record.row); // v57.81: 포트폴리오 해석 rows
+  const surface = derivePortfolioSurface({ state, liveData: liveDataFor(root, state?.holdings, liveData), vix: liveData?.['^VIX'] || null, sectorOf: screenerSectorOf(bySymbol), closeOf: screenerCloseOf(root, bySymbol, onDemand), cashFx });
   requestHoldingQuotes(root, surface.rows);
   if (root) root._aioPortfolioSurface = surface; // P1445: legacy exposure/stress panels share these base-currency values
   if (root) root._aioPortfolioSectorLabel = portfolioSectorLabel; // v57.50 review R1: one sector vocabulary for the legacy exposure panel
@@ -551,7 +611,8 @@ function renderPortfolioChecks(documentRef, root, surface) {
   const result = derivePortfolioChecks({
     surface,
     // Sector ETFs (XLE …) carry index 'ETF' with their real sector; broad ETFs carry sector 'ETF'.
-    assetTypeOf: (symbol) => { const row = rowOf(symbol); return row ? (row.index === 'ETF' || row.sector === 'ETF' ? 'ETF' : '개별 주식') : (/\.(KS|KQ)$/.test(symbol) ? '개별 주식' : null); },
+    // v57.81: an out-of-universe US listing takes its type from the listing directory / chart instrument type.
+    assetTypeOf: (symbol) => { const row = rowOf(symbol); if (row) return row.index === 'ETF' || row.sector === 'ETF' ? 'ETF' : '개별 주식'; if (/\.(KS|KQ)$/.test(symbol)) return '개별 주식'; const record = root?._aioOnDemandSymbol?.(symbol); return record?.status === 'ready' ? (record.etf ? 'ETF' : '개별 주식') : null; },
     sectorOf: (symbol) => { const row = rowOf(symbol); return row ? (row.sector === 'ETF' ? '광범위 ETF' : row.sector) : null; }
   });
   const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
@@ -594,6 +655,13 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
       const eventTarget = documentRef || globalThis;
       eventTarget?.addEventListener?.('aio:liveQuotes', renderNow);
       bag.add(() => eventTarget?.removeEventListener?.('aio:liveQuotes', renderNow));
+      // v57.81: the cash total converts with the published USD/KRW close, which arrives with the history (window event).
+      root?.addEventListener?.('aio:historyLoaded', renderNow);
+      bag.add(() => root?.removeEventListener?.('aio:historyLoaded', renderNow));
+      // v57.81: an out-of-universe holding's on-demand row arrives after the first render.
+      const onOnDemand = (event) => { const symbol = String(event?.detail?.symbol || '').toUpperCase(); if ((selectPortfolioState(store.getState())?.holdings || []).some((holding) => String(holding?.symbol || holding?.ticker || '').toUpperCase() === symbol)) renderNow(); };
+      eventTarget?.addEventListener?.('aio:onDemandSymbol', onOnDemand);
+      bag.add(() => eventTarget?.removeEventListener?.('aio:onDemandSymbol', onOnDemand));
       const page = documentRef?.getElementById('page-portfolio');
       let suppliedMaterialBridge = page?.querySelector?.('[data-aio-supplied-material-route="portfolio"]') || null;
       if (page && !suppliedMaterialBridge) {

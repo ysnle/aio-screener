@@ -3,6 +3,7 @@
 // ones leading the rotation, how healthy the top names' trends are, and how the same ranking has done
 // after the fact. Pure: the ranked rows, the rotation items, the regime and the validation summary.
 import { SECTOR_ETF, normalizeSectorKey } from '../entity/stock-read.js';
+import { NEAR_LINE_ADR, RECENT_DROP_ADR, adrMultiple, recentDrop } from '../technical/bands.js';
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 // V13: labels are keyed by the canonical sector key only; aliases fold through normalizeSectorKey.
@@ -49,13 +50,19 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   } else {
     points.push({ id: 'mix', tone: 'neutral', title: '상위권 구성', text: `${topLabel}의 업종 비중이 전체와 비슷합니다 — 특정 업종 쏠림 없이 종목별 차이로 순위가 갈렸습니다.` });
   }
-  const measured = top.filter((row) => finite(row.pctSma50) != null);
+  // v57.81: the ranking carries a trend factor (about a quarter of the weight), so "the top names sit over their 50-day
+  // line" holds by construction — the point is neutral, says so, counts only rows clear of the line by one daily range
+  // (bands.js), and adds the share that broke down in the last five sessions.
+  const measured = top.filter((row) => adrMultiple(row.pctSma50, row.adrPct) != null);
   if (measured.length) {
-    const above = measured.filter((row) => row.pctSma50 > 0).length / measured.length * 100;
+    const above = measured.filter((row) => adrMultiple(row.pctSma50, row.adrPct) >= NEAR_LINE_ADR).length / measured.length * 100;
     const nearHigh = top.filter((row) => finite(row.pctFrom52wHigh) != null && row.pctFrom52wHigh > -5).length / top.length * 100;
+    const dropMeasured = top.map(recentDrop).filter(Boolean);
+    const dropped = dropMeasured.length ? dropMeasured.filter((drop) => drop.broken).length / dropMeasured.length * 100 : null;
     const breadth = regime?.axes?.find((axis) => axis.id === 'breadth');
-    points.push({ id: 'health', tone: above >= 70 ? 'favorable' : above < 50 ? 'burden' : 'neutral', title: '상위권 추세',
-      text: `${topName} 중 ${above.toFixed(0)}%가 50일선 위, ${nearHigh.toFixed(0)}%가 52주 고점 5% 이내${breadth?.state === 'burden' ? ` — 시장 전체는 50일선 위 종목이 적은데(시장 폭 ${breadth.stateLabel}) 상위권은 추세를 지키는 소수입니다` : ''}.` });
+    const trendInRank = top.some((row) => finite(row.factorScores?.trend) != null);
+    points.push({ id: 'health', tone: 'neutral', title: '상위권 추세',
+      text: `${topName} 중 ${above.toFixed(0)}%가 50일선보다 일평균 변동폭 ${NEAR_LINE_ADR}배 이상 위, ${nearHigh.toFixed(0)}%가 52주 고점 5% 이내${dropped != null ? `, ${dropped.toFixed(0)}%는 최근 5거래일에 일평균 변동폭 ${RECENT_DROP_ADR}배 넘게 하락` : ''}.${trendInRank ? ' 순위 계산에 추세 팩터가 들어 있어 상위권이 50일선 위에 많은 것은 계산 방식상 예상되는 결과입니다' : ''}${breadth?.state === 'burden' ? `${trendInRank ? ' — ' : ' '}시장 전체는 50일선 위 종목이 적습니다(시장 폭 ${breadth.stateLabel})` : ''}${trendInRank || breadth?.state === 'burden' ? '.' : ''}` });
   }
   if (validation?.available) {
     const spread = finite(validation.spreadNet);
@@ -72,8 +79,8 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
     } else {
       points.push({ id: 'trust', tone: spread != null && spread > 0 ? 'favorable' : 'burden', title: '순위의 과거 성과',
         text: spread != null && spread > 0
-          ? `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 평균 ${spread.toFixed(2)}% 앞섰습니다(${validation.wins}/${validation.rebalances}회). 다만 지금 종목 구성으로 본 결과라 생존 편향이 있습니다.`
-          : `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 평균 ${spread == null ? '—' : spread.toFixed(2)}%로 뒤처졌고 ${validation.wins ?? '—'}/${validation.rebalances}회만 앞섰습니다 — 순위는 매수 목록이 아니라 차트·재무로 확인할 후보 목록으로 읽는 편이 맞습니다.` });
+          ? `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 평균 ${spread.toFixed(2)}% 앞섰습니다(비용 후 ${validation.wins}/${validation.rebalances}회). 다만 지금 종목 구성으로 본 결과라 생존 편향이 있습니다.`
+          : `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 평균 ${spread == null ? '—' : spread.toFixed(2)}%로 뒤처졌고 비용 후 ${validation.wins ?? '—'}/${validation.rebalances}회만 앞섰습니다 — 순위는 매수 목록이 아니라 차트·재무로 확인할 후보 목록으로 읽는 편이 맞습니다.` });
     }
   }
   // 2026-10-14 audit #5: how many of the top fifth sit in themes at each stage (same rows as 테마 시나리오). Counts only;
@@ -98,10 +105,10 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   const spreadValue = finite(validation?.spreadNet);
   const trustVerdict = !validation?.available ? null
     : validation.modelMatch === false ? '순위의 과거 성과는 다른 모델 기록이라 판단 보류'
-      : validation.distinguishable === false ? `순위의 과거 성과는 아직 구별 불가(${validation.rebalances}회 중 ${validation.wins ?? '—'}회 앞섬)`
+      : validation.distinguishable === false ? `순위의 과거 성과는 아직 구별 불가(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회 앞섬)`
         : spreadValue == null ? null
-          : spreadValue > 0 ? `과거 상위 20%가 하위보다 앞섬(${validation.rebalances}회 중 ${validation.wins ?? '—'}회)`
-            : `과거 상위 20%가 하위보다 뒤처짐(${validation.rebalances}회 중 ${validation.wins ?? '—'}회 앞섬)`;
+          : spreadValue > 0 ? `과거 상위 20%가 하위보다 앞섬(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회)`
+            : `과거 상위 20%가 하위보다 뒤처짐(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회 앞섬)`;
   const headline = `${topName} 구성은 ${over.length ? `${over.map((row) => row.label).join('·')} 쏠림` : '업종 쏠림 없음'}${trustVerdict ? ` · ${trustVerdict}` : ''} — 순위 계산 ${ranked.length}종목 중 ${topLabel}`;
   const next = [];
   if (over[0]) next.push({ route: 'themes', label: '테마 · 섹터', why: `${over[0].label} 쏠림이 섹터 회전에서 어떤 단계인지` });

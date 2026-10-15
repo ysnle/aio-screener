@@ -16,7 +16,10 @@ function lastHistoryObservedAt(history = []) {
   return row.observedAt || row.date || row.time || row.timestamp || null;
 }
 
-export function createEntityProvider({ read = () => ({}), httpClient, fundamentalsUrl = './public-data/sec-fundamentals-summary.json', fundamentalWatchlist = DEFAULT_FUNDAMENTAL_WATCHLIST, now = () => Date.now(), cacheTtlMs = 30 * 60 * 1000 } = {}) {
+export function createEntityProvider({ read = () => ({}), httpClient, fundamentalsUrl = './public-data/sec-fundamentals-summary.json', fundamentalWatchlist = DEFAULT_FUNDAMENTAL_WATCHLIST, now = () => Date.now(), cacheTtlMs = 30 * 60 * 1000, readOnDemand = () => null } = {}) {
+  // v57.81: an out-of-universe US listing's annual SEC record, read on demand with the producer's normalizer
+  // (src/data/on-demand-symbol.js), stands in only when the published projection has no row for the symbol.
+  const onDemandFundamentals = (symbol) => { try { const record = readOnDemand(symbol); return record && String(record.symbol || '').toUpperCase() === symbol ? { ...record } : null; } catch (_) { return null; } };
   let fundamentalsTablePromise = null;
   let fundamentalsProjection = null;
   let fundamentalsLoadedAt = 0;
@@ -61,8 +64,8 @@ export function createEntityProvider({ read = () => ({}), httpClient, fundamenta
     async readFundamentals(symbols = []) {
       const projection = await loadFundamentalsTable();
       return Object.fromEntries(symbols.map(symbol => String(symbol || '').toUpperCase())
-        .filter(symbol => /^[A-Z0-9.^=-]{1,20}$/.test(symbol) && Object.hasOwn(projection.table, symbol))
-        .map(symbol => [symbol, { ...projection.table[symbol] }]));
+        .filter(symbol => /^[A-Z0-9.^=-]{1,20}$/.test(symbol) && (Object.hasOwn(projection.table, symbol) || onDemandFundamentals(symbol)))
+        .map(symbol => [symbol, Object.hasOwn(projection.table, symbol) ? { ...projection.table[symbol] } : onDemandFundamentals(symbol)]));
     },
     async readCurrent() {
       const value = read() || {};
@@ -70,7 +73,7 @@ export function createEntityProvider({ read = () => ({}), httpClient, fundamenta
       const projection = await loadFundamentalsTable();
       const table = projection?.table || {};
       const fetchedFundamentals = id && table[id] ? { ...table[id] } : null;
-      const fundamentals = fetchedFundamentals || value.fundamentals || null;
+      const fundamentals = fetchedFundamentals || value.fundamentals || (id ? onDemandFundamentals(id) : null);
       const fundamentalsWatchlist = [...new Set((Array.isArray(fundamentalWatchlist) ? fundamentalWatchlist : DEFAULT_FUNDAMENTAL_WATCHLIST)
         .map((symbol) => String(symbol || '').trim().toUpperCase()).filter(Boolean))]
         .map((symbol) => table[symbol] ? { ...table[symbol] } : null)

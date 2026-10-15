@@ -34,10 +34,12 @@ export const PAGE_SOURCES = Object.freeze({
     'S&P 500 지도 넓이: iShares IVV 일별 보유 비중(지수 비중 근사) · 기간 수익률은 기간 시작 비중으로 역산',
     'AI 설비투자 배분: BNP Paribas 추정(2026-08), a16z State of Markets II(2026-09-30) 인용 · 부품 납기: TrendForce(2026-09-14)'
   ],
-  ticker: ['가격·차트: Yahoo Finance 일봉', SEC, '팩터 점수: 스크리너와 같은 자체 계산'],
+  ticker: ['가격·차트: Yahoo Finance 일봉', SEC, '팩터 점수: 스크리너와 같은 자체 계산', '랭킹 대상 밖 종목: Nasdaq Trader 미국 상장 목록으로 확인 · 요청 시 같은 공식으로 계산(공개 순위 미포함)'],
+  // v57.81: the 한국 시장 fold is shown to everyone, so the chart screen names its sources too.
+  technical: ['종목 차트: Yahoo Finance 일봉', '코스피·코스닥 종가: Yahoo Finance 일봉(마감된 한국 거래일) · 50일선·200일선·1년 고저는 자체 계산'],
   fundamental: [SEC],
   screener: ['가격 팩터(수익률·추세·변동성): Yahoo Finance 수정 종가로 자체 계산', SEC, '종목별 원시 가격은 공개 데이터에 싣지 않습니다'],
-  portfolio: ['보유 내역: 이 브라우저에 저장된 사용자 입력', QUOTES],
+  portfolio: ['보유 내역·통화별 현금: 이 브라우저에 저장된 사용자 입력', QUOTES, '현금 합계 환산: 앱이 게시한 원/달러 직전 종가(Yahoo Finance KRW=X 일봉) 또는 사용자가 선언한 환율'],
   masters: ['13F·13D/13G: SEC EDGAR 공시 원문', '운용 규모: 각 운용사 공식 자료'],
   principles: ['각 노트의 근거와 가정은 본문의 "근거와 가정 보기"에 있습니다'],
   atlas: ['각 분야의 근거는 본문의 "근거와 가정 보기"에 있습니다']

@@ -48,7 +48,7 @@ jobs:
         run: node scripts/qa-runner.mjs --group preflight --no-cache
       - name: Upload redacted QA failure output
         if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: aio-qa-failure-output-preflight-${{ github.run_attempt }}
           path: ${{ runner.temp }}/aio-qa/runs/*/failure-output/*.txt
@@ -92,7 +92,7 @@ jobs:
         run: node scripts/qa-runner.mjs --group ${{ matrix.group }} --no-cache
       - name: Upload redacted QA failure output
         if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: aio-qa-failure-output-contracts-${{ matrix.group }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/aio-qa/runs/*/failure-output/*.txt
@@ -148,7 +148,7 @@ jobs:
         run: node scripts/qa-runner.mjs --group ${{ matrix.group }} --no-cache
       - name: Upload redacted QA failure output
         if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: aio-qa-failure-output-browser-${{ matrix.group }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/aio-qa/runs/*/failure-output/*.txt
@@ -201,7 +201,7 @@ jobs:
           }, null, 2) + '\n');
           NODE
       - name: Upload release attestation
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: aio-release-attestation
           path: .release/aio-release-attestation.json

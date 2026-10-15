@@ -145,6 +145,17 @@ const categories = [
   ['kr-macro-vkospi-supply', /bokPolicy:[\s\S]*?official/.test(core) && /VKOSPI 시계열 미수신/.test(core) && !/fetchKrSupplyData|updateKrSupplyDOM/.test(runtime), 'official reference + explicit unavailable (P1671: KR supply plane retired)']
 ];
 
+// v57.81: the extended screener rows (Russell 2000 + Nasdaq beyond the core) exist only as a produced artifact —
+// never as a static list in the runtime bundle — and a committed shard keeps the research-only, price-free contract.
+assert(!/(?:RUSSELL_?2000|NASDAQ_LISTED)_(?:MEMBERS|SYMBOLS)\s*=\s*\[/.test(runtime), 'extended screener membership embedded as a static list'); // text-pin-ok: absence guard, no behaviour to exercise
+if (fs.existsSync('public-data/screener-extended.json')) {
+  const shard = json('public-data/screener-extended.json');
+  assert(shard.schemaVersion === 'screener-extended.v1' && shard.rankingContract?.allowedUse === 'research-relative-ranking-only' && shard.rankingContract?.tradingSignal === false,
+    'extended screener shard must carry the research-only ranking contract');
+  assert(!Object.values(shard.data || {}).some((row) => row && typeof row === 'object' && 'price' in row) && !('price' in (shard.rowDefaults || {})),
+    'extended screener shard must not publish raw prices (P715)');
+}
+
 assert(categories.length === 22, `audit category count must be 22, got ${categories.length}`);
 categories.forEach(([name, ok, source], i) => {
   assert(ok, `category ${name} has neither current evidence nor explicit unavailable contract`);

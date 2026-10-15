@@ -13,7 +13,7 @@
 
 
 // ════════════════════════════════════════════════════════════════════════
-// AI Chat Engine — callClaude · chatSendUnified · chatFromChip
+// AI Chat Engine — callSharedAi · chatSendUnified · chatFromChip
 // ════════════════════════════════════════════════════════════════════════
 
 // AI credentials are server-only; these compatibility helpers never read a saved key.
@@ -147,7 +147,7 @@ function savePortfolioData(positions) {
 // ══════════════════════════════════════════════════════════════════════
 var PF_ASSUMPTION_FIELDS = {
   'pf-base-currency-input': { key: 'baseCurrency', kind: 'currency' },
-  'pf-cash-currency-input': { key: 'cashCurrency', kind: 'currency' },
+  // v57.81: cash-currency field retired — each cash balance carries its currency; the old key only places legacy cash.
   'pf-cash-return-input': { key: 'cashReturn', kind: 'rate' },
   'pf-rf-input': { key: 'riskFreeRate', kind: 'rate' },
   'pf-exposure-path-input': { key: 'exposurePath', kind: 'path' },
@@ -461,7 +461,8 @@ window._aioTogglePortfolioEntry = function(forceOpen) {
 // E3/P1181 (11 P11-01): 완료 알림은 durable ack 뒤에 온다 — persist가 거부되면 '완료'를 말하지 않는다.
 var _pfConfirmedAdd = null; async function addPortfolioPosition() { // v57.55 review (B4-F2/F6): one-shot confirm for an unlisted six-digit code or a won-sized USD cost
   // P1592 (F14): '005930.KS' / '000660.KQ' (the screener's own format) is the same listed code — keep the six digits.
-  const ticker = (document.getElementById('pf-add-ticker').value || '').trim().toUpperCase().replace(/^(\d{6})\.K[SQ]$/, '$1');
+  const pfRawTicker = (document.getElementById('pf-add-ticker').value || '').trim(), pfHolding = typeof window._aioResolveHoldingInput === 'function' ? window._aioResolveHoldingInput(pfRawTicker) : null; // v57.81: shared symbol owner with the ticker route — ticker-shaped input kept as typed; only a name ("스엑") resolves, by exact registry match (P1339)
+  let ticker = ((pfHolding && pfHolding.symbol) || pfRawTicker.toUpperCase()).replace(/^(\d{6})\.K[SQ]$/, '$1');
   const qty = parseFloat(document.getElementById('pf-add-qty').value) || 0;
   const cost = parseFloat(document.getElementById('pf-add-cost').value) || 0;
   // P1176 (22 PFR01): 빈 칸을 0으로 직렬화하면 화면이 '목표 $0.00 · -100%'를 만든다 — 미설정은 null로 남긴다.
@@ -479,15 +480,14 @@ var _pfConfirmedAdd = null; async function addPortfolioPosition() { // v57.55 re
   }
   const costCurrency = costCurrencyRaw || null;
   if (!ticker || qty <= 0 || cost <= 0) { showToast(!ticker ? '티커를 입력하세요.' : qty <= 0 ? '수량은 0보다 커야 합니다.' : '매수 단가는 0보다 커야 합니다.'); return; } // P1592 (F15): name the field
-
-  // v38.8: 티커 유효성 검증 — KNOWN_TICKERS 또는 _SNAP_FALLBACK에 존재하는지 확인
-  var knownTickers = (typeof KNOWN_TICKERS !== 'undefined') ? KNOWN_TICKERS : [];
-  var snapFb = (typeof _SNAP_FALLBACK !== 'undefined') ? _SNAP_FALLBACK : {};
+  var knownTickers = (typeof KNOWN_TICKERS !== 'undefined') ? KNOWN_TICKERS : [], snapFb = (typeof _SNAP_FALLBACK !== 'undefined') ? _SNAP_FALLBACK : {};
   let ld = window._liveData || {};
-  var isKnown = (knownTickers.has ? knownTickers.has(ticker) : (knownTickers.indexOf ? knownTickers.indexOf(ticker) >= 0 : false)) || snapFb[ticker] || ld[ticker] || /^\d{6}$/.test(ticker); // v46.6: KNOWN_TICKERS is a Set — .has()
+  var isKnown = (knownTickers.has ? knownTickers.has(ticker) : (knownTickers.indexOf ? knownTickers.indexOf(ticker) >= 0 : false)) || snapFb[ticker] || ld[ticker] || /^\d{6}$/.test(ticker) || !!(pfHolding && pfHolding.known); // v46.6: KNOWN_TICKERS is a Set — .has(); v57.81: + screener universe / name registry
+  // v57.81: unknown to every registry -> the lazy official US listing decides (exact symbol; only BRK.B -> BRK-B). Listed: saved with its official name; not listed: rejected below; unavailable: never saved.
+  var pfListing = null, pfListingSym = typeof window._aioUsListingSymbol === 'function' ? window._aioUsListingSymbol(ticker) : ticker; if (!isKnown && typeof window._aioCheckUsListing === 'function') { try { pfListing = await window._aioCheckUsListing(pfListingSym); } catch (_) { pfListing = null; } if (!pfListing || pfListing.listed == null) { showToast('"' + (pfRawTicker || ticker) + '"는 AIO 종목 목록에 없어 미국 상장 목록과 대조해야 하는데, 지금 상장 목록을 불러오지 못해 저장하지 않았습니다. 잠시 후 다시 시도하세요.'); return; } if (pfListing.listed === true) { ticker = pfListingSym; isKnown = true; } }
   var krCode = /^\d{6}$/.test(ticker), krListed = krCode && typeof window._aioIsKnownTicker === 'function' && (window._aioIsKnownTicker(ticker) || window._aioIsKnownTicker(ticker + '.KS') || window._aioIsKnownTicker(ticker + '.KQ')), pfRefPrice = (ld[ticker] && +ld[ticker].price) || 0, pfWarn = krCode && !krListed ? '"' + ticker + '"는 AIO 한국 종목 목록에 없는 코드입니다. 시세·차트를 받지 못할 수 있어요. 코드가 맞으면 그대로 저장할까요?' : (!krCode && (costCurrency || 'USD') === 'USD' && (pfRefPrice > 0 ? cost > pfRefPrice * 10 : cost >= 50000 && ticker !== 'BRK-A')) ? '매수 단가(' + cost.toLocaleString() + ')는 달러로 저장됩니다' + (pfRefPrice > 0 ? '(현재가 $' + pfRefPrice.toFixed(2) + '의 10배 이상)' : '') + '. 원화로 산 금액이라면 원가 통화 칸에 KRW를 적어 주세요. 그대로 저장할까요?' : ''; if (isKnown && pfWarn && _pfConfirmedAdd !== ticker + '|' + cost) { showConfirmModal('입력값 확인', pfWarn, function() { _pfConfirmedAdd = ticker + '|' + cost; addPortfolioPosition(); }); return; } _pfConfirmedAdd = null;
   if (!isKnown) {
-    showToast('"' + ticker + '" 검증되지 않은 티커라 저장하지 않았습니다. 정확한 심볼인지 확인하세요. (예: AAPL, NVDA, 005930 또는 005930.KS)');
+    showToast('"' + (pfRawTicker || ticker) + '" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다.'); // v57.81
     return;
   }
 
@@ -518,7 +518,7 @@ var _pfConfirmedAdd = null; async function addPortfolioPosition() { // v57.55 re
   // v48.3 신규 추가 토스트 → E3/P1181: 완료 문구는 durable ack 성공 뒤에만 노출된다.
   if (typeof showToast === 'function') {
     showToast(saved.ok
-      ? ticker + ' 포지션 추가 완료 · 브라우저에 저장됨'
+      ? ticker + ' 포지션 추가 완료' + (pfHolding && pfHolding.resolvedFrom ? ' ("' + pfHolding.resolvedFrom + '" = ' + ticker + ')' : '') + (pfListing && pfListing.listed === true && pfListing.name ? ' · ' + pfListing.name : '') + ' · 브라우저에 저장됨'
       : '영구 저장 실패 — ' + ticker + ' 변경은 이 화면에만 반영됐습니다. 새로고침 전 다시 시도하세요.');
   }
 }
@@ -529,7 +529,7 @@ function removePosition(ticker) {
     async function() {
       const positions = getPortfolioData().filter(p => p.ticker !== ticker);
       const saved = await savePortfolioData(positions);
-      renderPortfolio();
+      renderPortfolio(); window._aioFocusPortfolioAfterDelete?.(); // v57.81: focus left <body> (src/ui/components/shell-overlays.js)
       if (typeof showToast === 'function' && !saved.ok) {
         showToast('영구 저장 실패 — 삭제가 확정되지 않았습니다. 새로고침 시 되돌아올 수 있습니다.');
       }
@@ -703,7 +703,7 @@ function clearAllPositions() {
     // 성공한 것처럼 보였다 — 삭제도 durable ack 뒤에만 확정으로 말한다.
     async function() {
       const saved = await savePortfolioData([]);
-      renderPortfolio();
+      renderPortfolio(); window._aioFocusPortfolioAfterDelete?.(); // v57.81: focus left <body> (src/ui/components/shell-overlays.js)
       if (typeof showToast === 'function' && !saved.ok) {
         showToast('영구 저장 실패 — 전체 삭제가 확정되지 않았습니다. 새로고침 시 되돌아올 수 있습니다.');
       }
@@ -734,7 +734,7 @@ function renderPortfolio() {
   var _pfEmpty = positions.length === 0;
   var _pfMain = document.getElementById('pf-main');
   if (_pfMain) _pfMain.classList.toggle('is-empty', _pfEmpty);
-  ['pf-allocation-section','pf-benchmark-section','pf-holdings-analysis-section','pf-risk-panel'].forEach(function(id) {
+  ['pf-benchmark-section','pf-holdings-analysis-section','pf-risk-panel'].forEach(function(id) { // v57.81: 비중·섹터 stays visible when empty (it holds the cash boxes)
     var el = document.getElementById(id);
     if (el) el.hidden = _pfEmpty;
   });
@@ -803,9 +803,7 @@ function renderPortfolio() {
 
   // v40.4: 포지션 도넛 + 섹터 브레이크다운 갱신
   drawPositionDonut();
-  // 현금 입력 필드 복원
-  var cashInp = document.getElementById('pf-cash-input');
-  if (cashInp) { try { cashInp.value = localStorage.getItem('aio_portfolio_cash') || ''; } catch(e) {} }
+  // v57.81: the per-currency cash boxes are restored by the native portfolio page from the same balances it totals.
   // E3/E4/P1188: 선언 필드 복원 — 저장된 원문(코드/퍼센트)을 그대로 되돌린다.
   var _pfApi = _pfAssumptionApi();
   if (_pfApi && _pfApi.keys) {
@@ -1070,8 +1068,8 @@ async function refreshPortfolioRisk() {
   positions.forEach(function(p) {
     priceEvidenceMap[p.ticker] = typeof _aioDecisionMetric === 'function' ? _aioDecisionMetric(p.ticker, 'price', null) : null;
   });
-  var cashValue = 0;
-  try { cashValue = Math.max(0, parseFloat(localStorage.getItem('aio_portfolio_cash') || '0') || 0); } catch(e) {}
+  var cashValue = 0, _pfCash = window._pfPortfolioCash || null; // v57.81: the per-currency balances below are the cash input
+  var cashBalances = _pfCash ? _pfCash.read().balances : null;
   var declarations = readPortfolioAssumptionDeclarations();
   var assembled = (typeof window._pfAssembleRiskEstimateInput === 'function') ? window._pfAssembleRiskEstimateInput({
     positions: positions,
@@ -1080,6 +1078,7 @@ async function refreshPortfolioRisk() {
     validTickers: validTickers,
     commonDates: commonDates,
     cashValue: cashValue,
+    cashBalances: cashBalances, cashFx: _pfCash ? _pfCash.appFx() : null, // v57.81: one balance per currency, app USD/KRW close
     declarations: declarations, fxLegs: getPortfolioFxLegs(), // P1407: one base currency for weights
     // P1445: completed USD/KRW closes so foreign holdings' returns include the currency move
     fxHistory: (window._aioHistory || []).map(function(r) { var m = r && r.fieldMeta && r.fieldMeta.usdkrw; return { date: String((m && m.observedAt) || (r && r.date) || '').slice(0, 10), value: r && r.usdkrw }; })
@@ -1220,11 +1219,9 @@ function _aioRenderPortfolioStress(positions) {
   var SECTOR_RISK = {
     'Technology':{eq:1.25,rate:-0.8,oil:0.0}, 'Communication Services':{eq:1.10,rate:-0.5,oil:0.0},
     'Consumer':{eq:1.15,rate:-0.6,oil:-0.2}, 'Consumer Defensive':{eq:0.60,rate:-0.2,oil:-0.1},
-    'Financials':{eq:1.10,rate:0.5,oil:0.0}, 'Healthcare':{eq:0.80,rate:-0.3,oil:0.0},
-    'Energy':{eq:1.00,rate:0.1,oil:1.2}, 'Industrials':{eq:1.10,rate:-0.2,oil:-0.3},
+    'Financials':{eq:1.10,rate:0.5,oil:0.0}, 'Healthcare':{eq:0.80,rate:-0.3,oil:0.0}, 'Energy':{eq:1.00,rate:0.1,oil:1.2}, 'Industrials':{eq:1.10,rate:-0.2,oil:-0.3},
     'Materials':{eq:1.10,rate:-0.2,oil:0.3}, 'Utilities':{eq:0.50,rate:-1.0,oil:-0.2}, 'Real Estate':{eq:0.90,rate:-1.2,oil:0.0}
-  };
-  var DEF = {eq:1.0,rate:-0.4,oil:0.0};
+  }, DEF = {eq:1.0,rate:-0.4,oil:0.0};
   var base = _pfBaseValues(positions);
   if (base.blocked) { el.innerHTML = _pfBaseNote(base); return; }
   // #11: the keys match the screener's sector names (Consumer/Materials — verified against screener-universe.json).
@@ -1239,16 +1236,17 @@ function _aioRenderPortfolioStress(positions) {
     { name:'금리 +100bp',               f:function(sr){ return sr.rate * 0.01; } },
     { name:'유가 +30%',                 f:function(sr){ return sr.oil * 0.30; } },
   ];
-  var lines = SCEN.map(function(sc){
-    var port=0, worst=null;
-    rows.forEach(function(r){ var imp=sc.f(r.sr); port += r.w*imp; if (worst===null || imp<worst.imp) worst={sym:r.sym, imp:imp}; });
+  // v57.81: the KOSPI's own worst recorded 5/20-session moves, applied to the Korean share only (src/domain/portfolio/kr-stress.js).
+  if (rows.some(function(r){ return r.kr; }) && typeof window._aioKrIndexStress === 'function') window._aioKrIndexStress().forEach(function(k){ SCEN.push({ name:k.name, f:function(sr, r){ return r.kr ? k.shock : 0; } }); });
+  var lines = SCEN.map(function(sc){ var port=0, worst=null;
+    rows.forEach(function(r){ var imp=sc.f(r.sr, r); port += r.w*imp; if (worst===null || imp<worst.imp) worst={sym:r.sym, imp:imp}; });
     var col = port<-0.15?'var(--data-red)':port<0?'var(--data-amber)':'var(--data-green)';
     return '<div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:2px 0;"><span style="color:var(--text-secondary);">'+_escHtmlSafe(sc.name)+'</span><span style="font-weight:700;color:'+col+';">'+(port>=0?'+':'')+(port*100).toFixed(1)+'%'+(worst&&worst.imp<0?' <span style="color:var(--text-muted);font-weight:400;">('+_escHtmlSafe(worst.sym)+')</span>':'')+'</span></div>';
   }).join('');
   el.innerHTML =
     '<div style="font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;">스트레스 시나리오 <span style="font-weight:400;color:var(--text-muted);">— 주식 부분 · 가정 베타</span></div>' +
     lines +
-    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">현금을 뺀 주식 부분에 미국 섹터별 주식·금리·유가 베타를 가정해 곱한 값입니다' + (rows.some(function(r){ return r.kr; }) ? '(한국 종목은 시장 베타 1.0 가정)' : '') + ' — 측정된 베타가 아니며 실제 손익과 다를 수 있습니다.</div>';
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">현금을 뺀 주식 부분에 미국 섹터별 주식·금리·유가 베타를 가정해 곱한 값입니다' + (rows.some(function(r){ return r.kr; }) ? '(한국 종목은 미국 충격에 시장 베타 1.0 가정 · 코스피 행은 기록된 실제 하락을 한국 보유분에만 적용)' : '') + ' — 측정된 베타가 아니며 실제 손익과 다를 수 있습니다.</div>';
   el.insertAdjacentHTML('beforeend', _pfBaseNote(base)); // P1445
 }
 function _escHtmlSafe(s){ return (typeof escHtml==='function') ? escHtml(String(s)) : String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
@@ -1330,7 +1328,7 @@ function _renderRiskMetrics(el, data) {
     declLines.push(_escHtmlSafe(declParts.join(' · ')));
     if (est.wholeAccountHold) {
       // E3/E4/P1188: 보류 사유를 구분해 말한다 — 통화 미선언/수익률 미입력/전략 경로 미선언.
-      var holdReason = est.wholeAccountHold === 'cash-declaration-unresolved' ? '현금 통화 미선언'
+      var holdReason = est.wholeAccountHold === 'cash-declaration-unresolved' ? '현금을 기준 통화로 바꿀 환율 없음'
         : est.wholeAccountHold === 'strategy-account-scope-not-declared' ? '전략 경로의 계좌 범위 미선언'
         : '현금 수익률 미입력';
       declLines.push('현금 보류: ' + holdReason + ' — 계좌 전체 위험은 게시하지 않습니다(주식 부분만 게시).');
@@ -1671,7 +1669,7 @@ function _aioBuildPortfolioActionPrompt(kind) {
     var safeNote = consent && window.AIO && typeof window.AIO.sanitizeAIUntrustedText === 'function' ? window.AIO.sanitizeAIUntrustedText(e.note || '', { maxChars: 400 }).text : '';
     return safeNote ? (idx + 1) + '. ' + (e.date || '').slice(0, 10) + ' ' + safeNote : '';
   }).join('\n');
-  var tickers = safeRows.map(function(p) { var d = [p.sector && p.sector !== 'unknown' ? p.sector : null, p.allocationPct != null ? '비중 ' + p.allocationPct + '%' : null, p.returnPct != null ? '수익률 ' + (p.returnPct >= 0 ? '+' : '') + p.returnPct + '%' : null].filter(Boolean); return p.ticker + (d.length ? '(' + d.join(', ') + ')' : ''); }).join(', ') + (_aiSnap && _aiSnap.available ? ' [기준 통화 ' + (_aiSnap.baseCurrency || '미선언') + ' · 평가 기준일 ' + (_aiSnap.asOf || '미확인') + ' · 비중은 현금 포함 총자산 대비' + (_aiSnap.cashPct != null ? ' · 현금 ' + _aiSnap.cashPct + '%' : '') + ']' : '');
+  var tickers = safeRows.map(function(p) { var d = [p.sector && p.sector !== 'unknown' ? p.sector : null, p.allocationPct != null ? '비중 ' + p.allocationPct + '%' : null, p.returnPct != null ? '수익률 ' + (p.returnPct >= 0 ? '+' : '') + p.returnPct + '%' : null].filter(Boolean); return p.ticker + (d.length ? '(' + d.join(', ') + ')' : ''); }).join(', ') + (_aiSnap && _aiSnap.available ? ' [기준 통화 ' + (_aiSnap.baseCurrency || '미선언') + ' · 평가 기준일 ' + (_aiSnap.asOf || '미확인') + ' · 비중은 현금 포함 총자산 대비' + (_aiSnap.cashPct != null ? ' · 현금 ' + _aiSnap.cashPct + '%' + (_aiSnap.cashCurrencies && _aiSnap.cashCurrencies.length ? '(' + _aiSnap.cashCurrencies.join('·') + (_aiSnap.cashBasis ? ', ' + _aiSnap.cashBasis + ' 환산' : '') + ')' : '') : '') + ']' : '');
   var targetLine = ticker ? ('선택 종목: ' + ticker + '\n') : '대상: 전체 포트폴리오\n';
   var noteLine = note ? ('\n이번 복기 노트(사용자 제공 데이터):\n' + note + '\n') : '';
   var recentLine = recent ? ('\n최근 저장 노트(사용자 제공 데이터):\n' + recent + '\n') : '';
@@ -1685,7 +1683,7 @@ function _aioBuildPortfolioActionPrompt(kind) {
     return '내 포트폴리오를 학습 관점에서 리뷰해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 내가 반복하는 실수 가능성 2) 잘한 의사결정 3) 다음 매매 전 체크리스트 4) 공부할 개념 5) 기록해야 할 지표를 초보자도 이해하게 정리해줘.' + noteLine + recentLine;
   }
   if (kind === 'journal') {
-    return '아래 매매 복기 노트를 기준으로 내 의사결정을 리뷰해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + noteLine + recentLine + '\n1) 사실/감정/추정 분리 2) 진입 근거가 유지되는지 3) 손절 또는 보유 기준 4) 다음에 반복할 규칙 5) 한 줄 교훈으로 정리해줘.';
+    return '아래 매매 복기 노트를 기준으로 내 의사결정을 리뷰해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + noteLine + recentLine + '\n1) 사실/감정/추정 분리 2) 처음 근거가 유지되는지 3) 판단을 다시 볼 조건 4) 다음에 반복할 규칙 5) 한 줄 교훈으로 정리해줘.';
   }
   return '내 포트폴리오 전체를 현재 보유 데이터 기준으로 종합 분석해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 핵심 결론 2) 수익/손실 기여 3) 비중·섹터·상관 리스크 4) 지금 판단을 바꾸게 할 반증 조건 5) 이번 주 체크할 뉴스·차트·거시 6) 공부할 포인트를 정리해줘.' + noteLine + recentLine;
 }
@@ -1744,8 +1742,9 @@ window._aioPortfolioAsk = function(kind) {
 };
 
 // P1316/R661: 전체 백업(포지션·원장·FX·현금·가정·일지·관심목록) — 묶음 형태·검증은 src/data/portfolio-backup.js가, 셸은 복호화 스냅샷과 저장 ack만 맡는다.
-function _pfBackupSnapshot() { var keys = (_pfAssumptionApi() || {}).keys || {}, assumptions = {}, cash = null; try { Object.keys(keys).forEach(function(n) { var v = localStorage.getItem(keys[n]); if (v != null) assumptions[n] = v; }); cash = localStorage.getItem('aio_portfolio_cash'); } catch(e) {}
-  return { positions: getPortfolioData(), ledger: getPortfolioLedger(), fxLegs: getPortfolioFxLegs(), cash: cash, assumptions: assumptions, journal: _aioPortfolioJournalEntries(), watchlists: getWatchlists(), activeWatchlistId: getActiveWatchlistId() || null }; }
+function _pfBackupSnapshot() { // v57.81: cash travels as per-currency balances (legacy single cash read as one by the bridge)
+  var keys = (_pfAssumptionApi() || {}).keys || {}, assumptions = {}, cashRead = null; try { Object.keys(keys).forEach(function(n) { var v = localStorage.getItem(keys[n]); if (v != null) assumptions[n] = v; }); cashRead = window._pfPortfolioCash ? window._pfPortfolioCash.read() : null; } catch(e) {}
+  return { positions: getPortfolioData(), ledger: getPortfolioLedger(), fxLegs: getPortfolioFxLegs(), cash: null, cashBalances: cashRead && cashRead.known ? cashRead.balances : null, assumptions: assumptions, journal: _aioPortfolioJournalEntries(), watchlists: getWatchlists(), activeWatchlistId: getActiveWatchlistId() || null }; }
 function exportPortfolio() {
   var api = window._pfPortfolioBackup, rt = _pfVaultRuntime() || {}; // 잠긴(암호화·미해제) 섹션은 빈 값으로 읽혀 불완전한 백업이 되므로 거부한다.
   var locked = [PF_STORAGE_KEY, PF_LEDGER_KEY, PF_FX_KEY].some(function(k) { try { var raw = _AioVault.getStorage().getItem(k); return !!raw && raw.indexOf('aio_enc::') === 0 && rt[k] === undefined; } catch(e) { return false; } });
@@ -1757,8 +1756,8 @@ function exportPortfolio() {
   showToast('전체 백업 저장 (' + api.describe(bundle.counts) + ') — 암호화되지 않은 파일이니 안전한 곳에 보관하세요.');
 }
 function _pfRestoreBackupSections(c) { var keys = (_pfAssumptionApi() || {}).keys || {};
-  try { Object.keys(keys).forEach(function(n) { if (c.assumptions[n] != null) localStorage.setItem(keys[n], c.assumptions[n]); else localStorage.removeItem(keys[n]); }); if (c.cash != null) localStorage.setItem('aio_portfolio_cash', c.cash); else localStorage.removeItem('aio_portfolio_cash'); localStorage.setItem(PF_JOURNAL_KEY, JSON.stringify(c.journal)); saveWatchlists(c.watchlists); setActiveWatchlistId(c.activeWatchlistId || ''); } catch(e) { return Promise.resolve([{ ok: false, reason: 'local-restore-failed' }]); }
-  return Promise.all([savePortfolioLedger(c.ledger), savePortfolioFxLegs(c.fxLegs)]).then(function(acks) { [renderPortfolioLedger, renderPortfolioFxLegs, window.refreshWatchlistUI].forEach(function(fn) { try { if (typeof fn === 'function') fn(); } catch(e) {} }); return acks; });
+  try { Object.keys(keys).forEach(function(n) { if (c.assumptions[n] != null) localStorage.setItem(keys[n], c.assumptions[n]); else localStorage.removeItem(keys[n]); }); if (c.cashBalances != null && window._pfPortfolioCash) { if (!window._pfPortfolioCash.write(c.cashBalances).ok) throw new Error('cash-write-failed'); } else { localStorage.removeItem('aio_portfolio_cash_balances'); localStorage.removeItem('aio_portfolio_cash'); } localStorage.setItem(PF_JOURNAL_KEY, JSON.stringify(c.journal)); saveWatchlists(c.watchlists); setActiveWatchlistId(c.activeWatchlistId || ''); } catch(e) { return Promise.resolve([{ ok: false, reason: 'local-restore-failed' }]); }
+  return Promise.all([savePortfolioLedger(c.ledger), savePortfolioFxLegs(c.fxLegs)]).then(function(acks) { try { document.dispatchEvent(new CustomEvent('aio:portfolioChanged')); } catch(e) {} [renderPortfolioLedger, renderPortfolioFxLegs, window.refreshWatchlistUI].forEach(function(fn) { try { if (typeof fn === 'function') fn(); } catch(e) {} }); return acks; });
 }
 function importPortfolio(event) {
   const file = event.target.files[0], reader = new FileReader();
@@ -1872,7 +1871,7 @@ function addToWatchlist(ticker, note) {
     var noteInp = document.getElementById('wl-add-note');
     note = noteInp ? noteInp.value.trim() : '';
   }
-  if (!ticker) { showToast('티커를 입력하세요.'); return; }
+  if (!ticker) { showToast('티커를 입력하세요.'); return; } if (arguments[2] !== true && typeof window._aioAcceptSymbol === 'function') { window._aioAcceptSymbol(ticker).then(function(r) { if (r.ok || r.reason === 'listing-unavailable') addToWatchlist(r.id || ticker, note, true); else showToast(ticker + ': 등록 종목·미국 상장 목록에서 찾지 못한 티커입니다. 철자를 확인하세요.'); }); return; } // v57.81: known or US-listed (listing directory) symbols only; accepted ones join the quote request set
   var lists = getWatchlists();
   var wl = lists.find(function(l) { return l.id === activeId; });
   if (!wl) return;
@@ -1906,7 +1905,7 @@ function removeFromWatchlist(ticker) {
 // 간단 토스트 알림
 function showToast(msg) {
   var toast = document.createElement('div');
-  toast.textContent = msg;
+  toast.className = 'aio-toast'; toast.textContent = msg; // v57.81: .aio-toast stacks above the first-visit disclaimer
   toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(34,117,76,0.95);color:#000;padding:8px 18px;border-radius:4px;font-size:11px;font-weight:700;z-index:99998;pointer-events:none;opacity:0;transition:opacity 0.3s;';
   document.body.appendChild(toast);
   requestAnimationFrame(function() { toast.style.opacity = '1'; });
@@ -1968,7 +1967,7 @@ function renderWatchlistContent() {
   if (wl.tickers.length === 0) {
     emptyMsg.style.display = 'block';
     table.style.display = 'none';
-    emptyMsg.textContent = '"' + wl.name + '" 리스트가 비어있습니다. 위에서 티커를 추가하거나 스크리너에서  버튼을 눌러주세요.';
+    emptyMsg.textContent = '"' + wl.name + '" 리스트가 비어 있습니다. 위 입력란에 티커를 넣어 추가하세요.'; // v57.81: the removed-emoji gap left a blank button reference
     return;
   }
 
@@ -1985,7 +1984,7 @@ function renderWatchlistContent() {
 
   var html = '';
   wl.tickers.forEach(function(t) {
-    var d = ld[t.sym];
+    var d = ld[t.sym]; if (!d && window.AIO && typeof window.AIO.registerLiveSymbol === 'function') window.AIO.registerLiveSymbol(t.sym, { reason: 'watchlist' }); // v57.81: a saved symbol outside the market set is quoted on the next refresh
     var db = dbMap[t.sym];
     var price = d && d.price ? d.price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
     var chg = d && d.pct != null ? d.pct : null;
@@ -2004,7 +2003,7 @@ function renderWatchlistContent() {
       '<td style="text-align:center;padding:6px;">' + (signal !== '—' ? '<span style="background:' + sb + ';color:' + sc + ';padding:1px 6px;border-radius:3px;font-size:11px;font-weight:700;">' + (typeof _scrSignalLabel === 'function' ? _scrSignalLabel(signal) : signal) + '</span>' : '<span style="color:var(--text-muted);font-size:11px;">—</span>') + '</td>' +
       '<td style="padding:6px;color:var(--text-muted);font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escHtml(t.note || '') + '</td>' +
       '<td style="text-align:center;padding:6px;">' +
-        '<button data-action="removeFromWatchlist" data-arg="' + escHtml(_eSym) + '" data-stop="1" aria-label="' + escHtml(_eSym) + ' 관심 종목에서 삭제" style="background:none;border:none;cursor:pointer;font-size:11px;" title="삭제"></button>' +
+        '<button data-action="removeFromWatchlist" data-arg="' + escHtml(_eSym) + '" data-stop="1" aria-label="' + escHtml(_eSym) + ' 관심 종목에서 삭제" class="aio-btn-table" style="font-size:11px;" title="삭제">삭제</button>' +
       '</td>' +
     '</tr>';
   });

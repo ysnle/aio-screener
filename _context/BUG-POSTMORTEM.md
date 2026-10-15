@@ -6,6 +6,87 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1837 - v57.81 - history.json held one session under two dates (2026-10-15)
+
+- symptom/reproduction: WTI 94.14 (the 10/13 close) read as a 10/14 value and the 10/12 DXY close sat on two rows, so 1-day changes and the crash-day analysis compared wrong sessions.
+- root_cause: Older rows stamp a previous close with a bar boundary and no sessionDate; consumers took row dates at face value.
+- fix: src/domain/market/history-session.js infers each field's session; buildCloseSeries collapses duplicates and held copies; the producer writes sessionDate on every field and the analysis validator gets the history.
+- violated_rule: R447 market time fields.
+- prevention: ci-esm-core-unit-check and ci-history-field-time-contract-check (v57.81).
+- verification/residual: node scripts/ci-history-field-time-contract-check.mjs
+
+## P1836 - v57.81 - Touch devices lost basis cards, scroll position and folds (2026-10-15)
+
+- symptom/reproduction: On phones and iPads the value-basis card vanished on tap, back navigation reset scroll to the top and closed theme details, user folds were hidden with dev folds, inputs under 16px zoomed iOS, and the update banner close button was 0x0.
+- root_cause: pointerout after pointerup hid the card, routes had no scroll memory, one rule hid every advanced fold, and touch sizes were not set.
+- fix: Touch-aware value-basis card, per-route scroll memory with ?theme= restore, data-user-fold/data-dev-only, a coarse-pointer block (44px targets, 16px inputs), shell overlay fixes and viewport-fit=cover.
+- violated_rule: Responsive parity (AGENTS, 2026-10-11).
+- prevention: ci-touch-ergonomics-browser-check (new) and ci-responsive-browser-check basis-card assertion (v57.81).
+- verification/residual: node scripts/ci-touch-ergonomics-browser-check.mjs; node scripts/ci-responsive-browser-check.mjs
+
+## P1835 - v57.81 - Portfolio allocation card overflowed onto 섹터 배분 (2026-10-15)
+
+- symptom/reproduction: The 가용 현금 row spilled about 72px across the gap and covered the sector card at every width; cash could not be entered before the first holding.
+- root_cause: A fixed 220px grid track with a number input lacking min-width:0; the section was hidden while empty.
+- fix: .pf-allocation-grid with minmax tracks and min-width:0, stacking under 640px; the section stays visible when empty with the donut hidden.
+- violated_rule: Responsive parity (AGENTS).
+- prevention: ci-portfolio-vault-e2e and ci-responsive-browser-check (v57.81).
+- verification/residual: node scripts/ci-responsive-browser-check.mjs
+
+## P1834 - v57.81 - Portfolio entry rejected listed symbols such as SPCX (2026-10-15)
+
+- symptom/reproduction: Entering SPCX (SpaceX, Nasdaq since 2026-06-12) said 검증되지 않은 티커 although it was in the screener universe.
+- root_cause: addPortfolioPosition checked its own hand list instead of the shared exact-match registry.
+- fix: The entry uses resolveHoldingInput (registry, KRX, universe; exact names incl. the verified alias 스엑), then the official US listing; near-misses are never rewritten.
+- violated_rule: R663 exact registry match.
+- prevention: ci-portfolio-vault-e2e PFE2-24/25 and ci-esm-core-unit-check (v57.81).
+- verification/residual: node scripts/ci-portfolio-vault-e2e.mjs
+
+## P1833 - v57.81 - Portfolio and Korea reads ignored the Korean crash day (2026-10-15)
+
+- symptom/reproduction: A 70%-Korea portfolio read 시장 상태 혼조 · 환경이 극단적이지 않아 on the KOSPI -7.57% day; KR index cards showed no 1-day move or rarity; 92% of the KR sample falling had no reading; a -12.5% heavy-volume day was 피벗 돌파; telegram memos attached unrelated posts.
+- root_cause: The portfolio used the US-only axis tally, KR cards used their own month windows, the participation rule only measured the index-median gap, the VCP breakout did not require an up day or a recent cross, and memos matched any ticker tag.
+- fix: The portfolio labels the US tally and adds a KR line and KR stress rows, KR cards share koreaMoveRecord and a 20-session window, a breadth-of-move branch, a breakout needs a recent cross and an up day, memos need the ticker or company named.
+- violated_rule: R707 (v57.81).
+- prevention: ci-korea-participation-fixture, ci-review-integrity-unit-check, ci-desktop-continuity-check, ci-data-pipeline-contract-check v57.81 blocks.
+- verification/residual: node scripts/ci-korea-participation-fixture.mjs; node scripts/ci-review-integrity-unit-check.mjs
+
+## P1832 - v57.81 - Stock and screener labels stayed favorable through breakdowns (2026-10-15)
+
+- symptom/reproduction: MU 6.9% under its 50-day line showed a favorable tone; PYPL at +0.01% read 상승 추세; 152 rows read 상위권·추세 양호 including 21 with 5-day drops of 5% or more and 14 under the 200-day line; the why-drawer said no contrary evidence for MRVL (-13.8% in 5 days); a full bull stack with the close under the 20-day line read 정배열; validation counts used net in one place and gross in another.
+- root_cause: Sign tests on the 50-day line, a negative extension mapped to near-base, contrary evidence only from user filters, the stack checked before the close, and two count bases.
+- fix: ADR-sized bands (src/domain/technical/bands.js), entry-ready needs a margin over the 50-day line, price over the 200-day line and no 5-day break (null fails), model-level contrary checks in the drawer, close checked before the stack (PULLBACK states), one net count.
+- violated_rule: R707 (v57.81).
+- prevention: ci-esm-core-unit-check v57.81 screener/stock block.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-entity-quality-browser-check.mjs
+
+## P1831 - v57.81 - Macro scenarios ranked without their defining condition (2026-10-15)
+
+- symptom/reproduction: 유가 충격 led at 3/4 with WTI -7.2% over 20 sessions; breakeven +2bp counted as market confirmation; the quadrant said 근원 물가 속도 둔화 while the newer core CPI re-accelerated; two oil rules disagreed; the inflation axis hung on 3.0076% vs 3.0%.
+- root_cause: Branch conditions had no gate, sign tests had no dead zone, inflation direction read PCE only, and oil divergence was checked in two places with different rules.
+- fix: Every branch has a gate; >0 conditions use a 0.5-sd dead zone; PCE and CPI must agree or the direction is 엇갈림; one Brent/WTI rule (src/domain/macro/macro-signals.js); rates conditions share RULES.rates; ties are counted.
+- violated_rule: R707 (v57.81).
+- prevention: ci-scenario-guidance-fixture macro block (v57.81).
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs
+
+## P1830 - v57.81 - Themes, sectors and the AI called falling leaders 주도 (2026-10-15)
+
+- symptom/reproduction: 반도체 and AI 인프라 read 주도 지속 with 5-session medians of -12.6%/-12.7%; XLK read 선도, 계속 강해지는 중 after RS fell 4.5% in 5 sessions; the published analysis said 반도체가 거시 부담에도 주도; sub-themes down 13-21% were 최근 강해지는 곳; a 1-month rotation read as a completed shift.
+- root_cause: Theme stage came from the sign of absolute 1- and 6-month returns (0 threshold, no benchmark), RRG quadrants (~50 sessions, no band around 100) were worded as current, and the AI context listed themes from the same rule.
+- fix: Stage is relative to the index with a time-scaled band and needs the 50-day condition or 3 of 4 met; an RRG neutral band and a 5-session RS reversal check (src/domain/themes/recent-check.js) feed themes, sectors, the stock page and the portfolio; windows and both market dates are printed; the validator rejects 주도 for a theme whose packet 5-day move is <= -3%.
+- violated_rule: R707 (v57.81).
+- prevention: ci-scenario-guidance-fixture v57.81 theme blocks and themeLeadClaimIssues fixture.
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs
+
+## P1829 - v57.81 - Market judgements flipped inside daily noise and missed a leadership break (2026-10-15)
+
+- symptom/reproduction: On 10/14 the trend read 양호 with the S&P 500 0.15% above its 50-day line while the Nasdaq-100 fell 3.9% in 5 sessions and the Russell 2000 closed under its 200-day line; the regime stayed 소수 종목 주도. Credit read 중립 after a 96th-percentile 20-day HY widening, volatility 양호 after a +12% VIX week, the won 양호 from a window that began on a spike, and a 5-session KOSPI move ranked 2nd of 252 read 최저.
+- root_cause: Axis rules were binary thresholds with no buffer or hysteresis, judged one index, could not reach 부담 from a 20-day credit move, had no state for leaders turning while breadth was weak, used two different 20-session windows for the won, and rounded rank 2 of 252 to 0%.
+- fix: A 1% trend buffer with a cross-index cap, a leadershipBreak condition that turns 소수 종목 주도 into 동반 약세 전환 확인 중, a credit 부담 path from its own record with hysteresis (rates too), a VIX buffer with the 5-day rise, an endpoint-robust KRW window shared by card and axis, rank-based 최저/최고, and validator rules that reject state words or 주도 claims the packet contradicts.
+- violated_rule: AGENTS Likelihood/Screen design: a judgement must not overstate its evidence.
+- prevention: ci-scenario-guidance-fixture and ci-esm-core-unit-check pin the 10/14 shape, a clean uptrend and narrow-but-intact leadership (v57.81).
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs; node scripts/ci-esm-core-unit-check.mjs
+
 ## P1828 - v57.80 - The data watchdog went red whenever it ran while a fresh push was still in CI (2026-10-15)
 
 - symptom/reproduction: Three consecutive Data freshness watchdog runs (06:11, 06:30, 07:13 UTC on 2026-10-15) failed external-pipeline 1-3 minutes after each push; a local rerun after the deploys finished passed.

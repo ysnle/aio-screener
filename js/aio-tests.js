@@ -3102,7 +3102,7 @@
     var chatSendSrc = typeof window.chatSendUnified === 'function' ? window.chatSendUnified.toString() : '';
     // T603 (v57.62): unified failures before provider work are shown in the panel (route notice / missing transport)
     _assert('T603 v57.62 unified_failure_feedback: per-page chatSend absent + chatSendUnified shows route and transport failures in the panel',
-      typeof window.chatSend === 'undefined' && chatSendSrc.indexOf('_aioRouteNotice(_uniRoute.reason)') >= 0 && chatSendSrc.indexOf('AI 호출 기능을 찾을 수 없습니다') >= 0 && chatSendSrc.indexOf('callClaude 함수를 찾을') < 0, // v57.79: no internal function name in user copy
+      typeof window.chatSend === 'undefined' && chatSendSrc.indexOf('_aioRouteNotice(_uniRoute.reason)') >= 0 && chatSendSrc.indexOf('AI 호출 기능을 찾을 수 없습니다') >= 0 && chatSendSrc.indexOf('callSharedAi 함수를 찾을') < 0, // v57.79: no internal function name in user copy
       'chatSend=' + typeof window.chatSend + ' route=' + (chatSendSrc.indexOf('_aioRouteNotice(_uniRoute.reason)') >= 0));
     // T604 (v57.62): unified onError retries transient classes, then shows the escaped error in the panel
     _assert('T604 v57.62 unified_error_retry_then_message: chatSendUnified onError retries timeout/5xx/overloaded and renders the final error',
@@ -3177,10 +3177,10 @@
       chatSendSrc.indexOf('if (state._activeRequest || state.streaming)') >= 0 && chatSendSrc.indexOf('chat 요청 중복 방지') >= 0,
       'lock=' + (chatSendSrc.indexOf('chat 요청 중복 방지') >= 0));
     // T627 C4: chunk timeout 방어적 fallback
-    var callClaudeSrc = typeof callClaude === 'function' ? callClaude.toString() : '';
-    _assert('T627 chunk_timeout_defensive_v4978: callClaude에 typeof T 방어 + 15000 fallback',
-      callClaudeSrc.indexOf('_chunkTimeoutMs') >= 0,
-      'defensive=' + (callClaudeSrc.indexOf('_chunkTimeoutMs') >= 0));
+    var callSharedAiSrc = typeof callSharedAi === 'function' ? callSharedAi.toString() : '';
+    _assert('T627 chunk_timeout_defensive_v4978: callSharedAi에 typeof T 방어 + 15000 fallback',
+      callSharedAiSrc.indexOf('_chunkTimeoutMs') >= 0,
+      'defensive=' + (callSharedAiSrc.indexOf('_chunkTimeoutMs') >= 0));
     // T628: dynamicTickerLookup 함수 정의 (사용자 콘솔 진단 가능)
     _assert('T628 dynamic_lookup_exposed_v4978: window.dynamicTickerLookup 함수 정의',
       typeof window.dynamicTickerLookup === 'function',
@@ -3245,11 +3245,11 @@
     _assert('T638 get_api_usage_v4979: AIO.getApiUsage 함수 정의',
       typeof (window.AIO && window.AIO.getApiUsage) === 'function',
       'typeof=' + typeof (window.AIO && window.AIO.getApiUsage));
-    // T639 R164: callClaude에 _aioTrackApiUsage 호출 통합
-    var callClaudeSrc = typeof callClaude === 'function' ? callClaude.toString() : '';
-    _assert('T639 callclaude_usage_tracking_v4979: callClaude에 _aioTrackApiUsage 호출 통합',
-      callClaudeSrc.indexOf('_aioTrackApiUsage') >= 0,
-      'tracking=' + (callClaudeSrc.indexOf('_aioTrackApiUsage') >= 0));
+    // T639 R164: callSharedAi에 _aioTrackApiUsage 호출 통합
+    var callSharedAiSrc = typeof callSharedAi === 'function' ? callSharedAi.toString() : '';
+    _assert('T639 callclaude_usage_tracking_v4979: callSharedAi에 _aioTrackApiUsage 호출 통합',
+      callSharedAiSrc.indexOf('_aioTrackApiUsage') >= 0,
+      'tracking=' + (callSharedAiSrc.indexOf('_aioTrackApiUsage') >= 0));
     // T640: APP_VERSION === 'v49.79'
     _assert('T640 app_version_v4979_final: APP_VERSION >= "v49.79"',
       typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.79'),
@@ -5572,7 +5572,7 @@
       // native citations (engine:'claude') under the answer.
       var csSrc2 = (typeof chatSendUnified === 'function') ? String(chatSendUnified) : '';
       var badgeUpgradeOk = csSrc2.indexOf('_aioAIRequestCitations(_uniRequestId)') >= 0 && csSrc2.indexOf("engine:'claude'") >= 0 && csSrc2.indexOf('AI 웹검색') >= 0;
-      var ccFn = (typeof callClaude === 'function') ? callClaude : (typeof window.callClaude === 'function' ? window.callClaude : null);
+      var ccFn = (typeof callSharedAi === 'function') ? callSharedAi : (typeof window.callSharedAi === 'function' ? window.callSharedAi : null);
       // P1245 (05 A05): 수집기는 공유 전역이 아니라 이 스트림이 시작할 때 받은 요청 id의 기록에 쓴다.
       var ccSrc = ccFn ? String(ccFn) : '';
       var citeCaptureOk = !!ccFn && ccSrc.indexOf('_aioAIRequestStream') >= 0 && ccSrc.indexOf('_streamRequestId') >= 0 && ccSrc.indexOf('_aioLastClaudeCitations') < 0;
@@ -7219,10 +7219,10 @@
       var page = document.getElementById('page-' + id);
       if (!page) { failures869.push(id + ':missing'); return; }
       if (page.querySelectorAll('.aio-fund').length) failures869.push(id + ':fund');
-      Array.prototype.forEach.call(page.querySelectorAll('.aio-page-advanced-toggle'), function(el) {
-        if (el.id === 'kr-integrated-themes' ? getComputedStyle(el).display === 'none' : getComputedStyle(el).display !== 'none') failures869.push(id + (el.id === 'kr-integrated-themes' ? ':kr-themes-hidden' : ':advanced-visible')); // P1327/R672: KR themes are user content
+      Array.prototype.forEach.call(page.querySelectorAll('.aio-page-advanced-toggle'), function(el) { var uf869 = el.hasAttribute('data-user-fold'); // P1327/R672 -> v57.81: data-user-fold folds are shown to everyone, the rest stay developer-only
+        if (uf869 ? getComputedStyle(el).display === 'none' : getComputedStyle(el).display !== 'none') failures869.push(id + ':' + (el.id || 'fold') + (uf869 ? ':user-fold-hidden' : ':advanced-visible'));
       });
-    });
+    }); ['kr-integrated-technical','kr-integrated-macro','kr-integrated-themes','pf-ai-notes-fold','pf-watchlist-risk-fold'].forEach(function(f) { var n = document.getElementById(f); if (!n || !n.hasAttribute('data-user-fold') || getComputedStyle(n).display === 'none') failures869.push(f + ':user-fold-missing'); }); // v57.81 user folds
     try {
       ['guide','kr-home','kr-supply','kr-themes','kr-macro','kr-technical'].forEach(function(id) {
         if (typeof _aioPolishRemainingPages === 'function') _aioPolishRemainingPages(id);
@@ -7287,7 +7287,7 @@
       if (!pfForm || !pfForm.classList.contains('is-open')) failures869.push('portfolio-form-toggle');
       if (typeof window._aioTogglePortfolioEntry === 'function') window._aioTogglePortfolioEntry(false);
       document.body.classList.add('aio-dev-mode');
-      var advanced = document.querySelector('#page-technical .aio-page-advanced-toggle');
+      var advanced = document.querySelector('#page-portfolio .aio-page-advanced-toggle:not([data-user-fold])'); // v57.81: the technical fold is a user fold now
       if (advanced && getComputedStyle(advanced).display === 'none') failures869.push('developer-mode-hidden');
       document.body.classList.remove('aio-dev-mode');
     } catch(e869) { failures869.push('ERR:' + (e869 && e869.message)); }
@@ -7611,14 +7611,14 @@
       _assert('T887 claude_worker_403_retry_helper (B8): _aioFetchClaudeWithRetry 미존재', false);
     }
 
-    // T888: callClaude(스트리밍 채팅) — 최초 요청 + 400-beta 폴백 재요청 2곳 모두 재시도 헬퍼 경유(원시 fetch 아님)
-    if (typeof callClaude === 'function') {
-      var fnSrc888 = callClaude.toString();
+    // T888: callSharedAi(스트리밍 채팅) — 최초 요청 + 400-beta 폴백 재요청 2곳 모두 재시도 헬퍼 경유(원시 fetch 아님)
+    if (typeof callSharedAi === 'function') {
+      var fnSrc888 = callSharedAi.toString();
       var callCount888 = (fnSrc888.match(/_aioFetchClaudeWithRetry\(_claudeTarget\.url/g) || []).length;
-      _assert('T888 claude_chat_uses_retry_helper (B8): callClaude의 P1421 단일 Responses 요청이 _aioFetchClaudeWithRetry 경유',
+      _assert('T888 claude_chat_uses_retry_helper (B8): callSharedAi의 P1421 단일 Responses 요청이 _aioFetchClaudeWithRetry 경유',
         callCount888 === 1, 'callCount=' + callCount888);
     } else {
-      _assert('T888 claude_chat_uses_retry_helper (B8): callClaude 미존재', false);
+      _assert('T888 claude_chat_uses_retry_helper (B8): callSharedAi 미존재', false);
     }
 
     // T889: autoTranslateNews(뉴스 번역)가 재시도 헬퍼를 경유(미존재 시 원시 fetch로 안전 폴백)

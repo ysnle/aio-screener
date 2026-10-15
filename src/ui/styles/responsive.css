@@ -7,6 +7,7 @@
 @import url('./company-analysis.css');
 @import url('./regime-quality.css');
 @import url('./chat-sessions.css');
+@import url('./shell-overlays.css'); /* v57.81: update banner, disclaimer bar and safe-area offsets */
 .regime-kr-participation { margin:24px 0; padding:24px; border:1px solid var(--border); border-radius:8px; font-size:14px; line-height:1.7; background:var(--bg-surface); color:var(--text-primary); }
 /* v57.55 cleanup: one type scale — page 27 · section 18 (.briefing-h2) · card 16 · sub 14. This block used browser h2/h3 sizes (21px). */
 .regime-kr-participation > h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin: 0 0 12px; }
@@ -22,6 +23,17 @@
 #app-version-badge { text-transform: none; }
 #glossary-search { background:var(--bg-surface) !important; color:var(--text-primary) !important; border-color:var(--border) !important; }
 #glossary-search:focus-visible { outline:2px solid var(--accent) !important; outline-offset:2px; }
+/* v57.81: the glossary panel capped at 86vh, which on iPad Safari is the height with the toolbar hidden; it now follows
+   the visible height (the phone rule below keeps its own cap). Its close button was 13px wide on every device. */
+#glossary-modal > div { max-height: min(86vh, calc(var(--aio-visual-height, 100dvh) * .86)) !important; }
+#glossary-modal [data-action="_aioCloseGlossary"] { min-width: 24px; min-height: 24px; }
+/* v57.81: glossary category tags were 10px; 11px is the text floor. */
+#glossary-body .aio-glossary-item > div:first-child > span:not(.aio-glossary-term) { font-size: 11px !important; }
+/* v57.81 (WCAG 2.5.8): the 오늘 sector rows (20px), the 시장 상태 regime values (22px) and the 재무 공시 source link (14px)
+   open or lead somewhere on tap; each is at least 24px tall on every device. */
+.home-sector-bars li[tabindex], .regime-radar-table dd[tabindex] { min-height: 24px; box-sizing: border-box; }
+.regime-radar-table dd[tabindex] { display: flex; align-items: center; }
+.page .fiscal-source-link { display: inline-block; min-height: 24px; line-height: 24px; }
 .aio-table-scroll { max-width: 100%; min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; }
 .theme-strength-constituents { display: flex; flex-wrap: wrap; gap: 6px; min-width: 150px; max-width: 260px; white-space: normal; }
 .theme-strength-table .theme-member-detail { white-space: normal; background: var(--surface-2); padding: 16px; }
@@ -115,9 +127,11 @@
   .page .regime-chips { min-width: 0; width: 100%; }
   #home-score-hero { gap: 16px !important; padding: 16px 0 !important; }
   .page .fiscal-peers .stock-read-bar-value { min-width: 0; white-space: normal; }
+  /* v57.81: theme-detail sub-theme values wrap under the bar instead of an ellipsis, so 1개월 and 5거래일 stay visible. */
+  .page .theme-detail-flow .stock-read-bar-value { min-width: 0; white-space: normal; overflow: visible; text-overflow: clip; }
   body #ai-panel { width: 100%; border-left: 0; }
   .ai-ph { padding: 10px 12px; flex-wrap: wrap; }
-  .ai-ph-badge { font-size: 10px; }
+  .ai-ph-badge { font-size: 11px; } /* v57.81: 11px text floor (was 10px) */
   #ai-panel-policy { flex-shrink: 0; }
   .ai-chips { max-height: 110px; overflow-y: auto; }
   .ai-chip { min-height: 36px; }
@@ -148,10 +162,83 @@
 body { word-break: keep-all; overflow-wrap: break-word; }
 /* v57.54 live review: touch targets reach 44px on coarse pointers (buttons were 36px, folds 24px). Table cells keep
    their density; scrollable tables already give each row a full-width tap area. */
+/* v57.81 phone/iPad parity audit: the phone rule `.page :is(button,[role=button],select){min-height:36px}` (0,2,0)
+   outranked this rule while it was `.page button:not(td button):not(th button)` (0,1,5), so phones got 36px buttons and
+   iPads 44px. The rule is now (0,3,0) and later in the file, so every touch device gets 44px. Table-cell controls stay
+   compact (the phone 36px or their own size) with a 24px floor. Navigation outside .page (drawer, hub tabs, topbar),
+   folds, the glossary and the confirm dialog follow the same 44px rule. ci-touch-ergonomics-browser-check holds it. */
 @media (pointer: coarse) {
-  .page button:not(td button):not(th button), .page summary, .page [role="tab"], #ai-panel button { min-height: 44px; }
+  .page :is(button, [role="button"]):not(td *, th *, .aio-basis-btn, .aio-term), .page [role="tab"], #ai-panel button { min-height: 44px; }
+  :where(.page) :is(td, th) :is(button, [role="button"]) { min-height: 24px; min-width: 24px; }
+  /* Folds keep their disclosure marker (list-item); the padding centres a one-line label in the 44px row. */
+  .page summary { min-height: 44px !important; padding-block: 10px; box-sizing: border-box; }
+  #aio-hub-tabs .aio-hub-tab { min-height: 44px; min-width: 44px; padding-inline: 4px; }
+  .sidebar .nav-item, #sidebar-theme-btn, .sidebar .llm-key-save { min-height: 44px; }
+  .sidebar details > summary { min-height: 44px; padding-block: 10px; }
+  .sidebar [data-action="_aioNextSiblingToggle"] { min-height: 44px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+  .sidebar input:is([type="checkbox"], [type="radio"]) { width: 24px; height: 24px; }
+  #sidebar-toggle-btn, .topbar button { min-height: 44px; min-width: 44px; }
+  #glossary-modal [data-action="_aioCloseGlossary"] { min-width: 44px; min-height: 44px; }
+  #glossary-cats button { min-height: 44px; }
+  #aio-confirm-modal button, .page .aio-btn-table.primary { min-height: 44px !important; } /* 첫 종목 추가 sits in a table cell with an inline 36px */
+  .home-sector-bars li[tabindex], .regime-radar-table dd[tabindex] { min-height: 44px; }
+  .page .fiscal-source-link { display: inline-flex; align-items: center; min-height: 44px; }
+  /* iOS zooms the page when a focused field is under 16px. Keyed to the pointer, not the width: the AI panel input was
+     13px on an iPad in landscape and the glossary search 14px at 844px. Inline sizes, `.aio-btn-table` and the
+     `.page [style*="font-size:11px"]` floor (0,2,0) are !important, so this rule is :root-scoped (0,2,1). */
+  /* At 16px the screener sort select ("시가총액 큰 순(시총 확인된 종목 먼저)") outgrew a 390px screen; it shrinks instead. */
+  .scr-market-scope label { max-width: 100%; min-width: 0; }
+  .scr-market-scope select { min-width: 0; flex: 0 1 auto; }
+  :root :is(input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="button"], [type="submit"], [type="reset"], [type="image"]), select, textarea) { font-size: 16px !important; }
 }
 
+/* v57.81: chart labels are drawn in viewBox units, so they shrank with the chart (8.3-9.2px on a phone, 6.5px for the
+   한국 지수 charts on an iPad in landscape, 7.9px for the portfolio sector bubbles). Each chart box is a size container;
+   below the width at which the drawn size reaches 11px, labels take the viewBox size that renders at 11px or more
+   (trend and curve charts are 520 units wide: 11 x 520 / width; the sector bubbles 430). Wide desktop pointers keep the
+   drawn sizes. */
+@media (pointer: coarse), (max-width: 1100px) {
+  .trend-chart-wrap, .rates-curve-wrap, #vis-portfolio-sectors { container-type: inline-size; }
+  @container (max-width: 439.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 15px !important; } }
+  @container (max-width: 380.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 17px !important; } }
+  @container (max-width: 335.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 19px !important; } }
+  @container (max-width: 300.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 21px !important; } }
+  @container (max-width: 271.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 23.5px !important; } }
+  @container (max-width: 242.98px) { .page :is(.trend-chart, .rates-curve) text { font-size: 26px !important; } }
+  @container (max-width: 439.98px) { .page .rates-curve .rates-curve-tenor.is-penult { text-anchor: end; } .page .rates-curve .rates-curve-tenor.is-last { text-anchor: end; transform: translateX(20px); } }
+  @container (max-width: 429.98px) { #vis-portfolio-sectors svg text { font-size: 12px; } }
+  @container (max-width: 393.98px) { #vis-portfolio-sectors svg text { font-size: 13px; } }
+  @container (max-width: 363.98px) { #vis-portfolio-sectors svg text { font-size: 14px; } }
+  @container (max-width: 337.98px) { #vis-portfolio-sectors svg text { font-size: 15px; } }
+  @container (max-width: 314.98px) { #vis-portfolio-sectors svg text { font-size: 16px; } }
+}
+/* v57.81: a table wider than its box fades the edge that has more columns (scroll-cue.js sets has-more-left/right on
+   every .page .aio-table-scroll; the theme rank table keeps its own shaded frame). A mask, not an overlay, so cell
+   backgrounds cannot cover it. Keyboard focus drops the mask so the focus ring stays whole. Wide desktop pointers keep
+   the plain scroll region. */
+@media (pointer: coarse), (max-width: 1100px) {
+  .aio-table-scroll.has-more-right { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), rgb(0 0 0 / .18)); mask-image: linear-gradient(to right, #000 calc(100% - 32px), rgb(0 0 0 / .18)); }
+  .aio-table-scroll.has-more-left { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 32px), rgb(0 0 0 / .18)); mask-image: linear-gradient(to left, #000 calc(100% - 32px), rgb(0 0 0 / .18)); }
+  .aio-table-scroll.has-more-left.has-more-right { -webkit-mask-image: linear-gradient(to right, rgb(0 0 0 / .18), #000 32px, #000 calc(100% - 32px), rgb(0 0 0 / .18)); mask-image: linear-gradient(to right, rgb(0 0 0 / .18), #000 32px, #000 calc(100% - 32px), rgb(0 0 0 / .18)); }
+  .aio-table-scroll:focus-visible { -webkit-mask-image: none; mask-image: none; }
+  /* The portfolio hero's lesson links ("원리 레슨 · 포지션 사이징") ran past an iPad screen on one line; they wrap. */
+  #page-portfolio .flow-next-link { white-space: normal; text-align: left; }
+}
+/* The phone screener header is a sideways sort bar (screener-quality.css); only a clipped "3" said it scrolled. */
+@media (max-width: 599px) {
+  #screener-results-table .scr-registry-header.has-more-right { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), rgb(0 0 0 / .18)); mask-image: linear-gradient(to right, #000 calc(100% - 32px), rgb(0 0 0 / .18)); }
+  #screener-results-table .scr-registry-header.has-more-left { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 32px), rgb(0 0 0 / .18)); mask-image: linear-gradient(to left, #000 calc(100% - 32px), rgb(0 0 0 / .18)); }
+  #screener-results-table .scr-registry-header.has-more-left.has-more-right { -webkit-mask-image: linear-gradient(to right, rgb(0 0 0 / .18), #000 32px, #000 calc(100% - 32px), rgb(0 0 0 / .18)); mask-image: linear-gradient(to right, rgb(0 0 0 / .18), #000 32px, #000 calc(100% - 32px), rgb(0 0 0 / .18)); }
+}
+/* v57.81: on a phone the holdings table scrolls and 수정/삭제 sit in its last column. The 종목 column stays pinned, so a
+   row's actions are reached with the name still in view; the left fade gives way to the pinned column's edge shadow. */
+@media (max-width: 700px) {
+  #page-portfolio .aio-table-scroll > table :is(th, td):first-child:not([colspan]) { position: sticky; left: 0; z-index: 1; background: var(--bg-card); }
+  #page-portfolio .aio-table-scroll > table th:first-child:not([colspan]) { background: linear-gradient(var(--surface-1), var(--surface-1)), linear-gradient(var(--surface-1), var(--surface-1)) var(--bg-card); } /* th and its row both paint surface-1 */
+  #page-portfolio .aio-table-scroll.has-more-left { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), rgb(0 0 0 / .18)); mask-image: linear-gradient(to right, #000 calc(100% - 32px), rgb(0 0 0 / .18)); }
+  #page-portfolio .aio-table-scroll.has-more-left:not(.has-more-right) { -webkit-mask-image: none; mask-image: none; }
+  #page-portfolio .aio-table-scroll.has-more-left > table :is(th, td):first-child:not([colspan]) { box-shadow: 6px 0 6px -6px rgba(var(--ink-rgb), .45); }
+}
 /* v57.55 review (E3-F6/F7): dark-mode contrast. The active screener chip kept the light-theme "dark text on solid
    accent" override over a 5% white surface (1.0:1); amber badges and chips hard-code #57513f, which is ~2.3:1 on the
    dark base; and the red token sat near 4.0:1 on cards at 12-14px. */
@@ -183,3 +270,17 @@ body.aio-term-pop-open #scroll-top-btn { display: none !important; }
 #pf-hero.is-empty > :not(#pf-hero-empty) { display: none !important; }
 #pf-hero.is-empty { padding-bottom: 16px; margin-bottom: 16px; }
 .pf-hero-empty { margin: 0; font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+/* v57.81: 비중 현황 | 섹터 배분. Both tracks shrink (minmax 0) and every child is bounded, so no control can push past its card;
+   below 640px the two cards stack. Touch screens get 44px cash boxes at 16px (no iOS focus zoom). */
+.pf-weight-row > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pf-allocation-grid { display: grid; grid-template-columns: minmax(200px, 240px) minmax(0, 1fr); gap: 12px; margin-bottom: 14px; }
+.pf-allocation-card { min-width: 0; box-sizing: border-box; }
+.pf-cash-row { display: grid; grid-template-columns: 48px minmax(0, 1fr); align-items: center; gap: 6px; margin-bottom: 6px; font-size: 12px; color: var(--text-secondary); text-align: left; }
+.pf-cash-row > input { width: 100%; min-width: 0; box-sizing: border-box; padding: 6px 10px; background: var(--surface-3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 12px; font-family: var(--font-mono); }
+.pf-cash-total { font-size: 11px; line-height: 1.5; color: var(--text-muted); text-align: left; overflow-wrap: anywhere; }
+.pf-cash-total:empty { display: none; }
+@media (max-width: 640px) { .pf-allocation-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (pointer: coarse) { .pf-cash-row > input { min-height: 44px; font-size: 16px; } }
+/* v57.81: an empty portfolio keeps 비중·섹터 for the cash boxes; the blank donut and its legend stay hidden until a holding exists. */
+#pf-main.is-empty .pf-donut-box, #pf-main.is-empty #pf-donut-legend { display: none; }

@@ -7,6 +7,7 @@ import { evaluateQuoteContract } from './quote-contract.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../../domain/fundamental/period.js';
 import { SEC_REFERENCE_TURNOVER_BOUNDS, SEC_MARGIN_HOLD_ABOVE_PCT } from '../../domain/fundamental/sec-report.js';
 import { finiteNumber as finite } from '../../domain/shared/number.js';
+import { EXTENDED_SHARD_URL, RANKING_CONTRACTS, expandShardRows, isValidShard, normalizeUniverseScope, rowMembership, shardIdentityRows } from '../screener-extended.js';
 
 // P1173 (17 작업 단위 4 / O07): this consumer declares which input set it can combine. The three
 // artifacts may be refreshed on their own cadence, so equal generation dates are not required; what is
@@ -221,6 +222,12 @@ export function createScreenerProvider({
   url = './public-data/screener.json',
   universeUrl = './public-data/screener-universe.json',
   modelValidationUrl = './public-data/model-validation-status.json',
+  // v57.81: the extended shard (Russell 2000 + Nasdaq beyond the core) is read only for the 확장 scope. Before its
+  // first load it is fetched only while allowExtendedFetch() says so (the screener route), so a remembered 확장 choice
+  // does not download it on another screen.
+  extendedUrl = EXTENDED_SHARD_URL,
+  readUniverseScope = () => 'core',
+  allowExtendedFetch = () => true,
   readLiveData = () => ({}),
   clock = { now: () => Date.now(), iso: () => new Date().toISOString() },
   yieldImpl = () => typeof globalThis.scheduler?.yield === 'function'
@@ -237,6 +244,7 @@ export function createScreenerProvider({
   // P1173: the previous read's member revisions, so a set assembled across publication transitions can
   // be recognised instead of being served as one complete observation.
   let previousPublicationSet = null;
+  let extendedCache = null;
 
   return Object.freeze({
     async readCurrent({ signal, refresh = true } = {}) {
@@ -266,6 +274,22 @@ export function createScreenerProvider({
       }
       const [artifactResponse, universeResponse, modelValidationResponse] = responses;
       checkAborted();
+      // v57.81: the default (core) view never requests the shard. 확장 reads it once and reuses it until a refresh.
+      const requestedScope = normalizeUniverseScope(readUniverseScope?.());
+      let extendedArtifact = null;
+      let extendedStatus = requestedScope === 'extended' ? 'unavailable' : 'not-requested';
+      let extendedError = null;
+      if (requestedScope === 'extended') {
+        if (extendedCache && !refresh) extendedArtifact = extendedCache;
+        else if (extendedCache || allowExtendedFetch?.() !== false) {
+          const response = await httpClient.requestJson(extendedUrl, { cache: 'no-cache', signal });
+          checkAborted();
+          if (response?.ok && isValidShard(response.data)) extendedCache = response.data;
+          else extendedError = response?.error || 'SCREENER_EXTENDED_INVALID';
+          extendedArtifact = extendedCache;
+        } else extendedStatus = 'deferred';
+        if (extendedArtifact) extendedStatus = 'loaded';
+      }
       const now = typeof clock.now === 'function' ? clock.now() : Date.now();
       const LIVE_QUOTE_MAX_AGE_MS = 15 * 60 * 1000;
       const receivedArtifact = artifactResponse.ok && artifactResponse.data && typeof artifactResponse.data === 'object'
@@ -317,10 +341,18 @@ export function createScreenerProvider({
         ? universeResponse.data.universe
         : [];
       const universeBySymbol = new Map(universe.map((row) => [String(row?.sym || '').toUpperCase(), row]));
-      const symbols = [...new Set([
+      const coreSymbols = [...new Set([
         ...universe.map((row) => String(row?.sym || '').toUpperCase()).filter(Boolean),
         ...Object.keys(artifact.data).map((symbol) => String(symbol).toUpperCase())
       ])];
+      // v57.81: shard rows expand to the core row schema; a symbol the core already holds is never taken from it.
+      const extendedData = extendedArtifact ? expandShardRows(extendedArtifact) : {};
+      const extendedIdentity = new Map(extendedArtifact ? shardIdentityRows(extendedArtifact).map((row) => [String(row.sym).toUpperCase(), row]) : []);
+      const coreMembership = extendedArtifact?.coreMembership && typeof extendedArtifact.coreMembership === 'object' ? extendedArtifact.coreMembership : {};
+      const coreSymbolSet = new Set(coreSymbols);
+      const extendedSymbols = [...extendedIdentity.keys()].filter((symbol) => !coreSymbolSet.has(symbol));
+      const extendedSymbolSet = new Set(extendedSymbols);
+      const symbols = extendedSymbols.length ? [...coreSymbols, ...extendedSymbols] : coreSymbols;
 
       let liveData = {};
       try {
@@ -340,8 +372,11 @@ export function createScreenerProvider({
       const usBenchmarkSession = usBenchmark?.factorSessionDate || null;
       const rows = [];
       for (const symbol of symbols) {
-        const identity = universeBySymbol.get(symbol) || {};
-        const factor = artifact.data[symbol] || {};
+        const isExtended = extendedSymbolSet.has(symbol);
+        // The artifact this row was published in: its asOf/source/rights maps describe the row (P1173 lineage).
+        const rowArtifact = isExtended ? extendedArtifact : artifact;
+        const identity = (isExtended ? extendedIdentity.get(symbol) : universeBySymbol.get(symbol)) || {};
+        const factor = (isExtended ? extendedData[symbol] : artifact.data[symbol]) || {};
         const live = liveBySymbol.get(symbol);
         // F07/V04: a Tokyo/Taiwan listing is neither US nor KR; the producer's listingMarket (or the suffix) says so.
         const market = /\.K[QS]$/i.test(symbol) || ['KOSPI', 'KOSDAQ'].includes(String(identity.index || '').toUpperCase()) ? 'KR'
@@ -407,8 +442,8 @@ export function createScreenerProvider({
           allowedUse: factor.allowedUse || null,
           price: useLivePrice ? live.price : useArtifactPrice ? factor.price : null,
           priceObservedAt: useLivePrice ? live.priceObservedAt : useArtifactPrice ? artifactPriceObservedAt : null,
-          priceFetchedAt: useLivePrice ? live.priceFetchedAt : useArtifactPrice ? (factor.fetchedAt || artifact.asOf || null) : null,
-          priceSource: useLivePrice ? live.priceSource : useArtifactPrice ? (factor.source || artifact.source || 'screener-artifact') : null,
+          priceFetchedAt: useLivePrice ? live.priceFetchedAt : useArtifactPrice ? (factor.fetchedAt || rowArtifact.asOf || null) : null,
+          priceSource: useLivePrice ? live.priceSource : useArtifactPrice ? (factor.source || rowArtifact.source || 'screener-artifact') : null,
           priceSourceKind: useLivePrice ? live.priceSourceKind : factor.sourceKind || null,
           priceAllowedUse: useLivePrice ? live.allowedUse : factor.allowedUse || null,
           priceAllowedUseCeiling: useLivePrice ? live.allowedUseCeiling : factor.allowedUseCeiling || null,
@@ -430,7 +465,7 @@ export function createScreenerProvider({
           factorSourceKind: factor.factorSourceKind || factor.sourceKind || null,
           factorAllowedUse: factor.factorAllowedUse || factor.allowedUse || null,
           factorQuality: factor.factorQuality || factor.quality || null,
-          priceRevision: useLivePrice ? live.priceRevision : useArtifactPrice ? (artifact.asOf || null) : null,
+          priceRevision: useLivePrice ? live.priceRevision : useArtifactPrice ? (rowArtifact.asOf || null) : null,
           livePriceRejectedReason: live.price == null ? null : useLivePrice ? null : !currencyCompatible ? (quoteContract.reason || 'currency-conflict') : !liveEvidenceEligible ? 'decision-evidence-ineligible' : 'not-newer-than-artifact',
           // P1174 (15 D06): 미완전 quote는 버리지 않고 진단으로 남긴다 — 통화 없는 가격이 조용히
           // 현재 가격이 되는 대신, 왜 채택되지 않았는지와 값이 여기에 남는다.
@@ -527,11 +562,11 @@ export function createScreenerProvider({
           _valuationPbPriceBasis: factor.pbPriceBasis || null,
           _valuationSharesOutstanding: finite(factor.valuationSharesOutstanding),
           _valuationSharesObservedAt: factor.valuationSharesObservedAt || null,
-          identityObservedAt: universeLastBulkUpdate || identity.validFrom || null,
-          identityFetchedAt: universeMeta.fetchedAt || null,
-          identitySource: 'public-data/screener-universe.json',
+          identityObservedAt: isExtended ? (extendedArtifact.membership?.generatedAt || null) : universeLastBulkUpdate || identity.validFrom || null,
+          identityFetchedAt: isExtended ? (extendedArtifact.membership?.generatedAt || null) : universeMeta.fetchedAt || null,
+          identitySource: isExtended ? 'public-data/screener-extended.json' : 'public-data/screener-universe.json',
           observedAt: factor.observedAt || null,
-          fetchedAt: factor.fetchedAt || artifact.asOf || null,
+          fetchedAt: factor.fetchedAt || rowArtifact.asOf || null,
           // P1167 (15 D05): 정적 유니버스 producer는 MIC·assetType을 발행하지 않고 시장은 심볼
           // suffix/index에서 추정한다. 그 사실을 조용한 null로 두면 '가격 조회 성공'이 '식별 metadata
           // 확인'으로 읽힌다. 어떤 필수 식별 필드가 미확인인지와 시장 출처를 행에 남긴다 —
@@ -549,22 +584,24 @@ export function createScreenerProvider({
             analysisEligibility: analysisEligibilityFor(instrumentRef.assetType),
             note: identityValidation.ok ? null : '정적 유니버스와 registry가 발행하지 않은 식별 필드가 있습니다 — 가격 조회 성공은 식별 확인이 아닙니다.'
           },
-          instrumentRef
+          instrumentRef,
+          // v57.81: only when the shard is loaded — the default view's rows (and their snapshot identity) are unchanged.
+          ...(extendedArtifact ? { universeTier: isExtended ? 'extended' : 'core', membership: rowMembership(identity, coreMembership[symbol]) } : {})
         };
         const rightsByField = Object.fromEntries(SCREENER_FIELD_REGISTRY.fields.map((definition) => [
           definition.fieldId,
-          resolveFieldRights(definition, factor, artifact, baseRow)
+          resolveFieldRights(definition, factor, rowArtifact, baseRow)
         ]));
         const sourceKindByField = Object.fromEntries(SCREENER_FIELD_REGISTRY.fields.map((definition) => [
           definition.fieldId,
-          resolveFieldSourceKind(definition, factor, artifact, baseRow)
+          resolveFieldSourceKind(definition, factor, rowArtifact, baseRow)
         ]));
         if (baseRow.nativeMarketCap) baseRow.nativeMarketCap.rightsId = rightsByField['valuation.marketCap'];
         const readiness = buildFieldReadiness(baseRow, {
           registry: SCREENER_FIELD_REGISTRY,
           now,
-          revisionId: artifact.asOf || 'unpublished',
-          sourceId: factor.source || artifact.source || 'screener-artifact',
+          revisionId: rowArtifact.asOf || 'unpublished',
+          sourceId: factor.source || rowArtifact.source || 'screener-artifact',
           sourceKind: factor.sourceKind === 'official-filing' ? 'T1_OFFICIAL' : 'T3_PUBLIC_DELAYED',
           rightsByField,
           sourceKindByField
@@ -628,7 +665,11 @@ export function createScreenerProvider({
       // that arrived with this read, so a member revision change must move the observation
       // identity even when no row value changes.
       const publicationRevisions = Object.fromEntries(publicationSet.members.map((entry) => [entry.member, entry.revision]));
-      const snapshotId = `screener-snapshot-${await stableHashAsync({ revision: artifact.asOf, source: artifact.source, publicationRevisions, rows: snapshotIdentityRows(rows) }, { yieldImpl, signal })}`;
+      // v57.81: the shard revision joins the identity only when it was read, so a core snapshot keeps its id.
+      const snapshotId = `screener-snapshot-${await stableHashAsync({ revision: artifact.asOf, source: artifact.source, publicationRevisions, ...(extendedArtifact ? { extendedRevision: extendedArtifact.asOf || null } : {}), rows: snapshotIdentityRows(rows) }, { yieldImpl, signal })}`;
+      if (requestedScope === 'extended' && extendedStatus !== 'loaded' && extendedStatus !== 'deferred') warnings.push('SCREENER_EXTENDED_UNAVAILABLE');
+      if (extendedArtifact && !asOfIsFresh(extendedArtifact.asOf, now, ARTIFACT_STALE_AFTER_DAYS)) warnings.push('SCREENER_EXTENDED_STALE');
+      const universeScope = extendedArtifact ? 'extended' : 'core';
 
       return Object.freeze({
         rows,
@@ -649,9 +690,28 @@ export function createScreenerProvider({
           factorComputedAt: artifact.factorComputedAt || null,
           // 2026-10-13 S&P 500 map weights (absent until the producer embeds them).
           indexWeights: artifact.indexWeights && Array.isArray(artifact.indexWeights.rows) ? artifact.indexWeights : null,
-          universe: Number(artifact.universe) || symbols.length,
+          universe: Number(artifact.universe) || coreSymbols.length,
           artifactRows: Object.keys(artifact.data).length,
           universeRows: universe.length,
+          // v57.81: which population the rows (and the ranking computed on them) cover.
+          universeScope,
+          requestedUniverseScope: requestedScope,
+          rankingContractScope: RANKING_CONTRACTS[universeScope],
+          coreUniverseRows: coreSymbols.length,
+          extended: requestedScope === 'extended' ? {
+            status: extendedStatus,
+            error: extendedError,
+            rows: extendedSymbols.length,
+            artifactRows: Object.keys(extendedData).length,
+            asOf: extendedArtifact?.asOf || null,
+            factorSessionDateByMarket: extendedArtifact?.factorSessionDateByMarket ? { ...extendedArtifact.factorSessionDateByMarket } : null,
+            coverage: extendedArtifact?.coverage ? { ...extendedArtifact.coverage } : null,
+            membership: extendedArtifact?.membership ? { ...extendedArtifact.membership } : null,
+            unfetched: Array.isArray(extendedArtifact?.unfetchedSymbols) ? extendedArtifact.unfetchedSymbols.length : null,
+            fundamentalCoveragePct: numberOrNull(extendedArtifact?.fundamentalCoveragePct),
+            rankingContract: extendedArtifact?.rankingContract || null,
+            source: extendedUrl
+          } : null,
           universeCurrentness,
           universeLastBulkUpdate,
           universeStaleAfterDays,

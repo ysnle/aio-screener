@@ -2,9 +2,11 @@ import { isDecisionQuality, isValidRightsId, normalizeAllowedUse, hasObservedPas
 import { canonicalSourceTier, isDecisionEligibleSourceKind } from './contracts/source-kind.js';
 import { QUOTE_IDENTITIES } from './contracts/market-snapshot.js';
 import { readPortfolioAssumptions } from './portfolio-assumptions.js';
+import { readCashBalances } from './portfolio-cash.js';
 import { normalizeSignalScoreMode } from '../domain/signal/mode.js';
 import { resolveCloseBasis, selectCloseBasisObservation, describeCloseBasis, CLOSE_BASIS_QUOTE_KEYS, CLOSE_BASIS_DAILY_KEYS } from '../domain/signal/close-basis.js';
 import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
+import { historyFieldSessionDate } from '../domain/market/history-session.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { finiteNumber as finite } from '../domain/shared/number.js';
 
@@ -536,7 +538,7 @@ function decisionInputs(root, nowMs = Date.now()) {
     if (!['dxy', 'oilPrice'].includes(key) || !selectedBasis?.date) return null;
     const item = history.find((row) => row?.date >= selectedBasis.date && finite(row[field]) != null
       && row.fieldMeta?.[field]?.observationRelation === 'previous-completed-close'
-      && row.fieldMeta[field].observedAtSource === 'provider-previous-close' && (row.fieldMeta[field].sessionDate || nyDate(row.fieldMeta[field].observedAt)) === selectedBasis.date);
+      && row.fieldMeta[field].observedAtSource === 'provider-previous-close' && (historyFieldSessionDate(row.fieldMeta[field], field) || nyDate(row.fieldMeta[field].observedAt)) === selectedBasis.date);
     return item ? { ...item.fieldMeta[field], value: item[field], observedAt: selectedBasis.date, valueBasis: 'latest-completed-close', session: 'COMPLETED' } : null;
   };
   const pick = (selectedBasis, key, id) => {
@@ -704,28 +706,25 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
           currency: String(position?.currency || position?.priceCurrency || quote.currency || '').trim().toUpperCase() || null,
           costCurrency: String(position?.costCurrency || '').trim().toUpperCase() || null };
       }).filter((item) => item.symbol) : [];
-      let cash = null;
-      let cashKnown = false;
-      try {
-        const rawCash = root?.localStorage?.getItem?.('aio_portfolio_cash');
-        if (rawCash != null && String(rawCash).trim() !== '') {
-          const parsedCash = Number(rawCash);
-          if (Number.isFinite(parsedCash) && parsedCash >= 0) { cash = parsedCash; cashKnown = true; }
-        }
-      } catch (_) {}
+      // v57.81: cash is one balance per currency (src/data/portfolio-cash.js). A legacy single value is read as one
+      // balance in its declared currency until the new model is saved; the reader never writes.
+      const cashRead = readCashBalances(root?.localStorage);
+      const cashBalances = cashRead.balances.map((row) => ({ ...row }));
+      const cashKnown = cashRead.known;
+      const cash = cashBalances.length === 1 ? cashBalances[0].amount : null;
       // E3/P1188 (11 P11-02): 통화 선언은 입력이다 — 폼이 쓴 선언을 reader가 그대로 넘긴다.
       // 없으면 null이고 시세·티커·locale로 추정하지 않는다.
       // E0/P1280: 선언의 정본은 localStorage 키(readPortfolioAssumptions)다 — 죽은 state 폴백은 제거됐다.
       const assumptions = readPortfolioAssumptions(root?.localStorage);
       const baseCurrency = assumptions.baseCurrency || null;
-      const cashCurrency = assumptions.cashCurrency || null;
+      const cashCurrency = cashBalances.length === 1 ? cashBalances[0].currency : null;
       // E4/P1191: 원장도 선언 입력이다 — 셸이 Vault 경로로 보관한 선언을 reader가 그대로 넘긴다.
       const ledger = typeof root?.getPortfolioLedger === 'function' ? clone(root.getPortfolioLedger()) : null;
       // E3/P1194: 선언된 FX leg도 같은 경계를 지난다 — 환산 근거가 reader에서 사라지면 surface는 못 본다.
       const fxLegs = typeof root?.getPortfolioFxLegs === 'function' ? clone(root.getPortfolioFxLegs()) : [];
       // totals stays null by ownership: totals are derived once in the portfolio surface,
       // not computed independently by a reader (the retired facade copy is gone with P1280).
-      return { baseCurrency, cashCurrency, ledger, fxLegs: Array.isArray(fxLegs) ? fxLegs : [], holdings, holdingsKnown: true, cash, cashKnown, readState: 'ready', totals: null, privacy: 'opt-in', status: holdings.length ? 'current' : 'empty', updatedAt: latestIso(holdings.map((row) => row.quoteObservedAt)) || null };
+      return { baseCurrency, cashCurrency, cashBalances, ledger, fxLegs: Array.isArray(fxLegs) ? fxLegs : [], holdings, holdingsKnown: true, cash, cashKnown, readState: 'ready', totals: null, privacy: 'opt-in', status: holdings.length ? 'current' : 'empty', updatedAt: latestIso(holdings.map((row) => row.quoteObservedAt)) || null };
     } catch (_) { return { holdings: [], holdingsKnown: false, cash: null, cashKnown: false, readState: 'failed', privacy: 'opt-in', status: 'unavailable', updatedAt: null }; }
   };
 

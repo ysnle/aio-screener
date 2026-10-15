@@ -4,7 +4,7 @@
 // screen reads are published here as typed reference evidence: fixed metric ids, the real close date as `asOf`, one
 // source ('close-basis'), so a claim can bind to exactly the value the user sees. Live rows stay live; a stale live
 // row is pointed at its close-basis substitute instead of being silently relabelled.
-import { alignMarketInputs, buildCloseSeries } from '../../domain/briefing/market-read.js';
+import { alignMarketInputs, buildCloseSeries, krSessionThrough, sessionPointBack } from '../../domain/briefing/market-read.js';
 import { countOpenSessionsBetween, latestCompletedUsSession } from '../../domain/market/market-calendar.js';
 
 export const CLOSE_BASIS_SOURCE = 'close-basis';
@@ -20,6 +20,9 @@ const METRICS = Object.freeze([
   { field: 'wti', metric: 'close.wti', entity: 'WTI', label: 'WTI 종가', unit: 'usd_per_barrel', digits: 2, change: null, symbols: ['CL=F', 'WTI'] },
   { field: 'gold', metric: 'close.gold', entity: 'GOLD', label: '금 종가', unit: 'usd_per_ounce', digits: 1, change: null, symbols: ['GC=F'] },
   { field: 'kospi', metric: 'close.kospi', entity: 'KOSPI', label: '코스피 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^KS11', 'KOSPI'] },
+  // v57.81 (analysis audit 2026-10-15): KOSDAQ fell 7.65% on 10/15 and the AI had no typed row for it. It is read from its
+  // own KRX close series on the same rule as the KOSPI (completed KRX session, at most two sessions behind).
+  { field: 'kosdaq', metric: 'close.kosdaq', entity: 'KOSDAQ', label: '코스닥 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^KQ11', 'KOSDAQ'], kr: true },
   { field: 'usdkrw', metric: 'close.usdkrw', entity: 'USDKRW', label: '원/달러 종가', unit: 'krw_per_usd', digits: 2, change: null, symbols: ['KRW=X', 'USDKRW'] }
 ]);
 
@@ -36,6 +39,19 @@ function row({ metric, entity, label, value, unit, date, observedAt, basis, alig
   });
 }
 
+// A Korean index outside the shared alignment set: its last completed KRX close (at most two KRX sessions behind the
+// latest completed one, the KOSPI rule in alignMarketInputs) and the close one KRX session before it.
+function krSessionStat(history, field, nowMs) {
+  const through = krSessionThrough(Number.isFinite(nowMs) ? nowMs : Date.now());
+  if (!through) return null;
+  const series = buildCloseSeries(history, field, { through });
+  const last = series.at(-1);
+  if (!last) return null;
+  const lag = countOpenSessionsBetween(last.date, through, 'KR');
+  if (lag > 2) return null;
+  return { stat: { date: last.date, value: last.value, d1: sessionPointBack(series, 1, 'KR')?.value ?? null }, alignment: lag === 0 ? 'aligned' : 'lagged' };
+}
+
 /** Typed reference rows for the completed closes the screen reads (same alignment rules as the regime board). */
 export function buildCloseBasisEvidence(input = {}) {
   let aligned;
@@ -49,10 +65,11 @@ export function buildCloseBasisEvidence(input = {}) {
   if (latest && latest > basis && countOpenSessionsBetween(basis, latest, 'US') > 2) return [];
   const out = [];
   for (const def of METRICS) {
-    const stat = s[def.field];
+    const krStat = def.kr ? krSessionStat(input.history, def.field, nowMs) : null;
+    const stat = def.kr ? krStat?.stat : s[def.field];
     if (!stat || !finite(stat.value)) continue;
     const provenance = buildCloseSeries(input.history, def.field, { through: stat.date, includeProvenance: true }).at(-1);
-    const shared = { entity: def.entity, date: stat.date, observedAt: provenance?.date === stat.date ? provenance.observedAt : stat.date, basis, alignment: alignments?.[def.field]?.status || null, market: def.field === 'kospi' ? 'KR' : 'US' };
+    const shared = { entity: def.entity, date: stat.date, observedAt: provenance?.date === stat.date ? provenance.observedAt : stat.date, basis, alignment: def.kr ? krStat.alignment : alignments?.[def.field]?.status || null, market: def.kr || def.field === 'kospi' ? 'KR' : 'US' };
     out.push(row({ ...shared, metric: def.metric, label: def.label, value: round(stat.value, def.digits), unit: def.unit }));
     if (def.change === 'pct' && finite(stat.d1) && stat.d1 !== 0) {
       out.push(row({ ...shared, metric: `${def.metric}.chg1d`, label: `${def.label.replace(/ 종가$/, '')} 1거래일 변화`, value: round((stat.value / stat.d1 - 1) * 100, 2), unit: 'percent' }));

@@ -44,7 +44,7 @@ const optional = { requirement: 'OPTIONAL', currentSensitive: false };
 assert.equal(select({ decision: optional, questionPlan: { ...plan, query: 'NVDA 재무 요약' }, internalReferenceEvidence: { deep: true } }), false, 'P1608 existing company evidence avoids optional search');
 assert.equal(select({ decision: optional, questionPlan: { ...plan, query: 'NVDA 경쟁 해자' }, internalReferenceEvidence: { deep: true } }), true, 'P1608 financial evidence alone does not cover a moat question');
 assert.equal(select({ decision: optional, internalReferenceEvidence: {} }), true, 'P1608 missing optional company evidence permits supplementation');
-const start = chat.indexOf('async function callClaude(');
+const start = chat.indexOf('async function callSharedAi(');
 const end = chat.indexOf('\nvar _detectSectorQuery', start);
 assert.ok(start >= 0 && end > start, 'P1608 production adapter extraction exists');
 let sent, done, error;
@@ -59,7 +59,7 @@ const context = vm.createContext({ window: { AIO: { attachNativeSearch } }, cons
   _aioFetchClaudeWithRetry: async (_url, init) => { sent = JSON.parse(init.body); return new Response(events.map(event => 'data: ' + JSON.stringify(event) + '\n\n').join(''), { headers: { 'Content-Type': 'text/event-stream' } }); },
   _aioChatError: value => ({ displayMessage: value.message }) });
 vm.runInContext(chat.slice(start, end), context);
-await context.callClaude('public context', [{ role: 'user', content: '최근 공시를 확인해줘' }], () => {}, text => { done = text; }, text => { error = text; }, { webSearch: true, requestId: 'test-query' });
+await context.callSharedAi('public context', [{ role: 'user', content: '최근 공시를 확인해줘' }], () => {}, text => { done = text; }, text => { error = text; }, { webSearch: true, requestId: 'test-query' });
 assert.equal(error, undefined, 'P1608 actual adapter completes offline search fixture');
 assert.equal(done, '참고 설명', 'P1608 source-based reference answer remains visible');
 assert.equal(sent.tools[0].type, 'web_search', 'P1608 actual common transport attaches hosted search');

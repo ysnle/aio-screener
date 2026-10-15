@@ -64,8 +64,8 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   };
   const fg = c.fg;
   const ratio = isUsable(ratioAlign) ? shown.ratio : null;
-  const { hyBp, hy5, hy20, pcr } = c;
-  const credit_ = creditState({ hyBp, hy5, hy20, pcr });
+  const { hyBp, hy5, hy20, pcr, hy20Stress } = c;
+  const credit_ = creditState({ hyBp, hy5, hy20, pcr, hy20Stress }); // v57.81: the same 20-session record test as the axis
   const bear = isUsable(aaiiAlign) ? shown.bear : null;
   const bull = bear == null ? null : shown.bull;
   const judged = (value, state) => value == null ? (state === undefined ? null : EXCLUDED) : state;
@@ -88,7 +88,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
       change: [shown.hy5 == null ? null : `5일 ${shown.hy5 >= 0 ? '+' : ''}${Math.round(shown.hy5)}bp`, hy20 == null ? null : `20거래일 ${hy20 >= 0 ? '+' : ''}${Math.round(hy20)}bp`].filter(Boolean).join(' · '),
       // v57.77: the card keeps one line; the edges move into the card's folded explanation (rules).
       note: '고위험 회사채가 국채보다 더 받는 금리 — 돈 빌리기가 어려워질수록 커지며, 시장 상태 신용 축과 같은 판정',
-      rules: `${RULES.credit.stressAtBp}bp 이상이거나 5일 사이 +${RULES.credit.widen5dBp}bp 이상 벌어지면 부담, ${RULES.credit.tightBelowBp}bp 미만이면서 5일 확대가 없고 20거래일 확대가 +${RULES.credit.widen20dBp}bp 미만이며 풋/콜이 ${RULES.credit.putCallHedgeAt} 미만일 때만 양호, 그 밖은 중립입니다. 시장 상태의 '신용 · 위험선호' 축과 같은 판정입니다.` },
+      rules: `${RULES.credit.stressAtBp}bp 이상이거나 5일 사이 +${RULES.credit.widen5dBp}bp 이상 벌어지거나 20거래일 확대 폭이 자체 기록 상위 ${100 - RULES.credit.stress20dPct}%면 부담(20거래일 확대가 +${RULES.credit.widen20dBp}bp 아래로 줄 때까지 유지), ${RULES.credit.tightBelowBp}bp 미만이면서 5일 확대가 없고 20거래일 확대가 +${RULES.credit.widen20dBp}bp 미만이며 풋/콜이 ${RULES.credit.putCallHedgeAt} 미만일 때만 양호, 그 밖은 중립입니다. 시장 상태의 '신용 · 위험선호' 축과 같은 판정입니다.` },
     { id: 'pcr', title: '풋/콜 비율', value: shown.pcr == null ? '—' : shown.pcr.toFixed(2), basis: alignmentLabel(alignments.pcr), basisStatus: alignments.pcr.status,
       // T10: the card reads the same RULES edges as the credit axis (1.1 hedging, below 0.7 optimism). D19: level only, neutral tone.
       state: shown.pcr == null ? null : judged(pcr, pcr >= RULES.credit.putCallHedgeAt ? { label: '하락 대비 수요 높음', tone: LEVEL_TONE } : pcr < RULES.credit.putCallOptimismBelow ? { label: '콜 우위 (낙관 쪽)', tone: LEVEL_TONE } : { label: '중립', tone: LEVEL_TONE }),
@@ -125,7 +125,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   let synthesis;
   if (!moodKnown) synthesis = '기준일에 맞는 심리 지표(F&G·AAII)가 없어 종합 판단을 보류합니다.';
   else if (fearful && creditCalm && volCalm) synthesis = `${fearSource}는 비관 쪽인데 신용(${Math.round(hyBp)}bp)과 변동성 구조(${ratio.toFixed(2)})는 안정 — 비관이 심리 지표에 머물러 있고 신용·변동성 스트레스로는 번지지 않았습니다.`;
-  else if (fearful && (creditStress || (volKnown && !volCalm))) synthesis = `${fearSource}의 비관과 함께 ${[creditStress ? `신용 스프레드(${Math.round(hyBp)}bp${hy5 != null ? `, 5일 ${hy5 >= 0 ? '+' : ''}${Math.round(hy5)}bp` : ''})도 부담(스트레스) 구간` : null, volKnown && !volCalm ? `변동성 구조도 역전(${ratio.toFixed(2)})` : null].filter(Boolean).join(', ')} — 위험 회피가 심리 지표를 넘어 퍼지고 있습니다.`;
+  else if (fearful && (creditStress || (volKnown && !volCalm))) synthesis = `${fearSource}의 비관과 함께 ${[creditStress ? `신용 스프레드(${Math.round(hyBp)}bp${hy5 != null ? `, 5일 ${hy5 >= 0 ? '+' : ''}${Math.round(hy5)}bp` : ''}${hy20Stress && hy20 != null ? `, 20거래일 +${Math.round(hy20)}bp` : ''})도 부담(스트레스) 구간` : null, volKnown && !volCalm ? `변동성 구조도 역전(${ratio.toFixed(2)})` : null].filter(Boolean).join(', ')} — 위험 회피가 심리 지표를 넘어 퍼지고 있습니다.`;
   else if (fearful && creditKnown && volKnown) synthesis = `${fearSource}는 비관 쪽이고 신용 스프레드(${Math.round(hyBp)}bp${hy20 != null ? `, 20거래일 ${hy20 >= 0 ? '+' : ''}${Math.round(hy20)}bp` : ''})는 중립(양호 조건 미충족)입니다 — 비관이 신용으로 번지는지 확인할 단계입니다.`;
   else if (fearful) synthesis =`${fearSource}는 비관 쪽이지만 ${[!creditKnown ? '신용 스프레드' : null, !volKnown ? '변동성 구조' : null].filter(Boolean).join('·')} 자료가 기준일에 없어 비관이 번졌는지 확인하지 못했습니다.`;
   else if (greedy) synthesis = hedgeLow ? `낙관이 강하고(F&G ${Math.round(fg)}) 헤지 수요가 낮음(풋/콜 ${pcr.toFixed(2)}) — 충격 대비가 약한 상태입니다.` : `낙관이 강합니다(F&G ${Math.round(fg)}). 풋/콜 비율이 ${pcr == null ? '없어 헤지 수요는 확인하지 못했습니다' : `${pcr.toFixed(2)}로 헤지 수요가 낮지는 않습니다`}.`;
@@ -141,8 +141,16 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   // 20-session direction is said beside it.
   const fgPrev = fgSeries.length >= 2 ? fgSeries[fgSeries.length - 2].value : null;
   const fg1 = fg != null && fgPrev != null ? Math.round(fg) - Math.round(fgPrev) : null;
-  const turn = fg1 != null && fg20 != null && Math.abs(fg1) >= 5 && Math.sign(fg1) !== Math.sign(fg20) && Math.abs(fg20) >= 5
-    ? ` 다만 직전 기록보다 ${Math.abs(fg1)} ${fg1 < 0 ? '낮아져' : '높아져'} 최근 움직임은 반대 방향입니다.` : '';
+  // v57.81 (audit 2026-10-15): F&G 44 -> 30 on 10/14 (1일 -14, 5일 -12) read "20거래일 전과 비슷한 수준(+3)". A one- or
+  // five-session move of RULES.sentiment.namedMovePt or more is always named.
+  const fgBack5 = fgSeries.length >= 6 ? fgSeries[fgSeries.length - 6].value : null;
+  const fg5 = fg != null && fgBack5 != null ? Math.round(fg) - Math.round(fgBack5) : null;
+  const named = RULES.sentiment.namedMovePt;
+  const bigMove = fg1 != null && Math.abs(fg1) >= named ? ['직전 기록', fg1] : fg5 != null && Math.abs(fg5) >= named ? ['5거래일 전', fg5] : null;
+  const against = (move) => fg20 != null && Math.abs(fg20) >= 5 && Math.sign(move) !== Math.sign(fg20);
+  const turn = bigMove ? ` ${against(bigMove[1]) ? '다만 ' : ''}${bigMove[0]}보다 ${Math.abs(bigMove[1])} ${bigMove[1] < 0 ? '낮아져' : '높아져'} ${against(bigMove[1]) ? '최근 움직임은 반대 방향입니다' : `최근 ${bigMove[1] < 0 ? '비관' : '낙관'} 쪽으로 크게 움직였습니다`}.`
+    : fg1 != null && fg20 != null && Math.abs(fg1) >= 5 && against(fg1)
+      ? ` 다만 직전 기록보다 ${Math.abs(fg1)} ${fg1 < 0 ? '낮아져' : '높아져'} 최근 움직임은 반대 방향입니다.` : '';
   if (moodKnown) synthesis = `${synthesis}${direction}${turn}${aaiiLine ? ` ${aaiiLine}` : ''}`;
   // v57.54 audit (10): the first mention spells the index out; later ones keep the short name.
   if (moodKnown) synthesis = synthesis.replace(/F&G/, '공포·탐욕 지수(F&G)');

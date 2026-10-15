@@ -26,6 +26,7 @@ import { EVIDENCE_LINEAGE_VERSION } from '../../domain/screener/evidence-lineage
 import { withTopicParticle } from '../../domain/content/korean-particle.js';
 import { MARKET_LABELS, screenerMarket, marketRows, marketRankingMetadata, formatScreenerPrice } from '../../domain/screener/market-scope.js';
 import { EXTENSION_BANDS } from '../../domain/screener/setup-profile.js';
+import { bufferedTrend, trendHeldWithMargin, modelContraryEvidence } from '../../domain/technical/bands.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { sectorsForEtf } from '../../domain/entity/stock-read.js';
 import { consensusView } from '../../domain/fundamental/consensus-read.js';
@@ -33,9 +34,11 @@ import { parseConditionValue, matchesConditions, conditionCoverage, availableCon
 import { installCustomConditions } from '../components/screener-custom.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { sectorLabel } from '../../domain/screener/screener-read.js';
-import { themeStagesFor } from '../../domain/scenarios/theme-stage.js';
+import { themeStagesFor, scenarioStateCurrent } from '../../domain/scenarios/theme-stage.js';
 import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
+// v57.81: universe scope (기본/확장) and the ranking contract labels.
+import { RANKING_CONTRACTS, readUniverseScope, rememberExtendedCount, writeUniverseScope } from '../../data/screener-extended.js';
 
 // 2026-10-14 audit #18: index keys as the artifact writes them → the names a Korean reader uses.
 const INDEX_LABELS = Object.freeze({ SP500: 'S&P 500', SP400: 'S&P 400', NASDAQ100: '나스닥100', NASDAQ: '나스닥', RUSSELL2000: '러셀2000' });
@@ -50,9 +53,9 @@ const INDEX_CODE_LABELS = Object.freeze({
 });
 
 // 2026-10-14 audit #5: each ranked row carries its themes' stages (same rows as 테마 시나리오) so the reading can count
-// the top fifth by stage. Nothing is attached when the per-refresh scenario state is not 'ok'.
+// the top fifth by stage. Nothing is attached when the per-refresh scenario state is not current.
 function withThemeStages(root, rows) {
-  if (root?._aioScenarioState?.status !== 'ok') return rows;
+  if (!scenarioStateCurrent(root?._aioScenarioState)) return rows; // v57.81: the producer's 'current' (theme-stage.js)
   const membership = new Map();
   const add = (sym, id) => { if (!sym || !id) return; const key = String(sym).toUpperCase(); if (!membership.has(key)) membership.set(key, new Set()); membership.get(key).add(id); };
   for (const theme of Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : []) {
@@ -182,7 +185,16 @@ function cell(documentRef, value, className = '', style = '') {
 }
 function returnText(value) { return finite(value) == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`; }
 function returnColor(value) { return finite(value) == null ? 'var(--text-muted)' : value >= 0 ? 'var(--data-green)' : 'var(--data-red)'; }
-function entryTiming(row) {
+// v57.81: momentum and trend scores are z-scores inside the sector, so a sector-wide selloff leaves its best names high.
+// Green needs the absolute check too (bands.js bufferedTrend 'up'); otherwise a high score is shown in the neutral colour.
+const SECTOR_RELATIVE_PRICE_FACTORS = new Set(['momentum', 'trend']);
+export function factorScoreColor(key, value, row, neutral = 'var(--text-primary)') {
+  const score = finite(value);
+  if (score == null) return 'var(--text-muted)';
+  if (score >= 66) return !SECTOR_RELATIVE_PRICE_FACTORS.has(key) || bufferedTrend(row)?.id === 'up' ? 'var(--data-green)' : neutral;
+  return score >= 40 ? 'var(--data-amber)' : 'var(--data-red)';
+}
+export function entryTiming(row) {
   const rank = finite(row.rank);
   const rsi = finite(row.rsi);
   const momentum = finite(row.ret1m) ?? (finite(row.ret3m) == null ? null : row.ret3m / 3);
@@ -197,8 +209,10 @@ function entryTiming(row) {
   if (setup.relativeStrengthPullback === 'candidate') return ['상대강도 눌림', 'entry-watch'];
   if (setup.support200 === 'near') return ['200일선 부근', 'entry-watch'];
   // v57.55 review (E1-12): '추세 양호' beside a price 6% under its 50-day line — the label now needs the price above that line.
-  const above50 = finite(row.pctSma50) == null || finite(row.pctSma50) >= 0;
-  if (rank >= 65 && above50 && (rsi == null || (rsi >= 38 && rsi <= 68)) && (momentum == null || momentum > 0)) return ['상위권·추세 양호', 'entry-ready'];
+  // v57.81: and above it by one daily range (ADR), above the 200-day line, with no five-session break (technical/bands.js,
+  // the stock page's own trend states). A missing value fails: PYPL at +0.01% and MRVL after -13.8% in five sessions
+  // fall back to 중상위권.
+  if (rank >= 65 && trendHeldWithMargin(row) && rsi != null && rsi >= 38 && rsi <= 68 && momentum != null && momentum > 0) return ['상위권·추세 양호', 'entry-ready'];
   if (rank >= 48 && (rsi == null || (rsi >= 30 && rsi <= 74))) return ['중상위권', 'entry-watch'];
   return ['중립권', 'entry-wait'];
 }
@@ -303,7 +317,8 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
 
   return rows.filter((row) => {
     if (screenerMarket(row) !== listingMarket) return false;
-    if (market && row.index !== market) return false;
+    // v57.81: in the 확장 view a stock can belong to several lists (S&P 500 and Nasdaq, Russell 2000 and Nasdaq).
+    if (market && row.index !== market && !(Array.isArray(row.membership) && row.membership.includes(market))) return false;
     if (sector && row.sector !== sector) return false;
     // P1318/R664: a size bucket is a reference filter — use the decision-grade live value when it
     // exists, otherwise the plausibility-checked SEC reference value; unknown size stays excluded.
@@ -427,7 +442,10 @@ function createRankNode(documentRef, row, hold = null) {
   else {
     const value = documentRef.createElement('div');
     value.textContent = String(rank);
-    wrap.title = `${MARKET_LABELS[screenerMarket(row)]} 시장의 계산 가능한 종목 중 백분위 ${rank} — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.`;
+    // v57.81: the percentile names its population — the core universe, or core + Russell 2000·Nasdaq (확장).
+    const contract = RANKING_CONTRACTS[row.rankingUniverse === 'extended' ? 'extended' : 'core'];
+    wrap.dataset.rankingContract = contract.id;
+    wrap.title = `${MARKET_LABELS[screenerMarket(row)]} 시장의 계산 가능한 종목 중 백분위 ${rank} · ${contract.label} — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.`;
     // v57.54: a descriptive position, not a verdict — one neutral colour, no green/red judgement.
     value.style.cssText = 'font-family:var(--font-mono);font-weight:700;font-size:11px;color:var(--text-primary);';
     const bar = documentRef.createElement('div');
@@ -460,7 +478,10 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     compare.className = `scr-compare-btn${compareSymbols?.has(row.sym) ? ' active' : ''}`;
     compare.textContent = compareSymbols?.has(row.sym) ? '✓' : '+';
     compare.title = compareSymbols?.has(row.sym) ? '비교 목록에서 빼기' : '비교 목록에 넣기';
-    compare.setAttribute('aria-label', `${row.sym} 비교 ${compareSymbols?.has(row.sym) ? '제거' : '추가'}`);
+    // v57.81: a toggle names its state with aria-pressed; the label stays the same so focus returns to it after re-render.
+    compare.setAttribute('aria-label', `${row.sym} 비교 목록`);
+    compare.setAttribute('aria-pressed', compareSymbols?.has(row.sym) ? 'true' : 'false');
+    compare.setAttribute('aria-controls', 'scr-compare-tray');
     compare.dataset.aioScreenerCompare = row.sym;
     compare.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); onCompare?.(row); });
     wrap.append(star, compare);
@@ -485,7 +506,8 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     const value = row.factorScores?.[key];
     const node = documentRef.createElement('span');
     node.textContent = value == null ? '—' : Number(value).toFixed(0);
-    node.style.color = value == null ? 'var(--text-muted)' : value >= 66 ? 'var(--data-green)' : value >= 40 ? 'var(--data-amber)' : 'var(--data-red)';
+    node.style.color = factorScoreColor(key, value, row);
+    if (SECTOR_RELATIVE_PRICE_FACTORS.has(key)) node.title = '같은 섹터 안에서 비교한 값 — 섹터 전체가 내릴 때도 높게 나올 수 있어, 50·200일선과 최근 5거래일 확인을 통과할 때만 초록으로 표시';
     return node;
   }
   if (key === 'price') {
@@ -852,7 +874,12 @@ function renderBacktest(documentRef, metadata, root = globalThis, rows = null) {
   const net = finite(backtest.quantileSpreadNet);
   const gross = finite(backtest.quantileSpread);
   const rebalances = finite(backtest.rebalancesCounted) ?? (Array.isArray(backtest.rebalanceDates) ? backtest.rebalanceDates.length : null);
-  const wins = finite(backtest.hitRate) != null && rebalances ? Math.round(backtest.hitRate / 100 * rebalances) : null;
+  // v57.81: one count basis with the reading above (summarizeValidation uses netHitRate) — net of cost, named as such.
+  // A record without the net rate shows the gross count labelled 비용 전, never unlabelled.
+  const netWinRate = finite(backtest.netHitRate);
+  const winBasis = netWinRate != null ? '비용 후' : '비용 전';
+  const winRate = netWinRate ?? finite(backtest.hitRate);
+  const wins = winRate != null && rebalances ? Math.round(winRate / 100 * rebalances) : null;
   // 2026-10-13 review S05: the fingerprint proves the factor definition and weights; the IC/spread sample itself
   // pools the US and KR rows (n=986), so the sentence names the pooled sample instead of claiming one population.
   const parity = fingerprintMatches ? `현재 화면 순위와 같은 모델(같은 팩터 정의 · 같은 가중 지문)로 과거 시점을 다시 매긴 결과입니다 — 순위는 시장별로 매기지만 IC·분위 수익률은 미국·한국 합산 표본(${backtest.n ?? '—'}종목)입니다`
@@ -878,7 +905,7 @@ function renderBacktest(documentRef, metadata, root = globalThis, rows = null) {
   const facts = el('dl', null, 'regime-evidence');
   const add = (k, v) => facts.append(el('dt', k), el('dd', v));
   add('상위−하위 20% (21거래일)', `비용 전 ${gross == null ? '—' : `${gross.toFixed(2)}%`} · 비용 후 ${net == null ? '—' : `${net.toFixed(2)}%`} (같은 ±1 노출 기준)`);
-  add('상위가 하위를 앞선 횟수', wins == null ? '—' : `${rebalances}번 중 ${wins}번 — 종목별 방향 적중률이 아니라 분위 수익률 차이가 양수였던 리밸런스의 비율입니다`);
+  add('상위가 하위를 앞선 횟수', wins == null ? '—' : `${winBasis} 기준 ${rebalances}번 중 ${wins}번 — 종목별 방향 적중률이 아니라 분위 수익률 차이가 양수였던 리밸런스의 비율입니다`);
   add('표본', `미국·한국 합산 ${backtest.n ?? '—'}종목 · 리밸런스 ${rebalances ?? '—'}회 · 현재 종목 구성(생존 편향) · 거래비용은 가정값`);
   add('검증하지 않은 요인', (backtest.modelParity?.notValidated || backtest.excludedFactors || ['size', 'value · quality']).join(' · '));
   add('가중치', `${backtest.weightRegime || 'NEUTRAL'} 고정 — 국면 틸트 후보는 검증·적용되지 않음`);
@@ -1248,6 +1275,49 @@ function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavai
   }
 }
 
+// v57.81: 종목 범위 control text and the one-line notes for what stays core-only. The option counts come from the rows
+// that arrived (기본 = this market's core rows; 확장 = the shard's rows, remembered from the last load).
+function syncUniverseScopeControl(documentRef, root, state, listingMarket) {
+  const select = documentRef.getElementById('scr-universe-scope');
+  if (!select) return;
+  const metadata = state?.metadata || {};
+  const extended = metadata.extended || null;
+  const rows = Array.isArray(state?.rows) ? state.rows : [];
+  const coreCount = rows.filter((row) => screenerMarket(row) === 'US' && row.universeTier !== 'extended').length;
+  const extendedCount = extended?.status === 'loaded' ? rememberExtendedCount(root, extended.rows) : rememberExtendedCount(root);
+  const [coreOption, extendedOption] = select.options;
+  if (coreOption) coreOption.textContent = coreCount ? `기본 (${coreCount}종목)` : '기본';
+  if (extendedOption) extendedOption.textContent = `확장 — 러셀2000·나스닥 전체${extendedCount ? ` (+${extendedCount})` : ''}`;
+  const wrap = select.closest('label');
+  if (wrap) wrap.hidden = listingMarket !== 'US';
+  // The select is the reader's request; metadata says what has arrived (it lags while the shard downloads).
+  const requested = select.value;
+  const status = documentRef.getElementById('scr-universe-status');
+  if (status) {
+    const session = extended?.factorSessionDateByMarket?.US;
+    status.textContent = requested !== 'extended' || listingMarket !== 'US' ? ''
+      : extended?.status === 'loaded' ? `확장 ${extended.rows}종목 포함 · 가격 자료 ${session ? `${session.slice(5).replace('-', '/')} 종가` : '세션 미확인'}${extended.unfetched ? ` · 가격 미수신 ${extended.unfetched}` : ''}${Number.isFinite(extended.fundamentalCoveragePct) ? ` · 재무 자료 ${extended.fundamentalCoveragePct}%` : ''}`
+        : extended?.status === 'deferred' || !extended ? '확장 종목을 불러오는 중입니다'
+          : '확장 종목 파일을 받지 못해 기본 범위로 표시합니다';
+    status.hidden = !status.textContent;
+  }
+  const coreOnly = metadata.universeScope === 'extended';
+  for (const tabId of ['scr-tab-backtest', 'scr-tab-evidence']) {
+    const tab = documentRef.getElementById(tabId);
+    if (!tab) continue;
+    let note = tab.querySelector(':scope > .scr-core-only-note');
+    if (!note && coreOnly) {
+      note = documentRef.createElement('p');
+      note.className = 'scr-core-only-note';
+      tab.prepend(note);
+    }
+    if (note) {
+      note.textContent = coreOnly ? `확장 범위를 골라도 이 탭의 검증·기록은 기본 유니버스(${metadata.coreUniverseRows || '—'}종목)만 다룹니다.` : '';
+      note.hidden = !coreOnly;
+    }
+  }
+}
+
 function render({ documentRef, root = globalThis, store, readLiveData, readWatchlist, readAliases, sortState, visibleLimit, onWatchlistToggle, onExplain, onCompare, onVisibleSymbols, selectedSymbols, compareSymbols, columnPreset = 'discovery', customColumns = [], rowsOverride = null, workbenchResult = null, previewResult = null, onDataChange = null }) {
   const rawState = selectScreenerState(store?.getState?.() || {});
   const listingMarket = selectedValue(documentRef, 'scr-listing-market') || 'US';
@@ -1374,7 +1444,10 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     const population = marketRows(currentState.rows || [], listingMarket);
     const screened = population.filter((row) => finite(row?.screenRank) != null).length;
     const rankedCount = screened || ranking.ranked || 0;
-    diagnostics.textContent = `${MARKET_LABELS[listingMarket]} 순위 계산 ${rankedCount}종목 · 표시 ${filtered.length}개 · ${order} · 비중 ${Object.entries(weights).map(([key, value]) => `${FACTOR_LABELS[key]?.label || key} ${Math.round(value * 100)}%`).join(' / ') || '계산 보류'}`;
+    // v57.81: which population the percentiles come from — the core universe or the extended one.
+    const contract = RANKING_CONTRACTS[rawState?.metadata?.universeScope === 'extended' ? 'extended' : 'core'];
+    diagnostics.textContent = `${MARKET_LABELS[listingMarket]} 순위 계산 ${rankedCount}종목(${contract.label}) · 표시 ${filtered.length}개 · ${order} · 비중 ${Object.entries(weights).map(([key, value]) => `${FACTOR_LABELS[key]?.label || key} ${Math.round(value * 100)}%`).join(' / ') || '계산 보류'}`;
+    diagnostics.dataset.rankingContract = contract.id;
     const excluded = documentRef.getElementById('scr-population-excluded');
     if (excluded) {
       const left = population.length - rankedCount;
@@ -1478,6 +1551,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     passedOnly: !!documentRef.getElementById('scr-passed-only')?.checked
   });
   renderFilterChips(documentRef);
+  syncUniverseScopeControl(documentRef, root, rawState, listingMarket);
   const coverage = documentRef.getElementById('screener-factor-coverage');
   const holdEl = documentRef.getElementById('screener-rank-hold');
   const hold = currentState.metadata.ranking.available === false ? { reason: currentState.metadata.ranking.rankingUnavailableReason } : root?._aioRankingHold || null;
@@ -1521,7 +1595,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (rankingState.activeFactorRegime && documentRef.getElementById('screener-regime-note')) documentRef.getElementById('screener-regime-note').textContent = rankingState.activeFactorRegime;
 }
 
-export function createScreenerPage({ documentRef, store, root = globalThis, workbench = {}, onProfileChange, onTicker, onWatchlistToggle, readWatchlist, readAliases, readLiveData } = {}) {
+export function createScreenerPage({ documentRef, store, root = globalThis, workbench = {}, onProfileChange, onUniverseScopeChange, onTicker, onWatchlistToggle, readWatchlist, readAliases, readLiveData } = {}) {
   // P1625: use the selected screen's declared order until the user selects another metric.
   // v57.55 review (8n, 3-person consult): the first view is ordered by market cap. The preset's own rank lost its validation
   // check (GME·AMC led the list), so it is applied when a reader picks a preset, not as the default reading.
@@ -1588,6 +1662,19 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         excluded.append(documentRef.createElement('summary'), documentRef.createElement('p'));
         documentRef.getElementById('scr-population-note')?.after(excluded);
       }
+      // v57.81: 종목 범위 — 기본 (core universe) by default; 확장 adds every Russell 2000 member and Nasdaq-listed common
+      // stock from a separate shard that is downloaded only after this choice. The choice is remembered per reader.
+      if (!documentRef.getElementById('scr-universe-scope')) {
+        const holder = documentRef.createElement('label'); holder.textContent = '종목 범위';
+        const select = documentRef.createElement('select'); select.id = 'scr-universe-scope'; select.setAttribute('aria-label', '종목 범위');
+        for (const [value, title] of [['core', '기본'], ['extended', '확장 — 러셀2000·나스닥 전체']]) { const option = documentRef.createElement('option'); option.value = value; option.textContent = title; select.append(option); }
+        holder.append(select);
+        const listing = documentRef.getElementById('scr-listing-market')?.closest('label');
+        if (listing) listing.after(holder); else marketControls.prepend(holder);
+        const status = documentRef.createElement('p'); status.id = 'scr-universe-status'; status.setAttribute('aria-live', 'polite'); status.hidden = true;
+        documentRef.getElementById('scr-population-note')?.before(status);
+      }
+      documentRef.getElementById('scr-universe-scope').value = readUniverseScope(root);
       // P1449 (검토판 9): a link that came here with its own 조사 맥락 (e.g. 같은 섹터에서 비교)
       // fills the display search/scope from that context once, instead of surfacing whatever
       // query/sector chips the previous visit left behind.
@@ -1749,7 +1836,11 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
             ? (rankingState === 'ranked' && ordinalRank != null ? '조건 통과 · 순위 계산 가능' : '조건 통과 · 순위 계산 보류')
             : (filterState === 'rejected' ? '조건 미충족' : '데이터 부족 — 판정 보류');
          const missing = explanation.missingEvidence || row.setupProfile?.missingEvidence || [];
-         const contrary = explanation.contraryEvidence || [];
+         // v57.81: model-level contrary checks (five-session break, under the 20/50/200-day line, RSI regime) run on every
+         // row, independent of the user's filters — MRVL after -13.8% in five sessions read "걸린 반대 조건 없음".
+         const filterContrary = explanation.contraryEvidence || [];
+         const modelContrary = modelContraryEvidence(row);
+         const contrary = [...modelContrary.hits.map((hit) => `모델 점검: ${hit}`), ...filterContrary.map((hit) => `등록 조건: ${hit}`)];
          setText('scr-why-title', `${row.sym || row.symbol || '종목'} · ${title}`);
          setText('scr-why-subtitle', row.name || '연구용 상대 랭킹 설명');
           const factorConfidence = finite(row.confidence);
@@ -1766,7 +1857,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
             readiness.coveragePct == null ? null : `표시 항목 자료 ${readiness.coveragePct}% 수신`
           ].filter(Boolean).join(' · '));
           if (statusEl) statusEl.title = `${filterLabel} · ${rankingLabel} · ${rankText} · 팩터 근거 ${factorConfidence == null ? '—' : `${Math.round(factorConfidence * 100)}%`} (수익확률 아님)`;
-         setText('scr-why-contrary', contrary.length ? contrary.join(' · ') : row.screenStatus === 'unavailable' ? '필수 근거 미수신으로 조건 판단을 보류했습니다.' : '등록된 반대 조건에 걸리지 않았습니다 — 위험이 없다는 뜻은 아닙니다.');
+         const uncheckedNote = modelContrary.unchecked.length ? ` 자료가 없어 점검하지 못한 항목: ${modelContrary.unchecked.join(' · ')}.` : '';
+         setText('scr-why-contrary', `${contrary.length ? contrary.join(' · ') : row.screenStatus === 'unavailable' ? '필수 근거 미수신으로 등록 조건 판단을 보류했고, 모델 점검(5거래일 낙폭 · 20·50·200일선 · RSI)에는 걸리지 않았습니다.' : '모델 점검(5거래일 낙폭 · 20·50·200일선 · RSI)과 등록된 반대 조건 모두에 걸리지 않았습니다 — 위험이 없다는 뜻은 아닙니다.'}${uncheckedNote}`);
           const structureEvidence = row.setupProfile?.structureEvidence || {};
           const structureNote = structureEvidence.postEarningsBreakout === 'unavailable'
             ? '선택 근거 — 실적 후 돌파 확인 자료는 아직 받지 못했습니다'
@@ -1802,7 +1894,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
              const fill = documentRef.createElement('span');
              fill.className = 'scr-why-fill';
              fill.style.width = `${Math.max(0, Math.min(100, Number(value)))}%`;
-             fill.style.background = Number(value) >= 66 ? 'var(--data-green)' : Number(value) >= 40 ? 'var(--data-amber)' : 'var(--data-red)';
+             fill.style.background = factorScoreColor(key, Number(value), row, 'var(--text-muted)');
              track.appendChild(fill);
              const weight = finite(appliedWeights[key]);
              const share = weight != null && weightSum > 0 ? weight / weightSum : null;
@@ -1839,12 +1931,117 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          if (compare) compare.dataset.aioScreenerArg = row.sym || row.symbol || '';
          drawer.hidden = false;
        };
+       // v57.81 (phone/iPad parity audit): the Why drawer sat static above the table, so a row tapped further down opened
+       // it off-screen (row 6 on a phone: top -1558px). At 700px and below it opens inline under the tapped row; wider
+       // screens keep it above the table and scroll it into view. Focus moves into it and returns to the row on close.
+       const whyDrawerNode = documentRef.getElementById('scr-why-drawer');
+       const whyHome = whyDrawerNode ? documentRef.createComment('scr-why-drawer-home') : null;
+       const narrowWhy = () => Boolean(root?.matchMedia?.('(max-width: 700px)')?.matches);
+       const selectedResultRow = () => {
+         const symbol = activeRow?.sym || activeRow?.symbol;
+         const body = documentRef.getElementById('screener-results-body');
+         return symbol && body ? [...body.querySelectorAll('tr[data-aio-screener-ticker]')].find((node) => node.dataset.aioScreenerTicker === symbol) || null : null;
+       };
+       const parkWhyDrawer = () => {
+         if (!whyDrawerNode || !whyHome?.parentNode) return;
+         if (whyDrawerNode.previousSibling !== whyHome) whyHome.after(whyDrawerNode);
+         documentRef.querySelectorAll('#screener-results-body .scr-why-inline-row').forEach((node) => node.remove());
+         whyDrawerNode.style.maxWidth = '';
+       };
+       const placeWhyDrawer = () => {
+         const row = selectedResultRow();
+         if (!whyDrawerNode || whyDrawerNode.hidden || !row || !narrowWhy()) { parkWhyDrawer(); return row; }
+         let host = row.nextElementSibling;
+         if (!host?.classList?.contains('scr-why-inline-row')) {
+           parkWhyDrawer();
+           host = documentRef.createElement('tr');
+           host.className = 'scr-why-inline-row';
+           const holder = documentRef.createElement('td');
+           holder.className = 'scr-why-inline-cell';
+           holder.colSpan = row.children.length || 1;
+           host.append(holder);
+           row.after(host);
+         }
+         if (whyDrawerNode.parentNode !== host.firstElementChild) host.firstElementChild.append(whyDrawerNode);
+         // Between 600 and 700px the table still scrolls sideways; the drawer stays as wide as the visible area.
+         const scroller = row.closest('.aio-table-scroll');
+         whyDrawerNode.style.maxWidth = scroller?.clientWidth ? `${scroller.clientWidth - 2}px` : '';
+         return row;
+       };
+       const revealWhyDrawer = (row) => {
+         if (!whyDrawerNode || whyDrawerNode.hidden) return;
+         if (!whyDrawerNode.hasAttribute('tabindex')) whyDrawerNode.tabIndex = -1;
+         whyDrawerNode.focus?.({ preventScroll: true });
+         const view = root?.innerHeight || 0;
+         const top = whyDrawerNode.getBoundingClientRect?.().top ?? 0;
+         if (view && top >= 48 && top <= view * 0.6) return;
+         const smooth = !root?.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+         (narrowWhy() && row ? row : whyDrawerNode).scrollIntoView?.({ block: 'start', behavior: smooth ? 'smooth' : 'auto' });
+       };
+       const closeWhyDrawer = () => {
+         if (!whyDrawerNode) return;
+         whyDrawerNode.hidden = true;
+         parkWhyDrawer();
+         selectedResultRow()?.focus?.();
+       };
+       const onWhyKeydown = (event) => { if (event.key === 'Escape') { event.preventDefault(); closeWhyDrawer(); } };
+       if (whyHome) {
+         whyDrawerNode.before(whyHome);
+         whyDrawerNode.addEventListener('keydown', onWhyKeydown);
+         const narrowQuery = root?.matchMedia?.('(max-width: 700px)');
+         const onNarrowChange = () => placeWhyDrawer();
+         narrowQuery?.addEventListener?.('change', onNarrowChange);
+         bag.add(() => {
+           narrowQuery?.removeEventListener?.('change', onNarrowChange);
+           whyDrawerNode.removeEventListener('keydown', onWhyKeydown);
+           parkWhyDrawer();
+           whyHome.remove();
+         });
+       }
        const explainRow = (row) => {
          activeRow = row;
          selectedSymbols.clear();
          if (row?.sym || row?.symbol) selectedSymbols.add(row.sym || row.symbol);
          renderWhyDrawer(row);
          renderNow();
+         revealWhyDrawer(placeWhyDrawer());
+       };
+       // v57.81 (phone/iPad parity audit): the "+" gave no sign near the row and the tray sits far below on a phone.
+       // One status line pinned to the bottom of the screen says what changed and links to the tray.
+       let compareNoticeTimer = null;
+       const showCompareNotice = (message) => {
+         let notice = documentRef.getElementById('scr-compare-feedback');
+         if (!notice) {
+           notice = documentRef.createElement('div');
+           notice.id = 'scr-compare-feedback';
+           notice.className = 'scr-compare-feedback';
+           notice.setAttribute('role', 'status');
+           const textNode = documentRef.createElement('span');
+           const go = documentRef.createElement('button');
+           go.type = 'button';
+           go.className = 'aio-btn-table';
+           go.textContent = '비교 보기';
+           go.setAttribute('aria-controls', 'scr-compare-tray');
+           go.dataset.aioScreenerAction = 'show-compare';
+           notice.append(textNode, go);
+           page.append(notice);
+         }
+         notice.firstElementChild.textContent = message;
+         notice.lastElementChild.hidden = compareSymbols.size === 0;
+         notice.hidden = false;
+         if (compareNoticeTimer) clearTimeout(compareNoticeTimer);
+         compareNoticeTimer = setTimeout(() => { compareNoticeTimer = null; notice.hidden = true; }, 6000);
+       };
+       bag.add(() => { if (compareNoticeTimer) clearTimeout(compareNoticeTimer); compareNoticeTimer = null; documentRef.getElementById('scr-compare-feedback')?.remove(); });
+       const toggleCompare = (symbol) => {
+         if (!symbol) return;
+         let message;
+         if (compareSymbols.has(symbol)) { compareSymbols.delete(symbol); message = `${symbol} 비교에서 뺌 · ${compareSymbols.size}개`; }
+         else if (compareSymbols.size < 5) { compareSymbols.add(symbol); message = `${symbol} 비교에 추가됨 · ${compareSymbols.size}개`; }
+         else message = '비교는 5개까지입니다 · 하나를 빼고 다시 넣으세요';
+         renderCompareTray();
+         renderNow();
+         showCompareNotice(message);
        };
        let runGeneration = 0;
        let archiveGeneration = 0;
@@ -2005,7 +2202,14 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            if (compareSymbols.size) {
              // P1599 (F08): the tray reads the same rows as the table (the preview carries price-derived fields).
              const rows = activeRows || activePreview?.rows || selectScreenerState(store.getState())?.rows || [];
-             const compared = [...compareSymbols].map((symbol) => rows.find((row) => (row.sym || row.symbol) === symbol) || { sym: symbol, screenStatus: 'unavailable' });
+             // v57.81: a US listing outside the universe compares on its on-demand row (same formulas, computed at request
+             // time); its rank cell stays empty — it is not in the published ranking. Not yet read → requested once.
+             const onDemandRow = (symbol) => {
+               const record = root?._aioOnDemandSymbol?.(symbol);
+               if (!record) { root?._aioRequestOnDemandSymbol?.(symbol)?.then?.(() => { if (compareSymbols.has(symbol)) renderCompareTray(); }); return null; }
+               return record.status === 'ready' && record.row ? { ...record.row, rank: null, screenRank: null, screenStatus: 'on-demand', onDemandComputedAt: record.computedAt } : null;
+             };
+             const compared = [...compareSymbols].map((symbol) => rows.find((row) => (row.sym || row.symbol) === symbol) || onDemandRow(symbol) || { sym: symbol, screenStatus: 'unavailable' });
              const table = documentRef.createElement('table');
              table.setAttribute('aria-label', '선택 종목 비교');
              table.style.cssText = 'width:100%;border-collapse:collapse;font-size:12px;text-align:right;';
@@ -2040,6 +2244,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
              }
              table.append(body); list.append(table);
              if (emptyRows.length) { const note = documentRef.createElement('p'); note.style.cssText = 'font-size:11px;color:var(--text-muted);margin:6px 0 0;'; note.textContent = `비교 종목 모두 값이 없어 뺀 항목: ${emptyRows.join(' · ')}`; list.append(note); }
+             const outside = compared.filter((row) => row.screenStatus === 'on-demand');
+             if (outside.length) { const note = documentRef.createElement('p'); note.className = 'scr-compare-on-demand'; note.style.cssText = 'font-size:11px;color:var(--text-muted);margin:6px 0 0;'; note.textContent = `${outside.map((row) => row.sym).join(' · ')}: 랭킹 대상 밖 종목 — 순위 칸은 비우고, 다른 값은 ${String(outside[0].onDemandComputedAt || '').slice(0, 10)} 요청 시 같은 공식으로 계산했습니다.`; list.append(note); }
            }
          }
          const count = documentRef.getElementById('scr-compare-count');
@@ -2155,18 +2361,14 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          });
        }
        renderNow = () => {
+         // v57.81: the rows are rebuilt below; the inline Why drawer goes home first and comes back under its row after.
+         const whyFocus = whyDrawerNode?.contains(documentRef.activeElement) ? documentRef.activeElement : null;
+         parkWhyDrawer();
          const preview = ensurePreview();
          syncColumnControls();
          syncBuilderHint();
          renderBuilderConditions(documentRef, readBuilderConditions());
-         render({ documentRef, root, store, readLiveData: liveReader, readWatchlist: watchlistReader, readAliases: aliasReader, sortState, visibleLimit, onExplain: explainRow, onCompare: (row) => {
-           const symbol = row?.sym || row?.symbol;
-           if (!symbol) return;
-           if (compareSymbols.has(symbol)) compareSymbols.delete(symbol);
-           else if (compareSymbols.size < 5) compareSymbols.add(symbol);
-           renderCompareTray();
-           renderNow();
-         }, onVisibleSymbols: requestVisibleQuotes, selectedSymbols, compareSymbols, columnPreset: columnState.preset, customColumns: columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); rerender(); }, rowsOverride: activeRows || preview?.rows || null, workbenchResult: activeResult, previewResult: preview, onDataChange: () => renderNow() });
+         render({ documentRef, root, store, readLiveData: liveReader, readWatchlist: watchlistReader, readAliases: aliasReader, sortState, visibleLimit, onExplain: explainRow, onCompare: (row) => toggleCompare(row?.sym || row?.symbol), onVisibleSymbols: requestVisibleQuotes, selectedSymbols, compareSymbols, columnPreset: columnState.preset, customColumns: columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); rerender(); }, rowsOverride: activeRows || preview?.rows || null, workbenchResult: activeResult, previewResult: preview, onDataChange: () => renderNow() });
          // P1165 (12 U01): 실행 전 상태 줄도 선택한 정의의 미리보기를 인용한다 — 파이프라인 기본
          // 수치를 '선택한 정의의 통과'로 읽히게 두지 않는다. 실행하면 activeResult가 대신한다.
          if (!activeResult && preview && workbenchStatus) {
@@ -2176,7 +2378,18 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            workbenchStatus.title = `${preview.definition?.screenId || '—'} · ${String(preview.definition?.definitionHash || '').slice(0, 8)} · 조건 실행을 누르면 이 입력으로 고정합니다`;
          }
          renderCompareTray();
+         placeWhyDrawer();
+         if (whyFocus && documentRef.activeElement !== whyFocus && whyDrawerNode?.contains(whyFocus)) whyFocus.focus?.({ preventScroll: true });
        };
+       // v57.81: the 종목 screen hands an out-of-universe listing to this tray (queued while the screener is not mounted).
+       const addCompare = (symbol) => {
+         const id = String(symbol || '').trim().toUpperCase();
+         if (!id || compareSymbols.has(id) || compareSymbols.size >= 5) return compareSymbols.has(id);
+         compareSymbols.add(id); renderCompareTray(); renderNow(); return true;
+       };
+       root._aioAddScreenerCompare = addCompare;
+       (Array.isArray(root._aioPendingCompare) ? root._aioPendingCompare.splice(0) : []).forEach(addCompare);
+       bag.add(() => { if (root._aioAddScreenerCompare === addCompare) delete root._aioAddScreenerCompare; });
        const selectDefinition = (screenId) => {
          const screen = defaultScreens().find(item => item.definition.screenId === screenId);
          if (!screen) return;
@@ -2361,10 +2574,18 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            tickerHandler(argument || activeRow?.sym || activeRow?.symbol);
          } else if (action === 'why-compare') {
            const symbol = argument || activeRow?.sym || activeRow?.symbol;
-           if (symbol) { if (compareSymbols.has(symbol)) compareSymbols.delete(symbol); else if (compareSymbols.size < 5) compareSymbols.add(symbol); renderCompareTray(); renderNow(); }
+           toggleCompare(symbol);
          } else if (action === 'close-why') {
-           const drawer = documentRef.getElementById('scr-why-drawer');
-           if (drawer) drawer.hidden = true;
+           closeWhyDrawer();
+         } else if (action === 'show-compare') {
+           const tray = documentRef.getElementById('scr-compare-tray');
+           if (tray && !tray.hidden) {
+             if (!tray.hasAttribute('tabindex')) tray.tabIndex = -1;
+             tray.focus({ preventScroll: true });
+             tray.scrollIntoView?.({ block: 'start', behavior: root?.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ? 'auto' : 'smooth' });
+           }
+           const notice = documentRef.getElementById('scr-compare-feedback');
+           if (notice) notice.hidden = true;
          } else if (action === 'clear-compare') {
            compareSymbols.clear(); renderCompareTray(); renderNow();
          } else if (action === 'focus-mode') {
@@ -2380,6 +2601,14 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            selectedSymbols.clear(); compareSymbols.clear(); visibleLimit.value = 12; readSignature = '';
            for (const id of ['scr-market', 'scr-sector']) { const field = documentRef.getElementById(id); if (field) { field.value = ''; delete field.dataset.aioValues; } }
            fillControls(); rerender(); renderRead();
+         } else if (event.target.matches?.('#scr-universe-scope')) {
+           if (event.type !== 'change') return;
+           writeUniverseScope(root, event.target.value);
+           ++runGeneration; activeResult = null; activeRows = null; activePreview = null; activePreviewKey = null;
+           selectedSymbols.clear(); compareSymbols.clear(); visibleLimit.value = 12; readSignature = '';
+           for (const id of ['scr-market', 'scr-sector']) { const field = documentRef.getElementById(id); if (field) delete field.dataset.aioValues; }
+           renderNow();
+           Promise.resolve(onUniverseScopeChange?.(event.target.value)).catch(() => {});
          } else if (event.target.matches?.('#scr-order')) {
            sortState.column = event.target.value; sortState.ascending = event.target.value === 'screenRank';
            visibleLimit.value = 12; renderNow();
@@ -2393,6 +2622,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            renderNow();
          } else if (event.target.matches?.('#scr-market, #scr-sector, #scr-cap, #scr-setup, #scr-min-rank, #scr-rsi-min, #scr-rsi-max, #scr-min-mom, #scr-text-search, #scr-watchlist-only, #scr-passed-only, #scr-custom-conditions')) {
            event.stopPropagation();
+           // v57.81: the search box's blur-time change must not re-render a table the pause already rendered, or the
+           // first tap on a row button (비교 +, 관심) after typing lands on a node that the re-render just replaced.
+           if (event.type === 'change' && event.target.id === 'scr-text-search' && !searchTimer) return;
            // v57.61: typing in the name·sector search re-renders at most once per pause (150ms); change renders at once.
            if (searchTimer) { clearTimeout(searchTimer); searchTimer = null; }
            if (event.type === 'input' && event.target.id === 'scr-text-search') {

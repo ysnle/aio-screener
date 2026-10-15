@@ -12,6 +12,8 @@ import { MARKET_LABELS, screenerMarket, formatScreenerPrice } from '../src/domai
 // v57.62: the page's pure row helpers live in this module; the vm harness below strips the page's imports, so it
 // receives them as context globals (same functions the page imports).
 import * as rowPresentation from '../src/domain/screener/row-presentation.js';
+// v57.81: the page's 기본/확장 range helpers enter the vm context the same way.
+import * as screenerExtended from '../src/data/screener-extended.js';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const owners = JSON.parse(read('architecture/route-owners.json')).routes;
 assert.deepEqual(Object.keys(owners).sort(), [...ROUTE_IDS].sort());
@@ -77,6 +79,30 @@ assert.equal(visibleRank(rows[0]), null);
 assert.equal(vcpStageLabel('near_pivot'), '피벗 근접');
 assert.equal(vcpStageLabel('not_stage2'), '이동평균 배열 미충족');
 assert.equal(vcpStageLabel('unknown'), '관측');
+// v57.81 (analysis audit 2026-10-15): 031980.KQ read "피벗 돌파" on a -12.5% day (rvol 1.65). A breakout needs a close
+// through the pivot (a close at or below it in the last five sessions) on an up day; a heavy-volume down close above it
+// is 'pivot_down'.
+{
+  const { _calcVCPServer } = await import('../src/domain/screener/price-factors.js');
+  const bars = (tail) => {
+    const closes = [];
+    for (let i = 0; i < 200; i += 1) closes.push(50 + i * 0.2);
+    for (let i = 200; i <= 240; i += 1) closes.push(90 + (i - 200) * 0.25);
+    while (closes.length < 260 - tail.length) closes.push(95);
+    closes.push(...tail.map((bar) => bar.close));
+    const highs = closes.map((close, i) => tail[i - (260 - tail.length)]?.high ?? close * 1.01);
+    const lows = closes.map((close, i) => tail[i - (260 - tail.length)]?.low ?? close * 0.99);
+    const volumes = closes.map((_, i) => (i === 259 ? 1650 : 1000));
+    return _calcVCPServer(closes, highs, lows, volumes);
+  };
+  const real = bars([{ close: 96 }, { close: 97 }, { close: 98 }, { close: 99 }, { close: 100 }, { close: 103, high: 103.5, low: 100 }]);
+  assert.equal(real?.vcpStage, 'breakout', `v57.81 clean: a close through the pivot on an up day stays a breakout (${JSON.stringify(real)})`);
+  const fall = bars([{ close: 118 }, { close: 119 }, { close: 120 }, { close: 120 }, { close: 120 }, { close: 105, high: 119, low: 104 }]);
+  assert.notEqual(fall?.vcpStage, 'breakout', 'v57.81 a -12.5% day above the pivot is not 피벗 돌파');
+  assert.equal(fall?.vcpStage, 'pivot_down', `v57.81 a heavy-volume down close above the pivot reads pivot_down (${JSON.stringify(fall)})`);
+  assert.equal(vcpStageLabel('pivot_down'), '피벗 위 하락(거래량 증가)');
+  assert.equal(vcpStageLabel('breakout'), '피벗 돌파');
+}
 assert.deepEqual(sortRows(rows, 'rank', false).map((row) => row.sym), ['A', 'B', 'UNKNOWN', 'REJECTED']);
 assert.deepEqual(sortRows(rows, 'rank', true).map((row) => row.sym), ['B', 'A', 'UNKNOWN', 'REJECTED']);
 assert.deepEqual(sortRows(rows, 'ret1m', true).map((row) => row.sym), ['B', 'A', 'UNKNOWN', 'REJECTED']);
@@ -181,7 +207,7 @@ assert(analysisSource.includes("'aio:serverDataLoaded', renderNow"), 'late snaps
 
 const screenerSource = read('src/ui/pages/screener.js');
 const compareContext = vm.createContext({
-  ...rowPresentation, documentRef, compareSymbols: new Set(['A', 'B']), activeRows: rows,
+  ...rowPresentation, ...screenerExtended, documentRef, compareSymbols: new Set(['A', 'B']), activeRows: rows,
   SCREENER_FIELD_REGISTRY, fieldValueForPurpose, createScreenDefinition,
   MARKET_LABELS, screenerMarket, formatScreenerPrice,
   liveReader: () => ({}), tickerHandler: () => {}

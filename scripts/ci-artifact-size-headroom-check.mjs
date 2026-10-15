@@ -26,7 +26,17 @@ const BUDGETS = [
   { id: 'masters-ownership', bytes: size('public-data/masters/filing-discovery.json'), budget: 460_000 },
   { id: 'masters-quarter-view', bytes: size('public-data/masters/history-index.json') + largestManagerShard(), budget: 260_000 },
   { id: 'masters-principles', bytes: size('public-data/masters/manager-principles.json'), budget: 10_000 },
-  { id: 'masters-ticker-reference', bytes: size('public-data/masters/ticker-index-reference.json'), budget: 200_000 }
+  { id: 'masters-ticker-reference', bytes: size('public-data/masters/ticker-index-reference.json'), budget: 200_000 },
+  // v57.81: lazy official US listing (~12k symbols, columnar). The client refuses more than 2 MiB (src/data/us-listings.js).
+  { id: 'us-listings', bytes: size('public-data/us-listings.json'), budget: 1_200_000 },
+  // v57.81: the extended screener shard is fetched only when a reader picks 확장. Estimate ~4,200 rows × ~1.2-1.5 KB
+  // after row-default encoding ≈ 5-6.3 MB; the 15 MB cap leaves room for the unencoded worst case (4,200 × 2.6 KB ≈ 11 MB).
+  // Over the cap, split by membership (R2000 / Nasdaq-only shards) or trim detail-only fields.
+  { id: 'screener-extended-shard', bytes: size('public-data/screener-extended.json'), budget: 15_000_000 },
+  { id: 'screener-extended-universe', bytes: size('public-data/screener-extended-universe.json'), budget: 1_000_000 },
+  { id: 'sec-fundamentals-extended-ledger', bytes: size('public-data/sec-fundamentals-extended.json'), budget: 20_000_000 },
+  // The core artifact stays the size it was (v57.81 keeps the extended rows out of it).
+  { id: 'screener-core', bytes: size('public-data/screener.json'), budget: 5_000_000 }
 ];
 
 const failures = [];

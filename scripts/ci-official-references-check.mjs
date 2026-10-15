@@ -8,7 +8,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
   OFFICIAL_REFERENCES_SCHEMA, LANE_POLICY, refreshOfficialReferences, validateOfficialReferences, dueDecision,
-  numberRegExps, dateRegExps, pageText,
+  numberRegExps, dateRegExps, pageText, CUSTOMS_PRESS_BOARD, customsReleaseLinks,
 } from './lib/web-reference-verify.mjs';
 import { buildSharedWebSearchBody, requestSharedAnalysis } from './lib/ai-shared-analysis.mjs';
 import { prepareOpenAiBudget } from '../worker/openai-budget.mjs';
@@ -94,7 +94,7 @@ const DAY = 86400000;
     check(`P1734 ${body.text?.format?.name} passes the Worker web_search admission contract`, budget && !budget.error, budget?.error);
     check(`P1734 ${body.text?.format?.name} uses one low/default web_search with official allowed_domains`, body.tools.length === 1 && tool.type === 'web_search'
       && tool.search_context_size === 'low' && tool.return_token_budget === 'default' && Array.isArray(tool.filters?.allowed_domains)
-      && tool.filters.allowed_domains.every((domain) => ['bok.or.kr', 'mods.go.kr', 'kostat.go.kr', 'korea.kr', 'customs.go.kr', 'motie.go.kr', 'naaim.org'].includes(domain)));
+      && tool.filters.allowed_domains.every((domain) => ['bok.or.kr', 'mods.go.kr', 'kostat.go.kr', 'korea.kr', 'customs.go.kr', 'motir.go.kr', 'motie.go.kr', 'naaim.org'].includes(domain)));
     check(`P1734 ${body.text?.format?.name} asks for strict json_schema output with bounded tool calls`, body.text?.format?.type === 'json_schema' && body.text.format.strict === true
       && body.max_tool_calls >= 1 && body.max_tool_calls <= 2 && body.store === false && body.stream === false);
     check(`P1734 ${body.text?.format?.name} authenticates as automation without a provider key`, init.headers['X-AIO-Automation-Token'] === TOKEN && !('Authorization' in init.headers)
@@ -218,6 +218,28 @@ async function single(id, candidate, options = {}) {
   const badMeeting = await single('bokBaseRate', { ...GOOD.bokBaseRate, nextMeeting: '2026-10-29' });
   check('P1734 an unconfirmed next meeting is withheld while the rate stays verified', badMeeting.item.status === 'verified' && badMeeting.item.nextMeeting === null
     && badMeeting.item.nextMeetingStatus === 'unverified' && badMeeting.item.nextExpectedAt === null);
+}
+
+// 5b. v57.81: the customs board is not in any search index (robots.txt + JS POST links), so the lane resolves the
+// newest preliminary post from the board list itself and hands the exact detail URL to the model.
+{
+  const detail = 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2891&bbsId=1362&nttSn=10179143&nttSnUrl=2fbd97b6ed3711c34f4810ce485a72ce';
+  const board = '<table><tr><td><a href="javascript:" data-id="10179200" data-url="aaaabbbbccccddddeeeeffff00001111" class="nttInfoBtn" title="2026년 9월 월간 수출입 현황 [확정치]">확정치</a></td></tr>'
+    + '<tr><td><a href="javascript:" data-id="10179143" data-url="2fbd97b6ed3711c34f4810ce485a72ce" class="nttInfoBtn" title="2026년 10월 1일 ~ 10월 10일 수출입 현황 [잠정치]">10일</a></td></tr>'
+    + '<tr><td><a href="javascript:" data-id="10178304" data-url="9714bd0f6916ae89827b90b1f37f4b19" class="nttInfoBtn" title="2026년 9월 수출입 현황 [잠정치]">9월</a></td></tr></table>';
+  const pages = { ...PAGES, [CUSTOMS_PRESS_BOARD]: board, [detail]: PAGES[URLS.exports] };
+  const links = customsReleaseLinks(board);
+  check('v57.81 the newest [잠정치] post resolves to its GET detail URL (확정치 is skipped)', links.length === 2 && links[0].url === detail, JSON.stringify(links));
+  const resolved = await single('krExports', { ...GOOD.krExports, sourceUrl: detail }, { pages });
+  const exportsCall = resolved.log.find((row) => row.href === WORKER && row.body?.text?.format?.name === 'aio_official_krExports');
+  const prompt = exportsCall?.body?.input?.[0]?.content || '';
+  check('v57.81 the krExports prompt carries the resolved detail URL and its release title', prompt.includes(detail) && prompt.includes('10월 1일 ~ 10월 10일 수출입 현황 [잠정치]'), prompt.slice(0, 200));
+  check('v57.81 krExports may search then open (2 tool calls) inside customs/MOTIE domains only', exportsCall?.body?.max_tool_calls === 2
+    && JSON.stringify(exportsCall.body.tools[0].filters.allowed_domains) === JSON.stringify(['customs.go.kr', 'motir.go.kr', 'motie.go.kr']), JSON.stringify(exportsCall?.body?.tools));
+  check('v57.81 the page check still decides: the resolved release verifies only from its own page text', resolved.item.status === 'verified' && resolved.item.sourceUrl === detail, resolved.item.reason);
+  const noBoard = await single('krExports', GOOD.krExports);
+  const plainPrompt = noBoard.log.find((row) => row.href === WORKER && row.body?.text?.format?.name === 'aio_official_krExports')?.body?.input?.[0]?.content || '';
+  check('v57.81 an unreachable board falls back to the static hints without a resolved URL', !plainPrompt.includes('nttSnUrl=') && noBoard.item.status === 'verified', noBoard.item.reason);
 }
 
 // 6a. Call ledger: calls from a run whose commit was lost still count (cache-backed ledger, not the artifact).

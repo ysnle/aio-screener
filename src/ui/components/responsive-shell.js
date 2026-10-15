@@ -1,6 +1,8 @@
 // P1618: UI-only responsive lifecycle; preferences stay in the app boundary.
+import { attachScrollCue } from './scroll-cue.js';
 const CARD_GRIDS = '#home-kpi-strip,#fund-rpt-fin-grid,#fund-cards-grid,#sub-themes-grid,#pf-hero-stats,#fund-valuation-cards';
 const LAYOUTS = '#fund-qual-grid,#fund-qual-charts,#rrg-quadrant-cards';
+const SCROLL_CUE_BOXES = '.page .aio-table-scroll,#screener-results-table .scr-registry-header';
 const FOCUSABLE = 'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[role="button"][tabindex],[tabindex]:not([tabindex="-1"])';
 
 export function installResponsiveShell(root, doc) {
@@ -107,6 +109,9 @@ export function installResponsiveShell(root, doc) {
       table.before(region); region.append(table);
       active?.focus({preventScroll:true}); // P1622 moving a focused table into its scroll region must preserve focus.
     });
+    // v57.81: every sideways-scrolling table, and the phone screener sort bar, shows which side has more (scroll-cue.js;
+    // drawn in responsive.css).
+    doc.querySelectorAll(SCROLL_CUE_BOXES).forEach((box) => attachScrollCue(box, { root }));
   };
   let scheduled = false, disposed = false, frame = null;
   const observer = new root.MutationObserver(() => {
@@ -135,7 +140,7 @@ export function installResponsiveShell(root, doc) {
   decorate(); onMode();
   return () => {
     disposed = true; if (frame !== null) root.cancelAnimationFrame?.(frame); if (viewportFrame !== null) root.cancelAnimationFrame?.(viewportFrame);
-    observer.disconnect(); aiObserver.disconnect(); setOpen(false); sidebar.inert = false; main.inert = previous.mainInert;
+    observer.disconnect(); aiObserver.disconnect(); doc.querySelectorAll(SCROLL_CUE_BOXES).forEach((box) => box._aioScrollCue?.disconnect()); setOpen(false); sidebar.inert = false; main.inert = previous.mainInert;
     if (app) app.inert = previousAi.appInert;
     if (ai) { ai.removeAttribute('aria-modal'); if (previousAi.role) ai.setAttribute('role', previousAi.role); else ai.removeAttribute('role'); }
     sidebar.removeAttribute('aria-hidden'); sidebar.removeAttribute('aria-modal');

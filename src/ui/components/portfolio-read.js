@@ -5,7 +5,7 @@ import { readMarketRegime } from './market-regime.js';
 import { renderNextSteps } from './page-flow.js';
 import { benchmarkRowFor, indexReturns } from '../../domain/market/benchmarks.js';
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
-import { buildCloseSeries } from '../../domain/briefing/market-read.js';
+import { buildCloseSeries, koreaMoveRecord } from '../../domain/briefing/market-read.js';
 import { el } from './dom.js';
 
 // P1466: the 3-month gap to the blended index split into sector, stock selection, FX and cash —
@@ -47,6 +47,8 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   host.dataset.aioPortfolioReadRenderer = 'native';
   let rows = [];
   try { rows = typeof root?._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() || [] : []; } catch (_) { rows = []; }
+  // v57.81: holdings outside the screener universe read with their on-demand rows (same normalization, own date).
+  if (Array.isArray(root?._aioPortfolioOnDemandRows) && root._aioPortfolioOnDemandRows.length) rows = [...rows, ...root._aioPortfolioOnDemandRows];
   const history = root?._aioHistory || [];
   const spy = rows.find((row) => row?.sym === 'SPY') || null;
   // P1466: US holdings are measured against SPY's adjusted return (dividends included, the same basis
@@ -62,7 +64,7 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   // #22: the USD/KRW 3-month return ends on the series' last close; that date travels with it so a holding whose
   // close is on another day has its FX effect held instead of mixing two windows.
   const usdkrwAsOf = buildCloseSeries(history, 'usdkrw').at(-1)?.date || null;
-  const read = buildPortfolioRead({ surface, rows, benchmarkFor: (symbol) => benchmarkRowFor(symbol, history), marketReturnFor, usdkrwReturnPct: indexReturns(history, 'usdkrw').ret3m, usdkrwAsOf, rotation: currentRotationItems(root?._serverDataMeta?.rotationHistory, Date.now()), regime: readMarketRegime(root, () => renderPortfolioRead({ documentRef: doc, root, surface: root?._aioPortfolioSurface || surface })) });
+  const read = buildPortfolioRead({ surface, rows, benchmarkFor: (symbol) => benchmarkRowFor(symbol, history), marketReturnFor, usdkrwReturnPct: indexReturns(history, 'usdkrw').ret3m, usdkrwAsOf, rotation: currentRotationItems(root?._serverDataMeta?.rotationHistory, Date.now()), krRecord: koreaMoveRecord(history, { now: Date.now() }), regime: readMarketRegime(root, () => renderPortfolioRead({ documentRef: doc, root, surface: root?._aioPortfolioSurface || surface })) });
   const next = doc.getElementById('pf-next');
   if (!read.available) {
     // P1449: a hold is not an absence — the reason (currency mix without declared rates) is

@@ -3,7 +3,9 @@
 // one year's raw numbers. Inputs: the SEC FY series in the runtime summary (fiscalHistory) and the
 // screener row for price context (returns, P/E). A missing year or field drops its sentence.
 import { withObjectParticle } from '../content/korean-particle.js';
-import { finiteFact, isPriorAnnualPeriod } from './period.js';
+import { finiteFact, isPriorAnnualPeriod, annualFilingStatus } from './period.js';
+// v57.81: a change inside this many %p (margin) or % (revenue) reads as flat in the text, so its tone is neutral too.
+export const FISCAL_FLAT_BAND = 2;
 const NON_LENDING_FINANCIALS = new Set(['V', 'MA', 'PYPL', 'FI', 'FIS', 'GPN', 'CPAY', 'JKHY', 'CME', 'ICE', 'NDAQ', 'CBOE', 'SPGI', 'MCO', 'MSCI', 'FDS', 'BLK', 'BX', 'KKR', 'APO', 'ARES', 'TROW', 'BEN', 'IVZ', 'AMP', 'BR']);
 export const isLendingFinancial = (symbol, sector) => /financ|bank/i.test(String(sector || '')) && !NON_LENDING_FINANCIALS.has(String(symbol || '').toUpperCase());
 
@@ -67,7 +69,7 @@ export function shareSplitBreaks(history = []) {
   return breaks;
 }
 
-export function buildFiscalRead({ symbol, fundamentals = null, row = null, quarters = [] } = {}) {
+export function buildFiscalRead({ symbol, fundamentals = null, row = null, quarters = [], now = null } = {}) {
   // P1627: a previous issuer's transient receipt cannot become this issuer's one-year fallback.
   if (fundamentals?.symbol && String(fundamentals.symbol).toUpperCase() !== String(symbol).toUpperCase()) fundamentals = null;
   // Before the runtime summary carries fiscalHistory, the latest FY facts still give a one-year reading.
@@ -89,7 +91,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
     let streak = 0;
     for (let i = history.length - 1; i > 0 && isPriorAnnualPeriod(history[i], history[i - 1]) && history[i].revenue > history[i - 1].revenue; i--) streak += 1;
     const pace = cagr == null ? '' : ` · 약 ${Math.round(years)}년 연평균 ${signed(cagr)}`;
-    if (lastGrowth != null) points.push({ id: 'growth', tone: lastGrowth >= 0 ? 'favorable' : 'burden', title: '매출 흐름',
+    if (lastGrowth != null) points.push({ id: 'growth', tone: Math.abs(lastGrowth) < FISCAL_FLAT_BAND ? 'neutral' : lastGrowth > 0 ? 'favorable' : 'burden', title: '매출 흐름',
       text: `최근 회계연도 매출 ${formatUsdShort(latest.revenue)}(${signed(lastGrowth)})${pace}. ${streak >= 2 ? `${streak}년 연속 증가입니다` : streak === 1 ? '직전 해보다 늘었습니다' : '직전 해보다 줄었습니다'}${cagr != null && lastGrowth > cagr + 10 ? ' — 성장이 최근에 빨라졌습니다' : cagr != null && lastGrowth < cagr - 10 ? ' — 최근 성장은 평균보다 느립니다' : ''}.` });
     const marginNow = latest.margin;
     const thenYear = history[Math.max(0, history.length - 4)];
@@ -98,8 +100,8 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       const delta = marginNow - marginThen;
       // P1449: this read sees revenue and net income only. It cannot split interest, tax or
       // one-offs from operations, so attribution like "영업 레버리지" is withheld (P1441 family).
-      points.push({ id: 'margin', tone: delta >= 0 ? 'favorable' : 'burden', title: '수익성',
-        text: `순이익률 ${marginNow.toFixed(1)}%(${String(thenYear.periodEnd).slice(0, 4)} 회계연도 ${marginThen.toFixed(1)}%) — ${Math.abs(delta) < 2 ? '수익성이 비슷하게 유지됩니다' : delta > 0 ? `${Math.abs(delta).toFixed(1)}%p 높아졌습니다(순이익 기준 관측이며, 세금·이자·일회성 항목과 영업 효과의 구분은 이 화면의 자료로 검증하지 않습니다)` : '매출 대비 남는 이익이 줄었습니다 — 비용·가격 압력을 확인할 지점입니다'}.` });
+      points.push({ id: 'margin', tone: Math.abs(delta) < FISCAL_FLAT_BAND ? 'neutral' : delta > 0 ? 'favorable' : 'burden', title: '수익성',
+        text: `순이익률 ${marginNow.toFixed(1)}%(${String(thenYear.periodEnd).slice(0, 4)} 회계연도 ${marginThen.toFixed(1)}%) — ${Math.abs(delta) < FISCAL_FLAT_BAND ? '수익성이 비슷하게 유지됩니다' : delta > 0 ? `${Math.abs(delta).toFixed(1)}%p 높아졌습니다(순이익 기준 관측이며, 세금·이자·일회성 항목과 영업 효과의 구분은 이 화면의 자료로 검증하지 않습니다)` : '매출 대비 남는 이익이 줄었습니다 — 비용·가격 압력을 확인할 지점입니다'}.` });
     }
     const niNow = latest.netIncome;
     const niPrev = history[history.length - 2].netIncome;
@@ -220,7 +222,11 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
     points.push({ id: 'agree', tone: 'neutral', title: '주가와 실적의 기간',
       text: `주가는 최근 6개월 ${signed(ret6)}, 매출은 ${fy ? `${fy}에 끝난 ` : ''}회계연도에 ${signed(lastGrowth)}입니다. 두 숫자는 기간이 달라 직접 비교하지 않습니다 — 주가가 반영하는 것은 앞으로의 실적이고, 다음 분기 공시가 그 기대를 확인합니다.` });
   }
+  // v57.81: the headline names its fiscal year, and flags a next annual filing past its longest deadline (as of the
+  // price session when the row carries one). A flag only — no newer figure is guessed.
+  const filing = latest ? annualFilingStatus(latest.periodEnd, now ?? (row?.factorSessionDate || Date.now())) : null;
   const headline = !history.length ? null
-    : [lastGrowth != null ? `매출 ${signed(lastGrowth)}` : null, latest.margin != null ? `순이익률 ${latest.margin.toFixed(1)}%` : null, roe != null ? `ROE ${roe.toFixed(1)}%(${roeBasis})` : null].filter(Boolean).join(' · ');
-  return { available: history.length > 0, symbol, history, latest, headline, points, roe, roeBasis, lastGrowth };
+    : `${filing ? `${filing.fyLabel} ` : ''}${[lastGrowth != null ? `매출 ${signed(lastGrowth)}` : null, latest.margin != null ? `순이익률 ${latest.margin.toFixed(1)}%` : null, roe != null ? `ROE ${roe.toFixed(1)}%(${roeBasis})` : null,
+      filing?.overdue ? '다음 연간 공시 예정 지남' : null].filter(Boolean).join(' · ')}`.trim();
+  return { available: history.length > 0, symbol, history, latest, headline, points, roe, roeBasis, lastGrowth, filing };
 }

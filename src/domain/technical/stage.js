@@ -4,7 +4,8 @@
 // formulas (MA-stack thresholds, stage enum, MTF trend thresholds) are transcribed unchanged —
 // this is code motion, not a new model (R352/F-03: legacy and native must not diverge).
 import { finiteNumber as finite } from '../shared/number.js';
-export const STAGE_MODEL_VERSION = 'stage.v2';
+export const STAGE_MODEL_VERSION = 'stage.v3';
+const STAGE_BY_TREND = Object.freeze({ UPTREND: 'STAGE_2_ADVANCE', TOPPING: 'STAGE_3_TOPPING', PULLBACK: 'STAGE_2_PULLBACK', DOWNTREND: 'STAGE_4_DECLINE', TREND_DAMAGED: 'STAGE_4_OR_BASE_REPAIR', MIXED: 'STAGE_1_OR_3_TRANSITION' });
 export const MTF_MODEL_VERSION = 'mtf.v1';
 
 /**
@@ -32,8 +33,15 @@ export function classifyMovingAverageStructure({ sma5 = null, sma10 = null, sma2
   const longMAState = longBull ? 'LONG_BULL_STACK_50_100_200' : longBear ? 'LONG_BEAR_STACK_50_100_200' : 'LONG_MIXED';
   const fullMAState = fullBull ? 'FULL_BULL_STACK_5_10_20_50_100_200' : fullBear ? 'FULL_BEAR_STACK_5_10_20_50_100_200' : 'PARTIAL_STACK';
   const maStackScore = (shortBull ? 25 : shortBear ? 0 : 10) + (longBull ? 35 : longBear ? 0 : 15) + (fullBull ? 25 : fullBear ? 0 : 8) + ((sma50 && lastClose >= sma50) ? 8 : 0) + ((sma200 && lastClose >= sma200) ? 7 : 0);
-  const trendState = fullBull && sma50Rising !== false ? 'UPTREND' : fullBull && sma50Rising === false ? 'TOPPING' : fullBear ? 'DOWNTREND' : sma50 && lastClose < sma50 ? 'TREND_DAMAGED' : 'MIXED';
-  const stageEstimate = fullBull && sma50Rising !== false ? 'STAGE_2_ADVANCE' : fullBull && sma50Rising === false ? 'STAGE_3_TOPPING' : fullBear ? 'STAGE_4_DECLINE' : sma50 && lastClose < sma50 ? 'STAGE_4_OR_BASE_REPAIR' : 'STAGE_1_OR_3_TRANSITION';
+  // v57.81 (analysis audit): the close is read against the 50- and 20-day lines before the stack. A full bull stack with
+  // the close under the 50-day line is damaged, and under the 20-day line a pullback — DELL closed 9.1% under its
+  // 20-day line and read "정배열(50일선 상승)". A missing close never reads as an advance.
+  const under50 = !!(sma50 && lastClose != null && lastClose < sma50);
+  const under20 = !!(sma20 && lastClose != null && lastClose < sma20);
+  const bullHeld = fullBull && lastClose != null && !under50;
+  const trendState = bullHeld && !under20 && sma50Rising !== false ? 'UPTREND' : bullHeld && !under20 ? 'TOPPING' : bullHeld ? 'PULLBACK'
+    : fullBear ? 'DOWNTREND' : under50 ? 'TREND_DAMAGED' : 'MIXED';
+  const stageEstimate = STAGE_BY_TREND[trendState];
   return Object.freeze({
     modelVersion: STAGE_MODEL_VERSION,
     shortBull, shortBear, longBull, longBear, fullBull, fullBear, sma50Rising,
@@ -47,6 +55,7 @@ export function classifyMovingAverageStructure({ sma5 = null, sma10 = null, sma2
 export const MA_STRUCTURE_LABELS = Object.freeze({
   STAGE_2_ADVANCE: '이동평균 배열 · 정배열(50일선 상승)',
   STAGE_3_TOPPING: '이동평균 배열 · 정배열(50일선 둔화)',
+  STAGE_2_PULLBACK: '이동평균 배열 · 20일선 아래 눌림(50일선 위)',
   STAGE_4_DECLINE: '이동평균 배열 · 역배열',
   STAGE_4_OR_BASE_REPAIR: '이동평균 배열 · 50일선 아래(훼손)',
   STAGE_1_OR_3_TRANSITION: '이동평균 배열 · 혼조'
@@ -145,7 +154,8 @@ export function deriveTechnicalStageFromOhlcv({ symbol = null, ohlcv = [], input
   const previous = closes.at(-2) ?? null;
   const changePct = current != null && previous ? ((current - previous) / previous) * 100 : null;
   const structure = classifyMovingAverageStructure({ sma5, sma10, sma20, sma50, sma100, sma200, sma50Prior, lastClose: current });
-  const trend = structure.trendState === 'UPTREND' ? 'above-ma20' : structure.trendState === 'DOWNTREND' ? 'below-ma20' : null;
+  // v57.81: the 20-day position is the close against the 20-day line itself, not the stack's verdict.
+  const trend = current != null && sma20 != null ? (current > sma20 ? 'above-ma20' : current < sma20 ? 'below-ma20' : null) : null;
   const nowMs = Number(now);
   const ageMs = latestObservedMs == null || !Number.isFinite(nowMs) ? null : nowMs - latestObservedMs;
   const freshness = ageMs == null ? 'unknown' : ageMs >= 0 && ageMs <= maxAgeMs ? 'fresh' : 'stale';

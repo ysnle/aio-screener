@@ -5,6 +5,8 @@
 
 export const CONSENSUS_MAX_AGE_DAYS = 21;
 export const CONSENSUS_THIN_ESTIMATES = 3;
+/** Net 4-week revisions (up − down) needed before the tone leans either way. */
+export const CONSENSUS_NET_REVISION_FLOOR = 2;
 // v57.70 (2026-10-15 audit): GOOGL read "직전 4개 분기 PER 17.8배 · 예상 이익 -35%" — the trailing sum (19.91) carried
 // what the forward consensus (12.94) leaves out, so a "same adjusted basis" comparison was not one. A forward sum 30%
 // or more below the trailing sum is not compared: both sums are shown, the trailing PER and the growth are not.
@@ -62,6 +64,9 @@ export function buildConsensusPoint(row, estimate, options = {}) {
   if (view.growth != null && view.growth >= 50) cautions.push('큰 이익 증가가 전제라, 경기에 따라 이익이 크게 오르내리는 업종이면 정점 근처에서 Forward PER이 가장 낮게 보입니다');
   const text = `${lead} — ` + [basis, `애널리스트 최소 ${view.minEstimates ?? '?'}명 · ${revisions}`, ...cautions].join('. ')
     + `. 예상치는 계속 바뀌는 참고값이라 점수에는 쓰지 않습니다(${view.asOf} 수집).`;
-  const tone = view.up4w > view.down4w ? 'favorable' : view.down4w > view.up4w ? 'burden' : 'neutral';
+  // v57.81: one revision either way is not a direction — the net count (up − down) must reach the floor.
+  const net = view.up4w - view.down4w;
+  const clears = Math.abs(net) >= CONSENSUS_NET_REVISION_FLOOR;
+  const tone = !clears ? 'neutral' : net > 0 ? 'favorable' : 'burden';
   return { id: 'consensus', tone, title: '시장 기대(컨센서스)', text, ...view };
 }

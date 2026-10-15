@@ -5,6 +5,7 @@
 // 수행해, 보류 사유를 코드로 돌려주고 셸이 사유별 문구를 고른다.
 import { createCompositionSnapshot, deriveRiskEstimate } from '../../domain/portfolio/risk.js';
 import { convertWithDeclaredRates, listingCurrency } from '../../domain/portfolio/fx.js';
+import { convertCashBalances } from '../../domain/portfolio/cash.js';
 import { finiteNumber as finite } from '../../domain/shared/number.js';
 
 // P1407 (Codex review 2026-10-03): quantity × price is in the holding's price currency. The listing
@@ -22,6 +23,8 @@ export function assembleRiskEstimateInput({
   validTickers,
   commonDates,
   cashValue,
+  cashBalances = null,
+  cashFx = null,
   declarations,
   fxLegs = [],
   fxHistory = null,
@@ -105,9 +108,16 @@ export function assembleRiskEstimateInput({
   // E3/E4/P1188: 선언된 계좌·현금 통화와 현금 수익률·RF만 쓴다. 현금 통화가 없거나 기준 통화와
   // 다르면 계좌 전체 분모를 만들 수 없으므로 주식 부분만 게시하고 계좌 뷰는 보류한다.
   const decl = declarations || {};
-  const cashAmount = Math.max(0, Number(cashValue) || 0);
-  const cashDeclarable = cashAmount === 0
-    || (decl.cashCurrency != null && String(decl.cashCurrency).toUpperCase() === baseCurrency);
+  // v57.81: cash is one balance per currency. Each converts into the base with a declared rate or the app's published
+  // USD/KRW close (cashFx); a balance without either leaves the cash currency unresolved, so the account view holds.
+  const cashConversion = Array.isArray(cashBalances)
+    ? convertCashBalances({ balances: cashBalances, target: baseCurrency, legs: Array.isArray(fxLegs) ? fxLegs : [], appFx: cashFx, asOfMs })
+    : null;
+  const cashAmount = cashConversion
+    ? (cashConversion.ok ? cashConversion.total : cashBalances.reduce((sum, row) => sum + Math.max(0, Number(row && row.amount) || 0), 0))
+    : Math.max(0, Number(cashValue) || 0);
+  const cashCurrency = cashConversion ? (cashConversion.ok ? baseCurrency : null) : (decl.cashCurrency != null ? String(decl.cashCurrency).toUpperCase() : null);
+  const cashDeclarable = cashAmount === 0 || cashCurrency === baseCurrency;
   const snapshot = createCompositionSnapshot({
     members: (Array.isArray(positions) ? positions : []).map((p) => {
       const ev = priceEvidenceMap ? priceEvidenceMap[p.ticker] : null;
@@ -121,7 +131,7 @@ export function assembleRiskEstimateInput({
         priceSource: ev && ev.source != null ? String(ev.source) : null
       };
     }),
-    cash: { amount: cashAmount, currency: decl.cashCurrency },
+    cash: { amount: cashAmount, currency: cashCurrency },
     asOf: nowIso || new Date().toISOString(),
     weightBasis: cashDeclarable ? 'whole_account' : 'invested_sleeve',
     baseCurrency
@@ -170,6 +180,7 @@ export function assembleRiskEstimateInput({
     minLen,
     strategyTargetWeights,
     exposurePath,
-    rebalancePolicy
+    rebalancePolicy,
+    cashBasisLabel: cashConversion && cashConversion.ok ? cashConversion.basisLabel : null
   };
 }

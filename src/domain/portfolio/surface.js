@@ -1,4 +1,5 @@
 import { FX_LEG_MAX_AGE_MS, convertWithDeclaredRates, listingCurrency } from './fx.js';
+import { convertCashBalances } from './cash.js';
 
 export const PORTFOLIO_SURFACE_MODEL_VERSION = 'portfolio-surface.v3';
 
@@ -189,7 +190,8 @@ function holdingValue(holding, live, options, close = null) {
  */
 // v57.50 C24: `sectorOf(symbol)` is the one sector source for the bars and the 포트폴리오 해석 (the screener row the read
 // already uses); an imported holding.sector is the fallback, then 'Unclassified'.
-export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, now = Date.now(), sectorOf = null, closeOf = null } = {}) {
+// v57.81: `cashFx` is the app's own published USD/KRW close (cash.js appUsdKrwClose), used for cash balances only.
+export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, now = Date.now(), sectorOf = null, closeOf = null, cashFx = null } = {}) {
   const readState = PORTFOLIO_READ_STATES.includes(state?.readState) ? state.readState : (state?.status === 'locked' ? 'locked' : state?.status === 'loading' ? 'loading' : state?.status === 'failed' ? 'failed' : state?.status === 'unavailable' ? 'unavailable' : 'ready');
   const holdingsKnown = Array.isArray(state?.holdings) && (readState === 'ready' || state?.holdingsKnown === true);
   const holdings = holdingsKnown ? state.holdings : [];
@@ -236,18 +238,25 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   // 충돌하면 환산 근거가 없으므로 합계를 만들지 않는다 — 미확인 통화는 USD라는 뜻이 아니고, 통화를
   // 선언하지 않은 포트폴리오는 기존 단일 기준 동작을 유지하되 그 가정을 드러낸다.
   const declaredBaseCurrency = String(state?.baseCurrency || '').trim().toUpperCase() || null;
-  const declaredCashCurrency = String(state?.cashCurrency || '').trim().toUpperCase() || null;
+  // v57.81: cash is a list of balances, one per currency. A state without the list (older readers, fixtures) is the legacy
+  // single value in its declared cash currency, or in no declared unit (counted as the portfolio's unit, as before).
+  const legacyCashValue = firstFinite(state?.cash, totals.cash);
+  const cashBalances = Array.isArray(state?.cashBalances)
+    ? state.cashBalances.map((row) => ({ currency: String(row?.currency || '').trim().toUpperCase() || null, amount: finite(row?.amount) })).filter((row) => row.amount != null && row.amount >= 0)
+    : legacyCashValue != null && legacyCashValue >= 0 ? [{ currency: String(state?.cashCurrency || '').trim().toUpperCase() || null, amount: legacyCashValue }] : [];
+  const cashCurrencies = [...new Set(cashBalances.map((row) => row.currency).filter(Boolean))];
+  const declaredCashCurrency = cashCurrencies.length === 1 ? cashCurrencies[0] : null;
+  // The holdings' unit decides whether holdings can be summed. Cash is converted on its own (below), so a won balance
+  // beside dollar holdings no longer holds the whole total.
   const declaredCurrencies = [...new Set([
     ...rows.map((row) => row.currency),
-    declaredCashCurrency,
     declaredBaseCurrency
   ].filter(Boolean))];
   // P1418: undeclared rows count with their listing currency, so a hidden mix is still a mix.
-  const effectiveCurrencies = [...new Set([...rows.map((row) => row.currency || row.listingCurrency), declaredCashCurrency, declaredBaseCurrency].filter(Boolean))];
+  const effectiveCurrencies = [...new Set([...rows.map((row) => row.currency || row.listingCurrency), declaredBaseCurrency].filter(Boolean))];
   const currencyBasis = declaredCurrencies.length > 1 || effectiveCurrencies.length > 1 ? 'mixed' : declaredCurrencies.length === 1 ? 'declared-single' : 'undeclared';
-  const cashValue = firstFinite(state?.cash, totals.cash);
-  const cashKnown = readState === 'ready' && (state?.cashKnown === true || cashValue != null || holdingsKnown);
-  let cash = cashKnown && cashValue != null && cashValue >= 0 ? cashValue : (cashValue === 0 ? 0 : null);
+  const cashKnown = readState === 'ready' && (state?.cashKnown === true || cashBalances.length > 0 || holdingsKnown);
+  const cashEnteredZero = cashBalances.length === 0 && (legacyCashValue === 0 || (Array.isArray(state?.cashBalances) && state?.cashKnown === true));
 
   // E3/P1194 (11 §23): 혼합 통화는 **선언된 관측 rate leg**가 있을 때만 합계로 만든다. leg가 없거나
   // 컷 이후 관측됐거나 선언 창을 넘으면 환산하지 않고, 어느 통화쌍이 왜 실패했는지 발행한다.
@@ -304,10 +313,8 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
         value: convert(row.value, row.currency || row.listingCurrency, held),
         convertedFrom: (row.currency || row.listingCurrency) && (row.currency || row.listingCurrency) !== declaredBaseCurrency ? (row.currency || row.listingCurrency) : null
       }));
-      const convertedCash = convert(cash, declaredCashCurrency, held);
       if (!held.length) {
         rows.splice(0, rows.length, ...convertedRows);
-        cash = convertedCash;
         currencyCompatible = true;
         conversion.applied = true;
       } else {
@@ -334,6 +341,16 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     }
     conversion.legs = usedLegs;
   }
+  // v57.81: the unit cash is totalled in — the declared base, else the holdings' one unit, else (no holdings) the one cash
+  // currency, else USD (the screen's default unit, named in the label). Each balance converts with a declared rate or the
+  // app's published USD/KRW close; a balance without either holds the cash total.
+  const holdingsUnit = conversion.applied ? declaredBaseCurrency
+    : currencyBasis === 'declared-single' ? declaredCurrencies[0]
+      : currencyBasis === 'undeclared' ? effectiveCurrencies[0] || null : null;
+  const cashTarget = declaredBaseCurrency || holdingsUnit || (rows.length === 0 ? (cashCurrencies.length === 1 ? cashCurrencies[0] : 'USD') : null);
+  const cashConversion = convertCashBalances({ balances: cashBalances, target: cashTarget, legs: fxLegs, appFx: cashFx, asOfMs: now });
+  const cash = !cashKnown ? null : cashBalances.length ? cashConversion.total : cashEnteredZero ? 0 : null;
+  const cashHeld = cashBalances.some((row) => row.amount > 0) && cash == null;
   const currencyState = conversion.applied ? 'converted-with-declared-rates'
     : currencyBasis === 'mixed' ? 'mixed-without-conversion'
       : currencyBasis === 'undeclared' ? 'undeclared-single-basis-assumed' : 'declared-single';
@@ -374,7 +391,7 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     .map(([name, pct]) => Object.freeze({ name, pct }))
     .sort((a, b) => b.pct - a.pct);
   const sourceKind = rows.some((row) => row.sourceKind === 'live-quote') ? 'portfolio-state+live-quote' : rows.length ? 'portfolio-state' : cash != null ? 'portfolio-state:cash-only' : 'unavailable';
-  const valuationState = readState !== 'ready' ? 'unavailable' : rows.length === 0 ? (cash != null ? (cash > 0 ? 'cash-only' : 'empty') : 'empty') : allRowsValued ? 'complete' : someRowsValued ? 'partial' : 'unavailable';
+  const valuationState = readState !== 'ready' ? 'unavailable' : rows.length === 0 ? (cash != null ? (cash > 0 ? 'cash-only' : 'empty') : cashHeld ? 'cash-only' : 'empty') : allRowsValued ? 'complete' : someRowsValued ? 'partial' : 'unavailable';
   const hasCanonicalValue = valuationState === 'cash-only' || valuationState === 'complete' || (valuationState === 'empty' && totalAssets === 0);
   const decisionReadyQuoteCount = rows.filter((row) => row.sourceKind === 'live-quote' && row.quoteAllowedUse === 'decision').length;
   const snapshotFallbackBlocked = true;
@@ -416,8 +433,13 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     totalPnlPct,
     cash,
     // v57.55 review (B4-F3/F4): the amount the user typed, kept even when a currency mix holds it out of the total, so the
-    // screen can say "환산 보류" instead of "미입력".
-    cashEntered: cashValue != null && cashValue >= 0 ? cashValue : null,
+    // screen can say "환산 보류" instead of "미입력". v57.81: one number only when cash is in one currency.
+    cashEntered: cashCurrencies.length <= 1 && cashBalances.length ? cashBalances.reduce((sum, row) => sum + row.amount, 0) : null,
+    // v57.81: every balance in its own currency, the unit of the cash total and the rate basis used (or what was held).
+    cashBalances: Object.freeze(cashBalances.map((row) => Object.freeze({ ...row }))),
+    cashHeld,
+    cashConversion: Object.freeze({ target: cashConversion.target, converted: cashConversion.converted, basisLabel: cashConversion.basisLabel, held: cashConversion.held,
+      appRate: cashConversion.parts.some((part) => part.basis === 'app-close') ? cashConversion.appFx?.rate ?? null : null }),
     cashPct: cash != null && totalAssets != null && totalAssets > 0 ? cash / totalAssets * 100 : null,
     dailyChange,
     dailyPct,

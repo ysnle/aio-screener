@@ -132,6 +132,9 @@ const worker = readFileSync(new URL('../cloudflare-worker-proxy.js', import.meta
 const workerHosts = [...section(worker, 'const ALLOWED_DOMAINS = [', '];').matchAll(/'([^']+)'/g)].map((m) => m[1]).sort();
 const clientHosts = [...vm.runInContext('_AIO_SHARED_WORKER_HOSTS', h.context)].sort();
 check(workerHosts.length > 20 && JSON.stringify(workerHosts) === JSON.stringify(clientHosts), 'P1756 client shared-Worker host mirror equals the Worker ALLOWED_DOMAINS');
+// v57.81: retired personal-key and dead-fallback providers have no browser path through the Worker, so neither list relays them.
+const retiredRelayHosts = ['www.alphavantage.co', 'api.twelvedata.com', 'finnhub.io', 'api.stlouisfed.org', 'financialmodelingprep.com', 'newsdata.io', 'stooq.com', 'www.stooq.com', 'nitter.net'];
+check(retiredRelayHosts.every((host) => !workerHosts.includes(host) && !h.root._aioSharedWorkerRelays('https://' + host + '/x')), 'v57.81 retired provider hosts are out of the Worker allowlist and its client mirror'); // text-pin-ok: retirement absence
 check(h.root._aioSharedWorkerRelays('https://query1.finance.yahoo.com/v8/finance/chart/NVDA') && h.root._aioSharedWorkerRelays('https://sub.rsshub.app/x')
   && !h.root._aioSharedWorkerRelays('https://feeds.a.dj.com/rss/RSSMarketsMain.xml') && !h.root._aioSharedWorkerRelays('https://notrsshub.app/x'), 'P1756 allowlist matching is exact host or subdomain');
 const feedXml = '<rss><channel><item><title>fixture feed headline</title></item></channel></rss>';
@@ -154,6 +157,7 @@ const krDataSource = readFileSync(new URL('../js/aio-kr-data.js', import.meta.ur
 check(![source, pagesSource, krDataSource].some((text) => /stooq\.com\/q\//.test(text)) && !/_stooqCross/.test(source), 'P1756 Stooq (404 on every symbol) is out of the quote, cross-check, sector and ticker-detail fallbacks');
 check(/var _aioFetchYahooChartDataDirect = _aioFetchYahooChartData;/.test(source) && /window\._aioFetchYahooChartData = _aioChartDataForScreen;/.test(source)
   && /window\._fetchYahooChartData = _aioFetchYahooChartDataDirect;/.test(source), 'P1756 the chart-screen fetch wrapper calls the captured producer, never itself');
+check(!/financialmodelingprep\.com|data-logo-fallback/.test(pagesSource), 'v57.81 the earnings card hotlinks no third-party logo image'); // text-pin-ok: retirement absence
 
 const canonical=harness({fetcher:async()=>new Response(JSON.stringify(chart('NVDA','1wk')))});
 vm.runInContext(section(source,'async function _aioFetchYahooChartData(', '// 모듈 스코프'),canonical.context);

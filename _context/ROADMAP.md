@@ -1,8 +1,8 @@
 ---
-verified_by: owner decisions in AGENTS.md + open QA-VERIFY items + pending owner proposals (2026-10-14 review)
-last_verified: 2026-10-14
+verified_by: owner decisions in AGENTS.md + 2026-10-15 backlog sweep (agent / owner / external open items)
+last_verified: 2026-10-15
 confidence: medium
-target_version: v57.54
+target_version: v57.81
 ---
 
 # AIO 로드맵 (한 장)
@@ -14,17 +14,25 @@ target_version: v57.54
 2. 연결 — 시장 상태 → 거시 갈림길 → 테마 → 종목이 한 흐름으로 이어진다.
 3. 근거 — 판단마다 표본 수·기준일·반증 조건이 함께 보인다(근거 없는 점수·등급은 없다).
 
-## 지금 (배포 직후 확인)
-- push 뒤 열린 확인 항목을 닫는다: QA-VERIFY-21(가격 온도·미국 우선 테마 회전), QA-VERIFY-20(FOMC·calendar), QA-VERIFY-19(Worker 30분 dispatch), QA-VERIFY-13~15(S&P 지도·테마 표 신선도).
-- Forward PER 컨센서스가 Actions에서 실제로 채워지는지 확인한다(Nasdaq 응답 형태).
+## 지금 (에이전트가 진행)
+- 시장 상태: 급락일 AI 해석 블록, history.json 중복 세션 정리, 한국 수출(krExports)·브렌트 기준·한국 종목명 바로잡기.
+- 화면 확인: verify-aio로 QA-VERIFY-13·19·20·27·29·32를 실제 화면에서 닫는다.
+- 10/11 감사 잔여: 10년물 변화폭 출처, 종목 52주 칸 공백(STOCK-C3), 가격 기준 칩(STOCK-C1), S&P 비율 분자(SP-B2), RRG 꼬리.
+- 정리(v57.81): Worker 허용 도메인 축소, callClaude 이름 변경, getScreenerState 경로 읽기, Actions 버전 상향.
+- 회귀 품질: 문자열 고정 검사를 행동 테스트로 바꿔 래칫 수치를 줄이고, CODE-MAP을 다시 스캔한다.
 
-## 다음 (미국 데이터 품질)
-- 종목·스크리너: 미국 유니버스의 결측(매출·주식 수·컨센서스)을 원천에서 메우고, 결측은 숨기지 않고 표시한다.
-- 시장 상태: 가격 온도·국면 레이더·심리 카드가 같은 날짜 기준으로 읽히는지 화면 단위로 점검한다.
-- 회귀 품질: 문자열 고정 검사를 행동 테스트로 바꿔 래칫 수치를 줄인다(`ci-text-pin-ratchet-check`).
+## 다음 (외부 조치가 필요)
+- BOK_API_KEY·KOSIS_API_KEY 시크릿을 넣고 Deploy AI proxy를 한 번 실행한다.
+- watchdog 이슈 #4가 녹색으로 닫히는지 확인한다.
+- QA-VERIFY-14·15는 갱신 시간대가 맞을 때 다시 확인한다.
+- CodeQL paths-ignore는 저장소 설정에서 지정한다.
 
 ## 소유자 결정 대기
-- 팩터 상관 제거 방식 · Workers AI 무료 한도로 헤드라인 번역·임베딩 분담(AGENTS의 단일 공급자 원칙 변경 필요) · 종목 히트맵용 producer 필드(ret1d·sector) · dispatch 토큰 재발급.
+- 데이터: CNN 공포·탐욕 지수 시험 뒤 퇴역 여부, 적자 기업의 6-1 모멘텀 처리, 축별 기저율·RSP 기준선, SOX를 1순위 밖 참고 지표로 둘지.
+- 화면: 부팅 시 history·telegram 지연 로드, 스크리너 밸류에이션 필터, 한국 보유 행·급락일 테마 기간.
+- 저장 위치: 투자 일지 위치, 관심 종목 저장소 통합, AI 대화 기록.
+- 아이디어: Codex 시각화 F100~F108·F110, REA/SaveTicker, 해부도 스킬, X 북마크 아이디어, 제공 자료 연결(P1077).
+- 월간 점검 이슈 #16·#17.
 
 ## 하지 않는 것
 - 매매 지시(진입·손절·목표가), 근거 없는 확률·점수, 회원가입·결제 같은 공개 SaaS 기능, 로컬 producer 실행, 유료 데이터의 무근거 도입.

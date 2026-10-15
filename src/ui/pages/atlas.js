@@ -814,7 +814,17 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
           if (action === 'module') ensureFoundationDetailCapabilities();
           if (state.query) ensureSearchCapabilities();
           if (action === 'module') content.querySelector('[data-atlas-learning-detail-title]')?.focus({ preventScroll: true });
-          if (['tab', 'domain', 'domain-node', 'deep-topic', 'relationship-guide', 'relationship-node', 'relationship-criticality'].includes(action)) {
+          // v57.81 (phone/iPad audit): on compact layouts the table of contents sits below the document, so a domain
+          // picked there loaded the new document out of sight. As on #principles, the view moves to the document and
+          // its title takes focus; on wide layouts, where the title is already in view, the picked item keeps focus.
+          const docTitle = ['domain', 'domain-node', 'relationship-guide'].includes(action) && target.closest('.rl-nav')
+            ? content.querySelector('.rl-main .af-issue, .rl-main h2') : null;
+          const titleBox = docTitle?.getBoundingClientRect?.();
+          if (docTitle && titleBox && (titleBox.top < 0 || titleBox.top > (root?.innerHeight || 0))) {
+            if (!docTitle.hasAttribute('tabindex')) docTitle.setAttribute('tabindex', '-1');
+            docTitle.closest('.rl-main')?.scrollIntoView({ block: 'start', behavior: 'auto' });
+            docTitle.focus({ preventScroll: true });
+          } else if (['tab', 'domain', 'domain-node', 'deep-topic', 'relationship-guide', 'relationship-node', 'relationship-criticality'].includes(action)) {
             queueMicrotask(() => content.querySelector(`[data-atlas-action="${action}"][data-atlas-value="${CSS.escape(value)}"]`)?.focus({ preventScroll: true }));
           }
         }

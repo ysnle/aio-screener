@@ -1,0 +1,36 @@
+// v57.81 (analysis audit 2026-10-15): the stress panel gave KRX holdings a plain market beta of 1.0 against US shocks
+// only — a book that is mostly Korean had no Korean scenario while the KOSPI fell 18.4% in five sessions. This row
+// applies the KOSPI's own worst recorded 5- and 20-session moves to the Korean share. Observed history only (no
+// assumed beta, no forecast); a window is offered only when the record holds at least STRESS_MIN_CASES
+// non-overlapping windows of that length (R706 sample floor), and the record length is named beside it.
+import { buildCloseSeries, krSessionThrough } from '../briefing/market-read.js';
+import { countOpenSessionsBetween } from '../market/market-calendar.js';
+
+export const STRESS_MIN_CASES = 10;
+const WINDOWS = Object.freeze([5, 20]);
+const md = (date) => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`;
+
+/** Worst exact-span n-session change in a close series, with its dates. Null below the R706 floor. */
+export function worstSessionMove(series, n, market = 'KR') {
+  const points = Array.isArray(series) ? series : [];
+  if (Math.floor((points.length - 1) / n) < STRESS_MIN_CASES) return null;
+  let worst = null;
+  for (let index = n; index < points.length; index += 1) {
+    const from = points[index - n], to = points[index];
+    if (!(from?.value > 0) || countOpenSessionsBetween(from.date, to.date, market) !== n) continue;
+    const pct = (to.value / from.value - 1) * 100;
+    if (!worst || pct < worst.pct) worst = { pct, from: from.date, to: to.date };
+  }
+  return worst ? { ...worst, sessions: n, record: points.length } : null;
+}
+
+/** Rows for the stress panel: name, the KOSPI move (a fraction) and how it was measured. Empty without a record. */
+export function krIndexStressRows(history = [], { now = Date.now(), field = 'kospi' } = {}) {
+  const series = buildCloseSeries(history, field, { through: krSessionThrough(now) });
+  return WINDOWS.map((n) => worstSessionMove(series, n)).filter((move) => move && move.pct < 0).map((move) => ({
+    name: `코스피 기록상 최악 ${move.sessions}거래일 (${md(move.from)}~${md(move.to)} ${move.pct.toFixed(1)}%)`,
+    shock: move.pct / 100,
+    basis: `기록된 ${move.record}거래일 중`,
+    ...move
+  }));
+}

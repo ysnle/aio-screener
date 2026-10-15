@@ -1,5 +1,6 @@
 import { screenerMarket } from '../screener/market-scope.js';
 import { latestCompletedKrSession, latestCompletedUsSession } from '../market/market-calendar.js';
+import { recentMove, weeklyNoiseFromVol } from './recent-check.js';
 // P1417 (owner request 2026-10-03, open-source comparison): sub-theme relative strength. The
 // reference (xang1234/stock-screener group rankings) averages per-stock 1-99 RS ratings built from
 // fixed horizon weights (0.2/0.3/0.2/0.15/0.15). Those weights are a composite rating, which this
@@ -99,6 +100,10 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
         ret1m: comparisonAligned ? median(members.map((row) => finite(row.ret1m))) : null,
         ret3m: comparisonAligned ? median(members.map((row) => finite(row.ret3m))) : null,
         ret6m: comparisonAligned ? median(members.map((row) => finite(row.ret6m))) : null,
+        // v57.81: the last five sessions and the members' typical volatility, so a 1-month verdict can be checked against
+        // the week (src/domain/themes/recent-check.js). Same aligned-session rule as the windows above.
+        ret5d: comparisonAligned ? median(members.map((row) => finite(row.ret5d))) : null,
+        vol: comparisonAligned ? median(members.map((row) => finite(row.vol))) : null,
         above50Pct: above.length ? Math.round(above.filter((row) => finite(row.pctSma50) > 0).length / above.length * 100) : null,
         leader: comparisonAligned && leader ? { sym: String(leader.sym).toUpperCase(), name: leader.name || '', value: finite(leader[key]) } : null,
         heavyweights: comparisonAligned ? heavyweightsOf(members) : null
@@ -124,7 +129,10 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
     const shift = r1 != null && r3 != null ? r3 - r1 : null;
     const band = Math.max(3, Math.round(total * 0.15));
     const direction = shift == null ? null : shift >= band ? 'improving' : shift <= -band ? 'weakening' : 'steady';
-    return { ...group, rank: rankSort.get(group.id) ?? null, rank1m: r1, rank3m: r3, direction, vsBenchmark: group.basis && group.basis === benchmark.asOf && group[key] != null && bench != null ? group[key] - bench : null };
+    // v57.81: the week against the group's own typical weekly move (benchmark-relative when the S&P 500 5-session
+    // return is on the same close), so "1개월 순위 상승" is not read as "강해지는 중" during a sharp five-session drop.
+    const recent = recentMove({ ret5d: group.ret5d, benchRet5d: group.basis && group.basis === benchmark.asOf ? finite(benchmark?.ret5d) : null, noise: weeklyNoiseFromVol(group.vol, { members: group.members }) });
+    return { ...group, recent, rank: rankSort.get(group.id) ?? null, rank1m: r1, rank3m: r3, direction, vsBenchmark: group.basis && group.basis === benchmark.asOf && group[key] != null && bench != null ? group[key] - bench : null };
   }).sort((a, b) => (a.rank ?? 1e9) - (b.rank ?? 1e9) || (a.smallSample === b.smallSample ? (b[key] ?? -1e9) - (a[key] ?? -1e9) : a.smallSample ? 1 : -1));
   // Theme level (all sub-theme members once), used where a layer links to a whole theme.
   // Expert review M15: one member on another close (HUBB on 10/9 among 10/12 rows) used to blank the whole theme

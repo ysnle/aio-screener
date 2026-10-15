@@ -78,6 +78,38 @@ try {
       check(state.textLength > 0, `${viewport.name}/${route}: content unavailable`, state);
       check(state.zeroCharts.length === 0, `${viewport.name}/${route}: zero-size chart`, state.zeroCharts);
     }
+    // v57.81 (phone/iPad audit): a tap fired pointerout right after pointerup and closed the basis card inside the
+    // same tap, so no [title]/data-basis explanation was readable on touch. A tap on a non-focusable explained element
+    // inside .page (and on the topbar quote status) must leave #aio-basis-card open, inside the viewport.
+    await page.evaluate(() => window.showPage('macro', null));
+    await settle(page, () => !!document.querySelector('#page-macro.active [title], #page-macro.active [data-basis]'));
+    const basisTarget = await page.evaluate(() => {
+      const focusable = 'a,button,input,select,textarea,[tabindex],summary,label';
+      const el = [...document.querySelectorAll('.page.active [title], .page.active [data-basis]')].find((node) => !node.matches(focusable) && !node.closest(focusable) && !node.querySelector(focusable) && node.getBoundingClientRect().width > 8 && node.getBoundingClientRect().height > 8);
+      el?.scrollIntoView({ block: 'center' });
+      return !!el;
+    });
+    check(basisTarget, `${viewport.name}: no explained element to tap on #macro (v57.81)`);
+    if (basisTarget) {
+      await page.waitForTimeout(150);
+      const point = await page.evaluate(() => {
+        const focusable = 'a,button,input,select,textarea,[tabindex],summary,label';
+        const el = [...document.querySelectorAll('.page.active [title], .page.active [data-basis]')].find((node) => !node.matches(focusable) && !node.closest(focusable) && !node.querySelector(focusable) && node.getBoundingClientRect().width > 8 && node.getBoundingClientRect().height > 8);
+        const box = el.getBoundingClientRect();
+        return { x: box.left + Math.min(box.width / 2, 20), y: box.top + box.height / 2 };
+      });
+      for (const [name, at] of [['page', point], ['topbar', null]]) {
+        const target = at || await page.locator('#live-quote-ts').boundingBox().then((box) => box && { x: box.x + box.width / 2, y: box.y + box.height / 2 });
+        if (!target) { check(false, `${viewport.name}: topbar quote status not visible (v57.81)`); continue; }
+        await page.touchscreen.tap(target.x, target.y);
+        await page.waitForTimeout(300);
+        const card = await page.evaluate(() => { const el = document.getElementById('aio-basis-card'); const box = el?.getBoundingClientRect(); return el && { visible: !el.hidden && box.width > 0, left: box.left, right: box.right, top: box.top, bottom: box.bottom, text: el.textContent.slice(0, 60) }; });
+        check(!!card?.visible && card.left >= 0 && card.right <= viewport.width + 1 && card.top >= 0 && card.bottom <= viewport.height + 1, `${viewport.name}: a tap on an explained ${name} element must leave #aio-basis-card visible in the viewport (v57.81)`, card);
+        await page.touchscreen.tap(4, viewport.height - 4);
+        await page.waitForTimeout(150);
+        check(await page.evaluate(() => document.getElementById('aio-basis-card')?.hidden === true), `${viewport.name}: a tap outside must close the basis card (v57.81)`);
+      }
+    }
     await page.evaluate(() => window.showPage('signal', null));
     await page.waitForSelector('#regime-board .regime-axis');
     check(await page.locator('#regime-board .regime-axis').count() === 6, `${viewport.name}: six meaningful market axes absent (P1628)`);

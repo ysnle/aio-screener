@@ -1919,7 +1919,7 @@ function _aioChatError(error, status) {
   return normalized;
 }
 
-async function callClaude(system, messages, onChunk, onDone, onError, opts) {
+async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { // v57.81: was callClaude (shared Worker route); repo-only callers, no alias
   opts = opts || {};
   // P1245 (05 A05): 이 스트림의 불변 요청 id. 재시도는 같은 요청 객체를 재사용하므로 id도 안정적이고,
   // 수집기·진단·evidence floor는 모두 이 값만 쓰고 공유 전역을 읽지 않는다.
@@ -1964,7 +1964,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
     }
     _aioLog('warn', 'fetch', '프롬프트 자동 트리밍: ' + messages.length + '→' + _trimmedMessages.length + '턴, ' + Math.round(_totalChars/1000) + 'K자');
   }
-  console.log('[AIO] callClaude: system=' + Math.round(_sysLen/1000) + 'K + msgs=' + Math.round((_totalChars-_sysLen)/1000) + 'K = ' + Math.round(_totalChars/1000) + 'K자 (' + modelCfg.label + ')');
+  console.log('[AIO] callSharedAi: system=' + Math.round(_sysLen/1000) + 'K + msgs=' + Math.round((_totalChars-_sysLen)/1000) + 'K = ' + Math.round(_totalChars/1000) + 'K자 (' + modelCfg.label + ')');
 
   // v30.5: AbortController — 연결 30초 + 청크 간 15초 타임아웃
   // v31.3: thinking 모드는 60초 (추론 시간 필요)
@@ -2539,8 +2539,8 @@ async function _fetchTechnicalDataForChat(tickers, opts) {
                   snap.longMAState === 'LONG_BULL_STACK_50_100_200' ? '장기 정배열 / 단기 혼조' :
                   (snap.above50SMA === false) ? '50일선 이탈(추세 훼손)' : '혼조';
     // v57.50 C19: this is a moving-average stack reading, not Weinstein's 30-week Stage, and it carries no buy/avoid call.
-    var stageKr = snap.stageEstimate === 'STAGE_2_ADVANCE' ? '이동평균 상승 배열(가격 > 50 > 100 > 200일선)' :
-                  snap.stageEstimate === 'STAGE_4_OR_BASE_REPAIR' ? '이동평균 하락 배열 또는 바닥 다지기' : '이동평균 배열 전환 구간';
+    // v57.81: one label table with the chart (stage.js MA_STRUCTURE_LABELS via compatibility-globals); unknown = 판정 보류.
+    var stageKr = String((window.AIO_MA_STRUCTURE_LABELS || {})[snap.stageEstimate] || '이동평균 배열 판정 보류').replace('이동평균 배열 · ', '이동평균 배열 ');
     var hi20 = snap.recentHigh20, lo20 = snap.recentLow20;
     var posVs20 = (hi20 && lo20 && hi20 > lo20) ? Math.round((snap.price - lo20) / (hi20 - lo20) * 100) : null;
     // v57.50 C17: RSI is the screener row's value (same number and session the screen shows) when it exists.
@@ -3165,7 +3165,7 @@ async function _fetchTickerDataForChat(tickers, opts) {
       results.push('  허용된 답변: "현재 ' + t + ' 실시간 데이터를 받아오지 못했습니다. Yahoo Finance(finance.yahoo.com/quote/' + t + ') 또는 Finnhub 등 외부 도구로 직접 확인을 권장합니다."');
       results.push('  허용된 분석: 가격을 인용하지 않는 일반론적 사업 모델/경쟁사 비교/섹터 트렌드 (수치 없이) 만 답변하세요.');
     }
-    // v49.66 P350 + v49.67 P354: 이 종목 처리 결과를 5분 TTL 캐시에 저장 (실패 fetch는 캐시 금지)
+    if (data && typeof window._aioOnDemandChatContext === 'function') { try { var _oouCtx = await Promise.race([window._aioOnDemandChatContext(t), new Promise(function(r) { setTimeout(function() { r(''); }, 8000); })]); if (_oouCtx) results.push('  ' + _oouCtx); } catch (_oouErr) {} } // v57.81: out-of-universe listing placement · v49.66 P350 + v49.67 P354: 이 종목 처리 결과를 5분 TTL 캐시에 저장 (실패 fetch는 캐시 금지)
     try {
       var _tickerLines = results.slice(_tickerBlockStart);
       // v49.67 P354 R122: 시세 조회 실패 종목 (data === null 경로 — 표시 포함)은 캐시 저장 금지 (stale 응답 5분 반복 방지)
@@ -4299,7 +4299,7 @@ function _aioAddAlert(alert) {
   var id = 'alert_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
   var newAlert = Object.assign({ id: id, createdAt: Date.now(), triggered: false, triggerCount: 0 }, alert);
   alerts.push(newAlert);
-  _aioSetAlerts(alerts);
+  _aioSetAlerts(alerts); if (newAlert.metric === 'price' && newAlert.tickerOrIndex && typeof window._aioAcceptSymbol === 'function') window._aioAcceptSymbol(newAlert.tickerOrIndex).then(function(r) { if (r.ok || r.reason === 'listing-unavailable') return; _aioSetAlerts(_aioGetAlerts().filter(function(a) { return a.id !== id; })); if (typeof showToast === 'function') showToast(newAlert.tickerOrIndex + ': 등록 종목·미국 상장 목록에서 찾지 못한 티커라 가격 알림을 만들지 않았습니다.'); }); // v57.81: known or US-listed symbols only; accepted ones join the quote request set
   return newAlert;
 }
 // v57.77: the test-only alert remover and natural-language alert parser are retired (no production caller).
@@ -4312,7 +4312,7 @@ function _aioCheckAlerts() {
     var current = null;
     if (a.metric === 'vix') current = (ld['^VIX'] && ld['^VIX'].price) || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.vix);
     else if (a.metric === 'fg') current = window._lastFG;
-    else if (a.metric === 'price' && a.tickerOrIndex) current = (ld[a.tickerOrIndex] && ld[a.tickerOrIndex].price);
+    else if (a.metric === 'price' && a.tickerOrIndex) current = (ld[a.tickerOrIndex] && ld[a.tickerOrIndex].price); if (a.metric === 'price' && a.tickerOrIndex && current == null && window.AIO && typeof window.AIO.registerLiveSymbol === 'function') window.AIO.registerLiveSymbol(a.tickerOrIndex, { reason: 'price-alert' }); // v57.81
     if (current == null) return;
     var hit = a.direction === 'above' ? Number(current) >= Number(a.threshold) : Number(current) <= Number(a.threshold);
     if (hit && !a.triggered) {
@@ -5650,7 +5650,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (!_qOk) { _releaseUnifiedRun(); return; }
   }
   inp.value = '';
-  // v47.8: streaming 잠금은 callClaude 직전으로 이동 — 데이터 주입 hang 시 영구 잠김 방지
+  // v47.8: streaming 잠금은 callSharedAi 직전으로 이동 — 데이터 주입 hang 시 영구 잠김 방지
   if (btn) { btn.disabled = true; btn.textContent = '...'; }
   // v46.6: messages trim
   var _mt2 = state.messages.reduce(function(s,m){return s+(m.content||'').length;},0);
@@ -6067,9 +6067,9 @@ async function chatSendUnified(_aioDispatchOptions) {
       intent: _uniRetrievalAudit && _uniRetrievalAudit.intent
     }) : null;
 
-  console.log('[AIO] callClaude 호출, model:', selectedModelKey, 'sysPrompt:', (sysPrompt||'').length + '자');
-  if (typeof callClaude !== 'function') {
-    _aioLog('error', 'fetch', 'callClaude 함수 미정의!');
+  console.log('[AIO] callSharedAi 호출, model:', selectedModelKey, 'sysPrompt:', (sysPrompt||'').length + '자');
+  if (typeof callSharedAi !== 'function') {
+    _aioLog('error', 'fetch', 'callSharedAi 함수 미정의!');
     _releaseUnifiedRun();
     _appendAIMsg('ai', '<span style="color:var(--data-red);">시스템 오류: AI 호출 기능을 찾을 수 없습니다. 페이지를 새로고침해주세요.</span>');
     return;
@@ -6240,9 +6240,9 @@ async function chatSendUnified(_aioDispatchOptions) {
         try {
           if (!_isCurrentUnifiedRun() || (_uniSignal && _uniSignal.aborted)) return;
           if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_uniAIRequest, nextModel);
-          callClaude((window.AIO && window.AIO.promptWithoutWebSearch || String)(sysPrompt), state.messages, _uniOnChunk, _uniOnDone, _uniOnError, Object.assign({}, modelOpts, { modelKey: nextModel, webSearch: false, signal: _uniSignal, requestId: _uniRequestId, retryAttempt: _retried + 1 }));
+          callSharedAi((window.AIO && window.AIO.promptWithoutWebSearch || String)(sysPrompt), state.messages, _uniOnChunk, _uniOnDone, _uniOnError, Object.assign({}, modelOpts, { modelKey: nextModel, webSearch: false, signal: _uniSignal, requestId: _uniRequestId, retryAttempt: _retried + 1 }));
         } catch(rtEx) {
-          // v47.8: 재시도 callClaude 동기 throw 방어
+          // v47.8: 재시도 callSharedAi 동기 throw 방어
           state._retryCount = 0;
           _releaseUnifiedRun();
           _appendAIMsg('ai', '<span style="color:var(--data-red);">재시도 실패: ' + _uniSafeRender(rtEx.message || '알 수 없는 오류') + '</span>');
@@ -6257,11 +6257,11 @@ async function chatSendUnified(_aioDispatchOptions) {
     _appendAIMsg('ai', '<span style="color:var(--data-red);">' + _uniSafeRender(errMsg) + '</span>');
   };
 
-  // v47.8: callClaude 호출 자체가 동기 throw 시 streaming 영구 잠김 방어
+  // v47.8: callSharedAi 호출 자체가 동기 throw 시 streaming 영구 잠김 방어
   try {
-    callClaude(sysPrompt, state.messages, _uniOnChunk, _uniOnDone, _uniOnError, Object.assign({}, modelOpts, { signal: _uniSignal, requestId: _uniRequestId }));
+    callSharedAi(sysPrompt, state.messages, _uniOnChunk, _uniOnDone, _uniOnError, Object.assign({}, modelOpts, { signal: _uniSignal, requestId: _uniRequestId }));
   } catch(callEx) {
-    _aioLog('error', 'fetch', 'callClaude 동기 throw: ' + callEx.message);
+    _aioLog('error', 'fetch', 'callSharedAi 동기 throw: ' + callEx.message);
     _releaseUnifiedRun();
     var _loadEl = document.getElementById('ai-panel-loading');
     if (_loadEl && _loadEl.parentNode) _loadEl.parentNode.removeChild(_loadEl);

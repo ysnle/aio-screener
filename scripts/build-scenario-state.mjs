@@ -21,6 +21,7 @@ import { buildGroupStrength } from '../src/domain/themes/group-strength.js';
 import { krThemeArtifactRead } from '../src/domain/themes/kr-themes.js';
 import { buildThemePlaybook } from '../src/domain/scenarios/theme-playbook.js';
 import { THEME_STATES } from '../src/domain/scenarios/analogs.js';
+import { SCENARIO_STATE_CURRENT } from '../src/domain/scenarios/theme-stage.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PD = (name) => path.join(ROOT, 'public-data', name);
@@ -109,12 +110,13 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
   const usGroups = buildGroupStrength({ themes: maps.usThemes, rows, sortKey: 'ret3m' }).groups || [];
   const krThemes = krThemeArtifactRead({ themeMap: maps.krThemeMap, rows }).themes || [];
   const credit = regime?.axes?.find((axis) => axis.id === 'credit')?.state || null;
-  const playbook = buildThemePlaybook({ usGroups, krThemes, crossroads, credit, outcomes, labels: maps.labels });
+  // v57.81: the close history lets each theme stage be read against the S&P 500 / KOSPI over the same windows.
+  const playbook = buildThemePlaybook({ usGroups, krThemes, crossroads, credit, outcomes, labels: maps.labels, history });
   const snapshot = {
     crossroads: { asOf: crossroads.asOf, headline: crossroads.headline, leadId: crossroads.leadId, altId: crossroads.altId, tension: crossroads.rateHub?.tension || null,
       nextEvent: crossroads.nextEvent, pathsDown: (crossroads.rateHub?.pathsDown || []).map((row) => ({ id: row.id, label: row.label, ok: row.ok })),
       items: (crossroads.items || []).map((item) => ({ id: item.id, title: item.title, met: item.met, total: item.total, known: item.known, fit: item.fit, conditions: item.conditions, pricingTone: item.pricing?.tone || 'unknown', favored: item.favored, pastN: item.past?.n ?? 0, pastSource: item.past?.source || null })) },
-    themes: (playbook.themes || []).map((row) => ({ market: row.market, id: row.id, label: row.label, state: row.state, ret1m: row.ret1m, ret3m: row.ret3m, ret6m: row.ret6m, above50: row.above50, windLead: row.wind.lead, windAlt: row.wind.alt, favored: row.favored, fit: row.fit })),
+    themes: (playbook.themes || []).map((row) => ({ market: row.market, id: row.id, label: row.label, state: row.state, stateLabel: row.stateLabel, ret5d: row.ret5d ?? null, ret1m: row.ret1m, ret3m: row.ret3m, ret6m: row.ret6m, above50: row.above50, basis: row.basis || null, windLead: row.wind.lead, windAlt: row.wind.alt, favored: row.favored, fit: row.fit })),
     rotation: { text: playbook.rotation?.text || '', top: playbook.rotation?.tags?.length >= 2 ? { strong: playbook.rotation.tags[0].label, weak: playbook.rotation.tags.at(-1).label, scope: playbook.rotation.market || null } : null, tags: playbook.rotation?.tags || [] },
     highlights: Object.fromEntries(Object.entries(playbook.highlights || {}).map(([key, list]) => [key, list.map(themeKey)]))
   };
@@ -125,9 +127,9 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
   const themeHistory = (previous?.themeHistory || []).filter((row) => row.date !== themeDay);
   if (themeDay) themeHistory.push({ date: themeDay, themes: Object.fromEntries(snapshot.themes.map((row) => [themeKey(row), [row.ret1m == null ? null : Math.round(row.ret1m * 10) / 10, row.state]])) });
   return {
-    schemaVersion: SCENARIO_STATE_SCHEMA, status: 'current', generatedAt: at,
+    schemaVersion: SCENARIO_STATE_SCHEMA, status: SCENARIO_STATE_CURRENT, generatedAt: at,
     sourceLabel: 'AIO 공개 산출물(거시 기록·확정 종가·스크리너)로 갱신마다 재계산',
-    basis: { macroAsOf: crossroads.asOf || null, themeAsOf: themeDay || null, outcomesAt: outcomes?.generatedAt || null },
+    basis: { macroAsOf: crossroads.asOf || null, themeAsOf: themeDay || null, themeAsOfByMarket: playbook.asOfByMarket || null, outcomesAt: outcomes?.generatedAt || null },
     ...snapshot,
     transitions: transitions.slice(-MAX_TRANSITIONS), eventOutcomes, lastScored,
     themeHistory: themeHistory.sort((a, b) => a.date.localeCompare(b.date)).slice(-MAX_THEME_DAYS)

@@ -64,7 +64,7 @@ try {
   });
 
   await page.goto(`${localBase}/index.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await page.waitForFunction(() => typeof window.callClaude === 'function' && typeof window._aioEnsureClaudeRoute === 'function' && typeof window.AIO_ARCH?.parseAIAnswerPlan === 'function', { timeout: 30000 });
+  await page.waitForFunction(() => typeof window.callSharedAi === 'function' && typeof window._aioEnsureClaudeRoute === 'function' && typeof window.AIO_ARCH?.parseAIAnswerPlan === 'function', { timeout: 30000 });
 
   const result = await page.evaluate(async () => {
     localStorage.clear();
@@ -73,7 +73,7 @@ try {
     const config = window.AIO.getPublicConfig();
     const routeDisabled = !config?.ai?.workerUrl;
     const streamed = routeDisabled ? null : await new Promise((resolveStream, rejectStream) => {
-      window.callClaude('Answer briefly.', [{ role: 'user', content: '공용 경로 확인' }], () => {}, (raw, completion) => {
+      window.callSharedAi('Answer briefly.', [{ role: 'user', content: '공용 경로 확인' }], () => {}, (raw, completion) => {
         resolveStream({ raw, completion, published: window._aioRunAIResponsePipeline(raw, { entrypoint: 'public-route-browser-fixture', streamPhase: 'complete', completion, record: false }) });
       }, rejectStream, { modelKey: 'luna' });
     });

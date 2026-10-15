@@ -44,12 +44,20 @@ export const OFFICIAL_REFERENCE_ITEMS = Object.freeze({
     schema: strictSchema({ ...CORE, period: nullableString }),
     ask: (today) => `오늘은 ${today}(KST)이다. 가장 최근에 공표된 한국 소비자물가동향 보도자료에서 소비자물가지수의 전년동월대비 상승률(%)을 찾아라. value=상승률 숫자(하락이면 음수), period=대상 월(YYYY-MM), date=보도자료 공표일(YYYY-MM-DD), sourceUrl=그 수치와 공표일이 본문에 보이는 보도자료 페이지.`,
   }),
+  // v57.81 (checked 2026-10-15): the lane returned model-not-found because no search index holds the release.
+  // customs.go.kr robots.txt disallows /*/na/ntt/ for Googlebot/Yeti/Daum/Bingbot and the press board opens each
+  // post only through a JS POST form keyed by data-id + data-url, so search can neither crawl nor link the post.
+  // korea.kr republishes it, but its body sits in a docViewer iframe (figures only in meta tags), so the page
+  // check fails there; motie.go.kr now 301s to motir.go.kr. The lane therefore reads the official board list
+  // itself (no AI), resolves the newest "수출입 현황 [잠정치]" post to its GET-able detail URL, and hands that
+  // exact URL to the model; the model only opens it, and the page check below still decides what is published.
   krExports: Object.freeze({
     source: '수출입 현황 잠정치 · 수출입동향', sourceKind: 'official-primary',
-    allowedDomains: Object.freeze(['customs.go.kr', 'motie.go.kr', 'korea.kr']), maxToolCalls: 1, unavailableBackoffDays: 3, graceDays: 3, maxObservationAgeDays: 45,
+    allowedDomains: Object.freeze(['customs.go.kr', 'motir.go.kr', 'motie.go.kr']), maxToolCalls: 2, unavailableBackoffDays: 3, graceDays: 3, maxObservationAgeDays: 45,
     hintUrls: Object.freeze(['https://www.customs.go.kr/kcs/na/ntt/selectNttList.do?mi=2891&bbsId=1362']),
+    resolveHints: (options) => resolveCustomsReleaseHint(options),
     schema: strictSchema({ ...CORE, exportsBillionUsd: nullableNumber, periodStart: nullableString, periodEnd: nullableString }),
-    ask: (today) => `오늘은 ${today}(KST)이다. 가장 최근에 공표된 한국 수출입 현황 잠정치(관세청 1~10일·1~20일) 또는 월간 수출입동향에서 수출 전년동기대비 증감률(%)과 수출액(억 달러를 10억 달러 단위로 환산, 예: 298억 달러=29.8)을 찾아라. value=수출 증감률 숫자, exportsBillionUsd=수출액(10억 달러), periodStart/periodEnd=집계 기간(YYYY-MM-DD), date=공표일(YYYY-MM-DD), sourceUrl=그 수치와 공표일이 본문에 보이는 공식 페이지.`,
+    ask: (today) => `오늘은 ${today}(KST)이다. 관세청 보도자료 "YYYY년 M월 1일 ~ M월 10일(또는 20일) 수출입 현황 [잠정치]" 또는 월간 "YYYY년 M월 수출입 현황 [잠정치]" 중 가장 최근 공표본의 본문에서 수출 전년동기대비 증감률(%)과 수출액(억 달러를 10억 달러 단위로 환산, 예: 298억 달러=29.8)을 찾아라. value=수출 증감률 숫자, exportsBillionUsd=수출액(10억 달러), periodStart/periodEnd=집계 기간(YYYY-MM-DD), date=공표일(YYYY-MM-DD), sourceUrl=그 수치와 공표일이 본문에 보이는 공식 페이지.`,
   }),
   // Retired 2026-10-13 (coordinator): the public page shows the number only inside a dateless, three-month-delayed
   // iframe, so it can never be page-verified. Kept in the schema as unavailable/retired-unverifiable; never called.
@@ -220,7 +228,8 @@ export async function fetchOfficialPage(raw, domains, { fetchImpl = fetch, timeo
       else if (Number.isFinite(declared) && declared > maxBytes) result = { ok: false, reason: 'source-too-large' };
       else {
         const buffer = await readBounded(response, maxBytes);
-        result = !buffer ? { ok: false, reason: 'source-too-large' } : { ok: true, url: current.href, ...pageText(decodeBody(buffer, type)) };
+        const html = buffer ? decodeBody(buffer, type) : '';
+        result = !buffer ? { ok: false, reason: 'source-too-large' } : { ok: true, url: current.href, html, ...pageText(html) };
       }
     }
   } catch (error) {
@@ -228,6 +237,26 @@ export async function fetchOfficialPage(raw, domains, { fetchImpl = fetch, timeo
   } finally { clearTimeout(timer); }
   cache?.set(url.href, result);
   return result;
+}
+
+// v57.81: the customs press board links each post as <a data-id="<nttSn>" data-url="<nttSnUrl>" title="...">
+// submitted by POST; the same detail page answers a GET carrying both keys (checked 2026-10-15). Only the
+// newest preliminary-figure post is resolved (확정치 and 운송비용 posts are other releases). Returns [] on any
+// miss, so the lane falls back to the static hints and the page check is unchanged.
+export const CUSTOMS_PRESS_BOARD = 'https://www.customs.go.kr/kcs/na/ntt/selectNttList.do?mi=2891&bbsId=1362';
+const CUSTOMS_RELEASE_TITLE = /수출입\s*현황\s*\[잠정치\]/;
+export function customsReleaseLinks(html) {
+  const attr = (tag, name) => (new RegExp(`\\s${name}\\s*=\\s*"([^"]*)"`, 'i').exec(tag) || [])[1] ?? null;
+  return [...String(html || '').matchAll(/<a\b[^>]*\bdata-id\s*=\s*"\d+"[^>]*>/gi)].map((match) => ({
+    nttSn: attr(match[0], 'data-id'), nttSnUrl: attr(match[0], 'data-url'), title: (attr(match[0], 'title') || '').replace(/\s+/g, ' ').trim(),
+  })).filter((row) => /^\d{1,12}$/.test(row.nttSn || '') && /^[0-9a-f]{16,64}$/i.test(row.nttSnUrl || '') && CUSTOMS_RELEASE_TITLE.test(row.title))
+    .sort((a, b) => Number(b.nttSn) - Number(a.nttSn))
+    .map((row) => ({ title: row.title,
+      url: `https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2891&bbsId=1362&nttSn=${row.nttSn}&nttSnUrl=${row.nttSnUrl.toLowerCase()}` }));
+}
+async function resolveCustomsReleaseHint({ fetchImpl = fetch, cache = null } = {}) {
+  const board = await fetchOfficialPage(CUSTOMS_PRESS_BOARD, ['customs.go.kr'], { fetchImpl, cache });
+  return board.ok ? customsReleaseLinks(board.html).slice(0, 1) : [];
 }
 
 // The label printed closest before a value must be the asked-for one: a swapped import growth, month-on-month
@@ -445,9 +474,11 @@ export function dueDecision(id, item, now, policy = LANE_POLICY) {
   return ageDays >= idle ? { due: true, reason: 'idle-recheck' } : { due: false, reason: 'not-due' };
 }
 
-export function buildSearchPrompt(id, now) {
+export function buildSearchPrompt(id, now, resolved = []) {
   const def = OFFICIAL_REFERENCE_ITEMS[id];
+  const direct = resolved.filter((row) => officialUrl(row?.url, def.allowedDomains));
   return [def.ask(kstDate(now)),
+    ...direct.map((row) => `The newest official release "${row.title}" is at ${row.url} . Search indexes do not hold this page: open that exact URL first and return it as sourceUrl.`),
     `Use only these official domains: ${def.allowedDomains.join(', ')}. Useful starting pages: ${def.hintUrls.join(' , ')}.`,
     'Copy numbers and dates exactly as the page shows them; never estimate, average, or use news or secondary sites.',
     'Return found=false with every other field null when the official page does not show the value. The value will be re-checked against the page text and discarded if absent.'].join('\n');
@@ -464,7 +495,9 @@ function failedReference(id, previous, reason, attemptAt) {
 export async function refreshReference(id, previous, { now, env, fetchImpl = fetch, requestImpl = requestSharedWebSearch, cache = new Map() }) {
   const def = OFFICIAL_REFERENCE_ITEMS[id];
   const attemptAt = new Date(now).toISOString();
-  const result = await requestImpl(buildSearchPrompt(id, now), { env, fetchImpl, purpose: `official-ref-${id}`,
+  let resolved = [];
+  if (def.resolveHints) { try { resolved = await def.resolveHints({ fetchImpl, cache }); } catch { resolved = []; } }
+  const result = await requestImpl(buildSearchPrompt(id, now, resolved), { env, fetchImpl, purpose: `official-ref-${id}`,
     allowedDomains: [...def.allowedDomains], schemaName: `aio_official_${id}`, schema: def.schema, maxToolCalls: def.maxToolCalls });
   if (!result?.text) return { item: failedReference(id, previous, result?.reason || 'provider-response-incomplete', attemptAt), reason: result?.reason };
   let candidate;

@@ -262,9 +262,14 @@ function formatSnapshotMetric(key, metric) {
   return String(metric.value);
 }
 
+// v57.81: inside the 한국 거시 user fold only the Korea/US comparison table is native; its other values (기준금리,
+// 다음 금통위, 한국 물가) are written by the shell snapshot writers, which this renderer used to clear to 미수신.
+const KR_FOLD_NATIVE_KEYS = new Set(['fed-target', 'kr-cpi', 'cpi']);
+
 function renderSnapshotMetrics(root, page) {
   page.querySelectorAll('[data-snap]').forEach((node) => {
     const key = node.getAttribute('data-snap');
+    if (node.closest?.('#kr-integrated-macro') && !KR_FOLD_NATIVE_KEYS.has(key)) return;
     const metric = readSnapshotMetric(root, key);
     const value = formatSnapshotMetric(key, metric);
     if (value == null) {

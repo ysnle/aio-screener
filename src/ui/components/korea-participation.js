@@ -16,7 +16,9 @@ export function renderKoreaParticipation({documentRef:doc,root,store=null}) {
   // P1723: the KOSPI 1-/5-session change (same KRX close record as 시장 상태) goes beside the sample's own medians.
   const kr=koreaMoveRecord(root._aioHistory||[],{now:Date.now()});
   const model=buildKoreaParticipation({rows,themes:root.KR_THEME_MAP||{},index:kr?{date:kr.date,d1:kr.d1,d5:kr.d5}:null});root.__aioKoreaParticipation=model;
-  host.replaceChildren(el(doc,'h2','한국 종목의 참여도와 강한 테마'));
+  // v57.81: the list is ranked by 3-month return, some of it negative and falling over the month — it is named by its window
+  // (3개월 수익률 상위), with the 1-month return beside each theme, never as 강한 테마.
+  host.replaceChildren(el(doc,'h2','한국 종목의 참여도와 3개월 수익률 상위 테마'));
   if(model.session?.text){const lead=el(doc,'p',model.session.text);lead.className='flow-lead';host.append(lead);}
   host.append(el(doc,'p',model.headline));
   if(!model.available){host.hidden=true;return model;}host.hidden=false;
@@ -24,8 +26,9 @@ export function renderKoreaParticipation({documentRef:doc,root,store=null}) {
   const metrics=el(doc,'dl');metrics.className='regime-kr-metrics';
   for(const [label,value] of [['50일선 위',model.breadth50],['200일선 위',model.breadth200]]) if(value.pct!=null)metrics.append(el(doc,'dt',label),el(doc,'dd',`${value.pct.toFixed(1)}% (${value.above}/${value.count}개)`));
   if(model.returns.ret1m!=null)metrics.append(el(doc,'dt','1개월 수익률 중앙값'),el(doc,'dd',`${model.returns.ret1m.toFixed(1)}%`));host.append(metrics);
-  if(model.groups.length){host.append(el(doc,'h3','한국 테마 표본 · 3개월 수익률 중앙값'));const list=el(doc,'ul');
-    for(const group of model.groups){const item=el(doc,'li');item.append(el(doc,'strong',`${group.themeName} ${group.ret3m>=0?'+':''}${group.ret3m.toFixed(1)}% · ${group.members}/${group.listed}개`));
+  if(model.groups.length){host.append(el(doc,'h3','3개월 수익률 상위 한국 테마 · 표본 중앙값'));const list=el(doc,'ul');
+    for(const group of model.groups){const item=el(doc,'li');const pc=v=>`${v>=0?'+':''}${v.toFixed(1)}%`;const turned=group.ret1m!=null&&Math.sign(group.ret1m)!==Math.sign(group.ret3m)&&group.ret1m!==0;
+      item.append(el(doc,'strong',`${group.themeName} 3개월 ${pc(group.ret3m)} · 1개월 ${group.ret1m==null?'미확인':pc(group.ret1m)} · ${group.members}/${group.listed}개`));if(turned){const note=el(doc,'p',`최근 1개월은 3개월과 반대 방향(${group.ret1m<0?'하락':'상승'})입니다.`);note.className='regime-kr-heavy';item.append(note);}
       // P1651: beginners read company names, not 096770.KS codes; the exact registry name only (no guessing), code in the tooltip.
       const nameOf=member=>root.KR_STOCK_DB?.[String(member.sym||'').slice(0,6)]?.name||member.name||member.sym;
       const codes=el(doc,'div',group.constituents.map(nameOf).join(' · '));codes.title=group.constituents.map(member=>`${nameOf(member)} ${member.sym}`).join('\n');codes.className='regime-kr-tickers';item.append(codes);

@@ -10,6 +10,8 @@ export const PRODUCER_SOURCE_FILES = Object.freeze([
   'scripts/lib/macro-sources.mjs',
   'scripts/lib/news-selection.mjs',
   'scripts/lib/factors.mjs',
+  'src/domain/screener/price-factors.js', // v57.81: the per-symbol factor math moved here (shared with the browser)
+  'src/domain/fundamental/sec-row-fields.js', // v57.81: the per-symbol SEC row fields moved here (shared with the browser)
   'scripts/lib/market-analysis-validate.mjs'
 ]);
 

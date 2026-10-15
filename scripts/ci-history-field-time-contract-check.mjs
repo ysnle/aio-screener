@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { deriveMarketSession } from './build-market-snapshot.mjs';
 import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
-import { mergeMacroLastKnownGood, normalizeHistoryRows, parseBeaPceHtml, validateMarketAnalysisText, HIST_FIELD_PLAUSIBILITY, histValueWithinPlausibility, parseFredDexkousCsv, compareUsdKrwCrossCheck } from './fetch-data.mjs';
+import { holdRepeatedSessions, continuousReopenPrint, mergeMacroLastKnownGood, normalizeHistoryRows, parseBeaPceHtml, validateMarketAnalysisText, HIST_FIELD_PLAUSIBILITY, histValueWithinPlausibility, parseFredDexkousCsv, compareUsdKrwCrossCheck } from './fetch-data.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8'));
@@ -195,6 +195,51 @@ if (Object.keys(raggedFixture[1].fieldMeta).length !== 0 || Object.keys(raggedFi
 }
 if (!fixtureColumns[0].includes('breadth200,') || !fixtureColumns[0].includes('marketSnapshotRevision') || !fixtureColumns[0].includes('spx')) {
   fail(`history row normalization did not fill the shared column set: ${fixtureColumns[0]}`);
+}
+// v57.81: one session is one observation. The 10/12 DXY bar (row 10/12) and the same close read as the previous close
+// at the 10/13 run (row 10/13) were two observations of 102.58; a later row repeating a recorded session is held.
+{
+  const meta = (observedAt, fetchedAt, extra = {}) => ({ observedAt, fetchedAt, lastSuccessfulAt: fetchedAt, source: 'Yahoo chart', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'completed-market-series', ...extra });
+  const prevClose = { valueBasis: 'previous-completed-close', observationRelation: 'previous-completed-close', observedAtSource: 'provider-previous-close' };
+  const rows = [
+    { date: '2026-10-12', dxy: 102.58, usdkrw: 1340.84, fieldMeta: { dxy: meta('2026-10-12T04:00:00Z', '2026-10-12T19:23:21Z', { observationRelation: 'latest-completed-close', observedAtSource: 'provider-current' }), usdkrw: meta('2026-10-11T23:00:00Z', '2026-10-11T23:21:00Z', { ...prevClose, sessionDate: '2026-10-09' }) } },
+    { date: '2026-10-13', dxy: 102.58, usdkrw: 1341.63, fieldMeta: { dxy: meta('2026-10-13T04:00:00Z', '2026-10-13T23:51:06Z', prevClose), usdkrw: meta('2026-10-11T23:00:00Z', '2026-10-12T07:51:00Z', { ...prevClose, sessionDate: '2026-10-09' }) } },
+    { date: '2026-10-14', dxy: 102.18, fieldMeta: { dxy: meta('2026-10-14T04:00:00Z', '2026-10-14T23:21:26Z', prevClose) } },
+  ];
+  const first = holdRepeatedSessions(rows, { at: '2026-10-15T08:00:00Z' });
+  const heldDxy = rows[1].fieldMeta.dxy;
+  if (heldDxy.observationRelation !== 'carried-forward' || heldDxy.carriedFrom !== '2026-10-12' || heldDxy.sessionDate !== '2026-10-12' || heldDxy.heldReason !== 'session-already-recorded' || rows[1].dxy !== 102.58) fail(`v57.81 a repeated session is held, not a second observation: ${JSON.stringify(heldDxy)}`);
+  if (rows[2].fieldMeta.dxy.observationRelation !== 'previous-completed-close') fail('v57.81 the 10/14 row holds the 10/13 DXY close — a distinct session stays an observation');
+  // Two producer-dated reads of one session that differ: the later read revises the owner and the old value is kept.
+  if (rows[0].usdkrw !== 1341.63 || rows[0].fieldMeta.usdkrw.revisions?.[0]?.value !== 1340.84 || rows[1].fieldMeta.usdkrw.observationRelation !== 'carried-forward' || first.revised.length !== 1) fail(`v57.81 a re-read of one session revises the owner with a record: ${JSON.stringify(rows[0].fieldMeta.usdkrw)}`);
+  const snapshot = JSON.stringify(rows);
+  const second = holdRepeatedSessions(rows, { at: '2026-10-15T08:30:00Z' });
+  if (second.held.length || second.revised.length || JSON.stringify(rows) !== snapshot) fail('v57.81 holding repeated sessions is idempotent');
+  // An evening reopen print of futures/FX/DXY is not a completed close; a Friday settle print is.
+  if (!continuousReopenPrint('CL=F', '2026-10-11T23:01:22Z') || !continuousReopenPrint('DX-Y.NYB', '2026-10-04T23:26:48Z') || continuousReopenPrint('CL=F', '2026-10-09T20:59:58Z') || continuousReopenPrint('^GSPC', '2026-10-11T23:01:22Z')) fail('v57.81 a Sunday-evening futures/DXY print belongs to a session that has not completed');
+}
+// v57.81 (analysis audit 2026-10-15): the published won rows as written before sessionDate existed. The 10/12 row carries
+// the 10/9 bar (the 10/8 backfill row's own stamp and value) and the 10/14 and 10/15 rows share the 10/14 23:00Z stamp
+// with different values. FX bars are dated by the London session they close, so the reader collapses each copy onto
+// its session and the producer holds the later repeat.
+{
+  const { buildCloseSeries } = await import('../src/domain/briefing/market-read.js');
+  const fx = (observedAt, fetchedAt, relation) => ({ observedAt, fetchedAt, lastSuccessfulAt: fetchedAt, source: 'Yahoo chart', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'completed-market-series',
+    ...(relation === 'prev' ? { valueBasis: 'previous-completed-close', observationRelation: 'previous-completed-close', observedAtSource: 'provider-previous-close' } : { observationRelation: 'latest-completed-close', observedAtSource: 'provider-current' }) });
+  const won = [
+    { date: '2026-10-07', usdkrw: 1339.08, fieldMeta: { usdkrw: fx('2026-10-07T23:00:00.000Z', '2026-10-14T20:22:02.080Z') } },
+    { date: '2026-10-08', usdkrw: 1342.99, fieldMeta: { usdkrw: fx('2026-10-08T23:00:00.000Z', '2026-10-14T20:22:02.080Z') } },
+    { date: '2026-10-12', usdkrw: 1342.99, fieldMeta: { usdkrw: fx('2026-10-08T23:00:00.000Z', '2026-10-12T19:23:21.927Z', 'prev') } },
+    { date: '2026-10-13', usdkrw: 1339.88, fieldMeta: { usdkrw: fx('2026-10-13T23:00:00.000Z', '2026-10-13T23:51:06.874Z', 'prev') } },
+    { date: '2026-10-14', usdkrw: 1340.84, fieldMeta: { usdkrw: fx('2026-10-14T23:00:00.000Z', '2026-10-14T23:21:26.878Z', 'prev') } },
+    { date: '2026-10-15', usdkrw: 1341.63, fieldMeta: { usdkrw: fx('2026-10-14T23:00:00.000Z', '2026-10-15T11:30:53.313Z', 'prev') } },
+  ];
+  const series = buildCloseSeries(won, 'usdkrw');
+  const dates = series.map((point) => point.date);
+  if (JSON.stringify(dates) !== JSON.stringify(['2026-10-08', '2026-10-09', '2026-10-13', '2026-10-14']) || series.find((point) => point.date === '2026-10-09')?.value !== 1342.99 || series.at(-1).value !== 1341.63) fail(`v57.81 carried usdkrw copies collapse onto their London session: ${JSON.stringify(series)}`);
+  const copy = structuredClone(won);
+  const { held } = holdRepeatedSessions(copy, { at: '2026-10-15T12:00:00Z', fields: ['usdkrw'] });
+  if (!held.some((row) => row.date === '2026-10-12' && row.session === '2026-10-09' && row.carriedFrom === '2026-10-08')) fail(`v57.81 the producer holds the 10/12 copy of the 10/9 won bar: ${JSON.stringify(held)}`);
 }
 const lkg = mergeMacroLastKnownGood(
   { _source: 'fred:no-key', _failedSeries: ['pce'] },

@@ -1,3 +1,5 @@
+import { legacyCashCurrency, normalizeCashBalances } from './portfolio-cash.js';
+
 /**
  * Full personal-data backup bundle (P1316/R661).
  *
@@ -14,7 +16,7 @@
 
 export const BACKUP_FORMAT = 'aio-backup';
 export const BACKUP_VERSION = 1;
-export const BACKUP_SECTIONS = Object.freeze(['positions', 'ledger', 'fxLegs', 'cash', 'assumptions', 'journal', 'watchlists', 'activeWatchlistId']);
+export const BACKUP_SECTIONS = Object.freeze(['positions', 'ledger', 'fxLegs', 'cash', 'cashBalances', 'assumptions', 'journal', 'watchlists', 'activeWatchlistId']);
 
 const TICKER_RE = /^[A-Z0-9.\-^=]{1,12}$/i;
 const MAX_JOURNAL = 80;
@@ -70,6 +72,17 @@ function sanitizeCash(raw) {
   return Number.isFinite(n) && n >= 0 ? String(n) : null;
 }
 
+// v57.81: cash is one balance per currency. A bundle written before v57.81 carries one `cash` value; it becomes one
+// balance in the currency that bundle declared (cash currency, else base, else USD — the same rule as the storage
+// migration). Neither present stays null, so a restore clears cash exactly as the old restore removed the key.
+function sanitizeCashBalances(raw) {
+  if (Array.isArray(raw.cashBalances) || (raw.cashBalances && typeof raw.cashBalances === 'object')) return normalizeCashBalances(raw.cashBalances);
+  const legacy = sanitizeCash(raw.cash);
+  if (legacy == null) return null;
+  const assumptions = raw.assumptions && typeof raw.assumptions === 'object' ? raw.assumptions : {};
+  return normalizeCashBalances([{ currency: legacyCashCurrency({ cashCurrency: assumptions.cashCurrency, baseCurrency: assumptions.baseCurrency }), amount: legacy }]);
+}
+
 // Assumptions are stored as the raw declared text; keep only values the owning
 // normalizer accepts, so an invalid declaration is never resurrected by a restore.
 function sanitizeAssumptions(raw, deps) {
@@ -93,7 +106,7 @@ export function countBackupContents(contents = {}) {
     positions: (contents.positions || []).length,
     ledgerEntries,
     fxLegs: (contents.fxLegs || []).length,
-    cash: contents.cash != null ? 1 : 0,
+    cash: (contents.cashBalances || []).length || (contents.cash != null ? 1 : 0),
     assumptions: Object.keys(contents.assumptions || {}).length,
     journal: (contents.journal || []).length,
     watchlists: (contents.watchlists || []).length
@@ -108,7 +121,7 @@ export function describeBackupCounts(counts) {
     `포지션 ${counts.positions}`,
     `원장 ${counts.ledgerEntries}`,
     `환율 ${counts.fxLegs}`,
-    `현금 ${counts.cash ? '있음' : '없음'}`,
+    `현금 ${counts.cash ? `${counts.cash}개 통화` : '없음'}`,
     `가정 ${counts.assumptions}`,
     `일지 ${counts.journal}`,
     `관심목록 ${counts.watchlists}`
@@ -121,6 +134,7 @@ export function buildPortfolioBackup(snapshot = {}, meta = {}) {
     ledger: snapshot.ledger && typeof snapshot.ledger === 'object' ? snapshot.ledger : null,
     fxLegs: Array.isArray(snapshot.fxLegs) ? snapshot.fxLegs : [],
     cash: snapshot.cash == null ? null : String(snapshot.cash),
+    cashBalances: Array.isArray(snapshot.cashBalances) ? normalizeCashBalances(snapshot.cashBalances).map((row) => ({ ...row })) : null,
     assumptions: snapshot.assumptions && typeof snapshot.assumptions === 'object' ? { ...snapshot.assumptions } : {},
     journal: Array.isArray(snapshot.journal) ? snapshot.journal : [],
     watchlists: Array.isArray(snapshot.watchlists) ? snapshot.watchlists : [],
@@ -163,6 +177,7 @@ export function parsePortfolioBackup(text, deps = {}) {
     ledger: normalizeLedger(raw.ledger),
     fxLegs: normalizeFxLegs(raw.fxLegs),
     cash: sanitizeCash(raw.cash),
+    cashBalances: sanitizeCashBalances(raw),
     assumptions: sanitizeAssumptions(raw.assumptions, deps),
     journal: sanitizeJournal(raw.journal),
     watchlists,
