@@ -407,9 +407,6 @@ function consumeLLMQuery() {
 /* v20: DOMContentLoaded Handler #2 - UI Keys/Quota */
 document.addEventListener('DOMContentLoaded', () => {
   loadSidebarApiKey();
-  loadRss2jsonKey();
-  var fredRelayConsent = document.getElementById('aio-fred-relay-consent');
-  if (fredRelayConsent && typeof _aioFredRelayConsent === 'function') fredRelayConsent.checked = _aioFredRelayConsent();
   // v31.3: 적응형 모델 — 기본 Haiku, 질문 복잡도에 따라 Sonnet/Thinking 자동 승격
   updateQuotaBadge();
 

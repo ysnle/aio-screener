@@ -21,22 +21,6 @@ function getApiKey() { return ''; }
 async function setApiKey() { return { ok: false, state: 'SERVER_ONLY_AI' }; }
 async function saveSidebarApiKey() { return { ok: false, state: 'SERVER_ONLY_AI' }; }
 function loadSidebarApiKey() {}
-async function saveRss2jsonKey() {
-  const inp = document.getElementById('rss2json-api-key');
-  if (!inp) return;
-  const key = inp.value.trim();
-  const btn = inp.nextElementSibling;
-  const result = typeof _saveApiKey === 'function' ? await _saveApiKey('aio_rss2json_key', 'rss2json-api-key', btn) : { ok: false, state: 'KEYSTORE_UNAVAILABLE' };
-  if (!result.ok) { showToast('RSS2JSON 키 저장에 실패했습니다.'); return result; }
-  if (key) { inp.value = '••••••••'; inp.dataset.secretStored = 'true'; }
-  else { inp.value = ''; inp.dataset.secretStored = ''; }
-  return result;
-}
-function loadRss2jsonKey() {
-  const inp = document.getElementById('rss2json-api-key');
-  const key = _getApiKey('aio_rss2json_key') || '';
-  if (inp && key) { inp.value = '••••••••'; inp.dataset.secretStored = 'true'; }
-}
 
 
 // Enter 키로 저장

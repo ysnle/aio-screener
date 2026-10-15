@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v57.66 — 올인원 투자 터미널</title>
+  <title>AIO Screener v57.67 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -33,14 +33,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=57.66" defer></script>
-<script src="./js/aio-macro-tech.js?v=57.66" defer></script>
-<script src="./js/aio-kr-data.js?v=57.66" defer></script>
-<script src="./js/aio-pages.js?v=57.66" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=57.66">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=57.66">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.66">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.66">
+<script src="./js/aio-workspace.js?v=57.67" defer></script>
+<script src="./js/aio-macro-tech.js?v=57.67" defer></script>
+<script src="./js/aio-kr-data.js?v=57.67" defer></script>
+<script src="./js/aio-pages.js?v=57.67" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=57.67">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=57.67">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.67">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.67">
   <!-- v48.31 perf: CDN 스크립트 다운로드 hint. P1756: Chart.js / lightweight-charts are no longer preloaded — they load on first chart use. -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js">
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
@@ -3901,56 +3901,15 @@ button[data-filter-active="true"] {
             </div>
 
             <div style="font-size:11px;color:var(--data-cyan);font-family:var(--font-mono);margin-bottom:5px;cursor:pointer;padding:4px 6px;background:rgba(var(--ink-rgb),0.08);border:1px solid rgba(var(--ink-rgb),0.2);border-radius:4px;text-align:center;" data-action="_aioNextSiblingToggle" data-pass-el="1">
-               개인 데이터 연결 (선택) <span class="arrow">▼</span>
+               자체 프록시 (선택) <span class="arrow">▼</span>
             </div>
             <div style="display:none;">
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">기본 시세·차트·공시 재무·수집 뉴스·AI는 공용 연결을 사용합니다. 아래 키는 공용 자료에 없는 항목이나 다른 제공자를 조회할 때만 필요합니다. 사업별 매출·추정치 등은 개인 계정의 이용 권한에 따라 제공됩니다.</div>
-              <div class="llm-key-row" style="margin-bottom:3px;">
-                <input type="password" id="rss2json-api-key" class="llm-key-input" placeholder="rss2json (RSS 변환 · 선택)" title="본인 rss2json 키 · 공용 RSS 연결을 우선 사용하며, 요청 한도는 본인 요금제를 따릅니다.">
-                <button class="llm-key-save" data-action="saveRss2jsonKey">저장</button>
-              </div>
-              <div id="provider-status-summary" role="status" aria-live="polite" style="font-size:10px;color:var(--text-muted);line-height:1.4;margin-bottom:4px;">저장 0개 · 실제 호출 성공 0개 · 최신성/사용 권한과 분리됨</div>
-              <button data-action="_aioRefreshProviderStatuses" style="width:100%;margin-bottom:5px;background:rgba(var(--ink-rgb),0.12);border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:3px 6px;border-radius:3px;cursor:pointer;">공급자 상태 새로고침</button>
-              <div class="llm-key-row" style="margin-bottom:3px;">
-                <input type="password" id="aio_av_key_input" class="llm-key-input" placeholder="Alpha Vantage (선택 · 시장 폭)" title="alphavantage.co 무료 25회/일 · 선택적 (미설정 시 RSP/SPY 비율로 폴백)" style="font-size:11px;">
-                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_av_key" data-arg2="aio_av_key_input" data-pass-el="1">저장</button>
-              </div>
-              <div class="llm-key-row" style="margin-bottom:3px;">
-                <input type="password" id="aio_finnhub_key_input" class="llm-key-input" placeholder="Finnhub API 키 (시세·뉴스)" title="finnhub.io 무료 가입 → API 키" style="font-size:11px;">
-                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_finnhub_key" data-arg2="aio_finnhub_key_input" data-pass-el="1">저장</button>
-              </div>
-              <div class="llm-key-row" style="margin-bottom:3px;">
-                <input type="password" id="aio_fred_key_input" class="llm-key-input" placeholder="FRED (개인 조회 · 선택)" title="FRED는 사용자별 본인 키를 요구합니다. 공용 수집 자료 열람에는 입력하지 않아도 됩니다." style="font-size:11px;">
-                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_fred_key" data-arg2="aio_fred_key_input" data-pass-el="1">저장</button>
-              </div>
-              <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:5px;"><input type="checkbox" id="aio-fred-relay-consent" data-on-change="_aioSetFredRelayConsent" aria-label="공용 연결로 내 FRED 키 조회 허용"> 이 앱의 공용 연결로 내 FRED 키 조회 허용</label>
-              <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">허용하면 조회할 때만 키를 앱 서버에 전송합니다. 서버에 저장하지 않습니다. 허용하지 않으면 본인 프록시 또는 직접 연결을 사용합니다.</div>
-              <div class="llm-key-row" style="margin-bottom:3px;">
-                <input type="password" id="aio_td_key_input" class="llm-key-input" placeholder="Twelve Data (차트/지표)" title="twelvedata.com 무료 키" style="font-size:11px;">
-                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_td_key" data-arg2="aio_td_key_input" data-pass-el="1">저장</button>
-              </div>
-              <div class="llm-key-row" style="margin-bottom:3px;">
-                <input type="password" id="aio_fmp_key_input" class="llm-key-input" placeholder="FMP (재무 자료 · 선택)" title="본인 FMP 키 · 현행 API를 사용합니다. 무료 요금제에서 허용되는 자료만 조회되며 모든 재무 자료를 제공하지는 않습니다." style="font-size:11px;">
-                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_fmp_key" data-arg2="aio_fmp_key_input" data-pass-el="1">저장</button>
-              </div>
-              <div class="llm-key-row" style="margin-bottom:3px;">
-                <input type="password" id="aio_newsdata_key_input" class="llm-key-input" placeholder="NewsData.io (뉴스 · 선택)" title="본인 NewsData 키 · 무료 요금제는 뉴스가 12시간 지연됩니다." style="font-size:11px;">
-                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_newsdata_key" data-arg2="aio_newsdata_key_input" data-pass-el="1">저장</button>
-              </div>
-              <!-- v48.59: BOK ECOS + KOSIS 한국 공공 API 무료 키 -->
-              <div class="llm-key-row" style="margin-bottom:3px;">
-                <input type="password" id="aio_bok_key_input" class="llm-key-input" placeholder="BOK ECOS (한국은행 지표)" title="ecos.bok.or.kr 무료 가입 → API 키 (기준금리/원화/수출입)" style="font-size:11px;">
-                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_bok_key" data-arg2="aio_bok_key_input" data-pass-el="1">저장</button>
-              </div>
-              <div class="llm-key-row" style="margin-bottom:3px;">
-                <input type="password" id="aio_kosis_key_input" class="llm-key-input" placeholder="KOSIS (통계청 CPI/GDP)" title="kosis.kr/openapi 무료 가입 → Open API Key" style="font-size:11px;">
-                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_kosis_key" data-arg2="aio_kosis_key_input" data-pass-el="1">저장</button>
-              </div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">시세·거시·공시 재무·뉴스·AI는 모두 공용 연결을 사용하므로 개인 키를 입력하지 않아도 됩니다. 아래는 자체 프록시를 운영할 때만 씁니다.</div>
+              <!-- v57.67 (owner 2026-10-15): personal data-provider keys are retired; FRED, Finnhub, Twelve Data, BOK and KOSIS run on operator keys in Actions and the Worker. -->
               <div class="llm-key-row" style="margin-bottom:3px;">
                 <input type="password" id="aio_cf_worker_input" class="llm-key-input" placeholder="CF Worker URL (자체 프록시)" title="Cloudflare Worker 프록시 URL — 설정 시 모든 데이터 수집이 공용 CORS 프록시 대신 자체 Worker를 최우선(Tier-0) 사용해 가용성·무결성이 개선됩니다. 저장 즉시 적용." style="font-size:11px;">
                 <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_cf_worker_url" data-arg2="aio_cf_worker_input" data-pass-el="1">저장</button>
               </div>
-              <div style="font-size:11px;color:var(--accent);margin-top:3px;line-height:1.5;">키 발급 링크는 사용 설명서에서 확인하세요.</div>
             </div>
           </details>
 
@@ -4026,7 +3985,7 @@ button[data-filter-active="true"] {
           </span>
           <span id="live-quote-ts" style="font-size:var(--fs-xs);color:var(--text-muted);font-family:var(--font-sans);font-weight:500;">연결 중...</span>
           <!-- R1: visible release identity; market volatility stays in the market card. -->
-          <span class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;" id="app-version-badge">v57.66</span>
+          <span class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;" id="app-version-badge">v57.67</span>
           <!-- v48.43: AI 분석가 버튼 -->
           <button id="topbar-help-btn" class="aio-btn-table" data-action="showPage" data-arg="guide" title="도움말 · 화면 안내와 판정 기준">도움말</button>
           <button id="topbar-ai-btn" class="aio-btn-table" data-action="toggleAIPanel" aria-label="AI 도우미 열기/닫기" aria-expanded="false" aria-controls="ai-panel" title="AI 도우미 · 교육/리서치 보조 사이드바">AI 도우미</button>
@@ -7132,12 +7091,12 @@ button[data-filter-active="true"] {
       <div class="widget-title">데이터 연결 설정</div>
       <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
         <div style="background:rgba(34,117,76,0.08);border:1px solid rgba(34,117,76,0.2);border-radius:4px;padding:10px;margin-bottom:10px;">
-          AI·번역과 공용 수집 자료는 개인 키 없이 이용합니다. 본인 데이터 계정으로 추가 조회하거나 선택 웹검색을 사용할 때만 왼쪽 아래 「연결·키 보안 설정」을 펼쳐 연결하세요.
+          시세·거시·공시 재무·뉴스·AI는 모두 공용 연결로 제공되어 개인 키를 입력할 필요가 없습니다.
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:10px;">
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
             <div style="font-size:10px;font-weight:800;color:var(--data-cyan);margin-bottom:4px;">시세</div>
-            <div style="font-size:11px;color:var(--text-muted);">Finnhub · Twelve Data · FMP</div>
+            <div style="font-size:11px;color:var(--text-muted);">공용 수집 · 개인 키 불필요</div>
           </div>
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
             <div style="font-size:10px;font-weight:800;color:var(--data-purple);margin-bottom:4px;">AI/번역</div>
@@ -7145,11 +7104,11 @@ button[data-filter-active="true"] {
           </div>
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
             <div style="font-size:10px;font-weight:800;color:var(--data-amber);margin-bottom:4px;">뉴스/웹검색</div>
-            <div style="font-size:11px;color:var(--text-muted);">rss2json · NewsData · AI 웹검색(공용 연결)</div>
+            <div style="font-size:11px;color:var(--text-muted);">공용 수집 · AI 웹검색 · 개인 키 불필요</div>
           </div>
         </div>
         <div style="font-size:10px;color:var(--text-muted);background:var(--surface-2);padding:8px;border-radius:4px;">
-          개인 키는 이 브라우저에 저장되며 조회 시 해당 제공자 또는 본인 프록시로 전송됩니다. 공용 PC에서는 사용 후 삭제하세요. 공급자별 한도와 제공 지연을 확인하세요.
+          예전에 저장한 개인 키는 더 이상 쓰이지 않습니다.
         </div>
       </div>
     </div>
@@ -7645,15 +7604,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=57.66" defer></script>
-  <script src="./js/aio-data.js?v=57.66" defer></script>
-  <script src="./js/aio-ui.js?v=57.66" defer></script>
+  <script src="./js/aio-core.js?v=57.67" defer></script>
+  <script src="./js/aio-data.js?v=57.67" defer></script>
+  <script src="./js/aio-ui.js?v=57.67" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=57.66" defer></script>
+<script src="./js/aio-chat.js?v=57.67" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -7704,7 +7663,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=57.66" defer></script>
+<script src="./js/aio-glossary.js?v=57.67" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

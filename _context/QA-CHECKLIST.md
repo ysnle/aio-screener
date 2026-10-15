@@ -4,6 +4,10 @@ last_verified: 2026-10-15
 confidence: medium
 ---
 
+## v57.67 개인 데이터 키 퇴역 (v57.67) (2026-10-15)
+
+- [ ] QA-VERIFY-28: v57.67 배포와 BOK_API_KEY·KOSIS_API_KEY Secret 등록, Deploy AI proxy 실행 후: 운영 사이트 설정에 개인 키 입력칸이 없고, 거시 화면 한국은행 기준금리·KR CPI가 운영자 중계로 채워지며, 재무 화면 실적 캘린더가 공용 수집 자료로 보인다. verify_by: Secret 등록·Worker 재배포 후 운영 사이트 설정·거시·재무 화면 확인
+
 ## v57.66 SEC 다중 클래스 주식 수 (v57.66) (2026-10-15)
 
 - [ ] QA-VERIFY-27: P1798 배포 후: refresh-screener 1~2회 뒤 sec-fundamentals-summary.json에서 GOOGL·GOOG·META·MA·CMCSA가 weighted-diluted, V·COKE·WMG가 class-dimensioned-10k로 주식 수를 갖고, BRK-B는 sharesClassCheck class-member-unmatched로 비어 있으며, 스크리너 기본 시총 정렬 상단에 GOOGL·META가 다시 보인다. verify_by: push 뒤 refresh-screener 2회 후 산출물과 운영 사이트 스크리너 확인

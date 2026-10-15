@@ -48,7 +48,7 @@ for (const endpoint of ['income-statement','balance-sheet-statement','cash-flow-
   assert.equal(new URL(urls[0]).searchParams.get('symbol'), 'MSFT', 'P1422 caller ticker survives mapping');
 }
 
-vm.runInContext(slice(data, 'function _aioSetFredRelayConsent(', '// P715:'), context);
+vm.runInContext(slice(data, 'function _aioFredRelayConsent(', '// P715:'), context);
 context.DATA_APIS = { fred: { key: () => 'personal-fred-fixture-key', base: 'https://api.stlouisfed.org/fred/series/observations' }, twelveData: { key: () => 'td-fixture-key', base: 'https://api.twelvedata.com' } };
 vm.runInContext(slice(data, 'async function fetchFredSeries(', '// v47.11: 5개 시리즈'), context);
 let relayCalls = [];
@@ -57,7 +57,7 @@ context._aioRelayFetch = async (url, ms, key) => { relayCalls.push({ url, key })
 context.fetchWithTimeout = async () => { throw new Error('fixture CORS unavailable'); };
 assert.equal(await context.fetchFredSeries('UNRATE'), null, 'P1422 existing personal keys are not silently sent to the operator');
 assert.equal(relayCalls.length, 0, 'P1422 shared personal-key relay requires opt-in');
-context._aioSetFredRelayConsent({ checked: true });
+context.localStorage.setItem('aio_fred_relay_consent', 'true');
 assert.equal((await context.fetchFredSeries('UNRATE'))[0].value, '4.0', 'P1422 consented personal query succeeds');
 assert.equal(relayCalls[0].key, 'personal-fred-fixture-key', 'P1422 own key is used');
 context.DATA_APIS.fred.key = () => '';
@@ -102,9 +102,18 @@ context.fetchWithTimeout = async () => Response.json({ status:'success', results
 assert.equal((await context.fetchNewsDataIO())[0].providerDelayPolicy, 'plan-dependent-free-12h', 'P1422 NewsData cannot silently claim zero delivery delay');
 
 assert(!/<input[^>]+(?:claude-api-key|openai-api-key|aio_perplexity_key_input)/.test(shell), 'P1422 public UI has no personal AI-key input');
-const rssPosition = shell.indexOf('id="rss2json-api-key"');
-assert(rssPosition > shell.indexOf('<details class="sidebar-connection-settings"'), 'P1422 RSS personal input is outside operator-only quota area');
-assert(shell.includes('공용 연결로 내 FRED 키 조회 허용'), 'P1422 FRED key transfer has visible user consent');
+// v57.67 (owner 2026-10-15): personal data-provider keys are retired; the shell asks for none and the getter never
+// returns a stored one, so every path runs on the operator's Actions artifacts or Worker relay.
+assert(!/<input[^>]+id="(?:rss2json-api-key|aio_(?:av|finnhub|fred|td|fmp|newsdata|bok|kosis)_key_input)"/.test(shell) && !shell.includes('aio-fred-relay-consent'), 'v57.67 public UI has no personal data-key input'); // text-pin-ok: asserts an input is absent from the shell
+{
+  const coreSource = readFileSync('js/aio-core.js', 'utf8');
+  const keyContext = { _AioVault: { _keyRuntime: { aio_finnhub_key: 'stored', aio_fmp_key: 'stored', aio_cf_worker_url: 'https://worker.fixture' }, getStorage: () => ({ getItem: () => 'stored' }) } };
+  vm.createContext(keyContext);
+  vm.runInContext(slice(coreSource, 'function _aioIsRetiredDataKey(', '// 마이그레이션: 평문 → 암호화'), keyContext);
+  assert(['aio_rss2json_key', 'aio_av_key', 'aio_finnhub_key', 'aio_fred_key', 'aio_td_key', 'aio_fmp_key', 'aio_newsdata_key', 'aio_bok_key', 'aio_kosis_key'].every((key) => keyContext._getApiKey(key) === '')
+    && keyContext._getApiKey('aio_cf_worker_url') === 'https://worker.fixture', 'v57.67 retired personal data keys are never read; the self-proxy URL still is');
+  assert.equal((await keyContext._aioSaveCredential('aio_fmp_key', 'personal-fixture')).state, 'SERVER_ONLY_DATA', 'v57.67 retired personal data keys cannot be saved again');
+}
 // P1424: migration holds must not advertise a perpetual in-flight health check.
 context.window.AIO = { getPublicConfig: () => ({ ai: { routeStatus: 'DISABLED' } }) };
 vm.runInContext(slice(ui, 'function getLLMRouteReadiness(', '// P1070/R592:'), context);
@@ -112,4 +121,4 @@ assert.equal(context.getLLMRouteReadiness().label, '공용 연결 준비 중', '
 assert.equal(context.getLLMRouteReadiness().ready, false, 'P1424 held AI route never advertises capacity');
 vm.runInContext(slice(chat, 'function _aioClaudeTarget(', 'window._aioClaudeTarget ='), context);
 assert.equal(context._aioClaudeTarget(), null, 'P1424 disabled public configuration also blocks the generation transport');
-console.log('Extension API runtime PASS: FMP stable/quota/error, personal FRED consent, weighted Twelve Data, RSS priority/fallback, visible personal settings.');
+console.log('Extension API runtime PASS: FMP stable/quota/error, personal FRED consent, weighted Twelve Data, RSS priority/fallback, retired personal data keys.');

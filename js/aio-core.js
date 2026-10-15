@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.66';
+const APP_VERSION = 'v57.67';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -12605,28 +12605,6 @@ function _aioRefreshProviderStatuses() {
   }[claude.storage] || '확인 안 됨';
   var keyStatus = document.getElementById('claude-key-status');
   if (keyStatus) keyStatus.textContent = !claude.storage || claude.storage === 'MISSING' ? '' : '키 ' + storageLabel + ({ VERIFIED: ' · 연결 확인됨', FAILED: ' · 연결 실패' }[claude.connection] || { VERIFIED: ' · 인증 확인됨', FAILED: ' · 인증 실패' }[claude.authentication] || ''); // P1393: no raw NOT_CHECKED enums; nothing to say before a key exists
-  var summary = document.getElementById('provider-status-summary');
-  if (summary) {
-    var values = Object.keys(snapshot).map(function(id) { return snapshot[id]; });
-    var configured = values.filter(function(s) { return s.storage && s.storage.indexOf('READY') === 0; }).length;
-    // 저장은 연결의 증거가 아니다. 실제 호출 결과(aio-data/aio-chat 이 updateProviderStatus 로
-    // 기록)를 따로 세어, "저장됨"이 "동작함"으로 읽히지 않게 한다.
-    var verified = values.filter(function(s) { return s.connection === 'VERIFIED' || s.authentication === 'VERIFIED'; }).length;
-    var failed = values.filter(function(s) { return s.authentication === 'FAILED' || s.connection === 'FAILED'; }).length;
-    var fred = snapshot.fred || {};
-    var statusKo = {
-      NOT_CHECKED:'미확인', VERIFIED:'성공', FAILED:'실패',
-      HEALTHY:'정상', REACHABLE:'도달', BLOCKED:'차단',
-      MISSING:'미저장', READY_PLAINTEXT:'저장됨', READY_SESSION:'탭 저장',
-      READY_ENCRYPTED:'암호화 저장', LOCKED:'Vault 잠김'
-    };
-    summary.textContent = '저장 ' + configured + '개 · 실제 호출 성공 ' + verified + '개'
-      + (failed ? ' · 실패 ' + failed + '개' : '')
-      + ' · FRED 인증: '
-      + (statusKo[fred.authentication] || fred.authentication || '미확인') + ' / 연결: '
-      + (statusKo[fred.connection] || fred.connection || '미확인')
-      + ' · 최신성/사용 권한과 분리';
-  }
   if (typeof _aioSyncClaudeServerModeUI === 'function') _aioSyncClaudeServerModeUI();
   return snapshot;
 }
@@ -12753,8 +12731,13 @@ window.LS_SCHEMAS = LS_SCHEMAS;
 // 1순위: _AioVault._keyRuntime (PIN 해제 후 복호화 캐시)
 // 2순위: localStorage 평문 값 (PIN 미설정 사용자)
 // 3순위: 빈 문자열 ('aio_enc::' 만 있고 캐시 비어있음 = Vault 잠김)
+// v57.67 (owner 2026-10-15): personal data-provider keys are retired like the AI keys above. Every browser path
+// already falls back to the operator's Actions artifacts or Worker relay (FRED/Finnhub/Twelve Data secrets, BOK/KOSIS
+// relay); stored values stay in the vault and backups but are never read, so no free personal-use key is shared.
+function _aioIsRetiredDataKey(lsKey) { return /^aio_(rss2json|av|finnhub|fred|td|fmp|newsdata|bok|kosis)_key$/.test(String(lsKey || '')); } // hoisted: callable before this line runs
 function _getApiKey(lsKey) {
   if (lsKey === 'aio_claude_api_key' || lsKey === 'aio_perplexity_key') return ''; // Retired AI credentials stay stored but inactive.
+  if (_aioIsRetiredDataKey(lsKey)) return '';
   if (_AioVault && _AioVault._keyRuntime && _AioVault._keyRuntime[lsKey]) return _AioVault._keyRuntime[lsKey];
   try {
     var storage = (_AioVault && _AioVault.getStorage) ? _AioVault.getStorage() : localStorage;
@@ -12767,6 +12750,7 @@ function _getApiKey(lsKey) {
 async function _aioSaveCredential(lsKey, value) {
   if (lsKey === 'aio_claude_api_key' || lsKey === 'aio_perplexity_key') return { ok: false, key: lsKey, state: 'SERVER_ONLY_AI' };
   var clean = value == null ? '' : String(value).trim();
+  if (clean && _aioIsRetiredDataKey(lsKey)) return { ok: false, key: lsKey, state: 'SERVER_ONLY_DATA' };
   var format = _aioValidateCredential(lsKey, clean);
   if (!format.ok) return { ok: false, key: lsKey, state: format.reason || 'INVALID_FORMAT' };
   try {
@@ -12854,7 +12838,7 @@ window._aioCollectKeySnapshot = function() {
     ['aio_av_key','aio_finnhub_key','aio_fmp_key','aio_perplexity_key',
      'aio_fred_key','aio_td_key','aio_newsdata_key','aio_rss2json_key','aio_bok_key','aio_kosis_key','aio_cf_worker_url'];
   keys.forEach(function(k) {
-    var v = (typeof _getApiKey === 'function') ? _getApiKey(k) : (localStorage.getItem(k) || '');
+    var v = (_AioVault._keyRuntime && _AioVault._keyRuntime[k]) || safeLSGetSync(k, ''); // v57.67: retired keys still back up
     if (v) snap[k] = v;
   });
   return snap;

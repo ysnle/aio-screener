@@ -2364,9 +2364,6 @@ const _aioRelayUrl = (provider, params) => {
 
 // The relay destination is the AIO Worker itself, never a third-party relay, so a
 // direct fetch with the shared app token is the correct transport.
-function _aioSetFredRelayConsent(el) {
-  try { localStorage.setItem('aio_fred_relay_consent', el && el.checked ? 'true' : 'false'); } catch (_) {}
-}
 function _aioFredRelayConsent() {
   try { return localStorage.getItem('aio_fred_relay_consent') === 'true'; } catch (_) { return false; }
 }
