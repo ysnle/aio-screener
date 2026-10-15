@@ -44,9 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
 setTimeout(function() {
   // 현재 활성 페이지의 "로딩 중" 요소만 처리 (비활성 페이지는 진입 시 init에서 처리)
   var _loadingPatterns = ['로딩 중...','로딩 중…','분석 로딩 중…','분석 로딩 중...','데이터 로딩 중...','데이터 로딩 중…','데이터 로딩 중'];
-  // v46.10: API 키 미설정 감지 → 맞춤 안내
-  var hasAnyKey = !!(_getApiKey('aio_finnhub_key') || _getApiKey('aio_fmp_key') || _getApiKey('aio_fred_key'));
-  var _fallbackMsg = hasAnyKey ? '데이터 연결 지연 — 새로고침(R키) 시도' : '사이드바 하단에서 API 키를 설정하면 실시간 데이터가 표시됩니다';
+  // v57.75: personal API keys are retired (v57.67), so the old "API 키를 설정하면" hint pointed at a removed setting.
+  var _fallbackMsg = '데이터 연결 지연 — 새로고침(R키) 시도';
   var replaced = 0;
   document.querySelectorAll('.page.active *').forEach(function(el) {
     if (el.children.length > 0) return;

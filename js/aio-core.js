@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.74';
+const APP_VERSION = 'v57.75';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -3450,26 +3450,6 @@ window.AIO.loadTests = function() {
   }); });
 };
 
-
-// 첫 방문 감지 (2초 지연 — 로딩 완료 후)
-if (typeof document !== 'undefined') {
-  setTimeout(function() {
-    try {
-      var dismissed = localStorage.getItem('aio_onboarding_dismissed') === '1';
-      var laterUntil = parseInt(localStorage.getItem('aio_onboarding_later_until') || '0', 10);
-      var hasAnyKey = false;
-      ['aio_finnhub_key', 'aio_fmp_key', 'aio_fred_key'].forEach(function(k){
-        if (localStorage.getItem(k)) hasAnyKey = true;
-      });
-      // 키 하나라도 있으면 온보딩 불필요
-      if (hasAnyKey) { try { localStorage.setItem('aio_onboarding_dismissed', '1'); } catch(_){} return; }
-      if (dismissed) return;
-      if (laterUntil && Date.now() < laterUntil) return;
-      try { localStorage.setItem('aio_onboarding_dismissed', '1'); } catch(_){}
-      // v50.71: API onboarding is opt-in only. Do not block the first screen with a modal.
-      } catch(_){}
-  }, 2500);
-}
 
 // v48.58: 포트폴리오 시세 신선도 UI 업데이터 (Blocker #2 해소)
 window._aioUpdateFreshness = function() {
@@ -10263,7 +10243,7 @@ window.AIO.fetchFMPEarningsCallTranscript = async function(ticker) {
     return {
       available: false,
       ticker: ticker,
-      reason: 'FMP API key 미설정 — 사이드바 API 설정에서 등록 권장',
+      reason: 'personal-keys-retired',
       sourceUrl: 'https://financialmodelingprep.com/developer/docs#earning-call-transcript',
       generatedAt: new Date().toISOString()
     };
@@ -13540,6 +13520,9 @@ async function _restoreDecryptedKeys() {
       var val = await safeLSGet(lsKey); if (generation !== _AioVault._generation) throw new Error('vault-operation-cancelled');
       var el = document.getElementById(inputId);
       // v47.9: 복호화된 값은 반드시 _keyRuntime에 저장 (fetcher들의 _getApiKey 참조 대상)
+      // v57.75: retired personal data/AI keys stay encrypted in storage but are no longer loaded into the runtime cache
+      // that fetchers read (the getter already refused them; this closes the cache path).
+      if (val && (_aioIsRetiredDataKey(lsKey) || lsKey === 'aio_perplexity_key')) { val = ''; }
       if (val) _AioVault._keyRuntime[lsKey] = val;
       // 비밀값은 런타임 캐시에만 보관하고 DOM에는 고정 마스크만 둔다.
       if (val && lsKey === 'aio_claude_api_key') {

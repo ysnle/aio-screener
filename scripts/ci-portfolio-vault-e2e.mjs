@@ -173,16 +173,16 @@ async function main() {
       payload.set(iv, 0);
       payload.set(_AioVault._salt, 12);
       payload.set(new Uint8Array(encrypted), 28);
-      localStorage.setItem('aio_finnhub_key', 'aio_enc::' + btoa(String.fromCharCode.apply(null, payload)));
+      localStorage.setItem('aio_cf_worker_url', 'aio_enc::' + btoa(String.fromCharCode.apply(null, payload)));
       _AioVault.lock();
       window.showPage('portfolio');
       document.getElementById('pf-pin-input').value = '2468';
       await window.unlockPortfolio();
       await new Promise((resolve) => setTimeout(resolve, 180));
-      const raw = localStorage.getItem('aio_finnhub_key') || '';
+      const raw = localStorage.getItem('aio_cf_worker_url') || '';
       const decoded = raw.startsWith('aio_enc::') ? atob(raw.slice(9)) : '';
       return {
-        legacyValueRestored: _AioVault._keyRuntime?.aio_finnhub_key === plaintext,
+        legacyValueRestored: _AioVault._keyRuntime?.aio_cf_worker_url === plaintext,
         reencryptedV2: decoded.charCodeAt(0) === 0x41 && decoded.charCodeAt(1) === 0x49 && decoded.charCodeAt(2) === 0x4f && decoded.charCodeAt(3) === 2,
         decryptVersion: _AioVault._lastDecryptVersion
       };

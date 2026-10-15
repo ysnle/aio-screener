@@ -400,16 +400,12 @@ async function loadEarningsCalendar() {
   body.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--text-muted);font-size:10px;"><span class="aio-spinner" style="margin-right:8px;"></span>어닝 캘린더 요청 중… (' + fromStr + ' ~ ' + toStr + ')</div>';
 
   var finnhubKey = _getApiKey('aio_finnhub_key');
-  var fmpKey = _getApiKey('aio_fmp_key');
   var earnings = [], ipos = [];
 
   try {
     if (finnhubKey && typeof fetchFinnhubEarningsCalendar === 'function') {
       earnings = await fetchFinnhubEarningsCalendar(fromStr, toStr);
       if (typeof fetchFinnhubIpoCalendar === 'function') ipos = await fetchFinnhubIpoCalendar(fromStr, toStr);
-    } else if (fmpKey) {
-      await _fetchEarningsCalendarFMP(body, fmpKey);
-      return;
     } else {
       var snapshot = await _fetchEarningsCalendarSnapshot();
       if (snapshot && (snapshot.earnings.length > 0 || snapshot.ipos.length > 0)) {
@@ -425,8 +421,8 @@ async function loadEarningsCalendar() {
         }
         return;
       }
-      body.innerHTML = '<div style="grid-column:1/-1;padding:26px;text-align:center;color:var(--text-muted);font-size:10px;line-height:1.7;">Finnhub 또는 FMP API 키 설정 시 주간 어닝 캘린더 표시<br><span style="font-size:11px;">Settings → API Keys → Finnhub (60 req/min 무료) 권장</span></div>';
-      var st = document.getElementById('earn-cal-status'); if (st) st.textContent = 'API 키 필요';
+      body.innerHTML = '<div style="grid-column:1/-1;padding:26px;text-align:center;color:var(--text-muted);font-size:10px;line-height:1.7;">이번 주 실적 발표 일정을 아직 받지 못했습니다. 다음 자동 갱신 때 다시 표시됩니다.</div>';
+      var st = document.getElementById('earn-cal-status'); if (st) st.textContent = '일정 없음';
       return;
     }
     _renderEarningsCalendarWeekly(body, earnings, ipos, monday, friday);
@@ -518,56 +514,6 @@ function _renderEarnSection(icon, label, items, maxVisible, bgColor, borderColor
   }
   html += '</div></div>';
   return html;
-}
-
-async function _fetchEarningsCalendarFMP(body, fmpKey) {
-  try {
-    var today = new Date();
-    var from = today.toISOString().split('T')[0];
-    var toDate = new Date(today.getTime() + 90 * 86400000);
-    var to = toDate.toISOString().split('T')[0];
-    var url = 'https://financialmodelingprep.com/api/v3/earning_calendar?from=' + from + '&to=' + to + '&apikey=' + fmpKey;
-    var r = await fetch(url);
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    var data = await r.json();
-    // PRIORITY_SYMS에 포함된 종목만 필터
-    var priSyms = new Set();
-    if (typeof PRIORITY_SYMS !== 'undefined') {
-      PRIORITY_SYMS.forEach(function(grp) { grp.forEach(function(s) { priSyms.add(s); }); });
-    }
-    var filtered = data.filter(function(e) { return priSyms.has(e.symbol); });
-    filtered.sort(function(a, b) { return a.date > b.date ? 1 : -1; });
-    if (filtered.length === 0) {
-      // 모든 종목으로 폴백 (주요 종목만)
-      var majorSyms = ['NVDA','AAPL','MSFT','GOOGL','AMZN','META','TSLA','MU','AMD','NFLX','CRM','BAC','JPM','COST'];
-      var majorSet = new Set(majorSyms);
-      filtered = data.filter(function(e) { return majorSet.has(e.symbol); });
-      filtered.sort(function(a, b) { return a.date > b.date ? 1 : -1; });
-    }
-    var eHtml = '';
-    filtered.slice(0, 12).forEach(function(e) {
-      var d = new Date(e.date + 'T00:00:00');
-      var dayOfWeek = ['일','월','화','수','목','금','토'][d.getDay()];
-      var time = (e.time || '').toUpperCase();
-      var timeColor = time === 'BMO' ? 'var(--data-cyan)' : 'var(--data-amber)';
-      var timeLabel = time === 'BMO' ? '장전' : time === 'AMC' ? '장후' : '미정';
-      var estStr = e.epsEstimated != null ? '$' + parseFloat(e.epsEstimated).toFixed(2) : '—';
-      eHtml += '<div style="display:flex;padding:8px 10px;border-bottom:1px solid var(--border);align-items:center;gap:12px;">';
-      eHtml += '<span style="font-size:12px;color:var(--text-secondary);font-family:var(--font-mono);width:80px;">' + e.date.slice(5) + '(' + dayOfWeek + ')</span>';
-      eHtml += '<span style="font-size:13px;font-weight:700;color:var(--accent);width:50px;">' + e.symbol + '</span>';
-      eHtml += '<span style="font-size:12px;color:var(--text-primary);flex:1;">' + (e.symbol || '') + '</span>';
-      eHtml += '<span style="font-size:12px;color:var(--text-secondary);font-family:var(--font-mono);width:70px;text-align:right;">' + estStr + '</span>';
-      eHtml += '<span style="font-size:11px;color:' + timeColor + ';width:40px;text-align:center;">' + timeLabel + '</span>';
-      eHtml += '</div>';
-    });
-    body.innerHTML = eHtml;
-    var st = document.getElementById('earn-cal-status');
-    if (st) st.textContent = filtered.length + '건 · ' + from + '~' + to;
-    console.log('[AIO] FMP 실적 캘린더 ' + filtered.length + '건 로드');
-  } catch(e) {
-    _aioLog('warn', 'fetch', 'FMP 캘린더 fetch 실패: ' + e.message);
-    body.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">실적 캘린더 수신 실패 · FMP API 확인 필요</div>';
-  }
 }
 
 // The SEC watchlist grid is owned by src/ui/pages/entity.js. Do not rebuild it from live quotes:

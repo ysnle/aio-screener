@@ -105,7 +105,7 @@ export const PACKET_20261014_LESSONS = Object.freeze(PACKET_20261014_FRAMES.map(
 })));
 
 export const PACKET_20261014_CLAIMS = Object.freeze(PACKET_20261014_FRAMES.map((f) => Object.freeze({
-  id: `claim-20261014-${f.id}`, packetId: 'packet-2026-10-14', observedOn: '2026-10-14', sourceRefs: Object.freeze(f.sourceRefs), claimType: 'reasoning-framework', materialElement: f.issue,
+  id: `claim-20261014-${f.id}`, packetId: 'packet-2026-10-14', observedOn: '2026-10-14', sourceRefs: Object.freeze(f.sourceRefs), claimType: 'reasoning-framework', materialElement: `${f.title} — ${f.issue}`,
   observation: f.answer, thesisLogic: f.mechanism[0], paradigmShift: f.shift, mechanism: `${f.steps.join(' → ')}. ${f.mechanism.join(' ')}`, chartTechnique: f.chart, indicatorInputs: Object.freeze(f.inputs),
   timeframe: '분기 실적·계약 일정과 가격 세션을 구분; 날짜가 붙은 예시는 그 날짜의 관측', confirmation: f.mechanism.slice(1).join(' '), invalidation: f.reverse, counterclaim: f.counterclaim,
   allowedConsumers: Object.freeze(['knowledge:analysis-frames', 'chat:reference-reasoning']), blockedConsumers: Object.freeze(['rank', 'current-price', 'score', 'auto-order', 'personal-allocation']),

@@ -883,9 +883,15 @@ export function buildMarketRegime(input = {}) {
     if (krw20 == null && jpy20 == null) state = 'unknown';
     else if ((krw20 != null && krw20 >= RULES.fx.krwMove20dPct) || yenSurge) state = 'burden';
     else if (krw20 != null && krw20 <= -RULES.fx.krwMove20dPct) state = 'favorable';
-    const read = yenSurge ? `엔화가 20일 ${signed(-jpy20)} 강세 — 2024년 8월 엔 캐리 청산 때는 글로벌 위험자산 매도가 함께 나타났습니다.`
+    // v57.75 (10/15 crash audit): the 20-day won strength kept this axis 'favorable' on a day KOSPI fell 7.8% and the won
+    // weakened 0.7%. A won that turned weak on the last session (USD/KRW +0.5% or more) holds the verdict at neutral.
+    const krw1 = s.usdkrw ? pct(s.usdkrw.value, s.usdkrw.d1) : null;
+    const turned = state === 'favorable' && krw1 != null && krw1 >= 0.5;
+    if (turned) state = 'neutral';
+    const read = turned ? `20일로는 원화 강세지만 직전 거래일 원화가 ${signed(krw1)} 약세로 돌아섰습니다 — 강세가 이어지는지 확인 전에는 양호로 보지 않습니다.`
+      : yenSurge ? `엔화가 20일 ${signed(-jpy20)} 강세 — 2024년 8월 엔 캐리 청산 때는 글로벌 위험자산 매도가 함께 나타났습니다.`
       : state === 'burden' ? '원화 약세 — 외국인 수급과 수입 물가에 부담입니다.'
-        : state === 'favorable' ? '원화 강세 — 외국인 자금 유입에 우호적이지만 수출 기업 이익에는 부담일 수 있습니다.'
+        : state === 'favorable' ? '원화 강세 — 외국인 자금 유입에 유리하지만 수출 기업 이익에는 부담일 수 있습니다.'
           : state === 'unknown' ? staleRead('환율', alignments.usdkrw) : '원/달러·엔/달러가 중립 범위입니다.';
     axes.push(axis('korea', '환율 (원 · 엔)', state, [
       ['원/달러', s.usdkrw ? `${fmt(s.usdkrw.value, 1)}원 (20일 ${signed(krw20)})` : null],
@@ -893,7 +899,7 @@ export function buildMarketRegime(input = {}) {
       ['코스피', s.kospi ? `${fmt(s.kospi.value)} (20일 ${signed(kospi20)})` : null]
       // P1725: each value carries its own observation date (won/yen on the FX calendar, KOSPI on KRX), so a 10/9 won beside
       // a 10/13 KOSPI shows a mixed-date chip instead of one "10/9 · 1거래일 전" chip for all three.
-    ], read, state === 'unknown' ? null : `원/달러 20일 +${RULES.fx.krwMove20dPct}% 이상 또는 엔/달러 20일 -${RULES.fx.yenRally20dPct}% 이하(엔 급강세)면 부담 · 원/달러 20일 -${RULES.fx.krwMove20dPct}% 이하면 양호`, alignments.usdkrw, [alignments.usdkrw, alignments.usdjpy, alignments.kospi]));
+    ], read, state === 'unknown' ? null : `원/달러 20일 +${RULES.fx.krwMove20dPct}% 이상 또는 엔/달러 20일 -${RULES.fx.yenRally20dPct}% 이하(엔 급강세)면 부담 · 원/달러 20일 -${RULES.fx.krwMove20dPct}% 이하면 양호(직전 거래일 원/달러 +0.5% 이상이면 중립)`, alignments.usdkrw, [alignments.usdkrw, alignments.usdjpy, alignments.kospi]));
   }
 
   // P1723: the trend and volatility axes stay US-only; when the KOSPI move is rare in its own record, their reading

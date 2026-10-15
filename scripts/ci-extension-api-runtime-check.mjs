@@ -113,6 +113,17 @@ assert(!/<input[^>]+id="(?:rss2json-api-key|aio_(?:av|finnhub|fred|td|fmp|newsda
   assert(['aio_rss2json_key', 'aio_av_key', 'aio_finnhub_key', 'aio_fred_key', 'aio_td_key', 'aio_fmp_key', 'aio_newsdata_key', 'aio_bok_key', 'aio_kosis_key'].every((key) => keyContext._getApiKey(key) === '')
     && keyContext._getApiKey('aio_cf_worker_url') === 'https://worker.fixture', 'v57.67 retired personal data keys are never read; the self-proxy URL still is');
   assert.equal((await keyContext._aioSaveCredential('aio_fmp_key', 'personal-fixture')).state, 'SERVER_ONLY_DATA', 'v57.67 retired personal data keys cannot be saved again');
+  // v57.75: two side doors read retired keys past the getter — DATA_APIS key() via safeLSGetSync and the Vault restore
+  // filling the runtime cache. Both now go through the retired-key guard.
+  const dataSource = readFileSync('js/aio-data.js', 'utf8');
+  assert(!/safeLSGetSync\('aio_(?:av|td|fred|finnhub|fmp|newsdata|bok|kosis|rss2json)_key'\)/.test(dataSource), 'v57.75 DATA_APIS reads provider keys only through _getApiKey'); // text-pin-ok: asserts a bypass call is absent
+  const restoreContext = { _AioVault: { _generation: 1, _keyRuntime: {}, lock() {} }, document: { getElementById: () => null }, console: { log() {} }, _aioLog() {},
+    safeLSGet: async (key) => (key === 'aio_cf_worker_url' ? 'https://worker.fixture' : 'stored-secret'), _restoreDecryptedPortfolio: async () => {} };
+  vm.createContext(restoreContext);
+  vm.runInContext(slice(coreSource, 'function _aioIsRetiredDataKey(', '\n'), restoreContext);
+  vm.runInContext(slice(coreSource, 'async function _restoreDecryptedKeys(', '\n}\n') + '\n}', restoreContext);
+  await restoreContext._restoreDecryptedKeys();
+  assert.deepEqual(Object.keys(restoreContext._AioVault._keyRuntime), ['aio_cf_worker_url'], 'v57.75 Vault restore loads no retired personal key into the runtime cache');
 }
 // P1424: migration holds must not advertise a perpetual in-flight health check.
 context.window.AIO = { getPublicConfig: () => ({ ai: { routeStatus: 'DISABLED' } }) };

@@ -23,7 +23,7 @@ export const PACKET_20261015_SOURCES = Object.freeze([
   Object.freeze({
     id: 'owner-chat-20261015-policy-floor', author: 'owner chat', sourceUrl: '', publishedAt: '2026-10-15T03:30:00Z', publishedAtKst: '2026-10-15T12:30:00+09:00',
     sourceKind: 'REFERENCE', status: 'DIRECT_READ', disposition: 'FRAMEWORK_EXTRACTED',
-    summary: '소유자 가설: AI 거품이 꺼지면 경기 침체에 중앙은행·정부가 돈을 더 풀어야 하고, 금리 상승과 재정 불확실성이 커지므로 당국은 하락이 계속되는 것을 용인하지 않을 것. 정책 바닥과 그 한계 노트로 반영(물가가 대응 크기를 제한한다는 반론과 함께).',
+    summary: '소유자 가설(미국 중심): AI 거품이 꺼지면 미국 경기 침체에 연준·정부가 돈을 더 풀어야 하고, 장기 금리 상승과 재정 불확실성이 커지므로 당국은 하락이 계속되는 것을 용인하지 않을 것. 정책 바닥과 그 한계 노트로 반영(물가가 연준의 대응 크기를 제한하고, 재정 확대가 장기 금리를 올려 주가 회복을 늦출 수 있다는 반론과 함께).',
     checks: Object.freeze([])
   })
 ]);
@@ -58,20 +58,20 @@ export const PACKET_20261015_FRAMES = Object.freeze([
     indicators: [{ label: '메모리 공급망의 층별 역할', route: 'atlas', routeLabel: '지식 지도' }, { label: '반도체·메모리 테마의 상대강도', route: 'themes', routeLabel: '테마 · 섹터' }],
     shift: '경쟁사 발표를 곧바로 점유율 손실로 읽던 모델에서 단계별 확인과 제품 시장 구분으로 읽는 모델로 전환', inputs: ['announcements', 'sample shipments', 'mass production start', 'yield', 'customer qualification', 'contract prices'],
     chart: '단계별 확인 표 — 단계, 확인 여부, 날짜', counterclaim: '기술 격차가 줄어드는 방향 자체는 장기 가격 압력이 될 수 있어, 일정이 밀렸다고 위협이 사라졌다고 볼 수 없음', concepts: ['qualification', 'hbm', 'price-volume-mix'] },
-  { id: 'policy-floor-limits', path: 'money', title: '정책 바닥과 그 한계', issue: '급락에 대한 정책 대응이 막는 것과 막지 못하는 것', sourceRefs: [FLOOR, DRIVERS],
-    answer: '급락이 금융 불안으로 번지면 정부와 중앙은행은 대응에 나서는 경향이 있습니다. 다만 대응이 막는 것은 강제 매도와 신용 경색 같은 연쇄이고, 기업 이익 전망까지 바꾸지는 못합니다. 물가가 높을 때는 중앙은행의 여력이 줄어 바닥이 더 낮은 곳에 생깁니다.',
-    steps: ['급락 → 강제 매도·신용 경색 위험', '정책 대응(시장 안정 조치·금리·재정)', '연쇄 차단 = 바닥', '이익 전망과 금리 = 가격 회복', '물가·재정 여력이 대응 크기를 제한'],
+  { id: 'policy-floor-limits', path: 'money', title: '정책 바닥과 그 한계', issue: '미국 급락에 대한 연준·재정 대응이 막는 것과 막지 못하는 것', sourceRefs: [FLOOR, DRIVERS],
+    answer: '미국 증시 급락이 금융 불안으로 번지면 연준과 정부는 대응에 나서는 경향이 있습니다. 다만 대응이 막는 것은 신용 경색과 강제 청산 같은 연쇄이고, 기업 이익 전망까지 바꾸지는 못합니다. 물가가 높을 때는 연준의 여력이 줄어 바닥이 더 낮은 곳에 생깁니다.',
+    steps: ['AI 투자 꺾임 → 이익·고용 둔화', '연준 금리 인하 · 정부 재정 지출', '국채 발행 증가 → 장기 금리 상승 가능', '연쇄 차단 = 바닥, 이익·장기 금리 = 가격 회복', '물가가 대응 크기를 제한'],
     mechanism: [
-      '당국은 주가 자체보다 연쇄를 막으려 합니다. 반대매매가 매도를 부르고 담보 가치 하락이 대출 회수를 부르면 금융 시스템의 문제가 되기 때문입니다. 한국은 2026년 7월 급락 때 경제·금융 당국이 긴급 회의를 열었습니다. 이런 대응은 투매의 속도를 늦추는 데 효과가 큽니다.',
-      '중앙은행의 여력은 물가에 달려 있습니다. 2022년처럼 물가가 높으면 주가가 크게 빠져도 금리를 올렸습니다. 2026년 9월 미국 소비자물가는 전년보다 3.7%, 근원은 2.6% 올랐고 연준은 9월에 금리를 올렸습니다. 이런 때의 정책 바닥은 물가가 꺾인 뒤에 생기는 경우가 많습니다.',
-      '재정으로 돈을 풀면 경기는 받쳐도 국채 발행이 늘어 장기 금리가 오를 수 있습니다. 장기 금리가 오르면 미래 이익의 현재 가치가 줄어 성장주 가격에는 부담입니다. 그래서 정책 대응이 나와도 장기 금리가 함께 오르면 주가 회복은 더딜 수 있습니다.'
+      'AI 설비투자는 최근 미국 경기를 떠받친 큰 축이어서, 투자가 꺾이면 이익과 고용이 함께 둔화할 수 있습니다. 그러면 연준은 금리를 내리고 정부는 재정을 풀어 연쇄를 막으려 합니다. 2020년처럼 대응이 빠르고 클 때는 투매가 짧게 끝났습니다.',
+      '연준의 여력은 물가에 달려 있습니다. 2022년에는 물가가 높아 S&P 500이 고점에서 25% 넘게 빠지는 동안에도 금리를 올렸습니다. 2026년 9월 소비자물가는 전년보다 3.7%, 근원은 2.6% 올랐고 연준은 9월에 금리를 올렸습니다. 이런 때의 바닥은 물가가 꺾인 뒤에 생기는 경우가 많습니다.',
+      '정부가 빚을 내 돈을 풀면 국채 발행이 늘어, 연준이 정책금리를 내려도 10년물 같은 장기 금리는 오를 수 있습니다. 단기 금리는 내리고 장기 금리는 오르는 가파른 곡선입니다. 장기 금리가 오르면 미래 이익의 현재 가치가 줄어 성장주에 부담이라, 정책이 나와도 주가 회복은 더딜 수 있습니다.'
     ],
-    example: { inputs: ['가상 주식의 내년 이익 100', '할인율 8% → 9%', '장기 성장률 3%'], steps: ['가치 = 100 ÷ (0.08 − 0.03) = 2,000', '할인율 9%면 100 ÷ (0.09 − 0.03) ≈ 1,667'], result: '이익이 그대로여도 할인율이 1%p 오르면 가치는 약 17% 낮아집니다. 연쇄를 막아 바닥을 만드는 대응과 가격을 올리는 대응은 다를 수 있습니다.' },
-    reverse: '물가가 꺾이고 연준이 인상을 멈추거나 인하로 돌아서며, 장기 금리가 내려가는 가운데 강제 매도가 줄면 정책 바닥이 가격 회복으로 이어지는 쪽입니다. 물가가 다시 오르는데 주가와 국채 가격이 함께 빠지면 바닥은 더 아래에 있다고 봅니다.',
-    channels: ['금리', '현금', '투자'], variables: ['근원 물가 추세', '연준 다음 결정', '장기 국채 금리', '신용 스프레드', '반대매매·신용잔고', '시장 안정 조치 발표'],
+    example: { inputs: ['가상 주식의 내년 이익 100', '할인율 8% → 9%', '장기 성장률 3%'], steps: ['가치 = 100 ÷ (0.08 − 0.03) = 2,000', '할인율 9%면 100 ÷ (0.09 − 0.03) ≈ 1,667'], result: '이익이 그대로여도 장기 금리가 올라 할인율이 1%p 오르면 가치는 약 17% 낮아집니다. 연쇄를 막아 바닥을 만드는 대응과 가격을 올리는 대응은 다를 수 있습니다.' },
+    reverse: '물가가 꺾여 연준이 인상을 멈추거나 인하로 돌아서고, 10년물 금리가 함께 내려가며 하이일드 스프레드 확대가 멈추면 정책 바닥이 가격 회복으로 이어지는 쪽입니다. 물가가 다시 오르는데 주가와 국채 가격이 함께 빠지면 바닥은 더 아래에 있다고 봅니다.',
+    channels: ['금리', '현금', '투자'], variables: ['근원 물가 추세', 'FOMC 다음 결정', '10년물 금리와 장단기 금리차', '하이일드 스프레드', '재정 적자·국채 발행 계획', '변동성(VIX)'],
     indicators: [{ label: '금리·물가와 향후 시나리오', route: 'macro', routeLabel: '거시 경제' }, { label: '과열·냉각 구간과 투자 심리', route: 'sentiment', routeLabel: '투자 심리' }],
-    shift: '"당국이 하락을 용인하지 않는다"를 하나의 바닥으로 보던 모델에서, 연쇄 차단(바닥)과 가격 회복(이익·금리)을 나누고 물가가 대응 크기를 정한다고 보는 모델로 전환', inputs: ['core inflation trend', 'FOMC decision', '10-year yield', 'HY spread', 'margin liquidation', 'stabilization measures'],
-    chart: '주가와 장기 금리를 같은 기간 축에 — 함께 빠지는 구간과 엇갈리는 구간을 음영', counterclaim: '침체가 깊어져 물가가 함께 내려가면 중앙은행의 여력이 커져, 2020년처럼 정책 대응이 바닥과 회복을 함께 만들 수 있음', concepts: ['policy-vs-long-rate', 'term-premium', 'credit-cost'] }
+    shift: '"당국이 하락을 용인하지 않는다"를 하나의 바닥으로 보던 모델에서, 연쇄 차단(바닥)과 가격 회복(이익·장기 금리)을 나누고 물가가 연준의 대응 크기를 정한다고 보는 모델로 전환', inputs: ['core inflation trend', 'FOMC decision', '10-year yield and 2s10s', 'HY spread', 'deficit and Treasury issuance', 'VIX'],
+    chart: 'S&P 500과 10년물 금리를 같은 기간 축에 — 함께 빠지는 구간과 엇갈리는 구간을 음영', counterclaim: '침체가 깊어져 물가가 함께 내려가면 연준의 여력이 커지고 장기 금리도 경기 둔화 쪽으로 내려가, 2020년처럼 정책 대응이 바닥과 회복을 함께 만들 수 있음', concepts: ['policy-vs-long-rate', 'term-premium', 'credit-cost'] }
 ].map(Object.freeze));
 
 export const PACKET_20261015_LESSONS = Object.freeze(PACKET_20261015_FRAMES.map((f) => Object.freeze({
@@ -80,7 +80,7 @@ export const PACKET_20261015_LESSONS = Object.freeze(PACKET_20261015_FRAMES.map(
 })));
 
 export const PACKET_20261015_CLAIMS = Object.freeze(PACKET_20261015_FRAMES.map((f) => Object.freeze({
-  id: `claim-20261015-${f.id}`, packetId: 'packet-2026-10-15', observedOn: '2026-10-15', sourceRefs: Object.freeze(f.sourceRefs), claimType: 'reasoning-framework', materialElement: f.issue,
+  id: `claim-20261015-${f.id}`, packetId: 'packet-2026-10-15', observedOn: '2026-10-15', sourceRefs: Object.freeze(f.sourceRefs), claimType: 'reasoning-framework', materialElement: `${f.title} — ${f.issue}`,
   observation: f.answer, thesisLogic: f.mechanism[0], paradigmShift: f.shift, mechanism: `${f.steps.join(' → ')}. ${f.mechanism.join(' ')}`, chartTechnique: f.chart, indicatorInputs: Object.freeze(f.inputs),
   timeframe: '발표·분기 실적·정책 결정 일정과 가격 세션을 구분; 날짜가 붙은 예시는 그 날짜의 관측', confirmation: f.mechanism.slice(1).join(' '), invalidation: f.reverse, counterclaim: f.counterclaim,
   allowedConsumers: Object.freeze(['knowledge:analysis-frames', 'chat:reference-reasoning']), blockedConsumers: Object.freeze(['rank', 'current-price', 'score', 'auto-order', 'personal-allocation']),

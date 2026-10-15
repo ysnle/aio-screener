@@ -1,3 +1,14 @@
+## v57.75 (2026-10-15)
+- **Retired keys fully closed (P1814):** DATA_APIS key() and the Vault restore no longer read retired personal data keys; the user-visible API-key hints (loading fallback, earnings calendar, chat transcript note) and the dead FMP earnings path, onboarding timer and key-status log were removed.
+- **Reading attribution (P1815):** citation ids and refusals no longer count as naming a cause; the KOSPI intraday cause comes only from post-08:00 headlines; qualitative likelihood and sample-free frequency are blocked; the US CPI direction is stated in the prompt.
+- **Retained reading re-checked (P1816):** a previous verified reading is served again only if it still passes the validator on the current data.
+- **Breadth segment date (P1817):** each segment is dated by the session most of its rows describe.
+- **Won verdict (P1818):** the Korea FX axis no longer reads 양호 when the won turned weak on the last session.
+- **US policy-floor thesis as scenarios (v57.75):** two US branches join the scenario registry — 「AI 투자 꺾임」 (Nasdaq trailing the S&P 500, slowing payrolls, wider high-yield spreads, rising claims) and 「장기 금리 상승 — 정책이 받쳐도 할인율이 오르는 시나리오」 (10-year up more than breakevens, term premium up, 2s10s steepening while the Fed cuts or holds). 리플레이션 now requires the term premium not to rise. Both have historical analogs; the 2026-10-15 note is re-centred on the US.
+- **Daily sentence (v57.75):** the label is split in any markup; company/index names (any case), likelihood/certainty and policy-rescue wording are refused, as is an inflation-easing claim while CPI rises; a large move (KOSPI 3% / S&P 500 1%) allows one same-day replacement.
+- **Chat retrieval and prompt (v57.75):** Korean particles are stemmed when matching and supplied frames are titled title — issue, so a question like AI 거품이 터지면 연준이 받쳐줄까 reaches the crash-day frames; theme returns older than the macro date are labelled as such in the prompt; a stray CSS brace that dropped the signal-page grid gap rule was removed.
+- R1 7곳 v57.75
+
 ## v57.74 (2026-10-15)
 - packet-20261015: crash-day drivers with verification states and three reasoning frames (AI capex payback, technology-claim stages, policy floor and its limits)
 - Theme break signals: China memory qualification, AI-cloud financing stress, AI revenue lagging investment

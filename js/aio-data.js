@@ -2286,13 +2286,13 @@ const DATA_APIS = {
   // 1. Alpha Vantage (무료 25회/일, 키 필수 — 기술적 지표)
   alphaVantage: {
     base: 'https://www.alphavantage.co/query',
-    key: () => (typeof safeLSGetSync === 'function' ? safeLSGetSync('aio_av_key') : _getApiKey('aio_av_key')) || '',
+    key: () => _getApiKey('aio_av_key') || '', // v57.75: through the retired-key guard (safeLSGetSync read stored retired keys)
     limit: '25/day free · $50/mo for 75/min'
   },
   // 2. Twelve Data (무료 800회/일 — 시세, 차트, 기술지표)
   twelveData: {
     base: 'https://api.twelvedata.com',
-    key: () => (typeof safeLSGetSync === 'function' ? safeLSGetSync('aio_td_key') : _getApiKey('aio_td_key')) || '',
+    key: () => _getApiKey('aio_td_key') || '', // v57.75: through the retired-key guard (safeLSGetSync read stored retired keys)
     limit: '800/day free · 8 symbols/request'
   },
   // FMP는 이 표에 없었다 — FMP 호출부는 모두 `_getApiKey('aio_fmp_key')`를 직접 읽는다.
@@ -2300,28 +2300,19 @@ const DATA_APIS = {
   // 3. FRED (무료, 키 필수 — 매크로 경제지표)
   fred: {
     base: 'https://api.stlouisfed.org/fred/series/observations',
-    key: () => (typeof safeLSGetSync === 'function' ? safeLSGetSync('aio_fred_key') : _getApiKey('aio_fred_key')) || '',
+    key: () => _getApiKey('aio_fred_key') || '', // v57.75: through the retired-key guard (safeLSGetSync read stored retired keys)
     limit: 'Unlimited free · CORS friendly'
   },
   // 4. Finnhub (무료 60회/분 — 실시간 시세, 뉴스, 기업정보)
   finnhub: {
     base: 'https://finnhub.io/api/v1',
-    key: () => (typeof safeLSGetSync === 'function' ? safeLSGetSync('aio_finnhub_key') : _getApiKey('aio_finnhub_key')) || '',
+    key: () => _getApiKey('aio_finnhub_key') || '', // v57.75: through the retired-key guard (safeLSGetSync read stored retired keys)
     limit: '60/min free · real-time US quotes'
   },
   // 5. CoinGecko (기존 유지 — 암호화폐)
   coingecko: { base: 'https://api.coingecko.com/api/v3', key: () => '', limit: '30/min free' },
   // v47.10: exchangeRate / altFearGreed 제거 — 선언만 있고 호출 0건 (dead code P112)
 };
-
-// ── API 키 관리 UI 확장 ──────────────────────────────────────
-const API_KEY_CONFIG = [
-  { id: 'aio_av_key',      label: 'Alpha Vantage',  placeholder: 'alphavantage.co 무료 키', url: 'https://www.alphavantage.co/support/#api-key' },
-  { id: 'aio_td_key',      label: 'Twelve Data',    placeholder: 'twelvedata.com 무료 키',  url: 'https://twelvedata.com/account/api-keys' },
-  { id: 'aio_fmp_key',     label: 'FMP',            placeholder: 'financialmodelingprep.com', url: 'https://site.financialmodelingprep.com/developer' },
-  { id: 'aio_fred_key',    label: 'FRED',           placeholder: 'fred.stlouisfed.org API키', url: 'https://fred.stlouisfed.org/docs/api/api_key.html' },
-  { id: 'aio_finnhub_key', label: 'Finnhub',        placeholder: 'finnhub.io 무료 키',       url: 'https://finnhub.io/register' },
-];
 
 // ── 유틸리티: 타임아웃 fetch ──────────────────────────────────
 // P1423: transport and provider contracts belong to the native module.
@@ -7141,13 +7132,6 @@ async function initV20DataEngine() {
       DataHealth.log();
     }
   }, 20000);
-
-  // Log API key status
-  const keyStatus = API_KEY_CONFIG.map(k => {
-    const val = localStorage.getItem(k.id);
-    return `  ${k.label}: ${val ? '✓ 설정됨' : ' 미설정'}`;
-  }).join('\n');
-  console.log('[AIO v20] API Key Status:\n' + keyStatus);
 }
 
 const AIO_NEWS_SOURCES = [

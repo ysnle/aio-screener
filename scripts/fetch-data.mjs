@@ -1600,6 +1600,12 @@ export function computeScreenerBreadth(syms, results, assetTypeOf = null, option
     const rows = validRows.filter(r => include(r.sym));
     const counts = { above5:0, eligible5:0, above20:0, eligible20:0, above50:0, eligible50:0, above200:0, eligible200:0 };
     let advances = 0, declines = 0, unchanged = 0;
+    // v57.75 (crash audit): observedAt was the newest row's time, so one early-updating symbol stamped a segment that
+    // still held the previous session for most rows with the new date. It is now the latest time on the date most rows
+    // were observed (the session the counts actually describe).
+    const dayCount = new Map();
+    rows.forEach(r => { const day = String(r.observedAt || '').slice(0, 10); if (day) dayCount.set(day, (dayCount.get(day) || 0) + 1); });
+    const sessionDay = [...dayCount.entries()].sort((a, b) => b[1] - a[1] || b[0].localeCompare(a[0]))[0]?.[0] || null;
     let observedAt = null;
     rows.forEach(r => {
       const c = r.adjCloses;
@@ -1611,7 +1617,7 @@ export function computeScreenerBreadth(syms, results, assetTypeOf = null, option
         counts['eligible' + n]++;
         if (last > avg) counts['above' + n]++;
       });
-      if (r.observedAt && (!observedAt || new Date(r.observedAt).getTime() > new Date(observedAt).getTime())) observedAt = r.observedAt;
+      if (r.observedAt && String(r.observedAt).slice(0, 10) === sessionDay && (!observedAt || new Date(r.observedAt).getTime() > new Date(observedAt).getTime())) observedAt = r.observedAt;
     });
     const directional = advances + declines;
     return {
@@ -2459,7 +2465,11 @@ export function scenarioStateThemeLines(state) {
   const byKey = new Map(themes.map((row) => [`${row.market}:${row.id}`, row]));
   const named = (keys = []) => keys.map((key) => byKey.get(key)).filter(Boolean).map((row) => `${row.label}(1개월 ${row.ret1m >= 0 ? '+' : ''}${Number(row.ret1m).toFixed(1)}%)`).slice(0, 6).join(', ');
   const h = state.highlights || {};
-  return [`【테마 시나리오 — 모든 테마를 같은 규칙으로(${state.basis?.themeAsOf || '기준일 미확인'} 확정 종가, 직전 갱신)】`, state.rotation?.text ? `가격 기준 강약 이동: ${state.rotation.text}` : '',
+  // v57.75 (crash audit): theme returns lag the macro read by a session when the theme producer has not run yet; the
+  // header says so, so the model does not present them as today's moves.
+  const themeAsOf = state.basis?.themeAsOf || null, macroAsOf = state.basis?.macroAsOf || null;
+  const lag = themeAsOf && macroAsOf && themeAsOf < macroAsOf ? ` — 거시 기준일 ${macroAsOf}보다 오래된 값, 최근 세션 움직임 반영 전이므로 오늘의 움직임으로 쓰지 마라` : '';
+  return [`【테마 시나리오 — 모든 테마를 같은 규칙으로(${themeAsOf || '기준일 미확인'} 확정 종가, 직전 갱신${lag})】`, state.rotation?.text ? `가격 기준 강약 이동: ${state.rotation.text}` : '',
     h.structuralPullbacks?.length ? `긴 추세 속 조정 + 거시 부담 아님: ${named(h.structuralPullbacks)}` : '',
     h.headwindLeaders?.length ? `거시 부담에도 주도: ${named(h.headwindLeaders)}` : '',
     h.tailwindLaggards?.length ? `거시 수혜인데 약세: ${named(h.tailwindLaggards)}` : ''].filter(Boolean).join('\n');
@@ -2567,6 +2577,12 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     const intradayLines = (Array.isArray(data?.newsIntraday) ? data.newsIntraday : []).slice(0, NEWS_INTRADAY_MAX)
       .filter((row) => row && row.title && row.publishedAt)
       .map((row) => `- [08:00 이후 장중 속보(잠정)] ${row.title} [${row.source || 'unknown'}] publishedAt=${row.publishedAt}`).join('\n');
+    const macroNow = data?.macro || {};
+    const signed = (value) => `${Number(value) >= 0 ? '+' : ''}${value}`;
+    const inflationLine = Number.isFinite(Number(macroNow.cpi)) && Number.isFinite(Number(macroNow.cpiDelta))
+      ? `INFLATION_DIRECTION: 미국 CPI 전년비 ${macroNow.cpi}% (직전 달 대비 ${signed(macroNow.cpiDelta)}%p)${Number.isFinite(Number(macroNow.coreCpi)) ? `, 근원 ${macroNow.coreCpi}% (${signed(macroNow.coreCpiDelta)}%p)` : ''}, 기준월 ${String(macroNow._asOf_cpi || '').slice(0, 7) || '미확인'}. `
+        + (Number(macroNow.cpiDelta) > 0 || Number(macroNow.coreCpiDelta) > 0 ? '물가는 오르는 중이다 — "물가 둔화"라고 쓰지 마라.' : '물가 방향을 이 값 밖에서 추정하지 마라.')
+      : '';
     const model = SHARED_AI_MODEL;
     const prompt = [
       '아래 근거로 시장 해석을 반드시 한국어로만 작성하라(영어 문장 금지). 제목·마크다운 헤더 없이 7~9줄 평문으로 쓴다. Write the whole answer in Korean.',
@@ -2576,9 +2592,16 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       'METRIC_EVIDENCE에는 완료된 종가만 들어 있다. 장중 값은 쓰지 마라. 부득이 장중 값을 언급하면 "장중"과 관측 시각(예: 13:05 KST)을 같은 문장에 쓰고 "마감·종가"라고 쓰지 마라.',
       'Every numeric claim must be supported by one or more supplied METRIC_EVIDENCE ids.',
       'Do not treat VIX and Fear&Greed as the same metric, and do not spend a sentence saying they differ. Do not invent missing values. Return 7-9 concise lines.',
+      // v57.75: the CPI direction is stated so the model does not infer "물가 둔화" from falling yields (blocked, then retried).
+      ...(inflationLine ? [inflationLine] : []),
       'REGIME_CONTEXT (deterministic reading from the same completed closes the site shows; cite as [regime-context]):\n' + (regimeContext || 'none'),
       'METRIC_EVIDENCE:\n' + evidenceLines,
-      ...(koreaIntradayLines ? ['KOREA_LARGE_INTRADAY_MOVE (장중 지연 값 — 반드시 한 줄로 언급하라: "코스피 장중 HH:MM KST 기준 -x.xx%"처럼 장중과 시각을 같은 문장에 쓰고 마감·종가라고 쓰지 마라. 원인은 HEADLINE_CONTEXT 헤드라인에 귀속하라):\n' + koreaIntradayLines] : []),
+      ...(koreaIntradayLines ? ['KOREA_LARGE_INTRADAY_MOVE (장중 지연 값 — 반드시 한 줄로 언급하라: "코스피 장중 HH:MM KST 기준 -x.xx%"처럼 장중과 시각을 같은 문장에 쓰고 마감·종가라고 쓰지 마라. ' + (intradayLines
+        // v57.75 (crash audit): HEADLINE_CONTEXT is the 08:00 bundle, written before the Korean session — on 10/15 the model
+        // pinned a −7.8% intraday drop on those older headlines and called the won "강세" while USD/KRW rose. The cause may
+        // only come from post-08:00 headlines; without them the line says the cause headline was not collected.
+        ? '원인은 아래 "08:00 이후 장중 속보(잠정)" 헤드라인에만 귀속하고 잠정이라고 표시하라. 08:00 이전 헤드라인을 장중 하락의 원인으로 쓰지 마라'
+        : '08:00 이후 장중 헤드라인이 없다. 원인을 추정하지 말고 "장중 원인 헤드라인 미수집"이라고 쓴다') + '. 원화 방향은 USD/KRW 값으로만 판단한다(USD/KRW 상승 = 원화 약세)):\n' + koreaIntradayLines] : []),
       'NEWS_CLUSTERS (article-level evidence, may be absent):\n' + (newsLines || 'none'),
       'HEADLINE_CONTEXT (retained headlines — titles only; these are the only news material available):\n' + (headlineLines || 'none')
         + (intradayLines ? '\n08:00 이후 장중 속보(잠정 — 다음 08:00 묶음 전의 미확정 헤드라인, 인용 시 "잠정"으로 표시):\n' + intradayLines : ''),
@@ -2606,14 +2629,19 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     }
     if (!text || !semantic.ok) {
       const reason = semantic.issues.join(',');
-      const retained = retainVerifiedMarketAnalysis(previous, { reason, nowMs });
+      // v57.75: the retained text is re-checked against this run's data — on 10/15 a reading verified before the crash
+      // ("원화 강세", easing inflation) would otherwise be re-served for 12 h after the evidence turned.
+      const retained = retainVerifiedMarketAnalysis(previous, { reason, nowMs, revalidate: (summary) => validateMarketAnalysisText(summary, data, snapshot, { context: regimeContext }).ok });
       if (retained) {
         console.warn(`[fetch-data] marketAnalysis retained previous verified analysis from ${retained.retained.from}`);
         return retained;
       }
       return buildMarketAnalysisFallback(data, reason, metricEvidence, newsEvidence);
     }
-    return { ...buildStructuredMarketAnalysis({ data, text: semantic.text || text, model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic }), sentenceCandidate };
+    // v57.75: a large equity move (KOSPI 3% / S&P 500 1%) lets the day's sentence be replaced once (dailyMarketSentence).
+    const largeMove = metricEvidence.some((row) => (row.metricId === 'market.kospi' && Math.abs(changeOf.get(row.evidenceId)) >= KOREA_MOVE_MENTION_PCT)
+      || (row.metricId === 'market.spx' && Math.abs(changeOf.get(row.evidenceId)) >= 1));
+    return { ...buildStructuredMarketAnalysis({ data, text: semantic.text || text, model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic }), sentenceCandidate, largeMove };
   } catch (error) {
     return buildMarketAnalysisFallback(data, error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error', metricEvidence, newsEvidence);
   }
@@ -3084,8 +3112,9 @@ async function main() {
   const marketAnalysis = await genMarketAnalysis(data, marketSnapshotForConsumers, { previous: previous?.marketAnalysis || null });
   if (marketAnalysis) {
     // v57.71: one sentence a day — kept from the earlier run of the same 08:00 KST day, else this run's validated line.
-    const { sentenceCandidate = null, ...analysis } = marketAnalysis;
-    data.marketAnalysis = { ...analysis, sentence: dailyMarketSentence({ candidate: sentenceCandidate, previous: previous?.marketAnalysis?.sentence || null, nowMs: Date.now() }) };
+    const { sentenceCandidate = null, largeMove = false, ...analysis } = marketAnalysis;
+    const inflationRising = Number(data.macro?.cpiDelta) > 0 || Number(data.macro?.coreCpiDelta) > 0;
+    data.marketAnalysis = { ...analysis, sentence: dailyMarketSentence({ candidate: sentenceCandidate, previous: previous?.marketAnalysis?.sentence || null, nowMs: Date.now(), largeMove, inflationRising }) };
     data.meta.marketAnalysisOk = marketAnalysis.status === 'verified';
     // P1719: a retained previous verification is still verified prose, but this run's attempt was blocked.
     data.meta.marketAnalysisRetained = marketAnalysis.retained || null;

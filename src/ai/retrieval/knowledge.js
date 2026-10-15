@@ -15,6 +15,14 @@ function tokens(value) {
   return [...new Set(normalized.split(/\s+/).filter((token) => token.length > 1 && !STOP_WORDS.has(token)))];
 }
 
+// v57.75: Korean questions attach particles and endings ("연준이", "거품이", "터지면"), and the exact-substring match
+// missed the article that says "연준" or "거품". A token also matches through its stem with one trailing ending removed.
+const KOREAN_ENDING = /(?:으로|에서|에게|까지|부터|처럼|이라|이면|하면|이나|줄까|할까|일까|인가|이다|들이|들은|들을|이|가|은|는|을|를|에|의|도|로|면|까|과|와)$/;
+function tokenForms(token) {
+  const stem = /[가-힣]$/.test(token) ? token.replace(KOREAN_ENDING, '') : token;
+  return stem !== token && stem.length > 1 ? [token, stem] : [token];
+}
+
 function compact(value, limit) {
   const text = clean(value);
   if (text.length <= limit) return text;
@@ -160,7 +168,7 @@ function suppliedMaterialArticles(referenceRegistry) {
 
 function surfaceBoost(queryText, surface) {
   const ai = /(ai|인공지능|모델|gpu|hbm|반도체|데이터센터|compute|memory|chip|agent|추론|학습|전력|냉각|capex|roic|가동률|수익화|병목)/i.test(queryText);
-  const principles = /(시장\s*원리|경제|금리|물가|유동성|밸류에이션|재무|현금흐름|포트폴리오|리스크|사이클|거시)/i.test(queryText);
+  const principles = /(시장\s*원리|경제|금리|물가|유동성|밸류에이션|재무|현금흐름|포트폴리오|리스크|사이클|거시|폭락|급락|하락|거품|바닥|연준|정책|재정|침체)/i.test(queryText);
   if (surface === 'atlas-foundations' && ai) return 6;
   if (surface === 'principles' && principles) return 6;
   return 0;
@@ -171,8 +179,12 @@ function scoreArticle(article, query, queryTokens) {
   const title = clean(article?.title).toLowerCase();
   let score = surfaceBoost(query, article?.surface);
   for (const token of queryTokens) {
-    if (title.includes(token)) score += 8;
-    else if (haystack.includes(token)) score += token.length >= 4 ? 3 : 2;
+    const forms = tokenForms(token);
+    if (forms.some((form) => title.includes(form))) score += 8;
+    else {
+      const hit = forms.find((form) => haystack.includes(form));
+      if (hit) score += hit.length >= 4 ? 3 : 2;
+    }
   }
   if (title && query.toLowerCase().includes(title)) score += 12;
   return score;

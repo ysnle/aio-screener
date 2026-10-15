@@ -659,7 +659,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   const prompts = [];
   const stub = (answers) => async (prompt) => { prompts.push(prompt); return { text: answers.shift() ?? null }; };
   const now = Date.parse('2026-10-13T09:00:00.000Z');
-  const previous = { status: 'verified', semanticStatus: 'verified', semanticIssues: [], generatedAt: '2026-10-13T03:00:00.000Z', full: 'prev', oneLine: 'prev', metricEvidence: [] };
+  const previous = { status: 'verified', semanticStatus: 'verified', semanticIssues: [], generatedAt: '2026-10-13T03:00:00.000Z', full: 'S&P 500은 10월 12일 7,807.24로 마감했다. 코스피는 5.46% 하락했다.', oneLine: 'prev', metricEvidence: [] };
   const withIntraday = { ...data, newsIntraday: [{ title: '코스피 5% 급락', source: '연합뉴스', publishedAt: '2026-10-13T05:00:00.000Z' }] };
   const warn = console.warn; console.warn = () => {};
   let retried; let retained; let expired;
@@ -841,6 +841,50 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   const yonhap = NEWS_FEEDS.find((feed) => /yna\.co\.kr/.test(feed.url));
   check('v57.71 the Korean wire\'s market feed is read on the refresh cadence as a tier-2 Korean feed',
     yonhap?.country === 'kr' && yonhap.tier === 2 && yonhap.source === '연합뉴스' && NEWS_FEEDS.filter((feed) => /news\.google\.com/.test(feed.url)).length >= 8, JSON.stringify(yonhap));
+}
+{
+  // v57.75 (AI pipeline + crash-day audit): a citation id or a refusal counted as attribution; likelihood in words and
+  // frequency without n passed; a retained reading was never re-checked; the sentence label leaked when bolded, the
+  // sentence named companies in lowercase, promised a policy rescue, and could not change after a crash at 10:00 KST.
+  const { validateMarketAnalysisText, retainVerifiedMarketAnalysis } = await import('./fetch-data.mjs');
+  const { splitMarketSentence, validateMarketSentence, dailyMarketSentence } = await import('./lib/market-analysis-validate.mjs');
+  const snapshot = { quotes: [
+    { instrumentId: '^GSPC', evidenceId: 'market.index.spx:c', value: 7718.94, changePct: -1.11, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-14T20:00:00.000Z', session: 'MARKET_CLOSED' },
+    { instrumentId: '^KS11', evidenceId: 'market.index.kospi:c', value: 5635.83, changePct: -6.21, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-15T00:20:00.000Z', session: 'DELAYED_IN_SESSION' }
+  ] };
+  const hot = { meta: { generatedAt: '2026-10-15T00:21:00.000Z' }, news: [{ title: 'Nasdaq ends sharply lower as hot inflation data stokes rate-hike bets', source: 'Reuters', link: 'https://example.test/cpi', pubDate: '2026-10-14T21:00:00.000Z', score: 80 }], macro: { cpiDelta: 0.3 } };
+  const v = (text) => validateMarketAnalysisText(text, hot, snapshot).issues;
+  const tail = ' 코스피는 09:20 KST 장중 6.21% 급락했다.';
+  const idOnly = v('S&P 500은 1.11% 하락했다 [headline:abc123].' + tail);
+  const refusal = v('보도만으로는 하락 원인을 단정할 수 없다. S&P 500은 1.11% 하락했다.' + tail);
+  const named = v('Reuters 헤드라인에 따르면 뜨거운 물가 지표에 S&P 500은 1.11% 하락했다.' + tail);
+  const likely = v('Reuters 헤드라인에 따르면 S&P 500은 1.11% 하락했다. 반등 가능성이 높다.' + tail);
+  const frequent = v('Reuters 헤드라인에 따르면 S&P 500은 1.11% 하락했다. 과거엔 대부분 반등했다.' + tail);
+  check('v57.75 attribution needs a non-refusing attributing sentence, and likelihood/frequency claims need n/m or a sample',
+    idOnly.includes('causal-attribution-missing') && refusal.includes('causal-attribution-missing') && !named.includes('causal-attribution-missing')
+      && likely.includes('likelihood-qualitative') && frequent.includes('frequency-without-sample'),
+    JSON.stringify({ idOnly, refusal, named, likely, frequent }));
+  const previous = { status: 'verified', semanticStatus: 'verified', semanticIssues: [], summary: 'x', generatedAt: '2026-10-15T00:00:00.000Z' };
+  const now = Date.parse('2026-10-15T01:00:00.000Z');
+  const source = readProducerSource();
+  check('v57.75 a retained reading is re-validated against this run\'s data before it is served again',
+    retainVerifiedMarketAnalysis(previous, { nowMs: now, revalidate: () => false }) === null && retainVerifiedMarketAnalysis(previous, { nowMs: now, revalidate: () => true })?.retained
+      && /retainVerifiedMarketAnalysis\(previous, \{ reason, nowMs, revalidate: \(summary\) => validateMarketAnalysisText\(summary, data, snapshot/.test(source));
+  check('v57.75 the KOSPI intraday cause comes only from post-08:00 headlines, the CPI direction is stated, and stale theme values are dated',
+    /장중 원인 헤드라인 미수집/.test(source) && /USD\/KRW 상승 = 원화 약세/.test(source) && /INFLATION_DIRECTION: 미국 CPI/.test(source) && /거시 기준일 \$\{macroAsOf\}보다 오래된 값/.test(source)
+      && /String\(r\.observedAt\)\.slice\(0, 10\) === sessionDay/.test(source));
+  const bold = splitMarketSentence('본문 줄\n**오늘의 한 문장:** "AI 투자의 회수 시점이 시장의 질문으로 떠올랐다."');
+  const nextLine = splitMarketSentence('본문\n오늘의 한 문장 :\nAI 투자의 회수가 시장의 질문이 됐다.');
+  const morning = { text: '이전 문장이 아침에 정해졌다는 기록이다.', day: '2026-10-15', generatedAt: '2026-10-14T23:30:00.000Z' };
+  const at = Date.parse('2026-10-15T02:00:00.000Z');
+  const replaced = dailyMarketSentence({ candidate: 'AI 투자의 회수 시점이 시장의 질문으로 떠올랐다.', previous: morning, nowMs: at, largeMove: true });
+  const twice = dailyMarketSentence({ candidate: '두 번째 교체는 같은 날에 일어나지 않는가?', previous: replaced, nowMs: at, largeMove: true });
+  check('v57.75 the sentence label is split in any markup, names and certainty are refused, and a large move replaces it once a day',
+    bold.sentence === 'AI 투자의 회수 시점이 시장의 질문으로 떠올랐다.' && bold.body === '본문 줄' && nextLine.sentence === 'AI 투자의 회수가 시장의 질문이 됐다.' && nextLine.body === '본문'
+      && validateMarketSentence('AI 서사는 끝났는가, 쉬어 가는 것인가?') && !validateMarketSentence('엔비디아의 하락은 기회인가, 끝인가?') && !validateMarketSentence('nvda 하락은 기회인가 끝을 알리는 신호인가?')
+      && !validateMarketSentence('정책이 바닥을 받쳐 줄 것이라는 믿음이 남아 있다.') && !validateMarketSentence('물가가 둔화되고 있어 부담이 줄어드는 하루였다.', { inflationRising: true })
+      && replaced?.replaced === true && replaced.text !== morning.text && twice === replaced,
+    JSON.stringify({ bold, nextLine, replaced, twice }));
 }
 {
   // P1720: post-08:00 articles go to a separate provisional slot (tier 1-2, curation filters, one per event, max 6,

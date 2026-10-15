@@ -6,6 +6,51 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1818 - v57.75 - Korea FX axis read 양호 (won strong) on a crash day when the won had turned weak (2026-10-15)
+
+- symptom/reproduction: On 10/15 the FX axis said 원화 강세 — 외국인 자금 유입에 우호적 while KOSPI fell 7.8% and USD/KRW rose 0.70%.
+- root_cause: The verdict used only the 20-day change; a last-session reversal could not move it.
+- fix: A 20-day favorable won that weakened 0.5% or more on the last session is held at neutral with a reading that says it turned; the 우호적 wording was replaced.
+- violated_rule: A favorable verdict must not contradict the latest session.
+- prevention: ci-esm-core-unit-check v57.75 case (strong vs turned).
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs
+
+## P1817 - v57.75 - Breadth segment stamped with the newest row date while most rows held the previous session (2026-10-15)
+
+- symptom/reproduction: Screener breadth us/all segments showed 10-14 while their counts described the 10-13 session.
+- root_cause: buildSegment took the maximum observedAt across rows, so one early-updating symbol dated the whole segment.
+- fix: observedAt is now the latest time on the date most rows were observed.
+- violated_rule: A summary is dated by the session its values describe.
+- prevention: ci-data-pipeline-contract-check pins the majority-session rule.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs
+
+## P1816 - v57.75 - A retained market reading was re-served without checking it against the new data (2026-10-15)
+
+- symptom/reproduction: When a run's analysis was blocked, the previous verified reading (up to 12 h old) was republished as-is, even if the data had turned against it.
+- root_cause: retainVerifiedMarketAnalysis only checked age and stored status, never the text against the current evidence.
+- fix: The retained text is re-validated with validateMarketAnalysisText on the current data and snapshot; a failing text falls back instead.
+- violated_rule: Retained output must pass the same gate as fresh output.
+- prevention: ci-data-pipeline-contract-check v57.75 retain case and producer source pin.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs
+
+## P1815 - v57.75 - Causal attribution check fooled by citation ids and refusals; KOSPI intraday cause taken from pre-session headlines (2026-10-15)
+
+- symptom/reproduction: On the 10/15 KOSPI -7.8% session the reading passed the attribution rule with only a [headline:...] id or a sentence saying the cause could not be determined, and the intraday line attributed the drop to the 08:00 bundle and called the won strong while USD/KRW rose 0.70%.
+- root_cause: The check searched the raw body (citation ids contain "headline") and accepted any attribution word; the prompt told the model to attribute the intraday move to HEADLINE_CONTEXT, which is written before the Korean session.
+- fix: Attribution now needs one prose sentence (citations stripped) with an attribution word that is not a refusal. The intraday line may only cite post-08:00 headlines, otherwise says 장중 원인 헤드라인 미수집, and reads the won only from USD/KRW. Likelihood in words without n/m and past frequency without a sample are blocked; the CPI direction is given to the model.
+- violated_rule: Validators read prose, not markup; a cause must come from evidence observed after the move.
+- prevention: ci-data-pipeline-contract-check v57.75 cases (id-only, refusal, named, likelihood, frequency; prompt pins).
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs
+
+## P1814 - v57.75 - Retired personal data keys still read through DATA_APIS and the Vault restore (2026-10-15)
+
+- symptom/reproduction: After v57.67 retired personal provider keys, DATA_APIS.alphaVantage/twelveData/fred/finnhub key() and the Vault restore still returned a stored key, so 13 call sites could send it.
+- root_cause: key() preferred safeLSGetSync over _getApiKey, and _restoreDecryptedKeys copied every stored key into _AioVault._keyRuntime; the CI only tested _getApiKey.
+- fix: key() now reads only through _getApiKey; the Vault restore skips retired data keys and the retired AI key. Stored values stay encrypted but inactive.
+- violated_rule: A retirement must close every read path, not only the getter.
+- prevention: ci-extension-api-runtime-check asserts no safeLSGetSync read of a provider key and runs _restoreDecryptedKeys against a fixture store.
+- verification/residual: node scripts/ci-extension-api-runtime-check.mjs
+
 ## P1813 - v57.71 - 용어 팝업에서 Tab을 누르면 포커스가 문서 끝(BODY)으로 빠짐 (2026-10-15)
 
 - symptom/reproduction: 홈 용어 표시(분배일·50일선)를 열고 Tab을 누르면 포커스가 BODY로 이동(전체 화면 감사 에이전트).

@@ -2005,6 +2005,15 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (packet15.PACKET_20261015_FRAMES.some((frame) => !learning.lessonById(frame.id) || !onPath.has(frame.id)) || packet15.PACKET_20261015_CLAIMS.length !== 3) fail('v57.74 crash-day frames must be lessons on a path and claims');
   const checks15 = packet15.PACKET_20261015_SOURCES.flatMap((row) => row.checks);
   if (checks15.some((check) => !['VERIFIED', 'CONSISTENT', 'UNVERIFIED'].includes(check.state) || !check.basis) || checks15.find((check) => /Gartner/.test(check.claim))?.state !== 'UNVERIFIED') fail('v57.74 the crash-day drivers carry verification states; the misattributed Gartner figure stays unverified');
+  // v57.75: chat retrieval finds the crash-day frames from a Korean question with particles ("연준이", "거품이").
+  {
+    const retrieval = await load('src/ai/retrieval/knowledge.js');
+    const supplied = await load('src/domain/research/supplied-materials.js');
+    const index = retrieval.createAIKnowledgeIndex([], { suppliedMaterials: supplied.SUPPLIED_MATERIALS_REFERENCE });
+    const top = (query) => retrieval.retrieveAIKnowledge(index, query).matches[0]?.articleId;
+    if (top('AI 거품이 터지면 연준이 돈을 풀어서 받쳐줄까?') !== 'supplied-material:claim-20261015-policy-floor-limits'
+      || top('AI 투자 회수 언제 되나') !== 'supplied-material:claim-20261015-ai-capex-payback') fail('v57.75 chat retrieval must reach the crash-day frames through Korean particles and frame titles');
+  }
 
   // S12: the Korean filing button opens a receipt only when one is published; otherwise the DART search.
   const fiscalUi = await load('src/ui/components/fiscal-read.js');
@@ -4274,6 +4283,13 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (aligned.s.usdkrw?.date !== sessions.at(-1) || aligned.s.usdkrw.d20 !== 1400 || aligned.s.usdkrw.d20Date !== sessions.at(-21)) fail(`T01 the won 20일 must start 20 sessions back on a weekday close: ${JSON.stringify(aligned.s.usdkrw && { date: aligned.s.usdkrw.date, d20: aligned.s.usdkrw.d20, from: aligned.s.usdkrw.d20Date })}`);
   const fx = buildMarketRegime({ history, now: Date.parse(`${sessions.at(-1)}T23:00:00Z`) }).axes.find((axis) => axis.id === 'korea');
   if (fx?.state !== 'neutral') fail(`T01 a flat weekday won must not read as 원화 강세·양호 (got ${fx?.state})`);
+  // v57.75 (10/15 crash): a 20-day won strength that turned weak on the last session holds the verdict at neutral.
+  {
+    const withLast = (prev, last) => history.map((row) => row.date === sessions.at(-2) ? { ...row, usdkrw: prev } : row.date === sessions.at(-1) ? { ...row, usdkrw: last } : row);
+    const axisFor = (prev, last) => buildMarketRegime({ history: withLast(prev, last), now: Date.parse(`${sessions.at(-1)}T23:00:00Z`) }).axes.find((axis) => axis.id === 'korea');
+    const strong = axisFor(1345, 1340), turned = axisFor(1340, 1360);
+    if (strong?.state !== 'favorable' || turned?.state !== 'neutral' || !/약세로 돌아섰/.test(turned?.read || JSON.stringify(turned))) fail(`v57.75 a won that turned weak on the last session must not stay 양호 (got ${strong?.state}/${turned?.state})`);
+  }
   // T01: "20일" counts sessions; a gappy series (no Friday bars) still finds the point at least 20 sessions back.
   const gappy = history.filter((row) => !(row.usdkrw === 1400 && new Date(`${row.date}T12:00:00Z`).getUTCDay() === 5));
   const gap = alignMarketInputs({ history: gappy.map((row) => row.date === sessions.at(-1) ? row : row), now: Date.parse(`${sessions.at(-1)}T23:00:00Z`) }).s.usdkrw;

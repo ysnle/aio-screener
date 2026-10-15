@@ -240,6 +240,12 @@ export function validateAnalysisAdmission(body, { changes = new Map(), context =
   const issues = [];
   if (ANALYSIS_TRADE_INSTRUCTION.test(body)) issues.push('trade-instruction');
   if (ANALYSIS_PROBABILITY.test(body)) issues.push('probability-claim');
+  // v57.75: likelihood in words ("반등 가능성이 높습니다") and past frequency without a sample size ("과거엔 대부분 반등")
+  // are the same claims without the evidence the owner's rule asks for (conditions n/m, frequency with n).
+  for (const sentence of body.replace(/\[[^\]]*\]/g, '').split(/(?<=[.?!。])\s+|\n+/)) {
+    if (/(?:가능성|확률)(?:이|은|도)?\s?(?:높|낮|크|작|커|적)/.test(sentence) && !/\d+\s*\/\s*\d+/.test(sentence)) issues.push('likelihood-qualitative');
+    if (/과거/.test(sentence) && /대부분|대체로|자주|흔히/.test(sentence) && !/\d+\s*(?:번|회|건|차례)|표본/.test(sentence)) issues.push('frequency-without-sample');
+  }
   // Condition counts must be well-formed and, when a regime context was supplied, appear in it.
   for (const match of body.matchAll(/(\d+)\s*\/\s*(\d+)\s*(?:개)?\s*(?:조건|충족)|(?:조건|부합|충족)\s*(\d+)\s*\/\s*(\d+)/g)) { // T06: "현재 조건 충족 n/m" (v57.72 wording; 부합 kept for older text)
     const met = Number(match[1] ?? match[3]); const total = Number(match[2] ?? match[4]);
@@ -368,7 +374,11 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
     if (row.metricId !== 'market.spx' && row.metricId !== 'market.kospi') return false; // equity indices only (a 1% VIX move is noise)
     return Number.isFinite(move) && Math.abs(move) >= (row.metricId === 'market.kospi' ? KOREA_MOVE_MENTION_PCT : LARGE_MOVE_ATTRIBUTION_PCT);
   });
-  const attributed = /헤드라인|보도|기사|언론|according to|headline|reported/i.test(body);
+  // v57.75 (AI pipeline audit): the check read the raw body, so a citation id ("[headline:...]") counted as attribution and
+  // a sentence that refused to name any cause ("원인으로 단정할 수 없습니다") passed on a −7.8% KOSPI day. It now reads the
+  // prose without citation brackets and needs one attributing sentence that is not a refusal.
+  const attributed = body.replace(/\[[^\]]*\]/g, '').split(/(?<=[.?!。])\s+|\n+/)
+    .some((sentence) => /헤드라인|보도|기사|언론|according to|headline|reported/i.test(sentence) && !/단정할\s?수\s?없|알\s?수\s?없|확인되지\s?않/.test(sentence));
   if (largeMove && headlineContext.length > 0 && !attributed) issues.push('causal-attribution-missing');
   else if (causalClaim && causalEvidence.length === 0) {
     if (headlineContext.length === 0) warnings.push('causal-evidence-missing');
@@ -572,8 +582,11 @@ export const MARKET_ANALYSIS_RETAIN_MAX_MS = 12 * 3600000;
 // to 12 hours from its own generatedAt. It keeps status/semanticStatus 'verified' (every consumer — client sink,
 // meta.marketAnalysisOk, operations status — reads those) and carries `retained` so a surface can say
 // "HH:MM 기준 직전 검증본". Older than 12 hours, or never verified, falls through to the blocked fallback.
-export function retainVerifiedMarketAnalysis(previous, { reason, nowMs = Date.now() } = {}) {
+// v57.75 (AI pipeline audit): a calm overnight reading survived a −7.8% KOSPI session because the retained text was
+// never re-checked against this run's data. `revalidate(summary)` (this run's validator) must pass before retaining.
+export function retainVerifiedMarketAnalysis(previous, { reason, nowMs = Date.now(), revalidate = null } = {}) {
   if (!previous || previous.status !== 'verified' || previous.semanticStatus !== 'verified') return null;
+  if (typeof revalidate === 'function' && !revalidate(String(previous.full || previous.summary || ''))) return null;
   if (Array.isArray(previous.semanticIssues) && previous.semanticIssues.length) return null;
   const generatedMs = Date.parse(previous.generatedAt || '');
   if (!Number.isFinite(generatedMs) || generatedMs > nowMs + 5 * 60000 || nowMs - generatedMs > MARKET_ANALYSIS_RETAIN_MAX_MS) return null;
@@ -605,26 +618,43 @@ export function reusableMarketAnalysis(previous, { metricEvidence = [], newsEvid
 // line; it carries no number, ticker or trade instruction, and it is fixed once per day from the 08:00 KST cycle so it
 // does not change every 30-minute refresh.
 export const MARKET_SENTENCE_LABEL = '오늘의 한 문장:';
+// v57.75: the model sometimes wrote "**오늘의 한 문장:**", "오늘의 한 문장 :" or put the sentence on the next line;
+// the strict prefix match missed those and the label leaked into the reading body.
+const SENTENCE_LABEL_LINE = /^\s*(?:[-*]\s*)?(?:\*\*|__)?\s*오늘의\s*한\s*문장\s*(?:\*\*|__)?\s*[:：]\s*(?:\*\*|__)?\s*/;
 export function splitMarketSentence(text) {
   const lines = String(text || '').split('\n');
-  const index = lines.findIndex((line) => line.trim().replace(/^[-*]\s*/, '').startsWith(MARKET_SENTENCE_LABEL));
+  const index = lines.findIndex((line) => SENTENCE_LABEL_LINE.test(line));
   if (index < 0) return { body: String(text || ''), sentence: null };
-  const sentence = lines[index].trim().replace(/^[-*]\s*/, '').slice(MARKET_SENTENCE_LABEL.length).trim().replace(/^["“'「]|["”'」]$/g, '').trim();
-  return { body: lines.filter((_, i) => i !== index).join('\n').trim(), sentence: sentence || null };
+  let sentence = lines[index].replace(SENTENCE_LABEL_LINE, '').trim();
+  const drop = new Set([index]);
+  if (!sentence && index + 1 < lines.length && lines[index + 1].trim()) { sentence = lines[index + 1].trim(); drop.add(index + 1); }
+  sentence = sentence.replace(/^(?:\*\*|__)|(?:\*\*|__)$/g, '').trim().replace(/^["“'「]|["”'」]$/g, '').trim();
+  return { body: lines.filter((_, i) => !drop.has(i)).join('\n').trim(), sentence: sentence || null };
 }
-const SENTENCE_INSTRUCTION = /(?:사세요|사라|사야|매수하|매도하|팔아|팔세요|담아|담으세요|들어가라|들어가세요|비중을\s?(?:늘|줄)|추천|확실히|반드시\s?오른|보장)/;
-export function validateMarketSentence(sentence) {
+const SENTENCE_INSTRUCTION = /(?:사세요|사라|사야|매수|매도|팔아|팔세요|담아|담을|담으세요|들어가라|들어가세요|비중을\s?(?:늘|줄)|추천|확실히|반드시\s?오른|보장)/;
+// v57.75: the sentence names no company or index (the card sits above every market), states no likelihood or certainty
+// and no policy rescue, and cannot assert easing inflation while CPI is rising.
+const SENTENCE_NAMES = /코스피|코스닥|나스닥|다우|에스앤피|S&P|엔비디아|삼성|하이닉스|애플|테슬라|마이크로소프트|알파벳|구글|아마존|메타|브로드컴|TSMC|코어위브/i;
+const SENTENCE_CERTAINTY = /가능성|확률|틀림없|분명히|바닥은\s?이미|반등만|받쳐\s?줄|떠받칠|두려워할\s?필요/;
+export function validateMarketSentence(sentence, { inflationRising = false } = {}) {
   const text = String(sentence || '').replace(/\s+/g, ' ').trim();
   if (!text || text.length < 12 || text.length > 90 || !/[가-힣]/.test(text)) return null;
-  if (/[0-9%$₩]/.test(text) || /\p{Extended_Pictographic}/u.test(text) || /\b[A-Z]{2,5}\b(?<!\bAI)/.test(text) || SENTENCE_INSTRUCTION.test(text)) return null;
+  if (/[0-9%$₩]/.test(text) || /\p{Extended_Pictographic}/u.test(text) || SENTENCE_INSTRUCTION.test(text)) return null;
+  // Latin tickers in any case ("nvda", "Nvda") except the word AI.
+  if ((text.match(/\b[A-Za-z]{2,5}\b/g) || []).some((word) => word.toUpperCase() !== 'AI')) return null;
+  if (SENTENCE_NAMES.test(text) || SENTENCE_CERTAINTY.test(text)) return null;
+  if (inflationRising && /물가(?:가|는)?\s?(?:둔화|안정|잡히|꺾|내려)/.test(text) && !/(?:면|라면|다면|는지|ㄹ지|을지|까)[\s?？]*$|인가|일까/.test(text)) return null;
   if ((text.match(/[.?!。？！]/g) || []).length > 2) return null;
   return text;
 }
 export const marketSentenceDay = (nowMs) => new Date(nowMs + 3600000).toISOString().slice(0, 10); // KST date of (now - 08:00)
-export function dailyMarketSentence({ candidate = null, previous = null, nowMs = Date.now() } = {}) {
+// v57.75: the sentence was fixed at the first run after 08:00 KST, before the Korean session — a KOSPI crash at 10:00
+// could never change it. A large move (KOSPI 3% or S&P 500 1%, see largeMove) allows one same-day replacement.
+export function dailyMarketSentence({ candidate = null, previous = null, nowMs = Date.now(), largeMove = false, inflationRising = false } = {}) {
   const day = marketSentenceDay(nowMs);
-  if (previous?.day === day && previous?.text) return previous;
-  const text = validateMarketSentence(candidate);
-  if (text) return { text, day, generatedAt: new Date(nowMs).toISOString(), source: 'shared-model' };
+  const sameDay = previous?.day === day && previous?.text;
+  if (sameDay && !(largeMove && !previous.replaced)) return previous;
+  const text = validateMarketSentence(candidate, { inflationRising });
+  if (text) return { text, day, generatedAt: new Date(nowMs).toISOString(), source: 'shared-model', ...(sameDay ? { replaced: true } : {}) };
   return previous?.text ? previous : null;
 }

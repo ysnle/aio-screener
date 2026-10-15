@@ -97,7 +97,7 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
   const axis = (id) => read?.axes?.find((row) => row.id === id) || null;
   const growth = axis('growth')?.detail || {}, inflation = axis('inflation')?.detail || {}, policy = axis('policy')?.detail || {};
   const close = (field) => buildCloseSeries(history, field);
-  const wti = close('wti'), tnx = close('tnx'), spx = close('spx'), dxy = close('dxy'), krw = close('usdkrw'), vix = close('vix'), vix3m = close('vix3m');
+  const wti = close('wti'), tnx = close('tnx'), spx = close('spx'), ndx = close('ndx'), dxy = close('dxy'), krw = close('usdkrw'), vix = close('vix'), vix3m = close('vix3m');
   const mh = (field) => seriesOf(macroHistory, field);
   const ccc = mh('cccOas'), b = mh('bOas');
   const bByDate = new Map(b.map((row) => [row.date, row.value]));
@@ -109,6 +109,10 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
   const oil20 = pctOver(wti, 20);
   const oilVsYear = wti.length >= 120 ? (last(wti).value / (wti.slice(-250).reduce((sum, p) => sum + p.value, 0) / Math.min(250, wti.length)) - 1) * 100 : null;
   const hy20 = changeOver(hy, 20);
+  // v57.75 (US scenario audit): 10y − 2y paired by date (bear steepening) and Nasdaq-100 against the S&P 500 (AI leadership).
+  const d2ByDate = new Map(mh('dgs2').map((row) => [row.date, row.value]));
+  const curve2s10s = mh('dgs10').filter((row) => d2ByDate.has(row.date)).map((row) => ({ date: row.date, value: row.value - d2ByDate.get(row.date) }));
+  const ndx20 = pctOver(ndx, 20), spx20 = pctOver(spx, 20);
   // Brent beside WTI (buildMacroRead().oil → brentWtiCheck): an abnormal same-day gap is never compared.
   const oilCheck = read?.oil && !read.oil.abnormal ? read.oil : null;
   return {
@@ -118,10 +122,10 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
     wageYoy: finite(last(yoySeries(mh('hourlyEarnings')))?.value), retailYoy: finite(last(yoySeries(mh('retailSales')))?.value),
     sentiment: finite(last(mh('consumerSentiment'))?.value),
     breakeven20: changeOver(mh('breakeven10'), 20), termPremium: mh('termPremium10'), termPremium20: changeOver(mh('termPremium10'), 20),
-    curve20: changeOver(mh('t10y3m'), 20), hy20: hy20 == null ? null : hy20 * 100,
+    curve20: changeOver(mh('t10y3m'), 20), curve2s10s20: changeOver(curve2s10s, 20), realYield20: changeOver(mh('realYield10'), 20), hy20: hy20 == null ? null : hy20 * 100,
     cccGap20: changeOver(gap, 20), nfci: finite(last(nfci)?.value), nfci4: changeOver(nfci, 4),
     cash: last(mh('sofr')), oil20, oilVsYear, brent20: finite(oilCheck?.brent20), brentBasis: oilCheck?.basis || null, oilSurging: oil20 == null ? null : oil20 >= 10 || (oilVsYear != null && oilVsYear >= 25),
-    tnx: last(tnx), tnx20: changeOver(tnx, 20), spx5: pctOver(spx, 5), spx20: pctOver(spx, 20), dxy20: pctOver(dxy, 20), krw20: pctOver(krw, 20),
+    tnx: last(tnx), tnx20: changeOver(tnx, 20), spx5: pctOver(spx, 5), spx20, ndxRel20: all(ndx20, spx20) ? ndx20 - spx20 : null, dxy20: pctOver(dxy, 20), krw20: pctOver(krw, 20),
     vix: vixLast?.value ?? null, vixRatio: vixLast && vix3mLast && vixLast.date === vix3mLast.date && vix3mLast.value ? vixLast.value / vix3mLast.value : null,
     pricing, mid: finite(policy.mid), lean: pricing == null ? 'unknown' : pricing >= P.pricedMovePp ? 'hike' : pricing <= -P.pricedMovePp ? 'cut' : 'hold',
     credit: axis('credit')?.state || 'unknown', growthState: axis('growth')?.state || 'unknown',
@@ -221,7 +225,7 @@ export const BRANCHES = Object.freeze([
     favored: ['wait', 'hold'], favoredWhy: '달러 급등기에는 외국인 수급이 약해지기 쉬워 서두를 이유가 작고, 수출 기업 보유는 환율로 일부 상쇄됩니다.',
     explore: [['fxbond', '금리 · 환율', '달러·원화·엔화 추이'], ['themes', '테마 · 섹터', '한국 수출 테마의 상대강도']] },
   { id: 'reflation', shape: 'expansion', axes: ['growth', 'rates'], title: '성장 재가속 — 금리와 이익이 함께 오르는 시나리오',
-    conditions: [[`일자리 3개월 평균 ${G.payrollSolidK / 10}만 명 이상이며 그 전 3개월보다 많음`, (s) => all(s.payroll3, s.payrollPrior3) ? s.payroll3 >= G.payrollSolidK && s.payroll3 > s.payrollPrior3 : null], ['소매판매 전년 대비 3% 이상', (s) => has(s.retailYoy) ? s.retailYoy >= 3 : null], ['10년물 상승 + 장단기 금리차 확대 (성장 기대형 금리 상승)', (s) => all(s.tnx20, s.curve20) ? s.tnx20 > 0 && s.curve20 > 0 : null], ['시장 폭 양호', (s) => s.breadth == null ? null : s.breadth === 'favorable']],
+    conditions: [[`일자리 3개월 평균 ${G.payrollSolidK / 10}만 명 이상이며 그 전 3개월보다 많음`, (s) => all(s.payroll3, s.payrollPrior3) ? s.payroll3 >= G.payrollSolidK && s.payroll3 > s.payrollPrior3 : null], ['소매판매 전년 대비 3% 이상', (s) => has(s.retailYoy) ? s.retailYoy >= 3 : null], ['10년물 상승 + 장단기 금리차 확대, 기간 프리미엄은 오르지 않음 (성장 기대형 금리 상승)', (s) => all(s.tnx20, s.curve20) ? s.tnx20 > 0 && s.curve20 > 0 && !(s.termPremium20 > 0) : null], ['시장 폭 양호', (s) => s.breadth == null ? null : s.breadth === 'favorable']],
     chain: ['고용·소비 재가속', '이익 추정치 상향', '성장 기대로 금리 상승', '경기민감·금융 이익 개선', '방어·배당주 상대 부진'],
     firmer: ['cyclical', 'financials', 'energy', 'consumer'], weaker: ['defensive', 'yield'],
     triggers: [['us-nfp', '일자리 20만 명 이상', (a) => a.payroll >= 200], ['us-retail', '소매판매 전월 대비 +0.5% 이상', (a) => a.mom >= 0.5]],
@@ -229,15 +233,38 @@ export const BRANCHES = Object.freeze([
     choices: { wait: '이익이 함께 오르는 시나리오에서는 기다림의 기회비용이 큽니다.', stage: '금리 상승이 이익 개선을 동반하는지 확인하며 나눠 들어가는 쪽이 자연스럽습니다.', hold: '경기민감·금융 보유가 유리해지는 시나리오입니다.', defend: '방어 전환의 기회비용이 큰 시나리오입니다.' },
     favored: ['hold', 'stage'], favoredWhy: '금리 상승이 성장 기대 때문이라면 이익이 함께 늘어 주가가 버티는 경향이 있습니다 — 물가 때문인 금리 상승과 구분합니다.',
     explore: [['themes', '테마 · 섹터', '경기민감·금융 업종 개선'], ['screener', '스크리너', '이익 추정이 오르는 후보']] },
+  // v57.75 (owner 2026-10-15, US thesis; US scenario audit): the AI-capex cycle had no branch — semiconductor, AI infra,
+  // photonics and KR memory were judged only through growth/cyclical tags. Nasdaq-100 against the S&P 500 is the
+  // measured proxy for AI leadership (the SMH series is research-reference-only, never a condition).
+  { id: 'aibust', shape: 'weakness', axes: ['growth', 'credit'], title: 'AI 투자 꺾임 — 이익과 고용이 함께 식는 시나리오',
+    conditions: [['나스닥100이 S&P 500보다 20거래일 3%p 이상 뒤처짐 (AI 대형주 주도 약화)', (s) => has(s.ndxRel20) ? s.ndxRel20 <= -3 : null], ['일자리 3개월 평균이 그 전 3개월보다 적음', (s) => all(s.payroll3, s.payrollPrior3) ? s.payroll3 < s.payrollPrior3 : null], ['하이일드 스프레드 20회 관측 +25bp 이상 확대', (s) => has(s.hy20) ? s.hy20 >= 25 : null], ['실업수당 청구 4주 평균이 1년 저점보다 10% 이상 높음', (s) => has(s.claimsUp) ? s.claimsUp >= 10 : null]],
+    chain: ['AI 설비투자 기대 후퇴', '반도체·데이터센터 이익 하향', '투자·고용 둔화', '금리 인하 압력 + 신용 스프레드 확대', '정책 대응은 연쇄를 막아도 이익 전망은 못 바꿈'],
+    firmer: ['defensive'], weaker: ['aicapex', 'growth', 'liquidity', 'cyclical'], mixed: ['yield'],
+    triggers: [['us-nfp', '일자리 5만~7.5만 명 (채용 둔화)', (a) => a.payroll >= 50 && a.payroll < 75]],
+    pricing: deltaPricing('ndxRel20', '나스닥100 − S&P 500 20거래일', '%p', 1, false),
+    choices: { wait: 'AI 투자 기대가 꺾이는 동안 기다리는 비용은 작습니다. 이익 하향은 몇 분기에 걸쳐 확인되는 경향이 있어 서둘러 놓치는 것이 적습니다.', stage: '분할 접근은 하이일드 스프레드 확대가 멈추고 빅테크 설비투자 지침이 확인된 뒤가 맞습니다. 그 전의 "싸 보임"은 이익이 더 내려갈 수 있다는 점을 놓칩니다.', hold: '보유는 AI 설비투자에 매출이 직접 걸린 반도체·데이터센터·광통신 비중부터 점검합니다.', defend: '방어 업종이 상대적으로 버팁니다. 다만 금리 민감 배당주는 장기 금리가 함께 오르면 기대만큼 지켜 주지 못합니다.' },
+    favored: ['wait', 'defend'], favoredWhy: 'AI 투자 꺾임은 이익 하향이 늦게 끝나는 경향이 있어, 확인 전 매수의 비용이 크고 기다림의 비용(현금 이자로 일부 상쇄)은 작습니다.',
+    explore: [['themes', '테마 · 섹터', '반도체·AI 인프라 테마의 단계와 약화 신호'], ['signal', '시장 상태', '하이일드 스프레드와 시장 폭이 함께 나빠지는지']] },
+  // v57.75: the owner's US chain (recession → cuts and deficit spending → long rates up) as a measurable branch —
+  // the 10-year rising on term premium and real yield, not on inflation expectations, with the 2s10s widening.
+  { id: 'fiscalsteep', shape: 'weakness', axes: ['rates', 'policy'], title: '장기 금리 상승 — 정책이 받쳐도 할인율이 오르는 시나리오',
+    conditions: [['10년물 20거래일 +15bp 이상, 기대인플레이션 변화보다 10bp 이상 더 오름', (s) => all(s.tnx20, s.breakeven20) ? s.tnx20 >= 0.15 && s.tnx20 - s.breakeven20 >= 0.10 : null], ['10년 기간 프리미엄 20회 관측 상승', (s) => has(s.termPremium20) ? s.termPremium20 > 0 : null], ['10년−2년 금리차 20회 관측 확대 (장기 쪽이 더 오름)', (s) => has(s.curve2s10s20) ? s.curve2s10s20 > 0 : null], ['정책금리는 오르지 않음 (마지막 변경이 인하·동결이거나 시장 가격이 인하 쪽)', (s) => s.policy ? s.policy.change <= 0 || s.lean === 'cut' : null]],
+    chain: ['경기 대응 재정 지출 · 국채 발행 증가', '기간 프리미엄 상승', '정책금리는 그대로거나 내려도 10년물 상승', '할인율 상승 → 이익이 그대로여도 가치 하락', '고PER 성장주·배당주 부담'],
+    firmer: [], weaker: ['growth', 'yield', 'liquidity', 'consumer'], mixed: ['financials', 'dollar'],
+    triggers: [['us-fed-rate', '기준금리 인하 (장기 금리도 함께 내리는지 확인)', (a) => a.upperDelta < 0]],
+    pricing: deltaPricing('realYield20', '10년 실질금리 20회 관측', '%p→bp', 0, true),
+    choices: { wait: '단기 금리가 장기 금리보다 덜 오르는 동안 현금성 자산의 이자가 기다림의 비용을 줄여 줍니다. 할인율이 오르는 동안의 성급한 매수는 이익이 그대로여도 가치가 낮아질 수 있습니다.', stage: '분할 접근은 10년물 상승이 멈추거나 기간 프리미엄이 줄어드는 것을 기준으로 나누는 편이 맞습니다.', hold: '현금흐름이 크고 차입이 적은 보유 종목은 유지하되, 먼 미래 이익에 기대는 고PER·적자 성장주와 배당주 비중을 점검합니다.', defend: '장기 국채와 금리 민감 배당주는 이 시나리오에서 방어가 되지 않을 수 있습니다. 정책이 장기 금리까지 끌어내리면 방어의 기회비용이 커집니다.' },
+    favored: ['wait', 'hold'], favoredWhy: '정책 대응이 연쇄는 막아도 장기 금리 상승이 할인율을 올리는 시나리오에서는 기다림의 비용이 작고, 장기 채권·배당주로의 방어는 대가가 큽니다.',
+    explore: [['fxbond', '금리 · 환율', '10년물·2년물과 실질금리 추이'], ['themes', '테마 · 섹터', '성장주와 배당주의 상대강도']] },
   { id: 'volshock', shape: 'weakness', axes: ['credit'], title: '변동성 충격 — 공포가 가격을 앞지르는 시나리오',
     conditions: [['VIX 25 이상', (s) => has(s.vix) ? s.vix >= 25 : null], ['VIX 단기 불안 비율 역전 (단기 ≥ 3개월)', (s) => has(s.vixRatio) ? s.vixRatio >= 1 : null], ['S&P 500 5거래일 −4% 이하', (s) => has(s.spx5) ? s.spx5 <= -4 : null], ['시장 폭 부담', (s) => s.breadth == null ? null : s.breadth === 'burden']],
     chain: ['급락 · 변동성 급등', '위험 축소(레버리지 청산)', '좋은 종목까지 함께 매도', '신용이 버티면 되돌림, 신용이 무너지면 장기화', '변동성 진정 후 주도주 재편'],
     firmer: ['defensive'], weaker: ['liquidity', 'growth', 'cyclical'],
     triggers: [],
     pricing: (s) => s.vixRatio == null ? { tone: 'unknown', text: 'VIX 단기 불안 비율 기록이 없어 보류합니다.' } : { tone: s.vixRatio >= 1 ? 'same' : 'against', text: `VIX / 3개월 VIX ${s.vixRatio.toFixed(2)} — ${s.vixRatio >= 1 ? '단기 공포가 중기보다 큼(역전)' : '정상 구조(단기 공포가 중기보다 작음)'}` },
-    choices: { wait: '기간 구조 역전이 풀릴 때까지 기다리는 쪽은 바닥 근처를 놓칠 수 있지만, 신용이 함께 무너지는 경우의 손실을 피합니다.', stage: '신용이 버티는 공포에서는 나눠 들어가는 쪽이 유리했던 경우가 많았습니다 — 아래 과거 빈도와 신용 지표를 함께 확인합니다.', hold: '보유는 레버리지·변동성이 큰 종목 비중부터 점검합니다.', defend: '방어 전환은 급락 뒤에 하면 반등을 놓치는 기회비용이 커집니다.' },
+    choices: { wait: 'VIX 단기 불안 비율 역전이 풀릴 때까지 기다리는 쪽은 바닥 근처를 놓칠 수 있지만, 신용이 함께 무너지는 경우의 손실을 피합니다.', stage: '신용이 버티는 공포에서는 나눠 들어가는 쪽이 유리했던 경우가 많았습니다 — 아래 과거 빈도와 신용 지표를 함께 확인합니다.', hold: '보유는 레버리지·변동성이 큰 종목 비중부터 점검합니다.', defend: '방어 전환은 급락 뒤에 하면 반등을 놓치는 기회비용이 커집니다.' },
     favored: ['stage', 'wait'], favoredWhy: '신용이 버티면 분할 접근, 신용도 무너지면 기다림 — 갈림 조건은 하이일드 스프레드입니다.',
-    explore: [['sentiment', '투자 심리', 'VIX·기간 구조·심리 지표'], ['signal', '시장 상태', '신용 지표가 버티는지']] }
+    explore: [['sentiment', '투자 심리', 'VIX·단기 불안 비율·심리 지표'], ['signal', '시장 상태', '신용 지표가 버티는지']] }
 ]);
 
 function pastFor(branchId, { history, outcomes }) {

@@ -55,7 +55,7 @@ export const PACKET_20261011_LESSONS = Object.freeze(PACKET_20261011_FRAMES.map(
   sources: f.sourceRefs.map((id) => { const s = PACKET_20261011_SOURCES.find((row) => row.id === id); return { label: `${s.author} — 2026-10-10~11 참고 관점`, url: s.sourceUrl, supports: '구조적 해석의 출처이며 현재 수치·예측의 검증 자료는 아닙니다.' }; })
 })));
 export const PACKET_20261011_CLAIMS = Object.freeze(PACKET_20261011_FRAMES.map((f) => Object.freeze({
-  id: `claim-20261011-${f.id}`, packetId: 'packet-2026-10-11', observedOn: '2026-10-11', sourceRefs: Object.freeze(f.sourceRefs), claimType: 'reasoning-framework', materialElement: f.issue,
+  id: `claim-20261011-${f.id}`, packetId: 'packet-2026-10-11', observedOn: '2026-10-11', sourceRefs: Object.freeze(f.sourceRefs), claimType: 'reasoning-framework', materialElement: `${f.title} — ${f.issue}`,
   observation: f.answer, thesisLogic: f.mechanism[0], paradigmShift: f.shift, mechanism: `${f.steps.join(' → ')}. ${f.mechanism.join(' ')}`, chartTechnique: f.chart, indicatorInputs: Object.freeze(f.inputs),
   timeframe: '같은 정의·관측창의 비교; 기업 만기·분기 공시와 가격 세션을 구분', confirmation: f.mechanism.slice(1).join(' '), invalidation: f.reverse, counterclaim: f.counterclaim,
   allowedConsumers: Object.freeze(['knowledge:analysis-frames', 'chat:reference-reasoning']), blockedConsumers: Object.freeze(['rank', 'current-price', 'score', 'auto-order', 'personal-allocation']),

@@ -3338,8 +3338,6 @@ async function _fetchTickerDataForChat(tickers, opts) {
           var snip = (ec.excerpt || '').slice(0, 600).replace(/\s+/g, ' ').trim();
           if (snip) results.push('  [Earnings Call 발췌] ' + snip + (ec.excerpt.length > 600 ? '...' : ''));
           results.push('  [Earnings Call 가이드] ASP/제품 로드맵/고객 commentary 정성 분석 시 위 발췌 직접 인용. 인용 부분 외 추측 금지.');
-        } else if (ec && !ec.available && ec.reason && /key/i.test(ec.reason)) {
-          results.push('  [Earnings Call] FMP API key 미설정 — 사이드바 → API 설정 등록 시 분기 transcript 자동 주입');
         }
       } catch(_ecErr) {}
 
