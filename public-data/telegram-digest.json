@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-15T14:22:10.276Z",
-  "attemptedAt": "2026-10-15T14:22:10.276Z",
-  "lastSuccessfulAt": "2026-10-15T14:22:10.276Z",
+  "generatedAt": "2026-10-15T15:22:30.688Z",
+  "attemptedAt": "2026-10-15T15:22:30.688Z",
+  "lastSuccessfulAt": "2026-10-15T15:22:30.688Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-01T14:22:05.622Z",
-  "until": "2026-10-15T14:22:05.622Z",
+  "since": "2026-10-01T15:22:24.836Z",
+  "until": "2026-10-15T15:22:24.836Z",
   "current24hWindow": {
     "start": "2026-10-13T23:00:00.000Z",
     "end": "2026-10-14T23:00:00.000Z",
@@ -83,10 +83,10 @@
       "reachedKnown": true,
       "count": 263,
       "freshCount": 37,
-      "eligibleTextCount": 215,
-      "selectedCount": 92,
+      "eligibleTextCount": 217,
+      "selectedCount": 91,
       "error": null,
-      "lastPostId": 25882
+      "lastPostId": 25885
     },
     {
       "channel": "insidertracking",
@@ -114,11 +114,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 684,
-      "freshCount": 38,
+      "freshCount": 20,
       "eligibleTextCount": 475,
       "selectedCount": 122,
       "error": null,
@@ -126,36 +126,36 @@
     }
   ],
   "count": 2299,
-  "retainedItemCount": 468,
+  "retainedItemCount": 451,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
     "observedCount": 2299,
-    "eligibleTextCount": 1566,
-    "mediaOnlyCount": 733,
-    "highSignalCount": 503,
-    "broadSignalCount": 1037,
-    "selectedRawCount": 411,
+    "eligibleTextCount": 1568,
+    "mediaOnlyCount": 731,
+    "highSignalCount": 501,
+    "broadSignalCount": 1035,
+    "selectedRawCount": 410,
     "selectedEligibleCount": 406,
     "selectedRawCoveragePct": 25.9,
-    "selectedOfObservedPct": 17.9,
+    "selectedOfObservedPct": 17.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "geo": 355,
+    "macro": 774,
     "insider": 42,
-    "earnings": 436,
+    "earnings": 434,
     "japan": 141,
-    "macro": 775,
-    "power": 335,
-    "semi": 582,
+    "power": 334,
+    "semi": 581,
     "market-note": 725,
     "equity": 170,
-    "healthcare": 107,
-    "ai-policy": 192,
+    "healthcare": 105,
+    "ai-policy": 190,
     "kr-market": 209,
-    "geo": 354,
     "credit": 93,
     "media-only": 50,
     "flows": 166,
@@ -171,7 +171,7 @@
     "STX": 8,
     "RKLB": 3,
     "BE": 20,
-    "GOOG": 50,
+    "GOOG": 48,
     "SMTC": 1,
     "AAPL": 9,
     "NVDA": 62,
@@ -269,14 +269,14 @@
     "KEYS": 1
   },
   "themes": [
-    "Macro/Rates (775 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 15일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 미국 내 디젤 가격 부담을 완화하기 위해 연방 디젤세의 한시적 중단을 지지할 수 있다고 밝혀. • 미국 연방거래위원회(FTC)는 OpenAI와 Anthropic의 AI 제품 관련 소비자 피해 및...",
+    "Macro/Rates (774 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 15일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 미국 내 디젤 가격 부담을 완화하기 위해 연방 디젤세의 한시적 중단을 지지할 수 있다고 밝혀. • 미국 연방거래위원회(FTC)는 OpenAI와 Anthropic의 AI 제품 관련 소비자 피해 및...",
     "Market Notes (725 posts in 14-day research window): 2026년 10월 14일 미국 증시 프리마켓 브리핑 미국 증시 선물은 주요 지수 동반 상승세. 다우 선물 +0.22%, S&P500 +0.26%, 나스닥100 +0.28%, 러셀2000 +0.33% 기록....",
-    "Semiconductors/Memory (582 posts in 14-day research window): 2026년 10월 14일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (66.72%) 2위: IRIS ENERGY LTD...",
-    "Earnings/Corporate (436 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단...",
-    "Geopolitics (354 posts in 14-day research window): 트럼프 SNS 발언 모음 미국 해군의 창설 기념일을 축하한다! 미국 해군은 지난 251년 동안 과거부터 현재까지 수많은 승리를 거둬왔다. 호르무즈 해협에서 구축한 뚫을 수 없는 강철...",
-    "AI Power/Grid (335 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터...",
+    "Semiconductors/Memory (581 posts in 14-day research window): >>AI 최대 병목은 전력도 반도체도 아닌 자금 (중국언론 인용) •자금 조달 비용 상승, AI 투자 확대의 최대 제약 요인 : AI 산업의 최대 병목이 전력과 반도체 공급에서 자금 조달 능력과 금융비용으로...",
+    "Earnings/Corporate (434 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단...",
+    "Geopolitics (355 posts in 14-day research window): 트럼프 SNS 발언 모음 미국 해군의 창설 기념일을 축하한다! 미국 해군은 지난 251년 동안 과거부터 현재까지 수많은 승리를 거둬왔다. 호르무즈 해협에서 구축한 뚫을 수 없는 강철...",
+    "AI Power/Grid (334 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터...",
     "Korea Market (209 posts in 14-day research window): [NH/백준기] 스몰캡 - 엠케이전자 [NH/스몰캡(목진원)] [엠케이전자] ★큰 그림은 변한 것이 없다 3Q26 Preview: 환율이 깎은 국내 마진, 중국 법인은 순항 중 3분기 연결 실적은 매출액...",
-    "AI Policy/Export Controls (192 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 차세대 AI 모델 제품군 'Muse Wonder'와 'Muse..."
+    "AI Policy/Export Controls (190 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 차세대 AI 모델 제품군 'Muse Wonder'와 'Muse..."
   ],
   "catalysts": [
     {
@@ -300,14 +300,14 @@
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단..."
     },
     {
-      "key": "GOOG",
-      "count": 50,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단..."
-    },
-    {
       "key": "000660.KS",
       "count": 49,
       "text": "2026년 10월 15일 미국 증시 프리마켓 브리핑 미국 증시 선물은 글로벌 반도체 매도세와 인플레이션 우려 속 기술주 중심 약세. 한국시간 오후 1시 54분 기준 나스닥100 -0.68%, S&P500..."
+    },
+    {
+      "key": "GOOG",
+      "count": 48,
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단..."
     },
     {
       "key": "MSFT",
@@ -327,7 +327,7 @@
     {
       "key": "AVGO",
       "count": 21,
-      "text": ">>AI 최대 병목은 전력도 반도체도 아닌 자금 (중국언론 인용) •자금 조달 비용 상승, AI 투자 확대의 최대 제약 요인 : AI 산업의 최대 병목이 전력과 반도체 공급에서 자금 조달 능력과 금융비용으로 이동하고 있음. 골드만삭스는 2027년 글로벌 하이퍼스케일러의 자본지출이 1.2조 달러에 달하는 반면..."
+      "text": ">>AI 최대 병목은 전력도 반도체도 아닌 자금 (중국언론 인용) •자금 조달 비용 상승, AI 투자 확대의 최대 제약 요인 : AI 산업의 최대 병목이 전력과 반도체 공급에서 자금 조달 능력과 금융비용으로..."
     },
     {
       "key": "BE",
@@ -347,7 +347,7 @@
       "topics": [
         "macro"
       ],
-      "count": 775,
+      "count": 774,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 15일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 미국 내 디젤 가격 부담을 완화하기 위해 연방 디젤세의 한시적 중단을 지지할 수 있다고 밝혀. • 미국 연방거래위원회(FTC)는 OpenAI와 Anthropic의 AI 제품 관련 소비자 피해 및..."
     },
     {
@@ -356,7 +356,7 @@
       "topics": [
         "geo"
       ],
-      "count": 354,
+      "count": 355,
       "focus": "트럼프 SNS 발언 모음 미국 해군의 창설 기념일을 축하한다! 미국 해군은 지난 251년 동안 과거부터 현재까지 수많은 승리를 거둬왔다. 호르무즈 해협에서 구축한 뚫을 수 없는 강철..."
     },
     {
@@ -374,8 +374,8 @@
       "topics": [
         "semi"
       ],
-      "count": 582,
-      "focus": "2026년 10월 14일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (66.72%) 2위: IRIS ENERGY LTD..."
+      "count": 581,
+      "focus": ">>AI 최대 병목은 전력도 반도체도 아닌 자금 (중국언론 인용) •자금 조달 비용 상승, AI 투자 확대의 최대 제약 요인 : AI 산업의 최대 병목이 전력과 반도체 공급에서 자금 조달 능력과 금융비용으로..."
     },
     {
       "id": "optical",
@@ -392,7 +392,7 @@
       "topics": [
         "power"
       ],
-      "count": 335,
+      "count": 334,
       "focus": "JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터..."
     },
     {
@@ -401,7 +401,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 192,
+      "count": 190,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 차세대 AI 모델 제품군 'Muse Wonder'와 'Muse..."
     },
     {
@@ -437,7 +437,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 436,
+      "count": 434,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단..."
     },
     {
@@ -446,7 +446,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 107,
+      "count": 105,
       "focus": ">>브로드컴 CEO: 많은 AI 투자자는 카지노 도박꾼과 같아…AI 발전의 최대 제약 요인은 자본 •브로드컴 CEO 혹 탄은 많은 AI 투자자가 자신이 투자하는 기술에 대한 이해가 부족하면서도 매우 높은..."
     },
     {
@@ -835,19 +835,17 @@
       "datetime": "2026-10-15T04:26:11.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "credit",
-        "macro",
         "semi",
         "power",
         "healthcare"
       ],
       "score": 100,
       "hasText": true,
+      "summary": ">>AI 최대 병목은 전력도 반도체도 아닌 자금 (중국언론 인용) •자금 조달 비용 상승, AI 투자 확대의 최대 제약 요인 : AI 산업의 최대 병목이 전력과 반도체 공급에서 자금 조달 능력과 금융비용으로...",
       "tickers": [
         "AVGO",
         "CRWV"
-      ],
-      "summary": ">>AI 최대 병목은 전력도 반도체도 아닌 자금 (중국언론 인용) •자금 조달 비용 상승, AI 투자 확대의 최대 제약 요인 : AI 산업의 최대 병목이 전력과 반도체 공급에서 자금 조달 능력과 금융비용으로..."
+      ]
     },
     {
       "id": "insidertracking/66270",
@@ -1636,22 +1634,6 @@
       ]
     },
     {
-      "id": "aetherjapanresearch/25606",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25606",
-      "datetime": "2026-10-01T15:11:01.000Z",
-      "localDateKst": "2026-10-02",
-      "tags": [
-        "earnings"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "Citi, AI ROI: 오픈 모델의 미래는 비용보다 통제력, 프런티어 랩이 다시 앞서 나가는 중 Citi는 오픈웨이트 모델이 프런티어 모델 매출에 미치는 영향이 국지적 정점을 지났다고 판단했습니다. 성능...",
-      "tickers": [
-        "GOOG"
-      ]
-    },
-    {
       "id": "aetherjapanresearch/25864",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25864",
@@ -1667,6 +1649,25 @@
       "hasText": true,
       "tickers": [],
       "summary": "번스타인) 코어위브(CRWV): 부채 극대화... 말 그대로 어떤 대가를 치르더라도 성장? TP $74.(2026.10.14) 코어위브는 수요일 약 15% 하락했는데, 이는 투자자들이 회사 설비 용량에 대한..."
+    },
+    {
+      "id": "bornlupin/20592",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20592",
+      "datetime": "2026-10-13T06:35:25.000Z",
+      "localDateKst": "2026-10-13",
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "score": 99,
+      "hasText": true,
+      "summary": "AMD CEO 리사 수 기조연설 - OCP 글로벌 서밋 2026 1. 2030년 CPU TAM(시장 규모) 전망치 2,000억 달러 이상으로 상향 급증하는 CPU 수요: 에이전틱 AI(Agentic AI)...",
+      "tickers": [
+        "AMD",
+        "MSFT",
+        "ORCL"
+      ]
     }
   ],
   "broadItems": [
@@ -2683,13 +2684,12 @@
       "datetime": "2026-10-15T04:45:01.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
         "geo"
       ],
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>단기간 내 빠른 해결책 부재 - IEA 경고: 경유 부족, 2027년까지 지속될 전망 •글로벌 경유 부족이 가격 충격에서 구조적 위기로 확대되고 있음. IEA는 중동과 러시아의 수출이 60% 넘게 급감한..."
+      "summary": ">>단기간 내 빠른 해결책 부재 - IEA 경고: 경유 부족, 2027년까지 지속될 전망 •글로벌 경유 부족이 가격 충격에서 구조적 위기로 확대되고 있음. IEA는 중동과 러시아의 수출이 60% 넘게 급감한...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70464",
@@ -2698,19 +2698,17 @@
       "datetime": "2026-10-15T04:26:11.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "credit",
-        "macro",
         "semi",
         "power",
         "healthcare"
       ],
       "score": 100,
       "hasText": true,
+      "summary": ">>AI 최대 병목은 전력도 반도체도 아닌 자금 (중국언론 인용) •자금 조달 비용 상승, AI 투자 확대의 최대 제약 요인 : AI 산업의 최대 병목이 전력과 반도체 공급에서 자금 조달 능력과 금융비용으로...",
       "tickers": [
         "AVGO",
         "CRWV"
-      ],
-      "summary": ">>AI 최대 병목은 전력도 반도체도 아닌 자금 (중국언론 인용) •자금 조달 비용 상승, AI 투자 확대의 최대 제약 요인 : AI 산업의 최대 병목이 전력과 반도체 공급에서 자금 조달 능력과 금융비용으로..."
+      ]
     },
     {
       "id": "HANAchina/70462",
@@ -2719,16 +2717,15 @@
       "datetime": "2026-10-15T04:04:23.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 65,
       "hasText": true,
+      "summary": ">>YMTC, 2026년 2분기 글로벌 NAND 출하량 3위로 상승 •Counterpoint의 메모리 시장 추적 및 전망에 따르면, 2026년 2분기 YMTC는 NAND 플래시 출하량 기준 글로벌 3위로...",
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": ">>YMTC, 2026년 2분기 글로벌 NAND 출하량 3위로 상승 •Counterpoint의 메모리 시장 추적 및 전망에 따르면, 2026년 2분기 YMTC는 NAND 플래시 출하량 기준 글로벌 3위로..."
+      ]
     },
     {
       "id": "insidertracking/66335",
@@ -2753,15 +2750,12 @@
       "datetime": "2026-10-15T03:32:12.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
-        "kr-market",
-        "insider",
-        "flows"
+        "macro"
       ],
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>골드만삭스가 평가하는 진입 신호 : 세 가지 매수 동력이 곧 복귀 •시장 심리가 4월 ‘상호관세 발표일’ 당시의 저점까지 하락했지만, 골드만삭스 자금 흐름팀은 미국 주식시장의 기술적 흐름이 조용히 바뀌고..."
+      "summary": ">>골드만삭스가 평가하는 진입 신호 : 세 가지 매수 동력이 곧 복귀 •시장 심리가 4월 ‘상호관세 발표일’ 당시의 저점까지 하락했지만, 골드만삭스 자금 흐름팀은 미국 주식시장의 기술적 흐름이 조용히 바뀌고...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70460",
@@ -2774,8 +2768,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>UBS: A주 기술주 ‘쏠림’ 대폭 완화, 시장의 추가 하락 위험 제한적 •UBS 전략가들은 A주 기술주가 9월 하순부터 빠르게 조정을 받으면서 공모펀드의 초과 비중이 역사적 고점인 18.5%에서..."
+      "summary": ">>UBS: A주 기술주 ‘쏠림’ 대폭 완화, 시장의 추가 하락 위험 제한적 •UBS 전략가들은 A주 기술주가 9월 하순부터 빠르게 조정을 받으면서 공모펀드의 초과 비중이 역사적 고점인 18.5%에서...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20628",
@@ -2822,13 +2816,12 @@
       "tags": [
         "macro",
         "ai-policy",
-        "equity",
         "earnings"
       ],
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Anthropic 실적, “좋지만 충분히 좋지는 않다”: 조정 후 이익 기준, 매출 증가세 급격히 둔화 (중국언론) •Anthropic의 3분기 매출은 168억 달러로 전분기 대비 약 50% 증가했으며,..."
+      "summary": ">>Anthropic 실적, “좋지만 충분히 좋지는 않다”: 조정 후 이익 기준, 매출 증가세 급격히 둔화 (중국언론) •Anthropic의 3분기 매출은 168억 달러로 전분기 대비 약 50% 증가했으며,...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66322",
@@ -3623,8 +3616,8 @@
       ],
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": "Citi) 미국 경제; 강한 근원 CPI로 금리 인상 기대 강화 씨티의 견해 전월 대비 0.33%의 근원 CPI는 저희 및 컨센서스 예상치를 크게 상회했으며, 목표치를 웃도는 전월 대비 0.30%의 근원..."
+      "summary": "Citi) 미국 경제; 강한 근원 CPI로 금리 인상 기대 강화 씨티의 견해 전월 대비 0.33%의 근원 CPI는 저희 및 컨센서스 예상치를 크게 상회했으며, 목표치를 웃도는 전월 대비 0.30%의 근원...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70432",
@@ -8327,21 +8320,6 @@
       "tickers": []
     },
     {
-      "id": "aetherjapanresearch/25845",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25845",
-      "datetime": "2026-10-14T22:11:41.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "macro",
-        "earnings"
-      ],
-      "score": 47,
-      "hasText": true,
-      "tickers": [],
-      "summary": "앤스로픽 3분기 매출 168억달러로 급증"
-    },
-    {
       "id": "insidertracking/66301",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/66301",
@@ -8716,8 +8694,8 @@
       ],
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": "Citi) 미국 경제; 강한 근원 CPI로 금리 인상 기대 강화 씨티의 견해 전월 대비 0.33%의 근원 CPI는 저희 및 컨센서스 예상치를 크게 상회했으며, 목표치를 웃도는 전월 대비 0.30%의 근원..."
+      "summary": "Citi) 미국 경제; 강한 근원 CPI로 금리 인상 기대 강화 씨티의 견해 전월 대비 0.33%의 근원 CPI는 저희 및 컨센서스 예상치를 크게 상회했으며, 목표치를 웃도는 전월 대비 0.30%의 근원...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70432",
