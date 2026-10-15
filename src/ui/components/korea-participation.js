@@ -2,11 +2,17 @@ import { buildKoreaParticipation } from '../../domain/market/korea-participation
 import { koreaMoveRecord } from '../../domain/briefing/market-read.js';
 import { heavyweightLine } from '../../domain/themes/group-strength.js';
 import { el } from './dom.js';
-export function renderKoreaParticipation({documentRef:doc,root}) {
+// v57.78 perf: an optional `store` supplies the native screener rows in place (same rule as scenario-outlook: a
+// non-empty native set wins, an empty one defers to the bridge, which owns the pre-publication fallback).
+function participationRows(root,store){
+  let nativeRows=null;try{nativeRows=store?.getState?.()?.screener?.rows;}catch(_){nativeRows=null;}
+  return (Array.isArray(nativeRows)&&nativeRows.length?nativeRows:root._aioGetCanonicalScreenerRows?.())||[];
+}
+export function renderKoreaParticipation({documentRef:doc,root,store=null}) {
   const board=doc.getElementById('regime-board-kr');if(!board)return;
   let host=doc.getElementById('regime-kr-participation');
   if(!host){host=el(doc,'section');host.id='regime-kr-participation';host.className='regime-kr-participation';board.after(host);}
-  const rows=root._aioGetCanonicalScreenerRows?.()||[];
+  const rows=participationRows(root,store);
   // P1723: the KOSPI 1-/5-session change (same KRX close record as 시장 상태) goes beside the sample's own medians.
   const kr=koreaMoveRecord(root._aioHistory||[],{now:Date.now()});
   const model=buildKoreaParticipation({rows,themes:root.KR_THEME_MAP||{},index:kr?{date:kr.date,d1:kr.d1,d5:kr.d5}:null});root.__aioKoreaParticipation=model;

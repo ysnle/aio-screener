@@ -1200,6 +1200,8 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const newsBootstrapSource = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
   const legacyCoreNewsSource = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
   const legacyFacadeNewsSource = readFileSync(path.join(root, 'src/legacy/compatibility-facade.js'), 'utf8');
+  // v57.78: the loop audit (getAutonomousLoopAudit) moved to the on-demand QA bundle.
+  const legacyQaAuditNewsSource = readFileSync(path.join(root, 'js/aio-qa-audits.js'), 'utf8');
   const legacyScoreFallback = legacyNewsSource.match(/function computeNewsSentimentScore\(items\) \{[\s\S]*?\n\}/)?.[0] || '';
   if (!/if \(!_bucketScore \|\| _bucketScore\.sampleSufficient !== true \|\| Number\(_bucketScore\.total\) < _minNewsSample \|\| _bucketScore\.score == null\) continue/.test(legacyNewsSource)
     || !/if \(ns && ns\.sampleSufficient === true && Number\(ns\.total\) >= _minNewsSample && ns\.score != null && Number\.isFinite\(Number\(ns\.score\)\)\) \{\s*_nsh\.push/.test(legacyNewsSource)
@@ -1217,8 +1219,8 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     || !/newsSignal\.sampleSufficient === true/.test(legacyCoreNewsSource)
     || !/newsSignal\.sentimentScore === 'number' && Number\.isFinite\(newsSignal\.sentimentScore\)/.test(legacyCoreNewsSource)
     || !/ns\.sampleSufficient === true && ns\.decisionEligible === true && Number\(ns\.total\) >= minNewsSample[\s\S]*?typeof ns\.sentimentScore === 'number' && Number\.isFinite\(ns\.sentimentScore\)/.test(legacyCoreNewsSource)
-    || !/sig\.sampleSufficient === true && Number\(sig\.total\) >= minNewsSample[\s\S]*?typeof sig\.sentimentScore === 'number' && Number\.isFinite\(sig\.sentimentScore\)/.test(legacyCoreNewsSource)
-    || !/stages\.signal = \{ ok: !!signalSampleSufficient/.test(legacyCoreNewsSource)) {
+    || !/sig\.sampleSufficient === true && Number\(sig\.total\) >= minNewsSample[\s\S]*?typeof sig\.sentimentScore === 'number' && Number\.isFinite\(sig\.sentimentScore\)/.test(legacyQaAuditNewsSource)
+    || !/stages\.signal = \{ ok: !!signalSampleSufficient/.test(legacyQaAuditNewsSource)) {
     fail('P1288/R638: the legacy news aggregate, market-state consumer, action-plan consumer, and loop audit must fail closed below the shared minimum sample');
   }
   const { exposeArchitecture } = await load('src/legacy/compatibility-facade.js');

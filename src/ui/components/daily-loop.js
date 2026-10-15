@@ -41,12 +41,13 @@ function renderChanges(doc, host, history) {
   return model;
 }
 
-function renderMyNames(doc, host, root, store) {
+function renderMyNames(doc, host, root, store, regime = null) {
   const state = store?.getState?.() || {};
   const holdings = Array.isArray(state?.portfolio?.holdings) ? state.portfolio.holdings : [];
   const symbols = call(root, '_aioWatchlistGet', undefined, []);
-  const rows = call(root, '_aioGetCanonicalScreenerRows', undefined, []);
-  const breadthState = readMarketRegime(root)?.axes?.find((axis) => axis.id === 'breadth')?.state || null;
+  const storeRows = state?.screener?.rows;
+  const rows = Array.isArray(storeRows) && storeRows.length ? storeRows : call(root, '_aioGetCanonicalScreenerRows', undefined, []);
+  const breadthState = (regime || readMarketRegime(root))?.axes?.find((axis) => axis.id === 'breadth')?.state || null;
   const model = buildMyNames({ symbols, rows, live: root?._liveData || {}, holdings, breadthState });
   host.replaceChildren(el(doc, 'h2', '내 종목', 'briefing-h2'));
   if (!model.names.length) {
@@ -156,7 +157,9 @@ function renderMyNews(doc, host, root, store, names) {
   host.append(list);
 }
 
-export function renderDailyLoop({ documentRef: doc, root, store }) {
+// v57.78 perf: `regime` is the one home already computed this render (renderHomeRegime returns it); without it the
+// loop reads the regime itself, so a caller that renders the loop alone sees the same breadth state.
+export function renderDailyLoop({ documentRef: doc, root, store, regime = null }) {
   const host = doc?.getElementById('home-daily-loop');
   if (!host) return null;
   const parts = {
@@ -167,7 +170,7 @@ export function renderDailyLoop({ documentRef: doc, root, store }) {
   };
   const changes = parts.changes ? renderChanges(doc, parts.changes, root?._aioHistory || []) : null;
   renderSectorMoves({ documentRef: doc, root, anchor: host }); // P1641: after the daily loop grid
-  const names = parts.names ? renderMyNames(doc, parts.names, root, store) : null;
+  const names = parts.names ? renderMyNames(doc, parts.names, root, store, regime) : null;
   if (parts.schedule) renderSchedule(doc, parts.schedule, root);
   if (parts.news) renderMyNews(doc, parts.news, root, store, names?.names || []);
   host.dataset.aioDailyLoopRenderer = 'native';

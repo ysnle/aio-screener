@@ -147,11 +147,19 @@ const liveDataFor = (root, holdings, liveData) => {
   }
   return view;
 };
-function screenerCloseOf(root) {
+// v57.78 perf: one symbol map per render, shared by the close and sector lookups (each built its own from a fresh
+// bridge read). A non-empty native store set is read in place; an empty one defers to the bridge, which owns the
+// pre-publication fallback (screener-row-policy, same rule as scenario-outlook), then the bundled DB as before.
+function screenerRowsBySymbol(root, store) {
   let rows = [];
-  try { rows = typeof root?._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() || [] : []; } catch (_) { rows = []; }
+  try {
+    const nativeRows = store?.getState?.()?.screener?.rows;
+    rows = Array.isArray(nativeRows) && nativeRows.length ? nativeRows : (typeof root?._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() || [] : []);
+  } catch (_) { rows = []; }
   if (!rows.length && Array.isArray(root?.SCREENER_DB)) rows = root.SCREENER_DB;
-  const bySymbol = new Map(rows.map((row) => [String(row?.sym || '').toUpperCase(), row]));
+  return new Map(rows.map((row) => [String(row?.sym || '').toUpperCase(), row]));
+}
+function screenerCloseOf(root, bySymbol) {
   return (symbol) => {
     const row = bySymbol.get(String(symbol || '').toUpperCase()) || bySymbol.get(quoteSymbolOf(root, symbol));
     const price = finite(row?._valuationPePrice ?? row?._valuationPbPrice ?? row?.valuationPrice ?? row?.pePrice);
@@ -182,11 +190,7 @@ const closeNote = (surface) => {
   return `${n ? ` · ${n}종목은 실시간 시세 대신 ${md}종가 기준` : ''}${delayed ? ` · ${delayed}종목은 지연 시세(참고) 기준` : ''}`;
 };
 
-function screenerSectorOf(root) {
-  let rows = [];
-  try { rows = typeof root?._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() || [] : []; } catch (_) { rows = []; }
-  if (!rows.length && Array.isArray(root?.SCREENER_DB)) rows = root.SCREENER_DB;
-  const bySymbol = new Map(rows.map((row) => [String(row?.sym || '').toUpperCase(), row]));
+function screenerSectorOf(bySymbol) {
   return (symbol) => bySymbol.get(String(symbol || '').toUpperCase())?.sector || null;
 }
 
@@ -516,7 +520,8 @@ function render({ root, documentRef, store, charts }) {
     page.dataset.aioArchitectureRenderer = 'native';
   }
   const liveData = root?._liveData || {};
-  const surface = derivePortfolioSurface({ state, liveData: liveDataFor(root, state?.holdings, liveData), vix: liveData?.['^VIX'] || null, sectorOf: screenerSectorOf(root), closeOf: screenerCloseOf(root) });
+  const bySymbol = screenerRowsBySymbol(root, store);
+  const surface = derivePortfolioSurface({ state, liveData: liveDataFor(root, state?.holdings, liveData), vix: liveData?.['^VIX'] || null, sectorOf: screenerSectorOf(bySymbol), closeOf: screenerCloseOf(root, bySymbol) });
   requestHoldingQuotes(root, surface.rows);
   if (root) root._aioPortfolioSurface = surface; // P1445: legacy exposure/stress panels share these base-currency values
   if (root) root._aioPortfolioSectorLabel = portfolioSectorLabel; // v57.50 review R1: one sector vocabulary for the legacy exposure panel

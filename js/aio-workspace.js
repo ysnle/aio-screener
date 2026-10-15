@@ -19,7 +19,6 @@
 // AI credentials are server-only; these compatibility helpers never read a saved key.
 function getApiKey() { return ''; }
 async function setApiKey() { return { ok: false, state: 'SERVER_ONLY_AI' }; }
-async function saveSidebarApiKey() { return { ok: false, state: 'SERVER_ONLY_AI' }; }
 function loadSidebarApiKey() {}
 
 
@@ -853,7 +852,7 @@ function _aioRenderPortfolioHoldingCharts(positions, ld) {
   container.innerHTML = tickers.map(function(t) {
     var tEsc = escHtml(t);
     return '<div class="aio-widget" id="pf-hc-' + tEsc + '" data-action="_aioTechnicalTicker" data-arg="' + tEsc +
-      '" role="button" tabindex="0" aria-label="' + tEsc + ' 차트·기술 분석으로 이동" style="padding:16px 18px;cursor:pointer;display:flex;flex-direction:column;">' +
+      '" role="button" tabindex="0" aria-label="' + tEsc + ' 종목 · 차트로 이동" style="padding:16px 18px;cursor:pointer;display:flex;flex-direction:column;">' +
       '<div style="font-size:12px;color:var(--text-muted);">' + tEsc + ' 차트 로딩 중…</div></div>';
   }).join('');
 
@@ -907,7 +906,7 @@ function _aioRenderPortfolioHoldingCharts(positions, ld) {
           '<div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--text-muted);">20일 저항 / 지지</span><span style="font-size:11px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">' +
             resistance.toFixed(1) + ' / ' + support.toFixed(1) + '</span></div>' +
         '</div>' +
-        '<div style="font-size:11px;font-weight:600;color:var(--text-primary);margin-top:10px;">차트·기술 분석에서 상세 보기 →</div>';
+        '<div style="font-size:11px;font-weight:600;color:var(--text-primary);margin-top:10px;">종목 · 차트에서 상세 보기 →</div>';
     }).catch(function() {
       var card = document.getElementById('pf-hc-' + ticker);
       if (card) card.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">' + escHtml(ticker) + ' — 차트 데이터 수신 실패</div>';

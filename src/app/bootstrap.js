@@ -1022,10 +1022,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     ,computeFactorRanks
     ,deriveFactorWeights
     // P1449: the legacy bridge (LC-39/P1215 family) needs the same subject continuity the native
-    // renders use — the 차트·기술 분석 button names the company for the whole 종목 screen.
+    // renders use — the 종목 · 차트 button names the company for the whole 종목 screen.
     ,setStockSubject
-    // P785: single pure market-health model for the technical primary surface; the legacy
-    // computeMarketHealth wrapper consumes this API and only renders when the native fence is absent.
+    // P785/v57.77: single pure market-health model; js/aio-macro-tech.js computeMarketHealth() is a
+    // pure adapter (no DOM, no fence) read by the aio-core ticker gate and runtime-readers.
     ,computeMarketHealth
     ,getVerticalSliceContract: (route) => getVerticalSliceContract(route)
     ,getVerticalSliceContracts: () => VERTICAL_SLICE_CONTRACTS.slice()

@@ -10808,57 +10808,6 @@ window.AIO.getTelegramPageCoverageAudit = function() {
   var currentLaneReady = !!(currentWindow && currentWindow.start && currentWindow.end && sourceCycleFresh);
   return { status:missing.length || !narrativeCurrent || !currentLaneReady ? 'DEGRADED' : 'OK', requiredPageCount:required.length, mappedPageCount:required.length - missing.length, missingPages:missing, dynamicNarrative:narrativeCurrent, currentLaneReady:currentLaneReady, current24hCount:items.length, digestAgeHours:isFinite(digestAgeHours) ? Math.round(digestAgeHours * 10) / 10 : null, routes:routes };
 };
-window.AIO.getTelegramPipelineAudit = function() {
-  var sources = (window.AIO_NEWS_SOURCES || AIO_NEWS_SOURCES || []).filter(function(s) { return s && s.type === 'telegram'; });
-  var all = (window._allNewsItems || newsCache || []).filter(function(it) { return it && (it._tgChannel || /TG|Telegram/i.test(String(it.feed || it.source || ''))); });
-  var aetherSource = sources.find(function(s) { return s.tgSlug === 'aetherjapanresearch'; }) || null;
-  var aetherItems = all.filter(function(it) { return it._tgChannel === 'aetherjapanresearch' || /Aether Japan/i.test(String(it.feed || it.source || '')); });
-  var digest = window.AIO_TELEGRAM_WEEKLY_DIGEST || null;
-  var digestMeta = window._aioTelegramDigestMeta || null;
-  var memoOverlay = window._aioTelegramMemoOverlayAudit || (digestMeta && digestMeta.memoOverlay) || null;
-  var pageCoverage = window.AIO.getTelegramPageCoverageAudit();
-  var requiredChannelSlugs = ['aetherjapanresearch', 'insidertracking', 'bornlupin', 'HANAchina'];
-  var sourceSlugs = sources.map(function(s) { return s && s.tgSlug; }).filter(Boolean);
-  var missingRequiredChannels = requiredChannelSlugs.filter(function(slug) { return sourceSlugs.indexOf(slug) < 0; });
-  var requiredSourcesReady = missingRequiredChannels.length === 0;
-  return {
-    status: requiredSourcesReady && pageCoverage.status === 'OK' ? 'OK' : (aetherSource ? 'DEGRADED' : 'MISSING_AETHER_SOURCE'),
-    telegramSourceCount: sources.length,
-    requiredChannelSlugs: requiredChannelSlugs,
-    missingRequiredChannels: missingRequiredChannels,
-    requiredSourcesReady: requiredSourcesReady,
-    sources: sources.map(function(s) {
-      return { name: s.name, slug: s.tgSlug || null, tier: s.tier, topics: s.topics || [], publicMirror: s.publicMirror || ('https://t.me/s/' + (s.tgSlug || '')), pipelineRole: s.pipelineRole || 'telegram-fast-secondary' };
-    }),
-    aether: aetherSource ? { url: aetherSource.url, publicMirror: aetherSource.publicMirror, role: aetherSource.pipelineRole, topics: aetherSource.topics } : null,
-    digest: digest ? {
-      dynamicLoaded: !!digest.dynamicDigestLoaded,
-      status: digestMeta && digestMeta.status || (digest.dynamicDigestLoaded ? 'ready' : 'static-fallback'),
-      asOf: digest.asOf || null,
-      window: digest.window || null,
-      count: digest.counts && digest.counts.total || null,
-      categoryCount: Array.isArray(digest.categories) ? digest.categories.length : 0,
-      pageMapCount: digest.pageMap ? Object.keys(digest.pageMap).length : 0,
-      retainedItemCount: digest.retainedItemCount || 0,
-      coverage: digest.coverage || null,
-      dynamicNarrative: pageCoverage.dynamicNarrative,
-      current24hWindow: digest.current24hWindow || null,
-      current24hCoverage: digest.current24hCoverage || null,
-      currentLaneReady: pageCoverage.currentLaneReady,
-      memoOverlay: memoOverlay ? {
-        status: memoOverlay.status || null,
-        date: memoOverlay.date || null,
-        appliedCount: memoOverlay.appliedCount || 0,
-        tickers: memoOverlay.tickers || []
-      } : null
-    } : null,
-    memoOverlay: memoOverlay,
-    pageCoverage: pageCoverage,
-    recentTelegramItems: all.length,
-    recentAetherItems: aetherItems.length,
-    verificationPolicy: 'Telegram items are fast secondary inputs. Confirm with primary source or market data before presenting as live trade facts.'
-  };
-};
 
 // ── RSS 파싱 ─────────────────────────────────────────────────────
 
@@ -14210,46 +14159,6 @@ function _aioComputeFactorRanks() {
 }
 window._aioComputeFactorRanks = _aioComputeFactorRanks;
 
-window.AIO = window.AIO || {};
-window.AIO.getQuantReadinessAudit = function() {
-  var state = window._aioScreenerLoadState || {};
-  var server = window._aioServerScreener || {};
-  var contract = server.rankingContract || {};
-  var observedAt = state.factorObservedAt || server.factorObservedAt || null;
-  var observedMs = observedAt ? new Date(observedAt).getTime() : 0;
-  var observationAgeHours = observedMs ? Math.round((Date.now() - observedMs) / 3600000 * 10) / 10 : null;
-  var coveragePct = state.universe ? Math.round((state.count || 0) / state.universe * 1000) / 10 : 0;
-  var active = (window._aioActiveFactors || []).slice();
-  var inactive = window._aioInactiveFactorReasons || {};
-  var checks = {
-    artifactLoaded: state.status === 'ready' || state.status === 'partial',
-    observationCurrent: observationAgeHours != null && observationAgeHours >= -1 && observationAgeHours <= 96,
-    coverage: coveragePct >= 90,
-    activePriceFactors: ['momentum','trend','lowvol','kalman'].every(function(k){ return active.indexOf(k) !== -1; }),
-    liveModelParity: contract.liveModelParity === true,
-    predictiveValidation: contract.predictiveValidation === 'established'
-  };
-  var researchReady = checks.artifactLoaded && checks.observationCurrent && checks.coverage && checks.activePriceFactors;
-  var tradingAllowed = researchReady && checks.liveModelParity && checks.predictiveValidation && contract.tradingSignal === true;
-  return {
-    status: tradingAllowed ? 'trading_ready' : (researchReady ? 'research_only' : 'blocked'),
-    allowedUse: tradingAllowed ? 'trading' : (researchReady ? 'research-relative-ranking-only' : 'none'),
-    tradingAllowed: tradingAllowed,
-    researchReady: researchReady,
-    factorObservedAt: observedAt,
-    artifactGeneratedAt: state.asOf || server.asOf || null,
-    observationAgeHours: observationAgeHours,
-    coveragePct: coveragePct,
-    activeFactors: active,
-    inactiveFactorReasons: inactive,
-    checks: checks,
-    disclosure: tradingAllowed ? '실시간 모델 검증 완료' : '연구용 상대 랭킹이며 매매 신호 아님',
-    reason: contract.reason || '라이브 모델과 장기 검증의 완전한 정합성·예측력이 확립되지 않음',
-    evidenceArtifact: contract.evidenceArtifact || 'public-data/factor-backtest-longrun.json',
-    generatedAt: new Date().toISOString()
-  };
-};
-
 // ═══ v31.9: Yahoo→FRED 실시간 데이터 브릿지 ═════════════════════════
 // FRED 데이터는 1~5일 지연. Yahoo에서 이미 실시간으로 가져오는 동일 데이터가 있으면
 // FRED 값을 Yahoo 실시간 값으로 자동 대체하여 모든 하류 계산이 최신 데이터 사용
@@ -15198,4 +15107,4 @@ function _formatScreenerResultPrompt(result) {
 }
 window._formatScreenerResultPrompt = _formatScreenerResultPrompt;
 // AIO.ScreenerQuery: 스크리너 공개 API (aio-data.js 이동 완료 v51.17)
-window.AIO = window.AIO || {};
+window.AIO = window.AIO || {}

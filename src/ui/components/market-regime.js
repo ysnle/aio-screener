@@ -196,12 +196,14 @@ function scenarioLink(doc, root) {
   return line;
 }
 
-export function renderRegimePage({ documentRef: doc, root }) {
+// v57.78 perf: `store` (optional) lets the scenario outlook read the native screener rows in place instead of the
+// legacy bridge, which deep-clones the row set on every call; fixtures that omit it keep the bridge read.
+export function renderRegimePage({ documentRef: doc, root, store = null }) {
   const page = doc?.getElementById('page-signal');
   if (!page) return null;
   const inputs = collectMarketInputs(root);
   const regime = buildMarketRegime(inputs);
-  requestRegimeMacroHistory(root, doc);
+  requestRegimeMacroHistory(root, doc, 'page-signal', () => renderRegimePage({ documentRef: doc, root, store }));
   const history = buildRegimeAxisHistory(inputs, { regime, macroHistory: root._aioMacroHistory || null });
   const scenarios = buildMarketScenarios(inputs, { regime });
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
@@ -288,7 +290,7 @@ export function renderRegimePage({ documentRef: doc, root }) {
   const previous = page.querySelector('[data-aio-regime-scenarios]');
   const openIds = new Set([...(previous?.querySelectorAll?.('.regime-scenario-more[open]') || [])].map(node => node.closest('.regime-scenario-card')?.dataset.scenario));
   previous?.remove();
-  root.__aioScenarioOutlook = scenarios.available ? outlookForRoot(root, { scenarios, regime }) : null;
+  root.__aioScenarioOutlook = scenarios.available ? outlookForRoot(root, { scenarios, regime, store }) : null;
   const scenarioNode = board ? scenarioSection(doc, root, scenarios, root.__aioScenarioOutlook, openIds) : null;
   if (scenarioNode) board.insertAdjacentElement('afterend', scenarioNode); // v57.76: the branches by release are on 거시; the section ends with a link there
   renderNextSteps(doc, doc.getElementById('regime-next'), regimeFlow({ regime, groups: root.__aioScenarioOutlook?.rotation || {} }).next); // P1431, I02
@@ -367,11 +369,15 @@ function paintFuturesCell(doc, root, cellId, futures, field, label) {
 }
 
 // Home: one line plus the axis states, linking to the full board.
-export function renderHomeRegime({ documentRef: doc, root }) {
+// v57.78 perf: the market inputs are gathered once per render (they were gathered for the regime, again for the
+// scenarios, and a third time by the daily loop); the returned regime is handed to renderDailyLoop. The macro-history
+// request readMarketRegime made is the same deduplicated request requestRegimeMacroHistory makes below.
+export function renderHomeRegime({ documentRef: doc, root, store = null }) {
   const hero = doc?.getElementById('home-score-hero');
   if (!hero) return null;
-  const regime = readMarketRegime(root);
-  requestRegimeMacroHistory(root, doc, 'page-home', () => renderHomeRegime({ documentRef: doc, root }));
+  const inputs = collectMarketInputs(root);
+  const regime = buildMarketRegime(inputs);
+  requestRegimeMacroHistory(root, doc, 'page-home', () => renderHomeRegime({ documentRef: doc, root, store }));
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   set('home-hero-total', regime.available ? regime.overall : '판정 대기');
   set('home-hero-headline', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · 미국 6개 지표 ${regime.holdReason || summaryLine(regime)}` : '종가 기록을 불러오는 중입니다.');
@@ -420,8 +426,8 @@ export function renderHomeRegime({ documentRef: doc, root }) {
     let outlookBox = doc.getElementById('home-outlook');
     if (!outlookBox) { outlookBox = el(doc, 'div', null, 'home-outlook'); outlookBox.id = 'home-outlook'; chips.insertAdjacentElement('afterend', outlookBox); }
     outlookBox.hidden = true; // anchor only; the merged block below carries the structure line
-    const scenarios = regime.available ? buildMarketScenarios(collectMarketInputs(root), { regime }) : null;
-    const outlook = scenarios?.available ? outlookForRoot(root, { scenarios, regime }) : null;
+    const scenarios = regime.available ? buildMarketScenarios(inputs, { regime }) : null;
+    const outlook = scenarios?.available ? outlookForRoot(root, { scenarios, regime, store }) : null;
     const lead = outlook?.items?.find((item) => item.id === outlook.leadId);
     const structure = [];
     if (lead) {

@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.77';
+const APP_VERSION = 'v57.78';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1178,8 +1178,8 @@ window.getApiKey = function(name) {
   } catch(e) { return ''; }
 };
 // setApiKey(storageKey, value) — 저장소에 저장 (Vault 암호화 우선).
-// 인자 1개 legacy 호출은 Claude 전용 setApiKey(key) 호환 경로로 위임하고
-// Promise를 반환해 saveSidebarApiKey()의 결과/readback 검증을 보존한다.
+// 인자 1개 legacy 호출은 AI 키가 서버 전용이므로 SERVER_ONLY_AI 상태를 Promise로 반환한다
+// (v57.78: 이 경로를 쓰던 saveSidebarApiKey 스텁은 퇴역).
 window.setApiKey = function(name, value) {
   if (arguments.length < 2 || name === 'aio_claude_api_key' || name === 'aio_perplexity_key') return Promise.resolve({ ok: false, state: 'SERVER_ONLY_AI' });
   try {
@@ -2135,41 +2135,6 @@ window._aioTrackApiUsage = function(opts) {
     Object.keys(data.daily).forEach(function(d) { if (d < cutoffStr) delete data.daily[d]; });
     localStorage.setItem('aio_api_usage_v1', JSON.stringify(data));
   } catch(_) {}
-};
-
-// AIO.getApiUsage() — 콘솔 명령
-window.AIO = window.AIO || {};
-window.AIO.getApiUsage = function() {
-  try {
-    var data = JSON.parse(localStorage.getItem('aio_api_usage_v1') || '{}');
-    var today = new Date().toISOString().slice(0, 10);
-    var todayUsage = (data.daily || {})[today] || { calls: 0, inputTokens: 0, outputTokens: 0 };
-    var dailyKeys = Object.keys(data.daily || {}).sort();
-    var last7 = dailyKeys.slice(-7).reduce(function(acc, d) {
-      var v = data.daily[d] || {};
-      acc.calls += Number(v.calls) || 0;
-      acc.inputTokens += Number(v.inputTokens) || 0;
-      acc.outputTokens += Number(v.outputTokens) || 0;
-      return acc;
-    }, { calls: 0, inputTokens: 0, outputTokens: 0 });
-    var lifetime = data.lifetime || { calls: 0, inputTokens: 0, outputTokens: 0 };
-    var report = {
-      today: { date: today, calls: Number(todayUsage.calls) || 0, inputTokens: Number(todayUsage.inputTokens) || 0, outputTokens: Number(todayUsage.outputTokens) || 0, byModel: todayUsage.byModel || {} },
-      last7days: { calls: last7.calls, inputTokens: last7.inputTokens, outputTokens: last7.outputTokens },
-      lifetime: { calls: Number(lifetime.calls) || 0, inputTokens: Number(lifetime.inputTokens) || 0, outputTokens: Number(lifetime.outputTokens) || 0 },
-      dailyDetail: data.daily || {},
-      note: '토큰 사용량만 추적합니다. 공식 청구 비용이 없으면 비용을 추정하지 않습니다.'
-    };
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('[AIO v49.79 API Usage]');
-    console.log('오늘:', report.today.calls + '회 (in:' + report.today.inputTokens + ' out:' + report.today.outputTokens + ')');
-    console.log('최근 7일:', report.last7days.calls + '회');
-    console.log('전체 누적:', report.lifetime.calls + '회');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    return report;
-  } catch(e) {
-    return { error: String(e), note: 'API usage 데이터 미수신 또는 localStorage 오류' };
-  }
 };
 
 // v49.77 P411 R154: 데이터 새로고침 핸들러 — callClaude 실패 시 사용자가 즉시 액션 가능
@@ -3222,46 +3187,6 @@ if (typeof document !== 'undefined') {
     };
   };
 
-  // v50.48 [자율 루프 Phase 4] 자율 운영 루프 5단계 연결 audit — ingest→signal→brain→text→reflect.
-  //   각 단계가 실제로 연결돼 데이터가 흐르는지(끊긴 고리 자동 감지). getAutoOpsReadiness에 통합.
-  window.AIO.getAutonomousLoopAudit = function(){
-    var stages = {};
-    try {
-      // 1) INGEST — 서버 data.json + 뉴스 캐시
-      var newsN = (window._allNewsItems && window._allNewsItems.length) || (window.newsCache && window.newsCache.length) || 0;
-      var serverData = !!(window._serverDataMeta && window._serverDataMeta.loadedAt);
-      stages.ingest = { ok: serverData || newsN > 0, serverData: serverData, newsItems: newsN };
-      // 2) SIGNAL — 뉴스 신호 집계
-      var sig = (typeof window._aioComputeNewsSignal === 'function') ? window._aioComputeNewsSignal() : null;
-      var minNewsSample = Number(window.AIO_ARCH && window.AIO_ARCH.MIN_NEWS_ANALYSIS_SAMPLE);
-      var signalSampleSufficient = Number.isInteger(minNewsSample) && minNewsSample > 0
-        && sig && sig.sampleSufficient === true && Number(sig.total) >= minNewsSample
-        && typeof sig.sentimentScore === 'number' && Number.isFinite(sig.sentimentScore);
-      stages.signal = { ok: !!signalSampleSufficient, available: !!(sig && sig.available), sampleSufficient: !!signalSampleSufficient, bias: sig && sig.bias };
-      // 3) BRAIN — 단일 두뇌가 신호 흡수 + 정규화 모델
-      var ms = window.AIO.marketState || (window.AIO.computeMarketState && window.AIO.computeMarketState());
-      stages.brain = { ok: !!(ms && 'newsSignal' in ms && ms.riskLevel), riskScore: ms && ms.riskScore, cycleScore: ms && ms.cycleScore, absorbsNews: !!(ms && ms.newsSignal) };
-      // 4) TEXT — 합성 엔진이 분석문 생성
-      var syn = (typeof window.AIO.synthesizeMarketAnalysis === 'function') ? window.AIO.synthesizeMarketAnalysis() : null;
-      stages.text = { ok: !!(syn && syn.available && syn.full && syn.full.length > 30), source: window._serverMarketAnalysis ? 'server-llm' : 'template' };
-      // 5) REFLECT — sink 요소가 채워졌는지(빈 placeholder 탈출)
-      var sinks = document.querySelectorAll('[data-market-analysis-sink]');
-      var filled = 0;
-      sinks.forEach(function(el){ var t = (el.textContent || '').trim(); if (t.length > 20 && t.indexOf('수신 대기') < 0 && t.indexOf('대기...') < 0) filled++; });
-      stages.reflect = { ok: sinks.length > 0 && filled > 0, sinks: sinks.length, filled: filled };
-    } catch(e) { return { status: 'warn', error: e && e.message, stages: stages, generatedAt: new Date().toISOString() }; }
-    var order = ['ingest','signal','brain','text','reflect'];
-    var broken = order.filter(function(s){ return !(stages[s] && stages[s].ok); });
-    return {
-      status: broken.length === 0 ? 'ok' : (broken.length <= 1 ? 'warn' : 'fail'),
-      connected: (order.length - broken.length) + '/' + order.length,
-      brokenStages: broken,
-      stages: stages,
-      note: '자율 운영 루프: 데이터/뉴스 수집 → 신호 집계 → 단일 두뇌(risk/action) → 텍스트 합성 → 화면 반영. 끊긴 고리 자동 감지.',
-      generatedAt: new Date().toISOString()
-    };
-  };
-
   if (typeof window !== 'undefined') {
     if (window._aioPageBus && window._aioPageBus.register) {
       // P858: news strips/digest are secondary narrative enrichment. Native
@@ -3300,6 +3225,9 @@ window.AIO = window.AIO || {};
 // P1329/R673: self-audit/QA machinery lives in js/aio-qa-audits.js. Like aio-tests.js it is not
 // shipped to users; it loads on demand for automated browsers, ?qa=1 / detailed audit mode, the
 // operator self-diagnosis widget and AIO.loadTests().
+// v57.78: test/QA-only callables with no production caller (getApiUsage, getAutonomousLoopAudit, evaluateAIRetrievalQuality,
+// getWebSearchAudit, getChatHallucinationAudit, getInlineThresholdTableAudit, assertChatAnswerStructureAudit, getChatSourceRegistryAudit,
+// _aioBuildSparklineSvg, getCurrentMarketRegime, runEvidenceDeploymentGate) live in js/aio-qa-audits.js and exist only after loadQaAudits().
 window.AIO.loadQaAudits = function() {
   if (window.__aioQaAuditsLoaded) return Promise.resolve(true);
   if (window.__aioQaAuditsPromise) return window.__aioQaAuditsPromise;
@@ -5030,68 +4958,6 @@ window.AIO.quarantineAIRetrievalDocument = function(documentId, reason) {
   row.status = 'quarantined';
   row.quarantineReason = String(reason || 'manual-quarantine').slice(0, 160);
   return { version: _AIO_AI_RETRIEVAL_QUALITY_VERSION, blocked: false, documentId: target, quarantined: true, quarantineReason: row.quarantineReason };
-};
-
-window.AIO.evaluateAIRetrievalQuality = function(options) {
-  options = options || {};
-  var documents = Array.isArray(options.documents) ? options.documents : (window._aioAIRetrievalDocumentIndex || []);
-  var byId = {};
-  documents.forEach(function(document, index) {
-    var row = document || {};
-    var id = String(row.documentId || row.docId || row.id || 'document-' + index);
-    byId[id] = row;
-  });
-  var queryRows = Array.isArray(options.queries) ? options.queries : [];
-  var recallSum = 0;
-  var precisionSum = 0;
-  var sourceCovered = {};
-  var sourceRelevant = {};
-  var temporalHits = 0;
-  var relevantRetrieved = 0;
-  var minPublishedAt = options.minPublishedAt ? new Date(options.minPublishedAt).getTime() : null;
-  queryRows.forEach(function(query) {
-    query = query || {};
-    var relevant = Array.isArray(query.relevantIds) ? query.relevantIds.map(String).filter(function(id, index, all) { return all.indexOf(id) === index; }) : [];
-    var retrieved = Array.isArray(query.retrievedIds) ? query.retrievedIds.map(String).filter(function(id, index, all) { return all.indexOf(id) === index; }) : [];
-    var hits = retrieved.filter(function(id) { return relevant.indexOf(id) >= 0 && !(byId[id] && byId[id].quarantined === true); });
-    relevant.forEach(function(id) {
-      var row = byId[id];
-      if (row && row.quarantined !== true) sourceRelevant[String(row.sourceTier || 'UNKNOWN')] = true;
-    });
-    hits.forEach(function(id) {
-      var row = byId[id];
-      if (row) {
-        sourceCovered[String(row.sourceTier || 'UNKNOWN')] = true;
-        relevantRetrieved += 1;
-        var published = new Date(row.publishedAt || row.asOf || 0).getTime();
-        if (minPublishedAt == null || (isFinite(published) && published >= minPublishedAt)) temporalHits += 1;
-      }
-    });
-    recallSum += relevant.length ? hits.length / relevant.length : 1;
-    precisionSum += retrieved.length ? hits.length / retrieved.length : 1;
-  });
-  var sourceRelevantCount = Object.keys(sourceRelevant).length;
-  var sourceCoveredCount = Object.keys(sourceCovered).filter(function(key) { return sourceRelevant[key]; }).length;
-  var poisonCurrentActionUses = (Array.isArray(options.currentActionUses) ? options.currentActionUses : []).filter(function(id) {
-    return byId[String(id)] && byId[String(id)].quarantined === true;
-  }).length;
-  var recallAtK = queryRows.length ? recallSum / queryRows.length : 0;
-  var precisionAtK = queryRows.length ? precisionSum / queryRows.length : 0;
-  var sourceTierCoverage = sourceRelevantCount ? sourceCoveredCount / sourceRelevantCount : 1;
-  var temporalRelevance = relevantRetrieved ? temporalHits / relevantRetrieved : 1;
-  var minRecall = Number(options.minRecall);
-  if (!isFinite(minRecall) || minRecall < 0) minRecall = 0.5;
-  var status = poisonCurrentActionUses > 0 ? 'BLOCKED_POISONED_ACTION_USE' : (recallAtK >= minRecall ? 'PASS' : 'FAIL_RECALL');
-  return {
-    version: _AIO_AI_RETRIEVAL_QUALITY_VERSION,
-    queryCount: queryRows.length,
-    recallAtK: Number(recallAtK.toFixed(4)),
-    precisionAtK: Number(precisionAtK.toFixed(4)),
-    sourceTierCoverage: Number(sourceTierCoverage.toFixed(4)),
-    temporalRelevance: Number(temporalRelevance.toFixed(4)),
-    poisonedCurrentActionUses: poisonCurrentActionUses,
-    gate: { status: status, minRecall: minRecall, blocked: poisonCurrentActionUses > 0 }
-  };
 };
 
 window.AIO.compactAIContext = function(text, options) {
@@ -6963,43 +6829,6 @@ window.AIO.getTickerMappingAudit = function() {
   };
 };
 
-
-// ─────────────────────────────────────────────────────────────────
-// v49.57 P318 신규: getWebSearchAudit — Claude web_search 사용 통계 + 토글 상태
-// 트리거 조건 + 누적 호출 횟수 + 사용자 opt-out 상태 검증
-// ─────────────────────────────────────────────────────────────────
-window.AIO.getWebSearchAudit = function() {
-  // P1655: one research transport (shared Worker web search); no user opt-out and no browser-side provider keys.
-  var stats = window._aioWebSearchStats || { calls: 0, lastUsedAt: null };
-  var routeState = window._aioLastClaudeRouteState || null;
-  // P1245 (05 A05): 진단은 "가장 최근 스트림"의 기록만 본다.
-  var _latestAIStream = (window.AIO && typeof window.AIO.getLatestAIRequestStream === 'function') ? window.AIO.getLatestAIRequestStream() : null;
-  var nativeCitations = _latestAIStream && Array.isArray(_latestAIStream.citations) ? _latestAIStream.citations : [];
-  var nativeToolError = _latestAIStream ? _latestAIStream.researchError : null;
-  var nativeToolReady = nativeCitations.length > 0 && !nativeToolError;
-  var contractReady = !!(window.AIO_ARCH &&
-    typeof window.AIO_ARCH.createAIResearchEvidenceDocument === 'function' &&
-    typeof window.AIO_ARCH.normalizeAIResearchExecutionResult === 'function' &&
-    typeof window.AIO_ARCH.evaluateAIResearchEvidenceFloor === 'function');
-  return {
-    status: contractReady ? 'ok' : 'warn',
-    enabled: true,
-    calls: stats.calls,
-    lastUsedAt: stats.lastUsedAt,
-    maxUsesPerCall: 2,
-    estimatedCostUsd: null, // P1608: client request counts are neither tool usage nor invoices
-    helperAvailable: typeof window._shouldUseClaudeWebSearch === 'function',
-    transport: 'shared-worker',
-    chatReadiness: routeState ? (routeState.ok ? 'READY' : routeState.reason || 'NOT_READY') : 'NOT_CHECKED',
-    researchReadiness: nativeToolReady ? 'NATIVE_TOOL_VERIFIED' : routeState && routeState.reason === 'SHARED_WORKER' ? 'NATIVE_TOOL_UNVERIFIED' : 'NOT_READY',
-    contractReady: contractReady,
-    lastPreparation: window._aioLastResearchPreparation || null,
-    nativeCitationCount: nativeCitations.length,
-    nativeToolErrorCode: nativeToolError ? 'NATIVE_TOOL_ERROR' : null,
-    generatedAt: new Date().toISOString()
-  };
-};
-
 // ─────────────────────────────────────────────────────────────────
 // v49.57 R103 신규: getThemeFetchCoverageAudit — 테마별 ticker × 5채널 fetch 가능성
 // 각 ticker가 SEC/Wiki/Finnhub/FMP/Naver 중 몇 개에서 fetch 가능한지 매트릭스.
@@ -7319,11 +7148,6 @@ window.AIO.assertChatResponseAccuracy = function(responseText, detectedTickers) 
   return result;
 };
 
-// ─────────────────────────────────────────────────────────────────
-// v49.32 M3 근본 수정: getChatHallucinationAudit — 환각 패턴 탐지
-// 라운드 숫자 ($150), 너무 정확한 소수 ($175.50), 불확실 표현 동시 등장 등.
-// R86 신규 (환각 패턴 자동 탐지)
-// ─────────────────────────────────────────────────────────────────
 // v50.0: chat answers may cite current market numbers only when the number can be
 // tied to verified/current evidence or an explicit fetched ticker block.
 window.AIO.getChatEvidenceContext = function(opts) {
@@ -7380,87 +7204,6 @@ window.AIO.assertChatEvidenceReferences = function(responseText, opts) {
   });
   result.issueCount = result.issues.length;
   result.status = result.issueCount ? 'warn' : 'pass';
-  return result;
-};
-
-window.AIO.getChatHallucinationAudit = function(responseText) {
-  var result = { suspicionScore: 0, patterns: [], maxScore: 10 };
-  if (!responseText || typeof responseText !== 'string') return result;
-  // 패턴 1: 정확한 라운드 숫자 ($100, $150, $200, $250, $300, $500 등)
-  var roundMatches = responseText.match(/\$(?:100|150|200|250|300|400|500|600|750|1000)(?!\.\d)/g) || [];
-  if (roundMatches.length > 0) {
-    result.suspicionScore += Math.min(3, roundMatches.length);
-    result.patterns.push('round-number:' + roundMatches.length);
-  }
-  // 패턴 2: 가격 + 불확실 표현 ("약/대략/추정/대충/거의/근처")
-  if (/\$\d+/.test(responseText) && /(약|대략|추정|대충|거의|근처|approximately|around|roughly|about)/.test(responseText)) {
-    result.suspicionScore += 4;
-    result.patterns.push('uncertain-with-price');
-  }
-  // 패턴 3: 너무 정확한 소수 ($X.00, $X.50) — fetch 데이터 정확성 의심
-  var preciseMatches = responseText.match(/\$\d+\.(?:00|50)\b/g) || [];
-  if (preciseMatches.length > 0) {
-    result.suspicionScore += Math.min(2, preciseMatches.length);
-    result.patterns.push('precise-decimal:' + preciseMatches.length);
-  }
-  // 패턴 4: 학습 데이터 시점 키워드 ("2024년", "2025년 초")
-  if (/(2024년|2025년 초|작년 초)/.test(responseText)) {
-    result.suspicionScore += 1;
-    result.patterns.push('stale-year-reference');
-  }
-  // v49.74 P397 R145: 학습 데이터 자기 인용 절대 차단 패턴 강화 (사용자 정직 발견 — "2025년 초 학습 데이터 기준" 답변 등장)
-  // AI가 자기 환각을 자백하는 표현은 critical (+5점)
-  if (/(학습\s*데이터\s*기준|학습\s*데이터\s*에\s*따르면|내가\s*학습한|학습\s*시점|기억\s*속|내가\s*알기로|내\s*기억(으로|에))/.test(responseText)) {
-    result.suspicionScore += 5;
-    result.patterns.push('self-confess-training-data');
-  }
-  // 시점 환각 — "2025년 초", "2024년 말", "최근 발표(데이터 없는 경우)" 등 학습 시점 추정 연도
-  var staleYearMatches = responseText.match(/202[0-5]년\s*(초|말|중반)?/g) || [];
-  if (staleYearMatches.length > 0) {
-    result.suspicionScore += Math.min(3, staleYearMatches.length);
-    result.patterns.push('training-year-citation:' + staleYearMatches.length);
-  }
-  // "약 $X~$Y대에서 베이스를 형성" — 데이터 없이 가격 범위 추측
-  if (/약\s*\$\d+\s*[~\-]\s*\$?\d+\s*(대|범위|구간|에서)/.test(responseText)) {
-    result.suspicionScore += 3;
-    result.patterns.push('vague-price-range');
-  }
-  // v49.75 P402 R150: Pattern D — 정적 시점 토큰 답변 누출 강화 (사용자 정직 발견 — "5/22" 학습 시점 노출)
-  // 세션 날짜와 다른 정적 날짜 토큰이 답변에 그대로 등장 시 검출
-  try {
-    var now = new Date();
-    var todayY = now.getFullYear();
-    var todayM = now.getMonth() + 1;
-    var todayD = now.getDate();
-    // M/D 형식 날짜 매칭 (5/22, 4/12 등) — 오늘과 비교
-    var mdMatches = responseText.match(/(\d{1,2})\/(\d{1,2})\b/g) || [];
-    var staleMd = [];
-    mdMatches.forEach(function(md) {
-      var parts = md.split('/');
-      var m = parseInt(parts[0], 10);
-      var d = parseInt(parts[1], 10);
-      // 유효 월/일 + 오늘과 7일+ 이격
-      if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
-        var thatDate = new Date(todayY, m - 1, d);
-        var diffDays = Math.abs((now - thatDate) / 86400000);
-        if (diffDays > 7) staleMd.push({ md: md, daysFromToday: Math.round(diffDays) });
-      }
-    });
-    if (staleMd.length >= 2) {
-      result.suspicionScore += 2;
-      result.patterns.push('stale-md-date:' + staleMd.length);
-    }
-    // YYYY-MM-DD 또는 YYYY.MM.DD 형식 — 1개월+ 과거면 stale
-    var isoMatches = responseText.match(/202[0-5][\-\.](\d{1,2})[\-\.](\d{1,2})/g) || [];
-    if (isoMatches.length >= 2) {
-      result.suspicionScore += 1;
-      result.patterns.push('stale-iso-date:' + isoMatches.length);
-    }
-  } catch(_) {}
-  result.suspicionScore = Math.min(result.suspicionScore, result.maxScore);
-  result.verdict = result.suspicionScore >= 7 ? 'high-risk' : result.suspicionScore >= 4 ? 'medium-risk' : result.suspicionScore >= 2 ? 'low-risk' : 'clean';
-  // v49.74 P397: blocking-grade 환각 — self-confess-training-data 패턴은 답변 위에 빨간 경고 박스 강제
-  result.requiresWarningBox = result.patterns.indexOf('self-confess-training-data') >= 0;
   return result;
 };
 
@@ -7594,53 +7337,6 @@ window.AIO.getStaticSeedFallbackAudit = function() {
     coveredCount: coveredKeys.length,
     totalKeys: totalKeys,
     note: 'data-snap key가 DATA_SNAPSHOT 최상위 또는 _fallback에 시드 미등록 시 폴백만 동작 (R74 못 잡음). R97 신규.',
-    generatedAt: new Date().toISOString()
-  };
-};
-
-// ─────────────────────────────────────────────────────────────────
-// v49.38 R94 신규: getInlineThresholdTableAudit
-// 페이지 인라인 <table class="explain-table"> 또는 [data-threshold-table]를 스캔,
-// THRESHOLD_REGISTRY 등록 임계값과 라벨 일치 검증. R56/R94 단일 출처 강제.
-// ─────────────────────────────────────────────────────────────────
-window.AIO.getInlineThresholdTableAudit = function() {
-  var reg = window.AIO_THRESHOLD_REGISTRY;
-  if (!reg) return { status: 'error', issueCount: 0, issues: ['THRESHOLD_REGISTRY undefined'] };
-  var issues = [];
-  var inlineTables = [];
-  try {
-    document.querySelectorAll('[data-threshold-table]').forEach(function(tbl) {
-      var key = tbl.getAttribute('data-threshold-table');
-      if (!reg[key] || !reg[key].bands) {
-        issues.push('table key=' + key + ' has no REGISTRY entry');
-        return;
-      }
-      var rows = tbl.querySelectorAll('tr');
-      var regBandCount = reg[key].bands.length;
-      if (rows.length !== regBandCount) {
-        issues.push('table key=' + key + ' rows=' + rows.length + ' vs REGISTRY bands=' + regBandCount);
-      }
-      // 라벨 정합 검사 (각 row의 두 번째 column이 REGISTRY label과 일치)
-      rows.forEach(function(row, idx) {
-        var cells = row.cells;
-        if (!cells || cells.length < 2) return;
-        var labelInTable = (cells[1].textContent || '').trim();
-        var registryLabel = reg[key].bands[idx] && reg[key].bands[idx].label;
-        if (registryLabel && labelInTable !== registryLabel) {
-          issues.push('table key=' + key + ' row=' + idx + ' label "' + labelInTable + '" vs REGISTRY "' + registryLabel + '"');
-        }
-      });
-      inlineTables.push({ key: key, rowCount: rows.length, regBandCount: regBandCount });
-    });
-  } catch (e) {
-    issues.push({ type: 'audit-error', message: e && e.message });
-  }
-  return {
-    status: issues.length ? 'warn' : 'ok',
-    issueCount: issues.length,
-    issues: issues,
-    inlineTables: inlineTables,
-    note: 'data-threshold-table="VIX" 등 마커가 있는 인라인 표는 REGISTRY와 자동 정합 검증',
     generatedAt: new Date().toISOString()
   };
 };
@@ -8703,67 +8399,6 @@ window.AIO.assertChatPanelDomAudit = function() {
   };
 };
 
-// ─────────────────────────────────────────────────────────────────
-// v49.75 P400 R148: assertChatAnswerStructureAudit — R140~R142 답변 후처리 검증
-// 사용자 정직 발견 — R140 (정성→정량) / R141 (표준 4 구조) / R142 (출처 괄호)
-// 시스템 프롬프트에만 정의되고 실제 답변 적용 여부 검증 부재.
-// Pattern B 일반화: 답변 텍스트 분석 → 4 rule 위반 자동 검출.
-// ─────────────────────────────────────────────────────────────────
-window.AIO.assertChatAnswerStructureAudit = function(responseText) {
-  if (!responseText || typeof responseText !== 'string') {
-    return { status: 'na', violations: [], reason: '응답 텍스트 부재' };
-  }
-  var violations = [];
-  var passes = [];
-  // R140 정성→정량 동반 검증
-  // 정성 표현 패턴 (높은/낮은/강한/약한/안정/불안/과열/공포/탐욕)
-  var qualitativeWords = ['높은', '낮은', '강한', '약한', '안정적', '불안정', '과열', '공포', '탐욕', '신중', '낙관', '비관'];
-  var qualHits = qualitativeWords.filter(function(w){ return responseText.indexOf(w) >= 0; });
-  // 정량 패턴 ($, %, 숫자+점수/배/주)
-  var hasQuant = /(\$\d|\d+(\.\d+)?\s*%|\d+(\.\d+)?\s*(배|점|주))/.test(responseText);
-  if (qualHits.length >= 3 && !hasQuant) {
-    violations.push({ rule: 'R140', issue: '정성 표현 ' + qualHits.length + '개 사용하나 정량 근거 0개', severity: 'high' });
-  } else if (qualHits.length > 0 && hasQuant) {
-    passes.push('R140 정성+정량 동반');
-  }
-  // R141 표준 4 구조 검증 (결론/정량/시나리오/액션)
-  var hasConclusion = /(\【결론\】|결론\s*:|요약\s*:|한\s*줄\s*요약)/.test(responseText);
-  var hasScenario = /(Bull|Bear|Base|낙관|비관|중립).{0,30}(\d+%|확신도)/.test(responseText) || /시나리오/.test(responseText);
-  var hasAction = /(액션|진입|이탈|관망|손절|목표가|포지션)/.test(responseText);
-  var structureScore = (hasConclusion ? 1 : 0) + (hasScenario ? 1 : 0) + (hasAction ? 1 : 0);
-  if (responseText.length > 500 && structureScore < 2) {
-    violations.push({ rule: 'R141', issue: '답변 길이 ' + responseText.length + '자이나 표준 4구조 ' + structureScore + '/3 적용', severity: 'medium', detail: { hasConclusion: hasConclusion, hasScenario: hasScenario, hasAction: hasAction } });
-  } else if (structureScore >= 2) {
-    passes.push('R141 표준 구조 ' + structureScore + '/3');
-  }
-  // R142 출처 괄호 검증 — 정량 인용 + (출처) 매칭
-  var priceMatches = responseText.match(/\$\d+(?:[,\.]\d+)*/g) || [];
-  var citedPrices = (responseText.match(/\$\d+[\d,\.]*\s*\([^)]*(?:Yahoo|FMP|Finnhub|Naver|SEC|CNN|fetched|KST|\d{4}-\d{2}-\d{2})/g) || []).length;
-  var uncitedPrices = priceMatches.length - citedPrices;
-  if (priceMatches.length >= 2 && citedPrices === 0) {
-    violations.push({ rule: 'R142', issue: '가격 ' + priceMatches.length + '회 인용하나 (출처·기준일) 0건', severity: 'high' });
-  } else if (priceMatches.length > 0 && citedPrices > 0) {
-    passes.push('R142 출처 ' + citedPrices + '/' + priceMatches.length);
-  }
-  // R145 자기 환각 자백 (이미 getChatHallucinationAudit에서 검출, 여기서 cross-reference)
-  if (/(학습\s*데이터\s*기준|기억\s*속|내가\s*알기로)/.test(responseText)) {
-    violations.push({ rule: 'R145', issue: 'AI 자기 환각 자백 표현 사용', severity: 'critical' });
-  }
-  var overallVerdict = violations.some(function(v){ return v.severity === 'critical'; }) ? 'critical' :
-                       violations.some(function(v){ return v.severity === 'high'; }) ? 'fail' :
-                       violations.length > 0 ? 'warn' : 'ok';
-  return {
-    status: overallVerdict,
-    violations: violations,
-    violationCount: violations.length,
-    passes: passes,
-    passCount: passes.length,
-    responseLength: responseText.length,
-    note: 'v49.75 R148: R140 정성→정량 / R141 표준 4 구조 / R142 출처 괄호 / R145 자기 환각 자백 4 ABSOLUTE RULES 답변 후처리 검증. Pattern B 일반화.',
-    generatedAt: new Date().toISOString()
-  };
-};
-
 
 // ─────────────────────────────────────────────────────────────────
 // v49.67 P355 R122: assertTickerFetchHealth — REGISTRY 샘플링 fetch 성공률 측정
@@ -8908,49 +8543,6 @@ window.AIO.assertChatFunctionCoverage = function() {
     cacheImplemented: cacheImplemented,
     cacheChecks: { save: hasCacheSave, load: hasCacheLoad, lru: hasLRU },
     note: 'Dead code 0건 + Partial 0건 + Cache 구현 = ok. 알려진 내부/페이지 전용 함수는 knownExempt로 false positive 차단.',
-    generatedAt: new Date().toISOString()
-  };
-};
-
-// v50.37 트랙2: AIO.getChatSourceRegistryAudit — AIO_CHAT_SOURCE_REGISTRY ↔ 채팅 데이터 주입 코드 정합 감사.
-//   레지스트리에 wired(=배선 의도) 소스의 fn이 (1) 정의돼 있고 (2) ticker fetch/chatSendUnified/domain injector 소스에 실제 호출되는지 확인.
-//   planned/wired:false(KR DART 등 확장점)는 미배선 정상 → unused에서 제외. R121 toString-scan 패턴 재사용.
-window.AIO.getChatSourceRegistryAudit = function() {
-  var reg = window.AIO_CHAT_SOURCE_REGISTRY;
-  if (!Array.isArray(reg)) return { status: 'error', error: 'AIO_CHAT_SOURCE_REGISTRY 미정의', total: 0 };
-  var chatSrc = [
-    typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '',
-    typeof window._fetchTechnicalDataForChat === 'function' ? window._fetchTechnicalDataForChat.toString() : '',
-    typeof window._fetchDomainContextForChat === 'function' ? window._fetchDomainContextForChat.toString() : '',
-    typeof window.chatSendUnified === 'function' ? window.chatSendUnified.toString() : '' // v57.62: per-page chatSend retired
-  ].join('\n');
-  var wired = reg.filter(function(s) { return s.wired !== false; });
-  var planned = reg.filter(function(s) { return s.wired === false || s.planned; });
-  var undefinedFn = [];   // 레지스트리에 있으나 함수 정의 없음
-  var notInCode = [];     // 정의는 됐으나 _fetchTickerDataForChat에 호출 안 됨 (드리프트)
-  wired.forEach(function(s) {
-    if (!s.fn) return;
-    // 채팅 데이터 주입 소스에 fn명 등장(호출) 여부 — 'AIO.fn(' / 'window.AIO.fn(' / 'fn(' 패턴
-    var inCode = new RegExp('(?:AIO\\.|window\\.AIO\\.|\\b)' + s.fn.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\(').test(chatSrc);
-    var onGlobal = (typeof window[s.fn] === 'function') || (window.AIO && typeof window.AIO[s.fn] === 'function');
-    // 코드에 호출되면(inCode) 모듈 스코프 인라인 함수라도 존재로 간주. 글로벌도 없고 코드에도 없으면 정의 누락.
-    if (!onGlobal && !inCode) { undefinedFn.push(s.key + '(' + s.fn + ')'); return; }
-    if (!inCode) notInCode.push(s.key + '(' + s.fn + ')');
-  });
-  var manifest = window._aioLastChatSources || null;
-  return {
-    status: (undefinedFn.length === 0 && notInCode.length === 0) ? 'ok' : 'warn',
-    total: reg.length,
-    wiredCount: wired.length,
-    plannedCount: planned.length,
-    planned: planned.map(function(s) { return s.key + (s.requiresKey ? ' (req:' + s.requiresKey + ')' : ''); }),
-    undefinedFn: undefinedFn,
-    notInCode: notInCode,
-    unused: notInCode.length,  // 레지스트리 정의 vs 코드 배선 드리프트 (0이어야 정상)
-    manifestPresent: !!manifest,
-    lastManifestAvailable: manifest ? manifest.availableCount : null,
-    tiers: reg.reduce(function(acc, s) { acc[s.tier] = (acc[s.tier] || 0) + 1; return acc; }, {}),
-    note: '레지스트리 wired 소스의 fn 정의+채팅 데이터 주입 배선 정합. planned(KR DART 등 확장점)은 미배선 정상. unused>0 = 레지스트리↔코드 드리프트.',
     generatedAt: new Date().toISOString()
   };
 };
@@ -12303,72 +11895,6 @@ window.AIO.importApiKeys = async function(jsonString) {
   } catch(e) { return { ok: false, error: e && e.message }; }
 };
 
-
-// ─────────────────────────────────────────────────────────────────
-// v49.83 P447/R176: _aioBuildSparklineSvg — 종목 30일 mini sparkline SVG (기관급 직관성)
-// Yahoo Chart fetch → 30 closes → SVG path. 양수 green / 음수 red.
-// chatSend가 detected ticker마다 호출하여 답변 끝에 inline 삽입.
-// 폭 240 × 높이 60 — 모바일/데스크탑 공통.
-// ─────────────────────────────────────────────────────────────────
-window._aioBuildSparklineSvg = async function(ticker, opts) {
-  opts = opts || {};
-  var width = opts.width || 240;
-  var height = opts.height || 60;
-  var label = opts.label || ticker;
-  try {
-    // 1) 우선 _priceHistory 사용 (이미 누적, 즉시 응답)
-    var closes = [];
-    var hist = (window._priceHistory && window._priceHistory[ticker]) || null;
-    if (Array.isArray(hist) && hist.length >= 5) {
-      closes = hist.slice(-30).map(function(p){return p && p.price ? p.price : null;}).filter(function(v){return v != null && isFinite(v);});
-    }
-    // 2) _priceHistory 부족 시 Yahoo Chart fetch (1mo)
-    if (closes.length < 5 && typeof window._fetchYahooChartData === 'function') {
-      try {
-        var d = await window._fetchYahooChartData(ticker, '1mo');
-        if (d && Array.isArray(d.closes)) closes = d.closes.slice(-30).filter(function(v){return v != null && isFinite(v);});
-      } catch(_) {}
-    }
-    if (closes.length < 5) {
-      return '<div style="font-size:10px;color:var(--text-muted);padding:4px 6px;">' + (typeof escHtml === 'function' ? escHtml(label) : label) + ' 차트 데이터 부족 (필요: 5+ closes)</div>';
-    }
-    var min = Math.min.apply(null, closes);
-    var max = Math.max.apply(null, closes);
-    var range = max - min;
-    if (range < 1e-9) range = 1;
-    var padX = 4, padY = 4;
-    var iw = width - padX * 2, ih = height - padY * 2;
-    var pts = closes.map(function(c, i) {
-      var x = padX + (i / (closes.length - 1)) * iw;
-      var y = padY + ih - ((c - min) / range) * ih;
-      return [x, y];
-    });
-    var path = pts.map(function(p, i) { return (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
-    var pctChg = closes.length >= 2 ? ((closes[closes.length-1] - closes[0]) / closes[0]) * 100 : 0;
-    var color = pctChg >= 0 ? '#3ddba5' : '#ff5b50'; // green/red
-    var areaPath = path + ' L' + pts[pts.length-1][0].toFixed(1) + ',' + (height - padY).toFixed(1) + ' L' + pts[0][0].toFixed(1) + ',' + (height - padY).toFixed(1) + ' Z';
-    var safeLabel = (typeof escHtml === 'function' ? escHtml(label) : label);
-    var pctText = (pctChg >= 0 ? '+' : '') + pctChg.toFixed(2) + '%';
-    var last = closes[closes.length - 1];
-    var lastText = last >= 1000 ? last.toFixed(0) : last.toFixed(2);
-    return '<div style="margin:6px 0;padding:6px 8px;background:rgba(255,255,255,0.03);border-left:3px solid ' + color + ';border-radius:4px;display:flex;align-items:center;gap:10px;">' +
-      '<div style="flex:0 0 auto;">' +
-        '<svg width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '" style="display:block;">' +
-          '<path d="' + areaPath + '" fill="' + color + '" fill-opacity="0.15" stroke="none"/>' +
-          '<path d="' + path + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>' +
-        '</svg>' +
-      '</div>' +
-      '<div style="font-size:11px;color:var(--text-secondary);line-height:1.4;">' +
-        '<div style="font-weight:700;color:var(--text-bright);">' + safeLabel + ' · ' + closes.length + '일</div>' +
-        '<div style="color:' + color + ';font-family:var(--font-mono);font-weight:600;">' + lastText + ' (' + pctText + ')</div>' +
-        '<div style="color:var(--text-muted);font-size:10px;">range: ' + (min >= 1000 ? min.toFixed(0) : min.toFixed(2)) + ' ~ ' + (max >= 1000 ? max.toFixed(0) : max.toFixed(2)) + '</div>' +
-      '</div>' +
-    '</div>';
-  } catch(e) {
-    return '<div style="font-size:10px;color:var(--data-amber);padding:4px 6px;">sparkline error: ' + (e && e.message || e) + '</div>';
-  }
-};
-
 // ─────────────────────────────────────────────────────────────────
 // v49.82 R170/P440: assertXssEscapeCoverageAudit — innerHTML 삽입 시 escHtml 누락 자동 감지
 // 휴리스틱: js 파일에서 `innerHTML\s*=\s*['"`]?.*?\+\s*[A-Za-z]` 패턴 grep → escHtml 미호출 변수 추출
@@ -15373,91 +14899,6 @@ window.AIO.getDataFreshnessAudit = function() {
   };
 };
 
-
-window.AIO.getOperationalHealth = function() {
-  var appVersion = (typeof APP_VERSION === 'string' ? APP_VERSION : window.AIO.version || null);
-  var storage = { localStorage: false, error: null };
-  try {
-    localStorage.setItem('_aio_health_test', '1');
-    localStorage.removeItem('_aio_health_test');
-    storage.localStorage = true;
-  } catch(e) {
-    storage.error = e && e.message || String(e);
-  }
-
-  var api = { total: 0, ok: 0, warn: 0, error: 0, unknown: 0, details: [] };
-  try {
-    Object.keys(window._apiHealth || {}).forEach(function(k) {
-      var h = window._apiHealth[k] || {};
-      var status = h.status || 'unknown';
-      api.total++;
-      api[status] = (api[status] || 0) + 1;
-      api.details.push({ id: k, label: h.label, status: status, errCount: h.errCount || 0, lastOk: h.lastOk || null, lastErr: h.lastErr || null, lastMsg: h.lastMsg || '' });
-    });
-  } catch(e) {
-    api.error++;
-    api.details.push({ id: 'api-health', status: 'error', lastMsg: e && e.message || String(e) });
-  }
-
-  var swVersion = window._aioSWVersion || null;
-  var sw = {
-    supported: !!(navigator && navigator.serviceWorker),
-    controlled: !!(navigator && navigator.serviceWorker && navigator.serviceWorker.controller),
-    version: swVersion,
-    checkedAt: window._aioSWCheckedAt || null,
-    matchesApp: !!(swVersion && appVersion && swVersion === appVersion)
-  };
-
-  var cache = null;
-  try { cache = window.AIO_Cache && typeof window.AIO_Cache.stats === 'function' ? window.AIO_Cache.stats() : null; } catch(_c) {}
-  var feed = null;
-  try { feed = window._aioFeedHealth && typeof window._aioFeedHealth.stats === 'function' ? window._aioFeedHealth.stats() : null; } catch(_f) {}
-  var logs = null;
-  try { logs = window._aioLogs && typeof window._aioLogs.rate === 'function' ? window._aioLogs.rate() : null; } catch(_l) {}
-  var dataFreshness = null;
-  try { dataFreshness = window.AIO.getDataFreshnessAudit(); } catch(_d) {}
-  var dataPipeline = null;
-  try {
-    if (typeof window.AIO.getDataPipelineAudit === 'function') {
-      var pAudit = window.AIO.getDataPipelineAudit();
-      dataPipeline = {
-        status: pAudit.status,
-        issues: pAudit.issues,
-        liveDataCount: pAudit.layers && pAudit.layers.state ? pAudit.layers.state.liveDataCount : null,
-        livePriceSinkCount: pAudit.layers && pAudit.layers.render ? pAudit.layers.render.livePriceSinkCount : null,
-        snapSinkCount: pAudit.layers && pAudit.layers.render ? pAudit.layers.render.snapSinkCount : null
-      };
-    }
-  } catch(_dp) {}
-
-  var issues = [];
-  if (!storage.localStorage) issues.push('localStorage unavailable');
-  if (navigator && navigator.onLine === false) issues.push('browser offline');
-  if (sw.version && appVersion && sw.version !== appVersion) issues.push('service worker version mismatch');
-  if (api.error > 0) issues.push(api.error + ' API source(s) in error');
-  if (api.warn > 0) issues.push(api.warn + ' API source(s) degraded');
-  if (feed && feed.disabled > 0) issues.push(feed.disabled + ' RSS source(s) disabled');
-  if (dataFreshness && dataFreshness.status !== 'ok') issues.push('data freshness degraded');
-  if (dataPipeline && dataPipeline.status !== 'ok') issues.push('data pipeline degraded');
-
-  return {
-    status: issues.length === 0 ? 'ok' : (api.error > 0 || !storage.localStorage ? 'error' : 'warn'),
-    issues: issues,
-    appVersion: appVersion,
-    generatedAt: new Date().toISOString(),
-    online: !(navigator && navigator.onLine === false),
-    serviceWorker: sw,
-    storage: storage,
-    api: api,
-    dataFreshness: dataFreshness,
-    dataPipeline: dataPipeline,
-    feed: feed,
-    cache: cache,
-    lastFetch: Object.assign({}, window._lastFetch || {}),
-    logs: logs
-  };
-};
-
 // v48.37: SCREENER_DB memo 내부 날짜 파서 — 애널리스트 리포트 staleness 구조적 감지
 // 매칭 패턴: [Citi 04/17] · [JPM 04/17] · [GS 04/15 Buy] · [2026.04] · [2026-04-15]
 // 반환: { oldestTs: number, freshestTs: number, isStale: bool, badge: HTML }
@@ -16750,54 +16191,6 @@ function computeTradingScore(mode, opts) {
   window._aioScoreCache[_cacheKey] = { result: _result, ts: Date.now(), canonicalScore: _canonicalScore };
   return _result;
 }
-
-
-function _aioClampScore(v) {
-  v = Number(v);
-  if (!isFinite(v)) return 50;
-  return Math.max(0, Math.min(100, Math.round(v)));
-}
-
-window.AIO.getCurrentMarketRegime = function() {
-  var snap = window.DATA_SNAPSHOT || {};
-  function currentNumber(v) { return v == null || v === '' || !isFinite(Number(v)) ? null : Number(v); }
-  var spxPct = _ldSafe('^GSPC', 'pct', snap.spxPct);
-  var nasPct = _ldSafe('^IXIC', 'pct', snap.nasdaqPct);
-  var vix = _ldSafe('^VIX', 'price', snap.vix);
-  var dxy = _ldSafe('DX-Y.NYB', 'price', snap.dxy);
-  var tnx = _ldSafe('^TNX', 'price', snap.tnx);
-  var krw = _ldSafe('KRW=X', 'price', snap.krw);
-  var hygPct = _ldSafe('HYG', 'pct', null);
-  spxPct = currentNumber(spxPct); nasPct = currentNumber(nasPct); vix = currentNumber(vix);
-  dxy = currentNumber(dxy); tnx = currentNumber(tnx); krw = currentNumber(krw); hygPct = currentNumber(hygPct);
-  var hasRiskCore = spxPct != null && nasPct != null && vix != null;
-  var hasStressCore = tnx != null && dxy != null;
-  if (!hasRiskCore || !hasStressCore) {
-    return { available:false, regime:null, riskScore:null, rateStress:null,
-      inputs:{ spxPct:spxPct, nasPct:nasPct, vix:vix, dxy:dxy, tnx:tnx, krw:krw, hygPct:hygPct },
-      source:'insufficient-evidence', generatedAt:new Date().toISOString() };
-  }
-  var riskScore = 50;
-  riskScore += spxPct * 8;
-  riskScore += nasPct * 4;
-  riskScore -= Math.max(0, vix - 18) * 2.2;
-  if (hygPct != null) riskScore += hygPct * 5;
-  riskScore = _aioClampScore(riskScore);
-  var rateStress = 0;
-  rateStress += Math.max(0, tnx - 4.25) * 30;
-  rateStress += Math.max(0, dxy - 102) * 2;
-  if (krw != null) rateStress += Math.max(0, krw - 1450) / 8;
-  rateStress = _aioClampScore(rateStress);
-  var regime = riskScore >= 65 && rateStress < 55 ? 'risk-on' : riskScore <= 35 || rateStress >= 70 ? 'risk-off' : 'mixed';
-  return {
-    regime: regime,
-    riskScore: riskScore,
-    rateStress: rateStress,
-    inputs: { spxPct: spxPct, nasPct: nasPct, vix: vix, dxy: dxy, tnx: tnx, krw: krw, hygPct: hygPct },
-    source: (window._liveData && Object.keys(window._liveData).length) ? 'live-first' : 'snapshot-guarded',
-    generatedAt: new Date().toISOString()
-  };
-};
 
 window.AIO_OPERATIONAL_DATA_CONTRACT = {
   version: 'v49.58',
@@ -19063,62 +18456,6 @@ function _aioExternalReferenceMap(externalReferences) {
     };
   };
 
-  window.AIO.runEvidenceDeploymentGate = function(opts) {
-    opts = opts || {};
-    window.AIO.applyPageContractCompatibility();
-    var contracts = window.AIO.getPageContractAudit();
-    var sources = window.AIO.getSourceAdapterAudit();
-    var registry = window.AIO.getAuditRegistryAudit();
-    var evidence = window.AIO.getAllPageContentEvidenceMatrix(Object.assign({}, opts, { includeItems:false }));
-    var trading = window.AIO.getTradingDecisionLogicAudit ? window.AIO.getTradingDecisionLogicAudit(opts) : null;
-    var newsSurface = window.AIO.getNewsSurfaceAudit ? window.AIO.getNewsSurfaceAudit({ rebuild:true }) : null;
-    var textSurface = window.AIO.getTextSurfaceAudit ? window.AIO.getTextSurfaceAudit({ includeItems:false }) : null;
-    var elementLineage = window.AIO.getElementLineageInventory ? window.AIO.getElementLineageInventory({ includeItems:false }) : null;
-    var humanSurface = window.AIO.getCritical10HumanSurfaceAudit ? window.AIO.getCritical10HumanSurfaceAudit({}) : null;
-    var criticalIds = (window.AIO_PAGE_CONTRACTS.groups.critical5 || []).concat(window.AIO_PAGE_CONTRACTS.groups.analysis5 || []);
-    var criticalBlocks = (evidence.pages || []).filter(function(p) { return criticalIds.indexOf(p.pageId) >= 0 && p.counts && p.counts.block; });
-    var blocking = [];
-    var warnings = [];
-    var expectedRoutePageCount = contracts && contracts.expectedRoutePageCount;
-    if (!contracts || contracts.status === 'fail' || !Number.isInteger(expectedRoutePageCount) ||
-        contracts.routePageCount !== expectedRoutePageCount) {
-      blocking.push('route-page contract/profile/refresh/deep-audit contract incomplete (' +
-        (contracts ? contracts.routePageCount + '/' + expectedRoutePageCount : 'audit unavailable') + ')');
-    }
-    if (sources && sources.missingCrossChecks && sources.missingCrossChecks.length) warnings.push('source adapter cross-check peer missing: ' + sources.missingCrossChecks.length);
-    // P1076: routes with no page-specific contract are reported, not silently passed.
-    if (contracts && contracts.derivedDeepAudit && contracts.derivedDeepAudit.length) warnings.push('route(s) covered only by the generic derived deep-audit fallback: ' + contracts.derivedDeepAudit.join(','));
-    if (contracts && contracts.derivedSequentialRegistry && contracts.derivedSequentialRegistry.length) warnings.push('route(s) covered only by the derived sequential registry: ' + contracts.derivedSequentialRegistry.join(','));
-    if (!registry || registry.auditCount < 7) blocking.push('audit registry incomplete');
-    if (evidence.unclassifiedCount) blocking.push('unclassified evidence item(s): ' + evidence.unclassifiedCount);
-    if (criticalBlocks.length) blocking.push('critical page blocked evidence: ' + criticalBlocks.map(function(p) { return p.pageId + ':' + p.counts.block; }).join(','));
-    if (evidence.totals && evidence.totals.warn) warnings.push(evidence.totals.warn + ' evidence item(s) still warn and require remediation before full confidence');
-    if (evidence.snapshotLayer && evidence.snapshotLayer.isFallback) warnings.push('DATA_SNAPSHOT is fallback/reference layer, not current trading evidence');
-    if (trading && trading.blockingCount) warnings.push('trading decision logic blocking finding(s): ' + trading.blockingCount);
-    if (trading && trading.warningCount) warnings.push('trading decision logic warning(s): ' + trading.warningCount);
-    if (newsSurface && newsSurface.status !== 'ok') warnings.push('news surface contract warning(s): ' + newsSurface.issues.slice(0, 3).join(' | '));
-    if (textSurface && textSurface.blockingCount) warnings.push('text surface blocking finding(s): ' + textSurface.blockingCount);
-    if (textSurface && textSurface.warningCount) warnings.push('text surface warning(s): ' + textSurface.warningCount);
-    if (opts.strict && warnings.length) blocking = blocking.concat(warnings);
-    return {
-      status: blocking.length ? 'fail' : (warnings.length ? 'warn' : 'pass'),
-      deployable: blocking.length === 0,
-      strict: !!opts.strict,
-      blocking: blocking,
-      warnings: warnings,
-      pageContracts: contracts,
-      sourceAdapters: sources,
-      auditRegistry: registry,
-      tradingDecisionLogic: trading,
-      newsSurface: newsSurface,
-      textSurface: textSurface,
-      elementLineage: elementLineage,
-      humanSurface: humanSurface,
-      evidence: evidence,
-      generatedAt: new Date().toISOString()
-    };
-  };
-
   try { window.AIO.applyPageContractCompatibility(); } catch(_) {}
 })();
 
@@ -19987,4 +19324,4 @@ function _fmtPct(v) {
   return Number.isFinite(n) ? (n >= 0 ? '+' : '') + window._aioSafeFixed(n, 1, '0.0') + '%' : 'N/A';
 }
 window._fmtNum = _fmtNum;
-window._fmtPct = _fmtPct;
+window._fmtPct = _fmtPct

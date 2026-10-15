@@ -160,8 +160,9 @@ function render({ root, documentRef, store, route }) {
     if (route === 'home') {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioHomeRenderer = 'native';
-      renderHomeRegime({ documentRef, root });
-      renderDailyLoop({ documentRef, root, store }); // P1432
+      // v57.78 perf: one market-input read per home render; the daily loop reuses the regime home just computed.
+      const homeRegime = renderHomeRegime({ documentRef, root, store });
+      renderDailyLoop({ documentRef, root, store, regime: homeRegime }); // P1432
       const history = root?._aioHistory || [];
       const basis = closeBasis(history);
       const fgClose = buildCloseSeries(history, 'fg', { through: basis }).at(-1) || null;
@@ -173,8 +174,8 @@ function render({ root, documentRef, store, route }) {
     if (route === 'signal') {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioSignalRenderer = 'native';
-      renderRegimePage({ documentRef, root });
-      renderKoreaParticipation({ documentRef, root });
+      renderRegimePage({ documentRef, root, store });
+      renderKoreaParticipation({ documentRef, root, store });
     }
   }
 }

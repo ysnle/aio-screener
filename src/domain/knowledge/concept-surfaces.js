@@ -61,7 +61,7 @@ export const SCREEN_TERMS = Object.freeze({
   'market-regime': Object.freeze(['마켓 레짐', 'Market Regime', '시장 국면', '시장 국면(Market Regime · 레짐)'])
 });
 
-export const SCREEN_ROUTE_LABELS = Object.freeze({ sentiment: '투자 심리', technical: '차트·기술 분석', breadth: '시장 폭', fxbond: '금리 · 환율', macro: '거시 경제', signal: '시장 상태' });
+export const SCREEN_ROUTE_LABELS = Object.freeze({ sentiment: '투자 심리', technical: '종목 · 차트', breadth: '시장 폭', fxbond: '금리 · 환율', macro: '거시 경제', signal: '시장 상태' });
 
 // conceptId → screen route ids ('route:<id>' surfaces).
 export function screenRoutesFor(conceptId) {

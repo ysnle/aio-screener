@@ -1335,18 +1335,18 @@
       da && Array.isArray(da.missingActions) && typeof da.totalActions === 'number',
       da ? ('missing=' + da.issueCount + ' total=' + da.totalActions) : 'missing');
 
-    // T315: signal subSections 14개
+    // T315: signal subSections 14 → v57.78 2 (P1392 six-indicator board; entries whose section left index.html are pruned)
     var pageReg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
-    var sigSub = pageReg && pageReg.pages && pageReg.pages.signal && pageReg.pages.signal.subSections;
-    _assert('T315 signal_subsections_14: signal 1차 enumerate 14 entries',
-      Array.isArray(sigSub) && sigSub.length === 14,
-      sigSub ? 'count=' + sigSub.length : 'missing');
+    var sigSub = pageReg && pageReg.pages && pageReg.pages.signal && pageReg.pages.signal.subSections, sigRetired315 =Array.isArray(sigSub) ? sigSub.filter(function(s) { return ['signal-insight-box', 'signal-lockout-control', 'signal-explain-page', 'signal-20pt-scoring', 'signal-2pct-rule', 'signal-atr-stop', 'signal-entry-exit', 'signal-trading-setups', 'signal-pyramiding', 'signal-spx-tech-dash', 'signal-macro-scenario', 'signal-exit-triggers'].indexOf(s.id) >= 0; }).length : -1;
+    _assert('T315 v57.78 signal_subsections_2: header + six-indicator consensus, retired sections unlisted',
+      Array.isArray(sigSub) && sigSub.length === 2 && sigRetired315 === 0,
+      sigSub ? 'count=' + sigSub.length + ' retiredListed=' + sigRetired315 : 'missing');
 
-    // T316: breadth subSections 12개
-    var brSub = pageReg && pageReg.pages && pageReg.pages.breadth && pageReg.pages.breadth.subSections;
-    _assert('T316 breadth_subsections_12: breadth 1차 enumerate 12 entries',
-      Array.isArray(brSub) && brSub.length === 12,
-      brSub ? 'count=' + brSub.length : 'missing');
+    // T316: breadth subSections 12 → v57.78 3 (P1395 trend charts; definition/explainer/consensus/McClellan/Weinstein/divergence pruned)
+    var brSub = pageReg && pageReg.pages && pageReg.pages.breadth && pageReg.pages.breadth.subSections, brRetired316 =Array.isArray(brSub) ? brSub.filter(function(s) { return ['breadth-insight-box', 'breadth-explain-page', 'breadth-definition', 'breadth-narrow-vs-broad', 'breadth-consensus-readout', 'breadth-static-diagnose', 'breadth-mcclellan', 'breadth-weinstein', 'breadth-divergence'].indexOf(s.id) >= 0; }).length : -1;
+    _assert('T316 v57.78 breadth_subsections_3: participation / leadership / A-D groups, retired sections unlisted',
+      Array.isArray(brSub) && brSub.length === 3 && brRetired316 === 0,
+      brSub ? 'count=' + brSub.length + ' retiredListed=' + brRetired316 : 'missing');
 
     // T317: signal auditStatus — v49.41 이후 객체로 전환 (partial string → 6축 object)
     var sigStatus = pageReg && pageReg.pages && pageReg.pages.signal && pageReg.pages.signal.auditStatus;
@@ -1366,14 +1366,14 @@
       ops && ops.crossPageIndicator && ops.dataActionHandler && typeof ops.crossPageIndicator.issueCount === 'number',
       ops ? ('has crossPage=' + !!ops.crossPageIndicator + ' has dataAction=' + !!ops.dataActionHandler) : 'missing');
 
-    // T320 (v49.41 보강): home 8+ → v57.77 3+ (findings of the pruned home sections left with them) / signal 4+ (2차) / breadth 3+ (2차)
+    // T320 (v49.41 보강): home 8+ → v57.77 3+ / signal 4+ → v57.78 array / breadth 3+ → v57.78 1+ (findings of pruned sections left with them)
     var homeFindings = pageReg && pageReg.pages && pageReg.pages.home && pageReg.pages.home.findings;
     var sigFindings = pageReg && pageReg.pages && pageReg.pages.signal && pageReg.pages.signal.findings;
     var brFindings = pageReg && pageReg.pages && pageReg.pages.breadth && pageReg.pages.breadth.findings;
-    _assert('T320 v57.77 findings_state: home 3+ / signal 4+ (v49.41 2차) / breadth 3+ (v49.41 2차)',
+    _assert('T320 v57.78 findings_state: home 3+ / signal array (pruned) / breadth 1+',
       Array.isArray(homeFindings) && homeFindings.length >= 3 &&
-      Array.isArray(sigFindings) && sigFindings.length >= 4 &&
-      Array.isArray(brFindings) && brFindings.length >= 3,
+      Array.isArray(sigFindings) &&
+      Array.isArray(brFindings) && brFindings.length >= 1,
       'home=' + (homeFindings ? homeFindings.length : '?') + ' sig=' + (sigFindings ? sigFindings.length : '?') + ' br=' + (brFindings ? brFindings.length : '?'));
 
     // T321 (v49.40 P294): _aioRefreshActionPlan 실 등록 검증 (knownAliases false-positive 해소)
@@ -1452,19 +1452,19 @@
       pages && pages.sentiment && Array.isArray(pages.sentiment.subSections) && pages.sentiment.subSections.length === 5,
       'count=' + (pages && pages.sentiment && pages.sentiment.subSections ? pages.sentiment.subSections.length : '?'));
 
-    // T331: briefing subSections 12 enumerate
-    _assert('T331 briefing_subsections_12: enumerate 완료',
-      pages && pages.briefing && Array.isArray(pages.briefing.subSections) && pages.briefing.subSections.length === 12,
+    // T331: briefing subSections 12 → v57.78 3 (v50.32/P1389 retired sections pruned)
+    _assert('T331 v57.78 briefing_subsections_3: header / read / schedule, retired sections pruned',
+      pages && pages.briefing && Array.isArray(pages.briefing.subSections) && pages.briefing.subSections.length === 3,
       'count=' + (pages && pages.briefing && pages.briefing.subSections ? pages.briefing.subSections.length : '?'));
 
-    // T332: technical subSections 11 enumerate
-    _assert('T332 technical_subsections_11: enumerate 완료',
-      pages && pages.technical && Array.isArray(pages.technical.subSections) && pages.technical.subSections.length === 11,
+    // T332: technical subSections 11 → v57.78 3 (v57.76 retired indicator cards, setups, MTF, patterns, deep brief, guide)
+    _assert('T332 v57.78 technical_subsections_3: header / stock chart / market-state summary, retired sections pruned',
+      pages && pages.technical && Array.isArray(pages.technical.subSections) && pages.technical.subSections.length === 3,
       'count=' + (pages && pages.technical && pages.technical.subSections ? pages.technical.subSections.length : '?'));
 
-    // T333: macro subSections 12 enumerate
-    _assert('T333 macro_subsections_12: enumerate 완료',
-      pages && pages.macro && Array.isArray(pages.macro.subSections) && pages.macro.subSections.length === 12,
+    // T333: macro subSections 12 → v57.78 3 (P1425 retired storyline, maps, timeline, thermometer, scenario tree, duplicate cards)
+    _assert('T333 v57.78 macro_subsections_3: header / indicator board / oil-gold, retired sections pruned',
+      pages && pages.macro && Array.isArray(pages.macro.subSections) && pages.macro.subSections.length === 3,
       'count=' + (pages && pages.macro && pages.macro.subSections ? pages.macro.subSections.length : '?'));
 
     // T334 (v50.32 스펙 반전): 5대 관전 정적 리스트는 브리핑 통합으로 제거됨 — 부재 단언
@@ -1484,16 +1484,16 @@
       !document.querySelector('#page-technical [data-threshold-key="RSI"]'), 'retired');
 
     // T337: signal/breadth findings 누적 유지 + sentiment/briefing/technical/macro findings 등록
-    // (v57.77: sentiment 5+ → 4+, the retired conclusion-bar finding left with its entry)
+    // (v57.77: sentiment 5+ → 4+; v57.78: briefing 3+ → array, technical 3+ → 1+, macro 6+ → 1+ — findings of pruned sections left with them)
     var sentF = pages.sentiment && pages.sentiment.findings;
     var brfF  = pages.briefing && pages.briefing.findings;
     var techF = pages.technical && pages.technical.findings;
     var macF  = pages.macro && pages.macro.findings;
-    _assert('T337 v57.77 findings_state: sentiment 4+ / briefing 3+ / technical 3+ / macro 6+',
+    _assert('T337 v57.78 findings_state: sentiment 4+ / briefing array / technical 1+ / macro 1+',
       Array.isArray(sentF) && sentF.length >= 4 &&
-      Array.isArray(brfF) && brfF.length >= 3 &&
-      Array.isArray(techF) && techF.length >= 3 &&
-      Array.isArray(macF) && macF.length >= 6,
+      Array.isArray(brfF) &&
+      Array.isArray(techF) && techF.length >= 1 &&
+      Array.isArray(macF) && macF.length >= 1,
       'sent=' + (sentF ? sentF.length : '?') + ' brf=' + (brfF ? brfF.length : '?') +
       ' tech=' + (techF ? techF.length : '?') + ' mac=' + (macF ? macF.length : '?'));
   }
@@ -1520,14 +1520,14 @@
 
     var pageReg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
     var pages = pageReg && pageReg.pages;
-    // T342: fxbond subSections 12 enumerate
-    _assert('T342 fxbond_subsections_12: enumerate',
-      pages && pages.fxbond && Array.isArray(pages.fxbond.subSections) && pages.fxbond.subSections.length === 12,
+    // T342: fxbond subSections 12 → v57.78 5 (P1425 retired KRW detail, bond ETFs, EM/commodity FX, gold-DXY, calendar, tnx-2y snapshot)
+    _assert('T342 v57.78 fxbond_subsections_5: enumerate, retired sections pruned',
+      pages && pages.fxbond && Array.isArray(pages.fxbond.subSections) && pages.fxbond.subSections.length === 5,
       'count=' + (pages && pages.fxbond && pages.fxbond.subSections ? pages.fxbond.subSections.length : '?'));
 
-    // T343: fundamental subSections 5 enumerate
-    _assert('T343 fundamental_subsections_5: enumerate',
-      pages && pages.fundamental && Array.isArray(pages.fundamental.subSections) && pages.fundamental.subSections.length === 5,
+    // T343: fundamental subSections 5 → v57.78 3 (coverage badge and Buffett/Graham/Lynch guide pruned)
+    _assert('T343 v57.78 fundamental_subsections_3: enumerate, retired sections pruned',
+      pages && pages.fundamental && Array.isArray(pages.fundamental.subSections) && pages.fundamental.subSections.length === 3,
       'count=' + (pages && pages.fundamental && pages.fundamental.subSections ? pages.fundamental.subSections.length : '?'));
 
     // T344: themes subSections 8 → v57.76 7 (the cycle-dynamic readout is retired) → v57.77 4 (rotation table, ETF table, guide fold pruned)
@@ -1567,16 +1567,16 @@
     // T350~T354: 5 페이지 subSections enumerate
     var pageReg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
     var pgs = pageReg && pageReg.pages;
-    _assert('T350 theme_detail_subsections_5: enumerate',
-      pgs && pgs['theme-detail'] && Array.isArray(pgs['theme-detail'].subSections) && pgs['theme-detail'].subSections.length === 5,
+    _assert('T350 v57.78 theme_detail_subsections_3: enumerate, retired sections pruned',
+      pgs && pgs['theme-detail'] && Array.isArray(pgs['theme-detail'].subSections) && pgs['theme-detail'].subSections.length === 3,
       'count=' + (pgs && pgs['theme-detail'] && pgs['theme-detail'].subSections ? pgs['theme-detail'].subSections.length : '?'));
 
-    _assert('T351 portfolio_subsections_7: enumerate',
-      pgs && pgs.portfolio && Array.isArray(pgs.portfolio.subSections) && pgs.portfolio.subSections.length === 7,
+    _assert('T351 v57.78 portfolio_subsections_5: enumerate, retired sections pruned',
+      pgs && pgs.portfolio && Array.isArray(pgs.portfolio.subSections) && pgs.portfolio.subSections.length === 5,
       'count=' + (pgs && pgs.portfolio && pgs.portfolio.subSections ? pgs.portfolio.subSections.length : '?'));
 
-    _assert('T352 ticker_subsections_5: enumerate',
-      pgs && pgs.ticker && Array.isArray(pgs.ticker.subSections) && pgs.ticker.subSections.length === 5,
+    _assert('T352 v57.78 ticker_subsections_3: enumerate, retired inner tabs pruned',
+      pgs && pgs.ticker && Array.isArray(pgs.ticker.subSections) && pgs.ticker.subSections.length === 3,
       'count=' + (pgs && pgs.ticker && pgs.ticker.subSections ? pgs.ticker.subSections.length : '?'));
 
     // P1321 retired the options route; P1753 removed its sequential-audit entry.
@@ -1611,14 +1611,14 @@
       !!pgs && retiredSeq.length === 0,
       'present=' + retiredSeq.join(','));
 
-    // T359: kr-themes 3 (KR 테마 섹션은 themes 페이지에 통합되어 유지)
-    _assert('T359 P1753 kr_themes_subsections_3',
-      pgs && pgs['kr-themes'] && pgs['kr-themes'].subSections.length === 3,
+    // T359: kr-themes 3 → v57.78 2 (KR 테마 섹션은 themes 페이지의 접힌 구역 #kr-integrated-themes; kr-home/kr-supply 동선 항목 정리)
+    _assert('T359 v57.78 kr_themes_subsections_2: folded section on themes, retired cross-link pruned',
+      pgs && pgs['kr-themes'] && pgs['kr-themes'].subSections.length === 2,
       'themes=' + (pgs && pgs['kr-themes'] ? pgs['kr-themes'].subSections.length : '?'));
 
-    // T360: guide subSections 5
-    _assert('T360 guide_subsections_5',
-      pgs && pgs.guide && pgs.guide.subSections.length === 5,
+    // T360: guide subSections 5 → v57.78 4 (Quick Start pruned — P1428 reference, not a tutorial)
+    _assert('T360 v57.78 guide_subsections_4',
+      pgs && pgs.guide && pgs.guide.subSections.length === 4,
       'count=' + (pgs && pgs.guide && pgs.guide.subSections ? pgs.guide.subSections.length : '?'));
 
     // T361: 모든 현재 라우트가 enumerate 완료 (정적 항목 또는 계약 파생 항목)

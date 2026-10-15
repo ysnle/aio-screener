@@ -172,14 +172,11 @@
       ],
       "nativeSecondarySurface": [],
       "contestedIds": [],
-      "legacyWriterEvidence": [
-        "index.html: computeMarketHealth compatibility wrapper and js/aio-core.js:_initTechnicalPage remain fallback writers, both fenced when #page-technical[data-aio-technical-renderer=\"native\"] is active",
-        "index.html: loadTechCandleChart retains canvas/indicator lifecycle but no longer writes tech-candle-title or tech-candle-meta after P822"
-      ],
-      "p785Boundary": "analysis.js owns the market-health score/grade/regime, three health bars, three indicator strips, status pill, and interpretation from the canonical market-health.v1 model. Candlestick chart, RSI/MACD, Weinstein/MTF, and technical narrative remain legacy secondary boundaries.",
-      "p822Boundary": "analysis.js owns the technical candle title/meta text from normalized analysis input with a fail-closed waiting state; the legacy chart keeps canvas lifecycle and indicator math but no longer writes these two text sinks.",
-      "p833Boundary": "analysis.js owns the technical OHLCV and volume canvas lifecycles from normalized analysis. The legacy loadTechCandleChart action is fenced while the native technical chart marker is mounted; missing history remains visibly unavailable.",
-      "notes": "The technical primary health surface and candle title/meta are native; compatibility writers remain only for legacy fallback and are explicitly fenced or deleted. (A06 2026-10-12) The candlestick and volume charts are native (analysis.js / stock-chart.js, chartOwner=native); the legacy loadTechCandleChart is fenced by the mounted native chart. Shares analysis.js with home/signal.",
+      "legacyWriterEvidence": [],
+      "p785Boundary": "analysis.js consumes the canonical market-health.v1 model; since v57.77 js/aio-macro-tech.js computeMarketHealth is a pure adapter with no DOM writes and no fence.",
+      "p822Boundary": "Retired: P1420/P1670 removed the technical candle title, meta and canvases; stock-chart.js owns price history on the 종목 screen.",
+      "p833Boundary": "Retired: loadTechCandleChart no longer exists (ci-architecture-contract-check keeps it absent); price and volume charts are native in stock-chart.js.",
+      "notes": "The technical regime surface is native and has no legacy writers since v57.78 (loadTechCandleChart, _initTechnicalPage and the health renderer are gone). Shares analysis.js with home/signal.",
       "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM."
     },
     "macro": {

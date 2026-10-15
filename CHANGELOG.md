@@ -1,3 +1,9 @@
+## v57.78 (2026-10-15)
+- **Render work (v57.78):** home, 시장 상태 and portfolio renders read the shared store and compute the market inputs once per render (home: 3 -> 1 input builds, 2 -> 0 row-bridge reads on 시장 상태); rendered output is unchanged.
+- **Boot path (v57.78):** twelve test- and QA-only audit functions moved from js/aio-core.js and js/aio-data.js into the lazily loaded js/aio-qa-audits.js (about 41 KB less code at boot); three dead functions (getOperationalHealth, getQuantReadinessAudit, saveSidebarApiKey) and an unused orchestrator export were removed.
+- **Truthful metadata (v57.78):** the page audit registry anchors every page to its section id or owner module instead of stale line numbers and drops sub-sections whose sections were retired; the technical route owner entry no longer lists deleted legacy writers; the 종목 · 차트 screen name is used in the remaining labels.
+- R1 7곳 v57.78
+
 ## v57.77 (2026-10-15)
 - **Macro race removed (P1820):** the legacy risk-monitor writer no longer overwrites the native macro snapshot values.
 - **Accessibility (P1821):** contrast, accessible names, heading order, selected state and canvas descriptions fixed on news, signal, themes, home and stock.

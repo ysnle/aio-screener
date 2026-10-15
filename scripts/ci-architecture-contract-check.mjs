@@ -503,7 +503,9 @@ for (const retired of ['_aioRenderLegacyMarketHealth', '_aioLegacyHealthElement'
 // are retired from user surfaces). analysis.js routes both to it; the score hero renderers stay gone.
 {
   const regimeSource = read('src/ui/components/market-regime.js');
-  for (const marker of ["import { renderRegimePage, renderHomeRegime, readMarketRegime } from '../components/market-regime.js'", "page.dataset.aioSignalRenderer = 'native'", 'renderRegimePage({ documentRef, root })', "page.dataset.aioHomeRenderer = 'native'", 'renderHomeRegime({ documentRef, root })']) {
+  // v57.78: both renderers take the native store (the scenario outlook reads its rows in place) and home hands its
+  // regime to the daily loop, so the market inputs are gathered once per home render.
+  for (const marker of ["import { renderRegimePage, renderHomeRegime, readMarketRegime } from '../components/market-regime.js'", "page.dataset.aioSignalRenderer = 'native'", 'renderRegimePage({ documentRef, root, store })', "page.dataset.aioHomeRenderer = 'native'", 'const homeRegime = renderHomeRegime({ documentRef, root, store })', 'renderDailyLoop({ documentRef, root, store, regime: homeRegime })']) {
     if (!analysisPageSource.includes(marker)) fail(`analysis.js regime routing marker missing: ${marker}`);
   }
   for (const marker of ["page.dataset.aioRegimeRenderer = 'native'", "hero.dataset.aioRegimeRenderer = 'native'", 'regime.holdReason', 'row.basis']) {

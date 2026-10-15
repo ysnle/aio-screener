@@ -4229,7 +4229,7 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
   // 페이지별 sub-section 정의 (top-down 순서)
   pages: {
     'home': {
-      lineRange: 'L3948~4400+',
+      lineRange: 'index.html #page-home', // v57.78: was a stale line range
       // v49.38 P289: 1차 8개 → 2차 14개 재 enumerate (위→아래 모든 sub-section)
       subSections: [
         { id: 'home-stale-warning',     order:  1, topic: '데이터 경과 경고 배너 (#snapshot-stale-warning)', lines: 'index.html #page-home' },
@@ -4261,22 +4261,13 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
     },
     // v49.39 P292: signal 1차 enumerate (14 sub-section)
     'signal': {
-      lineRange: 'L4388~5238',
+      lineRange: 'index.html #page-signal',
       subSections: [
-        { id: 'signal-purpose-header',   order:  1, topic: '페이지 목적 헤더 (Secondary)',   lines: 'L4389~4394' },
-        { id: 'signal-insight-box',      order:  2, topic: '75+/60-75/.../30↓ 라벨 박스',     lines: 'L4395~4397' },
-        { id: 'signal-lockout-control',  order:  3, topic: 'Lockout Rally / OPEX Control',   lines: 'L4399~4412' },
-        { id: 'signal-explain-page',     order:  4, topic: '심층 해설 펼쳐보기',             lines: 'L4414~4750' },
-        { id: 'signal-20pt-scoring',     order:  5, topic: '20점 스코어링 (Trend/RS/Vol/IV/Breakout)', lines: 'L4424~4439' },
-        { id: 'signal-2pct-rule',        order:  6, topic: '2% 룰 (계좌 규모 표)',           lines: 'L4441~4459' },
-        { id: 'signal-atr-stop',         order:  7, topic: 'ATR 스톱 (ATR_PRESETS)',         lines: 'L4461~4480' },
-        { id: 'signal-entry-exit',       order:  8, topic: '진입/청산 전략',                 lines: 'L4480~4600' },
-        { id: 'signal-trading-setups',   order:  9, topic: '12 매매 셋업 (VCP/Breakout/Pullback)', lines: 'L4600~4700' },
-        { id: 'signal-pyramiding',       order: 10, topic: '피라미딩 + Add-on 규칙',         lines: 'L4700~4900' },
-        { id: 'signal-spx-tech-dash',    order: 11, topic: 'SPX 실시간 기술 지표 대시보드',  lines: 'L4900~5050' },
-        { id: 'signal-breadth-consensus', order: 12, topic: '다중 신호 합의 (v49.29 R61)',   lines: 'L5040~5050' },
-        { id: 'signal-macro-scenario',   order: 13, topic: '거시 시나리오 트리 (낙관/기본/비관)', lines: 'L5150~5224' },
-        { id: 'signal-exit-triggers',    order: 14, topic: 'Exit Triggers (VIX/SPX/HYG/DXY)', lines: 'L5226~5237' }
+        // v57.78: P1392 rebuilt 시장 상태 as the six-indicator board. The label box (2), lockout/OPEX control (3), explainer (4),
+        // 20-point scoring (5), 2% rule (6), ATR stop (7), entry/exit (8), trading setups (9), pyramiding (10), SPX technical
+        // dashboard (11), scenario tree (13) and exit triggers (14) left index.html; those entries and their findings are pruned.
+        { id: 'signal-purpose-header',   order:  1, topic: '헤더 + 기준 시각 (#regime-basis, v57.78 갱신)', lines: 'index.html #page-signal' },
+        { id: 'signal-breadth-consensus', order: 12, topic: '6개 지표 종합 판정 · 충돌 (#regime-overall · #regime-conflicts, P1392 대체, v57.78 갱신)', lines: 'src/ui/components/market-regime.js' }
       ],
       // v49.41 signal 2차: auditStatus partial → 6축 객체 전환
       auditStatus: {
@@ -4287,34 +4278,21 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
         '직관성':'ok',
         '핵심성':'mostly-ok'
       },
-      findings: [
-        // v49.41 P295: SCENARIO_REGISTRY 정적 인라인 → 동적 연동 (R73 위반 해소)
-        { sub: 'signal-macro-scenario', axis: '정합성', severity: 'high',    note: '시나리오 확률(30~35%/40~45%/15~20%)이 정적 인라인 — v49.27 SCENARIO_REGISTRY 인프라 추가 후 페이지 미적용 (R73 위반)', fixedIn: 'v49.41 A1/P295 (SCENARIO_REGISTRY.signalShortTerm + _aioPageBus signal pageShown hook + data-scenario-key 마커)' },
-        // v49.41 P296: CP2 fed-rate lastUpdated 메타 부재
-        { sub: 'signal-spx-tech-dash', axis: '최신성', severity: 'medium', note: 'CP2 cell fed-rate/fomc lastUpdated 표시 부재 — R77 MACRO_CALENDAR 인프라 있으나 인라인 노출 안 됨', fixedIn: 'v49.41 A2/P296 (MACRO_CALENDAR에 us-fomc/us-fed-rate 추가 + #cp2-fed-rate-meta dynamic D-day 표시)' },
-        // v49.41 P297: updateExitTriggers 호출 보장 (verify-only)
-        { sub: 'signal-exit-triggers', axis: '로직성', severity: 'ok',    note: 'updateExitTriggers L22547 — refreshSignal 초기 호출(L22675) + aio:liveQuotes 이벤트(L22927) 두 곳에서 호출 보장 OK. SPX×0.9/DXY×1.05/HYG×0.95 동적 계산', verifiedIn: 'v49.41 A3/P297', retiredIn: 'v57.47 P1670 (updateExitTriggers/refreshSignal writer 제거 — 이 기록은 당시 검증 이력)' },
-        // v49.41 P298: L4485 영문 병기
-        { sub: 'signal-entry-exit', axis: '정확성', severity: 'minor', note: '"브레드스 쓰러스트" 단독 표기 → "브레드쓰 스러스트 (Breadth Thrust)" 영문 병기', fixedIn: 'v49.41 A4/P298 (index.html L5185 + L22485)' }
-      ],
-      note: 'v49.41 2차 깊이 점검 완료 — 4 finding (3 시정 + 1 verify-only)'
+      // v57.78: the four findings (scenario tree with data-scenario-key markers, #cp2-fed-rate-meta, exit triggers, entry/exit
+      // wording) belonged to pruned sub-sections and are removed with them.
+      findings: [],
+      note: 'v49.41 2차 깊이 점검 완료 — 4 finding (3 시정 + 1 verify-only); v57.78: 해당 섹션 퇴역으로 정리'
     },
     // v49.39 P293: breadth 1차 enumerate (12 sub-section)
     'breadth': {
-      lineRange: 'L5240~5598',
+      lineRange: 'index.html #page-breadth',
       subSections: [
-        { id: 'breadth-insight-box',     order:  1, topic: '시장 폭 정의 박스',              lines: 'L5242~5244' },
-        { id: 'breadth-explain-page',    order:  2, topic: '심층 해설 펼쳐보기',             lines: 'L5246~' },
-        { id: 'breadth-definition',      order:  3, topic: 'Breadth 5 지표 정의',            lines: 'L5256~5267' },
-        { id: 'breadth-narrow-vs-broad', order:  4, topic: 'Narrow Advance vs Broad Rally',  lines: 'L5269~5300' },
-        { id: 'breadth-sma-cards',       order:  5, topic: '5SMA/20SMA/50SMA 3 카드 (실데이터, v50.6: 200SMA 제거)', lines: 'L5340~5410' },
-        { id: 'breadth-consensus-readout', order: 6, topic: 'diagnoseBreadthConsensus (v49.29 R61)', lines: 'L5040~5046' },
-        { id: 'breadth-static-diagnose', order:  7, topic: '정적 진단 텍스트',               lines: 'L5048~5050' },
-        { id: 'breadth-mcclellan',       order:  8, topic: 'McClellan Oscillator',           lines: 'L5410~5450' },
-        { id: 'breadth-weinstein',       order:  9, topic: 'Weinstein Stage',                lines: 'L5450~5500' },
-        { id: 'breadth-nhnl',            order: 10, topic: '신고가/신저가 (NHNL)',           lines: 'L5500~5530' },
-        { id: 'breadth-ad-line',         order: 11, topic: 'A/D Line + Distribution Days',   lines: 'L5530~5570' },
-        { id: 'breadth-divergence',      order: 12, topic: '다이버전스 조기 경보',           lines: 'L5570~5598' }
+        // v57.78: P1395 rebuilt 시장 폭 as trend charts (#breadth-chart-grid). The definition box (1), explainer (2), five-indicator
+        // definitions (3), narrow-vs-broad (4), the #breadth-consensus-* readout (6), static diagnosis (7), McClellan (8),
+        // Weinstein (9) and divergence warning (12) left index.html; those entries and their findings are pruned.
+        { id: 'breadth-sma-cards',       order:  5, topic: '참여도 — 20/40/50/200일선 위 종목 비율 6개월 추이 (#breadth-chart-grid, v57.78 갱신)', lines: 'src/ui/components/breadth-board.js' },
+        { id: 'breadth-nhnl',            order: 10, topic: '강한 종목 수 — 52주 신고가 − 신저가 (#breadth-chart-grid)', lines: 'src/ui/components/breadth-board.js' },
+        { id: 'breadth-ad-line',         order: 11, topic: 'A/D 라인 (참여도 그룹) + 분배일 (지수 확인 그룹)', lines: 'src/ui/components/breadth-board.js' }
       ],
       // v49.41 breadth 2차: auditStatus partial → 6축 객체 전환
       auditStatus: {
@@ -4327,17 +4305,14 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
       },
       findings: [
         // v49.41 P299: DATA_SNAPSHOT breadth*sma 시드 부재 — 폴백만 동작 (R74 보강)
-        { sub: 'breadth-sma-cards', axis: '최신성', severity: 'ok', note: 'v50.6: 시장 폭은 5SMA/20SMA/50SMA 3 카드 (200SMA 제거 — 200일선은 추세 전용). data-snap 3 sink가 DATA_SNAPSHOT 시드 의존.', fixedIn: 'v50.6 (breadth5sma=61/breadth20sma=57/breadth50sma=52 3 시드, breadth200sma 제거)' },
-        // v49.41 P300: McClellan Summation vs Oscillator 정의 혼합
-        { sub: 'breadth-mcclellan', axis: '정합성', severity: 'high', note: '카드 라벨 "McClellan 써메이션" + 설명 "0 위/아래 = 매수/하락 에너지"가 Summation(장기 누적합) 정의와 Oscillator(단기 ±100) semantic 혼합 — 사용자 해석 오류 위험', fixedIn: 'v49.41 B2/P300 (Summation Index 라벨 명확화 + 설명에 Oscillator와 구분 명시 + 베어 다이버전스 = SPX 신고가 vs Summation 미발동 정의 추가)' },
-        // v49.41 verify-only: diagnoseBreadthConsensus 결과 DOM 바인딩 (agent 보고 false alarm 검증)
-        { sub: 'breadth-consensus-readout', axis: '로직성', severity: 'ok', note: 'diagnoseBreadthConsensus() 호출 후 #breadth-consensus-verdict + #breadth-consensus-conflict + #breadth-consensus-details 3 sink 동기 갱신 (aio-core.js L1518~1541) — agent "결과 바인딩 추적 불가" 클레임 false alarm, 실제 완전 구현', verifiedIn: 'v49.41 (P294 패턴 verify)' }
+        { sub: 'breadth-sma-cards', axis: '최신성', severity: 'ok', note: 'v50.6: 시장 폭은 5SMA/20SMA/50SMA 3 카드 (200SMA 제거 — 200일선은 추세 전용). data-snap 3 sink가 DATA_SNAPSHOT 시드 의존.', fixedIn: 'v50.6 (breadth5sma=61/breadth20sma=57/breadth50sma=52 3 시드, breadth200sma 제거)', retiredIn: 'v57.78 (P1395 추이 차트 재구성 — 3 카드·data-snap sink 퇴역, 200일선 복귀; 이 기록은 당시 이력)' }
+        // v57.78: the McClellan (P300) and #breadth-consensus-* readout findings left with their pruned sub-sections.
       ],
-      note: 'v49.41 2차 깊이 점검 완료 — 3 finding (2 시정 + 1 verify-only). Agent false alarm 9건 verify로 차단.'
+      note: 'v49.41 2차 깊이 점검 완료 — 3 finding (2 시정 + 1 verify-only). Agent false alarm 9건 verify로 차단. v57.78: 퇴역 섹션 항목 정리'
     },
     // v49.42 sentiment 1차+2차
     'sentiment': {
-      lineRange: 'L5599~5917',
+      lineRange: 'index.html #page-sentiment', // v57.78: was a stale line range
       subSections: [
         // v57.77: the P1396 rebuild left index.html without the insight box (1), explainer fold (2), retired conclusion bar (3),
         // guide cards (5), standalone VIX chart (7), NAAIM/II chart (9) and news-sentiment chart (11); those entries are pruned.
@@ -4359,111 +4334,75 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
     },
     // v49.42 briefing 1차+2차
     'briefing': {
-      lineRange: 'L5917~6260',
+      lineRange: 'index.html #page-briefing',
       subSections: [
-        { id: 'briefing-top5-watch',       order:  1, topic: '5대 관전 포인트 (v49.29 E4)',          lines: 'L5921~5935' },
-        { id: 'briefing-action-card',      order:  2, topic: 'Action Item 카드 (R69 ACTION_RULES)',  lines: 'L5937~5942' },
-        { id: 'briefing-explain-page',     order:  3, topic: '브리핑 활용 가이드 (펼쳐보기)',         lines: 'L5948~5982' },
-        { id: 'briefing-header',           order:  4, topic: '헤더 + date-line + regime-badge',      lines: 'L5985~6010' },
-        { id: 'briefing-live-news',        order:  5, topic: '24h 라이브 뉴스 섹션',                  lines: 'L6012~6026' },
-        { id: 'briefing-archive-warn',     order:  6, topic: '아카이브 경고 배지 (data-aio-archive)', lines: 'L6028~6035' },
-        { id: 'briefing-dynamic-content',  order:  7, topic: '동적 브리핑 (data-dynamic)',           lines: 'L6037~6044' },
-        { id: 'briefing-jensen-interview', order:  8, topic: 'Jensen Huang 인터뷰 (lifecycle)',       lines: 'L6047~6134' },
-        { id: 'briefing-week-may',         order:  9, topic: '과거 참고 일정',                        lines: 'L6136~6229' },
-        { id: 'briefing-earnings-cal',     order: 10, topic: '어닝 캘린더',                          lines: 'L6207~6228' },
-        { id: 'briefing-earnings-spot',    order: 11, topic: 'Earnings Spotlight 표',                lines: 'L6230~6259' },
-        { id: 'briefing-final-snap',       order: 12, topic: '최종 스냅',                            lines: 'L6260~' }
+        // v57.78: the 5대 관전 list (1) and Action Item card (2) left in v50.32; P1389 retired the guide fold (3), 24h news (5),
+        // archive badge (6), Jensen interview (8), past schedule (9), Earnings Spotlight (11) and final snap (12). Those entries
+        // and their findings are pruned.
+        { id: 'briefing-header',           order:  4, topic: '헤더 + date-line (#briefing-date-line, regime-badge 퇴역, v57.78 갱신)', lines: 'index.html #page-briefing' },
+        { id: 'briefing-dynamic-content',  order:  7, topic: '오늘의 시장 해석 (#briefing-read, native read, v57.78 갱신)', lines: 'src/ui/components/briefing-read.js' },
+        { id: 'briefing-earnings-cal',     order: 10, topic: '앞으로 7일 일정 — 경제 지표·실적 (#briefing-schedule, v57.78 갱신)', lines: 'src/ui/components/briefing-read.js' }
       ],
       auditStatus: { '최신성':'mostly-ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
-      findings: [
-        // v49.42 P302/R76 보강: 지정학 정치 토큰 일반화
-        { sub: 'briefing-top5-watch',    axis: '최신성', severity: 'medium', note: 'L5931 "호르무즈/대만 해협 모니터링" 정치/지명 토큰 잔존', fixedIn: 'v49.42 P302/R76 보강 (일반화: "주요 해상 물류 경로(호르무즈/대만 해협 등) 모니터링")' },
-        // v49.42 P304: Jensen 정적 텍스트 → 동적 span 단독
-        { sub: 'briefing-jensen-interview', axis: '최신성', severity: 'medium', note: 'L6060 정적 "58일 경과 (60일 임박)" — v49.30 P253 작성 시점 라벨, 매일 1일씩 stale. 동적 #jensen-interview-stale-days span과 중복', fixedIn: 'v49.42 P304 (정적 텍스트 제거 + 동적 span 단독 표시)' },
-        // verify-only
-        { sub: 'briefing-action-card',   axis: '로직성', severity: 'ok', note: 'briefing-action-position/sentiment ACTION_RULES hook 완전 구현 aio-core.js L1485~1499 — agent "ACTION_RULES 미구현" 클레임 false alarm', verifiedIn: 'v49.42 P305' }
-      ],
-      note: 'v49.42 1차+2차 통합 — 2 시정 + 1 verify-only. agent 보고 false alarm 4건 차단.'
+      // v57.78: the 5대 관전, Jensen (#jensen-interview-stale-days) and Action Item findings left with their pruned sub-sections.
+      findings: [],
+      note: 'v49.42 1차+2차 통합 — 2 시정 + 1 verify-only. agent 보고 false alarm 4건 차단. v57.78: 퇴역 섹션 항목 정리'
     },
     // v49.42 technical 1차+2차
     'technical': {
-      lineRange: 'L6250~6790',
+      lineRange: 'index.html #page-technical',
       subSections: [
-        { id: 'technical-explain-header',  order:  1, topic: '헤더 + 기술 분석 심층 해설',           lines: 'L6310~6376' },
-        { id: 'technical-tv-chart',        order:  2, topic: 'TradingView + OHLC 폴백 (R66)',        lines: 'L6391~6409' },
-        { id: 'technical-health-dash',     order:  3, topic: '시장 건강도 대시보드',                  lines: 'L6411~6460' },
-        { id: 'technical-indicator-cards', order:  4, topic: 'RSI/MACD/Stochastic/ADX 4 카드',        lines: 'L6500~6531' },
-        { id: 'technical-ticker-search',   order:  5, topic: '빠른 종목 검색 (Weinstein/RSI)',        lines: 'L6533~6551' },
-        { id: 'technical-support-resist',  order:  6, topic: '지지/저항 + Weinstein 4단계',          lines: 'L6553~6596' },
-        { id: 'technical-trading-setups',  order:  7, topic: '12 매매 셋업 패턴 (조건부 후보)',       lines: 'L6600~6689' },
-        { id: 'technical-mtf-analysis',    order:  8, topic: '멀티 타임프레임 (Triple Screen)',       lines: 'L6691~6700' },
-        { id: 'technical-pattern-signals', order:  9, topic: '다이버전스·패턴 (aggregate_signals)',    lines: 'L6702~6710' },
-        { id: 'technical-deep-ticker',     order: 10, topic: '심층 종목 기술 분석 (월/주/일 차트)',    lines: 'L6712~6776' },
-        { id: 'technical-guide',           order: 11, topic: '기술 분석 핵심 가이드 (collapsed)',     lines: 'L6778~6790' }
+        // v57.78: v57.76 retired the indicator cards (4), the support/resistance + Weinstein block (6), 12 setups (7), multi-timeframe (8),
+        // pattern signals (9), the deep ticker brief (10) and the term guide (11); the quick ticker search (5) is gone too. Those
+        // entries and their findings (incl. the data-threshold-key="RSI" marker) are pruned.
+        { id: 'technical-explain-header',  order:  1, topic: '헤더 (심층 해설 퇴역, v57.78 갱신)', lines: 'index.html #page-technical' },
+        { id: 'technical-tv-chart',        order:  2, topic: '일봉 캔들 차트 + 근거 패널 (#stock-chart-section, P1397 · TradingView 퇴역 v57.76, v57.78 갱신)', lines: 'src/ui/components/stock-chart.js' },
+        { id: 'technical-health-dash',     order:  3, topic: '시장 상태 요약 (#tech-regime-summary, 0-100 건강도 점수 퇴역 P1420, v57.78 갱신)', lines: 'src/ui/pages/analysis.js' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
-        // v49.42 P306/R94 보강: RSI 카드 data-threshold-key 마커
-        { sub: 'technical-indicator-cards', axis: '정합성', severity: 'medium', note: 'L6512 RSI 임계값 카드 title 텍스트만 인라인. THRESHOLD_REGISTRY는 존재하나 data-threshold-key 마커 부재 → R94 getInlineThresholdTableAudit 못 잡음', fixedIn: 'v49.42 P306/R94 보강 (data-threshold-key="RSI" 마커 부착)' },
         // verify-only
-        { sub: 'technical-tv-chart',        axis: '직관성', severity: 'ok', note: 'TradingView + OHLC 폴백 v49.29 R66 data-aio-fallback 마킹 (중복 신고 제외)', verifiedIn: 'v49.42' },
-        { sub: 'technical-indicator-cards', axis: '정합성', severity: 'ok', note: 'AIO_THRESHOLD_REGISTRY 존재 (RSI/VIX/FG/HY/AAII/SKEW/BREADTH/DXY/YIELD_10Y 9 키) — agent "미구현" 클레임 false alarm', verifiedIn: 'v49.42' }
+        { sub: 'technical-tv-chart',        axis: '직관성', severity: 'ok', note: 'TradingView + OHLC 폴백 v49.29 R66 data-aio-fallback 마킹 (중복 신고 제외)', verifiedIn: 'v49.42', retiredIn: 'v57.78 (TradingView·data-aio-fallback 마킹 퇴역, 자체 캔들 차트로 대체 — 이 기록은 당시 검증 이력)' }
+        // v57.78: the two indicator-card findings left with their pruned sub-section.
       ],
-      note: 'v49.42 1차+2차 통합 — 1 시정 + 2 verify-only. agent 보고 false alarm 3건 차단.'
+      note: 'v49.42 1차+2차 통합 — 1 시정 + 2 verify-only. agent 보고 false alarm 3건 차단. v57.78: 퇴역 섹션 항목 정리'
     },
     // v49.42 macro 1차+2차
     'macro': {
-      lineRange: 'L6730~7323',
+      lineRange: 'index.html #page-macro',
       subSections: [
-        { id: 'macro-explain-header',     order:  1, topic: '헤더 + Dalio 경제 기계',                lines: 'L6793~6857' },
-        { id: 'macro-storyline',          order:  2, topic: '거시 스토리라인 (서사형)',             lines: 'L6877~6895' },
-        { id: 'macro-interconnection',    order:  3, topic: '거시 인터커넥션 맵 (6 카드)',          lines: 'L6897~6977' },
-        { id: 'macro-cycle-timeline',     order:  4, topic: '경제 사이클 타임라인 (Phase 1~6)',       lines: 'L6979~7050' },
-        { id: 'macro-fred-charts',        order:  5, topic: 'FRED 차트 + R81 nextUpdate',           lines: 'L7052~7075' },
-        { id: 'macro-live-grid',          order:  6, topic: '핵심 거시 8 카드',                    lines: 'L7077~7134' },
-        { id: 'macro-extra-indicators',   order:  7, topic: '추가 지표 (소매/임금/심리/주택)',         lines: 'L7136~7162' },
-        { id: 'macro-fx-summary',         order:  8, topic: '외환·채권 요약',                        lines: 'L7164~7178' },
-        { id: 'macro-yield-curve',        order:  9, topic: '수익률 곡선 분석기',                    lines: 'L7180~7206' },
-        { id: 'macro-thermometer',        order: 10, topic: '글로벌 경기 체온계',                    lines: 'L7208~7242' },
-        { id: 'macro-oil-monitor',        order: 11, topic: '유가·에너지 위기 모니터',                lines: 'L7244~7307' },
-        { id: 'macro-scenario-tree',      order: 12, topic: '거시 시나리오 트리 (R72/R85 hook)',    lines: 'L7309~7323+' }
+        // v57.78: P1425 retired the storyline (2), interconnection map (3), cycle timeline (4), the duplicate rate/FX cards (6, 8, 9),
+        // the extra-indicator cards (7, folded into the one indicator board), the thermometer (10) and the scenario tree (12).
+        // Those entries and their findings are pruned.
+        { id: 'macro-explain-header',     order:  1, topic: '헤더 + 다음 발표 일정 (#macro-next-release, Dalio 해설 퇴역, v57.78 갱신)', lines: 'index.html #page-macro' },
+        { id: 'macro-fred-charts',        order:  5, topic: '경제 지표판 — 24개월 추이 + 발표일·다음 발표 (#macro-board, v57.78 갱신)', lines: 'src/ui/components/macro-board.js' },
+        { id: 'macro-oil-monitor',        order: 11, topic: '유가 · 금 — 최근 1년 (#macro-commodities, 위기 모니터 퇴역 P1426, v57.78 갱신)', lines: 'src/ui/components/macro-board.js' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
-        // verify-only (agent false alarm 차단 5건)
-        { sub: 'macro-extra-indicators', axis: '최신성', severity: 'ok', note: 'retail-sales/wage-growth/cons-conf/housing FRED 동적 갱신 aio-data.js L2284~2488 _updSnap 호출 — agent "정적 하드코딩" 클레임 false alarm', verifiedIn: 'v49.42' },
-        { sub: 'macro-scenario-tree',    axis: '정합성', severity: 'ok', note: 'SCENARIO_REGISTRY macro hook aio-core.js L1564~1588 완전 구현 (validateSum + stale-days) — verifiedIn v49.27/R72', verifiedIn: 'v49.42' },
-        { sub: 'macro-fred-charts',      axis: '최신성', severity: 'ok', note: 'R81 nextUpdate 표시: NFP 6/5 · CPI 6/10 · PCE 6/25 — refreshedIn v50.4/R81', verifiedIn: 'v50.4' },
-        { sub: 'macro-storyline',        axis: '정확성', severity: 'ok', note: 'generateMacroStoryline 함수 aio-core.js + aio-tests.js + aio-chat.js 3 파일 존재 — agent "미검증" 클레임 false alarm', verifiedIn: 'v49.42' },
-        { sub: 'macro-thermometer',      axis: '로직성', severity: 'ok', note: 'temp-score 계산 js 3 파일 존재 — agent "미검증" 클레임 false alarm', verifiedIn: 'v49.42' },
-        // minor (v49.43 후속)
-        { sub: 'macro-cycle-timeline',   axis: '최신성', severity: 'minor', note: 'Phase 5 (2024) "연착륙" 라벨 — 역사 사이클 표시로 의도된 정적이나 현재 2026-05 시점 Phase 6 라벨/위치 갱신 검토', deferredTo: 'v49.43' }
+        { sub: 'macro-fred-charts',      axis: '최신성', severity: 'ok', note: 'R81 nextUpdate 표시: NFP 6/5 · CPI 6/10 · PCE 6/25 — refreshedIn v50.4/R81', verifiedIn: 'v50.4' }
+        // v57.78: the extra-indicator, scenario-tree, storyline, thermometer and cycle-timeline findings left with their pruned sub-sections.
       ],
-      note: 'v49.42 1차+2차 통합 — 5 verify-only + 1 minor deferred. agent 보고 false alarm 5건 차단.'
+      note: 'v49.42 1차+2차 통합 — 5 verify-only + 1 minor deferred. agent 보고 false alarm 5건 차단. v57.78: 퇴역 섹션 항목 정리'
     },
     // v49.47 fxbond 1차+2차 (라이브 데이터 분포: live 36 / snap 7 / snap-date 1)
     'fxbond': {
-      lineRange: 'L7324~8155',
+      lineRange: 'index.html #page-fxbond',
       subSections: [
-        { id: 'fxbond-header',           order:  1, topic: '헤더 + 외환·채권 심층 해설 (펼쳐보기)',  lines: 'L7340~7400' },
-        { id: 'fxbond-fx-matrix',        order:  2, topic: '주요 환율 6 매트릭스 (DXY/JPY/EUR/GBP/CNY/AUD)', lines: 'L7402~7480' },
-        { id: 'fxbond-krw-detail',       order:  3, topic: 'USD/KRW 상세 + 변동성',              lines: 'L7482~7530' },
-        { id: 'fxbond-yield-curve',      order:  4, topic: '美 국채 수익률 곡선 (2Y/5Y/10Y/30Y) + 2Y/10Y spread', lines: 'L7532~7620' },
-        { id: 'fxbond-corp-spread',      order:  5, topic: '신용 스프레드 (HYG/LQD/JNK)',         lines: 'L7622~7680' },
-        { id: 'fxbond-bond-etfs',        order:  6, topic: '채권 ETF (TLT/IEF/SHY/AGG/MUB)',     lines: 'L7682~7740' },
-        { id: 'fxbond-em-fx',            order:  7, topic: '신흥국 통화 (BRL/INR/IDR/MXN)',       lines: 'L7742~7800' },
-        { id: 'fxbond-commodities-fx',   order:  8, topic: '상품 통화 (CAD/AUD/NZD)',             lines: 'L7802~7860' },
-        { id: 'fxbond-gold-vs-dxy',      order:  9, topic: 'Gold vs DXY 역상관 차트',             lines: 'L7862~7920' },
-        { id: 'fxbond-event-calendar',   order: 10, topic: '주요 외환·채권 이벤트 (FOMC/ECB/BOJ)', lines: 'L7922~7990' },
-        { id: 'fxbond-tnx-snapshot',     order: 11, topic: '美 국채 2Y/10Y snapshot (v49.31 P258)', lines: 'L7992~8060' },
-        { id: 'fxbond-guide',            order: 12, topic: 'FX/채권 활용 가이드 (collapsed)',     lines: 'L8062~8155' }
+        // v57.78: P1425 rebuilt 금리 · 환율. The USD/KRW detail (3), bond ETFs (6), EM currencies (7), commodity currencies (8),
+        // gold vs DXY (9), event calendar (10) and the data-snap="tnx-2y" snapshot (11) left index.html; those entries and their
+        // finding are pruned.
+        { id: 'fxbond-header',           order:  1, topic: '헤더 + 기준 시각 (#rates-basis, 심층 해설 퇴역, v57.78 갱신)', lines: 'index.html #page-fxbond' },
+        { id: 'fxbond-fx-matrix',        order:  2, topic: '환율 — 달러·원화·엔화·10년물 6개월 추이 (#rates-fx-grid) + 그 밖의 통화 EUR/GBP/CNY/AUD (v57.78 갱신)', lines: 'src/ui/components/macro-board.js' },
+        { id: 'fxbond-yield-curve',      order:  4, topic: '미 국채 수익률 곡선 + 스프레드 (#rates-curve · #rates-spreads, v57.78 갱신)', lines: 'src/ui/components/macro-board.js' },
+        { id: 'fxbond-corp-spread',      order:  5, topic: '실질금리 · 기대인플레이션 · 신용 (#rates-levels, HYG/LQD/JNK 카드 퇴역, v57.78 갱신)', lines: 'src/ui/components/macro-board.js' },
+        { id: 'fxbond-guide',            order: 12, topic: '수익률 곡선 읽는 법 (접힘, details.rates-guide, v57.78 갱신)', lines: 'index.html #page-fxbond' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
         // v49.47 verify-only: 36 live ticker 모두 LIVE_SYMBOLS 등록 + Yahoo Finance 정상 fetch
         { sub: 'fxbond-fx-matrix', axis: '정합성', severity: 'ok', note: '6 환율 + DXY 모두 [data-live-price] 동적 sink, fetchLiveQuotes 정상 갱신', verifiedIn: 'v49.47 라이브 검증 (Chrome MCP)' },
-        // P313 시정: tnx-2y 시드 추가 (v49.47 A1)
-        { sub: 'fxbond-tnx-snapshot', axis: '최신성', severity: 'medium', note: 'data-snap="tnx-2y" 시드 부재 → 폴백만 동작 (R97 발견)', fixedIn: 'v49.47 P313/R74 보강 (DATA_SNAPSHOT.tnx2y: 4.28 시드 추가)' },
+        // v57.78: the P313 tnx-2y seed finding left with its pruned sub-section.
         // v49.48 cell-level 라이브 검증 (R102)
         { sub: 'fxbond-fx-matrix', axis: '직관성', severity: 'ok', note: 'Chrome MCP cell-level 라이브: 42 cells / 0 placeholder ✓ (모든 카드 정상 렌더)', verifiedIn: 'v49.48 cell-level (R102)' }
       ],
@@ -4471,25 +4410,24 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
     },
     // v49.47 fundamental 1차+2차 (라이브 분포: live 0 / snap 0 — 검색 동적 페이지)
     'fundamental': {
-      lineRange: 'L8157~8335',
+      lineRange: 'index.html #page-fundamental',
       subSections: [
-        { id: 'fundamental-explain-header', order: 1, topic: '헤더 + 15 분석 분야 심층 해설',     lines: 'L8160~8220' },
-        { id: 'fundamental-search-input',   order: 2, topic: '종목 검색 input + 예시 4 종목 (v49.29 I5)', lines: 'L8222~8260' },
-        { id: 'fundamental-coverage-badge', order: 3, topic: '15 기준 가용성 배지 (v49.35 ✓6/5/4 → v49.36 ✓14/0/1)', lines: 'L8262~8295' },
-        { id: 'fundamental-result-cards',   order: 4, topic: '검색 결과 카드 (동적 렌더)',         lines: 'L8297~8320' },
-        { id: 'fundamental-guide',          order: 5, topic: 'Buffett/Graham/Lynch 가이드 (collapsed)', lines: 'L8322~8335' }
+        // v57.78: the 15-criteria availability badge (3) and the Buffett/Graham/Lynch guide (5) left index.html; those entries and
+        // their finding are pruned.
+        { id: 'fundamental-explain-header', order: 1, topic: '헤더 (15 분야 심층 해설 퇴역, v57.78 갱신)', lines: 'index.html #page-fundamental' },
+        { id: 'fundamental-search-input',   order: 2, topic: '종목 검색 input + 예시 4 종목 (#fund-search-input, v49.29 I5)', lines: 'index.html #fund-search-input' },
+        { id: 'fundamental-result-cards',   order: 4, topic: '재무 흐름 (#fund-flow, SEC 10-K, P1436 · v57.78 갱신)', lines: 'src/ui/components/fiscal-read.js' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
-        // v49.35/v49.36 인프라 v49.47 verify-only
-        { sub: 'fundamental-coverage-badge', axis: '로직성', severity: 'ok', note: 'AIO_FUNDAMENTAL_PAGE_CRITERIA 15 entries + getFundamentalPageCriteriaAudit + getCriteriaCrossReferenceAudit + AIO_ANALYSIS_FRAMEWORK_REGISTRY (v49.34~36 인프라 전체 구현)', verifiedIn: 'v49.47' },
+        // v57.78: the coverage-badge finding left with its pruned sub-section.
         { sub: 'fundamental-search-input', axis: '직관성', severity: 'ok', note: '예시 4 종목 (NVDA/AAPL/TSLA/MSFT) + 가이드 박스 (v49.29 I5 시정)', verifiedIn: 'v49.47' }
       ],
-      note: 'v49.47 1차+2차 통합 — v49.34~36에서 인프라 완성. 페이지 자체는 검색 동적이라 라이브 데이터 적음.'
+      note: 'v49.47 1차+2차 통합 — v49.34~36에서 인프라 완성. 페이지 자체는 검색 동적이라 라이브 데이터 적음. v57.78: 퇴역 섹션 항목 정리'
     },
     // v49.47 themes 1차+2차 (라이브 분포: live 0 / snap 0 — 정적 표 + 동적 cards)
     'themes': {
-      lineRange: 'L8336~8730',
+      lineRange: 'index.html #page-themes', // v57.78: was a stale line range past index.html's end
       subSections: [
         { id: 'themes-explain-header',     order: 1, topic: '헤더 + 섹터 회전 판정 (#themes-verdict, v57.77 갱신)', lines: 'index.html #page-themes' },
         // v57.76: the order-2 경기 사이클 동적 readout (#cycle-dynamic-*) is retired.
@@ -4505,108 +4443,106 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
     },
     // v49.48 theme-detail 1차+2차 (라이브 cell 3 / placeholder 1: XSD — v49.47 P315 LIVE_SYMBOLS 등록 후 SW 회전 대기)
     'theme-detail': {
-      lineRange: 'L8731~9070',
+      lineRange: 'index.html #page-theme-detail',
       subSections: [
-        { id: 'td-header',          order: 1, topic: '테마 상세 헤더 + 동적 갱신 시점',            lines: 'L8740~8780' },
-        { id: 'td-ticker-table',    order: 2, topic: '테마별 종목 표 (SMH/SOXX/XSD 등)',          lines: 'L8782~8880' },
-        { id: 'td-news-feed',       order: 3, topic: '테마 관련 뉴스 피드',                       lines: 'L8882~8960' },
-        { id: 'td-context-memo',    order: 4, topic: 'CHAT_CONTEXTS 테마 컨텍스트 표시',          lines: 'L8962~9020' },
-        { id: 'td-cross-link',      order: 5, topic: '관련 페이지 cross-link',                    lines: 'L9022~9070' }
+        // v57.78: the CHAT_CONTEXTS memo (4, theme questions go to the one AI panel since P1653) and the bottom cross-link block (5)
+        // left index.html; those entries are pruned.
+        { id: 'td-header',          order: 1, topic: '테마 상세 헤더 + 현재성 요약 (#theme-detail-title · #theme-detail-currentness-brief)', lines: 'index.html #page-theme-detail' },
+        { id: 'td-ticker-table',    order: 2, topic: '테마별 ETF 표 (#etf-view, SMH/SOXX/XSD 등)',  lines: 'index.html #etf-view' },
+        { id: 'td-news-feed',       order: 3, topic: '선택 테마 최신 소식 (#tg-feed-theme-detail, v57.78 갱신)', lines: 'index.html #tg-feed-theme-detail' }
       ],
       auditStatus: { '최신성':'mostly-ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
         { sub: 'td-ticker-table', axis: '최신성', severity: 'medium', note: 'XSD ticker placeholder (v49.47 P315 LIVE_SYMBOLS 등록, SW 캐시 stale로 일부 응답 지연)', fixedIn: 'v49.47 P315 + v49.48 SW 회전' }
       ],
-      note: 'v49.48 1차+2차 통합 — Chrome MCP cell-level: 3 cells / 1 placeholder (XSD 캐시 stale)'
+      note: 'v49.48 1차+2차 통합 — Chrome MCP cell-level: 3 cells / 1 placeholder (XSD 캐시 stale). v57.78: 퇴역 섹션 항목 정리'
     },
     // v49.48 portfolio 1차+2차 (사용자 입력 폼 위주 — 라이브 cell 0)
     'portfolio': {
-      lineRange: 'L8739~9512',
+      lineRange: 'index.html #page-portfolio',
       subSections: [
-        { id: 'pf-header',           order: 1, topic: '포트폴리오 헤더 + PIN 보안',               lines: 'L8745~8810' },
-        { id: 'pf-add-form',         order: 2, topic: '종목 추가 form (입력 + 매수가 + 수량)',     lines: 'L8812~8900' },
-        { id: 'pf-holdings-table',   order: 3, topic: '보유 종목 표 (현재가/수익률/비중)',         lines: 'L8902~9100' },
-        { id: 'pf-risk-dashboard',   order: 4, topic: '4-card 리스크 (Sharpe/Beta/MDD/Drift) v49.29 E5', lines: 'L9102~9220' },
-        { id: 'pf-stats-modal',      order: 5, topic: 'VaR/Sortino/Kelly 통계 모달',               lines: 'L9222~9350' },
-        { id: 'pf-export-import',    order: 6, topic: '포트폴리오 export/import (CSV)',           lines: 'L9352~9450' },
-        { id: 'pf-guide',            order: 7, topic: '포트폴리오 활용 가이드 (collapsed)',       lines: 'L9452~9512' }
+        // v57.78: the VaR/Sortino/Kelly stats modal (5) and the portfolio guide fold (7) left index.html; those entries are pruned.
+        { id: 'pf-header',           order: 1, topic: '포트폴리오 헤더 + PIN 잠금 (#pf-lock-screen)', lines: 'index.html #page-portfolio' },
+        { id: 'pf-add-form',         order: 2, topic: '종목 추가 form (입력 + 매수가 + 수량)',     lines: 'index.html #pf-entry-section' },
+        { id: 'pf-holdings-table',   order: 3, topic: '보유 종목 표 (현재가/수익률/비중)',         lines: 'index.html #pf-holdings-table-section' },
+        { id: 'pf-risk-dashboard',   order: 4, topic: '위험 계산 — VaR·Sharpe·MDD·상관계수 (#pf-risk-panel, 4-card 셸 퇴역 v57.77, v57.78 갱신)', lines: 'index.html #pf-risk-panel' },
+        { id: 'pf-export-import',    order: 6, topic: '포트폴리오 export/import (JSON, 헤더 버튼 + #pf-import-file, v57.78 갱신)', lines: 'index.html #page-portfolio' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
         { sub: 'pf-risk-dashboard', axis: '로직성', severity: 'ok', note: 'VaR R-7 quantile (P162) + Sharpe near-zero guard (P164) + Pearson 1e-12 (P163) 수치 인프라 완성', verifiedIn: 'v49.48' },
         { sub: 'pf-add-form', axis: '직관성', severity: 'ok', note: 'localStorage 입력 + PIN 보호', verifiedIn: 'v49.48' }
       ],
-      note: 'v49.48 1차+2차 통합 — 사용자 입력 페이지, 라이브 cell 0건 정상'
+      note: 'v49.48 1차+2차 통합 — 사용자 입력 페이지, 라이브 cell 0건 정상. v57.78: 퇴역 섹션 항목 정리'
     },
     // v49.48 ticker 1차+2차 (개별 종목 분석 — 검색 동적)
     'ticker': {
-      lineRange: 'L9514~10010',
+      lineRange: 'index.html #page-ticker',
       subSections: [
-        { id: 'tk-search-input',      order: 1, topic: '종목 검색 input + 추천',                   lines: 'L9520~9580' },
-        { id: 'tk-overview-tab',      order: 2, topic: '개요 탭 (현재가/52w/시총)',                lines: 'L9582~9720' },
-        { id: 'tk-financials-tab',    order: 3, topic: '재무 상세 탭',                             lines: 'L9722~9850' },
-        { id: 'tk-external-tab',      order: 4, topic: '외부 정보 탭 (SEC/Wikipedia/Finnhub)',     lines: 'L9852~9950' },
-        { id: 'tk-chart-tradingview', order: 5, topic: 'TradingView 차트 + OHLC 폴백',             lines: 'L9952~10010' }
+        // v57.78: P1430 removed the inner 재무 상세 (3) and 외부 정보 (4) tabs (the screen's top tabs own 재무 공시); those entries and
+        // the external-tab finding are pruned.
+        { id: 'tk-search-input',      order: 1, topic: '종목 검색 input (#ticker-direct-search)',  lines: 'index.html #ticker-direct-search' },
+        { id: 'tk-overview-tab',      order: 2, topic: '이 종목의 지금 (#ticker-read, 내부 개요 탭 퇴역 P1430, v57.78 갱신)', lines: 'src/ui/components/stock-read.js' },
+        { id: 'tk-chart-tradingview', order: 5, topic: '가격 흐름 (#ticker-price-panel, TradingView iframe 퇴역 P1430, v57.78 갱신)', lines: 'src/ui/pages/entity.js' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
-      findings: [
-        { sub: 'tk-external-tab', axis: '정합성', severity: 'ok', note: 'SEC EDGAR (v49.34) + Wikipedia (v49.34) + Finnhub Insider/13F/Short (v49.36) 통합. 15 분석 분야 93%', verifiedIn: 'v49.48' }
-      ],
-      note: 'v49.48 1차+2차 통합'
+      findings: [],
+      note: 'v49.48 1차+2차 통합. v57.78: 퇴역 탭 항목 정리'
     },
     // v49.48 market-news 1차+2차 (뉴스 피드)
     'market-news': {
-      lineRange: 'L10012~10160',
+      lineRange: 'index.html #page-market-news',
       subSections: [
-        { id: 'mn-filter-bar',  order: 1, topic: '뉴스 필터 (카테고리/소스/시간)',                 lines: 'L10018~10060' },
-        { id: 'mn-news-list',   order: 2, topic: '뉴스 카드 list (제목/소스/시각/요약)',           lines: 'L10062~10130' },
-        { id: 'mn-impact-vector', order: 3, topic: 'NewsImpactVector v49.3 동적 표시',             lines: 'L10132~10160' }
+        // v57.78: no section displays the NewsImpactVector any more (calcNewsImpactVector only feeds each card's reading); that entry is pruned.
+        { id: 'mn-filter-bar',  order: 1, topic: '뉴스 정렬 + 국가·주제 필터 (#news-filter-row, v57.78 갱신)', lines: 'index.html #news-filter-row' },
+        { id: 'mn-news-list',   order: 2, topic: '중요 뉴스 (#news-important) + 전체 뉴스 피드 (#live-news-feed, v57.78 갱신)', lines: 'src/ui/pages/news.js' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
         { sub: 'mn-news-list', axis: '최신성', severity: 'ok', note: 'NEWS_CACHE_TTL 1800s 30분 + 24h 라이브 fetchAllNews. RSS hub + 직접 fetch 다중', verifiedIn: 'v49.48' }
       ],
-      note: 'v49.48 1차+2차 통합'
+      note: 'v49.48 1차+2차 통합. v57.78: 퇴역 섹션 항목 정리'
     },
     // v49.49 kr-themes 1차+2차 (동적 cards, cell-level 0 정상)
+    // v57.78: not a route since v53.7 — this is the folded 한국 시장 section on #page-themes (#kr-integrated-themes).
     'kr-themes': {
-      lineRange: 'L10895~10991',
+      lineRange: 'index.html #kr-integrated-themes (#page-themes 안의 접힌 구역)',
       subSections: [
-        { id: 'krt-header',          order: 1, topic: 'KR 테마 헤더',                             lines: 'L10900~10920' },
-        { id: 'krt-theme-cards-28',  order: 2, topic: '28 KR 테마 cards (renderKrThemeCardsFromMap)', lines: 'L10922~10970' },
-        { id: 'krt-cross-link',      order: 3, topic: 'kr-home/kr-supply 동선',                  lines: 'L10972~10991' }
+        // v57.78: the kr-home/kr-supply cross-link (3) left with those retired routes (P725); that entry is pruned.
+        { id: 'krt-header',          order: 1, topic: 'KR 테마 접힘 제목 (#kr-themes-summary, v57.78 갱신)', lines: 'index.html #kr-themes-summary' },
+        { id: 'krt-theme-cards-28',  order: 2, topic: '28 KR 테마 cards (#kr-theme-container in #kr-themes-live, renderKrThemeCardsFromMap)', lines: 'index.html #kr-themes-live, js/aio-kr-data.js' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
         { sub: 'krt-theme-cards-28', axis: '로직성', severity: 'ok', note: 'renderKrThemeCardsFromMap 완전 동적 28 테마 cards (KR_THEME_MAP 기반)', verifiedIn: 'v49.49' }
       ],
-      note: 'v49.49 1차+2차 — 동적 cards 페이지'
+      note: 'v49.49 1차+2차 — 동적 cards 페이지. v57.78: themes 화면의 접힌 한국 구역으로 재지정'
     },
     // v49.49 guide 1차+2차 (정적 교육 자료 — N/A 데이터 페이지)
     'guide': {
-      lineRange: 'L11568~',
+      lineRange: 'index.html #page-guide',
       subSections: [
-        { id: 'gd-header',           order: 1, topic: '사용 설명서 헤더',                          lines: 'L11570~11600' },
-        { id: 'gd-quick-start',      order: 2, topic: 'Quick Start 가이드',                       lines: 'L11602~11700' },
-        { id: 'gd-api-setup',        order: 3, topic: 'API 키 설정 단계',                         lines: 'L11702~11800' },
-        { id: 'gd-page-overview',    order: 4, topic: '21 페이지 개요',                           lines: 'L11802~11900' },
-        { id: 'gd-faq',              order: 5, topic: 'FAQ',                                     lines: 'L11902~11990' }
+        // v57.78: P1428 made the guide a reference, not a tutorial — the Quick Start (2) left index.html; that entry is pruned.
+        { id: 'gd-header',           order: 1, topic: '사용 설명서 헤더',                          lines: 'index.html #page-guide' },
+        { id: 'gd-api-setup',        order: 3, topic: '데이터 연결 설정 (#guide-api — 공용 연결, 개인 키 불필요, v57.78 갱신)', lines: 'index.html #guide-api' },
+        { id: 'gd-page-overview',    order: 4, topic: '메뉴 지도 (#guide-screens, v57.78 갱신)',   lines: 'src/ui/pages/guide.js' },
+        { id: 'gd-faq',              order: 5, topic: 'FAQ',                                     lines: 'index.html #guide-faq' }
       ],
       auditStatus: { '최신성':'na', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
         { sub: 'gd-page-overview', axis: '핵심성', severity: 'ok', note: '교육 자료 — 데이터 갱신 N/A. 정적 내용 OK. 사용자 새로 진입 시 안내 역할', verifiedIn: 'v49.49' }
       ],
-      note: 'v49.49 1차+2차 — 정적 교육 페이지, 데이터 갱신 N/A'
+      note: 'v49.49 1차+2차 — 정적 교육 페이지, 데이터 갱신 N/A. v57.78: 퇴역 섹션 항목 정리'
     },
     // v49.62 통합 (Codex v49.61): glossary modal sequential audit 보강
     'glossary': {
-      lineRange: 'L27241~27531',
+      lineRange: 'index.html #glossary-modal',
       subSections: [
-        { id: 'glossary-modal-shell', order: 1, topic: 'Non-route glossary modal shell and close action', lines: 'L27241~27247' },
-        { id: 'glossary-search', order: 2, topic: 'Glossary search input and input handler', lines: 'L27248, L27507~27531' },
-        { id: 'glossary-category-filters', order: 3, topic: 'Category filters and active-state rendering', lines: 'L27249, L27496~27505' },
-        { id: 'glossary-term-list', order: 4, topic: 'Term list rendering from GLOSSARY registry', lines: 'L27507~27531, js/aio-glossary.js' },
-        { id: 'glossary-open-close-flow', order: 5, topic: 'openGlossary, filterGlossary, close and keyboard escape flow', lines: 'L27486~27532, L27776~27778' }
+        { id: 'glossary-modal-shell', order: 1, topic: 'Non-route glossary modal shell and close action', lines: 'index.html #glossary-modal, js/aio-core.js _aioCloseGlossary' },
+        { id: 'glossary-search', order: 2, topic: 'Glossary search input and input handler', lines: 'index.html #glossary-search, js/aio-core.js _aioFilterGlossary' },
+        { id: 'glossary-category-filters', order: 3, topic: 'Category filters and active-state rendering', lines: 'index.html #glossary-cats, js/aio-ui.js renderGlossaryCats' },
+        { id: 'glossary-term-list', order: 4, topic: 'Term list rendering from GLOSSARY registry', lines: 'index.html #glossary-body, js/aio-ui.js renderGlossaryItems, js/aio-glossary.js' },
+        { id: 'glossary-open-close-flow', order: 5, topic: 'openGlossary, filterGlossary, close and keyboard escape flow', lines: 'js/aio-ui.js openGlossary · filterGlossary · Escape keydown' }
       ],
       auditStatus: { '최신성':'na', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
@@ -4645,4 +4581,640 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
   Object.keys(authored.pages).forEach(function(id) { current.pages[id] = authored.pages[id]; });
   var derived = window.AIO && window.AIO._aioDerivedContractIds;
   if (derived && Array.isArray(derived.sequential)) derived.sequential = derived.sequential.filter(function(id) { return !authored.pages[id]; });
-})(_AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY);
+})(_AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY)
+
+// ═══════════════════════════════════════════════════════════════════════════
+// v57.78: test/QA-only callables moved off the boot path. They had no production caller in js/, src/ or
+// index.html; only js/aio-tests.js and the audits above use them. Same window.AIO.<name> / window.<name>
+// assignments as before, so they are callable once AIO.loadQaAudits() (or AIO.loadTests()) has run.
+// Moved from js/aio-core.js unless noted; getTelegramPipelineAudit comes from js/aio-data.js.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// AIO.getApiUsage() — 콘솔 명령
+window.AIO.getApiUsage = function() {
+  try {
+    var data = JSON.parse(localStorage.getItem('aio_api_usage_v1') || '{}');
+    var today = new Date().toISOString().slice(0, 10);
+    var todayUsage = (data.daily || {})[today] || { calls: 0, inputTokens: 0, outputTokens: 0 };
+    var dailyKeys = Object.keys(data.daily || {}).sort();
+    var last7 = dailyKeys.slice(-7).reduce(function(acc, d) {
+      var v = data.daily[d] || {};
+      acc.calls += Number(v.calls) || 0;
+      acc.inputTokens += Number(v.inputTokens) || 0;
+      acc.outputTokens += Number(v.outputTokens) || 0;
+      return acc;
+    }, { calls: 0, inputTokens: 0, outputTokens: 0 });
+    var lifetime = data.lifetime || { calls: 0, inputTokens: 0, outputTokens: 0 };
+    var report = {
+      today: { date: today, calls: Number(todayUsage.calls) || 0, inputTokens: Number(todayUsage.inputTokens) || 0, outputTokens: Number(todayUsage.outputTokens) || 0, byModel: todayUsage.byModel || {} },
+      last7days: { calls: last7.calls, inputTokens: last7.inputTokens, outputTokens: last7.outputTokens },
+      lifetime: { calls: Number(lifetime.calls) || 0, inputTokens: Number(lifetime.inputTokens) || 0, outputTokens: Number(lifetime.outputTokens) || 0 },
+      dailyDetail: data.daily || {},
+      note: '토큰 사용량만 추적합니다. 공식 청구 비용이 없으면 비용을 추정하지 않습니다.'
+    };
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('[AIO v49.79 API Usage]');
+    console.log('오늘:', report.today.calls + '회 (in:' + report.today.inputTokens + ' out:' + report.today.outputTokens + ')');
+    console.log('최근 7일:', report.last7days.calls + '회');
+    console.log('전체 누적:', report.lifetime.calls + '회');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    return report;
+  } catch(e) {
+    return { error: String(e), note: 'API usage 데이터 미수신 또는 localStorage 오류' };
+  }
+};
+
+// v50.48 [자율 루프 Phase 4] 자율 운영 루프 5단계 연결 audit — ingest→signal→brain→text→reflect.
+//   각 단계가 실제로 연결돼 데이터가 흐르는지(끊긴 고리 자동 감지). getAutoOpsReadiness에 통합.
+window.AIO.getAutonomousLoopAudit = function(){
+  var stages = {};
+  try {
+    // 1) INGEST — 서버 data.json + 뉴스 캐시
+    var newsN = (window._allNewsItems && window._allNewsItems.length) || (window.newsCache && window.newsCache.length) || 0;
+    var serverData = !!(window._serverDataMeta && window._serverDataMeta.loadedAt);
+    stages.ingest = { ok: serverData || newsN > 0, serverData: serverData, newsItems: newsN };
+    // 2) SIGNAL — 뉴스 신호 집계
+    var sig = (typeof window._aioComputeNewsSignal === 'function') ? window._aioComputeNewsSignal() : null;
+    var minNewsSample = Number(window.AIO_ARCH && window.AIO_ARCH.MIN_NEWS_ANALYSIS_SAMPLE);
+    var signalSampleSufficient = Number.isInteger(minNewsSample) && minNewsSample > 0
+      && sig && sig.sampleSufficient === true && Number(sig.total) >= minNewsSample
+      && typeof sig.sentimentScore === 'number' && Number.isFinite(sig.sentimentScore);
+    stages.signal = { ok: !!signalSampleSufficient, available: !!(sig && sig.available), sampleSufficient: !!signalSampleSufficient, bias: sig && sig.bias };
+    // 3) BRAIN — 단일 두뇌가 신호 흡수 + 정규화 모델
+    var ms = window.AIO.marketState || (window.AIO.computeMarketState && window.AIO.computeMarketState());
+    stages.brain = { ok: !!(ms && 'newsSignal' in ms && ms.riskLevel), riskScore: ms && ms.riskScore, cycleScore: ms && ms.cycleScore, absorbsNews: !!(ms && ms.newsSignal) };
+    // 4) TEXT — 합성 엔진이 분석문 생성
+    var syn = (typeof window.AIO.synthesizeMarketAnalysis === 'function') ? window.AIO.synthesizeMarketAnalysis() : null;
+    stages.text = { ok: !!(syn && syn.available && syn.full && syn.full.length > 30), source: window._serverMarketAnalysis ? 'server-llm' : 'template' };
+    // 5) REFLECT — sink 요소가 채워졌는지(빈 placeholder 탈출)
+    var sinks = document.querySelectorAll('[data-market-analysis-sink]');
+    var filled = 0;
+    sinks.forEach(function(el){ var t = (el.textContent || '').trim(); if (t.length > 20 && t.indexOf('수신 대기') < 0 && t.indexOf('대기...') < 0) filled++; });
+    stages.reflect = { ok: sinks.length > 0 && filled > 0, sinks: sinks.length, filled: filled };
+  } catch(e) { return { status: 'warn', error: e && e.message, stages: stages, generatedAt: new Date().toISOString() }; }
+  var order = ['ingest','signal','brain','text','reflect'];
+  var broken = order.filter(function(s){ return !(stages[s] && stages[s].ok); });
+  return {
+    status: broken.length === 0 ? 'ok' : (broken.length <= 1 ? 'warn' : 'fail'),
+    connected: (order.length - broken.length) + '/' + order.length,
+    brokenStages: broken,
+    stages: stages,
+    note: '자율 운영 루프: 데이터/뉴스 수집 → 신호 집계 → 단일 두뇌(risk/action) → 텍스트 합성 → 화면 반영. 끊긴 고리 자동 감지.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.evaluateAIRetrievalQuality = function(options) {
+  options = options || {};
+  var documents = Array.isArray(options.documents) ? options.documents : (window._aioAIRetrievalDocumentIndex || []);
+  var byId = {};
+  documents.forEach(function(document, index) {
+    var row = document || {};
+    var id = String(row.documentId || row.docId || row.id || 'document-' + index);
+    byId[id] = row;
+  });
+  var queryRows = Array.isArray(options.queries) ? options.queries : [];
+  var recallSum = 0;
+  var precisionSum = 0;
+  var sourceCovered = {};
+  var sourceRelevant = {};
+  var temporalHits = 0;
+  var relevantRetrieved = 0;
+  var minPublishedAt = options.minPublishedAt ? new Date(options.minPublishedAt).getTime() : null;
+  queryRows.forEach(function(query) {
+    query = query || {};
+    var relevant = Array.isArray(query.relevantIds) ? query.relevantIds.map(String).filter(function(id, index, all) { return all.indexOf(id) === index; }) : [];
+    var retrieved = Array.isArray(query.retrievedIds) ? query.retrievedIds.map(String).filter(function(id, index, all) { return all.indexOf(id) === index; }) : [];
+    var hits = retrieved.filter(function(id) { return relevant.indexOf(id) >= 0 && !(byId[id] && byId[id].quarantined === true); });
+    relevant.forEach(function(id) {
+      var row = byId[id];
+      if (row && row.quarantined !== true) sourceRelevant[String(row.sourceTier || 'UNKNOWN')] = true;
+    });
+    hits.forEach(function(id) {
+      var row = byId[id];
+      if (row) {
+        sourceCovered[String(row.sourceTier || 'UNKNOWN')] = true;
+        relevantRetrieved += 1;
+        var published = new Date(row.publishedAt || row.asOf || 0).getTime();
+        if (minPublishedAt == null || (isFinite(published) && published >= minPublishedAt)) temporalHits += 1;
+      }
+    });
+    recallSum += relevant.length ? hits.length / relevant.length : 1;
+    precisionSum += retrieved.length ? hits.length / retrieved.length : 1;
+  });
+  var sourceRelevantCount = Object.keys(sourceRelevant).length;
+  var sourceCoveredCount = Object.keys(sourceCovered).filter(function(key) { return sourceRelevant[key]; }).length;
+  var poisonCurrentActionUses = (Array.isArray(options.currentActionUses) ? options.currentActionUses : []).filter(function(id) {
+    return byId[String(id)] && byId[String(id)].quarantined === true;
+  }).length;
+  var recallAtK = queryRows.length ? recallSum / queryRows.length : 0;
+  var precisionAtK = queryRows.length ? precisionSum / queryRows.length : 0;
+  var sourceTierCoverage = sourceRelevantCount ? sourceCoveredCount / sourceRelevantCount : 1;
+  var temporalRelevance = relevantRetrieved ? temporalHits / relevantRetrieved : 1;
+  var minRecall = Number(options.minRecall);
+  if (!isFinite(minRecall) || minRecall < 0) minRecall = 0.5;
+  var status = poisonCurrentActionUses > 0 ? 'BLOCKED_POISONED_ACTION_USE' : (recallAtK >= minRecall ? 'PASS' : 'FAIL_RECALL');
+  return {
+    version: _AIO_AI_RETRIEVAL_QUALITY_VERSION,
+    queryCount: queryRows.length,
+    recallAtK: Number(recallAtK.toFixed(4)),
+    precisionAtK: Number(precisionAtK.toFixed(4)),
+    sourceTierCoverage: Number(sourceTierCoverage.toFixed(4)),
+    temporalRelevance: Number(temporalRelevance.toFixed(4)),
+    poisonedCurrentActionUses: poisonCurrentActionUses,
+    gate: { status: status, minRecall: minRecall, blocked: poisonCurrentActionUses > 0 }
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.57 P318 신규: getWebSearchAudit — Claude web_search 사용 통계 + 토글 상태
+// 트리거 조건 + 누적 호출 횟수 + 사용자 opt-out 상태 검증
+// ─────────────────────────────────────────────────────────────────
+window.AIO.getWebSearchAudit = function() {
+  // P1655: one research transport (shared Worker web search); no user opt-out and no browser-side provider keys.
+  var stats = window._aioWebSearchStats || { calls: 0, lastUsedAt: null };
+  var routeState = window._aioLastClaudeRouteState || null;
+  // P1245 (05 A05): 진단은 "가장 최근 스트림"의 기록만 본다.
+  var _latestAIStream = (window.AIO && typeof window.AIO.getLatestAIRequestStream === 'function') ? window.AIO.getLatestAIRequestStream() : null;
+  var nativeCitations = _latestAIStream && Array.isArray(_latestAIStream.citations) ? _latestAIStream.citations : [];
+  var nativeToolError = _latestAIStream ? _latestAIStream.researchError : null;
+  var nativeToolReady = nativeCitations.length > 0 && !nativeToolError;
+  var contractReady = !!(window.AIO_ARCH &&
+    typeof window.AIO_ARCH.createAIResearchEvidenceDocument === 'function' &&
+    typeof window.AIO_ARCH.normalizeAIResearchExecutionResult === 'function' &&
+    typeof window.AIO_ARCH.evaluateAIResearchEvidenceFloor === 'function');
+  return {
+    status: contractReady ? 'ok' : 'warn',
+    enabled: true,
+    calls: stats.calls,
+    lastUsedAt: stats.lastUsedAt,
+    maxUsesPerCall: 2,
+    estimatedCostUsd: null, // P1608: client request counts are neither tool usage nor invoices
+    helperAvailable: typeof window._shouldUseClaudeWebSearch === 'function',
+    transport: 'shared-worker',
+    chatReadiness: routeState ? (routeState.ok ? 'READY' : routeState.reason || 'NOT_READY') : 'NOT_CHECKED',
+    researchReadiness: nativeToolReady ? 'NATIVE_TOOL_VERIFIED' : routeState && routeState.reason === 'SHARED_WORKER' ? 'NATIVE_TOOL_UNVERIFIED' : 'NOT_READY',
+    contractReady: contractReady,
+    lastPreparation: window._aioLastResearchPreparation || null,
+    nativeCitationCount: nativeCitations.length,
+    nativeToolErrorCode: nativeToolError ? 'NATIVE_TOOL_ERROR' : null,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.32 M3 근본 수정: getChatHallucinationAudit — 환각 패턴 탐지
+// 라운드 숫자 ($150), 너무 정확한 소수 ($175.50), 불확실 표현 동시 등장 등.
+// R86 신규 (환각 패턴 자동 탐지)
+// ─────────────────────────────────────────────────────────────────
+window.AIO.getChatHallucinationAudit = function(responseText) {
+  var result = { suspicionScore: 0, patterns: [], maxScore: 10 };
+  if (!responseText || typeof responseText !== 'string') return result;
+  // 패턴 1: 정확한 라운드 숫자 ($100, $150, $200, $250, $300, $500 등)
+  var roundMatches = responseText.match(/\$(?:100|150|200|250|300|400|500|600|750|1000)(?!\.\d)/g) || [];
+  if (roundMatches.length > 0) {
+    result.suspicionScore += Math.min(3, roundMatches.length);
+    result.patterns.push('round-number:' + roundMatches.length);
+  }
+  // 패턴 2: 가격 + 불확실 표현 ("약/대략/추정/대충/거의/근처")
+  if (/\$\d+/.test(responseText) && /(약|대략|추정|대충|거의|근처|approximately|around|roughly|about)/.test(responseText)) {
+    result.suspicionScore += 4;
+    result.patterns.push('uncertain-with-price');
+  }
+  // 패턴 3: 너무 정확한 소수 ($X.00, $X.50) — fetch 데이터 정확성 의심
+  var preciseMatches = responseText.match(/\$\d+\.(?:00|50)\b/g) || [];
+  if (preciseMatches.length > 0) {
+    result.suspicionScore += Math.min(2, preciseMatches.length);
+    result.patterns.push('precise-decimal:' + preciseMatches.length);
+  }
+  // 패턴 4: 학습 데이터 시점 키워드 ("2024년", "2025년 초")
+  if (/(2024년|2025년 초|작년 초)/.test(responseText)) {
+    result.suspicionScore += 1;
+    result.patterns.push('stale-year-reference');
+  }
+  // v49.74 P397 R145: 학습 데이터 자기 인용 절대 차단 패턴 강화 (사용자 정직 발견 — "2025년 초 학습 데이터 기준" 답변 등장)
+  // AI가 자기 환각을 자백하는 표현은 critical (+5점)
+  if (/(학습\s*데이터\s*기준|학습\s*데이터\s*에\s*따르면|내가\s*학습한|학습\s*시점|기억\s*속|내가\s*알기로|내\s*기억(으로|에))/.test(responseText)) {
+    result.suspicionScore += 5;
+    result.patterns.push('self-confess-training-data');
+  }
+  // 시점 환각 — "2025년 초", "2024년 말", "최근 발표(데이터 없는 경우)" 등 학습 시점 추정 연도
+  var staleYearMatches = responseText.match(/202[0-5]년\s*(초|말|중반)?/g) || [];
+  if (staleYearMatches.length > 0) {
+    result.suspicionScore += Math.min(3, staleYearMatches.length);
+    result.patterns.push('training-year-citation:' + staleYearMatches.length);
+  }
+  // "약 $X~$Y대에서 베이스를 형성" — 데이터 없이 가격 범위 추측
+  if (/약\s*\$\d+\s*[~\-]\s*\$?\d+\s*(대|범위|구간|에서)/.test(responseText)) {
+    result.suspicionScore += 3;
+    result.patterns.push('vague-price-range');
+  }
+  // v49.75 P402 R150: Pattern D — 정적 시점 토큰 답변 누출 강화 (사용자 정직 발견 — "5/22" 학습 시점 노출)
+  // 세션 날짜와 다른 정적 날짜 토큰이 답변에 그대로 등장 시 검출
+  try {
+    var now = new Date();
+    var todayY = now.getFullYear();
+    var todayM = now.getMonth() + 1;
+    var todayD = now.getDate();
+    // M/D 형식 날짜 매칭 (5/22, 4/12 등) — 오늘과 비교
+    var mdMatches = responseText.match(/(\d{1,2})\/(\d{1,2})\b/g) || [];
+    var staleMd = [];
+    mdMatches.forEach(function(md) {
+      var parts = md.split('/');
+      var m = parseInt(parts[0], 10);
+      var d = parseInt(parts[1], 10);
+      // 유효 월/일 + 오늘과 7일+ 이격
+      if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+        var thatDate = new Date(todayY, m - 1, d);
+        var diffDays = Math.abs((now - thatDate) / 86400000);
+        if (diffDays > 7) staleMd.push({ md: md, daysFromToday: Math.round(diffDays) });
+      }
+    });
+    if (staleMd.length >= 2) {
+      result.suspicionScore += 2;
+      result.patterns.push('stale-md-date:' + staleMd.length);
+    }
+    // YYYY-MM-DD 또는 YYYY.MM.DD 형식 — 1개월+ 과거면 stale
+    var isoMatches = responseText.match(/202[0-5][\-\.](\d{1,2})[\-\.](\d{1,2})/g) || [];
+    if (isoMatches.length >= 2) {
+      result.suspicionScore += 1;
+      result.patterns.push('stale-iso-date:' + isoMatches.length);
+    }
+  } catch(_) {}
+  result.suspicionScore = Math.min(result.suspicionScore, result.maxScore);
+  result.verdict = result.suspicionScore >= 7 ? 'high-risk' : result.suspicionScore >= 4 ? 'medium-risk' : result.suspicionScore >= 2 ? 'low-risk' : 'clean';
+  // v49.74 P397: blocking-grade 환각 — self-confess-training-data 패턴은 답변 위에 빨간 경고 박스 강제
+  result.requiresWarningBox = result.patterns.indexOf('self-confess-training-data') >= 0;
+  return result;
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.38 R94 신규: getInlineThresholdTableAudit
+// 페이지 인라인 <table class="explain-table"> 또는 [data-threshold-table]를 스캔,
+// THRESHOLD_REGISTRY 등록 임계값과 라벨 일치 검증. R56/R94 단일 출처 강제.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.getInlineThresholdTableAudit = function() {
+  var reg = window.AIO_THRESHOLD_REGISTRY;
+  if (!reg) return { status: 'error', issueCount: 0, issues: ['THRESHOLD_REGISTRY undefined'] };
+  var issues = [];
+  var inlineTables = [];
+  try {
+    document.querySelectorAll('[data-threshold-table]').forEach(function(tbl) {
+      var key = tbl.getAttribute('data-threshold-table');
+      if (!reg[key] || !reg[key].bands) {
+        issues.push('table key=' + key + ' has no REGISTRY entry');
+        return;
+      }
+      var rows = tbl.querySelectorAll('tr');
+      var regBandCount = reg[key].bands.length;
+      if (rows.length !== regBandCount) {
+        issues.push('table key=' + key + ' rows=' + rows.length + ' vs REGISTRY bands=' + regBandCount);
+      }
+      // 라벨 정합 검사 (각 row의 두 번째 column이 REGISTRY label과 일치)
+      rows.forEach(function(row, idx) {
+        var cells = row.cells;
+        if (!cells || cells.length < 2) return;
+        var labelInTable = (cells[1].textContent || '').trim();
+        var registryLabel = reg[key].bands[idx] && reg[key].bands[idx].label;
+        if (registryLabel && labelInTable !== registryLabel) {
+          issues.push('table key=' + key + ' row=' + idx + ' label "' + labelInTable + '" vs REGISTRY "' + registryLabel + '"');
+        }
+      });
+      inlineTables.push({ key: key, rowCount: rows.length, regBandCount: regBandCount });
+    });
+  } catch (e) {
+    issues.push({ type: 'audit-error', message: e && e.message });
+  }
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    issueCount: issues.length,
+    issues: issues,
+    inlineTables: inlineTables,
+    note: 'data-threshold-table="VIX" 등 마커가 있는 인라인 표는 REGISTRY와 자동 정합 검증',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.75 P400 R148: assertChatAnswerStructureAudit — R140~R142 답변 후처리 검증
+// 사용자 정직 발견 — R140 (정성→정량) / R141 (표준 4 구조) / R142 (출처 괄호)
+// 시스템 프롬프트에만 정의되고 실제 답변 적용 여부 검증 부재.
+// Pattern B 일반화: 답변 텍스트 분석 → 4 rule 위반 자동 검출.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.assertChatAnswerStructureAudit = function(responseText) {
+  if (!responseText || typeof responseText !== 'string') {
+    return { status: 'na', violations: [], reason: '응답 텍스트 부재' };
+  }
+  var violations = [];
+  var passes = [];
+  // R140 정성→정량 동반 검증
+  // 정성 표현 패턴 (높은/낮은/강한/약한/안정/불안/과열/공포/탐욕)
+  var qualitativeWords = ['높은', '낮은', '강한', '약한', '안정적', '불안정', '과열', '공포', '탐욕', '신중', '낙관', '비관'];
+  var qualHits = qualitativeWords.filter(function(w){ return responseText.indexOf(w) >= 0; });
+  // 정량 패턴 ($, %, 숫자+점수/배/주)
+  var hasQuant = /(\$\d|\d+(\.\d+)?\s*%|\d+(\.\d+)?\s*(배|점|주))/.test(responseText);
+  if (qualHits.length >= 3 && !hasQuant) {
+    violations.push({ rule: 'R140', issue: '정성 표현 ' + qualHits.length + '개 사용하나 정량 근거 0개', severity: 'high' });
+  } else if (qualHits.length > 0 && hasQuant) {
+    passes.push('R140 정성+정량 동반');
+  }
+  // R141 표준 4 구조 검증 (결론/정량/시나리오/액션)
+  var hasConclusion = /(\【결론\】|결론\s*:|요약\s*:|한\s*줄\s*요약)/.test(responseText);
+  var hasScenario = /(Bull|Bear|Base|낙관|비관|중립).{0,30}(\d+%|확신도)/.test(responseText) || /시나리오/.test(responseText);
+  var hasAction = /(액션|진입|이탈|관망|손절|목표가|포지션)/.test(responseText);
+  var structureScore = (hasConclusion ? 1 : 0) + (hasScenario ? 1 : 0) + (hasAction ? 1 : 0);
+  if (responseText.length > 500 && structureScore < 2) {
+    violations.push({ rule: 'R141', issue: '답변 길이 ' + responseText.length + '자이나 표준 4구조 ' + structureScore + '/3 적용', severity: 'medium', detail: { hasConclusion: hasConclusion, hasScenario: hasScenario, hasAction: hasAction } });
+  } else if (structureScore >= 2) {
+    passes.push('R141 표준 구조 ' + structureScore + '/3');
+  }
+  // R142 출처 괄호 검증 — 정량 인용 + (출처) 매칭
+  var priceMatches = responseText.match(/\$\d+(?:[,\.]\d+)*/g) || [];
+  var citedPrices = (responseText.match(/\$\d+[\d,\.]*\s*\([^)]*(?:Yahoo|FMP|Finnhub|Naver|SEC|CNN|fetched|KST|\d{4}-\d{2}-\d{2})/g) || []).length;
+  var uncitedPrices = priceMatches.length - citedPrices;
+  if (priceMatches.length >= 2 && citedPrices === 0) {
+    violations.push({ rule: 'R142', issue: '가격 ' + priceMatches.length + '회 인용하나 (출처·기준일) 0건', severity: 'high' });
+  } else if (priceMatches.length > 0 && citedPrices > 0) {
+    passes.push('R142 출처 ' + citedPrices + '/' + priceMatches.length);
+  }
+  // R145 자기 환각 자백 (이미 getChatHallucinationAudit에서 검출, 여기서 cross-reference)
+  if (/(학습\s*데이터\s*기준|기억\s*속|내가\s*알기로)/.test(responseText)) {
+    violations.push({ rule: 'R145', issue: 'AI 자기 환각 자백 표현 사용', severity: 'critical' });
+  }
+  var overallVerdict = violations.some(function(v){ return v.severity === 'critical'; }) ? 'critical' :
+                       violations.some(function(v){ return v.severity === 'high'; }) ? 'fail' :
+                       violations.length > 0 ? 'warn' : 'ok';
+  return {
+    status: overallVerdict,
+    violations: violations,
+    violationCount: violations.length,
+    passes: passes,
+    passCount: passes.length,
+    responseLength: responseText.length,
+    note: 'v49.75 R148: R140 정성→정량 / R141 표준 4 구조 / R142 출처 괄호 / R145 자기 환각 자백 4 ABSOLUTE RULES 답변 후처리 검증. Pattern B 일반화.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// v50.37 트랙2: AIO.getChatSourceRegistryAudit — AIO_CHAT_SOURCE_REGISTRY ↔ 채팅 데이터 주입 코드 정합 감사.
+//   레지스트리에 wired(=배선 의도) 소스의 fn이 (1) 정의돼 있고 (2) ticker fetch/chatSendUnified/domain injector 소스에 실제 호출되는지 확인.
+//   planned/wired:false(KR DART 등 확장점)는 미배선 정상 → unused에서 제외. R121 toString-scan 패턴 재사용.
+window.AIO.getChatSourceRegistryAudit = function() {
+  var reg = window.AIO_CHAT_SOURCE_REGISTRY;
+  if (!Array.isArray(reg)) return { status: 'error', error: 'AIO_CHAT_SOURCE_REGISTRY 미정의', total: 0 };
+  var chatSrc = [
+    typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '',
+    typeof window._fetchTechnicalDataForChat === 'function' ? window._fetchTechnicalDataForChat.toString() : '',
+    typeof window._fetchDomainContextForChat === 'function' ? window._fetchDomainContextForChat.toString() : '',
+    typeof window.chatSendUnified === 'function' ? window.chatSendUnified.toString() : '' // v57.62: per-page chatSend retired
+  ].join('\n');
+  var wired = reg.filter(function(s) { return s.wired !== false; });
+  var planned = reg.filter(function(s) { return s.wired === false || s.planned; });
+  var undefinedFn = [];   // 레지스트리에 있으나 함수 정의 없음
+  var notInCode = [];     // 정의는 됐으나 _fetchTickerDataForChat에 호출 안 됨 (드리프트)
+  wired.forEach(function(s) {
+    if (!s.fn) return;
+    // 채팅 데이터 주입 소스에 fn명 등장(호출) 여부 — 'AIO.fn(' / 'window.AIO.fn(' / 'fn(' 패턴
+    var inCode = new RegExp('(?:AIO\\.|window\\.AIO\\.|\\b)' + s.fn.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\(').test(chatSrc);
+    var onGlobal = (typeof window[s.fn] === 'function') || (window.AIO && typeof window.AIO[s.fn] === 'function');
+    // 코드에 호출되면(inCode) 모듈 스코프 인라인 함수라도 존재로 간주. 글로벌도 없고 코드에도 없으면 정의 누락.
+    if (!onGlobal && !inCode) { undefinedFn.push(s.key + '(' + s.fn + ')'); return; }
+    if (!inCode) notInCode.push(s.key + '(' + s.fn + ')');
+  });
+  var manifest = window._aioLastChatSources || null;
+  return {
+    status: (undefinedFn.length === 0 && notInCode.length === 0) ? 'ok' : 'warn',
+    total: reg.length,
+    wiredCount: wired.length,
+    plannedCount: planned.length,
+    planned: planned.map(function(s) { return s.key + (s.requiresKey ? ' (req:' + s.requiresKey + ')' : ''); }),
+    undefinedFn: undefinedFn,
+    notInCode: notInCode,
+    unused: notInCode.length,  // 레지스트리 정의 vs 코드 배선 드리프트 (0이어야 정상)
+    manifestPresent: !!manifest,
+    lastManifestAvailable: manifest ? manifest.availableCount : null,
+    tiers: reg.reduce(function(acc, s) { acc[s.tier] = (acc[s.tier] || 0) + 1; return acc; }, {}),
+    note: '레지스트리 wired 소스의 fn 정의+채팅 데이터 주입 배선 정합. planned(KR DART 등 확장점)은 미배선 정상. unused>0 = 레지스트리↔코드 드리프트.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.83 P447/R176: _aioBuildSparklineSvg — 종목 30일 mini sparkline SVG (기관급 직관성)
+// Yahoo Chart fetch → 30 closes → SVG path. 양수 green / 음수 red.
+// chatSend가 detected ticker마다 호출하여 답변 끝에 inline 삽입.
+// 폭 240 × 높이 60 — 모바일/데스크탑 공통.
+// ─────────────────────────────────────────────────────────────────
+window._aioBuildSparklineSvg = async function(ticker, opts) {
+  opts = opts || {};
+  var width = opts.width || 240;
+  var height = opts.height || 60;
+  var label = opts.label || ticker;
+  try {
+    // 1) 우선 _priceHistory 사용 (이미 누적, 즉시 응답)
+    var closes = [];
+    var hist = (window._priceHistory && window._priceHistory[ticker]) || null;
+    if (Array.isArray(hist) && hist.length >= 5) {
+      closes = hist.slice(-30).map(function(p){return p && p.price ? p.price : null;}).filter(function(v){return v != null && isFinite(v);});
+    }
+    // 2) _priceHistory 부족 시 Yahoo Chart fetch (1mo)
+    if (closes.length < 5 && typeof window._fetchYahooChartData === 'function') {
+      try {
+        var d = await window._fetchYahooChartData(ticker, '1mo');
+        if (d && Array.isArray(d.closes)) closes = d.closes.slice(-30).filter(function(v){return v != null && isFinite(v);});
+      } catch(_) {}
+    }
+    if (closes.length < 5) {
+      return '<div style="font-size:10px;color:var(--text-muted);padding:4px 6px;">' + (typeof escHtml === 'function' ? escHtml(label) : label) + ' 차트 데이터 부족 (필요: 5+ closes)</div>';
+    }
+    var min = Math.min.apply(null, closes);
+    var max = Math.max.apply(null, closes);
+    var range = max - min;
+    if (range < 1e-9) range = 1;
+    var padX = 4, padY = 4;
+    var iw = width - padX * 2, ih = height - padY * 2;
+    var pts = closes.map(function(c, i) {
+      var x = padX + (i / (closes.length - 1)) * iw;
+      var y = padY + ih - ((c - min) / range) * ih;
+      return [x, y];
+    });
+    var path = pts.map(function(p, i) { return (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
+    var pctChg = closes.length >= 2 ? ((closes[closes.length-1] - closes[0]) / closes[0]) * 100 : 0;
+    var color = pctChg >= 0 ? '#3ddba5' : '#ff5b50'; // green/red
+    var areaPath = path + ' L' + pts[pts.length-1][0].toFixed(1) + ',' + (height - padY).toFixed(1) + ' L' + pts[0][0].toFixed(1) + ',' + (height - padY).toFixed(1) + ' Z';
+    var safeLabel = (typeof escHtml === 'function' ? escHtml(label) : label);
+    var pctText = (pctChg >= 0 ? '+' : '') + pctChg.toFixed(2) + '%';
+    var last = closes[closes.length - 1];
+    var lastText = last >= 1000 ? last.toFixed(0) : last.toFixed(2);
+    return '<div style="margin:6px 0;padding:6px 8px;background:rgba(255,255,255,0.03);border-left:3px solid ' + color + ';border-radius:4px;display:flex;align-items:center;gap:10px;">' +
+      '<div style="flex:0 0 auto;">' +
+        '<svg width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '" style="display:block;">' +
+          '<path d="' + areaPath + '" fill="' + color + '" fill-opacity="0.15" stroke="none"/>' +
+          '<path d="' + path + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>' +
+        '</svg>' +
+      '</div>' +
+      '<div style="font-size:11px;color:var(--text-secondary);line-height:1.4;">' +
+        '<div style="font-weight:700;color:var(--text-bright);">' + safeLabel + ' · ' + closes.length + '일</div>' +
+        '<div style="color:' + color + ';font-family:var(--font-mono);font-weight:600;">' + lastText + ' (' + pctText + ')</div>' +
+        '<div style="color:var(--text-muted);font-size:10px;">range: ' + (min >= 1000 ? min.toFixed(0) : min.toFixed(2)) + ' ~ ' + (max >= 1000 ? max.toFixed(0) : max.toFixed(2)) + '</div>' +
+      '</div>' +
+    '</div>';
+  } catch(e) {
+    return '<div style="font-size:10px;color:var(--data-amber);padding:4px 6px;">sparkline error: ' + (e && e.message || e) + '</div>';
+  }
+};
+
+function _aioClampScore(v) {
+  v = Number(v);
+  if (!isFinite(v)) return 50;
+  return Math.max(0, Math.min(100, Math.round(v)));
+}
+
+window.AIO.getCurrentMarketRegime = function() {
+  var snap = window.DATA_SNAPSHOT || {};
+  function currentNumber(v) { return v == null || v === '' || !isFinite(Number(v)) ? null : Number(v); }
+  var spxPct = _ldSafe('^GSPC', 'pct', snap.spxPct);
+  var nasPct = _ldSafe('^IXIC', 'pct', snap.nasdaqPct);
+  var vix = _ldSafe('^VIX', 'price', snap.vix);
+  var dxy = _ldSafe('DX-Y.NYB', 'price', snap.dxy);
+  var tnx = _ldSafe('^TNX', 'price', snap.tnx);
+  var krw = _ldSafe('KRW=X', 'price', snap.krw);
+  var hygPct = _ldSafe('HYG', 'pct', null);
+  spxPct = currentNumber(spxPct); nasPct = currentNumber(nasPct); vix = currentNumber(vix);
+  dxy = currentNumber(dxy); tnx = currentNumber(tnx); krw = currentNumber(krw); hygPct = currentNumber(hygPct);
+  var hasRiskCore = spxPct != null && nasPct != null && vix != null;
+  var hasStressCore = tnx != null && dxy != null;
+  if (!hasRiskCore || !hasStressCore) {
+    return { available:false, regime:null, riskScore:null, rateStress:null,
+      inputs:{ spxPct:spxPct, nasPct:nasPct, vix:vix, dxy:dxy, tnx:tnx, krw:krw, hygPct:hygPct },
+      source:'insufficient-evidence', generatedAt:new Date().toISOString() };
+  }
+  var riskScore = 50;
+  riskScore += spxPct * 8;
+  riskScore += nasPct * 4;
+  riskScore -= Math.max(0, vix - 18) * 2.2;
+  if (hygPct != null) riskScore += hygPct * 5;
+  riskScore = _aioClampScore(riskScore);
+  var rateStress = 0;
+  rateStress += Math.max(0, tnx - 4.25) * 30;
+  rateStress += Math.max(0, dxy - 102) * 2;
+  if (krw != null) rateStress += Math.max(0, krw - 1450) / 8;
+  rateStress = _aioClampScore(rateStress);
+  var regime = riskScore >= 65 && rateStress < 55 ? 'risk-on' : riskScore <= 35 || rateStress >= 70 ? 'risk-off' : 'mixed';
+  return {
+    regime: regime,
+    riskScore: riskScore,
+    rateStress: rateStress,
+    inputs: { spxPct: spxPct, nasPct: nasPct, vix: vix, dxy: dxy, tnx: tnx, krw: krw, hygPct: hygPct },
+    source: (window._liveData && Object.keys(window._liveData).length) ? 'live-first' : 'snapshot-guarded',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.runEvidenceDeploymentGate = function(opts) {
+  opts = opts || {};
+  window.AIO.applyPageContractCompatibility();
+  var contracts = window.AIO.getPageContractAudit();
+  var sources = window.AIO.getSourceAdapterAudit();
+  var registry = window.AIO.getAuditRegistryAudit();
+  var evidence = window.AIO.getAllPageContentEvidenceMatrix(Object.assign({}, opts, { includeItems:false }));
+  var trading = window.AIO.getTradingDecisionLogicAudit ? window.AIO.getTradingDecisionLogicAudit(opts) : null;
+  var newsSurface = window.AIO.getNewsSurfaceAudit ? window.AIO.getNewsSurfaceAudit({ rebuild:true }) : null;
+  var textSurface = window.AIO.getTextSurfaceAudit ? window.AIO.getTextSurfaceAudit({ includeItems:false }) : null;
+  var elementLineage = window.AIO.getElementLineageInventory ? window.AIO.getElementLineageInventory({ includeItems:false }) : null;
+  var humanSurface = window.AIO.getCritical10HumanSurfaceAudit ? window.AIO.getCritical10HumanSurfaceAudit({}) : null;
+  var criticalIds = (window.AIO_PAGE_CONTRACTS.groups.critical5 || []).concat(window.AIO_PAGE_CONTRACTS.groups.analysis5 || []);
+  var criticalBlocks = (evidence.pages || []).filter(function(p) { return criticalIds.indexOf(p.pageId) >= 0 && p.counts && p.counts.block; });
+  var blocking = [];
+  var warnings = [];
+  var expectedRoutePageCount = contracts && contracts.expectedRoutePageCount;
+  if (!contracts || contracts.status === 'fail' || !Number.isInteger(expectedRoutePageCount) ||
+      contracts.routePageCount !== expectedRoutePageCount) {
+    blocking.push('route-page contract/profile/refresh/deep-audit contract incomplete (' +
+      (contracts ? contracts.routePageCount + '/' + expectedRoutePageCount : 'audit unavailable') + ')');
+  }
+  if (sources && sources.missingCrossChecks && sources.missingCrossChecks.length) warnings.push('source adapter cross-check peer missing: ' + sources.missingCrossChecks.length);
+  // P1076: routes with no page-specific contract are reported, not silently passed.
+  if (contracts && contracts.derivedDeepAudit && contracts.derivedDeepAudit.length) warnings.push('route(s) covered only by the generic derived deep-audit fallback: ' + contracts.derivedDeepAudit.join(','));
+  if (contracts && contracts.derivedSequentialRegistry && contracts.derivedSequentialRegistry.length) warnings.push('route(s) covered only by the derived sequential registry: ' + contracts.derivedSequentialRegistry.join(','));
+  if (!registry || registry.auditCount < 7) blocking.push('audit registry incomplete');
+  if (evidence.unclassifiedCount) blocking.push('unclassified evidence item(s): ' + evidence.unclassifiedCount);
+  if (criticalBlocks.length) blocking.push('critical page blocked evidence: ' + criticalBlocks.map(function(p) { return p.pageId + ':' + p.counts.block; }).join(','));
+  if (evidence.totals && evidence.totals.warn) warnings.push(evidence.totals.warn + ' evidence item(s) still warn and require remediation before full confidence');
+  if (evidence.snapshotLayer && evidence.snapshotLayer.isFallback) warnings.push('DATA_SNAPSHOT is fallback/reference layer, not current trading evidence');
+  if (trading && trading.blockingCount) warnings.push('trading decision logic blocking finding(s): ' + trading.blockingCount);
+  if (trading && trading.warningCount) warnings.push('trading decision logic warning(s): ' + trading.warningCount);
+  if (newsSurface && newsSurface.status !== 'ok') warnings.push('news surface contract warning(s): ' + newsSurface.issues.slice(0, 3).join(' | '));
+  if (textSurface && textSurface.blockingCount) warnings.push('text surface blocking finding(s): ' + textSurface.blockingCount);
+  if (textSurface && textSurface.warningCount) warnings.push('text surface warning(s): ' + textSurface.warningCount);
+  if (opts.strict && warnings.length) blocking = blocking.concat(warnings);
+  return {
+    status: blocking.length ? 'fail' : (warnings.length ? 'warn' : 'pass'),
+    deployable: blocking.length === 0,
+    strict: !!opts.strict,
+    blocking: blocking,
+    warnings: warnings,
+    pageContracts: contracts,
+    sourceAdapters: sources,
+    auditRegistry: registry,
+    tradingDecisionLogic: trading,
+    newsSurface: newsSurface,
+    textSurface: textSurface,
+    elementLineage: elementLineage,
+    humanSurface: humanSurface,
+    evidence: evidence,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.getTelegramPipelineAudit = function() {
+  var sources = (window.AIO_NEWS_SOURCES || AIO_NEWS_SOURCES || []).filter(function(s) { return s && s.type === 'telegram'; });
+  var all = (window._allNewsItems || newsCache || []).filter(function(it) { return it && (it._tgChannel || /TG|Telegram/i.test(String(it.feed || it.source || ''))); });
+  var aetherSource = sources.find(function(s) { return s.tgSlug === 'aetherjapanresearch'; }) || null;
+  var aetherItems = all.filter(function(it) { return it._tgChannel === 'aetherjapanresearch' || /Aether Japan/i.test(String(it.feed || it.source || '')); });
+  var digest = window.AIO_TELEGRAM_WEEKLY_DIGEST || null;
+  var digestMeta = window._aioTelegramDigestMeta || null;
+  var memoOverlay = window._aioTelegramMemoOverlayAudit || (digestMeta && digestMeta.memoOverlay) || null;
+  var pageCoverage = window.AIO.getTelegramPageCoverageAudit();
+  var requiredChannelSlugs = ['aetherjapanresearch', 'insidertracking', 'bornlupin', 'HANAchina'];
+  var sourceSlugs = sources.map(function(s) { return s && s.tgSlug; }).filter(Boolean);
+  var missingRequiredChannels = requiredChannelSlugs.filter(function(slug) { return sourceSlugs.indexOf(slug) < 0; });
+  var requiredSourcesReady = missingRequiredChannels.length === 0;
+  return {
+    status: requiredSourcesReady && pageCoverage.status === 'OK' ? 'OK' : (aetherSource ? 'DEGRADED' : 'MISSING_AETHER_SOURCE'),
+    telegramSourceCount: sources.length,
+    requiredChannelSlugs: requiredChannelSlugs,
+    missingRequiredChannels: missingRequiredChannels,
+    requiredSourcesReady: requiredSourcesReady,
+    sources: sources.map(function(s) {
+      return { name: s.name, slug: s.tgSlug || null, tier: s.tier, topics: s.topics || [], publicMirror: s.publicMirror || ('https://t.me/s/' + (s.tgSlug || '')), pipelineRole: s.pipelineRole || 'telegram-fast-secondary' };
+    }),
+    aether: aetherSource ? { url: aetherSource.url, publicMirror: aetherSource.publicMirror, role: aetherSource.pipelineRole, topics: aetherSource.topics } : null,
+    digest: digest ? {
+      dynamicLoaded: !!digest.dynamicDigestLoaded,
+      status: digestMeta && digestMeta.status || (digest.dynamicDigestLoaded ? 'ready' : 'static-fallback'),
+      asOf: digest.asOf || null,
+      window: digest.window || null,
+      count: digest.counts && digest.counts.total || null,
+      categoryCount: Array.isArray(digest.categories) ? digest.categories.length : 0,
+      pageMapCount: digest.pageMap ? Object.keys(digest.pageMap).length : 0,
+      retainedItemCount: digest.retainedItemCount || 0,
+      coverage: digest.coverage || null,
+      dynamicNarrative: pageCoverage.dynamicNarrative,
+      current24hWindow: digest.current24hWindow || null,
+      current24hCoverage: digest.current24hCoverage || null,
+      currentLaneReady: pageCoverage.currentLaneReady,
+      memoOverlay: memoOverlay ? {
+        status: memoOverlay.status || null,
+        date: memoOverlay.date || null,
+        appliedCount: memoOverlay.appliedCount || 0,
+        tickers: memoOverlay.tickers || []
+      } : null
+    } : null,
+    memoOverlay: memoOverlay,
+    pageCoverage: pageCoverage,
+    recentTelegramItems: all.length,
+    recentAetherItems: aetherItems.length,
+    verificationPolicy: 'Telegram items are fast secondary inputs. Confirm with primary source or market data before presenting as live trade facts.'
+  };
+};

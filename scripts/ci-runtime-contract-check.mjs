@@ -129,13 +129,14 @@ for (const name of canonicalScreenerConsumerNames) {
   const body = start >= 0 && end > start ? data.slice(start, end) : '';
   check(`${name} reads canonical screener rows`, body.includes('_aioGetCanonicalScreenerRows()') && !/typeof\s+SCREENER_DB/.test(body), 'legacy static row read remains in consumer body');
 }
-check('Telegram memo overlay is exposed through audit', /_aioTelegramMemoOverlayAudit/.test(data) && /memoOverlay/.test(data) && /getTelegramPipelineAudit/.test(data));
+// v57.78: getTelegramPipelineAudit and its channel checks live in the QA bundle (read through `core`).
+check('Telegram memo overlay is exposed through audit',/_aioTelegramMemoOverlayAudit/.test(data) && /memoOverlay/.test(data) && /getTelegramPipelineAudit/.test(core));
 check('Telegram dynamic artifact replaces static narrative and exposes honest coverage', /themes:\s*Array\.isArray\(raw\.themes\)/.test(data) && /pipelineNote:\s*String\(raw\.pipelineNote/.test(data) && /coverage:\s*raw\.coverage/.test(data));
 check('Telegram page coverage audit spans all 17 routes (v53.7 P725)', /getTelegramPageCoverageAudit/.test(data) && /requiredPageCount/.test(data) && /'portfolio':\s*\[/.test(data) && /'ticker':\s*\[/.test(data) && /'screener':\s*\[/.test(data) && /'kr-macro':\s*\[/.test(data) && /'guide':\s*\[\]/.test(data));
 check('tests cover Telegram digest memo injection', /T831[\s\S]{0,2200}SCREENER_DB memo/.test(tests) && /_telegramMemoOverlay/.test(tests));
 check('Telegram page feeds cover fundamental/themes/KR technical pages', /id="tg-feed-fundamental"/.test(html) && /id="tg-feed-themes"/.test(html) && /id="tg-feed-theme-detail"/.test(html) && /id="tg-feed-kr-technical"/.test(html));
 check('Telegram page routing includes credit and AI infrastructure tags by page', /'fundamental':\s*\[[^\]]*'semi'[^\]]*'credit'/.test(data) && /'themes':\s*\[[^\]]*'power'[^\]]*'credit'/.test(data) && /'fxbond':\s*\[[^\]]*'credit'/.test(data) && /'kr-technical':\s*\[[^\]]*'semi'/.test(data) && /'credit':\s*\{\s*label:/.test(data));
-check('Telegram runtime audits four required channels including HANA China', /tgSlug:'HANAchina'/.test(data) && /requiredChannelSlugs/.test(data) && /missingRequiredChannels/.test(data) && /requiredSourcesReady/.test(data));
+check('Telegram runtime audits four required channels including HANA China',/tgSlug:'HANAchina'/.test(data) && /requiredChannelSlugs/.test(core) && /missingRequiredChannels/.test(core) && /requiredSourcesReady/.test(core));
 check('Telegram market-note digest tag is consumed by briefing and market-news pages', /'briefing':\s*\[[^\]]*'market-note'/.test(data) && /'market-news':\s*\[[^\]]*'market-note'/.test(data));
 if (exists('public-data/telegram-digest.json')) {
   try {
@@ -1342,7 +1343,7 @@ check('P1118: signal presentation carries the reconciliation terms',
 // board is native-owned and states each axis's evidence and flip condition.
 check('P1118: signal page renders post-composite adjustments in a native-owned sink',
   !/id="score-adjustments-container"/.test(html)
-    && /renderRegimePage\(\{ documentRef, root \}\)/.test(read('src/ui/pages/analysis.js'))
+    && /renderRegimePage\(\{ documentRef, root, store \}\)/.test(read('src/ui/pages/analysis.js')) // v57.78: the store is passed through
     && /export function buildMarketRegime/.test(read('src/domain/briefing/market-read.js'))
     && /id="regime-board"/.test(html));
 
