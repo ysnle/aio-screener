@@ -1,7 +1,7 @@
 {
   "schemaVersion": "masters-13f-history-index.v3",
-  "revision": "2026-10-13-v57.50",
-  "reviewedAt": "2026-10-13",
+  "revision": "2026-10-15-v57.80",
+  "reviewedAt": "2026-10-15",
   "status": "FILING_HISTORY_ROWS_CONNECTED",
   "publication": "EDUCATIONAL_REFERENCE_ONLY",
   "boundary": "SEC filing metadata와 정보표 원문 행·보고가치·보유수량을 연결한다. 각 분기는 원본+정정 제출을 같은 합성 정책(scripts/lib/13f-compose.mjs)으로 합성하고, 분류되지 않은 정정은 REVIEW_REQUIRED로 닫는다. ticker·sector·issuer aggregate·corporate action은 verified security master가 확인되기 전 공개하지 않는다.",
