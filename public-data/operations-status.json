@@ -23,7 +23,7 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-10-15T12:22:09.765Z",
+  "generatedAt": "2026-10-15T12:42:57.306Z",
   "appRevision": "v57.81",
   "dataRevision": "market-snapshot:2026-10-15T12:21:30.398Z:b2ec1c6f",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -69,6 +69,14 @@
       "missingReason": null,
       "sources": [
         "fast"
+      ]
+    },
+    "screener-extended": {
+      "availability": "UNAVAILABLE",
+      "asOf": null,
+      "missingReason": "extended-shard-not-produced",
+      "sources": [
+        "durable"
       ]
     },
     "browser-shell": {
@@ -191,9 +199,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-10-15T12:21:30.398Z",
-        "ageHours": 0.01,
+        "ageHours": 0.36,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-10-15T12:22:09.765Z",
+        "evaluatedAt": "2026-10-15T12:42:57.306Z",
         "reason": null
       },
       "readiness": {
@@ -216,11 +224,11 @@
         "revision": "fast-quotes:083e19c5",
         "sourceSha": "4aa691309f57cf1488ebe3044deacf5435d88bd3",
         "observedAt": "2026-10-15T12:22:09.765Z",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-10-15T12:22:09.765Z"
+        "evidenceEvaluatedAt": "2026-10-15T12:42:57.306Z"
       },
       "soak": {
         "requiredDays": 7,
@@ -284,11 +292,11 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-10-15T12:22:09.765Z"
+        "evidenceEvaluatedAt": "2026-10-15T12:42:57.306Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
