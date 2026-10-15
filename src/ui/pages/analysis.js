@@ -60,37 +60,6 @@ function renderHomeFearGreed({ documentRef, sentimentValues, fgClose = null, fgS
   else element.removeAttribute('data-observed-at');
 }
 
-function renderHomeQuality({ documentRef, home }) {
-  const meter = documentRef?.getElementById('home-quality-meter');
-  const scoreElement = documentRef?.getElementById('home-quality-score');
-  const labelElement = documentRef?.getElementById('home-quality-label');
-  if (!meter || !scoreElement) return;
-  const quality = home?.quality;
-  const score = finite(quality?.score);
-  const available = quality?.modelVersion && score != null;
-  const color = !available
-    ? 'var(--text-muted)'
-    : score >= 55 ? 'var(--data-green)' : score >= 35 ? 'var(--data-amber)' : 'var(--data-red)'; // T11: theme tokens only
-  scoreElement.textContent = available ? String(Math.round(score)) : '—';
-  scoreElement.style.color = color;
-  const fill = meter.querySelector('div');
-  if (fill) {
-    fill.style.width = available ? `${Math.max(0, Math.min(100, score))}%` : '0%';
-    fill.style.background = available ? color : 'var(--border-strong)';
-  }
-  if (labelElement) {
-    labelElement.textContent = available ? (quality.label || '시장 품질') : '판정 보류 · 시장폭 종합 입력 대기';
-    labelElement.style.color = color;
-  }
-  for (const element of [meter, scoreElement, labelElement]) {
-    if (element) {
-      element.dataset.aioHomeQualityRenderer = 'native';
-      element.setAttribute('data-source-kind', available ? (quality.sourceKind || 'legacy-runtime') : 'unavailable');
-      element.setAttribute('data-operational-use', 'reference-only');
-    }
-  }
-}
-
 // P1420 (owner decision 2026-10-02 extended): the technical page's 0-100 market-health score added
 // and subtracted points for the day's SPY/QQQ move — the same kind of composite the 시장 상태 screen
 // retired. The page now shows that screen's six-axis judgement (one source of truth) and leads with
@@ -132,8 +101,6 @@ function renderTechnicalHealth({ documentRef, root }) {
       return chip;
     }), ...(referenceNode ? [referenceNode] : []));
   }
-  const pill = documentRef?.getElementById('tech-health-pill');
-  if (pill) pill.textContent = regime.available ? `시장 상태 · ${regime.overall}` : '시장 상태 판정 대기';
   documentRef?.getElementById('tech-regime-summary')?.setAttribute('data-aio-tech-regime-renderer', 'native');
 }
 
@@ -169,7 +136,6 @@ function render({ root, documentRef, store, route }) {
       // T09 + review: the close value counts only when it is aligned with the basis (same rule as the sentiment card);
       // a stalled F&G series shows as held, not as today's score.
       renderHomeFearGreed({ documentRef, sentimentValues, fgClose, fgStale: !!fgClose && !isUsable(alignInput(fgClose.date, basis)) });
-      renderHomeQuality({ documentRef, home });
     }
     if (route === 'signal') {
       page.dataset.aioArchitectureRenderer = 'native';
@@ -212,26 +178,9 @@ export function createAnalysisPage({ root = globalThis, documentRef, store, rout
         bag.add(() => suppliedMaterialBridge?.remove?.());
       }
       const homeFearGreed = route === 'home' ? documentRef?.getElementById('home-fg-score') : null;
-      const homeQuality = route === 'home'
-        ? [
-            documentRef?.getElementById('home-quality-meter'),
-            documentRef?.getElementById('home-quality-score'),
-            documentRef?.getElementById('home-quality-label')
-          ]
-        : [];
       if (homeFearGreed) homeFearGreed.dataset.aioHomeFearGreedRenderer = 'native';
-      homeQuality.forEach((element) => {
-        if (element) element.dataset.aioHomeQualityRenderer = 'native';
-      });
       bag.add(() => {
         if (homeFearGreed?.dataset.aioHomeFearGreedRenderer === 'native') delete homeFearGreed.dataset.aioHomeFearGreedRenderer;
-        homeQuality.forEach((element) => {
-          if (element?.dataset.aioHomeQualityRenderer === 'native') delete element.dataset.aioHomeQualityRenderer;
-          if (element) {
-            element.removeAttribute('data-source-kind');
-            element.removeAttribute('data-operational-use');
-          }
-        });
         if (page?.dataset.aioArchitectureSlice === 'analysis') delete page.dataset.aioArchitectureSlice;
         if (route === 'technical' && page?.dataset.aioTechnicalRenderer === 'native') {
           delete page.dataset.aioTechnicalRenderer;

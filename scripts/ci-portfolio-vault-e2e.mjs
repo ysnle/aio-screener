@@ -753,12 +753,13 @@ async function main() {
       const keys = ['aio_portfolio_data', 'aio_portfolio_ledger', 'aio_portfolio_fx_legs'];
       const values = [JSON.stringify([{ticker:'AAPL',qty:2,cost:100,costCurrency:'USD'}]), JSON.stringify({transactions:[{amount:321}],valuations:[]}), JSON.stringify([{from:'USD',to:'KRW',rate:1400}])];
       keys.forEach((key, index) => localStorage.setItem(key, values[index]));
-      localStorage.setItem('aio_finnhub_key','fixturefinnhubcredential01');
+      // v57.79: the self-proxy URL is the only live credential (personal provider keys are deleted at boot).
+      localStorage.setItem('aio_cf_worker_url','https://worker.fixture.invalid');
       await _AioVault.unlock('2468'); await _migrateToEncrypted(); await _restoreDecryptedKeys();
       const migrated = keys.every((key) => localStorage.getItem(key).startsWith('aio_enc::'));
       const sentinel = localStorage.getItem('aio_vault_verify_v1');
       const keyBackup = window._aioCollectKeySnapshot();
-      const backupSeparated = !keys.some((key) => key in keyBackup) && keyBackup.aio_finnhub_key === 'fixturefinnhubcredential01';
+      const backupSeparated = !keys.some((key) => key in keyBackup) && keyBackup.aio_cf_worker_url === 'https://worker.fixture.invalid' && !('aio_finnhub_key' in keyBackup);
       const stored = keys.map((key) => localStorage.getItem(key));
       _AioVault.lock();
       let rejected = false, overwriteRejected = false;
@@ -771,7 +772,7 @@ async function main() {
       window.showConfirmModal = async (_title,_message,confirm) => { await confirm(); };
       try { window.resetPortfolioPin(); } finally { window.showConfirmModal = originalConfirm; }
       await new Promise((resolve) => setTimeout(resolve,150));
-      const reset = keys.every((key,index) => localStorage.getItem(key) === values[index]) && localStorage.getItem('aio_portfolio_vault_optout') === '1' && localStorage.getItem('aio_finnhub_key').startsWith('aio_enc::') && localStorage.getItem('aio_vault_verify_v1') === sentinel;
+      const reset = keys.every((key,index) => localStorage.getItem(key) === values[index]) && localStorage.getItem('aio_portfolio_vault_optout') === '1' && localStorage.getItem('aio_cf_worker_url').startsWith('aio_enc::') && localStorage.getItem('aio_vault_verify_v1') === sentinel;
       localStorage.removeItem('aio_portfolio_vault_optout');
       await _AioVault.unlock('2468'); await _migrateToEncrypted(); await _restoreDecryptedKeys();
       const reprotected = keys.every((key) => localStorage.getItem(key).startsWith('aio_enc::'));
@@ -809,10 +810,10 @@ async function main() {
         && keys.every((key,index) => localStorage.getItem(key) === privateBeforeOptout[index]);
       window._aioVaultPublicMode({checked:false});
       localStorage.clear(); sessionStorage.clear();
-      await _AioVault.unlock('2468'); await safeLS('aio_finnhub_key','fixturefinnhubonly0001'); _AioVault.lock();
+      await _AioVault.unlock('2468'); await safeLS('aio_cf_worker_url','https://worker-only.fixture.invalid'); _AioVault.lock();
       let keyOnlyRejected=false;
       try { await _AioVault.unlock('0000'); } catch (_) { keyOnlyRejected=!_AioVault.isUnlocked(); }
-      await _AioVault.unlock('2468');
+      await _AioVault.unlock('2468'); localStorage.removeItem('aio_cf_worker_url'); // keep the fixture URL out of the reload below
       keys.forEach((key,index)=>localStorage.setItem(key,values[index]));
       const originalSet=Storage.prototype.setItem;
       Storage.prototype.setItem=function(key,value){ if(key===keys[2] && String(value).startsWith('aio_enc::')) throw new DOMException('quota','QuotaExceededError'); return originalSet.call(this,key,value); };

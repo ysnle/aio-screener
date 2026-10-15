@@ -79,7 +79,15 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
   canvas.setAttribute('role', 'img');
   canvas.setAttribute('aria-label', `S&P 500 섹터 지도, ${model.periodLabel} 수익률. ${model.lead} 섹터별 숫자와 종목 이동은 아래 '섹터별 숫자'에서 볼 수 있습니다.`);
   host.append(canvas);
-  const detail = el(doc, 'p', '타일에 마우스를 올리거나 누르면 종목이 표시됩니다. 두 번 누르면 종목 화면으로 이동합니다.', 'sector-map-detail');
+  // v57.79: the line under the map opened with how-to text. Until a tile is chosen it names the period's largest
+  // movers each way (current-basis returns only); a hovered or tapped tile replaces it.
+  const movers = model.sectors.flatMap((sector) => sector.members.filter((item) => item.ret != null).map((item) => ({ ...item, sectorLabel: sector.label })));
+  const top = movers.reduce((best, item) => (!best || item.ret > best.ret ? item : best), null);
+  const bottom = movers.reduce((worst, item) => (!worst || item.ret < worst.ret ? item : worst), null);
+  const moverText = top && bottom && top !== bottom
+    ? `${model.periodLabel} 가장 크게 오른 종목 ${top.sym}(${top.sectorLabel}) ${signed(top.ret)} · 가장 크게 내린 종목 ${bottom.sym}(${bottom.sectorLabel}) ${signed(bottom.ret)}`
+    : '';
+  const detail = el(doc, 'p', moverText, 'sector-map-detail');
   detail.setAttribute('aria-live', 'polite');
   host.append(detail, legend(doc, model.steps));
 

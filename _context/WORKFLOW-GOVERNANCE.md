@@ -1,6 +1,6 @@
 ---
-verified_by: P1518 structural workflow review; runtime and deployed evidence remain separate
-last_verified: 2026-10-08
+verified_by: P1518 structural workflow review; v57.79 expert policy review; runtime and deployed evidence remain separate
+last_verified: 2026-10-15
 confidence: high
 auto_refresh: true
 target_version: version.json
@@ -41,6 +41,9 @@ Before changing code, data, docs, or skills:
    - knowledge: matching domain/source terms in `_context/KNOWLEDGE-BASE.md`
    - recent product changes: `CHANGELOG.md` latest relevant entries
 6. State the current assumption when the root checkout and active worktree differ.
+7. Follow the AGENTS.md Non-negotiable boundaries: work directly on `main` (worktrees only for parallel agents), `git pull --no-rebase origin main` before a requested push, and `node scripts/resolve-generated-conflicts.mjs` for generated-manifest conflicts.
+
+Batch rule: implement a batch of items, run one code-reviewer subagent on the batch diff, then verify and record once.
 
 Do not load the full RULES/BUG/QA/KNOWLEDGE ledgers by default. `_context/CONTEXT-CATALOG.json` marks historical snapshots as `explicit-only`; they are evidence, not current instructions.
 
@@ -69,17 +72,7 @@ The source of truth is `architecture/qa-pipeline.json`. Cheap preflight blocks e
 
 P1518/R690: `candidate` accepts only complete `full --no-cache` PASS evidence, tied to the current manifest, runner and every tracked index dependency. Partial runs never replace this proof. A successful `rerun-failed` resolves the named failed gates only; skipped later phases still need execution. Literal file reads must be present in cache inputs and reachable through group or gate impact rules; dynamic and transitive dependencies still require review.
 
-For docs, skills, agents, hooks, workflows, or task-environment changes, `affected` must select the workspace group, which includes:
-
-```bash
-node scripts/generate-workspace-state.mjs --check
-node scripts/ci-workspace-contract-check.mjs
-node scripts/ci-knowledge-lint-check.mjs
-node scripts/ci-skill-contract-check.mjs
-node scripts/ci-skill-eval-fixture-check.mjs
-node scripts/sync-agent-profiles.mjs --check
-node scripts/sync-agent-skills.mjs --check
-```
+For docs, skills, agents, hooks, workflows, or task-environment changes, `affected` must select the workspace group. The workspace-facing gate list lives in one place: see AGENTS.md Closeout (`architecture/qa-pipeline.json` group `workspace` is its executable form).
 
 External state is a separate profile because it changes without a source edit:
 
@@ -105,10 +98,8 @@ Every recurring failure must end in at least one enforceable mechanism:
 - a runtime audit exposed on `window.AIO`
 - a CI script in `scripts/`
 - a regression test in `js/aio-tests.js`
-- a checklist item in `_context/QA-CHECKLIST.md`
-- a rule in `_context/RULES.md`
 
-Notes alone do not count as prevention.
+A QA item or rule counts only with a verify_by gate: a `_context/QA-CHECKLIST.md` item or `_context/RULES.md` rule is prevention only when it names the executable gate (`verify_by:` or `architecture/governance-markers.json` `enforcedBy`) that would fail. Notes alone do not count as prevention.
 
 ## Declaration-And-Gate-Adjustment Rule (added 2026-07-19, RM-04)
 
@@ -129,7 +120,7 @@ The postmortem-to-gate mechanisms above (`ci-*-contract-check.mjs`, `js/aio-test
 When a postmortem's root cause is only reproducible against the live/deployed site — not by re-running local gates against the checked-out source — close it two ways:
 
 1. The normal source-level contract in `ci-runtime-contract-check.mjs`/`ci-structural-check.mjs`, as usual.
-2. A predicate in `scripts/ci-live-invariant-check.mjs`, run by `.github/workflows/data-watchdog.yml` on its existing schedule (independent of the next commit/PR).
+2. A predicate in `scripts/ci-live-invariant-check.mjs`, run by `.github/workflows/data-watchdog.yml` on its existing schedule (independent of the next push).
 
 Keep list 2 small. Add to it only when a local gate structurally cannot see the failure class (deploy/CDN/cache/operator-config drift, not a source bug). Do not duplicate a check that already exists in list 1 — two lists asserting the same fact will drift apart from each other, which is the exact failure mode this rule exists to prevent.
 
@@ -158,7 +149,7 @@ Do not create a new skill when an existing skill can be hardened. New skills req
 | `bug-fix` | BUG-POSTMORTEM P entry, RULES/QA update when recurring, regression test or CI/runtime audit |
 | `post-edit-qa` | explicit pass/fail report, route/page coverage, command results, follow-up blockers |
 | `data-refresh` | sourceKind/freshness labeling, stale artifact consumed or retired, version/data timestamp evidence |
-| `integrate` | framework extracted, target page/chat mapping, sourceKind not promoted to LIVE, changelog/context memory |
+| `integrate` | framework extracted, mapped to target screen + AI panel context, sourceKind not promoted to LIVE, changelog/context memory |
 | `knowledge-lint` | broken doc links resolved, INDEX current, stale/missing rule-to-QA mappings reported |
 | `autoresearch` | binary evals, baseline result, one-variable change log, accepted/rejected result |
 | `verify-aio` | launch → doctor → drive → evidence path → cleanup; per-feature PASS/FAIL, unreachable sub-features with prerequisite |
@@ -174,7 +165,7 @@ Minimum self-eval for any skill change:
 | SG3 | The change avoids adding a parallel stale path |
 | SG4 | Final answer must distinguish verified, blocked, and unverified surfaces |
 | SG5 | `_context/INDEX.md` is updated when context docs change |
-| SG6 | Command wrapper and shared contract links still point to the canonical skill, and any local Codex mirror is synchronized |
+| SG6 | Command wrapper and shared contract links still point to the canonical skill, and the tracked .agents mirror is synchronized |
 
 ## Loop Vocabulary
 
@@ -185,7 +176,7 @@ When new recurring or long-running work comes up, name which primitive it needs 
 | Turn-based | A prompt in this session | The agent judges the task done or blocked | Most `/bug-fix`, `/integrate`, `/qa` work |
 | Goal-based | A prompt with an explicit done-condition | The condition passes or a turn cap is hit | "fix headless tests until `ci-headless-tests.mjs` is 0 fail, stop after 5 tries" |
 | Time-based | A schedule | Cancelled, or the work itself completes | `refresh-data.yml` (`'17,47 * * * *'`), `data-watchdog.yml` (`'23 * * * *'`) |
-| Proactive | An event/schedule with no human watching in real time | Each run's goal is met; the schedule itself runs until turned off | `ci.yml` on push/PR gating `deploy`; the R290 live-invariant job |
+| Proactive | An event/schedule with no human watching in real time | Each run's goal is met; the schedule itself runs until turned off | `ci.yml` on push to main attests the SHA; pages-deploy and deploy-* consume the attested SHA; the R290 live-invariant job |
 
 Pick time-based/proactive only for work that must happen without a human present. Extend the current workflow owner when possible before inventing another schedule. Reserve turn-based/goal-based work for tasks that benefit from active human or agent judgment. Verification should be encoded as a skill (`post-edit-qa`, `references/tiers.md`) so a turn-based check can approach self-verifying instead of relying on an operator's manual read.
 
@@ -237,4 +228,4 @@ A final answer after implementation must include:
 - what was not verified and why
 - whether commit/deploy was performed
 
-For AIO, "external-share ready" requires at minimum: version sync, runtime contract, structural check, no stale cachebuster, no fake-live source labeling, and no visible developer-only guidance on the default user path.
+For AIO, "release-ready" requires at minimum: version sync, runtime contract, structural check, no stale cachebuster, no fake-live source labeling, and no visible developer-only guidance on the default user path.

@@ -142,9 +142,11 @@ export function loadJsonArtifact(fetchFn, url, { signal, maxAgeMs = 15 * 60 * 10
   return waitForConsumer(entry, signal);
 }
 
-export function clearArtifactCache(fetchFn) {
+export function clearArtifactCache(fetchFn, { abortInFlight = true } = {}) {
   if (typeof fetchFn === 'function') {
     const store = existingStoreFor(fetchFn);
+    // v57.79: a manual refresh drops held entries but lets requests already in flight finish for their callers.
+    if (!abortInFlight) { store?.resolved?.clear?.(); return; }
     for (const entry of store?.inFlight?.values?.() || []) entry.controller.abort();
     const boundName = boundNameOf(fetchFn);
     if (boundName) storesByBoundName.delete(boundName);

@@ -179,7 +179,7 @@ async function collectAiUsage(fetchImpl, token, now, url) {
     return summarize(evaluateAiDailyUsageAlert({
       requestCount: evidence.requestCount,
       usageDayUtc: evidence.usageDayUtc,
-      anthropicDailyCap: evidence.anthropicDailyCap,
+      aiDailyCap: evidence.aiDailyCap,
       now
     }), SAFE_REASONS.aiDailyUsage);
   } catch (_) {

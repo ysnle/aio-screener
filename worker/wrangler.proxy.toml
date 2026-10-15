@@ -32,7 +32,7 @@ AI_MAX_OUTPUT_TOKENS = "16000"
 # Per-provider daily ceiling for /relay (operator-key server-side fetches).
 RELAY_DAILY_CAP = "2000"
 # Must equal version.json — enforced by ci-version-check.mjs and synchronized by bump-version.mjs.
-AIO_APP_REVISION = "v57.78"
+AIO_APP_REVISION = "v57.79"
 AIO_SOURCE_SHA = "__AIO_SOURCE_SHA__"
 
 # 2026-10-14: Workers AI for headline translation (/workers-ai/translate, automation token only).
@@ -87,7 +87,7 @@ period = 60
 # Secrets injected with `wrangler secret put` by deploy-ai-proxy.yml:
 #   OPENAI_API_KEY      — shared GPT-6 Luna route (/openai)
 #   AIO_AUTOMATION_TOKEN — 32+ chars; authenticated originless Actions requests
-# FRED /relay uses the user's opt-in X-AIO-Provider-Key; no operator substitution.
+# v57.79: the personal-key FRED /relay provider was retired; FRED_API_KEY stays an Actions-only secret.
 #   BOK_API_KEY        — /relay provider "bok"   (ecos.bok.or.kr)
 #   KOSIS_API_KEY      — /relay provider "kosis"
 # A provider whose key is absent makes only that relay provider fail closed (503);

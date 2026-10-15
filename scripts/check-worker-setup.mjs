@@ -11,7 +11,7 @@ export function assessWorkerSetup(proxy, fast, secretNames = []) {
     dispatchConfigured: fast?.schedulerDispatch?.configured === true,
     dispatchReason: fast?.schedulerDispatch?.lastObservation?.reason || null,
     githubCredentials: ['CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID', 'AIO_QUOTES_KV_ID', 'OPENAI_API_KEY', 'AIO_AUTOMATION_TOKEN', 'AIO_REFRESH_DISPATCH_TOKEN'].map(name => ({name, present:present.has(name)})),
-    relay: { fred: 'personal-opt-in; scheduled artifacts use Actions credentials', bokConfigured:proxy?.relay?.configured?.bok === true, kosisConfigured:proxy?.relay?.configured?.kosis === true },
+    relay: { fred: 'retired from the Worker relay (v57.79); scheduled artifacts use Actions credentials', bokConfigured:proxy?.relay?.configured?.bok === true, kosisConfigured:proxy?.relay?.configured?.kosis === true },
     cloudflareAccountVerification: 'NOT_VERIFIED_WITH_ACCOUNT_AUTH',
     notes: ['Health readiness does not certify answers or remaining monthly budget.', 'Credential presence does not certify permissions, expiry or values.', 'Fast quote observation does not enable its public-config route.']
   };

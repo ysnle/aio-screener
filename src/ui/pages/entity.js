@@ -14,7 +14,6 @@ import { renderFiscalRead } from '../components/fiscal-read.js';
 import { createSummaryHydrator } from '../../domain/entity/summary-hydration.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { renderCompanyAnalysis } from '../components/company-analysis.js';
-import { sectorLabel } from '../../domain/screener/screener-read.js';
 import { finiteNumber as finite } from '../../domain/shared/number.js';
 
 // 2026-10-13 review S21: observation times read in Korean time, not "… 20:00:00 UTC".
@@ -74,6 +73,23 @@ function formatMoney(value, currency, { maximumFractionDigits = 2 } = {}) {
   }
 }
 
+// v57.79 review: without a current quote the hero read "—" although the screener row already carries the completed
+// close the page dates elsewhere. The latest published close (entity history or the screener's valuation close) is
+// shown as that dated close — never a current price, never an estimate.
+export function lastPublishedClose(id, state, root) {
+  const candidates = [];
+  const bars = state?.id === id && Array.isArray(state?.history) && state.history.length ? state.history : (root?._technicalOHLCV?.[id] || root?._tickerHistory?.[id] || []);
+  const lastBar = selectTickerChartWindow(bars, '1m').rows.at(-1);
+  if (lastBar && finite(lastBar.close) > 0) candidates.push({ value: finite(lastBar.close), date: formatTickerChartDate(lastBar.epochMs), currency: null });
+  let rows = [];
+  try { rows = root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) { rows = []; }
+  const row = rows.find(item => item?.sym === id);
+  const rowClose = finite(row?._valuationPrice ?? row?._valuationPePrice ?? row?.valuationPrice);
+  const rowDate = String(row?.factorSessionDate || '').slice(0, 10);
+  if (rowClose > 0 && /^\d{4}-\d{2}-\d{2}$/.test(rowDate)) candidates.push({ value: rowClose, date: rowDate, currency: String(row.instrumentRef?.currency || row.currency || '').trim().toUpperCase() || null });
+  return candidates.filter(item => /^\d{4}-\d{2}-\d{2}$/.test(item.date)).sort((a, b) => b.date.localeCompare(a.date))[0] || null;
+}
+
 function renderTickerHero(documentRef, state, root) {
   const requestedId = String(root?._currentTickerId || '').trim().toUpperCase() || null;
   const id = state?.id || requestedId;
@@ -104,14 +120,17 @@ function renderTickerHero(documentRef, state, root) {
   // P1689: a fallback quote can arrive without a currency; use one already observed for this symbol (live envelope or
   // entity summary) before saying "통화 미확인" — still never inferred from the symbol alone outside the KRX suffix.
   const heroCurrency = quote.currency || root?._liveData?.[id]?.currency || root?._liveData?.[id]?.quoteEnvelope?.currency || root?._aioEntitySummaries?.[id]?.quote?.currency || (/\.(KS|KQ)$/.test(String(id || '')) ? 'KRW' : null);
-  setText(documentRef, 'ticker-hero-price', formatMoney(price, heroCurrency));
+  const close = price == null && id ? lastPublishedClose(id, state, root) : null;
+  const closeLabel = close ? `${Number(close.date.slice(5, 7))}/${Number(close.date.slice(8, 10))} 종가` : null;
+  const heroPrice = setText(documentRef, 'ticker-hero-price', close ? formatMoney(close.value, heroCurrency || close.currency) : formatMoney(price, heroCurrency));
+  if (heroPrice) { if (close) heroPrice.dataset.priceBasis = 'last-close'; else delete heroPrice.dataset.priceBasis; }
   // P1728: a Korean change without a verified previous KRX close says so instead of showing a dash or a wrong base.
   const krUnverified = pct == null && price != null && quote.changeBasis === 'kr-previous-close-unverified';
-  const change = setText(documentRef, 'ticker-hero-chg', pct == null ? (krUnverified ? '전일 기준 미확인' : '—') : `${pct >= 0 ? '▲ +' : '▼ '}${Math.abs(pct).toFixed(2)}%`);
+  const change = setText(documentRef, 'ticker-hero-chg', closeLabel || (pct == null ? (krUnverified ? '전일 기준 미확인' : '—') : `${pct >= 0 ? '▲ +' : '▼ '}${Math.abs(pct).toFixed(2)}%`));
   if (change) {
-    change.className = `ticker-chg-big ${pct == null ? '' : pct >= 0 ? 'up' : 'down'}`;
+    change.className = `ticker-chg-big ${pct == null || closeLabel ? '' : pct >= 0 ? 'up' : 'down'}`;
     const basisDate = String(quote.changeBasisDate || '').slice(5).replace('-', '/');
-    change.title = krUnverified ? '직전 완료 거래일 종가를 검증하지 못해 등락률을 보류합니다.'
+    change.title = closeLabel ? `${close.date} 확정 종가(수정 종가) · 현재 시세가 아닙니다` : krUnverified ? '직전 완료 거래일 종가를 검증하지 못해 등락률을 보류합니다.'
       : quote.changeBasis === 'screener-reconciled-session-change' && basisDate ? `${basisDate} 거래소 종가 기준 1일 변화`
       : quote.changeBasis === 'krx-history-previous-close' && basisDate ? `${basisDate} 거래소 종가 대비`
       : quote.changeBasis === 'provider-previous-close-index-checked' && basisDate ? `${basisDate} 종가 대비 · 같은 날 지수 기준 일치 확인`
@@ -126,7 +145,7 @@ function renderTickerHero(documentRef, state, root) {
     const meta = root?._aioEntitySummaries?.[id];
     const valueBasis = root?._liveData?.[id]?.quoteEnvelope?.valueBasis || meta?.quote?.valueBasis;
     // Live review 2026-10-14: a failed fetch says so; only a request still in flight reads as loading.
-    const statusText = price == null ? root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다 · 종목을 다시 선택해 확인' : root?._aioEntitySummaryStatus?.[id] === 'ready' ? '현재 시세 미수신' : '현재 시세 불러오는 중' : `${valueBasis === 'completed-daily-close' ? '완료 일봉 종가' : '정규장 관측가'}${quote.observedAt ? ` · ${formatKstStamp(quote.observedAt) || String(quote.observedAt)}` : ' · 관측 시각 미확인'}${quote.changeCheck === 'corrected' && quote.changeBasisDate ? ` · 등락률은 ${String(quote.changeBasisDate).slice(5).replace('-', '/')} ${quote.changeBasis === 'screener-reconciled-session-change' ? '거래소 종가 기준' : '거래소 종가 대비'}` : ''}`;
+    const statusText = price == null ? closeLabel ? `현재 시세 ${root?._aioEntitySummaryStatus?.[id] === 'loading' ? '불러오는 중' : '미수신'}` : root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다 · 종목을 다시 선택해 확인' : root?._aioEntitySummaryStatus?.[id] === 'ready' ? '현재 시세 미수신' : '현재 시세 불러오는 중' : `${valueBasis === 'completed-daily-close' ? '완료 일봉 종가' : '정규장 관측가'}${quote.observedAt ? ` · ${formatKstStamp(quote.observedAt) || String(quote.observedAt)}` : ' · 관측 시각 미확인'}${quote.changeCheck === 'corrected' && quote.changeBasisDate ? ` · 등락률은 ${String(quote.changeBasisDate).slice(5).replace('-', '/')} ${quote.changeBasis === 'screener-reconciled-session-change' ? '거래소 종가 기준' : '거래소 종가 대비'}` : ''}`;
     if (status.textContent !== statusText) status.textContent = statusText;
   }
   // P1317/N27: showPage titles the route from the stale hero before this render runs, so the tab,
@@ -156,9 +175,10 @@ function renderSummaryIdentity(documentRef, root, state) {
   // 2026-10-14 audit #10: the hero already carries the name; the section heading says what it answers.
   const title = documentRef.createElement('h2'); title.textContent = /ETF|지수/.test(profile.kind) ? '무엇을 추종하는 상품' : '무엇을 하는 회사';
   const description = documentRef.createElement('p');
-  // P1630: no producer publishes businessProfile yet, so the missing description is not announced on every ticker.
-  description.textContent = profile.description || [profile.sector ? sectorLabel(profile.sector) : null,profile.industry].filter(Boolean).join(' · ');
-  description.hidden = !description.textContent;
+  // P1630: no producer publishes businessProfile yet. v57.79: a sector word plus "종목 등록 정보" read as an empty box,
+  // so the section stays hidden until a sourced description exists (the classification lives in the company card below).
+  description.textContent = profile.description || '';
+  profileNode.hidden = !profile.description;
   const source = documentRef.createElement(profile.sourceUrl ? 'a' : 'span'); source.textContent = profile.source;
   if (profile.sourceUrl) { source.href = profile.sourceUrl; source.target = '_blank'; source.rel = 'noopener noreferrer'; }
   profileNode.replaceChildren(title, description, source);
@@ -264,7 +284,7 @@ function renderTickerNavigation(documentRef, state, root) {
     if (backButton) { backButton.textContent = '← 돌아가기'; backButton.setAttribute('aria-label', '돌아가기'); }
     return;
   }
-  const origins = { screener: '스크리너', themes: '테마 분석', portfolio: '포트폴리오', fundamental: '재무 공시', technical: '차트', 'market-news': '시장 뉴스', briefing: '오늘의 브리핑', masters: '대가의 포트폴리오', home: '대시보드' };
+  const origins = { screener: '스크리너', themes: '테마 · 섹터', portfolio: '포트폴리오', fundamental: '재무 공시', technical: '차트', 'market-news': '뉴스', briefing: '브리핑', masters: '대가 보유 종목', home: '대시보드' };
   const requestedOrigin = root?.AIO?.state?.tickerReturnRoute;
   // P1599 (S01): with no recorded entry route (left menu, search, a shared link) there is no screen to name —
   // the old default printed '← 재무 공시' for a page the reader never came from. The tabs already move between views.
@@ -334,10 +354,6 @@ function renderTickerControls(documentRef, page, activeTab = 'overview', request
       button.title = '';
     }
   });
-  const overview = documentRef?.getElementById('tab-overview');
-  const chart = documentRef?.getElementById('tab-chart');
-  if (overview) overview.style.display = tab === 'overview' ? '' : 'none';
-  if (chart) chart.style.display = tab === 'chart' ? '' : 'none';
 }
 
 function renderTickerChart({ root, page, state, charts, requestedRange = '1m' }) {
@@ -382,6 +398,8 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
   const tabs = page.querySelector?.('#ticker-chart-period-tabs');
   if (box) box.style.height = unavailable ? '44px' : '380px';
   if (tabs) tabs.hidden = unavailable;
+  // v57.79 review: one state at a time — the empty canvas (and any fallback paint on it) hides behind the status line.
+  canvas.style.display = unavailable ? 'none' : '';
   if (unavailable) {
     charts.destroy('ticker-price-chart');
     if (meta) meta.textContent = '';
@@ -409,6 +427,7 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
     if (loading) loading.style.display = 'none';
   } catch (_) {
     charts.destroy('ticker-price-chart');
+    canvas.style.display = 'none';
     if (loading) { loading.style.display = 'flex'; loading.textContent = `${state?.id || '종목'} ${periodLabel} 차트 런타임 실패 · 차트 보류`; }
   }
 }
@@ -790,7 +809,7 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
           Promise.resolve().then(() => {
             if (root?._currentTickerId && String(root._currentTickerId).toUpperCase() === id) renderNow();
             const label = documentRef?.getElementById('ticker-summary-price-basis');
-            if (label && !root?._liveData?.[id]?.price) label.textContent = typeof root?._aioIsKnownTicker === 'function' && !root._aioIsKnownTicker(id) ? 'AIO에 등록된 종목이 아닙니다 · 티커 철자를 확인하세요' : '시세를 불러오지 못했습니다 · 잠시 후 종목을 다시 선택해 확인하세요'; // v57.54 review: NVDAA is not a slow source
+            if (label && !root?._liveData?.[id]?.price && documentRef?.getElementById('ticker-hero-price')?.dataset.priceBasis !== 'last-close') label.textContent = typeof root?._aioIsKnownTicker === 'function' && !root._aioIsKnownTicker(id) ? 'AIO에 등록된 종목이 아닙니다 · 티커 철자를 확인하세요' : '시세를 불러오지 못했습니다 · 잠시 후 종목을 다시 선택해 확인하세요'; // v57.54 review: NVDAA is not a slow source
           });
         } }) : null;
       if (hydrator) bag.add(() => hydrator.dispose());

@@ -21,10 +21,13 @@ const worker = read('cloudflare-worker-proxy.js');
 const config = json('public-config.json');
 const operations = json('public-data/operations-status.json');
 
+// v57.79: retired personal provider keys left the registry (no input, no reader); the sensitive set still lists
+// them so any leftover stored value stays encrypted until boot deletes it.
 for (const key of ['aio_rss2json_key', 'aio_bok_key', 'aio_kosis_key']) {
-  check(`provider registry includes ${key}`, core.includes(`credentialKey: '${key}'`));
+  check(`v57.79 provider registry excludes retired ${key}`, !core.includes(`credentialKey: '${key}'`)); // text-pin-ok: retirement absence
   check(`sensitive key set includes ${key}`, core.includes(`'${key}'`));
 }
+check('v57.79 provider registry keeps the self-proxy URL credential', core.includes("credentialKey: 'aio_cf_worker_url'"));
 check('safeLS returns a write result', core.includes('return { ok: true, key: key, removed: false'));
 check('safeLS throws on write failure', /async function safeLS\([\s\S]{0,1800}throw e;/.test(core));
 check('credential save performs readback', core.includes('persistence_readback_mismatch') && core.includes('safeLSGet(lsKey, \'\')'));

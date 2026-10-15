@@ -117,7 +117,7 @@ body.dark-theme .rl-shelf-plank{--rl-plank-top:#45403a;--rl-plank:#36322c;--rl-p
 .rl-spine::before{top:10px}
 .rl-spine::after{bottom:10px}
 .rl-spine-title{position:absolute;top:24px;bottom:24px;left:0;right:0;display:flex;justify-content:center}
-.rl-spine-title span{writing-mode:vertical-rl;font-family:var(--font-display);font-size:12px;font-weight:600;line-height:1.38;letter-spacing:.02em;max-height:100%;overflow:hidden;word-break:break-all}
+.rl-spine-title span{writing-mode:vertical-rl;font-family:var(--font-display);font-size:12px;font-weight:600;line-height:1.38;letter-spacing:.02em;max-height:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .rl-spine-ribbon{position:absolute;top:-2px;right:5px;width:7px;height:22px;background:#efe1bd;clip-path:polygon(0 0,100% 0,100% 100%,50% 76%,0 100%)}
 .rl-spine:hover,.rl-spine:focus-visible{transform:translateY(-10px);box-shadow:0 12px 14px -9px rgba(33,29,22,.55)}
 .rl-spine[aria-current="true"]{transform:translateY(-16px);box-shadow:0 14px 18px -9px rgba(33,29,22,.6)}
@@ -458,12 +458,14 @@ function openEntry(entries, page, search) {
       && Object.entries(entry.route.params).every(([key, value]) => params.get(key) === String(value)))
     .sort((a, b) => Object.keys(b.route.params).length - Object.keys(a.route.params).length)[0] || null;
 }
-// The spine shows the main title (before " — ") in at most two columns; size follows that text and a
+// The spine shows the main title (before " — ") in one column, cut from the end with "…" so its start stays readable;
+// the full title is the spine's accessible name and its hover/focus tip. v57.79 (UI review): a two-column title broke
+// mid-phrase and the second column read as a stray fragment ("의 구분", "전이", "감소"). Size follows that text and a
 // stable per-document variation, and encodes nothing else.
 function spineShape(entry) {
   const chars = [...String(entry.title).split(' — ')[0].trim()];
-  const perColumn = Math.min(14, Math.max(8, Math.ceil(chars.length / 2) + 1));
-  const shown = chars.length > perColumn * 2 ? `${chars.slice(0, perColumn * 2 - 1).join('')}…` : chars.join('');
+  const perColumn = Math.min(15, Math.max(8, chars.length));
+  const shown = chars.length > perColumn ? `${chars.slice(0, perColumn - 1).join('').trimEnd()}…` : chars.join('');
   const h = hashOf(entry.id);
   return { shown, width: 40 + (h % 4) * 4, height: Math.round(48 + perColumn * 12.5 + (h % 5) * 3) };
 }

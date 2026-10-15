@@ -2670,7 +2670,7 @@ async function fetchViaProxy(url, timeout) {
   // and logs stop implying "the shared Worker is broken" when it is simply not
   // trusted with personal keys.
   if (failure.code === 'PRIVATE_ROUTE_REQUIRED') {
-    failure.hint = '이 요청은 개인 키를 URL에 포함하므로 사용자가 직접 소유한 Worker로만 중계할 수 있습니다. 공유 Worker는 개인 키를 받지 않습니다 — 운영자 키를 쓰는 소스(FRED/BOK/KOSIS)는 /relay 경로를 사용하세요.';
+    failure.hint = '이 요청은 개인 키를 URL에 포함하므로 사용자가 직접 소유한 Worker로만 중계할 수 있습니다. 공유 Worker는 개인 키를 받지 않습니다 — 운영자 키를 쓰는 소스(BOK/KOSIS)는 /relay 경로를 사용하세요.';
   }
   failure.attempts = errors;
   throw failure;
@@ -5926,7 +5926,7 @@ function _aioRenderPipelineStatus() {
       msgs.push({ icon: '!', text: '스크리너 종목 유니버스 갱신 필요', detail: '팩터 파일과 종목 식별 유니버스의 기준일이 다릅니다. 현재 결과는 연구용 부분 상태입니다.', color: '#f59e0b' });
     }
     if (!meta.fredHasKey) {
-      msgs.push({ icon: '', text: 'FRED 거시 서버갱신 비활성', detail: 'GitHub Secrets → FRED_API_KEY 등록 시 자동 활성화 (클라이언트 키로 대체 가능)', color: '#94a3b8' });
+      msgs.push({ icon: '', text: 'FRED 거시 서버갱신 비활성', detail: 'GitHub Secrets → FRED_API_KEY 등록 시 자동 활성화', color: '#94a3b8' });
     }
     if (meta.fredHasKey && meta.fredFetchOk === false) {
       msgs.push({ icon: '', text: 'FRED 거시 수집 실패', detail: 'FRED_API_KEY 등록됨 → API 오류 또는 레이트리밋. 키 유효성 확인', color: '#ef4444' });
@@ -10680,10 +10680,6 @@ function _aioMarketAnalysisScope(analysis, generatedAt) {
   } catch (_) { return ''; }
 }
 
-// v57.76: the home "핵심 뉴스" list is retired with the "오늘의 시장" banner (it duplicated the 뉴스 screen). Its call
-// sites are gone; the name stays as a no-op only because ci-data-pipeline-contract-check and the runtime function
-// audit (aio-qa-audits requiredFns) pin it. It writes nothing.
-function renderHomeFeed(_items) {}
 // src/ui/pages/news.js reads these two by name from window; this export is now their only runtime reference.
 window.getTimeAgo = getTimeAgo;
 window.getDisplaySummary = getDisplaySummary;

@@ -158,7 +158,7 @@ function liquidityGroup(macroHistory, { macro, referenceMs }) {
     const typicalWeek = median(weekly);
     const typical = typicalWeek == null ? '' : ` 한 주 변동의 1년 중앙값만 약 ${fmt(typicalWeek * 10, 0)}억 달러입니다.`;
     const toTrillion = (value) => `${fmt(value / 1000, 2)}조 달러`;
-    items.push(card({ id: 'netLiquidity', label: '순유동성 (연준 자산 − TGA − 역레포)', series: net, asOf: net.at(-1).date, frequency: 'weekly', referenceMs, format: toTrillion,
+    items.push(card({ id: 'netLiquidity', label: '순유동성 (연준 자산 − 재무부 계좌 TGA − 역레포)', series: net, asOf: net.at(-1).date, frequency: 'weekly', referenceMs, format: toTrillion,
       valueText: toTrillion(net.at(-1).value),
       // d is in USD billions; 1 billion = 10억.
       changeText: d == null ? null : `4주 ${d >= 0 ? '+' : ''}${fmt(d * 10, 0)}억 달러`,

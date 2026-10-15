@@ -23,7 +23,7 @@ assert.deepEqual(policy.alerts.coreArtifactStaleness.prohibitedTimestampSources,
 ]);
 assert.equal(policy.alerts.coreArtifactStaleness.doesNotChangeExistingFreshnessGateHours, 12);
 assert.equal(policy.alerts.aiDailyUsage.thresholdPercent, 80);
-assert.equal(policy.alerts.aiDailyUsage.capVariable, 'ANTHROPIC_DAILY_CAP');
+assert.equal(policy.alerts.aiDailyUsage.capVariable, 'AI_DAILY_CAP');
 assert.ok(Object.isFrozen(policy) && Object.isFrozen(policy.alerts) && Object.isFrozen(policy.statuses), 'exported policy must not be mutable');
 
 // Site outage: exact below/at/above threshold, plus explicit and unknown states.
@@ -90,27 +90,27 @@ assert.deepEqual(krxAtClose.staleSessionDates, ['2026-10-02', '2026-10-06']);
 assert.equal(core('KRX', '2027-12-31T06:30:00Z', '2028-01-03T06:30:00Z').status, 'UNKNOWN', 'an unregistered KRX calendar year must remain unknown');
 
 // AI quota uses request counts divided by the actual daily request cap.
-const ai = (requestCount) => evaluateAiDailyUsageAlert({ requestCount, usageDayUtc: '2026-09-01', anthropicDailyCap: 100, now: '2026-09-01T12:00:00.000Z' });
+const ai = (requestCount) => evaluateAiDailyUsageAlert({ requestCount, usageDayUtc: '2026-09-01', aiDailyCap: 100, now: '2026-09-01T12:00:00.000Z' });
 assert.equal(ai(79).status, 'CLEAR', '79% is below the usage alert threshold');
 assert.equal(ai(80).status, 'ALERT', '80% is the inclusive usage alert threshold');
 assert.equal(ai(81).status, 'ALERT', '81% is above the usage alert threshold');
-assert.equal(evaluateAiDailyUsageAlert({ usageDayUtc: '2026-09-01', anthropicDailyCap: 100, now: '2026-09-01T12:00:00Z' }).status, 'UNKNOWN', 'missing request count is unknown');
-assert.equal(evaluateAiDailyUsageAlert({ requestCount: 80, anthropicDailyCap: 100, now: '2026-09-01T12:00:00Z' }).status, 'UNKNOWN', 'missing usage day is unknown');
+assert.equal(evaluateAiDailyUsageAlert({ usageDayUtc: '2026-09-01', aiDailyCap: 100, now: '2026-09-01T12:00:00Z' }).status, 'UNKNOWN', 'missing request count is unknown');
+assert.equal(evaluateAiDailyUsageAlert({ requestCount: 80, aiDailyCap: 100, now: '2026-09-01T12:00:00Z' }).status, 'UNKNOWN', 'missing usage day is unknown');
 assert.equal(evaluateAiDailyUsageAlert({ requestCount: 80, usageDayUtc: '2026-09-01', now: '2026-09-01T12:00:00Z' }).status, 'UNKNOWN', 'missing actual daily request cap is unknown');
-assert.equal(evaluateAiDailyUsageAlert({ requestCount: '80', usageDayUtc: '2026-09-01', anthropicDailyCap: '100', now: '2026-09-01T12:00:00Z' }).status, 'ALERT', 'canonical environment integer strings are accepted');
-assert.equal(evaluateAiDailyUsageAlert({ requestCount: 80, usageDayUtc: '2026-08-31', anthropicDailyCap: 100, now: '2026-09-01T00:00:00Z' }).status, 'UNKNOWN', 'wrong UTC usage day is unknown');
-assert.equal(evaluateAiDailyUsageAlert({ requestCount: 80, usageDayUtc: '2026-09-01', anthropicDailyCap: 100, now: '2026-02-30T12:00:00Z' }).status, 'UNKNOWN');
-assert.equal(evaluateAiDailyUsageAlert({ requestCount: 101, usageDayUtc: '2026-09-01', anthropicDailyCap: 100, now: '2026-09-01T12:00:00Z' }).status, 'UNKNOWN', 'usage above the configured cap is impossible evidence');
-assert.equal(evaluateAiDailyUsageAlert({ requestCount: 1.5, usageDayUtc: '2026-09-01', anthropicDailyCap: 100, now: '2026-09-01T12:00:00Z' }).status, 'UNKNOWN');
-assert.equal(evaluateAiDailyUsageAlert({ requestCount: 0, usageDayUtc: '2026-09-01', anthropicDailyCap: 0, now: '2026-09-01T12:00:00Z' }).status, 'UNKNOWN');
-assert.equal(evaluateAiDailyUsageAlert({ requestCount: 1, usageDayUtc: '2026-09-01', anthropicDailyCap: '1.5', now: '2026-09-01T12:00:00Z' }).status, 'UNKNOWN');
-assert.equal(evaluateAiDailyUsageAlert({ requestCount: 80, usageDayUtc: '2026-09-01', anthropicDailyCap: 100 }).status, 'UNKNOWN', 'missing evaluation time cannot create a daily usage alert');
+assert.equal(evaluateAiDailyUsageAlert({ requestCount: '80', usageDayUtc: '2026-09-01', aiDailyCap: '100', now: '2026-09-01T12:00:00Z' }).status, 'ALERT', 'canonical environment integer strings are accepted');
+assert.equal(evaluateAiDailyUsageAlert({ requestCount: 80, usageDayUtc: '2026-08-31', aiDailyCap: 100, now: '2026-09-01T00:00:00Z' }).status, 'UNKNOWN', 'wrong UTC usage day is unknown');
+assert.equal(evaluateAiDailyUsageAlert({ requestCount: 80, usageDayUtc: '2026-09-01', aiDailyCap: 100, now: '2026-02-30T12:00:00Z' }).status, 'UNKNOWN');
+assert.equal(evaluateAiDailyUsageAlert({ requestCount: 101, usageDayUtc: '2026-09-01', aiDailyCap: 100, now: '2026-09-01T12:00:00Z' }).status, 'UNKNOWN', 'usage above the configured cap is impossible evidence');
+assert.equal(evaluateAiDailyUsageAlert({ requestCount: 1.5, usageDayUtc: '2026-09-01', aiDailyCap: 100, now: '2026-09-01T12:00:00Z' }).status, 'UNKNOWN');
+assert.equal(evaluateAiDailyUsageAlert({ requestCount: 0, usageDayUtc: '2026-09-01', aiDailyCap: 0, now: '2026-09-01T12:00:00Z' }).status, 'UNKNOWN');
+assert.equal(evaluateAiDailyUsageAlert({ requestCount: 1, usageDayUtc: '2026-09-01', aiDailyCap: '1.5', now: '2026-09-01T12:00:00Z' }).status, 'UNKNOWN');
+assert.equal(evaluateAiDailyUsageAlert({ requestCount: 80, usageDayUtc: '2026-09-01', aiDailyCap: 100 }).status, 'UNKNOWN', 'missing evaluation time cannot create a daily usage alert');
 
 // Evaluators and the aggregate view do not mutate caller-owned evidence.
 const evidence = {
   siteUnavailable: { siteState: 'UNAVAILABLE', outageStartedAt: start, now: addMs(start, 24 * 60 * 60 * 1000), metadata: { source: 'fixture' } },
   coreArtifactStaleness: { market: 'NYSE', artifactPublishedAt: '2026-11-02T22:00:00Z', now: '2026-11-04T21:00:00Z', metadata: { source: 'fixture' } },
-  aiDailyUsage: { requestCount: 80, usageDayUtc: '2026-09-01', anthropicDailyCap: 100, now: '2026-09-01T12:00:00Z', metadata: { source: 'fixture' } }
+  aiDailyUsage: { requestCount: 80, usageDayUtc: '2026-09-01', aiDailyCap: 100, now: '2026-09-01T12:00:00Z', metadata: { source: 'fixture' } }
 };
 const before = structuredClone(evidence);
 evaluateSiteUnavailableAlert(evidence.siteUnavailable);

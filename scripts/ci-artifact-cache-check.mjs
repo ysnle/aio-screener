@@ -118,6 +118,9 @@ assert.equal(boundSecond, boundFirst, 'v57.77: the bound cache hit returns the c
 await loadJsonArtifact(boundRoot.boundOwnerFetch.bind(boundRoot), './bound.json', { force: true });
 assert.equal(boundCalls, 2, 'v57.77: force still re-reads through a bound fetcher');
 assert.equal(artifactCacheSnapshot(boundRoot.boundOwnerFetch.bind(boundRoot)).hits, 1, 'v57.77: snapshots read the shared bound store');
+clearArtifactCache(boundRoot.boundOwnerFetch.bind(boundRoot), { abortInFlight: false });
+await loadJsonArtifact(boundRoot.boundOwnerFetch.bind(boundRoot), './bound.json');
+assert.equal(boundCalls, 3, 'v57.79: a manual-refresh clear (no abort) makes the next read fetch the published file again');
 clearArtifactCache(boundRoot.boundOwnerFetch.bind(boundRoot));
 assert.equal(artifactCacheSnapshot(boundRoot.boundOwnerFetch.bind(boundRoot)).resolved, 0, 'v57.77: clearing through a new bind clears the shared bound store');
 assert.equal(artifactCacheSnapshot(boundRoot.boundOwnerFetch).resolved, 0, 'v57.77: the unbound fetcher keeps its own identity store');

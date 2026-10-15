@@ -38,7 +38,9 @@ const DIRECTION_TITLE = '최근 3개월 평균을 6개월 전 3개월 평균과 
 // A minimum vertical span keeps a near-flat series flat instead of stretching rounding noise to full height.
 function sparkline(doc, series, { unitLabel = '', minSpan = null, format = null } = {}) {
   const W = 220;
-  const H = 54;
+  // v57.79 (UI review): the date labels moved out of the SVG (see statCard) — inside it they scaled with the card and
+  // printed larger than the value lines at 375px; the 10px label strip under the line went with them.
+  const H = 44;
   const svg = doc.createElementNS(SVG, 'svg');
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.setAttribute('class', 'macro-spark');
@@ -53,7 +55,7 @@ function sparkline(doc, series, { unitLabel = '', minSpan = null, format = null 
   const hi = rawHi + pad;
   const span = hi - lo || 1;
   const x = (index) => 4 + (index / (series.length - 1)) * (W - 8);
-  const y = (value) => 6 + (1 - (value - lo) / span) * (H - 16);
+  const y = (value) => 5 + (1 - (value - lo) / span) * (H - 10);
   const add = (tag, attrs, text) => {
     const node = doc.createElementNS(SVG, tag);
     for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
@@ -66,8 +68,8 @@ function sparkline(doc, series, { unitLabel = '', minSpan = null, format = null 
   add('circle', { cx: x(series.length - 1), cy: y(values[values.length - 1]), r: 2.6, class: 'macro-spark-dot' });
   const first = series[0].date.slice(2, 7).replace('-', '.');
   const last = series[series.length - 1].date.slice(2, 7).replace('-', '.');
-  add('text', { x: 4, y: H - 1, class: 'macro-spark-label' }, first);
-  add('text', { x: W - 4, y: H - 1, 'text-anchor': 'end', class: 'macro-spark-label' }, last);
+  svg.dataset.first = first;
+  svg.dataset.last = last;
   // P1449: the cadence comes from the dates, not an assumption. A daily rates series of 260
   // observations is one year, not "260개월" — the declared frequency of the series decides the
   // unit, and it is preserved (R570) because the aria label is part of the observation record.
@@ -99,7 +101,12 @@ function statCard(doc, { label, valueText, lines = [], meta, note, status, serie
   card.append(head, el(doc, 'div', valueText, 'macro-stat-value'));
   lines.filter(Boolean).forEach((line) => card.append(el(doc, 'div', line, 'macro-stat-line')));
   if (series && series.length >= 6) {
-    card.append(sparkline(doc, series, { minSpan: unit === '%' ? 1 : null, format }));
+    const spark = sparkline(doc, series, { minSpan: unit === '%' ? 1 : null, format });
+    // The first and last month under the line, in page text smaller than the value lines (the SVG's aria-label names them).
+    const dates = el(doc, 'div', null, 'macro-spark-dates');
+    dates.setAttribute('aria-hidden', 'true');
+    dates.append(el(doc, 'span', spark.dataset.first), el(doc, 'span', spark.dataset.last));
+    card.append(spark, dates);
     // P1599 (A05): the period's high and low in words under the line, so the shape has a scale (inside the SVG
     // the labels scaled with wide cards and collided with the date ticks).
     const values = series.map((row) => row.value).filter(Number.isFinite);
@@ -479,8 +486,14 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     section.dataset.group = 'long-history';
     const grid = el(doc, 'div', null, 'macro-stat-grid');
     grid.append(...longRows.map((row) => statCard(doc, { label: row.label, valueText: row.valueText, lines: [row.monthText, row.positionText], series: row.series, unit: row.unit, format: (value) => `${value.toFixed(2)}${row.unit}`, status: row.stale ? 'stale' : 'observed', staleText: '이번 수집 실패 · 직전 값', meta: 'FRED 월평균' })));
+    // v57.79 (UI review): 실업률 · 근원 CPI · 10년물 · 2년물 also sit in the cards above (latest release or close) and on the
+    // 금리 card (live close), so the same name showed three values. The cards above are the primary reading; this block
+    // is folded behind its basis line (last completed month's average) so the values do not read as a contradiction.
+    const fold = el(doc, 'details', null, 'regime-axis-details macro-long-fold');
+    fold.append(el(doc, 'summary', `수십 년 속 위치 보기 (${longRows.length}개 지표)`),
+      el(doc, 'p', `1990년(또는 자료 시작) 이후 매달 평균 가운데 가장 최근 마감된 달이 어디쯤인지 봅니다. 높은 편·낮은 편은 과거 분포 안의 위치일 뿐 앞으로의 방향을 말하지 않고, 오르는 중인지 내리는 중인지는 위 카드의 6개월 추세로 읽습니다.`, 'macro-group-fact'), grid);
     section.append(el(doc, 'h3', '수십 년 속 지금 위치', 'macro-group-title'),
-      el(doc, 'p', `1990년(또는 자료 시작) 이후 매달 평균 가운데 가장 최근 달의 값이 어디쯤인지 봅니다. 날마다 관측하는 금리·VIX는 아직 끝나지 않은 달을 빼고 마감된 달로 비교합니다. 높은 편·낮은 편은 과거 분포 안의 위치일 뿐, 앞으로의 방향을 말하지 않습니다. 같은 수준이라도 오르는 중인지 내리는 중인지는 위 카드의 6개월 추세로 함께 읽습니다.`, 'macro-group-fact'), grid);
+      el(doc, 'p', '기준: 지난달 월평균 — 위 카드(최신 발표값)와 금리 카드(최근 종가)와는 기준 시점이 달라 같은 지표도 숫자가 다를 수 있습니다.', 'macro-group-fact macro-long-basis'), fold);
     host.append(section);
   }
   renderCommodities(doc, root, read.oil);

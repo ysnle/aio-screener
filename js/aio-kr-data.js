@@ -1516,31 +1516,7 @@ async function dynamicTickerLookup(ticker, opts) {
     } catch(e6) {}
   }
 
-  // v49.67 P352 R122: Finnhub /quote 4번째 폴백 (US/ADR 종목 — Yahoo 실패 시; P1756 Stooq 폴백 제거 — Worker 경유 전 심볼 404)
-  var _isUSorADR = !ticker.endsWith('.KS') && !ticker.endsWith('.KQ') && !ticker.includes('=X') && !ticker.includes('=F') && !ticker.startsWith('^') && !ticker.includes('-USD');
-  if (_isUSorADR) {
-    throwIfLookupAborted();
-    try {
-      var _fhKey = (typeof _getApiKey === 'function') ? _getApiKey('aio_finnhub_key') : '';
-      if (_fhKey) {
-        var fhUrl = 'https://finnhub.io/api/v1/quote?symbol=' + encodeURIComponent(ticker) + '&token=' + _fhKey;
-        var fhR = await fetchWithTimeout(fhUrl, { signal: lookupSignal }, 5000);
-        if (fhR && fhR.ok) {
-          var fhData = await fhR.json();
-          if (fhData && fhData.c > 0) {
-            var fhPct = fhData.dp != null ? fhData.dp : (fhData.pc > 0 ? ((fhData.c - fhData.pc) / fhData.pc * 100) : null);
-            if (typeof window._aioSetLiveData === 'function') {
-              window._aioSetLiveData(ticker, { price: fhData.c, pct: fhPct != null ? +Number(fhPct).toFixed(2) : null }, { source: 'fallback:finnhub-quote', policyKey: 'quote_afterhours', reason: 'ticker detail Finnhub 4th fallback' });
-            } else {
-              if (!window._liveData) window._liveData = {};
-              window._liveData[ticker] = { price: fhData.c, pct: fhPct != null ? +Number(fhPct).toFixed(2) : null, pctMissing: fhPct == null };
-            }
-            return { ticker: ticker, price: fhData.c, pct: fhPct != null ? +Number(fhPct).toFixed(2) : null, name: ticker, source: 'finnhub' };
-          }
-        }
-      }
-    } catch(_fhErr) {}
-  }
+  // v57.79: the personal-key Finnhub /quote fallback (P352) was removed; personal provider keys are retired (v57.67).
 
   // v49.67 P352 R122: 모든 폴백 실패 → 구조화된 진단 응답 반환 (이전 null → reason/suggestedAction 명시)
   var _ftType = ticker.endsWith('.KS') || ticker.endsWith('.KQ') ? 'KR 종목 (.KS/.KQ)' :
@@ -1552,14 +1528,14 @@ async function dynamicTickerLookup(ticker, opts) {
   var _suggestion = _ftType === 'KR 종목 (.KS/.KQ)'
     ? 'Naver 금융 (finance.naver.com/item/main.naver?code=' + ticker.replace(/\.(KS|KQ)$/, '') + ') 직접 확인 권장'
     : _ftType === '미국/ADR'
-    ? 'Yahoo Finance (finance.yahoo.com/quote/' + ticker + ') 또는 Finnhub API key 등록 후 재시도 권장'
+    ? 'Yahoo Finance (finance.yahoo.com/quote/' + ticker + ') 직접 확인 권장'
     : '외부 도구로 직접 확인 권장';
   return {
     ticker: ticker,
     available: false,
     fetchFailed: true,
     tickerType: _ftType,
-    reason: 'Yahoo 3 프록시 + Naver + Finnhub 폴백 모두 실패',
+    reason: 'Yahoo 3 프록시 + Naver 폴백 모두 실패',
     suggestedAction: _suggestion,
     source: 'none'
   };

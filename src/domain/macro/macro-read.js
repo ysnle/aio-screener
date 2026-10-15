@@ -288,7 +288,7 @@ function sharedGauges({ macro, rateFx, regime }) {
     rates: { gauge: rates, headline: tnx20 == null ? null : `10년물 20일 ${signed(tnx20, 0, 'bp')}` },
     // P1726: the 5-session WTI move is named when it runs against the 20-session direction.
     commodities: { gauge: commodities, headline: wti20 == null ? null : `WTI 20일 ${signed(wti20, 1, '%')}${rateFx?.wti5 != null && Math.abs(rateFx.wti5) >= 3 && Math.sign(rateFx.wti5) !== Math.sign(wti20) ? `(최근 5일 ${signed(rateFx.wti5, 1, '%')})` : ''} · 달러 ${signed(dxy20, 1, '%')}` },
-    credit: { gauge: credit, headline: hyBp == null ? null : `HY ${hyBp.toFixed(0)}bp${hy5 == null ? '' : ` (5거래일 ${signed(hy5, 0, 'bp')})`}` },
+    credit: { gauge: credit, headline: hyBp == null ? null : `하이일드 ${hyBp.toFixed(0)}bp${hy5 == null ? '' : ` (5거래일 ${signed(hy5, 0, 'bp')})`}` },
     korea: stateOf('korea') === 'burden' && (rateFx?.krw20 == null || rateFx.krw20 < RULES.fx.krwMove20dPct) && rateFx?.jpy20 != null && rateFx.jpy20 <= -RULES.fx.yenRally20dPct
       ? { gauge: gauge({ label: '엔화 20일 강세 폭 (엔/달러 하락률)', value: -rateFx.jpy20, unit: '%', digits: 1, ...cuts(-5, 8, [RULES.fx.yenRally20dPct], ['neutral', 'burden'], [[RULES.fx.yenRally20dPct, `+${RULES.fx.yenRally20dPct}% 엔 급강세`]]) }), headline: `엔화 20일 ${signed(-rateFx.jpy20, 1, '%')} 강세` }
       : { gauge: gauge({ label: '원/달러 20일 변화', value: rateFx?.krw20 ?? null, unit: '%', digits: 1, ...cuts(-5, 5, [-RULES.fx.krwMove20dPct, RULES.fx.krwMove20dPct], ['favorable', 'neutral', 'burden'], [[-RULES.fx.krwMove20dPct, `−${RULES.fx.krwMove20dPct}%`], [RULES.fx.krwMove20dPct, `+${RULES.fx.krwMove20dPct}%`]]) }), headline: rateFx?.krw20 == null ? null : `원/달러 20일 ${signed(rateFx.krw20, 1, '%')}` }

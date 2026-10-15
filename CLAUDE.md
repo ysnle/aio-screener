@@ -3,8 +3,8 @@
 AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + native ESM 투자 리서치 터미널이다. 변동하는 버전·라우트·파일 크기·지식 상태의 정본은 `_context/CURRENT-STATE.md`이며, 이 문서에는 복제하지 않는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v57.78**
-- **버전 이력 → CHANGELOG.md** (v52.62+ 상세, v52.61 이하는 압축 이력 + git 히스토리). 버그 계보 → `_context/BUG-POSTMORTEM.md`(반복 클래스 표 + 압축 원장), 검증 이력 → `_context/QA-CHECKLIST.md` §6.
+- 현재 버전: **v57.79**
+- **버전 이력 → CHANGELOG.md** (v52.62+ 상세, v52.61 이하는 압축 이력 + git 히스토리). 버그 계보 → `_context/BUG-POSTMORTEM.md`(반복 클래스 표 + 압축 원장), 검증 이력 → `_context/QA-CHECKLIST.md`(현행 항목은 상단, §6은 압축 보관).
 - 이 파일에는 버전별 작업 요약을 **누적하지 않는다** (2026-07-18 통합 — CHANGELOG가 단일 출처).
 - 코드 구조: `index.html` 정적 셸 + `js/` 호환 모듈 + `src/` native ESM. 현재 집계는 `_context/CURRENT-STATE.md`, 구간 탐색은 `_context/CODE-MAP.md`를 사용한다.
 - 스택: HTML5 + 인라인 CSS/JS · Chart.js(CDN) · AES-256 · GitHub Pages · 한국어 UI · 아이보리 테마(다크 지원) · WCAG AA
@@ -29,7 +29,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 
 ---
 
-## 절대 규칙 (R1~R3만 — 나머지는 `_context/RULES.md`)
+## 절대 규칙 (R1~R3·R27 — 나머지는 `_context/RULES.md` 상단 핵심 규칙 색인부터)
 
 **R1. 버전 동기화**: title · badge · APP_VERSION · version.json · sw.js SW_VERSION · 런타임·배포 revision 메타데이터(public-config·architecture·wrangler·operations-status) · CHANGELOG.md · JS cachebusters (날짜가 박힌 핸드오프 문서는 동결) — **반드시 `node scripts/bump-version.mjs <버전>`으로 일괄 패치** (v51.64~)
 **R2. 버전 체계**: `v{major}.{patch}` 숫자 단조 증가 (예: v48.76 → v48.77). 최신 실제 체계는 두 자리 patch 허용.
@@ -58,22 +58,22 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 
 | 작업 | 환류 대상 |
 |------|----------|
-| 버그 수정 | BUG-POSTMORTEM → 3회 반복 시 RULES 승격 |
-| /integrate | CHAT_CONTEXTS + SCREENER_DB + TECH_KW/MACRO_KW |
+| 버그 수정 | BUG-POSTMORTEM → 반복 결함 클래스는 RULES/QA + 실행 게이트로 승격 (AGENTS) |
+| /integrate | KNOWLEDGE-BASE + `src/ai/context/panel-contexts.js` + 스크리너 레지스트리 |
 | /qa | QA-CHECKLIST 항목 추가 |
 | 인사이트 | KNOWLEDGE-BASE (R26) |
 | 리팩토링 ±500줄 | CODE-MAP 재스캔 |
 
-에러 복리 방지: `/knowledge-lint`와 `ci-workspace-contract-check.mjs`를 push/PR·주기 실행에 연결한다. 코드 확인 없이 추측 판단 금지.
+에러 복리 방지: `/knowledge-lint`와 `ci-workspace-contract-check.mjs`를 push·주기 실행에 연결한다. 코드 확인 없이 추측 판단 금지.
 
 ---
 
 ## 토큰 효율성
 
 - 인사/칭찬/마무리 멘트 금지 · 질문 되풀이 금지 — 바로 작업
-- 요청 범위 외 제안/과잉 설계 금지
+- 요청 없는 구현·과잉 설계 금지 — 단, 반대 의견과 더 단순한 대안은 먼저 말한다 (AGENTS 협업 원칙)
 - index.html은 CODE-MAP 기반 부분 읽기 · 파일은 한 번만 읽기
 - 모르면 솔직히 말하기 (경로/함수명 날조 금지)
 - 대형 RULES/QA/BUG/KNOWLEDGE 원장은 관련 용어만 검색한다. 기본 컨텍스트는 CURRENT-STATE로 제한하고 GOVERNANCE/INDEX와 스킬은 필요한 부분만 읽는다. 승인·완료·병렬 위임 원칙은 AGENTS.md를 따른다.
 - 자동 커밋 훅을 추가하지 않는다. 훅은 파괴 명령 차단과 advisory 검증만 수행한다.
-- 위임·검토 루틴: 서브에이전트 프롬프트는 `.claude/skills/_shared/agent-prompt-anatomy.md`(목표→반환 형식→경고→컨텍스트). 주간 회고 `/retro`, 큰 작업 전 `/restate`, 가정 점검은 `/assumptions`(검증/추정 표시, 적용 전 정지), 큰 PR 뒤에는 새 컨텍스트 `/trim-pr`로 덜어낼 것부터 찾는다.
+- 위임·검토 루틴: 서브에이전트 프롬프트는 `.claude/skills/_shared/agent-prompt-anatomy.md`(목표→반환 형식→경고→컨텍스트). 주간 회고 `/retro`, 큰 작업 전 `/restate`, 가정 점검은 `/assumptions`(검증/추정 표시, 적용 전 정지), 큰 배치 뒤에는 새 컨텍스트 `/trim-pr`로 덜어낼 것부터 찾는다.

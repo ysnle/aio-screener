@@ -25,7 +25,6 @@ const { createResourceBag, createDeferredTaskQueue, coalesceMicrotask, createCha
 const { createEvidenceStore } = await load('src/data/evidence-store.js');
 const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compatibility-facade.js');
 const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/capability-loader.js');
-const { renderSentimentSummaryProjection } = await load('src/ui/projections/sentiment-summary.js');
 const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/pages/entity.js');
 
 // P1355: generated version alignment never restamps market data or live Worker observations.
@@ -145,24 +144,11 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (selectTickerChartWindow([], '6m').rowCount !== 0) fail('ticker chart unavailable range fabricated rows');
 }
 
-// RM-07: cross-route sentiment summary projection must not mutate unchanged
-// text sinks on an unrelated/empty sentiment update.
+// RM-07 -> v57.79: the cross-route sentiment summary projection painted four ids no page creates (R705 dead-id
+// scan), so it was removed with its module; bootstrap's sentiment sync must not bring a projection writer back.
 {
-  const nodes = new Map(['fg-score-big', 'fg-score-val', 'fg-rating-text', 'vix-term-regime-text'].map((id) => {
-    const node = { writes: 0, _text: '' };
-    Object.defineProperty(node, 'textContent', {
-      get() { return node._text; },
-      set(value) { node.writes += 1; node._text = value; }
-    });
-    return [id, node];
-  }));
-  const documentRef = { getElementById: (id) => nodes.get(id) || null };
-  const summary = { fearGreed: { score: 42, label: '공포' }, vixTermStructure: { regime: '정상' } };
-  renderSentimentSummaryProjection(documentRef, summary);
-  const firstWrites = [...nodes.values()].reduce((sum, node) => sum + node.writes, 0);
-  renderSentimentSummaryProjection(documentRef, summary);
-  const secondWrites = [...nodes.values()].reduce((sum, node) => sum + node.writes, 0);
-  if (firstWrites !== 4 || secondWrites !== firstWrites) fail(`sentiment projection: unchanged summary still mutated text sinks (${firstWrites} -> ${secondWrites})`);
+  const bootstrapSource = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  if (/renderSentimentSummaryProjection|ui\/projections\/sentiment-summary/.test(bootstrapSource)) fail('v57.79 retired sentiment summary projection returned to bootstrap'); // text-pin-ok: retirement absence
 }
 
 // RM-06: legacy refresh/history producers have used both window and document
@@ -3818,6 +3804,10 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (power.themes.includes('energy') || !power.groups?.includes('industrials:전력장비/그리드')) fail('M10 the power layer must link utilities and the power-equipment sub-theme, not the energy theme');
   const capexSource = readFileSync(path.join(root, 'src/ui/components/theme-strength.js'), 'utf8');
   if (!AI_CAPEX_FLOW.asOf || !AI_BOTTLENECK_LEAD_TIMES.asOf || /el\(doc, 'p', `[^`]*\$\{AI_(CAPEX_FLOW|BOTTLENECK_LEAD_TIMES)\.source\}/.test(capexSource)) fail('M20 the capex body must show the date and keep the provider in the hover title');
+  // v57.79: the split is a dated, published reference (source kept in AI_CAPEX_FLOW.source), never labelled as an AIO estimate.
+  if (!/\d{4}/.test(AI_CAPEX_FLOW.source) || /추정 배분/.test(capexSource)) fail('v57.79 the AI capex split must be a cited, dated reference'); // text-pin-ok: retirement absence
+  // v57.79: lineage metadata stays in data-aio-lineage; value-basis.js turns any `title` into a visible reader card.
+  if (/el\.title\s*=\s*sym\s*\+/.test(readFileSync(path.join(root, 'js/aio-core.js'), 'utf8'))) fail('v57.79 annotateLiveDataSinks must not write lineage into title'); // text-pin-ok: retirement absence
 }
 
 // P1620/P1621: same-session breadth facts, zero events and question-selected prompt parity.
@@ -4403,6 +4393,53 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const earn = buildBriefingSchedule({ nowMs: Date.parse('2026-10-09T00:00:00Z'), names: { NVDA: 'NVIDIA' }, earningsMeta: { source: 'Finnhub calendar/earnings' },
     earnings: [{ symbol: 'NVDA', date: '2026-10-09', hour: 'amc', epsEstimate: 1 }] });
   if (/Finnhub|미제공/.test(earn[0]?.last || '') || !/Finnhub/.test(earn[0]?.sourceTitle || '')) fail(`T15 earnings line must keep provider names in the hover: ${JSON.stringify(earn[0])}`);
+}
+
+// v57.79 (UI review): page titles follow one rule. The breadcrumb is <sidebar hub label>/<tab label> (a hub with one
+// visible tab shows its label alone); the page <h1> is the tab label on a multi-tab hub and the hub label on a single-tab hub.
+{
+  const { ROUTE_HUBS } = await load('src/ui/navigation/route-hubs.js');
+  const { RESEARCH_PAGES } = await load('src/ui/knowledge/research-shell.js');
+  const core = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
+  const html = readFileSync(path.join(root, 'index.html'), 'utf8');
+  const body = /var breadcrumbMap = \{([\s\S]*?)\n\};/.exec(core)?.[1];
+  if (!body) fail('v57.79 breadcrumbMap literal not found in js/aio-core.js');
+  const breadcrumbs = Function(`return {${body}};`)();
+  const staticH1 = (id) => {
+    const at = html.indexOf(`id="page-${id}"`);
+    if (at < 0) return null;
+    const end = html.indexOf('<div class="page"', at + 1);
+    return /<h1 class="page-title"[^>]*>([^<]+)<\/h1>/.exec(html.slice(at, end < 0 ? undefined : end))?.[1]?.trim() ?? null;
+  };
+  for (const hub of ROUTE_HUBS) {
+    const tabs = hub.routes.filter((route) => route.tab !== false);
+    for (const route of tabs) {
+      const expected = tabs.length > 1 ? [hub.label, route.label] : [hub.label];
+      if (JSON.stringify(breadcrumbs[route.id]) !== JSON.stringify(expected)) fail(`v57.79 breadcrumb for ${route.id} must be ${expected.join('/')}, got ${JSON.stringify(breadcrumbs[route.id])}`);
+      const title = tabs.length > 1 ? route.label : hub.label;
+      const research = RESEARCH_PAGES.find((page) => page.route === route.id);
+      const h1 = research ? research.title : staticH1(route.id);
+      if (route.id !== 'ticker' && h1 !== title) fail(`v57.79 ${route.id} page title must be "${title}", got "${h1}"`); // 요약: the h1 names the selected company
+    }
+  }
+}
+
+// v57.79 (UI review): the home 코스피 chip names its basis and never shows an unlabeled number that conflicts with the
+// last KRX close; the close tiles carry a "지금" line only when a quote is newer than the compared US close.
+{
+  const { koreaQuoteChip, liveSinceClose } = await load('src/ui/components/daily-loop.js');
+  const closes = [{ date: '2026-10-13', value: 6035 }, { date: '2026-10-14', value: 6008.81 }];
+  const session = { price: 5498.42, pct: -8.494, observedAt: '2026-10-15T05:35:00.000Z', regularMarketPreviousClose: 6008.81, marketState: 'DELAYED_IN_SESSION' };
+  const live = koreaQuoteChip({ live: session, closes });
+  if (live?.basis !== 'live' || live.date !== '2026-10-15' || live.time !== '14:35' || !live.delayed) fail(`v57.79 a newer KRX quote whose previous close matches the close series is shown with its KST time: ${JSON.stringify(live)}`);
+  const older = koreaQuoteChip({ live: { ...session, observedAt: '2026-10-13T05:35:00.000Z' }, closes });
+  if (older?.basis !== 'close' || older.reason !== 'live-older' || older.date !== '2026-10-14') fail(`v57.79 a quote older than the last close falls back to that close with its date: ${JSON.stringify(older)}`);
+  const disagree = koreaQuoteChip({ live: { ...session, regularMarketPreviousClose: 5500 }, closes });
+  if (disagree?.basis !== 'close' || disagree.reason !== 'live-disagrees') fail(`v57.79 a quote whose previous close is >5% off the close series shows the close: ${JSON.stringify(disagree)}`);
+  if (koreaQuoteChip({ live: null, closes: [] }) !== null) fail('v57.79 with neither a quote nor a close the 코스피 chip hides');
+  if (liveSinceClose('wti', { price: 94.38, pct: -0.75, observedAt: '2026-10-15T05:35:00Z' }, '2026-10-14')?.text !== '지금 94.38 -0.75%') fail('v57.79 a WTI quote after the 10/14 US close adds a 지금 line');
+  if (liveSinceClose('vix', { price: 16.87, pct: 10.48, observedAt: '2026-10-14T20:15:00Z' }, '2026-10-14') !== null) fail('v57.79 a quote taken at the compared close adds no 지금 line');
+  if (liveSinceClose('tnx', { price: 5.19, pct: -0.5, observedAt: '2026-10-15T14:00:00Z' }, '2026-10-14')?.text !== '지금 5.19% -3bp') fail('v57.79 the 10-year 지금 line moves in basis points');
 }
 
 await import('./fixtures/architecture-lifecycle-regressions.mjs');

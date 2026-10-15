@@ -179,3 +179,7 @@ body.dark-theme .scr-star.active { color: var(--text-secondary) !important; }
 body.aio-term-pop-open #scroll-top-btn { display: none !important; }
 .aio-term-more { font: inherit; font-size: 12px; min-height: 28px; padding: 2px 10px; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--text-primary); cursor: pointer; }
 
+/* v57.79 review: an empty portfolio (no holdings, no cash) collapses the hero strip to one empty-state line. */
+#pf-hero.is-empty > :not(#pf-hero-empty) { display: none !important; }
+#pf-hero.is-empty { padding-bottom: 16px; margin-bottom: 16px; }
+.pf-hero-empty { margin: 0; font-size: 14px; color: var(--text-secondary); line-height: 1.6; }

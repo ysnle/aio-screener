@@ -636,6 +636,7 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
   visibleColumns.forEach((column) => {
     const td = documentRef.createElement('td');
     td.dataset.columnKey = column.key;
+    td.dataset.label = column.label; // v57.79: the phone card row (<600px) names each value without the header row
     td.className = `scr-column-cell scr-column-${column.key}${column.sticky ? ' scr-column-sticky' : ''}`;
     td.style.cssText = `text-align:${column.align};min-width:${column.width}px;padding:7px 8px;`;
     if (column.sticky) td.style.left = `${stickyLeft}px`;
@@ -1023,7 +1024,8 @@ function renderConditionalEvidence(documentRef, metadata) {
   const boundary = documentRef.createElement('div');
   boundary.style.cssText = 'margin-top:7px;padding-top:7px;border-top:1px solid var(--border);font-size:10px;line-height:1.5;color:var(--text-muted);';
   boundary.textContent = `참고용 통계 · ${evidence.blockedReasons?.length ? `보류 사유 ${evidence.blockedReasons.length}건` : evidence.lineage?.status === 'CURRENT_CANDIDATE' ? '자료 출처·이용 권리·거래 세션 확인됨' : '자료 출처 확인 전'}`;
-  boundary.title = `${evidence.lineage?.status || 'LINEAGE_UNCONFIRMED'} · 권리 ${evidence.lineage?.rightsIds?.join(' · ') || '미확인'} · 캘린더 ${evidence.lineage?.calendarIds?.join(' · ') || '미확인'} · ${evidence.allowedUse || 'reference-only'}${evidence.blockedReasons?.length ? ` · ${evidence.blockedReasons.join(' · ')}` : ''}`;
+  // v57.79: lineage tokens are machine metadata, not reader text ([title] becomes a visible basis card).
+  boundary.dataset.aioLineage = `${evidence.lineage?.status || 'LINEAGE_UNCONFIRMED'} · 권리 ${evidence.lineage?.rightsIds?.join(' · ') || '미확인'} · 캘린더 ${evidence.lineage?.calendarIds?.join(' · ') || '미확인'} · ${evidence.allowedUse || 'reference-only'}${evidence.blockedReasons?.length ? ` · ${evidence.blockedReasons.join(' · ')}` : ''}`;
   panel.appendChild(boundary);
   const disclaimer = documentRef.createElement('div');
   disclaimer.style.cssText = 'margin-top:6px;font-size:10px;color:var(--data-amber);';
@@ -1351,8 +1353,6 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   }
   const count = documentRef.getElementById('screener-result-count');
   if (count) count.textContent = String(filtered.length);
-  const filteredCount = documentRef.getElementById('scr-filtered-count');
-  if (filteredCount) filteredCount.textContent = String(filtered.length);
   const summary = documentRef.getElementById('scr-visible-summary');
   if (summary) summary.textContent = `${MARKET_LABELS[listingMarket]} · 조건/필터 ${filtered.length}개 중 ${Math.min(visibleLimit.value, filtered.length)}개 표시`;
   renderStaleNote(documentRef, body);

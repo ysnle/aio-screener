@@ -44,11 +44,12 @@ export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime
     volatility: [chart('vix', 'VIX', '지수 pt', daily('vix'), { format: value => value.toFixed(1), refs: [RULES.volatility.calmBelow, RULES.volatility.stressAt] }),
       chart('vix-term', 'VIX / 3개월 VIX', '배', ratio, { format: value => value.toFixed(2), refs: [RULES.volatility.calmRatioBelow, RULES.volatility.invertedRatioAt], note: '같은 관측일의 두 지수만 나눕니다. 1 이상은 단기 변동성이 중기보다 높은 기간 구조입니다.' })],
     rates: [chart('tnx', '미 10년물 명목금리', '%', daily('tnx'), { format: percent }),
-      chart('tips', '10년 TIPS 실질금리', '%', macro('realYield10'), { format: percent, note: '명목금리와 실질금리는 서로 다른 관측일일 수 있습니다. 같은 날짜의 자료가 없으면 분해해 단정하지 않습니다.' }),
+      chart('tips', '10년 실질금리(TIPS)', '%', macro('realYield10'), { format: percent, note: '명목금리와 실질금리는 서로 다른 관측일일 수 있습니다. 같은 날짜의 자료가 없으면 분해해 단정하지 않습니다.' }),
       chart('breakeven', '10년 기대인플레이션', '%', macro('breakeven10'), { format: percent, note: '물가 예상만이 아니라 유동성·위험 프리미엄도 포함하는 인플레이션 보상 지표입니다.' })],
-    credit: [chart('hy', '하이일드 OAS', 'bp', macro('hyOas', 100), { refs: [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], note: '하이일드 채권 금리차(OAS)는 수준과 5거래일 확대·축소를 구분해서 읽습니다.' }),
+    credit: [chart('hy', '하이일드 회사채 가산금리(OAS)', 'bp', macro('hyOas', 100), { refs: [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], note: '하이일드 채권 금리차(OAS)는 수준과 5거래일 확대·축소를 구분해서 읽습니다.' }),
+      // v57.79 (UI review): chart names carry a plain-Korean name with the market abbreviation in brackets (OAS · CCC · TIPS).
       // P1638: the weakest tier against B — the average can stay calm while CCC borrowers lose access first.
-      chart('ccc-b', 'CCC − B 등급 스프레드 격차', 'bp', tierGap(macro('cccOas', 100), macro('bOas', 100)), { note: '가장 약한 등급(CCC 이하)과 B 등급의 OAS 차이. 격차는 상대 차이입니다. 벌어지면 시장이 가장 약한 기업을 더 따로 가려내고 있다는 뜻이며, CCC 금리 수준 자체가 올랐는지는 하이일드 OAS와 함께 확인합니다.' })],
+      chart('ccc-b', '최하위(CCC)·B 등급 가산금리 격차', 'bp', tierGap(macro('cccOas', 100), macro('bOas', 100)), { note: '가장 약한 등급(CCC 이하)과 B 등급의 OAS 차이. 격차는 상대 차이입니다. 벌어지면 시장이 가장 약한 기업을 더 따로 가려내고 있다는 뜻이며, CCC 금리 수준 자체가 올랐는지는 하이일드 가산금리와 함께 확인합니다.' })],
     commodities: [chart('wti', 'WTI 선물', 'USD / 배럴', daily('wti'), { format: value => `$${value.toFixed(1)}` }),
       chart('dxy', '달러 인덱스', '지수 pt', daily('dxy'), { format: value => value.toFixed(1) })],
     korea: [chart('usdkrw', '원 / 달러', 'KRW / USD', daily('usdkrw'), { format: count })]

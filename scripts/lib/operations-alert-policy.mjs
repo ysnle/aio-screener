@@ -241,27 +241,27 @@ export function evaluateCoreArtifactStalenessAlert({ market, artifactPublishedAt
 
 /**
  * Compare current UTC-day request usage to the actual configured
- * ANTHROPIC_DAILY_CAP. Numeric strings are accepted for environment values
+ * AI_DAILY_CAP. Numeric strings are accepted for environment values
  * only when they are canonical non-negative decimal integers.
  */
-export function evaluateAiDailyUsageAlert({ requestCount, usageDayUtc, anthropicDailyCap, now } = {}) {
+export function evaluateAiDailyUsageAlert({ requestCount, usageDayUtc, aiDailyCap, now } = {}) {
   const alertId = AI_POLICY.id;
   const nowMs = parseTimestamp(now);
-  if (nowMs == null) return alertResult(alertId, 'UNKNOWN', 'now-missing-or-invalid', { requestCount: null, anthropicDailyCap: null, usageDayUtc: null, thresholdPercent: AI_POLICY.thresholdPercent });
+  if (nowMs == null) return alertResult(alertId, 'UNKNOWN', 'now-missing-or-invalid', { requestCount: null, aiDailyCap: null, usageDayUtc: null, thresholdPercent: AI_POLICY.thresholdPercent });
   const count = parseInteger(requestCount);
-  if (count == null) return alertResult(alertId, 'UNKNOWN', requestCount == null ? 'request-count-missing' : 'request-count-invalid', { requestCount: null, anthropicDailyCap: null, usageDayUtc: null, thresholdPercent: AI_POLICY.thresholdPercent });
-  const cap = parseInteger(anthropicDailyCap, { allowZero: false });
-  if (cap == null) return alertResult(alertId, 'UNKNOWN', anthropicDailyCap == null ? 'daily-cap-missing' : 'daily-cap-invalid', { requestCount: count, anthropicDailyCap: null, usageDayUtc: null, thresholdPercent: AI_POLICY.thresholdPercent });
+  if (count == null) return alertResult(alertId, 'UNKNOWN', requestCount == null ? 'request-count-missing' : 'request-count-invalid', { requestCount: null, aiDailyCap: null, usageDayUtc: null, thresholdPercent: AI_POLICY.thresholdPercent });
+  const cap = parseInteger(aiDailyCap, { allowZero: false });
+  if (cap == null) return alertResult(alertId, 'UNKNOWN', aiDailyCap == null ? 'daily-cap-missing' : 'daily-cap-invalid', { requestCount: count, aiDailyCap: null, usageDayUtc: null, thresholdPercent: AI_POLICY.thresholdPercent });
   const day = parseUtcDay(usageDayUtc);
-  if (day == null) return alertResult(alertId, 'UNKNOWN', usageDayUtc == null ? 'usage-day-missing' : 'usage-day-invalid', { requestCount: count, anthropicDailyCap: cap, usageDayUtc: null, thresholdPercent: AI_POLICY.thresholdPercent });
-  if (day !== utcDay(nowMs)) return alertResult(alertId, 'UNKNOWN', 'usage-day-does-not-match-current-utc-day', { requestCount: count, anthropicDailyCap: cap, usageDayUtc: day, thresholdPercent: AI_POLICY.thresholdPercent });
-  if (count > cap) return alertResult(alertId, 'UNKNOWN', 'request-count-exceeds-daily-cap', { requestCount: count, anthropicDailyCap: cap, usageDayUtc: day, thresholdPercent: AI_POLICY.thresholdPercent });
+  if (day == null) return alertResult(alertId, 'UNKNOWN', usageDayUtc == null ? 'usage-day-missing' : 'usage-day-invalid', { requestCount: count, aiDailyCap: cap, usageDayUtc: null, thresholdPercent: AI_POLICY.thresholdPercent });
+  if (day !== utcDay(nowMs)) return alertResult(alertId, 'UNKNOWN', 'usage-day-does-not-match-current-utc-day', { requestCount: count, aiDailyCap: cap, usageDayUtc: day, thresholdPercent: AI_POLICY.thresholdPercent });
+  if (count > cap) return alertResult(alertId, 'UNKNOWN', 'request-count-exceeds-daily-cap', { requestCount: count, aiDailyCap: cap, usageDayUtc: day, thresholdPercent: AI_POLICY.thresholdPercent });
 
   const isAtOrAboveThreshold = BigInt(count) * 100n >= BigInt(cap) * BigInt(AI_POLICY.thresholdPercent);
   const status = isAtOrAboveThreshold ? 'ALERT' : 'CLEAR';
   return alertResult(alertId, status, status === 'ALERT' ? 'daily-request-usage-at-least-80-percent' : 'daily-request-usage-under-80-percent', {
     requestCount: count,
-    anthropicDailyCap: cap,
+    aiDailyCap: cap,
     usageDayUtc: day,
     usagePercent: (count / cap) * 100,
     thresholdPercent: AI_POLICY.thresholdPercent

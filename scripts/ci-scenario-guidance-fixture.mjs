@@ -197,8 +197,10 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.equal(easing({ corePace: 2.5, coreYoy: 3, coreCpiPace: 3.6, coreCpiYoy: 2.6 }), false, 'v57.69 a hot core CPI pace is not disinflation');
   assert.equal(easing({ corePace: 2.5, coreYoy: 3, coreCpiPace: null, coreCpiYoy: null }), true, 'v57.69 PCE alone still counts when CPI is unavailable');
   // Audit 4: a past sample pointing opposite to the favoured choice carries one bridging sentence (no invented %).
-  const bridged = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 4, up: 4, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20 } } } }).items.find((item) => item.id === 'reheat');
-  assert.match(bridged.pastBridge, /^과거 표본에서는 이후 주가가 대체로 올랐습니다 — 이 시나리오의 결론\(관망·방어 전환\)은 '금리가 더 오르는 시나리오'가 실제로 이어질 때의 비용 기준이며, 표본이 작습니다\.$/, 'audit 4: the bridge sentence');
+  const bridged = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 12, up: 10, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20 } } } }).items.find((item) => item.id === 'reheat');
+  const thin = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 4, up: 4, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20 } } } }).items.find((item) => item.id === 'reheat');
+  assert.ok(!thin.pastBridge && !/비슷한 때 \d+%/.test(thin.past?.text || ''), 'v57.79 fewer than 10 cases make no "mostly" claim and no hit-rate percentage');
+  assert.match(bridged.pastBridge, /^과거 표본에서는 이후 주가가 대체로 올랐습니다 — 이 시나리오의 결론\(관망·방어 전환\)은 '금리가 더 오르는 시나리오'가 실제로 이어질 때의 비용 기준이며, 표본이 작습니다\.$/, 'audit 4 (v57.79: n 10-29 still says the sample is small): the bridge sentence');
   assert.doesNotMatch(bridged.pastBridge, /\d+(\.\d+)?%/, 'audit 4: the bridge invents no percentage');
   // Audit 5: a split exposure (달러) is named instead of "no beneficiary".
   const dollar = model.items.find((item) => item.id === 'dollarsurge');

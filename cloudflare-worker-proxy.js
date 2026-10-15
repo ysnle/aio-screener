@@ -21,7 +21,7 @@ export { aiMonthlyBudgetMicroUsd, prepareOpenAiBudget } from './worker/openai-bu
  * a dedicated OpenAI project/key exclusively through the shared Worker.
  * Browser Origin/app token is an abuse speed bump, not user authentication.
  * Missing Origin requires the private automation token and never bypasses quota.
- * Data proxy and /relay are independent; FRED_API_KEY, BOK_API_KEY, KOSIS_API_KEY
+ * Data proxy and /relay are independent; BOK_API_KEY and KOSIS_API_KEY
  * remain server-only. Their upstream URLs/parameters are explicitly allowlisted.
  * No commit, deploy or secret provisioning is performed by this source file.
  */
@@ -103,30 +103,12 @@ const ALLOWED_DOMAINS = [
 ];
 
 // ── v56 /relay: 서버측 키 릴레이 ───────────────────────────────────────────
-// P1422: FRED uses the user's explicitly consented personal header; BOK/KOSIS
-// use operator secrets. Destinations are fixed and credentials never enter cache/logs.
+// BOK/KOSIS use operator secrets. v57.79: the personal-key FRED relay (P1422) had no
+// client after v57.76 and was removed. Destinations are fixed and credentials never enter logs.
 // 업스트림 host/path는 아래 맵에 하드코딩되어 있어 클라이언트가 목적지를 지정할 수
 // 없으므로 이 라우트는 SSRF 릴레이로 전용될 수 없다. 파라미터는 제공자별 정규식
 // 화이트리스트로만 통과한다.
 const RELAY_PROVIDERS = Object.freeze({
-  fred: {
-    keyHeader: 'X-AIO-Provider-Key',
-    cacheTtl: 3600,
-    params: {
-      series_id: { required: true, re: /^[A-Za-z0-9._-]{1,32}$/ },
-      sort_order: { re: /^(asc|desc)$/ },
-      limit: { re: /^\d{1,4}$/ },
-    },
-    build(key, p) {
-      const u = new URL('https://api.stlouisfed.org/fred/series/observations');
-      u.searchParams.set('series_id', p.series_id);
-      u.searchParams.set('api_key', key);
-      u.searchParams.set('file_type', 'json');
-      u.searchParams.set('sort_order', p.sort_order || 'desc');
-      u.searchParams.set('limit', p.limit || '120');
-      return u.toString();
-    },
-  },
   bok: {
     keyEnv: 'BOK_API_KEY',
     cacheTtl: 3600,
@@ -357,7 +339,7 @@ function getCorsHeaders(requestOrigin, env) {
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS, POST',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-AIO-App-Token, X-AIO-Idempotency-Key, X-AIO-Request-Id, X-AIO-Provider-Key',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-AIO-App-Token, X-AIO-Idempotency-Key, X-AIO-Request-Id',
     'Access-Control-Max-Age': '86400',
     // The allowed origin is echoed per request; a shared cache must not serve one origin's ACAO to another.
     'Vary': 'Origin',
@@ -491,8 +473,7 @@ async function healthResponse(origin, env, method = 'GET', appToken = '', client
     relay: {
       providers: Object.keys(RELAY_PROVIDERS),
       configured: Object.fromEntries(Object.entries(RELAY_PROVIDERS).map(([id, provider]) => [id, !!(env && env[provider.keyEnv])])),
-      personalKeyRequired: ['fred'],
-      credentialModes: { fred: 'personal-opt-in', bok: 'operator-secret', kosis: 'operator-secret' },
+      credentialModes: { bok: 'operator-secret', kosis: 'operator-secret' },
       quotaConfigured,
       dailyCap: parseInt((env && env.RELAY_DAILY_CAP) || '2000', 10),
       // Presence only. When false the token check is skipped entirely (fail-open), so an
@@ -605,7 +586,6 @@ async function handleOperatorAiUsage(request, env) {
       schemaVersion: 'aio-operator-ai-usage.v1',
       usageDayUtc,
       requestCount: usage.requestCount,
-      anthropicDailyCap: cap,
       aiDailyCap: cap,
       provider: 'openai',
       model: OPENAI_MODEL,
@@ -1311,7 +1291,7 @@ async function handleOpenAi(request, env, origin) {
 
 /**
  * Canonical /relay handler — server-side key relay for browser-blocked sources.
- * The operator owns the upstream key (validated against FRED/BOK/KOSIS terms);
+ * The operator owns the upstream key (validated against BOK/KOSIS terms);
  * the browser never sends or receives one. Guard order mirrors /openai:
  * Origin → app token → per-IP rate limit → provider+param validation → atomic
  * daily cap (fail-closed when unbound) → upstream fetch with size/HTML guards.
@@ -1330,9 +1310,7 @@ async function handleRelay(request, env, origin) {
   const provider = RELAY_PROVIDERS[providerId];
   if (!provider) return errorResponse('Unknown relay provider', 400, origin, null, env);
 
-  // P1422: a browser FRED query uses its user's own key, never the operator's key.
-  const key = providerId === 'fred' ? request.headers.get('X-AIO-Provider-Key') : env && env[provider.keyEnv];
-  if (providerId === 'fred' && (!key || !/^[A-Za-z0-9_-]{16,128}$/.test(key))) return errorResponse('Personal FRED key required', 400, origin, null, env);
+  const key = env && env[provider.keyEnv];
   if (!key) return errorResponse('Relay key is not configured for ' + providerId, 503, origin, null, env);
 
   const params = {};
@@ -1364,15 +1342,14 @@ async function handleRelay(request, env, origin) {
     let response;
     let rawBody;
     try {
-      // A relay hop may only stay on the provider's own host over https; a personal FRED key
-      // never follows a redirect (P1422).
+      // A relay hop may only stay on the provider's own host over https.
       response = await fetchUpstream(providerUrl, {
         method: 'GET',
         headers: { 'Accept': 'application/json,text/plain,*/*', 'User-Agent': 'AIO-Screener-relay/1.0' },
         signal: controller.signal,
         // Upstream errors are never cached at the edge (a 5xx or quota error must not pin for the full TTL).
-        cf: providerId === 'fred' ? { cacheTtl: 0 } : { cacheTtlByStatus: edgeCacheTtlByStatus(provider.cacheTtl || 600) },
-      }, (next) => providerId !== 'fred' && next.protocol === 'https:' && next.hostname === providerUrl.hostname);
+        cf: { cacheTtlByStatus: edgeCacheTtlByStatus(provider.cacheTtl || 600) },
+      }, (next) => next.protocol === 'https:' && next.hostname === providerUrl.hostname);
       rawBody = await readUpstreamText(response);
     } finally {
       clearTimeout(timeoutId);
@@ -1385,7 +1362,7 @@ async function handleRelay(request, env, origin) {
       status: response.status,
       headers: {
         'Content-Type': response.headers.get('content-type') || 'application/json',
-        'Cache-Control': providerId === 'fred' ? 'private, no-store' : response.ok ? `public, max-age=${provider.cacheTtl || 600}` : 'no-store',
+        'Cache-Control': response.ok ? `public, max-age=${provider.cacheTtl || 600}` : 'no-store',
         ...getCorsHeaders(origin, env), ...SECURITY_HEADERS,
         'X-AIO-Proxy': 'cloudflare-worker-relay',
         'X-AIO-Relay-Provider': providerId,

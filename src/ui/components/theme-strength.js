@@ -88,7 +88,10 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     tr.append(el(doc, 'td', group.rank == null ? (group.smallSample ? '참고' : '—') : String(group.rank), 'is-rank'));
     const nameCell = el(doc, 'td');
     nameCell.append(el(doc, 'span', group.name, 'theme-strength-name'), el(doc, 'span', ` ${group.themeName} · ${group.listed}종목${group.members !== group.listed ? ` (수익률 ${group.members}개)` : ''}${group.smallSample ? ` · 표본 ${group.members}종목 · 참고` : ''}`, 'theme-strength-theme'));
-    const compare = el(doc, 'button', '종목끼리 비교', 'theme-strength-more'); compare.type = 'button';
+    // v57.79 (375 review): the full-width '종목끼리 비교' button wrapped under the name and doubled every row's height;
+    // a compact inline '비교' keeps the row one line taller at most, and its accessible name keeps the full action.
+    const compare = el(doc, 'button', '비교', 'theme-strength-compare'); compare.type = 'button';
+    compare.setAttribute('aria-label', `${group.name} 구성 종목끼리 비교`);
     compare.dataset.compareGroup = group.id;
     if (root._aioThemeMemberGroup === group.id) compare.setAttribute('aria-controls', `theme-members-${visible.indexOf(group)}`);
     compare.setAttribute('aria-expanded', String(root._aioThemeMemberGroup === group.id));
@@ -141,7 +144,24 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   table.append(thead, tbody);
   const scroll = el(doc, 'div', null, 'aio-table-scroll'); // v57.55 cleanup: on a phone the 9-column table ran past the screen with no way to scroll
   scroll.append(table);
-  host.append(scroll);
+  // v57.79 (375 review): the 6개월 column was cut at the screen edge with nothing saying the table scrolls. A shaded edge
+  // appears on whichever side has more columns, and the region is a keyboard stop with its own name.
+  scroll.setAttribute('role', 'region');
+  scroll.setAttribute('aria-label', '하위 테마 상대강도 순위 표, 가로 스크롤');
+  scroll.tabIndex = 0;
+  const frame = el(doc, 'div', null, 'theme-strength-scroll');
+  frame.append(scroll);
+  const edges = () => {
+    const rest = scroll.scrollWidth - scroll.clientWidth - scroll.scrollLeft;
+    frame.classList.toggle('has-more-left', scroll.scrollLeft > 2);
+    frame.classList.toggle('has-more-right', rest > 2);
+  };
+  scroll.addEventListener('scroll', edges, { passive: true });
+  host._aioScrollEdges?.disconnect?.();
+  host._aioScrollEdges = typeof root?.ResizeObserver === 'function' ? new root.ResizeObserver(edges) : null;
+  host._aioScrollEdges?.observe(scroll);
+  host.append(frame);
+  edges();
   const footer = el(doc, 'div', null, 'theme-strength-footer');
   if (model.groups.length > 15) {
     const more = el(doc, 'button', expanded ? '상위 15개만 보기' : `전체 ${model.groups.length}개 보기`, 'theme-strength-more');
@@ -182,18 +202,27 @@ function renderCapexFlow(doc, root, host, model) {
   host.replaceChildren();
   host.append(el(doc, 'h2', AI_CAPEX_FLOW.title, 'briefing-h2'));
   // Expert review M20: the provider names sit in the hover title (and the page's folded 데이터 출처), the body keeps the date.
-  const basisLine = el(doc, 'p', `${AI_CAPEX_FLOW.asOf} 추정 배분 · 참고 자료(현재 신호 아님) · 각 층의 관련 테마 수익률은 위 순위와 같은 ${model.windowLabel} 기준 · 테마 값은 하위 테마 중앙값의 중앙값(테마 시나리오와 같은 방식)`, 'theme-strength-basis');
+  // v57.79: the split is a published, dated research estimate (see ai-capex-flow.js `source`), so it is labelled as a
+  // cited reference with its date — never as an AIO estimate.
+  const basisLine = el(doc, 'p', `${AI_CAPEX_FLOW.asOf} 공개 리서치 인용 배분 · 참고 자료(현재 신호 아님) · 각 층의 관련 테마 수익률은 위 순위와 같은 ${model.windowLabel} 기준 · 테마 값은 하위 테마 중앙값의 중앙값(테마 시나리오와 같은 방식)`, 'theme-strength-basis');
   basisLine.title = `출처: ${AI_CAPEX_FLOW.source}`;
   host.append(basisLine);
   const bar = el(doc, 'div', null, 'capex-flow-bar');
   bar.setAttribute('role', 'img');
   bar.setAttribute('aria-label', AI_CAPEX_FLOW.layers.map((layer) => `${layer.label} ${layer.share}`).join(', '));
+  // v57.79 (375 review): '네트워크 15', '냉각 7.5' were cut inside 7.5%-wide segments. The bar carries short labels only
+  // (hidden on a phone), and the values sit in one legend line under it.
+  const key = el(doc, 'p', null, 'capex-flow-legend');
   for (const layer of AI_CAPEX_FLOW.layers) {
-    const seg = el(doc, 'div', `${layer.label} ${layer.share}`, `capex-flow-seg is-${layer.id}`);
+    const seg = el(doc, 'div', null, `capex-flow-seg is-${layer.id}`);
+    if (layer.share >= 10) seg.append(el(doc, 'span', layer.label, 'capex-flow-seg-label'));
     seg.style.flexBasis = `${layer.share}%`;
     bar.append(seg);
+    const item = el(doc, 'span', null, 'capex-flow-key');
+    item.append(el(doc, 'span', null, `capex-flow-swatch is-${layer.id}`), doc.createTextNode(`${layer.label} $${layer.share}`));
+    key.append(item);
   }
-  host.append(bar);
+  host.append(bar, key);
   const grid = el(doc, 'div', null, 'capex-flow-grid');
   // P1599 (F105/T08): one shared week axis for every card, derived from the data and stated on screen.
   const maxWeeks = Math.max(1, ...AI_BOTTLENECK_LEAD_TIMES.rows.map((row) => Number(row.weeks?.[1]) || 0));
@@ -204,9 +233,9 @@ function renderCapexFlow(doc, root, host, model) {
     // Live review 2026-10-14: the number is a share of a hypothetical 100달러 of AI capex (an estimate), not a spend or a
     // growth rate — the value and the note both say so.
     const value = el(doc, 'span', `$${layer.share} / $100`, 'trend-card-value');
-    value.title = `AI 설비투자 100달러 중 ${layer.label}에 가는 몫 (${AI_CAPEX_FLOW.asOf} 추정 배분)`;
+    value.title = `AI 설비투자 100달러 중 ${layer.label}에 가는 몫 (${AI_CAPEX_FLOW.asOf} 공개 리서치 인용)`;
     head.append(el(doc, 'h3', layer.label, 'trend-card-title'), value);
-    card.append(head, el(doc, 'p', `100달러 중 추정 배분 · ${layer.parts}`, 'trend-card-note'));
+    card.append(head, el(doc, 'p', `100달러 중 인용 배분 · ${layer.parts}`, 'trend-card-note'));
     const links = el(doc, 'div', null, 'capex-flow-themes');
     for (const themeId of layer.themes) {
       const theme = model.themes?.[themeId];

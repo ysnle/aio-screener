@@ -200,6 +200,11 @@ function renderPortfolioSurface(documentRef, page, surface) {
   page.dataset.aioPortfolioSurfaceModel = surface.modelVersion;
   page.dataset.aioPortfolioSurfaceUse = surface.allowedUse || 'reference-only';
   page.dataset.aioPortfolioPromotion = surface.promotionBlocked === false ? 'eligible' : 'blocked';
+  // v57.79 review: with no holdings and no cash the strip read as eight '—' placeholders; it collapses to one line.
+  const heroEmpty = surface.readState === 'ready' && surface.valuationState === 'empty';
+  documentRef?.getElementById('pf-hero')?.classList.toggle('is-empty', heroEmpty);
+  const heroEmptyLine = documentRef?.getElementById('pf-hero-empty');
+  if (heroEmptyLine) heroEmptyLine.hidden = !heroEmpty;
   setSurfaceText(documentRef, 'pf-holding-count', surface.holdingCount ? `${surface.holdingCount} 종목` : '—', surface.holdingCount || null, surface);
   setSurfaceText(documentRef, 'pf-total-pnl-pct', surface.totalPnlPct == null ? '—' : `${surface.totalPnlPct >= 0 ? '+' : ''}${surface.totalPnlPct.toFixed(1)}%`, surface.totalPnlPct, surface, surface.totalPnl == null ? 'var(--text-dim)' : surface.totalPnl >= 0 ? 'var(--green)' : 'var(--red)');
   setSurfaceText(documentRef, 'pf-daily-chg', formatSurfaceMoney(surface.dailyChange, surface.declaredBaseCurrency), surface.dailyChange, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');

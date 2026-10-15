@@ -5619,7 +5619,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     }
   }
   // v46.9/v52.30: API 키/서버키 경로 체크를 쿼터 차감 전에 수행 (키 없으면 쿼터 낭비 방지)
-  // Compact legacy guidance contract retained: "AI 답변을 쓰려면 Claude 키를 저장하세요." Actual UI below uses the explicit route state.
+  // v57.79: route failures use the explicit route-state notice; no personal-key guidance remains.
   // Shared route contract: 브리핑/번역은 운영자 서버키 가능 여부를 Worker health로만 확정한다.
   var _uniClaudeKey = typeof getApiKey === 'function' ? getApiKey() : '';
   var _uniRoute;
@@ -5637,7 +5637,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   if (!_isCurrentUnifiedRun()) { _releaseUnifiedRun(); return; }
   if (!_uniRoute.ok) {
     _releaseUnifiedRun();
-    _appendAIMsg('ai', typeof _aioRouteNotice === 'function' ? _aioRouteNotice(_uniRoute.reason) : 'Claude 개인 키 또는 명시된 Worker 라우트가 필요합니다.');
+    _appendAIMsg('ai', typeof _aioRouteNotice === 'function' ? _aioRouteNotice(_uniRoute.reason) : 'AI 공용 연결을 확인하지 못했습니다. 잠시 후 다시 시도하세요.');
     return;
   }
   // v47.8: consumeLLMQuery가 Promise 반환 가능(쿼터 초과 모달) → await 필수
@@ -6071,7 +6071,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   if (typeof callClaude !== 'function') {
     _aioLog('error', 'fetch', 'callClaude 함수 미정의!');
     _releaseUnifiedRun();
-    _appendAIMsg('ai', '<span style="color:var(--data-red);">시스템 오류: callClaude 함수를 찾을 수 없습니다. 페이지를 새로고침해주세요.</span>');
+    _appendAIMsg('ai', '<span style="color:var(--data-red);">시스템 오류: AI 호출 기능을 찾을 수 없습니다. 페이지를 새로고침해주세요.</span>');
     return;
   }
   if (!_isCurrentUnifiedRun()) { _releaseUnifiedRun(); return; }

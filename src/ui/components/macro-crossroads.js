@@ -124,7 +124,9 @@ function branchMap(doc, root, model, openIds, { firstPaint = false, restOpen = f
     li.append(branchCard(doc, root, item, item.id === model.leadId, openIds.has(item.id) || (firstPaint && item.id === model.leadId)));
     return li;
   };
-  const ordered = current.size ? [...model.items].sort((a, b) => rank(a) - rank(b)) : model.items;
+  // v57.79: within the same rank the branches run by share of conditions met, so the heading's "조건 충족 순" holds.
+  const fit = (item) => (item.known >= 2 && item.total ? item.met / item.total : -1);
+  const ordered = [...model.items].sort((a, b) => (current.size ? rank(a) - rank(b) : 0) || fit(b) - fit(a));
   const rest = current.size ? ordered.filter((item) => !current.has(item.id)) : [];
   for (const item of ordered.filter((item) => !rest.includes(item))) list.append(row(item));
   if (rest.length) {
@@ -292,7 +294,8 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   if (!model.available) { target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead')); return model; }
   const basis = el(doc, 'p', `${model.asOf || '기준일 미확인'} 관측 기준 · 예측이 아닙니다. 다음 발표 때 무엇을 보고 어떻게 대응할지 정리했습니다. 가능성은 조건 충족 수 · 시장 가격 방향 · 과거 빈도로만 말하고 확률 숫자는 쓰지 않습니다.`, 'xr-basis');
   // The rate hub (why rates lead, the proxy caveat once) comes first; the map below opens each branch in place.
-  const mapHead = el(doc, 'h3', `시나리오 ${model.items.length}개 — 눌러서 근거와 선택지 보기`, 'xr-h3');
+  // v57.79 (UI review): the heading says what the list is (ordered by conditions met), not how to use it.
+  const mapHead = el(doc, 'h3', `시나리오 ${model.items.length}개 — 조건 충족 순`, 'xr-h3');
   target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), basis, timeline(doc, model), rateHub(doc, model), mapHead, branchMap(doc, root, model, openIds, { firstPaint, restOpen }), ...[changeLog(doc, root?.[SCENARIO_STATE.key])].filter(Boolean),
     el(doc, 'p', '세부 종목 선택은 차트·기업·테마·스크리너에서 직접 합니다. 이 지도는 가격·수량·시점을 제시하지 않습니다.', 'xr-caveat'));
   target.dataset.aioCrossroads = 'native';

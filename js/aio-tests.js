@@ -1384,9 +1384,8 @@
 
   // ── Group48: v49.41 signal/breadth 2차 깊이 점검 + R97 ───────────────
   function _testV4941SignalBreadthDeepAudit() {
-    var reg = window.AIO_SCENARIO_REGISTRY;
-    // T322: signalShortTerm 등록 + validateSignalSum 검증
-    _assert('T322 scenario_probabilities_require_runtime_provider', window.AIO_SCENARIO_REGISTRY && window.AIO_SCENARIO_REGISTRY.status === 'unavailable' && window.AIO_SCENARIO_REGISTRY.validateSignalSum().available === false, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
+    // T322 (v57.79): the empty scenario registry left with the retired scenario probabilities; nothing ships one.
+    _assert('T322 scenario_probabilities_require_runtime_provider (v57.79 registry retired)', typeof window.AIO_SCENARIO_REGISTRY === 'undefined', 'typeof=' + typeof window.AIO_SCENARIO_REGISTRY);
 
     // T323: signal L5185 "Breadth Thrust" 영문 병기 (브레드쓰 스러스트)
     var sigPage = document.getElementById('page-signal');
@@ -1440,7 +1439,7 @@
 
     // T329 (v49.41 P295 page hook): signal-macro-scenario data-scenario-key 마커 3개 등록
     var keys = document.querySelectorAll('[data-scenario-key]');
-    _assert('T329 scenario_cards_do_not_ship_static_probabilities', document.querySelectorAll('[data-scenario-key]').length === 0 && window.AIO_SCENARIO_REGISTRY.status === 'unavailable', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
+    _assert('T329 scenario_cards_do_not_ship_static_probabilities', document.querySelectorAll('[data-scenario-key]').length === 0 && typeof window.AIO_SCENARIO_REGISTRY === 'undefined', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
   }
 
   // ── Group49: v49.42 sentiment/briefing/technical/macro 1차+2차 ─────────
@@ -2498,13 +2497,14 @@
 
   // v49.67 P352~P356 R122: AI 채팅 사용자 체감 품질 (시세 폴백 강화 + 시장 헤더 + TTL eviction + audit) 회귀 방지
   function _testV4967UxQuality() {
-    // T498: dynamicTickerLookup 폴백 체인 4단계 (Yahoo → Stooq → Naver → Finnhub) + 실패 시 fetchFailed 구조화 응답
+    // T498: dynamicTickerLookup 폴백 체인 + 실패 시 fetchFailed 구조화 응답.
+    // v57.79: the personal-key Finnhub /quote step was removed (personal keys retired v57.67); its absence is asserted.
     var dynSrc = typeof window.dynamicTickerLookup === 'function' ? window.dynamicTickerLookup.toString() : '';
-    var hasFinnhubFallback = /finnhub\.io\/api\/v1\/quote/.test(dynSrc);
+    var noPersonalFinnhub = !/finnhub\.io\/api\/v1\/quote|aio_finnhub_key|Finnhub API key/.test(dynSrc); // text-pin-ok: retirement absence
     var hasFetchFailed = /fetchFailed:\s*true/.test(dynSrc) && /suggestedAction/.test(dynSrc);
-    _assert('T498 dynamic_ticker_lookup_fallback_chain_v4967: Yahoo+Stooq+Naver+Finnhub 4단계 폴백 + fetchFailed 구조화 응답',
-      hasFinnhubFallback && hasFetchFailed,
-      'finnhub=' + hasFinnhubFallback + ' failResp=' + hasFetchFailed);
+    _assert('T498 v57.79 dynamic_ticker_lookup_fallback_chain_v4967: Yahoo+Naver 폴백, 개인 키 Finnhub 단계 없음 + fetchFailed 구조화 응답',
+      noPersonalFinnhub && hasFetchFailed,
+      'noPersonalFinnhub=' + noPersonalFinnhub + ' failResp=' + hasFetchFailed);
 
     // T499: _fetchTickerDataForChat 응답 첫 줄 시장 환경 헤더 자동 주입 (모든 종목 답변)
     var chatFn = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
@@ -3102,7 +3102,7 @@
     var chatSendSrc = typeof window.chatSendUnified === 'function' ? window.chatSendUnified.toString() : '';
     // T603 (v57.62): unified failures before provider work are shown in the panel (route notice / missing transport)
     _assert('T603 v57.62 unified_failure_feedback: per-page chatSend absent + chatSendUnified shows route and transport failures in the panel',
-      typeof window.chatSend === 'undefined' && chatSendSrc.indexOf('_aioRouteNotice(_uniRoute.reason)') >= 0 && chatSendSrc.indexOf('callClaude 함수를 찾을 수 없습니다') >= 0,
+      typeof window.chatSend === 'undefined' && chatSendSrc.indexOf('_aioRouteNotice(_uniRoute.reason)') >= 0 && chatSendSrc.indexOf('AI 호출 기능을 찾을 수 없습니다') >= 0 && chatSendSrc.indexOf('callClaude 함수를 찾을') < 0, // v57.79: no internal function name in user copy
       'chatSend=' + typeof window.chatSend + ' route=' + (chatSendSrc.indexOf('_aioRouteNotice(_uniRoute.reason)') >= 0));
     // T604 (v57.62): unified onError retries transient classes, then shows the escaped error in the panel
     _assert('T604 v57.62 unified_error_retry_then_message: chatSendUnified onError retries timeout/5xx/overloaded and renders the final error',
@@ -4751,12 +4751,8 @@
 
   // ── Group36: v49.28 인프라 → 페이지 실제 적용 (P239 메타 근본) ─────────────
   function _testInfraPageApplicationV4928() {
-    // T223 (v50.29 스펙 갱신): 변환식 "표기"는 declutter로 페이지에서 제거 — 단일 출처 레지스트리가 변환을 보장하는지 검증
-    var scaleReg = window.AIO_SCORE_SCALES;
-    var convOk = false;
-    try { convOk = !!scaleReg && typeof scaleReg.convert === 'function' && Math.abs(scaleReg.convert(10, 'TWENTY_POINT', 'HUNDRED_POINT') - 50) < 1; } catch(_) {}
-    _assert('T223 score_scale_registry: AIO_SCORE_SCALES.convert 20점↔100점 단일 출처 (표기 텍스트는 declutter로 제거)',
-      convOk, 'registry=' + !!scaleReg + ' convert10→' + (convOk ? '50' : 'fail'));
+    // T223 (v57.79): the 20/100 score-scale registry left with the retired score; it must not return.
+    _assert('T223 score_scale_registry_retired (v57.79)', typeof window.AIO_SCORE_SCALES === 'undefined', 'typeof=' + typeof window.AIO_SCORE_SCALES);
 
     // T225: home 카드 CARD_HIERARCHY 적용
     var primaryCard = document.querySelector('#page-home [data-card-level="primary"][data-weight-key="TRADING_SCORE"]');
@@ -4831,19 +4827,9 @@
       ratio && Array.isArray(ratio.reports),
       ratio ? ('issueCount=' + ratio.issueCount + ' reports=' + ratio.reports.length) : 'api unavailable');
 
-    // T219: 코드 내 시점 의존 확률 금지 — 공급자 미연결 시 명시적 unavailable
-    var sr = window.AIO_SCENARIO_REGISTRY;
-    var sum = sr && sr.validateSum ? sr.validateSum() : null;
-    _assert('T219 scenario_sum: embedded probabilities unavailable until runtime provider is connected',
-      sr && sr.status === 'unavailable' && sum && sum.available === false && sum.sum === null,
-      sum ? 'sum=' + sum.sum + ' status=' + sr.status : 'undefined');
-
-    // T220: getScenarioFreshnessAudit() 호출 + 구조
-    var scAudit = window.AIO && typeof window.AIO.getScenarioFreshnessAudit === 'function'
-      ? window.AIO.getScenarioFreshnessAudit() : null;
-    _assert('T220 scenario_audit: getScenarioFreshnessAudit + issueCount num',
-      scAudit && typeof scAudit.issueCount === 'number',
-      scAudit ? ('issueCount=' + scAudit.issueCount + ' stale=' + scAudit.staleScenarios.length) : 'api unavailable');
+    // T219/T220 (v57.79): no embedded scenario probabilities — the empty registry and its freshness audit were removed.
+    _assert('T219 scenario_sum: no embedded scenario registry (v57.79)', typeof window.AIO_SCENARIO_REGISTRY === 'undefined', 'typeof=' + typeof window.AIO_SCENARIO_REGISTRY);
+    _assert('T220 scenario_audit_retired (v57.79)', !(window.AIO && window.AIO.getScenarioFreshnessAudit), 'present=' + !!(window.AIO && window.AIO.getScenarioFreshnessAudit));
 
     // T221 (P714 재작성): ACTION_RULES F&G 18 → 극단 공포 '구간 라벨'(관측형) — 기존 '역발상 매수'
     // 지시형 라벨은 컴플라이언스 재작성으로 제거됨. 밴드 경계(fg<25) 회귀 의도는 유지.
@@ -4901,16 +4887,8 @@
 
   // ── Group33: v49.25 로직성 정비 + 재발 방지 인프라 ──────────────────────
   function _testLogicInfraV4925() {
-    // T199: AIO_SCORE_SCALES 존재 + 20→100 변환 정확성
-    var sc = window.AIO_SCORE_SCALES;
-    _assert('T199 score_scales: AIO_SCORE_SCALES TWENTY_POINT/HUNDRED_POINT + convert',
-      !!sc && !!sc.TWENTY_POINT && !!sc.HUNDRED_POINT && typeof sc.convert === 'function',
-      sc ? 'keys=' + Object.keys(sc).join(',') : 'undefined');
-
-    // T200: SCORE_SCALES.convert(15, 'TWENTY_POINT', 'HUNDRED_POINT') === 75
-    var converted = sc && sc.convert ? sc.convert(15, 'TWENTY_POINT', 'HUNDRED_POINT') : null;
-    _assert('T200 score_convert: 15/20 → 75/100',
-      converted === 75, 'got: ' + converted);
+    // T199/T200 (v57.79): the score-scale registry and its 20->100 conversion left with the retired score.
+    _assert('T199 score_scales_retired (v57.79)', typeof window.AIO_SCORE_SCALES === 'undefined', 'typeof=' + typeof window.AIO_SCORE_SCALES);
 
     // T201: THRESHOLD_REGISTRY BREADTH/RSI 추가됨 + RSI 75 → 과매수
     var reg = window.AIO_THRESHOLD_REGISTRY;
@@ -5702,18 +5680,8 @@
     } catch(e) { t783detail = 'ERR:' + e.message; }
     _assert('T783 v5017_event_timeline_audit: getEventTimelineStalenessAudit + AIO_EVENT_RISK_CONTEXT 커버 (Event Runway 26일 stale 재발 방지)', t783ok, t783detail);
 
-    // T784: 시나리오 freshness audit이 scenarios + signalShortTerm 두 블록 모두 점검 (signalShortTerm 9일 stale 미탐지 갭 차단)
-    var t784ok = false, t784detail = '';
-    try {
-      var sreg = window.AIO_SCENARIO_REGISTRY;
-      var hasThreshold = sreg && typeof sreg.signalStaleDaysThreshold === 'number';
-      var auditSrc = (window.AIO && window.AIO.getScenarioFreshnessAudit) ? window.AIO.getScenarioFreshnessAudit.toString() : '';
-      var coversSignal = /signalShortTerm/.test(auditSrc);
-      var scAudit = (window.AIO && window.AIO.getScenarioFreshnessAudit) ? window.AIO.getScenarioFreshnessAudit() : null;
-      t784ok = hasThreshold && coversSignal && !!scAudit && typeof scAudit.issueCount === 'number';
-      t784detail = 'threshold=' + (sreg && sreg.signalStaleDaysThreshold) + 'd coversSignal=' + coversSignal + ' status=' + (scAudit && scAudit.status);
-    } catch(e) { t784detail = 'ERR:' + e.message; }
-    _assert('T784 scenario_audit_reports_provider_unavailable', window.AIO.getScenarioFreshnessAudit().status === 'unavailable', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
+    // T784 (v57.79): the scenario freshness audit left with the empty scenario registry.
+    _assert('T784 scenario_audit_retired (v57.79)', !window.AIO.getScenarioFreshnessAudit && typeof window.AIO_SCENARIO_REGISTRY === 'undefined', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T785/P1267: 기간·모집단이 다른 20SMA/섹터 양봉을 50SMA로 대체하지 않는다.
     var t785ok = false, t785detail = '';
@@ -6942,13 +6910,9 @@
     try {
       var banner834 = document.getElementById('api-key-onboarding');
       var risk834 = document.getElementById('risk-banner');
-      // P626-followup: this originally read a single window.chatSendUnified source for both
-      // checks below, but the two compact messages actually live in two different functions —
-      // "AI 분석은 주요 분석 페이지에서..." is in toggleAIPanel (index.html), while "AI 답변을
-      // 쓰려면 Claude 키를 저장하세요." is in chatSendUnified (index.html:31243) itself. A prior
-      // refactor must have moved the first message out without this test noticing (chatSendUnified
-      // alone no longer contains it, so compactAi834 failed forever afterward). Check each against
-      // its actual owner instead of assuming they share one source.
+      // P626-followup: the compact AI guidance lives in toggleAIPanel; the route-failure notice lives in
+      // chatSendUnified. v57.79: the retired personal-key guidance ("... Claude 키를 저장하세요.") is now
+      // asserted absent — chatSendUnified must route failures through _aioRouteNotice instead.
       var toggleSrc834 = typeof window.toggleAIPanel === 'function' ? String(window.toggleAIPanel) : '';
       var unifiedSrc834 = typeof window.chatSendUnified === 'function' ? String(window.chatSendUnified) : '';
       var bodyText834 = document.body ? document.body.textContent : '';
@@ -6956,7 +6920,7 @@
       var compactRisk834 = !risk834 || !!(String(risk834.getAttribute('style') || '').indexOf('position:static') >= 0 && risk834.textContent.length < 80); // 2026-10-01: duplicate banner retired; sticky disclaimer is the single notice
       var compactAi834 = toggleSrc834.indexOf('AI 분석은 주요 분석 페이지에서 사용할 수 있습니다.') >= 0 &&
         toggleSrc834.indexOf('매매 시그널, 차트 분석, 매크로, 기업 분석') < 0;
-      var compactKeyMsg834 = unifiedSrc834.indexOf('AI 답변을 쓰려면 Claude 키를 저장하세요.') >= 0;
+      var compactKeyMsg834 = unifiedSrc834.indexOf('_aioRouteNotice(_uniRoute.reason)') >= 0 && !/Claude 키|개인 키/.test(unifiedSrc834); // text-pin-ok: retirement absence (v57.79)
       t834ok = !!(noForcedOnboard834 && compactRisk834 && compactAi834 && compactKeyMsg834);
       t834detail = JSON.stringify({
         noForcedOnboard: noForcedOnboard834,
@@ -7301,7 +7265,7 @@
         if (!document.getElementById(id)) failures869.push(id + ':missing');
       });
       var pfHero = document.getElementById('pf-hero-stats');
-      if (!pfHero || getComputedStyle(pfHero).gridTemplateColumns.split(' ').length !== 3) failures869.push('portfolio-hero-columns');
+      var pfHeroEmpty = !!document.querySelector('#pf-hero.is-empty'); if (!pfHero || (pfHeroEmpty ? (document.getElementById('pf-hero-empty') || {}).hidden !== false : getComputedStyle(pfHero).gridTemplateColumns.split(' ').length !== 3)) failures869.push('portfolio-hero-columns'); // v57.79: an empty portfolio collapses the hero to one empty line; three columns once it shows
       var ia = window.AIO_ROUTE_REGISTRY && window.AIO_ROUTE_REGISTRY.classes;
       if (!ia || ia.NAV_ROUTE.length !== 17 || ia.DERIVED_VIEW.length !== 2 || ia.REFERENCE.length !== 0 || ia.OVERLAY.length !== 1 || (ia.REMOVED || []).length !== 6) failures869.push('surface-count-contract');
       var guideChapters = document.querySelectorAll('#page-guide > .aio-guide-chapter');

@@ -10,31 +10,28 @@ of at most $20 (owner approval 2026-10-11). Conditional OpenAI web search is ena
 browser or Actions; Actions authenticates with a separate `AIO_AUTOMATION_TOKEN`.
 See [_context/OPERATOR-RUNBOOK.md](../_context/OPERATOR-RUNBOOK.md) for provisioning.
 
-## `/relay` — fixed-provider relay (P1151/P1422)
+## `/relay` — fixed-provider relay (P1151)
 
-`GET /relay?provider=<fred|bok|kosis>&<params>` fetches a browser-blocked source.
-BOK/KOSIS use operator secrets. FRED uses the querying user's own key in
-`X-AIO-Provider-Key`, only after explicit browser opt-in; the operator key is never
-substituted. Reading the scheduled operator artifact does not require a personal key.
+`GET /relay?provider=<bok|kosis>&<params>` fetches a browser-blocked source with an
+operator secret. The personal-key FRED provider (P1422) had no client after v57.76 and
+was removed in v57.79; `provider=fred` is now an unknown provider (400). FRED data comes
+from the scheduled operator artifact, which needs no personal key.
 
 Design boundaries (all enforced by `node scripts/ci-worker-relay-check.mjs`):
 
 - Upstream host and path are **hardcoded per provider**. The client cannot name a
   destination, so the route cannot be used as an SSRF relay.
 - BOK/KOSIS keys come only from `env.BOK_API_KEY` / `env.KOSIS_API_KEY`.
-  FRED's personal header is validated, never stored/logged, and redacted from bodies.
-  FRED upstream/response caching is disabled and redirects are refused.
-  `/health` lists `personalKeyRequired` separately from operator key presence.
+  The browser never sends a provider key; keys are redacted from upstream bodies.
 - Parameters pass a per-provider regex whitelist; anything else is a 400.
 - Origin allowlist, optional `AIO_APP_TOKEN`, and a 60/min per-IP limit apply before
   the upstream call. A per-provider daily cap (`RELAY_DAILY_CAP`, default 2000) is
   reserved atomically through `AIO_QUOTA_DO`.
-- Missing BOK/KOSIS secrets or quota bindings fail closed (503). A missing personal
-  FRED key returns 400. There is no cross-user credential substitution.
+- Missing BOK/KOSIS secrets or quota bindings fail closed (503).
 
 Deployment: `deploy-ai-proxy.yml` publishes the relay secrets with
-`wrangler secret put` (BOK/KOSIS optional), checks a keyless FRED rejection, and may
-smoke-test the operator's own FRED key in a request header. No workflow was run locally.
+`wrangler secret put` (BOK/KOSIS optional) and checks that the retired FRED provider is
+refused. No workflow was run locally.
 
 ### What these gates are, and are not (v56, P1156)
 
@@ -65,7 +62,7 @@ The bounds that are *not* per-isolate:
   month (`budgetState: low`) the Worker removes hosted search from new requests. `/health` has its
   own isolate-local bucket (120/min; optional `RATE_LIMIT_HEALTH` binding).
 
-Because `/relay` spends the consenting FRED user's or BOK/KOSIS operator's quota, treat a forged-Origin client as
+Because `/relay` spends the BOK/KOSIS operator's quota, treat a forged-Origin client as
 a quota-exhaustion risk up to the daily cap rather than as a blocked attacker.
 
 The read surface of the fast plane is `GET`/`HEAD` only — a `POST /quotes` used to bypass the

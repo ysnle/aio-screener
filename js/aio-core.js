@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.78';
+const APP_VERSION = 'v57.79';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1618,7 +1618,7 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
     Array.prototype.slice.call(page.querySelectorAll('canvas')).forEach(function(canvas) {
       var preset = presets[canvas.id];
       if (!preset) return;
-      if (canvas.dataset.aioBreadthChartRenderer === 'native' || canvas.dataset.aioFxbondChartRenderer === 'native') return;
+      if (canvas.dataset.aioBreadthChartRenderer === 'native' || canvas.dataset.aioFxbondChartRenderer === 'native' || canvas.dataset.aioTickerChartRenderer === 'native') return; // v57.79: the native ticker chart owns one loading/error/chart state (no ghost message or grey corner square)
       if (!isBlank(canvas)) {
         markFallbackCanvas(canvas);
         return;
@@ -2092,8 +2092,9 @@ window._aioFundSearchFill = function(preset) {
   window._aioStorageListenerRegistered = true;
   window.addEventListener('storage', function(e) {
     if (!e || !e.key) return;
-    // API 키 변경 감지
-    if (/^aio_(claude|fmp|finnhub|fred|naver|bok|kosis)_key$/.test(e.key)) {
+    // API 키 변경 감지 — v57.79: only the self-proxy URL is a live credential; another tab's boot cleanup of
+    // retired personal keys must not raise this toast.
+    if (e.key === 'aio_cf_worker_url') {
       if (typeof showToast === 'function') showToast('다른 탭에서 API 키 변경 감지 — 이 탭에도 자동 반영', 4000);
       if (typeof console !== 'undefined' && console.info) console.info('[AIO v49.79 P426] Multi-tab API key change:', e.key);
       try { if (typeof window._aioRefreshAuditWidget === 'function') window._aioRefreshAuditWidget(); } catch(_) {}
@@ -8284,45 +8285,38 @@ window.AIO.diagnose = async function(ticker) {
     var quote = await window.dynamicTickerLookup(ticker);
     report.quote = { result: quote, durationMs: Date.now() - t0 };
     report.quoteDiag = window._aioTickerLookupDiag && window._aioTickerLookupDiag[ticker];
-    console.log('[1/7] 시세 fetch:', quote ? '✓ price=' + quote.price + ' source=' + quote.source : '✗ FAILED');
-  } catch(e) { report.quote = { error: String(e) }; console.error('[1/7] 시세 fetch 오류:', e); }
+    console.log('[1/6] 시세 fetch:', quote ? '✓ price=' + quote.price + ' source=' + quote.source : '✗ FAILED');
+  } catch(e) { report.quote = { error: String(e) }; console.error('[1/6] 시세 fetch 오류:', e); }
   // 2. _liveData 상태
   report.liveData = {
     keysCount: Object.keys(window._liveData || {}).length,
     sample: window._liveData && window._liveData[ticker],
     nvdaInLive: !!(window._liveData && window._liveData[ticker])
   };
-  console.log('[2/7] _liveData[' + ticker + ']:', report.liveData.sample || '✗ 없음 (전체 ' + report.liveData.keysCount + '개)');
+  console.log('[2/6] _liveData[' + ticker + ']:', report.liveData.sample || '✗ 없음 (전체 ' + report.liveData.keysCount + '개)');
   // 3. assertTickerFetchHealth
   try {
     report.tickerHealth = window.AIO.assertTickerFetchHealth && window.AIO.assertTickerFetchHealth();
-    console.log('[3/7] 시세 fetch 건강도:', report.tickerHealth ? report.tickerHealth.note : 'N/A');
+    console.log('[3/6] 시세 fetch 건강도:', report.tickerHealth ? report.tickerHealth.note : 'N/A');
   } catch(e) { report.tickerHealth = { error: String(e) }; }
   // 4. assertChatPanelDomAudit
   try {
     report.chatPanelDom = window.AIO.assertChatPanelDomAudit && window.AIO.assertChatPanelDomAudit();
     if (report.chatPanelDom) {
-      console.log('[4/7] CHAT_CONTEXTS DOM 매트릭스: ' + report.chatPanelDom.fullOkCount + '/' + report.chatPanelDom.totalContexts + ' OK · 누락 ' + report.chatPanelDom.contextOnlyCount + '건');
+      console.log('[4/6] CHAT_CONTEXTS DOM 매트릭스: ' + report.chatPanelDom.fullOkCount + '/' + report.chatPanelDom.totalContexts + ' OK · 누락 ' + report.chatPanelDom.contextOnlyCount + '건');
       if (report.chatPanelDom.contextOnlyList.length > 0) console.log('     → 누락 ctxId:', report.chatPanelDom.contextOnlyList.join(', '));
     }
   } catch(e) { report.chatPanelDom = { error: String(e) }; }
   // 5. assertChatFunctionCoverage
   try {
     report.chatFnCoverage = window.AIO.assertChatFunctionCoverage && window.AIO.assertChatFunctionCoverage();
-    console.log('[5/7] 채팅 함수 통합: dead=' + (report.chatFnCoverage ? report.chatFnCoverage.deadCodeCount : '?') + ' · 통합 ' + (report.chatFnCoverage ? report.chatFnCoverage.integrationPct + '%' : '?'));
+    console.log('[5/6] 채팅 함수 통합: dead=' + (report.chatFnCoverage ? report.chatFnCoverage.deadCodeCount : '?') + ' · 통합 ' + (report.chatFnCoverage ? report.chatFnCoverage.integrationPct + '%' : '?'));
   } catch(e) { report.chatFnCoverage = { error: String(e) }; }
   // 6. assertChatAnswerQualityAudit
   try {
     report.answerQuality = window.AIO.assertChatAnswerQualityAudit && window.AIO.assertChatAnswerQualityAudit();
-    console.log('[6/7] 답변 품질: 종합 ' + (report.answerQuality ? report.answerQuality.overallScore + '점' : '?'));
+    console.log('[6/6] 답변 품질: 종합 ' + (report.answerQuality ? report.answerQuality.overallScore + '점' : '?'));
   } catch(e) { report.answerQuality = { error: String(e) }; }
-  // 7. home 채팅 DOM
-  report.homeChatDom = {
-    panel: !!document.getElementById('chat-home'),
-    inp:   !!document.getElementById('chat-home-inp'),
-    btn:   !!document.getElementById('chat-home-btn')
-  };
-  console.log('[7/7] home 채팅 DOM: panel=' + report.homeChatDom.panel + ' inp=' + report.homeChatDom.inp + ' btn=' + report.homeChatDom.btn);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('[AIO diagnose] 완료. 상세 결과: report 변수 또는 콘솔 위 로그 확인');
   report.finishedAt = new Date().toISOString();
@@ -9598,53 +9592,6 @@ window.AIO_ACTION_RULES = {
       if (ns.eventFlags && ns.eventFlags.geopolitical) actions.push('지정학 뉴스 활성 — 이벤트 리스크 확인 필요.');
     }
     return { actions: actions, position: pos, sentiment: sent, newsTilt: newsTilt, generatedAt: new Date().toISOString() };
-  }
-};
-
-
-// ─────────────────────────────────────────────────────────────────
-// v49.27 L6 근본 수정: SCENARIO_REGISTRY — 시나리오 확률 + 시간 의존성
-// macro 페이지 "연착륙 30% / 스태그 45% / 침체 25%" 정적 고정 해소.
-// 각 시나리오에 lastUpdated 필수 + audit이 stale 자동 탐지.
-// ─────────────────────────────────────────────────────────────────
-window.AIO_SCENARIO_REGISTRY = {
-  version: 'v53.4',
-  status: 'unavailable',
-  scenarios: {},
-  signalShortTerm: {},
-  validateSum: function() { return { sum: null, valid: false, available: false }; },
-  validateSignalSum: function() { return { sum: null, valid: false, available: false }; }
-};
-
-
-// ─────────────────────────────────────────────────────────────────
-// v49.25 L1 근본 수정: SCORE_SCALES — 점수 스케일 단일 정의 + 변환
-// "20점 만점" vs "0~100" 혼동 (signal/home 페이지) 해소.
-// 어떤 페이지든 항상 동일 스케일로 표시 가능.
-// ─────────────────────────────────────────────────────────────────
-window.AIO_SCORE_SCALES = {
-  version: 'v49.25',
-  TWENTY_POINT: { min: 0, max: 20, name: 'Trading Score (20점)', components: { trend: 8, rs: 4, volume: 3, volatility: 3, breakout: 2 } },
-  HUNDRED_POINT: { min: 0, max: 100, name: 'Score Index (0~100)', bands: [
-    { min: 75, label: '양호 환경', color: 'data-green' },
-    { min: 60, label: '양호 환경', color: 'data-green' },
-    { min: 45, label: '중립',     color: 'text-secondary' },
-    { min: 30, label: '주의',     color: 'data-amber' },
-    { min: 0,  label: '위험',     color: 'data-red' }
-  ] },
-  convert: function(score, fromScale, toScale) {
-    var from = this[fromScale]; var to = this[toScale];
-    if (!from || !to) return null;
-    var ratio = (score - from.min) / (from.max - from.min);
-    return to.min + ratio * (to.max - to.min);
-  },
-  // 20점 점수를 0~100 라벨로 변환 (signal 페이지 사용)
-  getLabel100From20: function(score20) {
-    var s100 = this.convert(score20, 'TWENTY_POINT', 'HUNDRED_POINT');
-    if (s100 == null) return { label: '—', color: 'text-muted' };
-    var bands = this.HUNDRED_POINT.bands;
-    for (var i = 0; i < bands.length; i++) if (s100 >= bands[i].min) return { label: bands[i].label, color: bands[i].color, score100: s100 };
-    return bands[bands.length - 1];
   }
 };
 
@@ -11488,28 +11435,19 @@ const _AioVault = {
 
   isUnlocked: function() { return !!this._derivedKey && this._authenticating !== true; },
   enablePublicMode: function() { this.lock(); this._publicMode = true; },
-  // v47.9: lock 시 모든 런타임 캐시 초기화 (Claude 단일 필드 → 통합 객체)
-  lock: function() { this._generation = (this._generation || 0) + 1; this._pin = null; this._derivedKey = null; this._legacyDerivedKey = null; this._authenticating = false; this._lastDecryptVersion = null; this._claudeKeyRuntime = ''; this._keyRuntime = {}; },
+  // v47.9: lock 시 모든 런타임 캐시 초기화 (v57.79: retired AI-key field removed)
+  lock: function() { this._generation = (this._generation || 0) + 1; this._pin = null; this._derivedKey = null; this._legacyDerivedKey = null; this._authenticating = false; this._lastDecryptVersion = null; this._keyRuntime = {}; },
   getStorage: function() { return this._publicMode ? sessionStorage : localStorage; },
-  // v47.7: Claude API 키 런타임 메모리 캐시 (Vault 잠금 해제 시 복호화 결과 저장, getApiKey에서 우선 참조)
-  _claudeKeyRuntime: '',
-  // v47.9: 전체 API 키 런타임 메모리 캐시 { 'aio_fmp_key': '복호화된 값', ... } — _getApiKey()에서 우선 참조
+  // v47.9: 전체 API 키 런타임 메모리 캐시 { 'aio_cf_worker_url': '복호화된 값' } — _getApiKey()에서 우선 참조
   _keyRuntime: {}
 };
 
 // v53.52 API-AI reliability: provider credential registry is the single source
 // for storage, masking, export/import, and status inventory. Runtime health and
 // authentication are deliberately separate from browser persistence.
+// v57.79: the retired personal data-provider entries (RSS2JSON, Alpha Vantage, Finnhub, FRED, Twelve Data, FMP,
+// NewsData.io, BOK, KOSIS) left with their inputs; boot deletes their stored values (src/app/bootstrap.js).
 var _AIO_PROVIDER_REGISTRY = [
-  { id: 'rss2json', label: 'RSS2JSON', credentialKey: 'aio_rss2json_key', inputId: 'rss2json-api-key', kind: 'news', format: 'opaque' },
-  { id: 'alpha-vantage', label: 'Alpha Vantage', credentialKey: 'aio_av_key', inputId: 'aio_av_key_input', kind: 'market', format: 'opaque' },
-  { id: 'finnhub', label: 'Finnhub', credentialKey: 'aio_finnhub_key', inputId: 'aio_finnhub_key_input', kind: 'market', format: 'opaque' },
-  { id: 'fred', label: 'FRED', credentialKey: 'aio_fred_key', inputId: 'aio_fred_key_input', kind: 'macro', format: 'opaque' },
-  { id: 'twelve-data', label: 'Twelve Data', credentialKey: 'aio_td_key', inputId: 'aio_td_key_input', kind: 'market', format: 'opaque' },
-  { id: 'fmp', label: 'FMP', credentialKey: 'aio_fmp_key', inputId: 'aio_fmp_key_input', kind: 'fundamental', format: 'opaque' },
-  { id: 'newsdata', label: 'NewsData.io', credentialKey: 'aio_newsdata_key', inputId: 'aio_newsdata_key_input', kind: 'news', format: 'opaque' },
-  { id: 'bok', label: 'BOK ECOS', credentialKey: 'aio_bok_key', inputId: 'aio_bok_key_input', kind: 'macro', format: 'opaque' },
-  { id: 'kosis', label: 'KOSIS', credentialKey: 'aio_kosis_key', inputId: 'aio_kosis_key_input', kind: 'macro', format: 'opaque' },
   { id: 'cloudflare-worker', label: 'CF Worker', credentialKey: 'aio_cf_worker_url', inputId: 'aio_cf_worker_input', kind: 'worker', format: 'url' }
 ];
 var _AIO_PROVIDER_BY_KEY = {};
@@ -11560,7 +11498,6 @@ window.AIO.getProviderStatusSnapshot = function() {
 function _aioValidateCredential(key, value) {
   var def = _aioProviderDefinition(key);
   if (!value) return { ok: true };
-  if (def && def.format === 'anthropic' && !/^sk-ant-[\x20-\x7E]{32,}$/.test(value)) return { ok: false, reason: 'INVALID_FORMAT' };
   if (def && def.format === 'url' && !/^https?:\/\/[^\s]+$/i.test(value)) return { ok: false, reason: 'INVALID_FORMAT' };
   return { ok: true };
 }
@@ -11769,7 +11706,6 @@ async function _aioSaveCredential(lsKey, value) {
     if (!_AioVault._keyRuntime) _AioVault._keyRuntime = {};
     if (clean) _AioVault._keyRuntime[lsKey] = clean;
     else delete _AioVault._keyRuntime[lsKey];
-    if (lsKey === 'aio_claude_api_key') _AioVault._claudeKeyRuntime = clean;
     var status = window.AIO.updateProviderStatus(lsKey, {
       storage: clean ? (result.encrypted ? 'READY_ENCRYPTED' : (_AioVault._publicMode ? 'READY_SESSION' : 'READY_PLAINTEXT')) : 'MISSING',
       authentication: 'NOT_CHECKED',
@@ -11842,11 +11778,10 @@ try { window._aioRetirePlaintextIdbBackup(); } catch(_e) {}
 // 현재 모든 API 키 snapshot 수집 (평문 또는 cache 복호화 값)
 window._aioCollectKeySnapshot = function() {
   var snap = {};
-  var keys = (typeof _AIO_PROVIDER_REGISTRY !== 'undefined') ? _AIO_PROVIDER_REGISTRY.map(function(provider) { return provider.credentialKey; }) :
-    ['aio_av_key','aio_finnhub_key','aio_fmp_key','aio_perplexity_key',
-     'aio_fred_key','aio_td_key','aio_newsdata_key','aio_rss2json_key','aio_bok_key','aio_kosis_key','aio_cf_worker_url'];
-  keys.forEach(function(k) {
-    var v = (_AioVault._keyRuntime && _AioVault._keyRuntime[k]) || safeLSGetSync(k, ''); // v57.67: retired keys still back up
+  // v57.79: the registry holds only live credentials, so retired personal keys no longer enter a backup.
+  _AIO_PROVIDER_REGISTRY.forEach(function(provider) {
+    var k = provider.credentialKey;
+    var v = (_AioVault._keyRuntime && _AioVault._keyRuntime[k]) || safeLSGetSync(k, '');
     if (v) snap[k] = v;
   });
   return snap;
@@ -12426,7 +12361,7 @@ function _vaultSetPin() {
   _AioVault.unlock(v1).then(function() {
     return _migrateToEncrypted();
   }).then(function() {
-    msg.textContent = '암호화 완료! API 키가 보호됩니다.'; msg.style.color = '#34d399';
+    msg.textContent = '암호화 완료. 포트폴리오 기록과 자체 프록시 주소가 보호됩니다.'; msg.style.color = '#34d399';
     pin1.value = ''; pin2.value = '';
     _updateVaultStatus();
   }).catch(function(e) {
@@ -12456,22 +12391,11 @@ function _vaultUnlock() {
 }
 
 // 복호화된 키를 input 필드에 복원 + 런타임 캐시에 저장
-// v47.7: aio_claude_api_key 복원 추가 — Vault 암호화 후 Claude 채팅 키 "사라짐" 버그 P109 수정
-// v47.9: 11개 모든 민감 키를 _AioVault._keyRuntime에 동기화 — fetcher들이 _getApiKey()로 조회
-// v47.9: rss2json 키 추가 (기존 누락) — 뉴스 소스 호출에 필요
+// v47.9: 복호화한 민감 키를 _AioVault._keyRuntime에 동기화 — fetcher들이 _getApiKey()로 조회
+// v57.79: the map follows the provider registry, so retired personal data/AI keys are never loaded into the cache.
 async function _restoreDecryptedKeys() {
   var generation = _AioVault._generation; try {
     var keyMap = [
-      ['aio_av_key', 'aio_av_key_input'],
-      ['aio_finnhub_key', 'aio_finnhub_key_input'],
-      ['aio_fred_key', 'aio_fred_key_input'],
-      ['aio_td_key', 'aio_td_key_input'],
-      ['aio_fmp_key', 'aio_fmp_key_input'],
-      ['aio_perplexity_key', 'aio_perplexity_key_input'],
-      ['aio_newsdata_key', 'aio_newsdata_key_input'],
-      ['aio_rss2json_key', 'aio_rss2json_key_input'],  // v47.9: 기존 누락 보강
-      ['aio_bok_key', 'aio_bok_key_input'],
-      ['aio_kosis_key', 'aio_kosis_key_input'],
       ['aio_cf_worker_url', 'aio_cf_worker_input']
     ];
     // v47.9: 통합 런타임 캐시 초기화
@@ -12482,15 +12406,9 @@ async function _restoreDecryptedKeys() {
       var val = await safeLSGet(lsKey); if (generation !== _AioVault._generation) throw new Error('vault-operation-cancelled');
       var el = document.getElementById(inputId);
       // v47.9: 복호화된 값은 반드시 _keyRuntime에 저장 (fetcher들의 _getApiKey 참조 대상)
-      // v57.75: retired personal data/AI keys stay encrypted in storage but are no longer loaded into the runtime cache
-      // that fetchers read (the getter already refused them; this closes the cache path).
-      if (val && (_aioIsRetiredDataKey(lsKey) || lsKey === 'aio_perplexity_key')) { val = ''; }
       if (val) _AioVault._keyRuntime[lsKey] = val;
       // 비밀값은 런타임 캐시에만 보관하고 DOM에는 고정 마스크만 둔다.
-      if (val && lsKey === 'aio_claude_api_key') {
-        _AioVault._claudeKeyRuntime = val;
-        if (el) { el.value = '••••••••'; el.dataset.secretStored = 'true'; }
-      } else if (val && el) {
+      if (val && el) {
         el.value = '••••••••';
         el.dataset.secretStored = 'true';
       }
@@ -12940,7 +12858,7 @@ window.AIO.annotateLiveDataSinks = function(root, opts) {
   // the explicit full-scan escape hatch for audits.
   if (!opts.allRoutes && root === document) {
     var visibleRoot = document.querySelector('.page.active');
-    var shellRoot = document.getElementById('topbar') || document.querySelector('header');
+    var shellRoot = document.querySelector('header');
     var roots = [];
     if (visibleRoot) roots.push(visibleRoot);
     if (shellRoot && roots.indexOf(shellRoot) < 0) roots.push(shellRoot);
@@ -13035,7 +12953,7 @@ window.AIO.annotateLiveDataSinks = function(root, opts) {
         el.setAttribute('data-truth-confidence', truth.confidence || '');
         el.setAttribute('data-truth-issues', (truth.issues || []).concat(truth.warnings || []).join('|'));
       }
-      if (!el.title) el.title = sym + ' · ' + kind + ' · ' + operationalUse;
+      el.setAttribute('data-aio-lineage', sym + ' · ' + kind + ' · ' + operationalUse); // v57.79: never `title` — value-basis.js shows any title as a reader card ("rrg-canvas · derived · reference-only" over the themes verdict)
       touched++;
     });
   } catch(_) {}
@@ -18592,15 +18510,14 @@ if (typeof document !== 'undefined') {
 // P845: showPage can be called by the compatibility facade before this map is
 // initialized, so the early route path must not observe a lexical TDZ.
 var breadcrumbMap = {
-  home: ['오늘','대시보드'], themes: ['테마 · 섹터','테마 분석'],
-  // P1129/R619: 퇴역한 KR 5라우트 항목 제거(DOM 0개, AIO_ROUTE_REGISTRY REMOVED).
-  portfolio: ['AIO','포트폴리오'], macro: ['거시 · 금리','거시 경제'],
+  home: ['오늘','대시보드'], themes: ['테마 · 섹터'], // v57.79: <sidebar hub>/<tab-bar label>; a one-tab hub shows its label alone (pinned in ci-esm-core-unit-check)
+  portfolio: ['포트폴리오'], macro: ['거시 · 금리','거시 경제'],
   technical: ['종목','차트'], fundamental: ['종목','재무 공시'],
   briefing: ['오늘','브리핑'], fxbond: ['거시 · 금리','금리 · 환율'],
   'market-news': ['오늘','뉴스'], signal: ['시장 상태','국면 판정'], breadth: ['시장 상태','시장 폭'], sentiment: ['시장 상태','투자 심리'],
   guide: ['도움말','화면 안내'], principles: ['리서치 라이브러리','개념·분석'], masters: ['리서치 라이브러리','대가 보유 종목'], atlas: ['리서치 라이브러리','산업 지도'],
-  screener: ['AIO','퀀트 스크리너'],
-  'theme-detail': ['테마 · 섹터','테마','—'],
+  screener: ['스크리너'],
+  'theme-detail': ['테마 · 섹터','테마 상세'],
   // A direct ticker-route visit has no selected symbol yet; do not present a
   // stale-looking placeholder symbol as if it were the current entity.
   ticker: ['종목','요약'],

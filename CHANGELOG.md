@@ -1,3 +1,26 @@
+## v57.79 (2026-10-15)
+- **Sample floor (P1824):** past-frequency lines no longer turn 3-9 cases into a hit rate or a "mostly rose" claim; counts and the median remain.
+- **Refresh cache (P1825):** a manual refresh now drops held validation and fiscal artifacts so remounted tabs read the new files.
+- **Hidden metadata (P1826):** internal lineage tokens no longer appear as hover cards on themes and the screener.
+- **Layout fixes (P1827):** phone schedule rows, the stock chart error state, the stock hero close and the 코스피 chip label.
+- **Policy review (v57.79):** an expert review of every decision ledger. AGENTS freshness is now cadence-relative and likelihood has a sample floor, and the IA names match the sidebar. CLAUDE.md is aligned with AGENTS. RULES.md: 17 rules retired, 24 superseded, 76 rewritten, and the core index rebuilt. QA-CHECKLIST: 106 open items closed as covered, retired or duplicate (292 -> 186). WORKFLOW-GOVERNANCE points to AGENTS Closeout. KNOWLEDGE-BASE gained method caveats (look-ahead/survivor bias, overlapping windows, outcome-selected samples, no trade instructions).
+- **Screen quality (v57.79):**
+- Home: one tile per measure with a live 지금 line; consistent breadcrumbs and titles.
+- Themes: capex legend with a dated citation, collision-free scatter labels, a scroll cue on the rank table, the 쏠림 caveat said once, an analytic sector-map default.
+- Screener: phone card rows and a stacked 읽는 법.
+- Portfolio: a one-line empty state.
+- Signal: one radar conclusion line.
+- Macro: long-history cards folded with their basis (phone page 19.7k -> 17.7k px), readable sparkline dates, stat values at their intended size.
+- Plain-Korean glossary entries and term marks for RRG, OAS, HY, TIPS, PCE, TGA, JOLTS, CCC, 풋/콜.
+- Research-shelf spine titles ellipsize.
+- **Retired providers (v57.79):** the Worker no longer relays FRED with personal keys; the provider registry, backup and boot cleanup keep only the Worker URL; the alert policy uses AI_DAILY_CAP; user-visible Claude/personal-key text is gone.
+- **Code hygiene (v57.79):**
+- Removed orphan writers to retired ids: home quality card, technical pill, ticker tab panes, screener filtered count, sentiment projection.
+- Removed the empty scenario/score-scale registries and the renderHomeFeed stub.
+- The R705 dead-id scan now covers src/.
+- Home/signal/portfolio read the shared store and compute inputs once (v57.78 follow-up for the daily loop).
+- R1 7곳 v57.79
+
 ## v57.78 (2026-10-15)
 - **Render work (v57.78):** home, 시장 상태 and portfolio renders read the shared store and compute the market inputs once per render (home: 3 -> 1 input builds, 2 -> 0 row-bridge reads on 시장 상태); rendered output is unchanged.
 - **Boot path (v57.78):** twelve test- and QA-only audit functions moved from js/aio-core.js and js/aio-data.js into the lazily loaded js/aio-qa-audits.js (about 41 KB less code at boot); three dead functions (getOperationalHealth, getQuantReadinessAudit, saveSidebarApiKey) and an unused orchestrator export were removed.

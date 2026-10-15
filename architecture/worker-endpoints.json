@@ -44,12 +44,11 @@
     "baseUrl": "https://aio-proxy.zmfhd007.workers.dev",
     "role": "fixed-provider-key-relay",
     "providers": {
-      "fred": { "credentialHeader": "X-AIO-Provider-Key", "clientCredentialKey": "aio_fred_key", "consentRequired": true, "cache": "private-no-store" },
-      "bok": { "keyEnv": "BOK_API_KEY", "clientCredentialKey": "aio_bok_key" },
-      "kosis": { "keyEnv": "KOSIS_API_KEY", "clientCredentialKey": "aio_kosis_key" }
+      "bok": { "keyEnv": "BOK_API_KEY" },
+      "kosis": { "keyEnv": "KOSIS_API_KEY" }
     },
-    "boundary": "upstream-host-is-hardcoded; client never supplies a destination; FRED personal header requires opt-in and is neither logged nor cached; BOK/KOSIS use operator secrets",
-    "missingKeyBehavior": "FRED-personal-key-required-400; BOK/KOSIS-missing-operator-secret-503"
+    "boundary": "upstream-host-is-hardcoded; client never supplies a destination or a key; BOK/KOSIS use operator secrets; the personal-key FRED relay was retired in v57.79 (provider=fred is unknown, 400)",
+    "missingKeyBehavior": "BOK/KOSIS-missing-operator-secret-503"
   },
   "security": {
     "secretsStayOutOfRepo": true,

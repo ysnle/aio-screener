@@ -1,23 +1,29 @@
 ---
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
-last_verified: 2026-10-13
+last_verified: 2026-10-15
 confidence: medium
-target_version: v57.54
+target_version: v57.79
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
 
-## 핵심 규칙 (먼저 읽기 · v57.54)
+## 핵심 규칙 (먼저 읽기 · v57.79)
 
-아래 32개가 지금 작업 판단에 쓰이는 규칙이다. 게이트·가이드에서 인용되는 빈도와 현재 제품 결정을 기준으로 골랐다. 나머지 R 항목은 재발 추적용 이력이며 ID·키워드로 검색할 때만 읽는다. 본문은 각 `R<n>.` 헤딩에 있다.
+아래 32개가 지금 작업 판단에 쓰이는 규칙이다. 게이트·가이드에서 인용되는 빈도와 현재 제품 결정(AGENTS.md)을 기준으로 골랐다. 나머지 R 항목은 재발 추적용 이력이며 ID·키워드로 검색할 때만 읽는다. 본문은 각 `R<n>.` 헤딩에 있고, 퇴역·대체된 규칙은 헤딩 바로 아래 `**Retired**`/`**Superseded by**` 줄이 있다.
 
-- **기록·버전**: R1 버전 표면은 `bump-version`으로 일괄 패치 · R2 `v{major}.{patch}` 단조 증가 · R3 수정 기록은 `record-fix`로 · R27 스킬과 command wrapper 동시 생성 · R618 원장 루프는 서술이 아니라 게이트로 닫는다 · R690 QA 증명은 실제 검사 범위와 커밋 index에 묶는다
+- **기록·버전**: R1 버전 표면(ci-version-check가 열거)은 `bump-version`으로만 바꾼다 · R3 수정 기록은 `record-fix`로 · R27 스킬과 command wrapper 동시 생성 · R618 원장 루프는 서술이 아니라 게이트로 닫는다 · R690 QA 증명은 실제 검사 범위와 커밋 index에 묶는다
 - **구조**: R619 같은 의미의 구현은 하나 · R620 분해 압력은 래칫(레거시 파일은 커지지 않는다) · R624 전역은 한 구현, 로드 순서는 계약 · R352 이관은 실행 owner를 옮기고 레거시 결합을 줄인다 · R704 선언된 native 표면은 실제로 존재 · R705 화면을 없애면 그 writer·타이머·리스너도 함께 없앤다
-- **생성물**: R560 병렬 검사에 노출된 JSON은 원자 교체 · R626 생성물 병합은 필드 소유권으로 · R605 정적 DB는 갱신 주기에 맞추거나 명시적으로 보류
-- **데이터 정직성**: R670 참고 점수는 직전 미국장 종가 기준이라고 밝힌다 · R671 현재성 라벨은 관측·달력에서 한 presenter로 · R340 필수 입력의 의미·기준일·coverage가 갖춰질 때만 결론 표시 · R447 시장 시간은 event/observed/collected/published를 구분 · R650 지난 일정 날짜는 발표 완료의 증거가 아니다 · R265 외부 도구와 같다고 주장하면 그 정의와 정확히 일치 · R672 한국 테마는 사용자 콘텐츠이며 라벨 owner는 하나
-- **수집·신선도**: R262 외부 피드 수집은 저장된 커서로 스스로 속도를 조절 · R634 신선도 감사에 stale을 통과시키는 모드가 없다 · R641 화면 판단과 운영 상태는 같은 신선도 경계 · R654 SEC 소유 공시와 13F는 서로 다른 주기 · R701 blocking 게이트 PASS를 전체 정상으로 올리지 않는다
-- **운영·보안**: R652 Worker 자동 배포는 CI 증거와 롤백 대상이 있어야 · R657 운영 알림은 증거를 남기고 닫힌 쪽으로 실패 · R658 운영 AI 사용량 증거는 인증·비공개 유지
-- **화면 문장**: R700 템플릿 슬롯 뒤 조사는 받침으로 고른다 · R703 한 사용자 입력은 한 owner가 처리하고 색 테마는 storage 실패와 무관
+- **생성물**: R560 병렬 검사에 노출된 JSON은 원자 교체 · R605 정적 DB는 갱신 주기에 맞추거나 명시적으로 보류
+- **데이터 정직성**: R670 참고 점수는 직전 미국장 종가 기준이라고 밝힌다 · R671 현재성 라벨은 관측·달력에서 한 presenter로 · R628 결측은 0도 조건 충족도 관측값도 아니다(`Number(null)===0`부터 막는다) · R340 필수 입력의 의미·기준일·coverage가 갖춰질 때만 결론 표시 · R447 시장 시간은 event/observed/collected/published를 구분 · R650 지난 일정 날짜는 발표 완료의 증거가 아니다 · R265 외부 도구와 같다고 주장하면 그 정의와 정확히 일치 · R663 종목은 정확한 등록 일치로만 해석하고 추측하지 않는다 · R706 과거 빈도는 겹치지 않는 사례로 세고 10건 미만이면 비율 없이 건수만 · R672 한국 테마는 사용자 콘텐츠이며 라벨 owner는 하나
+- **수집·신선도**: R634 신선도 감사에 stale을 통과시키는 모드가 없다 · R641 화면 판단과 운영 상태는 같은 신선도 경계 · R654 SEC 소유 공시와 13F는 서로 다른 주기 · R701 blocking 게이트 PASS를 전체 정상으로 올리지 않는다
+- **운영·AI**: R652 Worker 자동 배포는 CI 증거와 롤백 대상이 있어야 · R657 운영 알림은 증거를 남기고 닫힌 쪽으로 실패 · R681 모든 AI는 공용 Worker 한 경로로, 웹검색 포함 월 $20 이하 예산을 함께 쓴다
+- **화면**: R697 등급·검증 안 된 합산·행동 지시 없이 측정한 조건과 근거만 보인다 · R669 데스크톱·휴대폰·아이패드가 같은 라우트·데이터를 쓰고 레이아웃만 적응한다 · R703 한 사용자 입력은 한 owner가 처리하고 색 테마는 storage 실패와 무관
+
+## R706. Past frequencies need non-overlapping cases and a sample floor (v57.79, P1824)
+
+**Rule**: A past-frequency statement counts non-overlapping cases using only data available at each case date (no look-ahead, no outcome-selected samples). Below 10 cases it shows counts only (no rate, no "mostly" claim); 10-29 cases carry a small-sample note; a rate is shown next to the base rate of the same history. Inference on overlapping forward windows reports effective n or uses HAC/block-bootstrap intervals.
+
+**Validation**: node scripts/ci-scenario-guidance-fixture.mjs; src/domain/screener/conditional-evidence.js (refuse < 10, warn < 30)
 
 ## R705. Retiring a surface retires its writers (v57.47, P1670)
 
@@ -159,6 +165,8 @@ target_version: v57.54
 
 ## R682. Distinguish operator artifacts from optional personal provider queries (v57.06, P1422)
 
+**Retired (v57.79)**: personal provider keys and their settings inputs were retired in v57.67 and their code removed in v57.76; FRED and the other providers run on operator keys in Actions and the Worker.
+
 **Rule**: A registered operator secret does not configure a browser user's optional provider account. FRED user queries require that user's own key; forwarding through the trusted AIO relay requires explicit opt-in and no log/cache/persistence/redirect. BOK/KOSIS operator relay keys remain isolated. This personal-header exception supersedes the env-only FRED assumption in R627/P1151 while preserving fixed destinations and redaction. Current provider endpoint and response contracts must preserve identity, units and reporting periods; unprovided dates and unavailable plan data are held. HTTP batching is not a weighted-credit discount, and local browser counters cannot certify account-wide quota or billing. Settings expose only active optional inputs and clearly distinguish keyless common artifacts and AI from personal queries.
 
 **Validation**: P1422; ci-extension-api-runtime-check, ci-worker-relay-check, ci-operator-secrets-contract-check and local settings browser evidence. Live provider and data licensing checks remain distinct.
@@ -170,6 +178,8 @@ target_version: v57.54
 **Validation**: P1421; ci-ai-budget-scope-check, ci-worker-anthropic-check, ci-data-pipeline-contract-check, ci-ai-chat-public-route-browser-check, ci-operations-status-check and exact-SHA deployment smoke.
 
 ## R680. Budget scope, reservation and invoice remain distinct (v56.87, P1353)
+
+**Superseded by R681 (v57.79)**: the $20 shared budget, reservation accounting and the single Worker boundary are stated in R681; the direct-key path no longer exists.
 
 **Rule**: Owner 2026-10-11 approved a shared AI allocation of at most $20/month including conditional search, superseding the prior $10 AI allocation. Prefer free data; additional paid data still requires a demonstrated gap and owner approval. Daily counts are not money. Shared-Worker monthly reservations are atomic and conservative, never labelled actual invoiced usage or full-account protection. Unsupported/unpriced paid modes fail explicitly; direct-key/Actions paths and provider-native cap requirements stay visible.
 
@@ -243,7 +253,7 @@ target_version: v57.54
 
 ## R668. First screen shows values before summaries; blocked summaries collapse and name the cause (v56.80, P1322)
 
-**Rule**: On a desktop first screen, observed values (indices, key indicators) come before any derived summary. A derived summary that is blocked collapses to a single line and names the concrete cause (e.g. no decision-grade input) instead of "not received" when values are visibly present. Block order is static markup, not runtime DOM moves.
+**Rule**: On every viewport's first screen, observed values (indices, key indicators) come before any derived summary. A derived summary that is blocked collapses to a single line and names the concrete cause (e.g. no decision-grade input) instead of "not received" when values are visibly present. Block order is static markup, not runtime DOM moves. (v57.79 rewrite)
 
 **Validation**: `ci-runtime-contract-check.mjs` home order check and `ci-esm-core-unit-check.mjs` blocked wording (QA-UX-05).
 
@@ -285,13 +295,13 @@ target_version: v57.54
 
 ## R657. Operator alerts preserve explicit evidence and fail closed (v56.73, P1311)
 
-**Rule**: Evaluate a site outage only from explicit availability evidence and its continuous outage-start time; never infer one from deployment age. Count a core artifact stale only after at least two registered NYSE/KRX sessions have fully closed since its actual publication time. Resolve publication time in this order: `market-snapshot.json.generatedAt`, `market-snapshot.json.lastSuccessfulAt`, then `data.json.meta.marketSnapshotLastSuccessfulAt`; do not use attempt clocks (`data.json.meta.generatedAt`, `marketSnapshotPublishedAt`) or the operations-status generation clock. Evaluate AI usage against the actual `ANTHROPIC_DAILY_CAP` request count for the current UTC day. Thresholds are inclusive (24 hours, two sessions, 80%). Missing, malformed, future, impossible, wrong-day, over-cap, or unregistered-calendar evidence is `UNKNOWN`; consumers must not clear an existing alert from `UNKNOWN`. Keep the independent 12-hour hard freshness gate unchanged. This policy does not claim that probes, protected usage telemetry, or notification delivery are wired.
+**Rule**: Evaluate a site outage only from explicit availability evidence and its continuous outage-start time; never infer one from deployment age. Count a core artifact stale only after at least two registered NYSE/KRX sessions have fully closed since its actual publication time. Resolve publication time in this order: `market-snapshot.json.generatedAt`, `market-snapshot.json.lastSuccessfulAt`, then `data.json.meta.marketSnapshotLastSuccessfulAt`; do not use attempt clocks (`data.json.meta.generatedAt`, `marketSnapshotPublishedAt`) or the operations-status generation clock. Evaluate AI usage against the Worker's actual `AI_DAILY_CAP` request count (OpenAI gpt-6-luna) for the current UTC day. Thresholds are inclusive (24 hours, two sessions, 80%). Missing, malformed, future, impossible, wrong-day, over-cap, or unregistered-calendar evidence is `UNKNOWN`; consumers must not clear an existing alert from `UNKNOWN`. Keep the independent 12-hour hard freshness gate unchanged. This policy does not claim that probes, protected usage telemetry, or notification delivery are wired. (v57.79 rewrite)
 
 **Validation**: `ci-operations-alert-policy-check.mjs` pins exact threshold boundaries, explicit evidence, timestamp source ordering, prohibited attempt/status clocks, NYSE DST/holiday/half-day and KRX holiday/close boundaries, unregistered years, missing values, UTC rollover, and immutability. `ci-qa-pipeline-contract-check.mjs` R657/P1311/QA-OPS-01 pins its gate inputs and the unchanged 12-hour operations-status SLA. Actual source adapters and delivery remain separate evidence.
 
 ## R658. Operator AI usage evidence stays authenticated and private (v56.74, P1312)
 
-**Rule**: The current UTC-day Anthropic request count may be read only from the US quota Durable Object through `GET /_ops/ai-usage` with a separate `AIO_OPERATOR_TOKEN` of at least 32 characters. The route is read-only, no-store, and has no CORS response. Missing configuration or failed authentication returns 404; unavailable/malformed quota evidence fails closed. Never add Anthropic usage, cap, or token material to public `/health`, logs, artifacts, or public issue bodies. Do not change reserve/release enforcement or the existing cap.
+**Rule**: The current UTC-day shared-Worker AI request count may be read only from the US quota Durable Object through `GET /_ops/ai-usage` with a separate `AIO_OPERATOR_TOKEN` of at least 32 characters. The route is read-only, no-store, and has no CORS response. Missing configuration or failed authentication returns 404; unavailable/malformed quota evidence fails closed. Never add AI usage, cap, or token material to public `/health`, logs, artifacts, or public issue bodies. Do not change reserve/release enforcement or the existing cap. (v57.79 rewrite)
 
 **Validation**: `ci-worker-anthropic-check.mjs` P1312/QA-OPS-02 checks missing/invalid/valid authentication, GET-only behavior, exact response shape, privacy headers, UTC count and Anthropic-only DO day keys. `ci-worker-relay-check.mjs` pins public `/health` non-disclosure; `ci-cloudflare-deployment-contract-check.mjs` ties the route, secret requirement, and `usage` operation to `architecture/worker-endpoints.json`. Live provisioning and retrieval are operator evidence, not a local PASS.
 
@@ -345,7 +355,7 @@ target_version: v57.54
 
 ## R665. Explanations are reachable by pointer and keyboard, fully on screen (v56.78, P1320)
 
-**Rule**: Every "?"/term explanation must open by hover, focus, click and Enter/Space, close by Escape/outside click, carry an accessible name, and render entirely inside the desktop viewport. Mobile/touch sizing stays out of scope (R474).
+**Rule**: Every "?"/term explanation opens by hover, focus, click and Enter/Space, closes by Escape or an outside click, carries an accessible name, and stays fully inside the viewport at desktop, 390×844, 768×1024 and 1024×768, with touch opening it (R669). (v57.79 rewrite)
 
 **Validation**: `ci-esm-core-unit-check.mjs` P1320/QA-UX-04 placement fixtures and bootstrap installation assertion; local desktop Chromium placement check.
 
@@ -357,7 +367,7 @@ target_version: v57.54
 
 ## R655. Generated knowledge candidates preserve exact provenance and require human review (v56.72, P1310)
 
-**Rule**: When knowledge sources or builder dependencies change, build review candidates with the existing ordered builder/target inventory inside a disposable checkout. PR path filters include inventoried builders, runtime/helper modules, literal source-file inputs and generated input indexes so relevant changes cannot skip candidate generation. Keep the trigger contract synchronized when an input is added; it currently pins the Principles/Atlas source pages and learning route modules as well as masters/index and shared writer/hash helpers. Export only generated target changes and a manifest that identifies the tested checkout SHA and PR head SHA. The output directory must be outside the repository; workflow permissions stay read-only, actions are SHA-pinned, and generated candidates cannot modify canonical sources, commit, push, or deploy. A person reviews and adds approved outputs in the source change.
+**Rule**: When knowledge sources or builder dependencies change, review candidates are built with the existing ordered builder/target inventory inside a disposable checkout. The candidate workflow runs only on pull requests (path filters cover inventoried builders, runtime/helper modules, literal source-file inputs and generated input indexes) and manual dispatch; direct work on main relies on `ci-knowledge-generated-parity-check.mjs` instead. Keep the trigger contract synchronized when an input is added. Export only generated target changes and a manifest naming the tested checkout SHA; the output directory is outside the repository, permissions stay read-only, actions are SHA-pinned, and candidates never modify canonical sources, commit, push or deploy. A person reviews and adds approved outputs in the source change. (v57.79 rewrite)
 
 **Validation**: `ci-knowledge-generated-parity-check.mjs --candidate-dir <external-directory>` exercises the shared builder inventory, exact SHA manifest, and outside-workspace boundary; default mode retains the no-drift parity gate. `ci-qa-pipeline-contract-check.mjs` P1310/QA-DATA-52 pins the PR/manual workflow, permissions, exact checkout, pinned artifact upload, builder dependency/input path triggers, and no-write/no-deploy boundaries. GitHub artifact execution and human review remain separate evidence.
 
@@ -375,11 +385,13 @@ target_version: v57.54
 
 ## R646. live-core freshness uses a fixed millisecond-precision 12-hour budget (v56.61, P1296)
 
-**Rule**: Browser and operations-status consumers use the canonical 12-hour wall-clock SLA; generated artifact metadata cannot enlarge or otherwise redefine that budget. Compare unrounded elapsed milliseconds so exactly 12 hours is allowed, while 12 hours plus any positive duration and any future timestamp are stale.
+**Rule**: The 12-hour live-core limit is a producer-liveness SLA: the artifact itself was regenerated within 12 hours, compared in unrounded milliseconds (exactly 12h passes; 12h plus any positive duration, or any future timestamp, is stale), and generated metadata cannot enlarge it. Whether an observation is current is judged per source cadence and exchange calendar (R671, R558); neither substitutes for the other. (v57.79 rewrite)
 
 **Validation**: `ci-data-pipeline-contract-check.mjs` and `ci-operations-status-check.mjs` pin 12h, 12h+1ms, 24h with declared 48h, and future-cycle fixtures (QA-DATA-39).
 
 ## R645. future generatedAt never makes browser market data fresh (v56.61, P1295)
+
+**Superseded by R646 (v57.79)**: R646 treats any future artifact timestamp as stale.
 
 **Rule**: A published complete market cycle with `generatedAt` later than wall clock is invalid for current decision inputs. It must not become eligible through a zero-clamped age, a completed historical session window, or snapshot-clock advancement.
 
@@ -398,6 +410,8 @@ target_version: v57.54
 **Validation**: `ci-data-refresh-audit.mjs` P1293/R643 fixtures reject stale, missing, future, implausible, unofficial, unwired, and one-sided Fed/BOK evidence (QA-DATA-36). This local contract validates metadata, domains, dates, ranges, and wiring; it does not fetch primary-page bodies, so source contents require separate evidence.
 
 ## R642. future snapshot timestamps never report current or pass promotion (v56.61, P1292)
+
+**Superseded by R647 (v57.79)**: R647 classifies future and malformed timestamps before any forced status and rejects promotion.
 
 **Rule**: A future `generatedAt` is classified as `FUTURE` before any forced audit status is applied. Future or malformed publication time cannot be A1 `OK` or promotion-ready.
 
@@ -428,6 +442,8 @@ target_version: v57.54
 **Validation**: `ci-esm-core-unit-check`는 bootstrap 상수의 facade 전달을 동적으로 확인한다. browser T818/P1288/R638은 적격 기사 1·4건 hold, 5건 publish, `sampleSufficient` 표식에 null 점수를 붙인 모순 신호 reject, 시장상태/action/narrative 소비자 hold/publish를 확인한다.
 
 ## R637. live-core freshness는 시장 휴장으로 SLA를 넘겨 통과하지 않는다 (v56.58, P1287)
+
+**Superseded by R641 (v57.79)**: R641 applies the same no-closure-grace live-core boundary to browser decisions and operations status.
 
 **Rule**: `data.json`과 `market-snapshot.json`은 각각 생성 lineage SLA를 만족해야 한다. 휴장 상태, Tier-0 quote coverage, `CLOSED_CURRENT` 관측치가 artifact 자체의 오래된 `generatedAt`을 새 것으로 만들지 않는다. 초과 시 항상 hard `FAIL`; 배포 전 정상 producer refresh가 필요하다.
 
@@ -713,7 +729,7 @@ target_version: v57.54
 
 ## R583. 브라우저 QA는 canonical route·제품 viewport·settled paint를 검사하고 실행 자원을 분리한다 (v54.76 working tree, P1032)
 
-**Rule**: all-route gate는 `ROUTE_IDS`를 직접 소비하고 desktop 제품 범위는 공유 viewport config를 사용한다. geometry/canvas/overflow는 route lifecycle과 paint settle 뒤에 측정한다. 브라우저 concurrency와 CPU/VM concurrency를 분리하고 각 browser gate의 port를 충돌 없이 소유한다. static/headless/browser/live 증거를 서로 승격하지 않는다.
+**Rule**: all-route gate는 `ROUTE_IDS`를 직접 소비하고 공유 viewport matrix(데스크톱 + compact 390/768/1024, R669)를 사용한다. geometry/canvas/overflow는 route lifecycle과 paint settle 뒤에 측정한다. 브라우저 concurrency와 CPU/VM concurrency를 분리하고 각 browser gate의 port를 충돌 없이 소유한다. static/headless/browser/live 증거를 서로 승격하지 않는다. (v57.79 rewrite)
 
 **Validation**: `scripts/qa-runner.mjs`, `ci-viewport-matrix-check.mjs`, all-route gates, `ci-desktop-scope-check.mjs`, `ci-qa-pipeline-contract-check.mjs`. 전체 browser matrix는 별도 실행 결과가 있어야만 완료로 표시한다.
 
@@ -811,15 +827,17 @@ target_version: v57.54
 
 ## R567. 자동 refresh는 producer가 바꾼 모든 readiness와 generated evidence를 같은 커밋에 수렴시킨다 (v54.64, P1001)
 
+**Superseded by R603 (v57.79)**: refresh commits no longer regenerate workspace state (R595/R603).
+
 **Rule**: core/screener 자동 refresh가 operations status나 public data를 갱신하면 `architecture/public-readiness.json`을 포함해 producer가 쓴 파생물을 stage하고, 모든 데이터·manifest 생성 뒤 `generate-workspace-state --write`를 실행해 CURRENT-STATE와 CONTEXT-CATALOG를 같은 커밋에 포함한다. 데이터만 최신이고 exact-SHA 계약이 실패하는 커밋을 게시하지 않는다.
 
 **Validation**: 두 refresh workflow, data-pipeline contract, generated-state/workspace/operations preflight와 exact-SHA CI.
 
 ## R566. AI 안전·검색·지식 결손은 답변 전체가 아니라 실제 위험·주장 범위에서만 강등한다 (v54.64, P1000)
 
-**Rule**: 매수·매도·손절·비중 같은 어휘 자체를 개인화 행동으로 판정하지 않는다. 교육·조건부 시나리오·시장/규제 영향·법률/세무 분석은 전제·관할·기준일·근거 상태를 표시해 답하며, pre-provider 차단은 개인화 실행·실제 주문/계정 변경·불법 실행법으로 제한한다. Web Research 실패나 opt-out은 current/causal claim만 보류하고 reference 설명을 지우지 않는다. 시장 원리와 AI 시대 지식은 bounded lazy retrieval, `sourceKind=REFERENCE`, `currentClaimsAllowed=false`, authoring/directness 상태, route/source provenance를 보존하며 live/snapshot evidence로 승격하지 않는다.
+**Rule**: 매수·매도·손절·비중 같은 어휘 자체를 개인화 행동으로 판정하지 않는다. 교육·조건부 시나리오·시장/규제 영향·법률/세무 분석은 전제·관할·기준일·근거 상태를 표시해 답하며, pre-provider 차단은 개인화 실행·실제 주문/계정 변경·불법 실행법으로 제한한다. Web Research 실패는 current/causal claim만 보류하고 reference 설명은 유지한다(opt-out 경로 없음). 시장 원리와 AI 시대 지식은 bounded lazy retrieval, `sourceKind=REFERENCE`, `currentClaimsAllowed=false`, authoring/directness 상태, route/source provenance를 보존하며 live/snapshot evidence로 승격하지 않는다. (v57.79 rewrite)
 
-**Validation**: `src/ai/{intent/taxonomy,research/decision,retrieval/knowledge}.js`, `js/aio-chat.js`, both chat surfaces, `public-data/knowledge/ai-retrieval-index.json`, `scripts/ci-ai-intelligence-contract-check.mjs`, `scripts/ci-ai-chat-reliability-contract-check.mjs`, and `scripts/ci-knowledge-generated-parity-check.mjs`.
+**Validation**: `src/ai/{intent/taxonomy,research/decision,retrieval/knowledge}.js`, `js/aio-chat.js`, the single top `#ai-panel`, `public-data/knowledge/ai-retrieval-index.json`, `scripts/ci-ai-intelligence-contract-check.mjs`, `scripts/ci-ai-chat-reliability-contract-check.mjs`, and `scripts/ci-knowledge-generated-parity-check.mjs`.
 
 ## R565. 텍스트 projection manifest의 digest·bytes는 checkout 줄바꿈에 독립적이어야 한다 (v54.63, P999)
 
@@ -835,7 +853,7 @@ target_version: v57.54
 
 ## R563. 자동 데이터 merge의 마지막 생성물은 current workspace state다 (v54.63, P997)
 
-**Rule**: 원격 refresh bot의 artifact를 병합하고 bounded projection·reconciliation·operations·release manifest를 재생성한 뒤에는 `generate-workspace-state --write`를 마지막에 실행한다. 병합 전 생성된 CURRENT-STATE를 재사용하거나 Windows 최신 런타임 PASS만으로 푸시하지 않으며, CI와 동일한 최소 Node 버전 preflight를 확인한다.
+**Rule**: main을 pull한 뒤 생성물 manifest 충돌이 나면 `node scripts/resolve-generated-conflicts.mjs`와 그것이 출력하는 게이트를 실행하고, `generate-workspace-state --write`는 마지막에 실행한다. 병합 전 생성된 CURRENT-STATE를 재사용하거나 Windows 최신 런타임 PASS만으로 푸시하지 않으며, CI와 동일한 최소 Node 버전 preflight를 확인한다. (v57.79 rewrite)
 
 **Validation**: `node scripts/generate-workspace-state.mjs --check`, Node 20 `qa-runner --group preflight --no-cache`, exact-SHA CI attestation.
 
@@ -871,7 +889,7 @@ target_version: v57.54
 
 ## R557. 공개 AI 경로와 bootstrap payload는 동일한 readiness·byte evidence에서 생성한다 (v54.63, P991)
 
-**Rule**: 실패·stale·비 HTTPS Worker를 정적 설정만으로 공개하지 않는다. 공개 route는 관측된 health에서 생성하고 불확실하면 null/disabled/personal-key-only로 단조 강등한다. 대형 canonical 데이터는 초기 shell에서 제외하고 의미를 보존한 bounded projection이 선언 byte budget을 통과해야 한다.
+**Rule**: 실패·stale·비 HTTPS Worker를 정적 설정만으로 공개하지 않는다. 공개 route는 관측된 health에서 생성하고 불확실하면 null/disabled로 단조 강등한다(개인 키 경로 없음). 대형 canonical 데이터는 초기 shell에서 제외하고 의미를 보존한 bounded projection이 선언 byte budget을 통과해야 한다. (v57.79 rewrite)
 
 **Validation**: operations/public-route/AI browser/release contracts and Masters initial-artifact budget.
 
@@ -931,9 +949,9 @@ target_version: v57.54
 
 ## R547. AI 행동 권한은 모든 provider·quota·retrieval보다 앞선 단일 오케스트레이터 경계다 (v54.62, P981)
 
-**Rule**: QuestionPlan의 action permission이 denied이면 provider runner를 절대 호출하지 않는다. UI는 안전한 교육·비교 대안만 표시할 수 있으며, 각 chat adapter의 추가 gate는 단일 경계를 보강할 뿐 대체하지 않는다. required research가 미확인인 partial stream에는 최신 수치·원인 단정을 노출하지 않는다.
+**Rule**: QuestionPlan의 action permission이 denied이면 provider runner를 절대 호출하지 않는다. UI는 안전한 교육·비교 대안만 표시할 수 있으며, 상단 AI 패널의 추가 gate는 단일 경계를 보강할 뿐 대체하지 않는다. required research가 미확인인 partial stream에는 최신 수치·원인 단정을 노출하지 않는다. (v57.79 rewrite)
 
-**Validation**: answer orchestrator executable fixture, both chat surfaces, `ci-ai-intelligence-contract-check.mjs`.
+**Validation**: answer orchestrator executable fixture, the top AI panel, `ci-ai-intelligence-contract-check.mjs`.
 
 ## R546. 운영 알림 임계값·dedupe·복구 증거는 같은 workflow identity로 수렴한다 (v54.61, P980)
 
@@ -984,6 +1002,8 @@ target_version: v57.54
 **Validation**: `scripts/ci-retirement-contract.mjs`, `src/legacy/compatibility-facade.js`, `architecture/route-owners.json`.
 
 ## R538. Service worker 설치는 작은 핵심 셸만 원자적으로 precache한다 (v54.59, P972)
+
+**Superseded by R621 (v57.79)**: R621 states the same boot-critical precache boundary and its 1..12 gate.
 
 **Rule**: service worker install은 bounded same-origin critical shell만 `cache.addAll`로 설치한다. route/ESM module은 실제 요청 뒤 runtime cache하며 외부 CDN·대형 데이터·전체 module registry가 install을 막거나 `allSettled`로 partial install을 성공 처리할 수 없다.
 
@@ -1062,6 +1082,8 @@ target_version: v57.54
 **Validation**: `scripts/build-operations-status.mjs`, `scripts/ci-external-pipeline-check.mjs`, `public-data/operations-status.json`, `.github/workflows/data-watchdog.yml`.
 
 ## R528. Cloudflare 배포는 수동 권한·직렬 ownership·관측·smoke를 함께 가진다 (v54.58, P965)
+
+**Superseded by R652 (v57.79)**: Workers auto-deploy from the exact CI attestation with a verified rollback target (R652/R653); manual dispatch remains an operator path only.
 
 **Rule**: AI proxy와 fast data plane 배포는 `workflow_dispatch`만 허용하고 같은 plane의 배포를 cancel하지 않고 직렬화한다. 고정 Wrangler, source contract, Workers Logs sampling, post-deploy health를 필수로 하며 AI proxy는 CORS/origin fail-closed와 실제 provider smoke까지 통과해야 성공이다. Pages 또는 local QA 성공은 Worker 배포 권한이 아니다.
 
@@ -1195,9 +1217,9 @@ target_version: v57.54
 
 ## R502. Every golden route belongs to shared viewport and accessibility coverage (v54.38, P948)
 
-**Rule**: a route promoted to the primary navigation must be present in the shared desktop viewport, accessibility and lifecycle route inventories. User-visible copy must use product language, never raw internal artifact/service identifiers, and every persistent input must have an accessible name.
+**Rule**: Every route in `architecture/golden-routes.json` (the 8 screens plus their legacy aliases) is in the shared viewport, accessibility and lifecycle inventories. User-visible copy uses product language, never raw internal artifact/service identifiers, and every persistent input has an accessible name. (v57.79 rewrite)
 
-**Validation**: `scripts/ci-viewport-matrix-check.mjs`, the accessibility browser gate and the 20-route lifecycle/soak gates must include `principles`, `masters` and `atlas`.
+**Validation**: `scripts/ci-viewport-matrix-check.mjs`, the accessibility browser gate and the lifecycle/soak gates over every golden route must include `principles`, `masters` and `atlas`. (v57.79 rewrite)
 
 ## R501. Structured knowledge depth is not human certification (v54.38, P948)
 
@@ -1225,7 +1247,7 @@ target_version: v57.54
 
 ## R497. Public AI chat is certified as a fresh-browser consumer outcome (v54.37, P944)
 
-**Rule**: A public AI fallback is usable only when one canonical route contract connects `public-config.json`, boot defaults, readiness, deep health, the request target, Worker-advertised token limits, stream completion, and a non-empty user-visible answer in a browser with no stored key or override. Personal keys remain preferred when present. AnswerPlan validation must remove only unsupported claims or current numeric sentences; it must not erase independently safe qualitative content. Partial structured streams must conceal control JSON, and truncated structured output must recover safe prose with an explicit limitation instead of producing a blank response.
+**Rule**: Public AI is certified only through the shared Worker route: one canonical route contract connects `public-config.json`, boot defaults, readiness, deep health, the request target, Worker-advertised token limits, stream completion, and a non-empty user-visible answer in a fresh browser; no personal key or override path exists. AnswerPlan validation must remove only unsupported claims or current numeric sentences; it must not erase independently safe qualitative content. Partial structured streams must conceal control JSON, and truncated structured output must recover safe prose with an explicit limitation instead of producing a blank response. (v57.79 rewrite)
 
 **Validation**: `scripts/ci-ai-chat-public-route-browser-check.mjs`, `scripts/ci-ai-chat-reliability-contract-check.mjs`, `scripts/ci-runtime-contract-check.mjs`, and `js/aio-tests.js` T990d~T990g must pass. `scripts/ci-live-invariant-check.mjs` must verify the deployed public config and Worker health contract before live certification.
 
@@ -1272,6 +1294,8 @@ target_version: v57.54
 **Validation**: The market-epoch and quant auto-refresh Playwright gates run in `headless-tests` after `npx playwright install --with-deps chromium`; Pages deploy continues to require `headless-tests` success.
 
 ## R488. Scope gates validate their direct inputs from the committed tree (v54.22)
+
+**Superseded by R669 (v57.79)**: the desktop-only scope this rule protected was reversed by P1618.
 
 **Rule**: A product-scope declaration such as desktop-only is not complete while any committed gate dependency still requires a retired mobile fallback, persona, viewport, or acceptance path. When broader files contain unrelated work, stage only the exact scope correction, but include every direct input read by the blocking scope gate. A working-tree pass cannot substitute for a clean-commit pass.
 
@@ -1327,15 +1351,15 @@ target_version: v57.54
 
 ## R479. Quant rows and rankings preserve separate source epochs and rendered-symbol refresh demand (v54.20)
 
-**Rule**: A quant row must not project one generic timestamp across live price, market cap, EOD technical/factor data, filing-derived fundamentals, identity, breadth/regime, and news. Every family retains its own observation/fetch/source/revision lineage. Ranking factors activate only when their actual per-row observation-age coverage reaches the declared threshold; artifact-level coverage or a successful fetch flag is insufficient. The visible desktop result batch must register bounded symbol demand with the central quote scheduler, and ranking input revision, screen snapshot, and displayed timeline must agree. Missing or stale required evidence fails closed; optional low-coverage fundamentals/news remain explicitly partial.
+**Rule**: A quant row must not project one generic timestamp across live price, market cap, EOD technical/factor data, filing-derived fundamentals, identity, breadth/regime, and news. Every family retains its own observation/fetch/source/revision lineage. Ranking factors activate only when their actual per-row observation-age coverage reaches the declared threshold; artifact-level coverage or a successful fetch flag is insufficient. The visible result batch at every viewport (desktop, phone, tablet) must register bounded symbol demand with the central quote scheduler, and ranking input revision, screen snapshot, and displayed timeline must agree. Missing or stale required evidence fails closed; optional low-coverage fundamentals/news remain explicitly partial. (v57.79 rewrite)
 
-**Validation**: `validate-screener-artifact.mjs` enforces 2-day artifact and 4-day factor freshness plus 80% current factor coverage. `ci-screener-workbench-contract.mjs` verifies separate live/fundamental epochs. `ci-page-data-timeline-contract-check.mjs` requires six quant checks: snapshot, factor coverage, ranking epoch, visible quotes, fundamentals, and news. `ci-screener-auto-refresh-browser-check.mjs` proves 12/12 rendered-symbol quote demand, display binding, ranking revision parity, and stale-fundamental factor exclusion. `.github/workflows/refresh-screener.yml` runs the producer-safe pure gates after each six-hour build. Mobile remains excluded by R474.
+**Validation**: `validate-screener-artifact.mjs` enforces 2-day artifact and 4-day factor freshness plus 80% current factor coverage. `ci-screener-workbench-contract.mjs` verifies separate live/fundamental epochs. `ci-page-data-timeline-contract-check.mjs` requires six quant checks: snapshot, factor coverage, ranking epoch, visible quotes, fundamentals, and news. `ci-screener-auto-refresh-browser-check.mjs` proves 12/12 rendered-symbol quote demand, display binding, ranking revision parity, and stale-fundamental factor exclusion. `.github/workflows/refresh-screener.yml` runs the producer-safe pure gates after each six-hour build.
 
 ## R478. Market-sensitive fields retain one machine-checkable timeline and direction basis (v54.19)
 
-**Rule**: Every decision-relevant page field must preserve its value, source, `observedAt`, `fetchedAt`, revision, and change basis from producer through provider, normalizer, state, and renderer. A direction may be compared only when its basis is explicit and compatible. Required missing/basis-incompatible/mixed-revision fields fail closed; stale required fields cap the page at partial. Runtime execution time must never replace observation time. Long-lived visible tabs must periodically reevaluate active-page freshness and reuse the page refresh profile without refreshing hidden tabs.
+**Rule**: On every market route in the current route registry and at every responsive viewport, every decision-relevant field must preserve its value, source, `observedAt`, `fetchedAt`, revision, and change basis from producer through provider, normalizer, state, and renderer. A direction may be compared only when its basis is explicit and compatible. Required missing/basis-incompatible/mixed-revision fields fail closed; stale required fields cap the page at partial. Runtime execution time must never replace observation time. Long-lived visible tabs must periodically reevaluate active-page freshness and reuse the page refresh profile without refreshing hidden tabs. (v57.79 rewrite)
 
-**Validation**: `ci-page-data-timeline-contract-check.mjs` covers all 16 desktop market routes and 44 field requirements with stale, missing-direction, mixed-revision, and numeric-zero fixtures. `ci-page-market-epoch-browser-check.mjs` verifies runtime audit coverage and page DOM/API timeline parity. Mobile remains outside the product acceptance scope per R474.
+**Validation**: `ci-page-data-timeline-contract-check.mjs` covers every market route in the current route registry and 44 field requirements with stale, missing-direction, mixed-revision, and numeric-zero fixtures. `ci-page-market-epoch-browser-check.mjs` verifies runtime audit coverage and page DOM/API timeline parity.
 
 ## R477. Market-sensitive routes consume one evidence-derived market epoch (v54.18)
 
@@ -1345,11 +1369,15 @@ target_version: v57.54
 
 ## R474. Owner-approved desktop, mobile and tablet scope (v57.38, P1618)
 
+**Superseded by R669 (v57.79)**: R669 records the same owner decision (P1618) and is the canonical responsive-scope rule.
+
 **Rule**: The owner explicitly reopened mobile and tablet work on 2026-10-11. Shared shell changes must preserve desktop readability while adapting navigation, cards, charts, tables and AI chat to mobile/iPad automatically. Do not substitute different instruments, evidence or privacy behavior for compact users.
 
 **Validation**: `scripts/ci-desktop-scope-check.mjs` and `scripts/ci-responsive-browser-check.mjs` are blocking gates. The generated knowledge scenarios remain unchanged; browser coverage derives routes from the current registry.
 
 ## R476. Retired mobile touch-target checks do not block desktop-only releases (v54.17)
+
+**Superseded by R669 (v57.79)**: responsive scope was reopened (P1618) and small-target violations block again in ci-accessibility-matrix-check.
 
 **Rule**: The accessibility matrix continues to record small-target observations for audit visibility, but the former mobile 24px touch-target criterion is not a required release gate while the product scope is desktop-only. Desktop semantic names, keyboard reachability, focus paths, canvas naming, font floor, and console-error checks remain blocking.
 
@@ -1425,7 +1453,7 @@ target_version: v57.54
 
 **Rule**: `version.json`, `sw.js`, `architecture/asset-manifest.json`, `architecture/release-manifest.json`, `architecture/visual-state-matrix.json`, `architecture/operations-slo.json`, and `architecture/public-readiness.json` must advertise one application revision; worker revision fields must match `sw.js`. A version bump is not stageable while any release SSOT still points to the prior revision.
 
-**Validation**: `ci-architecture-contract.mjs`, `ci-operations-contract-check.mjs`, and `ci-release-manifest-contract.mjs` must all pass after every bump.
+**Validation**: `ci-architecture-contract-check.mjs`, `ci-operations-contract-check.mjs`, and `ci-release-manifest-contract.mjs` must all pass after every bump. (v57.79 rewrite)
 
 ## R420. 공식 일정의 완료 이벤트는 nextRelease로 남기지 않는다 (v53.64, P865)
 
@@ -1441,7 +1469,7 @@ target_version: v57.54
 
 ## R422. LKG 값은 개인 공급자 재시도나 최신 성공시각으로 간주하지 않는다 (v53.65, P867)
 
-**Rule**: 서버 아티팩트의 last-known-good 매크로 값은 원 관측일과 원 출처를 유지해야 하며, 현재 FRED 수신 성공으로 카운트하거나 `macro_fred`의 현재시각을 찍어서는 안 된다. 서버 FRED가 실패했고 브라우저에 개인 키가 저장돼 있으면 LKG 값의 존재와 무관하게 개인 경로를 시도한다. 저장 상태, 인증 상태, 연결 상태는 서로 다른 필드로 표시한다.
+**Rule**: 서버 아티팩트의 last-known-good 매크로 값은 원 관측일과 원 출처를 유지하며, 현재 FRED 수신 성공으로 카운트하거나 `macro_fred`의 현재시각을 찍지 않는다. 저장 상태, 인증 상태, 연결 상태는 서로 다른 필드로 표시한다(개인 FRED 키 경로 없음). (v57.79 rewrite)
 
 **Validation**: `ci-data-pipeline-contract-check.mjs`는 서버 공통컷 메타데이터 보존, `!fredFetchOk` 개인 브리지, FRED 인증/연결 상태와 콜드 로딩의 제한 재적용 경로를 검사한다. 매크로 UI는 관측일과 수집시각을 별도로 유지한다.
 
@@ -1453,7 +1481,7 @@ target_version: v57.54
 
 ## R424. 모든 라우트의 현재시장 문맥은 하나의 서버 24시간 컷을 사용한다 (v53.65, P869)
 
-**Rule**: 페이지별 브라우저 시계로 독립적인 “오늘/최근” 구간을 만들지 않는다. 17개 라우트는 `_serverDataMeta.newsCycleStart/newsCycleEnd/marketSnapshotRevision`을 공통 시장 문맥으로 사용하고, 라이브 오버레이는 세션·지연 라벨을 유지한다. 공식 발표가 완료되면 일정만 넘기지 말고 공식 1차 소스의 최신 관측값도 별도 어댑터로 갱신한다.
+**Rule**: 페이지별 브라우저 시계로 독립적인 “오늘/최근” 구간을 만들지 않는다. `architecture/route-owners.json`의 모든 라우트는 `_serverDataMeta.newsCycleStart/newsCycleEnd/marketSnapshotRevision`을 공통 시장 문맥으로 사용하고, 라이브 오버레이는 세션·지연 라벨을 유지한다. 공식 발표가 완료되면 일정만 넘기지 말고 공식 1차 소스의 최신 관측값도 별도 어댑터로 갱신한다. (v57.79 rewrite)
 
 **Validation**: 모든 decision header가 동일한 `data-market-cut-*`을 노출하고, 페이지 계약은 `independent-page-cycle`과 `in-session-value-as-daily-close`를 금지한다. BEA PCE 파서 fixture와 22개 데이터 감사가 최신 발표·관측·다음 일정을 확인한다.
 
@@ -1465,17 +1493,23 @@ target_version: v57.54
 
 ## R357. Native bounded technical surfaces must have one pure model and an explicit legacy writer fence (v53.20, P785)
 
+**Retired (v57.79)**: the technical 0–100 health surface was removed (P1420); the screen shows the six-axis market regime.
+
 **Rule**: A technical route may transfer a primary health surface only when its formula is owned by one pure domain model, normalized state carries that model output, the native renderer owns the declared sinks, and every compatibility initializer that can reach those sinks explicitly skips them while the native marker is active. Secondary chart/indicator/stage/narrative surfaces must remain separately declared until their own writer packet is complete.
 
 **Validation**: `ci-esm-core-unit-check.mjs` covers missing-input fail-closed and bullish/defensive threshold fixtures; `ci-architecture-contract-check.mjs` requires `market-health.v1`, native technical renderer markers, and both compatibility fences; `ci-architecture-browser-check.mjs` requires technical primary sink `11/11`, native marker parity, and the `NATIVE-FENCE` last-writer regression assertion.
 
 ## R358. Signal primary text must derive from one Trading Score model and fence the legacy dashboard writer (v53.21, P786)
 
+**Retired (v57.79)**: the signal score/decision hero was removed with the 0–100 market score (P1392, P1670).
+
 **Rule**: The signal score/decision hero may be transferred only when its user-facing wording is an explicit presentation model layered on the canonical `trading-score.v1` result, with machine action (`WATCH`/`WAIT`/`REDUCE`) kept separate. A native signal renderer must own the declared score/decision sinks and `refreshSignalDashboard()` must skip them behind the native marker; canvas, factor bars, execution-window, risk-monitor, timestamp, narrative, and home summary remain separate boundaries until independently cut over.
 
 **Validation**: `ci-esm-core-unit-check.mjs` covers full/partial/missing score presentation; `ci-architecture-contract-check.mjs` requires `signal-presentation.v1`, native signal markers, and the legacy fence; `ci-architecture-browser-check.mjs` requires signal primary sink `3/3` and direct `NATIVE-FENCE` protection.
 
 ## R359. Home aggregate primary text must reuse signal presentation and fence legacy summary writers (v53.22, P787)
+
+**Retired (v57.79)**: the home score summary was replaced by the six-axis regime summary (P1392).
 
 **Rule**: The home aggregate may transfer only the declared score/decision summary sinks. It must consume `signal-presentation.v1` from normalized analysis state rather than recomputing score thresholds or wording. Quality meter, Fear & Greed, regime, factor detail, chart, and narrative remain separate legacy boundaries until independently reconciled. Every legacy home summary writer must skip the four native sinks while `data-aio-home-renderer="native"` is active.
 
@@ -1525,6 +1559,8 @@ target_version: v57.54
 
 ## R368. Home Quality must not reuse Trading Score and must fail closed without canonical inputs (v53.34, P821)
 
+**Retired (v57.79)**: the Home Quality card no longer exists in index.html.
+
 **Rule**: If the five-input Quality model is not present in canonical state, do not fill the Quality card with an inferred or reused score. Native analysis owns the complete card and displays `— / 판정 보류`; the legacy Trading Score-as-Quality writer stays removed.
 
 **Validation**: `ci-architecture-contract-check.mjs` blocks the legacy quality writer and `ci-architecture-browser-check.mjs` requires the native marker plus a non-empty fail-closed state.
@@ -1551,7 +1587,7 @@ target_version: v57.54
 
 **Rule**: A multi-panel native detail surface must expose at most one coordinated `aria-live` summary unless each additional region represents an independent user action. Sibling panels rendered in one update must not create screen-reader announcement storms.
 
-**Validation**: `ci-ux-default-path-check.mjs` enforces the global live-region ceiling; `ci-accessibility-matrix-check.mjs` verifies all 17 routes with zero console errors.
+**Validation**: `ci-ux-default-path-check.mjs` enforces the global live-region ceiling; `ci-accessibility-matrix-check.mjs` verifies every route in `architecture/route-owners.json` with zero console errors. (v57.79 rewrite)
 
 ## R373. Derived routes must replay through their canonical mount in compatibility navigation (v53.38, P826)
 
@@ -1563,13 +1599,13 @@ target_version: v57.54
 
 **Rule**: A portfolio summary/allocation/exposure surface may move to native ownership only when one finite-safe domain model derives its values from normalized Vault state plus explicitly labelled quote evidence. Missing value, change, cash, VIX, or sector evidence must remain unavailable rather than become zero. Every inline summary or sector writer that can reach a transferred id must consult the native surface marker; risk cards, history charts, AI workbench, and narrative remain separate boundaries until their own input and writer packets are complete.
 
-**Validation**: `ci-architecture-contract-check.mjs` requires `portfolio-surface.v1`, native summary markers, and legacy fences; `ci-architecture-browser-check.mjs` requires the portfolio surface/model markers and native count/sector/exposure markers; unit fixtures must cover empty, cash-only, missing-quote, and finite live-quote cases.
+**Validation**: `ci-architecture-contract-check.mjs` requires the current `PORTFOLIO_SURFACE_MODEL_VERSION` (src/domain/portfolio/surface.js), native summary markers, and legacy fences; `ci-architecture-browser-check.mjs` requires the portfolio surface/model markers and native count/sector/exposure markers; unit fixtures must cover empty, cash-only, missing-quote, and finite live-quote cases. (v57.79 rewrite)
 
 ## R375. Official SEC report surfaces must use one finite-safe projection and keep mixed-source sections separate (v53.41, P832)
 
 **Rule**: A fundamental route may present an official SEC report only through one pure projection that preserves filing identity, period/submission dates, coverage, source kind, and finite observed values. Missing facts remain unavailable; they must not be inferred from FMP/Yahoo/news data. Peer comparison, external news, charts, and AI narrative remain separately labelled boundaries until their own evidence and writers are reconciled.
 
-**Validation**: `ci-architecture-contract-check.mjs` requires `sec-report.v2` and native report markers; `ci-architecture-browser-check.mjs` requires the native report/model/metadata markers and zero browser errors; fixtures cover empty, partial, complete, and stale SEC records.
+**Validation**: `ci-architecture-contract-check.mjs` requires the current `SEC_REPORT_MODEL_VERSION` (src/domain/fundamental/sec-report.js) and native report markers; `ci-architecture-browser-check.mjs` requires the native report/model/metadata markers and zero browser errors; fixtures cover empty, partial, complete, and stale SEC records. (v57.79 rewrite)
 
 ## R367. Theme-detail benchmark narrative must use normalized theme/benchmark evidence and fence the legacy section (v53.30, P795)
 
@@ -1591,7 +1627,7 @@ target_version: v57.54
 
 ## R353. route ownership 요약은 route별 선언에서 재계산한다 (v53.18, P781)
 
-**Rule**: `architecture/route-owners.json`의 counts/native/legacy/full-native 요약을 독립 사실로 수동 관리하지 않는다. route 17개의 5차원 owner 선언에서 재계산한 값·순서와 하나라도 다르면 migration 진척을 인정하지 않는다.
+**Rule**: `architecture/route-owners.json`의 counts/native/legacy/full-native 요약을 독립 사실로 수동 관리하지 않는다. `architecture/route-owners.json`의 모든 route의 5차원 owner 선언에서 재계산한 값·순서와 하나라도 다르면 migration 진척을 인정하지 않는다. (v57.79 rewrite)
 
 **Validation**: `ci-architecture-contract-check.mjs`가 lifecycle/renderer/data/chart/narrative와 full-native 목록의 누락·추가·순서 드리프트를 blocking한다.
 
@@ -1697,9 +1733,9 @@ target_version: v57.54
 
 ## R343. 신용 판정은 HYG 등 듀레이션 오염 가격이 아니라 FRED HY OAS(bp) 실측만 사용하고, 결측 시 null 사전 차단으로 0을 방지한다 (v53.7, P726)
 
-**Rule**: HYG(또는 임의 회사채 ETF) 달러 가격을 고정 임계값(예: `hyg > 88`, `hyg < 78`)으로 비교해 신용 스프레드 수준을 판정하지 않는다. HYG 가격은 금리(듀레이션) 노출이 섞여 있어 레짐이 바뀌면 같은 가격이 다른 신용 상태를 의미하게 된다. 신용 레벨 판정·점수·바 그래프·라벨·AI 컨텍스트는 전부 `window._hySpreadBp`(FRED BAMLH0A0HYM2, bp 단위)를 단일 소스로 사용하고 350/450/550bp를 표준 경계로 정렬한다(안정/주의/위기). HYG 가격 자체는 상대적 방향(당일 등락, 자기 자신 대비 상대 손절 트리거)에만 쓸 수 있다.
+**Rule**: 신용 수준은 FRED HY OAS(BAMLH0A0HYM2, bp) 실측만 사용해 bp 값과 변화폭으로 보여 준다. 구간 경계(`src/domain/rules/thresholds.js`)는 참고 라벨이지 등급이 아니며, 문구는 관측형으로 쓴다(P714). HYG 등 회사채 ETF 가격은 금리(듀레이션) 노출이 섞여 있으므로 고정 임계값으로 신용 수준을 판정하지 않고 자기 방향(당일 등락)에만 쓴다. (v57.79 rewrite)
 
-**Required**: (1) 신용 판정 함수 신설·수정 시 `grep -nE "hyg\s*[<>]=?\s*[0-9]{2}\b" index.html js/*.js`로 전수 확인 — OAS 아닌 결과가 0건이어야 한다. (2) `Number.isFinite(Number(v))`는 `v`가 `null`/`undefined`/`''`일 때 `Number(v)=0`으로 통과하는 함정(P715 클래스)이 있으므로, 결측 가능한 값에는 반드시 `v != null && Number.isFinite(Number(v))` 또는 `typeof v === 'number' && isFinite(v)` 형태로 null을 먼저 차단한다. (3) 신용/시장값 처방형 문구("피신 권고", "회피" 등)는 관측형으로 전환한다(R25/P714 원칙과 동일).
+**Required**: (1) 신용 판정 함수 신설·수정 시 `grep -nE "hyg\s*[<>]=?\s*[0-9]{2}\b" index.html js/*.js`로 전수 확인 — OAS 아닌 결과가 0건이어야 한다. (2) `Number.isFinite(Number(v))`는 `v`가 `null`/`undefined`/`''`일 때 `Number(v)=0`으로 통과하는 함정(P715 클래스)이 있으므로, 결측 가능한 값에는 반드시 `v != null && Number.isFinite(Number(v))` 또는 `typeof v === 'number' && isFinite(v)` 형태로 null을 먼저 차단한다. (3) 신용/시장값 처방형 문구("피신 권고", "회피" 등)는 관측형으로 전환한다(P714 원칙과 동일).
 
 **Validation**: `grep -nE "hyg\s*[<>]=?\s*[0-9]{2}\b" index.html js/*.js | grep -vi "oas\|bp\b"` → 0건. `grep -n "Number.isFinite(Number(" index.html js/*.js`로 나온 각 사이트에 인접 `!= null`/`== null` 존재 확인. 결측·정상 양쪽 상태를 실브라우저(Playwright 등)로 직접 렌더링해 DOM 텍스트와 콘솔 에러 0을 확인한다 — 코드 리딩만으로 "어느 표면이 라이브에서 이기는가"를 판단하지 않는다(같은 사건에서 대상 DOM 자체가 존재하지 않는 고아 코드를 코드 리딩만으로는 놓쳤다).
 
@@ -1723,9 +1759,9 @@ target_version: v57.54
 
 ## R340. 파생 시장 결론은 필수 관측 입력의 의미·기준일·coverage가 충족될 때만 표시한다 (v52.99, P712)
 
-**Rule**: 금리 스프레드, 기술지표, Stage, RRG, 시장폭, McClellan, HY OAS, 테마·시장 건강도처럼 여러 값을 결합하는 결론은 각 필수 입력의 instrument/maturity/unit/source/asOf/coverage를 검증해야 한다. 다른 만기·다른 지표·정적 시드·중립 상수·난수 시계열을 결측 대용으로 사용해 현재값이나 현재 판정처럼 표시하지 않는다.
+**Rule**: 금리 스프레드, 기술지표, Stage, RRG, 시장폭, McClellan, HY OAS, 테마처럼 여러 값을 결합하는 결론은 각 필수 입력의 instrument/maturity/unit/source/asOf/coverage를 검증해야 한다. 다른 만기·다른 지표·정적 시드·중립 상수·난수 시계열을 결측 대용으로 사용해 현재값이나 현재 판정처럼 표시하지 않는다. (v57.79 rewrite)
 
-**Required**: 2s10s는 명시적 2Y·10Y 관측치만, RSI/MACD/Stage·시장 레짐·지지저항은 기준시각이 확인된 충분한 OHLCV만, RRG는 상대가격 히스토리만, McClellan은 실제 상승·하락 종목수 시계열만, HY OAS는 공식 OAS 관측치만 사용한다. 엔캐리·크로스에셋 프록시는 모든 필수 현재 입력이 있어도 포지션·옵션·당국조치·방향 예측으로 승격하지 않으며, 하나라도 없으면 점수도 보류한다. 비정규화 가격비율은 시장폭·집중도 결론에 쓰지 않는다. 한국 테마·시장건강도는 최소 coverage와 현재 수급/VKOSPI를 충족해야 한다. 하나라도 충족하지 않으면 값·등급·행동 문구를 함께 `판정 보류`로 닫고 누락 입력을 표시한다.
+**Required**: 2s10s는 명시적 2Y·10Y 관측치만, RSI/MACD/Stage·시장 레짐·지지저항은 기준시각이 확인된 충분한 OHLCV만, RRG는 상대가격 히스토리만, McClellan은 실제 상승·하락 종목수 시계열만, HY OAS는 공식 OAS 관측치만 사용한다. 엔캐리·크로스에셋 프록시는 모든 필수 현재 입력이 있어도 포지션·옵션·당국조치·방향 예측으로 승격하지 않으며, 하나라도 없으면 점수도 보류한다. 비정규화 가격비율은 시장폭·집중도 결론에 쓰지 않는다. 한국 테마는 최소 coverage를 충족해야 한다. 하나라도 충족하지 않으면 값·등급·행동 문구를 함께 `판정 보류`로 닫고 누락 입력을 표시한다. (v57.79 rewrite)
 
 **Validation**: T874, T1024~T1027, T1037~T1039, `scripts/ci-runtime-contract-check.mjs`, 22-route semantic inventory, synthetic-series/RRG-seed/HYG-to-OAS/past-calendar source scans.
 
@@ -1733,7 +1769,7 @@ target_version: v57.54
 
 **Rule**: Telegram 같은 증분 정성 피드의 `count`는 이번 fetch 수나 capped 본문 배열 길이로 가장하지 않는다. rolling window 전체의 경량 ID/channel/time/score/tags/tickers lineage와 UI/chat용 capped full text를 분리하고, `freshCount`, text eligibility, high/broad signal, selected payload coverage를 각각 노출한다. 동적 artifact가 로드되면 정적 과거 themes/catalysts/categories/pageMap을 유지하지 않고 현재 원문에서 재생성한다.
 
-**Required**: producer와 runtime fallback은 동일한 22-page 의미 map을 만들고, guide처럼 뉴스가 불필요한 route는 명시적 비적용으로 남긴다. 분류 taxonomy와 ticker alias는 현재 채널 주제를 수용하고 SCREENER_DB universe를 활용한다. 전 채널 실패는 이전 성공 digest의 본문·`generatedAt`을 보존하고 `attemptedAt`/failure만 갱신한다. Telegram 내용은 계속 secondary/reference이며 가격·금리·매매 판단값으로 직접 승격하지 않는다.
+**Required**: producer와 runtime fallback은 `architecture/route-owners.json`의 모든 route에 대한 동일한 의미 map을 만들고, guide처럼 뉴스가 불필요한 route는 명시적 비적용으로 남긴다. 분류 taxonomy와 ticker alias는 현재 채널 주제를 수용하고 SCREENER_DB universe를 활용한다. 전 채널 실패는 이전 성공 digest의 본문·`generatedAt`을 보존하고 `attemptedAt`/failure만 갱신한다. Telegram 내용은 계속 secondary/reference이며 가격·금리·매매 판단값으로 직접 승격하지 않는다. (v57.79 rewrite)
 
 **Validation**: `AIO.getTelegramPageCoverageAudit()`, `AIO.getTelegramPipelineAudit().digest.coverage`, T830~T831, `ci-data-pipeline-contract-check.mjs`, `ci-runtime-contract-check.mjs`, `_artifacts/telegram-5d-coverage-audit-2026-07-15.md`.
 
@@ -1755,7 +1791,7 @@ target_version: v57.54
 
 **Rule**: `loading`을 최종 상태로 남기지 말고 `loaded | partial | empty | blocked | stale-reference` 중 하나로 종료한다. `missing/zero`, 공급자 장애, stale/reference를 서로 다른 상태로 유지하며 required producer가 충족되지 않으면 해당 route의 금지 claim과 allowed use를 함께 노출한다.
 
-**Required**: `AIO_PAGE_CONTRACTS.pages[id]`의 required/optional/coverage/age/failure/forbidden fields와 `AIO.getPageDataCompleteness()`/`auditPageDataCompleteness({allRoutes:true})`를 단일 실행 경로로 사용한다. 22-route fixture, runtime contract, headless/accessibility/viewport matrix를 큰 변경 단위마다 통과시킨다.
+**Required**: `AIO_PAGE_CONTRACTS.pages[id]`의 required/optional/coverage/age/failure/forbidden fields와 `AIO.getPageDataCompleteness()`/`auditPageDataCompleteness({allRoutes:true})`를 단일 실행 경로로 사용한다. `architecture/route-owners.json`의 모든 route fixture, runtime contract, headless/accessibility/viewport matrix를 큰 변경 단위마다 통과시킨다. (v57.79 rewrite)
 
 ## R337. Runtime fixture override와 reference fallback drift의 의미를 테스트 계약에 고정한다 (v52.94, P709)
 
@@ -1780,6 +1816,8 @@ target_version: v57.54
 **Validation**: T958~T962, WP-AI4 runtime-contract checks, and Chromium headless `1027/1027 PASS` locally.
 
 ## R315. Personalized financial action permission must be evaluated once at the shared response boundary (v52.79, P694)
+
+**Superseded by R698 (v57.79)**: personalized trade instructions are always denied; the shared boundary may present choices with opportunity cost and evidence only (R698 states this supersession).
 
 **Rule**: Prohibited conduct is denied; personalized trade instructions require suitability, current/live evidence, sourceKind/asOf, and explicit assumptions/invalidation context. Stale, missing, or `REFERENCE`-only evidence cannot authorize a personalized action. Probability claims require evidence or calibration metadata.
 
@@ -1893,14 +1931,14 @@ target_version: v57.54
 
 ## R311. 공개 AI의 모든 진입점은 동일 요청 envelope·응답 pipeline·validator/block-policy 버전을 기록하고 retry는 같은 completion contract를 재사용한다 (v52.76, P691)
 
-- per-page/unified/retry/translation/briefing/server-analysis는 `_aioCreateAIRequestObject`와 `_aioRunAIResponsePipeline`을 공유한다. 새 parallel validator를 만들지 말고 기존 action gate를 공통 pipeline에 흡수한다.
+- 상단 AI 패널/retry/translation/briefing/server-analysis는 `_aioCreateAIRequestObject`와 `_aioRunAIResponsePipeline`을 공유한다. 새 parallel validator를 만들지 말고 기존 action gate를 공통 pipeline에 흡수한다. (v57.79 rewrite)
 - request object에는 entrypoint·requestId·attempt·pipelineVersion·validatorVersion·blockPolicyVersion을 기록하고, retry는 새 request를 만들지 않는다. 최종 manifest에는 raw model text를 저장하지 않는다.
 - 자동 콘텐츠가 pipeline 부재 또는 공개 action 정책 차단을 만나면 local/deterministic fallback으로 닫혀야 하며, undefined `CHAT_CONTEXTS`로 조용히 실패하면 안 된다. T937–T940과 runtime contract를 함께 유지한다.
 
 ## R310. 공개 AI는 렌더 경계까지 베타·교육/리서치 보조 정책을 강제하고, 검증되지 않은 자동 문장을 공개하지 않는다 (v52.75, P690)
 
 - 공개 AI 표면은 `AI 도우미 · 교육/리서치 보조`로 식별해야 하며, 독립 투자자문·검증 시스템·실시간 주문 도구처럼 보이는 문구를 사용하지 않는다.
-- 구체적인 매수·매도·진입·청산·비중·수량·손절·목표가 지시는 typed evidence/suitability/action gate가 구현·통과되기 전까지 차단한다. 이 게이트는 streaming, 완료, retry, 양쪽 채팅 진입점, assistant history와 후속 chips에 동일하게 적용한다.
+- 구체적인 매수·매도·진입·청산·비중·수량·손절·목표가 지시는 단일 AI 패널의 streaming, 완료, retry, assistant history와 후속 chips 모두에서 영구 차단한다(R698). (v57.79 rewrite)
 - current-sensitive 답변은 기준시각·Evidence 상태·원천/원문 재확인 안내를 표시하고, `marketAnalysisOk` 생성 성공만으로 자동 LLM 문장을 공개하지 않는다. 의미 검증 `marketAnalysisSemanticOk=true` 또는 명시적 `status: verified`가 필요하다.
 - 검증은 T932–T936와 `ci-runtime-contract-check.mjs`로 concrete/강한 방향성 action 차단·교육성 답변·disclosure 메타·unverified marketAnalysis 폴백을 모두 고정한다. 현재 로컬 Chromium 기준선은 `997/997 PASS`이며, 실제 Pages/Worker와 모델 문답은 별도 live gate다.
 
@@ -1927,6 +1965,8 @@ target_version: v57.54
 - See P666/BUG-POSTMORTEM.md, `public-data/factor-backtest-longrun.json`.
 
 ## R298. A hand-tuned score using fixed absolute-level thresholds on a macro indicator must be re-validated against realized outcomes across a regime-shifting window before trusting its sign, not just its shape (v52.49)
+
+**Rule**: Absolute macro thresholds must be validated across regimes using non-overlapping windows or HAC/block-bootstrap inference, reporting the effective sample size; the trading score this finding first protected is retired, and the bullets below are the historical evidence. (v57.79 rewrite)
 
 - `computeTradingScore()`'s `macroScore`/`volScore` components compare live values against fixed absolute numbers (`dxy > 107`, `tnx > 4.5`, `vix < 15` for top volScore tier) that were presumably reasonable at whatever moment they were chosen. A 10-year backtest (2016-07 to 2026-07, `scripts/backtest-trading-score-longrun.mjs` → `public-data/score-backtest-longrun.json`) found the reconstructed vol+trend+macro sub-formula (55% of the score's weight) has a *statistically significant negative* Spearman correlation with both 21-day (rho=-0.165, 95% CI [-0.203,-0.127], n=2492) and 63-day (rho=-0.255, CI [-0.291,-0.217], n=2450) forward SPX returns — stable in sign across a chronological reference/holdout split, not a one-period fluke.
 - The leading hypothesis (not proven, but consistent with the data): `tnx`/`dxy`'s fixed absolute thresholds don't adapt to the fact that this 10-year window itself spans a structural regime shift (near-zero rates through ~2021, then a multi-year rate-hiking regime from 2022) — "high TNX" by 2016 standards and "high TNX" by 2023 standards are different regime positions, but the score treats them identically. `volScore`'s "low VIX = high score" logic independently shows the strongest single-factor negative correlation of the three (rho=-0.171 at 21d) — consistent with the broader, independently-documented observation that unusually low realized/implied volatility often precedes complacency-driven mean-reversion rather than continued calm.
@@ -1964,7 +2004,7 @@ target_version: v57.54
 
 ## R278. A `workflow_run`-triggered job that needs the commit its trigger produced must checkout `head_branch`, not `head_sha` (v52.5)
 
-> **Superseded for release workflows by R536/P973.** `head_branch` repaired the one-cycle lag but introduced a mutable-branch race. Current refresh jobs dispatch the exact produced SHA to CI, and Pages consumes the CI attestation. The text below is retained as the historical failure explanation, not current deployment guidance.
+**Superseded by R536 (v57.79)**: refresh jobs dispatch the exact produced SHA to CI and Pages deploys only the attested SHA; `head_branch` introduced a mutable-branch race. The text below is the historical failure explanation.
 
 - `github.event.workflow_run.head_sha` is fixed to the head of the triggering workflow's branch **at the moment that workflow started** — not any commit it committed/pushed during its own run. A downstream job that does `actions/checkout@v4` with `ref: ${{ github.event.workflow_run.head_sha }}` in order to validate or deploy "what the triggering run just produced" will instead always get the commit that existed *before* that run's own work — one full cycle behind, indefinitely, on every single firing.
 - If the triggering workflow's own job is a commit-and-push job (a bot/data-refresh workflow) and a downstream `workflow_run` job needs that pushed commit, checkout `ref: ${{ github.event.workflow_run.head_branch }}` instead (the branch name, e.g. `main`) — this resolves to the actual current head of that branch at checkout time, which by the time the `workflow_run` event has fired already includes the push. Guard it so `push`/`pull_request`/`workflow_dispatch` paths (which have no `workflow_run` payload) keep their existing behavior: `${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}`.
@@ -1976,7 +2016,7 @@ target_version: v57.54
 
 - `window.AIO.computeMarketState()` (js/aio-core.js:2728-2823) is the single synthesis point for derived market condition — it composes `_aioRegimeNow()` + `getCycleFromMacro()` + `diagnoseBreadthConsensus()` + `AIO_ACTION_RULES.getActionPlan()` + news sentiment (`_aioComputeNewsSignal()`) into one `window.AIO.marketState` object and dispatches `aio:marketStateUpdated`, throttled to once per 2s, whenever any input could have changed (`aio:liveQuotes`/`aio:pageShown`/`aio:serverDataLoaded`/`aio:newsUpdated` all trigger a recompute).
 - New code that needs any of `spx`/`vix`/`fg`/`vixBand(Label)`/`fgZone(Label)`/`cyclePhase`/`cycleScore`/`cycleFull`/`breadthConsensus`/`breadthScore`/`breadthConsensusFull`/`riskLevel`/`riskScore`/`dominantTopic`/`newsSignal`/`actionPlan`/`driftFromSnapshot` must read it from `window.AIO.marketState`, via one of the two patterns already established in the codebase — not by calling `_aioRegimeNow`/`getCycleFromMacro`/`diagnoseBreadthConsensus`/`AIO_ACTION_RULES` directly, and not by reading `window._liveData`/`DATA_SNAPSHOT`/`window._breadth*` raw globals to recompute an equivalent value:
-  - **Subscribe** (re-render-on-change surfaces): `window.addEventListener('aio:marketStateUpdated', function(){ /* read window.AIO.marketState */ })` — see js/aio-ui.js:3849, js/aio-core.js:3057-3064 (fans out to 6 renderers: drift markers, action plan, breadth consensus, themes cycle, briefing action, options rec).
+  - **Subscribe** (re-render-on-change surfaces): `window.addEventListener('aio:marketStateUpdated', function(){ /* read window.AIO.marketState */ })` — see js/aio-ui.js:3849, js/aio-core.js:3057-3064 (fans out to its subscribed renderers: drift markers, action plan, breadth consensus, themes cycle, briefing action; options retired). (v57.79 rewrite)
   - **Pull with fallback compute** (one-off reads inside another function): `window.AIO.marketState || (window.AIO.computeMarketState && window.AIO.computeMarketState())` — see js/aio-core.js:2843 (`synthesizeMarketAnalysis`).
 - If a genuinely new derived market signal is needed that `computeMarketState` doesn't yet produce, extend `computeMarketState` itself to add the field — do not add a parallel independent computation for it elsewhere.
 - Non-goal: this does not require migrating the codebase's existing ~4,688 `window.*` references (re-measured 2026-07-04; up from Fable's 2026-07-02 baseline of ~3,371, consistent with Phase 3 [A3] relocating a globals-dense 273-line block into aio-core.js). That migration is out of one-session scope and tracked as chronic/long-term in `_context/FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md` §A4 — this rule is a forward-looking guard for new code only.
@@ -1990,6 +2030,7 @@ target_version: v57.54
 ## R273. A value that's supposed to mirror or track another value must be verified equal by evaluating both, not by eyeballing the diff — and duplicate/mirror fields must be named to be found (v51.96)
 ## R272. A bot/Action-authored push using the default `GITHUB_TOKEN` never triggers other `on: push` workflows — chain via `workflow_run` instead, not `[skip ci]` removal alone (v51.95)
 ## R271. After editing `SCREENER_DB` (js/aio-data.js), always re-run `scripts/sync-screener-universe.mjs` before committing (v51.94)
+**Rule**: After editing `SCREENER_DB`, `node scripts/sync-screener-universe.mjs --check` must pass before commit (universe-review repeats it); a write run is a producer and runs only in GitHub Actions (AGENTS Producers). (v57.79 rewrite)
 ## R270. A third-party data source's availability and symbol convention must be live-verified, never assumed from a report or general knowledge — and an integration must be scoped down to only the asset classes actually confirmed (v51.92)
 ## R269. A CI job that whitelists known-failing tests must classify each entry by cause, and adding to the whitelist is only valid right after a fresh, real measurement (v51.91)
 ## R268. Combining sub-signals of different natural scale into one factor requires normalizing each first (v51.89)
@@ -2038,7 +2079,7 @@ target_version: v57.54
 
 - If a display surface reorders or filters a list by an importance/boost score, it must not assume the enrichment (translation, scoring, tagging) a normal reader would need was already applied — enrichment pipelines that process "the first N items in fetch order" or "items visible via a specific DOM marker" do not automatically cover an independently-selected top-N-by-importance subset.
 - Any such surface must check whether its selected items already carry the required enrichment and, if not, trigger it directly for exactly those items rather than relying on a generic/lazy mechanism that may never reach them.
-- `renderHomeFeed()`'s "핵심 뉴스" catch-up translation call (js/aio-data.js, guarded by `_tcHas`/`_translationInProgress`) is the concrete precedent.
+- `_aioRenderPageNewsStrip` and `renderBriefingFeed` catch-up translation are the current precedents; `renderHomeFeed()` is now an empty stub. (v57.79 rewrite)
 - See P554/BUG-POSTMORTEM.md for the incident (home page's boosted Tier-1/geopolitical headlines were exactly the ones permanently stuck on "[번역 대기]").
 - v52.6/P603 update: this rule was only ever applied to `renderHomeFeed` — nine other independently-selected news surfaces built afterward (`_aioRenderPageNewsStrip`, shared by 8 pages' topic-filtered strips; `renderBriefingFeed`'s own score/window selection; `_aioRenderBriefingDigest`'s Top3) each had the exact same gap and sat permanently on "[번역 대기]" until fixed. When adding or reviewing ANY surface that independently selects/filters/sorts a subset of `newsCache` for display (not just "boosted" ones — topic-tag filters count too), check it against this rule, not just against whatever the most recent fixed example was.
 
@@ -2048,6 +2089,7 @@ target_version: v57.54
 ## R241. Public readiness must expose page-level source/asOf, not only aggregate status (v51.78)
 ## R240. User-supplied trader frameworks must be centralized as REFERENCE, not live levels (v51.77)
 ## R239. External-share readiness must be visible on the default home path (v51.76, P551)
+**Superseded by R301 (v57.79)**: share readiness audits run only in CI or developer mode.
 ## R238. Page currentness must be source-capped before visible decisions (v51.74, P549)
 ## R237. Skills must use one canonical router-plus-reference tree; assistant-specific roots are generated mirrors, never independent instructions (v53.96, P894)
 ## R236. Skills, command wrappers, references, encoding sentinels, and any materialized local mirror must be contract-gated (v53.96, P894)
@@ -2058,7 +2100,7 @@ target_version: v57.54
 
 - Screener, rank, and backtest factors that compare stocks across currencies, nominal price levels, or split histories must use returns, log prices, ratios, z-scores, or explicitly versioned normalized units. Raw price-unit velocity is not acceptable for cross-sectional ranking.
 - Public-data enrichment must carry a scale/version marker for derived factors whose meaning can change, such as `kalmanScale: "log_pct_day"`. Runtime consumers must merge those fields only when the expected marker is present.
-- Trading score copy must distinguish "market is favorable" from "buy aggressively now". `75+` can mean buy-friendly conditions, but visible/chat guidance must still mention position sizing, staged entry, invalidation price, or event risk.
+- Visible and chat copy for any score shows conditions and evidence only; no buy-friendly band, position sizing, staged entry or invalidation instruction (R697). (v57.79 rewrite)
 - Backtest summaries must be described as factor sanity/IC checks unless they include walk-forward portfolio construction, transaction costs, slippage, survivorship controls, and execution constraints.
 - `scripts/ci-data-pipeline-contract-check.mjs` and `scripts/ci-runtime-contract-check.mjs` are the regression gates for this rule.
 
@@ -2103,12 +2145,15 @@ target_version: v57.54
 ## R165. AIO_TICKER_NAME_REGISTRY 의미적 정확성 + 한글 별명 일관성 의무 (v49.80 Codex)
 ## R166. AIO_THEME_SEMANTIC_EXCLUSION_RULES 의미적 misfit 배제 의무 (v49.80 Codex)
 ## R159. ticker / options context는 _currentTickerId null + _liveData 미수신 양쪽 가드 의무 (v49.79)
+**Rule**: Ticker context guards both a null `_currentTickerId` and not-yet-received `_liveData` (options retired). (v57.79 rewrite)
 ## R160. kr-macro 정적 데이터 / 시점 토큰 진입부 staleness 경고 의무 (v49.79)
 ## R161. localStorage QuotaExceededError 강화 처리 + 사용자 toast 의무 (v49.79)
 ## R162. 외부 fetch 결과 schema 검증 + graceful degrade 의무 (v49.79)
 ## R163. 멀티탭 localStorage storage 이벤트 리스너 의무 (v49.79)
 ## R164. Claude API 호출 토큰 사용량 누적 추적 + 비용 가시화 의무 (v49.79)
+**Superseded by R681 (v57.79)**: AI cost is the shared Worker budget ledger for gpt-6-luna, not a client token counter.
 ## R156. 외부 fetch 폴백 chain은 sequential 금지, Promise.race 병렬 의무 (v49.78 코드 단위 진단)
+**Rule**: Fallback chains use `Promise.any` (first success) with a per-attempt timeout/abort, bounded to providers whose rate budget allows fan-out; `Promise.race` settles on the first failure and is not a fallback. (v57.79 rewrite)
 ## R157. innerHTML 호출 전 _aioSafeMD fallback chain 의무 (v49.78)
 ## R158. chatSend atomic streaming lock — 입력 검증 통과 직후 즉시 (v49.78)
 ## R153. chatSend silent return 모든 경로 사용자 피드백 의무 (v49.77)
@@ -2117,19 +2162,26 @@ target_version: v57.54
 ## R151. 시세 데이터 ✗ 시 답변에 가격 수치 절대 금지 — HARD STOP (v49.76)
 ## R152. 모바일 채팅 레이아웃 100vw 비율 의무 (v49.76)
 ## R147. CHAT_CONTEXTS 등록은 DOM 패널과 항상 쌍 (Pattern A 일반화) (v49.75)
+**Superseded by R317 (v57.79)**: route AI context is projected from AIO_PAGE_CONTRACTS and the page registry.
 ## R148. ABSOLUTE RULES는 system prompt 정의 + 답변 후처리 양쪽 의무 (Pattern B 일반화) (v49.75)
 ## R149. 외부 fetch 실패는 사용자 ❌ 라벨로 surfacing 의무 (Pattern C 일반화) (v49.75)
+**Rule**: A fetch failure surfaces as the card's 없음/지연 status with details on demand; no ❌ label. (v57.79 rewrite)
 ## R150. AI 답변에 등장한 날짜 토큰은 세션 시각 대비 stale 자동 검출 (Pattern D 일반화) (v49.75)
 ## R145. AI 답변에 학습 데이터 자기 인용 + 시점 환각 절대 금지 (v49.74 hotfix)
 ## R146. home 페이지 인라인 채팅 패널 의무 (v49.74 hotfix)
+**Retired (v57.79)**: per-page and home chat panels were replaced by the single top AI panel (AGENTS AI).
 ## R143. AI 답변 품질 audit는 11 페이지 평가 의무 (KR 4 페이지 포함) (v49.74)
+**Rule**: AI answer quality is audited on all 8 screens, including the 한국 sections. (v57.79 rewrite)
 ## R144. AI 채팅 멀티턴 윈도잉 + 요약 prepend 의무 (v49.74)
 ## R140. AI 답변에서 정성 표현 사용 시 정량 근거 1개 이상 괄호 동반 의무 (v49.73)
 ## R141. AI 답변 표준 4 구조 강제 (결론/정량/시나리오/액션) (v49.73)
+**Rule**: AI answers follow 결론 / 근거 / 시나리오(조건→결과) / 선택지와 기회비용; there is no 액션 section. (v57.79 rewrite)
 ## R142. 모든 정량 인용 시 (출처 · 기준일) 괄호 필수 (v49.73)
 ## R138. fundamental 종목 검색 시 7 차트 자동 렌더 의무 (v49.72)
+**Retired (v57.79)**: the fundamental quarterly charts read personal FMP keys, whose paths were removed in v57.76.
 ## R139. AI 채팅 답변에 종목 detect 시 "📊 차트 보기" 버튼 자동 삽입 의무 (v49.72)
 ## R135. 4/5차는 감사 함수만으로 완료 금지
+**Rule**: A 4th/5th-pass (data and purpose-fit) audit is not complete because its audit function passes; it also needs a rendered-screen and source comparison (same principle as R219). (v57.79 rewrite)
 ## 📋 작업 전 필수 체크
 
 ### 1. 이 폴더 구조 확인 (v48.79+ 모듈화 후)
@@ -2168,6 +2220,7 @@ _context/                              ← 지식 베이스 (유일한 진실의
 ## 🔴 절대 규칙 (위반 시 무조건 재작업)
 
 ### R1. 버전 동기화 (7곳 필수)
+**Rule**: All version surfaces enumerated by `scripts/ci-version-check.mjs` change only via `node scripts/bump-version.mjs <version>`; the list below is v48-era history. (v57.79 rewrite)
 버전 변경 시 반드시 **7곳 모두** 동일한 버전 문자열인지 확인:
 1. `<title>` 태그 — `AIO Screener v{버전} — 올인원 투자 터미널`
 2. `#app-version-badge` — HTML 내 인라인 텍스트
@@ -2193,6 +2246,7 @@ grep -o '\?v=[0-9.]*' index.html | sort -u
 ```
 
 ### R1-A. GitHub 배포 후 브라우저 버전 확인 (필수)
+**Rule**: The deployed version is certified by `scripts/ci-live-invariant-check.mjs` after an explicit deploy; the manual steps below are history. (v57.79 rewrite)
 코드를 GitHub에 업로드한 뒤, **반드시 라이브 사이트에서 브라우저 캐시 무시 새로고침** 후 확인:
 1. 브라우저 탭 제목(`<title>`)에 올바른 버전이 표시되는가
 2. 페이지 상단 `#app-version-badge`에 올바른 버전이 표시되는가
@@ -2205,10 +2259,12 @@ grep -o '\?v=[0-9.]*' index.html | sort -u
 > - JS에서 `updateQuotaBadge()` 등이 badge 텍스트를 런타임에 덮어쓰는 경우
 
 ### R2. 버전 체계
+**Superseded by R475 (v57.79)**: versions use canonical major or two-digit patch notation.
 - 현재 체계는 `v{major}.{patch}` 숫자 단조 증가: v48.77 → v48.78 → v48.79
 - patch는 한 자리/두 자리 모두 허용한다. 숫자 비교로만 최신 여부를 판단하고, 문자열 사전순 비교는 금지한다.
 
 ### R3. 버그 수정 시 사후 분석 필수
+**Rule**: Bug fixes are recorded via `node scripts/record-fix.mjs <entry.json>` after `bump-version`; the template below is history. (v57.79 rewrite)
 모든 버그 수정 후 `BUG-POSTMORTEM.md`에 아래 형식으로 추가:
 ```
 ## [날짜] v{버전} — {버그 제목}
@@ -2232,6 +2288,7 @@ grep -o '\?v=[0-9.]*' index.html | sort -u
 3. **비상장 여부 확인** — 네이버증권/KRX에서 "비상장"/"장외" 표기 시 코드 할당 금지 (두나무=비상장 사례)
 
 ### R11. 비상장 기업 코드 할당 금지 (v35.6 추가)
+**Superseded by R10 (v57.79)**: R10 step 3 already forbids assigning a code to an unlisted company.
 Yahoo Finance가 가격을 반환해도 해당 기업이 실제 상장사인지 확인해야 함. 비상장 기업의 이름을 상장 코드에 매핑하면 **전혀 다른 회사의 데이터**가 해당 이름으로 표시됨 (P18 Ghost Stock).
 
 ### R12. 유사 이름 모자회사 구분 (v35.6 추가)
@@ -2247,16 +2304,7 @@ Yahoo Finance가 가격을 반환해도 해당 기업이 실제 상장사인지 
 - HTML만 있고 JS init이 없으면 하드코딩 데이터가 영구적으로 표시되는 Dead Page가 됨
 - 정적 페이지(guide)는 예외이나, 동적 데이터가 하나라도 있으면 반드시 적용
 - **[3회 위반 강화]** init 가드(`if (xxxInitialized) return;`) 사용 시 `destroyPageCharts()`에 반드시 `xxxInitialized = false` 리셋 추가. 누락 시 페이지 재진입 불가 (P28)
-- **[3회 위반 강화]** `setInterval` 추가 시 반드시 `destroyPageCharts()`에 대응 `clearInterval` 추가 (P27). 타이머 미해제 = 좀비 프로세스
-- **[v48.69 4차 강화]** 전역 연속 타이머(모듈 최상위 레벨)도 반드시 ID를 전역 변수에 저장할 것:
-  ```javascript
-  // 금지
-  setInterval(fn, 15*60*1000);
-  // 올바른 패턴
-  if (window._myTimer) clearInterval(window._myTimer);
-  window._myTimer = setInterval(fn, 15*60*1000);
-  ```
-- 검증: `grep -n 'setInterval(' js/*.js | grep -v 'clearInterval\|_.*=\s*setInterval\|window\._.*=\s*setInterval'` → 0건 기대
+- 반복 타이머는 `_aioRegisterTimer(name, fn, ms)`로만 등록한다(R344). (v57.79 rewrite)
 
 ### R15. 데이터 미수신 vs 진짜 0% 구분 필수 (v38.3 추가, P25, v42.1 강화)
 - `d.pct || 0` 패턴은 **데이터 없음**과 **진짜 0% 변동**을 구분할 수 없으므로 금지
@@ -2286,12 +2334,13 @@ Yahoo Finance가 가격을 반환해도 해당 기업이 실제 상장사인지 
 ### R19. _context/ 지식 정합성 린팅 (v40.4 추가)
 ### R20. 에이전트 산출물 검증 상태 관리 (v40.4 추가)
 ### R21. 하드코딩 차트 데이터 경과일 관리 (v40.4 추가, P31)
+**Retired (v57.79)**: renderStaleWarning was removed (v57.77); freshness follows per-source cadence rules (R558, R671).
 - 차트 데이터(VIX/NAAIM/AAII/브레드쓰 등)는 `DATA_SNAPSHOT._updated`와 함께 관리
 - 3일+ 경과 시 `renderStaleWarning()` 경고 배지 자동 표시
 - 동적 전환 가능한 데이터(VIX/HYG/SPY/QQQ)는 Yahoo Finance API로 자동 교체, 하드코딩은 폴백으로만
 
 ### R22. 뉴스 3곳 계층적 선별 체계 (v40.4 추가, P32)
-- **홈 핵심**: 정적 큐레이션 (`HOME_WEEKLY_NEWS`), 시장 전체 핵심 2~3건
+- 홈 정적 큐레이션(`HOME_WEEKLY_NEWS`)은 비어 있다. 시장 뉴스는 시간순으로 각 항목 날짜를 보이며, 갱신 주기보다 오래된 항목은 날짜가 붙은 참고로만 둔다. (v57.79 rewrite)
 - **브리핑**: score 45+, 5~20건, 20건 초과 시 score 우선 선별 → 시간순 재정렬
 - **시장 뉴스**: score 30+, 150건 상한, 48h, 시간순 (광범위)
 - scoreItem()에 5대 토픽 부스트(매크로/지정학/주식/외환/채권) + 비시장 정치 감점(-25) 필수
@@ -2355,8 +2404,8 @@ Yahoo Finance가 가격을 반환해도 해당 기업이 실제 상장사인지 
 14. **Dead Page** → HTML만 있고 init 함수/이벤트 리스너 없음 → 하드코딩 데이터 영구 표시 (P9)
 
 ### 기술 분석 엔진 패턴 (v32 추가)
-15. **analyzeTickerDeep/analyzeKrTickerDeep DOM target** → 결과를 렌더할 target element ID가 실제 HTML div ID와 일치해야 함 (US: `#ticker-analysis-result`, KR: `#kr-ticker-analysis-result`)
-16. **CF Worker 프록시 의존** → Yahoo Finance 차트 데이터는 CF Worker(aio-yahoo-proxy)를 통해 fetch. rate limit(기본 100 req/min) 초과 시 429 에러. 동시 분석 요청 수 제한 필요.
+15. (이력, v57.79: analyzeTickerDeep는 P1753에서 퇴역) **analyzeTickerDeep/analyzeKrTickerDeep DOM target** → 결과를 렌더할 target element ID가 실제 HTML div ID와 일치해야 함 (US: `#ticker-analysis-result`, KR: `#kr-ticker-analysis-result`)
+16. (이력, v57.79: aio-yahoo-proxy 이름은 더 이상 없음) **CF Worker 프록시 의존** → Yahoo Finance 차트 데이터는 CF Worker(aio-yahoo-proxy)를 통해 fetch. rate limit(기본 100 req/min) 초과 시 429 에러. 동시 분석 요청 수 제한 필요.
 17. **지수 분석 자동 트리거** → `initKoreaTechnical()`은 pageShown 시 KOSPI/KOSDAQ 동시 fetch → 2개 동시 API 호출. 이미 분석 결과가 있으면 재호출 방지 (innerHTML 체크).
 
 ### 종목 데이터 무결성 패턴 (v35.6 추가)
@@ -2466,15 +2515,19 @@ ctx.strokeStyle = 'rgba(255,255,255,0.08)';  // 또는 '#8888884A'
 ### R39. extractTickers → UI 노출 경로 필수 페어링 (v48.55 추가, P116/P121/P122/P125 교훈)
 ### R40. CHAT_CONTEXTS system() = persona + 메서드론만 (v48.55 추가)
 ### R41. 기업 분석 맥락 ctx 전원 FMP 심층 활성 (v48.55 추가)
+**Retired (v57.79)**: the personal FMP deep fetch was removed in v57.76; company context uses public SEC facts.
 ### R42. Agent 결과 실측 교차검증 의무 (v48.59 추가, Agent 오판 5회 누적)
 ### R43. Canvas context는 CSS var 미해석 (R34 예외, v48.59 추가)
+**Superseded by R34 (v57.79)**: R34 states the Canvas exception.
 ### R44. setTimeout 무한 재귀 종료 카운터 필수 (v48.59 추가, renderAllEtfGrid 교훈)
 ### R45. 페이지 전환 active 설정은 `dataset.arg` 기반 (v48.59 추가, v48.32 onclick 0건 후 잔존 버그)
 ### R46. HTML 외 JS 파일까지 sed 치환 범위 확대 (v48.61 추가)
 ### R47. CSS 변수 자기순환 참조 금지 (v48.61 추가, surface-1~5 교훈)
 ### R49. 새 페이지 추가 시 결론 바 의무 (v48.62 추가)
 ### R50. fb-estimated 배지 사용 기준 (v48.62 추가)
+**Retired (v57.79)**: the fb-estimated badge no longer exists; each card shows one status (최신/지연/참고/없음).
 ### R51. 콘텐츠 카드 본문 폰트 최소 12px (v48.62 추가)
+**Rule**: 콘텐츠 카드 본문은 12px 이상을 기준으로 하고, 계산된 글자 크기가 10px 미만인 텍스트는 없어야 한다 — `ci-accessibility-matrix-check.mjs`의 fontUnder10 차단. (v57.79 rewrite)
 ### R48. Canvas 렌더러 전역 변수 참조 시 실제 설정 위치 확인 (v48.61 추가, _pcRatio vs _putCallRatio 교훈)
 ## 🔧 Hook 자동화 (v48.61 대폭 확장 — Layer 2~9 실제 구현)
 
@@ -2495,19 +2548,25 @@ ctx.strokeStyle = 'rgba(255,255,255,0.08)';  // 또는 '#8888884A'
 ## R57. 정적 테이블 stale 감지 의무 (v49.24 추가, P217 근본)
 ## R58. DOM 인라인 vs DATA_SNAPSHOT 3-way 정합 (v49.24 추가, P213 근본)
 ## R59. 점수 스케일 단일 정의 — SCORE_SCALES (v49.25 추가, L1 근본)
+**Rule**: Any reference score shows one declared scale and its basis (직전 미국장 종가, R670); no 0–100 composite or letter scale. (v57.79 rewrite)
 ## R60. 매매 전략 권장값 단일 출처 — ATR_PRESETS (v49.25 추가, L4 근본)
+**Retired (v57.79)**: ATR trade-strategy presets were removed; trade instructions are banned (R697).
 ## R61. 다중 신호 합의 알고리즘 — diagnoseBreadthConsensus (v49.25 추가, L3 근본)
 ## R62. 정량 지표 자동 채점 — PIOTROSKI_CHECKLIST (v49.25 추가, L7 근본)
 ## R63. 라벨 인라인 사용 자동 audit — getThresholdLabelAudit (v49.25 추가, R56 자동화)
 ## R64. 점수 가중치 단일 정의 — WEIGHT_REGISTRY (v49.26 추가, I2 근본)
+**Retired (v57.79)**: AIO_WEIGHT_REGISTRY has no runtime consumer since the 0–100 score was retired; it survives only in the QA audit bundle.
 ## R65. 시각 위계 단일 정의 — CARD_HIERARCHY (v49.26 추가, I3 근본)
+**Retired (v57.79)**: the CARD_HIERARCHY registry no longer exists in runtime code.
 ## R66. 중복 콘텐츠 자동 감사 — getDuplicateContentAudit (v49.26 추가, I4 근본)
 ## R67. 동적 판정 함수 단일화 — getCycleFromMacro (v49.26 추가, I7 근본)
 ## R68. 페이지 placeholder 표준 — 동적 검색 가이드 (v49.26 추가, I5/I6 근본)
 ## R69. Action Item 단일 출처 — ACTION_RULES (v49.27 추가, E1/E2 근본)
+**Rule**: ACTION_RULES is the single source of VIX/F&G band observation text (edges owned by R695); it never emits position size or trade directives. (v57.79 rewrite)
 ## R70. 페이지 목적 단일 정의 — PAGE_PURPOSE_REGISTRY (v49.27 추가, E3/E4 근본)
 ## R71. 이론 vs 실행 비율 audit — getPagePurposeRatioAudit (v49.27 추가, E5 근본)
 ## R72. 시나리오 확률 시간 의존 — SCENARIO_REGISTRY (v49.27 추가, L6 근본)
+**Retired (v57.79)**: scenario probabilities were removed (AIO_SCENARIO_REGISTRY is an empty unavailable stub); likelihood uses only met-condition count, market-implied direction and sample-sized past frequency.
 ## R73. 인프라 추가 시 페이지 적용 동반 의무 (v49.28 추가, P239 메타 근본)
 
 **원칙**: 신규 `*_REGISTRY` 객체나 `AIO.get*Audit()`/`AIO.applyXxxToElement()` 함수를 추가할 때 **반드시 같은 버전에서 해당 인프라를 실제 페이지에 적용**해야 한다. 인프라 등록 PR과 페이지 적용 PR을 분리하면 인프라가 "사용 가능"하지만 "사용 안 됨" 상태로 영구 잔존.
@@ -2553,12 +2612,15 @@ ctx.strokeStyle = 'rgba(255,255,255,0.08)';  // 또는 '#8888884A'
 ## R133. AI 채팅 알람/임계값 트리거 의무 (v49.70 추가, P372 근본)
 ## R132. AI 채팅 사용자 투자 프로필 메모리 의무 (v49.70 추가, P371 근본)
 ## R131. AI 채팅 거시 시나리오 동적 시뮬레이션 + 약어/별명 fuzzy 매칭 의무 (v49.69 추가, P368~P369 근본)
+**Rule**: Korean names and nicknames resolve only through an exact alias registry; there is no similarity matching (P1339). (v57.79 rewrite)
 ## R130. AI 채팅 자동 페이지 이동 + 포트폴리오 동적 시뮬레이션 의무 (v49.69 추가, P366~P367 근본)
 ## R129. AI 채팅 후속 질문 자동 제안 의무 (v49.69 추가, P365 근본)
 ## R128. AI 채팅 시각 단서 표준 + 데이터 소스 우선순위 + 출처 타임스탬프 (v49.68 추가, P361~P363 근본)
 ## R127. AI 채팅 Bull/Base/Bear 3 시나리오 분기 강제 (v49.68 추가, P361 근본)
+**Superseded by R676 (v57.79)**: AGENTS.md (No grades or trade instructions) defines scenarios as branches from upcoming official events with cause→effect chains, not a fixed Bull/Base/Bear template.
 ## R126. AI 채팅 기관급 분석 프레임워크 8개 인용 의무 (v49.68 추가, P360 근본)
 ## R123. 사이드바 Audit row 의미 분리 표시 의무 (v49.67 추가, P357 근본)
+**Rule**: Audit rows render only in developer/QA mode (`body.aio-dev-mode`, `?aioAudit=1` or detailed mode); user surfaces show none and have no web_search toggle. (v57.79 rewrite)
 ## R122. AI 채팅 사용자 체감 품질 의무 (v49.67 추가, P352~P356 근본)
 ## R121. AI 채팅 시스템 정의-호출 정합 의무 (v49.66 추가, P348~P351 근본)
 ## R119. 3대 본질 정렬 감사 의무 (v49.65 추가, P346 근본)
@@ -2572,6 +2634,7 @@ ctx.strokeStyle = 'rgba(255,255,255,0.08)';  // 또는 '#8888884A'
 ## R110. signal/breadth/sentiment context는 라이브 수치 자동 주입 의무 (v49.59 추가, P324 근본)
 ## R109. fxbond 한국 금리 스냅샷 시점 명시 의무 (v49.59 추가, P326 근본)
 ## R108. Audit 함수 추가 시 사이드바 위젯에도 노출 의무 (v49.58 추가, P322 근본)
+**Rule**: Audit rows render only in developer/QA mode (`body.aio-dev-mode`, `?aioAudit=1` or detailed mode); user surfaces show none and have no web_search toggle. (v57.79 rewrite)
 ## R107. 채팅 fetch는 반드시 Promise.allSettled + 개별 timeout 의무 (v49.58 추가, P321 근본)
 ## R106. 새 페이지 CHAT_CONTEXTS 신규 시 window._currentXxxId 자동 주입 의무 (v49.58 추가, P319 근본)
 ## R105. 테마 페이지 진입 시 채팅 컨텍스트에 활성 테마 ticker 라이브 가격 주입 의무 (v49.57 추가, P316/P317 근본)
@@ -2594,6 +2657,7 @@ ctx.strokeStyle = 'rgba(255,255,255,0.08)';  // 또는 '#8888884A'
 ---
 
 ## R100. API 키 저장 2중화 + 백업/복원 UX 의무 (v49.45 추가, P312 근본)
+**Retired (v57.79)**: personal API keys and their UI were removed; nothing user-facing remains to back up.
 ## R99. SW SHELL_ASSETS 자산 무결성 자동 검증 (v49.44 추가, P310 근본)
 ## R97. data-snap 키 vs DATA_SNAPSHOT 시드 정합 (v49.41 추가, P301 근본)
 ## R125. Second/third-pass text, function, and data meaning audit required (v49.67 added, P359 root prevention)
@@ -2608,32 +2672,37 @@ ctx.strokeStyle = 'rgba(255,255,255,0.08)';  // 또는 '#8888884A'
 
 **R173 — cross-asset correlation matrix 의무**: 자산 간 30일 rolling Pearson correlation + regime classification 자동 산출. `AIO.computeCrossAssetCorrelation()` `_priceHistory` 활용. 사이드바 16축.
 
-**R174 — AI 답변 정량 비율 측정 의무**: 채팅 답변에서 정량 토큰 비율 7%+ 권장. `AIO.assertQuantitativeRatioAudit()` 자동 측정 + 사이드바 17축. <4% 시 'fail' (정성 과다 환각 위험).
+**R174 — AI 답변 정량 비율 측정 의무**: Answer quality is measured by typed claim/evidence coverage (R456), not by numeric-token ratio. (v57.79 rewrite) 이력: 채팅 답변에서 정량 토큰 비율 7%+ 권장. `AIO.assertQuantitativeRatioAudit()` 자동 측정 + 사이드바 17축. <4% 시 'fail' (정성 과다 환각 위험).
 
-**R175 — earnings call transcript 통합 의무**: 종목 분석 시 FMP /earning_call_transcript 자동 fetch + 시스템 프롬프트 [Earnings Call (Qx YYYY)] 라벨 주입. AlphaSense/Sentieo 대체 무료 옵션.
+**R175 — earnings call transcript 통합 의무**: **Retired (v57.79)**: earnings-call transcripts came from personal FMP keys, removed in v57.76. 이력: 종목 분석 시 FMP /earning_call_transcript 자동 fetch + 시스템 프롬프트 [Earnings Call (Qx YYYY)] 라벨 주입. AlphaSense/Sentieo 대체 무료 옵션.
 
 **R176 — AI 답변 시각 자료 의무**: 답변 종목 detect 시 30일 mini sparkline SVG 자동 인라인 삽입. `_aioBuildSparklineSvg` 활용. 양수 green / 음수 red. 최대 3 종목.
 
-**R177 — 사이드바 audit 일반/개발자 mode 토글 의무**: 18+ audit row metric은 일반 사용자에게 부담. `localStorage.aio_audit_mode = 'simple' | 'detailed'` 토글 의무.
+**R177 — 사이드바 audit 일반/개발자 mode 토글 의무**: Audit rows render only in developer/QA mode (`body.aio-dev-mode`, `?aioAudit=1` or detailed mode); user surfaces show none and have no web_search toggle. (v57.79 rewrite) 이력: 18+ audit row metric은 일반 사용자에게 부담. `localStorage.aio_audit_mode = 'simple' | 'detailed'` 토글 의무.
 
-**R178 — audit failure status sticky top + pulse 의무**: ✗ failure rows는 자동 top sort + 빨간 border + 2s pulse animation. ⚠ warn = amber. 위기 시그널 즉각 가시.
+**R178 — audit failure status sticky top + pulse 의무**: Audit rows, including failure ordering, render only in developer/QA mode; user surfaces show none. (v57.79 rewrite) 이력: ✗ failure rows는 자동 top sort + 빨간 border + 2s pulse animation. ⚠ warn = amber. 위기 시그널 즉각 가시.
 
 **Pattern 일반화 (R170 확장)**: 신규 audit 함수 추가 시 (1) fn 정의 (2) 사이드바 data-audit-key row 노출 (3) 회귀 T 테스트 3종 셋트 (`fn 정의 / status 반환 / 사이드바 DOM`) 동시 작성 의무.
 
 ---
 
 ## R179. 클라이언트 접속 시 자동운영 모델 — 부팅 로더 명시 + 서버 cron 금지 (v49.88 added, P447 root)
+**Retired (v57.79)**: producers run on GitHub Actions schedules and the client only reads published artifacts (AGENTS Producers).
 ## R180. 데이터 lineage 5단계 연결 의무 + 자동 audit (v49.89 added, P450 root)
 ## R181. 데이터 검증은 카테고리 + cell-level(개별 sink→source) 둘 다 (v49.90 added, P451 root)
 ## R182. cell-level은 연결 + 값 정확성 둘 다 / 텍스트 수치는 동적 참조 (v49.91 added, P452 root)
 ## R183. WebSearch 수치는 지표별 정상 band 검증 후 수용 (v49.92 added, P453 root)
+**Rule**: Web-search figures may be cited as text with their source and date, but never feed scores, tables or charts. (v57.79 rewrite)
 ## R184. 동일 지표가 2개 저장소(DATA_SNAPSHOT 본체 + _fallback 미러)에 존재 시 정합 의무 (v49.96 added, P459 root)
+**Superseded by R289 (v57.79)**: R289 keeps DATA_SNAPSHOT and the _fallback mirror synchronized.
 ## R185. 재발방지 audit은 pull이 아닌 push — 지속 운영 중 자동 surfacing 의무 (v49.96 added, P461 root)
 ## R186. 첫 접속/새로고침 시 진행률 로더 + 정적 콘텐츠 만료 시 동적 폴스루 의무 (v49.97 added, P462 root)
 ## R200. v50 페이지 계약/데이터 증거/AI 답변/배포 게이트 4원칙 (v50.0 added, P476 root)
 ## R187. 매매 핵심 페이지(종합 5)는 진입 시 stale하면 즉시 재fetch 의무 (v49.98 added, P463 root)
+**Rule**: On entry, each of the 8 screens reloads the latest published artifacts and labels anything stale; it never produces data. (v57.79 rewrite)
 ## R188. 전체 데이터 최신화 진행률은 중앙 refresh state를 단일 진실 원천으로 표시한다 (v49.101 added, P464 root)
 ## R189. 5개 종합 페이지 개별 데이터는 page profile 심볼/태스크 union으로 최신화한다 (v49.102 added, P465 root)
+**Rule**: On entry, each of the 8 screens reloads the latest published artifacts and labels anything stale; it never produces data. (v57.79 rewrite)
 ## R190. 보이는 차트/지표/시세/수치/수식/텍스트 표면은 최신화 감사에 자동 편입한다 (v49.103 added, P466 root)
 ## R191. AI 채팅의 종목 답변은 strict preflight 후 최신 시세/기업 데이터 블록만 인용한다 (v49.104 added, P467 root)
 ## R192. `forceFresh` for AI stock answers must bypass every local freshness shortcut (v49.105 added, P468 root)
@@ -2655,6 +2724,7 @@ ctx.strokeStyle = 'rgba(255,255,255,0.08)';  // 또는 '#8888884A'
 ## R209. 계약 수·시간대·복합 가격 카드는 단일 진실 원천에서 파생 (v50.56 added, P501 root)
 ## R210. 런타임 scope·sink 소유권·증거 게이트 의미를 함께 검증 (v50.56 added, P502 root)
 ## R211. 넓은 AI 종목 추천은 분산 후보군을 먼저 만들고 반복 앵커를 감점 (v50.57 added, P503 root)
+**Rule**: Broad AI stock questions return a diversified, evidence-labelled candidate list for the user to research, never a recommendation. (v57.79 rewrite)
 ## R212. AI 채팅 정확성 가드는 사용자 의도별로 적용하고 답변력을 억제하지 않는다 (v50.58 added, P504 root)
 ## R213. AI 채팅 데이터 기능은 자연어 라우팅과 출처 레지스트리까지 연결해야 한다 (v50.59 added, P505 root)
 ## R214. AI 채팅은 AIO 전용 통합 답변 계약까지 주입해야 한다 (v50.60 added, P506 root)
@@ -2715,6 +2785,7 @@ ctx.strokeStyle = 'rgba(255,255,255,0.08)';  // 또는 '#8888884A'
 ## R284. Proxy responses, visible value slots, and browser QA matrices must be typed and executable (v52.28, P643 root)
 ## R285. Operational health labels and feed quality gates must distinguish sources and use accumulated evidence (v52.29, P644 root)
 ## R286. AI chat key gates must test the effective Claude route, not only the personal-key field (v52.30, P645 root)
+**Superseded by R463 (v57.79)**: readiness verifies the endpoint the resolver selected; no personal-key field exists.
 ## R287. Market breadth color, label, and gauge bars must share the canonical breadth regime (v52.31, P646 root)
 ## R288. Route x viewport audits must include topbar clipping and SVG text geometry, not only page overflow (v52.32, P647 root)
 ## R289. Live quote bridges must keep DATA_SNAPSHOT and `_fallback` mirrors synchronized (v52.33, P648 root)
@@ -2733,6 +2804,8 @@ ctx.strokeStyle = 'rgba(255,255,255,0.08)';  // 또는 '#8888884A'
 
 ## R291. Static page-education content must state invariant mechanisms only, never a current level/date/verdict, and must inherit the existing declutter/accessibility gates (v52.39, P654 root)
 
+**Superseded by R328 (v57.79)**: R328 replaced per-page education blocks with the guide (it says so itself).
+
 **Rule**: A page-level "fundamentals"/education surface (e.g. `AIO_PAGE_FUNDAMENTALS`) is static prose written once and shipped to every visitor regardless of when they load the page — it is not a live render function, so it cannot re-check freshness on each view the way R282's live-verdict functions can. It must therefore never contain a claim that is only true on the day it was written: no current price/level, no current date, no directional/regime verdict. Only invariant mechanisms and relationships ("금리가 오르면 밸류에이션이 눌린다" style) are allowed — the fact side of R282's live/fallback distinction, applied unconditionally, since this content has no live/fallback state to check at all; it is always "unsourced" by construction and must read that way forever.
 
 **Why this matters**: found during the v52.39 22-page education-layer audit (`_context/FABLE-EDU-OVERHAUL-DESIGN-2026-07-09.md` §1) — E1 (concept)/E2 (mechanism)/E5 (action guidance) were missing on 20 of 22 route pages, and the obvious failure mode when filling that gap is exactly R282's stale-narrative pattern (a hardcoded "지금 DXY 98은 위험 구간" sentence that reads as current fact forever). R282 gates *render functions* that can check a live/fallback flag at render time; this content has no such flag to check, so the constraint has to be enforced at content-authoring time instead.
@@ -2747,7 +2820,7 @@ ctx.strokeStyle = 'rgba(255,255,255,0.08)';  // 또는 '#8888884A'
 
 ## R292. A client-side call routed through a region-unpinned shared edge proxy must auto-retry on the provider's own regional-block error signature, not just report it (v52.44, B8/P659 root)
 
-**Rule**: When a browser-side fetch goes through a free-tier/shared edge proxy that cannot pin its execution region (e.g. Cloudflare Workers' free plan, which anycast-routes each inbound request independently), a request that happens to land on a datacenter the upstream provider blocks by policy fails with the upstream's own error body — not the proxy's own error shape. That failure is transient in the sense that a *new* request is independently re-routed and has a good chance of landing on a working datacenter; it is not transient in the sense that retrying the *same* connection or simply waiting would help. The retry must therefore: (a) issue a genuinely new request rather than reuse/retry the same connection, (b) gate on the caller actually being routed through the shared proxy — a direct call to the provider's own API from the user's own network never hits this failure mode, and (c) distinguish the provider's own error signature from the proxy's own unrelated error shapes at the same status code — retrying a proxy-side auth/quota/timeout failure wastes an attempt and can mask a real, non-transient problem.
+**Rule**: Shared-Worker AI calls retry once, immediately, only on the upstream provider's own regional-block error shape, never on the Worker's own errors. (v57.79 rewrite)
 
 **Why this matters**: found on B8 (`_context/DEFERRED-BLOCKS.md`) — curl reproduced the exact mechanism 3 times: identical requests through Cloudflare's free-plan Worker landed on `CF-RAY:...-NRT` (Tokyo, 200 OK) or `CF-RAY:...-HKG` (Hong Kong, 403) depending on which edge anycast happened to select, and the 403 body was Anthropic's own `{error:{type:'forbidden',message:'Request not allowed'}}` — not the Worker's own `errorResponse()` shape (`{error,status}`) — proving Anthropic itself, not the repo's Worker code, rejected the Hong-Kong-routed request by regional policy. The repo, secrets, and deploy were all otherwise correct; there was nothing to fix upstream, only a client-side mitigation to add. A prior, unrelated 403 investigation on the same route (B5) had guessed "Anthropic rate/concurrency limiting" — that guess was wrong (corrected once this mechanism was actually reproduced), which is itself a caution against assuming a cause for a recurring status code without reproducing the actual error body.
 
@@ -2789,14 +2862,14 @@ ctx.strokeStyle = 'rgba(255,255,255,0.08)';  // 또는 '#8888884A'
 
 ## R296. A session-scoped automation hook must not hardcode an absolute environment fact, and must scope its side effects to what changed during its own session, not whatever it finds lying around (v52.47, WO-5/P663 root)
 
-**Rule**: A hook config that hardcodes an absolute filesystem path (a user profile directory, a cloud-sync folder) breaks the instant that path changes — a repo move, a re-clone, a sync-provider migration — and it breaks *silently*: the hook invocation just fails to resolve and the tool moves on, with no visible error surfaced to the person relying on it. Prefer paths relative to the repo root (resolved at hook-invocation time, since these tools already run with the project root as cwd) over anything user- or machine-specific. Separately: a `Stop`/session-end hook that does `git add -A` to auto-save "this session's work" is making an assumption — that everything currently dirty in the working tree belongs to this session — which is only true if the tree started clean. It routinely isn't: a previous session's uncommitted scratch state, or (concretely, in a repo two different agent tools operate on) a *different* tool's uncommitted output, sits there from before this session began. `git add -A` cannot distinguish "dirty because of me" from "was already dirty" — it stages both, and the resulting commit silently bundles unrelated work under this session's label.
+**Rule**: Hooks use repo-relative paths and never stage or commit; a session's own changed paths come from the session-start baseline (`qa-runner session-start`). (v57.79 rewrite)
 
 **Why this matters**: found on WO-5 — `.codex/hooks.json` hardcoded every hook command to an absolute OneDrive path that no longer existed (the project had moved to a plain local directory), so every Codex-side hook (file-overwrite protection, dangerous-command blocking, version-sync checking) had been silently doing nothing. Separately, this exact session's own Stop-hook auto-commit (`git add -A`) was directly observed sweeping in a diagnosis document and an index file that predated the session and had nothing to do with its work — not a hypothetical, a commit (`1b3f39a`) that actually happened mid-session.
 
 **Required**:
 - Hook commands in `settings.json`/`hooks.json` must be relative paths from the repo root, never an absolute path baked in for one machine's current directory layout.
 - A regex meant to capture a numeric field with a variable digit count must not hardcode a fixed digit count for any segment (`\.[0-9]` only ever captures one digit) — verify against a current real value with more digits than the pattern's author was probably picturing when they wrote it.
-- A session-end auto-commit hook should snapshot repo state at session *start* (a `SessionStart` hook writing `git status --porcelain` to a scratch file) and diff against it at session end, staging only paths that are new since the snapshot — not stage everything currently dirty. This is a path-membership diff (ignore the exact status code, compare only which paths appear), so a file already dirty before the session correctly stays untouched by this session's commit even if it's still dirty at the end.
+- No hook stages or commits (CLAUDE.md). A session's own paths come from the `qa-runner session-start` baseline compared by path membership, so a file already dirty before the session is never attributed to it. (v57.79 rewrite)
 - When two tools' hook configs are meant to mirror each other (here, `.claude/` and `.codex/`), diverging line endings alone can make `diff` report every line as changed and obscure whether the actual logic has drifted — normalize (or diff with whitespace/CRLF stripped) before concluding they disagree.
 - A repo-governance change with real teeth (enabling branch protection where none existed) needs the actual current push pattern checked first (do bots/hooks push directly to the default branch with no PR?) — a protection ruleset sized for a PR-based workflow (required reviews, required status checks before merge) would immediately break a direct-push-based one; scope the ruleset to what's actually compatible with the observed workflow (e.g. force-push/deletion protection only) rather than a generic "best practice" default.
 
@@ -2826,7 +2899,19 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 
 ## R302. Historical event context must expire before it can influence a current action; derived regimes need a missing-input quorum gate (v52.55, H3-B/C/P672 root)
 
+**Rule**: Event/result narratives are reusable context, not perpetual current signals. Every event claim needs an explicit age window and must become historical/reference-only after expiry. A derived score or regime may retain a numeric diagnostic output for transparency, but when critical current inputs are missing/stale beyond the quorum threshold it must block an execution conclusion and expose the reason.
+
+**Required**: Use `AIO_EVENT_FRESHNESS_REGISTRY` through `AIO.getEventClaimState()`; do not read event status/date directly to form current action copy. Preserve the diagnostic score, but block action/decision and prevent later overlays from restoring a strong conclusion.
+
+**Validation**: T905/T906, `_aioDefaultDecision().decisionBlocked`, `_aioApplyEventFreshnessGate()` claim-state attributes, and runtime H3-B/C checks.
+
 ## R303. PC geometry and external-source failures must be explicit, bounded, and user-visible (v52.56, H3-D/E/P673 root)
+
+**Rule**: A canvas must never keep an intrinsic width larger than its actual desktop grid parent; an intentionally wide table must be contained by an explicit, keyboard-accessible horizontal-scroll region. External success, partial, timeout, malformed, and unavailable responses must resolve through one state contract with an explicit `allowedUse` policy. Console warnings alone or blank feed slots are not a valid failure state.
+
+**Required**: Use the shared canvas width contract and `.aio-table-scroll` region semantics; use `AIO.normalizeExternalSourceState()`/`AIO_EXTERNAL_STATES` for API/RSS transitions; render a localized status and retry/reference policy where an external feed has no usable result.
+
+**Validation**: T907–T911, runtime-contract H3-D/E checks, and the real PC/laptop Chromium artifact matrix.
 
 ## R304. Third-party libraries are progressive enhancements and must never block the local route boot queue (v52.57, H3-F/P674 root)
 
@@ -2835,18 +2920,6 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Required**: Load external enhancement libraries asynchronously or through an explicit bounded loader; keep local application modules in their deterministic order; retain a no-library fallback for every route that depends on an enhancement.
 
 **Validation**: T912, runtime H3-F check, and the PC Chromium reload journey.
-
-**Rule**: A canvas must never keep an intrinsic width larger than its actual desktop grid parent; an intentionally wide table must be contained by an explicit, keyboard-accessible horizontal-scroll region. External success, partial, timeout, malformed, and unavailable responses must resolve through one state contract with an explicit `allowedUse` policy. Console warnings alone or blank feed slots are not a valid failure state.
-
-**Required**: Use the shared canvas width contract and `.aio-table-scroll` region semantics; use `AIO.normalizeExternalSourceState()`/`AIO_EXTERNAL_STATES` for API/RSS transitions; render a localized status and retry/reference policy where an external feed has no usable result.
-
-**Validation**: T907–T911, runtime-contract H3-D/E checks, and the real PC/laptop Chromium artifact matrix.
-
-**Rule**: Event/result narratives are reusable context, not perpetual current signals. Every event claim needs an explicit age window and must become historical/reference-only after expiry. A derived score or regime may retain a numeric diagnostic output for transparency, but when critical current inputs are missing/stale beyond the quorum threshold it must block an execution conclusion and expose the reason.
-
-**Required**: Use `AIO_EVENT_FRESHNESS_REGISTRY` through `AIO.getEventClaimState()`; do not read event status/date directly to form current action copy. Preserve the diagnostic score, but block action/decision and prevent later overlays from restoring a strong conclusion.
-
-**Validation**: T905/T906, `_aioDefaultDecision().decisionBlocked`, `_aioApplyEventFreshnessGate()` claim-state attributes, and runtime H3-B/C checks.
 
 ## R305. Partial third-party chart stubs must be treated as unavailable before registry access (v52.58, P675 root)
 
@@ -2884,7 +2957,7 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 
 **Rule**: 시안에 없는 기존 섹션을 `<details>`로 접거나 시안 앞뒤에 그대로 붙이는 방식은 이식 완료가 아니다. 기본 사용자 경로는 시안의 순서·밀도·텍스트 계층을 우선하고, 중복 설명·교육·운영 진단은 삭제하거나 전용 도움말/개발자 모드로 이관해야 한다.
 
-**Required**: 13개 시안 화면에는 conclusion → evidence → action 순서에 직접 기여하는 콘텐츠만 기본 노출한다. `.aio-fund`, Public Status, 파이프라인 감사, 시안 밖 고급 도구는 기본 경로에 렌더하지 않는다. R291의 페이지별 교육 블록 의무는 본 규칙으로 대체하며, 교육은 전용 사용 설명서에서 제공한다.
+**Required**: AGENTS 정보 구조의 8개 화면에는 conclusion → evidence 순서에 직접 기여하는 콘텐츠만 기본 노출한다. `.aio-fund`, Public Status, 파이프라인 감사, 시안 밖 고급 도구는 기본 경로에 렌더하지 않는다. R291의 페이지별 교육 블록 의무는 본 규칙으로 대체하며, 교육은 전용 사용 설명서에서 제공한다. (v57.79 rewrite)
 
 **Validation**: T869, runtime-contract의 inert fundamentals/no-navigation-hook, 13면 advanced developer-only, 포트폴리오 순서/CTA, 스크리너 9열 게이트.
 
@@ -2892,11 +2965,13 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 
 **Rule**: 승인 시안의 순서·밀도·중복 제거 계약은 페이지 진입 이벤트, 비동기 데이터 렌더, 공통 헤더/뉴스 삽입, 기존 재배치 함수가 모두 실행된 뒤에도 유지되어야 한다. 자동 생성된 패널이라는 이유로 시안 밖 콘텐츠를 일반 사용자 화면에 되살리지 않는다.
 
-**Required**: 13면의 자동 판단 헤더·관련 뉴스·중복 피드·운영 진단은 개발자 경로로 격리한다. 결과 수가 변하는 뉴스와 스크리너는 첫 화면 상한과 명시적 점진 공개를 사용하고, 긴 브리핑 피드는 사용자가 확장하기 전까지 높이를 제한한다. 시안에서 정의한 핵심 순서를 런타임 DOM 이동으로 뒤집지 않는다.
+**Required**: AGENTS 정보 구조 8개 화면의 자동 판단 헤더·관련 뉴스·중복 피드·운영 진단은 개발자 경로로 격리한다. 결과 수가 변하는 뉴스와 스크리너는 첫 화면 상한과 명시적 점진 공개를 사용하고, 긴 브리핑 피드는 사용자가 확장하기 전까지 높이를 제한한다. 시안에서 정의한 핵심 순서를 런타임 DOM 이동으로 뒤집지 않는다. (v57.79 rewrite)
 
 **Validation**: T869 `redesign_default_path_v5288`, runtime-contract [G], 로컬 Chromium 13면 데스크톱·모바일 캡처, viewport/accessibility matrix.
 
 ## R330. 사용자 표면 수와 내부 QA 라우트 수를 분리하고, 시안 정보 위계를 모든 사용자 표면에 적용한다 (v52.89, P704 root)
+
+**Superseded by R676 (v57.79)**: AGENTS.md Information architecture defines 8 user screens; legacy ids are aliases or QA routes.
 
 **Rule**: 제품 페이지 수는 메뉴에서 직접 접근하는 19개 페이지와 용어사전 오버레이 1개를 합한 20개 사용자 표면으로 설명한다. `ticker`, `theme-detail`은 파생 뷰이며 `options`는 폐기 호환 reference shell이므로 22개 QA 라우트를 22개 사용자 페이지라고 부르지 않는다.
 
@@ -2910,13 +2985,13 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 
 **Required**: 외부 다중 요청은 총 예산과 부분 성공 경로를 가진다. 뉴스 피드와 헤더는 한 상태 갱신 함수를 사용한다. 점진 공개 컨트롤은 자신이 공개할 콘텐츠와 같은 페이지/컨테이너에 둔다. 닫힌 패널은 `inert`와 ARIA/포커스 상태를 함께 전환한다. 데이터가 없으면 계산 불가능한 카드를 숨기고 다음 행동을 우선한다. 대량 브라우저 요청은 명시적 상한·회로·단일 실패 설명을 가진다.
 
-**Validation**: T1015~T1020, runtime-contract [G2], 20개 사용자 표면 데스크톱/모바일 렌더와 기업 분석 timeout·뉴스 cache/load-more·AI open/close·KR failure·portfolio empty 실제 Chromium 여정.
+**Validation**: T1015~T1020, runtime-contract [G2], 8개 화면 데스크톱/모바일 렌더와 기업 분석 timeout·뉴스 cache/load-more·AI open/close·KR failure·portfolio empty 실제 Chromium 여정. (v57.79 rewrite)
 
 ## R332. 데이터 파일 갱신시각·외부 관측시각·마지막 수집 성공시각을 분리하고 missing을 판단값으로 승격하지 않는다 (v52.91, P706 root)
 
 **Rule**: `generatedAt`은 파일 생성 또는 실제 성공 중 문서화된 한 의미만 가져야 하며, 가격의 거래소 관측시각과 공급자 요청시각을 대신하지 않는다. 값이 없거나 원천이 실패한 상태를 `0`, 중립, 현재값, 또는 새 성공시각으로 변환하지 않는다. 지표가 그대로라는 이유만으로 정책금리를 stale 처리하지 않고 지표 주기에 맞는 freshness budget을 사용한다.
 
-**Required**: 모든 의사결정 입력은 source, `observedAt`, `fetchedAt` 또는 `attemptedAt`, `lastSuccessfulAt`, freshness, `allowedUse`를 구분한다. 시세 producer는 거래 관측 메타데이터를 보존한다. 시장폭·심리·수급처럼 최신성이 끊긴 값은 점수/레짐/행동 문구에서 차단하며 화면에는 원천 미수신·참고값을 명시한다. 비밀키 실값은 masked input DOM에 복원하지 않는다. 통계적 예측 검증을 통과하지 않은 점수는 환경 설명으로만 명명한다.
+**Required**: 모든 의사결정 입력은 source, `observedAt`, `fetchedAt` 또는 `attemptedAt`, `lastSuccessfulAt`, freshness, `allowedUse`를 구분한다. 시세 producer는 거래 관측 메타데이터를 보존한다. 시장폭·심리처럼 최신성이 끊긴 값은 점수/레짐/행동 문구에서 차단하며 화면에는 원천 미수신·참고값을 명시한다. 비밀키 실값은 masked input DOM에 복원하지 않는다. 통계적 예측 검증을 통과하지 않은 점수는 환경 설명으로만 명명한다. (v57.79 rewrite)
 
 **Validation**: runtime contract LIVE3-01~10, data-pipeline contract, 22개 범주 currentness 평가표, 실브라우저 20개 사용자 표면, 당일 공식/1차 소스 시장 대조.
 
@@ -3001,15 +3076,15 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 
 ## R385. Vertical slices must be executable route contracts (v53.50, P841)
 
-**Rule**: The ten Wave 3 slices must cover every route exactly once, bind lifecycle scope to the canonical page completeness contract, and expose direct-entry, blocked-network, mobile-control, and leave/re-entry evidence. A renderer marker alone is not slice completion.
+**Rule**: Vertical slices declared in `src/app/vertical-slices.js` must cover every route in `src/app/routes.js` exactly once (counts derived, never constants), bind lifecycle scope to the canonical page completeness contract, and expose direct-entry, blocked-network, mobile-control, and leave/re-entry evidence. A renderer marker alone is not slice completion. (v57.79 rewrite)
 
-**Validation**: `src/app/vertical-slices.js`, router slice markers, `ci-vertical-slice-contract-check.mjs`, and `ci-vertical-slice-browser-check.mjs` must remain synchronized; the browser gate must pass all ten slices before the Wave 3 packet is closed.
+**Validation**: `src/app/vertical-slices.js`, router slice markers, `ci-vertical-slice-contract-check.mjs`, and `ci-vertical-slice-browser-check.mjs` must remain synchronized; the browser gate must pass every declared slice before the Wave 3 packet is closed.
 
 ## R386. Route/resource stability must be proven by a repeated blocking soak (v53.51, P843)
 
 **Rule**: A route can be considered operationally stable only after repeated traversal proves one visible route surface, bounded chart/canvas resources, zero unexpected browser errors, and entity A→B→A re-entry without stale scope writes.
 
-**Validation**: `scripts/ci-route-soak-check.mjs` must run the 17-route order for three laps, emit `_artifacts/route-soak-report.json`, and remain a blocking step in `.github/workflows/ci.yml`; expected offline provider warnings may be filtered only by explicit pattern.
+**Validation**: `scripts/ci-route-soak-check.mjs` must run the route order derived from `src/app/routes.js` for three laps, emit `_artifacts/route-soak-report.json`, and remain a blocking step in `.github/workflows/ci.yml`; expected offline provider warnings may be filtered only by explicit pattern. (v57.79 rewrite)
 
 ## R387. Operational and public-readiness claims must remain revisioned and operator-explicit (v53.51, P843)
 
@@ -3031,7 +3106,7 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 
 ## R390. AI route readiness must be explicit and fail closed (v53.52, P844)
 
-**Rule**: Chat, briefing, translation, and market-analysis entrypoints must resolve through the shared route contract and distinguish personal-key, no-route, Vault-locked, Worker-not-ready, rate-limit, authentication, and timeout states. A scheduled server analysis success must never imply public chat readiness.
+**Rule**: Chat, briefing, translation and market-analysis entrypoints resolve through the shared Worker route contract; AI readiness and quota UI derive only from that route's health and budget, and `NO_ROUTE`/`NOT_READY` are readiness states, not quota. Vault-locked, rate-limit, authentication and timeout states stay distinct, and a scheduled server analysis success never implies public chat readiness. (v57.79 rewrite)
 
 **Validation**: `public-config.json`, `_aioEnsureClaudeRoute`, Worker `/health`, the response contract, and the AI reliability CI contract must reject an unconfigured or unhealthy shared route without inventing an operator/server-key capability.
 
@@ -3061,7 +3136,7 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 
 ## R395. AI questions must enter through one typed QuestionPlan/Orchestrator (v53.55, P848)
 
-**Rule**: Per-page and unified chat may retain legacy UI/provider code only as guarded compatibility adapters. Intent, entity, timeframe, current-sensitivity, required evidence, capability selection, and dispatch ownership must start in the single ESM AI orchestrator.
+**Rule**: The single top AI panel may retain legacy UI/provider code only as a guarded compatibility adapter. Intent, entity, timeframe, current-sensitivity, required evidence, capability selection, and dispatch ownership must start in the single ESM AI orchestrator. (v57.79 rewrite)
 
 **Validation**: `src/ai/orchestrator/{question-planner,capability-planner,answer-orchestrator}.js`, `src/ai/intent/taxonomy.js`, both chat entrypoints, `AIO_ARCH.getAIOrchestrator`, and `scripts/ci-ai-intelligence-contract-check.mjs` must retain the seven representative routing cases and guarded adapter marker.
 
@@ -3103,13 +3178,13 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 
 ## R402. Chat quote evidence must cross the typed-claim boundary without lossy field mapping (v53.57, P851)
 
-**Rule**: Per-page and unified chat may keep broad educational/framework answers available, but any current numeric quote claim must receive one normalized evidence row with metric, value, unit, scale, asOf, source, sourceKind, status, and evidenceId. Adapter field names such as `price` must not be passed directly to the typed validator.
+**Rule**: The single top AI panel may keep broad educational/framework answers available, but any current numeric quote claim must receive one normalized evidence row with metric, value, unit, scale, asOf, source, sourceKind, status, and evidenceId. Adapter field names such as `price` must not be passed directly to the typed validator. (v57.79 rewrite)
 
 **Validation**: `normalizeAIChatEvidenceRow`, `getChatAnswerFreshnessAudit`, `getChatEvidenceContext`, the shared typed evidence registry prompt, and T950-T952 in `js/aio-tests.js` must prove valid quote claims pass, the model sees the exact evidence id, and blocked/stale evidence remains fail-closed.
 
 ## R403. ResearchDecision/ResearchPlan must be the same evidence gate for every chat surface (v53.58, P852)
 
-**Rule**: Per-page and unified chat may use different UI/provider adapters, but REQUIRED current/causal questions must execute the same ResearchPlan and pass the same primary/independent/snippet-free evidence floor before output is publishable. Citation count or a provider route alone is never sufficient.
+**Rule**: In the single top AI panel, REQUIRED current/causal questions must execute the same ResearchPlan and pass the same primary/independent/snippet-free evidence floor before output is publishable. Citation count or a provider route alone is never sufficient. (v57.79 rewrite)
 
 **Validation**: the AI intelligence contract checks both surfaces for `_aioEvaluateAIResearchGate`, ResearchPlan dispatch, and fail-closed floor wiring; browser gates must not expose current/causal output while the gate is unresolved.
 
@@ -3137,7 +3212,7 @@ A quote is an atomic envelope. Do not apply a price, percentage, delta, previous
 
 ## R408. AI quota must not imply route capability (v53.59, P855)
 
-The AI quota/capacity UI may show available calls only when a personal credential or a healthy shared Worker route is present. `NO_ROUTE`, `WORKER_NOT_READY`, and `WORKER_NOT_CHECKED` are unavailable/readiness states, not quota states.
+**Rule**: AI readiness and quota UI derive only from the shared Worker route's health and budget; no personal credential path exists. `NO_ROUTE`, `WORKER_NOT_READY`, and `WORKER_NOT_CHECKED` are unavailable/readiness states, not quota states. (v57.79 rewrite)
 
 ## R409. Release data revisions must match the published snapshot (v53.59, P856)
 
@@ -3161,7 +3236,7 @@ observation/source metadata and fail closed for missing values; compatibility fa
 remain limited to navigation/actions and legacy fallback writers.
 
 **Validation**: `ci-architecture-contract-check.mjs`, `ci-architecture-browser-check.mjs`,
-and `ci-operator-readiness-check.mjs` must report 17/17 native data owners and no
+and `ci-operator-readiness-check.mjs` must report a native data owner for every route in `architecture/route-owners.json` (count derived, never a constant) and no (v57.79 rewrite)
 provider wiring that directly invokes `legacy.read*`.
 
 ## R413. Native chart ownership requires a registry, marker, and legacy fence (v53.63, P834-P835)
@@ -3295,6 +3370,8 @@ endpoint identity while retaining explicit operator blockers.
 
 ## R436. 시장 휴장일 freshness 유예는 완전한 Tier-0 snapshot에만 허용한다 (v53.86, P889)
 
+**Superseded by R641 (v57.79)**: live-core freshness has no market-closure grace (R637/R641) and ci-data-lineage-audit no longer has a market-closed predicate; observation currentness on closed sessions is judged by cadence and calendar (R646, R671).
+
 **Rule**: `data.json`/`market-snapshot.json`의 live-core freshness SLA는 평일과 provider failure에서 반드시 fail-closed로 동작해야 한다. 토·일 유예는 `market-snapshot.json`의 `QG-01_PASS`, Tier-0 required/observed 일치, `errors=[]`가 동시에 확인될 때만 허용하며, 유예는 새 값을 생성하거나 timestamp를 갱신하는 근거가 아니다.
 
 **Validation**: `ci-data-lineage-audit.mjs`의 market-closed predicate와 `ci-refresh-artifact-integrity-check.mjs`를 함께 실행한다.
@@ -3321,7 +3398,7 @@ endpoint identity while retaining explicit operator blockers.
 
 **Rule**: 사용자 제공 자료에서 추출한 상대강도 눌림, 클라이막스 탑, AI 데이터센터 전력 품질, GPU 재가격, 메모리 LTA 주장은 `REFERENCE` 관찰·검증 질문으로만 연결한다. RVOL·benchmark-relative-strength·충분한 OHLCV·시설별 계측·공식 계약/공시가 없으면 `unavailable` 또는 `추가 셋업 근거 필요`로 fail-closed하며, 현재 수치·확정 신호·매매 권고·가정용 피해를 합성하지 않는다. SCREENER_DB memo와 CHAT_CONTEXTS는 반드시 출처/기준일/검증 경계를 보존한다.
 
-**Validation**: `scripts/ci-esm-core-unit-check.mjs`가 setup-profile 후보·클라이막스·빈 데이터 경계를 검사하고, `scripts/fetch-data.mjs`의 TradingView winner evidence는 ADR·52주·달러 유동성·EMA nullable 필드와 `winnerFilter`로 결측을 fail-closed한다. native screener provider/normalizer/orchestrator와 `AIO_AI_INFRA_CYCLE_REFERENCE`는 source audit·evidence hierarchy·전력품질 측정지표·반증 조건을 reference-only로 연결한다. `ci-version-check.mjs`, `ci-runtime-contract-check.mjs`, `ci-structural-check.mjs`와 `git diff --check`를 함께 통과해야 한다.
+**Validation**: `scripts/ci-esm-core-unit-check.mjs`가 setup-profile 후보·클라이막스·빈 데이터 경계를 검사하고, `src/domain/screener/setup-profile.js`의 winner-filter evidence는 ADR·52주·달러 유동성·EMA nullable 필드와 `winnerFilter`로 결측을 fail-closed한다. native screener provider/normalizer/orchestrator와 `AIO_AI_INFRA_CYCLE_REFERENCE`는 source audit·evidence hierarchy·전력품질 측정지표·반증 조건을 reference-only로 연결한다. `ci-version-check.mjs`, `ci-runtime-contract-check.mjs`, `ci-structural-check.mjs`와 `git diff --check`를 함께 통과해야 한다. (v57.79 rewrite)
 
 ## R441. Telegram 다채널 discovery는 source catalog·신선도·실패 상태를 함께 보존한다 (v53.92)
 
@@ -3396,7 +3473,7 @@ endpoint identity while retaining explicit operator blockers.
 
 ## R453. AI Research는 하나의 실행 결과 계약과 관측된 capability 증거로만 공개한다 (v54.0, P898)
 
-**Rule**: 외부 검색 adapter, Claude native search, unified chat, per-page chat이 서로 다른 evidence shape·준비 경로·판정 로직을 가져서는 안 된다. canonical 결과는 `researchEvidence.evidenceDocuments`를 SSOT로 사용하고 모든 공개 표면은 동일한 실행형 evidence floor를 통과해야 한다. 대화 route나 Worker health만으로 검색 도구·인용·quota 준비를 `READY`로 표시하지 않으며 실제 인용 성공 전에는 미검증 상태를 유지한다. 공급자/하위 쿼리 실패 원인은 진단용으로 보존하되 사용자에게 raw 오류를 노출하지 않는다. 공식 출처는 정확한 hostname 경계로 판정하고 snippet-only·위장 도메인·출처 수 미달은 현재성 주장을 차단한다.
+**Rule**: 외부 검색 adapter와 단일 상단 AI 패널이 서로 다른 evidence shape·준비 경로·판정 로직을 가져서는 안 된다. canonical 결과는 `researchEvidence.evidenceDocuments`를 SSOT로 사용하고 모든 공개 표면은 동일한 실행형 evidence floor를 통과해야 한다. 대화 route나 Worker health만으로 검색 도구·인용·quota 준비를 `READY`로 표시하지 않으며 실제 인용 성공 전에는 미검증 상태를 유지한다. 공급자/하위 쿼리 실패 원인은 진단용으로 보존하되 사용자에게 raw 오류를 노출하지 않는다. 공식 출처는 정확한 hostname 경계로 판정하고 snippet-only·위장 도메인·출처 수 미달은 현재성 주장을 차단한다. (v57.79 rewrite)
 
 **Validation**: `src/ai/research/evidence.js`, `js/aio-chat.js`, `js/aio-core.js`, `scripts/ci-ai-intelligence-contract-check.mjs`, `scripts/ci-ai-chat-reliability-contract-check.mjs`, `js/aio-tests.js` G109/T1042~T1047, `scripts/ci-headless-tests.mjs`.
 
@@ -3426,7 +3503,7 @@ endpoint identity while retaining explicit operator blockers.
 
 ## R458. AI edge Worker는 소스·배포·readiness를 하나의 릴리스 계약으로 닫는다 (v54.3, P903)
 
-**Rule**: `cloudflare-worker-proxy.js`의 로컬 테스트나 Pages 배포만으로 공유 AI 채팅을 완료로 판정하지 않는다. production Worker는 단 하나의 `/anthropic` 핸들러와 원자적 Durable Object quota authority를 사용하고, pinned Wrangler workflow가 Cloudflare/Anthropic 시크릿을 요구하여 같은 canonical source를 배포해야 한다. 배포 후 `/health`가 configured·quotaConfigured와 실제 authority readiness를 보고하고, production CORS preflight·비허용 Origin 403·한국 경로를 포함한 최소 upstream 200을 통과해야 public chat을 `CURRENT`로 승격한다.
+**Rule**: `cloudflare-worker-proxy.js`의 로컬 테스트나 Pages 배포만으로 공유 AI를 완료로 판정하지 않는다. production Worker는 단 하나의 `/openai` 핸들러와 US 관할 Durable Object 예산 authority를 사용하고, pinned Wrangler workflow가 `OPENAI_API_KEY` 시크릿을 요구하여 같은 canonical source를 배포한다. 배포 smoke는 `/health`(configured·quotaConfigured·authority readiness)와 한국-origin `/openai` 200을 확인한 뒤에만 public chat을 `CURRENT`로 승격한다. (v57.79 rewrite)
 
 **Validation**: `worker/wrangler.proxy.toml`, `.github/workflows/deploy-ai-proxy.yml`, `scripts/ci-worker-anthropic-check.mjs`, `scripts/ci-operations-contract-check.mjs`, live Worker smoke, `public-data/operations-status.json`.
 
@@ -3434,7 +3511,7 @@ endpoint identity while retaining explicit operator blockers.
 
 **Rule**: Durable Object locationHint나 Worker placement는 best-effort/ingress 설정이므로 provider outbound 지역 보장으로 인증하지 않는다. 지역 제한 provider의 공유 경로는 jurisdiction-restricted subnamespace와 versioned object identity를 사용하고, 객체 내부에서 자신의 jurisdiction을 검증해 불일치 시 upstream 전에 fail-closed해야 한다. public health는 binding 존재가 아니라 해당 authority를 실제 호출해 jurisdiction·secret readiness를 확인하고, 배포 smoke는 provider 200과 authority 응답 헤더를 함께 검사한다.
 
-**Validation**: `cloudflare-worker-proxy.js`, `scripts/ci-worker-anthropic-check.mjs` US positive/non-US negative controls, `scripts/ci-operations-contract-check.mjs`, `.github/workflows/deploy-ai-proxy.yml`, live `/health`와 한국-origin `/anthropic`.
+**Validation**: `cloudflare-worker-proxy.js`, `scripts/ci-worker-anthropic-check.mjs` US positive/non-US negative controls, `scripts/ci-operations-contract-check.mjs`, `.github/workflows/deploy-ai-proxy.yml`, live `/health`와 한국-origin `/openai`. (v57.79 rewrite)
 
 ## R460. 소수 사용자용 금융 안전 경계는 답변 범위와 실제 실행 위험을 분리한다 (v54.4, P905)
 
@@ -3456,7 +3533,7 @@ endpoint identity while retaining explicit operator blockers.
 
 ## R463. AI readiness는 저장된 credential이 아니라 실제 선택된 endpoint를 검증한다 (v54.5, P908)
 
-**Rule**: 개인 키와 Worker URL이 동시에 존재해도 route resolver가 선택한 endpoint의 인증·health만 readiness 근거로 사용한다. Worker target을 개인 키 존재로 통과시키거나 UI가 다른 route를 표시하면 안 된다. Deep health의 동시 호출은 URL별로 합치고, 일시 실패 TTL은 성공 TTL보다 짧아야 한다. 비공개 지인 공유의 explicit Worker URL을 공개 설정에 자동 게시하지 않는다.
+**Rule**: AI readiness uses only the authentication and health of the endpoint the route resolver selected — the shared Worker route; no personal key path exists. Concurrent deep-health calls coalesce per URL, the transient-failure TTL is shorter than the success TTL, and a private explicit Worker URL is never auto-published to public config. (v57.79 rewrite)
 
 **Validation**: `scripts/ci-ai-chat-reliability-contract-check.mjs`, `_aioClaudeTarget`, `_aioEnsureClaudeRoute`, `getLLMRouteReadiness`, `public-config.json`.
 

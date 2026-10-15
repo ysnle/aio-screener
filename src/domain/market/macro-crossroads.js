@@ -287,7 +287,8 @@ const lastBatchim = (text) => { const syllables = String(text || '').match(/[가
 const subjectParticle = (text) => (lastBatchim(text) ? '이' : '가');
 const andParticle = (text) => (lastBatchim(text) ? '과' : '와');
 function pastBridge(branch, past) {
-  if (!past || !(past.n >= 3) || !Number.isFinite(past.up)) return null;
+  // v57.79: a "mostly rose/fell" claim needs at least 10 non-overlapping cases (the app-wide rate floor).
+  if (!past || !(past.n >= 10) || !Number.isFinite(past.up)) return null;
   const share = past.up / past.n;
   const defensive = branch.favored.every((key) => DEFENSIVE_CHOICES.has(key));
   const risky = branch.favored.every((key) => !DEFENSIVE_CHOICES.has(key));
@@ -295,7 +296,7 @@ function pastBridge(branch, past) {
   if (!direction) return null;
   const path = branch.title.split(' — ')[1] || '이 시나리오';
   const conclusion = branch.favored.map((key) => CHOICES[key].split(' (')[0]).join('·');
-  return `과거 표본에서는 이후 주가가 대체로 ${direction} — 이 시나리오의 결론(${conclusion})은 '${path}'${subjectParticle(path)} 실제로 이어질 때의 비용 기준${past.n < 10 ? '이며, 표본이 작습니다' : '입니다'}.`;
+  return `과거 표본에서는 이후 주가가 대체로 ${direction} — 이 시나리오의 결론(${conclusion})은 '${path}'${subjectParticle(path)} 실제로 이어질 때의 비용 기준${past.n < 30 ? '이며, 표본이 작습니다' : '입니다'}.`;
 }
 
 /**

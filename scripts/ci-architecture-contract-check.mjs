@@ -143,7 +143,7 @@ if (!inferenceEfficiencySource.includes('const rawPct = quote?.pct ?? quote?.reg
 if (marketPageContractSource.includes('number === 0 ? null') || !read('src/domain/macro/macro-read.js').includes("return value != null && value !== '' && Number.isFinite(number) ? number : null;") || read('index.html').includes('id="macro-transmission-lens"')) {
   fail('macro read must preserve finite zero observations and the retired transmission lens must stay off the page');
 }
-// v57.76: the home news ticker-suppression pin (hMacroTopics) left with the retired home news list (renderHomeFeed is a no-op).
+// v57.76: the home news ticker-suppression pin (hMacroTopics) left with the retired home news list (v57.79: the renderHomeFeed stub is gone).
 // P1132/R619: the deep-chart teardown moved from index.html's inline block F into js/aio-ui.js,
 // so the disconnect half of the lifecycle is asserted there; the registration half stays in core.
 // P1753: the deep technical chart (and its ResizeObserver lifecycle) was retired with the dead deep-analysis fold;
@@ -360,8 +360,9 @@ if (dataSource.includes('[id="home-fg-score"]') || dataSource.includes("getEleme
 if (!analysisPageSource.includes("getElementById('home-fg-label')")) fail('native home Fear & Greed label missing');
 // P821: the home quality card must not reuse tradingScore under a different label. Native
 // owns the complete card and displays a fail-closed state until canonical quality inputs exist.
-for (const marker of ['renderHomeQuality', 'home-quality-meter', 'home-quality-score', 'home-quality-label', 'aioHomeQualityRenderer']) {
-  if (!analysisPageSource.includes(marker)) fail(`native home quality renderer marker missing: ${marker}`);
+// v57.79: the card left index.html (v57.50 I16), so its native writer is an orphan and is removed too (R705).
+for (const marker of ['renderHomeQuality', 'home-quality-meter', 'aioHomeQualityRenderer']) { // text-pin-ok: retirement absence
+  if (analysisPageSource.includes(marker)) fail(`retired home quality writer returned: ${marker}`);
 }
 if (dataSource.includes('home-quality-meter') || dataSource.includes('home-quality-score') || dataSource.includes('home-quality-label')) fail('legacy home quality writer returned after P821 cutover');
 // P822 -> P1420/P1670: the technical candle canvases, title and meta left the page (the stock chart
@@ -384,6 +385,69 @@ if (read('js/aio-macro-tech.js').includes('function loadTechCandleChart')) fail(
   const pinnedRetired = ['updateEntryChecklist', '_aioRenderBreadthConsensus', '_aioSyncBreadth50Readout', 'generateDynamicBriefing', 'renderOfficialFutureCalendar', 'updateSRLevels']
     .filter((name) => new RegExp(`(?:function\\s+${name}\\s*\\(|window\\.${name}\\s*=)`).test(legacyJs + read('js/aio-macro-tech.js')));
   if (pinnedRetired.length) fail(`P1672 retired legacy writer returned: ${pinnedRetired.join(', ')}`);
+}
+// R705/R344 dead-id scan (v57.79; QA-VERIFY-04 used to run it as a scratch audit over js/ only). Every id that
+// production js/ or any src/ file looks up - getElementById('id') or the src helper idioms
+// setText/text/selectedValue(documentRef, 'id') - must be created somewhere: index.html, or a js/ or src/ file via
+// markup/template `id="id"` / `id='id'` / `id=\"id\"`, `.id = 'id'` or setAttribute('id', 'id'). A lookup nothing
+// creates is a writer for a sink that left the page. Tests (js/aio-tests.js) neither count as lookups (they probe
+// absence) nor as creators (fixtures would mask dead ids). Nothing is allow-listed silently: each entry below carries
+// a reason, indirect creators must still match their proof, and an entry that no longer matches a dead lookup fails.
+{
+  const listJs = (dir) => fs.readdirSync(path.join(root, dir), { recursive: true }).map(String)
+    .filter((file) => file.endsWith('.js')).map((file) => `${dir}/${file.replace(/\\/g, '/')}`).sort();
+  const productionJs = listJs('js').filter((file) => file !== 'js/aio-tests.js');
+  const scanned = [...productionJs, ...listJs('src')];
+  const sourceOf = new Map(['index.html', ...scanned].map((file) => [file, read(file)]));
+  const createdIds = new Set();
+  const createPatterns = [
+    /\bid=\\?["']([A-Za-z][\w-]*)\\?["']/g,
+    /\.id\s*=\s*["'`]([A-Za-z][\w-]*)["'`]/g,
+    /setAttribute\(\s*["']id["']\s*,\s*["'`]([A-Za-z][\w-]*)["'`]/g,
+  ];
+  for (const source of sourceOf.values()) {
+    for (const pattern of createPatterns) for (const match of source.matchAll(pattern)) createdIds.add(match[1]);
+  }
+  const lookupPatterns = [
+    /getElementById\(\s*["'`]([A-Za-z][\w-]*)["'`]\s*\)/g,
+    /\b(?:setText|text|selectedValue)\(\s*documentRef\s*,\s*["'`]([A-Za-z][\w-]*)["'`]/g,
+  ];
+  const deadLookups = new Map(); // id -> Set(file)
+  for (const file of scanned) {
+    for (const pattern of lookupPatterns) {
+      for (const match of sourceOf.get(file).matchAll(pattern)) {
+        if (createdIds.has(match[1])) continue;
+        if (!deadLookups.has(match[1])) deadLookups.set(match[1], new Set());
+        deadLookups.get(match[1]).add(file);
+      }
+    }
+  }
+  // Ids created through a helper argument or a loop the literal patterns cannot see. `proof` must still match `file`.
+  const indirectCreators = [
+    { ids: ['ai-panel-loading', 'ai-panel-streaming'], file: 'js/aio-chat.js', proof: /function _appendAIMsg\(role, html, id\)[\s\S]{0,300}?if \(id\) msg\.id = id;/, reason: '_appendAIMsg(role, html, id) assigns msg.id from its third argument' },
+    { ids: ['scr-listing-market', 'scr-order'], file: 'src/ui/pages/screener.js', proof: /\['scr-listing-market', [\s\S]{0,200}?\['scr-order', [\s\S]{0,600}?select\.id = id;/, reason: 'the market-scope controls loop creates one <select> per [id, label, entries] tuple' },
+  ];
+  // Dead writers found in page files this change does not own (v57.79 parallel page work). Each entry fails once its
+  // lookup is gone, so the list can only shrink.
+  const pendingRemoval = [];
+  const problems = [];
+  for (const entry of indirectCreators) {
+    if (!entry.proof.test(sourceOf.get(entry.file) || '')) problems.push(`indirect-creator proof no longer matches ${entry.file} (${entry.ids.join(', ')}): ${entry.reason}`);
+  }
+  for (const entry of [...indirectCreators, ...pendingRemoval]) {
+    for (const id of entry.ids) {
+      if (!deadLookups.get(id)?.has(entry.file)) problems.push(`stale dead-id allowlist entry ${id} (${entry.file}): no dead lookup remains, delete the entry`);
+      else deadLookups.get(id).delete(entry.file);
+    }
+  }
+  const unlisted = [...deadLookups].filter(([, files]) => files.size).map(([id, files]) => `${id} (${[...files].join(', ')})`);
+  if (unlisted.length) problems.push(`lookups for ids nothing creates (remove the dead writer, R705): ${unlisted.join('; ')}`);
+  if (problems.length) fail(`R705 dead-id scan (v57.79): ${problems.join(' | ')}`);
+  // v57.79: dead stubs removed with this scan stay gone.
+  const legacyAll = productionJs.map((file) => sourceOf.get(file)).join('\n');
+  const returned = [/window\.AIO_SCENARIO_REGISTRY\s*=/, /window\.AIO_SCORE_SCALES\s*=/, /getScenarioFreshnessAudit\s*=/, /function\s+renderHomeFeed\s*\(/, /getElementById\(\s*['"]chat-home(?:-inp|-btn)?['"]/] // text-pin-ok: retirement absence
+    .filter((pattern) => pattern.test(legacyAll)).map(String);
+  if (returned.length) fail(`v57.79 retired stub returned: ${returned.join(', ')}`);
 }
 // P1669: the chat "차트 자세히 보기" card goes through the one technical bridge, so the visible
 // chart follows the ticker instead of only the hidden legacy deep-analysis input.

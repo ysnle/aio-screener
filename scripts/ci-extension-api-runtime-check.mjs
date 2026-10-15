@@ -98,6 +98,17 @@ assert(!/<input[^>]+id="(?:rss2json-api-key|aio_(?:av|finnhub|fred|td|fmp|newsda
   vm.runInContext(slice(coreSource, 'async function _restoreDecryptedKeys(', '\n}\n') + '\n}', restoreContext);
   await restoreContext._restoreDecryptedKeys();
   assert.deepEqual(Object.keys(restoreContext._AioVault._keyRuntime), ['aio_cf_worker_url'], 'v57.75 Vault restore loads no retired personal key into the runtime cache');
+  // v57.79: the provider registry (status, backup, import) lists only the self-proxy URL, and boot deletes the
+  // stored values of the retired personal keys.
+  const registryContext = { window: {}, _AioVault: { _keyRuntime: {}, getStorage: () => ({ getItem: () => '' }) }, safeLSGetSync: () => 'stored' };
+  vm.createContext(registryContext);
+  vm.runInContext(slice(coreSource, 'var _AIO_PROVIDER_REGISTRY = [', '\nvar _AIO_PROVIDER_BY_KEY'), registryContext);
+  vm.runInContext(slice(coreSource, 'window._aioCollectKeySnapshot = function', '\n};\n') + '\n};', registryContext);
+  assert.deepEqual(Object.keys(registryContext.window._aioCollectKeySnapshot()), ['aio_cf_worker_url'], 'v57.79 key backup holds only the live self-proxy credential');
+  const boot = readFileSync('src/app/bootstrap.js', 'utf8');
+  const retiredKeys = ['aio_claude_api_key', 'aio_rss2json_key', 'aio_av_key', 'aio_finnhub_key', 'aio_fred_key', 'aio_td_key', 'aio_fmp_key', 'aio_newsdata_key', 'aio_bok_key', 'aio_kosis_key'];
+  const cleanup = boot.slice(boot.indexOf('// v57.79: the personal data-provider keys'), boot.indexOf('const stopConnectionPanel'));
+  assert(retiredKeys.every((key) => cleanup.includes(`'${key}'`)) && cleanup.includes('removeItem(key)'), 'v57.79 boot deletes the stored retired personal keys');
 }
 // P1424: migration holds must not advertise a perpetual in-flight health check.
 context.window.AIO = { getPublicConfig: () => ({ ai: { routeStatus: 'DISABLED' } }) };

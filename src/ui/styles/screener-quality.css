@@ -9,3 +9,28 @@
 .scr-ranking-method p { padding:8px 0; }
 #screener-results-table td { vertical-align:middle; }
 #screener-results-table [data-aio-screener-ticker] { overflow-wrap:anywhere; }
+/* v57.79 review: at phone width the results table showed only the actions, percentile and symbol; price and date were
+   cut off. Under 600px each row becomes a card — symbol and name with price and date on the first line, the 관심·비교
+   actions and the remaining values as labelled chips below. The header stays as a sideways-scrolling sort bar. Desktop unchanged. */
+@media (max-width: 599px) {
+  #screener-results-table { min-width: 0 !important; display: block; }
+  #screener-results-table > thead, #screener-results-table > tbody { display: block; }
+  #screener-results-table > thead > tr:not(.scr-registry-header) { display: none; }
+  #screener-results-table .scr-registry-header { display: flex; flex-wrap: nowrap; overflow-x: auto; border-bottom: 1px solid var(--border); scrollbar-width: thin; }
+  #screener-results-table .scr-registry-header > th { display: block; flex: 0 0 auto; min-width: 0 !important; padding: 0 2px !important; position: static; box-shadow: none; background: transparent; }
+  #screener-results-table .scr-registry-header > th:not(:has(.scr-sort-btn)) { align-self: center; padding: 0 8px !important; font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+  #screener-results-table > tbody > tr { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px 14px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  #screener-results-table > tbody > tr > td { display: block; flex: 0 0 auto; min-width: 0 !important; padding: 0 !important; text-align: left !important; position: static; box-shadow: none; background: transparent; border: 0; order: 3; font-size: 12px; }
+  #screener-results-table > tbody > tr > td::before { content: attr(data-label); display: block; font-size: 10px; font-family: var(--font-sans, inherit); color: var(--text-muted); line-height: 1.4; }
+  #screener-results-table > tbody > tr > td[data-column-key="sym"] { order: 0; flex: 1 0 calc(100% - 128px); }
+  #screener-results-table > tbody > tr > td[data-column-key="price"] { order: 1; flex: 0 0 114px; text-align: right !important; }
+  #screener-results-table > tbody > tr > td:is([data-column-key="sym"], [data-column-key="price"], [data-column-key="watchlist"])::before,
+  #screener-results-table > tbody > tr > td:not([data-label])::before { content: none; }
+  #screener-results-table > tbody > tr > td[data-column-key="news"], #screener-results-table > tbody > tr > td[colspan] { flex: 1 1 100%; }
+  #screener-results-table > tbody > tr > td[data-column-key="watchlist"] { order: 2; align-self: center; }
+}
+@media (max-width: 599px) {
+  .scr-reading-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+  .scr-reading-row { flex-direction: column; gap: 2px !important; }
+  .scr-reading-row > span:first-child { width: auto !important; }
+}

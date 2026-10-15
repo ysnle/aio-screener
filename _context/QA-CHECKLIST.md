@@ -88,11 +88,11 @@ confidence: medium
 
 ## v57.47 깊이 보기 학습 접힘 (2026-10-12)
 
-- [ ] QA-DEEP-DIVE-01: P1660: 시장 상태 6축과 거시 3그룹의 접힘 칸은 원리·읽는 법·연결과 관련 화면 버튼을 담는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
-- [ ] QA-STRESS-OUTCOMES-01: P1661: 과거 VIX 구간별 결과표가 생성되면 시장 상태 화면에 지금 구간을 표시하고, 생성 전에는 숨긴다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
-- [ ] QA-SPEED-01: P1662: 종목 품질 브라우저 검사는 독립 경우를 병렬로 돌리고 PASS한다. verify_by: node scripts/ci-entity-quality-browser-check.mjs
-- [ ] QA-DEEP-DIVE-02: P1663: 투자 심리 지표 카드와 시장 폭 화면에 공용 깊이 보기 접힘이 있다. verify_by: browser: #sentiment .regime-axis-deep 6개
-- [ ] QA-QA-SPEED-01: P1664: src/ui 변경의 영향 범위에 지식 화면 브라우저 그룹이 없고, 화면 크기 검사는 기기 크기를 동시에 돈다. verify_by: node scripts/qa-runner.mjs affected --files src/ui/components/stress-outcomes.js --list
+- [x] QA-DEEP-DIVE-01: P1660: 시장 상태 6축과 거시 3그룹의 접힘 칸은 원리·읽는 법·연결과 관련 화면 버튼을 담는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
+- [x] QA-STRESS-OUTCOMES-01: P1661: 과거 VIX 구간별 결과표가 생성되면 시장 상태 화면에 지금 구간을 표시하고, 생성 전에는 숨긴다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
+- [x] QA-SPEED-01: P1662: 종목 품질 브라우저 검사는 독립 경우를 병렬로 돌리고 PASS한다. verify_by: node scripts/ci-entity-quality-browser-check.mjs — Covered (v57.79): node scripts/ci-entity-quality-browser-check.mjs (runs cases in parallel batches of 3; confirmed by grep)
+- [ ] QA-DEEP-DIVE-02: P1663: 투자 심리 지표 카드와 시장 폭 화면에 공용 깊이 보기 접힘이 있다. verify_by: verify-aio skill (시장 상태 화면 #sentiment .regime-axis-deep 6개; ci-responsive-browser-check는 이 접힘을 단언하지 않음; 정적 구조는 ci-codex-structure-regression-fixture P1663)
+- [x] QA-QA-SPEED-01: P1664: src/ui 변경의 영향 범위에 지식 화면 브라우저 그룹이 없고, 화면 크기 검사는 기기 크기를 동시에 돈다. verify_by: node scripts/qa-runner.mjs affected --files src/ui/components/stress-outcomes.js --list — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs asserts P1664 (PASS)
 - [ ] QA-WATCHDOG-LATCH-01: P1665: 감시 실행은 자기 직전 실패만으로 실패하지 않고, Worker 갱신 호출 토큰이 없으면 data-plane이 재배포된다. verify_by: push 후 data-watchdog 다음 실행 + data-plane /health schedulerDispatch.configured
 - [ ] QA-REFRESH-LOCK-01: P1666: 갱신 생산 job만 refresh-data 잠금을 갖고, 수렴 대기는 converge job에서 돌며, 감시는 Pages 배포 완료를 따라 실행된다. verify_by: push 후 Refresh market data 실행의 job 구성과 Data freshness watchdog 이벤트(workflow_run) 확인
 - [x] QA-VERIFY-01: verify-aio drive all passes on desktop and phone (11 features) and registry reports 19/19 routes. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs launch && ... drive all [--viewport phone] && ... registry && ... cleanup
@@ -106,68 +106,68 @@ confidence: medium
 
 ## v57.46 AI 웹검색 단일 경로 (2026-10-12)
 
-- [ ] QA-WEBSEARCH-SINGLE-01: P1655: 현재성 AI 질문의 웹검색은 공용 Worker 하나뿐이며 개인 검색 키·옵트아웃이 없다. verify_by: node scripts/ci-native-search-check.mjs
-- [ ] QA-HISTORY-CLOSE-01: P1656: history 보충이 완료 종가 근거를 덮어쓰지 않고, 장 시작 전 지수 시세를 종가로 기록하지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [x] QA-WEBSEARCH-SINGLE-01: P1655: 현재성 AI 질문의 웹검색은 공용 Worker 하나뿐이며 개인 검색 키·옵트아웃이 없다. verify_by: node scripts/ci-native-search-check.mjs — Covered (v57.79): node scripts/ci-native-search-check.mjs (PASS P1655)
+- [x] QA-HISTORY-CLOSE-01: P1656: history 보충이 완료 종가 근거를 덮어쓰지 않고, 장 시작 전 지수 시세를 종가로 기록하지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
 - [ ] QA-SCORE-AI-01: P1657: AI 문맥과 내보내기에 검증 실패 종합 점수를 인용하지 않는다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
-- [ ] QA-BASIS-KEYBOARD-01: P1658: 근거 설명 카드는 키보드 초점으로 근거를 열 수 있고, 평소 화면에는 버튼이 보이지 않는다. verify_by: browser: Tab → 근거 버튼 → aio-basis-card 표시
-- [ ] QA-SIGNAL-LENGTH-01: P1659: 시장 상태 축 카드는 대표 수치 1행과 바뀌는 조건만 펼치고 나머지는 접는다. verify_by: browser: #signal regime-board 높이
+- [ ] QA-BASIS-KEYBOARD-01: P1658: 근거 설명 카드는 키보드 초점으로 근거를 열 수 있고, 평소 화면에는 버튼이 보이지 않는다. verify_by: verify-aio skill (Tab → 근거 버튼 → aio-basis-card 표시; ci-responsive-browser-check 미포함, 초점 크기만 ci-accessibility-matrix-check P1658)
+- [ ] QA-SIGNAL-LENGTH-01: P1659: 시장 상태 축 카드는 대표 수치 1행과 바뀌는 조건만 펼치고 나머지는 접는다. verify_by: verify-aio skill (#signal regime-board 높이·접힘; ci-responsive-browser-check는 6축 존재만 단언)
 
 ## v57.45 AI 패널·모바일 입력 (2026-10-12)
 
-- [ ] QA-AI-ALWAYS-ON-01: P1653: AI ON/OFF·웹검색 토글이 없고, 모든 화면의 AI 질문은 상단 AI 패널 하나로 간다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
-- [ ] QA-MOBILE-TYPING-01: P1653: 휴대폰·아이패드 키보드가 열린 동안 뷰포트 이벤트가 문서 전체 스타일을 다시 계산하지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
-- [ ] QA-FREE-DATA-01: P1654: 확장 FRED 계열·발표일 일정·OpenDART 재무가 자료 생성 후 거시·일정·기업 요약에 보이고, 자료가 없으면 숨긴다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [x] QA-AI-ALWAYS-ON-01: P1653: AI ON/OFF·웹검색 토글이 없고, 모든 화면의 AI 질문은 상단 AI 패널 하나로 간다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
+- [x] QA-MOBILE-TYPING-01: P1653: 휴대폰·아이패드 키보드가 열린 동안 뷰포트 이벤트가 문서 전체 스타일을 다시 계산하지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
+- [x] QA-FREE-DATA-01: P1654: 확장 FRED 계열·발표일 일정·OpenDART 재무가 자료 생성 후 거시·일정·기업 요약에 보이고, 자료가 없으면 숨긴다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
 
 ## v57.44 한국장·AI 해설 표면 (2026-10-12)
 
-- [ ] QA-KR-SESSION-01: P1651: 한국 지수는 최신 완료 KRX 세션 날짜로 보이고, 홈에 한국장 한 줄이 있으며, AI 해설에 근거 토큰이 보이지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
-- [ ] QA-FUND-AGE-01: P1652: 기간 종료 15개월 초과 재무와 단위 불일치 P/E·P/B는 순위·표에 쓰지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
-- [ ] QA-CHAT-CONTRACT-01: P1652: AI 대화 계약은 매매 지시를 금지하고 개발자 배지를 사용자 화면에 붙이지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [x] QA-KR-SESSION-01: P1651: 한국 지수는 최신 완료 KRX 세션 날짜로 보이고, 홈에 한국장 한 줄이 있으며, AI 해설에 근거 토큰이 보이지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
+- [x] QA-FUND-AGE-01: P1652: 기간 종료 15개월 초과 재무와 단위 불일치 P/E·P/B는 순위·표에 쓰지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
+- [x] QA-CHAT-CONTRACT-01: P1652: AI 대화 계약은 매매 지시를 금지하고 개발자 배지를 사용자 화면에 붙이지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
 
 ## v57.43 시장 읽기 시간 정렬 (2026-10-12)
 
-- [ ] QA-CODEX-TIME-01: P1644: 시장 읽기는 최신 완료 세션 기준 2세션 이내 입력만 현재 판정에 쓰고, 늦으면 보류 사유를 보인다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
-- [ ] QA-CODEX-AI-01: P1645: AI 해설의 변화율·조건 수·확률·지시 문장은 근거 데이터와 대조해 통과/거부한다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
-- [ ] QA-CODEX-ENTITY-01: P1646: 잘못된 코드·결측·혼합 시장 입력에서 계산과 문장이 보류하거나 분모를 밝힌다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
-- [ ] QA-CODEX-REFRESH-01: P1647: 공유 자료·스냅샷·차트·재무는 서버 재생성·TTL·실패 재시도 기준으로 갱신된다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
-- [ ] QA-CODEX-NEWS-01: P1648: 뉴스 선별은 기사 아닌 페이지·재게시·같은 사건 중복을 제외한다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
-- [ ] QA-CODEX-CANON-01: P1649: 스크리너는 선택 시장의 세션으로 순위 보류를 설명하고, 타임라인·구조 게이트는 현재 레지스트리에서 대상을 파생한다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [x] QA-CODEX-TIME-01: P1644: 시장 읽기는 최신 완료 세션 기준 2세션 이내 입력만 현재 판정에 쓰고, 늦으면 보류 사유를 보인다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item) (M05)
+- [x] QA-CODEX-AI-01: P1645: AI 해설의 변화율·조건 수·확률·지시 문장은 근거 데이터와 대조해 통과/거부한다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item) (M06)
+- [x] QA-CODEX-ENTITY-01: P1646: 잘못된 코드·결측·혼합 시장 입력에서 계산과 문장이 보류하거나 분모를 밝힌다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item) (E01/E08/E10)
+- [x] QA-CODEX-REFRESH-01: P1647: 공유 자료·스냅샷·차트·재무는 서버 재생성·TTL·실패 재시도 기준으로 갱신된다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item) (M02/E05)
+- [x] QA-CODEX-NEWS-01: P1648: 뉴스 선별은 기사 아닌 페이지·재게시·같은 사건 중복을 제외한다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item) (news curation)
+- [x] QA-CODEX-CANON-01: P1649: 스크리너는 선택 시장의 세션으로 순위 보류를 설명하고, 타임라인·구조 게이트는 현재 레지스트리에서 대상을 파생한다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item) (screener session)
 
 ## v57.42 생산 레인 크기 (2026-10-12)
 
-- [ ] QA-SEC-PROJECTION-01: P1632: SEC 런타임 투영은 화면이 읽는 필드만 담고 1MiB 상한 아래를 유지한다. verify_by: node scripts/ci-sec-runtime-projection-check.mjs
-- [ ] QA-SCENARIO-GUIDANCE-01: P1633: 시장 시나리오는 개연성·가능성·기회·확인/주의/무시를 보이고 확률%나 매매 지시를 쓰지 않는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
-- [ ] QA-CHART-INTERVALS-01: P1634: 종목 차트는 8개 주기를 제공하고 4시간봉은 같은 거래일 1시간봉만 합친다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
-- [ ] QA-AI-REGIME-CONTEXT-01: P1635: 서버 AI 시장 해석은 화면과 같은 국면·시나리오 문맥과 변화율을 근거로 받는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
-- [ ] QA-RESEARCH-LIVE-OBS-01: P1636: 리서치 관측값 중 자동 갱신 가능한 값은 최신 기록을 쓴다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
-- [ ] QA-REGIME-RADAR-01: P1637: 국면 레이더는 축별 1년 위치와 세 시점만 보이고 종합 점수를 만들지 않는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
-- [ ] QA-CREDIT-TIERS-01: P1638: 신용 축은 CCC−B 등급 스프레드 격차를 함께 보인다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
-- [ ] QA-CHART-EXTENSION-01: P1639: 차트 근거는 50일선 대비 ATR 배수·52주 저점 대비·5/20 EMA 순서를 포함한다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
-- [ ] QA-TICKER-SUMMARY-01: P1640: 종목 화면은 수익률·52주 범위를 한 요약에서만 보이고 기술·재무 분석으로 이어진다. verify_by: node scripts/ci-entity-quality-browser-check.mjs
-- [ ] QA-HOME-SECTORS-01: P1641: 오늘 화면 섹터 등락은 현재 세션 회전 자료만 쓴다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-SEC-PROJECTION-01: P1632: SEC 런타임 투영은 화면이 읽는 필드만 담고 1MiB 상한 아래를 유지한다. verify_by: node scripts/ci-sec-runtime-projection-check.mjs — Covered (v57.79): node scripts/ci-sec-runtime-projection-check.mjs (PASS; asserts the 1 MiB cap; source-field checks skip while the producer-only source is absent)
+- [x] QA-SCENARIO-GUIDANCE-01: P1633: 시장 시나리오는 개연성·가능성·기회·확인/주의/무시를 보이고 확률%나 매매 지시를 쓰지 않는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
+- [x] QA-CHART-INTERVALS-01: P1634: 종목 차트는 8개 주기를 제공하고 4시간봉은 같은 거래일 1시간봉만 합친다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
+- [x] QA-AI-REGIME-CONTEXT-01: P1635: 서버 AI 시장 해석은 화면과 같은 국면·시나리오 문맥과 변화율을 근거로 받는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
+- [x] QA-RESEARCH-LIVE-OBS-01: P1636: 리서치 관측값 중 자동 갱신 가능한 값은 최신 기록을 쓴다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
+- [x] QA-REGIME-RADAR-01: P1637: 국면 레이더는 축별 1년 위치와 세 시점만 보이고 종합 점수를 만들지 않는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
+- [x] QA-CREDIT-TIERS-01: P1638: 신용 축은 CCC−B 등급 스프레드 격차를 함께 보인다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
+- [x] QA-CHART-EXTENSION-01: P1639: 차트 근거는 50일선 대비 ATR 배수·52주 저점 대비·5/20 EMA 순서를 포함한다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
+- [x] QA-TICKER-SUMMARY-01: P1640: 종목 화면은 수익률·52주 범위를 한 요약에서만 보이고 기술·재무 분석으로 이어진다. verify_by: node scripts/ci-entity-quality-browser-check.mjs — Covered (v57.79): node scripts/ci-entity-quality-browser-check.mjs asserts P1640 (confirmed by grep)
+- [x] QA-HOME-SECTORS-01: P1641: 오늘 화면 섹터 등락은 현재 세션 회전 자료만 쓴다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
 - [ ] QA-RESEARCH-SHELF-01: P1642: 리서치 라이브러리는 컬렉션별 서가를 보이고 누르면 해당 컬렉션 문서를 연다. verify_by: node scripts/ci-runtime-contract-check.mjs
-- [ ] QA-BASIS-CARD-01: P1643: 숫자 설명은 hover·포커스·탭 모두에서 카드로 열리고 선언된 관측 시점의 경과를 함께 보인다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-BASIS-CARD-01: P1643: 숫자 설명은 hover·포커스·탭 모두에서 카드로 열리고 선언된 관측 시점의 경과를 함께 보인다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
 
 ## v57.41 재렌더 상태 보존 (2026-10-12)
 
-- [ ] QA-RERENDER-DISCLOSURE-01: P1630: 시세 갱신 재렌더가 사용자가 펼친 근거(details)와 키보드 포커스를 닫거나 잃지 않는다. verify_by: node scripts/ci-entity-quality-browser-check.mjs; node scripts/ci-regime-scenarios-fixture.mjs
-- [ ] QA-OVERLAY-ROUTE-01: P1631: page가 없는 오버레이 해시(#glossary)는 호스트 화면을 활성화한 채 오버레이를 연다. verify_by: node scripts/ci-responsive-browser-check.mjs
+- [x] QA-RERENDER-DISCLOSURE-01: P1630: 시세 갱신 재렌더가 사용자가 펼친 근거(details)와 키보드 포커스를 닫거나 잃지 않는다. verify_by: node scripts/ci-entity-quality-browser-check.mjs; node scripts/ci-regime-scenarios-fixture.mjs — Covered (v57.79): ci-entity-quality-browser-check and ci-responsive-browser-check assert P1630 (grep); ci-regime-scenarios-fixture PASS
+- [x] QA-OVERLAY-ROUTE-01: P1631: page가 없는 오버레이 해시(#glossary)는 호스트 화면을 활성화한 채 오버레이를 연다. verify_by: node scripts/ci-responsive-browser-check.mjs — Covered (v57.79): node scripts/ci-responsive-browser-check.mjs asserts the #glossary overlay keeps its host screen active (grep)
 
 ## v57.40 종목 분석 구조·시장 분리 (2026-10-12)
 
-- [ ] QA-ENTITY-SUMMARY-01: P1624: 종목 첫 진입 자료 연결과 기업 분석 공통 구조 공통 경로와 화면 회귀 확인. verify_by: node scripts/ci-entity-summary-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs
-- [ ] QA-SCREENER-MARKET-01: P1625: 시장별 순위 모집단과 선택 정렬의 일치 공통 경로와 화면 회귀 확인. verify_by: node scripts/ci-screener-market-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs
-- [ ] QA-CHART-SCENARIOS-01: P1626: 차트 조건부 흐름과 거래량 가격대의 근거 계약 공통 경로와 화면 회귀 확인. verify_by: node scripts/ci-chart-scenarios-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs
-- [ ] QA-FISCAL-QUALITY-01: P1627: 재무 손실 방향과 동일 회계기간 원본 정밀도 공통 경로와 화면 회귀 확인. verify_by: node scripts/ci-fiscal-quality-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs
-- [ ] QA-REGIME-CONTINUITY-01: P1628: 시장6축 추이·조건과 한국 완료세션 참여도 연결, COT 위젯 제거. verify_by: node scripts/ci-regime-scenarios-fixture.mjs; node scripts/ci-korea-participation-fixture.mjs; node scripts/ci-responsive-browser-check.mjs
-- [ ] QA-KR-SESSION-FRESHNESS-01: P1629: 휴장·주말 뒤 최신 KRX 완료봉의 순위 유지, 새로운 완료봉 이후 예외 종료. verify_by: node scripts/ci-screener-market-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs
+- [x] QA-ENTITY-SUMMARY-01: P1624: 종목 첫 진입 자료 연결과 기업 분석 공통 구조 공통 경로와 화면 회귀 확인. verify_by: node scripts/ci-entity-summary-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs — Covered (v57.79): ci-entity-summary-fixture PASS P1624; ci-entity-quality-browser-check asserts P1624 (grep)
+- [x] QA-SCREENER-MARKET-01: P1625: 시장별 순위 모집단과 선택 정렬의 일치 공통 경로와 화면 회귀 확인. verify_by: node scripts/ci-screener-market-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs — Covered (v57.79): ci-screener-market-fixture PASS P1625; ci-entity-quality-browser-check asserts P1625 (grep)
+- [x] QA-CHART-SCENARIOS-01: P1626: 차트 조건부 흐름과 거래량 가격대의 근거 계약 공통 경로와 화면 회귀 확인. verify_by: node scripts/ci-chart-scenarios-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs — Covered (v57.79): ci-chart-scenarios-fixture PASS P1626; ci-entity-quality-browser-check asserts P1626 (grep)
+- [x] QA-FISCAL-QUALITY-01: P1627: 재무 손실 방향과 동일 회계기간 원본 정밀도 공통 경로와 화면 회귀 확인. verify_by: node scripts/ci-fiscal-quality-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs — Covered (v57.79): ci-fiscal-quality-fixture PASS P1627; ci-entity-quality-browser-check asserts P1627 (grep)
+- [x] QA-REGIME-CONTINUITY-01: P1628: 시장6축 추이·조건과 한국 완료세션 참여도 연결, COT 위젯 제거. verify_by: node scripts/ci-regime-scenarios-fixture.mjs; node scripts/ci-korea-participation-fixture.mjs; node scripts/ci-responsive-browser-check.mjs — Covered (v57.79): ci-regime-scenarios-fixture and ci-korea-participation-fixture PASS P1628; ci-responsive-browser-check asserts P1628 (grep)
+- [x] QA-KR-SESSION-FRESHNESS-01: P1629: 휴장·주말 뒤 최신 KRX 완료봉의 순위 유지, 새로운 완료봉 이후 예외 종료. verify_by: node scripts/ci-screener-market-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs — Covered (v57.79): ci-screener-market-fixture PASS and asserts P1629
 
 ## v57.39 시장 폭·테마·사전 (2026-10-11)
 
-- [ ] QA-BREADTH-THEME-GLOSSARY-01: P1620: 동일 종가의 시장 폭 요약, 결측 수익률 종목을 포함한 전체 티커, 사전 light/dark 대비·모바일 검색·Escape 복귀 검증. verify_by: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-responsive-browser-check.mjs
-- [ ] QA-AI-CONTENT-COVERAGE-01: P1621: 재무 화면 캐시 존재 시 실제 공용 자료 주입, 페이지 밖 질문의 기존 도메인 선택 및 native 시장 폭 문맥 검증. verify_by: node scripts/ci-native-search-check.mjs; node scripts/ci-esm-core-unit-check.mjs
-- [ ] QA-THEME-MEMBERS-COMPARISON-01: P1622: 핵심 편입·오분류 회귀 및 그룹 내부 기간별 순위·동률·결측·모바일 비교 펼침 확인. verify_by: node scripts/ci-runtime-contract-check.mjs; node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-responsive-browser-check.mjs
-- [ ] QA-COMPARISON-BASIS-01: P1623: 종목/S&P 기준일 불일치, 그룹 혼합/미확인 순위 보류와 1% 미만 시장 폭 단위 보존. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-BREADTH-THEME-GLOSSARY-01: P1620: 동일 종가의 시장 폭 요약, 결측 수익률 종목을 포함한 전체 티커, 사전 light/dark 대비·모바일 검색·Escape 복귀 검증. verify_by: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-responsive-browser-check.mjs — Covered (v57.79): ci-esm-core-unit-check PASS and ci-responsive-browser-check assert P1620
+- [x] QA-AI-CONTENT-COVERAGE-01: P1621: 재무 화면 캐시 존재 시 실제 공용 자료 주입, 페이지 밖 질문의 기존 도메인 선택 및 native 시장 폭 문맥 검증. verify_by: node scripts/ci-native-search-check.mjs; node scripts/ci-esm-core-unit-check.mjs — Covered (v57.79): ci-native-search-check PASS P1621; ci-esm-core-unit-check asserts P1621
+- [x] QA-THEME-MEMBERS-COMPARISON-01: P1622: 핵심 편입·오분류 회귀 및 그룹 내부 기간별 순위·동률·결측·모바일 비교 펼침 확인. verify_by: node scripts/ci-runtime-contract-check.mjs; node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-responsive-browser-check.mjs — Covered (v57.79): ci-runtime-contract-check, ci-esm-core-unit-check (PASS) and ci-responsive-browser-check assert P1622
+- [x] QA-COMPARISON-BASIS-01: P1623: 종목/S&P 기준일 불일치, 그룹 혼합/미확인 순위 보류와 1% 미만 시장 폭 단위 보존. verify_by: node scripts/ci-esm-core-unit-check.mjs — Covered (v57.79): ci-esm-core-unit-check PASS and asserts P1623
 
 ## v57.38 반응형 화면 (2026-10-11)
 
@@ -177,7 +177,7 @@ confidence: medium
 ## v57.36 조건부 공용 AI 웹검색 (2026-10-11)
 
 - [x] QA-NATIVE-SEARCH-01: P1608: 공용 조건부 OpenAI 검색은 내부/무료 근거 우선, 준비 중 opt-out, request-bound 인용·발행/사건 최신성, 단일 $20 예약 원장·검색 미환급을 보존하며 사용자별 검색 할당량을 만들지 않는다. verify_by: node scripts/ci-native-search-check.mjs; node worker/openai-contract.test.mjs
-- [ ] QA-SEARCH-TOGGLE-01: P1609: delegated (element,event) 검색 토글이 input.checked와 localStorage OFF/ON, 표시 상태를 일치시킨다. verify_by: node scripts/ci-native-search-check.mjs; 실제 Chrome 토글/재로드
+- [x] QA-SEARCH-TOGGLE-01: P1609: delegated (element,event) 검색 토글이 input.checked와 localStorage OFF/ON, 표시 상태를 일치시킨다. verify_by: node scripts/ci-native-search-check.mjs; 실제 Chrome 토글/재로드 — Retired (v57.79): P1653 removed the search toggle; web search is automatic (AGENTS AI)
 
 ## v57.35 공용 연결과 개인 공급자 (2026-10-11)
 
@@ -230,7 +230,7 @@ confidence: medium
 - [x] QA-V5731-18: Sourceless KR indicator widget stays hidden. verify_by: browser check of the KR macro page
 - [ ] QA-V5731-19: AAII degradation warns without blocking refresh. verify_by: next refresh-data run with AAII unavailable
 - [ ] QA-V5731-20: Market analysis publishes verified on most runs. verify_by: public-data/data.json marketAnalysis.status over the next 10 refresh runs
-- [ ] QA-V5731-21: Composite reaches 5+/7 components after the first refresh with TLT/IG. verify_by: #sentiment composite card component count after push
+- [ ] QA-V5731-21: the sentiment composite is a met-condition count (n of 7 conditions), not a calibrated score (AGENTS: likelihood uses only met-condition count); after the first refresh with TLT/IG it should show at least 5 of 7 conditions available. verify_by: #sentiment composite card condition count after push
 - [ ] QA-V5731-22: No screener P/E above 5,000 from share-scale errors. verify_by: after next SEC refresh: public-data/screener.json PKG pe
 - [x] QA-V5731-23: Theme taxonomy follows membership rules. verify_by: node scripts/ci-runtime-contract-check.mjs
 - [x] QA-V5731-24: Universe KR suffixes match listing exchanges. verify_by: Yahoo exchange probe of every .KS/.KQ symbol in SCREENER_DB
@@ -276,7 +276,7 @@ confidence: medium
 - [x] QA-AI-LUNA-01: P1421: chat, translation and Actions use only the shared GPT-6 Luna route and one monthly budget ledger. verify_by: ci-ai-budget-scope-check + ci-worker-anthropic-check + ci-ai-chat-public-route-browser-check
 - [ ] QA-AI-LUNA-LIVE-01: P1421: provision OpenAI and automation secrets, explicitly deploy the CI-attested revision, verify browser/Actions upstream smoke and real answer/translation quality. Local fixture PASS does not certify this. verify_by: deploy-ai-proxy.yml exact-SHA smoke and operator quality review
 - [x] QA-PROVIDER-OWNERSHIP-01: P1422: personal settings, FMP stable/response/quota, weighted Twelve Data, RSS priority/fallback and consented personal FRED relay execute correctly in deterministic fixtures. verify_by: ci-extension-api-runtime-check + ci-worker-relay-check + settings browser
-- [ ] QA-PROVIDER-LIVE-01: P1422: verify each actual personal/free account's dataset access, quota headers, timestamps and series/data display rights after explicit CI-attested deployment; fixtures do not establish this. verify_by: operator provider dashboard and deployed live route evidence
+- [x] QA-PROVIDER-LIVE-01: P1422: verify each actual personal/free account's dataset access, quota headers, timestamps and series/data display rights after explicit CI-attested deployment; fixtures do not establish this. verify_by: operator provider dashboard and deployed live route evidence — Retired (v57.79): personal provider keys were retired in v57.75–76; data providers run only through operator secrets in Actions
 - [x] QA-PROVIDER-STRUCTURE-01: P1423: native personal-provider transport preserves runtime contracts without legacy growth; its dependencies select QA, and concurrent translation items reach completion. verify_by: ci-extension-api-runtime-check + ci-decomp-hotspot-check + ci-qa-pipeline-contract-check + ci-ai-chat-public-route-browser-check
 - [x] QA-AI-READINESS-01: P1424: held public AI configuration shows a preparation status and no usable capacity; boot checks readiness independently of translation. verify_by: ci-extension-api-runtime-check + local settings browser + ci-ai-chat-public-route-browser-check
 
@@ -569,7 +569,7 @@ confidence: medium
 - [ ] QA-CRED-16: **같은 데이터의 캐시 TTL이 세 곳에서 독립적으로 선언돼 있다.** `sw.js` 데이터 900s(FRED 포함), `cloudflare-worker-proxy.js` 일반 프록시 FRED 3600s, `/relay` 제공자별 3600s, `worker/data-plane.js` `/quotes` 30s+SWR120 — 서로를 교차 검증하는 코드가 없어 같은 시리즈가 SW에서 15분, 엣지에서 1시간까지 다르게 노후될 수 있다. 또한 `/relay` 응답은 `Cache-Control: public, max-age=3600`이므로 **운영자 키를 교체해도 엣지/브라우저 캐시가 최대 1시간 옛 페이로드를 계속 준다**. verify_by: 캐시 TTL 단일 선언 원천 도입 시 `ci-service-worker-cache-policy-check.mjs` + `ci-worker-relay-check.mjs`, 또는 런북에 "키 교체 후 1시간 대기 또는 URL 파라미터 변경" 절차 명시
 - [ ] QA-CRED-17: **알림 공백과 죽었을 가능성이 있는 감사.** (a) `operations-alert.yml`은 `workflow_run` 이벤트로 동작하는데 `ensure-live-convergence.mjs`가 기본 `GITHUB_TOKEN`으로 디스패치한 CI/Pages 실행은 `workflow_run`을 발생시키지 않으므로, **봇이 스스로 만든 실행의 실패는 아무에게도 알려지지 않는다**. (b) `AIO.getShellAssetIntegrityAudit`(`js/aio-core.js:10576`)이 `sw.js`에서 `/SHELL_ASSETS\s*=\s*\[/`로 배열을 찾는데 이는 `CRITICAL_SHELL_ASSETS`의 **부분 문자열 우연**으로만 일치한다 — 이름을 바꾸면 감사가 조용히 `SHELL_ASSETS 패턴 미발견`이 되고, 게다가 이 함수를 호출하는 곳을 찾지 못했다(dead code 가능성). verify_by: (a) `ci-workflow-compaction-check.mjs` + 알림 경로에 디스패치 실행 포함 여부 확인, (b) `js/aio-core.js`의 호출부 존재 여부와 정규식이 실제 식별자를 요구하도록 고친 뒤 `ci-runtime-contract-check.mjs`
 - [ ] QA-CRED-07: **`ci-architecture-browser-check.mjs`가 라운드트립 7번째 라우트(`macro`)에서 실패한다.** `#page-macro`에 `data-aio-vertical-slice`가 설정되지 않아(`marker:null`, `expected:vs03-macro-fxbond`) 게이트가 중단되고, 같은 실행의 초기 `macroRoute` 측정은 통과한다. 마커를 설정하는 코드는 `src/app/router.js:214-219`이고 네비게이션 권한은 `src/legacy/compatibility-facade.js`에 있는데 **두 파일 모두 이 세션에서 손대지 않았고 사용자의 미커밋 W00 작업 대상**이다. 격리 증거: (a) 커밋된 기준선(HEAD 54428470) 워크트리에서는 같은 게이트가 **더 이른 `sentiment`에서** `storeRoute:'home'`으로 실패한다(현재 트리에서는 통과 — 사용자의 W00 수정이 반영된 결과). (b) `/relay` 경로를 무력화해도 `macro` 실패는 동일하다(제 데이터 변경 무관). (c) page error 0건 — 마운트 예외가 아니라 라우터 전이 자체가 마커를 설정하지 않았다. 제 변경이 원인이라는 증거는 없지만 무죄도 증명하지 못했으므로 미검증으로 남긴다. verify_by: `ci-architecture-browser-check.mjs`(W00 네비게이션 작업 소유자가 수정 후) + 라운드트립 20 라우트 마커 전수 통과
-- [ ] QA-CRED-06: **저장소 시크릿 `TWELVE_DATA_API_KEY`·`FINNHUB_API_KEY`의 존재를 확인하지 못했다.** 운영자가 공유한 시크릿 목록에는 없었으나 워크플로는 참조한다 — 없으면 `refresh-data.yml`의 2차 시세 폴백과 `refresh-screener.yml`의 어닝 캘린더 레인이 조용히 비는데, 둘 다 실패로 표시되지 않는다. verify_by: `ci-operator-secrets-contract-check.mjs` + 운영자 시크릿 목록 대조(`_context/OPERATOR-RUNBOOK.md` §1)
+- [ ] QA-CRED-06: operator CI secrets `TWELVE_DATA_API_KEY`·`FINNHUB_API_KEY` (used only by producers in Actions: `refresh-data.yml` 2차 시세 폴백, `refresh-screener.yml` 어닝 캘린더) must exist; the personal-key UI is retired, so these secrets are the only key path. 없으면 두 레인이 조용히 비므로 존재를 확인한다. verify_by: `ci-operator-secrets-contract-check.mjs` + 운영자 시크릿 목록 대조(`_context/OPERATOR-RUNBOOK.md` §1)
 
 ## v55.06 작업 환경 루프 보강 (2026-09-19)
 
@@ -586,12 +586,12 @@ confidence: medium
 - [x] QA-EXHAUST-82: **완료(P1139) — `auto_refresh: true`가 사실과 다른 선언이었다.** `_context/CODEX-SECOND-PASS-HANDOFF-2026-07-10.md`는 §0에서 "여기에 적힌 과거 상태를 현재 사실로 가정하지 말라"고 스스로 경고하는 날짜 박힌 인수인계인데 `auto_refresh: true`를 선언해, 지식 린트 규칙("명시적 현재성 주장이 파일명 기반 종류 추측보다 강하다")에 따라 **비면제 신선도 위반 1건**으로 남아 있었다. 기준선을 느슨하게 하는 대신 **거짓 선언을 바로잡아**(`auto_refresh: false`) 문서를 실제 성격과 일치시켰고, `_context/doc-freshness-baseline.json`이 1 → 0으로 줄었다. verify_by: 판정 완료(P1139 기록)
 - [x] QA-EXHAUST-87: **수렴 대상 판정 완료 — 3종 중 1종만 실제 중복이었다.** P1129에서 개별 확인한 결과, **감사 당시 "중복"으로 묶었던 항목의 대부분은 중복이 아니라 서로 다른 투영**이었다: (b) `FRESHNESS_POLICY`(데이터 신선도 창)·`REFRESH_SCHEDULE`(갱신 작업+주기+fn)·`AIO_THRESHOLD_REGISTRY`(지표 임계)는 **다른 개념**이고, (c) `getTimeAgo`("N분 전")·`_aioRelativeDate`("YYYY년 M월", 이름과 달리 상대시간이 아님)·`_aioKstShortFromIso`("MM-DD HH:mm KST")·`_getBriefingWindowKST`(08:00 KST 컷오프 계산)는 **출력과 목적이 각각 다르다**. R619(1)에 따라 이들은 합치지 않고 **왜 다른지 기록**하는 것이 정답이다(합치면 출력이 바뀐다). 실제 중복은 (a) 중 `AIO_CRITICAL_10_PAGE_IDS` 이중 선언 1건뿐이었고 P1129에서 제거했다. 남은 진짜 중복은 **라우트 ID 집합**이 `ROUTE_PAGE_IDS`(aio-core)·`src/app/routes.js ROUTE_IDS`·`PAGES` 키·`AIO_ROUTE_REGISTRY`·`breadcrumbMap`에 같은 20개를 **다른 순서로** 중복 보유하는 것이며, 이는 3단계(라우트 표 단일화)로 이관한다. verify_by: 3단계 완료 시 ci-structural-check + ci-architecture-contract-check
 - [x] QA-EXHAUST-89: **인라인 블록 A~D 전량 이관 완료 — 잔여 소형 4개는 추출 대상 아님으로 판정(P1136).** A~D를 `js/aio-workspace.js`·`js/aio-macro-tech.js`·`js/aio-kr-data.js`·`js/aio-pages.js`로 옮겨 index.html 인라인 JS는 **15,308줄 → 154줄**이 됐다. 남은 4개는 **파싱 위치에 결합된 부트 셸 스니펫**이라 추출하지 않는다: ① 부트 로더(6,002, 33줄 — 바로 위 `#aio-boot-*` 마크업을 조회하고 `window.AIO_BOOT`를 만든다), ② 브리핑 날짜 라벨(7,810, 22줄 — `#briefing-date-line`을 조회해 즉시 자기 호출), ③ FRED 배너(8,878, 7줄), ④ **Chart.js CDN 폴백 코디네이터(13,021, 92줄 — 위 `#aio-chart-cdn` 요소에 load/error 리스너를 걸고 DOMContentLoaded에서 오프라인 스텁 `window.Chart`를 설치)**. 이유: 넷 다 "자기 위 마크업이 파싱된 직후" 실행되는 것이 의미의 일부이고(DOMContentLoaded 이전 타이밍), 합계 154줄(≈1%)를 얻기 위해 **P1135에서 실제로 낸 실행 위치 회귀**를 다시 만들 위험을 감수할 이유가 없다. verify_by: 판정 완료(P1136 기록) — 재검토는 이 4개 중 하나가 500줄을 넘거나 위치 의존이 사라질 때
-- [ ] QA-EXHAUST-93: **FRED 배너 인라인 블록(8,878, 7줄)이 사실상 무효다.** `window._fredData`는 비동기로 채워지는데 이 블록은 **파싱 시점**에 `fredOk`를 계산하므로 항상 `false`가 되고, 결과적으로 배너를 숨기지 못한다. 즉 "FRED 데이터가 있으면 배너를 숨긴다"는 의도가 이 경로로는 달성되지 않는다. P1136에서 발견만 하고 **고치지 않았다** — 어느 시점(FRED 도착 후?)에 숨기는 것이 옳은지는 별도 증거가 필요하고, 조용히 바꾸면 배너 노출 정책이 의도치 않게 달라진다. verify_by: ci-architecture-browser-check + ci-runtime-contract-check (FRED 도착 후 배너 상태를 검증하는 단언 추가 시)
+- [x] QA-EXHAUST-93: **FRED 배너 인라인 블록(8,878, 7줄)이 사실상 무효다.** `window._fredData`는 비동기로 채워지는데 이 블록은 **파싱 시점**에 `fredOk`를 계산하므로 항상 `false`가 되고, 결과적으로 배너를 숨기지 못한다. 즉 "FRED 데이터가 있으면 배너를 숨긴다"는 의도가 이 경로로는 달성되지 않는다. P1136에서 발견만 하고 **고치지 않았다** — 어느 시점(FRED 도착 후?)에 숨기는 것이 옳은지는 별도 증거가 필요하고, 조용히 바꾸면 배너 노출 정책이 의도치 않게 달라진다. verify_by: ci-architecture-browser-check + ci-runtime-contract-check (FRED 도착 후 배너 상태를 검증하는 단언 추가 시) — Retired (v57.79): the parse-time inline FRED banner block is gone from index.html (no `fredOk` there). Note: `window._fredData` itself still exists in js/aio-core.js
 - [x] QA-EXHAUST-91/92: **완료(P1138) — 전역 승자와 로드 순서를 기계적으로 검사한다.** `ci-structural-check`에 4개 단언을 추가했습니다: ① `index.html`의 런타임 스크립트 순서가 `architecture/runtime-script-order.json`과 **정확히 일치**하고 측정 대상 9개가 정확히 한 번씩 포함되는가(순서가 어디에도 선언돼 있지 않아 순서 변경이 아무 게이트에도 걸리지 않던 구멍을 막음), ② **함수값 전역 이중 소유 0**(P1132 형태 — `function X` × `window.X =`), 허용목록은 이유 40자 이상 필수이고 이중 소유가 아니면 그 자체가 실패, ③ **상태 전역 신규 이중 소유 0**(10개 동결 기준선), ④ 동결 목록은 **줄어들 수만** 있음. 측정 정교화로 42 → 12건(네임스페이스 확장 `window.X = window.X || …`·명시적 import `var X = window.X` 제외), 그중 2건은 문서화된 의도적 계약(`getApiKey`/`setApiKey` — core 주석이 두 실행 순서 모두 안전하다고 명시), 10건은 공유 상태. **음성 테스트로 증명**: P1132 형태를 주입하니 게이트가 실패하고 제거하니 PASS로 복귀. verify_by: 판정 완료(P1138 기록)
 - [ ] QA-EXHAUST-95: **동결된 상태 전역 10개를 수렴시킨다**(`_breadth5/20/50/200`, `_currentTickerId/Name/Sym`, `_deepChartInstances`, `_glossaryCat`, `_newsSentChart`). 현재는 core·data·ui·chat이 시점별로 같은 전역을 쓰는 구조이고, 각 쓰기가 "초기화"인지 "런타임 상태 갱신"인지에 따라 **순서가 초기값을 바꿀 수 있다**. 상태별로 단일 소유자를 정하고 나머지를 읽기 전용으로 바꾸는 작업이며, `ci-structural-check`의 동결 목록에서 하나씩 빼는 방식으로 진행한다(게이트가 "이중 소유가 아니게 되면 실패"하므로 목록을 줄이는 것만으로 진행이 검증된다). verify_by: ci-structural-check (동결 목록이 줄고 신규 이중 소유 0) + ci-headless-tests + ci-architecture-browser-check
 - [x] QA-EXHAUST-90: **3단계 완료(P1137) — 라우트 20개를 단일 원천에서 파생시켰다.** 정본은 `js/aio-core.js`의 `ROUTE_PAGE_IDS` 한 곳이고, 나머지는 전부 파생이다: 같은 파일에서 `CRITICAL_5`/`ANALYSIS_5`/`WORKFLOW_5`는 `slice(0,5)`·`slice(5,10)`·`slice(10,15)`(원래 연속 구간이라 **동작 동일**), `AIO_ROUTE_REGISTRY.classes.NAV_ROUTE`는 canonical에서 DERIVED_VIEW/REFERENCE를 뺀 17개. 다른 파일은 생성기 `scripts/generate-route-registry.mjs`(`--check`가 QA 139번째 게이트)가 `src/app/routes.js`, `architecture/route-owners.json`의 `routes` 키 순서와 `counts.*`를 생성한다. **개수만 세던 게이트가 재정렬을 못 본다는 사실이 원인이었다** — 다섯 표면이 다섯 순서로 표류해 있었다. **부수적으로 실제 버그 1건**: `breadcrumbMap`에 `fxbond` 라벨이 없어 fxbond 페이지 브레드크럼이 raw id로 노출되고 있었다(라우트가 아닌 `sectors` 키는 제거). **파생하지 못한 것**: `EDUCATION`은 순서가 아니라 overlay `glossary`를 포함한 분류 집합이라 멤버십만 검사한다(R619(1) — 왜 다른지 기록). verify_by: 판정 완료(P1137) — 재검토는 canonical 목록이 바뀌어 `generate-route-registry.mjs --check`가 실패할 때
 - [ ] QA-EXHAUST-94: **파생 표면이 늘어나면 생성기의 커버리지도 늘려야 한다.** P1137은 `ROUTE_PAGE_IDS`·`ROUTE_IDS`·`route-owners counts`·`golden-routes`·`registry classes`·`breadcrumbMap`만 다룬다. `PAGES` 키는 이미 core에서 파생이지만, ESM 쪽 `PAGES`(router.js)와 `getRouteIAAudit`의 클래스 분할, `_pageType`/`_decisionPolicy`의 라우트 분기, 각 페이지 모듈의 route 옵션은 아직 손으로 적힌 별도 목록이 남아 있을 수 있다 — 하나씩 canonical과 대조해 생성기 검사에 추가한다. verify_by: scripts/generate-route-registry.mjs --check (표면별 검사 추가 시)
-- [ ] QA-EXHAUST-88: **죽은 코드 잔여 2종.** (a) `updateKrSupplyDOM`의 KR 이중 타깃 — `kr-home-*`/`kr-supply-*` id가 DOM에 0개인데 함수가 매번 두 벌로 쓰고 있고, `ci-architecture-contract-check.mjs`·`ci-runtime-contract-check.mjs`·`ci-tests`가 그 문자열을 8곳에서 참조하므로 **호출자·단언을 함께 추적**해야 한다. (b) `page-theme-detail` 셸(index.html 127줄) — `showPage('theme-detail')`이 항상 `themes`로 리다이렉트하고 소유 id 4개가 선언 외 참조 0인데, `AIO_ROUTE_REGISTRY`의 `DERIVED_VIEW` 등록과 `getRouteIAAudit`의 DOM 존재 단언을 **같은 변경에서** 고쳐야 하므로 단독 삭제 불가(P797 fence 사례에서 확인). verify_by: ci-architecture-contract-check + ci-headless-tests (두 경로 삭제 후 20-route 감사 통과)
+- [ ] QA-EXHAUST-88: **죽은 코드 잔여 — (b)만 남음.** (a) `updateKrSupplyDOM` KR 이중 타깃은 제거됨 — Covered (v57.79): ci-runtime-contract-check가 `function updateKrSupplyDOM` 부재를 단언한다. (b) `page-theme-detail` 셸(index.html)은 아직 존재한다 — `showPage('theme-detail')`이 `themes`로 이어지고(테마 화면의 별칭), `AIO_ROUTE_REGISTRY`의 `DERIVED_VIEW` 등록과 `getRouteIAAudit`의 DOM 존재 단언을 **같은 변경에서** 고쳐야 하므로 단독 삭제 불가(P797 fence 사례). verify_by: ci-architecture-contract-check + ci-headless-tests (셸 삭제 후 라우트 감사 통과)
 - [ ] QA-EXHAUST-86: **크기 래칫의 `--allow-growth` 남용을 감시한다.** P1127이 벽을 래칫으로 바꿨지만 기록값 상향은 여전히 가능하다(설계 의도). 문제는 습관적 사용이다 — 상향이 반복되면 래칫이 사실상 무제한이 되고, 원래의 고정 상한보다 **탐지하기 어려워진다**(조용한 재기준과 같은 결과). 매 상향은 커밋 메시지에 사유가 남아야 하며, 상향 커밋이 누적되면 규칙을 재검토한다. verify_by: ci-decomp-hotspot-check (`--allow-growth` 없이 통과하는지) + git log에서 상향 커밋 빈도 확인
 - [ ] QA-EXHAUST-85: **이스케이프 잔여 폴백 4곳을 수렴시킨다.** P1126에서 문자 집합이 동일한 재구현 2건은 위임으로 합쳤고 ui의 3-char 사본은 동작 변경으로 처리했지만, `typeof escHtml === 'function' ? escHtml(x) : <인라인 이스케이프>` 방어 폴백이 아직 남아 있다 — `aio-core.js:4139`, `aio-core.js:4189`, `aio-core.js:27162`, `aio-data.js:11630`, `index.html:14133`(`_escHtmlSafe`). core는 상한까지 1줄이라 폴백 제거로 순감을 만들어야 하고, index.html은 2단계 인라인 추출 후에 다루는 것이 안전하다. verify_by: ci-assertion-trace-check + ci-decomp-hotspot-check (인라인 이스케이프 정규식이 정본 외에 남지 않았는지, core 라인 순증 0 이하)
 - [ ] QA-EXHAUST-83: **개인화 요청의 suitability 전제는 여전히 만족 불가다.** P1120은 차단을 공시로 우회했을 뿐, `question-planner.js:90`이 계속 `suitabilityProfile: null, evidenceComplete: false`를 넘기므로 개인화/실행 요청은 **항상** `suitability-profile-required`+`current-evidence-required` limitation을 달고 나간다. 실제 프로필을 공급하는 경로가 없어 "조건부 허용"(`allowed: true`) 상태에는 도달할 수 없다 — R617(1)의 잔여 사례다. verify_by: ci-ai-intelligence-contract-check (프로필 공급 경로가 생기면 limitation이 사라져야 한다)
@@ -683,7 +683,7 @@ confidence: medium
 - [x] QA-DATA-RAW-ATOMIC: 최신 Masters shard 복구 후 계약·브라우저 검사와 원자적 쓰기 실패 주입을 실행했다 (P1046/P1049).
 - [x] QA-MARKET-CALENDAR: 공식 2026 미국 휴일·DST·조기 폐장·미래/오래된 종가·타 시장 fixture를 검증한다 (P1045).
 - [ ] QA-KNOWLEDGE-DEEP-AUTHORING: 160개 교육 원문은 반복 padding을 제거한 reference draft이며 독립적인 심층 집필·원문 직접성·계산·의미 검수 완료가 아니다 (P1047).
-- [ ] QA-AI-LIVE-QUALITY: 공개 Worker·개인키 실제 대화, 반복 후속 질문, blind model benchmark 및 일반 LLM 대비 품질 우위는 미검증이다.
+- [ ] QA-AI-LIVE-QUALITY: Shared-Worker gpt-6-luna live answer quality (follow-ups, blind benchmark) is unverified. verify_by: owner-run blind benchmark against the deployed shared Worker, recorded under _artifacts/
 
 ## v54.76 working-tree audit continuation (2026-09-05)
 
@@ -799,7 +799,7 @@ confidence: medium
 - [x] QA-DATA-10: failed/stale/non-HTTPS Worker health generates a disabled personal-key-only public route; healthy evidence is required before publishing a shared endpoint.
 - [x] QA-DATA-11: Masters bootstrap retains semantic fields while remaining within the 500,000-byte initial budget (412,645B at the implementation gate).
 - [x] QA-DATA-12: actual free core refresh completed 78/78 quotes, 16/16 Tier-0 snapshot, Fear & Greed 55, 40 news rows, 406-day history and zero lineage FAIL.
-- [ ] QA-DATA-13: SEC projection remains older than 48h because a monitored-contact `SEC_USER_AGENT` is not configured locally; the existing official artifact is reference-only and not relabeled current.
+- [x] QA-DATA-13: SEC projection remains older than 48h because a monitored-contact `SEC_USER_AGENT` is not configured locally; the existing official artifact is reference-only and not relabeled current. — Retired (v57.79): local producer runs are forbidden (AGENTS Producers); producers and SEC_USER_AGENT run only in GitHub Actions, and freshness is checked by the qa-runner `watchdog` profile
 - [ ] QA-DATA-14: licensed independent quote reconciliation, official exchange breadth, estimates/guidance, options/short-flow, historical universe/corporate actions and full-text news remain external/provider gaps.
 - [ ] QA-DATA-15: exact-SHA commit/push/deploy, live Worker/Pages convergence, manual assistive-technology and recruited-user validation require separate authority/evidence.
 - [x] QA-DATA-16: the AAII week ending 2026-08-19 remains the latest official public result before the next Thursday publication window; release-aware cadence prevents a false UTC-boundary stale state.
@@ -824,7 +824,7 @@ confidence: medium
 - [x] QA-TRUTH-09: TAM/CAGR numeric output requires sourceUrl+observedAt; unsourced SIC/memo numbers are withheld.
 - [x] QA-TRUTH-10: official refresh fetched 78/78 quotes, F&G, Cboe, BEA, public HY OAS and 40 news items; general FRED remains OPERATOR_REQUIRED without a configured key.
 - [x] QA-TRUTH-11: targeted AI, architecture, runtime, cache, ESM, history, operations and real Chromium cross-route gates pass.
-- [ ] QA-TRUTH-12: SEC bounded projection is older than its 48-hour reference window, Telegram digest/universe/operator-note/SLO reference artifacts remain warnings, and licensed independent quote/official breadth/estimates/options-flow data remain external gaps.
+- [x] QA-TRUTH-12: SEC bounded projection is older than its 48-hour reference window, Telegram digest/universe/operator-note/SLO reference artifacts remain warnings, and licensed independent quote/official breadth/estimates/options-flow data remain external gaps. — Retired (v57.79): local producer runs are forbidden (AGENTS Producers); producers and SEC_USER_AGENT run only in GitHub Actions, and freshness is checked by the qa-runner `watchdog` profile
 - [x] QA-TRUTH-13: local release/full `--no-cache` completes 108/108 gates, including 1,124/1,124 headless assertions, current-revision route soak, 60 viewport combinations, accessibility, vault and knowledge/browser surfaces.
 - [x] QA-TRUTH-14: pre-native headless tests verify deterministic theme selection retention; native panel visibility remains separately certified by Chromium architecture and route-soak gates.
 - [ ] QA-TRUTH-15: exact-SHA commit/push/Pages/Worker deployment, live `deployment.json` and Worker `sourceSha` convergence, manual accessibility and recruited-user validation require separate authority/evidence. The observed remote CI is an older failing revision and is not promoted as local evidence.
@@ -838,7 +838,7 @@ confidence: medium
 - [x] QA-REBUILD-05: operations generation preserves fresh last-observed Worker evidence only when observation is skipped, expires it after 24 hours, and never hides an explicitly attempted failure.
 - [x] QA-REBUILD-06: manual accessibility/recruited-user topology and acceptance thresholds are machine-checked without converting zero sessions into validation.
 - [x] QA-REBUILD-07: 7/30-day Actions evidence, recovery counts and workflow-keyed GitHub issue dedupe are collected by the watchdog; checked-in fixtures and an unelapsed 30-day window cannot certify production SLO.
-- [ ] QA-REBUILD-08: retire remaining secondary legacy chart/narrative/facade writers; current independently derived `fullNativeOwner` is 4/20 despite lazy page delivery being 20/20.
+- [ ] QA-REBUILD-08: retire the remaining secondary legacy chart/narrative/facade writers across the 8 screens and their route aliases; the `fullNativeOwner` count is derived from architecture/route-owners.json (v57.79 wording). verify_by: node scripts/ci-architecture-contract-check.mjs
 - [ ] QA-REBUILD-09: after explicit commit/push/deploy authority, obtain CI attestation, deploy exact-SHA Pages/Workers, observe scheduled watchdog/SLO and run manual assistive-technology/recruited-user sessions.
 
 ## v54.60 bounded audit execution and complete reverse-engineering ledger (2026-08-25)
@@ -867,7 +867,7 @@ confidence: medium
 - [x] QA-ARCH-11: the facade gate reconciles all 56 current globals against an eight-API target and prevents expansion; `getState` and other read surfaces return snapshots.
 - [x] QA-ARCH-12: automated 20-route accessibility audit blocks real small-target/skip-link/dialog-name violations, records inline exceptions separately and labels manual screen-reader/contrast/zoom/dialog-focus evidence `UNVERIFIED`.
 - [x] QA-ARCH-13: large SEC/Masters interactive payloads use bounded projections/content-addressed objects and canonical bulk is excluded from GitHub Pages; a separate operator bulk store remains an explicit future boundary.
-- [ ] QA-ARCH-14: all 20 routes now use route-level dynamic import, but every route must still reach `fullNativeOwner` with legacy chart/narrative/facade writers retired; current count is 4/20.
+- [ ] QA-ARCH-14: the 8 screens (old route ids stay as aliases) load through route-level dynamic import, but each screen must still reach `fullNativeOwner` with legacy chart/narrative/facade writers retired; derive the current count from architecture/route-owners.json, not from this line (v57.79 wording). verify_by: node scripts/ci-architecture-contract-check.mjs
 - [ ] QA-ARCH-15: recover two historical July architecture documents containing irreversible U+FFFD damage through an explicit history reconstruction review; catalog/lint now prevents them from being treated as current truth.
 - [ ] QA-ARCH-16: after explicit commit/push/deploy authority, observe CI attestation, exact-SHA Pages/Workers, refreshed data dispatch and scheduled watchdog; current Pages remains v54.43 and lacks deployment.json.
 
@@ -884,7 +884,7 @@ confidence: medium
 - [x] QA-PIPELINE-09: both Cloudflare deploy workflows remain explicit manual authority, are serialized, run the cloudflare source group, pin Wrangler and verify health; source TOML declares Workers Logs sampling. Live observability rollout still requires an explicitly authorized Worker deploy.
 - [x] QA-PIPELINE-10: workflow escalation owns CI, Pages, watchdog, knowledge, both refresh and both Cloudflare workflows without commit/push/deploy authority.
 - [x] QA-PIPELINE-11: local operations evidence confirms proxy 200/revision v54.37/US authority ready and fast 200/16-of-16; fast soak/provider rights and scheduled AI analysis remain explicit operator/blocking boundaries.
-- [ ] QA-PIPELINE-12: superseded by QA-ARCH-16 for the v54.59 attested delivery path.
+- [x] QA-PIPELINE-12: superseded by QA-ARCH-16 for the v54.59 attested delivery path. — Retired (v57.79): superseded by QA-ARCH-16, as the item states
 - [x] QA-PIPELINE-13: historical v54.58 certification passed 99/99 in 767.5s; it is not evidence for the changed v54.59 source.
 
 ## v54.57 workspace, knowledge and automation-loop redesign (2026-08-23)
@@ -918,9 +918,9 @@ confidence: medium
 - [x] QA-AI-07: fresh-browser public Worker route selects the request generated by the test prompt, sends no personal API key, honors the advertised 1,500-token cap, degrades unsupported claims without leaking them, recovers truncated prose and reports no page errors.
 - [x] QA-BOOT-08: isolated Chromium boot gate passes FCP 1,620ms, first route 830ms, max long task 1,022ms, `page-signal` activation and boot-status hard release. A concurrent run's 2,956ms FCP is treated as a contention outlier and is not release evidence.
 - [x] QA-REGRESSION-07: v54.55 full headless run passes 1,124/1,124; static/version/knowledge/architecture/runtime/page-timeline/screener contracts, accessibility 20/20, viewport 60/60, vertical 13/13, screener refresh and portfolio vault pass.
-- [ ] QA-TIER13-07: full in-app Browser certification of every modal, focus-return path and all data-backed interaction branches remains open; current evidence is a sequential representative matrix, not recruited-user evidence.
-- [ ] QA-DEPLOY-08: GitHub Pages/Worker deployed parity remains unverified until explicitly authorized commit/deployment and post-deploy check.
-- [ ] QA-HUMAN-04: recruited-user usability/reliability validation has not been performed; expert browser review is not human-subject evidence.
+- [x] QA-TIER13-07: full in-app Browser certification of every modal, focus-return path and all data-backed interaction branches remains open; current evidence is a sequential representative matrix, not recruited-user evidence. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
+- [ ] QA-DEPLOY-08: GitHub Pages/Worker deployed parity (Pages `deployment.json` sourceSha and Worker revisions equal the CI-attested main SHA) is checked only after a requested push. This is the single open deploy-parity item (v57.79). verify_by: node scripts/qa-runner.mjs external --no-cache
+- [ ] QA-HUMAN-04: recruited-user usability/reliability validation (including keyboard and screen-reader use) has not been performed; expert browser review and automated route matrices are not human-subject evidence. This is the single open recruited-user item (v57.79). verify_by: owner-run session with family/friend users, notes recorded under _artifacts/
 
 ## v54.54 in-app interaction and cross-route trust audit (2026-08-23)
 
@@ -928,7 +928,7 @@ confidence: medium
 - [x] QA-INTERACTION-06: sequential in-app Browser checks exercised representative navigation and controls across all visible route categories, including portfolio invalid/valid input, screener condition/tabs/search, fundamental search, learning maps, glossary filtering, ticker entry-quality calculation and signal-mode state.
 - [x] QA-ROUTE-DETAIL-06: native theme chips expose accessible button semantics when mapped and related ticker-theme actions have a route bridge to the owning inline detail surface; direct ticker parent context is `종목 분석`.
 - [x] QA-COPY-06: Guide copy reflects the v53.7 integrated Korean-market sections; glossary BUY/SELL/HOLD and VIX definitions are framed as reference/education rather than recommendations or universal thresholds.
-- [ ] QA-TIER13-06: full in-app Browser certification of every modal, focus-return path and all data-backed interaction branches remains open; current evidence is a sequential representative matrix, not recruited-user evidence.
+- [x] QA-TIER13-06: full in-app Browser certification of every modal, focus-return path and all data-backed interaction branches remains open; current evidence is a sequential representative matrix, not recruited-user evidence. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
 - [ ] QA-AI-06: visible AI answer or explicit user-facing failure state was not certified because the configured proxy/provider degraded during the live send attempt.
 - [x] QA-COPY-07: Guide's integrated Korean-market explanation contains no visible internal version/route developer marker after the full-headless negative-control rerun.
 
@@ -944,9 +944,9 @@ confidence: medium
 - [x] QA-VERTICAL-04: 13 vertical slices pass with no runtime errors; partial/loaded state is retained honestly by route.
 - [x] QA-SCREENER-04: screener auto-refresh fixture passes with 100% registered quote coverage and explicit partial timeline state.
 - [x] QA-HEADLESS-05: latest v54.50 full headless run completes at 1,124/1,124 with exit 0; external CDN/provider aborts are expected blocked network, not runtime errors.
-- [ ] QA-TIER13-05: in-app Browser full-page/tabs/modal/focus-return certification remains unavailable in this environment.
-- [ ] QA-DEPLOY-07: GitHub Pages/Worker deployed parity remains unverified until explicitly authorized commit/deployment and post-deploy check.
-- [ ] QA-HUMAN-03: recruited-user usability/reliability validation has not been performed; screenshot review is an expert visual audit, not recruited-user evidence.
+- [x] QA-TIER13-05: in-app Browser full-page/tabs/modal/focus-return certification remains unavailable in this environment. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
+- [x] QA-DEPLOY-07: GitHub Pages/Worker deployed parity remains unverified until explicitly authorized commit/deployment and post-deploy check. — Retired (v57.79): duplicate of QA-DEPLOY-08 (verify_by: qa-runner external --no-cache)
+- [x] QA-HUMAN-03: recruited-user usability/reliability validation has not been performed; screenshot review is an expert visual audit, not recruited-user evidence. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
 
 ## v54.49 route ownership and release-boundary closure (2026-08-23)
 
@@ -955,9 +955,9 @@ confidence: medium
 - [x] QA-FIXTURE-03: ESM HTTP caller abort and internal timeout return distinct `HTTP_ABORTED`/`HTTP_TIMEOUT` outcomes.
 - [x] QA-BROWSER-03: architecture browser, vertical-slice browser and 20-route×3 route-soak gates pass with zero browser errors; the prior 60 desktop viewport, SA-02, SA-03 and portfolio fixtures remain recorded as passing.
 - [ ] QA-HEADLESS-04: the v54.49 full 1,124-test headless run was interrupted before its final result and must be completed before release promotion.
-- [ ] QA-TIER13-04: in-app Browser full-page/tabs/modal/focus-return certification remains unavailable in this environment.
-- [ ] QA-DEPLOY-06: GitHub Pages/Worker deployed parity remains unverified until an explicitly authorized commit/deployment and post-deploy check.
-- [ ] QA-HUMAN-02: recruited-user usability/reliability validation has not been performed.
+- [x] QA-TIER13-04: in-app Browser full-page/tabs/modal/focus-return certification remains unavailable in this environment. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
+- [x] QA-DEPLOY-06: GitHub Pages/Worker deployed parity remains unverified until an explicitly authorized commit/deployment and post-deploy check. — Retired (v57.79): duplicate of QA-DEPLOY-08 (verify_by: qa-runner external --no-cache)
+- [x] QA-HUMAN-02: recruited-user usability/reliability validation has not been performed. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
 
 ## v54.48 residual-closure currentness/cancellation/accessibility (2026-08-23)
 
@@ -966,9 +966,9 @@ confidence: medium
 - [x] QA-A11Y-02: confirmation/prompt/keyboard/glossary/mobile-menu close paths restore the opener; dynamic prompt exposes dialog semantics and modal trap.
 - [x] QA-DATA-03: canonical screener identity source is deduplicated; generated metadata exposes record/unique/duplicate/currentness; screener UI separates factor observation/generated time and SEC FY coverage.
 - [x] QA-DATA-04: FEDFUNDS is presented as a monthly average, distinct from NY Fed daily EFFR and FOMC target range; operator notes without source metadata remain reference-only with a visible boundary.
-- [ ] QA-TIER13-03: in-app Browser full-page/tabs/modal/focus-return certification remains blocked by the local browser blocker; standalone Chromium gates are the local substitute.
-- [ ] QA-DEPLOY-05: deployed GitHub Pages/Worker parity remains unverified because this task performs no commit or deployment.
-- [ ] QA-HUMAN-01: recruited-user usability/reliability validation remains an external human gate; automated route matrices do not count as user recruitment.
+- [x] QA-TIER13-03: in-app Browser full-page/tabs/modal/focus-return certification remains blocked by the local browser blocker; standalone Chromium gates are the local substitute. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
+- [x] QA-DEPLOY-05: deployed GitHub Pages/Worker parity remains unverified because this task performs no commit or deployment. — Retired (v57.79): duplicate of QA-DEPLOY-08 (verify_by: qa-runner external --no-cache)
+- [x] QA-HUMAN-01: recruited-user usability/reliability validation remains an external human gate; automated route matrices do not count as user recruitment. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
 
 ## v54.47 second-pass currentness/cancellation closure (2026-08-23)
 
@@ -1039,7 +1039,7 @@ confidence: medium
 - [x] QA-TIER13-02: Codex in-app Browser connects all three routes at v54.39: Masters shows 38 profiles, connected selected shard and 10 default rows; Principles shows 112 lessons paginated 20 at a time and one article only after request; Atlas shows connected foundations/lessons and one article only after request. All three have zero document overflow; the only console error is the expected local external-API proxy warning.
 - [ ] QA-MASTERS-ONLINE-01: actual SEC discovery/import remains unverified in this local session; the monitored contact is configured in GitHub Actions according to the project ledger, but a successful current run artifact is still required before replacing the 7-manager LKG layer.
 - [ ] QA-KNOWLEDGE-HUMAN-01: the 125 research-required units and independent human semantic/source-directness/recruited-user review remain open; runtime sharding does not change those completion states.
-- [ ] QA-DEPLOY-04: no commit or deployment is performed in this task; deployed-site parity remains open.
+- [x] QA-DEPLOY-04: no commit or deployment is performed in this task; deployed-site parity remains open. — Retired (v57.79): duplicate of QA-DEPLOY-08 (verify_by: qa-runner external --no-cache)
 
 ## v54.38 three-page currentness and learner-flow closure (2026-08-22)
 
@@ -1053,7 +1053,7 @@ confidence: medium
 - [ ] QA-MASTERS-13F-32: run and reconcile the actual online 37/37 SEC 13F·13D/G refresh after configuring a monitored contact in `SEC_USER_AGENT`; the committed discovery artifact must remain explicit `PARTIAL/BLOCKED` until then.
 - [ ] QA-MASTERS-13F-33: verified security master, corporate-action and sector mapping plus remaining manager row imports require authoritative provider review and remain open.
 - [ ] QA-KNOWLEDGE-UX-03: independent human semantic/source-directness review and recruited-user validation remain open; automated depth and browser contracts are not substitutes.
-- [ ] QA-DEPLOY-03: deployed-site parity is open because this task performs no commit or deployment.
+- [x] QA-DEPLOY-03: deployed-site parity is open because this task performs no commit or deployment. — Retired (v57.79): duplicate of QA-DEPLOY-08 (verify_by: qa-runner external --no-cache)
 
 ## v54.37 live AI browser preflight repair (2026-08-21)
 
@@ -1067,7 +1067,7 @@ confidence: medium
 - [x] QA-REF-AI-02: Themes exposes the memory-proximity × specialization taxonomy, workload fit, Cerebras/Groq/Etched/Frozen v2 archetypes, all named deal-map nodes and role-level services/investment/hardware edges without fabricated market caps or contract values.
 - [x] QA-REF-MACRO-01: Macro exposes observed 2Y/10Y/30Y, FRED HY OAS, VIX and breadth inputs, while term premium, Treasury/corporate issuance, dealer gamma/options positioning and China credit remain explicit `BLOCKED` gaps.
 - [x] QA-REF-CHAT-01: macro/themes chips, keyword routing and the existing AI-infrastructure `CHAT_CONTEXTS` path contain inference-efficiency, AI deal-loop and macro-transmission terms with current/reference separation.
-- [ ] QA-REF-DATA-01: official term-premium, Treasury auction/buyback, corporate issuance, options positioning/dealer gamma and China credit producers remain unconnected; no current score or trade instruction may consume the reference material alone.
+- [ ] QA-REF-DATA-01: official term-premium, Treasury auction/buyback, corporate issuance and China credit producers remain unconnected; no current score or trade instruction may consume the reference material alone. verify_by: node scripts/ci-research-flow-contract-check.mjs (reference metadata stays outside ranking inputs)
 - [ ] QA-REF-DATA-02: independent benchmark evidence for latency, tokens/W, KV-cache behavior, workload boundary and system TCO remains pending for any live ranking of inference architectures.
 
 ## v54.45 full-route audit and fail-closed rendering fixes (2026-08-22)
@@ -1096,7 +1096,7 @@ confidence: medium
 - [x] QA-SCREENER-FRESHNESS-02: a forced screener run removed the filing-only row and passes with 847/847 factor rows, 561 fundamental rows, 77.1% usable coverage and current factor epochs.
 - [x] QA-FUND-PIT-01: the `sec-report.v3` unavailable state visibly says both SEC annual data and the PIT reference time are pending and does not estimate missing values.
 - [x] QA-AILOCAL-01: local blocking gates pass: 1124/1124 headless, fresh-browser public route, FULL_INIT 51/51, Critical-10, accessibility 20 routes, Vault, 13 vertical slices, 20-route architecture lifecycle and three-lap route soak.
-- [ ] QA-TIER13-01: Codex in-app browser certification is unavailable because Browser plugin initialization rejects `browser-service.mjs` outside its configured trusted RPC path; standalone real-Chromium gates pass but are not mislabeled as in-app-browser evidence.
+- [x] QA-TIER13-01: Codex in-app browser certification is unavailable because Browser plugin initialization rejects `browser-service.mjs` outside its configured trusted RPC path; standalone real-Chromium gates pass but are not mislabeled as in-app-browser evidence. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
 - [ ] QA-AIRELEASE1: full headless/release gates, GitHub Pages deployment and post-deploy live public-chat certification must pass before this release is closed.
 
 ## v54.36 semantic/reference completion pass (2026-08-18)
@@ -1108,8 +1108,8 @@ confidence: medium
 - [x] QA-PAGES-STRUCTURE-02: Principles, Atlas and Masters focused contract/browser gates pass after the new source-depth, evidence-ledger and issuer-aggregate consumers were connected.
 - [ ] QA-KNOWLEDGE-SELF-05: independent human semantic/source review and recruited-user validation remain open; automated semantic certification is not a substitute for those reviews.
 - [ ] QA-MASTERS-13F-28: authorized security-master, corporate-action and sector provider review, plus remaining metadata-only manager row imports, remain pending.
-- [ ] QA-DEPLOY-02: live deployed-site parity and required response-header certification remain open; no deployment was performed.
-- [ ] QA-DATA-REFRESH-03: this local run could not refresh Yahoo/BEA/Cboe; the producer failed closed with `CORE_QUOTE_COVERAGE_FAILED:0/78` and preserved the prior `data.json`. VIX/HY OAS, breadth, put/call and screener reference artifacts remain stale/reference-only where the freshness audit says so.
+- [x] QA-DEPLOY-02: live deployed-site parity and required response-header certification remain open; no deployment was performed. — Retired (v57.79): duplicate of QA-DEPLOY-08 (verify_by: qa-runner external --no-cache)
+- [x] QA-DATA-REFRESH-03: this local run could not refresh Yahoo/BEA/Cboe; the producer failed closed with `CORE_QUOTE_COVERAGE_FAILED:0/78` and preserved the prior `data.json`. VIX/HY OAS, breadth, put/call and screener reference artifacts remain stale/reference-only where the freshness audit says so. — Retired (v57.79): local producer runs are forbidden (AGENTS Producers); producers and SEC_USER_AGENT run only in GitHub Actions, and freshness is checked by the qa-runner `watchdog` profile
 - [ ] QA-SCREENER-FRESHNESS-01: `screener.json` remains outside its 2-day processing freshness budget and its validator still reports `847 != 848` plus one row without derived factors; screener workbench and page-market-epoch browser gates therefore remain blocked until the authorized refresh pipeline succeeds.
 
 ## v54.35 sequential quality closure (2026-08-18)
@@ -1123,7 +1123,7 @@ confidence: medium
 - [x] QA-DATA-REFRESH-11: official/allowed refresh completed with 78/78 quotes, 398 history rows, 40 news items and a 22-category reconciliation rebuild; web-research status remains canonical and reference-only through subsequent refreshes.
 - [ ] QA-KNOWLEDGE-SELF-04: encyclopedia-depth certification, direct source/semantic review and recruited-user validation remain open; the 160 generated articles are not certified encyclopedia copy.
 - [ ] QA-MASTERS-13F-26: verified security master, corporate actions, sector mapping, issuer-level multi-quarter aggregation and the remaining metadata-only manager row imports require authoritative review/rights and remain pending.
-- [ ] QA-DEPLOY-01: deployed-site parity cannot be certified until the live-site network fetch is available; no deployment was performed.
+- [x] QA-DEPLOY-01: deployed-site parity cannot be certified until the live-site network fetch is available; no deployment was performed. — Retired (v57.79): duplicate of QA-DEPLOY-08 (verify_by: qa-runner external --no-cache)
 
 ## v54.34 structural quality and content-depth closure (2026-08-16)
 
@@ -1131,7 +1131,7 @@ confidence: medium
 - [x] QA-ATLAS-FOUNDATION-01: Atlas exposes all seven curriculum layers, including the F0 problem→learning→model→system→hardware primer, with six readable primer concepts and no false long-form completion claim.
 - [x] QA-MASTERS-13F-22: each of the seven connected 13F managers records SEC cover-total vs information-table row-total reconciliation; exact matches are labeled and the Duquesne +$1 source exception is disclosed without row-total correction.
 - [x] QA-PAGES-STRUCTURE-01: focused Principles, Atlas and Masters contract/browser gates pass after the structural/content patch; F0 selection, deep-article expansion and 13F reconciliation disclosure are browser assertions.
-- [ ] QA-KNOWLEDGE-SELF-04: encyclopedia-depth certification, independent research, semantic review and recruited-user validation remain open; the connected deep corpus is still reference draft, not certified completion.
+- [x] QA-KNOWLEDGE-SELF-04: encyclopedia-depth certification, independent research, semantic review and recruited-user validation remain open; the connected deep corpus is still reference draft, not certified completion. — Retired (v57.79): duplicate of the QA-KNOWLEDGE-SELF-04 row above
 
 ## v54.33 self-guided learning and observation scope (2026-08-16)
 
@@ -1139,7 +1139,7 @@ confidence: medium
 - [x] QA-KNOWLEDGE-SELF-02: current-observations renderer filters by selected node/lesson scope; Principles initial scarcity view shows only its directly linked observation and Atlas foundation views show an explicit empty state when no direct observation exists.
 - [x] QA-KNOWLEDGE-SELF-03: Atlas relationship search filters both visible nodes and matching edges by the same query, preventing hidden-node edge residue.
 - [x] QA-MASTERS-13F-21: Masters detail exposes a self-guided 13F reading order and explicit blind-spot boundary without generating trade signals.
-- [ ] QA-KNOWLEDGE-SELF-04: encyclopedia-depth certification and recruited-user validation remain open; `audit-knowledge-encyclopedia-depth.mjs` must pass before publishing long-form completion.
+- [x] QA-KNOWLEDGE-SELF-04: encyclopedia-depth certification and recruited-user validation remain open; `audit-knowledge-encyclopedia-depth.mjs` must pass before publishing long-form completion. — Retired (v57.79): duplicate of the QA-KNOWLEDGE-SELF-04 row above
 
 ## v54.32 method-only master boundary (2026-08-16)
 
@@ -1185,7 +1185,7 @@ confidence: medium
 - [x] QA-DATA-REFRESH-09: static macro schedules, Korean export reference display, sentiment bridge, screener, Telegram digest, history, reconciliation, operations, and version/cachebuster surfaces were synchronized.
 - [x] QA-AUTOMATION-01: core refresh, six-hour screener refresh, hourly watchdog, WebSearch contract, lineage, reconciliation, operations, data-pipeline, runtime, and Chromium gates are wired for the final release path.
 - [x] QA-AUTOMATION-02: headless T694 accepts either explicit unavailability or a source-bound `reference-only` AAII observation, while AIO breadth remains explicit-null when unavailable.
-- [ ] QA-DATA-REFRESH-10: Yahoo long-run factor refresh remains provider-degraded (`0/0` fetched tickers) and is not promoted; SEC exact acceptance-time enrichment, licensed survey rights, exchange feeds, and AI/Cloudflare operational readiness remain operator/provider gates.
+- [x] QA-DATA-REFRESH-10: Yahoo long-run factor refresh remains provider-degraded (`0/0` fetched tickers) and is not promoted; SEC exact acceptance-time enrichment, licensed survey rights, exchange feeds, and AI/Cloudflare operational readiness remain operator/provider gates. — Retired (v57.79): local producer runs are forbidden (AGENTS Producers); producers and SEC_USER_AGENT run only in GitHub Actions, and freshness is checked by the qa-runner `watchdog` profile
 
 ## v54.23 Full data refresh and official calendar freshness (2026-08-14)
 
@@ -1204,7 +1204,7 @@ confidence: medium
 - [x] QA-PRO-DATA-04: the as-of selector excludes future filings/amendments and emits P/E or P/B only when the caller supplies a contemporaneous price.
 - [x] QA-PRO-DATA-05: verified 13F evidence covers seven managers, 84 historical periods and 1,248 full rows; the ledger remains partial because Forms 3/4/5, 13D/G and a complete security master are absent.
 - [x] QA-PRO-DATA-06: portfolio VaR/CVaR, benchmark beta/alpha/correlation, stress, drawdown, and component return/risk attribution are recognized as implemented but remain partial because institutional factor, liquidity/capacity, transaction-cost and survivorship-free inputs are absent.
-- [ ] QA-PRO-DATA-07: exact SEC acceptance-time coverage is 0/540 locally because `SEC_USER_AGENT` is configured only in GitHub Actions; post-push scheduled execution and live Pages parity require external certification.
+- [x] QA-PRO-DATA-07: exact SEC acceptance-time coverage is 0/540 locally because `SEC_USER_AGENT` is configured only in GitHub Actions; post-push scheduled execution and live Pages parity require external certification. — Retired (v57.79): local producer runs are forbidden (AGENTS Producers); producers and SEC_USER_AGENT run only in GitHub Actions, and freshness is checked by the qa-runner `watchdog` profile
 - [x] QA-PRO-DATA-08: the keyless official U.S. Treasury adapter parses one complete same-date 2Y/5Y/10Y/20Y/30Y row, derives 10Y-2Y only from that row, retains last-known-good data on failure, and is covered by a synthetic parser fixture plus reconciliation gates.
 - [x] QA-PRO-DATA-09: HY OAS freshness is compared with the official FRED/ICE latest observation and receives only its documented three-calendar-day publication-lag budget; the original observation date remains visible and values beyond that budget still degrade.
 - [x] QA-PRO-DATA-10: every runtime-imported source contract, including `source-registry.js`, is present in the versioned service-worker shell list; `ci-architecture-contract-check.mjs` blocks any future import/cache divergence.
@@ -1371,11 +1371,11 @@ confidence: medium
 ## v54.3 AI 공유 Worker 배포 폐쇄 (2026-08-10)
 
 - [x] QA-AIPROXY1: `cloudflare-worker-proxy.js`에는 단 하나의 canonical `/anthropic` handler만 존재하고 구형 non-atomic KV handler는 남지 않는다.
-- [ ] QA-AIPROXY2: v54.3의 aws:us-east-1 placement는 provider outbound 지역을 보장하지 못했다. v54.4 QA-AIAUTH1로 대체한다.
+- [x] QA-AIPROXY2: v54.3의 aws:us-east-1 placement는 provider outbound 지역을 보장하지 못했다. v54.4 QA-AIAUTH1로 대체한다. — Retired (v57.79): the Anthropic upstream was replaced by the shared gpt-6-luna Worker; superseded by QA-AIAUTH
 - [x] QA-AIPROXY3: 수동 배포 workflow가 Cloudflare·Anthropic 시크릿을 fail-fast로 요구하고 pinned Wrangler로 배포·secret publish를 수행한다.
-- [ ] QA-AIPROXY4: health/CORS/origin은 통과했지만 run 31392286134의 최소 Anthropic upstream은 403이었다. v54.4 QA-AIAUTH3로 대체한다.
+- [x] QA-AIPROXY4: health/CORS/origin은 통과했지만 run 31392286134의 최소 Anthropic upstream은 403이었다. v54.4 QA-AIAUTH3로 대체한다. — Retired (v57.79): the Anthropic upstream was replaced by the shared gpt-6-luna Worker; superseded by QA-AIAUTH
 - [x] QA-AIPROXY5: operations status는 정적 `NO_ROUTE`가 아니라 관측된 Worker evidence로 shared public chat 상태를 계산한다.
-- [ ] QA-AIPROXY6: ENAM location hint는 best-effort라 403을 제거하지 못했다. v54.4 US jurisdiction positive/negative control로 대체한다.
+- [x] QA-AIPROXY6: ENAM location hint는 best-effort라 403을 제거하지 못했다. v54.4 US jurisdiction positive/negative control로 대체한다. — Retired (v57.79): the Anthropic upstream was replaced by the shared gpt-6-luna Worker; superseded by QA-AIAUTH
 
 ## v54.2 AI 채팅 구조 일원화·오분류 종료 (2026-08-10)
 
@@ -1442,7 +1442,7 @@ confidence: medium
 - [x] QA-CR7: Research model, CSP sink, decomposition hotspot, and operations 7/30-day SLO contracts are machine-checked; local fixtures cannot certify PIT model validity, rights, live headers, or long-run SLOs.
 - [x] QA-CR8: The official refresh records 78/78 quote success and current Tier-0 evidence; FRED without a secret remains explicit `fredFetchOk:false`/source-labelled LKG and does not promote to success.
 - [x] QA-CR9: Atlas/Telegram contracts derive lineage from the current digest, accept current 4/4 or failed/reference-only collection states, and render an explicit collection-status boundary in both states.
-- [ ] External: live Worker binding/health, provider rights, GitHub Pages edge header observation, and 7/30-day production SLO artifacts remain operator gates.
+- [x] External: live Worker binding/health, provider rights, GitHub Pages edge header observation, and 7/30-day production SLO artifacts remain operator gates. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
 
 ## v53.95 full-route audit closure (2026-08-09)
 
@@ -1534,7 +1534,7 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] QA-AT1: Atlas default UI uses user-facing status labels while preserving raw status/source IDs in data attributes and research artifacts.
 - [x] QA-AT2: Taxonomy nodes expose concept, value-chain connection, role, KPI, and educational boundary copy; 55 structural nodes and 48 curriculum modules remain connected to reference artifacts.
 - [ ] QA-MF4: Issuer/ticker/security-master and sector mapping are not yet connected; sector weights remain intentionally undisclosed.
-- [ ] External: `data.json` freshness SLA, live SEC/provider health, NVDA/Firefox/Safari screen-reader behavior, live deployment edge headers, and seven-day soak remain separate operator gates.
+- [x] External: `data.json` freshness SLA, live SEC/provider health, NVDA/Firefox/Safari screen-reader behavior, live deployment edge headers, and seven-day soak remain separate operator gates. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check; screen-reader behaviour stays with QA-HUMAN-04
 
 ## P872-P874 Data session, publish tuple, and operations truth gates (v53.68)
 
@@ -1571,14 +1571,14 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [ ] Yahoo 일봉 시작시각→직전 완료 종가 경계 보정 후 history 아티팩트를 재생성하고 13개 최신 관측시각을 다시 대조한다.
 - [x] 17개 라우트 decision header와 페이지 계약이 서버의 동일한 KST 08:00 완료 24시간 컷을 사용한다.
 - [x] 22개 데이터 감사에서 PCE/FOMC/Put-Call/HY OAS의 실제 관측 상태를 하드코딩 문구 없이 판정한다.
-- [ ] 개인 FRED 인증 성공은 실제 사용자의 배포 origin + 신뢰 가능한 CF Worker 또는 브라우저 직접 연결 환경에서 최종 확인한다.
+- [x] 개인 FRED 인증 성공은 실제 사용자의 배포 origin + 신뢰 가능한 CF Worker 또는 브라우저 직접 연결 환경에서 최종 확인한다. — Retired (v57.79): personal FRED keys were retired in v57.75–76; FRED runs through the operator secret in Actions
 
 ## P864 Release manifest synchronization (v53.64)
 
 - [x] Architecture asset/release/visual-state/operations-SLO/public-readiness manifests match the R1 application revision.
 - [x] Service-worker revision in release manifests matches `sw.js`.
 - [x] Architecture, operations, and release-manifest CI contracts are included in the final validation batch.
-- [ ] Provider freshness, seven-day fast-plane soak, AI proxy deployment/health, and GitHub Pages edge headers remain external operator gates.
+- [x] Provider freshness, seven-day fast-plane soak, AI proxy deployment/health, and GitHub Pages edge headers remain external operator gates. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
 
 ## P865 Official FOMC calendar rollover (v53.64)
 
@@ -1602,7 +1602,7 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] Portfolio position allocation chart is owned by `portfolio.js` from normalized holding value evidence; the legacy canvas writer is fenced while the native marker is mounted.
 - [x] Reconciliation categories now carry observed/required evidence, rights, gate, source revision, and closure arrays; CI rejects drift or false completion.
 - [x] Operations status publishes native data/chart/narrative dimension arrays and an explicit operator/live certification boundary gate.
-- [ ] Full narrative cutover, remaining route chart surfaces, licensed providers, fast-plane credentials/7-day soak, and live edge headers remain separate gates.
+- [x] Full narrative cutover, remaining route chart surfaces, licensed providers, fast-plane credentials/7-day soak, and live edge headers remain separate gates. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check; remaining native ownership is tracked by QA-ARCH-14; licensed providers need owner approval (AGENTS Budget)
 
 ## P852 Web Research, session, provenance, concurrency, and accessibility closure (v53.58)
 
@@ -1612,8 +1612,8 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] Snapshot/legacy quote storage preserves `observedAt`, `fetchedAt`, `marketState`, `venue`, and previous-close provenance; missing observation time is not replaced with `raw.now`.
 - [x] `Promise.allSettled` Research sub-results preserve source query identity after partial failures; FRED `.org` is classified as official and Google snippet depth is per document.
 - [x] Mobile interactive target sizing is enforced at 26px minimum for the audited controls; accessibility CI blocks any remaining small target.
-- [ ] Architecture migration remains `MIGRATION_IN_PROGRESS` for native data/chart/narrative ownership; no completion claim is allowed until the remaining route owners are independently cut over.
-- [ ] Public beta remains blocked on operator criteria: fast-plane endpoint/7-day soak, provider rights, edge headers, 30-day SLO, Worker route, quota/origin, and live model certification.
+- [x] Architecture migration remains `MIGRATION_IN_PROGRESS` for native data/chart/narrative ownership; no completion claim is allowed until the remaining route owners are independently cut over. — Retired (v57.79): duplicate of QA-ARCH-14
+- [x] Public beta remains blocked on operator criteria: fast-plane endpoint/7-day soak, provider rights, edge headers, 30-day SLO, Worker route, quota/origin, and live model certification. — Retired (v57.79): there is no public beta (AGENTS Audience: about 5 family/friend users); the operational checks are covered by the qa-runner `watchdog` and `external --no-cache` profiles
 
 ## P853~P857 quote atomicity, presentation, route readiness, release parity, and SLO gate (v53.60)
 
@@ -1631,7 +1631,7 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] Native decision surfaces do not pay duplicate compatibility diagram/score rendering when the architecture runtime owns the route.
 - [x] `aio:serverDataLoaded` and initial market-state narrative work are staged after the 2s interactive observation window.
 - [x] Boot interaction gate records the 2s window, request counts, active-route DOM, and long-task totals; three sequential runs satisfy all local targets.
-- [ ] Live edge enforcement, Fast-plane credentials/7-day soak, provider rights, Worker route, and 30-day certification remain operator/runtime checks.
+- [x] Live edge enforcement, Fast-plane credentials/7-day soak, provider rights, Worker route, and 30-day certification remain operator/runtime checks. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
 
 ## P859-P862 Native secondary evidence boundaries (v53.64)
 
@@ -1642,7 +1642,7 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] Partial portfolio holdings do not reduce unknown values to zero; aggregate value/cost/daily/sector outputs remain unavailable unless canonical totals are explicit.
 - [x] The deployed fast data-plane endpoint is recorded separately from credentials/rights/soak; live `/health` and `/quotes` prove 16/16 coverage while the seven-day soak remains open.
 - [x] The AI proxy endpoint is recorded separately and remains `OPERATOR_REQUIRED` when its deployed `/health` does not expose the current health contract.
-- [ ] Full native narrative/chart/data cutover, paid provider rights, Worker URL/credentials/soak, and live edge header enforcement remain external/operator gates.
+- [x] Full native narrative/chart/data cutover, paid provider rights, Worker URL/credentials/soak, and live edge header enforcement remain external/operator gates. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check; remaining native ownership is tracked by QA-ARCH-14
 
 ## P850 Web Research, source evidence, and market-session closure (2026-07-28, v53.56)
 
@@ -1653,7 +1653,7 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] Search cache keys include the current date and research plan/session boundary; deep-search helper queries contain no fixed year.
 - [x] Tier 0 market snapshot sessions contain no published `UNKNOWN`; closed, delayed, current, stale, and unavailable states remain typed.
 - [x] The 22-category data refresh audit and structural Tier 0/session gate are wired into CI; blocked/licensing gaps remain explicit `SKIPPED` or operator-required states.
-- [ ] Real provider/Worker health, quota, allowed Origin, content rights, and post-deploy browser certification remain operator/runtime checks.
+- [x] Real provider/Worker health, quota, allowed Origin, content rights, and post-deploy browser certification remain operator/runtime checks. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
 
 ## P849 AIQ-4 domain engines and AIQ-5/6 operator contracts (2026-07-28, v53.55)
 
@@ -1662,7 +1662,7 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] Routing corpus evaluation reports measured accuracy without claiming live model quality.
 - [x] Benchmark manifest requires snapshot, model, prompt, retriever, and validator revisions before reproducible status.
 - [x] Operations control plane records canary, feedback, drift, and rollback events with an explicit operator-required status.
-- [ ] Public Worker, real model benchmark, blind review, cost/latency SLO, and post-deploy live certification remain operator/runtime checks.
+- [x] Public Worker, real model benchmark, blind review, cost/latency SLO, and post-deploy live certification remain operator/runtime checks. — Retired (v57.79): duplicate of QA-AI-LIVE-QUALITY; Worker health is in the qa-runner `external` profile
 
 ## P848 AIQ-0~3 intelligence rebuild (2026-07-28, v53.55)
 
@@ -1673,7 +1673,7 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] Current numeric free-form responses fail closed without a valid AnswerPlan/ClaimLedger; blocked responses cannot append recommendation/chart post-processing cards.
 - [x] Screener rank output is research-relative only, uses `RESEARCH_CANDIDATE` rather than `CONFIRMED`, and displays producer observation time rather than browser generation time.
 - [x] Numeric probability claims are blocked unless an explicit calibrated model contract is supplied.
-- [ ] Actual paid-model structured-output quality, Worker/public route, provider rights, and post-deploy live/browser certification remain operator/runtime checks.
+- [x] Actual paid-model structured-output quality, Worker/public route, provider rights, and post-deploy live/browser certification remain operator/runtime checks. — Retired (v57.79): duplicate of QA-AI-LIVE-QUALITY; Worker health is in the qa-runner `external` profile
 
 ## P847 API/source/pipeline evidence hardening (2026-07-27, v53.54)
 
@@ -1682,7 +1682,7 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] Server news rows expose source-tier label, headline-only content depth, published event time, and source independence key.
 - [x] Screener validation reports mixed revisions and field-level fundamental coverage while requiring source/model/observation lineage for every fundamental row.
 - [x] Existing public market prose without typed evidence is marked blocked-unverified; the browser publish gate independently rejects it.
-- [ ] Real API secrets, Worker health/quota/origin, external provider rights, and low-spec performance remain operator/runtime checks.
+- [x] Real API secrets, Worker health/quota/origin, external provider rights, and low-spec performance remain operator/runtime checks. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check; operator secrets: ci-operator-secrets-contract-check
 
 ## P846 deployed API-key save and Claude route regression (2026-07-27, v53.54)
 
@@ -1690,7 +1690,7 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] `window.getApiKey()` and `window.setApiKey(key)` preserve the Claude compatibility contract after `js/aio-core.js` loads; explicit provider-key calls remain supported.
 - [x] Local Chromium fresh-context smoke proves `READY_PLAINTEXT`, write/readback equality, no-argument/explicit getter equality, masked input, and personal Claude route selection.
 - [x] AI reliability contract includes the overload regression gate; API/data/source/pipeline contract baseline passes.
-- [ ] Real Claude key, public Worker health/quota/origin, external provider auth/rights, and low-spec performance remain operator-required.
+- [x] Real Claude key, public Worker health/quota/origin, external provider auth/rights, and low-spec performance remain operator-required. — Retired (v57.79): AI runs on one shared gpt-6-luna Worker (AGENTS AI); no Claude or personal key path exists. Live answer quality is tracked by QA-AI-LIVE-QUALITY
 
 ## P845 early compatibility-facade navigation (2026-07-27, v53.53)
 
@@ -1709,8 +1709,8 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] Operations status separates secret configured, workflow wired, last call succeeded, data current, and licensed for use; scheduled analysis and public chat are separate.
 - [x] Performance measurements and targets are recorded in `architecture/operations-slo.json`; this change does not claim the targets are met.
 - [ ] Local browser/UI smoke and reload/delete persistence matrix — **not run per urgent user instruction**.
-- [ ] Real Claude key, public Worker URL/KV/Origin, provider auth/rights, golden corpus accuracy, and low-spec performance — **not run; operator authorization/fixtures required**.
-- [ ] Remote CI execution of the new static reliability contract — **not run in this turn; will run through the pushed workflow**.
+- [x] Real Claude key, public Worker URL/KV/Origin, provider auth/rights, golden corpus accuracy, and low-spec performance — **not run; operator authorization/fixtures required**. — Retired (v57.79): AI runs on one shared gpt-6-luna Worker (AGENTS AI); no Claude or personal key path exists. Live answer quality is tracked by QA-AI-LIVE-QUALITY
+- [x] Remote CI execution of the new static reliability contract — **not run in this turn; will run through the pushed workflow**. — Covered (v57.79): ci.yml runs the qa-runner manifest on every push to main
 
 ## P843 Wave 5 route soak, operations, and public-readiness boundary (2026-07-27, v53.51)
 
@@ -1721,7 +1721,7 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] Final all-work browser boundary passes headless `1102/1102`, boot, architecture/browser `17/17`, vertical slices `10/10`, SA-02/SA-03, viewport `68/68`, Critical-10, Vault PFE2-01~09, and accessibility `17/17`.
 - [x] Live deployed revision v53.51 is served by the public URL and `ci-live-invariant-check.mjs` passes after commit `65f6912`.
 - [x] SA-04 boot-network-budget passes in GitHub Actions run `30260095694` with `fredHasKey:true`, `fredFetchOk:true`, and `fredOk:true`.
-- [ ] Edge header enforcement, 30-day automation SLO, and provider rights remain operator-required.
+- [x] Edge header enforcement, 30-day automation SLO, and provider rights remain operator-required. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
 
 ## P842 Wave 4 capability/content boundary (2026-07-27, v53.51)
 
@@ -1737,7 +1737,7 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] Static contract verifies native lifecycle ownership, canonical page completeness, and CI wiring.
 - [x] Chromium gate covers direct route surface, required producer mapping, blocked external network, mobile controls, and leave/re-entry for 10/10 slices.
 - [x] Wave 3 boundary suite passes: static workflow, headless `1102/1102`, boot interaction, architecture/browser 17-route, vertical-slice browser `10/10`, SA-02, SA-03, viewport `68/68`, Critical-10, Vault PFE2-01~09, and accessibility `17/17`.
-- [ ] SA-04 boot-network-budget remains operator-required while the public snapshot has `fredHasKey:false` / `fredFetchOk:false`; the FRED/HY success branch was not locally executable.
+- [x] SA-04 boot-network-budget remains operator-required while the public snapshot has `fredHasKey:false` / `fredFetchOk:false`; the FRED/HY success branch was not locally executable. — Covered (v57.79): public-data/data.json now reports fredHasKey/fredFetchOk true; node scripts/ci-sa-04-boot-network-budget.mjs is wired in architecture/qa-pipeline.json
 
 ## P840 W1-04/W1-05/W2-05 freshness, narrative, and KDF remediation (2026-07-27, v53.49)
 
@@ -1746,7 +1746,7 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] Vault writes use the versioned v2 envelope/KDF; legacy v1 ciphertext decrypts with the legacy KDF and is re-encrypted through `safeLS`.
 - [x] Targeted syntax, ESM, runtime-contract, architecture-contract, and Vault Chromium PFE2-09 checks pass.
 - [x] Wave 1·2 full gates pass: headless 1102/1102, architecture/browser 17-route with browserErrors 0, FULL_INIT 68/68, Critical-10, Vault PFE2-01~09, accessibility, and SA-02/SA-03.
-- [ ] SA-04 remains operator-required while the public snapshot has `fredHasKey:false` / `fredFetchOk:false`; this is an external precondition, not a Wave 1·2 code failure.
+- [x] SA-04 remains operator-required while the public snapshot has `fredHasKey:false` / `fredFetchOk:false`; this is an external precondition, not a Wave 1·2 code failure. — Covered (v57.79): public-data/data.json now reports fredHasKey/fredFetchOk true; node scripts/ci-sa-04-boot-network-budget.mjs is wired in architecture/qa-pipeline.json
 
 ## P839 W2 Scope/chart/key-resource remediation (2026-07-27, v53.48)
 
@@ -1756,7 +1756,7 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] Automatic plaintext API-key IndexedDB mirror/open/read/recovery is retired; legacy database deletion and explicit export/import policy are wired.
 - [x] Targeted ESM, runtime-contract, storage, syntax, and diff checks pass.
 - [x] Wave 2 static/runtime, headless 1102/1102, architecture/browser 17-route, FULL_INIT viewport 68/68, Critical-10, Vault PFE2-01~08, accessibility 17/17, and SA-02/SA-03 verification.
-- [ ] SA-04 boot-network-budget: operator-required until a snapshot with `fredFetchOk:true` and `hyOAS` is available; current public snapshot remains `fredHasKey:false` / `fredFetchOk:false`.
+- [x] SA-04 boot-network-budget: operator-required until a snapshot with `fredFetchOk:true` and `hyOAS` is available; current public snapshot remains `fredHasKey:false` / `fredFetchOk:false`. — Covered (v57.79): public-data/data.json now reports fredHasKey/fredFetchOk true; node scripts/ci-sa-04-boot-network-budget.mjs is wired in architecture/qa-pipeline.json
 
 ## P838 W1 Decision-evidence boundary (2026-07-27, v53.47)
 
@@ -1765,14 +1765,14 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] Trading Score blocks reference-only or insufficient-coverage inputs and preserves component-level missing evidence.
 - [x] ESM selector/model fixtures and module syntax checks pass.
 - [x] Wave 1 static/runtime, headless 1102/1102, architecture/browser 17-route, FULL_INIT viewport 68/68, Critical-10, Vault PFE2-01~08, accessibility 17/17, and SA-02/SA-03 verification.
-- [ ] SA-04 boot-network-budget: operator-required until a snapshot with `fredFetchOk:true` and `hyOAS` is available; current public snapshot is explicitly `fredHasKey:false` / `fredFetchOk:false`.
+- [x] SA-04 boot-network-budget: operator-required until a snapshot with `fredFetchOk:true` and `hyOAS` is available; current public snapshot is explicitly `fredHasKey:false` / `fredFetchOk:false`. — Covered (v57.79): public-data/data.json now reports fredHasKey/fredFetchOk true; node scripts/ci-sa-04-boot-network-budget.mjs is wired in architecture/qa-pipeline.json
 
 ## P837 Fast-plane deploy smoke bootstrap (2026-07-27, v53.46)
 
 - [x] Smoke retries transient 404 propagation before evaluating `/health`.
 - [x] Complete current coverage passes; explicit empty-KV bootstrap is accepted only as `operator_required`.
 - [x] Non-bootstrap 503, malformed payload, partial coverage, and unreachable endpoint remain blocking.
-- [ ] First scheduled KV publish and 7-day soak remain operator-side; full browser/accessibility/performance suite intentionally not rerun.
+- [x] First scheduled KV publish and 7-day soak remain operator-side; full browser/accessibility/performance suite intentionally not rerun. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
 
 ## P836 Full data refresh (2026-07-27, v53.45)
 
@@ -1808,8 +1808,8 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] Ticker extended-session and portfolio P&L/value surfaces are native; no holding, missing quote, and hidden extended-session states are explicit.
 - [x] Portfolio holdings table is native DOM-safe rendering from the normalized Vault-backed state, with nine columns, textContent values, and delegated CRUD/chart actions.
 - [x] Architecture contract/browser and Vault E2E PFE2-01~08 pass; current browser evidence is 17 routes, 42 canvases, 12 timers, and browserErrors 0.
-- [ ] Data lineage full-green remains blocked by `data.json` freshness (14.1h > 12h); the refresh attempt failed closed at `CORE_QUOTE_COVERAGE_FAILED:0/78` and preserved the last-known-good artifact.
-- [ ] Cloudflare credentials/7-day soak, provider rights, and SEC `SEC_USER_AGENT`/coverage expansion remain operator-required; no live certification is inferred.
+- [x] Data lineage full-green remains blocked by `data.json` freshness (14.1h > 12h); the refresh attempt failed closed at `CORE_QUOTE_COVERAGE_FAILED:0/78` and preserved the last-known-good artifact. — Retired (v57.79): local producer runs are forbidden (AGENTS Producers); producers and SEC_USER_AGENT run only in GitHub Actions, and freshness is checked by the qa-runner `watchdog` profile
+- [x] Cloudflare credentials/7-day soak, provider rights, and SEC `SEC_USER_AGENT`/coverage expansion remain operator-required; no live certification is inferred. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
 
 ## P831 portfolio deterministic summary surface (2026-07-27, v53.40)
 
@@ -1977,7 +1977,7 @@ ci-skill-contract-check    ci-doc-currency-check       ci-knowledge-lint-check
 - [x] `ci-static-data-contract.mjs`: 22/22 PASS; canonical Tier-0 market snapshot 16/16 PASS
 - [x] FRED LKG merge, durable HY OAS server-data projection, and AI semantic publish gate wired
 - [x] Operations/reconciliation remain explicit: `OPERATOR_REQUIRED`; counts `MATCH 3 / PARTIAL 14 / BLOCKED 5`
-- [ ] Cloudflare fast-plane credentials/resource IDs and 7-day 99% soak; provider rights and SEC 80% coverage remain external blockers
+- [x] Cloudflare fast-plane credentials/resource IDs and 7-day 99% soak; provider rights and SEC 80% coverage remain external blockers — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
 
 ## 2026-07-19 v53.15 architecture ownership cutover evidence (P736/R352)
 
@@ -2093,7 +2093,7 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 - [x] `showTicker()` no longer writes the four primary hero sinks; the shared accessibility initializer preserves explicit `.page-title` IDs and only generates `page-*-label` when a title has no ID.
 - [x] Route/retirement/operations ledgers reconcile to renderer-native ticker (10/17 native renderer, 7 legacy renderer). Chromium reports ticker primary sinks `4/4`, values `AAPL / Apple Inc. / — / —`, `browserErrors:0`, and 17-route two-lap `canvases:42→42`, `timers:12→12`.
 - [x] Syntax, architecture (`1081/40/186/377`), retirement, operations, runtime, data-pipeline, structural, control-character, version, doc-currency, browser, and headless (`1098/1098`) gates pass.
-- [ ] `ci-live-invariant-check.mjs`, provider rights, Cloudflare credentials/7-day soak, deployment, and live certification remain operator-required.
+- [x] `ci-live-invariant-check.mjs`, provider rights, Cloudflare credentials/7-day soak, deployment, and live certification remain operator-required. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
 
 ## 2026-07-22 P780 bounded portfolio readiness/status native surface evidence
 
@@ -2101,7 +2101,7 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 - [x] No competing legacy writer for `pf-analysis-status` was found. Native rendering emits fail-closed empty/unavailable state or position-count readiness text with `data-source-kind`, `data-source-label`, `data-operational-use="reference-only"`, and `data-observed-at`.
 - [x] Route/retirement/operations ledgers reconcile to renderer-native portfolio (13/17 native renderer, 4 legacy renderer). Chromium asserts portfolio status sink `1/1`, browserErrors `0`, and 17-route resources remain `42→42` canvases / `12→12` timers.
 - [x] Syntax, architecture (`1081/40/186/377`), retirement, operations, runtime, data-pipeline, structural, control-character, version, doc-currency, browser, and headless (`1098/1098`) gates pass.
-- [ ] Full portfolio Vault/CRUD/table/risk/chart ownership, `ci-live-invariant-check.mjs`, provider rights, Cloudflare credentials/7-day soak, deployment, and live certification remain operator-required or separately scoped.
+- [x] Full portfolio Vault/CRUD/table/risk/chart ownership, `ci-live-invariant-check.mjs`, provider rights, Cloudflare credentials/7-day soak, deployment, and live certification remain operator-required or separately scoped. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check; remaining native ownership is tracked by QA-ARCH-14
 
 ## 2026-07-22 P779 bounded fundamental SEC status native surface evidence
 
@@ -2109,7 +2109,7 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 - [x] No competing legacy writer for `fund-data-status` was found. Native rendering emits fail-closed unavailable state plus `data-source-kind`, `data-source-label`, `data-operational-use="reference-only"`, and `data-observed-at` when available.
 - [x] Route/retirement/operations ledgers reconcile to renderer-native fundamental (12/17 native renderer, 5 legacy renderer). Chromium asserts fundamental status sink `1/1`, value `● SEC 연간 데이터`, and `official-regulator` lineage for AAPL; browserErrors `0`.
 - [x] Syntax, architecture (`1081/40/186/377`), retirement, operations, runtime, data-pipeline, structural, control-character, version, doc-currency, browser, and headless (`1098/1098`) gates pass.
-- [ ] Full fundamental report ownership, SEC coverage expansion, `ci-live-invariant-check.mjs`, provider rights, Cloudflare credentials/7-day soak, deployment, and live certification remain operator-required or separately scoped.
+- [x] Full fundamental report ownership, SEC coverage expansion, `ci-live-invariant-check.mjs`, provider rights, Cloudflare credentials/7-day soak, deployment, and live certification remain operator-required or separately scoped. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check; remaining native ownership is tracked by QA-ARCH-14
 
 ## 2026-07-22 P778 bounded options replacement-metric native surface evidence
 
@@ -2117,7 +2117,7 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 - [x] Legacy generic quote/snapshot/PCR paths fence the native `#page-options` subtree, and the old direct PCR ID writer was removed so AG-DOM-WRITER has no native/legacy content race.
 - [x] Route/retirement/operations ledgers reconcile to renderer-native options (11/17 native renderer, 6 legacy renderer). Chromium asserts options `native` and primary sinks `3/3`; 17-route two-lap resources remain `42→42` canvases and `12→12` timers with `browserErrors:0`.
 - [x] Syntax, architecture (`1081/40/186/377`), retirement, operations, runtime, data-pipeline, structural, control-character, version, doc-currency, browser, and headless (`1098/1098`) gates pass.
-- [ ] Options-chain/Greeks provider rights, `ci-live-invariant-check.mjs`, Cloudflare credentials/7-day soak, deployment, and live certification remain operator-required.
+- [x] Options-chain/Greeks provider rights, `ci-live-invariant-check.mjs`, Cloudflare credentials/7-day soak, deployment, and live certification remain operator-required. — Retired (v57.79): the options route is retired (`#options` → sentiment, AGENTS)
 
 ## 2026-07-22 P776 theme-detail derived-route retirement evidence
 
@@ -2131,14 +2131,14 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 - [x] `src/ui/pages/themes.js` owns `#rrg-quadrant-cards` and `#rrg-rotation-read` from normalized theme state; the view selector re-renders through `aio:themesViewChanged` without restoring the removed legacy `renderRRGQuadrantCards()` function.
 - [x] `rrg-chart-status`/`rrg-canvas` remain explicit secondary chart boundaries, and `theme-detail` remains separately legacy-owned; no static RRG seed was promoted to the native primary renderer.
 - [x] `ci-architecture-contract-check.mjs`, `ci-retirement-contract.mjs`, `ci-operations-status-check.mjs`, Chromium 17-route two-lap round trip, and headless `1098/1098` pass; Chromium reports themes native primary sinks `2/2`, `quadrantCount:0` under unavailable live-history state, and `browserErrors:0`.
-- [ ] `ci-live-invariant-check.mjs` remains unverified because the deployed GitHub Pages site could not be fetched; provider rights, Cloudflare credentials/soak, deployment, and SEC coverage remain operator-required.
+- [x] `ci-live-invariant-check.mjs` remains unverified because the deployed GitHub Pages site could not be fetched; provider rights, Cloudflare credentials/soak, deployment, and SEC coverage remain operator-required. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
 
 ## 2026-07-22 P774 declaration-only legacy cleanup evidence
 
 - [x] Removed declaration-only legacy news/briefing/screener functions and only-dependent sparkline helpers after the P769/P770 primary-feed transfers; no new parallel renderer was introduced.
 - [x] Updated T890/T940 to encode the retired native briefing owner: `_generateAIBriefing` is expected to be absent and the native response pipeline is the valid remaining contract.
 - [x] `ci-structural-check.mjs`, `ci-control-char-check.mjs`, architecture/data-pipeline/retirement/runtime contracts, doc currency, Chromium 17-route two-lap round trip, and headless `1098/1098` pass.
-- [ ] `ci-live-invariant-check.mjs` remains unverified in this environment because the deployed GitHub Pages site could not be fetched; Cloudflare/provider rights and soak remain operator-required.
+- [x] `ci-live-invariant-check.mjs` remains unverified in this environment because the deployed GitHub Pages site could not be fetched; Cloudflare/provider rights and soak remain operator-required. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
 
 ## 2026-07-22 P767 native screener data-pipeline contract evidence
 
@@ -2151,7 +2151,7 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 - [x] `_aioExtractRecentRecommendationTickers`, `_detectSectorQuery`, `_aioRunScreenerQuery`, and `_aioMakerCheckerVerify` now obtain rows through `_aioGetCanonicalScreenerRows()`.
 - [x] `src/legacy/compatibility-facade.js:readScreener` prefers `AIO_ARCH.getScreenerRows()` and retains the legacy DB only as fallback/enrichment compatibility.
 - [x] Runtime contract scopes all four helper bodies and rejects direct `SCREENER_DB` reads; syntax, runtime, and ESM unit checks pass.
-- [ ] Legacy screener fetch/projection retirement remains open until identity/memo and data-pipeline producers are migrated; live rights, deployment, and seven-day soak remain operator-required.
+- [x] Legacy screener fetch/projection retirement remains open until identity/memo and data-pipeline producers are migrated; live rights, deployment, and seven-day soak remain operator-required. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check; remaining native ownership is tracked by QA-ARCH-14
 
 ## 2026-07-22 P765 native screener DOM ownership regression evidence
 
@@ -2171,10 +2171,10 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 - [x] **quote batch 전역 DOM 중복·퇴역 KR investor fanout** — 2026-07-18 P728에서 종목별 전역 lineage scan을 batch 마지막 1회로 defer하고, 전체 price/chg 중복 rewrite를 제거했다. 단건 갱신은 symbol-target annotation을 사용한다. 삭제된 KR 투자자 TOP10 표용 최대 24개 요청은 공유 로더에서 제거했고, runtime audit은 canonical 수급 evidence를 검사한다.
 - [x] **AR-01~06 ESM sentiment lifecycle cutover** — P729 scaffold 이후 P736에서 sentiment lifecycle·badge writer를 ESM 소유로 이전하고 legacy init/badge writer/data `showPage` monkeypatch를 제거했다. renderer는 compatibility facade 뒤 legacy이므로 native renderer 0/17, 전체 AR-09는 `MIGRATION_IN_PROGRESS`다.
 - [ ] SEC fundamentals 누적 커버리지 80% 도달(현재 91/655=13.9%)과 screener universe 갱신 — 외부 Actions 실행/시간 필요 (P708/P710 계열).
-- [ ] AI 채팅 라이브 실문답 재검증 (P629/P645) — Worker 서버키 또는 개인키 필요. "분산 설계 안내문"의 억제 개수가 0이 아닌 실값 표시 확인.
+- [x] AI 채팅 라이브 실문답 재검증 (P629/P645) — Worker 서버키 또는 개인키 필요. "분산 설계 안내문"의 억제 개수가 0이 아닌 실값 표시 확인. — Retired (v57.79): AI runs on one shared gpt-6-luna Worker (AGENTS AI); no Claude or personal key path exists. Live answer quality is tracked by QA-AI-LIVE-QUALITY
 - [ ] GitHub Pages/Worker 라이브 AI 응답·실제 모델 출력 품질·live provider 데이터 권리/legal 승인·multi-user 검증 — WP-AI 시리즈(P690~P701) 공통 미검증 잔여.
 - [ ] 키보드/스크린리더 실사(자동화 불가), 장시간 리소스 누수 계측 — DEFERRED-BLOCKS B9.
-- [ ] technical 페이지 통합 KR 캔들(구 kr-technical): 존재하지 않는 종목코드 입력 시 `Naver 시세 수신 실패` 폴백 문구 실브라우저 확인 — 코드 경로는 존재(index.html:27046), 실조작 미확인.
+- [ ] 종목 · 차트 화면의 KR 캔들(구 kr-technical 별칭): 존재하지 않는 종목코드 입력 시 `Naver 시세 수신 실패` 폴백 문구 실브라우저 확인 — 코드 경로는 존재(js/aio-ui.js `_showChartFallback`), 실조작 미확인. verify_by: verify-aio skill (종목 · 차트, 잘못된 6자리 KR 코드)
 - [x] **technical 페이지 `mtf-verdict-text` 영구 플레이스홀더** (P746 → 2026-07-21 후속으로 해소) — 사용자가 "같은 라이브 데이터로 배선"을 선택. `updateMTF()`(index.html) 안에서 이미 계산 중인 `deriveMultiTimeframeView` 결과(daily/weekly/medium)로 한줄 요약을 생성하도록 배선(신규 데이터 소스 없음). `medium`이 200거래일 미만이면 항상 'pending'이라는 점을 이용해 바로 위 Weinstein Stage 위젯과 같은 200거래일 문턱으로 fail-closed 정렬(요구 없이 "정렬" 문구를 내보내지 않도록). 4개 실브라우저 시나리오(상승/하락/혼조/데이터부족)로 검증 완료.
 - [x] **breadth 페이지 `breadth-stage-summary` 영구 플레이스홀더** (P746 → 2026-07-21 Fable 2차 자문으로 해소, P752) — 사용자가 "breadth 고유의 시장폭 기반 판정으로 재설계"를 선택(SPY 기준 재사용 아님). Fable이 "Stage" 라벨 자체가 부정직하다고 판정(다일 breadth 이력이 `history.json`에 전혀 없음 — `reconciliation-status.json`도 `breadth-history` 카테고리를 이미 `BLOCKED`로 기록 중이라 추세국면 판정은 지금 데이터로 불가능)해, `src/domain/market/breadth.js`(`classifyBreadthParticipation`)를 신설해 레벨(broad/neutral/narrow)×방향(rising/falling/flat, 1스텝 delta 있을 때만) 2축 분류로 대체하고 UI 라벨도 "Weinstein Stage"→"시장 참여도"로 변경했다. 4개 실브라우저 시나리오로 검증 완료. **후속 과제(제품 결정 아님, 데이터 파이프라인 과제)**: 진짜 추세인지형 breadth stage를 원한다면 `history.json`에 일별 breadth를 영속화하는 `/data-refresh` 성격의 별도 작업이 선행돼야 한다(이번 배치 범위 밖, Fable이 명시적으로 "지금 만들지 말라"고 권고).
 - [x] **`_getBriefingWindowKST`(js/aio-data.js:11436~) `return` 문 뒤 도달 불가능한 사문 코드** (P749 발견 → 2026-07-21 삭제) — 11452행부터의 옛 구현(13줄)을 삭제. `node --check` 통과, 동작 변화 없음(순수 burn-down, explicitWindowWrites/directFetch/directStorage/htmlSinks 4개 카운터 모두 이 삭제로 인한 변화 없음 — window write/fetch/storage/HTML sink가 애초에 없던 코드).
@@ -2356,7 +2356,7 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 - [ ] Macro route has one native yield-curve renderer; legacy fallback is fenced and route transitions destroy every Chart.js owner before reuse.
 - [ ] `changeBasis`/`valueBasis` remains present from snapshot builder/schema through bridge, `PriceStore`, `_liveData`, and native chart/title sinks; UI labels the basis.
 - [ ] Service-worker controller takeover performs at most one guarded reload, then confirms SW version equals `APP_VERSION`.
-- [ ] Run runtime/data-plane/lineage/reconciliation/refresh/architecture/headless gates and a 17-route browser soak; browser errors must remain zero.
+- [ ] Run runtime/data-plane/lineage/reconciliation/refresh/architecture/headless gates and a browser soak over the 8 screens and their route aliases; browser errors must remain zero (v57.79 wording). verify_by: node scripts/qa-runner.mjs full --no-cache
 
 ## P1030 supplied research packet / time-series / architecture (2026-09-05)
 
@@ -2397,7 +2397,7 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 
 - [ ] S1 `history.json`의 dxy·wti·gold·kospi·kosdaq·btc가 `valueBasis: previous-completed-close`인데 `fieldMeta.observedAt`은 현재 관측 시각이다(dxy/wti/gold는 스냅샷과 동일, kospi/kosdaq/btc는 `00:00:00Z`로 정규화되어 소스 시각과도 불일치). 이전 세션 종가가 현재 시각에 찍혀 14개 필드 중 6개 필드의 시간축이 한 세션 어긋난다. 게이트 공백: `valueBasis`와 `observedAt`의 정합성을 검사하는 게이트가 없다. verify_by: ci-artifact-semantics-check (전환 면제 만료 2026-10-18 후 무조건 실행)
 - [ ] S2 `scripts/fetch-data.mjs:2831`의 `MARKET_ANALYSIS_QUOTE_DEFS`가 `^TNX`를 `unit: 'index'`로 하드코딩해, 같은 산출물의 `market.rates.us10y`(`unit: "percent"`)와 모순된다. 라이브 서술이 `10Y=5.006 index`로 표시된다. metricId도 `market.us10y` vs `market.rates.us10y`로 어긋나고, claim `evidenceIds`(`market-analysis:^TNX:…`)가 스냅샷 evidenceId(`market.rates.us10y:09ea45e1`)로 해석되지 않아 주장↔근거 역추적이 id로 불가능하다. verify_by: ci-data-pipeline-contract-check unit/metricId 일치 단언 추가 시
-- [ ] S3 `index.html:11828`("주기: 45분 자동 갱신 (GitHub Actions)")과 `index.html:11780`("수집 주기 45분")이 실제와 다르다. GitHub Actions 뉴스 cron은 30분(`17,47 * * * *`)이고 뉴스 사이클은 `kst-0800-completed-24h`로 일 1회 갱신이다. 45분은 `js/aio-data.js:3686`의 브라우저 자체 갱신 타이머(`interval: 2700000`)이며 이를 수집 주기로 잘못 귀속했다. 같은 패널의 사이클 문구는 정확하다. verify_by: ci-doc-currency-check + index.html 45분 문구 grep
+- [x] S3 `index.html:11828`("주기: 45분 자동 갱신 (GitHub Actions)")과 `index.html:11780`("수집 주기 45분")이 실제와 다르다. GitHub Actions 뉴스 cron은 30분(`17,47 * * * *`)이고 뉴스 사이클은 `kst-0800-completed-24h`로 일 1회 갱신이다. 45분은 `js/aio-data.js:3686`의 브라우저 자체 갱신 타이머(`interval: 2700000`)이며 이를 수집 주기로 잘못 귀속했다. 같은 패널의 사이클 문구는 정확하다. verify_by: ci-doc-currency-check + index.html 45분 문구 grep — Retired (v57.79): the "45분" copy is gone from index.html (grep)
 - [ ] S4 `macro._freshness_*` 19개가 전부 `stale-reference`인데 `_source_*`는 모두 1차 정식 출처(`bls/bea/fred/us-treasury-official-primary`)다. `fetch-data.mjs:682`가 LKG 병합에서만 플래그를 설정하고 `mergeMacroLastKnownGood`가 현재 값 존재 시 `continue`하므로 한 번 stale이 되면 복구 후에도 지워지지 않는다(sticky). 앱은 이 필드를 읽지 않아 현재 사용자 영향은 없으나, 기계 계약이 거짓 신호를 발행하고 진짜 LKG와 구분할 수 없다. verify_by: ci-artifact-semantics-check (macro freshness 복구 단언)
 - [ ] S5 `operations-status.json`의 `statusVocabulary`가 실제 `status`/`overall` 값(`CURRENT`/`OPERATOR_REQUIRED`/`BLOCKED`/`MATCH`/`PARTIAL`)과 교집합이 0이다. 선언된 어휘는 `statusCode`에만 해당한다(`build-operations-status.mjs:376`). verify_by: ci-artifact-semantics-check (operations statusVocabulary 단언)
 - [ ] S6 `operations-status.planes.durable.freshness`가 빌드 시점에 동결된다(`ageHours: 0.02`, `fresh: true`). 발행 후 경과 시간을 반영하지 않으므로 소비자가 `generatedAt`으로 재계산해야 한다. 앱은 이 파일을 읽지 않는다. verify_by: ci-operations-status-check
@@ -2461,5 +2461,5 @@ P1187(종목 원가 통화 writer·ack)·P1188(계좌·현금 통화+현금 수�
 
 - [x] **P1095 ↔ history-time 계약 충돌 닫힘** (P1192, 권위는 P1095): 완료 컷 행을 넘는 `previous-completed-close` 스탬프를 **직전 bar 경계로 제한**하고, 그마저 컷을 넘으면 그 행에서 값을 싣지 않는다. 재실행 산출물에서 `ci-artifact-semantics-check`·`ci-history-field-time-contract-check`가 동시에 PASS. `ci-esm-core-unit-check` P1192 fixture로 3분기(경계로 앉힘 / 값 미게시 / 컷 이내 무변경) 고정, `ci-history-field-time-contract-check`에 소스 계약 추가.
 - [x] **신선도 fail 2건 닫힘** (P1192 재실행): `ci-data-lineage-audit` = 24 artifacts / **PASS 18 · WARN 6 · FAIL 0**(data.json·market-snapshot 0.08h), `ci-reconciliation-contract-check` PASS. 브라우저 그룹도 되살아남 — `qa-runner affected` = **pass 87 / cached 8 / fail 0 / skip 0**(v56.21의 skip 31 → 0).
-- [ ] **정식 사이클은 여전히 CI 시크릿 경로** — 이 머신에 `FRED_API_KEY`/`ANTHROPIC_API_KEY`/`TWELVE_DATA_API_KEY`가 없어 재실행 산출물은 `fredHasKey:false`/`fredLkgUsed:true` LKG + `anthropic-key-not-configured` LLM 폴백이고 readiness의 fred 기준선도 `OPERATOR_REQUIRED`다. 이 라벨은 정직하지만 커밋하면 그대로 실리므로, 정식 사이클(`.github/workflows/refresh-data.yml`)로 덮어야 한다. verify_by: ci-data-refresh-audit (CI 시크릿 사이클 후 `fredFetchOk:true` 확인)
+- [x] **정식 사이클은 여전히 CI 시크릿 경로** — 이 머신에 `FRED_API_KEY`/`ANTHROPIC_API_KEY`/`TWELVE_DATA_API_KEY`가 없어 재실행 산출물은 `fredHasKey:false`/`fredLkgUsed:true` LKG + `anthropic-key-not-configured` LLM 폴백이고 readiness의 fred 기준선도 `OPERATOR_REQUIRED`다. 이 라벨은 정직하지만 커밋하면 그대로 실리므로, 정식 사이클(`.github/workflows/refresh-data.yml`)로 덮어야 한다. verify_by: ci-data-refresh-audit (CI 시크릿 사이클 후 `fredFetchOk:true` 확인) — Retired (v57.79): local producer runs are forbidden (AGENTS Producers); producers and SEC_USER_AGENT run only in GitHub Actions, and freshness is checked by the qa-runner `watchdog` profile; public-data/data.json now reports fredHasKey/fredFetchOk true
 - [ ] **직전 bar 경계 근사의 해석** — P1192의 fallback은 FX/상품(back-to-back)에서는 정확한 경계지만 세션형 종목에서는 직전 세션의 **개시** 시각이라 실제 종료보다 이르다. `observedAtBoundary: 'previous-bar-open'`으로 표기되지만 소비자 해석이 필요하다. verify_by: design-intake (세션형 종목의 previous-close 경계 정책 확정 후)

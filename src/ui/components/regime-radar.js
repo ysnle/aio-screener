@@ -63,16 +63,17 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
   // axis's absolute verdict and its position in its own past point opposite ways, say so on the face of the chart.
   const stateOf = new Map((verdicts || []).map((row) => [row.id, row.state]));
   const gaps = model.axes.filter((axis) => axis.now != null && ((stateOf.get(axis.id) === 'favorable' && axis.now <= 25) || (stateOf.get(axis.id) === 'neutral' && axis.now <= 15) || (stateOf.get(axis.id) === 'burden' && axis.now >= 75)));
-  // v57.50 D22: each axis has its own comparison window (추세 69, 시장 폭 182 sessions while their records are short), so the
-  // sentence names that window instead of "최근 1년".
-  const windowOf = (axis) => axis.sample ? `지난 ${axis.sample}거래일${axis.sample >= 252 ? '(약 1년)' : ''}` : '비교 표본';
-  // Live review 2026-10-14: one short paragraph per axis (two axes joined into one 274자 block before).
+  // v57.79 (UI review): one conclusion line instead of one paragraph per axis — the table beside the radar already shows
+  // each axis's verdict next to its position and 5/20-day change, and the cards below carry the evidence, so a per-axis
+  // paragraph was the same six-axis reading a third time. The comparison window per axis stays in "숫자 읽는 법".
   if (gaps.length) {
-    section.append(...gaps.map((axis) => el(doc, 'p', stateOf.get(axis.id) === 'favorable'
-      ? `${axis.label}: 수준은 양호하지만 ${windowOf(axis)} 기준으로는 나빠진 편(${axis.now})입니다.`
-      : stateOf.get(axis.id) === 'neutral'
-        ? `${axis.label}: 판정은 중립(절대 수준)이지만 ${windowOf(axis)} 안에서는 가장 나쁜 쪽 가까이(${axis.now})까지 밀렸습니다${axis.change20 != null ? ` (20거래일 ${axis.change20 >= 0 ? '+' : ''}${axis.change20})` : ''}${axis.change20 != null && axis.change20 > 0 ? ' — 최근 20거래일은 나아지는 쪽이지만 아직 바닥권이라, 다음 갱신에서 반등이 이어지는지 먼저 확인할 지표입니다.' : ' — 이 속도가 이어지면 판정이 부담으로 바뀔 수 있어 다음 갱신에서 먼저 확인할 지표입니다.'}` // v57.54 review: an improving +20일 move no longer reads "이 속도가 이어지면 부담으로"
-      : `${axis.label}: ${windowOf(axis)} 기준으로는 나아진 편(${axis.now})이지만 수준은 아직 부담입니다.`, 'regime-radar-gap')));
+    const word = { favorable: '양호', neutral: '중립', burden: '부담' };
+    const low = gaps.filter((axis) => stateOf.get(axis.id) !== 'burden');
+    const high = gaps.filter((axis) => stateOf.get(axis.id) === 'burden');
+    const names = (rows) => rows.map((axis) => axis.label).join(', ');
+    section.append(el(doc, 'p', `판정과 지난 기록 속 위치가 엇갈리는 지표: ${gaps.map((axis) => `${axis.label}(판정 ${word[stateOf.get(axis.id)]} · 위치 ${axis.now})`).join(', ')}.`
+      + `${low.length ? ` 위치가 바닥권인 쪽(${names(low)})을 다음 갱신에서 먼저 확인합니다.` : ''}`
+      + `${high.length ? ` ${low.length ? '반대로 ' : ''}위치가 나아진 쪽(${names(high)})도 수준은 아직 부담입니다.` : ''}`, 'regime-radar-gap'));
   }
   const body = el(doc, 'div', null, 'regime-radar-body');
   body.append(radarSvg(doc, model));

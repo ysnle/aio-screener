@@ -426,7 +426,7 @@ function resetPortfolioPin() {
   var storage = _AioVault.getStorage(), hasProtection = !!storage.getItem('aio_vault_salt') || !!storage.getItem(PF_PIN_KEY);
   if (!hasProtection) { showToast('설정된 PIN이 없습니다.'); return; }
   var isUnlocked = typeof _AioVault !== 'undefined' && _AioVault.isUnlocked();
-  var warnMsg = isUnlocked ? '포지션·원장·환율 거래를 평문으로 저장하고 PIN 보호를 해제합니다. API 키 Vault 보호는 유지합니다. 계속하시겠습니까?' : 'PIN을 모르면 포지션·원장·환율 거래를 복구할 수 없어 모두 삭제합니다. API 키 Vault 보호는 유지합니다. 계속하시겠습니까?';
+  var warnMsg = isUnlocked ? '포지션·원장·환율 거래를 평문으로 저장하고 PIN 보호를 해제합니다. 자체 프록시 주소의 PIN 보호는 유지합니다. 계속하시겠습니까?' : 'PIN을 모르면 포지션·원장·환율 거래를 복구할 수 없어 모두 삭제합니다. 자체 프록시 주소의 PIN 보호는 유지합니다. 계속하시겠습니까?';
   showConfirmModal('PIN 보호 해제', warnMsg, async function() {
     try {
       var storage = _AioVault.getStorage(), originals = {}, values = {};

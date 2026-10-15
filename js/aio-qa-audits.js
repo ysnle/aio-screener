@@ -1981,56 +1981,6 @@ window.AIO.getPagePurposeRatioAudit = function() {
   };
 };
 
-window.AIO.getScenarioFreshnessAudit = function() {
-  var reg = window.AIO_SCENARIO_REGISTRY;
-  if (!reg) return { status: 'error', issueCount: 0, issues: ['SCENARIO_REGISTRY undefined'] };
-  if (reg.status === 'unavailable') {
-    return {
-      status: 'unavailable',
-      available: false,
-      issueCount: 0,
-      issues: [],
-      staleScenarios: [],
-      probabilitySum: null,
-      generatedAt: new Date().toISOString()
-    };
-  }
-  var nowTs = Date.now();
-  var issues = [];
-  var staleScenarios = [];
-  // v50.16: scenarios + signalShortTerm 두 블록 모두 점검 (이전엔 scenarios만 → signalShortTerm 9일 stale 미탐지)
-  function checkBlock(blockName, block, threshold) {
-    if (!block) return;
-    Object.keys(block).forEach(function(k) {
-      var s = block[k];
-      if (!s || !s.lastUpdated) return;
-      var ts = new Date(s.lastUpdated).getTime();
-      if (isNaN(ts)) { issues.push(blockName + '.' + k + ': invalid lastUpdated'); return; }
-      var ageDays = Math.floor((nowTs - ts) / 86400000);
-      if (ageDays > threshold) {
-        staleScenarios.push({ id: blockName + '.' + k, label: s.label, ageDays: ageDays });
-        issues.push(blockName + '.' + k + ' age=' + ageDays + 'd > threshold ' + threshold + 'd');
-      }
-    });
-  }
-  checkBlock('scenarios', reg.scenarios, reg.staleDaysThreshold);
-  checkBlock('signalShortTerm', reg.signalShortTerm, reg.signalStaleDaysThreshold || 14);
-  var sumCheck = reg.validateSum();
-  if (!sumCheck.valid) issues.push('scenarios probability sum ' + window._aioSafeFixed(sumCheck && sumCheck.sum, 3, 'n/a') + ' ≠ 1.000');
-  if (typeof reg.validateSignalSum === 'function') {
-    var sigSum = reg.validateSignalSum();
-    if (!sigSum.valid) issues.push('signalShortTerm probability sum ' + window._aioSafeFixed(sigSum && sigSum.sum, 3, 'n/a') + ' ≠ 1.000');
-  }
-  return {
-    status: issues.length ? 'warn' : 'ok',
-    issueCount: issues.length,
-    issues: issues,
-    staleScenarios: staleScenarios,
-    probabilitySum: sumCheck.sum,
-    generatedAt: new Date(nowTs).toISOString()
-  };
-};
-
 // ─────────────────────────────────────────────────────────────────
 // v50.16 근본 회귀 방지: 날짜 박힌 이벤트 런웨이/타임라인 stale 자동 감지 (self-validating)
 // AIO_EVENT_RISK_CONTEXT 등 정적 이벤트 타임라인이 조용히 과거가 되는 것을 방지.
@@ -2434,8 +2384,7 @@ window.AIO.getAutoOpsReadiness = function(opts) {
   trace('deep-review-done');
   var fourthFifthPass = full && window.AIO.getFourthFifthPassAudit ? window.AIO.getFourthFifthPassAudit() : null;
   trace('fourth-fifth-done');
-  // v50.16 근본 회귀 방지: 시나리오(scenarios+signalShortTerm) + 이벤트 타임라인 stale 자동 감지 (이전 orphan/미커버 갭 차단)
-  var scenarioFreshness = full && window.AIO.getScenarioFreshnessAudit ? window.AIO.getScenarioFreshnessAudit() : null;
+  // v50.16: 이벤트 타임라인 stale 자동 감지. v57.79: the scenario freshness audit left with AIO_SCENARIO_REGISTRY.
   var eventTimelineStaleness = full && window.AIO.getEventTimelineStalenessAudit ? window.AIO.getEventTimelineStalenessAudit() : null;
   // v50.42: 선순환 — 단일 두뇌(marketState) 신선도/충실 + 크로스-페이지 연결(뉴스) 형식화
   var marketStateCoherence = window.AIO.getMarketStateCoherenceAudit ? window.AIO.getMarketStateCoherenceAudit() : null;
@@ -2492,7 +2441,6 @@ window.AIO.getAutoOpsReadiness = function(opts) {
   if (fullSurfaceAudit && fullSurfaceAudit.status === 'fail') issues.push(fullSurfaceAudit.issueCount + ' full surface audit issue(s) [P358/R124]');
   if (deepReviewAudit && deepReviewAudit.status === 'fail') issues.push(deepReviewAudit.issueCount + ' deep review issue(s) [P359/R125]');
   if (fourthFifthPass && fourthFifthPass.status === 'fail') issues.push(fourthFifthPass.issueCount + ' fourth/fifth pass issue(s) [P377/R135]');
-  if (scenarioFreshness && scenarioFreshness.issueCount) issues.push(scenarioFreshness.issueCount + ' stale scenario(s) [v50.16 scenario+signalShortTerm]: ' + (scenarioFreshness.staleScenarios || []).slice(0, 4).map(function(s){ return s.id + '=' + s.ageDays + 'd'; }).join(','));
   if (eventTimelineStaleness && eventTimelineStaleness.issueCount) issues.push(eventTimelineStaleness.issueCount + ' event timeline staleness [v50.16]: ' + eventTimelineStaleness.issues.slice(0, 2).join(' | '));
   // v50.25/WO-5: 정적 내러티브 레짐 드리프트 (작성 시점 ↔ 현재 시장 레짐 급변 → 정적 분석 텍스트 강등)
   var narrativeRegimeDrift = full && window.AIO.getNarrativeRegimeDriftAudit ? window.AIO.getNarrativeRegimeDriftAudit() : null;
@@ -2513,7 +2461,7 @@ window.AIO.getAutoOpsReadiness = function(opts) {
       'inlineThresholdTable', 'crossPageIndicator', 'critical10MarketSurface', 'critical10MarketSituation',
       'critical10EvidenceMatrix', 'newsSurface', 'evidenceDeploymentGate', 'dataTruth',
       'essenceAlignment', 'fullSurfaceAudit', 'deepReviewAudit', 'fourthFifthPass',
-      'scenarioFreshness', 'eventTimelineStaleness', 'narrativeRegimeDrift'
+      'eventTimelineStaleness', 'narrativeRegimeDrift'
     ],
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
@@ -2953,8 +2901,8 @@ window.AIO.assertXssEscapeCoverageAudit = function() {
     var fnNames = [
       'openChatHistory', 'analyzeKrTickerDeep', // v57.77: analyzeKrIndex and renderKrIssues retired
       'chatRenderChips', 'updateAIPanelContext',
-      'renderPortfolio', 'renderHomeFeed', 'renderBriefingFeed'
-    ]; // v57.77: retired renderKrIssues (P725) and renderFeed no longer counted as scanned functions
+      'renderPortfolio', 'renderBriefingFeed'
+    ]; // v57.77: retired renderKrIssues (P725) and renderFeed no longer counted as scanned functions; v57.79: renderHomeFeed stub removed
     var found = [];
     var unsafeHits = 0;
     var totalAssignments = 0;
@@ -3821,7 +3769,7 @@ window.AIO.getDataPipelineAudit = function() {
   var chartA11yGaps = canvasA11yGaps();
   var requiredFns = [
     'fetchWithTimeout', 'fetchViaProxy', 'fetchLiveQuotes', 'applyLiveQuotes',
-    'applyDataSnapshot', 'fetchAllNews', 'renderHomeFeed', // v57.77: renderFeed does not exist; it reported a permanent missing function
+    'applyDataSnapshot', 'fetchAllNews', // v57.77: renderFeed does not exist; v57.79: the renderHomeFeed no-op stub was removed
     'renderBriefingFeed', 'computeTradingScore', 'computeMarketHealth',
     'updateBenchmarkChart'
   ];
@@ -3869,7 +3817,7 @@ window.AIO.getDataPipelineAudit = function() {
   if (serverPublicData) {
     if (!serverPublicData.newsOk) issues.push('server public-data news backstop unavailable');
     if (!serverPublicData.fearGreedOk) issues.push('server public-data Fear & Greed unavailable');
-    if (!serverPublicData.fredHasKey) issues.push('server FRED_API_KEY not configured; macro auto-refresh is client-key dependent');
+    if (!serverPublicData.fredHasKey) issues.push('server FRED_API_KEY not configured; macro auto-refresh is off');
     else if (!serverPublicData.fredFetchOk) issues.push('server FRED fetch failed despite configured key');
     if (!serverPublicData.marketAnalysisOk) issues.push('server AI market analysis unavailable; shared Worker configuration, budget or provider response needs verification');
     if (serverPublicData.telegramDigestStatus && serverPublicData.telegramDigestStatus !== 'ready') issues.push('telegram digest artifact not ready: ' + serverPublicData.telegramDigestStatus);

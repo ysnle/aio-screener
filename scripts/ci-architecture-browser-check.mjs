@@ -471,7 +471,9 @@ try {
   // split, and the price chart is part of 요약 next to the price/theme/factor rail.
   const tickerLayout = await page.evaluate(() => ({
     innerTabs: document.querySelectorAll('#page-ticker [data-ticker-tab]').length,
-    chartVisible: !!document.getElementById('ticker-price-chart')?.getClientRects().length,
+    // v57.79: the price panel is visible and shows exactly one state — the chart canvas or the loading/error line, never both.
+    chartVisible: !!document.getElementById('ticker-price-panel')?.getClientRects().length
+      && (!!document.getElementById('ticker-price-chart')?.getClientRects().length !== (getComputedStyle(document.getElementById('ticker-chart-loading')).display !== 'none')),
     externalChart: !!document.getElementById('tv-widget-ticker'),
     hubTabs: [...document.querySelectorAll('#aio-hub-tabs .aio-hub-tab')].map((tab) => tab.dataset.arg)
   }));

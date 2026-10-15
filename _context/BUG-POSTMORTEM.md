@@ -6,6 +6,42 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1827 - v57.79 - Phone and chart layout defects found in the screen review (2026-10-15)
+
+- symptom/reproduction: On phones the home schedule time column was 0px wide (dates stacked one character per line with a stray "1"); the stock chart showed an error, a ghost fallback circle and a grey square at once; the stock hero showed "—" although the last close was on the page; the 코스피 chip showed an unlabelled delayed quote beside the close.
+- root_cause: A grid-column:2 rule created an extra column in the one-column phone grid; the legacy canvas fallback painted onto the native ticker canvas; the hero had no last-close fallback; the 코스피 chip was a generic live sink without its time and basis.
+- fix: The schedule row spans the last column; the legacy fallback skips native ticker canvases and the canvas hides when there is no chart; the hero shows the last close with its date; a native 코스피 chip shows time and basis or falls back to the dated close.
+- violated_rule: Responsive layout and one state at a time; values carry their basis.
+- prevention: ci-esm-core-unit-check pins the chip cases; ci-architecture-browser-check asserts exactly one of canvas/loading line is visible (v57.79).
+- verification/residual: node scripts/ci-architecture-browser-check.mjs; node scripts/ci-responsive-browser-check.mjs
+
+## P1826 - v57.79 - Internal lineage metadata appeared as a visible reader card (2026-10-15)
+
+- symptom/reproduction: On 테마 · 섹터 a box reading "rrg-canvas · derived · reference-only" appeared over the sector rotation text on load; Korean theme sinks and the screener boundary note showed similar English lineage tokens on hover.
+- root_cause: annotateLiveDataSinks and the screener wrote lineage tokens into title, and value-basis.js turns any [title] into the visible basis card (pointerover fires under a resting cursor).
+- fix: Lineage goes to data-aio-lineage; title carries reader text only.
+- violated_rule: No developer copy on user surfaces (AGENTS Screen design).
+- prevention: ci-esm-core-unit-check asserts aio-core no longer writes lineage into title (v57.79).
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs
+
+## P1825 - v57.79 - A manual refresh kept serving pre-refresh validation artifacts for up to 6 hours (2026-10-15)
+
+- symptom/reproduction: After a forced refresh, a remounted screener 검증 tab and the fiscal read kept the validation status, backtest history and candidate archive held before the refresh until maxAgeMs (1-6 h) expired.
+- root_cause: v57.77 made the bound-fetch cache hit for the first time; the forced-refresh path re-read screener.json only and never cleared the shared artifact store.
+- fix: A forced refresh clears the held artifacts (without aborting in-flight requests), so the next read fetches the newly published files.
+- violated_rule: A manual refresh must show newly published data.
+- prevention: ci-artifact-cache-check asserts a no-abort clear makes the next read fetch again (v57.79).
+- verification/residual: node scripts/ci-artifact-cache-check.mjs
+
+## P1824 - v57.79 - Past-frequency lines turned 3-9 cases into hit rates and "mostly" claims (2026-10-15)
+
+- symptom/reproduction: Scenario past-frequency text printed "비슷한 때 N%" next to the base rate and the crossroads bridge said "과거 표본에서는 이후 주가가 대체로 올랐습니다" from as few as 3 non-overlapping cases.
+- root_cause: analogs.js and macro-crossroads.js used a floor of 3 cases for rates, while the screener conditional evidence already refused rates below 10; no app-wide sample rule existed.
+- fix: Below 10 cases only counts and the median are shown; the "mostly" bridge needs 10+ cases and 10-29 carry a small-sample note; AGENTS Likelihood states the floor.
+- violated_rule: AGENTS Likelihood: past frequency with sample size; small samples must not read as frequencies.
+- prevention: ci-scenario-guidance-fixture asserts no hit-rate percentage and no bridge below 10 cases (v57.79).
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs
+
 ## P1823 - v57.77 - The artifact cache never hit and the screener re-downloaded 3 MB on every visit (2026-10-15)
 
 - symptom/reproduction: Every screener entry re-fetched screener.json (3 MB), the universe and validation status, and recomputed ranks; backtest-history.json was re-read within seconds.

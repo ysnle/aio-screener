@@ -98,6 +98,7 @@ export function frequencyText(freq, label, { source = 'AIO 종가 기록' } = {}
   const span = `${String(freq.from || '').slice(0, 4)}~${String(freq.to || '').slice(0, 7)}`;
   if (freq.n < 3) return `${label}: ${source}(${span})에서 같은 움직임이 ${freq.n}번뿐이라 빈도로 말하지 않습니다.`;
   const signed = (value) => `${value > 0 ? '+' : ''}${value}%`;
-  const base = Number.isFinite(freq.baseUpPct) ? ` 비슷한 때 ${Math.round(freq.up / freq.n * 100)}% · 같은 기록 전체 거래일에서는 ${freq.baseUpPct}%가 올라, 둘의 차이가 이 조건이 더하는 정보입니다.` : '';
+  // v57.79: a percentage needs at least 10 non-overlapping cases; below that the counts stand alone.
+  const base = Number.isFinite(freq.baseUpPct) && freq.n >= 10 ?` 비슷한 때 ${Math.round(freq.up / freq.n * 100)}% · 같은 기록 전체 거래일에서는 ${freq.baseUpPct}%가 올라, 둘의 차이가 이 조건이 더하는 정보입니다.` : '';
   return `${label}: ${source}(${span})의 겹치지 않는 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 ${hasFinalConsonant(freq.subject || 'S&P 500') ? `${freq.subject || 'S&P 500'}이` : `${freq.subject || 'S&P 500'}가`} 올랐습니다 (중앙값 ${signed(freq.median)}${freq.p25 != null && freq.n >= 8 ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''}).${base}${freq.n < 10 ? ' 표본이 작아 경향 참고용입니다.' : ''}`;
 }

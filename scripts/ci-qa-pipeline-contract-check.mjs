@@ -165,7 +165,7 @@ check('P1311/R657/QA-OPS-01 alert policies use 24h, two completed exchange sessi
     && operationsAlertPolicyConfig.alerts.siteUnavailable.conditionalEvidence.required.join('|') === 'outageStartedAt'
     && operationsAlertPolicyConfig.alerts.coreArtifactStaleness.staleCompletedSessionsThreshold === 2
     && operationsAlertPolicyConfig.alerts.aiDailyUsage.thresholdPercent === 80
-    && operationsAlertPolicyConfig.alerts.aiDailyUsage.capVariable === 'ANTHROPIC_DAILY_CAP'
+    && operationsAlertPolicyConfig.alerts.aiDailyUsage.capVariable === 'AI_DAILY_CAP'
     && operationsAlertPolicyConfig.alerts.aiDailyUsage.unit === 'requests'
     && operationsAlertPolicyConfig.alerts.aiDailyUsage.dayTimeZone === 'UTC'
     && operationsAlertPolicyConfig.alerts.coreArtifactStaleness.doesNotChangeExistingFreshnessGateHours === 12

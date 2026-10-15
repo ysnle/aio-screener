@@ -40,8 +40,8 @@
     },
     "aiDailyUsage": {
       "id": "ai-daily-usage",
-      "requiredEvidence": ["requestCount", "usageDayUtc", "anthropicDailyCap", "now"],
-      "capVariable": "ANTHROPIC_DAILY_CAP",
+      "requiredEvidence": ["requestCount", "usageDayUtc", "aiDailyCap", "now"],
+      "capVariable": "AI_DAILY_CAP",
       "unit": "requests",
       "dayTimeZone": "UTC",
       "thresholdPercent": 80,

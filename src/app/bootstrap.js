@@ -22,6 +22,7 @@ import { createPortfolioCommands } from './commands/portfolio.js';
 import { createScreenerCommands } from './commands/screener.js';
 import { selectSentimentSummary } from '../state/selectors/sentiment.js';
 import { createEvidenceStore } from '../data/evidence-store.js';
+import { clearArtifactCache } from '../data/artifact-cache.js';
 import { createEvidence } from '../data/contracts/evidence.js';
 import { selectForDecision, selectForDisplay, selectLastKnown, selectCompleteness } from '../data/selectors/evidence.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
@@ -92,7 +93,6 @@ try { installPanelContexts(window); } catch (_) { /* masters/guide keep the disa
 try { installBackgroundAlerts(window, document); } catch (_) { /* alerts still fire when the tab is visible */ }
 try { installChatSessions(window, document, { storage: (() => { try { return window.localStorage; } catch (_) { return null; } })() }); } catch (_) { /* the panel keeps working without saved conversations */ }
 }
-import { renderSentimentSummaryProjection } from '../ui/projections/sentiment-summary.js';
 import { createInitialAnalysisState, analysisReducer, ANALYSIS_DATA_CLEAR, ANALYSIS_DATA_SET } from '../state/slices/analysis.js';
 import { createAnalysisCommands } from './commands/analysis.js';
 import { createAnalysisProvider } from '../data/providers/analysis.js';
@@ -318,11 +318,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const sentimentProvider = createSentimentProvider({ read: runtimeReaders.readSentiment, now: clock.now });
   const sentimentCommands = createSentimentCommands({ store });
   const syncSentiment = createSentimentOrchestrator({ provider: sentimentProvider, evidenceStore, store, commands: sentimentCommands, snapshotEvidence, clock });
-  const syncSentimentProjection = (patch = null) => {
-    const result = syncSentiment.sync(patch);
-    renderSentimentSummaryProjection(documentRef, selectSentimentSummary(store.getState()));
-    return result;
-  };
+  // v57.79: the cross-route summary projection wrote #fg-score-big/#fg-score-val/#fg-rating-text/#vix-term-regime-text,
+  // which no page creates any more (R705 dead-id scan), so the sync no longer paints anything itself.
+  const syncSentimentProjection = (patch = null) => syncSentiment.sync(patch);
   const ingestSentiment = (patch = {}) => syncSentimentProjection(patch);
   const newsProvider = createNewsProvider({ read: runtimeReaders.readNews, readMeta: () => root?._serverDataMeta || {}, now: clock.now });
   const newsCommands = createNewsCommands({ store });
@@ -568,6 +566,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopColorTheme = documentRef?.body && root?.getComputedStyle ? installColorTheme(root, documentRef) : () => {};
     // P1653/P1655: web search is automatic through the shared Worker; drop the old opt-out and retired personal search keys.
     try { ['aio_web_search_enabled', 'aio_google_cse_key', 'aio_google_cse_cx', 'aio_perplexity_key'].forEach((key) => root.localStorage?.removeItem(key)); } catch (_) { /* storage unavailable */ }
+    // v57.79: the personal data-provider keys (v57.67) and the personal AI key (P1421) are never read; drop their stored values.
+    try {
+      ['aio_claude_api_key', 'aio_rss2json_key', 'aio_av_key', 'aio_finnhub_key', 'aio_fred_key', 'aio_td_key', 'aio_fmp_key',
+        'aio_newsdata_key', 'aio_bok_key', 'aio_kosis_key', 'aio_fred_relay_consent'].forEach((key) => root.localStorage?.removeItem(key));
+    } catch (_) { /* storage unavailable */ }
     const stopConnectionPanel = installConnectionPanel(root, documentRef);
     const stopAskPanel = installAskPanel(root, documentRef);
     const stopResponsiveShell = documentRef?.querySelector ? installResponsiveShell(root, documentRef) : () => {};
@@ -701,6 +704,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       || screenerArtifactReadAt == null || clock.now() - screenerArtifactReadAt >= SCREENER_ARTIFACT_RECHECK_MS;
     const stopScreenerRefresh = compatibilityEvents.on('aio:refresh:done', (event) => {
       const forced = event?.detail?.forceRefresh === true;
+      // v57.79: a manual refresh also drops the held validation/fiscal artifacts (maxAgeMs up to 6h) so a remounted
+      // tab reads the newly published files instead of the pre-refresh copies.
+      if (forced && typeof root.fetch === 'function') clearArtifactCache(root.fetch.bind(root), { abortInFlight: false });
       return syncScreenerData({ refresh: forced || screenerArtifactReadDue() });
     });
     const stopScreenerQuotes = legacy.on('aio:liveQuotes', () => {

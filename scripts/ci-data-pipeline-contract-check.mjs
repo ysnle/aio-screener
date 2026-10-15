@@ -232,13 +232,13 @@ const newsEmptyStart = data.indexOf('현재 조건에서');
 const newsEmptyBlock = newsEmptyStart >= 0 ? data.slice(newsEmptyStart, newsEmptyStart + 1400) : '';
 
 // v57.76: the home news list (and its P1273 headline-only fixture) is retired with the "오늘의 시장" banner; news
-// lives on the 뉴스 screen only. renderHomeFeed stays as a no-op stub (its fetch-path call sites were removed in v57.76) and writes nothing.
+// lives on the 뉴스 screen only. v57.79: the renderHomeFeed no-op stub is gone too (no caller remained).
 {
   const homeStart = html.indexOf('id="page-home"');
   const homeEnd = html.indexOf('id="page-signal"', homeStart);
   const homeHtml = homeStart >= 0 && homeEnd > homeStart ? html.slice(homeStart, homeEnd) : '';
-  const stubAt = data.indexOf('function renderHomeFeed(_items) {}');
-  check('v57.76 home carries no news list and renderHomeFeed writes nothing', homeHtml.length > 0 && homeHtml.indexOf('id="home-news-highlights"') < 0 && homeHtml.indexOf('id="home-market-summary-banner"') < 0 && stubAt >= 0 && data.indexOf('function renderHomeFeed(', stubAt + 1) < 0);
+  const homeFeedDefined = /function\s+renderHomeFeed\s*\(|renderHomeFeed\s*=/.test(data); // text-pin-ok: retirement absence
+  check('v57.76 home carries no news list; v57.79 renderHomeFeed stub removed', homeHtml.length > 0 && homeHtml.indexOf('id="home-news-highlights"') < 0 && homeHtml.indexOf('id="home-market-summary-banner"') < 0 && !homeFeedDefined);
 }
 
 check('refresh workflow runs twice hourly', /cron:\s*'17,47 \* \* \* \*'/.test(refresh));

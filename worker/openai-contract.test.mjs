@@ -138,7 +138,7 @@ async function main() {
     const allowedHealth = await worker.fetch(req(undefined, { path: '/health', method: 'GET', headers: { 'X-AIO-App-Token': 'fixture-public-app-token' } }), appAuth.env);
     const allowedHealthJson = await allowedHealth.json();
     check('P1607 health separates server readiness from caller token acceptance without exposing credentials', deniedHealthJson.ai.ready && deniedHealthJson.ai.appTokenRequired && !deniedHealthJson.ai.appTokenAccepted && allowedHealthJson.ai.appTokenAccepted && !JSON.stringify(allowedHealthJson).includes('fixture-public-app-token'));
-    check('P1607 P1608 health describes personal FRED relay and enabled paid search truthfully', healthJson.relay.credentialModes.fred === 'personal-opt-in' && healthJson.ai.paidWebSearchEnabled === true);
+    check('v57.79 P1607 P1608 health lists operator-secret relays only (personal FRED relay retired) and enabled paid search truthfully', healthJson.relay.credentialModes.bok === 'operator-secret' && healthJson.relay.credentialModes.kosis === 'operator-secret' && !('fred' in healthJson.relay.credentialModes) && healthJson.relay.personalKeyRequired === undefined && !healthJson.relay.providers.includes('fred') && healthJson.ai.paidWebSearchEnabled === true); // text-pin-ok: retirement absence
     check('P1421 malformed budget cannot report ready', (await malformedHealth.json()).ai.ready === false);
     check('P1157/P1421 rate limiter fails before cost', (await worker.fetch(req(), { ...fixture.env, RATE_LIMIT_OPENAI: { limit: async () => ({ success: false }) } })).status === 429);
     check('P1421 Unicode byte limit before dispatch', (await worker.fetch(req({ ...body, input: '한'.repeat(75000) }), fixture.env)).status === 413);
@@ -239,7 +239,7 @@ async function main() {
     const corrupt = harness({ schemaVersion: 2, months: {}, legacyUnknownMonths: {}, days: { ['claude:' + currentDay]: 1 }, reservations: {} });
     check('P1353/P1421 missing dollar ledger cannot silently reopen budget', (await worker.fetch(req(), corrupt.env)).status === 503);
     const privateEnv = { ...fixture.env, AIO_OPERATOR_TOKEN: TOKEN }, privateUsage = await worker.fetch(new Request('https://worker.example/_ops/ai-usage', { headers: { 'X-AIO-Operator-Token': TOKEN } }), privateEnv), privateJson = await privateUsage.json();
-    check('P1312/P1421 private usage scopes browser and Actions together', privateUsage.status === 200 && privateJson.aiDailyCap === 300 && privateJson.anthropicDailyCap === 300 && privateJson.scope === 'all-AIO-browser-and-GitHub-Actions-through-shared-Worker' && !privateUsage.headers.has('Access-Control-Allow-Origin'));
+    check('P1312/P1421 private usage scopes browser and Actions together', privateUsage.status === 200 && privateJson.aiDailyCap === 300 && privateJson.anthropicDailyCap === undefined /* v57.79: legacy alias retired */ && privateJson.scope === 'all-AIO-browser-and-GitHub-Actions-through-shared-Worker' && !privateUsage.headers.has('Access-Control-Allow-Origin'));
     check('P1312/P1421 private usage undiscoverable without token', (await worker.fetch(new Request('https://worker.example/_ops/ai-usage'), privateEnv)).status === 404);
     const wrongOperator = await worker.fetch(new Request('https://worker.example/_ops/ai-usage', { headers: { 'X-AIO-Operator-Token': 'wrong-fixture-token-' + 'x'.repeat(32) } }), privateEnv);
     const operatorPost = await worker.fetch(new Request('https://worker.example/_ops/ai-usage', { method: 'POST', headers: { 'X-AIO-Operator-Token': TOKEN } }), privateEnv);

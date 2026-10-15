@@ -183,7 +183,7 @@ const privateUsage = fixtureFetch({
     schemaVersion: 'aio-operator-ai-usage.v1',
     usageDayUtc: '2026-11-04',
     requestCount: 4,
-    anthropicDailyCap: 5,
+    aiDailyCap: 5,
     privateMarker: PRIVATE_BODY_MARKER
   },
   onCall: (call) => {
@@ -202,7 +202,7 @@ check('P1311/R657/P1312/R658/P1313/R659/QA-OPS-03 the authenticated Worker usage
   observedOperatorHeader && privateUsage.calls.filter((call) => call.url === USAGE_URL).length === 1);
 check('P1311/R657/P1312/R658/P1313/R659/QA-OPS-03 private AI usage evaluates successfully without returning metric fields, response body, or token',
   privateUsageResult.aiDailyUsage.status === 'ALERT'
-  && !/(requestCount|anthropicDailyCap|usagePercent|fixture-operator-token-never-return-this|fixture-private-response-body-never-return-this)/.test(serializedPrivateUsageResult));
+  && !/(requestCount|aiDailyCap|usagePercent|fixture-operator-token-never-return-this|fixture-private-response-body-never-return-this)/.test(serializedPrivateUsageResult));
 check('P1311/R657/P1312/R658/P1313/R659/QA-OPS-03 collector output stays summary-only with an authenticated usage observation',
   outputContainsOnlySummaries(privateUsageResult));
 
@@ -220,7 +220,7 @@ check('P1311/R657/P1312/R658/P1313/R659/QA-OPS-03 malformed private usage respon
   && !JSON.stringify(malformedUsageResult).includes(PRIVATE_TOKEN));
 
 const unavailableUsage = fixtureFetch({
-  usage: { schemaVersion: 'aio-operator-ai-usage.v1', requestCount: 5, anthropicDailyCap: 5 },
+  usage: { schemaVersion: 'aio-operator-ai-usage.v1', requestCount: 5, aiDailyCap: 5 },
   usageStatus: 503
 });
 const unavailableUsageResult = await collectOperationsAlertObservations({
@@ -257,7 +257,7 @@ check('P1311/R657/P1312/R658/P1313/R659/QA-OPS-03 default collection evaluates b
 
 let rejectedPrivateRedirect = false;
 const redirectFixture = fixtureFetch({
-  usage: { schemaVersion: 'aio-operator-ai-usage.v1', usageDayUtc: '2026-11-04', requestCount: 4, anthropicDailyCap: 5 },
+  usage: { schemaVersion: 'aio-operator-ai-usage.v1', usageDayUtc: '2026-11-04', requestCount: 4, aiDailyCap: 5 },
   onCall: (call) => {
     if (call.url === USAGE_URL) rejectedPrivateRedirect = call.redirect === 'error';
   }
