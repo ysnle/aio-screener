@@ -590,7 +590,9 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     // T03/T08 (v57.48 review): the 10/13 artifact published, as verified, "유가 -6.40%인 코스피는 장중 하락" (-6.40% was KOSPI's
     // move) and "금리 -0.08%" (a relative change of the yield). A % move is now checked against the named metric's own
     // changePct under its Korean name too, a rate moves only in bp, and an in-session value needs 장중 + its time.
-    const { validateMarketAnalysisText } = await import('./fetch-data.mjs');
+    // These fixtures test other rules on a -6% KOSPI day; the v57.69 KOSPI-mention rule is checked on its own (P1800).
+    const { validateMarketAnalysisText: validateAll } = await import('./fetch-data.mjs');
+    const validateMarketAnalysisText = (...args) => { const result = validateAll(...args); return { ...result, issues: result.issues.filter((issue) => issue !== 'korea-move-unaddressed') }; };
     const snapshot = { quotes: [
       { instrumentId: '^KS11', evidenceId: 'market.index.kospi:t', value: 5975.74, changePct: -6.3986, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-13T03:55:30.000Z', session: 'DELAYED_IN_SESSION' },
       { instrumentId: 'CL=F', evidenceId: 'market.commodity.wti:t', value: 92.53, changePct: -1.2908, unit: 'USD/barrel', source: 'Yahoo chart', observedAt: '2026-10-13T04:05:27.000Z', session: 'DELAYED_IN_SESSION' },
@@ -639,7 +641,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     { instrumentId: '^KS11', evidenceId: 'market.index.kospi:t', value: 5975.74, changePct: -5.46, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-13T06:30:00.000Z', session: 'MARKET_CLOSED' }
   ] };
   const data = { meta: { generatedAt: '2026-10-13T09:00:00.000Z' }, news: [], macro: {} };
-  const issues = (text, context = '') => validateMarketAnalysisText(text, data, snapshot, { context }).issues;
+  const issues = (text, context = '') => validateMarketAnalysisText(text, data, snapshot, { context }).issues.filter((issue) => issue !== 'korea-move-unaddressed');
   const dated = issues('S&P 500은 10월 12일 7,807.24로 마감했다. 위험 선호는 제한적이다.');
   const clock = issues('KOSPI는 한국시간 오후 3시 기준 5,975.74로 마감했다. 코스피는 5.46% 하락했다.');
   const wrong = issues('S&P 500은 7,100으로 마감했다. 위험 선호는 제한적이다.');
@@ -653,7 +655,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && !contextQuoted.length && contextAsLevel.includes('metric-value-mismatch:market.spx') && contextBounded.includes('metric-value-mismatch:market.spx'),
     JSON.stringify({ dated, clock, wrong, wrongAfterDate, contextQuoted, contextAsLevel, contextBounded }));
   const bad = 'S&P 500은 7,100으로 마감했다. 위험 선호는 제한적이다.';
-  const good = 'S&P 500은 10월 12일 7,807.24로 마감했다. 위험 선호는 제한적이다.';
+  const good = 'S&P 500은 10월 12일 7,807.24로 마감했다. 코스피는 5.46% 하락했다.';
   const prompts = [];
   const stub = (answers) => async (prompt) => { prompts.push(prompt); return { text: answers.shift() ?? null }; };
   const now = Date.parse('2026-10-13T09:00:00.000Z');
@@ -699,6 +701,58 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     /fetchNews\(Date\.parse\(attemptedAt\)\)/.test(source) && /const newsCycle = getKst0800NewsCycle\(Date\.parse\(attemptedAt\)\)/.test(source));
 }
 {
+  // v57.69 (2026-10-15 crash audit): on a -1.1% S&P 500 / -5.5% KOSPI morning after a hot CPI the published reading
+  // said "물가 둔화 경로", named no cause and no KOSPI move (P1800; the crossroads lead is P1801); the contributor lane published a one-stock session
+  // (P1802); the free translator's mixed-script lines passed (P1803); Korean dailies could not enter the intraday slot (P1804).
+  const { validateMarketAnalysisText, isCleanKoreanTitle, translateHeadlines, buildBreadthContributorSessions, selectNewsIntraday } = await import('./fetch-data.mjs');
+  const snapshot = { quotes: [
+    { instrumentId: '^GSPC', evidenceId: 'market.index.spx:c', value: 7718.94, changePct: -1.11, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-14T20:00:00.000Z', session: 'MARKET_CLOSED' },
+    { instrumentId: '^KS11', evidenceId: 'market.index.kospi:c', value: 5635.83, changePct: -6.21, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-15T00:20:00.000Z', session: 'DELAYED_IN_SESSION' }
+  ] };
+  const news = [{ title: 'Nasdaq ends sharply lower as hot inflation data stokes rate-hike bets', source: 'Reuters', link: 'https://example.test/cpi', pubDate: '2026-10-14T21:00:00.000Z', score: 80 }];
+  const hot = { meta: { generatedAt: '2026-10-15T00:21:00.000Z' }, news, macro: { cpiDelta: 0.3 } };
+  const v = (text, data = hot) => validateMarketAnalysisText(text, data, snapshot).issues;
+  const ok = v('Reuters 헤드라인에 따르면 뜨거운 물가 지표에 S&P 500은 1.11% 하락한 7,718.94로 마감했다. 코스피는 09:20 KST 장중 6.21% 급락했다.');
+  const noCause = v('S&P 500은 1.11% 하락한 7,718.94로 마감했다. 코스피는 09:20 KST 장중 6.21% 급락했다.');
+  const easing = v('보도에 따르면 S&P 500은 1.11% 하락했다. 장기금리 하락은 물가 둔화 경로와 일치한다. 코스피는 09:20 KST 장중 6.21% 급락했다.');
+  const quotedPath = v('보도에 따르면 S&P 500은 1.11% 하락했다. 「물가 둔화」 경로는 이번 발표로 멀어졌다. 코스피는 09:20 KST 장중 6.21% 급락했다.');
+  const noKorea = v('보도에 따르면 S&P 500은 1.11% 하락한 7,718.94로 마감했다.');
+  const cooling = v('보도에 따르면 S&P 500은 1.11% 하락했다. 장기금리 하락은 물가 둔화 경로와 일치한다. 코스피는 09:20 KST 장중 6.21% 급락했다.', { ...hot, macro: { cpiDelta: -0.2 } });
+  check('P1800 a large move needs a headline-attributed cause, a hot CPI cannot be read as easing, and a 3%+ KOSPI move is named',
+    !ok.length && noCause.includes('causal-attribution-missing') && easing.includes('inflation-direction-contradicts-evidence')
+      && !quotedPath.includes('inflation-direction-contradicts-evidence') && noKorea.includes('korea-move-unaddressed')
+      && !cooling.includes('inflation-direction-contradicts-evidence'),
+    JSON.stringify({ ok, noCause, easing, quotedPath, noKorea, cooling }));
+  const source = readProducerSource();
+  check('P1800 an in-session KOSPI move of 3% or more reaches the prompt labelled 장중 with its KST time',
+    /const koreaIntradayLines = metricEvidence/.test(source) && /KOREA_LARGE_INTRADAY_MOVE \(장중 지연 값/.test(source)
+      && /Math\.abs\(changeOf\.get\(row\.evidenceId\)\) >= KOREA_MOVE_MENTION_PCT/.test(source));
+
+  const nowMs = Date.parse('2026-10-15T01:00:00.000Z');
+  const point = (date, movers) => ({ date, us: { universe: 1143, signalEligible: { movers, highLow: movers }, contributors: { up4: [['AAA', 5]], down4: [] }, breadthUp4: 1, breadthDown4: 0, breadthNewHighs: 0, breadthNewLows: 0 } });
+  const sessions = buildBreadthContributorSessions([point('2026-10-13', 839), point('2026-10-14', 1)], nowMs);
+  check('P1802 a contributor session judged on less than half the universe is withheld, as in the history lane',
+    sessions.length === 1 && sessions[0].date === '2026-10-13' && /minimumEligible = breadthMinimumEligible\(universe\)/.test(source),
+    JSON.stringify(sessions.map((row) => [row.date, row.eligible])));
+
+  const items = [{ title: 'Stocks slide after CPI' }, { title: 'Chip stocks fall' }, { title: 'Oil climbs' }, { title: 'Yields rise' }, { title: 'Dollar firms' }];
+  const result = await translateHeadlines(items, {
+    previous: [{ title: 'Oil climbs', titleKo: '유가 ราคา 상승' }],
+    translate: async () => ({ translations: ['CPI 발표 후 증시 하락', '반도체주 株價 하락', '유가 상승', '국채 금리 상승', '달러 강세'], model: 'fixture' })
+  });
+  check('P1803 a translation with another script mixed in is not kept, and a cached one is held to the same test',
+    isCleanKoreanTitle('CPI 발표 후 증시 하락') && !isCleanKoreanTitle('반도체주 株價 하락') && !isCleanKoreanTitle('유가 ราคา 상승') && !isCleanKoreanTitle('Nvidia 가')
+      && result.reused === 0 && items[0].titleKo === 'CPI 발표 후 증시 하락' && !items[1].titleKo && items[2].titleKo === '유가 상승',
+    JSON.stringify({ result, items }));
+
+  const end = Date.parse('2026-10-14T23:00:00.000Z');
+  const kr = (title, source, hours) => ({ title: `${title} - ${source}`, link: `https://news.example/${encodeURIComponent(title)}`, source, _sourceRaw: source, ts: end + hours * 3600000, topic: 'kr', country: 'kr', feedTier: 2 });
+  const picked = selectNewsIntraday([kr('코스피 6% 급락 사이드카 발동 외국인 반도체 매도', '서울경제', 0.5), kr('원달러 환율 급등 외국인 순매도 확대', '뉴시스', 0.6), kr('코스닥 급락 반도체 약세', '포커스온경제', 0.7)], { cycleEndMs: end, nowMs: end + 2 * 3600000 });
+  check('P1804 national Korean dailies and wires enter the intraday slot (tier 2); regional outlets stay out',
+    picked.length === 2 && picked.every((item) => item.tier === 2 && item.market === 'kr') && !picked.some((item) => item.source === '포커스온경제'),
+    JSON.stringify(picked.map((item) => [item.source, item.tier])));
+}
+{
   // P1720: post-08:00 articles go to a separate provisional slot (tier 1-2, curation filters, one per event, max 6,
   // Korean items first); the completed 08:00 bundle is unchanged.
   const { selectNewsIntraday, NEWS_INTRADAY_MAX } = await import('./fetch-data.mjs');
@@ -710,7 +764,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     row('코스피 5% 급락…외국인 반도체 매도 확대', '연합뉴스', h(5)),
     row('코스피 5% 급락, 외국인 반도체 매도 확대', '연합뉴스', h(5.1)),
     row('삼성전자 하락 반도체주 동반 약세 SK하이닉스', '연합뉴스', h(6)),
-    row('코스닥 급락 원달러 환율 1,340원대', '아시아경제', h(4)),
+    row('코스닥 급락 원달러 환율 1,340원대', '포커스온경제', h(4)),
     row('Stocks to buy now: the next Nvidia', 'Reuters', h(3), { topic: 'semi', country: 'us' }),
     row('Old bundle story on oil prices', 'Reuters', h(-1), { topic: 'geo', country: 'global' }),
     row('Gold hits record as investors seek safety', 'Financial Times', h(1), { topic: 'fxbond', country: 'global' }),

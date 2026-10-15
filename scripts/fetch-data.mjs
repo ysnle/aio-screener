@@ -42,7 +42,7 @@ import { _mean, closesToFactors, backtestFactors, _calcVCPServer, _calcSetupScre
 import { fetchJSON, _fetchRss } from './lib/producer-http.mjs'; // v57.62 split
 import { FRED_SERIES, compareUsdKrwCrossCheck, fetchAaiiSentiment, fetchBeaPce, fetchBlsSeries, fetchCboePutCall, fetchFearGreed, fetchFredDexkousPublic, fetchFredHyOasPublic, fetchTreasuryYieldCurve, mergeMacroLastKnownGood, officialTreasuryDeltas } from './lib/macro-sources.mjs'; // v57.62 split
 import { MINIMUM_CURRENT_NEWS, NEWS_FEEDS, NEWS_INTRADAY_LABEL, NEWS_INTRADAY_MAX, NEWS_INTRADAY_POLICY, TICKER_NEWS_MAX_AGE_MS, deriveCyclePublication, deriveTickerNewsLineage, fetchNews, fetchTickerNewsItems, getKst0800NewsCycle, planTickerNewsTargets, selectTickerNewsMemo } from './lib/news-selection.mjs'; // v57.62 split
-import { MARKET_ANALYSIS_CLOSED_SESSIONS, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText } from './lib/market-analysis-validate.mjs'; // v57.62 split
+import { KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText } from './lib/market-analysis-validate.mjs'; // v57.62 split
 export { buildMarketAnalysisEvidence, MARKET_ANALYSIS_CLOSED_SESSIONS, analysisMetricMentions, validateAnalysisMetricMentions, validateAnalysisAdmission, analysisNumberMarkedAsReference, validateMarketAnalysisText, MARKET_ANALYSIS_NEWS_CONTENT_POLICY, isMarketAnalysisNewsEligible, buildMarketAnalysisNewsEvidence, buildMarketAnalysisHeadlineContext, describeMarketAnalysisIssues, MARKET_ANALYSIS_RETAIN_MAX_MS, retainVerifiedMarketAnalysis, reusableMarketAnalysis } from './lib/market-analysis-validate.mjs';
 export { deriveCyclePublication, newsSourceLabel, serverNewsHeadlineMonthStale, scoreServerNewsItem, newsHeadlineSignature, newsSameEvent, cleanNewsTitle, newsKeyEntities, createNewsTopicCap, NEWS_INTRADAY_MAX, NEWS_INTRADAY_POLICY, NEWS_INTRADAY_LABEL, selectNewsIntraday, tickerNewsCoreName, TICKER_NEWS_WORD_SYMBOLS, tickerNewsHeadlineNamesIssuer, TICKER_NEWS_MAX_AGE_MS, selectTickerNewsMemo, TICKER_NEWS_RUN_CAP, TICKER_NEWS_FIXED_HEAD, TICKER_NEWS_ROTATION_SLOT_MS, planTickerNewsTargets, deriveTickerNewsLineage } from './lib/news-selection.mjs';
 export { parseFredHyOasCsv, fetchFredHyOasPublic, parseFredDexkousCsv, fetchFredDexkousPublic, compareUsdKrwCrossCheck, parseTreasuryYieldCurveHtml, parseTreasuryYieldCurveXml, officialTreasuryDeltas, fetchTreasuryYieldCurve, parseAaiiSentimentText, fetchAaiiSentiment, mergeMacroLastKnownGood, parseBeaPceHtml, normalizeBlsSeriesResponse, BLS_RELEASE_SCHEDULE_IDS, blsReleaseCacheBypass, fetchBlsSeries, parseCboePutCallHtml, classifyCboePutCallCurrentness } from './lib/macro-sources.mjs';
@@ -2251,9 +2251,13 @@ export async function writeMacroCalendar(key, { fetchFn = fetchJSON, fetchTextFn
 // P1416: which stocks made each count — the latest 20 completed sessions, US segment. Names come
 // from the screener universe on the client; this artifact carries symbols and the day's change only.
 const BREADTH_CONTRIBUTORS_OUT = `${__dir}/../public-data/breadth-contributors.json`;
-async function writeBreadthContributors(rows, nowMs = Date.now()) {
-  const sessions = (Array.isArray(rows) ? rows : [])
-    .filter((point) => point?.date && point?.us?.contributors && isSessionComplete(point.date, 'us', nowMs))
+// v57.69 (P1802): the history lane already withholds a count judged on less than half the universe; the
+// contributor lane did not, so 10/14 was published with one eligible mover and the screen read 0 as a count.
+export const breadthMinimumEligible = (universe) => Math.max(20, Math.ceil(Number(universe) * 0.5));
+export function buildBreadthContributorSessions(rows, nowMs = Date.now()) {
+  return (Array.isArray(rows) ? rows : [])
+    .filter((point) => point?.date && point?.us?.contributors && isSessionComplete(point.date, 'us', nowMs)
+      && Number(point.us.signalEligible?.movers) >= breadthMinimumEligible(point.us.universe))
     .slice(-20)
     .map((point) => ({
       date: point.date,
@@ -2269,6 +2273,9 @@ async function writeBreadthContributors(rows, nowMs = Date.now()) {
       ])),
       counts: { up4: point.us.breadthUp4, down4: point.us.breadthDown4, newHigh: point.us.breadthNewHighs, newLow: point.us.breadthNewLows }
     }));
+}
+async function writeBreadthContributors(rows, nowMs = Date.now()) {
+  const sessions = buildBreadthContributorSessions(rows, nowMs);
   if (!sessions.length) return { written: false };
   const payload = { schemaVersion: 'breadth-contributors.v2', model: BREADTH_SIGNAL_MODEL_VERSION, generatedAt: new Date(nowMs).toISOString(), universeScope: 'aio-us-screener-universe-not-official-exchange', universeAssetTypes: 'stocks-only-etfs-excluded', columns: ['symbol', 'dayChangePct', 'assetType', 'corporateActionSuspected'], corporateActionPolicy: 'none-adjusted — a >=20% one-day move is flagged only as a suspicion to check against the filing, not adjusted or confirmed', sessions };
   await atomicWriteFile(BREADTH_CONTRIBUTORS_OUT, JSON.stringify(payload));
@@ -2303,7 +2310,7 @@ async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), distributi
     for (const field of fields) {
       const eligible = eligibleFor(segment, field);
       const universe = Number(segment.universe);
-      const minimumEligible = Math.max(20, Math.ceil(universe * 0.5));
+      const minimumEligible = breadthMinimumEligible(universe);
       const rawValue = segment[field];
       const value = rawValue == null || rawValue === '' ? Number.NaN : Number(rawValue);
       if (!Number.isFinite(value) || !Number.isFinite(eligible) || eligible < minimumEligible) {
@@ -2428,7 +2435,7 @@ export function marketAnalysisCrossroadsContext(data, input, regime) {
     try { state = JSON.parse(readFileSync(SCENARIO_STATE_OUT, 'utf8')); } catch (_) { state = null; }
     try { outcomes = JSON.parse(readFileSync(SCENARIO_OUTCOMES_OUT, 'utf8')); } catch (_) { outcomes = null; }
     const breadthState = regime?.axes?.find((axis) => axis.id === 'breadth')?.state || null;
-    const model = buildMacroCrossroads({ read: read ? { ...read, breadthState } : read, macroHistory: input.macroHistory, history: input.history, events: upcomingMacroEvents({ schedules }), outcomes });
+    const model = buildMacroCrossroads({ read: read ? { ...read, breadthState } : read, macroHistory: input.macroHistory, history: input.history, events: upcomingMacroEvents({ schedules }), outcomes, previousLeadId: state?.crossroads?.leadId || null });
     return [renderMacroCrossroadsContext(model, { state }), scenarioStateThemeLines(state)].filter(Boolean).join('\n');
   } catch (_) { return ''; }
 }
@@ -2458,9 +2465,16 @@ async function readHistoryRows() {
 // come back as a Korean line keeps no titleKo (the browser then translates as before). A failure never blocks the cycle.
 export const HEADLINE_TRANSLATION_MAX = 30;
 const hasHangul = (text) => /[가-힣]/.test(String(text || ''));
+// v57.69 (P1803): the free model returned Korean lines with Thai, Hanja or Kana mixed in, and any one Hangul syllable
+// passed. A translation is kept only when it carries no other script and at least two Hangul syllables; a cached
+// translation from an earlier run is held to the same test so a bad one is not reused forever.
+export const isCleanKoreanTitle = (text) => {
+  const value = String(text || '');
+  return (value.match(/[가-힣]/g) || []).length >= 2 && !/[฀-๿぀-ヿ㐀-䶿一-鿿Ѐ-ӿ؀-ۿ�]/.test(value);
+};
 export async function translateHeadlines(items, { previous = [], request = null, translate = null } = {}) {
   const list = (Array.isArray(items) ? items : []).filter((item) => item && typeof item.title === 'string' && item.title.trim());
-  const known = new Map((Array.isArray(previous) ? previous : []).filter((item) => item?.title && hasHangul(item.titleKo)).map((item) => [item.title, item.titleKo]));
+  const known = new Map((Array.isArray(previous) ? previous : []).filter((item) => item?.title && isCleanKoreanTitle(item.titleKo)).map((item) => [item.title, item.titleKo]));
   let reused = 0;
   for (const item of list) {
     if (hasHangul(item.title) || item.titleKo) continue;
@@ -2471,7 +2485,7 @@ export async function translateHeadlines(items, { previous = [], request = null,
     let count = 0;
     pending.forEach((item, index) => {
       const ko = typeof strings[index] === 'string' ? strings[index].replace(/\s+/g, ' ').trim() : '';
-      if (hasHangul(ko) && ko.length <= 200) { item.titleKo = ko; count += 1; }
+      if (isCleanKoreanTitle(ko) && ko.length <= 200) { item.titleKo = ko; count += 1; }
     });
     return count;
   };
@@ -2526,6 +2540,12 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       return ` change=${pct >= 0 ? '+' : ''}${pct.toFixed(2)}% vs previous close`;
     };
     const evidenceLines = promptEvidence.slice(0, 16).map(row => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit}${changeText(row)} observedAt=${row.observedAt} session=${row.session || 'n/a'} source=${row.source}`).join('\n');
+    // v57.69 (2026-10-15 crash audit): KOSPI fell over 5% in session and the commentary, built from completed closes only,
+    // never mentioned it. A Korean move of 3% or more in session is offered on its own, labelled 장중 with its KST time.
+    const kstTime = (iso) => new Date(Date.parse(iso) + 9 * 3600000).toISOString().slice(11, 16);
+    const koreaIntradayLines = metricEvidence
+      .filter((row) => row.metricId === 'market.kospi' && row.session && !MARKET_ANALYSIS_CLOSED_SESSIONS.includes(row.session) && Math.abs(changeOf.get(row.evidenceId)) >= KOREA_MOVE_MENTION_PCT)
+      .map((row) => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit}${changeText(row)} 장중 ${kstTime(row.observedAt)} KST 기준(지연 값) session=${row.session}`).join('\n');
     const regimeContext = buildMarketAnalysisRegimeContext(data, await readHistoryRows());
     const newsLines = newsEvidence.map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     const headlineLines = buildMarketAnalysisHeadlineContext(data).map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
@@ -2545,6 +2565,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       'Do not treat VIX and Fear&Greed as the same metric, and do not spend a sentence saying they differ. Do not invent missing values. Return 7-9 concise lines.',
       'REGIME_CONTEXT (deterministic reading from the same completed closes the site shows; cite as [regime-context]):\n' + (regimeContext || 'none'),
       'METRIC_EVIDENCE:\n' + evidenceLines,
+      ...(koreaIntradayLines ? ['KOREA_LARGE_INTRADAY_MOVE (장중 지연 값 — 반드시 한 줄로 언급하라: "코스피 장중 HH:MM KST 기준 -x.xx%"처럼 장중과 시각을 같은 문장에 쓰고 마감·종가라고 쓰지 마라. 원인은 HEADLINE_CONTEXT 헤드라인에 귀속하라):\n' + koreaIntradayLines] : []),
       'NEWS_CLUSTERS (article-level evidence, may be absent):\n' + (newsLines || 'none'),
       'HEADLINE_CONTEXT (retained headlines — titles only; these are the only news material available):\n' + (headlineLines || 'none')
         + (intradayLines ? '\n08:00 이후 장중 속보(잠정 — 다음 08:00 묶음 전의 미확정 헤드라인, 인용 시 "잠정"으로 표시):\n' + intradayLines : ''),

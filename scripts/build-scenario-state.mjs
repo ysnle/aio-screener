@@ -103,7 +103,7 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
   const read = buildMacroRead({ macro: data?.macro || null, macroHistory, regime: regime?.available ? regime : null, history });
   const breadthState = regime?.axes?.find((axis) => axis.id === 'breadth')?.state || null;
   const events = upcomingMacroEvents({ schedules: calendar?.schedules || {}, nowMs });
-  const crossroads = buildMacroCrossroads({ read: read ? { ...read, breadthState } : read, macroHistory, history, events, outcomes });
+  const crossroads = buildMacroCrossroads({ read: read ? { ...read, breadthState } : read, macroHistory, history, events, outcomes, previousLeadId: previous?.crossroads?.leadId || null });
   const rows = Object.entries(screener?.data || {}).map(([sym, row]) => ({ sym, ...row }));
   const maps = themeMaps || { usThemes: [], krThemeMap: {}, labels: {} };
   const usGroups = buildGroupStrength({ themes: maps.usThemes, rows, sortKey: 'ret3m' }).groups || [];

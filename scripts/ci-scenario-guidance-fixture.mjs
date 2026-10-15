@@ -189,8 +189,13 @@ console.log('scenario guidance fixture (basis card): PASS');
   const held = buildMacroCrossroads({ read: null, macroHistory: null, history: [], events: [] });
   assert.equal(held.leadId, null, 'P1742: no lead without observations');
   // Audit 1: branches level on met conditions are named as a tie, and the next release is what separates them.
-  if (model.tiedIds.length >= 2) assert.match(model.headline, /조건 부합이 같은.*길이 (둘|셋|넷)/, 'audit 1: a tie is said as a tie');
+  if (model.tiedIds.length >= 2) assert.match(model.headline, /조건 부합이 같은.*길이 (둘|셋|넷|다섯|여섯|일곱|여덟)/, 'audit 1: a tie is said as a tie');
   else if (!model.held) assert.match(model.headline, /가장 많이 맞는 갈림길/);
+  // v57.69: a tie keeps the previous refresh's lead; 물가 둔화 needs core PCE and core CPI both at or below their 1-year pace.
+  if (model.tiedIds.length >= 2) assert.equal(buildMacroCrossroads({ read, macroHistory, history: rows, events, previousLeadId: model.tiedIds[1] }).leadId, model.tiedIds[1], 'v57.69 a tied lead does not flip away from the previous one');
+  const easing = BRANCHES.find((branch) => branch.id === 'softland').conditions[0][1];
+  assert.equal(easing({ corePace: 2.5, coreYoy: 3, coreCpiPace: 3.6, coreCpiYoy: 2.6 }), false, 'v57.69 a hot core CPI pace is not disinflation');
+  assert.equal(easing({ corePace: 2.5, coreYoy: 3, coreCpiPace: null, coreCpiYoy: null }), true, 'v57.69 PCE alone still counts when CPI is unavailable');
   // Audit 4: a past sample pointing opposite to the favoured choice carries one bridging sentence (no invented %).
   const bridged = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 4, up: 4, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20 } } } }).items.find((item) => item.id === 'reheat');
   assert.match(bridged.pastBridge, /^과거 표본에서는 이후 주가가 대체로 올랐습니다 — 이 길의 결론\(기다림·방어 전환\)은 '금리가 더 오르는 길'이 실제로 이어질 때의 비용 기준이며, 표본이 작습니다\.$/, 'audit 4: the bridge sentence');

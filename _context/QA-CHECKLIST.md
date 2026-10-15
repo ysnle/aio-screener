@@ -4,6 +4,10 @@ last_verified: 2026-10-15
 confidence: medium
 ---
 
+## v57.69 급락일 시장 해설 (v57.69) (2026-10-15)
+
+- [ ] QA-VERIFY-30: P1800 배포 후 다음 refresh-data 산출물의 marketAnalysis가 큰 움직임의 원인을 헤드라인에 귀속하고, CPI가 오른 달에 물가 둔화를 단정하지 않으며, 코스피 3% 이상 움직인 날 코스피를 언급한다(또는 retained/blocked로 정직하게 표시). verify_by: push 뒤 다음 refresh-data의 public-data/data.json marketAnalysis·semanticIssues 확인
+
 ## v57.68 한국 지수 전일 종가 (v57.68) (2026-10-15)
 
 - [ ] QA-VERIFY-29: P1799 배포 후 KRX 개장 직후(09:00~09:30 KST) refresh-data 1회 뒤 market-snapshot.json ^KS11/^KQ11 previousValue가 market-temperature.json의 직전 KST 종가와 같고, 홈 화면 한국 지수 등락률이 그 기준으로 표시된다. verify_by: push 뒤 다음 KRX 개장 직후 산출물과 운영 사이트 홈 확인

@@ -130,6 +130,9 @@ function _analysisNumberAfterLabel(body, labels) {
 // level after an English label, so Korean names and % moves were never checked. Every mention — English label or the
 // Korean name the model actually writes — now has its % move checked against that metric's own changePct, a rate may
 // move only in bp, and an in-session value must be written as 장중 with its time.
+// v57.69: thresholds for the large-move rules in validateMarketAnalysisText (percent change vs the previous close).
+export const KOREA_MOVE_MENTION_PCT = 3;
+export const LARGE_MOVE_ATTRIBUTION_PCT = 1;
 export const MARKET_ANALYSIS_CLOSED_SESSIONS = Object.freeze(['MARKET_CLOSED', 'CLOSED_CURRENT', 'COMPLETED', 'CLOSED', 'REGULAR']);
 const MARKET_ANALYSIS_MENTIONS = Object.freeze({
   'market.spx': ['S&P\\s?500', 'SPX', 'S&P', '에스앤피\\s?(?:오백|500)'],
@@ -357,11 +360,31 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   // NFP-scale fabrication checks above stay blocking.
   const causalEvidence = buildMarketAnalysisNewsEvidence(data);
   const headlineContext = buildMarketAnalysisHeadlineContext(data);
-  if (causalClaim && causalEvidence.length === 0) {
-    const attributed = /헤드라인|보도|기사|언론|according to|headline|reported/i.test(body);
+  // v57.69 (2026-10-15 crash audit): on 10/14 (S&P 500 -1.11%, KOSPI -5%) the published reading carried no cause at all
+  // while the retained headlines named hot CPI and AI selling. On a large move with headlines available, an
+  // unattributed reading is blocked (the retry is told to name the headline); on a quiet day it stays a disclosure.
+  const largeMove = metricEvidence.some((row) => {
+    const move = changes.get(row.evidenceId);
+    if (row.metricId !== 'market.spx' && row.metricId !== 'market.kospi') return false; // equity indices only (a 1% VIX move is noise)
+    return Number.isFinite(move) && Math.abs(move) >= (row.metricId === 'market.kospi' ? KOREA_MOVE_MENTION_PCT : LARGE_MOVE_ATTRIBUTION_PCT);
+  });
+  const attributed = /헤드라인|보도|기사|언론|according to|headline|reported/i.test(body);
+  if (largeMove && headlineContext.length > 0 && !attributed) issues.push('causal-attribution-missing');
+  else if (causalClaim && causalEvidence.length === 0) {
     if (headlineContext.length === 0) warnings.push('causal-evidence-missing');
     else if (!attributed) warnings.push('causal-attribution-missing');
   }
+  // v57.69: the reading said 장기금리 하락은 "물가 둔화 경로와 일치" the day CPI rose 3.4% → 3.7%. With headline or core
+  // CPI rising, an assertion that inflation is easing is blocked; scenario titles in 「」 and conditionals are not assertions.
+  const macroNow = data?.macro || {};
+  const inflationRising = Number(macroNow.cpiDelta) > 0 || Number(macroNow.coreCpiDelta) > 0;
+  const asserted = body.replace(/「[^」]*」|'[^']*'|"[^"]*"/g, '');
+  if (inflationRising && /물가\s?둔화\s?(?:경로|흐름|추세|신호)|물가(?:가|는)?\s?(?:둔화|안정|완화)(?:되고|하고)\s?있|인플레이션(?:이|은)?\s?(?:둔화|완화)(?:되고|하고)\s?있|디스인플레이션\s?(?:경로|흐름|진행)/.test(asserted)) {
+    issues.push('inflation-direction-contradicts-evidence');
+  }
+  // v57.69: a KOSPI move of 3% or more (in session or closed) is named — the Korean readers' first question on 10/15.
+  if (metricEvidence.some((row) => row.metricId === 'market.kospi' && Math.abs(changes.get(row.evidenceId)) >= KOREA_MOVE_MENTION_PCT)
+    && !/코스피|코스닥|KOSPI|KOSDAQ/i.test(body)) issues.push('korea-move-unaddressed');
   return {
     ok: issues.length === 0,
     issues: Array.from(new Set(issues)),
@@ -518,6 +541,13 @@ export function buildStructuredMarketAnalysis({ data, text, model, status, reaso
   };
 }
 
+// v57.69: retry guidance for the rules that carry no metric id.
+const MARKET_ANALYSIS_ISSUE_HELP = Object.freeze({
+  'causal-attribution-missing': 'the market moved sharply; name at least one HEADLINE_CONTEXT headline as the reported cause ("헤드라인에 따르면 …", "… 보도") and keep it one reading among alternatives',
+  'inflation-direction-contradicts-evidence': 'CPI or core CPI rose in the latest release; do not describe inflation as easing — describe the rate move without an inflation-easing claim',
+  'korea-move-unaddressed': 'KOSPI moved 3% or more; add one line on it with its change (장중이면 "장중 HH:MM KST 기준")'
+});
+
 // P1719: what the validator blocked, in terms the model can act on — the issue, the metric's evidence value and change,
 // and the level the validator read after the label. Appended once to the retry prompt.
 export function describeMarketAnalysisIssues(text, issues = [], metricEvidence = [], changes = new Map()) {
@@ -526,7 +556,7 @@ export function describeMarketAnalysisIssues(text, issues = [], metricEvidence =
   return [...new Set(issues)].slice(0, 8).map((issue) => {
     const metricId = String(issue).split(':')[1] || '';
     const row = metricEvidence.find((item) => item.metricId === metricId);
-    if (!row) return `- ${issue}`;
+    if (!row) return `- ${issue}${MARKET_ANALYSIS_ISSUE_HELP[issue] ? `: ${MARKET_ANALYSIS_ISSUE_HELP[issue]}` : ''}`;
     const def = defs.find((item) => item.metricId === metricId);
     const read = def ? analysisLevelsAfterLabels(text, [def.label, ...(def.aliases || [])], { allLabels, unit: row.unit }) : [];
     const change = changes.get(row.evidenceId);

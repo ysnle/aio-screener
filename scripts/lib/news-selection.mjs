@@ -105,7 +105,10 @@ const SERVER_NEWS_UNVERIFIED_RE = /\b(people familiar|sources say|according to s
 const SERVER_NEWS_TIER1_SOURCE_RE = /\b(Reuters|Bloomberg|Associated Press|AP News|Financial Times|Wall Street Journal|WSJ|CNBC)\b/i;
 // P1720: the Korean-edition feed labels these same tier-2 publishers in Korean (연합뉴스 = Yonhap), which `\b` never
 // matches around Hangul, so a Yonhap headline ranked as tier 3. Same publishers, their Korean labels — not new sources.
-const SERVER_NEWS_TIER2_SOURCE_RE = /\b(?:MarketWatch|Barron's|Nikkei|Yonhap|Naver|Korea JoongAng|The Korea Herald|The Hill|Yahoo Finance)\b|^(?:연합뉴스|중앙일보|코리아\s?헤럴드)$/i;
+// v57.69 (P1804, 2026-10-15 crash audit): the intraday slot admits tier 1-2 only, and every Korean economic daily ranked
+// tier 3 — on a -6% KOSPI morning the slot held one US headline. The national economic dailies, wire services and
+// broadcasters are tier 2 (as MarketWatch/Barron's are); regional and single-topic outlets stay tier 3.
+const SERVER_NEWS_TIER2_SOURCE_RE = /\b(?:MarketWatch|Barron's|Nikkei|Yonhap|Naver|Korea JoongAng|The Korea Herald|The Hill|Yahoo Finance|Chosunbiz)\b|^(?:연합뉴스|연합인포맥스|뉴스1|뉴시스|중앙일보|조선일보|동아일보|한겨레|코리아\s?헤럴드|한국경제|한경닷컴|매일경제|서울경제|머니투데이|이데일리|파이낸셜뉴스|헤럴드경제|아시아경제|조선비즈|이투데이|KBS\s?뉴스|MBC\s?뉴스|SBS\s?뉴스|YTN)$/i;
 // P1504: the list missed the spellings Google News actually returns ("AD HOC NEWS") and several content farms
 // that filled the 2026-10-06 cycle (TradingKey ×4, livetradingnews, BBN Times, simplywall.st).
 const SERVER_NEWS_LOW_QUALITY_SOURCE_RE = /\b(Ad[- ]?hoc[- ]?news|MSN|GuruFocus|IndexBox|Pluang|Bitget|Stocktwits|TradingPedia|The Vibes|WBFF|Benzinga|Zacks|TradingKey|livetradingnews|BBN Times|simplywall\.st|Simply Wall St(?:reet)?|Telangana Today|Goodreturns|Startup Fortune|BigGo Finance|Eurasia Business News|bitcoinmagazine|GoldSilver|Motley Fool|FX Leaders|Coinpedia|Blockchain\.News|TMGM|VT Markets|Markets\.com|Admirals?|Action Forex|Moomoo|Invezz|Capital\.com|Plus500|XTB|FXOpen|Exness|AvaTrade|eToro|MarketBeat|24\/7 Wall St)\b/i;

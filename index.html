@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v57.68 — 올인원 투자 터미널</title>
+  <title>AIO Screener v57.69 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -33,14 +33,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=57.68" defer></script>
-<script src="./js/aio-macro-tech.js?v=57.68" defer></script>
-<script src="./js/aio-kr-data.js?v=57.68" defer></script>
-<script src="./js/aio-pages.js?v=57.68" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=57.68">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=57.68">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.68">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.68">
+<script src="./js/aio-workspace.js?v=57.69" defer></script>
+<script src="./js/aio-macro-tech.js?v=57.69" defer></script>
+<script src="./js/aio-kr-data.js?v=57.69" defer></script>
+<script src="./js/aio-pages.js?v=57.69" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=57.69">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=57.69">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.69">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.69">
   <!-- v48.31 perf: CDN 스크립트 다운로드 hint. P1756: Chart.js / lightweight-charts are no longer preloaded — they load on first chart use. -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js">
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
@@ -3870,13 +3870,13 @@ button[data-filter-active="true"] {
 
           <!-- Optional personal connections stay out of the primary research path. -->
           <details class="sidebar-connection-settings" style="margin-top:7px;padding-top:7px;border-top:1px solid var(--border);">
-            <summary style="cursor:pointer;font-size:11px;color:var(--text-muted);margin-bottom:6px;">연결·키 보안 설정</summary>
+            <summary style="cursor:pointer;font-size:11px;color:var(--text-muted);margin-bottom:6px;">연결·보안 설정</summary>
             <!-- v30.11: Vault PIN 보안 설정 -->
             <div style="font-size:11px;color:var(--data-purple);font-family:var(--font-mono);margin-bottom:5px;cursor:pointer;padding:4px 6px;background:rgba(var(--ink-rgb),0.08);border:1px solid rgba(var(--ink-rgb),0.2);border-radius:4px;text-align:center;" data-action="_aioNextSiblingToggle" data-pass-el="1">
-               저장 키 암호화 (PIN) <span id="vault-status-badge" style="font-size:11px;margin-left:4px;"> 미설정</span> <span class="arrow">▼</span>
+               저장 데이터 암호화 (PIN) <span id="vault-status-badge" style="font-size:11px;margin-left:4px;"> 미설정</span> <span class="arrow">▼</span>
             </div>
             <div style="display:none;margin-bottom:6px;">
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">이 브라우저에 저장한 개인 키를 PIN으로 보호합니다. 공용 AI 연결 설정과는 별개입니다.</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">이 브라우저에 저장한 포트폴리오 기록과 자체 프록시 주소를 PIN으로 보호합니다. 공용 AI 연결 설정과는 별개입니다.</div>
               <div id="vault-set-panel">
                 <div class="llm-key-row" style="margin-bottom:2px;">
                   <input type="password" id="vault-pin-input" class="llm-key-input" placeholder="PIN (4자리 이상)" style="font-size:11px;" maxlength="20">
@@ -3895,7 +3895,7 @@ button[data-filter-active="true"] {
                 <div id="vault-unlock-msg" style="font-size:11px;color:var(--text-muted);min-height:12px;"></div>
               </div>
               <div style="margin-top:3px;">
-                <label style="font-size:11px;color:var(--text-muted);cursor:pointer;"><input type="checkbox" id="vault-public-mode" aria-label="공용 PC 모드" data-on-change="_aioVaultPublicMode" style="vertical-align:middle;"> 공용 PC 모드 (탭 종료 시 키 자동 삭제)</label>
+                <label style="font-size:11px;color:var(--text-muted);cursor:pointer;"><input type="checkbox" id="vault-public-mode" aria-label="공용 PC 모드" data-on-change="_aioVaultPublicMode" style="vertical-align:middle;"> 공용 PC 모드 (탭 종료 시 보호 데이터 자동 삭제)</label>
                 <span id="vault-public-label" style="font-size:11px;color:var(--data-amber);margin-left:4px;"></span>
               </div>
             </div>
@@ -3954,7 +3954,7 @@ button[data-filter-active="true"] {
             </div>
             <!-- v49.58 P322 R108: 키 백업/복원 메뉴 -->
             <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(var(--ink-rgb),0.15);display:flex;gap:4px;flex-wrap:wrap;">
-              <button class="aio-key-backup-menu" data-action="_aioExportKeys" style="flex:1;font-size:10px;padding:4px 6px;background:rgba(34,117,76,0.12);border:1px solid rgba(34,117,76,0.3);color:var(--data-green);border-radius:3px;cursor:pointer;" title="모든 API 키를 JSON 파일로 다운로드">백업</button>
+              <button class="aio-key-backup-menu" data-action="_aioExportKeys" style="flex:1;font-size:10px;padding:4px 6px;background:rgba(34,117,76,0.12);border:1px solid rgba(34,117,76,0.3);color:var(--data-green);border-radius:3px;cursor:pointer;" title="저장된 연결 설정을 JSON 파일로 다운로드">백업</button>
               <button class="aio-key-restore-menu" data-action="_aioImportKeysPrompt" style="flex:1;font-size:10px;padding:4px 6px;background:rgba(var(--ink-rgb),0.12);border:1px solid rgba(var(--ink-rgb),0.3);color:var(--data-purple);border-radius:3px;cursor:pointer;" title="JSON 파일에서 키 복원">복원</button>
             </div>
              <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.4;">자동 브라우저 백업 없음 — 암호화 Vault 또는 명시 백업 파일을 사용하세요</div>
@@ -3985,7 +3985,7 @@ button[data-filter-active="true"] {
           </span>
           <span id="live-quote-ts" style="font-size:var(--fs-xs);color:var(--text-muted);font-family:var(--font-sans);font-weight:500;">연결 중...</span>
           <!-- R1: visible release identity; market volatility stays in the market card. -->
-          <span class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;" id="app-version-badge">v57.68</span>
+          <span class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;" id="app-version-badge">v57.69</span>
           <!-- v48.43: AI 분석가 버튼 -->
           <button id="topbar-help-btn" class="aio-btn-table" data-action="showPage" data-arg="guide" title="도움말 · 화면 안내와 판정 기준">도움말</button>
           <button id="topbar-ai-btn" class="aio-btn-table" data-action="toggleAIPanel" aria-label="AI 도우미 열기/닫기" aria-expanded="false" aria-controls="ai-panel" title="AI 도우미 · 교육/리서치 보조 사이드바">AI 도우미</button>
@@ -7152,7 +7152,7 @@ button[data-filter-active="true"] {
         <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(var(--ink-rgb),0.06);border:1px solid rgba(var(--ink-rgb),0.15);border-radius:3px;">
           <div>
             <div style="font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:2px;">보안 유의사항</div>
-            <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">연결 설정은 브라우저에만 저장됩니다. 공용 PC에서는 사용 후 삭제하세요. 포트폴리오 데이터도 로컬 저장이므로 정기적으로 백업하세요. 이 스크리너를 통해 실제 거래(주문/체결)는 이루어지지 않습니다.</div>
+            <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">포트폴리오 기록과 자체 프록시 주소는 이 브라우저에만 저장됩니다. 공용 PC에서는 사용 후 삭제하고, 정기적으로 백업하세요. 이 스크리너를 통해 실제 거래(주문/체결)는 이루어지지 않습니다.</div>
           </div>
         </div>
       </div>
@@ -7224,7 +7224,7 @@ button[data-filter-active="true"] {
   <details id="guide-public-policy" class="aio-fund" style="margin:10px 0 14px;">
     <summary style="cursor:pointer;font-weight:700;">공개 이용 정책 · 개인정보 · 면책 · 문의</summary>
     <div style="font-size:11px;line-height:1.8;color:var(--text-secondary);padding-top:8px;">
-      <p><b>개인정보/데이터 처리:</b> 포트폴리오·메모·API 키는 기본적으로 이 브라우저의 저장소에만 보관됩니다. PIN을 설정한 민감 데이터는 AES-GCM으로 암호화하며, 외부 API를 직접 연결하면 해당 API 제공자에게 요청이 전송됩니다. API 키·개인정보를 공개 저장소나 공용 PC에 입력하지 마세요.</p>
+      <p><b>개인정보/데이터 처리:</b> 포트폴리오·메모는 기본적으로 이 브라우저의 저장소에만 보관됩니다. PIN을 설정한 민감 데이터는 AES-GCM으로 암호화합니다. 시세·뉴스·AI는 공용 연결로 요청되며, 자체 프록시를 연결하면 그 프록시로 요청이 전송됩니다. 개인정보를 공개 저장소나 공용 PC에 입력하지 마세요.</p>
       <p><b>이용약관:</b> AIO Screener는 시장 정보와 교육용 분석 화면을 제공하며 주문·체결·자산운용 서비스를 제공하지 않습니다. 사용자는 각 데이터 제공자의 이용약관과 API 한도를 준수해야 합니다.</p>
       <p><b>투자 면책:</b> 표시되는 수치·뉴스·시그널은 지연·스냅샷·참고용일 수 있으며 투자 권유, 수익 보장, 매매 지시가 아닙니다. 중요한 결정 전 원문·공식 공시·현재 시세를 별도로 확인하세요.</p>
       <p><b>문의/오류 신고:</b> <a href="https://github.com/ysnle/aio-screener/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>에 재현 경로와 화면·브라우저 정보를 남겨 주세요. API 키나 개인정보는 첨부하지 마세요.</p>
@@ -7604,15 +7604,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=57.68" defer></script>
-  <script src="./js/aio-data.js?v=57.68" defer></script>
-  <script src="./js/aio-ui.js?v=57.68" defer></script>
+  <script src="./js/aio-core.js?v=57.69" defer></script>
+  <script src="./js/aio-data.js?v=57.69" defer></script>
+  <script src="./js/aio-ui.js?v=57.69" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=57.68" defer></script>
+<script src="./js/aio-chat.js?v=57.69" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -7663,7 +7663,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=57.68" defer></script>
+<script src="./js/aio-glossary.js?v=57.69" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

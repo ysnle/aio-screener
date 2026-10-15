@@ -6,6 +6,51 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1804 - v57.69 - 한국 주요 경제지·통신이 tier 3으로 분류돼 코스피 급락 아침 장중 속보 슬롯에 한국 기사가 0건 (2026-10-15)
+
+- symptom/reproduction: 10/15 코스피 장중 -6%·사이드카 아침에 newsIntraday가 미국 기사 1건뿐. 한국 피드 표본 40건 중 서울경제·뉴시스·조선비즈·연합인포맥스·이투데이 등이 모두 tier 3으로 분류됨(읽기 전용 피드 점검).
+- root_cause: 장중 슬롯은 tier 1-2만 받는데(P1720), tier 2 한국어 출판사 목록이 연합뉴스·중앙일보·코리아헤럴드뿐이었다. 별개로 Google 뉴스 한국 피드는 08:00 이후 기사를 늦게 색인한다(코드로 해결 불가, 소유자 결정 목록).
+- fix: 전국 경제지·통신·방송(연합인포맥스·뉴스1·뉴시스·조선·동아·한겨레·한국경제·매일경제·서울경제·머니투데이·이데일리·파이낸셜뉴스·헤럴드경제·아시아경제·조선비즈·이투데이·KBS/MBC/SBS·YTN)을 tier 2로 인식한다. 새 출처를 추가하지 않고 같은 피드의 분류만 바꾼다.
+- violated_rule: 없음(출처 분류 목록 누락)
+- prevention: ci-data-pipeline-contract-check에 P1803 픽스처(서울경제·뉴시스는 장중 슬롯 진입, 지역 매체는 제외) 추가, P1720 픽스처의 tier 3 예시를 지역 매체로 교체.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs 통과. 라이브는 다음 한국 장중 refresh-data의 newsIntraday로 확인.
+
+## P1803 - v57.69 - 헤드라인 번역에 태국어·한자·가나가 섞인 결과가 한국어로 통과되고 다음 실행에도 재사용됨 (2026-10-15)
+
+- symptom/reproduction: 시장 뉴스 화면 번역 제목에 태국어·한자 혼입(10/14 점검 에이전트 관측). 한 번 저장된 잘못된 번역은 같은 원문이 이어지는 동안 계속 재사용됐다.
+- root_cause: translateHeadlines가 한글 음절이 하나라도 있으면 번역을 받아들였고, 이전 실행 번역 재사용도 같은 느슨한 검사를 썼다.
+- fix: isCleanKoreanTitle: 한글 음절 2개 이상이고 태국어·가나·한자·키릴·아랍 문자와 대체 문자(U+FFFD)가 없을 때만 번역을 받는다. 재사용 캐시도 같은 검사를 통과해야 한다. 통과하지 못한 제목은 titleKo 없이 남아 브라우저가 기존처럼 번역한다.
+- violated_rule: 없음(출력 검증 부족)
+- prevention: ci-data-pipeline-contract-check에 P1802 픽스처(혼입 번역 거부·잘못된 캐시 재사용 안 함) 추가.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs 통과.
+
+## P1802 - v57.69 - 시장 폭 기여 종목 산출물이 판정 대상 1개 세션(10/14)을 게시해 화면이 10/13 수치와 10/14 분모를 섞음 (2026-10-15)
+
+- symptom/reproduction: breadth-contributors.json 10/14 세션이 eligible movers 1·highLow 1, 모든 수 0으로 게시. 시장 폭 화면 카드가 '신고가 31 · 신저가 23 · 신고·신저 판정 대상 1개'로 10/13 수치와 10/14 분모를 함께 표시했다.
+- root_cause: history 경로는 우주의 절반 미만으로 판정된 값을 비우지만(P1416), 기여 종목 경로(writeBreadthContributors)는 같은 최소 표본 규칙 없이 세션을 실었다.
+- fix: breadthMinimumEligible(universe)를 두 경로가 공유하고, buildBreadthContributorSessions가 movers 판정 대상이 최소 표본 미만인 세션을 뺀다. 화면의 '오늘' 표기는 최근 마감일·막대 날짜로 바꾸고, 지수·참여가 함께 넓어져도 분배일 5회 이상이면 '건강한 흐름'이라 단정하지 않는다.
+- violated_rule: 없음(두 생산 경로의 표본 규칙 불일치)
+- prevention: ci-data-pipeline-contract-check에 P1801 픽스처(839개 세션 유지·1개 세션 제외, history가 같은 함수를 쓰는지) 추가.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs 통과. 라이브는 다음 refresh-screener 산출물로 확인.
+
+## P1801 - v57.69 - 거시 갈림길이 근원 PCE만으로 '물가 둔화'를 판정해 핫 CPI 다음 날에도 softland가 선두 (2026-10-15)
+
+- symptom/reproduction: 9월 CPI 3.4→3.7%(근원 CPI 3개월 속도 3.4% > 1년 2.6%) 발표 뒤에도 홈·신호·거시 갈림길이 '물가 둔화 + 고용 완만(3/4)'을 선두로 표시하고 재가속 0/4. 같은 거시 화면 자동 기록은 '유가 충격 기준 충족'이라 어긋났다. 조건 수가 같은 길이 실행마다 선두를 바꿔 문구가 흔들렸다.
+- root_cause: macro-crossroads의 물가 둔화 조건이 근원 PCE 속도만 보고 CPI는 보지 않았다(PCE는 CPI보다 2주 늦게 나온다). 선두 정렬에 동률 처리 규칙이 없었다.
+- fix: disinflating(s): 근원 PCE와 근원 CPI 둘 다 1년치 이하일 때만 둔화(하나라도 빠르면 아님, 하나만 있으면 그것으로). softland 조건과 pathsDown 물가 둔화가 이를 쓴다. 조건 비율이 같으면 직전 선두(scenario-state crossroads.leadId)를 유지한다.
+- violated_rule: 없음(판정 입력 누락)
+- prevention: ci-scenario-guidance-fixture에 동률 선두 유지·핫 근원 CPI는 둔화 아님·CPI 없으면 PCE만으로 판정 픽스처 추가.
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs 통과. 라이브는 push 뒤 scenario-state 재생성으로 확인(QA-VERIFY-30과 함께).
+
+## P1800 - v57.69 - 급락일 AI 시장 해설이 핫 CPI를 '물가 둔화 경로'로 쓰고 원인·코스피 급락을 빠뜨린 채 검증됨으로 게시 (2026-10-15)
+
+- symptom/reproduction: 10/15 00:21Z 해설이 9월 CPI 3.4→3.7% 발표 다음 날 '장기금리 하락은 물가 둔화 경로와 일치'라고 쓰고, S&P 500 -1.11%·코스피 장중 -6% 원인을 한 줄도 귀속하지 않았으며 코스피를 언급하지 않은 채 verified로 게시(시장 폭락 점검 에이전트 3곳 독립 확인).
+- root_cause: 검증기가 원인 미귀속을 경고로만 다뤄 큰 움직임에서도 게시를 막지 않았고, 물가 방향 주장을 CPI 변화와 대조하는 규칙이 없었다. 프롬프트는 완료 종가만 실어 장중 코스피 급락이 모델에 보이지 않았다.
+- fix: S&P 500 1% 이상 또는 코스피 3% 이상 움직인 날 헤드라인이 있는데 귀속이 없으면 causal-attribution-missing을 차단 이슈로 올린다. CPI·근원 CPI가 오른 달에 물가 둔화를 단정하면 inflation-direction-contradicts-evidence(「」·인용 시나리오 제목은 제외). 코스피 3% 이상이면 코스피·코스닥 언급을 요구(korea-move-unaddressed). 장중 코스피 3% 이상 움직임은 KOREA_LARGE_INTRADAY_MOVE 섹션으로 '장중 HH:MM KST' 라벨을 붙여 프롬프트에 싣는다. 재시도 안내문(MARKET_ANALYSIS_ISSUE_HELP)에 세 이슈를 추가.
+- violated_rule: 없음(검증 규칙 공백)
+- prevention: ci-data-pipeline-contract-check에 P1800 픽스처(정상·원인 없음·물가 둔화 단정·인용 제목·코스피 미언급·CPI 하락 달) 추가. 기존 급락일 픽스처는 해당 규칙만 분리해 검사.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs 통과. 라이브는 push 뒤 다음 refresh-data 해설로 확인(QA-VERIFY-30).
+
 ## P1799 - v57.68 - 한국 지수 장 초반 전일 대비 등락률이 이틀 전 종가 기준으로 계산됨 (2026-10-15)
 
 - symptom/reproduction: 10/15 09:01 KST 스냅샷이 코스피 -5.53%(실제 10/14 종가 기준 -5.1%), 코스닥 -6.24%(실제 -4.75%)로 게시. 10/14 장중·마감 직후에는 -0.44%로 끝난 코스피를 -5.88%로 표시했고 AI 시장 분석이 그 숫자를 약 8시간 인용했다(시장 폭락 점검 에이전트 2곳이 독립 확인).

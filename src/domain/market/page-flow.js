@@ -61,7 +61,7 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
   const leadership = hl == null && mv == null
     ? '신고가·신저가와 4% 급등락 기록이 아직 쌓이는 중이라 이 묶음은 판정 근거로 쓰지 않습니다 — 위 참여도가 주 근거입니다.'
     // T13 (expert review 2026-10-13): one day's count is an observation of today, not a trend ("넓어지는 쪽", "투매").
-    : [hl == null ? null : hl > 0 ? `오늘 기준 52주 신고가가 신저가보다 ${round(hl)}개 많습니다` : hl < 0 ? `오늘 기준 52주 신저가가 신고가보다 ${round(-hl)}개 많습니다` : '오늘 기준 신고가와 신저가가 같은 수입니다',
+    : [hl == null ? null : hl > 0 ? `최근 마감일 기준 52주 신고가가 신저가보다 ${round(hl)}개 많습니다` : hl < 0 ? `최근 마감일 기준 52주 신저가가 신고가보다 ${round(-hl)}개 많습니다` : '최근 마감일 기준 신고가와 신저가가 같은 수입니다',
       mv == null ? null : mv > 0 ? `최근 5일 4% 급등 종목이 급락보다 ${round(mv)}개 많아 상승 쪽이 우세합니다` : mv < 0 ? `최근 5일 4% 급락 종목이 급등보다 ${round(-mv)}개 많아 하락 쪽이 우세합니다` : '최근 5일 급등·급락 종목 수가 같습니다'
     ].filter(Boolean).join('. ') + '. 하루·5일 집계라 확산이나 이탈의 추세인지는 며칠 이어지는지로 확인합니다.';
 
@@ -69,7 +69,8 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
   if (spx20 != null && b50d20 != null) {
     const gap = spx20 > -2 && b50d20 <= -10 ? '지수보다 참여가 훨씬 빨리 줄어 괴리가 커졌습니다. 지수가 버티는 동안 소수 종목 의존이 깊어진 상태입니다'
       : spx20 < 0 && b50d20 < 0 ? '지수와 참여가 함께 약해지는 중입니다'
-        : spx20 > 0 && b50d20 > 0 ? '지수와 참여가 함께 넓어지는 건강한 흐름입니다'
+        // v57.69 (2026-10-15 audit): "healthy" sat beside six distribution days (84th percentile) on the same screen.
+        : spx20 > 0 && b50d20 > 0 ? (dd != null && dd >= 5 ? '지수와 참여가 함께 넓어졌지만 분배일이 경고 구간(5회 이상)이라 건강하다고 단정하지 않습니다' : '지수와 참여가 함께 넓어지는 건강한 흐름입니다')
           : spx20 <= 0 && b50d20 > 0 ? '지수는 쉬지만 참여는 오히려 넓어져 바닥 다지기 쪽입니다'
             // P1591 (M05): the remaining case is index up / participation down but smaller than the -10%p gap rule.
             : spx20 > 0 && b50d20 <= 0 ? '지수는 올랐지만 참여는 소폭 줄었습니다 — 아직 큰 괴리(10%p 이상 감소)는 아닙니다' : '지수와 참여가 모두 거의 변하지 않았습니다';
