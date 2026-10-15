@@ -2459,10 +2459,10 @@ export function scenarioStateThemeLines(state) {
   const byKey = new Map(themes.map((row) => [`${row.market}:${row.id}`, row]));
   const named = (keys = []) => keys.map((key) => byKey.get(key)).filter(Boolean).map((row) => `${row.label}(1개월 ${row.ret1m >= 0 ? '+' : ''}${Number(row.ret1m).toFixed(1)}%)`).slice(0, 6).join(', ');
   const h = state.highlights || {};
-  return [`【테마 갈림길 — 모든 테마를 같은 규칙으로(${state.basis?.themeAsOf || '기준일 미확인'} 완료 종가, 직전 갱신)】`, state.rotation?.text ? `가격 기준 강약 이동: ${state.rotation.text}` : '',
-    h.structuralPullbacks?.length ? `긴 추세 속 조정 + 거시 역풍 아님: ${named(h.structuralPullbacks)}` : '',
-    h.headwindLeaders?.length ? `거시 역풍에도 주도: ${named(h.headwindLeaders)}` : '',
-    h.tailwindLaggards?.length ? `거시 순풍인데 약세: ${named(h.tailwindLaggards)}` : ''].filter(Boolean).join('\n');
+  return [`【테마 시나리오 — 모든 테마를 같은 규칙으로(${state.basis?.themeAsOf || '기준일 미확인'} 완료 종가, 직전 갱신)】`, state.rotation?.text ? `가격 기준 강약 이동: ${state.rotation.text}` : '',
+    h.structuralPullbacks?.length ? `긴 추세 속 조정 + 거시 부담 아님: ${named(h.structuralPullbacks)}` : '',
+    h.headwindLeaders?.length ? `거시 부담에도 주도: ${named(h.headwindLeaders)}` : '',
+    h.tailwindLaggards?.length ? `거시 수혜인데 약세: ${named(h.tailwindLaggards)}` : ''].filter(Boolean).join('\n');
 }
 
 async function readHistoryRows() {
@@ -2570,8 +2570,8 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     const model = SHARED_AI_MODEL;
     const prompt = [
       '아래 근거로 시장 해석을 반드시 한국어로만 작성하라(영어 문장 금지). 제목·마크다운 헤더 없이 7~9줄 평문으로 쓴다. Write the whole answer in Korean.',
-      '순서: (1) 완료된 종가 기준으로 무엇이 얼마나 바뀌었나(METRIC_EVIDENCE의 change 값 — 절대값이 가장 큰 변화부터) (2) 그 변화가 REGIME_CONTEXT의 어느 축·흐름과 맞물리는가 (3) 지금 조건에 가장 가까운 흐름 — 반드시 흐름·갈림길 이름과 함께("「이름」 — 조건 부합 n/m"), 숫자만 단독으로 쓰지 않는다 (4) 앞으로의 갈림길: REGIME_CONTEXT의 【앞으로의 갈림길】에서 다음 분기점(발표 날짜)과 조건이 가장 많이 맞는 길, 시장 가격이 같은 방향인지, 금리 괴리가 있으면 그 뜻 — 인과(무엇이 무엇을 거쳐 주가에 닿는지)를 한 문장으로 (5) 그 길이라면 선택지(기다림·분할 접근·보유 유지·방어 전환)별 기회비용과 상대적으로 유리한 쪽, 반대 길로 가면 무엇이 바뀌는지, 【테마 갈림길】이 있으면 그 길에서 순풍·역풍인 테마와 추세 속 조정 테마를 한 문장으로 (6) 다음에 확인할 것과 이 해석이 틀렸다고 볼 반증 조건. 지표를 나열만 하거나 "두 지표는 서로 다르다"처럼 정보가 없는 문장은 쓰지 마라.',
-      '가격·수량·시점·특정 종목 매매 지시(사라/팔아라, 목표가, "비중을 늘리세요" 같은 명령)는 쓰지 않는다. 대신 갈림길별 선택지의 기회비용과 "이 길이라면 상대적으로 유리한 쪽"은 REGIME_CONTEXT 근거로 쓴다(소유자 2026-10-13). 가능성은 조건 부합 n/m · 시장 가격 방향 · 과거 빈도(표본 수와 함께)로만 말하고 %·확률 숫자를 만들지 마라. 세부 종목 선택은 사용자가 차트·기업·테마·스크리너에서 한다고 밝혀도 된다.',
+      '순서: (1) 완료된 종가 기준으로 무엇이 얼마나 바뀌었나(METRIC_EVIDENCE의 change 값 — 절대값이 가장 큰 변화부터) (2) 그 변화가 REGIME_CONTEXT의 어느 축·흐름과 맞물리는가 (3) 지금 조건에 가장 가까운 흐름 — 반드시 흐름·시나리오 이름과 함께("「이름」 — 조건 충족 n/m"), 숫자만 단독으로 쓰지 않는다 (4) 향후 시나리오: REGIME_CONTEXT의 【향후 시나리오】에서 다음 발표(날짜)과 조건이 가장 많이 맞는 시나리오, 시장 가격이 같은 방향인지, 금리 괴리가 있으면 그 뜻 — 인과(무엇이 무엇을 거쳐 주가에 닿는지)를 한 문장으로 (5) 그 시나리오라면 선택지(관망·분할 접근·보유 유지·방어 전환)별 기회비용과 상대적으로 유리한 쪽, 반대 시나리오로 가면 무엇이 바뀌는지, 【테마 시나리오】가 있으면 그 시나리오에서 수혜·부담인 테마와 추세 속 조정 테마를 한 문장으로 (6) 다음에 확인할 것과 이 해석이 틀렸다고 볼 반증 조건. 지표를 나열만 하거나 "두 지표는 서로 다르다"처럼 정보가 없는 문장은 쓰지 마라.',
+      '가격·수량·시점·특정 종목 매매 지시(사라/팔아라, 목표가, "비중을 늘리세요" 같은 명령)는 쓰지 않는다. 대신 시나리오별 선택지의 기회비용과 "이 시나리오라면 상대적으로 유리한 쪽"은 REGIME_CONTEXT 근거로 쓴다(소유자 2026-10-13). 가능성은 조건 충족 n/m · 시장 가격 방향 · 과거 빈도(표본 수와 함께)로만 말하고 %·확률 숫자를 만들지 마라. 세부 종목 선택은 사용자가 차트·기업·테마·스크리너에서 한다고 밝혀도 된다.',
       '각 변화율은 반드시 그 지표 이름 바로 뒤에 쓴다(예: "코스피 -1.2%"). 다른 지표의 변화율을 앞 지표 이름에 붙이지 마라. 금리(10Y)의 변화는 bp로만 쓰고 %로 쓰지 마라(금리 수준만 % 단위).',
       'METRIC_EVIDENCE에는 완료된 종가만 들어 있다. 장중 값은 쓰지 마라. 부득이 장중 값을 언급하면 "장중"과 관측 시각(예: 13:05 KST)을 같은 문장에 쓰고 "마감·종가"라고 쓰지 마라.',
       'Every numeric claim must be supported by one or more supplied METRIC_EVIDENCE ids.',

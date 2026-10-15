@@ -1,3 +1,9 @@
+## v57.72 (2026-10-15)
+- Scenario vocabulary across macro-crossroads, theme playbook, stock/company/screener links, news topic tags, AI answer visuals, answer modes and the market-analysis prompt
+- Shared UI jargon and retired API-key error text replaced with plain Korean
+- Lesson section labels (…에 주는 영향, 틀렸다고 볼 조건) and news/briefing/sentiment empty-state copy simplified
+- R1 7곳 v57.72
+
 ## v57.71 (2026-10-15)
 - **오늘의 한 문장 (v57.71, 소유자 2026-10-15):** 홈의 운영자 노트를 하루 시장을 관통하는 한 문장으로 바꿨다. 시장 해석을 쓰는 같은 AI 호출이 마지막 줄에 한 문장을 쓰고(추가 비용 없음), 숫자·종목·매매 지시가 없을 때만 받으며, 08:00 KST 기준 하루 한 번 정해진다. operator-note.json에 그날 날짜와 sentence를 넣으면 운영자 문장이 대신 표시된다. 일반 사용자에게 숨겨져 있던 카드(v52.88 개발자 모드 전용)를 다시 보이게 했다.
 - **연합뉴스 시장 피드 (v57.71, 소유자 2026-10-15):** Google 뉴스 한국 피드가 08:00 이후 기사를 늦게 색인해 장중 속보가 비던 문제에, 연합뉴스 시장 RSS를 같은 갱신 주기(약 30분)로 직접 읽는다. 사용자별 요청은 늘지 않는다.

@@ -182,12 +182,12 @@ export async function buildRelativeVisual({ documentRef: doc, root, symbols }) {
 async function buildCrossroadsVisual({ documentRef: doc, root }) {
   const model = crossroadsForRoot(root, { regime: readMarketRegime(root) });
   if (!model?.available || model.held) return null;
-  const tone = { same: '이 길 쪽', against: '반대쪽', neutral: '중립', unknown: '보류' };
+  const tone = { same: '이 시나리오 쪽', against: '반대쪽', neutral: '중립', unknown: '보류' };
   const rows = [...model.items].sort((a, b) => (b.id === model.leadId) - (a.id === model.leadId) || (b.id === model.altId) - (a.id === model.altId) || b.met / b.total - a.met / a.total).slice(0, 6);
   const dots = (item) => Array.from({ length: item.total }, (_, i) => `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:2px;border:1.5px solid var(--text-secondary);${i < item.met ? 'background:var(--text-primary);border-color:var(--text-primary);' : ''}"></span>`).join('');
-  const { figure, body } = frame(doc, '앞으로의 갈림길 — 조건 부합 · 시장 가격 · 그 길에서 유리한 쪽',
-    `${model.asOf || ''} 관측 기준 · 확률이 아니라 맞는 조건 수와 시장 가격 방향입니다.${model.nextEvent ? ` 다음 분기점 ${esc(model.nextEvent.date)} ${esc(model.nextEvent.name)}.` : ''}`);
-  body.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px;">${rows.map((item) => `<tr style="border-top:1px solid var(--border-subtle);${item.id === model.leadId ? 'font-weight:600;' : ''}"><td style="padding:4px 6px 4px 0;color:var(--text-primary);">${esc(item.title.split(' — ')[0])}${item.id === model.leadId ? ' (선두)' : item.id === model.altId ? ' (함께 볼 길)' : ''}</td><td style="padding:4px 6px;white-space:nowrap;" aria-label="조건 ${item.met}/${item.total}">${dots(item)}<span style="margin-left:4px;color:var(--text-secondary);">${item.met}/${item.total}</span></td><td style="padding:4px 6px;color:var(--text-secondary);white-space:nowrap;">${esc(tone[item.pricing.tone] || '보류')}</td><td style="padding:4px 0;color:var(--text-secondary);">${esc(item.favored.map((key) => CHOICES[key].split(' (')[0]).join(' · '))}</td></tr>`).join('')}</table>`;
+  const { figure, body } = frame(doc, '향후 시나리오 — 조건 충족 · 시장 가격 · 그 시나리오에서 유리한 쪽',
+    `${model.asOf || ''} 관측 기준 · 확률이 아니라 맞는 조건 수와 시장 가격 방향입니다.${model.nextEvent ? ` 다음 발표 ${esc(model.nextEvent.date)} ${esc(model.nextEvent.name)}.` : ''}`);
+  body.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px;">${rows.map((item) => `<tr style="border-top:1px solid var(--border-subtle);${item.id === model.leadId ? 'font-weight:600;' : ''}"><td style="padding:4px 6px 4px 0;color:var(--text-primary);">${esc(item.title.split(' — ')[0])}${item.id === model.leadId ? ' (중심)' : item.id === model.altId ? ' (대안)' : ''}</td><td style="padding:4px 6px;white-space:nowrap;" aria-label="조건 ${item.met}/${item.total}">${dots(item)}<span style="margin-left:4px;color:var(--text-secondary);">${item.met}/${item.total}</span></td><td style="padding:4px 6px;color:var(--text-secondary);white-space:nowrap;">${esc(tone[item.pricing.tone] || '보류')}</td><td style="padding:4px 0;color:var(--text-secondary);">${esc(item.favored.map((key) => CHOICES[key].split(' (')[0]).join(' · '))}</td></tr>`).join('')}</table>`;
   return figure;
 }
 
@@ -198,8 +198,8 @@ async function buildThemesVisual({ documentRef: doc, root }) {
   if (!playbook?.available) return null;
   const pct = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
   const color = { tail: 'var(--data-green)', head: 'var(--data-red)', mixed: 'var(--text-primary)', none: 'var(--text-muted)' };
-  const { figure, body } = frame(doc, '테마 단계와 거시 바람 (모든 테마, 같은 규칙)',
-    `${esc(playbook.asOf || '')} 완료 종가 · 긴 추세(미국 6개월, 한국 3개월)와 1개월 움직임 · 색은 선두 거시 길에서의 순풍(초록)·역풍(빨강).`);
+  const { figure, body } = frame(doc, '테마 단계와 거시 영향 (모든 테마, 같은 규칙)',
+    `${esc(playbook.asOf || '')} 완료 종가 · 긴 추세(미국 6개월, 한국 3개월)와 1개월 움직임 · 색은 중심 시나리오 기준 수혜(초록)·부담(빨강).`);
   body.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;">${Object.keys(THEME_STATES).map((stage) => {
     const list = playbook.themes.filter((row) => row.state === stage).sort((a, b) => b.ret1m - a.ret1m);
     return `<div><div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:3px;">${esc(THEME_STATES[stage].split(' (')[0])} · ${list.length}</div>${list.slice(0, 6).map((row) => `<div style="font-size:12px;color:${color[row.wind.lead]};" title="${esc(WIND_LABELS[row.wind.lead])}">${row.market === 'KR' ? '국내' : '미국'} ${esc(row.label)} ${pct(row.ret1m)}</div>`).join('')}${list.length > 6 ? `<div style="font-size:12px;color:var(--text-muted);">외 ${list.length - 6}개</div>` : ''}</div>`;

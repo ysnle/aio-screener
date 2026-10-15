@@ -104,7 +104,7 @@ export function themesForBranch(branch) {
   return tail.length ? { wind: 'tail', themes: tail } : { wind: 'mixed', themes: (branch.mixed || []).length ? pick('mixed') : [] };
 }
 
-export const WIND_LABELS = Object.freeze({ tail: '순풍', head: '역풍', mixed: '엇갈림', none: '영향 작음' });
+export const WIND_LABELS = Object.freeze({ tail: '수혜', head: '부담', mixed: '혼재', none: '영향 작음' });
 export const tagLabels = (tags = []) => tags.map((tag) => EXPOSURE_TAGS[tag] || tag);
 
 /** Long-history proxy ETFs for theme state outcomes (reference only; the theme median itself is never replaced). */

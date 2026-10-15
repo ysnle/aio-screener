@@ -434,7 +434,7 @@ async function loadEarningsCalendar() {
     if (st) st.textContent = earnings.length + '건 어닝 + ' + ipos.length + 'IPO · ' + fromStr.slice(5) + '~' + toStr.slice(5) + ' (Finnhub)';
   } catch(e) {
     _aioLog('warn', 'fetch', 'earnings calendar error: ' + e.message);
-    body.innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--text-muted);font-size:10px;">어닝 캘린더 수신 실패 · API 키 확인 필요</div>';
+    body.innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--text-muted);font-size:10px;">실적 발표 일정을 불러오지 못했습니다</div>';
   }
 }
 
@@ -562,7 +562,7 @@ async function _fetchEarningsCalendarFMP(body, fmpKey) {
     });
     body.innerHTML = eHtml;
     var st = document.getElementById('earn-cal-status');
-    if (st) st.textContent = filtered.length + '건 · ' + from + '~' + to + ' (FMP source 확인)';
+    if (st) st.textContent = filtered.length + '건 · ' + from + '~' + to;
     console.log('[AIO] FMP 실적 캘린더 ' + filtered.length + '건 로드');
   } catch(e) {
     _aioLog('warn', 'fetch', 'FMP 캘린더 fetch 실패: ' + e.message);

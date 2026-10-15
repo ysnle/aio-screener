@@ -100,7 +100,7 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
   const basis = doc.getElementById('briefing-read-basis');
   if (basis) basis.textContent = read.available ? `${shortDate(read.asOf)} 미국 종가 기준 · 자동 해석` : '';
   const headline = doc.getElementById('briefing-read-headline');
-  if (headline) headline.textContent = read.available ? (read.headline || '두드러진 교차 신호가 없는 평이한 장세입니다.') : '종가 기록을 불러오는 중입니다.';
+  if (headline) headline.textContent = read.available ? (read.headline || '눈에 띄는 신호가 없는 평범한 하루입니다.') : '종가 기록을 불러오는 중입니다.';
   const headlineReading = doc.getElementById('briefing-read-reading');
   if (headlineReading) headlineReading.replaceChildren(...(read.headlineReading ? [el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(` ${read.headlineReading}`)] : []));
   const points = doc.getElementById('briefing-read-points');
@@ -148,11 +148,11 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
       const event = xr?.nextEvent;
       const sides = event ? (xr.items || []).filter((item) => item.id === xr.leadId || item.id === xr.altId)
         .map((item) => { const trigger = item.triggers.find((row) => row.id === event.id); return trigger ? `'${item.title.split(' — ')[0]}' 쪽이면 ${trigger.text}` : null; }).filter(Boolean) : [];
-      if (event && sides.length) { const [, m, d] = String(event.date || '').split('-').map(Number); split = `다음 분기점: ${m && d ? `${m}/${d} ` : ''}${event.name} — ${sides.join(', ')}`; }
+      if (event && sides.length) { const [, m, d] = String(event.date || '').split('-').map(Number); split = `다음 발표: ${m && d ? `${m}/${d} ` : ''}${event.name} — ${sides.join(', ')}`; }
     } catch (_) { split = null; }
     if (split) items.push(split);
     else if (nextRelease) items.push(`다음 주요 발표: ${nextRelease.when} ${nextRelease.label} (아래 일정에서 무엇을 볼지 확인)`);
-    checks.replaceChildren(...(items.length ? items.map((text) => el(doc, 'li', text)) : [el(doc, 'li', '특별히 확인할 변곡 신호가 없습니다.')]));
+    checks.replaceChildren(...(items.length ? items.map((text) => el(doc, 'li', text)) : [el(doc, 'li', '특별히 확인할 변화가 없습니다.')]));
     // v57.54 audit (13): the two paths the next release splits link to the themes each one favours.
     doc.getElementById('briefing-xr-themes')?.remove();
     const rows = split && xr ? (xr.items || []).filter((item) => item.id === xr.leadId || item.id === xr.altId).map((item) => themeLinkRow(doc, root, item)).filter(Boolean) : [];

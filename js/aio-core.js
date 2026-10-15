@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.71';
+const APP_VERSION = 'v57.72';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -3489,7 +3489,7 @@ window._aioUpdateFreshness = function() {
   var ageSec = Math.round((now - lastFetch) / 1000);
   var ageMin = Math.round(ageSec / 60);
   var state, color, src;
-  if (ageSec < 90) { state = 'source 확인'; color = 'var(--data-green)'; }
+  if (ageSec < 90) { state = '시세 확인됨'; color = 'var(--data-green)'; }
   else if (ageSec < 300) { state = '지연'; color = 'var(--data-amber)'; }
   else if (ageSec < 1800) { state = '스테일'; color = 'var(--data-amber)'; }
   else { state = '연결 끊김'; color = 'var(--data-red)'; }
@@ -17117,7 +17117,7 @@ const DATE_ENGINE = (function() {
     if (!hasMarketCalendar('KR', kst.getFullYear())) return { status: 'unknown', label: '연간 거래소 달력 미등록' };
     if (!isKrTradingDay(kst)) return { status: 'closed', label: '공휴일 휴장' };
     var t = kst.getHours() * 60 + kst.getMinutes();
-    if (t >= 540 && t < 900) return { status: 'open', label: '장중 (source 확인)' };
+    if (t >= 540 && t < 900) return { status: 'open', label: '장중' };
     if (t >= 900 && t < 930) return { status: 'after', label: '시간외 거래' };
     if (t >= 480 && t < 540) return { status: 'pre', label: '프리마켓' };
     return { status: 'closed', label: '장 마감' };

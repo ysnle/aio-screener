@@ -100,7 +100,7 @@ export function renderStressOutcomes({ documentRef: doc, root, anchor }) {
 
     // T14: the title names the one thing that was matched (VIX), and the bands are said to differ from the judgement bands.
     section.replaceChildren(el(doc, 'h2', '과거 빈도 — VIX가 비슷했던 날, 그 뒤 한 달', 'briefing-h2'),
-      el(doc, 'p', '위 갈림길의 가능성을 재는 세 번째 근거입니다. 지금 변동성 구간에서 시작했던 과거의 한 달이 실제로 어떻게 끝났는지를 봅니다 — 변동성 충격 길(VIX 30 이상)과 신용 경색 길을 가늠할 때 특히 씁니다.', 'regime-read'),
+      el(doc, 'p', '위 시나리오의 가능성을 재는 세 번째 근거입니다. 지금 변동성 구간에서 시작했던 과거의 한 달이 실제로 어떻게 끝났는지를 봅니다 — 변동성 충격 시나리오(VIX 30 이상)과 신용 경색 시나리오를 가늠할 때 특히 씁니다.', 'regime-read'),
       el(doc, 'p', `변동성(VIX) 구간별 S&P 500 한 달 뒤 평균 · ${from}~${String(payload.to || '').slice(0, 4)}`, 'regime-chart-caption'), chart, el(doc, 'p', reading, 'regime-read'),
       el(doc, 'p', `이 표의 VIX 구간(${payload.bands.map((band) => band.label.replace(/^VIX /, '')).join(' · ')})은 과거 결과를 나누는 구간이라, 시장 상태 변동성 축의 판정 기준(${RULES.volatility.calmBelow} · ${RULES.volatility.stressAt} · ${RULES.volatility.highAt})과 다릅니다.`, 'regime-chart-caption'), deep);
     section.title = `출처: ${payload.source || 'Yahoo Finance'}`;

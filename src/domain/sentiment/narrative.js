@@ -9,7 +9,7 @@ export const SENTIMENT_NARRATIVE_MODEL_VERSION = 'sentiment-narrative.v1';
 export function putCallBand(value) {
   const ratio = finite(value);
   if (ratio == null || ratio < 0 || ratio > 10) return Object.freeze({ value: null, label: '판정 보류', blocked: true });
-  if (ratio >= RULES.credit.putCallHedgeAt) return Object.freeze({ value: ratio, label: '풋 거래 비중이 높은 구간(헤지 수요 높음)', blocked: false });
+  if (ratio >= RULES.credit.putCallHedgeAt) return Object.freeze({ value: ratio, label: '풋 거래 비중이 높은 구간(하락 대비 수요 높음)', blocked: false });
   if (ratio < RULES.credit.putCallOptimismBelow) return Object.freeze({ value: ratio, label: '콜 거래 비중이 높은 구간', blocked: false });
   return Object.freeze({ value: ratio, label: '균형 구간', blocked: false });
 }

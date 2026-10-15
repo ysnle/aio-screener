@@ -330,8 +330,8 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
     // v57.50 I23: the news screen opens on 기업 뉴스 narrowed to this ticker.
     { route: 'market-news', label: '뉴스', why: `${symbol} 실적 발표·가이던스 소식`, ctx: { ticker: symbol } },
     // 2026-10-14 audit #22: the company's numbers continue into the theme and macro crossroads.
-    { route: 'themes', label: '테마 갈림길', why: '이 회사가 속한 테마가 지금 어느 단계이고 거시와 어떤 방향인지', ctx: { anchor: 'theme-playbook' } },
-    { route: 'macro', label: '거시 갈림길', why: '금리·경기 갈림길에서 이 실적 흐름이 순풍인지 역풍인지' }
+    { route: 'themes', label: '테마 시나리오', why: '이 회사가 속한 테마가 지금 어느 단계이고 거시와 어떤 방향인지', ctx: { anchor: 'theme-playbook' } },
+    { route: 'macro', label: '거시 시나리오', why: '금리·경기 시나리오에서 이 실적 흐름이 수혜인지 부담인지' }
   ]);
   return read;
 }

@@ -45,7 +45,7 @@ assert.equal(buildRegimeAxisHistory(input).axes.credit.length, 0, 'P1628 a missi
 const future = { ...macroHistory, series: { ...macroHistory.series, hyOas: { observations: [...macroHistory.series.hyOas.observations, ['2026-10-12', 99]] } } };
 assert.equal(buildRegimeAxisHistory(input, { macroHistory: future }).axes.credit[0].series.at(-1).value, 300, 'P1628 a later macro observation must not enter the US completed-close chart');
 const context = renderMarketScenarioContext(narrow);
-assert.ok(context.includes(`${asOf} 완료`) && context.includes('집중 유지 (현재 조건 부합)'), 'P1628 AI context must carry the exact screen model and completed observation date');
+assert.ok(context.includes(`${asOf} 완료`) && context.includes('집중 유지 (현재 조건 충족)'), 'P1628 AI context must carry the exact screen model and completed observation date');
 
 const krNow = Date.parse('2026-10-12T00:00:00Z');
 const krHistory = [

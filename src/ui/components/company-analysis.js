@@ -106,7 +106,7 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   if (model.business.description && ((meta.sector && !(fund && /^ETF$/i.test(meta.sector))) || meta.industry)) identity.append(element(doc,'p',[meta.sector && !(fund && /^ETF$/i.test(meta.sector)) ? `섹터 ${sectorLabel(meta.sector)}` : null,meta.industry ? `산업 ${meta.industry}` : null].filter(Boolean).join(' · '),'company-analysis-meta'));
   if (model.associations.length) {
     const themes=element(doc,'div',null,'company-analysis-themes');
-    // P1743 / 2026-10-14 audit #5: the same stage rows as 테마 갈림길, for this listing's own market (US or KR).
+    // P1743 / 2026-10-14 audit #5: the same stage rows as 테마 시나리오, for this listing's own market (US or KR).
     const stages=themeStagesFor(root,{symbol:id,themeIds:model.associations.map(theme=>theme.id)});
     for (const theme of model.associations) { const stage=stages.find(row=>row.id===theme.id); const button=element(doc,'button',`${theme.name}${theme.subThemes.length ? ` · ${theme.subThemes.join(' / ')}` : ''}${stage ? ` · 테마 단계: ${stage.stateLabel}` : ''}`); button.type='button'; button.addEventListener('click',()=>root?.showThemeDetail?.(theme.id)); themes.append(button); }
     identity.append(element(doc,'p','연결된 테마 · AIO 분류','company-analysis-meta'), themes);

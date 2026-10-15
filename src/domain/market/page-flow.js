@@ -112,7 +112,7 @@ export function sentimentFlow({ model = null, regime = null } = {}) {
   if (byId.breadth?.state === 'burden') next.push({ route: 'breadth', label: '시장 폭', why: `심리와 별개로 참여 종목이 줄고 있는지(시장 폭 ${byId.breadth.stateLabel})` });
   next.push({ route: 'signal', label: '시장 상태', why: '공포·탐욕과 AAII를 넣지 않은 6개 축(변동성·신용 포함)의 전체 판정' });
   // Audit 2026-10-14: mood is a reading of today; where it leads is decided by the next releases.
-  next.push({ route: 'macro', label: '거시 갈림길', why: '지금의 심리가 다음 발표가 가를 길(신용 경색·변동성 충격 등) 가운데 어느 쪽과 같은 방향인지' });
+  next.push({ route: 'macro', label: '거시 시나리오', why: '지금의 심리가 다음 발표가 가를 시나리오(신용 경색·변동성 충격 등) 가운데 어느 쪽과 같은 방향인지' });
   return { bridge, next };
 }
 

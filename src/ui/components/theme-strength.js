@@ -182,7 +182,7 @@ function renderCapexFlow(doc, root, host, model) {
   host.replaceChildren();
   host.append(el(doc, 'h2', AI_CAPEX_FLOW.title, 'briefing-h2'));
   // Expert review M20: the provider names sit in the hover title (and the page's folded 데이터 출처), the body keeps the date.
-  const basisLine = el(doc, 'p', `${AI_CAPEX_FLOW.asOf} 추정 배분 · 참고 자료(현재 신호 아님) · 각 층의 관련 테마 수익률은 위 순위와 같은 ${model.windowLabel} 기준 · 테마 값은 하위 테마 중앙값의 중앙값(테마 갈림길과 같은 방식)`, 'theme-strength-basis');
+  const basisLine = el(doc, 'p', `${AI_CAPEX_FLOW.asOf} 추정 배분 · 참고 자료(현재 신호 아님) · 각 층의 관련 테마 수익률은 위 순위와 같은 ${model.windowLabel} 기준 · 테마 값은 하위 테마 중앙값의 중앙값(테마 시나리오와 같은 방식)`, 'theme-strength-basis');
   basisLine.title = `출처: ${AI_CAPEX_FLOW.source}`;
   host.append(basisLine);
   const bar = el(doc, 'div', null, 'capex-flow-bar');
@@ -211,11 +211,11 @@ function renderCapexFlow(doc, root, host, model) {
     for (const themeId of layer.themes) {
       const theme = model.themes?.[themeId];
       if (!theme) continue;
-      // Audit 16: one method with the 테마 갈림길 cards — the median of the sub-theme medians on the latest session.
+      // Audit 16: one method with the 테마 시나리오 cards — the median of the sub-theme medians on the latest session.
       const subs = themeGroupValues(model, themeId);
       const button = el(doc, 'button', `${theme.name} ${subs.value == null ? '비교 보류' : pct(subs.value)}`, 'capex-flow-theme');
       button.type = 'button';
-      button.title = subs.value == null ? '같은 종가 기준일의 하위 테마 중앙값이 없어 비교를 보류합니다' : `하위 테마 ${subs.count}개 중앙값의 중앙값 (테마 갈림길 카드와 같은 방식)`;
+      button.title = subs.value == null ? '같은 종가 기준일의 하위 테마 중앙값이 없어 비교를 보류합니다' : `하위 테마 ${subs.count}개 중앙값의 중앙값 (테마 시나리오 카드와 같은 방식)`;
       button.addEventListener('click', () => { if (typeof root?.showThemeDetail === 'function') root.showThemeDetail(themeId); });
       links.append(button);
     }

@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try { localStorage.setItem('_ls_test', '1'); localStorage.removeItem('_ls_test'); }
     catch(e) {
       var w = document.getElementById('snapshot-stale-warning');
-      if (w) { w.textContent = '브라우저 저장이 차단되어 포트폴리오·API 키가 저장되지 않습니다.'; w.style.display = 'block'; }
+      if (w) { w.textContent = '브라우저 저장이 차단되어 포트폴리오·설정이 저장되지 않습니다.'; w.style.display = 'block'; }
     }
   })();
 
@@ -3263,7 +3263,7 @@ function _renderFundStatements(d) {
     html += secRow('영업CF', d.secFin.opCashFlow);
     html += '</table></div>';
   } else {
-    html += '<div style="padding:15px;text-align:center;color:var(--text-muted);font-size:10px;">재무제표 데이터 없음 (FMP API 키를 설정하면 풍부한 데이터를 볼 수 있습니다)</div>';
+    html += '<div style="padding:15px;text-align:center;color:var(--text-muted);font-size:10px;">재무제표 데이터 없음</div>';
   }
 
   body.innerHTML = html;
@@ -4005,7 +4005,7 @@ setTimeout(function() {
     if (isLoading && txt.length < 80) {
       el.innerHTML = '<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:11px;line-height:1.6;">' +
         '데이터를 불러오지 못했습니다.<br>' +
-        '<span style="font-size:10px;">네트워크 연결을 확인하거나, <b>사용 설명서</b>에서 API 키 설정을 확인하세요.</span><br>' +
+        '<span style="font-size:10px;">잠시 뒤 새로고침해 주세요. 계속되면 네트워크 연결을 확인하세요.</span><br>' +
         '<button data-action="_aioReload" style="margin-top:6px;padding:4px 12px;font-size:10px;background:rgba(var(--ink-rgb),0.1);border:1px solid rgba(var(--ink-rgb),0.3);color:var(--data-cyan);border-radius:4px;cursor:pointer;"> 새로고침</button>' +
         '</div>';
     }
@@ -4013,7 +4013,7 @@ setTimeout(function() {
   // status 스팬류 (텍스트 짧은 단일 라인)
   ['earn-cal-status','risk-radar-status'].forEach(function(id){
     var s = document.getElementById(id);
-    if (s && /로딩 중|데이터 로딩/.test(s.textContent || '')) s.textContent = '연결 실패 · API 키 확인';
+    if (s && /로딩 중|데이터 로딩/.test(s.textContent || '')) s.textContent = '불러오지 못했습니다 · 잠시 뒤 새로고침';
   });
 }, 15000);
 

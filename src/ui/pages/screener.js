@@ -49,7 +49,7 @@ const INDEX_CODE_LABELS = Object.freeze({
   TWSE: ['대만 상장(TWSE)', '대만증권거래소 상장 — 미국에서는 예탁증서 등으로 거래']
 });
 
-// 2026-10-14 audit #5: each ranked row carries its themes' stages (same rows as 테마 갈림길) so the reading can count
+// 2026-10-14 audit #5: each ranked row carries its themes' stages (same rows as 테마 시나리오) so the reading can count
 // the top fifth by stage. Nothing is attached when the per-refresh scenario state is not 'ok'.
 function withThemeStages(root, rows) {
   if (root?._aioScenarioState?.status !== 'ok') return rows;
@@ -1237,7 +1237,7 @@ function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavai
     scope.textContent = executed
       // Codex browser audit H43: one line says why the table count differs from the run's pass count.
       ? `실행 조건 통과 ${passed}종목(대상 ${runRow != null ? runRow : '미확인'} · 데이터 부족 ${unavailable}) — 저장·재실행·검증은 이 ${passed}종목 기준입니다. ${passedOnly ? `표에는 그중 ${filtered}행이 보입니다${filtered < passed ? '(섹터·검색 같은 표시 필터 적용)' : ''}.` : `표에는 탈락·데이터 부족 종목까지 포함한 ${filtered}행이 보입니다 — 통과 종목만 보려면 ‘실행 통과만’을 켭니다.`}`
-      : '실행 전 — 조건을 실행하면 실행 판정 분모가 고정됩니다. 표시 범위는 현재 필터 결과입니다.';
+      : '실행 전 — 조건을 실행하면 비교 기준 종목 수가 정해집니다. 표시 범위는 현재 필터 결과입니다.';
   }
 }
 

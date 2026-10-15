@@ -103,7 +103,7 @@ export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(in
       conditions: ['S&P 500이 200일선 아래이거나 하락하는 50일선 아래로 마감.', `50일선·200일선 위 종목 비율 중 하나가 ${RULES.breadth.weakBelow}% 미만.`, `HY ${RULES.credit.stressAtBp}bp 이상 또는 5일 +${RULES.credit.widen5dBp}bp 확대, 혹은 VIX ${RULES.volatility.stressAt} 이상·기간 구조 역전·5일 +${RULES.volatility.spike5dPct}% 급등 중 실제 부담 신호가 동반.`],
       counterEvidence: '지수가 이동평균을 회복하고 참여도가 넓어지며 HY 확대와 변동성 스트레스가 함께 진정되면 동반 약화의 근거를 다시 확인합니다. 금리 하락만으로 이 조건들이 충족됐다고 보지 않습니다.',
       observe: ['지수 회복이 하루 움직임에 그치는지', '시장 폭과 신고가·신저가도 동시에 회복하는지', 'HY 확대·VIX 역전이 실제로 완화되는지'] }
-  ].map(item => ({ ...item, held: hold, status: hold ? '판단 보류' : item.confirmed ? '현재 조건 부합' : '관찰할 조건',
+  ].map(item => ({ ...item, held: hold, status: hold ? '판단 보류' : item.confirmed ? '현재 조건 충족' : '관찰할 조건',
     facts, missing: missing.map(id => byId[id]?.title || (id === 'basis' ? '최신 종가 기록' : id)) }));
   return { available: true, asOf: regime.asOf, held: hold, scenarios,
     axes: regime.axes.map(axis => ({ id: axis.id, observe: OBSERVE[axis.id] || '', condition: axis.flip || null })),

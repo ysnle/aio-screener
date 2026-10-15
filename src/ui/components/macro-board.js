@@ -186,11 +186,11 @@ function axisCard(doc, row, root = null) {
   const branches = BRANCHES.filter((branch) => (branch.axes || []).includes(row.id));
   if (branches.length) {
     const strip = el(doc, 'div', null, 'macro-axis-branches');
-    strip.append(el(doc, 'span', '이 축이 가르는 길:', 'macro-axis-branches-label'));
+    strip.append(el(doc, 'span', '관련 시나리오:', 'macro-axis-branches-label'));
     for (const branch of branches) {
       const button = el(doc, 'button', branch.title.split(' — ')[0], 'macro-axis-branch');
       button.type = 'button';
-      button.title = `${branch.title} — 앞으로의 갈림길에서 근거와 선택지 보기`;
+      button.title = `${branch.title} — 향후 시나리오에서 근거와 선택지 보기`;
       button.addEventListener('click', () => openCrossroadsBranch(doc, root, branch.id));
       strip.append(button);
     }

@@ -1,5 +1,5 @@
 // 2026-10-14 audit #5: one accessor for "which stage is this stock's theme in", shared by the stock summary, the
-// company card and the screener reading so all three say exactly what 테마 갈림길 says (scenario-state.json rows).
+// company card and the screener reading so all three say exactly what 테마 시나리오 says (scenario-state.json rows).
 // Theme-level only: the favoured choice belongs to the theme, never a buy/sell instruction on a single stock.
 // When the per-refresh state is not 'ok' the accessor returns [] and callers render nothing (no placeholder).
 import { THEME_STATES } from './analogs.js';

@@ -22,10 +22,10 @@ function text(documentRef, value, fallback = '—') {
 const NEWS_EMPTY_REASON_COPY = Object.freeze({
   'no-input-news': '수신된 뉴스가 없습니다.',
   'all-news-outside-time-window': '선택한 조건으로 오늘 08:00 KST까지 24시간 동안 들어온 뉴스가 없습니다.',
-  'below-score-threshold-or-policy-excluded': '수신된 뉴스가 중요도·정책 기준을 통과하지 못했습니다.',
-  'filters-removed-all-eligible-news': '현재 필터 조합이 적격 뉴스를 모두 제외했습니다.',
-  'no-verified-current-news-for-surface-policy': '이 화면의 검증·현재성 기준을 통과한 뉴스가 없습니다.',
-  'native-model-unavailable': '뉴스 판정 모델을 사용할 수 없어 표시를 보류합니다.'
+  'below-score-threshold-or-policy-excluded': '들어온 뉴스 가운데 중요도 기준을 넘은 것이 없습니다.',
+  'filters-removed-all-eligible-news': '선택한 필터에 맞는 뉴스가 없습니다.',
+  'no-verified-current-news-for-surface-policy': '확인된 최신 뉴스가 없습니다.',
+  'native-model-unavailable': '뉴스 분류를 불러오지 못했습니다.'
 });
 
 // P1537 (audit H07): the article list follows the country/topic/type controls; the channel (Telegram) list below it is classified
@@ -176,9 +176,9 @@ function realTitle(root, item) {
   return typeof root?._aioStripPictographs === 'function' ? root._aioStripPictographs(title) : title; // P1500
 }
 
-// Audit 2026-10-14: a topic names the forward branch it feeds (거시 · 앞으로의 갈림길), so a headline is read as
+// Audit 2026-10-14: a topic names the forward branch it feeds (거시 · 향후 시나리오), so a headline is read as
 // evidence for or against a path rather than as an isolated event. Topics without a clear branch stay unlabelled.
-const TOPIC_BRANCHES = Object.freeze({ macro: '물가·고용 갈림길', fxbond: '물가·달러 갈림길', bond: '물가 재가속 갈림길', fx: '달러 급등 갈림길', energy: '유가 충격 갈림길', credit: '신용 경색 갈림길', geo: '유가·변동성 충격 갈림길' });
+const TOPIC_BRANCHES = Object.freeze({ macro: '물가·고용 시나리오', fxbond: '물가·달러 시나리오', bond: '물가 재가속 시나리오', fx: '달러 급등 시나리오', energy: '유가 충격 시나리오', credit: '신용 경색 시나리오', geo: '유가·변동성 충격 시나리오' });
 const TOPIC_LABELS = Object.freeze({ macro: '거시', semi: '반도체·AI', geo: '지정학', energy: '에너지', fxbond: '금리·외환', bond: '금리', fx: '외환', credit: '신용', crypto: '크립토', equity: '주식', earnings: '실적', kr: '한국' });
 
 function createNewsCard(documentRef, root, item, index) {

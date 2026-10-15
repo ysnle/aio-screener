@@ -610,7 +610,7 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
   }
   // v57.50 (W1 request): the theme detail continues where its reading points — W1's themeDetailFlow().next
   // (screener items carry ctx.sector, consumed by the screener handoff like I01).
-  // P1743 (audit 18): the theme's 갈림길 read (renderThemeDetailPlaybook fills this) sits before "이어서 볼 곳"; a stale
+  // P1743 (audit 18): the theme's 시나리오 read (renderThemeDetailPlaybook fills this) sits before "이어서 볼 곳"; a stale
   // copy outside the summary (older placement) is dropped so the id stays unique.
   documentRef.getElementById('theme-detail-native-playbook')?.remove();
   const playbookSlot = documentRef.createElement('div');

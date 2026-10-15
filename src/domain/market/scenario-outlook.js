@@ -1,6 +1,6 @@
 // P1633: what each market path would mean for the reader — how many of its conditions the current closes meet,
 // the related sectors and themes, and what to check, watch and ignore. T06 (expert review 2026-10-13, coordinator
-// decision): the '개연성 높음/중간/낮음' grade became "현재 조건 부합 n/m" (a count, not a likelihood), and the
+// decision): the '개연성 높음/중간/낮음' grade became "현재 조건 충족 n/m" (a count, not a likelihood), and the
 // allocation/timing advice (현금·단기채 비중, 기다리는 쪽, 기준선 가까운 종목이 유리) was removed — each path keeps only
 // what it would mean, what confirms it and what would refute it. No price, size or timing instruction.
 import { RULES } from '../rules/thresholds.js';
@@ -15,7 +15,7 @@ const DEFENSIVE = new Set(['XLV', 'XLP', 'XLU']);
 
 const join = (items) => items.filter(Boolean).join(' · ');
 const likelihoodOf = (met, total, confirmed) => confirmed ? '높음' : met / total >= 0.5 ? '중간' : '낮음'; // internal ordering key only
-export const fitLabel = (met, total) => `조건 부합 ${met}/${total}`; // P1745: one notation with the branches
+export const fitLabel = (met, total) => `조건 충족 ${met}/${total}`; // P1745: one notation with the branches
 
 /**
  * @param {object} input
@@ -99,8 +99,8 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
 
 export function renderScenarioOutlookContext(outlook) {
   if (!outlook?.available) return '';
-  return `${outlook.asOf} 완료 종가 기준 시나리오별 현재 조건 부합 수(규칙 충족 수이며 확률이나 가능성 등급이 아님). ${outlook.headline}\n`
+  return `${outlook.asOf} 완료 종가 기준 시나리오별 현재 조건 충족 수(규칙 충족 수이며 확률이나 가능성 등급이 아님). ${outlook.headline}\n`
     + outlook.items.map((item) => `${item.title}: ${item.fit} (${item.basis}). 읽기: ${item.posture} 관련 섹터·테마: ${item.opportunity} 확인: ${item.check.join('; ')} 조심: ${item.caution.join(' ')} 넘겨도 됨: ${item.ignore.join('; ')}`).join('\n')
-    // P1742 (owner 2026-10-13, supersedes T06): choices and opportunity cost come from the 갈림길 block; only instructions stay out.
-    + '\n가격·수량·시점·특정 종목 매매 지시는 하지 않는다. 선택지별 기회비용과 상대적으로 유리한 쪽은 【앞으로의 갈림길】 근거로만 말할 것.';
+    // P1742 (owner 2026-10-13, supersedes T06): choices and opportunity cost come from the 시나리오 block; only instructions stay out.
+    + '\n가격·수량·시점·특정 종목 매매 지시는 하지 않는다. 선택지별 기회비용과 상대적으로 유리한 쪽은 【향후 시나리오】 근거로만 말할 것.';
 }

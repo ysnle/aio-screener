@@ -55,8 +55,8 @@ export function diffSnapshots(previous, current, at) {
   const push = (kind, text) => out.push({ at, kind, text });
   const titleOf = (id, snap) => short(snap.crossroads?.items?.find((item) => item.id === id)?.title) || id;
   const p = previous.crossroads || {}, c = current.crossroads || {};
-  if (p.leadId !== c.leadId) push('lead', c.leadId ? `가장 맞는 갈림길이 '${p.leadId ? titleOf(p.leadId, previous) : '판단 보류'}'에서 '${titleOf(c.leadId, current)}'(으)로 바뀌었습니다.` : '조건을 확인할 관측이 부족해 선두 갈림길 판단을 보류합니다.');
-  else if (p.altId !== c.altId && c.altId) push('alt', `함께 볼 길이 '${titleOf(c.altId, current)}'(으)로 바뀌었습니다.`);
+  if (p.leadId !== c.leadId) push('lead', c.leadId ? `가장 맞는 시나리오가 '${p.leadId ? titleOf(p.leadId, previous) : '판단 보류'}'에서 '${titleOf(c.leadId, current)}'(으)로 바뀌었습니다.` : '조건을 확인할 관측이 부족해 중심 시나리오 판단을 보류합니다.');
+  else if (p.altId !== c.altId && c.altId) push('alt', `대안 시나리오가 '${titleOf(c.altId, current)}'(으)로 바뀌었습니다.`);
   const before = new Map((p.items || []).map((item) => [item.id, item]));
   for (const item of c.items || []) {
     const old = before.get(item.id);
@@ -64,10 +64,10 @@ export function diffSnapshots(previous, current, at) {
     if (old.met !== item.met && item.known >= 2) {
       const gained = item.conditions.filter(([label, ok]) => ok === true && old.conditions.find(([l]) => l === label)?.[1] !== true).map(([label]) => label.split(' (')[0]);
       const lost = item.conditions.filter(([label, ok]) => ok !== true && old.conditions.find(([l]) => l === label)?.[1] === true).map(([label]) => label.split(' (')[0]);
-      push('fit', `'${short(item.title)}' 조건 부합 ${old.met}/${old.total} → ${item.met}/${item.total}${gained.length ? ` (새로 충족: ${gained.join(', ')})` : ''}${lost.length ? ` (더 이상 아님: ${lost.join(', ')})` : ''}.`);
+      push('fit', `'${short(item.title)}' 조건 충족 ${old.met}/${old.total} → ${item.met}/${item.total}${gained.length ? ` (새로 충족: ${gained.join(', ')})` : ''}${lost.length ? ` (더 이상 아님: ${lost.join(', ')})` : ''}.`);
     }
     if (old.pricingTone !== item.pricingTone && old.pricingTone !== 'unknown' && item.pricingTone !== 'unknown') {
-      const label = { same: '이 길 쪽', against: '반대쪽', neutral: '중립' };
+      const label = { same: '이 시나리오 쪽', against: '반대쪽', neutral: '중립' };
       push('pricing', `'${short(item.title)}'에 대한 시장 가격이 ${label[old.pricingTone] || old.pricingTone}에서 ${label[item.pricingTone] || item.pricingTone}(으)로 바뀌었습니다.`);
     }
   }

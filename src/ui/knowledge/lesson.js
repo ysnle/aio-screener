@@ -32,9 +32,9 @@ export function renderKnowledgeLesson(documentRef, article, { className = 'knowl
   root.append(element(documentRef, 'h4', 'knowledge-lesson-title', article.title), element(documentRef, 'p', 'knowledge-lesson-boundary', '개념별 짧은 참고 원문 · 심층 설명은 추가 집필 필요'));
   const fields = [
     ['정의', article.article.intuition], ['작동 원리', article.article.formalModelOrRationale?.text],
-    ['실물경제 전달', article.article.realEconomyChannel], ['기업 전달', article.article.companyChannel],
-    ['재무제표 전달', article.article.financialStatementChannel], ['밸류에이션 전달', article.article.valuationChannel],
-    ['시장 전달', article.article.marketChannel], ['관찰 적용', article.article.tradingApplication], ['무효화 조건', article.article.invalidation]
+    ['경제에 주는 영향', article.article.realEconomyChannel], ['기업에 주는 영향', article.article.companyChannel],
+    ['재무제표에 주는 영향', article.article.financialStatementChannel], ['밸류에이션에 주는 영향', article.article.valuationChannel],
+    ['시장에 주는 영향', article.article.marketChannel], ['투자에서 쓰는 법', article.article.tradingApplication], ['틀렸다고 볼 조건', article.article.invalidation]
   ];
   for (const [label, value] of fields) {
     if (!value) continue;
@@ -60,10 +60,10 @@ export function renderKnowledgeLesson(documentRef, article, { className = 'knowl
   if (routeTarget?.routeId && typeof onNavigate === 'function') {
     const bridge = element(documentRef, 'section', 'knowledge-professional-bridge');
     bridge.append(
-      element(documentRef, 'strong', 'knowledge-professional-bridge-title', '전문 화면에서 실제 데이터 검증'),
+      element(documentRef, 'strong', 'knowledge-professional-bridge-title', '관련 화면에서 실제 데이터로 확인'),
       element(documentRef, 'p', 'knowledge-lesson-copy', `${routeTarget.metric || '연결 지표'} · ${routeTarget.timeframe || '기간 확인'} 맥락을 전달합니다. 이 링크 자체는 투자 판단이 아닙니다.`)
     );
-    const action = element(documentRef, 'button', 'knowledge-professional-bridge-button', routeTarget.routeLabel || '전문 화면 열기');
+    const action = element(documentRef, 'button', 'knowledge-professional-bridge-button', routeTarget.routeLabel || '관련 화면 열기');
     action.type = 'button';
     action.dataset.knowledgeRoute = routeTarget.routeId;
     action.dataset.knowledgeMetric = routeTarget.metric || '';

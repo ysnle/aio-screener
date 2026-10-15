@@ -241,7 +241,7 @@ export function validateAnalysisAdmission(body, { changes = new Map(), context =
   if (ANALYSIS_TRADE_INSTRUCTION.test(body)) issues.push('trade-instruction');
   if (ANALYSIS_PROBABILITY.test(body)) issues.push('probability-claim');
   // Condition counts must be well-formed and, when a regime context was supplied, appear in it.
-  for (const match of body.matchAll(/(\d+)\s*\/\s*(\d+)\s*(?:개)?\s*(?:조건|충족)|(?:조건|부합)\s*(\d+)\s*\/\s*(\d+)/g)) { // T06: "현재 조건 부합 n/m"
+  for (const match of body.matchAll(/(\d+)\s*\/\s*(\d+)\s*(?:개)?\s*(?:조건|충족)|(?:조건|부합|충족)\s*(\d+)\s*\/\s*(\d+)/g)) { // T06: "현재 조건 충족 n/m" (v57.72 wording; 부합 kept for older text)
     const met = Number(match[1] ?? match[3]); const total = Number(match[2] ?? match[4]);
     if (!(total > 0) || met > total || total > 10) issues.push('condition-count-invalid');
     else if (context && !new RegExp(String.raw`(?:조건\s*${met}\s*/\s*${total}|${met}\s*/\s*${total})`).test(context)) issues.push('condition-count-unsupported');

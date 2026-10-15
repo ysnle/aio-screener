@@ -144,7 +144,7 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
   const section = el(doc, 'section', null, 'regime-scenarios');
   section.dataset.aioRegimeScenarios = 'native';
   section.id = 'regime-structure';
-  section.append(el(doc, 'h2', '지금 구조와 앞으로의 갈림길', 'briefing-h2'),
+  section.append(el(doc, 'h2', '지금 시장과 향후 시나리오', 'briefing-h2'),
     el(doc, 'p', `${model.asOf || '기준일 미확인'} 완료 종가 기준 · 먼저 지금 시장이 세 구조 중 어디에 가까운지(맞는 조건 수, 확률 아님)를 보고, 이어서 다음 발표가 그 구조를 어느 쪽으로 옮길지 봅니다.`, 'regime-scenario-basis'));
   if (!model.available) { section.append(el(doc, 'p', model.reason, 'regime-scenario-hold')); return section; }
   if (model.reason) section.append(el(doc, 'p', model.reason, 'regime-scenario-hold'));
@@ -275,7 +275,7 @@ export function renderRegimePage({ documentRef: doc, root }) {
   previous?.remove();
   root.__aioScenarioOutlook = scenarios.available ? outlookForRoot(root, { scenarios, regime }) : null;
   const scenarioNode = board ? scenarioSection(doc, root, scenarios, root.__aioScenarioOutlook, openIds) : null;
-  if (scenarioNode) { board.insertAdjacentElement('afterend', scenarioNode); renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: scenarioNode.lastElementChild || scenarioNode, id: 'signal-crossroads', title: '다음 발표가 가를 길' }); } // P1742: the branches continue the structure section
+  if (scenarioNode) { board.insertAdjacentElement('afterend', scenarioNode); renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: scenarioNode.lastElementChild || scenarioNode, id: 'signal-crossroads', title: '다음 발표에 달린 시나리오' }); } // P1742: the branches continue the structure section
   renderNextSteps(doc, doc.getElementById('regime-next'), regimeFlow({ regime, groups: root.__aioScenarioOutlook?.rotation || {} }).next); // P1431, I02
   // P1727: a link that asked for a section of this page (the briefing's Korea sentence -> 한국 시장 참고) shows it once.
   const handoff = consumeResearchHandoff({ root, routeId: 'signal' });

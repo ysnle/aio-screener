@@ -203,7 +203,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   const sector = etf && rotation[etf] ? { etf, label: SECTOR_KO[etf] || etf, quadrant: QUADRANT[rotation[etf].quadrant] || null, sessionDate: rotation[etf].sessionDate || null } : null;
   const themed = (themes || []).map((theme) => ({ ...theme, quadrant: theme.etf && rotation[theme.etf] ? QUADRANT[rotation[theme.etf].quadrant] || null : null }));
   const topTheme = themed.find((theme) => theme.quadrant) || themed[0] || null;
-  // 2026-10-14 audit #5: the theme's stage (same rows as 테마 갈림길) leads this point, one line per theme. The favoured
+  // 2026-10-14 audit #5: the theme's stage (same rows as 테마 시나리오) leads this point, one line per theme. The favoured
   // choice is the theme's, never an instruction on this stock. The rotation-quadrant wording stays as folded evidence.
   const stages = (Array.isArray(themeStages) ? themeStages : []).filter((stage) => stage?.id && stage.stateLabel);
   const stageLines = stages.map((stage) => ({ id: stage.id, label: stage.label,

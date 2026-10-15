@@ -182,9 +182,9 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
         const row = el(doc, 'span', line.text, 'stock-read-theme-line');
         row.style.display = 'block';
         if (typeof root?.showThemeDetail === 'function') {
-          const go = el(doc, 'button', '이 테마의 갈림길 →', 'stock-read-point-link');
+          const go = el(doc, 'button', '이 테마의 시나리오 →', 'stock-read-point-link');
           go.type = 'button';
-          go.setAttribute('aria-label', `${line.label} 테마의 갈림길 보기`);
+          go.setAttribute('aria-label', `${line.label} 테마의 시나리오 보기`);
           go.addEventListener('click', () => root.showThemeDetail(line.id));
           row.append(doc.createTextNode(' '), go);
         }

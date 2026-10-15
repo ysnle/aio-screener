@@ -27,17 +27,17 @@ const FAVOURED = {
   weak: { tail: ['wait'], head: ['wait'], mixed: ['wait'], none: ['wait'] }
 };
 const WHY = {
-  leading: { tail: '추세와 거시 순풍이 같은 방향이라 보유를 이어 가는 쪽의 기회비용이 작습니다. 새로 들어가는 것은 이미 오른 가격(50일선과의 거리)을 감수하는 일입니다.',
-    head: '추세는 강하지만 거시 역풍이 있어, 보유는 유지하되 역풍이 실제 실적으로 번지는지 확인하는 쪽이 맞습니다.',
+  leading: { tail: '추세와 거시 수혜가 같은 방향이라 보유를 이어 가는 쪽의 기회비용이 작습니다. 새로 들어가는 것은 이미 오른 가격(50일선과의 거리)을 감수하는 일입니다.',
+    head: '추세는 강하지만 거시 부담이 있어, 보유는 유지하되 부담이 실제 실적으로 번지는지 확인하는 쪽이 맞습니다.',
     other: '추세가 살아 있는 동안에는 보유를 이어 가는 쪽의 기회비용이 작습니다.' },
-  pullback: { tail: '긴 추세는 살아 있고 거시도 순풍인 조정은, 나눠 들어가는 쪽이 바닥 시점을 맞히지 않고도 다음 상승을 놓치지 않는 조합입니다. 구조 가설이 깨지는 신호가 나오면 멈춥니다.',
-    head: '긴 추세가 살아 있어도 거시 역풍 속 조정은 더 깊어질 수 있어, 역풍이 약해지는 것을 기다리는 쪽의 비용이 작습니다.',
+  pullback: { tail: '긴 추세는 살아 있고 거시도 수혜인 조정은, 나눠 들어가는 쪽이 바닥 시점을 맞히지 않고도 다음 상승을 놓치지 않는 조합입니다. 구조 가설이 깨지는 신호가 나오면 멈춥니다.',
+    head: '긴 추세가 살아 있어도 거시 부담 속 조정은 더 깊어질 수 있어, 부담이 약해지는 것을 기다리는 쪽의 비용이 작습니다.',
     other: '조정이 추세 붕괴인지 쉬어 가기인지 50일선 위 종목 비율로 가늠하며, 확인되면 나눠 들어가는 쪽이 맞습니다.' },
-  rebound: { tail: '하락 추세 속 반등이지만 거시 순풍이 있어, 반등이 추세 전환으로 이어지는지 확인하며 나눠 보는 편이 맞습니다.',
-    head: '역풍 속 반등은 짧게 끝나는 경우가 많아, 추세 전환이 확인될 때까지 기다리는 쪽의 비용이 작습니다.',
+  rebound: { tail: '하락 추세 속 반등이지만 거시 수혜가 있어, 반등이 추세 전환으로 이어지는지 확인하며 나눠 보는 편이 맞습니다.',
+    head: '부담 속 반등은 짧게 끝나는 경우가 많아, 추세 전환이 확인될 때까지 기다리는 쪽의 비용이 작습니다.',
     other: '하락 추세 속 반등은 전환인지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.' },
-  weak: { tail: '거시 순풍에도 약세가 이어진다면 업종 고유의 문제가 있을 수 있어, 원인이 확인될 때까지 기다리는 쪽이 맞습니다.',
-    head: '약세와 거시 역풍이 겹쳐 기다림의 비용이 가장 작은 조합입니다.',
+  weak: { tail: '거시 수혜에도 약세가 이어진다면 업종 고유의 문제가 있을 수 있어, 원인이 확인될 때까지 기다리는 쪽이 맞습니다.',
+    head: '약세와 거시 부담이 겹쳐 기다림의 비용이 가장 작은 조합입니다.',
     other: '약세가 이어지는 동안 기다림의 비용은 작습니다.' }
 };
 const CHOICE_TEXT = {
@@ -77,7 +77,7 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, above50, basis, grou
   const conditions = state ? [
     [`긴 추세 유지 (${ret6m != null ? '6개월' : '3개월'} 중앙값 플러스)`, trend == null ? null : trend > 0],
     ['조정이 무너지지 않음 (50일선 위 종목 30% 이상)', above50 == null ? null : above50 >= 30],
-    [`선두 거시 길에서 순풍 또는 중립${lead ? ` ('${lead.title.split(' — ')[0]}')` : ''}`, lead ? wind.lead !== 'head' : null],
+    [`중심 시나리오에서 수혜 또는 중립${lead ? ` ('${lead.title.split(' — ')[0]}')` : ''}`, lead ? wind.lead !== 'head' : null],
     ['신용 안정 (신용 축 부담 아님)', credit == null || credit === 'unknown' ? null : credit !== 'burden'],
     // A drop that has taken back more than half of the gain before it is no longer a pause inside the trend.
     ...(state === 'pullback' ? [['조정 깊이 (1개월 낙폭이 그 전까지 오른 폭의 절반 이하)', depthOk(trend, ret1m)]] : [])
@@ -89,9 +89,9 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, above50, basis, grou
   return {
     market, id, label, tags, tagLabels: tags.map((tag) => EXPOSURE_TAGS[tag]), thesis: profile?.thesis || null, breaks: profile?.breaks || [],
     ret1m, ret3m, ret6m, above50, basis, members, state, stateLabel: state ? `${THEME_STATES[state]}${midNote(state, ret6m, ret3m)}` : '판정 보류',
-    wind, windText: lead ? `선두 길 '${lead.title.split(' — ')[0]}'에서 ${WIND_LABELS[wind.lead]}${alt ? ` · 함께 볼 길 '${alt.title.split(' — ')[0]}'에서 ${WIND_LABELS[wind.alt]}` : ''}` : '거시 갈림길 판단 보류',
+    wind, windText: lead ? `중심 시나리오 '${lead.title.split(' — ')[0]}'에서 ${WIND_LABELS[wind.lead]}${alt ? ` · 대안 시나리오 '${alt.title.split(' — ')[0]}'에서 ${WIND_LABELS[wind.alt]}` : ''}` : '거시 시나리오 판단 보류',
     favored, favoredWhy: why, choices: state ? CHOICE_TEXT[state] : {},
-    fit: known.length < 2 ? '판단 보류' : `조건 부합 ${met}/${conditions.length}`, met, total: conditions.length, known: known.length,
+    fit: known.length < 2 ? '판단 보류' : `조건 충족 ${met}/${conditions.length}`, met, total: conditions.length, known: known.length,
     basisText: conditions.map(([text, ok]) => `${text} ${ok == null ? '확인 불가' : ok ? '충족' : '미충족'}`),
     past: proxy ? frequencyText({ ...proxy, subject: proxySymbol }, `대표 ETF ${proxySymbol}가 같은 단계(${THEME_STATES[state].split(' (')[0]})였을 때`, { source: '장기 일봉 기록' }) : '같은 단계의 장기 과거 기록(대표 ETF)이 없어 빈도를 말하지 않습니다.',
     positioning: '레버리지·포지션 쏠림을 직접 재는 자료는 없습니다 — 1개월 낙폭과 50일선 위 비율로만 가격 쪽 단서를 봅니다.',
@@ -180,9 +180,9 @@ export function renderThemePlaybookContext(model, { query = '' } = {}) {
   const notable = [...model.highlights.structuralPullbacks.slice(0, 4), ...model.highlights.headwindLeaders.slice(0, 2), ...model.highlights.tailwindLaggards.slice(0, 2), ...model.rotation.gainers.slice(0, 2), ...model.rotation.losers.slice(0, 2)];
   const picked = [...new Map([...named, ...notable].map((row) => [`${row.market}:${row.id}`, row])).values()].slice(0, 10);
   const line = (row) => `- [${row.market}] ${row.label}: ${row.stateLabel} (1개월 ${pct(row.ret1m)}${row.ret3m != null ? ` · 3개월 ${pct(row.ret3m)}` : ''}${row.ret6m != null ? ` · 6개월 ${pct(row.ret6m)}` : ''}${row.above50 != null ? ` · 50일선 위 ${row.above50}%` : ''}). 성격: ${row.tagLabels.join(', ') || '미분류'}. 거시: ${row.windText}. ${row.fit} [${row.basisText.join(', ')}]. 상대적으로 유리한 쪽: ${row.favored.map((key) => CHOICES[key]).join(', ') || '판단 보류'} — ${row.favoredWhy} 과거: ${row.past}${row.thesis ? ` 구조 가설: ${row.thesis}. 가설이 깨지는 신호: ${row.breaks.join(', ')}.` : ''}`;
-  return [`【테마 갈림길 — 모든 테마를 같은 규칙으로(${model.asOf || '기준일 미확인'} 완료 종가)】`, `가격 기준 강약 이동(자금 유출입 자료 아님): ${model.rotation.text}`,
-    model.highlights.structuralPullbacks.length ? `추세 속 조정 + 거시 역풍 아님: ${model.highlights.structuralPullbacks.slice(0, 6).map((r) => `${marketWord(r)} ${r.label}(${pct(r.ret1m)})`).join(', ')}` : '',
-    model.highlights.headwindLeaders.length ? `거시 역풍에도 주도: ${model.highlights.headwindLeaders.map((r) => `${marketWord(r)} ${r.label}`).join(', ')} — 업종 고유 동력(실적·구조 수요) 확인 필요` : '',
+  return [`【테마 시나리오 — 모든 테마를 같은 규칙으로(${model.asOf || '기준일 미확인'} 완료 종가)】`, `가격 기준 강약 이동(자금 유출입 자료 아님): ${model.rotation.text}`,
+    model.highlights.structuralPullbacks.length ? `추세 속 조정 + 거시 부담 아님: ${model.highlights.structuralPullbacks.slice(0, 6).map((r) => `${marketWord(r)} ${r.label}(${pct(r.ret1m)})`).join(', ')}` : '',
+    model.highlights.headwindLeaders.length ? `거시 부담에도 주도: ${model.highlights.headwindLeaders.map((r) => `${marketWord(r)} ${r.label}`).join(', ')} — 업종 고유 동력(실적·구조 수요) 확인 필요` : '',
     ...picked.map(line),
     '레버리지·포지션 쏠림은 직접 자료가 없다 — 주장하려면 웹 출처를 붙이고, 없으면 가격 단서(낙폭·50일선 위 비율)로만 말하라. 세부 종목은 테마 상세·차트·기업·스크리너에서 사용자가 고른다.'].filter(Boolean).join('\n');
 }

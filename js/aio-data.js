@@ -2780,9 +2780,9 @@ function initFinnhubWebSocket() {
       ];
       wsSymbols.forEach(s => _finnhubWS.send(JSON.stringify({ type: 'subscribe', symbol: s })));
       const badge = document.getElementById('live-source-static-badge') || document.querySelector('.freshness-badge.fb-live');
-      if (badge) badge.textContent = 'FINNHUB source 확인';
+      if (badge) badge.textContent = '실시간 시세';
       if (badge) {
-        badge.textContent = 'FINNHUB source 확인';
+        badge.textContent = '실시간 시세';
         badge.className = 'freshness-badge fb-static';
       }
     };
@@ -11485,7 +11485,7 @@ function renderHomeFeed(items) {
         'all-news-outside-time-window': '최근 24시간 창 안에 들어온 기사가 없습니다.',
         'below-score-threshold-or-policy-excluded': '수신된 기사가 중요도·검증 기준을 통과하지 못했습니다.',
         'filters-removed-all-eligible-news': '현재 조건에 맞는 기사가 없습니다.',
-        'no-verified-current-news-for-surface-policy': '검증·현재성 기준을 통과한 기사가 없습니다.'
+        'no-verified-current-news-for-surface-policy': '확인된 최신 뉴스가 없습니다.'
       }[homeModelV502.emptyReason] || '표시할 검증 기사가 없습니다.';
       var lastFetchText = homeModelV502.lastFetch ? new Date(homeModelV502.lastFetch).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
       container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);line-height:1.55;padding:4px 0;">' +
