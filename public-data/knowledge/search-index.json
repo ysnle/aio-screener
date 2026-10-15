@@ -12,7 +12,7 @@
   ],
   "boundary": "Search index of learning surfaces; titles and short texts only. Glossary entries are searched in the page itself.",
   "counts": {
-    "frame": 37,
+    "frame": 40,
     "column": 12,
     "principles-lesson": 112,
     "principles-node": 60,
@@ -903,6 +903,69 @@
         "params": {
           "mode": "frames",
           "node": "crowding-breadth-extreme"
+        }
+      }
+    },
+    {
+      "id": "frame:ai-capex-payback",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "설비투자 대비 매출, 자금 조달, 주문으로 이어지는 시차",
+      "text": "AI 설비투자가 커도 그 돈을 회수할 매출이 늦게 오면, 시장은 투자를 이어 갈 자금 조달부터 의심합니다. 빚으로 데이터센터를 짓는 AI 클라우드 기업의 회사채 금리가 오르면 투자가 미뤄지고, 그 아래 서버 메모리·HBM 주문의 증가세가 느려질 수 있습니다. 의심과 …",
+      "group": "기업 수익 구조",
+      "keys": [
+        "AI 투자 회수 의문이 메모리로 번지는 경로",
+        "capex",
+        "roic",
+        "credit-cost"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "ai-capex-payback"
+        }
+      }
+    },
+    {
+      "id": "frame:tech-claim-stages",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "발표·샘플·양산·수율·고객 인증·점유율과 제품 시장의 구분",
+      "text": "경쟁사가 새 기술을 발표했다는 것과 그 제품이 팔린다는 것 사이에는 여러 단계가 있습니다. 설계 발표 → 샘플 → 양산 → 수율 → 고객 인증 → 점유율 순서로 확인하고, 범용 D램·서버 D램·HBM 가운데 어느 시장의 이야기인지 나눠 봅니다.",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "경쟁사 기술 발표를 읽는 단계",
+        "qualification",
+        "hbm",
+        "price-volume-mix"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "tech-claim-stages"
+        }
+      }
+    },
+    {
+      "id": "frame:policy-floor-limits",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "급락에 대한 정책 대응이 막는 것과 막지 못하는 것",
+      "text": "급락이 금융 불안으로 번지면 정부와 중앙은행은 대응에 나서는 경향이 있습니다. 다만 대응이 막는 것은 강제 매도와 신용 경색 같은 연쇄이고, 기업 이익 전망까지 바꾸지는 못합니다. 물가가 높을 때는 중앙은행의 여력이 줄어 바닥이 더 낮은 곳에 생깁니다.",
+      "group": "통화·신용·물가",
+      "keys": [
+        "정책 바닥과 그 한계",
+        "policy-vs-long-rate",
+        "term-premium",
+        "credit-cost"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "policy-floor-limits"
         }
       }
     },

@@ -1,3 +1,9 @@
+## v57.74 (2026-10-15)
+- packet-20261015: crash-day drivers with verification states and three reasoning frames (AI capex payback, technology-claim stages, policy floor and its limits)
+- Theme break signals: China memory qualification, AI-cloud financing stress, AI revenue lagging investment
+- Glossary: 정책 바닥 (정책 풋), 네오클라우드; the 10-14 Broadcom capital-constraint check is now consistent
+- R1 7곳 v57.74
+
 ## v57.73 (2026-10-15)
 - Market-state, temperature, chart, screener, portfolio, masters, learn, guide and AI-panel wording moved to plain Korean (standard terms kept in parentheses)
 - Research tabs renamed 개념·분석 / 산업 지도 / 대가 보유 종목 with knowledge artifacts regenerated

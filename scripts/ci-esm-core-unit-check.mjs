@@ -1999,6 +1999,12 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (packet.PACKET_20261014_FRAMES.some((frame) => !learning.lessonById(frame.id)) || packet.PACKET_20261014_CLAIMS.length !== 3) fail('v57.54 packet frames must be lessons and claims');
   const checks = packet.PACKET_20261014_SOURCES.flatMap((row) => row.checks);
   if (packet.PACKET_20261014_SOURCES.length !== 16 || !checks.length || checks.some((check) => !['VERIFIED', 'CONSISTENT', 'UNVERIFIED'].includes(check.state) || !check.basis)) fail('v57.54 every dated claim in the packet carries a verification state and its basis');
+  // v57.74: the 2026-10-15 crash-day note — three frames become lessons on a learning path; a misattributed figure stays UNVERIFIED.
+  const packet15 = await load('src/domain/research/packet-20261015.js');
+  const onPath = new Set(learning.PATHS.flatMap((path) => path.lessons));
+  if (packet15.PACKET_20261015_FRAMES.some((frame) => !learning.lessonById(frame.id) || !onPath.has(frame.id)) || packet15.PACKET_20261015_CLAIMS.length !== 3) fail('v57.74 crash-day frames must be lessons on a path and claims');
+  const checks15 = packet15.PACKET_20261015_SOURCES.flatMap((row) => row.checks);
+  if (checks15.some((check) => !['VERIFIED', 'CONSISTENT', 'UNVERIFIED'].includes(check.state) || !check.basis) || checks15.find((check) => /Gartner/.test(check.claim))?.state !== 'UNVERIFIED') fail('v57.74 the crash-day drivers carry verification states; the misattributed Gartner figure stays unverified');
 
   // S12: the Korean filing button opens a receipt only when one is published; otherwise the DART search.
   const fiscalUi = await load('src/ui/components/fiscal-read.js');

@@ -24,6 +24,9 @@ export const SCREEN_TERM_ADDITIONS = Object.freeze([
   // v57.73 (owner 2026-10-15 wording review): the scenario cards keep '기회비용' because no shorter word carries it; the term mark explains it.
   { term: '기회비용', alias: '기회비용 opportunity cost 놓친 이익', cat: '기초', def: '어떤 선택을 할 때 포기한 다른 선택에서 얻을 수 있었던 이익입니다. 시장을 기다리는 동안 오른 만큼이 기다림의 기회비용이고, 서둘러 샀다가 더 내린 만큼이 성급한 매수의 비용입니다.' },
   { term: '관망', alias: '관망 기다림 현금 대기', cat: '기초', def: '새로 사거나 팔지 않고 현금이나 단기채로 기다리며 상황을 지켜보는 것입니다. 기다리는 동안의 이자가 놓친 상승을 일부 메워 줍니다.' },
+  // v57.74 (owner 2026-10-15 crash-day note): the policy-floor and AI-cloud financing lessons use these words.
+  { term: '정책 바닥 (정책 풋)', alias: '정책 바닥 정책 풋 policy put 연준 풋 Fed put', cat: '거시', def: '급락이 금융 불안으로 번질 때 정부·중앙은행이 대응해 하락의 연쇄를 막아 줄 것이라는 기대입니다. 물가가 높으면 중앙은행의 여력이 줄어 이 바닥이 더 낮은 곳에 생기고, 바닥이 생겨도 주가 회복은 이익과 금리에 달려 있습니다.' },
+  { term: '네오클라우드', alias: '네오클라우드 neocloud AI 클라우드 GPU 클라우드', cat: '배경지식', def: 'GPU를 사들여 AI 기업에 연산 능력을 빌려주는 신생 클라우드 기업입니다. 장비를 빚으로 사는 경우가 많아 금리와 회사채 시장에 민감하고, 이들의 조달이 막히면 데이터센터 투자와 그 아래 메모리 주문이 늦어질 수 있습니다.' },
 ]);
 
 export function appendScreenTerms(glossary, additions = SCREEN_TERM_ADDITIONS) {

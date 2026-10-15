@@ -6,9 +6,9 @@
     "P1626",
     "P1627"
   ],
-  "version": "v57.73",
+  "version": "v57.74",
   "sourceHashes": {
-    "index.html": "c126a284941bc363cd86d0bb2b0b3915f5952862a3bda33338843f3aa1fac7c5",
+    "index.html": "a9315253f507a6338df1de7b50c66eca2ecbb6aa13ee5e30e76ba25723811492",
     "src/ui/pages/entity.js": "508115280dec7e8f7f6efbbacbe18bcddbb39c263a3b32abd62b8c8b5f099ea6",
     "src/ui/pages/screener.js": "32f03b821cd9e8b2ce4928d6a066cc3d991ee785a9261c579762e7ad42e003f1",
     "src/ui/pages/analysis.js": "1e02d1c287ca9164625a7372fb2c5619277393fd2ada7b4286df5c1e2f5fc11a",
@@ -75,7 +75,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 7216
+          "pixels": 6827
         },
         "active": "page-ticker",
         "signed": [
@@ -143,7 +143,67 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 14246
+          "pixels": 23104
+        },
+        "active": "page-ticker",
+        "signed": [
+          {
+            "down": true,
+            "left": 20.78,
+            "width": 29.22,
+            "title": "AEHR -7.0%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 10.12,
+            "title": "S&P 500 +2.4%"
+          },
+          {
+            "down": true,
+            "left": 1.32,
+            "width": 48.68,
+            "title": "AEHR -11.7%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 12.79,
+            "title": "S&P 500 +3.1%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 17.5,
+            "title": "AEHR +4.2%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 50,
+            "title": "S&P 500 +12.0%"
+          }
+        ]
+      },
+      "fixtureRequests": 3
+    },
+    {
+      "label": "phone-dark",
+      "summary": {
+        "price": "$84.64",
+        "basis": "정규장 관측가 · 2026-10-10 05:00 한국 시간",
+        "business": "Aehr Test Systems 무엇을 하는 회사기술종목 등록 정보",
+        "source": "https://finance.yahoo.com/quote/AEHR/history/",
+        "canvas": {
+          "width": 328,
+          "height": 380
+        },
+        "lastDate": "2026-10-09",
+        "native": "native",
+        "chart": {
+          "real": true,
+          "points": 23,
+          "pixels": 6946
         },
         "active": "page-ticker",
         "signed": [
@@ -196,72 +256,79 @@
       }
     },
     {
-      "label": "phone-dark",
-      "summary": {
-        "price": "$84.64",
-        "basis": "정규장 관측가 · 2026-10-10 05:00 한국 시간",
-        "business": "Aehr Test Systems 무엇을 하는 회사기술종목 등록 정보",
-        "source": "https://finance.yahoo.com/quote/AEHR/history/",
-        "canvas": {
-          "width": 328,
-          "height": 380
-        },
-        "lastDate": "2026-10-09",
-        "native": "native",
-        "chart": {
-          "real": true,
-          "points": 23,
-          "pixels": 7217
-        },
-        "active": "page-ticker",
-        "signed": [
-          {
-            "down": true,
-            "left": 20.78,
-            "width": 29.22,
-            "title": "AEHR -7.0%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 10.12,
-            "title": "S&P 500 +2.4%"
-          },
-          {
-            "down": true,
-            "left": 1.32,
-            "width": 48.68,
-            "title": "AEHR -11.7%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 12.79,
-            "title": "S&P 500 +3.1%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 17.5,
-            "title": "AEHR +4.2%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 50,
-            "title": "S&P 500 +12.0%"
-          }
-        ]
-      },
-      "fixtureRequests": 3
-    },
-    {
       "label": "phone-dark/summary",
       "layout": {
         "route": "page-ticker",
         "overflow": 0,
         "clipped": []
       }
+    },
+    {
+      "label": "phone-light",
+      "market": "US",
+      "listing": [
+        {
+          "symbol": "MRNA",
+          "price": "$216.2510/13 종가",
+          "ret3m": 216.7
+        },
+        {
+          "symbol": "TEAM",
+          "price": "$208.0410/13 종가",
+          "ret3m": 126.7
+        },
+        {
+          "symbol": "P",
+          "price": "$156.9710/13 종가",
+          "ret3m": 121.9
+        },
+        {
+          "symbol": "PAYC",
+          "price": "$236.6510/13 종가",
+          "ret3m": 63.8
+        },
+        {
+          "symbol": "MPC",
+          "price": "$476.9810/13 종가",
+          "ret3m": 59.9
+        },
+        {
+          "symbol": "GTLB",
+          "price": "$51.9510/13 종가",
+          "ret3m": 58.2
+        },
+        {
+          "symbol": "ACN",
+          "price": "—",
+          "ret3m": 57.1
+        },
+        {
+          "symbol": "PTC",
+          "price": "$193.9610/13 종가",
+          "ret3m": 56.9
+        },
+        {
+          "symbol": "VLO",
+          "price": "—",
+          "ret3m": 56.6
+        },
+        {
+          "symbol": "PLTR",
+          "price": "$208.6710/13 종가",
+          "ret3m": 56
+        },
+        {
+          "symbol": "VEEV",
+          "price": "$301.6310/13 종가",
+          "ret3m": 55.7
+        },
+        {
+          "symbol": "ZS",
+          "price": "$228.6610/13 종가",
+          "ret3m": 54.3
+        }
+      ],
+      "note": "미국 순위 계산 894종목 · 표시 364개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
     },
     {
       "label": "tablet-light",
@@ -329,6 +396,90 @@
         }
       ],
       "note": "미국 순위 계산 894종목 · 표시 364개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+    },
+    {
+      "label": "phone-light",
+      "market": "KR",
+      "listing": [
+        {
+          "symbol": "036540.KQ",
+          "price": "—",
+          "ret3m": 106.2
+        },
+        {
+          "symbol": "031980.KQ",
+          "price": "—",
+          "ret3m": 80.6
+        },
+        {
+          "symbol": "323280.KQ",
+          "price": "—",
+          "ret3m": 67.8
+        },
+        {
+          "symbol": "096770.KS",
+          "price": "—",
+          "ret3m": 65.6
+        },
+        {
+          "symbol": "229640.KS",
+          "price": "—",
+          "ret3m": 64.4
+        },
+        {
+          "symbol": "192820.KS",
+          "price": "—",
+          "ret3m": 62.3
+        },
+        {
+          "symbol": "078600.KQ",
+          "price": "—",
+          "ret3m": 56.4
+        },
+        {
+          "symbol": "043260.KQ",
+          "price": "—",
+          "ret3m": 50.5
+        },
+        {
+          "symbol": "006400.KS",
+          "price": "—",
+          "ret3m": 48.4
+        },
+        {
+          "symbol": "403870.KQ",
+          "price": "—",
+          "ret3m": 44
+        },
+        {
+          "symbol": "131290.KQ",
+          "price": "—",
+          "ret3m": 43.5
+        },
+        {
+          "symbol": "030530.KQ",
+          "price": "—",
+          "ret3m": 43
+        }
+      ],
+      "note": "한국 순위 계산 239종목 · 표시 97개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+    },
+    {
+      "label": "phone-light",
+      "currencyFormat": {
+        "usd": "$84.64",
+        "krw": "₩73,000",
+        "missing": "—"
+      },
+      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "phone-light/screener",
+      "layout": {
+        "route": "page-screener",
+        "overflow": 0,
+        "clipped": []
+      }
     },
     {
       "label": "tablet-light",
@@ -482,140 +633,6 @@
       "note": "미국 순위 계산 894종목 · 표시 364개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
     },
     {
-      "label": "phone-light",
-      "market": "US",
-      "listing": [
-        {
-          "symbol": "MRNA",
-          "price": "$216.2510/13 종가",
-          "ret3m": 216.7
-        },
-        {
-          "symbol": "TEAM",
-          "price": "$208.0410/13 종가",
-          "ret3m": 126.7
-        },
-        {
-          "symbol": "P",
-          "price": "$156.9710/13 종가",
-          "ret3m": 121.9
-        },
-        {
-          "symbol": "PAYC",
-          "price": "$236.6510/13 종가",
-          "ret3m": 63.8
-        },
-        {
-          "symbol": "MPC",
-          "price": "$476.9810/13 종가",
-          "ret3m": 59.9
-        },
-        {
-          "symbol": "GTLB",
-          "price": "$51.9510/13 종가",
-          "ret3m": 58.2
-        },
-        {
-          "symbol": "ACN",
-          "price": "—",
-          "ret3m": 57.1
-        },
-        {
-          "symbol": "PTC",
-          "price": "$193.9610/13 종가",
-          "ret3m": 56.9
-        },
-        {
-          "symbol": "VLO",
-          "price": "—",
-          "ret3m": 56.6
-        },
-        {
-          "symbol": "PLTR",
-          "price": "$208.6710/13 종가",
-          "ret3m": 56
-        },
-        {
-          "symbol": "VEEV",
-          "price": "$301.6310/13 종가",
-          "ret3m": 55.7
-        },
-        {
-          "symbol": "ZS",
-          "price": "$228.6610/13 종가",
-          "ret3m": 54.3
-        }
-      ],
-      "note": "미국 순위 계산 894종목 · 표시 364개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
-    },
-    {
-      "label": "phone-light",
-      "market": "KR",
-      "listing": [
-        {
-          "symbol": "036540.KQ",
-          "price": "—",
-          "ret3m": 106.2
-        },
-        {
-          "symbol": "031980.KQ",
-          "price": "—",
-          "ret3m": 80.6
-        },
-        {
-          "symbol": "323280.KQ",
-          "price": "—",
-          "ret3m": 67.8
-        },
-        {
-          "symbol": "096770.KS",
-          "price": "—",
-          "ret3m": 65.6
-        },
-        {
-          "symbol": "229640.KS",
-          "price": "—",
-          "ret3m": 64.4
-        },
-        {
-          "symbol": "192820.KS",
-          "price": "—",
-          "ret3m": 62.3
-        },
-        {
-          "symbol": "078600.KQ",
-          "price": "—",
-          "ret3m": 56.4
-        },
-        {
-          "symbol": "043260.KQ",
-          "price": "—",
-          "ret3m": 50.5
-        },
-        {
-          "symbol": "006400.KS",
-          "price": "—",
-          "ret3m": 48.4
-        },
-        {
-          "symbol": "403870.KQ",
-          "price": "—",
-          "ret3m": 44
-        },
-        {
-          "symbol": "131290.KQ",
-          "price": "—",
-          "ret3m": 43.5
-        },
-        {
-          "symbol": "030530.KQ",
-          "price": "—",
-          "ret3m": 43
-        }
-      ],
-      "note": "한국 순위 계산 239종목 · 표시 97개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
-    },
-    {
       "label": "phone-dark",
       "market": "KR",
       "listing": [
@@ -683,15 +700,6 @@
       "note": "한국 순위 계산 239종목 · 표시 97개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
     },
     {
-      "label": "phone-light",
-      "currencyFormat": {
-        "usd": "$84.64",
-        "krw": "₩73,000",
-        "missing": "—"
-      },
-      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
-    },
-    {
       "label": "phone-dark",
       "currencyFormat": {
         "usd": "$84.64",
@@ -699,14 +707,6 @@
         "missing": "—"
       },
       "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
-    },
-    {
-      "label": "phone-light/screener",
-      "layout": {
-        "route": "page-screener",
-        "overflow": 0,
-        "clipped": []
-      }
     },
     {
       "label": "phone-dark/screener",
@@ -993,66 +993,6 @@
       }
     },
     {
-      "label": "desktop-light",
-      "summary": {
-        "price": "$84.64",
-        "basis": "정규장 관측가 · 2026-10-10 05:00 한국 시간",
-        "business": "Aehr Test Systems 무엇을 하는 회사기술종목 등록 정보",
-        "source": "https://finance.yahoo.com/quote/AEHR/history/",
-        "canvas": {
-          "width": 1142,
-          "height": 380
-        },
-        "lastDate": "2026-10-09",
-        "native": "native",
-        "chart": {
-          "real": true,
-          "points": 23,
-          "pixels": 33413
-        },
-        "active": "page-ticker",
-        "signed": [
-          {
-            "down": true,
-            "left": 20.78,
-            "width": 29.22,
-            "title": "AEHR -7.0%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 10.12,
-            "title": "S&P 500 +2.4%"
-          },
-          {
-            "down": true,
-            "left": 1.32,
-            "width": 48.68,
-            "title": "AEHR -11.7%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 12.79,
-            "title": "S&P 500 +3.1%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 17.5,
-            "title": "AEHR +4.2%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 50,
-            "title": "S&P 500 +12.0%"
-          }
-        ]
-      },
-      "fixtureRequests": 3
-    },
-    {
       "label": "desktop-dark",
       "summary": {
         "price": "$84.64",
@@ -1068,7 +1008,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 21296
+          "pixels": 20570
         },
         "active": "page-ticker",
         "signed": [
@@ -1113,7 +1053,67 @@
       "fixtureRequests": 3
     },
     {
-      "label": "desktop-dark/summary",
+      "label": "desktop-light",
+      "summary": {
+        "price": "$84.64",
+        "basis": "정규장 관측가 · 2026-10-10 05:00 한국 시간",
+        "business": "Aehr Test Systems 무엇을 하는 회사기술종목 등록 정보",
+        "source": "https://finance.yahoo.com/quote/AEHR/history/",
+        "canvas": {
+          "width": 1142,
+          "height": 380
+        },
+        "lastDate": "2026-10-09",
+        "native": "native",
+        "chart": {
+          "real": true,
+          "points": 23,
+          "pixels": 20570
+        },
+        "active": "page-ticker",
+        "signed": [
+          {
+            "down": true,
+            "left": 20.78,
+            "width": 29.22,
+            "title": "AEHR -7.0%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 10.12,
+            "title": "S&P 500 +2.4%"
+          },
+          {
+            "down": true,
+            "left": 1.32,
+            "width": 48.68,
+            "title": "AEHR -11.7%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 12.79,
+            "title": "S&P 500 +3.1%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 17.5,
+            "title": "AEHR +4.2%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 50,
+            "title": "S&P 500 +12.0%"
+          }
+        ]
+      },
+      "fixtureRequests": 3
+    },
+    {
+      "label": "desktop-light/summary",
       "layout": {
         "route": "page-ticker",
         "overflow": 0,
@@ -1121,7 +1121,7 @@
       }
     },
     {
-      "label": "desktop-light/summary",
+      "label": "desktop-dark/summary",
       "layout": {
         "route": "page-ticker",
         "overflow": 0,
@@ -1144,7 +1144,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 14664
+          "pixels": 14312
         },
         "active": "page-ticker",
         "signed": [
@@ -1198,6 +1198,73 @@
     },
     {
       "label": "desktop-dark",
+      "market": "US",
+      "listing": [
+        {
+          "symbol": "MRNA",
+          "price": "$216.2510/13 종가",
+          "ret3m": 216.7
+        },
+        {
+          "symbol": "TEAM",
+          "price": "$208.0410/13 종가",
+          "ret3m": 126.7
+        },
+        {
+          "symbol": "P",
+          "price": "$156.9710/13 종가",
+          "ret3m": 121.9
+        },
+        {
+          "symbol": "PAYC",
+          "price": "$236.6510/13 종가",
+          "ret3m": 63.8
+        },
+        {
+          "symbol": "MPC",
+          "price": "$476.9810/13 종가",
+          "ret3m": 59.9
+        },
+        {
+          "symbol": "GTLB",
+          "price": "$51.9510/13 종가",
+          "ret3m": 58.2
+        },
+        {
+          "symbol": "ACN",
+          "price": "—",
+          "ret3m": 57.1
+        },
+        {
+          "symbol": "PTC",
+          "price": "$193.9610/13 종가",
+          "ret3m": 56.9
+        },
+        {
+          "symbol": "VLO",
+          "price": "—",
+          "ret3m": 56.6
+        },
+        {
+          "symbol": "PLTR",
+          "price": "$208.6710/13 종가",
+          "ret3m": 56
+        },
+        {
+          "symbol": "VEEV",
+          "price": "$301.6310/13 종가",
+          "ret3m": 55.7
+        },
+        {
+          "symbol": "ZS",
+          "price": "$228.6610/13 종가",
+          "ret3m": 54.3
+        }
+      ],
+      "note": "미국 순위 계산 894종목 · 표시 364개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+    },
+    {
+      "label": "desktop-light",
       "market": "US",
       "listing": [
         {
@@ -1341,6 +1408,90 @@
     },
     {
       "label": "desktop-dark/screener",
+      "layout": {
+        "route": "page-screener",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "desktop-light",
+      "market": "KR",
+      "listing": [
+        {
+          "symbol": "036540.KQ",
+          "price": "—",
+          "ret3m": 106.2
+        },
+        {
+          "symbol": "031980.KQ",
+          "price": "—",
+          "ret3m": 80.6
+        },
+        {
+          "symbol": "323280.KQ",
+          "price": "—",
+          "ret3m": 67.8
+        },
+        {
+          "symbol": "096770.KS",
+          "price": "—",
+          "ret3m": 65.6
+        },
+        {
+          "symbol": "229640.KS",
+          "price": "—",
+          "ret3m": 64.4
+        },
+        {
+          "symbol": "192820.KS",
+          "price": "—",
+          "ret3m": 62.3
+        },
+        {
+          "symbol": "078600.KQ",
+          "price": "—",
+          "ret3m": 56.4
+        },
+        {
+          "symbol": "043260.KQ",
+          "price": "—",
+          "ret3m": 50.5
+        },
+        {
+          "symbol": "006400.KS",
+          "price": "—",
+          "ret3m": 48.4
+        },
+        {
+          "symbol": "403870.KQ",
+          "price": "—",
+          "ret3m": 44
+        },
+        {
+          "symbol": "131290.KQ",
+          "price": "—",
+          "ret3m": 43.5
+        },
+        {
+          "symbol": "030530.KQ",
+          "price": "—",
+          "ret3m": 43
+        }
+      ],
+      "note": "한국 순위 계산 239종목 · 표시 97개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+    },
+    {
+      "label": "desktop-light",
+      "currencyFormat": {
+        "usd": "$84.64",
+        "krw": "₩73,000",
+        "missing": "—"
+      },
+      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "desktop-light/screener",
       "layout": {
         "route": "page-screener",
         "overflow": 0,
@@ -1492,157 +1643,6 @@
     },
     {
       "label": "tablet-dark/screener",
-      "layout": {
-        "route": "page-screener",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
-      "label": "desktop-light",
-      "market": "US",
-      "listing": [
-        {
-          "symbol": "MRNA",
-          "price": "$216.2510/13 종가",
-          "ret3m": 216.7
-        },
-        {
-          "symbol": "TEAM",
-          "price": "$208.0410/13 종가",
-          "ret3m": 126.7
-        },
-        {
-          "symbol": "P",
-          "price": "$156.9710/13 종가",
-          "ret3m": 121.9
-        },
-        {
-          "symbol": "PAYC",
-          "price": "$236.6510/13 종가",
-          "ret3m": 63.8
-        },
-        {
-          "symbol": "MPC",
-          "price": "$476.9810/13 종가",
-          "ret3m": 59.9
-        },
-        {
-          "symbol": "GTLB",
-          "price": "$51.9510/13 종가",
-          "ret3m": 58.2
-        },
-        {
-          "symbol": "ACN",
-          "price": "—",
-          "ret3m": 57.1
-        },
-        {
-          "symbol": "PTC",
-          "price": "$193.9610/13 종가",
-          "ret3m": 56.9
-        },
-        {
-          "symbol": "VLO",
-          "price": "—",
-          "ret3m": 56.6
-        },
-        {
-          "symbol": "PLTR",
-          "price": "$208.6710/13 종가",
-          "ret3m": 56
-        },
-        {
-          "symbol": "VEEV",
-          "price": "$301.6310/13 종가",
-          "ret3m": 55.7
-        },
-        {
-          "symbol": "ZS",
-          "price": "$228.6610/13 종가",
-          "ret3m": 54.3
-        }
-      ],
-      "note": "미국 순위 계산 894종목 · 표시 364개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
-    },
-    {
-      "label": "desktop-light",
-      "market": "KR",
-      "listing": [
-        {
-          "symbol": "036540.KQ",
-          "price": "—",
-          "ret3m": 106.2
-        },
-        {
-          "symbol": "031980.KQ",
-          "price": "—",
-          "ret3m": 80.6
-        },
-        {
-          "symbol": "323280.KQ",
-          "price": "—",
-          "ret3m": 67.8
-        },
-        {
-          "symbol": "096770.KS",
-          "price": "—",
-          "ret3m": 65.6
-        },
-        {
-          "symbol": "229640.KS",
-          "price": "—",
-          "ret3m": 64.4
-        },
-        {
-          "symbol": "192820.KS",
-          "price": "—",
-          "ret3m": 62.3
-        },
-        {
-          "symbol": "078600.KQ",
-          "price": "—",
-          "ret3m": 56.4
-        },
-        {
-          "symbol": "043260.KQ",
-          "price": "—",
-          "ret3m": 50.5
-        },
-        {
-          "symbol": "006400.KS",
-          "price": "—",
-          "ret3m": 48.4
-        },
-        {
-          "symbol": "403870.KQ",
-          "price": "—",
-          "ret3m": 44
-        },
-        {
-          "symbol": "131290.KQ",
-          "price": "—",
-          "ret3m": 43.5
-        },
-        {
-          "symbol": "030530.KQ",
-          "price": "—",
-          "ret3m": 43
-        }
-      ],
-      "note": "한국 순위 계산 239종목 · 표시 97개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
-    },
-    {
-      "label": "desktop-light",
-      "currencyFormat": {
-        "usd": "$84.64",
-        "krw": "₩73,000",
-        "missing": "—"
-      },
-      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
-    },
-    {
-      "label": "desktop-light/screener",
       "layout": {
         "route": "page-screener",
         "overflow": 0,

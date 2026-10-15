@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-10-15T03:03:35.318Z",
-  "appRevision": "v57.73",
-  "gitHead": "3dd65e88864bf44499152e528d52ef52d21941ef",
+  "observedAt": "2026-10-15T03:21:01.907Z",
+  "appRevision": "v57.74",
+  "gitHead": "61c049f279ba5fd071ef260c19efb0eeb58031b5",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -16,22 +16,22 @@
   "targetStatus": "TARGET_MISS",
   "targetFailures": [
     "max long task 520 > 200",
-    "total long task 1154 > 1000"
+    "total long task 1157 > 1000"
   ],
   "metrics": {
-    "fcpMs": 1456,
-    "dclMs": 416,
-    "loadMs": 420,
+    "fcpMs": 1460,
+    "dclMs": 418,
+    "loadMs": 422,
     "maxLongTaskMs": 520,
-    "totalLongTaskMs": 1154,
+    "totalLongTaskMs": 1157,
     "longTaskCount": 7,
     "longTaskObservationWindowMs": 2000,
     "domNodes": 4688,
     "activeRouteDomNodes": 1003,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "routeMs": 574,
-    "wallMs": 8557,
+    "routeMs": 571,
+    "wallMs": 8545,
     "totalExternalRequests": 52,
     "quoteRequests": 28,
     "initialExternalRequests": 6,

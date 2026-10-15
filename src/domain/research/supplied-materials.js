@@ -4,6 +4,7 @@
 import { NATHAN_PREVIOUS_THREADS_REFERENCE } from './nathan-previous-threads.js';
 import { PACKET_20261011_SOURCES, PACKET_20261011_CLAIMS } from './packet-20261011.js';
 import { PACKET_20261014_SOURCES, PACKET_20261014_IMAGES, PACKET_20261014_CLAIMS } from './packet-20261014.js';
+import { PACKET_20261015_SOURCES, PACKET_20261015_CLAIMS } from './packet-20261015.js';
 
 export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   id: 'supplied-materials-2026-08-29',
@@ -103,6 +104,8 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   // library layout became product behaviour.
   // v57.54: what each 2026-10-14 source contributed, with the verification state of its dated claims.
   packet20261014Observations: Object.freeze([...PACKET_20261014_SOURCES, ...PACKET_20261014_IMAGES]),
+  // v57.74: the 2026-10-15 owner crash-day note and policy-floor hypothesis, with each driver's verification state.
+  packet20261015Observations: PACKET_20261015_SOURCES,
   packet20261013Observations: Object.freeze([
     Object.freeze({ id: 'nutlope-2109322388420841789', author: 'Hassan El Mghari', sourceUrl: 'https://x.com/nutlope/status/2109322388420841789', publishedAtKst: '2026-10-12T01:37:01+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', disposition: 'ADOPTED', summary: '읽을거리를 책등 서가로 보여 주는 라이브러리(영상 2개, 프레임 확인): 주제 색 책등·주제 칩과 개수·정렬·책 펼침 카드·읽음 표시·문장 선택 후 질문. 리서치 라이브러리 서가로 반영(P1674). 북마크 자동 수집 에이전트와 생성 표지 그림은 로그인·로컬 프로듀서 금지·자산 부재로 제외.' }),
     Object.freeze({ id: 'RealSimpleAriel-2109785574366224632', author: 'RealSimpleAriel', sourceUrl: 'https://x.com/RealSimpleAriel/status/2109785574366224632', publishedAtKst: '2026-10-13T08:17:33+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', disposition: 'ALREADY_COVERED', summary: '일일 리캡(영상 18분): 메모리·광통신·반도체 약세와 에너지·필수소비재 주도, 그룹 ETF 기간별 성과, 이동평균 대비 ATR 배수. 테마 화면의 1·3·6개월 순위·50일선 참여·방향과 섹터 1일·1주 성과, 차트 ATR 확장(P1507)이 이미 같은 질문을 다룸.' }),
@@ -126,6 +129,7 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   ]),
   sourceObservations: Object.freeze([
     // v57.54: the 2026-10-14 sources a claim cites (the rest stay in packet20261014Observations with their disposition).
+    ...PACKET_20261015_SOURCES,
     ...PACKET_20261014_SOURCES.filter((row) => PACKET_20261014_CLAIMS.some((claim) => claim.sourceRefs.includes(row.id))),
     ...PACKET_20261011_SOURCES,
     Object.freeze({ id: 'NathanYJLee-2097957777922793710', author: 'Nathan | Factomind', sourceUrl: 'https://x.com/NathanYJLee/status/2097957777922793710', publishedAt: '2026-09-10T07:58:07.000Z', publishedAtKst: '2026-09-10T16:58:07+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', summary: '금융 레버리지와 방향성 레버리지를 분리하고, 예측보다 자금조달·노출 한도·리스크 관리를 우선' }),
@@ -183,6 +187,7 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
       'allowedConsumers', 'blockedConsumers', 'currentnessBoundary'
     ]),
     claims: Object.freeze([
+      ...PACKET_20261015_CLAIMS,
       ...PACKET_20261014_CLAIMS,
       ...PACKET_20261011_CLAIMS,
       Object.freeze({
