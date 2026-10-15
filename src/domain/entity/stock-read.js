@@ -174,16 +174,16 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     const multiple = Math.round(pct50 / adr * 10) / 10;
     const band = extensionStateFor(multiple);
     const text = multiple < 0
-      ? `50일선보다 ${Math.abs(pct50).toFixed(1)}% 아래 — 기준선 아래에 있는 상태입니다.`
+      ? `50일선보다 ${Math.abs(pct50).toFixed(1)}% 아래 — 50일선 아래에 있는 상태입니다.`
       : band === 'stretched'
         // Codex browser audit H32: the distance is an observed fact; entry/stop wording read as a trade instruction.
-        ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭(${adr.toFixed(1)}%)의 ${multiple.toFixed(1)}배 — 기준선에서 크게 벌어져, 50일선까지 되돌리기만 해도 지금 가격에서 ${(pct50 / (100 + pct50) * 100).toFixed(1)}% 하락하는 거리입니다.`
+        ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭(${adr.toFixed(1)}%)의 ${multiple.toFixed(1)}배 — 50일선에서 크게 벌어져, 50일선까지 되돌리기만 해도 지금 가격에서 ${(pct50 / (100 + pct50) * 100).toFixed(1)}% 하락하는 거리입니다.`
         : band === 'extended'
-          ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 추세 위에 있으면서 기준선과의 거리가 꽤 벌어진 상태입니다(${EXTENSION_BANDS.extended}배 이상).`
+          ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 추세 위에 있으면서 50일선과의 거리가 꽤 벌어진 상태입니다(${EXTENSION_BANDS.extended}배 이상).`
           : band === 'near-base'
-            ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 기준선 가까이에 있는 상태입니다(${EXTENSION_BANDS.nearBase}배 이하).`
-            : `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 기준선 가까이(${EXTENSION_BANDS.nearBase}배 이하)와 확장(${EXTENSION_BANDS.extended}배 이상) 사이입니다.`;
-    points.push({ id: 'extension', tone: band === 'stretched' ? 'burden' : band === 'near-base' || multiple < 0 ? 'favorable' : 'neutral', title: '기준선 대비 거리', text });
+            ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 50일선 가까이에 있는 상태입니다(${EXTENSION_BANDS.nearBase}배 이하).`
+            : `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 50일선 가까이(${EXTENSION_BANDS.nearBase}배 이하)와 확장(${EXTENSION_BANDS.extended}배 이상) 사이입니다.`;
+    points.push({ id: 'extension', tone: band === 'stretched' ? 'burden' : band === 'near-base' || multiple < 0 ? 'favorable' : 'neutral', title: '50일선과의 거리', text });
   }
 
   // 2026-10-13 review S02: 69.9 printed as "RSI 70" next to "not overheated". The value is shown to one decimal
@@ -194,7 +194,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     // v57.50 C16: one RSI table (RULES.technical.rsi) for this summary, the screener state label and the climax watch.
     const { overbought: hot, oversold: cold, climax } = RULES.technical.rsi;
     points.push({ id: 'rsi', tone: rsi >= hot || rsi <= cold ? 'neutral' : 'favorable', title: '단기 과열',
-      text: rsi >= climax ? `RSI ${shown} — 과열권(${hot} 이상) 중에서도 스크리너가 클라이맥스 관찰로 표시하는 ${climax} 이상 구간입니다.` : rsi >= hot ? `RSI ${shown} — 과열권(${hot} 이상)이라 추세가 강해도 쉬어 가기 쉬운 자리입니다.` : rsi <= cold ? `RSI ${shown} — 과매도권(${cold} 이하)이라 반등 시도가 나오기 쉬운 자리이지만 추세 확인이 먼저입니다.` : rsi >= hot - 5 ? `RSI ${shown} — 과열 기준(${hot}) 바로 아래 구간입니다.` : rsi <= cold + 5 ? `RSI ${shown} — 과매도 기준(${cold}) 바로 위 구간입니다.` : `RSI ${shown} — 과열도 과매도도 아닌 구간입니다.` });
+      text: rsi >= climax ? `RSI ${shown} — 과열권(${hot} 이상) 중에서도 스크리너가 '과열 정점 주의'로 표시하는 ${climax} 이상 구간입니다.` : rsi >= hot ? `RSI ${shown} — 과열권(${hot} 이상)이라 추세가 강해도 쉬어 가기 쉬운 자리입니다.` : rsi <= cold ? `RSI ${shown} — 과매도권(${cold} 이하)이라 반등 시도가 나오기 쉬운 자리이지만 추세 확인이 먼저입니다.` : rsi >= hot - 5 ? `RSI ${shown} — 과열 기준(${hot}) 바로 아래 구간입니다.` : rsi <= cold + 5 ? `RSI ${shown} — 과매도 기준(${cold}) 바로 위 구간입니다.` : `RSI ${shown} — 과열도 과매도도 아닌 구간입니다.` });
   }
 
   // P1447: US sector ETFs describe US sectors; a KRX listing is not read against them.
@@ -207,7 +207,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   // choice is the theme's, never an instruction on this stock. The rotation-quadrant wording stays as folded evidence.
   const stages = (Array.isArray(themeStages) ? themeStages : []).filter((stage) => stage?.id && stage.stateLabel);
   const stageLines = stages.map((stage) => ({ id: stage.id, label: stage.label,
-    text: `테마 ${stage.label}: ${stage.stateLabel}${stage.wind ? ` · 거시 ${stage.wind}` : ''}${stage.favoured?.length ? ` · 상대적으로 유리한 쪽: ${stage.favoured.join(', ')}` : ''}` }));
+    text: `테마 ${stage.label}: ${stage.stateLabel}${stage.wind ? ` · 거시 ${stage.wind}` : ''}${stage.favoured?.length ? ` · 테마 단계상 유리한 대응: ${stage.favoured.join(', ')}` : ''}` }));
   let rotationText = null;
   let tailwind = false;
   if (sector?.quadrant || topTheme?.quadrant) {
@@ -280,7 +280,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   next.push({ route: 'screener', label: '스크리너', why: fund ? '다른 ETF와 수익률·추세 비교' : `같은 섹터(${sectorName || '—'})에서 상대 순위가 높은 종목과 비교`, ctx: row.sector ? { sector: row.sector, ticker: symbol } : { ticker: symbol } });
   // v57.50 I12: 13F holders only when the reference ledger lists this ticker; the ledger's scope is stated.
   if (thirteenF?.covered && !isKr) {
-    next.push({ route: 'masters', label: '운용사·13F', why: `이 종목을 신고한 운용사 — 13F 역조회 원장 ${finite(thirteenF.tickerCount) ?? '—'}개 종목 범위, 분기 지연 신고`, ctx: { ticker: symbol } });
+    next.push({ route: 'masters', label: '대가 보유 종목', why: `이 종목을 신고한 운용사 — 13F 역조회 원장 ${finite(thirteenF.tickerCount) ?? '—'}개 종목 범위, 분기 지연 신고`, ctx: { ticker: symbol } });
   }
   return { available: true, symbol, name, headline, points, position, high, spans, sector, themes: themed, ranking, next, benchmarkLabel: benchmark?.label || 'S&P 500', sessionLag: lagSessions != null && lagSessions > 0 ? lagSessions : null };
 }

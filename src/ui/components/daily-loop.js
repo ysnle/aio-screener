@@ -15,13 +15,13 @@ function call(root, name, arg, fallback) {
 
 function renderChanges(doc, host, history) {
   const model = buildDailyChanges(history);
-  host.replaceChildren(el(doc, 'h2', '직전 종가 대비 변화', 'briefing-h2'));
+  host.replaceChildren(el(doc, 'h2', '지난 마감 이후 변화', 'briefing-h2'));
   if (!model.available) { host.append(emptyState(doc, { title: '비교 대기', reason: model.reason, compact: true })); return model; }
   const gap = Array.isArray(model.missing) && model.missing.length > 0;
   if (gap) host.querySelector('h2').firstChild.textContent = '직전 기록과 달라진 점';
   // P1725: the strip above shows live/delayed quotes against each quote's own previous close; this block compares two
   // completed US closes, so the same asset can carry opposite signs (WTI +2.06% here, -1.92% live). The note says which.
-  host.querySelector('h2').append(el(doc, 'span', `미국 종가 ${shortDate(model.prevDate)} → ${shortDate(model.date)}${gap ? ` · ${model.missing.map(shortDate).join('·')} 기록 없음` : ''} · 위 실시간 시세의 등락과 기간이 다릅니다`, 'briefing-h2-note'));
+  host.querySelector('h2').append(el(doc, 'span', `미국 종가 ${shortDate(model.prevDate)} → ${shortDate(model.date)}${gap ? ` · ${model.missing.map(shortDate).join('·')} 기록 없음` : ''} · 위 실시간 시세와 기준 시점이 다릅니다`, 'briefing-h2-note'));
   host.append(el(doc, 'p', model.headline, 'daily-headline'));
   const grid = el(doc, 'div', null, 'daily-moves');
   for (const move of model.moves) {
@@ -61,7 +61,7 @@ function renderMyNames(doc, host, root, store) {
     button.dataset.arg = row.symbol;
     li.append(button, el(doc, 'span', `${row.name || ''}${row.held ? ' · 보유' : ''}`, 'daily-name-name'));
     li.append(el(doc, 'span', row.dayPct == null ? '' : `${row.dayPct >= 0 ? '+' : ''}${row.dayPct.toFixed(2)}%`, `daily-name-day ${row.daySignalled ? (row.dayPct > 0 ? 'is-up' : row.dayPct < 0 ? 'is-down' : '') : ''}`));
-    li.append(el(doc, 'span', row.notes.join(' · ') || '팩터 기록 없음', 'daily-name-notes'));
+    li.append(el(doc, 'span', row.notes.join(' · ') || '지표 기록 없음', 'daily-name-notes'));
     list.append(li);
   }
   host.append(list);

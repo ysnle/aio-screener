@@ -32,7 +32,7 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
   // credit axis — e.g. HY +45bp over 20 sessions — is not stable, and the unmet note says whether it is widening.
   const creditAxis = (regime.axes || []).find((axis) => axis.id === 'credit');
   const creditStable = state.credit === 'favorable';
-  const creditNote = creditStable || state.credit === 'burden' ? null : state.credit === 'unknown' || !state.credit ? '확인 불가' : creditAxis?.widening ? '확대 중' : '신용 축 중립';
+  const creditNote = creditStable || state.credit === 'burden' ? null : state.credit === 'unknown' || !state.credit ? '확인 불가' : creditAxis?.widening ? '확대 중' : '신용 지표 중립';
   const leading = sectors.filter((row) => row.quadrant === 'Leading').map((row) => row.label);
   const improving = sectors.filter((row) => row.quadrant === 'Improving').map((row) => row.label);
   const defensiveHolding = sectors.filter((row) => DEFENSIVE.has(row.symbol) && (row.quadrant === 'Leading' || row.quadrant === 'Improving' || row.quadrant === 'Weakening')).map((row) => row.label);
@@ -41,8 +41,8 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
   // v57.54 audit (9): the missing-rotation reason was developer copy on the reader's face; the sentence just points to 테마.
   const sectorNote = '';
   const checks = {
-    expansion: [['추세 우호', state.trend === 'favorable'], [`시장 폭 우호(50·200일선 위 ${RULES.breadth.broadAtLeast}% 이상)`, state.breadth === 'favorable'], ['신용 안정', creditStable, creditNote], ['변동성 안정', calm('volatility')]],
-    concentration: [['추세 우호', state.trend === 'favorable'], [`시장 폭 부담(${RULES.breadth.weakBelow}% 미만)`, state.breadth === 'burden'], ['신용 안정', creditStable, creditNote], ['변동성 안정', calm('volatility')]],
+    expansion: [['추세 양호', state.trend === 'favorable'], [`시장 폭 양호(50·200일선 위 ${RULES.breadth.broadAtLeast}% 이상)`, state.breadth === 'favorable'], ['신용 안정', creditStable, creditNote], ['변동성 안정', calm('volatility')]],
+    concentration: [['추세 양호', state.trend === 'favorable'], [`시장 폭 부담(${RULES.breadth.weakBelow}% 미만)`, state.breadth === 'burden'], ['신용 안정', creditStable, creditNote], ['변동성 안정', calm('volatility')]],
     weakness: [['추세 부담', state.trend === 'burden'], ['시장 폭 부담', state.breadth === 'burden'], ['신용 또는 변동성 부담', state.credit === 'burden' || state.volatility === 'burden']]
   };
   // I03: the names in "관련 섹터·테마" are also links — a sector opens 테마 · 섹터, a theme its detail page.
@@ -69,10 +69,10 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
       ignore: ['후행 업종의 하루 반등 — 참여 비율이 넓어지기 전에는 흐름 전환으로 읽지 않습니다.', '지수 신고가 자체 — 참여가 좁으면 시장 전체가 강하다는 뜻이 아닙니다.']
     },
     weakness: {
-      posture: '이 흐름이라면 지수와 참여도의 약화가 신용 또는 변동성 스트레스와 함께 나타나는 국면입니다. 하루 반등보다 지수의 50일선 회복과 시장 폭 개선이 함께 확인되는지가 흐름이 바뀌었는지 가르는 근거입니다. 반증: HY 확대가 멈추고 VIX 기간 구조 역전이 풀리며 S&P 500이 200일선을 되찾으면 약화 해석을 다시 봅니다.',
+      posture: '이 흐름이라면 지수와 참여도의 약화가 신용 또는 변동성 스트레스와 함께 나타나는 국면입니다. 하루 반등보다 지수의 50일선 회복과 시장 폭 개선이 함께 확인되는지가 흐름이 바뀌었는지 가르는 근거입니다. 반증: HY 확대가 멈추고 VIX 단기 불안 비율 역전이 풀리며 S&P 500이 200일선을 되찾으면 약화 해석을 다시 봅니다.',
       opportunity: defensiveHolding.length ? `상대적으로 버티는 방어 섹터: ${join(defensiveHolding)}` : `방어 섹터(헬스케어·필수소비재·유틸리티)의 상대강도를 섹터 회전에서 확인합니다${sectorNote}.`,
       opportunityLinks: [{ label: '상대적으로 버티는 방어 섹터', links: sectorLinks(defensiveHolding) }].filter((part) => part.links.length),
-      check: ['HY 스프레드 확대가 멈추는지', 'VIX 기간 구조 역전(1 이상)이 풀리는지', 'S&P 500이 200일선을 되찾는지'],
+      check: ['HY 스프레드 확대가 멈추는지', 'VIX 단기 불안 비율 역전(1 이상)이 풀리는지', 'S&P 500이 200일선을 되찾는지'],
       caution: ['급락 직후 하루 반등은 추세 회복이 아닐 가능성이 높습니다.', '"많이 빠져서 싸다"는 것은 추세 회복의 근거가 아닙니다.'],
       ignore: ['단기 과매도 지표 하나만의 신호', '하루짜리 정책·뉴스 헤드라인']
     }
@@ -84,7 +84,7 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
     // v57.55 review (E2-06): every listed condition is required for the flow (scenarios.confirmed needs all of them), so
     // '3/4' with credit failing is not "almost there" — the missing condition is named and the flow reads as not formed.
     const missingNames = list.filter(([, ok]) => !ok).map(([label]) => label.split('(')[0]);
-    const shortfall = !scenario.held && met > 0 && met < list.length ? `${missingNames.join('·')} 미충족이라 아직 성립하지 않음` : null;
+    const shortfall = !scenario.held && met > 0 && met < list.length ? `${missingNames.join('·')} 이 빠져 아직 성립하지 않음` : null;
     return { id: scenario.id, title: scenario.title, likelihood: level, fit: scenario.held ? '판단 보류' : fitLabel(met, list.length), shortfall, met, total: list.length,
       basis: list.map(([label, ok, note]) => `${label} ${ok ? '충족' : `미충족${note ? `(${note})` : ''}`}`).join(' · '), ...guide[scenario.id] };
   });
@@ -99,7 +99,7 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
 
 export function renderScenarioOutlookContext(outlook) {
   if (!outlook?.available) return '';
-  return `${outlook.asOf} 완료 종가 기준 시나리오별 현재 조건 충족 수(규칙 충족 수이며 확률이나 가능성 등급이 아님). ${outlook.headline}\n`
+  return `${outlook.asOf} 확정 종가 기준 시나리오별 현재 조건 충족 수(규칙 충족 수이며 확률이나 가능성 등급이 아님). ${outlook.headline}\n`
     + outlook.items.map((item) => `${item.title}: ${item.fit} (${item.basis}). 읽기: ${item.posture} 관련 섹터·테마: ${item.opportunity} 확인: ${item.check.join('; ')} 조심: ${item.caution.join(' ')} 넘겨도 됨: ${item.ignore.join('; ')}`).join('\n')
     // P1742 (owner 2026-10-13, supersedes T06): choices and opportunity cost come from the 시나리오 block; only instructions stay out.
     + '\n가격·수량·시점·특정 종목 매매 지시는 하지 않는다. 선택지별 기회비용과 상대적으로 유리한 쪽은 【향후 시나리오】 근거로만 말할 것.';

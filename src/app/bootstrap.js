@@ -402,7 +402,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // call the market '위험회피' while the 시장 상태 screen read '혼조'. The weight resolver now receives the screen's
   // overall verdict, translated onto its existing riskScore scale (one fixed point per verdict; '판정 보류' = no input).
   // The weights stay the fixed neutral model until a promotion record exists — only the candidate label follows.
-  const REGIME_RISK_POINT = Object.freeze({ '부담 우세': 65, '부담 쪽으로 기움': 57.5, '혼조': 42.5, '우호 쪽으로 기움': 27.5, '우호 우세': 20 });
+  const REGIME_RISK_POINT = Object.freeze({ '부담 우세': 65, '다소 부담': 57.5, '혼조': 42.5, '다소 양호': 27.5, '양호 우세': 20 });
   const screenRegimeWeightInput = () => {
     try {
       const regime = readMarketRegime(root);

@@ -45,7 +45,7 @@ assert.equal(buildRegimeAxisHistory(input).axes.credit.length, 0, 'P1628 a missi
 const future = { ...macroHistory, series: { ...macroHistory.series, hyOas: { observations: [...macroHistory.series.hyOas.observations, ['2026-10-12', 99]] } } };
 assert.equal(buildRegimeAxisHistory(input, { macroHistory: future }).axes.credit[0].series.at(-1).value, 300, 'P1628 a later macro observation must not enter the US completed-close chart');
 const context = renderMarketScenarioContext(narrow);
-assert.ok(context.includes(`${asOf} 완료`) && context.includes('집중 유지 (현재 조건 충족)'), 'P1628 AI context must carry the exact screen model and completed observation date');
+assert.ok(context.includes(`${asOf} 확정`) && context.includes('소수 종목 주도 (현재 조건 충족)'), 'P1628 AI context must carry the exact screen model and completed observation date');
 
 const krNow = Date.parse('2026-10-12T00:00:00Z');
 const krHistory = [
@@ -154,6 +154,6 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   const scenarios = buildMarketScenarios(neutralCredit, { regime: neutralRegime });
   const outlook = buildScenarioOutlook({ scenarios, regime: neutralRegime });
   assert.equal(neutralRegime.axes.find((row) => row.id === 'credit').state, 'neutral', 'P1727 fixture: a 20-session widening makes credit neutral');
-  assert.ok(scenarios.scenarios.find((item) => item.id === 'concentration').confirmed === false && outlook.items.find((item) => item.id === 'concentration').met === 3, 'P1727 a neutral credit axis neither confirms 집중 유지 nor counts as 신용 안정');
+  assert.ok(scenarios.scenarios.find((item) => item.id === 'concentration').confirmed === false && outlook.items.find((item) => item.id === 'concentration').met === 3, 'P1727 a neutral credit axis neither confirms 소수 종목 주도 nor counts as 신용 안정');
 }
 console.log('[regime-scenarios] PASS P1628: six actual charts, conditional recovery/concentration/weakness, missing/stale holds, units/date bounds, KR holiday/KST separation, chart selection; P1723-P1727 Korean shock lead/axis notes, KRX daily change, mixed-date chip, WTI rebound, Brent hold, one credit rule. Offline.');

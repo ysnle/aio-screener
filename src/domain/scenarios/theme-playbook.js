@@ -30,7 +30,7 @@ const WHY = {
   leading: { tail: '추세와 거시 수혜가 같은 방향이라 보유를 이어 가는 쪽의 기회비용이 작습니다. 새로 들어가는 것은 이미 오른 가격(50일선과의 거리)을 감수하는 일입니다.',
     head: '추세는 강하지만 거시 부담이 있어, 보유는 유지하되 부담이 실제 실적으로 번지는지 확인하는 쪽이 맞습니다.',
     other: '추세가 살아 있는 동안에는 보유를 이어 가는 쪽의 기회비용이 작습니다.' },
-  pullback: { tail: '긴 추세는 살아 있고 거시도 수혜인 조정은, 나눠 들어가는 쪽이 바닥 시점을 맞히지 않고도 다음 상승을 놓치지 않는 조합입니다. 구조 가설이 깨지는 신호가 나오면 멈춥니다.',
+  pullback: { tail: '긴 추세가 살아 있고 거시상 수혜인 조정은, 나눠 들어가는 쪽이 바닥 시점을 맞히지 않고도 다음 상승을 놓치지 않는 조합입니다. 구조 가설이 깨지는 신호가 나오면 멈춥니다.',
     head: '긴 추세가 살아 있어도 거시 부담 속 조정은 더 깊어질 수 있어, 부담이 약해지는 것을 기다리는 쪽의 비용이 작습니다.',
     other: '조정이 추세 붕괴인지 쉬어 가기인지 50일선 위 종목 비율로 가늠하며, 확인되면 나눠 들어가는 쪽이 맞습니다.' },
   rebound: { tail: '하락 추세 속 반등이지만 거시 수혜가 있어, 반등이 추세 전환으로 이어지는지 확인하며 나눠 보는 편이 맞습니다.',
@@ -78,7 +78,7 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, above50, basis, grou
     [`긴 추세 유지 (${ret6m != null ? '6개월' : '3개월'} 중앙값 플러스)`, trend == null ? null : trend > 0],
     ['조정이 무너지지 않음 (50일선 위 종목 30% 이상)', above50 == null ? null : above50 >= 30],
     [`중심 시나리오에서 수혜 또는 중립${lead ? ` ('${lead.title.split(' — ')[0]}')` : ''}`, lead ? wind.lead !== 'head' : null],
-    ['신용 안정 (신용 축 부담 아님)', credit == null || credit === 'unknown' ? null : credit !== 'burden'],
+    ['신용 안정 (신용 지표 부담 아님)', credit == null || credit === 'unknown' ? null : credit !== 'burden'],
     // A drop that has taken back more than half of the gain before it is no longer a pause inside the trend.
     ...(state === 'pullback' ? [['조정 깊이 (1개월 낙폭이 그 전까지 오른 폭의 절반 이하)', depthOk(trend, ret1m)]] : [])
   ] : [];
@@ -94,7 +94,7 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, above50, basis, grou
     fit: known.length < 2 ? '판단 보류' : `조건 충족 ${met}/${conditions.length}`, met, total: conditions.length, known: known.length,
     basisText: conditions.map(([text, ok]) => `${text} ${ok == null ? '확인 불가' : ok ? '충족' : '미충족'}`),
     past: proxy ? frequencyText({ ...proxy, subject: proxySymbol }, `대표 ETF ${proxySymbol}가 같은 단계(${THEME_STATES[state].split(' (')[0]})였을 때`, { source: '장기 일봉 기록' }) : '같은 단계의 장기 과거 기록(대표 ETF)이 없어 빈도를 말하지 않습니다.',
-    positioning: '레버리지·포지션 쏠림을 직접 재는 자료는 없습니다 — 1개월 낙폭과 50일선 위 비율로만 가격 쪽 단서를 봅니다.',
+    positioning: '직접 자료는 없습니다 — 1개월 낙폭과 50일선 위 비율로 추정합니다.',
     groups
   };
 }
@@ -180,7 +180,7 @@ export function renderThemePlaybookContext(model, { query = '' } = {}) {
   const notable = [...model.highlights.structuralPullbacks.slice(0, 4), ...model.highlights.headwindLeaders.slice(0, 2), ...model.highlights.tailwindLaggards.slice(0, 2), ...model.rotation.gainers.slice(0, 2), ...model.rotation.losers.slice(0, 2)];
   const picked = [...new Map([...named, ...notable].map((row) => [`${row.market}:${row.id}`, row])).values()].slice(0, 10);
   const line = (row) => `- [${row.market}] ${row.label}: ${row.stateLabel} (1개월 ${pct(row.ret1m)}${row.ret3m != null ? ` · 3개월 ${pct(row.ret3m)}` : ''}${row.ret6m != null ? ` · 6개월 ${pct(row.ret6m)}` : ''}${row.above50 != null ? ` · 50일선 위 ${row.above50}%` : ''}). 성격: ${row.tagLabels.join(', ') || '미분류'}. 거시: ${row.windText}. ${row.fit} [${row.basisText.join(', ')}]. 상대적으로 유리한 쪽: ${row.favored.map((key) => CHOICES[key]).join(', ') || '판단 보류'} — ${row.favoredWhy} 과거: ${row.past}${row.thesis ? ` 구조 가설: ${row.thesis}. 가설이 깨지는 신호: ${row.breaks.join(', ')}.` : ''}`;
-  return [`【테마 시나리오 — 모든 테마를 같은 규칙으로(${model.asOf || '기준일 미확인'} 완료 종가)】`, `가격 기준 강약 이동(자금 유출입 자료 아님): ${model.rotation.text}`,
+  return [`【테마 시나리오 — 모든 테마를 같은 규칙으로(${model.asOf || '기준일 미확인'} 확정 종가)】`, `가격 기준 강약 이동(자금 유출입 자료 아님): ${model.rotation.text}`,
     model.highlights.structuralPullbacks.length ? `추세 속 조정 + 거시 부담 아님: ${model.highlights.structuralPullbacks.slice(0, 6).map((r) => `${marketWord(r)} ${r.label}(${pct(r.ret1m)})`).join(', ')}` : '',
     model.highlights.headwindLeaders.length ? `거시 부담에도 주도: ${model.highlights.headwindLeaders.map((r) => `${marketWord(r)} ${r.label}`).join(', ')} — 업종 고유 동력(실적·구조 수요) 확인 필요` : '',
     ...picked.map(line),

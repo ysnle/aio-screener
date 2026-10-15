@@ -103,7 +103,7 @@ try {
   await capture('theme-storage-refusal','technical','stock','toggle with rejected persistence','visible dark mode and chart update continue');
   await page.evaluate(()=>window.showPage('principles'));
   for(const lesson of PACKET_20261011_LESSONS) {
-    const navigation=page.getByRole('navigation',{name:'개념·분석 프레임 목차',exact:true});
+    const navigation=page.getByRole('navigation',{name:'개념·분석 목차',exact:true});
     const button=navigation.getByRole('button',{name:lesson.issue,exact:true}).or(navigation.getByRole('checkbox',{name:lesson.issue,exact:true}));
     await button.click();
     await page.getByText(lesson.answer,{exact:true}).waitFor({state:'visible'});

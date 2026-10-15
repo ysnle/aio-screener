@@ -274,7 +274,7 @@ if (!/data\.providerCrossChecks\.fx = histInfo\?\.fxCrossCheck/.test(fetchDataSo
   || !/\|\| compareUsdKrwCrossCheck\(\{ provider: null, official: fredDexkous/.test(fetchDataSource)) {
   fail('fetch-data must publish the FX cross-check beside the crypto cross-check, with a verdict even when the history lane fails');
 }
-// 배선: 비교는 **공식 관측일과 같은 시점**의 완료 종가로 한다(최신값으로 대신하지 않는다).
+// 배선: 비교는 **공식 관측일과 같은 시점**의 확정 종가로 한다(최신값으로 대신하지 않는다).
 if (!/const officialDate = String\(officialFx\?\.observedAt/.test(fetchDataSource)
   || !/\.map\(\(candidate\) => hist\.find\(\(row\) => row && row\.date === candidate && Number\.isFinite\(row\.usdkrw\)\)\)/.test(fetchDataSource)) {
   fail('fetch-data must compare the official observation against the aligned provider close, not the latest value');

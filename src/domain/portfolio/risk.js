@@ -403,9 +403,9 @@ export function deriveRiskEstimate(input) {
     warnings.push('현재 구성을 과거 시장 경로에 적용한 가상 분석입니다 — 계좌의 실제 과거 성과·위험이 아닙니다.');
   }
   if (strategyPath) {
-    warnings.push('고정 목표비중 전략 경로(가상)입니다 — 목표비중을 ' + rebalancePolicy + ' 정책으로 리밸런싱했다고 가정한 결과이며 실제 계좌 성과가 아닙니다.');
+    warnings.push('목표 비중 유지 전략 경로(가상)입니다 — 목표비중을 ' + rebalancePolicy + ' 정책으로 리밸런싱했다고 가정한 결과이며 실제 계좌 성과가 아닙니다.');
   } else if (declaredRebalancePolicy) {
-    warnings.push('선언된 리밸런싱 정책(' + declaredRebalancePolicy + ')은 현재 구성 소급 경로에서 쓰이지 않습니다 — 결과에 영향이 없습니다.');
+    warnings.push('선언된 리밸런싱 정책(' + declaredRebalancePolicy + ')은 지금 구성 그대로 방식에서 쓰이지 않습니다 — 결과에 영향이 없습니다.');
   }
   if (wholeAccountHold === 'cash-declaration-unresolved') {
     warnings.push('현금 통화가 선언되지 않아 계좌 전체 위험을 계산하지 않습니다 — 주식 부분(invested sleeve) 결과만 게시합니다.');

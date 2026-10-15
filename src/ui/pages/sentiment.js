@@ -29,7 +29,7 @@ export function createSentimentPage({ documentRef, evidenceStore, store, chartFa
       if (root) {
         const suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
           routeId: 'sentiment',
-          heading: '심리 · 포지셔닝과 시장 내부 확인'
+          heading: '심리와 투자자 쏠림 확인'
         });
         root.appendChild(suppliedMaterialBridge);
         bag.add(() => suppliedMaterialBridge.remove());

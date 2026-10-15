@@ -104,13 +104,13 @@ export function sentimentFlow({ model = null, regime = null } = {}) {
   const cards = Object.fromEntries((model?.cards || []).map((card) => [card.id, card]));
   const links = [];
   if (cards.hy?.value && cards.hy.value !== '—' && byId.credit) links.push(`HY 스프레드 ${cards.hy.value}는 시장 상태 '신용 · 위험선호' 축(${byId.credit.stateLabel})의 근거`);
-  if (cards.term?.value && cards.term.value !== '—' && byId.volatility) links.push(`VIX 기간 구조 ${cards.term.value}는 '변동성' 축(${byId.volatility.stateLabel})의 근거`);
-  const bridge = links.length ? `${links.join(', ')}입니다. 공포·탐욕과 AAII는 6개 축에 넣지 않는 참고 지표라, 가격에서 나온 심리가 자금 시장(신용·변동성)까지 번졌는지를 이 두 축으로 확인합니다.` : '';
+  if (cards.term?.value && cards.term.value !== '—' && byId.volatility) links.push(`VIX 단기 불안 비율 ${cards.term.value}는 '변동성' 축(${byId.volatility.stateLabel})의 근거`);
+  const bridge = links.length ? `${links.join(', ')}입니다. 공포·탐욕과 AAII는 6개 지표에 넣지 않는 참고 지표라, 가격에서 나온 심리가 자금 시장(신용·변동성)까지 번졌는지를 이 두 지표로 확인합니다.` : '';
   const next = [];
   const hyState = cards.hy?.state?.tone;
   if (hyState === 'burden') next.push({ route: 'fxbond', label: '금리 · 환율', why: '신용 스프레드 확대가 실질금리·달러와 같은 방향인지' });
   if (byId.breadth?.state === 'burden') next.push({ route: 'breadth', label: '시장 폭', why: `심리와 별개로 참여 종목이 줄고 있는지(시장 폭 ${byId.breadth.stateLabel})` });
-  next.push({ route: 'signal', label: '시장 상태', why: '공포·탐욕과 AAII를 넣지 않은 6개 축(변동성·신용 포함)의 전체 판정' });
+  next.push({ route: 'signal', label: '시장 상태', why: '공포·탐욕과 AAII를 넣지 않은 6개 지표(변동성·신용 포함)의 전체 판정' });
   // Audit 2026-10-14: mood is a reading of today; where it leads is decided by the next releases.
   next.push({ route: 'macro', label: '거시 시나리오', why: '지금의 심리가 다음 발표가 가를 시나리오(신용 경색·변동성 충격 등) 가운데 어느 쪽과 같은 방향인지' });
   return { bridge, next };
@@ -144,7 +144,7 @@ export function regimeFlow({ regime = null, groups = {} } = {}) {
   const narrow = breadth?.state === 'burden' && breadth?.narrow;
   next.push(narrow
     ? { route: 'themes', label: 'S&P 500 지도 · 섹터', why: `지수는 고점권인데 참여가 좁음 — 지수를 끌어올린 종목(지도 타일 넓이 = 지수 비중)${leaders ? `과 상대강도 ${leaders}` : ''}` }
-    : { route: 'themes', label: '테마 · 섹터', why: leaders ? `섹터 회전의 상대강도 ${leaders} — 6개 축의 판정이 어느 업종에서 나타나는지` : '6개 축의 판정이 어느 섹터·테마에서 나타나는지' });
+    : { route: 'themes', label: '테마 · 섹터', why: leaders ? `섹터 회전의 상대강도 ${leaders} — 6개 지표의 판정이 어느 업종에서 나타나는지` : '6개 지표의 판정이 어느 섹터·테마에서 나타나는지' });
   return { next };
 }
 
@@ -174,7 +174,7 @@ export function briefingFlow({ read = null } = {}) {
   const keyOf = (item) => `${item.route}#${item.ctx?.anchor || ''}`;
   // P1727: when the Korea sentence is in the four-sentence lead, its board comes first.
   if (lead.has('korea')) { next.push({ ...BRIEFING_ROUTES.korea, why: `오늘 해석의 한국 문장 — ${BRIEFING_ROUTES.korea.why}` }); seen.add(keyOf(BRIEFING_ROUTES.korea)); }
-  next.push({ route: 'signal', label: '시장 상태', why: '오늘 해석이 6개 축(추세·시장 폭·변동성·금리·신용·달러/원자재) 판정과 같은 쪽인지' });
+  next.push({ route: 'signal', label: '시장 상태', why: '오늘 해석이 6개 지표(추세·시장 폭·변동성·금리·신용·달러/원자재) 판정과 같은 쪽인지' });
   seen.add('signal#');
   const axes = [...(read.statements || []).map((row) => row.axis), ...(read.drivers || []).filter((row) => row.values?.length).map((row) => row.id)];
   for (const axis of axes) {
@@ -222,7 +222,7 @@ export function rotationFlow({ groups = {}, regime = null } = {}) {
     ? ` ${total}개 중 선도 ${lead.length}개, 후행 ${lagging.length}개입니다. 기준이 시가총액 가중 S&P 500(SPY)이라 대형 기술주 비중이 클수록 나머지 섹터가 후행에 몰리기 쉽습니다.` : '';
   const breadth = regime?.axes?.find((row) => row.id === 'breadth');
   const tie = concentration && breadth?.state === 'burden' ? ' 시장 상태의 시장 폭 부담(참여 종목 감소)과 같은 그림입니다.'
-    : concentration && breadth?.state === 'favorable' ? ' 다만 시장 폭은 우호라 종목 참여는 아직 넓습니다.' : '';
+    : concentration && breadth?.state === 'favorable' ? ' 다만 시장 폭은 양호라 종목 참여는 아직 넓습니다.' : '';
   // P1599 (F104): the headline names the leaders and the counts; every sector already sits in the quadrant
   // cards right below, so listing all eleven here made the one-line read a paragraph.
   const counts = concentration ? '' : ` 약화 ${(groups.Weakening || []).length} · 후행 ${lagging.length}.`;

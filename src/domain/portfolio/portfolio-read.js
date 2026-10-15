@@ -125,7 +125,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   }
   if (regime?.available) {
     points.push({ id: 'market', tone: regime.counts?.burden >= 4 ? 'burden' : 'neutral', title: '시장 환경',
-      text: `시장 상태는 ‘${regime.overall}’(우호 ${regime.counts.favorable} · 부담 ${regime.counts.burden})입니다. ${regime.counts.burden >= 4 ? '부담 축이 많은 환경이라, 위 하락 추세 비중과 후행 섹터 비중이 시장 약세에 함께 노출된 부분입니다.' : '환경이 극단적이지 않아 종목별 추세가 더 중요한 국면입니다.'}` });
+      text: `시장 상태는 ‘${regime.overall}’(양호 ${regime.counts.favorable} · 부담 ${regime.counts.burden})입니다. ${regime.counts.burden >= 4 ? '부담 지표가 많은 환경이라, 위 하락 추세 비중과 후행 섹터 비중이 시장 약세에 함께 노출된 부분입니다.' : '환경이 극단적이지 않아 종목별 추세가 더 중요한 국면입니다.'}` });
   }
   const excluded = holdings.length - known.length;
   const excludedValue = total - knownValue;
@@ -143,7 +143,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   const next = [];
   if (weakest[0]) next.push({ action: 'showTicker', arg: weakest[0].symbol, route: 'ticker', label: weakest[0].symbol, why: '하락 추세 중 비중이 가장 큰 종목의 요약·차트' });
   next.push({ route: 'themes', label: '테마 · 섹터', why: '보유 섹터가 회전의 어느 단계에 있는지' });
-  next.push({ route: 'signal', label: '시장 상태', why: '부담 축이 무엇이고 무엇이 바뀌면 완화되는지' });
+  next.push({ route: 'signal', label: '시장 상태', why: '부담 지표가 무엇이고 무엇이 바뀌면 완화되는지' });
   return { available: true, total, headline, points, trendMix, sectorMix, attribution, excluded, excludedValue, containedPct: trendContainedPct, next };
 }
 

@@ -1,4 +1,4 @@
-// Reading text for the 19 산업·밸류체인 domain overviews. Each overview opens the domain the way a sector note
+// Reading text for the 19 산업 지도 domain overviews. Each overview opens the domain the way a sector note
 // would: the scene, how money and constraints move through it, and where the common reading goes wrong.
 // Overviews may run a third paragraph (`long`) because they introduce several sub-areas at once.
 export const INDUSTRY_DOMAIN_STORIES = Object.freeze({

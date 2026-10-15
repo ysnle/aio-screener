@@ -235,7 +235,7 @@ if (!newsPageSource.includes("container.dataset.aioNewsRenderer = 'native'")) fa
 }
 if (newsPageSource.includes('renderStories')) fail('news.js content-rendering helper (renderStories) returned after RM-01 removed it');
 if (!dataSource.includes("return 'headline-only'") || !dataSource.includes("row.contentDepth !== 'headline-only'") || !dataSource.includes("bodyText.length >= 40 ? 'summary' : 'headline-only'")) fail('headline-only news must remain outside verified/AI evidence');
-for (const marker of ['isNewsAnalysisEligible', 'isNewsHeadlineOnly(item)', "label: '본문 미수신'"]) { // P1672: the '본문/검증 필요' risk copy left with the sentiment strip
+for (const marker of ['isNewsAnalysisEligible', 'isNewsHeadlineOnly(item)', "label: '본문 없음'"]) { // P1672: the '본문/검증 필요' risk copy left with the sentiment strip
   if (!newsPageSource.includes(marker)) fail(`native news evidence-depth boundary missing: ${marker}`);
 }
 // P1425: the 거시 hub is two native boards (src/ui/components/macro-board.js). The fixed-threshold

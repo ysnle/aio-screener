@@ -186,7 +186,7 @@ function renderMoveChart(doc, anchor, moves) {
     if (!rows.length) continue;
     const max = Math.max(...rows.flatMap((row) => [Math.abs(row.d1 || 0), Math.abs(row.d5 || 0)]), unit === '%' ? 0.5 : 2);
     const block = el(doc, 'div', null, 'briefing-move-block');
-    block.append(el(doc, 'div', unit === '%' ? '가격 등락(%) — 막대 = 1일(진하게) · 5일(옅게), 0 기준 양쪽 · 달러·환율은 오르내림에 좋고 나쁨이 없어 회색' : '금리 변화(bp) — 다른 단위라 따로 표시', 'briefing-move-head'));
+    block.append(el(doc, 'div', unit === '%' ? '가격 등락(%) · 진한 막대 1일, 옅은 막대 5일 · 달러·환율은 회색(좋고 나쁨 없음)' : '금리 변화(bp) — 다른 단위라 따로 표시', 'briefing-move-head'));
     for (const row of rows) {
       const line = el(doc, 'div', null, 'briefing-move-row');
       line.append(el(doc, 'span', row.label, 'briefing-move-label'));

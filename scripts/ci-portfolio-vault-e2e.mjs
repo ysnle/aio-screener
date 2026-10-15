@@ -522,7 +522,7 @@ async function main() {
       };
     });
     check('PFE2-18 strategy_path_and_currency_holds_render (P1193/P1181)',
-      /고정 목표비중 전략/.test(declaredStates.strategyHtml)
+      /목표 비중 유지 전략/.test(declaredStates.strategyHtml)
       && /목표 AAA 50\.0%\/BBB 50\.0%/.test(declaredStates.strategyHtml)
       && /분모 주식 부분/.test(declaredStates.strategyHtml) && /data-risk-scope="invested_sleeve"/.test(declaredStates.strategyHtml) // P1684: Korean line; codes in data-* and the folded identifiers
       && /전략 경로의 계좌 범위 미선언/.test(declaredStates.strategyHtml)
@@ -647,7 +647,7 @@ async function main() {
       && !policyDeclarationFlow.retrospective.includes('rebalance daily')
       && policyDeclarationFlow.strategyUndeclared.includes('rebalance-policy-required')
       && !policyDeclarationFlow.strategyUndeclared.includes('rebalance daily(미사용)')
-      && policyDeclarationFlow.strategyDeclared.includes('고정 목표비중 전략')
+      && policyDeclarationFlow.strategyDeclared.includes('목표 비중 유지 전략')
       && policyDeclarationFlow.strategyDeclared.includes('rebalance monthly'),
       JSON.stringify({ retrospective: policyDeclarationFlow.retrospective.slice(0, 400), undeclared: policyDeclarationFlow.strategyUndeclared.slice(0, 400), declared: policyDeclarationFlow.strategyDeclared.slice(0, 400) }));
 

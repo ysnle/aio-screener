@@ -298,7 +298,7 @@ function themeLines(doc, root) {
   const lines = [];
   if (state.rotation?.text) lines.push(el(doc, 'p', `테마: ${state.rotation.text}`, 'xr-reading'));
   const ret1m = (value) => (Number.isFinite(value) ? `1개월 ${value >= 0 ? '+' : ''}${value.toFixed(1)}%` : '1개월 —');
-  if (pullbacks.length) lines.push(el(doc, 'p', `긴 추세 속 조정이면서 거시 부담이 아닌 테마: ${pullbacks.map((row) => `${row.market === 'KR' ? '한국' : '미국'} ${row.label}(${ret1m(row.ret1m)})`).join(', ')} — 나눠 접근하는 쪽의 기회비용이 상대적으로 작은 조합입니다(구조 가설이 깨지면 중단).`, 'xr-reading'));
+  if (pullbacks.length) lines.push(el(doc, 'p', `상승 추세 속 쉬어 가는 테마(거시 부담 없음): ${pullbacks.map((row) => `${row.market === 'KR' ? '한국' : '미국'} ${row.label}(${ret1m(row.ret1m)})`).join(', ')} — 분할 접근의 부담이 비교적 작은 경우입니다(핵심 논리가 깨지면 멈춤).`, 'xr-reading'));
   return lines;
 }
 

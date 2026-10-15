@@ -42,7 +42,7 @@ function createFrameworkCard(documentRef, framework, page, onNavigate, labelOf) 
   card.dataset.aioIntegratedFramework = framework.id;
   card.dataset.aioIntegrationMode = 'synthesized-reference';
   card.append(
-    element(documentRef, 'div', page === 'principles' ? 'principles-eyebrow' : 'atlas-card-meta', `${page === 'principles' ? '개념·분석 프레임 연결' : 'AI 자본·물리 연결 렌즈'} · 구조 참고`),
+    element(documentRef, 'div', page === 'principles' ? 'principles-eyebrow' : 'atlas-card-meta', `${page === 'principles' ? '개념·분석 연결' : 'AI 자본·물리 연결 렌즈'} · 구조 참고`),
     element(documentRef, 'h3', page === 'principles' ? 'principles-learning-card-title' : 'atlas-card-title', framework.title),
     element(documentRef, 'p', page === 'principles' ? 'principles-chapter-copy' : 'atlas-card-copy', `정의: ${framework.definition}`),
     element(documentRef, 'p', page === 'principles' ? 'principles-chapter-copy' : 'atlas-card-copy', `작동 경로: ${framework.mechanism}`),
@@ -52,7 +52,7 @@ function createFrameworkCard(documentRef, framework, page, onNavigate, labelOf) 
   );
   const links = element(documentRef, 'div', page === 'principles' ? 'principles-learning-steps' : 'atlas-route-links');
   (framework.linkedConceptIds || []).slice(0, 4).forEach((conceptId) => links.appendChild(element(documentRef, page === 'principles' ? 'span' : 'span', page === 'principles' ? 'principles-learning-step' : 'atlas-chip', readableConcept(conceptId, labelOf))));
-  const routeButton = element(documentRef, 'button', 'integrated-framework-route', page === 'principles' ? '산업·밸류체인에서 이어 읽기' : '개념·분석 프레임에서 이어 읽기');
+  const routeButton = element(documentRef, 'button', 'integrated-framework-route', page === 'principles' ? '산업 지도에서 이어 읽기' : '개념·분석에서 이어 읽기');
   routeButton.type = 'button';
   routeButton.addEventListener('click', () => onNavigate?.(page === 'principles' ? 'atlas' : 'principles'));
   links.appendChild(routeButton);
@@ -69,7 +69,7 @@ export function createIntegratedFrameworkSpine(documentRef, { page = 'principles
   view.dataset.aioIntegratedFrameworkCount = String(frameworks.length);
   view.append(
     element(documentRef, 'div', safePage === 'principles' ? 'principles-eyebrow' : 'atlas-eyebrow', '통합 분석 구조'),
-    element(documentRef, 'h2', safePage === 'principles' ? 'principles-reference-title' : 'atlas-section-title', safePage === 'principles' ? '개념·분석 프레임에서 AI 자본 흐름까지' : '시장 조건에서 AI 산업의 현금흐름까지'),
+    element(documentRef, 'h2', safePage === 'principles' ? 'principles-reference-title' : 'atlas-section-title', safePage === 'principles' ? '개념·분석에서 AI 자본 흐름까지' : '시장 조건에서 AI 산업의 현금흐름까지'),
     element(documentRef, safePage === 'principles' ? 'p' : 'p', safePage === 'principles' ? 'principles-reference-copy' : 'atlas-card-copy', safePage === 'principles'
       ? `돈·금리·유동성·기대가 기업의 자본비용과 가격을 거쳐 AI의 물리적 병목·CAPEX·수익화로 이어지는 연결 구조입니다. ${total}개 분석 렌즈는 현재 수치나 매매 신호가 아니라 기존 학습 지도를 해석하는 질문으로 사용합니다.`
       : `AI를 모델이나 종목 하나로 보지 않고, 금융 자본의 속도·물리 병목·공급 사이클·가동률·수익화·ROIC로 연결해 읽습니다. ${total}개 분석 렌즈는 현재 주장이나 랭킹을 만들지 않고 기존 산업 지도를 해석합니다.`)
@@ -90,7 +90,7 @@ export function createIntegratedFrameworkSpine(documentRef, { page = 'principles
   const boundary = element(documentRef, 'p', safePage === 'principles' ? 'principles-reference-boundary' : 'atlas-card-copy', '표시된 내용은 구조화한 교육용 참고 프레임입니다. 현재 가격·기업 성과·정책 사실·매매 판단은 별도의 기준일 있는 근거와 사람 검토가 필요합니다.');
   view.appendChild(boundary);
   if (compact) {
-    const next = element(documentRef, 'button', 'integrated-framework-route', safePage === 'principles' ? '산업·밸류체인에서 전체 연결 보기' : '개념·분석 프레임에서 전체 연결 보기');
+    const next = element(documentRef, 'button', 'integrated-framework-route', safePage === 'principles' ? '산업 지도에서 전체 연결 보기' : '개념·분석에서 전체 연결 보기');
     next.type = 'button';
     next.addEventListener('click', () => onNavigate?.(safePage === 'principles' ? 'atlas' : 'principles'));
     view.appendChild(next);

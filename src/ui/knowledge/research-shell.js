@@ -1,5 +1,5 @@
 // 2026-10-05 owner decision: 리서치 라이브러리 — one skeleton for the three research pages
-// (개념·분석 프레임, 산업·밸류체인, 운용사·13F): a header with the page name, one line on what the page
+// (개념·분석, 산업 지도, 대가 보유 종목): a header with the page name, one line on what the page
 // answers and one search across every research surface; below it 목차 · 본문 · 연결 in three columns.
 // The skeleton owns layout and search only; each page fills the three columns with its own content.
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
@@ -27,9 +27,9 @@ export function readingPicks(entries, scenario) {
 }
 
 export const RESEARCH_PAGES = Object.freeze([
-  { route: 'principles', title: '개념·분석 프레임', summary: '쟁점별 분석 노트, 개념 정의, 원리 레슨, 칼럼' },
-  { route: 'atlas', title: '산업·밸류체인', summary: '산업 분야별 구조와 관계, 기업 역할, AI 기초' },
-  { route: 'masters', title: '운용사·13F', summary: '운용 방식별 비교와 분기 보유 변화' }
+  { route: 'principles', title: '개념·분석', summary: '쟁점별 분석 노트, 개념 정의, 원리 레슨, 칼럼' },
+  { route: 'atlas', title: '산업 지도', summary: '산업 분야별 구조와 관계, 기업 역할, AI 기초' },
+  { route: 'masters', title: '대가 보유 종목', summary: '운용 방식별 비교와 분기 보유 변화' }
 ]);
 
 const STYLE = `
@@ -239,7 +239,7 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   const search = el(doc, 'div', 'rl-search');
   const input = el(doc, 'input');
   input.type = 'search';
-  input.placeholder = '노트·칼럼·개념·레슨·산업·운용사 검색 (예: ROIC, HBM, 합산비율)';
+  input.placeholder = '궁금한 단어 검색 (예: ROIC, HBM)';
   input.setAttribute('aria-label', '리서치 라이브러리 통합 검색');
   const results = el(doc, 'div', 'rl-results');
   results.hidden = true;

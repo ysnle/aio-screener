@@ -49,7 +49,7 @@ const required = [
   ['bootstrap mount', bootstrap.includes("modules.atlas")],
   ['index page', index.includes('id="page-atlas"')],
   ['index content sink', index.includes('data-atlas-content')],
-  ['Korean industry-map name', routeHubs.includes("{ id: 'atlas', label: '산업·밸류체인' }") && core.includes("label: '산업·밸류체인'") && principles.includes("routeLabel: '산업·밸류체인 열기'") && !/AI 시대 지식 지도/.test(index + core + principles + atlas) && !index.includes('>AI Era Atlas</') && !core.includes("label: 'AI Era Atlas'")],
+  ['Korean industry-map name', routeHubs.includes("{ id: 'atlas', label: '산업 지도' }") && core.includes("label: '산업 지도'") && principles.includes("routeLabel: '산업 지도 열기'") && !/AI 시대 지식 지도/.test(index + core + principles + atlas) && !index.includes('>AI Era Atlas</') && !core.includes("label: 'AI Era Atlas'")],
   ['factory', atlas.includes('export function createAtlasPage')],
   ['reference-connected state', atlas.includes("DESIGN_ONLY") && data.status === 'REFERENCE_CONNECTED' && data.researchArtifact === 'public-data/atlas/source-packets.json'],
   ['telegram discovery boundary', atlas.includes('discovery only') && data.telegram.role === 'DISCOVERY'],

@@ -35,7 +35,7 @@ const diff = buildDailyChanges([{ date: '2026-10-07', spx: 100, vix: 10, breadth
 assert.ok(Array.isArray(diff.notCompared) && diff.notCompared.length > 0, `M11: the VIX gap is listed as not compared (${JSON.stringify(diff)})`);
 
 // M06: AI market text admission rejects impossible counts, implausible moves, instructions and probability claims.
-const bad = validateAnalysisAdmission('현재 확산 회복 조건은 99/4개 충족입니다. 오늘 변화율은 +999%입니다. 지금 즉시 매수하세요. 상승 확률은 99%입니다.', { changes: new Map(), context: '' });
+const bad = validateAnalysisAdmission('현재 고른 상승 조건은 99/4개 충족입니다. 오늘 변화율은 +999%입니다. 지금 즉시 매수하세요. 상승 확률은 99%입니다.', { changes: new Map(), context: '' });
 assert.ok(bad.length >= 3, `M06: admission issues (${JSON.stringify(bad)})`);
 
 // E01: KRX codes resolve only as exact 6-digit codes present in KR_STOCK_DB.

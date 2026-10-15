@@ -1,4 +1,4 @@
-// Reading text for 산업·밸류체인 nodes, part 1: cloud, neocloud finance, compute silicon, memory and storage,
+// Reading text for 산업 지도 nodes, part 1: cloud, neocloud finance, compute silicon, memory and storage,
 // foundry, packaging, networking and AI data centers. Same reading standard as the principles lessons.
 export const NODE_STORIES_1 = {
   'cloud-hyperscaler': {

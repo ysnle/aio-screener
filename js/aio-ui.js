@@ -5045,7 +5045,7 @@ function calculateRR() {
   var capital = parseFloat(document.getElementById('rr-capital').value) || 10000;
 
   if (!entry || !stop || entry <= stop) {
-    showToast('유효한 값을 입력하세요 (가정 진입가 > 가정 무효화 가격)');
+    showToast('유효한 값을 입력하세요 (가정 진입가 > 손절 기준가)');
     return;
   }
 
@@ -5299,7 +5299,7 @@ window._aioRenderTickerOverview = function(tkr) {
     var srcs = [];
     var dsrc = window._dataSource && window._dataSource[tkr];
     if (price > 0) { srcs.push('시세: 실시간 관측'); prov.title = '시세 출처: ' + (live.source || (dsrc && dsrc.source) || 'live'); } // v57.54: provider id moved to hover (was "live:yahoo-proxy" on screen)
-    if (scr) srcs.push('수익률·팩터: 완료 종가 기준');
+    if (scr) srcs.push('수익률·팩터: 확정 종가 기준');
     prov.textContent = srcs.length ? srcs.join(' · ') : '원천 미수신 — 표시값 없음';
   }
   // 3) P1748: 관련 테마 칩 퇴역 — src/ui/components/company-analysis.js의 테마 버튼이 같은 연결(테마 단계 포함)을 맡는다.

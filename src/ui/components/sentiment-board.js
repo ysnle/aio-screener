@@ -39,9 +39,9 @@ export function fearGreedBand(value) {
 }
 const signedPp = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%p`;
 // v57.50 C02: the HY card label comes from the one creditState() judgement (market-read), not a second set of edges.
-// v57.54 audit (4): the card shows the axis's own word (우호/중립/부담) — '경계' here beside '중립' on 오늘·시장 상태 read as
+// v57.54 audit (4): the card shows the axis's own word (양호/중립/부담) — '경계' here beside '중립' on 오늘·시장 상태 read as
 // two verdicts for one creditState().
-const CREDIT_LABEL = Object.freeze({ favorable: { label: '우호', tone: 'favorable' }, neutral: { label: '중립', tone: 'neutral' }, burden: { label: '부담', tone: 'burden' } });
+const CREDIT_LABEL = Object.freeze({ favorable: { label: '양호', tone: 'favorable' }, neutral: { label: '중립', tone: 'neutral' }, burden: { label: '부담', tone: 'burden' } });
 
 export function buildSentimentModel({ history = [], credit = {}, rates = {}, snapshot = {}, macroHistory = null } = {}) {
   const { basis, c, alignments, fgSeries: fgAll } = alignMarketInputs({ history, credit, rates, macroHistory }); // T05: macroHistory gives the 20-session HY change
@@ -76,16 +76,16 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
       state: shown.fg == null ? null : judged(fg, fgBand), series: fgSeries, refLines: [25, 50, 75], domain: [0, 100], format: (value) => value.toFixed(0),
       // P1508: the change is taken between the shown whole numbers (43 → 47 reads +4), the same rule as the home card;
       // rounding the raw difference gave +3 on one screen and +4 on the other for the same day.
-      change: fgChange ? `${fgChange} (완료 종가 기준)` : '',
+      change: fgChange ? `${fgChange} (확정 종가 기준)` : '',
       note: 'VIX·풋콜·정크본드 수요·시장 폭·모멘텀 등 7개 지표를 합친 지수 — 다른 지표와 겹치므로 단독 판단에 쓰지 않음' },
-    { id: 'term', title: 'VIX 기간 구조 (VIX ÷ 3개월 VIX)', value: shown.ratio == null ? '—' : shown.ratio.toFixed(2), basis: alignmentLabel(ratioAlign), basisStatus: ratioAlign.status,
-      state: shown.ratio == null ? null : judged(ratio, ratio >= 1 ? { label: '역전 · 단기 스트레스', tone: 'burden' } : ratio >= 0.95 ? { label: '평탄', tone: 'neutral' } : { label: '정상', tone: 'favorable' }),
+    { id: 'term', title: '단기 불안 비율 (VIX ÷ 3개월 VIX)', value: shown.ratio == null ? '—' : shown.ratio.toFixed(2), basis: alignmentLabel(ratioAlign), basisStatus: ratioAlign.status,
+      state: shown.ratio == null ? null : judged(ratio, ratio >= 1 ? { label: '역전 · 단기 불안', tone: 'burden' } : ratio >= 0.95 ? { label: '평탄', tone: 'neutral' } : { label: '정상', tone: 'favorable' }),
       series: ratioSeries, refLines: [1], format: (value) => value.toFixed(2), change: seriesChange(ratioSeries, 5, '', 2) ? `5일 ${seriesChange(ratioSeries, 5, '', 2)}` : '',
       note: '1 미만이면 단기 공포가 중기보다 작은 정상 상태, 1을 넘으면 당장의 충격을 크게 반영하는 역전' },
-    { id: 'hy', title: 'HY 신용 스프레드', series: hySeries, refLines: [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], format: (value) => `${Math.round(value)}bp`, value: shown.hyBp == null ? '—' : `${Math.round(shown.hyBp)}bp`, basis: alignmentLabel(alignments.hy), basisStatus: alignments.hy.status,
+    { id: 'hy', title: '고위험 회사채 금리차(HY)', series: hySeries, refLines: [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], format: (value) => `${Math.round(value)}bp`, value: shown.hyBp == null ? '—' : `${Math.round(shown.hyBp)}bp`, basis: alignmentLabel(alignments.hy), basisStatus: alignments.hy.status,
       // v57.50 C02: the same creditState() as the 시장 상태 credit axis and the briefing (one judgement, one set of edges).
       state: shown.hyBp == null ? null : judged(hyBp, CREDIT_LABEL[credit_] || EXCLUDED),
-      change: [shown.hy5 == null ? null : `5일 ${shown.hy5 >= 0 ? '+' : ''}${Math.round(shown.hy5)}bp`, hy20 == null ? null : `20거래일 ${hy20 >= 0 ? '+' : ''}${Math.round(hy20)}bp`].filter(Boolean).join(' · '), note: `고위험 회사채가 국채보다 더 받는 금리 — 돈을 빌리기 어려워질수록 커짐 · ${RULES.credit.stressAtBp}bp 이상 또는 5일 +${RULES.credit.widen5dBp}bp 이상이면 부담(스트레스), ${RULES.credit.tightBelowBp}bp 미만이면서 5일 확대 없음·20거래일 +${RULES.credit.widen20dBp}bp 미만·풋/콜 ${RULES.credit.putCallHedgeAt} 미만일 때만 우호, 그 밖은 중립 — 시장 상태 '신용 · 위험선호' 축과 같은 판정` },
+      change: [shown.hy5 == null ? null : `5일 ${shown.hy5 >= 0 ? '+' : ''}${Math.round(shown.hy5)}bp`, hy20 == null ? null : `20거래일 ${hy20 >= 0 ? '+' : ''}${Math.round(hy20)}bp`].filter(Boolean).join(' · '), note: `고위험 회사채가 국채보다 더 받는 금리 — 돈을 빌리기 어려워질수록 커짐 · ${RULES.credit.stressAtBp}bp 이상 또는 5일 +${RULES.credit.widen5dBp}bp 이상이면 부담(스트레스), ${RULES.credit.tightBelowBp}bp 미만이면서 5일 확대 없음·20거래일 +${RULES.credit.widen20dBp}bp 미만·풋/콜 ${RULES.credit.putCallHedgeAt} 미만일 때만 양호, 그 밖은 중립 — 시장 상태 '신용 · 위험선호' 축과 같은 판정` },
     { id: 'pcr', title: '풋/콜 비율', value: shown.pcr == null ? '—' : shown.pcr.toFixed(2), basis: alignmentLabel(alignments.pcr), basisStatus: alignments.pcr.status,
       // T10: the card reads the same RULES edges as the credit axis (1.1 hedging, below 0.7 optimism). D19: level only, neutral tone.
       state: shown.pcr == null ? null : judged(pcr, pcr >= RULES.credit.putCallHedgeAt ? { label: '하락 대비 수요 높음', tone: LEVEL_TONE } : pcr < RULES.credit.putCallOptimismBelow ? { label: '콜 우위 (낙관 쪽)', tone: LEVEL_TONE } : { label: '중립', tone: LEVEL_TONE }),
@@ -123,7 +123,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   if (!moodKnown) synthesis = '기준일에 맞는 심리 지표(F&G·AAII)가 없어 종합 판단을 보류합니다.';
   else if (fearful && creditCalm && volCalm) synthesis = `${fearSource}는 비관 쪽인데 신용(${Math.round(hyBp)}bp)과 변동성 구조(${ratio.toFixed(2)})는 안정 — 비관이 심리 지표에 머물러 있고 신용·변동성 스트레스로는 번지지 않았습니다.`;
   else if (fearful && (creditStress || (volKnown && !volCalm))) synthesis = `${fearSource}의 비관과 함께 ${[creditStress ? `신용 스프레드(${Math.round(hyBp)}bp${hy5 != null ? `, 5일 ${hy5 >= 0 ? '+' : ''}${Math.round(hy5)}bp` : ''})도 부담(스트레스) 구간` : null, volKnown && !volCalm ? `변동성 구조도 역전(${ratio.toFixed(2)})` : null].filter(Boolean).join(', ')} — 위험 회피가 심리 지표를 넘어 퍼지고 있습니다.`;
-  else if (fearful && creditKnown && volKnown) synthesis = `${fearSource}는 비관 쪽이고 신용 스프레드(${Math.round(hyBp)}bp${hy20 != null ? `, 20거래일 ${hy20 >= 0 ? '+' : ''}${Math.round(hy20)}bp` : ''})는 중립(우호 조건 미충족)입니다 — 비관이 신용으로 번지는지 확인할 단계입니다.`;
+  else if (fearful && creditKnown && volKnown) synthesis = `${fearSource}는 비관 쪽이고 신용 스프레드(${Math.round(hyBp)}bp${hy20 != null ? `, 20거래일 ${hy20 >= 0 ? '+' : ''}${Math.round(hy20)}bp` : ''})는 중립(양호 조건 미충족)입니다 — 비관이 신용으로 번지는지 확인할 단계입니다.`;
   else if (fearful) synthesis =`${fearSource}는 비관 쪽이지만 ${[!creditKnown ? '신용 스프레드' : null, !volKnown ? '변동성 구조' : null].filter(Boolean).join('·')} 자료가 기준일에 없어 비관이 번졌는지 확인하지 못했습니다.`;
   else if (greedy) synthesis = hedgeLow ? `낙관이 강하고(F&G ${Math.round(fg)}) 헤지 수요가 낮음(풋/콜 ${pcr.toFixed(2)}) — 충격 대비가 약한 상태입니다.` : `낙관이 강합니다(F&G ${Math.round(fg)}). 풋/콜 비율이 ${pcr == null ? '없어 헤지 수요는 확인하지 못했습니다' : `${pcr.toFixed(2)}로 헤지 수요가 낮지는 않습니다`}.`;
   else if (fgBand) synthesis = `F&G는 ${Math.round(fg)}(${fgBand.label}) — 한쪽으로 치우치지 않은 상태입니다.`;
@@ -163,7 +163,7 @@ function compositeCard(composite) {
   const shown = composite.status !== 'withheld' && spread;
   const spreadLine = shown ? `요소 간 차이${spread.gap >= SPREAD_WIDE_AT ? ' 큼' : ''}: 최저 ${spread.low.label} ${Math.round(spread.low.score)}, 최고 ${spread.high.label} ${Math.round(spread.high.score)}` : '';
   return {
-    id: 'composite', title: '심리 구성 요소 백분위 (참고)', value: shown ? `${Math.round(spread.low.score)}~${Math.round(spread.high.score)}` : '—',
+    id: 'composite', title: '공포·탐욕 구성 요소 순위 (참고)', value: shown ? `${Math.round(spread.low.score)}~${Math.round(spread.high.score)}` : '—',
     basis: composite.asOf ? `${shortDate(composite.asOf)} 기준 · 요소 ${composite.componentsReady}/${composite.componentsTotal}` : `요소 ${composite.componentsReady}/${composite.componentsTotal}`,
     basisStatus: shown ? 'aligned' : 'missing',
     state: shown && spread.gap >= SPREAD_WIDE_AT ? { label: '요소 간 차이 큼', tone: LEVEL_TONE } : null,

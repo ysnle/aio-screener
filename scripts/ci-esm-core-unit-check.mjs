@@ -1301,7 +1301,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const blocked = deriveSignalDecisionFromTradingScore({ score: computeTradingScoreModel({}), inputVersion: 'unit.v1' });
   if (blocked.status !== 'blocked' || blocked.action !== 'NO_ACTION' || blocked.score !== null || blocked.decisionEligible !== false || blocked.presentation?.status !== 'blocked' || blocked.presentation?.action !== 'NO_ACTION' || blocked.presentation?.displayScore !== '—') fail(`signal: missing score inputs must fail closed, got ${JSON.stringify(blocked)}`);
   // P1349: a reference score needs completed-close evidence, not real-time decision-grade inputs.
-  if (blocked.presentation?.decision !== '점수 보류 — 완료 종가 근거 부족' || !/완료 종가 기준의 필수 근거/.test(blocked.presentation?.description || '') || /실시간·검증된 입력/.test(blocked.presentation?.description || '')) fail(`P1349: blocked presentation contradicts the close-basis reference policy ${JSON.stringify(blocked.presentation)}`);
+  if (blocked.presentation?.decision !== '점수 보류 — 확정 종가 근거 부족' || !/확정 종가 기준의 필수 근거/.test(blocked.presentation?.description || '') || /실시간·검증된 입력/.test(blocked.presentation?.description || '')) fail(`P1349: blocked presentation contradicts the close-basis reference policy ${JSON.stringify(blocked.presentation)}`);
   // ── P1328/R670: the reference score is computed on the latest completed US regular close ──
   {
     const { resolveCloseBasis, evaluateCloseBasisInput, describeCloseBasis } = await load('src/domain/signal/close-basis.js');
@@ -1846,7 +1846,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     observedAt: '2026-08-09', rank: 90, ret1m: 10, ret3m: 20,
     pctSma50: 20, pctSma200: 72, rsi: 76,
   });
-  if (climax.climaxRisk !== 'watch' || climax.stretch200 !== true || climax.label !== '클라이맥스 관찰') {
+  if (climax.climaxRisk !== 'watch' || climax.stretch200 !== true || climax.label !== '과열 정점 주의') {
     fail(`setup-profile: 200SMA stretch/climax label drifted, got ${JSON.stringify(climax)}`);
   }
 
@@ -1989,7 +1989,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const spans = tempUi.extremeSpans([['2026-01-01', 1, 3, 0], ['2026-01-02', 1, 4, 0], ['2026-01-05', 1, 0, 0], ['2026-01-06', 1, 0, 3]]);
   if (JSON.stringify(spans) !== JSON.stringify([{ start: '2026-01-01', end: '2026-01-02', tone: 'cold' }, { start: '2026-01-06', end: '2026-01-06', tone: 'hot' }])) fail(`v57.54 extreme spans group consecutive sessions by tone, got ${JSON.stringify(spans)}`);
   const evidence = tempUi.temperatureEvidence({ label: '코스피', from: '1999-01-05', state: 'cold', outcomes: { cold: { h63: { n: 39, mean: 5.6, se: 2.5, hitRate: 67, p10: -11.8 } }, all: { h63: { n: 6800, mean: 3.1, se: 1.25, hitRate: 60 } } } });
-  if (!/1999년 이후 극단 저온 구간이 시작된 첫날 39회/.test(evidence) || !/두 범위가 겹쳐 평균 차이는 구별되지 않습니다/.test(evidence) || !/예측은 아닙니다/.test(evidence)) fail(`v57.54 the past-spell line names n, the ± range and whether it clears the baseline, got ${evidence}`);
+  if (!/1999년 이후 과도한 냉각 구간이 시작된 첫날 39회/.test(evidence) || !/두 범위가 겹쳐 평균 차이는 구별되지 않습니다/.test(evidence) || !/예측은 아닙니다/.test(evidence)) fail(`v57.54 the past-spell line names n, the ± range and whether it clears the baseline, got ${evidence}`);
   const staleIds = tempUi.staleMarketIds({ retained: ['kosdaq'] }, [{ id: 'spx', asOf: '2026-10-13' }, { id: 'kosdaq', asOf: '2026-10-13' }, { id: 'nikkei', asOf: '2026-10-02' }, { id: 'kospi', asOf: '2026-10-09' }]);
   if ([...staleIds].sort().join(',') !== 'kosdaq,nikkei') fail(`v57.54 a retained market or one more than a week behind is stale and leaves the "now" lead, got ${[...staleIds]}`);
   if (!/사례가 3회뿐/.test(tempUi.temperatureEvidence({ label: 'x', from: '2000', state: 'hot', outcomes: { hot: { h63: { n: 3 } }, all: { h63: { n: 10 } } } }))) fail('v57.54 fewer than five spells are not summarised');
@@ -2760,20 +2760,20 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     fail('P1182/22:PFR10 the panel must read weights through the frozen composition snapshot');
   }
   const e4HtmlSource = readFileSync(path.join(root, 'index.html'), 'utf8');
-  if (!/현재 구성 소급\(과거 적용\) 참고도/.test(e4HtmlSource) || !/선형 추정/.test(e4HtmlSource) || !/raw close/.test(e4HtmlSource)) {
+  if (!/지금 구성을 과거에도 들고 있었다고 가정한 참고 그래프/.test(e4HtmlSource) || !/단순 추정/.test(e4HtmlSource) || !/배당·분할 미반영/.test(e4HtmlSource)) {
     fail('P1182/22:PFR04 the benchmark chart must disclose retrospective basis, raw close and linear interpolation');
   }
   if (!/TWR\/MWR/.test(e4HtmlSource) || !/원장/.test(e4HtmlSource)) {
     fail('P1182/account-performance the risk surface must state the ledger hold before any computation runs');
   }
-  if (!/교육 예시 기준/.test(e4HtmlSource)) {
+  if (!/예시 기준 · 직접 설정 전/.test(e4HtmlSource)) {
     fail('P1182/22 universal Sharpe/MDD/drift rules must be labeled as education examples, not advice');
   }
 }
 // ── E3/E4/P1188 — 11 P11-02 계좌·현금 통화·수익률 선언 writer · 22 계좌 성과 TWR/MWR ·
 //                  전략 경로(fixed_target_weight_strategy) ───────────────────────────────
 // 통화·수익률은 입력이지 추정값이 아니다(빈 선언→보류). 계좌 성과는 원장·규약·평가액이 모두
-// 선언될 때만 계산하고(무언 0 금지), 고정 목표비중 전략 경로는 목표비중·리밸런싱 정책을 요구한다.
+// 선언될 때만 계산하고(무언 0 금지), 목표 비중 유지 전략 경로는 목표비중·리밸런싱 정책을 요구한다.
 {
   const { createCompositionSnapshot, deriveRiskEstimate, assessAccountPerformance } = await load('src/domain/portfolio/risk.js');
   const { readPortfolioAssumptions, normalizeCurrencyCode, normalizeAnnualRate, PORTFOLIO_ASSUMPTION_KEYS } = await load('src/data/portfolio-assumptions.js');
@@ -3215,7 +3215,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     ['coverage marks only the declared input', (coverage.match(/checked/g) || []).length === 1],
     ['coverage escapes the label', coverage.includes('거래&lt;x&gt;') && coverage.includes('data-field="transactions"')],
     ['ledger rows keep kind and index', ledgerMarkup.includes('data-arg="transaction:0"') && ledgerMarkup.includes('data-arg="valuation:0"') && ledgerMarkup.includes('출금')],
-    ['empty ledger says so', ledgerListMarkup(null) === '원장 항목 없음' && ledgerListMarkup({ transactions: [], valuations: [] }) === '원장 항목 없음'],
+    ['empty ledger says so', ledgerListMarkup(null) === '입출금 기록 없음' && ledgerListMarkup({ transactions: [], valuations: [] }) === '입출금 기록 없음'],
     ['usable fx leg stays plain', usableFxRow.includes('USD→KRW') && !usableFxRow.includes('opacity:0.7;') && !usableFxRow.includes('사용 불가')],
     ['unusable fx leg names the declared budget', fxMarkup.includes('지금은 쓰지 않음(입력한 지 72시간이 지났거나 기준 시각 이후 관측)') && fxMarkup.includes('opacity:0.7;')],
     ['fx list indexes its remove buttons', fxMarkup.includes('data-arg="0"') && fxMarkup.includes('data-arg="1"')],
@@ -3314,7 +3314,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     ['the strategy path still requires a policy', strategyNoPolicy.status === 'blocked' && strategyNoPolicy.code === 'rebalance-policy-required'],
     ['the strategy path applies and hashes its policy', strategyMonthly.rebalancePolicyApplied === true && strategyMonthly.rebalancePolicy === 'monthly'
       && strategyMonthly.estimateId !== noPolicy.estimateId && strategyMonthly.strategy && strategyMonthly.strategy.targetWeightSum === 1],
-    ['the strategy path keeps its own warning', strategyMonthly.warnings.some((line) => line.includes('고정 목표비중 전략 경로'))]
+    ['the strategy path keeps its own warning', strategyMonthly.warnings.some((line) => line.includes('목표 비중 유지 전략 경로'))]
   ];
   const failedP1197 = p1197Checks.filter(([, ok]) => !ok).map(([name]) => name);
   if (failedP1197.length) {
@@ -3337,7 +3337,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     ['the panel distinguishes applied / declared / undeclared', /est\.rebalancePolicyApplied \? est\.rebalancePolicy : \(est\.rebalancePolicyDeclared \? est\.rebalancePolicyDeclared \+ '\(미사용\)' : '미선언'\)/.test(p1198Workspace)],
     ['the panel never prints a raw null', !/'rebalance ' \+ est\.rebalancePolicy\b/.test(p1198Workspace)],
     ['an unrecognized declaration is deleted, not stored as a default', /if \(normalized == null\) localStorage\.removeItem\(key\);/.test(p1198Workspace)],
-    ['undeclared is selectable in the surface', /<option value="">미선언 \(전략 경로에서 필요\)<\/option>/.test(p1198Index)]
+    ['undeclared is selectable in the surface', /<option value="">선택 안 함 \(목표 비중 유지 방식에서 필요\)<\/option>/.test(p1198Index)]
   ];
   const failedP1198 = p1198Checks.filter(([, ok]) => !ok).map(([name]) => name);
   if (failedP1198.length) fail(`P1198 shell policy-declaration checks failed: ${failedP1198.join(' | ')}`);
@@ -3496,7 +3496,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   }
 }
 // ── P1192 — 완료 컷 행의 previous-completed-close 경계 ──────────────────────────────────────
-// 행의 완료 컷을 넘는 스탬프는 그 행에 실릴 수 없다(P1095). 값은 실제 완료 종가이므로 버리지 않고
+// 행의 완료 컷을 넘는 스탬프는 그 행에 실릴 수 없다(P1095). 값은 실제 확정 종가이므로 버리지 않고
 // 직전 bar 경계로 앉히고, 그마저 컷을 넘으면 값을 싣지 않는다 — 시각만 바꾸는 위장은 금지다.
 {
   const { boundPreviousCloseToCut } = await load('scripts/fetch-data.mjs');
@@ -3663,7 +3663,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const { buildSentimentModel } = await load('src/ui/components/sentiment-board.js');
   const sparse = buildMarketRegime({ history: [{ date: '2026-09-30', spx: 6600, wti: 70 }] });
   if (sparse.overall !== '판정 보류' || sparse.axes.find((row) => row.id === 'commodities').state === 'favorable') fail(`P1399 one S&P and one WTI value produced a verdict: ${sparse.overall}`);
-  if (!/^(우호|중립|부담|방어|경계|혼조|대체로)/.test(buildMarketRegime({ history: rows, credit: { hyBp: 308, hyAsOf: last } }).overall)) fail('P1399 a full history must still produce a verdict');
+  if (!/^(양호|다소|중립|부담|방어|경계|혼조|대체로)/.test(buildMarketRegime({ history: rows, credit: { hyBp: 308, hyAsOf: last } }).overall)) fail('P1399 a full history must still produce a verdict');
   if (buildSentimentModel({}).synthesis.includes('치우치지 않은')) fail('P1399 no sentiment input must not read as balanced');
   if (/신용 스프레드.*(악화|경계)/.test(buildSentimentModel({ credit: { fg: 20, fgAsOf: '2026-09-30' }, history: [{ date: '2026-09-30', spx: 6600 }] }).synthesis)) fail('P1399 F&G alone must not claim credit stress');
   const intraday = [...rows, { date: day(260), breadth50: 80, fieldMeta: { breadth50: { observedAt: `${day(260)}T13:30:00.000Z` } } }];
@@ -3828,7 +3828,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const read = win._aioKrIndexCloseRead('kosdaq', history);
   if (!read || read.date !== '2026-10-13' || read.prevDate !== '2026-10-12' || Math.abs(read.pct + 1.432) > 0.01) fail(`P1729 the AI header KR close read must name both sessions: ${JSON.stringify(read)}`);
   const chatSource = readFileSync(path.join(root, 'js/aio-chat.js'), 'utf8');
-  if (!/_aioKrIndexCloseRead\('kospi'/.test(chatSource) || !/확산·집중·동반 약화/.test(chatSource) || !/_aioKrVerifiedDayChange\(t, _lastBarDate/.test(chatSource)) fail('P1728/P1729 the chat header and technical block must use the verified KR change and the three flows');
+  if (!/_aioKrIndexCloseRead\('kospi'/.test(chatSource) || !/고른 상승·소수 종목 주도·동반 약세/.test(chatSource) || !/_aioKrVerifiedDayChange\(t, _lastBarDate/.test(chatSource)) fail('P1728/P1729 the chat header and technical block must use the verified KR change and the three flows');
 }
 
 // P1730: the provisional post-08:00 news slot — after the bundle end, not already in the bundle, newest first, at most six.
@@ -4245,7 +4245,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
 // P1518: shared request/event/router lifecycle ownership under adversarial scheduling.
 // T01/T02/T05/T19/T04/T15 (expert review v57.48, 2026-10-13): the shared close series keeps one value per session of the
 // field's own market. A Sunday-evening FX/oil tick was a "close" (20 rows = ~16 sessions, basis chip 10/11(일), won 20일
-// -2.57% vs weekdays +0.13% -> 환율 축 '우호'); the credit axis ignored a 20-session HY widening.
+// -2.57% vs weekdays +0.13% -> 환율 축 '양호'); the credit axis ignored a 20-session HY widening.
 {
   const { buildCloseSeries, alignMarketInputs, buildMarketRegime, hyDelta20Bp } = await load('src/domain/briefing/market-read.js');
   const { formatPayrollChange, buildBriefingSchedule } = await load('src/domain/briefing/schedule.js');
@@ -4267,7 +4267,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const aligned = alignMarketInputs({ history, now: Date.parse(`${sessions.at(-1)}T23:00:00Z`) });
   if (aligned.s.usdkrw?.date !== sessions.at(-1) || aligned.s.usdkrw.d20 !== 1400 || aligned.s.usdkrw.d20Date !== sessions.at(-21)) fail(`T01 the won 20일 must start 20 sessions back on a weekday close: ${JSON.stringify(aligned.s.usdkrw && { date: aligned.s.usdkrw.date, d20: aligned.s.usdkrw.d20, from: aligned.s.usdkrw.d20Date })}`);
   const fx = buildMarketRegime({ history, now: Date.parse(`${sessions.at(-1)}T23:00:00Z`) }).axes.find((axis) => axis.id === 'korea');
-  if (fx?.state !== 'neutral') fail(`T01 a flat weekday won must not read as 원화 강세·우호 (got ${fx?.state})`);
+  if (fx?.state !== 'neutral') fail(`T01 a flat weekday won must not read as 원화 강세·양호 (got ${fx?.state})`);
   // T01: "20일" counts sessions; a gappy series (no Friday bars) still finds the point at least 20 sessions back.
   const gappy = history.filter((row) => !(row.usdkrw === 1400 && new Date(`${row.date}T12:00:00Z`).getUTCDay() === 5));
   const gap = alignMarketInputs({ history: gappy.map((row) => row.date === sessions.at(-1) ? row : row), now: Date.parse(`${sessions.at(-1)}T23:00:00Z`) }).s.usdkrw;

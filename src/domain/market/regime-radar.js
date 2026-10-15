@@ -11,7 +11,7 @@ const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? 
 export const RADAR_AXES = Object.freeze([
   { id: 'trend', label: '추세', note: 'S&P 500의 200일선 대비 거리' },
   { id: 'breadth', label: '시장 폭', note: '50일선 위 종목 비율' },
-  { id: 'volatility', label: '변동성', note: 'VIX가 낮을수록 바깥(우호)' },
+  { id: 'volatility', label: '변동성', note: 'VIX가 낮을수록 바깥(양호)' },
   { id: 'rates', label: '금리', note: '미 10년물이 낮을수록 바깥' },
   { id: 'credit', label: '신용 · 위험선호', note: 'HY OAS가 좁을수록 바깥' },
   { id: 'commodities', label: '달러 · 원자재', note: '달러지수·WTI가 낮을수록 바깥' }
@@ -87,11 +87,11 @@ export function buildRegimeRadar(input = {}, { macroHistory = null, offsets = [0
   const up = moved.filter((axis) => axis.change5 >= 10).slice(0, 2);
   const down = moved.filter((axis) => axis.change5 <= -10).slice(0, 2);
   const lead = up.length || down.length
-    ? `5거래일 전보다 ${[up.length ? `${up.map((axis) => `${axis.label}(+${axis.change5})`).join('·')} 쪽이 넓어졌고` : '', down.length ? `${down.map((axis) => `${axis.label}(${axis.change5})`).join('·')} 쪽이 좁아졌습니다` : '크게 좁아진 축은 없습니다'].filter(Boolean).join(' ')}.`
-    : '5거래일 전과 비교해 10 이상 움직인 축이 없습니다.';
+    ? `5거래일 전보다 ${[up.length ? `${up.map((axis) => `${axis.label}(+${axis.change5})`).join('·')} 쪽이 넓어졌고` : '', down.length ? `${down.map((axis) => `${axis.label}(${axis.change5})`).join('·')} 쪽이 좁아졌습니다` : '크게 좁아진 지표는 없습니다'].filter(Boolean).join(' ')}.`
+    : '5거래일 전과 비교해 10 이상 움직인 지표가 없습니다.';
   const wide = axes.filter((axis) => axis.change20 != null && Math.abs(axis.change20) >= 25).sort((a, b) => Math.abs(b.change20) - Math.abs(a.change20))[0];
   const month = wide ? ` 20거래일 전과 비교하면 ${subject(wide.label)} ${wide.change20 > 0 ? '+' : ''}${wide.change20}로 가장 크게 ${wide.change20 > 0 ? '넓어졌습니다' : '좁아졌습니다'}.` : '';
   const missing = axes.filter((axis) => axis.now == null).map((axis) => axis.label);
-  const missingText = missing.length ? ` ${missing.join('·')} 축은 최신 관측이 없어 비웠습니다.` : '';
+  const missingText = missing.length ? ` ${missing.join('·')} 지표는 최신 관측이 없어 비웠습니다.` : '';
   return { available: axes.filter((axis) => axis.now != null).length >= 3, asOf: dates[0], dates, offsets, axes, missing, lead: `${lead}${month}${missingText}` };
 }

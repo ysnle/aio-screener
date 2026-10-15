@@ -49,7 +49,7 @@ export function coverageMarkup(coverageState) {
 }
 
 export function ledgerListMarkup(ledger) {
-  if (!ledger || (!ledger.transactions.length && !ledger.valuations.length)) return '원장 항목 없음';
+  if (!ledger || (!ledger.transactions.length && !ledger.valuations.length)) return '입출금 기록 없음';
   const row = (label, date, amount, action) => '<div style="display:flex;gap:8px;align-items:center;padding:2px 0;">' +
     '<span style="font-family:var(--font-mono);">' + escapeMarkup(date) + '</span>' +
     '<span>' + label + '</span>' +

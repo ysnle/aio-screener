@@ -104,7 +104,7 @@ function safeUrl(value) {
 function articleStatus(item) {
   if (isNewsAnalysisEligible(item)) return { label: '', color: 'transparent' };
   return isNewsHeadlineOnly(item)
-    ? { label: '본문 미수신', color: 'var(--text-muted)' }
+    ? { label: '본문 없음', color: 'var(--text-muted)' }
     : { label: '검증 대기', color: 'var(--data-amber)' };
 }
 
@@ -456,7 +456,7 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
     empty.textContent = status === 'unavailable'
       ? '뉴스 수신 대기 — 새로고침 후 검증된 뉴스가 표시됩니다.'
       : (model?.emptyReason === 'all-news-outside-time-window' && outOfWindow > 0
-          ? `현재 조건에서 오늘(08:00 KST까지 24시간) 자료 미확보 · 이전 수집분 ${outOfWindow}건은 수집 제외 항목을 뺀 뒤 창 밖으로 분류되어 오늘 뉴스가 아닙니다.`
+          ? `이 조건의 오늘 뉴스(08:00 KST까지 24시간)가 아직 없습니다 · 이전 뉴스 ${outOfWindow}건은 기간 밖입니다.`
           : `현재 조건에서 08:00 KST까지 24시간 · 중요도 기준 뉴스가 없습니다. ${describeNewsEmptyReason(model?.emptyReason)}${outOfWindow > 0 ? ` (수집 제외 항목 제외 후 · 창 밖 이전 수집분 ${outOfWindow}건 제외)` : ''}${reviewFlagged > 0 ? ` · 피드 분류로만 걸러진 항목 ${reviewFlagged}건은 기사별 검토가 필요합니다.` : ''}`);
     container.appendChild(empty);
     if (describeNewsScope(controls).articles === '필터 적용') {
@@ -472,7 +472,7 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
       // that group but says the grouping comes from the collection route, not from reading the article.
       const feedTopic = item?.feedTopic || item?.topic;
       const key = isNewsTopicReviewRequired(item)
-        ? `${NEWS_GROUP_LABELS[feedTopic] || NEWS_GROUP_LABELS.general} · 수집 경로 기준 분류`
+        ? `${NEWS_GROUP_LABELS[feedTopic] || NEWS_GROUP_LABELS.general} · 출처 기준 분류`
         : (NEWS_GROUP_LABELS[item?.topic] || NEWS_GROUP_LABELS.general);
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key).push(item);
@@ -664,7 +664,7 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
       });
       const suppliedMaterialBridge = page ? createSuppliedMaterialBridge(documentRef, {
         routeId: route,
-        heading: route === 'briefing' ? '브리핑 · 시장 확인·거시 시차·이벤트 창' : '시장 뉴스 · 이벤트와 가격 반응 창'
+        heading: route === 'briefing' ? '브리핑 · 시장 확인·거시 시차·이벤트 전후' : '시장 뉴스 · 이벤트 전후 가격 반응'
       }) : null;
       if (suppliedMaterialBridge) {
         page.appendChild(suppliedMaterialBridge);

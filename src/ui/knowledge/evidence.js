@@ -22,7 +22,7 @@ export function renderKnowledgeEvidence(documentRef, sourceIds = [], registry = 
     }
     list.appendChild(item);
   }
-  if (!sourceIds.length) list.appendChild(element(documentRef, 'li', 'knowledge-evidence-unresolved', '직접 연결된 출처 없음 · 현재 주장으로 승격하지 않음'));
+  if (!sourceIds.length) list.appendChild(element(documentRef, 'li', 'knowledge-evidence-unresolved', '직접 연결된 출처 없음 · 참고용'));
   root.appendChild(list);
   return root;
 }

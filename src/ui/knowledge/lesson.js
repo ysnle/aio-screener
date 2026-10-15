@@ -29,7 +29,7 @@ export function renderKnowledgeLesson(documentRef, article, { className = 'knowl
     root.appendChild(element(documentRef, 'p', 'knowledge-empty', '개념 원문을 아직 불러오지 못했습니다. 요약과 출처를 먼저 확인하세요.'));
     return root;
   }
-  root.append(element(documentRef, 'h4', 'knowledge-lesson-title', article.title), element(documentRef, 'p', 'knowledge-lesson-boundary', '개념별 짧은 참고 원문 · 심층 설명은 추가 집필 필요'));
+  root.append(element(documentRef, 'h4', 'knowledge-lesson-title', article.title), element(documentRef, 'p', 'knowledge-lesson-boundary', '개념별 짧은 참고 원문 · 자세한 설명은 준비 중'));
   const fields = [
     ['정의', article.article.intuition], ['작동 원리', article.article.formalModelOrRationale?.text],
     ['경제에 주는 영향', article.article.realEconomyChannel], ['기업에 주는 영향', article.article.companyChannel],

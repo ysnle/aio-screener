@@ -18,7 +18,7 @@ export function radarSvg(doc, model, { size = 340 } = {}) {
     const r = radius * Math.max(0, Math.min(100, value)) / 100;
     return [center + r * Math.cos(angle), center + r * Math.sin(angle)];
   };
-  const svg = node(doc, 'svg', { viewBox: `0 0 ${size} ${size}`, role: 'img', class: 'regime-radar-svg', 'aria-label': `국면 레이더: ${model.axes.map((axis) => `${axis.label} ${axis.now ?? '없음'}`).join(', ')}` });
+  const svg = node(doc, 'svg', { viewBox: `0 0 ${size} ${size}`, role: 'img', class: 'regime-radar-svg', 'aria-label': `시장 레이더: ${model.axes.map((axis) => `${axis.label} ${axis.now ?? '없음'}`).join(', ')}` });
   for (const ring of [25, 50, 75, 100]) {
     svg.append(node(doc, 'polygon', { points: model.axes.map((_, i) => point(i, ring).join(',')).join(' '), class: 'regime-radar-ring' }));
   }
@@ -53,13 +53,13 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
   section.id = 'regime-radar';
   if (model.asOf) section.setAttribute('data-observed-at', model.asOf); // P1643
   const short = (date) => date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '—';
-  // Codex M-screen: the radar is a position inside each axis's own past, not the 우호/부담 verdict above.
-  const head = el(doc, 'h2', '국면 레이더 · 과거 대비 지금 위치', 'briefing-h2');
+  // Codex M-screen: the radar is a position inside each axis's own past, not the 양호/부담 verdict above.
+  const head = el(doc, 'h2', '시장 레이더 · 1년 중 지금 위치', 'briefing-h2');
   // v57.54 audit (6): the numbers are a position (0~100), not a grade — the subtitle says so and each row names its card verdict.
-  head.append(el(doc, 'span', '숫자 = 최근 1년(최대 252거래일) 중 지금 위치(0~100, 클수록 우호) — 카드의 우호·중립·부담 판정과는 다른 잣대', 'briefing-h2-note'));
+  head.append(el(doc, 'span', '숫자 = 최근 1년 중 지금 위치(0~100, 높을수록 양호) · 위 판정과 기준이 다름', 'briefing-h2-note'));
   section.append(head);
   section.append(el(doc, 'p', model.lead, 'regime-radar-lead'));
-  // X-review (2026-10-13, PM/credit view): "우호" above and 9 here read as a contradiction at first glance. When an
+  // X-review (2026-10-13, PM/credit view): "양호" above and 9 here read as a contradiction at first glance. When an
   // axis's absolute verdict and its position in its own past point opposite ways, say so on the face of the chart.
   const stateOf = new Map((verdicts || []).map((row) => [row.id, row.state]));
   const gaps = model.axes.filter((axis) => axis.now != null && ((stateOf.get(axis.id) === 'favorable' && axis.now <= 25) || (stateOf.get(axis.id) === 'neutral' && axis.now <= 15) || (stateOf.get(axis.id) === 'burden' && axis.now >= 75)));
@@ -69,10 +69,10 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
   // Live review 2026-10-14: one short paragraph per axis (two axes joined into one 274자 block before).
   if (gaps.length) {
     section.append(...gaps.map((axis) => el(doc, 'p', stateOf.get(axis.id) === 'favorable'
-      ? `${axis.label}: 판정은 우호(절대 수준)지만 ${windowOf(axis)} 안에서는 부담 쪽(${axis.now})입니다 — 수준은 아직 괜찮아도 그 기간 기준으로는 나빠진 편이라는 뜻입니다.`
+      ? `${axis.label}: 수준은 양호하지만 ${windowOf(axis)} 기준으로는 나빠진 편(${axis.now})입니다.`
       : stateOf.get(axis.id) === 'neutral'
-        ? `${axis.label}: 판정은 중립(절대 수준)이지만 ${windowOf(axis)} 안에서는 가장 나쁜 쪽 가까이(${axis.now})까지 밀렸습니다${axis.change20 != null ? ` (20거래일 ${axis.change20 >= 0 ? '+' : ''}${axis.change20})` : ''}${axis.change20 != null && axis.change20 > 0 ? ' — 최근 20거래일은 나아지는 쪽이지만 아직 바닥권이라, 다음 갱신에서 반등이 이어지는지 먼저 확인할 축입니다.' : ' — 이 속도가 이어지면 판정이 부담으로 바뀔 수 있어 다음 갱신에서 먼저 확인할 축입니다.'}` // v57.54 review: an improving +20일 move no longer reads "이 속도가 이어지면 부담으로"
-      : `${axis.label}: 판정은 부담(절대 수준)이지만 ${windowOf(axis)} 안에서는 우호 쪽(${axis.now})입니다 — 그 기간보다는 나아졌어도 수준 자체는 아직 부담입니다.`, 'regime-radar-gap')));
+        ? `${axis.label}: 판정은 중립(절대 수준)이지만 ${windowOf(axis)} 안에서는 가장 나쁜 쪽 가까이(${axis.now})까지 밀렸습니다${axis.change20 != null ? ` (20거래일 ${axis.change20 >= 0 ? '+' : ''}${axis.change20})` : ''}${axis.change20 != null && axis.change20 > 0 ? ' — 최근 20거래일은 나아지는 쪽이지만 아직 바닥권이라, 다음 갱신에서 반등이 이어지는지 먼저 확인할 지표입니다.' : ' — 이 속도가 이어지면 판정이 부담으로 바뀔 수 있어 다음 갱신에서 먼저 확인할 지표입니다.'}` // v57.54 review: an improving +20일 move no longer reads "이 속도가 이어지면 부담으로"
+      : `${axis.label}: ${windowOf(axis)} 기준으로는 나아진 편(${axis.now})이지만 수준은 아직 부담입니다.`, 'regime-radar-gap')));
   }
   const body = el(doc, 'div', null, 'regime-radar-body');
   body.append(radarSvg(doc, model));
@@ -89,12 +89,12 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
     if (axis.observed?.[0]) dd.setAttribute('data-observed-at', axis.observed[0]);
     dd.setAttribute('data-basis', `${axis.note} · 비교 표본 ${axis.sample ? `${axis.sample}거래일` : '부족'}`);
     dd.tabIndex = 0;
-    const verdict = { favorable: '우호', neutral: '중립', burden: '부담' }[stateOf.get(axis.id)];
+    const verdict = { favorable: '양호', neutral: '중립', burden: '부담' }[stateOf.get(axis.id)];
     table.append(el(doc, 'dt', verdict ? `${axis.label} · 판정 ${verdict}` : axis.label), dd);
   }
   side.append(table);
   const details = el(doc, 'details', null, 'regime-axis-details');
-  details.append(el(doc, 'summary', '숫자 읽는 법'), el(doc, 'p', `각 축의 숫자는 비교 표본(최대 1년, 252거래일) 안에서 오늘 값이 어디쯤인지입니다. 100은 그 기간 중 가장 우호적인 수준, 0은 가장 부담스러운 수준입니다. 자료가 짧은 축은 짧은 기간 안의 위치입니다(${model.axes.filter((axis) => axis.sample && axis.sample < 252).map((axis) => `${axis.label} ${axis.sample}거래일`).join(', ') || '모두 252거래일'}). 위의 우호·부담 판정은 절대 기준이고 레이더는 상대 위치라서, 판정이 우호여도 레이더 값은 낮을 수 있습니다. 축끼리 더한 종합 점수는 예측 근거가 없어 만들지 않습니다.`, 'regime-read'));
+  details.append(el(doc, 'summary', '숫자 읽는 법'), el(doc, 'p', `각 지표의 숫자는 비교 표본(최대 1년, 252거래일) 안에서 오늘 값이 어디쯤인지입니다. 100은 그 기간 중 가장 우호적인 수준, 0은 가장 부담스러운 수준입니다. 자료가 짧은 지표는 짧은 기간 안의 위치입니다(${model.axes.filter((axis) => axis.sample && axis.sample < 252).map((axis) => `${axis.label} ${axis.sample}거래일`).join(', ') || '모두 252거래일'}). 위의 양호·부담 판정은 절대 기준이고 레이더는 상대 위치라서, 판정이 양호여도 레이더 값은 낮을 수 있습니다. 지표끼리 더한 종합 점수는 예측 근거가 없어 만들지 않습니다.`, 'regime-read'));
   side.append(details);
   body.append(side);
   section.append(body);

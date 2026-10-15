@@ -215,7 +215,7 @@ function renderCapexFlow(doc, root, host, model) {
       const subs = themeGroupValues(model, themeId);
       const button = el(doc, 'button', `${theme.name} ${subs.value == null ? '비교 보류' : pct(subs.value)}`, 'capex-flow-theme');
       button.type = 'button';
-      button.title = subs.value == null ? '같은 종가 기준일의 하위 테마 중앙값이 없어 비교를 보류합니다' : `하위 테마 ${subs.count}개 중앙값의 중앙값 (테마 시나리오 카드와 같은 방식)`;
+      button.title = subs.value == null ? '같은 종가 기준일의 하위 테마 중앙값이 없어 비교를 보류합니다' : `하위 테마 ${subs.count}개의 대표값(중앙값) (테마 시나리오 카드와 같은 방식)`;
       button.addEventListener('click', () => { if (typeof root?.showThemeDetail === 'function') root.showThemeDetail(themeId); });
       links.append(button);
     }

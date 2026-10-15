@@ -265,7 +265,7 @@ function renderKrThemeArtifact({ documentRef, root, store }) {
   const read = krThemeArtifactRead({ themeMap, rows: store?.getState?.()?.screener?.rows || [] });
   const krClose = krCloseSession(store?.getState?.()?.screener?.rows || []);
   const summary = documentRef.getElementById('kr-themes-summary');
-  if (summary) summary.textContent = `한국 테마 (${read.totalThemes}개 중 ${read.coveredThemes}개를 ${krClose ? `${shortSession(krClose)} ` : ''}완료 종가로 비교)`;
+  if (summary) summary.textContent = `한국 테마 (${read.totalThemes}개 중 ${read.coveredThemes}개를 ${krClose ? `${shortSession(krClose)} ` : ''}확정 종가로 비교)`;
   host.dataset.aioKrThemeArtifactRenderer = 'native';
   host.hidden = false;
   const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
@@ -289,7 +289,7 @@ function renderKrThemeArtifact({ documentRef, root, store }) {
     line.append(el('span', theme.label, 'stock-read-bar-label'), item);
     host.append(line);
   }
-  host.append(el('p', `위 흐름은 ${krClose ? `${shortSession(krClose)} ` : ''}완료 종가 기준입니다. 장중 실시간 등락은 아래 접힌 칸에서 국내 시세가 들어올 때만 계산됩니다.`, 'theme-strength-basis'));
+  host.append(el('p', `위 흐름은 ${krClose ? `${shortSession(krClose)} ` : ''}확정 종가 기준입니다. 장중 실시간 등락은 아래 접힌 칸에서 국내 시세가 들어올 때만 계산됩니다.`, 'theme-strength-basis'));
 }
 
 function renderThemePerformanceBars({ documentRef, root, store, route }) {
@@ -461,7 +461,7 @@ function renderThemes({ documentRef, root, store, route }) {
   legend.dataset.themeDetailLegend = 'true';
   // Codex browser audit H22: the quadrant and the chip return answer different windows; the legend says which.
   // v57.50 D13: the quadrant's real definition (100-session average position · change against ~50 sessions ago).
-  legend.textContent = `사분면 = SPY 대비 상대가격이 100일 평균보다 위인지와 50일 전보다 나아졌는지 · 완료 종가 기준 · 칩 옆 % = 1일 등락률(아래 섹터 막대의 1일·1주 전환과 별개) — 그래서 후행 사분면 종목이 그날은 올랐을 수 있습니다. 상세 제공 ${detailCount}개 · 점선 칩 ${Math.max(0, items.length - detailCount)}개는 하위 테마 순위로 연결됩니다.`;
+  legend.textContent = `사분면 = SPY 대비 상대가격이 100일 평균보다 위인지와 50일 전보다 나아졌는지 · 확정 종가 기준 · 칩 옆 % = 1일 등락률(아래 섹터 막대의 1일·1주 전환과 별개) — 그래서 후행 사분면 종목이 그날은 올랐을 수 있습니다. 상세 제공 ${detailCount}개 · 점선 칩 ${Math.max(0, items.length - detailCount)}개는 하위 테마 순위로 연결됩니다.`;
   legend.style.cssText = 'grid-column:1/-1;font-size:12px;color:var(--text-muted);padding:2px 0 6px;';
   if (classifiedCount) container.appendChild(legend); // P1591 (T01): no quadrant legend over an empty quadrant area
   const appendUnclassified = () => {
@@ -485,7 +485,7 @@ function renderThemes({ documentRef, root, store, route }) {
     if (viewTabs) viewTabs.hidden = !anyJudged;
     const read = documentRef.getElementById('rrg-rotation-read');
     const close = usCloseSession(root);
-    if (read) read.textContent = `섹터 회전은 최신 완료 종가의 상대강도 기록이 들어오면 표시합니다${close ? ` (지금 기록은 ${shortSession(close)} 종가까지)` : ''} — 그 전에는 아래 S&P 500 지도와 하위 테마 순위로 읽습니다.`;
+    if (read) read.textContent = `섹터 회전은 최신 확정 종가의 상대강도 기록이 들어오면 표시합니다${close ? ` (지금 기록은 ${shortSession(close)} 종가까지)` : ''} — 그 전에는 아래 S&P 500 지도와 하위 테마 순위로 읽습니다.`;
     return;
   }
   if (quadrantBlock) quadrantBlock.hidden = false;
@@ -563,7 +563,7 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
   const quoteState = detail.source === 'quote-missing' || pct == null
     ? '시세 근거 미확보'
     : themeItem?.sourceKind === 'runtime-quote' ? '실시간·지연 시세'
-      : `완료 종가 기준${closeOf ? `(${shortSession(closeOf)})` : ''}`;
+      : `확정 종가 기준${closeOf ? `(${shortSession(closeOf)})` : ''}`;
   provenance.textContent = `${quoteState} · AIO 참고 테마 분류 · ${membershipAsOf}`;
   provenance.title = `시세 출처: ${detail.source} · 구성 출처: ${membership.source || 'AIO curated taxonomy'}`;
   provenance.style.cssText = 'font-size:12px;line-height:1.5;color:var(--text-muted);';

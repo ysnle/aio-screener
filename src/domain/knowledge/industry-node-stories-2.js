@@ -1,4 +1,4 @@
-// Reading text for 산업·밸류체인 nodes, part 2: power and grid, on-device and physical AI, AI economics,
+// Reading text for 산업 지도 nodes, part 2: power and grid, on-device and physical AI, AI economics,
 // robotics, defense, space and AI applications. Same reading standard as the principles lessons.
 export const NODE_STORIES_2 = {
   'power-it-load': {

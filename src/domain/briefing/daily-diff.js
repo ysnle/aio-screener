@@ -109,9 +109,9 @@ export function buildDailyChanges(history = [], { now = Date.now() } = {}) {
       : move.key === 'breadth50' ? Math.abs(move.value) >= 5 : move.key === 'fg' ? Math.abs(move.value) >= 8
         : Math.abs(move.value) >= 1.5);
   const headline = flips.length
-    ? `${flips.map((flip) => `${flip.title} ${flip.from} → ${flip.to}`).join(' · ')} — 시장 상태 판정에 들어가는 축이 바뀌었습니다.`
-    : big.length ? `축 판정은 그대로이고, 크게 움직인 것은 ${big.map((move) => `${move.label}${move.market === 'KR' ? `(한국 ${shortDay(move.to)})` : ''} ${move.text}`).join(' · ')}입니다.`
-      : '축 판정이 바뀌지 않았고 크게 움직인 지표도 없습니다 — 직전 종가와 같은 분류가 이어집니다(분류가 같다는 것이 해석이 맞았다는 뜻은 아닙니다).';
+    ? `${flips.map((flip) => `${flip.title} ${flip.from} → ${flip.to}`).join(' · ')} — 시장 상태 판정에 들어가는 지표가 바뀌었습니다.`
+    : big.length ? `지표 판정은 그대로이고, 크게 움직인 것은 ${big.map((move) => `${move.label}${move.market === 'KR' ? `(한국 ${shortDay(move.to)})` : ''} ${move.text}`).join(' · ')}입니다.`
+      : '지표 판정이 그대로이고 크게 움직인 지표도 없습니다.';
   return { available: true, date: basis, prevDate, missing: missingSessionsBetween(prevDate, basis), notCompared, notComparedNotes, moves, flips, big: big.map((move) => move.key), headline };
 }
 
@@ -147,6 +147,6 @@ export function buildMyNames({ symbols = [], rows = [], live = {}, holdings = []
   const measured = names.filter((row) => row.notes.length).length;
   const summary = !names.length ? null
     : measured ? `내 종목 ${names.length}개 중 ${below}개가 50일선 아래${below && below * 2 >= measured && breadthState === 'burden' ? ' — 시장 폭이 좁아진 흐름이 내 종목에도 와 있습니다' : below * 2 < measured && breadthState === 'burden' ? ' — 시장 폭은 좁아졌지만 내 종목 대부분은 아직 50일선 위입니다' : ''}.`
-      : `내 종목 ${names.length}개 — 팩터 기록이 아직 없어 위치를 읽지 못했습니다.`;
+      : `내 종목 ${names.length}개 — 아직 지표 기록이 없어 위치를 읽지 못했습니다.`;
   return { names, summary };
 }

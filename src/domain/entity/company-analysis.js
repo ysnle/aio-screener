@@ -78,7 +78,7 @@ export function buildCompanyAnalysis({ symbol, row = null, summary = null, profi
   const financialStatus = !isCompany ? 'not-applicable' : market === 'KR' ? 'kr-disclosure-required' : fiscal.available ? 'reference' : 'missing';
   // 2026-10-13 review S11: '이 종목의 지금' above already shows the factor rank; a second rank over a different
   // denominator (3-month return among same-session peers) read as a contradiction, so the headline keeps the return.
-  const priceStatement = returns.ret3m != null ? `3개월 수익률 ${signed(returns.ret3m)}` : '완료 종가 기준의 수익률 자료가 없습니다';
+  const priceStatement = returns.ret3m != null ? `3개월 수익률 ${signed(returns.ret3m)}` : '확정 종가 기준의 수익률 자료가 없습니다';
   const headline = `${name} — ${priceStatement}${fiscal.headline ? ` / 연간 공시 ${fiscal.headline}` : ''}`;
   return { modelVersion: COMPANY_ANALYSIS_MODEL_VERSION, available: true, symbol:id, headline, identity, business, associations,
     price: { value:usablePrice, currency, observedAt:usablePrice != null ? priceAt : null, source:matchedSummary?.quote?.source || null, status:usablePrice != null ? 'reference' : 'missing' },

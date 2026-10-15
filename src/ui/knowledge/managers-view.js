@@ -1,4 +1,4 @@
-// 리서치 라이브러리 · 운용사·13F. Contents: the eight ways of managing money, each listing its managers;
+// 리서치 라이브러리 · 대가 보유 종목. Contents: the eight ways of managing money, each listing its managers;
 // 운용 방식 비교 opens the side-by-side table. The open manager's quarterly holdings and changes are the
 // document; the right column says what that style is for and what 13F cannot show about it.
 import { createResearchShell, asideBlock, el } from './research-shell.js';
@@ -52,7 +52,7 @@ export function renderManagersPage(doc, { root, catalog, registry, selectedId, o
     const more = el(doc, 'details', 'af-basis');
     more.append(el(doc, 'summary', null, '13F로 보이는 것과 안 보이는 것'),
       el(doc, 'p', 'rl-copy', '운용사마다 실제 기준 분기와 제출일이 다르니 각 상세의 보고 분기를 함께 본다. 지수를 그대로 따라가는 운용사의 보유 변화는 판단이 아니라 자금 흐름의 결과이고, 퀀트 펀드의 보유 목록에는 숏 포지션이 빠져 있어 방향을 말해 주지 않는다. 매크로 펀드의 핵심 포지션인 선물·외환·국채는 아예 보이지 않는다.'));
-    article.append(el(doc, 'p', 'af-kicker', '운용사·13F'), el(doc, 'h2', 'af-issue', '돈을 굴리는 방식별로 13F 읽기'),
+    article.append(el(doc, 'p', 'af-kicker', '대가 보유 종목'), el(doc, 'h2', 'af-issue', '돈을 굴리는 방식별로 13F 읽기'),
       el(doc, 'p', 'af-lead', '13F는 전체 포트폴리오가 아니다 — 미국 상장 주식과 일부 옵션의 분기 말 롱 포지션을 분기가 끝난 뒤 45일 이내에 신고하는 공시다. 같은 13F라도 누가 냈느냐에 따라 읽는 법이 달라서, 보유 목록을 열기 전에 그 운용사가 어떤 문제를 풀려고 하는지부터 본다.'), more);
     if (styleTable) { styleTable.open = true; article.appendChild(styleTable); }
     main.appendChild(article);

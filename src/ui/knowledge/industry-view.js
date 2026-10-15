@@ -1,4 +1,4 @@
-// 리서치 라이브러리 · 산업·밸류체인. Contents: 19 industry domains (open one to list its parts), the
+// 리서치 라이브러리 · 산업 지도. Contents: 19 industry domains (open one to list its parts), the
 // AI foundations in seven layers, and the relationship guides. The open part reads as one document —
 // what it is, how value moves through it, what changes the numbers, the branches worth knowing and
 // who plays which role — and the right column shows typed relations and related notes.

@@ -80,7 +80,7 @@ export function krThemeArtifactRead({ themeMap = {}, rows = [] } = {}) {
   const usable = themes.filter((theme) => theme.covered >= KR_THEME_MIN_COVERED && theme.ret1m != null).sort((a, b) => b.ret1m - a.ret1m);
   const pct = (value) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);
   const read = usable.length >= 4
-    ? `완료 종가 기준 1개월 중앙값으로 강한 테마는 ${usable.slice(0, 3).map((t) => `${t.label}(${pct(t.ret1m)})`).join(' · ')}, 약한 테마는 ${usable.slice(-2).reverse().map((t) => `${t.label}(${pct(t.ret1m)})`).join(' · ')}입니다.`
+    ? `확정 종가 기준 1개월 중앙값으로 강한 테마는 ${usable.slice(0, 3).map((t) => `${t.label}(${pct(t.ret1m)})`).join(' · ')}, 약한 테마는 ${usable.slice(-2).reverse().map((t) => `${t.label}(${pct(t.ret1m)})`).join(' · ')}입니다.`
     : `구성 종목 기록이 ${KR_THEME_MIN_COVERED}개 이상인 테마가 적어 순위를 매기지 않습니다.`;
   const hidden = usable.slice(0, 3).find((theme) => theme.heavyweightNote);
   const readWithWeight = hidden ? `${read} ${hidden.label}: ${hidden.heavyweightNote}` : read;

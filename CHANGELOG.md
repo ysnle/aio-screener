@@ -1,3 +1,9 @@
+## v57.73 (2026-10-15)
+- Market-state, temperature, chart, screener, portfolio, masters, learn, guide and AI-panel wording moved to plain Korean (standard terms kept in parentheses)
+- Research tabs renamed 개념·분석 / 산업 지도 / 대가 보유 종목 with knowledge artifacts regenerated
+- Term marks added for 기회비용 and 관망; tests updated to the new wording
+- R1 7곳 v57.73
+
 ## v57.72 (2026-10-15)
 - Scenario vocabulary across macro-crossroads, theme playbook, stock/company/screener links, news topic tags, AI answer visuals, answer modes and the market-analysis prompt
 - Shared UI jargon and retired API-key error text replaced with plain Korean

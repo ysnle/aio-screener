@@ -37,7 +37,7 @@ export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime
   const vix3m = new Map(daily('vix3m').map(point => [point.date, point.value]));
   const ratio = daily('vix').filter(point => vix3m.get(point.date) > 0).map(point => ({ date: point.date, value: point.value / vix3m.get(point.date) }));
   const definitions = {
-    trend: [chart('spx', 'S&P 500 종가', '지수 pt', spx, { note: '지수의 완료 종가 추이. 이동평균 위치와 방향은 아래 근거에서 함께 확인합니다.' })],
+    trend: [chart('spx', 'S&P 500 종가', '지수 pt', spx, { note: '지수의 확정 종가 추이. 이동평균 위치와 방향은 아래 근거에서 함께 확인합니다.' })],
     breadth: [chart('breadth20', '20일선 위 종목 비율 (단기)', '%', daily('breadth20'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: '단기 참여도. 50일선 비율보다 먼저 움직여 참여가 넓어지거나 줄어드는 방향을 먼저 보여 줍니다.' }),
       chart('breadth50', '50일선 위 종목 비율', '%', daily('breadth50'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: 'AIO 미국 수집 표본의 비율. 전체 미국 거래소 종목을 집계한 값과 모집단이 다릅니다.' }),
       chart('breadth200', '200일선 위 종목 비율', '%', daily('breadth200'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: '중기 참여도(50일)와 장기 참여도(200일)가 함께 넓어지는지 비교합니다.' })],
@@ -63,11 +63,11 @@ const OBSERVE = Object.freeze({
   rates: '명목금리의 20일 변화와 최근 5일 되돌림을 구분하고, 같은 날짜의 TIPS·기대인플레가 원인을 뒷받침하는지 봅니다.',
   credit: 'HY OAS의 높은 수준과 빠른 확대를 구분합니다. 폭이 좁아지는지, 확대가 연속되는지 확인합니다.',
   commodities: '유가와 달러가 동시에 부담을 만드는지, 하나의 상승을 다른 자산까지 확대해 읽고 있지 않은지 봅니다.',
-  korea: '원·엔의 환율과 한국·일본 주가를 따로 확인합니다. 미국 6개 축의 합계에는 넣지 않습니다.'
+  korea: '원·엔의 환율과 한국·일본 주가를 따로 확인합니다. 미국 6개 지표의 합계에는 넣지 않습니다.'
 });
 
 export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(input) } = {}) {
-  if (!regime.available) return { available: false, asOf: null, scenarios: [], axes: [], reason: '완료 종가 기록이 없어 조건 해석을 보류합니다.' };
+  if (!regime.available) return { available: false, asOf: null, scenarios: [], axes: [], reason: '확정 종가 기록이 없어 조건 해석을 보류합니다.' };
   const aligned = alignMarketInputs(input);
   const byId = Object.fromEntries(regime.axes.map(axis => [axis.id, axis]));
   const essential = ['trend', 'breadth', 'credit', 'volatility'];
@@ -85,23 +85,23 @@ export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(in
   const facts = essential.flatMap(id => (byId[id]?.evidence || []).slice(0, id === 'trend' ? 2 : 1).map(([label, value]) => `${label} ${value}`));
   const confirmed = states => !hold && states;
   // P1727: "credit calm" is the shared creditState 'favorable' (the outlook's 부합 count uses the same rule); a neutral
-  // credit axis (HY +45bp over 20 sessions) confirmed 집중 유지 here while the outlook counted it 미충족 (3/4).
+  // credit axis (HY +45bp over 20 sessions) confirmed 소수 종목 주도 here while the outlook counted it 미충족 (3/4).
   const calmRisk = byId.credit?.state === 'favorable' && byId.volatility?.state !== 'burden';
   const scenarios = [
-    { id: 'expansion', title: '확산 회복', confirmed: confirmed(byId.trend?.state === 'favorable' && byId.breadth?.state === 'favorable' && calmRisk),
+    { id: 'expansion', title: '고른 상승', confirmed: confirmed(byId.trend?.state === 'favorable' && byId.breadth?.state === 'favorable' && calmRisk),
       interpretation: '이 조건들이 함께 충족되면 지수의 상승 추세를 다수 종목의 참여가 뒷받침하는 흐름으로 읽습니다. 반등이 이어질지는 참여도와 자금 조달 여건의 다음 관측으로 확인합니다.',
-      conditions: [`S&P 500이 상승하는 50일선 위이고 50일선이 200일선 위인 상태.`, `50일선·200일선 위 종목 비율이 모두 ${RULES.breadth.broadAtLeast}% 이상.`, `신용 축이 우호(HY ${RULES.credit.tightBelowBp}bp 미만, 5일·20거래일 확대 없음)이고 변동성이 부담 판정이 아닌 상태.`],
+      conditions: [`S&P 500이 상승하는 50일선 위이고 50일선이 200일선 위인 상태.`, `50일선·200일선 위 종목 비율이 모두 ${RULES.breadth.broadAtLeast}% 이상.`, `신용 지표가 양호(HY ${RULES.credit.tightBelowBp}bp 미만, 5일·20거래일 확대 없음)이고 변동성이 부담 판정이 아닌 상태.`],
       counterEvidence: `지수의 추세가 약해지거나 참여도 둘 중 하나가 ${RULES.breadth.broadAtLeast}% 아래로 내려오면 확산 해석을 다시 확인합니다. HY 확대나 VIX 기간 구조 역전이 동반되면 회복의 근거가 약해집니다.`,
       observe: ['지수만 상승하는지, 50일·200일 참여도도 동행하는지', '신고가가 신저가보다 많아지는지', 'HY 스프레드가 급격히 넓어지는지'] },
-    { id: 'concentration', title: '집중 유지', confirmed: confirmed(byId.trend?.state === 'favorable' && byId.breadth?.state === 'burden' && calmRisk),
+    { id: 'concentration', title: '소수 종목 주도', confirmed: confirmed(byId.trend?.state === 'favorable' && byId.breadth?.state === 'burden' && calmRisk),
       interpretation: '이 조건들이 함께 보이면 지수 추세와 표본 종목의 참여도가 갈라진 흐름으로 읽습니다. 일부 종목에 상승이 집중됐을 가능성을 살피되, 실제 지수 구성 종목의 기여도를 확인하기 전에는 대형주가 원인이라고 단정하지 않습니다.',
-      conditions: [`S&P 500의 상승 추세가 유지되지만 50일선·200일선 위 비율 중 하나가 ${RULES.breadth.weakBelow}% 미만.`, `신용 축이 우호(HY ${RULES.credit.tightBelowBp}bp 미만, 5일·20거래일 확대 없음)이고 변동성이 부담 판정이 아닌 상태.`],
-      counterEvidence: `참여도 두 비율이 모두 ${RULES.breadth.broadAtLeast}% 이상으로 넓어지면 확산 쪽을 확인합니다. 지수 추세가 약해지면서 HY·변동성 부담까지 커지면 집중 유지 해석은 약해집니다.`,
+      conditions: [`S&P 500의 상승 추세가 유지되지만 50일선·200일선 위 비율 중 하나가 ${RULES.breadth.weakBelow}% 미만.`, `신용 지표가 양호(HY ${RULES.credit.tightBelowBp}bp 미만, 5일·20거래일 확대 없음)이고 변동성이 부담 판정이 아닌 상태.`],
+      counterEvidence: `참여도 두 비율이 모두 ${RULES.breadth.broadAtLeast}% 이상으로 넓어지면 고른 상승 쪽을 확인합니다. 지수 추세가 약해지면서 HY·변동성 부담까지 커지면 소수 종목 주도 해석은 약해집니다.`,
       observe: ['지수 고점과 참여 종목 비율 사이의 괴리가 줄어드는지', '기존 주도 종목과 새로 강해지는 종목이 바뀌는지', '신용·변동성이 주가와 다른 경고를 내는지'] },
-    { id: 'weakness', title: '동반 약화', confirmed: confirmed(byId.trend?.state === 'burden' && byId.breadth?.state === 'burden' && (byId.credit?.state === 'burden' || byId.volatility?.state === 'burden')),
-      interpretation: '이 조건들이 함께 보이면 지수·참여도 약화가 신용 또는 변동성의 스트레스와 동반된 흐름으로 읽습니다. 한 지표의 일시적 급등과 여러 축의 동시 변화를 구분합니다.',
+    { id: 'weakness', title: '동반 약세', confirmed: confirmed(byId.trend?.state === 'burden' && byId.breadth?.state === 'burden' && (byId.credit?.state === 'burden' || byId.volatility?.state === 'burden')),
+      interpretation: '이 조건들이 함께 보이면 지수·참여도 약화가 신용 또는 변동성의 스트레스와 동반된 흐름으로 읽습니다. 한 지표의 일시적 급등과 여러 지표의 동시 변화를 구분합니다.',
       conditions: ['S&P 500이 200일선 아래이거나 하락하는 50일선 아래로 마감.', `50일선·200일선 위 종목 비율 중 하나가 ${RULES.breadth.weakBelow}% 미만.`, `HY ${RULES.credit.stressAtBp}bp 이상 또는 5일 +${RULES.credit.widen5dBp}bp 확대, 혹은 VIX ${RULES.volatility.stressAt} 이상·기간 구조 역전·5일 +${RULES.volatility.spike5dPct}% 급등 중 실제 부담 신호가 동반.`],
-      counterEvidence: '지수가 이동평균을 회복하고 참여도가 넓어지며 HY 확대와 변동성 스트레스가 함께 진정되면 동반 약화의 근거를 다시 확인합니다. 금리 하락만으로 이 조건들이 충족됐다고 보지 않습니다.',
+      counterEvidence: '지수가 이동평균을 회복하고 참여도가 넓어지며 HY 확대와 변동성 스트레스가 함께 진정되면 동반 약세의 근거를 다시 확인합니다. 금리 하락만으로 이 조건들이 충족됐다고 보지 않습니다.',
       observe: ['지수 회복이 하루 움직임에 그치는지', '시장 폭과 신고가·신저가도 동시에 회복하는지', 'HY 확대·VIX 역전이 실제로 완화되는지'] }
   ].map(item => ({ ...item, held: hold, status: hold ? '판단 보류' : item.confirmed ? '현재 조건 충족' : '관찰할 조건',
     facts, missing: missing.map(id => byId[id]?.title || (id === 'basis' ? '최신 종가 기록' : id)) }));
@@ -113,7 +113,7 @@ export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(in
 export function renderMarketScenarioContext(input = {}, options = {}) {
   const model = buildMarketScenarios(input, options);
   if (!model.available) return '';
-  return `시장 화면과 같은 ${model.asOf} 완료 종가의 조건부 해석. 예측 확률·목표가가 아닙니다.${model.reason ? ` ${model.reason}` : ''}\n`
+  return `시장 화면과 같은 ${model.asOf} 확정 종가의 조건부 해석. 예측 확률·목표가가 아닙니다.${model.reason ? ` ${model.reason}` : ''}\n`
     + model.scenarios.map(item => `${item.title} (${item.status}): ${item.interpretation}\n관측: ${item.facts.join('; ')}\n유효 조건: ${item.conditions.join(' ')}\n반증: ${item.counterEvidence}\n다음 확인: ${item.observe.join('; ')}`).join('\n');
 }
 
@@ -180,5 +180,5 @@ export function buildKoreaRegimeObservations(input = {}, { nowMs = Date.now(), t
     observe: '환율 움직임과 한국 주가를 같은 날짜·기간으로 확인합니다. 서로 관측일이 다르면 직접적인 인과나 상대강도로 단정하지 않습니다.' });
   const dates = indices.map(item => item.asOf);
   return { available: cards.length > 0, cards, asOf: dates.length ? dates.sort().at(-1) : null,
-    note: '한국 지수는 한국 정규장 완료 종가, 환율은 별도 외환 관측입니다. 미국 6개 축의 우호·중립·부담 합계에 넣지 않습니다.' };
+    note: '한국 지수는 한국 정규장 확정 종가, 환율은 별도 외환 관측입니다. 미국 6개 지표의 양호·중립·부담 합계에 넣지 않습니다.' };
 }

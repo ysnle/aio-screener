@@ -62,10 +62,10 @@ for (const node of taxonomy.nodes || []) {
   entries.push({ id, surface: 'atlas-node', surfaceLabel: '산업 지도', title: TAXONOMY_NODE_LABELS[node.nodeId] || node.title, text: clip(`${DOMAIN_LABELS[node.domainId] || ''} · ${node.title}`), group: DOMAIN_LABELS[node.domainId] || null, keys: keys(id, [node.title, node.nodeId.replaceAll('-', ' ')]), route: { page: 'atlas', params: { mode: 'taxonomy', node: node.nodeId, domain: node.domainId } } });
 }
 
-// Managers (운용사·13F) by name, filer and style.
+// Managers (대가 보유 종목) by name, filer and style.
 for (const manager of read('public-data/masters/manager-catalog.json').managers || []) {
   const id = `manager:${manager.id}`;
-  entries.push({ id, surface: 'manager', surfaceLabel: '운용사·13F', title: manager.displayName || manager.id, text: clip(`${manager.filer || ''} · ${manager.style || ''}`), group: manager.style || null, keys: keys(id, [manager.filer, manager.style]), route: { page: 'masters', params: { manager: manager.id } } });
+  entries.push({ id, surface: 'manager', surfaceLabel: '대가 보유 종목', title: manager.displayName || manager.id, text: clip(`${manager.filer || ''} · ${manager.style || ''}`), group: manager.style || null, keys: keys(id, [manager.filer, manager.style]), route: { page: 'masters', params: { manager: manager.id } } });
 }
 
 const output = {

@@ -122,10 +122,10 @@ function themeCard(doc, root, row, screenerSector = null) {
   card.append(el(doc, 'p', `${row.stateLabel} · ${row.ret3m != null ? `3개월 ${pct(row.ret3m)}` : ''}${row.ret6m != null ? ` · 6개월 ${pct(row.ret6m)}` : ''}${row.above50 != null ? ` · 50일선 위 ${row.above50}%` : ''}${row.tagLabels.length ? ` · 성격: ${row.tagLabels.join(', ')}` : ''}`, 'xr-basis'));
   card.append(el(doc, 'p', `거시 영향: ${row.windText}.`, 'xr-reading'));
   const evidence = el(doc, 'ul', null, 'xr-evidence');
-  evidence.append(el(doc, 'li', `조건: ${row.fit} — ${row.basisText.join(' · ')}`), el(doc, 'li', `과거 빈도: ${row.past}`), el(doc, 'li', `포지션: ${row.positioning}`));
+  evidence.append(el(doc, 'li', `조건: ${row.fit} — ${row.basisText.join(' · ')}`), el(doc, 'li', `과거 빈도: ${row.past}`), el(doc, 'li', `쏠림: ${row.positioning}`));
   card.append(el(doc, 'h4', '가능성의 근거', 'xr-h4'), evidence);
   if (row.thesis) {
-    card.append(el(doc, 'h4', '구조 가설과 깨지는 신호', 'xr-h4'), el(doc, 'p', `${row.thesis}. 가설이 깨지는 신호: ${row.breaks.join(', ')}.`, 'xr-reading'));
+    card.append(el(doc, 'h4', '핵심 논리와 점검 신호', 'xr-h4'), el(doc, 'p', `${row.thesis}. 논리가 깨지는 신호: ${row.breaks.join(', ')}.`, 'xr-reading'));
   }
   card.append(el(doc, 'h4', '이 단계의 대응별 득실', 'xr-h4'));
   const table = el(doc, 'div', null, 'xr-choices');
@@ -194,10 +194,10 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   const [headline, ...restOfRotation] = playbook.rotation.text.split(/(?<=니다\.)\s+/);
   const reading = [headline, ...(restOfRotation.length ? [restOfRotation.join(' ')] : [])];
   const h = playbook.highlights;
-  if (h.structuralPullbacks.length) reading.push(`긴 추세는 살아 있는데 최근 1개월 밀렸고 중심 시나리오에서 부담이 아닌 테마: ${h.structuralPullbacks.slice(0, 6).map((row) => `${mkt(row)} ${row.label}(${pct(row.ret1m)})`).join(', ')} — 나눠 들어가는 쪽의 기회비용이 상대적으로 작은 조합이며, 구조 가설이 깨지는 신호가 중단 조건입니다.`);
+  if (h.structuralPullbacks.length) reading.push(`긴 추세는 살아 있는데 최근 1개월 밀렸고 중심 시나리오에서 부담이 아닌 테마: ${h.structuralPullbacks.slice(0, 6).map((row) => `${mkt(row)} ${row.label}(${pct(row.ret1m)})`).join(', ')} — 분할 접근의 부담이 비교적 작은 경우입니다(핵심 논리가 깨지면 멈춤).`);
   if (h.headwindLeaders.length) reading.push(`거시 부담에도 주도하는 테마: ${h.headwindLeaders.slice(0, 4).map((row) => `${mkt(row)} ${row.label}`).join(', ')} — 업종 고유 동력(실적·구조 수요)이 있는지 확인이 필요합니다.`);
   if (h.tailwindLaggards.length) reading.push(`거시 수혜에도 약세인 테마: ${h.tailwindLaggards.slice(0, 4).map((row) => `${mkt(row)} ${row.label}`).join(', ')} — 업종 고유의 문제가 있는지 먼저 봅니다.`);
-  const basis = el(doc, 'p', `${playbook.asOf ? `${playbook.asOf} ` : ''}완료 종가 · 테마 ${playbook.themes.length}개${playbook.rotation?.market === '한국' ? ' (미국 테마 수익률을 받기 전이라 한국만)' : ''} · 중심 시나리오 ${lead ? `'${lead.title.split(' — ')[0]}'` : '판단 보류'} 기준. 단계는 긴 추세와 1개월 움직임으로, 바람은 테마 성격과 거시 시나리오가 강하게·약하게 만드는 영역의 겹침으로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다.`, 'xr-basis');
+  const basis = el(doc, 'p', `${playbook.asOf ? `${playbook.asOf} ` : ''}확정 종가 · 테마 ${playbook.themes.length}개${playbook.rotation?.market === '한국' ? ' (미국 테마 수익률을 받기 전이라 한국만)' : ''} · 중심 시나리오 ${lead ? `'${lead.title.split(' — ')[0]}'` : '판단 보류'} 기준. 단계는 긴 추세와 1개월 움직임으로, 바람은 테마 성격과 거시 시나리오가 강하게·약하게 만드는 영역의 겹침으로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다.`, 'xr-basis');
   const screenerSector = screenerSectorFor(root, store);
   const mapWrap = el(doc, 'div', null, 'tp-map-wrap');
   mapWrap.append(momentumMap(doc, playbook.themes, 'wide'), momentumMap(doc, playbook.themes, 'narrow'));
@@ -239,7 +239,7 @@ export function renderThemeDetailPlaybook({ documentRef: doc, root } = {}) {
   host.replaceChildren(el(doc, 'h4', '이 테마의 시나리오', 'xr-h4'),
     el(doc, 'p', `${row.stateLabel} · 1개월 ${pct(row.ret1m)}${row.ret6m != null ? ` · 6개월 ${pct(row.ret6m)}` : ''} · ${row.fit}`, 'xr-basis'),
     el(doc, 'p', `거시 영향: ${row.windText}. 유리한 대응: ${row.favored.map((key) => CHOICES[key]).join(' · ') || '판단 보류'} — ${row.favoredWhy}`, 'xr-reading'),
-    ...(row.thesis ? [el(doc, 'p', `구조 가설: ${row.thesis}. 깨지는 신호: ${row.breaks.join(', ')}.`, 'xr-reading')] : []),
+    ...(row.thesis ? [el(doc, 'p', `핵심 논리: ${row.thesis}. 점검 신호: ${row.breaks.join(', ')}.`, 'xr-reading')] : []),
     el(doc, 'p', '아래 구성 종목·대장주에서 추세가 살아 있는 종목을 직접 고릅니다.', 'xr-caveat'), links);
   return row;
 }

@@ -126,7 +126,7 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
   if (themeDay) themeHistory.push({ date: themeDay, themes: Object.fromEntries(snapshot.themes.map((row) => [themeKey(row), [row.ret1m == null ? null : Math.round(row.ret1m * 10) / 10, row.state]])) });
   return {
     schemaVersion: SCENARIO_STATE_SCHEMA, status: 'current', generatedAt: at,
-    sourceLabel: 'AIO 공개 산출물(거시 기록·완료 종가·스크리너)로 갱신마다 재계산',
+    sourceLabel: 'AIO 공개 산출물(거시 기록·확정 종가·스크리너)로 갱신마다 재계산',
     basis: { macroAsOf: crossroads.asOf || null, themeAsOf: themeDay || null, outcomesAt: outcomes?.generatedAt || null },
     ...snapshot,
     transitions: transitions.slice(-MAX_TRANSITIONS), eventOutcomes, lastScored,

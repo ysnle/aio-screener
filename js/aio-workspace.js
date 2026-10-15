@@ -336,7 +336,7 @@ function setLedgerCoverage(field, checked) {
 function setLedgerFlowTiming(value) {
   var api = _pfLedgerApi();
   if (!api) return Promise.resolve({ ok: false, reason: 'ledger-api-unavailable' });
-  return _pfLedgerApply(api.setFlowTiming(_pfLedgerRead(), value), '현금흐름 시점 규약을 저장했습니다.');
+  return _pfLedgerApply(api.setFlowTiming(_pfLedgerRead(), value), '입출금 반영 시점을 저장했습니다.');
 }
 function renderPortfolioLedger() {
   var panels = _pfPanels();
@@ -838,7 +838,7 @@ function renderPortfolio() {
       var strategyPathSelected = pathEl.value === 'fixed_target_weight_strategy';
       policyEl.disabled = !strategyPathSelected;
       policyEl.setAttribute('aria-disabled', strategyPathSelected ? 'false' : 'true');
-      policyEl.title = strategyPathSelected ? '' : '현재 구성 소급 경로에서는 리밸런싱 정책이 쓰이지 않습니다.';
+      policyEl.title = strategyPathSelected ? '' : '지금 구성 그대로 방식에서는 리밸런싱 정책이 쓰이지 않습니다.';
     }
   }
   // E4/P1191: 원장 입력도 같은 화면 복원 주기에 함께 수화한다.
@@ -1340,12 +1340,12 @@ function _renderRiskMetrics(el, data) {
   var declLines = [];
   if (est) {
     // #16: one Korean line on screen; the internal codes (path/scope/lineage/snapshot) go to the folded detail below.
-    var declParts = [est.exposureHistoryMode === 'current_composition_retrospective' ? '현재 구성을 표본 기간에 그대로 적용한 소급 계산' : est.exposureHistoryMode === 'fixed_target_weight_strategy' ? '고정 목표비중 전략' : '실제 계좌 이력', '분모 ' + (scopeLabel || '—'), 'RF ' + (est.rf && est.rf.status === 'accepted' ? '입력' : '미입력 — Sharpe 보류'), '표본 ' + (est.sample && est.sample.n != null ? est.sample.n : n) + '일'];
+    var declParts = [est.exposureHistoryMode === 'current_composition_retrospective' ? '현재 구성을 표본 기간에 그대로 적용한 소급 계산' : est.exposureHistoryMode === 'fixed_target_weight_strategy' ? '목표 비중 유지 전략' : '실제 계좌 이력', '분모 ' + (scopeLabel || '—'), 'RF ' + (est.rf && est.rf.status === 'accepted' ? '입력' : '미입력 — Sharpe 보류'), '표본 ' + (est.sample && est.sample.n != null ? est.sample.n : n) + '일'];
     var declCodes = ['path ' + est.exposureHistoryMode, 'rebalance ' + (est.rebalancePolicyApplied ? est.rebalancePolicy : (est.rebalancePolicyDeclared ? est.rebalancePolicyDeclared + '(미사용)' : '미선언')), 'scope ' + (scopeToken || '—'), 'lineage ' + (est.pathLineage || '—'), 'snapshot ' + est.compositionSnapshotId + ' @ ' + (est.valuationCut || '—')];
     if (est.pathLineage === 'legacy-risk-path') declParts.push('실제 계좌 이력 아님' + (est.rebalancePolicyDeclared ? ' · 선언 정책 ' + _escHtmlSafe(est.rebalancePolicyDeclared) + ' 미사용' : '')); // P1197: 소비되지 않는 선언을 화면이 말한다
     if (est.pathLineage === 'fixed-target-weight-strategy') {
       var declaredTargets = est.strategy && est.strategy.targetWeights ? Object.keys(est.strategy.targetWeights) : [];
-      declParts.push('고정 목표비중 전략 · 실제 계좌 이력 아님' + (est.strategy && est.strategy.cashWeight > 0 ? ' · 현금 ' + (est.strategy.cashWeight * 100).toFixed(1) + '%' : '') + (declaredTargets.length
+      declParts.push('목표 비중 유지 전략 · 실제 계좌 이력 아님' + (est.strategy && est.strategy.cashWeight > 0 ? ' · 현금 ' + (est.strategy.cashWeight * 100).toFixed(1) + '%' : '') + (declaredTargets.length
         ? ' · 목표 ' + declaredTargets.map(function(ticker) { return ticker + ' ' + (est.strategy.targetWeights[ticker] * 100).toFixed(1) + '%'; }).join('/')
         : ''));
     }
@@ -1537,7 +1537,7 @@ function _aioRenderPortfolioBacktestLab(model) {
     '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">' +
       '<div style="font-size:11px;color:var(--text-muted);">기간 <b style="color:var(--text-primary);font-family:var(--font-mono);">' + _escHtmlSafe(model.settings.startMonth) + ' ~ ' + _escHtmlSafe(model.settings.endMonth) + '</b> · ' +
       '리밸런싱 <b style="color:var(--text-primary);">' + _escHtmlSafe(model.settings.rebalanceType) + '</b> · 벤치마크 <b style="color:var(--text-primary);font-family:var(--font-mono);">' + _escHtmlSafe(model.settings.benchmarkSymbol) + '</b><br>' +
-      '조정주가 · 현재 구성 소급 · 배분 basis ' + _escHtmlSafe(model.settings.targetWeightBasis || '—') + ' · 거래비용 미모형 · RF ' + (model.settings.rfAnnual == null ? '미입력' : _aioFmtBtPct(model.settings.rfAnnual, 2)) + '</div>' +
+      '조정주가 · 지금 구성 그대로 · 배분 기준 ' + _escHtmlSafe(model.settings.targetWeightBasis || '—') + ' · 거래비용 미모형 · RF ' + (model.settings.rfAnnual == null ? '미입력' : _aioFmtBtPct(model.settings.rfAnnual, 2)) + '</div>' +
       '<span class="aio-source-badge is-delayed">REFERENCE-ONLY · delayed monthly backtest</span>' +
     '</div>' +
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:10px;">' +
@@ -2091,7 +2091,7 @@ const CHAT_DEFAULT_CHIPS = {
   home: [
     '오늘 시장 종합 분석해줘',
     '현재 국면에서 역사적으로 어떤 패턴이 있었어?',
-    '지금 시장 상태에서 우호·부담 요인과 빠진 근거를 데이터로 보여줘',
+    '지금 시장 상태에서 양호·부담 요인과 빠진 근거를 데이터로 보여줘',
     '시장 스코어 기반 대응 전략은?'
   ],
   sentiment: [

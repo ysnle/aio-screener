@@ -252,7 +252,7 @@ const APPLICATIONS_EXPANSION = Object.freeze({
     Object.freeze({ id: 'hbm-package-economics', title: 'HBM과 패키지는 하나의 시스템 병목이다', level: '심화', summary: '메모리 대역폭·적층·열·수율·패키지 원가를 함께 읽습니다.', body: '가속기 성능은 연산기만으로 결정되지 않습니다. 메모리와 패키지의 연결, 전력과 열, 고객 인증 시간이 시스템 처리량과 투자회수에 영향을 줍니다.', nodeIds: ['hbm-system-bottleneck', 'chiplet-economics'], route: 'technical', routeLabel: '기술 분석 화면 열기' }),
     Object.freeze({ id: 'quantum-and-photonic-boundary', title: '인접 연산은 측정 가능한 경계부터 본다', level: '심화', summary: '양자와 포토닉 기술을 상용화 주장보다 실험·측정·통합 조건으로 평가합니다.', body: '새로운 연산 방식은 기존 시스템을 즉시 대체한다고 가정하지 않습니다. 하드웨어 접근성·오류·측정·소프트웨어·전력/비트·모듈 수율을 각각 확인합니다.', nodeIds: ['quantum-platform', 'photonic-link-economics'], route: 'themes', routeLabel: '테마 화면 열기' }),
     Object.freeze({ id: 'data-center-financing', title: 'AI 인프라는 임차와 자금조달까지 확장된다', level: '입문', summary: 'CAPEX를 서버 구매만으로 보지 않고 임차·전력계약·감가상각·금융비용으로 연결합니다.', body: '데이터센터 투자는 현금지출과 회계비용, 계약상 의무가 서로 다른 시점에 나타납니다. 수요 전망이 실제 ROIC가 되려면 가동률·자금비용·감가상각·계약 조건을 확인해야 합니다.', nodeIds: ['data-center-lease-burden', 'ai-capex', 'financing'], route: 'fundamental', routeLabel: '기업 분석 화면 열기' }),
-    Object.freeze({ id: 'ai-era-system-map', title: 'AI 시대는 하나의 모델이 아니라 연결된 시스템이다', level: '입문', summary: '문제·능력·모델·하드웨어·경제를 같은 층으로 섞지 않고 전달 경로로 연결합니다.', body: 'AI의 변화는 모델 성능만으로 끝나지 않습니다. 사용자의 workload가 계산·메모리·전력·자본·업무 시스템을 거쳐 실제 결과와 현금흐름으로 번역되는지를 단계별로 확인합니다.', nodeIds: ['ai-era', 'ai-workload', 'evaluation'], route: 'atlas', routeLabel: '산업·밸류체인 열기' }),
+    Object.freeze({ id: 'ai-era-system-map', title: 'AI 시대는 하나의 모델이 아니라 연결된 시스템이다', level: '입문', summary: '문제·능력·모델·하드웨어·경제를 같은 층으로 섞지 않고 전달 경로로 연결합니다.', body: 'AI의 변화는 모델 성능만으로 끝나지 않습니다. 사용자의 workload가 계산·메모리·전력·자본·업무 시스템을 거쳐 실제 결과와 현금흐름으로 번역되는지를 단계별로 확인합니다.', nodeIds: ['ai-era', 'ai-workload', 'evaluation'], route: 'atlas', routeLabel: '산업 지도 열기' }),
     Object.freeze({ id: 'robot-unit-economics', title: '로봇의 성능은 작업 성공과 가동률로 번역된다', level: '심화', summary: '로봇 하드웨어 가격보다 작업 성공률·통합·유지보수·가동률을 함께 읽습니다.', body: '물리 AI의 경제성은 데모 속도나 모델 정확도가 아니라 현장에서 반복적으로 완료한 유효 작업과 그 비용으로 확인합니다. 설치·교육·정비·다운타임·사람의 개입을 단위경제에 포함합니다.', nodeIds: ['robot-unit-economics', 'physical-ai-control', 'application-roi-evidence'], route: 'themes', routeLabel: '테마 화면 열기' })
   ]),
   paths: Object.freeze([])
@@ -343,7 +343,7 @@ const ARRIVAL_CHAPTERS = Object.freeze({
 function createPrinciplesArrivalContext(documentRef, context, onReturn) {
   if (!context || context.routeId !== 'principles') return null;
   const fromInstitutionalDisclosure = context.knowledgeNode === 'institutional-position-change';
-  const arrivalLabel = fromInstitutionalDisclosure ? '운용사·13F에서 이어 읽기' : '전문 화면에서 이어 읽기';
+  const arrivalLabel = fromInstitutionalDisclosure ? '대가 보유 종목에서 이어 읽기' : '전문 화면에서 이어 읽기';
   const block = element(documentRef, 'aside', 'principles-arrival-context');
   block.setAttribute('aria-label', arrivalLabel);
   block.append(
@@ -353,7 +353,7 @@ function createPrinciplesArrivalContext(documentRef, context, onReturn) {
       : '전문 화면에서 확인한 숫자를 경제의 원인·전달 경로·반대 시나리오와 다시 연결합니다.')
   );
   if (context.returnContext?.route) {
-    const back = button(documentRef, 'principles-route-button is-secondary', fromInstitutionalDisclosure ? '운용사·13F로 돌아가기' : '보던 전문 화면으로 돌아가기');
+    const back = button(documentRef, 'principles-route-button is-secondary', fromInstitutionalDisclosure ? '대가 보유 종목으로 돌아가기' : '보던 화면으로 돌아가기');
     back.addEventListener('click', onReturn);
     block.appendChild(back);
   }
@@ -534,7 +534,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         wrap.dataset.principlesGraphNodeCount = String(nodes.length);
         wrap.dataset.principlesGraphEdgeCount = String(edges.length);
         const node = NODE_BY_ID.get(state.selectedId);
-        wrap.append(element(documentRef, 'p', 'af-kicker', '개념 지도 · 원리 사이의 연결'), element(documentRef, 'h2', 'af-issue', node?.title || '관계 지도'));
+        wrap.append(element(documentRef, 'p', 'af-kicker', '개념 연결 지도'), element(documentRef, 'h2', 'af-issue', node?.title || '관계 지도'));
         if (node?.summary) wrap.appendChild(element(documentRef, 'p', 'af-lead', node.summary));
         const depth = element(documentRef, 'div', 'principles-depth-toggle');
         [1, 2].forEach((value) => depth.appendChild(button(documentRef, `principles-depth-button${state.depth === value ? ' is-active' : ''}`, value === 1 ? '바로 연결된 개념' : '두 단계까지', 'depth', String(value))));
@@ -566,7 +566,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         }
         // E12: dated observations tied to this concept (market rows follow the latest closes, P1636).
         if (state.currentObservations) {
-          const observed = createCurrentObservationBlock(documentRef, state.currentObservations, { page: 'principles', nodeId: node.id, title: '이 개념의 지금 값' });
+          const observed = createCurrentObservationBlock(documentRef, state.currentObservations, { page: 'principles', nodeId: node.id, title: '이 개념의 지금 수치' });
           if (observed.dataset.knowledgeCurrentObservationCount !== '0') { const box = block('지금 값'); box.appendChild(observed); blocks.push(box); }
         }
         const lesson = lessonForNode(node.id);

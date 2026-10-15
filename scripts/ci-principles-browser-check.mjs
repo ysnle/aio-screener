@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DESKTOP_PRIMARY_VIEWPORT, DESKTOP_QA_SCOPE } from './desktop-qa-config.mjs';
 
-// Principles browser contract (2026-10-05 리서치 라이브러리 · 개념·분석 프레임): one contents·document·connections
+// Principles browser contract (2026-10-05 리서치 라이브러리 · 개념·분석): one contents·document·connections
 // shell with five reading groups (분석 노트 · 칼럼 · 개념 사전 · 원리 레슨 · 개념 지도). Pinned here: the default
 // analysis note, deep links into every group, the long-form reading text, lazy loads with an explicit failure and
 // retry, the concept-map depth contract, unified search, cross-route bridges and the absence of internal copy.

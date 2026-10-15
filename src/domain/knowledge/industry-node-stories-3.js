@@ -1,4 +1,4 @@
-// Reading text for 산업·밸류체인 nodes, part 3: resources and materials, geopolitics and policy, capital
+// Reading text for 산업 지도 nodes, part 3: resources and materials, geopolitics and policy, capital
 // markets and adjacent future technologies. Same reading standard as the principles lessons.
 export const NODE_STORIES_3 = {
   'resources-copper': {

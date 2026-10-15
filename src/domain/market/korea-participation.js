@@ -52,5 +52,5 @@ export function buildKoreaParticipation({ rows=[], themes={}, nowMs=Date.now(), 
     missing:['외국인·기관 순매수','한국 기업 공시 재무','전 거래소 전체 종목 시장 폭']};
 }
 export function koreaParticipationContext(model) {
-  return model?.available ? `한국 시장 표본 · ${model.date} KRX 완료 종가. ${model.session?.text ? `${model.session.text} ` : ''}${model.headline} 200일선 위 ${model.breadth200.pct==null?'미확인':model.breadth200.pct.toFixed(1)+'%'}. 모집단 ${model.observed}/${model.population}. 전 시장 지표가 아니며 미수집 수급/공시를 추정하지 않는다. 관찰: ${model.watch.join(' ')}` : '';
+  return model?.available ? `한국 시장 표본 · ${model.date} KRX 확정 종가. ${model.session?.text ? `${model.session.text} ` : ''}${model.headline} 200일선 위 ${model.breadth200.pct==null?'미확인':model.breadth200.pct.toFixed(1)+'%'}. 모집단 ${model.observed}/${model.population}. 전 시장 지표가 아니며 미수집 수급/공시를 추정하지 않는다. 관찰: ${model.watch.join(' ')}` : '';
 }

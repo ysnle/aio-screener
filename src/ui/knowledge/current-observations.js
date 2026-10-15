@@ -82,7 +82,7 @@ export function liveCurrentObservations(artifact, root) {
   const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;
   // E13: a replaced value takes its own lineage — the old dated source/URL must not stay beside a new number.
   const SOURCES = {
-    MARKET_DATA: { source: '사이트 종가 기록(지수 일봉 완료 종가)', sourceId: 'aio-history-close', sourceUrl: null },
+    MARKET_DATA: { source: '사이트 종가 기록(지수 일봉 확정 종가)', sourceId: 'aio-history-close', sourceUrl: null },
     FED: { source: '연방준비제도 FOMC 정책금리 목표 범위', sourceId: 'fed-fomc-target-range', sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/openmarket.htm' },
     BLS: { source: '미 노동통계국(BLS) 소비자물가지수', sourceId: 'bls-cpi', sourceUrl: 'https://www.bls.gov/cpi/' }
   };

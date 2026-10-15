@@ -264,14 +264,14 @@ check('LC-45/P1225 portfolio table is currency-aware', /const priceCurrency = St
 check('LC-46/P1226 macro release state is shown on each indicator card', !/macro-fred-stale-banner/.test(html) && /_freshness_\$\{keys\[0\]\}/.test(read('src/domain/macro/indicators.js')) && /이번 수집 실패 · 직전 발표값/.test(read('src/ui/components/macro-board.js')));
 // LC-47/P1227: the 50SMA readout is owned by the native renderer and the advance share is named.
 // P1395: one owner (breadth-board.js) labels every measure with its population and window.
-check('LC-47/P1227 breadth readout single-owner and share label', !/breadth-50sma-readout/.test(html) && /50일선 위 종목 비율/.test(read('src/ui/components/breadth-board.js')) && /상승 종목 비율 \(10일 평균\)/.test(read('src/ui/components/breadth-board.js')) && /AIO 미국 주식 유니버스/.test(html));
+check('LC-47/P1227 breadth readout single-owner and share label', !/breadth-50sma-readout/.test(html) && /50일선 위 종목 비율/.test(read('src/ui/components/breadth-board.js')) && /상승 종목 비율 \(10일 평균\)/.test(read('src/ui/components/breadth-board.js')) && /AIO가 추적하는 미국 종목/.test(html));
 // LC-48/P1227: the signal sector-breadth cell names its own population.
 check('LC-48/P1227 signal sector breadth names its population', !/SPDR 11 ETF/.test(html) || (/SPDR 11 ETF 당일/.test(html) && /Breadth의 AIO 종목 5\/20\/50일선 폭과 다른 모집단/.test(html))); // P1392: retired with the checklist
 // LC-49/P1228: the macro curve's availability is independent of the official 2s10s spread.
 // P1425: the curve lives on the 금리 · 환율 board; spreads are computed only from one official cut.
 check('LC-49/P1228 curve spreads come from one official Treasury cut', /const sameCut = dates\.length === 1/.test(read('src/domain/macro/rates-fx.js')) && /official2s10s \?\? \(sameCut/.test(read('src/domain/macro/rates-fx.js')));
 // LC-31/P1230: the feed query's topic is kept separate from an article-level topic.
-check('LC-31/P1230 news keeps feed topic separate from an article topic', /topicReviewRequired/.test(newsNormalize) && /feedTopic/.test(newsNormalize) && /topic: item\?\.articleTopic \|\| item\?\.topic/.test(newsNormalize) && /수집 경로 기준/.test(newsPage));
+check('LC-31/P1230 news keeps feed topic separate from an article topic', /topicReviewRequired/.test(newsNormalize) && /feedTopic/.test(newsNormalize) && /topic: item\?\.articleTopic \|\| item\?\.topic/.test(newsNormalize) && /출처 기준/.test(newsPage));
 // LC-32/P1231/P1268: a headline-only status is a content boundary even if depth metadata disagrees.
 check('LC-32/P1231/P1268 headline-only status withholds the summary claim', /summary && !headlineOnly/.test(newsPage) && /isNewsHeadlineOnly\(item\)/.test(newsPage) && /verificationStatus/.test(newsScoring));
 // LC-07/LC-87/P1268: native owns the visible summary; compatibility producers remain available,
@@ -293,7 +293,7 @@ check('LC-07/LC-87/P1268 one owner for market-news summary and source-count deno
 check('LC-31/P1230/P1268 feed-query topics do not drive article-topic risk signals',
   /isNewsTopicReviewRequired/.test(newsScoring)
   && /topicEvidence = recent\.filter\(hasReviewedArticleTopic\)/.test(newsScoring)
-  && /수집 경로 기준 분류/.test(newsPage)); // P1391/P1592: the card no longer prints the flag; category grouping names it for readers
+  && /출처 기준 분류/.test(newsPage)); // P1391/P1592: the card no longer prints the flag; category grouping names it for readers
 // LC-35/P1257: the hidden legacy themes sections are classified (retire / public re-home / dev
 // bundle) and the decision is recorded in the stylesheet — public copy promises only what ships.
 check('LC-35/P1257 themes hidden sections classified with the decision recorded', /P1257\/LC-35 제품 결정/.test(html) && /퇴역\(삭제\)/.test(html) && /공개 경로로 이전/.test(html) && /개발자 번들로 이전/.test(html) && !/45개 세분화 테마 실시간/.test(html));
@@ -371,7 +371,7 @@ check(
     && /Annual Returns/.test(html + workspace)
     && /Worst Drawdowns/.test(html + workspace)
     && /Return \/ Risk Attribution/.test(html + workspace)
-    && /백테스트 Lab/.test(html + workspace)
+    && /과거 성과 시뮬레이션/.test(html + workspace)
     && /buildPortfolioBacktestLab/.test(portfolioBacktest)
     && /AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2/.test(portfolioBacktest)
     && /adjusted-close/.test(portfolioBacktest)

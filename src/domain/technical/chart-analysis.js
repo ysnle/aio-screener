@@ -119,8 +119,8 @@ export const TEMPLATE_LABEL = '미너비니 템플릿(변형: 6개월 S&P 초과
 const EXTENSION_NOTE = Object.freeze({ extended: ` · 50일선에서 확장된 구간(${EXTENSION_BANDS.extended}배 이상)`, stretched: ` · 50일선에서 크게 확장된 구간(${EXTENSION_BANDS.stretched}배 이상)` });
 
 const STATE_LABELS = Object.freeze({
-  breakout: '돌파 — 피벗 위 거래량 동반', failed: '돌파 실패 — 피벗 아래로 복귀', setup: '셋업 형성 중 — 변동성 수축',
-  extended: '피벗에서 멀어진 상승 — 추격 구간', downtrend: '하락 추세 — 셋업 해당 없음', none: '뚜렷한 셋업 없음'
+  breakout: '돌파 — 기준 고점(피벗) 위, 거래량 동반', failed: '돌파 실패 — 기준 고점 아래로 복귀', setup: '패턴 형성 중 — 변동폭 축소',
+  extended: '기준 고점에서 많이 오른 상태', downtrend: '하락 추세 — 패턴 해당 없음', none: '뚜렷한 패턴 없음'
 });
 
 /**
@@ -301,7 +301,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     ['8일선 대비 거리', extension == null ? '—' : `${signed(extension)}${extension >= 10 ? ' (과열권)' : extension <= -5 ? ' (8일선 아래 이탈)' : ''}`],
     ['상승일·하락일 거래량 (20일)', pressure == null ? '—' : `상승일/하락일 거래량 ${pressure.toFixed(2)}배 ${pressure >= 1.3 ? '(상승일 거래량 우위)' : pressure <= 0.77 ? '(하락일 거래량 우위)' : '(비슷함)'}`],
     ['변동성 수축 (VCP)', vcp.contractions.length ? `${vcp.contractions.map((row) => `-${row.depth.toFixed(1)}%`).join(' → ')}${vcp.valid ? '' : ' (수축 순서 불충분)'}` : '수축 구간 없음'],
-    ['피벗 (마지막 수축 고점)', pivot == null ? '—' : `${fmt(pivot)} (현재가 대비 ${signed((pivot / last.close - 1) * 100)})`],
+    ['기준 고점(피벗 · 마지막 조정의 고점)', pivot == null ? '—' : `${fmt(pivot)} (현재가 대비 ${signed((pivot / last.close - 1) * 100)})`],
     // 2026-10-13 review S14: an observed level, not an instruction ('무효화 가격' read as a stop to act on).
     ['마지막 수축 저점', lastContraction ? `${fmt(lastContraction.low)} (현재가 대비 ${signed((lastContraction.low / last.close - 1) * 100)})` : '—'],
     ['전일 고가 / 저가', `${fmt(prev.high)} / ${fmt(prev.low)}`]

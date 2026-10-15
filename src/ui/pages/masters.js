@@ -42,7 +42,7 @@ const VIEW_LABELS = Object.freeze({
   quarters: '분기 추이',
   compare: '투자자 비교',
   principles: '투자 원칙',
-  ownership: '13D/G 소유권',
+  ownership: '5% 이상 대량 보유(13D/G)',
   filings: '원본 공시'
 });
 
@@ -69,10 +69,10 @@ function statusLabel(status) {
     STALE_REFERENCE: '최신성 지연 참고',
     NOTICE_FILED: '13F 통지서 제출',
     CURRENT_ROWS: '최신 행 연결',
-    STALE_OR_MISSING_ROWS: '최신 행 대사 필요',
-    BLOCKED: '원천 확인 차단',
+    STALE_OR_MISSING_ROWS: '최신 자료 맞춰 보는 중',
+    BLOCKED: '원문 확인 안 됨',
     METHOD_ONLY: '방법론 전용',
-    PENDING_SEC_ROW_IMPORT: '행 가져오기 대기',
+    PENDING_SEC_ROW_IMPORT: '불러오는 중',
     SEC_ROW_PREVIEW: 'SEC 행 미리보기',
     UNVERIFIED_DISCOVERY: '발견 단서·미검증',
     PENDING: '준비 중'
@@ -145,13 +145,13 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
     element(documentRef, 'p', 'masters-ticker-lookup-copy', '종목을 입력하면 이 화면의 운용사 가운데 그 종목을 보유했다고 신고한 곳을 찾아 줍니다.')
   );
   const label = element(documentRef, 'label', 'masters-search');
-  label.appendChild(element(documentRef, 'span', 'masters-sr-only', '티커 또는 CUSIP 역조회'));
+  label.appendChild(element(documentRef, 'span', 'masters-sr-only', '종목으로 찾기 (티커 또는 CUSIP)'));
   const input = element(documentRef, 'input', 'masters-ticker-lookup-input');
   input.type = 'search';
   input.placeholder = '예: AAPL';
   input.value = query;
   input.autocomplete = 'off';
-  input.setAttribute('aria-label', '티커 또는 CUSIP 역조회');
+  input.setAttribute('aria-label', '종목으로 찾기 (티커 또는 CUSIP)');
   input.dataset.mastersAction = 'ticker-search';
   label.appendChild(input);
   section.appendChild(label);
@@ -162,20 +162,20 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
     // P1325: this branch used to be the only non-ready state, so a failed/timed-out ledger fetch left
     // '불러오는 중' on screen forever. Every non-ready state is now explicit and a failure is retryable.
     if (loadState === 'error') {
-      const failure = element(documentRef, 'p', 'masters-empty-state', '참조용 티커 원장을 불러오지 못했습니다. 잠시 뒤 다시 시도하세요. 역조회 없이도 위 대가 카드와 공시 원문은 그대로 사용할 수 있습니다.');
+      const failure = element(documentRef, 'p', 'masters-empty-state', '종목 목록을 불러오지 못했습니다. 잠시 뒤 다시 시도하세요. 종목 찾기 없이도 위 대가 카드와 공시 원문은 그대로 사용할 수 있습니다.');
       failure.setAttribute('role', 'alert');
-      body.append(failure, button(documentRef, 'aio-btn-table masters-ticker-lookup-retry', '티커 원장 다시 불러오기', 'retry-ticker-index', 'tickerIndex'));
+      body.append(failure, button(documentRef, 'aio-btn-table masters-ticker-lookup-retry', '종목 목록 다시 불러오기', 'retry-ticker-index', 'tickerIndex'));
     } else if (loadState === 'idle') {
       // P1330: the ledger is not part of the initial Masters payload (artifact budget); it loads on
       // first focus/typing or the "종목으로 역조회" button, so this idle state is never a spinner.
       // 2026-10-14 audit: the idle box only repeated the placeholder example, so idle shows nothing.
     } else {
-      const pending = element(documentRef, 'p', 'masters-empty-state', '참조용 티커 원장을 불러오는 중입니다.');
+      const pending = element(documentRef, 'p', 'masters-empty-state', '종목 목록을 불러오는 중입니다.');
       pending.setAttribute('role', 'status');
       body.appendChild(pending);
     }
   } else if (tickerIndex.status !== 'REFERENCE_ONLY') {
-    body.appendChild(element(documentRef, 'p', 'masters-empty-state', '참조용 티커 원장의 상태를 확인할 수 없어 역조회를 보류합니다.'));
+    body.appendChild(element(documentRef, 'p', 'masters-empty-state', '종목 목록의 상태를 확인할 수 없어 종목 찾기를 보류합니다.'));
   } else if (!normalized) {
     } else {
     const matches = (tickerIndex.records || []).filter((record) => [record.tickerReference, ...(record.issuerReferences || []), ...(record.cusips || [])].join(' ').toUpperCase().includes(normalized));
@@ -274,9 +274,9 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
 function createMastersArrivalContext(documentRef, context, onReturn) {
   if (!context || context.routeId !== 'masters') return null;
   const block = element(documentRef, 'aside', 'masters-arrival-context');
-  block.setAttribute('aria-label', '개념·분석 프레임에서 이어 읽기');
+  block.setAttribute('aria-label', '개념·분석에서 이어 읽기');
   block.append(
-    element(documentRef, 'span', 'masters-eyebrow', '개념·분석 프레임에서 이어 읽기'),
+    element(documentRef, 'span', 'masters-eyebrow', '개념·분석에서 이어 읽기'),
     element(documentRef, 'strong', 'masters-arrival-title', '시장의 기대를 기관의 공개 보유 변화와 대조합니다.'),
     element(documentRef, 'p', 'masters-catalog-copy', '13F는 분기 말의 지연된 스냅샷입니다. 먼저 같은 보고분기의 신고 수량 변화를 보고, 다음으로 원본 공시와 누락 자산 경계를 확인한 뒤, 이야기에서 세운 가설과 일치하는지 비교하세요.')
   );
@@ -465,7 +465,7 @@ function createPagination(documentRef, page, pageCount, total, action = 'detail-
 
 function createChangeLedger(documentRef, comparisonRows, state) {
   const section = element(documentRef, 'section', 'masters-holdings-section masters-change-ledger');
-  section.appendChild(element(documentRef, 'h3', 'masters-holdings-title', '분기 변화 원장 · 증권·주식 유형·옵션별 집계'));
+  section.appendChild(element(documentRef, 'h3', 'masters-holdings-title', '분기별 변화 표 · 증권·주식 유형·옵션별 집계'));
   section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', '두 보고분기의 신고 주식 수 차이에서 계산한 분류이며 모든 행은 재검토 대상입니다. 주식 분할·병합은 보정하지 않았으므로, 주식 수가 크게 바뀌었는데 신고 가치는 비슷한 행은 분할 의심으로 따로 두고 수량 변화를 판정하지 않습니다. 변화가 있는 행을 먼저, 변화 없는 행을 뒤에 놓았고 각 묶음 안은 신고 가치 순이며, 왼쪽 번호는 가치 순위가 아니라 이 표시 순서입니다. 현재 가격, 실제 체결 매매, 매매 신호, 목표가를 뜻하지 않습니다.'));
   const filters = element(documentRef, 'div', 'masters-action-filters');
   const splitSuspects = comparisonRows.filter((row) => displayActionOf(row) === 'SPLIT_SUSPECT').length;
@@ -529,7 +529,7 @@ function createRowPreviewView(documentRef, manager, previewMeta, previewRows) {
   const section = element(documentRef, 'section', 'masters-holdings-section masters-row-preview');
   const heading = element(documentRef, 'div', 'masters-holdings-heading');
   heading.append(
-    element(documentRef, 'h3', 'masters-holdings-title', 'SEC 원문 행 미리보기 · 전체 원장 대기'),
+    element(documentRef, 'h3', 'masters-holdings-title', 'SEC 원문 미리보기 · 전체 표 불러오는 중'),
     element(documentRef, 'p', 'masters-holdings-meta', `${previewMeta?.reportPeriod || '보고분기 확인 필요'} · ${previewRows.length}개 표시 행 · 전체 신고 행 수 미확정`)
   );
   const notice = element(documentRef, 'p', 'masters-coverage-warning', '이 표는 공식 SEC 정보표에서 확인된 일부 행의 연결 상태를 보여주는 미리보기입니다. 전체 보유·비중·분기 변화·섹터·신호 계산에는 사용하지 않습니다.');
@@ -1013,7 +1013,7 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   if (state.view === 'principles' || manager.type === 'METHOD_ONLY') {
     detail.appendChild(createPrinciplesView(documentRef, manager, principlesArtifact));
   } else if (state.view === 'ownership') {
-    detail.appendChild(createOwnershipEvents(documentRef, manager, ownershipDiscovery) || element(documentRef, 'div', 'masters-empty-state', '13D/G 소유권 이벤트 원장은 아직 제공하지 않습니다. SEC 수시 공시 정규화가 끝나면 이 탭에 표시합니다.'));
+    detail.appendChild(createOwnershipEvents(documentRef, manager, ownershipDiscovery) || element(documentRef, 'div', 'masters-empty-state', '5% 이상 대량 보유(13D/G) 기록은 아직 제공하지 않습니다. SEC 수시 공시 정규화가 끝나면 이 탭에 표시합니다.'));
   } else if (state.view === 'compare') {
     detail.appendChild(createInvestorCompareView(documentRef, state.compareIds, registry, holdingManagers, rowsByManager));
   } else if (state.view === 'changes') {
@@ -1032,14 +1032,14 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
         const shardLoaded = state.managerRows?.has?.(manager.id);
         const filingUrl = filingMeta?.latestFiling?.informationTableXml || filingMeta?.latestFiling?.indexUrl || holdingMeta?.latestFiling?.indexUrl || manager.sourceUrl || 'https://www.sec.gov/edgar/search-and-access';
         const scope = element(documentRef, 'p', 'masters-holdings-meta masters-ledger-scope', shardLoaded
-          ? `웹 화면은 신고 가치 상위 ${comparisonRows.length.toLocaleString('en-US')}개 비교 행까지만 제공합니다(전체 ${expected.toLocaleString('en-US')}개). 아래 원장은 변화가 있는 행을 먼저 놓습니다. 나머지는 `
-          : `현재 신고 가치 상위 ${comparisonRows.length}개 보유를 먼저 불러왔습니다(전체 ${expected}개). 아래 원장은 변화가 있는 행을 먼저 놓고 왼쪽 번호를 표시 순서로 씁니다. `);
+          ? `웹 화면은 신고 가치 상위 ${comparisonRows.length.toLocaleString('en-US')}개 비교 행까지만 제공합니다(전체 ${expected.toLocaleString('en-US')}개). 아래 표는 변화가 있는 행을 먼저 놓습니다. 나머지는 `
+          : `현재 신고 가치 상위 ${comparisonRows.length}개 보유를 먼저 불러왔습니다(전체 ${expected}개). 아래 표는 변화가 있는 행을 먼저 놓고 왼쪽 번호를 표시 순서로 씁니다. `);
         if (shardLoaded) {
           const link = element(documentRef, 'a', 'masters-source-link', 'SEC 원문 신고서');
           applySafeExternalLink(link, filingUrl);
           scope.append(link, documentRef.createTextNode('에서 확인합니다.'));
         } else {
-          scope.appendChild(button(documentRef, 'masters-route-button is-secondary', state.loadingManagers?.has?.(manager.id) ? '원장 불러오는 중…' : (Number(state.holdings?.managerShards?.[manager.id]?.comparisonProjectionRows) > comparisonRows.length ? `상위 ${Number(state.holdings.managerShards[manager.id].comparisonProjectionRows).toLocaleString('en-US')}개까지 불러오기` : '변화 원장 더 불러오기'), 'load-manager', manager.id));
+          scope.appendChild(button(documentRef, 'masters-route-button is-secondary', state.loadingManagers?.has?.(manager.id) ? '표 불러오는 중…' : (Number(state.holdings?.managerShards?.[manager.id]?.comparisonProjectionRows) > comparisonRows.length ? `상위 ${Number(state.holdings.managerShards[manager.id].comparisonProjectionRows).toLocaleString('en-US')}개까지 불러오기` : '변화 원장 더 불러오기'), 'load-manager', manager.id));
         }
         detail.appendChild(scope);
       }
@@ -1067,7 +1067,7 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     detail.appendChild(filingView);
   }
 
-  const principles = button(documentRef, 'masters-route-button is-secondary', '개념·분석 프레임에서 이어 읽기', 'route', 'principles');
+  const principles = button(documentRef, 'masters-route-button is-secondary', '개념·분석에서 이어 읽기', 'route', 'principles');
   principles.addEventListener('click', onRoute);
   detail.appendChild(principles);
   return detail;
@@ -1122,7 +1122,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
       if (!suppliedMaterialBridge) {
         suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
           routeId: 'masters',
-          heading: 'Masters · 13F 분기 지연과 교차검증'
+          heading: '대가 보유 종목 · 13F는 분기 뒤 늦게 공개됨'
         });
         page.appendChild(suppliedMaterialBridge);
         bag.add(() => suppliedMaterialBridge.remove());
@@ -1132,7 +1132,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
        const initialView = Object.hasOwn(VIEW_LABELS, sharedRoute.mode) ? sharedRoute.mode : 'changes';
        const state = { query: '', tickerQuery: '', filter: 'ALL', arrivalContext: arrivalContext?.routeId === 'masters' ? arrivalContext : null, selectedId: sharedRoute.manager || MASTER_REGISTRY[0].id, view: initialView, actionFilter: 'ALL', holdingsQuery: '', page: 1, pageSize: 25, compareIds: [], managerRows: new Map(), managerRowErrors: new Set(), loadingManagers: new Set(), loadingCapabilities: new Set(), quarterBundles: new Map(), loadingQuarterManagers: new Set(), filings: null, holdings: null, catalog: null, previews: null, discovery: null, principles: null, securityMaster: null, referenceMaster: null, history: null, tickerIndex: null, filingsError: false, holdingsError: false, catalogError: false, previewsError: false, discoveryError: false, principlesError: false, securityMasterError: false, referenceMasterError: false, historyError: false, historyRowsError: false, issuerAggregatesError: false, tickerIndexError: false };
        const isAlive = () => !scope?.disposed && (typeof scope?.isCurrent !== 'function' || scope.isCurrent());
-       // v57.50 I12: 종목 요약's '운용사·13F' link arrives with its ticker — the reverse lookup opens on it.
+       // v57.50 I12: 종목 요약's '대가 보유 종목' link arrives with its ticker — the reverse lookup opens on it.
        const handoffTicker = String(consumeResearchHandoff({ root, routeId: 'masters' })?.context?.ticker || '').trim().toUpperCase();
        if (/^[A-Z][A-Z0-9.-]{0,9}$/.test(handoffTicker)) state.tickerQuery = handoffTicker;
       page.dataset.aioArchitectureRoute = 'masters';
@@ -1182,7 +1182,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
           });
         });
         searchLabel.appendChild(input);
-        toolbar.append(filters, searchLabel, button(documentRef, 'masters-filter-tab masters-ticker-jump', '종목으로 역조회', 'goto-ticker-lookup', 'tickerIndex'));
+        toolbar.append(filters, searchLabel, button(documentRef, 'masters-filter-tab masters-ticker-jump', '종목으로 찾기', 'goto-ticker-lookup', 'tickerIndex'));
          const matchesList = registry.filter((manager) => (state.filter === 'ALL' || manager.type === state.filter) && matches(manager, state.query));
          const selected = matchesList.find((manager) => manager.id === state.selectedId) || matchesList[0] || null;
          if (selected) state.selectedId = selected.id;

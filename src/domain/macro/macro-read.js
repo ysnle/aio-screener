@@ -17,7 +17,7 @@ const G = RULES.growth;
 const I = RULES.inflation;
 const P = RULES.policy;
 
-const STATE_LABELS = Object.freeze({ favorable: '우호', neutral: '중립', burden: '부담', unknown: '판정 보류' });
+const STATE_LABELS = Object.freeze({ favorable: '양호', neutral: '중립', burden: '부담', unknown: '판정 보류' });
 
 function finite(value) {
   const number = Number(value);
@@ -161,7 +161,7 @@ function growthAxis({ macro, mh }) {
       ['소매판매 (전년 대비, 명목)', retailYoy ? `${signed(retailYoy.value, 1, '%')}` : finite(macro.retailSales) == null ? null : `전월 대비 ${signed(finite(macro.retailSales), 1, '%')}`]
     ],
     read,
-    flip: state === 'unknown' ? null : `Sahm 지표 ${G.sahmRecessionAt}%p 이상 또는 일자리 3개월 평균 감소면 부담 · Sahm ${G.sahmWatchAt}%p 미만이면서 3개월 평균 ${G.payrollSolidK / 10}만 명 이상이면 우호 (${G.payrollSolidK / 10}만 명은 노동력 증가를 흡수하는 수준으로 흔히 쓰는 기준)`,
+    flip: state === 'unknown' ? null : `Sahm 지표 ${G.sahmRecessionAt}%p 이상 또는 일자리 3개월 평균 감소면 부담 · Sahm ${G.sahmWatchAt}%p 미만이면서 3개월 평균 ${G.payrollSolidK / 10}만 명 이상이면 양호 (${G.payrollSolidK / 10}만 명은 노동력 증가를 흡수하는 수준으로 흔히 쓰는 기준)`,
     link: '고용과 소비는 기업 매출의 바탕입니다. 둔화가 확인되면 경기민감주·소형주가 먼저 약해지고, 금리 인하 기대가 커지면서 채권 금리는 내려가는 경향이 있습니다.',
     asOf: sahm?.date || payroll?.date || macro._asOf_unemployment || null,
     detail: { sahm, payroll, claims }
@@ -200,7 +200,7 @@ function inflationAxis({ macro, mh }) {
       ['10년 기대인플레이션', breakeven == null ? null : `${breakeven.toFixed(2)}%`]
     ],
     read,
-    flip: state === 'unknown' ? null : `근원 PCE ${I.missPct.toFixed(1)}% 이상, 또는 ${I.nearTargetPct}% 이상에서 3개월 속도가 1년치보다 ${I.reaccelPp}%p 이상 빠르면 부담 · ${I.nearTargetPct}% 이하이면서 3개월 속도가 1년치 이하면 우호`,
+    flip: state === 'unknown' ? null : `근원 PCE ${I.missPct.toFixed(1)}% 이상, 또는 ${I.nearTargetPct}% 이상에서 3개월 속도가 1년치보다 ${I.reaccelPp}%p 이상 빠르면 부담 · ${I.nearTargetPct}% 이하이면서 3개월 속도가 1년치 이하면 양호`,
     link: '물가가 목표보다 높으면 연준은 금리를 높게 유지합니다. 높은 금리는 미래 이익의 현재 가치를 낮춰 성장주 밸류에이션(PER)에 특히 부담이 됩니다.',
     asOf: macro._asOf_corePce || pace?.date || null,
     detail: { yoy, pace, accelerating }
@@ -241,7 +241,7 @@ function policyAxis({ macro, inflationState }) {
       ['실질 기준금리 (중간값 − 근원 PCE)', realPolicy == null ? null : `${realPolicy.toFixed(1)}% (중립 약 1%)`]
     ],
     read,
-    flip: state === 'unknown' ? null : `2년물이 기준금리 중간값보다 ${P.pricedMovePp}%p 이상 높거나 실질 기준금리 ${P.restrictiveRealPct}% 이상이면 부담 · ${P.pricedMovePp}%p 이상 낮고(인하 반영) 물가가 부담이 아니면 우호`,
+    flip: state === 'unknown' ? null : `2년물이 기준금리 중간값보다 ${P.pricedMovePp}%p 이상 높거나 실질 기준금리 ${P.restrictiveRealPct}% 이상이면 부담 · ${P.pricedMovePp}%p 이상 낮고(인하 반영) 물가가 부담이 아니면 양호`,
     link: '2년물 금리에는 앞으로 1~2년의 기준금리 예상과 기간·위험 프리미엄이 함께 들어 있습니다. 위쪽으로 벌어지면 달러 강세와 높은 할인율이 함께 오고, 인하 쪽이면 반대입니다. 단, 경기 악화 때문에 인하를 반영하는 경우는 주식에 좋은 신호가 아닙니다.',
     asOf: macro._asOf_dgs2 || null,
     detail: { mid, pricing, realPolicy }
@@ -398,10 +398,10 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
   // v57.50 (coordinator rule): "안정" is said only when creditState() is favorable — the same verdict as the 시장 상태 credit
   // axis. A small 5-day move alone is not calm (the level or a 20-session widening can still hold the axis at 중립/부담).
   const creditVerdict = axisById.credit?.state || creditState({ hyBp: finite(macro.hyOAS) == null ? null : finite(macro.hyOAS) * 100, hy5: hy5 == null ? null : hy5 * 100, hy20: hyDelta20Bp(mh)?.value ?? null, pcr: null });
-  const creditCalm = creditVerdict === 'favorable' ? '신용 시장은 안정적입니다(시장 상태 신용 축 우호)'
-    : creditVerdict === 'burden' ? '5거래일 변화는 작지만 스프레드 수준이 부담 구간입니다(시장 상태 신용 축 부담)'
-      : creditVerdict === 'neutral' ? '5거래일 변화는 작지만 신용 축은 중립입니다 — 수준이나 20거래일 변화 때문에 안정으로 보지 않습니다'
-        : '신용 축 판정 보류 — 스프레드 기록을 기다립니다';
+  const creditCalm = creditVerdict === 'favorable' ? '신용 시장은 안정적입니다(시장 상태 신용 지표 양호)'
+    : creditVerdict === 'burden' ? '5거래일 변화는 작지만 스프레드 수준이 부담 구간입니다(시장 상태 신용 지표 부담)'
+      : creditVerdict === 'neutral' ? '5거래일 변화는 작지만 신용 지표는 중립입니다 — 수준이나 20거래일 변화 때문에 안정으로 보지 않습니다'
+        : '신용 지표 판정 보류 — 스프레드 기록을 기다립니다';
   const dir = (value, up, down) => value == null ? 'unknown' : value >= up ? 'up' : value <= down ? 'down' : 'flat';
   const nodes = [
     { id: 'oil', label: '유가 (WTI)', held: oilHeld, value: wti20 == null ? '—' : `20일 ${signed(wti20, 1, '%')}${oilShort}${oilHeld ? (oil?.abnormal ? ' · 브렌트 비교 보류' : ` · 브렌트 ${signed(oil.brent20, 1, '%')}`) : ''}`, dir: fx.wtiHigh && wti20 != null && wti20 > RULES.oil.fall20dPct ? 'up' : dir(wti20, RULES.oil.rise20dPct, RULES.oil.fall20dPct) },
@@ -435,7 +435,7 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
   // Colour by effect on stocks: every node rising is a headwind except valuation, where a fall is.
   const impact = (node) => node.dir === 'unknown' || node.dir === 'flat' ? node.dir : (node.id === 'valuation' ? node.dir === 'down' : node.dir === 'up') ? 'burden' : 'favorable';
   // P1599 (A04): the 'not causation' caveat is stated once, in the section lead above the chain; the legend keeps the thresholds.
-  const legend = `▲▼ 기준(시장 상태와 같음): 유가 20일 +${RULES.oil.rise20dPct}% 이상 또는 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상 / ${RULES.oil.fall20dPct}% 이하 · 기대인플레이션 5거래일 ±${RULES.breakeven.move5dBp}bp · 2년물 − 기준금리 ±${P.pricedMovePp}%p · 10년물 20일 ±${RULES.rates.move20dBp}bp · 달러 20일 ±${RULES.dollar.rise20dPct}% · 신용 스프레드 5거래일 ±${RULES.credit.widen5dBp}bp. 빨간 테두리는 주식에 부담, 초록은 우호.`;
+  const legend = `▲▼ 기준(시장 상태와 같음): 유가 20일 +${RULES.oil.rise20dPct}% 이상 또는 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상 / ${RULES.oil.fall20dPct}% 이하 · 기대인플레이션 5거래일 ±${RULES.breakeven.move5dBp}bp · 2년물 − 기준금리 ±${P.pricedMovePp}%p · 10년물 20일 ±${RULES.rates.move20dBp}bp · 달러 20일 ±${RULES.dollar.rise20dPct}% · 신용 스프레드 5거래일 ±${RULES.credit.widen5dBp}bp. 빨간 테두리는 주식에 부담, 초록은 양호.`;
   return { nodes: nodes.map((node) => ({ ...node, impact: node.held ? 'unknown' : impact(node) })), links, branches: branches.map((node) => ({ ...node, impact: impact(node) })), legend };
 }
 
@@ -476,7 +476,7 @@ export function macroNextSteps(read) {
   next.push({ route: 'themes', label: '테마 · 섹터', why: pressure.length
     ? `${pressure.join(' · ')} 부담 속에서 실제로 시장보다 강한 섹터가 어디인지(섹터 회전 관측)`
     : '지금의 거시 국면에서 실제로 시장보다 강한 섹터가 어디인지(섹터 회전 관측)' });
-  next.push({ route: 'signal', label: '시장 상태', why: `금리·유가와 달러·신용은 시장 상태와 같은 판정 — 추세·시장 폭까지 합친 6개 축 전체(신용 ${label('credit')})` });
+  next.push({ route: 'signal', label: '시장 상태', why: `금리·유가와 달러·신용은 시장 상태와 같은 판정 — 추세·시장 폭까지 합친 6개 지표 전체(신용 ${label('credit')})` });
   next.push({ route: 'briefing', label: '데일리 브리핑', why: '다음 7일 고용·물가·연준 발표 일정과 오늘 종가 해석' });
   return next;
 }

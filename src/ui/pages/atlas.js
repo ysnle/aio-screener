@@ -56,10 +56,10 @@ const FOUNDATION_TRACKS = Object.freeze([
   Object.freeze({ id: 'AI-0', title: '분류와 용어', duration: '기초', summary: 'Transformer·World Model·Agent·ASIC을 서로 다른 분류 층으로 구분합니다.', nodes: ['문제/출력', '학습 방식', '모델 구조', '서비스 시스템', '실행 하드웨어'] }),
   Object.freeze({ id: 'AI-1', title: 'AI 작동 원리', duration: '기초', summary: '규칙 기반 프로그램, 학습, parameter, training, inference, 검증을 연결합니다.', nodes: ['규칙 vs 학습', 'parameter', 'training/inference', '환각·검증'] }),
   Object.freeze({ id: 'AI-2', title: '물리 인프라', duration: '인프라', summary: '벡터·병렬처리에서 GPU/ASIC·메모리·네트워크·AIDC·전력까지 이동합니다.', nodes: ['벡터/행렬', 'GPU/ASIC', 'HBM/memory wall', 'chip·package', 'AIDC·power'] }),
-  Object.freeze({ id: 'AI-3', title: 'World Model · Agent', duration: '심화', summary: 'state/action/dynamics/planning과 도구·권한·검증 루프를 분리해 설명합니다.', nodes: ['state/action', 'dynamics', 'planning', 'tool use', 'human review'] }),
+  Object.freeze({ id: 'AI-3', title: '세계 모델과 AI 에이전트', duration: '심화', summary: 'state/action/dynamics/planning과 도구·권한·검증 루프를 분리해 설명합니다.', nodes: ['state/action', 'dynamics', 'planning', 'tool use', 'human review'] }),
   Object.freeze({ id: 'AI-4', title: '경제 · 산업 · 자본', duration: '경제성', summary: 'AI stack, 수익모델, 병목, CAPEX, utilization, depreciation과 반례를 연결합니다.', nodes: ['AI stack', 'unit economics', 'bottleneck', 'CAPEX/ROIC', 'counter-scenario'] }),
-  Object.freeze({ id: 'AI-5', title: '시각화와 route 연결', duration: '제품화', summary: 'Tree/Graph/Path와 시장 분석·테마·기업 페이지의 경계를 정합니다.', nodes: ['Tree', 'Graph', 'Path', 'source badge', 'deep link'] }),
-  Object.freeze({ id: 'AI-6', title: '검증과 접근성', duration: '품질 게이트', summary: '현재 주장·날짜·출처·키보드 탐색·읽기 순서를 출판 조건으로 둡니다.', nodes: ['claim truth', 'as-of', 'source', 'keyboard', 'review gate'] })
+  Object.freeze({ id: 'AI-5', title: '화면 연결', duration: '제품화', summary: 'Tree/Graph/Path와 시장 분석·테마·기업 페이지의 경계를 정합니다.', nodes: ['Tree', 'Graph', 'Path', 'source badge', 'deep link'] }),
+  Object.freeze({ id: 'AI-6', title: '검증과 접근성', duration: '검증 기준', summary: '현재 주장·날짜·출처·키보드 탐색·읽기 순서를 출판 조건으로 둡니다.', nodes: ['claim truth', 'as-of', 'source', 'keyboard', 'review gate'] })
 ]);
 
 const FOUNDATION_LAYER_DISPLAY = Object.freeze({
@@ -293,7 +293,7 @@ function createAtlasArrivalContext(documentRef, context, onReturn) {
   const block = element(documentRef, 'aside', 'atlas-arrival-context');
   block.setAttribute('aria-label', '이전 이야기에서 이어 읽기');
   block.append(
-    element(documentRef, 'span', 'atlas-learning-column-label', '개념·분석 프레임에서 이어 읽기'),
+    element(documentRef, 'span', 'atlas-learning-column-label', '개념·분석에서 이어 읽기'),
     element(documentRef, 'h2', 'atlas-section-title', `${withDirectionParticle(TAXONOMY_NODE_LABELS[nodeId] || 'AI 가치사슬')} 연결했습니다.`),
     element(documentRef, 'p', 'atlas-card-copy', `앞 장의 질문을 ${ARRIVAL_METRIC_LABELS[context.metric] || '산업 전달 경로'} 관점에서 이어갑니다. 관찰 기간은 ${ARRIVAL_TIMEFRAME_LABELS[context.timeframe] || '별도 확인'}이며, 아래에서 상류 병목이 제품·기업·현금흐름으로 전달되는 순서를 확인하세요.`)
   );
@@ -340,7 +340,7 @@ const ATLAS_STATUS_LABELS = Object.freeze({
 
 const ATLAS_RELATIONSHIP_KIND_LABELS = Object.freeze({ concept: '핵심 개념', metric: '관찰 지표', company_claim: '기업 주장', evidence: '검증 근거', market: '시장 연결', financial: '재무 결과', constraint: '제약 조건' });
 const ATLAS_CRITICALITY_LABELS = Object.freeze({ structural: '구조 관계', conditional: '조건부 관계', claim: '기업 주장' });
-const ATLAS_ROUTE_LABELS = Object.freeze({ principles: '개념·분석 프레임', atlas: '산업·밸류체인', masters: '운용사·13F', fundamental: '재무 공시', themes: '테마·산업', macro: '거시 경제', fxbond: '금리 · 환율', technical: '차트·기술 분석' });
+const ATLAS_ROUTE_LABELS = Object.freeze({ principles: '개념·분석', atlas: '산업 지도', masters: '대가 보유 종목', fundamental: '재무 공시', themes: '테마·산업', macro: '거시 경제', fxbond: '금리 · 환율', technical: '차트·기술 분석' });
 
 const ATLAS_PACKET_DISPLAY = Object.freeze({
   'ATLAS-00': { title: 'AI 산업 지도 읽는 법', scope: '노드·관계·출처·검토 상태를 읽는 공통 언어' },

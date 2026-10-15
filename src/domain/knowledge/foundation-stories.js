@@ -1,4 +1,4 @@
-// Reading text for the AI 기초 modules on 산업·밸류체인 (F0–F6). Same reading standard as the principles lessons
+// Reading text for the AI 기초 modules on 산업 지도 (F0–F6). Same reading standard as the principles lessons
 // (scripts/lib/principles-stories.mjs): lead → two body paragraphs → twist, each block 2–5 lines in the article
 // column. The structured foundation-lessons.json fields stay as the search/retrieval summary.
 // Process topics (claim-source-as-of, human-review) are internal verification practice and are not listed for readers.

@@ -3,7 +3,7 @@ import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Masters browser contract (2026-10-05 리서치 라이브러리 · 운용사·13F): the contents column lists every catalog
+// Masters browser contract (2026-10-05 리서치 라이브러리 · 대가 보유 종목): the contents column lists every catalog
 // manager under its style, the open manager is the document (metrics → view tabs → tables), and the right column
 // carries the style frame, peers and the ticker reverse lookup. The data-state datasets, deferred shard loading,
 // fail-closed value reconciliation and the lookup's explicit error/retry state are the behaviours pinned here.

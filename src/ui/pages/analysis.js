@@ -102,7 +102,7 @@ function renderTechnicalHealth({ documentRef, root }) {
   if (basis) {
     const [, month, day] = String(regime.asOf || '').split('-').map(Number);
     const counts = regime.counts || {};
-    basis.textContent = regime.available ? `${month}/${day} 미국 종가 기준 · 우호 ${counts.favorable ?? 0} · 중립 ${counts.neutral ?? 0} · 부담 ${counts.burden ?? 0}${counts.unknown ? ` · 확인 불가 ${counts.unknown}` : ''}` : '종가 기록을 불러오는 중입니다.';
+    basis.textContent = regime.available ? `${month}/${day} 미국 종가 기준 · 양호 ${counts.favorable ?? 0} · 중립 ${counts.neutral ?? 0} · 부담 ${counts.burden ?? 0}${counts.unknown ? ` · 확인 불가 ${counts.unknown}` : ''}` : '종가 기록을 불러오는 중입니다.';
   }
   const chips = documentRef?.getElementById('tech-regime-chips');
   if (chips) {
@@ -114,7 +114,7 @@ function renderTechnicalHealth({ documentRef, root }) {
     if (referenceNode) {
       referenceNode.className = 'regime-chip-reference';
       referenceNode.style.cssText = 'flex-basis:100%;font-size:12px;color:var(--text-muted);margin-top:2px;';
-      referenceNode.title = '한국 참고 — 위 우호·중립·부담 합계에 넣지 않습니다';
+      referenceNode.title = '한국 참고 — 위 양호·중립·부담 합계에 넣지 않습니다';
       referenceNode.textContent = `참고 · 환율(원·엔) ${reference.stateLabel || '확인 불가'}`;
     }
     chips.replaceChildren(...axes.filter((row) => row.id !== 'korea').map((row) => {

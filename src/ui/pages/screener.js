@@ -140,7 +140,7 @@ const FILTER_LABELS = Object.freeze({
   'scr-sector': '섹터',
   'scr-cap': '시총',
   'scr-text-search': '검색',
-  'scr-setup': '구조·근거',
+  'scr-setup': '차트 패턴',
   'scr-min-rank': '최소 백분위',
   'scr-rsi-min': 'RSI 하한',
   'scr-rsi-max': 'RSI 상한',
@@ -151,7 +151,7 @@ const FILTER_LABELS = Object.freeze({
 
 const BUILDER_FIELDS = Object.freeze([
   { value: 'sector', label: '섹터', target: 'scr-sector' },
-  { value: 'setup', label: '구조·근거', target: 'scr-setup' },
+  { value: 'setup', label: '차트 패턴', target: 'scr-setup' },
   { value: 'rank', label: '최소 백분위', target: 'scr-min-rank' },
   { value: 'rsi', label: 'RSI 하한', target: 'scr-rsi-min' },
   { value: 'momentum', label: '3M 수익률 하한', target: 'scr-min-mom' },
@@ -187,7 +187,7 @@ function entryTiming(row) {
   const momentum = finite(row.ret1m) ?? (finite(row.ret3m) == null ? null : row.ret3m / 3);
   const setup = row.setupProfile || {};
   if (rank == null) return ['—', 'entry-wait'];
-  if (setup.climaxRisk === 'watch') return [setup.label || '클라이맥스 관찰', 'entry-wait'];
+  if (setup.climaxRisk === 'watch') return [setup.label || '과열 정점 주의', 'entry-wait'];
   if (rank < 30) return ['하위권', 'entry-avoid'];
   // v57.50 C16: the same RSI table as the stock summary (70/30; 80 = the climax watch above). The old 78/22 edges
   // were labelled 과열/침체 while the summary called 70 과열 — one stock read differently on two screens.
@@ -506,7 +506,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
       note.textContent = md ? `${md} 종가` : '종가';
       note.style.cssText = 'display:block;font-size:11px;color:var(--text-muted);';
       cell.appendChild(note);
-      cell.title = `${currency || '통화 미확인'} · ${md ? `${md} ` : ''}완료 종가(수정 종가) · 실시간 시세가 아닙니다`;
+      cell.title = `${currency || '통화 미확인'} · ${md ? `${md} ` : ''}확정 종가(수정 종가) · 실시간 시세가 아닙니다`;
       return cell;
     }
     const observedAt = row.priceObservedAt || row.priceObserved || null;
@@ -854,8 +854,8 @@ function renderBacktest(documentRef, metadata, root = globalThis, rows = null) {
   // 2026-10-13 review S05: the fingerprint proves the factor definition and weights; the IC/spread sample itself
   // pools the US and KR rows (n=986), so the sentence names the pooled sample instead of claiming one population.
   const parity = fingerprintMatches ? `현재 화면 순위와 같은 모델(같은 팩터 정의 · 같은 가중 지문)로 과거 시점을 다시 매긴 결과입니다 — 순위는 시장별로 매기지만 IC·분위 수익률은 미국·한국 합산 표본(${backtest.n ?? '—'}종목)입니다`
-    : backtest.modelFingerprint == null ? '이 검증 기록은 모델 지문이 생기기 전에 만들어져 지금 화면 순위와 같은 모델인지 확인할 수 없습니다 — 지금 순위의 검증으로 읽지 않습니다(다음 데이터 갱신부터 지문이 붙습니다)'
-      : '저장된 검증 기록의 모델 지문이 지금 화면 순위와 다릅니다(다른 가중치 프로필이거나 이전 모델) — 이 기록은 지금 순위의 검증으로 읽지 않습니다';
+    : backtest.modelFingerprint == null ? '이 검증 기록은 계산 방식 기록이 생기기 전에 만들어져 지금 화면 순위와 같은 모델인지 확인할 수 없습니다 — 지금 순위의 검증으로 읽지 않습니다(다음 데이터 갱신부터 지문이 붙습니다)'
+      : '저장된 검증 기록의 계산 방식이 지금 화면 순위와 다릅니다(다른 가중치 프로필이거나 이전 모델) — 이 기록은 지금 순위의 검증으로 읽지 않습니다';
   const verdict = composite == null ? '종합 IC가 계산되지 않았습니다.'
     : composite > 0.03 && net != null && net > 0 ? `최근 ${rebalances ?? '—'}번의 시점에서 순위가 다음 21거래일 수익률과 약하게 같은 방향(IC ${composite.toFixed(3)})이었고 상위 20%가 하위보다 비용 후 ${net.toFixed(2)}% 앞섰습니다. 표본이 작아 우연과 구분되지는 않습니다.`
       : `최근 ${rebalances ?? '—'}번의 시점에서 순위와 이후 수익률의 관계가 확인되지 않았습니다(종합 IC ${composite.toFixed(3)}, 상위−하위 비용 후 ${net == null ? '—' : `${net.toFixed(2)}%`}). 이 실험에서 순위의 우월성이 보이지 않았다는 뜻이며, 전략이 영구히 무효라는 증명은 아닙니다.`;
@@ -1222,7 +1222,7 @@ function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavai
   setText('scr-funnel-passed-denom', denominator);
   setText('scr-funnel-unavailable-denom', denominator);
   const readyLabel = documentRef.getElementById('scr-funnel-ready')?.previousElementSibling;
-  if (readyLabel) readyLabel.textContent = '필수 필드 충족';
+  if (readyLabel) readyLabel.textContent = '필수 자료 있는 종목';
   const executed = !!runId;
   const originLabel = origin === 'user' ? '사용자 실행'
     : origin === 'pipeline' ? '파이프라인 실행'
@@ -1628,7 +1628,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           const ranked = rows.filter((row) => finite(row?.screenRank) != null).sort((a, b) => a.screenRank - b.screenRank);
           const lead = ranked[0] || null;
           renderNextSteps(documentRef, documentRef.getElementById('screener-next'), [
-            { route: 'themes', label: '한국 테마', why: '상위권 한국 종목이 몰린 테마가 완료 종가 기준으로 어떻게 움직였는지', ctx: { anchor: 'kr-integrated-themes' } },
+            { route: 'themes', label: '한국 테마', why: '상위권 한국 종목이 몰린 테마가 확정 종가 기준으로 어떻게 움직였는지', ctx: { anchor: 'kr-integrated-themes' } },
             ...(lead ? [{ action: 'showTicker', arg: lead.sym, route: 'ticker', label: `순위 맨 앞 ${lead.sym}`, why: `${lead.name || lead.sym} — 한국 순위 맨 앞 종목을 요약·차트·재무로 확인(검증 전이라 후보로 읽음)` }] : [])
           ]);
           reapplyScreenerNextLead(documentRef);
@@ -1976,7 +1976,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          const collectedCount = Number.isFinite(state?.metadata?.artifactRows) ? state.metadata.artifactRows : null;
          const collectedUniverse = Number.isFinite(state?.metadata?.universe) ? state.metadata.universe : (readiness?.rowCount ?? null);
          const collectedNote = collectedCount > 0 && collectedUniverse > 0 ? `수집 성공 ${collectedCount}/${collectedUniverse} · ` : '';
-         if (readinessPreview) readinessPreview.textContent = readiness ? `${collectedNote}필수 필드 충족 ${readiness.eligibleCount}/${readiness.rowCount} · ${readiness.coveragePct}% · 필수: ${(readiness.requiredFields || []).map((field) => field.split('.').pop()).join(' · ') || '없음'}` : '필드 준비도 미리보기 대기';
+         if (readinessPreview) readinessPreview.textContent = readiness ? `${collectedNote}필수 자료 있는 종목 ${readiness.eligibleCount}/${readiness.rowCount} · ${readiness.coveragePct}% · 필수: ${(readiness.requiredFields || []).map((field) => field.split('.').pop()).join(' · ') || '없음'}` : '필드 준비도 미리보기 대기';
           // P1164/B04(12:U01): 실행 전 카운트는 '선택한 정의의 통과'가 아니다 — 빈 조건 파이프라인
           // 미리보기 결과다. '조건 적용 전 계산 가능'으로 부르고 어떤 정의·해시인지 밝힌다.
           if (workbenchStatus && !activeResult) {

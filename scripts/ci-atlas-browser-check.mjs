@@ -3,7 +3,7 @@ import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Atlas browser contract (2026-10-05 리서치 라이브러리 · 산업·밸류체인): the contents column holds the industry map
+// Atlas browser contract (2026-10-05 리서치 라이브러리 · 산업 지도): the contents column holds the industry map
 // (19 domains → 95 nodes), AI 기초 by layer and the relationship guides; the document reads as lead → value flow →
 // body → misreading; the right column shows typed relations and related notes. Pinned here: the domain landing,
 // deep links and URL sync, the lazy reading text, F0 modules, hidden process modules, the relationship-guide
@@ -53,7 +53,7 @@ try {
     };
   });
   const landingDoc = await article(page);
-  if (!landing.shell || landing.title !== '산업·밸류체인' || landing.domains !== 19 || landing.sections.join(',') !== 'taxonomy,foundations,relationships' || landing.overflow || landingDoc.domain !== 'domain-cloud-platform' || landingDoc.lead.length < 80 || landingDoc.paragraphs < 2) throw new Error(`atlas landing incomplete: ${JSON.stringify({ landing, landingDoc })}`);
+  if (!landing.shell || landing.title !== '산업 지도' || landing.domains !== 19 || landing.sections.join(',') !== 'taxonomy,foundations,relationships' || landing.overflow || landingDoc.domain !== 'domain-cloud-platform' || landingDoc.lead.length < 80 || landingDoc.paragraphs < 2) throw new Error(`atlas landing incomplete: ${JSON.stringify({ landing, landingDoc })}`);
   if (INTERNAL_COPY.test(landingDoc.text)) throw new Error('domain overview shows internal/source copy');
 
   // Node: open a domain, then a node; reading text loads lazily and the URL follows the selection.

@@ -171,7 +171,7 @@ for (const chapter of readJson('public-data/principles/chapters.json').chapters 
   paths.push({ id: `principles-chapter-${chapter.id}`, title: chapter.title, description: chapter.coreIdea, nodeIds: lessonIds, surface: 'principles', status: 'STRUCTURED_REFERENCE_DRAFT' });
 }
 const atlasById = new Set(atlas.map((lesson) => lesson.id));
-paths.push({ id: 'atlas-foundations-complete', title: '산업·밸류체인 · AI 기초 경로', description: 'AI 기초 48개 lesson을 물리·모델·시스템·경제성 순서로 연결한다.', nodeIds: atlas.map((lesson) => `atlas-foundations:${lesson.id}`), surface: 'atlas-foundations', status: 'STRUCTURED_REFERENCE_DRAFT' });
+paths.push({ id: 'atlas-foundations-complete', title: '산업 지도 · AI 기초 경로', description: 'AI 기초 48개 lesson을 물리·모델·시스템·경제성 순서로 연결한다.', nodeIds: atlas.map((lesson) => `atlas-foundations:${lesson.id}`), surface: 'atlas-foundations', status: 'STRUCTURED_REFERENCE_DRAFT' });
 const pathIdsByNode = new Map();
 for (const pathEntry of paths) for (const nodeId of pathEntry.nodeIds) pathIdsByNode.set(nodeId, [...(pathIdsByNode.get(nodeId) || []), pathEntry.id]);
 for (const node of graphNodes) node.pathIds = pathIdsByNode.get(node.id) || [];

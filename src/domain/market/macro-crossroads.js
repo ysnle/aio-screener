@@ -40,7 +40,7 @@ export const CHOICES = Object.freeze({
 
 // Which present structure (src/domain/market/regime-scenarios.js) a branch tends to push the market toward — the bridge
 // from "지금 구조" to "향후 시나리오".
-export const SHAPES = Object.freeze({ expansion: '확산 회복', concentration: '집중 유지', weakness: '동반 약화' });
+export const SHAPES = Object.freeze({ expansion: '고른 상승', concentration: '소수 종목 주도', weakness: '동반 약세' });
 
 export const EVENT_NAMES = Object.freeze({ 'us-cpi': 'CPI (소비자물가)', 'us-nfp': '고용보고서', 'us-pce': 'PCE (연준 기준 물가)', 'us-fed-rate': 'FOMC 회의', 'us-retail': '소매판매', 'us-ism-mfg': 'ISM 제조업' });
 
@@ -141,7 +141,7 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
 }
 
 // The proxy caveat is said once, in the rate hub (rateHub.pricingNote); each branch keeps one short line.
-export const PRICING_NOTE = '2년물 − 기준금리 중간값은 기간·위험 프리미엄이 섞인 대용 지표라 정책 예상을 그대로 뜻하지는 않습니다.';
+export const PRICING_NOTE = '2년물 − 기준금리 중간값은 2년물 금리로 추정한 값이라, 금리에 섞인 기간·위험 보상(프리미엄) 때문에 실제 정책 예상과 다를 수 있습니다.';
 const leanPricing = (want, note = '') => (s) => {
   if (s.lean === 'unknown') return { tone: 'unknown', text: '2년물·기준금리 자료가 없어 시장 가격 방향을 보류합니다.' };
   const tone = s.lean === want ? 'same' : s.lean === 'hold' ? 'neutral' : 'against';
@@ -176,7 +176,7 @@ export const BRANCHES = Object.freeze([
     favored: ['wait', 'defend'], favoredWhy: '금리 상승이 이어지는 시나리오에서는 기다림의 비용(놓친 상승 − 현금 이자)이 작고, 성급한 매수의 비용(밸류에이션 추가 하락)이 큽니다.',
     explore: [['fxbond', '금리 · 환율', '10년물·2년물과 달러가 실제로 오르는지'], ['themes', '테마 · 섹터', '에너지·금융의 상대강도']] },
   { id: 'softland', shape: 'expansion', axes: ['inflation', 'growth'], title: '물가 둔화 + 고용 완만 — 금리가 내려갈 여지가 생기는 시나리오',
-    conditions: [['근원 물가 속도가 1년치 이하 (둔화 중 · PCE와 CPI 모두)', disinflating], [`고용 완만 (Sahm ${G.sahmRecessionAt}%p 미만 + 일자리 3개월 평균 증가)`, (s) => all(s.sahm, s.payroll3) ? s.sahm < G.sahmRecessionAt && s.payroll3 > 0 : null], ['유가 안정 (WTI 20거래일 +5% 미만)', (s) => has(s.oil20) ? s.oil20 < 5 : null], ['신용 안정 (하이일드 스프레드 우호)', (s) => s.credit === 'unknown' ? null : s.credit === 'favorable']],
+    conditions: [['근원 물가 속도가 1년치 이하 (둔화 중 · PCE와 CPI 모두)', disinflating], [`고용 완만 (Sahm ${G.sahmRecessionAt}%p 미만 + 일자리 3개월 평균 증가)`, (s) => all(s.sahm, s.payroll3) ? s.sahm < G.sahmRecessionAt && s.payroll3 > 0 : null], ['유가 안정 (WTI 20거래일 +5% 미만)', (s) => has(s.oil20) ? s.oil20 < 5 : null], ['신용 안정 (하이일드 스프레드 양호)', (s) => s.credit === 'unknown' ? null : s.credit === 'favorable']],
     chain: ['물가 둔화', '금리 인하 기대', '2년·10년 금리 하락', '할인율 하락 → 밸류에이션 지지', '참여 확산 (중소형·후행 업종)'],
     firmer: ['growth', 'yield', 'consumer', 'liquidity', 'cyclical'], weaker: ['energy', 'defensive'],
     triggers: [['us-cpi', '근원 CPI 전월 대비 0.2% 이하 (연율 약 2.4%, 목표 부근)', (a) => a.coreMoM <= 0.2], ['us-nfp', '일자리 7.5만~20만 명 + 실업률 보합~+0.1%p', (a) => a.payroll >= 75 && a.payroll <= 200 && (a.unempDelta ?? 0) <= 0.1], ['us-pce', '근원 PCE 전월 대비 0.2% 이하', (a) => a.coreMoM <= 0.2], ['us-fed-rate', '기준금리 인하 (신용이 안정된 상태에서)', (a) => a.upperDelta < 0]],
@@ -194,7 +194,7 @@ export const BRANCHES = Object.freeze([
     favored: ['defend', 'wait'], favoredWhy: '이 시나리오에서는 이익 하향이 금리 하락의 효과를 압도하는 경향이 있어, 확인 후 접근과 방어 쪽이 손실을 줄입니다.',
     explore: [['signal', '시장 상태', '하이일드 스프레드와 시장 폭이 함께 나빠지는지'], ['themes', '테마 · 섹터', '방어 업종의 상대강도']] },
   { id: 'oilshock', shape: 'concentration', axes: ['commodities'], title: '유가 충격 — 물가와 성장이 함께 부담받는 시나리오',
-    conditions: [['유가 급등 (WTI 20거래일 +10% 이상 또는 1년 평균 대비 +25% 이상)', (s) => s.oilSurging], ['10년 기대인플레이션 20회 관측 상승', (s) => has(s.breakeven20) ? s.breakeven20 > 0 : null], ['소비자심리 60 미만', (s) => has(s.sentiment) ? s.sentiment < 60 : null], ['유가·달러 축 부담', (s) => s.commodities === 'unknown' ? null : s.commodities === 'burden']],
+    conditions: [['유가 급등 (WTI 20거래일 +10% 이상 또는 1년 평균 대비 +25% 이상)', (s) => s.oilSurging], ['10년 기대인플레이션 20회 관측 상승', (s) => has(s.breakeven20) ? s.breakeven20 > 0 : null], ['소비자심리 60 미만', (s) => has(s.sentiment) ? s.sentiment < 60 : null], ['유가·달러 지표 부담', (s) => s.commodities === 'unknown' ? null : s.commodities === 'burden']],
     chain: ['유가 급등', '헤드라인 물가 상승 + 소비 여력 감소', '연준 딜레마 (물가 대응 vs 성장)', '금리 하락이 막히고 이익은 압박', '원유 수입국(한국) 원화 부담'],
     firmer: ['energy'], weaker: ['consumer', 'cyclical', 'growth'], mixed: ['dollar'],
     triggers: [['us-cpi', '헤드라인 CPI가 근원보다 전월 대비 0.2%p 이상 높음 (에너지발 물가)', (a) => a.headMoM != null && a.headMoM - a.coreMoM >= 0.2]],
@@ -203,7 +203,7 @@ export const BRANCHES = Object.freeze([
     favored: ['wait'], favoredWhy: '유가 충격은 물가와 성장을 함께 누르므로, 유가가 꺾이는 것을 확인하기 전 서두르는 쪽의 비용이 큽니다.',
     explore: [['fxbond', '금리 · 환율', '기대인플레이션과 10년물이 유가를 따라 오르는지'], ['themes', '테마 · 섹터', '에너지 업종의 상대강도']] },
   { id: 'creditstress', shape: 'weakness', axes: ['credit'], title: '신용 경색 — 돈줄이 마르는 시나리오',
-    conditions: [['신용 축 부담 (하이일드 스프레드 높음 또는 빠른 확대)', (s) => s.credit === 'unknown' ? null : s.credit === 'burden'], ['하이일드 스프레드 20회 관측 +50bp 이상 확대', (s) => has(s.hy20) ? s.hy20 >= 50 : null], ['가장 약한 등급(CCC)과 B 등급 격차 20회 관측 확대', (s) => has(s.cccGap20) ? s.cccGap20 > 0 : null], ['금융여건지수(NFCI) 4주 전보다 긴축 방향', (s) => has(s.nfci4) ? s.nfci4 > 0 : null]],
+    conditions: [['신용 지표 부담 (하이일드 스프레드 높음 또는 빠른 확대)', (s) => s.credit === 'unknown' ? null : s.credit === 'burden'], ['하이일드 스프레드 20회 관측 +50bp 이상 확대', (s) => has(s.hy20) ? s.hy20 >= 50 : null], ['가장 약한 등급(CCC)과 B 등급 격차 20회 관측 확대', (s) => has(s.cccGap20) ? s.cccGap20 > 0 : null], ['금융여건지수(NFCI) 4주 전보다 긴축 방향', (s) => has(s.nfci4) ? s.nfci4 > 0 : null]],
     chain: ['신용 스프레드 확대', '약한 기업부터 차환·조달 곤란', '투자·고용 축소', '이익 하향 + 위험 회피', '주가 하락이 신용 위험으로 번짐'],
     firmer: ['defensive'], weaker: ['financials', 'liquidity', 'cyclical', 'growth', 'consumer'],
     triggers: [['us-fed-rate', '긴급 유동성 공급·인하 (신용 불안 대응)', (a) => a.upperDelta < 0]],
@@ -221,7 +221,7 @@ export const BRANCHES = Object.freeze([
     favored: ['wait', 'hold'], favoredWhy: '달러 급등기에는 외국인 수급이 약해지기 쉬워 서두를 이유가 작고, 수출 기업 보유는 환율로 일부 상쇄됩니다.',
     explore: [['fxbond', '금리 · 환율', '달러·원화·엔화 추이'], ['themes', '테마 · 섹터', '한국 수출 테마의 상대강도']] },
   { id: 'reflation', shape: 'expansion', axes: ['growth', 'rates'], title: '성장 재가속 — 금리와 이익이 함께 오르는 시나리오',
-    conditions: [[`일자리 3개월 평균 ${G.payrollSolidK / 10}만 명 이상이며 그 전 3개월보다 많음`, (s) => all(s.payroll3, s.payrollPrior3) ? s.payroll3 >= G.payrollSolidK && s.payroll3 > s.payrollPrior3 : null], ['소매판매 전년 대비 3% 이상', (s) => has(s.retailYoy) ? s.retailYoy >= 3 : null], ['10년물 상승 + 장단기 금리차 확대 (성장 기대형 금리 상승)', (s) => all(s.tnx20, s.curve20) ? s.tnx20 > 0 && s.curve20 > 0 : null], ['시장 폭 우호', (s) => s.breadth == null ? null : s.breadth === 'favorable']],
+    conditions: [[`일자리 3개월 평균 ${G.payrollSolidK / 10}만 명 이상이며 그 전 3개월보다 많음`, (s) => all(s.payroll3, s.payrollPrior3) ? s.payroll3 >= G.payrollSolidK && s.payroll3 > s.payrollPrior3 : null], ['소매판매 전년 대비 3% 이상', (s) => has(s.retailYoy) ? s.retailYoy >= 3 : null], ['10년물 상승 + 장단기 금리차 확대 (성장 기대형 금리 상승)', (s) => all(s.tnx20, s.curve20) ? s.tnx20 > 0 && s.curve20 > 0 : null], ['시장 폭 양호', (s) => s.breadth == null ? null : s.breadth === 'favorable']],
     chain: ['고용·소비 재가속', '이익 추정치 상향', '성장 기대로 금리 상승', '경기민감·금융 이익 개선', '방어·배당주 상대 부진'],
     firmer: ['cyclical', 'financials', 'energy', 'consumer'], weaker: ['defensive', 'yield'],
     triggers: [['us-nfp', '일자리 20만 명 이상', (a) => a.payroll >= 200], ['us-retail', '소매판매 전월 대비 +0.5% 이상', (a) => a.mom >= 0.5]],
@@ -230,14 +230,14 @@ export const BRANCHES = Object.freeze([
     favored: ['hold', 'stage'], favoredWhy: '금리 상승이 성장 기대 때문이라면 이익이 함께 늘어 주가가 버티는 경향이 있습니다 — 물가 때문인 금리 상승과 구분합니다.',
     explore: [['themes', '테마 · 섹터', '경기민감·금융 업종 개선'], ['screener', '스크리너', '이익 추정이 오르는 후보']] },
   { id: 'volshock', shape: 'weakness', axes: ['credit'], title: '변동성 충격 — 공포가 가격을 앞지르는 시나리오',
-    conditions: [['VIX 25 이상', (s) => has(s.vix) ? s.vix >= 25 : null], ['VIX 기간 구조 역전 (단기 ≥ 3개월)', (s) => has(s.vixRatio) ? s.vixRatio >= 1 : null], ['S&P 500 5거래일 −4% 이하', (s) => has(s.spx5) ? s.spx5 <= -4 : null], ['시장 폭 부담', (s) => s.breadth == null ? null : s.breadth === 'burden']],
+    conditions: [['VIX 25 이상', (s) => has(s.vix) ? s.vix >= 25 : null], ['VIX 단기 불안 비율 역전 (단기 ≥ 3개월)', (s) => has(s.vixRatio) ? s.vixRatio >= 1 : null], ['S&P 500 5거래일 −4% 이하', (s) => has(s.spx5) ? s.spx5 <= -4 : null], ['시장 폭 부담', (s) => s.breadth == null ? null : s.breadth === 'burden']],
     chain: ['급락 · 변동성 급등', '위험 축소(레버리지 청산)', '좋은 종목까지 함께 매도', '신용이 버티면 되돌림, 신용이 무너지면 장기화', '변동성 진정 후 주도주 재편'],
     firmer: ['defensive'], weaker: ['liquidity', 'growth', 'cyclical'],
     triggers: [],
-    pricing: (s) => s.vixRatio == null ? { tone: 'unknown', text: 'VIX 기간 구조 기록이 없어 보류합니다.' } : { tone: s.vixRatio >= 1 ? 'same' : 'against', text: `VIX / 3개월 VIX ${s.vixRatio.toFixed(2)} — ${s.vixRatio >= 1 ? '단기 공포가 중기보다 큼(역전)' : '정상 구조(단기 공포가 중기보다 작음)'}` },
-    choices: { wait: '기간 구조 역전이 풀릴 때까지 기다리는 쪽은 바닥 근처를 놓칠 수 있지만, 신용이 함께 무너지는 경우의 손실을 피합니다.', stage: '신용이 버티는 공포에서는 나눠 들어가는 쪽이 유리했던 경우가 많았습니다 — 아래 과거 빈도와 신용 축을 함께 확인합니다.', hold: '보유는 레버리지·변동성이 큰 종목 비중부터 점검합니다.', defend: '방어 전환은 급락 뒤에 하면 반등을 놓치는 기회비용이 커집니다.' },
+    pricing: (s) => s.vixRatio == null ? { tone: 'unknown', text: 'VIX 단기 불안 비율 기록이 없어 보류합니다.' } : { tone: s.vixRatio >= 1 ? 'same' : 'against', text: `VIX / 3개월 VIX ${s.vixRatio.toFixed(2)} — ${s.vixRatio >= 1 ? '단기 공포가 중기보다 큼(역전)' : '정상 구조(단기 공포가 중기보다 작음)'}` },
+    choices: { wait: '기간 구조 역전이 풀릴 때까지 기다리는 쪽은 바닥 근처를 놓칠 수 있지만, 신용이 함께 무너지는 경우의 손실을 피합니다.', stage: '신용이 버티는 공포에서는 나눠 들어가는 쪽이 유리했던 경우가 많았습니다 — 아래 과거 빈도와 신용 지표를 함께 확인합니다.', hold: '보유는 레버리지·변동성이 큰 종목 비중부터 점검합니다.', defend: '방어 전환은 급락 뒤에 하면 반등을 놓치는 기회비용이 커집니다.' },
     favored: ['stage', 'wait'], favoredWhy: '신용이 버티면 분할 접근, 신용도 무너지면 기다림 — 갈림 조건은 하이일드 스프레드입니다.',
-    explore: [['sentiment', '투자 심리', 'VIX·기간 구조·심리 지표'], ['signal', '시장 상태', '신용 축이 버티는지']] }
+    explore: [['sentiment', '투자 심리', 'VIX·기간 구조·심리 지표'], ['signal', '시장 상태', '신용 지표가 버티는지']] }
 ]);
 
 function pastFor(branchId, { history, outcomes }) {
@@ -329,7 +329,7 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
   const rateHub = {
     policy: policyLine,
     now: s.tnx ? `미 10년물 ${fmt(s.tnx.value, 2)}% (20거래일 ${bpChange(s.tnx20)})${s.pricing != null ? ` · 2년물 − 기준금리 ${signed(s.pricing, 2, '%p')}` : ''}` : null,
-    pricingNote: s.pricing != null ? `${PRICING_NOTE.replace('기준금리 중간값', `기준금리 중간값(${fmt(s.mid, 2)}%)`)} 아래 각 시나리오의 '시장 가격'도 같은 대용 지표입니다.` : null,
+    pricingNote: s.pricing != null ? `${PRICING_NOTE.replace('기준금리 중간값', `기준금리 중간값(${fmt(s.mid, 2)}%)`)} 아래 각 시나리오의 '시장 가격'도 같은 추정값입니다.` : null,
     whyHigherHurts: '금리가 더 오르면 미래 이익을 오늘 가치로 바꾸는 할인율이 높아져 PER이 높은 성장주부터 눌리고, 기업·가계의 차입 비용이 올라 이익과 투자가 둔화하며, 달러 강세가 해외 매출과 신흥국 자금을 압박합니다.',
     pathsDown: [
       { id: 'disinflation', label: '물가 둔화', ok: disinflating(s),

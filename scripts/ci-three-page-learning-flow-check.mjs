@@ -43,7 +43,7 @@ try {
 
   await openColumnChapter(page, 'ai-physical-bottleneck');
   const nextLink = await page.locator('#page-principles .rl-aside .af-route').first().textContent();
-  if (/[A-Z]{3,}_[A-Z]/.test(nextLink) || !nextLink.includes('산업·밸류체인')) throw new Error(`column next-screen link shows an internal code or no destination: ${nextLink}`);
+  if (/[A-Z]{3,}_[A-Z]/.test(nextLink) || !nextLink.includes('산업 지도')) throw new Error(`column next-screen link shows an internal code or no destination: ${nextLink}`);
   await page.locator('#page-principles .rl-aside .af-route').first().click();
   await page.waitForFunction(() => document.getElementById('page-atlas')?.classList.contains('active') && document.querySelector('#page-atlas .atlas-arrival-context'));
   await page.waitForFunction(() => document.querySelector('#page-atlas .af-article')?.dataset.atlasNode === 'compute-gpu');
@@ -54,7 +54,7 @@ try {
     title: document.querySelector('#page-atlas .af-article .af-issue')?.textContent || '',
     arrival: document.querySelector('#page-atlas .atlas-arrival-context')?.textContent || ''
   }));
-  if (!atlasArrival.hash.includes('knowledgeNode=compute-gpu') || atlasArrival.mode !== 'taxonomy' || atlasArrival.node !== 'compute-gpu' || !atlasArrival.title.includes('GPU') || !atlasArrival.arrival.includes('개념·분석 프레임')) throw new Error(`principles-to-atlas destination failed: ${JSON.stringify(atlasArrival)}`);
+  if (!atlasArrival.hash.includes('knowledgeNode=compute-gpu') || atlasArrival.mode !== 'taxonomy' || atlasArrival.node !== 'compute-gpu' || !atlasArrival.title.includes('GPU') || !atlasArrival.arrival.includes('개념·분석')) throw new Error(`principles-to-atlas destination failed: ${JSON.stringify(atlasArrival)}`);
 
   await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
   await dismissDisclaimer(page);

@@ -1073,13 +1073,13 @@ async function updateHistory(data, marketSnapshot = null, officialFx = null) {
     hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
     if (hist.length > 420) hist = hist.slice(hist.length - 420);  // 14개월 cap
     await atomicWriteFile(HIST, JSON.stringify(normalizeHistoryRows(hist)));
-    // P1246: 이번 실행이 실제로 기록한 USD/KRW 완료 종가. FRED DEXKOUS 교차검증이 이 값을 기준으로
+    // P1246: 이번 실행이 실제로 기록한 USD/KRW 확정 종가. FRED DEXKOUS 교차검증이 이 값을 기준으로
     // 삼는다 — 아티팩트가 실제로 담은 값이어야 검증이 의미를 갖는다. 없으면 null로 남겨 교차검증이
     // "판정 불가"를 말하게 한다(값을 지어내지 않는다).
     const fxObservation = Number.isFinite(fieldValues.usdkrw)
       ? { value: fieldValues.usdkrw, date: today, observedAt: fieldMeta.usdkrw?.observedAt || null, valueBasis: fieldMeta.usdkrw?.valueBasis || null }
       : null;
-    // P1246: 공식 관측일과 **같은 시점**의 우리 완료 종가를 골라 비교한다. 하루 어긋난 봉까지는 같은
+    // P1246: 공식 관측일과 **같은 시점**의 우리 확정 종가를 골라 비교한다. 하루 어긋난 봉까지는 같은
     // 시점으로 보되 실제 날짜를 레코드에 남긴다. 그 이상 벌어지면 최신값으로 대신하지 않고 '판정 불가'
     // 로 남긴다 — 시점이 다른 두 값을 비교해 불일치라고 말하는 것은 공표 지연을 데이터 오류로
     // 오표기하는 것이다.
@@ -2428,7 +2428,7 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     const scenarios = buildMarketScenarios(input, { regime });
     const axes = (regime.axes || []).map((axis) => `${axis.label || axis.id}: ${axis.state}${axis.read ? ` — ${axis.read}` : ''}`).join('\n');
     const outlook = buildScenarioOutlook({ scenarios, regime });
-    return [`종합: ${regime.overall} (우호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, axes,
+    return [`종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, axes,
       renderMarketScenarioContext(input, { regime }), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(data, input, regime)].filter(Boolean).join('\n');
   } catch (error) {
     return '';
@@ -2459,7 +2459,7 @@ export function scenarioStateThemeLines(state) {
   const byKey = new Map(themes.map((row) => [`${row.market}:${row.id}`, row]));
   const named = (keys = []) => keys.map((key) => byKey.get(key)).filter(Boolean).map((row) => `${row.label}(1개월 ${row.ret1m >= 0 ? '+' : ''}${Number(row.ret1m).toFixed(1)}%)`).slice(0, 6).join(', ');
   const h = state.highlights || {};
-  return [`【테마 시나리오 — 모든 테마를 같은 규칙으로(${state.basis?.themeAsOf || '기준일 미확인'} 완료 종가, 직전 갱신)】`, state.rotation?.text ? `가격 기준 강약 이동: ${state.rotation.text}` : '',
+  return [`【테마 시나리오 — 모든 테마를 같은 규칙으로(${state.basis?.themeAsOf || '기준일 미확인'} 확정 종가, 직전 갱신)】`, state.rotation?.text ? `가격 기준 강약 이동: ${state.rotation.text}` : '',
     h.structuralPullbacks?.length ? `긴 추세 속 조정 + 거시 부담 아님: ${named(h.structuralPullbacks)}` : '',
     h.headwindLeaders?.length ? `거시 부담에도 주도: ${named(h.headwindLeaders)}` : '',
     h.tailwindLaggards?.length ? `거시 수혜인데 약세: ${named(h.tailwindLaggards)}` : ''].filter(Boolean).join('\n');
@@ -3150,7 +3150,7 @@ async function main() {
   console.log(`[fetch-data] macro calendar: ${JSON.stringify(macroCalendarInfo)}`);
   console.log(`[fetch-data] macro history: ${JSON.stringify(macroHistoryInfo)}`);
   // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
-  // P1246: FX 교차검증 — 히스토리 레인이 기록한 **공식 관측일과 같은 날짜**의 완료 종가를 공식
+  // P1246: FX 교차검증 — 히스토리 레인이 기록한 **공식 관측일과 같은 날짜**의 확정 종가를 공식
   // DEXKOUS와 비교해 **상태만** 발행한다. 값 출처는 바뀌지 않는다(providerCrossChecks는 참조 면이다).
   // 히스토리 레인이 통째로 실패해도 판정 불가 레코드를 남긴다 — 교차검증의 부재를 성공으로 읽지 않는다.
   if (data.providerCrossChecks) {
@@ -3239,7 +3239,7 @@ async function main() {
 /**
  * P1192 (P1095 권위): 한 행의 완료 컷을 넘는 `previous-completed-close` 스탬프를 직전 bar 경계로
  * 되돌린다. Yahoo는 진행 중 bar를 그 bar의 개시 시각으로 스탬프하는데, FX/상품 일봉 경계(00:00Z)가
- * KST-08:00 뉴스 컷(23:00Z)보다 뒤라 그 경계가 컷을 넘는다. 값은 **실제 완료 종가**이므로 버리지
+ * KST-08:00 뉴스 컷(23:00Z)보다 뒤라 그 경계가 컷을 넘는다. 값은 **실제 확정 종가**이므로 버리지
  * 않고 bar 경계로 앉히고, 그마저 컷을 넘으면 값을 싣지 않는다 — 컷을 늘리거나 시각만 바꾸는 위장은
  * 두 게이트(P1095·history-time)가 동시에 금지한다. `bySym`/`bySymQuote`를 제자리에서 고친다.
  */

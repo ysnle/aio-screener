@@ -20,7 +20,10 @@ export const SCREEN_TERM_ADDITIONS = Object.freeze([
   { term: '반대매매', alias: '반대매매 강제청산 담보부족 마진콜 margin call', cat: '한국시장', def: '빚을 내 산 주식의 담보 가치가 약정한 비율 아래로 떨어지고 추가 담보를 넣지 못하면, 증권사가 그 주식을 강제로 파는 것입니다. 급락 때 이 매도가 몰리면 하락이 더 깊어질 수 있습니다.' },
   { term: '신용융자 (신용거래융자)', alias: '신용융자 신용거래 빚투 신용잔고', cat: '한국시장', def: '증권사에서 돈을 빌려 주식을 사는 것입니다. 잔고가 많을수록 하락장에서 반대매매로 이어질 수 있는 물량이 많다는 뜻으로 읽습니다.' },
   { term: '최대 낙폭 (MDD)', alias: 'MDD maximum drawdown 최대낙폭 고점 대비 하락', cat: '기초', def: '어느 기간 안에서 가장 높았던 지점부터 그 뒤 가장 낮았던 지점까지 얼마나 떨어졌는지를 나타낸 비율입니다. 같은 수익률이라도 이 값이 클수록 버티기 어려운 길이었다는 뜻입니다.' },
-  { term: '약세장 (하락장)', alias: '약세장 하락장 bear market 베어마켓', cat: '기초', def: '주가가 넓게, 오래 내리는 국면을 가리키는 말입니다. 흔히 고점 대비 하락 폭으로 부르지만 기준은 관례일 뿐이고, 이 사이트는 하락 폭과 함께 시장 폭·신용·변동성을 나란히 봅니다.' }
+  { term: '약세장 (하락장)', alias: '약세장 하락장 bear market 베어마켓', cat: '기초', def: '주가가 넓게, 오래 내리는 국면을 가리키는 말입니다. 흔히 고점 대비 하락 폭으로 부르지만 기준은 관례일 뿐이고, 이 사이트는 하락 폭과 함께 시장 폭·신용·변동성을 나란히 봅니다.' },
+  // v57.73 (owner 2026-10-15 wording review): the scenario cards keep '기회비용' because no shorter word carries it; the term mark explains it.
+  { term: '기회비용', alias: '기회비용 opportunity cost 놓친 이익', cat: '기초', def: '어떤 선택을 할 때 포기한 다른 선택에서 얻을 수 있었던 이익입니다. 시장을 기다리는 동안 오른 만큼이 기다림의 기회비용이고, 서둘러 샀다가 더 내린 만큼이 성급한 매수의 비용입니다.' },
+  { term: '관망', alias: '관망 기다림 현금 대기', cat: '기초', def: '새로 사거나 팔지 않고 현금이나 단기채로 기다리며 상황을 지켜보는 것입니다. 기다리는 동안의 이자가 놓친 상승을 일부 메워 줍니다.' },
 ]);
 
 export function appendScreenTerms(glossary, additions = SCREEN_TERM_ADDITIONS) {

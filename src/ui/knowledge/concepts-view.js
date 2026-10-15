@@ -1,4 +1,4 @@
-// 리서치 라이브러리 · 개념·분석 프레임. Five kinds of document behind one table of contents:
+// 리서치 라이브러리 · 개념·분석. Five kinds of document behind one table of contents:
 // 분석 노트 (issue-led features), 칼럼 (the author's twelve-chapter essay), 개념 사전 (the canonical
 // concepts, shared with the glossary), 원리 레슨 (A–O lessons) and 개념 지도 (the principle graph).
 // Only the open group of the contents is expanded; the right column shows where the open document

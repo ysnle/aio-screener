@@ -32,7 +32,7 @@
       "preferred": "거시",
       "reason": "The screen is 거시 · 금리; Korean UI uses 거시 (거시 경제, 거시 지표, 거시 조건).",
       "allowedContexts": [
-        { "pattern": "매크로\\s*(?:헤지\\s*)?펀드", "reason": "글로벌 매크로 펀드 is the industry name of a fund style (운용사·13F), not the screen or the economy." }
+        { "pattern": "매크로\\s*(?:헤지\\s*)?펀드", "reason": "글로벌 매크로 펀드 is the industry name of a fund style (대가 보유 종목), not the screen or the economy." }
       ]
     },
     {

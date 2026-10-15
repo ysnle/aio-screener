@@ -340,7 +340,7 @@ export function deriveSignalDecisionFromTradingScore({ score = {}, inputVersion 
  * WATCH/WAIT/REDUCE action level. Keeping that distinction explicit prevents
  * the legacy wording from becoming a second scoring implementation.
  */
-const CONDITION_BAND_LABELS = Object.freeze({ favorable: '우호', constructive: '양호', neutral: '중립', caution: '주의', defensive: '위험' });
+const CONDITION_BAND_LABELS = Object.freeze({ favorable: '매우 양호', constructive: '양호', neutral: '중립', caution: '주의', defensive: '위험' });
 
 export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersion = 'unknown' } = {}) {
   const total = finiteNumber(score?.total ?? score?.score);
@@ -376,8 +376,8 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       predictiveValidation,
       components,
       breakdown,
-      decision: '점수 보류 — 완료 종가 근거 부족',
-      description: `${basisLabel ? `${basisLabel} · ` : ''}${missingText || '시장 환경'}: 완료 종가 기준의 필수 근거가 부족해 점수를 보류합니다. 개별 관측값은 별도로 확인하세요.${optionalText}`,
+      decision: '점수 보류 — 확정 종가 근거 부족',
+      description: `${basisLabel ? `${basisLabel} · ` : ''}${missingText || '시장 환경'}: 확정 종가 기준의 필수 근거가 부족해 점수를 보류합니다. 개별 관측값은 별도로 확인하세요.${optionalText}`,
       reasons: Object.freeze(['required-input-missing', ...reasons])
     });
   }

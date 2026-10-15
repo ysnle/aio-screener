@@ -43,7 +43,7 @@ const signedCount = (value) => `${value > 0 ? '+' : ''}${Math.round(value).toLoc
 
 export const BREADTH_GROUPS = Object.freeze([
   { id: 'participation', title: '참여도 — 이동평균 위 종목 비율' },
-  { id: 'leadership', title: '리더십 — 신고가·신저가와 급등락 종목' },
+  { id: 'leadership', title: '강한 종목 수 — 신고가·신저가, 급등락' },
   { id: 'index', title: '지수 확인 — 분배일과 S&P 500' }
 ]);
 
@@ -70,7 +70,7 @@ export function buildBreadthCards(history = []) {
       latest: lastOf(highs) && lastOf(lows) ? `신고가 ${count(lastOf(highs).value)} · 신저가 ${count(lastOf(lows).value)}` : null, drill: ['newHigh', 'newLow'] },
     { id: 'mv', group: 'leadership', title: '4% 이상 상승 − 하락 종목 수 (5일 합계)', note: '거래량이 늘며 하루 4% 넘게 움직인 종목 — 5일 합계에서 상승·하락 중 어느 쪽이 우세한지 봄', series: rolling(difference(up4, down4), 5, { sum: true }).slice(-WINDOW), refLines: [0], format: signedCount, changeUnit: '', changeDigits: 0,
       latest: lastOf(up4) && lastOf(down4) ? `${lastOf(up4).date.slice(5).replace('-', '/')} 상승 ${count(lastOf(up4).value)} · 하락 ${count(lastOf(down4).value)}` : null, drill: ['up4', 'down4'] },
-    { id: 'dd', group: 'index', title: 'S&P 500 분배일 (최근 25거래일)', note: '지수가 0.2% 이상 내리면서 거래량이 늘어난 날의 수 — 흔히 25거래일 중 5~6회 이상이면 추세 약화 경고로 봄', source: '윌리엄 오닐의 분배일 관례', series: pctSeries('distributionDays'), refLines: [5], format: count, changeUnit: '', changeDigits: 0, domain: [0, 12] },
+    { id: 'dd', group: 'index', title: 'S&P 500 매도 우위일(분배일, 최근 25거래일)', note: '지수가 0.2% 이상 내리면서 거래량이 늘어난 날의 수 — 흔히 25거래일 중 5~6회 이상이면 추세 약화 경고로 봄', source: '윌리엄 오닐의 분배일 관례', series: pctSeries('distributionDays'), refLines: [5], format: count, changeUnit: '', changeDigits: 0, domain: [0, 12] },
     { id: 'spx', group: 'index', title: 'S&P 500 (같은 기간 비교)', note: '위 참여도 차트와 나란히 보면 지수와 시장 폭의 괴리가 보임', series: spx, refLines: [], format: count, changeUnit: '%', percentChange: true }
   ];
 }
@@ -125,7 +125,7 @@ function renderDrill(doc, root, card, contributors, basis) {
         li.append(button, el(doc, 'span', [assetType === 'ETF' ? 'ETF' : '', nameOf(root, symbol)].filter(Boolean).join(' '), 'breadth-drill-name'), el(doc, 'span', change == null ? '' : `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`, `breadth-drill-chg ${change >= 0 ? 'is-up' : 'is-down'}`));
         const badge = (text) => { const node = el(doc, 'span', text, 'breadth-drill-ca'); node.style.cssText = 'font-size:10px;color:var(--data-amber);line-height:1.5;'; return node; };
         if (assetType === 'ETF') li.append(badge('ETF — 개별 주식 수에 함께 집계됩니다'));
-        else if (caSuspected) li.append(badge('기업행사 가능성 — 분사·합병 등 조정 여부는 공시 원문으로 확인되지 않았습니다'));
+        else if (caSuspected) li.append(badge('분사·합병 가능성(공시 미확인)'));
         ul.append(li);
       }
       column.append(ul);

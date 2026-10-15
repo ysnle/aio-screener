@@ -1,4 +1,4 @@
-// Reading text for the 95 산업·밸류체인 nodes and 19 domain overviews, merged from the three authoring parts. Loaded on demand by the
+// Reading text for the 95 산업 지도 nodes and 19 domain overviews, merged from the three authoring parts. Loaded on demand by the
 // atlas page (dynamic import) so the route's first paint does not carry ~45k characters of copy.
 import { NODE_STORIES_1 } from './industry-node-stories-1.js';
 import { NODE_STORIES_2 } from './industry-node-stories-2.js';

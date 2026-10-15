@@ -114,7 +114,7 @@ function statCard(doc, { label, valueText, lines = [], meta, note, status, serie
   return card;
 }
 
-const TONE_WORD = Object.freeze({ favorable: '우호', neutral: '중립', burden: '부담' });
+const TONE_WORD = Object.freeze({ favorable: '양호', neutral: '중립', burden: '부담' });
 
 // Bands are half-open [from, to) like the rules (core PCE 3.0% is already 부담); the last band is closed.
 function bandOf(g) {
@@ -346,7 +346,7 @@ function renderRegime(doc, read) {
   if (r.available && r.provisional) head.append(el(doc, 'span', '잠정 — 월별 추세 일부 미반영', 'basis-chip is-off'));
   const counts = read.counts;
   const tally = el(doc, 'div', null, 'macro-tally');
-  for (const [state, label] of [['favorable', '우호'], ['neutral', '중립'], ['burden', '부담'], ['unknown', '보류']]) {
+  for (const [state, label] of [['favorable', '양호'], ['neutral', '중립'], ['burden', '부담'], ['unknown', '보류']]) {
     if (state === 'unknown' && !counts.unknown) continue;
     tally.append(el(doc, 'span', `${label} ${counts[state]}`, `macro-tally-chip is-${state}`));
   }

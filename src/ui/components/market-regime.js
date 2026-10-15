@@ -47,7 +47,7 @@ function readingNodes(doc, text, className, topic = '') {
 }
 
 // v57.55 review (E1-02/B4-F7): the credit axis needs the 20-session HY change from macro-history. Only 오늘 and 시장 상태
-// asked for it, so the 차트 tab and 포트폴리오 judged credit without it ('우호 3' beside '우호 2 · 중립 2'). Every reader
+// asked for it, so the 차트 tab and 포트폴리오 judged credit without it ('양호 3' beside '양호 2 · 중립 2'). Every reader
 // now asks for the same record (deduplicated in-flight) and redraws once it lands.
 export function readMarketRegime(root, onHistory = null) {
   if (root && sharedArtifactIsStale(root, MACRO_HISTORY.key, MACRO_HISTORY)) {
@@ -58,7 +58,7 @@ export function readMarketRegime(root, onHistory = null) {
 
 function summaryLine(regime) {
   const { favorable, neutral, burden, unknown } = regime.counts;
-  return `우호 ${favorable} · 중립 ${neutral} · 부담 ${burden}${unknown ? ` · 확인 불가 ${unknown}` : ''}`;
+  return `양호 ${favorable} · 중립 ${neutral} · 부담 ${burden}${unknown ? ` · 확인 불가 ${unknown}` : ''}`;
 }
 
 // P1505 (owner 2026-10-06: no source text on the face of the screen): each axis keeps its source as a hover title and
@@ -74,7 +74,7 @@ const AXIS_SOURCES = Object.freeze({
 });
 
 // v57.50 D01: home reads the same credit axis (20-session HY change from macro-history) as 시장 상태; without it home
-// showed '집중 유지 4/4' with credit '우호' while 시장 상태 showed 3/4 with credit '중립'.
+// showed '집중 유지 4/4' with credit '양호' while 시장 상태 showed 3/4 with credit '중립'.
 function requestRegimeMacroHistory(root, doc, pageId = 'page-signal', rerender = () => renderRegimePage({ documentRef: doc, root })) {
   if (!sharedArtifactIsStale(root, MACRO_HISTORY.key, MACRO_HISTORY)) return;
   refreshSharedArtifact(root, MACRO_HISTORY).then(({ changed }) => {
@@ -99,7 +99,7 @@ function chartPanel(doc, charts, range) {
   };
   if (charts.length > 1) {
     const selectors = el(doc, 'div', null, 'regime-chart-selectors');
-    selectors.setAttribute('role', 'group'); selectors.setAttribute('aria-label', '같은 축의 관측 차트 선택');
+    selectors.setAttribute('role', 'group'); selectors.setAttribute('aria-label', '같은 지표의 관측 차트 선택');
     buttons = charts.map(item => { const button = el(doc, 'button', item.title); button.type = 'button'; button.addEventListener('click', () => show(item)); selectors.append(button); return [button, item]; });
     panel.append(selectors);
   }
@@ -145,7 +145,7 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
   section.dataset.aioRegimeScenarios = 'native';
   section.id = 'regime-structure';
   section.append(el(doc, 'h2', '지금 시장과 향후 시나리오', 'briefing-h2'),
-    el(doc, 'p', `${model.asOf || '기준일 미확인'} 완료 종가 기준 · 먼저 지금 시장이 세 구조 중 어디에 가까운지(맞는 조건 수, 확률 아님)를 보고, 이어서 다음 발표가 그 구조를 어느 쪽으로 옮길지 봅니다.`, 'regime-scenario-basis'));
+    el(doc, 'p', `${model.asOf || '기준일 미확인'} 종가 기준 · 지금 시장이 세 흐름 중 어디에 가까운지(맞는 조건 수, 확률 아님)와 다음 발표의 영향을 봅니다.`, 'regime-scenario-basis'));
   if (!model.available) { section.append(el(doc, 'p', model.reason, 'regime-scenario-hold')); return section; }
   if (model.reason) section.append(el(doc, 'p', model.reason, 'regime-scenario-hold'));
   if (outlook?.available) section.append(el(doc, 'p', outlook.headline, 'regime-scenario-lead'));
@@ -173,8 +173,8 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
       more.append(listBlock(doc, '확인할 것', view.check), listBlock(doc, '조심할 것', view.caution), listBlock(doc, '넘겨도 되는 것', view.ignore));
     }
     more.append(el(doc, 'h4', '이 흐름의 뜻'), el(doc, 'p', scenario.interpretation));
-    more.append(listBlock(doc, '유효 조건', scenario.conditions));
-    more.append(el(doc, 'h4', '해석을 뒤집는 관측'), el(doc, 'p', scenario.counterEvidence));
+    more.append(listBlock(doc, '성립 조건', scenario.conditions));
+    more.append(el(doc, 'h4', '이 해석이 틀렸다는 신호'), el(doc, 'p', scenario.counterEvidence));
     card.append(more);
     grid.append(card);
   }
@@ -191,7 +191,7 @@ export function renderRegimePage({ documentRef: doc, root }) {
   const history = buildRegimeAxisHistory(inputs, { regime, macroHistory: root._aioMacroHistory || null });
   const scenarios = buildMarketScenarios(inputs, { regime });
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
-  set('regime-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · 6개 축의 상태와 판정이 바뀌는 조건` : '종가 기록을 불러오는 중입니다.');
+  set('regime-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · 6개 지표의 상태와 판정이 바뀌는 조건` : '종가 기록을 불러오는 중입니다.');
   const overall = set('regime-overall', regime.available ? regime.overall : '판정 대기');
   if (overall) overall.dataset.overall = regime.overall || '';
   set('regime-counts', regime.available ? (regime.holdReason || summaryLine(regime)) : '');
@@ -318,7 +318,7 @@ function paintKoreaLine(doc, root) {
   line.textContent = `한국장 ${month}/${day} 마감 · ${[kospi.text, kosdaq?.text].filter(Boolean).join(' · ')}${tone}`;
   line.dataset.observedAt = kospi.date;
   line.dataset.market = 'KR';
-  line.title = '한국 정규장 완료 종가 기준입니다. 미국 6개 축의 우호·중립·부담 합계에는 넣지 않습니다.';
+  line.title = '한국 정규장 확정 종가 기준입니다. 미국 6개 지표의 양호·중립·부담 합계에는 넣지 않습니다.';
   line.hidden = false;
 }
 
@@ -359,7 +359,7 @@ export function renderHomeRegime({ documentRef: doc, root }) {
   requestRegimeMacroHistory(root, doc, 'page-home', () => renderHomeRegime({ documentRef: doc, root }));
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   set('home-hero-total', regime.available ? regime.overall : '판정 대기');
-  set('home-hero-headline', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · 미국 6개 축 ${regime.holdReason || summaryLine(regime)}` : '종가 기록을 불러오는 중입니다.');
+  set('home-hero-headline', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · 미국 6개 지표 ${regime.holdReason || summaryLine(regime)}` : '종가 기록을 불러오는 중입니다.');
   set('home-hero-desc', regime.conflicts?.[0] || '');
   paintKoreaLine(doc, root);
   // P1429 (Codex review): the two futures cells were the largest items on home and often empty. When a
@@ -396,7 +396,7 @@ export function renderHomeRegime({ documentRef: doc, root }) {
       chip.dataset.state = row.state;
       // P1592 (F42): the tally above counts the six US axes; the Korea FX card is a reference beside it.
       const reference = row.id === 'korea';
-      if (reference) { chip.classList.add('is-reference'); chip.title = '한국 참고 — 위 우호·중립·부담 합계에 넣지 않습니다'; }
+      if (reference) { chip.classList.add('is-reference'); chip.title = '한국 참고 — 위 양호·중립·부담 합계에 넣지 않습니다'; }
       chip.append(el(doc, 'span', reference ? `${row.title} · 참고` : row.title, 'regime-chip-label'), el(doc, 'span', row.stateLabel, `regime-state is-${row.state}`));
       return chip;
     }));
@@ -410,7 +410,7 @@ export function renderHomeRegime({ documentRef: doc, root }) {
     const lead = outlook?.items?.find((item) => item.id === outlook.leadId);
     const structure = [];
     if (lead) {
-      const toStructure = el(doc, 'button', '세 구조의 조건 보기 →', 'flow-next-link');
+      const toStructure = el(doc, 'button', '세 가지 시장 흐름 보기 →', 'flow-next-link');
       toStructure.type = 'button';
       toStructure.addEventListener('click', () => { root.showPage?.('signal'); setTimeout(() => doc.getElementById('regime-structure')?.scrollIntoView?.({ block: 'start' }), 60); });
       // v57.54 audit (9): 오늘 shows the related sectors/themes only as named links; without current names the line is omitted.
@@ -420,7 +420,7 @@ export function renderHomeRegime({ documentRef: doc, root }) {
       const sentences = String(lead.posture || '').split(/(?<=니다\.)\s+/);
       const counter = sentences.find((line) => line.startsWith('반증'));
       const line = el(doc, 'p', null, 'xr-structure');
-      line.append(el(doc, 'strong', `지금 구조 '${lead.title}'`), el(doc, 'span', `${lead.fit}${lead.shortfall ? ` · ${lead.shortfall}` : ''}`, 'basis-chip'), doc.createTextNode(` ${sentences[0] || ''}`));
+      line.append(el(doc, 'strong', `지금 시장 흐름 '${lead.title}'`), el(doc, 'span', `${lead.fit}${lead.shortfall ? ` · ${lead.shortfall}` : ''}`, 'basis-chip'), doc.createTextNode(` ${sentences[0] || ''}`));
       structure.push(line, ...(counter ? [el(doc, 'p', counter, 'xr-structure-note')] : []), ...(named ? [opportunityNode(doc, root, lead, 'home-outlook-opportunity')] : []), toStructure);
     } else if (scenarios?.held) structure.push(el(doc, 'p', `지금 구조: 판단 보류 — ${scenarios.reason}`, 'xr-structure'));
     renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: outlookBox, id: 'home-crossroads', structure, title: '지금 구조와 앞으로' }); // P1742/P1745

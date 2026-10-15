@@ -130,7 +130,7 @@ renderHomeRegime({ documentRef, root: { _aioHistory: [{ date: '2026-10-09', spx:
 assert.equal(nodes.get('home-kpi-nq-fallback').hidden, true, 'P1619 arriving NQ hides the cash fallback');
 renderHomeRegime({ documentRef, root: { _aioHistory: [], DATA_SNAPSHOT: {} } });
 assert.equal(nodes.get('home-hero-total').textContent, '판정 대기');
-assert(!/우호|부담/.test(nodes.get('home-hero-components').textContent), 'missing history cannot display axis states');
+assert(!/양호|부담/.test(nodes.get('home-hero-components').textContent), 'missing history cannot display axis states');
 uiContext.renderHomeFearGreed({ documentRef, sentimentValues: { fearGreed: 54 } });
 assert.equal(nodes.get('home-fg-label').textContent, '중립');
 uiContext.renderHomeFearGreed({ documentRef, sentimentValues: { fearGreed: null } });

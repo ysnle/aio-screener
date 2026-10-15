@@ -239,7 +239,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   const list = el(doc, 'dl', null, 'regime-evidence');
   const structure = intervalStructure(analysis.bars);
   const structureRows = [['단기 추세 (종가>5>10>20일선)', structure.short || '계산 불가'], ['장기 추세 (20>50>100>200일선)', structure.long || '기록 부족']];
-  for (const [label, value] of [...structureRows, ...analysis.evidence, ['시장 상태', regime.available ? `${regime.overall} (우호 ${regime.counts.favorable} · 부담 ${regime.counts.burden})` : '—']]) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
+  for (const [label, value] of [...structureRows, ...analysis.evidence, ['시장 상태', regime.available ? `${regime.overall} (양호 ${regime.counts.favorable} · 부담 ${regime.counts.burden})` : '—']]) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
   const more = el(doc, 'details', null, 'chart-evidence-more');
   more.append(el(doc, 'summary', `근거 전체 (${analysis.evidence.length + 3}개)`), list);
   panel.replaceChildren(read, visuals, more);

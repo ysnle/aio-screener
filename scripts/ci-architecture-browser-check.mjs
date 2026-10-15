@@ -828,7 +828,7 @@ try {
   }));
   if (homeSurface.renderer !== 'native' || homeSurface.homeRenderer !== 'native') throw new Error(`home renderer marker regressed after round trip: ${JSON.stringify(homeSurface)}`);
   // P1392: the home card shows the regime label (the 0-100 score was retired), never a number.
-  if (!['판정 대기', '우호 우세', '우호 쪽으로 기움', '혼조', '부담 쪽으로 기움', '부담 우세'].includes(homeSurface.heroTotal || '')) throw new Error(`home hero regime label invalid: ${JSON.stringify(homeSurface)}`);
+  if (!['판정 대기', '양호 우세', '다소 양호', '혼조', '다소 부담', '부담 우세'].includes(homeSurface.heroTotal || '')) throw new Error(`home hero regime label invalid: ${JSON.stringify(homeSurface)}`);
 
   await page.evaluate(() => window.showPage('sentiment'));
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute === 'sentiment');

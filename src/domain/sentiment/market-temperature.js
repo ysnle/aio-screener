@@ -2,7 +2,7 @@
 // first, with KOSPI, KOSDAQ and Nikkei (no gauge on the sentiment screen before) as the secondary read. The published thermometer's formula
 // is not public, so this is AIO's own documented reconstruction from daily closes only — not that index and not CNN's.
 // D02 (v57.50) holds: no 0-100 average and no 공포~탐욕 band. Each component's rank against its own trailing three
-// years is shown side by side; a market is "극단 저온/고온" only when at least three of the five components sit in the
+// years is shown side by side; a market is "과도한 냉각/고온" only when at least three of the five components sit in the
 // bottom/top decile at once, and the evidence line is what the index did after past first days of such spells.
 // Pure function shared by the producer (scripts/build-market-temperature.mjs) and the unit check.
 

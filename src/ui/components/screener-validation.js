@@ -56,7 +56,7 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
     distinguishable,
     undecided,
     verdict: !last ? '사후 검증 기록 수신 대기'
-      : !modelMatch ? `이 과거 기록은 지금 화면의 순위와 가중치·정의(모델 지문)가 다른 이전 모델로 계산되어, 지금 순위의 검증으로 읽지 않습니다. 같은 모델의 기록이 쌓인 뒤 이 영역이 다시 성과를 말합니다.`
+      : !modelMatch ? `이 과거 기록은 지금 화면의 순위와 가중치·정의(계산 방식)가 다른 이전 모델로 계산되어, 지금 순위의 검증으로 읽지 않습니다. 같은 모델의 기록이 쌓인 뒤 이 영역이 다시 성과를 말합니다.`
       : !distinguishable ? `${undecided} — 최근 ${last.dates}번의 과거 시점에서 상위 20%와 하위 20%의 평균 차이는 ${pct(last.quantileSpreadNet)}(비용 반영)였지만, 이 표본으로는 우연한 차이와 구별되지 않습니다. 앞섬·뒤처짐 판정은 ${VALIDATION_MIN_REBALANCES}회 이상, |t| ${VALIDATION_MIN_ABS_T} 이상에서 합니다.`
       : tone === 'favorable' ? `최근 ${last.dates}번의 과거 시점에서 기본 복합 순위 상위 20%가 하위 20%보다 평균 ${pct(last.quantileSpreadNet)} 앞섰습니다(비용 반영). 표본이 작고 생존 편향이 있어 예측 우위의 증명은 아닙니다.`
         : `지금까지 이 순위의 예측 우위는 확인되지 않았습니다. 최근 ${last.dates}번의 과거 시점에서 상위 20%가 하위 20%보다 평균 ${pct(last.quantileSpreadNet)} — 기본 복합 순위(모멘텀·추세·저변동·칼만)는 이 기간 동안 뒤처졌습니다(비용 반영).`,
