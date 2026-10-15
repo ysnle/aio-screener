@@ -40,6 +40,11 @@ check('v57.81 exchange codes, ETF flag and name cleanup', () => {
   assert.equal(bySym.get('AAPL').exch, 'Q');
   assert.equal(bySym.get('SPY').exch, 'P');
   assert.equal(bySym.get('IEXG').exch, 'V');
+  // v57.81 first live run: ET (Energy Transfer, NYSE Texas 'F') was dropped as an unknown exchange; LP common units are equities.
+  assert.equal(bySym.get('ET')?.exch, 'F');
+  assert.equal(lib.EXCHANGE_CODES.F, 'NYSE Texas');
+  assert.equal(bySym.get('XNEW')?.exch, 'K', 'an unrecognised one-letter venue keeps the listed security');
+  assert.equal(built.dropped.unknownExchangeKept, 1);
   assert.equal(bySym.get('QQQ').etf, true);
   assert.equal(bySym.get('AAPL').etf, false);
   assert.equal(bySym.get('AAPL').name, 'Apple Inc.');

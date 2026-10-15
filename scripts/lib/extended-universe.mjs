@@ -89,7 +89,7 @@ export function parseNasdaqListed(text) {
 
 // otherlisted.txt maps NYSE/NYSE American/Cboe listings; only used to resolve iShares' compact share-class tickers
 // ("MOGA" → "MOG-A") and to name the exchange of a Russell member listed outside Nasdaq.
-const OTHER_EXCHANGE = Object.freeze({ A: 'NYSE American', N: 'NYSE', P: 'NYSE Arca', Z: 'Cboe BZX', V: 'IEX' });
+const OTHER_EXCHANGE = Object.freeze({ A: 'NYSE American', N: 'NYSE', P: 'NYSE Arca', Z: 'Cboe BZX', V: 'IEX', F: 'NYSE Texas', M: 'NYSE Chicago' });
 export function parseOtherListed(text) {
   const { header, rows, fileCreatedAt } = parsePipeDirectory(text);
   if (!header.includes('ACT Symbol') || !header.includes('Exchange')) throw new Error(`otherlisted columns changed: ${header.join('|')}`);

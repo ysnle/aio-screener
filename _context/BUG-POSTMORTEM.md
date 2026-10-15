@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1838 - v57.82 - The first live US listing dropped NYSE Texas listings such as ET (2026-10-15)
+
+- symptom/reproduction: The first refresh-screener run published 12,732 symbols but left out Energy Transfer (ET) and 20 other otherlisted rows; meta.coverage listed ET as a missing index member.
+- root_cause: The directory now carries exchange codes F (NYSE Texas, 21 rows) and M (NYSE Chicago, 1 row); the parser dropped every code outside its six-letter map instead of keeping a listed security.
+- fix: F and M are named, and any other one-letter venue code keeps the row under its own letter (counted as unknownExchangeKept); the extended-universe membership map names them too.
+- violated_rule: R663 exact registry match: a listed security must be accepted.
+- prevention: ci-us-listings-check fixture rows ET (F) and XNEW (unknown K) are kept (v57.82).
+- verification/residual: node scripts/ci-us-listings-check.mjs
+
 ## P1837 - v57.81 - history.json held one session under two dates (2026-10-15)
 
 - symptom/reproduction: WTI 94.14 (the 10/13 close) read as a 10/14 value and the 10/12 DXY close sat on two rows, so 1-day changes and the crash-day analysis compared wrong sessions.

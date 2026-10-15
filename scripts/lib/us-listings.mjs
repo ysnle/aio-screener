@@ -23,7 +23,9 @@ export const WIDE_INDEX_TAGS = Object.freeze(['SP400', 'NASDAQ', 'NYSE', 'RUSSEL
 export const MAX_CORE_MISSES = 5;
 export const MAX_WIDE_MISS_SHARE = 0.05;
 // Exchange codes: Q is assigned here to nasdaqlisted rows; the rest are otherlisted.txt `Exchange` values.
-export const EXCHANGE_CODES = Object.freeze({ Q: 'Nasdaq', N: 'NYSE', A: 'NYSE American', P: 'NYSE Arca', Z: 'Cboe BZX', V: 'IEX' });
+// v57.81: F (NYSE Texas, e.g. ET) and M (NYSE Chicago) appeared in the first live run; an unrecognised one-letter code is
+// kept under its own letter (counted in meta) instead of dropping a listed security.
+export const EXCHANGE_CODES = Object.freeze({ Q: 'Nasdaq', N: 'NYSE', A: 'NYSE American', P: 'NYSE Arca', Z: 'Cboe BZX', V: 'IEX', F: 'NYSE Texas', M: 'NYSE Chicago' });
 const NAME_MAX = 64;
 
 /** Splits one pipe-delimited directory file into header-keyed records; drops the trailing "File Creation Time" line. */
@@ -88,7 +90,8 @@ export function buildListingRows(nasdaqText, otherText) {
   const bySymbol = new Map();
   const add = (raw, record, file, exch) => {
     if (yes(record['Test Issue'])) { dropped.testIssue += 1; return; }
-    if (!EXCHANGE_CODES[exch]) { dropped.unknownExchange += 1; return; }
+    if (!/^[A-Z]$/.test(String(exch || ''))) { dropped.unknownExchange += 1; return; }
+    if (!EXCHANGE_CODES[exch]) dropped.unknownExchangeKept = (dropped.unknownExchangeKept || 0) + 1;
     const { symbol, reason } = normaliseListingSymbol(raw, { file, name: record['Security Name'] });
     if (!symbol) { dropped[reason] += 1; return; }
     if (bySymbol.has(symbol)) { dropped.duplicate += 1; return; }

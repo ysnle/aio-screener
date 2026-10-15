@@ -1,3 +1,7 @@
+## v57.82 (2026-10-15)
+- **US listing (P1838):** NYSE Texas and NYSE Chicago listings (ET and 21 others) are kept, and an unrecognised venue code no longer drops a listed security.
+- R1 7곳 v57.82
+
 ## v57.81 (2026-10-15)
 - **Market read (P1829):** the trend needs a 1% buffer and a cross-index check, a leadership break turns 소수 종목 주도 into 동반 약세 전환 확인 중, credit/rates/volatility/won/dollar gain buffers or hysteresis, and 최저 means rank 1.
 - **Themes and sectors (P1830):** 주도/선도 are relative to the index, borderline RRG reads 경계, a 5-session reversal is named, and the AI can no longer call a falling theme 주도.
