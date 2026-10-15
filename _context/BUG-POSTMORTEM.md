@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1799 - v57.68 - 한국 지수 장 초반 전일 대비 등락률이 이틀 전 종가 기준으로 계산됨 (2026-10-15)
+
+- symptom/reproduction: 10/15 09:01 KST 스냅샷이 코스피 -5.53%(실제 10/14 종가 기준 -5.1%), 코스닥 -6.24%(실제 -4.75%)로 게시. 10/14 장중·마감 직후에는 -0.44%로 끝난 코스피를 -5.88%로 표시했고 AI 시장 분석이 그 숫자를 약 8시간 인용했다(시장 폭락 점검 에이전트 2곳이 독립 확인).
+- root_cause: fetchQuote가 range=5d 일봉에서 전일 종가를 closes[length-2]로 잡는다. 이는 마지막 막대가 당일 세션이라는 가정인데, KRX 개장 직후 Yahoo는 당일 막대를 아직 내지 않거나 종가를 null로 두어(필터에서 제거) 마지막 막대가 전일이 되고 closes[-2]가 이틀 전 종가가 된다.
+- fix: previousCloseBarIndex(closeBars, meta): 서울 거래소 시세는 regularMarketTime의 거래소 현지 날짜(meta.gmtoffset)보다 앞선 날짜의 마지막 막대를 전일 종가로 쓴다. 당일 막대가 아직 없으면 그 경계 시각을 모르므로 regularMarketPreviousCloseObservedAt은 비운다(P1095 fail-closed). 다른 시장은 기존 동작 유지.
+- violated_rule: 없음(공급자 일봉 막대 시점 가정)
+- prevention: ci-data-pipeline-contract-check에 KRX 개장 직후(당일 막대 없음)·당일 막대 있음·마감 후·미국 시세 네 경우 픽스처 검사 추가.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs·ci-history-field-time-contract-check 통과. 라이브는 push 뒤 KRX 개장 직후 스냅샷으로 확인(QA-VERIFY-29).
+
 ## P1798 - v57.66 - 다중 클래스 메가캡(GOOGL·META·V 등)의 SEC 주식 수 공백 — 시총·PER·가치 팩터 빈칸 (2026-10-15)
 
 - symptom/reproduction: sec-fundamentals-summary.json에서 GOOGL·GOOG·META 주식 수가 null, V·BRK-B·MA·CMCSA는 stale-period라 스크리너 기준 시총·PER·가치 팩터가 비고 기본 시총 정렬에서 맨 아래로 밀렸다.

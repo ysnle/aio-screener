@@ -86,6 +86,18 @@ const YAHOO_HOSTS = ['https://query1.finance.yahoo.com', 'https://query2.finance
 // 주간 변동률이 일간으로 오표시되는 구조적 문제 수정.
 // → range=5d OHLCV 배열의 실제 전전일 종가(closes[-2])로 일간 Pct 계산.
 //   OHLCV 배열이 2개 미만일 때만 chartPreviousClose로 폴백.
+// P1799 (2026-10-15): closes[-2] assumes the last bar is the current session. At the KRX open Yahoo has not printed
+// today's bar yet (or prints it with a null close), so closes[-2] was the close two sessions back: 10/15 09:01 KST
+// showed KOSPI -5.53% / KOSDAQ -6.24% against the 10/13 close instead of -5.1% / -4.75% against 10/14, and on 10/14
+// the -0.44% close read as -5.88%. For Seoul-session quotes the previous close is the last bar dated before the
+// session of regularMarketTime (exchange-local dates via meta.gmtoffset).
+export function previousCloseBarIndex(closeBars, meta) {
+  const bars = Array.isArray(closeBars) ? closeBars : [];
+  if (meta?.exchangeTimezoneName !== 'Asia/Seoul' || !Number.isFinite(meta?.regularMarketTime) || !Number.isFinite(meta?.gmtoffset)) return bars.length >= 2 ? bars.length - 2 : -1;
+  const localDay = (seconds) => new Date((seconds + meta.gmtoffset) * 1000).toISOString().slice(0, 10);
+  const sessionDay = localDay(meta.regularMarketTime);
+  return bars.map((bar) => Number.isFinite(bar.timestamp) && localDay(bar.timestamp) < sessionDay).lastIndexOf(true);
+}
 async function fetchQuote(symbol) {
   let lastErr;
   for (const host of YAHOO_HOSTS) {
@@ -104,9 +116,10 @@ async function fetchQuote(symbol) {
         .map((close, index) => ({ close, timestamp: rawTimestamps[index] }))
         .filter((bar) => bar.close != null && isFinite(bar.close) && bar.close > 0);
       const closes = closeBars.map((bar) => bar.close);
+      const prevIndex = previousCloseBarIndex(closeBars, m);
       let prev, pct, pctSource;
-      if (closes.length >= 2) {
-        prev = closes[closes.length - 2];       // 실제 전일 거래일 종가
+      if (prevIndex >= 0) {
+        prev = closes[prevIndex];               // 실제 전일 거래일 종가
         pct  = ((price - prev) / prev) * 100;
         pctSource = 'ohlcv-daily';
       } else {
@@ -131,13 +144,14 @@ async function fetchQuote(symbol) {
         // represented by the current bar's timestamp. Using the previous
         // bar's own timestamp made otherwise-correct previous-close values
         // appear one market day older on WTI/gold/BTC/KR series.
-        regularMarketPreviousCloseObservedAt: closeBars.length >= 2 && Number.isFinite(closeBars[closeBars.length - 1].timestamp)
+        // P1799: when the current session's bar is not printed yet, its opening boundary is unknown — fail closed (P1095).
+        regularMarketPreviousCloseObservedAt: prevIndex === closeBars.length - 2 && Number.isFinite(closeBars[closeBars.length - 1].timestamp)
           ? new Date(closeBars[closeBars.length - 1].timestamp * 1000).toISOString()
           : null,
         // P1192: 위 경계가 이 행의 완료 컷을 넘을 때(진행 중 bar의 개시 시각이 KST-08:00 컷보다
         // 뒤인 창 — FX/상품) 쓸 직전 bar의 개시 경계. 관측 시각이 아니라 bar 경계다.
-        previousBarOpenedAt: closeBars.length >= 2 && Number.isFinite(closeBars[closeBars.length - 2].timestamp)
-          ? new Date(closeBars[closeBars.length - 2].timestamp * 1000).toISOString()
+        previousBarOpenedAt: prevIndex >= 0 && Number.isFinite(closeBars[prevIndex].timestamp)
+          ? new Date(closeBars[prevIndex].timestamp * 1000).toISOString()
           : null,
         _pctSource: pctSource,
         _source: 'live:yahoo-gh',

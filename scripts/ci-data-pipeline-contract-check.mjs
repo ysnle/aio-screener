@@ -115,6 +115,21 @@ const fetchData = readProducerSource();
   const now = Date.parse('2026-10-10T12:00:00Z');
   check('P1581: the Yahoo quote fallback never derives a daily change from chartPreviousClose (5-day window start)', /prev = \(typeof m\.previousClose === 'number' && m\.previousClose > 0\) \? m\.previousClose : null;/.test(fetchData) && !/prev = \(typeof m\.chartPreviousClose === 'number'/.test(fetchData));
   {
+    // P1799: at the KRX open the current session's bar is missing, so the previous close is the last bar dated before
+    // the session (10/15 09:01 KST KOSPI against the 10/14 close 6008.81, not the 10/13 close 6035.35).
+    const { previousCloseBarIndex } = await import('./fetch-data.mjs');
+    const kst = { exchangeTimezoneName: 'Asia/Seoul', gmtoffset: 32400 };
+    const bar = (iso, close) => ({ timestamp: Date.parse(iso) / 1000, close });
+    const krBars = [bar('2026-10-13T00:00:00Z', 6035.35), bar('2026-10-14T00:00:00Z', 6008.81)];
+    const atOpen = previousCloseBarIndex(krBars, { ...kst, regularMarketTime: Date.parse('2026-10-15T00:01:20Z') / 1000 });
+    const withToday = previousCloseBarIndex([...krBars, bar('2026-10-15T00:00:00Z', 5701.75)], { ...kst, regularMarketTime: Date.parse('2026-10-15T00:01:20Z') / 1000 });
+    const afterClose = previousCloseBarIndex([...krBars, bar('2026-10-15T00:00:00Z', 5650)], { ...kst, regularMarketTime: Date.parse('2026-10-15T06:30:00Z') / 1000 });
+    const us = previousCloseBarIndex([bar('2026-10-13T13:30:00Z', 1), bar('2026-10-14T13:30:00Z', 2)], { exchangeTimezoneName: 'America/New_York', gmtoffset: -14400, regularMarketTime: Date.parse('2026-10-14T20:00:00Z') / 1000 });
+    check('P1799 Seoul-session previous close is the last bar before the current session even when today\'s bar is not printed yet',
+      krBars[atOpen]?.close === 6008.81 && withToday === 1 && afterClose === 1 && us === 0,
+      JSON.stringify({ atOpen, withToday, afterClose, us }));
+  }
+  {
     // P1587: a cover-page share count 1000x off the EPS-implied count (PKG, 2026) is withheld, never priced.
     const { normalizeSecCompanyFacts } = await import('./fetch-sec-fundamentals.mjs');
     const fy = (val, extra = {}) => ({ val, form: '10-K', fp: 'FY', fy: 2025, start: '2025-01-01', end: '2025-12-31', filed: '2026-02-25', accn: 'a', ...extra });

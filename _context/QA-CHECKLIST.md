@@ -4,6 +4,10 @@ last_verified: 2026-10-15
 confidence: medium
 ---
 
+## v57.68 한국 지수 전일 종가 (v57.68) (2026-10-15)
+
+- [ ] QA-VERIFY-29: P1799 배포 후 KRX 개장 직후(09:00~09:30 KST) refresh-data 1회 뒤 market-snapshot.json ^KS11/^KQ11 previousValue가 market-temperature.json의 직전 KST 종가와 같고, 홈 화면 한국 지수 등락률이 그 기준으로 표시된다. verify_by: push 뒤 다음 KRX 개장 직후 산출물과 운영 사이트 홈 확인
+
 ## v57.67 개인 데이터 키 퇴역 (v57.67) (2026-10-15)
 
 - [ ] QA-VERIFY-28: v57.67 배포와 BOK_API_KEY·KOSIS_API_KEY Secret 등록, Deploy AI proxy 실행 후: 운영 사이트 설정에 개인 키 입력칸이 없고, 거시 화면 한국은행 기준금리·KR CPI가 운영자 중계로 채워지며, 재무 화면 실적 캘린더가 공용 수집 자료로 보인다. verify_by: Secret 등록·Worker 재배포 후 운영 사이트 설정·거시·재무 화면 확인
