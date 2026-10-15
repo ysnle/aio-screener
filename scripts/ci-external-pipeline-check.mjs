@@ -200,9 +200,13 @@ async function observeOnce() {
 
   // v57.60: a watchdog run that lands while the Pages deploy of a new version is still running sees the old live
   // version; that is a deploy in flight (warning), not a stale release. A finished deploy keeps the error.
-  const pagesActive = ['queued', 'in_progress', 'waiting', 'pending', 'requested'].includes(result.github?.pages?.latest?.status);
+  // v57.79: Pages runs only after CI attests the pushed SHA, so a watchdog landing while that CI run is still active
+  // is the same deploy in flight (observed: three red watchdog runs, each 1-3 minutes after a push, 2026-10-15).
+  const activeStates = ['queued', 'in_progress', 'waiting', 'pending', 'requested'];
+  const pagesActive = activeStates.includes(result.github?.pages?.latest?.status);
+  const ciActive = activeStates.includes(result.github?.ci?.latest?.status);
   const revision = result.checks.find((item) => item.id === 'pages-repository-revision' && !item.ok);
-  if (mode === 'watchdog' && revision && pagesActive) Object.assign(revision, { severity: 'warning', detail: `${revision.detail} (Pages deploy in progress: ${result.github.pages.latest.url})` });
+  if (mode === 'watchdog' && revision && (pagesActive || ciActive)) Object.assign(revision, { severity: 'warning', detail: `${revision.detail} (${pagesActive ? `Pages deploy in progress: ${result.github.pages.latest.url}` : `CI for the new push in progress: ${result.github.ci.latest.url}`})` });
   const failed = result.checks.filter((item) => !item.ok && item.severity === 'error');
   Object.assign(result, summarizeOperationalChecks(result.checks, result.warnings));
   return failed;

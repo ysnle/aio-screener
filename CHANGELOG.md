@@ -1,3 +1,7 @@
+## v57.80 (2026-10-15)
+- **Watchdog false alarm (P1828):** a push no longer turns the freshness watchdog red while its CI run is still attesting the new version.
+- R1 7곳 v57.80
+
 ## v57.79 (2026-10-15)
 - **Sample floor (P1824):** past-frequency lines no longer turn 3-9 cases into a hit rate or a "mostly rose" claim; counts and the median remain.
 - **Refresh cache (P1825):** a manual refresh now drops held validation and fiscal artifacts so remounted tabs read the new files.

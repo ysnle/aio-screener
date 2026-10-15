@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1828 - v57.80 - The data watchdog went red whenever it ran while a fresh push was still in CI (2026-10-15)
+
+- symptom/reproduction: Three consecutive Data freshness watchdog runs (06:11, 06:30, 07:13 UTC on 2026-10-15) failed external-pipeline 1-3 minutes after each push; a local rerun after the deploys finished passed.
+- root_cause: v57.60 downgraded the live-vs-repository revision mismatch to a warning only while the Pages deploy was active, but Pages starts only after CI attests the pushed SHA, so the CI phase of the same deploy counted as a stale release.
+- fix: The watchdog also treats an active CI run as a deploy in flight; a finished deploy that still mismatches stays an error.
+- violated_rule: Operations alerts fail closed on real staleness, not on a deploy in flight (R657).
+- prevention: The in-flight condition covers both phases of the release (CI then Pages).
+- verification/residual: node scripts/ci-external-pipeline-check.mjs --mode watchdog
+
 ## P1827 - v57.79 - Phone and chart layout defects found in the screen review (2026-10-15)
 
 - symptom/reproduction: On phones the home schedule time column was 0px wide (dates stacked one character per line with a stray "1"); the stock chart showed an error, a ghost fallback circle and a grey square at once; the stock hero showed "—" although the last close was on the page; the 코스피 chip showed an unlabelled delayed quote beside the close.
