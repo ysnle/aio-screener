@@ -4,6 +4,10 @@ last_verified: 2026-10-15
 confidence: medium
 ---
 
+## v57.70 직전 종가 세션 날짜 (v57.70) (2026-10-15)
+
+- [ ] QA-VERIFY-31: P1805 배포 후 장중 refresh-data 2회 뒤 history.json 최신 행의 wti·gold·dxy fieldMeta에 sessionDate가 있고, 브리핑 자산별 흐름의 WTI·금·달러 1일 변화가 Yahoo 일봉 직전 두 종가의 변화와 같다. verify_by: push 뒤 장중 refresh-data 두 번 이후 history.json과 운영 사이트 브리핑 확인
+
 ## v57.69 급락일 시장 해설 (v57.69) (2026-10-15)
 
 - [ ] QA-VERIFY-30: P1800 배포 후 다음 refresh-data 산출물의 marketAnalysis가 큰 움직임의 원인을 헤드라인에 귀속하고, CPI가 오른 달에 물가 둔화를 단정하지 않으며, 코스피 3% 이상 움직인 날 코스피를 언급한다(또는 retained/blocked로 정직하게 표시). verify_by: push 뒤 다음 refresh-data의 public-data/data.json marketAnalysis·semanticIssues 확인

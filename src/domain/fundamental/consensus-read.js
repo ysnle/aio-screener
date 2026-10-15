@@ -5,6 +5,10 @@
 
 export const CONSENSUS_MAX_AGE_DAYS = 21;
 export const CONSENSUS_THIN_ESTIMATES = 3;
+// v57.70 (2026-10-15 audit): GOOGL read "직전 4개 분기 PER 17.8배 · 예상 이익 -35%" — the trailing sum (19.91) carried
+// what the forward consensus (12.94) leaves out, so a "same adjusted basis" comparison was not one. A forward sum 30%
+// or more below the trailing sum is not compared: both sums are shown, the trailing PER and the growth are not.
+export const CONSENSUS_BASIS_GAP = -30;
 const DAY_MS = 86400000;
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
@@ -24,8 +28,11 @@ export function consensusView(row, estimate, { now = Date.now() } = {}) {
     price, priceDate: String(row?.factorSessionDate || '').slice(0, 10) || null, asOf: new Date(asOf).toISOString().slice(0, 10),
     fwdEps, trailingEps, fwdFrom: estimate.fwd.from, fwdTo: estimate.fwd.to,
     fwdPe: fwdEps > 0 ? price / fwdEps : null,
-    trailingPe: trailingEps > 0 ? price / trailingEps : null,
-    growth: trailingEps > 0 ? (fwdEps / trailingEps - 1) * 100 : null,
+    ...(() => {
+      const growth = trailingEps > 0 ? (fwdEps / trailingEps - 1) * 100 : null;
+      const basisGap = growth != null && growth <= CONSENSUS_BASIS_GAP;
+      return { trailingPe: trailingEps > 0 && !basisGap ? price / trailingEps : null, growth: basisGap ? null : growth, basisGap };
+    })(),
     minEstimates: finite(estimate.fwd.minEstimates), up4w: finite(estimate.fwd.up4w) || 0, down4w: finite(estimate.fwd.down4w) || 0,
     spread: finite(estimate.fwd.hi) != null && finite(estimate.fwd.lo) != null && fwdEps > 0 ? (estimate.fwd.hi - estimate.fwd.lo) / fwdEps * 100 : null
   };
@@ -45,7 +52,8 @@ export function buildConsensusPoint(row, estimate, options = {}) {
     ? `Forward PER 약 ${view.fwdPe.toFixed(1)}배${view.trailingPe != null ? ` · 직전 4개 분기 조정 기준 ${view.trailingPe.toFixed(1)}배` : ''}${view.growth != null ? ` · 예상 이익 ${signed(view.growth)}` : ''}`
     : '향후 4개 분기 적자 예상';
   const basis = `종가 ${usd(view.price)}${view.priceDate ? `(${view.priceDate})` : ''} ÷ 실적 발표 전 4개 분기(${range}) 예상 EPS 합 ${usd(view.fwdEps)}`
-    + (view.growth != null ? `, 직전 4개 분기 실적 ${usd(view.trailingEps)}과 같은 조정 EPS 기준으로 비교했습니다` : '');
+    + (view.growth != null ? `, 직전 4개 분기 실적 ${usd(view.trailingEps)}과 같은 조정 EPS 기준으로 비교했습니다`
+      : view.basisGap ? `. 직전 4개 분기 실적 합 ${usd(view.trailingEps)}보다 30% 이상 낮아, 일회성 항목 포함 여부 등 같은 기준인지 확인되지 않으므로 성장률과 직전 PER은 표시하지 않습니다` : '');
   const revisions = view.up4w || view.down4w ? `최근 4주 추정치 상향 ${view.up4w} · 하향 ${view.down4w}` : '최근 4주 추정치 변경 없음';
   const cautions = [];
   if (view.minEstimates != null && view.minEstimates < CONSENSUS_THIN_ESTIMATES) cautions.push(`추정 애널리스트가 ${view.minEstimates}명뿐이라 흔들리기 쉽습니다`);

@@ -31,7 +31,8 @@ function normalizeThemeDetail(detail) {
         sourceKind: quote?.sourceKind || 'runtime-quote',
         revision: quote?.revision || null,
         changeBasis: quote?.changeBasis || 'unknown',
-        directionCompatible: quote?.directionCompatible === true
+        directionCompatible: quote?.directionCompatible === true,
+        closeBased: quote?.closeBased === true
       })]))
     : {};
   const rawInsight = detail.insight && typeof detail.insight === 'object' ? detail.insight : {};
@@ -52,6 +53,8 @@ function normalizeThemeDetail(detail) {
     pct: finite(detail.pct),
     breadth: finite(detail.breadth),
     source: String(detail.source || 'theme-detail-provider'),
+    quoteBasis: detail.quoteBasis?.kind === 'completed-close' && /^\d{4}-\d{2}-\d{2}$/.test(String(detail.quoteBasis.session || ''))
+      ? Object.freeze({ kind: 'completed-close', session: detail.quoteBasis.session }) : Object.freeze({ kind: 'live', session: null }),
     membershipPolicy: detail.membershipPolicy && typeof detail.membershipPolicy === 'object' ? Object.freeze({
       version: String(detail.membershipPolicy.version || 'theme-membership.v1'),
       source: String(detail.membershipPolicy.source || 'AIO curated taxonomy'),

@@ -536,7 +536,7 @@ function decisionInputs(root, nowMs = Date.now()) {
     if (!['dxy', 'oilPrice'].includes(key) || !selectedBasis?.date) return null;
     const item = history.find((row) => row?.date >= selectedBasis.date && finite(row[field]) != null
       && row.fieldMeta?.[field]?.observationRelation === 'previous-completed-close'
-      && row.fieldMeta[field].observedAtSource === 'provider-previous-close' && nyDate(row.fieldMeta[field].observedAt) === selectedBasis.date);
+      && row.fieldMeta[field].observedAtSource === 'provider-previous-close' && (row.fieldMeta[field].sessionDate || nyDate(row.fieldMeta[field].observedAt)) === selectedBasis.date);
     return item ? { ...item.fieldMeta[field], value: item[field], observedAt: selectedBasis.date, valueBasis: 'latest-completed-close', session: 'COMPLETED' } : null;
   };
   const pick = (selectedBasis, key, id) => {

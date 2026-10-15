@@ -73,6 +73,7 @@ export function sessionDateInMarket(isoTimestamp, market) {
 // 시장별 관측 범위. 혼합 시장의 전역 max 하나는 개별 종목의 최신성을 대표하지 못한다.
 export function factorScopesByMarket(rows) {
   const scopes = {};
+  const byDate = new Map();
   for (const [symbol, row] of Object.entries(rows || {})) {
     const barStart = row && row.factorBarStart;
     if (!barStart) continue;
@@ -80,8 +81,23 @@ export function factorScopesByMarket(rows) {
     const market = listingMarketOfSymbol(symbol);
     const scope = scopes[market] || (scopes[market] = { timezone: market === 'INTL' ? 'exchange-local-per-row' : timeZoneForMarket(market), rows: 0, barStart: null, sessionDate: null });
     scope.rows += 1;
-    if (!scope.barStart || barStart > scope.barStart) scope.barStart = barStart;
-    if (row.factorSessionDate && (!scope.sessionDate || row.factorSessionDate > scope.sessionDate)) scope.sessionDate = row.factorSessionDate;
+    const dates = byDate.get(scope) || byDate.set(scope, new Map()).get(scope);
+    const key = row.factorSessionDate || '';
+    const held = dates.get(key) || { rows: 0, barStart: null };
+    held.rows += 1;
+    if (!held.barStart || barStart > held.barStart) held.barStart = barStart;
+    dates.set(key, held);
+  }
+  // v57.70 (2026-10-15 audit): the newest row set the market's session date, so five US names that printed 10/14 made
+  // the screener read "미국 팩터 세션 10/14" while 897 of 903 rows (and the ranking) were still 10/13. The session is the
+  // latest date that a majority of the market's rows carry, else the date most rows carry; its bar start goes with it.
+  for (const scope of Object.values(scopes)) {
+    const entries = [...byDate.get(scope).entries()].filter(([date]) => date).sort((a, b) => b[0].localeCompare(a[0]));
+    const pick = entries.find(([, held]) => held.rows * 2 > scope.rows) || [...entries].sort((a, b) => b[1].rows - a[1].rows)[0];
+    const fallback = [...byDate.get(scope).values()].reduce((latest, held) => (!latest || held.barStart > latest ? held.barStart : latest), null);
+    scope.sessionDate = pick ? pick[0] : null;
+    scope.barStart = pick ? pick[1].barStart : fallback;
+    scope.sessionRows = pick ? pick[1].rows : 0;
   }
   return scopes;
 }

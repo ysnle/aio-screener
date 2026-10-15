@@ -127,6 +127,14 @@ const STATE_LABELS = Object.freeze({
  * @param {Array<{time:string,open:number,high:number,low:number,close:number,volume:number}>} input
  * @param {{ benchmark?: Array<{date:string,value:number}> }} [options]
  */
+// v57.70 (2026-10-15 audit): the comparison index for a chart, or null for an index or a fund that tracks it (SPY read
+// "S&P 500보다 0.0%p 높음").
+export function benchmarkFieldFor(symbol) {
+  const sym = String(symbol || '').toUpperCase();
+  if (/^(\^GSPC|SPY|VOO|IVV|SPLG|\^KS11|\^KQ11)$/.test(sym)) return null;
+  return /\.KQ$/.test(sym) ? 'kosdaq' : /\.KS$/.test(sym) ? 'kospi' : 'spx';
+}
+
 export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P 500' } = {}) {
   const bars = input.filter((bar) => [bar?.open, bar?.high, bar?.low, bar?.close].every((v) => finite(v) != null && v > 0));
   if (bars.length < 60) return { available: false, reason: 'bars-insufficient', bars };

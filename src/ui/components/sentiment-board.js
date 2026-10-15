@@ -133,8 +133,14 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   const fgThen = fgSeries.length > 20 ? fgSeries[fgSeries.length - 21].value : null;
   const fg20 = fg != null && fgThen != null ? Math.round(fg) - Math.round(fgThen) : null;
   const direction = fg20 == null ? '' : Math.abs(fg20) < 5 ? ` F&G는 20거래일 전과 비슷한 수준(${fg20 >= 0 ? '+' : ''}${fg20})입니다.`
-    : ` F&G는 20거래일 전보다 ${Math.abs(fg20)} ${fg20 < 0 ? '낮아져 비관' : '높아져 낙관'} 쪽으로 움직이는 중입니다.`;
-  if (moodKnown) synthesis = `${synthesis}${direction}${aaiiLine ? ` ${aaiiLine}` : ''}`;
+    : ` F&G는 20거래일 전보다 ${Math.abs(fg20)} ${fg20 < 0 ? '낮아져 비관' : '높아져 낙관'} 쪽으로 움직였습니다.`;
+  // v57.70 (2026-10-15 audit): "낙관 쪽으로 움직이는 중" on a day F&G fell 12 — a 5-point or larger last move against the
+  // 20-session direction is said beside it.
+  const fgPrev = fgSeries.length >= 2 ? fgSeries[fgSeries.length - 2].value : null;
+  const fg1 = fg != null && fgPrev != null ? Math.round(fg) - Math.round(fgPrev) : null;
+  const turn = fg1 != null && fg20 != null && Math.abs(fg1) >= 5 && Math.sign(fg1) !== Math.sign(fg20) && Math.abs(fg20) >= 5
+    ? ` 다만 직전 기록보다 ${Math.abs(fg1)} ${fg1 < 0 ? '낮아져' : '높아져'} 최근 움직임은 반대 방향입니다.` : '';
+  if (moodKnown) synthesis = `${synthesis}${direction}${turn}${aaiiLine ? ` ${aaiiLine}` : ''}`;
   // v57.54 audit (10): the first mention spells the index out; later ones keep the short name.
   if (moodKnown) synthesis = synthesis.replace(/F&G/, '공포·탐욕 지수(F&G)');
   const mixed = cards.filter((card) => card.value !== '—' && card.basisStatus !== 'aligned').map((card) => card.title);
@@ -148,7 +154,9 @@ const SPREAD_WIDE_AT = 50; // half the percentile scale: the components point in
 function componentText(row) {
   if (row.status === 'ok') return `${row.label} ${Math.round(row.score)}`;
   if (row.status === 'stale') return `${row.label} 오래됨${row.asOf ? `(${shortDate(row.asOf)} 관측)` : ''}`;
-  return `${row.label} 자료 부족${Number.isFinite(row.observations) && row.needed ? `(기록 ${row.observations}/${row.needed}일)` : ''}`;
+  // v57.70 (2026-10-15 audit): "풋·콜 비율 자료 부족(기록 0/60일)" sat beside a put/call card showing 0.83 — what is short
+  // is the record the 1-year percentile needs, not today's value.
+  return Number.isFinite(row.observations) && row.needed ? `${row.label} 백분위 계산용 기록 부족(${row.observations}/${row.needed}일)` : `${row.label} 자료 부족`;
 }
 function compositeCard(composite) {
   const spread = composite.spread;

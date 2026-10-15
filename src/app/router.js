@@ -138,7 +138,8 @@ export function parseRouteDeepLink(hash) {
   const routeId = rawRoute === 'theme-detail' ? 'themes' : rawRoute;
   if (!isRouteId(routeId)) return null;
   const params = new URLSearchParams(match[2] || '');
-  const entityId = routeId === 'ticker' ? normalizeEntityId(params.get('sym') || pathArg) : null;
+  // v57.70: #fundamental/AAPL opened the fundamentals of whatever was selected before (or nothing) — both entity routes read it.
+  const entityId = ENTITY_ROUTES.has(routeId) ? normalizeEntityId(params.get('sym') || pathArg) : null;
   // #theme-detail?… keeps its own reader in the themes page; only #themes?theme= is read here.
   const theme = rawRoute === 'themes' ? String(params.get('theme') || '').trim() : '';
   return Object.freeze({ routeId, entityId, themeId: THEME_ID_PATTERN.test(theme) ? theme : null });
@@ -169,7 +170,16 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
     const link = parseRouteDeepLink(location.hash);
     if (!link) return;
     if (link.entityId && /^#ticker\//.test(location.hash)) writeHash('ticker', 'sym', link.entityId); // canonical address
-    if (link.entityId) {
+    if (link.entityId && link.routeId === 'fundamental') {
+      // The fundamentals page selects without leaving its route (its own card click does the same); showTicker would
+      // move to the ticker screen.
+      if (/^#fundamental\//.test(location.hash)) writeHash('fundamental', 'sym', link.entityId);
+      if (String(runtimeRoot._currentTickerId || '').toUpperCase() !== link.entityId) {
+        runtimeRoot._currentTickerId = link.entityId;
+        const EventConstructor = runtimeRoot.CustomEvent || globalThis.CustomEvent;
+        if (typeof EventConstructor === 'function') events?.dispatchEvent?.(new EventConstructor('aio:entityChanged', { detail: { symbol: link.entityId, source: 'address' } }));
+      }
+    } else if (link.entityId) {
       const current = String(runtimeRoot.AIO?.state?._currentTickerSym || runtimeRoot._currentTickerSym || '').toUpperCase();
       if (current !== link.entityId && typeof runtimeRoot.showTicker === 'function') runtimeRoot.showTicker(link.entityId);
     }

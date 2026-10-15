@@ -234,7 +234,16 @@ function renderPortfolioSurface(documentRef, page, surface) {
   const rule = band.blocked ? 'VIX 자료 없음'
     : liveVix != null ? `VIX ${liveVix.toFixed(1)} · ${band.label}`
       : `VIX ${vixClose.value.toFixed(1)}(${Number(vixClose.date.slice(5, 7))}/${Number(vixClose.date.slice(8, 10))} 종가) · ${band.label}`;
-  setSurfaceText(documentRef, 'pf-exposure-rule', rule, band.blocked ? null : band.value, surface);
+  // v57.70 (2026-10-15 audit): "VIX 16.9 · 저변동 구간" stood while KOSPI was down 13% in five sessions. VIX is the US
+  // option market's gauge; a Korean move of 5% or more over five completed sessions is named beside it.
+  const historyRows = documentRef?.defaultView?._aioHistory || globalThis._aioHistory || [];
+  const kospi = buildCloseSeries(historyRows, 'kospi');
+  const kospiLast = kospi[kospi.length - 1] || null;
+  const kospiBack = kospi.length >= 6 ? kospi[kospi.length - 6] : null;
+  const kospi5 = kospiLast && kospiBack?.value > 0 ? (kospiLast.value / kospiBack.value - 1) * 100 : null;
+  const krNote = kospi5 != null && Math.abs(kospi5) >= 5
+    ? ` · 한국은 코스피 5거래일 ${kospi5 >= 0 ? '+' : ''}${kospi5.toFixed(1)}%(${Number(kospiLast.date.slice(5, 7))}/${Number(kospiLast.date.slice(8, 10))} 종가) — VIX는 미국 시장 기준입니다` : '';
+  setSurfaceText(documentRef, 'pf-exposure-rule', rule + (band.blocked ? '' : krNote), band.blocked ? null : band.value, surface);
   const current = surface.exposurePct == null ? (surface.holdingCount ? '현재 노출 —' : '보유 내역을 입력하면 계산됩니다') : `현재 노출 ${surface.exposurePct.toFixed(1)}%`;
   setSurfaceText(documentRef, 'pf-exposure-current', current, surface.exposurePct, surface, 'var(--text-dim)');
 

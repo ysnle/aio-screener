@@ -346,6 +346,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         membershipPolicy: root?.THEME_MEMBERSHIP_POLICY
       }),
       readSelectedId: () => root?._currentThemeId || null,
+      readScreenerRows: () => store?.getState?.()?.screener?.rows || [],
       now: clock.now
     }),
     commands: themesCommands

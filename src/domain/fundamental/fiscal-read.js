@@ -4,6 +4,8 @@
 // screener row for price context (returns, P/E). A missing year or field drops its sentence.
 import { withObjectParticle } from '../content/korean-particle.js';
 import { finiteFact, isPriorAnnualPeriod } from './period.js';
+const NON_LENDING_FINANCIALS = new Set(['V', 'MA', 'PYPL', 'FI', 'FIS', 'GPN', 'CPAY', 'JKHY', 'CME', 'ICE', 'NDAQ', 'CBOE', 'SPGI', 'MCO', 'MSCI', 'FDS', 'BLK', 'BX', 'KKR', 'APO', 'ARES', 'TROW', 'BEN', 'IVZ', 'AMP', 'BR']);
+export const isLendingFinancial = (symbol, sector) => /financ|bank/i.test(String(sector || '')) && !NON_LENDING_FINANCIALS.has(String(symbol || '').toUpperCase());
 
 const finite = finiteFact;
 const signed = (value, digits = 1, unit = '%') => `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
@@ -147,7 +149,10 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
   const roe = roeAvg ?? (alignedLatest ? finite(fundamentals?.roe) : null);
   // Codex browser audit H41: a bank's operating cash flow mixes deposit, loan and trading-asset swings, so the
   // industrial "earnings → cash" reading does not apply; the bank questions are named instead.
-  const financial = /financ|bank/i.test(String(row?.sector || ''));
+  // v57.70 (2026-10-15 audit): Visa read "은행·금융사는 순이자마진(NIM)…". Payment networks, exchanges, rating/data
+  // houses and asset managers sit in the Financials sector but take no deposits and make no loans; their cash flow is
+  // read like any other company's.
+  const financial = isLendingFinancial(symbol, row?.sector);
   const equityChange = latest?.equity > 0 && prevYear?.equity > 0 ? (latest.equity / prevYear.equity - 1) * 100 : null;
   const roeBasis = roeAvg != null ? '평균 자기자본 기준' : '기말 자기자본 기준';
   if (roe != null) points.push({ id: 'roe', tone: roe >= 15 ? 'favorable' : roe < 5 ? 'burden' : 'neutral', title: '자본 효율',

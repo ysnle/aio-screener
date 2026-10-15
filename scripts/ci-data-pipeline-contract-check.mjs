@@ -753,6 +753,75 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     JSON.stringify(picked.map((item) => [item.source, item.tier])));
 }
 {
+  // v57.70 (2026-10-15 full-page audits): dated previous closes, the screener's majority session, fundamentals deep
+  // links, theme constituents on completed closes, consensus basis gaps, non-lending financials, Telegram text.
+  const { exchangeLocalDate } = await import('./fetch-data.mjs');
+  const { buildCloseSeries } = await import('../src/domain/briefing/market-read.js');
+  const { parseRouteDeepLink } = await import('../src/app/router.js');
+  const { consensusView, buildConsensusPoint } = await import('../src/domain/fundamental/consensus-read.js');
+  const { createThemesProvider } = await import('../src/data/providers/themes.js');
+  const { cleanTelegramText } = await import('./lib/telegram-text.mjs');
+  const prevMeta = (observedAt, sessionDate) => ({ observedAt, observationRelation: 'previous-completed-close', observedAtSource: 'provider-previous-close', ...(sessionDate ? { sessionDate } : {}) });
+  const dated = buildCloseSeries([
+    { date: '2026-10-13', wti: 93.74, fieldMeta: { wti: prevMeta('2026-10-13T04:00:00.000Z', '2026-10-12') } },
+    { date: '2026-10-14', wti: 94.14, fieldMeta: { wti: prevMeta('2026-10-14T04:00:00.000Z', '2026-10-13') } }
+  ], 'wti');
+  const legacy = buildCloseSeries([
+    { date: '2026-10-13', wti: 93.74, fieldMeta: { wti: prevMeta('2026-10-13T04:00:00.000Z') } }
+  ], 'wti');
+  check('v57.70 a previous close carries its own session date (the next bar\'s 00:00 ET boundary no longer names it)',
+    JSON.stringify(dated) === JSON.stringify([{ date: '2026-10-12', value: 93.74 }, { date: '2026-10-13', value: 94.14 }]) && legacy[0]?.date === '2026-10-13'
+      && exchangeLocalDate(Date.parse('2026-10-13T04:00:00.000Z'), 'America/New_York') === '2026-10-13' && exchangeLocalDate(Date.parse('2026-10-14T00:00:00.000Z'), 'Asia/Seoul') === '2026-10-14'
+      && exchangeLocalDate(Date.parse('2026-10-13T04:00:00.000Z'), null) === null,
+    JSON.stringify({ dated, legacy }));
+
+  const rows = {};
+  for (let i = 0; i < 20; i += 1) rows[`S${i}`] = { factorBarStart: '2026-10-13T13:30:00.000Z', factorSessionDate: '2026-10-13' };
+  rows.LATE = { factorBarStart: '2026-10-14T13:30:00.000Z', factorSessionDate: '2026-10-14' };
+  const scopes = factorScopesByMarket(rows);
+  check('v57.70 the screener session is the date most rows carry, not the newest row\'s',
+    scopes.US?.sessionDate === '2026-10-13' && scopes.US?.barStart === '2026-10-13T13:30:00.000Z' && scopes.US?.sessionRows === 20, JSON.stringify(scopes));
+
+  check('v57.70 #fundamental/AAPL names its company like #ticker/AAPL',
+    parseRouteDeepLink('#fundamental/aapl')?.entityId === 'AAPL' && parseRouteDeepLink('#fundamental?sym=MSFT')?.entityId === 'MSFT' && parseRouteDeepLink('#macro')?.entityId === null,
+    JSON.stringify(parseRouteDeepLink('#fundamental/aapl')));
+
+  const now = Date.parse('2026-10-15T00:00:00.000Z');
+  const est = (trailing) => ({ asOf: '2026-10-14T17:38:53.081Z', fwd: { from: '2026-09', to: '2027-06', eps: 12.94, hi: 14.08, lo: 12, minEstimates: 6, up4w: 4, down4w: 1 }, trailing: { from: '2025-09', to: '2026-06', eps: trailing } });
+  const gap = consensusView({ valuationPrice: 353.78 }, est(19.91), { now });
+  const same = consensusView({ valuationPrice: 353.78 }, est(11.5), { now });
+  const gapText = buildConsensusPoint({ valuationPrice: 353.78, factorSessionDate: '2026-10-13' }, est(19.91), { now })?.text || '';
+  check('v57.70 a forward sum 30% or more below the trailing sum is not compared as the same basis',
+    gap.trailingPe === null && gap.growth === null && gap.basisGap === true && gap.fwdPe > 27 && same.growth > 12 && same.trailingPe > 30
+      && /같은 기준인지 확인되지 않으므로 성장률과 직전 PER은 표시하지 않습니다/.test(gapText) && !/예상 이익 -35%/.test(gapText),
+    JSON.stringify({ gap, same: { growth: same.growth, trailingPe: same.trailingPe } }));
+
+  const provider = createThemesProvider({
+    readLiveData: () => ({}),
+    readDefinitions: () => ({ themes: [{ id: 'care', nameKr: '헬스케어', leaders: ['A', 'B', 'C'], subThemes: [{ name: '제약', tickers: ['A', 'B', 'C'] }] }] }),
+    readSelectedId: () => 'care',
+    readScreenerRows: () => [{ sym: 'A', ret1d: 1.2, factorSessionDate: '2026-10-13' }, { sym: 'B', ret1d: -2.4, factorSessionDate: '2026-10-13' }, { sym: 'C', ret1d: 3, factorSessionDate: '2026-10-14' }],
+    now: () => '2026-10-15T01:00:00.000Z'
+  });
+  const detail = provider.readCurrent().selectedDetail;
+  check('v57.70 theme constituents fall back to one completed-close session when live quotes do not cover them',
+    detail?.quoteBasis?.kind === 'completed-close' && detail.quoteBasis.session === '2026-10-13' && detail.quotes.A?.pct === 1.2 && detail.quotes.A?.closeBased === true
+      && detail.quotes.C?.pct == null && detail.breadth === 50,
+    JSON.stringify({ basis: detail?.quoteBasis, breadth: detail?.breadth, quotes: detail?.quotes }));
+
+  check('v57.70 Telegram summaries carry no pictographs, rules or quoted Chinese originals; Hanja inside Korean stays',
+    cleanTelegramText('▶️ 주요 코멘트').trim() === '주요 코멘트' && !/[一-鿿]/.test(cleanTelegramText('•닛케이225 -3% >韩国首尔综指下跌6%。 日本东证指数下跌2%。'))
+      && /中 증시/.test(cleanTelegramText('中 증시 하락')) && !/━|☁/.test(cleanTelegramText('━━━ ☁️ CRWV')),
+    JSON.stringify([cleanTelegramText('▶️ 주요 코멘트'), cleanTelegramText('•닛케이225 -3% >韩国首尔综指下跌6%。')]));
+
+  const { isLendingFinancial } = await import('../src/domain/fundamental/fiscal-read.js');
+  const { benchmarkFieldFor } = await import('../src/domain/technical/chart-analysis.js');
+  check('v57.70 payment networks are not read as banks, and an index fund is not compared with its own index',
+    !isLendingFinancial('V', 'Financials') && !isLendingFinancial('ma', 'Financials') && isLendingFinancial('JPM', 'Financials') && !isLendingFinancial('AAPL', 'Technology')
+      && benchmarkFieldFor('SPY') === null && benchmarkFieldFor('^GSPC') === null && benchmarkFieldFor('AAPL') === 'spx'
+      && benchmarkFieldFor('005930.KS') === 'kospi' && benchmarkFieldFor('247540.KQ') === 'kosdaq' && benchmarkFieldFor('^KS11') === null);
+}
+{
   // P1720: post-08:00 articles go to a separate provisional slot (tier 1-2, curation filters, one per event, max 6,
   // Korean items first); the completed 08:00 bundle is unchanged.
   const { selectNewsIntraday, NEWS_INTRADAY_MAX } = await import('./fetch-data.mjs');

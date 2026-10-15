@@ -6,6 +6,78 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1812 - v57.70 - 텔레그램 요약에 이모지·구분선·중국어 원문이 그대로 노출 (2026-10-15)
+
+- symptom/reproduction: 시장 뉴스 텔레그램 칸에 "▶️ 주요 코멘트", "☁️ CRWV", "━━━", "韩国首尔综指下跌6%。" 노출(이모지 금지 원칙 위반).
+- root_cause: 텔레그램 요약이 채널 원문 앞부분을 그대로 잘라 썼다.
+- fix: cleanTelegramText: 그림 문자·변형 선택자·구분선을 지우고, 한글 없이 한자 3자 이상인 인용 구간(채널이 붙인 중국어 원문)을 뺀다. 한국어 문장 안의 한자 한두 자는 남긴다.
+- violated_rule: 없음
+- prevention: ci-data-pipeline-contract-check에 정리 픽스처 추가.
+- verification/residual: 다음 텔레그램 수집부터 적용.
+
+## P1811 - v57.70 - SPY 등 지수 추종 상품을 같은 지수와 비교해 "S&P 500보다 0.0%p 높음" 표시 (2026-10-15)
+
+- symptom/reproduction: 기술 화면 SPY 근거 "6개월 수익률이 S&P 500보다 0.0%p 높음".
+- root_cause: 종목 차트 비교 기준이 미국 종목이면 모두 S&P 500이었다.
+- fix: ^GSPC·SPY·VOO·IVV·SPLG·^KS11·^KQ11은 자기 지수와 비교하지 않는다.
+- violated_rule: 없음
+- prevention: ci-data-pipeline-contract-check 소스 검사 추가.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs 통과.
+
+## P1810 - v57.70 - Visa 등 결제망·거래소에 은행용 순이자마진 해석이 붙음 (2026-10-15)
+
+- symptom/reproduction: V 재무 화면 "은행·금융사는 순이자이익과 순이자마진(NIM)…" 표시, 영업현금흐름도 금융사 방식으로 읽음.
+- root_cause: 금융 판정이 섹터 이름(Financials)만 봤다.
+- fix: 예금·대출이 없는 결제망·거래소·신용평가·자산운용사(V·MA·PYPL·CME·ICE·SPGI·MCO·BLK 등)는 은행 해석에서 뺀다.
+- violated_rule: 없음
+- prevention: ci-data-pipeline-contract-check 소스 검사 추가, 브라우저에서 V 재무 화면 확인.
+- verification/residual: 로컬 브라우저에서 V 화면에 순이자마진 문구 없음.
+
+## P1809 - v57.70 - 컨센서스 직전 4개 분기 합과 향후 예상 합의 기준이 달라 GOOGL "직전 PER 17.8배·예상 이익 -35%"로 표시 (2026-10-15)
+
+- symptom/reproduction: GOOGL 종목 화면 "직전 4개 분기 PER 17.8배(조정 EPS) · Forward PER 27.3배"와 예상 이익 -35%. 같은 화면·스크리너 PER은 32.7.
+- root_cause: 공급자의 직전 4개 분기 합(19.91)이 향후 컨센서스(12.94)가 빼는 항목을 포함한 것으로 보이는데, 화면은 둘을 "같은 조정 EPS 기준"으로 비교했다.
+- fix: 향후 합이 직전 합보다 30% 이상 낮으면 같은 기준으로 비교하지 않는다. 두 합은 보여 주되 직전 PER과 성장률은 표시하지 않고 그 이유를 쓴다.
+- violated_rule: 없음
+- prevention: ci-data-pipeline-contract-check에 기준 차이·정상 비교 픽스처 추가.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs 통과.
+
+## P1808 - v57.70 - 테마 상세 구성 종목 48개가 계속 "시세 대기"로 비어 있음 (2026-10-15)
+
+- symptom/reproduction: 헬스케어 테마 상세에서 LLY·JNJ 등 48개 구성 종목과 하위 테마 등락·브레드스가 8초 뒤에도 전부 "시세 대기". 스크리너·지도에는 같은 종목 값이 있었다.
+- root_cause: 테마 상세는 구성 종목 등락을 실시간 시세에서만 읽는데, 실시간 시세는 핵심 지수 16개만 받는다.
+- fix: 실시간 시세가 구성 종목의 60% 이상을 덮지 않으면, 구성 종목 다수가 공유하는 세션의 스크리너 완료 종가 1일 등락으로 채우고(한 상세 안에서 기준 하나), 브레드스 문구에 "M/D 종가 기준"을 표시한다.
+- violated_rule: 없음
+- prevention: ci-data-pipeline-contract-check에 테마 공급자 완료 종가 대체 픽스처 추가.
+- verification/residual: 로컬 브라우저에서 헬스케어 상세가 "10/13 종가 기준" 브레드스와 하위 테마·종목 등락을 표시.
+
+## P1807 - v57.70 - #fundamental/AAPL 주소가 종목을 무시하고 직전 선택(또는 빈 화면)을 표시 (2026-10-15)
+
+- symptom/reproduction: 새 탭에서 #fundamental/AAPL을 열면 "DATA 확인 대기", 다른 화면에서 넘어오면 직전 종목 Visa가 표시됨.
+- root_cause: parseRouteDeepLink가 ticker 라우트에서만 종목을 읽었다.
+- fix: 재무 라우트도 #fundamental/SYM·?sym=를 읽고, 라우트를 바꾸지 않고 재무 화면 자체 카드 선택과 같은 방식(_currentTickerId + aio:entityChanged)으로 종목을 고른다. 주소는 #fundamental?sym=로 정규화한다.
+- violated_rule: 없음
+- prevention: ci-data-pipeline-contract-check에 재무 딥링크 파싱 검사 추가, 브라우저에서 #fundamental/AAPL·#fundamental/V 확인.
+- verification/residual: 로컬 브라우저에서 AAPL·V 재무 화면이 주소의 종목으로 열림.
+
+## P1806 - v57.70 - 스크리너 헤더가 최신 1개 행의 날짜(10/14)를 미국 팩터 세션으로 표시하고 실제 순위는 10/13 기준 (2026-10-15)
+
+- symptom/reproduction: 10/15 스크리너 헤더 "미국 팩터 세션 2026-10-14"인데 미국 903행 중 897행 factorSessionDate가 10/13(10/14 급락 미반영). 10/14를 가진 행은 5개.
+- root_cause: factorScopesByMarket가 시장별 세션 날짜를 행 가운데 가장 늦은 날짜로 정했다.
+- fix: 시장별 세션 날짜는 행의 과반이 가진 가장 늦은 날짜, 과반이 없으면 가장 많은 행이 가진 날짜로 정하고 그 날짜 행의 막대 시작 시각과 행 수(sessionRows)를 함께 싣는다.
+- violated_rule: 없음
+- prevention: ci-data-pipeline-contract-check에 다수 날짜 픽스처 추가.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs 통과.
+
+## P1805 - v57.70 - 장중에 기록한 직전 종가가 다음 날짜로 밀려 브리핑의 WTI·금·달러 1일 변화가 0.0%로 굳음 (2026-10-15)
+
+- symptom/reproduction: 10/15 브리핑 자산별 흐름이 WTI 0.0%·금 0.0%·달러 0.0%. history.json 10/13 행 WTI 93.74(10/12 종가)가 10/13로, 10/14 행 94.14(10/13 종가)가 10/14로 읽혀 시계열이 하루씩 밀렸다(전체 화면 감사 에이전트 확인, Yahoo 일봉 직접 대조).
+- root_cause: 장중 실행은 직전 종가에 "다음 막대가 열린 경계"(선물·달러 일봉은 00:00 ET) 시각을 붙이는데, 화면은 그 시각의 뉴욕 날짜를 거래일로 읽어 직전 종가가 다음 날짜에 앉았다. Yahoo가 10/14 CL=F·GC=F 일봉 종가를 null로 둔 공백이 겹쳐 같은 값이 두 날짜에 놓였다.
+- fix: fetchQuote가 직전 종가 막대의 거래소 현지 날짜(exchangeTimezoneName 기준)를 previousCloseSessionDate로 남기고, history 행 메타에 sessionDate로 싣는다(관측 시각 계약은 그대로). 종가 시계열과 달러·유가 완료 막대 선택은 sessionDate가 있으면 그 날짜를 쓰고, 세션 날짜가 있는 종가는 정산 시각 순위로 다룬다. FX 시간봉 컷 종가는 기존대로 자기 시각으로 날짜를 정한다.
+- violated_rule: 없음
+- prevention: ci-data-pipeline-contract-check에 세션 날짜 시계열·거래소 현지 날짜 픽스처 추가.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs 통과. 기존 잘못 찍힌 과거 행은 fallback 경계와 구분할 수 없어 고치지 않았고, 1일·5일 변화는 다음 실행부터 새 행으로 바로잡힌다(QA-VERIFY-31).
+
 ## P1804 - v57.69 - 한국 주요 경제지·통신이 tier 3으로 분류돼 코스피 급락 아침 장중 속보 슬롯에 한국 기사가 0건 (2026-10-15)
 
 - symptom/reproduction: 10/15 코스피 장중 -6%·사이드카 아침에 newsIntraday가 미국 기사 1건뿐. 한국 피드 표본 40건 중 서울경제·뉴시스·조선비즈·연합인포맥스·이투데이 등이 모두 tier 3으로 분류됨(읽기 전용 피드 점검).

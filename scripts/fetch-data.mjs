@@ -91,6 +91,10 @@ const YAHOO_HOSTS = ['https://query1.finance.yahoo.com', 'https://query2.finance
 // showed KOSPI -5.53% / KOSDAQ -6.24% against the 10/13 close instead of -5.1% / -4.75% against 10/14, and on 10/14
 // the -0.44% close read as -5.88%. For Seoul-session quotes the previous close is the last bar dated before the
 // session of regularMarketTime (exchange-local dates via meta.gmtoffset).
+export function exchangeLocalDate(ms, timeZone) {
+  if (!Number.isFinite(ms) || !timeZone) return null;
+  try { return new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(ms)); } catch (_) { return null; }
+}
 export function previousCloseBarIndex(closeBars, meta) {
   const bars = Array.isArray(closeBars) ? closeBars : [];
   if (meta?.exchangeTimezoneName !== 'Asia/Seoul' || !Number.isFinite(meta?.regularMarketTime) || !Number.isFinite(meta?.gmtoffset)) return bars.length >= 2 ? bars.length - 2 : -1;
@@ -153,6 +157,12 @@ async function fetchQuote(symbol) {
         previousBarOpenedAt: prevIndex >= 0 && Number.isFinite(closeBars[prevIndex].timestamp)
           ? new Date(closeBars[prevIndex].timestamp * 1000).toISOString()
           : null,
+        // v57.70 (2026-10-15 audit): the boundary above is 00:00 ET of the NEXT day for futures/DXY bars, and readers
+        // dated the close by that boundary — the 10/12 WTI close sat on 10/13 and the briefing read 0.0% for a day.
+        // The previous bar's own trading date, in the exchange's time zone, names the session the close belongs to.
+        previousCloseSessionDate: prevIndex >= 0 && Number.isFinite(closeBars[prevIndex].timestamp)
+          ? exchangeLocalDate(closeBars[prevIndex].timestamp * 1000, m.exchangeTimezoneName)
+          : null,
         _pctSource: pctSource,
         _source: 'live:yahoo-gh',
         // Observation lineage: generatedAt is fetch time, not necessarily market observation time.
@@ -202,6 +212,7 @@ async function fetchQuote(symbol) {
             quote.regularMarketChangePercent = ((price - cut.close) / cut.close) * 100;
             quote.regularMarketPreviousCloseObservedAt = cut.observedAt;
             quote.previousBarOpenedAt = cut.previousBoundary;
+            quote.previousCloseSessionDate = null; // the cut close is dated by its own stamp (P1721)
             quote._pctSource = 'fx-hourly-cut-close';
           }
         } catch (_) { /* daily path stays */ }
@@ -938,6 +949,7 @@ async function updateHistory(data, marketSnapshot = null, officialFx = null) {
         observedMarketSession: session,
         valueBasis: effectiveUsePreviousClose ? 'previous-completed-close' : 'latest-completed-close',
         allowedUse: 'completed-market-series',
+        sessionDate: effectiveUsePreviousClose ? (q.previousCloseSessionDate || null) : null,
       };
       bySymQuote[q.symbol] = bySymQuoteEntry;
     }
@@ -976,6 +988,7 @@ async function updateHistory(data, marketSnapshot = null, officialFx = null) {
       // producer already knows instead of recomputing it downstream.
       observationRelation: quote?.observationRelation || fallback.observationRelation || 'latest-completed-close',
       observedAtSource: quote?.observedAtSource || fallback.observedAtSource || 'provider-current',
+      ...(quote?.sessionDate ? { sessionDate: quote.sessionDate } : {}),
     });
     // P1246: 값과 증거를 **한 번의 열거**에서 만든다. 종전에는 `rec`의 명시적 pick 목록과 이 루프가
     // 같은 HIST_SYMBOLS 매핑을 두 번 나열해, 한쪽만 고치면 값과 fieldMeta가 서로 다른 필드 집합을

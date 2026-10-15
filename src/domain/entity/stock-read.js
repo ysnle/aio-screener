@@ -200,7 +200,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   // P1447: US sector ETFs describe US sectors; a KRX listing is not read against them.
   const isKr = /\.(KS|KQ)$/i.test(String(symbol || ''));
   const etf = isKr ? null : SECTOR_ETF[normalizeSectorKey(row.sector)] || null;
-  const sector = etf && rotation[etf] ? { etf, label: SECTOR_KO[etf] || etf, quadrant: QUADRANT[rotation[etf].quadrant] || null } : null;
+  const sector = etf && rotation[etf] ? { etf, label: SECTOR_KO[etf] || etf, quadrant: QUADRANT[rotation[etf].quadrant] || null, sessionDate: rotation[etf].sessionDate || null } : null;
   const themed = (themes || []).map((theme) => ({ ...theme, quadrant: theme.etf && rotation[theme.etf] ? QUADRANT[rotation[theme.etf].quadrant] || null : null }));
   const topTheme = themed.find((theme) => theme.quadrant) || themed[0] || null;
   // 2026-10-14 audit #5: the theme's stage (same rows as 테마 갈림길) leads this point, one line per theme. The favoured
@@ -212,7 +212,10 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   let tailwind = false;
   if (sector?.quadrant || topTheme?.quadrant) {
     const parts = [];
-    if (sector?.quadrant) parts.push(`섹터 ${sector.label}(${sector.etf})${topic(sector.label)} ${sector.quadrant.label} — ${sector.quadrant.read}`);
+    // v57.70 (2026-10-15 audit): "선도 — 더 강해지는 중" on a -3% sector day read as today's move; it is the multi-week
+    // relative-rotation position as of a dated close, and says so.
+    const rotationAsOf = /^\d{4}-\d{2}-\d{2}$/.test(String(sector?.sessionDate || '')) ? `(${Number(sector.sessionDate.slice(5, 7))}/${Number(sector.sessionDate.slice(8, 10))} 종가까지 몇 주의 상대 흐름)` : '(몇 주의 상대 흐름)';
+    if (sector?.quadrant) parts.push(`섹터 ${sector.label}(${sector.etf})${topic(sector.label)} ${sector.quadrant.label}${rotationAsOf} — ${sector.quadrant.read}`);
     if (topTheme?.quadrant && topTheme.etf !== sector?.etf) parts.push(`테마 ${topTheme.label}(${topTheme.etf})${topic(topTheme.label)} ${topTheme.quadrant.label}`);
     tailwind = sector?.quadrant?.tone === 'favorable' || topTheme?.quadrant?.tone === 'favorable';
     const stockStrong = trend?.id === 'up';

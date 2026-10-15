@@ -686,9 +686,10 @@ function renderThemeDetailComposition({ documentRef, root, store, themeId = null
 
   const breadth = documentRef.createElement('div');
   const breadthValue = finite(detail.breadth);
+  const closeSession = detail.quoteBasis?.kind === 'completed-close' ? detail.quoteBasis.session : null;
   breadth.textContent = breadthValue == null
     ? '브레드스: 시세 대기 — 충분한 구성종목 가격이 확인되면 계산됩니다.'
-    : `상승 종목 비율(전일 대비): ${breadthValue}% · ${detail.leaders.length}종목 기준`;
+    : `상승 종목 비율(${closeSession ? `${shortSession(closeSession)} 종가 기준` : '전일 대비'}): ${breadthValue}% · ${detail.leaders.length}종목 기준`;
   breadth.style.cssText = 'font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:8px;';
 
   const subThemes = documentRef.createElement('div');

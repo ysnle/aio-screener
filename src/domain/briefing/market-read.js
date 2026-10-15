@@ -124,10 +124,13 @@ function computeCloseSeries(history, field, { through, includeProvenance, market
     if (value == null || (value <= 0 && !/^(breadth|advance|distribution)/.test(field))) continue; // a 0 yield/price is a producer gap, not a close (a 0 count is real)
     const meta = row.fieldMeta?.[field];
     if (meta?.observationRelation === 'carried-forward') continue;
-    const date = meta?.observedAt ? nyDate(meta.observedAt) : row.date;
+    // v57.70: a previous close stamped at the next bar's 00:00 ET boundary carries its own session date.
+    const sessionDated = /^\d{4}-\d{2}-\d{2}$/.test(String(meta?.sessionDate || ''));
+    const date = sessionDated ? meta.sessionDate : meta?.observedAt ? nyDate(meta.observedAt) : row.date;
     if (!date || (through && date > through) || !isCloseSessionDate(date, market)) continue;
     const minute = close != null && meta?.observedAt ? nyMinute(meta.observedAt) : null;
-    const rank = minute == null ? null : settleRank(minute, close);
+    // A session-dated previous close is that session's completed bar — as close to the settle as a stamp can be.
+    const rank = sessionDated && close != null ? 0 : minute == null ? null : settleRank(minute, close);
     const held = rankOf.get(date);
     if (byDate.has(date) && rank != null && held != null && rank > held) continue; // C11: an earlier stamp sits closer to the settle
     rankOf.set(date, rank);

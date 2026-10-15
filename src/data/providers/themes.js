@@ -45,6 +45,25 @@ function runtimeQuote(live, symbol) {
   };
 }
 
+// The screener's completed one-session move per symbol, kept only for the session most of the requested symbols share.
+function closeQuotesFor(symbols, rows) {
+  const bySymbol = new Map((Array.isArray(rows) ? rows : []).filter((row) => row?.sym && finite(row.ret1d) != null && row.factorSessionDate).map((row) => [String(row.sym), row]));
+  const counts = new Map();
+  for (const symbol of symbols) {
+    const row = bySymbol.get(symbol);
+    if (row) counts.set(row.factorSessionDate, (counts.get(row.factorSessionDate) || 0) + 1);
+  }
+  const session = [...counts.entries()].sort((a, b) => b[1] - a[1] || b[0].localeCompare(a[0]))[0]?.[0] || null;
+  const quotes = {};
+  for (const symbol of symbols) {
+    const row = bySymbol.get(symbol);
+    if (!row || row.factorSessionDate !== session) continue;
+    const pct = finite(row.ret1d);
+    quotes[symbol] = { price: null, pct, rawPct: pct, currency: null, observedAt: session, fetchedAt: null, revision: null, changeBasis: 'completed-close', directionCompatible: true, closeBased: true, source: 'screener-completed-close' };
+  }
+  return { session, quotes };
+}
+
 function latestObservedAt(rows) {
   const timestamps = rows.map((row) => Date.parse(row?.observedAt || '')).filter(Number.isFinite);
   return timestamps.length ? new Date(Math.max(...timestamps)).toISOString() : null;
@@ -58,6 +77,7 @@ export function createThemesProvider({
   readRotationHistory = () => null,
   readDefinitions = () => ({}),
   readSelectedId = () => null,
+  readScreenerRows = () => [],
   now = () => new Date().toISOString()
 } = {}) {
   return Object.freeze({
@@ -158,8 +178,15 @@ export function createThemesProvider({
           if (sub?.etf) detailSymbols.add(String(sub.etf));
           (sub?.tickers || []).forEach((symbol) => detailSymbols.add(String(symbol)));
         });
-        const quotes = Object.fromEntries([...detailSymbols].map((symbol) => [symbol, runtimeQuote(live, symbol)]));
-        const pricedLeaders = (selectedTheme.leaders || []).map((symbol) => runtimeQuote(live, symbol)).filter((quote) => quote.price != null && quote.directionCompatible && quote.pct != null && Number.isFinite(Number(quote.pct))); // P1575: a leader without a move is not counted as down
+        const liveQuotes = Object.fromEntries([...detailSymbols].map((symbol) => [symbol, runtimeQuote(live, symbol)]));
+        // v57.70 (2026-10-15 audit): live quotes are polled for the core symbols only, so a theme's 48 constituents stayed
+        // "시세 대기" while the screener held their completed-close moves. One basis per detail: live when it covers at
+        // least 60% of the constituents, else the published completed-close move of the session most of them share.
+        const closeBasis = closeQuotesFor([...detailSymbols], readScreenerRows());
+        const liveCovered = [...detailSymbols].filter((symbol) => liveQuotes[symbol].pct != null).length;
+        const useClose = closeBasis.session && liveCovered < Math.ceil(detailSymbols.size * 0.6);
+        const quotes = useClose ? Object.fromEntries([...detailSymbols].map((symbol) => [symbol, closeBasis.quotes[symbol] || liveQuotes[symbol]])) : liveQuotes;
+        const pricedLeaders = (selectedTheme.leaders || []).map((symbol) => quotes[symbol]).filter((quote) => quote && (quote.price != null || quote.closeBased) && quote.directionCompatible && quote.pct != null && Number.isFinite(Number(quote.pct))); // P1575: a leader without a move is not counted as down
         const breadth = pricedLeaders.length >= Math.max(2, Math.ceil((selectedTheme.leaders || []).length * 0.6))
           ? Math.round(pricedLeaders.filter((quote) => Number(quote.pct) > 0).length / pricedLeaders.length * 100)
           : null;
@@ -173,6 +200,7 @@ export function createThemesProvider({
           breadth: finite(breadth),
           source,
           membershipPolicy: definitions.membershipPolicy,
+          quoteBasis: useClose ? { kind: 'completed-close', session: closeBasis.session } : { kind: 'live', session: null },
           quotes,
           insight,
           leaders: Array.isArray(selectedTheme.leaders) ? selectedTheme.leaders.slice() : [],

@@ -1,6 +1,6 @@
 // P1397: 종목 차트 — candles with the evidence drawn on the price (Lightweight Charts, Apache-2.0,
 // already loaded by the shell) and an evidence panel with a setup state. No composite grade.
-import { TEMPLATE_LABEL, analyzeChart, chartReading } from '../../domain/technical/chart-analysis.js';
+import { TEMPLATE_LABEL, analyzeChart, benchmarkFieldFor, chartReading } from '../../domain/technical/chart-analysis.js';
 import { buildCloseSeries, maOrder } from '../../domain/briefing/market-read.js';
 import { readMarketRegime } from './market-regime.js';
 import { emptyState } from './empty-state.js';
@@ -173,7 +173,8 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   if (ticket !== root.__aioStockChartTicket) return null;
   const { bars, droppedLive } = completedBars(barsFromYahoo(payload), payload);
   const kr = /\.(KS|KQ)$/.test(sym);
-  const benchmark = buildCloseSeries(root._aioHistory || [], kr ? (/\.KQ$/.test(sym) ? 'kosdaq' : 'kospi') : 'spx');
+  const benchmarkField = benchmarkFieldFor(sym);
+  const benchmark = benchmarkField ? buildCloseSeries(root._aioHistory || [], benchmarkField) : [];
   const analysis = analyzeChart(bars, { benchmark, benchmarkLabel: kr ? (/\.KQ$/.test(sym) ? 'KOSDAQ' : 'KOSPI') : 'S&P 500' });
   if (!analysis.available) {
     set('stock-chart-status', '');

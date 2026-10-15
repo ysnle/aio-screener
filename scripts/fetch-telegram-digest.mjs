@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { classifyPostTickers, LIST_POST_TICKER_THRESHOLD, KR_INSTITUTIONAL_FLOW } from './lib/telegram-tickers.mjs';
 import { COMMON_WORD_ISSUER_NAMES } from '../src/domain/news/stories.js';
+import { cleanTelegramText } from './lib/telegram-text.mjs';
 
 const CHANNEL_CATALOG = [
   { slug:'aetherjapanresearch', role:'asia-semi-flow', region:'jp-us', evidence:'secondary-public-mirror' },
@@ -454,7 +455,7 @@ for (const it of observedItems) {
 }
 
 function previewText(text, max = 180) {
-  const s = String(text || '').replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim();
+  const s = cleanTelegramText(text).replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim();
   return s.length > max ? `${s.slice(0, max - 3).replace(/\s+\S*$/, '')}...` : s;
 }
 
