@@ -412,13 +412,13 @@ function createChip(documentRef, item, root) {
     change.style.color = pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
     chip.append(change);
   }
-  chip.style.cssText = `font-size:12px;border:1px ${detailId ? 'solid' : 'dashed'} var(--border-subtle);border-radius:6px;padding:4px 10px;background:var(--bg-elevated);color:var(--text-primary);font-variant-numeric:tabular-nums;${detailId ? 'cursor:pointer;text-align:left;' : 'opacity:0.85;'}`;
+  chip.style.cssText = `font-size:12px;border:1px ${detailId ? 'solid' : 'dashed'} var(--border-subtle);border-radius:6px;padding:4px 10px;background:var(--bg-elevated);color:var(--text-primary);font-variant-numeric:tabular-nums;${detailId ? 'cursor:pointer;text-align:left;' : ''}`; // v57.77 (a11y): the dashed border marks summary-only; opacity dropped the % below 4.5:1
   if (detailId) {
     chip.type = 'button';
     chip.dataset.action = 'showThemeDetail';
     chip.dataset.arg = detailId;
     chip.dataset.passEl = '1';
-    chip.setAttribute('aria-label', `${label} 테마 상세 열기`);
+    chip.setAttribute('aria-label', `${chip.textContent} — 테마 상세 열기`); // v57.77 (a11y 2.5.3): the name starts with the visible text
     chip.title = '테마 상세 열기';
   } else {
     // Codex browser audit H23: the leading sector (e.g. XLK) ended the "which sector → why → which company" path.
@@ -426,7 +426,7 @@ function createChip(documentRef, item, root) {
     chip.setAttribute('role', 'button');
     chip.tabIndex = 0;
     chip.style.cursor = 'pointer';
-    chip.setAttribute('aria-label', `${label} — 상세 패널 없음, 하위 테마 순위로 이동`);
+    chip.setAttribute('aria-label', `${chip.textContent} — 상세 패널 없음, 하위 테마 순위로 이동`);
     chip.title = '이 업종 자체의 상세 패널은 없습니다 — 눌러서 아래 하위 테마 순위에서 관련 테마와 대표 종목을 확인합니다.';
     const jump = () => documentRef.getElementById('theme-strength-board')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
     chip.addEventListener('click', jump);

@@ -15,9 +15,16 @@ function outlookSectors(root, nowMs) {
   }).filter(Boolean);
 }
 
-function outlookThemes(root) {
+// v57.77 perf: a caller that holds the native store passes it, and the rows are read in place (read-only here:
+// rows are only mapped into new objects and grouped). `root.AIO.store` was never assigned, so every call went
+// through the legacy bridge, which deep-clones and freezes the whole row set after each screener change.
+function outlookThemes(root, store) {
   let rows = [];
-  try { rows = root?.AIO?.store?.getState?.()?.screener?.rows || root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) { rows = []; }
+  try {
+    const nativeRows = store?.getState?.()?.screener?.rows;
+    // An empty native set defers to the bridge, which owns the pre-publication fallback rule (screener-row-policy).
+    rows = (Array.isArray(nativeRows) && nativeRows.length ? nativeRows : root?._aioGetCanonicalScreenerRows?.()) || [];
+  } catch (_) { rows = []; }
   const typed = rows.map((row) => row?.fieldReadiness ? { ...row, ...Object.fromEntries(['ret1m', 'ret3m', 'ret6m', 'pctSma50'].map((key) => [key, finite(fieldValueForPurpose(row, `price.${key}`, 'display'))])) } : row);
   try {
     // X03 (2026-10-13): "현재 주도" may name only themes measured on the latest completed session.
@@ -26,6 +33,6 @@ function outlookThemes(root) {
   } catch (_) { return []; }
 }
 
-export function outlookForRoot(root, { scenarios, regime, nowMs = Date.now() } = {}) {
-  return buildScenarioOutlook({ scenarios, regime, sectors: outlookSectors(root, nowMs), themes: outlookThemes(root) });
+export function outlookForRoot(root, { scenarios, regime, nowMs = Date.now(), store = null } = {}) {
+  return buildScenarioOutlook({ scenarios, regime, sectors: outlookSectors(root, nowMs), themes: outlookThemes(root, store) });
 }

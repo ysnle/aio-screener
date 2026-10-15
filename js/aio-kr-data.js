@@ -14,14 +14,26 @@
 // evidence-first contexts are defined in js/aio-chat.js.
 function filterKrThemes(btn, heat) {
   var tabBar = btn.parentElement;
-  if (tabBar) tabBar.querySelectorAll('.kr-tab').forEach(function(t){ t.classList.remove('active'); });
-  btn.classList.add('active');
+  if (tabBar) tabBar.querySelectorAll('.kr-tab').forEach(function(t){ t.classList.remove('active'); t.setAttribute('aria-pressed', 'false'); });
+  btn.classList.add('active'); btn.setAttribute('aria-pressed', 'true'); // v57.77 (a11y 4.1.2)
   var cards = document.querySelectorAll('#kr-theme-container .kr-theme-card');
   cards.forEach(function(card) {
     if (heat === 'all') { card.style.display = ''; return; }
     var h = card.getAttribute('data-heat');
     card.style.display = (h === heat) ? '' : 'none';
   });
+}
+
+// v57.77: the card badge, the filter key and the detail header name the weighted intraday move in plain bands.
+// The ±1%/±3% cuts are display bands only (no back-tested basis), so the words describe the move, not a grade.
+// data-heat keys stay (hot/warm/cool/cold) because the filter bar and the badge colours read them.
+function _krThemeMoveBand(avg) {
+  if (avg == null || !isFinite(avg)) return { heat: 'pending', label: '시세 미수신' };
+  if (avg >= 3) return { heat: 'hot', label: '+3% 이상' };
+  if (avg >= 1) return { heat: 'warm', label: '+1~3%' };
+  if (avg > -1) return { heat: 'cool', label: '보합' };
+  if (avg > -3) return { heat: 'cold', label: '-1~-3%' };
+  return { heat: 'cold', label: '-3% 이하' };
 }
 
 // v35.5: 카탈리스트 데이터 JS 분리 — 한 곳에서 업데이트 가능
@@ -69,8 +81,8 @@ var _KR_SECTOR_MAP = {
 };
 function filterKrSector(btn, sector) {
   var tabBar = btn.parentElement;
-  if (tabBar) tabBar.querySelectorAll('.kr-sector-tab').forEach(function(t){ t.classList.remove('active'); });
-  btn.classList.add('active');
+  if (tabBar) tabBar.querySelectorAll('.kr-sector-tab').forEach(function(t){ t.classList.remove('active'); t.setAttribute('aria-pressed', 'false'); });
+  btn.classList.add('active'); btn.setAttribute('aria-pressed', 'true'); // v57.77 (a11y 4.1.2)
   var cards = document.querySelectorAll('#kr-theme-container .kr-theme-card');
   var allowed = sector === 'all' ? null : _KR_SECTOR_MAP[sector];
   cards.forEach(function(card) {
@@ -174,12 +186,8 @@ function initKoreaThemes() {
       avg = pcts.reduce(function(a,b){return a+b;}, 0) / pcts.length;
     }
 
-    // heat 결정: 일간 평균 기준
-    var heat, heatLabel;
-    if (avg >= 3) { heat = 'hot'; heatLabel = 'HOT'; }
-    else if (avg >= 1) { heat = 'warm'; heatLabel = '강세'; }
-    else if (avg >= -1) { heat = 'cool'; heatLabel = '중립'; }
-    else { heat = 'cold'; heatLabel = avg <= -3 ? '급락' : '조정'; }
+    // 일간 가중평균 등락 구간 (v57.77: 등급이 아니라 등락 폭 표기)
+    var band = _krThemeMoveBand(avg), heat = band.heat, heatLabel = band.label;
 
     // DOM 업데이트
     card.setAttribute('data-heat', heat);
@@ -220,36 +228,36 @@ function renderKrThemeCardsFromMap() {
   var quoteCoverage = window.AIO && typeof window.AIO.evaluateKrThemeQuoteCoverage === 'function'
     ? window.AIO.evaluateKrThemeQuoteCoverage(ld, KR_THEME_MAP) : { validThemeIds: [] };
 
-  // 테마 메타데이터 (이모지, 한글명, 영문명, 아이콘 배경색)
+  // 테마 메타데이터 (한글명, 아이콘 배경색 — v57.77: 영문 부제 제거)
   var META = {
-    'defense':      {emoji:'',name:'K-방산 / 항공우주',en:'K-DEFENSE · AEROSPACE · MISSILE',bg:'rgba(177,58,48,0.12)'},
-    'semi':         {emoji:'',name:'반도체 / HBM',en:'SEMICONDUCTOR · HBM · FOUNDRY',bg:'rgba(var(--ink-rgb),0.12)'},
-    'shipbuilding': {emoji:'',name:'조선 / 해양',en:'SHIPBUILDING · LNG · SUBMARINE',bg:'rgba(var(--ink-rgb),0.12)'},
-    'ai-sw':        {emoji:'',name:'AI / 소프트웨어',en:'AI · SW · LLM · CLOUD',bg:'rgba(var(--ink-rgb),0.12)'},
-    'power-grid':   {emoji:'',name:'전력기기 / 변압기',en:'TRANSFORMER · GRID · CABLE',bg:'rgba(var(--ink-rgb),0.12)'},
-    'nuclear':      {emoji:'',name:'원전 / SMR',en:'NUCLEAR · SMR · REACTOR',bg:'rgba(34,117,76,0.12)'},
-    'battery':      {emoji:'',name:'2차전지 / 배터리',en:'BATTERY · CATHODE · EV',bg:'rgba(var(--ink-rgb),0.12)'},
-    'bio':          {emoji:'',name:'바이오 / 제약',en:'BIO · CDMO · GLP-1 · ADC',bg:'rgba(34,117,76,0.12)'},
-    'kbeauty':      {emoji:'',name:'K-뷰티 / 화장품',en:'K-BEAUTY · COSMETICS · ODM',bg:'rgba(var(--ink-rgb),0.12)'},
-    'kcontent':     {emoji:'',name:'K-콘텐츠 / 엔터',en:'K-POP · DRAMA · GAME',bg:'rgba(var(--ink-rgb),0.12)'},
-    'auto':         {emoji:'',name:'자동차 / EV',en:'HYUNDAI · KIA · EV · PARTS',bg:'rgba(var(--ink-rgb),0.12)'},
-    'robot':        {emoji:'',name:'로봇 / 자동화',en:'ROBOTICS · HUMANOID · COBOT',bg:'rgba(var(--ink-rgb),0.12)'},
-    'finance':      {emoji:'',name:'금융',en:'BANK · INSURANCE · FINTECH',bg:'rgba(var(--ink-rgb),0.12)'},
-    'kfood':        {emoji:'',name:'K-푸드 / 식품',en:'K-FOOD · F&B · EXPORT',bg:'rgba(var(--ink-rgb),0.12)'},
-    'crypto':       {emoji:'',name:'크립토 / 블록체인',en:'CRYPTO · WEB3 · BLOCKCHAIN',bg:'rgba(var(--ink-rgb),0.12)'},
-    'telecom':      {emoji:'',name:'통신',en:'TELECOM · 5G · IDC',bg:'rgba(var(--ink-rgb),0.12)'},
-    'construction': {emoji:'',name:'건설 / 인프라',en:'CONSTRUCTION · SOC · REDEVELOPMENT',bg:'rgba(var(--ink-rgb),0.12)'},
-    'retail':       {emoji:'',name:'유통 / 리테일',en:'RETAIL · DEPT STORE · CVS',bg:'rgba(var(--ink-rgb),0.12)'},
-    'steel_chem':   {emoji:'',name:'철강 / 화학 / 소재',en:'STEEL · CHEMICAL · MATERIALS',bg:'rgba(var(--ink-rgb),0.12)'},
-    'logistics':    {emoji:'',name:'물류 / 운송 / 항공',en:'LOGISTICS · AIRLINE · FREIGHT',bg:'rgba(var(--ink-rgb),0.12)'},
-  'medtech_kr':   {emoji:'',name:'의료기기 / 디지털헬스',en:'AI DIAGNOSIS · MED DEVICE · SURGICAL ROBOT',bg:'rgba(var(--ink-rgb),0.12)'},
-    'energy_kr':    {emoji:'',name:'에너지 / 정유',en:'OIL REFINERY · LNG · ENERGY',bg:'rgba(34,117,76,0.12)'},
-    'photonics_kr': {emoji:'',name:'광통신 / 포토닉스',en:'PHOTONICS · OPTICAL · CPO · FIBER',bg:'rgba(var(--ink-rgb),0.12)'},
-    'wind_solar':   {emoji:'',name:'풍력 / 태양광 / 신재생',en:'WIND · SOLAR · RENEWABLE ENERGY',bg:'rgba(34,117,76,0.12)'},
-    'quantum':      {emoji:'',name:'양자컴퓨팅 / 양자암호',en:'QUANTUM COMPUTING · QKD · PQC',bg:'rgba(var(--ink-rgb),0.12)'},
-    'uam':          {emoji:'',name:'UAM / 도심항공',en:'UAM · eVTOL · VERTIPORT',bg:'rgba(var(--ink-rgb),0.12)'},
-    'hydrogen':     {emoji:'',name:'수소에너지',en:'HYDROGEN · FUEL CELL · GREEN H2',bg:'rgba(var(--ink-rgb),0.12)'},
-    'space':        {emoji:'',name:'우주항공 / 위성',en:'SPACE · SATELLITE · LAUNCH VEHICLE',bg:'rgba(177,58,48,0.12)'}
+    'defense':      {emoji:'',name:'K-방산 / 항공우주',bg:'rgba(177,58,48,0.12)'},
+    'semi':         {emoji:'',name:'반도체 / HBM',bg:'rgba(var(--ink-rgb),0.12)'},
+    'shipbuilding': {emoji:'',name:'조선 / 해양',bg:'rgba(var(--ink-rgb),0.12)'},
+    'ai-sw':        {emoji:'',name:'AI / 소프트웨어',bg:'rgba(var(--ink-rgb),0.12)'},
+    'power-grid':   {emoji:'',name:'전력기기 / 변압기',bg:'rgba(var(--ink-rgb),0.12)'},
+    'nuclear':      {emoji:'',name:'원전 / SMR',bg:'rgba(34,117,76,0.12)'},
+    'battery':      {emoji:'',name:'2차전지 / 배터리',bg:'rgba(var(--ink-rgb),0.12)'},
+    'bio':          {emoji:'',name:'바이오 / 제약',bg:'rgba(34,117,76,0.12)'},
+    'kbeauty':      {emoji:'',name:'K-뷰티 / 화장품',bg:'rgba(var(--ink-rgb),0.12)'},
+    'kcontent':     {emoji:'',name:'K-콘텐츠 / 엔터',bg:'rgba(var(--ink-rgb),0.12)'},
+    'auto':         {emoji:'',name:'자동차 / EV',bg:'rgba(var(--ink-rgb),0.12)'},
+    'robot':        {emoji:'',name:'로봇 / 자동화',bg:'rgba(var(--ink-rgb),0.12)'},
+    'finance':      {emoji:'',name:'금융',bg:'rgba(var(--ink-rgb),0.12)'},
+    'kfood':        {emoji:'',name:'K-푸드 / 식품',bg:'rgba(var(--ink-rgb),0.12)'},
+    'crypto':       {emoji:'',name:'크립토 / 블록체인',bg:'rgba(var(--ink-rgb),0.12)'},
+    'telecom':      {emoji:'',name:'통신',bg:'rgba(var(--ink-rgb),0.12)'},
+    'construction': {emoji:'',name:'건설 / 인프라',bg:'rgba(var(--ink-rgb),0.12)'},
+    'retail':       {emoji:'',name:'유통 / 리테일',bg:'rgba(var(--ink-rgb),0.12)'},
+    'steel_chem':   {emoji:'',name:'철강 / 화학 / 소재',bg:'rgba(var(--ink-rgb),0.12)'},
+    'logistics':    {emoji:'',name:'물류 / 운송 / 항공',bg:'rgba(var(--ink-rgb),0.12)'},
+  'medtech_kr':   {emoji:'',name:'의료기기 / 디지털헬스',bg:'rgba(var(--ink-rgb),0.12)'},
+    'energy_kr':    {emoji:'',name:'에너지 / 정유',bg:'rgba(34,117,76,0.12)'},
+    'photonics_kr': {emoji:'',name:'광통신 / 포토닉스',bg:'rgba(var(--ink-rgb),0.12)'},
+    'wind_solar':   {emoji:'',name:'풍력 / 태양광 / 신재생',bg:'rgba(34,117,76,0.12)'},
+    'quantum':      {emoji:'',name:'양자컴퓨팅 / 양자암호',bg:'rgba(var(--ink-rgb),0.12)'},
+    'uam':          {emoji:'',name:'UAM / 도심항공',bg:'rgba(var(--ink-rgb),0.12)'},
+    'hydrogen':     {emoji:'',name:'수소에너지',bg:'rgba(var(--ink-rgb),0.12)'},
+    'space':        {emoji:'',name:'우주항공 / 위성',bg:'rgba(177,58,48,0.12)'}
   };
 
   // 테마 순서 (사용자에게 보이는 순서)
@@ -259,7 +267,7 @@ function renderKrThemeCardsFromMap() {
   ORDER.forEach(function(tid) {
     var tmap = KR_THEME_MAP[tid];
     if (!tmap) return;
-    var meta = META[tid] || {emoji:'',name:tid,en:tid.toUpperCase(),bg:'rgba(var(--ink-rgb),0.12)'};
+    var meta = META[tid] || {emoji:'',name:tid,bg:'rgba(var(--ink-rgb),0.12)'};
     var catalyst = _krCatalystReferenceText((typeof KR_THEME_CATALYSTS !== 'undefined' && KR_THEME_CATALYSTS[tid]) || '');
 
     // 종목별 가중평균 수익률 계산 + heat 판별
@@ -270,12 +278,7 @@ function renderKrThemeCardsFromMap() {
       if (d && d.pct != null && s.w > 0) { vs += d.pct * s.w; ws += s.w; }
     });
     var avg = quoteCoverage.validThemeIds.indexOf(tid) >= 0 && ws > 0 ? vs / ws : null;
-    var heat, heatLabel;
-    if (avg == null)   { heat = 'pending'; heatLabel = '시세 미수신'; }
-    else if (avg >= 3) { heat = 'hot';  heatLabel = 'HOT'; }
-    else if (avg >= 1) { heat = 'warm'; heatLabel = '강세'; }
-    else if (avg >= -1){ heat = 'cool'; heatLabel = '중립'; }
-    else               { heat = 'cold'; heatLabel = avg <= -3 ? '급락' : '조정'; }
+    var band = _krThemeMoveBand(avg), heat = band.heat, heatLabel = band.label;
 
     // 종목 pill 생성 (비중 내림차순 = 시총/대장주 순)
     var sorted = tmap.slice().sort(function(a, b) { return b.w - a.w; });
@@ -314,7 +317,7 @@ function renderKrThemeCardsFromMap() {
     html += '<div class="kr-theme-card" data-heat="' + heat + '" data-theme-id="' + tid + '">' +
       '<div class="kr-theme-header" role="button" tabindex="0" aria-label="' + escHtml(String(meta.name || tid) + ' · ' + heatLabel + ' — 테마 자세히 보기') + '">' +
         '<span class="kr-theme-icon" style="background:' + meta.bg + ';"></span>' +
-        '<div><div class="kr-theme-name">' + meta.name + '</div><div class="kr-theme-en">' + meta.en + '</div></div>' +
+        '<div><div class="kr-theme-name">' + meta.name + '</div></div>' +
         '<span class="kr-theme-heat heat-' + heat + '">' + heatLabel + '</span>' +
       '</div>' +
       '<div class="kr-theme-tickers">' + pillsHtml + '</div>' +
@@ -376,14 +379,8 @@ function showKrThemeDetail(themeId) {
   var avg=ws>0?vs/ws:0,ip=avg>=0,cc=ip?'var(--data-green)':'var(--data-red)';
   var totalStocks=tmap.length,upRatio=totalStocks>0?Math.round(upCnt/totalStocks*100):0;
 
-  // 테마 강도 판단
-  var strength='',strengthCol='';
-  if(avg>=3){strength='매우 강세';strengthCol='var(--data-green)';}
-  else if(avg>=1){strength='강세';strengthCol='var(--data-green)';}
-  else if(avg>=0){strength=' 보합·소폭강세';strengthCol='var(--text-muted)';}
-  else if(avg>=-1){strength=' 보합·소폭약세';strengthCol='var(--text-muted)';}
-  else if(avg>=-3){strength='약세';strengthCol='var(--data-red)';}
-  else{strength=' 급락';strengthCol='var(--data-red)';}
+  // v57.77: 등락 구간 표기 (카드와 같은 구간, 등급 아님)
+  var strength=ws>0?_krThemeMoveBand(avg).label:'시세 미수신',strengthCol=ws>0&&avg>=1?'var(--data-green)':ws>0&&avg<=-1?'var(--data-red)':'var(--text-muted)';
 
   // 종목 테이블 (등락률 순 정렬)
   var sorted=tmap.slice().sort(function(a,b){var da=ld[krTickerToYahoo(a.code)],db=ld[krTickerToYahoo(b.code)];return(db?db.pct!=null?db.pct:0:0)-(da?da.pct!=null?da.pct:0:0);});
@@ -1806,7 +1803,10 @@ function _generateKrMacroAnalysis(ld) {
 
   t += _krReferenceScoreLine('【글로벌 시장 환경】');
 
-  el.innerHTML = t || '데이터 대기 중...';
+  // v57.77: an empty summary hides its section instead of showing a permanent waiting line.
+  el.innerHTML = t;
+  var krMacroSection = document.getElementById('kr-macro-dynamic-section');
+  if (krMacroSection) krMacroSection.hidden = !t;
 }
 
 // P1552: the KR analysis paragraphs used to turn the 0-100 market score into a narrative ("favourable environment", "keep a
@@ -1955,251 +1955,8 @@ function _generateKrThemesAnalysis(ld) {
   el.innerHTML = h;
 }
 
-// ── 3) 포트폴리오 자동 진단 ──
-// v57.48 expert review #3/#5: the third argument is the native portfolio surface. Every share, return and amount
-// below is its base-currency value — a held currency mix or an unpriced holding holds the diagnosis instead of
-// being summed across currencies or valued at cost — and the sentences are observations, not instructions.
-function _generatePortfolioAnalysis(positions, ld, surf) {
-  var el = document.getElementById('pf-analysis-text'); if (!el) return;
-  if (!positions || positions.length === 0) { el.textContent = '포트폴리오를 추가하면 자동 분석됩니다'; return; }
-  if (!surf || surf.currencyState === 'mixed-without-conversion' || !(surf.positionValue > 0)) { el.textContent = surf && surf.currencyState === 'mixed-without-conversion' ? '통화가 다른 종목이 섞여 있고 환율이 선언되지 않아 자동 진단을 보류합니다.' : '모든 보유 종목의 평가액이 확인되면 자동 진단을 표시합니다(원가로 대신 평가하지 않습니다).'; return; }
-  var h = '', cur = surf.baseCurrency || null, byTk = {}, esc = typeof escHtml === 'function' ? escHtml : String;
-  var money = function(v) { return typeof _pfLegacyMoney === 'function' ? _pfLegacyMoney(v, cur || 'USD', 0) : Math.round(Math.abs(v)).toLocaleString('en'); };
-  (surf.rows || []).forEach(function(r) { byTk[r.symbol] = r; });
-  var vals = (surf.rows || []).filter(function(r) { return r.value > 0; }).map(function(r) { return { ticker: r.symbol, val: r.value }; });
-  vals.sort(function(a, b) { return b.val - a.val; });
-  var topPct = vals[0].val / surf.positionValue * 100;
-  h += '<b>집중도:</b> 최대 비중 ' + esc(vals[0].ticker) + ' <b>' + topPct.toFixed(0) + '%</b>' + (cur ? ' (' + cur + ' 환산 주식 평가액 기준)' : '');
-  h += topPct > 25 ? ' <span style="color:var(--yellow);">— 25% 초과(내부 구간 주의). 이 종목이 급락하면 포트폴리오 변동이 크게 커지는 구성입니다.</span>' :
-       topPct > 10 ? ' <span>— 10~25%(내부 구간 참고).</span>' : ' <span>— 10% 이하.</span>';
-  h += '<br>';
-  // 일간 변동 — 기준 통화 평가액 대비, 확인되지 않으면 0으로 두지 않는다
-  var dpct = surf.dailyPct;
-  h += '<b>오늘:</b> ' + (dpct == null ? '일간 변동 미확인' : (dpct >= 0 ? '+' : '') + dpct.toFixed(2) + '% ');
-  if (dpct != null) h += Math.abs(dpct) > 3 ? '<span style="color:var(--red);">— 하루 변동이 3%를 넘었습니다.</span>' : dpct > 1 ? '<span style="color:var(--green);">— 오늘 1% 넘게 상승.</span>' : dpct < -1 ? '<span style="color:var(--yellow);">— 오늘 1% 넘게 하락.</span>' : '<span>— 보합권.</span>';
-  h += '<br>';
-  // 총 손익 — 원가·평가액이 같은 기준 통화일 때만
-  var tp = surf.totalPnlPct;
-  h += '<b>누적 P&L:</b> ' + (tp == null ? '원가 또는 환율 근거가 없어 보류' : (tp >= 0 ? '+' : '') + tp.toFixed(1) + '% ');
-  if (tp != null) h += tp > 20 ? '<span style="color:var(--green);">— 평가 수익 20% 초과.</span>' : tp > 0 ? '<span style="color:var(--green);">— 평가 수익.</span>' : tp > -10 ? '<span style="color:var(--yellow);">— 평가 손실 10% 이내.</span>' : '<span style="color:var(--red);">— 평가 손실 10% 초과.</span>';
-  h += '<br>';
-
-  // v38.5: 섹터 분산도 진단
-  if (positions.length >= 2) {
-    var sectorWeights = {};
-    var _aioScreenerRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-    // v57.50 C24: the same denominator as the portfolio surface's sector breakdown — total assets including cash —
-    // so this diagnosis and the native sector chart give one weight per sector. Without a known total it is held.
-    var totalVal = surf.totalAssets != null && isFinite(surf.totalAssets) && surf.totalAssets > 0 ? surf.totalAssets : null;
-    if (totalVal != null && surf.cash != null && isFinite(surf.cash) && surf.cash > 0) sectorWeights['현금'] = surf.cash;
-    if (totalVal != null) vals.forEach(function(p) {
-      var val = p.val; // base-currency value (surface)
-      // SCREENER_DB에서 섹터 조회
-      var sec = 'Unknown';
-      if (Array.isArray(_aioScreenerRows)) {
-        for (var si = 0; si < _aioScreenerRows.length; si++) {
-          if (_aioScreenerRows[si].sym === p.ticker) { sec = _aioScreenerRows[si].sector || 'Unknown'; break; }
-        }
-      }
-      if (!sectorWeights[sec]) sectorWeights[sec] = 0;
-      sectorWeights[sec] += val;
-    });
-    var sectorEntries = [];
-    if (totalVal != null) for (var sk in sectorWeights) { sectorEntries.push({ name: sk, weight: sectorWeights[sk] / totalVal * 100 }); }
-    sectorEntries.sort(function(a, b) { return b.weight - a.weight; });
-    h += '<br><b>【섹터 분산도 진단】</b> ' + (totalVal == null ? '현금을 포함한 총자산이 확인되지 않아 섹터 비중을 보류합니다.' : '<span>(총자산 기준 · 현금 포함)</span> ');
-    var secLabels = sectorEntries.map(function(s) { return s.name + ' ' + s.weight.toFixed(0) + '%'; });
-    h += secLabels.join(' · ');
-    var stockSectors = sectorEntries.filter(function(s) { return s.name !== '현금'; }); // cash is not a sector concentration
-    if (stockSectors.length > 0 && stockSectors[0].weight > 50) {
-      h += '<br><span style="color:var(--red);font-weight:700;">경고: ' + stockSectors[0].name + ' 섹터에 ' + stockSectors[0].weight.toFixed(0) + '% 집중. ';
-      h += '해당 섹터에 악재가 나오면 포트폴리오 전체가 영향을 받는 구성입니다.</span>';
-    } else if (stockSectors.length > 0 && stockSectors[0].weight > 35) {
-      h += '<br><span style="color:var(--yellow);">' + stockSectors[0].name + ' 비중 높음(' + stockSectors[0].weight.toFixed(0) + '%).</span>';
-    } else if (stockSectors.length >= 3) {
-      h += '<br><span style="color:var(--green);">양호한 섹터 분산. 특정 섹터 충격에 대한 버퍼 확보.</span>';
-    }
-    h += '<br>';
-  }
-
-  // v38.5: 매크로 민감도 프로파일 (VIX/금리/달러 변동 시 포트폴리오 예상 영향)
-  var macroLd = window._liveData || {};
-  var vixNow = macroLd['^VIX'] ? macroLd['^VIX'].price : 0;
-  var tnxNow = macroLd['^TNX'] ? macroLd['^TNX'].price : 0;
-  var dxyNow = macroLd['DX-Y.NYB'] ? macroLd['DX-Y.NYB'].price : 0;
-  if (positions.length >= 2 && (vixNow > 0 || tnxNow > 0)) {
-    h += '<br><b>【거시 민감도 프로파일】</b><br>';
-    // VIX 민감도
-    var techCount = 0, defCount = 0;
-    if (Array.isArray(_aioScreenerRows)) {
-      positions.forEach(function(p) {
-        for (var si = 0; si < _aioScreenerRows.length; si++) {
-          if (_aioScreenerRows[si].sym === p.ticker) {
-            var sec = _aioScreenerRows[si].sector || '';
-            if (sec === 'Technology' || sec === 'Consumer') techCount++;
-            if (sec === 'Healthcare' || sec === 'Utilities' || sec === 'Consumer Defensive') defCount++;
-            break;
-          }
-        }
-      });
-    }
-    var vixSensitivity = techCount > defCount ? '높음' : techCount < defCount ? '낮음' : '중립';
-    var rateSensitivity = techCount > positions.length * 0.4 ? '높음' : '중립';
-    h += '<span style="font-size:11px;">VIX 급등(+10) 시 예상 영향: <b style="color:' + (vixSensitivity === '높음' ? 'var(--red)' : vixSensitivity === '낮음' ? 'var(--green)' : 'var(--yellow)') + ';">' + vixSensitivity + '</b>';
-    h += ' (성장주 ' + techCount + '개 / 방어주 ' + defCount + '개)</span><br>';
-    h += '<span style="font-size:11px;">금리 +25bp 시 예상 영향: <b style="color:' + (rateSensitivity === '높음' ? 'var(--red)' : 'var(--yellow)') + ';">' + rateSensitivity + '</b>';
-    if (rateSensitivity === '높음') h += ' — 성장주 비중 40%+ → 금리 민감도 높음. 듀레이션 리스크 주의.';
-    h += '</span><br>';
-    if (dxyNow > 0) {
-      h += '<span style="font-size:11px;">달러 +2% 시 예상 영향: ';
-      if (dxyNow > 106) h += '<b style="color:var(--yellow);">이미 강달러 구간</b> — 추가 강세 시 다국적 기업 실적 역풍.';
-      else h += '<b style="color:var(--text-secondary);">제한적</b> — 달러 중립 구간.';
-      h += '</span><br>';
-    }
-    // 종합 매크로 리스크
-    var riskFlags = [];
-    if (vixNow > 25) riskFlags.push('고변동성(VIX ' + vixNow.toFixed(0) + ')');
-    if (tnxNow > 4.5) riskFlags.push('고금리(10Y ' + tnxNow.toFixed(1) + '%)');
-    if (dxyNow > 106) riskFlags.push('강달러(DXY ' + dxyNow.toFixed(0) + ')');
-    if (riskFlags.length >= 2) {
-      h += '<span style="color:var(--red);">복합 거시 리스크: ' + riskFlags.join(' + ') + ' 조건이 겹쳐 있습니다.</span>';
-    } else if (riskFlags.length === 1) {
-      h += '<span style="color:var(--yellow);">' + riskFlags[0] + ' 주의.</span>';
-    } else {
-      h += '<span>VIX 25 · 10년물 4.5% · DXY 106 기준을 넘은 항목이 없습니다.</span>';
-    }
-    h += '<br>';
-  }
-
-  // v38.5: 승자-패자 분석 강화 (보유기간 대비 수익률 효율성 추가)
-  if (positions.length >= 3 && tp != null) { // the surface's P&L stands only when every cost is in the base currency
-    var posPerfs = positions.map(function(p) {
-      var d = ld[p.ticker], r = byTk[String(p.ticker || '').toUpperCase()] || {};
-      var curVal = r.value, costVal = r.cost;
-      var pnlPct = costVal > 0 && curVal != null ? ((curVal - costVal) / costVal * 100) : 0;
-      var holdDays = p.addedAt ? Math.max(1, Math.floor((Date.now() - p.addedAt) / 86400000)) : null;
-      var efficiency = holdDays ? (pnlPct / holdDays) : null; // 일평균 수익률
-      return { ticker: p.ticker, pnl: pnlPct, dailyChg: d ? (d.pct != null ? d.pct : 0) : 0, holdDays: holdDays, efficiency: efficiency };
-    });
-    posPerfs.sort(function(a, b) { return b.pnl - a.pnl; });
-    var topPerf = posPerfs[0], botPerf = posPerfs[posPerfs.length - 1];
-    h += '<br><b>【승자-패자 분석】</b><br>';
-    h += '<span style="color:var(--green);">최고: ' + esc(topPerf.ticker) + ' ' + (topPerf.pnl >= 0 ? '+' : '') + topPerf.pnl.toFixed(1) + '%</span>';
-    if (topPerf.holdDays) h += ' (' + topPerf.holdDays + '일 보유, 일평균 ' + (topPerf.efficiency >= 0 ? '+' : '') + topPerf.efficiency.toFixed(2) + '%/일)';
-    h += '<br>';
-    h += '<span style="color:var(--red);">최저: ' + esc(botPerf.ticker) + ' ' + (botPerf.pnl >= 0 ? '+' : '') + botPerf.pnl.toFixed(1) + '%</span>';
-    if (botPerf.holdDays) h += ' (' + botPerf.holdDays + '일 보유, 일평균 ' + (botPerf.efficiency >= 0 ? '+' : '') + botPerf.efficiency.toFixed(2) + '%/일)';
-    h += '<br>';
-    // 효율성 기반 인사이트
-    var effSorted = posPerfs.filter(function(p) { return p.efficiency !== null; });
-    if (effSorted.length >= 2) {
-      effSorted.sort(function(a, b) { return (b.efficiency || 0) - (a.efficiency || 0); });
-      var bestEff = effSorted[0], worstEff = effSorted[effSorted.length - 1];
-      if (worstEff.efficiency !== null && worstEff.efficiency < -0.5 && worstEff.holdDays > 30) {
-        h += '<span style="color:var(--red);font-size:11px;">' + worstEff.ticker + ': ' + worstEff.holdDays + '일간 일평균 ' + worstEff.efficiency.toFixed(2) + '%/일 손실로 보유 기간 내 하락 추세가 이어졌습니다.</span><br>';
-      }
-    }
-    if (topPerf.pnl - botPerf.pnl > 30) {
-      h += '<span style="color:var(--yellow);">승패 격차 ' + (topPerf.pnl - botPerf.pnl).toFixed(0) + '%p로 종목별 성과 편차가 큽니다.</span><br>';
-    }
-  }
-
-  // v38.5: 목표가 대비 포지셔닝
-  var targetPositions = positions.filter(function(p) { return p.target && p.target > 0; });
-  if (targetPositions.length > 0) {
-    h += '<br><b>【목표가 대비 포지셔닝】</b><br>';
-    targetPositions.forEach(function(p) {
-      // The target is entered in the position's own currency; it is compared with the quote only in that same
-      // currency, and a missing quote is said instead of being replaced by the cost.
-      var r = byTk[String(p.ticker || '').toUpperCase()] || {}, tcur = typeof _pfLegacyCurrencyOf === 'function' ? _pfLegacyCurrencyOf(p) : 'USD';
-      var curPrice = r.price > 0 && (r.currency || r.listingCurrency || tcur) === tcur ? r.price : null;
-      if (curPrice == null) { h += '<span style="font-size:11px;">' + esc(p.ticker) + ': 같은 통화의 현재 시세가 없어 목표가 비교 보류</span><br>'; return; }
-      var distPct = ((p.target - curPrice) / curPrice * 100), fmt = function(v) { return typeof _pfLegacyMoney === 'function' ? _pfLegacyMoney(v, tcur) : v.toFixed(2); };
-      var color = distPct <= 0 ? 'var(--green)' : distPct < 10 ? 'var(--accent)' : distPct < 30 ? 'var(--yellow)' : 'var(--text-muted)';
-      h += '<span style="font-size:11px;">' + esc(p.ticker) + ': 현재 ' + fmt(curPrice) + ' → 목표 ' + fmt(p.target) + ' (';
-      if (distPct <= 0) {
-        h += '<b style="color:var(--green);">목표가 도달</b> +' + Math.abs(distPct).toFixed(1) + '% 초과';
-      } else {
-        h += '<b style="color:' + color + ';">잔여 ' + distPct.toFixed(1) + '%</b>';
-        if (distPct < 5) h += ' — 목표가까지 5% 이내';
-        else if (distPct < 15) h += ' — 목표가까지 15% 이내';
-      }
-      h += ')</span><br>';
-    });
-  }
-
-  // P1538 (owner decision: no composite grades or scores without predictive evidence): the 1-5 "risk grade" summed hand-set buckets and
-  // came with cash-ratio and "avoid new entries" instructions. The block lists the three observations themselves.
-  if (positions.length >= 2) {
-    h += '<br><b>【리스크 관측】</b> ';
-    var avgAbsChg = 0;
-    var chgCount = 0;
-    positions.forEach(function(p) {
-      var d = ld[p.ticker];
-      if (d && d.pct !== undefined) { avgAbsChg += Math.abs(d.pct); chgCount++; }
-    });
-    avgAbsChg = chgCount > 0 ? avgAbsChg / chgCount : null;
-    var macroFacts = [];
-    if (vixNow > 25) macroFacts.push('VIX ' + vixNow + ' (25 이상)');
-    if (tnxNow > 4.5) macroFacts.push('미 10년물 ' + tnxNow + '% (4.5% 초과)');
-    if (dxyNow > 106) macroFacts.push('달러 인덱스 ' + dxyNow + ' (106 초과)');
-    h += '<span style="font-size:11px;color:var(--text-muted);">최대 비중 ' + topPct.toFixed(1) + '%' + (topPct > 25 ? ' (25% 초과)' : '') +
-      ' · 보유 종목 평균 일간 등락폭 ' + (avgAbsChg == null ? '미수신' : avgAbsChg.toFixed(2) + '%') +
-      ' · 거시 ' + (macroFacts.length ? macroFacts.join(', ') : '기준선 안쪽') + '</span>';
-  }
-  // v39.2: 포트폴리오 베타 추정 + MDD 시나리오 + 상관계수 + 스트레스 테스트
-  if (positions.length >= 2 && Array.isArray(_aioScreenerRows)) {
-    // 섹터별 평균 베타 테이블
-    var _SECTOR_BETA = { 'Technology': 1.3, 'Semiconductors': 1.4, 'Consumer': 1.1, 'Communication': 1.15,
-      'Financials': 1.1, 'Industrials': 1.0, 'Energy': 0.9, 'Materials': 0.95,
-      'Healthcare': 0.8, 'Utilities': 0.5, 'Consumer Defensive': 0.6, 'Real Estate': 0.75 };
-    // 포지션별 섹터+비중+베타 계산
-    var pfBeta = 0, totalW = 0;
-    var posInfo = positions.map(function(p) {
-      var val = (byTk[String(p.ticker || '').toUpperCase()] || {}).value || 0; // base-currency value (surface)
-      var sec = 'Unknown';
-      for (var si = 0; si < _aioScreenerRows.length; si++) {
-        if (_aioScreenerRows[si].sym === p.ticker) { sec = _aioScreenerRows[si].sector || 'Unknown'; break; }
-      }
-      var beta = _SECTOR_BETA[sec] || 1.0;
-      var w = val / surf.positionValue;
-      pfBeta += beta * w; totalW += w;
-      return { ticker: p.ticker, sector: sec, beta: beta, weight: w, val: val };
-    });
-    pfBeta = totalW > 0 ? pfBeta / totalW : 1.0; // v46.9: 가중평균 베타 수정 (이전 /totalW*totalW noop)
-
-    h += '<br><b>【포트폴리오 베타 & 상관계수 분석】</b><br>';
-    h += '<span style="font-size:11px;">포트폴리오 가중평균 베타: <b style="color:' + (pfBeta > 1.2 ? 'var(--red)' : pfBeta > 0.8 ? 'var(--yellow)' : 'var(--green)') + ';">' + pfBeta.toFixed(2) + '</b>';
-    h += pfBeta > 1.2 ? ' — 시장보다 공격적. S&P -10% 시 약 -' + (pfBeta * 10).toFixed(0) + '% 예상.' :
-         pfBeta < 0.8 ? ' — 방어적 포트폴리오. 시장 하락 시 완충.' : ' — 시장과 유사한 변동성.';
-    h += '</span><br>';
-
-    // P1684: the assumed sector-correlation "분산화 점수 /100" was an ungrounded grade; measured pair correlations live in the risk panel.
-
-    // MDD 시나리오 (VIX 기반)
-    h += '<br><b>【스트레스 테스트 시나리오】</b><br>';
-    var scenarios = [
-      { name: 'VIX 40 급등 시', factor: pfBeta * 0.12, color: 'var(--red)' },
-      { name: '금리 +50bp 시', factor: (techCount > defCount ? 0.06 : 0.03), color: 'var(--yellow)' },
-      { name: '유가 $150 시', factor: 0.05 + (techCount > positions.length * 0.5 ? 0.03 : 0), color: '#b13a30' }
-    ];
-    scenarios.forEach(function(sc) {
-      var loss = surf.positionValue * sc.factor;
-      h += '<span style="font-size:11px;color:' + sc.color + ';">' + sc.name + ': 예상 손실 약 <b>-' + (sc.factor * 100).toFixed(1) + '%</b> (' + money(loss) + (cur ? ' · ' + cur + ' 기준' : '') + ')</span><br>';
-    });
-
-    // 평가 손실 -7% 이하 종목 나열 (사실 표시; 매도 지시가 아니다)
-    var pnlOf = function(p) { var r = byTk[String(p.ticker || '').toUpperCase()] || {}; return tp != null && r.cost > 0 && r.value != null ? (r.value - r.cost) / r.cost * 100 : null; }; // base currency, both axes
-    var cutLossCandidates = positions.filter(function(p) { var x = pnlOf(p); return x != null && x <= -7; });
-    if (cutLossCandidates.length > 0) {
-      h += '<br><span style="color:var(--red);font-weight:700;"> 평가 손실 -7% 이하 종목 (' + cutLossCandidates.length + '개):</span><br>';
-      cutLossCandidates.forEach(function(p) { h += '<span style="font-size:11px;color:var(--red);">' + esc(p.ticker) + ': ' + pnlOf(p).toFixed(1) + '%</span><br>'; });
-    }
-  }
-
-  el.innerHTML = h;
-}
-
+// ── 3) 포트폴리오 자동 진단 ── v57.77: retired with #pf-analysis-text (the native #pf-read, 포트폴리오 점검 and the holdings
+// table carry its observations; its sector-beta table and stress factors were fixed estimates).
 
 // ── 5) 심리지표 복합 분석 ──
 // W01-B: retired — native ViewModel owns sent-analysis-text from one revision.

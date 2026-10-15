@@ -41,10 +41,11 @@ function difference(a, b) {
 const count = (value) => Math.round(value).toLocaleString('en-US');
 const signedCount = (value) => `${value > 0 ? '+' : ''}${Math.round(value).toLocaleString('en-US')}`;
 
+// v57.77: each group shows one lead chart beside its reading; the other measures sit in a "나머지 지표 보기" fold.
 export const BREADTH_GROUPS = Object.freeze([
-  { id: 'participation', title: '참여도 — 이동평균 위 종목 비율' },
-  { id: 'leadership', title: '강한 종목 수 — 신고가·신저가, 급등락' },
-  { id: 'index', title: '지수 확인 — 분배일과 S&P 500' }
+  { id: 'participation', title: '참여도 — 이동평균 위 종목 비율', lead: 'b50' },
+  { id: 'leadership', title: '강한 종목 수 — 신고가·신저가, 급등락', lead: 'hl' },
+  { id: 'index', title: '지수 확인 — 분배일과 S&P 500', lead: 'spx' }
 ]);
 
 export function buildBreadthCards(history = []) {
@@ -61,7 +62,7 @@ export function buildBreadthCards(history = []) {
   const pct = (value) => `${value.toFixed(0)}%`;
   return [
     { id: 'b20', group: 'participation', title: '20일선 위 종목 비율', note: '단기 참여도 — 빠르게 움직여 반등·이탈을 먼저 보여 줌', series: pctSeries('breadth20'), refLines: [40, 60], format: pct, domain: [0, 100] },
-    { id: 'b40', group: 'participation', title: '40일선 위 종목 비율', note: '20% 아래는 지나친 하락(과매도), 80% 위는 지나친 상승(과열)으로 보는 관례 구간 — 극단에서 방향이 바뀌는지 확인', source: 'Worden T2108 계열 지표와 같은 정의', series: pctSeries('breadth40'), refLines: [20, 80], format: pct, domain: [0, 100] },
+    { id: 'b40', group: 'participation', title: '40일선 위 종목 비율', note: '20% 아래는 지나친 하락(과매도), 80% 위는 지나친 상승(과열)으로 보는 관례 구간 — 극단에서 방향이 바뀌는지 확인', series: pctSeries('breadth40'), refLines: [20, 80], format: pct, domain: [0, 100] },
     { id: 'b50', group: 'participation', title: '50일선 위 종목 비율', note: '중기 참여도 — 60% 이상이면 확산, 40% 미만이면 위축', series: pctSeries('breadth50'), refLines: [40, 60], format: pct, domain: [0, 100] },
     { id: 'b200', group: 'participation', title: '200일선 위 종목 비율', note: '장기 추세에 올라탄 종목 비율', series: pctSeries('breadth200'), refLines: [40, 60], format: pct, domain: [0, 100] },
     { id: 'adv', group: 'participation', title: '상승 종목 비율 (10일 평균)', note: '하루치는 소음이 커서 10일 평균으로 봄 — 50% 위면 상승 종목 우세', series: rolling(advance, 10).slice(-WINDOW), refLines: [50], format: pct },
@@ -70,7 +71,7 @@ export function buildBreadthCards(history = []) {
       latest: lastOf(highs) && lastOf(lows) ? `신고가 ${count(lastOf(highs).value)} · 신저가 ${count(lastOf(lows).value)}` : null, drill: ['newHigh', 'newLow'] },
     { id: 'mv', group: 'leadership', title: '4% 이상 상승 − 하락 종목 수 (5일 합계)', note: '거래량이 늘며 하루 4% 넘게 움직인 종목 — 5일 합계에서 상승·하락 중 어느 쪽이 우세한지 봄', series: rolling(difference(up4, down4), 5, { sum: true }).slice(-WINDOW), refLines: [0], format: signedCount, changeUnit: '', changeDigits: 0,
       latest: lastOf(up4) && lastOf(down4) ? `${lastOf(up4).date.slice(5).replace('-', '/')} 상승 ${count(lastOf(up4).value)} · 하락 ${count(lastOf(down4).value)}` : null, drill: ['up4', 'down4'] },
-    { id: 'dd', group: 'index', title: 'S&P 500 매도 우위일(분배일, 최근 25거래일)', note: '지수가 0.2% 이상 내리면서 거래량이 늘어난 날의 수 — 흔히 25거래일 중 5~6회 이상이면 추세 약화 경고로 봄', source: '윌리엄 오닐의 분배일 관례', series: pctSeries('distributionDays'), refLines: [5], format: count, changeUnit: '', changeDigits: 0, domain: [0, 12] },
+    { id: 'dd', group: 'index', title: 'S&P 500 매도 우위일(분배일, 최근 25거래일)', note: '지수가 0.2% 이상 내리면서 거래량이 늘어난 날의 수 — 흔히 25거래일 중 5~6회 이상이면 추세 약화 경고로 봄', series: pctSeries('distributionDays'), refLines: [5], format: count, changeUnit: '', changeDigits: 0, domain: [0, 12] },
     { id: 'spx', group: 'index', title: 'S&P 500 (같은 기간 비교)', note: '위 참여도 차트와 나란히 보면 지수와 시장 폭의 괴리가 보임', series: spx, refLines: [], format: count, changeUnit: '%', percentChange: true }
   ];
 }
@@ -154,10 +155,12 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
   const denominator = judgedCount ? ` · 판정 대상 ${judgedCount}개 종목` : '';
   // v57.51 V16: the same measure on S&P 500 members only, read from the screener artifact, so the watch list's theme
   // tilt is visible next to the headline ratios. Shown only when the segment is on the shown close date.
-  const sp500 = root?.AIO_ARCH?.getScreenerState?.()?.metadata?.breadth?.segments?.sp500 || null;
+  const sp500 = root?.AIO_ARCH?.getScreenerState?.('metadata.breadth.segments.sp500') || null; // v57.77 perf: path read, no row clone
   const sp500Same = sp500 && Number(sp500.eligible) >= 300 && Number.isFinite(sp500.above50) && String(sp500.observedAt || '').slice(0, 10) === String(regime.asOf || '').slice(0, 10);
   const sp500Read = sp500Same ? ` S&P 500 구성 종목만(${sp500.eligible}개) 보면 50일선 위 ${sp500.above50.toFixed(0)}%${Number.isFinite(sp500.above200) ? `, 200일선 위 ${sp500.above200.toFixed(0)}%` : ''}입니다.` : '';
-  set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? ` · 시장 폭 ${axis.basis}` : ''}${denominator} · AIO 관찰 종목(미국 개별 주식, ETF 제외, 동일 비중) — 거래소 전체 집계가 아니며, 시가총액 가중 지수와 달리 종목마다 같은 무게로 셉니다.${sp500Read}` : '종가 기록을 불러오는 중입니다.');
+  // v57.77: the subtitle is the date and the judged count; who is counted and how sits in the 데이터 출처 fold, and the
+  // S&P 500 member read joins the participation group's reading below.
+  set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? ` · 시장 폭 ${axis.basis}` : ''}${denominator}` : '종가 기록을 불러오는 중입니다.');
   const state = doc.getElementById('breadth-state');
   if (state) { state.textContent = axis?.stateLabel || '판정 대기'; state.className = `regime-state is-${axis?.state || 'unknown'}`; }
   set('breadth-read', axis?.read || '');
@@ -191,17 +194,34 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
       box.append(el(doc, 'div', `${changes || '변화 기록 수집 중'}${lateStart}`, 'trend-card-change'),
         createTrendChart(doc, { series: points, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }),
         el(doc, 'p', card.note, 'trend-card-note'));
-      if (card.source) box.title = card.source; // T22: names and conventions sit in the hover, not the body
       if (card.drill) box.append(renderDrill(doc, root, card, root._aioBreadthContributors, basis));
       return box;
     };
-    // A re-render (live quotes, history) keeps an opened drilldown and its chosen date.
+    // A re-render (live quotes, history) keeps an opened drilldown and its chosen date, and an opened group fold.
+    // querySelectorAll reaches cards inside a closed <details>, so folded drilldowns are found too.
     const opened = new Map([...grid.querySelectorAll('details.breadth-drill[open]')].map((node) => [node.closest('[data-metric]')?.dataset.metric, node.querySelector('select')?.value]));
+    const openedGroups = new Set([...grid.querySelectorAll('details.breadth-more[open]')].map((node) => node.dataset.group));
     // P1431: each group opens with what it adds to the verdict above, from the same series.
     const flow = breadthFlow({ cards, regime });
     grid.replaceChildren(...BREADTH_GROUPS.flatMap((group) => {
       const members = cards.filter((card) => card.group === group.id);
-      return members.length ? [el(doc, 'h2', group.title, 'breadth-group-title'), sectionLead(doc, flow.leads[group.id]), ...members.map(renderCard)] : [];
+      if (!members.length) return [];
+      // v57.77: one lead chart per group; the rest wait in a fold so the page is three charts, not ten in a row.
+      const lead = members.find((card) => card.id === group.lead) || members[0];
+      const rest = members.filter((card) => card !== lead);
+      const leadBox = renderCard(lead);
+      leadBox.classList.add('breadth-lead');
+      const nodes = [el(doc, 'h2', group.title, 'breadth-group-title'), sectionLead(doc, `${flow.leads[group.id] || ''}${group.id === 'participation' ? sp500Read : ''}`.trim()), leadBox];
+      if (rest.length) {
+        const more = el(doc, 'details', null, 'breadth-more');
+        more.dataset.group = group.id;
+        more.open = openedGroups.has(group.id);
+        const body = el(doc, 'div', null, 'trend-grid breadth-more-grid');
+        body.append(...rest.map(renderCard));
+        more.append(el(doc, 'summary', '나머지 지표 보기', 'breadth-more-summary'), body);
+        nodes.push(more);
+      }
+      return nodes;
     }));
     // P1660: the page-level teaching fold, with the link back to the 시장 상태 axis that uses these series.
     const fold = deepDiveFold(doc, root, '시장 폭', { ...AXIS_DEEP_DIVES.breadth, related: [['signal', '시장 상태에서 추세 축과 함께 보기']] });
@@ -210,6 +230,8 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
     for (const [metric, date] of opened) {
       const details = grid.querySelector(`[data-metric="${metric}"] details.breadth-drill`);
       if (!details) continue;
+      const folded = details.closest('details.breadth-more');
+      if (folded) folded.open = true; // v57.77: a drilldown on a folded card opens its group fold
       details.open = true;
       const picker = details.querySelector('select');
       if (picker && date && [...picker.options].some((option) => option.value === date)) { picker.value = date; picker.dispatchEvent(new Event('change')); }

@@ -8,6 +8,8 @@ import { subscribeToSlices } from '../../state/memoize.js';
 import { groupNewsStories, newsArticleKey, newsEvidence, resolveNewsIssuers, selectIntradayNews } from '../../domain/news/stories.js';
 import { briefingWindowKST, deriveNewsSummary, isNewsAnalysisEligible, isNewsHeadlineOnly, isNewsTopicReviewRequired } from '../../domain/news/scoring.js';
 import { finiteNumber as finite } from '../../domain/shared/number.js';
+import { newsFlow } from '../../domain/market/page-flow.js';
+import { renderNextSteps } from '../components/page-flow.js';
 
 function text(documentRef, value, fallback = '—') {
   const node = documentRef.createElement('span');
@@ -28,10 +30,11 @@ const NEWS_EMPTY_REASON_COPY = Object.freeze({
   'native-model-unavailable': '뉴스 분류를 불러오지 못했습니다.'
 });
 
-// P1537 (audit H07): the article list follows the country/topic/type controls; the channel (Telegram) list below it is classified
+// P1537 (audit H07): the article list follows the country/topic controls; the channel (Telegram) list below it is classified
 // on its own and never follows them. Both scopes are written out so a count is never read as covering the other list.
+// v57.77: the type tabs left (기업 is a topic chip now), so only country and topic count as filters.
 export function describeNewsScope(controls) {
-  const active = !!controls && ['countryFilter', 'topicFilter', 'typeTab'].some((key) => controls[key] && controls[key] !== 'all');
+  const active = !!controls && ['countryFilter', 'topicFilter'].some((key) => controls[key] && controls[key] !== 'all');
   return { articles: active ? '필터 적용' : '필터 없음', channel: active ? '채널 소식은 국가·주제 필터와 무관하게 자체 분류로 표시됩니다.' : '' };
 }
 
@@ -300,7 +303,10 @@ function createNewsCard(documentRef, root, item, index) {
   evidence.appendChild(evidenceTitle);
   const detail = documentRef.createElement('div');
   detail.textContent = [`발행 ${formatAbsoluteTime(facts.publishedAt) || '미제공'}`, `관찰 ${formatAbsoluteTime(facts.observedAt) || '미제공'}`,
-    `수집 ${formatAbsoluteTime(item?.fetchedAt) || '미제공'}`, '기사 내용의 사실 여부는 원 출처에서 확인'].join(' · ');
+    `수집 ${formatAbsoluteTime(item?.fetchedAt) || '미제공'}`,
+    // LC-31 (v57.77): the 카테고리별 view that named this boundary left; a feed-query topic says so in the card's fold.
+    isNewsTopicReviewRequired(item) && topicLabel ? `주제 표시(${topicLabel})는 출처 기준 분류 · 기사 본문으로 확인 전` : '',
+    '기사 내용의 사실 여부는 원 출처에서 확인'].filter(Boolean).join(' · ');
   evidence.appendChild(detail);
   if (item?.storyArticles?.length > 1) {
     evidence.appendChild(text(documentRef, item.storySelection));
@@ -415,7 +421,8 @@ function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now(
     titleNode.textContent = String(item.title || '');
     if (href) { titleNode.href = href; titleNode.target = '_blank'; titleNode.rel = 'noopener noreferrer'; }
     // P1739: a 12px/1.5 link was an 18-21px target; padding keeps every headline link at least 24px tall.
-    titleNode.style.cssText = 'display:inline-block;min-height:24px;padding:3px 0;box-sizing:border-box;';
+    // v57.77 (a11y 1.4.3): the browser-default link blue measured 1.94:1 in dark; the text colour token passes in both themes.
+    titleNode.style.cssText = 'display:inline-block;min-height:24px;padding:3px 0;box-sizing:border-box;color:var(--text-primary);text-decoration:underline;text-underline-offset:2px;';
     // Sources stay off the screen text (owner 2026-10-06): publisher and full time live in the hover.
     titleNode.title = [item.source, formatAbsoluteTime(item.publishedMs ? new Date(item.publishedMs) : null)].filter(Boolean).join(' · ');
     row.append(time, titleNode);
@@ -461,33 +468,16 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
     if (describeNewsScope(controls).articles === '필터 적용') {
       const reset = documentRef.createElement('button');
       reset.type = 'button'; reset.textContent = '필터 초기화';
-      reset.addEventListener('click', () => { root?.filterNewsByCountry?.('all'); root?.filterNewsByTopic?.('all'); root?.setNewsTypeTab?.('all'); });
+      reset.addEventListener('click', () => {
+        const all = (group) => documentRef.querySelector?.(`#${group} [data-arg="all"]`) || null;
+        root?.filterNewsByCountry?.('all', all('news-country-chips'));
+        root?.filterNewsByTopic?.('all', all('news-topic-chips'));
+      });
       empty.append(documentRef.createElement('br'), reset);
     }
-  } else if (controls.typeTab === 'category') {
-    const groups = new Map();
-    displayed.forEach((item) => {
-      // P1592 (F28): reader names for groups; a story whose topic was only copied from its feed query keeps
-      // that group but says the grouping comes from the collection route, not from reading the article.
-      const feedTopic = item?.feedTopic || item?.topic;
-      const key = isNewsTopicReviewRequired(item)
-        ? `${NEWS_GROUP_LABELS[feedTopic] || NEWS_GROUP_LABELS.general} · 출처 기준 분류`
-        : (NEWS_GROUP_LABELS[item?.topic] || NEWS_GROUP_LABELS.general);
-      if (!groups.has(key)) groups.set(key, []);
-      groups.get(key).push(item);
-    });
-    groups.forEach((items, topic) => {
-      const group = documentRef.createElement('section');
-      group.className = 'news-category-group';
-      const heading = documentRef.createElement('div');
-      heading.style.cssText = 'padding:8px 12px 4px;font-size:11px;font-weight:700;color:var(--accent);border-bottom:1px solid var(--border-accent-dim);';
-      const branch = TOPIC_BRANCHES[items[0]?.topic || items[0]?.feedTopic] || '';
-      heading.textContent = `${topic} · ${items.length}건${branch ? ` · ${branch}` : ''}`;
-      group.appendChild(heading);
-      items.forEach((item, index) => group.appendChild(createNewsCard(documentRef, root, item, index)));
-      container.appendChild(group);
-    });
   } else {
+    // v57.77: the 카테고리별 grouped view left with the type tabs — each card already names its topic, and the topic
+    // chips narrow the list to one group.
     displayed.forEach((item, index) => container.appendChild(createNewsCard(documentRef, root, item, index)));
   }
 
@@ -509,28 +499,22 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
   }
 }
 
-// P1592 (F25): the selected country/topic/type is carried in the accessibility tree, not only in inline
-// colour — chips are toggle buttons with aria-pressed, the type row is a tablist with aria-selected.
+// P1592 (F25): the selected country/topic is carried in the accessibility tree, not only in inline
+// colour — chips are toggle buttons with aria-pressed.
 function syncNewsControlState(documentRef, controls) {
-  const mark = (selector, current, attr) => {
+  const mark = (selector, current) => {
     documentRef?.querySelectorAll?.(selector).forEach((node) => {
-      if (attr === 'aria-pressed' && node.tagName !== 'BUTTON') {
+      if (node.tagName !== 'BUTTON') {
         node.setAttribute('role', 'button');
         if (!node.hasAttribute('tabindex')) node.tabIndex = 0;
       }
-      if (attr === 'aria-selected') node.setAttribute('role', 'tab');
       const value = node.dataset.arg || (node.dataset.action === 'filterNewsByTelegramOnly' ? 'tg' : 'all');
-      node.setAttribute(attr, String(value === current));
+      node.setAttribute('aria-pressed', String(value === current));
     });
   };
-  mark('#news-country-chips [data-action]', controls?.countryFilter || 'all', 'aria-pressed');
-  mark('#news-topic-chips [data-action="filterNewsByTopic"]', controls?.topicFilter || 'all', 'aria-pressed');
-  const tabs = documentRef?.getElementById('news-type-tabs');
-  if (tabs) tabs.setAttribute('role', 'tablist');
-  mark('#news-type-tabs [data-action="setNewsTypeTab"]', controls?.typeTab || 'all', 'aria-selected');
+  mark('#news-country-chips [data-action]', controls?.countryFilter || 'all');
+  mark('#news-topic-chips [data-action="filterNewsByTopic"]', controls?.topicFilter || 'all');
 }
-
-const NEWS_GROUP_LABELS = Object.freeze({ ...TOPIC_LABELS, general: '기타', defense: '방산', healthcare: '헬스케어', analyst: '애널리스트', shipbuilding: '조선', space: '우주', quantum: '양자', power: '전력', optical: '광통신', 'ai-policy': 'AI 정책' });
 
 // v57.54 audit (11): the native list never asked for translation — the legacy trigger ran only at the end of a direct
 // RSS fetch, which the published-news path skips, so live headlines stayed English (translation cache 0 on 10/14). The
@@ -611,6 +595,7 @@ function render({ documentRef, root, store, route }) {
   }
   appendMarketNews(documentRef, root, container, model, selectNewsStatus(state), visibleLimit, controls, new Set(important.map(newsKey)));
   requestShownTranslations(root, [...important, ...(model?.items || []).slice(0, visibleLimit)]);
+  renderNextSteps(documentRef, documentRef.getElementById('news-next'), newsFlow({ countryFilter: controls.countryFilter }).next); // v57.77
   container.dataset.aioNewsRenderer = 'native';
 }
 
@@ -638,7 +623,7 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
         const keys = new Set(rows.map(newsArticleKey));
         const controls = JSON.stringify([root?.AIO?.getNewsSurfaceControls?.() || {}, root?._aioNewsVisibleLimit, root?._aioNewsTickerFocus || null]);
         const changed = renderedKeys && (keys.size !== renderedKeys.size || [...keys].some((key) => !renderedKeys.has(key)));
-        const explicit = force === true || (force?.type === 'aio:newsSurfaceInvalidated' && ['news-sort', 'news-type-tab', 'news-load-more', 'news-country-telegram', 'news-country-filter', 'news-topic-filter'].includes(force?.detail?.reason)) || controls !== renderedControls;
+        const explicit = force === true || (force?.type === 'aio:newsSurfaceInvalidated' && ['news-sort', 'news-load-more', 'news-country-telegram', 'news-country-filter', 'news-topic-filter'].includes(force?.detail?.reason)) || controls !== renderedControls;
         if (updates && renderedKeys?.size > 0 && changed && !explicit) {
           const arriving = [...keys].filter((key) => !renderedKeys.has(key)).length;
           updates.textContent = arriving ? `새 뉴스·변경 ${arriving}건 보기` : '갱신된 뉴스 보기';
@@ -670,16 +655,17 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
         bag.add(() => suppliedMaterialBridge.remove());
       }
       // v57.50 I23: a ticker handed over from 재무 공시 opens 기업 뉴스 narrowed to it; a plain visit shows everything.
+      // v57.77: 기업 뉴스 is the 기업 topic chip (the type tabs left).
       if (route === 'market-news') {
         const handoffContext = consumeResearchHandoff({ root, routeId: 'market-news' })?.context || {};
         const focus = String(handoffContext.ticker || '').trim().toUpperCase();
         root._aioNewsTickerFocus = focus || null;
-        if (focus && typeof root?.setNewsTypeTab === 'function') {
-          try { root.setNewsTypeTab('company', documentRef.querySelector('#news-type-tabs [data-arg="company"]')); } catch (_) {}
-        }
         // P1730 (R2 next-step links): a briefing link that names a topic or country opens the list already filtered,
         // through the same filter functions and chips the reader would press.
         const chip = (group, value) => [...(documentRef.querySelectorAll?.(`#${group} [data-arg]`) || [])].find((node) => node.dataset.arg === value) || null;
+        if (focus && typeof root?.filterNewsByTopic === 'function') {
+          try { root.filterNewsByTopic('company', chip('news-topic-chips', 'company')); } catch (_) {}
+        }
         const topic = String(handoffContext.topic || '').trim();
         const country = String(handoffContext.country || '').trim();
         if (topic && chip('news-topic-chips', topic) && typeof root?.filterNewsByTopic === 'function') {

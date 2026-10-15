@@ -104,9 +104,13 @@ assert(shellWorkspace.includes('_confirmCancelCallback') && shellWorkspace.inclu
 // P1342: R592 is enforced by behaviour (the quota badge never flips the switch for a missing route), not by an unused snapshot helper.
 assert(ui.includes('function getLLMRouteReadiness(') && ui.includes('window._aioGetLLMRouteReadiness'));
 const quotaUi=ui.slice(ui.indexOf('function updateQuotaBadge()'),ui.indexOf('function toggleLLM()'));
-assert(quotaUi.includes('if (isOn && !route.ready)') && !quotaUi.includes("track.classList.remove('on')"));
+// v57.77: AI is always on (P1653) — route readiness is the only gate; no OFF branch ('AI OFF' / unlimited quota) remains.
+assert(quotaUi.includes('if (!route.ready)') && !quotaUi.includes('isOn') && !quotaUi.includes("'AI OFF'"), 'v57.77 quota badge gates on route readiness only');
+const toggleUi=ui.slice(ui.indexOf('function toggleLLM()'),ui.indexOf('function consumeLLMQuery()'));
+assert(toggleUi.includes('updateQuotaBadge()') && !toggleUi.includes('classList'), 'v57.77 toggleLLM only refreshes the readout');
 const consumeUi=ui.slice(ui.indexOf('function consumeLLMQuery()'),ui.indexOf('// Init on load'));
-assert(consumeUi.indexOf('if (!route.ready)') >= 0 && consumeUi.indexOf('if (!getLLMState()) return true') > consumeUi.indexOf('if (!route.ready)'));
+assert(consumeUi.indexOf('if (!route.ready)') >= 0 && consumeUi.indexOf('return false') > consumeUi.indexOf('if (!route.ready)') && consumeUi.indexOf('return false') < consumeUi.indexOf('getQuota()'), 'v57.77 a missing route fails closed before any quota accounting');
+assert(!consumeUi.includes('getLLMState'), 'v57.77 no OFF/unlimited quota shortcut'); // text-pin-ok: retirement absence
 assert(consumeUi.includes('settle(false)') && consumeUi.includes('saveQuota(quota)'));
 // v57.62: quota and freshness preflight contracts read the unified panel (the per-page chatSend copy was retired).
 const quotaAwait=unifiedChat.indexOf('_qOk = await consumeLLMQuery();');

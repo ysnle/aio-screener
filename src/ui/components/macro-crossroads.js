@@ -340,7 +340,7 @@ function pathCard(doc, root, item, { kicker, fit }) {
 /** Compact block on 오늘 (v57.76: no longer on 시장 상태): one forward view — the present structure (when given), the branch the next
  * releases would most likely confirm and the structure it leads to, its chain and favoured choice, the alternative,
  * the rate tension and the theme side — then links to 거시 and 테마. */
-export function renderCrossroadsCompact({ documentRef: doc, root, regime = null, anchor = null, id = 'home-crossroads', structure = null, title = '향후 시나리오' } = {}) {
+export function renderCrossroadsCompact({ documentRef: doc, root, regime = null, anchor = null, id = 'home-crossroads', structure = null, title = '향후 시나리오', headingLevel = 'h3' } = {}) {
   if (!doc || !anchor) return null;
   const model = crossroadsForRoot(root, { regime });
   let box = doc.getElementById(id);
@@ -354,7 +354,7 @@ export function renderCrossroadsCompact({ documentRef: doc, root, regime = null,
   const links = el(doc, 'div', null, 'xr-explore');
   links.append(linkButton(doc, root, '모든 시나리오와 선택지', 'macro', 'macro-crossroads-title'));
   if (root?.[SCENARIO_STATE.key]?.themes?.length) links.append(linkButton(doc, root, '모든 테마의 단계', 'themes', 'theme-playbook-title'));
-  const parts = [el(doc, 'h3', title, 'xr-h3')];
+  const parts = [el(doc, headingLevel, title, 'xr-h3')];
   if (structure) parts.push(...structure);
   // v57.54 audit (8): the same tie rule as 거시 (tiedIds, P1747) — a tie names both paths up front and says why one is
   // written first. v57.54 (owner review 2026-10-14, "조금만 압축하고 정렬"): one lead line, the lead path's chain,

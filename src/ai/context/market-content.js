@@ -30,8 +30,9 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
   // v57.61: the screener's 맞춤 조건 decide which rows the table shows; without them the AI judged a different list.
   const custom = ctxId === 'screener' ? parseConditionValue(root.document?.getElementById?.('scr-custom-conditions')?.value).map(conditionLabel).filter(Boolean) : [];
   if (custom.length) parts.push(`스크리너 화면에 적용된 맞춤 조건(모두 만족하는 종목만 표에 남음, 매매 신호 아님): ${custom.join(' · ')}`);
-  const state = root.AIO_ARCH?.getScreenerState?.();
-  const facts = buildMarketContentContext({ query: text, history: root._aioHistory || [], themes: root.THEME_MAP || [], rows: state?.rows || root.SCREENER_DB || [] });
+  // v57.77 perf: rows only, through the shared row snapshot (the bare getScreenerState() call cloned the whole slice again).
+  const screenerRows = root.AIO_ARCH?.getScreenerRows?.();
+  const facts = buildMarketContentContext({ query: text, history: root._aioHistory || [], themes: root.THEME_MAP || [], rows: screenerRows || root.SCREENER_DB || [] });
   if (facts) parts.push(facts);
   if (/시장|시나리오|앞으로|향후|관찰|금리|신용|변동성/.test(text) && root._aioHistory?.length) {
     // P1729: the same inputs as the 시장 상태 screen (credit, rates, macro history, now) — history alone made the AI say
@@ -52,7 +53,7 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
   // (stage × macro wind × choices × evidence × structural hypothesis), not only the themes the question names.
   if ((ctxId === 'themes' || ctxId === 'theme-detail' || /섹터|테마|업종|로테이션|순환|주도|병목|조정|반등|분할|비중|들어가|살까|담을|앞으로|향후|대응/.test(text)) && root._aioHistory?.length) {
     try {
-      const rows = state?.rows || root.SCREENER_DB || [];
+      const rows = screenerRows || root.SCREENER_DB || [];
       const { playbook } = themePlaybookForRoot(root, { getState: () => ({ screener: { rows } }) });
       const themesBlock = renderThemePlaybookContext(playbook, { query: text });
       if (themesBlock) parts.push(themesBlock);

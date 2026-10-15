@@ -694,16 +694,19 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopEntityShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['ticker', 'fundamental']), syncEntityOnDemand, { withScope: true }));
     const stopPortfolioShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['portfolio']), syncPortfolio.sync));
     const stopPortfolioChanged = legacy.on('aio:portfolioChanged', syncPortfolio.sync);
+    // v57.77 perf: the screen re-entry uses the same held/due rule as a refresh cycle, so a revisit inside the
+    // 30-minute window re-derives rows from the held artifacts instead of re-downloading screener.json + universe +
+    // validation. A forced (manual) refresh cycle still re-reads them through aio:refresh:done below.
+    const screenerArtifactReadDue = () => !store.getState()?.screener?.rows?.length
+      || screenerArtifactReadAt == null || clock.now() - screenerArtifactReadAt >= SCREENER_ARTIFACT_RECHECK_MS;
     const stopScreenerRefresh = compatibilityEvents.on('aio:refresh:done', (event) => {
       const forced = event?.detail?.forceRefresh === true;
-      const held = !!store.getState()?.screener?.rows?.length;
-      const due = screenerArtifactReadAt == null || clock.now() - screenerArtifactReadAt >= SCREENER_ARTIFACT_RECHECK_MS;
-      return syncScreenerData({ refresh: forced || !held || due });
+      return syncScreenerData({ refresh: forced || screenerArtifactReadDue() });
     });
     const stopScreenerQuotes = legacy.on('aio:liveQuotes', () => {
       if (String(store.getState()?.route || router.active() || '').replace(/^page-/, '') === 'screener') return syncScreenerData({ refresh: false });
     });
-    const stopScreenerShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['screener']), syncScreenerData, { withScope: true }));
+    const stopScreenerShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['screener']), ({ scope }) => syncScreenerData({ scope, refresh: screenerArtifactReadDue() }), { withScope: true }));
     const stopAnalysisRefresh = compatibilityEvents.on('aio:refresh:done', syncAnalysis.sync);
     const stopAnalysisChanged = legacy.on('aio:entityChanged', syncAnalysis.sync);
     const stopAnalysisShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['home', 'signal', 'technical']), syncAnalysis.sync));

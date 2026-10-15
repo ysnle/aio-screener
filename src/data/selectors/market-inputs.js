@@ -38,6 +38,7 @@ export function collectMarketInputs(root) {
   rates.dgs2AsOf = fieldTs.macro_dgs2 || null;
   // T05/P1685: the 20-session HY widening comes from macro-history; every screen that reads these inputs gets it.
   // v57.59: the narrow-tape read prefers the S&P 500 member segment (same lookup as breadth-board) over the AIO universe.
-  const breadthSp500 = root?.AIO_ARCH?.getScreenerState?.()?.metadata?.breadth?.segments?.sp500 || null;
+  // v57.77 perf: a dot-path read snapshots only this segment; the bare call deep-cloned and froze all screener rows.
+  const breadthSp500 = root?.AIO_ARCH?.getScreenerState?.('metadata.breadth.segments.sp500') || null;
   return { history: root._aioHistory || [], credit, rates, now: Date.now(), macroHistory: root._aioMacroHistory || null, breadthSp500 }; // M05: admit only a current basis
 }

@@ -299,3 +299,13 @@ export function themeDetailFlow({ themeId, groups = [], etf = null, rotation = {
   const rows = [...byThree, ...mine.filter((group) => !byThree.includes(group)).sort((a, b) => (b.ret3m ?? -1e9) - (a.ret3m ?? -1e9))];
   return { read: parts.length ? `${parts.join('. ')}입니다.` : '', rows, next };
 }
+
+// v57.77: 뉴스 continues to the two screens that turn a headline into a market reading — 브리핑 (how the closes moved)
+// and 시장 상태 (whether the six-axis verdict shifted). A 한국 country filter opens 시장 상태 at the Korea board.
+export function newsFlow({ countryFilter = 'all' } = {}) {
+  const next = [{ route: 'briefing', label: '브리핑', why: '기사 속 사건이 최근 마감의 지수·금리·유가·달러 움직임과 같은 쪽이었는지' }];
+  next.push(String(countryFilter || '').toLowerCase() === 'kr'
+    ? { route: 'signal', label: '시장 상태 · 한국 시장 참고', why: '한국 기사와 코스피·코스닥·원화, 한국 수집 종목의 참여도가 같은 방향인지', ctx: { anchor: 'regime-board-kr' } }
+    : { route: 'signal', label: '시장 상태', why: '사건이 6개 지표(추세·시장 폭·변동성·금리·신용·달러/원자재) 판정을 바꿀 만큼 가격에 반영됐는지' });
+  return { next };
+}

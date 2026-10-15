@@ -207,7 +207,7 @@ export function renderRegimePage({ documentRef: doc, root }) {
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   set('regime-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · 6개 지표의 상태와 판정이 바뀌는 조건` : '종가 기록을 불러오는 중입니다.');
   const overall = set('regime-overall', regime.available ? regime.overall : '판정 대기');
-  if (overall) overall.dataset.overall = regime.overall || '';
+  if (overall) { overall.dataset.overall = regime.overall || ''; overall.setAttribute('aria-label', `미국 시장 판정: ${regime.available ? regime.overall : '판정 대기'}`); } // v57.77 (a11y 2.4.6)
   set('regime-counts', regime.available ? (regime.holdReason || summaryLine(regime)) : '');
   const read = regime.available ? buildMarketRead(inputs) : null;
   set('regime-headline', read?.headline ? `${read.headline}${read.headlineReading ? ` ${read.headlineReading}` : ''}` : '');
@@ -438,7 +438,7 @@ export function renderHomeRegime({ documentRef: doc, root }) {
       line.append(el(doc, 'strong', `지금 시장 흐름 '${lead.title}'`), el(doc, 'span', `${lead.fit}${lead.shortfall ? ` · ${lead.shortfall}` : ''}`, 'basis-chip'), doc.createTextNode(` ${sentences[0] || ''}`));
       structure.push(line, ...(counter ? [el(doc, 'p', counter, 'xr-structure-note')] : []), ...(named ? [opportunityNode(doc, root, lead, 'home-outlook-opportunity')] : []), toStructure);
     } else if (scenarios?.held) structure.push(el(doc, 'p', `지금 구조: 판단 보류 — ${scenarios.reason}`, 'xr-structure'));
-    renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: outlookBox, id: 'home-crossroads', structure, title: '지금 구조와 앞으로' }); // P1742/P1745
+    renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: outlookBox, id: 'home-crossroads', structure, title: '지금 구조와 앞으로', headingLevel: 'h2' }); // v57.77 (a11y 1.3.1): home has no h2 before this block // P1742/P1745
   }
   hero.dataset.aioRegimeRenderer = 'native';
   hero.dataset.state = regime.available ? 'regime' : 'pending';

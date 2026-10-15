@@ -7,6 +7,7 @@ import { renderRegimePage, renderHomeRegime, readMarketRegime } from '../compone
 import { installStockChart } from '../components/stock-chart.js';
 import { renderDailyLoop } from '../components/daily-loop.js';
 import { renderKoreaParticipation } from '../components/korea-participation.js';
+import { renderKrIndexTrends } from '../components/kr-index-trend.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../../domain/briefing/market-read.js';
 import { fearGreedBand } from '../../domain/sentiment/metrics.js';
 import { renderKnowledgeArrival, clearKnowledgeArrival } from '../components/knowledge-arrival.js';
@@ -154,6 +155,7 @@ function render({ root, documentRef, store, route }) {
       page.dataset.aioTechnicalRenderer = 'native';
       renderTechnicalHealth({ documentRef, root });
       installStockChart({ documentRef, root }); // P1397: idempotent (installs once per #stock-chart-section, v57.76)
+      renderKrIndexTrends({ documentRef, root }); // v57.77: 한국 지수 추세 cards (completed KRX closes; redraws only on a new close)
     }
     if (route === 'home') {
       page.dataset.aioArchitectureRenderer = 'native';

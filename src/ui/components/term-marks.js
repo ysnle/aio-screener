@@ -59,27 +59,53 @@ export function firstSentence(definition) {
   return (match ? match[0] : text).slice(0, 220);
 }
 
-/** Wraps the first unmarked occurrence of each term inside `page`; returns how many marks were added. */
+/**
+ * Wraps the first unmarked occurrence of each term inside `page`; returns how many marks were added.
+ * v57.77 perf: one text walk per call instead of one per term (32-115 ms per route). The walk keeps only text nodes
+ * that contain some pending term; each term then scans that list in document order with the same acceptance rules
+ * (prose parent, not skipped, sentence length, laid out, whole-word pattern) and the same TERM_MARKS priority.
+ * The parent checks are cached per element: marking only splits a text node inside the same parent, so neither its
+ * textContent nor its ancestry changes during the pass.
+ */
 export function markTerms(page, glossary, documentRef = page?.ownerDocument) {
   if (!page || !documentRef || !Array.isArray(glossary)) return 0;
   const entries = new Map(glossary.map((entry) => [entry?.term, entry]));
+  const pending = TERM_MARKS.filter(([text, term]) => entries.has(term) && !page.querySelector(`.aio-term[data-term="${CSS.escape(text)}"]`));
+  if (!pending.length) return 0;
+  const anyTerm = new RegExp(pending.map(([text]) => escape(text)).join('|'));
+  const nodes = [];
+  const walker = documentRef.createTreeWalker(page, NodeFilter.SHOW_TEXT, {
+    acceptNode: (node) => (anyTerm.test(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT)
+  });
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) nodes.push(node);
+  const parents = new Map();
+  const parentInfo = (parent) => {
+    let info = parents.get(parent);
+    if (!info) { info = { prose: !parent.closest(SKIP) && !!parent.closest(PROSE), length: null, laidOut: null }; parents.set(parent, info); }
+    return info;
+  };
+  // A sentence, not a short label span ('VIX 18.2'): only then is a small inline target exempt (WCAG 2.5.8).
+  const accepts = (node, text, pattern) => {
+    const parent = node.parentElement;
+    if (!parent || !node.nodeValue.includes(text)) return false;
+    const info = parentInfo(parent);
+    if (!info.prose) return false;
+    if (info.length == null) info.length = (parent.textContent || '').trim().length;
+    if (info.length <= text.length + 12) return false;
+    if (info.laidOut == null) info.laidOut = !!parent.getClientRects().length;
+    return info.laidOut && pattern.test(node.nodeValue);
+  };
   let added = 0;
-  for (const [text, term] of TERM_MARKS) {
-    if (!entries.has(term) || page.querySelector(`.aio-term[data-term="${CSS.escape(text)}"]`)) continue;
+  for (const [text, term] of pending) {
     const pattern = patternFor(text);
-    const walker = documentRef.createTreeWalker(page, NodeFilter.SHOW_TEXT, {
-      acceptNode: (node) => {
-        const parent = node.parentElement;
-        // A sentence, not a short label span ('VIX 18.2'): only then is a small inline target exempt (WCAG 2.5.8).
-        if (!parent || !node.nodeValue.includes(text) || parent.closest(SKIP) || !parent.closest(PROSE) || (parent.textContent || '').trim().length <= text.length + 12 || !parent.getClientRects().length) return NodeFilter.FILTER_REJECT;
-        return pattern.test(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-      }
-    });
-    const node = walker.nextNode();
-    if (!node) continue;
+    const index = nodes.findIndex((node) => accepts(node, text, pattern));
+    if (index < 0) continue;
+    const node = nodes[index];
     const at = node.nodeValue.search(pattern);
     const target = node.splitText(at);
-    target.splitText(text.length);
+    const after = target.splitText(text.length);
+    // The text before and after the mark stay candidates for the later terms, in document order.
+    nodes.splice(index, 1, node, after);
     // A <button> always lays out inline-block; a span with the button role stays part of the sentence (WCAG 2.5.8 inline).
     const mark = documentRef.createElement('span');
     mark.setAttribute('role', 'button');

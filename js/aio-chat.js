@@ -797,7 +797,7 @@ var AIO_AI_INFRA_CYCLE_REFERENCE = {
   sourceAudit: [
     { id: 'power-quality-text', material: 'Bloomberg-style AI data-center load-ramp summary', observation: 'Fast workload changes may stress transformers and power quality through ramp-rate, voltage behavior, and harmonics.', integration: 'powerQualityFrame; monitor load ramp, peak-to-average, transformer temperature/loading, flicker, THD, interconnection, BTM/PPA.', limitation: 'Correlation and facility-specific engineering; no automatic claim that household devices are damaged.' },
     { id: 'gavin-baker-summary', material: 'Gavin Baker interview summary', observation: 'GPU availability/rental repricing, OCF, frontier-lab growth, memory LTA, credit, and power are linked demand variables.', integration: 'questions Q1-Q5, demandFalsifiers, memoryLtaFrame, AI infrastructure identity memos.', limitation: 'Interview estimates are reference hypotheses; verify prices, contracts, filings, and cash flow.' },
-    { id: 'oneil-climax', material: "O'Neil climax-top checklist", observation: 'Record gain/volume, exhaustion gap, rapid run, railroad track, high-volume no-progress, increasing down days, upper-channel extension, and 200SMA stretch can cluster near exhaustion.', integration: 'calcBlowoffTopChecklist, setupProfile.climaxRisk, screener entry timing.', limitation: 'Pattern checklist is probabilistic; weekly rules require weekly bars and every item is fail-closed when history is missing.' },
+    { id: 'oneil-climax', material: "O'Neil climax-top checklist", observation: 'Record gain/volume, exhaustion gap, rapid run, railroad track, high-volume no-progress, increasing down days, upper-channel extension, and 200SMA stretch can cluster near exhaustion.', integration: 'setupProfile.climaxRisk, screener entry timing.', limitation: 'Pattern checklist is probabilistic; weekly rules require weekly bars and every item is fail-closed when history is missing.' },
     { id: 'image-01-tradingview', material: 'TradingView Best winners screenshot', observation: 'Price, ADR, 52-week-low distance, dollar liquidity, EMA8/21, and price-vs-EMA60 are used as a candidate screen.', integration: 'setupProfile.winnerFilter and screener structure filter; pipeline now materializes each field from delayed EOD history.', limitation: 'Screenshot thresholds are a research template, not a live recommendation; no field silently passes when unavailable.' },
     { id: 'image-02-relative-strength', material: 'Ariel relative-strength pullback screenshot', observation: 'Pullbacks near 200SMA can be long candidates; failed reclaim/supply can support short research.', integration: 'relativeStrengthPullback, support200, supply-side short language, DELL/HPE/NBIS/BE/CVNA memos.', limitation: 'Ticker examples are dated observations; current support and borrow/flow require fresh data.' },
     { id: 'image-03-kospi', material: 'KOSPI long-horizon chart', observation: '200MA undershoot/reclaim, gap retracement, divergence, and volume frame Korean index regime analysis.', integration: 'chartReadingProtocol, KOSPI/EWY breadth and macro prompts.', limitation: 'Displayed levels are not hardcoded into current signals.' },
@@ -4278,61 +4278,8 @@ window._aioExportFromBtn = function(dlId, format) {
   _aioExportChatData(ctx.ctxId, ctx.fullText, ctx.tickers, format || 'markdown');
 };
 
-// v49.70 P374 R134: 금액 시뮬레이션 + SPX % 시나리오 — "1억 투자" / "SPX -5%" / "포트폴리오 +10%"
-function _aioSimulateAmountOrPct(q, detectedTickers) {
-  if (!q || typeof q !== 'string') return null;
-  var lower = q.toLowerCase();
-  var result = null;
-  // 금액 시뮬레이션 (예: "1억 투자 시", "5000만원 분산")
-  var amountMatch = q.match(/(\d+(?:,\d{3})*(?:\.\d+)?)\s*(억|천만|백만|만|원|usd|달러|\$)/i);
-  if (amountMatch && /(투자|할당|매수|invest|allocate|buy)/i.test(lower)) {
-    var rawAmount = Number(amountMatch[1].replace(/,/g, ''));
-    var unit = amountMatch[2].toLowerCase();
-    var krwAmount = 0;
-    if (unit === '억') krwAmount = rawAmount * 1e8;
-    else if (unit === '천만') krwAmount = rawAmount * 1e7;
-    else if (unit === '백만') krwAmount = rawAmount * 1e6;
-    else if (unit === '만' || unit === '원') krwAmount = rawAmount * (unit === '만' ? 1e4 : 1);
-    // P1559: a foreign-currency amount is not converted with a fixed rate (1380 won/dollar was a constant with no date), and no
-    // allocation is proposed: the earlier "Bridgewater / GS / Ackman" percentages were unsourced portfolio advice on screen.
-    else if (unit === 'usd' || unit === '달러' || unit === '$') krwAmount = 0;
-    if (krwAmount >= 1e5) {
-      result = result || {};
-      result.amount = {
-        krw: Math.round(krwAmount),
-        note: krwAmount.toLocaleString() + '원 (입력한 금액 그대로)',
-        checks: ['보유 자산 대비 이 금액의 비중', '한 종목·한 섹터에 몰리는 정도', '감당할 수 있는 손실 한도와 투자 기간']
-      };
-    }
-  }
-  // SPX % 시나리오 (예: "SPX -5% 시", "SPX +10% 시")
-  var spxPctMatch = q.match(/(spx|s&?p|코스피|kospi).*?([\+\-])?\s*(\d+\.?\d*)\s*(%|퍼센트)/i);
-  if (spxPctMatch) {
-    var index = /코스피|kospi/i.test(spxPctMatch[1]) ? 'KOSPI' : 'SPX';
-    var sign = spxPctMatch[2] === '-' ? '-' : '+';
-    var pct = Number(spxPctMatch[3]);
-    if (pct >= 1 && pct <= 50) {
-      result = result || {};
-      result.indexScenario = {
-        index: index,
-        sign: sign,
-        pct: pct,
-        direction: sign === '-' ? '하락' : '상승',
-        // P1559: the earlier impacts were invented elasticities (VIX +2.5x, 10Y -8bp, gold +0.5x per index percent) and position advice
-        // ("cash 50%+", "sell into strength"); the scenario now lists what to look at, with no number the index move did not give.
-        checks: {
-          VIX: '변동성 지수(VIX)가 얼마나 움직이는지',
-          '미 10년 금리': '금리가 어느 방향으로 움직이는지',
-          '금': '금 가격의 방향',
-          '섹터': '섹터별 상대 성과가 갈리는지',
-          '보유 종목': '보유 종목이 지수보다 얼마나 민감하게 움직이는지(베타)와 본인 손실 한도'
-        }
-      };
-    }
-  }
-  return result;
-}
-window._aioSimulateAmountOrPct = _aioSimulateAmountOrPct;
+// v57.77: the test-only chat simulators (_aioSimulateAmountOrPct, _simulateMacroScenario, _simulatePortfolioAddition) are retired —
+// no production path called them since the per-page chatSend was retired (v57.62).
 
 // v49.70 P372 R133: 알람/임계값 트리거 — VIX/F&G/종목 가격 자동 모니터링 + 브라우저 Notification
 // "VIX 30 도달 시 알림" / "NVDA $150 도달 시" 등 자연어 의도 감지 + localStorage 영속 + 페이지 로드 시 자동 점검
@@ -4355,31 +4302,7 @@ function _aioAddAlert(alert) {
   _aioSetAlerts(alerts);
   return newAlert;
 }
-function _aioRemoveAlert(id) {
-  var alerts = _aioGetAlerts().filter(function(a) { return a.id !== id; });
-  return _aioSetAlerts(alerts);
-}
-function _aioParseAlertIntent(q) {
-  if (!q || typeof q !== 'string') return null;
-  var lower = q.toLowerCase();
-  if (!/(알림|알람|알려|notify|alert|notification)/i.test(lower)) return null;
-  // VIX 임계값
-  var vixMatch = lower.match(/vix.*?(\d+\.?\d*)\s*(이상|넘|도달|over|above|>=?)/i);
-  if (vixMatch) return { metric: 'vix', tickerOrIndex: '^VIX', threshold: Number(vixMatch[1]), direction: 'above', label: 'VIX ≥ ' + vixMatch[1] };
-  var vixBelow = lower.match(/vix.*?(\d+\.?\d*)\s*(이하|아래|미만|under|below|<=?)/i);
-  if (vixBelow) return { metric: 'vix', tickerOrIndex: '^VIX', threshold: Number(vixBelow[1]), direction: 'below', label: 'VIX ≤ ' + vixBelow[1] };
-  // F&G
-  var fgMatch = lower.match(/(f&g|fear.?greed|공포.?탐욕).*?(\d+)\s*(이상|넘|over)/i);
-  if (fgMatch) return { metric: 'fg', tickerOrIndex: 'CNN_FG', threshold: Number(fgMatch[2]), direction: 'above', label: 'F&G ≥ ' + fgMatch[2] };
-  var fgBelow = lower.match(/(f&g|fear.?greed|공포.?탐욕).*?(\d+)\s*(이하|미만|under)/i);
-  if (fgBelow) return { metric: 'fg', tickerOrIndex: 'CNN_FG', threshold: Number(fgBelow[2]), direction: 'below', label: 'F&G ≤ ' + fgBelow[2] };
-  // 종목 가격 (예: "NVDA $150 도달" / "AAPL 200 이상")
-  var tickerPriceMatch = q.match(/([A-Z]{1,5}(?:\.[A-Z]{2})?)\s*\$?(\d+\.?\d*)\s*(이상|넘|도달|over|above|>=?)/);
-  if (tickerPriceMatch) return { metric: 'price', tickerOrIndex: tickerPriceMatch[1], threshold: Number(tickerPriceMatch[2]), direction: 'above', label: tickerPriceMatch[1] + ' ≥ $' + tickerPriceMatch[2] };
-  var tickerPriceBelow = q.match(/([A-Z]{1,5}(?:\.[A-Z]{2})?)\s*\$?(\d+\.?\d*)\s*(이하|아래|미만|under|below|<=?)/);
-  if (tickerPriceBelow) return { metric: 'price', tickerOrIndex: tickerPriceBelow[1], threshold: Number(tickerPriceBelow[2]), direction: 'below', label: tickerPriceBelow[1] + ' ≤ $' + tickerPriceBelow[2] };
-  return null;
-}
+// v57.77: the test-only alert remover and natural-language alert parser are retired (no production caller).
 function _aioCheckAlerts() {
   var alerts = _aioGetAlerts();
   if (alerts.length === 0) return [];
@@ -4422,8 +4345,6 @@ function _aioCheckAlerts() {
 }
 window._aioGetAlerts = _aioGetAlerts;
 window._aioAddAlert = _aioAddAlert;
-window._aioRemoveAlert = _aioRemoveAlert;
-window._aioParseAlertIntent = _aioParseAlertIntent;
 window._aioCheckAlerts = _aioCheckAlerts;
 window.AIO = window.AIO || {};
 window.AIO.getAlerts = _aioGetAlerts;
@@ -4657,103 +4578,6 @@ function _buildUserProfileContext() {
 }
 window._buildUserProfileContext = _buildUserProfileContext;
 
-// v49.69 P368 R131: 거시 시나리오 동적 시뮬레이션 — "Fed 50bp 인하 시" / "VIX 30 도달 시" 등 의도 감지 + 자산 영향 정량 추산
-// Bridgewater All Weather + Druckenmiller Macro Overlay 휴리스틱 기반 (정확 회귀 아닌 정성+정량 가이드)
-function _simulateMacroScenario(userQuery) {
-  if (!userQuery || typeof userQuery !== 'string') return null;
-  var q = userQuery.toLowerCase();
-  var scenario = null;
-  // 패턴 감지
-  var fedCutMatch = q.match(/fed.*?(\d+)\s*(bp|basis|베이시스)?\s*(인하|cut|하락)/i) || q.match(/(\d+)\s*(bp|basis|베이시스)?\s*(인하|cut)/i);
-  var fedHikeMatch = q.match(/fed.*?(\d+)\s*(bp|basis|베이시스)?\s*(인상|hike|상승)/i) || q.match(/(\d+)\s*(bp|basis|베이시스)?\s*(인상|hike)/i);
-  var vixSpikeMatch = q.match(/vix.*?(\d+)\s*(이상|넘|over|spike|도달)/i);
-  var spxCrashMatch = q.match(/(s&?p|spx|spy).*?-?(\d+)\s*(%|퍼센트)?\s*(하락|크래시|crash|drop)/i);
-  var dxyMatch = q.match(/(dxy|달러|dollar).*?(\d+)\s*(이상|넘|over|돌파)/i);
-  var oilMatch = q.match(/(유가|oil|wti|brent).*?\$?(\d+)\s*(이상|넘|over|돌파)/i);
-  if (fedCutMatch) {
-    var cutBp = Number(fedCutMatch[1]);
-    if (cutBp >= 10 && cutBp <= 200) scenario = { type: 'fed-cut', magnitude: cutBp, framework: '시나리오 점검 틀' };
-  } else if (fedHikeMatch) {
-    var hikeBp = Number(fedHikeMatch[1]);
-    if (hikeBp >= 10 && hikeBp <= 200) scenario = { type: 'fed-hike', magnitude: hikeBp, framework: '시나리오 점검 틀' };
-  } else if (vixSpikeMatch) {
-    var vixLv = Number(vixSpikeMatch[1]);
-    if (vixLv >= 15 && vixLv <= 80) scenario = { type: 'vix-spike', magnitude: vixLv, framework: '시나리오 점검 틀' };
-  } else if (spxCrashMatch) {
-    var spxPct = Number(spxCrashMatch[2]);
-    if (spxPct >= 3 && spxPct <= 30) scenario = { type: 'spx-crash', magnitude: spxPct, framework: '시나리오 점검 틀' };
-  } else if (dxyMatch) {
-    var dxyLv = Number(dxyMatch[2]);
-    if (dxyLv >= 90 && dxyLv <= 130) scenario = { type: 'dxy-strong', magnitude: dxyLv, framework: '시나리오 점검 틀' };
-  } else if (oilMatch) {
-    var oilLv = Number(oilMatch[2]);
-    if (oilLv >= 50 && oilLv <= 200) scenario = { type: 'oil-spike', magnitude: oilLv, framework: '시나리오 점검 틀' };
-  }
-  if (!scenario) return null;
-  // P1559: the earlier engine produced numeric ranges from invented elasticities (SPX +2~5% per 50bp cut, 10Y -30~60bp) and
-  // buy/overweight verdicts with named investors as authority. None of it had a source or a
-  // validation, so the scenario now states the mechanism commonly cited and what to check; it carries no number it was not given.
-  var impacts = null;
-  switch (scenario.type) {
-    case 'fed-cut':
-      impacts = {
-        SPX: { direction: '성장주 할인율이 낮아지는 방향으로 해석되는 경우가 많음', verdict: '인하 이유(경기 둔화 대응인지 물가 안정인지)에 따라 반응이 갈림' },
-        '10Y': { direction: '정책금리와 함께 내려가는 방향', verdict: '기간 프리미엄과 인플레 기대 변화를 함께 확인' },
-        DXY: { direction: '미국의 금리 우위가 줄면 달러 약세 방향', verdict: '다른 중앙은행의 움직임과 비교해 확인' },
-        Gold: { direction: '실질금리 하락과 함께 움직이는 경우가 많음', verdict: '실질금리와 달러 지수를 함께 확인' },
-        Sector: { direction: '금리에 민감한 섹터가 주목받는 경우가 많음', verdict: '섹터별 실적과 밸류에이션은 따로 확인' }
-      };
-      break;
-    case 'fed-hike':
-      impacts = {
-        SPX: { direction: '멀티플에 부담으로 해석되는 경우가 많음', verdict: '인상 속도와 시장이 이미 반영한 정도를 확인' },
-        '10Y': { direction: '정책금리와 함께 오르는 방향', verdict: '장단기 금리차(커브) 변화를 함께 확인' },
-        DXY: { direction: '미국의 금리 우위가 커지면 달러 강세 방향', verdict: '신흥국 자금 흐름과 함께 확인' },
-        Gold: { direction: '실질금리 상승과 함께 부담을 받는 경우가 많음', verdict: '실질금리와 달러 지수를 함께 확인' },
-        Sector: { direction: '금리 수혜 섹터와 금리 민감 섹터의 상대 성과가 갈리는 경우가 많음', verdict: '섹터별 실적은 따로 확인' }
-      };
-      break;
-    case 'vix-spike':
-      impacts = {
-        SPX: { direction: '변동성 급등은 위험자산 약세와 함께 나타나는 경우가 많음', verdict: 'VIX 수준보다 지속 기간과 신용 스프레드를 함께 확인' },
-        '10Y': { direction: '안전자산 선호가 원인이면 금리 하락 방향', verdict: '인플레 충격이 원인이면 반대로 움직일 수 있음' },
-        Gold: { direction: '안전자산 선호와 함께 움직이는 경우가 있음', verdict: '달러와 실질금리를 함께 확인' },
-        Sector: { direction: '방어적 섹터가 상대적으로 덜 흔들리는 경우가 많음', verdict: '보유 종목의 베타(지수 민감도)를 확인' }
-      };
-      break;
-    case 'spx-crash':
-      impacts = {
-        VIX: { direction: '지수 급락과 함께 크게 오르는 경우가 많음', verdict: 'VIX 기간구조(단기 대비 장기)와 함께 확인' },
-        '10Y': { direction: '안전자산 선호가 원인이면 금리 하락 방향', verdict: '인플레 충격이 원인이면 반대로 움직일 수 있음' },
-        Gold: { direction: '안전자산 선호와 함께 움직이는 경우가 있음', verdict: '달러와 실질금리를 함께 확인' },
-        Sector: { direction: '방어적 섹터가 상대적으로 덜 흔들리는 경우가 많음', verdict: '섹터별 실적과 밸류에이션은 따로 확인' }
-      };
-      break;
-    case 'dxy-strong':
-      impacts = {
-        EM: { direction: '달러 강세는 신흥국 자산에 부담이 되는 경우가 많음', verdict: '자국 금리와 외화 부채 비중을 함께 확인' },
-        SPX: { direction: '해외 매출 비중이 큰 기업의 환율 부담으로 이어질 수 있음', verdict: '기업별 해외 매출 비중과 헤지 여부를 확인' },
-        Gold: { direction: '달러 강세와 함께 부담을 받는 경우가 많음', verdict: '실질금리를 함께 확인' },
-        KOSPI: { direction: '외국인 수급과 원화 약세가 함께 거론되는 경우가 많음', verdict: '외국인 수급 흐름과 환율을 함께 확인' }
-      };
-      break;
-    case 'oil-spike':
-      impacts = {
-        Energy: { direction: '에너지 섹터 수익에는 우호적으로 해석되는 경우가 많음', verdict: '유가 수준이 얼마나 지속되는지 확인' },
-        Airlines: { direction: '연료비 비중이 큰 업종에는 부담', verdict: '업종별 연료비 헤지 여부를 확인' },
-        CPI: { direction: '물가를 밀어 올리는 요인', verdict: '근원 물가로 번지는지 확인' },
-        Stagflation: { direction: '성장 둔화와 물가 상승이 함께 나타나는 조합', verdict: '성장 지표와 물가 지표를 함께 확인' }
-      };
-      break;
-  }
-  return {
-    scenario: scenario,
-    impacts: impacts,
-    note: '정성 서술입니다. 수치 추정이 아니고, 과거 반응은 원인과 시점에 따라 달랐습니다. 매매 판단은 제공하지 않습니다.'
-  };
-}
-window._simulateMacroScenario = _simulateMacroScenario;
-
 // v49.69 P369 R131: 약어/별명 fuzzy match 강화 — "엔비" / "퀄컴" / "테슬라" / 본드 / 환율 등
 function _resolveTickerFromFuzzy(input) {
   if (!input || typeof input !== 'string') return null;
@@ -4827,23 +4651,6 @@ function _autoNavigatePage(userQuery, currentCtxId) {
   return intent;
 }
 window._autoNavigatePage = _autoNavigatePage;
-
-// v49.69 P367 R130: 포트폴리오 동적 시뮬레이션 — "AAPL 10% 추가 시" 의도 감지 + 가중치 변화 계산
-// 답변에 시나리오 결과 자동 삽입 (보유 종목 라이브 가격 + 시뮬레이션 후 가중치)
-function _simulatePortfolioAddition(userQuery, detectedTickers) {
-  if (!userQuery || typeof userQuery !== 'string') return null;
-  var target = (Array.isArray(detectedTickers) && detectedTickers[0]) || null;
-  if (!target) return null;
-  // E0/P1281: 포트폴리오 단일 소유자는 getPortfolioData(Vault-aware, 스키마 {ticker, qty, cost})다.
-  // v57.48 #4: 계산은 src/ai/context/portfolio-simulation.js — 포트폴리오 화면과 같은 기준 통화 평가액(_aioPortfolioSurface)을
-  // 쓰고, 환율 없는 통화 혼합·평가액 미확인 종목이 있으면 보류한다(시세 × 수량을 통화 구분 없이 더하지 않는다).
-  var positions = null;
-  try { if (typeof window.getPortfolioData === 'function') positions = window.getPortfolioData(); } catch(_) {}
-  var orchestrator = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' ? window.AIO_ARCH.getAIOrchestrator() : null;
-  if (!orchestrator || typeof orchestrator.simulatePortfolioAddition !== 'function') return null;
-  return orchestrator.simulatePortfolioAddition({ query: userQuery, target: target, positions: positions, surface: window._aioPortfolioSurface || null, targetQuote: (window._liveData || {})[String(target).toUpperCase()] || null });
-}
-window._simulatePortfolioAddition = _simulatePortfolioAddition;
 
 // v49.69 P365 R129: 후속 질문 3개 자동 제안 — 답변 내용 + 페이지 컨텍스트 + 감지된 ticker로 유기적 후속 질문 생성
 // 사용자 정직 요구: "AI 채팅에서 활용할 수 있는 모든 답변/기능" — 대화 깊이 + 유기적 흐름

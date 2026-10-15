@@ -1098,14 +1098,22 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   // Both scopes are stated, and the channel note is true for every control state (it used to be silent when only the
   // 텔레그램 type chip narrowed the articles).
   const { describeNewsScope } = await load('src/ui/pages/news.js');
-  const none = describeNewsScope({ countryFilter: 'all', topicFilter: 'all', typeTab: 'all' });
-  const country = describeNewsScope({ countryFilter: 'kr', topicFilter: 'all', typeTab: 'all' });
-  const topic = describeNewsScope({ countryFilter: 'all', topicFilter: 'semi', typeTab: 'all' });
-  const channelChip = describeNewsScope({ countryFilter: 'all', topicFilter: 'all', typeTab: 'tg' });
+  // v57.77: the type tabs left — the 텔레그램 chip is countryFilter 'tg', and 기업 is the 'company' topic.
+  const none = describeNewsScope({ countryFilter: 'all', topicFilter: 'all' });
+  const country = describeNewsScope({ countryFilter: 'kr', topicFilter: 'all' });
+  const topic = describeNewsScope({ countryFilter: 'all', topicFilter: 'company' });
+  const channelChip = describeNewsScope({ countryFilter: 'tg', topicFilter: 'all' });
   if (!none || none.articles !== '필터 없음' || none.channel !== '') fail(`P1537 no controls: articles read 필터 없음 and the channel note stays empty, got ${JSON.stringify(none)}`);
-  if (country.articles !== '필터 적용' || topic.articles !== '필터 적용' || channelChip.articles !== '필터 적용') fail('P1537 any country, topic or type control makes the article scope read 필터 적용');
+  if (describeNewsScope({ countryFilter: 'all', topicFilter: 'all', typeTab: 'company' }).articles !== '필터 없음') fail('v57.77 a stray retired typeTab key is not a filter');
+  if (country.articles !== '필터 적용' || topic.articles !== '필터 적용' || channelChip.articles !== '필터 적용') fail('P1537 any country or topic control (including 텔레그램 and 기업) makes the article scope read 필터 적용');
   if (!/국가·주제 필터와 무관/.test(country.channel) || country.channel !== topic.channel || country.channel !== channelChip.channel) fail(`P1537 the channel note must state it ignores the country/topic filter whenever a control is active, got ${JSON.stringify([country.channel, topic.channel, channelChip.channel])}`);
   if (describeNewsScope(null).articles !== '필터 없음' || describeNewsScope(undefined).channel !== '') fail('P1537 missing controls read as no filter');
+  // v57.77: 뉴스 ends with 이어서 볼 곳 like every other screen — 브리핑 then 시장 상태; 한국 opens the Korea board.
+  const { newsFlow } = await load('src/domain/market/page-flow.js');
+  const plainNext = newsFlow().next;
+  const krNext = newsFlow({ countryFilter: 'kr' }).next;
+  if (plainNext.map((item) => item.route).join(',') !== 'briefing,signal' || plainNext.some((item) => !item.label || !item.why)) fail(`v57.77 newsFlow links 브리핑 then 시장 상태 with a reason each, got ${JSON.stringify(plainNext)}`);
+  if (krNext[1]?.route !== 'signal' || krNext[1]?.ctx?.anchor !== 'regime-board-kr' || plainNext[1]?.ctx) fail(`v57.77 newsFlow opens the 한국 board only under the 한국 filter, got ${JSON.stringify(krNext)}`);
   const newsSource = (await import('node:fs')).readFileSync(new URL('../src/ui/pages/news.js', import.meta.url), 'utf8');
   if (!/getAbsoluteTime[\s\S]{0,80}\|\|\s*formatAbsoluteTime\(/.test(newsSource) || !/data-published-at|dataset\.publishedAt/.test(newsSource)) {
     fail('W09-C: the news card must fall back to the local formatter and keep the raw publication instant');
@@ -2781,8 +2789,9 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (!/TWR\/MWR/.test(e4HtmlSource) || !/원장/.test(e4HtmlSource)) {
     fail('P1182/account-performance the risk surface must state the ledger hold before any computation runs');
   }
-  if (!/예시 기준 · 직접 설정 전/.test(e4HtmlSource)) {
-    fail('P1182/22 universal Sharpe/MDD/drift rules must be labeled as education examples, not advice');
+  // v57.77: the writerless Sharpe/Beta/MDD/drift example cards (and their "예시 기준" labels) were retired with #pf-risk-section.
+  if (/id="pf-sharpe-val"|id="pf-mdd-val"|id="pf-drift-val"|id="pf-analysis-dashboard"/.test(e4HtmlSource)) { // text-pin-ok: retirement absence
+    fail('P1182/22 v57.77 the writerless Sharpe/MDD/drift example cards must stay retired');
   }
 }
 // ── E3/E4/P1188 — 11 P11-02 계좌·현금 통화·수익률 선언 writer · 22 계좌 성과 TWR/MWR ·
@@ -3672,6 +3681,14 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (!decomposed.includes('real-yield-led') || !decomposed.includes('bear-steepening')) fail(`P1390 rate decomposition rules did not fire: ${decomposed}`);
   const texts = [read.headline, ...read.points.map((row) => row.text), ...read.drivers.flatMap((row) => row.reads.map((statement) => statement.text))];
   if (!read.headline || new Set(texts).size !== texts.length) fail('P1389 a statement must appear once on the page');
+  // v57.77: a driver card for an asset the move chart draws carries only its level; the archived fact keeps the moves.
+  const cardValues = Object.fromEntries(read.drivers.flatMap((row) => row.values));
+  const chartedLabels = read.moves.map((row) => row.label);
+  if (!chartedLabels.includes('S&P 500') || !chartedLabels.includes('미 10년물') || chartedLabels.some((label) => /1일|5일/.test(cardValues[label] || ''))) fail(`v57.77 driver cards must not repeat the chart's 1-day/5-day moves: ${JSON.stringify(cardValues)}`);
+  if (!/^[\d,.]+$/.test(cardValues['S&P 500'] || '')) fail(`v57.77 the S&P 500 card shows only its level: ${cardValues['S&P 500']}`);
+  if (!/^[\d.]+%$/.test(cardValues['미 10년물'] || '')) fail(`v57.77 the 10-year card shows only its yield: ${cardValues['미 10년물']}`);
+  const archived = Object.fromEntries(read.facts.map((fact) => [fact.label, fact.value]));
+  if (!/\(1일 .*, 5일 .*\)/.test(archived['S&P 500'] || '') || !/^[\d.]+% \(1일 [^)]*bp, 5일 [^)]*bp\)$/.test(archived['미 10년물'] || '')) fail(`v57.77 archived facts keep the level with its moves (bp for the 10-year): ${JSON.stringify(archived)}`);
 
   // P1399: one basis, missing is not a reading, stale inputs are excluded, observation apart from interpretation.
   const { buildMarketRegime, alignInput } = await load('src/domain/briefing/market-read.js');
@@ -3681,6 +3698,25 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (!/^(양호|다소|중립|부담|방어|경계|혼조|대체로)/.test(buildMarketRegime({ history: rows, credit: { hyBp: 308, hyAsOf: last } }).overall)) fail('P1399 a full history must still produce a verdict');
   if (buildSentimentModel({}).synthesis.includes('치우치지 않은')) fail('P1399 no sentiment input must not read as balanced');
   if (/신용 스프레드.*(악화|경계)/.test(buildSentimentModel({ credit: { fg: 20, fgAsOf: '2026-09-30' }, history: [{ date: '2026-09-30', spx: 6600 }] }).synthesis)) fail('P1399 F&G alone must not claim credit stress');
+  {
+    // v57.77: 시장 폭 / 투자 심리 providers live in the page's 데이터 출처 fold (phones cannot hover), the card notes are one
+    // line with the edges in the fold (rules), the always-null aaiiNote is gone, and each breadth group names a lead chart.
+    const { PAGE_SOURCES } = await load('src/ui/components/page-sources.js');
+    const { RULES } = await load('src/domain/rules/thresholds.js');
+    const { BREADTH_GROUPS, buildBreadthCards } = await load('src/ui/components/breadth-board.js');
+    if (!PAGE_SOURCES.breadth?.length || !PAGE_SOURCES.sentiment?.length) fail('v57.77 breadth and sentiment need a 데이터 출처 entry');
+    const model = buildSentimentModel({});
+    if ('aaiiNote' in model) fail('v57.77 the always-null sentiment aaiiNote must stay retired');
+    if (model.cards.some((card) => card.source)) fail('v57.77 sentiment cards must not carry hover-only providers');
+    for (const id of ['hy', 'composite']) {
+      const card = model.cards.find((row) => row.id === id);
+      if (!card || !card.rules || card.note.length > 90 || /\d{3}bp/.test(card.note)) fail(`v57.77 ${id} note must be one short line with the thresholds in rules: ${card?.note}`);
+    }
+    if (!model.cards.find((row) => row.id === 'hy').rules.includes(`${RULES.credit.stressAtBp}bp`)) fail('v57.77 HY rules must state the shared stress edge');
+    const breadthIds = new Set(buildBreadthCards([]).map((card) => card.id));
+    if (BREADTH_GROUPS.map((group) => group.lead).join(',') !== 'b50,hl,spx' || BREADTH_GROUPS.some((group) => !breadthIds.has(group.lead))) fail('v57.77 breadth group leads must be b50, hl, spx');
+    if (buildBreadthCards([]).some((card) => card.source)) fail('v57.77 breadth cards must not carry hover-only conventions');
+  }
   const intraday = [...rows, { date: day(260), breadth50: 80, fieldMeta: { breadth50: { observedAt: `${day(260)}T13:30:00.000Z` } } }];
   if (buildMarketRead({ history: intraday }).drivers[0].values.some(([label, value]) => label === '50일선 위 종목' && value === '80%')) fail('P1399 an observation after the S&P 500 close basis must be dropped');
   const staleHy = buildMarketRegime({ history: rows, credit: { hyBp: 300, hyAsOf: day(240), hyDelta5Bp: -3 } }).axes.find((row) => row.id === 'credit');
@@ -3917,6 +3953,23 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (legacy.modelMatch !== false || !/다른 이전 모델|모델 지문/.test(legacy.verdict)) fail('P1449 a pre-fingerprint record must read as a different-model disclosure');
 }
 
+// ── v57.77: one validation view — #screener-validation adds the history curve and decision rule to the 과거 검증 tab,
+// never a second verdict/summary fold ──────────────────────────────────────────────────────
+{
+  const { renderScreenerValidation, summarizeValidation } = await load('src/ui/components/screener-validation.js');
+  const node = (tag) => ({ tag, children: [], className: '', textContent: '', dataset: {}, append(...kids) { this.children.push(...kids); }, replaceChildren(...kids) { this.children = [...kids]; } });
+  const host = node('section');
+  const doc = { getElementById: (id) => id === 'screener-validation' ? host : null, createElement: node };
+  const history = [{ date: '2026-10-01', n: 845, dates: 6, quantileSpreadNet: -1.8, netHitRate: 33.3, transactionCostPct: 0.4, ic: { composite: -0.005 } }];
+  renderScreenerValidation({ documentRef: doc, root: { _aioScreenerBacktestHistory: history, _aioModelValidationStatus: { status: 'BLOCKED' } } });
+  const tags = host.children.map((child) => child.tag);
+  const text = host.children.map((child) => child.textContent).join(' ');
+  const verdict = summarizeValidation(history, { status: 'BLOCKED' }).verdict;
+  if (tags.includes('details') || tags.includes('summary') || text.includes(verdict) || !/판정은 기록이 12회 이상/.test(text) || host.dataset.aioScreenerValidationRenderer !== 'native') {
+    fail(`v57.77 the validation block must add only the curve and decision rule, not repeat the 과거 검증 verdict: ${JSON.stringify({ tags, text })}`);
+  }
+}
+
 // ── P1397: chart analysis — VCP run, pivot, state (no grade) ─────────────────────────────────
 {
   const { analyzeChart, detectContractions } = await load('src/domain/technical/chart-analysis.js');
@@ -4141,6 +4194,37 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     const januaryTicks = labels.filter((label) => /년 1월$/.test(label.text)).length;
     if (januaryTicks !== januaries) fail('P1529 internal: january count');
   }
+}
+
+// v57.77: the 한국 차트·기술 분석 KOSPI/KOSDAQ cards printed "N단계 · 확도 NN%", a setup state and English MACD/BB boxes from
+// a live fetch. They now read completed KRX closes only: 50-/200-day position in Korean and three computed-fact lines.
+{
+  const { krIndexTrendFacts, krIndexPositionText, krIndexReading, renderKrIndexTrends } = await load('src/ui/components/kr-index-trend.js');
+  const { isCloseSessionDate } = await load('src/domain/briefing/market-read.js');
+  const dates = [];
+  const cursor = new Date(Date.UTC(2025, 6, 1));
+  while (dates.length < 230) { const date = cursor.toISOString().slice(0, 10); if (isCloseSessionDate(date, 'KR')) dates.push(date); cursor.setUTCDate(cursor.getUTCDate() + 1); }
+  const rising = dates.map((date, i) => ({ date, kospi: 2500 + i * 10 }));
+  const up = krIndexTrendFacts(rising, 'kospi');
+  if (krIndexPositionText(up) !== '50일선 위 · 200일선 위' || up.cross !== '위') fail(`v57.77 a rising KOSPI must read 50일선 위 · 200일선 위: ${krIndexPositionText(up)}`);
+  const lines = krIndexReading(up, '코스피');
+  if (lines.length !== 3 || lines.some((line) => /단계|확도|등급|셋업|Stage|MACD|Signal|Histogram|Upper|Lower|%B|52W|Gap/.test(line))) fail(`v57.77 the KR index reading is three fact lines without grades or English labels: ${lines.join(' / ')}`);
+  const falling = rising.map((row, i) => i >= 170 ? { ...row, kospi: 4200 - (i - 170) * 30 } : row);
+  if (krIndexPositionText(krIndexTrendFacts(falling, 'kospi')) !== '50일선 아래 · 200일선 아래') fail('v57.77 a falling KOSPI must read 50일선 아래 · 200일선 아래');
+  if (krIndexPositionText(krIndexTrendFacts(rising.slice(0, 30), 'kospi')) !== '50일선 계산 전 · 200일선 계산 전') fail('v57.77 averages without enough closes are withheld, not estimated');
+  if (krIndexTrendFacts(rising, 'kospi', { through: dates[199] })?.date !== dates[199]) fail('v57.77 the KR card stops at the completed KRX session');
+  const makeNode = (tag) => ({ tag, attrs: {}, children: [], style: {}, dataset: {}, textContent: '', className: '', setAttribute(key, value) { this.attrs[key] = String(value); }, append(...kids) { this.children.push(...kids); }, replaceChildren(...kids) { this.children = kids; }, addEventListener() {} });
+  const hosts = { 'kr-kospi-tech-result': makeNode('section'), 'kr-kosdaq-tech-result': makeNode('section') };
+  const doc = { createElement: makeNode, createElementNS: (ns, tag) => makeNode(tag), getElementById: (id) => hosts[id] || null };
+  const now = Date.parse(`${dates.at(-1)}T09:00:00Z`);
+  const drawn = renderKrIndexTrends({ documentRef: doc, root: { _aioHistory: rising }, now });
+  const walk = (node, out = []) => { out.push(node); (node.children || []).forEach((kid) => walk(kid, out)); return out; };
+  const kospiNodes = walk(hosts['kr-kospi-tech-result']);
+  if (drawn !== 1 || !kospiNodes.some((node) => node.tag === 'svg') || !kospiNodes.some((node) => node.textContent === '50일선 위 · 200일선 위')) fail('v57.77 the KOSPI card draws one close chart and its 50-/200-day position');
+  if (hosts['kr-kosdaq-tech-result'].style.display !== 'none') fail('v57.77 a KOSDAQ card without close history stays hidden');
+  const first = hosts['kr-kospi-tech-result'].children;
+  renderKrIndexTrends({ documentRef: doc, root: { _aioHistory: rising }, now });
+  if (hosts['kr-kospi-tech-result'].children !== first) fail('v57.77 the KR card redraws only when the last close changes');
 }
 
 // P1586: self-computed sentiment composite — withholds below four components, ranks each against its own

@@ -193,7 +193,7 @@ async function buildCrossroadsVisual({ documentRef: doc, root }) {
 
 // P1743: every theme's stage (long trend × 1 month) and its macro wind, as four short lists.
 async function buildThemesVisual({ documentRef: doc, root }) {
-  const store = root?.AIO?.store || { getState: () => ({ screener: { rows: root?.AIO_ARCH?.getScreenerState?.()?.rows || [] } }) };
+  const store = root?.AIO?.store || { getState: () => ({ screener: { rows: root?.AIO_ARCH?.getScreenerRows?.() || [] } }) }; // v57.77 perf: shared row snapshot, not a whole-slice clone
   const { playbook } = themePlaybookForRoot(root, store);
   if (!playbook?.available) return null;
   const pct = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;

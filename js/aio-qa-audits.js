@@ -1405,11 +1405,10 @@ window.AIO.assertChatAdvancedFeaturesAudit = function() {
     buildUserProfileContext: typeof window._buildUserProfileContext === 'function',
     alertGet: typeof window._aioGetAlerts === 'function',
     alertAdd: typeof window._aioAddAlert === 'function',
-    alertParse: typeof window._aioParseAlertIntent === 'function',
     alertCheck: typeof window._aioCheckAlerts === 'function',
     exportChatData: typeof window._aioExportChatData === 'function',
-    exportFromBtn: typeof window._aioExportFromBtn === 'function',
-    simulateAmount: typeof window._aioSimulateAmountOrPct === 'function'
+    exportFromBtn: typeof window._aioExportFromBtn === 'function'
+    // v57.77: the test-only alert parser and amount simulator are retired, so they are no longer probed.
   };
   var v48Src = (typeof window._getV48IntegratedContext === 'function') ? window._getV48IntegratedContext.toString() : '';
   // v57.62: alert/amount-simulation/download wiring lived only in the dead per-page chatSend (retired); the unified
@@ -1454,8 +1453,7 @@ window.AIO.assertChatInteractivityAudit = function() {
   var checks = {
     suggestFollowUpQuestions: typeof window._suggestFollowUpQuestions === 'function',
     autoNavigatePage: typeof window._autoNavigatePage === 'function',
-    simulatePortfolioAddition: typeof window._simulatePortfolioAddition === 'function',
-    simulateMacroScenario: typeof window._simulateMacroScenario === 'function',
+    // v57.77: the test-only portfolio/macro simulators are retired, so they are no longer probed.
     resolveTickerFromFuzzy: typeof window._resolveTickerFromFuzzy === 'function',
     chatFromChip: typeof window.chatFromChip === 'function'
   };
@@ -2953,10 +2951,10 @@ window.AIO.assertXssEscapeCoverageAudit = function() {
     var hasEscHtml = typeof window.escHtml === 'function';
     // (2) 주요 chat/render 함수들 toString 후 scan
     var fnNames = [
-      'openChatHistory', 'renderKrIssues', 'analyzeKrIndex', 'analyzeKrTickerDeep',
+      'openChatHistory', 'analyzeKrTickerDeep', // v57.77: analyzeKrIndex and renderKrIssues retired
       'chatRenderChips', 'updateAIPanelContext',
-      'renderPortfolio', 'renderHomeFeed', 'renderBriefingFeed', 'renderFeed'
-    ];
+      'renderPortfolio', 'renderHomeFeed', 'renderBriefingFeed'
+    ]; // v57.77: retired renderKrIssues (P725) and renderFeed no longer counted as scanned functions
     var found = [];
     var unsafeHits = 0;
     var totalAssignments = 0;
@@ -3823,9 +3821,9 @@ window.AIO.getDataPipelineAudit = function() {
   var chartA11yGaps = canvasA11yGaps();
   var requiredFns = [
     'fetchWithTimeout', 'fetchViaProxy', 'fetchLiveQuotes', 'applyLiveQuotes',
-    'applyDataSnapshot', 'fetchAllNews', 'renderFeed', 'renderHomeFeed',
+    'applyDataSnapshot', 'fetchAllNews', 'renderHomeFeed', // v57.77: renderFeed does not exist; it reported a permanent missing function
     'renderBriefingFeed', 'computeTradingScore', 'computeMarketHealth',
-    'updateRiskMonitor', 'updateBenchmarkChart'
+    'updateBenchmarkChart'
   ];
   var missingFns = requiredFns.filter(function(name) { return !exists(name); });
   var freshness = null;
@@ -4234,19 +4232,14 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
       lineRange: 'L3948~4400+',
       // v49.38 P289: 1차 8개 → 2차 14개 재 enumerate (위→아래 모든 sub-section)
       subSections: [
-        { id: 'home-stale-warning',     order:  1, topic: '데이터 경과 경고 배너',     lines: 'L3950' },
-        { id: 'home-api-onboarding',    order:  2, topic: 'API 키 onboarding',         lines: 'L3953~3956' },
-        { id: 'home-header',            order:  3, topic: '헤더 (타이틀+버전+배지)',   lines: 'L3958~3974' },
-        { id: 'home-score-legend',      order:  4, topic: '스코어 해석 범례',          lines: 'L3975~3982' },
+        { id: 'home-stale-warning',     order:  1, topic: '데이터 경과 경고 배너 (#snapshot-stale-warning)', lines: 'index.html #page-home' },
+        { id: 'home-header',            order:  3, topic: '헤더 (타이틀+배지)',        lines: 'index.html #page-home' },
         // v57.76: home-conclusion-bar (order 5), home-market-summary banner (order 6) and the GMO table (order 14) are retired.
-        { id: 'home-quick-nav',         order:  7, topic: '빠른 이동 chips 7개',       lines: 'L4009~4018' },
-        { id: 'home-3-cards-decision',  order:  8, topic: '3 카드 (Primary/Quality/Regime)', lines: 'L4020~4051' },
-        { id: 'home-action-item-card',  order:  9, topic: 'Action Item 카드 (v49.28)', lines: 'L4053~4068' },
-        { id: 'home-explain-decision',  order: 10, topic: '매매 판단 심층 해설',       lines: 'L4070~4140' },
-        { id: 'home-kpi-4cards',        order: 11, topic: 'KPI 4 카드 (SPX/NASDAQ/VIX/FG)', lines: 'L4144~4170' },
-        { id: 'home-sub-indicators',    order: 12, topic: '서브 지표 chips 6개 (DXY/10Y/Gold/WTI/KOSPI/BTC)', lines: 'L4173~4180' },
-        { id: 'home-explain-top',       order: 13, topic: '상단 지표 펼쳐보기 (VIX/FG 표 포함)', lines: 'L4182~4263' },
-        { id: 'home-explain-gmo',       order: 15, topic: 'GMO + DXY/10Y/Gold/WTI/BTC 해설', lines: 'L4300~4400+' }
+        // v57.77: entries whose section left index.html are pruned — API onboarding (2), score legend (4), quick-nav chips (7),
+        // the three decision cards (8, v57.50 I16), the decision explainer (10), the top-indicator fold (13) and the GMO explainer (15).
+        { id: 'home-action-item-card',  order:  9, topic: 'Action Item 카드 (v49.28, 숨김 유지)', lines: 'index.html #home-action-item-card' },
+        { id: 'home-kpi-4cards',        order: 11, topic: 'KPI 4 셀 (S&P 500 선물/나스닥 100 선물/미 10년물/WTI, v57.77 갱신)', lines: 'index.html #home-kpi-strip' },
+        { id: 'home-sub-indicators',    order: 12, topic: '서브 지표 6개 (VIX/공포·탐욕/달러/금/코스피/BTC, v57.77 갱신)', lines: 'index.html #home-cross-assets' }
       ],
       // v49.40 home 3차 점검 완료 후 audit status
       auditStatus: {
@@ -4258,16 +4251,12 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
         '핵심성':'mostly-ok'
       },
       // v49.38 R94 + v49.40 home 3차: 점검 결과 누적 (findings)
+      // v57.77: findings about the pruned sub-sections (top-indicator fold, GMO explainer, three decision cards) are removed with them.
       findings: [
-        { sub: 'home-explain-top', axis: '정합성', severity: 'critical', note: 'VIX 표 vs THRESHOLD_REGISTRY.VIX 6 vs 5 구간 불일치 (R56 위반)', fixedIn: 'v49.38 F1' },
-        { sub: 'home-explain-top', axis: '정확성', severity: 'minor',    note: '오타 "뷰블" → "버블"', fixedIn: 'v49.38 F2' },
-        { sub: 'home-explain-gmo', axis: '정합성', severity: 'high',     note: 'DXY/10Y 임계값 라벨 REGISTRY 미등록', fixedIn: 'v49.38 F3 (THRESHOLD.DXY + YIELD_10Y 추가)' },
         { sub: 'home-header',      axis: '정확성', severity: 'minor',    note: 'live-quote-ts-topbar JS hook 부재', fixedIn: 'v49.37 P283' },
-        { sub: 'home-3-cards-decision', axis: '직관성', severity: 'medium', note: '3 카드 타이포그래피 동일', fixedIn: 'v49.28 (CARD_HIERARCHY)' },
         // v49.40 home 3차 — 인터랙션 + 페이지 간 정합 + 라이브 데이터 sink 실 검증
         { sub: 'home-action-item-card', axis: '로직성', severity: 'critical', note: '↻ 갱신 버튼 data-action="_aioRefreshActionPlan" 핸들러 미정의 — click 무동작 (silent no-op). R96 audit이 knownAliases로 false-positive 통과', fixedIn: 'v49.40 P294 (window._aioRefreshActionPlan 신설 + knownAliases에서 제거)' },
-        { sub: 'home-kpi-4cards',  axis: '정합성', severity: 'ok',       note: 'home 9 ticker (^GSPC/^IXIC/^VIX/^TNX/GC=F/CL=F/DX-Y.NYB/^KS11/BTC-USD) 모두 LIVE_SYMBOLS 등록 + 다른 페이지(signal/sentiment/options/technical/macro/fxbond/kr-home/kr-technical) 분포 검증 OK. fetchLiveQuotes bulk update가 모든 [data-live-price="T"] 동시 갱신', verifiedIn: 'v49.40 home 3차 (R95)' },
-        { sub: 'home-3-cards-decision', axis: '로직성', severity: 'ok', note: 'data-action 6종 (_aioHideParentOnboard/_aioRefreshActionPlan/_aioScrollApiSection/_aioToggleExplain/showPage/toggleLLM) 모두 핸들러 등록 확인 (P294 시정 후; v57.76 GMO 표 토글 퇴역)', verifiedIn: 'v49.40 home 3차 (R96)' }
+        { sub: 'home-kpi-4cards',  axis: '정합성', severity: 'ok',       note: 'home 9 ticker (^GSPC/^IXIC/^VIX/^TNX/GC=F/CL=F/DX-Y.NYB/^KS11/BTC-USD) 모두 LIVE_SYMBOLS 등록 + 다른 페이지(signal/sentiment/options/technical/macro/fxbond/kr-home/kr-technical) 분포 검증 OK. fetchLiveQuotes bulk update가 모든 [data-live-price="T"] 동시 갱신', verifiedIn: 'v49.40 home 3차 (R95)' }
       ]
     },
     // v49.39 P292: signal 1차 enumerate (14 sub-section)
@@ -4350,23 +4339,17 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
     'sentiment': {
       lineRange: 'L5599~5917',
       subSections: [
-        { id: 'sentiment-insight-box',    order:  1, topic: '핵심 메시지 (F&G 25↓/75+)',           lines: 'L5638~5640' },
-        { id: 'sentiment-explain-page',   order:  2, topic: '투자 심리 심층 해설 (펼쳐보기)',         lines: 'L5642~5693' },
-        { id: 'sentiment-conclusion-bar', order:  3, topic: '페이지 결론 바 (v57.76 퇴역 — 기록용)',  lines: 'retired' },
-        { id: 'sentiment-header',         order:  4, topic: '헤더 + sent-overall-badge',             lines: 'L5698~5715' },
-        { id: 'sentiment-guide-cards',    order:  5, topic: '심리 지표 가이드 3 카드',                lines: 'L5717~5734' },
- { id: 'sentiment-fg-gauge',       order:  6, topic: 'F&G Gauge + fg-needle SVG',             lines: 'src/ui/pages/sentiment.js' },
- { id: 'sentiment-vix-chart',      order:  7, topic: 'VIX 차트',                              lines: 'src/ui/pages/sentiment.js' },
- { id: 'sentiment-vix-term',       order:  8, topic: 'VIX Term Structure',                    lines: 'src/ui/pages/sentiment.js' },
-        { id: 'sentiment-naaim-ii',       order:  9, topic: 'NAAIM + II 차트',                       lines: 'L5835~5843' },
-        { id: 'sentiment-hy-aaii-pc',     order: 10, topic: 'HY/AAII/Put-Call 3 카드',               lines: 'L5848~5891' },
-        { id: 'sentiment-news-chart',     order: 11, topic: '뉴스 감성 차트',                        lines: 'L5893~5910' },
-        { id: 'sentiment-analysis-text',  order: 12, topic: '심리지표 복합 분석 (동적)',              lines: 'L5913~5916' }
+        // v57.77: the P1396 rebuild left index.html without the insight box (1), explainer fold (2), retired conclusion bar (3),
+        // guide cards (5), standalone VIX chart (7), NAAIM/II chart (9) and news-sentiment chart (11); those entries are pruned.
+        { id: 'sentiment-header',         order:  4, topic: '헤더 + 기준 시각 (#sentiment-basis)',    lines: 'index.html #page-sentiment' },
+        { id: 'sentiment-fg-gauge',       order:  6, topic: 'F&G 추이 카드 (게이지 퇴역, v57.77 갱신)', lines: 'src/ui/components/sentiment-board.js' },
+        { id: 'sentiment-vix-term',       order:  8, topic: 'VIX Term Structure (단기 불안 비율 카드)', lines: 'src/ui/components/sentiment-board.js' },
+        { id: 'sentiment-hy-aaii-pc',     order: 10, topic: 'HY/AAII/Put-Call 카드',                  lines: 'src/ui/components/sentiment-board.js' },
+        { id: 'sentiment-analysis-text',  order: 12, topic: '심리 종합 (#sentiment-synthesis, v57.77 갱신)', lines: 'src/ui/components/sentiment-board.js' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
-        // verify-only (agent false alarm 차단)
-        { sub: 'sentiment-conclusion-bar', axis: '정합성', severity: 'ok', note: 'v49.42 범용 결론 바 호출 확인(agent 미구현 클레임 false alarm) — v57.76에 결론 바와 범용 렌더러 모두 퇴역, 기록용으로만 유지', verifiedIn: 'v49.42 (P294 패턴 verify)' },
+        // verify-only (agent false alarm 차단; v57.77: the retired conclusion-bar finding left with its entry)
  { sub: 'sentiment-header',         axis: '정확성', severity: 'ok', note: 'sent-overall-badge는 src/ui/pages/sentiment.js native renderer가 갱신', verifiedIn: 'v53.15/ARX-01' },
  { sub: 'sentiment-analysis-text',  axis: '정확성', severity: 'ok', note: 'sent-analysis-text는 src/ui/pages/sentiment.js native renderer가 갱신', verifiedIn: 'v53.15/ARX-01' },
  { sub: 'sentiment-fg-gauge',       axis: '직관성', severity: 'ok', note: 'fg-needle SVG는 src/ui/pages/sentiment.js native renderer가 evidence/state에서 갱신', verifiedIn: 'v53.15/ARX-01' },
@@ -4508,19 +4491,16 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
     'themes': {
       lineRange: 'L8336~8730',
       subSections: [
-        { id: 'themes-explain-header',     order: 1, topic: '헤더 + 섹터 로테이션 심층 해설',     lines: 'L8340~8420' },
+        { id: 'themes-explain-header',     order: 1, topic: '헤더 + 섹터 회전 판정 (#themes-verdict, v57.77 갱신)', lines: 'index.html #page-themes' },
         // v57.76: the order-2 경기 사이클 동적 readout (#cycle-dynamic-*) is retired.
-        { id: 'themes-sector-rotation-table', order: 3, topic: '11 섹터 로테이션 표 (Early/Mid/Late/Recession)', lines: 'L8482~8540' },
-        { id: 'themes-ai-infra-matrix',    order: 4, topic: 'AI 인프라 매트릭스 (메가캡/팹리스/장비/EDA/메모리)', lines: 'L8542~8600' },
-        { id: 'themes-thematic-cards',     order: 5, topic: '테마별 카드 (Defense/Nuclear/Quantum/Hydrogen 등)', lines: 'L8602~8660' },
-        { id: 'themes-etf-recommendations', order: 6, topic: 'ETF 추천 표 (XLK/XLF/XLE 등)',     lines: 'L8662~8700' },
-        { id: 'themes-cross-link',         order: 7, topic: 'theme-detail 페이지 cross-link 동선', lines: 'L8702~8720' },
-        { id: 'themes-guide',              order: 8, topic: 'Stage 4 + Sector Rotation 가이드 (collapsed)', lines: 'L8722~8730' }
+        // v57.77: the sector-rotation table (3, moved to the concept dictionary in v57.76), the ETF recommendation table (6, P1429)
+        // and the Stage 4 / rotation guide fold (8) left index.html; those entries and their finding are pruned.
+        { id: 'themes-ai-infra-matrix',    order: 4, topic: 'AI 인프라 연구 지도 (#ai-capex-flow · #ai-infra-efficiency-lens)', lines: 'index.html #page-themes' },
+        { id: 'themes-thematic-cards',     order: 5, topic: '세분화 테마 (#theme-strength-board · #sub-themes-grid)', lines: 'index.html #page-themes' },
+        { id: 'themes-cross-link',         order: 7, topic: 'theme-detail 패널 cross-link 동선 (#theme-detail-panel)', lines: 'index.html #page-themes' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
-      findings: [
-        { sub: 'themes-sector-rotation-table', axis: '정합성', severity: 'ok', note: '"Late Cycle" 라벨 themes 페이지 인라인 vs JS getCycleFromMacro 결과 — v49.31 H5 일반화 + v49.42 P308 verify (의도된 동적)', verifiedIn: 'v49.47' }
-      ],
+      findings: [],
       note: 'v49.47 1차+2차 통합 — themes 페이지 인프라 v49.28+v49.31에서 완성. 라이브 데이터는 theme-detail로 위임.'
     },
     // v49.48 theme-detail 1차+2차 (라이브 cell 3 / placeholder 1: XSD — v49.47 P315 LIVE_SYMBOLS 등록 후 SW 회전 대기)

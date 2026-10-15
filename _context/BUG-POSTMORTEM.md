@@ -6,6 +6,42 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1823 - v57.77 - The artifact cache never hit and the screener re-downloaded 3 MB on every visit (2026-10-15)
+
+- symptom/reproduction: Every screener entry re-fetched screener.json (3 MB), the universe and validation status, and recomputed ranks; backtest-history.json was re-read within seconds.
+- root_cause: artifact-cache keyed its store by the fetch function identity while callers passed a new fetchFn.bind(root) each call; the screener pageShown handler refreshed without the held/due gate used elsewhere.
+- fix: Bound fetchers share one store per bound name; the screener sync runs only when no rows are held or 30 minutes passed (a forced refresh still re-reads).
+- violated_rule: A cache must be keyed by a stable identity.
+- prevention: ci-artifact-cache-check asserts bound-fetcher reuse (artifact-cache.v5).
+- verification/residual: node scripts/ci-artifact-cache-check.mjs
+
+## P1822 - v57.77 - Data-pipeline audit permanently reported a missing function (2026-10-15)
+
+- symptom/reproduction: getDataPipelineAudit always listed a missing pipeline function because requiredFns named renderFeed, which no longer exists; fnNames also listed renderKrIssues.
+- root_cause: Audit metadata was not updated when the functions were retired.
+- fix: The lists name only real functions; retired audit registry entries for absent home, sentiment and themes sections were pruned.
+- violated_rule: An audit must not report a permanent false alarm.
+- prevention: aio-tests T310/T330/T344 count the pruned registry against the current DOM.
+- verification/residual: node scripts/ci-headless-tests.mjs
+
+## P1821 - v57.77 - WCAG AA failures on news links, radar, theme chips and headings (2026-10-15)
+
+- symptom/reproduction: Dark-theme intraday news links measured 1.94:1, the Telegram label 2.23:1 and summary-only theme chips 3.8-4.0:1; the signal radar had six hidden focus stops; theme chip names dropped the visible symbol and %; home had an h3 before any h2; stock search and price sections had no headings; Korean theme tabs exposed no selected state.
+- root_cause: Browser-default link colour, hard-coded #0af, an opacity on chips, tabindex on SVG text inside role=img, aria-labels written without the visible text, fixed h3 in a shared renderer, and span/div section titles.
+- fix: Token colours, no chip opacity, the radar keyboard stop moved to its table only, chip names start with the visible text, a heading-level option (home uses h2), h2 section titles, aria-pressed on Korean tabs, canvas aria-describedby to the live reading, and a silent hover on the sector map.
+- violated_rule: WCAG AA 1.4.3, 2.5.3, 4.1.2, 1.3.1 on default paths.
+- prevention: The accessibility audit scripts and ci-accessibility-matrix-check; the changes are in the shared renderers.
+- verification/residual: node scripts/ci-accessibility-matrix-check.mjs
+
+## P1820 - v57.77 - Legacy updateRiskMonitor raced the native macro renderer on the same data-snap sinks (2026-10-15)
+
+- symptom/reproduction: On 거시 the legacy updateRiskMonitor wrote [data-snap] tnx/kospi/kosdaq/krw-full on every live-quote event and the signal timer, over the values the native market.js renderSnapshotMetrics had written.
+- root_cause: The function had no native fence (applyDataSnapshot has one) and still ran from three hooks after the macro page became native.
+- fix: updateRiskMonitor and its three calls were deleted; refreshSignalDashboard keeps only the snapshot date bindings.
+- violated_rule: One writer per DOM sink once a native renderer owns it.
+- prevention: aio-tests T876 and ci-architecture-contract-check assert the function is absent.
+- verification/residual: node scripts/ci-architecture-contract-check.mjs
+
 ## P1819 - v57.76 - The sector RRG scatter chart was visible only in developer mode (2026-10-15)
 
 - symptom/reproduction: On 테마 · 섹터 the real relative-rotation scatter sat in a fold labelled in English that ordinary users never saw; they got four text cards instead.

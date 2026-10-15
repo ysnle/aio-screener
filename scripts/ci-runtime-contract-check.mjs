@@ -171,7 +171,8 @@ check('portfolio blocks unverified ticker before saving', /검증되지 않은 �
 check('data-action accessibility normalizer is installed', /_aioNormalizeDataActionA11y/.test(core) && /setAttribute\('role', 'button'\)/.test(core) && /setAttribute\('tabindex', '0'\)/.test(core));
 check('data-on-change/input delegation reports missing and throwing handlers', /data-on-change/.test(core) && /data-on-input/.test(core) && /missing data-on-change handler/.test(core) && /data-on-change failed/.test(core) && /missing data-on-input handler/.test(core) && /data-on-input failed/.test(core) && /showDataError\('입력 처리'/.test(core));
 check('ticker direct search uses the delegated uppercase input handler', /window\._aioUppercaseInput\s*=/.test(core) && /id="ticker-direct-search"[\s\S]{0,600}data-on-input="_aioUppercaseInput"/.test(html) && !/id="ticker-direct-search"[\s\S]{0,600}\boninput\s*=/.test(html));
-check('snapshot percentage fields preserve missingness and breadth narrative fails closed to current 5/20/50 evidence', !/vvix-pct[^\n]*S\.vvixChg\s*\|\|\s*0/.test(core) && !/skew-pct[^\n]*S\.skewChg\s*\|\|\s*0/.test(core) && /\[\['5sma', 'sma5'\], \['20sma', 'sma20'\], \['50sma', 'sma50'\]\]/.test(core) && !/\['5sma','20sma','50sma','200sma'\]/.test(core) && /현재 breadth 원천 미수신/.test(core));
+// v57.77: the breadth-*sma bar/label/big writers left with their absent DOM; the snapshot breadth cells still read only current evidence.
+check('P1274 snapshot percentage fields preserve missingness and breadth cells fail closed to current 5/20/50 evidence (v57.77: legacy bar/label writer retired)', !/vvix-pct[^\n]*S\.vvixChg\s*\|\|\s*0/.test(core) && !/skew-pct[^\n]*S\.skewChg\s*\|\|\s*0/.test(core) && /'breadth-20sma':\s*currentBreadth\.available \?/.test(core) && !/\['5sma','20sma','50sma','200sma'\]/.test(core) && !/getElementById\('breadth-' \+ period \+ '-bar'\)/.test(core)); // text-pin-ok: retirement absence
 check('snapshot fallback seeds require a valid producer timestamp and TNX stays source-backed', /const snapTsRaw = S\._updated \|\| S\._marketDataUpdated/.test(core) && /snapshot timestamp unavailable; fallback seed skipped/.test(core) && !/const snapTs = S\._updated \? new Date\(S\._updated\)\.getTime\(\) : Date\.now\(\)/.test(core) && /'\^TNX': \{ price: S\.tnx, pct: S\.tnxPct \}/.test(core) && !/price: 4\.31, pct: \+0\.54/.test(core));
 check('manual CPI next date is consumed only when it is valid and not in the past', /function _aioFutureReferenceDate/.test(core) && /cpiNext: _aioFutureReferenceDate\(AIO_MANUAL_REFERENCE\.usCpiCalendar\.next\)/.test(core) && /\(!DATA_SNAPSHOT\.cpiNext \|\| _t759ValidFutureDate\(DATA_SNAPSHOT\.cpiNext\)\)/.test(tests));
 check('page decisions fail closed when evidence is unavailable or market epoch is blocked', /var evidenceBlocked = evidence\.sourceKind === 'UNAVAILABLE'/.test(core) && /evidence\.marketEpoch\?\.status === 'BLOCKED'/.test(core) && /d\.decisionBlocked = true/.test(core) && /status: d\.decisionBlocked \? 'blocked' : 'ok'/.test(core));
@@ -293,7 +294,7 @@ check('LC-07/LC-87/P1268 one owner for market-news summary and source-count deno
 check('LC-31/P1230/P1268 feed-query topics do not drive article-topic risk signals',
   /isNewsTopicReviewRequired/.test(newsScoring)
   && /topicEvidence = recent\.filter\(hasReviewedArticleTopic\)/.test(newsScoring)
-  && /출처 기준 분류/.test(newsPage)); // P1391/P1592: the card no longer prints the flag; category grouping names it for readers
+  && /출처 기준 분류/.test(newsPage)); // P1391/P1592: the card no longer prints the flag; v57.77: the card's 출처·시각 fold names it (category grouping retired)
 // LC-35/P1257: the hidden legacy themes sections are classified (retire / public re-home / dev
 // bundle) and the decision is recorded in the stylesheet — public copy promises only what ships.
 check('LC-35/P1257 themes hidden sections classified with the decision recorded', /P1257\/LC-35 제품 결정/.test(html) && /퇴역\(삭제\)/.test(html) && /공개 경로로 이전/.test(html) && /개발자 번들로 이전/.test(html) && !/45개 세분화 테마 실시간/.test(html));
@@ -412,7 +413,8 @@ check(
     && /volume-backed-vs-short-cover/.test(core)
     && /igv-to-smh-rotation/.test(core)
     && /failed-breakdown-bear-trap/.test(core)
-    && /getTacticalTraderFrameworkAudit/.test(core)
+    && /window\.AIO\.getTacticalTraderFramework = /.test(core)
+    && !/getTacticalTraderFrameworkAudit/.test(core) // v57.77: the test-only framework audit was removed // text-pin-ok: retirement absence
 );
 check(
   'trader tactical framework feeds page decisions, AI chat, and news keywords',
@@ -501,6 +503,7 @@ check('P1449 screener labels use user vocabulary (no Outcome/Operations/hash/ide
     && !/종목 identity는/.test(html),
   'screener user copy leaked developer terms again — route raw enums through a Korean copy map');
 check('core news and screener filters remain active on the main screen', !/#news-country-chips|#news-topic-chips|#news-type-tabs|#scr-market/.test(core));
+check('v57.77 news type tabs and setNewsTypeTab retired (기업 is a topic chip)', !/id="news-type-tabs"|setNewsTypeTab/.test(html + data + newsPage)); // text-pin-ok: retirement absence
 // P1131/R619: the _aiCtxMap literals moved with inline block G into js/aio-chat.js.
 check('P1753/v57.54 unified AI panel covers home/screener/ticker/themes/macro and no retired KR page key', /'home'\s*:\s*'home'/.test(chat) && /'screener'\s*:\s*'screener'/.test(chat) && /'ticker'\s*:\s*'ticker'/.test(chat) && /'themes'\s*:\s*'themes'/.test(chat) && /'macro'\s*:\s*'macro'/.test(chat) && !/'kr-(?:themes|macro|technical)'\s*:\s*'kr-/.test(chat));
 // The KR landing/supply/technical pages left in v53.7 (P725); their chat contexts must not return.
@@ -562,7 +565,8 @@ check('AI chat key gates accept configured server-key route and disclose persona
 check(
   'T866 v57.60 breadth surfaces share canonical regime color and zero delta renders neutral (the legacy _bbRegime ladder retired with updateBreadthBars)',
   !/function\s+_bbRegime/.test(ui + core + data)
-    && /bar\.style\.background\s*=\s*reg\.color/.test(core)
+    && /function getBreadthRegime\(v\)/.test(core) // v57.77: the legacy breadth-bar colour writer retired; the canonical regime stays
+    && !/bar\.style\.background\s*=\s*reg\.color/.test(core) // text-pin-ok: retirement absence
     && /text:\s*'0'\s*\+\s*suffix/.test(data)
     && !/text:\s*'±0'\s*\+\s*suffix/.test(data)
     && /T866 breadth_regime_contract_and_zero_delta_v5460/.test(tests),
@@ -593,20 +597,21 @@ for (const [file, text] of userFacingFiles) {
 check('core must not recreate fake premium board renderer', !/window\._aioPremiumBoardModel|function\s+_aioPremiumBoardHtml|window\._aioRenderImportedResearchBridge|function\s+_aioResearchCardsHtml/.test(core));
 
 // ── v51.64 구조적 계약 검사 (P545 방지 / Signal-Field / COMP_W / Scheduler / DATA_SNAPSHOT) ────────
-// [A] Signal/Field 계약: classifyTerminalCandle()의 snapshot.X 참조 → calcTechnicalSnapshot() 반환 필드 정합
-// snapshot.failedRetest는 P537에서 추가됐지만 P545 수준의 회귀 방지를 위해 CI에서 명시적으로 검증.
+// [A] Signal/Field 계약: calcTechnicalSnapshot() 반환 필드 정합.
+// snapshot.failedRetest는 P537에서 추가됐다. v57.77: 소비자였던 classifyTerminalCandle(테스트 전용)은 퇴역했고,
+// 필드 자체는 calcTechnicalSnapshot 반환 계약으로 유지한다.
 check(
-  'classifyTerminalCandle snapshot.failedRetest is produced by calcTechnicalSnapshot',
-  /failedRetest\s*=\s*!!/.test(core) && /failedRetest\s*:/.test(core),
+  'P545 calcTechnicalSnapshot produces snapshot.failedRetest (v57.77: test-only classifyTerminalCandle retired)',
+  /failedRetest\s*=\s*!!/.test(core) && /failedRetest\s*:/.test(core) && !/function classifyTerminalCandle/.test(core),
   'calcTechnicalSnapshot must assign failedRetest field before return'
 );
 // snapshot 참조 패턴 목록 — 추후 새 signal이 snapshot.X를 쓰면 여기에 추가
 const snapshotSignalFields = ['failedRetest'];
 for (const field of snapshotSignalFields) {
   check(
-    `calcTechnicalSnapshot returns '${field}' used by classifyTerminalCandle`,
+    `P545 calcTechnicalSnapshot returns '${field}'`,
     new RegExp(`\\b${field}\\s*[=:]`).test(core),
-    `field '${field}' declared in classifyTerminalCandle but not found in aio-core.js`
+    `field '${field}' not found in aio-core.js`
   );
 }
 
@@ -693,7 +698,8 @@ if (hiddenImportantCount > HIDDEN_BLOCK_THRESHOLD) {
 check('retired page fundamentals renderer is fully removed', !/_aioRenderPageFundamentals/.test(ui) && !/_aioPageBus\.register\('ui-page-fundamentals'/.test(ui));
 check('page fundamentals no longer marks or injects page DOM', !/data-aio-fund-done/.test(ui) && !/className\s*=\s*'aio-page-advanced-toggle aio-fund'/.test(ui));
 check('13 comp routes hide advanced legacy blocks by default and expose them in developer mode only', /#page-home \.aio-page-advanced-toggle[\s\S]{0,1800}display:none !important/.test(html) && /body\.aio-dev-mode #page-home \.aio-page-advanced-toggle[\s\S]{0,1800}display:block !important/.test(html));
-check('portfolio comp order and CTA-gated entry form are wired', /id="pf-holdings-table-section"/.test(html) && /id="pf-risk-section"/.test(html) && /id="pf-entry-section"/.test(html) && /_aioTogglePortfolioEntry/.test(html));
+check('portfolio comp order and CTA-gated entry form are wired', /id="pf-holdings-table-section"/.test(html) && /id="pf-entry-section"/.test(html) && /_aioTogglePortfolioEntry/.test(html));
+check('v57.77 portfolio writerless 리스크 분석 shell and duplicate 자동 진단 widget stay retired', !/id="pf-risk-section"|id="pf-analysis-dashboard"|id="pf-analysis-text"/.test(html)); // text-pin-ok: retirement absence
 check('screener comp default exposes 1M/3M/6M/RSI/vs50MA/trend confidence/VCP fields', /data-scr-sort="ret1m"/.test(html) && /data-scr-sort="ret3m"/.test(html) && /data-scr-sort="ret6m"/.test(html) && /data-scr-sort="pctSma50"/.test(html) && /ret1m/.test(screenerPage) && /ret6m/.test(screenerPage) && /vcpScore/.test(screenerPage));
 check('runtime-injected decision headers and related-news strips stay out of the 13-route default surface', /body:not\(\.aio-dev-mode\) \.page > \.aio-decision-header[\s\S]{0,160}display:none !important/.test(html) && /#page-signal > \.aio-page-news-strip[\s\S]{0,1200}display:none !important/.test(html));
 check('home operational details stay collapsed while completed-24h Telegram feeds remain user-visible', /#page-home > details\.aio-card[\s\S]{0,1200}display:none !important/.test(html) && !/body:not\(\.aio-dev-mode\) #tg-feed-signal[\s\S]{0,1600}display:none !important/.test(html) && /body:not\(\.aio-dev-mode\) \.tg-live-feed/.test(html));
@@ -727,6 +733,10 @@ const screenerAt = html.indexOf('id="page-screener"');
 // one "지금 시세" heading, and the "오늘의 시장" banner is gone (the daily loop closes the page).
 const homeOrder = ['home-score-hero', 'home-daily-changes', 'home-quote-basis', 'home-kpi-strip', 'home-cross-assets', 'home-daily-loop'].map((id) => html.indexOf(`id="${id}"`));
 check('v57.76 home leads with the close verdict and close changes, then labelled live numbers and the daily loop in static order with no runtime reorder (P1322/P1494)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && html.indexOf('id="home-market-summary-banner"') < 0 &&!/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = regime\.available/.test(read('src/ui/components/market-regime.js')));
+// v57.77: the screener reads, then filters, then shows the table; the ranking validation lives once inside the
+// 과거 검증 tab, and the weight-profile and data-status folds sit below the tab panels.
+const screenerOrder = ['screener-read', 'screener-workbench', 'scr-tab-ranking', 'screener-results-table', 'scr-tab-backtest', 'screener-validation', 'scr-tab-evidence', 'scr-weight-profiles', 'scr-data-status', 'screener-next'].map((id) => html.indexOf(`id="${id}"`));
+check('v57.77 screener static order: read, filter controls, table; one validation view inside the 과거 검증 tab; folds below the panels', screenerOrder.every((at, i) => at > screenerAt && (i === 0 || at > screenerOrder[i - 1])) && html.indexOf('id="screener-validation"', screenerOrder[5] + 1) < 0);
 check('news progressive reveal belongs to the market-news page rather than screener', newsMoreAt > marketNewsAt && newsMoreAt < screenerAt && /id="live-news-feed"[\s\S]{0,800}id="news-load-more-wrap"/.test(html));
 check('fundamental search has one bounded total deadline and parallel bounded primary providers', /var _fundDeadline = Date\.now\(\) \+ 8000/.test(chat) && /Promise\.all\(\[[\s\S]{0,500}dynamicTickerLookup[\s\S]{0,500}fetchSECFilings[\s\S]{0,500}fetchSECFinancials/.test(chat) && /_fundRemaining\(5200\)/.test(chat) && /_fundRemaining\(1400\)/.test(chat));
 check('all news acquisition paths converge on one visible summary state updater', /function _aioUpdateNewsSummaryFromItems\(items, meta\)/.test(data) && (data.match(/_aioUpdateNewsSummaryFromItems\(/g) || []).length >= 4 && /kind: 'server-cache'/.test(data) && /kind: 'idb-cache'/.test(data) && /kind: 'direct'/.test(data));
@@ -756,7 +766,9 @@ check('EF-10/P1010: retired dead ticker metrics and action slots route to the sh
 check('EF-11/P1010: unsupported VXX futures inference is retired while RSP/SPY retains explicit missing state', !/rm-vixstr-status|var rollCost = vxxPct/.test(pagesSource) && !/rm-rspratio/.test(pagesSource)); // P1672: the RSP/SPY ratio card was retired
 // v57.76: the 차트 tab's SPY TradingView fold and its OHLC fallback strip were deleted, so EF-12's sync function retired with them.
 check('EF-12 (v57.76 retired): the SPY TradingView fold, its OHLC fallback strip and the sync hooks stay deleted', !/function _aioSyncTvOhlcFallback/.test(ui) && !/html-tv-ohlc-fallback-(?:shown|live)/.test(ui)); // the retired DOM ids are pinned once in ci-architecture-contract-check (v57.76 block)
-check('EF-19: kr-technical KOSPI/KOSDAQ refresh buttons call analyzeKrIndex with the correct target ids, and the analyzeKrTickerDeep mis-wiring is gone', /data-action="analyzeKrIndex"\s+data-arg="\^KS11"\s+data-arg2="kr-kospi-tech-result"/.test(html) && /data-action="analyzeKrIndex"\s+data-arg="\^KQ11"\s+data-arg2="kr-kosdaq-tech-result"/.test(html) && !/data-action="analyzeKrTickerDeep"\s+data-arg="\^K[SQ]11"/.test(html));
+// v57.77: the KOSPI/KOSDAQ Stage/MACD/BB writer (analyzeKrIndex) and its refresh buttons were retired; the cards are drawn from completed KRX closes.
+check('EF-19 (v57.77 retired): the KR index Stage writer analyzeKrIndex and its refresh buttons stay deleted', !/data-action="analyzeKrIndex"/.test(html) && !/function analyzeKrIndex/.test(ui)); // text-pin-ok: retirement absence
+check('v57.77: the technical route draws the 한국 지수 추세 cards from completed KRX closes (behaviour in ci-esm-core-unit-check)', /renderKrIndexTrends\(\{ documentRef, root \}\)/.test(read('src/ui/pages/analysis.js')));
 // P1134/R620: the codetabs fallback is declared in js/aio-data.js and consumed by the KR fetchers
 // that moved to js/aio-kr-data.js — assert both owners so removing either leg is caught.
 check('EF-19: _fetchYahooChartData proxy chain includes codetabs.com fallback (live network audit showed corsproxy.io/allorigins alone failing repeatedly for KR tickers)', /api\.codetabs\.com\/v1\/proxy/.test(krData + data));

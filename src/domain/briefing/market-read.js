@@ -595,13 +595,32 @@ export function buildMarketRead(input = {}) {
   const lead = statements.slice(0, 4);
   const restFor = (axis) => statements.filter((row) => row.axis === axis && !lead.includes(row)).map(({ text, reading }) => ({ text, reading }));
   const ma = (stat, label) => stat?.ma50 && stat?.ma200 ? `${label} 50일선 ${stat.value > stat.ma50 ? '위' : '아래'} · 200일선 ${stat.value > stat.ma200 ? '위' : '아래'}` : null;
-  const change = (stat, digits = 2) => stat ? `${fmt(stat.value, digits)} (1일 ${signed(pct(stat.value, stat.d1))}, 5일 ${signed(pct(stat.value, stat.d5))})` : null;
+  // P1599 (F101): structured moves for the briefing chart. Percent assets share one axis; the 10-year yield
+  // moves in basis points and is kept apart so the two units never share a scale.
+  const moves = [
+    ['S&P 500', spx], ['나스닥 종합', s.nasdaq], ['달러 인덱스', s.dxy], ['WTI', s.wti], ['금', s.gold], ['코스피', s.kospi], ['원/달러', s.usdkrw]
+  ].map(([label, stat]) => ({ label, unit: '%', neutral: label === '달러 인덱스' || label === '원/달러', d1: stat ? pct(stat.value, stat.d1) : null, d5: stat ? pct(stat.value, stat.d5) : null }))
+    .concat(tnx ? [{ label: '미 10년물', unit: 'bp', d1: bp(tnx.value, tnx.d1), d5: tnx5 }] : [])
+    .filter((row) => Number.isFinite(row.d1) || Number.isFinite(row.d5));
+  // v57.77: the move chart above the cards already draws each asset's 1-day and 5-day move, so a card for an asset
+  // in `moves` carries only its level. The archived facts have no chart, so they keep the level with its moves
+  // (the 10-year yield keeps its bp wording there).
+  const charted = new Set(moves.map((row) => row.label));
+  const withMoves = {};
+  const level = (label, stat, digits = 2, unit = '') => {
+    if (!stat) return null;
+    const shown = `${fmt(stat.value, digits)}${unit}`;
+    withMoves[label] = label === '미 10년물'
+      ? `${shown} (1일 ${signed(bp(stat.value, stat.d1), 1, 'bp')}, 5일 ${signed(tnx5, 0, 'bp')})`
+      : `${shown} (1일 ${signed(pct(stat.value, stat.d1))}, 5일 ${signed(pct(stat.value, stat.d5))})`;
+    return charted.has(label) ? shown : withMoves[label];
+  };
   const drivers = [
-    { id: 'index', title: '지수 · 시장 폭', values: [['S&P 500', change(spx)], ['나스닥 종합', change(s.nasdaq)], ['50일선 위 종목', b50 == null ? null : `${fmt(b50, 0)}%`]], context: ma(spx, 'S&P 500'), reads: restFor('index') },
-    { id: 'rates', title: '금리 · 달러', values: [['미 10년물', tnx ? `${fmt(tnx.value)}% (1일 ${signed(bp(tnx.value, tnx.d1), 1, 'bp')}, 5일 ${signed(tnx5, 0, 'bp')})` : null], ['달러 인덱스', change(s.dxy)]], context: null, reads: restFor('rates') },
-    { id: 'commodities', title: '원자재', values: [['WTI', change(s.wti)], ['금', change(s.gold, 0)]], context: null, reads: restFor('commodities') },
+    { id: 'index', title: '지수 · 시장 폭', values: [['S&P 500', level('S&P 500', spx)], ['나스닥 종합', level('나스닥 종합', s.nasdaq)], ['50일선 위 종목', b50 == null ? null : `${fmt(b50, 0)}%`]], context: ma(spx, 'S&P 500'), reads: restFor('index') },
+    { id: 'rates', title: '금리 · 달러', values: [['미 10년물', level('미 10년물', tnx, 2, '%')], ['달러 인덱스', level('달러 인덱스', s.dxy)]], context: null, reads: restFor('rates') },
+    { id: 'commodities', title: '원자재', values: [['WTI', level('WTI', s.wti)], ['금', level('금', s.gold, 0)]], context: null, reads: restFor('commodities') },
     { id: 'risk', title: '변동성 · 위험선호', values: [['VIX', vix ? `${fmt(vix.value)} (5일 ${signed(vix5, 0)})` : null], ['HY 스프레드', hyBp == null ? null : `${fmt(hyBp, 0)}bp`], ['풋/콜', pcr == null ? null : fmt(pcr)], ['F&G', fg == null ? null : fmt(fg, 0)]], context: null, reads: restFor('risk') },
-    { id: 'korea', title: '한국', values: [['코스피', change(s.kospi)], ['원/달러', change(s.usdkrw, 1)]], context: null, reads: restFor('korea') }
+    { id: 'korea', title: '한국', values: [['코스피', level('코스피', s.kospi)], ['원/달러', level('원/달러', s.usdkrw, 1)]], context: null, reads: restFor('korea') }
   ].map((row) => ({ ...row, values: row.values.filter(([, value]) => value) }));
   const headline = statements[0] || null;
   // P1602: archive values and provenance come from the same filtered observations as the screen.
@@ -611,7 +630,7 @@ export function buildMarketRead(input = {}) {
     const field = factFields[label];
     const point = field ? buildCloseSeries(input.history, field, { through: KR_SESSION_FIELDS.has(field) ? (krSessionThrough(input.now ?? Date.now()) || basis) : basis, includeProvenance: true }).at(-1) : null;
     const key = creditFields[label];
-    return { label, value, observedAt: point?.observedAt || input.credit?.[`${key}AsOf`] || null,
+    return { label, value: withMoves[label] || value, observedAt: point?.observedAt || input.credit?.[`${key}AsOf`] || null,
       source: point?.source || (!point ? input.credit?.[`${key}Source`] : null) || null,
       basis: point ? '저장된 일별 종가 기록' : '각 관측일 기준 참고값' };
   }));
@@ -625,13 +644,7 @@ export function buildMarketRead(input = {}) {
     statements,
     drivers,
     facts,
-    // P1599 (F101): structured moves for the briefing chart. Percent assets share one axis; the 10-year yield
-    // moves in basis points and is kept apart so the two units never share a scale.
-    moves: [
-      ['S&P 500', spx], ['나스닥 종합', s.nasdaq], ['달러 인덱스', s.dxy], ['WTI', s.wti], ['금', s.gold], ['코스피', s.kospi], ['원/달러', s.usdkrw]
-    ].map(([label, stat]) => ({ label, unit: '%', neutral: label === '달러 인덱스' || label === '원/달러', d1: stat ? pct(stat.value, stat.d1) : null, d5: stat ? pct(stat.value, stat.d5) : null }))
-      .concat(tnx ? [{ label: '미 10년물', unit: 'bp', d1: bp(tnx.value, tnx.d1), d5: tnx5 }] : [])
-      .filter((row) => Number.isFinite(row.d1) || Number.isFinite(row.d5))
+    moves
   };
 }
 

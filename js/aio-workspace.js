@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // js/aio-workspace.js — P1136/R620: index.html 인라인 블록 A(1,992줄)에서 추출한 사용자 상태·워크스페이스 계층.
-// 포트폴리오(updatePortfolioSummary/refreshPortfolioPrices/refreshPortfolioRisk/_pfPearson/
+// 포트폴리오(refreshPortfolioPrices/refreshPortfolioRisk/_pfPearson/
 // share·MDD 라벨/shapre 라벨/exportPortfolio/importPortfolio), 백테스트 랩(_aioRenderPortfolioBacktestLab/
 // runPortfolioBacktestLab), 워치리스트(getWatchlists/saveWatchlists/createWatchlist/switchWatchlist/
 // addToWatchlist/updateWatchlistButtons), 투자 일지와 채팅 이력(PF_JOURNAL_KEY/CHAT_HISTORY_LS/
@@ -23,20 +23,7 @@ async function saveSidebarApiKey() { return { ok: false, state: 'SERVER_ONLY_AI'
 function loadSidebarApiKey() {}
 
 
-// Enter 키로 저장
-/* v20: DOMContentLoaded Handler #4 - Enter Key Binding */
-document.addEventListener('DOMContentLoaded', () => {
-  const inp = document.getElementById('sidebar-api-key');
-  if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') saveSidebarApiKey(); });
-  // 포커스 시에도 실제 키를 DOM에 복원하지 않는다.
-  if (inp) inp.addEventListener('focus', () => {
-    inp.select();
-  });
-  if (inp) inp.addEventListener('blur', () => {
-    const key = getApiKey();
-    if (key) { inp.value = '••••••••'; inp.dataset.secretStored = 'true'; }
-  });
-});
+// v57.77: the #sidebar-api-key listener was deleted with its input (P1421: AI keys are server-only).
 
 /* v46.6: 글로벌 로딩 워치독 — 60초 후 "로딩 중" 영구 고정 방지
  * 프록시 전면 장애 시 10+ 페이지에서 "로딩 중..."이 영구 표시되는 문제 해결.
@@ -748,7 +735,7 @@ function renderPortfolio() {
   var _pfEmpty = positions.length === 0;
   var _pfMain = document.getElementById('pf-main');
   if (_pfMain) _pfMain.classList.toggle('is-empty', _pfEmpty);
-  ['pf-risk-section','pf-allocation-section','pf-benchmark-section','pf-holdings-analysis-section','pf-risk-panel'].forEach(function(id) {
+  ['pf-allocation-section','pf-benchmark-section','pf-holdings-analysis-section','pf-risk-panel'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.hidden = _pfEmpty;
   });
@@ -764,7 +751,6 @@ function renderPortfolio() {
       '<button class="aio-btn-table primary" data-action="_aioTogglePortfolioEntry" style="margin-top:10px;min-height:36px;padding:7px 16px;">첫 종목 추가</button>' +
       '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN 설정 후 저장 시 AES-256 암호화.</div>' +
       '</td></tr>';
-    updatePortfolioSummary(positions, ld);
     // v48.3: 빈 상태에서도 도넛 리셋(이전 데이터 잔존 방지)
     if (typeof drawPositionDonut === 'function') drawPositionDonut();
     try { if (typeof window._aioSyncPortfolioAiWorkbench === 'function') window._aioSyncPortfolioAiWorkbench(); } catch(_){}
@@ -816,7 +802,6 @@ function renderPortfolio() {
     if (el) el.textContent = row && _bt > 0 ? (row.value / _bt * 100).toFixed(1) + '%' : '—';
   });
 
-  updatePortfolioSummary(positions, ld);
   // v40.4: 포지션 도넛 + 섹터 브레이크다운 갱신
   drawPositionDonut();
   // 현금 입력 필드 복원
@@ -945,12 +930,7 @@ function _pfLegacyCurrencyOf(position) {
   return String((position && (position.costCurrency || position.currency)) || '').trim().toUpperCase()
     || (/\.KS|\.KQ/.test(String((position && position.ticker) || '')) ? 'KRW' : 'USD');
 }
-// v57.48 expert review #3: the legacy totals summed price × qty across listing currencies (and the retired
-// #pf-allocation block valued unpriced holdings at cost). The diagnosis now reads the native surface's
-// base-currency values (window._aioPortfolioSurface) — no `$` hard-coding, no cost stand-in for a missing quote.
-function updatePortfolioSummary(positions, ld) {
-  if (typeof _generatePortfolioAnalysis === 'function') _generatePortfolioAnalysis(positions, ld, window._aioPortfolioSurface || null);
-}
+// v57.77: updatePortfolioSummary() only fed the retired 포트폴리오 자동 진단 (#pf-analysis-text) and left with it.
 
 function refreshPortfolioPrices() {
   const positions = getPortfolioData();
@@ -2311,37 +2291,13 @@ function _ld(sym, field) {
   return field === 'pct' ? d.pct : d.price;
 }
 function _fmt(v, dec) { return v != null ? Number(v).toFixed(dec || 0) : '—'; }
+// v57.77: getDataAge / renderStaleWarning retired (their only sinks, the risk-monitor grids, are gone).
 /**
  * v36.7: 세션 인식 실시간 스냅샷 (UI 표시용)
  * - 한국: 장중→실시간, 장마감→최신종가
  * - 미국: 본장→실시간, 프리/애프터→시간외시세, 여백→최신종가
  * - FX/채권/VIX: 선물시장 운영 중→실시간, 아니면→최신종가
  */
-// ── 데이터 날만 경고 유틸 (v40.4) ──
-function getDataAge() {
-  var snapDate = DATA_SNAPSHOT._updated ? new Date(DATA_SNAPSHOT._updated) : null;
-  if (!snapDate) return { days: 999, label: '알 수 없음', stale: true };
-  var now = new Date();
-  var days = Math.floor((now - snapDate) / (1000 * 60 * 60 * 24));
-  var label = days === 0 ? '오늘' : days === 1 ? '어제' : days + '일 전';
-  return { days: days, label: label, stale: days > 1 }; // v42.4: R21 — 2일 이상 경과 시 stale 배지 표시
-}
-function renderStaleWarning(containerId) {
-  var age = getDataAge();
-  if (!age.stale) return;
-  var el = document.getElementById(containerId);
-  if (!el) return;
-  var existing = el.querySelector('.stale-badge');
-  if (existing) return;
-  var badge = document.createElement('div');
-  badge.className = 'stale-badge';
-  // grid-column:1/-1 — 컨테이너가 CSS grid일 때 이 배지가 셀 하나를 차지해 열 수를 밀어내지 않도록
-  // 전체 너비 배너로 스팬(v52.65, risk-monitor-grid 6열 고정화로 발견). flex/block 컨테이너에선 무시되는 안전한 속성.
-  badge.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:rgba(var(--ink-rgb),0.15);border:1px solid rgba(var(--ink-rgb),0.3);border-radius:4px;font-size:11px;color:var(--data-amber);font-weight:700;margin-bottom:6px;grid-column:1/-1;width:fit-content;';
-  badge.textContent = '정적 데이터 · ' + age.label + ' 기준 · 실시간 아님';
-  el.insertBefore(badge, el.firstChild);
-}
-
 function _liveSnap() {
   let ld = window._liveData || {};
   var stale = [];

@@ -268,8 +268,9 @@ if (!marketPageSource.includes("page.dataset.aioMacroRenderer = 'native'") || !m
   if (pagesSource.includes('function updateFxBondPage') || pagesSource.includes('function updateCrossAssetMatrix') || dataSource.includes('function _aioRenderCarryUnwindRisk') || dataSource.includes('function _renderFredCharts')) fail('P1425 retired legacy FX/bond writer returned');
 }
 if (!dataSource.includes('function _aioIsNativeMacroElement') || !dataSource.includes('_aioIsNativeMacroElement(el)') || !dataSource.includes('function _aioIsNativeFxbondElement')) fail('legacy macro/fxbond native-element writer fence missing');
-// P1133/R620: the fxbond MOVE snapshot writer moved from index.html's inline block D to js/aio-pages.js.
-if (!pagesSource.includes("el.closest('#page-fxbond[data-aio-architecture-renderer=\"native\"]')")) fail('legacy inline MOVE snapshot writer fence missing');
+// P1133/R620 → v57.77: the legacy [data-snap] writer (updateRiskMonitor, incl. its fxbond MOVE fence) raced
+// renderSnapshotMetrics in src/ui/pages/market.js and was deleted; the native renderer owns those sinks.
+if (/function\s+updateRiskMonitor\s*\(|updateRiskMonitor\s*\(\s*\)/.test(pagesSource)) fail('v57.77 retired legacy [data-snap] writer updateRiskMonitor returned'); // text-pin-ok: retirement absence
 if (!marketPageSource.includes("page.dataset.aioBreadthRenderer = 'native'") || !marketPageSource.includes('renderBreadth')) fail('market.js native breadth primary renderer marker missing');
 // v57.60: the legacy breadth writers (updateBreadthBars/initBreadthPage/updateMcClellanUI/_aioBreadthCanvasRender) and their fence helper were deleted.
 if (/_aioIsNativeBreadthElement|function\s+(?:updateBreadthBars|initBreadthPage|updateMcClellanUI|calcMcClellan)\s*\(|_aioBreadthCanvasRender|bpChartInstances/.test(dataSource + uiSource + coreSource + pagesSource)) fail('v57.60 retired legacy breadth writer or fence returned');
@@ -489,8 +490,13 @@ for (const marker of ['renderTechnicalHealth', "page.dataset.aioTechnicalRendere
 }
 if (read('index.html').includes('id="health-score-display"') || analysisPageSource.includes('health.score')) fail('P1420 retired technical health score returned to the page');
 const htmlSource = read('index.html');
-// P1135/R620: the inline market-health model and its native fence moved with block B to js/aio-macro-tech.js.
-if (!macroTechSource.includes('function _aioIsNativeTechnicalHealth') || !macroTechSource.includes('window.AIO_ARCH.computeMarketHealth') || !macroTechSource.includes('_aioIsNativeTechnicalHealth()')) fail('legacy technical health model/fence missing');
+// P1135/R620: the inline market-health model moved with block B to js/aio-macro-tech.js.
+// v57.77: the wrapper is pure (delegates to AIO_ARCH.computeMarketHealth); the legacy health renderer,
+// its native fence and the technical page-bus hooks that re-ran it were deleted with their DOM.
+if (!macroTechSource.includes('function computeMarketHealth()') || !macroTechSource.includes('window.AIO_ARCH.computeMarketHealth')) fail('v57.77 market-health compatibility wrapper missing');
+for (const retired of ['_aioRenderLegacyMarketHealth', '_aioLegacyHealthElement', 'function _aioIsNativeTechnicalHealth', "'html-technical-shown'", "'html-tech-macro-live'"]) { // text-pin-ok: retirement absence
+  if (macroTechSource.includes(retired)) fail(`v57.77 retired legacy market-health renderer returned: ${retired}`);
+}
 // P1339: the orphaned legacy technical initializer (and its native-health fence) was deleted.
 // P1399: since P1392 the 시장 상태 screen and the home hero are the six-axis regime board in
 // components/market-regime.js (owner decision 2026-10-02: the 0-100 score and its decision badge

@@ -107,4 +107,19 @@ completions[1]({ ok: true, json: async () => ({ revision: 'new' }) });
 assert.deepEqual(await newPending, { revision: 'new' });
 assert.deepEqual(await loadJsonArtifact(ignoresAbort, './retry.json'), { revision: 'new' });
 
-console.log(JSON.stringify({ ok: true, calls, isolatedCalls, timeoutAborted, allConsumersAborted, integrity: true, byteBudget: true, constraintCalls, abortedRetryIsolation: true, contract: 'artifact-cache.v4' }));
+// v57.77: callers pass `root.fetch.bind(root)` (a new function per call). Bound fetchers share one store per bound
+// name, so `maxAgeMs` applies across calls; `force` still re-reads; clearing through any bind clears that store.
+let boundCalls = 0;
+const boundRoot = { boundOwnerFetch(url) { boundCalls += 1; return Promise.resolve({ ok: true, json: async () => ({ url, boundCalls }) }); } };
+const boundFirst = await loadJsonArtifact(boundRoot.boundOwnerFetch.bind(boundRoot), './bound.json');
+const boundSecond = await loadJsonArtifact(boundRoot.boundOwnerFetch.bind(boundRoot), './bound.json');
+assert.equal(boundCalls, 1, 'v57.77: a fresh bind of the same fetcher must reuse the cached artifact within maxAgeMs');
+assert.equal(boundSecond, boundFirst, 'v57.77: the bound cache hit returns the cached object');
+await loadJsonArtifact(boundRoot.boundOwnerFetch.bind(boundRoot), './bound.json', { force: true });
+assert.equal(boundCalls, 2, 'v57.77: force still re-reads through a bound fetcher');
+assert.equal(artifactCacheSnapshot(boundRoot.boundOwnerFetch.bind(boundRoot)).hits, 1, 'v57.77: snapshots read the shared bound store');
+clearArtifactCache(boundRoot.boundOwnerFetch.bind(boundRoot));
+assert.equal(artifactCacheSnapshot(boundRoot.boundOwnerFetch.bind(boundRoot)).resolved, 0, 'v57.77: clearing through a new bind clears the shared bound store');
+assert.equal(artifactCacheSnapshot(boundRoot.boundOwnerFetch).resolved, 0, 'v57.77: the unbound fetcher keeps its own identity store');
+
+console.log(JSON.stringify({ ok: true, calls, isolatedCalls, timeoutAborted, allConsumersAborted, integrity: true, byteBudget: true, constraintCalls, abortedRetryIsolation: true, boundCalls, contract: 'artifact-cache.v5' }));

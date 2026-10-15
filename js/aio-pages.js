@@ -123,54 +123,8 @@ function saveCashPosition(val) {
   renderPortfolio();
 }
 
-// ── Update Risk Monitor ───────────────────────────────────────────
-function updateRiskMonitor() {
-  let ld = window._liveData || {};
-
-  // P1672: the rm-* / bb-rsp-* risk cards left the page (P1010/P1392); only the [data-snap]
-  // bindings below still have sinks.
-
-  // v38.8: Risk Heatmap CP1/CP6 data-snap 동적 업데이트
-  // v48.51: NARRATIVE_ENGINE 실시간 바인딩 — CP1~CP8 stale 데이터 자동 갱신
-  var wti = ld['CL=F'] ? ld['CL=F'].price : null;
-  var brent = ld['BZ=F'] ? ld['BZ=F'].price : null;
-  var gold = ld['GC=F'] ? ld['GC=F'].price : null;
-  var vix = ld['^VIX'] ? ld['^VIX'].price : null;
-  var vvix = ld['^VVIX'] ? ld['^VVIX'].price : null;
-  var move = ld['^MOVE'] ? ld['^MOVE'].price : null;
-  var spx = ld['^GSPC'] ? ld['^GSPC'].price : null;
-  var snapWti = document.querySelectorAll('[data-snap="wti"]');
-  var snapBrent = document.querySelectorAll('[data-snap="brent"]');
-  var snapGold = document.querySelectorAll('[data-snap="gold"]');
-  if (wti) snapWti.forEach(function(el) { el.textContent = '$' + wti.toFixed(0); });
-  if (brent) snapBrent.forEach(function(el) { el.textContent = '$' + brent.toFixed(0); });
-  if (gold) snapGold.forEach(function(el) { el.textContent = '$' + gold.toLocaleString('en-US', {maximumFractionDigits:0}); });
-  if (vix != null) document.querySelectorAll('[data-snap="vix"]').forEach(function(el){ el.textContent = vix.toFixed(1); });
-  if (vvix != null) document.querySelectorAll('[data-snap="vvix"]').forEach(function(el){ el.textContent = vvix.toFixed(1); });
-  if (move != null) document.querySelectorAll('[data-snap="move"]').forEach(function(el){
-    if (el.closest && el.closest('#page-fxbond[data-aio-architecture-renderer="native"]')) return;
-    el.textContent = move.toFixed(1);
-  });
-  if (spx != null) document.querySelectorAll('[data-snap="spx"]').forEach(function(el){ el.textContent = spx.toLocaleString('en-US', {maximumFractionDigits:0}); });
-  // v48.53: Yahoo 직접 매핑 9종 추가 자동화 (tnx/tnx-2y/skew/kospi/kosdaq/krw/dxy)
-  var tnx = ld['^TNX'] ? ld['^TNX'].price : null;
-  var kospi = ld['^KS11'] ? ld['^KS11'].price : null;
-  var kospiPct = ld['^KS11'] ? ld['^KS11'].pct : null;
-  var kosdaq = ld['^KQ11'] ? ld['^KQ11'].price : null;
-  var kosdaqPct = ld['^KQ11'] ? ld['^KQ11'].pct : null;
-  var krw = ld['KRW=X'] ? ld['KRW=X'].price : null;
-  var dxy = ld['DX-Y.NYB'] ? ld['DX-Y.NYB'].price : null;
-  if (tnx != null) document.querySelectorAll('[data-snap="tnx"]').forEach(function(el){ el.textContent = tnx.toFixed(2) + '%'; });
-  if (kospi != null) document.querySelectorAll('[data-snap="kospi"]').forEach(function(el){ el.textContent = kospi.toLocaleString('en-US', {maximumFractionDigits:2}); });
-  if (kospiPct != null) document.querySelectorAll('[data-snap="kospi-pct"]').forEach(function(el){ el.textContent = (kospiPct >= 0 ? '+' : '') + kospiPct.toFixed(2) + '%'; });
-  if (kosdaq != null) document.querySelectorAll('[data-snap="kosdaq"]').forEach(function(el){ el.textContent = kosdaq.toLocaleString('en-US', {maximumFractionDigits:2}); });
-  if (kosdaqPct != null) document.querySelectorAll('[data-snap="kosdaq-pct"]').forEach(function(el){ el.textContent = (kosdaqPct >= 0 ? '+' : '') + kosdaqPct.toFixed(2) + '%'; });
-  if (krw != null) document.querySelectorAll('[data-snap="krw"]').forEach(function(el){ el.textContent = krw.toLocaleString('en-US', {maximumFractionDigits:0}); });
-  if (krw != null) document.querySelectorAll('[data-snap="krw-full"]').forEach(function(el){ el.textContent = krw.toFixed(2); });
-  if (dxy != null) document.querySelectorAll('[data-snap="dxy"]').forEach(function(el){ el.textContent = dxy.toFixed(2); });
-
-  if (typeof window._aioRenderSnapshotDateBindings === 'function') window._aioRenderSnapshotDateBindings();
-}
+// v57.77: updateRiskMonitor retired. Its [data-snap] writes inside #page-macro raced
+// renderSnapshotMetrics (src/ui/pages/market.js); its other keys had no sinks.
 
 var _signalMode = 'swing';
 var _signalInterval = null;
@@ -204,8 +158,8 @@ function refreshSignalDashboard() {
   // their return values).
   try { if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('signal'); } catch(_) {}
 
-  // Risk monitor (its [data-snap] writers still reach the macro/market pages)
-  updateRiskMonitor();
+  // v57.77: snapshot date bindings (the updateRiskMonitor [data-snap] writer is retired).
+  try { if (typeof window._aioRenderSnapshotDateBindings === 'function') window._aioRenderSnapshotDateBindings(); } catch(_) {}
 
   // v42.1: 마켓 펄스 바 업데이트
   try { updateMarketPulse(); } catch(e) {}
@@ -291,13 +245,12 @@ document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-signal-live', 'aio:liveQuotes', function() {
   var sigPage = document.getElementById('page-signal');
   if (sigPage && sigPage.classList.contains('active')) {
-    updateRiskMonitor();
     refreshSignalDashboard();
   }
   // v42.1: 어떤 페이지에서든 마켓 펄스 업데이트
   try { updateMarketPulse(); } catch(e) {}
 });
-_aioPageBus.register('html-signal-shown', 'aio:pageShown', function(e) { if (e.detail === 'signal') setTimeout(function() { try { updateRiskMonitor(); refreshSignalDashboard(); } catch(_) {} }, 0); }); // P1368: native navigation skips initSignalDashboard
+_aioPageBus.register('html-signal-shown', 'aio:pageShown', function(e) { if (e.detail === 'signal') setTimeout(function() { try { refreshSignalDashboard(); } catch(_) {} }, 0); }); // P1368: native navigation skips initSignalDashboard
 });
 
 // P1425: the legacy FX/bond page writers (updateFxBondPage, the 10Y/JPY trend charts, the

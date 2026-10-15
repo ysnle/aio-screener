@@ -42,6 +42,9 @@ function renderPortfolioStatus(documentRef, state, surface) {
   } else {
     element.textContent = '포트폴리오 데이터 수신 대기';
   }
+  // v57.77: the line sits in the hero now (the 리스크 분석 shell that hid it with an empty portfolio is gone); with no
+  // holdings the table's empty state stays the one message, so the readiness line is hidden.
+  element.hidden = readState === 'ready' && valuation === 'empty';
   element.setAttribute('data-source-kind', valuation === 'complete' || valuation === 'cash-only' ? 'portfolio-state' : 'unavailable');
   element.setAttribute('data-source-label', valuation === 'complete' || valuation === 'cash-only' ? 'native-portfolio-slice' : 'portfolio-state-unavailable');
   element.setAttribute('data-operational-use', 'reference-only');

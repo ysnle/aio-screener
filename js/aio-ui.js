@@ -228,9 +228,8 @@ function calcDailyLimit() {
   return LLM_BUDGET.dailyQueryLimit;
 }
 
-function getLLMState() {
-  return document.getElementById('llm-switch-track')?.classList.contains('on') ?? true;
-}
+// v57.77: getLLMState() retired — the AI ON/OFF switch track left with P1653 (AI is always on),
+// so the state read always returned true and every OFF branch was dead.
 
 // v53.59 P855: quota is not capability.  The UI must not advertise available
 // calls when neither a personal key nor a healthy shared Worker route exists.
@@ -292,7 +291,6 @@ function cachedEl(id) {
 }
 
 function updateQuotaBadge() {
-  const track   = cachedEl('llm-switch-track');
   const swLabel = cachedEl('llm-switch-label');
   const capEl   = cachedEl('llm-daily-cap');
   const remEl   = cachedEl('llm-remaining');
@@ -302,14 +300,12 @@ function updateQuotaBadge() {
   const modelEl = cachedEl('llm-model-label');
   const costEl  = cachedEl('llm-daily-cost');
 
-  const isOn = getLLMState();
   const dailyLimit = calcDailyLimit();
   const model = getModelConfig();
   const route = getLLMRouteReadiness();
 
-  if (isOn && !route.ready) {
-    // Keep the switch state intact: route health is not user intent. P1591 (G04): the track dims so 'on' does not read as working.
-    if (track) track.classList.add('is-unavailable');
+  // v57.77: AI is always on (P1653), so route readiness is the only gate — a missing route shows its label, never an OFF state.
+  if (!route.ready) {
     if (swLabel) { swLabel.textContent = route.label; swLabel.className = 'llm-switch-label'; }
     if (capEl) capEl.textContent = '—';
     if (remEl) { remEl.textContent = '—'; remEl.className = 'llm-quota-val empty'; }
@@ -320,19 +316,9 @@ function updateQuotaBadge() {
     return;
   }
 
-  if (track)   { track.classList.toggle('on', isOn); track.classList.remove('is-unavailable'); }
-  if (swLabel) { swLabel.textContent = isOn ? 'ON' : 'OFF'; swLabel.className = 'llm-switch-label' + (isOn ? ' on' : ''); }
+  if (swLabel) { swLabel.textContent = 'ON'; swLabel.className = 'llm-switch-label on'; }
   if (capEl)   capEl.textContent = dailyLimit + '회';
   if (modelEl) modelEl.textContent = '채팅·심층·번역 GPT-6 Luna';
-
-  if (!isOn) {
-    if (remEl)   { remEl.textContent = '∞'; remEl.className = 'llm-quota-val'; }
-    if (progEl)  { progEl.style.width = '0%'; progEl.className = 'llm-prog-fill'; }
-    if (badge)   badge.textContent = '∞';
-    if (costEl)  costEl.textContent = '';
-    if (hdrBadge){ hdrBadge.textContent = 'AI OFF'; hdrBadge.style.color = 'var(--text-muted)'; hdrBadge.style.borderColor = 'var(--border)'; hdrBadge.style.background = 'var(--surface-3)'; }
-    return;
-  }
 
   const quota     = getQuota();
   const used      = quota.used;
@@ -360,22 +346,20 @@ function updateQuotaBadge() {
 }
 
 function toggleLLM() {
-  // 내부 state는 llm-switch-track 의 'on' 클래스로 관리
-  const track = document.getElementById('llm-switch-track');
-  if (track) track.classList.toggle('on');
+  // v57.77: AI is always on (P1653) — #llm-header-badge still dispatches this action, which now only refreshes
+  // the connection/quota readout; there is no ON/OFF state to flip.
   updateQuotaBadge();
 }
 
 // Call this every time an LLM query is actually made
 function consumeLLMQuery() {
-  // Fail closed before the OFF/unlimited quota shortcut. OFF controls the
-  // local budget policy; it cannot turn a missing provider route into a call.
+  // Fail closed before any quota accounting: a missing provider route never becomes a call.
+  // v57.77: the OFF/unlimited shortcut left with the AI switch (P1653) — every call is charged.
   var route = getLLMRouteReadiness();
   if (!route.ready) {
     if (typeof updateQuotaBadge === 'function') updateQuotaBadge();
     return false;
   }
-  if (!getLLMState()) return true; // OFF → no local quota charge
   const quota = getQuota();
   const dailyLimit = calcDailyLimit();
   const model = getModelConfig();
@@ -954,8 +938,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var el = document.getElementById(id);
     if (el) el.setAttribute('aria-live', 'polite');
   });
-  var signalScoreEl = document.querySelector('#score-gauge-val');
-  if (signalScoreEl) signalScoreEl.setAttribute('aria-live', 'polite');
+  // v57.77: #score-gauge-val retired with the score (P1392/P1670) — its aria-live hook was removed.
 
   // 9~23: 모든 DOM이 구성된 뒤 실행 (AI 패널/모달이 이 스크립트 뒤에 위치)
   setTimeout(function() {
@@ -991,7 +974,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // 13. 빈 텍스트 인터랙티브 요소에 명시적 aria-label 추가
   var classLabels = {
-    'llm-switch-track': 'AI 도우미 전환',
     'ai-ph-close': 'AI 패널 닫기',
     'acp-history-btn': 'AI 대화 기록'
   };
@@ -1019,7 +1001,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // 16. v54.47: 가격 셀 수백 개를 모두 aria-live로 만들면 시세 갱신마다
   // 스크린리더가 전체 숫자를 읽어 과도한 알림이 발생한다. 요약 상태 영역만
   // announce하고 개별 데이터 셀은 일반 텍스트로 남긴다.
-  ['live-quote-ts','server-data-age','home-risk-regime-badge','score-gauge-val','pf-total-value','pf-total-pnl'].forEach(function(id) {
+  ['live-quote-ts','server-data-age','pf-total-value','pf-total-pnl'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el && !el.getAttribute('aria-live')) {
       el.setAttribute('aria-live', 'polite');
@@ -1064,7 +1046,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // 21. v41.2: 동적 영역 aria-live 확장 (뉴스 티커, 상태 패널, 트레이딩 스코어)
-  ['snapshot-stale-warning','data-status-panel','home-risk-regime-badge'].forEach(function(id) {
+  ['snapshot-stale-warning','data-status-panel'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el && !el.getAttribute('aria-live')) { el.setAttribute('aria-live', 'polite'); el.setAttribute('aria-atomic', 'true'); }
   });
@@ -3564,39 +3546,9 @@ setTimeout(function() {
 // v57.76: the home GMO table (GMO_MARKETS, renderGmoTable, toggleGmoExpand) is retired with its folded home
 // section — a third price surface beside the KPI strip and the cross-asset row.
 
-// v50.5: 꼬리위험 지표(SKEW/MOVE) live→data-snap 브릿지.
-// ^SKEW(기존 fetch)·^MOVE(v50.5 신규 fetch) 라이브 값을 data-snap 정적 sink에 흘리고
-// DATA_SNAPSHOT 미러를 갱신해 NARRATIVE_ENGINE 레짐도 live 기준으로 분류.
-// 미fetch(CORS 차단 등) 시 _liveData에 값이 없으므로 정적 폴백 유지 — 안전한 no-op.
-function _aioBridgeVolIndicesLive() {
-  try {
-    var ld = window._liveData || {};
-    var S = window.DATA_SNAPSHOT || {};
-    function _bridge(sym, snapKey, mirrorKey, digits) {
-      var e = ld[sym];
-      if (!e || e.price == null || !isFinite(e.price)) return;
-      var v = e.price;
-      if (mirrorKey && S) S[mirrorKey] = v;
-      document.querySelectorAll('[data-snap="' + snapKey + '"]').forEach(function(el) {
-        if (el.closest('[data-aio-archive="true"]')) return;
-        el.textContent = v.toFixed(digits);
-        el.setAttribute('data-source-kind', 'live');
-        el.setAttribute('data-operational-use', 'decision');
-        el.setAttribute('data-source-label', 'yahoo:' + sym);
-      });
-    }
-    _bridge('^MOVE', 'move', 'move', 2);
-    _bridge('^VVIX', 'vvix', 'vvix', 2);
-    if (typeof NARRATIVE_ENGINE !== 'undefined' && typeof NARRATIVE_ENGINE.renderTailRiskBoard === 'function') NARRATIVE_ENGINE.renderTailRiskBoard();
-  } catch (e) { if (window._aioLog) window._aioLog('warn', 'render', 'vol-indices bridge: ' + (e && e.message)); }
-}
-// v51.99/Phase3[A2]: register() 호출만 DOMContentLoaded 래핑(P556/R247 템플릿) — 아래
-// setTimeout(_aioBridgeVolIndicesLive, 2200)은 2.2초 지연이라 defer 완료 후에만 실행되므로 원래도 안전.
-document.addEventListener('DOMContentLoaded', function() {
-_aioPageBus.register('html-vol-indices-live', 'aio:liveQuotes', _aioBridgeVolIndicesLive);
-});
-setTimeout(_aioBridgeVolIndicesLive, 2200);
-window._aioBridgeVolIndicesLive = _aioBridgeVolIndicesLive;
+// v57.77: _aioBridgeVolIndicesLive (^MOVE/^VVIX live→data-snap bridge), its 'html-vol-indices-live' bus
+// registration and 2.2s timer were deleted — the move/vvix data-snap sinks are gone and the ^VVIX
+// DATA_SNAPSHOT mirror is written by js/aio-data.js on quote acceptance.
 
 // ═══ v34: Keyboard Shortcuts Help Modal ═══════════════════════════════
 function openKbdHelp() {
@@ -3685,312 +3637,15 @@ document.addEventListener('keydown', function(e) {
 // NEW FUNCTIONS: Enhanced Technical Analysis Features
 // ═════════════════════════════════════════════════════════════════
 
-// Enhance computeMarketHealth with M7 and Breadth rendering
-(function() {
-  var originalComputeMarketHealth = computeMarketHealth;
-  computeMarketHealth = function() {
-    var result = originalComputeMarketHealth.call(this);
-
-    let ld = window._liveData || {};
-    var m7 = ['AAPL','MSFT','GOOGL','AMZN','NVDA','META','TSLA'];
-    var sectorETFs = ['XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLRE','XLB','XLU','XLC'];
-
-    // Render M7 health dots
-    var m7html = '';
-    m7.forEach(function(t) {
-      var d = ld[t];
-      var chg = d && d.pct != null ? d.pct : null;
-      var dotColor = chg !== null ? (chg > 0.5 ? 'var(--data-green)' : chg > 0 ? 'var(--data-amber)' : chg > -0.5 ? 'var(--data-red)' : '#b13a30') : '#8a8271';
-      var title = chg !== null ? (t + ' ' + (chg > 0 ? '+' : '') + chg.toFixed(2) + '%') : (t + ' —');
-      m7html += '<span title="' + title + '" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:' + dotColor + ';border:1px solid rgba(var(--ink-rgb),0.2);margin-right:4px;cursor:pointer;"></span>';
-    });
-    document.querySelectorAll('#m7-health-row, .m7-leadership-row').forEach(function(el){
-      if (el) el.innerHTML = m7html;
-    });
-
-    // Render Market Breadth
-    var secUp = 0, secTot = 0;
-    sectorETFs.forEach(function(t) {
-      var d = ld[t];
-      if (d) { secTot++; if ((d.pct != null ? d.pct : 0) > 0) secUp++; }
-    });
-    // 이 값은 실제 50일선 상회율이 아니라 당일 섹터 ETF 상승 비율이다. 결측 시 50%를 만들지 않는다.
-    var above50ma = secTot >= 6 ? Math.round((secUp / secTot) * 100) : null;
-    document.querySelectorAll('#breadth-bar, .breadth-bar-sync').forEach(function(el){
-      if (el) el.style.width = above50ma === null ? '0%' : above50ma + '%';
-    });
-    document.querySelectorAll('#breadth-pct, .breadth-pct-sync').forEach(function(el){
-      if (el) { el.textContent = above50ma === null ? '—' : above50ma + '%'; el.title = above50ma === null ? '섹터 ETF 현재값 부족' : '당일 섹터 ETF 상승 비율 · 50일선 상회율 아님'; }
-    });
-
-    return result;
-  };
-})();
+// v57.77: the computeMarketHealth wrapper that painted #m7-health-row / #breadth-bar / #breadth-pct is retired — none of
+// those sinks exist, and the wrapper dropped the call arguments.
 
 // Ticker Analysis Deep Dive
 // v30.10: 빈 DOMContentLoaded 핸들러 제거 (메모리 절약)
 // Ticker tab/period state and chart lifecycle are native in entity.js.
 
-// ═══════════════════════════════════════════════════════════════════════
-// COMPREHENSIVE TECHNICAL ANALYSIS ENGINE v1.0
-// Ports Python screener analysis functions to JavaScript
-// ═══════════════════════════════════════════════════════════════════════
-
-// Weinstein Stage Detection
-function _detectStage(o, h, l, c, v) {
-  if (c.length < 250) return { stage: 0, label: '데이터 부족', confidence: 0 };
-
-  var sma150 = _calcSMA(c, 150);
-  var sma50 = _calcSMA(c, 50);
-  var sma20 = _calcSMA(c, 20);
-  var currentPrice = c[c.length - 1];
-  var sma150Prev = c.length > 250 ? _calcSMA(c.slice(0, -1), 150) : sma150;
-
-  var isAbove150 = currentPrice > sma150;
-  var is150Rising = sma150 > sma150Prev;
-  // v46.9: 30주 MA 수평화 감지 (Stage 1 핵심 조건) — 기울기 < 0.5%이면 flat
-  var is150Flat = Math.abs(sma150 - sma150Prev) / (sma150Prev || 1) < 0.005;
-  var isAbove50 = currentPrice > sma50;
-  var sma50Prev = _calcSMA(c.slice(0, -1), 50);
-  var is50Rising = sma50 > sma50Prev;
-
-  // Calculate higher lows (Stage 1) and higher highs (Stage 2) — v46.9: 0-falsy 방어
-  var highs = h.slice(-50);
-  var lows = l.slice(-50);
-  var higherLows = true, higherHighs = true;
-  for (var i = 1; i < Math.min(highs.length, 20); i++) {
-    var li = lows.length - i - 5, lj = lows.length - i;
-    var hi = highs.length - i - 5, hj = highs.length - i;
-    if (li >= 0 && lj >= 0 && lows[li] != null && lows[lj] != null && lows[lj] <= lows[li]) higherLows = false;
-    if (hi >= 0 && hj >= 0 && highs[hi] != null && highs[hj] != null && highs[hj] <= highs[hi]) higherHighs = false;
-  }
-
-  var stage, label, confidence;
-
-  // v46.9: Stage 1에 MA 수평화 조건 추가 (와인스타인 표준)
-  // P1253: 각 분기의 신뢰도 삼항식은 분기 조건이 값을 강제해 죽은 코드였다 — 분기별 상수로 정리.
-  if (!isAbove150 && (is150Flat || !is150Rising) && higherLows) {
-    stage = 1;
-    label = '바닥 다지기';
-    confidence = 0.8;
-  } else if (isAbove150 && is150Rising && higherHighs) {
-    stage = 2;
-    label = '상승 추세';
-    confidence = 0.9;
-  } else if (isAbove150 && !is150Rising && isAbove50) {
-    stage = 3;
-    label = '천장 형성';
-    confidence = 0.8;
-  } else if (!isAbove150 && !is150Rising) {
-    stage = 4;
-    label = '하락 추세';
-    confidence = 0.85;
-  } else {
-    // P1253: 기존 catch-all은 미분류 전환 상태를 무조건 '상승 추세' 0.6으로 오명명했다.
-    // 미분류 상태에는 정직한 라벨과 더 낮은 확도를 부여한다.
-    stage = 2;
-    label = '전환 구간(미분류)';
-    confidence = 0.4;
-  }
-
-  return { stage: stage, label: label, confidence: confidence };
-}
-
-// Trend Position Detection
-function _detectTrendPosition(o, h, l, c, v) {
-  if (c.length < 50) return { position: '데이터부족', positionKo: '데이터 부족', alignment: 0, gapFrom20: 0 };
-
-  var ema5 = _calcEMA(c, 5);
-  var ema10 = _calcEMA(c, 10);
-  var ema20 = _calcEMA(c, 20);
-  var sma50 = _calcSMA(c, 50);
-  var currentPrice = c[c.length - 1];
-
-  // v46.9: 데이터 부족 시 52주 범위 과소평가 방지 — 최소 100일 필요
-  var _52slice = c.slice(-252);
-  var low52w = Math.min.apply(null, _52slice);
-  var high52w = Math.max.apply(null, _52slice);
-  var week52Range = high52w - low52w;
-  var week52Position = (week52Range > 0 && _52slice.length >= 100) ? ((currentPrice - low52w) / week52Range) * 100 : 50;
-
-  var fullAlign = ema5 > ema10 && ema10 > ema20 && ema20 > sma50;
-  // v46.9: 부분 정배열 퍼센트 (0~100)
-  var alignCount = (ema5 > ema10 ? 1 : 0) + (ema10 > ema20 ? 1 : 0) + (ema20 > sma50 ? 1 : 0);
-  var alignPct = Math.round(alignCount / 3 * 100);
-  var gapFrom20 = ((currentPrice - ema20) / ema20) * 100;
-
-  var position;
-  if (fullAlign && gapFrom20 > 5) {
-    position = '과열';
-  } else if (fullAlign && gapFrom20 > 2) {
-    position = '후반';
-  } else if (fullAlign && gapFrom20 > 0) {
-    position = '중반';
-  } else if (fullAlign) {
-    position = '초반';
-  } else if (!fullAlign && currentPrice < ema20) {
-    position = '조정중';
-  } else {
-    position = '전환준비';
-  }
-
-  return {
-    position: position,
-    positionKo: position,
-    alignment: alignPct, // v46.9: 0/33/67/100 (이전 이진 50/100)
-    gapFrom20: gapFrom20,
-    week52: Math.round(week52Position),
-    ema5: ema5,
-    ema10: ema10,
-    ema20: ema20,
-    sma50: sma50
-  };
-}
-
-// Dip Classification
-function _classifyDip(o, h, l, c, v) {
-  if (c.length < 50) return { classification: '데이터부족', label: '데이터부족', score: 50, reasoning: '50일 미만 데이터 — 분류 보류' };
-
-  var sma50 = _calcSMA(c, 50);
-  var sma20 = _calcSMA(c, 20);
-  var currentPrice = c[c.length - 1];
-  var priceAbove50 = currentPrice > sma50;
-
-  var score = 50;
-
-  // Support check
-  if (priceAbove50) score += 3;
-  else score -= 4;
-
-  // Volume shrinking
-  var avgVol = 0;
-  for (var i = 0; i < Math.min(20, v.length); i++) avgVol += v[v.length - 1 - i];
-  avgVol = avgVol / Math.min(20, v.length);
-  if (v[v.length - 1] < avgVol) score += 2;
-  else score -= 2;
-
-  // Higher lows
-  var lows = l.slice(-10);
-  var higherLows = true;
-  for (var i = 1; i < lows.length - 1; i++) {
-    if (lows[i] <= lows[i - 1]) higherLows = false;
-  }
-  if (higherLows) score += 2;
-  else score -= 2;
-
-  // Retracement depth
-  var high20 = Math.max.apply(null, h.slice(-20));
-  var retracePct = ((high20 - currentPrice) / high20) * 100;
-  if (retracePct < 5) score += 1;
-  else if (retracePct > 15) score -= 2;
-
-  score = Math.max(0, Math.min(100, score));
-
-  var classification;
-  if (score >= 70) classification = '건전한조정';
-  else if (score >= 50) classification = '조정(관망)';
-  else if (score >= 30) classification = '주의';
-  else classification = '추세전환위험';
-
-  // v50.20: 표시 코드(label/reasoning) 대응 — 이전엔 {classification,score}만 반환해 'undefined' 렌더
-  var reasoning = (priceAbove50 ? '50일선 위(추세 유지)' : '50일선 아래(추세 훼손 주의)')
-    + ' · ' + (retracePct < 5 ? '얕은 조정' : retracePct > 15 ? '깊은 조정(>15%)' : '중간 조정 ' + retracePct.toFixed(1) + '%')
-    + ' · ' + (higherLows ? '저점 높아짐' : '저점 낮아짐')
-    + (v[v.length - 1] < avgVol ? ' · 거래량 감소' : ' · 거래량 증가');
-  return { classification: classification, label: classification, score: score, reasoning: reasoning };
-}
-
-// Entry Quality Assessment
-// P1538 (owner decision: stock charts show evidence plus a setup state, never A~D): the retired entry grade summed hand-set points
-// with no calibration. The card now names where price sits against the 20-day line and RSI, and lists the facts behind it.
-// A missing RSI is left missing (it used to default to 50 and count as "normal").
-function _describeSetupState(trend, rsi) {
-  var gap20 = Math.abs(trend.gapFrom20);
-  if (trend.gapFrom20 > 8) return '20일선 위로 이격 큼';
-  if (rsi != null && rsi > 70) return 'RSI 70 초과(과열권)';
-  if (trend.alignment > 80 && gap20 < 3) return '정배열 · 20일선 근접';
-  if (trend.alignment > 80) return '정배열 · 20일선과 거리';
-  if (trend.alignment > 50) return '정렬도 약함';
-  return '정렬 불명확';
-}
-
-function _assessEntryQuality(o, h, l, c, v) {
-  if (c.length < 50) return { state: '데이터 부족', reasoning: '' };
-  var trend = _detectTrendPosition(o, h, l, c, v);
-  var rsi = _calcRSILast(c, 14);
-  var gap20 = Math.abs(trend.gapFrom20);
-  var facts = [];
-  if (trend.alignment > 80) facts.push('정배열');
-  if (gap20 < 1.5) facts.push('20EMA 터치');
-  else if (gap20 < 3) facts.push('20EMA 근처');
-  var avgVol = 0;
-  for (var i = 0; i < Math.min(10, v.length); i++) avgVol += v[v.length - 1 - i];
-  avgVol = avgVol / Math.min(10, v.length);
-  if (v[v.length - 1] < avgVol * 0.8) facts.push('거래량 위축');
-  if (rsi != null && rsi > 70) facts.push('과매수');
-  else if (rsi != null && rsi > 30) facts.push('RSI 정상');
-  if (trend.gapFrom20 > 8) facts.push('20EMA 대비 이격 큼');
-  return { state: _describeSetupState(trend, rsi), reasoning: facts.join(' / ') };
-}
-
-// Cross Signals Detection
-function _detectCrossSignals(c) {
-  if (c.length < 200) return { crossStatus: '데이터부족', gc20_50: null, gc50_200: null, pairs: [] };
-
-  function sma(n, arr) { return _calcSMA(arr || c, n); }
-  var mas = { 5: sma(5), 10: sma(10), 20: sma(20), 50: sma(50), 100: sma(100), 200: sma(200) };
-  var prev = {};
-  [5,10,20,50,100,200].forEach(function(n) { prev[n] = c.length > n + 1 ? sma(n, c.slice(0, -1)) : mas[n]; });
-  function pair(shortN, longN) {
-    var nowShort = mas[shortN], nowLong = mas[longN], prevShort = prev[shortN], prevLong = prev[longN];
-    var signal = null;
-    if (prevShort <= prevLong && nowShort > nowLong) signal = '골든크로스';
-    else if (prevShort >= prevLong && nowShort < nowLong) signal = '데드크로스';
-    return { pair: shortN + '/' + longN, shortN: shortN, longN: longN, signal: signal, spreadPct: nowLong ? (nowShort - nowLong) / nowLong * 100 : 0 };
-  }
-  var pairs = [pair(5,10), pair(10,20), pair(20,50), pair(50,100), pair(50,200), pair(100,200)];
-  var liveSignals = pairs.filter(function(p) { return !!p.signal; });
-  var crossStatus = liveSignals.length ? liveSignals.map(function(p) { return p.pair + ' ' + p.signal; }).join(' · ') : '평탄';
-
-  return {
-    crossStatus: crossStatus,
-    gc20_50: pairs[2].signal,
-    gc50_200: pairs[4].signal,
-    gc50_100: pairs[3].signal,
-    gc100_200: pairs[5].signal,
-    pairs: pairs,
-    sma5: mas[5],
-    sma10: mas[10],
-    sma20: mas[20],
-    sma50: mas[50],
-    sma100: mas[100],
-    sma200: mas[200]
-  };
-}
-
-// RSI Divergence Detection
-// P1253: 기존 탐지기는 구조적 사망 코드였다 — 14개 가격만 _calcRSILast(period+1=15개 필수)에 넣어
-// RSI가 항상 null이었고, 비교식이 참조 창에 마지막 봉을 포함해(prices[last] > prices[highIdx],
-// prices[last] < min(prices.slice(-10))) 항상 false였다. 실제 구현인 _calcRSIDivergence(pivot 기반,
-// aio-core.js)로 얇게 위임하고 기존 반환 형태({bearishDiv, bullishDiv, rsi})만 유지한다.
-// 숨은 다이버전스(hidden)도 같은 방향 신호로 흡수한다: hiddenBearish→bearishDiv, hiddenBullish→bullishDiv.
-function _detectDivergence(c) {
-  var rsi = null;
-  if (c && c.length >= 15 && typeof _calcRSISeries === 'function') {
-    var series = _calcRSISeries(c, 14);
-    if (series && series.length) rsi = series[series.length - 1];
-  }
-  if (!c || c.length < 30) return { bearishDiv: false, bullishDiv: false, rsi: rsi };
-  var bars = c.map(function(v) { return { close: v }; });
-  var divFn = typeof _calcRSIDivergence === 'function' ? _calcRSIDivergence
-    : (typeof window !== 'undefined' && typeof window._calcRSIDivergence === 'function' ? window._calcRSIDivergence : null);
-  var div = divFn ? divFn(bars) : null;
-  return {
-    bearishDiv: !!(div && (div.bearish || div.hiddenBearish)),
-    bullishDiv: !!(div && (div.bullish || div.hiddenBullish)),
-    rsi: rsi
-  };
-}
+// v57.77: the Stage/trend-position/dip/setup/cross/divergence engine (_detectStage … _detectDivergence) fed only the
+// retired KR index and KR ticker Stage cards (analyzeKrIndex / the old analyzeKrTickerDeep) and was deleted with them.
 
 // ═══════════════════════════════════════════════════════════════
 //  v35.6: 한국 시장 기술 분석 위젯 JS (VKOSPI 차트 · 건강점수 · 브레드스 · 금리스프레드)
@@ -4197,7 +3852,7 @@ function updateKrBreadth() {
   return { available: true, source: b.source, observedAt: b.observedAt, coveragePct: b.coveragePct };
 }
 
-// v33.0: Korean Technical Page init — KOSPI/KOSDAQ 자동 분석
+// v33.0: Korean Technical Page init — 종목 일봉 · VKOSPI · 현재 입력 · 금리 스프레드 (지수 카드는 v57.77부터 native)
 function initKoreaTechnical() {
   // v40.4: 차트 자동 로드 (삼성전자 기본) / v52.27 P642: 캔들 캔버스 기준으로 직접 초기화
   var tvKrContainer = document.getElementById('tv-widget-kr');
@@ -4215,221 +3870,29 @@ function initKoreaTechnical() {
   calcKrYieldSpreads();
   updateKrBreadth();
 
-  // Auto-analyze KOSPI & KOSDAQ on page entry
-  var kospiEl = document.getElementById('kr-kospi-tech-result');
-  var kosdaqEl = document.getElementById('kr-kosdaq-tech-result');
-
-  if (kospiEl && (!kospiEl.innerHTML || kospiEl.innerHTML.indexOf('로딩') === -1 && kospiEl.innerHTML.indexOf('Weinstein') === -1)) {
-    analyzeKrIndex('^KS11', 'kr-kospi-tech-result', 'KOSPI');
-  }
-  if (kosdaqEl && (!kosdaqEl.innerHTML || kosdaqEl.innerHTML.indexOf('로딩') === -1 && kosdaqEl.innerHTML.indexOf('Weinstein') === -1)) {
-    analyzeKrIndex('^KQ11', 'kr-kosdaq-tech-result', 'KOSDAQ');
-  }
+  // v57.77: the KOSPI/KOSDAQ cards (#kr-kospi-tech-result / #kr-kosdaq-tech-result) are drawn by the native
+  // src/ui/components/kr-index-trend.js from completed KRX closes; the live-fetch Stage/MACD/BB writer analyzeKrIndex was retired.
 }
 
-// Analyze Korean index (KOSPI/KOSDAQ) and render to a specific target
-async function analyzeKrIndex(ticker, targetId, label) {
-  var resultEl = document.getElementById(targetId);
-  if (!resultEl) return;
-  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);"><div style="font-size:12px;">분석 준비: ' + escHtml(label) + ' 기술적 분석...</div></div>';
-
-  try {
-  var chartData = await _fetchYahooChartData(ticker);
-  if (!chartData || !chartData.closes || chartData.closes.length < 50) {
-    resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">' + escHtml(label) + ' 데이터를 불러올 수 없습니다.</div>';
-    return;
-  }
-
-  var c = chartData.closes.filter(function(x){return x!==null;});
-  var o = chartData.opens.filter(function(x){return x!==null;});
-  var h = chartData.highs.filter(function(x){return x!==null;});
-  var l = chartData.lows.filter(function(x){return x!==null;});
-  var v = chartData.volumes.filter(function(x){return x!==null;});
-
-  var stageData = _detectStage(o,h,l,c,v);
-  var trendData = _detectTrendPosition(o,h,l,c,v);
-  var dipData = _classifyDip(o,h,l,c,v);
-  var entryData = _assessEntryQuality(o,h,l,c,v);
-  var crossData = _detectCrossSignals(c);
-  var divData = _detectDivergence(c);
-  var rsi = _calcRSILast(c,14);
-  var macd = _calcMACD(c);
-  var bb = _calcBB(c,20,2);
-
-  var currentPrice = c[c.length-1];
-  var priceChange = c.length>1?((c[c.length-1]-c[c.length-2])/c[c.length-2])*100:0;
-
-  var stageColors = ['#999','var(--data-cyan)','var(--data-green)','var(--data-amber)','var(--data-red)'];
-  var stageColor = stageColors[stageData.stage]||'#999';
-  var entryColor = 'var(--data-cyan)'; // P1538: a setup state, not a grade
-  var trendColor = trendData.alignment>80?'var(--data-green)':'var(--data-amber)';
-
-  var html = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;">' +
-    '<div style="background:'+stageColor+'12;border:1px solid '+stageColor+'30;border-radius:3px;padding:10px;">' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Stage(단기 SMA150·고저점 모델) · 표본 ' + c.length + '봉</div>' +
-      '<div style="font-size:18px;font-weight:900;color:'+stageColor+';font-family:var(--font-mono);">'+stageData.stage+'단계</div>' +
-      '<div style="font-size:11px;color:'+stageColor+';margin-top:3px;">'+escHtml(stageData.label)+'</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">확도 '+Math.round(stageData.confidence*100)+'%</div>' +
-    '</div>' +
-    '<div style="background:'+trendColor+'12;border:1px solid '+trendColor+'30;border-radius:3px;padding:10px;">' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">추세 위치</div>' +
-      '<div style="font-size:14px;font-weight:900;color:'+trendColor+';">'+escHtml(trendData.position)+'</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">52W: '+trendData.week52+'% | Gap: '+trendData.gapFrom20.toFixed(2)+'%</div>' +
-    '</div>' +
-    '<div style="background:#a78bba12;border:1px solid #a78bba30;border-radius:3px;padding:10px;">' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">RSI (14)</div>' +
-      '<div style="font-size:18px;font-weight:900;color:var(--data-purple);font-family:var(--font-mono);">'+rsi.toFixed(1)+'</div>' +
-      '<div style="font-size:11px;color:var(--data-purple);margin-top:3px;">'+(rsi>70?'과매수':rsi<30?'과매도':'중립')+'</div>' +
-    '</div>' +
-    '<div style="background:'+entryColor+'12;border:1px solid '+entryColor+'30;border-radius:3px;padding:10px;">' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">셋업 상태</div>' +
-      '<div style="font-size:14px;font-weight:900;color:'+entryColor+';">'+escHtml(entryData.state)+'</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">'+escHtml(entryData.reasoning)+'</div>' +
-    '</div>' +
-  '</div>';
-
-  // Cross signals
-  html += '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;margin-bottom:8px;">' +
-    '<div style="font-size:11px;font-weight:700;color:var(--text-bright);margin-bottom:6px;">교차 신호 & 다이버전스</div>' +
-    '<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;">' +
-      '<span>20/50 SMA: <strong style="color:'+(crossData.gc20_50==='골든크로스'?'var(--data-green)':crossData.gc20_50==='데드크로스'?'var(--data-red)':'#999')+';">'+escHtml(crossData.gc20_50||'평탄')+'</strong></span>' +
-      '<span>50/200 SMA: <strong style="color:'+(crossData.gc50_200==='골든크로스'?'var(--data-green)':crossData.gc50_200==='데드크로스'?'var(--data-red)':'#999')+';">'+escHtml(crossData.gc50_200||'평탄')+'</strong></span>' +
-      '<span>RSI 다이버전스: <strong style="color:'+(divData.bullishDiv?'var(--data-green)':divData.bearishDiv?'var(--data-red)':'#999')+';">'+(divData.bullishDiv?'강세 다이버전스':divData.bearishDiv?'약세 다이버전스':'없음')+'</strong></span>' +
-    '</div>' +
-  '</div>';
-
-  // MACD & BB — v46.9: macd null 가드 추가
-  var _macdLine = (macd && macd.macdLine && macd.macdLine.length) ? macd.macdLine[macd.macdLine.length-1] : 0;
-  var _sigLine = (macd && macd.signalLine && macd.signalLine.length) ? macd.signalLine[macd.signalLine.length-1] : 0;
-  var _hist = (macd && macd.histogram && macd.histogram.length) ? macd.histogram[macd.histogram.length-1] : 0;
-  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">' +
-    '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">' +
-      '<div style="font-size:11px;font-weight:700;color:var(--text-bright);margin-bottom:4px;">MACD</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);">Line: '+_macdLine.toFixed(2)+' | Signal: '+_sigLine.toFixed(2)+'</div>' +
-      '<div style="font-size:11px;color:'+(_hist>0?'var(--data-green)':'var(--data-red)')+';">Histogram: '+_hist.toFixed(2)+'</div>' +
-    '</div>' +
-    '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">' +
-      '<div style="font-size:11px;font-weight:700;color:var(--text-bright);margin-bottom:4px;">볼린저 밴드</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);">Upper: '+bb.upper.toFixed(0)+' | Lower: '+bb.lower.toFixed(0)+'</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);">%B: '+bb.pctB.toFixed(2)+' | Width: '+bb.width.toFixed(2)+'</div>' +
-    '</div>' +
-  '</div>';
-
-  // Dip classification
-  html += '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;margin-bottom:8px;">' +
-    '<div style="font-size:11px;font-weight:700;color:var(--text-bright);margin-bottom:4px;">조정 분류</div>' +
-    '<div style="font-size:11px;color:var(--text-muted);">'+escHtml(dipData.label)+'</div>' +
-    '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">'+escHtml(dipData.reasoning)+'</div>' +
-  '</div>';
-
-  // Verdict
-  var verdict = escHtml(label) + ' 지수는 현재 Stage(단기 SMA150·고저점 모델) '+stageData.stage+'단계 ('+escHtml(stageData.label)+'). '+escHtml(trendData.position)+' 위치에서 RSI '+rsi.toFixed(1)+'. ';
-  verdict += stageData.stage===2?'상승 스테이지입니다.':stageData.stage===3?'분배 가능성이 있는 스테이지입니다.':stageData.stage===4?'하락 스테이지입니다.':'바닥을 만드는 단계입니다.';
-
-  html += '<div style="background:var(--surface-4);border:1px solid var(--border);border-radius:3px;padding:12px;margin-top:8px;font-size:11px;line-height:1.6;border-left:3px solid '+stageColor+';">' +
-    '<div style="font-weight:900;color:var(--text-bright);margin-bottom:6px;">'+escHtml(label)+' 현재 상태</div>' +
-    '<div style="color:var(--text-muted);">'+verdict+'</div>' +
-  '</div>';
-
-  // Price footer
-  html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;margin-top:8px;font-size:11px;color:var(--text-muted);text-align:center;">' +
-    escHtml(label)+': '+currentPrice.toFixed(2)+' ('+(priceChange>0?'+':'')+priceChange.toFixed(2)+'%) | 데이터: 1년 일봉 | 업데이트: '+new Date().toLocaleTimeString('ko-KR') +
-  '</div>';
-
-  resultEl.innerHTML = html;
-  } catch(e) {
-    _aioLog('error', 'fetch', 'analyzeKrIndex error: ' + (e && e.message || e));
-    if (resultEl) resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">' + escHtml(label) + ' 분석 중 오류가 발생했습니다.</div>';
-  }
-}
-
-// Korean ticker analysis (for Korean stock market)
-async function analyzeKrTickerDeep(ticker) {
-  if (!ticker || ticker.length === 0) {
-    showToast('종목을 입력하세요 (예: 005930.KS, 000660.KS)');
-    return;
-  }
-
+// v57.77: the KR ticker Stage·확도·셋업 analysis was retired. The input (Enter or _aioKrTickerSubmit) now only writes a
+// link that hands the ticker to the 종목 screen through showTicker, which names the subject (aio:entityChanged ->
+// setStockSubject) and opens the route. The name is kept for the existing data-on-enter / _aioKrTickerSubmit callers.
+function analyzeKrTickerDeep(ticker) {
   var resultEl = document.getElementById('kr-ticker-analysis-result');
-  if (!resultEl) resultEl = document.getElementById('ticker-analysis-result');
   if (!resultEl) return;
-
-  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);"><div style="font-size:12px;">분석 준비: ' + escHtml(ticker) + ' 기술적 분석...</div></div>';
-
-  try {
-  // Fetch chart data for Korean ticker
-  var chartData = await _fetchYahooChartData(ticker);
-  if (!chartData || !chartData.closes || chartData.closes.length < 50) {
-    resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">차트 데이터를 불러올 수 없습니다. 종목코드를 확인하세요. (예: 005930.KS)</div>';
+  var raw = String(ticker == null ? '' : ticker).trim();
+  var sym = raw && typeof window._aioNormalizeTickerInput === 'function' ? window._aioNormalizeTickerInput(raw) : raw.toUpperCase();
+  if (!sym || !/^[A-Z0-9.\-]{1,12}$/.test(sym)) {
+    resultEl.innerHTML = '<p class="trend-card-note">종목코드 6자리(예: 005930)나 등록된 종목명을 입력하세요.</p>';
     return;
   }
-
-  // Extract and analyze (same as US tickers)
-  var c = chartData.closes.filter(function(x) { return x !== null; });
-  var o = chartData.opens.filter(function(x) { return x !== null; });
-  var h = chartData.highs.filter(function(x) { return x !== null; });
-  var l = chartData.lows.filter(function(x) { return x !== null; });
-  var v = chartData.volumes.filter(function(x) { return x !== null; });
-
-  var stageData = _detectStage(o, h, l, c, v);
-  var trendData = _detectTrendPosition(o, h, l, c, v);
-  var dipData = _classifyDip(o, h, l, c, v);
-  var entryData = _assessEntryQuality(o, h, l, c, v);
-  // P1253: crossData/divData는 이 경로에서 아무 데도 렌더되지 않는 죽은 계산이었다 — 미사용 계산 제거.
-  var rsi = _calcRSILast(c, 14);
-  var macd = _calcMACD(c);
-  var bb = _calcBB(c, 20, 2);
-
-  var currentPrice = c[c.length - 1];
-  var priceChange = c.length > 1 ? ((c[c.length - 1] - c[c.length - 2]) / c[c.length - 2]) * 100 : 0;
-
-  var stageColors = ['#999', 'var(--data-cyan)', 'var(--data-green)', 'var(--data-amber)', 'var(--data-red)'];
-  var stageColor = stageColors[stageData.stage] || '#999';
-  var entryColor = 'var(--data-cyan)'; // P1538: a setup state, not a grade
-  var trendColor = trendData.alignment > 80 ? 'var(--data-green)' : 'var(--data-amber)';
-
-  // Build result (same structure as US, just for Korean market)
-  var html = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;">' +
-    '<div style="background:' + stageColor + '12;border:1px solid ' + stageColor + '30;border-radius:3px;padding:10px;">' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Stage(단기 SMA150·고저점 모델) · 표본 ' + c.length + '봉</div>' +
-      '<div style="font-size:18px;font-weight:900;color:' + stageColor + ';font-family:var(--font-mono);">' + stageData.stage + '단계</div>' +
-      '<div style="font-size:11px;color:' + stageColor + ';margin-top:3px;">' + escHtml(stageData.label) + '</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">확도 ' + Math.round(stageData.confidence * 100) + '%</div>' +
-    '</div>' +
-    '<div style="background:' + trendColor + '12;border:1px solid ' + trendColor + '30;border-radius:3px;padding:10px;">' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">추세 위치</div>' +
-      '<div style="font-size:14px;font-weight:900;color:' + trendColor + ';">' + escHtml(trendData.position) + '</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">52W: ' + trendData.week52 + '% | Gap: ' + trendData.gapFrom20.toFixed(2) + '%</div>' +
-    '</div>' +
-    '<div style="background:#a78bba12;border:1px solid #a78bba30;border-radius:3px;padding:10px;">' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">RSI (14)</div>' +
-      '<div style="font-size:18px;font-weight:900;color:var(--data-purple);font-family:var(--font-mono);">' + rsi.toFixed(1) + '</div>' +
-      '<div style="font-size:11px;color:var(--data-purple);margin-top:3px;">' + (rsi > 70 ? '과매수' : rsi < 30 ? '과매도' : '중립') + '</div>' +
-    '</div>' +
-    '<div style="background:' + entryColor + '12;border:1px solid ' + entryColor + '30;border-radius:3px;padding:10px;">' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">셋업 상태</div>' +
-      '<div style="font-size:14px;font-weight:900;color:' + entryColor + ';">' + escHtml(entryData.state) + '</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">' + escHtml(entryData.reasoning) + '</div>' +
-    '</div>' +
-  '</div>';
-
-  html += '<div style="background:var(--surface-4);border:1px solid var(--border);border-radius:3px;padding:12px;margin-top:12px;font-size:11px;line-height:1.6;border-left:3px solid ' + stageColor + ';">' +
-    '<div style="font-weight:900;color:var(--text-bright);margin-bottom:6px;">현재 상태</div>' +
-    '<div style="color:var(--text-muted);">' +
-      '' + escHtml(ticker) + '는 ' + escHtml(stageData.label) + ' 중. ' +
-      escHtml(trendData.position) + ' 위치이며 셋업 상태는 ' + escHtml(entryData.state) + '입니다. ' +
-      (stageData.stage === 2 && trendData.alignment > 80 ? '상승 스테이지이고 이동평균이 정배열입니다.' : '추가 신호가 확인 항목입니다.') +
-    '</div>' +
-  '</div>';
-  html += '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;">' +
-    '<button data-action="showTicker" data-arg="' + escHtml(ticker) + '" style="padding:6px 14px;background:rgba(var(--ink-rgb),0.12);border:1px solid rgba(var(--ink-rgb),0.3);color:var(--data-cyan);font-size:11px;border-radius:3px;cursor:pointer;font-weight:700;">Ticker 상세 분석 → ↗</button>' +
-  '</div>';
-
-  resultEl.innerHTML = html;
-  } catch(e) {
-    _aioLog('error', 'fetch', 'analyzeKrTickerDeep error: ' + (e && e.message || e));
-    if (resultEl) resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">기술적 분석 중 오류가 발생했습니다. 다시 시도해주세요.</div>';
-  }
+  var code = sym.replace(/\.(KS|KQ)$/, '');
+  var db = window.KR_STOCK_DB || {};
+  var name = db[code] && db[code].name ? db[code].name : '';
+  var known = typeof window._aioIsKnownTicker === 'function' ? !!window._aioIsKnownTicker(sym) : true;
+  resultEl.innerHTML = '<button type="button" data-action="showTicker" data-arg="' + escHtml(sym) + '" class="aio-btn-table" style="font-size:12px;">' +
+      escHtml(name ? name + ' ' + sym : sym) + ' — 종목 화면에서 보기 →</button>' +
+    (known ? '' : '<p class="trend-card-note" style="margin-top:6px;">등록된 종목 목록에 없는 코드입니다. 종목 화면에 시세가 없을 수 있습니다.</p>');
 }
 
 // P1430: calculateEntryQualityLocal retired with the ticker 가격·추세 위치 점검 calculator.
@@ -4588,36 +4051,14 @@ async function loadKrCandleChart(code) {
 }
 window.loadKrCandleChart = loadKrCandleChart;
 
-// ── Phase 2-1: TradingView 위젯 로드 ──
+// ── 한국 캔들 차트 로드 (data-action loadTVChart:kr; v57.77 TradingView iframe 경로 퇴역) ──
 function loadTVChart(page) {
-  // v57.76: the 차트 tab's SPY TradingView fold (technical branch) and its OHLC fallback strip were deleted.
-  var sym, containerId;
-  if (page === 'fundamental') {
-    sym = (document.getElementById('fund-search-input') || {}).value || 'AAPL';
-    containerId = 'tv-widget-fundamental';
-    var wrap = document.getElementById('tv-chart-fundamental');
-    if (wrap) wrap.style.display = 'block';
-  } else if (page === 'kr') {
-    var krCode = (document.getElementById('tv-kr-sym') || {}).value || '005930';
-    krCode = krCode.replace(/\.(KS|KQ)$/i, '').trim();
-    if (typeof loadKrCandleChart === 'function') loadKrCandleChart(krCode);
-    return;
-  } else if (page === 'ticker') {
-    // v53.6: ticker 종목 개요 대형 차트 — KR 종목은 P610(KRX 데이터 하드브레이크)으로 미지원
-    sym = (window._currentTickerSym || 'NVDA').toUpperCase();
-    if (/\.(KS|KQ)$/i.test(sym)) return;
-    containerId = 'tv-widget-ticker';
-  }
-  var container = document.getElementById(containerId);
-  if (!container) return;
-  container.innerHTML = '';
-  var widget = document.createElement('div');
-  widget.innerHTML = '<iframe src="https://s.tradingview.com/widgetembed/?symbol=' + encodeURIComponent(sym) +
-    '&interval=D&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f7f4ee' +
-    '&studies=MAExp%4020&studies=RSI%40defval&theme=light&style=1&timezone=Asia%2FSeoul' +
-    '&withdateranges=1&showpopupbutton=1&locale=kr" style="width:100%;height:100%;border:none;" allowtransparency="true"></iframe>';
-  container.appendChild(widget.firstChild);
-
+  // v57.77: only the 한국 candle path remains — the ticker/fundamental TradingView containers left index.html
+  // (v57.76 removed the technical branch), so the iframe branches were dead.
+  if (page !== 'kr') return;
+  var krCode = (document.getElementById('tv-kr-sym') || {}).value || '005930';
+  krCode = krCode.replace(/\.(KS|KQ)$/i, '').trim();
+  if (typeof loadKrCandleChart === 'function') loadKrCandleChart(krCode);
 }
 
 // v57.76 (EF-12 retired): _aioSyncTvOhlcFallback and its page-bus hooks were deleted with the #tv-tech-ohlc strip.
@@ -4628,20 +4069,8 @@ function loadTVChart(page) {
 window._aioRenderTickerOverview = function(tkr) {
   tkr = String(tkr || '').toUpperCase();
   if (!tkr) return;
-  var isKr = /\.(KS|KQ)$/i.test(tkr);
-  // 1) TradingView 대형 차트 — 동일 심볼이면 iframe 재로드하지 않음
-  var tvC = document.getElementById('tv-widget-ticker');
-  if (tvC) {
-    if (isKr) {
-      if (tvC.dataset.tvSym !== 'KR-UNSUPPORTED') {
-        tvC.dataset.tvSym = 'KR-UNSUPPORTED';
-        tvC.innerHTML = '<span style="font-size:12px;color:var(--text-muted);padding:12px;text-align:center;">한국 종목 대형 차트는 TradingView 무료 위젯이 KRX 데이터를 제공하지 않아 표시하지 않습니다 — 차트·기술 분석 화면의 한국 캔들 차트를 이용하세요</span>';
-      }
-    } else if (tvC.dataset.tvSym !== tkr) {
-      tvC.dataset.tvSym = tkr;
-      try { loadTVChart('ticker'); } catch(_tvErr) {}
-    }
-  }
+  // 1) v57.77: the TradingView 대형 차트 block (#tv-widget-ticker) was deleted — the container left index.html and
+  //    the native ticker price chart owns the 요약 tab.
   // 2) 가격 정보 — 라이브 quote 결측 필드는 '—' 유지(합성 금지)
   var live = (window._liveData || {})[tkr] || {};
   var scrRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];

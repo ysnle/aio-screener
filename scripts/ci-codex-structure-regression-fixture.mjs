@@ -112,6 +112,8 @@ assert.ok(core.includes('(?:headline:|market-analysis:'), 'P1651: whole citation
 // P1653: AI is always on, web search is automatic, one AI panel.
 const shell = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 assert.ok(!/id="llm-switch-track"/.test(shell), 'P1653: no AI ON/OFF switch');
+const aioUi1653 = fs.readFileSync(new URL('../js/aio-ui.js', import.meta.url), 'utf8');
+assert.ok(!/llm-switch-track|function getLLMState\(/.test(aioUi1653), 'v57.77: no AI ON/OFF state read or switch-track writer in js/aio-ui.js'); // text-pin-ok: retirement absence
 assert.ok(!/id="chat-home-inp"|id="chat-theme-detail-inp"/.test(shell), 'P1653: no per-page inline chat inputs');
 assert.ok(/data-action="_aioAskInPanel"/.test(shell), 'P1653: page prompts route to the top AI panel');
 const connections = fs.readFileSync(new URL('../src/ui/panels/connections.js', import.meta.url), 'utf8');

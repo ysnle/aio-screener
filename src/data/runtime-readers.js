@@ -285,7 +285,7 @@ export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, 
   catalog['sentiment.fearGreed'] = fearGreedObservation(root, snapshot);
   catalog['sentiment.putCall'] = putCallObservation(root, snapshot);
   catalog['sentiment.hySpread'] = hySpreadObservation(root, snapshot);
-  const breadth = state?.screener?.metadata?.breadth || root?.AIO_ARCH?.getScreenerState?.()?.metadata?.breadth || null;
+  const breadth = state?.screener?.metadata?.breadth || root?.AIO_ARCH?.getScreenerState?.('metadata.breadth') || null; // v57.77 perf: path read, no row clone
   for (const market of ['us', 'kr']) {
     const segment = breadth?.segments?.[market] || null;
     catalog[`breadth.${market}`] = {

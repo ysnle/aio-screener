@@ -1,15 +1,28 @@
 const storesByFetch = new WeakMap();
+// v57.77 perf: callers pass `root.fetch.bind(root)`, a new function on every call, so an identity-keyed store was
+// always empty and `maxAgeMs` never applied (every screen visit re-downloaded its artifacts). A bound function's
+// target cannot be read back, so bound fetchers share one store per bound name ('bound fetch' for the window fetch);
+// unbound functions keep their own identity-keyed store.
+const storesByBoundName = new Map();
+const boundNameOf = (fetchFn) => (typeof fetchFn?.name === 'string' && fetchFn.name.startsWith('bound ') ? fetchFn.name : null);
 
 function createAbortError() {
   try { return new DOMException('Artifact request aborted', 'AbortError'); }
   catch { const error = new Error('Artifact request aborted'); error.name = 'AbortError'; return error; }
 }
 
+function existingStoreFor(fetchFn) {
+  const boundName = boundNameOf(fetchFn);
+  return boundName ? storesByBoundName.get(boundName) : storesByFetch.get(fetchFn);
+}
+
 function storeFor(fetchFn) {
-  let store = storesByFetch.get(fetchFn);
+  let store = existingStoreFor(fetchFn);
   if (!store) {
     store = { resolved: new Map(), inFlight: new Map(), hits: 0, misses: 0, shared: 0, evictions: 0 };
-    storesByFetch.set(fetchFn, store);
+    const boundName = boundNameOf(fetchFn);
+    if (boundName) storesByBoundName.set(boundName, store);
+    else storesByFetch.set(fetchFn, store);
   }
   return store;
 }
@@ -131,14 +144,16 @@ export function loadJsonArtifact(fetchFn, url, { signal, maxAgeMs = 15 * 60 * 10
 
 export function clearArtifactCache(fetchFn) {
   if (typeof fetchFn === 'function') {
-    const store = storesByFetch.get(fetchFn);
+    const store = existingStoreFor(fetchFn);
     for (const entry of store?.inFlight?.values?.() || []) entry.controller.abort();
-    storesByFetch.delete(fetchFn);
+    const boundName = boundNameOf(fetchFn);
+    if (boundName) storesByBoundName.delete(boundName);
+    else storesByFetch.delete(fetchFn);
   }
 }
 
 export function artifactCacheSnapshot(fetchFn) {
-  const store = typeof fetchFn === 'function' ? storesByFetch.get(fetchFn) : null;
+  const store = typeof fetchFn === 'function' ? existingStoreFor(fetchFn) : null;
   return Object.freeze(store ? {
     resolved: store.resolved.size,
     inFlight: store.inFlight.size,

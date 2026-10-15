@@ -72,7 +72,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   const fgBand = fearGreedBand(fg);
   const fgChange = [[1, '전일'], [5, '5일'], [20, '20일']].map(([n, label]) => { const v = seriesChange(fgSeries.map((point) => ({ ...point, value: Math.round(point.value) })), n, '', 0); return v ? `${label} ${v}` : null; }).filter(Boolean).join(' · ');
   const cards = [
-    { id: 'fg', title: '공포·탐욕 지수 (F&G)', source: 'CNN Fear & Greed Index', value: shown.fg == null ? '—' : String(Math.round(shown.fg)), basis: alignmentLabel(alignments.fg), basisStatus: alignments.fg.status,
+    { id: 'fg', title: '공포·탐욕 지수 (F&G)', value: shown.fg == null ? '—' : String(Math.round(shown.fg)), basis: alignmentLabel(alignments.fg), basisStatus: alignments.fg.status,
       state: shown.fg == null ? null : judged(fg, fgBand), series: fgSeries, refLines: [25, 50, 75], domain: [0, 100], format: (value) => value.toFixed(0),
       // P1508: the change is taken between the shown whole numbers (43 → 47 reads +4), the same rule as the home card;
       // rounding the raw difference gave +3 on one screen and +4 on the other for the same day.
@@ -85,11 +85,14 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
     { id: 'hy', title: '고위험 회사채 금리차(HY)', series: hySeries, refLines: [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], format: (value) => `${Math.round(value)}bp`, value: shown.hyBp == null ? '—' : `${Math.round(shown.hyBp)}bp`, basis: alignmentLabel(alignments.hy), basisStatus: alignments.hy.status,
       // v57.50 C02: the same creditState() as the 시장 상태 credit axis and the briefing (one judgement, one set of edges).
       state: shown.hyBp == null ? null : judged(hyBp, CREDIT_LABEL[credit_] || EXCLUDED),
-      change: [shown.hy5 == null ? null : `5일 ${shown.hy5 >= 0 ? '+' : ''}${Math.round(shown.hy5)}bp`, hy20 == null ? null : `20거래일 ${hy20 >= 0 ? '+' : ''}${Math.round(hy20)}bp`].filter(Boolean).join(' · '), note: `고위험 회사채가 국채보다 더 받는 금리 — 돈을 빌리기 어려워질수록 커짐 · ${RULES.credit.stressAtBp}bp 이상 또는 5일 +${RULES.credit.widen5dBp}bp 이상이면 부담(스트레스), ${RULES.credit.tightBelowBp}bp 미만이면서 5일 확대 없음·20거래일 +${RULES.credit.widen20dBp}bp 미만·풋/콜 ${RULES.credit.putCallHedgeAt} 미만일 때만 양호, 그 밖은 중립 — 시장 상태 '신용 · 위험선호' 축과 같은 판정` },
+      change: [shown.hy5 == null ? null : `5일 ${shown.hy5 >= 0 ? '+' : ''}${Math.round(shown.hy5)}bp`, hy20 == null ? null : `20거래일 ${hy20 >= 0 ? '+' : ''}${Math.round(hy20)}bp`].filter(Boolean).join(' · '),
+      // v57.77: the card keeps one line; the edges move into the card's folded explanation (rules).
+      note: '고위험 회사채가 국채보다 더 받는 금리 — 돈 빌리기가 어려워질수록 커지며, 시장 상태 신용 축과 같은 판정',
+      rules: `${RULES.credit.stressAtBp}bp 이상이거나 5일 사이 +${RULES.credit.widen5dBp}bp 이상 벌어지면 부담, ${RULES.credit.tightBelowBp}bp 미만이면서 5일 확대가 없고 20거래일 확대가 +${RULES.credit.widen20dBp}bp 미만이며 풋/콜이 ${RULES.credit.putCallHedgeAt} 미만일 때만 양호, 그 밖은 중립입니다. 시장 상태의 '신용 · 위험선호' 축과 같은 판정입니다.` },
     { id: 'pcr', title: '풋/콜 비율', value: shown.pcr == null ? '—' : shown.pcr.toFixed(2), basis: alignmentLabel(alignments.pcr), basisStatus: alignments.pcr.status,
       // T10: the card reads the same RULES edges as the credit axis (1.1 hedging, below 0.7 optimism). D19: level only, neutral tone.
       state: shown.pcr == null ? null : judged(pcr, pcr >= RULES.credit.putCallHedgeAt ? { label: '하락 대비 수요 높음', tone: LEVEL_TONE } : pcr < RULES.credit.putCallOptimismBelow ? { label: '콜 우위 (낙관 쪽)', tone: LEVEL_TONE } : { label: '중립', tone: LEVEL_TONE }),
-      change: '', source: 'CBOE 전체 옵션 풋/콜 비율', note: `미국 상장 옵션 전체에서 하락에 대비하는 풋옵션 거래가 콜옵션보다 얼마나 많은지 — 높을수록 방어적 · ${RULES.credit.putCallHedgeAt} 이상 헤지 수요 높음, ${RULES.credit.putCallOptimismBelow} 미만 낙관` },
+      change: '', note: `미국 상장 옵션 전체에서 하락에 대비하는 풋옵션 거래가 콜옵션보다 얼마나 많은지 — 높을수록 방어적 · ${RULES.credit.putCallHedgeAt} 이상 헤지 수요 높음, ${RULES.credit.putCallOptimismBelow} 미만 낙관` },
     { id: 'aaii', title: 'AAII 개인 설문', value: shown.bear == null ? '—' : `약세 ${shown.bear.toFixed(1)}%`, basis: credit.aaiiAsOf ? `${alignmentLabel(aaiiAlign)} 주간` : '미수신', basisStatus: isUsable(aaiiAlign) ? 'aligned' : aaiiAlign.status,
       // v57.50 D24/C04: no sourced 45% '비관' cut-off exists, so the state is the distance from AAII's published long-run average.
       state: shown.bear == null ? null : judged(bear, { label: `약세 장기 평균 대비 ${signedPp(bear - AAII_AVERAGE.bear)}`, tone: LEVEL_TONE }),
@@ -144,7 +147,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   // v57.54 audit (10): the first mention spells the index out; later ones keep the short name.
   if (moodKnown) synthesis = synthesis.replace(/F&G/, '공포·탐욕 지수(F&G)');
   const mixed = cards.filter((card) => card.value !== '—' && card.basisStatus !== 'aligned').map((card) => card.title);
-  return { asOf: basis, mixed, cards, synthesis, aaiiNote: null };
+  return { asOf: basis, mixed, cards, synthesis };
 }
 
 // P1586: the self-computed components sit beside CNN's index as a reference. v57.50 D02 (coordinator decision): no
@@ -169,7 +172,9 @@ function compositeCard(composite) {
     state: shown && spread.gap >= SPREAD_WIDE_AT ? { label: '요소 간 차이 큼', tone: LEVEL_TONE } : null,
     change: composite.components.map(componentText).join(' · '),
     // P1593 (F97): every component is named, including the ones without data, so a partial set is not read as CNN's seven.
-    note: `${spreadLine ? `${spreadLine}. ` : ''}공포·탐욕 지수의 7개 요소를 공개 자료로 각각 최근 1년 백분위(높을수록 낙관 쪽, 변동성·풋/콜·정크본드는 뒤집어 계산)로 나란히 놓았습니다. 한 점수로 평균하거나 공포·탐욕 구간을 붙이지 않으며 공포·탐욕 지수 값과 같지 않습니다. 계산되는 요소가 4개 미만이면 표시하지 않습니다.`
+    // v57.77: one line on the card; how the percentiles are built and when the card is withheld sit in the fold (rules).
+    note: `${spreadLine ? `${spreadLine} · ` : ''}7개 요소의 1년 백분위를 나란히 놓은 참고값으로, 공포·탐욕 지수 값과 다릅니다`,
+    rules: '요소마다 최근 1년 백분위로 바꾸며 높을수록 낙관 쪽입니다(변동성·풋/콜·정크본드는 뒤집어 계산). 한 점수로 평균하거나 공포·탐욕 구간을 붙이지 않고, 계산되는 요소가 4개 미만이면 표시하지 않습니다.'
   };
 }
 export function renderSentimentBoard({ documentRef: doc, root }) {
@@ -180,8 +185,6 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   set('sentiment-basis', model.asOf ? `${shortDate(model.asOf)} 미국 종가 기준${model.mixed.length ? ' · 날짜가 다른 지표는 카드에 표시' : ''} · 공포·탐욕, 변동성 구조, 신용, 옵션, 개인 설문` : '기록을 불러오는 중입니다.');
   set('sentiment-synthesis', model.synthesis);
-  const aaiiNote = set('sentiment-aaii-note', model.aaiiNote || '');
-  if (aaiiNote) aaiiNote.hidden = !model.aaiiNote;
   // P1431: tie the synthesis back to the 시장 상태 axes that use the same numbers.
   const flow = sentimentFlow({ model, regime: buildMarketRegime({ ...inputs, macroHistory: root._aioMacroHistory || null }) });
   set('sentiment-bridge', flow.bridge);
@@ -205,8 +208,9 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
       if (card.change) box.append(el(doc, 'div', card.change, 'trend-card-change'));
       if (card.series) box.append(createTrendChart(doc, { series: card.series, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }));
       box.append(el(doc, 'p', card.note, 'trend-card-note'));
-      if (card.source) box.title = card.source; // T22: provider names in the hover
-      const fold = deepDiveFold(doc, root, card.title.replace(/ \(.*\)$/, ''), SENTIMENT_DEEP_DIVES[card.id]); // P1660
+      // v57.77: providers moved from the hover (unreachable on a phone) to the page's 데이터 출처 fold (page-sources.js).
+      const rules = card.rules ? [el(doc, 'h4', '판정 기준'), el(doc, 'p', card.rules)] : [];
+      const fold = deepDiveFold(doc, root, card.title.replace(/ \(.*\)$/, ''), SENTIMENT_DEEP_DIVES[card.id], rules); // P1660
       if (fold) box.append(fold);
       return box;
     }));

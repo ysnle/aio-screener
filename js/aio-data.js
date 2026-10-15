@@ -5598,21 +5598,7 @@ function _aioRenderDataFreshness() {
         asEl.textContent = '팩터 데이터 대기';
       }
     }
-    // 매크로: FRED 기준 시각 또는 폴백 날짜
-    var fredEl = document.getElementById('macro-fred-ts');
-    if (fredEl) {
-      var fredTs = window._aioGetFieldTs('macro_fred');
-      var snap = window.DATA_SNAPSHOT;
-      if (fredTs) {
-        fredEl.textContent = 'FRED ' + fredTs;
-        fredEl.style.display = 'inline';
-      } else if (snap && snap._fieldTs && snap._fieldTs.us_macro_manual) {
-        fredEl.textContent = 'FRED 폴백 (' + snap._fieldTs.us_macro_manual + ')';
-        fredEl.style.display = 'inline';
-      } else {
-        fredEl.style.display = 'none';
-      }
-    }
+    // v57.77: the macro FRED stamp writer (#macro-fred-ts) left with its absent element.
     if (typeof _aioSchedulePublicReadiness === 'function') _aioSchedulePublicReadiness(250);
   } catch(_) {}
 }
@@ -5846,13 +5832,10 @@ function _aioApplyNewsBackstop(force) {
     _aioUpdateNewsSummaryFromItems(items, { kind: 'server-cache', generatedAt: serverMeta.generatedAt || null });
     window._newsBackstopApplied = { count: items.length, at: Date.now() };
     if (typeof _aioLog === 'function') _aioLog('info', 'data', 'server 뉴스 백스톱 적용: ' + items.length + '건 (클라이언트 뉴스 부재)');
-    // 뉴스 캐시 타임스탬프 + 스테일 배너
+    // 스테일 배너 (v57.77: the absent #news-cache-ts stamp writer is retired)
     try {
       var _meta = window._serverDataMeta;
       var _ageMin = _meta && _meta.ageMin != null ? _meta.ageMin : null;
-      var _genAt = _meta && _meta.generatedAt ? new Date(_meta.generatedAt) : null;
-      var _cacheTs = document.getElementById('news-cache-ts');
-      if (_cacheTs) _cacheTs.textContent = _genAt ? _genAt.toLocaleString('ko-KR', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) + ' (서버 캐시)' : '서버 캐시';
       var _staleBanner = document.getElementById('news-stale-banner');
       if (_staleBanner) {
         if (_ageMin != null && _ageMin > 60) {
@@ -10153,9 +10136,7 @@ function extractTickers(item) {
 }
 
 /* ── v21: 절대 시간 포맷 (HH:MM) ──────────────────────────────── */
-// ── v34.9: 뉴스 유형 탭 (전체/시장/기업) ──
-var _newsTypeTab = 'all'; // 'all', 'market', 'company'
-
+// v57.77: the 전체/시장/기업/카테고리 type tabs (v34.9) left; 기업 뉴스 is the 'company' topic chip (_aioApplyNewsFilterOptions).
 // 기업 뉴스 판별: 티커가 있고 기업 관련 토픽인 뉴스
 // v46.9: healthcare/shipbuilding/space/quantum/crypto 추가 (TOPIC_KEYWORDS 전체 커버)
 function isCompanyNews(item) {
@@ -10176,30 +10157,7 @@ function isCompanyNews(item) {
   return false;
 }
 
-function setNewsTypeTab(type, el) {
-  _newsTypeTab = type;
-  document.querySelectorAll('#news-type-tabs .news-type-tab').forEach(function(btn) {
-    btn.style.color = 'var(--text-muted)';
-    btn.style.borderBottomColor = 'transparent';
-    btn.classList.remove('active');
-  });
-  if (el) {
-    el.style.color = 'var(--accent)';
-    el.style.borderBottomColor = 'var(--accent)';
-    el.classList.add('active');
-  }
-  // v42: 카테고리별 모드에서는 토픽/국가/정렬 필터 숨김 (자체 그룹핑 사용)
-  var isCat = (type === 'category');
-  var topicChips = document.getElementById('news-topic-chips');
-  var countryChips = document.getElementById('news-country-chips');
-  var sortRow = document.getElementById('sort-time-btn') ? document.getElementById('sort-time-btn').parentElement : null;
-  if (topicChips) topicChips.style.display = isCat ? 'none' : '';
-  if (countryChips) countryChips.style.display = isCat ? 'none' : '';
-  if (sortRow) sortRow.style.display = isCat ? 'none' : '';
-  if (newsCache.length > 0) _aioNotifyNewsSurfaceInvalidated('news-type-tab');
-}
-
-/* ── v42.0: 카테고리별 그룹 뷰 렌더링 ─────────────────────────── */
+/* ── v42.0: 뉴스 토픽 라벨 순서 (v57.77: 카테고리별 그룹 뷰는 퇴역, _aioNewsTopicLabel만 사용) ── */
 var _TOPIC_GROUP_ORDER = [
   { key:'macro',     label:'거시·경제',       icon:'' },
   { key:'geo',       label:'국제 정치·지정학',  icon:'' },
@@ -10497,10 +10455,9 @@ function _aioApplyNewsFilterOptions(rows, opts) {
     }
   }
   var tf = opts.topicFilter || (typeof currentTopicFilter !== 'undefined' ? currentTopicFilter : 'all');
-  if (tf && tf !== 'all') filtered = filtered.filter(function(i) { return i.topic === tf || (i.topics && i.topics.indexOf(tf) >= 0); });
-  var tab = opts.typeTab || (typeof _newsTypeTab !== 'undefined' ? _newsTypeTab : 'all');
-  if (tab === 'company') filtered = filtered.filter(function(i) { return isCompanyNews(i); });
-  else if (tab === 'market') filtered = filtered.filter(function(i) { return !isCompanyNews(i); });
+  // v57.77: 'company' (기업 chip) is the one distinct filter the retired type tabs carried — a named company is the subject.
+  if (tf === 'company') filtered = filtered.filter(function(i) { return isCompanyNews(i); });
+  else if (tf && tf !== 'all') filtered = filtered.filter(function(i) { return i.topic === tf || (i.topics && i.topics.indexOf(tf) >= 0); });
   return filtered;
 }
 
@@ -10818,7 +10775,6 @@ window.AIO.getNewsSurfaceControls = function() {
   return {
     countryFilter: currentCountryFilter || 'all',
     topicFilter: currentTopicFilter || 'all',
-    typeTab: typeof _newsTypeTab !== 'undefined' ? _newsTypeTab : 'all',
     sortMode: typeof _newsSortMode !== 'undefined' ? _newsSortMode : 'time'
   };
 };
@@ -11571,9 +11527,7 @@ async function fetchAllNews(forceRefresh = false) {
   if (pageProgWrap) setTimeout(function(){ pageProgWrap.style.display = 'none'; }, 2500);
   const ftEl = document.getElementById('last-fetch-time');
   if (ftEl) ftEl.textContent = new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
-  // 뉴스 캐시 타임스탬프 + 스테일 배너 (RSS 성공 시 항상 신선)
-  var _newsCacheTs = document.getElementById('news-cache-ts');
-  if (_newsCacheTs) _newsCacheTs.textContent = new Date().toLocaleString('ko-KR', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) + ' (RSS 직접)';
+  // 스테일 배너 (RSS 성공 시 항상 신선; v57.77: the absent #news-cache-ts stamp writer is retired)
   var _newsStaleBanner = document.getElementById('news-stale-banner');
   if (_newsStaleBanner) _newsStaleBanner.style.display = 'none';
 
@@ -14479,64 +14433,27 @@ function _aioRenderHomeVix(vixQuote) {
 }
 function refreshHomeDashboard() {
   try { if (typeof _aioRenderOperatorNote === 'function') _aioRenderOperatorNote(); } catch(_) {}
-  const ld = window._liveData || {};
-  const spx = ld['^GSPC'] || {};
-  const vix = ld['^VIX'] || {};
-  const dxy = ld['DX-Y.NYB'] || {};
   // v57.50 C06: the unused F&G read with a default of 35 is removed — the native home card owns F&G (P1010), and a
   // missing value is '—', never a substitute number.
-
-  // SECTION 0: One-line market summary
-  const _homeFixed = window._aioSafeFixed || function(v, d, fb) { const n = Number(v); return Number.isFinite(n) ? n.toFixed(d || 2) : (fb || '—'); };
-  const _homeNum = function(v) { if (v == null || v === '' || typeof v === 'boolean') return null; const n = Number(v); return Number.isFinite(n) ? n : null; }; // live review 2026-10-14: Number(null) is 0 — a missing VIX printed a green 0.00
-  const spxPct = _homeNum(spx.pct);
-  const vixPrice = _homeNum(vix.price != null ? vix.price : DATA_SNAPSHOT.vix);
   if (typeof window._aioRenderMarketAnalysisSinks === 'function') window._aioRenderMarketAnalysisSinks(); // P1383: the verified server analysis owns the home summary (old S&P/VIX mood line removed)
 
-  // SECTION 1: Trading Decision Dashboard
-  let tradingScore;
+  // The score is still computed for its legacy readers (window._tradingScore: aio-core, aio-workspace,
+  // aio-macro-tech); a failed computation keeps the last value and a missing score is never 50 (P1383).
   if (typeof computeTradingScore === 'function') {
-    try {
-      const freshScores = computeTradingScore();
-      tradingScore = freshScores.total;
-      window._tradingScore = tradingScore;
-    } catch(e) { tradingScore = window._tradingScore ?? null; }
-  } else {
-    tradingScore = window._tradingScore ?? null; // P1383: a missing score is never 50
+    try { window._tradingScore = computeTradingScore().total; } catch(_) {}
   }
   // P553/R244: "오늘 결론" 헤더(_aioRenderPageDecisionHeader)와 이 게이지가 서로 다른 이벤트
   // (aio:liveQuotes vs aio:marketStateUpdated)에서 독립 갱신되어 같은 화면에 다른 점수가
   // 동시에 보이던 문제 — 게이지가 갱신되는 시점에 헤더도 항상 함께 강제 재렌더해 절대 어긋나지 않게 한다.
   try { if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('home'); } catch(_) {}
-  // v57.50 I16: the retired home trading grid ("지금 매매해도 될까?" score bands, Quality, the four-step Regime card)
-  // is no longer written from here. The score is still computed above for its legacy readers (_liveSnap); the only
-  // remaining home sinks are the S&P 500 distance-from-high badge and the action items, each of which
-  // is skipped when its element is absent (v57.76: the heatmap and the home news list are retired). A missing S&P input no longer returns early and skips the VIX/news blocks.
-  var riskBadgeEl = document.getElementById('home-risk-regime-badge');
+  // v57.50 I16 / v57.77: the retired home trading grid and the S&P 500 distance-from-high risk badge
+  // left index.html, and v57.77 deleted their writers. The remaining home sinks are
+  // the action items and the VIX card (v57.76: the heatmap and the home news list are retired).
   // v49.28 E1 → v50.43: home Action Item 갱신은 단일 경로(_aioRefreshActionPlan). 실패해도 home 렌더 차단 X.
   try { if (typeof window._aioRefreshActionPlan === 'function') window._aioRefreshActionPlan(); } catch(actErr) {}
-  if (riskBadgeEl) {
-    const SPX_ATH = _aioSpxAthFloor();  // v50.24/WO-2: 단일 출처 헬퍼 (L12303과 동일 floor — 레짐 오표시 방지)
-    const spxPrice = Number(spx.price || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.spx));
-    const pctFromATH = Number.isFinite(SPX_ATH) && Number.isFinite(spxPrice) && SPX_ATH > 0 && spxPrice > 0 ? ((spxPrice - SPX_ATH) / SPX_ATH * 100) : null;
-    const regime = pctFromATH == null ? null : pctFromATH < -20 ? 'DOWNTREND' : pctFromATH < -10 ? 'CORRECTION' : pctFromATH < -5 ? 'PULLBACK' : 'UPTREND';
-    // 홈 상단 리스크 뱃지 동적 업데이트 — ATH 거리 참고 관측이며 추세 모델이 아니다.
-    if (regime == null) { riskBadgeEl.textContent = '판정 보류'; riskBadgeEl.className = 'status-pill sp-neutral'; }
-    else {
-      if (regime === 'DOWNTREND') { riskBadgeEl.textContent = 'S&P 500 고점 대비 −20% 이하'; riskBadgeEl.className = 'status-pill sp-risk-off'; }
-      else if (regime === 'CORRECTION') { riskBadgeEl.textContent = 'S&P 500 고점 대비 −10% 이하'; riskBadgeEl.className = 'status-pill sp-risk-off'; }
-      else if (regime === 'PULLBACK') { riskBadgeEl.textContent = 'S&P 500 고점 대비 −5% 이하'; riskBadgeEl.className = 'status-pill sp-neutral'; }
-      else { riskBadgeEl.textContent = 'S&P 500 1년 고점 대비 ' + pctFromATH.toFixed(1) + '%' + (pctFromATH >= -0.5 ? ' · 고점권' : ''); /* P1506: name the index */ riskBadgeEl.className = 'status-pill sp-neutral'; }
-    }
-  }
 
-  // SECTION 2: VIX Status
-  _aioRenderHomeVix(vix);
-
-  // P1010: native analysis owns both the Fear & Greed score and its label.
-
-
-  // v57.76: SECTION 4 (home news list, #home-news-highlights) is retired; news lives on the 뉴스 screen only.
+  // VIX status
+  _aioRenderHomeVix((window._liveData || {})['^VIX'] || {});
 }
 
 // v53.15: page activation은 canonical aio:pageShown 이벤트만 구독한다.
@@ -14596,10 +14513,9 @@ _aioPageBus.register('data-home-live', 'aio:liveQuotes', function() {
   }
 });
 
-// Initialize home dashboard on page show
-_aioPageBus.register('data-home-shown', 'aio:pageShown', function(e) {
-  if (e.detail === 'home') setTimeout(refreshHomeDashboard, 150);
-});
+// v57.77: the second home pageShown subscriber ('data-home-shown', +150 ms) is retired. It scheduled a duplicate
+// refreshHomeDashboard on every home entry; 'data-page-activation' above is the single owner because it also
+// reads object-shaped pageShown details ({pageId|route|id}).
 
 // v51.36: 페이지 진입 시 텔레그램 피드 즉시 갱신
 _aioPageBus.register('tg-feed-on-page-shown', 'aio:pageShown', function(e) {

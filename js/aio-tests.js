@@ -976,10 +976,8 @@
     _assert('T106 sell_pressure: MA violations escalate', brokenSP && (brokenSP.action === 'TRIM_50' || brokenSP.action === 'EXIT_OR_HEDGE'), brokenSP && brokenSP.action);
     _assert('T106 sell_pressure: 50SMA thesis damaged flag', brokenSP && brokenSP.flags.indexOf('CLOSE_BELOW_50SMA_SWING_THESIS_DAMAGED') >= 0, brokenSP && brokenSP.flags.join(','));
 
-    var baseSnap = Object.assign({}, snap, { dayGainPct: 0.4, dist50Atr: 1, rsi14: 55, rvol20: 1 });
-    var semiSnap = Object.assign({}, snap, { dayGainPct: 3.0, dist50Atr: 4.5, rsi14: 82, rvol20: 2.2 });
-    var heat = window.calcSemiHeatMap ? window.calcSemiHeatMap(baseSnap, baseSnap, semiSnap, semiSnap) : null;
-    _assert('T107 semi_heat: heated or mania', heat && (heat.state === 'SEMI_HEATED' || heat.state === 'SEMI_MANIA'), heat && heat.state);
+    // v57.77: calcSemiHeatMap had no production caller and was removed.
+    _assert('T107 v57.77 semi_heat: test-only calcSemiHeatMap stays retired', typeof window.calcSemiHeatMap === 'undefined', typeof window.calcSemiHeatMap);
   }
 
   // Group19: Architecture Reinforcement (T108~T115)
@@ -991,8 +989,8 @@
     _assert('T109 tech_snapshot: ATR aliases', snap && snap.dist50ATR === snap.dist50Atr && snap.stageEstimate, snap && snap.stageEstimate);
 
     var aiHot = Object.assign({}, snap, { dayGainPct: 3.2, dist50Atr: 4.5, rsi14: 83, rvol20: 2.4 });
-    var ai = window.calcAIInfraHeat ? window.calcAIInfraHeat({ NVDA: aiHot, AVGO: aiHot, AMD: aiHot }, snap, snap) : null;
-    _assert('T110 ai_infra_heat: heated or mania', ai && (ai.state === 'AI_INFRA_HEATED' || ai.state === 'AI_INFRA_MANIA'), ai && ai.state);
+    // v57.77: calcAIInfraHeat had no production caller and was removed.
+    _assert('T110 v57.77 ai_infra_heat: test-only calcAIInfraHeat stays retired', typeof window.calcAIInfraHeat === 'undefined', typeof window.calcAIInfraHeat);
 
     var pos = window.calcPositionTechnicalRisk ? window.calcPositionTechnicalRisk({ ticker: 'NVDA', qty: 10, cost: 100, price: 150 }, aiHot, { totalValue: 1500 }) : null;
     _assert('T111 position_technical_risk: action + score', pos && pos.ticker === 'NVDA' && pos.score >= (pos.sellPressure && pos.sellPressure.score || 0), pos && JSON.stringify({ score: pos.score, action: pos.action }));
@@ -1063,35 +1061,14 @@
     var ext = window.calcExtensionHeat ? window.calcExtensionHeat(hotSnap) : null;
     _assert('T126 extension_heat: extreme extension detected', ext && ext.score >= 40 && /20MA_PLUS_4ATR/.test(ext.flags.join('|')), ext && JSON.stringify(ext));
 
-    var prev = { open: 100, high: 103, low: 98, close: 100, volume: 1000000 };
-    var thrust = { open: 101, high: 107, low: 100, close: 106.5, volume: 1800000 };
-    var thrustRisk = window.classifyTerminalCandle ? window.classifyTerminalCandle(thrust, prev, Object.assign({}, hotSnap, { rvol20: 1.8 })) : null;
-    _assert('T127 candle: momentum thrust is hold-friendly', thrustRisk && thrustRisk.type === 'MOMENTUM_THRUST', thrustRisk && thrustRisk.type);
-
-    var exhaustion = { open: 103, high: 112, low: 101, close: 104, volume: 3200000 };
-    var exRisk = window.classifyTerminalCandle ? window.classifyTerminalCandle(exhaustion, prev, Object.assign({}, hotSnap, { rvol20: 3.0 })) : null;
-    _assert('T128 candle: gap-up exhaustion escalates', exRisk && (exRisk.type === 'GAP_UP_EXHAUSTION' || exRisk.type === 'SHOOTING_STAR_RISK') && exRisk.score >= 40, exRisk && JSON.stringify(exRisk));
-
-    // P1253: priceNearCallWall/closeAboveCallWall 은 프로덕션 미연결 입력이며 해당 규칙은 비활성화됐다 —
-    // 입력을 넣어도 점수 가산이 없음을 전제로 한 기대값이다. 라벨도 '감마 미측정' 정직 라벨로 갱신.
-    var opex = window.calcOpexGammaRisk ? window.calcOpexGammaRisk({ daysToOpex: 2, equityPutCall: 0.5, indexPutCall: 1.2, priceNearCallWall: true, closeAboveCallWall: false }) : null;
-    _assert('T129 opex_gamma: decay/unwind risk', opex && opex.score >= 40 && opex.regime !== 'OPEX 스트레스 낮음(감마 미측정)', opex && JSON.stringify(opex));
-
-    var breadthGood = window.calcBreadthRotation ? window.calcBreadthRotation({ iwmUp: true, rspUp: true, kreUp: true, xbiUp: true, iwmVsQqqRS_5d: 1.2, rspVsSpyRS_5d: 0.5 }) : null;
-    var breadthBad = window.calcBreadthRotation ? window.calcBreadthRotation({ qqqUpButBreadthDown: true, iwmFailedBreakout: true, rspLaggingSpy: true, kreDown: true, xbiDown: true }) : null;
-    _assert('T130 breadth_rotation: broadening and failed rotation', breadthGood && breadthGood.regime === 'BREADTH_BROADENING' && breadthBad && breadthBad.regime === 'FAILED_ROTATION', JSON.stringify({ good: breadthGood, bad: breadthBad }));
-
-    var action = window.calcLockoutAction ? window.calcLockoutAction({ extension: ext, candle: exRisk, opexGamma: opex, breadth: breadthBad, portfolioExposure: { score: 45, flags: ['TEST_PORTFOLIO_HEAT'] } }) : null;
-    _assert('T131 lockout_action: final action escalates', action && ['TRIM_25_33','TRIM_50','EXIT_OR_HEDGE'].indexOf(action.action) >= 0 && action.regime, action && JSON.stringify(action));
-
-    // P1558: missing readings are not calm, and no raw identifier or action verb reaches the reader as a badge.
-    var emptyLockout = window.calcLockoutAction ? window.calcLockoutAction({}) : null;
-    var noReadingLockout = window.calcLockoutAction ? window.calcLockoutAction({ extension: { score: 0, flags: ['DATA_INSUFFICIENT'] }, candle: { score: 0, flags: ['DATA_INSUFFICIENT'] } }) : null;
+    // v57.77: the terminal-candle, OPEX, breadth-rotation and lockout calcs had no production caller and were removed.
+    var retiredTactical128 = ['classifyTerminalCandle', 'calcOpexGammaRisk', 'calcBreadthRotation', 'calcLockoutRegime', 'calcLockoutAction', 'getTacticalTraderFrameworkAudit', 'calcBlowoffTopChecklist', 'calcExitPlan']
+      .filter(function(name) { return typeof window[name] !== 'undefined'; });
+    _assert('T128-T131 v57.77 test-only tactical calcs stay retired', retiredTactical128.length === 0 && !(window.AIO && window.AIO.getTacticalTraderFrameworkAudit), retiredTactical128.join(','));
     // v57.76: the flag-badge panels (and _itbFlagLabel) left with the 차트 tab brief, so no flag identifier reaches a reader badge.
-    _assert('P1558 T131b 입력 없는 Lockout은 판단 보류이고, 플래그 배지 경로는 퇴역 유지 (v57.76)',
-      !!emptyLockout && emptyLockout.action === 'WAIT' && emptyLockout.score === null && !!noReadingLockout && noReadingLockout.action === 'WAIT' &&
+    _assert('P1558 T131b 플래그 배지 경로는 퇴역 유지 (v57.76; v57.77 lockout calc retired)',
       typeof window._itbFlagLabel !== 'function' && typeof window.renderLockoutDashboard !== 'function',
-      JSON.stringify({ empty: emptyLockout && emptyLockout.action, none: noReadingLockout && noReadingLockout.action, flagLabel: typeof window._itbFlagLabel }));
+      JSON.stringify({ flagLabel: typeof window._itbFlagLabel, lockout: typeof window.renderLockoutDashboard }));
 
     var promptOk = false;
     try {
@@ -1180,29 +1157,8 @@
   }
 
   function _testEventLiquidityPipeline() {
-    var hotSnap = {
-      ok: true,
-      price: 120,
-      dist20Pct: 18,
-      dist20Atr: 4.8,
-      dist50Atr: 5.2,
-      dist21Atr: 3.0,
-      rsi14: 82,
-      rvol20: 3.0,
-      closePosition: 0.42,
-      bbReentry: true,
-      above10EMA: true,
-      above21EMA: true,
-      above50SMA: true,
-      dayGainPct: 4
-    };
-    var blow = window.calcBlowoffTopChecklist ? window.calcBlowoffTopChecklist(hotSnap, {
-      semiHeat: { state: 'SEMI_HEATED' },
-      opexGammaRisk: { regime: 'OPEX 스트레스 중간(감마 미측정)' }, // P1253: calcOpexGammaRisk 라벨 개명 반영 (구 'GAMMA_DECAY_WATCH')
-      breadthRotation: { regime: 'BREADTH_BROADENING' },
-      referenceDate: '2026-05-14'
-    }) : null;
-    _assert('T144 blowoff_top: hot event setup escalates', blow && blow.score >= 25 && ['NO_ADD_RAISE_STOP','TRIM_25_33','TRIM_50','EXIT_OR_HEDGE'].indexOf(blow.action) >= 0, blow && JSON.stringify({ score: blow.score, action: blow.action, state: blow.state }));
+    // v57.77: calcBlowoffTopChecklist had no production caller and was removed.
+    _assert('T144 v57.77 blowoff_top: test-only calcBlowoffTopChecklist stays retired', typeof window.calcBlowoffTopChecklist === 'undefined', typeof window.calcBlowoffTopChecklist);
 
     var audit = window.AIO && typeof window.AIO.getTelegramPipelineAudit === 'function' ? window.AIO.getTelegramPipelineAudit() : null;
     var aetherOk = audit && audit.aether && audit.aether.publicMirror === 'https://t.me/s/aetherjapanresearch' && audit.verificationPolicy;
@@ -1410,12 +1366,12 @@
       ops && ops.crossPageIndicator && ops.dataActionHandler && typeof ops.crossPageIndicator.issueCount === 'number',
       ops ? ('has crossPage=' + !!ops.crossPageIndicator + ' has dataAction=' + !!ops.dataActionHandler) : 'missing');
 
-    // T320 (v49.41 보강): home 8+ / signal 4+ (2차) / breadth 3+ (2차)
+    // T320 (v49.41 보강): home 8+ → v57.77 3+ (findings of the pruned home sections left with them) / signal 4+ (2차) / breadth 3+ (2차)
     var homeFindings = pageReg && pageReg.pages && pageReg.pages.home && pageReg.pages.home.findings;
     var sigFindings = pageReg && pageReg.pages && pageReg.pages.signal && pageReg.pages.signal.findings;
     var brFindings = pageReg && pageReg.pages && pageReg.pages.breadth && pageReg.pages.breadth.findings;
-    _assert('T320 findings_state: home 8+ / signal 4+ (v49.41 2차) / breadth 3+ (v49.41 2차)',
-      Array.isArray(homeFindings) && homeFindings.length >= 8 &&
+    _assert('T320 v57.77 findings_state: home 3+ / signal 4+ (v49.41 2차) / breadth 3+ (v49.41 2차)',
+      Array.isArray(homeFindings) && homeFindings.length >= 3 &&
       Array.isArray(sigFindings) && sigFindings.length >= 4 &&
       Array.isArray(brFindings) && brFindings.length >= 3,
       'home=' + (homeFindings ? homeFindings.length : '?') + ' sig=' + (sigFindings ? sigFindings.length : '?') + ' br=' + (brFindings ? brFindings.length : '?'));
@@ -1491,9 +1447,9 @@
   function _testV4942FourPagesAudit() {
     var pageReg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
     var pages = pageReg && pageReg.pages;
-    // T330: sentiment subSections 12 enumerate
-    _assert('T330 sentiment_subsections_12: enumerate 완료',
-      pages && pages.sentiment && Array.isArray(pages.sentiment.subSections) && pages.sentiment.subSections.length === 12,
+    // T330: sentiment subSections 12 → v57.77 5 (sections absent after the P1396 rebuild are pruned)
+    _assert('T330 v57.77 sentiment_subsections_5: enumerate, absent sections pruned',
+      pages && pages.sentiment && Array.isArray(pages.sentiment.subSections) && pages.sentiment.subSections.length === 5,
       'count=' + (pages && pages.sentiment && pages.sentiment.subSections ? pages.sentiment.subSections.length : '?'));
 
     // T331: briefing subSections 12 enumerate
@@ -1528,12 +1484,13 @@
       !document.querySelector('#page-technical [data-threshold-key="RSI"]'), 'retired');
 
     // T337: signal/breadth findings 누적 유지 + sentiment/briefing/technical/macro findings 등록
+    // (v57.77: sentiment 5+ → 4+, the retired conclusion-bar finding left with its entry)
     var sentF = pages.sentiment && pages.sentiment.findings;
     var brfF  = pages.briefing && pages.briefing.findings;
     var techF = pages.technical && pages.technical.findings;
     var macF  = pages.macro && pages.macro.findings;
-    _assert('T337 v4942_findings_state: sentiment 5+ / briefing 3+ / technical 3+ / macro 6+',
-      Array.isArray(sentF) && sentF.length >= 5 &&
+    _assert('T337 v57.77 findings_state: sentiment 4+ / briefing 3+ / technical 3+ / macro 6+',
+      Array.isArray(sentF) && sentF.length >= 4 &&
       Array.isArray(brfF) && brfF.length >= 3 &&
       Array.isArray(techF) && techF.length >= 3 &&
       Array.isArray(macF) && macF.length >= 6,
@@ -1573,9 +1530,9 @@
       pages && pages.fundamental && Array.isArray(pages.fundamental.subSections) && pages.fundamental.subSections.length === 5,
       'count=' + (pages && pages.fundamental && pages.fundamental.subSections ? pages.fundamental.subSections.length : '?'));
 
-    // T344: themes subSections 8 → v57.76 7 (the cycle-dynamic readout is retired)
-    _assert('T344 v57.76 themes_subsections_7: enumerate, cycle-dynamic readout retired',
-      pages && pages.themes && Array.isArray(pages.themes.subSections) && pages.themes.subSections.length === 7,
+    // T344: themes subSections 8 → v57.76 7 (the cycle-dynamic readout is retired) → v57.77 4 (rotation table, ETF table, guide fold pruned)
+    _assert('T344 v57.77 themes_subsections_4: enumerate, retired rotation/ETF/guide entries pruned',
+      pages && pages.themes && Array.isArray(pages.themes.subSections) && pages.themes.subSections.length === 4,
       'count=' + (pages && pages.themes && pages.themes.subSections ? pages.themes.subSections.length : '?'));
 
     // T345: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.47+
@@ -2665,24 +2622,14 @@
       typeof window._autoNavigatePage === 'function' && hasIntents,
       'fn=' + typeof window._autoNavigatePage + ' intents=' + hasIntents);
 
-    // T533: _simulatePortfolioAddition 함수 정의 + 가중치 계산 로직
-    _assert('T533 simulate_portfolio_v4969: _simulatePortfolioAddition 함수 정의',
-      typeof window._simulatePortfolioAddition === 'function',
+    // T533/T534 → v57.77: the legacy portfolio and macro chat simulators had no production caller (only these tests) and
+    // are retired. The base-currency what-if lives in src/ai/context/portfolio-simulation.js (ci-ai-intelligence-contract-check).
+    _assert('T533 v57.77 simulate_portfolio_legacy_retired: window._simulatePortfolioAddition absent',
+      typeof window._simulatePortfolioAddition === 'undefined',
       typeof window._simulatePortfolioAddition);
-
-    // T534: _simulateMacroScenario 함수 정의 + 6+ 시나리오 (fed-cut/hike/vix-spike/spx-crash/dxy/oil)
-    var msSrc = typeof window._simulateMacroScenario === 'function' ? window._simulateMacroScenario.toString() : '';
-    var has6Scenarios = /fed-cut/.test(msSrc) && /fed-hike/.test(msSrc) && /vix-spike/.test(msSrc) && /spx-crash/.test(msSrc) && /dxy-strong/.test(msSrc) && /oil-spike/.test(msSrc);
-    _assert('T534 simulate_macro_v4969: _simulateMacroScenario + 6+ 시나리오 (fed-cut/hike/vix/spx/dxy/oil)',
-      typeof window._simulateMacroScenario === 'function' && has6Scenarios,
-      'fn=' + typeof window._simulateMacroScenario + ' scenarios=' + has6Scenarios);
-    var macroQs1559 = ['Fed 50bp 인하 시', 'Fed 25bp 인상 시', 'VIX 35 넘으면', 'SPX 10% 하락 시', '달러 DXY 110 돌파 시', '유가 WTI 100 돌파 시'];
-    var macroOut1559 = typeof window._simulateMacroScenario === 'function' ? macroQs1559.map(function(question) { return window._simulateMacroScenario(question); }) : [];
-    var macroText1559 = JSON.stringify(macroOut1559.map(function(out) { return out && { impacts: out.impacts, note: out.note }; }));
-    _assert('P1559 T534b 매크로 시나리오는 수치 범위·OW/UW·매수 판정·투자자 귀속 없이 정성 점검 항목만 낸다',
-      macroOut1559.length === 6 && macroOut1559.every(function(out) { return !!out && !!out.impacts; }) &&
-      !/\d+~\d+|[+\-]\d+(?:\.\d+)?(?:%|bp)|OW|UW|매수|회피|Buffett|Marks|Bridgewater|Druckenmiller|Soros/.test(macroText1559),
-      macroText1559.slice(0, 200));
+    _assert('T534 v57.77 simulate_macro_legacy_retired: window._simulateMacroScenario absent',
+      typeof window._simulateMacroScenario === 'undefined',
+      typeof window._simulateMacroScenario);
 
     // T535: _resolveTickerFromFuzzy 함수 정의 + 한글 약어 매핑 (엔비 → NVDA / 삼전 → 005930.KS)
     var fuzzyTest1 = window._resolveTickerFromFuzzy && window._resolveTickerFromFuzzy('엔비');
@@ -2762,47 +2709,27 @@
       v48Src.indexOf('_buildUserProfileContext') >= 0,
       'integrated=' + (v48Src.indexOf('_buildUserProfileContext') >= 0));
 
-    // T543: 알람 함수 (get/add/remove/parse/check) 5개 정의 + 1분 자동 점검
-    var alertFns = ['_aioGetAlerts', '_aioAddAlert', '_aioRemoveAlert', '_aioParseAlertIntent', '_aioCheckAlerts'];
+    // T543: 알람 함수 (get/add/check) 정의 + 1분 자동 점검 — v57.77: test-only remove/parse retired
+    var alertFns = ['_aioGetAlerts', '_aioAddAlert', '_aioCheckAlerts'];
     var alertMissing = alertFns.filter(function(fn) { return typeof window[fn] !== 'function'; });
-    _assert('T543 alert_fns_v4970: 5 알람 함수 모두 정의 (get/add/remove/parse/check)',
+    _assert('T543 v57.77 alert_fns: 3 알람 함수 정의 (get/add/check)',
       alertMissing.length === 0,
       'missing=' + alertMissing.join(','));
 
-    // T544: 알람 의도 파싱 — "VIX 30 이상 알림" / "NVDA $200 도달 알림" 정확 매칭
-    if (typeof window._aioParseAlertIntent === 'function') {
-      var p1 = window._aioParseAlertIntent('VIX 30 이상 도달 시 알림');
-      var p2 = window._aioParseAlertIntent('F&G 75 넘으면 알려줘');
-      _assert('T544 alert_parse_intent_v4970: VIX 30+ / F&G 75+ 의도 정확 파싱',
-        p1 && p1.metric === 'vix' && p1.threshold === 30 && p1.direction === 'above' &&
-        p2 && p2.metric === 'fg' && p2.threshold === 75 && p2.direction === 'above',
-        'p1=' + JSON.stringify(p1) + ' p2=' + JSON.stringify(p2));
-    } else {
-      _assert('T544 alert_parse_fn_missing', false, 'fn missing');
-    }
+    // T544 → v57.77: the natural-language alert parser and the alert remover had no production caller and are retired.
+    _assert('T544 v57.77 alert_parse_remove_retired: _aioParseAlertIntent and _aioRemoveAlert absent',
+      typeof window._aioParseAlertIntent === 'undefined' && typeof window._aioRemoveAlert === 'undefined',
+      'parse=' + typeof window._aioParseAlertIntent + ' remove=' + typeof window._aioRemoveAlert);
 
     // T545: 데이터 다운로드 (CSV/JSON/MD) + 클립보드 폴백
     _assert('T545 export_chat_data_v4970: _aioExportChatData + _aioExportFromBtn 정의',
       typeof window._aioExportChatData === 'function' && typeof window._aioExportFromBtn === 'function',
       'export=' + typeof window._aioExportChatData + ' btn=' + typeof window._aioExportFromBtn);
 
-    // T546: 금액/% 시뮬레이션 — "1억 투자" / "SPX -5%"
-    if (typeof window._aioSimulateAmountOrPct === 'function') {
-      var amt = window._aioSimulateAmountOrPct('1억 투자 시 어떻게', []);
-      var pct = window._aioSimulateAmountOrPct('SPX -5% 시나리오', []);
-      _assert('T546 simulate_amount_pct_v4970: 1억 + SPX -5% 정확 추산',
-        amt && amt.amount && amt.amount.krw === 100000000 &&
-        pct && pct.indexScenario && pct.indexScenario.sign === '-' && pct.indexScenario.pct === 5,
-        'amt=' + (amt && amt.amount && amt.amount.krw) + ' pct=' + (pct && pct.indexScenario && pct.indexScenario.pct));
-      var usd1559 = window._aioSimulateAmountOrPct('1000달러 투자', []);
-      _assert('P1559 T546b 금액·지수 시나리오는 배분 비율, 투자자 귀속, 임의 탄력도·포지션 문구를 내지 않는다',
-        !!amt && !!amt.amount && amt.amount.allocation === undefined && !/%|Bridgewater|Ackman|GS/.test(JSON.stringify(amt.amount)) &&
-        !!pct && !!pct.indexScenario && pct.indexScenario.impacts === undefined && !/%|bp|OW|UW|현금 비중|매수/.test(JSON.stringify(pct.indexScenario.checks)) &&
-        (usd1559 === null || !usd1559.amount),
-        JSON.stringify({ amt: amt && amt.amount, checks: pct && pct.indexScenario && pct.indexScenario.checks }));
-    } else {
-      _assert('T546 simulate_fn_missing', false, 'fn missing');
-    }
+    // T546 → v57.77: the amount / index-percent simulator had no production caller and is retired.
+    _assert('T546 v57.77 simulate_amount_pct_retired: window._aioSimulateAmountOrPct absent',
+      typeof window._aioSimulateAmountOrPct === 'undefined',
+      typeof window._aioSimulateAmountOrPct);
 
     // T547: AIO API 노출 (getAlerts/addAlert/getUserProfile/setUserProfile/exportChatData)
     var aioFns = ['getAlerts', 'addAlert', 'getUserProfile', 'setUserProfile', 'exportChatData', 'assertChatAdvancedFeaturesAudit'];
@@ -4247,17 +4174,17 @@
       audit && typeof audit.issueCount === 'number',
       audit ? ('issueCount=' + audit.issueCount + ' tables=' + audit.inlineTables.length) : 'api missing');
 
-    // T310: home subSections (v49.37 8 → v49.38 15 → v57.76 12: conclusion bar, market-summary banner, GMO table retired)
+    // T310: home subSections (v49.37 8 → v49.38 15 → v57.76 12 → v57.77 5: entries whose section left index.html are pruned)
     var pageReg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
     var subCount = pageReg && pageReg.pages && pageReg.pages.home && pageReg.pages.home.subSections.length;
-    var homeRetired310 = pageReg && pageReg.pages && pageReg.pages.home ? pageReg.pages.home.subSections.filter(function(s) { return ['home-conclusion-bar', 'home-market-summary', 'home-gmo-bloomberg'].indexOf(s.id) >= 0; }).length : -1;
-    _assert('T310 v57.76 home_subsections_12: subSections 12개, 퇴역 결론바·배너·GMO 표 미등재',
-      subCount === 12 && homeRetired310 === 0, 'count=' + subCount + ' retiredListed=' + homeRetired310);
+    var homeRetired310 = pageReg && pageReg.pages && pageReg.pages.home ? pageReg.pages.home.subSections.filter(function(s) { return ['home-conclusion-bar', 'home-market-summary', 'home-gmo-bloomberg', 'home-api-onboarding', 'home-score-legend', 'home-quick-nav', 'home-3-cards-decision', 'home-explain-decision', 'home-explain-top', 'home-explain-gmo'].indexOf(s.id) >= 0; }).length : -1;
+    _assert('T310 v57.77 home_subsections_5: subSections 5개, 퇴역 섹션(결론바·배너·GMO·온보딩·범례·빠른 이동·3카드·해설) 미등재',
+      subCount === 5 && homeRetired310 === 0, 'count=' + subCount + ' retiredListed=' + homeRetired310);
 
-    // T311: home findings 배열 (점검 결과 누적)
+    // T311: home findings 배열 (점검 결과 누적; v57.77 5+ → 3+ after pruning the retired sections' findings)
     var findings = pageReg && pageReg.pages && pageReg.pages.home && pageReg.pages.home.findings;
-    _assert('T311 home_findings: findings 배열 + 5+ entries',
-      Array.isArray(findings) && findings.length >= 5,
+    _assert('T311 v57.77 home_findings: findings 배열 + 3+ entries',
+      Array.isArray(findings) && findings.length >= 3,
       findings ? 'count=' + findings.length : 'missing');
 
     // T312: getAutoOpsReadiness 22→23축 (inlineThresholdTable 통합)
@@ -4277,10 +4204,10 @@
       pageCount >= 19 && axesCount === 6,
       'pages=' + pageCount + ' axes=' + axesCount);
 
-    // T300: home 페이지 subSections — v49.38에서 15개로 확장 (기존 8개 → 15개)
+    // T300: home 페이지 subSections — v49.38 15개 → v57.77 5개 (index.html에 없는 섹션 항목 정리)
     var homeSub = reg && reg.pages && reg.pages.home && reg.pages.home.subSections;
-    _assert('T300 home_subsections: 8+ subSections + order 명시',
-      Array.isArray(homeSub) && homeSub.length >= 8 && homeSub[0].order === 1,
+    _assert('T300 v57.77 home_subsections: 5+ subSections + order 명시',
+      Array.isArray(homeSub) && homeSub.length >= 5 && homeSub[0].order === 1,
       homeSub ? 'count=' + homeSub.length : 'missing');
 
     // T301: getPageSequentialAuditStatus
@@ -4783,14 +4710,11 @@
       !top5 && !brAction && flow234,
       'top5=' + !!top5 + ' action=' + !!brAction + ' flow=' + flow234);
 
-    // T235: portfolio 4-card 대시보드
-    var pfSharpe = document.getElementById('pf-sharpe-val');
-    var pfBeta = document.getElementById('pf-beta-val');
-    var pfMdd = document.getElementById('pf-mdd-val');
-    var pfDrift = document.getElementById('pf-drift-val');
-    _assert('T235 portfolio_dashboard: Sharpe/Beta/MDD/Drift 4 카드',
-      !!pfSharpe && !!pfBeta && !!pfMdd && !!pfDrift,
-      'sharpe=' + !!pfSharpe + ' beta=' + !!pfBeta + ' mdd=' + !!pfMdd + ' drift=' + !!pfDrift);
+    // T235 → v57.77: the writerless Sharpe/Beta/MDD/Drift shell and the duplicate 자동 진단 left; the status line sits in the hero.
+    var pfRetired235 = ['pf-risk-section', 'pf-analysis-dashboard', 'pf-sharpe-val', 'pf-beta-val', 'pf-mdd-val', 'pf-drift-val', 'pf-analysis-text'].filter(function(id) { return !!document.getElementById(id); });
+    var pfStatus235 = document.getElementById('pf-analysis-status'), pfCount235 = document.getElementById('pf-holding-count');
+    var pfStatusInHero235 = !!(pfStatus235 && pfCount235 && pfStatus235.parentElement === pfCount235.parentElement.parentElement && !pfStatus235.closest('#pf-main'));
+    _assert('T235 portfolio_risk_shell_retired: 빈 리스크 카드·자동 진단 퇴역, 평가 상태 줄은 히어로 (v57.77)', pfRetired235.length === 0 && pfStatusInHero235, 'retired=' + pfRetired235.join('/') + ' statusInHero=' + pfStatusInHero235);
 
     // T236: v50.35 옵션 폐기 — 동적 추천 DOM은 콘텐츠와 함께 제거됨. 셸 스텁만 남아야 한다.
     var optPageT236 = document.getElementById('page-options');
@@ -5524,24 +5448,20 @@
       (function(){ var c = Math.round(159200 - 159053); return c === 147 && ((c>=0?'+':'')+c.toLocaleString()+'K') === '+147K'; })(),
       'nfp change calc');
 
-    // T767: SKEW/MOVE 자동 fetch 연결 + live→data-snap 브릿지 (비archive sink 갱신, archive 보존)
-    var t767ok = false, t767detail = 'bridge unavailable';
+    // T767: SKEW/MOVE 자동 fetch 연결 유지 + v57.77 live→data-snap 브릿지(_aioBridgeVolIndicesLive) 퇴역 — move/vvix sink 없음
+    var t767ok = false, t767detail = '';
     try {
       var liveSyms505 = (typeof LIVE_SYMBOLS !== 'undefined') ? LIVE_SYMBOLS : [];
       var regOk = liveSyms505.indexOf('^MOVE') >= 0 && liveSyms505.indexOf('^SKEW') >= 0;
-      var bridgeFn = window._aioBridgeVolIndicesLive;
-      if (regOk && typeof bridgeFn === 'function') {
-        // 2026-10-01: MOVE has no free official source (Yahoo ^MOVE returns nothing in production),
-        // so its permanent "—" sinks were retired; SKEW renders through the live price sink.
-        var moveSinks = document.querySelectorAll('[data-snap="move"]').length;
-        var skewLive = !document.getElementById('rm-skew-val') || !!document.querySelector('#rm-skew-val[data-live-price="^SKEW"]'); // P1392: risk monitor retired
-        t767ok = regOk && moveSinks === 0 && skewLive;
-        t767detail = 'reg=' + regOk + ' moveSinks=' + moveSinks + ' skewLive=' + skewLive;
-      } else {
-        t767detail = 'reg=' + regOk + ' fn=' + (typeof bridgeFn);
-      }
+      var bridgeGone = typeof window._aioBridgeVolIndicesLive === 'undefined'; // text-pin-ok: retirement absence
+      // 2026-10-01: MOVE has no free official source (Yahoo ^MOVE returns nothing in production),
+      // so its permanent "—" sinks were retired; SKEW renders through the live price sink.
+      var moveSinks = document.querySelectorAll('[data-snap="move"],[data-snap="vvix"]').length;
+      var skewLive = !document.getElementById('rm-skew-val') || !!document.querySelector('#rm-skew-val[data-live-price="^SKEW"]'); // P1392: risk monitor retired
+      t767ok = regOk && bridgeGone && moveSinks === 0 && skewLive;
+      t767detail = 'reg=' + regOk + ' bridgeGone=' + bridgeGone + ' moveVvixSinks=' + moveSinks + ' skewLive=' + skewLive;
     } catch(e) { t767detail = 'err: ' + (e && e.message); }
-    _assert('T767 v505_skew_move_auto_fetch_bridge: ^SKEW live sink + sourceless MOVE sinks retired', t767ok, t767detail);
+    _assert('T767 v505_skew_move_auto_fetch_bridge: ^SKEW live sink; v57.77 vol-indices bridge and move/vvix sinks retired', t767ok, t767detail);
 
     // ── v50.6: Breadth = 5/20/50일선만 (200일선은 추세 전용, breadth participation 제외) ──
     // T768: breadth 시장 폭에서 200일선 제거 — 데이터 시드 + 표시 텍스트 가드
@@ -7394,9 +7314,11 @@
       if (document.querySelectorAll('.aio-comp-secondary-feed:not(.aio-dev-mode)').length < 2) failures869.push('kr-duplicate-feeds-not-marked'); /* v53.7 P725: 잔여 KR 피드 2개(macro/technical) */
       if (typeof renderGlossaryItems === 'function') renderGlossaryItems('');
       if (document.querySelectorAll('#glossary-body .aio-glossary-item').length < 200) failures869.push('glossary-items');
-      var pfOrderIds = ['pf-holdings-table-section','pf-risk-section','pf-allocation-section','pf-benchmark-section','pf-holdings-analysis-section'];
+      var pfOrderIds = ['pf-holdings-table-section','pf-allocation-section','pf-benchmark-section','pf-holdings-analysis-section']; // v57.77: pf-risk-section retired
       var pfOrders = pfOrderIds.map(function(id){ var el = document.getElementById(id); return el ? parseInt(getComputedStyle(el).order, 10) : NaN; });
-      if (pfOrders.some(function(v, i){ return v !== i + 1; })) failures869.push('portfolio-order=' + pfOrders.join('/'));
+      if (pfOrders.some(function(v, i){ return !(v > (i ? pfOrders[i - 1] : -Infinity)); })) failures869.push('portfolio-order=' + pfOrders.join('/'));
+      var pfEntry869 = (document.getElementById('pf-read') || {}).nextElementSibling; // v57.77: DOM (keyboard/reader) order — entry form, then holdings, right under #pf-read
+      if (!pfEntry869 || pfEntry869.id !== 'pf-entry-section' || (pfEntry869.nextElementSibling || {}).id !== 'pf-holdings-table-section') failures869.push('portfolio-dom-order');
       if (typeof window._aioTogglePortfolioEntry === 'function') window._aioTogglePortfolioEntry(true);
       if (!pfForm || !pfForm.classList.contains('is-open')) failures869.push('portfolio-form-toggle');
       if (typeof window._aioTogglePortfolioEntry === 'function') window._aioTogglePortfolioEntry(false);
@@ -7454,8 +7376,8 @@
       'cards=' + cards1018.length);
 
     var pfMain1019 = document.getElementById('pf-main');
-    var pfRisk1019 = document.getElementById('pf-risk-section');
-    var pfEmpty1019 = document.querySelector('#pf-holdings-body .pf-empty-state');
+    var pfRisk1019 = document.getElementById('pf-allocation-section'); // v57.77: pf-risk-section retired; allocation is the first calculation section
+    var pfEmpty1019 = document.querySelector('#pf-positions-tbody .pf-empty-state');
     var empty1019 = !pfMain1019 || !pfMain1019.classList.contains('is-empty') || (!!pfEmpty1019 && pfRisk1019 && getComputedStyle(pfRisk1019).display === 'none');
     _assert('T1019 portfolio_empty_state_hierarchy: 빈 포트폴리오는 추가 CTA만 우선하고 계산 불가능한 리스크 카드를 숨긴다', empty1019,
       pfMain1019 && pfMain1019.className);
@@ -7593,38 +7515,28 @@
       }
     } catch (e875) { _assert('T875 ticker_data_gap_honest_state_v5241 (EF-10)', false, 'threw: ' + (e875 && e875.message)); }
 
-    // T876 (EF-11/P1010): RSP/SPY 결측 상태 + 잘못된 VXX 선물구조 표면 퇴역
+    // T876 (EF-11/P1010) → v57.77: the risk-monitor writer raced the native macro snapshot renderer
+    // and was retired with its VXX / RSP-SPY surfaces.
     try {
-      if (typeof updateRiskMonitor === 'function') {
-        var savedLive876 = window._liveData;
-        window._liveData = {}; // VXX/VIX/RSP/SPY 전부 결측 시뮬레이션
-        updateRiskMonitor();
-        var retiredVix876 = !document.getElementById('rm-vixstr-status');
-        // 2026-10-01: an un-normalised RSP/SPY price ratio carried no user meaning and was retired.
-        var retiredRsp876 = !document.getElementById('rm-rspratio-status') && !document.getElementById('rm-rspratio-val');
-        window._liveData = savedLive876;
-        _assert('T876 risk_monitor_pending_state_v5241 (EF-11): VXX 추정·RSP/SPY 가격비율 퇴역',
-          retiredVix876 && retiredRsp876, 'retiredVix=' + retiredVix876 + ' retiredRsp=' + retiredRsp876);
-      } else {
-        _assert('T876 risk_monitor_pending_state_v5241 (EF-11)', false, 'updateRiskMonitor or elements missing');
-      }
+      var retiredFn876 = typeof window.updateRiskMonitor !== 'function';
+      var retiredVix876 = !document.getElementById('rm-vixstr-status');
+      var retiredRsp876 = !document.getElementById('rm-rspratio-status') && !document.getElementById('rm-rspratio-val');
+      _assert('T876 risk_monitor_pending_state_v5241 (EF-11): 위험 모니터 writer·VXX 추정·RSP/SPY 가격비율 퇴역 유지 (v57.77)',
+        retiredFn876 && retiredVix876 && retiredRsp876, 'fn=' + !retiredFn876 + ' retiredVix=' + retiredVix876 + ' retiredRsp=' + retiredRsp876);
     } catch (e876) { _assert('T876 risk_monitor_pending_state_v5241 (EF-11)', false, 'threw: ' + (e876 && e876.message)); }
 
     // T877 (EF-12) → v57.76: the SPY TradingView fold and its OHLC fallback strip were deleted with the sync function.
     _assert('T877 tv_ohlc_fallback_independent_v5241 (EF-12): SPY TradingView 대체 strip과 sync 함수 퇴역 유지 (v57.76)',
       typeof window._aioSyncTvOhlcFallback !== 'function' && !document.querySelector('[data-tvohlc-close]'), 'sync=' + typeof window._aioSyncTvOhlcFallback);
 
-    // T878 (EF-19): kr-technical 새로고침 버튼이 analyzeKrIndex를 올바른 targetId로 호출하도록 배선됐는지
+    // T878 (EF-19) → v57.77: the KR index Stage writer and its refresh buttons were retired (cards draw completed KRX closes); the KR ticker input only writes a 종목 screen link.
     try {
-      var kospiBtn878 = document.querySelector('button[data-arg="^KS11"][data-action="analyzeKrIndex"]');
-      var kosdaqBtn878 = document.querySelector('button[data-arg="^KQ11"][data-action="analyzeKrIndex"]');
-      var wiredOk878 = !!kospiBtn878 && kospiBtn878.getAttribute('data-arg2') === 'kr-kospi-tech-result' &&
-        !!kosdaqBtn878 && kosdaqBtn878.getAttribute('data-arg2') === 'kr-kosdaq-tech-result' &&
-        typeof window.analyzeKrIndex === 'function' &&
-        !document.querySelector('button[data-arg="^KS11"][data-action="analyzeKrTickerDeep"]');
-      _assert('T878 kr_technical_refresh_button_wiring_v5241 (EF-19): KOSPI/KOSDAQ 새로고침 버튼이 analyzeKrIndex+올바른 targetId로 배선(analyzeKrTickerDeep 오배선 잔존 없음)',
-        wiredOk878, 'kospi=' + (kospiBtn878 && kospiBtn878.getAttribute('data-arg2')) + ' kosdaq=' + (kosdaqBtn878 && kosdaqBtn878.getAttribute('data-arg2')));
-    } catch (e878) { _assert('T878 kr_technical_refresh_button_wiring_v5241 (EF-19)', false, 'threw: ' + (e878 && e878.message)); }
+      var retired878 = typeof window.analyzeKrIndex !== 'function' && !document.querySelector('button[data-action="analyzeKrIndex"]') && !!document.getElementById('kr-kospi-tech-result') && !!document.getElementById('kr-kosdaq-tech-result');
+      var sink878 = document.getElementById('kr-ticker-analysis-result'), before878 = sink878 ? sink878.innerHTML : '', link878 = null;
+      if (sink878 && typeof window.analyzeKrTickerDeep === 'function') { window.analyzeKrTickerDeep('005930'); link878 = sink878.querySelector('button[data-action="showTicker"]'); link878 = link878 && link878.getAttribute('data-arg'); sink878.innerHTML = before878; }
+      _assert('T878 kr_technical_index_cards_v5777 (EF-19, v57.77): 지수 Stage 작성기 퇴역 · 카드 id 유지 · 종목 입력은 종목 화면 링크(showTicker)만 쓴다',
+        retired878 && link878 === '005930.KS', 'retired=' + retired878 + ' link=' + link878);
+    } catch (e878) { _assert('T878 kr_technical_index_cards_v5777 (EF-19, v57.77)', false, 'threw: ' + (e878 && e878.message)); }
   }
 
   // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 3 (EF-06/07/14/16) 회귀 게이트
@@ -8991,6 +8903,15 @@
     } finally {
       if (window.AIO) window.AIO.annotateLiveDataSinks = oldAnnotate1049;
     }
+
+    // v57.77: one home pageShown subscriber schedules refreshHomeDashboard ('data-page-activation'); the duplicate
+    // 'data-home-shown' and the absent #home-risk-regime-badge writer are retired.
+    var busReg1049b = window._aioPageBus && typeof window._aioPageBus._getRegistry === 'function' ? window._aioPageBus._getRegistry() : null;
+    var homeSrc1049b = typeof refreshHomeDashboard === 'function' ? String(refreshHomeDashboard) : '';
+    _assert('T1049b v57.77 home_refresh_single_subscriber_no_badge_writer: data-page-activation owns home refresh, no badge writer',
+      !!busReg1049b && !!busReg1049b['data-page-activation'] && !busReg1049b['data-home-shown'] &&
+        homeSrc1049b.length > 0 && homeSrc1049b.indexOf('home-risk-regime-badge') < 0, // text-pin-ok: retirement absence
+      JSON.stringify({ activation: !!(busReg1049b && busReg1049b['data-page-activation']), duplicate: !!(busReg1049b && busReg1049b['data-home-shown']) }));
 
     var schedulerSource1050 = typeof startDataScheduler === 'function' ? String(startDataScheduler) : '';
     var restartSource1050 = typeof restartScheduler === 'function' ? String(restartScheduler) : '';

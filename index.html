@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v57.76 — 올인원 투자 터미널</title>
+  <title>AIO Screener v57.77 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -33,14 +33,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=57.76" defer></script>
-<script src="./js/aio-macro-tech.js?v=57.76" defer></script>
-<script src="./js/aio-kr-data.js?v=57.76" defer></script>
-<script src="./js/aio-pages.js?v=57.76" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=57.76">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=57.76">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.76">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.76">
+<script src="./js/aio-workspace.js?v=57.77" defer></script>
+<script src="./js/aio-macro-tech.js?v=57.77" defer></script>
+<script src="./js/aio-kr-data.js?v=57.77" defer></script>
+<script src="./js/aio-pages.js?v=57.77" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=57.77">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=57.77">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.77">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.77">
   <!-- v48.31 perf: CDN 스크립트 다운로드 hint. P1756: Chart.js / lightweight-charts are no longer preloaded — they load on first chart use. -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js">
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
@@ -1331,9 +1331,6 @@ body {
 .rates-guide ul { margin: 8px 0 2px; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
 /* P1419: 스크리너 순위 사후 검증 */
 .screener-validation { margin: 0 0 14px; }
-.screener-validation-details { border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px 12px; background: var(--surface-1, var(--bg-card)); }
-.screener-validation-summary { display: flex; align-items: center; gap: 10px; cursor: pointer; min-height: 24px; flex-wrap: wrap; }
-.screener-validation-title { font-size: 13px; font-weight: 700; color: var(--text-primary); }
 /* WCAG 2.5.8: every new control is at least 24×24 CSS px */
 .theme-strength-tab, .theme-strength-more, .capex-flow-theme, .breadth-drill-symbol, .breadth-drill-date { min-height: 24px; min-width: 24px; display: inline-flex; align-items: center; box-sizing: border-box; }
 .breadth-drill-summary { min-height: 24px; min-width: 24px; display: list-item; box-sizing: border-box; }
@@ -1878,7 +1875,6 @@ h3.chat-h{font-size:14px;}h4.chat-h{font-size:13px;}h5.chat-h{font-size:12px;}h6
 .kr-theme-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
 .kr-theme-icon{width:40px;height:40px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
 .kr-theme-name{font-size:14px;font-weight:800;color:var(--text-primary);letter-spacing:-0.01em;line-height:1.3;}
-.kr-theme-en{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-top:1px;}
 .kr-theme-heat{margin-left:auto;flex-shrink:0;font-size:10px;font-weight:800;padding:3px 10px;border-radius:var(--radius-md);letter-spacing:0.03em;}
 .heat-hot{background:rgba(177,58,48,0.2);color:var(--data-red);border:1px solid rgba(177,58,48,0.4);}
 .heat-warm{background:rgba(var(--ink-rgb),0.15);color:var(--data-amber);border:1px solid rgba(var(--ink-rgb),0.35);}
@@ -2070,7 +2066,7 @@ html { scrollbar-width: thin; scrollbar-color: rgba(var(--ink-rgb),0.12) transpa
 .tg-source-state.is-fail{color:var(--data-red);background:rgba(177,58,48,.06);}
 .tg-live-dot{width:6px;height:6px;background:#0af;border-radius:50%;flex-shrink:0;animation:tg-pulse 2s infinite;}
 @keyframes tg-pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.tg-live-hd-label{color:#0af;font-weight:700;font-size:11px;letter-spacing:.04em;}
+.tg-live-hd-label{color:var(--text-primary);font-weight:700;font-size:11px;letter-spacing:.04em;}
 .tg-live-hd-ts{margin-left:auto;font-size:10px;color:var(--text-muted);font-family:var(--font-mono);}
 /* 분석 카드 */
 .tg-card{border-bottom:1px solid rgba(var(--ink-rgb),0.04);transition:background .12s;}
@@ -2141,19 +2137,6 @@ html { scrollbar-width: thin; scrollbar-color: rgba(var(--ink-rgb),0.12) transpa
 }
 .llm-switch-wrap { display: flex; align-items: center; gap: var(--space-2); }
 
-/* v48.43: Toggle switch (Figma 스타일) */
-.llm-switch-track {
-  width: 34px; height: 19px; border-radius: var(--radius-pill);
-  background: var(--bg-elevated); border: 1px solid var(--border);
-  position: relative; cursor: pointer;
-  transition: background var(--dur-base) var(--ease-out), border-color var(--dur-base);
-  flex-shrink: 0;
-}
-.llm-switch-track.on.is-unavailable { opacity: .45; filter: grayscale(1); } .llm-switch-track.on {
-  background: var(--accent);
-  border-color: var(--accent);
-  box-shadow: 0 0 10px var(--accent-soft);
-}
 .llm-switch-label {
   font-size: var(--fs-xs); font-weight: 700;
   font-family: var(--font-sans);
@@ -2339,7 +2322,6 @@ html { scrollbar-width: thin; scrollbar-color: rgba(var(--ink-rgb),0.12) transpa
 /* 한국 종목 */
 .kr-badge { font-size: 11px !important; }
 .kr-idx-label { font-size: 11px !important; }
-.kr-theme-en { font-size: 11px !important; }
 .pill-wt { font-size: 11px !important; }
 /* 뉴스/채팅 보조 */
 .news-item-meta { font-size: 11px !important; }
@@ -3278,8 +3260,8 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 #pf-entry-section { order:0; display:none; }
 #pf-entry-section.is-open { display:block; }
 #pf-holdings-table-section { order:1; }
-#pf-risk-section { order:2; }
-#pf-allocation-section { order:3; }
+#pf-checks { order:3; } /* v57.77: 포트폴리오 점검 right after allocation (the empty risk shell that held order 2 is retired) */
+#pf-allocation-section { order:2; }
 #pf-benchmark-section { order:4; }
 #pf-holdings-analysis-section { order:5; }
 /* v52.39 P654: 페이지 기초 가이드 (기본 접힘, .aio-page-advanced-toggle 상속) */
@@ -3832,7 +3814,7 @@ button[data-filter-active="true"] {
           </span>
           <span id="live-quote-ts" style="font-size:var(--fs-xs);color:var(--text-muted);font-family:var(--font-sans);font-weight:500;">연결 중...</span>
           <!-- R1: visible release identity; market volatility stays in the market card. -->
-          <span class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;" id="app-version-badge">v57.76</span>
+          <span class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;" id="app-version-badge">v57.77</span>
           <!-- v48.43: AI 분석가 버튼 -->
           <button id="topbar-help-btn" class="aio-btn-table" data-action="showPage" data-arg="guide" title="도움말 · 화면 안내와 판정 기준">도움말</button>
           <button id="topbar-ai-btn" class="aio-btn-table" data-action="toggleAIPanel" aria-label="AI 도우미 열기/닫기" aria-expanded="false" aria-controls="ai-panel" title="AI 도우미 · 교육/리서치 보조 사이드바">AI 도우미</button>
@@ -3888,7 +3870,7 @@ button[data-filter-active="true"] {
       <span id="server-data-age" class="freshness-badge fb-static" style="font-size:11px;display:none;" title="서버(GitHub Actions)가 받아둔 데이터의 나이 — cron 정의는 30분 주기이나 실제 발화는 환경상 1~4시간 소요될 수 있음">서버 데이터 확인 중...</span>
       <span id="llm-header-badge" data-action="toggleLLM"
         tabindex="0"
-        role="button" aria-pressed="true" aria-label="AI 기능 켜기/끄기" style="background:rgba(var(--ink-rgb),0.12);border:1px solid rgba(var(--ink-rgb),0.3);color:var(--accent);font-size:10px;font-weight:700;padding:4px 10px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font-mono);" title="AI ON/OFF 전환">AI ON</span>
+        role="button" aria-label="AI 연결 상태 새로고침" style="background:rgba(var(--ink-rgb),0.12);border:1px solid rgba(var(--ink-rgb),0.3);color:var(--accent);font-size:10px;font-weight:700;padding:4px 10px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font-mono);" title="AI는 항상 켜져 있습니다 · 눌러서 연결 상태 새로고침">AI ON</span>
       <span id="llm-quota" style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);" title="오늘 남은 AI 호출 / 일일 한도 (5명 공유 키)">10/10</span>
     </div>
   </div>
@@ -4071,7 +4053,6 @@ button[data-filter-active="true"] {
   <section class="briefing-block" aria-labelledby="sentiment-synthesis-title">
     <h2 class="briefing-h2" id="sentiment-synthesis-title">심리 종합</h2>
     <p class="briefing-read-headline" id="sentiment-synthesis"></p>
-    <p class="briefing-footnote" id="sentiment-aaii-note"></p>
     <p class="flow-lead" id="sentiment-bridge"></p>
   </section>
   <div class="trend-grid" id="sentiment-card-grid"></div>
@@ -4205,7 +4186,7 @@ button[data-filter-active="true"] {
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <div>
           <div style="font-size:15px;font-weight:800;">한국장 차트·기술 분석 <span class="kr-badge">KRX</span></div>
-          <div class="page-subtitle">Weinstein 4단계 · 추세 위치 · 조정 판별 · 셋업 상태 · RSI · MACD · 볼린저밴드</div>
+          <div class="page-subtitle">종목 일봉 · 지표별 현재 입력 · 지수 50일선·200일선 위치 (한국 종가 기준)</div>
         </div>
         <div style="display:flex;gap:6px;">
         </div>
@@ -4215,11 +4196,11 @@ button[data-filter-active="true"] {
        Naver 일봉 시세 + Chart.js 자체 렌더(외부 위젯 의존 제거) -->
   <div id="tv-chart-kr" style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:12px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">한국 종목 일봉 차트 <span style="font-weight:400;color:var(--text-muted);">(Naver 시세 · 자체 렌더)</span></div>
+      <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">한국 종목 일봉 차트 </div>
       <div style="display:flex;gap:6px;">
         <input id="tv-kr-sym" value="005930" placeholder="종목코드 (예: 005930)" aria-label="한국 종목코드" style="width:120px;padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;font-family:var(--font-mono);" data-on-enter="loadTVChart:kr" />
         <button data-action="loadTVChart" data-arg="kr" class="aio-btn-table" style="font-size:11px;">차트 로드</button>
-        <button data-action="krTvSymSearchFromInput" class="aio-btn-table" style="font-size:11px;">Ticker 분석 →</button>
+        <button data-action="krTvSymSearchFromInput" class="aio-btn-table" style="font-size:11px;">종목 화면 →</button>
       </div>
     </div>
     <div id="tv-widget-kr" style="border-radius:4px;overflow:hidden;background:var(--bg-elevated);padding:8px;box-sizing:border-box;">
@@ -4228,7 +4209,7 @@ button[data-filter-active="true"] {
     </div>
     <div id="kr-candle-meta" style="font-size:11px;color:var(--text-muted);margin-top:6px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">
       <span data-role="kr-candle-asof">데이터 수신 대기...</span>
-      <span>출처: Naver Finance 일봉 종가 · MA20 포함 · TradingView 위젯 아님</span>
+      <span title="출처: 네이버 금융 일봉 종가">일봉 종가 · 20일 평균선 포함</span>
     </div>
   </div>
 
@@ -4334,62 +4315,47 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
-    <!-- 주요 지수 기술 분석 -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">KOSPI 기술 분석<span class="aio-tooltip" data-action="_aioTooltipToggle" data-pass-el="1" data-pass-event="1" aria-expanded="false" role="button" tabindex="0" aria-label="KOSPI 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">KOSPI 기술 분석</span>일봉·주봉 이평 정배열 + RSI(14) 50↑ = 상승 추세. VKOSPI 18↓ 안정, 25↑ 경보. <strong>외국인·기관이 함께 순매수</strong>하는지는 추세를 확인하는 참고 신호입니다. 개인만 순매수할 때의 방향은 단정할 수 없습니다.</span></span></span>
-          <span style="font-size:14px;font-weight:900;font-family:var(--font-mono);" data-live-price="^KS11">—</span>
-        </div>
-        <div id="kr-kospi-tech-result" style="min-height:60px;">
-          <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">수집 대기…</div>
-        </div>
-        <!-- v52.41 (P656/EF-19): data-action이 analyzeKrTickerDeep(개별종목용)로 오배선돼 결과를
-             하단 #kr-ticker-analysis-result에 써서 이 카드 자신은 절대 갱신되지 않았다 — 최초 렌더와
-             동일한 analyzeKrIndex(ticker, targetId, label)로 교체(index.html 30393 참조 패턴 재사용). -->
-        <button data-action="analyzeKrIndex" data-arg="^KS11" data-arg2="kr-kospi-tech-result" data-arg3="KOSPI" class="aio-btn-table" style="width:100%;margin-top:8px;font-size:11px;">KOSPI 분석 새로고침 </button>
-      </div>
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">KOSDAQ 기술 분석</span>
-          <span style="font-size:14px;font-weight:900;font-family:var(--font-mono);" data-live-price="^KQ11">—</span>
-        </div>
-        <div id="kr-kosdaq-tech-result" style="min-height:60px;">
-          <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">수집 대기…</div>
-        </div>
-        <button data-action="analyzeKrIndex" data-arg="^KQ11" data-arg2="kr-kosdaq-tech-result" data-arg3="KOSDAQ" class="aio-btn-table" style="width:100%;margin-top:8px;font-size:11px;">KOSDAQ 분석 새로고침 </button>
-      </div>
+    <!-- v57.77: 지수 Stage(N단계·확도 NN%)·셋업 상태 카드와 MACD·볼린저 박스, 실시간 차트 호출(analyzeKrIndex)은 퇴역 —
+         코스피·코스닥은 한국 종가 기록(src/ui/components/kr-index-trend.js)으로 차트 한 장, 50일선·200일선 위치, 계산된 사실 3줄만 쓴다. -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">지수 추세 — 한국 종가 기준</span></div>
+    <div class="trend-grid" id="kr-index-trends">
+      <section class="trend-card" id="kr-kospi-tech-result" data-metric="kospi" aria-label="코스피 종가 추세">
+        <p class="trend-card-note">코스피 한국 종가 기록을 불러오는 중입니다.</p>
+      </section>
+      <section class="trend-card" id="kr-kosdaq-tech-result" data-metric="kosdaq" aria-label="코스닥 종가 추세">
+        <p class="trend-card-note">코스닥 한국 종가 기록을 불러오는 중입니다.</p>
+      </section>
+    </div>
+    <details class="kr-index-trend-basis">
+      <summary>계산 기준</summary>
+      <p class="trend-card-note">마감된 한국 거래일 종가만 씁니다. 장중 시세는 넣지 않습니다. 50일선·200일선은 최근 50·200거래일 종가의 단순 평균이고, 기록이 그만큼 쌓이기 전에는 계산하지 않습니다. 고점·저점은 최근 252거래일(약 1년) 종가 기준입니다.</p>
+    </details>
     </div>
 
-    <!-- 개별 종목 심화 분석 -->
+    <!-- v57.77: 종목별 Stage·셋업 상태 분석은 퇴역 — 입력한 한국 종목을 종목 화면으로 보낸다(showTicker → 종목 주제 전환). -->
     <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">한국 종목 심화 분석</span></div>
+    <div class="aio-section-hd"><span class="aio-section-label">한국 종목 — 종목 화면에서 보기</span></div>
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
-      <div style="display:flex;gap:8px;margin-bottom:8px;">
-        <input id="kr-ticker-analysis-input" type="text" placeholder="종목코드 입력 (005930, 000660, 035720 등)" aria-label="한국 종목 심화 분석 종목코드 입력"
-               style="flex:1;padding:8px 12px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:12px;"
+      <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+        <input id="kr-ticker-analysis-input" type="text" placeholder="종목코드 또는 종목명 (예: 005930)" aria-label="종목 화면으로 보낼 한국 종목코드"
+               style="flex:1;min-width:0;padding:8px 12px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:12px;"
                data-on-enter="analyzeKrTickerDeep:__value_kr"/>
-        <button data-action="_aioKrTickerSubmit"
-                style="padding:8px 16px;background:#b13a30;color:white;border:none;border-radius:3px;font-weight:700;font-size:11px;cursor:pointer;">
-          분석
-        </button>
+        <button data-action="_aioKrTickerSubmit" class="aio-btn-table" style="font-size:11px;">종목 찾기</button>
       </div>
-      <!-- 빠른 종목 버튼 -->
       <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;">
-        <button data-action="analyzeKrTickerDeep" data-arg="005930.KS" class="aio-btn-table" style="font-size:11px;">삼성전자</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="000660.KS" class="aio-btn-table" style="font-size:11px;">SK하이닉스</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="035720.KS" class="aio-btn-table" style="font-size:11px;">카카오</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="005380.KS" class="aio-btn-table" style="font-size:11px;">현대차</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="006400.KS" class="aio-btn-table" style="font-size:11px;">삼성SDI</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="035420.KS" class="aio-btn-table" style="font-size:11px;">NAVER</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="051910.KS" class="aio-btn-table" style="font-size:11px;">LG화학</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="247540.KQ" class="aio-btn-table" style="font-size:11px;">에코프로비엠</button>
+        <button data-action="showTicker" data-arg="005930.KS" class="aio-btn-table" style="font-size:11px;">삼성전자</button>
+        <button data-action="showTicker" data-arg="000660.KS" class="aio-btn-table" style="font-size:11px;">SK하이닉스</button>
+        <button data-action="showTicker" data-arg="035720.KS" class="aio-btn-table" style="font-size:11px;">카카오</button>
+        <button data-action="showTicker" data-arg="005380.KS" class="aio-btn-table" style="font-size:11px;">현대차</button>
+        <button data-action="showTicker" data-arg="006400.KS" class="aio-btn-table" style="font-size:11px;">삼성SDI</button>
+        <button data-action="showTicker" data-arg="035420.KS" class="aio-btn-table" style="font-size:11px;">NAVER</button>
+        <button data-action="showTicker" data-arg="051910.KS" class="aio-btn-table" style="font-size:11px;">LG화학</button>
+        <button data-action="showTicker" data-arg="247540.KQ" class="aio-btn-table" style="font-size:11px;">에코프로비엠</button>
       </div>
-      <div id="kr-ticker-analysis-result" style="min-height:80px;">
-        <div style="text-align:center;padding:30px;color:var(--text-muted);font-size:11px;">종목코드를 입력하거나 위 버튼을 클릭하면 Weinstein Stage, 추세 위치, 조정 판별, 셋업 상태 등이 표시됩니다.</div>
-      </div>
+      <div id="kr-ticker-analysis-result"></div>
     </div>
-    </div><!-- /aio-section 한국종목심화 -->
+    </div><!-- /aio-section 한국 종목 -->
 
 
     </div>
@@ -4496,7 +4462,13 @@ button[data-filter-active="true"] {
           <div style="font-size:11px;color:var(--yellow);" data-snap="bok-status">—</div>
         </div>
       </div>
-      <div data-source-kind="official-primary" data-operational-use="reference-only" style="font-size:10px;color:var(--text-muted);">현재 값·기준일·다음 일정은 한국은행 공식 발표 기준입니다.</div>
+      <!-- v57.77: the former "글로벌 비교" widget is folded in here as a two-row Korea/US comparison. -->
+      <table class="kr-flow-table" style="margin-bottom:8px;">
+        <tr><th>지표</th><th>한국</th><th>미국</th></tr>
+        <tr><td>기준금리</td><td style="font-weight:700;color:var(--yellow);" data-snap="bok-rate">—</td><td data-snap="fed-target">—</td></tr>
+        <tr><td>CPI (전년 대비)</td><td data-snap="kr-cpi">—</td><td data-snap="cpi">—</td></tr>
+      </table>
+      <div data-source-kind="official-primary" data-operational-use="reference-only" style="font-size:10px;color:var(--text-muted);">현재 값·기준일·다음 일정은 한국은행 공식 발표 기준입니다. 금리차의 시장 영향은 두 나라 금리·물가·환율 관측치가 모두 있을 때만 해석합니다.</div>
     </div>
 
     </div><!-- /aio-section 기준금리현황 -->
@@ -4602,30 +4574,14 @@ button[data-filter-active="true"] {
     </div><!-- /aio-section 주요채권금리 -->
 
     <!-- ═══ v37.8: 한국 거시 동적 분석 ═══ -->
-    <div class="aio-section">
+    <div class="aio-section" id="kr-macro-dynamic-section" hidden>
     <div class="aio-section-hd"><span class="aio-section-label">거시 환경 분석</span></div>
+    <!-- v57.77: the summary stays hidden until _generateKrMacroAnalysis writes it (no permanent "수신 대기" line).
+         The calendar pointer widget left (it sat on the macro screen it pointed to); the Korea/US comparison
+         moved into the BOK rate widget above. -->
     <div class="aio-widget" id="kr-macro-dynamic-widget" style="margin-bottom:12px;">
       <div class="widget-title">거시 환경 요약</div>
-      <div id="kr-macro-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">데이터 수신 대기...</div>
-    </div>
-
-    <!-- ═══ 섹션 6: 정책 일정 ═══ -->
-    <div class="aio-widget">
-      <div class="widget-title">주요 경제 일정 <span style="font-size:11px;padding:2px 6px;background:rgba(var(--ink-rgb),0.10);border-radius:3px;color:var(--accent);margin-left:6px;">공식 캘린더 기준</span></div>
-      <div data-runtime-state="official-reference" data-operational-use="calendar-only" style="padding:10px;color:var(--text-muted);font-size:10px;">미국·한국의 다음 정책·물가 일정은 거시 화면에서 확인합니다.</div>
-    </div>
-
-    <!-- ═══ 섹션 7: 국제 비교 ═══ -->
-    <div class="aio-widget" style="margin-bottom:12px;">
-      <div class="widget-title">글로벌 비교 — 한국 vs 주요국</div>
-      <table class="kr-flow-table">
-        <tr><th>지표</th><th>한국</th><th>미국</th></tr>
-        <tr><td>기준금리</td><td style="font-weight:700;color:var(--yellow);" data-snap="bok-rate">—</td><td data-snap="fed-target">—</td></tr>
-        <tr><td>CPI (YoY)</td><td data-snap="kr-cpi">—</td><td data-snap="cpi">—</td></tr>
-      </table>
-      <div data-evidence-id="kr-us-rate-calendar" data-source-kind="official-calendar" data-operational-use="reference-only" style="margin-top:10px;padding:8px 10px;background:rgba(var(--ink-rgb),0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
-        한국과 미국의 정책금리·물가·국채·환율 관측치가 모두 있을 때만 금리차와 시장 영향을 해석합니다.
-      </div>
+      <div id="kr-macro-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;"></div>
     </div>
     </div><!-- /aio-section 매크로환경분석 -->
 
@@ -4994,7 +4950,7 @@ button[data-filter-active="true"] {
     <div id="rrg-chart-block">
       <div id="rrg-chart-status" style="font-size:12px;color:var(--text-dim);margin:0 0 8px;">상대강도 기록 확인 중</div>
       <div id="rrg-canvas-frame" style="position:relative;width:100%;max-width:100%;overflow:hidden;background:rgba(var(--ink-rgb),0.01);border:1px solid var(--border);border-radius:4px;">
-        <canvas id="rrg-canvas" role="img" aria-label="섹터 상대강도 산점도 — 가로축 시장 대비 상대강도, 세로축 상대강도 변화 속도" width="900" height="480" style="display:block;width:100%;"></canvas>
+        <canvas id="rrg-canvas" role="img" aria-label="섹터 상대강도 산점도 — 가로축 시장 대비 상대강도, 세로축 상대강도 변화 속도. 사분면별 섹터 목록은 아래 접힌 칸에 있습니다." aria-describedby="rrg-chart-status rrg-rotation-read" width="900" height="480" style="display:block;width:100%;"></canvas>
       </div>
     </div>
     <details id="rrg-quadrant-fold" style="margin-top:12px;border-top:1px solid var(--border-subtle);padding-top:8px;">
@@ -5095,7 +5051,8 @@ button[data-filter-active="true"] {
     <section class="briefing-block" id="kr-themes-artifact-read" aria-label="국내 테마 흐름" hidden></section>
 
     <!-- Codex review 2026-10-05: the completed-close comparison above is the default read; the intraday block
-         below (often "유효 0/28" outside Korean hours) is folded so it does not read as the whole view failing. -->
+         below (often "유효 0/28" outside Korean hours) is folded so it does not read as the whole view failing.
+         v57.77: the close-vs-intraday bridge line is the artifact read's last line (src/ui/pages/themes.js renderKrThemeArtifact). -->
     <details class="kr-themes-live" id="kr-themes-live">
     <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--text-secondary);margin:6px 0 10px;">장중 실시간 테마 등락 보기 · 국내 시세가 들어올 때만 계산</summary>
 
@@ -5105,9 +5062,6 @@ button[data-filter-active="true"] {
         <div style="font-size:15px;font-weight:800;">국내 테마 분석 <span class="kr-badge">KRX</span></div>
         <div class="page-subtitle">한국 고유 투자 테마 · 대장주 수급·모멘텀 · 테마별 성과</div>
       </div>
-      <div class="page-actions" style="display:flex;gap:8px;align-items:center;">
-        <a href="https://finance.naver.com/sise/theme.naver" target="_blank" rel="noopener noreferrer" rel="noopener" class="aio-btn-table" style="text-decoration:none;font-size:11px;">네이버 테마별 시세 ↗</a>
-      </div>
     </div>
 
     <!-- 테마 필터 바 -->
@@ -5115,11 +5069,11 @@ button[data-filter-active="true"] {
     <div class="aio-section-hd"><span class="aio-section-label">테마 필터</span></div>
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px 16px;margin-bottom:14px;">
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button class="kr-tab active" data-action="filterKrThemes" data-arg-first-el="1" data-arg="all">전체</button>
-        <button class="kr-tab" data-action="filterKrThemes" data-arg-first-el="1" data-arg="hot">HOT</button>
-        <button class="kr-tab" data-action="filterKrThemes" data-arg-first-el="1" data-arg="warm">강세</button>
-        <button class="kr-tab" data-action="filterKrThemes" data-arg-first-el="1" data-arg="cool">중립</button>
-        <button class="kr-tab" data-action="filterKrThemes" data-arg-first-el="1" data-arg="cold">조정/부진</button>
+        <button class="kr-tab active" aria-pressed="true" data-action="filterKrThemes" data-arg-first-el="1" data-arg="all">전체</button>
+        <button class="kr-tab" aria-pressed="false" data-action="filterKrThemes" data-arg-first-el="1" data-arg="hot">오늘 크게 오른 테마</button>
+        <button class="kr-tab" aria-pressed="false" data-action="filterKrThemes" data-arg-first-el="1" data-arg="warm">+1~3%</button>
+        <button class="kr-tab" aria-pressed="false" data-action="filterKrThemes" data-arg-first-el="1" data-arg="cool">보합</button>
+        <button class="kr-tab" aria-pressed="false" data-action="filterKrThemes" data-arg-first-el="1" data-arg="cold">-1% 이하</button>
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid var(--surface-4);">
         <span style="font-size:11px;color:var(--text-muted);margin-right:2px;line-height:24px;">섹터:</span>
@@ -5309,6 +5263,8 @@ button[data-filter-active="true"] {
       <div style="font-size:12px;font-weight:600;color:var(--text-dim);letter-spacing:0.08em;margin-bottom:8px;">총 자산 가치</div>
       <div id="pf-total-value" style="font-family:var(--font-display);font-size:44px;font-weight:600;color:var(--text-primary);line-height:1;font-variant-numeric:tabular-nums;">$0</div>
       <div style="font-size:13px;color:var(--text-dim);margin-top:8px;"><span id="pf-holding-count">0 종목</span> · 오늘 <b id="pf-daily-chg" style="font-variant-numeric:tabular-nums;">$0</b> (<span id="pf-daily-pct" style="font-variant-numeric:tabular-nums;">0%</span>)</div>
+      <!-- v57.77: the valuation status line moved here from the retired 리스크 분석 shell (its four cards had no writer). -->
+      <div id="pf-analysis-status" style="font-size:12px;color:var(--text-dim);margin-top:6px;max-width:min(360px,80vw);line-height:1.5;">포트폴리오 등록 후 자동 계산됩니다.</div>
     </div>
     <div class="pf-hero-divider" style="width:1px;align-self:stretch;background:var(--border-subtle);"></div>
     <div id="pf-hero-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:36px;flex:1;min-width:260px;">
@@ -5346,6 +5302,72 @@ button[data-filter-active="true"] {
     <!-- P1438: 보유 종목을 시장과 잇는 결론 — 추세 상태 비중·섹터 회전·지수 대비·시장 환경 (native portfolio-read.js).
          v57.50 I08: the conclusion sits right under the hero (it was below the risk cards and the settings fold). -->
     <section class="briefing-block pf-read" id="pf-read" aria-label="내 포트폴리오와 시장" hidden></section>
+
+    <!-- 종목 추가 폼 — v57.77: 입력 폼과 보유 종목 표는 결론(#pf-read) 바로 아래, 배분·점검·비교·차트보다 먼저 -->
+    <!-- v48.3: 라벨 9px→11px, 입력 10px→12px, 버튼 9~10px→11~12px 일괄 상향. 입력 필드 padding 확장으로 클릭 영역 개선 -->
+    <div class="aio-section" id="pf-entry-section">
+    <div class="aio-section-hd"><span class="aio-section-label">종목 추가 / 수정</span></div>
+    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 18px;margin-bottom:14px;">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+        <div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">티커</div>
+          <input id="pf-add-ticker" type="text" placeholder="NVDA" aria-label="종목 티커 입력" style="width:90px;padding:8px 10px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:13px;font-family:var(--font-mono);font-weight:700;text-transform:uppercase;">
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">수량</div>
+          <input id="pf-add-qty" type="number" placeholder="100" aria-label="보유 수량" style="width:90px;padding:8px 10px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:13px;font-family:var(--font-mono);">
+        </div>
+        <div>
+          <div id="pf-add-cost-label" style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">매수 단가 (USD)</div>
+          <input id="pf-add-cost" type="number" step="0.01" placeholder="120.50" aria-label="매수 단가" style="width:110px;padding:8px 10px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:13px;font-family:var(--font-mono);">
+        </div>
+        <div>
+          <div id="pf-add-target-label" style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">내 목표가 (USD, 선택)</div>
+          <input id="pf-add-target" type="number" step="0.01" placeholder="200.00" aria-label="내 목표가 메모 (선택)" style="width:90px;padding:8px 10px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:13px;font-family:var(--font-mono);">
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">원가 통화 (선택)</div>
+          <input id="pf-add-cost-currency" type="text" maxlength="3" placeholder="USD" aria-label="원가 통화 3자리 코드 (예: USD, KRW)" style="width:80px;padding:8px 10px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:13px;font-family:var(--font-mono);text-transform:uppercase;">
+        </div>
+        <div style="flex:1;min-width:180px;">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">메모 (선택)</div>
+          <input id="pf-add-memo" type="text" placeholder="매수 근거 (예: 실적 서프라이즈, 밸류에이션)" aria-label="메모" style="width:100%;padding:8px 10px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:12px;box-sizing:border-box;">
+        </div>
+        <button class="aio-btn-table primary" data-action="addPortfolioPosition" style="font-size:12px;font-weight:700;padding:8px 18px;">추가 / 업데이트</button>
+        <button class="aio-btn-table" data-action="clearPortfolioForm" style="font-size:11px;padding:8px 14px;">초기화</button>
+      </div>
+    </div>
+    </div><!-- /aio-section 종목추가 -->
+
+    <!-- 보유 종목 테이블 -->
+    <div class="aio-widget" id="pf-holdings-table-section" style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;">
+        <div class="widget-title" style="margin:0;">보유 종목</div>
+        <div style="display:flex;gap:6px;">
+          <button class="aio-btn-table" data-action="refreshPortfolioPrices" style="font-size:11px;">⟳ 시세 갱신</button>
+          <button class="aio-btn-table" data-action="clearAllPositions" style="font-size:11px;color:var(--data-red);">전체 삭제</button>
+        </div>
+      </div>
+      <!-- v48.3: 테이블 헤더 폰트 8px→11px, 본문 10px→12px 상향 (P37/R17 준수 · 가독성 확보) -->
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface-1);">
+            <th id="pf-th-ticker" style="text-align:left;padding:10px 10px;color:var(--text-secondary);font-size:11px;font-weight:700;">종목</th>
+            <th id="pf-th-qty" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">수량</th>
+            <th id="pf-th-cost" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">매수 단가</th>
+            <th id="pf-th-price" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">현재가</th>
+            <th id="pf-th-pnl" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">손익 (기준 통화)</th>
+            <th id="pf-th-pct" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">수익률</th>
+            <th id="pf-th-target" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;" title="직접 적어 둔 값만 표시합니다 — 앱이 정하거나 채우지 않습니다">목표가(내 메모)</th>
+            <th id="pf-th-weight" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">주식 중 비중</th>
+            <th id="pf-th-manage" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">관리</th>
+          </tr>
+        </thead>
+        <tbody id="pf-positions-tbody">
+          <tr><td colspan="9" style="padding:24px 16px;text-align:center;color:var(--text-muted);font-size:12px;line-height:1.7;">포지션을 추가해주세요. 데이터는 브라우저에만 저장됩니다.</td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <!-- v48.58: 시세 신선도 배지 (판매 Blocker #2 해소) -->
     <div id="pf-freshness-strip" style="display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;font-size:11px;flex-wrap:wrap;">
@@ -5404,34 +5426,6 @@ button[data-filter-active="true"] {
 
     <!-- v52.71 아이보리: 구 "포트폴리오 요약" 카드 4개(pf-total-value/pf-total-pnl/pf-daily-chg/pf-allocation)는
          위 히어로 블록으로 이전 재사용 — 동일 id 중복 방지를 위해 구 위치에서 제거(렌더러 함수는 무변경). -->
-
-    <!-- 리스크 분석 — v52.71 아이보리 4a: 시안 구조(2x2 카드), pf-sharpe-val 등 실계산 id 재사용 -->
-    <div class="aio-section" id="pf-risk-section">
-    <div class="aio-section-hd"><span class="aio-section-label">리스크 분석</span></div>
-    <div id="pf-analysis-dashboard" hidden data-audit="2026-10-14: no writer fills these four values; hidden until a sourced calculation exists" style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:14px;">
-      <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:16px 20px;">
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">샤프 지수</div>
-        <div id="pf-sharpe-val" style="font-size:18px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
-        <div style="font-size:12px;color:var(--text-dim);margin-top:3px;">예시 기준 · 직접 설정 전</div>
-      </div>
-      <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:16px 20px;">
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">베타 (S&amp;P 500 대비)</div>
-        <div id="pf-beta-val" style="font-size:18px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
-        <div style="font-size:12px;color:var(--text-dim);margin-top:3px;">1.0 = 시장 평균</div>
-      </div>
-      <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:16px 20px;">
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">최대 낙폭</div>
-        <div id="pf-mdd-val" style="font-size:18px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
-        <div style="font-size:12px;color:var(--text-dim);margin-top:3px;">예시 기준 · 직접 설정 전</div>
-      </div>
-      <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:16px 20px;">
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">목표 비중과의 차이</div>
-        <div id="pf-drift-val" style="font-size:18px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
-        <div style="font-size:12px;color:var(--text-dim);margin-top:3px;">예시 기준 · 실제 리밸런싱과 별개</div>
-      </div>
-    </div>
-    <div id="pf-analysis-status" style="font-size:11px;color:var(--text-dim);text-align:center;">포트폴리오 등록 후 자동 계산됩니다.</div>
-    </div><!-- /aio-section 리스크분석 -->
 
     <!-- v40.4: 포트폴리오 비중 시각화 + 섹터 + 현금 -->
     <!-- v48.3: 타이틀 10px→12px, 현금 입력 라벨 8px→11px, 입력 10px→12px 상향 · 도넛 크기 150→170 확대 -->
@@ -5605,75 +5599,9 @@ button[data-filter-active="true"] {
       </div>
     </details>
 
-    <!-- 종목 추가 폼 -->
-    <!-- v48.3: 라벨 9px→11px, 입력 10px→12px, 버튼 9~10px→11~12px 일괄 상향. 입력 필드 padding 확장으로 클릭 영역 개선 -->
-    <div class="aio-section" id="pf-entry-section">
-    <div class="aio-section-hd"><span class="aio-section-label">종목 추가 / 수정</span></div>
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 18px;margin-bottom:14px;">
-      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-        <div>
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">티커</div>
-          <input id="pf-add-ticker" type="text" placeholder="NVDA" aria-label="종목 티커 입력" style="width:90px;padding:8px 10px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:13px;font-family:var(--font-mono);font-weight:700;text-transform:uppercase;">
-        </div>
-        <div>
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">수량</div>
-          <input id="pf-add-qty" type="number" placeholder="100" aria-label="보유 수량" style="width:90px;padding:8px 10px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:13px;font-family:var(--font-mono);">
-        </div>
-        <div>
-          <div id="pf-add-cost-label" style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">매수 단가 (USD)</div>
-          <input id="pf-add-cost" type="number" step="0.01" placeholder="120.50" aria-label="매수 단가" style="width:110px;padding:8px 10px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:13px;font-family:var(--font-mono);">
-        </div>
-        <div>
-          <div id="pf-add-target-label" style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">내 목표가 (USD, 선택)</div>
-          <input id="pf-add-target" type="number" step="0.01" placeholder="200.00" aria-label="내 목표가 메모 (선택)" style="width:90px;padding:8px 10px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:13px;font-family:var(--font-mono);">
-        </div>
-        <div>
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">원가 통화 (선택)</div>
-          <input id="pf-add-cost-currency" type="text" maxlength="3" placeholder="USD" aria-label="원가 통화 3자리 코드 (예: USD, KRW)" style="width:80px;padding:8px 10px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:13px;font-family:var(--font-mono);text-transform:uppercase;">
-        </div>
-        <div style="flex:1;min-width:180px;">
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">메모 (선택)</div>
-          <input id="pf-add-memo" type="text" placeholder="매수 근거 (예: 실적 서프라이즈, 밸류에이션)" aria-label="메모" style="width:100%;padding:8px 10px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:12px;box-sizing:border-box;">
-        </div>
-        <button class="aio-btn-table primary" data-action="addPortfolioPosition" style="font-size:12px;font-weight:700;padding:8px 18px;">추가 / 업데이트</button>
-        <button class="aio-btn-table" data-action="clearPortfolioForm" style="font-size:11px;padding:8px 14px;">초기화</button>
-      </div>
-    </div>
-    </div><!-- /aio-section 종목추가 -->
-
-    <!-- 보유 종목 테이블 -->
-    <div class="aio-widget" id="pf-holdings-table-section" style="margin-bottom:14px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;">
-        <div class="widget-title" style="margin:0;">보유 종목</div>
-        <div style="display:flex;gap:6px;">
-          <button class="aio-btn-table" data-action="refreshPortfolioPrices" style="font-size:11px;">⟳ 시세 갱신</button>
-          <button class="aio-btn-table" data-action="clearAllPositions" style="font-size:11px;color:var(--data-red);">전체 삭제</button>
-        </div>
-      </div>
-      <!-- v48.3: 테이블 헤더 폰트 8px→11px, 본문 10px→12px 상향 (P37/R17 준수 · 가독성 확보) -->
-      <table style="width:100%;border-collapse:collapse;font-size:12px;">
-        <thead>
-          <tr style="border-bottom:1px solid var(--border);background:var(--surface-1);">
-            <th id="pf-th-ticker" style="text-align:left;padding:10px 10px;color:var(--text-secondary);font-size:11px;font-weight:700;">종목</th>
-            <th id="pf-th-qty" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">수량</th>
-            <th id="pf-th-cost" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">매수 단가</th>
-            <th id="pf-th-price" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">현재가</th>
-            <th id="pf-th-pnl" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">손익 (기준 통화)</th>
-            <th id="pf-th-pct" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">수익률</th>
-            <th id="pf-th-target" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;" title="직접 적어 둔 값만 표시합니다 — 앱이 정하거나 채우지 않습니다">목표가(내 메모)</th>
-            <th id="pf-th-weight" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">주식 중 비중</th>
-            <th id="pf-th-manage" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">관리</th>
-          </tr>
-        </thead>
-        <tbody id="pf-positions-tbody">
-          <tr><td colspan="9" style="padding:24px 16px;text-align:center;color:var(--text-muted);font-size:12px;line-height:1.7;">포지션을 추가해주세요. 데이터는 브라우저에만 저장됩니다.</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- v52.73 아이보리 4a: 시안엔 없는 워치리스트/자동진단/심화 리스크 도구 3종 — details로 압축 -->
+    <!-- v52.73 아이보리 4a: 시안엔 없는 워치리스트/심화 위험 도구 — details로 압축 (v57.77: 자동 진단 퇴역) -->
     <details class="aio-page-advanced-toggle" style="margin-bottom:14px;">
-      <summary>관심종목 리스트 · 자동 진단 · 심화 위험 (예상 최대 손실·종목 간 연동)</summary>
+      <summary>관심종목 리스트 · 위험 계산 (예상 최대 손실·종목 간 연동)</summary>
       <div class="aio-page-advanced-body">
     <!-- ═══ 다중 워치리스트 시스템 ═══ -->
     <div class="aio-widget" style="margin-bottom:14px;">
@@ -5717,18 +5645,16 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
-    <!-- v37.8: 포트폴리오 동적 진단 -->
-    <div class="aio-widget" style="margin-bottom:12px;">
-      <div class="widget-title">포트폴리오 자동 진단</div>
-      <div id="pf-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">포트폴리오를 추가하면 자동 분석됩니다</div>
-    </div>
+    <!-- v57.77: the 포트폴리오 자동 진단 widget (#pf-analysis-text) was retired — its concentration, daily/total return,
+         sector and target lines repeated the hero, #pf-read, 포트폴리오 점검 and the holdings table, and its sector-beta
+         table and stress factors were fixed estimates. -->
 
-    <!-- v48.88: 포트폴리오 리스크 분석 (data:statistical-analysis) — VaR·Sharpe·MDD·상관계수 -->
+    <!-- v48.88: 포트폴리오 위험 계산 (data:statistical-analysis) — VaR·Sharpe·MDD·상관계수 -->
     <div class="aio-widget" style="margin-bottom:12px;" id="pf-risk-panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border);">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div class="widget-title" style="margin:0;">리스크 분석</div>
-          <span style="font-size:10px;font-weight:500;color:var(--text-muted);">예상 최대 손실(VaR) · 위험 대비 수익(Sharpe) · 최대 낙폭(MDD) · 종목 간 연동</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;">
+          <div class="widget-title" style="margin:0;">위험 계산 (예상 최대 손실·종목 간 연동)</div>
+          <span style="font-size:10px;font-weight:500;color:var(--text-muted);">위험 대비 수익(Sharpe) · 최대 낙폭(MDD) 포함</span>
         </div>
         <button class="aio-btn-table" data-action="refreshPortfolioRisk" style="font-size:11px;">⟳ 계산</button>
       </div>
@@ -5907,7 +5833,7 @@ button[data-filter-active="true"] {
     <!-- v57.76: 검색이 먼저 — 종목을 고른 뒤 그 종목의 지금을 읽는다. -->
     <!-- v50.96: Ticker 직접 검색창 (page 진입 시에도 검색 가능) -->
     <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">종목 검색</span></div>
+    <div class="aio-section-hd"><h2 class="aio-section-label" style="margin:0;">종목 검색</h2></div>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 14px;">
       <span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">종목 검색</span>
       <input id="ticker-direct-search" type="text" placeholder="티커·종목코드·한글명 (예: NVDA, 005930, 삼성전자)" aria-label="종목 티커 검색"
@@ -5941,7 +5867,7 @@ button[data-filter-active="true"] {
       <!-- P1430: 외부 TradingView iframe 대신 자체 관측 가격 흐름. 셋업·지표 분석은 종목 > 차트 탭이 소유한다. -->
       <div class="aio-widget" id="ticker-price-panel">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div class="widget-title" style="margin-bottom:0;">가격 흐름</div>
+          <h2 class="widget-title" style="margin:0;">가격 흐름</h2>
           <div style="display:flex;gap:4px;" id="ticker-chart-period-tabs" role="group" aria-label="가격 이력 기간">
             <button type="button" class="news-sort-btn active" data-ticker-range="1m" aria-pressed="true" aria-controls="ticker-price-chart">1개월</button>
             <button type="button" class="news-sort-btn" data-ticker-range="3m" aria-pressed="false" aria-controls="ticker-price-chart">3개월</button>
@@ -5965,7 +5891,7 @@ button[data-filter-active="true"] {
             <div class="widget-title" style="margin-bottom:6px;" title="섹터 평균이 50, 섹터 안 표준편차 1개가 약 17점입니다">팩터 성격 · 섹터 대비 위치(0~100, 50 = 섹터 평균)</div>
             <div id="ticker-ov-provenance" style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">종목 검색 시 표시</div>
             <div style="position:relative;height:180px;">
-              <canvas id="ticker-ov-factor-radar" role="img" aria-label="종목 팩터 성격 레이더 차트 — 섹터 대비 위치" style="width:100%;height:100%;"></canvas>
+              <canvas id="ticker-ov-factor-radar" role="img" aria-label="종목 팩터 성격 레이더 차트 — 섹터 대비 위치" aria-describedby="ticker-ov-factor-rows" style="width:100%;height:100%;"></canvas>
             </div>
             <div id="ticker-ov-factor-rows" style="margin-top:6px;"></div>
             <div style="font-size:11px;color:var(--text-muted);line-height:1.5;margin-top:6px;">종목 성격을 같은 섹터와 견준 <b>서술</b> 값이며 백분위·등급이 아닙니다. 10년 과거 검증에서 이 점수로 이후 수익률을 구별하지 못했습니다.</div>
@@ -6030,23 +5956,20 @@ button[data-filter-active="true"] {
       <span id="translate-status" style="font-size:11px;color:var(--green);font-family:var(--font-mono);">자동 한국어 번역</span>
     </div>
 
-    <!-- 필터 패널 (v51.28 국가+토픽 통합) -->
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;margin-bottom:12px;">
-      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;">
-        <span style="font-size:10px;font-weight:700;color:var(--text-muted);padding-top:3px;min-width:30px;flex-shrink:0;">국가</span>
-        <div style="display:flex;gap:4px;flex-wrap:wrap;" id="news-country-chips">
-          <span class="chip" data-action="filterNewsByCountry" data-arg="all" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--accent-border);border-radius:3px;background:var(--accent-dim);color:var(--accent);">전체</span>
+    <!-- v57.77: country and topic share one compact wrapping row; the 전체/시장/기업/카테고리 type tabs left —
+         their one distinct filter (기업: a named company is the subject) is the 기업 topic chip. -->
+    <div id="news-filter-row" role="group" aria-label="뉴스 필터" style="display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:8px 10px;margin-bottom:12px;">
+        <div style="display:flex;gap:4px;flex-wrap:wrap;" id="news-country-chips" role="group" aria-label="국가">
+          <span class="chip" data-action="filterNewsByCountry" data-arg="all" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--accent-border);border-radius:3px;background:var(--accent-dim);color:var(--accent);">전체 국가</span>
           <span class="chip" data-action="filterNewsByCountry" data-arg="us" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">미국</span>
           <span class="chip" data-action="filterNewsByCountry" data-arg="kr" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">한국</span>
           <span class="chip" data-action="filterNewsByCountry" data-arg="asia" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">아시아</span>
           <span class="chip" data-action="filterNewsByCountry" data-arg="eu" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">유럽</span>
           <span class="chip" data-action="filterNewsByTelegramOnly" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid rgba(var(--ink-rgb),0.3);border-radius:3px;color:var(--data-cyan);background:rgba(var(--ink-rgb),0.08);">텔레그램</span>
         </div>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;">
-        <span style="font-size:10px;font-weight:700;color:var(--text-muted);padding-top:3px;min-width:30px;flex-shrink:0;">토픽</span>
-        <div style="display:flex;gap:4px;flex-wrap:wrap;" id="news-topic-chips">
-          <span class="chip" data-action="filterNewsByTopic" data-arg="all" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--accent-border);border-radius:3px;background:var(--accent-dim);color:var(--accent);">전체</span>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;" id="news-topic-chips" role="group" aria-label="주제">
+          <span class="chip" data-action="filterNewsByTopic" data-arg="all" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--accent-border);border-radius:3px;background:var(--accent-dim);color:var(--accent);">전체 주제</span>
+          <span class="chip" data-action="filterNewsByTopic" data-arg="company" data-pass-el="1" title="특정 기업이 기사의 당사자인 뉴스(실적·애널리스트 의견 포함)" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">기업</span>
           <span class="chip" data-action="filterNewsByTopic" data-arg="macro" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">거시</span>
           <span class="chip" data-action="filterNewsByTopic" data-arg="equity" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">주식</span>
           <span class="chip" data-action="filterNewsByTopic" data-arg="semi" data-news-topic="semi" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">반도체·AI</span>
@@ -6056,15 +5979,6 @@ button[data-filter-active="true"] {
           <span class="chip" data-action="filterNewsByTopic" data-arg="fx" data-news-topic="fx" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">외환</span>
           <span class="chip" data-action="filterNewsByTopic" data-arg="crypto" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">크립토</span>
         </div>
-      </div>
-    </div>
-
-    <!-- v34.9: 뉴스 유형 탭 (전체/시장/기업) -->
-    <div id="news-type-tabs" style="display:flex;gap:0;margin-bottom:10px;border-bottom:2px solid var(--border);">
-      <button class="news-type-tab active" data-type="all" data-action="setNewsTypeTab" data-arg="all" data-pass-el="1" style="padding:8px 18px;font-size:11px;font-weight:700;border:none;background:transparent;color:var(--accent);border-bottom:2px solid var(--accent);margin-bottom:-2px;cursor:pointer;font-family:inherit;">전체</button>
-      <button class="news-type-tab" data-type="market" data-action="setNewsTypeTab" data-arg="market" data-pass-el="1" style="padding:8px 18px;font-size:11px;font-weight:700;border:none;background:transparent;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;font-family:inherit;">시장 뉴스</button>
-      <button class="news-type-tab" data-type="company" data-action="setNewsTypeTab" data-arg="company" data-pass-el="1" style="padding:8px 18px;font-size:11px;font-weight:700;border:none;background:transparent;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;font-family:inherit;">기업 뉴스</button>
-      <button class="news-type-tab" data-type="category" data-action="setNewsTypeTab" data-arg="category" data-pass-el="1" style="padding:8px 18px;font-size:11px;font-weight:700;border:none;background:transparent;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;font-family:inherit;">카테고리별</button>
     </div>
 
     <!-- 로딩 프로그레스 바 -->
@@ -6085,9 +5999,11 @@ button[data-filter-active="true"] {
       <span id="news-visible-summary" style="font-size:12px;color:var(--text-dim);"></span>
       <button class="aio-btn-table" data-action="_aioNewsLoadMore">12개 더 보기</button>
     </div>
-    <div class="aio-section-hd" style="margin-top:22px;"><span class="aio-section-label">채널 소식 (텔레그램)</span><span class="briefing-h2-note" id="news-tg-scope"></span></div>
+    <div class="aio-section-hd" style="margin-top:22px;"><span class="aio-section-label">채널 소식</span><span class="briefing-h2-note" id="news-tg-scope"></span></div>
     <div id="tg-feed-market-news"></div>
     </div><!-- /aio-section 뉴스피드 -->
+
+    <nav class="flow-next" id="news-next" aria-label="이어서 볼 곳" hidden></nav>
 
     <!-- v57.76: the page's one 데이터 출처 fold, written statically so it can carry the registered source list.
          renderPageSources (src/ui/components/page-sources.js) finds this direct-child details.page-sources and adds no
@@ -6119,7 +6035,7 @@ button[data-filter-active="true"] {
     <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border-strong);padding-bottom:20px;margin-bottom:22px;">
       <div>
         <h1 class="page-title">퀀트 스크리너</h1>
-        <div class="page-subtitle">가격 흐름(모멘텀·추세·저변동)으로 매긴 상대 순위 — 그 순위가 과거에 통했는지는 바로 아래 사후 검증</div>
+        <div class="page-subtitle">가격 흐름(모멘텀·추세·저변동)으로 매긴 상대 순위 — 그 순위가 과거에 통했는지는 표 위 과거 검증 탭</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
         <span data-factor-asof style="font-size:12px;color:var(--text-dim);">팩터 데이터 대기</span>
@@ -6131,19 +6047,7 @@ button[data-filter-active="true"] {
     </div>
     <!-- P1437: 표 앞의 결론 — 상위 20% 업종 쏠림·섹터 회전·추세 건강도·과거 성과를 한 흐름으로 (native screener-read.js) -->
     <section class="briefing-block screener-read" id="screener-read" aria-label="지금 순위가 말하는 것"></section>
-    <!-- P1431: 데이터 기준·식별·검증 상태 원문은 접어 둔다(값은 그대로, 사용자 기본 동선에서는 한 줄 요약만). -->
-    <details class="scr-data-status" id="scr-data-status">
-      <summary>데이터 기준 · 검증 상태</summary>
-    <div data-screener-provenance data-source-kind="reference" data-operational-use="reference-only" role="note" style="margin:-10px 0 10px;padding:8px 12px;border:1px solid var(--border);border-radius:4px;background:var(--surface-1);font-size:10px;line-height:1.6;color:var(--text-dim);">관측시각·생성시각·출처 확인 대기</div>
-    <div id="screener-readiness-note" role="status" style="margin:-10px 0 18px;padding:9px 12px;border:1px solid var(--border);border-radius:4px;background:var(--surface-1);font-size:11px;line-height:1.6;color:var(--text-muted);">
-      팩터 산출물과 검증 상태 확인 중…
-    </div>
-    </details>
-    <!-- SCR-UX-00~05: workflow-first Workbench. JSON remains a developer
-         surface; the visual builder, explicit run, and result explanation are
-         the primary user path. -->
-    <!-- P1419: post-hoc validation of the default ranking -->
-    <section class="aio-section screener-validation" id="screener-validation" aria-label="순위 사후 검증"></section>
+    <!-- SCR-UX-00~05 / v57.77: read, then the workbench filters, then the table; folds sit below the tab panels. -->
     <div id="screener-workbench" style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:18px;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
         <div>
@@ -6246,10 +6150,10 @@ button[data-filter-active="true"] {
       </div>
     </aside>
     <!-- P1443 (review 2026-10-04): one condition system on the user path. The weight profiles change the
-         ranking away from the validated default (균형), so they sit in a fold; the stats line stays visible. -->
+         ranking away from the validated default (균형), so they sit in a fold (v57.77: below the table); the stats line stays visible. -->
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
       <span style="font-size:13px;color:var(--text-dim);">
-        <span id="scr-profile-desc" style="font-style:italic;">사후 검증에 쓰는 기본 고정 비중으로 합산(비중은 팩터 패널 · 검증 결과는 위 사후 검증) · 시장 국면별 비중은 참고로만 표시</span> ·
+        <span id="scr-profile-desc" style="font-style:italic;">기본 균형 비중으로 합산</span> ·
         <!-- P1499: "상위 20%" here was rank ≥ 80 over all rows while the reading above counts the top fifth of ranked rows; name each count by its own rule. -->
         총 <span id="scr-kpi-total" style="color:var(--text-primary);font-weight:600;">—</span>종목 · 조건 통과 <span id="scr-kpi-ranked" style="color:var(--text-primary);font-weight:600;">—</span> ·
         <b style="color:var(--text-primary);">그중 백분위 80 이상 <span id="scr-kpi-top">—</span></b> ·
@@ -6257,74 +6161,12 @@ button[data-filter-active="true"] {
       </span>
       <button class="aio-btn-table" style="font-size:10px;" data-aio-screener-action="toggle-filters" title="조건·순위 결과는 그대로 두고 표에 보이는 행만 줄입니다">표 범위 좁히기</button>
     </div>
-    <details class="scr-workbench-advanced" id="scr-weight-profiles" style="margin-bottom:18px;">
-      <summary>순위 가중치 바꾸기 — 검증 대상은 기본값(균형)뿐입니다</summary>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;">
-      <span style="font-size:12px;color:var(--text-dim);" title="조건 화면과 별개로, 같은 결과를 어떤 팩터에 무게를 두어 줄 세울지">순위 가중치</span>
-      <button class="scr-profile-btn active" data-aio-screener-action="profile" data-aio-screener-arg="balanced">균형 (기본)</button>
-      <button class="scr-profile-btn" data-aio-screener-action="profile" data-aio-screener-arg="momentum">모멘텀</button>
-      <button class="scr-profile-btn" data-aio-screener-action="profile" data-aio-screener-arg="swing">스윙</button>
-      <button class="scr-profile-btn" data-aio-screener-action="profile" data-aio-screener-arg="value">가치</button>
-      <button class="scr-profile-btn" data-aio-screener-action="profile" data-aio-screener-arg="lowrisk">저리스크</button>
-      </div>
-    </details>
     <!-- v51.32: 서브-탭 내비게이션 -->
     <div role="tablist" aria-label="스크리너 보조 분석" style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:12px;">
       <button id="scr-tab-button-ranking" role="tab" aria-selected="true" aria-controls="scr-tab-ranking" data-aio-screener-action="tab" data-aio-screener-arg="ranking" style="background:none;border:none;border-bottom:2px solid var(--accent);color:var(--accent);font-size:12px;font-weight:700;padding:8px 14px;cursor:pointer;letter-spacing:.03em;">랭킹</button>
       <button id="scr-tab-button-factors" role="tab" aria-selected="false" aria-controls="scr-tab-factors" data-aio-screener-action="tab" data-aio-screener-arg="factors" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:12px;font-weight:600;padding:8px 14px;cursor:pointer;letter-spacing:.03em;">팩터·국면</button>
       <button id="scr-tab-button-backtest" role="tab" aria-selected="false" aria-controls="scr-tab-backtest" data-aio-screener-action="tab" data-aio-screener-arg="backtest" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:12px;font-weight:600;padding:8px 14px;cursor:pointer;letter-spacing:.03em;" title="정보계수(IC): 팩터 순위와 이후 수익률 순위가 얼마나 같은 방향이었는지 과거 자료로 잰 값">과거 검증</button>
-      <button id="scr-tab-button-evidence" role="tab" aria-selected="false" aria-controls="scr-tab-evidence" data-aio-screener-action="tab" data-aio-screener-arg="evidence" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:12px;font-weight:600;padding:8px 14px;cursor:pointer;letter-spacing:.03em;">조건부 증거</button>
-    </div>
-
-    <!-- 탭: 팩터·국면 -->
-    <div id="scr-tab-factors" role="tabpanel" aria-labelledby="scr-tab-button-factors" style="display:none;">
-      <!-- 2-column Ops Console layout -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-        <!-- Left: 팩터 가중 현황 -->
-        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:10px;">
-          <div class="aio-subhd">팩터 가중 현황</div>
-          <div id="scr-factor-bars" style="display:flex;flex-direction:column;gap:5px;"></div>
-        <div style="font-size:10px;color:var(--text-muted);margin-top:8px;">백분위(0~100) = 팩터마다 같은 섹터 안 상대 점수로 바꾼 뒤 위 고정 비중으로 더한 합을, 계산 가능한 전체 종목 사이에서 다시 줄 세운 위치입니다. 수익률 예측이나 매수·매도 신호가 아닙니다. 막대 길이 = 실제 적용 비중이며, 시장 국면별 비중 후보는 시점 정합·비용·유동성·실거래와 백테스트 일치 검토를 통과하기 전까지 적용하지 않습니다.</div>
-        </div>
-        <!-- Right: 시장 레짐 -->
-        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:10px;">
-          <div class="aio-subhd">시장 국면</div>
-          <div id="scr-regime-display" style="margin-bottom:8px;">
-            <span id="screener-regime-note" style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(var(--ink-rgb),0.06);color:var(--accent);">감지 중...</span>
-          </div>
-          <div id="scr-regime-desc" style="font-size:10px;color:var(--text-muted);line-height:1.6;"></div>
-           <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
-             <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;">팩터 커버리지</div>
-             <span id="screener-factor-coverage" style="font-size:10px;color:var(--text-secondary);"></span>
-             <div id="screener-rank-hold" hidden style="margin-top:6px;padding:6px 10px;border:1px solid rgba(230,126,34,0.4);background:rgba(230,126,34,0.08);border-radius:6px;font-size:10px;line-height:1.55;color:var(--text-secondary);"></div>
-           </div>
-           <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;line-height:1.55;color:var(--text-muted);">
-             <div id="screener-factor-confidence">입력 신뢰도 확인 중 · 미래 수익률 확률 아님</div>
-             <div id="screener-factor-diagnostics" data-decision-eligible="false" style="margin-top:4px;">섹터 중립·극단치·안정성 진단 확인 중</div>
-           </div>
-         </div>
-      </div>
-      <!-- Info boxes (compact) -->
-      <div class="aio-info-box is-warn">
-        <span style="color:var(--data-amber);"><b>저변동 팩터는 역방향</b>: 변동성이 낮을수록 순위 상승 (랭크↑ = 안정).</span>
-        <span style="display:block;margin-top:3px;color:var(--text-muted);"><b>추세 속도 (칼만 필터, 신뢰도 가중)</b>: 양수=상승 추세 가속, 음수=하락. 90일 가격의 상태공간 필터 추정. <b>이노베이션 Z</b>: 마지막 관측의 표준화 잔차(|Z|>2 = 추세 이탈 신호).</span>
-      </div>
-    </div>
-
-    <!-- 탭: 백테스트 IC -->
-    <div id="scr-tab-backtest" role="tabpanel" aria-labelledby="scr-tab-button-backtest" style="display:none;">
-      <div class="aio-vis-card" style="margin-bottom:12px;">
-        <div class="aio-vis-card-title" title="정보계수(IC): 팩터 순위와 이후 수익률 순위가 얼마나 같은 방향이었는지 과거 자료로 잰 값">팩터 과거 검증 · 순위와 이후 수익률이 같은 방향으로 움직인 정도</div>
-        <div id="screener-backtest-panel"><div style="font-size:11px;color:var(--text-muted);">팩터 검증 파일 확인 중...</div></div>
-      </div>
-    </div>
-
-    <!-- 탭: 조건부 증거 · Edge Stats 계열의 계보/분모/표본 봉투 -->
-    <div id="scr-tab-evidence" role="tabpanel" aria-labelledby="scr-tab-button-evidence" style="display:none;">
-      <div class="aio-vis-card" style="margin-bottom:12px;">
-        <div class="aio-vis-card-title">조건부 증거 · 세션 통계·데이터 계보</div>
-        <div id="screener-conditional-evidence-panel"><div style="font-size:11px;color:var(--text-muted);">조건부 통계 artifact 확인 중...</div></div>
-      </div>
+      <button id="scr-tab-button-evidence" role="tab" aria-selected="false" aria-controls="scr-tab-evidence" data-aio-screener-action="tab" data-aio-screener-arg="evidence" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:12px;font-weight:600;padding:8px 14px;cursor:pointer;letter-spacing:.03em;">조건별 과거 통계</button>
     </div>
 
     <!-- 탭: 랭킹 (기본 표시) -->
@@ -6442,6 +6284,78 @@ button[data-filter-active="true"] {
       </div>
     </div>
     </div><!-- /scr-tab-ranking -->
+
+    <!-- 탭: 팩터·국면 -->
+    <div id="scr-tab-factors" role="tabpanel" aria-labelledby="scr-tab-button-factors" style="display:none;">
+      <!-- 2-column Ops Console layout -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <!-- Left: 팩터 가중 현황 -->
+        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:10px;">
+          <div class="aio-subhd">팩터 가중 현황</div>
+          <div id="scr-factor-bars" style="display:flex;flex-direction:column;gap:5px;"></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:8px;">백분위(0~100) = 팩터마다 같은 섹터 안 상대 점수로 바꾼 뒤 위 고정 비중으로 더한 합을, 계산 가능한 전체 종목 사이에서 다시 줄 세운 위치입니다. 수익률 예측이나 매수·매도 신호가 아닙니다. 막대 길이 = 실제 적용 비중이며, 시장 국면별 비중 후보는 시점 정합·비용·유동성·실거래와 백테스트 일치 검토를 통과하기 전까지 적용하지 않습니다.</div>
+        </div>
+        <!-- Right: 시장 레짐 -->
+        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:10px;">
+          <div class="aio-subhd">시장 국면</div>
+          <div id="scr-regime-display" style="margin-bottom:8px;">
+            <span id="screener-regime-note" style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(var(--ink-rgb),0.06);color:var(--accent);">감지 중...</span>
+          </div>
+          <div id="scr-regime-desc" style="font-size:10px;color:var(--text-muted);line-height:1.6;"></div>
+           <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
+             <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;">팩터 커버리지</div>
+             <span id="screener-factor-coverage" style="font-size:10px;color:var(--text-secondary);"></span>
+             <div id="screener-rank-hold" hidden style="margin-top:6px;padding:6px 10px;border:1px solid rgba(230,126,34,0.4);background:rgba(230,126,34,0.08);border-radius:6px;font-size:10px;line-height:1.55;color:var(--text-secondary);"></div>
+           </div>
+           <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;line-height:1.55;color:var(--text-muted);">
+             <div id="screener-factor-confidence">입력 신뢰도 확인 중 · 미래 수익률 확률 아님</div>
+             <div id="screener-factor-diagnostics" data-decision-eligible="false" style="margin-top:4px;">섹터 중립·극단치·안정성 진단 확인 중</div>
+           </div>
+         </div>
+      </div>
+      <!-- Info boxes (compact) -->
+      <div class="aio-info-box is-warn">
+        <span style="color:var(--data-amber);"><b>저변동은 거꾸로 읽습니다</b>: 가격 흔들림이 작을수록 점수가 높습니다.</span>
+        <span style="display:block;margin-top:3px;color:var(--text-muted);"><b>추세 신뢰도</b>: 최근 90일 가격이 오르는 쪽(+)인지 내리는 쪽(−)인지를 하루하루의 잡음을 걸러 내고 잰 값입니다. 흐름이 들쭉날쭉해 추정이 불안정할수록 점수를 낮춥니다.</span>
+      </div>
+    </div>
+
+    <!-- 탭: 과거 검증 — v57.77: one view; renderBacktest owns the verdict, #screener-validation adds the history curve only. -->
+    <div id="scr-tab-backtest" role="tabpanel" aria-labelledby="scr-tab-button-backtest" style="display:none;">
+      <div class="aio-vis-card" style="margin-bottom:12px;">
+        <div class="aio-vis-card-title" title="정보계수(IC): 팩터 순위와 이후 수익률 순위가 얼마나 같은 방향이었는지 과거 자료로 잰 값">팩터 과거 검증 · 순위와 이후 수익률이 같은 방향으로 움직인 정도</div>
+        <div id="screener-backtest-panel"><div style="font-size:11px;color:var(--text-muted);">팩터 검증 파일 확인 중...</div></div>
+        <section class="screener-validation" id="screener-validation" aria-label="검증 기록의 추이"></section>
+      </div>
+    </div>
+
+    <!-- 탭: 조건별 과거 통계 · 같은 조건이 과거에 몇 번 나타나 몇 번 맞았는지 -->
+    <div id="scr-tab-evidence" role="tabpanel" aria-labelledby="scr-tab-button-evidence" style="display:none;">
+      <div class="aio-vis-card" style="margin-bottom:12px;">
+        <div class="aio-vis-card-title">조건별 과거 통계 · 같은 조건이 과거에 몇 번 나타나 몇 번 맞았는지</div>
+        <div id="screener-conditional-evidence-panel"><div style="font-size:11px;color:var(--text-muted);">조건별 통계 자료 확인 중…</div></div>
+      </div>
+    </div>
+
+    <details class="scr-workbench-advanced" id="scr-weight-profiles" style="margin:18px 0 10px;">
+      <summary>순위 가중치 바꾸기 — 검증 대상은 기본값(균형)뿐입니다</summary>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;">
+      <span style="font-size:12px;color:var(--text-dim);" title="조건 화면과 별개로, 같은 결과를 어떤 팩터에 무게를 두어 줄 세울지">순위 가중치</span>
+      <button class="scr-profile-btn active" data-aio-screener-action="profile" data-aio-screener-arg="balanced">균형 (기본)</button>
+      <button class="scr-profile-btn" data-aio-screener-action="profile" data-aio-screener-arg="momentum">모멘텀</button>
+      <button class="scr-profile-btn" data-aio-screener-action="profile" data-aio-screener-arg="swing">스윙</button>
+      <button class="scr-profile-btn" data-aio-screener-action="profile" data-aio-screener-arg="value">가치</button>
+      <button class="scr-profile-btn" data-aio-screener-action="profile" data-aio-screener-arg="lowrisk">저리스크</button>
+      </div>
+    </details>
+    <!-- P1431: 데이터 기준·식별·검증 상태 원문은 접어 둔다(값은 그대로, 사용자 기본 동선에서는 한 줄 요약만). -->
+    <details class="scr-data-status" id="scr-data-status">
+      <summary>데이터 기준 · 검증 상태</summary>
+    <div data-screener-provenance data-source-kind="reference" data-operational-use="reference-only" role="note" style="margin:8px 0 10px;padding:8px 12px;border:1px solid var(--border);border-radius:4px;background:var(--surface-1);font-size:10px;line-height:1.6;color:var(--text-dim);">관측시각·생성시각·출처 확인 대기</div>
+    <div id="screener-readiness-note" role="status" style="margin:0 0 18px;padding:9px 12px;border:1px solid var(--border);border-radius:4px;background:var(--surface-1);font-size:11px;line-height:1.6;color:var(--text-muted);">
+      팩터 산출물과 검증 상태 확인 중…
+    </div>
+    </details>
     </div><!-- /aio-section 퀀트스크리너 -->
     <nav class="flow-next" id="screener-next" aria-label="이어서 볼 곳" hidden></nav>
   </div>
@@ -7029,15 +6943,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=57.76" defer></script>
-  <script src="./js/aio-data.js?v=57.76" defer></script>
-  <script src="./js/aio-ui.js?v=57.76" defer></script>
+  <script src="./js/aio-core.js?v=57.77" defer></script>
+  <script src="./js/aio-data.js?v=57.77" defer></script>
+  <script src="./js/aio-ui.js?v=57.77" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=57.76" defer></script>
+<script src="./js/aio-chat.js?v=57.77" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -7088,7 +7002,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=57.76" defer></script>
+<script src="./js/aio-glossary.js?v=57.77" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

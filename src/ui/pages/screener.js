@@ -71,7 +71,8 @@ import { renderNextSteps } from '../components/page-flow.js';
 const FIELD_BY_COLUMN = new Map(SCREENER_FIELD_REGISTRY.fields.map(field => [field.rowKey, field.fieldId]));
 
 const PROFILE_DESCRIPTIONS = {
-  balanced: '사후 검증에 쓰는 기본 고정 비중으로 합산(비중은 팩터 패널 · 검증 결과는 위 사후 검증) · 시장 국면별 비중은 참고로만 표시',
+  // v57.77: one line — where the weights and the validation live is the tabs' job, not this label's.
+  balanced: '기본 균형 비중으로 합산',
   momentum: '단기 추세·모멘텀 중심',
   swing: '중기 기술적 매매',
   value: '저평가·장기 보유',
@@ -949,10 +950,10 @@ function renderConditionalEvidence(documentRef, metadata) {
     READY: '연구용 표시 가능',
     LOW_SAMPLE: '표본 경고',
     LOW_SAMPLE_BLOCKED: '표본 부족으로 보류',
-    BLOCKED: '계보·권리·캘린더 차단',
+    BLOCKED: '출처·이용 권리·거래 세션 확인 안 됨',
     NO_DATA: '검증 자료 없음'
   };
-  const status = statusLabels[evidenceContractValid ? evidence.status : evidence ? 'BLOCKED' : 'NO_DATA'] || '조건부 evidence 미수신';
+  const status = statusLabels[evidenceContractValid ? evidence.status : evidence ? 'BLOCKED' : 'NO_DATA'] || '조건별 통계 미수신';
   panel.dataset.statusCode = evidenceContractValid ? evidence.status : evidence ? 'BLOCKED' : 'NO_CONDITIONAL_EVIDENCE';
   const header = documentRef.createElement('div');
   header.style.cssText = 'display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:6px;';
@@ -984,17 +985,19 @@ function renderConditionalEvidence(documentRef, metadata) {
   }
   const query = documentRef.createElement('div');
   query.style.cssText = 'font-size:10px;color:var(--text-muted);line-height:1.45;margin-bottom:8px;';
-  query.textContent = `조건: ${evidence.queryEcho || '구조화 query echo 미수신'} · 관측 종료: ${evidence.lastObservedAt ? String(evidence.lastObservedAt).slice(0, 16).replace('T', ' ') : '—'} · source ${evidence.lineage?.sourceIds?.join(' · ') || '—'}`;
+  // v57.77: plain words on screen; the source ids move to the hover title (sources stay off the numbers).
+  query.textContent = `조건: ${evidence.queryEcho || '조건 내용 미수신'} · 마지막 관측: ${evidence.lastObservedAt ? String(evidence.lastObservedAt).slice(0, 16).replace('T', ' ') : '—'}`;
+  query.title = `자료 출처 ${evidence.lineage?.sourceIds?.join(' · ') || '—'}`;
   panel.appendChild(query);
   const grid = documentRef.createElement('div');
   grid.style.cssText = 'display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:8px;';
   const sample = evidence.sample || {};
   const ci = sample.confidenceInterval;
   const metricValues = [
-    ['분모 N', sample.trials ?? '—'],
-    ['성공', sample.successes ?? '—'],
-    ['빈도', sample.estimate == null ? '—' : `${(sample.estimate * 100).toFixed(1)}%`],
-    ['Wilson 95%', ci ? `${(ci.low * 100).toFixed(1)}~${(ci.high * 100).toFixed(1)}%` : '—']
+    ['나타난 횟수', sample.trials ?? '—'],
+    ['맞은 횟수', sample.successes ?? '—'],
+    ['맞은 비율', sample.estimate == null ? '—' : `${(sample.estimate * 100).toFixed(1)}%`],
+    ['95% 범위', ci ?`${(ci.low * 100).toFixed(1)}~${(ci.high * 100).toFixed(1)}%` : '—']
   ];
   metricValues.forEach(([label, value]) => {
     const card = documentRef.createElement('div');
@@ -1014,11 +1017,13 @@ function renderConditionalEvidence(documentRef, metadata) {
   const stability = evidence.stability || {};
   const recency = evidence.recency || {};
   const distribution = evidence.distribution || {};
-  details.textContent = `전후반 안정성 ${stability.status || '—'}${stability.intervalOverlap == null ? '' : ` · CI 중첩 ${stability.intervalOverlap ? '예' : '아니오'}`} · 최근 표본 ${recency.trials ?? '—'} · 최근 빈도 ${recency.estimate == null ? '—' : `${(recency.estimate * 100).toFixed(1)}%`} · 성공 결과 분포 p25/중앙/p75 ${[distribution.p25, distribution.median, distribution.p75].map((value) => value == null ? '—' : Number(value).toFixed(3)).join(' / ')} · 제외 ${evidence.excludedObservationCount ?? 0}건`;
+  // v57.77: plain Korean on screen; the pipeline identifiers (lineage status, rights/calendar ids, allowed use) go to the hover title.
+  details.textContent = `앞·뒤 절반 기간의 결과가 비슷한지 ${stability.status || '—'}${stability.intervalOverlap == null ? '' : ` · 두 기간의 범위 겹침 ${stability.intervalOverlap ? '예' : '아니오'}`} · 최근 나타난 횟수 ${recency.trials ?? '—'} · 최근 맞은 비율 ${recency.estimate == null ? '—' : `${(recency.estimate * 100).toFixed(1)}%`} · 맞은 경우의 결과 하위 25%/중앙/상위 25% ${[distribution.p25, distribution.median, distribution.p75].map((value) => value == null ? '—' : Number(value).toFixed(3)).join(' / ')} · 제외 ${evidence.excludedObservationCount ?? 0}건`;
   panel.appendChild(details);
   const boundary = documentRef.createElement('div');
   boundary.style.cssText = 'margin-top:7px;padding-top:7px;border-top:1px solid var(--border);font-size:10px;line-height:1.5;color:var(--text-muted);';
-  boundary.textContent = `${evidence.lineage?.status || 'LINEAGE_UNCONFIRMED'} · 권리 ${evidence.lineage?.rightsIds?.join(' · ') || '미확인'} · 캘린더 ${evidence.lineage?.calendarIds?.join(' · ') || '미확인'} · ${evidence.allowedUse || 'reference-only'} · ${evidence.blockedReasons?.length ? `차단 사유 ${evidence.blockedReasons.join(' · ')}` : '현재성 경계 확인'}`;
+  boundary.textContent = `참고용 통계 · ${evidence.blockedReasons?.length ? `보류 사유 ${evidence.blockedReasons.length}건` : evidence.lineage?.status === 'CURRENT_CANDIDATE' ? '자료 출처·이용 권리·거래 세션 확인됨' : '자료 출처 확인 전'}`;
+  boundary.title = `${evidence.lineage?.status || 'LINEAGE_UNCONFIRMED'} · 권리 ${evidence.lineage?.rightsIds?.join(' · ') || '미확인'} · 캘린더 ${evidence.lineage?.calendarIds?.join(' · ') || '미확인'} · ${evidence.allowedUse || 'reference-only'}${evidence.blockedReasons?.length ? ` · ${evidence.blockedReasons.join(' · ')}` : ''}`;
   panel.appendChild(boundary);
   const disclaimer = documentRef.createElement('div');
   disclaimer.style.cssText = 'margin-top:6px;font-size:10px;color:var(--data-amber);';

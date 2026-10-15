@@ -1,3 +1,12 @@
+## v57.77 (2026-10-15)
+- **Macro race removed (P1820):** the legacy risk-monitor writer no longer overwrites the native macro snapshot values.
+- **Accessibility (P1821):** contrast, accessible names, heading order, selected state and canvas descriptions fixed on news, signal, themes, home and stock.
+- **Audit metadata (P1822):** the pipeline audit no longer reports a non-existent missing function; stale audit entries were pruned.
+- **Performance (P1823):** the artifact cache now hits and screener re-entry within 30 minutes makes no data requests; boot long tasks fell from 1383/604 ms to 1087/335 ms (desktop sum/max) by reading one path instead of cloning all screener rows, hoisting a date formatter and marking glossary terms in one pass.
+- **Screens (v57.77):** 브리핑 cards show levels only (the chart carries the moves); 포트폴리오 puts the entry form and holdings right under the reading and drops the empty risk shell and the estimate-based auto-diagnosis; 스크리너 shows the table first, validation once (in its tab) and plain-language tab text; 시장 폭 shows one lead chart per group with the rest folded and both 시장 폭 and 투자 심리 gained 데이터 출처 folds; 뉴스 has one filter row (기업 became a topic chip) and next-step links; 한국 차트 replaced the invented 단계/확도 grades with close-based KOSPI/KOSDAQ trend charts; 한국 거시/테마 dropped dead widgets, the external link, English subtitles and the HOT grade (plain move bands instead).
+- **Legacy dead code (v57.77):** about 1,600 lines of unreachable legacy code (tail-risk/checkpoint writers, test-only tactical calculators, the TradingView branches, the AI on/off switch logic, the Stage engine, the market-health renderers, home refresh leftovers and test-only chat simulators) removed with their pins converted to absence checks.
+- R1 7곳 v57.77
+
 ## v57.76 (2026-10-15)
 - **Sector scatter visible (P1819):** the RRG scatter is the main visual of 섹터 회전 판정 in plain Korean and fits a phone; the duplicate 섹터 흐름 분석 box is gone and the sector-cycle map moved to the concept dictionary.
 - **Home (v57.76):** the full AI analysis and news list that duplicated 브리핑 and 뉴스 left home (오늘의 한 문장 stays); the evidence-free factor heatmap and the third price table were removed; 지난 마감 이후 변화 now sits directly under the close-based verdict, followed by 지금 시세 (실시간·지연); the five breadth cards became one 시장 폭 link.

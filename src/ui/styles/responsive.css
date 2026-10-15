@@ -27,6 +27,11 @@
 .theme-strength-table .theme-member-detail { white-space: normal; background: var(--surface-2); padding: 16px; }
 .theme-member-table { width: 100%; font-size: 12px; }
 .theme-member-table th, .theme-member-table td { white-space: nowrap; }
+/* v57.77: 시장 폭 groups show one lead chart (capped so a lone card does not stretch to a 500px-tall chart) and fold the rest. */
+#breadth-chart-grid > .breadth-lead { width: 100%; max-width: 760px; }
+#breadth-chart-grid > .breadth-more { grid-column: 1 / -1; min-width: 0; }
+.breadth-more > summary { cursor: pointer; width: max-content; max-width: 100%; padding: 12px 0; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+.breadth-more > .breadth-more-grid { margin-top: 4px; }
 @media (max-width: 1100px) {
   .app { width: 100% !important; max-width: 100% !important; }
   .main { min-width: 0; width: 100%; }

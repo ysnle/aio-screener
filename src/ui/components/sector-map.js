@@ -109,10 +109,11 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
         if (tile.h >= size * 2.6 && tile.w >= 40) node.append(el(doc, 'span', tile.staleRet != null ? '기준일 다름' : signed(tile.ret, Math.abs(tile.ret ?? 0) >= 10 ? 1 : 2)));
       }
       const describe = () => `${tile.sym}${tile.name ? ` · ${tile.name}` : ''} · ${tile.sectorLabel} · ${model.sizeBasis === 'index-weight' ? `지수 비중 ${tile.value.toFixed(2)}%` : `시가총액 약 ${tile.value >= 1e12 ? `${(tile.value / 1e12).toFixed(2)}조` : `${Math.round(tile.value / 1e8).toLocaleString('ko-KR')}억`} 달러`} · ${model.periodLabel} ${tile.staleRet != null ? `${signed(tile.staleRet)} (${shortDate(tile.basis)} 종가 · 기준일이 달라 색과 평균에서 제외)` : `${signed(tile.ret)}${tile.basis && tile.basis !== model.basis ? ` (${shortDate(tile.basis)} 종가)` : ''}`}`;
-      node.addEventListener('mouseenter', () => { detail.textContent = describe(); });
+      node.addEventListener('mouseenter', () => { detail.setAttribute('aria-live', 'off'); detail.textContent = describe(); }); // v57.77 (a11y): hover is silent; a click announces
       node.addEventListener('click', () => {
         if (selected === tile.sym && typeof root.showTicker === 'function') { root.showTicker(tile.sym); return; }
         selected = tile.sym;
+        detail.setAttribute('aria-live', 'polite');
         detail.textContent = `${describe()} — 한 번 더 누르면 종목 화면으로 이동합니다.`;
       });
       nodes.push(node);

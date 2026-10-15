@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.76';
+const APP_VERSION = 'v57.77';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2434,18 +2434,7 @@ document.addEventListener('keydown', function(e) {
   document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); t.setAttribute('aria-expanded', 'false'); });
 });
 
-// 훅: _liveData 갱신 + signal/briefing 페이지 진입 시
-// v48.99: _aioPageBus 마이그 (P178)
-if (typeof document !== 'undefined') {
-  _aioPageBus.register('core-signal-live', 'aio:liveQuotes', function(){
-    var sig = document.getElementById('page-signal');
-    if (sig && sig.classList.contains('active')) {
-      // v50.18: CP 리스크보드 텍스트 재렌더 — getCP1/CP6Text가 live WTI(CL=F) 우선이나 applyDataSnapshot에서만 렌더돼
-      // init 시점 snapshot(예: 6/5 유가 97.2)을 캡처 후 live($89) 도착해도 안 바뀌던 갭 차단.
-      try { if (typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.renderCPTexts) NARRATIVE_ENGINE.renderCPTexts(); } catch(_){}
-    }
-  });
-}
+// v57.77: the core-signal-live hook (CP1-CP8 re-render into the absent #cp*-detail DOM) was removed.
 
 if (typeof document !== 'undefined') {
   // v57.76: _aioRenderThemesCycle (the themes #cycle-dynamic-* readout writer) was deleted with its sinks;
@@ -12032,17 +12021,8 @@ window.AIO.loadPublicConfig = async function() {
 window.AIO.getPublicConfig = function() { return window.AIO_PUBLIC_CONFIG || null; };
 
 function _aioRefreshProviderStatuses() {
-  var snapshot = window.AIO.getProviderStatusSnapshot();
-  var claude = snapshot.claude || {};
-  var storageLabel = {
-    MISSING: '미저장', READY_PLAINTEXT: '저장됨', READY_SESSION: '탭 세션 저장됨',
-    READY_ENCRYPTED: '암호화 저장됨', LOCKED: 'Vault 잠김', INVALID_FORMAT: '형식 오류',
-    STORAGE_DENIED: '저장소 거부', PERSISTENCE_FAILED: '저장 확인 실패'
-  }[claude.storage] || '확인 안 됨';
-  var keyStatus = document.getElementById('claude-key-status');
-  if (keyStatus) keyStatus.textContent = !claude.storage || claude.storage === 'MISSING' ? '' : '키 ' + storageLabel + ({ VERIFIED: ' · 연결 확인됨', FAILED: ' · 연결 실패' }[claude.connection] || { VERIFIED: ' · 인증 확인됨', FAILED: ' · 인증 실패' }[claude.authentication] || ''); // P1393: no raw NOT_CHECKED enums; nothing to say before a key exists
-  if (typeof _aioSyncClaudeServerModeUI === 'function') _aioSyncClaudeServerModeUI();
-  return snapshot;
+  // v57.77: the #claude-key-status writer and the undefined _aioSyncClaudeServerModeUI call left with their absent owners.
+  return window.AIO.getProviderStatusSnapshot();
 }
 // The top-level function declaration already provides the legacy window export.
 window.addEventListener('aio:providerStatus', _aioRefreshProviderStatuses);
@@ -13063,11 +13043,9 @@ function _getKrxSession(at) {
  */
 function _getUsSession(at) {
   var now = at instanceof Date ? at : new Date();
-  // Intl owns the DST transition; represent its wall-clock parts for the calendar helpers.
-  var etParts = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
-  }).formatToParts(now).map(function(part) { return [part.type, part.value]; }));
+  // Intl owns the DST transition; represent its wall-clock parts for the calendar helpers. v57.77 perf: one formatter, built once (runs per live-data element).
+  var etFormat = _getUsSession._etFormat || (_getUsSession._etFormat = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }));
+  var etParts = Object.fromEntries(etFormat.formatToParts(now).map(function(part) { return [part.type, part.value]; }));
   var et = new Date(Number(etParts.year), Number(etParts.month) - 1, Number(etParts.day), Number(etParts.hour), Number(etParts.minute));
   var day = et.getDay();
   var h = et.getHours(), m = et.getMinutes();
@@ -14585,29 +14563,6 @@ function calcExtensionHeat(snapshot) {
   return { state: state, score: score, flags: flags.length ? flags : ['EXTENSION_NORMAL'], snapshot: snapshot, dist20Atr: d20, dist20Adr: adr, dist50Atr: d50 };
 }
 
-function classifyTerminalCandle(bar, prevBar, snapshot) {
-  snapshot = snapshot || {};
-  bar = bar || snapshot.lastBar || null;
-  prevBar = prevBar || snapshot.prevBar || null;
-  var metrics = _calcCandleMetrics(bar, prevBar);
-  var dist20 = snapshot.dist20Atr !== undefined ? snapshot.dist20Atr : null;
-  var rvol = snapshot.rvol20 !== undefined ? snapshot.rvol20 : null;
-  var score = 0, flags = [], type = 'NEUTRAL';
-  function set(nextType, points, flag) {
-    if (points >= score) type = nextType;
-    score = Math.max(score, points);
-    flags.push(flag);
-  }
-  if (!bar) return { type: 'DATA_INSUFFICIENT', score: 0, flags: ['DATA_INSUFFICIENT'], metrics: metrics };
-  if (metrics.dayPct > 2 && metrics.closePosition >= 0.8 && metrics.upperWickPct < 0.2) set('MOMENTUM_THRUST', 8, 'STRONG_CLOSE_MOMENTUM_THRUST');
-  if (metrics.gapUpPct >= 2 && metrics.upperWickPct >= 0.35 && metrics.closePosition < 0.6 && dist20 !== null && dist20 >= 4) set('GAP_UP_EXHAUSTION', 45, 'GAP_UP_UPPER_WICK_EXHAUSTION');
-  if (metrics.upperWickPct >= 0.45 && metrics.bodyPct <= 0.35 && dist20 !== null && dist20 >= 4) set('SHOOTING_STAR_RISK', 42, 'SHOOTING_STAR_AFTER_EXTENSION');
-  if (prevBar && Number(bar.close) < Number(prevBar.low) && rvol !== null && rvol >= 2) set('BEARISH_CONFIRMATION', 68, 'CLOSE_BELOW_PREV_LOW_ON_RVOL');
-  if (snapshot.failedRetest) set('FAILED_RETEST', 58, 'FAILED_RETEST_OF_PRIOR_HIGH');
-  if (metrics.closePosition < 0.4 && metrics.upperWickPct >= 0.35) set(type === 'NEUTRAL' ? 'WEAK_CLOSE_WARNING' : type, Math.max(score, 25), 'WEAK_CLOSE_WITH_SUPPLY');
-  return { type: type, score: Math.max(0, Math.min(100, Math.round(score))), flags: flags.length ? flags : ['NO_TERMINAL_CANDLE'], metrics: metrics, snapshot: snapshot };
-}
-
 // P1128/R619: OPEX 만기 계산의 단일 정본. aio-data.js의 사본은 P575에서 시간대 보정을 받았지만
 // 이쪽은 받지 못해 두 구현이 하루 다른 날짜를 낼 수 있었다. 로컬 자정을 toISOString으로 바꾸면
 // UTC+ 시간대에서 전날이 되므로(KST: 3rd Friday 2026-01-16 → "2026-01-15") 로컬 성분으로 포맷한다.
@@ -14621,95 +14576,6 @@ function _aioNextMonthlyOpex(referenceDate) {
   return { nextOpexDate: y + '-' + m + '-' + d, daysToOpex: Math.ceil((next.getTime() - refDay.getTime()) / 86400000) };
 }
 window._aioNextMonthlyOpex = _aioNextMonthlyOpex;
-
-function calcOpexGammaRisk(ctx) {
-  ctx = ctx || {};
-  var cal = ctx.daysToOpex !== undefined ? { daysToOpex: Number(ctx.daysToOpex), nextOpexDate: ctx.nextOpexDate || null } : _aioNextMonthlyOpex(ctx.referenceDate);
-  var days = isFinite(cal.daysToOpex) ? cal.daysToOpex : null;
-  var equityPutCall = Number(ctx.equityPutCall);
-  var indexPutCall = Number(ctx.indexPutCall);
-  var totalPutCall = Number(ctx.totalPutCall);
-  var score = 0, flags = [];
-  function add(points, flag) { score += points; flags.push(flag); }
-  if (days !== null && days <= 3) add(14, 'OPEX_WITHIN_3_SESSIONS');
-  if (isFinite(equityPutCall) && equityPutCall < 0.55) add(18, 'EQUITY_PUT_CALL_COMPLACENCY');
-  if (isFinite(indexPutCall) && indexPutCall > 1.0 && isFinite(equityPutCall) && equityPutCall < 0.6) add(14, 'INDEX_HEDGE_EQUITY_CALL_CHASE_SPLIT');
-  if (isFinite(totalPutCall) && totalPutCall < 0.75) add(8, 'TOTAL_PUT_CALL_LOW');
-  // P1253: 아래 두 규칙은 프로덕션에서 입력이 공급된 적 없는 미연결 규칙이다 — 유일한 호출부
-  // (js/aio-ui.js 기술 페이지)가 priceNearCallWall/closeAboveCallWall/afterOpex/callVolumeDecelerating을
-  // 전달하지 않아 감마 근거 없이 점수가 가산됐다. 수식·가중치는 보존하되 비활성 규칙으로 만든다.
-  var UNFED_RULES_ENABLED = false;
-  if (UNFED_RULES_ENABLED && ctx.priceNearCallWall && !ctx.closeAboveCallWall) add(14, 'PINNED_BELOW_CALL_WALL');
-  if (UNFED_RULES_ENABLED && ctx.afterOpex && ctx.callVolumeDecelerating) add(18, 'POST_OPEX_CALL_DECAY');
-  // P1253: vixRisingWhileIndexUp 은 프로덕션 호출부가 상수 false 로 고정 공급한다 — 현재 경로에서 발화 불가.
-  // 입력이 실측으로 공급되면 발화할 수 있으므로 규칙 자체는 유지한다.
-  if (ctx.vixRisingWhileIndexUp) add(16, 'VIX_RISING_WHILE_INDEX_UP');
-  score = Math.max(0, Math.min(100, Math.round(score)));
-  // P1253: 이 점수는 OPEX 캘린더·풋콜 비율만으로 계산되며 감마(GEX)는 측정된 바 없다.
-  // 'GAMMA_SUPPORT' 등 감마 단언 라벨을 정직한 라벨로 교체한다 — 점수/가중치는 그대로다.
-  var regime = score >= 60 ? 'OPEX 스트레스 높음(감마 미측정)' : score >= 30 ? 'OPEX 스트레스 중간(감마 미측정)' : 'OPEX 스트레스 낮음(감마 미측정)';
-  // P1253: 기본 플래그도 감마 단언('NO_OPEX_GAMMA_STRESS')을 제거 — 감마 미측정 사실을 명시.
-  return { regime: regime, score: score, flags: flags.length ? flags : ['NO_OPEX_STRESS_GAMMA_UNMEASURED'], daysToOpex: days, nextOpexDate: cal.nextOpexDate || null, equityPutCall: isFinite(equityPutCall) ? equityPutCall : null, indexPutCall: isFinite(indexPutCall) ? indexPutCall : null, totalPutCall: isFinite(totalPutCall) ? totalPutCall : null, dataQuality: ctx.dataQuality || null };
-}
-
-function calcBreadthRotation(ctx) {
-  ctx = ctx || {};
-  var score = 0, flags = [];
-  function add(points, flag) { score += points; flags.push(flag); }
-  if (ctx.iwmUp || Number(ctx.iwmVsQqqRS_5d) > 0) add(18, 'IWM_PARTICIPATION');
-  if (ctx.rspUp || Number(ctx.rspVsSpyRS_5d) > 0) add(16, 'EQUAL_WEIGHT_CONFIRMATION');
-  if (ctx.kreUp) add(10, 'KRE_CYCLICAL_CONFIRMATION');
-  if (ctx.xbiUp) add(10, 'XBI_SPEC_GROWTH_CONFIRMATION');
-  if (ctx.industrialsUp) add(8, 'INDUSTRIALS_CONFIRMATION');
-  if (ctx.qqqUpButBreadthDown) add(-28, 'QQQ_UP_BREADTH_DOWN');
-  if (ctx.iwmFailedBreakout) add(-22, 'IWM_FAILED_BREAKOUT');
-  if (ctx.rspLaggingSpy) add(-16, 'RSP_LAGGING_SPY');
-  if (ctx.kreDown && ctx.xbiDown) add(-14, 'CYCLICAL_SPEC_ROTATION_FAILED');
-  if (ctx.smhSidewaysNotDown && score > 0) flags.push('SEMI_DIGESTING_WHILE_BREADTH_BROADENS');
-  if (Number(ctx.smhVsQqqRS_5d) > 0 || Number(ctx.smhVsSpyRS_5d) > 0) add(12, 'SEMI_LEADERSHIP_CONFIRMATION');
-  if (ctx.softwareToSemiRotation || Number(ctx.igvVsSmhRS_5d) < 0) add(10, 'IGV_TO_SMH_ROTATION');
-  if (ctx.failedBreakdownReclaim) add(16, 'FAILED_BREAKDOWN_RECLAIM');
-  if (ctx.priceUpNoVolume || ctx.shortCoveringOnly) flags.push('LOW_VOLUME_RALLY_SHORT_COVER_CHECK');
-  score = Math.max(-100, Math.min(100, Math.round(score)));
-  var regime = score >= 30 ? 'BREADTH_BROADENING' : score <= -25 ? 'FAILED_ROTATION' : 'NARROW_LEADERSHIP';
-  return { regime: regime, score: score, flags: flags.length ? flags : ['BREADTH_NEUTRAL_OR_INSUFFICIENT'], iwmVsQqqRS_5d: Number(ctx.iwmVsQqqRS_5d) || 0, rspVsSpyRS_5d: Number(ctx.rspVsSpyRS_5d) || 0, smhVsQqqRS_5d: Number(ctx.smhVsQqqRS_5d) || 0, smhVsSpyRS_5d: Number(ctx.smhVsSpyRS_5d) || 0, igvVsSmhRS_5d: Number(ctx.igvVsSmhRS_5d) || 0 };
-}
-
-function calcLockoutRegime(modules) {
-  modules = modules || {};
-  var candle = modules.candle || {};
-  var opex = modules.opexGamma || {};
-  var breadth = modules.breadth || {};
-  var extension = modules.extension || {};
-  if (candle.type === 'BEARISH_CONFIRMATION' || candle.type === 'FAILED_RETEST') return 'DISTRIBUTION_REVERSAL';
-  // P1253: calcOpexGammaRisk 라벨 개명(감마 미측정)에 맞춰 비교식도 새 라벨로 갱신 — 분기 동작은 동일.
-  if (opex.regime === 'OPEX 스트레스 높음(감마 미측정)') return 'OPEX_PIN_OR_DECAY';
-  if (breadth.regime === 'FAILED_ROTATION') return 'FAILED_ROTATION';
-  if (extension.state === 'BLOW_OFF_RISK' || extension.state === 'EXTREME_EXTENSION') return 'LATE_STAGE_GAMMA_CHASE';
-  if (breadth.regime === 'BREADTH_BROADENING') return 'BREADTH_BROADENING';
-  return 'LOCKOUT_CONTINUATION';
-}
-
-function calcLockoutAction(modules) {
-  modules = modules || {};
-  // P1558: without the extension and candle readings the sum below is 0 and read as 'HOLD_CORE' (low load) — missing is not calm.
-  var _missing = function(m) { return !m || (m.flags || []).indexOf('DATA_INSUFFICIENT') >= 0; };
-  if (_missing(modules.extension) || _missing(modules.candle)) {
-    return { score: null, action: 'WAIT', regime: 'DATA_INSUFFICIENT', flags: ['DATA_INSUFFICIENT'], extension: modules.extension || null, candle: modules.candle || null, opexGamma: modules.opexGamma || null, breadth: modules.breadth || null, portfolioExposure: modules.portfolioExposure || null };
-  }
-  var extension = modules.extension || { score: 0, flags: [] };
-  var candle = modules.candle || { score: 0, flags: [] };
-  var opexGamma = modules.opexGamma || { score: 0, flags: [] };
-  var breadth = modules.breadth || { score: 0, flags: [] };
-  var portfolio = modules.portfolioExposure || { score: 0, flags: [] };
-  var breadthPenalty = Math.max(0, -(Number(breadth.score) || 0));
-  var risk = (Number(extension.score) || 0) * 0.25 + (Number(candle.score) || 0) * 0.25 + (Number(opexGamma.score) || 0) * 0.20 + breadthPenalty * 0.15 + (Number(portfolio.score) || 0) * 0.15;
-  var score = Math.max(0, Math.min(100, Math.round(risk)));
-  var action = score >= 75 ? 'EXIT_OR_HEDGE' : score >= 55 ? 'TRIM_50' : score >= 35 ? 'TRIM_25_33' : score >= 15 ? 'NO_ADD_RAISE_STOP' : 'HOLD_CORE';
-  var regime = calcLockoutRegime({ extension: extension, candle: candle, opexGamma: opexGamma, breadth: breadth });
-  var flags = [].concat(extension.flags || [], candle.flags || [], opexGamma.flags || [], breadth.flags || [], portfolio.flags || []);
-  return { score: score, action: action, regime: regime, flags: flags.length ? flags : ['LOCKOUT_ACTION_NEUTRAL'], extension: extension, candle: candle, opexGamma: opexGamma, breadth: breadth, portfolioExposure: portfolio };
-}
 
 var AIO_EVENT_RISK_CONTEXT = {
   available: false,
@@ -14830,99 +14696,6 @@ var AIO_TACTICAL_TRADER_FRAMEWORK = {
   }
 };
 
-function getTacticalTraderFrameworkAudit() {
-  var f = AIO_TACTICAL_TRADER_FRAMEWORK;
-  var issues = [];
-  if (!f || f.sourceKind !== 'REFERENCE') issues.push('framework must remain REFERENCE, not LIVE');
-  if (!f || !Array.isArray(f.rules) || f.rules.length < 5) issues.push('expected at least five tactical rules');
-  if (!f || !f.pageOverlay || !f.pageOverlay.signal || !f.pageOverlay.technical || !f.pageOverlay.ticker) issues.push('missing key page overlays');
-  var exampleLive = (f.referenceExamples || []).some(function(e) { return e.notRuntimeLevel !== true; });
-  if (exampleLive) issues.push('reference examples must be marked notRuntimeLevel');
-  return { status: issues.length ? 'warn' : 'ok', issues: issues, id: f && f.id, version: f && f.version, sourceKind: f && f.sourceKind, ruleCount: f && f.rules ? f.rules.length : 0 };
-}
-
-function _aioEventDays(dateStr, refDate) {
-  var ref = refDate ? new Date(refDate) : new Date();
-  var d = new Date(dateStr + 'T00:00:00');
-  if (isNaN(d.getTime())) return null;
-  var r = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate());
-  return Math.round((d.getTime() - r.getTime()) / 86400000);
-}
-
-function calcBlowoffTopChecklist(snapshot, context) {
-  context = context || {};
-  snapshot = snapshot || {};
-  var eventCtx = context.eventContext || AIO_EVENT_RISK_CONTEXT;
-  var checks = [], supports = [];
-  function push(list, ok, label, detail, severity) {
-    list.push({ ok: !!ok, label: label, detail: detail || '', severity: severity || (ok ? 'risk' : 'watch') });
-  }
-  function fin(v) { if (v == null || v === '') return null; var n = Number(v); return isFinite(n) ? n : null; }
-  var dist20Pct = fin(snapshot.dist20Pct);
-  var dist20Atr = fin(snapshot.dist20Atr);
-  var dist200Pct = fin(snapshot.dist200Pct);
-  var rsi14 = fin(snapshot.rsi14);
-  var rvol20 = fin(snapshot.rvol20);
-  var closePosition = fin(snapshot.closePosition);
-  var price20Ratio = dist20Pct !== null ? 100 + dist20Pct : null;
-  var raw = Array.isArray(snapshot.raw) ? snapshot.raw.filter(function(b) { return b && isFinite(Number(b.close)); }) : [];
-  var lastBar = raw.length ? raw[raw.length - 1] : null;
-  var priorBars = raw.length > 1 ? raw.slice(0, -1) : [];
-  var maxPriorGain = raw.length >= 20 && priorBars.length > 1 ? Math.max.apply(null, priorBars.slice(1).map(function(b, i) {
-    var prev = priorBars[i]; return prev && Number(prev.close) > 0 ? (Number(b.close) - Number(prev.close)) / Number(prev.close) * 100 : -Infinity;
-  })) : null;
-  var lastGain = lastBar && priorBars.length && Number(priorBars[priorBars.length - 1].close) > 0
-    ? (Number(lastBar.close) - Number(priorBars[priorBars.length - 1].close)) / Number(priorBars[priorBars.length - 1].close) * 100 : null;
-  var maxPriorVolume = raw.length >= 20 && priorBars.length ? Math.max.apply(null, priorBars.map(function(b) { return Number(b.volume) || 0; })) : null;
-  var lastVolume = lastBar ? Number(lastBar.volume) || 0 : null;
-  var last10 = raw.slice(-10);
-  var up8 = last10.length >= 8 ? last10.slice(-8).filter(function(b, i, arr) { return i > 0 && Number(b.close) > Number(arr[i - 1].close); }).length : null;
-  var up10 = last10.length >= 10 ? last10.slice(1).filter(function(b, i) { return Number(b.close) > Number(last10[i].close); }).length : null;
-  var weeklyRaw = Array.isArray(context.weeklyOhlcv) ? context.weeklyOhlcv.filter(function(b) { return b && isFinite(Number(b.close)); }) : [];
-  var weekA = weeklyRaw.length >= 2 ? [weeklyRaw[weeklyRaw.length - 2]] : [];
-  var weekB = weeklyRaw.length >= 2 ? [weeklyRaw[weeklyRaw.length - 1]] : [];
-  var rangePct = function(bars) {
-    if (!bars.length || !(Number(bars[0].close) > 0)) return null;
-    var hi = Math.max.apply(null, bars.map(function(b) { return Number(b.high) || Number(b.close); }));
-    var lo = Math.min.apply(null, bars.map(function(b) { return Number(b.low) || Number(b.close); }));
-    return (hi - lo) / Number(bars[0].close) * 100;
-  };
-  var railroadA = rangePct(weekA), railroadB = rangePct(weekB);
-  var railroadVolA = weekA.length ? weekA.reduce(function(s, b) { return s + (Number(b.volume) || 0); }, 0) / weekA.length : null;
-  var railroadVolB = weekB.length ? weekB.reduce(function(s, b) { return s + (Number(b.volume) || 0); }, 0) / weekB.length : null;
-  var railroadTrack = railroadA !== null && railroadB !== null && railroadA > 0
-    && Math.abs(railroadB - railroadA) / railroadA <= 0.15
-    && railroadVolA > 0 && railroadVolB >= railroadVolA * 1.2
-    && Number(weekB[weekB.length - 1].close) >= Number(weekA[weekA.length - 1].close);
-  push(checks, price20Ratio !== null && price20Ratio >= 117, '20MA distance near heat band', price20Ratio === null ? '20MA ratio unavailable' : ('price/20MA ' + price20Ratio.toFixed(1) + ' / heat 120'), price20Ratio >= 120 ? 'risk' : 'warn');
-  push(checks, dist20Atr !== null && dist20Atr >= 4, 'ATR extension trim zone', dist20Atr === null ? 'ATR extension unavailable' : ('20MA +' + dist20Atr.toFixed(1) + ' ATR'), dist20Atr !== null && dist20Atr >= 6 ? 'risk' : 'warn');
-  push(checks, rsi14 !== null && rsi14 >= 80, 'RSI overheat', rsi14 === null ? 'RSI unavailable' : ('RSI ' + rsi14.toFixed(1) + ' - not automatic sell'), rsi14 !== null && rsi14 >= 85 ? 'risk' : 'warn');
-  push(checks, rvol20 !== null && rvol20 >= 2.5 && closePosition !== null && closePosition < 0.55, 'Climax supply candle', 'RVOL ' + (rvol20 === null ? '--' : rvol20.toFixed(1)) + 'x / close position ' + (closePosition === null ? '--' : Math.round(closePosition * 100) + '%'), 'risk');
-  push(checks, dist200Pct !== null && dist200Pct >= 70, '200SMA 70%+ extension', dist200Pct === null ? '200SMA distance unavailable' : 'price/200SMA +' + dist200Pct.toFixed(1) + '% · O’Neil-style stretch watch', 'warn');
-  push(checks, lastGain !== null && maxPriorGain !== null && lastGain >= maxPriorGain && lastGain > 0, 'Record one-day gain watch', lastGain === null ? 'daily history unavailable' : 'latest day +' + lastGain.toFixed(1) + '% vs prior max ' + (maxPriorGain === null ? '--' : maxPriorGain.toFixed(1) + '%'), 'warn');
-  push(checks, lastVolume !== null && maxPriorVolume !== null && lastVolume >= maxPriorVolume && lastVolume > 0, 'Record volume watch', lastVolume === null ? 'volume history unavailable' : 'latest volume vs prior maximum', 'warn');
-  push(checks, (up8 !== null && up8 >= 7) || (up10 !== null && up10 >= 8), 'Rapid multi-day run', up8 === null ? '8/10-day history unavailable' : 'up days: last 8=' + up8 + ', last 10=' + (up10 === null ? '--' : up10), 'warn');
-  push(checks, railroadTrack, 'Railroad-track distribution watch', railroadA === null ? 'two-week OHLCV history unavailable' : 'weekly range similarity + rising volume/close condition', 'risk');
-  push(checks, context.upperChannelBreakout === true, 'Upper channel breakout watch', context.upperChannelBreakout === true ? 'user/runtime channel input supplied' : 'channel geometry not supplied', 'warn');
-  push(checks, !!snapshot.bbReentry, 'Upper Bollinger re-entry', snapshot.bbReentry ? 'outside upper band then closed back inside' : 'no exhaustion re-entry yet', 'warn');
-  // P1253: 라벨 개명에 맞춰 비교식 갱신 + 체크 문구도 감마 미측정 사실을 반영 (점수 로직 불변).
-  push(checks, context.opexGammaRisk && context.opexGammaRisk.regime !== 'OPEX 스트레스 낮음(감마 미측정)', 'OPEX 스트레스 감시(감마 미측정)', context.opexGammaRisk ? context.opexGammaRisk.regime : 'option context unavailable', 'warn');
-  push(checks, eventCtx && eventCtx.cpi && eventCtx.cpi.coreMoM >= 0.4, 'Hot CPI macro trigger', eventCtx.cpi ? ('core CPI +' + window._aioSafeFixed(eventCtx.cpi.coreMoM, 1, '—') + '% MoM / headline ' + window._aioSafeFixed(eventCtx.cpi.headlineYoY, 1, '—') + '% YoY') : 'CPI context unavailable', 'risk');
-
-  push(supports, snapshot.above10EMA !== false && snapshot.above21EMA !== false, '10/21 EMA trend alive', snapshot.above10EMA === false || snapshot.above21EMA === false ? 'short/swing line already violated' : 'short-term trend not broken', 'bull');
-  push(supports, context.breadthRotation && context.breadthRotation.regime === 'BREADTH_BROADENING', 'Breadth broadening', context.breadthRotation ? context.breadthRotation.regime : 'breadth context unavailable', 'bull');
-  push(supports, context.semiHeat && context.semiHeat.state !== 'SEMI_MANIA', 'Semi heat not full mania', context.semiHeat ? context.semiHeat.state : 'semi context unavailable', 'bull');
-  push(supports, eventCtx && eventCtx.timeline && eventCtx.timeline.some(function(e) { return e.tone === 'hope' && _aioEventDays(e.date, context.referenceDate) >= 0; }), 'Catalyst runway still open', 'summit/NVDA/event window can keep dip demand alive', 'bull');
-  push(supports, eventCtx && eventCtx.liquidityThesis, 'H2 liquidity backdrop', eventCtx.liquidityThesis ? eventCtx.liquidityThesis.drivers.join(' / ') : '', 'bull');
-
-  var riskScore = checks.reduce(function(s, c) { return s + (c.ok ? (c.severity === 'risk' ? 16 : 10) : 0); }, 0);
-  var supportScore = supports.reduce(function(s, c) { return s + (c.ok ? 7 : 0); }, 0);
-  var score = Math.max(0, Math.min(100, Math.round(riskScore - supportScore * 0.45)));
-  var state = score >= 70 ? 'BLOW_OFF_TOP_RISK' : score >= 45 ? 'EVENT_EXHAUSTION_WATCH' : score >= 25 ? 'NO_CHASE_DIGESTION' : 'LOCKOUT_CAN_CONTINUE';
-  var action = score >= 70 ? 'TRIM_50' : score >= 45 ? 'TRIM_25_33' : score >= 25 ? 'NO_ADD_RAISE_STOP' : 'HOLD_CORE';
-  return { state: state, score: score, action: action, checks: checks, supports: supports, eventContext: eventCtx };
-}
-
 function calcSellPressure(ohlcvOrSnapshot, context) {
   context = context || {};
   var snapshot = ohlcvOrSnapshot && ohlcvOrSnapshot.ok !== undefined ? ohlcvOrSnapshot : calcTechnicalSnapshot(ohlcvOrSnapshot);
@@ -14949,50 +14722,6 @@ function calcSellPressure(ohlcvOrSnapshot, context) {
   score = Math.max(0, Math.min(100, Math.round(score)));
   var action = score >= 75 ? 'EXIT_OR_HEDGE' : score >= 58 ? 'TRIM_50' : score >= 38 ? 'TRIM_25_33' : score >= 18 ? 'NO_ADD_RAISE_STOP' : 'HOLD_CORE';
   return { score: score, action: action, flags: flags.length ? flags : ['TREND_HEALTHY_NO_EXIT_SIGNAL'], snapshot: snapshot };
-}
-
-function calcSemiHeatMap(spySnap, qqqSnap, smhSnap, soxxSnap) {
-  var snaps = { SPY: spySnap, QQQ: qqqSnap, SMH: smhSnap, SOXX: soxxSnap };
-  var semi = [smhSnap, soxxSnap].filter(function(s) { return s && s.ok; });
-  var bases = [spySnap, qqqSnap].filter(function(s) { return s && s.ok; });
-  if (!semi.length || !bases.length) return { state: 'DATA_INSUFFICIENT', score: 0, flags: [], snapshots: snaps };
-  var semiGain = _statMean(semi.map(function(s) { return s.dayGainPct || 0; }));
-  var baseGain = _statMean(bases.map(function(s) { return s.dayGainPct || 0; }));
-  var semiExt = Math.max.apply(null, semi.map(function(s) { return s.dist50Atr === null ? -999 : s.dist50Atr; }));
-  var semiRsi = Math.max.apply(null, semi.map(function(s) { return s.rsi14 === null ? 0 : s.rsi14; }));
-  var semiRvol = Math.max.apply(null, semi.map(function(s) { return s.rvol20 === null ? 0 : s.rvol20; }));
-  var score = 0, flags = [];
-  if (semiGain - baseGain >= 1) { score += 15; flags.push('SEMI_RS_OUTPERFORMING_INDEXES'); }
-  if (semiExt >= 3) { score += 18; flags.push('SEMI_50SMA_PLUS_3ATR'); }
-  if (semiExt >= 4) { score += 20; flags.push('SEMI_50SMA_PLUS_4ATR'); }
-  if (semiExt >= 6) { score += 22; flags.push('SEMI_50SMA_PLUS_6ATR_MANIA'); }
-  if (semiRsi >= 80) { score += 15; flags.push('SEMI_RSI_80_PLUS'); }
-  if (semiRsi >= 85) { score += 12; flags.push('SEMI_RSI_85_PLUS'); }
-  if (semiRvol >= 2) { score += 10; flags.push('SEMI_RVOL_2_PLUS'); }
-  score = Math.max(0, Math.min(100, Math.round(score)));
-  return { state: score >= 70 ? 'SEMI_MANIA' : score >= 40 ? 'SEMI_HEATED' : 'NORMAL', score: score, flags: flags, relativeStrengthPct: semiGain - baseGain, semiGainPct: semiGain, baseGainPct: baseGain, maxDist50Atr: semiExt === -999 ? null : semiExt, maxRsi: semiRsi, maxRvol: semiRvol, snapshots: snaps };
-}
-
-function calcExitPlan(snapshot, sellPressure, regime) {
-  snapshot = snapshot || {};
-  sellPressure = sellPressure || { action: 'HOLD_CORE', score: 0, flags: [] };
-  var action = sellPressure.action || 'HOLD_CORE';
-  // P1580: levels are the named averages only (ATR substitutes were labelled as EMA and could go negative).
-  var price = Number(snapshot.price) > 0 ? Number(snapshot.price) : null;
-  var stopTrading = Number(snapshot.ema10) > 0 ? Number(snapshot.ema10) : null;
-  var stopSwing = Number(snapshot.ema21) > 0 ? Number(snapshot.ema21) : null;
-  var thesis = Number(snapshot.sma50) > 0 ? Number(snapshot.sma50) : null;
-  // P1546: observation text only — the earlier English lot-sizing lines were trade instructions rendered on the
-  // technical page (owner decision: no trade instructions).
-  var map = { HOLD_CORE: '부담 신호가 겹치지 않은 상태입니다. 추세선 위치가 확인 항목입니다.', NO_ADD_RAISE_STOP: '과열·이탈 신호가 일부 확인된 상태입니다. 10/21EMA 위치와 종가 이탈 여부가 확인 항목입니다.', TRIM_25_33: '신호가 여러 개 겹친 상태입니다. 10EMA 이탈 여부와 거래량 동반 여부가 확인 항목입니다.', TRIM_50: '신호가 다수 겹친 상태입니다. 21EMA·50SMA 이탈 여부와 이탈 뒤 반등 실패 여부가 확인 항목입니다.', EXIT_OR_HEDGE: '신호가 매우 많이 겹친 상태입니다. 50SMA 이탈과 추세 훼손 여부가 확인 항목이며, 이 화면은 매매 방향을 제시하지 않습니다.', WAIT: '데이터가 부족해 판단을 보류합니다.' };
-  return {
-    action: action, score: sellPressure.score || 0, regime: regime || 'REGIME_UNKNOWN', primary: map[action],
-    tradingLot: stopTrading ? '단기 기준선: 10EMA 약 ' + stopTrading.toFixed(2) + ' (종가 이탈 여부)' : '단기 기준선 산출 불가',
-    swingLot: stopSwing ? '스윙 기준선: 21EMA 약 ' + stopSwing.toFixed(2) + ' (종가 이탈 여부)' : '스윙 기준선 산출 불가',
-    thesisLine: thesis ? '추세 기준선: 50SMA 약 ' + thesis.toFixed(2) : '추세 기준선 산출 불가',
-    levels: [{ label: 'Current', value: price }, { label: '10EMA', value: snapshot.ema10 || null }, { label: '21EMA', value: snapshot.ema21 || null }, { label: '50SMA', value: snapshot.sma50 || null }, { label: '20D high', value: snapshot.recentHigh20 || null }, { label: '20D low', value: snapshot.recentLow20 || null }],
-    beginner: 'RSI 70 이상은 강한 장에서 오래 유지될 수 있습니다. 이격 확대에 거래량 급증 뒤 약한 종가, 볼린저 상단 재진입, 10/21/50일선 이탈이 겹치는지를 봅니다.'
-  };
 }
 
 var FRESHNESS_POLICY = {
@@ -15118,49 +14847,6 @@ window.FRESHNESS_POLICY = FRESHNESS_POLICY;
 window.makeMetric = makeMetric;
 window.evaluateMetric = evaluateMetric;
 
-function calcAIInfraHeat(basketSnaps, qqqSnap, spySnap) {
-  var snaps = basketSnaps || {};
-  if (Array.isArray(snaps)) {
-    snaps = snaps.reduce(function(acc, s, i) { acc['AI' + i] = s; return acc; }, {});
-  }
-  var vals = Object.keys(snaps).map(function(k) {
-    var s = snaps[k];
-    return s && s.ok ? Object.assign({ symbol: k }, s) : null;
-  }).filter(Boolean);
-  if (!vals.length) return { state: 'DATA_INSUFFICIENT', score: null, scoreAvailable: false, allowedUse: 'none', referenceOnly: true, flags: [], count: 0 };
-  var finite = function(value) { return _aioStrictFinite(value); };
-  var base = [qqqSnap, spySnap].filter(function(s) { return s && s.ok; });
-  var baseGains = base.map(function(s) { return finite(s.dayGainPct); }).filter(function(v) { return v != null; });
-  var basketGains = vals.map(function(s) { return finite(s.dayGainPct); }).filter(function(v) { return v != null; });
-  var baseGain = baseGains.length ? _statMean(baseGains) : null;
-  var avgGain = basketGains.length ? _statMean(basketGains) : null;
-  var relativeStrengthPct = avgGain != null && baseGain != null ? avgGain - baseGain : null;
-  var extValues = vals.map(function(s) { return finite(s.dist50Atr); }).filter(function(v) { return v != null; });
-  var rsiValues = vals.map(function(s) { return finite(s.rsi14); }).filter(function(v) { return v != null; });
-  var rvolValues = vals.map(function(s) { return finite(s.rvol20); }).filter(function(v) { return v != null; });
-  var maxExt = extValues.length ? Math.max.apply(null, extValues) : null;
-  var maxRsi = rsiValues.length ? Math.max.apply(null, rsiValues) : null;
-  var maxRvol = rvolValues.length ? Math.max.apply(null, rvolValues) : null;
-  var heatRows = vals.filter(function(s) { return finite(s.dist50Atr) != null || finite(s.rsi14) != null; });
-  var overheatCount = heatRows.filter(function(s) {
-    var ext = finite(s.dist50Atr), rsi = finite(s.rsi14);
-    return (ext != null && ext >= 3) || (rsi != null && rsi >= 80);
-  }).length;
-  var metricCoverage = extValues.length + rsiValues.length + rvolValues.length + basketGains.length;
-  if (!metricCoverage) return { state: 'DATA_INSUFFICIENT', score: null, scoreAvailable: false, allowedUse: 'none', referenceOnly: true, flags: [], count: vals.length, overheatCount: 0, relativeStrengthPct: null, avgGainPct: null, baseGainPct: null, maxDist50Atr: null, maxRsi: null, maxRvol: null, snapshots: snaps };
-  var score = 0, flags = [];
-  if (relativeStrengthPct != null && relativeStrengthPct >= 1) { score += 15; flags.push('AI_INFRA_RS_OUTPERFORMING_INDEXES'); }
-  if (maxExt != null && maxExt >= 3) { score += 16; flags.push('AI_INFRA_50SMA_PLUS_3ATR'); }
-  if (maxExt != null && maxExt >= 4) { score += 16; flags.push('AI_INFRA_50SMA_PLUS_4ATR'); }
-  if (maxExt != null && maxExt >= 6) { score += 20; flags.push('AI_INFRA_50SMA_PLUS_6ATR_MANIA'); }
-  if (maxRsi != null && maxRsi >= 80) { score += 12; flags.push('AI_INFRA_RSI_80_PLUS'); }
-  if (maxRsi != null && maxRsi >= 85) { score += 10; flags.push('AI_INFRA_RSI_85_PLUS'); }
-  if (maxRvol != null && maxRvol >= 2) { score += 8; flags.push('AI_INFRA_RVOL_2_PLUS'); }
-  if (heatRows.length >= 2 && heatRows.length / vals.length >= 0.5 && overheatCount >= Math.max(2, Math.ceil(heatRows.length * 0.35))) { score += 12; flags.push('AI_INFRA_BREADTH_OVERHEATED'); }
-  score = Math.max(0, Math.min(100, Math.round(score)));
-  return { state: score >= 70 ? 'AI_INFRA_MANIA' : score >= 40 ? 'AI_INFRA_HEATED' : 'NORMAL', score: score, scoreAvailable: true, allowedUse: 'reference', referenceOnly: true, flags: flags, count: vals.length, overheatCount: overheatCount, relativeStrengthPct: relativeStrengthPct, avgGainPct: avgGain, baseGainPct: baseGain, maxDist50Atr: maxExt, maxRsi: maxRsi, maxRvol: maxRvol, snapshots: snaps };
-}
-
 function calcPositionTechnicalRisk(position, ohlcvOrSnapshot, portfolioContext) {
   position = position || {};
   portfolioContext = portfolioContext || {};
@@ -15251,21 +14937,12 @@ window._calcClosePosition = _calcClosePosition;
 window._calcADRPercent = _calcADRPercent;
 window.calcTechnicalSnapshot = calcTechnicalSnapshot;
 window.calcExtensionHeat = calcExtensionHeat;
-window.classifyTerminalCandle = classifyTerminalCandle;
-window.calcOpexGammaRisk = calcOpexGammaRisk;
-window.calcBreadthRotation = calcBreadthRotation;
-window.calcLockoutRegime = calcLockoutRegime;
-window.calcLockoutAction = calcLockoutAction;
+// v57.77: test-only tactical calcs (terminal candle, OPEX, breadth rotation, lockout, framework audit,
+// blow-off checklist, semi/AI-infra heat, exit plan) were removed with their exports.
 window.AIO_EVENT_RISK_CONTEXT = AIO_EVENT_RISK_CONTEXT;
 window.AIO_TACTICAL_TRADER_FRAMEWORK = AIO_TACTICAL_TRADER_FRAMEWORK;
-window.getTacticalTraderFrameworkAudit = getTacticalTraderFrameworkAudit;
 window.AIO.getTacticalTraderFramework = function() { return AIO_TACTICAL_TRADER_FRAMEWORK; };
-window.AIO.getTacticalTraderFrameworkAudit = getTacticalTraderFrameworkAudit;
-window.calcBlowoffTopChecklist = calcBlowoffTopChecklist;
 window.calcSellPressure = calcSellPressure;
-window.calcSemiHeatMap = calcSemiHeatMap;
-window.calcAIInfraHeat = calcAIInfraHeat;
-window.calcExitPlan = calcExitPlan;
 window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
@@ -16332,48 +16009,19 @@ const NARRATIVE_ENGINE = (function() {
   function getCP6Text() { var c=current(); return c.breadth == null ? '시장 폭 판단 보류 · 현재 원천 미수신' : valueText('50SMA 시장 폭', c.breadth, '%'); }
   function getCP7Text() { return '실적 판단 보류 · 현재 기업 실적 원천 미연결'; }
   function getCP8Text() { var c=current(); return c.vvix == null ? '시스템 위험 판단 보류 · 현재 VVIX 미수신' : valueText('VVIX', c.vvix); }
-  function renderCPTexts() {
-    [getCP1Text,getCP2Text,getCP3Text,getCP4Text,getCP5Text,getCP6Text,getCP7Text,getCP8Text].forEach(function(fn, i) {
-      var el = document.getElementById('cp' + (i + 1) + '-detail');
-      if (el) el.textContent = fn();
-    });
-  }
-  function setMetric(id, value, reg) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.textContent = value == null ? '—' : value.toFixed(2);
-    el.style.color = reg.color;
-    el.setAttribute('data-runtime-state', value == null ? 'unavailable' : 'loaded');
-  }
-  function renderTailRiskBoard() {
-    var c = current();
-    setMetric('rm-skew-val', c.skew, getSKEWRegime(c.skew));
-    setMetric('rm-move-val', c.move, getMOVERegime(c.move));
-    setMetric('rm-vvix-val', c.vvix, getVVIXRegime(c.vvix));
-  }
-  function getFXNote(sym, price) {
-    var p = num(price);
-    if (p == null) return null;
-    return sym + ' ' + p.toFixed(4) + ' 관측 · 방향 판단은 금리·변동성·공식 정책 원천과 함께 확인';
-  }
+  // v57.77: renderCPTexts/setMetric/init/renderTailRiskBoard left with the absent #cp*-detail and #rm-*-val DOM.
   function setSnapshot(snap) { if (snap && typeof snap === 'object') window._DS_OVERRIDE = snap; }
   function clearSnapshot() { try { delete window._DS_OVERRIDE; } catch(_) {} }
-  function init() {
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderTailRiskBoard, { once:true });
-    else renderTailRiskBoard();
-  }
   return {
     getSKEWRegime:getSKEWRegime, getMOVERegime:getMOVERegime, getVVIXRegime:getVVIXRegime,
     getFGRegime:getFGRegime, getBreadthRegime:getBreadthRegime, getInsiderRegime:getInsiderRegime,
-    getFXNote:getFXNote, setSnapshot:setSnapshot, clearSnapshot:clearSnapshot,
+    setSnapshot:setSnapshot, clearSnapshot:clearSnapshot,
     checkDistributionDiagnosis:checkDistributionDiagnosis, getFGInternalStructureText:getFGInternalStructureText,
     getDistributionDiagnosisText:getDistributionDiagnosisText, getCP1Text:getCP1Text, getCP2Text:getCP2Text,
     getCP3Text:getCP3Text, getCP4Text:getCP4Text, getCP5Text:getCP5Text, getCP6Text:getCP6Text,
-    getCP7Text:getCP7Text, getCP8Text:getCP8Text, renderCPTexts:renderCPTexts,
-    renderTailRiskBoard:renderTailRiskBoard, init:init
+    getCP7Text:getCP7Text, getCP8Text:getCP8Text
   };
 })();
-try { NARRATIVE_ENGINE.init(); } catch(e) { _aioLog('warn', 'narrative', 'init: ' + (e && e.message || e)); }
 
 // ═══════════════════════════════════════════════════════════════════
 // v36: DATE_ENGINE — 동적 날짜/시간 시스템 (하드코딩 날짜 근본 해결)
@@ -16835,87 +16483,7 @@ function applyDataSnapshot() {
     // P1583 (AGENTS: hide widgets whose source does not exist): a marked widget appears once any of its values arrives.
     document.querySelectorAll('[data-aio-hide-when-empty]').forEach(function(box) { box.hidden = !Array.prototype.some.call(box.querySelectorAll('[data-snap]'), function(el) { return !/^(—|-|.*미수신)$/.test(String(el.textContent || '').trim()); }); });
 
-    // v52.40 (P655/EF-02a): SMA 3카드 공유 기준일 배지 — breadth_sma는 5/20/50이 하나의 수동 추정 필드를 공유.
-    try {
-      var _bfTs = currentBreadth.available && currentBreadth.ts ? new Date(currentBreadth.ts).toISOString().slice(0, 10) : null;
-      if (_bfTs) {
-        var _bfDays = (typeof window._aioStaleDays === 'function') ? window._aioStaleDays(_bfTs) : Math.floor((Date.now() - new Date(_bfTs).getTime()) / 86400000);
-        var _bfText = '기준: ' + _bfTs.slice(5).replace('-', '/') + ' (' + _bfDays + '일 전)';
-        var _bfColor = _bfDays > 7 ? 'var(--data-amber)' : 'var(--text-muted)';
-        ['breadth-5sma-freshness', 'breadth-20sma-freshness', 'breadth-50sma-freshness'].forEach(function(_bfId) {
-          var _bfEl = document.getElementById(_bfId);
-          if (_bfEl) { _bfEl.textContent = _bfText; _bfEl.style.color = _bfColor; }
-        });
-      } else {
-        ['breadth-5sma-freshness', 'breadth-20sma-freshness', 'breadth-50sma-freshness'].forEach(function(_bfId) {
-          var _bfEl = document.getElementById(_bfId);
-          if (_bfEl) { _bfEl.textContent = '현재 원천 미수신'; _bfEl.style.color = 'var(--text-muted)'; }
-        });
-      }
-    } catch(_bfBadgeErr) {}
-
-    // v48.14: 레짐 기반 설명 텍스트 자동 갱신 (NARRATIVE_ENGINE 활용 — Agent P1-16 대응)
-    // VVIX/SKEW/Breadth 등 수치에 따라 설명문·색상 자동 분류
-    // v48.14 (P2-6): 레짐 전이 시 aio:regime-change 이벤트 발사 (이전 레짐 캐시 비교)
-    window._lastRegimes = window._lastRegimes || {};
-    function _fireRegimeChange(key, prevLevel, newLevel, value, reg) {
-      try {
-        if (prevLevel === newLevel) return;
-        document.dispatchEvent(new CustomEvent('aio:regime-change', {
-          detail: { key: key, from: prevLevel, to: newLevel, value: value, regime: reg, ts: Date.now() }
-        }));
-        if (typeof _aioLog === 'function') _aioLog('info', 'regime', key + ': ' + prevLevel + ' → ' + newLevel, { value: value });
-      } catch(e) {}
-    }
-    try {
-      if (typeof NARRATIVE_ENGINE !== 'undefined') {
-        // v57.60: the options-page opt-vvix-desc writer was removed with the retired options route.
-        // SKEW 상태 배지 (signal 페이지 rm-skew-val 옆)
-        var skewValEl = document.getElementById('rm-skew-val');
-        var liveSkew = window._liveData && window._liveData['^SKEW'] && Number(window._liveData['^SKEW'].price);
-        if (skewValEl && NARRATIVE_ENGINE.getSKEWRegime && isFinite(liveSkew)) {
-          var skewStatus = skewValEl.closest('.risk-mon-cell') && skewValEl.closest('.risk-mon-cell').querySelector('.rm-status'); // 2026-10-01: status sits beside the value row
-          var sreg = NARRATIVE_ENGINE.getSKEWRegime(liveSkew);
-          if (skewStatus && sreg) {
-            skewStatus.textContent = sreg.label;
-            skewStatus.style.color = sreg.color;
-            skewStatus.style.background = sreg.color === '#ff5b50' ? 'var(--data-red-mid)' :
-                                           sreg.color === '#ffa31a' ? 'var(--data-amber-mid)' : 'var(--data-green-mid)';
-          }
-          if (sreg) {
-            _fireRegimeChange('skew', window._lastRegimes.skew, sreg.level, liveSkew, sreg);
-            window._lastRegimes.skew = sreg.level;
-          }
-        }
-      }
-    } catch(regErr) { _aioLog('warn', 'regime', 'auto-update 실패: ' + regErr.message); }
-
-    // v48.14: Breadth 36px 카드 bar 너비·레이블·색상 동적 갱신 (Agent P1-04)
-    // Current breadth is the only source for these cards. Snapshot/fallback seeds and
-    // the retired 200SMA card must never manufacture a regime when the source is absent.
-    try {
-      if (typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.getBreadthRegime) {
-        [['5sma', 'sma5'], ['20sma', 'sma20'], ['50sma', 'sma50']].forEach(function(pair) {
-          var period = pair[0];
-          var raw = currentBreadth.available ? currentBreadth[pair[1]] : null;
-          var val = raw != null && isFinite(Number(raw)) ? Number(raw) : null;
-          var reg = val == null ? null : NARRATIVE_ENGINE.getBreadthRegime(val);
-          var bar = document.getElementById('breadth-' + period + '-bar');
-          var label = document.getElementById('breadth-' + period + '-label');
-          var big = document.getElementById('breadth-' + period + '-big');
-          if (bar) {
-            bar.style.width = val == null ? '0%' : Math.max(0, Math.min(100, val)) + '%';
-            if (reg && reg.color) bar.style.background = reg.color;
-            else bar.style.background = 'var(--text-muted)';
-          }
-          if (big) { big.style.color = reg && reg.color ? reg.color : 'var(--text-muted)'; }
-          if (label) {
-            label.textContent = reg ? reg.label : '판정 보류 · 현재 breadth 원천 미수신';
-            label.style.color = reg && reg.color ? reg.color : 'var(--text-muted)';
-          }
-        });
-      }
-    } catch(brErr) { _aioLog('warn', 'breadth', 'auto-update 실패: ' + brErr.message); }
+    // v57.77: the breadth-*sma freshness/bar/label/big writers and the rm-skew-val status (with its unlistened aio:regime-change event) left with their absent DOM.
 
     // v48.14: data-snap-date 표준화 — 모든 스냅샷 배지에 경과일 자동 표시 (Agent 권장 아키텍처)
     // 사용: <span data-snap-date="briefing-archive">2026-04-15</span>
@@ -16924,32 +16492,7 @@ function applyDataSnapshot() {
           if (typeof window._aioRenderSnapshotDateBindings === 'function') window._aioRenderSnapshotDateBindings();
         } catch(sdErr) { _aioLog('warn', 'snap-date', '처리 실패: ' + sdErr.message); }
 
-    // v48.14: FX 카드 fx-note 해설 동적 생성 (Agent P1-12)
-    try {
-      if (typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.getFXNote) {
-        var fxMap = {
-          'fx-note-krw': 'KRW=X',
-          'fx-note-jpy': 'JPY=X',
-          'fx-note-eur': 'EURUSD=X',
-          'fx-note-gbp': 'GBPUSD=X',
-          'fx-note-cny': 'CNY=X',
-          'fx-note-aud': 'AUDUSD=X',
-          'fx-note-dxy': 'DX-Y.NYB',
-          'fx-note-btc': 'BTC-USD'
-        };
-        Object.keys(fxMap).forEach(function(domId) {
-          var el = document.getElementById(domId);
-          if (!el) return;
-          var sym = fxMap[domId];
-          var live = (window._liveData || {})[sym];
-          var p = (live && live.price) || (sym === 'KRW=X' ? S.krw : sym === 'JPY=X' ? S.jpy : sym === 'DX-Y.NYB' ? S.dxy : null);
-          if (p) {
-            var note = NARRATIVE_ENGINE.getFXNote(sym, p);
-            if (note) el.textContent = note;
-          }
-        });
-      }
-    } catch(fxErr) { _aioLog('warn', 'fx-note', '자동 갱신 실패: ' + fxErr.message); }
+    // v57.77: the fx-note-* writer left with its absent FX cards.
 
     // v30.11: 스냅샷 데이터를 _liveData에도 seed (아직 실시간 미연결 심볼용)
     // _dataSource를 'snapshot'으로 표기하여 실시간 구분
@@ -17046,20 +16589,7 @@ function applyDataSnapshot() {
       }
     }
 
-    // v48.15 (텍스트-A): CP1~CP8 체크포인트 해설 동적 갱신
-    // DATA_SNAPSHOT 변경 시 F&G/VIX/WTI/MOVE/SKEW 등 기반 레짐 해설 자동 반영
-    try {
-      if (typeof NARRATIVE_ENGINE !== 'undefined' && typeof NARRATIVE_ENGINE.renderCPTexts === 'function') {
-        NARRATIVE_ENGINE.renderCPTexts();
-      }
-    } catch(cpErr) {
-      if (typeof _aioLog === 'function') _aioLog('warn', 'narrative', 'renderCPTexts in applyDataSnapshot: ' + cpErr.message);
-    }
-    // v48.69: R21 — 정적 스냅샷 패널에 신선도 경고 배지 (MOVE/SKEW/기타 스냅 데이터)
-    if (typeof renderStaleWarning === 'function') {
-      renderStaleWarning('risk-monitor-grid');
-      renderStaleWarning('risk-extra-grid');
-    }
+    // v57.77: the CP1-CP8 detail writer and the risk-monitor stale badges left with their absent DOM.
     if (typeof _aioRenderHomeVix === 'function') _aioRenderHomeVix(); // v57.64: home VIX cell repaints from every snapshot apply
   } catch (e) {
     if (typeof _aioLog === 'function') _aioLog('error', 'render', 'applyDataSnapshot failed: ' + e.message); else console.warn('[AIO] applyDataSnapshot error:', e.message);
@@ -17745,7 +17275,6 @@ var AIO_CURRENTNESS_NARRATIVE_IDS = [
   'briefing-top-5-watch',
   'briefing-top-5-list',
   'briefing-action-item-card',
-  'pf-analysis-dashboard',
   'kr-macro-analysis-text',
   'fxbond-dynamic-thesis',
   'risk-radar-body',
@@ -19798,44 +19327,13 @@ function destroyPageCharts(pageId) {
     if (window._pageState && typeof window._pageState.reset === 'function') {
       try { window._pageState.reset(pageId); } catch(e) {}
     }
-    if (pageId === 'fxbond' && document.getElementById('page-fxbond')?.dataset.aioArchitectureRenderer !== 'native') {
-      if (window._yieldCurveChart) { window._yieldCurveChart.destroy(); window._yieldCurveChart = null; }
-      if (typeof _ycChart !== 'undefined' && _ycChart) { _ycChart.destroy(); _ycChart = null; }
-    }
+    // v57.77: the fxbond, market-news and macro branches (undefined _ycChart/_ycCharts/refreshTimer,
+    // never-assigned window._yieldCurveChart, absent #yieldCurveChart) were removed as dead cleanup.
     // v30.11: Signal 페이지 이탈 시 타이머 전수 해제 (좀비 타이머 방지)
     if (pageId === 'signal') {
       if (typeof _signalInterval !== 'undefined' && _signalInterval) {
         clearInterval(_signalInterval); _signalInterval = null;
       }
-    }
-    // v38.3: market-news 페이지 이탈 시 뉴스 리프레시 타이머 해제
-    if (pageId === 'market-news') {
-      if (typeof refreshTimer !== 'undefined' && refreshTimer) {
-        clearTimeout(refreshTimer); refreshTimer = null;
-      }
-    }
-    // v48.27 (P1): macro 페이지 이탈 시 _sector20dChart 정리 (Chart.js 메모리 누수)
-    if (pageId === 'macro') {
-      // P875: macro yieldCurveChart has a native owner. Clean both the native
-      // handle and any legacy per-canvas registry left by an earlier route.
-      if (window._yieldCurveChart) {
-        try { window._yieldCurveChart.destroy(); } catch(e) {}
-        delete window._yieldCurveChart;
-      }
-      try {
-        if (typeof _ycCharts !== 'undefined' && _ycCharts.yieldCurveChart) {
-          _ycCharts.yieldCurveChart.destroy();
-          _ycCharts.yieldCurveChart = null;
-        }
-      } catch(e) {}
-      try {
-        var _macroCanvas = document.getElementById('yieldCurveChart');
-        if (typeof Chart !== 'undefined' && typeof Chart.getChart === 'function' && _macroCanvas) {
-          var _macroExisting = Chart.getChart(_macroCanvas);
-          if (_macroExisting) _macroExisting.destroy();
-        }
-      } catch(e) {}
-      // P1257/P1260: 퇴역한 20일 섹터 차트의 인스턴스 정리 가드도 함께 제거했다.
     }
     // v38.3: technical 페이지 차트 정리
     if (pageId === 'technical') {
@@ -20368,12 +19866,7 @@ function showTicker(tkr) {
     return;
   }
   window._aioTickerSelectionEpoch = (window._aioTickerSelectionEpoch || 0) + 1;
-  ['eq-price','eq-ema20','eq-rsi'].forEach(function(id) {
-    var input = document.getElementById(id);
-    if (input) { input.value = ''; delete input.dataset.evidenceSource; }
-  });
-  var _entryResult = document.getElementById('entry-quality-result');
-  if (_entryResult) _entryResult.style.display = 'none';
+  // v57.77: the entry-quality form reset (#eq-price/#eq-ema20/#eq-rsi, #entry-quality-result) left with its absent DOM.
   _currentTickerSym = tkr; // v27.1: chart에서 사용할 현재 티커 저장
   if (window.AIO && window.AIO.state) window.AIO.state._currentTickerSym = tkr; // v49.1 P184
   // v49.58 R106: 채팅 컨텍스트가 활성 종목 라이브 가격을 자동 주입하도록 전역 마커
@@ -20403,89 +19896,7 @@ function showTicker(tkr) {
   // v53.6: 종목 개요(밸리AI 참조) — TV 대형 차트 + 가격/테마/팩터 좌측 레일 (index.html 정의)
   try { if (typeof window._aioRenderTickerOverview === 'function') window._aioRenderTickerOverview(tkr); } catch(_ovErr) {}
   // P1010: unconnected financial slots retired; native entity navigation opens the shared SEC report.
-  // ── 진입 적합성 판단 (Jeff Sun CFTe Hard Rules 기반) ──
-  var ecDiv = document.getElementById('ticker-entry-check');
-  if (ecDiv) {
-    var scrRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-    var scrEntry = scrRows.find(function(r) { return r.sym === tkr; });
-    var scrEvidenceReady = scrEntry && scrEntry.screenStatus !== 'unavailable';
-    var health = typeof computeMarketHealth === 'function' ? computeMarketHealth() : null;
-    var checks = [];
-    var pass = 0;
-
-    // 1. RSI
-    if (scrEvidenceReady && scrEntry.rsi != null) {
-      var rsiOk = scrEntry.rsi >= 30 && scrEntry.rsi <= 70;
-      checks.push({ label: 'RSI: ' + scrEntry.rsi, ok: rsiOk, note: rsiOk ? '30–70 구간' : (scrEntry.rsi < 30 ? '30 미만' : '70 초과') });
-      if (rsiOk) pass++;
-    } else {
-      checks.push({ label: 'RSI: —', ok: null, note: '데이터 없음' });
-    }
-
-    // 2. 시그널
-    if (scrEvidenceReady && scrEntry.signal) {
-      var sigOk = scrEntry.signal === 'BUY';
-      var sigWarn = scrEntry.signal === 'HOLD' || scrEntry.signal === 'WATCH';
-      checks.push({ label: '구조: ' + scrEntry.signal, ok: sigOk, note: sigOk ? '강세 분류' : (scrEntry.signal === 'SELL' ? '약세 분류' : '중립·관찰') });
-      if (sigOk) pass++;
-    } else {
-      checks.push({ label: '시그널: —', ok: null, note: 'DB 미등록' });
-    }
-
-    // 3. 시장 환경
-    // FABLE-LIVE-AUDIT-2026-07-07 L4/L3-2: 이 항목은 (의도적으로) 매매 시그널 페이지의 종합 거래
-    // 점수가 아니라 SPY/QQQ/VIX/M7 기반 "시장 건강도"(기술·분석 페이지와 동일 지표, computeMarketHealth())를
-    // 참조한다 — 개별 종목의 진입 타이밍 필터로는 타당한 설계다. 다만 라벨이 그냥 "시장: NN점"이면
-    // 상단 공용 스트립의 "시그널 NN" 종합 점수와 같은 지표로 오인돼 "같은 화면에서 서로 다른 시장
-    // 판단이 동시에 뜬다"는 모순으로 보인다(실측). 로직/임계값은 그대로 두고, 상단 스트립의 종합
-    // 점수와 다른 지표임을 라벨에서 바로 구분되도록 기존 페이지에서 이미 쓰는 명칭("시장 건강도")으로 통일.
-    if (health && typeof health.score === 'number' && isFinite(health.score)) {
-      var envOk = health.score >= 55;
-      checks.push({ label: '시장 건강도: ' + health.score + '점', ok: envOk, note: envOk ? health.regime : '약세 환경' });
-      if (envOk) pass++;
-    } else if (health) {
-      // P715: fail-closed로 score가 null일 수 있음 — "null점" 문자열 노출 방지, 명시적 미수신.
-      checks.push({ label: '시장 건강도: 미수신', ok: false, note: '필수 시세 미수신 — 판정 보류' });
-    }
-
-    // Observed ADR is context, not a synthetic pass point derived from market cap.
-    if (scrEvidenceReady && scrEntry.adrPct != null && isFinite(scrEntry.adrPct)) {
-      var adrVal = Number(scrEntry.adrPct);
-      var adrLabel = adrVal >= 4 ? '고변동' : adrVal >= 2 ? '중변동' : '저변동';
-      checks.push({ label: '일중 변동폭 평균: ' + adrVal.toFixed(2) + '%', ok: null, note: adrLabel + ' · 참고' });
-    } else {
-      checks.push({ label: '일중 변동폭 평균: —', ok: null, note: '관측값 미수신' });
-    }
-
-    var total = checks.filter(function(check) { return check.ok != null; }).length;
-    var color = !total ? 'var(--text-muted)' : pass === total ? '#00e5a0' : pass >= total / 2 ? '#ffa31a' : '#ff5b50';
-    // P720: 시스템 발화형 판정을 관측형(조건 충족도)으로 전환 — P714 정합.
-    var verdict = !total ? '판정 근거 없음' : '관측 조건 충족';
-
-    var barW = total ? Math.round(pass / total * 100) : 0;
-    var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
-      '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);letter-spacing:0.06em;text-transform:uppercase;">종목·시장 관측</div>' +
-      '<div style="display:flex;align-items:center;gap:8px;">' +
-        '<div style="width:80px;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">' +
-          '<div style="height:100%;width:' + barW + '%;background:' + color + ';border-radius:3px;transition:width 0.3s;"></div>' +
-        '</div>' +
-        '<span style="font-size:11px;font-weight:800;color:' + color + ';font-family:var(--font-mono);">' + pass + '/' + total + ' ' + verdict + '</span>' +
-      '</div>' +
-    '</div>';
-    html += '<div style="display:flex;flex-direction:column;gap:0;">';
-    checks.forEach(function(c) {
-      var icon = c.ok === true ? '✓' : c.ok === false ? '✗' : '—';
-      var col = c.ok === true ? 'var(--data-green)' : c.ok === false ? 'var(--data-amber)' : 'var(--text-muted)';
-      html += '<div style="display:grid;grid-template-columns:18px 1fr auto;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);">' +
-        '<span style="font-size:11px;font-weight:900;color:' + col + ';text-align:center;">' + icon + '</span>' +
-        '<span style="font-size:11px;font-weight:700;color:var(--text-primary);">' + c.label + '</span>' +
-        '<span style="font-size:11px;color:' + col + ';font-family:var(--font-mono);">' + c.note + '</span>' +
-        '</div>';
-    });
-    html += '</div>';
-    ecDiv.innerHTML = html;
-  }
-
+  // v57.77: the ticker-entry-check observation card writer left with its absent #ticker-entry-check DOM.
   // v50.77: Minervini-style 메트릭 스트립 (SR·RSI·3M·MOM)
   try {
     var mvEl = document.getElementById('ticker-mv-strip');

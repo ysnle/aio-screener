@@ -11,7 +11,7 @@
   "sourceHandoff": "_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md#RM-00",
   "method": "Re-measured directly against the current working tree (bootstrap.js module wiring, router transition, async scope ownership, capability-level loading, cross-grep of native writer ids against js/*.js and index.html, including principles/masters/atlas route modules and their primary surface markers). Not copied from prior declarations.",
   "rm01Note": "CURRENT (A06, 2026-10-12): every one of the 19 active routes has rendererOwner=native; no route is legacy-rendered. chartOwner is native on 8 routes, legacy on 7 (home, signal, briefing, fundamental, theme-detail, market-news, screener) and not-applicable on 4 reference routes. dataOwner=native means the native reader/normalizer owns the value; some acquisition still fills legacy globals. HISTORICAL (kept as a ledger, not current state): RM-01 (2026-07-19) deleted every native setText/textContent write this file's contestedIds/legacyWriterEvidence originally documented as a live race (per RM-01 §2 default action: delete native, keep legacy). Those fields are kept as a historical DELETE-LEDGER record of what was found and removed, not a claim that the race is still live — for the 15 rendererOwner='legacy' routes, native no longer writes any of these ids at all. The real ARX cutover (deleting the *legacy* writer so native can take sole ownership) remains future per-route work; see route-owners.json openItems and the execution plan's ARX-05..11 packets.",
-  "rm05AgDomWriterProcedure": "AG-DOM-WRITER (scripts/ci-architecture-contract-check.mjs) asserts the intersection of ids written by src/ui/{pages,components,knowledge}/**/*.js and ids written by every production js/aio-*.js (except aio-tests.js)+index.html is empty, except entries in domWriterIntersectionAllowlist below. Procedure for a real future route cutover (deleting the *legacy* writer so native takes sole ownership of a currently-legacy-owned id): (1) delete the legacy writer line(s) named in that route's legacyWriterEvidence array in this file; (2) re-add the native setText/textContent write for that id in the route's src/ui/pages/*.js module; (3) update that route's rendererOwner to 'native' and move its ids from contestedIds to a cleared state in this file; (4) if the id is also referenced by routeOwners.legacySymbolsMustBeAbsent for ANY renderer-native route (i.e. legacy code must never reintroduce a writer for it), add it there. Do NOT add a newly-cut-over id to domWriterIntersectionAllowlist — that list is exclusively for ids where legacy legitimately READS (not writes) a value native owns (see fg-score-big/pc-score-big below); an allowlist entry for a genuine two-way content race would defeat the gate's purpose.",
+  "rm05AgDomWriterProcedure": "AG-DOM-WRITER (scripts/ci-architecture-contract-check.mjs) asserts the intersection of ids written by src/ui/{pages,components,knowledge}/**/*.js and ids written by every production js/aio-*.js (except aio-tests.js)+index.html is empty, except entries in domWriterIntersectionAllowlist below. Procedure for a real future route cutover (deleting the *legacy* writer so native takes sole ownership of a currently-legacy-owned id): (1) delete the legacy writer line(s) named in that route's legacyWriterEvidence array in this file; (2) re-add the native setText/textContent write for that id in the route's src/ui/pages/*.js module; (3) update that route's rendererOwner to 'native' and move its ids from contestedIds to a cleared state in this file; (4) if the id is also referenced by routeOwners.legacySymbolsMustBeAbsent for ANY renderer-native route (i.e. legacy code must never reintroduce a writer for it), add it there. Do NOT add a newly-cut-over id to domWriterIntersectionAllowlist — that list is exclusively for ids where legacy legitimately READS (not writes) a value native owns (see theme-detail-panel below), and an entry leaves once the id no longer intersects (v57.77 removed fg-score-big, pc-score-big and ticker-hero-name); an allowlist entry for a genuine two-way content race would defeat the gate's purpose.",
   "columnDefinitions": {
     "lifecycleOwner": "who mounts/disposes the route (native = ESM router transition owns it; PAGES[route].init is null)",
     "rendererOwner": "who owns the visible DOM content nodes for this route with no competing writer",
@@ -20,9 +20,6 @@
     "narrativeOwner": "who generates the route's prose/summary text"
   },
   "domWriterIntersectionAllowlist": [
-    "fg-score-big",
-    "pc-score-big",
-    "ticker-hero-name",
     "theme-detail-panel",
     "pf-position-donut",
     "sector-perf-bars",
@@ -44,12 +41,7 @@
     "topbar-ai-btn": "A05: responsive-shell.js reads the AI button for focus return; aio-chat.js owns its behaviour.",
     "glossary-body": "A05: aio-ui.js renders the glossary list; glossary-bridge.js only appends one data-glossary-cross section after it (MutationObserver), never replacing legacy content.",
     "glossary-search": "A05: glossary-bridge.js reads the search query; aio-ui.js/aio-core.js own the input.",
-    "fg-score-big": "W01-B (2026-09-19): legacy `_generateSentimentAnalysis` retired to an inert entry point and its aio-data.js deferred timers removed; sentiment.js is the sole writer of fg-score-big/pc-score-big/sent-analysis-text from one ViewModel revision.",
-    "pc-score-big": "W01-B (2026-09-19): same single-writer cutover as fg-score-big — legacy only retired stubs remain, not readers.",
-    "ticker-hero-name": "entity.js is the sole writer after P777; the former textContent readers (_aioDetectTickerPattern, _aioFillEntryFromTicker) were deleted (P1430, v57.76).",
     "theme-detail-panel": "After P818, themes.js is the sole panel display/current-theme writer; index.html showThemeDetail/closeThemeDetail only read the panel to retain selection/event compatibility. Legitimate read dependency, not a write race.",
-    "tech-candle-chart": "P833: analysis.js owns the native technical price chart; index.html loadTechCandleChart is fenced by the mounted native technical chart marker.",
-    "tech-candle-volume": "P833: analysis.js owns the native technical volume chart; index.html loadTechCandleChart is fenced by the mounted native technical chart marker.",
     "pf-position-donut": "P835: portfolio.js owns the native holding-allocation chart; index.html drawPositionDonut is fenced by the mounted native portfolio chart marker.",
     "sector-perf-bars": "P859: themes.js owns the normalized sector-performance bars; index.html renderSectorPerfBars is fenced by the mounted native bars marker and remains only a compatibility fallback."
   },
@@ -74,7 +66,7 @@
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
-        "v57.50 I16: the retired-score cards (#home-trading-grid: #home-trading-signal, #home-quality-*, #home-market-regime) and #home-risk-regime-badge left index.html; js/aio-data.js refreshHomeDashboard writers are null-guarded no-ops until W3 removes them",
+        "v57.50 I16: the retired-score cards (#home-trading-grid: #home-trading-signal, #home-quality-*, #home-market-regime) and #home-risk-regime-badge left index.html; v57.77 deleted the remaining refreshHomeDashboard badge writer and its unused locals, so js/aio-data.js refreshHomeDashboard now writes only the action items (_aioRefreshActionPlan) and the VIX card, scheduled once per home pageShown by 'data-page-activation'",
         "P1010 DELETE-LEDGER: _aioRenderHomeHero, its callers/export, and legacy Fear & Greed score/label writers removed"
       ],
       "p787Boundary": "analysis.js owns the four home score/decision summary sinks from trading-score.v3/signal-presentation.v1. Quality meter, Fear & Greed, market regime, factor detail, chart, and narrative remain legacy secondary boundaries.",
@@ -378,7 +370,7 @@
       "p810Boundary": "portfolio.js owns only the bounded total-value and total-P/L hero projection from normalized portfolio totals/holdings with a fail-closed pending display; the legacy summary writer remains active for the other portfolio cards and its two competing hero writes were deleted for cutover.",
       "p831Boundary": "portfolio.js owns the deterministic holding count, P/L and daily change, cash, VIX exposure rule/current exposure, and sector allocation projection from portfolio-state plus live quote evidence. Missing values remain unavailable; legacy summary/sector writers are fenced. Risk cards, benchmark/holding charts, AI workbench, and narrative remain legacy-owned.",
       "p835Boundary": "portfolio.js owns the pf-position-donut chart lifecycle from normalized holding value evidence with an unavailable fallback; legacy drawPositionDonut is fenced while the native portfolio chart marker is mounted.",
-      "notes": "The native module owns pf-analysis-status, the bounded total-value/P&L hero, the nine-column Vault-backed holdings table, the deterministic summary/allocation/exposure surface, and the position allocation chart. Legacy CRUD commands remain compatibility actions through data-action buttons; risk metrics, benchmark/holding charts, AI workbench, and narrative remain separately legacy-owned."
+      "notes": "The native module owns pf-analysis-status, the bounded total-value/P&L hero, the nine-column Vault-backed holdings table, the deterministic summary/allocation/exposure surface, and the position allocation chart. Legacy CRUD commands remain compatibility actions through data-action buttons; risk metrics, benchmark/holding charts, and the AI workbench remain separately legacy-owned. v57.77: the legacy 포트폴리오 자동 진단 narrative (#pf-analysis-text, _generatePortfolioAnalysis) and the writerless #pf-risk-section card shell were retired; the native #pf-read is the portfolio reading and #pf-analysis-status sits in the hero."
     },
     "ticker": {
       "lifecycleOwner": "native",

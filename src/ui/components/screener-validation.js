@@ -66,27 +66,25 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
   };
 }
 
+// v57.77: this block used to sit above the results table with its own verdict, spread, IC, sample and survivorship
+// notes — the same back-test the 과거 검증 tab reports in full (renderBacktest in src/ui/pages/screener.js: verdict,
+// per-factor IC, gross/net spread, sample, 10-year study, forward record). It now lives inside that tab and adds
+// only what the tab lacks: the same-model history curve and the |t| decision rule.
 export function renderScreenerValidation({ documentRef: doc, root }) {
   const host = doc?.getElementById('screener-validation');
   if (!host) return null;
   const summary = summarizeValidation(root?._aioScreenerBacktestHistory || [], root?._aioModelValidationStatus || null, root?._aioRankingWeights || null);
-  const open = host.querySelector('details')?.open || false;
-  host.replaceChildren();
-  const details = el(doc, 'details', null, 'screener-validation-details');
-  details.open = open;
-  const head = el(doc, 'summary', null, 'screener-validation-summary');
-  head.append(el(doc, 'span', '순위 사후 검증', 'screener-validation-title'), el(doc, 'span', summary.available ? summary.modelMatch ? `상위−하위 20% ${pct(summary.spreadNet)} · ${summary.wins ?? '—'}/${summary.rebalances ?? '—'}회 앞섬${summary.distinguishable ? '' : ' · 아직 구별 불가'}` : '이전 모델 기록 · 현재 순위와 비교 보류' : '기록 수신 대기', `regime-state is-${summary.modelMatch ? summary.tone : 'unknown'}`));
-  details.append(head);
-  details.append(el(doc, 'p', summary.verdict, 'pf-check-detail'));
-  if (summary.available) {
-    details.append(el(doc, 'p', `${summary.date} 계산 · ${summary.stocks}종목 · 과거 ${summary.rebalances}번 시점(147~42거래일 전)에서 순위를 매기고 21거래일 보유 · 거래비용 ${pct(summary.costPct)} 반영 · 순위와 이후 수익률이 같은 방향으로 움직인 정도 ${summary.ic == null ? '—' : Number(summary.ic).toFixed(3)}(정보계수 IC)`, 'theme-strength-basis'));
-    // X04: the stored sample re-joins the market-separated ranks (US + KR quintiles in one pool) — say so.
-    if (summary.pooledMarkets) details.append(el(doc, 'p', `표본 ${summary.stocks}종목은 미국·한국을 각각 순위 매긴 뒤 합친 상위·하위 20%입니다 — 미국 순위나 한국 순위 하나의 검증이 아닙니다.`, 'theme-strength-basis'));
-    if (summary.series.length >= 2) details.append(createTrendChart(doc, { series: summary.series, refLines: [0], format: (value) => `${value.toFixed(1)}%`, label: '상위−하위 20% 수익률 차이(비용 반영 · 같은 모델 기록만)' }));
-    else details.append(el(doc, 'p', `같은 모델로 계산된 기록이 ${summary.sameModelRecords}개뿐이라 추이 그림은 기록이 쌓인 뒤 표시합니다.`, 'theme-strength-basis'));
+  host.replaceChildren(el(doc, 'h3', '날마다 다시 계산한 검증의 추이', 'stock-read-vis-title'));
+  if (!summary.available) {
+    host.append(el(doc, 'p', '사후 검증 기록 수신 대기', 'theme-strength-basis'));
+  } else {
+    if (!summary.modelMatch) host.append(el(doc, 'p', '이 기록은 지금 화면의 순위와 가중치·계산 방식이 다른 이전 모델로 계산되어, 지금 순위의 검증으로 읽지 않습니다.', 'theme-strength-basis'));
+    if (summary.series.length >= 2) host.append(createTrendChart(doc, { series: summary.series, refLines: [0], format: (value) => `${value.toFixed(1)}%`, label: '상위−하위 20% 수익률 차이(비용 반영 · 같은 모델 기록만)' }));
+    else host.append(el(doc, 'p', `같은 모델로 계산된 기록이 ${summary.sameModelRecords}개뿐이라 추이 그림은 기록이 쌓인 뒤 표시합니다.`, 'theme-strength-basis'));
+    host.append(el(doc, 'p', summary.distinguishable
+      ? `최근 기록 ${summary.date} · 상위−하위 20% ${pct(summary.spreadNet)} — ${summary.rebalances}회 표본에서 우연의 범위(|t| ${VALIDATION_MIN_ABS_T})를 넘은 차이입니다.`
+      : `최근 기록 ${summary.date} · ${summary.undecided} — 앞섬·뒤처짐 판정은 기록이 ${VALIDATION_MIN_REBALANCES}회 이상 쌓이고 차이가 우연의 범위(|t| ${VALIDATION_MIN_ABS_T})를 넘을 때 합니다.`, 'theme-strength-basis'));
   }
-  if (summary.validation) details.append(el(doc, 'p', summary.validation, 'theme-strength-basis'));
-  host.append(details);
   host.dataset.aioScreenerValidationRenderer = 'native';
   return summary;
 }
