@@ -19,7 +19,7 @@ export const TEMPERATURE_COMPONENTS = Object.freeze([
   Object.freeze({ id: 'trend', label: '125일선 거리', basis: '종가 ÷ 125거래일 평균 − 1' }),
   Object.freeze({ id: 'range', label: '52주 범위 위치', basis: '(종가 − 52주 최저) ÷ (52주 최고 − 52주 최저)' }),
   Object.freeze({ id: 'rsi', label: 'RSI 14일', basis: '14거래일 상대강도지수(와일더 평활)' }),
-  Object.freeze({ id: 'calm', label: '변동성(뒤집음)', basis: '20거래일 일간 로그수익률 표준편차, 낮을수록 높은 순위' }),
+  Object.freeze({ id: 'calm', label: '낮은 변동성', basis: '20거래일 일간 로그수익률 표준편차, 낮을수록 높은 순위' }),
   Object.freeze({ id: 'ret20', label: '20일 수익률', basis: '종가 ÷ 20거래일 전 종가 − 1' })
 ]);
 export const TEMPERATURE_RULES = Object.freeze({

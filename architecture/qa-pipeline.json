@@ -1438,6 +1438,16 @@
           ]
         },
         {
+          "id": "masters-manager-store",
+          "script": "scripts/ci-masters-manager-store-check.mjs",
+          "inputs": [
+            "scripts/lib/masters-manager-store.mjs",
+            "scripts/ci-masters-manager-store-check.mjs",
+            "scripts/split-masters-manager-rows.mjs",
+            "public-data/masters/managers/**"
+          ]
+        },
+        {
           "id": "knowledge-review",
           "script": "scripts/ci-knowledge-review-check.mjs",
           "inputs": [
@@ -2520,6 +2530,7 @@
         "scripts/*atlas*.mjs",
         "scripts/*principles*.mjs",
         "scripts/*masters*.mjs",
+        "scripts/lib/masters-manager-store.mjs",
         "scripts/enrich-knowledge-*.mjs",
         "architecture/knowledge-*.json"
       ],

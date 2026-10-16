@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.87';
+const APP_VERSION = 'v57.91';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1206,8 +1206,8 @@ window._wordHit = function(text, kw) {
       rx = _wordHitRxCache[kw] = null;
     }
   }
-  if (!rx) return String(text).includes(kw);
-  return rx.test(String(text));
+  text = String(text); if (!rx || text.indexOf(kw) < 0) return text.indexOf(kw) >= 0;
+  return rx.test(text);
 };
 
 // ═══ v48.96: _aioChartRegistry — Chart.js 인스턴스 중앙 관리 ════════════════
@@ -3910,12 +3910,12 @@ window.AIO_PAGE_EVIDENCE_CONTRACT = {
   sentiment: { maxSourceKind: 'SNAPSHOT', caveat: 'F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다.' },
   briefing: { maxSourceKind: 'DELAYED', caveat: '브리핑은 08:00 KST 완료 24h 뉴스와 캐시 지표를 요약합니다.' },
   'market-news': { maxSourceKind: 'DELAYED', caveat: '뉴스는 08:00 KST 완료 24h 구간 기준이며 미검증/2차 소스는 매매 근거에서 제외합니다.' },
-  technical: { maxSourceKind: 'DELAYED', caveat: '기술 점수는 live 가격과 스냅샷 보조지표의 혼합입니다. 단독 매수 신호가 아닙니다.' },
+  technical: { maxSourceKind: 'DELAYED', caveat: '기술 점수는 실시간 가격과 저장된 보조지표를 함께 씁니다. 단독 매수 신호가 아닙니다.' },
   screener: { maxSourceKind: 'DELAYED', caveat: '스크리너 랭크는 생성 스냅샷과 live 보강값을 함께 표시합니다.' },
   ticker: { maxSourceKind: 'DELAYED', requireLiveDom: true, emptyKind: 'UNAVAILABLE', caveat: '티커 선택과 현재 시세 수신 전에는 매수/매도 결론을 만들지 않습니다.' },
   portfolio: { maxSourceKind: 'DELAYED', caveat: '가격 fallback 티커는 포트폴리오 판단에서 신뢰도를 낮춥니다.' },
   themes: { maxSourceKind: 'DELAYED', caveat: '테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다.' },
-  'theme-detail': { maxSourceKind: 'SNAPSHOT', caveat: '테마 상세는 선택 테마의 리더/후발/촉매를 비교하는 보드이며 live 가격이 없으면 참고용입니다.' },
+  'theme-detail': { maxSourceKind: 'SNAPSHOT', caveat: '테마 상세는 선택 테마의 대표 종목·후발 종목·촉매를 비교하는 화면이며 실시간 가격이 없으면 참고용입니다.' },
   macro: { maxSourceKind: 'SNAPSHOT', caveat: 'FRED/FMP 키 미수신 구간은 스냅샷 거시로 표시하고 현재 판단 강도를 낮춥니다.' },
   fxbond: { maxSourceKind: 'DELAYED', caveat: '금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다.' },
   fundamental: { maxSourceKind: 'DELAYED', requireLiveDom: true, emptyKind: 'UNAVAILABLE', caveat: '티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다.' },
@@ -4259,8 +4259,8 @@ window._aioBuildPageDecision = function(pageId) {
     if (evidenceBlocked) {
       var partialOnly = evidence.sourceKind !== 'UNAVAILABLE' && evidence.marketEpoch?.status !== 'BLOCKED' && (evidence.blockers || []).every(function(b) { return /^(market-epoch-partial:|visible-unavailable-values$)/.test(b); }); // P1364: PARTIAL is not 미수신.
       d.decisionBlocked = true;
-      d.decision = partialOnly ? '판단 보류 · 일부 근거 부분 확보' : '판단 보류 · 필수 현재성 근거 미수신';
-      d.action = '필수 현재성 근거가 확인되기 전에는 ' + (d.scoreScope === false ? '이 화면의 수집 근거만 참고로 표시하고' : '시장환경 관찰만 표시하고') + ' 매매·비중 결론을 생성하지 않습니다.';
+      d.decision = partialOnly ? '판단 보류 · 일부 근거 부분 확보' : '판단 보류 · 최신 근거 미수신';
+      d.action = '최신 근거가 확인되기 전에는 ' + (d.scoreScope === false ? '이 화면의 수집 근거만 참고로 표시하고' : '시장환경 관찰만 표시하고') + ' 매매·비중 결론을 생성하지 않습니다.';
       d.reasons.unshift(partialOnly ? '일부 입력이 부분 수신·지연 상태라 행동 결론을 보류합니다.' : '현재성·필수 입력이 확인되지 않아 행동 결론을 보류합니다.');
       d.reasons = d.reasons.slice(0, 3);
     }
@@ -4270,7 +4270,7 @@ window._aioBuildPageDecision = function(pageId) {
     d.evidence = evidence;
   }
   if (typeof window._aioFinalizePageDecision === 'function') d = window._aioFinalizePageDecision(d); // P1357
-  else d.confidence = '근거 확인 필요 · 예측 검증 미확립';
+  else d.confidence = '근거 확인 필요 · 예측력 미검증';
   var typedEvidence = window.AIO.createTypedEvidence ? window.AIO.createTypedEvidence({
     key: 'page-decision:' + (d.pageId || pageId), value: d.decision, sourceKind: d.sourceKind,
     evidenceId: d.provenanceBundle && d.provenanceBundle.bundleId,
@@ -4426,7 +4426,7 @@ window.AIO_PAGE_ACTION_HUBS = {
     title:'시장 원리 학습',
     subtitle:'구조적 참고 콘텐츠를 Tree·Graph·Path로 탐색합니다.',
     cards:[['핵심 축','금리 · AI workload · 메모리 · 전력'],['운용 포인트','출처와 검토일을 먼저 확인'],['주의','현재 가격·목표가·매매 신호를 제공하지 않음']],
-    links:[['금리 · 환율','fxbond'],['테마 · 섹터','themes'],['사용 설명서','guide']]
+    links:[['금리 · 환율','fxbond'],['테마 · 섹터','themes'],['도움말','guide']]
   },
   // v53.7 (P725): KR 전용 5페이지 액션 허브 제거 — 통합 섹션은 themes/macro/technical 허브를 따름
   guide: {
@@ -5349,7 +5349,7 @@ window.AIO.getSharedMarketCut = function() {
     if (!_aioMarketCutDateFormatter) _aioMarketCutDateFormatter = new Intl.DateTimeFormat('ko-KR', {
       timeZone:'Asia/Seoul', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false
     });
-    endLabel = _aioMarketCutDateFormatter.format(new Date(end)).replace(/\.\s*/g, '/').replace(/\/$/, '') + ' KST';
+    endLabel = _aioMarketCutDateFormatter.format(new Date(end)).replace(/\.\s*/g, '/').replace(/\/$/, '').replace(/\/(\d{1,2}:\d{2})$/, ' $1');
   } catch (_) { endLabel = String(end); }
   return {
     policy: meta.newsCyclePolicy || 'kst-0800-completed-24h',
@@ -5589,8 +5589,8 @@ window._aioRenderPageDecisionHeader = function(pageId) {
     ? window.AIO.getPageMarketEpochState(pageId)
     : null;
   var sharedCutHtml = sharedCut && sharedCut.end
-    ? '<span class="aio-confidence-badge" data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '" title="' + _aioDecisionEsc(sharedCut.label || '') + '">' + (sharedCut.usable ? '공통컷 ' : '공통컷 지연 · ') + _aioDecisionEsc(sharedCut.endLabel) + '</span>'
-    : '<span class="aio-confidence-badge" title="서버 24시간 컷 메타데이터 대기">공통컷 대기</span>';
+    ? '<span class="aio-confidence-badge" data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '" title="' + _aioDecisionEsc(sharedCut.label || '') + '">' + (sharedCut.usable ? '기준 시각 ' : '기준 시각 지연 · ') + _aioDecisionEsc(sharedCut.endLabel) + '</span>'
+    : '<span class="aio-confidence-badge" title="서버 24시간 컷 메타데이터 대기">기준 시각 대기</span>';
   if (sharedCutHtml && sharedCut && sharedCut.end) {
     sharedCutHtml = sharedCutHtml.replace(
       'data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '"',
@@ -5610,7 +5610,7 @@ window._aioRenderPageDecisionHeader = function(pageId) {
     + '    <div><div class="aio-decision-kicker">' + _aioDecisionEsc(d.title) + '</div><div class="aio-decision-verdict">' + _aioDecisionEsc(d.decision) + '</div></div>'
     + '    <div class="aio-decision-meta"><span class="aio-source-badge ' + cls + '" title="sourceKind: ' + _aioDecisionEsc(sourceKind) + '">' + _aioDecisionEsc(sourceLabel) + '</span>' + (d.referenceSummary ? '<span class="aio-confidence-badge" data-reference-close-basis="true">' + _aioDecisionEsc(d.asOf) + '</span>' : '') + sharedCutHtml + marketEpochHtml + '<span class="aio-confidence-badge">근거 상태 ' + _aioDecisionEsc(d.confidence) + '</span></div>'
     + '  </div>'
-    + '  <div class="aio-decision-foot">' + (_fomcFootNote ? '<span>' + _aioDecisionEsc(_fomcFootNote) + '</span>' : caveatHtml) + '<button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">현재 결과로 AI 분석</button></div>'
+    + '  <div class="aio-decision-foot">' + (_fomcFootNote ? '<span>' + _aioDecisionEsc(_fomcFootNote) + '</span>' : caveatHtml) + '<button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">AI에게 묻기</button></div>'
     + (_fomcFootNote && caveatHtml ? '<div class="aio-decision-foot aio-decision-evidence-foot">' + caveatHtml + '</div>' : '')
     + '</section>';
   var operatorNote = pageId === 'home' ? document.getElementById('home-operator-note') : null;
@@ -6488,7 +6488,6 @@ window.AIO_TICKER_NAME_REGISTRY = {
     'FUBO':  { en: 'fuboTV',           kr: 'fuboTV',       alt: ['fubo', 'fubotv'] },
     // 위성/우주 추가 (2)
     'IRDM':  { en: 'Iridium',          kr: '이리듐',       alt: ['iridium', 'irdm'] },
-    'GE_VRN': { en: 'GE Vernova',      kr: 'GE버노바',     alt: ['ge vernova', 'gev'] },
     // BTC 현물 ETF (4)
     'IBIT':  { en: 'iShares Bitcoin ETF', kr: '아이셰어즈비트코인ETF', alt: ['ibit', 'bitcoin etf'] },
     'FBTC':  { en: 'Fidelity Bitcoin ETF', kr: '피델리티비트코인ETF', alt: ['fbtc'] },
@@ -9079,7 +9078,7 @@ window.AIO_MACRO_CALENDAR = {
     // v49.41 P296/R77 보강: FOMC 회의 + fed-rate (signal 페이지 CP2 lastUpdated 메타용)
     // v52.42 (P657/EF-03, WebSearch 재확인): 6/17 회의는 이미 지나 결과가 나왔으므로(3.50-3.75% 동결
     // 유지, 확인됨) lastRelease로 승격. 7/28-29 회의도 종료되어 다음 결정일(9/16)로 이동.
-    'us-fomc':      { name: 'FOMC 회의',       frequency: 'every-6-7-weeks',      lastRelease: '2026-09-16', nextRelease: '2026-10-28', dataField: 'fomc', sepMeeting: null, source: 'Federal Reserve official calendar', sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm' },
+    'us-fomc':      { name: 'FOMC 금리 결정',   frequency: 'every-6-7-weeks',      lastRelease: '2026-09-16', nextRelease: '2026-10-28', dataField: 'fomc', sepMeeting: null, source: 'Federal Reserve official calendar', sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm' },
     'us-fed-rate':  { name: 'Fed Funds Rate',  frequency: 'fomc-decision',        lastRelease: '2026-09-16', nextRelease: '2026-10-28', dataField: 'fedRate', source: 'FOMC 결정', sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm' },
     // v49.85 신규: 한국 BOK 금통위 (5/28 신현송 총재 첫 회의 → 다음 7/16)
     // v52.42: 기존 nextRelease '2026-07-10'은 오류 — 실제 다음 회의는 7/16.
@@ -9189,6 +9188,8 @@ window.AIO.renderMacroNextRelease = function() {
   }).sort(function(a, b) {
     return a.date.localeCompare(b.date);
   });
+  // v57.88 (screen audit): US first — the 미국 거시 header named 한국은행 (10/22) while the scenarios named FOMC (10/28).
+  upcoming = upcoming.filter(function(i) { return /^us-/.test(i.key); }).concat(upcoming.filter(function(i) { return !/^us-/.test(i.key); }));
   if (!upcoming.length) {
     el.textContent = '다음 주요 발표 일정 확인 필요';
     el.setAttribute('data-runtime-state', 'unavailable');
@@ -9197,7 +9198,7 @@ window.AIO.renderMacroNextRelease = function() {
   }
   // P1505: a release is named for the reader ("미국 CPI"), not by the agency code ("BLS CPI").
   var _releaseLabels = { 'us-nfp': '미국 고용보고서', 'us-cpi': '미국 CPI', 'us-pce': '미국 PCE 물가', 'us-ism-mfg': 'ISM 제조업 지수', 'us-ism-svc': 'ISM 서비스업 지수', 'us-retail': '미국 소매판매', 'us-fomc': 'FOMC 금리 결정', 'us-fed-rate': 'FOMC 금리 결정', 'kr-bok': '한국은행 금리 결정', 'conf-gtc-dc': 'NVIDIA GTC' };
-  el.textContent = '다음 주요 발표: ' + (_releaseLabels[upcoming[0].key] || upcoming[0].name) + ' · ' + upcoming[0].date + ' KST 기준';
+  el.textContent = '다음 주요 발표: ' + (function(d) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(d || '')); return m ? Number(m[2]) + '/' + Number(m[3]) + '(' + '일월화수목금토'.charAt(new Date(Date.UTC(+m[1], m[2] - 1, +m[3])).getUTCDay()) + ') ' : (d ? d + ' ' : ''); })(upcoming[0].date) + (_releaseLabels[upcoming[0].key] || upcoming[0].name); // v57.91: '10/28(수) FOMC 금리 결정'
   el.setAttribute('data-runtime-state', 'official-reference');
   el.setAttribute('data-operational-use', 'calendar-only');
   return upcoming[0];
@@ -13642,8 +13643,9 @@ function _calcVCP(bars, indicators) {
   var stage2 = !!(sma50 && sma150 && sma200 && price > sma150 && sma150 > sma200 && price > sma50 && pct52 !== null && pct52 >= -30);
   // 베이스 구간: 최근 65봉(또는 n-10)
   var bLen = Math.min(65, n - 10), bV = volumes.slice(n - bLen);
-  // v57.84: 수축·피벗은 차트·스크리너 생산자와 같은 감지기(src/domain/technical/definitions.js detectContractions) — ESM 미탑재 시 수축 없음(판정 보류)
-  var _det = window.AIO_ARCH && typeof window.AIO_ARCH.detectContractions === 'function' ? window.AIO_ARCH.detectContractions(bars.filter(function(b) { return b.high > 0 && b.low > 0 && b.high >= b.low; })) : { contractions: [], valid: false, pivot: null };
+  // v57.84: 수축·피벗은 생산자와 같은 감지기(technical/definitions.js) — v57.88: ESM 미탑재 시 '패턴 없음'이 아니라 판정 불가
+  var _det = window.AIO_ARCH && typeof window.AIO_ARCH.detectContractions === 'function' ? window.AIO_ARCH.detectContractions(bars.filter(function(b) { return b.high > 0 && b.low > 0 && b.high >= b.low; })) : null;
+  if (!_det) return { ok: false, vcpScore: 0, vcpStage: 'insufficient_data' };
   var ctrs = _det.contractions.map(function(c) { return { depth: Math.round(c.depth * 10) / 10, highPx: c.high, lowPx: c.low }; });
   var cnt = ctrs.length, shrink = !!_det.valid;
   // 거래량 고갈: 후반부 평균 < 전반부 평균 × 0.85
@@ -18680,7 +18682,7 @@ window.PAGES = {
   'signal':         { label: '시장 상태',       init: null, chatCtx: 'signal' },
   'breadth':        { label: '시장 폭',          init: null, chatCtx: null },
   'sentiment':      { label: '투자 심리',        init: null, chatCtx: null },  // v53.15/ARX-01: ESM renderer가 native owner; data producer cutover는 ARX-02
-  'briefing':       { label: '데일리 브리핑',    init: null, chatCtx: 'briefing' },
+  'briefing':       { label: '브리핑',    init: null, chatCtx: 'briefing' },
   'technical':      { label: '차트',            init: null, chatCtx: 'technical' },
   'macro':          { label: '거시 경제',        init: null, chatCtx: 'macro' },
   'fxbond':         { label: '금리 · 환율',      init: null, chatCtx: 'fxbond' },
@@ -18693,7 +18695,7 @@ window.PAGES = {
   // v53.7 (P725): kr-home/kr-supply/kr-themes/kr-macro/kr-technical 라우트 퇴역 —
   // 콘텐츠는 themes/macro/technical의 "한국 시장" 통합 섹션으로 이관(요소 id 보존),
   // 구 해시는 showPage의 _hashAlias가 리다이렉트. KR 매크로 배지는 macro init에서 호출.
-  'guide':          { label: '사용 설명서',      init: null, chatCtx: null },
+  'guide':          { label: '도움말',      init: null, chatCtx: null },
   'principles':     { label: '시장 원리',        init: null, chatCtx: null },
   'masters':        { label: '대가의 포트폴리오', init: null, chatCtx: null },
   'atlas':          { label: '산업 지도', init: null, chatCtx: null },

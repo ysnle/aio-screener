@@ -65,7 +65,7 @@ export const RULES = Object.freeze({
     // Base: a pullback of ≥ basePullbackPct from a closing high lasting ≥ baseMinSessions, completed by a close above that
     // high; the count restarts after a drawdown of resetDrawdownPct or a new 52-week closing low. Climax checks apply only
     // after a run of climaxMinRunPct from the 52-week low. Down-day resilience: index down closes in the last 60 sessions.
-    followThrough: Object.freeze({ pocketWindow: 10, heavyDownPct: 0.2, heavyDownWindow: 25, basePullbackPct: 8, baseMinSessions: 15,
+    followThrough: Object.freeze({ pocketWindow: 10, heavyDownPct: 1, heavyDownAvgSessions: 50, heavyDownWindow: 25, basePullbackPct: 8, baseMinSessions: 15,
       resetDrawdownPct: 35, climaxMinRunPct: 70, climaxUpDays: 8, climaxStretch200Pct: 70, resilienceWindow: 60, resilienceMinDays: 8 }) }),
   // v57.81: a 20-session widening reaches 부담 when it is in the top stress20dPct of the series' own 20-session changes (or
   // stress20dMultiple x widen20dBp when the record is shorter than recordMin); it stays 부담 until the 20-session change

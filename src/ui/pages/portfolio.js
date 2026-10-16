@@ -202,6 +202,7 @@ let holdingQuoteRequestedAt = 0;
 // flight") or fetchLiveQuotes returned at once and reported ok — and the 55-second throttle kept it from retrying, so
 // Korean holdings stayed 가격 없음. A run that leaves a requested symbol without a quote retries.
 const unquoted = (root, symbols) => symbols.filter((symbol) => !(Number(root?._liveData?.[symbol]?.price) > 0));
+let portfolioMounted = false;
 function requestHoldingQuotes(root, rows, attempt = 0) { // attempt > 0: a retry, which alone passes the throttle
   const symbols = [...new Set((rows || []).filter((row) => row?.sourceKind !== 'live-quote').map((row) => quoteSymbolOf(root, row?.symbol)).filter(Boolean))].slice(0, 60);
   if (!symbols.length) return;
@@ -213,7 +214,8 @@ function requestHoldingQuotes(root, rows, attempt = 0) { // attempt > 0: a retry
   holdingQuoteSignature = signature;
   holdingQuoteRequestedAt = nowMs;
   Promise.resolve(root.AIO.runScheduledRefresh({ keys: ['quotes'], symbols, pageId: 'portfolio', reason: 'portfolio-holding-quotes' }))
-    .then(() => { if (attempt < 3 && unquoted(root, symbols).length) setTimeout(() => requestHoldingQuotes(root, rows, attempt + 1), 4000); })
+    // v57.88 (review): a retry is dropped once the page has unmounted.
+    .then(() => { if (attempt < 3 && unquoted(root, symbols).length) setTimeout(() => { if (portfolioMounted) requestHoldingQuotes(root, rows, attempt + 1); }, 4000); })
     .catch(() => {});
 }
 const closeNote = (surface) => {
@@ -423,15 +425,15 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     heading.style.cssText = 'font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;';
     const body = documentRef.createElement('div');
     // v57.54: one line on what appears, no how-to prose.
-    body.textContent = '종목을 추가하면 변동성·섹터 쏠림·시장 국면과의 연결이 여기에 나타납니다.';
+    body.textContent = '종목을 추가하면 변동성·섹터 쏠림·시장 상태와의 연결이 여기에 나타납니다.';
     const addButton = documentRef.createElement('button');
     addButton.className = 'aio-btn-table primary';
     addButton.setAttribute('data-action', '_aioTogglePortfolioEntry');
     addButton.style.cssText = 'margin-top:10px;min-height:36px;padding:7px 16px;';
     addButton.textContent = '첫 종목 추가';
     const privacy = documentRef.createElement('div');
-    privacy.textContent = '보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN 설정 후 저장 시 AES-256 암호화.'; // P1593 (F108): same scope as the page header
-    privacy.style.cssText = 'font-size:11px;color:var(--text-muted);margin-top:6px;';
+    privacy.textContent = '보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN을 설정하면 암호화해 저장합니다.'; // P1593 (F108): same scope as the page header
+    privacy.style.cssText = 'font-size:12px;color:var(--text-muted);margin:6px auto 0;max-width:60ch;'; // v57.91 (visual audit): one ~850px grey line became a readable block
     cell.append(heading, body, addButton, privacy);
     row.appendChild(cell);
     tbody.appendChild(row);
@@ -655,6 +657,8 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
     route: 'portfolio',
     mount() {
       const bag = createResourceBag();
+      portfolioMounted = true;
+      bag.add(() => { portfolioMounted = false; });
       const charts = createChartRegistry({ maxCanvasHeight: 260 });
       bag.add(charts.dispose);
       const renderNow = () => render({ root, documentRef, store, charts });

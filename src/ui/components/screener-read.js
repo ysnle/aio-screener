@@ -9,7 +9,7 @@ import { el } from './dom.js';
 
 function mixVisual(doc, read) {
   const box = el(doc, 'div', null, 'screener-mix');
-  box.append(el(doc, 'span', `${read.topName || '상위 20%'}의 업종 비중 vs 전체`, 'stock-read-vis-title'));
+  box.append(el(doc, 'span', `${read.topName || '상위 20%'}와 전체의 업종 비중`, 'stock-read-vis-title'));
   const max = Math.max(...read.mix.slice(0, 6).map((row) => Math.max(row.top, row.all)), 1);
   for (const row of read.mix.slice(0, 6)) {
     const line = el(doc, 'div', null, 'stock-read-bars');

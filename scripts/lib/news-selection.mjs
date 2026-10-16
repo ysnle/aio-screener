@@ -173,7 +173,7 @@ const SERVER_NEWS_OFFTOPIC_RE = /(바카라|카지노\s*게임|슬롯\s*머신|�
 // Owner 2026-10-12 (뉴스 30건 vs 50건): more slots would add noise, not news. Pages that are not articles — quote
 // pages, auto-generated price-target "forecasts", filing-form listings — and reposts whose headline names a month
 // two or more months before the cycle are dropped before ranking.
-const SERVER_NEWS_NOT_ARTICLE_RE = /(Stock Price, News, Quote|Stock Quote|Quote Price and Forecast|Quote & History|Price Target\s*[—-]\s*Prediction|Forecast\s*[—-]\s*Price Target|^Form\s+\d|\bForm 4\b|Stock Price Today|Price Prediction (?:for )?20\d\d)/i;
+const SERVER_NEWS_NOT_ARTICLE_RE = /(Stock Price, News, Quote|Stock Quote|Quote Price and Forecast|Quote & History|Price Target\s*[—-]\s*Prediction|Forecast\s*[—-]\s*Price Target|^Form\s+\d|\bForm 4\b|Stock Price Today|Prices? Today\s*(?:\||$)|Price Prediction (?:for )?20\d\d)/i; // v57.88: "Crude Oil Prices Today | OilPrice.com" is a quote page
 const NEWS_MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 export function serverNewsHeadlineMonthStale(headline, nowMs = Date.now()) {
   const match = String(headline || '').toLowerCase().match(/\b(january|february|march|april|june|july|august|september|october|november|december)\s+\d{1,2}\b/);

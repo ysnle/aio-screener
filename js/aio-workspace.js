@@ -748,7 +748,7 @@ function renderPortfolio() {
       '<div style="font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">포트폴리오가 비어 있습니다</div>' +
       '<div>종목을 추가하면 변동성·섹터 쏠림·시장 국면과의 연결이 여기에 나타납니다.</div>' +
       '<button class="aio-btn-table primary" data-action="_aioTogglePortfolioEntry" style="margin-top:10px;min-height:36px;padding:7px 16px;">첫 종목 추가</button>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN 설정 후 저장 시 AES-256 암호화.</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN을 설정하면 암호화해 저장합니다.</div>' +
       '</td></tr>';
     // v48.3: 빈 상태에서도 도넛 리셋(이전 데이터 잔존 방지)
     if (typeof drawPositionDonut === 'function') drawPositionDonut();
@@ -1906,7 +1906,7 @@ function removeFromWatchlist(ticker) {
 function showToast(msg) {
   var toast = document.createElement('div');
   toast.className = 'aio-toast'; toast.textContent = msg; // v57.81: .aio-toast stacks above the first-visit disclaimer
-  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(34,117,76,0.95);color:#000;padding:8px 18px;border-radius:4px;font-size:11px;font-weight:700;z-index:99998;pointer-events:none;opacity:0;transition:opacity 0.3s;';
+  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--text-primary,#211d16);color:var(--bg-base,#f7f4ee);padding:9px 18px;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,0.22);max-width:min(560px,calc(100vw - 32px));font-size:13px;font-weight:600;line-height:1.5;text-align:center;z-index:99998;pointer-events:none;opacity:0;transition:opacity 0.3s;';
   document.body.appendChild(toast);
   requestAnimationFrame(function() { toast.style.opacity = '1'; });
   setTimeout(function() {

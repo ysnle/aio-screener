@@ -142,7 +142,7 @@ console.log('scenario guidance fixture (basis card): PASS');
 // P1742/P1743 (owner 2026-10-13): forward branches as a registry — chain, dated triggers, three likelihood lines, choices
 // with opportunity cost — plus every theme by one rule, scored releases and the automated transition log.
 {
-  const { buildMacroCrossroads, upcomingMacroEvents, renderMacroCrossroadsContext, releaseActuals, scoreRelease, BRANCHES, CHOICES } = await import('../src/domain/market/macro-crossroads.js');
+  const { buildMacroCrossroads, upcomingMacroEvents, renderMacroCrossroadsContext, releaseActuals, scoreRelease, BRANCHES, CHOICES, BRANCH_NOTES } = await import('../src/domain/market/macro-crossroads.js');
   const { BRANCH_ANALOGS, analogOutcome, themeStateOutcomes, themeStateOf, THEME_STATES } = await import('../src/domain/scenarios/analogs.js');
   const { EXPOSURE_TAGS, US_THEME_PROFILES, KR_THEME_PROFILES, windFor } = await import('../src/domain/scenarios/exposures.js');
   const { buildThemePlaybook, renderThemePlaybookContext, rotationOf } = await import('../src/domain/scenarios/theme-playbook.js');
@@ -159,7 +159,10 @@ console.log('scenario guidance fixture (basis card): PASS');
     for (const tag of [...branch.firmer, ...branch.weaker, ...(branch.mixed || [])]) assert.ok(EXPOSURE_TAGS[tag], `P1743 ${branch.id}: exposure tag ${tag} defined`);
     assert.deepEqual(Object.keys(branch.choices), Object.keys(CHOICES), `P1743 ${branch.id}: all four choices`);
     for (const [eventId] of branch.triggers) assert.ok(['us-cpi', 'us-nfp', 'us-pce', 'us-retail', 'us-fed-rate', 'us-ism-mfg'].includes(eventId), `P1743 ${branch.id}: trigger on a known release`);
+    // v57.91 (bookmark item pass): every branch names what to check next and what would show the reading is wrong.
+    assert.ok(BRANCH_NOTES[branch.id]?.checks?.length && BRANCH_NOTES[branch.id]?.invalidation?.length, `v57.91 ${branch.id}: reference checks and invalidation`);
   }
+  assert.deepEqual(Object.keys(BRANCH_NOTES).sort(), BRANCHES.map((branch) => branch.id).sort(), 'v57.91 branch notes cover exactly the registered branches');
   // Every curated theme (US THEME_MAP, KR_THEME_MAP) has a structural profile, so no theme is left out of the rule.
   const maps = loadThemeMaps();
   assert.ok(maps.usThemes.length >= 15 && Object.keys(maps.krThemeMap).length >= 20, 'P1743: theme maps load from the classic scripts');
@@ -190,6 +193,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.doesNotMatch(text, noProbability, 'P1742: no probability percentage');
   assert.doesNotMatch(text, noInstruction, 'P1742: no trade instruction');
   assert.match(text, /금리가 내려가려면/, 'P1742: the rate hub names what would lower rates');
+  if (!model.held) assert.match(text, /이 읽기가 빗나가는 조건/, 'v57.91: the detailed branches carry their invalidation to the AI');
   assert.match(text, /최근 변화\(자동 기록\)/, 'P1743: the AI gets the automated transition log');
   assert.match(text, /지난 발표 판정\(자동\)/, 'P1743: the AI gets the scored releases');
   // Past frequency: non-overlapping episodes, long-history artifact preferred when it has a sample.
@@ -275,7 +279,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.ok(!playbook.themes.some((row) => row.id === 'shipbuilding'), 'P1743: a KR theme with fewer than three priced members is not read');
   assert.ok(playbook.highlights.structuralPullbacks.some((row) => row.id === 'semiconductor'), 'P1743: structural pullbacks are surfaced generically');
   assert.equal(playbook.themes.find((row) => row.id === 'energy').favored[0], 'wait', 'P1743: weak × headwind favours waiting');
-  assert.match(rotationOf(playbook.themes).text, /힘이 옮겨 갔습니다|뚜렷한 가격 기준 강약 이동은|부족해/, 'P1743: rotation is read from exposure tags across all themes');
+  assert.match(rotationOf(playbook.themes).text, /힘이 옮겨 갔습니다|뚜렷한 가격 기준 강약 이동은|부족해|옮겨 갔는지는 판단하지 않습니다/, 'P1743: rotation is read from exposure tags across all themes');
   assert.doesNotMatch(rotationOf(playbook.themes).text, /자금 이동/, 'audit 15: a price-only rotation is not called a money move');
   {
     const mk = (market, id, ret1m) => ({ market, id, label: id, ret1m, tags: ['growth'] });
@@ -385,7 +389,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   // 10/14 shape (HY 316bp, +13bp in five sessions, +40bp in twenty: credit 중립).
   const oct14 = run(make({ spxGap: 0.15, ndxDrop5: -3.9, rutBelow200: true, breadth50: 33.6, breadth200: 48.9, adv: 0.39, highs: 28, lows: 40, dist: 7 }), { hyBp: 316, hyAsOf: asOf, hyDelta5Bp: 13, hyDelta20Bp: 40 });
   assert.equal(oct14.trend.state, 'neutral', `v57.81 a close 0.15% over the 50-day line is 중립, not 양호 (${oct14.trend.read})`);
-  assert.ok(oct14.trend.testing && /50일선을 시험하는 구간/.test(oct14.trend.read), 'v57.81 inside ±1% the trend read says the index is testing the 50-day line');
+  assert.ok(oct14.trend.testing && /50일선보다 0\.\d% 위 — 50일선 근처에서 버티는 구간/.test(oct14.trend.read), 'v57.81 inside ±1% the trend read says the index is testing the 50-day line');
   assert.ok(oct14.trend.capped && /나스닥 100이 5거래일 -3\.9%/.test(oct14.trend.read) && /러셀 2000은 200일선 아래/.test(oct14.trend.read), `v57.81 the cross-index cap is named in plain Korean (${oct14.trend.read})`);
   const labels = oct14.trend.evidence.map(([label]) => label);
   assert.ok(labels.includes('나스닥 100') && labels.includes('러셀 2000') && labels.includes('50일선 대비'), `v57.81 trend evidence carries the Nasdaq-100 and Russell 2000 rows (${labels})`);
@@ -473,7 +477,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   const record = hyWidening20Record({ series: { hyOas: { observations: hyObs(rise) } } }, days.at(-1));
   assert.ok(record.stress && record.value >= 35 && record.pct >= 90, `v57.81 HY +40bp in 20 sessions at the top of its record enters 부담 (${JSON.stringify(record)})`);
   const credit = axisOf(build(), 'credit', { credit: { hyBp: 340, hyAsOf: days.at(-1), hyDelta5Bp: 8 }, macroHistory: { series: { hyOas: { observations: hyObs(rise) } } } });
-  assert.ok(credit.state === 'burden' && /20거래일 동안 \+\d+bp 넓어졌습니다\(자체 기록 \d+개 20거래일 변화 중 \d+백분위/.test(credit.read), `v57.81 the credit axis says the 20-session condition fired (${credit.read})`);
+  assert.ok(credit.state === 'burden' && /20거래일 동안 \+\d+bp 넓어졌습니다\(지난 \d+번의 20거래일 변화 중 (가장 큰 폭|상위 \d+%)/.test(credit.read), `v57.81 (v57.91 rank words) the credit axis says the 20-session condition fired (${credit.read})`);
   assert.equal(creditState({ hyBp: 316, hy5: 13, hy20: 40 }), 'neutral', 'v57.81 without the record flag a +40bp month stays 중립 (the record decides)');
   assert.equal(creditState({ hyBp: 316, hy5: 13, hy20: 40, hy20Stress: true }), 'burden');
   {
@@ -495,7 +499,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   const tail = [4.68, 4.64, 4.7, 4.72, 4.71, 4.65, 4.7, 4.74, 4.7, 4.64, 4.66, 4.67, 4.72, 4.76, 4.8, 4.8, 4.76, 4.78, 4.81, 4.84, 4.94, 4.97, 4.96, 5, 5.01, 4.95, 5, 4.96, 4.97, 5.11, 5.16, 5.18, 5.24, 5.26, 5.29, 5.24, 5.28, 5.31, 5.27, 5.28, 5.23, 5.24, 5.24, 5.22, 5.19];
   const tnxAt = (i, last = 5.19) => i < n - tail.length ? 4 + 0.6 * i / (n - tail.length) : i === n - 1 ? last : tail[i - (n - tail.length)];
   const rates = axisOf(build((i) => ({ tnx: tnxAt(i) })), 'rates');
-  assert.ok(rates.state === 'burden' && /되돌렸지만/.test(rates.read) && /부터\)/.test(rates.read), `v57.81 a 5-day dip at the top of the range does not flip 부담 to 중립 (${rates.state}: ${rates.read})`);
+  assert.ok(rates.state === 'burden' && /되돌렸지만/.test(rates.read) && /부터(\)| 이어지고)/.test(rates.read) /* v57.91 wording: "부담 판정은 8/31부터 이어지고 있습니다" */, `v57.81 a 5-day dip at the top of the range does not flip 부담 to 중립 (${rates.state}: ${rates.read})`);
   assert.notEqual(axisOf(build((i) => ({ tnx: tnxAt(i, 4.95) })), 'rates').state, 'burden', 'v57.81 falling under 80% of the range releases the rates 부담');
 
   // Volatility: VIX 16.87 after +11.9% in five sessions is 중립 and the read names the rise; a quiet 15 is 양호.
@@ -554,7 +558,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.ok(xlkMove.fading && /^상대강도 5일 -/.test(xlkMove.quadrant), `v57.81 the home sector badge drops 선도 for a fading leader (${JSON.stringify(xlkMove)})`);
   const fadingOutlook = buildScenarioOutlook({ scenarios: buildMarketScenarios({ history: build(), now }), regime: buildMarketRegime({ history: build(), now }), sectors: [{ symbol: 'XLK', label: '기술', quadrant: 'Leading', ...recent }, { symbol: 'XLE', label: '에너지', quadrant: 'Leading' }, { symbol: 'XLU', label: '유틸리티', quadrant: 'Weakening' }] });
   const concentrationView = fadingOutlook.items.find((item) => item.id === 'concentration');
-  assert.ok(/상대강도 선도\(RRG·수 주 기준\): 에너지/.test(concentrationView.opportunity) && !/선도\(RRG·수 주 기준\): [^·]*기술/.test(concentrationView.opportunity) && /선도였지만 최근 5거래일 상대강도가 꺾임: 기술/.test(concentrationView.opportunity), `v57.81 a fading 선도 is listed apart (${concentrationView.opportunity})`);
+  assert.ok(/상대강도 선도\(RRG·약 50일 기준\): 에너지/.test(concentrationView.opportunity) && !/선도\(RRG·약 50일 기준\): [^·]*기술/.test(concentrationView.opportunity) && /선도였지만 최근 5거래일 상대강도가 꺾임: 기술/.test(concentrationView.opportunity), `v57.81 a fading 선도 is listed apart (${concentrationView.opportunity})`);
   // The themes screen's RRG neutral band: XLK at RS-Ratio 100.33 is 경계, not 선도.
   assert.ok(rrgBorder({ rsRatio: 100.33, rsMomentum: 102.02 }) && !rrgBorder({ rsRatio: 105, rsMomentum: 103.6 }), 'v57.81 RRG neutral band (shared with 테마·섹터)');
   const banded = buildScenarioOutlook({ scenarios: buildMarketScenarios({ history: build(), now }), regime: buildMarketRegime({ history: build(), now }), sectors: [{ symbol: 'XLK', label: '기술', quadrant: 'Leading', rsRatio: 100.33, rsMomentum: 102.02 }, { symbol: 'XLV', label: '헬스케어', quadrant: 'Leading', rsRatio: 105, rsMomentum: 103.6 }] });
@@ -793,22 +797,22 @@ console.log('scenario guidance fixture (basis card): PASS');
   // Rotation headline: dated window, no tag claim on thin tags, a broken strong side carries its week.
   assert.match(pb.rotation.text, /^최근 1개월\(9\/15~10\/14\) 미국 테마/, `v57.81 the rotation names its window (${pb.rotation.text})`);
   const thin = rotationOf([1, 2, 3, 4].flatMap((i) => [{ market: 'US', id: `g${i}`, label: `g${i}`, ret1m: 9 - i, tags: ['growth'] }, { market: 'US', id: `e${i}`, label: `e${i}`, ret1m: -9 + i, tags: ['energy'] }]));
-  assert.ok(!/힘이 옮겨 갔습니다/.test(thin.text) && /부족해/.test(thin.text), 'v57.81 four themes per tag do not make a rotation claim');
+  assert.ok(!/힘이 옮겨 갔습니다/.test(thin.text) && /개 미만이라 힘이 어느 쪽으로 옮겨 갔는지는 판단하지 않습니다/.test(thin.text), 'v57.81 four themes per tag do not make a rotation claim');
   // RRG: neutral band and the five-session reversal against the series' own noise.
   const wiggle = Array.from({ length: 95 }, (_, i) => 100 + Math.sin(i / 2) * 0.8);
   const xlkLine = [...wiggle, ...[0.991, 0.982, 0.973, 0.964, 0.955].map((f) => wiggle.at(-1) * f)];
   assert.ok(rsRecentCheck(xlkLine).fell, 'v57.81 a -4.5% five-session RS move beyond twice the median weekly move is a reversal');
   assert.match(rrgRecentReading({ rsRatio: 104, rsMomentum: 102.0 }, xlkLine).label, /^선도\(약 50일 기준\) · 최근 5거래일 상대강도 -4\.5%로 반락$/, 'v57.81 XLK reads 선도(약 50일 기준) with the 반락 clause');
-  assert.ok(rrgZone(100.33, 102.02).border && /^경계\(선도\/개선 사이\)/.test(rrgRecentReading({ rsRatio: 100.33, rsMomentum: 102.02 }, xlkLine).label), 'v57.81 XLK at rsRatio 100.33 is 경계');
+  assert.ok(rrgZone(100.33, 102.02).border && /^기준선 부근\(선도\/개선 사이\)/.test(rrgRecentReading({ rsRatio: 100.33, rsMomentum: 102.02 }, xlkLine).label), 'v57.81 XLK at rsRatio 100.33 is 경계');
   assert.equal(rrgRecentReading({ rsRatio: 104, rsMomentum: 102 }, wiggle).reversal, null, 'v57.81 an ordinary week adds no clause');
   const flow = rotationFlow({ groups: { Leading: [{ symbol: 'XLE', label: '에너지' }], Improving: [{ symbol: 'SMH', label: '반도체', recentReversal: '상대강도 -8.8% 반락' }], Weakening: [], Lagging: [], Border: [{ symbol: 'XLK', label: '기술' }] } });
   assert.match(flow.read, /^약 50일 상대강도 기준 선도 에너지 · 개선 반도체\(최근 5거래일 상대강도 -8\.8% 반락\)/, `v57.81 the verdict names the window and the reversal (${flow.read})`);
-  assert.ok(/경계\(100 근처[^)]*\) 기술/.test(flow.read) && !/선도 [^.]*기술/.test(flow.read), 'v57.81 경계 sectors stay out of the verdict leaders');
+  assert.ok(/기술은 100 근처\(기준선 부근\)라 사분면을 정하지 않았습니다/.test(flow.read) && !/선도 [^.]*기술/.test(flow.read), 'v57.81 (v57.91 wording) 기준선 부근 sectors stay out of the verdict leaders');
   // Sub-theme lead: a rank gain with a broken week is not "최근 강해지는".
   const noise = weeklyNoiseFromVol(50, { members: 8 });
   const sub = (id, name, ret5d, direction) => ({ id, name, direction, above50Pct: 40, recent: recentMove({ ret5d, noise }) });
   const lead = themeStrengthLead({ windowLabel: '3개월', groups: [sub('a', '정유', 1, 'steady'), sub('b', '서버', 1, 'steady'), sub('c', '소프트', 1, 'steady'), sub('d', '네트워킹', -13.8, 'improving'), sub('e', '전력장비', 1.0, 'improving')] });
-  assert.ok(/전력장비는 1개월 순위가 3개월보다 크게 앞서 최근 강해지는 곳/.test(lead) && /네트워킹\(최근 5거래일 -13\.8%\)은 1개월 순위는 올랐지만/.test(lead), `v57.81 sub-theme lead (${lead})`);
+  assert.ok(/전력장비는 1개월 순위가 크게 올라 최근 강해지는 곳입니다/.test(lead) && /네트워킹\(최근 5거래일 -13\.8%\)은 1개월 순위는 올랐지만/.test(lead), `v57.81 sub-theme lead (${lead})`);
   const detail = themeDetailFlow({ themeId: 't', groups: [{ ...sub('x', '장비/소재', -12.9, 'improving'), themeId: 't', ret3m: -14.6 }, { ...sub('y', '테스트', 1, 'steady'), themeId: 't', ret3m: 11.6 }] });
   assert.ok(/1개월 순위는 장비\/소재가 올랐지만 최근 5거래일 -12\.9%로 크게 밀렸습니다/.test(detail.read) && !/옮겨 가는 중/.test(detail.read), `v57.81 theme detail (${detail.read})`);
   // Stage chips: the producer's 'current' status renders them.

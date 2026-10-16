@@ -15,6 +15,7 @@ import { createSummaryHydrator } from '../../domain/entity/summary-hydration.js'
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { renderCompanyAnalysis } from '../components/company-analysis.js';
 import { finiteNumber as finite } from '../../domain/shared/number.js';
+import { latestCompletedKrSession } from '../../domain/market/market-calendar.js';
 
 // 2026-10-13 review S21: observation times read in Korean time, not "… 20:00:00 UTC".
 export function formatKstStamp(value) {
@@ -115,7 +116,10 @@ function renderTickerHero(documentRef, state, root) {
     const bar = lastKrx ? bars.find((row) => row && formatTickerChartDate(row.epochMs) === lastKrx && finite(row.close) > 0) : null;
     const ms = Date.parse(quote.observedAt || '');
     const session = Number.isFinite(ms) ? new Date(ms + 9 * 3600000).toISOString().slice(0, 10) : null;
-    if (bar && session && session > lastKrx) quote = { ...quote, pct: (price / finite(bar.close) - 1) * 100, changeBasis: 'previous-session-daily-bar', changeBasisDate: lastKrx, changeCheck: 'agree' };
+    // v57.88 (review): the "no skipped session" promise is checked against the KRX calendar — the bar must be the last
+    // completed session before the quote's own day, or a two-session change would read as 전일 대비.
+    const expected = session ? latestCompletedKrSession(Date.parse(`${session}T00:00:00+09:00`))?.date || null : null;
+    if (bar && session && session > lastKrx && expected === lastKrx) quote ={ ...quote, pct: (price / finite(bar.close) - 1) * 100, changeBasis: 'previous-session-daily-bar', changeBasisDate: lastKrx, changeCheck: 'agree' };
   }
   const pct = finite(quote.pct);
   // P1317: Korean users recognise a KRX listing by its name, not its code — lead with the name.
@@ -701,7 +705,7 @@ function renderFundamentalReport(documentRef, page, state) {
   markSecReportElement(meta, report);
   markSecReportElement(coverage, report);
   markSecReportElement(grid, report);
-  if (title) title.textContent = report.entityName || report.symbol ? `SEC 기본 보고 · ${report.entityName || report.symbol}` : 'SEC 기본 보고';
+  if (title) title.textContent = report.entityName || report.symbol ? `SEC 연간 공시 요약 · ${report.entityName || report.symbol}` : 'SEC 연간 공시 요약';
   if (meta) {
     // P1591 (S08): the reader line says which report and how old it is; filing ledger details
     // (acceptance time, accession, point-in-time count) move to the tooltip.

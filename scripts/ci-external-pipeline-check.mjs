@@ -73,7 +73,8 @@ async function observeOnce() {
     const runs = response.body?.workflow_runs || [];
     // P1340: main only (a PR or Dependabot CI failure is not a production verdict), and deploy workflows skip
     // data-refresh commits by design, so a skipped run is not a deployment verdict either.
-    return [id, { latest: runs[0] || null, completed: runs.find((run) => run.status === 'completed' && run.conclusion !== 'skipped') || null, runs }];
+    // v57.88: a run cancelled by concurrency (cancel-in-progress on a newer push) is superseded, not a verdict — the same rule as P1598.
+    return [id, { latest: runs[0] || null, completed: runs.find((run) => run.status === 'completed' && run.conclusion !== 'skipped' && run.conclusion !== 'cancelled') || null, runs }];
   }));
   const [pages, proxy, fast, github] = await Promise.allSettled([pagesPromise, proxyPromise, fastPromise, githubPromise]);
 
@@ -207,6 +208,11 @@ async function observeOnce() {
   const ciActive = activeStates.includes(result.github?.ci?.latest?.status);
   const revision = result.checks.find((item) => item.id === 'pages-repository-revision' && !item.ok);
   if (mode === 'watchdog' && revision && (pagesActive || ciActive)) Object.assign(revision, { severity: 'warning', detail: `${revision.detail} (${pagesActive ? `Pages deploy in progress: ${result.github.pages.latest.url}` : `CI for the new push in progress: ${result.github.ci.latest.url}`})` });
+  // v57.88 (automation audit): Pages finishes first and wakes the watchdog while Deploy AI proxy (started by the same CI
+  // completion) is still running — 15 of 21 red watchdog runs in 7 days were proxy-source-revision for that reason alone.
+  const proxyActive = activeStates.includes(result.github?.deployProxy?.latest?.status);
+  const proxyLag = result.checks.find((item) => item.id === 'proxy-source-revision' && !item.ok);
+  if (mode === 'watchdog' && proxyLag && (proxyActive || ciActive)) Object.assign(proxyLag, { severity: 'warning', detail: `${proxyLag.detail} (${proxyActive ? `AI proxy deploy in progress: ${result.github.deployProxy.latest.url}` : `CI for the new push in progress: ${result.github.ci.latest.url}`})` });
   const failed = result.checks.filter((item) => !item.ok && item.severity === 'error');
   Object.assign(result, summarizeOperationalChecks(result.checks, result.warnings));
   return failed;

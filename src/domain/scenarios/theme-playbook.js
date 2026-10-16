@@ -297,7 +297,7 @@ export function rotationOf(rows, { period = null, benchRet5d = null } = {}) {
     ? ` 다만 최근 5거래일 '${top.label}' 성격 중앙값은 ${pct(top.ret5d)}로 평소 1주 움직임의 2배를 넘게 반대로 움직여, 1개월 기준 이동이 지금도 이어진다고 보지 않습니다.` : '';
   const text = !top || !bottom || top === bottom ? '테마 기록이 부족해 가격 기준 강약 이동을 읽지 않습니다.'
     : spread < 3 ? `${lead}는 성격별 차이가 작습니다(가장 강한 '${top.label}' ${pct(top.ret1m)}, 가장 약한 '${bottom.label}' ${pct(bottom.ret1m)}) — 뚜렷한 가격 기준 강약 이동은 보이지 않습니다.${krLine}`
-      : !thick ? `${lead}는 ${sides}입니다 — 성격별로 묶을 테마 수가 부족해(성격마다 ${ROTATION_TAG_MIN_THEMES}개 미만) 강약 이동으로 읽지 않습니다.${krLine} 가격 흐름 기준이며 자금 유출입 자료는 아닙니다.`
+      : !thick ? `${lead}는 ${sides}입니다. 성격마다 테마가 ${ROTATION_TAG_MIN_THEMES}개 미만이라 힘이 어느 쪽으로 옮겨 갔는지는 판단하지 않습니다.${krLine} 가격 흐름 기준이며 자금 유출입 자료는 아닙니다.`
         : `${lead}는 '${bottom.label}' 성격(중앙값 ${pct(bottom.ret1m)})에서 '${top.label}' 성격(중앙값 ${pct(top.ret1m)})으로 힘이 옮겨 갔습니다.${against} ${sides}.${krLine} 가격 흐름 기준이며 자금 유출입 자료는 아닙니다.`;
   return { tags, gainers: [...main.up, ...(sub?.up || [])], losers: [...main.down, ...(sub?.down || [])], market: scope, text };
 }

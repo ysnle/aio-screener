@@ -13,6 +13,17 @@ Writers add more code than required; asking them to be concise up front does not
 4. Present the list. Apply only items the user approves (or low-risk verified CUTs when the user asked for
    autonomous cleanup), then run the affected gates and record one ledger entry for the batch.
 
+## Lenses (2026-10-16, from reviewed X/pstack materials)
+- **Deletion test:** if this function/module/option were deleted, would its complexity reappear in callers? No → CUT.
+  Prefer delete over simplify, simplify over optimise, optimise over automate. "Nothing to cut" is a valid answer.
+- **Comments:** this repo keeps "why" comments with a version/P tag and notes on browser, provider or data-source
+  quirks. Flag only: stale comments the code contradicts, comments that restate the next line, and workaround comments
+  with no P/R reference or removal condition (agents copy these). A "do not change" comment whose constraint a cheap
+  gate or test could hold is a SIMPLIFY candidate: encode it, then shorten the comment to the reference.
+- **Low-signal tests/gates:** a check that restates the implementation (text pin, snapshot of its own output) and would
+  not catch a real defect the behaviour gates miss. Name the defect it would catch or mark it CUT-candidate.
+- Give the reviewer a target ("find at least N lines or say why not"); open-ended cleanup stops too early.
+
 ## Tooling
 - `node scripts/dead-code.mjs report [js/<file>.js]` lists top-level names with no runtime reference (RULES-named ones are flagged keep; test/gate-only refs are listed). `node scripts/dead-code.mjs remove <file> <names>` deletes them CRLF-safely. Re-grep string-built references before removing.
 - Parallel trims: one worktree per file group (`git worktree add <dir> -b claude/vX.Y-<area> <base>`), disjoint ownership, integrate and gate once.

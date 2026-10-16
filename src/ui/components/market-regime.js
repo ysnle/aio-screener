@@ -148,7 +148,7 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
   // branches by release live in full on 거시 only, so the heading no longer says 향후 시나리오 and the section ends
   // with one link there.
   section.append(el(doc, 'h2', '지금 시장 흐름 — 세 가지 중 어디에 가까운가', 'briefing-h2'),
-    el(doc, 'p', `${model.asOf || '기준일 미확인'} 종가 기준 · 지금 시장이 세 흐름 중 어디에 가까운지(맞는 조건 수, 확률 아님)를 봅니다. 다음 발표가 이 흐름을 어느 쪽으로 옮길지는 거시에서 이어집니다.`, 'regime-scenario-basis'));
+    el(doc, 'p', `${model.asOf || '기준일 미확인'} 종가 기준 · 지금 시장이 세 흐름 중 어디에 가까운지(맞는 조건 수, 확률 아님)를 봅니다. 다음 발표가 이 흐름을 어느 쪽으로 옮길지는 거시 화면에서 이어 봅니다.`, 'regime-scenario-basis'));
   if (!model.available) { section.append(el(doc, 'p', model.reason, 'regime-scenario-hold'), scenarioLink(doc, root)); return section; }
   if (model.reason) section.append(el(doc, 'p', model.reason, 'regime-scenario-hold'));
   if (outlook?.available) section.append(el(doc, 'p', outlook.headline, 'regime-scenario-lead'));
@@ -362,7 +362,7 @@ function paintFuturesCell(doc, root, cellId, futures, field, label) {
   value.textContent = last.value.toLocaleString('en-US', { maximumFractionDigits: 2 });
   const note = doc.createElement('span');
   note.className = 'kpi-fallback-note';
-  note.textContent = `${month}/${day} 종가${change == null ? '' : ` ${change >= 0 ? '+' : ''}${change.toFixed(2)}%`} · 선물 시세 미수신`;
+  note.textContent = `${month}/${day} 종가${change == null ? '' : ` ${change >= 0 ? '+' : ''}${change.toFixed(2)}%`} · 선물 시세 아직 받지 못함`;
   if (labelNode) labelNode.textContent = label;
   fallback.append(value, note);
   fallback.hidden = false;
@@ -446,7 +446,7 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
       line.append(el(doc, 'strong', `지금 시장 흐름 '${lead.title}'`), el(doc, 'span', `${lead.fit}${lead.shortfall ? ` · ${lead.shortfall}` : ''}`, 'basis-chip'), doc.createTextNode(` ${sentences[0] || ''}`));
       structure.push(line, ...(counter ? [el(doc, 'p', counter, 'xr-structure-note')] : []), ...(named ? [opportunityNode(doc, root, lead, 'home-outlook-opportunity')] : []), toStructure);
     } else if (scenarios?.held) structure.push(el(doc, 'p', `지금 구조: 판단 보류 — ${scenarios.reason}`, 'xr-structure'));
-    renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: outlookBox, id: 'home-crossroads', structure, title: '지금 구조와 앞으로', headingLevel: 'h2' }); // v57.77 (a11y 1.3.1): home has no h2 before this block // P1742/P1745
+    renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: outlookBox, id: 'home-crossroads', structure, title: '지금 흐름과 다음 발표', headingLevel: 'h2' }); // v57.77 (a11y 1.3.1): home has no h2 before this block // P1742/P1745
   }
   hero.dataset.aioRegimeRenderer = 'native';
   hero.dataset.state = regime.available ? 'regime' : 'pending';

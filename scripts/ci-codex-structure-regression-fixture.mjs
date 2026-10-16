@@ -221,7 +221,7 @@ assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes(
   assert.ok(items.realGdp.series.every((p) => Math.abs(p.value - (1.005 ** 4 - 1) * 100) < 1e-6), 'M04: GDP draws annualized quarterly growth');
   assert.equal(items.realGdp.period, '26년 2분기', 'M04/M13: a 2026-04-01 GDP observation is 26년 2분기, not 4/1');
   assert.equal(items.jobOpenings.period, '2월분', 'M13: a monthly card names its month');
-  assert.match(items.jobOpenings.format(9368), /^9\.37백만 건$/, 'M16: the JOLTS range keeps the 백만 건 unit');
+  assert.match(items.jobOpenings.format(9368), /^937만 건$/, 'M16 (v57.91 만 단위): the JOLTS range keeps the 만 건 unit');
   assert.match(items.netLiquidity.reading, /뚜렷한 방향이 없습니다/, 'M05: a 4-week change inside ±1,000억 달러 has no direction');
   assert.match(items.netLiquidity.format(5986.7), /조 달러$/, 'M16: the net-liquidity range keeps 조 달러');
   assert.match(items.sofr.changeText, /목표 범위 3\.75–4\.00% 안/, 'M22: SOFR shows the target range');

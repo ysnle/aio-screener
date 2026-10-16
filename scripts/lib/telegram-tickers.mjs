@@ -6,20 +6,21 @@ const SYMBOL_PART = /^(?:\\b)?[A-Z][A-Z0-9]{1,5}(?:\\b)?$/;
 // 2026-10-13 news audit N16: product names (TPU, Trainium, Gemini, SOFC, MI450, Copilot) say which company a
 // post is RELATED to, not who published or is the subject of it; they live in RELATED_PATTERNS and never count
 // toward the issuer tally (tickerCounts/catalysts).
+// v57.88 (screen audit): Korean company names for posts that never write the English one ('마이크론 타이중 신공장').
 const TICKER_PATTERNS = [
-  ['NVDA', /\bNVDA\b|nvidia/i], ['AMD', /\bAMD\b|Advanced Micro/i],
-  ['TSLA', /\bTSLA\b|Tesla/i], ['CAT', /\bCAT\b|Caterpillar/i], ['AMAT', /\bAMAT\b|Applied Materials/i],
+  ['NVDA', /\bNVDA\b|nvidia|엔비디아/i], ['AMD', /\bAMD\b|Advanced Micro/i],
+  ['TSLA', /\bTSLA\b|Tesla|테슬라/i], ['CAT', /\bCAT\b|Caterpillar/i], ['AMAT', /\bAMAT\b|Applied Materials/i],
   // The companies behind the product names below also carry their Korean names, so a Korean post that names the
   // company ("구글 … Gemini") keeps it as the issuer instead of a product-only relation.
   ['AAPL', /\bAAPL\b|\bApple\b/i], ['MSFT', /\bMSFT\b|\bMicrosoft\b|Azure|마이크로소프트/i],
   ['GOOG', /\bGOOG\b|\bGOOGL\b|Google|Alphabet|구글|알파벳/i], ['META', /\bMETA\b|Meta Platforms/i],
   ['AVGO', /\bAVGO\b|Broadcom|브로드컴/i], ['AMZN', /\bAMZN\b|Amazon|AWS|아마존/i],
-  ['MU', /\bMU\b|Micron/i], ['TSM', /\bTSM\b|TSMC|Taiwan Semiconductor/i],
+  ['MU', /\bMU\b|Micron|마이크론/i], ['TSM', /\bTSM\b|TSMC|Taiwan Semiconductor/i],
   ['MRVL', /\bMRVL\b|Marvell/i], ['ALAB', /\bALAB\b|Astera/i],
   ['LITE', /\bLITE\b|Lumentum/i], ['COHR', /\bCOHR\b|Coherent/i],
   ['AAOI', /\bAAOI\b|Applied Optoelectronics/i], ['MTSI', /\bMTSI\b|MACOM/i],
   ['ORCL', /\bORCL\b|Oracle/i], ['BE', /\bBE\b|Bloom Energy|블룸\s*에너지/i],
-  ['PLTR', /\bPLTR\b|Palantir/i], ['BMY', /\bBMY\b|Bristol[- ]Myers/i],
+  ['PLTR', /\bPLTR\b|Palantir|팔란티어/i], ['BMY', /\bBMY\b|Bristol[- ]Myers/i],
   ['SNDK', /\bSNDK\b|SanDisk/i], ['WDC', /\bWDC\b|Western Digital/i], ['STX', /\bSTX\b|Seagate/i],
   ['2454.TW', /\bMTK\b|MediaTek/i], ['PWR', /\bPWR\b|Quanta Services/i],
   ['ADBE', /\bADBE\b|Adobe/i], ['SMCI', /\bSMCI\b|Super Micro/i], ['RKLB', /\bRKLB\b|Rocket Lab/i],

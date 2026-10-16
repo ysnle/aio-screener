@@ -243,7 +243,7 @@ function chainNode(doc, node) {
 }
 
 const BRANCH_ROUTES = Object.freeze({
-  dollar: { route: 'fxbond', label: '금리 · 환율에서 달러·원·엔 추이', why: '달러·원화·엔화의 6개월 종가 추이와 환율 축' },
+  dollar: { route: 'fxbond', label: '금리 · 환율에서 달러·원·엔 추이', why: '달러·원화·엔화의 6개월 종가 추이와 환율 참고 지표' },
   credit: { route: 'sentiment', label: '투자 심리에서 신용·변동성', why: '하이일드 스프레드와 VIX가 심리와 같은 쪽인지' }
 });
 
@@ -363,7 +363,7 @@ function renderRegime(doc, read) {
   const right = el(doc, 'div', null, 'macro-overview-side');
   const head = el(doc, 'div', null, 'macro-regime-head');
   head.append(el(doc, 'span', r.label, `macro-regime-label is-${r.tone}`));
-  if (r.near?.growth || r.near?.inflation) head.append(el(doc, 'span', '경계 근소 · 방향 보류', 'basis-chip is-off'));
+  if (r.near?.growth || r.near?.inflation) head.append(el(doc, 'span', '기준선 근처 · 방향 보류', 'basis-chip is-off'));
   if (r.available && r.provisional) head.append(el(doc, 'span', '잠정 — 월별 추세 일부 미반영', 'basis-chip is-off'));
   const counts = read.counts;
   const tally = el(doc, 'div', null, 'macro-tally');
@@ -375,7 +375,7 @@ function renderRegime(doc, read) {
   reading.append(el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(` ${r.reading}`));
   // P1506: the quadrant reads the 3-month direction of growth and prices; the six cards judge today's level
   // against a threshold. A disinflation quadrant beside a 부담 price card is consistent once that is said.
-  const lens = el(doc, 'p', '사분면은 성장·물가가 어느 쪽으로 움직이는지(물가는 3개월 속도), 아래 판정은 지금 수준이 증시에 부담인지를 봅니다. 물가 속도가 둔화돼도 수준이 목표보다 높으면 물가 축은 부담으로 남습니다.', 'briefing-footnote macro-lens-note');
+  const lens = el(doc, 'p', '사분면은 성장·물가가 어느 쪽으로 움직이는지(물가는 3개월 속도), 아래 판정은 지금 수준이 증시에 부담인지를 봅니다. 물가 속도가 둔화돼도 수준이 목표보다 높으면 물가 요인은 부담으로 남습니다.', 'briefing-footnote macro-lens-note');
   const criteria = el(doc, 'details', null, 'macro-axis-more');
   if (r.available) {
     right.append(head, tally, lens, overviewTiles(doc, read.axes), reading);
@@ -528,6 +528,7 @@ function curveSvg(doc, yields) {
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.setAttribute('class', 'rates-curve');
   svg.setAttribute('role', 'img');
+  svg.style.maxHeight = '220px'; // v57.91: a wide desktop column scaled the 150-unit chart (and its text) to about 2x
   if (points.length < 2) { svg.setAttribute('aria-label', '수익률 곡선 자료 부족'); return svg; }
   svg.setAttribute('aria-label', `미 국채 수익률 곡선: ${points.map((row) => `${row.label} ${row.value.toFixed(2)}%`).join(', ')}`);
   const values = points.map((row) => row.value);
@@ -554,10 +555,12 @@ function curveSvg(doc, yields) {
     // v57.81: the last two tenors (20년·30년) sit 37 units apart; the narrow-screen label floor (responsive.css) turns them
     // away from each other instead of letting them touch. The classes do not change the drawn chart on their own.
     const edge = index === yields.length - 1 ? ' is-last' : index === yields.length - 2 ? ' is-penult' : '';
-    add('text', { x: x(index), y: H - 6, 'text-anchor': 'middle', class: `trend-chart-axis rates-curve-tenor${edge}` }, row.label);
+    // v57.91 (visual audit): the 20-year labels lean left of their point so they never meet the 30-year ones.
+    const lean = index === yields.length - 2 ? { dx: -4, anchor: 'end' } : { dx: 0, anchor: 'middle' };
+    add('text', { x: x(index) + lean.dx, y: H - 6, 'text-anchor': lean.anchor, class: `trend-chart-axis rates-curve-tenor${edge}` }, row.label);
     if (row.value == null) return;
     add('circle', { cx: x(index), cy: y(row.value), r: 3.5, class: 'rates-curve-dot' });
-    add('text', { x: x(index), y: y(row.value) - 8, 'text-anchor': 'middle', class: 'rates-curve-label' }, row.value.toFixed(2));
+    add('text', { x: x(index) + lean.dx, y: y(row.value) - 8, 'text-anchor': lean.anchor, class: 'rates-curve-label' }, row.value.toFixed(2));
   });
   return svg;
 }
@@ -738,7 +741,11 @@ function syncOtherCurrencyNote(doc, root) {
   const note = doc.querySelector?.('#rates-other-title .rates-other-note');
   if (!note) return;
   const read = describeOtherFx(root?._liveData || {});
-  note.textContent = read.text;
+  // v57.91 (wording audit): with no quote at all, one line replaces a grid of eight dashes.
+  const empty = read.text === '시세 대기';
+  const grid = doc.querySelector?.('.rates-other');
+  if (grid) grid.style.display = empty ? 'none' : ''; // the class sets display:grid, which a hidden attribute would not override
+  note.textContent = empty ? '시세를 아직 받지 못했습니다' : read.text;
   for (const symbol of OTHER_FX) {
     const change = doc.querySelector?.(`.rates-other [data-live-chg="${symbol}"]`);
     if (change) change.hidden = read.reference;

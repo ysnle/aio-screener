@@ -12,8 +12,8 @@ import { rsRecentCheck, rrgSettledQuadrant } from '../themes/recent-check.js';
 export const SCENARIO_OUTLOOK_VERSION = 'scenario-outlook.v1';
 
 export const SECTOR_ETF_LABELS = Object.freeze({
-  XLK: '기술', XLC: '통신서비스', XLY: '임의소비재', XLF: '금융', XLI: '산업재', XLB: '원자재', XLE: '에너지',
-  XLV: '헬스케어', XLP: '필수소비재', XLU: '유틸리티', XLRE: '리츠/부동산'
+  XLK: '기술', XLC: '통신', XLY: '경기소비재', XLF: '금융', XLI: '산업재', XLB: '소재', XLE: '에너지',
+  XLV: '헬스케어', XLP: '필수소비재', XLU: '유틸리티', XLRE: '부동산'
 });
 const DEFENSIVE = new Set(['XLV', 'XLP', 'XLU']);
 
@@ -93,12 +93,12 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
   const themeLinks = topThemeRows.map((row) => ({ kind: 'theme', label: row.name, themeId: row.themeId || null }));
   const guide = {
     expansion: {
-      posture: '이 흐름이라면 상승이 소수 대형주를 넘어 다수 종목으로 퍼지는 국면입니다. 그동안 뒤처졌던 업종과 중소형주의 참여가 함께 늘어나는지가 이 해석을 확인하는 근거입니다. 반증: 50일선·200일선 위 비율이 ' + RULES.breadth.broadAtLeast + '% 아래로 다시 내려오거나 HY 스프레드가 넓어지면 확산 해석을 다시 봅니다.',
-      // v57.81: the RRG window is named (수 주 기준) and a fading 선도 is listed apart with its five-session relative return.
-      opportunity: (improving.length || leading.length ? `${improving.length ? `섹터 회전(RRG·수 주 기준)에서 개선 중: ${join(improving)}` : '개선 중인 섹터는 아직 없음'} · 선도: ${join(leading) || '없음'}` : `확산이 확인되면 후행 업종의 개선 여부를 섹터 회전에서 확인합니다${sectorNote}.`) + fadingNote,
-      opportunityLinks: [{ label: '섹터 회전(수 주 기준)에서 개선 중', links: sectorLinks(improving) }, { label: '선도', links: sectorLinks(leading) }].filter((part) => part.links.length),
+      posture: '이 흐름이라면 상승이 소수 대형주를 넘어 다수 종목으로 퍼지는 국면입니다. 그동안 뒤처졌던 업종과 중소형주의 참여가 함께 늘어나는지가 이 해석을 확인하는 근거입니다. 반증: 50일선·200일선 위 비율이 ' + RULES.breadth.broadAtLeast + '% 아래로 다시 내려오거나 하이일드 스프레드가 넓어지면 확산 해석을 다시 봅니다.',
+      // v57.81: the RRG window is named (약 50일 기준) and a fading 선도 is listed apart with its five-session relative return.
+      opportunity: (improving.length || leading.length ? `${improving.length ? `섹터 회전(RRG·약 50일 기준)에서 개선 중: ${join(improving)}` : '개선 중인 섹터는 아직 없음'} · 선도: ${join(leading) || '없음'}` : `확산이 확인되면 후행 업종의 개선 여부를 섹터 회전에서 확인합니다${sectorNote}.`) + fadingNote,
+      opportunityLinks: [{ label: '섹터 회전(약 50일 기준)에서 개선 중', links: sectorLinks(improving) }, { label: '선도', links: sectorLinks(leading) }].filter((part) => part.links.length),
       check: [`50일선·200일선 위 종목 비율이 함께 ${RULES.breadth.broadAtLeast}% 이상을 유지하는지`, '52주 신고가 종목이 신저가보다 꾸준히 많은지', '러셀 2000이 S&P 500을 따라오거나 앞서는지'],
-      caution: ['20일선 위 비율만 오르고 50일선 비율이 따라오지 않으면 확산이라고 보기 이릅니다.', 'HY 스프레드가 다시 넓어지면 회복의 근거가 약해집니다.'],
+      caution: ['20일선 위 비율만 오르고 50일선 비율이 따라오지 않으면 확산이라고 보기 이릅니다.', '하이일드 스프레드가 다시 넓어지면 회복의 근거가 약해집니다.'],
       // P1727: "지수 하루 하락" read as "ignore today's -5.5% KOSPI"; the item names the ordinary US day and excludes rare moves.
       ignore: ['VIX의 하루 등락', '미국 지수의 평범한 하루 하락 — 참여 비율이 유지되면 추세 판단을 바꿀 근거가 아닙니다(기록상 드문 급락이나 한국 시장의 급락은 넘기지 않고 따로 확인).']
     },
@@ -107,9 +107,9 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
       // C23: the sector names come from the relative-strength rotation (RRG quadrant), not from today's or this week's
       // returns — a sector can lead on relative strength while being the weakest tile on the 1-day map.
       // v57.81: RRG trails price by weeks; while the leadership break holds, the line says the leaders' recent drop beside it.
-      opportunity: (leading.length || topThemes.length ? join([join(leading) && `상대강도 선도(RRG·수 주 기준): ${join(leading)}`, topThemes.length && `3개월 상위 테마: ${join(topThemes)}`]) : `주도 섹터·테마는 테마 화면에서 확인합니다${sectorNote}.`) + fadingNote
+      opportunity: (leading.length || topThemes.length ? join([join(leading) && `상대강도 선도(RRG·약 50일 기준): ${join(leading)}`, topThemes.length && `3개월 상위 테마: ${join(topThemes)}`]) : `주도 섹터·테마는 테마 화면에서 확인합니다${sectorNote}.`) + fadingNote
         + (leadership.break && leadership.drop5 != null ? ` · 상대강도는 몇 주 늦게 반영 — 나스닥 100은 최근 5거래일 ${leadership.drop5 >= 0 ? '+' : ''}${leadership.drop5.toFixed(1)}%` : ''),
-      opportunityLinks: [{ label: '상대강도 선도(RRG·수 주 기준)', links: sectorLinks(leading) }, { label: '3개월 상위 테마', links: themeLinks }].filter((part) => part.links.length),
+      opportunityLinks: [{ label: '상대강도 선도(RRG·약 50일 기준)', links: sectorLinks(leading) }, { label: '3개월 상위 테마', links: themeLinks }].filter((part) => part.links.length),
       check: ['주도 섹터의 상대강도가 유지되는지(선도 → 약화로 바뀌는지)', '지수 고점과 50일선 위 종목 비율의 괴리가 줄어드는지', '분배일(거래량 실린 하락일)이 늘어나는지'],
       caution: ['분배일이 누적되고 신저가 종목이 늘면, 집중 장세가 끝나 가는지 주도 섹터의 상대강도와 50일선 위 비율로 확인합니다.', '주도 종목 한두 개의 실적 실망이 지수 전체를 흔들 수 있습니다.'],
       ignore: ['후행 업종의 하루 반등 — 참여 비율이 넓어지기 전에는 흐름 전환으로 읽지 않습니다.', '지수 신고가 자체 — 참여가 좁으면 시장 전체가 강하다는 뜻이 아닙니다.']
@@ -118,7 +118,7 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
       posture: '이 흐름이라면 지수와 참여도의 약화가 신용 또는 변동성 스트레스와 함께 나타나는 국면입니다. 하루 반등보다 지수의 50일선 회복과 시장 폭 개선이 함께 확인되는지가 흐름이 바뀌었는지 가르는 근거입니다. 반증: HY 확대가 멈추고 VIX 단기 불안 비율 역전이 풀리며 S&P 500이 200일선을 되찾으면 약화 해석을 다시 봅니다.',
       opportunity: defensiveHolding.length ? `상대적으로 버티는 방어 섹터: ${join(defensiveHolding)}` : `방어 섹터(헬스케어·필수소비재·유틸리티)의 상대강도를 섹터 회전에서 확인합니다${sectorNote}.`,
       opportunityLinks: [{ label: '상대적으로 버티는 방어 섹터', links: sectorLinks(defensiveHolding) }].filter((part) => part.links.length),
-      check: ['HY 스프레드 확대가 멈추는지', `VIX 단기 불안 비율 역전(${RULES.volatility.invertedRatioAt} 이상)이 풀리는지`, 'S&P 500이 200일선을 되찾는지'],
+      check: ['하이일드 스프레드 확대가 멈추는지', `VIX 단기 불안 비율 역전(${RULES.volatility.invertedRatioAt} 이상)이 풀리는지`, 'S&P 500이 200일선을 되찾는지'],
       caution: ['급락 직후 하루 반등만으로는 추세 회복을 확인할 수 없습니다 — 50일선 회복과 시장 폭 개선이 함께 필요합니다.', '"많이 빠져서 싸다"는 것은 추세 회복의 근거가 아닙니다.'],
       ignore: ['단기 과매도 지표 하나만의 신호', '하루짜리 정책·뉴스 헤드라인']
     }
@@ -128,7 +128,7 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
   const transitionGuide = transition ? {
     title: TRANSITION_TITLE,
     posture: `주도 영역(나스닥 100)과 중소형주·시장 폭이 함께 약해져, 소수 종목이 받치던 흐름이 동반 약세로 넘어가는지 확인하는 단계입니다. 확인: 추세가 부담으로 바뀌거나(S&P 500 200일선 이탈, 또는 하락하는 50일선 아래) HY 확대·VIX 급등이 겹치면 동반 약세 쪽입니다. 반증: 나스닥 100의 5거래일 낙폭이 ${RULES.trend.leaderDrop5dPct}% 안으로 줄고 신고가가 신저가보다 다시 많아지면 소수 주도로 되돌아간 것으로 봅니다. 다음 확인: ${nextCheck ? `${shortDate(nextCheck)} ` : '다음 '}미국 확정 종가.`,
-    check: ['나스닥 100이 50일선 위를 지키는지, 5거래일 낙폭이 줄어드는지', '신저가가 신고가보다 많은 날이 이어지는지', '러셀 2000이 200일선을 되찾는지', 'HY 스프레드와 VIX가 함께 오르는지'],
+    check: ['나스닥 100이 50일선 위를 지키는지, 5거래일 낙폭이 줄어드는지', '신저가가 신고가보다 많은 날이 이어지는지', '러셀 2000이 200일선을 되찾는지', '하이일드 스프레드와 VIX가 함께 오르는지'],
     caution: ['하루 반등만으로 주도 영역이 회복됐다고 보지 않습니다.', '동반 약세 조건이 모두 갖춰지기 전까지는 전환을 확인하는 단계이지 확정이 아닙니다.'],
     leadershipBasis: `주도 영역 이탈 확인(${leadership.summary || ''} · 확인 ${leadership.met}/${leadership.confirmations?.length || 0})`,
     nextCheck

@@ -22,7 +22,7 @@ export function renderKoreaParticipation({documentRef:doc,root,store=null}) {
   if(model.session?.text){const lead=el(doc,'p',model.session.text);lead.className='flow-lead';host.append(lead);}
   host.append(el(doc,'p',model.headline));
   if(!model.available){host.hidden=true;return model;}host.hidden=false;
-  host.append(el(doc,'p',`${model.date} 한국 종가 · ${model.delayed?'지연':'참고'} · 수집 ${model.observed}/${model.population}개 표본`));
+  host.append(el(doc,'p',`${model.date} 한국 종가 · ${model.delayed?'지연':'참고'} · ${model.observed === model.population ? `AIO 추적 종목(한국) ${model.population}개 모두` : `AIO 추적 종목(한국) ${model.population}개 중 ${model.observed}개`}`));
   const metrics=el(doc,'dl');metrics.className='regime-kr-metrics';
   for(const [label,value] of [['50일선 위',model.breadth50],['200일선 위',model.breadth200]]) if(value.pct!=null)metrics.append(el(doc,'dt',label),el(doc,'dd',`${value.pct.toFixed(1)}% (${value.above}/${value.count}개)`));
   if(model.returns.ret1m!=null)metrics.append(el(doc,'dt','1개월 수익률 중앙값'),el(doc,'dd',`${model.returns.ret1m.toFixed(1)}%`));host.append(metrics);
@@ -36,6 +36,6 @@ export function renderKoreaParticipation({documentRef:doc,root,store=null}) {
       const heavy=heavyweightLine(group,nameOf);if(heavy){const note=el(doc,'p',heavy);note.className='regime-kr-heavy';item.append(note);}
       list.append(item);}host.append(list);}
   const watch=el(doc,'details');watch.append(el(doc,'summary','다음에 관찰할 연결'),...model.watch.map(text=>el(doc,'p',text)));host.append(watch);
-  const basis=el(doc,'details');basis.append(el(doc,'summary','표본·미수집 자료'),el(doc,'p',`한국 수집 종목의 동일 기준일 표본입니다. 늦거나 기준일이 없는 ${model.excluded}개는 제외합니다. 신고가·수급 숫자를 역산하지 않습니다.`),el(doc,'p',`아직 연결되지 않은 자료: ${model.missing.join(' · ')}`));host.append(basis);
+  const basis=el(doc,'details');basis.append(el(doc,'summary','표본 기준과 빠진 자료'),el(doc,'p',`AIO 추적 종목(한국) 가운데 같은 기준일에 종가가 있는 표본입니다. 늦거나 기준일이 없는 ${model.excluded}개는 제외합니다. 신고가·수급 숫자를 역산하지 않습니다.`),el(doc,'p',`아직 연결되지 않은 자료: ${model.missing.join(' · ')}`));host.append(basis);
   return model;
 }

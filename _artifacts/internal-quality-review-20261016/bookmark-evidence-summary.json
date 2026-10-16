@@ -1,0 +1,99 @@
+{
+  "sourceSha256": "c316829201523342929ba29721f30405557582f9496cdcc3486a6a17a862a19e",
+  "declaredCounts": {
+    "bookmarks": 834,
+    "analyzed": 732,
+    "nonInvestmentByHandle": 102,
+    "fetchErrors": 4
+  },
+  "actualItemCount": 732,
+  "uniqueItemIds": 732,
+  "stateCounts": {
+    "conflict": 5,
+    "missing": 85,
+    "n/a": 149,
+    "partial": 331,
+    "reflected": 162
+  },
+  "claimCount": 1266,
+  "checkCounts": {
+    "CONSISTENT": 284,
+    "UNVERIFIED": 957,
+    "VERIFIED": 25
+  },
+  "itemProperties": [
+    "author",
+    "category",
+    "claims",
+    "date",
+    "frameworks",
+    "id",
+    "integrate",
+    "n",
+    "note",
+    "repo",
+    "summary",
+    "url",
+    "value"
+  ],
+  "claimProperties": [
+    "check",
+    "claim",
+    "itemId",
+    "kind"
+  ],
+  "rootProperties": [
+    "schemaVersion",
+    "readOn",
+    "boundary",
+    "counts",
+    "items",
+    "nonInvestment"
+  ],
+  "missingParsedRepoPaths": [
+    {
+      "itemId": "2091084964024726001",
+      "parsedPaths": [
+        "_context/RESEARCH-INTEGRATION-AI-INFRA-MARKET-RISK-2026-08-22.md",
+        "src/domain/macro/transmission.js"
+      ],
+      "shorthandPaths": [],
+      "missingPaths": [
+        "src/domain/macro/transmission.js"
+      ]
+    }
+  ],
+  "verifiedExamples": [
+    {
+      "claim": "코스피 10/13 종가 6,035.35",
+      "kind": "transient",
+      "check": "VERIFIED",
+      "itemId": "2110203220551401706"
+    },
+    {
+      "claim": "S&P 500 최고치에서 0.2% 안쪽",
+      "kind": "transient",
+      "check": "VERIFIED",
+      "itemId": "2109817302199722402"
+    },
+    {
+      "claim": "10/13 코스피 종가 6,035.35, −5.46%",
+      "kind": "transient",
+      "check": "VERIFIED",
+      "itemId": "2109908864275743225"
+    },
+    {
+      "claim": "삼성전자 3분기 잠정 영업이익 107.4조원",
+      "kind": "transient",
+      "check": "VERIFIED",
+      "itemId": "2109830200276189561"
+    },
+    {
+      "claim": "미 10년물 5.2% 위 유지",
+      "kind": "transient",
+      "check": "VERIFIED",
+      "itemId": "2109830200276189561"
+    }
+  ],
+  "interpretation": "Counts, labels, and paths only. VERIFIED/CONSISTENT are ledger labels, not verification by this audit. Unparsed prose paths are not treated as missing. No original bookmark/thread/article/image was re-fetched or visually inspected here."
+}

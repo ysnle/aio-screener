@@ -150,7 +150,7 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   const rotationRows = [{ sym: 'MSFT', sector: 'Technology', pctSma50: 5.95, pctSma200: 23.1 }];
   const xlkHeld = buildPortfolioRead({ surface: { rows: [{ symbol: 'MSFT', value: 100 }] }, rows: rotationRows, rotation: { XLK: { quadrant: 'Leading', rsRatio: 100.33, rsMomentum: 102.02, relativeStrength: rs } } });
   const rotation = xlkHeld.points.find((point) => point.id === 'rotation');
-  if (!/0%가 시장보다 강해지는 '선도' 섹터/.test(rotation.text) || !/판정을 보류합니다/.test(rotation.text) || rotation.tone !== 'neutral' || xlkHeld.sectorMix[0].quadrant.label !== '판정 보류(경계)') fail(`v57.81 a quadrant inside the RRG band is 판정 보류, kept out of the tone: ${rotation.text}`);
+  if (!/0%가 시장보다 강해지는 '선도' 섹터/.test(rotation.text) || !/판정을 보류합니다/.test(rotation.text) || rotation.tone !== 'neutral' || xlkHeld.sectorMix[0].quadrant.label !== '판정 보류(기준선 부근)') fail(`v57.81 a quadrant inside the RRG band is 판정 보류, kept out of the tone: ${rotation.text}`);
   const xlkClear = buildPortfolioRead({ surface: { rows: [{ symbol: 'MSFT', value: 100 }] }, rows: rotationRows, rotation: { XLK: { quadrant: 'Leading', rsRatio: 105, rsMomentum: 103, relativeStrength: rs.slice(0, 60) } } });
   if (!/100%가 시장보다 강해지는 '선도' 섹터/.test(xlkClear.points.find((point) => point.id === 'rotation').text)) fail('v57.81 clean: a clear 선도 point without a recent reversal still reads 선도');
 }

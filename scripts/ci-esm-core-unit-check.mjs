@@ -1930,7 +1930,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   // RRG: a ratio inside the themes' neutral band is 경계, and a last week against the quadrant withholds the favourable tone.
   const rs = (end) => Array.from({ length: 40 }, (_, index) => ({ value: 100 + (index < 35 ? index * 0.05 : 1.75 + (index - 34) * end) }));
   const sectorRead = (item) => pointOf(buildStockRead({ symbol: 'NVDA', row: { name: 'NVDA', sector: 'Technology', pctSma50: 6, pctSma200: 15, adrPct: 2, ret5d: 1 }, rotation: { XLK: { quadrant: 'Leading', sessionDate: '2026-10-14', ...item } } }), 'sector');
-  if (sectorRead({ rsRatio: 100.33, rsMomentum: 102, relativeStrength: rs(0.05) })?.tone !== 'neutral' || !/경계/.test(sectorRead({ rsRatio: 100.33, rsMomentum: 102, relativeStrength: rs(0.05) })?.text || '')) fail('v57.81 an RS-Ratio within the neutral band is 경계, not 선도');
+  if (sectorRead({ rsRatio: 100.33, rsMomentum: 102, relativeStrength: rs(0.05) })?.tone !== 'neutral' || !/기준선 부근/.test(sectorRead({ rsRatio: 100.33, rsMomentum: 102, relativeStrength: rs(0.05) })?.text || '')) fail('v57.81 an RS-Ratio within the neutral band is 기준선 부근 (v57.91 wording; was 경계), not 선도');
   const reversed = sectorRead({ rsRatio: 104, rsMomentum: 102, relativeStrength: rs(-0.9) });
   if (reversed?.tone !== 'neutral' || !/최근 5거래일 상대강도 -/.test(reversed?.text || '')) fail(`v57.81 a Leading sector whose last five sessions fell is not favourable, got ${JSON.stringify(reversed)}`);
   if (sectorRead({ rsRatio: 104, rsMomentum: 102, relativeStrength: rs(0.05) })?.tone !== 'favorable') fail('v57.81 a clear Leading sector still reads favourable');
@@ -1952,7 +1952,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const basisRead = buildScreenerRead({ rows: basisRows, validation: { ...basisSummary, modelMatch: true } });
   if (basisSummary.wins !== 2 || basisSummary.winsBasis !== 'net' || !/비용 후 2회/.test(basisRead.headline)) fail(`v57.81 one validation count basis (net) must be named, got ${basisRead.headline}`);
   const health = basisRead.points.find((point) => point.id === 'health');
-  if (health?.tone !== 'neutral' || !/추세 팩터/.test(health.text) || !/일평균 변동폭 2배 넘게 하락/.test(health.text)) fail(`v57.81 상위권 추세 is neutral, names the trend factor and the five-session drawdown share, got ${JSON.stringify(health)}`);
+  if (health?.tone !== 'neutral' || !/추세 팩터/.test(health.text) || !/하루 평균 변동폭의 2배 넘게 하락/.test(health.text)) fail(`v57.81 상위권 추세 is neutral, names the trend factor and the five-session drawdown share, got ${JSON.stringify(health)}`);
   // The fiscal headline carries its FY; an annual filing past the longest 10-K deadline after the next FY end is flagged.
   const { buildFiscalRead: fiscalForHero } = await load('src/domain/fundamental/fiscal-read.js');
   const fyHistory = [{ periodEnd: '2024-06-30', revenue: 10e9, netIncome: 1e9, equity: 8e9 }, { periodEnd: '2025-06-30', revenue: 12e9, netIncome: 1.3e9, equity: 9e9 }];
@@ -2077,7 +2077,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const spans = tempUi.extremeSpans([['2026-01-01', 1, 3, 0], ['2026-01-02', 1, 4, 0], ['2026-01-05', 1, 0, 0], ['2026-01-06', 1, 0, 3]]);
   if (JSON.stringify(spans) !== JSON.stringify([{ start: '2026-01-01', end: '2026-01-02', tone: 'cold' }, { start: '2026-01-06', end: '2026-01-06', tone: 'hot' }])) fail(`v57.54 extreme spans group consecutive sessions by tone, got ${JSON.stringify(spans)}`);
   const evidence = tempUi.temperatureEvidence({ label: '코스피', from: '1999-01-05', state: 'cold', outcomes: { cold: { h63: { n: 39, mean: 5.6, se: 2.5, hitRate: 67, p10: -11.8 } }, all: { h63: { n: 6800, mean: 3.1, se: 1.25, hitRate: 60 } } } });
-  if (!/1999년 이후 과도한 냉각 구간이 시작된 첫날 중 서로 겹치지 않는 39번/.test(evidence) || !/두 범위가 겹쳐 평균 차이는 구별되지 않습니다/.test(evidence) || /예측은 아닙니다/.test(evidence)) fail(`v57.54/v57.84 the past-spell line (overlap verdict carries the caveat; the boilerplate 예측 sentence is gone) names n, the ± range and whether it clears the baseline, got ${evidence}`);
+  if (!/1999년 이후 강한 냉각 구간이 시작된 첫날 중 서로 겹치지 않는 39번/.test(evidence) || !/두 범위가 겹쳐 평균 차이는 구별되지 않습니다/.test(evidence) || /예측은 아닙니다/.test(evidence)) fail(`v57.54/v57.84 the past-spell line (overlap verdict carries the caveat; the boilerplate 예측 sentence is gone) names n, the ± range and whether it clears the baseline, got ${evidence}`);
   const staleIds = tempUi.staleMarketIds({ retained: ['kosdaq'] }, [{ id: 'spx', asOf: '2026-10-13' }, { id: 'kosdaq', asOf: '2026-10-13' }, { id: 'nikkei', asOf: '2026-10-02' }, { id: 'kospi', asOf: '2026-10-09' }]);
   if ([...staleIds].sort().join(',') !== 'kosdaq,nikkei') fail(`v57.54 a retained market or one more than a week behind is stale and leaves the "now" lead, got ${[...staleIds]}`);
   // v57.83 codex audit F05 + R706: under 10 non-overlapping windows no average; 10-29 carries the small-sample note;
@@ -2119,6 +2119,9 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     const checks16 = packet16.PACKET_20261016_SOURCES.flatMap((row) => row.checks);
     if (audit.fetched + audit.fetchErrors !== audit.bookmarks || Object.values(audit.repoState).reduce((a, b) => a + b, 0) !== audit.analyzed || audit.analyzed + audit.nonInvestment !== audit.bookmarks
       || checks16.some((row) => !['VERIFIED', 'CONSISTENT', 'UNVERIFIED'].includes(row.state) || !row.basis)) fail('v57.87 the bookmark audit must add up and every dated claim carries a verification state');
+    const follow16 = audit.itemFollowUp;
+    if (!follow16 || follow16.reflected + follow16.partial + follow16.proposed + follow16.declined !== follow16.items || packet16.PACKET_20261016_SOURCES.length !== 63 + follow16.sourcesAdded
+      || new Set(packet16.PACKET_20261016_SOURCES.map((row) => row.id)).size !== packet16.PACKET_20261016_SOURCES.length) fail('v57.91 the bookmark item pass must add up and its added sources stay unique');
     if (top('역레포가 바닥이면 TGA가 준비금을 줄이나') !== 'supplied-material:claim-20261016-reserve-buffer-regime' || top('사모신용 환매 대기열') !== 'supplied-material:claim-20261016-private-credit-redemption'
       || top('구리랑 광학 중에 뭐가 이겨') !== 'supplied-material:claim-20261016-interconnect-distance-time') fail('v57.87 chat retrieval must reach the bookmark frames');
   }
@@ -2142,10 +2145,17 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (pocket.ago !== 0 || !(pocket.count >= 1) || ft.pocketPivotAgo(pcl.slice(0, 15), pvol.slice(0, 15)).ago !== null) fail(`v57.87 pocket pivot must read the last session and stay null on short history, got ${JSON.stringify(pocket)}`);
   pvol[29] = 90;
   if (ft.pocketPivotAgo(pcl, pvol).ago === 0) fail('v57.87 an up close on lighter volume than the largest down close is not a pocket pivot');
-  // Heavy down days: a 0.2%+ lower close on more volume than the prior session.
-  const hcl = Array.from({ length: 30 }, (_, i) => 100 - (i >= 25 ? i - 24 : 0));
-  const hvol = Array.from({ length: 30 }, (_, i) => 100 + i);
-  if (ft.heavyDownDays(hcl, hvol) !== 5) fail(`v57.87 heavy down days miscounted, got ${ft.heavyDownDays(hcl, hvol)}`);
+  // Heavy down days (v57.88): a 1%+ lower close on volume above the stock's own 50-session average. Shallow drops
+  // and light-volume drops do not count; the index rule (0.2%, more than the prior session) was too loose for stocks.
+  const hcl = [100];
+  const hvol = [100];
+  const step = (pct, vol) => { hcl.push(hcl[hcl.length - 1] * (1 + pct / 100)); hvol.push(vol); };
+  for (let i = 0; i < 59; i += 1) step(0, 100);
+  for (let i = 0; i < 5; i += 1) step(-1.5, 150);
+  for (let i = 0; i < 3; i += 1) step(-0.5, 150);
+  for (let i = 0; i < 2; i += 1) step(-2, 90);
+  for (let i = 0; i < 15; i += 1) step(0.2, 100);
+  if (ft.heavyDownDays(hcl, hvol) !== 5 || ft.heavyDownDays(hcl.slice(-60), hvol.slice(-60)) !== null) fail(`v57.88 heavy down days must count 1%+ drops above the 50-session average volume only, got ${ft.heavyDownDays(hcl, hvol)}`);
   // Base number: a 10% pullback for 20 sessions then a new high = base 1; a second 9% pullback still open = base 2 forming.
   const series = [];
   for (let i = 0; i < 160; i += 1) series.push(100 + i * 0.3125);
@@ -2154,6 +2164,10 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   for (let i = 1; i <= 25; i += 1) series.push(160 - i * 0.6);
   const base = ft.baseCount(series);
   if (base?.count !== 2 || base.forming !== true || !(base.depthPct > 8) || ft.baseCount(series.slice(0, 100)) !== null) fail(`v57.87 base count must count completed and forming bases, got ${JSON.stringify(base)}`);
+  // v57.88: a close below the completed base's low (135) means the base failed — the count restarts.
+  const failed = series.slice(0, -25);
+  for (let i = 1; i <= 25; i += 1) failed.push(160 - i * 1.2);
+  if (ft.baseCount(failed)?.count !== 0) fail(`v57.88 a close below the last completed base low must restart the base count, got ${JSON.stringify(ft.baseCount(failed))}`);
   // Climax: a run from 50 with nine up closes in the last ten and the year's largest gain at the end.
   const run = Array.from({ length: 250 }, (_, i) => 50 + i * 0.25);
   run[249] = run[248] * 1.08;
@@ -2172,6 +2186,11 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (judge('no-climax', { climaxSigns: [] }) !== true || judge('no-climax', { climaxSigns: ['stretch-200'] }) !== false || judge('no-climax', {}) !== null
     || judge('early-base', { baseCount: 0 }, 2) !== false || judge('early-base', { baseCount: 2 }, 2) !== true || judge('pocket-pivot', { pocketPivots10: 0 }) !== false
     || judge('not-extended', { pctSma50: 12, adrPct: 2 }, 4) !== false || judge('not-extended', { pctSma50: 6, adrPct: 2 }, 4) !== true || judge('down-day-hold', { downDayHoldPct: 65 }, 60) !== true) fail('v57.87 follow-through conditions misjudge a row');
+  // v57.88 (review): far below the 50-day line is not "before extension"; the sentence parser must not invert or misread.
+  if (judge('not-extended', { pctSma50: -25, adrPct: 2 }, 4) !== false || judge('not-extended', { pctSma50: -1.5, adrPct: 2 }, 4) !== true) fail('v57.88 not-extended must keep the 50-day 부근 floor');
+  const parsedFollow = (text) => JSON.stringify(conditions.parseConditionText(text));
+  if (parsedFollow('거래량 실린 하락일 3일 이하') !== '{"conditions":[{"id":"few-heavy-down","value":3}],"unknown":""}'
+    || /not-extended/.test(parsedFollow('확장 전체에서 VCP')) || !/"adr-min","value":3/.test(parsedFollow('변동폭 3% 넘게'))) fail('v57.88 follow-through sentence rules misread a phrase');
   const summary = presentation.followThroughSummary({ baseCount: 2, baseForming: true, baseDepthPct: 9.4, pocketPivotAgo: 3, downDayHoldPct: 70, downDayCount: 20, downDayExcessPp: 0.6, heavyDownDays25: 2, climaxSigns: ['largest-gain'] });
   if (summary.text !== '베이스 2번째(형성 중) · 포켓 피벗 3일 전 · 하락일 버팀 70% · 클라이맥스 징후 1' || presentation.followThroughSummary({}).text !== '—' || /매수|매도|진입|손절|목표/.test(summary.title)) fail(`v57.87 follow-through summary drifted, got ${summary.text}`);
 }
@@ -4069,7 +4088,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (picked.length !== 6 || picked.some((item) => ['before cut', 'in bundle', 'dup title'].includes(item.title)) || picked[0].title !== 'extra 7') fail(`P1730 intraday slot selection wrong: ${picked.map((item) => item.title).join(',')}`);
   if (selectIntradayNews(rows, { cycleEndMs: NaN }).length || selectIntradayNews(null, { cycleEndMs: end }).length) fail('P1730 no bundle end or no rows must hide the slot');
   const newsPage = readFileSync(path.join(root, 'src/ui/pages/news.js'), 'utf8');
-  if (!/08:00 이후 장중 속보 · 잠정/.test(newsPage) || !/한국장 시간대 기사는 장중 속보 칸에, 정식 묶음은 다음 08:00 수집본/.test(newsPage)) fail('P1730 the news screen must label the slot and the post-close header');
+  if (!/08:00 이후 속보 · 잠정/.test(newsPage) || !/한국장 시간대 기사는 속보 칸에, 정식 묶음은 다음 08:00 수집본/.test(newsPage)) fail('P1730 the news screen must label the slot and the post-close header');
 }
 
 // ── P1418: portfolio 점검 — published-default verdicts only, hidden currency mix detected ─────
@@ -4098,7 +4117,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (rankGrade(85) !== '상위 15%' || rankGrade(100) !== '상위 1%' || rankGrade(null) !== null || /^[A-F]$/.test(String(rankGrade(90)))) fail('P1419 the rank cell must show the percentile position, not a letter grade');
   const { summarizeValidation } = await load('src/ui/components/screener-validation.js');
   const sample = summarizeValidation([{ date: '2026-09-30', n: 800, dates: 6, quantileSpreadNet: 1.2, netHitRate: 66.7, transactionCostPct: 0.2, ic: { composite: 0.05 } }, { date: '2026-10-01', n: 845, dates: 6, quantileSpreadNet: -3.27, netHitRate: 33.3, transactionCostPct: 0.23, ic: { composite: -0.039 } }], { status: 'BLOCKED', predictiveValidation: 'not-established' });
-  if (sample.wins !== 2 || sample.tone !== 'neutral' || sample.distinguishable !== false || !/아직 구별 불가\(표본 6회\)/.test(sample.undecided) || sample.series.length !== 2 || !/생존 편향/.test(sample.validation)) fail(`P1419/D11 a 6-rebalance record without |t|>=2 must read as undecided, not 뒤처짐: ${JSON.stringify(sample)}`);
+  if (sample.wins !== 2 || sample.tone !== 'neutral' || sample.distinguishable !== false || !/아직 우연과 구별 안 됨\(표본 6회\)/.test(sample.undecided) || sample.series.length !== 2 || !/생존 편향/.test(sample.validation)) fail(`P1419/D11 a 6-rebalance record without |t|>=2 must read as undecided, not 뒤처짐: ${JSON.stringify(sample)}`);
   const decided = summarizeValidation([{ date: '2026-10-01', n: 845, dates: 12, quantileSpreadNet: -3.27, netHitRate: 25, transactionCostPct: 0.23, ic: { composite: -0.039, compositeT: -2.4 } }], null);
   if (decided.tone !== 'burden' || decided.distinguishable !== true) fail(`D11 12 rebalances with |t|>=2 keep the sign verdict: ${JSON.stringify(decided)}`);
   if (summarizeValidation([], null).available) fail('P1419 no history must not read as a result');
@@ -4119,7 +4138,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const matchRow = { date: '2026-10-01', n: 845, dates: 6, quantileSpreadNet: 1.2, netHitRate: 66.7, transactionCostPct: 0.2, ic: { composite: 0.05 }, modelFingerprint: live };
   if (summarizeValidation([matchRow], { status: 'BLOCKED' }).modelMatch !== true) fail('P1449 a same-fingerprint record must read as the live ranking validation');
   const stale = summarizeValidation([matchRow], { status: 'BLOCKED' });
-  if (!/같은 순위를|앞섰습니다|아직 구별 불가/.test(stale.verdict)) fail('P1449 a matched record keeps the performance claim');
+  if (!/같은 순위를|앞섰습니다|아직 구별 불가|우연과 구별 안 됨/.test(stale.verdict)) fail('P1449 a matched record keeps the performance claim');
   const mismatchRow = { ...matchRow, modelFingerprint: buildScreenerModelFingerprint({ weights: { momentum: 0.39, trend: 0.28, lowvol: 0.22, kalman: 0.11 } }) };
   const mismatch = summarizeValidation([mismatchRow], { status: 'BLOCKED' });
   if (mismatch.modelMatch !== false || !/다른 이전 모델|모델 지문/.test(mismatch.verdict)) fail(`P1449 a mismatching fingerprint must read as a different-model disclosure: ${JSON.stringify(mismatch)}`);

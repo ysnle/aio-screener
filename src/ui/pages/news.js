@@ -59,12 +59,14 @@ function renderNewsSummary(documentRef, root, model, status) {
   };
   set('news-24h-count', model?.eligibleCount ?? summary.itemCount, '0');
   // P1673: once the news model has loaded, zero sources is a result, not a check still in progress.
-  set('news-24h-sources', summary.sourceCount ? `${summary.sourceCount}개 소스` : (model ? '0개 소스' : '소스 확인 중'));
+  set('news-24h-sources', summary.sourceCount ? `${summary.sourceCount}개 출처` : (model ? '0개 출처' : '출처 확인 중'));
   // P1672: the keyword sentiment/risk strip left with P1391, so no news sentiment score is shown at all.
   let cut = null;
   try { cut = root?.AIO?.getSharedMarketCut?.() || null; } catch (_) {}
   const generatedAt = root?._serverDataMeta?.generatedAt || null;
-  const generatedLabel = generatedAt ? new Date(generatedAt).toLocaleString('ko-KR', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+  // v57.91 (wording audit): '10. 16. 오후 08:51' read unlike every other stamp on the screen — one M/D HH:MM form.
+  const generatedStamp = generatedAt ? compactKstTime(generatedAt) : null;
+  const generatedLabel = generatedStamp ? `${generatedStamp.date} ${generatedStamp.time}` : '';
   // Codex review 2026-10-05: the list is filtered to the 08:00 KST window of today, but the header named the
   // data revision's older cut ("기준시각 경과 · 10/04 08:00") beside 10/5 articles. The header now names
   // the window the list actually uses, and staleness is stated as the last collection time.
@@ -241,7 +243,8 @@ function createNewsCard(documentRef, root, item, index) {
   const tickers = earnings?.symbol ? [earnings.symbol] : extractedTickers;
   // P1591 (E05): one badge per company — '$$삼성전자' and '$삼성전자' were the same symbol with a doubled marker.
   const uniqueTickers = resolveNewsIssuers(item, tickers, root?.AIO_TICKER_NAME_REGISTRY?.entries);
-  uniqueTickers.slice(0, 4).forEach((ticker) => headline.appendChild(createTickerBadge(documentRef, `$${ticker}`, ticker === item?.issuerSymbol)));
+  // v57.88 (screen audit): registry topic keys (GE_VRN, TSLA_AUTOPILOT) are not symbols and never become a badge.
+  uniqueTickers.filter((ticker) => !String(ticker).includes('_')).slice(0, 4).forEach((ticker) => headline.appendChild(createTickerBadge(documentRef, `$${ticker}`, ticker === item?.issuerSymbol)));
   // LC-34: the original article was reachable only through the card's `data-open-url` click
   // delegation, so keyboard/AT users had no focusable link. The headline is now a real anchor
   // (new tab, noopener); the card keeps its larger pointer target, and the delegation ignores the
@@ -399,7 +402,7 @@ function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now(
   const heading = documentRef.createElement('h2');
   heading.className = 'briefing-h2';
   heading.id = 'news-intraday-title';
-  heading.append('08:00 이후 장중 속보 · 잠정 ');
+  heading.append('08:00 이후 속보 · 잠정 ');
   const note = documentRef.createElement('span');
   note.className = 'briefing-h2-note';
   note.textContent = `${end ? `${end.date} ${end.time}` : '08:00'} 이후 헤드라인 · 다음 08:00 수집본 전까지`;
@@ -567,7 +570,7 @@ function render({ documentRef, root, store, route }) {
   const kstMinutes = ((new Date(nowMs).getUTCHours() + 9) % 24) * 60 + new Date(nowMs).getUTCMinutes();
   const windowLabel = documentRef?.getElementById('news-window-label');
   if (intradayCount && windowLabel && (kstMinutes >= 15 * 60 + 30 || kstMinutes < 8 * 60)) {
-    windowLabel.textContent = `${windowLabel.textContent} · 한국장 시간대 기사는 장중 속보 칸에, 정식 묶음은 다음 08:00 수집본`;
+    windowLabel.textContent = `${windowLabel.textContent} · 한국장 시간대 기사는 속보 칸에, 정식 묶음은 다음 08:00 수집본`;
   }
   syncNewsControlState(documentRef, controls);
   // P1428 (Codex review): the important list follows the same country/topic filter as the feed — a 한국

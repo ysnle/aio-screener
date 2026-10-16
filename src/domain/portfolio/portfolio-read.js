@@ -21,14 +21,14 @@ const QUADRANT = Object.freeze({ Leading: { label: '선도', tone: 'favorable' }
 
 // v57.81 (analysis audit 2026-10-15): a quadrant is a ~50-session reading. XLK sat at RS-Ratio 100.33 — inside the RRG
 // neutral band — and trailed the S&P 500 by 4.5%p in five sessions, yet 59% of the book read '선도'. A point in the band
-// is 판정 보류(경계); a last-five-session move against the quadrant beyond the line's own noise is 약화 중/반등 중. Neither
+// is 판정 보류(기준선 부근); a last-five-session move against the quadrant beyond the line's own noise is 약화 중/반등 중. Neither
 // counts toward the favourable/burden tone. Band and reversal come from the themes owner (recent-check.js).
 function rotationQuadrant(item) {
   if (!QUADRANT[item?.quadrant]) return null;
   const reading = rrgRecentReading(item, item?.relativeStrength || null);
   // v57.84 (owner decision 3-3): the settled quadrant (own-noise band + hysteresis), as on 테마 · 섹터.
   const base = QUADRANT[reading?.quadrant || item.quadrant];
-  if (reading?.border) return { label: '판정 보류(경계)', tone: 'neutral', held: true, base: base.label, why: `상대강도가 100 부근(${reading.between} 사이)${reading.clause ? `이고 ${reading.clause.replace(/^ · /, '')}` : ''}` };
+  if (reading?.border) return { label: '판정 보류(기준선 부근)', tone: 'neutral', held: true, base: base.label, why: `상대강도가 100 부근(${reading.between} 사이)${reading.clause ? `이고 ${reading.clause.replace(/^ · /, '')}` : ''}` };
   if (reading?.reversal) return { label: `${base.label} · ${reading.reversal === 'fell' ? '약화 중' : '반등 중'}`, tone: 'neutral', held: true, base: base.label, why: reading.clause.replace(/^ · /, '') };
   return { ...base, held: false, base: base.label, why: '' };
 }

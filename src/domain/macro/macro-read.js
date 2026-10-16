@@ -210,7 +210,7 @@ function inflationAxis({ macro, mh }) {
       : `근원 PCE 물가가 ${yoy.toFixed(1)}%로 목표보다 ${gap.toFixed(1)}%p 높고, ${fired.name}${fired.month ? `(${fired.month})` : ''}의 최근 3개월 속도(연율 ${fired.pace.toFixed(1)}%)가 1년치(${fired.yoy.toFixed(1)}%)보다 ${fired.margin.toFixed(1)}%p 빨라 다시 오르고 있습니다 — 부담 판정은 이 재가속 때문입니다. 연준이 금리를 내리기 어려운 조건입니다.${mixedNote}`)
     : state === 'favorable' ? `근원 PCE 물가가 ${yoy.toFixed(1)}%로 목표에 가깝고 오르는 속도가 줄고 있습니다 — 금리 인하 여지가 생기는 조건입니다.`
       : state === 'unknown' ? '물가 자료를 기다리는 중입니다.'
-        : `근원 PCE 물가 ${yoy.toFixed(1)}% — 목표보다 높지만 ${direction.state === 'mixed' && reaccel.length ? `${reaccel[0].name}${reaccel[0].month ? `(${reaccel[0].month})` : ''}만 빨라지고${mixedNote ? mixedNote.replace(/^ /, ' ') : ''} 두 지표가 함께 가리키는 재가속은 아닙니다.` : '다시 빨라지는 신호는 뚜렷하지 않습니다.'}${yoy >= I.missPct ? ` ${I.missPct.toFixed(1)}% 선과의 차이가 ${MACRO_SIGNAL_RULES.inflationLevelBufferPp}%p 미만이라 수준만으로 부담으로 보지 않습니다.` : ''}${pace ? '' : ' 3개월 속도는 월별 기록이 쌓이면 반영됩니다.'}`;
+        : `근원 PCE 물가 ${yoy.toFixed(1)}% — 목표보다 높지만 ${direction.state === 'mixed' && reaccel.length ? `${reaccel[0].name}${reaccel[0].month ? `(${reaccel[0].month})` : ''}만 빨라지고${mixedNote ? mixedNote.replace(/^ /, ' ') : ''} 두 지표가 함께 가리키는 재가속은 아닙니다.` : '다시 빨라지는 신호는 뚜렷하지 않습니다.'}${yoy >= I.missPct ? ` 수준 기준(${levelAt.toFixed(1)}%)에는 못 미쳐 수준만으로 부담으로 보지 않습니다.` : ''}${pace ? '' : ' 3개월 속도는 월별 기록이 쌓이면 반영됩니다.'}`;
   const gaugeOf = state === 'burden' && firedBy === 'reaccel' && fired
     ? gauge({ label: `${fired.name} 3개월 속도 − 1년치 (재가속 폭)`, value: fired.margin, unit: '%p', digits: 1, ...cuts(-2, 3, [0, I.reaccelPp], ['favorable', 'neutral', 'burden'], [[0, '0'], [I.reaccelPp, `+${I.reaccelPp} 재가속`]]) })
     : gauge({ label: '근원 PCE 물가 (전년 대비)', value: yoy, unit: '%', digits: 1, ...cuts(0, 5, [I.nearTargetPct, levelAt], ['favorable', 'neutral', 'burden'], [[I.targetPct, `목표 ${I.targetPct}%`], [levelAt, `${levelAt.toFixed(1)}%`]]) });
@@ -456,7 +456,7 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
   const record20 = mh ? hyWidening20Record(mh) : null;
   const cause = creditCause({ hyBp: hyBpNow, hy5: hy5 == null ? null : hy5 * 100, hy20Record: record20 });
   const burdenText = cause.level ? `스프레드 수준(${Math.round(hyBpNow)}bp)이 부담 구간(${RULES.credit.stressAtBp}bp 이상)입니다(시장 상태 신용 지표 부담)`
-    : cause.wide20 ? `수준(${Math.round(hyBpNow)}bp)은 부담 구간이 아니지만 20거래일 ${signed(record20.value, 0, 'bp')} 확대가 ${record20.pct >= 100 ? '지난 1년 중 가장 큰 폭' : `지난 1년 변화의 ${record20.pct}백분위`}라 부담입니다(시장 상태 신용 지표 부담)`
+    : cause.wide20 ? `수준(${Math.round(hyBpNow)}bp)은 부담 구간이 아니지만 20거래일 ${signed(record20.value, 0, 'bp')} 확대가 ${record20.pct >= 100 ? '지난 1년 중 가장 큰 폭이' : `지난 1년 변화의 ${record20.pct}백분위`}라 부담입니다(시장 상태 신용 지표 부담)`
       : '신용 지표가 부담입니다 — 수준과 5·20거래일 변화를 함께 확인하세요(시장 상태 신용 지표 부담)';
   const creditCalm = creditVerdict === 'favorable' ? '신용 시장은 안정적입니다(시장 상태 신용 지표 양호)'
     : creditVerdict === 'burden' ? burdenText
@@ -466,16 +466,17 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
   const nodes = [
     { id: 'oil', label: '유가 (WTI)', held: oilHeld, value: wti20 == null ? '—' : `20일 ${signed(wti20, 1, '%')}${oilShort}${oilHeld ? (oil?.abnormal ? ' · 브렌트 비교 보류' : ` · 브렌트 ${signed(oil.brent20, 1, '%')}`) : ''}`, dir: fx.wtiHigh && wti20 != null && wti20 > RULES.oil.fall20dPct ? 'up' : dir(wti20, RULES.oil.rise20dPct, RULES.oil.fall20dPct) },
     { id: 'breakeven', label: '기대인플레이션', value: bei5 == null ? (splitReal ? '기준일이 달라 보류' : '—') : `5거래일 ${signed(bei5 * 100, 0, 'bp')}`, dir: dir(bei5 == null ? null : bei5 * 100, RULES.breakeven.move5dBp, -RULES.breakeven.move5dBp) },
-    { id: 'policy', label: '연준 경로 (2년물)', value: pricing == null ? '—' : pricing >= P.pricedMovePp ? `경로 이상 ${signed(pricing, 2, '%p')}` : pricing <= -P.pricedMovePp ? `경로 이하 ${signed(pricing, 2, '%p')}` : '동결 근접', dir: dir(pricing, P.pricedMovePp, -P.pricedMovePp) },
+    { id: 'policy', label: '연준 경로 (2년물)', value: pricing == null ? '—' : pricing >= P.pricedMovePp ? `기준금리 대비 ${signed(pricing, 2, '%p')}` : pricing <= -P.pricedMovePp ? `기준금리 대비 ${signed(pricing, 2, '%p')}` : '동결 근접', dir: dir(pricing, P.pricedMovePp, -P.pricedMovePp) },
     { id: 'rates', label: '장기금리 (10년물)', value: tnx20 == null ? '—' : `20일 ${signed(tnx20, 0, 'bp')}`, dir: dir(tnx20, RULES.rates.move20dBp, -RULES.rates.move20dBp) },
-    { id: 'valuation', label: '주식 밸류에이션 압력(해석)', inferred: true, value: axisById.rates ? `관측 아님 · 금리 축 ${axisById.rates.stateLabel}에서 추론` : '—', dir: axisById.rates?.state === 'burden' ? 'down' : axisById.rates?.state === 'favorable' ? 'up' : 'flat' }
+    { id: 'valuation', label: '주식 밸류에이션 압력(해석)', inferred: true, value: axisById.rates ? `관측 아님 · 금리 지표 ${axisById.rates.stateLabel}에서 추론` : '—', dir: axisById.rates?.state === 'burden' ? 'down' : axisById.rates?.state === 'favorable' ? 'up' : 'flat' }
   ];
   const links = [];
-  if (oilHeld) links.push(oil.sentence);
+  // v57.91: the full Brent–WTI paragraph is shown once, under the WTI chart (macro-board); the chain and the axis point there.
+  if (oilHeld) links.push('유가 고리는 브렌트와 WTI가 엇갈려 판단을 보류합니다 — 두 유가의 같은 날 비교는 WTI 원유 차트 설명에 있습니다.');
   if (!oilHeld && nodes[0].dir !== 'unknown' && nodes[0].dir !== 'flat' && nodes[0].dir === nodes[1].dir) links.push(`유가(20일)와 기대인플레이션(5거래일)이 함께 ${nodes[0].dir === 'up' ? '오르고' : '내리고'} 있습니다 — 유가가 물가 예상으로 옮겨 가는 경로와 같은 방향이지만, 관측 기간이 달라 인과를 확인한 것은 아닙니다.`);
   // P1449: 2년물은 프리미엄을 분리하지 못한 대용 지표 — 링크 문장도 해석 단정 대신 관측을 말한다.
-  if (nodes[2].dir === 'up') links.push('2년물이 기준금리 중간값보다 높습니다(기간 프리미엄 분해 자료 없음 — "추가 인상 반영"이라고 단정하는 문장이 아니라 경로 이상 수준의 관측입니다).');
-  if (nodes[2].dir === 'down') links.push('2년물이 기준금리 중간값보다 낮습니다(기간 프리미엄 분해 자료 없음 — 관측된 것은 경로 이하 수준입니다).');
+  if (nodes[2].dir === 'up') links.push('2년물이 기준금리 중간값보다 높습니다. 기간 프리미엄이 섞여 있어 추가 인상 예상으로 단정하지 않습니다.');
+  if (nodes[2].dir === 'down') links.push('2년물이 기준금리 중간값보다 낮습니다. 기간 프리미엄이 섞여 있어 인하 예상으로 단정하지 않습니다.');
   if (!oilHeld && nodes[0].dir === 'up' && nodes[1].dir !== 'up') links.push(fx.wtiHigh ? '유가가 1년 범위 상단에 있어 물가 부담 요인입니다.' : `유가가 20일 동안 ${signed(wti20, 1, '%')} 올랐습니다 — 아직 기대인플레이션으로 크게 번지지는 않았습니다.`);
   if (nodes[3].dir === 'up') links.push(`10년물이 20일 동안 ${signed(tnx20, 0, 'bp')} 올랐습니다${real5 != null && bei5 != null && real5 > bei5 && real5 > 0 ? ' — 실질금리 우위는 5거래일 관측 기준이며(20일 전체 분해는 자료가 없음), 그 관측은 성장주 밸류에이션 부담 쪽과 같은 방향입니다' : ''}.`);
   if (nodes[3].dir === 'down') links.push(`10년물이 20일 동안 ${signed(tnx20, 0, 'bp')} 내려 할인율 부담이 줄고 있습니다.`);
@@ -490,12 +491,12 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
   }
   const branches = [
     { id: 'dollar', label: '달러', value: dxy20 == null ? '—' : `20일 ${signed(dxy20, 1, '%')}`, dir: dir(dxy20, RULES.dollar.rise20dPct, RULES.dollar.fall20dPct), effect: dxy20 == null ? null : dxy20 >= RULES.dollar.rise20dPct ? '달러 강세 → 미국 다국적 기업의 해외 매출 환산 감소, 신흥국·원화 약세(외국인 순매도 압력)' : dxy20 <= RULES.dollar.fall20dPct ? '달러 약세 → 해외 매출 환산 증가, 신흥국·원화에 우호적' : '달러는 큰 방향 없이 움직이고 있습니다' },
-    { id: 'credit', label: '신용 스프레드', value: hy5 == null ? '—' : `5거래일 ${signed(hy5 * 100, 0, 'bp')}${cause.wide20 && finite(record20?.value) != null ? ` · 20거래일 ${signed(record20.value, 0, 'bp')}` : ''}`, dir: dir(hy5 == null ? null : hy5 * 100, RULES.credit.widen5dBp, -RULES.credit.widen5dBp), effect: hy5 == null ? null : hy5 * 100 >= RULES.credit.widen5dBp ? '스프레드 확대 → 기업 자금 조달 비용 상승, 주식 위험 프리미엄 상승' : hy5 * 100 <= -RULES.credit.widen5dBp ? '스프레드 축소 → 자금 조달 여건 개선' : creditCalm }
+    { id: 'credit', label: '하이일드 스프레드', value: hy5 == null ? '—' : `5거래일 ${signed(hy5 * 100, 0, 'bp')}${cause.wide20 && finite(record20?.value) != null ? ` · 20거래일 ${signed(record20.value, 0, 'bp')}` : ''}`, dir: dir(hy5 == null ? null : hy5 * 100, RULES.credit.widen5dBp, -RULES.credit.widen5dBp), effect: hy5 == null ? null : hy5 * 100 >= RULES.credit.widen5dBp ? '스프레드 확대 → 기업 자금 조달 비용 상승, 주식 위험 프리미엄 상승' : hy5 * 100 <= -RULES.credit.widen5dBp ? '스프레드 축소 → 자금 조달 여건 개선' : creditCalm }
   ];
   // Colour by effect on stocks: every node rising is a headwind except valuation, where a fall is.
   const impact = (node) => node.dir === 'unknown' || node.dir === 'flat' ? node.dir : (node.id === 'valuation' ? node.dir === 'down' : node.dir === 'up') ? 'burden' : 'favorable';
   // P1599 (A04): the 'not causation' caveat is stated once, in the section lead above the chain; the legend keeps the thresholds.
-  const legend = `▲▼ 기준(시장 상태와 같음): 유가 20일 +${RULES.oil.rise20dPct}% 이상 또는 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상 / ${RULES.oil.fall20dPct}% 이하 · 기대인플레이션 5거래일 ±${RULES.breakeven.move5dBp}bp · 2년물 − 기준금리 ±${P.pricedMovePp}%p · 10년물 20일 ±${RULES.rates.move20dBp}bp · 달러 20일 ±${RULES.dollar.rise20dPct}% · 신용 스프레드 5거래일 ±${RULES.credit.widen5dBp}bp. 빨간 테두리는 주식에 부담, 초록은 양호.`;
+  const legend = `▲▼ 기준(시장 상태와 같음): 유가 20일 +${RULES.oil.rise20dPct}% 이상 또는 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상 / ${RULES.oil.fall20dPct}% 이하 · 기대인플레이션 5거래일 ±${RULES.breakeven.move5dBp}bp · 2년물 − 기준금리 ±${P.pricedMovePp}%p · 10년물 20일 ±${RULES.rates.move20dBp}bp · 달러 20일 ±${RULES.dollar.rise20dPct}% · 하이일드 스프레드 5거래일 ±${RULES.credit.widen5dBp}bp. 빨간 테두리는 주식에 부담, 초록은 양호.`;
   return { nodes: nodes.map((node) => ({ ...node, impact: node.held ? 'unknown' : impact(node) })), links, branches: branches.map((node) => ({ ...node, impact: impact(node) })), legend };
 }
 
@@ -537,7 +538,7 @@ export function macroNextSteps(read) {
     ? `${pressure.join(' · ')} 부담 속에서 실제로 시장보다 강한 섹터가 어디인지(섹터 회전 관측)`
     : '지금의 거시 국면에서 실제로 시장보다 강한 섹터가 어디인지(섹터 회전 관측)' });
   next.push({ route: 'signal', label: '시장 상태', why: `금리·유가와 달러·신용은 시장 상태와 같은 판정 — 추세·시장 폭까지 합친 6개 지표 전체(신용 ${label('credit')})` });
-  next.push({ route: 'briefing', label: '데일리 브리핑', why: '다음 7일 고용·물가·연준 발표 일정과 오늘 종가 해석' });
+  next.push({ route: 'briefing', label: '브리핑', why: '다음 7일 고용·물가·연준 발표 일정과 오늘 종가 해석' });
   return next;
 }
 
@@ -545,9 +546,9 @@ export function ratesNextSteps({ read = null, carry = null } = {}) {
   const byId = Object.fromEntries((read?.axes || []).map((row) => [row.id, row]));
   const label = (id) => byId[id]?.stateLabel || '판정 보류';
   const next = [{ route: 'macro', label: '거시 경제', why: `물가 ${label('inflation')} · 통화정책 ${label('policy')} — 금리 경로를 움직이는 쪽` }];
-  next.push({ route: 'signal', label: '시장 상태', why: `금리 ${label('rates')}${carry?.available ? ` · 환율 축(엔화 20일 ${signed(carry.yenStrength, 1, '%')})` : ''}이 추세·시장 폭과 합쳐진 판정` });
+  next.push({ route: 'signal', label: '시장 상태', why: `금리(${label('rates')})와 추세·시장 폭을 합친 판정${carry?.available ? ` (환율은 참고로 따로 표시 · 엔화 20일 ${signed(carry.yenStrength, 1, '%')})` : ''}` });
   if (byId.rates?.state === 'burden' || byId.rates?.state === 'favorable') next.push({ route: 'themes', label: '테마 · 섹터', why: `금리 ${label('rates')} 국면에서 섹터 회전(선도·후행)이 어떻게 나타나는지` });
-  next.push({ route: 'briefing', label: '데일리 브리핑', why: '다음 7일 국채·물가·연준 일정과 오늘 금리·달러 움직임 해석' });
+  next.push({ route: 'briefing', label: '브리핑', why: '다음 7일 국채·물가·연준 일정과 오늘 금리·달러 움직임 해석' });
   return next;
 }
 
@@ -563,7 +564,7 @@ export function buildMacroRead({ macro = null, macroHistory = null, regime = nul
   const axes = [
     growth, inflation, policy,
     reuse(regime, 'rates', '금리 · 할인율', '10년물 금리는 주식 가치를 계산하는 할인율의 기준입니다. 빠르게 오르면 PER이 높은 성장주부터 부담을 받습니다.', gauges.rates),
-    { ...reuse(regime, 'commodities', '유가 · 달러', '유가는 물가(에너지는 CPI의 약 7%)와 소비 여력에, 달러는 해외 매출 환산과 신흥국 자금 흐름에 영향을 줍니다.', gauges.commodities), caveat: oilDivergence(oil).held ? oil.sentence : null },
+    { ...reuse(regime, 'commodities', '유가 · 달러', '유가는 물가(에너지는 CPI의 약 7%)와 소비 여력에, 달러는 해외 매출 환산과 신흥국 자금 흐름에 영향을 줍니다.', gauges.commodities), caveat: oilDivergence(oil).held ? '두 유가(브렌트·WTI)의 같은 날 비교는 WTI 원유 차트 설명에 있습니다.' : null },
     reuse(regime, 'credit', '신용', '하이일드 스프레드가 넓어지면 기업 자금 조달이 어려워지고, 주식 하락이 신용 위험으로 번지고 있다는 신호가 됩니다.', gauges.credit)
   ];
   const known = axes.filter((row) => row.state !== 'unknown');

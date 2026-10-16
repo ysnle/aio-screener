@@ -20,7 +20,7 @@ export const EXTENDED_DEFAULT_GROUPS = Object.freeze(['fundamentalSource', 'valu
 // core universe only (the published reading, candidate record and validation use it), the extended contract over
 // core + extended rows of the same market. A core stock's percentile can therefore differ between the two views.
 export const RANKING_CONTRACTS = Object.freeze({
-  core: Object.freeze({ id: 'core-universe', label: '기본 유니버스 기준', population: 'core-universe' }),
+  core: Object.freeze({ id: 'core-universe', label: '기본 종목 범위', population: 'core-universe' }),
   extended: Object.freeze({ id: 'extended-universe', label: '확장 유니버스 기준(기본 + 러셀2000·나스닥)', population: 'core-plus-extended' })
 });
 

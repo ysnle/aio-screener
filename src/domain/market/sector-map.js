@@ -208,14 +208,14 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
   const benchmarkText = benchmark != null && all != null && Math.abs(benchmark - all) >= Math.max(0.1, spec.steps[0] / 4) ? ` (지수 ETF SPY ${signed(benchmark)})` : '';
   const leadSentence = all == null
     ? `${spec.label} 수익률이 아직 발행되지 않아 크기(시가총액)만 그립니다.`
-    : `기간 시작 비중으로 가중한 평균 ${signed(all)}${benchmarkText} · ${withRet}종목 중 ${upCount}개 상승 · ${ranked.length}개 섹터 중 ${sectorsUp}개 상승${staleCount ? ` · 종가 기준일이 다른 ${staleCount}종목은 회색으로 두고 계산에서 뺐습니다` : ''}.`;
+    : `지도 전체 평균(기간 시작 비중 가중) ${signed(all)}${benchmarkText} · ${withRet}종목 중 ${upCount}개 상승 · ${ranked.length}개 섹터 중 ${sectorsUp}개 상승${staleCount ? ` · 종가 기준일이 다른 ${staleCount}종목은 회색으로 두고 계산에서 뺐습니다` : ''}.`;
   const spread = ranked.length >= 2 ? `가장 강한 섹터는 ${ranked[0].label}(${signed(ranked[0].ret)}), 가장 약한 섹터는 ${ranked.at(-1).label}(${signed(ranked.at(-1).ret)})입니다.` : '';
   // The point a finviz map makes at a glance: did the largest companies move with the many or apart from them?
   // M02/M21: stated as a measured comparison (same start weights), with the equal-weight average beside it — a day
   // when most members rose while the index stood still is not "대형주와 나머지가 비슷".
   const gap = top10Ret != null && restRet != null ? top10Ret - restRet : null;
   const concentration = gap != null
-    ? `시가총액 상위 10개 기업이 지도 면적의 ${Math.round(top10Share * 100)}%이고 ${signed(top10Ret)}, 나머지는 ${signed(restRet)}로 ${Math.abs(gap) < spec.steps[0] ? '비슷했습니다' : `상위 10개 기업이 ${Math.abs(gap).toFixed(1)}%p ${gap > 0 ? '강했습니다' : '약했습니다'}`}. 종목마다 같은 비중을 두면 평균 ${signed(equalRet)}입니다.`
+    ? `시가총액 상위 10개 기업(지도 면적 ${Math.round(top10Share * 100)}%)은 ${signed(top10Ret)}로 나머지(${signed(restRet)})${Math.abs(gap) < spec.steps[0] ? '와 비슷했습니다' : `보다 ${Math.abs(gap).toFixed(1)}%p ${gap > 0 ? '강했습니다' : '약했습니다'}`}. 종목마다 같은 비중을 두면 평균 ${signed(equalRet)}입니다.`
     : '';
   return {
     available: true,

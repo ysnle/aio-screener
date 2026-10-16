@@ -70,7 +70,7 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
     const breadth = regime?.axes?.find((axis) => axis.id === 'breadth');
     const trendInRank = top.some((row) => finite(row.factorScores?.trend) != null);
     points.push({ id: 'health', tone: 'neutral', title: '상위권 추세',
-      text: `${topName} 중 ${above.toFixed(0)}%가 50일선보다 일평균 변동폭 ${NEAR_LINE_ADR}배 이상 위, ${nearHigh == null ? '52주 고점 자료 없음' : `${nearHigh.toFixed(0)}%가 52주 고점 5% 이내${highKnown.length < top.length ? `(자료 있는 ${highKnown.length}종목 기준)` : ''}`}${dropped != null ? `, ${dropped.toFixed(0)}%는 최근 5거래일에 일평균 변동폭 ${RECENT_DROP_ADR}배 넘게 하락` : ''}.${trendInRank ? ' 순위 계산에 추세 팩터가 들어 있어 상위권이 50일선 위에 많은 것은 계산 방식상 예상되는 결과입니다' : ''}${breadth?.state === 'burden' ? `${trendInRank ? ' — ' : ' '}시장 전체는 50일선 위 종목이 적습니다(시장 폭 ${breadth.stateLabel})` : ''}${trendInRank || breadth?.state === 'burden' ? '.' : ''}` });
+      text: `${topName} 중 ${above.toFixed(0)}%가 50일선보다 하루 평균 변동폭${NEAR_LINE_ADR === 1 ? '' : `의 ${NEAR_LINE_ADR}배`} 이상 위에 있고, ${nearHigh == null ? '52주 고점 자료 없음' : `${nearHigh.toFixed(0)}%가 52주 고점 5% 이내${highKnown.length < top.length ? `(자료 있는 ${highKnown.length}종목 기준)` : ''}`}${dropped != null ? `, ${dropped.toFixed(0)}%는 최근 5거래일에 하루 평균 변동폭의 ${RECENT_DROP_ADR}배 넘게 하락` : ''}.${trendInRank ? ' 순위 계산에 추세 팩터가 들어 있어 상위권이 50일선 위에 많은 것은 계산 방식상 예상되는 결과입니다' : ''}${breadth?.state === 'burden' ? `${trendInRank ? ' — ' : ' '}시장 전체는 50일선 위 종목이 적습니다(시장 폭 ${breadth.stateLabel})` : ''}${trendInRank || breadth?.state === 'burden' ? '.' : ''}` });
   }
   if (validation?.available) {
     const spread = finite(validation.spreadNet);
@@ -83,12 +83,12 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
     } else if (validation.distinguishable === false) {
       // v57.50 D11: the same "cannot tell yet" admission as the validation panel — no 앞섬/뒤처짐 from a small sample.
       points.push({ id: 'trust', tone: 'neutral', title: '순위의 과거 성과',
-        text: `${validation.undecided || '아직 구별 불가'} — 같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%와 하위 20%의 평균 차이는 ${spread == null ? '—' : `${spread >= 0 ? '+' : ''}${spread.toFixed(2)}%`}였지만 이 표본으로는 우연과 구별되지 않습니다. 순위는 차트·재무로 확인할 후보 목록으로 읽습니다.` });
+        text: `${validation.undecided || '아직 우연과 구별 안 됨'} — 같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 ${spread == null ? '상위 20%와 하위 20%의 평균 차이는 기록이 없고' : `상위 20%가 하위 20%보다 평균 ${Math.abs(spread).toFixed(2)}%p ${spread >= 0 ? '앞섰지만' : '뒤졌지만'}`}, 표본 ${validation.rebalances}회로는 우연과 구별되지 않습니다. 순위는 차트·재무로 확인할 후보 목록으로 읽습니다.` });
     } else {
       points.push({ id: 'trust', tone: spread != null && spread > 0 ? 'favorable' : 'burden', title: '순위의 과거 성과',
         text: spread != null && spread > 0
-          ? `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 평균 ${spread.toFixed(2)}% 앞섰습니다(비용 후 ${validation.wins}/${validation.rebalances}회). 다만 지금 종목 구성으로 본 결과라 생존 편향이 있습니다.`
-          : `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 평균 ${spread == null ? '—' : spread.toFixed(2)}%로 뒤처졌고 비용 후 ${validation.wins ?? '—'}/${validation.rebalances}회만 앞섰습니다 — 순위는 매수 목록이 아니라 차트·재무로 확인할 후보 목록으로 읽는 편이 맞습니다.` });
+          ? `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 평균 ${spread.toFixed(2)}%p 앞섰습니다(비용 후 ${validation.wins}/${validation.rebalances}회). 다만 지금 종목 구성으로 본 결과라 생존 편향이 있습니다.`
+          : `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 ${spread == null ? '평균 차이 기록 없이 앞서지 못했고' : `평균 ${Math.abs(spread).toFixed(2)}%p ${spread < 0 ? '뒤처졌고' : '앞섰을 뿐이고'}`} 비용 후 ${validation.wins ?? '—'}/${validation.rebalances}회만 앞섰습니다 — 순위는 매수 목록이 아니라 차트·재무로 확인할 후보 목록으로 읽는 편이 맞습니다.` });
     }
   }
   // 2026-10-14 audit #5: how many of the top fifth sit in themes at each stage (same rows as 테마 시나리오). Counts only;
@@ -114,7 +114,7 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   const spreadValue = finite(validation?.spreadNet);
   const trustVerdict = !validation?.available ? null
     : validation.modelMatch === false ? '순위의 과거 성과는 다른 모델 기록이라 판단 보류'
-      : validation.distinguishable === false ? `순위의 과거 성과는 아직 구별 불가(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회 앞섬)`
+      : validation.distinguishable === false ? `순위의 과거 성과는 아직 우연과 구별 안 됨(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회 앞섬)`
         : spreadValue == null ? null
           : spreadValue > 0 ? `과거 상위 20%가 하위보다 앞섬(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회)`
             : `과거 상위 20%가 하위보다 뒤처짐(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회 앞섬)`;

@@ -1,0 +1,43 @@
+{
+  "observedAt": "2026-10-16T13:16:56.053Z",
+  "boundary": "Global workspace drift diagnosis. Files are read-only and are not owned or fixed by this audit.",
+  "rows": [],
+  "hashes": [
+    {
+      "file": "_context/CURRENT-STATE.md",
+      "baseline": "35a4f1b72db6344b8139e62263d4c1d3a1c792cc7bccb9bb99af5ce403c9d052",
+      "current": "367ed472533c5ad295ede2afce0929c5c65d1942202d08f7da0abc6153595351",
+      "unchangedSinceTaskStart": false
+    },
+    {
+      "file": "_context/QA-CHECKLIST.md",
+      "baseline": "57f022b4284142c5837ad54993e5db1735c5807a9bc8a0b5a5d133f87ba6aca4",
+      "current": "57f022b4284142c5837ad54993e5db1735c5807a9bc8a0b5a5d133f87ba6aca4",
+      "unchangedSinceTaskStart": true
+    },
+    {
+      "file": "_context/BUG-POSTMORTEM.md",
+      "baseline": "161a0d003697ac98449a53c55485dff0f1c1d71b7083bad399ac143254b525ec",
+      "current": "161a0d003697ac98449a53c55485dff0f1c1d71b7083bad399ac143254b525ec",
+      "unchangedSinceTaskStart": true
+    },
+    {
+      "file": "index.html",
+      "baseline": "17cf3a7ecd7326fd94eee1a3257e6bbc1b9e08aca025c9f3bd98fa51a2713d19",
+      "current": "54d98d22ff00a93958ca949fddb1d873cf72a3e248000e42205019360cc0e3b6",
+      "unchangedSinceTaskStart": false
+    },
+    {
+      "file": "version.json",
+      "baseline": "44e32b0d9ada21f7c6dc6f7c89cd04391ca0f3b0fe4e04d6dcb9427ec6e713bd",
+      "current": "e720d699b8d282cfae2a78ca95694e8979534e6c8a6415876016df2a3707cbd3",
+      "unchangedSinceTaskStart": false
+    },
+    {
+      "file": "architecture/qa-pipeline.json",
+      "baseline": "5da5a58ecdffc0cb2bbec27d8e30553601c2f7849fd0dc1b03f296a13cd0ea87",
+      "current": "34d46e187cb69b465c6d54b8464ff3891051538b5b9fd8b67d544e9e7fdd8c9d",
+      "unchangedSinceTaskStart": false
+    }
+  ]
+}

@@ -265,7 +265,7 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
       });
     }
   }
-  body.appendChild(element(documentRef, 'p', 'masters-ticker-lookup-boundary', '결과는 분기 말 기준으로 신고된 보유다. 지금도 들고 있는지, 언제 사고팔았는지는 알 수 없고, 종목 코드 연결은 참고용이다.'));
+  body.appendChild(element(documentRef, 'p', 'masters-ticker-lookup-boundary', '결과는 분기 말 기준으로 신고된 보유입니다. 지금도 들고 있는지, 언제 사고팔았는지는 알 수 없고, 종목 코드 연결은 참고용입니다.'));
   section.appendChild(body);
   return section;
 }
@@ -349,7 +349,7 @@ function createChangeSummary(documentRef, verification, comparisonRows = []) {
   const counts = element(documentRef, 'div', 'masters-change-counts');
   ['NEW', 'INCREASED', 'REDUCED', 'UNCHANGED', 'EXITED'].forEach((action) => {
     const count = verification.comparisonActionCounts?.[action] || 0;
-    counts.appendChild(element(documentRef, 'span', `masters-change-count masters-change-${action.toLowerCase()}`, `보고 수량상 ${ACTION_LABELS[action]} ${count}`));
+    counts.appendChild(element(documentRef, 'span', `masters-change-count masters-change-${action.toLowerCase()}`, `${ACTION_LABELS[action]} ${count}`));
   });
   summary.appendChild(counts);
   // #9: the counts are the filing's share deltas, not split-adjusted.
@@ -466,7 +466,7 @@ function createPagination(documentRef, page, pageCount, total, action = 'detail-
 function createChangeLedger(documentRef, comparisonRows, state) {
   const section = element(documentRef, 'section', 'masters-holdings-section masters-change-ledger');
   section.appendChild(element(documentRef, 'h3', 'masters-holdings-title', '분기별 변화 표 · 증권·주식 유형·옵션별 집계'));
-  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', '두 보고분기의 신고 주식 수 차이에서 계산한 분류이며 모든 행은 재검토 대상입니다. 주식 분할·병합은 보정하지 않았으므로, 주식 수가 크게 바뀌었는데 신고 가치는 비슷한 행은 분할 의심으로 따로 두고 수량 변화를 판정하지 않습니다. 변화가 있는 행을 먼저, 변화 없는 행을 뒤에 놓았고 각 묶음 안은 신고 가치 순이며, 왼쪽 번호는 가치 순위가 아니라 이 표시 순서입니다. 현재 가격, 실제 체결 매매, 매매 신호, 목표가를 뜻하지 않습니다.'));
+  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', '두 보고분기의 신고 주식 수 차이로 나눈 분류입니다. 주식 분할·병합은 보정하지 않아, 주식 수는 크게 바뀌었는데 신고 가치가 비슷한 행은 분할 의심으로 따로 둡니다. 변화가 있는 행을 먼저 신고 가치 순으로 놓았고(왼쪽 번호는 표시 순서), 현재 가격·실제 매매·매매 신호·목표가를 뜻하지 않습니다.'));
   const filters = element(documentRef, 'div', 'masters-action-filters');
   const splitSuspects = comparisonRows.filter((row) => displayActionOf(row) === 'SPLIT_SUSPECT').length;
   ['ALL', 'NEW', 'INCREASED', 'REDUCED', 'UNCHANGED', 'EXITED', ...(splitSuspects ? ['SPLIT_SUSPECT'] : [])].forEach((action) => {
@@ -960,7 +960,7 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     createMetric(documentRef, '상위 5 · 10 비중', withheld(`${formatPercent(holdingMeta?.verification?.top5ConcentrationPct)} · ${formatPercent(holdingMeta?.verification?.top10ConcentrationPct)}`)),
     createMetric(documentRef, '직전 분기 대비 (보고 수량)', holdingMeta?.verification?.comparisonActionCounts ? summarizeLatestChange(holdingMeta.verification.comparisonActionCounts) : '—'),
     // P1444: the distance between reported-value weights — price moves alone change it — not trading turnover.
-    createMetric(documentRef, '보고가치 비중 변화(회전율 아님)', withheld(formatPercent(holdingMeta?.verification?.turnoverProxyPct))),
+    createMetric(documentRef, '신고 가치 비중 변화(회전율 아님)', withheld(formatPercent(holdingMeta?.verification?.turnoverProxyPct))),
     createMetric(documentRef, '신고 가치 합계', withheld(formatCompactUsd(holdingMeta?.verification?.parsedValueTotal))),
     createMetric(documentRef, '운용 규모', formatScale(manager)),
     createMetric(documentRef, '전략 성격', manager.strategyProfile?.approach || manager.style || '—')
@@ -1032,14 +1032,14 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
         const shardLoaded = state.managerRows?.has?.(manager.id);
         const filingUrl = filingMeta?.latestFiling?.informationTableXml || filingMeta?.latestFiling?.indexUrl || holdingMeta?.latestFiling?.indexUrl || manager.sourceUrl || 'https://www.sec.gov/edgar/search-and-access';
         const scope = element(documentRef, 'p', 'masters-holdings-meta masters-ledger-scope', shardLoaded
-          ? `웹 화면은 신고 가치 상위 ${comparisonRows.length.toLocaleString('en-US')}개 비교 행까지만 제공합니다(전체 ${expected.toLocaleString('en-US')}개). 아래 표는 변화가 있는 행을 먼저 놓습니다. 나머지는 `
-          : `현재 신고 가치 상위 ${comparisonRows.length}개 보유를 먼저 불러왔습니다(전체 ${expected}개). 아래 표는 변화가 있는 행을 먼저 놓고 왼쪽 번호를 표시 순서로 씁니다. `);
+          ? `웹 화면은 신고 가치 상위 ${comparisonRows.length.toLocaleString('en-US')}개 비교 행까지만 제공합니다(신고 ${expected.toLocaleString('en-US')}건). 아래 표는 변화가 있는 행을 먼저 놓습니다. 나머지는 `
+          : `현재 신고 가치 상위 ${comparisonRows.length}개 보유를 먼저 불러왔습니다(신고 ${expected}건). 아래 표는 변화가 있는 행을 먼저 놓고 왼쪽 번호를 표시 순서로 씁니다. `);
         if (shardLoaded) {
           const link = element(documentRef, 'a', 'masters-source-link', 'SEC 원문 신고서');
           applySafeExternalLink(link, filingUrl);
           scope.append(link, documentRef.createTextNode('에서 확인합니다.'));
         } else {
-          scope.appendChild(button(documentRef, 'masters-route-button is-secondary', state.loadingManagers?.has?.(manager.id) ? '표 불러오는 중…' : (Number(state.holdings?.managerShards?.[manager.id]?.comparisonProjectionRows) > comparisonRows.length ? `상위 ${Number(state.holdings.managerShards[manager.id].comparisonProjectionRows).toLocaleString('en-US')}개까지 불러오기` : '변화 원장 더 불러오기'), 'load-manager', manager.id));
+          scope.appendChild(button(documentRef, 'masters-route-button is-secondary', state.loadingManagers?.has?.(manager.id) ? '표 불러오는 중…' : (Number(state.holdings?.managerShards?.[manager.id]?.comparisonProjectionRows) > comparisonRows.length ? `${Number(state.holdings.managerShards[manager.id].comparisonProjectionRows).toLocaleString('en-US')}행 모두 보기` : '변화 기록 더 보기'), 'load-manager', manager.id));
         }
         detail.appendChild(scope);
       }

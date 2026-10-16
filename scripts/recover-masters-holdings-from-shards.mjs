@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
+import { readManagerRows } from './lib/masters-manager-store.mjs';
 
 // Recovery producer: validate surviving full stores before replacing a missing or
 // empty source artifact. Never fall back to an older Git revision or web slices.
@@ -18,7 +19,7 @@ const managers = [], holdings = [], allHoldings = [], comparisons = [], managerS
 let fullRows = 0, fullComparisons = 0;
 for (const manager of summary.managers) {
   assert(/^[a-z0-9-]+$/.test(manager.id), 'Invalid manager ID');
-  const shard = await read(`managers/${manager.id}.json`);
+  const shard = await readManagerRows(path.join(directory, 'managers'), manager.id);
   const descriptor = summary.managerShards[manager.id];
   const filing = filings.managers.find((item) => item.id === manager.id);
   assert(shard.schema === 'masters-13f-manager-rows.v1' && shard.managerId === manager.id && shard.cik === manager.cik && filing?.cik === manager.cik, `${manager.id}: identity mismatch`);

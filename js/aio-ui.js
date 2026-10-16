@@ -4436,12 +4436,12 @@ window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); /
     bar.setAttribute('aria-label', '투자 면책 고지');
     bar.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:190;background:var(--bg-elevated,#f5f1e8);border-top:1px solid var(--border,#d8d2c4);box-shadow:0 -2px 12px rgba(33,29,22,0.12);padding:10px 14px;padding:10px max(14px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px));display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:12px;line-height:1.6;color:var(--text-secondary,#57513f);';
     var txt = document.createElement('div');
-    txt.style.cssText = 'flex:1;min-width:240px;';
-    txt.innerHTML = '<b style="color:var(--text-primary);">투자 면책 고지</b> — 본 도구의 모든 수치·점수·시그널·AI 답변은 지연/스냅샷/참고용일 수 있으며 <b>투자 권유·자문·매매 지시가 아닙니다</b>. 투자 결정과 그 결과는 이용자 본인에게 있습니다.';
+    txt.style.cssText = 'flex:1 1 200px;min-width:0;';
+    txt.innerHTML = '<b style="color:var(--text-primary);">투자 면책 고지</b> — 본 도구의 모든 수치·점수·시그널·AI 답변은 늦거나 참고용일 수 있으며 <b>투자 권유·자문·매매 지시가 아닙니다</b>. 투자 결정과 그 결과의 책임은 이용자 본인에게 있습니다.';
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.textContent = '확인했습니다';
-    btn.style.cssText = 'flex-shrink:0;font-size:13px;font-weight:600;color:var(--text-primary,#211d16);background:var(--surface-2,#ece7db);border:1px solid var(--border,#d8d2c4);border-radius:6px;padding:7px 16px;cursor:pointer;';
+    btn.style.cssText = 'flex-shrink:0;font-size:13px;font-weight:600;color:var(--text-primary,#211d16);background:var(--surface-2,#ece7db);border:1px solid var(--border,#d8d2c4);border-radius:6px;padding:5px 12px;cursor:pointer;';
     btn.addEventListener('click', function() {
       try { localStorage.setItem('aio_disclaimer_ack_v1', '1'); } catch(_e) {}
       if (bar.parentNode) bar.parentNode.removeChild(bar);

@@ -37,6 +37,7 @@ import { normalizeTickerInput, tickerDisplayName } from '../domain/entity/ticker
 import { describeQuoteCurrentness } from '../domain/market/quote-currentness.js';
 import { KR_THEME_LABELS, krThemesForSymbol } from '../domain/themes/kr-themes.js';
 import { MA_STRUCTURE_LABELS } from '../domain/technical/stage.js';
+import { keywordMayMatch, textPairs } from '../domain/news/keyword-prefilter.js';
 
 export function installCompatibilityGlobals(root = globalThis) {
   const window = root;
@@ -50,6 +51,8 @@ export function installCompatibilityGlobals(root = globalThis) {
   window._calcMaxDrawdown = _calcMaxDrawdown;
   window._pearsonCorr = _pearsonCorr;
   window._calcCorrelationMatrix = _calcCorrelationMatrix;
+  window._aioTextPairs = textPairs; // v57.91 (P1901): news keyword prefilter read by js/aio-data.js scoreItem
+  window._aioKwMay = keywordMayMatch;
   window.AIO = window.AIO || {};
   window.AIO.describeSharedConnection = describeSharedConnection;
   window.AIO.formatSecResearchEvidence = formatSecResearchEvidence;

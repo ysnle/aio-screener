@@ -197,12 +197,12 @@ function growthGroup(macroHistory, { referenceMs }) {
     const quarter = periodText(last.date, 'quarterly');
     items.push(card({ id: 'realGdp', label: '실질 GDP 성장률 (전기 대비 연율)', series: growth.length >= 6 ? growth : [], asOf: last.date, unit: '%', frequency: 'quarterly', referenceMs, format: (value) => signed(value, 1),
       valueText: signed(last.value, 1), changeText: prev ? `직전 분기 ${signed(prev.value, 1)}` : null,
-      reading: last.value >= 2 ? `${quarter} 성장은 잠재 성장(약 2%) 이상이었습니다. 그 뒤 달의 고용 흐름은 위 사분면이 더 최근 기준입니다.` : last.value >= 0 ? `${quarter} 성장은 이어졌지만 잠재 성장(약 2%)보다 느립니다.` : `${quarter} 성장이 마이너스입니다 — 경기 둔화가 실제 생산으로 나타난 구간입니다.` }));
+      reading: last.value >= 2 ? `${quarter} 성장은 잠재 성장(약 2%) 이상이었습니다. 그 뒤 고용 흐름은 위 국면 지도가 더 최신입니다.` : last.value >= 0 ? `${quarter} 성장은 이어졌지만 잠재 성장(약 2%)보다 느립니다.` : `${quarter} 성장이 마이너스입니다 — 경기 둔화가 실제 생산으로 나타난 구간입니다.` }));
   }
   const jolts = seriesOf(macroHistory, 'jobOpenings');
   if (jolts.length >= 6) {
     const c = changeOver(jolts, 365);
-    const toMillions = (value) => `${fmt(value / 1000, 2)}백만 건`;
+    const toMillions = (value) => `${Math.round(value / 10).toLocaleString('en-US')}만 건`; // v57.91: thousands -> 만 건 (7,080 -> 708만 건)
     items.push(card({ id: 'jobOpenings', label: '구인 건수 (JOLTS)', series: jolts, asOf: jolts.at(-1).date, frequency: 'monthly', referenceMs, format: toMillions,
       valueText: toMillions(jolts.at(-1).value), changeText: c ? `1년 ${signed(pct(c.last.value, c.then.value))}` : null,
       reading: '기업이 채우려는 일자리 수입니다. 꾸준히 줄면 고용 둔화가 실업률보다 먼저 나타납니다.' }));

@@ -136,11 +136,11 @@ function rotationView(item) {
   const opposed = zone ? zone.opposed : null;
   const recent = check ? `최근 5거래일 상대강도 ${signedPct(check.change)}` : '';
   const border = !!zone?.border;
-  const label = border ? '경계' : base.label;
+  const label = border ? '기준선 부근' : base.label;
   const tone = base.tone === 'favorable' && !border && opposed === false ? 'favorable' : base.tone === 'burden' && !border && opposed !== true ? 'burden' : 'neutral';
   const read = border ? '시장 대비 상대강도가 기준선(100) 근처라 사분면을 가르기 어렵습니다'
     : opposed ? `${base.label} 사분면이지만 최근 5거래일은 반대 방향입니다` : base.read;
-  return { ...base, label, tone, read, border, between: border ? zone.between : null, opposed, recent, headLabel: border ? '경계' : opposed ? `${base.label}(최근 반대 방향)` : base.label };
+  return { ...base, label, tone, read, border, between: border ? zone.between : null, opposed, recent, headLabel: border ? '기준선 부근' : opposed ? `${base.label}(최근 반대 방향)` : base.label };
 }
 
 // 2026-10-14 audit #13: the screener's own validation verdict for its ranking, said in one clause — or nothing.
@@ -154,7 +154,7 @@ function rankVerdict(validation) {
 }
 
 export function buildStockRead({ symbol, row = null, benchmark = null, rotation = {}, themes = [], themeStages = [], regime = null, universeSize = null, validation = null, sessionLag = null, holding = null, thirteenF = null, fundamentals = null, now = Date.now() } = {}) {
-  if (!row) return { available: false, reason: `${withTopicParticle(symbol || '이 종목')} 스크리너 유니버스 밖이라 추세·상대강도 기록이 없습니다. 차트 탭의 일봉과 재무 공시는 그대로 볼 수 있습니다.` };
+  if (!row) return { available: false, reason: `${withTopicParticle(symbol || '이 종목')} 스크리너 종목 범위 밖이라 추세·상대강도 기록이 없습니다. 차트 탭의 일봉과 재무 공시는 그대로 볼 수 있습니다.` };
   const name = row.name || symbol;
   const points = [];
   const trend = trendOf(row);
@@ -301,7 +301,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   // 2026-10-14 audit #13: the rank lives in the reading (not the heading), on the screener's denominator, with the
   // screener's own validation verdict when it is loaded — otherwise the rank alone, without a claim.
   // v57.81: under the screener's 확장 range the denominator includes Russell 2000·Nasdaq stocks — the rank says so.
-  const rankScope = row.rankingUniverse === 'extended' ? '(확장 유니버스 기준: 기본 + 러셀2000·나스닥) ' : '';
+  const rankScope = row.rankingUniverse === 'extended' ? '(확장 종목 범위 기준: 기본 + 러셀2000·나스닥) ' : '';
   if (ranking) points.push({ id: 'rank', tone: 'neutral', title: '순위', text: `가격 흐름 순위 ${rankScope}${ranking.rank}/${ranking.of}${rankVerdict(validation)}.` });
   const relative3 = spans.find((span) => span.key === 'ret3m');
   // 2026-10-13 review S07: a factor file older than the market's latest completed session says so in the headline.

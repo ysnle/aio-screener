@@ -91,9 +91,11 @@ export function releaseActuals(macroHistory) {
   return out;
 }
 
+// v57.91 wording audit: payrolls arrive in thousands and read in 만 명 (51 -> +5.1만 명), like briefing/schedule.js.
+const manPeople = (thousands, sign = false) => { if (!has(thousands)) return '—'; const v = Number((Math.abs(thousands) / 10).toFixed(1)); return thousands === 0 ? '0명' : `${thousands < 0 ? '−' : sign ? '+' : ''}${v.toLocaleString('en-US')}만 명`; };
 const ACTUAL_TEXT = {
-  'us-cpi': (a) => `근원 CPI 전월 대비 ${signed(a.coreMoM, 2, '%')}${a.headMoM != null ? ` · 헤드라인 ${signed(a.headMoM, 2, '%')}` : ''}`,
-  'us-nfp': (a) => `일자리 ${signed(a.payroll, 0)}천 명${a.unempDelta != null ? ` · 실업률 ${signed(a.unempDelta, 1, '%p')}` : ''}${a.wageMoM != null ? ` · 시간당 임금 ${signed(a.wageMoM, 2, '%')}` : ''}`,
+  'us-cpi': (a) => `근원 CPI 전월 대비 ${signed(a.coreMoM, 2, '%')}${a.headMoM != null ? ` · 전체 CPI ${signed(a.headMoM, 2, '%')}` : ''}`,
+  'us-nfp': (a) => `일자리 ${manPeople(a.payroll, true)}${a.unempDelta != null ? ` · 실업률 ${signed(a.unempDelta, 1, '%p')}` : ''}${a.wageMoM != null ? ` · 시간당 임금 ${signed(a.wageMoM, 2, '%')}` : ''}`,
   'us-pce': (a) => `근원 PCE 전월 대비 ${signed(a.coreMoM, 2, '%')}`,
   'us-retail': (a) => `소매판매 전월 대비 ${signed(a.mom, 1, '%')} (직전 달 ${signed(a.prevMom, 1, '%')})`,
   'us-fed-rate': (a) => `연준 상단 금리 ${bpChange(a.upperDelta)}`
@@ -170,7 +172,7 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
 }
 
 // The proxy caveat is said once, in the rate hub (rateHub.pricingNote); each branch keeps one short line.
-export const PRICING_NOTE = '2년물 − 기준금리 중간값은 2년물 금리로 추정한 값이라, 금리에 섞인 기간·위험 보상(프리미엄) 때문에 실제 정책 예상과 다를 수 있습니다.';
+export const PRICING_NOTE = '2년물과 기준금리 중간값의 차이는 시장 예상을 2년물로 어림한 값이라, 금리에 섞인 기간·위험 보상(프리미엄) 때문에 실제 정책 예상과 다를 수 있습니다.';
 const leanPricing = (want, note = '') => (s) => {
   if (s.lean === 'unknown') return { tone: 'unknown', text: '2년물·기준금리 자료가 없어 시장 가격 방향을 보류합니다.' };
   const tone = s.lean === want ? 'same' : s.lean === 'hold' ? 'neutral' : 'against';
@@ -203,6 +205,31 @@ const V = RULES.volatility;
 const inflationOf = (s) => s.inflationDir || inflationDirection({ pce: all(s.corePace, s.coreYoy) ? { pace: s.corePace, yoy: s.coreYoy } : null, cpi: all(s.coreCpiPace, s.coreCpiYoy) ? { pace: s.coreCpiPace, yoy: s.coreCpiYoy } : null });
 const inflationIs = (want) => (s) => { const d = inflationOf(s); return d.state === 'unknown' ? null : d.dir === want; };
 const disinflating = inflationIs('down');
+
+// v57.91 (owner X-bookmark item pass 2026-10-16): per branch, what to check next and what would show the reading is
+// wrong. Reference text only — no condition, gate, count or ranking reads it; it travels with the item to the AI context.
+export const BRANCH_NOTES = Object.freeze({
+  reheat: { checks: ['메모리·전자기기 가격 급등이 상품 물가로 번지는지(인하를 늦추는 경로)', '생산성 기대가 실현 전에 지출을 늘려 수요 물가를 먼저 만드는지 — 생산성 지표가 실제로 확인되는지', '은행 대출·광의통화 가속과 유가 충격이 겹치는지(1970년대형 조합)'],
+    invalidation: ['장기 기대인플레가 안정되고 유가가 빠르게 되돌림', '설비투자발 가격 상승이 서비스·임금으로 번지지 않음(공급 효과 우세)'] },
+  softland: { checks: ['설비투자의 공급 효과(생산성·공급능력)가 물가 둔화로 확인되는지', 'AI 생산성 이득이 서비스 가격 하락으로 전달돼 실질소득이 오르는지'],
+    invalidation: ['생산성이 확인되기 전 인하로 기대인플레가 다시 오름', '고용 둔화가 해고 증가로 바뀜(완만에서 급랭으로)'] },
+  slowdown: { checks: ['노동 둔화 단계 — 구인·근로시간 축소, 채용·해고 감소, 임금 둔화, 재진입자 증가, 해고 급증 중 어디인지', '실업률 상승이 해고 때문인지 재진입자·경제활동인구 증가 때문인지', '채용도 해고도 적은 시장에서는 일자리 둔화를 바로 침체로 읽지 않고 해고율·계속 실업수당과 함께 봄', '연준이 물가 위험을 먼저 보며 대응이 늦어지는지(해고는 후행 신호)'],
+    invalidation: ['실업률 상승이 노동 공급 회복으로 설명되고 해고는 늘지 않음', '해고 증가 없이 채용이 다시 늘어남'] },
+  oilshock: { checks: ['해협 통과 선박 수·전쟁보험료·실제 선적량 — 헤드라인보다 물량', '현물-근월 선물 괴리와 대서양-아시아 벤치마크 차이가 평시로 돌아오는지', '고유가가 몇 주 이상 이어지는지 — 차질 전 선적분이 소진된 뒤의 재고 부족', '생산자물가에서 소비자물가로 전가되는지(2~3개월 시차), 디젤 마진이 원유보다 크게 오르는 정제 병목형인지', '장기금리·유가·지수 낙폭이 정책 후퇴 압력이 커지는 수준에 가까워지는지', '저장이 안 되는 LNG의 차질과 화물 회항', '레짐 순서 — 금리 경로 걱정, 인플레이션, 연준 대응, 침체 확인(연준 고금리와 물가 둔화가 함께) — 침체라는 이름만으로 다음 단계를 앞당기지 않음'],
+    invalidation: ['통항 회복과 보험료·운임 안정이 확인됨(꼬리 위험 축소)', '유가 상승과 장기채 강세가 같이 가며 우려가 성장 쪽으로 옮겨 감 — 이때는 고용 급랭 시나리오와 함께 읽음'] },
+  creditstress: { checks: ['만기 도래 물량의 차환 — 알려진 악재도 재조달이 막힐 때 가격 충격이 됨', 'BDC 배당 삭감·신규 채권 스프레드 확대·사모 펀드 환매 제한이 같은 시기에 겹치는지', '금·은 급락과 달러만 강세, 하이일드 스프레드 확대가 함께 오는 현금 확보 묶음', '등급 하향 건수의 가속', '투자등급 장기 조달금리(테크 기업 조달 맥박)'],
+    invalidation: ['환매 제한이 개별 펀드에 그치고 스프레드가 안정됨', '중앙은행 스왑라인·담보 대출 창구가 일찍 나와 차환을 받침'] },
+  dollarsurge: { checks: ['위기 때 달러와 주식이 함께 빠지면 해외 투자자의 환헤지 확대로 달러가 더 약해질 수 있음', '일본 금리가 오르는데도 엔이 약한지(값싼 자금 축소 경로)'],
+    invalidation: ['금리는 오르는데 달러가 약해지는 조합이 이어짐 — 달러 급등이 아니라 달러 신뢰 의심 국면'] },
+  reflation: { checks: ['설비가동률 상승이 생산 확대·설비투자를 동반하는지, 특정 병목의 가격 급등인지'],
+    invalidation: ['가동률 상승과 함께 근원 물가·임금이 넓게 가속함(물가 재가속 시나리오 쪽)'] },
+  aibust: { checks: ['토큰을 전력으로 환산한 수요 대 발표된 데이터센터 파이프라인 × 실제 전환율', '분산·혼합 세대 학습의 상용 채택과 대형 수요자의 부지·계획 축소', '금리 하락이 설비투자 삭감·주문 감소·신용 스트레스와 함께 오는지(나쁜 금리 하락)', 'AI 연계 회사채 스프레드와 공급자-고객 지분 순환 비중', '좋은 실적 뒤 업종 급락이 반복되는지'],
+    invalidation: ['토큰 단가 하락보다 사용량 증가가 빨라 총지출이 늘어남', 'AI는 성공하지만 투자가 가벼워지는 경로 — 꺾임이 아니라 하드웨어에서 소프트웨어로 주도 이동', '가격이 무너져도 남은 인프라가 생산성을 올리는 생산적 버블 경로', '제도 관성과 정책 대응이 노동 대체 속도를 늦춤'] },
+  fiscalsteep: { checks: ['국채 순발행·차환 물량 대비 증분 매수자(해외·중앙은행·가계·MMF)와 이자 상환액 ÷ 세수', '단기채 발행 비중 — 커질수록 차환 위험과 이자비용 변동성', '매파 발언 뒤 2년물이 오르고 30년물이 내리는지(곡선 관리 성공), 장기금리가 위로 뚫리는지(실패)', '해외(일본 등) 장기금리 상승과 통화 약세의 동시 진행'],
+    invalidation: ['생산성 붐으로 소득이 부채 부담보다 빠르게 늘거나 재정 긴축', '장기물 수요 회복으로 기간 프리미엄 하락'] },
+  volshock: { checks: ['반등이 헤지 청산·숏커버인지 넓은 참여인지 — 200일선·사건 전 수준 회복으로 지속성 확인', '지수 신고점 근처의 VIX 곡선 역전 조짐과 VIX − 3개월 VIX 차이의 기울기', 'RSI 30 아래 종목 비율이 과거 투매 바닥 수준에 닿았는지'],
+    invalidation: ['같은 악재에 대한 반응이 시간이 지나며 약해지고 유동성 공급이 재개됨', '하방 헤지가 과하게 쌓인 상태에서 새 악재가 멈추면 헤지 청산이 반등을 만듦'] }
+});
 
 /** The branch registry. Add a branch by adding data here; screens, AI context, the producer and gates follow.
  *  axes — the 거시 six-axis cards whose observations the conditions test (each card links to these branches). */
@@ -396,7 +423,8 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
       pricing: branch.pricing(s),
       past, pastBridge: pastBridge(branch, past), pastConflict: pastConflict(branch, past),
       triggers: branch.triggers.map(([id, text]) => ({ id, when: when(id), text })).filter((row) => row.when),
-      explore: branch.explore.map(([route, label, why]) => ({ route, label, why })) };
+      explore: branch.explore.map(([route, label, why]) => ({ route, label, why })),
+      checks: BRANCH_NOTES[branch.id]?.checks || [], invalidation: BRANCH_NOTES[branch.id]?.invalidation || [] };
   });
   const ratio = (item) => item.known < 2 ? -1 : item.met / item.total;
   // v57.55 review (E2-04): a branch whose conditions already count 2y − midpoint does not get the same gauge again as a tie-break.
@@ -431,12 +459,12 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
     pathsDown: [
       { id: 'disinflation', label: '물가 둔화', ok: disinflating(s),
         stateText: inflationOf(s).state === 'mixed' ? '엇갈림' : null,
-        evidence: has(s.corePace) ? `근원 PCE 3개월 속도 ${fmt(s.corePace)}% · 1년치 ${fmt(s.coreYoy)}%${s.coreCpiPace != null ? ` · 근원 CPI 3개월 속도 ${fmt(s.coreCpiPace)}%${s.coreCpiYoy != null ? ` · 1년치 ${fmt(s.coreCpiYoy)}%` : ''}` : ''}${inflationOf(s).state === 'mixed' ? ` — ${[inflationOf(s).pce, inflationOf(s).cpi].map((row) => `${row.name}${row.month ? `(${row.month})` : ''} ${row.dir === 'up' ? '재가속' : '둔화'}`).join(' · ')}: 두 지표가 엇갈려 둔화로 보지 않습니다` : ''}` : '물가 기록 대기', next: [when('us-cpi'), when('us-pce')].filter(Boolean).join(' · ') },
+        evidence: has(s.corePace) ? `근원 PCE 3개월 속도 ${fmt(s.corePace)}% · 1년 전 대비 ${fmt(s.coreYoy)}%${s.coreCpiPace != null ? ` · 근원 CPI 3개월 속도 ${fmt(s.coreCpiPace)}%${s.coreCpiYoy != null ? ` · 1년 전 대비 ${fmt(s.coreCpiYoy)}%` : ''}` : ''}${inflationOf(s).state === 'mixed' ? ` — ${[inflationOf(s).pce, inflationOf(s).cpi].map((row) => `${row.name}${row.month ? `(${row.month})` : ''} ${row.dir === 'up' ? '재가속' : '둔화'}`).join(' · ')}: 두 지표가 엇갈려 둔화로 보지 않습니다` : ''}` : '물가 기록 대기', next: [when('us-cpi'), when('us-pce')].filter(Boolean).join(' · ') },
       { id: 'oil', label: '유가 하락', ok: oilSplit ? null : has(s.oil20) ? s.oil20 < 0 && !(s.oilVsYear >= 10) : null, stateText: oilSplit ? '혼재' : has(s.oil20) && s.oil20 < 0 && s.oilVsYear >= 10 ? '내려도 높은 수준' : null,
         evidence: has(s.oil20) ? `WTI 20거래일 ${signed(s.oil20, 1, '%')}${has(s.brent20) ? ` · 브렌트${s.brentBasis === 'futures' ? '' : ' 현물'} ${signed(s.brent20, 1, '%')}` : ''}${s.oilVsYear != null ? ` · WTI 1년 평균 대비 ${signed(s.oilVsYear, 0, '%')}` : ''}${oilSplit ? (s.oilHeldKind === 'unconfirmed' ? ' — 브렌트가 WTI 움직임을 따라가지 않아 하락으로 보지 않습니다' : s.oilHeldKind === 'abnormal' ? ' — 같은 날 두 유가의 차이가 비정상이라 하락으로 보지 않습니다' : ' — 두 유가의 방향이 달라 하락으로 보지 않습니다') : s.oil20 < 0 && s.oilVsYear >= 10 ? ' — 최근엔 내렸지만 1년 평균보다 아직 높아 물가 부담이 풀렸다고 보지 않습니다' : ''}` : '유가 기록 대기', next: '매일 유가 종가' },
       { id: 'cooling', label: '고용·경기 둔화', ok: s.growthState === 'unknown' ? null : s.growthState === 'burden' ? true : s.growthState === 'favorable' ? false : null,
         stateText: s.growthState === 'neutral' ? '채용만 둔화' : null,
-        evidence: has(s.sahm) ? `Sahm ${fmt(s.sahm, 2)}%p · 일자리 3개월 평균 ${s.payroll3 == null ? '—' : `${Math.round(s.payroll3)}천 명`}${s.growthState === 'neutral' ? ' — 채용은 기준 아래지만 실업률은 아직 오르지 않았습니다(고용 축 중립)' : ''}` : '고용 기록 대기', next: [when('us-nfp'), '매주 목요일 실업수당 청구'].filter(Boolean).join(' · ') }
+        evidence: has(s.sahm) ? `Sahm ${fmt(s.sahm, 2)}%p · 일자리 3개월 평균 ${s.payroll3 == null ? '—' : manPeople(s.payroll3)}${s.growthState === 'neutral' ? ' — 채용은 기준 아래지만 실업률은 아직 오르지 않았습니다(고용 축 중립)' : ''}` : '고용 기록 대기', next: [when('us-nfp'), '매주 목요일 실업수당 청구'].filter(Boolean).join(' · ') }
     ],
     tension: null,
     caveat: '고용·경기 둔화로 금리가 내려가는 시나리오는 이익 둔화가 함께 오기 때문에 주식에 늘 좋은 것은 아닙니다 — 물가 둔화로 내려가는 시나리오와 구분해서 봅니다.'
@@ -453,7 +481,7 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
   const tone = (item) => item.pricingInConditions && item.pricing.tone === 'same' ? '' : item.pricing.tone === 'same' ? '시장 가격도 같은 방향' : item.pricing.tone === 'against' ? '시장 가격은 반대' : item.pricing.tone === 'neutral' ? '시장 가격은 중립' : '';
   const sameFit = tied.every((item) => item.met === lead.met && item.total === lead.total);
   const tiedText = tied.map((item) => { const extra = [sameFit ? '' : item.fit, tone(item)].filter(Boolean).join(', '); return `'${short(item)}'${extra ? `(${extra})` : ''}`; });
-  const headline = held ? (partial ? `핵심 조건이 충족된 시나리오가 없어 중심 시나리오를 정하지 않습니다 — 조건이 가장 많이 맞는 '${short(partial)}'도 핵심 조건(${partial.gate.labels[0].split(' (')[0]})은 ${partial.gate.met === false ? '미충족' : '확인 불가'}입니다.${nextEvent ? ` 다음 발표: ${md(nextEvent.date)} ${nextEvent.name}.` : ''}` : '조건을 확인할 관측이 부족하거나 뚜렷하게 맞는 시나리오가 없어 판단을 보류합니다.')
+  const headline = held ? (partial ? `핵심 조건이 충족된 시나리오가 없어 중심 시나리오를 정하지 않습니다 — 조건이 가장 많이 맞는 '${short(partial)}'도 핵심 조건(${partial.gate.labels[0].split(' (')[0]})은 ${partial.gate.met === false ? '충족하지 못했습니다' : '확인할 수 없습니다'}.${nextEvent ? ` 다음 발표: ${md(nextEvent.date)} ${nextEvent.name}.` : ''}` : '조건을 확인할 관측이 부족하거나 뚜렷하게 맞는 시나리오가 없어 판단을 보류합니다.')
     : tied.length >= 2 ? `조건 충족이 같은${sameFit ? `(${lead.met}/${lead.total})` : ''} 시나리오가 ${COUNT_WORDS[tied.length] || `${tied.length}개`}입니다 — ${tiedText.slice(0, -1).join(', ')}${andParticle(tiedText.at(-2))} ${tiedText.at(-1)}. ${nextEvent ? `${md(nextEvent.date)} ${nextEvent.name} 발표가 ${tied.length === 2 ? '둘을' : '이 시나리오들을'} 가릅니다.` : '다음 발표가 이 시나리오들을 가릅니다.'}`
     : `지금 조건이 가장 많이 맞는 시나리오는 '${short(lead)}'(${lead.fit})입니다.${lead.pricing.tone === 'same' && !lead.pricingInConditions ? ' 시장 가격도 같은 방향입니다.' : lead.pricing.tone === 'against' ? ' 다만 시장 가격은 반대 방향입니다.' : ''}${alt ? ` 대안 시나리오: '${short(alt)}'(${alt.fit}${pricedSame(alt) ? ', 시장 가격은 이쪽' : ''}).` : ''}${nextEvent ? ` 다음 발표: ${md(nextEvent.date)} ${nextEvent.name}.` : ''}`;
   return { available: items.some((item) => item.known >= 2), version: MACRO_CROSSROADS_VERSION, asOf: s.asOf, held, headline,
@@ -483,8 +511,10 @@ export function renderMacroCrossroadsContext(model, { state = null } = {}) {
   for (const item of ordered) {
     const detailed = rank(item) > 0; // lead and alternative in full; the rest stay one line so themes fit the same budget
     lines.push(detailed
-      ? `- ${item.title}: ${item.status || item.fit} [${item.basis.join(', ')}]. 인과: ${item.chain.join(' → ')}. 강해지는 쪽: ${item.impact.firmer}; 약해지는 쪽: ${item.impact.weaker}${item.impact.mixed ? `; 혼재: ${item.impact.mixed}` : ''}. 시장 가격: ${item.pricing.text.replace(/\.$/, '')}. 과거 빈도: ${item.past.text}${item.pastBridge ? ` ${item.pastBridge}` : ''} 확인 일정: ${item.triggers.map((t) => `${t.when} — ${t.text}`).join('; ') || '일정 없음(시장 지표로 확인)'}. 선택지: ${Object.entries(item.choices).map(([key, text]) => `${CHOICES[key]} — ${text}`).join(' / ')} 이 시나리오에서 상대적으로 유리한 쪽: ${item.favored.map((key) => CHOICES[key]).join(', ')} (${item.favoredWhy})${item.pastConflict ? ` [과거 표본과 어긋남: 비슷한 때 ${item.pastConflict.sharePct}% 상승 · 전체 ${item.pastConflict.basePct}%]` : ''}`
-      : `- ${item.title}: ${item.status || item.fit}. 인과: ${item.chain.join(' → ')}. 시장 가격: ${item.pricing.tone === 'same' ? '이 시나리오 쪽' : item.pricing.tone === 'against' ? '반대쪽' : item.pricing.tone === 'neutral' ? '중립' : '보류'}. 이 시나리오라면 유리: ${item.favored.map((key) => CHOICES[key]).join(', ')}${item.pastConflict ? ' (과거 표본과 어긋남)' : ''}`);
+      ? `- ${item.title}: ${item.status || item.fit} [${item.basis.join(', ')}]. 인과: ${item.chain.join(' → ')}. 강해지는 쪽: ${item.impact.firmer}; 약해지는 쪽: ${item.impact.weaker}${item.impact.mixed ? `; 혼재: ${item.impact.mixed}` : ''}. 시장 가격: ${item.pricing.text.replace(/\.$/, '')}. 과거 빈도: ${item.past.text}${item.pastBridge ? ` ${item.pastBridge}` : ''} 확인 일정: ${item.triggers.map((t) => `${t.when} — ${t.text}`).join('; ') || '일정 없음(시장 지표로 확인)'}. 선택지: ${Object.entries(item.choices).map(([key, text]) => `${CHOICES[key]} — ${text}`).join(' / ')} 이 시나리오에서 상대적으로 유리한 쪽: ${item.favored.map((key) => CHOICES[key]).join(', ')} (${item.favoredWhy})${item.pastConflict ? ` [과거 표본과 어긋남: 비슷한 때 ${item.pastConflict.sharePct}% 상승 · 전체 ${item.pastConflict.basePct}%]` : ''}${item.checks?.length ? ` 더 확인할 것(참고): ${item.checks.join('; ')}.` : ''}${item.invalidation?.length ? ` 이 읽기가 빗나가는 조건: ${item.invalidation.join('; ')}.` : ''}`
+      // v57.88 (screen audit): the one-line branches carried no past frequency, so the reading said "과거 빈도와 표본 수는
+      // 제공되지 않아" while the screen showed 138 cases — the count line is kept short but present.
+      : `- ${item.title}: ${item.status || item.fit}. 인과: ${item.chain.join(' → ')}. 과거 빈도: ${item.past?.n ? item.past.text : '비교 표본 없음'}. 시장 가격: ${item.pricing.tone === 'same' ? '이 시나리오 쪽' : item.pricing.tone === 'against' ? '반대쪽' : item.pricing.tone === 'neutral' ? '중립' : '보류'}. 이 시나리오라면 유리: ${item.favored.map((key) => CHOICES[key]).join(', ')}${item.pastConflict ? ' (과거 표본과 어긋남)' : ''}`);
   }
   if (state?.transitions?.length) lines.push(`최근 변화(자동 기록): ${state.transitions.slice(-6).map((t) => `${String(t.at).slice(5, 10)} ${t.text}`).join(' / ')}`);
   if (state?.eventOutcomes?.length) lines.push(`지난 발표 판정(자동): ${state.eventOutcomes.slice(-4).map((e) => `${e.name} ${e.period}: ${e.actualText} → ${e.matched.length ? `${e.matched.map((m) => m.title).join('·')} 기준 충족` : '어느 시나리오의 기준도 아님'}`).join(' / ')}`);

@@ -419,7 +419,7 @@ export function crossMarketDateIssues(body, { krDate = null, usDate = null } = {
 export const THEME_LEAD_DROP_PCT = -3;
 const SECTOR_ETF_WORDS = Object.freeze({
   SMH: ['반도체'], XLK: ['기술주', '정보기술', '기술 섹터', '기술 업종'], IGV: ['소프트웨어'], XLE: ['에너지'], XLF: ['금융'], XLV: ['헬스케어'],
-  XLI: ['산업재'], XLY: ['임의소비재', '경기소비재'], XLP: ['필수소비재'], XLU: ['유틸리티'], XLB: ['소재'], XLRE: ['부동산', '리츠'], XLC: ['통신서비스']
+  XLI: ['산업재'], XLY: ['임의소비재', '경기소비재'], XLP: ['필수소비재'], XLU: ['유틸리티'], XLB: ['소재'], XLRE: ['부동산', '리츠'], XLC: ['통신서비스', '통신']
 });
 function packetFiveSessionMoves({ context = '', data = null } = {}) {
   const moves = [];
@@ -762,10 +762,10 @@ export function priorSessionMoveIssues(body, { context = '' } = {}) {
 
 // v57.87 (10/16 audit): the screen said no flow and no central scenario qualified ("보기 이릅니다", "중심 시나리오를
 // 정하지 않습니다") while the reading named 「소수 종목 주도」 as the closest flow and a favoured choice. When the context holds
-// that verdict, the reading carries it in its own words.
+// that verdict, the reading carries it in its own words. v57.88: phrase-level — a bare 이르 also matched 이르면 / 이른바.
 export function noLeadIssues(body, { context = '' } = {}) {
   if (!/보기 이릅니다|중심 시나리오를 정하지 않습니다/.test(String(context || ''))) return [];
-  return /이르|이릅|정하지 않|중심\s?(?:흐름|시나리오)(?:이|가|은|는)?\s?없|핵심 조건(?:이|은|는)?\s?(?:미충족|갖춰지지|충족되지)|판단을 보류/.test(String(body || '')) ? [] : ['no-lead-overstated'];
+  return /(?:보기|정하기|판단하기|말하기|단정하기)s?(?:는s?)?(?:아직s?)?(?:이르|이릅)|이릅니다|이르다|정하지 않|중심\s?(?:흐름|시나리오)(?:이|가|은|는)?\s?없|핵심 조건(?:이|은|는)?\s?(?:미충족|갖춰지지|충족되지)|판단을 보류/.test(String(body || '')) ? [] : ['no-lead-overstated'];
 }
 
 // v57.69: retry guidance for the rules that carry no metric id.

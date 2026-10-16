@@ -150,7 +150,7 @@ const FILTER_LABELS = Object.freeze({
   'scr-min-rank': '최소 백분위',
   'scr-rsi-min': 'RSI 하한',
   'scr-rsi-max': 'RSI 상한',
-  'scr-min-mom': '3M 수익률 하한',
+  'scr-min-mom': '3개월 수익률 하한',
   'scr-watchlist-only': '워치리스트',
   'scr-passed-only': '실행 통과만'
 });
@@ -160,7 +160,7 @@ const BUILDER_FIELDS = Object.freeze([
   { value: 'setup', label: '차트 패턴', target: 'scr-setup' },
   { value: 'rank', label: '최소 백분위', target: 'scr-min-rank' },
   { value: 'rsi', label: 'RSI 하한', target: 'scr-rsi-min' },
-  { value: 'momentum', label: '3M 수익률 하한', target: 'scr-min-mom' },
+  { value: 'momentum', label: '3개월 수익률 하한', target: 'scr-min-mom' },
   { value: 'query', label: '티커·이름 검색', target: 'scr-text-search' }
 ]);
 
@@ -1213,7 +1213,7 @@ function renderBuilderConditions(documentRef, conditions = []) {
   if (!conditions.length) {
     const empty = documentRef.createElement('span');
     empty.className = 'scr-builder-empty';
-    empty.textContent = '실행 조건(rank·RSI·3M 수익률)을 추가하면 이곳에 표시되고 실행 정의에 포함됩니다. 섹터·분류·검색은 표시 필터로만 표 범위를 바꿉니다.';
+    empty.textContent = '실행 조건(순위·RSI·3개월 수익률)을 추가하면 이곳에 표시되고 실행 정의에 포함됩니다. 섹터·분류·검색은 표시 필터로만 표 범위를 바꿉니다.';
     list.appendChild(empty);
     return;
   }
@@ -1287,7 +1287,7 @@ function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavai
   if (scope) {
     scope.textContent = executed
       // Codex browser audit H43: one line says why the table count differs from the run's pass count.
-      ? `실행 조건 통과 ${passed}종목(대상 ${runRow != null ? runRow : '미확인'} · 데이터 부족 ${unavailable}) — 저장·재실행·검증은 이 ${passed}종목 기준입니다. ${passedOnly ? `표에는 그중 ${filtered}행이 보입니다${filtered < passed ? '(섹터·검색 같은 표시 필터 적용)' : ''}.` : `표에는 탈락·데이터 부족 종목까지 포함한 ${filtered}행이 보입니다 — 통과 종목만 보려면 ‘실행 통과만’을 켭니다.`}`
+      ? `실행 조건 통과 ${passed}종목(대상 ${runRow != null ? runRow : '미확인'} · 조건 판단 자료 부족 ${unavailable}) — 저장·재실행·검증은 이 ${passed}종목 기준입니다. ${passedOnly ? `표에는 그중 ${filtered}행이 보입니다${filtered < passed ? '(섹터·검색 같은 표시 필터 적용)' : ''}.` : `표에는 탈락·데이터 부족 종목까지 포함한 ${filtered}행이 보입니다 — 통과 종목만 보려면 ‘실행 통과만’을 켭니다.`}`
       : '실행 전 — 조건을 실행하면 비교 기준 종목 수가 정해집니다. 표시 범위는 현재 필터 결과입니다.';
   }
 }
@@ -1441,7 +1441,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   const count = documentRef.getElementById('screener-result-count');
   if (count) count.textContent = String(filtered.length);
   const summary = documentRef.getElementById('scr-visible-summary');
-  if (summary) summary.textContent = `${MARKET_LABELS[listingMarket]} · 조건/필터 ${filtered.length}개 중 ${Math.min(visibleLimit.value, filtered.length)}개 표시`;
+  if (summary) summary.textContent = `${MARKET_LABELS[listingMarket]} · ${filtered.length}종목 중 ${Math.min(visibleLimit.value, filtered.length)}개 표시`;
   renderStaleNote(documentRef, body);
   const loadMore = documentRef.getElementById('scr-load-more-wrap');
   if (loadMore) {
@@ -1450,7 +1450,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     const moreButton = loadMore.querySelector('[data-aio-screener-action="load-more"]');
     if (moreButton) moreButton.textContent = `${Math.min(12, Math.max(0, filtered.length - visibleLimit.value))}개 더 보기`;
   }
-  if (summary && filtered.length && visibleLimit.value >= filtered.length) summary.textContent = `${MARKET_LABELS[listingMarket]} · 조건/필터 ${filtered.length}개 모두 표시`;
+  if (summary && filtered.length && visibleLimit.value >= filtered.length) summary.textContent = `${MARKET_LABELS[listingMarket]} · ${filtered.length}종목 모두 표시`;
   const diagnostics = documentRef.getElementById('scr-population-note');
   if (diagnostics) {
     const ranking = currentState.metadata.ranking;
@@ -1495,13 +1495,17 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (top) {
     top.textContent = String(allRows.filter((row) => row.screenStatus === 'passed' && finite(row.rank) != null && row.rank >= 80).length);
     // 2026-10-14 audit #3: this count is the factor percentile ≥ 80, not a rank — name it so (index.html label follows).
+    // v57.88 (screen audit): the percentile is rounded (79.5 counts as 80), so this reads slightly above the reading's
+    // 상위 20% by screen rank — a different order (selected screen, all markets). The label says which one it is.
     const lead = top.parentElement?.firstChild;
-    if (lead?.nodeType === 3 && /랭크 80 이상/.test(lead.textContent)) lead.textContent = lead.textContent.replace('랭크 80 이상', '백분위 80 이상');
+    if (lead?.nodeType === 3 && /^(?:그중\s*)?(?:랭크|백분위) 80 이상\s*$/.test(lead.textContent)) lead.textContent = lead.textContent.replace(/(?:랭크|백분위) 80 이상\s*$/, '팩터 백분위 80 이상(반올림) ');
   }
   if (factorCount) factorCount.textContent = String(state?.metadata?.ranking?.activeFactors?.length || '—');
   const asOf = page.querySelector('[data-factor-asof]');
   const marketFactorSession = state?.metadata?.factorSessionDateByMarket?.[listingMarket] || state?.metadata?.factorObservedAt;
-  if (asOf) asOf.textContent = marketFactorSession ? `${MARKET_LABELS[listingMarket] || ''} 팩터 세션 ${String(marketFactorSession).slice(0, 10)} · 생성 ${state?.metadata?.asOf ? String(state.metadata.asOf).slice(0, 10) : '—'}` : state?.metadata?.asOf ? `생성 ${String(state.metadata.asOf).slice(0, 10)}` : '팩터 데이터 대기';
+  // v57.91 (wording audit): '미국 10/15 종가 기준 · 10/16 계산' instead of '미국 팩터 세션 2026-10-15 · 생성 2026-10-16'.
+  const monthDay = (value) => { const day = String(value || '').slice(0, 10); return /^\d{4}-\d{2}-\d{2}$/.test(day) ? `${Number(day.slice(5, 7))}/${Number(day.slice(8, 10))}` : day || '—'; };
+  if (asOf) asOf.textContent = marketFactorSession ? `${MARKET_LABELS[listingMarket] || ''} ${monthDay(marketFactorSession)} 종가 기준 · ${state?.metadata?.asOf ? `${monthDay(state.metadata.asOf)} 계산` : '계산일 미확인'}` : state?.metadata?.asOf ? `${monthDay(state.metadata.asOf)} 계산` : '팩터 데이터 대기';
   const provenance = page.querySelector('[data-screener-provenance]');
   if (provenance) {
     const metadata = state?.metadata || {};
@@ -1820,7 +1824,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           reason: 'screener-visible-quotes'
         })).then(() => {
           if (attempt < 3 && requested.filter((symbol) => !(Number(root?._liveData?.[symbol]?.price) > 0)).length > requested.length / 2) {
-            setTimeout(() => requestVisibleQuotes(requested, attempt + 1), 4000);
+            setTimeout(() => { if (mountActive) requestVisibleQuotes(requested, attempt + 1); }, 4000); // v57.88: not after leaving the page
           }
         }).catch(() => {});
       };
@@ -1859,8 +1863,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           const rawFactorRank = finite(explanation.contributions?.rank);
           const filterLabel = filterState === 'passed' ? '필터 통과'
             : filterState === 'rejected' ? '필터 미충족' : '필터 판정 보류';
-          const rankingLabel = rankingState === 'ranked' ? '랭킹 계산됨'
-            : rankingState === 'not-requested' ? '랭킹 미요청(필터 미통과)' : '랭킹 계산 불가';
+          const rankingLabel = rankingState === 'ranked' ? '순위 계산됨'
+            : rankingState === 'not-requested' ? '순위 미요청(필터 미통과)' : '순위 계산 불가';
           const title = filterState === 'passed'
             ? (rankingState === 'ranked' && ordinalRank != null ? '조건 통과 · 순위 계산 가능' : '조건 통과 · 순위 계산 보류')
             : (filterState === 'rejected' ? '조건 미충족' : '데이터 부족 — 판정 보류');
@@ -1871,7 +1875,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          const modelContrary = modelContraryEvidence(row);
          const contrary = [...modelContrary.hits.map((hit) => `모델 점검: ${hit}`), ...filterContrary.map((hit) => `등록 조건: ${hit}`)];
          setText('scr-why-title', `${row.sym || row.symbol || '종목'} · ${title}`);
-         setText('scr-why-subtitle', row.name || '연구용 상대 랭킹 설명');
+         setText('scr-why-subtitle', row.name || '연구용 상대 순위 설명');
           const factorConfidence = finite(row.confidence);
            // LC-40: 두 rank를 이름으로 분리한다 — 표시 순위는 통과 행의 서수, 팩터 원값은 순위
            // 입력(0~100)이다. 둘 다 'rank'라 부르면 서로 다른 숫자를 같은 값으로 오해한다.
@@ -2300,7 +2304,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          const options = target?.options ? Array.prototype.slice.call(target.options).map((option) => option.value).filter((optionValue) => optionValue && optionValue !== '0') : null;
          value.placeholder = options?.length
            ? `허용값: ${options.slice(0, 6).join(', ')}${options.length > 6 ? ' …' : ''}`
-           : ({ sector: '섹터 이름 (예: Technology)', setup: '구조·근거 이름', rank: '허용값: 40, 50, 65, 80', rsi: 'RSI 하한 (예: 40)', momentum: '3M 수익률 하한 % (예: 10)', query: '티커 또는 이름' }[definition.value] || '값');
+           : ({ sector: '섹터 이름 (예: Technology)', setup: '구조·근거 이름', rank: '허용값: 40, 50, 65, 80', rsi: 'RSI 하한 (예: 40)', momentum: '3개월 수익률 하한 % (예: 10)', query: '티커 또는 이름' }[definition.value] || '값');
        };
        syncBuilderHint();
        const readVisualCondition = () => {
@@ -2403,7 +2407,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          if (!activeResult && preview && workbenchStatus) {
            // P1431: plain status; the definition id/hash stay on the element for audit, not in the sentence.
            const screenLabel = documentRef.getElementById('scr-screen-select')?.selectedOptions?.[0]?.textContent || preview.definition?.screenId || '선택한 조건';
-           workbenchStatus.textContent = `${screenLabel} 미리보기 · 계산 가능 ${marketRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').length}종목 중 조건 통과 ${marketRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').filter(row => row.screenStatus === 'passed').length} · 데이터 부족 ${marketRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').filter(row => row.screenStatus === 'unavailable').length}`;
+           workbenchStatus.textContent = `${screenLabel} 미리보기 · 대상 ${marketRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').length}종목 중 조건 통과 ${marketRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').filter(row => row.screenStatus === 'passed').length} · 조건 판단 자료 부족 ${marketRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').filter(row => row.screenStatus === 'unavailable').length}`;
            workbenchStatus.title = `${preview.definition?.screenId || '—'} · ${String(preview.definition?.definitionHash || '').slice(0, 8)} · 조건 실행을 누르면 이 입력으로 고정합니다`;
          }
          renderCompareTray();

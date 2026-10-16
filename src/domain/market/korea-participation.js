@@ -33,8 +33,14 @@ function spreadWord(counts) {
 function gapReading(indexMove, counts, { lead = '' } = {}) {
   const spread = spreadWord(counts);
   const gap = indexMove - counts.median;
-  const size = Math.abs(indexMove) < 1.5 ? '' : gap <= -2 ? `지수 하락 폭이 표본 중앙값보다 훨씬 커 시가총액이 큰 종목에 하락이 ${spread ? '더 ' : ''}몰렸습니다`
-    : gap >= 2 ? `지수 상승 폭이 표본 중앙값보다 훨씬 커 시가총액이 큰 종목에 상승이 ${spread ? '더 ' : ''}몰렸습니다`
+  // v57.88 (screen audit): the gap is read with the index direction — on 10/16 KOSPI +2.0% against a +4.6% median read
+  // '지수 하락 폭이 … 하락이 몰렸습니다'. Four cases: the index moved more or less than the median, up or down.
+  const more = spread ? '더 ' : '';
+  const size = Math.abs(indexMove) < 1.5 ? ''
+    : indexMove < 0 && gap <= -2 ? `지수 하락 폭이 표본 중앙값보다 훨씬 커 시가총액이 큰 종목에 하락이 ${more}몰렸습니다`
+    : indexMove < 0 && gap >= 2 ? '지수 하락 폭이 표본 중앙값보다 훨씬 작아 시가총액이 큰 종목은 덜 내리고 중소형 종목이 더 내렸습니다'
+    : indexMove > 0 && gap >= 2 ? `지수 상승 폭이 표본 중앙값보다 훨씬 커 시가총액이 큰 종목에 상승이 ${more}몰렸습니다`
+    : indexMove > 0 && gap <= -2 ? '지수 상승 폭이 표본 중앙값보다 훨씬 작아 시가총액이 큰 종목은 덜 오르고 중소형 종목이 더 올랐습니다'
       : !spread && Math.abs(gap) < 1 ? '표본 종목 전반이 지수와 비슷하게 움직였습니다' : '';
   const spreadText = spread ? `${lead}표본의 ${spread.share}%가 ${spread.dir==='down'?'내려':'올라'} 표본 전반으로 번진 ${spread.dir==='down'?'하락':'상승'}입니다` : '';
   return [spreadText, size].filter(Boolean).join(' — ');
@@ -45,7 +51,8 @@ function sessionRead({ observed, date, index }) {
   const out = { count:day.count, ret1d:day.median, ret5d:week5.median, down3:day.down3, up3:day.up3, falling:day.falling, falling5:week5.falling, down3_5:week5.down3, spread:spreadWord(day)?.dir || null, spread5:spreadWord(week5)?.dir || null, text:null };
   if (out.ret1d==null || out.count<20) return out;
   const md = `${Number(date.slice(5,7))}/${Number(date.slice(8,10))}`;
-  const sample = `한국 수집 표본 ${out.count}개 하루 수익률 중앙값 ${sgn(out.ret1d)}(-3% 이하 ${out.down3}개 · 하락 ${out.falling}개)`;
+  // v57.88: an up day counts the up side (+3% 이상 · 상승), a down or flat day the down side.
+  const sample = `AIO 추적 종목(한국) ${out.count}개 하루 수익률 중앙값 ${sgn(out.ret1d)}${out.ret1d > 0 ? `(+3% 이상 ${out.up3}개 · 상승 ${day.rising}개)` : `(-3% 이하 ${out.down3}개 · 하락 ${out.falling}개)`}`;
   const same = index?.date===date && finite(index?.d1)!=null;
   if (!same) { const spread = spreadWord(day); out.text = `${md} ${sample}${spread ? ` — 표본의 ${spread.share}%가 ${spread.dir==='down'?'내려 표본 전반으로 번진 하락':'올라 표본 전반으로 번진 상승'}입니다` : ''}.`; return out; }
   const dayRead = gapReading(index.d1, day);
@@ -65,7 +72,7 @@ export function buildKoreaParticipation({ rows=[], themes={}, nowMs=Date.now(), 
   const typed=observed.map(row=>({...row,...Object.fromEntries(['ret1m','ret3m','ret6m','pctSma50'].map(key=>[key,read(row,key)]))}));
   const groups=buildGroupStrength({rows:typed,themes:koreanThemeGroups(themes,typed),market:'KR'}).groups.filter(g=>g.ret3m!=null).slice(0,5);
   const headline=!date ? '한국 종가 표본의 기준일을 확인하지 못했습니다.' : breadth50.pct == null ? '한국 표본의 이동평균 자료가 부족합니다.'
-    : `한국 수집 표본 ${observed.length}개 중 50일선 위 ${breadth50.pct.toFixed(1)}%${returns.ret3m!=null ? ` · 3개월 수익률 중앙값 ${returns.ret3m>=0?'+':''}${returns.ret3m.toFixed(1)}%` : ''}.`;
+    : `AIO 추적 종목(한국) ${observed.length}개 중 50일선 위 ${breadth50.pct.toFixed(1)}%${returns.ret3m!=null ? ` · 3개월 수익률 중앙값 ${returns.ret3m>=0?'+':''}${returns.ret3m.toFixed(1)}%` : ''}.`;
   const session=date ? sessionRead({observed,date,index}) : null;
   return {available:!!date,date,latestDate:latest?.date||null,delayed:date!==latest?.date,population:population.length,observed:observed.length,excluded:population.length-observed.length,breadth50,breadth200,returns,groups,headline,session,
     watch:['코스피·코스닥 방향과 50·200일선 위 종목 비율이 함께 개선되는지 확인합니다. 지수만 오르면 소수 종목 집중 가능성을 점검합니다.',

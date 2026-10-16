@@ -269,7 +269,9 @@ function changeLog(doc, state) {
   if (transitions.length) {
     box.append(el(doc, 'h4', '최근 변화', 'xr-h4'));
     const list = el(doc, 'ul', null, 'xr-transitions');
-    for (const row of transitions) list.append(el(doc, 'li', `${shortDate(row.at)} ${row.text}`));
+    // v57.88 (screen audit): several records a day read as contradictions with the date alone — the KST time is shown.
+    const stamp = (iso) => { const ms = Date.parse(iso || ''); if (!Number.isFinite(ms)) return shortDate(iso); const kst = new Date(ms + 9 * 3600000).toISOString(); return `${md(kst.slice(0, 10))} ${kst.slice(11, 16)} KST`; };
+    for (const row of transitions) list.append(el(doc, 'li', `${stamp(row.at)} ${row.text}`));
     box.append(list);
   }
   box.append(el(doc, 'p', `데이터 갱신마다 자동으로 다시 계산해 기록합니다${state?.generatedAt ? ` · 마지막 계산 ${shortDate(state.generatedAt)}` : ''}.`, 'xr-caveat'));
@@ -307,7 +309,7 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   // v57.79 (UI review): the heading says what the list is (ordered by conditions met), not how to use it.
   const mapHead = el(doc, 'h3', `시나리오 ${model.items.length}개 — 조건 충족 순`, 'xr-h3');
   target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), basis, timeline(doc, model), rateHub(doc, model), mapHead, branchMap(doc, root, model, openIds, { firstPaint, restOpen }), ...[changeLog(doc, root?.[SCENARIO_STATE.key])].filter(Boolean),
-    el(doc, 'p', '세부 종목 선택은 차트·기업·테마·스크리너에서 직접 합니다. 이 지도는 가격·수량·시점을 제시하지 않습니다.', 'xr-caveat'));
+    el(doc, 'p', '세부 종목 선택은 차트·기업·테마·스크리너에서 직접 합니다. 이 화면은 가격·수량·시점을 제시하지 않습니다.', 'xr-caveat'));
   target.dataset.aioCrossroads = 'native';
   if (focused) target.querySelector(`.xr-branch[data-branch="${focused}"] > summary`)?.focus?.({ preventScroll: true }); // a repaint keeps keyboard focus
   return model;

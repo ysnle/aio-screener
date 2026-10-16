@@ -4,6 +4,26 @@ last_verified: 2026-10-16
 confidence: medium
 ---
 
+## v57.91 v57.91 로딩·렉 최적화 (2026-10-16)
+
+- [x] QA-VERIFY-57: P1901 push 뒤 라이브에서 첫 방문(새 프로필) 홈이 채워진 뒤 다시 비워지지 않고, 휴대폰에서 홈을 3분 열어 두어도 5초 넘는 멈춤이 없다. verify_by: 라이브 첫 방문 + 휴대폰(또는 CPU 4배 감속) 대기 3분 긴 작업 측정
+
+## v57.90 data-store SEC 원장 분할 (2026-10-16)
+
+- [ ] QA-VERIFY-56: P1900 push 뒤 첫 Refresh screener 실행에서 SEC 원장 restore가 구형 단일 파일(layout=single)을 읽고 publish가 data-store를 sec-fundamentals.index.json + part 3개(각 32MiB 이하)로 대체하며, 그다음 실행의 restore가 source=store layout=parts로 manifest sourceSha256과 같은 digest를 복원한다. ci.yml data 그룹의 restore --match-manifest도 같은 digest를 받는다. verify_by: push 뒤 refresh-screener 실행 로그 2회와 git ls-tree -l origin/data-store 확인
+
+## v57.89 13F 운용사 원장 분할 (2026-10-16)
+
+- [x] QA-MASTERS-STORE-01: P1899 13F 운용사 원장 분할 저장 — 32MiB 초과 운용사는 색인+part로 나뉘고 재조립 결과가 원본과 바이트 동일, managers/ 파일 전부 32MiB 이하, 커밋 게이트·headroom 검사 50MB 기준 일치. verify_by: node scripts/ci-masters-manager-store-check.mjs && node scripts/ci-masters-contract-check.mjs && node scripts/ci-artifact-size-headroom-check.mjs
+- [ ] QA-VERIFY-55: P1899 push 뒤 다음 13F 전체 수집(run_full_13f)에서 Refresh market data가 blackrock-inc.part-N.json 형식으로 쓰고 ci-masters-contract-check --staged와 50MB 커밋 게이트를 통과한다. verify_by: push 뒤 13F 전체 수집이 돈 Refresh market data 실행 로그와 public-data/masters/managers 파일 크기 확인
+
+## v57.88 v57.88 품질 점검 (2026-10-16)
+
+- [x] QA-VERIFY-51: P1891 push 뒤 다음 스크리너 갱신에서 public-data/screener.json heavyDownDays25 중앙값이 6보다 낮고, '거래량 실린 하락 N일'(5일 이상)이 붙는 종목이 889보다 크게 줄었다. verify_by: 다음 Actions 스크리너 갱신 뒤 screener.json 분포 확인
+- [x] QA-VERIFY-52: P1893 push 뒤 라이브 테마 화면에서 '테마 N개'와 단계 묶음 개수 합이 같고, 보류된 테마가 '판정 보류' 묶음에 사유와 함께 보인다. verify_by: 라이브 테마 화면 확인
+- [x] QA-VERIFY-53: P1895 push 뒤 라이브 거시 상단과 브리핑 체크리스트의 다음 발표가 미국 일정(FOMC 등)이고, 스크리너 KPI 라벨이 '팩터 백분위 80 이상(반올림)'이며, AI 시장 해설이 과거 빈도를 '제공되지 않았다'고 쓰지 않는다. verify_by: 라이브 거시·브리핑·스크리너 화면과 다음 AI 해설 확인
+- [x] QA-VERIFY-54: P1897 push 직후 Data freshness watchdog 실행이 AI 프록시 배포 중에도 success이고(proxy-source-revision은 warning), Deploy AI proxy 완료 뒤 한 번 더 실행된다. verify_by: push 뒤 gh run list --workflow data-watchdog.yml 확인
+
 ## v57.87 한국 급락 뉴스·AI 해설 (2026-10-16)
 
 - [x] QA-VERIFY-42: P1883 push 뒤 다음 한국 지수 3% 이상 움직임 세션에서 public-data/data.json의 news 또는 newsIntraday 한국 항목 첫 번째가 코스피·코스닥 움직임 헤드라인이다(selectionReason에 ko-index-move). verify_by: 다음 큰 한국 지수 움직임 뒤 public-data/data.json 확인

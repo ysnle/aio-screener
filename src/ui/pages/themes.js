@@ -26,7 +26,7 @@ import { renderNextSteps } from '../components/page-flow.js';
 const QUADRANTS = Object.freeze([
   ...['Leading', 'Improving', 'Weakening', 'Lagging'].map((key) => ({ key, label: RRG_QUADRANT_WORDS[key], note: RRG_QUADRANT_READS[key] })),
   // v57.84 (owner decision 3-3): the band is each sector's own typical 5-session move on that axis, with hysteresis.
-  { key: 'Border', label: '경계', note: `두 축 중 하나가 100에 그 섹터의 평소 5거래일 움직임만큼 가까워 사분면을 정하지 않음(움직임 기록이 없으면 ±${RRG_NEUTRAL_BAND}). 한 번 정한 사분면은 반대쪽으로 그 폭의 절반을 넘어야 바뀜`, optional: true }
+  { key: 'Border', label: '기준선 부근', note: `두 축 중 하나가 100에 그 섹터의 평소 5거래일 움직임만큼 가까워 사분면을 정하지 않음(움직임 기록이 없으면 ±${RRG_NEUTRAL_BAND}). 한 번 정한 사분면은 반대쪽으로 그 폭의 절반을 넘어야 바뀜`, optional: true }
 ]);
 
 // v57.81: the banded zone and the five-session relative-strength check of one item, from the session-checked artifact row.
@@ -100,7 +100,7 @@ function renderRRGStatus({ documentRef, root, store, route }) {
   // v57.76: that caveat lives once, in the 사분면별 섹터 fold (rrg-method-note); the line above the chart keeps the
   // counts and the close it was measured on.
   const close = usCloseSession(root);
-  status.textContent = `선도 ${counts.Leading} · 개선 ${counts.Improving} · 약화 ${counts.Weakening} · 후행 ${counts.Lagging}${counts.Border ? ` · 경계 ${counts.Border}` : ''} · 약 50일 상대강도 · ${close ? `${shortSession(close)} 미국 종가 기준` : '완료 종가 기준'}`;
+  status.textContent = `선도 ${counts.Leading} · 개선 ${counts.Improving} · 약화 ${counts.Weakening} · 후행 ${counts.Lagging}${counts.Border ? ` · 기준선 부근 ${counts.Border}` : ''} · 약 50일 상대강도 · ${close ? `${shortSession(close)} 미국 종가 기준` : '완료 종가 기준'}`;
   status.style.color = 'var(--text-dim)';
 }
 
@@ -152,7 +152,7 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   shade(colors.Lagging, plot.left, baseY, baseX, plot.bottom);
   context.strokeStyle = palette.grid;
   context.lineWidth = 1;
-  context.font = '10px Inter, sans-serif';
+  context.font = compact ? '10px Inter, sans-serif' : '12px Inter, sans-serif'; // v57.91 (visual audit): desktop ticks match the page's smallest text
   context.fillStyle = palette.text;
   context.textAlign = 'center';
   // On a phone, every other x tick is labelled so neighbouring values do not overlap.
@@ -213,20 +213,26 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
     context.fill();
     context.strokeStyle = palette.grid;
     context.stroke();
-    // Labels that would land on an earlier one move up a line, so close neighbours stay readable.
-    let labelY = y - 9;
-    while (placed.some((spot) => Math.abs(spot.x - x) < 34 && Math.abs(spot.y - labelY) < 11)) labelY -= 11;
-    placed.push({ x, y: labelY });
+    // v57.91 (visual audit, XLC/XLK overlap): collisions use measured widths and include the name lines; a crowded
+    // label flips below its dot before stacking further away.
     const symbol = String(item.symbol || item.id || '');
     context.font = 'bold 11px system-ui';
+    const symbolWidth = context.measureText?.(symbol)?.width || symbol.length * 7;
+    const hits = (ly, lw) => placed.some((spot) => Math.abs(spot.x - x) < (spot.w + lw) / 2 + 4 && Math.abs(spot.y - ly) < 13);
+    const labelY = [y - 9, y + 20, y - 22, y + 33, y - 35, y - 48].find((ly) => !hits(ly, symbolWidth)) ?? y - 48;
+    placed.push({ x, y: labelY, w: symbolWidth });
     context.fillStyle = color;
     context.fillText(symbol, inside(symbol, x), labelY);
     // The Korean name under the dot is a desktop extra; on a phone it overlapped the neighbouring tickers.
     if (!compact && activeView(root) !== 'all' && labelY === y - 9) {
       const name = String(item.label || '');
       context.font = '10px system-ui';
-      context.fillStyle = muted;
-      context.fillText(name, inside(name, x), y + 16);
+      const nameWidth = context.measureText?.(name)?.width || name.length * 10;
+      if (!hits(y + 16, nameWidth)) {
+        placed.push({ x, y: y + 16, w: nameWidth });
+        context.fillStyle = muted;
+        context.fillText(name, inside(name, x), y + 16);
+      }
     }
   });
 }
@@ -241,7 +247,7 @@ function renderThemeCyclePill({ documentRef, root, store, route }) {
   // reporting the 11-sector denominator while dozens of sub-theme chips render above is the
   // same "summary on another scope" defect P1149 fixed elsewhere.
   const view = activeView(root);
-  const viewLabel = { sectors: '섹터', subsectors: '하위 테마', all: '전체 관측' }[view] || '섹터';
+  const viewLabel = { sectors: '섹터', subsectors: '세부 업종', all: '전체' }[view] || '섹터';
   const items = viewItems(selectThemesItems(store?.getState?.() || {}), view);
   const counts = { Leading: 0, Improving: 0, Weakening: 0, Lagging: 0, Border: 0 };
   items.forEach((item) => {
@@ -260,7 +266,7 @@ function renderThemeCyclePill({ documentRef, root, store, route }) {
   // Expert review M08: the split is a count, not a risk-on/off grade — one neutral pill colour.
   pill.className = 'status-pill sp-neutral';
   // P1352: quadrant counts describe relative strength, not sector identity or the business cycle.
-  pill.textContent = `${viewLabel} 상대강도 · 선도·개선 ${counts.Leading + counts.Improving}/${total} · 약화·후행 ${counts.Weakening + counts.Lagging}/${total}${counts.Border ? ` · 경계 ${counts.Border}/${total}` : ''}`;
+  pill.textContent = `${viewLabel} 상대강도 · 선도·개선 ${counts.Leading + counts.Improving}/${total} · 약화·후행 ${counts.Weakening + counts.Lagging}/${total}${counts.Border ? ` · 기준선 부근 ${counts.Border}/${total}` : ''}`;
 }
 
 // v57.76: the 섹터 흐름 분석 box (sector-perf-analysis) and its writer are retired — it repeated the 섹터 회전 판정
@@ -372,7 +378,7 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
     value.textContent = row.pct == null ? '—' : `${row.pct >= 0 ? '+' : ''}${row.pct.toFixed(2)}%`;
     value.style.cssText = `width:62px;text-align:right;font-size:12px;font-weight:700;font-family:var(--font-mono);color:${row.pct == null ? 'var(--text-muted)' : row.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)'};flex-shrink:0;`;
     const badge = documentRef.createElement('span');
-    badge.textContent = row.pct == null ? '대기' : (row.quadrant === 'Border' ? '경계' : RRG_QUADRANT_WORDS[row.quadrant] || '중립');
+    badge.textContent = row.pct == null ? '대기' : (row.quadrant === 'Border' ? '기준선 부근' : RRG_QUADRANT_WORDS[row.quadrant] || '중립');
     badge.style.cssText = `width:36px;text-align:center;flex-shrink:0;font-size:10px;color:${row.pct == null ? 'var(--text-muted)' : colors[row.quadrant] || 'var(--text-muted)'};`;
     line.append(symbol, label, track, value, badge);
     host.appendChild(line);
@@ -452,8 +458,8 @@ function createChip(documentRef, item, root) {
     chip.setAttribute('role', 'button');
     chip.tabIndex = 0;
     chip.style.cursor = 'pointer';
-    chip.setAttribute('aria-label', `${chip.textContent} — 상세 패널 없음, 하위 테마 순위로 이동`);
-    chip.title = '이 업종 자체의 상세 패널은 없습니다 — 눌러서 아래 하위 테마 순위에서 관련 테마와 대표 종목을 확인합니다.';
+    chip.setAttribute('aria-label', `${chip.textContent} — 상세 패널 없음, 세부 테마 순위로 이동`);
+    chip.title = '이 업종 자체의 상세 패널은 없습니다 — 눌러서 아래 세부 테마 순위에서 관련 테마와 대표 종목을 확인합니다.';
     const jump = () => documentRef.getElementById('theme-strength-board')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
     chip.addEventListener('click', jump);
     chip.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); jump(); } });
@@ -485,7 +491,7 @@ function renderThemes({ documentRef, root, store, route }) {
   legend.dataset.themeDetailLegend = 'true';
   // Codex browser audit H22: the quadrant and the chip return answer different windows; the legend says which.
   // v57.76: the quadrant definition is the fold's method note (rrg-method-note); the legend keeps only the chip facts.
-  legend.textContent = `칩 옆 % = 1일 등락률로, 사분면(가로 100일 평균 대비 · 세로 약 50일 전 대비)과 별개라 후행 섹터가 그날은 올랐을 수 있습니다. '최근 5거래일 상대강도'는 그 주 움직임이 평소 1주 움직임의 2배를 넘게 사분면과 반대일 때만 붙습니다. 실선 칩 ${detailCount}개는 테마 상세, 점선 칩 ${Math.max(0, items.length - detailCount)}개는 하위 테마 순위로 연결됩니다.`;
+  legend.textContent = `칩 옆 % = 1일 등락률로, 사분면(가로 100일 평균 대비 · 세로 약 50일 전 대비)과 별개라 후행 섹터가 그날은 올랐을 수 있습니다. '최근 5거래일 상대강도'는 그 주 움직임이 평소 1주 움직임의 2배를 넘게 사분면과 반대일 때만 붙습니다. 실선 칩 ${detailCount}개는 테마 상세, 점선 칩 ${Math.max(0, items.length - detailCount)}개는 세부 테마 순위로 연결됩니다.`;
   legend.style.cssText = 'grid-column:1/-1;font-size:12px;color:var(--text-muted);padding:2px 0 6px;';
   if (classifiedCount) container.appendChild(legend); // P1591 (T01): no quadrant legend over an empty quadrant area
   const appendUnclassified = () => {
@@ -515,7 +521,7 @@ function renderThemes({ documentRef, root, store, route }) {
     if (viewTabs) viewTabs.hidden = !anyJudged;
     const read = documentRef.getElementById('rrg-rotation-read');
     const close = usCloseSession(root);
-    if (read) read.textContent = `섹터 회전은 최신 확정 종가의 상대강도 기록이 들어오면 표시합니다${close ? ` (지금 기록은 ${shortSession(close)} 종가까지)` : ''} — 그 전에는 아래 S&P 500 지도와 하위 테마 순위로 읽습니다.`;
+    if (read) read.textContent = `섹터 회전은 최신 확정 종가의 상대강도 기록이 들어오면 표시합니다${close ? ` (지금 기록은 ${shortSession(close)} 종가까지)` : ''} — 그 전에는 아래 S&P 500 지도와 세부 테마 순위로 읽습니다.`;
     return;
   }
   if (chartBlock) chartBlock.hidden = false;
@@ -584,7 +590,7 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
   header.append(title, performance);
 
   const leaders = documentRef.createElement('div');
-  leaders.textContent = `대표 리더: ${(detail.leaderHighlight.length ? detail.leaderHighlight : detail.leaders.slice(0, 4)).join(' · ') || '구성 데이터 대기'}`;
+  leaders.textContent = `대표 종목: ${(detail.leaderHighlight.length ? detail.leaderHighlight : detail.leaders.slice(0, 4)).join(' · ') || '구성 데이터 대기'}`;
   leaders.style.cssText = 'font-size:11px;line-height:1.6;color:var(--text-secondary);';
 
   const provenance = documentRef.createElement('div');
@@ -632,7 +638,7 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
       bar.style.width = `${Math.max(2, Math.abs(group.ret3m ?? 0) / max * 100).toFixed(1)}%`;
       const value = documentRef.createElement('span');
       value.className = 'stock-read-bar-value';
-      const dir = { improving: '순위 상승', steady: '순위 유지', weakening: '순위 하락' }[group.direction] || ''; // 1개월 vs 3개월 순위 (audit 19: not the playbook stage words)
+      const dir = { improving: '최근 강해짐', steady: '큰 변화 없음', weakening: '최근 식음' }[group.direction] || ''; // 3개월→1개월 순위 변화 (audit 19: not the playbook stage words)
       value.textContent = `3개월 ${group.ret3m == null ? '—' : `${group.ret3m >= 0 ? '+' : ''}${group.ret3m.toFixed(1)}%`} · 1개월 ${group.ret1m == null ? '—' : `${group.ret1m >= 0 ? '+' : ''}${group.ret1m.toFixed(1)}%`}${group.ret5d != null ? ` · 5거래일 ${group.ret5d >= 0 ? '+' : ''}${group.ret5d.toFixed(1)}%` : ''}${group.above50Pct != null ? ` · 50일선 위 ${group.above50Pct}%` : ''}${dir ? ` · ${dir}` : ''}`;
       item.append(bar, value);
       line.append(name, item);
@@ -791,7 +797,7 @@ function renderThemeDetailLeaders({ documentRef, root, store, themeId = null }) 
   }
 
   const heading = documentRef.createElement('div');
-  heading.textContent = `대장주 상세 · ${detail.leaders.length}종목`;
+  heading.textContent = `대표 종목 상세 · ${detail.leaders.length}종목`;
   heading.style.cssText = 'font-size:12px;font-weight:800;color:var(--text-secondary);margin:8px 0 6px;';
   const cards = documentRef.createElement('div');
   cards.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;';
@@ -817,7 +823,7 @@ function renderThemeDetailLeaders({ documentRef, root, store, themeId = null }) 
   });
   if (!cards.childElementCount) {
     const empty = documentRef.createElement('div');
-    empty.textContent = '대장주 구성 데이터가 없습니다.';
+    empty.textContent = '대표 종목 구성 데이터가 없습니다.';
     empty.style.cssText = 'font-size:11px;color:var(--text-muted);';
     cards.appendChild(empty);
   }
@@ -1326,8 +1332,8 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           deepLinkHint.className = 'theme-detail-deep-link-hint';
           deepLinkHint.style.cssText = 'font-size:12px;color:var(--text-muted);margin:0;';
           deepLinkHint.textContent = deepLinkId
-            ? '주소의 테마 상세를 열지 못하면 위 섹터 카드나 하위 테마 순위에서 같은 테마를 골라 주세요.'
-            : '테마 상세 — 주소에 테마가 지정되지 않았습니다. 위 섹터 카드나 하위 테마 순위에서 테마를 고르면 여기에 상세가 열립니다.';
+            ? '주소의 테마 상세를 열지 못하면 위 섹터 카드나 세부 테마 순위에서 같은 테마를 골라 주세요.'
+            : '테마 상세 — 주소에 테마가 지정되지 않았습니다. 위 섹터 카드나 세부 테마 순위에서 테마를 고르면 여기에 상세가 열립니다.';
           detailPanel.appendChild(deepLinkHint);
           detailPanel.style.display = 'block';
           bag.add(() => deepLinkHint?.remove?.());

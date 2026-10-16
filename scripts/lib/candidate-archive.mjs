@@ -18,6 +18,7 @@ import { MODEL_DEFAULT_WEIGHTS } from '../../src/domain/screener/factor-weights.
 import { buildRankingIdentity } from '../../src/domain/screener/model-fingerprint.js';
 import { marketOfSymbol } from '../../src/domain/market/session-time.js';
 import { summarizeCandidateArchive } from '../../src/domain/screener/candidate-record.js';
+import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../../src/domain/fundamental/period.js';
 
 export const CANDIDATE_ARCHIVE_SCHEMA = 'screener-candidate-archive.v1';
 export const CANDIDATE_FWD_SESSIONS = 21;
@@ -53,7 +54,7 @@ export async function rankPublishedScreener({ root, now }) {
   const valuation = new Map((current.rows || []).map((row) => [row.sym, { price: row._valuationPrice, shares: row._valuationSharesOutstanding }]));
   const shadowRanking = computeFactorRanks({
     ...common,
-    rows: calculationRows.map((row) => ({ ...row, ...signedYields(row.sym, valuation.get(row.sym), fiscal) })),
+    rows: calculationRows.map((row) => ({ ...row, ...signedYields(row.sym, valuation.get(row.sym), fiscal, now) })),
     weights: CANDIDATE_SHADOW_MODEL.weights,
     weightsPolicy: 'explicit',
     momentumDefinition: CANDIDATE_SHADOW_MODEL.momentumDefinition,
@@ -72,17 +73,20 @@ export const CANDIDATE_SHADOW_MODEL = Object.freeze({
 });
 
 // TTM net income (last four reported/derived quarters) and the latest fiscal-year equity over close × SEC shares.
-// A loss gives a negative yield; a missing input stays missing (nothing is estimated).
-export function signedYields(sym, valuation, fiscal) {
+// A loss gives a negative yield; a missing input stays missing (nothing is estimated). v57.88 (review): quarters or a
+// fiscal year that ended more than FUNDAMENTAL_MAX_PERIOD_AGE_DAYS before `now` (a filer that stopped reporting) stay missing.
+export function signedYields(sym, valuation, fiscal, now = null) {
   const price = Number(valuation?.price);
   const shares = Number(valuation?.shares);
   const marketValueM = price > 0 && shares > 0 ? price * shares / 1e6 : null;
   if (!marketValueM || !fiscal) return { earningsYieldTtm: null, bookYield: null };
   const quarters = String(fiscal.quarters?.[sym] || '').split(';').filter(Boolean).map((part) => part.split(':'));
-  const lastFour = quarters.slice(-4).map((part) => Number(part[2]));
+  const nowMs = Number.isFinite(Number(now)) && now != null ? Number(now) : null;
+  const fresh = (end) => nowMs == null || (Date.parse(`${end}T00:00:00Z`) >= nowMs - FUNDAMENTAL_MAX_PERIOD_AGE_DAYS * 86400000);
+  const lastFour = quarters.length && fresh(quarters.at(-1)[0]) ? quarters.slice(-4).map((part) => Number(part[2])) : [];
   const ttm = lastFour.length === 4 && lastFour.every(Number.isFinite) ? lastFour.reduce((sum, value) => sum + value, 0) : null;
   const annual = String(fiscal.data?.[sym] || '').split(';').filter(Boolean).map((part) => part.split(':')).pop();
-  const equity = annual && annual[3] !== '' ? Number(annual[3]) : null;
+  const equity = annual && annual[3] !== '' && fresh(annual[0]) ? Number(annual[3]) : null;
   return {
     earningsYieldTtm: ttm == null ? null : round(ttm / marketValueM, 6),
     bookYield: Number.isFinite(equity) ? round(equity / marketValueM, 6) : null

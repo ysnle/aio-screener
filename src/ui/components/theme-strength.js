@@ -12,7 +12,7 @@ import { shortDate } from '../../domain/content/date-labels.js';
 
 const SESSIONS = Object.freeze({ ret1m: 21, ret3m: 63, ret6m: 126 });
 // Audit 19: rank movement words, kept apart from the playbook's stage words (주도·조정·반등·약세).
-const DIRECTION = Object.freeze({ improving: ['순위 상승', 'favorable'], steady: ['순위 유지', 'neutral'], weakening: ['순위 하락', 'burden'] });
+const DIRECTION = Object.freeze({ improving: ['최근 강해짐', 'favorable'], steady: ['큰 변화 없음', 'neutral'], weakening: ['최근 식음', 'burden'] });
 
 const pct = (value, digits = 1) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(digits)}%`);
 
@@ -55,7 +55,7 @@ export function basisOf(rows, metadata = null, history = []) {
 function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggle, onCompare) {
   host.replaceChildren();
   const head = el(doc, 'div', null, 'theme-strength-head');
-  head.append(el(doc, 'h2', '미국 하위 테마 상대강도 순위', 'briefing-h2'));
+  head.append(el(doc, 'h2', '미국 세부 테마 상대강도 순위', 'briefing-h2'));
   const controls = el(doc, 'div', null, 'theme-strength-controls');
   for (const [key, label] of Object.entries(GROUP_WINDOWS)) {
     const button = el(doc, 'button', label, `theme-strength-tab${model.sortKey === key ? ' is-active' : ''}`);
@@ -71,7 +71,7 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   // reading is held — the same admission the US screener applies when it holds its ranks.
   const lead = basis?.stale ? '최신 거래일 종가가 아직 반영되지 않아 지금의 주도·개선 판단은 보류합니다. 아래 순위와 방향은 기준일 시점의 참고 값입니다.' : themeStrengthLead(model);
   if (lead) host.append(sectionLead(doc, lead));
-  host.append(el(doc, 'p', `${basis ? basis.label : '스크리너 수익률 수신 대기'} · 구성 종목 ${model.windowLabel} 수익률의 중앙값으로 순위 · S&P 500 ${model.windowLabel} ${pct(model.benchmark)} · 1주 = 최근 5거래일 · 순위 변화는 1개월 순위와 3개월 순위 비교(1개월 순위가 크게 앞서면 순위 상승)`, 'theme-strength-basis'));
+  host.append(el(doc, 'p', `${basis ? basis.label : '스크리너 수익률 수신 대기'} · 구성 종목 ${model.windowLabel} 수익률의 중앙값으로 순위 · S&P 500 ${model.windowLabel} ${pct(model.benchmark)} · 1주 = 최근 5거래일 · 순위 변화: 1개월 순위가 3개월 순위보다 크게 오르면 '최근 강해짐', 크게 밀리면 '최근 식음'`, 'theme-strength-basis'));
   if (!model.groups.length) { host.append(el(doc, 'p', '스크리너 수익률이 들어오면 순위가 표시됩니다.', 'briefing-empty')); return; }
   const table = el(doc, 'table', null, 'theme-strength-table');
   const thead = el(doc, 'thead');
@@ -79,7 +79,8 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   // v57.55 review (S2/E3): without the S&P 500 return every 'S&P 대비' cell was '—'; the column is left out until it has values.
   const showVs = model.groups.some((group) => Number.isFinite(group.vsBenchmark));
   // v57.81 (audit): the 1주 column (5-session median) sits beside the month so a rank gain during a sharp week shows.
-  ['순위', '하위 테마', '1주', '1개월', '3개월', '6개월', ...(showVs ? ['S&P 대비'] : []), '50일선 위', '순위 변화(1개월 vs 3개월)', '구성 종목 전체'].forEach((label) => hr.append(el(doc, 'th', label)));
+  const labels = ['순위', '세부 테마', '1주', '1개월', '3개월', '6개월', ...(showVs ? ['S&P 대비'] : []), '50일선 위', '순위 변화(3개월→1개월)', '구성 종목 전체'];
+  labels.forEach((label) => hr.append(el(doc, 'th', label)));
   thead.append(hr);
   const tbody = el(doc, 'tbody');
   const visible = expanded ? model.groups : model.groups.slice(0, 15);
@@ -104,7 +105,7 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     if (group.recent?.broken) { week.title = '평소 1주 움직임의 2배를 넘는 하락'; week.dataset.recentBreak = 'true'; }
     tr.append(week);
     for (const key of ['ret1m', 'ret3m', 'ret6m']) tr.append(el(doc, 'td', pct(group[key]), `is-num${key === model.sortKey ? ' is-sorted' : ''}${group[key] >= 0 ? ' is-up' : ' is-down'}`));
-    if (showVs) tr.append(el(doc, 'td', pct(group.vsBenchmark), `is-num${group.vsBenchmark >= 0 ? ' is-up' : ' is-down'}`));
+    if (showVs) tr.append(el(doc, 'td', group.vsBenchmark == null ? '—' : `${pct(group.vsBenchmark)}p`, `is-num${group.vsBenchmark >= 0 ? ' is-up' : ' is-down'}`));
     tr.append(el(doc, 'td', group.above50Pct == null ? '—' : `${group.above50Pct}%`, 'is-num'));
     const dir = DIRECTION[group.direction];
     const dirCell = el(doc, 'td');
@@ -121,6 +122,8 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     }
     leaderCell.append(constituents);
     tr.append(leaderCell);
+    // v57.91 (phone audit): under 600px each row becomes a card (responsive.css); every value carries its column name.
+    [...tr.children].forEach((cell, index) => { if (labels[index]) cell.dataset.label = labels[index].replace('(3개월→1개월)', ''); });
     tbody.append(tr);
     if (root._aioThemeMemberGroup === group.id) {
       const detailRow = el(doc, 'tr'), detailCell = el(doc, 'td'); detailCell.colSpan = showVs ? 10 : 9; detailCell.className = 'theme-member-detail'; detailRow.id = `theme-members-${visible.indexOf(group)}`;
@@ -153,7 +156,7 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   // v57.79 (375 review): the 6개월 column was cut at the screen edge with nothing saying the table scrolls. A shaded edge
   // appears on whichever side has more columns, and the region is a keyboard stop with its own name.
   scroll.setAttribute('role', 'region');
-  scroll.setAttribute('aria-label', '하위 테마 상대강도 순위 표, 가로 스크롤');
+  scroll.setAttribute('aria-label', '세부 테마 상대강도 순위 표, 가로 스크롤');
   scroll.tabIndex = 0;
   const frame = el(doc, 'div', null, 'theme-strength-scroll');
   frame.append(scroll);
@@ -167,9 +170,9 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     more.addEventListener('click', onToggle);
     footer.append(more);
   }
-  if (model.excluded.length) footer.append(el(doc, 'span', `수익률이 있는 구성 종목이 3개 미만인 ${model.excluded.length}개 하위 테마는 순위에서 제외`, 'theme-strength-theme'));
+  if (model.excluded.length) footer.append(el(doc, 'span', `수익률이 있는 구성 종목이 3개 미만인 ${model.excluded.length}개 세부 테마는 순위에서 제외`, 'theme-strength-theme'));
   const reference = model.groups.filter((group) => group.smallSample).length;
-  if (reference) footer.append(el(doc, 'span', ` · 3종목 하위 테마 ${reference}개는 중앙값이 한 종목에 크게 흔들려 순위 없이 '참고'로 표시`, 'theme-strength-theme'));
+  if (reference) footer.append(el(doc, 'span', ` · 3종목 세부 테마 ${reference}개는 중앙값이 한 종목에 크게 흔들려 순위 없이 '참고'로 표시`, 'theme-strength-theme'));
   host.append(footer);
   if (model.excluded.length) {
     const excluded = el(doc, 'details', null, 'theme-strength-unranked');
@@ -202,7 +205,7 @@ function renderCapexFlow(doc, root, host, model) {
   // Expert review M20: the provider names sit in the hover title (and the page's folded 데이터 출처), the body keeps the date.
   // v57.79: the split is a published, dated research estimate (see ai-capex-flow.js `source`), so it is labelled as a
   // cited reference with its date — never as an AIO estimate.
-  const basisLine = el(doc, 'p', `${AI_CAPEX_FLOW.asOf} 공개 리서치 인용 배분 · 참고 자료(현재 신호 아님) · 각 층의 관련 테마 수익률은 위 순위와 같은 ${model.windowLabel} 기준 · 테마 값은 하위 테마 중앙값의 중앙값(테마 시나리오와 같은 방식)`, 'theme-strength-basis');
+  const basisLine = el(doc, 'p', `${AI_CAPEX_FLOW.asOf} 공개 리서치 인용 배분 · 참고 자료(현재 신호 아님) · 각 층의 관련 테마 수익률은 위 순위와 같은 ${model.windowLabel} 기준 · 테마 값은 세부 테마 중앙값의 중앙값(테마 시나리오와 같은 방식)`, 'theme-strength-basis');
   basisLine.title = `출처: ${AI_CAPEX_FLOW.source}`;
   host.append(basisLine);
   const bar = el(doc, 'div', null, 'capex-flow-bar');
@@ -242,7 +245,7 @@ function renderCapexFlow(doc, root, host, model) {
       const subs = themeGroupValues(model, themeId);
       const button = el(doc, 'button', `${theme.name} ${subs.value == null ? '비교 보류' : pct(subs.value)}`, 'capex-flow-theme');
       button.type = 'button';
-      button.title = subs.value == null ? '같은 종가 기준일의 하위 테마 중앙값이 없어 비교를 보류합니다' : `하위 테마 ${subs.count}개의 대표값(중앙값) (테마 시나리오 카드와 같은 방식)`;
+      button.title = subs.value == null ? '같은 종가 기준일의 세부 테마 중앙값이 없어 비교를 보류합니다' : `세부 테마 ${subs.count}개의 대표값(중앙값) (테마 시나리오 카드와 같은 방식)`;
       button.addEventListener('click', () => { if (typeof root?.showThemeDetail === 'function') root.showThemeDetail(themeId); });
       links.append(button);
     }

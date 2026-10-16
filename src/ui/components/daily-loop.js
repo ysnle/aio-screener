@@ -76,7 +76,7 @@ function renderChanges(doc, host, history, root) {
   }
   // P1725: two completed US closes here; a "지금" line is a live/delayed quote measured from the tile's last close (v57.86), so
   // the same asset can still carry opposite signs on the two lines (WTI +2.06% close to close, -1.92% now). The note says which.
-  note.textContent = `미국 종가 ${shortDate(model.prevDate)} → ${shortDate(model.date)}${gap ? ` · ${model.missing.map(shortDate).join('·')} 기록 없음` : ''}${liveShown ? ' · 지금 줄은 그 뒤 실시간·지연 시세' : ''}`;
+  note.textContent = `미국 종가 ${shortDate(model.prevDate)} → ${shortDate(model.date)}${gap ? ` · ${model.missing.map(shortDate).join('·')} 기록 없음` : ''}${liveShown ? ' · "지금" 표시는 그 뒤 실시간·지연 시세' : ''}`;
   host.append(grid);
   syncLiveStrip(doc, new Set(model.moves.map((move) => move.key)));
   // P1724: measures left out are named on one line with why (no previous close, or the latest close is older).

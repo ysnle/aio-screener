@@ -123,7 +123,7 @@ function guideRuleRowsRaw(R) {
   return [
     ['시장 상태', '추세 (S&P 500)', `오르는 ${R.trend.maShort}일선보다 ${R.trend.bufferPct}% 이상 위 · ${R.trend.maShort}일선 > ${R.trend.maLong}일선 (±${R.trend.bufferPct}% 안은 중립)`, `${R.trend.maLong}일선 아래 또는 하락하는 ${R.trend.maShort}일선 아래`, '이동평균 추세'],
     ['시장 상태', `시장 폭 (${R.trend.maShort}·${R.trend.maLong}일선 위 종목 비율)`, `둘 다 ${R.breadth.broadAtLeast}% 이상`, `하나라도 ${R.breadth.weakBelow}% 미만`, '참여 폭'],
-    ['시장 상태', '변동성 (VIX · VIX/3개월)', `VIX ${R.volatility.calmBelow} 미만 · 비율 ${R.volatility.calmRatioBelow} 미만`, `VIX ${R.volatility.stressAt} 이상 · 비율 ${R.volatility.invertedRatioAt} 이상 · 5일 +${R.volatility.spike5dPct}%`, '기간 구조 역전'],
+    ['시장 상태', '변동성 (VIX · VIX÷3개월 VIX)', `VIX ${R.volatility.calmBelow} 미만 · 비율 ${R.volatility.calmRatioBelow} 미만`, `VIX ${R.volatility.stressAt} 이상 · 비율 ${R.volatility.invertedRatioAt} 이상 · 5일 +${R.volatility.spike5dPct}%`, '기간 구조 역전'],
     ['시장 상태 · 금리', '10년물 20일 변화', `−${R.rates.move20dBp}bp 이하`, `+${R.rates.move20dBp}bp 이상 · 1년 범위 ${R.rates.rangeHighAt * 100}% 위에서 상승`, '할인율'],
     ['시장 상태 · 신용', '하이일드 스프레드 (ICE BofA)', `${R.credit.tightBelowBp}bp 미만 · 5일 축소`, `${R.credit.stressAtBp}bp 이상 · 5일 +${R.credit.widen5dBp}bp`, '신용 스트레스'],
     ['시장 상태', '유가 · 달러 (20일)', `WTI ${R.oil.fall20dPct}% 이하 · 달러 하락`, `WTI +${R.oil.rise20dPct}% · 1년 범위 ${R.oil.rangeHighAt * 100}% · 달러 +${R.dollar.rise20dPct}%`, '물가·금융 여건'],
@@ -131,7 +131,7 @@ function guideRuleRowsRaw(R) {
     ['거시 · 성장', 'Sahm 지표 · 일자리 3개월 평균', `Sahm ${R.growth.sahmWatchAt}%p 미만 · ${R.growth.payrollSolidK / 10}만 명 이상`, `Sahm ${R.growth.sahmRecessionAt}%p 이상 · 3개월 평균 감소`, 'Sahm (2019)'],
     ['거시 · 물가', '근원 PCE (전년 대비 · 3개월 속도)', `${R.inflation.nearTargetPct}% 이하 · 속도 둔화`, `${R.inflation.missPct}% 이상 · 속도 +${R.inflation.reaccelPp}%p 재가속`, `FOMC 목표 ${R.inflation.targetPct}%`],
     ['거시 · 정책', '2년물 − 기준금리 · 실질 기준금리', `−${R.policy.pricedMovePp}%p 이하`, `+${R.policy.pricedMovePp}%p 이상 · 실질 ${R.policy.restrictiveRealPct}% 이상`, 'FOMC 장기 금리 전망'],
-    ['투자 심리', 'CNN 공포·탐욕', '—', '—', `극단 공포 <${R.fearGreed.extremeFearBelow} · 공포 <${R.fearGreed.fearBelow} · 탐욕 >${R.fearGreed.greedAbove} · 극단 탐욕 >${R.fearGreed.extremeGreedAbove}`]
+    ['투자 심리', 'CNN 공포·탐욕 (참고 지표)', '판정에 넣지 않음', '판정에 넣지 않음', `참고 구간: 극단 공포 <${R.fearGreed.extremeFearBelow} · 공포 <${R.fearGreed.fearBelow} · 탐욕 >${R.fearGreed.greedAbove} · 극단 탐욕 >${R.fearGreed.extremeGreedAbove}`]
   ];
 }
 

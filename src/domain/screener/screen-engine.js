@@ -319,7 +319,7 @@ const preset = (screenId, name, objective, filtersAST, requiredFields, ranking =
 
 export function createDefaultScreenDefinitions() {
   return Object.freeze([
-    preset('preset-balanced', '균형 상대 랭킹', 'balanced-research', { type: 'range', field: 'rank', min: 60, nullPolicy: 'unknown' }, ['price.ret3m', 'price.pctSma200', 'price.rsi14']),
+    preset('preset-balanced', '균형 상대 순위', 'balanced-research', { type: 'range', field: 'rank', min: 60, nullPolicy: 'unknown' }, ['price.ret3m', 'price.pctSma200', 'price.rsi14']),
     // v57.84 review: the presets were the composite rank filtered four ways (모멘텀 지속 274/274 inside 균형). Each now sorts by
     // its own signal, uses thresholds that select (분포 기준), and 돌파 관찰 needs an actual breakout/near-pivot stage.
     preset('preset-momentum', '모멘텀 지속', 'momentum-research', { type: 'and', children: [{ type: 'range', field: 'price.ret3m', min: 0, nullPolicy: 'unknown' }, { type: 'range', field: 'rank', min: 60, nullPolicy: 'unknown' }] }, ['price.ret1m', 'price.ret3m', 'technical.kalmanVelocity'], { field: 'price.ret3m', direction: 'desc' }),

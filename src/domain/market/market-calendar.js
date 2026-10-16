@@ -167,11 +167,16 @@ export function latestCompletedKrSession(now = Date.now()) {
   return null;
 }
 
+// v57.91 (performance audit): the Date round trip here was 0.8s of a phone home render; a calendar check on the digits
+// accepts and rejects the same strings (month 01-12, a day that exists in that month, leap years included).
+const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 export function dateOnly(value) {
   const text = String(value || '').slice(0, 10);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return null;
-  const parsed = new Date(`${text}T00:00:00.000Z`);
-  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === text ? text : null;
+  const year = +text.slice(0, 4), month = +text.slice(5, 7), day = +text.slice(8, 10);
+  if (month < 1 || month > 12 || day < 1) return null;
+  const leap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  return day <= (month === 2 && leap ? 29 : MONTH_DAYS[month - 1]) ? text : null;
 }
 
 export function dateInTimezone(ms, timezone) {
@@ -249,6 +254,74 @@ export function openSessionDatesBetween(fromDate, toDate, { market = 'US', inclu
   return out;
 }
 
+// v57.91 (performance audit): sessionPointBack asks this for every earlier point of a series, so the walk above ran
+// thousands of times per render (5s of a phone home render; the 5,000-entry memo kept clearing). The count is now a
+// difference of session ordinals — open days up to a date, tallied once per year — over the same span the walk covers
+// (after fromDate through toDate, at most maxDays = 800 calendar days), with the same rule for unregistered years.
+const DAY_MS = 86400000;
+const ORDINAL_YEARS = { NYSE: new Map(), KRX: new Map() };
+function ordinalYear(calendarKey, year) {
+  const cache = ORDINAL_YEARS[calendarKey];
+  let table = cache.get(year);
+  if (table) return table;
+  const start = Date.UTC(year, 0, 1, 12);
+  const days = Math.round((Date.UTC(year + 1, 0, 1, 12) - start) / DAY_MS);
+  const registered = MARKET_CALENDAR_REGISTRY[calendarKey][String(year)];
+  const holidays = registered ? new Set(registered.holidays) : null;
+  const cumulative = new Int32Array(days);
+  let running = 0;
+  for (let index = 0; index < days; index += 1) {
+    const ms = start + index * DAY_MS;
+    const weekday = new Date(ms).getUTCDay();
+    if (weekday !== 0 && weekday !== 6 && !(holidays && holidays.has(new Date(ms).toISOString().slice(0, 10)))) running += 1;
+    cumulative[index] = running;
+  }
+  table = { start, cumulative, total: running };
+  cache.set(year, table);
+  return table;
+}
+const ORDINAL_BASE = { NYSE: new Map(), KRX: new Map() };
+function yearBase(calendarKey, year) {
+  // Open days in the years before `year`, counted from 1970.
+  const cache = ORDINAL_BASE[calendarKey];
+  if (cache.has(year)) return cache.get(year);
+  let y = year;
+  while (y > 1970 && !cache.has(y)) y -= 1;
+  let base = y <= 1970 ? 0 : cache.get(y);
+  if (y <= 1970) { y = 1970; cache.set(1970, 0); }
+  for (; y < year; y += 1) { base += ordinalYear(calendarKey, y).total; cache.set(y + 1, base); }
+  return base;
+}
+function sessionOrdinal(calendarKey, ms) {
+  const year = new Date(ms).getUTCFullYear();
+  const table = ordinalYear(calendarKey, year);
+  return yearBase(calendarKey, year) + table.cumulative[Math.round((ms - table.start) / DAY_MS)];
+}
+// The same few hundred date strings arrive millions of times, so each string's day (ms) and ordinal is kept once.
+const DATE_POINTS = { NYSE: new Map(), KRX: new Map() };
+function datePoint(calendarKey, value) {
+  const cache = DATE_POINTS[calendarKey];
+  let point = cache.get(value);
+  if (point !== undefined) return point;
+  const day = dateOnly(value);
+  const ms = day ? Date.parse(`${day}T12:00:00Z`) : NaN;
+  const year = Number.isFinite(ms) ? new Date(ms).getUTCFullYear() : NaN;
+  point = day ? { day, ms, ordinal: year >= 1970 && year <= 2200 ? sessionOrdinal(calendarKey, ms) : null } : null;
+  if (cache.size >= 20000) cache.clear();
+  cache.set(value, point);
+  return point;
+}
 export function countOpenSessionsBetween(fromDate, toDate, market = 'US') {
-  return openSessionDatesBetween(fromDate, toDate, { market, includeEnd: true, unknownYear: 'weekday' }).length;
+  const marketKey = String(market).toUpperCase();
+  const calendarKey = marketKey === 'KR' || marketKey === 'KRX' ? 'KRX' : 'NYSE';
+  const from = datePoint(calendarKey, typeof fromDate === 'string' ? fromDate : String(fromDate || ''));
+  const to = datePoint(calendarKey, typeof toDate === 'string' ? toDate : String(toDate || ''));
+  if (!from || !to || to.day <= from.day) return 0;
+  if (from.ordinal == null || to.ordinal == null) {
+    return openSessionDatesBetween(fromDate, toDate, { market, includeEnd: true, unknownYear: 'weekday' }).length;
+  }
+  const capMs = from.ms + 800 * DAY_MS;
+  if (to.ms <= capMs) return to.ordinal - from.ordinal;
+  if (new Date(capMs).getUTCFullYear() > 2200) return openSessionDatesBetween(fromDate, toDate, { market, includeEnd: true, unknownYear: 'weekday' }).length;
+  return sessionOrdinal(calendarKey, capMs) - from.ordinal;
 }

@@ -357,7 +357,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
   const total = finiteNumber(score?.total ?? score?.score);
   const missing = Array.isArray(score?.componentMissing) ? score.componentMissing.slice() : [];
   const components = deriveTradingScoreComponents(score);
-  const optionalLabels = { vvix: 'VVIX', pcr: 'Put/Call', hyBp: 'HY 스프레드', oilPrice: 'WTI' };
+  const optionalLabels = { vvix: 'VVIX', pcr: 'Put/Call', hyBp: '하이일드 스프레드', oilPrice: 'WTI' };
   const optionalMissing = Array.isArray(score.missingOptionalInputs) ? score.missingOptionalInputs : [];
   const optionalText = optionalMissing.length ? ` 보조 입력 미수신: ${optionalMissing.map(key => optionalLabels[key] || key).join(' · ')}.` : '';
   // P1118: the published total is not the weighted component sum — post-composite

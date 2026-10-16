@@ -50,13 +50,15 @@ for (const row of BUDGETS) {
   if (share > 1) failures.push(line);
   else if (share >= 0.9) warnings.push(line);
 }
-// GitHub warns on pushed files over 50 MB and rejects files over 100 MB. The data bot commits the 13F
-// manager ledgers (largest ~58 MiB on 2026-10-10), so a rejected push would silently halt every refresh.
+// GitHub warns on pushed files over 50 MB and rejects files over 100 MB. v57.89: the data bots stop a main commit
+// above 50 MB (refresh-data / refresh-screener staged-file gates), and the 13F manager ledgers are split at 32 MiB
+// (scripts/lib/masters-manager-store.mjs), so main-committed files fail here at the same 50 MB and warn from 40 MiB.
 // The SEC ledger is not committed to main: it is force-pushed to the data-store branch. v57.90 stores it there as
 // parts of at most 32 MiB (scripts/lib/sec-ledger-store.mjs), so GitHub's 100 MB per-file rejection no longer binds the
 // whole file. The next wall is the single-string read every consumer does (readFileSync utf8 + JSON.parse; V8 caps a
 // string near 512 MiB), so the local ledger warns from 256 MiB and stops at 400 MiB.
 const MiB = 1024 * 1024;
+const MAIN_COMMIT_LIMIT_BYTES = 52_428_800;
 const walk = (rel) => readdirSync(join(root, rel), { withFileTypes: true }).flatMap((entry) => {
   const child = `${rel}/${entry.name}`;
   return entry.isDirectory() ? walk(child) : [{ rel: child, bytes: statSync(join(root, child)).size }];
@@ -70,9 +72,9 @@ for (const file of publicFiles) {
     else if (file.bytes >= 256 * MiB) warnings.push(line);
     continue;
   }
-  const line = `${file.rel}: ${(file.bytes / MiB).toFixed(1)} MiB (GitHub push limit 100 MB)`;
-  if (file.bytes >= 90 * MiB) failures.push(line);
-  else if (file.bytes >= 50 * MiB) warnings.push(line);
+  const line = `${file.rel}: ${(file.bytes / MiB).toFixed(1)} MiB (main data commits stop above 50 MB)`;
+  if (file.bytes > MAIN_COMMIT_LIMIT_BYTES) failures.push(line);
+  else if (file.bytes >= 40 * MiB) warnings.push(line);
 }
 for (const line of warnings) console.log(`::warning::artifact size near budget — ${line}`);
 if (failures.length) {

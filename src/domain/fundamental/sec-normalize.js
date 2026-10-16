@@ -580,7 +580,8 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     equity: basis.currency === 'USD' && Number.isFinite(equity) ? equity : null,
     // P1582: declare which equity concept fed ROE/P-B. The NCI-inclusive fallback does not match the
     // parent-only NetIncomeLoss numerator, so consumers can see when the ratio mixes bases.
-    equityBasis: !Number.isFinite(equity) ? null : currentEquity?.concept === 'StockholdersEquity' ? 'parent' : 'including-noncontrolling-interest',
+    // v57.88 (review): the IFRS parent-only concept is 'parent' too — it read as NCI-inclusive.
+    equityBasis: !Number.isFinite(equity) ? null : ['StockholdersEquity', 'EquityAttributableToOwnersOfParent'].includes(currentEquity?.concept) ? 'parent' : 'including-noncontrolling-interest',
     sharesOutstanding: Number.isFinite(sharesOutstanding) ? sharesOutstanding : null,
     // P1587 + F03/F04: consistent | scale-mismatch (withheld) | unchecked | stale-period / unreported (no count
     // within 400 days of the fiscal year end — withheld, P/E·P/B·reference market cap stay empty)

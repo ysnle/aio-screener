@@ -4574,7 +4574,7 @@
     // T255: 매크로 헤더 다음 공식 발표 표시
     if (window.AIO && window.AIO.renderMacroNextRelease) window.AIO.renderMacroNextRelease();
     var macroNextEl = document.getElementById('macro-next-release');
-    var hasNextRelease = macroNextEl ? /다음 주요 발표:.*\d{4}-\d{2}-\d{2}/.test(macroNextEl.textContent || '') : false;
+    var hasNextRelease = macroNextEl ? /다음 주요 발표:.*(?:\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\([일월화수목금토]\))/.test(macroNextEl.textContent || '') : false;
     _assert('T255 fred_chart_next_release: 다음 갱신 NFP 표기',
       hasNextRelease, macroNextEl ? macroNextEl.textContent : 'not found');
 

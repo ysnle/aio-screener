@@ -84,6 +84,9 @@ if (!shadow || shadow.model !== CANDIDATE_SHADOW_MODEL.id || !shadow.identity.st
   || shadowRanking.factorDefinitions?.momentum !== 'six-minus-one' || shadowRanking.factorDefinitions?.value !== 'signed-yields') fail('shadow ranking/record missing or not the candidate model');
 const loss = signedYields('X', { price: 10, shares: 1e6 }, { quarters: { X: '2025-03-31:1:-1:r;2025-06-30:1:-1:r;2025-09-30:1:-1:r;2025-12-31:1:-1:d' }, data: { X: '2025-12-31:4:-4:5::::1' } });
 if (loss.earningsYieldTtm !== -0.4 || loss.bookYield !== 0.5) fail(`signed yields must keep a loss negative: ${JSON.stringify(loss)}`);
+// v57.88 (review): a filer whose last quarter / fiscal year ended years ago has no current yield.
+const staleYields = signedYields('X', { price: 10, shares: 1e6 }, { quarters: { X: '2025-03-31:1:-1:r;2025-06-30:1:-1:r;2025-09-30:1:-1:r;2025-12-31:1:-1:d' }, data: { X: '2025-12-31:4:-4:5::::1' } }, Date.parse('2028-06-01T00:00:00Z'));
+if (staleYields.earningsYieldTtm !== null || staleYields.bookYield !== null) fail(`signed yields must drop periods older than the fundamental age limit: ${JSON.stringify(staleYields)}`);
 const shadowArchive = emptyCandidateArchive();
 const shadowSeries = new Map([...new Set([...String(entry.universe || '').split(','), ...shadow.universe.split(',')].filter(Boolean))]
   .map((sym, i) => [sym, { dates: days.slice(0, 27), adjCloses: days.slice(0, 27).map((_, d) => 100 * (1 + (i % 5) / 100) ** d) }]));

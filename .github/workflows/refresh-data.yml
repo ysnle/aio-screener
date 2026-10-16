@@ -420,6 +420,10 @@ jobs:
           # GitHub warns at 50 MB and rejects a push containing a file over 100 MB. Fail before the commit,
           # naming the file. P1757: sec-fundamentals.json (~67 MB) no longer lives on main (data-store branch),
           # so no staged file is exempt.
+          # v57.89: the 13F manager row ledgers are written through scripts/lib/masters-manager-store.mjs, which splits any
+          # manager over 32 MiB into <id>.json + <id>.part-N.json (BlackRock 60.5 MB -> 31.9 + 25.8 MiB), so no producer
+          # writes a file near 50 MB by design; the v57.88 interim 95 MB ceiling is back to 50 MB, matching refresh-screener.
+          # The scheduled headroom check (ci-artifact-size-headroom-check.mjs) warns from 40 MiB, before this stop is reached.
           oversized=""
           while IFS= read -r -d '' staged; do
             [ -f "$staged" ] || continue

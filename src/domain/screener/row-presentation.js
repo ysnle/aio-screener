@@ -120,7 +120,7 @@ export function followThroughSummary(row = {}) {
   const hold = num(row.downDayHoldPct);
   if (hold != null) { parts.push(`하락일 버팀 ${hold}%`); details.push(`최근 60거래일 지수 하락일 ${num(row.downDayCount) ?? '?'}일 중 지수보다 덜 빠진 비율 ${hold}% · 평균 초과 ${num(row.downDayExcessPp) ?? '?'}%p`); }
   const heavy = num(row.heavyDownDays25);
-  if (heavy != null && heavy >= 5) { parts.push(`거래량 실린 하락 ${heavy}일`); details.push(`최근 25거래일 중 전일보다 거래량이 많은 0.2% 이상 하락 ${heavy}일`); }
+  if (heavy != null && heavy >= 5) { parts.push(`거래량 실린 하락 ${heavy}일`); details.push(`최근 25거래일 중 50일 평균보다 거래량이 많은 1% 이상 하락 ${heavy}일`); }
   const signs = Array.isArray(row.climaxSigns) ? row.climaxSigns.filter((sign) => CLIMAX_SIGN_LABELS[sign]) : [];
   if (signs.length) { parts.push(`클라이맥스 징후 ${signs.length}`); details.push(`긴 상승 뒤 징후: ${signs.map((sign) => CLIMAX_SIGN_LABELS[sign]).join(' · ')}`); }
   return { text: parts.length ? parts.join(' · ') : '—', title: details.join('\n'), climax: signs.length };

@@ -11,6 +11,7 @@
  */
 
 import { extensionMultiple } from '../technical/definitions.js';
+import { RULES } from '../rules/thresholds.js';
 
 const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 
@@ -39,8 +40,9 @@ export const CUSTOM_CONDITIONS = Object.freeze([
   // of fields already published (ADR floor, 50-day extension in ADR units). Conditions, not entry or exit rules.
   { id: 'adr-min', group: '패턴', label: '하루 평균 변동폭(ADR) {n}% 이상 (충분히 움직이는 종목)', value: 3, unit: '%', fields: ['adrPct'],
     test: ({ adrPct: a }, n) => a >= n },
-  { id: 'not-extended', group: '패턴', label: '50일선 거리 변동폭의 {n}배 이하 (확장 전)', value: 4, unit: '배', fields: ['pctSma50', 'adrPct'],
-    test: ({ pctSma50, adrPct }, n) => { const multiple = extensionMultiple(pctSma50, adrPct); return multiple != null && multiple <= n; } },
+  // v57.88 (review): a stock far below its 50-day line passed as "before extension"; the floor is the 부근 band.
+  { id: 'not-extended', group: '패턴', label: '50일선 부근~위 변동폭의 {n}배 이내 (확장 전)', value: 4, unit: '배', fields: ['pctSma50', 'adrPct'],
+    test: ({ pctSma50, adrPct }, n) => { const multiple = extensionMultiple(pctSma50, adrPct); return multiple != null && multiple >= -RULES.technical.nearLineAdr && multiple <= n; } },
   { id: 'pocket-pivot', group: '후속·회복', label: '최근 10거래일 안 포켓 피벗 (상승일 거래량이 직전 10일의 가장 큰 하락일 거래량보다 많음)', fields: ['pocketPivots10'],
     test: ({ pocketPivots10: a }) => a >= 1 },
   { id: 'early-base', group: '후속·회복', label: '초기 베이스 (추세가 다시 시작된 뒤 {n}번째 베이스 이하)', value: 2, unit: '번째', fields: ['baseCount'],
@@ -155,9 +157,11 @@ const PARSE_RULES = [
   [/(?:초기|첫|이른)\s*베이스/, () => ({ id: 'early-base', value: 2 })],
   [/(?:지수\s*)?하락일(?:에)?\s*(?:버틴|강한|덜\s*빠진)|덜\s*빠진|상대\s*회복력?/, () => ({ id: 'down-day-hold', value: 60 })],
   [/(?:클라이맥스|과열\s*징후)\s*(?:없는|없음|제외)/, () => ({ id: 'no-climax' })],
+  // v57.88 (review): the numeric form first — otherwise the rvol rule below took "거래량 실린" and inverted the request.
+  [new RegExp(`(?:거래량\\s*실린\\s*)?하락일\\s*${NUM}\\s*일\\s*(?:이하|미만|까지)`), (m) => ({ id: 'few-heavy-down', value: +m[1] })],
   [/(?:거래량\s*실린\s*)?하락일\s*(?:적은|적게)/, () => ({ id: 'few-heavy-down', value: 4 })],
-  [/확장\s*(?:전|안\s*된|되지\s*않은)|50\s*일선\s*(?:근처|가까운)/, () => ({ id: 'not-extended', value: 4 })],
-  [new RegExp(`(?:adr|변동폭)\\s*${NUM}\\s*%?\\s*(?:이상|초과|넘는)`, 'i'), (m) => ({ id: 'adr-min', value: +m[1] })],
+  [/확장\s*(?:전(?![체부])|안\s*된|되지\s*않은)|50\s*일선\s*(?:근처|가까운)/, () => ({ id: 'not-extended', value: 4 })],
+  [new RegExp(`(?:adr|변동폭)\\s*${NUM}\\s*%?\\s*(?:이상|초과|넘는|넘게|보다\\s*큰)`, 'i'), (m) => ({ id: 'adr-min', value: +m[1] })],
   [new RegExp(`(?:forward|포워드|선행)\\s*per\\s*${NUM}\\s*배?\\s*(?:이하|미만|아래)?`, 'i'), (m) => ({ id: 'fwdpe-max', value: +m[1] })],
   [new RegExp(`per\\s*${NUM}\\s*배?\\s*(?:이하|미만|아래)?`, 'i'), (m) => ({ id: 'pe-max', value: +m[1] })],
   [/저\s*per|저평가/i, () => ({ id: 'pe-max', value: 15 })],
@@ -167,7 +171,7 @@ const PARSE_RULES = [
   [new RegExp(`(?:순?이익률|마진)\\s*${NUM}\\s*%?\\s*(?:이상|초과)?`), (m) => ({ id: 'margin-min', value: +m[1] })],
   [new RegExp(`거래대금\\s*\\$?${NUM}\\s*(?:백만|m)?\\s*(?:달러)?\\s*(?:이상)?`, 'i'), (m) => ({ id: 'liquidity-min', value: +m[1] })],
   [new RegExp(`거래량\\s*${NUM}\\s*배\\s*(?:이상)?`), (m) => ({ id: 'rvol', value: +m[1] })],
-  [/거래량\s*(?:급증|증가|실린|터진|많은)/, () => ({ id: 'rvol', value: 1.5 })],
+  [/거래량\s*(?:급증|증가|실린|터진|많은)(?!\s*하락)/, () => ({ id: 'rvol', value: 1.5 })],
   [new RegExp(`(?:adr|변동폭)\\s*${NUM}\\s*%?\\s*(?:이하|미만)?`, 'i'), (m) => ({ id: 'tight', value: +m[1] })],
   [/vcp\s*돌파|피벗\s*돌파/i, () => ({ id: 'vcp-breakout' })],
   [/vcp(?:\s*패턴)?|수렴|변동성\s*(?:축소|수축)/i, () => ({ id: 'vcp' })],

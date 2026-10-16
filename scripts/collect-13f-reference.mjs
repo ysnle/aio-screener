@@ -6,6 +6,7 @@ import { composeAmendmentChain } from './lib/13f-compose.mjs';
 import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
+import { writeManagerRows } from './lib/masters-manager-store.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const filingsPath = path.join(root, 'public-data', 'masters', 'filings.json');
@@ -350,8 +351,8 @@ for (const manager of verified) {
     holdings: fullRows,
     comparisons: comparisonRecords
   };
-  const shardPath = path.join(shardsDir, `${manager.id}.json`);
-  await writeAtomic(shardPath, shard);
+  // v57.89: rows over 32 MiB are written as <id>.json index + <id>.part-N.json (GitHub 50 MB warning).
+  await writeManagerRows(shardsDir, shard);
   shards[manager.id] = { url: `./public-data/masters/managers/${manager.id}.json`, fullRows: fullRows.length, comparisonRows: comparisonRecords.length, reportPeriod: filing.periodOfReport, accession: filing.accession };
   if (embeddedManagerIds.has(manager.id)) {
     allHoldings.push(...fullRows);

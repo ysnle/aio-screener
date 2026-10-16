@@ -57,7 +57,9 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
         // Codex browser audit H08: the 20-day verdict hid a 5-day recovery; both windows are named.
         : b50 < B.weakBelow ? `장기 추세 위 종목(${round(b200)}%)은 남아 있지만 중기 참여가 ${B.weakBelow}% 아래로 줄었습니다${bounce === 'holding' ? ` — 다만 최근 5거래일은 ${signed(b50d5, 1, '%p')} 회복해 중기 약화 속 단기 반등이 진행 중입니다`
           : bounce ? ` — 최근 5거래일 ${signed(b50d5, 1, '%p')} 반등 뒤 마지막 거래일 ${signed(b50d1, 1, '%p')} 되밀려, 반등이 이어지는지 확인할 단계입니다` : ' — 조정이 종목 전반으로 번지는 단계입니다'}`
-          : `중기와 장기 참여가 ${B.weakBelow}~${B.broadAtLeast}% 사이에서 엇갈립니다`;
+          // v57.91: 41% and 51% sit in the same band — "엇갈립니다" only when the two shares fall in different bands.
+          : b50 < B.broadAtLeast && b200 >= B.weakBelow && b200 < B.broadAtLeast ? `중기·장기 참여가 모두 ${B.weakBelow}~${B.broadAtLeast}% 중간 구간입니다`
+            : `중기(${round(b50)}%)와 장기(${round(b200)}%) 참여가 서로 다른 구간에 있어 엇갈립니다`;
     const shortTerm = b20 == null ? '' : b20 < b50 - 5 ? ` 20일선 위 비율(${round(b20)}%)이 더 낮아 단기 이탈이 아직 이어지는 중입니다.`
       : b20 > b50 + 5 ? ` 20일선 위 비율(${round(b20)}%)이 먼저 올라 단기 반등이 시작됐는지 확인할 구간입니다.` : ' 단기(20일선)와 중기 참여가 같은 흐름입니다.';
     // Audit 2026-10-14: the first sentence carries the direction, not only the level.
@@ -69,7 +71,7 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
     ? '신고가·신저가와 4% 급등락 기록이 아직 쌓이는 중이라 이 묶음은 판정 근거로 쓰지 않습니다 — 위 참여도가 주 근거입니다.'
     // T13 (expert review 2026-10-13): one day's count is an observation of today, not a trend ("넓어지는 쪽", "투매").
     : [hl == null ? null : hl > 0 ? `최근 마감일 기준 52주 신고가가 신저가보다 ${round(hl)}개 많습니다` : hl < 0 ? `최근 마감일 기준 52주 신저가가 신고가보다 ${round(-hl)}개 많습니다` : '최근 마감일 기준 신고가와 신저가가 같은 수입니다',
-      mv == null ? null : mv > 0 ? `최근 5일 4% 급등 종목이 급락보다 ${round(mv)}개 많아 상승 쪽이 우세합니다` : mv < 0 ? `최근 5일 4% 급락 종목이 급등보다 ${round(-mv)}개 많아 하락 쪽이 우세합니다` : '최근 5일 급등·급락 종목 수가 같습니다'
+      mv == null ? null : mv > 0 ? `최근 5일 동안 4% 넘게 급등한 종목이 급락 종목보다 ${round(mv)}개 많아 상승 쪽이 우세합니다` : mv < 0 ? `최근 5일 동안 4% 넘게 급락한 종목이 급등 종목보다 ${round(-mv)}개 많아 하락 쪽이 우세합니다` : '최근 5일 급등·급락 종목 수가 같습니다'
     ].filter(Boolean).join('. ') + '. 하루·5일 집계라 확산이나 이탈의 추세인지는 며칠 이어지는지로 확인합니다.';
 
   let index = 'S&P 500과 참여도를 같은 기간으로 비교할 기록이 부족합니다.';
@@ -81,7 +83,7 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
     const gap = spx20 > -2 && b50d20 <= -10 ? '지수보다 참여가 훨씬 빨리 줄어 괴리가 커졌습니다. 지수가 버티는 동안 소수 종목 의존이 깊어진 상태입니다'
       : spx20 < 0 && down ? '지수와 참여가 함께 약해지는 중입니다'
         // v57.69 (2026-10-15 audit): "healthy" sat beside six distribution days (84th percentile) on the same screen.
-        : spx20 > 0 && up ? (dd != null && dd >= RULES.leadership.distributionDaysAt ? `지수와 참여가 함께 넓어졌지만 분배일이 ${RULES.leadership.distributionDaysAt}회 이상이라 건강하다고 단정하지 않습니다` : '지수와 참여가 함께 넓어지는 건강한 흐름입니다')
+        : spx20 > 0 && up ? (dd != null && dd >= RULES.leadership.distributionDaysAt ? `지수는 오르고 참여도 늘었지만 분배일이 ${RULES.leadership.distributionDaysAt}회 이상이라 건강하다고 단정하지 않습니다` : '지수는 오르고 참여도 늘어나는 건강한 흐름입니다')
           : spx20 <= 0 && up ? '지수는 쉬지만 참여는 오히려 넓어져 바닥 다지기 쪽입니다'
             // P1591 (M05): index up / participation down but smaller than the -10%p gap rule.
             : spx20 > 0 && down ? '지수는 올랐지만 참여는 소폭 줄었습니다 — 아직 큰 괴리(10%p 이상 감소)는 아닙니다'
@@ -115,16 +117,16 @@ export function sentimentFlow({ model = null, regime = null } = {}) {
   const byId = Object.fromEntries((regime?.axes || []).map((row) => [row.id, row]));
   const cards = Object.fromEntries((model?.cards || []).map((card) => [card.id, card]));
   const links = [];
-  if (cards.hy?.value && cards.hy.value !== '—' && byId.credit) links.push(`HY 스프레드 ${cards.hy.value}는 시장 상태 '신용 · 위험선호' 축(${byId.credit.stateLabel})의 근거`);
-  if (cards.term?.value && cards.term.value !== '—' && byId.volatility) links.push(`VIX 단기 불안 비율 ${cards.term.value}는 '변동성' 축(${byId.volatility.stateLabel})의 근거`);
-  const bridge = links.length ? `${links.join(', ')}입니다. 공포·탐욕과 AAII는 6개 지표에 넣지 않는 참고 지표라, 가격에서 나온 심리가 자금 시장(신용·변동성)까지 번졌는지를 이 두 지표로 확인합니다.` : '';
+  if (cards.hy?.value && cards.hy.value !== '—' && byId.credit) links.push(`하이일드 스프레드 ${cards.hy.value}는 시장 상태 '신용 · 위험선호' 지표(${byId.credit.stateLabel})의 근거`);
+  if (cards.term?.value && cards.term.value !== '—' && byId.volatility) links.push(`VIX 단기 불안 비율 ${cards.term.value}는 '변동성' 지표(${byId.volatility.stateLabel})의 근거`);
+  const bridge = links.length ? `${links.join(', ')}입니다. 공포·탐욕과 AAII는 6개 지표에 넣지 않는 참고 지표라, 가격에서 나온 심리가 자금 시장까지 번졌는지를 신용·변동성 두 지표로 확인합니다.` : '';
   const next = [];
   const hyState = cards.hy?.state?.tone;
-  if (hyState === 'burden') next.push({ route: 'fxbond', label: '금리 · 환율', why: '신용 스프레드 확대가 실질금리·달러와 같은 방향인지' });
+  if (hyState === 'burden') next.push({ route: 'fxbond', label: '금리 · 환율', why: '하이일드 스프레드 확대가 실질금리·달러와 같은 방향인지' });
   if (byId.breadth?.state === 'burden') next.push({ route: 'breadth', label: '시장 폭', why: `심리와 별개로 참여 종목이 줄고 있는지(시장 폭 ${byId.breadth.stateLabel})` });
   next.push({ route: 'signal', label: '시장 상태', why: '공포·탐욕과 AAII를 넣지 않은 6개 지표(변동성·신용 포함)의 전체 판정' });
   // Audit 2026-10-14: mood is a reading of today; where it leads is decided by the next releases.
-  next.push({ route: 'macro', label: '거시 시나리오', why: '지금의 심리가 다음 발표가 가를 시나리오(신용 경색·변동성 충격 등) 가운데 어느 쪽과 같은 방향인지' });
+  next.push({ route: 'macro', label: '거시 시나리오', why: '지금의 심리가 다음 발표로 갈릴 시나리오(신용 경색·변동성 충격 등) 가운데 어느 쪽과 같은 방향인지' });
   return { bridge, next };
 }
 
@@ -156,10 +158,10 @@ export function regimeFlow({ regime = null, groups = {} } = {}) {
   const narrow = breadth?.state === 'burden' && breadth?.narrow;
   // v57.81: while the leadership break holds, the map link says the leaders are falling too and that RRG trails price.
   next.push(narrow && regime.leadershipBreak
-    ? { route: 'themes', label: 'S&P 500 지도 · 섹터', why: `주도 영역까지 밀리는 중 — 어느 종목·섹터가 지수를 끌어내렸는지(지도 타일 넓이 = 지수 비중)${leaders ? `. 상대강도(수 주 기준) ${leaders}는 몇 주 늦게 반영됩니다` : ''}` }
+    ? { route: 'themes', label: 'S&P 500 지도 · 섹터', why: `주도 영역까지 밀리는 중 — 어느 종목·섹터가 지수를 끌어내렸는지(지도 타일 넓이 = 지수 비중)${leaders ? `. 상대강도(약 50일 기준) ${leaders}는 몇 주 늦게 반영됩니다` : ''}` }
     : narrow
-    ? { route: 'themes', label: 'S&P 500 지도 · 섹터', why: `지수는 고점권인데 참여가 좁음 — 지수를 끌어올린 종목(지도 타일 넓이 = 지수 비중)${leaders ? `과 상대강도(수 주 기준) ${leaders}` : ''}` }
-    : { route: 'themes', label: '테마 · 섹터', why: leaders ? `섹터 회전의 상대강도(수 주 기준) ${leaders} — 6개 지표의 판정이 어느 업종에서 나타나는지` : '6개 지표의 판정이 어느 섹터·테마에서 나타나는지' });
+    ? { route: 'themes', label: 'S&P 500 지도 · 섹터', why: `지수는 고점권인데 참여가 좁음 — 지수를 끌어올린 종목(지도 타일 넓이 = 지수 비중)${leaders ? `과 상대강도(약 50일 기준) ${leaders}` : ''}` }
+    : { route: 'themes', label: '테마 · 섹터', why: leaders ? `섹터 회전의 상대강도(약 50일 기준) ${leaders} — 6개 지표의 판정이 어느 업종에서 나타나는지` : '6개 지표의 판정이 어느 섹터·테마에서 나타나는지' });
   return { next };
 }
 
@@ -171,7 +173,7 @@ const BRIEFING_ROUTES = Object.freeze({
   commodities: { route: 'macro', label: '거시 경제', why: '유가·금·달러 움직임이 물가와 금리 경로에 주는 압력' },
   risk: { route: 'sentiment', label: '투자 심리', why: '변동성·신용·공포 심리가 같은 쪽을 가리키는지' },
   // P1727: the Korea box continues to 시장 상태's 한국 시장 참고 board (코스피·코스닥·원화·한국 표본 참여도), not 거시 경제.
-  korea: { route: 'signal', label: '시장 상태 · 한국 시장 참고', why: '코스피·코스닥과 원화, 한국 수집 종목의 참여도를 미국 판정과 따로 확인', ctx: { anchor: 'regime-board-kr' } }
+  korea: { route: 'signal', label: '시장 상태 · 한국 시장 참고', why: '코스피·코스닥과 원화, AIO 추적 종목(한국)의 참여도를 미국 판정과 따로 확인', ctx: { anchor: 'regime-board-kr' } }
 });
 // P1727: the asset groups whose moves usually start in the news continue to that topic of 뉴스 as well (one link at most).
 // The context names the news topic/country chip; the news page applies it when it reads the handoff.
@@ -188,7 +190,7 @@ export function briefingFlow({ read = null } = {}) {
   const seen = new Set();
   const keyOf = (item) => `${item.route}#${item.ctx?.anchor || ''}`;
   // P1727: when the Korea sentence is in the four-sentence lead, its board comes first.
-  if (lead.has('korea')) { next.push({ ...BRIEFING_ROUTES.korea, why: `오늘 해석의 한국 문장 — ${BRIEFING_ROUTES.korea.why}` }); seen.add(keyOf(BRIEFING_ROUTES.korea)); }
+  if (lead.has('korea')) { next.push({ ...BRIEFING_ROUTES.korea }); seen.add(keyOf(BRIEFING_ROUTES.korea)); }
   next.push({ route: 'signal', label: '시장 상태', why: '오늘 해석이 6개 지표(추세·시장 폭·변동성·금리·신용·달러/원자재) 판정과 같은 쪽인지' });
   seen.add('signal#');
   const axes = [...(read.statements || []).map((row) => row.axis), ...(read.drivers || []).filter((row) => row.values?.length).map((row) => row.id)];
@@ -237,7 +239,7 @@ export function rotationFlow({ groups = {}, regime = null } = {}) {
   // Coordinator follow-up (M08 class, 2026-10-13): quadrant membership alone does not establish a "위험 선호/회피 회전"
   // verdict, so the line only counts which kinds of sectors sit ahead of the benchmark.
   const style = !ahead.length ? '시장 대비 나아진 섹터(선도·개선)가 없습니다'
-    : `선도·개선 ${ahead.length}개 중 방어 업종(유틸리티·필수소비·헬스케어·부동산) ${defensiveAhead}개, 경기 민감 업종 ${ahead.length - defensiveAhead}개입니다`;
+    : `선도·개선 ${ahead.length}개 중 방어 업종(유틸리티·필수소비재·헬스케어·부동산) ${defensiveAhead}개, 경기 민감 업종 ${ahead.length - defensiveAhead}개입니다`;
   const concentration = lead.length <= 2 && lagging.length >= Math.ceil(total / 2)
     ? ` ${total}개 중 선도 ${lead.length}개, 후행 ${lagging.length}개입니다. 기준이 시가총액 가중 S&P 500(SPY)이라 대형 기술주 비중이 클수록 나머지 섹터가 후행에 몰리기 쉽습니다.` : '';
   const breadth = regime?.axes?.find((row) => row.id === 'breadth');
@@ -245,12 +247,14 @@ export function rotationFlow({ groups = {}, regime = null } = {}) {
     : concentration && breadth?.state === 'favorable' ? ' 다만 시장 폭은 양호라 종목 참여는 아직 넓습니다.' : '';
   // P1599 (F104): the headline names the leaders and the counts; every sector already sits in the quadrant
   // cards right below, so listing all eleven here made the one-line read a paragraph.
-  const counts = concentration ? '' : ` 약화 ${(groups.Weakening || []).length} · 후행 ${lagging.length}.`;
+  const counts = concentration ? '' : ` 약화 ${(groups.Weakening || []).length}개, 후행 ${lagging.length}개입니다.`;
   const leaders = lead.length ? rotationLeaders(groups) : ['선도 섹터 없음', rotationLeaders({ Improving: improving })].filter(Boolean).join(' · ');
   // v57.81 (audit): the quadrants are a ~50-session reading, and a point within the neutral band around 100 (경계) is
   // kept out of the verdict leaders and named apart.
   const border = groups.Border || [];
-  const borderText = border.length ? ` 경계(100 근처라 사분면을 정하지 않음) ${border.map((item) => `${item.label || item.symbol}${item.recentReversal ? `(최근 5거래일 ${item.recentReversal})` : ''}`).join('·')}.` : '';
+  // v57.91: one sentence — the names first, then why, then any five-session reversal.
+  const reversals = border.filter((item) => item.recentReversal).map((item) => `${withTopicParticle(item.label || item.symbol)} 최근 5거래일 ${item.recentReversal}`);
+  const borderText = border.length ? ` ${withTopicParticle(border.map((item) => item.label || item.symbol).join('·'))} 100 근처(기준선 부근)라 사분면을 정하지 않았습니다${reversals.length ? `(${reversals.join(', ')})` : ''}.` : '';
   const read = `약 50일 상대강도 기준 ${leaders}. ${style}.${concentration}${counts}${borderText}${tie}`;
   const next = [];
   // I09: the screener opens on the first improving sector (the screener reads ctx.sector, an English universe sector).
@@ -276,17 +280,18 @@ export function themeStrengthLead(model = null) {
   const improving = groups.filter((group) => group.direction === 'improving' && !named.has(group.id ?? group.name)).slice(0, 3);
   const cooling = top.filter((group) => group.direction === 'weakening');
   const healthy = top.filter((group) => group.above50Pct != null && group.above50Pct >= 75).length;
-  const parts = [`${model.windowLabel || '기간'} 상위는 ${top.slice(0, 3).map(label).join(' · ')}`];
+  // v57.91: every clause ends in -입니다 (the lead mixed '…플랫폼. …식는 중. …곳.').
+  const parts = [`${model.windowLabel || '기간'} 상위는 ${top.slice(0, 3).map(label).join(' · ')}입니다`];
   const topic = (text) => { const code = String(text).charCodeAt(String(text).length - 1) - 0xac00; return code >= 0 && code <= 11171 && code % 28 ? '은' : '는'; };
   const joined = (list) => list.map(label).join(' · ');
-  if (cooling.length) parts.push(`그중 ${joined(cooling)}${topic(label(cooling[cooling.length - 1]))} 1개월 순위가 3개월보다 크게 낮아 강세가 식는 중`);
+  if (cooling.length) parts.push(`그중 ${joined(cooling)}${topic(label(cooling[cooling.length - 1]))} 1개월 순위가 3개월 순위보다 크게 밀려 강세가 식는 중입니다`);
   // v57.81 (audit): "최근 강해지는 곳" only when the last five sessions did not fall beyond the group's typical weekly move
   // (group.recent, recent-check.js); otherwise the rank gain is said with the week that contradicts it.
   const rising = improving.filter((group) => !group.recent?.broken), held = improving.filter((group) => group.recent?.broken);
-  if (rising.length) parts.push(`${cooling.length ? '반대로 ' : ''}${joined(rising)}${topic(label(rising[rising.length - 1]))} 1개월 순위가 3개월보다 크게 앞서 최근 강해지는 곳`);
+  if (rising.length) parts.push(`${cooling.length ? '반대로 ' : ''}${joined(rising)}${topic(label(rising[rising.length - 1]))} 1개월 순위가 크게 올라 최근 강해지는 곳입니다`);
   if (held.length) parts.push(`${held.map((group) => `${group.name}(최근 5거래일 ${signed(group.recent.ret5d, 1, '%')})`).join(' · ')}${topic(held[held.length - 1].name)} 1개월 순위는 올랐지만 최근 5거래일에 평소 1주 움직임의 2배를 넘게 밀려 강해지는 중으로 보지 않습니다`);
-  parts.push(`상위 5개 중 ${healthy}개는 구성 종목 대부분이 50일선 위`);
-  return `${parts.join('. ')}입니다.`;
+  parts.push(`상위 5개 중 ${healthy}개는 구성 종목 대부분이 50일선 위입니다`);
+  return `${parts.join('. ')}.`;
 }
 
 // 테마 상세: inside one theme — which sub-themes carry it, where short-term momentum is moving, and how
@@ -309,28 +314,28 @@ export function themeDetailFlow({ themeId, groups = [], etf = null, rotation = {
   const pct = (value) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);
   const parts = [];
   const rotationDate = etf && rotation[etf]?.sessionDate ? `(${Number(rotation[etf].sessionDate.slice(5, 7))}/${Number(rotation[etf].sessionDate.slice(8, 10))} 종가 기준)` : '';
-  if (quadrant) parts.push(`테마 ETF ${withTopicParticle(etf)} S&P 500 대비 상대강도 회전에서 ${quadrant}${rotationDate}`); // P1747: not one of the 11 sector cards above
-  if (byThree.length >= 2 && strongest.ret3m != null && weakest.ret3m != null) parts.push(`3개월 기준 가장 강한 곳은 ${strongest.name}(${pct(strongest.ret3m)}), 가장 약한 곳은 ${weakest.name}(${pct(weakest.ret3m)})`);
+  if (quadrant) parts.push(`테마 ETF ${withTopicParticle(etf)} S&P 500 대비 상대강도 회전에서 ${quadrant}${rotationDate}입니다`); // P1747: not one of the 11 sector cards above
+  if (byThree.length >= 2 && strongest.ret3m != null && weakest.ret3m != null) parts.push(`3개월 기준 가장 강한 곳은 ${strongest.name}(${pct(strongest.ret3m)}), 가장 약한 곳은 ${weakest.name}(${pct(weakest.ret3m)})입니다`);
   if (moving.length && moving.length === mine.length && mine.length >= 2) {
     // P1449/R679: an improving 1-month vs 3-month rank is a RELATIVE PRICE observation. Without a
     // volume/flow input this is not evidence of money inflow (the house wording used by the
     // themes page itself: 테마 페이지의 '자금 유입은 별도 근거가 필요합니다').
-    parts.push('하위 테마 전부가 1개월 순위를 크게 끌어올렸습니다 — 특정 종목이 아니라 테마 전체의 상대 강세가 같은 방향입니다(가격 기준 관측이며 자금 유입의 증거는 아닙니다)');
+    parts.push('세부 테마 전부가 1개월 순위를 크게 끌어올렸습니다 — 특정 종목이 아니라 테마 전체의 상대 강세가 같은 방향입니다(가격 기준 관측이며 자금 유입의 증거는 아닙니다)');
   }
-  else if (moving.length) parts.push(`1개월 흐름은 ${moving.map((group) => group.name).join(' · ')} 쪽으로 옮겨 가는 중`);
+  else if (moving.length) parts.push(`1개월 흐름은 ${moving.map((group) => group.name).join(' · ')} 쪽으로 옮겨 가는 중입니다`);
   const subject = (text) => { const code = String(text).charCodeAt(String(text).length - 1) - 0xac00; return code >= 0 && code <= 11171 && code % 28 ? '이' : '가'; };
   if (held.length) parts.push(`1개월 순위는 ${held.map((group) => group.name).join(' · ')}${subject(held[held.length - 1].name)} 올랐지만 최근 5거래일 ${held.map((group) => signed(group.recent.ret5d, 1, '%')).join(' · ')}로 크게 밀렸습니다`);
   const topic = (text) => { const code = String(text).charCodeAt(String(text).length - 1) - 0xac00; return code >= 0 && code <= 11171 && code % 28 ? '은' : '는'; };
-  if (cooling.length) parts.push(`${cooling.map((group) => group.name).join(' · ')}${topic(cooling[cooling.length - 1].name)} 최근 1개월 강세가 식는 중`);
+  if (cooling.length) parts.push(`${cooling.map((group) => group.name).join(' · ')}${topic(cooling[cooling.length - 1].name)} 최근 1개월 강세가 식는 중입니다`);
   // I09: the theme read continues to the stocks (screener) and to whether the move is broad (시장 폭).
   const sector = etf ? SECTOR_ETF_SCREENER_SECTOR[String(etf).toUpperCase()] || null : null;
   const next = [
-    { route: 'screener', label: '스크리너', why: `${strongest.name} 등 하위 테마 종목을 모멘텀·추세 순위로 비교${sector ? '(같은 섹터부터)' : ''}`, ...(sector ? { ctx: { sector } } : {}) },
+    { route: 'screener', label: '스크리너', why: `${strongest.name} 등 세부 테마 종목을 모멘텀·추세 순위로 비교${sector ? '(같은 섹터부터)' : ''}`, ...(sector ? { ctx: { sector } } : {}) },
     { route: 'breadth', label: '시장 폭', why: '이 테마의 강세가 시장 전체 참여 종목 확대와 같은 방향인지' }
   ];
   // D15 (review R2): small groups stay in the table as reference rows, after the ranked ones.
   const rows = [...byThree, ...mine.filter((group) => !byThree.includes(group)).sort((a, b) => (b.ret3m ?? -1e9) - (a.ret3m ?? -1e9))];
-  return { read: parts.length ? `${parts.join('. ')}입니다.` : '', rows, next };
+  return { read: parts.length ? `${parts.join('. ')}.` : '', rows, next };
 }
 
 // v57.77: 뉴스 continues to the two screens that turn a headline into a market reading — 브리핑 (how the closes moved)
@@ -338,7 +343,7 @@ export function themeDetailFlow({ themeId, groups = [], etf = null, rotation = {
 export function newsFlow({ countryFilter = 'all' } = {}) {
   const next = [{ route: 'briefing', label: '브리핑', why: '기사 속 사건이 최근 마감의 지수·금리·유가·달러 움직임과 같은 쪽이었는지' }];
   next.push(String(countryFilter || '').toLowerCase() === 'kr'
-    ? { route: 'signal', label: '시장 상태 · 한국 시장 참고', why: '한국 기사와 코스피·코스닥·원화, 한국 수집 종목의 참여도가 같은 방향인지', ctx: { anchor: 'regime-board-kr' } }
+    ? { route: 'signal', label: '시장 상태 · 한국 시장 참고', why: '한국 기사와 코스피·코스닥·원화, AIO 추적 종목(한국)의 참여도가 같은 방향인지', ctx: { anchor: 'regime-board-kr' } }
     : { route: 'signal', label: '시장 상태', why: '사건이 6개 지표(추세·시장 폭·변동성·금리·신용·달러/원자재) 판정을 바꿀 만큼 가격에 반영됐는지' });
   return { next };
 }

@@ -31,6 +31,9 @@
   #screener-results-table > tbody > tr > td:is([data-column-key="sym"], [data-column-key="price"], [data-column-key="watchlist"])::before,
   #screener-results-table > tbody > tr > td:not([data-label])::before { content: none; }
   #screener-results-table > tbody > tr > td[data-column-key="news"], #screener-results-table > tbody > tr > td[colspan] { flex: 1 1 100%; }
+  /* v57.91 (phone audit): the 후속 확인 summary is a sentence — on one nowrap line it ran past the card (table 405px in a
+     349px frame). It takes the card's full width and wraps; so do the VCP/setup words beside it. */
+  #screener-results-table > tbody > tr > td:is([data-column-key="followThrough"], [data-column-key="vcpScore"], [data-column-key="entry"]) { flex: 1 1 100%; white-space: normal; overflow-wrap: anywhere; }
   #screener-results-table > tbody > tr > td[data-column-key="watchlist"] { order: 2; align-self: center; }
 }
 @media (max-width: 599px) {

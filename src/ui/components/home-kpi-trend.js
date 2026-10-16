@@ -139,7 +139,7 @@ function renderHomeParticipation({ documentRef: doc, history }) {
   const card = (label, chart) => { const box = doc.createElement('div'); const caption = doc.createElement('div'); caption.className = 'home-participation-label'; caption.textContent = label; box.append(caption, chart); return box; };
   grid.append(
     card('S&P 500 종가', createTrendChart(doc, { series: spx, format: (value) => value.toFixed(0), label: 'S&P 500 종가', range })),
-    card('50일선 위 종목 비율(%) · AIO 관찰 종목 기준', createTrendChart(doc, { series: b50In, refLines: [40, 60], format: (value) => `${value.toFixed(0)}%`, label: '50일선 위 종목 비율', domain: [0, 100], range }))
+    card('50일선 위 종목 비율(%) · AIO 추적 종목(미국) 기준', createTrendChart(doc, { series: b50In, refLines: [40, 60], format: (value) => `${value.toFixed(0)}%`, label: '50일선 위 종목 비율', domain: [0, 100], range }))
   );
   // v57.76: the five same-session breadth cards repeated the 시장 폭 screen on the home; the two charts and their
   // one-line read stay, the counting basis folds, and one link leads to the full breadth screen.

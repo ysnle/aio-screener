@@ -934,6 +934,8 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
         && noLeadIssues('가장 가까운 흐름은 「소수 종목 주도」이고 관망이 유리합니다.', { context: noLeadCtx }).includes('no-lead-overstated')
         && !noLeadIssues('아직 중심 흐름을 정하기 이르고, 「소수 종목 주도」도 핵심 조건 미충족입니다.', { context: noLeadCtx }).length
         && !noLeadIssues('「고른 상승」에 가깝습니다.', { context: '중심 흐름: 고른 상승' }).length
+        // v57.88: phrase-level — "이르면 다음 주 …" is not the verdict
+        && noLeadIssues('이르면 다음 주 「소수 종목 주도」 흐름이 유리합니다.', { context: noLeadCtx }).includes('no-lead-overstated')
         && krSlotTopic('환율 1,353원 치솟으며') === 'fx' && krSlotTopic(crashTitle) === 'index-move' && krSlotTopic('Samsung wonders') === null
         && scoreServerNewsItem({ title: 'UAL Stock Quote Price and Forecast | CNN', source: 'CNN', ts: Date.parse('2026-10-15T06:00:00.000Z'), scoringNowMs: Date.parse('2026-10-15T06:30:00.000Z') }).selectionReason === 'not-article-filter',
       priorSessionMoveLines(oilHistory));

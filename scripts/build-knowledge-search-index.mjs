@@ -43,11 +43,11 @@ for (const part of read('public-data/principles/narrative-journey.json').parts |
 const principlesLessons = read('public-data/principles/lesson-library.json').lessons || [];
 for (const lesson of principlesLessons) {
   const id = `principles-lesson:${lesson.id}`;
-  entries.push({ id, surface: 'principles-lesson', surfaceLabel: '시장 원리 레슨', title: `${lesson.id} ${lesson.title}`, text: clip(lesson.definition), group: lesson.level || null, keys: keys(id), route: { page: 'principles', params: { lesson: lesson.id } } });
+  entries.push({ id, surface: 'principles-lesson', surfaceLabel: '원리 레슨', title: `${lesson.id} ${lesson.title}`, text: clip(lesson.definition), group: lesson.level || null, keys: keys(id), route: { page: 'principles', params: { lesson: lesson.id } } });
 }
 for (const node of MARKET_PRINCIPLES_CATALOG.nodes || []) {
   const id = `principles-node:${node.id}`;
-  entries.push({ id, surface: 'principles-node', surfaceLabel: '시장 원리 개념 지도', title: node.title || node.id, text: clip(node.summary || node.definition || node.description || ''), group: null, keys: keys(id), route: { page: 'principles', params: { mode: 'tree', node: node.id } } });
+  entries.push({ id, surface: 'principles-node', surfaceLabel: '개념 지도', title: node.title || node.id, text: clip(node.summary || node.definition || node.description || ''), group: null, keys: keys(id), route: { page: 'principles', params: { mode: 'tree', node: node.id } } });
 }
 const foundations = read('public-data/atlas/foundations.json');
 const layerOf = new Map();

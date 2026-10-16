@@ -258,6 +258,8 @@ body.dark-theme .sector-map .is-na { background: #36383b; color: #c8c6c0; }
 .page .xr-explore-label { font-size: 13.5px; color: var(--text-secondary); }
 .page .xr-compact { margin: 16px 0 6px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); }
 .page .xr-compact .xr-h3 { margin-top: 0; }
+/* v57.91 (desktop audit): the full-width home card ran ~80 Korean characters a line; prose lines stop at a readable length. */
+.page .xr-compact :is(p, li) { max-width: 72ch; }
 @media (max-width: 760px) {
   .page .xr-paths { grid-template-columns: minmax(0, 1fr); }
   .page .xr-map { grid-template-columns: minmax(0, 1fr); }

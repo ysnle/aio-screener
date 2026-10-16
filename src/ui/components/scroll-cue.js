@@ -13,7 +13,10 @@
 export function attachScrollCue(scroll, { frame = scroll, root = scroll?.ownerDocument?.defaultView } = {}) {
   if (!scroll?.classList) return null;
   const existing = scroll._aioScrollCue;
-  if (existing) { existing.observeContent(); existing.update(); return existing; }
+  // v57.91 (performance audit): responsive-shell re-runs this for every scroll box on every DOM change, and the
+  // synchronous update() read scrollWidth (a forced layout) each time — 0.5s of a phone boot. A replaced table is
+  // re-observed below and the ResizeObserver's first callback refreshes the classes; scrolling has its own listener.
+  if (existing) { existing.observeContent(); return existing; }
   const update = () => {
     const rest = scroll.scrollWidth - scroll.clientWidth - scroll.scrollLeft;
     frame.classList.toggle('has-more-left', scroll.scrollLeft > 2);

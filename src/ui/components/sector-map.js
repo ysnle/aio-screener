@@ -74,7 +74,8 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
     ? model.current ? `${shortDate(model.basis)} 미국 종가 기준` : `${shortDate(model.basis)} 미국 종가 기준(최신 거래일 ${shortDate(model.expectedSession)} 반영 전 — 지금이 아닌 그날의 지도)`
     : '종가 기준일 확인 필요';
   const sizeText = model.sizeBasis === 'index-weight' ? `넓이 = 지수 비중(${model.members}종목${model.weightsAsOf ? ` · ${shortDate(model.weightsAsOf)} 보유 비중` : ''})` : `넓이 = 시가총액 근사(공시 주식 수 × 종가, ${model.drawn}/${model.members}종목)`;
-  host.append(el(doc, 'p', `${sizeText} · 색 = ${model.periodLabel} 수익률 · ${basisText}`, 'sector-map-basis'));
+  // v57.88 (screen audit): the same sector read +0.6% here and +1.46% on the XLC chip without a word on why.
+  host.append(el(doc, 'p', `${sizeText} · 색 = ${model.periodLabel} 수익률 · ${basisText} · 섹터 평균은 지도에 그린 종목의 비중 가중이라 섹터 ETF 수익률과 다를 수 있습니다`, 'sector-map-basis'));
   host.append(el(doc, 'p', model.lead, 'sector-map-lead'));
 
   const canvas = el(doc, 'div', null, 'sector-map-canvas');

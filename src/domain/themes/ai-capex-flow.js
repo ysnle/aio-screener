@@ -26,7 +26,7 @@ export const AI_CAPEX_FLOW = Object.freeze({
 export const AI_BOTTLENECK_LEAD_TIMES = Object.freeze({
   asOf: '2026-09-14',
   source: 'TrendForce 리드타임(2026-09-14), a16z State of Markets II 인용',
-  note: '칩은 제때 오지만 짓고 전원을 넣는 것이 병목 — 공급사는 원 자료에 나온 곳만 표시',
+  note: '칩은 제때 오지만 데이터센터를 짓고 전력을 잇는 단계가 병목입니다. 공급사는 원 자료에 나온 곳만 표시합니다.',
   rows: Object.freeze([
     Object.freeze({ item: '가스터빈', weeks: [260, 420], layer: 'power' }),
     Object.freeze({ item: '변압기', weeks: [104, 260], layer: 'power' }),

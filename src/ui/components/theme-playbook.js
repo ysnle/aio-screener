@@ -217,7 +217,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   if (h.structuralPullbacks.length) reading.push(`긴 추세는 지수보다 앞서 있는데 최근 1개월 뒤처졌고 중심 시나리오에서 역풍이 아닌 테마: ${h.structuralPullbacks.slice(0, 6).map((row) => `${mkt(row)} ${row.label}(${pct(row.ret1m)})`).join(', ')} — 핵심 논리가 깨지는 신호가 없는지 함께 봅니다.`);
   if (h.headwindLeaders.length) reading.push(`거시 부담에도 주도하는 테마(6개월·1개월 지수 대비, 최근 5거래일 확인): ${h.headwindLeaders.slice(0, 4).map((row) => `${mkt(row)} ${row.label}${row.ret5d != null ? `(5거래일 ${pct(row.ret5d)})` : ''}`).join(', ')} — 업종 고유 동력(실적·구조 수요)이 있는지 확인이 필요합니다.`);
   if (h.tailwindLaggards.length) reading.push(`거시 수혜에도 약세인 테마: ${h.tailwindLaggards.slice(0, 4).map((row) => `${mkt(row)} ${row.label}`).join(', ')} — 업종 고유의 문제가 있는지 먼저 봅니다.`);
-  const basis = el(doc, 'p', `${playbook.asOfText || `${playbook.asOf ? `${playbook.asOf} ` : ''}확정 종가`} · 테마 ${playbook.themes.length}개${playbook.rotation?.market === '한국' ? ' (미국 테마 수익률을 받기 전이라 한국만)' : ''} · 중심 시나리오 ${lead ? `'${lead.title.split(' — ')[0]}'` : '판단 보류'} 기준. 단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500 · 한국 코스피)와 비교해 정하고(1개월 ±${relativeBand('ret1m')}%p, 6개월 ±${relativeBand('ret6m')}%p 안의 차이는 앞선 것으로 보지 않음), 최근 5거래일이 평소 1주 움직임의 2배를 넘게 반대로 움직이면 1개월 판정을 보류합니다. 바람은 테마 성격과 거시 시나리오가 강하게·약하게 만드는 영역의 겹침으로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다. 레버리지·포지션 쏠림을 직접 재는 자료는 없어 가격 단서(1개월 낙폭·50일선 위 비율)로만 봅니다.`, 'xr-basis');
+  const basis = el(doc, 'p', `${playbook.asOfText || `${playbook.asOf ? `${playbook.asOf} ` : ''}확정 종가`} · 테마 ${playbook.themes.length}개${playbook.rotation?.market === '한국' ? ' (미국 테마 수익률을 받기 전이라 한국만)' : ''} · ${lead ? `중심 시나리오 '${lead.title.split(' — ')[0]}' 기준` : '중심 시나리오 미정'}. 단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500 · 한국 코스피)와 비교해 정하고(1개월 ±${relativeBand('ret1m')}%p, 6개월 ±${relativeBand('ret6m')}%p 안의 차이는 앞선 것으로 보지 않음), 최근 5거래일이 평소 1주 움직임의 2배를 넘게 반대로 움직이면 1개월 판정을 보류합니다. 수혜·부담은 테마 성격이 중심 시나리오에 유리한지 불리한지로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다. 레버리지·포지션 쏠림을 직접 재는 자료는 없어 가격 단서(1개월 낙폭·50일선 위 비율)로만 봅니다.`, 'xr-basis');
   const screenerSector = screenerSectorFor(root, store);
   const mapWrap = el(doc, 'div', null, 'tp-map-wrap');
   const pick = el(doc, 'p', null, 'tp-pick');
@@ -235,8 +235,19 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
     for (const row of list) { const card = themeCard(doc, root, row, screenerSector); card.open = openIds.has(card.dataset.theme); fold.append(card); }
     return fold;
   }).filter(Boolean);
+  // v57.88 (screen audit): a theme whose stage is held (state null — e.g. 한국 원전·건설, where the largest-traded names
+  // disagree with the median) left every group, so "테마 46개" listed 43. It gets its own group with the hold reason.
+  const held = playbook.themes.filter((row) => !THEME_STATES[row.state]).sort((a, b) => (b.ret1m ?? -Infinity) - (a.ret1m ?? -Infinity));
+  if (held.length) {
+    const fold = el(doc, 'details', null, 'tp-stage');
+    fold.dataset.stage = 'held';
+    fold.open = openStages.has('held');
+    fold.append(el(doc, 'summary', `판정 보류 · ${held.length}개`, 'tp-stage-summary'));
+    for (const row of held) { const card = themeCard(doc, root, row, screenerSector); card.open = openIds.has(card.dataset.theme); fold.append(card); }
+    stages.push(fold);
+  }
   host.replaceChildren(el(doc, 'p', reading[0], 'xr-lead'), basis, mapWrap, legend(doc), ...reading.slice(1).map((text) => el(doc, 'p', text, 'xr-reading')), ...stages,
-    el(doc, 'p', '세부 종목 선택은 테마 상세·차트·기업·스크리너에서 직접 합니다.', 'xr-caveat'));
+    el(doc, 'p', '세부 종목 선택은 테마 상세·차트·재무 공시·스크리너에서 직접 합니다.', 'xr-caveat'));
   host.dataset.aioThemePlaybook = 'native';
   return playbook;
 }
@@ -264,7 +275,7 @@ export function renderThemeDetailPlaybook({ documentRef: doc, root } = {}) {
     el(doc, 'p', `${row.stateLabel}${row.stateLabel.includes('5거래일') || row.ret5d == null ? '' : ` · 5거래일 ${pct(row.ret5d)}`} · 1개월 ${pct(row.ret1m)}${row.ret6m != null ? ` · 6개월 ${pct(row.ret6m)}` : ''} · ${row.fit}`, 'xr-basis'),
     el(doc, 'p', `거시 영향: ${row.windText}. 유리한 대응: ${row.favored.map((key) => CHOICES[key]).join(' · ') || '판단 보류'} — ${row.favoredWhy}`, 'xr-reading'),
     ...(row.thesis ? [el(doc, 'p', `핵심 논리: ${row.thesis}. 점검 신호: ${row.breaks.join(', ')}.`, 'xr-reading')] : []),
-    el(doc, 'p', '아래 구성 종목·대장주에서 추세가 살아 있는 종목을 직접 고릅니다.', 'xr-caveat'), links);
+    el(doc, 'p', '아래 구성 종목·대표 종목에서 추세가 살아 있는 종목을 직접 고릅니다.', 'xr-caveat'), links);
   return row;
 }
 

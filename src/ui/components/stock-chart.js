@@ -9,6 +9,8 @@ import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
 import { normalizeTickerInput } from '../../domain/entity/ticker-symbol.js';
 import { el } from './dom.js';
+// v57.91 (visual audit): the loading card spans the whole evidence grid instead of sitting in its last column.
+const fullRow = (node) => { if (node?.style) node.style.gridColumn = '1 / -1'; return node; };
 
 const STATE_TONE = Object.freeze({ breakout: 'favorable', setup: 'favorable', extended: 'neutral', none: 'neutral', failed: 'burden', downtrend: 'burden' });
 
@@ -152,7 +154,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   }
   if (spec.id !== '1d') return renderIntervalChart({ doc, root, sym, spec, ticket: (root.__aioStockChartTicket = (root.__aioStockChartTicket || 0) + 1) });
   set('stock-chart-status', '불러오는 중…');
-  panel.replaceChildren(emptyState(doc, { title: `${sym} 일봉을 불러오는 중입니다`, reason: '시세 제공처에서 일봉을 받아오는 중입니다.', compact: true }));
+  panel.replaceChildren(fullRow(emptyState(doc, { title: `${sym} 일봉을 불러오는 중입니다`, reason: '시세 제공처에서 일봉을 받아오는 중입니다.', compact: true })));
   // A slower earlier request must not overwrite the symbol the user asked for last.
   const ticket = (root.__aioStockChartTicket = (root.__aioStockChartTicket || 0) + 1);
   root.__aioStockChartAnalysis = null;
@@ -229,8 +231,9 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   template.append(el(doc, 'span', `${TEMPLATE_LABEL} ${analysis.templatePass}/8`, 'chart-vis-title'));
   const dots = el(doc, 'ul', null, 'chart-template-dots');
   for (const [label, ok] of analysis.templateChecks) {
-    const li = el(doc, 'li', ok === true ? '✓' : ok === false ? '✕' : '?', `chart-template-dot ${ok === true ? 'is-pass' : ok === false ? 'is-fail' : 'is-unknown'}`);
+    const li = el(doc, 'li', ok === true ? '✓' : ok === false ? '✕' : '–', `chart-template-dot ${ok === true ? 'is-pass' : ok === false ? 'is-fail' : 'is-unknown'}`);
     li.title = `${label} — ${ok === true ? '충족' : ok === false ? '미충족' : '확인 불가'}`;
+    li.setAttribute('aria-label', li.title); // v57.88: the mark is a symbol; screen readers get the words, and 확인 불가 is a dash, not '?'
     dots.append(li);
   }
   template.append(dots);
@@ -345,7 +348,7 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   const set = (id, value) => { const node = doc.getElementById(id); if (node) node.textContent = value; return node; };
   set('stock-chart-status', '불러오는 중…');
   root.__aioStockChartAnalysis = null;
-  panel.replaceChildren(emptyState(doc, { title: `${sym} ${spec.label}봉을 불러오는 중입니다`, reason: '시세 제공처에서 봉 데이터를 받아오는 중입니다.', compact: true }));
+  panel.replaceChildren(fullRow(emptyState(doc, { title: `${sym} ${spec.label}봉을 불러오는 중입니다`, reason: '시세 제공처에서 봉 데이터를 받아오는 중입니다.', compact: true })));
   const library = ensureChartLibrary(root);
   const payload = await Promise.resolve().then(() => root._aioFetchYahooChartData?.(sym, spec.range, spec.interval)).catch(() => null);
   await library;

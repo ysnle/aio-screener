@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
+import { readManagerRows, writeManagerRows } from './lib/masters-manager-store.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mastersDir = path.join(root, 'public-data', 'masters');
@@ -59,9 +60,9 @@ for (const manager of holdings.managers || []) {
   const descriptor = holdings.managerShards?.[manager.id] || null;
   let managerRows = (holdings.allHoldings || []).filter((row) => row.managerId === manager.id);
   let managerComparisons = (holdings.comparisons || []).filter((row) => row.managerId === manager.id);
-  const file = path.join(mastersDir, 'managers', `${manager.id}.json`);
+  const managersDir = path.join(mastersDir, 'managers');
   if (!managerRows.length && descriptor?.fullRows > 0) {
-    const existing = JSON.parse(await fs.readFile(file, 'utf8'));
+    const existing = await readManagerRows(managersDir, manager.id);
     if (existing.managerId !== manager.id || existing.holdings?.length !== descriptor.fullRows || existing.comparisons?.length !== descriptor.comparisonRows) {
       throw new Error(`manager shard integrity mismatch for ${manager.id}: expected ${descriptor.fullRows}/${descriptor.comparisonRows}, got ${existing.holdings?.length || 0}/${existing.comparisons?.length || 0}`);
     }
@@ -69,7 +70,7 @@ for (const manager of holdings.managers || []) {
     managerComparisons = existing.comparisons;
   }
   managerRows = managerRows.map(rawHoldingRow);
-  await writeAtomic(file, {
+  await writeManagerRows(managersDir, {
     schema: 'masters-13f-manager-rows.v1',
     sourceKind: holdings.sourceKind,
     reviewedAt: holdings.reviewedAt,
@@ -81,7 +82,7 @@ for (const manager of holdings.managers || []) {
     verification: manager.verification,
     holdings: managerRows,
     comparisons: managerComparisons
-  });
+  }, { writer: atomicWriteFile });
   if (descriptor && (managerRows.length !== descriptor.fullRows || managerComparisons.length !== descriptor.comparisonRows)) {
     throw new Error(`manager shard descriptor drift for ${manager.id}: expected ${descriptor.fullRows}/${descriptor.comparisonRows}, got ${managerRows.length}/${managerComparisons.length}`);
   }

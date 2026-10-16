@@ -1,0 +1,357 @@
+{
+  "observedAt": "2026-10-16T13:45:34.100Z",
+  "boundary": "Pure module synthetic counterexamples; no browser input acceptance or production occurrence certified",
+  "E01": {
+    "withoutQuoteCurrency": {
+      "totalPnl": -139900,
+      "totalPnlPct": -99.92857142857143,
+      "totalCost": 140000,
+      "positionValue": 100,
+      "costCurrencyState": "cost-declared"
+    },
+    "explicitUSD": {
+      "totalPnl": null,
+      "totalPnlPct": null,
+      "totalCost": null,
+      "positionValue": 100,
+      "costCurrencyState": "cost-price-mismatch-held"
+    }
+  },
+  "E02": {
+    "cash0": {
+      "estimateId": "pfre-02828885de5cfabf",
+      "publishedReturns": [
+        0.08000000000000002,
+        0.08000000000000002
+      ]
+    },
+    "cash10": {
+      "estimateId": "pfre-02828885de5cfabf",
+      "publishedReturns": [
+        0.08007565730630686,
+        0.08007565730630686
+      ]
+    }
+  },
+  "E03": {
+    "daily": {
+      "publishedScope": "invested_sleeve",
+      "publishedReturns": [
+        0.08000000000000002,
+        0.08000000000000002
+      ],
+      "investedSleeveReturns": [
+        0.08000000000000002,
+        0.08000000000000002
+      ]
+    },
+    "buyHold": {
+      "publishedScope": "invested_sleeve",
+      "publishedReturns": [
+        0.08000000000000002,
+        0.1
+      ],
+      "investedSleeveReturns": [
+        0.08000000000000002,
+        0.1
+      ]
+    },
+    "controlAllEquity": {
+      "publishedScope": "invested_sleeve",
+      "publishedReturns": [
+        0.1,
+        0.1
+      ]
+    }
+  },
+  "E04": {
+    "noFxHistory": {
+      "ok": true,
+      "returnCurrencyBasis": "KRW",
+      "fxIncluded": null,
+      "returnsMap": {
+        "AAA": [
+          0.010000000000000009,
+          0.00990099009900991,
+          0.009803921568627416,
+          0.009708737864077666,
+          0.009615384615384581
+        ]
+      }
+    },
+    "withFxHistory": {
+      "ok": true,
+      "returnCurrencyBasis": "KRW",
+      "fxIncluded": null,
+      "returnsMap": {
+        "AAA": [
+          0.02553846153846151,
+          0.025202520252025185,
+          0.02487562189054726,
+          0.024557395773843416,
+          0.024247491638796026
+        ]
+      }
+    }
+  },
+  "E05": {
+    "quarterFirst": {
+      "sharesOutstanding": 500,
+      "sharesBasis": "eps-implied",
+      "sharesCheck": "consistent",
+      "pe": 50
+    },
+    "annualFirst": {
+      "sharesOutstanding": 100,
+      "sharesBasis": "eps-implied",
+      "sharesCheck": "consistent",
+      "pe": 10
+    }
+  },
+  "E06": {
+    "worst2pct": {
+      "status": "ready",
+      "quantile": 0.05,
+      "sampleN": 100,
+      "tailN": 34,
+      "point": {
+        "var": 0.02,
+        "cvar": 0.020000000000000007
+      },
+      "bootstrap": {
+        "iterations": 400,
+        "seed": "sample-derived-fnv1a",
+        "band": {
+          "p05": 0.02,
+          "median": 0.02,
+          "p95": 0.02
+        },
+        "relativeBand": 0
+      },
+      "sensitivity": {
+        "variants": [
+          {
+            "id": "nearest-rank",
+            "var": 0.02,
+            "deviation": 0
+          },
+          {
+            "id": "leave-one-worst-out",
+            "var": 0.02,
+            "deviation": 0
+          },
+          {
+            "id": "recent-half",
+            "var": 0.02,
+            "deviation": 0
+          }
+        ],
+        "maxAbsDeviation": 0,
+        "relativeSensitivity": 0,
+        "recentHalfOrder": "declared"
+      },
+      "thresholds": {
+        "minSampleN": 41,
+        "minTailN": 3,
+        "maxRelativeBand": 0.75,
+        "maxRelativeSensitivity": 0.5
+      },
+      "certification": "certified",
+      "certificationReasons": []
+    },
+    "worst90pct": {
+      "status": "ready",
+      "quantile": 0.05,
+      "sampleN": 100,
+      "tailN": 34,
+      "point": {
+        "var": 0.02,
+        "cvar": 0.045882352941176485
+      },
+      "bootstrap": {
+        "iterations": 400,
+        "seed": "sample-derived-fnv1a",
+        "band": {
+          "p05": 0.02,
+          "median": 0.02,
+          "p95": 0.02
+        },
+        "relativeBand": 0
+      },
+      "sensitivity": {
+        "variants": [
+          {
+            "id": "nearest-rank",
+            "var": 0.02,
+            "deviation": 0
+          },
+          {
+            "id": "leave-one-worst-out",
+            "var": 0.02,
+            "deviation": 0
+          },
+          {
+            "id": "recent-half",
+            "var": 0.02,
+            "deviation": 0
+          }
+        ],
+        "maxAbsDeviation": 0,
+        "relativeSensitivity": 0,
+        "recentHalfOrder": "declared"
+      },
+      "thresholds": {
+        "minSampleN": 41,
+        "minTailN": 3,
+        "maxRelativeBand": 0.75,
+        "maxRelativeSensitivity": 0.5
+      },
+      "certification": "certified",
+      "certificationReasons": []
+    }
+  },
+  "E07": {
+    "visa": {
+      "available": true,
+      "symbol": "V",
+      "sector": "Financials",
+      "peers": 5,
+      "rows": [
+        {
+          "id": "growth",
+          "label": "매출 성장",
+          "unit": "%",
+          "higherIs": "better",
+          "value": 0,
+          "median": 0,
+          "percentile": 50,
+          "n": 5
+        },
+        {
+          "id": "margin",
+          "label": "순이익률",
+          "unit": "%",
+          "higherIs": "better",
+          "value": 10,
+          "median": 10,
+          "percentile": 50,
+          "n": 5
+        },
+        {
+          "id": "fcfMargin",
+          "label": "잉여현금 마진",
+          "unit": "%",
+          "higherIs": "better",
+          "value": 20,
+          "median": 50,
+          "percentile": 0,
+          "n": 5
+        },
+        {
+          "id": "roe",
+          "label": "ROE(평균 자기자본)",
+          "unit": "%",
+          "higherIs": "better",
+          "value": 10,
+          "median": 10,
+          "percentile": 50,
+          "n": 5
+        }
+      ],
+      "summary": "같은 섹터 SEC 공시 기업 5곳과 비교: 하위 25% 안 — 잉여현금 마진."
+    },
+    "jpm": {
+      "available": true,
+      "symbol": "JPM",
+      "sector": "Financials",
+      "peers": 5,
+      "rows": [
+        {
+          "id": "growth",
+          "label": "매출 성장",
+          "unit": "%",
+          "higherIs": "better",
+          "value": 0,
+          "median": 0,
+          "percentile": 50,
+          "n": 5
+        },
+        {
+          "id": "margin",
+          "label": "순이익률",
+          "unit": "%",
+          "higherIs": "better",
+          "value": 10,
+          "median": 10,
+          "percentile": 50,
+          "n": 5
+        },
+        {
+          "id": "fcfMargin",
+          "label": "잉여현금 마진(금융사 비교 보류)",
+          "unit": "%",
+          "higherIs": null,
+          "value": 50,
+          "median": null,
+          "percentile": null,
+          "n": 0,
+          "reason": "financial-cash-flow-not-comparable"
+        },
+        {
+          "id": "roe",
+          "label": "ROE(평균 자기자본)",
+          "unit": "%",
+          "higherIs": "better",
+          "value": 10,
+          "median": 10,
+          "percentile": 50,
+          "n": 5
+        }
+      ],
+      "summary": "같은 섹터 SEC 공시 기업 5곳과 비교: 비교한 지표 모두 중간 범위(25~75%). 금융사의 영업현금흐름에는 예금·대출·트레이딩 자산 변화가 섞이므로 일반 기업의 영업 FCF와 구분하고, 잉여현금 마진 순위는 보류합니다."
+    }
+  },
+  "E08": {
+    "earlyDeposit": {
+      "status": "ready",
+      "twr": 0.10000000000000009,
+      "mwr": 0.06867037624287808,
+      "conventions": {
+        "returnBasis": "time-weighted-subperiod-chain",
+        "flowTiming": "end-of-period",
+        "annualization": "actual-365",
+        "irrMethod": "bisection"
+      }
+    },
+    "lateDeposit": {
+      "status": "ready",
+      "twr": 0.10000000000000009,
+      "mwr": 0.09608863033946002,
+      "conventions": {
+        "returnBasis": "time-weighted-subperiod-chain",
+        "flowTiming": "end-of-period",
+        "annualization": "actual-365",
+        "irrMethod": "bisection"
+      }
+    },
+    "withMidValuation": {
+      "status": "ready",
+      "twr": 0.06666666666666665,
+      "mwr": 0.08008905318518911,
+      "conventions": {
+        "returnBasis": "time-weighted-subperiod-chain",
+        "flowTiming": "end-of-period",
+        "annualization": "actual-365",
+        "irrMethod": "bisection"
+      }
+    }
+  },
+  "sourceHashes": {
+    "src/domain/portfolio/surface.js": "f8bb5df29e88d3c4167ebdacebd7ac5b72b9add1bff5581fa883083326e6df8a",
+    "src/domain/portfolio/risk.js": "e1bb532ae9348db6b764e1802e359e6d685d4aa0cbecfc05bead8105992dd2b0",
+    "src/ui/panels/portfolio-risk-input.js": "e6fbdda5b5435fb7fedc254d425fc616bfa7a9466d4af0db20bd008805691670",
+    "src/domain/fundamental/sec-normalize.js": "063d3170d00b384c27bdc11b20bcc34523d3befa9508cc4ea4611b6b07708c7e",
+    "src/domain/portfolio/return-stats.js": "9d944d3c0b2adbfedaf5ad6e93c1b36c52f59837bc410137ececbb501e1855cc",
+    "src/domain/fundamental/peer-read.js": "35e66d2d9d658f736739257fa6d40fa1c678d2f52e350b4dcdf1689f94ad7f2a"
+  }
+}

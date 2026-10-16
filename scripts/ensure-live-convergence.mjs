@@ -188,7 +188,12 @@ try {
       note(awaited.settled
         ? 'CI finished for this revision without a successful attested run; refusing to deploy an unattested revision'
         : 'no attested CI run yet; the next scheduled cycle converges');
-      finish(awaited.settled ? 'UNATTESTED_REVISION' : 'AWAITING_CI_ATTESTATION');
+      // v57.88 (automation audit): 16 consecutive failed data-commit CI runs (2026-10-15 21:55Z~10-16 07:52Z) froze Pages
+      // for 5.7 hours while every refresh run stayed green — a dispatched CI run emits no workflow_run, so nothing alerted.
+      // A revision whose CI settled with a failure now fails this job (and the alert that follows it); a run that was only
+      // cancelled by a newer one stays green.
+      const ciFailed = awaited.settled && (awaited.runs || []).some((run) => run.conclusion === 'failure');
+      finish(awaited.settled ? 'UNATTESTED_REVISION' : 'AWAITING_CI_ATTESTATION', ciFailed ? 1 : 0);
     }
     report.ciRunId = awaited.attested.id;
   } else {

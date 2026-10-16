@@ -387,6 +387,24 @@ export function exposeArchitecture(root, api, { immutableState = false } = {}) {
       return nextSnapshot;
     };
   };
+  // v57.91 (performance audit): each published row set was deep-cloned and frozen for legacy readers — 50.7 MB for 1,143
+  // rows, 1.2s of a phone route switch after every refresh cycle. Three quarters of it is the per-field readiness and
+  // observation envelopes, which no getScreenerRows reader uses (native code reads the store; legacy and AI readers take
+  // plain row fields). This reader's snapshot leaves those two fields out; getScreenerState('rows') still has them.
+  const LEGACY_ROW_OMIT = new Set(['fieldReadiness', 'fieldObservations']);
+  const legacyRowsMemo = new WeakMap();
+  const legacyScreenerRows = () => {
+    const rows = typeof api.getScreenerRows === 'function' ? api.getScreenerRows() : null;
+    if (!Array.isArray(rows)) return rows;
+    let lite = legacyRowsMemo.get(rows);
+    if (!lite) {
+      lite = rows.map((row) => (row && typeof row === 'object' && ('fieldReadiness' in row || 'fieldObservations' in row)
+        ? Object.fromEntries(Object.entries(row).filter(([key]) => !LEGACY_ROW_OMIT.has(key)))
+        : row));
+      legacyRowsMemo.set(rows, lite);
+    }
+    return lite;
+  };
   Object.defineProperty(root, 'AIO_ARCH', {
     configurable: true,
     enumerable: false,
@@ -397,7 +415,7 @@ export function exposeArchitecture(root, api, { immutableState = false } = {}) {
        getState: stateSnapshotCall(api.getState),
        getSuppliedMaterialsReference: snapshotCall(api.getSuppliedMaterialsReference),
        getSuppliedMaterialClaimIds: snapshotCall(api.getSuppliedMaterialClaimIds),
-       getScreenerRows: stateSnapshotCall(api.getScreenerRows),
+       getScreenerRows: stateSnapshotCall(legacyScreenerRows),
        getScreenerState: stateSnapshotCall(api.getScreenerState),
        // E2/S-C (P1241): the classic legacy bundle cannot import the policy module, so the declared
        // intent is bridged here. This is the only legacy entry point into the shared resolver.

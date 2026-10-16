@@ -8,8 +8,11 @@ on:
   # pipeline that deploys nothing.
   schedule:
     - cron: '23 * * * *'
+  # v57.88 (automation audit): bot-dispatched Pages runs emit no workflow_run, so between pushes the watchdog ran every
+  # 3-6 hours. Refresh market data (cron or Worker PAT dispatch) does emit it; Deploy AI proxy completion re-checks the
+  # revision the Pages-triggered run saw mid-deploy.
   workflow_run:
-    workflows: ['Deploy GitHub Pages']
+    workflows: ['Deploy GitHub Pages', 'Deploy AI proxy', 'Refresh market data']
     types: [completed]
   workflow_dispatch:
     inputs:

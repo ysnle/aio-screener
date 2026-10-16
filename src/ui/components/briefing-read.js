@@ -86,7 +86,7 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
       item.dataset.kind = row.kind;
       item.dataset.eventId = row.id;
       if (row.sourceTitle) item.title = row.sourceTitle;
-      const when = el(doc, 'span', row.status === 'received' ? `${row.when} · 발표됨` : row.status === 'time-passed' ? `${row.when} · 예정 시각 지남` : row.when, 'briefing-event-when');
+      const when = el(doc, 'span', row.status === 'received' ? `${row.when} · 발표 완료` : row.status === 'time-passed' ? `${row.when} · 예정 시각 지남` : row.when, 'briefing-event-when');
       const body = el(doc, 'div', null, 'briefing-event-body');
       body.append(el(doc, 'span', row.label, 'briefing-event-label'));
       const meta = [row.why, row.comparisonBasis, row.last].filter(Boolean).join(' · ');
@@ -137,7 +137,9 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
   if (checks) {
     // P1599 (H06): dated releases live in the schedule right below (with their 'why'); repeating them here read
     // the same CPI line twice. Checks are what the tape itself asks to confirm, plus one pointer to the next release.
-    const nextRelease = schedule.find((row) => !row.passed && row.kind === 'macro');
+    // v57.88 (screen audit): US first — a Korean release (한국은행) is the pointer only when no US release is ahead.
+    const upcomingMacro = schedule.filter((row) => !row.passed && row.kind === 'macro');
+    const nextRelease = upcomingMacro.find((row) => /^macro:us-/.test(String(row.id || ''))) || upcomingMacro[0];
     const items = [...(read.checks || [])];
     // Audit 2026-10-14: the next release is named with what each of the two leading branches needs from it, so the
     // check is a threshold to compare against, not only a date.

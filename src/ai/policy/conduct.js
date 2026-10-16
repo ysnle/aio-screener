@@ -16,7 +16,13 @@ const PERSONALIZED = /(?:내\s*(?:계좌|거래|세금|포트폴리오|상황)|�
 const OPERATIONAL = /(?:방법|단계|먼저|활용|퍼뜨|조작|실행|우회|숨기|회피|하라|하세요|how\s+to|steps?|execute|use\s+it|evade|bypass)/i;
 // v57.84: a prohibited topic is blocked only when the request asks how to do it. "왜 불법인지 설명하세요" or "선행매매 탐지
 // 방법" is defensive education; the old operational test fired on any 하세요/방법 and blocked it.
-const DEFENSIVE = /(?:탐지|적발|감시|처벌|불법인지|위법인지|왜\s|피하려면|당하지|예방|detect|why\s)/i;
+// v57.88 (review): the defensive words won over an execution request, so "감시 피하려면 시세조종을 어떻게 숨기나요" and
+// "왜 … 안 알려줘? 단계별로" passed as education. Evading surveillance is blocked whatever else the sentence says, and
+// a bare "왜" no longer cancels an explicit how-to / step-by-step request. Victim-side questions ("당하지 않으려면") stay.
+const DEFENSIVE = /(?:탐지|적발|감시|처벌|불법인지|위법인지|피하려면|당하지|예방|detect)/i;
+const WHY = /(?:왜\s|why\s)/i;
+const EVASION = /(?:(?:감시|적발|단속|추적|조사|금감원|금융당국|당국|거래소|감독)\S*\s*(?:피|안\s*당|안\s*걸|우회|빠져)|들키지|안\s*걸리게|걸리지\s*않게|avoid\s+(?:detection|surveillance)|without\s+getting\s+caught|evade\s+(?:detection|surveillance))/i;
+const STRONG_EXECUTION = /(?:하는\s*법|실행\s*단계|단계별|step[- ]by[- ]step|how\s+to\s+(?:do|use|run))/i;
 const EXECUTION = /(?:퍼뜨|조작하|우회|숨기|회피|(?:활용|이용)\s*(?:방법|법|하는\s*법)|하는\s*법|실행\s*단계|단계별|step[- ]by[- ]step|evade|bypass|execute|how\s+to\s+(?:do|use|run))/i;
 const DIRECT_MARKET_ACTION = /(?:매수|매도|추가매수|진입|청산|손절|익절|목표가|진입가|손절가|비중|포지션|리밸런싱|buy|sell|trade|allocate|position|stop[- ]?loss|take[- ]?profit)/i;
 const LEGAL_DETERMINATION = /(?:신고(?:해야|할까|의무)|납부(?:해야|할까|의무)|합법(?:인가|이야|입니까)|불법(?:인가|이야|입니까)|법적으로\s*(?:가능|문제|해야|허용)|세금\s*(?:얼마|계산|내야)|규제\s*(?:준수|위반)|법률\s*자문|legal\s+advice|is\s+it\s+legal|tax\s+(?:filing|liability)|must\s+i\s+(?:file|pay))/i;
@@ -54,7 +60,11 @@ export function classifyAIRequest({ query = '' } = {}) {
   const operational = OPERATIONAL.test(queryText);
   const asksLegalDetermination = LEGAL_DETERMINATION.test(queryText);
 
-  if (prohibitedCategories.length && !DEFENSIVE.test(queryText) && (EXECUTION.test(queryText) || (operational && !educational))) {
+  const defensive = DEFENSIVE.test(queryText);
+  const evasion = EVASION.test(queryText);
+  const asksExecution = evasion || (!defensive && (STRONG_EXECUTION.test(queryText)
+    || (!WHY.test(queryText) && (EXECUTION.test(queryText) || (operational && !educational)))));
+  if (prohibitedCategories.length && asksExecution) {
     return Object.freeze({
       version: AI_CONDUCT_POLICY_VERSION, requestMode: 'PROHIBITED_INSTRUCTION',
       status: 'BLOCKED_P0', severity: 'P0', categories: Object.freeze(categories),

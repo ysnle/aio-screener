@@ -10,7 +10,7 @@ import { el } from './dom.js';
 // A value that rounds to zero prints without a sign ('-0.0%' read as a fall).
 const pct = (value, digits = 1) => { if (!Number.isFinite(value)) return '—'; const text = Math.abs(value).toFixed(digits); return Number(text) === 0 ? `${text}%` : `${value > 0 ? '+' : '−'}${text}%`; };
 const md = (date) => (date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '—');
-const STATE_LABEL = { cold: '과도한 냉각', hot: '과도한 과열', none: '보통 범위' };
+const STATE_LABEL = { cold: '강한 냉각', hot: '강한 과열', none: '보통 범위' };
 
 // v57.54 review: a market whose fetch failed keeps yesterday's body in the artifact (payload.retained), so the
 // "now" lead must not name it. A body more than a week behind the newest market is treated the same way.
@@ -23,8 +23,8 @@ export function staleMarketIds(payload, markets) {
 export function temperatureStateText(market, rules = TEMPERATURE_RULES) {
   const scores = (market.components || []).map((row) => row.score).filter(Number.isFinite);
   const total = TEMPERATURE_COMPONENTS.length;
-  if (market.state === 'cold') return `${total}개 요소 중 ${market.cold}개가 최근 3년 하위 ${rules.coldAtOrBelow}% — 과도한 냉각 ${market.streak}거래일째`;
-  if (market.state === 'hot') return `${total}개 요소 중 ${market.hot}개가 최근 3년 상위 ${100 - rules.hotAtOrAbove}% — 과도한 과열 ${market.streak}거래일째`;
+  if (market.state === 'cold') return `${total}개 요소 중 ${market.cold}개가 최근 3년 하위 ${rules.coldAtOrBelow}% — 강한 냉각 ${market.streak}거래일째`;
+  if (market.state === 'hot') return `${total}개 요소 중 ${market.hot}개가 최근 3년 상위 ${100 - rules.hotAtOrAbove}% — 강한 과열 ${market.streak}거래일째`;
   return `보통 범위${scores.length ? ` — 다섯 요소 순위 ${Math.round(Math.min(...scores))}~${Math.round(Math.max(...scores))}` : ''}${market.cold || market.hot ? `(하위 ${rules.coldAtOrBelow}% ${market.cold}개 · 상위 ${100 - rules.hotAtOrAbove}% ${market.hot}개)` : ''}`;
 }
 
@@ -148,7 +148,7 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
 
     const deep = el(doc, 'details', null, 'regime-axis-details regime-axis-deep');
     deep.append(el(doc, 'summary', '더 깊이 보기 · 온도를 재는 방법과 과거 결과'));
-    deep.append(el(doc, 'h4', '다섯 요소와 과열·냉각 구간의 정의'), el(doc, 'p', `${TEMPERATURE_COMPONENTS.map((item) => `${item.label}(${item.basis})`).join(', ')}를 각각 그 지수의 최근 3년(756거래일) 안에서 순위로 바꿨습니다. 높을수록 뜨거운 쪽입니다. 다섯 개 중 ${rules.extremeMinComponents}개 이상이 동시에 하위 ${rules.coldAtOrBelow}%면 과도한 냉각, 상위 ${100 - rules.hotAtOrAbove}%면 과도한 과열입니다. 서로 다른 쪽을 가리키는 요소를 평균해 한 점수로 만들지 않습니다 — 평균은 차가운 요소와 뜨거운 요소가 상쇄된 50을 '중립'으로 보이게 하기 때문입니다.`));
+    deep.append(el(doc, 'h4', '다섯 요소와 과열·냉각 구간의 정의'), el(doc, 'p', `${TEMPERATURE_COMPONENTS.map((item) => `${item.label}(${item.basis})`).join(', ')}를 각각 그 지수의 최근 3년(756거래일) 안에서 순위로 바꿨습니다. 높을수록 뜨거운 쪽입니다. 다섯 개 중 ${rules.extremeMinComponents}개 이상이 동시에 하위 ${rules.coldAtOrBelow}%면 강한 냉각, 상위 ${100 - rules.hotAtOrAbove}%면 강한 과열입니다. 서로 다른 쪽을 가리키는 요소를 평균해 한 점수로 만들지 않습니다 — 평균은 차가운 요소와 뜨거운 요소가 상쇄된 50을 '중립'으로 보이게 하기 때문입니다.`));
     deep.append(el(doc, 'h4', '외부 온도계와의 관계'), el(doc, 'p', '시장 심리 온도계를 공개하는 곳들은 계산식을 밝히지 않아 같은 값을 만들 수 없습니다. 이 표는 가격만으로 다시 만든 AIO의 계산이라 거래대금·신용잔고·수급은 들어 있지 않고, 같은 날 비교에서 방향은 대체로 비슷하지만 값은 다릅니다. 신용잔고 반대매매나 외국인 매도처럼 가격 밖의 압력은 이 표에 잡히지 않으니 뉴스와 거래소 공시로 따로 확인해야 합니다.'));
     const table = el(doc, 'dl', null, 'regime-evidence');
     for (const item of markets) {
@@ -162,12 +162,12 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
       const all = item.outcomes?.all?.h63;
       if (all?.n) table.append(el(doc, 'dt', `${item.label} · 아무 날 뒤 석 달`), el(doc, 'dd', `평균 ${pct(all.mean)} ±${(2 * (all.se || 0)).toFixed(1)}%p · 오른 비율 ${all.hitRate}%`));
     }
-    deep.append(el(doc, 'h4', '과거 결과 (가격 수익률, 배당 제외)'), el(doc, 'p', `같은 구간 안에서 ${rules.clusterGapSessions}거래일 안에 다시 들어온 날은 하나의 구간으로 묶고, 구간이 시작된 첫날만 표본으로 셉니다. 그 첫날끼리도 석 달 안에 붙어 있으면 결과 기간이 겹치므로, 앞 표본에서 63거래일이 지난 첫날만 셉니다. ±는 표준오차의 2배입니다. 과도한 냉각 뒤 평균이 높아 보여도 범위가 겹치면 '바닥 신호'로 읽을 근거는 없습니다.`), table);
+    deep.append(el(doc, 'h4', '과거 결과 (가격 수익률, 배당 제외)'), el(doc, 'p', `같은 구간 안에서 ${rules.clusterGapSessions}거래일 안에 다시 들어온 날은 하나의 구간으로 묶고, 구간이 시작된 첫날만 표본으로 셉니다. 그 첫날끼리도 석 달 안에 붙어 있으면 결과 기간이 겹치므로, 앞 표본에서 63거래일이 지난 첫날만 셉니다. ±는 표준오차의 2배입니다. 강한 냉각 뒤 평균이 높아 보여도 범위가 겹치면 '바닥 신호'로 읽을 근거는 없습니다.`), table);
 
     const body = el(doc, 'div', null, 'temp-body');
     const plot = el(doc, 'div', null, 'temp-plot');
     const legend = el(doc, 'p', null, 'regime-chart-caption temp-legend');
-    legend.append(el(doc, 'span', `${market.label} 2년 종가`), el(doc, 'span', '과도한 냉각', 'temp-swatch is-cold'), el(doc, 'span', '과도한 과열', 'temp-swatch is-hot'));
+    legend.append(el(doc, 'span', `${market.label} 2년 종가`), el(doc, 'span', '강한 냉각', 'temp-swatch is-cold'), el(doc, 'span', '강한 과열', 'temp-swatch is-hot'));
     plot.append(legend, chart);
     body.append(componentBars(doc, market, rules), plot);
     section.replaceChildren(el(doc, 'h2', '지수별 가격 온도 (참고)', 'briefing-h2'), el(doc, 'p', lead, 'regime-read'), tabs, head, body, el(doc, 'p', reading, 'regime-read'), deep);

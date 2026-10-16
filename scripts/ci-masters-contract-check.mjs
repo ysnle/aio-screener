@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
+import { assembleManagerRows } from './lib/masters-manager-store.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const staged = process.argv.includes('--staged');
@@ -155,7 +156,10 @@ if (holdings.managerShards) {
     if (!descriptor.url || descriptor.fullRows <= 0 || descriptor.comparisonRows < 0 || !descriptor.accession) fail(`manager row shard descriptor incomplete for ${managerId}`);
     const shardFile = descriptor.url.replace(/^\.\//, '');
     if (!artifactExists(shardFile)) fail(`manager row shard missing for ${managerId}`);
-    const shard = JSON.parse(read(shardFile));
+    const shardDir = shardFile.slice(0, shardFile.lastIndexOf('/') + 1);
+    let shard;
+    try { shard = assembleManagerRows(JSON.parse(read(shardFile)), (name) => read(`${shardDir}${name}`)); }
+    catch (error) { fail(`manager row shard store invalid for ${managerId}: ${error.message}`); }
     if ((shard.holdings || []).some(rawRowComparable)) fail(`raw manager rows carry unverified aggregate comparisons for ${managerId}`);
     if (shard.managerId !== managerId || shard.latestFiling?.accession !== descriptor.accession || shard.holdings?.length !== descriptor.fullRows || shard.comparisons?.length !== descriptor.comparisonRows) fail(`manager row shard content drift for ${managerId}: declared ${descriptor.fullRows}/${descriptor.comparisonRows}, actual ${shard.holdings?.length || 0}/${shard.comparisons?.length || 0}`);
   }

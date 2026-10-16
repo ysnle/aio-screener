@@ -29,16 +29,24 @@ export function pocketPivotAgo(closes, volumes, window = F.pocketWindow) {
   return { ago: latest, count };
 }
 
-/** Down closes of at least heavyDownPct on more volume than the prior session, in the last `window` sessions. */
+/**
+ * Down closes of at least heavyDownPct on volume above the stock's own heavyDownAvgSessions average (the sessions
+ * before that day), in the last `window` sessions. The index rule (0.2% on more volume than the prior session) is too
+ * loose for single stocks — about half of all down days would qualify (v57.88 review).
+ */
 export function heavyDownDays(closes, volumes, window = F.heavyDownWindow) {
   const n = Math.min(closes?.length || 0, volumes?.length || 0);
-  if (n < window + 1) return null;
+  const avgSessions = F.heavyDownAvgSessions;
+  if (n < window + avgSessions + 1) return null;
   let count = 0;
   let seen = 0;
   for (let i = n - window; i < n; i += 1) {
-    if (!ok(closes[i]) || !ok(closes[i - 1]) || !ok(volumes[i]) || !ok(volumes[i - 1])) continue;
+    if (!ok(closes[i]) || !ok(closes[i - 1]) || !ok(volumes[i])) continue;
+    const prior = volumes.slice(i - avgSessions, i).filter(ok);
+    if (prior.length < avgSessions * 0.8) continue;
     seen += 1;
-    if ((closes[i] / closes[i - 1] - 1) * 100 <= -F.heavyDownPct && volumes[i] > volumes[i - 1]) count += 1;
+    const average = prior.reduce((sum, value) => sum + value, 0) / prior.length;
+    if ((closes[i] / closes[i - 1] - 1) * 100 <= -F.heavyDownPct && volumes[i] > average) count += 1;
   }
   return seen >= window - 3 ? count : null;
 }
@@ -46,7 +54,8 @@ export function heavyDownDays(closes, volumes, window = F.heavyDownWindow) {
 /**
  * The base number since the trend restarted: each pullback of ≥ basePullbackPct from a closing high that lasts
  * ≥ baseMinSessions and is then closed above counts one completed base; a pullback still open counts as the base
- * being formed. A drawdown of resetDrawdownPct or a new 52-week closing low restarts the count. Returns
+ * being formed. A close below the latest completed base's low (the base failed), a drawdown of resetDrawdownPct or a
+ * new 52-week closing low restarts the count. Returns
  * { count, forming, depthPct } — count includes a base being formed; null below a year of closes.
  */
 export function baseCount(closes) {
@@ -57,11 +66,14 @@ export function baseCount(closes) {
   let pullbackStart = null;
   let pullbackLow = Infinity;
   let yearLow = values[0];
+  let lastBaseLow = null;
+  const restart = (close) => { count = 0; high = close; pullbackStart = null; pullbackLow = Infinity; lastBaseLow = null; };
   for (let i = 1; i < values.length; i += 1) {
     const close = values[i];
-    if (close < yearLow) { yearLow = close; count = 0; high = close; pullbackStart = null; pullbackLow = Infinity; continue; }
+    if (close < yearLow) { yearLow = close; restart(close); continue; }
+    if (lastBaseLow != null && close < lastBaseLow) { restart(close); continue; }
     if (close > high) {
-      if (pullbackStart != null && (high - pullbackLow) / high * 100 >= F.basePullbackPct && i - pullbackStart >= F.baseMinSessions) count += 1;
+      if (pullbackStart != null && (high - pullbackLow) / high * 100 >= F.basePullbackPct && i - pullbackStart >= F.baseMinSessions) { count += 1; lastBaseLow = pullbackLow; }
       high = close;
       pullbackStart = null;
       pullbackLow = Infinity;
@@ -69,7 +81,7 @@ export function baseCount(closes) {
     }
     if (pullbackStart == null) pullbackStart = i;
     pullbackLow = Math.min(pullbackLow, close);
-    if ((high - pullbackLow) / high * 100 >= F.resetDrawdownPct) { count = 0; high = close; pullbackStart = null; pullbackLow = Infinity; }
+    if ((high - pullbackLow) / high * 100 >= F.resetDrawdownPct) restart(close);
   }
   const last = values[values.length - 1];
   const depthPct = high > 0 ? Math.round((high - last) / high * 1000) / 10 : null;

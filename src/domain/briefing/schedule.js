@@ -27,14 +27,26 @@ const RELEASE_PROFILES = Object.freeze({
   'kr-bok': { label: '한국은행 기준금리 결정', kst: [10, 0], why: '원화·한국 금리의 기준', last: () => null }
 });
 
+// v57.91 (performance audit): toLocaleString built a new formatter per call — 1.2s of a phone boot. One cached
+// formatter and a (date, time) memo give the same instant.
+let NY_HOUR_FORMAT = null;
+const ET_WALL_MEMO = new Map();
 function etWallClockToMs(date, [hour, minute]) {
+  const key = `${date}|${hour}|${minute}`;
+  const memo = ET_WALL_MEMO.get(key);
+  if (memo !== undefined) return memo;
   const [y, m, d] = String(date).split('-').map(Number);
+  NY_HOUR_FORMAT ||= new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', hour12: false });
+  let out = Date.UTC(y, m - 1, d, hour + 4, minute);
+  if (!Number.isFinite(out)) return out; // Intl format throws on an invalid date; toLocaleString read it as NaN
   for (const offset of [4, 5]) {
     const ms = Date.UTC(y, m - 1, d, hour + offset, minute);
-    const nyHour = Number(new Date(ms).toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', hour12: false }));
-    if (nyHour % 24 === hour) return ms;
+    const nyHour = Number(NY_HOUR_FORMAT.format(new Date(ms)));
+    if (nyHour % 24 === hour) { out = ms; break; }
   }
-  return Date.UTC(y, m - 1, d, hour + 4, minute);
+  if (ET_WALL_MEMO.size >= 4000) ET_WALL_MEMO.clear();
+  ET_WALL_MEMO.set(key, out);
+  return out;
 }
 
 /** When a scheduled release becomes public (ms), or null for an id without a known release time. Codex audit F07: a
@@ -112,7 +124,7 @@ export function marketStructureEvents({ fomcDecisions = [], nowMs = Date.now(), 
       '만기 정산과 지수 추종 자금의 리밸런싱이 장 마감 무렵 대형주 수급을 흔들 수 있음');
     const us = isoDate(y, m, nthWeekday(y, m, 5, 3));
     push(`us-expiry-${us}`, etWallClockToMs(us, [16, 0]), QUARTER_MONTHS.has(m) ? '미국 지수 선물·옵션 분기 만기' : '미국 월물 옵션 만기',
-      '대규모 옵션 포지션이 정리되며 만기 주간 지수 변동이 커지거나 눌릴 수 있음');
+      '대규모 옵션 포지션이 정리되며 만기 주간 지수 변동이 커지거나 오히려 줄 수 있음');
   }
   for (const date of registeredHolidays('KRX')) push(`krx-holiday-${date}`, Date.parse(`${date}T09:00:00+09:00`), holidayLabel('한국 증시 휴장', 'KRX', date), '한국 거래가 없는 날 — 해외 시장 변화는 다음 거래일에 한꺼번에 반영');
   for (const date of registeredHolidays('NYSE')) push(`nyse-holiday-${date}`, etWallClockToMs(date, [9, 30]), holidayLabel('미국 증시 휴장', 'NYSE', date), '미국 거래가 없는 날 — 다음 거래일 갭에 유의');
@@ -188,13 +200,16 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
     // Codex browser audit H20: the calendar only says before-open / after-close; "21:00" was our placeholder hour
     // shown as if the company had announced it. Earnings rows show the US date and session, not a clock time.
     const usDate = `${Number(row.date.slice(5, 7))}/${Number(row.date.slice(8, 10))}`;
-    const whenLabel = row.hour === 'bmo' || row.hour === 'amc' ? `${usDate} 미국 ${session} · 정확한 시각은 회사 발표 확인` : `${usDate} 미국 · 발표 시각 미정`;
+    const whenLabel = row.hour === 'bmo' || row.hour === 'amc' ? `${usDate} 미국 ${session} (시각 미정)` : `${usDate} 미국 · 발표 시각 미정`;
     void when;
+    // v57.88 (screen audit): '장 전' has no announced clock time — the 08:00 ET placeholder made it read '예정 시각 지남' at
+    // 08:10 ET. It is past only once the regular session has opened (09:30 ET).
+    const passed = (row.hour === 'bmo' ? etWallClockToMs(row.date, [9, 30]) : atMs) < nowMs;
     rows.push({ id: `earnings:${row.symbol}:${row.date}:${row.hour || 'unknown'}`, kind: 'earnings', atMs, when: whenLabel, label: `${names[row.symbol]} (${row.symbol}) 실적`,
       originalTimeZone: 'America/New_York', source: earningsMeta.source || null, sourceUrl: earningsMeta.sourceUrl || null,
       sourceTitle: [earningsMeta.source ? `일정: ${earningsMeta.source}` : null, est != null && estimateSource ? `예상치: ${estimateSource}` : null].filter(Boolean).join(' · ') || null,
       observedAt: earningsMeta.generatedAt || null, comparisonBasis: row.fiscalPeriod || null,
-      why: session, last: epsContext, today: when.date === today, passed: atMs < nowMs, status: actual != null ? 'received' : atMs < nowMs ? 'time-passed' : 'upcoming' });
+      why: session, last: epsContext, today: when.date === today, passed, status: actual != null ? 'received' : passed ? 'time-passed' : 'upcoming' });
   }
   return rows.sort((a, b) => a.atMs - b.atMs);
 }

@@ -435,8 +435,9 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
     if (setupFields) Object.assign(f, setupFields);
     // v57.87: follow-through evidence (pocket pivot, heavy down days, base number, climax signs, down-day resilience) on
     // the factor price series with raw volume — technical/follow-through.js.
+    // v57.88: a KOSDAQ listing is compared with KOSDAQ only — no silent fallback to KOSPI when ^KQ11 is missing.
     if (r.volumes && r.dates) Object.assign(f, followThroughFields({ dates: r.dates, closes: factorPriceSeries, volumes: r.volumes },
-      indexReturns instanceof Map ? (/\.KQ$/i.test(String(r.sym || '')) && indexReturns.get('kq')) || indexReturns.get(sessionSegmentOfSymbol(r.sym)) || null : null));
+      indexReturns instanceof Map ? indexReturns.get(/\.KQ$/i.test(String(r.sym || '')) ? 'kq' : sessionSegmentOfSymbol(r.sym)) || null : null));
     // Yahoo's KR suffix is part of the upstream instrument identifier. Persist
     // the quote currency with the derived price/liquidity fields so consumers
     // never have to infer that a numeric amount is USD.

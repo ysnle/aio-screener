@@ -51,7 +51,7 @@ export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime
     rates: [chart('tnx', '미 10년물 명목금리', '%', daily('tnx'), { format: percent }),
       chart('tips', '10년 실질금리(TIPS)', '%', macro('realYield10'), { format: percent, note: '명목금리와 실질금리는 서로 다른 관측일일 수 있습니다. 같은 날짜의 자료가 없으면 분해해 단정하지 않습니다.' }),
       chart('breakeven', '10년 기대인플레이션', '%', macro('breakeven10'), { format: percent, note: '물가 예상만이 아니라 유동성·위험 프리미엄도 포함하는 인플레이션 보상 지표입니다.' })],
-    credit: [chart('hy', '하이일드 회사채 가산금리(OAS)', 'bp', macro('hyOas', 100), { refs: [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], note: '하이일드 채권 금리차(OAS)는 수준과 5거래일 확대·축소를 구분해서 읽습니다.' }),
+    credit: [chart('hy', '하이일드 스프레드(OAS)', 'bp', macro('hyOas', 100), { refs: [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], note: '하이일드 스프레드는 수준과 5거래일 확대·축소를 구분해서 읽습니다.' }),
       // v57.79 (UI review): chart names carry a plain-Korean name with the market abbreviation in brackets (OAS · CCC · TIPS).
       // P1638: the weakest tier against B — the average can stay calm while CCC borrowers lose access first.
       chart('ccc-b', '최하위(CCC)·B 등급 가산금리 격차', 'bp', tierGap(macro('cccOas', 100), macro('bOas', 100)), { note: '가장 약한 등급(CCC 이하)과 B 등급의 OAS 차이. 격차는 상대 차이입니다. 벌어지면 시장이 가장 약한 기업을 더 따로 가려내고 있다는 뜻이며, CCC 금리 수준 자체가 올랐는지는 하이일드 가산금리와 함께 확인합니다.' })],
@@ -106,7 +106,7 @@ export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(in
       interpretation: '이 조건들이 함께 충족되면 지수의 상승 추세를 다수 종목의 참여가 뒷받침하는 흐름으로 읽습니다. 반등이 이어질지는 참여도와 자금 조달 여건의 다음 관측으로 확인합니다.',
       conditions: [`S&P 500이 상승하는 50일선 위이고 50일선이 200일선 위인 상태.`, `50일선·200일선 위 종목 비율이 모두 ${RULES.breadth.broadAtLeast}% 이상.`, `신용 지표가 양호(HY ${RULES.credit.tightBelowBp}bp 미만, 5일·20거래일 확대 없음)이고 변동성이 부담 판정이 아닌 상태.`],
       counterEvidence: `지수의 추세가 약해지거나 참여도 둘 중 하나가 ${RULES.breadth.broadAtLeast}% 아래로 내려오면 확산 해석을 다시 확인합니다. HY 확대나 VIX 기간 구조 역전이 동반되면 회복의 근거가 약해집니다.`,
-      observe: ['지수만 상승하는지, 50일·200일 참여도도 동행하는지', '신고가가 신저가보다 많아지는지', 'HY 스프레드가 급격히 넓어지는지'] },
+      observe: ['지수만 상승하는지, 50일·200일 참여도도 동행하는지', '신고가가 신저가보다 많아지는지', '하이일드 스프레드가 급격히 넓어지는지'] },
     { id: 'concentration', title: '소수 종목 주도', confirmed: confirmed(byId.trend?.state === 'favorable' && byId.breadth?.state === 'burden' && calmRisk && leadersHolding),
       interpretation: '이 조건들이 함께 보이면 지수 추세와 표본 종목의 참여도가 갈라진 흐름으로 읽습니다. 일부 종목에 상승이 집중됐을 가능성을 살피되, 실제 지수 구성 종목의 기여도를 확인하기 전에는 대형주가 원인이라고 단정하지 않습니다.',
       conditions: [`S&P 500의 상승 추세가 유지되지만 50일선·200일선 위 비율 중 하나가 ${RULES.breadth.weakBelow}% 미만.`, `신용 지표가 양호(HY ${RULES.credit.tightBelowBp}bp 미만, 5일·20거래일 확대 없음)이고 변동성이 부담 판정이 아닌 상태.`,
@@ -191,7 +191,7 @@ export function buildKoreaRegimeObservations(input = {}, { nowMs = Date.now(), t
     const move = record?.date === last?.date ? krIndexMoveText(record) : '';
     return last ? { id, title, scope, series, asOf: last.date, last: last.value, change, unit: '지수 pt',
       stale: !!completed && last.date !== completed.date,
-      read: change == null ? `${move ? `${move}. ` : ''}1개월 변화를 계산할 완료 세션 기록이 부족합니다.` : `최근 ${KR_MONTH_SESSIONS}개 한국 거래일 ${change >= 0 ? '+' : ''}${change.toFixed(1)}%${move ? ` · ${move}` : ''}. 이 지수 안 종목들이 같은 방향인지 한국 시장 폭과 함께 확인합니다.`, record,
+      read: change == null ? `${move ? `${move}. ` : ''}1개월 변화를 계산할 완료 세션 기록이 부족합니다.` : `최근 ${KR_MONTH_SESSIONS}거래일(한국) ${change >= 0 ? '+' : ''}${change.toFixed(1)}%${move ? ` · ${move}` : ''}. 이 지수 안 종목들이 같은 방향인지 한국 시장 폭과 함께 확인합니다.`, record,
       // T20 (expert review 2026-10-13): the follow-up names the direction the index actually moved (-8.7% read "지수 상승이…").
       observe: `미국장 기준일과 분리해 읽습니다. ${change == null ? '지수 움직임이 참여 종목의 같은 방향 움직임으로 이어지는지' : change >= 0 ? '지수 상승이 참여 종목 확대로 이어지는지' : '지수 하락이 종목 전반으로 퍼지는지, 일부 대형주에 그치는지'} 다음 한국 종가에서 확인합니다.` } : null;
   }).filter(Boolean);
@@ -205,7 +205,7 @@ export function buildKoreaRegimeObservations(input = {}, { nowMs = Date.now(), t
   const cards = [...indices];
   if (lastFx) cards.push({ id: 'usdkrw', title: '원 / 달러', scope: '외환 관측일 · 뉴욕 날짜', series: fx, asOf: lastFx.date, last: lastFx.value, change: fxChange, unit: 'KRW / USD', stale: false,
     // T20: a move inside ±0.5% is 보합권, not a currency direction.
-    read: fxChange == null ? '방향을 계산할 외환 관측 기록이 부족합니다.' : `20거래일 ${fxChange >= 0 ? '+' : ''}${fxChange.toFixed(1)}%${fxWindow.meanShift != null ? `(20일 평균 ${fxWindow.meanShift >= 0 ? '+' : ''}${fxWindow.meanShift.toFixed(1)}%)` : ''}. ${Math.abs(fxChange) < RULES.fx.krwFlatPct ? `±${RULES.fx.krwFlatPct}% 안의 움직임이라 원화 방향을 말하기 어려운 보합권입니다.` : !fxWindow.agrees ? '20일 평균은 그만큼 움직이지 않아 시작점의 일시적 수준 영향이 큽니다 — 원화 방향으로 단정하지 않습니다.' : fxChange > 0 ? '같은 달러에 더 많은 원화가 필요해 원화 약세 방향입니다.' : '같은 달러에 필요한 원화가 줄어 원화 강세 방향입니다.'} 외국인 수급이나 수출 실적의 실제 변화는 별도 자료로 확인합니다.`,
+    read: fxChange == null ? '방향을 계산할 외환 관측 기록이 부족합니다.' : `20거래일 ${fxChange >= 0 ? '+' : ''}${fxChange.toFixed(1)}%${fxWindow.meanShift != null ? `(20일 평균 ${fxWindow.meanShift >= 0 ? '+' : ''}${fxWindow.meanShift.toFixed(1)}%)` : ''}. ${Math.abs(fxChange) < RULES.fx.krwFlatPct ? `±${RULES.fx.krwFlatPct}% 안의 움직임이라 원화 방향을 말하기 어려운 보합권입니다.` : !fxWindow.agrees ? `20일 평균은 그만큼 움직이지 않아 시작점의 일시적 수준 영향이 큽니다 — 원화 ${fxChange > 0 ? '약세' : '강세'}로 단정하지 않습니다.` : fxChange > 0 ? '같은 달러에 더 많은 원화가 필요해 원화 약세 방향입니다.' : '같은 달러에 필요한 원화가 줄어 원화 강세 방향입니다.'} 외국인 수급이나 수출 실적의 실제 변화는 별도 자료로 확인합니다.`,
     observe: '환율 움직임과 한국 주가를 같은 날짜·기간으로 확인합니다. 서로 관측일이 다르면 직접적인 인과나 상대강도로 단정하지 않습니다.' });
   const dates = indices.map(item => item.asOf);
   return { available: cards.length > 0, cards, asOf: dates.length ? dates.sort().at(-1) : null,

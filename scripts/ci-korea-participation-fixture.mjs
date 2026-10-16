@@ -23,7 +23,7 @@ assert.ok(model.missing.includes('외국인·기관 순매수'),'P1628 FX direct
   assert.equal(shock.session.ret1d, -1, 'P1723 the sample 1-day median comes from the same session');
   assert.equal(shock.session.down3, 8, 'P1723 members down 3% or more are counted');
   // v57.81: every member fell, so the spread is read first; the size gap still names the large caps (pin "몰린 것으로 보입니다" -> "더 몰렸습니다").
-  assert.match(shock.session.text, /^코스피 10\/13 -5\.5% vs 한국 수집 표본 30개 하루 수익률 중앙값 -1\.0%.*표본 전반으로 번진 하락입니다 — 지수 하락 폭이 표본 중앙값보다 훨씬 커 시가총액이 큰 종목에 하락이 더 몰렸습니다\. 5거래일은 지수 -13\.8% · 표본 중앙값 -6\.0%로, /, `P1723 index vs sample sentence (${shock.session.text})`);
+  assert.match(shock.session.text, /^코스피 10\/13 -5\.5% vs AIO 추적 종목\(한국\) 30개 하루 수익률 중앙값 -1\.0%.*표본 전반으로 번진 하락입니다 — 지수 하락 폭이 표본 중앙값보다 훨씬 커 시가총액이 큰 종목에 하락이 더 몰렸습니다\. 5거래일은 지수 -13\.8% · 표본 중앙값 -6\.0%로, /, `P1723 index vs sample sentence (${shock.session.text})`);
   const other = buildKoreaParticipation({ rows: sample, themes, nowMs: Date.parse('2026-10-13T09:00:00Z'), index: { date: '2026-10-12', d1: -3 } });
   assert.ok(!/코스피/.test(other.session.text), 'P1723 an index close from another session is never set against the sample');
   const semi = shock.groups.find((group) => group.themeId === 'semi');
@@ -39,6 +39,10 @@ assert.ok(model.missing.includes('외국인·기관 순매수'),'P1628 FX direct
   const spread = buildKoreaParticipation({ rows: wide, nowMs: now, index: { date: '2026-10-15', d1: -7.57, d5: -18.4 } });
   assert.match(spread.session.text, /표본의 92%가 내려 표본 전반으로 번진 하락입니다/, `v57.81 the 92%-falling sample reads 표본 전반으로 번진 하락 (${spread.session.text})`);
   assert.match(spread.session.text, /5거래일은 지수 -18\.4% · 표본 중앙값 -13\.0%로, 표본의 92%가 내려 표본 전반으로 번진 하락입니다 — 지수 하락 폭이 표본 중앙값보다 훨씬 커/, `v57.81 the 5-session gap is read by the same rules (${spread.session.text})`);
+  // v57.88 (screen audit): the 10/16 up day — KOSPI +2.0% against a +4.6% sample median, 90% of the sample up. The gap is
+  // read with the index direction, and an up day counts the up side.
+  const rebound = buildKoreaParticipation({ rows: wide.map((row, i) => ({ ...row, factorSessionDate: '2026-10-16', ret1d: i < 215 ? 4.6 : -1, ret5d: 1 })), nowMs: Date.parse('2026-10-16T09:00:00Z'), index: { date: '2026-10-16', d1: 2.0, d5: 0.5 } });
+  assert.ok(/덜 오르고 중소형 종목이 더 올랐습니다/.test(rebound.session.text) && !/하락이/.test(rebound.session.text) && /\(\+3% 이상 215개 · 상승 215개\)/.test(rebound.session.text), `v57.88 an up day must not read as a large-cap decline (${rebound.session.text})`);
   const mixed = buildKoreaParticipation({ rows: wide.map((row, i) => ({ ...row, ret1d: i % 2 ? -0.5 : 0.5, ret5d: i % 2 ? -1 : 1 })), nowMs: now, index: { date: '2026-10-15', d1: -0.4, d5: -0.2 } });
   assert.ok(!/번진/.test(mixed.session.text), `v57.81 clean: a split day is not called a spread move (${mixed.session.text})`);
 
@@ -57,7 +61,7 @@ assert.ok(model.missing.includes('외국인·기관 순매수'),'P1628 FX direct
   const { krIndexTrendFacts, krIndexReading } = await import('../src/ui/components/kr-index-trend.js');
   const cards = buildKoreaRegimeObservations({ history: krHistory }, { nowMs: now }).cards;
   const kospiCard = cards.find((card) => card.id === 'kospi');
-  assert.match(kospiCard.read, /^최근 20개 한국 거래일 [-+]\d+\.\d% · 하루 -\d+\.\d% · 5거래일 -18\.4%\(최근 \d+거래일 기록에서 하루 (최저|하위 \d+%)·5거래일 최저/, `v57.81 the 시장 상태 KR card shows the 1-day move and its record position (${kospiCard.read})`);
+  assert.match(kospiCard.read, /^최근 20거래일\(한국\) [-+]\d+\.\d% · 하루 -\d+\.\d% · 5거래일 -18\.4%\(최근 \d+거래일 기록에서 하루 (최저|하위 \d+%)·5거래일 최저/, `v57.81 the 시장 상태 KR card shows the 1-day move and its record position (${kospiCard.read})`);
   assert.match(cards.find((card) => card.id === 'kosdaq').read, /하루 -\d+\.\d% · 5거래일 -18\.4%\(최근 \d+거래일 기록에서/, 'v57.81 KOSDAQ reads the same record rule');
   const chartLine = krIndexReading(krIndexTrendFacts(krHistory, 'kospi', { through: '2026-10-15', now }), '코스피')[0];
   assert.match(chartLine, /하루 -\d+\.\d% · 5거래일 -18\.4% · 20거래일 [-+]\d+\.\d%\. 최근 \d+거래일 기록에서 하루 (최저|하위 \d+%)·5거래일 최저입니다\.$/, `v57.81 the chart-tab KR card shows the same record and the same month window (${chartLine})`);

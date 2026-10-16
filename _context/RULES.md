@@ -19,6 +19,12 @@ target_version: v57.79
 - **운영·AI**: R652 Worker 자동 배포는 CI 증거와 롤백 대상이 있어야 · R657 운영 알림은 증거를 남기고 닫힌 쪽으로 실패 · R681 모든 AI는 공용 Worker 한 경로로, 웹검색 포함 월 $20 이하 예산을 함께 쓴다
 - **화면**: R697 등급·검증 안 된 합산·행동 지시 없이 측정한 조건과 근거만 보인다 · R669 데스크톱·휴대폰·아이패드가 같은 라우트·데이터를 쓰고 레이아웃만 적응한다 · R703 한 사용자 입력은 한 owner가 처리하고 색 테마는 storage 실패와 무관
 
+## R717. main에 커밋되는 데이터 파일은 50MB 미만으로 설계한다 (v57.89, P1899)
+
+**Rule**: 프로듀서가 main에 커밋하는 public-data 파일은 GitHub 50MB 경고 아래여야 한다. 행 수가 늘어나는 원장은 크기 상한이 있는 분할 저장(색인 + 결정론적 part, 리더가 재조립·digest 검증)으로 쓰고, 단일 파일 원장은 main 밖(data-store 등)에 둔다. 커밋 게이트를 완화해 큰 파일을 통과시키지 않는다.
+
+**Validation**: node scripts/ci-masters-manager-store-check.mjs; node scripts/ci-artifact-size-headroom-check.mjs; refresh-data/refresh-screener staged-file 50MB 게이트
+
 ## R716. 세션 수 하한은 생산자가 받는 실제 길이로 검사한다 (v57.86, P1876)
 
 **Rule**: 52주·1년 같은 세션 수 하한을 정하거나 바꿀 때는 생산자가 실제로 받는 봉 수(Yahoo range=1y: 미국 251, 한국 245, 미완성 세션 제거 시 1 적음)를 고정 테스트에 넣는다. 달력상 거래일 수(252)를 그대로 하한으로 쓰지 않는다.

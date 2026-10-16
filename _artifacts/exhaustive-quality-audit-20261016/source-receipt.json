@@ -1,0 +1,3423 @@
+{
+  "capturedAt": "2026-10-16T13:40:23.429Z",
+  "version": {
+    "version": "v57.90",
+    "built": "2026-10-16T22:36:00+09:00",
+    "note": "v57.90: data-store SEC 원장 색인+part 분할 저장(100MB 푸시 거부 예방)"
+  },
+  "head": "cf64d49b071fef40fffe9bf512ced54044af61ad",
+  "dirty": [
+    "M .github/workflows/data-watchdog.yml",
+    " M .github/workflows/refresh-data.yml",
+    " M .github/workflows/refresh-screener.yml",
+    " M CHANGELOG.md",
+    " M CLAUDE.md",
+    " M _artifacts/accessibility-matrix-audit.json",
+    " M _artifacts/boot-interaction-report.json",
+    " M _artifacts/critical10-human-surface-audit.json",
+    " M _artifacts/entity-quality-20261012/browser-desktop-dark-fiscal.png",
+    " M _artifacts/entity-quality-20261012/browser-desktop-dark-summary.png",
+    " M _artifacts/entity-quality-20261012/browser-desktop-dark-technical.png",
+    " M _artifacts/entity-quality-20261012/browser-desktop-light-fiscal.png",
+    " M _artifacts/entity-quality-20261012/browser-desktop-light-summary.png",
+    " M _artifacts/entity-quality-20261012/browser-desktop-light-technical.png",
+    " M _artifacts/entity-quality-20261012/browser-phone-dark-fiscal.png",
+    " M _artifacts/entity-quality-20261012/browser-phone-dark-summary.png",
+    " M _artifacts/entity-quality-20261012/browser-phone-dark-technical.png",
+    " M _artifacts/entity-quality-20261012/browser-phone-light-fiscal.png",
+    " M _artifacts/entity-quality-20261012/browser-phone-light-summary.png",
+    " M _artifacts/entity-quality-20261012/browser-phone-light-technical.png",
+    " M _artifacts/entity-quality-20261012/browser-report.json",
+    " M _artifacts/entity-quality-20261012/browser-tablet-dark-fiscal.png",
+    " M _artifacts/entity-quality-20261012/browser-tablet-dark-summary.png",
+    " M _artifacts/entity-quality-20261012/browser-tablet-dark-technical.png",
+    " M _artifacts/entity-quality-20261012/browser-tablet-light-fiscal.png",
+    " M _artifacts/entity-quality-20261012/browser-tablet-light-summary.png",
+    " M _artifacts/entity-quality-20261012/browser-tablet-light-technical.png",
+    " M _artifacts/out-of-universe-20261015/browser-desktop-ufpt-placement.png",
+    " M _artifacts/out-of-universe-20261015/browser-desktop-ufpt.png",
+    " M _artifacts/out-of-universe-20261015/browser-phone-ufpt-placement.png",
+    " M _artifacts/out-of-universe-20261015/browser-phone-ufpt.png",
+    " M _artifacts/out-of-universe-20261015/browser-report.json",
+    " M _artifacts/policy-criteria-review-20261016/HANDOFF.md",
+    " M _artifacts/portfolio-vault/report.json",
+    " M _artifacts/responsive-browser/phone390-ai.png",
+    " M _artifacts/responsive-browser/phone390-glossary-dark.png",
+    " M _artifacts/responsive-browser/phone390-glossary-light.png",
+    " M _artifacts/responsive-browser/phone390-market-regime.png",
+    " M _artifacts/responsive-browser/phone390-theme-1.png",
+    " M _artifacts/responsive-browser/phone390-theme-comparison.png",
+    " M _artifacts/responsive-browser/report.json",
+    " M _artifacts/responsive-browser/tablet1024-ai.png",
+    " M _artifacts/responsive-browser/tablet1024-glossary-dark.png",
+    " M _artifacts/responsive-browser/tablet1024-glossary-light.png",
+    " M _artifacts/responsive-browser/tablet1024-market-regime.png",
+    " M _artifacts/responsive-browser/tablet1024-theme-1.png",
+    " M _artifacts/responsive-browser/tablet1024-theme-comparison.png",
+    " M _artifacts/responsive-browser/tablet768-ai.png",
+    " M _artifacts/responsive-browser/tablet768-glossary-dark.png",
+    " M _artifacts/responsive-browser/tablet768-glossary-light.png",
+    " M _artifacts/responsive-browser/tablet768-market-regime.png",
+    " M _artifacts/responsive-browser/tablet768-theme-1.png",
+    " M _artifacts/responsive-browser/tablet768-theme-comparison.png",
+    " M _artifacts/route-soak-report.json",
+    " M _artifacts/structural-quality-20260906/browser.json",
+    " M _artifacts/structural-quality-20260906/guide.png",
+    " M _artifacts/touch-ergonomics/report.json",
+    " M _artifacts/ui-render-hygiene/phone360-topbar.png",
+    " M _context/BUG-POSTMORTEM.md",
+    " M _context/CLAUDE.md",
+    " M _context/CONTEXT-CATALOG.json",
+    " M _context/CURRENT-STATE.md",
+    " M _context/QA-CHECKLIST.md",
+    " M _context/RULES.md",
+    " M architecture/asset-manifest.json",
+    " M architecture/operations-slo.json",
+    " M architecture/public-readiness.json",
+    " M architecture/qa-pipeline.json",
+    " M architecture/release-manifest.json",
+    " M architecture/visual-state-matrix.json",
+    " M index.html",
+    " M js/aio-core.js",
+    " M js/aio-pages.js",
+    " M public-config.json",
+    " M public-data/masters/managers/blackrock-inc.json",
+    " M public-data/masters/managers/jpmorgan-chase.json",
+    " M public-data/operations-status.json",
+    " M scripts/build-masters-runtime-artifacts.mjs",
+    " M scripts/ci-ai-intelligence-contract-check.mjs",
+    " M scripts/ci-artifact-size-headroom-check.mjs",
+    " M scripts/ci-candidate-archive-check.mjs",
+    " M scripts/ci-data-pipeline-contract-check.mjs",
+    " M scripts/ci-esm-core-unit-check.mjs",
+    " M scripts/ci-external-pipeline-check.mjs",
+    " M scripts/ci-korea-participation-fixture.mjs",
+    " M scripts/ci-masters-contract-check.mjs",
+    " M scripts/ci-scenario-guidance-fixture.mjs",
+    " M scripts/collect-13f-reference.mjs",
+    " M scripts/ensure-live-convergence.mjs",
+    " M scripts/lib/candidate-archive.mjs",
+    " M scripts/lib/market-analysis-validate.mjs",
+    " M scripts/lib/news-selection.mjs",
+    " M scripts/lib/telegram-tickers.mjs",
+    " M scripts/recover-masters-holdings-from-shards.mjs",
+    " M scripts/sec-fundamentals-store.mjs",
+    " M src/ai/policy/conduct.js",
+    " M src/domain/briefing/schedule.js",
+    " M src/domain/fundamental/sec-normalize.js",
+    " M src/domain/macro/macro-read.js",
+    " M src/domain/macro/rates-fx.js",
+    " M src/domain/market/korea-participation.js",
+    " M src/domain/market/macro-crossroads.js",
+    " M src/domain/market/page-flow.js",
+    " M src/domain/market/scenario-outlook.js",
+    " M src/domain/rules/thresholds.js",
+    " M src/domain/screener/custom-conditions.js",
+    " M src/domain/screener/price-factors.js",
+    " M src/domain/screener/row-presentation.js",
+    " M src/domain/technical/chart-analysis.js",
+    " M src/domain/technical/follow-through.js",
+    " M src/ui/components/briefing-read.js",
+    " M src/ui/components/macro-crossroads.js",
+    " M src/ui/components/sector-map.js",
+    " M src/ui/components/sector-moves.js",
+    " M src/ui/components/stock-chart.js",
+    " M src/ui/components/theme-playbook.js",
+    " M src/ui/pages/entity.js",
+    " M src/ui/pages/news.js",
+    " M src/ui/pages/portfolio.js",
+    " M src/ui/pages/screener.js",
+    " M src/ui/styles/responsive.css",
+    " M src/ui/styles/screener-quality.css",
+    " M sw.js",
+    " M version.json",
+    " M worker/wrangler.proxy.toml",
+    "?? _artifacts/exhaustive-quality-audit-20261016/",
+    "?? _artifacts/internal-quality-review-20261016/",
+    "?? public-data/masters/managers/blackrock-inc.part-1.json",
+    "?? public-data/masters/managers/blackrock-inc.part-2.json",
+    "?? public-data/masters/managers/jpmorgan-chase.part-1.json",
+    "?? public-data/masters/managers/jpmorgan-chase.part-2.json",
+    "?? scripts/ci-masters-manager-store-check.mjs",
+    "?? scripts/ci-sec-ledger-store-check.mjs",
+    "?? scripts/lib/masters-manager-store.mjs",
+    "?? scripts/lib/sec-ledger-store.mjs",
+    "?? scripts/split-masters-manager-rows.mjs"
+  ],
+  "files": [
+    {
+      "path": "public-data/knowledge/ai-retrieval-index.json",
+      "bytes": 482898,
+      "sha256": "f9f5a6a215bcd86416c2f38831c8d3e5e9b4d123258c648e6e25f7c95bd774ea"
+    },
+    {
+      "path": "public-data/knowledge/aliases.json",
+      "bytes": 227948,
+      "sha256": "a00fa33c54e9133000c2d8defffb83303669ff4caa5da367d6282b7aa92bde20"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/advanced-packaging.json",
+      "bytes": 6925,
+      "sha256": "6914aadabcb1bc9e216266a534ed6fb1b489e9061f5c6c90a888cb1857a8cba0"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/agent-loop.json",
+      "bytes": 4462,
+      "sha256": "2757a5f7afe5da30c1c0f40e3ca0be6b5a9f50d046296e509a5b900b73d0fc1c"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/bottlenecks-and-scarcity.json",
+      "bytes": 5480,
+      "sha256": "66e5afafeddf2c31204069caa9f4ea5c79ee9757059aa7411ddc25b9c0fb3cd9"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/capacity-and-yield.json",
+      "bytes": 5341,
+      "sha256": "580d196f87070965d9e01869ae6befecca6778e034b06d3205239d0b37005412"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/capex-and-depreciation.json",
+      "bytes": 4990,
+      "sha256": "a4638a034a2a44359e33f7cf9dd4e2dd6e98b44d577ca6d8f1a8244c975140ac"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/claim-source-as-of.json",
+      "bytes": 4735,
+      "sha256": "bf6ad5f045ef261df658397e6c7f4d89ac010d29ca94a7356c9ad713d8ccadfb"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/context-window.json",
+      "bytes": 4663,
+      "sha256": "5d7428800401b1c439af4d8a034232c6ef25e7d4cad92f7f59b8a2a96ce5e62f"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/cpu-gpu-asic-npu.json",
+      "bytes": 5451,
+      "sha256": "4304757e92a840f42840721e9b6e41c30083585979e03483ab8467fa212e3d97"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/data-quality.json",
+      "bytes": 4544,
+      "sha256": "47078520ab82758d91b0eeb8e201819f6e84c305c6845836ab7ab9329a6b97af"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/deployment.json",
+      "bytes": 5222,
+      "sha256": "0fd2e2c32abda424c60aeba6a7f6953b1e3201843b2a6bc5fbea38e7497170c4"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/embedding-and-position.json",
+      "bytes": 4538,
+      "sha256": "d1e58b68add308898581468c13c950aa2190718f588737297cd8553be604c957"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/energy-and-power.json",
+      "bytes": 5920,
+      "sha256": "917bcc7e75181f9f3f6d93b442ab84be5d75baefd0742bf38ef09db5d04e45e4"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/evaluation.json",
+      "bytes": 5867,
+      "sha256": "7b4210b2f02515d9dbb4ab5511f613c04856d8650c8b2a7c8b541645ba3617e1"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/fcf-and-funding.json",
+      "bytes": 6590,
+      "sha256": "50b6a78b6600c8eef39b2d414c9d670e36d15b92bc8e568a2b2ffbe51c5dcb49"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/forward-backpropagation.json",
+      "bytes": 4539,
+      "sha256": "093b0affafead9738ba8ae229c34437b44b659f3ae4359a490a227681fddec1e"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/generalization-and-memory.json",
+      "bytes": 6997,
+      "sha256": "4ce18bc71f02f74c4740e6d1d1bb821884cf6d041ebe09be605f4ecd7363609a"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/hallucination-and-verification.json",
+      "bytes": 4737,
+      "sha256": "cb6c2b5ee9f72ee502130ca0eedd909b2e52821bca1040e006a42bc6e0d6c8bc"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/hbm.json",
+      "bytes": 5438,
+      "sha256": "910279ae54cab24e8c2c5cb819440f4487484767b9bbf904ab9c12cdf961d2f8"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/human-review.json",
+      "bytes": 4768,
+      "sha256": "3a8ace5e04bff3b7d316849d6146afbaf4ffcadb5ddc57bdedf24de0e67a1373"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/interconnect.json",
+      "bytes": 6067,
+      "sha256": "c29933f6a848fbe0c3072975b04d348ee3fcc2b6932baf17b611775787acd8ea"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/kv-cache.json",
+      "bytes": 9291,
+      "sha256": "1cd8f5bf8f60002c1c7e14b16b442a19b1b3c7172dceec7f2e93c5c04c1ef35e"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/learning-types.json",
+      "bytes": 4698,
+      "sha256": "275ba4f469f434b97627c39923b42d6eb247383cf074215d41af761375eb7e34"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/memory-wall.json",
+      "bytes": 6804,
+      "sha256": "f4eab3a46d4fd432e4d38fb04ccc1645af4b39fc3211024e0c491cd03cf46444"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/model-parameters-training.json",
+      "bytes": 6126,
+      "sha256": "46368dd578030299df5ad83fb1c7888ead11b6885797d02f1d9bb7a44d4fb559"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/multi-head-attention.json",
+      "bytes": 4567,
+      "sha256": "f59b9b090aded6973b57b7ff3bcb93c5c7458810c73242432bff56e998fcd87f"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/neural-networks.json",
+      "bytes": 5447,
+      "sha256": "2172fa91219aa0aa9fec437ff0b30031b7f4c22642e0142c328e3388c6cbe73e"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/parallel-processing.json",
+      "bytes": 5374,
+      "sha256": "25376257413c1602d7839b397bb3561bb5d80f134b179c6e6140468bd8bf4ff2"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/parameter-vs-external-memory.json",
+      "bytes": 6936,
+      "sha256": "eb143223004a8dd8fdae0e67bcf0c68088fb8a87f51ed51766845da482bc7ed6"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/planning-and-control.json",
+      "bytes": 5183,
+      "sha256": "60d1fe6e8c02f0a7ee68a1a92d2f059dea757632e8b3d6b7d25ee3dc2372a7c6"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/post-training.json",
+      "bytes": 6811,
+      "sha256": "c1e16fa2aa5d35cdbad849ca72bedf1a03f491abe4a062b3314ed1e3220d82ec"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/power-and-grid.json",
+      "bytes": 6001,
+      "sha256": "de8416491c66b42c97cad13d2f52eb62052e9b30340a50e95c53a803dc916e46"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/precision-and-tensor-core.json",
+      "bytes": 5567,
+      "sha256": "09b105294c1a94723e56d7a5a75de21b68ca184ff27766d940ab88f76e7f5257"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/pretraining.json",
+      "bytes": 6071,
+      "sha256": "22c98e0c8faa2e5894083422593ebed761cd1c3a808afa9be0058e648e4fc866"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/probability-and-statistics.json",
+      "bytes": 4651,
+      "sha256": "5606bd950d6081ffab561795ba39497184dbd05dcd74ecd87afb865154dbb84a"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/rack-density-and-cooling.json",
+      "bytes": 5395,
+      "sha256": "8248b833fa845a8776a9f021ccafe3fed0cd6166dc794139472a5235863f5d5d"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/retrieval-augmented-generation.json",
+      "bytes": 5388,
+      "sha256": "9ed6ee3d4bd89ce4f434b1b4a864fadf4a48a1021094f5b27d5db968159454c9"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/roic-and-counter-scenario.json",
+      "bytes": 5593,
+      "sha256": "c8ee86e8df6233c4099056a7eeeae1ba9d01391395ec6a9afd667538249d7b04"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/rules-vs-learning.json",
+      "bytes": 4927,
+      "sha256": "16982974fd5ee9ddb4cff0b346cbfa4f665d2afe4489d20c679f4ab99d6a51a8"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/self-attention.json",
+      "bytes": 4482,
+      "sha256": "a119d3b7858246140ee09077ee7df31f3e326d40a4b662b316eeaac81a30a887"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/silicon-and-doping.json",
+      "bytes": 4584,
+      "sha256": "924059d723b370960713019877dde1098fa2fa1aa5c2b47d2f4b8ebd475a4d7e"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/state-action-dynamics.json",
+      "bytes": 5260,
+      "sha256": "84c562396ed82064b99a314332950e4f2e9c1c63ae70fd32214660ff26eccccb"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/tokenization.json",
+      "bytes": 4502,
+      "sha256": "b03985b2bf29b04afce4cb2f1e09e0b7bde5b972d4dbf143d6e15deb52581c1a"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/tool-use.json",
+      "bytes": 4570,
+      "sha256": "3928fcb590214479b7f3277af4b5e9d1cfc4d5e7355bbb2a2cd6651f13687fec"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/unit-economics.json",
+      "bytes": 5525,
+      "sha256": "f218ee87fb80f74f6a95f3ca7098a8eccc708545f488d65d30952830bddd49a0"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/utilization.json",
+      "bytes": 6830,
+      "sha256": "b82f31378d82c3038e08177f317b834f9758144f51b4fae24cfe823fb716f922"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/vectors-and-matrices.json",
+      "bytes": 5071,
+      "sha256": "e38b02dff91248233589d9bc2d05ac600166360ec4d6d1293bc6a1b3a712659d"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/workload-shape.json",
+      "bytes": 6682,
+      "sha256": "bd216bc2b70716f78560c05d3156b7c3e07bf93f735a9b9a1b3bbd429ccdb690"
+    },
+    {
+      "path": "public-data/knowledge/articles/atlas-foundations/world-model-limitations.json",
+      "bytes": 6225,
+      "sha256": "26a092cdb27541f77702814d7173ff0dae47d100a8b3c669cfffb771f46f9aae"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/A1.json",
+      "bytes": 5250,
+      "sha256": "4c55f991b8cc0b65e0028668ac36e13fc9ca368e4f5a071b4cf44a667c4535b6"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/A2.json",
+      "bytes": 5309,
+      "sha256": "5e3e227ece4e067ea311bd1aaf2822f4ce7aed7369e6427368a2951d9a7a856d"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/A3.json",
+      "bytes": 5423,
+      "sha256": "de807695ff0e52f16da09647b7f1fbf07faf43941ee89bff720546fe3c2fa35b"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/A4.json",
+      "bytes": 5173,
+      "sha256": "b6d8eef0059927b67f63f2cfd27f32e811cd6e700a3207d4b10f04a5c8b04e39"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/B1.json",
+      "bytes": 5801,
+      "sha256": "7a4c1e6dbefdb23cd9e3f646f7ef07b6a15603019a682322e35f5d630d8c074b"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/B2.json",
+      "bytes": 6089,
+      "sha256": "ac49565024b1066d49e71b27387553dc4b6cdb7ad768d803a639eec89a234a5f"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/B3.json",
+      "bytes": 6525,
+      "sha256": "b5070937ac1eecf855c9bc6b4cba0634d290b2ddfa77ebbc55b70e6e95c991c7"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/B4.json",
+      "bytes": 5769,
+      "sha256": "78685fe771f4c04a6e1776296c9a9c6aa57fdb4efd2ab6ec713ef2a3f691da29"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/C1.json",
+      "bytes": 5301,
+      "sha256": "58db3aa3c9595ea5e5015658f49af8939fad811d65b8abfd265eb9975781a4b7"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/C2.json",
+      "bytes": 5358,
+      "sha256": "e4a871a6012882757de6b7858107f6574dfdec4385b3823733903ba25eb8cd06"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/C3.json",
+      "bytes": 5215,
+      "sha256": "bae6efb7a32dded9147173659076376d8d79a97da2aaae83d4d109f9b380a4a6"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/C4.json",
+      "bytes": 5399,
+      "sha256": "becda65e04d33957e54fd32b0f346689b398341abade03cb0b8f235169d230be"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/D1.json",
+      "bytes": 5650,
+      "sha256": "7e0bc5acb613b10cb18b540a399461a119deb31115c428d6df0763b1b9b0eb7b"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/D2.json",
+      "bytes": 6442,
+      "sha256": "eb2310dd8970859efdd6a56e2e2777883a36df723ab8f80fb4d98ae3ead7678b"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/D3.json",
+      "bytes": 7428,
+      "sha256": "d0a1d92addeb52e09abe767bdb0d46cf49d11ad93a5feac561b8169bcb96b7ca"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/D4.json",
+      "bytes": 5912,
+      "sha256": "73f7989f8174bd6a27548c52ab3db700f24ff39ed54780681e087f9b33a3dd55"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/D5.json",
+      "bytes": 6800,
+      "sha256": "85f09de80aad102f37c55fcf3e62918e1d424f6f9ce01c82e8a55241b208eef7"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/D6.json",
+      "bytes": 9601,
+      "sha256": "536bfc049a143f818a0209952bb95c76e2c38d61cd7acad9ebc7652b3b8072dd"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/E1.json",
+      "bytes": 5144,
+      "sha256": "e1ffb15eacf4337099848868ba0ce800ce26df1c261dd1e9af9d8e70930d2da4"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/E2.json",
+      "bytes": 5796,
+      "sha256": "fb286b80dc39915cd9d384c17f94b5038a89e5c5bb7af321cbe2d9e18be92ed8"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/E3.json",
+      "bytes": 5207,
+      "sha256": "8ae3fdef29fe5acbe5746190f64a837763642e14435962131775e1ff35137cf4"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/E4.json",
+      "bytes": 5188,
+      "sha256": "23448d69557fd50a288122607dccc5485558d730e9e8bf61a7acdd6bbb9dbc4b"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/E5.json",
+      "bytes": 5115,
+      "sha256": "02c681d878cd53c212e8b4ad1de95dda862264e2d7f49e9537ae6161f5c9fdcd"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/E6.json",
+      "bytes": 5066,
+      "sha256": "117baa375010413e5521c5df3684d4ec14d831f2121d04bc65991bbcf1eae25f"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/E7.json",
+      "bytes": 5121,
+      "sha256": "9b36505ca6ed8738f357d3584295db9605aeca500c3b734585b570f235149031"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/F1.json",
+      "bytes": 4998,
+      "sha256": "43bf626feae850ad692c9b2d2386df503ab831cdce69e6d816f799b239cfcb36"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/F2.json",
+      "bytes": 5142,
+      "sha256": "16966b011ef05fce6549ac2efb424baefefc1149ed20cd7ece841afd8e7d9d9d"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/F3.json",
+      "bytes": 5368,
+      "sha256": "c07ea2cedde2c5ff1f140d6504906ea56f6bc14e1efb2a4306d1e82a84f796af"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/F4.json",
+      "bytes": 5227,
+      "sha256": "e5cd301eb207c31328870811e9aa96d8a19b5f712688a9e85f3b3ec8a69d289e"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/G1.json",
+      "bytes": 5743,
+      "sha256": "19285d524076a5f4ac15976965219984b1588cef8a0686c25564053447195632"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/G2.json",
+      "bytes": 5898,
+      "sha256": "4cbed912f3526605bccaea1fb464d824edf71ffdb2b7ffb24d643aa78019b783"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/G3.json",
+      "bytes": 5719,
+      "sha256": "356ed099ac6923187db5853a4bda8c957d89f0482f3dd885e957cce174c1b1ac"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/G4.json",
+      "bytes": 5896,
+      "sha256": "c298421992179e63cd50172ef33d5040f3cf0603627362e52a9938495a8b1f91"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/G5.json",
+      "bytes": 5987,
+      "sha256": "6d97408397e88983aa13cdc5772482ea672279095332223e09c3c0625c4e0107"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/G6.json",
+      "bytes": 5649,
+      "sha256": "fca4a522d0825fbbd33729eda6677afda65a813b2480217e00d98bf649d99004"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/G7.json",
+      "bytes": 6471,
+      "sha256": "1568132e4c0214544756d96830689aac76287e4682f31f5272f25f23c17dbfc5"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/G8.json",
+      "bytes": 6071,
+      "sha256": "6baea2971f7f0db308e04c68dba12eba73d403957b3fce4d93e78e82b1743c3d"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/H1.json",
+      "bytes": 5581,
+      "sha256": "62485f38009ba8ed8d9a6555bf9c4a25aba6d2e4fb955b6f0c8e6e9a3bd42d44"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/H2.json",
+      "bytes": 5644,
+      "sha256": "0f79faf2aa5bbb17c5395ae06c0149900a9cd93872fb995d9cf1e9214dbac36e"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/H3.json",
+      "bytes": 5670,
+      "sha256": "f9fad7856ee971d980aeb09c67688d4f8dd5ff21ff9092f086e25ca74d947c1a"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/H4.json",
+      "bytes": 5862,
+      "sha256": "489a1300febef40fc487689ccd4493bae044e19d43cc3ab2853ea09b2812602b"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/H5.json",
+      "bytes": 5687,
+      "sha256": "e6e8648e5e08e932e6a9745f803ccfe8c84d8daa0f38e8fea776c5e2d41143e6"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/I1.json",
+      "bytes": 5077,
+      "sha256": "01a5d263a34047b6ccee697a3e9cdd69b754c6dc10d28032a042f50bafc93525"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/I2.json",
+      "bytes": 4927,
+      "sha256": "da037c3de0260ce9b79a79fe0dd297d98c641f7699abf09465a562da945ee7b9"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/I3.json",
+      "bytes": 5029,
+      "sha256": "9b16e62d51792919025a174672ce9608755023edc3017df70ac07c842f168d56"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/I4.json",
+      "bytes": 5168,
+      "sha256": "5ab088d7e6c469e4f57bc3f9b4b31c5d14fef8187a8563c238b2458bb1c54061"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/I5.json",
+      "bytes": 5089,
+      "sha256": "3ebd9a589c9174f3577853ad1d054b8b77891ae46a8b662386aac84441260aa6"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/J1.json",
+      "bytes": 5251,
+      "sha256": "8ff50b513f33804fe6676b904c42e3208661fc8a02929f56d14dae9d691d3bac"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/J2.json",
+      "bytes": 4986,
+      "sha256": "72d69afb7ae51d06ec8c25a6f95736a743047d11d662acfde5c989880d1f685e"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/J3.json",
+      "bytes": 5054,
+      "sha256": "9d4d2d868d6f2dba37e8a3e974d97fa3cefc20922f3eab09b4a1fb9c63ed2ccb"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/J4.json",
+      "bytes": 5075,
+      "sha256": "7b72de3df44382403c75d6de4f75e4e61bc85c45e3b7aa96c248efdd2010e1dd"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/J5.json",
+      "bytes": 5022,
+      "sha256": "adfa23a21627f55b01fef6733e293371174f82db7014b3fbb8dad00041335e45"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/K1.json",
+      "bytes": 4236,
+      "sha256": "00d86babc74983b5168f408d5975211a51955f181108ea2faff537cc3a55f266"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/K10.json",
+      "bytes": 5416,
+      "sha256": "e995ab93f90259943b1ef36d1f10a405f563ec0b960206ed6de4ed15cba27b8b"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/K11.json",
+      "bytes": 4450,
+      "sha256": "be606815afb23b3a5e7712c51df37244578f0b59c9e545c141a334c394f6f7ba"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/K12.json",
+      "bytes": 6018,
+      "sha256": "4d09923866c3ddd9c8fe872f4c87757e1879ad9e50ace3f89d5a8ec2d2c3dc20"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/K2.json",
+      "bytes": 5129,
+      "sha256": "7373c59bae23b497dba393410430254fb7cb3022d598b7393c21a11c278e5691"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/K3.json",
+      "bytes": 5065,
+      "sha256": "44e60171e8a1eca2d47185ddf598c17c5c1d960412d7f2cacb21c97bd0eff47d"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/K4.json",
+      "bytes": 4289,
+      "sha256": "963c1b436108b37a52b7114069338cf95c09d102b4948f12eaabb6792dd22585"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/K5.json",
+      "bytes": 4213,
+      "sha256": "57c1857ab0a0a6b30048d23f6533250281e89ffafeb5409a4cb627bfd79bc5b3"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/K6.json",
+      "bytes": 4399,
+      "sha256": "b1cf958a5c56834de5eb0f25af3226f619b47174099645e1fc2d2185ab66672c"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/K7.json",
+      "bytes": 6184,
+      "sha256": "13bc2f30d84b30749f7c3cc2d8779381ebab768dcc9c8777c3b4b63a64e6b151"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/K8.json",
+      "bytes": 5057,
+      "sha256": "8d4d03621262b47eaa1b8fdec55966faf5bbf979d272cae45ce12b1a07229813"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/K9.json",
+      "bytes": 4527,
+      "sha256": "cde78d1b31ad9c6910c4d39a9d1b6046b95064054657e8564b54e2eb8d92a38d"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/L1.json",
+      "bytes": 5339,
+      "sha256": "2a610dc55a9d529cb783cd24fad8ea0b7734350316e51ce8c0a290feb1cab1cc"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/L10.json",
+      "bytes": 5925,
+      "sha256": "1b8bba84ce1797dfdf2c07eaba893a82bfdb065d35008e98d699b63612ac0202"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/L11.json",
+      "bytes": 4467,
+      "sha256": "9c6b09d9dc4322c1fb516cc07097ce99d067ae7e4e84f75c25f4869256223783"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/L12.json",
+      "bytes": 6054,
+      "sha256": "87adfe98deea40388b9360a0e358e9895170ec3f0987fba38eca9187068cb23e"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/L13.json",
+      "bytes": 4634,
+      "sha256": "fdf7477683bde35f571a3ff5ae6d51b060a72bfe4b0ef3d74e9a4cf38ef8a98f"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/L14.json",
+      "bytes": 7168,
+      "sha256": "44d077bf3346f7e7cdfa1111af2402617a4eb527eee4147506a5f1896379d987"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/L15.json",
+      "bytes": 5937,
+      "sha256": "54669ec7f6e09b9136ed19af72b050c832a8fca6d9ec4dcb5a08958d217d7b77"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/L16.json",
+      "bytes": 6876,
+      "sha256": "f3284399ff1f9cc60da69230c312d9998c333abc65127794448088cfc836e1f1"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/L2.json",
+      "bytes": 4342,
+      "sha256": "3c053ff857a4e6db2f2df4a3c211bcf0175150495c44c740b4c6049776520dd2"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/L3.json",
+      "bytes": 4404,
+      "sha256": "55d581d4ff6b4a8d32b698f67e322619a779fbc587b4316f2389d1fcc4c1cb80"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/L4.json",
+      "bytes": 4433,
+      "sha256": "1ff520904c4e720362585edeadd529a1cfe0a9999ea7a2a255a236355556755d"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/L5.json",
+      "bytes": 4387,
+      "sha256": "42e65538531afb792fa8768f77cd14151cf942935812c2c2debe71c357e2c0a4"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/L6.json",
+      "bytes": 4200,
+      "sha256": "5b06e9b67343f855fed9d3c1333afa3a4e726c1f87eca530d73a8092d7a7d435"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/L7.json",
+      "bytes": 4503,
+      "sha256": "26fc824d63d31434de71785ffa0a4f7fdd3f6716177d43735f0fc1429fbff18a"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/L8.json",
+      "bytes": 4506,
+      "sha256": "f5533f22fe155752e7ece2b0b675bd5b833e6fe6ac5742c25f7aac53039aa8d1"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/L9.json",
+      "bytes": 6792,
+      "sha256": "183920ba56ca1b19c1384b784935d06371f3afa279219152d9e91b57148c83f7"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/M1.json",
+      "bytes": 4399,
+      "sha256": "3331ddc9c87e629d4a2c86a02fd91f1a6d28a6913de88cd06371d9dcad11062a"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/M10.json",
+      "bytes": 4326,
+      "sha256": "1b3fa1abd4fd1357134b8dbf9d3314f7104ab8dc167d07e596478e3d86a3edad"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/M11.json",
+      "bytes": 4432,
+      "sha256": "8caa4bf97f72870a4b5dbd51db2802379232e4cd95482a7204e98de031b630a9"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/M12.json",
+      "bytes": 5140,
+      "sha256": "730538f37ef6e138b0b91ca69f1b8ed8bd28217b91afce2565c54513a24cd604"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/M2.json",
+      "bytes": 4292,
+      "sha256": "ae7b412cd96f041e8c03e2701677bd0e93d6bbd002451875e3718dcf2bb7bbb2"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/M3.json",
+      "bytes": 4354,
+      "sha256": "a725d97a070bd8114b2bfb5e89e2590eb892c88f6c2e7f7c192d1d27ffc48d05"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/M4.json",
+      "bytes": 4371,
+      "sha256": "50d9aa4f4f97516aecd59ac4dd53dec4dcebf78a66ed268d9510b32e1d066d01"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/M5.json",
+      "bytes": 4190,
+      "sha256": "b4cd290b1318fb7a6d1d53213da3c9f9d741168c19ba8e4b35a092a907cc99b7"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/M6.json",
+      "bytes": 4396,
+      "sha256": "a2f1daaacf24236da6014819516b6b39ad4f70ec01c958e4fc30143e6e45914c"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/M7.json",
+      "bytes": 4335,
+      "sha256": "a59f4313dd531d768232b3e2a8de03f55fb4c2d77b1fbec4844943ed9ae371fe"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/M8.json",
+      "bytes": 5647,
+      "sha256": "ed4b002deef406da7e08a58e9e099d4f84b13a37a10e443febd61cff066e8336"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/M9.json",
+      "bytes": 4391,
+      "sha256": "313e740357e6e7a34bfb1ef812d087a5ec4cbf2ec2e350c55f4b391aec76b904"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/N1.json",
+      "bytes": 4396,
+      "sha256": "fef4c6f9649015771b9da41a44dafd9907b44a328b79c555599c094b4f38b6fc"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/N10.json",
+      "bytes": 4520,
+      "sha256": "e2049160a4c30b96147f1c9c54c84e8fd09735872a1bf9eeb32a571c4d5f6fcf"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/N11.json",
+      "bytes": 4270,
+      "sha256": "af8efbf1d0514ce27886abf8c56add4454bfb01ef47ff4786f1fc9d49c006c8b"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/N12.json",
+      "bytes": 4202,
+      "sha256": "dd646b82a2ff74fcc6bdd4c51dde18f1e57ae1e70ea6e56cc857154ad28a3bc7"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/N13.json",
+      "bytes": 4309,
+      "sha256": "05e053f8e1647f5350711c8134e8c85981f2935182fd879b8e6a74524db698ee"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/N14.json",
+      "bytes": 5193,
+      "sha256": "81f09c95ccf18e8d253ac689218f3953f1acab9e628c71aabd4d3341a7bfda9d"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/N15.json",
+      "bytes": 4364,
+      "sha256": "4a976e7601eb012f9780de899b2678d7ed732156d88be4db7d67a1dc7e77052e"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/N2.json",
+      "bytes": 4414,
+      "sha256": "6569b05b2d669c16359751dab556e3d12a47875e11985c84ffd72fa60ae854e9"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/N3.json",
+      "bytes": 4379,
+      "sha256": "a1d21f860cdb497c687f70b36be62b0aafa23655ad55709481eb819ded79b994"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/N4.json",
+      "bytes": 4326,
+      "sha256": "e51a937d62f68f8f1a0d026d85c71141e52420470945ddb64426f6355ea6c7e8"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/N5.json",
+      "bytes": 4325,
+      "sha256": "5af45e45d1425e7f39ac9b54eff51c4a2c3d796f352781a7390c4a403d50ce79"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/N6.json",
+      "bytes": 4327,
+      "sha256": "fef94109219219d1ff0eb6a3231073cd674d5ff2ba3625f840bf6050edbcaef3"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/N7.json",
+      "bytes": 4215,
+      "sha256": "c9160bff59f23031cf1edf012bd9ca39345caebaf54ed8a8adab5108c4fe3995"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/N8.json",
+      "bytes": 4383,
+      "sha256": "152a5522cd508d8da55f470be3f8abf20e55b6d4401379a1eb723b6112878d6c"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/N9.json",
+      "bytes": 4316,
+      "sha256": "f422cffd0731d06c4fb5a2f662ae31cad52d6a7316be4c783ebb28c66a476ecb"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/O1.json",
+      "bytes": 6140,
+      "sha256": "5303dca895aac5dd1c7ffe6f06b1092c6435f24bab6382e950847d944ff27470"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/O2.json",
+      "bytes": 4824,
+      "sha256": "ff78d6dc5ae93e65e074df3234c42fcd5c398ba482e7b23dee7ed9dd4109ec20"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/O3.json",
+      "bytes": 6759,
+      "sha256": "9fd212f69d5c0bd610fea211db3574975373d7b7c44befa4a6d354ab5b4af57f"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/O4.json",
+      "bytes": 5358,
+      "sha256": "220d019ddf40b5c2e2648cd6c3e27152e2c09ad1c7802cb7da95460c75aee637"
+    },
+    {
+      "path": "public-data/knowledge/articles/principles/O5.json",
+      "bytes": 4411,
+      "sha256": "cd208aa5147902eb632113a74eadaca7855761b7d6c72d5695e55bb58f5a6d7d"
+    },
+    {
+      "path": "public-data/knowledge/articles.json",
+      "bytes": 910691,
+      "sha256": "1f7f68b11aa9e133b16e99d966c5768e13d507f20adf966aeb52e98a163dcf97"
+    },
+    {
+      "path": "public-data/knowledge/claims.json",
+      "bytes": 211013,
+      "sha256": "114ca0aa63cab68ca4731f9e673d9e55f0b4c8d6ce4dd1d4dd7b24f7a8d818ae"
+    },
+    {
+      "path": "public-data/knowledge/concepts.json",
+      "bytes": 144937,
+      "sha256": "96bbf4b9f8893dc75d7ea39b21c10f98ee0e3a7b9ce01ef7dad8e062675d76a7"
+    },
+    {
+      "path": "public-data/knowledge/coverage-matrix.json",
+      "bytes": 407072,
+      "sha256": "bc4986836020c9dbfac4ed24af4f731b6825ea6474d2435d3dc458efef5494ec"
+    },
+    {
+      "path": "public-data/knowledge/current-observations.json",
+      "bytes": 7060,
+      "sha256": "c0548be377384685f6aae5c0b2e448374c30999f4e1ee83ca8e3e5d3a0b61fc6"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-adjacent-future-tech.json",
+      "bytes": 8274,
+      "sha256": "873610eb963a630f2a1d6e662df59453378ecabc527fdc26d3d036f5dca8f623"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-ai-applications.json",
+      "bytes": 8210,
+      "sha256": "180a0f8e0b5261fc1c1ffc5e9f1899526c14761d81ea76d2872303bd4dedeedc"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-ai-economics.json",
+      "bytes": 7879,
+      "sha256": "b2509241c58d9cfb74e29e9b1291af876007b58012e393a32fccc1c504c4c18e"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-aidc-cooling.json",
+      "bytes": 7952,
+      "sha256": "31decf3d221c2d8dc11922f2a8f1390190d9e6ecf8cb4f4cd03caf5c7e54d11c"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-capital-markets-company-map.json",
+      "bytes": 8434,
+      "sha256": "f3f8d75a5fe175f8df97e6c5209cb34c4d72405dde35db2f68361b3f0fda7bf9"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-cloud-platform.json",
+      "bytes": 8187,
+      "sha256": "731d96f64689b6fd977d4a65d59171eab48afe5f7da2a1fa575f767c63b23a7a"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-compute-silicon.json",
+      "bytes": 8096,
+      "sha256": "4f7324a60fd7b6cc98c216e48063472f87620b13f02f44dcd964770864529b6b"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-drone-defense.json",
+      "bytes": 8268,
+      "sha256": "02a77446f373276187c9123c38197fe132866d60e91ff6cf7844d01c02e926ad"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-foundry-equipment.json",
+      "bytes": 8404,
+      "sha256": "bf31b89aad81fef1a13073f98f05be8ecd6faec5efab31c2ab8c2551cac6c529"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-geopolitics-policy-security.json",
+      "bytes": 8519,
+      "sha256": "0d547416ebb8607df055f2feee0cf410661cb7a3ab49345b4cdccb3f73c5c04b"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-memory-storage.json",
+      "bytes": 8185,
+      "sha256": "e1614cba5d00c4b1213f889a21da89bc3ec4b021421a94f2706b94cbca65a925"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-neocloud-finance.json",
+      "bytes": 8095,
+      "sha256": "e6fe581afb4ec003ddad90b9335286e6240690da23b639a3f154a8e3a01e7f69"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-network-photonics.json",
+      "bytes": 8196,
+      "sha256": "831ced2d121143b0c67b7ddc7b655ddfb8c847b10bba284202cacfb0c8ba394f"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-on-device-physical-ai.json",
+      "bytes": 8302,
+      "sha256": "c7759a0b3fabcc89a198bf4dc13e4ebad0d7b73ac067e327952e17cd21d3f9e7"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-packaging-substrate.json",
+      "bytes": 8083,
+      "sha256": "69cadf8209f41dc46a4f2c2f4861856e8be9b5101e13a55fb56525c4d1914ab2"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-physical-ai-robotics.json",
+      "bytes": 8358,
+      "sha256": "978795ac856f6fe4980cab915113d80095e74a1a2f06114336f3d33c86429dd3"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-power-grid.json",
+      "bytes": 8055,
+      "sha256": "e077bf80a268b75ed0b35d63b9469d40b069e529da03a92cfaddb652feb9a213"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-resources-materials.json",
+      "bytes": 8295,
+      "sha256": "741fe321ce5d2f30d5291822f55673d381e66d4438ef101c714cae4a01d68d1d"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers/domain-space-aerospace.json",
+      "bytes": 8421,
+      "sha256": "5ba1d1289d2de63da8a5be8a23a274d21d981f71dfb6dc4e003e8faa50492cae"
+    },
+    {
+      "path": "public-data/knowledge/domain-dossiers.json",
+      "bytes": 173072,
+      "sha256": "aa0dd1c1104e68524872adbf4b389cd98d58349a4316726d6e0a19cfd2dbc14e"
+    },
+    {
+      "path": "public-data/knowledge/integrated-market-ai-frameworks.json",
+      "bytes": 231215,
+      "sha256": "2b27f7e64ecb9d7ee8d2621c174c483b4c3c49cb709b2a5f91b790ba8112a23f"
+    },
+    {
+      "path": "public-data/knowledge/learning-graph.json",
+      "bytes": 87563,
+      "sha256": "af84ab8a725488c21134e5fa2745f98add726404cdf5fbd94a1d18b2758b4faa"
+    },
+    {
+      "path": "public-data/knowledge/nathan-frameworks.json",
+      "bytes": 242790,
+      "sha256": "b1af6bf1fd066ed85a0b2748243784d781c0b94c23137c5553ba2b2b55c0489b"
+    },
+    {
+      "path": "public-data/knowledge/relationship-guides.json",
+      "bytes": 38441,
+      "sha256": "952bf7046ed35878565160ce4a73ae63e676614e7df2353fc24d6a811787cc8f"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_advanced-packaging.json",
+      "bytes": 6159,
+      "sha256": "f30c08a3f4f86729b95c305a65565c7ff0d269f6a6d373e94649f8cbb63fd8e6"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_agent-loop.json",
+      "bytes": 5052,
+      "sha256": "9e7efd49141b43325cadfa78dac2acb8c6a85c2d2f5f2f3a0b8a681e1b6fe72e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_bottlenecks-and-scarcity.json",
+      "bytes": 5107,
+      "sha256": "fe67e864c8201aa72e8806bd00ce3bc12371b77db655d75f7f879a34a6dd7780"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_capacity-and-yield.json",
+      "bytes": 6416,
+      "sha256": "a2a40d9e2bdb3e77c92809984cbb0f91a72131836fdd6acf5acc515ca63fb045"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_capex-and-depreciation.json",
+      "bytes": 4258,
+      "sha256": "6ce001be575c0824e1c64af68375e85230780fa86aeb399dd52c9b3c8b45a0a6"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_claim-source-as-of.json",
+      "bytes": 5573,
+      "sha256": "919b8296be68f236402566cf185b6bd04b40c710c30847112d5135aad3270baf"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_context-window.json",
+      "bytes": 4553,
+      "sha256": "b26be79638c819b4e7eddb8dec8a377ea4b7a25e51287c482fe8de18c4022040"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_cpu-gpu-asic-npu.json",
+      "bytes": 4750,
+      "sha256": "2094ca015bd1a7c4e747b9bc2fe9d74e96333e9e57f83f8c84fa0abe90aca9ae"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_data-quality.json",
+      "bytes": 3646,
+      "sha256": "a42a559cfa2f10a8106a89d3e4865265693ca8bea9dc8ca1ce2e5909cea5480d"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_deployment.json",
+      "bytes": 5645,
+      "sha256": "248206e0ad07e3ee61aa819cddfd9636218076e718450713ab9f346dac7ab9a2"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_embedding-and-position.json",
+      "bytes": 4641,
+      "sha256": "065a495b35730ae1ebcce8d7ce1025ab02934313f93640fb94870c41425936dd"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_energy-and-power.json",
+      "bytes": 5824,
+      "sha256": "18a25e83cde067e8b74c4494c52bb81261feeb22e220f3c125c1f10bbf75a50a"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_evaluation.json",
+      "bytes": 6930,
+      "sha256": "53489377214507da7278a75f33f08bf9b9d42c2ee946985ceca18ebd46df2e80"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_fcf-and-funding.json",
+      "bytes": 7258,
+      "sha256": "98108654759af05de54d4139f9b4b0c029934a884b3c554139746b7d9c6af6cf"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_forward-backpropagation.json",
+      "bytes": 3781,
+      "sha256": "78665df9c398ca862a662b5bdb296c436bfb3f57e184659093cc86d61fed6a6b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_generalization-and-memory.json",
+      "bytes": 6363,
+      "sha256": "5c599b6b194abe268f0283e8c4553eba9fcf0fd56cb451dc55f114a18ec92ef1"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_hallucination-and-verification.json",
+      "bytes": 4881,
+      "sha256": "9018c12f29d9d6060f819021e1651d5bb1c95ad941341d4f2c48174848064cdd"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_hbm.json",
+      "bytes": 4410,
+      "sha256": "3652b05e4dc072d8ef6a9df27f850e7a4300bb255b83fe2a0f944e3e2a7bb967"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_human-review.json",
+      "bytes": 5379,
+      "sha256": "1c0fcfe4dbf8b66aa4fb91b7da251c14e95ab76d3cff21206433bfd11234f2ca"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_interconnect.json",
+      "bytes": 6291,
+      "sha256": "2ec146d4220917fcc63bdc05a57021666f4517db732906976f9d3b36d8fd042e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_kv-cache.json",
+      "bytes": 7357,
+      "sha256": "86e3af3ecfca274a3123bf148f292533e33812153f757c71b77544b5faf9f51b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_learning-types.json",
+      "bytes": 6037,
+      "sha256": "9cf7f5471f31b7f8104d82e3b457ba75d9df86940db8d289e172101a6f97d930"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_memory-wall.json",
+      "bytes": 6251,
+      "sha256": "8796e4fd814d236702712985415e635568132ea0d0e7052ebdb3b018cbbe5ef5"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_model-parameters-training.json",
+      "bytes": 6236,
+      "sha256": "2de3bdddc4db8104fa3cce10d3234498fae75b86ddcc84b6c04437c8c78fcdb5"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_multi-head-attention.json",
+      "bytes": 4388,
+      "sha256": "8061742b03bdd79c1c83423e130bf0019a8f9649537c64a2e0aafada5863d7f2"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_neural-networks.json",
+      "bytes": 4565,
+      "sha256": "c2a3d5efeefc3cb131163963837c48b82c2288d208230c1a3e6e0b8654855a54"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_parallel-processing.json",
+      "bytes": 5423,
+      "sha256": "c7896728726e9c1ad9f59782b3fe7723f4f247508d64adfe890deff936a5f45c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_parameter-vs-external-memory.json",
+      "bytes": 6591,
+      "sha256": "04fbc6e24e2dd5ecd924cbcdbb3e27727edc0d55d1d3181f9ab24cd1a6b7615e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_planning-and-control.json",
+      "bytes": 6474,
+      "sha256": "859a0e989150d95f5e396162e5e729714bab37140776b75afd9c15b3bccd3602"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_post-training.json",
+      "bytes": 6523,
+      "sha256": "6d5ecd32adc1a4f0dce30b0c07b2d0af0dff34eb59d2bff057ea52aaa0446ea2"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_power-and-grid.json",
+      "bytes": 5568,
+      "sha256": "154195e24454d5d7f3b88b38a9f75d9aecb23c4977951b7ad85606dcf5b80c51"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_precision-and-tensor-core.json",
+      "bytes": 4549,
+      "sha256": "c960156a64a7062cc3717657618a9e684c4b5b0cd69fdffc894cc91c8ce5b122"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_pretraining.json",
+      "bytes": 5768,
+      "sha256": "e838de0d5a530197b70a1d3082fe6087528a9f2c2dfe5448842d1423bf00b532"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_probability-and-statistics.json",
+      "bytes": 3732,
+      "sha256": "9c3de0e03bea9ec0ce52323a562e7fa0b799462362be8b9cc2907deaee606de0"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_rack-density-and-cooling.json",
+      "bytes": 4952,
+      "sha256": "2961371f892d4deb9f592c3ed4b776b2704d69056d267d6bf5e453dae44a539f"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_retrieval-augmented-generation.json",
+      "bytes": 4471,
+      "sha256": "d63895af12a9bf5aa6ae8829db9e26edce4e236db11c15244125a9b337f80fc4"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_roic-and-counter-scenario.json",
+      "bytes": 6517,
+      "sha256": "1970a1efd9407273e2ba5941df554d0faeac2c1a40200101c4781eccd6435fe0"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_rules-vs-learning.json",
+      "bytes": 5958,
+      "sha256": "73c5a15f7ee6a7be3671dd3b80bd58476bc30791a87632fe5804d138e9caad3c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_self-attention.json",
+      "bytes": 4322,
+      "sha256": "a661b5934ece032fc3a14d1651eb0899c6fa7301cf15a4acfa21caec225aa66f"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_silicon-and-doping.json",
+      "bytes": 3847,
+      "sha256": "504b167ee005b6a87636b4fe0376216ecfa9a9f8a7c6d0b96c421ab8aee737e6"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_state-action-dynamics.json",
+      "bytes": 6525,
+      "sha256": "c67a02199b587320bb595c176673fa99fb6c3d44b9d3e71c1dc34e6ec86c254c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_tokenization.json",
+      "bytes": 4310,
+      "sha256": "c685c7c24d347eba950fd5fbf4249eeda9ae120be940e02c6424d17076089114"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_tool-use.json",
+      "bytes": 5669,
+      "sha256": "f22562c5a54add3dbf986283e90a7a1e1cc14574ecea0500e71f7204a493a434"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_unit-economics.json",
+      "bytes": 4938,
+      "sha256": "6763aadcb6cd638897117e23d1eafedcafa1b2803cc45c6436970d0b871f9aa7"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_utilization.json",
+      "bytes": 6416,
+      "sha256": "824633bf4812fe8ef073d23c584a72fd3108f8965469c566b37ad1f77f343097"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_vectors-and-matrices.json",
+      "bytes": 4417,
+      "sha256": "60fa14b4d2896a10f8b7053bc8b6a3a73cb391223564a6744173f4c6dead0e2d"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_workload-shape.json",
+      "bytes": 6965,
+      "sha256": "525d0f2f3410f52754bb8b69c3b22a31ca34a0fe83f8a028be29647672a5b01c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/atlas-foundation_world-model-limitations.json",
+      "bytes": 6559,
+      "sha256": "a2c186d69377de06ad54d8396e35fd501488bf99c4599d7c1ab3813412142275"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_aidc-constraints.json",
+      "bytes": 4823,
+      "sha256": "b57a7e2a4f42d01f226d9ac22b410f15f444137dbb937398586657ff2be982b5"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_aidc-contract.json",
+      "bytes": 4673,
+      "sha256": "f9d959740cd7c980d6a5373f9d2a5090164fa30a585a56b76d7ff1af61aad7a6"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_aidc-demand.json",
+      "bytes": 4613,
+      "sha256": "ca1b5b3349af2d246f45fbc4639d6c8ef8fb2695a6b5fea66c339887f61effdc"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_aidc-grid.json",
+      "bytes": 6275,
+      "sha256": "5c0bf1176e4113f2f14220648bc2da528cfb8c3c06534f7b5919757c265d8ed7"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_aidc-supply.json",
+      "bytes": 4749,
+      "sha256": "700922f103dc191d76931c468aa9a722a94a9010128223b5c361020bce5203e1"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_artemis.json",
+      "bytes": 2326,
+      "sha256": "09f16b2d111d6770e515450f0a8b113e5031a7f6cea5e6fb95c48198f60dc128"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_cloud-capex.json",
+      "bytes": 4712,
+      "sha256": "23ee2c766dadf64035834777ea4a864f1dcd19208faf543ce19cc342ebe6fa7b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_cloud-roic.json",
+      "bytes": 3960,
+      "sha256": "da1461cdcb94cc09274d811a4a33605ab827cbb461c44ab3ab8f886b319ea9c2"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_cloud-stack.json",
+      "bytes": 2350,
+      "sha256": "4518819c4a82b51551c95eef5af502514668b56450c994383daabca4b8d23a8f"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_defense-mission.json",
+      "bytes": 2286,
+      "sha256": "436d2dbaa5f1a544371a9f8dcbc4121fb50d15f2d7282d1dabc522fadbcbed1d"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_defense-production.json",
+      "bytes": 2388,
+      "sha256": "b856bb6d1794182e551dfb920416b3bf47ed78e2c4252b93e75f1bee3e649f1f"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_edge-ai.json",
+      "bytes": 4621,
+      "sha256": "2f32d82f4950bb3714abc00527b5d83ae205ba7ec0e7f92e6c22e40b601b50a8"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_foundry-18a.json",
+      "bytes": 3147,
+      "sha256": "95376c12cda3aef32511508cdb0f175797e0cfebfd30c1f1917e93a3bcc2889a"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_foundry-2nm.json",
+      "bytes": 3139,
+      "sha256": "b28fe45d24271734329bfc81f8880c1cb8a648e1a9fe682b13bacd73da4932fc"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_foundry-3nm.json",
+      "bytes": 3099,
+      "sha256": "9e47f1fe9963f54818bf4fc1825fb7fc2cbf4bd820c6f7b4acd2c2c33a7abb39"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_foundry-7-5-4.json",
+      "bytes": 3151,
+      "sha256": "953bd545f0926fa0100ab57b4ad49b88532e5d287fc92dff6c40ebb285c62b90"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_foundry-mature.json",
+      "bytes": 3193,
+      "sha256": "a269c95caceac91faa0054895a2010902aa088dcfb61716cd094ffbce71f235b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_foundry-yield.json",
+      "bytes": 5090,
+      "sha256": "5d22595abf10a1972d8a9972bcf2460024f02dea0c4a0e08e8480bdfcdebc11a"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_lithography-china.json",
+      "bytes": 3205,
+      "sha256": "3e2bc29a5814a70c2359728ee7e6befcc1f58d70bbdac7b9a73003cb92018ed8"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_lithography-duv.json",
+      "bytes": 3273,
+      "sha256": "ebe82bc909f635026580161b8e668611629156ec8228a05c3e718ed21f2bdd18"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_lithography-euv.json",
+      "bytes": 3065,
+      "sha256": "e431560c427759a840ce379b84ab930b0744530dd305c933138ae5d6d44cac17"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_lithography-high-na.json",
+      "bytes": 3081,
+      "sha256": "5cbbcc57d7d2a0b59b137244e3efa79042d2d0cafc664186830486fc69e23fdb"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_lithography-optics.json",
+      "bytes": 3143,
+      "sha256": "376fb0ab30aca524b34448adba5e57c209f84ffb65dd943337c8cf2a98e44a76"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_memory-cxl-branch.json",
+      "bytes": 2535,
+      "sha256": "54b72de3b45f20da2587ca8c2475bdb62fe2f70884e6dc4db3e2cb25553ddddc"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_memory-economics.json",
+      "bytes": 2533,
+      "sha256": "e93e370dd10dabf38e33015862c0f2f012452b7235735e49a315b34a33f845df"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_memory-hbm-branch.json",
+      "bytes": 4116,
+      "sha256": "4a1ae18936ef7230c342736435f2e570fcd265ae779c700eeff4477c8858e82c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_memory-hierarchy.json",
+      "bytes": 2462,
+      "sha256": "64c95b625244d0421a5d40bfeba0609f38393b227377bd8e5f205f7b05a4b270"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_memory-nand-ssd.json",
+      "bytes": 2504,
+      "sha256": "338b917b608ab237b9fe29205e700a2df2a206fbcef21d56bbf14739d912367a"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_neocloud-economics.json",
+      "bytes": 2412,
+      "sha256": "590abfd9b54a8e5adde72b2899f60877a98ef198f90c73bd75d6a369c63770aa"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_open-alliances.json",
+      "bytes": 2436,
+      "sha256": "ba36a48d53bab251649bd3e282aaf0e2390daed1bf2275572c90d5032bd919e5"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_open-china-strategy.json",
+      "bytes": 2590,
+      "sha256": "a714d8022ef6d9c08251f5fc3ec7fb536e698c95ee29c88980549fbc9e2c1fcd"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_open-definition.json",
+      "bytes": 2406,
+      "sha256": "57791409a7b567aa3e0993d18c803fc15ee6b09709a1731c653ff2ee7601aaf7"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_open-economics.json",
+      "bytes": 2332,
+      "sha256": "74aa1f77908bac060b924c6013a5482ddf4fd577555612f030d908cdc4bf2713"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_open-model-family.json",
+      "bytes": 2568,
+      "sha256": "6d53fde4c19c161a8835adde1716fa2ecfa10f4ed4d84a624900cd1e8e95ceb0"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_package-2-5d-branch.json",
+      "bytes": 2366,
+      "sha256": "90e307184efba094d8d552c464811625e3fecc66cf432ac63365732857491687"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_package-3d-branch.json",
+      "bytes": 2394,
+      "sha256": "74260a37804e60efc0f9ee08a69189566199534042e68fcd00c0ac2ac87d285e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_package-flow.json",
+      "bytes": 2288,
+      "sha256": "d20de53298fead42ebf16ef32012d4c2354a00bd1fa60ade91191cc19dbf4f4a"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_package-glass-branch.json",
+      "bytes": 2232,
+      "sha256": "f97bab8c89b6dabc7b6888eb4314fe4fb030e8439d806da66edcf110039dac34"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_package-substrate-branch.json",
+      "bytes": 2352,
+      "sha256": "c6d05024bc0f276e0d74718f703fdaf33b926d051f35ff4586ad437167e39371"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_photonics-architecture.json",
+      "bytes": 2444,
+      "sha256": "2b89e7a4d8de16bc9afc23185887eec286396005744eb7667507828d30c18db3"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_photonics-components.json",
+      "bytes": 2272,
+      "sha256": "e20085de4894db2d4a0ca602de1c7afe325cc924ff965b2fc60014c1831939ce"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_photonics-module.json",
+      "bytes": 2280,
+      "sha256": "595c1a9fca794d3ce9002121817ca5c378da7f34d8c98fece1c9d0d02eeef63b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_photonics-physics.json",
+      "bytes": 2234,
+      "sha256": "2a180f469b7e2fa7867c2af54efd486f383541a63b6297f6d36d8eca31bc4296"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_photonics-platform.json",
+      "bytes": 2268,
+      "sha256": "ca056f4047b30acdf2c2aac901c15d79e162870b30faebda9e78cf572d8cab02"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_physical-economics.json",
+      "bytes": 2380,
+      "sha256": "2578cdd469375b115921e6e550ea334ccc34ae69ace80aa7ebe03fed01c2f6df"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_physical-loop.json",
+      "bytes": 2370,
+      "sha256": "3cdaae2b2985fbaa03f14a38af6cfc432838a2b40babdd67646d6b3982e9fb38"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_space-reuse.json",
+      "bytes": 2246,
+      "sha256": "0a36d4431271a77c1a20095948b9235fd4a65eb1cbd3e0c123944edf4728bf22"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_space-stack.json",
+      "bytes": 2278,
+      "sha256": "c36a31eccc87d724721691ad114b7cb0238ca7f9e97fe6a112acff65590a3737"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_wafer-process-flow.json",
+      "bytes": 2316,
+      "sha256": "43117b0f78e5c791445afe35da57a3915b6afcd76cd98e6c6e9b2eda2b17297a"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/deep-branch_world-model.json",
+      "bytes": 4031,
+      "sha256": "7c82dcae5f2d7b0da6ed0a227a4fb60a8be05decb7930603be2232f92c94a35d"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-adjacent-future-tech.json",
+      "bytes": 5248,
+      "sha256": "f11b420d09807e8ae8607feab5f753e8b72fee199bab4185ac350302fe57de50"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-ai-applications.json",
+      "bytes": 5183,
+      "sha256": "53046d6affe5af4d2d5c652eddb2a7f0a1083f988837f39b9cd9b554c5e9157a"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-ai-economics.json",
+      "bytes": 5144,
+      "sha256": "e2f3d466cfe36844c2f23d2d84ba6839ebf618a6b539a2a2a6e0b2f9cc9c4334"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-aidc-cooling.json",
+      "bytes": 6874,
+      "sha256": "7758b5a4cdb3a875141255f74aaae00ebaf168b25d83b41309ddb21d53fb8649"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-capital-markets-company-map.json",
+      "bytes": 7626,
+      "sha256": "b9dfc24507b80909b1c24887cf7e05898d9d87196a8665e7b408a09a0d455026"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-cloud-platform.json",
+      "bytes": 5170,
+      "sha256": "0e7af4026035e55fdb1d260bb36078a8642296f996ff4f05040bf97a97506e10"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-compute-silicon.json",
+      "bytes": 5214,
+      "sha256": "dc676dc840e6694dd32bd2b9c7c39ea3c51410b2bcb721e3309ed3563eec6210"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-drone-defense.json",
+      "bytes": 5157,
+      "sha256": "3df4f6714148bed92c4513719b9c180dc3784628e74ab13701b267c543023e4e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-foundry-equipment.json",
+      "bytes": 5945,
+      "sha256": "c97c3963dd8199ec35e3d0c2977208dbd506b52ad127ed27ef257d1842486df6"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-geopolitics-policy-security.json",
+      "bytes": 5503,
+      "sha256": "c61b8b1a4dac3a91150b748fc2fdb08f19682bd27e68f1f8f7b60b78178c01a1"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-memory-storage.json",
+      "bytes": 5341,
+      "sha256": "74e507d7c4f6a0bef3943e3ba71900d26e12d77db3cb3938966c727bf454780e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-neocloud-finance.json",
+      "bytes": 5196,
+      "sha256": "b4a09d8f2fb66b2692165a45ece3a167797b50e86622e1869f4ba7e57bb44a4b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-network-photonics.json",
+      "bytes": 5209,
+      "sha256": "084ba9236ed1bcc3c4a4367a3e3a12b50ca0e053d39e85f1abe8132ceaf3eb2b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-on-device-physical-ai.json",
+      "bytes": 5261,
+      "sha256": "c4f07a0c351b2dfa43ddd7bcfc143181555e2df35837f288cf664a5d7ec5723b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-packaging-substrate.json",
+      "bytes": 5341,
+      "sha256": "12892e10a10cb65e65b58e341a67f0ea4500083c4c5d2da529877aff9eb406c9"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-physical-ai-robotics.json",
+      "bytes": 5248,
+      "sha256": "c14218fc6f72453cc3168044cd3ab4f52d4ece593fe8e2d48bc0e20859a85ecd"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-power-grid.json",
+      "bytes": 6848,
+      "sha256": "16dfb28988057d30e75dd9ff52288115d47b5bd473f20c052a172b012c2674da"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-resources-materials.json",
+      "bytes": 5235,
+      "sha256": "37852d7b600b899f08ed4b338f9a13c9b620cdf3c961f0c04059f06d3dcd268d"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/domain_domain-space-aerospace.json",
+      "bytes": 5183,
+      "sha256": "65e0eb63a7df8c877fce05c4ed9c8fc238bb44ea98d51c0fe2f22284dc62a5d7"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-analysis-workflow-clarity.json",
+      "bytes": 3759,
+      "sha256": "cb54042187af9da13e66ff8db0644a35088b004d677aa73d0b9b67c6ccc3afa0"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-asset-class-allocation.json",
+      "bytes": 3769,
+      "sha256": "d8fa7c78e4a80b9bfed15a79071b441da44e645d87bd0bcd7690760a57b19df4"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-bubble-diagnostics.json",
+      "bytes": 3269,
+      "sha256": "6f0efe3ee59302e8a6cb27782f8f50cc0f8f653d589c5b64276e84b9db794412"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-counterparty-custody.json",
+      "bytes": 3367,
+      "sha256": "35c8b7bdb5ca5e92d19fc3cb13fae0e279452f1a49cf3abe737a63e54358f0e9"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-credit-stress-gates.json",
+      "bytes": 4647,
+      "sha256": "fae1dc539f977ce1b91a10c51b5dbeb78e3961c4be1a4ef83478c98d77d3e975"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-crypto-fundamentals.json",
+      "bytes": 3715,
+      "sha256": "498e9e039e845375fb15f8f018b1c7083a2527e7a847e4bd687c22d6e43659c7"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-etf-flow-channel.json",
+      "bytes": 4757,
+      "sha256": "7b3fbcce2cdfef6a7df2e980e70b688a2ac6b413e2024588f3ac58f1be02097b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-etf-nav-basket-integrity.json",
+      "bytes": 4571,
+      "sha256": "33e88d58fff832cf2b8ea9a8fe435a73ea072e602bcb16664ba9cfa413b3b2e5"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-forecast-falsifiability.json",
+      "bytes": 3667,
+      "sha256": "cc239d0063ef9ed7dec3981794d3c6d37e4436fd75817c8c5c2667b1a45d5e90"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-institutional-intermediation.json",
+      "bytes": 3931,
+      "sha256": "9a7339d8bfec958cf05f04ebf768c960f68a13accc26e8b75ec228102efaacab"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-investor-protection.json",
+      "bytes": 3373,
+      "sha256": "65f5ca3f78ed385c5c37a03231b9f768c1313b024607357da3b42b0e9ff73639"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-leverage-survival.json",
+      "bytes": 4301,
+      "sha256": "30ee9e7f504426445fbd3240d9c72d4019dce274c68f6b0b170a83537ab78479"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-liquidity-extremes.json",
+      "bytes": 5221,
+      "sha256": "a55fb15ee10eec09f5136d5b7722e0d02b78232ed0c26459f0a39b8138ece7db"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-macro-risk-asset-divergence.json",
+      "bytes": 4789,
+      "sha256": "6f1f53979d0aee3ca8f3380c5fb1eb8e9995146742274f740909b22b22d37151"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-market-impersonal-tail-risk.json",
+      "bytes": 6805,
+      "sha256": "8a52c2f0ac4dc93df1e64b09c1e19a7e3c3d92911ef358aac10e9f969fa195c9"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-market-structure-execution.json",
+      "bytes": 4540,
+      "sha256": "a6385066593a2f1a756c614c4680abb464f794c7ff4dcb653cfafd858935c0fe"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-nonbank-regulatory-arbitrage.json",
+      "bytes": 4349,
+      "sha256": "634cd16045296e4108c3e525f6d766464f24fcf1229cec4e753b2c80e0281ca9"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-policy-second-order.json",
+      "bytes": 4436,
+      "sha256": "27dab39714d20a9b471050a9e996c991b820f5dc4bff9546d1d8c27a56a9cbd9"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-problem-friction-opportunity.json",
+      "bytes": 3487,
+      "sha256": "fef0bff44710cae45e7da1bec3a88fd02a09cbda8959c7336ca2a3ee43ce518f"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-product-monetization.json",
+      "bytes": 5170,
+      "sha256": "fea88b1b15ba03a86172b2e7804c705d0978b528d9484286c2f8b5a4d606c33b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-regulation-market-access.json",
+      "bytes": 5226,
+      "sha256": "7f766328152159160a53eadcc3d07f89a25cdb407eb8de04ab0f500e39f73c2c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-relative-value-hedging.json",
+      "bytes": 3895,
+      "sha256": "e2abee3ba58af3a47fdbe0c55c0380feffe57c3766cedde28da4d09a1f63626f"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-research-provenance.json",
+      "bytes": 3397,
+      "sha256": "3b02d4fa1b34693b6fd0e3817ae046a39e05d42febb23ecde0af1f88c41a8ab3"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-retail-flow-edge-decay.json",
+      "bytes": 6006,
+      "sha256": "b94391984d483c9806ba1624b79777cb5a87d089b505f01d0a40347c335f4309"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-specialized-edge-luck.json",
+      "bytes": 3671,
+      "sha256": "395e5ab21331cbc5fec9bff378a7d52e5409233e4b4cedc9e5897cdd518129a8"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-tokenomics-value-link.json",
+      "bytes": 5490,
+      "sha256": "49ebd444e6c96c12f323bb221362626e8c1541c760aebde0f3db77b984ce648e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-treasury-supply-demand.json",
+      "bytes": 3523,
+      "sha256": "81c8bc173502dce8ddcf7d6cbd62477c3c99b8d52e0773aa4c4e55f3ac68f5f7"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/nathan-frameworks_nathan-valuation-price-formation.json",
+      "bytes": 5673,
+      "sha256": "e4eded33748b09ba410f3a3905475fbf418aab6c81ae862741ef84727b034c2f"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_amd.json",
+      "bytes": 2467,
+      "sha256": "0ecc3d9d53b5378dfc446ce3a45b307ac25596ccbf60080630a90e2fba298380"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_asml.json",
+      "bytes": 2479,
+      "sha256": "44c24c852c111f0ae4c28c3a9a3c16b97bf2be594bfad2e1daf66d1948ed9be1"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_aws.json",
+      "bytes": 2598,
+      "sha256": "5b10dbf2e4728f97e8d1c4080bb545c0de04963a826a89ed5376cfeccb08769c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_broadcom.json",
+      "bytes": 2536,
+      "sha256": "d4bea22ea2d0600fa55807c37fedb2de9df99dfd0bb68a555e99a629c2402d36"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_coherent.json",
+      "bytes": 2510,
+      "sha256": "26ca38591789533281820fe76fb26e371e0b6fd870251b6644808272bd939d3e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_google-cloud.json",
+      "bytes": 2538,
+      "sha256": "361a74d4f8365dc6f51ee473a8c7e75e9b7a7cb7f2388b56b19251ab6a9bb4ae"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_ibm.json",
+      "bytes": 2449,
+      "sha256": "c1080048c36d50fc3be4f02307a7041c17e940a1f0fe9980857b382dff867ed5"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_kioxia.json",
+      "bytes": 3264,
+      "sha256": "2b1d9102d3ae896234c87a8f4c9d1c1ddf8aaeee0824de23fa29b0751182757e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_micron.json",
+      "bytes": 2795,
+      "sha256": "47f75fec63ef04e3db614e964df0a6b0bc46d39f742d6317e12efda67acb0d8f"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_mp-materials.json",
+      "bytes": 2563,
+      "sha256": "5093ed6955f67fbcfc3ad8b4e25c1ed6c1dc31741339b68ac20b722fa1d30af1"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_nvidia.json",
+      "bytes": 2499,
+      "sha256": "a6d916b89baac854cee01823a6c15d40d80318ed8c6a1a3c01314432d5e06c1b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_palantir.json",
+      "bytes": 2530,
+      "sha256": "700c92985d193fa0302544de8474e2acfabe80c84dfc449301f6da838e920054"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_rocket-lab.json",
+      "bytes": 2556,
+      "sha256": "64917cecada42511ec269c3a4fe3cedee017d1e78a920aa007822d817b4e0afb"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_samsung-electronics.json",
+      "bytes": 2651,
+      "sha256": "62f4b535ce289b4b3e9b4abe02d962d11337cd6fcfe9c35e782f355a8394be35"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_sandisk.json",
+      "bytes": 3110,
+      "sha256": "a8c2f9a7fc121ace2c25c7ae2c58523e49e94839f132539d1771c57637d76591"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_shield-ai.json",
+      "bytes": 4883,
+      "sha256": "1d89e46739ff325cb635565a6f4d8ef4baf7ffb2b414a805424a6684723991ac"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_siemens.json",
+      "bytes": 2539,
+      "sha256": "73a644f5ab52d24cdbf54eaf0574aa9114a10a52b35e29bd4c022616c18696d3"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_synopsys.json",
+      "bytes": 2514,
+      "sha256": "147da0756491a84e07a0ba5abaa6056e274b5137c03136a88c05c49ed39e08f6"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_tesla.json",
+      "bytes": 2474,
+      "sha256": "8e11bc58370a5434f493e81e0b7fe0ef7ecfb52ca68b3152d795e7e04b1d17fd"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_tsmc.json",
+      "bytes": 2749,
+      "sha256": "c839da0aa549e12f5a9f95542dad8042ac43308e825b4c48213ff8af6836c25e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/player_vertiv.json",
+      "bytes": 2495,
+      "sha256": "91dd725611c138c467ac20f7bf4b9ca66ce3cdbb864324f5c9343d0d4fdf5227"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_A1.json",
+      "bytes": 3803,
+      "sha256": "2ce670c0cc37c17b40f027be7ed49d29db69545d7278bda01ac7a9d4746c5884"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_A2.json",
+      "bytes": 3779,
+      "sha256": "10d9a77d31cc7a6a1c6e73fbd5026c5e25c3adb49a939ab7ae61e8c06d83d80e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_A3.json",
+      "bytes": 3827,
+      "sha256": "1f85fd143f551076a5bb8b5e1424d4e3f1073a492fb1158ba307548149a6fe5a"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_A4.json",
+      "bytes": 3827,
+      "sha256": "78d9d7275b4bc62427337d58127c88c234e84d783b1967af2bb8362d365c4732"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_B1.json",
+      "bytes": 4450,
+      "sha256": "17b19d111ddce29e5ea8efdc2eaaa5a7ba0d7788b59337cb281411522f363d92"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_B2.json",
+      "bytes": 4743,
+      "sha256": "6f07f7ca829cdc9d3db21a9870e0a7f7ed799c121e7922b143ffebc2d7706374"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_B3.json",
+      "bytes": 5075,
+      "sha256": "7ed4c24bd3036f78f7885bad561c270cbe2e173892f876e5df4da6e743e32074"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_B4.json",
+      "bytes": 4402,
+      "sha256": "365e97cb43caeaaf2d66c7cf7218cd2ee948426fad6c3da6686856528e228133"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_C1.json",
+      "bytes": 3705,
+      "sha256": "977e8719e1eb612de3bebbc9b092cb05dbc489e16dd800c9a92466f30d86d6fd"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_C2.json",
+      "bytes": 3545,
+      "sha256": "97de8ae09715f6889721e1a2ab891a71f4c881551cdff05adea6438304e4ac67"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_C3.json",
+      "bytes": 3593,
+      "sha256": "2b6abffb60e0e5ee2910c2067a957eb5ebf15a3a447e85e63e768dcc5cadf3b7"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_C4.json",
+      "bytes": 3929,
+      "sha256": "606c6edf82b3f6bcf4093ac64ecd230092cc669b683d5e421dde9d69de8c40f5"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_D1.json",
+      "bytes": 4559,
+      "sha256": "6b0fd960081d2db6a28934fe9d7c5e1106ecd27d337982031481b16d71762297"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_D2.json",
+      "bytes": 6053,
+      "sha256": "1ae8dc98f1d601eeeeeffe1f53fb86214c3b877509b85ea47760faa33fdd5525"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_D3.json",
+      "bytes": 6334,
+      "sha256": "25169e47f5835ab05eca5a254093900ef221dfbaa4fb889e48f7dc53489904e7"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_D4.json",
+      "bytes": 4614,
+      "sha256": "8c132beabaf6738a0d908f61c4dd524138aca672c8f6d2fa3f638eef1eba3151"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_D5.json",
+      "bytes": 5304,
+      "sha256": "d2a4bc5b4740eb04e4f4d79d1a8d3617d1e9577b689cc5df7188b9fb67b09f01"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_D6.json",
+      "bytes": 6854,
+      "sha256": "1e6be9ddf32d214697c4fbcd6e8702adcb6765384604cf6d84c7745ee3494c72"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_E1.json",
+      "bytes": 3772,
+      "sha256": "b5570ae81ed45b75c4b3a4a9e22c646f6cf51e8648d516f741ecc9f325e7e851"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_E2.json",
+      "bytes": 4718,
+      "sha256": "9d6f5a25ed0e802a571bdb0bed3946d6cd5af2930216d1255fb6c7fe1728d388"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_E3.json",
+      "bytes": 3828,
+      "sha256": "c1eafbdbba640a60c8dc1a0772079160850cc3c6c0e92c48466391f256f04823"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_E4.json",
+      "bytes": 3740,
+      "sha256": "2608fc858a00ac366b4ada23a481698d660114834a7a52ed0f2707a573df9429"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_E5.json",
+      "bytes": 3724,
+      "sha256": "1c94fb8c3b7b963f288636f92d80b844b797c57be85f7760398df0e41d3bb340"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_E6.json",
+      "bytes": 3724,
+      "sha256": "fa1ef37d75ea1fd9ad861dae917af1a8cb704b5e2fbcef3bcb4705594ca003bb"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_E7.json",
+      "bytes": 4375,
+      "sha256": "274fe8df2e803afd6c0f4713896e7c31c4ebea67fcc8ca6d73b367ce8816fda9"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_F1.json",
+      "bytes": 3882,
+      "sha256": "d27db05e0087c6244d03e6fb19ed3e009544f023bdc9a719ed426d8319a3232c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_F2.json",
+      "bytes": 3850,
+      "sha256": "860d376a3f5c2a5382ff090f8d23211efe67fa8310fcef020f4763f5efb1a4e2"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_F3.json",
+      "bytes": 3930,
+      "sha256": "49526deb469ad2955b313eca137098f33826aa2a8697d22295d93a579831f2f5"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_F4.json",
+      "bytes": 3826,
+      "sha256": "b8537aa543f3ff50103d7a6c460a0eb4a562ca05c0c2246a1d4d4ace41bcd522"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_G1.json",
+      "bytes": 4442,
+      "sha256": "ad99641e0c253c37fce508f8a2e1b42568412326af902f244beab72e4ffc0003"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_G2.json",
+      "bytes": 4442,
+      "sha256": "802e76be536f790f34c5361eb8f33db1ac12f715541de4ccd0aa2d61d13fb008"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_G3.json",
+      "bytes": 4578,
+      "sha256": "dcaabcd35c5f740064923b014d20cb39a87a8f8d4b574a075c9c5d29cb0f36c1"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_G4.json",
+      "bytes": 4458,
+      "sha256": "343bd3266940bd53f9496832fbdbbaf3a01435278ace0cac2f4077388b0b8384"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_G5.json",
+      "bytes": 4426,
+      "sha256": "14b057a08fa62f9857264eecc7278fe07baaf6bb7ed75a1353e6b23812948fc9"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_G6.json",
+      "bytes": 4386,
+      "sha256": "a145d5997c078112d911361a2d20845a7ff5a1550667e140591d885306c3a867"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_G7.json",
+      "bytes": 4418,
+      "sha256": "70b4e7a4330cb0281c703fc297cc5842ef246c48f0fc14c4a04329979319a90b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_G8.json",
+      "bytes": 4709,
+      "sha256": "7ddbac852a31eb20a2f8b36c4eab09c06f2efbd5de62663205de462a34308243"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_H1.json",
+      "bytes": 4316,
+      "sha256": "fccebc821ebf9c0e88eb78b643e24f64b8d047950bb124bbe2a6c27cbdac24c0"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_H2.json",
+      "bytes": 4300,
+      "sha256": "17db760e7f3eed28518130418ef6b717a576c79c7210cee40b8b6f75a7b6f6e4"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_H3.json",
+      "bytes": 4332,
+      "sha256": "f538ebed26e669ebf20d05c991fbf9ea65c22652f6c6ce7dc550772bfcf778c4"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_H4.json",
+      "bytes": 4511,
+      "sha256": "8d0601404fe667bad27e74e71634fb898dd3a940be8287d498dbcf61c161b758"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_H5.json",
+      "bytes": 4300,
+      "sha256": "3b37d88bb9b8b2dde2f9780e1149e6dfbfa337af5f95ba651c83d5c8853f87a0"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_I1.json",
+      "bytes": 3512,
+      "sha256": "68c2812bb644e60bc140842e0d552a1c813f1958eb7c552c7949b301101e8dd3"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_I2.json",
+      "bytes": 3512,
+      "sha256": "389e63d3c71e217694bc81fc3f56167749b4cb93563f660f76e91965f7aa5aae"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_I3.json",
+      "bytes": 3536,
+      "sha256": "8bdc18e6a2bde20fb80cba68e3a4d5dc05b35e1c6e57b1cfca67af0f4f60ef28"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_I4.json",
+      "bytes": 3536,
+      "sha256": "db9987bbf4ed05f1845c60434f92c948270fd1f7d33b7297566c4038a61c9013"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_I5.json",
+      "bytes": 3520,
+      "sha256": "ff508ac4ea122495d201dd033f8304cba55b3165ddca7db3bd685f15ae33b962"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_J1.json",
+      "bytes": 3553,
+      "sha256": "76dff66ebd28601b3bf76a6c0a425931bd46aa11dee4e9b746b4f96668919774"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_J2.json",
+      "bytes": 3553,
+      "sha256": "32f9e0c8322cca07db65bd9e73bbf9f18147d9c9f3ae3ae2d702cd4a02cf8067"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_J3.json",
+      "bytes": 3529,
+      "sha256": "ef82deba914a9d622d3f4070acfef67dedef53664c46ba0938d26b59a80e593c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_J4.json",
+      "bytes": 3505,
+      "sha256": "a1cbb396940ae1fe49c5cbe6d7503ef033d67aaaadde331b1c00538c6e56f4d1"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_J5.json",
+      "bytes": 3529,
+      "sha256": "d70648b514e79008e12d876d9d9bbd5928efd089f4db3191ba085ebcc513e7d7"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_K1.json",
+      "bytes": 2795,
+      "sha256": "7435ba143aa004ed4d1fcbab544061db6c74fccb9d49b90326abac9aa6405001"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_K10.json",
+      "bytes": 5439,
+      "sha256": "411771a9ce7346d09ec4d00645820b1bd8e15ffe026cac1a9c0e79cef14b3660"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_K11.json",
+      "bytes": 2950,
+      "sha256": "bff18524edc3edfa427851a70ddad1360d9e21588909ba4a31b685279e0bffea"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_K12.json",
+      "bytes": 6145,
+      "sha256": "dd419ace8b1cd6761b061163007a3f790d74b09cca04a6aa98d7ab5e47e32252"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_K2.json",
+      "bytes": 3876,
+      "sha256": "dfb19415cf7dd066583a393b536d5ab7c93671982f631c729d5b343cac4e7dd7"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_K3.json",
+      "bytes": 3804,
+      "sha256": "b8316692561b705f547859e2994ebe4edfe808a8c55a921fa5276020cb2f967a"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_K4.json",
+      "bytes": 2963,
+      "sha256": "14fed8563abae48bcd3f136999fd29b740d78a4b6b20f02912aed2565672506f"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_K5.json",
+      "bytes": 2843,
+      "sha256": "13792d5230525bc515755ea7fbd036addd3f878368241b87d1b5a92712e63c6f"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_K6.json",
+      "bytes": 2819,
+      "sha256": "77b091e65b6d3d945dbd8b84fde4df3348f9a71611846ac93be473739cfdc3ad"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_K7.json",
+      "bytes": 3872,
+      "sha256": "85815f53d9faae191ccc3976a7fbb5046c6501db86b6502a4df1261032428706"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_K8.json",
+      "bytes": 5332,
+      "sha256": "3c450aea89f4458a392f89267719a0a52c34b6ee39ecc65f4f59ce5e06067c09"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_K9.json",
+      "bytes": 2947,
+      "sha256": "3c9fb49be7f2b2601b96feedf2825e518ffd5018c64687ac2eb1905b6e36a83d"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_L1.json",
+      "bytes": 5734,
+      "sha256": "7da4b58e63307e9fcc3e2a8e24044c0d6f9ebe3348f9dd647eb6b149e0963288"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_L10.json",
+      "bytes": 5301,
+      "sha256": "14c74f72d59d7d38961eb169b9ed48796d4e20affa95dceee0ad7814af8d1d60"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_L11.json",
+      "bytes": 3467,
+      "sha256": "553aa9da9e95d2747546557dec07a30867a429302e7c827a951204f525a5f529"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_L12.json",
+      "bytes": 5094,
+      "sha256": "d36bb3b1fc243e7f293cd69ef324461b4b6d02338379736e1652c2a4b882739c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_L13.json",
+      "bytes": 3566,
+      "sha256": "1c973e3b3bd0b2de0b04b2a442673d41c5459481332bdf8795b053281c0ef770"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_L14.json",
+      "bytes": 7024,
+      "sha256": "3832a012f8cd09f3160b76718fd8ab9eeadac2a2b74ba90b9eb7c0528071348b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_L15.json",
+      "bytes": 5503,
+      "sha256": "7bb434216314b63676017f1f40d51c7d1b4dd4805d40af3942f9861f733c170c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_L16.json",
+      "bytes": 6102,
+      "sha256": "8ec8d65371447fd92ed9d9acf1952a6e476f643593fadae9808247011511a137"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_L2.json",
+      "bytes": 4936,
+      "sha256": "3f619108176b8c9d84517856d0ca0a4d83d89628fe92c7c6f8e1cde43930a27d"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_L3.json",
+      "bytes": 3512,
+      "sha256": "f0bdd58a32909d0a4d1b98521d9325f9bc1819223c48c87667979883974fb3f4"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_L4.json",
+      "bytes": 3544,
+      "sha256": "b105bd153d52467a0f9c43a8306b5ddaa17540b3d8c8ea879e5cf1c51f57b379"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_L5.json",
+      "bytes": 3440,
+      "sha256": "982ccd42a2ac6a5b5c9bf20b072cff3c107ca3a66c80baf4a917c7e13202d75c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_L6.json",
+      "bytes": 3600,
+      "sha256": "fbfe5e6a9eeed6cd8774806c10594b1b89a01c323b6fe9afa009ed6e146574ac"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_L7.json",
+      "bytes": 3360,
+      "sha256": "9b975b79d36b2cb438dba040b3c3b02f6fd5a67eaed8b4ca5882caf2e4cb40ae"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_L8.json",
+      "bytes": 3408,
+      "sha256": "fc127d6df539b5af2ae78d35d7b22d1077e5fd6be0a49938af4e5047911b7458"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_L9.json",
+      "bytes": 6059,
+      "sha256": "a05593d6c2893af8a3500414473ce99adcee3a5034a2a100ff086cc41dc888c9"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_M1.json",
+      "bytes": 2993,
+      "sha256": "ddbc6c4b69f1e3e8d8150df325247e8eff9b14514463330129dad8eba8f70662"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_M10.json",
+      "bytes": 2836,
+      "sha256": "9db68722472822fc66194f35a42c9ada81522577ff3c79981301f947456544e1"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_M11.json",
+      "bytes": 2876,
+      "sha256": "01811d164e7e667bda080f023d068974f3177b5305bdaba4a602fd29f115e16d"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_M12.json",
+      "bytes": 3977,
+      "sha256": "8c89e633118ce36228857db62d0082523b1e1d8a5d102c0068cc5bd499332de4"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_M2.json",
+      "bytes": 2761,
+      "sha256": "ea221d80ec264319b7cdae2984e102aa5060057b07594a3d9dc2ec4562562ee6"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_M3.json",
+      "bytes": 2865,
+      "sha256": "38b7d350a7c43601bebd1e2b510b8305b82ea2261f298ee361ddbc340e402f40"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_M4.json",
+      "bytes": 2761,
+      "sha256": "177f1063e89434d7e1495074def0f55dc2b7250d7914271cb801973445f676f6"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_M5.json",
+      "bytes": 2825,
+      "sha256": "a43e831d027f415a7625556efdd750ce10798a5eb63d68b01216f8f916b60ab6"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_M6.json",
+      "bytes": 2945,
+      "sha256": "391586f19b2fa15f0782b7bd8eb9ba9fffb896a8edba526fa8b306a0df09e8b3"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_M7.json",
+      "bytes": 2761,
+      "sha256": "57016d5c42b92edd5e3be79ac452875070e59f2c3fc91c2fc20acd8f256ca336"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_M8.json",
+      "bytes": 4830,
+      "sha256": "d41e696672caace42f8fe5ea83c30f1a88c21f4324267e4274abb5a6cf2b5fe5"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_M9.json",
+      "bytes": 2785,
+      "sha256": "d0f68614e8f3c77519085ecd630253dfeb98ab9c0fdade6aa5ae8d980389ed99"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_N1.json",
+      "bytes": 4620,
+      "sha256": "5b96c3d097aeffb95c79e75939063bbfa054adc64ae093b5999fbfdd8b619f7a"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_N10.json",
+      "bytes": 2717,
+      "sha256": "0be5f2bf57c8a1d3375341110ca5980f15c93163f0104a22ac1704b76485137e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_N11.json",
+      "bytes": 2575,
+      "sha256": "79b2f373da968cff9275657a4d513eee1f98efa6489452345600c37a7f075bcc"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_N12.json",
+      "bytes": 2595,
+      "sha256": "d89849f843d3d3cee052eec283ac007fdfd77657842e84651b70a01d9201eef0"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_N13.json",
+      "bytes": 3092,
+      "sha256": "916eab91158ad2b0d062618038d488b74f2abf36ef3de604fc1bdd156dbc93f2"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_N14.json",
+      "bytes": 3550,
+      "sha256": "39c94df55988dde1b52dde75746c9f70c5ccd4c194f5233fc893de6a510b2183"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_N15.json",
+      "bytes": 2633,
+      "sha256": "49403f940b79ba124ae1d6253c6164520e5d0c0a2a13eeae7ac9344acf142359"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_N2.json",
+      "bytes": 2638,
+      "sha256": "707006108a7cc67b1615d066529c9c26b59de963193afb32d1dceafbd02d9494"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_N3.json",
+      "bytes": 2788,
+      "sha256": "e2ef50933d24d9699a37246eb5eb71b201ad56ddcc3d1b365218bf16b19d5e6e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_N4.json",
+      "bytes": 2592,
+      "sha256": "722794a06bd81006ebca95cac82034f39999b798c699cad5f181795a9dc70bec"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_N5.json",
+      "bytes": 2555,
+      "sha256": "54076ad43b80a072c58adb0335a489694c4b9437163e05dc2e5fa8c0e31ec164"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_N6.json",
+      "bytes": 2718,
+      "sha256": "12cf109fbb69d964c8b1addc474f24d9aea82cd4e89fcaa067acc7bb53af6303"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_N7.json",
+      "bytes": 2667,
+      "sha256": "ec8c6491fcb3faf7f42588ba2d1a54c3caefa30fff5deaba3e63518e0cf32b2b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_N8.json",
+      "bytes": 2765,
+      "sha256": "b96eb25be4630ed241ca31896254351c5ad10fedf5a9fc362ba74565496bd3fc"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_N9.json",
+      "bytes": 3570,
+      "sha256": "cf2a19ce1358fd2f1ce41aad3fd8bc4f82a8a81ff8a4273687fda6b982f8c544"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_O1.json",
+      "bytes": 5600,
+      "sha256": "bd78eb641b55e9f9d400f52de7394c32213cf175b43791f725011bb5c6a7df87"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_O2.json",
+      "bytes": 3968,
+      "sha256": "a71035792975055b808c4d1fd0053098847b4fa5ceb2a6154cc4894361eb5bd2"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_O3.json",
+      "bytes": 6391,
+      "sha256": "081a042853d37a0472511fc8e9ffea2958fea3f35d6796f40262eb97eb068df7"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_O4.json",
+      "bytes": 4834,
+      "sha256": "202e9febd2ddd3c0d41104efa231ecffce4b245488294900340902d9619d7c84"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles-lesson_O5.json",
+      "bytes": 3725,
+      "sha256": "cb29a6757010b36558c4f392c679bca964fb1af66b7d50323dda98cb39620801"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_advanced-packaging.json",
+      "bytes": 4101,
+      "sha256": "4f9744a6467fec3f63a908bf76b939795eb3c6272b330a28a37ee435445e628e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_ai-capex.json",
+      "bytes": 4578,
+      "sha256": "ba7333818dcdddc8dca11e63c230d738514dce76f7af574541df41cdc01b2254"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_ai-era.json",
+      "bytes": 4547,
+      "sha256": "18748cde85dd7c3b633a74090fb280fd10919c3374b16550fcb740492ad9d66b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_ai-workflow-adoption.json",
+      "bytes": 4759,
+      "sha256": "4bcf414cb2015cbcc80f34ea02e79785d8a33df9574a746b0b84846bdfecf622"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_ai-workload.json",
+      "bytes": 4573,
+      "sha256": "a6eef7755c05ace26469adecc61219efd6ca22939bfa1a5e378c80518f1ec25e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_application-roi-evidence.json",
+      "bytes": 4767,
+      "sha256": "6dd49235c23d0b4aa5721312f2602fa28fe86dc5804ab95f699fbb0e608ee76d"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_biotech-healthcare.json",
+      "bytes": 2332,
+      "sha256": "d49e447271bcb383bda5bb6c9a03d9f3e885e9852a1650388ff967b47adc19d3"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_bonds-dollar-currency.json",
+      "bytes": 2314,
+      "sha256": "2555386a76dc55525f7996b733f1b6fdc8e75d15a26d78753b1220f24dcd7c3b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_capitalism-engine.json",
+      "bytes": 4080,
+      "sha256": "b008efbea7877662fce0787edabbaf98048e15e33b50df526d40ea53405afa8f"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_chiplet-economics.json",
+      "bytes": 4746,
+      "sha256": "1e756836152e5762ca471378bb2e5c3c2b3d73c3b077c9d172136c7bae9fa031"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_company-stock-valuation.json",
+      "bytes": 4128,
+      "sha256": "4749f05d3e0fbb604b8bec4a52dee7306bd6f185b5a4c2d9457e0f6739c6552d"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_compute.json",
+      "bytes": 2158,
+      "sha256": "15c7083bacdc0eae94fdb987cf8e36dd7532e24319ec9862599166b93d24a095"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_credit-banks-debt.json",
+      "bytes": 3248,
+      "sha256": "700e42c48655aa5fe80a532f31372ab65d6ab70bb0a047d39d1d6925ae8fb2f5"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_critical-minerals.json",
+      "bytes": 2314,
+      "sha256": "ab8f422d0238555c7b4fbc0fae0abbca074f81c3e3e28c3bbcda47b83fe009be"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_cycles-allocation.json",
+      "bytes": 3296,
+      "sha256": "a64b134b14f0bdffac819c1925446f89ce40b3919e12f5563e0b6de5ababaaa3"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_data-center-lease-burden.json",
+      "bytes": 4359,
+      "sha256": "266a9a5c3dd637c33a6023dd92ae6d0c061827305a126cf89f508c8efe846bbd"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_data-center-power-demand.json",
+      "bytes": 4295,
+      "sha256": "576328d8d4d2332bd31e8c7fb26bcd3dc29413b934dd85e1e1b59ce1eb7ab218"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_defense-autonomy.json",
+      "bytes": 2392,
+      "sha256": "9ab71fc829be90afded584663cdcb111ec42736715b5ccee54ceefc08fd1ceb5"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_defense-procurement.json",
+      "bytes": 2398,
+      "sha256": "1b23e9d5eafdfd2c004235d213fda0a3f32662ee25b310492ab977519a7a57c9"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_defense-space.json",
+      "bytes": 2250,
+      "sha256": "63a1a2cd8f2100bc623ff14f1a7be8d9cb488d8249816fce39728302b31b835a"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_energy-storage.json",
+      "bytes": 4175,
+      "sha256": "1d515d3cdf33195ef5e6977ec1883f4d10471eebfad26a3a84ba40adfbdd6139"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_enterprise-ai-workflow.json",
+      "bytes": 6223,
+      "sha256": "ea85968f558b7bc1c2142447b5fbae4a8cb0d6355147cb193e63b3c0a6156bf5"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_evaluation.json",
+      "bytes": 6160,
+      "sha256": "474bed4152682f1a1e88fb6a66a134317178d3fa1b33b680a6867b4505c22747"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_finance-software-consumer.json",
+      "bytes": 2498,
+      "sha256": "2690ee1a81fcd44bdc3ace77d84be1d89a92c2a9cfc035db672bfa22c6581525"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_financing.json",
+      "bytes": 2226,
+      "sha256": "99dd3922d3cf82b208ebe6b01af135640bdcb3e5d8f5c284ac6cefa724912a87"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_geo-rates.json",
+      "bytes": 3250,
+      "sha256": "a518c2d871bf4e2401cd8ee526852f56013bd81267d65cb48cdd9b1f4ba111f5"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_government-fiscal.json",
+      "bytes": 2306,
+      "sha256": "8720bf331a82c886cea88cbd58d2e2e0fa143ed8721ac4ceb2c0dc30ff5e92ed"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_grid-transmission-distribution.json",
+      "bytes": 4118,
+      "sha256": "3ba8da297e627b6c328cb999beb3f7e9160bca493068eb9a00076281ec3c58e1"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_hbm-system-bottleneck.json",
+      "bytes": 4084,
+      "sha256": "912f21dbe103aaaf6977cbf533c2bb62a32a77a97c16ac6af19f87923509d5b8"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_industrial-energy-efficiency.json",
+      "bytes": 4241,
+      "sha256": "1fcacd38612b4eb56f32940cf3777a0eacb6a95130d04ff27eff1c01a3422154"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_industry-value-chain.json",
+      "bytes": 4655,
+      "sha256": "dc7cdd731c89e75b371d7697c73d835056d9266d3e8a6997c6a5fa16f1b2842e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_inflation-deflation.json",
+      "bytes": 3406,
+      "sha256": "913a2fcf0e587260618780254b0a54087518a24b2e19059c3296cf835deadfdc"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_interest-central-bank.json",
+      "bytes": 4817,
+      "sha256": "77126b3ca5f26a8e70e3d69e72e3b616802524c630762a182886b41d6c98fa79"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_investment-risk.json",
+      "bytes": 4067,
+      "sha256": "583fd6b82b98d2da89ecb045c75c664d972602ed4da913409c966bbd44ddf235"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_korea-semiconductor-policy.json",
+      "bytes": 4870,
+      "sha256": "d05950823d8964d58424788f47026b40ed778996c2304f6a7476b912c4722a47"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_krw-dollar-foreign-flow.json",
+      "bytes": 2398,
+      "sha256": "d5a77cc1962ccf830993f9b826941858ef3acea278b860b406716caaa828eaf1"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_market-price-discovery.json",
+      "bytes": 3229,
+      "sha256": "b3cf558c538e20b590f4eb7ba53909d764be3f9806b77ab214b8c6439bec6075"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_materials-policy.json",
+      "bytes": 2494,
+      "sha256": "c2c1203a1e29d822b761fb2a9ee4c9e26043cf8dce887ce3d35e8da075b44821"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_memory-hbm.json",
+      "bytes": 4134,
+      "sha256": "23cd85f84ca1023765cac9c754305c348786c2899b6d08e94f81a9165733435c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_money-purchasing-power.json",
+      "bytes": 4898,
+      "sha256": "b8c80fa74e6d84a2c7af35ad8b520f7e44362ea49f7a0c5661ea492ed243b334"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_photonic-link-economics.json",
+      "bytes": 2406,
+      "sha256": "cfd46c9cbabb1d48ae1954164beed2973717ed357e90e3a96ff35e62c5083560"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_physical-ai-control.json",
+      "bytes": 4743,
+      "sha256": "c6303c2d02a2c39d931c24b07954540cf120193b26a44be0062001a94634d277"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_physical-ai-perception.json",
+      "bytes": 4771,
+      "sha256": "3a04fe1307126e0f2f8977edeac8fdbccf74ffe41cd2db53a3f28bb34997f50f"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_physical-ai-planning.json",
+      "bytes": 4767,
+      "sha256": "7630c9846831d6a60af86d64a8e838b48652e6c20e52f17a0a5f3b53e54be1b4"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_power-cooling.json",
+      "bytes": 4153,
+      "sha256": "47566dc001436862ad9445600dd770e92eecae5589b26b8ba71dddaee7214f06"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_power-electricity-system.json",
+      "bytes": 4191,
+      "sha256": "c816e1a8ba7d0456d5a6cfb78ebfb6b4969f2637974fd2344535e225738373b0"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_power-generation-market.json",
+      "bytes": 4869,
+      "sha256": "3b741324a4381218d26e3e0b58d5da6f666fa7de6cdaa3abf20be408560925fa"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_productivity-wealth.json",
+      "bytes": 3248,
+      "sha256": "e2c3a6314a639764ec4964d632962e2f3b7b25cdaf20e56412a9c1ce6d831ddc"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_quantum-platform.json",
+      "bytes": 2336,
+      "sha256": "061f7449035086c6075f7d9a41bed45a15f791d3ab2dc674bdbd64aa538ce585"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_rare-earths-supply-chain.json",
+      "bytes": 4804,
+      "sha256": "5dfedcd2b0cc2f1d883bc5a0d6266f5534c07159aa78d8a738491397b4d338c0"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_refining-qualification.json",
+      "bytes": 2396,
+      "sha256": "23b834f62179d5e1eaf75b13c30698d7cdbc3bd62f5aa61b10b1609e91485c0a"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_robot-unit-economics.json",
+      "bytes": 3299,
+      "sha256": "6eefffd0a23ef89d29f92303663bb2d7f37a43ac34bf7f8a9a2d0da7bb5f4920"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_robotics-automation.json",
+      "bytes": 2334,
+      "sha256": "d18449fb4dabe375ec32749f586f4c0509d62225fb332db72cdba6bcfe57dfb3"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_scarcity-choice.json",
+      "bytes": 2278,
+      "sha256": "567262cbc8eab2ebbaf048f17993f848c24aee6de6c6f9c6126e424a757eec59"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_space-launch-economics.json",
+      "bytes": 2324,
+      "sha256": "7c62d6d0c5a40a07785ee62dddea2820c323885c57edf5921de9c34ea6dc6aa4"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_space-systems-economics.json",
+      "bytes": 2374,
+      "sha256": "1fd499e4489caad4df2cb18c3a6e763d7ea1daa06f13c3f39989bb811bae7a5b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_storage.json",
+      "bytes": 2206,
+      "sha256": "f53050b56f1246adba60a4cc2ab48d691c72b69641c643325220fa273bf1b6e7"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_tax-accounting-cashflow.json",
+      "bytes": 4076,
+      "sha256": "724e77fae2f8300725238898805db722f9d924e88735f8c2530ad192c9ac1268"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_us-korea-market.json",
+      "bytes": 3922,
+      "sha256": "1704db84c4cd4669ce1c1191e46a366eee7432f104cbd0aee34f338538a0b7ef"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/principles_visibility.json",
+      "bytes": 2244,
+      "sha256": "c3543a850bcafb18ffa7e18af4cae622c357c62346fc320a7eb307f89731e2b7"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_amd-instinct-accelerator-family.json",
+      "bytes": 2808,
+      "sha256": "574809143fd3118fb73f3a2399327344798753cf8371bb75105b6c151a5e7e60"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_asml-euv-lithography-family.json",
+      "bytes": 3597,
+      "sha256": "15a05413d92627e5fa1cb229c6e1c256af0b1e9569c62a9d99a525004c1a5fbc"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_aws-trainium-family.json",
+      "bytes": 5019,
+      "sha256": "73763566cb7be188c4352c12ef2791cfcb6e74c3c7073df17beb38215503cfe6"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_broadcom-ethernet-switch-family.json",
+      "bytes": 2797,
+      "sha256": "7bdf2d8b01c916d4d7c5479eca20acee0b00849bb290817eb3089a38b614b0cf"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_cloud-tpu-family.json",
+      "bytes": 2590,
+      "sha256": "3619cddd0f1689bc707d05193edd0a5e4a47d1398e2cddec680bcc769994283d"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_coherent-optical-module-family.json",
+      "bytes": 2760,
+      "sha256": "9a741ba42d84a257c10fd46498098f8171b4c0772b0816e7679c81b4eacabd50"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_ibm-quantum-platform.json",
+      "bytes": 2644,
+      "sha256": "cec05902cbb15be9bd3525051f428f48135ac703bb03087603f6a6c1c0d99958"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_kioxia-enterprise-ssd-family.json",
+      "bytes": 5140,
+      "sha256": "84ac4e8303927d3bacc42c9aa91cc7afaa64a3fdd2dd5c5b60368da4394254b9"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_micron-hbm-family.json",
+      "bytes": 4708,
+      "sha256": "22326923317b980e4a910cedd567e87a04f7637afb4bbd2c20fb7348b22aca18"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_mp-materials-rare-earth-magnetics.json",
+      "bytes": 2802,
+      "sha256": "73984624d9691204c3c6e4bed0c4f0727d3fdf6e606f0b0ee5c7fd6d07dc8b92"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_nvidia-gpu-accelerator-platform.json",
+      "bytes": 2840,
+      "sha256": "2f31dbc07134ed4cda0c6cb9e8d8d6b4e389f38046a67f027bc9f4f23278fd9e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_palantir-aip.json",
+      "bytes": 4947,
+      "sha256": "15a50a558032c98feb9038b5f74f2991dfea4816fa24e11a2582fd101c86f36a"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_rocket-lab-electron-neutron-space-systems.json",
+      "bytes": 2905,
+      "sha256": "5994a35b6785839ead52c5f38eb190a95e60fff9e3290b3e34719a7449ea2efb"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_samsung-hbm-family.json",
+      "bytes": 4432,
+      "sha256": "ae7a09b6082194184dd1d303b7c08ac1b300c119b7fe89d972d8190c3040d2bc"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_sandisk-bics-enterprise-ssd-family.json",
+      "bytes": 4755,
+      "sha256": "b3deb88dcf7b0c537892f2ac9bb830fcd942ecb1a467af09c206b79172a0e0e6"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_sandisk-hbf-roadmap.json",
+      "bytes": 3003,
+      "sha256": "a8eaa5a499097299fea2795e63620dbbb52f078dbe5fc5b24418a18c20abc407"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_shield-ai-hivemind-autonomy.json",
+      "bytes": 5089,
+      "sha256": "8aef6972e345d4a381fc0b88a4ec9bcf98cedeb4c95b17cb000308121ae060ee"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_siemens-industrial-copilot.json",
+      "bytes": 2756,
+      "sha256": "c328aea23c882ea757427ea5ca65543727ed91bb47248c4ca3fa9cc8658d0065"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_synopsys-eda-flow.json",
+      "bytes": 2621,
+      "sha256": "2defdc44ee664449b873f1ed52ac459f3d1ad18eb1410b7ef8d473ccd950e20e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_tesla-optimus-and-autonomy-stack.json",
+      "bytes": 2779,
+      "sha256": "858c22cbda5479f22aaae615639835321ffb403f7869cc7bf21a06dc974c49b8"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_tsmc-3dfabric-family.json",
+      "bytes": 2933,
+      "sha256": "1a2fe85a3b5a162bd4de26e250fe367d8b6f6be0c78eff3aed3c68998c95dc95"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/product_vertiv-thermal-power-solutions.json",
+      "bytes": 4684,
+      "sha256": "2a19395571f12801a70c1c1d6c4d777286ad120e8cf4da5dc5350090b59901bf"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_aidc-liquid-cooling.json",
+      "bytes": 7096,
+      "sha256": "f55417b7dd2d63ef6b4c8d2cde99d386e2008a411c981bf7a4022092b5de839a"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_aidc-pue.json",
+      "bytes": 7192,
+      "sha256": "308ebe1cf2ceb77759a6e65870d180491646f2acaa6a4f5997c824b3465f5950"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_aidc-rack-density.json",
+      "bytes": 7076,
+      "sha256": "2f3cf8d1e3eb143cc6c9f1bd8af77bd8322581acb3d4b8e99082d824ed74f4d6"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_aidc-server-platform.json",
+      "bytes": 5376,
+      "sha256": "676a03296f2a1a99789caa7cd83d48044b66ef371a99c061115304e43ae4ee9d"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_aidc-thermal-design.json",
+      "bytes": 5366,
+      "sha256": "2f7e6dd0cf0909ba8c7ad8364b3a888c1b3e66c166186d386101a190ffb5e18e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_application-automotive.json",
+      "bytes": 2928,
+      "sha256": "904c976794e266ed3dd708196601c06750ca0ffcd33ea30f5186cf2e2cbbda41"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_application-finance.json",
+      "bytes": 4720,
+      "sha256": "7cefbe4e791ddc310399104b37757354a67c6e7697f7ac6e3b6cf3669140a8f1"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_application-healthcare.json",
+      "bytes": 2928,
+      "sha256": "72bca13a4999be010c7e34ea4ddfaf21e88afc8d21e3e387343c36bdb76e52de"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_application-manufacturing.json",
+      "bytes": 2958,
+      "sha256": "5134309eb109fa9de0319bdf9ebb7d8f26b60c4c4ec391d4d7f6ded2de06af2a"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_application-roi-payer.json",
+      "bytes": 2958,
+      "sha256": "96eee5b59f86471e860db775aa230e3bf256cf4959cbdc40dafa106c583a6a19"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_capital-balance-sheet.json",
+      "bytes": 5655,
+      "sha256": "f5a5eb494b7a102b5623deea29473c780e7ddeff1fc395567bcd1391eba969d8"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_capital-company-role.json",
+      "bytes": 4968,
+      "sha256": "4fa670e2032b0f6e39a8c5433cba0a8b4089603e39cc97bb6d2d9d68c74683c1"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_capital-margin-structure.json",
+      "bytes": 4906,
+      "sha256": "f8f6cfd43365f33406bdf6ccdd92be7cf48c6c913009840c6cdbb59a45c7ba65"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_capital-market-expectation.json",
+      "bytes": 5525,
+      "sha256": "0eb394f768da51a85e5f495317845081cead04b018d286f7c3f1d290f77ebb17"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_capital-revenue-quality.json",
+      "bytes": 4973,
+      "sha256": "cb9b9e1a604ed350d39e8c097c3d7ba0915ab8558bf7d0e484445e3ed04d3c86"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_cloud-ai-service.json",
+      "bytes": 5437,
+      "sha256": "4cae4a929fd32fe4ea77c3a16bfe7f2eed36d40e6ac49f63c37ec37c6e534923"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_cloud-commitments.json",
+      "bytes": 3068,
+      "sha256": "3d134c7b726f133af7b2ee1d42c4dac719b541e3c4ceb8d07009ed80c94cd676"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_cloud-depreciation.json",
+      "bytes": 4051,
+      "sha256": "44ea92dad108cafe3215dab0279c5be6544d88864874c6dad89def3de16ffbb4"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_cloud-hyperscaler.json",
+      "bytes": 3068,
+      "sha256": "70f778a35ab3727072a82329ad7c7510f8ebe5ef934e8826894014be20f827b0"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_cloud-utilization.json",
+      "bytes": 5877,
+      "sha256": "952d75c4f6e37fa71d93384c1821519f05de1914c73980c915103be180599053"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_compute-asic.json",
+      "bytes": 3002,
+      "sha256": "9e48393ed56993df278e66b8f733226ca1961a78881767c0a29a179924c449ba"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_compute-gpu.json",
+      "bytes": 2834,
+      "sha256": "821ed9bede0d387fe27596fca504d1f523f96017fa1f6b4875f181a497cfcde7"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_compute-interconnect.json",
+      "bytes": 4767,
+      "sha256": "19aa75795f5ef8ce890ab8b5b991b316fb0cc88777ee53ca2d18ace6c5bf7b42"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_compute-npu.json",
+      "bytes": 2976,
+      "sha256": "914d643b34001269fdc51586e522e0c483ec31613d0a7368f835ab6915814535"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_compute-precision.json",
+      "bytes": 2941,
+      "sha256": "8fa46c3339c4b9fac168bf73a38ac930de4d687374731ba01a5323b1befaa987"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_defense-autonomy.json",
+      "bytes": 3070,
+      "sha256": "00c257b1be9a0e7c49432f06af8e8f2fe22ca099265c72091cebf8674e38561c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_defense-c2-isr-ew.json",
+      "bytes": 3964,
+      "sha256": "f675cf68fa8e693678a4641a1d1c6d6535b5a0544a510a0f111579667a437961"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_defense-drone-production.json",
+      "bytes": 3084,
+      "sha256": "5ea6130a79d1cc01cde954203e720e55105a29f72f24324555dd1520e2975e18"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_defense-kill-chain.json",
+      "bytes": 5411,
+      "sha256": "1948f3c4a9c5f34c5c4767d8c242200f59b0afeb1ed2313bffc04f0ba01af98f"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_defense-procurement-economics.json",
+      "bytes": 3022,
+      "sha256": "fd5b56622c3592ff060e2acdee47ec97d6a4cc9cd5c1ad62e83f517c440868c0"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_economics-capex.json",
+      "bytes": 3080,
+      "sha256": "0a53a1c4ffa29d88f93c99cb8b12c903de9675cefe76e07b4ca743abd87bffcf"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_economics-depreciation.json",
+      "bytes": 3198,
+      "sha256": "eb4e23a45eac3d3c56550fdf6c80c89eff50109968bd9c4e1e43717684023b79"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_economics-fcf.json",
+      "bytes": 5463,
+      "sha256": "c91038517103c6e8acefe9cd2a0498369c17d14de580672641a0d1353d66fd5a"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_economics-revenue-model.json",
+      "bytes": 3129,
+      "sha256": "ee744fbdd05366b08d938eee07baa03b761a211f35778906a78edb5c3028a2ba"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_economics-roic.json",
+      "bytes": 4792,
+      "sha256": "ced23643acb0c060a677cb4a36d4640612c6e2d3ba8390451857ddfdeeccdeed"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_edge-memory-power.json",
+      "bytes": 4900,
+      "sha256": "e3128738cdaebdc9e2a022b567e8b744fbd66470fdb7b1f5254b38bb5d2bf803"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_edge-soc-npu.json",
+      "bytes": 2858,
+      "sha256": "8d3f2fecc8bee946ec2a8c7d76a8bcde084cb2af1e90e98c678a2c99575ce3b3"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_foundry-capacity-yield.json",
+      "bytes": 6531,
+      "sha256": "ae4067717907c867c6212dd0db7bc6243e1069d6ca83c5d04cade723b233976d"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_foundry-design-ecosystem.json",
+      "bytes": 3861,
+      "sha256": "75d4bfbfac273760053d62b51ddfe187428aba45548482fcf01faab874f8352d"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_foundry-equipment.json",
+      "bytes": 3855,
+      "sha256": "27f3dad160506373e5cb25cf44ddc7c9da0476127f4c22338f6603b9f88e19bd"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_foundry-materials.json",
+      "bytes": 3887,
+      "sha256": "997978981b31062654ecc82b0a007c84e537526348e1ee17093338819324173c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_foundry-process-node.json",
+      "bytes": 3821,
+      "sha256": "2fd1dab8d0315716a9d01f4acc2d4a42cb331b6ba55efa508a70a781ce7c7476"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_future-neuromorphic.json",
+      "bytes": 2967,
+      "sha256": "656f590cdd687cfa78f6e3aa8c4ae3b6021f650b65cf5ec8c95bc9fdd1a37002"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_future-new-energy.json",
+      "bytes": 4818,
+      "sha256": "7a33f2c46a020ebd7614602a8a6700cc603df49ce94489dc907fb013cc80ec3b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_future-photonic-compute.json",
+      "bytes": 2943,
+      "sha256": "2446ed366a1320ab3033ffec09ef37fbb5d647061bb34e0420d0f520fddf82c5"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_future-quantum.json",
+      "bytes": 2933,
+      "sha256": "4b7696585a1e10ac179a4c2e69ebce963d27c465769a03c19ad0038bf8ac77f2"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_future-uncertainty-gate.json",
+      "bytes": 5394,
+      "sha256": "7e3b84e8ffdd68012b8a1a62de8dca300800ca787be13787fd2f983704cd919c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_memory-cxl.json",
+      "bytes": 3095,
+      "sha256": "bb4975ad1358d4ab4053e9cb57a5211e6c6b7bd3a00714f3f0a299e42df9de18"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_memory-dram-hbm.json",
+      "bytes": 4760,
+      "sha256": "1445dbc947012e84521c56ffcfff75f154528952d1980f1a3038d74ad34dfed4"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_memory-enterprise-ssd.json",
+      "bytes": 6507,
+      "sha256": "8f236eff66ddc07df2187f6a80c1df7e46e8b3d1b1a51ce3d1c738b000fd522d"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_memory-nand.json",
+      "bytes": 3032,
+      "sha256": "66dddc036b2344b12d71a6cbefddd9d20ac4d761e4c001fec572485e602dc1c3"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_memory-sram.json",
+      "bytes": 3041,
+      "sha256": "b01449d9491b04e35d4b9fc5ca07ca1f9fabf729345a53f92b553e5f364bce97"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_neocloud-capacity-reservation.json",
+      "bytes": 4920,
+      "sha256": "654bdca2f4c329d903d2edf25aaa0a874b65ff5b92776c94dd064bf48a1b20b2"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_neocloud-customer-concentration.json",
+      "bytes": 3089,
+      "sha256": "44f8cfc1f54a3b79394e8173cce58aae559bd21f7cc80864a7b0095164b77554"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_neocloud-gpu-rental.json",
+      "bytes": 3002,
+      "sha256": "b1c33a6d5193bc35faf6ada4ba399c8ccfc6227e6831727e26eb2ba50941e34c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_neocloud-lease-burden.json",
+      "bytes": 2989,
+      "sha256": "4466fc4188abe5ea926fbde710aee72a85f19cc031ff9f7efa51aa888126722c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_neocloud-rental-yield.json",
+      "bytes": 5810,
+      "sha256": "e4fcbf1a9cdff806e7eb2333ff5bef1c8d64c7ea66247266ddef1cacaf612f34"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_network-cpo.json",
+      "bytes": 3909,
+      "sha256": "fd4df453b372a74795b81d4e08ed699df67e9f60f71ae5cc2c4c4fe1c4d7106c"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_network-fabric.json",
+      "bytes": 5342,
+      "sha256": "049af566eb66f1b43ea1b4c022ab00648f5ac37d38656ea092ac1d0184f8d410"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_network-optical-module.json",
+      "bytes": 3009,
+      "sha256": "6f469e32ac71f348d7ce787df45082b28f5b3ac903dd89b4d700e775396479b5"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_network-silicon-photonics.json",
+      "bytes": 3105,
+      "sha256": "ed0e6314edb709381c4cd73ed494f151aadafd7c54c43accffdf7029366c3b32"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_network-switch.json",
+      "bytes": 2986,
+      "sha256": "40cf4d766ed75ea8d1836a8a5fddf33c8e078a2b6fbeb74cb9dec2f7fed6dd26"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_package-2-5d.json",
+      "bytes": 2968,
+      "sha256": "9a8ea4dda733a9d524d571dc17c7d1ff29824693adae3f018787352e89052099"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_package-3d-stacking.json",
+      "bytes": 2942,
+      "sha256": "58c66dc910e4a0f4ec1f0f9085f292e66e2d50d1f2f5c5757f5d466184e26bab"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_package-glass.json",
+      "bytes": 2962,
+      "sha256": "7a71d6cd414cc1ddbcf8584b153d6107d1713c7bed606e09bd86c9bec2089050"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_package-interposer.json",
+      "bytes": 3004,
+      "sha256": "d2c110ad56d868cadf59fd16b2f7c8d2c8057171703deb5e7770a685bcf127e5"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_package-substrate.json",
+      "bytes": 3026,
+      "sha256": "ce87ceccd9fdbe773d7efccf5f58afcd994f63f35170d769a0cf0d6d4bc9c537"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_physical-ai-actuation.json",
+      "bytes": 5350,
+      "sha256": "3abca7e20815cda0335df90802ee50e9b3586fb438c907f9bf6b35963807df7d"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_physical-ai-control.json",
+      "bytes": 5309,
+      "sha256": "a58170288aa592f291b6c5e59bd1bea8f9ae5ec597833f9a3fb78cf41544386e"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_physical-ai-digital-twin.json",
+      "bytes": 5333,
+      "sha256": "6e93fc277fad3b703f4ec93498d85e81f3c2da243da476e18996bd97ed206146"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_physical-ai-perception.json",
+      "bytes": 5416,
+      "sha256": "11f746c6dd3ac67dccf639744baa038685526ac3a3f46b7c1fd12c6db66c4df0"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_physical-ai-planning.json",
+      "bytes": 5382,
+      "sha256": "2a5051826782a9438e945bc43880b570393b8a92a57dd11fdbc6aa055d3e9980"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_physical-ai-sensing.json",
+      "bytes": 5283,
+      "sha256": "b1434854b41ab6a0bf37e9fcf108c2a251004b712aa35517d999335fd52a3172"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_physical-ai-unit-economics.json",
+      "bytes": 6182,
+      "sha256": "68a59545823e898c5846fc6c8fdde9f2497ad56d455354b40d63f4ec4e67d111"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_physical-ai-world-model.json",
+      "bytes": 5470,
+      "sha256": "7664301942be0d906a298131fba4b090e0771c87bd13943017a8ae4e1ade3fd3"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_policy-cybersecurity.json",
+      "bytes": 5569,
+      "sha256": "5c2b924d4c97af43816954937b85e79a9ca3f88cb1d15e94feb08d6b8783d288"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_policy-export-controls.json",
+      "bytes": 3124,
+      "sha256": "3c0334f7f1cadab9c2a53b07f77a98b9aabe8063f5a1f03ebe234cb477ef8204"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_policy-national-security-risk.json",
+      "bytes": 4833,
+      "sha256": "1bf8d6058df201974531145fd8400d57ba9eeb97b95751f5bd7178b7232a78ea"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_policy-semiconductor-incentives.json",
+      "bytes": 4708,
+      "sha256": "ee3c6e9a316bf7e59970946eb8d3ecb2821981c0a6d3edfce7b6d39060f15936"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_policy-supply-chain-resilience.json",
+      "bytes": 5533,
+      "sha256": "3e8cba429fcdbbacd76b642ec01a9daa7720f96062aa1061ac34d9673cd427af"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_power-generation.json",
+      "bytes": 4897,
+      "sha256": "124c16691c8f14dc2a859fe72539c599a253ee0c2d0dfc46773d8771706b77da"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_power-interconnection.json",
+      "bytes": 6559,
+      "sha256": "dfd5c49a800a24efd7e3118faf5437672fb1a8c5e1a3509f0a011f4d4f23c6a0"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_power-it-load.json",
+      "bytes": 4954,
+      "sha256": "4a473c5d380d547f32e3989e15a449864c096b7ff5196425df9041509833c467"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_power-transformer.json",
+      "bytes": 6461,
+      "sha256": "529cc1ba6aea8cb809dec9e5e881265092dc82077dbda03546f81fe1abc1516b"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_power-transmission.json",
+      "bytes": 4989,
+      "sha256": "a9f149f2f1b564c8eac34c3460042d0b7e932490b3b9242089b41e809fb813e1"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_resources-copper.json",
+      "bytes": 3016,
+      "sha256": "9a763b935a8357e4bbf6f9d14c3f79f69279fe50d9ddcbff035bd08823fc7b6f"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_resources-industrial-equipment.json",
+      "bytes": 3132,
+      "sha256": "d6e30c4c32a0d62ea70d268e4cdfd163466b16f4ef2f06b8cf405a63c0d01163"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_resources-lithium.json",
+      "bytes": 3082,
+      "sha256": "886b8d0e72a11e627c59ab694028ccf2417ddc97ec80d79b804337570e488793"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_resources-rare-earths.json",
+      "bytes": 3042,
+      "sha256": "d03274711be7fce8a1012705c88effc584864c6f597c29ce29cd3a97180256b8"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_resources-refining.json",
+      "bytes": 3092,
+      "sha256": "2547a30c4667867b71ae3e0e0911dc6f3fb892a79439cc1b1764ed3693e440ef"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_space-aircraft-supply-chain.json",
+      "bytes": 5452,
+      "sha256": "8085574852772942a4fb6a450259a0e3add0814406fa88966bbe7362d5088fa6"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_space-artemis-architecture.json",
+      "bytes": 2999,
+      "sha256": "859af7075bf2d6b859591e2f84cfcbb037a22651feb50ddcbeb3a71b0b3955b7"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_space-reusability.json",
+      "bytes": 3029,
+      "sha256": "cd69275f8076a0bbc357610c4b1fa444552cd9709a03fb3593e89a127de629d4"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_space-rocket-physics.json",
+      "bytes": 4954,
+      "sha256": "07be974b2f0d4d8b2e0a14cd6ce24dfc93a77e834a376f59de2e127b7d16adba"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers/taxonomy_space-satellite-economics.json",
+      "bytes": 3029,
+      "sha256": "68a646a94a93403fca4c23fcf8e5a71a37e16e4f71d4ee60e6e1ae7fa57445ec"
+    },
+    {
+      "path": "public-data/knowledge/research-dossiers.json",
+      "bytes": 2000727,
+      "sha256": "3c13c95d63272558da088ebc19c7c12b1a883203d5c040d0347900cd1cd74e52"
+    },
+    {
+      "path": "public-data/knowledge/research-facts.json",
+      "bytes": 31538,
+      "sha256": "03eaf72e0f6c9310102626534cfd4890b26d44bf39d81ea218eff3f9d7e9e7db"
+    },
+    {
+      "path": "public-data/knowledge/research-source-seeds.json",
+      "bytes": 25418,
+      "sha256": "bf08bfa53ce5357256d28f65d7f1c20af7a2272f631ba1348fef03a3dfba2455"
+    },
+    {
+      "path": "public-data/knowledge/route-targets.json",
+      "bytes": 106003,
+      "sha256": "c5decf89e8ea7fb089ab450db016940272dd24514b40147db6fdd2ef40887efb"
+    },
+    {
+      "path": "public-data/knowledge/search-index.json",
+      "bytes": 253623,
+      "sha256": "248d345b422cbf6e358cade7eed7dd7ecec283a4a79d13aa4d8a8d86bfc63aa0"
+    },
+    {
+      "path": "public-data/knowledge/sources.json",
+      "bytes": 106493,
+      "sha256": "42efd259a2bbba355f59b9dd6eb7491b6354719f2394ca71303c87ee67cac4e8"
+    },
+    {
+      "path": "public-data/knowledge/status-summary.json",
+      "bytes": 723,
+      "sha256": "20e1401ddcad9b636f40e92b1d37e097d3a8b70ab39345ca3c43c0dc86d7da6a"
+    }
+  ],
+  "counts": {
+    "knowledgeJson": 653,
+    "articles": 160,
+    "domains": 19,
+    "claims": 274,
+    "titleOnlyRows": 210,
+    "recoveredHistoricalBodies": 211
+  },
+  "historicalRevision": "4911d8ce433edddda0fb9b0ff1226843d0967254"
+}

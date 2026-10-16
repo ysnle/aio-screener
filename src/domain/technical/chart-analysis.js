@@ -93,6 +93,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const vcp = detectContractions(bars);
   // P1428 (Codex review): fewer than 252 sessions is not a 52-week range; the label says how long it is.
   const range = rangeExtremesOf(bars.map((bar) => bar.high), bars.map((bar) => bar.low));
+  if (!range) return { available: false, reason: 'range-unavailable', bars }; // v57.88: no positive high/low — not a TypeError
   const fullYear = range.fullYear;
   const rangeLabel = fullYear ? '52주' : `최근 ${range.sessions}거래일`;
   const high52 = range.high;
@@ -107,8 +108,8 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   // (a) 8-day EMA lost / reclaimed — the short-term trend line most swing traders watch.
   for (let i = Math.max(from, 9); i <= n; i++) {
     if (ema8[i] == null || ema8[i - 1] == null) continue;
-    if (closes[i - 1] >= ema8[i - 1] && closes[i] < ema8[i]) events.push({ index: i, kind: 'ema8-lost', text: '8일선 이탈', position: 'aboveBar', tone: 'burden' });
-    else if (closes[i - 1] < ema8[i - 1] && closes[i] >= ema8[i]) events.push({ index: i, kind: 'ema8-reclaim', text: '8일선 회복', position: 'belowBar', tone: 'favorable' });
+    if (closes[i - 1] >= ema8[i - 1] && closes[i] < ema8[i]) events.push({ index: i, kind: 'ema8-lost', text: '8일 EMA 이탈', position: 'aboveBar', tone: 'burden' });
+    else if (closes[i - 1] < ema8[i - 1] && closes[i] >= ema8[i]) events.push({ index: i, kind: 'ema8-reclaim', text: '8일 EMA 회복', position: 'belowBar', tone: 'favorable' });
   }
   // (b) gap up on heavy volume (earnings/news gap; O'Neil/Minervini "power gap").
   for (let i = from; i <= n; i++) {
@@ -224,7 +225,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     ['50일선 대비 일평균 변동폭 배수', adrFrom50 == null ? '—' : `${adrFrom50 >= 0 ? '+' : ''}${adrFrom50.toFixed(1)}배 (ADR${TECH.adrPeriod} ${fmt(adrPct)}%)${EXTENSION_NOTE[extensionStateFor(adrFrom50)] || (adrFrom50 <= -TECH.nearLineAdr ? ' · 50일선 아래(부근 범위 밖)' : '')}`],
     [`${rangeLabel} 저점 대비`, `${signed(fromLow)}${fromLow < 5 ? ' (저점 5% 이내 — 바닥 다지기 전)' : ''}`],
     ['5일·20일 EMA', fiveAbove == null ? '기록 부족' : `5일 EMA가 20일 EMA ${fiveAbove ? '위' : '아래'}${crossAgo != null ? ` · ${crossAgo}거래일 전 ${fiveAbove ? '상향' : '하향'} 교차` : ''}`],
-    ['8일선 대비 거리', extension == null ? '—' : `${signed(extension)}${extension >= TECH.ema8.overheatPct ? ' (과열권)' : extension <= -TECH.ema8.breakBelowPct ? ' (8일선 아래 이탈)' : ''}`],
+    ['8일 EMA 대비 거리', extension == null ? '—' : `${signed(extension)}${extension >= TECH.ema8.overheatPct ? ' (과열권)' : extension <= -TECH.ema8.breakBelowPct ? ' (8일선 아래 이탈)' : ''}`],
     ['상승일·하락일 거래량 (20일)', pressure == null ? '—' : `상승일/하락일 거래량 ${pressure.toFixed(2)}배 ${pressure >= 1.3 ? '(상승일 거래량 우위)' : pressure <= 0.77 ? '(하락일 거래량 우위)' : '(비슷함)'}`],
     ['변동성 수축 (VCP)', vcp.contractions.length ? `${vcp.contractions.map((row) => `-${row.depth.toFixed(1)}%`).join(' → ')}${vcp.valid ? '' : ' (수축 순서 불충분)'}` : '수축 구간 없음'],
     ['기준 고점(피벗 · 마지막 조정의 고점)', pivot == null ? '—' : `${fmt(pivot)} (현재가 대비 ${signed((pivot / last.close - 1) * 100)})`],

@@ -32,7 +32,7 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
   const samples = Number.isFinite(Number(last?.dates)) ? Number(last.dates) : null;
   const distinguishable = samples != null && samples >= VALIDATION_MIN_REBALANCES && tStat != null && Math.abs(tStat) >= VALIDATION_MIN_ABS_T;
   const tone = !last || !Number.isFinite(Number(last.quantileSpreadNet)) ? 'unknown' : !distinguishable ? 'neutral' : Number(last.quantileSpreadNet) > 0 ? 'favorable' : 'burden';
-  const undecided = `아직 구별 불가(표본 ${samples ?? '—'}회${tStat != null ? `, t=${tStat.toFixed(2)}` : ''})`;
+  const undecided = `아직 우연과 구별 안 됨(표본 ${samples ?? '—'}회${tStat != null ? `, t=${tStat.toFixed(2)}` : ''})`;
   // P1449: stored rows must carry the model fingerprint. A mismatch — or no fingerprint at all
   // (rows produced before this identity existed) — means the record was NOT produced by the
   // model on screen, so it cannot be presented as that ranking's validation.

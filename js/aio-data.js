@@ -1696,7 +1696,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
       var cls = n.status === 'success' ? 'is-ok' : n.status === 'partial' ? 'is-partial' : 'is-fail';
       // P1503: say what the reader is looking at — public channels, a completed 24-hour window, a link per post.
       var _tgChannels = (window.AIO_TELEGRAM_WEEKLY_DIGEST && Array.isArray(window.AIO_TELEGRAM_WEEKLY_DIGEST.channels) && window.AIO_TELEGRAM_WEEKLY_DIGEST.channels.length) || 4;
-      var note = n.status === 'success' ? '텔레그램 공개 채널 ' + _tgChannels + '곳 · 완료된 24시간 · 글마다 원문 링크' : n.status === 'partial' ? '조건에 맞는 글 일부만 표시 · 참고용' : '완료된 24시간 안에 표시할 글 없음';
+      var note = n.status === 'success' ? '텔레그램 공개 채널 ' + _tgChannels + '곳 · 지난 24시간 · 글마다 원문 링크' : n.status === 'partial' ? '조건에 맞는 글 일부만 표시 · 참고용' : '지난 24시간 안에 표시할 글 없음';
       return '<div class="tg-source-state ' + cls + '" data-external-source="telegram:' + escHtml(pageId) + '" data-state="' + n.status + '" title="' + escHtml(note) + '">' +
         '<span class="tg-source-state-dot"></span>' + escHtml(n.label) + ' · ' + escHtml(note) + '</div>';
     };
@@ -1734,7 +1734,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
     var currentWindow = window.AIO_TELEGRAM_WEEKLY_DIGEST && window.AIO_TELEGRAM_WEEKLY_DIGEST.current24hWindow;
     var windowLabel = currentWindow && currentWindow.label
       ? currentWindow.label
-      : (window.AIO_TELEGRAM_WEEKLY_DIGEST && window.AIO_TELEGRAM_WEEKLY_DIGEST.window) || '완료된 24시간';
+      : (window.AIO_TELEGRAM_WEEKLY_DIGEST && window.AIO_TELEGRAM_WEEKLY_DIGEST.window) || '지난 24시간';
     var feedCls = 'tg-live-feed' + (compact ? ' tg-compact' : '');
     var feedState = filtered.length < maxItems ? 'partial' : 'success';
     var html = '<div class="' + feedCls + '">' + statusMarkup(feedState, filtered.length, maxItems);
@@ -2256,7 +2256,7 @@ function switchThemeMode(mode) {
     subView.style.display = '';
     subBtn.style.background = 'var(--accent-dim)'; subBtn.style.color = 'var(--accent)'; subBtn.style.fontWeight = '600';
     etfBtn.style.background = 'transparent'; etfBtn.style.color = 'var(--text-secondary)'; etfBtn.style.fontWeight = 'normal';
-    desc.textContent = '개별 종목 equal-weighted % 평균 · 고수 전용 세분화 지수';
+    desc.textContent = '개별 종목 등락률 단순 평균 · 세부 지수';
   }
 }
 // ═══════════════════════════════════════════════════════════════
@@ -4423,16 +4423,16 @@ function _aioRequestSWControllerReload() {
   try {
     if (sessionStorage.getItem('aio_sw_controller_reload_v1') === '1') return;
     sessionStorage.setItem('aio_sw_controller_reload_v1', '1');
-    setTimeout(function() {
-      try { if (window.location && typeof window.location.reload === 'function') window.location.reload(); } catch (_) {}
-    }, 80);
+    setTimeout(function() { try { if (window.location && typeof window.location.reload === 'function') window.location.reload(); } catch (_) {} }, 80);
   } catch (_) {}
 }
+// P1901: only an update takeover reloads
+var _aioHadSWController = !!(navigator.serviceWorker && navigator.serviceWorker.controller);
 if (navigator.serviceWorker && navigator.serviceWorker.addEventListener) {
   navigator.serviceWorker.addEventListener('controllerchange', function() {
-    window._aioSWVersion = '';
-    window._aioSWMismatchLogged = '';
-    _aioRequestSWControllerReload();
+    window._aioSWVersion = ''; window._aioSWMismatchLogged = '';
+    if (_aioHadSWController) _aioRequestSWControllerReload();
+    _aioHadSWController = true;
     _querySWVersion();
   });
 }
@@ -6027,7 +6027,7 @@ function _aioPublicReadinessPageText(pageId) {
     portfolio: '포트폴리오',
     'market-news': '시장 뉴스',
     screener: '퀀트 스크리너',
-    guide: '사용 설명서',
+    guide: '도움말',
     glossary: '용어 사전',
     mindset: '투자 마인드'
   };
@@ -8555,7 +8555,7 @@ const _FINANCE_RELEVANCE_KW = [
    5) 중복/스팸 패널티
    ─────────────────────────────────────────────────────────── */
 // v49.0 P182: scoreItem LRU 200건 캐시 — 동일 기사 재채점 방지
-var _scoreItemCache = (typeof window._aioLRU === 'function') ? window._aioLRU('scoreItem', 200) : null;
+var _scoreItemCache = (typeof window._aioLRU === 'function') ? window._aioLRU('scoreItem', 4000) : null;
 function _scoreItemKey(item) {
   return (item.title || '') + '|' + (item.source || '') + '|' + (item.pubDate || '');
 }
@@ -8664,10 +8664,10 @@ function scoreItem(item) {
     return 0;
   }
 
-  MACRO_KW.forEach(kw   => { macroHits   += _kwHit(kw, _titleLow, _descLow); });
-  TECH_KW.forEach(kw    => { techHits    += _kwHit(kw, _titleLow, _descLow); });
-  MED_KW.forEach(kw     => { medHits     += _kwHit(kw, _titleLow, _descLow); });
-  ANALYST_KW.forEach(kw => { analystHits += _kwHit(kw, _titleLow, _descLow); });
+  var _pairs = window._aioTextPairs ? window._aioTextPairs(_titleLow + '\n' + _descLow) : null, _may = window._aioKwMay || Boolean;
+  MACRO_KW.forEach(kw   => { if (_may(kw, _pairs)) macroHits   += _kwHit(kw, _titleLow, _descLow); }); TECH_KW.forEach(kw => { if (_may(kw, _pairs)) techHits += _kwHit(kw, _titleLow, _descLow); });
+  MED_KW.forEach(kw     => { if (_may(kw, _pairs)) medHits     += _kwHit(kw, _titleLow, _descLow); });
+  ANALYST_KW.forEach(kw => { if (_may(kw, _pairs)) analystHits += _kwHit(kw, _titleLow, _descLow); });
 
   // v30.12 P2: 로그 스케일 + 밀도 기반 점수 (키워드 나열 역전 방지)
   // 첫 1~2개 키워드에서 대부분의 점수, 이후 체감 증가
@@ -9652,7 +9652,7 @@ async function freeTranslateNews(items) {
   // The status counts only foreign headlines whose cached title is actually Korean; the rest stay original.
   var _usableKo = items.filter(function(i) { return i.title && !isKoreanText(i.title) && _hasUsableTranslation(i); }).length;
   var _stillOriginal = Math.max(0, _foreignCount - _usableKo);
-  var statusMsg = '✓ 해외 기사 ' + _usableKo + '/' + _foreignCount + '건 한국어 제목 확인';
+  var statusMsg = _usableKo === _foreignCount ? '해외 기사 ' + _foreignCount + '건 모두 한국어 제목' : '해외 기사 ' + _foreignCount + '건 중 ' + _usableKo + '건 한국어 제목';
   if (_stillOriginal > 0) statusMsg += ' · <span style="color:#f87171;">' + _stillOriginal + '건은 원문 제목 그대로</span>';
   failed = _stillOriginal;
   statusMsg += ' · ';
