@@ -14,7 +14,7 @@ import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERI
 import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS } from '../src/domain/fundamental/sec-report.js';
 // v57.81: the companyfacts normalizer lives in src/domain/fundamental/sec-normalize.js (shared with the browser's
 // out-of-universe issuer read); re-exported here so the gates and callers keep their imports.
-import { tickerKey, SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, SEC_CONCEPT_SET_REASON_CODES, classifyIssuerCapability, parseClassShareFacts, classInstanceUrl, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
+import { tickerKey, SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, SEC_CONCEPT_SET_REASON_CODES, SEC_SUCCESSOR_ISSUERS, mergeSuccessorCompanyFacts, mergeSuccessorSubmissions, classifyIssuerCapability, parseClassShareFacts, classInstanceUrl, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
 import { secClassification } from '../src/domain/fundamental/sic-sector.js';
 export { SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, SEC_CONCEPT_SET_REASON_CODES, reportingBasis, classifyIssuerCapability, parseClassShareFacts, CLASS_EPS_TOLERANCE, selectClassDimensionedShares, classInstanceUrl, RECENT_FILING_WINDOW_DAYS, RECENT_FILING_MAX, recentFilingsFrom, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
 import { buildDomainReceipt } from './lib/domain-receipt.mjs';
@@ -270,6 +270,9 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
     .filter(row => {
       if (force) return true;
       const conceptSetChanged = row.conceptSetChanged;
+      // v57.87: a successor registrant (SEC_SUCCESSOR_ISSUERS) is rechecked once per entry version with its predecessor's facts.
+      const successor = SEC_SUCCESSOR_ISSUERS[tickerMap.get(tickerKey(row.symbol))?.cik];
+      if (successor && row.priorFailure && row.priorFailure.successorVersion !== successor.version) return true;
       if (row.priorFailure?.status === 'TERMINAL_UNSUPPORTED' && !recheckUnsupported && !conceptSetChanged) return false;
       if (conceptSetChanged) return true;
       const dataDue = !row.fetchedAt || row.cashChainMissing || row.normalizerOutdated || now - new Date(row.fetchedAt).getTime() >= REFRESH_AFTER_MS;
@@ -297,11 +300,22 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
   for (const target of targets) {
     const meta = tickerMap.get(tickerKey(target.symbol));
     try {
-      const [facts, submissions] = await Promise.all([
+      let [facts, submissions] = await Promise.all([
         fetchJSON(`${SEC_FACTS_BASE}${meta.cik}.json`, 2),
         fetchJSON(`${SEC_SUBMISSIONS_BASE}${meta.cik}.json`, 2)
       ]);
       recordSic(target.symbol, meta.cik, submissions);
+      const successor = SEC_SUCCESSOR_ISSUERS[meta.cik] || null;
+      const ownAccessions = new Set(submissions?.filings?.recent?.accessionNumber || []);
+      if (successor) {
+        const [priorFacts, priorSubmissions] = await Promise.all([
+          fetchJSON(`${SEC_FACTS_BASE}${successor.predecessorCik}.json`, 2),
+          fetchJSON(`${SEC_SUBMISSIONS_BASE}${successor.predecessorCik}.json`, 2)
+        ]);
+        facts = mergeSuccessorCompanyFacts(facts, priorFacts);
+        submissions = mergeSuccessorSubmissions(submissions, priorSubmissions);
+      }
+      const successorStamp = successor ? { successorVersion: successor.version, predecessorCik: successor.predecessorCik } : {};
       // P715 공개 계약 때문에 screener.json에는 원시가가 없다. 같은 파이프라인
       // 실행에서 전달받은 메모리 한정 priceHints(adjusted close)를 우선 쓰고,
       // 없으면 종전대로 screener.json 값을 본다. 어느 경로도 발행 아티팩트에
@@ -320,14 +334,15 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
           issuerTaxonomy: capability.issuerTaxonomy,
           filingForms: capability.filingForms,
           attemptedAt,
-          retryPolicy: 'manual-or-explicit-SEC_RECHECK_UNSUPPORTED'
+          retryPolicy: 'manual-or-explicit-SEC_RECHECK_UNSUPPORTED',
+          ...successorStamp
         });
         continue;
       }
       let normalized = normalizeSecCompanyFacts(target.symbol, facts, price, submissions);
       // P1798: no count in companyfacts — read the class-dimensioned facts from the same 10-K's XBRL instance.
       const instanceUrl = normalized && normalized.sharesOutstanding == null && ['stale-period', 'unreported'].includes(normalized.sharesCheck)
-        ? classInstanceUrl(meta.cik, normalized.accession, submissions) : null;
+        ? classInstanceUrl(successor && !ownAccessions.has(normalized.accession) ? successor.predecessorCik : meta.cik, normalized.accession, submissions) : null;
       if (instanceUrl) {
         try {
           const classFacts = parseClassShareFacts(await fetchJSON(instanceUrl, 2, 'xml'));
@@ -346,7 +361,8 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
           issuerTaxonomy: capability.issuerTaxonomy,
           filingForms: capability.filingForms,
           attemptedAt,
-          retryPolicy: 'manual-or-explicit-SEC_RECHECK_UNSUPPORTED'
+          retryPolicy: 'manual-or-explicit-SEC_RECHECK_UNSUPPORTED',
+          ...successorStamp
         });
         continue;
       }

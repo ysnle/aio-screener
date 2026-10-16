@@ -43,6 +43,7 @@ import { round } from './lib/producer-math.mjs';
 import { EXTENDED_SHARD_SCHEMA, RANKING_CONTRACTS, encodeShardRows, isValidShard } from '../src/data/screener-extended.js'; // v57.81
 import { _mean, closesToFactors, backtestFactors } from './lib/factors.mjs'; // v57.62 split
 import { deriveFactorQuality, isSessionComplete, sessionSegmentOfSymbol, listingCurrencyOf, dailyRowsFromYahooChart, priceHistoryFromRows, priceFactorRow } from '../src/domain/screener/price-factors.js'; // v57.81: shared with the browser
+import { indexReturnsByDate } from '../src/domain/technical/follow-through.js'; // v57.87: down-day resilience
 export { deriveFactorQuality, isSessionComplete, sessionSegmentOfSymbol, listingCurrencyOf } from '../src/domain/screener/price-factors.js';
 import { fetchJSON, _fetchRss } from './lib/producer-http.mjs'; // v57.62 split
 import { FRED_SERIES, compareUsdKrwCrossCheck, fetchAaiiSentiment, fetchBeaPce, fetchBlsSeries, fetchCboePutCall, fetchFearGreed, fetchFredDexkousPublic, fetchFredHyOasPublic, fetchTreasuryYieldCurve, mergeMacroLastKnownGood, officialTreasuryDeltas } from './lib/macro-sources.mjs'; // v57.62 split
@@ -1426,12 +1427,21 @@ async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
       if (series.length) fxSeries.set(currency, series);
     } catch { /* conversion stays unavailable for this currency */ }
   }
+  // v57.87: index one-session returns for the down-day resilience field — S&P 500 for US listings, KOSPI / KOSDAQ for
+  // Korean ones — on completed sessions only (the same guard as the factor histories).
+  const indexReturns = new Map();
+  for (const [key, symbol, segment] of [['us', '^GSPC', 'us'], ['kr', '^KS11', 'kr'], ['kq', '^KQ11', 'kr']]) {
+    try {
+      const bars = (await fetchHistory(symbol, '1y') || []).filter((bar) => bar && bar.close > 0 && bar.date && isSessionComplete(bar.date, segment));
+      if (bars.length > 60) indexReturns.set(key, indexReturnsByDate({ dates: bars.map((bar) => bar.date), closes: bars.map((bar) => bar.close) }));
+    } catch { /* resilience stays unavailable for this market */ }
+  }
   const data = {};
   let ok = 0;
   for (const r of results) {
     if (!r || r.__error || !r.closes) continue;
     // v57.81: shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
-    const f = priceFactorRow(r, { computedAt, fxSeries });
+    const f = priceFactorRow(r, { computedAt, fxSeries, indexReturns });
     if (f) {
       data[r.sym] = f; ok++;
     }
@@ -2416,11 +2426,33 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     // v57.81: the validator rejects a Korea-vs-US sentence without both session dates when they differ; the packet says so.
     const krDate = buildCloseSeries(input.history, 'kospi').at(-1)?.date || null;
     const sessions = krDate && regime.asOf && krDate !== regime.asOf ? `세션 기준일: 미국 ${regime.asOf.slice(5).replace('-', '/').replace(/^0/, '')} · 한국 ${krDate.slice(5).replace('-', '/').replace(/^0/, '')} — 두 시장을 한 문장에서 함께 말하면 두 날짜(M/D)를 모두 적을 것.` : '';
-    return [`종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, trendLine, leadershipLine, conflicts, axes,
+    return [`종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, priorSessionMoveLines(input.history), trendLine, leadershipLine, conflicts, axes,
       renderMarketScenarioContext(input, { regime }), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(data, input, regime)].filter(Boolean).join('\n');
   } catch (error) {
     return '';
   }
+}
+
+// v57.87 (10/16 audit): on the session after KOSPI's -7.6% close the commentary spoke only of the next morning's
+// in-session rebound — METRIC_EVIDENCE carries the latest observation, so the completed crash close never reached the
+// prompt. A completed close that moved 3% in a session or 8% over five sessions travels as its own dated line.
+export const PRIOR_SESSION_MOVE_1D_PCT = 3;
+export const PRIOR_SESSION_MOVE_5D_PCT = 8;
+export function priorSessionMoveLines(history = []) {
+  const md = (date) => String(date || '').slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/');
+  const signed = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
+  const lines = [];
+  // WTI too (10/16 audit): its in-session row is dropped from METRIC_EVIDENCE, so a +3% oil close never reached the prompt.
+  for (const [field, label] of [['spx', 'S&P 500'], ['kospi', '코스피'], ['wti', 'WTI']]) {
+    const series = buildCloseSeries(history, field).filter((point) => Number(point?.value) > 0);
+    if (series.length < 2) continue;
+    const last = series.at(-1), prior = series.at(-2), back5 = series.length >= 6 ? series.at(-6) : null;
+    const d1 = (last.value / prior.value - 1) * 100;
+    const d5 = back5 ? (last.value / back5.value - 1) * 100 : null;
+    if (!(Math.abs(d1) >= PRIOR_SESSION_MOVE_1D_PCT || (d5 != null && Math.abs(d5) >= PRIOR_SESSION_MOVE_5D_PCT))) continue;
+    lines.push(`${label} ${md(last.date)} 종가 ${signed(d1)}${d5 != null ? ` (5거래일 ${signed(d5)})` : ''}`);
+  }
+  return lines.length ? `직전 완료 세션의 큰 움직임: ${lines.join(' · ')} — 이후 장중 반등·하락과 별개로, 해석의 첫 두 줄 안에 이 종가 변화를 날짜(M/D)와 함께 한 번 쓸 것.` : '';
 }
 
 // P1742 (owner 2026-10-13): the narrative looks forward with the same branches the 거시 screen draws — the next official
@@ -2583,7 +2615,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     const model = SHARED_AI_MODEL;
     const prompt = [
       '아래 근거로 시장 해석을 반드시 한국어로만 작성하라(영어 문장 금지). 제목·마크다운 헤더 없이 7~9줄 평문으로 쓴다. Write the whole answer in Korean.',
-      '순서: (1) 완료된 종가 기준으로 무엇이 얼마나 바뀌었나(METRIC_EVIDENCE의 change 값 — 절대값이 가장 큰 변화부터) (2) 그 변화가 REGIME_CONTEXT의 어느 축·흐름과 맞물리는가 (3) 지금 조건에 가장 가까운 흐름 — 반드시 흐름·시나리오 이름과 함께("「이름」 — 조건 충족 n/m"), 숫자만 단독으로 쓰지 않는다 (4) 향후 시나리오: REGIME_CONTEXT의 【향후 시나리오】에서 다음 발표(날짜)과 조건이 가장 많이 맞는 시나리오, 시장 가격이 같은 방향인지, 금리 괴리가 있으면 그 뜻 — 인과(무엇이 무엇을 거쳐 주가에 닿는지)를 한 문장으로 (5) 그 시나리오라면 선택지(관망·분할 접근·보유 유지·방어 전환)별 기회비용과 상대적으로 유리한 쪽, 반대 시나리오로 가면 무엇이 바뀌는지, 【테마 시나리오】가 있으면 그 시나리오에서 수혜·부담인 테마와 추세 속 조정 테마를 한 문장으로 (6) 다음에 확인할 것과 이 해석이 틀렸다고 볼 반증 조건. 지표를 나열만 하거나 "두 지표는 서로 다르다"처럼 정보가 없는 문장은 쓰지 마라.',
+      '순서: (1) 완료된 종가 기준으로 무엇이 얼마나 바뀌었나(METRIC_EVIDENCE의 change 값 — 절대값이 가장 큰 변화부터) (2) 그 변화가 REGIME_CONTEXT의 어느 축·흐름과 맞물리는가 (3) 지금 조건에 가장 가까운 흐름 — 반드시 흐름·시나리오 이름과 함께("「이름」 — 조건 충족 n/m"), 숫자만 단독으로 쓰지 않는다. 단 REGIME_CONTEXT가 "보기 이릅니다"·"중심 시나리오를 정하지 않습니다"라고 하면 그 판정을 먼저 그대로 쓰고, 가장 많이 맞는 흐름은 "핵심 조건 미충족"과 함께만 언급하며 그 흐름을 결론처럼 쓰지 않는다 (4) 향후 시나리오: REGIME_CONTEXT의 【향후 시나리오】에서 다음 발표(날짜)과 조건이 가장 많이 맞는 시나리오, 시장 가격이 같은 방향인지, 금리 괴리가 있으면 그 뜻 — 인과(무엇이 무엇을 거쳐 주가에 닿는지)를 한 문장으로 (5) 그 시나리오라면 선택지(관망·분할 접근·보유 유지·방어 전환)별 기회비용과 상대적으로 유리한 쪽(중심 시나리오가 없으면 "유리한 쪽"을 정하지 말고 각 시나리오로 갈 때 무엇이 바뀌는지만), 반대 시나리오로 가면 무엇이 바뀌는지, 【테마 시나리오】가 있으면 그 시나리오에서 수혜·부담인 테마와 추세 속 조정 테마를 한 문장으로 (6) 다음에 확인할 것과 이 해석이 틀렸다고 볼 반증 조건. 지표를 나열만 하거나 "두 지표는 서로 다르다"처럼 정보가 없는 문장은 쓰지 마라.',
       '가격·수량·시점·특정 종목 매매 지시(사라/팔아라, 목표가, "비중을 늘리세요" 같은 명령)는 쓰지 않는다. 대신 시나리오별 선택지의 기회비용과 "이 시나리오라면 상대적으로 유리한 쪽"은 REGIME_CONTEXT 근거로 쓴다(소유자 2026-10-13). 가능성은 조건 충족 n/m · 시장 가격 방향 · 과거 빈도(표본 수와 함께)로만 말하고 %·확률 숫자를 만들지 마라. 세부 종목 선택은 사용자가 차트·기업·테마·스크리너에서 한다고 밝혀도 된다.',
       '각 변화율은 반드시 그 지표 이름 바로 뒤에 쓴다(예: "코스피 -1.2%"). 다른 지표의 변화율을 앞 지표 이름에 붙이지 마라. 금리(10Y)의 변화는 bp로만 쓰고 %로 쓰지 마라(금리 수준만 % 단위).',
       'METRIC_EVIDENCE에는 완료된 종가만 들어 있다. 장중 값은 쓰지 마라. 부득이 장중 값을 언급하면 "장중"과 관측 시각(예: 13:05 KST)을 같은 문장에 쓰고 "마감·종가"라고 쓰지 마라.',

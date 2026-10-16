@@ -528,6 +528,11 @@ export function createScreenerProvider({
           vcpStage: factor.vcpStage || null,
           vcpPivot: finite(factor.vcpPivot),
           vcpContractions: finite(factor.vcpContractions), vcpShrinking: typeof factor.vcpShrinking === 'boolean' ? factor.vcpShrinking : null, // 2026-10-14 custom conditions
+          // v57.87 follow-through evidence (technical/follow-through.js)
+          pocketPivotAgo: finite(factor.pocketPivotAgo), pocketPivots10: finite(factor.pocketPivots10), heavyDownDays25: finite(factor.heavyDownDays25),
+          baseCount: finite(factor.baseCount), baseForming: typeof factor.baseForming === 'boolean' ? factor.baseForming : null, baseDepthPct: finite(factor.baseDepthPct),
+          climaxSigns: Array.isArray(factor.climaxSigns) ? factor.climaxSigns.filter((sign) => typeof sign === 'string') : null,
+          downDayHoldPct: finite(factor.downDayHoldPct), downDayExcessPp: finite(factor.downDayExcessPp), downDayCount: finite(factor.downDayCount),
           // P1652: P/E under 2 or P/B under 0.1 means earnings or equity near the whole market value — a share-class or
           // unit mismatch (BRK-B 0.01/0, IBKR 0.85), not a bargain; held so it cannot top the value rank.
           pe: fundamentalHeld(factor) || !(finite(factor.pe) >= 2) ? null : finite(factor.pe),

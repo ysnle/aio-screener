@@ -589,6 +589,8 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   // v57.69: a KOSPI move of 3% or more (in session or closed) is named — the Korean readers' first question on 10/15.
   if (metricEvidence.some((row) => row.metricId === 'market.kospi' && Math.abs(changes.get(row.evidenceId)) >= KOREA_MOVE_MENTION_PCT)
     && !/코스피|코스닥|KOSPI|KOSDAQ/i.test(body)) issues.push('korea-move-unaddressed');
+  issues.push(...priorSessionMoveIssues(body, { context }));
+  issues.push(...noLeadIssues(body, { context }));
   return {
     ok: issues.length === 0,
     issues: Array.from(new Set(issues)),
@@ -745,11 +747,34 @@ export function buildStructuredMarketAnalysis({ data, text, model, status, reaso
   };
 }
 
+// v57.87: REGIME_CONTEXT names a completed close that moved 3% in a session or 8% over five (priorSessionMoveLines);
+// the reading names that index with the close's date. A text about the next session's rebound alone left out the crash.
+export function priorSessionMoveIssues(body, { context = '' } = {}) {
+  const line = String(context || '').match(/^직전 완료 세션의 큰 움직임: ([^\n]*?) — /m);
+  if (!line) return [];
+  const text = String(body || '');
+  for (const match of line[1].matchAll(/(S&P 500|코스피|WTI) (\d{1,2}\/\d{1,2}) 종가/g)) {
+    const name = match[1] === '코스피' ? /코스피|KOSPI/i : match[1] === 'WTI' ? /WTI|서부\s?텍사스유|유가/i : /S&P\s?500|S&P|에스앤피/i;
+    if (!name.test(text) || !new RegExp(String.raw`(?<![\d/])${match[2].replace('/', '\\/')}(?!\d)`).test(text)) return ['prior-session-move-omitted'];
+  }
+  return [];
+}
+
+// v57.87 (10/16 audit): the screen said no flow and no central scenario qualified ("보기 이릅니다", "중심 시나리오를
+// 정하지 않습니다") while the reading named 「소수 종목 주도」 as the closest flow and a favoured choice. When the context holds
+// that verdict, the reading carries it in its own words.
+export function noLeadIssues(body, { context = '' } = {}) {
+  if (!/보기 이릅니다|중심 시나리오를 정하지 않습니다/.test(String(context || ''))) return [];
+  return /이르|이릅|정하지 않|중심\s?(?:흐름|시나리오)(?:이|가|은|는)?\s?없|핵심 조건(?:이|은|는)?\s?(?:미충족|갖춰지지|충족되지)|판단을 보류/.test(String(body || '')) ? [] : ['no-lead-overstated'];
+}
+
 // v57.69: retry guidance for the rules that carry no metric id.
 const MARKET_ANALYSIS_ISSUE_HELP = Object.freeze({
   'causal-attribution-missing': 'the market moved sharply; name at least one HEADLINE_CONTEXT headline as the reported cause ("헤드라인에 따르면 …", "… 보도") and keep it one reading among alternatives',
   'inflation-direction-contradicts-evidence': 'CPI or core CPI rose in the latest release; do not describe inflation as easing — describe the rate move without an inflation-easing claim',
   'korea-move-unaddressed': 'KOSPI moved 3% or more; add one line on it with its change (장중이면 "장중 HH:MM KST 기준")',
+  'no-lead-overstated': 'REGIME_CONTEXT says no flow or central scenario qualifies yet; say so first ("아직 중심 흐름·시나리오를 정하기 이르다"), mention the best-matching one only with "핵심 조건 미충족", and do not name a favoured choice',
+  'prior-session-move-omitted': 'REGIME_CONTEXT lists a large completed-close move (직전 완료 세션의 큰 움직임); name that index with its close date (M/D) and change in one of the first two lines, separately from any in-session move',
   'axis-state-contradiction': 'a state word (양호/안정/부담) contradicts the axis state in REGIME_CONTEXT; use the packet state for that axis',
   'cross-market-session-dates-missing': 'KOSPI and the US index closed on different sessions; name both dates (M/D) in the sentence that compares them',
   'theme-lead-claim-after-5d-drop': 'the packet shows that theme or sector down 3% or more over the last five sessions; do not say it leads (주도) — name its five-session drop in that sentence or describe it as a longer-window lead under pressure',

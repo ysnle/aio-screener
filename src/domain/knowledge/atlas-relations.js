@@ -89,7 +89,7 @@ export const DOMAIN_RELATIONS = Object.freeze([
   r('memory-sram', 'memory-dram-hbm', 'complement', '칩 안 캐시와 칩 옆 메모리는 속도·용량 계층'),
   r('memory-dram-hbm', 'memory-nand', 'complement', '휘발성 작업 메모리와 비휘발성 저장의 계층'),
   r('memory-nand', 'memory-enterprise-ssd', 'component', 'NAND가 SSD의 저장 매체'),
-  r('memory-cxl', 'memory-dram-hbm', 'complement', 'CXL은 메모리를 서버 사이에서 나눠 쓰는 연결 규격'),
+  r('memory-cxl', 'memory-dram-hbm', 'complement', 'CXL은 메모리를 더 붙이거나 장치 사이에서 나눠 쓰는 연결 규격'),
   // Foundry: production steps and suppliers
   r('foundry-design-ecosystem', 'foundry-process-node', 'next-step', '설계(라이브러리·EDA)가 끝나야 공정에서 만든다'),
   r('foundry-equipment', 'foundry-process-node', 'supplies', '장비 회사가 공정 장비를 공급'),

@@ -594,7 +594,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   }
   const oilRun = (wtiLast, brentLast) => build((i) => ({ dxy: i === n - 1 ? 99 : 100, wti: i === n - 1 ? wtiLast : 80, brent: i === n - 1 ? brentLast : 84 }));
   const wtiOnlyFall = axisOf(oilRun(74.2, 84.2), 'commodities');
-  assert.ok(wtiOnlyFall.state !== 'favorable' && /두 유가의 방향이 달라/.test(wtiOnlyFall.read), `v57.81 a WTI-only fall is not 완화 (${wtiOnlyFall.state}: ${wtiOnlyFall.read})`);
+  assert.ok(wtiOnlyFall.state !== 'favorable' && /두 유가의 20일 방향이 달라/.test(wtiOnlyFall.read), `v57.81 a WTI-only fall is not 완화 (${wtiOnlyFall.state}: ${wtiOnlyFall.read})`);
   assert.equal(axisOf(oilRun(74.2, 78), 'commodities').state, 'favorable', 'v57.81 WTI and Brent falling together with a softer dollar stays 완화');
   assert.notEqual(axisOf(oilRun(89.6, 83), 'commodities').state, 'burden', 'v57.81 a WTI-only rise against a falling Brent fires no oil 부담');
   const oilRead = buildMarketRead({ history: oilRun(74.2, 84.2), now });
@@ -762,6 +762,19 @@ console.log('scenario guidance fixture (basis card): PASS');
     const absPast = buildThemePlaybook({ usGroups: [g('software', 'W1', { ret1m: 6.0, ret3m: 9.0, ret6m: 24.0, ret5d: 1.0, above50Pct: 65 })], crossroads: cross, credit: 'neutral', benchmarks: { US: spx },
       outcomes: { themes: { software: { symbol: 'IGV', basis: 'absolute', leading: { n: 20, up: 12, median: 3, horizon: 63 } } } } }).themes[0];
     assert.match(absPast.past, /절대 수익률 기준으로 분류돼 있어/, 'v57.84 an absolute-basis proxy record is not compared with the relative stage');
+    // v57.87 (10/16 market-screen re-check): heavyweights that fell more than KOSPI withhold an ahead-of-index Korean stage;
+    // a 추세 속 조정 with a broken week or a non-positive own long return favours waiting, not 분할.
+    const heavy = buildThemePlaybook({ krThemes: [{ id: 'semiconductor', label: '반도체', covered: 12, ret1m: -4.5, ret3m: 2, ret5d: -3, vol: 50, above50Pct: 20, basis: '2026-10-15',
+      heavyweights: [{ sym: '000660.KS', name: 'SK하이닉스', ret1m: -29.8 }, { sym: '005930.KS', name: '삼성전자', ret1m: -26.4 }, { sym: '042700.KS', name: '한미반도체', ret1m: -25 }], heavyweightNote: '거래대금 상위 3종목 중앙값 -26.4%' }],
+    crossroads: cross, credit: 'neutral', benchmarks: { KR: kospi } }).themes[0];
+    assert.ok(heavy.state === null && /^판정 보류 — 거래대금 상위 종목이 코스피보다 더 빠져/.test(heavy.stateLabel), `v57.87 heavyweights below KOSPI withhold the stage (${heavy.state}: ${heavy.stateLabel})`);
+    const shaky = buildThemePlaybook({ usGroups: [g('aicapex', 'A1', { ret1m: -2.0, ret3m: 8.0, ret6m: 18.0, ret5d: -12.2, above50Pct: 0 })], crossroads: cross, credit: 'neutral', benchmarks: { US: spx } }).themes[0];
+    {
+      const { BRANCHES: branchList } = await import('../src/domain/market/macro-crossroads.js');
+      const oilCalm = branchList.find((item) => item.id === 'softland').conditions.find(([label]) => /유가 안정/.test(label))[1];
+      assert.ok(oilCalm({ oil20: -3.9, oilVsYear: 24, oilHeld: false }) === false && oilCalm({ oil20: -3.9, oilVsYear: 5, oilHeld: false }) === true, 'v57.87 WTI 24% above its year average is not 유가 안정 off a 20-session start on a spike');
+    }
+    assert.ok(shaky.state === 'pullback' && shaky.favored.length === 1 && shaky.favored[0] === 'wait' && /5거래일/.test(shaky.favoredWhy), `v57.87 a broken-week pullback favours waiting (${shaky.state}: ${shaky.favored} · ${shaky.favoredWhy})`);
   }
   assert.ok(relativeBand('ret1m') === 1.5 && relativeBand('ret6m') === 3.7, 'v57.81 the band scales with the window (tracking error ≈ 1.5%p a month)');
   // Clean case: ahead of the S&P on both windows, a positive week and most members above the 50-day line stays 주도.

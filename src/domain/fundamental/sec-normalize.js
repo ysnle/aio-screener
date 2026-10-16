@@ -187,6 +187,39 @@ export const SEC_CONCEPT_SET_VERSION = 'sec-annual-concepts.v6';
 // Failure reason codes that a concept-set change can resolve (the scheduler rechecks them once per version).
 export const SEC_CONCEPT_SET_REASON_CODES = Object.freeze(['required-us-gaap-annual-concepts-unavailable', 'required-ifrs-annual-concepts-unavailable', 'ifrs-taxonomy-not-supported-by-us-gaap-normalizer']);
 
+// v57.87: a holding-company reorganization moves the ticker to a new successor registrant (Form 8-K12B) whose
+// companyfacts start at its first 10-Q, so no annual 10-K exists until the next fiscal year. Each entry is checked
+// against EDGAR: the ticker's mapped CIK, its 8-K12B and the predecessor that filed the 10-Ks. The predecessor's facts
+// and filings are read together with the successor's; nothing is inferred from names.
+export const SEC_SUCCESSOR_ISSUERS = Object.freeze({
+  // ExxonMobil Holdings Corp (CIK 2115436): 8-K12B 2026-07-01, first 10-Q 2026-08-03; Exxon Mobil Corporation (CIK 34088) filed the 10-Ks.
+  '0002115436': Object.freeze({ predecessorCik: '0000034088', basis: '8-K12B 2026-07-01', version: 'successor.v1' })
+});
+export function mergeSuccessorCompanyFacts(successor, predecessor) {
+  if (!predecessor?.facts) return successor;
+  const facts = {};
+  for (const source of [predecessor, successor]) {
+    for (const [taxonomy, concepts] of Object.entries(source?.facts || {})) {
+      facts[taxonomy] = facts[taxonomy] || {};
+      for (const [concept, entry] of Object.entries(concepts || {})) {
+        const target = facts[taxonomy][concept] = facts[taxonomy][concept] || { ...entry, units: {} };
+        for (const [unit, rows] of Object.entries(entry?.units || {})) {
+          const seen = new Set((target.units[unit] || []).map((row) => `${row.accn}|${row.start || ''}|${row.end}|${row.fp}|${row.val}`));
+          target.units[unit] = [...(target.units[unit] || []), ...(rows || []).filter((row) => !seen.has(`${row.accn}|${row.start || ''}|${row.end}|${row.fp}|${row.val}`))];
+        }
+      }
+    }
+  }
+  return { ...successor, facts };
+}
+export function mergeSuccessorSubmissions(successor, predecessor) {
+  const a = successor?.filings?.recent || {}, b = predecessor?.filings?.recent || {};
+  if (!Object.keys(b).length) return successor;
+  const recent = {};
+  for (const key of new Set([...Object.keys(a), ...Object.keys(b)])) recent[key] = [...(Array.isArray(a[key]) ? a[key] : []), ...(Array.isArray(b[key]) ? b[key] : [])];
+  return { ...successor, filings: { ...(successor?.filings || {}), recent } };
+}
+
 export function classifyIssuerCapability(companyFacts, submissions = null) {
   const taxonomies = Object.keys(companyFacts?.facts || {});
   const hasUsGaap = taxonomies.includes('us-gaap');

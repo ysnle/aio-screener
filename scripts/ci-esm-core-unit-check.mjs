@@ -2110,12 +2110,70 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     const top = (query) => retrieval.retrieveAIKnowledge(index, query).matches[0]?.articleId;
     if (top('AI 거품이 터지면 연준이 돈을 풀어서 받쳐줄까?') !== 'supplied-material:claim-20261015-policy-floor-limits'
       || top('AI 투자 회수 언제 되나') !== 'supplied-material:claim-20261015-ai-capex-payback') fail('v57.75 chat retrieval must reach the crash-day frames through Korean particles and frame titles');
+    // v57.87: the full X-bookmark read — every frame is a lesson on a path and a claim; the audit adds up; chat reaches the new frames.
+    const packet16 = await load('src/domain/research/packet-20261016-x-bookmarks.js');
+    const audit = packet16.PACKET_20261016_AUDIT;
+    const ids16 = new Set(packet16.PACKET_20261016_SOURCES.map((row) => row.id));
+    if (packet16.PACKET_20261016_FRAMES.length !== 19 || packet16.PACKET_20261016_FRAMES.some((frame) => !learning.lessonById(frame.id) || !onPath.has(frame.id) || frame.sourceRefs.some((id) => !ids16.has(id)))
+      || packet16.PACKET_20261016_CLAIMS.length !== 19 || !supplied.SUPPLIED_MATERIALS_REFERENCE.claimLedger.claims.some((claim) => claim.id === 'claim-20261016-reserve-buffer-regime')) fail('v57.87 bookmark frames must be lessons on a path, cite listed sources and reach the claim ledger');
+    const checks16 = packet16.PACKET_20261016_SOURCES.flatMap((row) => row.checks);
+    if (audit.fetched + audit.fetchErrors !== audit.bookmarks || Object.values(audit.repoState).reduce((a, b) => a + b, 0) !== audit.analyzed || audit.analyzed + audit.nonInvestment !== audit.bookmarks
+      || checks16.some((row) => !['VERIFIED', 'CONSISTENT', 'UNVERIFIED'].includes(row.state) || !row.basis)) fail('v57.87 the bookmark audit must add up and every dated claim carries a verification state');
+    if (top('역레포가 바닥이면 TGA가 준비금을 줄이나') !== 'supplied-material:claim-20261016-reserve-buffer-regime' || top('사모신용 환매 대기열') !== 'supplied-material:claim-20261016-private-credit-redemption'
+      || top('구리랑 광학 중에 뭐가 이겨') !== 'supplied-material:claim-20261016-interconnect-distance-time') fail('v57.87 chat retrieval must reach the bookmark frames');
   }
 
   // S12: the Korean filing button opens a receipt only when one is published; otherwise the DART search.
   const fiscalUi = await load('src/ui/components/fiscal-read.js');
   if (fiscalUi.dartLinkHref({ receiptNo: '20250311001085' }) !== 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250311001085' || fiscalUi.dartLinkHref(null) !== 'https://dart.fss.or.kr/dsab007/main.do') fail('S12 DART link format drifted');
   if (fiscalUi.formatFiscalCompact(416161e6) !== '$416.2B' || fiscalUi.formatFiscalCompact(-7126000) !== '−$7.1M') fail('S20 fiscal table must use B/T units');
+}
+
+// ── domain/technical/follow-through.js (v57.87) ─────────────────────────────────────────────
+{
+  const ft = await load('src/domain/technical/follow-through.js');
+  const conditions = await load('src/domain/screener/custom-conditions.js');
+  const presentation = await load('src/domain/screener/row-presentation.js');
+  // Pocket pivot: the last up close on more volume than any down close in the 10 sessions before it.
+  const pcl = Array.from({ length: 30 }, (_, i) => 100 + (i % 2 ? -1 : 1));
+  const pvol = Array.from({ length: 30 }, () => 100);
+  pcl[29] = pcl[28] + 2; pvol[29] = 150;
+  const pocket = ft.pocketPivotAgo(pcl, pvol);
+  if (pocket.ago !== 0 || !(pocket.count >= 1) || ft.pocketPivotAgo(pcl.slice(0, 15), pvol.slice(0, 15)).ago !== null) fail(`v57.87 pocket pivot must read the last session and stay null on short history, got ${JSON.stringify(pocket)}`);
+  pvol[29] = 90;
+  if (ft.pocketPivotAgo(pcl, pvol).ago === 0) fail('v57.87 an up close on lighter volume than the largest down close is not a pocket pivot');
+  // Heavy down days: a 0.2%+ lower close on more volume than the prior session.
+  const hcl = Array.from({ length: 30 }, (_, i) => 100 - (i >= 25 ? i - 24 : 0));
+  const hvol = Array.from({ length: 30 }, (_, i) => 100 + i);
+  if (ft.heavyDownDays(hcl, hvol) !== 5) fail(`v57.87 heavy down days miscounted, got ${ft.heavyDownDays(hcl, hvol)}`);
+  // Base number: a 10% pullback for 20 sessions then a new high = base 1; a second 9% pullback still open = base 2 forming.
+  const series = [];
+  for (let i = 0; i < 160; i += 1) series.push(100 + i * 0.3125);
+  for (let i = 1; i <= 20; i += 1) series.push(150 - i * 0.75);
+  for (let i = 1; i <= 40; i += 1) series.push(135 + i * 0.625);
+  for (let i = 1; i <= 25; i += 1) series.push(160 - i * 0.6);
+  const base = ft.baseCount(series);
+  if (base?.count !== 2 || base.forming !== true || !(base.depthPct > 8) || ft.baseCount(series.slice(0, 100)) !== null) fail(`v57.87 base count must count completed and forming bases, got ${JSON.stringify(base)}`);
+  // Climax: a run from 50 with nine up closes in the last ten and the year's largest gain at the end.
+  const run = Array.from({ length: 250 }, (_, i) => 50 + i * 0.25);
+  run[249] = run[248] * 1.08;
+  const runVol = Array.from({ length: 250 }, (_, i) => (i === 249 ? 1000 : 100));
+  const signs = ft.climaxSigns(run, runVol);
+  if (!['run-up-days', 'largest-gain', 'largest-volume'].every((sign) => signs.includes(sign)) || ft.climaxSigns(Array(250).fill(10), Array(250).fill(1)).length !== 0) fail(`v57.87 climax signs drifted, got ${JSON.stringify(signs)}`);
+  // Down-day resilience against the index on matched dates only.
+  const dates = Array.from({ length: 61 }, (_, i) => `2026-07-${String(i).padStart(2, '0')}`);
+  const index = new Map(dates.slice(1).map((date, i) => [date, i % 2 ? -1 : 0.5]));
+  const stock = dates.map((_, i) => 100 + (i % 2 ? 0.2 : 0));
+  const resilience = ft.downDayResilience(dates, stock, index);
+  if (!resilience || resilience.days !== 30 || resilience.holdRatePct !== 100 || ft.downDayResilience(dates, stock, new Map()) !== null) fail(`v57.87 down-day resilience must compare matched index down days, got ${JSON.stringify(resilience)}`);
+  // Conditions: missing data is not a pass; an empty climax list is.
+  const read = (row, key) => row[key] ?? null;
+  const judge = (id, row, value) => conditions.evaluateCondition({ id, value }, row, read);
+  if (judge('no-climax', { climaxSigns: [] }) !== true || judge('no-climax', { climaxSigns: ['stretch-200'] }) !== false || judge('no-climax', {}) !== null
+    || judge('early-base', { baseCount: 0 }, 2) !== false || judge('early-base', { baseCount: 2 }, 2) !== true || judge('pocket-pivot', { pocketPivots10: 0 }) !== false
+    || judge('not-extended', { pctSma50: 12, adrPct: 2 }, 4) !== false || judge('not-extended', { pctSma50: 6, adrPct: 2 }, 4) !== true || judge('down-day-hold', { downDayHoldPct: 65 }, 60) !== true) fail('v57.87 follow-through conditions misjudge a row');
+  const summary = presentation.followThroughSummary({ baseCount: 2, baseForming: true, baseDepthPct: 9.4, pocketPivotAgo: 3, downDayHoldPct: 70, downDayCount: 20, downDayExcessPp: 0.6, heavyDownDays25: 2, climaxSigns: ['largest-gain'] });
+  if (summary.text !== '베이스 2번째(형성 중) · 포켓 피벗 3일 전 · 하락일 버팀 70% · 클라이맥스 징후 1' || presentation.followThroughSummary({}).text !== '—' || /매수|매도|진입|손절|목표/.test(summary.title)) fail(`v57.87 follow-through summary drifted, got ${summary.text}`);
 }
 
 // ── data/providers/entity.js ─────────────────────────────────────────────────────────────────
@@ -4690,7 +4748,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     ['closesToFactors', factorsLib.closesToFactors, pf.closesToFactors], ['_calcVCPServer', factorsLib._calcVCPServer, pf._calcVCPServer], ['round', producerMath.round, pf.round],
     ['normalizeSecCompanyFacts', secProducer.normalizeSecCompanyFacts, secNorm.normalizeSecCompanyFacts]]) if (!a || a !== b) fail(`v57.81 producer ${label} must be the shared src function`);
   const producerText = readFileSync(path.join(root, 'scripts/fetch-data.mjs'), 'utf8');
-  for (const call of ['dailyRowsFromYahooChart(res', 'priceHistoryFromRows(sym, fetched', 'priceFactorRow(r, { computedAt, fxSeries })', 'secFundamentalRowFields(row,']) if (!producerText.includes(call)) fail(`v57.81 the producer must build rows through ${call}`);
+  for (const call of ['dailyRowsFromYahooChart(res', 'priceHistoryFromRows(sym, fetched', 'priceFactorRow(r, { computedAt, fxSeries, indexReturns })', 'secFundamentalRowFields(row,']) if (!producerText.includes(call)) fail(`v57.81 the producer must build rows through ${call}`);
   const nowMs = Date.parse('2026-10-15T12:00:00Z');
   const computedAt = new Date(nowMs).toISOString();
   // The on-demand raw row equals the producer path run on the same chart.

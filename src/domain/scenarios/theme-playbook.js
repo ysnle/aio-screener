@@ -112,13 +112,20 @@ function relativeStage({ ret1m, ret3m, ret6m, basis, benchmark }) {
   return { trendKey, trend, bench, trendX, recentX, band, recentBand, state, drift: state === 'inline' ? inlineDrift(recentX, recentBand) : null };
 }
 
-function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = null, memberCount = 1, above50, basis, benchmark = null, groups = [], members = null, crossroads, credit, outcomes }) {
+function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = null, memberCount = 1, above50, basis, benchmark = null, groups = [], members = null, crossroads, credit, outcomes, heavyweights = null, heavyweightNote = '' }) {
   const profile = themeProfile(market, id);
   const tags = profile?.tags || [];
   const stage = relativeStage({ ret1m, ret3m, ret6m, basis, benchmark });
   const { trendKey, trend, bench, trendX, recentX, band, recentBand, drift } = stage;
   const benchName = THEME_BENCHMARKS[market]?.name || '지수';
   let state = stage.state;
+  // v57.87 (10/16 audit): a Korean theme's equal-weight median beat the cap-weighted KOSPI only because its two largest
+  // names led the index down (반도체 1개월 −4.5% vs 삼성 −16% · 하이닉스 −30%, KOSPI −15.6%). When the largest-traded members'
+  // 1-month median trails the index by more than the 1-month band, an ahead-of-index stage is withheld with that line.
+  const heavyMid = heavyweights?.length ? median(heavyweights.map((member) => member.ret1m)) : null;
+  const heavyHeld = market === 'KR' && bench && heavyMid != null && finite(bench.ret1m) != null && heavyMid < bench.ret1m - recentBand
+    && ['leading', 'defensive', 'inline', 'pullback'].includes(state);
+  if (heavyHeld) state = null;
   const weeklyNoise = weeklyNoiseFromVol(vol, { members: memberCount });
   const recent = recentMove({ ret5d, benchRet5d: bench ? finite(bench.ret5d) : null, noise: weeklyNoise });
   const lead = crossroads?.items?.find((item) => item.id === crossroads.leadId) || null;
@@ -147,8 +154,13 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
   const upClaim = UP_CLAIM.has(state) || drift === 'up';
   const downClaim = state === 'pullback' || state === 'weak' || drift === 'down';
   const contradicted = !!recent && (upClaim ? recent.broken : downClaim ? recent.surged : false);
-  const favored = deep ? ['wait'] : state === 'leading' ? (met >= LEAD_CONFIRM_MET ? ['hold'] : ['hold', 'wait']) : state ? FAVOURED[state][wind.lead] : [];
+  // v57.87 (10/16 audit): a 추세 속 조정 whose last five sessions broke (US AI infra −12% in five sessions) or whose own long
+  // return is 0 or below (KR 원전 3개월 −1.0%, 1개월 −29.5%) put 분할 first; the highlights already dropped broken pullbacks.
+  const shakyPullback = !deep && state === 'pullback' && (recent?.broken || (trend != null && trend <= 0));
+  const favored = deep || shakyPullback ? ['wait'] : state === 'leading' ? (met >= LEAD_CONFIRM_MET ? ['hold'] : ['hold', 'wait']) : state ? FAVOURED[state][wind.lead] : [];
   const why = deep ? '1개월 낙폭이 그 전까지 오른 폭의 절반을 넘어, 쉬어 가기보다 추세가 꺾이는 신호일 수 있습니다. 낙폭이 멈추고 50일선 위 종목 비율이 회복되는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.'
+    : shakyPullback ? (recent?.broken ? '최근 5거래일 낙폭이 평소 1주 움직임의 2배를 넘어, 조정이 멈췄는지 확인하기 전에 나눠 들어가면 하락을 함께 떠안을 수 있습니다. 5거래일 흐름이 안정되고 50일선 위 종목 비율이 회복되는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.'
+      : `${WINDOW_LABELS[trendKey]} 자체 수익률이 0 이하라 지수보다 덜 빠졌을 뿐 오르는 추세는 아닙니다. 1개월 낙폭이 멈추는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.`)
     : state ? (WHY[state][wind.lead] || WHY[state].other) : '';
   // v57.84 (owner decision 3-2): the proxy's past stages count only when they were classified on the live rule.
   const proxyRelative = outcomes?.themes?.[id]?.basis === 'relative-banded';
@@ -159,7 +171,7 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
     ? ` · ${recentMoveText(recent, { benchmarkName: benchName })}${contradicted ? `, 평소 1주 움직임의 2배를 넘는 ${upClaim ? '급락' : '반등'} — 1개월 판정 보류` : ''}`
     : '';
   const shortName = state ? `${THEME_STATES[state].split(' (')[0]}${drift && !contradicted ? ` · ${INLINE_DRIFT_LABELS[drift]}` : ''}` : null;
-  const stateLabel = !state ? (bench ? '판정 보류' : `판정 보류 (${benchName} 종가가 테마 기준일과 맞지 않음)`)
+  const stateLabel = !state ? (heavyHeld ? `판정 보류 — 거래대금 상위 종목이 ${benchName}보다 더 빠져 동일가중 중앙값으로 앞섬을 말하지 않습니다${heavyweightNote ? ` (${heavyweightNote})` : ''}` : bench ? '판정 보류' : `판정 보류 (${benchName} 종가가 테마 기준일과 맞지 않음)`)
     : `${shortName} (${windowName}${fadeReasons.length ? ` · ${fadeReasons.join(' · ')}` : ''})${contradicted ? '' : midNote(state, ret6m, ret3m)}${recentClause}`;
   const choices = state ? { ...CHOICE_TEXT[state], ...(state === 'leading' ? { stage: leadingStageText(above50) } : {}) } : {};
   return {
@@ -214,7 +226,8 @@ export function buildThemePlaybook({ usGroups = [], krThemes = [], crossroads = 
   for (const theme of krThemes) {
     if (!(theme?.covered >= 3) || theme.ret1m == null) continue;
     rows.push(themeRow({ market: 'KR', id: theme.id, label: theme.label, ret1m: theme.ret1m, ret3m: theme.ret3m, ret6m: null, ret5d: theme.ret5d ?? null, vol: theme.vol ?? null, memberCount: theme.covered,
-      above50: theme.above50Pct, members: theme.covered, basis: theme.basis || null, benchmark: benchmarks.KR, crossroads, credit, outcomes }));
+      above50: theme.above50Pct, members: theme.covered, basis: theme.basis || null, benchmark: benchmarks.KR, crossroads, credit, outcomes,
+      heavyweights: Array.isArray(theme.heavyweights) ? theme.heavyweights : null, heavyweightNote: theme.heavyweightNote || '' }));
   }
   const usBench = benchmarks.US?.asOf && benchmarks.US.asOf === usBasis ? benchmarks.US : null;
   const rotation = rotationOf(rows, { period: usBench?.from?.ret1m ? { from: usBench.from.ret1m, to: usBasis } : null, benchRet5d: usBench?.ret5d ?? null });

@@ -10,6 +10,8 @@
  * raw price is needed: close > SMA5 > SMA10 > SMA20 ⇔ 0 < pctSma5 < pctSma10 < pctSma20.
  */
 
+import { extensionMultiple } from '../technical/definitions.js';
+
 const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 
 // [id, group, label (with {n} for the threshold), default threshold or null, unit, fields read, test]
@@ -33,6 +35,22 @@ export const CUSTOM_CONDITIONS = Object.freeze([
     test: ({ adrPct: a }, n) => a <= n },
   { id: 'rvol', group: '패턴', label: '거래량 20일 평균의 {n}배 이상', value: 1.5, unit: '배', fields: ['rvol20'],
     test: ({ rvol20: a }, n) => a >= n },
+  // v57.87 (owner X-bookmark read 2026-10-16): follow-through evidence from technical/follow-through.js and two readings
+  // of fields already published (ADR floor, 50-day extension in ADR units). Conditions, not entry or exit rules.
+  { id: 'adr-min', group: '패턴', label: '하루 평균 변동폭(ADR) {n}% 이상 (충분히 움직이는 종목)', value: 3, unit: '%', fields: ['adrPct'],
+    test: ({ adrPct: a }, n) => a >= n },
+  { id: 'not-extended', group: '패턴', label: '50일선 거리 변동폭의 {n}배 이하 (확장 전)', value: 4, unit: '배', fields: ['pctSma50', 'adrPct'],
+    test: ({ pctSma50, adrPct }, n) => { const multiple = extensionMultiple(pctSma50, adrPct); return multiple != null && multiple <= n; } },
+  { id: 'pocket-pivot', group: '후속·회복', label: '최근 10거래일 안 포켓 피벗 (상승일 거래량이 직전 10일의 가장 큰 하락일 거래량보다 많음)', fields: ['pocketPivots10'],
+    test: ({ pocketPivots10: a }) => a >= 1 },
+  { id: 'early-base', group: '후속·회복', label: '초기 베이스 (추세가 다시 시작된 뒤 {n}번째 베이스 이하)', value: 2, unit: '번째', fields: ['baseCount'],
+    test: ({ baseCount: a }, n) => a >= 1 && a <= n },
+  { id: 'few-heavy-down', group: '후속·회복', label: '최근 25거래일 거래량 실린 하락일 {n}일 이하', value: 4, unit: '일', fields: ['heavyDownDays25'],
+    test: ({ heavyDownDays25: a }, n) => a <= n },
+  { id: 'down-day-hold', group: '후속·회복', label: '지수 하락일에 지수보다 덜 빠진 날 {n}% 이상 (최근 60거래일)', value: 60, unit: '%', fields: ['downDayHoldPct'],
+    test: ({ downDayHoldPct: a }, n) => a >= n },
+  { id: 'no-climax', group: '후속·회복', label: '클라이맥스 징후 없음 (긴 상승 뒤 연속 급등·연중 최대 상승폭·최대 거래량·200일선 +70%)', fields: ['climaxSigns'],
+    test: ({ climaxSigns }) => Array.isArray(climaxSigns) && climaxSigns.length === 0 },
   { id: 'pe-max', group: '밸류에이션', label: 'PER {n}배 이하 (최근 회계연도 이익 · 적자 제외 · 미국)', value: 20, unit: '배', fields: ['pe'],
     test: ({ pe }, n) => pe > 0 && pe <= n },
   { id: 'fwdpe-max', group: '밸류에이션', label: 'Forward PER {n}배 이하 (컨센서스 · 미국)', value: 25, unit: '배', fields: ['fwdPe'],
@@ -57,7 +75,10 @@ export const CUSTOM_RECIPES = Object.freeze([
   ['VCP 수렴 + 중기 정배열', [{ id: 'vcp' }, { id: 'ma-long' }]],
   ['거래량 실린 신고가', [{ id: 'new-high' }, { id: 'rvol', value: 1.5 }]],
   ['이익 대비 싼 우량주', [{ id: 'pe-max', value: 20 }, { id: 'roe-min', value: 15 }]],
-  ['성장 + 적정 Forward PER', [{ id: 'growth-min', value: 15 }, { id: 'fwdpe-max', value: 30 }]]
+  ['성장 + 적정 Forward PER', [{ id: 'growth-min', value: 15 }, { id: 'fwdpe-max', value: 30 }]],
+  ['초기 베이스의 수축', [{ id: 'vcp' }, { id: 'early-base', value: 2 }]],
+  ['지수 하락일에 버틴 추세주', [{ id: 'down-day-hold', value: 60 }, { id: 'ma-long' }]],
+  ['포켓 피벗 + 확장 전', [{ id: 'pocket-pivot' }, { id: 'not-extended', value: 4 }, { id: 'no-climax' }]]
 ].map(([label, conditions]) => Object.freeze({ label, conditions: Object.freeze(conditions) })));
 
 export function conditionLabel(condition) {
@@ -128,6 +149,15 @@ export function conditionCoverage(rows, conditions, read) {
 // so a reader sees what was not understood instead of a silently wider result.
 const NUM = '(\\d+(?:\\.\\d+)?)';
 const PARSE_RULES = [
+  // v57.87: the follow-through phrases first (more specific than the ADR / VCP rules below).
+  [/포켓\s*피벗/i, () => ({ id: 'pocket-pivot' })],
+  [new RegExp(`${NUM}\\s*번째\\s*베이스\\s*(?:이하|까지)?`), (m) => ({ id: 'early-base', value: +m[1] })],
+  [/(?:초기|첫|이른)\s*베이스/, () => ({ id: 'early-base', value: 2 })],
+  [/(?:지수\s*)?하락일(?:에)?\s*(?:버틴|강한|덜\s*빠진)|덜\s*빠진|상대\s*회복력?/, () => ({ id: 'down-day-hold', value: 60 })],
+  [/(?:클라이맥스|과열\s*징후)\s*(?:없는|없음|제외)/, () => ({ id: 'no-climax' })],
+  [/(?:거래량\s*실린\s*)?하락일\s*(?:적은|적게)/, () => ({ id: 'few-heavy-down', value: 4 })],
+  [/확장\s*(?:전|안\s*된|되지\s*않은)|50\s*일선\s*(?:근처|가까운)/, () => ({ id: 'not-extended', value: 4 })],
+  [new RegExp(`(?:adr|변동폭)\\s*${NUM}\\s*%?\\s*(?:이상|초과|넘는)`, 'i'), (m) => ({ id: 'adr-min', value: +m[1] })],
   [new RegExp(`(?:forward|포워드|선행)\\s*per\\s*${NUM}\\s*배?\\s*(?:이하|미만|아래)?`, 'i'), (m) => ({ id: 'fwdpe-max', value: +m[1] })],
   [new RegExp(`per\\s*${NUM}\\s*배?\\s*(?:이하|미만|아래)?`, 'i'), (m) => ({ id: 'pe-max', value: +m[1] })],
   [/저\s*per|저평가/i, () => ({ id: 'pe-max', value: 15 })],

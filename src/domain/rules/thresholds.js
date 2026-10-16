@@ -58,7 +58,15 @@ export const RULES = Object.freeze({
     ema8: Object.freeze({ overheatPct: 10, breakBelowPct: 5 }),
     weinstein: Object.freeze({ maWeeks: 30, slopeWeeks: 4, flatSlopePct: 1, priorWeeks: 26 }),
     template: Object.freeze({ nearHighPct: 25, aboveLowPct: 30 }), stage2Gate: Object.freeze({ nearHighPct: 30 }),
-    breakout: Object.freeze({ volumeMultiple: 1.4 }) }),
+    breakout: Object.freeze({ volumeMultiple: 1.4 }),
+    // v57.87 (owner X-bookmark read 2026-10-16): stock-level follow-through evidence (technical/follow-through.js).
+    // Pocket pivot: an up close whose volume beats every down-close volume of the prior 10 sessions (Morales/Kacher).
+    // Heavy down day: a close ≥ 0.2% lower on more volume than the prior session (O'Neil distribution day, per stock).
+    // Base: a pullback of ≥ basePullbackPct from a closing high lasting ≥ baseMinSessions, completed by a close above that
+    // high; the count restarts after a drawdown of resetDrawdownPct or a new 52-week closing low. Climax checks apply only
+    // after a run of climaxMinRunPct from the 52-week low. Down-day resilience: index down closes in the last 60 sessions.
+    followThrough: Object.freeze({ pocketWindow: 10, heavyDownPct: 0.2, heavyDownWindow: 25, basePullbackPct: 8, baseMinSessions: 15,
+      resetDrawdownPct: 35, climaxMinRunPct: 70, climaxUpDays: 8, climaxStretch200Pct: 70, resilienceWindow: 60, resilienceMinDays: 8 }) }),
   // v57.81: a 20-session widening reaches 부담 when it is in the top stress20dPct of the series' own 20-session changes (or
   // stress20dMultiple x widen20dBp when the record is shorter than recordMin); it stays 부담 until the 20-session change
   // is back under widen20dBp (hysteresis). HY +40bp in 20 sessions — the 96th percentile — could never reach 부담 before.

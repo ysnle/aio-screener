@@ -693,7 +693,9 @@ export function buildMarketRead(input = {}) {
   else if (dxy5 != null && gold20 != null && dxy5 > 1 && gold20 > 3) add('haven-demand', 55, `달러(5일 ${signed(dxy5)})와 금(20일 ${signed(gold20)}${win20(s.gold)})이 함께 상승.`, 'commodities', { reading: '안전자산 선호 신호일 수 있습니다.' });
 
   if (gold20 != null && tnx20 != null && gold20 <= -3 && tnx20 >= 10 && !statements.some((row) => row.id === 'gold-high')) add('gold-down-rates-up', 60, `금 20일 ${signed(gold20)}${win20(s.gold)}·10년물 20일 ${signed(tnx20, 0, 'bp')}${win20(tnx)}.`, 'commodities', {
-    reading: real5 != null && real5 > 0 ? `실질금리도 5일 ${signed(real5, 0, 'bp')} 올라, 실질금리 상승이 금을 누르는 경로와 맞습니다.` : '실질금리 상승이 금을 누르는 경로일 수 있습니다(실질금리 자료로 확인 필요).'
+    reading: real5 != null && real5 > 0 ? `실질금리도 5일 ${signed(real5, 0, 'bp')} 올라, 실질금리 상승이 금을 누르는 경로와 맞습니다.`
+      // v57.87 (10/16 audit): the published real-yield change is the 5-session one; say what it shows instead of '확인 필요'.
+      : real5 != null ? `실질금리는 최근 5일 ${signed(real5, 0, 'bp')}로 이번 주엔 오르지 않았습니다 — 20일 동안의 금 하락이 실질금리 상승과 겹쳤는지는 금리·환율 화면의 20일 변화로 봅니다.` : '실질금리 상승이 금을 누르는 경로일 수 있습니다(실질금리 자료 미수신).'
   });
   // 6. Oil and yields — the inflation channel.
   const wti20 = s.wti ? pct(s.wti.value, s.wti.d20) : null;
@@ -1131,7 +1133,7 @@ export function buildMarketRegime(input = {}) {
         : state === 'unknown' ? staleRead('유가·달러', alignments.wti)
           // v57.81: a dollar rise just past the line (inside the buffer, below the top of its range) is named, not judged.
           : dollarEdge ? `달러가 20일 ${signed(dxy20)} 올라 기준(+${D.rise20dPct}%)을 조금 넘었지만${dxyPos != null ? ` 1년 범위 ${fmt(dxyPos * 100, 0)}%로 상단이 아니라` : ''} 부담으로 판정하지 않습니다(+${D.rise20dPct + D.bufferPct}% 이상이거나 1년 범위 ${D.rangeHighAt * 100}% 이상이면 부담).`
-            : '유가·달러가 중립 범위입니다.') + missing + (oilHeld ? ` ${oil.text}` : oilShort);
+            : '유가·달러가 중립 범위입니다.') + missing + (oilHeld ? ` ${oil.text}${oilShort}` : oilShort); // v57.87: a held direction still names a 5-session turn
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 미만, WTI 20일 +${RULES.oil.rise20dPct}% 미만, 달러 20일 +${D.rise20dPct + D.bufferPct}% 미만(1년 범위 ${D.rangeHighAt * 100}% 이상이면 +${D.rise20dPct}% 미만)이 모두 충족되면 완화`
         : state === 'favorable' ? `WTI 20일 ${RULES.oil.fall20dPct}% 위 또는 달러 20일 상승이면 중립 · WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상, WTI 20일 +${RULES.oil.rise20dPct}%, 달러 20일 +${D.rise20dPct + D.bufferPct}%(1년 범위 ${D.rangeHighAt * 100}% 이상이면 +${D.rise20dPct}%) 중 하나면 부담`

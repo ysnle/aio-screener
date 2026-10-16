@@ -179,7 +179,7 @@ const fetchData = readProducerSource();
         && priced?.sharesBasis === 'class-dimensioned-10k' && priced?.sharesCheck === 'consistent' && priced?.sharesClassMethod === 'class-sum' && Math.abs(priced?.pe - 30 * 520508000 / 365e6) < 0.01
         && withheld?.sharesOutstanding == null && withheld?.sharesClassCheck === 'class-member-unmatched' && withheld?.pe == null
         && classInstanceUrl('0001319161', '0001319161-25-000034', { filings: { recent: { accessionNumber: ['0001319161-25-000034'], primaryDocument: ['wmg-20250930.htm'] } } }) === 'https://www.sec.gov/Archives/edgar/data/1319161/000131916125000034/wmg-20250930_htm.xml'
-        && /Number\(b\.sharesMissing\) - Number\(a\.sharesMissing\)/.test(secSource) && /classInstanceUrl\(meta\.cik, normalized\.accession, submissions\)/.test(secSource),
+        && /Number\(b\.sharesMissing\) - Number\(a\.sharesMissing\)/.test(secSource) && /classInstanceUrl\(successor && !ownAccessions\.has\(normalized\.accession\) \? successor\.predecessorCik : meta\.cik, normalized\.accession, submissions\)/.test(secSource),
       JSON.stringify({ visa, wmg, coke, brk, differ, priced: priced && { b: priced.sharesBasis, s: priced.sharesOutstanding, pe: priced.pe }, withheld: withheld && withheld.sharesClassCheck }));
   }
   {
@@ -621,9 +621,9 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   const warn = console.warn; console.warn = () => {};
   let retried; let retained; let expired;
   try {
-    retried = await genMarketAnalysis(withIntraday, snapshot, { previous, request: stub([bad, good]), nowMs: now });
-    retained = await genMarketAnalysis(withIntraday, snapshot, { previous, request: stub([bad, bad]), nowMs: now });
-    expired = await genMarketAnalysis(withIntraday, snapshot, { previous: { ...previous, generatedAt: '2026-10-12T20:00:00.000Z' }, request: stub([bad, bad]), nowMs: now });
+    retried = await genMarketAnalysis(withIntraday, snapshot, { previous, request: stub([bad, good]), nowMs: now, history: [] });
+    retained = await genMarketAnalysis(withIntraday, snapshot, { previous, request: stub([bad, bad]), nowMs: now, history: [] });
+    expired = await genMarketAnalysis(withIntraday, snapshot, { previous: { ...previous, generatedAt: '2026-10-12T20:00:00.000Z' }, request: stub([bad, bad]), nowMs: now, history: [] });
   } finally { console.warn = warn; }
   check('P1719 one retry carries the blocked reasons and values; a second block keeps a <=12h verified analysis marked retained; older falls back',
     retried.status === 'verified' && !retried.retained && /PREVIOUS_ATTEMPT_REJECTED/.test(prompts[1] || '') && /evidence SPX=7807\.24/.test(prompts[1] || '') && /7100/.test(prompts[1] || '')
@@ -636,11 +636,11 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     // analysis, or a flagged one calls again.
     const { reusableMarketAnalysis } = await import('./fetch-data.mjs');
     const firstPrompts = prompts.length;
-    const fresh = await genMarketAnalysis(data, snapshot, { request: stub([good]), nowMs: now });
-    const reusedRun = await genMarketAnalysis(data, snapshot, { previous: { ...fresh, generatedAt: '2026-10-13T08:00:00.000Z' }, request: stub([good]), nowMs: now });
+    const fresh = await genMarketAnalysis(data, snapshot, { request: stub([good]), nowMs: now, history: [] });
+    const reusedRun = await genMarketAnalysis(data, snapshot, { previous: { ...fresh, generatedAt: '2026-10-13T08:00:00.000Z' }, request: stub([good]), nowMs: now, history: [] });
     const callsAfterReuse = prompts.length;
     const movedSnapshot = { quotes: snapshot.quotes.map((row) => row.instrumentId === '^GSPC' ? { ...row, evidenceId: 'market.index.spx:t2' } : row) };
-    const moved = await genMarketAnalysis(data, movedSnapshot, { previous: { ...fresh, generatedAt: '2026-10-13T08:00:00.000Z' }, request: stub([good]), nowMs: now });
+    const moved = await genMarketAnalysis(data, movedSnapshot, { previous: { ...fresh, generatedAt: '2026-10-13T08:00:00.000Z' }, request: stub([good]), nowMs: now, history: [] });
     check('P1751 market analysis reuse skips the model only for unchanged evidence/headlines under 12 h',
       fresh.status === 'verified' && reusedRun.generatedAt === '2026-10-13T08:00:00.000Z' && callsAfterReuse === firstPrompts + 1
         && moved.generatedAt !== '2026-10-13T08:00:00.000Z' && prompts.length === callsAfterReuse + 1
@@ -894,7 +894,9 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   let promptRun;
   // v57.81: the producer reads the published history (KOSPI 10/15 vs S&P 500 10/14), so the comparing sentence names both
   // sessions; the undated 06:52 wording is checked against a two-session history below.
-  const dated0652 = recorded0652.replace('완료 종가에서 코스피 -7.56%', '완료 종가에서 코스피(10/15) -7.56%').replace('미국 주가지수 -1.11%', '미국 주가지수(10/14) -1.11%');
+  const dated0652 = recorded0652.replace('완료 종가에서 코스피 -7.56%', '완료 종가에서 코스피(10/15) -7.56%').replace('미국 주가지수 -1.11%', '미국 주가지수(10/14) -1.11%')
+    // v57.87: the live context says no flow qualifies yet; the reply carries that verdict (noLeadIssues).
+    .replace('완료 종가에서 코스피(10/15) -7.56%', '완료 종가에서 코스피(10/15) -7.56%(중심 흐름은 아직 정하기 이릅니다)');
   // v57.86: the producer is handed the history as it stood at 06:52 (rows through 10/15, whose US fields repeat the 10/14
   // closes) — reading today's published file broke this dated check once a 10/16 row with that day's KOSPI close landed.
   const published = JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8'));
@@ -907,6 +909,35 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && /market\.volatility\.vix:d94fc971 VIX=16\.87 index change=\+10\.48% vs previous close/.test(prompts[0] || '') && promptRun?.status === 'verified'
       && /LARGE_MOVE \(S&P 500 1% 이상 또는 코스피 3% 이상\)/.test(prompts[0] || ''),
     JSON.stringify({ basis, sameBasis, noHistory, intradayAsClose, status: promptRun?.status, reason: promptRun?.reason }));
+  {
+    // v57.87 (10/16 audit): the completed crash close travels as a dated line, and a reading that speaks only of the next
+    // session's rebound is blocked; the news bundle's Korean slots open with the index's own move headline.
+    const { priorSessionMoveIssues } = await import('./lib/market-analysis-validate.mjs');
+    const { krIndexStoryFirst, scoreServerNewsItem } = await import('./lib/news-selection.mjs');
+    const ctx = prompts[0] || '';
+    const crashTitle = '코스피 7% 폭락…사이드카 발동';
+    const ranked = krIndexStoryFirst([{ title: '증시 폭락에 원·달러 환율 급등' }, { title: crashTitle }]);
+    check('v57.87 a large completed close reaches the prompt dated and must be named; the KOSPI move headline takes the first Korean slot',
+      /직전 완료 세션의 큰 움직임: 코스피 10\/15 종가 -7\.5\d%/.test(ctx) && !priorSessionMoveIssues(dated0652, { context: ctx }).length
+        && priorSessionMoveIssues('코스피 장중 13:05 KST 기준 +3.2% 반등', { context: ctx }).includes('prior-session-move-omitted')
+        && ranked[0].title === crashTitle && /ko-index-move\+14/.test(scoreServerNewsItem({ title: crashTitle, source: '연합뉴스', ts: Date.parse('2026-10-15T06:00:00.000Z'), scoringNowMs: Date.parse('2026-10-15T06:30:00.000Z') }).selectionReason),
+      JSON.stringify({ line: ctx.match(/직전 완료 세션[^\n]*/)?.[0] || null, ranked: ranked.map((row) => row.title) }));
+    // v57.87 (market-screen re-check): a WTI close carries its own dated line; a reading that names a lead flow while the
+    // screen says none qualifies is blocked; one won-dollar headline per Korean slot topic; a quote page is not an article.
+    const { noLeadIssues } = await import('./lib/market-analysis-validate.mjs');
+    const { priorSessionMoveLines } = await import('./fetch-data.mjs');
+    const { krSlotTopic } = await import('./lib/news-selection.mjs');
+    const oilHistory = [['2026-10-08', 88], ['2026-10-09', 89], ['2026-10-12', 90], ['2026-10-13', 92], ['2026-10-14', 95.1], ['2026-10-15', 97.97]].map(([date, wti]) => ({ date, wti }));
+    const noLeadCtx = '세 흐름 모두 … 지금은 어느 흐름이라고 보기 이릅니다.';
+    check('v57.87 WTI large close is a dated line; a lead-flow claim against a no-lead screen is blocked; Korean slot topics and quote pages',
+      /WTI 10\/15 종가 \+3\.0\d%/.test(priorSessionMoveLines(oilHistory))
+        && noLeadIssues('가장 가까운 흐름은 「소수 종목 주도」이고 관망이 유리합니다.', { context: noLeadCtx }).includes('no-lead-overstated')
+        && !noLeadIssues('아직 중심 흐름을 정하기 이르고, 「소수 종목 주도」도 핵심 조건 미충족입니다.', { context: noLeadCtx }).length
+        && !noLeadIssues('「고른 상승」에 가깝습니다.', { context: '중심 흐름: 고른 상승' }).length
+        && krSlotTopic('환율 1,353원 치솟으며') === 'fx' && krSlotTopic(crashTitle) === 'index-move' && krSlotTopic('Samsung wonders') === null
+        && scoreServerNewsItem({ title: 'UAL Stock Quote Price and Forecast | CNN', source: 'CNN', ts: Date.parse('2026-10-15T06:00:00.000Z'), scoringNowMs: Date.parse('2026-10-15T06:30:00.000Z') }).selectionReason === 'not-article-filter',
+      priorSessionMoveLines(oilHistory));
+  }
   // (c) the last verified reading is kept, labelled with its time, while later attempts are blocked — also across a run
   // whose own fallback carried it — and dropped once the market has moved past a large move since it was written.
   const verifiedAt = '2026-10-15T05:52:08.516Z';
@@ -921,11 +952,11 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   console.warn = () => {};
   let kept; let fallback; let carried; let dropped;
   try {
-    kept = await genMarketAnalysis(data, at0555, { previous, request: stub([bad, bad]), nowMs: now });
-    fallback = await genMarketAnalysis(data, at0555, { previous: null, request: stub([bad, bad]), nowMs: now });
+    kept = await genMarketAnalysis(data, at0555, { previous, request: stub([bad, bad]), nowMs: now, history: [] });
+    fallback = await genMarketAnalysis(data, at0555, { previous: null, request: stub([bad, bad]), nowMs: now, history: [] });
     const blockedWithReading = { ...fallback, lastVerified: { ...previous } };
-    carried = await genMarketAnalysis(data, at0555, { previous: blockedWithReading, request: stub([bad, bad]), nowMs: Date.parse('2026-10-15T07:52:00.000Z') });
-    dropped = await genMarketAnalysis(data, crashed, { previous, request: stub([bad, bad]), nowMs: now });
+    carried = await genMarketAnalysis(data, at0555, { previous: blockedWithReading, request: stub([bad, bad]), nowMs: Date.parse('2026-10-15T07:52:00.000Z'), history: [] });
+    dropped = await genMarketAnalysis(data, crashed, { previous, request: stub([bad, bad]), nowMs: now, history: [] });
   } finally { console.warn = warn; }
   const exact = validateMarketAnalysisText(reading, data, at0555);
   check('v57.81 a verified reading is kept (labelled with its time) while later attempts are blocked, survives one blocked run, and is dropped after a large move',
@@ -1193,6 +1224,29 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     detail = JSON.stringify({ tsm: tsm && { std: tsm.accountingStandard, cur: tsm.reportingCurrency, rev: tsm.revenue, m: tsm.margin, roe: tsm.roe, g: tsm.revGrowth, sc: tsm.sharesCheck }, row: rowFields && { roe: rowFields.roe, held: rowFields.valuationHeldReason }, adr: adr && { m: adr.margin, sc: adr.sharesCheck }, bank: !!bank, asml: asml && { m: asml.margin, roe: asml.roe, g: asml.revGrowth }, sub: subtotal && { g: subtotal.revGrowth, held: subtotal.revGrowthHeld }, healed });
   } catch (error) { detail = error.message; }
   check('P1875 SEC IFRS and non-USD filers are read ratio-only on one basis; price ratios and non-USD amounts are withheld', ok, detail.slice(0, 600));
+}
+{
+  // v57.87: a successor registrant (8-K12B holding reorganization, XOM CIK 2115436) has only its first 10-Q; the
+  // predecessor's 10-K facts and filings are read with it, once per entry version, and the producer is wired to do so.
+  let ok = false;
+  let detail = '';
+  try {
+    const { SEC_SUCCESSOR_ISSUERS, mergeSuccessorCompanyFacts, mergeSuccessorSubmissions, normalizeSecCompanyFacts: normalize } = await import('../src/domain/fundamental/sec-normalize.js');
+    const fy = (val, accn, start, end, filed) => ({ val, accn, start, end, filed, form: '10-K', fp: 'FY' });
+    const prior = { facts: { 'us-gaap': {
+      Revenues: { units: { USD: [fy(340e9, 'p24', '2024-01-01', '2024-12-31', '2025-02-19'), fy(332e9, 'p25', '2025-01-01', '2025-12-31', '2026-02-18')] } },
+      NetIncomeLoss: { units: { USD: [fy(28.8e9, 'p25', '2025-01-01', '2025-12-31', '2026-02-18')] } } } } };
+    const own = { facts: { 'us-gaap': { NetIncomeLoss: { units: { USD: [{ val: 7.1e9, accn: 's1', start: '2026-04-01', end: '2026-06-30', filed: '2026-08-03', form: '10-Q', fp: 'Q2' }] } } } } };
+    const alone = normalize('XOM', own, 110, null);
+    const merged = normalize('XOM', mergeSuccessorCompanyFacts(own, prior), 110, null);
+    const subs = mergeSuccessorSubmissions({ name: 'Successor', filings: { recent: { form: ['10-Q'], accessionNumber: ['s1'] } } }, { filings: { recent: { form: ['10-K'], accessionNumber: ['p25'] } } });
+    const secSource = readFileSync(new URL('./fetch-sec-fundamentals.mjs', import.meta.url), 'utf8');
+    ok = SEC_SUCCESSOR_ISSUERS['0002115436']?.predecessorCik === '0000034088' && alone === null && merged?.revenue === 332e9 && merged.netIncome === 28.8e9
+      && subs.name === 'Successor' && subs.filings.recent.form.join() === '10-Q,10-K' && subs.filings.recent.accessionNumber.join() === 's1,p25'
+      && /mergeSuccessorCompanyFacts\(facts, priorFacts\)/.test(secSource) && /successorVersion !== successor\.version/.test(secSource);
+    detail = JSON.stringify({ alone: !!alone, rev: merged?.revenue, ni: merged?.netIncome, forms: subs.filings.recent.form });
+  } catch (error) { detail = error.message; }
+  check('v57.87 an 8-K12B successor issuer reads its predecessor\'s annual facts and filings (XOM)', ok, detail.slice(0, 400));
 }
 {
   // W09-B/P1148 (F02): a derived ratio cannot have been reproducible before its LATEST operand

@@ -79,6 +79,11 @@ export function normalizeScreener(raw = {}) {
     vcpStage: row?.vcpStage || null,
     vcpPivot: finite(row?.vcpPivot),
     vcpContractions: finite(row?.vcpContractions), vcpShrinking: typeof row?.vcpShrinking === 'boolean' ? row.vcpShrinking : null, // 2026-10-14 custom conditions
+    // v57.87 follow-through evidence (technical/follow-through.js)
+    pocketPivotAgo: finite(row?.pocketPivotAgo), pocketPivots10: finite(row?.pocketPivots10), heavyDownDays25: finite(row?.heavyDownDays25),
+    baseCount: finite(row?.baseCount), baseForming: typeof row?.baseForming === 'boolean' ? row?.baseForming : null, baseDepthPct: finite(row?.baseDepthPct),
+    climaxSigns: Array.isArray(row?.climaxSigns) ? row?.climaxSigns.filter((sign) => typeof sign === 'string') : null,
+    downDayHoldPct: finite(row?.downDayHoldPct), downDayExcessPp: finite(row?.downDayExcessPp), downDayCount: finite(row?.downDayCount),
     pe: finite(row?.pe),
     pb: finite(row?.pb),
     evEbitda: finite(row?.evEbitda),

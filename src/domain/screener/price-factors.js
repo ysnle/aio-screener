@@ -5,6 +5,7 @@ import { FACTOR_FRESHNESS_MS } from './factor-ranks.js';
 import { RULES } from '../rules/thresholds.js';
 // v57.84: the 52-week range, ADR, moving averages and EMAs are technical/definitions.js — the chart's own definitions.
 import { smaLast, emaLast, adrPctOf, rangeExtremesOf, detectContractions } from '../technical/definitions.js';
+import { followThroughFields } from '../technical/follow-through.js';
 import { listingMarketOfSymbol, sessionDateInMarket, timeZoneForMarket, timeZoneForSymbol } from '../market/session-time.js';
 export const round = (v, d) => (typeof v === 'number' && isFinite(v)) ? Number(v.toFixed(d)) : null;
 const BACKTEST_MIN_LIQUIDITY_OBSERVATIONS = 10;
@@ -399,7 +400,9 @@ export function priceHistoryFromRows(sym, fetched, { providerMeta = null, nullCl
 }
 
 // One symbol's published price-factor row from its completed-session history (the producer's per-result block).
-export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSeries = new Map() } = {}) {
+// `indexReturns` (optional): Map of 'us' | 'kr' | 'kq' (KOSDAQ listings) → Map(date → index one-session return %), for
+// the down-day resilience field; a listing whose market has no index series leaves it null.
+export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSeries = new Map(), indexReturns = null } = {}) {
   if (!r || r.__error || !r.closes) return null;
   const quoteCurrencyOf = (item) => listingCurrencyOf(item?.sym, item?.providerMeta);
   const hasCompleteAdjusted = r.adjustedCloseStatus === 'complete'
@@ -430,6 +433,10 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
       r.highs || [], r.lows || [], r.volumes || []
     );
     if (setupFields) Object.assign(f, setupFields);
+    // v57.87: follow-through evidence (pocket pivot, heavy down days, base number, climax signs, down-day resilience) on
+    // the factor price series with raw volume — technical/follow-through.js.
+    if (r.volumes && r.dates) Object.assign(f, followThroughFields({ dates: r.dates, closes: factorPriceSeries, volumes: r.volumes },
+      indexReturns instanceof Map ? (/\.KQ$/i.test(String(r.sym || '')) && indexReturns.get('kq')) || indexReturns.get(sessionSegmentOfSymbol(r.sym)) || null : null));
     // Yahoo's KR suffix is part of the upstream instrument identifier. Persist
     // the quote currency with the derived price/liquidity fields so consumers
     // never have to infer that a numeric amount is USD.

@@ -126,6 +126,7 @@ export function newsSourceLabel(raw) {
 }
 // P1504: Korean headlines matched none of the English priority rules, so every Korean item scored on source and
 // recency alone. The same topics in Korean.
+const KR_INDEX_MOVE_RE = /^(?=.*(?:코스피|코스닥|KOSPI|KOSDAQ))(?=.*(?:폭락|급락|폭등|급등|최대\s*낙폭|사이드카|서킷\s*브레이커|패닉|붕괴|투매|plung|crash|tumbl|\brout\b|soar|surg|circuit breaker|sidecar)).*/i;
 const SERVER_NEWS_PRIORITY_RULES_KO = [
   { label: 'ko-macro-rates', points: 14, re: /(금리|기준금리|물가|인플레|연준|FOMC|파월|국채|고용지표|경기침체|한국은행|금통위)/ },
   { label: 'ko-fx', points: 10, re: /(환율|원·?달러|원화|달러|엔화|외환)/ },
@@ -133,8 +134,27 @@ const SERVER_NEWS_PRIORITY_RULES_KO = [
   { label: 'ko-earnings', points: 10, re: /(실적|영업이익|매출|가이던스|잠정|어닝)/ },
   { label: 'ko-flows', points: 9, re: /(외국인|기관|순매수|순매도|공매도|수급|리밸런싱|만기)/ },
   { label: 'ko-market', points: 8, re: /(코스피|코스닥|증시|지수|상장|공모)/ },
-  { label: 'ko-geo-trade', points: 12, re: /(관세|제재|수출통제|중동|이란|호르무즈|전쟁|대미\s*투자)/ }
+  { label: 'ko-geo-trade', points: 12, re: /(관세|제재|수출통제|중동|이란|호르무즈|전쟁|대미\s*투자)/ },
+  // v57.87 (10/15 KOSPI -7.6% audit): the three Korean slots went to won headlines (ko-fx+10 with macro words) while
+  // the index's own crash story scored only ko-market+8. A headline naming the index together with a large-move word
+  // is the session's main story.
+  { label: 'ko-index-move', points: 14, re: KR_INDEX_MOVE_RE }
 ];
+// The best-scored index-move headline takes the first Korean slot; the others follow in score order.
+/** The Korean slot topic a headline belongs to (one per topic inside the reserved slots), or null. */
+export function krSlotTopic(title) {
+  const text = String(title || '');
+  if (KR_INDEX_MOVE_RE.test(text)) return 'index-move';
+  if (/환율|원[·\s]?달러|원\/달러|달러\/원|USD\/KRW|\bwon\b/i.test(text)) return 'fx';
+  return null;
+}
+
+export function krIndexStoryFirst(items) {
+  const list = Array.isArray(items) ? items.slice() : [];
+  const at = list.findIndex((it) => KR_INDEX_MOVE_RE.test(String(it?.title || '')));
+  if (at > 0) list.unshift(list.splice(at, 1)[0]);
+  return list;
+}
 
 function getServerNewsSourceTier(source, feedTier) {
   const src = String(source || '');
@@ -153,7 +173,7 @@ const SERVER_NEWS_OFFTOPIC_RE = /(바카라|카지노\s*게임|슬롯\s*머신|�
 // Owner 2026-10-12 (뉴스 30건 vs 50건): more slots would add noise, not news. Pages that are not articles — quote
 // pages, auto-generated price-target "forecasts", filing-form listings — and reposts whose headline names a month
 // two or more months before the cycle are dropped before ranking.
-const SERVER_NEWS_NOT_ARTICLE_RE = /(Stock Price, News, Quote|Quote & History|Price Target\s*[—-]\s*Prediction|Forecast\s*[—-]\s*Price Target|^Form\s+\d|\bForm 4\b|Stock Price Today|Price Prediction (?:for )?20\d\d)/i;
+const SERVER_NEWS_NOT_ARTICLE_RE = /(Stock Price, News, Quote|Stock Quote|Quote Price and Forecast|Quote & History|Price Target\s*[—-]\s*Prediction|Forecast\s*[—-]\s*Price Target|^Form\s+\d|\bForm 4\b|Stock Price Today|Price Prediction (?:for )?20\d\d)/i;
 const NEWS_MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 export function serverNewsHeadlineMonthStale(headline, nowMs = Date.now()) {
   const match = String(headline || '').toLowerCase().match(/\b(january|february|march|april|june|july|august|september|october|november|december)\s+\d{1,2}\b/);
@@ -416,11 +436,17 @@ export async function fetchNews(nowMs = Date.now()) {
   }
   // 한국 뉴스 최대 3슬롯 먼저 예약
   const KR_SLOTS = 3;
-  for (const it of krItems) {
+  // v57.87 (10/16 audit): three won-dollar headlines filled all three Korean slots on the KOSPI −7.6% day. Inside the
+  // reserved slots one headline per Korean topic (환율 · 지수 움직임); further ones compete in the score-ordered fill.
+  const krTopicTaken = new Set();
+  for (const it of krIndexStoryFirst(krItems)) {
     if (out.length >= KR_SLOTS) break;
     if (sourceFull(it) || topicFull(it)) continue;
     const k = newsArticleKey(it);
     if (seen.has(k) || sameEvent(it)) continue;
+    const krTopic = krSlotTopic(it.title);
+    if (krTopic && krTopicTaken.has(krTopic)) continue;
+    if (krTopic) krTopicTaken.add(krTopic);
     seen.add(k);
     pushItem(it);
   }
@@ -497,7 +523,7 @@ export function selectNewsIntraday(candidates, { cycleEndMs, nowMs = Date.now(),
       score: it.score, selectionReason: it.selectionReason, contentDepth: 'headline-only', provisional: true,
     });
   };
-  for (const it of scored) if (it.country === 'kr' && picked.length < 2) take(it);
+  for (const it of krIndexStoryFirst(scored.filter((row) => row.country === 'kr'))) if (picked.length < 2) take(it);
   for (const it of scored) take(it);
   return picked.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 }

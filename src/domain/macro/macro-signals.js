@@ -156,10 +156,10 @@ export function oilDivergence(check = null, { wti20 = check?.wti20 ?? null } = {
   if (check.diverges) return { held: true, kind: 'brent-rise', text: `${pair}${spreadMove} — 국제 유가는 오르는데 WTI만 덜 올라 WTI로 유가 방향을 읽지 않습니다.` };
   const word = w20 < 0 ? '하락' : '상승';
   if (brent20 !== 0 && w20 !== 0 && Math.sign(brent20) !== Math.sign(w20)) {
-    return { held: true, kind: 'opposite', text: `${pair}${spreadMove} — 두 유가의 방향이 달라 WTI ${word}을 유가 전체의 움직임으로 읽지 않습니다.` };
+    return { held: true, kind: 'opposite', text: `${pair}${spreadMove} — 두 유가의 20일 방향이 달라 WTI 20일 ${word}을 유가 전체의 움직임으로 읽지 않습니다.` };
   }
   if (Math.abs(w20) >= MACRO_SIGNAL_RULES.oilDirectionPct && Math.abs(brent20) < Math.abs(w20) * MACRO_SIGNAL_RULES.oilConfirmShare) {
-    return { held: true, kind: 'unconfirmed', text: `${pair}${spreadMove} — 브렌트가 WTI ${word}의 절반도 따라가지 않아 WTI ${word}을 유가 전체의 움직임으로 읽지 않습니다.` };
+    return { held: true, kind: 'unconfirmed', text: `${pair}${spreadMove} — 브렌트가 WTI 20일 ${word}의 절반도 따라가지 않아 WTI 20일 ${word}을 유가 전체의 움직임으로 읽지 않습니다.` };
   }
   return none;
 }

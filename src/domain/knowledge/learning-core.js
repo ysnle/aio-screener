@@ -10,6 +10,7 @@
 import { PACKET_20261011_LESSONS, PACKET_20261011_FRAMES } from '../research/packet-20261011.js';
 import { PACKET_20261014_LESSONS, PACKET_20261014_FRAMES } from '../research/packet-20261014.js';
 import { PACKET_20261015_LESSONS, PACKET_20261015_FRAMES } from '../research/packet-20261015.js';
+import { PACKET_20261016_LESSONS, PACKET_20261016_FRAMES } from '../research/packet-20261016-x-bookmarks.js';
 const L = (lesson) => Object.freeze(lesson);
 
 // P1592 (F62): each column chapter links to the analysis notes that answer its own question — every
@@ -244,7 +245,7 @@ export const LESSONS = Object.freeze([
       "반도체처럼 이익이 경기를 따라 크게 출렁이는 업종의 비중이 큰 지수는 특히 그렇다. 이익이 가장 많을 때 PER이 가장 낮게 나오고, 시장은 그 숫자를 정점으로 보고 배수를 깎는다. 그래서 일드갭이 넓다는 사실만으로는 상승의 근거가 되지 않는다.",
       "상승의 계기는 숫자가 반복되는 것이다. 다음 해 이익이 올해보다 낮아지지 않는다는 근거 — 장기 계약, 공급 제약, 고객의 투자 지속 — 가 쌓이면 시장은 정점 의심을 거두고 배수를 다시 올린다."
     ],
-    example: { inputs: ['코스피 6,971 (2026-10-02 기준, 소유자 제공 자료 재구성)', '향후 12개월 컨센서스 이익 기준 선행 PER 5.4배 (5년 평균 9.8배)', '국고채 3년 4.01% (같은 날)'], steps: ['이익수익률 = 100 ÷ 5.4 ≈ 18.5%', '일드갭 ≈ 18.5 − 4.01 ≈ 14.5%p', '선행 이익이 그대로이고 PER만 평균의 80%(7.8배)로 회복하면 지수 ≈ 6,971 × 7.8 ÷ 5.4 ≈ 10,070'], result: '이익이 그대로이고 배수만 평균의 80%로 돌아간다는 가정의 산술 결과이며 목표 지수나 전망이 아닙니다. 반대로 선행 이익이 30% 줄면 같은 5.4배에서도 지수는 약 4,880이 됩니다.' },
+    example: { inputs: ['코스피 6,971 (2026-10-01 종가, 소유자 제공 자료 재구성)', '향후 12개월 컨센서스 이익 기준 선행 PER 5.4배 (5년 평균 9.8배)', '국고채 3년 4.01% (같은 날)'], steps: ['이익수익률 = 100 ÷ 5.4 ≈ 18.5%', '일드갭 ≈ 18.5 − 4.01 ≈ 14.5%p', '선행 이익이 그대로이고 PER만 평균의 80%(7.8배)로 회복하면 지수 ≈ 6,971 × 7.8 ÷ 5.4 ≈ 10,070'], result: '이익이 그대로이고 배수만 평균의 80%로 돌아간다는 가정의 산술 결과이며 목표 지수나 전망이 아닙니다. 반대로 선행 이익이 30% 줄면 같은 5.4배에서도 지수는 약 4,880이 됩니다.' },
     reverse: "정말로 이익이 정점이면 낮은 PER은 함정이다. 이익이 줄면 PER은 오히려 올라가 보이고, 주가는 이익 감소와 배수 하락을 동시에 맞는다. 낮은 PER을 근거로 사기 전에 물어야 할 것은 \"싼가\"가 아니라 \"이 이익이 내년에도 남는가\"다.",
     channels: ['매출', '현금'], indicators: [{ label: '반도체·한국 테마의 1·3개월 흐름', route: 'themes', routeLabel: '테마·섹터' }, { label: '분기 매출의 전년 대비 성장률 추세', route: 'fundamental', routeLabel: '재무 공시' }],
     concepts: ['yield-gap', 'cyclical-per', 'expected-value', 'base-rate'],
@@ -424,18 +425,20 @@ export const LESSONS = Object.freeze([
     concepts: ['stocks-to-use', 'pass-through'] }),
   ...PACKET_20261011_LESSONS,
   ...PACKET_20261014_LESSONS,
-  ...PACKET_20261015_LESSONS
+  ...PACKET_20261015_LESSONS,
+  ...PACKET_20261016_LESSONS
 ]);
 
 export const PATHS = Object.freeze([
-  { id: 'foundation', title: '금융수학·통계', why: '평균·복리·%와 %p·기대값 — 이후 모든 수치 해석의 전제입니다.', lessons: ['geo-mean', 'real-relative', 'backtest-rejection'] },
+  { id: 'foundation', title: '금융수학·통계', why: '평균·복리·%와 %p·기대값 — 이후 모든 수치 해석의 전제입니다.', lessons: ['geo-mean', 'real-relative', 'backtest-rejection', 'evidence-grades-falsifier'] },
   { id: 'accounting', title: '재무제표·회계', why: '이익·현금·자본의 연결 구조.', lessons: ['three-statements', 'measurement-scope-comparison'] },
   { id: 'economy', title: '미시경제 기초', why: '가격·경쟁·진입장벽과 초과이익의 지속성.', lessons: ['elasticity', 'tech-vs-profit'] },
-  { id: 'money', title: '통화·신용·물가', why: '은행 신용 → 지출 → 물가 → 실질 소득의 전달 경로.', lessons: ['credit-money', 'macro-reading', 'crisis-response', 'policy-floor-limits', 'credit-distribution-refinancing'] },
-  { id: 'rates', title: '금리·채권·환율', why: '동일한 금리·환율 변화가 자산·기업별로 다른 결과를 내는 경로.', lessons: ['long-bond', 'bond-collateral', 'hike-cycle', 'fx-exporters'] },
-  { id: 'business', title: '기업 수익 구조', why: '판매량·단가 → 마진 → 운전자본·투자 → 현금흐름 → 투하자본이익률.', lessons: ['capex-roic', 'three-statements', 'financing-perimeter-overlap', 'ai-capex-payback'] },
-  { id: 'industry', title: '산업별 수익 모델', why: '제공 가치 · 지불 주체 · 비용·자본 · 이익 변수의 동일 틀 비교.', lessons: ['semi-process', 'memory-optics', 'tech-claim-stages', 'bank', 'insurance', 'reit', 'consumer', 'software', 'biotech', 'energy', 'transport', 'agri', 'fx-exporters'] },
-  { id: 'market', title: '가격·기대', why: '산업·기업·가격의 구분과 기대 대비 결과.', lessons: ['expectations', 'multiple-durability', 'valuation-cycle', 'capital-allocation', 'index-weight', 'evidence-role-conflict', 'rotation-bottleneck-confirmation', 'supply-relief-margin', 'crowding-breadth-extreme'] }
+  { id: 'money', title: '통화·신용·물가', why: '은행 신용 → 지출 → 물가 → 실질 소득의 전달 경로.', lessons: ['credit-money', 'macro-reading', 'crisis-response', 'policy-floor-limits', 'credit-distribution-refinancing', 'reserve-buffer-regime', 'liquidity-layers', 'private-credit-redemption', 'labor-inflation-split'] },
+  { id: 'rates', title: '금리·채권·환율', why: '동일한 금리·환율 변화가 자산·기업별로 다른 결과를 내는 경로.', lessons: ['long-bond', 'bond-collateral', 'hike-cycle', 'fx-exporters', 'four-asset-joint', 'oil-shock-split'] },
+  { id: 'business', title: '기업 수익 구조', why: '판매량·단가 → 마진 → 운전자본·투자 → 현금흐름 → 투하자본이익률.', lessons: ['capex-roic', 'three-statements', 'financing-perimeter-overlap', 'ai-capex-payback', 'backlog-funding-quality'] },
+  { id: 'industry', title: '산업별 수익 모델', why: '제공 가치 · 지불 주체 · 비용·자본 · 이익 변수의 동일 틀 비교.', lessons: ['semi-process', 'memory-optics', 'tech-claim-stages', 'bank', 'insurance', 'reit', 'consumer', 'software', 'biotech', 'energy', 'transport', 'agri', 'fx-exporters', 'ai-power-delivery', 'interconnect-distance-time', 'bottleneck-pricing-power'] },
+  { id: 'market', title: '가격·기대', why: '산업·기업·가격의 구분과 기대 대비 결과.', lessons: ['expectations', 'multiple-durability', 'valuation-cycle', 'capital-allocation', 'index-weight', 'evidence-role-conflict', 'rotation-bottleneck-confirmation', 'supply-relief-margin', 'crowding-breadth-extreme', 'breadth-confirmation', 'price-revision-matrix', 'top-three-layers'] },
+  { id: 'chart', title: '차트·셋업 읽기', why: '시장 폭·바닥·확장·돌파·상대 강도를 종가 기준 확인 조건과 무효 조건으로 읽습니다.', lessons: ['bottom-formation-types', 'climax-extension', 'breakout-follow-through', 'price-cycle-stages', 'relative-resilience'] }
 ]);
 
 // Issues surfaced first (the frames most often needed to read the other screens).
@@ -468,6 +471,7 @@ export const FRAME_VARIABLES = Object.freeze({
   ...Object.fromEntries(PACKET_20261011_FRAMES.map((frame) => [frame.id, frame.variables])),
   ...Object.fromEntries(PACKET_20261014_FRAMES.map((frame) => [frame.id, frame.variables])),
   ...Object.fromEntries(PACKET_20261015_FRAMES.map((frame) => [frame.id, frame.variables])),
+  ...Object.fromEntries(PACKET_20261016_FRAMES.map((frame) => [frame.id, frame.variables])),
   'geo-mean': ['연평균 복리 수익률(CAGR)', '최대 낙폭', '회복 기간', '변동성'],
   'real-relative': ['명목 수익률', '물가 상승률', '벤치마크 수익률', '차이(%p)'],
   'three-statements': ['영업활동 현금흐름', '운전자본 증감', '설비투자', '잉여현금흐름'],

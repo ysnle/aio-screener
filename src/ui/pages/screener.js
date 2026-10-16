@@ -19,7 +19,7 @@ import { subscribeToSlices } from '../../state/memoize.js';
 import { createSavedScreen, exportSavedScreen, importSavedScreen } from '../../domain/screener/saved-screens.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { SCREENER_FIELD_REGISTRY, createScreenDefinition, fieldValueForPurpose } from '../../data/contracts/screener.js';
-import { FACTOR_LABELS, capFilterValue, numberText, visibleRank, rankGrade, vcpStageLabel, describeStaleDates, profileComputability, factorSessionLag, describeRankingHold } from '../../domain/screener/row-presentation.js';
+import { FACTOR_LABELS, capFilterValue, numberText, visibleRank, rankGrade, vcpStageLabel, describeStaleDates, profileComputability, factorSessionLag, describeRankingHold, followThroughSummary } from '../../domain/screener/row-presentation.js';
 export { capFilterValue, visibleRank, rankGrade, vcpStageLabel, describeStaleDates, profileComputability, factorSessionLag, describeRankingHold };
 import { CONDITIONAL_EVIDENCE_DISCLAIMER, CONDITIONAL_EVIDENCE_VERSION } from '../../domain/screener/conditional-evidence.js';
 import { EVIDENCE_LINEAGE_VERSION } from '../../domain/screener/evidence-lineage.js';
@@ -120,6 +120,8 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'vcpScore', label: '수축 구조(VCP)·충족도', hint: 'VCP(변동성 수축 패턴): 조정 폭이 차례로 줄며 바닥을 다지는 가격 구조 — 충족도는 그 조건을 얼마나 채웠는지', sortable: true, align: 'right', width: 96, group: 'setup', researchOnly: true },
   { key: 'mcap', label: '시총', sortable: true, align: 'right', width: 82, group: 'market' },
   { key: 'entry', label: '상대 상태', sortable: false, align: 'center', width: 118, group: 'setup', researchOnly: true },
+  // v57.87: base number, pocket pivot, index down-day resilience, heavy down days and climax signs (technical/follow-through.js).
+  { key: 'followThrough', label: '후속 확인', hint: '베이스 순번·포켓 피벗·지수 하락일 버팀·거래량 실린 하락·클라이맥스 징후 — 종가 기준 관찰, 매매 신호 아님', sortable: false, align: 'left', width: 176, group: 'setup', researchOnly: true },
   { key: 'news', label: '최신뉴스·근거', sortable: false, align: 'left', width: 190, group: 'evidence' }
 ]);
 
@@ -131,11 +133,11 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
 // above says the ranking does not yet distinguish later returns. The presets show the percentile once; 'grade'
 // stays in the registry for the 전체/직접 고른 컬럼.
 const COLUMN_PRESETS = Object.freeze({
-  discovery: ['watchlist', 'rank', 'sym', 'price', 'pctFrom52wHigh', 'ret1m', 'ret3m', 'rsi', 'extension', 'vcpScore'],
+  discovery: ['watchlist', 'rank', 'sym', 'price', 'pctFrom52wHigh', 'ret1m', 'ret3m', 'rsi', 'extension', 'vcpScore', 'followThrough'],
   fundamentals: ['watchlist', 'rank', 'sym', 'value', 'quality', 'fwdPe', 'price', 'pctFrom52wHigh', 'ret3m', 'news'],
-  trend: ['watchlist', 'rank', 'sym', 'momentum', 'trend', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'extension', 'kalman', 'vcpScore', 'entry'],
+  trend: ['watchlist', 'rank', 'sym', 'momentum', 'trend', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'extension', 'kalman', 'vcpScore', 'followThrough', 'entry'],
   risk: ['watchlist', 'rank', 'sym', 'lowvol', 'rsi', 'pctSma50', 'mcap', 'entry', 'news'],
-  events: ['watchlist', 'rank', 'sym', 'entry', 'vcpScore', 'news'],
+  events: ['watchlist', 'rank', 'sym', 'entry', 'vcpScore', 'followThrough', 'news'],
   all: SCREENER_COLUMN_REGISTRY.map((column) => column.key)
 });
 
@@ -396,7 +398,7 @@ export function customRead(row, key) {
   // '최근 회계연도' still reads an older STALE figure as the table displays it, but never a CONFLICT value.
   if (row?.fieldReadiness && fieldId && FILING_KEYS.has(key)) return FILING_STATUSES.has(row.fieldReadiness.fields?.[fieldId]?.status) ? finite(row[key]) : null;
   if (row?.fieldReadiness && fieldId) return fieldValueForPurpose(row, fieldId, 'calculation');
-  return typeof row?.[key] === 'string' || typeof row?.[key] === 'boolean' ? row[key] : finite(row?.[key]);
+  return typeof row?.[key] === 'string' || typeof row?.[key] === 'boolean' || Array.isArray(row?.[key]) ? row[key] : finite(row?.[key]);
 }
 let customPanel = null;
 let availableCache = {};
@@ -606,6 +608,15 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     const amount = billions >= 1000 ? `${numberText(billions / 1000, 1)}T` : `${numberText(billions, 2)}B`;
     const node = text(documentRef, `${native.currency} ${amount} · 참고`);
     node.title = `${native.source || '출처 미확인'} · 관측 ${native.observedAt || '시각 미확인'} · USD 환산값이 없어 USD 시총 필터/팩터에는 사용하지 않음`;
+    return node;
+  }
+  if (key === 'followThrough') {
+    const summary = followThroughSummary(row);
+    const node = documentRef.createElement('span');
+    node.className = 'scr-follow-through';
+    node.textContent = summary.text;
+    if (summary.title) node.title = summary.title;
+    if (summary.climax) node.style.color = 'var(--data-red)';
     return node;
   }
   if (key === 'entry') {

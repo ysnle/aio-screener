@@ -6,6 +6,69 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1889 - v57.87 - 한국 뉴스 예약 3칸을 같은 원·달러 환율 주제가 모두 차지하고, 시세 페이지가 기사로 통과함 (2026-10-16)
+
+- symptom/reproduction: 10/16 묶음 한국 3칸이 '환율 1,353원…', '1344.6원 마감', '증시 폭락에 원·달러 환율 급등'이었고, 'UAL Stock Quote Price and Forecast | CNN'이 뉴스로 선정됐다.
+- root_cause: 한국 예약 슬롯 안에 주제별 상한이 없어 점수가 높은 환율 기사가 연달아 들어갔다. 기사 아님 정규식이 'Stock Quote' 형식을 잡지 못했다.
+- fix: 한국 예약 슬롯에서는 주제(환율·지수 움직임)당 1건(krSlotTopic), 나머지는 점수순 채우기에서 경쟁한다. 기사 아님 정규식에 Stock Quote·Quote Price and Forecast를 추가했다.
+- violated_rule: 없음 — 예약 슬롯 다양성 규칙 부재
+- prevention: ci-data-pipeline-contract-check가 krSlotTopic 분류와 시세 페이지의 not-article-filter를 검사한다.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs OK
+
+## P1888 - v57.87 - 한국 반도체 테마가 삼성 −16%·하이닉스 −30% 날에 '상대 방어'로, 5거래일 급락·자체 수익률 음수 테마가 '추세 속 조정 — 분할 먼저'로 읽힘 (2026-10-16)
+
+- symptom/reproduction: 한국 테마 28개 중 16개가 상대 방어였고 하이닉스 종목 요약에 '1개월 지수보다 약함'과 '테마 상대 방어'가 같이 나왔다. 미국 AI 인프라(5일 −12.2%, 50일선 위 0%)와 한국 원전(3개월 −1.0%, 1개월 −29.5%)이 추세 속 조정이면서 고르는 쪽 순서가 분할·관망이었다.
+- root_cause: 한국 테마는 동일가중 중앙값을 시총가중 코스피와 비교해, 지수를 끌어내린 대형주가 빠진 테마가 앞서 보였고 P1723의 대형주 줄이 테마 시나리오에는 전달되지 않았다. favored가 recent.broken과 자체 긴 추세 수익률을 보지 않았다(하이라이트는 broken을 이미 제외).
+- fix: 한국 테마 행에 heavyweights를 넘겨, 거래대금 상위 종목의 1개월 중앙값이 코스피보다 1개월 밴드 넘게 낮으면 앞섬 단계를 판정 보류하고 그 줄을 붙인다. 추세 속 조정이 5거래일 깨짐이거나 자체 긴 추세 수익률이 0 이하이면 favored는 관망이고 이유를 쓴다.
+- violated_rule: R706 계열 — 같은 화면에서 서로 반대인 판정
+- prevention: ci-scenario-guidance-fixture가 대형주 −26% 테마의 판정 보류와 5거래일 깨진 조정의 관망 우선을 검사한다.
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs PASS
+
+## P1887 - v57.87 - WTI가 5일 +7% 오르는데 시장·거시·브리핑이 'WTI 하락'으로 읽고, 1년 평균보다 24% 높은 유가가 '유가 안정' 충족으로 기록됨 (2026-10-16)
+
+- symptom/reproduction: 브렌트와 20일 방향이 갈려 유가 판단을 보류하는 문장이 'WTI 하락'이라고만 쓰고 5일 반등 문장을 숨겼다. 시나리오 기록은 10/16 '물가 둔화 + 고용 완만'에 '새로 충족: 유가 안정'을 찍었다. 금 해석은 실질금리를 '확인 필요'로 남겼다.
+- root_cause: 20일 출발점(9/17 101.91)이 일시 고점이라 WTI 20일 −3.9%가 나왔고, 보류 문장이 창을 밝히지 않았으며 보류 시에는 oilShort를 붙이지 않았다. 유가 안정 조건은 20일 변화만 봐 1년 평균 대비 수준을 보지 않았다. 금 해석은 실질금리 5일 변화만 있는데 20일과 비교하는 문장을 남겼다.
+- fix: 보류 문장에 '20일'을 명시하고 보류여도 5일 반전 문장을 붙인다. 유가 안정은 WTI가 1년 평균보다 10% 이상 높으면 미충족이다. 금 해석은 실질금리 5일 값이 무엇을 보이는지 쓰고 20일 확인 위치를 안내한다.
+- violated_rule: 없음 — 창(기간)과 수준을 함께 보지 않음
+- prevention: ci-scenario-guidance-fixture가 '두 유가의 20일 방향' 문구와 1년 평균 +24%에서의 유가 안정 미충족을 검사한다.
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs PASS
+
+## P1886 - v57.87 - AI 시장 해설이 WTI +3% 마감을 빠뜨리고, 화면이 중심 흐름 없음이라고 하는데 가장 가까운 흐름과 유리한 선택지를 결론처럼 씀 (2026-10-16)
+
+- symptom/reproduction: 10/16 해설에 10/15 WTI 마감 97.97(+3.0%, 5일 +7.1%)이 없었고, 화면은 '지금은 어느 흐름이라고 보기 이릅니다'·'중심 시나리오를 정하지 않습니다'인데 해설은 「소수 종목 주도」 2/5를 가장 가까운 흐름으로, 관망·방어를 유리한 쪽으로 썼다.
+- root_cause: WTI 행은 장중(DELAYED_IN_SESSION)이라 METRIC_EVIDENCE에서 빠지고 직전 세션 급변 줄은 S&P 500·코스피만 봤다. 프롬프트 순서 (3)~(5)가 흐름 이름과 유리한 쪽을 반드시 쓰게 해 화면의 '중심 없음' 판정과 어긋났다.
+- fix: priorSessionMoveLines에 WTI를 넣고 검증기가 WTI 이름·날짜를 요구한다. 프롬프트 (3)·(5)는 REGIME_CONTEXT가 중심 흐름·시나리오를 정하지 않으면 그 판정을 먼저 쓰고 유리한 쪽을 정하지 않게 했고, noLeadIssues가 그 판정이 빠진 해설을 막는다.
+- violated_rule: R706 계열 — 화면 판정과 다른 결론을 같은 근거로 쓰지 않는다
+- prevention: ci-data-pipeline-contract-check가 WTI 급변 줄, 중심 없음 맥락에서의 흐름 단정 차단, 기록된 실제 응답의 통과를 검사한다.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs OK
+
+## P1885 - v57.87 - XOM이 지주회사 재편(8-K12B) 뒤 새 CIK로 매핑돼 연간 재무가 없다는 영구 미지원으로 남음 (2026-10-16)
+
+- symptom/reproduction: sec-fundamentals에서 XOM이 TERMINAL_UNSUPPORTED(required-us-gaap-annual-concepts-unavailable)로 남아 스크리너 순위 보류 37건 중 하나였다.
+- root_cause: SEC 티커 목록이 XOM을 2026-07-01 8-K12B로 생긴 ExxonMobil Holdings Corp(CIK 2115436)에 매핑한다. 이 법인의 companyfacts는 첫 10-Q(2026-08-03)부터라 연간 10-K 사실이 없고, 10-K는 전신 Exxon Mobil Corporation(CIK 34088)에 있다.
+- fix: EDGAR로 확인한 승계 법인 표(SEC_SUCCESSOR_ISSUERS: 2115436 → 34088)를 두고, 해당 티커는 전신의 companyfacts·제출 목록을 함께 읽는다(mergeSuccessorCompanyFacts·mergeSuccessorSubmissions). 이전 실패 기록은 항목 버전마다 한 번 재확인되고, 클래스 인스턴스 URL은 전신 접수번호면 전신 CIK로 만든다.
+- violated_rule: 티커 추정 금지 — 이름이 아닌 8-K12B·CIK로 확인한 항목만
+- prevention: ci-data-pipeline-contract-check가 승계 법인 단독(연간 사실 없음 → null)과 병합(FY 매출·순이익) 정규화, 생산자 배선을 검사한다.
+- verification/residual: EDGAR 실데이터로 병합 정규화: FY2025 매출 3,322억 달러·순이익 288억 달러·주식 수 consistent; contract check OK
+
+## P1884 - v57.87 - 급락 다음 날 AI 시장 해설이 장중 반등만 말하고 직전 완료 세션의 코스피 −7.6% 종가를 빠뜨림 (2026-10-16)
+
+- symptom/reproduction: 10/16 한국 장중 오늘 화면의 결정론적 리드는 '코스피 10/15 −7.6%(5거래일 −18.4%)'를 보였지만 AI 해설 9줄은 10/16 장중 +3.24% 반등만 다뤘다.
+- root_cause: METRIC_EVIDENCE는 지표별 최신 관측 한 줄만 싣고, 그 줄이 장중이면 프롬프트에서 빠진다. 장중 3% 이상이면 KOREA_LARGE_INTRADAY_MOVE로 장중 줄만 들어가 전날 완료 종가의 큰 움직임은 프롬프트 어디에도 없었다.
+- fix: REGIME_CONTEXT에 '직전 완료 세션의 큰 움직임' 줄(priorSessionMoveLines: 코스피·S&P 500 완료 종가 1일 ±3% 또는 5거래일 ±8%, 날짜 포함)을 넣고, 검증기 priorSessionMoveIssues가 해설에 그 지수와 날짜(M/D)가 없으면 prior-session-move-omitted로 막아 재시도 안내를 붙인다.
+- violated_rule: R707 (판정에는 최근 움직임 점검과 창이 함께 있어야 함)
+- prevention: ci-data-pipeline-contract-check가 10/15 06:52 이력에서 '코스피 10/15 종가 −7.5x%' 줄과 반등만 쓴 해설의 차단을 검사한다. 날짜 고정 픽스처는 history 시임으로 현재 데이터와 분리.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs OK
+
+## P1883 - v57.87 - 코스피 −7.6% 급락일 뉴스 묶음의 한국 3슬롯이 환율 기사로 채워지고 지수 급락 기사가 빠짐 (2026-10-16)
+
+- symptom/reproduction: 10/15 08:00~10/16 08:00 KST 뉴스 30건 중 한국 기사 3건이 모두 원·달러 환율 기사였고(점수 66·60·53), 코스피 급락 자체를 다룬 헤드라인은 없었다. 화면에서는 같은 사건 묶음으로 1건만 보였다.
+- root_cause: 한국어 우선순위 규칙에서 환율(ko-fx +10)·금리(ko-macro-rates +14)가 함께 붙는 환율 기사가 지수 기사(ko-market +8)보다 늘 높았다. 급락·사이드카 같은 큰 움직임 어휘는 점수가 없었고, 한국 예약 슬롯은 점수순이라 지수 기사가 들어갈 자리가 없었다.
+- fix: 지수 이름과 큰 움직임 어휘(폭락·급락·폭등·급등·사이드카·서킷브레이커·패닉·붕괴·투매, 영문 plunge·crash 등)가 함께 있는 헤드라인에 ko-index-move +14를 주고, 08:00 묶음과 08:00 이후 장중 속보 모두 한국 첫 슬롯을 가장 높은 지수 움직임 기사에 먼저 준다(krIndexStoryFirst).
+- violated_rule: 없음 — 선정 규칙이 사건의 크기를 보지 않음
+- prevention: ci-data-pipeline-contract-check가 '코스피 7% 폭락…사이드카 발동'의 ko-index-move+14와 환율 기사보다 앞서는 첫 슬롯을 검사한다.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs OK
+
 ## P1882 - v57.86 - 화면 사이 같은 사실을 서로 반대로 보이는 표기 네 건 (2026-10-16)
 
 - symptom/reproduction: 원/달러 막대가 중립 판정인데 양호 칸에 찍혔고, 오늘 화면은 62거래일 기준 '참여 종목은 줄었습니다'만 말해 시장 폭 화면의 20거래일 +6.1%p 확대와 반대로 읽혔다. 같은 카드에서 방산/항공우주가 '수혜 테마'이면서 바로 아래 '약한 쪽(-7.7%)'이었고, 브리핑 확인 포인트는 시장 상태가 이미 답한 질문(표본 중앙값)을 물었다.

@@ -55,7 +55,9 @@ export function deriveScreenerSetupProfile(row = {}) {
   const stretch200 = pctSma200 != null && pctSma200 >= 70;
   // v57.50 C16: the climax edge comes from the shared RSI table (80), the same table the summary's 70/30 reads.
   const rsiOverheat = rsi != null && rsi >= RULES.technical.rsi.climax;
-  const climaxRisk = stretch200 || rsiOverheat;
+  // v57.87: two or more of the producer's climax signs after a long run (technical/follow-through.js) also count.
+  const climaxSignCount = Array.isArray(row.climaxSigns) ? row.climaxSigns.length : 0;
+  const climaxRisk = stretch200 || rsiOverheat || climaxSignCount >= 2;
   // P1507 (owner materials 2026-10-07): how far price has run from the 50-day line, in units of its own average daily
   // range. A late entry pays for the base-building time with no profit cushion; this says how late. ADR stands in for
   // ATR (same idea, published already). Reference bands, not signals: under 2 near the line, 4+ extended, 7+ stretched.
@@ -123,7 +125,9 @@ export function deriveScreenerSetupProfile(row = {}) {
   const explanation = relativeStrengthPullback
     ? '중기 수익률·상대 랭크는 유지되지만 최근 수익률이 눌린 후보입니다. 지지/리클레임과 거래량 확인이 필요합니다.'
     : climaxRisk
-      ? '200일선 대비 장기 신장 또는 RSI 과열이 감지됐습니다. 고점·거래량·종가 위치의 동시 확인 없이는 천장으로 확정하지 않습니다.'
+      ? (stretch200 || rsiOverheat
+        ? '200일선 대비 장기 신장 또는 RSI 과열이 감지됐습니다. 고점·거래량·종가 위치의 동시 확인 없이는 천장으로 확정하지 않습니다.'
+        : `긴 상승 뒤 클라이맥스 징후가 ${climaxSignCount}개 겹쳤습니다(연속 급등·연중 최대 상승폭·최대 거래량 중). 이후 하락일이 늘어나는지 확인 전에는 천장으로 확정하지 않습니다.`)
       : support200 === 'near'
         ? '200일선 부근의 구조 위치입니다. 실제 지지·반등·실패 리테스트는 일봉 이력과 거래량이 있어야 판정합니다.'
         : '현재 제공된 팩터만으로 별도 셋업을 확정할 수 없습니다.';

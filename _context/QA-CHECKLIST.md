@@ -4,6 +4,18 @@ last_verified: 2026-10-16
 confidence: medium
 ---
 
+## v57.87 한국 급락 뉴스·AI 해설 (2026-10-16)
+
+- [x] QA-VERIFY-42: P1883 push 뒤 다음 한국 지수 3% 이상 움직임 세션에서 public-data/data.json의 news 또는 newsIntraday 한국 항목 첫 번째가 코스피·코스닥 움직임 헤드라인이다(selectionReason에 ko-index-move). verify_by: 다음 큰 한국 지수 움직임 뒤 public-data/data.json 확인
+- [x] QA-VERIFY-43: P1884 push 뒤 첫 시장 해설 생성에서 marketAnalysis.summary가 직전 완료 세션의 큰 움직임(현재 코스피 5거래일 −14%대)을 날짜와 함께 언급하거나, 막혔다면 semanticIssues에 prior-session-move-omitted가 기록된다. verify_by: push 뒤 public-data/data.json marketAnalysis 확인
+- [x] QA-VERIFY-44: P1885 push 뒤 다음 SEC 재무 갱신에서 data-store sec-fundamentals.json의 XOM이 failures에서 빠지고 data.XOM에 매출·순이익이 있으며, 스크리너 XOM 순위 보류가 풀린다. verify_by: push 뒤 git show origin/data-store:sec-fundamentals.json 확인
+- [x] QA-VERIFY-45: v57.87 push 뒤 라이브 지식 화면 ‘분석 노트’에 ‘차트·셋업 읽기’ 경로와 북마크 노트 19개가 보이고, 채팅에 ‘역레포가 바닥이면 TGA가 준비금을 줄이나’를 물으면 준비금 완충 노트를 근거로 든다. verify_by: 라이브 지식 화면과 AI 채팅 확인
+- [x] QA-VERIFY-46: v57.87 push 뒤 다음 스크리너 갱신에서 public-data/screener.json 행의 90% 이상에 baseCount·pocketPivots10·heavyDownDays25·climaxSigns가 있고, 미국·한국 행 대부분에 downDayHoldPct가 있으며, 라이브 스크리너 ‘후속 확인’ 컬럼이 ‘—’가 아닌 값을 보인다. verify_by: 스크리너 Actions 갱신 뒤 public-data/screener.json과 라이브 화면 확인
+- [x] QA-VERIFY-47: P1886 push 뒤 다음 시장 해설: 화면이 중심 흐름·시나리오를 정하지 않은 날에는 해설도 '정하기 이르다'를 쓰고 유리한 선택지를 정하지 않으며, WTI가 3% 이상 움직인 마감은 날짜와 함께 언급된다. verify_by: 다음 시장 해설 생성 뒤 public-data/data.json marketAnalysis 확인
+- [x] QA-VERIFY-48: P1887 push 뒤 다음 시나리오 갱신에서 WTI가 1년 평균보다 10% 이상 높으면 public-data/scenario-state.json의 '유가 안정'이 충족으로 찍히지 않고, 시장 '달러·원자재' 해석에 5일 반등·반락이 보류 문장과 함께 나온다. verify_by: 다음 Actions 갱신 뒤 scenario-state.json과 라이브 시장 화면 확인
+- [x] QA-VERIFY-49: P1888 push 뒤 라이브 테마 시나리오에서 거래대금 상위 종목이 코스피보다 더 빠진 한국 테마는 '판정 보류 — 거래대금 상위 종목이…'로 보이고, 5거래일 급락 추세 속 조정 테마의 고르는 쪽 첫 칸이 관망이다. verify_by: 라이브 테마·섹터 화면 확인
+- [x] QA-VERIFY-50: P1889 push 뒤 다음 08:00 묶음에서 public-data/data.json news의 한국 항목 중 환율 헤드라인이 예약 3칸 안에 1건 이하이고, 'Stock Quote' 형식 제목이 없다. verify_by: 다음 08:00 KST 뉴스 묶음 뒤 data.json 확인
+
 ## v57.86 SEC IFRS·비USD 정규화 (2026-10-16)
 
 - [ ] QA-VERIFY-38: P1875: push 뒤 refresh-screener 실행에서 sec-fundamentals failures의 ifrs-taxonomy-not-supported 47행이 재검사되어 TSM·ASML·SAP·NVO·HSBC·SHEL 등이 data로 옮겨지고, 해당 레코드가 accountingStandard·reportingCurrency를 갖고 비USD는 revenue null·reportedAmounts 존재·pe/pb 없음, sec-fiscal-history.json에 비USD 종목이 없는지 확인한다. 미국 핵심 순위 수가 800 근처인지 본다. verify_by: push 뒤 refresh-screener 3~4회 실행 후 data-store 원장·sec-fiscal-history·screener.json 검사

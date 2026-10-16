@@ -101,3 +101,27 @@ export function describeRankingHold(hold, { factorSessionDate = null, market = '
   if (/coverage/.test(hold.reason)) return `순위 보류 — 팩터 커버리지가 최소 기준(80%)에 못 미칩니다(결측 팩터는 중립값으로 대체하지 않습니다). 이전 계산은 폐기됐습니다.`;
   return `순위 보류 — 요청한 조건에서 팩터 계산 기준을 충족하지 못해 순위를 매기지 않았습니다(결측 팩터는 중립값으로 대체하지 않습니다). 이전 계산은 폐기됐습니다.`;
 }
+
+// v57.87 (owner X-bookmark read 2026-10-16): the follow-through evidence of one row in short words, plus a longer title.
+// Order: base number → pocket pivot → down-day resilience → heavy down days → climax signs. Missing pieces are left out;
+// a row with none of them reads '—'. Words only — no entry, exit or target.
+export const CLIMAX_SIGN_LABELS = Object.freeze({ 'run-up-days': '10일 중 8일 이상 상승', 'largest-gain': '연중 최대 상승폭', 'largest-volume': '연중 최대 거래량 상승일', 'stretch-200': '200일선 +70% 이상' });
+export function followThroughSummary(row = {}) {
+  const num = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
+  const parts = [];
+  const details = [];
+  const base = num(row.baseCount);
+  if (base != null) {
+    parts.push(base === 0 ? '베이스 전' : `베이스 ${base}번째${row.baseForming ? '(형성 중)' : ''}`);
+    details.push(base === 0 ? '추세가 다시 시작된 뒤 아직 8% 이상 조정을 거친 베이스가 없음' : `추세가 다시 시작된 뒤 ${base}번째 베이스${row.baseForming ? ` — 지금 고점 대비 −${num(row.baseDepthPct) ?? '?'}% 조정 중` : ''} · 3번째 이후는 실패가 잦다는 것이 오닐 계열의 관찰`);
+  }
+  const pocket = num(row.pocketPivotAgo);
+  if (pocket != null) { parts.push(pocket === 0 ? '포켓 피벗 오늘' : `포켓 피벗 ${pocket}일 전`); details.push('상승일 거래량이 직전 10일의 가장 큰 하락일 거래량보다 많았던 날'); }
+  const hold = num(row.downDayHoldPct);
+  if (hold != null) { parts.push(`하락일 버팀 ${hold}%`); details.push(`최근 60거래일 지수 하락일 ${num(row.downDayCount) ?? '?'}일 중 지수보다 덜 빠진 비율 ${hold}% · 평균 초과 ${num(row.downDayExcessPp) ?? '?'}%p`); }
+  const heavy = num(row.heavyDownDays25);
+  if (heavy != null && heavy >= 5) { parts.push(`거래량 실린 하락 ${heavy}일`); details.push(`최근 25거래일 중 전일보다 거래량이 많은 0.2% 이상 하락 ${heavy}일`); }
+  const signs = Array.isArray(row.climaxSigns) ? row.climaxSigns.filter((sign) => CLIMAX_SIGN_LABELS[sign]) : [];
+  if (signs.length) { parts.push(`클라이맥스 징후 ${signs.length}`); details.push(`긴 상승 뒤 징후: ${signs.map((sign) => CLIMAX_SIGN_LABELS[sign]).join(' · ')}`); }
+  return { text: parts.length ? parts.join(' · ') : '—', title: details.join('\n'), climax: signs.length };
+}
