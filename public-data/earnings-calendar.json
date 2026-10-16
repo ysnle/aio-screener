@@ -7,7 +7,7 @@
  "allowedUse": "reference-only",
  "weekStart": "2026-10-12",
  "weekEnd": "2026-10-19",
- "generatedAt": "2026-10-15T21:50:53.908Z",
+ "generatedAt": "2026-10-15T23:55:54.307Z",
  "largeCapCoverage": {
   "basis": "S&P 500 top 30 by index weight + universe ADR listings",
   "watchCount": 36,
@@ -53,7 +53,7 @@
   {
    "symbol": "AERO",
    "date": "2026-10-19",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": 0.4362,
    "revenueEstimate": 1661605704,
    "epsActual": null,
@@ -1109,8 +1109,8 @@
    "hour": "amc",
    "epsEstimate": -0.0561,
    "revenueEstimate": 318750,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": -0.06,
+   "revenueActual": 120000
   },
   {
    "symbol": "LQMT",
@@ -1910,10 +1910,22 @@
    "exchange": "NASDAQ Global Select"
   },
   {
-   "symbol": "SCQCU",
+   "symbol": "AMRO",
    "date": "2026-10-15",
-   "name": "SPACCircle Acquisition Corp.",
-   "exchange": "NASDAQ Global"
+   "name": "Amaero Inc.",
+   "exchange": "NASDAQ Capital"
+  },
+  {
+   "symbol": null,
+   "date": "2026-10-14",
+   "name": "BIOVENTRIX, INC.",
+   "exchange": null
+  },
+  {
+   "symbol": "FLSC",
+   "date": "2026-10-14",
+   "name": "Frazier Life Sciences Acquisition Corp. II",
+   "exchange": "NASDAQ Capital"
   },
   {
    "symbol": null,

@@ -23,7 +23,7 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-10-15T23:22:24.071Z",
+  "generatedAt": "2026-10-16T00:00:12.942Z",
   "appRevision": "v57.82",
   "dataRevision": "market-snapshot:2026-10-15T23:21:33.183Z:ababf2ab",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -199,9 +199,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-10-15T23:21:33.183Z",
-        "ageHours": 0.01,
+        "ageHours": 0.64,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-10-15T23:22:24.071Z",
+        "evaluatedAt": "2026-10-16T00:00:12.942Z",
         "reason": null
       },
       "readiness": {
@@ -224,11 +224,11 @@
         "revision": "fast-quotes:418446ce",
         "sourceSha": "4aa691309f57cf1488ebe3044deacf5435d88bd3",
         "observedAt": "2026-10-15T23:22:24.071Z",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-10-15T23:22:24.071Z"
+        "evidenceEvaluatedAt": "2026-10-16T00:00:12.942Z"
       },
       "soak": {
         "requiredDays": 7,
@@ -292,11 +292,11 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-10-15T23:22:24.071Z"
+        "evidenceEvaluatedAt": "2026-10-16T00:00:12.942Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
