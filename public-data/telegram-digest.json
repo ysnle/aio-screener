@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-16T01:52:11.618Z",
-  "attemptedAt": "2026-10-16T01:52:11.618Z",
-  "lastSuccessfulAt": "2026-10-16T01:52:11.618Z",
+  "generatedAt": "2026-10-16T02:52:01.026Z",
+  "attemptedAt": "2026-10-16T02:52:01.026Z",
+  "lastSuccessfulAt": "2026-10-16T02:52:01.026Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-02T01:52:04.435Z",
-  "until": "2026-10-16T01:52:04.435Z",
+  "since": "2026-10-02T02:51:55.475Z",
+  "until": "2026-10-16T02:51:55.475Z",
   "current24hWindow": {
     "start": "2026-10-14T23:00:00.000Z",
     "end": "2026-10-15T23:00:00.000Z",
@@ -81,32 +81,32 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 267,
-      "freshCount": 37,
-      "eligibleTextCount": 222,
-      "selectedCount": 89,
+      "count": 269,
+      "freshCount": 35,
+      "eligibleTextCount": 224,
+      "selectedCount": 90,
       "error": null,
-      "lastPostId": 25890
+      "lastPostId": 25892
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1142,
+      "count": 1143,
       "freshCount": 38,
-      "eligibleTextCount": 758,
+      "eligibleTextCount": 761,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 66429
+      "lastPostId": 66432
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 224,
-      "freshCount": 40,
+      "count": 223,
+      "freshCount": 20,
       "eligibleTextCount": 178,
       "selectedCount": 80,
       "error": null,
@@ -117,53 +117,55 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 689,
+      "count": 693,
       "freshCount": 40,
-      "eligibleTextCount": 497,
+      "eligibleTextCount": 502,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 70510
+      "lastPostId": 70515
     }
   ],
-  "count": 2322,
-  "retainedItemCount": 496,
+  "count": 2328,
+  "retainedItemCount": 495,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2322,
-    "eligibleTextCount": 1655,
-    "mediaOnlyCount": 667,
-    "highSignalCount": 505,
-    "broadSignalCount": 1038,
-    "selectedRawCount": 411,
-    "selectedEligibleCount": 407,
-    "selectedRawCoveragePct": 24.6,
+    "observedCount": 2328,
+    "eligibleTextCount": 1665,
+    "mediaOnlyCount": 663,
+    "highSignalCount": 506,
+    "broadSignalCount": 1040,
+    "selectedRawCount": 412,
+    "selectedEligibleCount": 408,
+    "selectedRawCoveragePct": 24.5,
     "selectedOfObservedPct": 17.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "semi": 597,
-    "market-note": 751,
+    "credit": 93,
+    "macro": 769,
+    "semi": 600,
+    "kr-market": 206,
+    "flows": 162,
+    "insider": 40,
+    "market-note": 756,
     "healthcare": 111,
     "geo": 351,
-    "macro": 765,
-    "power": 337,
-    "earnings": 439,
-    "flows": 161,
+    "power": 336,
+    "earnings": 437,
     "optical": 52,
     "ai-policy": 190,
-    "equity": 172,
-    "kr-market": 205,
-    "credit": 92,
+    "equity": 169,
     "japan": 139,
     "crypto": 7,
-    "media-only": 50,
-    "insider": 39
+    "media-only": 50
   },
   "tickerCounts": {
-    "TSM": 130,
+    "005930.KS": 66,
+    "000660.KS": 51,
+    "TSM": 132,
     "TSLA": 10,
     "MSFT": 32,
     "CRWV": 13,
@@ -171,21 +173,19 @@
     "AAPL": 11,
     "GOOG": 54,
     "MU": 25,
-    "000660.KS": 50,
     "MS": 4,
     "2454.TW": 1,
-    "AMZN": 29,
+    "AMZN": 28,
     "AVGO": 22,
     "LITE": 12,
     "AMD": 60,
     "SNDK": 4,
     "STX": 8,
     "RKLB": 3,
-    "BE": 20,
+    "BE": 19,
     "SMTC": 1,
     "BX": 1,
     "META": 19,
-    "005930.KS": 65,
     "IT": 1,
     "AMAT": 2,
     "INTC": 4,
@@ -235,8 +235,8 @@
     "APO": 1,
     "229640.KQ": 1,
     "MTK": 1,
-    "298040.KS": 3,
-    "267260.KS": 3,
+    "298040.KS": 2,
+    "267260.KS": 2,
     "103590.KS": 1,
     "000500.KS": 1,
     "VST": 1,
@@ -252,7 +252,7 @@
     "003670.KQ": 1,
     "015760.KS": 1,
     "CAT": 1,
-    "010120.KS": 2,
+    "010120.KS": 1,
     "CRM": 1,
     "APP": 1,
     "PSX": 1,
@@ -262,23 +262,22 @@
     "NOW": 1,
     "SPOT": 1,
     "AEE": 2,
-    "NKE": 1,
-    "025560.KS": 1
+    "NKE": 1
   },
   "themes": [
-    "Macro/Rates (765 posts in 14-day research window): 2026년 10월 16일 미국 증시 브리핑 미국 증시는 인플레이션 재가속과 중동 지정학적 긴장에도 상승 마감. 다우지수는 1.08%, S&P500은 0.33%, 나스닥은 0.08%, 러셀2000은 1.38%...",
-    "Market Notes (751 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 15일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 미국 내 디젤 가격 부담을 완화하기 위해 연방 디젤세의 한시적 중단을 지지할 수 있다고...",
-    "Semiconductors/Memory (597 posts in 14-day research window): >>AI 최대 병목은 전력도 반도체도 아닌 자금 (중국언론 인용) •자금 조달 비용 상승, AI 투자 확대의 최대 제약 요인 : AI 산업의 최대 병목이 전력과 반도체 공급에서 자금 조달 능력과 금융비용으로...",
-    "Earnings/Corporate (439 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단...",
+    "Macro/Rates (769 posts in 14-day research window): 2026년 10월 16일 미국 증시 브리핑 미국 증시는 인플레이션 재가속과 중동 지정학적 긴장에도 상승 마감. 다우지수는 1.08%, S&P500은 0.33%, 나스닥은 0.08%, 러셀2000은 1.38%...",
+    "Market Notes (756 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 15일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 미국 내 디젤 가격 부담을 완화하기 위해 연방 디젤세의 한시적 중단을 지지할 수 있다고...",
+    "Semiconductors/Memory (600 posts in 14-day research window): >>AI 최대 병목은 전력도 반도체도 아닌 자금 (중국언론 인용) •자금 조달 비용 상승, AI 투자 확대의 최대 제약 요인 : AI 산업의 최대 병목이 전력과 반도체 공급에서 자금 조달 능력과 금융비용으로...",
+    "Earnings/Corporate (437 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단...",
     "Geopolitics (351 posts in 14-day research window): 트럼프 SNS 발언 모음 미국 해군의 창설 기념일을 축하한다! 미국 해군은 지난 251년 동안 과거부터 현재까지 수많은 승리를 거둬왔다. 호르무즈 해협에서 구축한 뚫을 수 없는 강철...",
-    "AI Power/Grid (337 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터...",
-    "Korea Market (205 posts in 14-day research window): [NH/백준기] 스몰캡 - 엠케이전자 [NH/스몰캡(목진원)] [엠케이전자] ★큰 그림은 변한 것이 없다 3Q26 Preview: 환율이 깎은 국내 마진, 중국 법인은 순항 중 3분기 연결 실적은 매출액...",
+    "AI Power/Grid (336 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터...",
+    "Korea Market (206 posts in 14-day research window): [NH/백준기] 스몰캡 - 엠케이전자 [NH/스몰캡(목진원)] [엠케이전자] ★큰 그림은 변한 것이 없다 3Q26 Preview: 환율이 깎은 국내 마진, 중국 법인은 순항 중 3분기 연결 실적은 매출액...",
     "AI Policy/Export Controls (190 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
   ],
   "catalysts": [
     {
       "key": "TSM",
-      "count": 130,
+      "count": 132,
       "text": "2026년 10월 16일 미국 증시 브리핑 미국 증시는 인플레이션 재가속과 중동 지정학적 긴장에도 상승 마감. 다우지수는 1.08%, S&P500은 0.33%, 나스닥은 0.08%, 러셀2000은 1.38%..."
     },
     {
@@ -288,7 +287,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 65,
+      "count": 66,
       "text": "2026년 10월 15일 미국 증시 프리마켓 브리핑 미국 증시 선물은 글로벌 반도체 매도세와 인플레이션 우려 속 기술주 중심 약세. 한국시간 오후 1시 54분 기준 나스닥100 -0.68%, S&P500..."
     },
     {
@@ -303,7 +302,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 50,
+      "count": 51,
       "text": "2026년 10월 15일 미국 증시 프리마켓 브리핑 미국 증시 선물은 글로벌 반도체 매도세와 인플레이션 우려 속 기술주 중심 약세. 한국시간 오후 1시 54분 기준 나스닥100 -0.68%, S&P500..."
     },
     {
@@ -313,7 +312,7 @@
     },
     {
       "key": "AMZN",
-      "count": 29,
+      "count": 28,
       "text": "JP모건 APAC테크 코멘트 테크 탑다운 어제는 7월과 같은 항복(capitulation)의 느낌이 있었습니다…. AI 공급망은 매도(한국 반도체 -4%)되었고 AI 패자는 매수(인도 IT 서비스..."
     },
     {
@@ -328,8 +327,8 @@
     },
     {
       "key": "BE",
-      "count": 20,
-      "text": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도 지금으로서는). 우리가 같은 이야기를 반복하는 것일 수도 있지만, 시장의 기대치가 그만큼 빠르게 변화하고 있는 것일..."
+      "count": 19,
+      "text": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도..."
     },
     {
       "key": "META",
@@ -344,7 +343,7 @@
       "topics": [
         "macro"
       ],
-      "count": 765,
+      "count": 769,
       "focus": "2026년 10월 16일 미국 증시 브리핑 미국 증시는 인플레이션 재가속과 중동 지정학적 긴장에도 상승 마감. 다우지수는 1.08%, S&P500은 0.33%, 나스닥은 0.08%, 러셀2000은 1.38%..."
     },
     {
@@ -362,8 +361,8 @@
       "topics": [
         "credit"
       ],
-      "count": 92,
-      "focus": "BofA, 코어위브(CoreWeave, $CRWV ) 매수 의견, 목표주가 140달러 유지 1. 전력 용량 확대와 가격 상승에 따른 매출 전망 상향 BofA는 코어위브의 매출 성장률 전망치를 상향 조정했습니다. - 2027년 매출 성장률: 기존 102% → 105% - 2028년 매출 성장률: 기존 58% →..."
+      "count": 93,
+      "focus": "JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22% 하락했습니다. 이제 앞을 내다보겠습니다. 개인적인 견해로는 고통이 정점에 가까워졌으며 반등이 나올 때가 되었다고..."
     },
     {
       "id": "semi",
@@ -371,7 +370,7 @@
       "topics": [
         "semi"
       ],
-      "count": 597,
+      "count": 600,
       "focus": ">>AI 최대 병목은 전력도 반도체도 아닌 자금 (중국언론 인용) •자금 조달 비용 상승, AI 투자 확대의 최대 제약 요인 : AI 산업의 최대 병목이 전력과 반도체 공급에서 자금 조달 능력과 금융비용으로..."
     },
     {
@@ -389,7 +388,7 @@
       "topics": [
         "power"
       ],
-      "count": 337,
+      "count": 336,
       "focus": "JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터..."
     },
     {
@@ -407,7 +406,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 205,
+      "count": 206,
       "focus": "[NH/백준기] 스몰캡 - 엠케이전자 [NH/스몰캡(목진원)] [엠케이전자] ★큰 그림은 변한 것이 없다 3Q26 Preview: 환율이 깎은 국내 마진, 중국 법인은 순항 중 3분기 연결 실적은 매출액..."
     },
     {
@@ -416,7 +415,7 @@
       "topics": [
         "equity"
       ],
-      "count": 172,
+      "count": 169,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 마크 저커버그 CEO가 장기적인 AI 시장 주도권 확보를 위해 최대..."
     },
     {
@@ -434,7 +433,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 439,
+      "count": 437,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단..."
     },
     {
@@ -461,7 +460,7 @@
       "topics": [
         "flows"
       ],
-      "count": 161,
+      "count": 162,
       "focus": "[메리츠증권 전기전자/IT부품 양승수] - TrendForce, AI 서버 핵심 부품 공급망 점검 자료 업데이트. 금주 주요 AI 하드웨어 7개 품목의 수급 상태 및 리드타임은 전주와 동일한 수준 유지 -..."
     },
     {
@@ -470,7 +469,7 @@
       "topics": [
         "insider"
       ],
-      "count": 39,
+      "count": 40,
       "focus": "Citi) 아시아 통신: LEO 위성 리스크 우려에 대한 반론 (탑픽: 싱텔, KT, 바르티 에어텔) Citi는 스타링크의 공격적인 미국 주파수 인수와 D2D(Direct-to-Device) 서비스 출시가 아시아에서도 재현될 것이라는 최근 투자자들의 우려가 과도하며, 이로 인한 아시아 통신사의 디레이팅은 정당하지..."
     },
     {
@@ -479,7 +478,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 751,
+      "count": 756,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 15일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 미국 내 디젤 가격 부담을 완화하기 위해 연방 디젤세의 한시적 중단을 지지할 수 있다고..."
     }
   ],
@@ -723,6 +722,24 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "aetherjapanresearch/25892",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25892",
+      "datetime": "2026-10-16T02:48:16.000Z",
+      "localDateKst": "2026-10-16",
+      "tags": [
+        "credit",
+        "macro",
+        "semi",
+        "kr-market",
+        "flows"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [],
+      "summary": "JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%..."
+    },
     {
       "id": "insidertracking/66385",
       "channel": "insidertracking",
@@ -1656,28 +1673,82 @@
       "hasText": true,
       "tickers": [],
       "summary": "번스타인) 코어위브(CRWV): 부채 극대화... 말 그대로 어떤 대가를 치르더라도 성장? TP $74.(2026.10.14) 코어위브는 수요일 약 15% 하락했는데, 이는 투자자들이 회사 설비 용량에 대한..."
+    }
+  ],
+  "broadItems": [
+    {
+      "id": "aetherjapanresearch/25892",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25892",
+      "datetime": "2026-10-16T02:48:16.000Z",
+      "localDateKst": "2026-10-16",
+      "tags": [
+        "credit",
+        "macro",
+        "semi",
+        "kr-market",
+        "flows"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [],
+      "summary": "JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%..."
     },
     {
-      "id": "bornlupin/20592",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20592",
-      "datetime": "2026-10-13T06:35:25.000Z",
-      "localDateKst": "2026-10-13",
+      "id": "HANAchina/70515",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70515",
+      "datetime": "2026-10-16T02:43:07.000Z",
+      "localDateKst": "2026-10-16",
+      "tags": [
+        "macro",
+        "semi",
+        "kr-market",
+        "insider",
+        "flows"
+      ],
+      "score": 80,
+      "hasText": true,
+      "tickers": [
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": ">>한국 증시, ‘황금 매수 기회’인가? 골드만삭스: 밸류에이션 역사적 저점 수준, 코스피 12개월 목표치 12,000포인트 강세 전망 유지 (중국언론) •한국 코스피는 7거래일 연속 하락하며 최대 낙폭이 약..."
+    },
+    {
+      "id": "aetherjapanresearch/25891",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25891",
+      "datetime": "2026-10-16T02:38:50.000Z",
+      "localDateKst": "2026-10-16",
       "tags": [
         "macro",
         "semi"
       ],
-      "score": 99,
+      "score": 63,
       "hasText": true,
-      "summary": "AMD CEO 리사 수 기조연설 - OCP 글로벌 서밋 2026 1. 2030년 CPU TAM(시장 규모) 전망치 2,000억 달러 이상으로 상향 급증하는 CPU 수요: 에이전틱 AI(Agentic AI)...",
       "tickers": [
-        "AMD",
-        "MSFT",
-        "ORCL"
-      ]
-    }
-  ],
-  "broadItems": [
+        "TSM"
+      ],
+      "summary": "블룸버그에 따르면 대만이 엔비디아를 비롯한 AI 하드웨어 제조업체들의 미국 현지 공급망 구축을 지원하기 위해 미국 내 산업단지에 수십억 달러를 투자할 계획. 첫 번째 프로젝트는 최대 40억 달러가 투입되는..."
+    },
+    {
+      "id": "insidertracking/66432",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66432",
+      "datetime": "2026-10-16T02:28:13.000Z",
+      "localDateKst": "2026-10-16",
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "score": 63,
+      "hasText": true,
+      "tickers": [
+        "TSM"
+      ],
+      "summary": "블룸버그에 따르면 대만이 엔비디아를 비롯한 AI 하드웨어 제조업체들의 미국 현지 공급망 구축을 지원하기 위해 미국 내 산업단지에 수십억 달러를 투자할 계획. 첫 번째 프로젝트는 최대 40억 달러가 투입되는..."
+    },
     {
       "id": "HANAchina/70510",
       "channel": "HANAchina",
@@ -1692,7 +1763,7 @@
       "tickers": [
         "TSM"
       ],
-      "summary": ">>TSMC CEO: AI 수요는 전혀 둔화되지 않았으며, AI가 저렴해질수록 칩 수요는 더욱 증가함 •TSMC CEO 웨이저자는 현재 AI 수요가 둔화되기는커녕 매우 강력하다고 평가함. 또한 오픈소스 모델..."
+      "summary": ">>(음성) TSMC CEO: AI 수요는 전혀 둔화되지 않았으며, AI가 저렴해질수록 칩 수요는 더욱 증가함 •TSMC CEO 웨이저자는 현재 AI 수요가 둔화되기는커녕 매우 강력하다고 평가함. 또한..."
     },
     {
       "id": "aetherjapanresearch/25890",
@@ -2131,13 +2202,11 @@
       "localDateKst": "2026-10-16",
       "tags": [
         "semi",
-        "power",
-        "kr-market",
-        "equity",
         "flows"
       ],
       "score": 93,
       "hasText": true,
+      "summary": "2026년 10월 15일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (53.71%) 2위: DIREXION SHARES...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -2160,8 +2229,7 @@
         "TEAM",
         "QQQ",
         "IVZ"
-      ],
-      "summary": "2026년 10월 15일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (53.71%) 2위: DIREXION SHARES..."
+      ]
     },
     {
       "id": "insidertracking/66389",
@@ -2614,15 +2682,14 @@
       "localDateKst": "2026-10-15",
       "tags": [
         "macro",
-        "power",
-        "earnings"
+        "power"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도...",
       "tickers": [
         "BE"
-      ],
-      "summary": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25870",
@@ -2862,10 +2929,10 @@
       ],
       "score": 61,
       "hasText": true,
+      "summary": "TSMC 어닝콜 중 Q) 모두발언에서 AI 가속기 칩셋 수요가 CPU와 네트워킹 스위치를 포함한 에이전틱(Agentic) AI 수요로 확산되고 있다고 언급하셨습니다. 수익화(monetization)가...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 어닝콜 중 Q) 모두발언에서 AI 가속기 칩셋 수요가 CPU와 네트워킹 스위치를 포함한 에이전틱(Agentic) AI 수요로 확산되고 있다고 언급하셨습니다. 수익화(monetization)가..."
+      ]
     },
     {
       "id": "bornlupin/20640",
@@ -2878,10 +2945,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "TSMC 테라팹 관련 우리는 캐파 확장을 위해 매우 열심히 노력하고 있습니다. 대형 고객사 대부분이 미국에 있고 이들이 TSMC에 캐파 증설을 요청하고 있으며, 미국 정부도 매우 협조적이기 때문에 미국 내...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 테라팹 관련 우리는 캐파 확장을 위해 매우 열심히 노력하고 있습니다. 대형 고객사 대부분이 미국에 있고 이들이 TSMC에 캐파 증설을 요청하고 있으며, 미국 정부도 매우 협조적이기 때문에 미국 내..."
+      ]
     },
     {
       "id": "HANAchina/70479",
@@ -2938,10 +3005,10 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": "TSMC - 2027년 공급 상황: 2027년에는 2026년보다 공급이 더욱 빠듯해질 전망 . - 고객 수요: 고객들의 수요는 계속해서 증가하고 있음. - 생산능력(Capacity) 증가율: 역사적으로 연간...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC - 2027년 공급 상황: 2027년에는 2026년보다 공급이 더욱 빠듯해질 전망 . - 고객 수요: 고객들의 수요는 계속해서 증가하고 있음. - 생산능력(Capacity) 증가율: 역사적으로 연간..."
+      ]
     },
     {
       "id": "bornlupin/20638",
@@ -2950,15 +3017,14 @@
       "datetime": "2026-10-15T06:33:00.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 59,
       "hasText": true,
+      "summary": "TSMC - 수요와 공급: 수요가 공급을 계속해서 초과하고 있음. - High-NA EUV: 2030년부터 High-NA EUV 기술을 활용할 예정. - 설비투자(CapEx): 향후 설비투자 규모는 현재보다...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC - 수요와 공급: 수요가 공급을 계속해서 초과하고 있음. - High-NA EUV: 2030년부터 High-NA EUV 기술을 활용할 예정. - 설비투자(CapEx): 향후 설비투자 규모는 현재보다..."
+      ]
     },
     {
       "id": "bornlupin/20637",
@@ -2972,10 +3038,10 @@
       ],
       "score": 59,
       "hasText": true,
+      "summary": "TSMC, 대만 타이난에 N3(3나노) 공장 추가 건설 계획… 2028년 A14(1.4나노) 양산 목표 - 미국의 전력 공급 및 데이터센터 개발 현황을 점검하기 위해 현지에 조사팀 파견. TSMC, 이례적으로...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC, 대만 타이난에 N3(3나노) 공장 추가 건설 계획… 2028년 A14(1.4나노) 양산 목표 - 미국의 전력 공급 및 데이터센터 개발 현황을 점검하기 위해 현지에 조사팀 파견. TSMC, 이례적으로..."
+      ]
     },
     {
       "id": "HANAchina/70477",
@@ -3004,10 +3070,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "TSMC -AI가 장기적인 '메가트렌드'라는 강한 확신을 유지. 4분기 수요: 강한 수요가 지속될 것으로 예상. 최첨단 공정 기술 수요: '매우 견조한(Very robust)' 수준 을 유지. 반도체 장비...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC -AI가 장기적인 '메가트렌드'라는 강한 확신을 유지. 4분기 수요: 강한 수요가 지속될 것으로 예상. 최첨단 공정 기술 수요: '매우 견조한(Very robust)' 수준 을 유지. 반도체 장비..."
+      ]
     },
     {
       "id": "bornlupin/20635",
@@ -3021,10 +3087,10 @@
       ],
       "score": 71,
       "hasText": true,
+      "summary": "TSMC 설비투자(CapEx) 전망: 600억~640억 달러 유지 2026~2028년 설비투자: 향후 3년간(2026~2028년) 설비투자 규모가 직전 3년간(2023~2025년) 대비 상당히 높을 것이라는...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 설비투자(CapEx) 전망: 600억~640억 달러 유지 2026~2028년 설비투자: 향후 3년간(2026~2028년) 설비투자 규모가 직전 3년간(2023~2025년) 대비 상당히 높을 것이라는..."
+      ]
     },
     {
       "id": "bornlupin/20634",
@@ -3039,10 +3105,10 @@
       ],
       "score": 68,
       "hasText": true,
+      "summary": "TSMC 2026년 4분기 실적 가이던스 - 매출 전망: 523억~543억 달러 (시장 예상치 503억 5,000만 달러) - 매출총이익률(GPM) 전망: 65~67% (3분기 66.4%) -...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 2026년 4분기 실적 가이던스 - 매출 전망: 523억~543억 달러 (시장 예상치 503억 5,000만 달러) - 매출총이익률(GPM) 전망: 65~67% (3분기 66.4%) -..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25855",
@@ -3074,10 +3140,10 @@
       ],
       "score": 61,
       "hasText": true,
+      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] TSMC FY3Q26 실적발표 FY3Q26 실적 (Non-GAAP) 매출액 $46.7B (+16% QoQ, +41% YoY): 컨센서스 +2% GPM...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] TSMC FY3Q26 실적발표 FY3Q26 실적 (Non-GAAP) 매출액 $46.7B (+16% QoQ, +41% YoY): 컨센서스 +2% GPM..."
+      ]
     },
     {
       "id": "HANAchina/70475",
@@ -3088,15 +3154,14 @@
       "tags": [
         "macro",
         "semi",
-        "kr-market",
         "earnings"
       ],
       "score": 76,
       "hasText": true,
+      "summary": "> TSMC 4분기 가이던스 • 매출액: 523억~543억 달러 (시장 예상치: 503억 5,000만 달러) • 매출총이익률: 65% ~ 67% (시장 예상치 66.1%) • 영업이익률: 56.5% ~...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "> TSMC 4분기 가이던스 • 매출액: 523억~543억 달러 (시장 예상치: 503억 5,000만 달러) • 매출총이익률: 65% ~ 67% (시장 예상치 66.1%) • 영업이익률: 56.5% ~..."
+      ]
     },
     {
       "id": "bornlupin/20633",
@@ -3107,16 +3172,14 @@
       "tags": [
         "macro",
         "semi",
-        "power",
-        "kr-market",
         "earnings"
       ],
       "score": 97,
       "hasText": true,
+      "summary": "TSMC 2026년 3분기 실적 IR 1. 매출 : 467.2억 달러 (NT$1조 4,942억). 가이던스(446~458억 달러) 상단을 상회 . 전분기 대비 +16.2%, 전년 동기 대비 +41.2%...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 2026년 3분기 실적 IR 1. 매출 : 467.2억 달러 (NT$1조 4,942억). 가이던스(446~458억 달러) 상단을 상회 . 전분기 대비 +16.2%, 전년 동기 대비 +41.2%..."
+      ]
     },
     {
       "id": "HANAchina/70473",
@@ -3130,10 +3193,10 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": "•TSMC adr -1.7% •순이익은 시장 예상치를 상회했지만, 매출총이익률에 시장 실망 추정 (중국언론)",
       "tickers": [
         "TSM"
-      ],
-      "summary": "•TSMC adr -1.7% •순이익은 시장 예상치를 상회했지만, 매출총이익률에 시장 실망 추정 (중국언론)"
+      ]
     },
     {
       "id": "insidertracking/66347",
@@ -3176,17 +3239,15 @@
       "datetime": "2026-10-15T05:36:54.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
         "semi",
-        "kr-market",
         "earnings"
       ],
       "score": 76,
       "hasText": true,
+      "summary": ">>TSMC 3분기 실적 •순이익: 7,631억 TWD (컨센서스 7,394억 9,000만 TWD) •매출총이익률: 66.4% (컨센서스: 66.5%) • 영업이익: 8,764억 5,000만 TWD...",
       "tickers": [
         "TSM"
-      ],
-      "summary": ">>TSMC 3분기 실적 •순이익: 7,631억 TWD (컨센서스 7,394억 9,000만 TWD) •매출총이익률: 66.4% (컨센서스: 66.5%) • 영업이익: 8,764억 5,000만 TWD..."
+      ]
     },
     {
       "id": "bornlupin/20632",
@@ -3200,10 +3261,10 @@
       ],
       "score": 63,
       "hasText": true,
+      "summary": "TSMC: 3분기 순이익 7,631억 대만달러 (예상치 7,463억 대만달러)",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC: 3분기 순이익 7,631억 대만달러 (예상치 7,463억 대만달러)"
+      ]
     },
     {
       "id": "insidertracking/66345",
@@ -3228,15 +3289,14 @@
       "datetime": "2026-10-15T05:33:18.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
         "power"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "마이크로소프트, 2032년까지 데이터센터 용량 3배 이상 확대 마이크로소프트(MS)가 클라우드 및 AI 연산력 병목 현상을 해소하기 위해 2032년까지 글로벌 데이터센터 용량을 대폭 확장하기로 하면서,...",
       "tickers": [
         "MSFT"
-      ],
-      "summary": "마이크로소프트, 2032년까지 데이터센터 용량 3배 이상 확대 마이크로소프트(MS)가 클라우드 및 AI 연산력 병목 현상을 해소하기 위해 2032년까지 글로벌 데이터센터 용량을 대폭 확장하기로 하면서,..."
+      ]
     },
     {
       "id": "HANAchina/70471",
@@ -3249,8 +3309,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•심천 ChiNext -4%, 연중 최저 •반도체 지수 과창50 -3.5%"
+      "summary": "•심천 ChiNext -4%, 연중 최저 •반도체 지수 과창50 -3.5%",
+      "tickers": []
     },
     {
       "id": "HANAchina/70469",
@@ -3403,19 +3463,18 @@
       "datetime": "2026-10-15T02:22:27.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "semi",
-        "equity"
+        "semi"
       ],
       "score": 72,
       "hasText": true,
+      "summary": "[단독] SK하이닉스, 미국 내 신규 공장 건설 조건으로 중국 다롄 공장용 반도체 장비 수출 승인 요구 1. 다롄 공장 현황 및 장비 반입 추진 미완성 공간 '모드 B(Mod B)': SK하이닉스 다롄...",
       "tickers": [
         "AMAT",
         "005930.KS",
         "000660.KS",
         "INTC",
         "LRCX"
-      ],
-      "summary": "[단독] SK하이닉스, 미국 내 신규 공장 건설 조건으로 중국 다롄 공장용 반도체 장비 수출 승인 요구 1. 다롄 공장 현황 및 장비 반입 추진 미완성 공간 '모드 B(Mod B)': SK하이닉스 다롄..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25853",
@@ -3428,10 +3487,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "*SK하이닉스, 미국 신규 공장 건설의 조건으로 중국에 반도체 제조 장비를 수출할 수 있도록 미국의 승인을 요청",
       "tickers": [
         "000660.KS"
-      ],
-      "summary": "*SK하이닉스, 미국 신규 공장 건설의 조건으로 중국에 반도체 제조 장비를 수출할 수 있도록 미국의 승인을 요청"
+      ]
     },
     {
       "id": "HANAchina/70455",
@@ -3476,8 +3535,8 @@
       ],
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "AI 연산 능력 확장, 전력 공급 병목 현상에 직면… AI 데이터센터(AIDC) 자가발전 수요 급증 글로벌 AI 경쟁이 첨단 칩 확보전에서 '전력을 얻는 자가 연산력을 얻는다'는 새로운 전쟁터로 진화하고 있다..."
+      "summary": "AI 연산 능력 확장, 전력 공급 병목 현상에 직면… AI 데이터센터(AIDC) 자가발전 수요 급증 글로벌 AI 경쟁이 첨단 칩 확보전에서 '전력을 얻는 자가 연산력을 얻는다'는 새로운 전쟁터로 진화하고 있다...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20626",
@@ -3486,13 +3545,12 @@
       "datetime": "2026-10-15T00:31:58.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "ai-policy",
-        "earnings"
+        "ai-policy"
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "현재 OpenAI와 Anthropic 사이에서 벌어지고 있는 상황은 다음과 같습니다. - OpenAI는 2025년 말 Anthropic의 성공을 빠르게 인지하고, 자원을 에이전트 기반 코딩(Agentic..."
+      "summary": "현재 OpenAI와 Anthropic 사이에서 벌어지고 있는 상황은 다음과 같습니다. - OpenAI는 2025년 말 Anthropic의 성공을 빠르게 인지하고, 자원을 에이전트 기반 코딩(Agentic...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70446",
@@ -3547,15 +3605,14 @@
       "localDateKst": "2026-10-15",
       "tags": [
         "macro",
-        "ai-policy",
         "earnings"
       ],
       "score": 71,
       "hasText": true,
+      "summary": "앤스로픽 3Q 매출 168억 달러 보도와 연 환산 매출 안녕하세요 삼성증권 글로벌 AI/SW 담당 이영진입니다 앤스로픽이 투자자 미팅 과정에서 언급한 3Q 재무 데이터가 보도를 통해 알려졌습니다. 3Q 매출은...",
       "tickers": [
         "016360.KS"
-      ],
-      "summary": "앤스로픽 3Q 매출 168억 달러 보도와 연 환산 매출 안녕하세요 삼성증권 글로벌 AI/SW 담당 이영진입니다 앤스로픽이 투자자 미팅 과정에서 언급한 3Q 재무 데이터가 보도를 통해 알려졌습니다. 3Q 매출은..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25850",
@@ -7507,20 +7564,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/66052",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66052",
-      "datetime": "2026-10-12T12:07:58.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "market-note"
-      ],
-      "score": 75,
-      "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 12일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 러시아·우크라이나 간 에너지 시설 공격 중단을 제안하고...",
-      "tickers": []
-    },
-    {
       "id": "aetherjapanresearch/25777",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25777",
@@ -7786,20 +7829,6 @@
       "tickers": [
         "AMZN"
       ]
-    },
-    {
-      "id": "HANAchina/70269",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70269",
-      "datetime": "2026-10-12T04:13:22.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>트레이더들, 한국은행 금리 인상에 베팅… 향후 6개월간 50bp 인상 확률 70% (중국언론) •스왑시장에서는 향후 6개월간 한국은행이 기준금리를 누적 50bp 인상할 확률을 약 70%로 반영. Gama...",
-      "tickers": []
     },
     {
       "id": "bornlupin/20575",
@@ -8249,42 +8278,6 @@
       "hasText": true,
       "summary": "전 인텔 CEO 팻 겔싱어 인터뷰 지금이 하드웨어 구축의 황금기인 이유 1. AI 반도체 설계와 새로운 병목 인텔 486 개발 당시 하드웨어 기술언어(HDL), 자동 배치·배선, 타이밍 관리 등 현대 EDA의...",
       "tickers": []
-    },
-    {
-      "id": "aetherjapanresearch/25741",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25741",
-      "datetime": "2026-10-10T07:24:12.000Z",
-      "localDateKst": "2026-10-10",
-      "tags": [
-        "semi",
-        "japan"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "닛케이 아시아) 일본 공작기계 수주잔고, AI 수요에 사상 최고치 기록 시바우라 기계 등, 반도체·항공우주 장비 생산 확대에 분주 일본공작기계공업회(JMTBA)가 금요일 발표한 9월 공작기계 수주액은...",
-      "tickers": []
-    },
-    {
-      "id": "aetherjapanresearch/25740",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25740",
-      "datetime": "2026-10-10T05:28:15.000Z",
-      "localDateKst": "2026-10-10",
-      "tags": [
-        "semi",
-        "power",
-        "earnings"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "BofA) AI/ 클라우드 CAPEX 투자 전망 1. AI 설비투자 CY26/27 전망, 현재 전년 대비 +98%/+37% 3분기 반도체 실적 시즌을 앞두고 데이터센터는 여전히 핵심 거점으로 남아 있으며,...",
-      "tickers": [
-        "NVDA",
-        "GOOG",
-        "MU",
-        "MRVL"
-      ]
     }
   ],
   "current24hItems": [
@@ -8850,20 +8843,6 @@
       "summary": "미국 레딧 관심도 마이크론, 네비우스 집중"
     },
     {
-      "id": "insidertracking/66392",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66392",
-      "datetime": "2026-10-15T20:45:31.000Z",
-      "localDateKst": "2026-10-16",
-      "tags": [
-        "earnings"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": "금일 실적 발표 리스트 특이사항 없음"
-    },
-    {
       "id": "insidertracking/66391",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/66391",
@@ -8871,13 +8850,11 @@
       "localDateKst": "2026-10-16",
       "tags": [
         "semi",
-        "power",
-        "kr-market",
-        "equity",
         "flows"
       ],
       "score": 93,
       "hasText": true,
+      "summary": "2026년 10월 15일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (53.71%) 2위: DIREXION SHARES...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -8900,22 +8877,7 @@
         "TEAM",
         "QQQ",
         "IVZ"
-      ],
-      "summary": "2026년 10월 15일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (53.71%) 2위: DIREXION SHARES..."
-    },
-    {
-      "id": "insidertracking/66390",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66390",
-      "datetime": "2026-10-15T20:43:06.000Z",
-      "localDateKst": "2026-10-16",
-      "tags": [
-        "market-note"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": "딸원 1,341원"
+      ]
     },
     {
       "id": "insidertracking/66389",
@@ -9542,15 +9504,14 @@
       "localDateKst": "2026-10-15",
       "tags": [
         "macro",
-        "power",
-        "earnings"
+        "power"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도...",
       "tickers": [
         "BE"
-      ],
-      "summary": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25871",
@@ -9932,10 +9893,10 @@
       ],
       "score": 61,
       "hasText": true,
+      "summary": "TSMC 어닝콜 중 Q) 모두발언에서 AI 가속기 칩셋 수요가 CPU와 네트워킹 스위치를 포함한 에이전틱(Agentic) AI 수요로 확산되고 있다고 언급하셨습니다. 수익화(monetization)가...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 어닝콜 중 Q) 모두발언에서 AI 가속기 칩셋 수요가 CPU와 네트워킹 스위치를 포함한 에이전틱(Agentic) AI 수요로 확산되고 있다고 언급하셨습니다. 수익화(monetization)가..."
+      ]
     },
     {
       "id": "bornlupin/20640",
@@ -9948,10 +9909,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "TSMC 테라팹 관련 우리는 캐파 확장을 위해 매우 열심히 노력하고 있습니다. 대형 고객사 대부분이 미국에 있고 이들이 TSMC에 캐파 증설을 요청하고 있으며, 미국 정부도 매우 협조적이기 때문에 미국 내...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 테라팹 관련 우리는 캐파 확장을 위해 매우 열심히 노력하고 있습니다. 대형 고객사 대부분이 미국에 있고 이들이 TSMC에 캐파 증설을 요청하고 있으며, 미국 정부도 매우 협조적이기 때문에 미국 내..."
+      ]
     },
     {
       "id": "HANAchina/70479",
@@ -10022,10 +9983,10 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": "TSMC - 2027년 공급 상황: 2027년에는 2026년보다 공급이 더욱 빠듯해질 전망 . - 고객 수요: 고객들의 수요는 계속해서 증가하고 있음. - 생산능력(Capacity) 증가율: 역사적으로 연간...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC - 2027년 공급 상황: 2027년에는 2026년보다 공급이 더욱 빠듯해질 전망 . - 고객 수요: 고객들의 수요는 계속해서 증가하고 있음. - 생산능력(Capacity) 증가율: 역사적으로 연간..."
+      ]
     },
     {
       "id": "bornlupin/20638",
@@ -10034,15 +9995,14 @@
       "datetime": "2026-10-15T06:33:00.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 59,
       "hasText": true,
+      "summary": "TSMC - 수요와 공급: 수요가 공급을 계속해서 초과하고 있음. - High-NA EUV: 2030년부터 High-NA EUV 기술을 활용할 예정. - 설비투자(CapEx): 향후 설비투자 규모는 현재보다...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC - 수요와 공급: 수요가 공급을 계속해서 초과하고 있음. - High-NA EUV: 2030년부터 High-NA EUV 기술을 활용할 예정. - 설비투자(CapEx): 향후 설비투자 규모는 현재보다..."
+      ]
     },
     {
       "id": "bornlupin/20637",
@@ -10056,10 +10016,10 @@
       ],
       "score": 59,
       "hasText": true,
+      "summary": "TSMC, 대만 타이난에 N3(3나노) 공장 추가 건설 계획… 2028년 A14(1.4나노) 양산 목표 - 미국의 전력 공급 및 데이터센터 개발 현황을 점검하기 위해 현지에 조사팀 파견. TSMC, 이례적으로...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC, 대만 타이난에 N3(3나노) 공장 추가 건설 계획… 2028년 A14(1.4나노) 양산 목표 - 미국의 전력 공급 및 데이터센터 개발 현황을 점검하기 위해 현지에 조사팀 파견. TSMC, 이례적으로..."
+      ]
     },
     {
       "id": "HANAchina/70477",
@@ -10088,10 +10048,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "TSMC -AI가 장기적인 '메가트렌드'라는 강한 확신을 유지. 4분기 수요: 강한 수요가 지속될 것으로 예상. 최첨단 공정 기술 수요: '매우 견조한(Very robust)' 수준 을 유지. 반도체 장비...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC -AI가 장기적인 '메가트렌드'라는 강한 확신을 유지. 4분기 수요: 강한 수요가 지속될 것으로 예상. 최첨단 공정 기술 수요: '매우 견조한(Very robust)' 수준 을 유지. 반도체 장비..."
+      ]
     },
     {
       "id": "HANAchina/70476",
@@ -10119,10 +10079,10 @@
       ],
       "score": 71,
       "hasText": true,
+      "summary": "TSMC 설비투자(CapEx) 전망: 600억~640억 달러 유지 2026~2028년 설비투자: 향후 3년간(2026~2028년) 설비투자 규모가 직전 3년간(2023~2025년) 대비 상당히 높을 것이라는...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 설비투자(CapEx) 전망: 600억~640억 달러 유지 2026~2028년 설비투자: 향후 3년간(2026~2028년) 설비투자 규모가 직전 3년간(2023~2025년) 대비 상당히 높을 것이라는..."
+      ]
     },
     {
       "id": "bornlupin/20634",
@@ -10137,10 +10097,10 @@
       ],
       "score": 68,
       "hasText": true,
+      "summary": "TSMC 2026년 4분기 실적 가이던스 - 매출 전망: 523억~543억 달러 (시장 예상치 503억 5,000만 달러) - 매출총이익률(GPM) 전망: 65~67% (3분기 66.4%) -...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 2026년 4분기 실적 가이던스 - 매출 전망: 523억~543억 달러 (시장 예상치 503억 5,000만 달러) - 매출총이익률(GPM) 전망: 65~67% (3분기 66.4%) -..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25855",
@@ -10172,10 +10132,10 @@
       ],
       "score": 61,
       "hasText": true,
+      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] TSMC FY3Q26 실적발표 FY3Q26 실적 (Non-GAAP) 매출액 $46.7B (+16% QoQ, +41% YoY): 컨센서스 +2% GPM...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] TSMC FY3Q26 실적발표 FY3Q26 실적 (Non-GAAP) 매출액 $46.7B (+16% QoQ, +41% YoY): 컨센서스 +2% GPM..."
+      ]
     },
     {
       "id": "HANAchina/70475",
@@ -10186,29 +10146,14 @@
       "tags": [
         "macro",
         "semi",
-        "kr-market",
         "earnings"
       ],
       "score": 76,
       "hasText": true,
+      "summary": "> TSMC 4분기 가이던스 • 매출액: 523억~543억 달러 (시장 예상치: 503억 5,000만 달러) • 매출총이익률: 65% ~ 67% (시장 예상치 66.1%) • 영업이익률: 56.5% ~...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "> TSMC 4분기 가이던스 • 매출액: 523억~543억 달러 (시장 예상치: 503억 5,000만 달러) • 매출총이익률: 65% ~ 67% (시장 예상치 66.1%) • 영업이익률: 56.5% ~..."
-    },
-    {
-      "id": "HANAchina/70474",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70474",
-      "datetime": "2026-10-15T05:52:01.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": "•중국 오후장 지수형 ETF 거래액 급증 •정부 개입 추정, 뚜렷한 낙폭 축소는 제한적 >"
+      ]
     },
     {
       "id": "bornlupin/20633",
@@ -10219,16 +10164,14 @@
       "tags": [
         "macro",
         "semi",
-        "power",
-        "kr-market",
         "earnings"
       ],
       "score": 97,
       "hasText": true,
+      "summary": "TSMC 2026년 3분기 실적 IR 1. 매출 : 467.2억 달러 (NT$1조 4,942억). 가이던스(446~458억 달러) 상단을 상회 . 전분기 대비 +16.2%, 전년 동기 대비 +41.2%...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 2026년 3분기 실적 IR 1. 매출 : 467.2억 달러 (NT$1조 4,942억). 가이던스(446~458억 달러) 상단을 상회 . 전분기 대비 +16.2%, 전년 동기 대비 +41.2%..."
+      ]
     },
     {
       "id": "HANAchina/70473",
@@ -10242,10 +10185,10 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": "•TSMC adr -1.7% •순이익은 시장 예상치를 상회했지만, 매출총이익률에 시장 실망 추정 (중국언론)",
       "tickers": [
         "TSM"
-      ],
-      "summary": "•TSMC adr -1.7% •순이익은 시장 예상치를 상회했지만, 매출총이익률에 시장 실망 추정 (중국언론)"
+      ]
     },
     {
       "id": "insidertracking/66347",
@@ -10288,17 +10231,15 @@
       "datetime": "2026-10-15T05:36:54.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
         "semi",
-        "kr-market",
         "earnings"
       ],
       "score": 76,
       "hasText": true,
+      "summary": ">>TSMC 3분기 실적 •순이익: 7,631억 TWD (컨센서스 7,394억 9,000만 TWD) •매출총이익률: 66.4% (컨센서스: 66.5%) • 영업이익: 8,764억 5,000만 TWD...",
       "tickers": [
         "TSM"
-      ],
-      "summary": ">>TSMC 3분기 실적 •순이익: 7,631억 TWD (컨센서스 7,394억 9,000만 TWD) •매출총이익률: 66.4% (컨센서스: 66.5%) • 영업이익: 8,764억 5,000만 TWD..."
+      ]
     },
     {
       "id": "bornlupin/20632",
@@ -10312,10 +10253,10 @@
       ],
       "score": 63,
       "hasText": true,
+      "summary": "TSMC: 3분기 순이익 7,631억 대만달러 (예상치 7,463억 대만달러)",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC: 3분기 순이익 7,631억 대만달러 (예상치 7,463억 대만달러)"
+      ]
     },
     {
       "id": "insidertracking/66345",
@@ -10340,15 +10281,14 @@
       "datetime": "2026-10-15T05:33:18.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
         "power"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "마이크로소프트, 2032년까지 데이터센터 용량 3배 이상 확대 마이크로소프트(MS)가 클라우드 및 AI 연산력 병목 현상을 해소하기 위해 2032년까지 글로벌 데이터센터 용량을 대폭 확장하기로 하면서,...",
       "tickers": [
         "MSFT"
-      ],
-      "summary": "마이크로소프트, 2032년까지 데이터센터 용량 3배 이상 확대 마이크로소프트(MS)가 클라우드 및 AI 연산력 병목 현상을 해소하기 위해 2032년까지 글로벌 데이터센터 용량을 대폭 확장하기로 하면서,..."
+      ]
     },
     {
       "id": "HANAchina/70471",
@@ -10361,22 +10301,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•심천 ChiNext -4%, 연중 최저 •반도체 지수 과창50 -3.5%"
-    },
-    {
-      "id": "bornlupin/20630",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20630",
-      "datetime": "2026-10-15T05:14:07.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "earnings"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": "2026.10.15 14:11:53 기업명: 필에너지(시가총액: 2,487억) A378340 보고서명: 단일판매ㆍ공급계약체결 계약상대 : Factorial Energy Inc. 계약내용 : 전고체 배터리..."
+      "summary": "•심천 ChiNext -4%, 연중 최저 •반도체 지수 과창50 -3.5%",
+      "tickers": []
     },
     {
       "id": "HANAchina/70469",
@@ -10410,21 +10336,6 @@
         "005930.KS",
         "000660.KS"
       ]
-    },
-    {
-      "id": "bornlupin/20629",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20629",
-      "datetime": "2026-10-15T04:50:23.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "power",
-        "earnings"
-      ],
-      "score": 48,
-      "hasText": true,
-      "tickers": [],
-      "summary": "2026.10.15 13:10:45 기업명: SK이터닉스(시가총액: 1조 3,763억) A475150 보고서명: 단일판매ㆍ공급계약체결 계약상대 : - 계약내용 : ( 상품공급 ) 직접전력거래계약 공급지역 :..."
     },
     {
       "id": "insidertracking/66342",
@@ -10544,19 +10455,18 @@
       "datetime": "2026-10-15T02:22:27.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "semi",
-        "equity"
+        "semi"
       ],
       "score": 72,
       "hasText": true,
+      "summary": "[단독] SK하이닉스, 미국 내 신규 공장 건설 조건으로 중국 다롄 공장용 반도체 장비 수출 승인 요구 1. 다롄 공장 현황 및 장비 반입 추진 미완성 공간 '모드 B(Mod B)': SK하이닉스 다롄...",
       "tickers": [
         "AMAT",
         "005930.KS",
         "000660.KS",
         "INTC",
         "LRCX"
-      ],
-      "summary": "[단독] SK하이닉스, 미국 내 신규 공장 건설 조건으로 중국 다롄 공장용 반도체 장비 수출 승인 요구 1. 다롄 공장 현황 및 장비 반입 추진 미완성 공간 '모드 B(Mod B)': SK하이닉스 다롄..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25853",
@@ -10569,10 +10479,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "*SK하이닉스, 미국 신규 공장 건설의 조건으로 중국에 반도체 제조 장비를 수출할 수 있도록 미국의 승인을 요청",
       "tickers": [
         "000660.KS"
-      ],
-      "summary": "*SK하이닉스, 미국 신규 공장 건설의 조건으로 중국에 반도체 제조 장비를 수출할 수 있도록 미국의 승인을 요청"
+      ]
     },
     {
       "id": "HANAchina/70455",
@@ -10606,20 +10516,6 @@
       "tickers": []
     },
     {
-      "id": "aetherjapanresearch/25852",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25852",
-      "datetime": "2026-10-15T00:55:39.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": "왜 지금 오냐고!!!!"
-    },
-    {
       "id": "bornlupin/20627",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20627",
@@ -10631,8 +10527,8 @@
       ],
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "AI 연산 능력 확장, 전력 공급 병목 현상에 직면… AI 데이터센터(AIDC) 자가발전 수요 급증 글로벌 AI 경쟁이 첨단 칩 확보전에서 '전력을 얻는 자가 연산력을 얻는다'는 새로운 전쟁터로 진화하고 있다..."
+      "summary": "AI 연산 능력 확장, 전력 공급 병목 현상에 직면… AI 데이터센터(AIDC) 자가발전 수요 급증 글로벌 AI 경쟁이 첨단 칩 확보전에서 '전력을 얻는 자가 연산력을 얻는다'는 새로운 전쟁터로 진화하고 있다...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20626",
@@ -10641,13 +10537,12 @@
       "datetime": "2026-10-15T00:31:58.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "ai-policy",
-        "earnings"
+        "ai-policy"
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "현재 OpenAI와 Anthropic 사이에서 벌어지고 있는 상황은 다음과 같습니다. - OpenAI는 2025년 말 Anthropic의 성공을 빠르게 인지하고, 자원을 에이전트 기반 코딩(Agentic..."
+      "summary": "현재 OpenAI와 Anthropic 사이에서 벌어지고 있는 상황은 다음과 같습니다. - OpenAI는 2025년 말 Anthropic의 성공을 빠르게 인지하고, 자원을 에이전트 기반 코딩(Agentic...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70446",
@@ -10702,58 +10597,14 @@
       "localDateKst": "2026-10-15",
       "tags": [
         "macro",
-        "ai-policy",
         "earnings"
       ],
       "score": 71,
       "hasText": true,
+      "summary": "앤스로픽 3Q 매출 168억 달러 보도와 연 환산 매출 안녕하세요 삼성증권 글로벌 AI/SW 담당 이영진입니다 앤스로픽이 투자자 미팅 과정에서 언급한 3Q 재무 데이터가 보도를 통해 알려졌습니다. 3Q 매출은...",
       "tickers": [
         "016360.KS"
-      ],
-      "summary": "앤스로픽 3Q 매출 168억 달러 보도와 연 환산 매출 안녕하세요 삼성증권 글로벌 AI/SW 담당 이영진입니다 앤스로픽이 투자자 미팅 과정에서 언급한 3Q 재무 데이터가 보도를 통해 알려졌습니다. 3Q 매출은..."
-    },
-    {
-      "id": "bornlupin/20624",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20624",
-      "datetime": "2026-10-14T23:57:31.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "japan"
-      ],
-      "score": 40,
-      "hasText": true,
-      "tickers": [],
-      "summary": "일본 8월 핵심 기계수주 (전월 대비): 5.2% (예상 2.3%, 이전 -3.7%) - 핵심 기계수주 (전년 동기 대비): 18.6% (예상 15.6%, 이전 11.2%) (기업 설비투자의 대표적인 선행지표)"
-    },
-    {
-      "id": "bornlupin/20623",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20623",
-      "datetime": "2026-10-14T23:47:53.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "geo"
-      ],
-      "score": 45,
-      "hasText": true,
-      "tickers": [],
-      "summary": "트럼프 이란과의 전쟁이 곧 끝나고 연료 가격이 조만간 하락할 것이라고 재차 강조 이란 문제는 빠르게 해결될 것 (이제 거의 반응도 안하는듯)"
-    },
-    {
-      "id": "aetherjapanresearch/25851",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25851",
-      "datetime": "2026-10-14T23:42:22.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "macro",
-        "earnings"
-      ],
-      "score": 47,
-      "hasText": true,
-      "tickers": [],
-      "summary": "매출 80억에 시총 2조달러 목표로 상장한 어떤회사도 있는데 160억달러에 시총 2조달러 목표면 저렴한거 아닌가 라고 할뻔~"
+      ]
     },
     {
       "id": "aetherjapanresearch/25850",
