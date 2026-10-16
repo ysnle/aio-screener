@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 // P1757: keeps the producer-only SEC ledger (public-data/sec-fundamentals.json, ~67 MB) off main's history.
 // The ledger lives on the orphan branch `data-store` as ONE commit that each refresh-screener run force-pushes
-// (no history growth, no Actions-cache eviction risk). Subcommands:
+// (no history growth, no Actions-cache eviction risk). v57.90: that commit holds an index plus byte-exact parts of at
+// most 32 MiB (scripts/lib/sec-ledger-store.mjs), because the single blob reached 87.8 MB against GitHub's 100 MB
+// rejection; restore reassembles them (or reads a pre-v57.90 single-file commit) into the same one local file.
+// Subcommands:
 //
 //   restore [--match-manifest] [--force] [--github-output]
 //       Fallback chain: local file (kept unless --force) -> data-store branch -> last copy in main's history
@@ -14,14 +17,15 @@
 //       Fails when the ledger holds fewer than 90% of the records main's projection manifest published, so a lost
 //       ledger rebuilt from nothing can never shrink the public projection.
 //   publish [--github-output]
-//       Force-pushes the local ledger as a single parentless commit to data-store (lease-protected), unless the
-//       branch already holds the identical blob. Run it BEFORE pushing main: main's manifest must never name a
+//       Force-pushes the local ledger as a single parentless commit (index + parts) to data-store (lease-protected),
+//       unless the branch already holds the identical tree. Run it BEFORE pushing main: main's manifest must never name a
 //       digest the store never held.
 import { spawnSync } from 'node:child_process';
 import { appendFileSync, existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import {
   SEC_LEDGER_PATH, SEC_LEDGER_MANIFEST_PATH, SEC_STORE_BRANCH, SEC_STORE_FILE, canonicalSha256, repoPath
 } from './lib/sec-ledger.mjs';
+import { SEC_STORE_INDEX_FILE, readSecStore, writeSecStoreTree } from './lib/sec-ledger-store.mjs';
 
 export const RECORD_FLOOR_RATIO = 0.9;
 const STORE_REF = `refs/remotes/origin/${SEC_STORE_BRANCH}`;
@@ -95,12 +99,14 @@ async function restore({ force = false, matchManifest = false } = {}) {
   // 1. data-store branch (one commit, depth 1).
   const fetched = git(['fetch', '--no-tags', '--depth=1', 'origin', `+refs/heads/${SEC_STORE_BRANCH}:${STORE_REF}`]);
   if (fetched.ok) {
-    const store = accept(blobAt(`${STORE_REF}:${SEC_STORE_FILE}`), expected);
+    // v57.90: index + verified parts joined into the canonical text (or the pre-v57.90 single blob).
+    const { layout, buffer, error } = readSecStore((name) => blobAt(`${STORE_REF}:${name}`));
+    const store = accept(buffer, expected);
     if (store && !store.rejected) {
       writeLedger(store.buffer);
-      return { source: 'store', sha256: store.digest, matchesManifest: store.digest === manifestDigest(), commit: git(['rev-parse', STORE_REF]).stdout };
+      return { source: 'store', sha256: store.digest, matchesManifest: store.digest === manifestDigest(), commit: git(['rev-parse', STORE_REF]).stdout, layout };
     }
-    tried.push(`store:${store?.rejected ? `digest-mismatch:${store.digest.slice(0, 12)}` : 'missing-file'}`);
+    tried.push(`store:${layout}:${store?.rejected ? `digest-mismatch:${store.digest.slice(0, 12)}` : error ? `invalid:${error}` : 'missing-file'}`);
   } else tried.push('store:branch-unavailable');
   // A digest-matched restore (CI) reads history only while the store branch does not exist yet; once it does, older
   // history copies can never match a post-migration manifest and each probe would download another ~67 MB blob.
@@ -131,15 +137,19 @@ function guard() {
 
 function publish() {
   if (!existsSync(repoPath(SEC_LEDGER_PATH))) throw new Error(`${SEC_LEDGER_PATH} is missing; nothing to publish`);
-  const sha256 = canonicalSha256(readFileSync(repoPath(SEC_LEDGER_PATH), 'utf8'));
-  const blob = git(['hash-object', '-w', '--no-filters', SEC_LEDGER_PATH], { allowFail: false }).stdout;
+  const text = readFileSync(repoPath(SEC_LEDGER_PATH), 'utf8');
+  const { tree, sourceSha256: sha256, parts, largestPartBytes } = writeSecStoreTree(text, {
+    hashObject: (buffer) => git(['hash-object', '-w', '--stdin'], { input: buffer, allowFail: false }).stdout,
+    mktree: (listing) => git(['mktree'], { input: listing, allowFail: false }).stdout
+  });
+  if (sha256 !== canonicalSha256(text)) throw new Error('split ledger digest differs from the canonical digest');
   const previousCommit = git(['rev-parse', '-q', '--verify', STORE_REF]).stdout || '';
-  const previousBlob = previousCommit ? git(['rev-parse', '-q', '--verify', `${STORE_REF}:${SEC_STORE_FILE}`]).stdout : '';
-  if (previousBlob && previousBlob === blob) return { published: false, reason: 'unchanged', sha256, commit: previousCommit };
-  const tree = git(['mktree'], { input: `100644 blob ${blob}\t${SEC_STORE_FILE}\n`, allowFail: false }).stdout;
+  const previousTree = previousCommit ? git(['rev-parse', '-q', '--verify', `${STORE_REF}^{tree}`]).stdout : '';
+  const shape = { parts, largestPartBytes };
+  if (previousTree && previousTree === tree) return { published: false, reason: 'unchanged', sha256, commit: previousCommit, ...shape };
   const sourceSha = git(['rev-parse', 'HEAD']).stdout || 'unknown';
   const identity = { GIT_AUTHOR_NAME: 'aio-data-bot', GIT_AUTHOR_EMAIL: 'actions@github.com', GIT_COMMITTER_NAME: 'aio-data-bot', GIT_COMMITTER_EMAIL: 'actions@github.com' };
-  const commitResult = spawnSync('git', ['commit-tree', tree, '-m', `data-store: ${SEC_STORE_FILE} sha256=${sha256}`, '-m', `Producer-only SEC ledger (P1757). Built on main ${sourceSha}. Single parentless commit, force-pushed each run.`], {
+  const commitResult = spawnSync('git', ['commit-tree', tree, '-m', `data-store: ${SEC_STORE_FILE} sha256=${sha256}`, '-m', `Producer-only SEC ledger (P1757), ${parts} part(s) + ${SEC_STORE_INDEX_FILE} (v57.90). Built on main ${sourceSha}. Single parentless commit, force-pushed each run.`], {
     cwd, encoding: 'utf8', env: { ...process.env, ...identity }
   });
   if (commitResult.status !== 0) throw new Error(`git commit-tree failed: ${commitResult.stderr}`);
@@ -147,7 +157,7 @@ function publish() {
   // The lease names the commit restore saw (or requires the branch to be absent), so a concurrent writer is never lost.
   git(['push', `--force-with-lease=refs/heads/${SEC_STORE_BRANCH}:${previousCommit}`, 'origin', `${commit}:refs/heads/${SEC_STORE_BRANCH}`], { allowFail: false });
   git(['update-ref', STORE_REF, commit]);
-  return { published: true, reason: previousCommit ? 'replaced' : 'created', sha256, commit };
+  return { published: true, reason: previousCommit ? 'replaced' : 'created', sha256, commit, ...shape };
 }
 
 function emit(result) {

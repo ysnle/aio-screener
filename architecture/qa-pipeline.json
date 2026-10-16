@@ -1022,6 +1022,17 @@
           "script": "scripts/ci-sec-runtime-projection-check.mjs"
         },
         {
+          "id": "sec-ledger-store",
+          "script": "scripts/ci-sec-ledger-store-check.mjs",
+          "inputs": [
+            "scripts/lib/sec-ledger-store.mjs",
+            "scripts/lib/sec-ledger.mjs",
+            "scripts/sec-fundamentals-store.mjs",
+            "scripts/ci-sec-ledger-store-check.mjs",
+            "public-data/sec-fundamentals-summary.manifest.json"
+          ]
+        },
+        {
           "id": "candidate-archive",
           "script": "scripts/ci-candidate-archive-check.mjs"
         },
@@ -2550,6 +2561,16 @@
       ],
       "gates": [
         "13f-semantic-noop"
+      ]
+    },
+    {
+      "patterns": [
+        "scripts/lib/sec-ledger.mjs",
+        "scripts/lib/sec-ledger-store.mjs",
+        "scripts/sec-fundamentals-store.mjs"
+      ],
+      "groups": [
+        "data"
       ]
     },
     {

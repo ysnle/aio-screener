@@ -53,8 +53,9 @@ jobs:
           fi
 
       - name: Restore the producer-only SEC ledger (P1757)
-        # public-data/sec-fundamentals.json (~67 MB) is not on main: it lives on the orphan data-store branch as one
-        # force-pushed commit. Chain: data-store branch -> last copy in main's history -> none (full rebuild below).
+        # public-data/sec-fundamentals.json (~88 MB) is not on main: it lives on the orphan data-store branch as one
+        # force-pushed commit (v57.90: index + parts of <= 32 MiB, reassembled and digest-checked into one local file).
+        # Chain: data-store branch -> last copy in main's history -> none (full rebuild below).
         id: sec-ledger
         env:
           GH_TOKEN: ${{ github.token }}
