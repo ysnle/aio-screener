@@ -639,7 +639,8 @@ export function buildMarketRead(input = {}) {
       reading: !lags ? '위험선호가 중소형주까지 퍼진 모습입니다.'
         // Codex browser audit H19: rate sensitivity is one possible path, not the established cause.
         : creditCalm ? `HY 스프레드(${fmt(hyBp, 0)}bp)가 낮고 5일·20거래일 모두 넓어지지 않아 신용 위험이 원인이라는 신호는 없습니다. 금리 부담이 그럴듯한 설명이지만, 실적 차이·업종 구성·유동성도 같은 결과를 만들 수 있습니다.`
-          : credit === 'burden' ? `HY 스프레드가 부담 구간(${fmt(hyBp, 0)}bp${hyWeek != null ? `, 5일 ${signed(hyWeek, 0, 'bp')}` : ''})이라 자금 조달 여건이 중소형주를 누르는 경로일 수 있습니다. 금리 부담, 실적 차이, 업종 구성도 함께 확인합니다.`
+          // v57.86 (live review): below the 350bp level the 부담 comes from the 20-session move, not the level — say which.
+          : credit === 'burden' ? `HY 스프레드가 ${hyBp != null && hyBp < RULES.credit.tightBelowBp ? `수준은 낮지만 빠르게 넓어지는 중(${fmt(hyBp, 0)}bp${c.hy20 != null ? `, 20거래일 ${signed(c.hy20, 0, 'bp')}` : ''})` : `부담 구간(${fmt(hyBp, 0)}bp${hyWeek != null ? `, 5일 ${signed(hyWeek, 0, 'bp')}` : ''})`}이라 자금 조달 여건이 중소형주를 누르는 경로일 수 있습니다. 금리 부담, 실적 차이, 업종 구성도 함께 확인합니다.`
             : credit === 'neutral' && widening20 ? `HY 스프레드는 ${fmt(hyBp, 0)}bp로 낮은 편이지만 20거래일 동안 ${signed(c.hy20, 0, 'bp')} 넓어지는 중이라 신용 원인을 배제하지 못합니다. 금리 부담, 실적 차이, 업종 구성도 같은 결과를 만들 수 있습니다.`
               : credit === 'neutral' ? `신용 지표가 중립(HY ${fmt(hyBp, 0)}bp${hyWeek != null ? `, 5일 ${signed(hyWeek, 0, 'bp')}` : ''})이라 신용 원인을 배제하지 못합니다. 금리 부담, 실적 차이, 업종 구성 중 무엇 때문인지는 이 숫자만으로 가려지지 않습니다.`
                 : '중소형주가 상대적으로 약합니다. 금리 부담, 실적 차이, 업종 구성 중 무엇 때문인지는 이 숫자만으로 가려지지 않습니다.'
@@ -727,7 +728,8 @@ export function buildMarketRead(input = {}) {
     const rare = tail != null && tail <= KR_SHOCK_TAIL_PCT;
     add('korea-relative', weight, `코스피 ${shortDate(kospi.date)} ${signed(kospi1)}${kospi5 != null ? `(5거래일 ${signed(kospi5)})` : ''}${usText}${krwText}.${where ? ` 코스피 변화는 ${where}입니다.` : ''}`, 'korea', {
       reading: rare ? '미국 6개 지표 판정은 미국 종가로만 내려 이 움직임을 반영하지 않습니다 — 한국 고유 요인인지, 대형주에 몰린 움직임인지 표본 종목 전반으로 번졌는지는 시장 상태의 한국 시장 참고에서 따로 확인합니다.' : null,
-      check: rare ? '한국 수집 종목의 하루 수익률 중앙값이 지수만큼 움직였는지(대형주 집중인지 전반적인 움직임인지)' : null });
+      // v57.86 (live review): the check asked what 시장 상태 already answers (sample median, share falling) — it now names what to watch next.
+      check: rare ? `다음 한국 거래일에 코스피가 ${kospi1 < 0 ? '하락' : '상승'}을 이어가는지와 원/달러가 함께 움직이는지 — 표본 종목 전반의 하락 폭은 시장 상태의 한국 시장 참고에 있습니다` : null });
   }
 
   statements.sort((a, b) => b.weight - a.weight);

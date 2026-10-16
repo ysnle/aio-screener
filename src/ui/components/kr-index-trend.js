@@ -7,6 +7,7 @@ import { krIndexMoveRecord, KR_MONTH_SESSIONS } from '../../domain/market/kr-ind
 import { shortDate } from '../../domain/content/date-labels.js';
 import { createTrendChart } from './trend-chart.js';
 import { el } from './dom.js';
+import { RULES } from '../../domain/rules/thresholds.js';
 
 export const KR_INDEX_TRENDS = Object.freeze([
   Object.freeze({ field: 'kospi', label: '코스피', hostId: 'kr-kospi-tech-result' }),
@@ -42,7 +43,7 @@ export function krIndexTrendFacts(history = [], field, { through = null, now = n
     position50: ma50 == null ? null : side(last.value, ma50),
     position200: ma200 == null ? null : side(last.value, ma200),
     cross: ma50 != null && ma200 != null ? side(ma50, ma200) : null,
-    rangeSessions: window.length, fullYear: window.length >= YEAR_SESSIONS,
+    rangeSessions: window.length, fullYear: window.length >= RULES.technical.fullYearSessions,
     high, low, fromHigh: (last.value / high - 1) * 100, fromLow: (last.value / low - 1) * 100
   };
 }

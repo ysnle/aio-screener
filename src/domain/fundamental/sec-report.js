@@ -125,6 +125,8 @@ export function selectSecFundamentalsAsOf(record = {}, asOf, { priceAsOf = null 
 // NetIncomeLoss) and re-derive ROE and P/B from it; a non-positive parent equity leaves both empty.
 export function reconcileSecEquity(record) {
   if (!record || typeof record !== 'object') return record;
+  // v6: a non-USD record publishes no amounts; its native equity stays in reportedAmounts (its ROE is already same-currency).
+  if (record.reportingCurrency && record.reportingCurrency !== 'USD') return record;
   const rows = Array.isArray(record.pit?.observations?.equity) ? record.pit.observations.equity : [];
   const sameFiling = (row) => row.periodEnd === record.observedAt && (!record.accession || row.accession === record.accession);
   const parent = rows.find((row) => sameFiling(row) && row.concept === 'StockholdersEquity' && finite(row.value) != null);
@@ -170,6 +172,13 @@ export const SEC_MARGIN_HOLD_ABOVE_PCT = 100;
 export const SEC_BANK_NET_REVENUE_CONCEPT = 'derived:InterestIncomeExpenseNet+NoninterestIncome';
 export const SEC_PRIMARY_REVENUE_CONCEPTS = Object.freeze(['Revenues', 'RevenueFromContractWithCustomerExcludingAssessedTax', 'SalesRevenueNet', 'RevenuesNetOfInterestExpense', 'RegulatedAndUnregulatedOperatingRevenue', 'ElectricUtilityRevenue', SEC_BANK_NET_REVENUE_CONCEPT]);
 export const SEC_FALLBACK_REVENUE_CONCEPTS = Object.freeze(['RevenueFromContractWithCustomerIncludingAssessedTax', 'SalesRevenueGoodsNet']);
+// 2026-10-16 (sec-annual-concepts.v6, owner-approved ratio-only model): IFRS filers (ifrs-full) compete under the same
+// one-row-per-period rule. RevenueAndOperatingIncome (HSBC, UBS, BBVA total operating income; BP/SHEL revenue plus other
+// income) is a fallback so it never outranks a reported Revenue line.
+export const SEC_IFRS_PRIMARY_REVENUE_CONCEPTS = Object.freeze(['Revenue', 'RevenueFromContractsWithCustomers']);
+export const SEC_IFRS_FALLBACK_REVENUE_CONCEPTS = Object.freeze(['RevenueAndOperatingIncome']);
+const PRIMARY_REVENUE = new Set([...SEC_PRIMARY_REVENUE_CONCEPTS, ...SEC_IFRS_PRIMARY_REVENUE_CONCEPTS]);
+const KNOWN_REVENUE = new Set([...PRIMARY_REVENUE, ...SEC_FALLBACK_REVENUE_CONCEPTS, ...SEC_IFRS_FALLBACK_REVENUE_CONCEPTS]);
 // Reference market-cap plausibility (P1318): a share basis whose implied daily turnover falls outside this band is
 // a scale, ADR-ratio or share-class error, not a company size.
 export const SEC_REFERENCE_TURNOVER_BOUNDS = Object.freeze({ min: 0.0005, max: 0.2 });
@@ -193,7 +202,7 @@ export function bestRevenueRowsByPeriod(rows = []) {
     if (!row || rowValue(row) == null || !rowEnd(row)) continue;
     const concept = String(row.concept || '');
     // A concept-less row (legacy PIT migration) competes as a primary row.
-    if (concept && !SEC_PRIMARY_REVENUE_CONCEPTS.includes(concept) && !SEC_FALLBACK_REVENUE_CONCEPTS.includes(concept)) continue;
+    if (concept && !KNOWN_REVENUE.has(concept)) continue;
     const key = `${rowStart(row) || ''}|${rowEnd(row)}`;
     const byConcept = groups.get(key) || new Map();
     const prev = byConcept.get(concept);
@@ -203,10 +212,15 @@ export function bestRevenueRowsByPeriod(rows = []) {
   const chosen = [];
   for (const byConcept of groups.values()) {
     const candidates = [...byConcept.values()];
-    const primary = candidates.filter((row) => !row.concept || SEC_PRIMARY_REVENUE_CONCEPTS.includes(row.concept));
+    const primary = candidates.filter((row) => !row.concept || PRIMARY_REVENUE.has(row.concept));
     const pool = primary.length ? primary : candidates;
     pool.sort((a, b) => rowValue(b) - rowValue(a) || rowFiled(b).localeCompare(rowFiled(a)));
-    chosen.push(pool[0]);
+    // v5: the derived bank net revenue replaces only a fee subtotal (MTB 1.66B vs 9.69B). A reported total within half of
+    // it is the filer's own total and wins, so one filer's years never switch basis (STT FY2024: 13,000M reported vs
+    // 13,079M derived would have mixed the growth base).
+    const reported = pool.find((row) => row.concept !== SEC_BANK_NET_REVENUE_CONCEPT);
+    const pick = pool[0]?.concept === SEC_BANK_NET_REVENUE_CONCEPT && reported && rowValue(reported) >= rowValue(pool[0]) * 0.5 ? reported : pool[0];
+    chosen.push(pick);
   }
   return chosen.sort((a, b) => String(rowEnd(b)).localeCompare(String(rowEnd(a))) || rowFiled(b).localeCompare(rowFiled(a)));
 }
@@ -249,6 +263,13 @@ export function reconcileSecRevenueShares(record) {
     delete next.margin;
     dropCoverage('margin');
   }
+  // 2026-10-16 (v6): the growth of a revenue subtotal is not the business' growth either (CPT +81.7%, BBVA IFRS).
+  if (next.marginHeld && finite(next.margin) == null && finite(next.revGrowth) != null) {
+    edit();
+    next.revGrowthHeld = { value: next.revGrowth, reason: 'revenue-subtotal' };
+    delete next.revGrowth;
+    dropCoverage('revGrowth');
+  }
   const gap = shareGapDays(next.sharesObservedAt, next.observedAt);
   if (finite(next.sharesOutstanding) != null && gap != null && gap > SEC_SHARES_MAX_GAP_DAYS) {
     edit();
@@ -271,7 +292,8 @@ export function reconcileSecRecord(record) {
 // when the implied daily turnover is plausible. A stale-period or scale-mismatched count is never used.
 export function secSharesTrust(record, { price = null, dollarVolume30d = null } = {}) {
   const shares = finite(record?.sharesOutstanding);
-  if (shares == null || shares <= 0) return { shares: null, check: null, reason: record?.sharesCheck === 'stale-period' ? 'stale-period' : 'shares-unavailable' };
+  // v6: a non-USD report or an IFRS ADR share basis is withheld by the normalizer and says so.
+  if (shares == null || shares <= 0) return { shares: null, check: null, reason: ['stale-period', 'reporting-currency-differs', 'foreign-share-basis-unverified'].includes(record?.sharesCheck) ? record.sharesCheck : 'shares-unavailable' };
   const gap = shareGapDays(record?.sharesObservedAt, record?.observedAt);
   if (gap != null && gap > SEC_SHARES_MAX_GAP_DAYS) return { shares: null, check: null, reason: 'stale-period' };
   if (record?.sharesCheck === 'scale-mismatch') return { shares: null, check: null, reason: 'scale-mismatch' };

@@ -26,14 +26,18 @@ function etDate(ms) {
   try { etDayFormat ||= new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }); return etDayFormat.format(new Date(ms)); } catch (_) { return null; }
 }
 
-export function liveSinceClose(key, quote, closeDate) {
+// v57.86 (live review): with the shown close given, the 지금 change is measured from it — the provider's own previous close
+// (a roll or settlement price) printed WTI −0.75% beside a tile whose close it did not match.
+export function liveSinceClose(key, quote, closeDate, closeValue = null) {
   const price = Number(quote?.price);
   const at = observedMs(quote);
   if (!LIVE_SYMBOL[key] || !(price > 0) || !Number.isFinite(at) || !closeDate) return null;
   const day = etDate(at);
   if (!day || day <= closeDate) return null; // the quote is that close (or older): the tile already says it
-  const pct = Number(quote?.pct);
-  const change = !Number.isFinite(pct) ? '' : key === 'tnx' ? signedText(Math.round((price - price / (1 + pct / 100)) * 100), 0, 'bp') : signedText(pct, 2, '%');
+  const shown = Number(closeValue);
+  const base = shown > 0 && price / shown > 0.5 && price / shown < 2 ? shown : null; // a unit mismatch falls back to the provider
+  const pct = base ? (price / base - 1) * 100 : Number(quote?.pct);
+  const change = !Number.isFinite(pct) ? '' : key === 'tnx' ? signedText(Math.round((base ? price - base : price - price / (1 + pct / 100)) * 100), 0, 'bp') : signedText(pct, 2, '%');
   const value = key === 'tnx' ? `${price.toFixed(2)}%` : price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   return { text: `지금 ${value}${change ? ` ${change}` : ''}`, pct: Number.isFinite(pct) ? pct : null };
 }
@@ -61,17 +65,17 @@ function renderChanges(doc, host, history, root) {
     if (move.level) cell.append(el(doc, 'span', move.level, 'daily-move-level'));
     // P1724: a Korean index is compared on its own KRX sessions; the cell names that pair.
     if (move.market === 'KR') { cell.dataset.market = 'KR'; cell.append(el(doc, 'span', `한국 ${shortDate(move.from)} → ${shortDate(move.to)}`, 'daily-move-level')); }
-    const live = liveSinceClose(move.key, root?._liveData?.[LIVE_SYMBOL[move.key]], model.date);
+    const live = liveSinceClose(move.key, root?._liveData?.[LIVE_SYMBOL[move.key]], model.date, move.close);
     if (live) {
       const line = el(doc, 'span', live.text, 'daily-move-live');
-      line.title = '실시간·지연 시세 · 등락은 그 시세의 직전 종가 대비입니다';
+      line.title = '실시간·지연 시세 · 등락은 이 칸의 마지막 종가 대비입니다';
       cell.append(line);
       liveShown = true;
     }
     grid.append(cell);
   }
-  // P1725: two completed US closes here; a "지금" line is a live/delayed quote against its own previous close, so the same
-  // asset can carry opposite signs on the two lines (WTI +2.06% close to close, -1.92% now). The note says which.
+  // P1725: two completed US closes here; a "지금" line is a live/delayed quote measured from the tile's last close (v57.86), so
+  // the same asset can still carry opposite signs on the two lines (WTI +2.06% close to close, -1.92% now). The note says which.
   note.textContent = `미국 종가 ${shortDate(model.prevDate)} → ${shortDate(model.date)}${gap ? ` · ${model.missing.map(shortDate).join('·')} 기록 없음` : ''}${liveShown ? ' · 지금 줄은 그 뒤 실시간·지연 시세' : ''}`;
   host.append(grid);
   syncLiveStrip(doc, new Set(model.moves.map((move) => move.key)));

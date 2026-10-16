@@ -62,13 +62,15 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   const measured = top.filter((row) => adrMultiple(row.pctSma50, row.adrPct) != null);
   if (measured.length) {
     const above = measured.filter((row) => adrMultiple(row.pctSma50, row.adrPct) >= NEAR_LINE_ADR).length / measured.length * 100;
-    const nearHigh = top.filter((row) => finite(row.pctFrom52wHigh) != null && row.pctFrom52wHigh > -5).length / top.length * 100;
+    // v57.86 (live review): the share is of rows with a 52-week value — every null row counted as "not near" read 0%.
+    const highKnown = top.filter((row) => finite(row.pctFrom52wHigh) != null);
+    const nearHigh = highKnown.length ? highKnown.filter((row) => row.pctFrom52wHigh > -5).length / highKnown.length * 100 : null;
     const dropMeasured = top.map(recentDrop).filter(Boolean);
     const dropped = dropMeasured.length ? dropMeasured.filter((drop) => drop.broken).length / dropMeasured.length * 100 : null;
     const breadth = regime?.axes?.find((axis) => axis.id === 'breadth');
     const trendInRank = top.some((row) => finite(row.factorScores?.trend) != null);
     points.push({ id: 'health', tone: 'neutral', title: '상위권 추세',
-      text: `${topName} 중 ${above.toFixed(0)}%가 50일선보다 일평균 변동폭 ${NEAR_LINE_ADR}배 이상 위, ${nearHigh.toFixed(0)}%가 52주 고점 5% 이내${dropped != null ? `, ${dropped.toFixed(0)}%는 최근 5거래일에 일평균 변동폭 ${RECENT_DROP_ADR}배 넘게 하락` : ''}.${trendInRank ? ' 순위 계산에 추세 팩터가 들어 있어 상위권이 50일선 위에 많은 것은 계산 방식상 예상되는 결과입니다' : ''}${breadth?.state === 'burden' ? `${trendInRank ? ' — ' : ' '}시장 전체는 50일선 위 종목이 적습니다(시장 폭 ${breadth.stateLabel})` : ''}${trendInRank || breadth?.state === 'burden' ? '.' : ''}` });
+      text: `${topName} 중 ${above.toFixed(0)}%가 50일선보다 일평균 변동폭 ${NEAR_LINE_ADR}배 이상 위, ${nearHigh == null ? '52주 고점 자료 없음' : `${nearHigh.toFixed(0)}%가 52주 고점 5% 이내${highKnown.length < top.length ? `(자료 있는 ${highKnown.length}종목 기준)` : ''}`}${dropped != null ? `, ${dropped.toFixed(0)}%는 최근 5거래일에 일평균 변동폭 ${RECENT_DROP_ADR}배 넘게 하락` : ''}.${trendInRank ? ' 순위 계산에 추세 팩터가 들어 있어 상위권이 50일선 위에 많은 것은 계산 방식상 예상되는 결과입니다' : ''}${breadth?.state === 'burden' ? `${trendInRank ? ' — ' : ' '}시장 전체는 50일선 위 종목이 적습니다(시장 폭 ${breadth.stateLabel})` : ''}${trendInRank || breadth?.state === 'burden' ? '.' : ''}` });
   }
   if (validation?.available) {
     const spread = finite(validation.spreadNet);

@@ -2,7 +2,7 @@
 // the browser can read an out-of-universe issuer's filing with the same functions (the producer imports and
 // re-exports them). Pure: companyfacts/submissions JSON in, one annual record out; no I/O.
 import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
-import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS, SEC_BANK_NET_REVENUE_CONCEPT } from './sec-report.js';
+import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS, SEC_BANK_NET_REVENUE_CONCEPT, SEC_IFRS_PRIMARY_REVENUE_CONCEPTS, SEC_IFRS_FALLBACK_REVENUE_CONCEPTS } from './sec-report.js';
 
 function round(n, digits = 2) {
   const p = 10 ** digits;
@@ -33,12 +33,12 @@ function factRows(companyFacts, taxonomy, concepts, unit) {
 // accession, period and form) so a restated comparative never mixes with the original. Rows without both operands
 // are not derived. InterestRevenueExpenseNet is the newer name some filers use for the same net interest income.
 const BANK_NET_INTEREST_CONCEPTS = ['InterestIncomeExpenseNet', 'InterestRevenueExpenseNet'];
-function bankNetRevenueRows(companyFacts) {
+function bankNetRevenueRows(companyFacts, currency = 'USD') {
   const key = (row) => `${row.accn || ''}|${row.start || ''}|${row.end || ''}|${row.form || ''}|${row.fp || ''}`;
-  const nonInterest = new Map(factRows(companyFacts, 'us-gaap', ['NoninterestIncome'], 'USD').map((row) => [key(row), row]));
+  const nonInterest = new Map(factRows(companyFacts, 'us-gaap', ['NoninterestIncome'], currency).map((row) => [key(row), row]));
   if (!nonInterest.size) return [];
   const netInterest = new Map();
-  factRows(companyFacts, 'us-gaap', BANK_NET_INTEREST_CONCEPTS, 'USD').forEach((row) => { if (!netInterest.has(key(row))) netInterest.set(key(row), row); });
+  factRows(companyFacts, 'us-gaap', BANK_NET_INTEREST_CONCEPTS, currency).forEach((row) => { if (!netInterest.has(key(row))) netInterest.set(key(row), row); });
   const rows = [];
   for (const [k, nii] of netInterest) {
     const other = nonInterest.get(k);
@@ -50,8 +50,65 @@ function bankNetRevenueRows(companyFacts) {
   return rows;
 }
 
-function revenueFactRows(companyFacts) {
-  return [...factRows(companyFacts, 'us-gaap', [...SEC_PRIMARY_REVENUE_CONCEPTS, ...SEC_FALLBACK_REVENUE_CONCEPTS], 'USD'), ...bankNetRevenueRows(companyFacts)];
+// v6 (2026-10-16, owner-approved ratio-only model): the reporting basis is one taxonomy and one currency, and every
+// operand of a record comes from it, so margin, ROE and growth are same-currency ratios. A US-GAAP USD filer with a
+// current fiscal year keeps that basis unchanged; otherwise the basis with the newest annual revenue wins (TSM TWD IFRS,
+// ASML EUR US-GAAP, Sony JPY IFRS after its US-GAAP years). No exchange-rate conversion is made anywhere.
+const US_GAAP_BASIS = Object.freeze({ taxonomy: 'us-gaap', currency: 'USD' });
+const BASIS_CONCEPTS = Object.freeze({
+  'us-gaap': {
+    revenue: [...SEC_PRIMARY_REVENUE_CONCEPTS, ...SEC_FALLBACK_REVENUE_CONCEPTS],
+    income: ['NetIncomeLoss', 'ProfitLoss'],
+    equity: ['StockholdersEquity', 'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest'],
+    operatingCashFlow: ['NetCashProvidedByUsedInOperatingActivities', 'NetCashProvidedByUsedInOperatingActivitiesContinuingOperations'],
+    capex: ['PaymentsToAcquirePropertyPlantAndEquipment', 'PaymentsToAcquireProductiveAssets'],
+    longTermDebt: ['LongTermDebtNoncurrent', 'LongTermDebt']
+  },
+  // Parent-attributable profit and equity first (the ROE pair), the group totals only when the parent line is absent.
+  'ifrs-full': {
+    revenue: [...SEC_IFRS_PRIMARY_REVENUE_CONCEPTS, ...SEC_IFRS_FALLBACK_REVENUE_CONCEPTS],
+    income: ['ProfitLossAttributableToOwnersOfParent', 'ProfitLoss'],
+    equity: ['EquityAttributableToOwnersOfParent', 'Equity'],
+    operatingCashFlow: ['CashFlowsFromUsedInOperatingActivities'],
+    capex: ['PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'],
+    longTermDebt: []
+  }
+});
+
+// An IFRS bank's customer-contract revenue (IFRS 15) is its fee income — interest sits outside IFRS 15 — so it is not
+// read as revenue when the filer tags bank fee and commission income (BCS: 11.1B fees against ~29B total income).
+const IFRS_BANK_SIGNAL = 'FeeAndCommissionIncomeExpense';
+function revenueFactRows(companyFacts, basis = US_GAAP_BASIS) {
+  const ifrsBank = basis.taxonomy === 'ifrs-full' && Boolean(companyFacts?.facts?.['ifrs-full']?.[IFRS_BANK_SIGNAL]);
+  const rows = factRows(companyFacts, basis.taxonomy, BASIS_CONCEPTS[basis.taxonomy].revenue.filter((concept) => !(ifrsBank && concept === 'RevenueFromContractsWithCustomers')), basis.currency);
+  return basis.taxonomy === 'us-gaap' ? [...rows, ...bankNetRevenueRows(companyFacts, basis.currency)] : rows;
+}
+
+const isAnnualFy = (row) => { const days = durationDays(row); return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400 && finiteFact(row.val) != null; };
+
+export function reportingBasis(companyFacts, nowMs = Date.now()) {
+  const latestEnd = (basis) => revenueFactRows(companyFacts, basis).filter(isAnnualFy).reduce((max, row) => (String(row.end) > max ? String(row.end) : max), '');
+  const usd = latestEnd(US_GAAP_BASIS);
+  if (usd && (nowMs - Date.parse(usd)) / 86400000 <= REPORT_RECENCY_MAX_DAYS) return US_GAAP_BASIS;
+  let best = usd ? { ...US_GAAP_BASIS, end: usd } : null;
+  for (const taxonomy of ['us-gaap', 'ifrs-full']) {
+    const facts = companyFacts?.facts?.[taxonomy] || {};
+    const currencies = new Set(BASIS_CONCEPTS[taxonomy].revenue.flatMap((concept) => Object.keys(facts[concept]?.units || {})).filter((unit) => /^[A-Z]{3}$/.test(unit)));
+    for (const currency of currencies) {
+      if (taxonomy === 'us-gaap' && currency === 'USD') continue;
+      const end = latestEnd({ taxonomy, currency });
+      if (end && (!best || end > best.end)) best = { taxonomy, currency, end };
+    }
+  }
+  return best ? Object.freeze({ taxonomy: best.taxonomy, currency: best.currency }) : US_GAAP_BASIS;
+}
+
+// The first concept (in the basis' preference order) that reported the period. US-GAAP keeps its historical selection
+// (all concepts pooled, latest filing) so existing records do not move.
+function preferredRow(companyFacts, basis, concepts, pick, rowsOf) {
+  if (basis.taxonomy === 'us-gaap') return pick(rowsOf(concepts));
+  for (const concept of concepts) { const hit = pick(rowsOf([concept])); if (hit) return hit; }
+  return null;
 }
 
 function dedupeLatestFiled(rows) {
@@ -64,8 +121,8 @@ function dedupeLatestFiled(rows) {
   return [...byPeriod.values()].sort((a, b) => String(b.end || '').localeCompare(String(a.end || '')) || String(b.filed || '').localeCompare(String(a.filed || '')));
 }
 
-function annualDurationRows(companyFacts, concepts) {
-  const rows = factRows(companyFacts, 'us-gaap', concepts, 'USD').filter(row => {
+function annualDurationRows(companyFacts, concepts, basis = US_GAAP_BASIS) {
+  const rows = factRows(companyFacts, basis.taxonomy, concepts, basis.currency).filter(row => {
     const days = durationDays(row);
     return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400 && finiteFact(row.val) != null;
   });
@@ -96,7 +153,8 @@ const REPORT_RECENCY_MAX_DAYS = FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
 // Stored records written by an older normalizer are due to be read again (in addition to the publish-time heal).
 // 2026-10-15 (P1798): class-dimensioned 10-K share counts for multi-class filers.
 // 2026-10-16: bank net revenue (v5 concept set) — stored bank records with a fee-subtotal revenue are re-read.
-export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-10-16';
+// 2026-10-16b: reporting basis (IFRS / non-USD) — stale US-GAAP records of IFRS filers (TM 2013, VALE 2012) are re-read.
+export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-10-16b';
 
 // The earliest instant a single operand could have been known: its accession acceptance time
 // when available, otherwise the filing date (which is a date, not an intraday time).
@@ -123,7 +181,11 @@ function latestIso(values) {
 // v4 (2026-10-14): utility revenue (RegulatedAndUnregulatedOperatingRevenue, ElectricUtilityRevenue) as primary,
 // SalesRevenueGoodsNet as fallback; EPS-implied share count as the last share candidate.
 // v5 (2026-10-16): bank net revenue = net interest income + noninterest income of one filing (sec-report.js).
-export const SEC_CONCEPT_SET_VERSION = 'sec-annual-concepts.v5';
+// v6 (2026-10-16): IFRS (ifrs-full) and non-USD reporting bases, ratio-only (owner decision). The terminal IFRS rows
+// recorded under 'ifrs-taxonomy-not-supported-by-us-gaap-normalizer' are rechecked once like a concept-set change.
+export const SEC_CONCEPT_SET_VERSION = 'sec-annual-concepts.v6';
+// Failure reason codes that a concept-set change can resolve (the scheduler rechecks them once per version).
+export const SEC_CONCEPT_SET_REASON_CODES = Object.freeze(['required-us-gaap-annual-concepts-unavailable', 'required-ifrs-annual-concepts-unavailable', 'ifrs-taxonomy-not-supported-by-us-gaap-normalizer']);
 
 export function classifyIssuerCapability(companyFacts, submissions = null) {
   const taxonomies = Object.keys(companyFacts?.facts || {});
@@ -132,7 +194,8 @@ export function classifyIssuerCapability(companyFacts, submissions = null) {
   const recentForms = Array.isArray(submissions?.filings?.recent?.form) ? submissions.filings.recent.form : [];
   const foreignForm = recentForms.some(form => /^(20-F|40-F)(\/A)?$/.test(String(form || '')));
   const domesticForm = recentForms.some(form => /^(10-K)(\/A)?$/.test(String(form || '')));
-  if (!hasUsGaap && hasIfrs) return { status: 'TERMINAL_UNSUPPORTED', reasonCode: 'ifrs-taxonomy-not-supported-by-us-gaap-normalizer', issuerTaxonomy: 'IFRS', filingForms: foreignForm ? ['20-F/40-F'] : [] };
+  // v6: IFRS filers are read on their own basis (ratios only; see reportingBasis).
+  if (!hasUsGaap && hasIfrs) return { status: 'SUPPORTED_IFRS', reasonCode: null, issuerTaxonomy: 'IFRS', filingForms: foreignForm ? ['20-F/40-F'] : [] };
   if (!hasUsGaap && foreignForm) return { status: 'TERMINAL_UNSUPPORTED', reasonCode: 'foreign-issuer-without-us-gaap-taxonomy', issuerTaxonomy: 'FOREIGN_NON_US_GAAP', filingForms: ['20-F/40-F'] };
   if (!hasUsGaap) return { status: 'TERMINAL_UNSUPPORTED', reasonCode: 'required-us-gaap-taxonomy-missing', issuerTaxonomy: foreignForm ? 'FOREIGN_UNKNOWN' : 'UNKNOWN', filingForms: foreignForm ? ['20-F/40-F'] : [] };
   return { status: 'SUPPORTED_US_GAAP', reasonCode: null, issuerTaxonomy: foreignForm && !domesticForm ? 'FOREIGN_US_GAAP' : 'US_GAAP', filingForms: [...new Set(recentForms.filter(form => /^(10-K|20-F|40-F)(\/A)?$/.test(String(form || ''))))] };
@@ -167,37 +230,36 @@ function compactPitRows(rows, field, acceptedMap, maxRows = 40) {
     }));
 }
 
-function buildPointInTimeFacts(companyFacts, submissions) {
+function buildPointInTimeFacts(companyFacts, submissions, basis = US_GAAP_BASIS) {
+  const concepts = BASIS_CONCEPTS[basis.taxonomy];
+  const amountRows = (list) => factRows(companyFacts, basis.taxonomy, list, basis.currency);
   const acceptedMap = acceptedAtByAccession(submissions);
   // F05/F06: every revenue concept (and the v5 bank net revenue) is kept; consumers pick per period via bestRevenueRowsByPeriod.
   // Codex review 2026-10-05 (분기 추이): discrete-quarter facts (about three months) from 10-Q/10-K.
   // A fourth quarter is rarely tagged on its own; the projection derives it from FY minus Q1–Q3 and labels it.
   const quarterly = (row) => { const days = durationDays(row); return /^(10-Q|10-K)(\/A)?$/.test(row.form || '') && days != null && days >= 80 && days <= 100; };
-  const revenueQRows = revenueFactRows(companyFacts).filter(quarterly);
-  const incomeQRows = factRows(companyFacts, 'us-gaap', ['NetIncomeLoss', 'ProfitLoss'], 'USD').filter(quarterly);
-  const revenueRows = revenueFactRows(companyFacts).filter(row => {
+  const revenueQRows = revenueFactRows(companyFacts, basis).filter(quarterly);
+  const incomeQRows = amountRows(concepts.income).filter(quarterly);
+  const revenueRows = revenueFactRows(companyFacts, basis).filter(row => {
     const days = durationDays(row);
     return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400;
   });
-  const incomeRows = factRows(companyFacts, 'us-gaap', ['NetIncomeLoss', 'ProfitLoss'], 'USD').filter(row => {
+  const incomeRows = amountRows(concepts.income).filter(row => {
     const days = durationDays(row);
     return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400;
   });
   // P1402: parent-company equity first (the ROE/P-B denominator, matching NetIncomeLoss); the
   // NCI-inclusive total is a fallback. Agilent's FY2025 10-K tagged the NCI-inclusive total with
   // its accumulated OCI (-$226M against $6,741M parent equity).
-  const equityRows = factRows(companyFacts, 'us-gaap', [
-    'StockholdersEquity',
-    'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest'
-  ], 'USD').filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
+  const equityRows = amountRows(concepts.equity).filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
   const shareRows = factRows(companyFacts, 'dei', ['EntityCommonStockSharesOutstanding'], 'shares')
     .filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
   // P1446 (review 2026-10-04): the 재무 공시 reading needs the cash chain — operating cash flow, capital
   // spending (→ free cash flow) and long-term debt — beside revenue and income. Annual 10-K facts only.
   const annualFy = (row) => { const days = durationDays(row); return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400; };
-  const ocfRows = factRows(companyFacts, 'us-gaap', ['NetCashProvidedByUsedInOperatingActivities', 'NetCashProvidedByUsedInOperatingActivitiesContinuingOperations'], 'USD').filter(annualFy);
-  const capexRows = factRows(companyFacts, 'us-gaap', ['PaymentsToAcquirePropertyPlantAndEquipment', 'PaymentsToAcquireProductiveAssets'], 'USD').filter(annualFy);
-  const debtRows = factRows(companyFacts, 'us-gaap', ['LongTermDebtNoncurrent', 'LongTermDebt'], 'USD').filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
+  const ocfRows = amountRows(concepts.operatingCashFlow).filter(annualFy);
+  const capexRows = amountRows(concepts.capex).filter(annualFy);
+  const debtRows = amountRows(concepts.longTermDebt).filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
   const observations = {
     revenue: compactPitRows(revenueRows, 'revenue', acceptedMap),
     netIncome: compactPitRows(incomeRows, 'netIncome', acceptedMap),
@@ -212,6 +274,8 @@ function buildPointInTimeFacts(companyFacts, submissions) {
   const all = Object.values(observations).flat();
   return {
     schemaVersion: 'sec-pit-facts.v1',
+    // v6: amounts are in this currency; the runtime projection publishes fiscal history only for USD.
+    ...(basis.currency !== 'USD' ? { currency: basis.currency } : {}),
     status: all.some(row => row.acceptedAt) ? 'accepted-time-partial' : 'filed-date-only',
     observationCount: all.length,
     acceptedTimeCount: all.filter(row => row.acceptedAt).length,
@@ -373,25 +437,21 @@ export function recentFilingsFrom(submissions, nowMs = Date.now()) {
 }
 
 export function normalizeSecCompanyFacts(symbol, companyFacts, price, submissions = null, classFacts = null) {
+  const basis = reportingBasis(companyFacts);
+  const usGaapUsd = basis.taxonomy === 'us-gaap' && basis.currency === 'USD';
+  const concepts = BASIS_CONCEPTS[basis.taxonomy];
   // F05/F06: every annual revenue concept is collected; bestRevenueRowsByPeriod picks one row per fiscal period
   // (largest primary concept, assessed-tax-inclusive only as a fallback). P1374 bank net revenue stays a
   // primary concept.
   // (annualDurationRows dedupes by period+form across concepts, so the per-concept rows are filtered here instead.)
-  const revenues = bestRevenueRowsByPeriod(revenueFactRows(companyFacts).filter(row => {
-    const days = durationDays(row);
-    return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400 && finiteFact(row.val) != null;
-  }));
-  const incomes = annualDurationRows(companyFacts, ['NetIncomeLoss', 'ProfitLoss']);
+  const revenues = bestRevenueRowsByPeriod(revenueFactRows(companyFacts, basis).filter(isAnnualFy));
   if (!revenues.length) return null;
 
   const currentRevenue = revenues[0];
   const priorRevenue = revenues.find(row => isPriorAnnualPeriod(currentRevenue, row));
-  const currentIncome = incomes.find(row => sameFiscalPeriod(currentRevenue, row)) || null;
-  const equities = instantRows(companyFacts, 'us-gaap', [
-    'StockholdersEquity', // P1402: parent equity first; see buildPointInTimeFacts
-    'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest'
-  ], 'USD');
-  const currentEquity = closestEnd(equities, currentRevenue.end) || null;
+  const currentIncome = preferredRow(companyFacts, basis, concepts.income, (rows) => rows.find(row => sameFiscalPeriod(currentRevenue, row)) || null, (list) => annualDurationRows(companyFacts, list, basis));
+  // P1402: parent equity first; see buildPointInTimeFacts
+  const currentEquity = preferredRow(companyFacts, basis, concepts.equity, (rows) => closestEnd(rows, currentRevenue.end) || null, (list) => instantRows(companyFacts, basis.taxonomy, list, basis.currency));
   const acceptedMap = acceptedAtByAccession(submissions);
 
   const revenue = Number(currentRevenue.val);
@@ -404,7 +464,12 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   const eps = finiteFact(epsRow?.val);
   const dilutedEpsRow = dedupeLatestFiled(factRows(companyFacts, 'us-gaap', ['EarningsPerShareDiluted'], 'USD/shares')
     .filter((row) => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && row.end === currentRevenue.end && finiteFact(row.val) != null))[0] || null;
-  const shareSelection = selectShareCount(companyFacts, currentRevenue, netIncome, eps, dilutedEpsRow, classFacts, symbol);
+  // v6 (owner decision 2026-10-16): price-based ratios need a share count on the quote's basis. A non-USD report never
+  // meets the USD quote, and an IFRS 20-F/40-F count is ordinary shares while the US line is often an ADS of 0.5-6
+  // shares (AZN 0.5, BHP/SHEL 2, HSBC 5, BP 6), so both are withheld instead of converted.
+  const shareSelection = usGaapUsd
+    ? selectShareCount(companyFacts, currentRevenue, netIncome, eps, dilutedEpsRow, classFacts, symbol)
+    : { row: null, value: null, basis: null, check: basis.currency !== 'USD' ? 'reporting-currency-differs' : 'foreign-share-basis-unverified' };
   const currentShares = shareSelection.row;
   const sharesCheck = shareSelection.check;
   const sharesOutstanding = shareSelection.value;
@@ -472,9 +537,14 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     fetchedAt: new Date().toISOString(),
     form: currentRevenue.form || null,
     accession: currentRevenue.accn || null,
-    revenue,
-    netIncome,
-    equity: Number.isFinite(equity) ? equity : null,
+    // v6: amounts are published in USD only. A non-USD report keeps its native amounts for audit in reportedAmounts
+    // and ships ratios (margin, ROE, growth) only, so no consumer prints TWD or EUR as dollars.
+    accountingStandard: basis.taxonomy === 'ifrs-full' ? 'IFRS' : 'US-GAAP',
+    reportingCurrency: basis.currency,
+    ...(basis.currency !== 'USD' ? { reportedAmounts: { currency: basis.currency, revenue, netIncome, equity: Number.isFinite(equity) ? equity : null } } : {}),
+    revenue: basis.currency === 'USD' ? revenue : null,
+    netIncome: basis.currency === 'USD' ? netIncome : null,
+    equity: basis.currency === 'USD' && Number.isFinite(equity) ? equity : null,
     // P1582: declare which equity concept fed ROE/P-B. The NCI-inclusive fallback does not match the
     // parent-only NetIncomeLoss numerator, so consumers can see when the ratio mixes bases.
     equityBasis: !Number.isFinite(equity) ? null : currentEquity?.concept === 'StockholdersEquity' ? 'parent' : 'including-noncontrolling-interest',
@@ -492,14 +562,16 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     // N20: recent 8-K/10-Q/10-K filings within 30 days before this read (`fetchedAt`): date, form, Item numbers,
     // accession only — no filing text.
     recentFilings: recentFilingsFrom(submissions),
-    coverage: ['revenue', ...(netIncome != null ? ['netIncome'] : []), ...(equity != null ? ['equity'] : []), ...(sharesOutstanding != null ? ['sharesOutstanding'] : [])],
-    pit: buildPointInTimeFacts(companyFacts, submissions)
+    coverage: basis.currency !== 'USD' ? [] : ['revenue', ...(netIncome != null ? ['netIncome'] : []), ...(equity != null ? ['equity'] : []), ...(sharesOutstanding != null ? ['sharesOutstanding'] : [])],
+    pit: buildPointInTimeFacts(companyFacts, submissions, basis)
   };
 
   if (priorRevenue && Number(priorRevenue.val) > 0) record.revGrowth = round((revenue / Number(priorRevenue.val) - 1) * 100, 1);
   if (netIncome != null && revenue !== 0) record.margin = round(netIncome / revenue * 100, 1);
   // F05: a margin above 100% means a revenue subtotal, not the business; withheld (value kept for audit).
   if (record.margin > SEC_MARGIN_HOLD_ABOVE_PCT) { record.marginHeld = { value: record.margin, reason: 'margin-above-100pct-revenue-subtotal' }; delete record.margin; }
+  // v6: the same subtotal does not measure growth either (one rule with reconcileSecRevenueShares).
+  if (record.marginHeld && Number.isFinite(record.revGrowth)) { record.revGrowthHeld = { value: record.revGrowth, reason: 'revenue-subtotal' }; delete record.revGrowth; }
   if (netIncome != null && equity > 0) record.roe = round(netIncome / equity * 100, 1);
   if (marketCap && netIncome > 0) record.pe = round(marketCap / netIncome, 2);
   if (marketCap && equity > 0) record.pb = round(marketCap / equity, 2);

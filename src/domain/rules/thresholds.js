@@ -40,7 +40,10 @@ export const RULES = Object.freeze({
   // v57.84 (technical definitions): the periods and bands every chart, screener field and summary sentence reads, so a
   // stock cannot be "확장 4배" on the chart and something else in the screener (src/domain/technical/definitions.js).
   //   atrPeriod/adrPeriod: Wilder ATR(14) and the average daily range (high − low) ÷ that day's close over 20 sessions;
-  //   rangeSessions: a 52-week range needs 252 sessions, a shorter record is labelled by its length (P1428);
+  //   rangeSessions: the 52-week window is the last 252 sessions; fullYearSessions: a record counts as a full year from 240
+  //   sessions — one calendar year is 251 US / 245 KR sessions and the producers fetch exactly one year (Yahoo range=1y),
+  //   so a 252 floor was never met and nulled every 52-week figure (v57.86); a listing under ~11.5 months stays labelled by
+  //   its length (P1428);
   //   nearHighPct: an index or stock within 3% of its 52-week high is 고점권 (briefing and daily diff);
   //   extension: distance to the 50-day line in ADRs — 2 near the base, 4 extended, 7 stretched (setup-profile, v57.50 C20);
   //   nearLineAdr/recentDropAdr: within 1 ADR of the 50-day line is 부근; a five-session fall beyond 2 ADRs is 단기 급락;
@@ -50,7 +53,7 @@ export const RULES = Object.freeze({
   //   own looser moving-average gate (within 30% of the high) — a separate, separately named test;
   //   breakout: the volume multiple of a breakout day (both the chart and the screener's VCP).
   technical: Object.freeze({ rsi: Object.freeze({ overbought: 70, oversold: 30, climax: 80 }),
-    atrPeriod: 14, adrPeriod: 20, rangeSessions: 252, nearHighPct: 3,
+    atrPeriod: 14, adrPeriod: 20, rangeSessions: 252, fullYearSessions: 240, nearHighPct: 3,
     extension: Object.freeze({ nearBase: 2, extended: 4, stretched: 7 }), nearLineAdr: 1, recentDropAdr: 2,
     ema8: Object.freeze({ overheatPct: 10, breakBelowPct: 5 }),
     weinstein: Object.freeze({ maWeeks: 30, slopeWeeks: 4, flatSlopePct: 1, priorWeeks: 26 }),

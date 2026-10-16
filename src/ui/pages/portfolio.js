@@ -37,12 +37,13 @@ function renderPortfolioStatus(documentRef, state, surface) {
   } else if (valuation === 'empty') {
     element.textContent = '포트폴리오 등록 후 자동 계산됩니다.';
   } else if (valuation === 'partial') {
-    element.textContent = `${surface?.valuedHoldingCount ?? 0}/${surface?.holdingCount ?? 0}종목 평가 · 가격 없음 ${(surface?.holdingCount ?? 0) - (surface?.valuedHoldingCount ?? 0)}종목은 총자산과 손익에서 뺐습니다${closeNote(surface)}`; // v57.81: same words as the row state
+    // v57.86 (live review): the hero shows no partial total, so the line says the totals wait (it said the holding was "left out").
+    element.textContent = `${surface?.valuedHoldingCount ?? 0}/${surface?.holdingCount ?? 0}종목 평가 · 가격 없음 ${(surface?.holdingCount ?? 0) - (surface?.valuedHoldingCount ?? 0)}종목이 있어 총자산과 손익은 모든 종목 가격을 받은 뒤 표시합니다${closeNote(surface)}`; // v57.81: same words as the row state
   } else if (valuation === 'unavailable' && readState === 'ready' && (surface?.holdingCount ?? 0) > 0) {
     // v57.81: every holding is on 가격 없음 (no quote and no close yet), so no total is shown rather than a partial one.
     element.textContent = `${surface.holdingCount}종목 모두 가격 없음 · 가격을 받으면 총자산과 손익을 계산합니다`;
   } else if (valuation === 'complete') {
-    element.textContent = `${surface?.holdingCount ?? 0}종목 평가 완료${closeNote(surface)}`;
+    element.textContent = `${surface?.holdingCount ?? 0}종목 평가 완료${surface?.cash == null && !surface?.cashHeld ? ' · 현금 미입력 — 총자산은 주식 평가액' : ''}${closeNote(surface)}`;
   } else {
     element.textContent = '포트폴리오 데이터 수신 대기';
   }
@@ -79,7 +80,8 @@ function renderPortfolioHero(documentRef, surface) {
   const valueElement = documentRef?.getElementById('pf-total-value');
   const pnlElement = documentRef?.getElementById('pf-total-pnl');
   if (!valueElement && !pnlElement) return;
-  const totalValue = surface.valuationState === 'cash-only' || surface.valuationState === 'complete' ? surface.totalAssets : null;
+  // v57.86 (live review): with no cash entered the total is the holdings' value (the status line says so) — P&L showed beside "—".
+  const totalValue = surface.valuationState === 'cash-only' || surface.valuationState === 'complete' ? surface.totalAssets ?? (surface.valuationState === 'complete' && surface.cash == null && !surface.cashHeld ? surface.positionValue ?? null : null) : null;
   const totalPnl = surface.valuationState === 'complete' ? surface.totalPnl : null;
   if (valueElement) {
     valueElement.textContent = formatMoney(totalValue, surface.baseCurrency || surface.declaredBaseCurrency || 'USD');
@@ -196,17 +198,23 @@ function screenerCloseOf(root, bySymbol, onDemand = new Map()) {
 // already asks for its visible rows the same way). Throttled per symbol set; the close fallback covers the wait.
 let holdingQuoteSignature = '';
 let holdingQuoteRequestedAt = 0;
-function requestHoldingQuotes(root, rows) {
+// v57.86 (live review): the request fired while another quotes run was in flight — the scheduler skipped it ("already in
+// flight") or fetchLiveQuotes returned at once and reported ok — and the 55-second throttle kept it from retrying, so
+// Korean holdings stayed 가격 없음. A run that leaves a requested symbol without a quote retries.
+const unquoted = (root, symbols) => symbols.filter((symbol) => !(Number(root?._liveData?.[symbol]?.price) > 0));
+function requestHoldingQuotes(root, rows, attempt = 0) { // attempt > 0: a retry, which alone passes the throttle
   const symbols = [...new Set((rows || []).filter((row) => row?.sourceKind !== 'live-quote').map((row) => quoteSymbolOf(root, row?.symbol)).filter(Boolean))].slice(0, 60);
   if (!symbols.length) return;
   symbols.forEach((symbol) => root?.AIO?.registerLiveSymbol?.(symbol, { reason: 'portfolio-holding' }));
   const signature = symbols.join('|');
   const nowMs = Date.now();
-  if (signature === holdingQuoteSignature && nowMs - holdingQuoteRequestedAt < 55_000) return;
+  if (!attempt && signature === holdingQuoteSignature && nowMs - holdingQuoteRequestedAt < 55_000) return;
   if (root?._aioBootPhase?.quoteReady === false || typeof root?.AIO?.runScheduledRefresh !== 'function') return;
   holdingQuoteSignature = signature;
   holdingQuoteRequestedAt = nowMs;
-  Promise.resolve(root.AIO.runScheduledRefresh({ keys: ['quotes'], symbols, pageId: 'portfolio', reason: 'portfolio-holding-quotes' })).catch(() => {});
+  Promise.resolve(root.AIO.runScheduledRefresh({ keys: ['quotes'], symbols, pageId: 'portfolio', reason: 'portfolio-holding-quotes' }))
+    .then(() => { if (attempt < 3 && unquoted(root, symbols).length) setTimeout(() => requestHoldingQuotes(root, rows, attempt + 1), 4000); })
+    .catch(() => {});
 }
 const closeNote = (surface) => {
   const n = surface?.closeValuedCount || 0;

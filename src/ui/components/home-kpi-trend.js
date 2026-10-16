@@ -119,8 +119,13 @@ function renderHomeParticipation({ documentRef: doc, history }) {
   const spxMove = pct(spx[0].value, spx[spx.length - 1].value);
   const b0 = b50In[0]?.value;
   const b1 = b50In[b50In.length - 1]?.value;
+  // v57.86 (live review): the 62-session line read "참여 종목은 줄었습니다" while 시장 폭 said participation widened over 20
+  // sessions (+6.1%p) — a recent move against the window's direction is named beside it.
+  const b20 = b50In.length > 21 ? b50In[b50In.length - 21].value : null;
+  const recentTurn = b20 != null && b0 != null && b1 != null && Math.sign(b1 - b20) !== 0 && Math.sign(b1 - b20) !== Math.sign(b1 - b0) && Math.abs(b1 - b20) >= 3
+    ? ` (최근 20거래일은 ${b20.toFixed(0)}% → ${b1.toFixed(0)}%로 ${b1 > b20 ? '다시 넓어지는 중' : '다시 줄어드는 중'})` : '';
   const read = b50In.length >= 2
-    ? `${spx.length - 1}거래일 동안 S&P 500 ${spxMove >= 0 ? '+' : ''}${spxMove.toFixed(1)}% · 같은 기간 50일선 위 종목 ${b0.toFixed(0)}% → ${b1.toFixed(0)}%${spxMove > 0 && b1 < b0 ? ' — 지수는 올랐지만 참여 종목은 줄었습니다' : spxMove > 0 && b1 >= b0 ? ' — 지수와 참여가 함께 늘었습니다' : spxMove <= 0 && b1 < b0 ? ' — 지수와 참여가 함께 약해졌습니다' : ' — 지수는 약했지만 참여는 늘었습니다'}`
+    ? `${spx.length - 1}거래일 동안 S&P 500 ${spxMove >= 0 ? '+' : ''}${spxMove.toFixed(1)}% · 같은 기간 50일선 위 종목 ${b0.toFixed(0)}% → ${b1.toFixed(0)}%${spxMove > 0 && b1 < b0 ? ' — 지수는 올랐지만 참여 종목은 줄었습니다' : spxMove > 0 && b1 >= b0 ? ' — 지수와 참여가 함께 늘었습니다' : spxMove <= 0 && b1 < b0 ? ' — 지수와 참여가 함께 약해졌습니다' : ' — 지수는 약했지만 참여는 늘었습니다'}${recentTurn}`
     : `${spx.length - 1}거래일 S&P 500 ${spxMove >= 0 ? '+' : ''}${spxMove.toFixed(1)}% · 시장 폭 기록은 아직 같은 기간을 채우지 못했습니다`;
   const head = doc.createElement('div');
   head.className = 'home-participation-head';

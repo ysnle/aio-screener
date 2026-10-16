@@ -88,6 +88,7 @@ const source = JSON.parse(sourceText);
 const FY_FIELDS = ['revenue', 'netIncome', 'equity', 'operatingCashFlow', 'capex', 'longTermDebt'];
 const DURATION_FIELDS = new Set(['revenue', 'netIncome', 'operatingCashFlow', 'capex']);
 export const FISCAL_HISTORY_FORMAT = 'periodEnd:revenue:netIncome:equity:operatingCashFlow:capex:longTermDebt:sharesMillions (USD millions)';
+const usdReport = (record) => !record?.reportingCurrency || record.reportingCurrency === 'USD';
 function fiscalHistory(observations = {}) {
   const byEnd = new Map();
   for (const field of FY_FIELDS) {
@@ -196,9 +197,10 @@ const fiscal = {
   format: FISCAL_HISTORY_FORMAT,
   precision: { amountUnit: 'USD million', decimalPlaces: 3, roundingUnitUsd: 1000, sharesUnit: 'million shares', roundingUnitShares: 1000 },
   allowedUse: source.allowedUse,
-  data: Object.fromEntries(Object.entries(source.data || {}).map(([symbol, record]) => [symbol, fiscalHistory(record?.pit?.observations)]).filter(([, value]) => value)),
+  // v6 (2026-10-16): the series are USD millions, so a non-USD report (TSM TWD, ASML EUR) is left out rather than relabelled.
+  data: Object.fromEntries(Object.entries(source.data || {}).filter(([, record]) => usdReport(record)).map(([symbol, record]) => [symbol, fiscalHistory(record?.pit?.observations)]).filter(([, value]) => value)),
   quarterFormat: QUARTER_FORMAT,
-  quarters: Object.fromEntries(Object.entries(source.data || {}).map(([symbol, record]) => [symbol, quarterlyHistory(record?.pit?.observations)]).filter(([, value]) => value))
+  quarters: Object.fromEntries(Object.entries(source.data || {}).filter(([, record]) => usdReport(record)).map(([symbol, record]) => [symbol, quarterlyHistory(record?.pit?.observations)]).filter(([, value]) => value))
 };
 await writeFile(new URL(`${FISCAL.pathname}.tmp`, FISCAL), `${JSON.stringify(fiscal)}
 `, 'utf8');

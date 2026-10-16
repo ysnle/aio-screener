@@ -46,12 +46,19 @@ assert.match(buildQuestionDomainContext({ ctxId: 'technical', query: 'RSI와 매
   const tr = defs.trueRanges(year).slice(1);
   let wilder = tr.slice(0, 14).reduce((a, b) => a + b, 0) / 14; for (let k = 14; k < tr.length; k++) wilder = (wilder * 13 + tr[k]) / 14;
   assert.ok(Math.abs(chart.atr14 - wilder) < 1e-9, 'v57.84 chart ATR is Wilder ATR(14)');
-  // A record shorter than 252 sessions is never a 52-week range, on the chart or in the producer.
+  // A record shorter than RULES fullYearSessions (240) is never a 52-week range, on the chart or in the producer.
   const short = year.slice(-220);
   const shortSetup = _calcSetupScreenFields(col(short, 'close'), col(short, 'close'), col(short, 'high'), col(short, 'low'), col(short, 'volume'));
   assert.equal(shortSetup.pctFrom52wHigh, null, 'v57.84 producer: 220 sessions publish no 52-week high distance');
   assert.equal(shortSetup.pctFrom52wLow, null, 'v57.84 producer: 220 sessions publish no 52-week low distance');
-  assert.equal(closesToFactors(col(year.slice(-251), 'close')).pctFromCloseHigh52w, null, 'v57.84 producer: 251 closes are not a 52-week closing high');
+  assert.equal(closesToFactors(col(year.slice(-239), 'close')).pctFromCloseHigh52w, null, 'v57.86 producer: 239 closes are not a 52-week closing high');
+  // v57.86: one calendar year is 251 US / 245 KR sessions and the producer fetches exactly one year; a 252 floor nulled every row.
+  for (const n of [251, 245, 240]) {
+    assert.notEqual(closesToFactors(col(year.slice(-n), 'close')).pctFromCloseHigh52w, null, `v57.86 producer: ${n} closes (one calendar year) give a 52-week closing high`);
+    const yr = year.slice(-n);
+    assert.notEqual(_calcSetupScreenFields(col(yr, 'close'), col(yr, 'close'), col(yr, 'high'), col(yr, 'low'), col(yr, 'volume')).pctFrom52wHigh, null, `v57.86 producer: ${n} sessions publish the 52-week high distance`);
+    assert.equal(analyzeChart(yr).rangeLabel, '52주', `v57.86 chart reads ${n} sessions as 52 weeks`);
+  }
   assert.equal(analyzeChart(short).rangeLabel, '최근 220거래일', 'v57.84 chart names the shorter record');
   assert.equal(_calcVCPServer(col(short, 'close'), col(short, 'high'), col(short, 'low'), col(short, 'volume')).vcpStage, 'not_stage2', 'v57.84 the stage-2 gate cannot pass on an unknown 52-week high');
   assert.ok(setup.pctFrom52wHigh != null && Math.abs(setup.pctFrom52wHigh - Math.round(chart.fromHigh * 10) / 10) <= 0.1, 'v57.84 producer and chart 52-week high distance agree');

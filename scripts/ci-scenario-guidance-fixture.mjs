@@ -683,8 +683,15 @@ console.log('scenario guidance fixture (basis card): PASS');
   const oilModel = buildMacroCrossroads({ read: oilRead, history: oilHistory });
   const hubOil = oilModel.rateHub.pathsDown.find((path) => path.id === 'oil');
   assert.ok(oilRead.oil.held && oilNode.held && oilNode.impact === 'unknown' && hubOil.stateText === '혼재' && hubOil.ok == null
-    && oilModel.items.find((item) => item.id === 'softland').conditions[2][1] === null && oilRead.axes.find((axis) => axis.id === 'commodities').caveat,
+    // v57.86 (live review): both moves sit below the 유가 안정 line, so the held pair still answers it; a split answer stays null.
+    && oilModel.items.find((item) => item.id === 'softland').conditions[2][1] === true && oilRead.axes.find((axis) => axis.id === 'commodities').caveat,
     `v57.81 one oil read when the Brent−WTI spread breaks (node ${oilNode.value}; hub ${hubOil.stateText}; ${oilRead.oil.sentence})`);
+
+  const splitOil = buildMacroCrossroads({ read: oilRead, history: oilHistory, signals: { oil20: 6, brent20: 1, oilHeld: true } });
+  assert.equal(splitOil.items.find((item) => item.id === 'softland').conditions[2][1], null, 'v57.86 a held pair whose moves answer 유가 안정 differently stays 확인 불가');
+  // v57.86: the credit-stress gate is the level — a fast widening at 325bp (axis 부담, level below 350bp, NFCI < 0) cannot lead.
+  const fastWiden = buildMacroCrossroads({ read: oilRead, history: oilHistory, signals: { credit: 'burden', hyBp: 325, nfci: -0.5 } }).items.find((item) => item.id === 'creditstress');
+  assert.ok(fastWiden.gate.met === false && /핵심 조건 미충족/.test(fastWiden.status), `v57.86 credit-stress gate is the spread level (${fastWiden.status})`);
 
   // NFCI: the credit-stress condition and the 거시 card read the same 4-week window (a session count read one week).
   const nfciObs = Array.from({ length: 30 }, (_, i) => [new Date(Date.UTC(2026, 2, 6) + i * 7 * 86400000).toISOString().slice(0, 10), Number((-0.6 + 0.0125 * i).toFixed(4))]);
@@ -743,6 +750,8 @@ console.log('scenario guidance fixture (basis card): PASS');
     assert.match(at('staples').stateLabel, /^동행 · 1개월 앞서기 시작 /, `v57.84 동행 + 1-month lead reads 앞서기 시작, not 반등 시도 (${at('staples').stateLabel})`);
     assert.equal(at('battery').state, 'defensive', `v57.84 batteries -2.6% against KOSPI -25.7% are 상대 방어, not 주도 (${at('battery').stateLabel})`);
     assert.ok(!/주도/.test(at('battery').stateLabel) && at('battery').favored.every((key) => key === 'wait'), 'v57.84 상대 방어 never uses leadership words or favours holding as a leader');
+    assert.equal(stateOf(8, -10.9, { band: 3.7, recentBand: 1.5, absolute: -4 }), 'pullback', 'v57.86 a theme 10.9%p behind the index over a month is not 상대 방어');
+    assert.equal(stateOf(8, 2, { band: 3.7, recentBand: 1.5, absolute: -4 }), 'defensive', 'v57.86 상대 방어 holds when the month does not lag');
     assert.equal(stateOf(-5, 3, { band: 3.7, recentBand: 1.5 }), 'rebound', 'v57.84 반등 시도 needs the long trend beyond the band behind');
     assert.equal(stateOf(-2, -3, { band: 3.7, recentBand: 1.5 }), 'inline', 'v57.84 inside the band is 동행 whatever the month');
     // Proxy outcomes on the live rule against ^GSPC; an absolute-basis artifact is not compared with a relative stage.

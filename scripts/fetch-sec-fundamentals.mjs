@@ -14,9 +14,9 @@ import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERI
 import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS } from '../src/domain/fundamental/sec-report.js';
 // v57.81: the companyfacts normalizer lives in src/domain/fundamental/sec-normalize.js (shared with the browser's
 // out-of-universe issuer read); re-exported here so the gates and callers keep their imports.
-import { tickerKey, SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, classifyIssuerCapability, parseClassShareFacts, classInstanceUrl, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
+import { tickerKey, SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, SEC_CONCEPT_SET_REASON_CODES, classifyIssuerCapability, parseClassShareFacts, classInstanceUrl, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
 import { secClassification } from '../src/domain/fundamental/sic-sector.js';
-export { SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, classifyIssuerCapability, parseClassShareFacts, CLASS_EPS_TOLERANCE, selectClassDimensionedShares, classInstanceUrl, RECENT_FILING_WINDOW_DAYS, RECENT_FILING_MAX, recentFilingsFrom, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
+export { SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, SEC_CONCEPT_SET_REASON_CODES, reportingBasis, classifyIssuerCapability, parseClassShareFacts, CLASS_EPS_TOLERANCE, selectClassDimensionedShares, classInstanceUrl, RECENT_FILING_WINDOW_DAYS, RECENT_FILING_MAX, recentFilingsFrom, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
 import { buildDomainReceipt } from './lib/domain-receipt.mjs';
 
 // P1256: 도메인 receipt 계약은 이제 모든 수집 도메인이 공유한다(SEC는 첫 수용자).
@@ -263,7 +263,8 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
       sharesMissing: Boolean(previous.data && previous.data[symbol] && !(Number(previous.data[symbol].sharesOutstanding) > 0)),
       lastFailureAt: previousFailureAt.get(symbol) || null,
       priorFailure: previousFailureRecords.get(symbol) || null,
-      conceptSetChanged: previousFailureRecords.get(symbol)?.reasonCode === 'required-us-gaap-annual-concepts-unavailable'
+      // v6: the terminal IFRS rows (no conceptSetVersion) are rechecked under the IFRS basis the same way.
+      conceptSetChanged: SEC_CONCEPT_SET_REASON_CODES.includes(previousFailureRecords.get(symbol)?.reasonCode)
         && previousFailureRecords.get(symbol)?.conceptSetVersion !== SEC_CONCEPT_SET_VERSION
     }))
     .filter(row => {
@@ -339,8 +340,8 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
         failuresBySymbol.set(target.symbol, {
           symbol: target.symbol,
           status: 'TERMINAL_UNSUPPORTED',
-          reasonCode: 'required-us-gaap-annual-concepts-unavailable',
-          reason: 'no comparable annual US-GAAP revenue/net-income facts',
+          reasonCode: capability.issuerTaxonomy === 'IFRS' ? 'required-ifrs-annual-concepts-unavailable' : 'required-us-gaap-annual-concepts-unavailable',
+          reason: capability.issuerTaxonomy === 'IFRS' ? 'no comparable annual IFRS revenue facts' : 'no comparable annual US-GAAP revenue/net-income facts',
           conceptSetVersion: SEC_CONCEPT_SET_VERSION,
           issuerTaxonomy: capability.issuerTaxonomy,
           filingForms: capability.filingForms,

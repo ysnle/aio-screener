@@ -83,7 +83,9 @@ function themeLinkRow(doc, root, item, { max = 4 } = {}) {
   const row = el(doc, 'div', null, 'xr-explore xr-theme-links');
   // v57.71 (owner 2026-10-15): "순풍인 테마 반도체" on a -4% chip day read as a call on today's move. The row lists the
   // themes this path's exposure tags favour, so it is named as that condition.
-  row.append(el(doc, 'span', wind === 'tail' ? '수혜 테마' : '영향이 갈리는 테마', 'xr-explore-label'));
+  // v57.86 (live review): the home card listed 방산/항공우주 as 수혜 while the theme line below called it weak (-7.7%) — the label
+  // says the list is the path's exposure, not the themes' current strength.
+  row.append(el(doc, 'span', wind === 'tail' ? '이 시나리오의 수혜 테마(현재 강약과 별개)' : '영향이 갈리는 테마', 'xr-explore-label'));
   for (const theme of us) {
     const button = el(doc, 'button', `${usNames.get(theme.id)} →`, 'flow-next-link');
     button.type = 'button';
@@ -220,7 +222,7 @@ function branchCard(doc, root, item, lead, open = false) {
   body.append(impact);
   const themeRow = themeLinkRow(doc, root, item, { max: 6 });
   if (themeRow) body.append(themeRow);
-  body.append(el(doc, 'h4', '가능성의 근거 — 세 가지', 'xr-h4'));
+  body.append(el(doc, 'h4', '판단 근거 — 세 가지', 'xr-h4'));
   const evidence = el(doc, 'ul', null, 'xr-evidence');
   evidence.append(el(doc, 'li', `조건: ${item.basis.join(' · ')}`), el(doc, 'li', `시장 가격: ${item.pricing.text}`), el(doc, 'li', `과거 빈도: ${item.past.text}${item.pastBridge ? ` ${item.pastBridge}` : ''}`));
   body.append(evidence);
@@ -331,7 +333,8 @@ function themeLines(doc, root) {
 // path leads to and the themes it touches (US first, Korean themes as one link).
 function pathCard(doc, root, item, { kicker, fit }) {
   const card = el(doc, 'div', null, 'xr-path-card');
-  const tone = item.pricing.tone === 'same' ? '시장 가격도 이 방향' : item.pricing.tone === 'against' ? '시장 가격은 반대 방향' : item.pricing.tone === 'neutral' ? '시장 가격은 중립' : '시장 가격 확인 불가';
+  // v57.86 (live review): when the price gauge is itself a condition, "시장 가격도 이 방향" would confirm the branch with its own input.
+  const tone = item.pricingInConditions && item.pricing.tone === 'same' ? '시장 가격은 조건에 포함' : item.pricing.tone === 'same' ? '시장 가격도 이 방향' : item.pricing.tone === 'against' ? '시장 가격은 반대 방향' : item.pricing.tone === 'neutral' ? '시장 가격은 중립' : '시장 가격 확인 불가';
   const head = el(doc, 'div', null, 'xr-path-head');
   head.append(el(doc, 'span', kicker, 'xr-path-kicker'), el(doc, 'strong', `'${item.title.split(' — ')[0]}'`, 'xr-path-name'));
   const tags = el(doc, 'div', null, 'xr-path-tags');
@@ -343,7 +346,7 @@ function pathCard(doc, root, item, { kicker, fit }) {
   favoredRow.title = item.favoredWhy || '';
   if (item.pastConflict) favoredRow.append(' ', pastConflictTag(doc, item));
   rows.append(el(doc, 'dt', '유리한 대응'), favoredRow);
-  if (item.shape && SHAPES[item.shape]) rows.append(el(doc, 'dt', '이후 시장 흐름'), el(doc, 'dd', `'${SHAPES[item.shape]}'`));
+  if (item.shape && SHAPES[item.shape]) rows.append(el(doc, 'dt', item.gate?.met === true ? '이후 시장 흐름' : '성립하면 시장 흐름'), el(doc, 'dd', `'${SHAPES[item.shape]}'`));
   card.append(head, tags, rows);
   const themes = themeLinkRow(doc, root, item);
   if (themes) card.append(themes);

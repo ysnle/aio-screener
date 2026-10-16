@@ -6,6 +6,78 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1882 - v57.86 - 화면 사이 같은 사실을 서로 반대로 보이는 표기 네 건 (2026-10-16)
+
+- symptom/reproduction: 원/달러 막대가 중립 판정인데 양호 칸에 찍혔고, 오늘 화면은 62거래일 기준 '참여 종목은 줄었습니다'만 말해 시장 폭 화면의 20거래일 +6.1%p 확대와 반대로 읽혔다. 같은 카드에서 방산/항공우주가 '수혜 테마'이면서 바로 아래 '약한 쪽(-7.7%)'이었고, 브리핑 확인 포인트는 시장 상태가 이미 답한 질문(표본 중앙값)을 물었다.
+- root_cause: 원/달러 게이지 구간 색이 축 판정(혼조·직전일 전환·시작점 효과로 중립 유지)을 따르지 않았고, 62거래일 문장에 최근 방향이 없었으며, 수혜 테마 라벨이 노출 조건임을 말하지 않았다.
+- fix: 원/달러 바깥 구간은 축이 그 판정일 때만 색을 갖는다(달러 게이지와 같은 방식). 62거래일 문장은 최근 20거래일이 반대로 3%p 이상 움직이면 함께 적는다. 라벨은 '이 시나리오의 수혜 테마(현재 강약과 별개)'. 확인 포인트는 다음 한국 거래일에 볼 것으로 바꿨다.
+- violated_rule: R707 (판정에는 최근 움직임 점검과 창이 함께 있어야 함)
+- prevention: QA-VERIFY-39 운영 확인에 포함.
+- verification/residual: node --check; 전체 QA.
+
+## P1881 - v57.86 - 한국 종목 화면이 장중 내내 '전일 기준 미확인'으로 등락을 숨김 (2026-10-16)
+
+- symptom/reproduction: 삼성전자 종목 화면이 10/16 장중 '₩217,500 정규장 관측가 · 전일 기준 미확인'을 보였다. 10/15 종가(₩210,000) 기준 약 +3.6%였고, 같은 페이지가 그 일봉을 이미 갖고 있었다.
+- root_cause: P1728 검증 경로는 같은 세션의 스크리너 행(아직 10/15)이나 지수 상태 점검만 기준으로 받아들였다. 한국 행에는 종가 필드도 없어, 새 세션 장중에는 검증된 기준이 하나도 없었다.
+- fix: 종목 화면은 지수 기록의 최신 완료 KRX 세션과 날짜가 같은 일봉 종가를 그 뒤 세션 시세의 전일 기준으로 쓴다(사이에 빠진 세션이 없을 때만). 레거시 검증 함수는 그대로 둔다.
+- violated_rule: R709 (기본 경로 숫자 렌더러는 부분 자료에 안전해야 함)
+- prevention: QA-VERIFY-41로 운영 장중 확인.
+- verification/residual: node --check; 전체 QA 브라우저 그룹. 장중 운영 확인은 다음 KRX 세션에서.
+
+## P1880 - v57.86 - 스크리너 상위권 요약이 모르는 52주 값을 0%로 세고, 프리셋 두 개가 제 신호로 고르지 않았음 (2026-10-16)
+
+- symptom/reproduction: 상위권 요약이 '0%가 52주 고점 5% 이내'(실제는 자료 없음). 저변동 방어 상위 12개 중 7개가 채권 ETF(SHY·HYG·TIP·BND·AGG·LQD·TLT), 추세 정렬 상위 12개는 균형 상대 랭킹과 같은 종목·같은 순서였다.
+- root_cause: screener-read가 값 있는 행만 세어 전체 행 수로 나눴다. 저변동 프리셋은 순위 없는 펀드 행을 거르지 않았고, 추세 정렬은 정렬 키를 주지 않아 기본 rank 정렬을 썼다.
+- fix: 52주 비율은 값 있는 행 기준(없으면 '52주 고점 자료 없음', 일부면 'N종목 기준')으로; 저변동 방어는 순위 있는 행만(nullPolicy reject); 추세 정렬은 200일선 대비 거리 내림차순.
+- violated_rule: R709 (기본 경로 숫자 렌더러는 부분 자료에 안전해야 함)
+- prevention: ci-screener-workbench-contract가 프리셋 정의를 고정한다.
+- verification/residual: node --check; 워크벤치 계약·esm-core 통과.
+
+## P1879 - v57.86 - 포트폴리오 보유 종목 시세 요청이 다른 시세 실행과 겹치면 버려져 한국 보유 종목이 계속 '가격 없음' (2026-10-16)
+
+- symptom/reproduction: KRW 기준 포트폴리오에 005930.KS·000660.KS를 넣으면 두 행이 '가격 없음', 총자산·손익 '—', 통화 점검은 'USD 100%', 리스크 계산은 시세 없음으로 멈췄다. 같은 화면 차트 카드에는 두 종목 가격이 있었다. 현금을 입력하지 않은 미국 종목 포트폴리오는 손익만 있고 총자산이 '—'였고, 일부 평가 상태 문구는 '총자산과 손익에서 뺐습니다'라면서 합계를 보이지 않았다.
+- root_cause: requestHoldingQuotes가 화면 진입 시 시장 기호 시세 실행과 같은 순간에 요청해, 스케줄러가 'already in flight'로 건너뛰거나 fetchLiveQuotes가 진행 중 가드로 바로 반환(성공으로 기록)했다. 그 뒤 55초 같은 기호 제한이 재요청을 막았다. 스크리너의 보이는 행 요청도 같은 구조였다.
+- fix: 요청 뒤 요청한 기호에 시세가 없으면 4초 뒤 최대 3번 다시 요청한다(재시도만 55초 제한을 통과 — 제한을 지우면 시세가 끝내 없을 때 갱신·다시 그리기·재요청이 끝없이 돌았다, 전체 QA 브라우저 게이트에서 확인)(포트폴리오: 하나라도 없으면, 스크리너: 절반 넘게 없으면). 레거시 fetchLiveQuotes는 건드리지 않는다. 현금 미입력이면 총자산을 주식 평가액으로 보이고 상태 문구에 적으며, 일부 평가 문구는 '모든 종목 가격을 받은 뒤 표시'로 바꿨다.
+- violated_rule: R709 (기본 경로 숫자 렌더러는 부분 자료에 안전해야 함)
+- prevention: 운영 재현 스크립트로 진입 직후 요청이 skipped(in flight)되는 것을 확인했다. ci-portfolio-vault-e2e가 일부 평가 문구와 현금 미입력 총자산을 검사한다.
+- verification/residual: node --check; 라이브 프로브에서 portfolio-holding-quotes가 'scheduler task already in flight'로 건너뛰어진 기록 확인(수정 전). push 뒤 운영 사이트에서 재확인 필요(로컬은 Worker 출처 제한으로 끝까지 재현 불가).
+
+## P1878 - v57.86 - 1개월 동안 지수보다 크게 뒤처진 테마를 '상대 방어(덜 하락한 것)'로 읽음 (2026-10-16)
+
+- symptom/reproduction: 한국 원전(1개월 코스피 대비 −10.9%p, 5거래일 −21.1%), 건설(−8.0%p), 로봇·반도체가 '상대 방어'로 표시됐고 46개 테마 중 24개가 이 단계였다. 삼성전자 종목 화면도 '테마 단계: 상대 방어'.
+- root_cause: themeStateOf가 긴 추세가 지수보다 앞서고 자기 수익률이 0 이하이면 1개월 상대 움직임을 보지 않고 'defensive'를 반환했다. 상대 방어는 방향이 없어 5거래일 이탈 점검도 돌지 않았다.
+- fix: 1개월 상대 움직임이 −recentBand보다 뒤처지면 먼저 '추세 속 조정'으로 보내고(5거래일 점검이 돈다), 상대 방어는 1개월도 뒤처지지 않을 때만 쓴다. 단계 설명에 그 조건을 적었다.
+- violated_rule: R707 (판정에는 최근 움직임 점검과 창이 함께 있어야 함)
+- prevention: ci-scenario-guidance-fixture가 1개월 −10.9%p 테마는 pullback, 1개월이 뒤처지지 않으면 defensive임을 검사한다(2차전지 상대 방어 기존 사례 유지).
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs PASS.
+
+## P1877 - v57.86 - 거시 시나리오가 빠른 확대만으로 신용 경색을 세우고, 자기 입력으로 '시장 가격도 이 방향'을 확인했음 (2026-10-16)
+
+- symptom/reproduction: HY 325bp(350bp 아래, NFCI 음수)에서 '신용 경색 — 돈줄이 마르는' 시나리오가 핵심 조건 충족으로 나왔고, 조건에 이미 든 가격 지표로 '시장 가격도 이 방향'을 붙였다. 브리핑·심리 화면은 325bp를 '부담 구간'이라 하면서 바로 옆에서 '수준은 아직 낮지만'이라 했다. WTI와 브렌트가 둘 다 +기준 아래인데 '유가 안정'이 확인 불가였고, 금리 게이지는 80~90% 유지 구간의 부담을 중립 칸에 찍었다.
+- root_cause: creditstress gate [0,1]이 some()으로 평가돼 변화로도 켜지는 축 판정(조건 0)이 수준 조건(조건 1)을 우회했다. pricingInConditions 분기도 머리말·카드에서 일반 분기처럼 가격 확인 문구를 썼다. HY 문구는 creditState 'burden'을 수준으로 읽었고, 유가 보류는 두 유가가 같은 답을 내는 조건까지 null로 만들었으며, 금리 게이지는 진입선(90%)만 그렸다.
+- fix: creditstress gate를 수준 조건 [1]로; pricingInConditions 분기는 '시장 가격은 조건에 포함'으로 쓰고 머리말·대안에서 가격 확인 문구를 뺀다; HY 350bp 아래 부담은 '수준은 낮지만 빠르게 넓어지는 중'으로; 보류된 유가 쌍은 두 20거래일 변화가 같은 답이면 그 답을 쓴다; 금리 게이지는 유지 중일 때 80% 유지선을 그린다. 물가 기준 문구는 '근원 PCE·CPI가 함께 재가속'으로 로직과 맞췄고, 성립 전 분기의 '이후 시장 흐름'은 '성립하면 시장 흐름'으로 바꿨다.
+- violated_rule: R707 (판정에는 최근 움직임 점검과 창이 함께 있어야 함)
+- prevention: ci-scenario-guidance-fixture가 325bp·NFCI −0.5의 신용 경색 핵심 조건 미충족, 같은 답의 보류 유가 쌍(유가 안정 true)과 엇갈린 쌍(null)을 검사한다.
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs 전 구간 PASS; ci-runtime-contract-check OK.
+
+## P1876 - v57.86 - 52주 전체 기간 하한 252세션이 생산자의 1년치(251/245봉)보다 커서 전 종목 52주 값·VCP 단계가 비었음 (2026-10-16)
+
+- symptom/reproduction: v57.85 배포 뒤 스크리너 1,142행 전부 pctFrom52wHigh/Low·pctFromCloseHigh52w가 null, vcpStage가 not_stage2. 돌파 관찰 0종목, 종목 화면은 50·200일선 위인데 '아직 충족하지 않습니다', 상위권 요약은 '0%가 52주 고점 5% 이내'.
+- root_cause: P1871/P1874가 52주 값을 252세션 이상에서만 내도록 했지만, 생산자는 Yahoo range=1y를 받아 미국 251봉·한국 245봉(미완성 세션 제거 시 하나 더 적음)만 가진다. 하한이 실제 입력 길이보다 커서 30년 상장 종목도 '1년 미만'으로 처리됐다.
+- fix: RULES.technical.fullYearSessions 240을 두고 rangeExtremesOf·price-factors·kr-index-trend·aio-core 클라이언트가 같은 하한을 읽는다(rangeSessions 252는 창 길이로 유지). 실제 Yahoo 1년치 12종목으로 VCP 단계가 다시 갈리는 것을 확인했다.
+- violated_rule: R3 (회귀 게이트가 실제 입력 길이로 검사하지 않음)
+- prevention: R716: 세션 수 하한은 생산자가 실제로 받는 길이(range=1y → 245~251봉)로 고정 테스트를 둔다.
+- verification/residual: ci-chart-scenarios-fixture가 251·245·240봉에서 52주 값이 있고 239봉에서 null임을 검사; ci-data-pipeline-contract-check가 클라이언트·서버 하한 240을 고정; esm-core 통과.
+
+## P1875 - v57.86 - IFRS·비USD 공시 종목(TSM·ASML·SAP·NVO·HSBC 등)이 SEC 재무 없음으로 남아 미국 핵심 순위에서 보류됨 (2026-10-16)
+
+- symptom/reproduction: P1872 뒤 행 단위 근거 80%를 못 채운 종목의 대부분이 해외 발행사였다. IFRS 택소노미만 있는 47개는 TERMINAL_UNSUPPORTED로 영구 제외됐고, US-GAAP이지만 EUR·CAD·JPY로 공시하는 ASML·CNI·CP·ENB·IMO·TRP·MFG·MUFG는 USD 단위만 읽어 매출 미검출로 실패했다. TM(2013)·VALE(2012)·PBR(2010)·AEM(2009)은 IFRS 전환 전 US-GAAP 연도에 멈춘 레코드가 남아 있었다.
+- root_cause: 정규화기가 us-gaap 택소노미와 USD 단위를 고정으로 읽었다. 해외 발행사의 회계 기준(IFRS)과 보고 통화를 판정하는 단계가 없었고, IFRS는 분류 단계에서 지원 불가로 끝났다.
+- fix: src/domain/fundamental/sec-normalize.js에 reportingBasis(택소노미·통화 1개)를 두고 모든 피연산자를 같은 기준에서 읽는다. 현재 회계연도의 US-GAAP USD 공시자는 기존과 같다. ifrs-full 개념은 명시 목록(Revenue·RevenueFromContractsWithCustomers, 대체 RevenueAndOperatingIncome / ProfitLossAttributableToOwnersOfParent / EquityAttributableToOwnersOfParent / 현금흐름)이다. 소유자 결정(비율 전용)대로 이익률·ROE·성장률만 같은 통화로 계산하고, 환율 환산은 하지 않는다. PER·PBR·기준 시가총액은 공시 통화가 USD가 아니면 보류(reporting-currency-differs)한다. IFRS 20-F의 공시 주식 수는 보통주이고 미국 상장분은 ADS(AZN 0.5주, BHP·SHEL 2주, HSBC 5주, BP 6주)라서, 통화가 같아도 보류(foreign-share-basis-unverified)한다. 비USD 금액은 reportedAmounts에만 두고 revenue·netIncome·equity는 null로 발행하며, 재무 이력 프로젝션(USD 백만)에서 뺀다. 은행의 IFRS 15 고객계약수익은 수수료 소계라서(BCS 11.1B) 은행 신호(FeeAndCommissionIncomeExpense)가 있으면 매출로 쓰지 않는다. 매출이 소계로 판정돼 이익률을 보류하면 성장률도 보류한다(CPT +81.7%, BBVA). 파생 은행 순매출은 보고 총매출이 그 절반 이상이면 지지 않는다(STT FY2024 13,000M 대 13,079M로 연도별 기준이 섞이던 문제). IFRS 분류는 SUPPORTED_IFRS가 되고, 기존 IFRS 종단 실패 행은 개념 세트 v6 변경으로 한 번 우선 재검사된다.
+- violated_rule: 원천 없는 위젯·근거 없는 등급 제거 원칙의 반대편 — 근거가 있는 공시를 택소노미·통화 고정 때문에 버렸다
+- prevention: P1875: ci-data-pipeline-contract-check가 TWD IFRS 비율 계산·금액 null·PER 보류, USD IFRS ADR 보류, IFRS 은행 수수료 소계 배제, EUR US-GAAP, 소계 성장률 보류(정규화·치유), 파생 순매출 50% 규칙, v6·재검사 사유 코드, 프로젝션 USD 필터를 단언한다. IFRS 분류 단언은 SUPPORTED_IFRS로 바뀌었다.
+- verification/residual: SEC companyfacts 실측 약 400개: 기존 US-GAAP USD 레코드 변화는 의도한 9개(소계 은행 MTB·HBAN·EWBC, 오래된 연도 SWX·TM·VALE·PBR·AEM, 소계 성장률 BXMT)뿐. IFRS·비USD 신규 정규화 다수(TSM은 companyfacts 최신 연도가 2024라 순위 기한 밖). 화면과 같은 provider→normalizeScreener→calculationRow→computeFactorRanks 경로에서 같은 시점 미국 핵심 순위 736 → 805(+69, 이탈 0). 가치 없이 퀄리티만으로 순위에 드는 것을 확인. ci-data-pipeline-contract-check·ci-sec-runtime-projection-check(754 records compared)·ci-screener-workbench-contract·ci-fiscal-quality-fixture·ci-esm-core-unit-check·ci-domain-parity-check 통과. 로컬 프로듀서는 실행하지 않았다.
+
 ## P1874 - v57.85 - 테마 단계·RRG 사분면·VCP 피벗이 정의 조건 없는 이름을 붙임(지수와 동행인데 약세, 하락 중인데 주도, 띠보다 큰 잡음에 사분면이 매일 바뀜, 화면마다 다른 피벗) (2026-10-16)
 
 - symptom/reproduction: 2026-10-15 산출물에서 US 에너지(6개월 +9.0%, S&P 500 +10.0%, 50일선 위 71%)가 "약세 지속", 필수소비재가 "반등 시도". 코스피 3개월 −25.7% 국면에서 절대 −2.6%인 2차전지가 "주도 지속", KR 테마 24개 중 21개가 주도·조정 계열. 과거 결과(대표 ETF)는 띠 없는 절대 부호로 분류돼 지금 단계와 기준이 다름. RRG 경계 띠 고정 ±1이 5거래일 변화 중앙값(RS-Ratio 0.65~4.1, RS-Momentum 1.3~9.8)보다 좁아 ICLN이 20거래일에 사분면을 9번 바꿈. 스크리너 생산자·레거시는 65봉·스윙 4·수축과 무관한 최근 스윙 고점을 피벗으로 써서 종목 차트와 피벗이 다름.

@@ -106,6 +106,17 @@ function renderTickerHero(documentRef, state, root) {
     const recheck = root._aioVerifyKrQuoteChange({ symbol: id, _source: quote.source, observedAt: quote.observedAt, regularMarketPreviousClose: quote.providerPreviousClose }, price, finite(quote.providerPct));
     if (recheck && recheck.status !== 'unverified') quote = { ...quote, pct: recheck.pct, changeBasis: recheck.basis, changeBasisDate: recheck.basisDate, changeCheck: recheck.status };
   }
+  // v57.86 (live review): during a KRX session the previous completed session's daily bar is that session's base —
+  // 005930 read '전일 기준 미확인' all morning while the page held the 10/15 bar. Used only when that bar's date is the
+  // latest completed KRX session in the index history (no skipped session between) and the quote is from a later day.
+  if (quote.changeCheck === 'unverified' && price != null && /\.(KS|KQ)$/.test(String(id || ''))) {
+    const lastKrx = root?._aioKrIndexCloseRead?.('kospi', root?._aioHistory)?.date || null;
+    const bars = state?.id === id && Array.isArray(state?.history) && state.history.length ? state.history : (root?._technicalOHLCV?.[id] || root?._tickerHistory?.[id] || []);
+    const bar = lastKrx ? bars.find((row) => row && formatTickerChartDate(row.epochMs) === lastKrx && finite(row.close) > 0) : null;
+    const ms = Date.parse(quote.observedAt || '');
+    const session = Number.isFinite(ms) ? new Date(ms + 9 * 3600000).toISOString().slice(0, 10) : null;
+    if (bar && session && session > lastKrx) quote = { ...quote, pct: (price / finite(bar.close) - 1) * 100, changeBasis: 'previous-session-daily-bar', changeBasisDate: lastKrx, changeCheck: 'agree' };
+  }
   const pct = finite(quote.pct);
   // P1317: Korean users recognise a KRX listing by its name, not its code — lead with the name.
   // P1652: the provider name is English ("Samsung Electronics Co., Ltd."); the exact KRX registry name comes first.

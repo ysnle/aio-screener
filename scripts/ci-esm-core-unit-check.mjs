@@ -4581,6 +4581,8 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (liveSinceClose('wti', { price: 94.38, pct: -0.75, observedAt: '2026-10-15T05:35:00Z' }, '2026-10-14')?.text !== '지금 94.38 -0.75%') fail('v57.79 a WTI quote after the 10/14 US close adds a 지금 line');
   if (liveSinceClose('vix', { price: 16.87, pct: 10.48, observedAt: '2026-10-14T20:15:00Z' }, '2026-10-14') !== null) fail('v57.79 a quote taken at the compared close adds no 지금 line');
   if (liveSinceClose('tnx', { price: 5.19, pct: -0.5, observedAt: '2026-10-15T14:00:00Z' }, '2026-10-14')?.text !== '지금 5.19% -3bp') fail('v57.79 the 10-year 지금 line moves in basis points');
+  if (liveSinceClose('wti', { price: 94.38, pct: -0.75, observedAt: '2026-10-15T05:35:00Z' }, '2026-10-14', 92.5)?.text !== '지금 94.38 +2.03%') fail('v57.86 the 지금 change is measured from the tile close, not the provider previous close');
+  if (liveSinceClose('tnx', { price: 5.19, pct: -0.5, observedAt: '2026-10-15T14:00:00Z' }, '2026-10-14', 5.15)?.text !== '지금 5.19% +4bp') fail('v57.86 the 10-year 지금 line moves from the tile close in basis points');
 }
 
 // v57.81: history.json held one session under two row dates. Rows before v57.70 stamp a previous close with a bar

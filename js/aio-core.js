@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.85';
+const APP_VERSION = 'v57.86';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -13637,7 +13637,7 @@ function _calcVCP(bars, indicators) {
   // 52주 고점 (최대 252바)
   var lk52 = Math.min(252, n);
   var h52 = highs.slice(n - lk52).reduce(function(m, v) { return v > m ? v : m; }, 0);
-  var pct52 = n >= 252 && h52 > 0 ? (price - h52) / h52 * 100 : null;
+  var pct52 = n >= 240 && h52 > 0 ? (price - h52) / h52 * 100 : null;
   // Stage 2: 가격 > SMA150 > SMA200, 가격 > SMA50, 52주 고점 -30% 이내 — v57.84: _calcVCPServer·technical/definitions와 같이 252봉 미만은 판정 보류
   var stage2 = !!(sma50 && sma150 && sma200 && price > sma150 && sma150 > sma200 && price > sma50 && pct52 !== null && pct52 >= -30);
   // 베이스 구간: 최근 65봉(또는 n-10)

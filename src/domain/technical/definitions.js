@@ -81,7 +81,7 @@ export function adrPctOf(highs, lows, closes, period = T.adrPeriod) {
 }
 
 /**
- * Highest high and lowest low over the last `sessions` bars. fullYear is false below 252 sessions: the range is then
+ * Highest high and lowest low over the last `sessions` bars. fullYear is false below RULES fullYearSessions (240): the range is then
  * "최근 N거래일", never a 52-week figure (P1428).
  */
 export function rangeExtremesOf(highs, lows, sessions = T.rangeSessions) {
@@ -91,7 +91,7 @@ export function rangeExtremesOf(highs, lows, sessions = T.rangeSessions) {
   const hi = highs.slice(from, n).filter((value) => value > 0);
   const lo = lows.slice(from, n).filter((value) => value > 0);
   if (!hi.length || !lo.length) return null;
-  return Object.freeze({ high: Math.max(...hi), low: Math.min(...lo), sessions: n - from, fullYear: n >= sessions });
+  return Object.freeze({ high: Math.max(...hi), low: Math.min(...lo), sessions: n - from, fullYear: n >= Math.min(sessions, T.fullYearSessions) });
 }
 
 /** Distance to the 50-day line in average daily ranges, one decimal; null when either input is missing or ADR ≤ 0. */

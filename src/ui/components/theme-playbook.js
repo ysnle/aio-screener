@@ -141,7 +141,7 @@ function themeCard(doc, root, row, screenerSector = null) {
   const evidence = el(doc, 'ul', null, 'xr-evidence');
   // v57.79: the positioning caveat is the same for every theme, so it is said once in the section's basis line.
   evidence.append(el(doc, 'li', `조건: ${row.fit} — ${row.basisText.join(' · ')}`), el(doc, 'li', `과거 빈도: ${row.past}`));
-  card.append(el(doc, 'h4', '가능성의 근거', 'xr-h4'), evidence);
+  card.append(el(doc, 'h4', '판단 근거', 'xr-h4'), evidence);
   if (row.thesis) {
     card.append(el(doc, 'h4', '핵심 논리와 점검 신호', 'xr-h4'), el(doc, 'p', `${row.thesis}. 논리가 깨지는 신호: ${row.breaks.join(', ')}.`, 'xr-reading'));
   }

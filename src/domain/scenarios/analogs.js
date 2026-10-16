@@ -78,7 +78,7 @@ export const THEME_STATES = Object.freeze({
   leading: '주도 지속 (긴 추세가 지수보다 앞서고 1개월도 뒤처지지 않음)',
   fading: '추세 약화 확인 중 (긴 추세는 앞서나 50일선 위 비율·조건·최근 5거래일이 받쳐 주지 않음)',
   pullback: '추세 속 조정 (긴 추세는 앞서나 1개월은 뒤처짐)',
-  defensive: '상대 방어 (지수보다 앞서지만 긴 추세 수익률이 0 이하 — 덜 하락한 것)',
+  defensive: '상대 방어 (지수보다 앞서지만 긴 추세 수익률이 0 이하 — 덜 하락한 것, 1개월도 뒤처지지 않음)',
   inline: '동행 (긴 추세가 지수와 비슷함)',
   rebound: '반등 시도 (긴 추세는 지수보다 뒤처지나 1개월은 앞섬)',
   weak: '약세 지속 (긴 추세가 지수보다 뒤처지고 1개월도 앞서지 못함)'
@@ -90,8 +90,10 @@ export const THEME_STATES = Object.freeze({
 export function themeStateOf(trend, recent, { band = 0, recentBand = 0, absolute = null } = {}) {
   if (trend == null || recent == null) return null;
   if (trend > band) {
-    if (absolute != null && absolute <= 0) return 'defensive';
-    return recent >= -recentBand ? 'leading' : 'pullback';
+    // v57.86 (live review): 상대 방어 also needs the 1-month move not to lag — KR 원전 −10.9%p behind KOSPI over a month
+    // (5 sessions −21%) read "덜 하락한 것". Lagging the month falls to 추세 속 조정, whose 5-session break check runs.
+    if (recent < -recentBand) return 'pullback';
+    return absolute != null && absolute <= 0 ? 'defensive' : 'leading';
   }
   if (band > 0 && trend >= -band) return 'inline';
   return recent > recentBand ? 'rebound' : 'weak';

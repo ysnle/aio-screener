@@ -227,7 +227,7 @@ function inflationAxis({ macro, mh }) {
       ['10년 기대인플레이션', breakeven == null ? null : `${breakeven.toFixed(2)}%`]
     ],
     read,
-    flip: state === 'unknown' ? null : `근원 PCE ${levelAt.toFixed(1)}% 이상(${I.missPct.toFixed(1)}% 선 + ${MACRO_SIGNAL_RULES.inflationLevelBufferPp}%p), 또는 ${I.nearTargetPct}% 이상에서 근원 PCE·CPI 중 하나의 3개월 속도가 1년치보다 ${I.reaccelPp}%p 이상 빠르면 부담 · ${I.nearTargetPct}% 이하이면서 3개월 속도가 1년치 이하(두 지표 모두 재가속 아님)면 양호`,
+    flip: state === 'unknown' ? null : `근원 PCE ${levelAt.toFixed(1)}% 이상(${I.missPct.toFixed(1)}% 선 + ${MACRO_SIGNAL_RULES.inflationLevelBufferPp}%p), 또는 ${I.nearTargetPct}% 이상에서 근원 PCE·CPI가 함께 재가속(3개월 속도가 1년치보다 ${I.reaccelPp}%p 이상 빠름)하면 부담 · ${I.nearTargetPct}% 이하이면서 3개월 속도가 1년치 이하(두 지표 모두 재가속 아님)면 양호`,
     link: '물가가 목표보다 높으면 연준은 금리를 높게 유지합니다. 높은 금리는 미래 이익의 현재 가치를 낮춰 성장주 밸류에이션(PER)에 특히 부담이 됩니다.',
     asOf: macro._asOf_corePce || pace?.date || null,
     detail: { yoy, pace, accelerating, direction, firedBy }
@@ -249,7 +249,7 @@ function policyAxis({ macro, inflationState }) {
   // P1449: 2년물 − 기준금리 중간값은 정책 경로와 기간·위험 프리미엄을 분리하지 못한 대용 지표다.
   // 관측(수준)은 그대로 말하고, "시장이 인상/인하를 반영"이라는 해석은 프리미엄 미분해를 명시한다.
   const PRICING_BASIS = '기간·위험 프리미엄 분해 자료가 없는 대용 지표(2년물 − 기준금리 중간값)';
-  const pricingText = pricing == null ? null : pricing >= P.pricedMovePp ? '정책 경로 이상 수준' : pricing <= -P.pricedMovePp ? '정책 경로 이하 수준' : '동결 경로에 가까운 수준';
+  const pricingText = pricing == null ? null : pricing >= P.pricedMovePp ? '기준금리보다 뚜렷이 높은' : pricing <= -P.pricedMovePp ? '기준금리보다 뚜렷이 낮은' : '기준금리 부근(동결에 가까운)';
   const read = state === 'burden'
     ? (pricing != null && pricing >= P.pricedMovePp
       ? `2년물(${twoYear.toFixed(2)}%)이 기준금리 중간값(${mid.toFixed(2)}%)보다 ${pricing.toFixed(2)}%p 높습니다. 앞으로 1~2년 기준금리가 지금보다 높을 가능성이 일부 반영됐을 수 있지만, 이 차이에는 기간·위험 프리미엄도 섞여 있어 ‘인상 예상’으로 단정할 수는 없습니다.`
@@ -264,7 +264,7 @@ function policyAxis({ macro, inflationState }) {
     headline: pricing == null ? null : pricing >= P.pricedMovePp ? `2년물이 기준금리보다 ${pricing.toFixed(2)}%p 높음` : pricing <= -P.pricedMovePp ? `2년물이 기준금리보다 ${Math.abs(pricing).toFixed(2)}%p 낮음` : '2년물이 기준금리와 비슷함',
     evidence: [
       ['연준 목표 범위', upper == null ? null : `${lower.toFixed(2)}–${upper.toFixed(2)}%`],
-      ['2년물 − 기준금리 중간값', pricing == null ? null : `${signed(pricing, 2, '%p')} (${pricingText})`],
+      ['2년물 − 기준금리 중간값', pricing == null ? null : `${signed(pricing, 2, '%p')} (${pricingText} 수준)`],
       ['실질 기준금리 (중간값 − 근원 PCE)', realPolicy == null ? null : `${realPolicy.toFixed(1)}% (중립 약 ${P.neutralRealPct}%)`]
     ],
     read,
@@ -305,8 +305,11 @@ function sharedGauges({ macro, rateFx, regime }) {
     : gauge({ label: '하이일드 스프레드', value: hyBp, unit: 'bp', digits: 0, ...cuts(200, 700, [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], [lowTone, 'neutral', 'burden'], [[RULES.credit.tightBelowBp, `${RULES.credit.tightBelowBp}`], [RULES.credit.stressAtBp, `${RULES.credit.stressAtBp}`]]) });
   const tnx20 = rateFx?.tnx20 ?? null;
   const ratesByRange = stateOf('rates') === 'burden' && (tnx20 == null || tnx20 < RULES.rates.move20dBp) && rateFx?.tnxPosition != null;
+  // v57.86 (live review): a 부담 held between the 80% exit and the 90% entry drew its pin in the neutral band — the cut is the exit line then.
+  const ratesHeld = ratesByRange && rateFx.tnxPosition < RULES.rates.rangeHighAt;
+  const ratesCut = (ratesHeld ? RULES.rates.rangeExitAt : RULES.rates.rangeHighAt) * 100;
   const rates = ratesByRange
-    ? gauge({ label: '10년물 1년 범위 내 위치', value: rateFx.tnxPosition * 100, unit: '%', digits: 0, ...cuts(0, 100, [RULES.rates.rangeHighAt * 100], ['neutral', 'burden'], [[RULES.rates.rangeHighAt * 100, `상단 ${RULES.rates.rangeHighAt * 100}%`]]) })
+    ? gauge({ label: '10년물 1년 범위 내 위치', value: rateFx.tnxPosition * 100, unit: '%', digits: 0, ...cuts(0, 100, [ratesCut], ['neutral', 'burden'], [[ratesCut, ratesHeld ? `유지 ${ratesCut}%` : `상단 ${ratesCut}%`]]) })
     : gauge({ label: '10년물 20일 변화', value: tnx20, unit: 'bp', digits: 0, ...cuts(-75, 75, [-RULES.rates.move20dBp, RULES.rates.move20dBp], ['favorable', 'neutral', 'burden'], [[-RULES.rates.move20dBp, `−${RULES.rates.move20dBp}`], [RULES.rates.move20dBp, `+${RULES.rates.move20dBp}`]]) });
   const wti20 = rateFx?.wti20 ?? null;
   const dxy20 = rateFx?.dxy20 ?? null;
@@ -328,7 +331,9 @@ function sharedGauges({ macro, rateFx, regime }) {
     credit: { gauge: credit, headline: hyBp == null ? null : `하이일드 ${hyBp.toFixed(0)}bp${hy5 == null ? '' : ` (5거래일 ${signed(hy5, 0, 'bp')}${creditBy20 ? ` · 20거래일 ${signed(record20.value, 0, 'bp')}` : ''})`}` },
     korea: stateOf('korea') === 'burden' && (rateFx?.krw20 == null || rateFx.krw20 < RULES.fx.krwMove20dPct) && rateFx?.jpy20 != null && rateFx.jpy20 <= -RULES.fx.yenRally20dPct
       ? { gauge: gauge({ label: '엔화 20일 강세 폭 (엔/달러 하락률)', value: -rateFx.jpy20, unit: '%', digits: 1, ...cuts(-5, 8, [RULES.fx.yenRally20dPct], ['neutral', 'burden'], [[RULES.fx.yenRally20dPct, `+${RULES.fx.yenRally20dPct}% 엔 급강세`]]) }), headline: `엔화 20일 ${signed(-rateFx.jpy20, 1, '%')} 강세` }
-      : { gauge: gauge({ label: '원/달러 20일 변화', value: rateFx?.krw20 ?? null, unit: '%', digits: 1, ...cuts(-5, 5, [-RULES.fx.krwMove20dPct, RULES.fx.krwMove20dPct], ['favorable', 'neutral', 'burden'], [[-RULES.fx.krwMove20dPct, `−${RULES.fx.krwMove20dPct}%`], [RULES.fx.krwMove20dPct, `+${RULES.fx.krwMove20dPct}%`]]) }), headline: rateFx?.krw20 == null ? null : `원/달러 20일 ${signed(rateFx.krw20, 1, '%')}` }
+      // v57.86 (live review): a won past −2% held at 중립 (KOSPI contradicts, last-day turn, endpoint-only) drew its pin in the
+      // favourable band — each outer band takes its tone only when the axis reached it, as the dollar gauge does.
+      : { gauge: gauge({ label: '원/달러 20일 변화', value: rateFx?.krw20 ?? null, unit: '%', digits: 1, ...cuts(-5, 5, [-RULES.fx.krwMove20dPct, RULES.fx.krwMove20dPct], [stateOf('korea') === 'favorable' ? 'favorable' : 'neutral', 'neutral', stateOf('korea') === 'burden' ? 'burden' : 'neutral'], [[-RULES.fx.krwMove20dPct, `−${RULES.fx.krwMove20dPct}%`], [RULES.fx.krwMove20dPct, `+${RULES.fx.krwMove20dPct}%`]]) }), headline: rateFx?.krw20 == null ? null : `원/달러 20일 ${signed(rateFx.krw20, 1, '%')}` }
   };
 }
 

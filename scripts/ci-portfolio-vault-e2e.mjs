@@ -183,7 +183,7 @@ async function runUsListingHoldingFixture(browser, check) {
     check('v57.81 every holding joins the quote request set (in or out of the universe)', state.requested.includes('HWKN') && state.requested.includes('GHC'), JSON.stringify(state));
     check('v57.81 listed out-of-universe holding values at the live quote (3 x (52.10 - 40))', /\$52\.10/.test(state.hwknPrice) && state.hwknPnl === '+$36.30' && Math.abs((state.live?.pct ?? 0) - 2.157) < 0.01, JSON.stringify(state));
     check('v57.81 listed holding with no quote shows 가격 없음 and keeps quantity and cost', state.ghcPrice === '가격 없음' && state.ghcQty === '3' && /^\$40\.00$/.test(state.ghcCost) && state.ghcPnl === '—', JSON.stringify(state));
-    check('v57.81 totals say the 가격 없음 holding is left out', /가격 없음 1종목은 총자산과 손익에서 뺐습니다/.test(state.status), JSON.stringify(state));
+    check('v57.86 totals say they wait for the 가격 없음 holding', /가격 없음 1종목이 있어 총자산과 손익은 모든 종목 가격을 받은 뒤 표시합니다/.test(state.status), JSON.stringify(state));
     // With the unpriced holding removed every holding is valued: the hero total, weight and day change come from the quote.
     const solo = await page.evaluate(async () => {
       await window.savePortfolioData(window.getPortfolioData().filter((row) => row.ticker === 'HWKN'));
@@ -192,9 +192,10 @@ async function runUsListingHoldingFixture(browser, check) {
       const cell = (header) => (document.querySelector(`#pf-positions-tbody tr[data-arg="HWKN"] td[headers="${header}"]`)?.textContent || '').trim();
       return { total: document.getElementById('pf-total-value')?.textContent || '', pnl: document.getElementById('pf-total-pnl')?.textContent || '', dailyChg: document.getElementById('pf-daily-chg')?.textContent || '', dailyPct: document.getElementById('pf-daily-pct')?.textContent || '', weight: cell('pf-th-weight'), status: document.getElementById('pf-analysis-status')?.textContent || '' };
     });
-    // The portfolio-wide day change and the cash-inclusive total keep their existing rules (a reference quote is not
-    // decision-grade; the total needs declared cash); the quote's own day change is checked above via _liveData.
+    // The portfolio-wide day change keeps its rule (a reference quote is not decision-grade); with no cash entered the total
+    // is the holdings' value and the status says so (v57.86); the quote's own day change is checked above via _liveData.
     check('v57.81 fully priced listed holding: P&L total, weight and complete valuation from the live quote', solo.pnl === '+$36' && /^100\.0%/.test(solo.weight) && /1종목 평가 완료/.test(solo.status), JSON.stringify(solo));
+    check('v57.86 no cash entered: the hero total is the holdings value and the status names it', /^\$156/.test(solo.total) && /현금 미입력 — 총자산은 주식 평가액/.test(solo.status), JSON.stringify(solo));
   } finally {
     await page.close();
   }

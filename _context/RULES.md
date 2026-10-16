@@ -19,6 +19,12 @@ target_version: v57.79
 - **운영·AI**: R652 Worker 자동 배포는 CI 증거와 롤백 대상이 있어야 · R657 운영 알림은 증거를 남기고 닫힌 쪽으로 실패 · R681 모든 AI는 공용 Worker 한 경로로, 웹검색 포함 월 $20 이하 예산을 함께 쓴다
 - **화면**: R697 등급·검증 안 된 합산·행동 지시 없이 측정한 조건과 근거만 보인다 · R669 데스크톱·휴대폰·아이패드가 같은 라우트·데이터를 쓰고 레이아웃만 적응한다 · R703 한 사용자 입력은 한 owner가 처리하고 색 테마는 storage 실패와 무관
 
+## R716. 세션 수 하한은 생산자가 받는 실제 길이로 검사한다 (v57.86, P1876)
+
+**Rule**: 52주·1년 같은 세션 수 하한을 정하거나 바꿀 때는 생산자가 실제로 받는 봉 수(Yahoo range=1y: 미국 251, 한국 245, 미완성 세션 제거 시 1 적음)를 고정 테스트에 넣는다. 달력상 거래일 수(252)를 그대로 하한으로 쓰지 않는다.
+
+**Validation**: scripts/ci-chart-scenarios-fixture.mjs (251·245·240봉 52주 값 존재, 239봉 null) + scripts/ci-data-pipeline-contract-check.mjs (fullYearSessions 240)
+
 ## R715. 한 필드의 사용 가능 기한은 한 상수에서 읽고, 순위 모집단은 비교 가능한 보통주로 한정한다 (v57.85, P1872)
 
 **Rule**: 같은 데이터의 계산 사용 기한을 두 곳(필드 레지스트리, 순위 모델)에 따로 두지 않는다. 연간 공시 수치는 FUNDAMENTAL_MAX_PERIOD_AGE_DAYS를 읽는다. 종합 순위의 비교 모집단에서 펀드(유니버스 선언 index 'ETF'), SPAC, 확장 구간의 30일 평균 거래대금 $1M 미만 종목을 뺀다. 뺀 행은 화면에 남기고 rank null과 사유(populationExclusion)를 표시한다. 새 팩터 정의는 기본 순위를 바꾸기 전에 후보 아카이브의 그림자 기록으로 같은 날짜에 쌓아 비교한다.
@@ -3356,7 +3362,7 @@ endpoint identity while retaining explicit operator blockers.
 
 ## R426. Decision headers must be explicit mounted route elements (v53.67, P871)
 
-**Under review (v57.84)**: the every-route mandate predates the 8-screen declutter; learning, disclosure and static research contexts need no market decision header. The attribute contract below still binds any header that is mounted (ci-page-decision-reference-check); which routes mount one is an owner IA decision.
+**Resolved (v57.86)**: the header is mounted on every route but hidden on all of them (verified on the live site 2026-10-16); it is structural metadata for the AI context and the gates, not a visible screen element, so it adds no clutter and the 8-screen IA is unaffected. Keep the mandate and the attribute contract below; a visible header needs a separate owner decision.
 
 **Rule**: `_aioRenderPageDecisionHeader()` must emit a balanced, discoverable `.aio-decision-header` wrapper for every route, carrying `data-aio-decision-page`, `data-source-kind`, `data-as-of`, and shared market-cut boundaries. Initial route headers must mount immediately when the document is already ready; delayed refresh may reconcile later data but cannot be the only mount path.
 

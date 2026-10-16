@@ -64,12 +64,13 @@ function measureChange(measure, history, basis, prevDate, krThrough = null) {
   const b = now.value;
   // M12: the producer declares breadth in percent (P1623); never guess the unit from the magnitude.
   const scale = 1;
-  const value = measure.kind === 'pct' ? (b / a - 1) * 100 : measure.kind === 'bp' ? (b - a) * 100 : (b - a) * scale;
+  // v57.86 (live review): a whole-number level (F&G) moves by the difference of the printed levels, as 심리 says (+5, not +4).
+  const value = measure.kind === 'pct' ? (b / a - 1) * 100 : measure.kind === 'bp' ? (b - a) * 100 : measure.kind === 'level' && measure.digits === 0 ? Math.round(b) - Math.round(a) : (b - a) * scale;
   const text = measure.kind === 'pct' ? signed(value, 2, '%') : measure.kind === 'bp' ? signed(value, 0, 'bp')
     : measure.kind === 'pp' ? signed(value, 1, '%p') : signed(value, measure.digits ?? 1);
   const level = measure.kind === 'pp' ? `${(b * scale).toFixed(0)}%` : measure.kind === 'bp' ? `${b.toFixed(2)}%`
     : measure.kind === 'level' ? b.toFixed(measure.digits ?? 1) : null;
-  return { key: measure.key, label: measure.label, value, text, level };
+  return { key: measure.key, label: measure.label, value, text, level, close: b };
 }
 
 // "어제와 달라진 점": the last completed session against the one before it (by S&P 500 trading date).

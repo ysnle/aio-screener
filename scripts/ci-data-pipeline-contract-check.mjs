@@ -1132,11 +1132,62 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     ok = bank?.revenueConcept === SEC_BANK_NET_REVENUE_CONCEPT && bank.revenue === 9e9 && bank.margin === 22.2 && bank.revGrowth === 12.5
       && healed?.revenue === 9e9 && !healed.revenueHealedFrom && pitConcepts.includes(SEC_BANK_NET_REVENUE_CONCEPT)
       && SEC_PRIMARY_REVENUE_CONCEPTS.includes(SEC_BANK_NET_REVENUE_CONCEPT) && split === null && alone === null
-      && SEC_CONCEPT_SET_VERSION === 'sec-annual-concepts.v5'
+      && Number(String(SEC_CONCEPT_SET_VERSION).split('.v')[1]) >= 5 // v5 or later (P1875: v6)
       && /Number\(b\.conceptSetChanged\) - Number\(a\.conceptSetChanged\)/.test(secSource);
     detail = JSON.stringify({ bank: bank && { c: bank.revenueConcept, rev: bank.revenue, m: bank.margin, g: bank.revGrowth }, healed: healed && healed.revenue, pitConcepts, split: !!split, alone: !!alone, v: SEC_CONCEPT_SET_VERSION });
   } catch (error) { detail = error.message; }
   check('P1873 SEC bank net revenue = net interest income + noninterest income of one filing, and stale concept-set failures are rechecked first', ok, detail.slice(0, 500));
+}
+{
+  // P1875 (v57.86, sec-annual-concepts.v6, owner decision 2026-10-16): IFRS and non-USD filers are read ratio-only. Every
+  // operand comes from one taxonomy and one currency; amounts are published in USD only (a TWD report keeps them in
+  // reportedAmounts); price ratios are withheld for a non-USD report and for an IFRS 20-F share basis (ADS ratios 0.5-6).
+  // An IFRS bank's IFRS 15 customer-contract revenue is fee income, not revenue. A revenue subtotal (margin above 100%)
+  // withholds growth too. The fiscal history projection (USD millions) leaves non-USD reports out.
+  let ok = false;
+  let detail = '';
+  try {
+    const { normalizeSecCompanyFacts, reportingBasis, SEC_CONCEPT_SET_VERSION, SEC_CONCEPT_SET_REASON_CODES } = await import('./fetch-sec-fundamentals.mjs');
+    const { reconcileSecRevenueShares, reconcileSecEquity, bestRevenueRowsByPeriod, SEC_BANK_NET_REVENUE_CONCEPT } = await import('../src/domain/fundamental/sec-report.js');
+    const { secFundamentalRowFields } = await import('../src/domain/fundamental/sec-row-fields.js');
+    const row = (val, accn, start, end, filed, form = '20-F') => ({ val, accn, start, end, filed, form, fp: 'FY' });
+    const y24 = (val, form) => row(val, 'a', '2024-01-01', '2024-12-31', '2025-04-10', form);
+    const y25 = (val, form) => row(val, 'b', '2025-01-01', '2025-12-31', '2026-04-10', form);
+    const unit = (cur, ...rows) => ({ units: { [cur]: rows } });
+    const eq = (cur, val, form = '20-F') => unit(cur, { end: '2025-12-31', filed: '2026-04-10', form, fp: 'FY', val, accn: 'b' });
+    const dei = { dei: { EntityCommonStockSharesOutstanding: { units: { shares: [{ end: '2025-12-31', filed: '2026-04-10', form: '20-F', fp: 'FY', val: 25.9e9, accn: 'b' }] } } } };
+    const twd = { facts: { ...dei, 'ifrs-full': {
+      Revenue: unit('TWD', y24(2.9e12), y25(3.8e12)),
+      ProfitLoss: unit('TWD', y25(1.75e12)), ProfitLossAttributableToOwnersOfParent: unit('TWD', y25(1.71e12)),
+      Equity: eq('TWD', 5.2e12), EquityAttributableToOwnersOfParent: eq('TWD', 5.1e12) } } };
+    const usdAdr = { facts: { ...dei, 'ifrs-full': { Revenue: unit('USD', y24(50e9), y25(55e9)), ProfitLossAttributableToOwnersOfParent: unit('USD', y25(9.9e9)), EquityAttributableToOwnersOfParent: eq('USD', 50e9) } } };
+    const ifrsBank = { facts: { 'ifrs-full': { RevenueFromContractsWithCustomers: unit('GBP', y25(11e9)), FeeAndCommissionIncomeExpense: unit('GBP', y25(6e9)), ProfitLossAttributableToOwnersOfParent: unit('GBP', y25(5e9)) } } };
+    const eurGaap = { facts: { 'us-gaap': { RevenueFromContractWithCustomerExcludingAssessedTax: unit('EUR', y24(28e9, '20-F'), y25(32e9, '20-F')), NetIncomeLoss: unit('EUR', y25(9.6e9, '20-F')), StockholdersEquity: eq('EUR', 19.6e9) } } };
+    const tsm = normalizeSecCompanyFacts('TSM', twd, 300, null);
+    const adr = normalizeSecCompanyFacts('BHP', usdAdr, 50, null);
+    const bank = normalizeSecCompanyFacts('BCS', ifrsBank, 15, null);
+    const asml = normalizeSecCompanyFacts('ASML', eurGaap, 1000, null);
+    const rowFields = tsm && secFundamentalRowFields(reconcileSecEquity(reconcileSecRevenueShares(tsm)), { price: 300, nowMs: Date.parse('2026-10-16T00:00:00Z') });
+    // a fee subtotal (margin above 100%) withholds its growth as well, in the normalizer and in the publish-time heal
+    const subtotal = normalizeSecCompanyFacts('SUB', { facts: { 'us-gaap': { RevenueFromContractWithCustomerExcludingAssessedTax: unit('USD', y24(1e9, '10-K'), y25(1.2e9, '10-K')), NetIncomeLoss: unit('USD', y25(2e9, '10-K')) } } }, null, null);
+    const healed = reconcileSecRevenueShares({ observedAt: '2025-12-31', marginHeld: { value: 172 }, revGrowth: 81.7, coverage: ['revGrowth'] });
+    const projectionSource = readFileSync(new URL('./build-sec-runtime-projection.mjs', import.meta.url), 'utf8');
+    ok = tsm?.accountingStandard === 'IFRS' && tsm.reportingCurrency === 'TWD' && tsm.revenue === null && tsm.netIncome === null && tsm.equity === null
+      && tsm.reportedAmounts?.currency === 'TWD' && tsm.reportedAmounts.revenue === 3.8e12
+      && tsm.margin === 45 && tsm.roe === 33.5 && tsm.revGrowth === 31 && tsm.pe == null && tsm.pb == null && tsm.sharesOutstanding === null && tsm.sharesCheck === 'reporting-currency-differs'
+      && rowFields?.roe === 33.5 && rowFields.pe == null && rowFields.valuationHeldReason === 'reporting-currency-differs'
+      && adr?.reportingCurrency === 'USD' && adr.revenue === 55e9 && adr.margin === 18 && adr.pe == null && adr.sharesCheck === 'foreign-share-basis-unverified'
+      && bank === null
+      && asml?.accountingStandard === 'US-GAAP' && asml.reportingCurrency === 'EUR' && asml.margin === 30 && asml.roe === 49 && asml.revGrowth === 14.3 && asml.pe == null
+      && reportingBasis(twd).taxonomy === 'ifrs-full' && reportingBasis(twd).currency === 'TWD'
+      && Boolean(subtotal?.marginHeld) && subtotal.revGrowth === undefined && subtotal.revGrowthHeld?.value === 20
+      && healed.revGrowth === undefined && healed.revGrowthHeld?.value === 81.7
+      && bestRevenueRowsByPeriod([{ concept: 'Revenues', val: 13000, start: '2024-01-01', end: '2024-12-31', filed: 'x' }, { concept: SEC_BANK_NET_REVENUE_CONCEPT, val: 13079, start: '2024-01-01', end: '2024-12-31', filed: 'x' }])[0]?.concept === 'Revenues'
+      && SEC_CONCEPT_SET_VERSION === 'sec-annual-concepts.v6' && SEC_CONCEPT_SET_REASON_CODES.includes('ifrs-taxonomy-not-supported-by-us-gaap-normalizer')
+      && /usdReport\(record\)/.test(projectionSource);
+    detail = JSON.stringify({ tsm: tsm && { std: tsm.accountingStandard, cur: tsm.reportingCurrency, rev: tsm.revenue, m: tsm.margin, roe: tsm.roe, g: tsm.revGrowth, sc: tsm.sharesCheck }, row: rowFields && { roe: rowFields.roe, held: rowFields.valuationHeldReason }, adr: adr && { m: adr.margin, sc: adr.sharesCheck }, bank: !!bank, asml: asml && { m: asml.margin, roe: asml.roe, g: asml.revGrowth }, sub: subtotal && { g: subtotal.revGrowth, held: subtotal.revGrowthHeld }, healed });
+  } catch (error) { detail = error.message; }
+  check('P1875 SEC IFRS and non-USD filers are read ratio-only on one basis; price ratios and non-USD amounts are withheld', ok, detail.slice(0, 600));
 }
 {
   // W09-B/P1148 (F02): a derived ratio cannot have been reproducible before its LATEST operand
@@ -1194,10 +1245,13 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const { classifyIssuerCapability } = await import('./fetch-sec-fundamentals.mjs');
     const ifrs = classifyIssuerCapability({ facts: { 'ifrs-full': {} } }, { filings: { recent: { form: ['20-F'] } } });
     const usGaap = classifyIssuerCapability({ facts: { 'us-gaap': {} } }, { filings: { recent: { form: ['10-K'] } } });
-    ok = ifrs.status === 'TERMINAL_UNSUPPORTED' && ifrs.issuerTaxonomy === 'IFRS' && /ifrs-taxonomy/.test(ifrs.reasonCode) && usGaap.status === 'SUPPORTED_US_GAAP';
-    detail = JSON.stringify({ ifrs, usGaap });
+    const none = classifyIssuerCapability({ facts: { dei: {} } }, { filings: { recent: { form: ['20-F'] } } });
+    // P1875 (v57.86): IFRS filers are read on their own basis (ratio-only); a filer with neither taxonomy stays terminal.
+    ok = ifrs.status === 'SUPPORTED_IFRS' && ifrs.issuerTaxonomy === 'IFRS' && ifrs.reasonCode === null && usGaap.status === 'SUPPORTED_US_GAAP'
+      && none.status === 'TERMINAL_UNSUPPORTED' && none.reasonCode === 'foreign-issuer-without-us-gaap-taxonomy';
+    detail = JSON.stringify({ ifrs, usGaap, none });
   } catch (error) { detail = error.message; }
-  check('SEC scheduler classifies IFRS/foreign issuers as terminal unsupported while retaining US-GAAP capability', ok, detail);
+  check('P1875 SEC scheduler supports US-GAAP and IFRS issuers and keeps issuers with neither taxonomy terminal', ok, detail);
 }
 {
   let ok = false;
@@ -1469,7 +1523,7 @@ const vcpParityOk = (() => {
       { label: 'shared contraction detector', server: /detectContractions\(bars\)/, client: /window\.AIO_ARCH\.detectContractions\(/ },
       { label: 'pivot only from a valid contraction run', server: /const pivot = detected\.valid \? detected\.pivot : null/, client: /var pivot = _det\.valid \? _det\.pivot : null/ },
       { label: 'no private swing pairing left (N=4 / 1-45%)', re: /\bN\s*=\s*4\s*[;,]|<=\s*45\)\s*ctrs\.push/, absent: true },
-      { label: '52-week full-year rule (252 sessions)', server: /rangeExtremesOf\(highs, lows\)[\s\S]*range\?\.fullYear/, client: /n\s*>=\s*252\s*&&\s*h52\s*>\s*0/ },
+      { label: '52-week full-year rule (v57.86: 240 sessions; one calendar year is 251 US / 245 KR)', server: /rangeExtremesOf\(highs, lows\)[\s\S]*range\?\.fullYear/, client: /n\s*>=\s*240\s*&&\s*h52\s*>\s*0/, constant: RULES_FOR_VCP.technical.fullYearSessions === 240 },
       { label: 'stage-2 52w-off-high floor (-30)', server: /pct52\s*>=\s*-RULES\.technical\.stage2Gate\.nearHighPct/, client: /pct52\s*>=\s*-30\b/, constant: RULES_FOR_VCP.technical.stage2Gate.nearHighPct === 30 },
     ];
     const sides = (p) => p.re ? [p.re.test(serverSrc), p.re.test(clientSrc)] : [p.server.test(serverSrc), p.client.test(clientSrc) && p.constant !== false];

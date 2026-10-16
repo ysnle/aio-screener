@@ -1790,13 +1790,15 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       const profileReader = () => root?._aioGetActiveProfile?.() || 'balanced';
       let visibleQuoteSignature = '';
       let visibleQuoteRequestedAt = 0;
-      const requestVisibleQuotes = (symbols) => {
+      // v57.86 (live review): a run that met another quotes run in flight (skipped, or fetchLiveQuotes returned at once) left
+      // the rows unquoted behind the 55-second throttle; while most requested rows still lack a quote it retries.
+      const requestVisibleQuotes = (symbols, attempt = 0) => {
         const requested = [...new Set((Array.isArray(symbols) ? symbols : []).map((symbol) => String(symbol || '').trim().toUpperCase()).filter(Boolean))].slice(0, 120);
         if (!requested.length) return;
         requested.forEach((symbol) => root?.AIO?.registerLiveSymbol?.(symbol, { reason: 'screener-visible-row' }));
         const signature = requested.join('|');
         const nowMs = Date.now();
-        if (signature === visibleQuoteSignature && nowMs - visibleQuoteRequestedAt < 55_000) return;
+        if (!attempt && signature === visibleQuoteSignature && nowMs - visibleQuoteRequestedAt < 55_000) return; // only a retry passes the throttle
         if (root?._aioBootPhase?.quoteReady === false || typeof root?.AIO?.runScheduledRefresh !== 'function') return;
         visibleQuoteSignature = signature;
         visibleQuoteRequestedAt = nowMs;
@@ -1805,7 +1807,11 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           symbols: requested,
           pageId: 'screener',
           reason: 'screener-visible-quotes'
-        })).catch(() => {});
+        })).then(() => {
+          if (attempt < 3 && requested.filter((symbol) => !(Number(root?._liveData?.[symbol]?.price) > 0)).length > requested.length / 2) {
+            setTimeout(() => requestVisibleQuotes(requested, attempt + 1), 4000);
+          }
+        }).catch(() => {});
       };
       const workbenchStatus = documentRef.getElementById('scr-workbench-status');
       const definitionEditor = documentRef.getElementById('scr-definition-editor');

@@ -77,7 +77,9 @@ export function diffSnapshots(previous, current, at) {
   const stageMoves = [];
   for (const row of current.themes || []) {
     const old = themesBefore.get(themeKey(row));
-    if (old && old.state && row.state && old.state !== row.state) stageMoves.push(`[${row.market}] ${row.label}: ${THEME_STATES[old.state].split(' (')[0]} → ${THEME_STATES[row.state].split(' (')[0]}`);
+    // v57.86 (live review): market names in words (no [US]/[KR] codes) and one line per theme move.
+    const line = `${row.market === 'KR' ? '한국' : '미국'} ${row.label}: ${THEME_STATES[old?.state]?.split(' (')[0]} → ${THEME_STATES[row.state]?.split(' (')[0]}`;
+    if (old && old.state && row.state && old.state !== row.state && !stageMoves.includes(line)) stageMoves.push(line);
   }
   if (stageMoves.length) push('theme', `테마 단계 변화 ${stageMoves.length}건 — ${stageMoves.slice(0, 6).join(' · ')}${stageMoves.length > 6 ? ' 외' : ''}.`);
   const topBefore = previous.rotation?.top, topNow = current.rotation?.top;

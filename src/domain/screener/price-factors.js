@@ -110,7 +110,7 @@ export function closesToFactors(closes) {
     // same series, so "5/10/20 정배열" and "52주 신고가" are read without publishing a raw price (P715).
     ...Object.fromEntries([5, 10, 20].map((n) => { const sma = _mean(closes.slice(-n)); return [`pctSma${n}`, sma > 0 ? round((price / sma - 1) * 100, 2) : null]; })),
     // v57.84: a 52-week closing high needs the full 252 sessions (it required 250 while reading a 252 window).
-    pctFromCloseHigh52w: closes.length >= RULES.technical.rangeSessions ? (() => { const high = Math.max(...closes.slice(-RULES.technical.rangeSessions)); return high > 0 ? round((price / high - 1) * 100, 2) : null; })() : null,
+    pctFromCloseHigh52w: closes.length >= RULES.technical.fullYearSessions ? (() => { const high = Math.max(...closes.slice(-RULES.technical.rangeSessions)); return high > 0 ? round((price / high - 1) * 100, 2) : null; })() : null,
     kalmanVel:    kalman ? kalman.vel     : null,
     kalmanPt:     kalman ? kalman.pt      : null,
     kalmanInnovZ: kalman ? kalman.innovZ  : null,
