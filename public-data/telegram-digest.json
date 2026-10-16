@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-16T05:09:23.631Z",
-  "attemptedAt": "2026-10-16T05:09:23.631Z",
-  "lastSuccessfulAt": "2026-10-16T05:09:23.631Z",
+  "generatedAt": "2026-10-16T05:52:42.846Z",
+  "attemptedAt": "2026-10-16T05:52:42.846Z",
+  "lastSuccessfulAt": "2026-10-16T05:52:42.846Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-02T05:09:19.318Z",
-  "until": "2026-10-16T05:09:19.318Z",
+  "since": "2026-10-02T05:52:39.622Z",
+  "until": "2026-10-16T05:52:39.622Z",
   "current24hWindow": {
     "start": "2026-10-14T23:00:00.000Z",
     "end": "2026-10-15T23:00:00.000Z",
@@ -93,12 +93,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1141,
-      "freshCount": 38,
-      "eligibleTextCount": 766,
+      "count": 1145,
+      "freshCount": 39,
+      "eligibleTextCount": 770,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 66438
+      "lastPostId": 66442
     },
     {
       "channel": "bornlupin",
@@ -117,7 +117,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 688,
+      "count": 687,
       "freshCount": 20,
       "eligibleTextCount": 505,
       "selectedCount": 122,
@@ -125,18 +125,18 @@
       "lastPostId": 70518
     }
   ],
-  "count": 2323,
-  "retainedItemCount": 474,
+  "count": 2326,
+  "retainedItemCount": 473,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2323,
-    "eligibleTextCount": 1678,
-    "mediaOnlyCount": 645,
+    "observedCount": 2326,
+    "eligibleTextCount": 1682,
+    "mediaOnlyCount": 644,
     "highSignalCount": 503,
-    "broadSignalCount": 1035,
+    "broadSignalCount": 1034,
     "selectedRawCount": 412,
     "selectedEligibleCount": 408,
     "selectedRawCoveragePct": 24.3,
@@ -144,13 +144,13 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "macro": 766,
+    "market-note": 762,
+    "macro": 765,
     "semi": 599,
     "kr-market": 206,
     "earnings": 435,
     "japan": 138,
     "geo": 350,
-    "market-note": 758,
     "equity": 170,
     "flows": 161,
     "healthcare": 110,
@@ -263,8 +263,8 @@
     "SPOT": 1
   },
   "themes": [
-    "Macro/Rates (766 posts in 14-day research window): 2026년 10월 16일 미국 증시 브리핑 미국 증시는 인플레이션 재가속과 중동 지정학적 긴장에도 상승 마감. 다우지수는 1.08%, S&P500은 0.33%, 나스닥은 0.08%, 러셀2000은 1.38%...",
-    "Market Notes (758 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 15일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 미국 내 디젤 가격 부담을 완화하기 위해 연방 디젤세의 한시적 중단을 지지할 수 있다고...",
+    "Macro/Rates (765 posts in 14-day research window): 2026년 10월 16일 미국 증시 브리핑 미국 증시는 인플레이션 재가속과 중동 지정학적 긴장에도 상승 마감. 다우지수는 1.08%, S&P500은 0.33%, 나스닥은 0.08%, 러셀2000은 1.38%...",
+    "Market Notes (762 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 15일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 미국 내 디젤 가격 부담을 완화하기 위해 연방 디젤세의 한시적 중단을 지지할 수 있다고...",
     "Semiconductors/Memory (599 posts in 14-day research window): >>AI 최대 병목은 전력도 반도체도 아닌 자금 (중국언론 인용) •자금 조달 비용 상승, AI 투자 확대의 최대 제약 요인 : AI 산업의 최대 병목이 전력과 반도체 공급에서 자금 조달 능력과 금융비용으로...",
     "Earnings/Corporate (435 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단...",
     "Geopolitics (350 posts in 14-day research window): 트럼프 SNS 발언 모음 미국 해군의 창설 기념일을 축하한다! 미국 해군은 지난 251년 동안 과거부터 현재까지 수많은 승리를 거둬왔다. 호르무즈 해협에서 구축한 뚫을 수 없는 강철...",
@@ -341,7 +341,7 @@
       "topics": [
         "macro"
       ],
-      "count": 766,
+      "count": 765,
       "focus": "2026년 10월 16일 미국 증시 브리핑 미국 증시는 인플레이션 재가속과 중동 지정학적 긴장에도 상승 마감. 다우지수는 1.08%, S&P500은 0.33%, 나스닥은 0.08%, 러셀2000은 1.38%..."
     },
     {
@@ -476,7 +476,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 758,
+      "count": 762,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 15일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 미국 내 디젤 가격 부담을 완화하기 위해 연방 디젤세의 한시적 중단을 지지할 수 있다고..."
     }
   ],
@@ -8601,48 +8601,6 @@
       "hasText": true,
       "tickers": [],
       "summary": "브라질 대법관 알레샨드리 지 모라이스가 10월 8일 자이르 보우소나루 전 대통령의 아들 에두아르두 보우소나루(42세)에 대한 체포영장 발부. 이번 조치는 에두아르두의 형제인 플라비우 보우소나루가 브라질 대통령..."
-    },
-    {
-      "id": "insidertracking/66401",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66401",
-      "datetime": "2026-10-15T20:51:23.000Z",
-      "localDateKst": "2026-10-16",
-      "tags": [
-        "market-note"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": "예멘 후티 반군(안사르 알라)이 아덴에 위치한 알마아시크 대통령궁을 겨냥해 탄도미사일 공격 감행. 해당 시설은 국제사회가 인정하는 사우디아라비아 지원 예멘 정부의 본부로, 대통령궁 단지 인근에서 최소 6차례..."
-    },
-    {
-      "id": "insidertracking/66399",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66399",
-      "datetime": "2026-10-15T20:51:03.000Z",
-      "localDateKst": "2026-10-16",
-      "tags": [
-        "geo"
-      ],
-      "score": 45,
-      "hasText": true,
-      "tickers": [],
-      "summary": "이란 혁명수비대(IRGC)의 공격으로 파손된 선박 잔해가 남아 있는 페르시아만 일대에서 이란인들이 순찰 중."
-    },
-    {
-      "id": "insidertracking/66398",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66398",
-      "datetime": "2026-10-15T20:50:30.000Z",
-      "localDateKst": "2026-10-16",
-      "tags": [
-        "geo"
-      ],
-      "score": 45,
-      "hasText": true,
-      "tickers": [],
-      "summary": "베냐민 네타냐후 이스라엘 총리가 이스라엘 북부에서 드루즈족 대표들과 함께한 리쿠드당 모임에서 2025년 7월 다마스쿠스 공습 이후 아흐마드 알샤라 시리아 대통령에게 직접 전화했다고 발언. 당시 이스라엘은..."
     },
     {
       "id": "insidertracking/66394",
