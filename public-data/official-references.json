@@ -1,14 +1,14 @@
 {
   "schemaVersion": "official-web-references.v2",
-  "checkedAt": "2026-10-16T03:52:10.969Z",
+  "checkedAt": "2026-10-16T14:52:07.489Z",
   "lane": {
     "month": "2026-10",
-    "callsThisMonth": 3,
+    "callsThisMonth": 4,
     "monthlyCallCap": 40,
     "day": "2026-10-16",
-    "callsToday": 0,
+    "callsToday": 1,
     "dailyCallCap": 6,
-    "lastRunCalls": 0,
+    "lastRunCalls": 1,
     "aiConfigured": true,
     "policy": "official-page-verified; model candidates are never published"
   },
@@ -52,8 +52,8 @@
       "allowedUse": "reference-only"
     },
     "krExports": {
-      "status": "unavailable",
-      "reason": "model-not-found",
+      "status": "unverified",
+      "reason": "source-fetch-failed",
       "exportsYoyPct": null,
       "exportsBillionUsd": null,
       "period": null,
@@ -61,7 +61,7 @@
       "publishedAt": null,
       "sourceUrl": null,
       "verifiedQuote": null,
-      "checkedAt": "2026-10-13T14:50:59.225Z",
+      "checkedAt": "2026-10-16T14:52:07.489Z",
       "verifiedAt": null,
       "nextExpectedAt": null,
       "lastAttemptOk": false,
