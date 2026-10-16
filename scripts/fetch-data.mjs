@@ -2525,7 +2525,7 @@ export async function translateHeadlines(items, { previous = [], request = null,
   return { reused, translated: accept(parsed), pending: pending.length, provider: 'shared-openai', reason: null, ...(freeReason ? { freeReason } : {}) };
 }
 
-export async function genMarketAnalysis(data, snapshot = null, { previous = null, request = null, nowMs = Date.now() } = {}) {
+export async function genMarketAnalysis(data, snapshot = null, { previous = null, request = null, nowMs = Date.now(), history = null } = {}) {
   const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   const newsEvidence = buildMarketAnalysisNewsEvidence(data);
   const keep = { previous, nowMs }; // v57.81: every fallback carries the last verified reading forward
@@ -2559,7 +2559,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       .filter((row) => row.metricId === 'market.kospi' && row.session && !MARKET_ANALYSIS_CLOSED_SESSIONS.includes(row.session) && Math.abs(changeOf.get(row.evidenceId)) >= KOREA_MOVE_MENTION_PCT)
       .map((row) => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit}${changeText(row)} 장중 ${kstTime(row.observedAt)} KST 기준(지연 값) session=${row.session}`).join('\n');
     // v57.81: the same completed closes feed REGIME_CONTEXT and the validator's completed-close basis for in-session rows.
-    const historyRows = await readHistoryRows();
+    const historyRows = history || await readHistoryRows(); // v57.86: `history` is a fixture seam (a dated test must not read rows published after it)
     const regimeContext = buildMarketAnalysisRegimeContext(data, historyRows);
     const validate = (body) => validateMarketAnalysisText(body, data, snapshot, { context: regimeContext, history: historyRows });
     // v57.75: a large equity move (KOSPI 3% / S&P 500 1%) lets the day's sentence be replaced once (dailyMarketSentence).

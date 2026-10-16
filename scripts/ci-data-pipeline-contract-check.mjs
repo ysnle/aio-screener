@@ -895,7 +895,12 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   // v57.81: the producer reads the published history (KOSPI 10/15 vs S&P 500 10/14), so the comparing sentence names both
   // sessions; the undated 06:52 wording is checked against a two-session history below.
   const dated0652 = recorded0652.replace('완료 종가에서 코스피 -7.56%', '완료 종가에서 코스피(10/15) -7.56%').replace('미국 주가지수 -1.11%', '미국 주가지수(10/14) -1.11%');
-  try { promptRun = await genMarketAnalysis(data, closedSnapshot, { request: stub([dated0652]), nowMs: Date.parse('2026-10-15T06:52:00.000Z') }); } finally { console.warn = warn; }
+  // v57.86: the producer is handed the history as it stood at 06:52 (rows through 10/15, whose US fields repeat the 10/14
+  // closes) — reading today's published file broke this dated check once a 10/16 row with that day's KOSPI close landed.
+  const published = JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8'));
+  const r14 = published.find((row) => row.date === '2026-10-14'), r15 = published.find((row) => row.date === '2026-10-15');
+  const at0652 = r14 && r15 ? [...published.filter((row) => row.date < '2026-10-15'), { ...r14, date: '2026-10-15', cycleEnd: '2026-10-14T23:00:00.000Z', kospi: r15.kospi, kosdaq: r15.kosdaq, fieldMeta: { ...(r14.fieldMeta || {}), kospi: r15.fieldMeta?.kospi, kosdaq: r15.fieldMeta?.kosdaq } }] : null;
+  try { promptRun = await genMarketAnalysis(data, closedSnapshot, { request: stub([dated0652]), nowMs: Date.parse('2026-10-15T06:52:00.000Z'), history: at0652 }); } finally { console.warn = warn; }
   check('v57.81 VIX change is judged on the basis the prompt gave: the prompt\'s closed-row change is the validator\'s, and an in-session row also accepts its last completed close (duplicate history session ignored)',
     Math.abs((basis?.changePct ?? 0) - 10.478) < 0.01 && basis?.value === 16.87 && !sameBasis.length
       && noHistory.some((issue) => /market\.vix/.test(issue)) && intradayAsClose.includes('session-wording-mismatch:market.vix')
