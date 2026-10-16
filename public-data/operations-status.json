@@ -23,7 +23,7 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-10-16T21:21:17.780Z",
+  "generatedAt": "2026-10-16T21:50:39.689Z",
   "appRevision": "v57.87",
   "dataRevision": "market-snapshot:2026-10-16T21:20:49.471Z:95824cae",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -199,9 +199,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-10-16T21:20:49.471Z",
-        "ageHours": 0.01,
+        "ageHours": 0.5,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-10-16T21:21:17.780Z",
+        "evaluatedAt": "2026-10-16T21:50:39.689Z",
         "reason": null
       },
       "readiness": {
@@ -224,11 +224,11 @@
         "revision": "fast-quotes:6992d795",
         "sourceSha": "4aa691309f57cf1488ebe3044deacf5435d88bd3",
         "observedAt": "2026-10-16T21:21:17.780Z",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-10-16T21:21:17.780Z"
+        "evidenceEvaluatedAt": "2026-10-16T21:50:39.689Z"
       },
       "soak": {
         "requiredDays": 7,
@@ -292,11 +292,11 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-10-16T21:21:17.780Z"
+        "evidenceEvaluatedAt": "2026-10-16T21:50:39.689Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -323,8 +323,8 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "filing-evidence",
-      "coveragePct": 97.7,
-      "stored": 823,
+      "coveragePct": 98.8,
+      "stored": 832,
       "eligible": 842
     }
   },
