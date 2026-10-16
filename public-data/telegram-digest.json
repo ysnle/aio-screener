@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-16T06:52:11.251Z",
-  "attemptedAt": "2026-10-16T06:52:11.251Z",
-  "lastSuccessfulAt": "2026-10-16T06:52:11.251Z",
+  "generatedAt": "2026-10-16T07:52:07.626Z",
+  "attemptedAt": "2026-10-16T07:52:07.626Z",
+  "lastSuccessfulAt": "2026-10-16T07:52:07.626Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-02T06:52:06.105Z",
-  "until": "2026-10-16T06:52:06.105Z",
+  "since": "2026-10-02T07:52:03.456Z",
+  "until": "2026-10-16T07:52:03.456Z",
   "current24hWindow": {
     "start": "2026-10-14T23:00:00.000Z",
     "end": "2026-10-15T23:00:00.000Z",
@@ -78,11 +78,11 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 271,
-      "freshCount": 36,
+      "count": 270,
+      "freshCount": 17,
       "eligibleTextCount": 225,
       "selectedCount": 89,
       "error": null,
@@ -93,20 +93,20 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1145,
-      "freshCount": 39,
-      "eligibleTextCount": 771,
+      "count": 1146,
+      "freshCount": 40,
+      "eligibleTextCount": 774,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 66443
+      "lastPostId": 66446
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 225,
-      "freshCount": 40,
+      "freshCount": 20,
       "eligibleTextCount": 184,
       "selectedCount": 81,
       "error": null,
@@ -117,49 +117,49 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 690,
+      "count": 692,
       "freshCount": 40,
-      "eligibleTextCount": 508,
+      "eligibleTextCount": 512,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 70521
+      "lastPostId": 70525
     }
   ],
-  "count": 2331,
-  "retainedItemCount": 503,
+  "count": 2333,
+  "retainedItemCount": 489,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2331,
-    "eligibleTextCount": 1688,
-    "mediaOnlyCount": 643,
-    "highSignalCount": 502,
-    "broadSignalCount": 1036,
+    "observedCount": 2333,
+    "eligibleTextCount": 1695,
+    "mediaOnlyCount": 638,
+    "highSignalCount": 503,
+    "broadSignalCount": 1037,
     "selectedRawCount": 412,
     "selectedEligibleCount": 408,
-    "selectedRawCoveragePct": 24.2,
+    "selectedRawCoveragePct": 24.1,
     "selectedOfObservedPct": 17.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "kr-market": 207,
+    "flows": 162,
+    "market-note": 763,
+    "credit": 94,
+    "ai-policy": 189,
     "macro": 766,
     "power": 335,
     "earnings": 437,
     "semi": 600,
-    "market-note": 763,
     "media-only": 50,
-    "kr-market": 206,
     "japan": 138,
     "geo": 350,
     "equity": 170,
-    "flows": 161,
-    "healthcare": 110,
-    "credit": 93,
     "insider": 40,
+    "healthcare": 109,
     "optical": 52,
-    "ai-policy": 188,
     "crypto": 7
   },
   "tickerCounts": {
@@ -269,8 +269,8 @@
     "Earnings/Corporate (437 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단...",
     "Geopolitics (350 posts in 14-day research window): 트럼프 SNS 발언 모음 미국 해군의 창설 기념일을 축하한다! 미국 해군은 지난 251년 동안 과거부터 현재까지 수많은 승리를 거둬왔다. 호르무즈 해협에서 구축한 뚫을 수 없는 강철...",
     "AI Power/Grid (335 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터...",
-    "Korea Market (206 posts in 14-day research window): [NH/백준기] 스몰캡 - 엠케이전자 [NH/스몰캡(목진원)] [엠케이전자] ★큰 그림은 변한 것이 없다 3Q26 Preview: 환율이 깎은 국내 마진, 중국 법인은 순항 중 3분기 연결 실적은 매출액...",
-    "AI Policy/Export Controls (188 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
+    "Korea Market (207 posts in 14-day research window): [NH/백준기] 스몰캡 - 엠케이전자 [NH/스몰캡(목진원)] [엠케이전자] ★큰 그림은 변한 것이 없다 3Q26 Preview: 환율이 깎은 국내 마진, 중국 법인은 순항 중 3분기 연결 실적은 매출액...",
+    "AI Policy/Export Controls (189 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
   ],
   "catalysts": [
     {
@@ -316,7 +316,7 @@
     {
       "key": "MU",
       "count": 25,
-      "text": "JP모건 Data Assets & Alpha Group의 10월 15일자 모닝 브리핑 중 테크와 한국 관련 내용을 정리 브리핑은 \"모든 것은 테크에 달려 있다\"는 진단으로 시작합니다. 오늘 아침 아시아태평양 증시는 전반적으로 급락했으며, 코스피는 7% 넘게 하락했습니다. 이는 전날 밤 미국 증시의 약세를 뒤따라간..."
+      "text": "JP모건 Data Assets & Alpha Group의 10월 15일자 모닝 브리핑 중 테크와 한국 관련 내용을 정리 브리핑은 \"모든 것은 테크에 달려 있다\"는 진단으로 시작합니다. 오늘 아침 아시아태평양..."
     },
     {
       "key": "AVGO",
@@ -331,7 +331,7 @@
     {
       "key": "BE",
       "count": 16,
-      "text": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도 지금으로서는). 우리가 같은 이야기를 반복하는 것일 수도 있지만, 시장의 기대치가 그만큼 빠르게 변화하고 있는 것일..."
+      "text": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도..."
     }
   ],
   "categories": [
@@ -359,7 +359,7 @@
       "topics": [
         "credit"
       ],
-      "count": 93,
+      "count": 94,
       "focus": "JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22% 하락했습니다. 이제 앞을 내다보겠습니다. 개인적인 견해로는 고통이 정점에 가까워졌으며 반등이 나올 때가 되었다고..."
     },
     {
@@ -395,7 +395,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 188,
+      "count": 189,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
     },
     {
@@ -404,7 +404,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 206,
+      "count": 207,
       "focus": "[NH/백준기] 스몰캡 - 엠케이전자 [NH/스몰캡(목진원)] [엠케이전자] ★큰 그림은 변한 것이 없다 3Q26 Preview: 환율이 깎은 국내 마진, 중국 법인은 순항 중 3분기 연결 실적은 매출액..."
     },
     {
@@ -440,7 +440,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 110,
+      "count": 109,
       "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · AbbVie · AMN Healthcare Services · Becton, Dickinson and Company · Biogen · Centene ·..."
     },
     {
@@ -458,7 +458,7 @@
       "topics": [
         "flows"
       ],
-      "count": 161,
+      "count": 162,
       "focus": "[메리츠증권 전기전자/IT부품 양승수] - TrendForce, AI 서버 핵심 부품 공급망 점검 자료 업데이트. 금주 주요 AI 하드웨어 7개 품목의 수급 상태 및 리드타임은 전주와 동일한 수준 유지 -..."
     },
     {
@@ -811,18 +811,16 @@
       "datetime": "2026-10-15T11:46:50.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "credit",
         "macro",
-        "semi",
         "power",
         "earnings"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "BofA, 코어위브(CoreWeave, $CRWV ) 매수 의견, 목표주가 140달러 유지 1. 전력 용량 확대와 가격 상승에 따른 매출 전망 상향 BofA는 코어위브의 매출 성장률 전망치를 상향...",
       "tickers": [
         "CRWV"
-      ],
-      "summary": "BofA, 코어위브(CoreWeave, $CRWV ) 매수 의견, 목표주가 140달러 유지 1. 전력 용량 확대와 가격 상승에 따른 매출 전망 상향 BofA는 코어위브의 매출 성장률 전망치를 상향..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25856",
@@ -831,23 +829,16 @@
       "datetime": "2026-10-15T07:03:19.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "earnings",
-        "flows",
-        "japan"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "JP모건 Data Assets & Alpha Group의 10월 15일자 모닝 브리핑 중 테크와 한국 관련 내용을 정리 브리핑은 \"모든 것은 테크에 달려 있다\"는 진단으로 시작합니다. 오늘 아침 아시아태평양...",
       "tickers": [
         "MU",
         "TSM",
         "SNDK"
-      ],
-      "summary": "JP모건 Data Assets & Alpha Group의 10월 15일자 모닝 브리핑 중 테크와 한국 관련 내용을 정리 브리핑은 \"모든 것은 테크에 달려 있다\"는 진단으로 시작합니다. 오늘 아침 아시아태평양..."
+      ]
     },
     {
       "id": "insidertracking/66343",
@@ -1662,18 +1653,30 @@
       "datetime": "2026-10-15T10:42:37.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "score": 99,
       "hasText": true,
-      "tickers": [],
-      "summary": "번스타인) 코어위브(CRWV): 부채 극대화... 말 그대로 어떤 대가를 치르더라도 성장? TP $74.(2026.10.14) 코어위브는 수요일 약 15% 하락했는데, 이는 투자자들이 회사 설비 용량에 대한..."
+      "summary": "번스타인) 코어위브(CRWV): 부채 극대화... 말 그대로 어떤 대가를 치르더라도 성장? TP $74.(2026.10.14) 코어위브는 수요일 약 15% 하락했는데, 이는 투자자들이 회사 설비 용량에 대한...",
+      "tickers": []
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/70522",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70522",
+      "datetime": "2026-10-16T07:09:31.000Z",
+      "localDateKst": "2026-10-16",
+      "tags": [
+        "credit",
+        "ai-policy"
+      ],
+      "score": 67,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>Anthropic 신용등급 공개: BB+, 투기등급 중 가장 높은 등급 •Anthropic이 처음으로 신용등급 BB+를 받았음. 이는 투기등급(정크)중 가장 높은 등급으로, 투자등급보다 한 단계 낮음...."
+    },
     {
       "id": "HANAchina/70521",
       "channel": "HANAchina",
@@ -1798,8 +1801,7 @@
         "kr-market",
         "equity",
         "earnings",
-        "flows",
-        "healthcare"
+        "flows"
       ],
       "score": 85,
       "hasText": true,
@@ -2594,13 +2596,12 @@
       "datetime": "2026-10-15T13:36:24.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
-        "earnings"
+        "macro"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": "9월 PPI • 헤드라인은 에너지 충격 2차 효과 발현, 다만 3개월 평균은 봄철 1차 충격 때보다 낮은 수준. 9월 PPI는 전월비 +1.3%(예상 0.5%), 전년비 6.3%로 2022년 12월 이후 최대..."
+      "summary": "9월 PPI • 헤드라인은 에너지 충격 2차 효과 발현, 다만 3개월 평균은 봄철 1차 충격 때보다 낮은 수준. 9월 PPI는 전월비 +1.3%(예상 0.5%), 전년비 6.3%로 2022년 12월 이후 최대...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70485",
@@ -2609,14 +2610,13 @@
       "datetime": "2026-10-15T13:32:57.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
         "ai-policy",
         "equity"
       ],
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>뉴욕시 감사관, Anthropic에 IPO 추진 중단 촉구 (CNBC) •뉴욕 감사관 마크 레빈은 인터뷰에서 Anthropic의 최고경영자 다리오 아모데이에게 서한을 보내 회사가 계획 중인 IPO를 중단할..."
+      "summary": ">>뉴욕시 감사관, Anthropic에 IPO 추진 중단 촉구 (CNBC) •뉴욕 감사관 마크 레빈은 인터뷰에서 Anthropic의 최고경영자 다리오 아모데이에게 서한을 보내 회사가 계획 중인 IPO를 중단할...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66376",
@@ -2643,8 +2643,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "ㅈ망 PPI MoM 1.3%/0.6%(컨센) PPI YoY 6.3%/5.3%(컨센)"
+      "summary": "ㅈ망 PPI MoM 1.3%/0.6%(컨센) PPI YoY 6.3%/5.3%(컨센)",
+      "tickers": []
     },
     {
       "id": "insidertracking/66375",
@@ -2677,13 +2677,13 @@
       ],
       "score": 60,
       "hasText": true,
+      "summary": "JP모건, 알파벳( $GOOGL ), 클라우드 실적 추정치를 상향 '비중확대(Overweight)' 투자의견을 유지, 목표주가를 420달러에서 425달러로 상향 가장 큰 변화는 당사의 구글 클라우드 성장률...",
       "tickers": [
         "GOOG"
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": "JP모건, 알파벳( $GOOGL ), 클라우드 실적 추정치를 상향 '비중확대(Overweight)' 투자의견을 유지, 목표주가를 420달러에서 425달러로 상향 가장 큰 변화는 당사의 구글 클라우드 성장률..."
+      ]
     },
     {
       "id": "bornlupin/20647",
@@ -2692,15 +2692,14 @@
       "datetime": "2026-10-15T12:07:29.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "power",
-        "healthcare"
+        "power"
       ],
       "score": 52,
       "hasText": true,
+      "summary": "셈텍(Semtech), 애널리스트 데이에서 데이터센터 성장 전략 발표 셈텍(Semtech Corporation, Nasdaq: SMTC)이 산호세에서 열린 '애널리스트 데이'를 통해 AI 데이터센터...",
       "tickers": [
         "SMTC"
-      ],
-      "summary": "셈텍(Semtech), 애널리스트 데이에서 데이터센터 성장 전략 발표 셈텍(Semtech Corporation, Nasdaq: SMTC)이 산호세에서 열린 '애널리스트 데이'를 통해 AI 데이터센터..."
+      ]
     },
     {
       "id": "insidertracking/66369",
@@ -2729,18 +2728,17 @@
       "localDateKst": "2026-10-15",
       "tags": [
         "macro",
-        "semi",
         "power"
       ],
       "score": 88,
       "hasText": true,
+      "summary": "블랙스톤, 2,000억 달러 규모 데이터센터 포트폴리오 구축…AI 투자 가속화 1. 데이터센터 투자 확대 세계 최대 대체자산 운용사 블랙스톤(Blackstone)은 2,000억 달러(약 280조 원) 규모의...",
       "tickers": [
         "NVDA",
         "GOOG",
         "AVGO",
         "BX"
-      ],
-      "summary": "블랙스톤, 2,000억 달러 규모 데이터센터 포트폴리오 구축…AI 투자 가속화 1. 데이터센터 투자 확대 세계 최대 대체자산 운용사 블랙스톤(Blackstone)은 2,000억 달러(약 280조 원) 규모의..."
+      ]
     },
     {
       "id": "insidertracking/66368",
@@ -2766,18 +2764,16 @@
       "localDateKst": "2026-10-15",
       "tags": [
         "macro",
-        "semi",
-        "ai-policy",
         "equity"
       ],
       "score": 86,
       "hasText": true,
+      "summary": "도이체방크, 코어위브(CoreWeave) 저가 매수 추천 — 128% 상승 여력 전망 도이체방크는 코어위브( $CRWV)에 대한 '매수(Buy)' 의견과 목표주가 150달러를 유지했으며, 이는 수요일 종가...",
       "tickers": [
         "NVDA",
         "META",
         "CRWV"
-      ],
-      "summary": "도이체방크, 코어위브(CoreWeave) 저가 매수 추천 — 128% 상승 여력 전망 도이체방크는 코어위브( $CRWV)에 대한 '매수(Buy)' 의견과 목표주가 150달러를 유지했으며, 이는 수요일 종가..."
+      ]
     },
     {
       "id": "bornlupin/20644",
@@ -2791,8 +2787,8 @@
       ],
       "score": 69,
       "hasText": true,
-      "tickers": [],
-      "summary": "코어위브, 최근 급락 이후 회사채 가격 급반등 코어위브의 회사채가 부채 관련 우려로 급락한 이후 매수세가 다시 유입되면서 반등하고 있습니다. - 2031년 10월 만기 회사채: 액면가 1달러당 3.3센트..."
+      "summary": "코어위브, 최근 급락 이후 회사채 가격 급반등 코어위브의 회사채가 부채 관련 우려로 급락한 이후 매수세가 다시 유입되면서 반등하고 있습니다. - 2031년 10월 만기 회사채: 액면가 1달러당 3.3센트...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20643",
@@ -2801,18 +2797,16 @@
       "datetime": "2026-10-15T11:46:50.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "credit",
         "macro",
-        "semi",
         "power",
         "earnings"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "BofA, 코어위브(CoreWeave, $CRWV ) 매수 의견, 목표주가 140달러 유지 1. 전력 용량 확대와 가격 상승에 따른 매출 전망 상향 BofA는 코어위브의 매출 성장률 전망치를 상향...",
       "tickers": [
         "CRWV"
-      ],
-      "summary": "BofA, 코어위브(CoreWeave, $CRWV ) 매수 의견, 목표주가 140달러 유지 1. 전력 용량 확대와 가격 상승에 따른 매출 전망 상향 BofA는 코어위브의 매출 성장률 전망치를 상향..."
+      ]
     },
     {
       "id": "bornlupin/20642",
@@ -2822,15 +2816,14 @@
       "localDateKst": "2026-10-15",
       "tags": [
         "macro",
-        "power",
-        "earnings"
+        "power"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도...",
       "tickers": [
         "BE"
-      ],
-      "summary": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25870",
@@ -2839,18 +2832,15 @@
       "datetime": "2026-10-15T11:35:07.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
         "semi",
-        "power",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "score": 81,
       "hasText": true,
+      "summary": "JP모건 TSMC 첫 인상; 강한 4Q가이던스, 빠른 캐파 성장, 보합세의 매출총이익률 TSMC의 3분기 실적과 4분기 매출 가이던스는 N2 공정의 강한 램프업과 N3 수요 강세에 힘입어 예상을 웃돌았습니다....",
       "tickers": [
         "TSM"
-      ],
-      "summary": "JP모건 TSMC 첫 인상; 강한 4Q가이던스, 빠른 캐파 성장, 보합세의 매출총이익률 TSMC의 3분기 실적과 4분기 매출 가이던스는 N2 공정의 강한 램프업과 N3 수요 강세에 힘입어 예상을 웃돌았습니다...."
+      ]
     },
     {
       "id": "aetherjapanresearch/25869",
@@ -2859,14 +2849,12 @@
       "datetime": "2026-10-15T11:31:41.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "credit",
-        "macro",
-        "earnings"
+        "macro"
       ],
       "score": 74,
       "hasText": true,
-      "tickers": [],
-      "summary": "Citi) 미국 경제; 데일리 업데이트 - 금리의 왕복 운동 씨티의 견해 예상보다 훨씬 강한 근원 인플레이션 수치가 수요일 오전 금리를 크게 끌어올렸습니다. 하지만 장 마감 무렵에는 주가가 하락하고 신용..."
+      "summary": "Citi) 미국 경제; 데일리 업데이트 - 금리의 왕복 운동 씨티의 견해 예상보다 훨씬 강한 근원 인플레이션 수치가 수요일 오전 금리를 크게 끌어올렸습니다. 하지만 장 마감 무렵에는 주가가 하락하고 신용...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66367",
@@ -2920,15 +2908,12 @@
       "datetime": "2026-10-15T10:42:37.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "score": 99,
       "hasText": true,
-      "tickers": [],
-      "summary": "번스타인) 코어위브(CRWV): 부채 극대화... 말 그대로 어떤 대가를 치르더라도 성장? TP $74.(2026.10.14) 코어위브는 수요일 약 15% 하락했는데, 이는 투자자들이 회사 설비 용량에 대한..."
+      "summary": "번스타인) 코어위브(CRWV): 부채 극대화... 말 그대로 어떤 대가를 치르더라도 성장? TP $74.(2026.10.14) 코어위브는 수요일 약 15% 하락했는데, 이는 투자자들이 회사 설비 용량에 대한...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66360",
@@ -2981,16 +2966,15 @@
       "datetime": "2026-10-15T08:06:39.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "semi",
-        "kr-market"
+        "market-note"
       ],
       "score": 73,
       "hasText": true,
+      "summary": "CNBC 오늘 라이브에서 한국 금융당국 비판 “방금 50초 전에 나온 소식이니, 아주 따끈한 속보입니다. 한국 금융당국이 시장 안정과 투자자 보호를 위한 선제적 대응을 지시했습니다. 금융회사들에는 과도한...",
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "CNBC 오늘 라이브에서 한국 금융당국 비판 “방금 50초 전에 나온 소식이니, 아주 따끈한 속보입니다. 한국 금융당국이 시장 안정과 투자자 보호를 위한 선제적 대응을 지시했습니다. 금융회사들에는 과도한..."
+      ]
     },
     {
       "id": "HANAchina/70480",
@@ -3044,16 +3028,15 @@
       "datetime": "2026-10-15T07:12:18.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
         "semi",
         "earnings"
       ],
       "score": 73,
       "hasText": true,
+      "summary": "제목 : [실적 속보] TSMC, 생산능력 투자 확대 발언에 주가 하락 *연합인포맥스* TSMC(NYS: TSM)는 ‘26년 3분기 실적을 다음과 같이 발표했다. 매출 1조 4,900억...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "제목 : [실적 속보] TSMC, 생산능력 투자 확대 발언에 주가 하락 *연합인포맥스* TSMC(NYS: TSM)는 ‘26년 3분기 실적을 다음과 같이 발표했다. 매출 1조 4,900억..."
+      ]
     },
     {
       "id": "bornlupin/20641",
@@ -3066,10 +3049,10 @@
       ],
       "score": 61,
       "hasText": true,
+      "summary": "TSMC 어닝콜 중 Q) 모두발언에서 AI 가속기 칩셋 수요가 CPU와 네트워킹 스위치를 포함한 에이전틱(Agentic) AI 수요로 확산되고 있다고 언급하셨습니다. 수익화(monetization)가...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 어닝콜 중 Q) 모두발언에서 AI 가속기 칩셋 수요가 CPU와 네트워킹 스위치를 포함한 에이전틱(Agentic) AI 수요로 확산되고 있다고 언급하셨습니다. 수익화(monetization)가..."
+      ]
     },
     {
       "id": "bornlupin/20640",
@@ -3082,10 +3065,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "TSMC 테라팹 관련 우리는 캐파 확장을 위해 매우 열심히 노력하고 있습니다. 대형 고객사 대부분이 미국에 있고 이들이 TSMC에 캐파 증설을 요청하고 있으며, 미국 정부도 매우 협조적이기 때문에 미국 내...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 테라팹 관련 우리는 캐파 확장을 위해 매우 열심히 노력하고 있습니다. 대형 고객사 대부분이 미국에 있고 이들이 TSMC에 캐파 증설을 요청하고 있으며, 미국 정부도 매우 협조적이기 때문에 미국 내..."
+      ]
     },
     {
       "id": "HANAchina/70479",
@@ -3113,23 +3096,16 @@
       "datetime": "2026-10-15T07:03:19.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "earnings",
-        "flows",
-        "japan"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "JP모건 Data Assets & Alpha Group의 10월 15일자 모닝 브리핑 중 테크와 한국 관련 내용을 정리 브리핑은 \"모든 것은 테크에 달려 있다\"는 진단으로 시작합니다. 오늘 아침 아시아태평양...",
       "tickers": [
         "MU",
         "TSM",
         "SNDK"
-      ],
-      "summary": "JP모건 Data Assets & Alpha Group의 10월 15일자 모닝 브리핑 중 테크와 한국 관련 내용을 정리 브리핑은 \"모든 것은 테크에 달려 있다\"는 진단으로 시작합니다. 오늘 아침 아시아태평양..."
+      ]
     },
     {
       "id": "bornlupin/20639",
@@ -3142,10 +3118,10 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": "TSMC - 2027년 공급 상황: 2027년에는 2026년보다 공급이 더욱 빠듯해질 전망 . - 고객 수요: 고객들의 수요는 계속해서 증가하고 있음. - 생산능력(Capacity) 증가율: 역사적으로 연간...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC - 2027년 공급 상황: 2027년에는 2026년보다 공급이 더욱 빠듯해질 전망 . - 고객 수요: 고객들의 수요는 계속해서 증가하고 있음. - 생산능력(Capacity) 증가율: 역사적으로 연간..."
+      ]
     },
     {
       "id": "bornlupin/20638",
@@ -3154,15 +3130,14 @@
       "datetime": "2026-10-15T06:33:00.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 59,
       "hasText": true,
+      "summary": "TSMC - 수요와 공급: 수요가 공급을 계속해서 초과하고 있음. - High-NA EUV: 2030년부터 High-NA EUV 기술을 활용할 예정. - 설비투자(CapEx): 향후 설비투자 규모는 현재보다...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC - 수요와 공급: 수요가 공급을 계속해서 초과하고 있음. - High-NA EUV: 2030년부터 High-NA EUV 기술을 활용할 예정. - 설비투자(CapEx): 향후 설비투자 규모는 현재보다..."
+      ]
     },
     {
       "id": "bornlupin/20637",
@@ -3176,10 +3151,10 @@
       ],
       "score": 59,
       "hasText": true,
+      "summary": "TSMC, 대만 타이난에 N3(3나노) 공장 추가 건설 계획… 2028년 A14(1.4나노) 양산 목표 - 미국의 전력 공급 및 데이터센터 개발 현황을 점검하기 위해 현지에 조사팀 파견. TSMC, 이례적으로...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC, 대만 타이난에 N3(3나노) 공장 추가 건설 계획… 2028년 A14(1.4나노) 양산 목표 - 미국의 전력 공급 및 데이터센터 개발 현황을 점검하기 위해 현지에 조사팀 파견. TSMC, 이례적으로..."
+      ]
     },
     {
       "id": "HANAchina/70477",
@@ -3208,10 +3183,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "TSMC -AI가 장기적인 '메가트렌드'라는 강한 확신을 유지. 4분기 수요: 강한 수요가 지속될 것으로 예상. 최첨단 공정 기술 수요: '매우 견조한(Very robust)' 수준 을 유지. 반도체 장비...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC -AI가 장기적인 '메가트렌드'라는 강한 확신을 유지. 4분기 수요: 강한 수요가 지속될 것으로 예상. 최첨단 공정 기술 수요: '매우 견조한(Very robust)' 수준 을 유지. 반도체 장비..."
+      ]
     },
     {
       "id": "bornlupin/20635",
@@ -3225,10 +3200,10 @@
       ],
       "score": 71,
       "hasText": true,
+      "summary": "TSMC 설비투자(CapEx) 전망: 600억~640억 달러 유지 2026~2028년 설비투자: 향후 3년간(2026~2028년) 설비투자 규모가 직전 3년간(2023~2025년) 대비 상당히 높을 것이라는...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 설비투자(CapEx) 전망: 600억~640억 달러 유지 2026~2028년 설비투자: 향후 3년간(2026~2028년) 설비투자 규모가 직전 3년간(2023~2025년) 대비 상당히 높을 것이라는..."
+      ]
     },
     {
       "id": "bornlupin/20634",
@@ -3243,10 +3218,10 @@
       ],
       "score": 68,
       "hasText": true,
+      "summary": "TSMC 2026년 4분기 실적 가이던스 - 매출 전망: 523억~543억 달러 (시장 예상치 503억 5,000만 달러) - 매출총이익률(GPM) 전망: 65~67% (3분기 66.4%) -...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 2026년 4분기 실적 가이던스 - 매출 전망: 523억~543억 달러 (시장 예상치 503억 5,000만 달러) - 매출총이익률(GPM) 전망: 65~67% (3분기 66.4%) -..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25855",
@@ -3310,16 +3285,14 @@
       "tags": [
         "macro",
         "semi",
-        "power",
-        "kr-market",
         "earnings"
       ],
       "score": 97,
       "hasText": true,
+      "summary": "TSMC 2026년 3분기 실적 IR 1. 매출 : 467.2억 달러 (NT$1조 4,942억). 가이던스(446~458억 달러) 상단을 상회 . 전분기 대비 +16.2%, 전년 동기 대비 +41.2%...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 2026년 3분기 실적 IR 1. 매출 : 467.2억 달러 (NT$1조 4,942억). 가이던스(446~458억 달러) 상단을 상회 . 전분기 대비 +16.2%, 전년 동기 대비 +41.2%..."
+      ]
     },
     {
       "id": "HANAchina/70473",
@@ -3401,10 +3374,10 @@
       ],
       "score": 63,
       "hasText": true,
+      "summary": "TSMC: 3분기 순이익 7,631억 대만달러 (예상치 7,463억 대만달러)",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC: 3분기 순이익 7,631억 대만달러 (예상치 7,463억 대만달러)"
+      ]
     },
     {
       "id": "insidertracking/66345",
@@ -3429,15 +3402,14 @@
       "datetime": "2026-10-15T05:33:18.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
         "power"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "마이크로소프트, 2032년까지 데이터센터 용량 3배 이상 확대 마이크로소프트(MS)가 클라우드 및 AI 연산력 병목 현상을 해소하기 위해 2032년까지 글로벌 데이터센터 용량을 대폭 확장하기로 하면서,...",
       "tickers": [
         "MSFT"
-      ],
-      "summary": "마이크로소프트, 2032년까지 데이터센터 용량 3배 이상 확대 마이크로소프트(MS)가 클라우드 및 AI 연산력 병목 현상을 해소하기 위해 2032년까지 글로벌 데이터센터 용량을 대폭 확장하기로 하면서,..."
+      ]
     },
     {
       "id": "HANAchina/70471",
@@ -7807,20 +7779,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/70278",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70278",
-      "datetime": "2026-10-12T07:50:48.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>사용자 증가율 62% 급감, 모건스탠리 추산 Muse의 사용자당 월간 비용 최대 130달러 •모건스탠리는 Muse의 기본 시나리오에서 사용자당 월간 서비스 비용이 37달러, 연간 비용은 445달러에...",
-      "tickers": []
-    },
-    {
       "id": "aetherjapanresearch/25774",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25774",
@@ -8687,34 +8645,6 @@
       "summary": "프랑스에서 이른바 ‘학생들’의 시위가 계속되는 가운데, 시위 참가자들이 경찰을 향해 연막탄과 폭죽을 던지고 경찰도 이에 대응하는 상황."
     },
     {
-      "id": "insidertracking/66404",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66404",
-      "datetime": "2026-10-15T20:53:34.000Z",
-      "localDateKst": "2026-10-16",
-      "tags": [
-        "market-note"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": "RTV 포드고리차에 따르면 몬테네그로가 유럽연합(EU)의 방침에 따라 병역 의무가 있는 우크라이나인에 대한 망명 허용 조건을 강화. 앞으로 임시 보호 지위는 몬테네그로 입국 전 우크라이나에 거주하면서 병역..."
-    },
-    {
-      "id": "insidertracking/66403",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66403",
-      "datetime": "2026-10-15T20:53:05.000Z",
-      "localDateKst": "2026-10-16",
-      "tags": [
-        "market-note"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": "사우디아라비아 주도 연합군(합동군)이 사우디 영공에서 후티 반군(안사르 알라)의 드론을 요격하는 영상 공개. 이번 요격은 사우디 왕립공군(RSAF)이 공대공 미사일을 사용해 수행했을 가능성이 높은 것으로 추정."
-    },
-    {
       "id": "insidertracking/66402",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/66402",
@@ -9108,13 +9038,12 @@
       "datetime": "2026-10-15T13:36:24.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
-        "earnings"
+        "macro"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": "9월 PPI • 헤드라인은 에너지 충격 2차 효과 발현, 다만 3개월 평균은 봄철 1차 충격 때보다 낮은 수준. 9월 PPI는 전월비 +1.3%(예상 0.5%), 전년비 6.3%로 2022년 12월 이후 최대..."
+      "summary": "9월 PPI • 헤드라인은 에너지 충격 2차 효과 발현, 다만 3개월 평균은 봄철 1차 충격 때보다 낮은 수준. 9월 PPI는 전월비 +1.3%(예상 0.5%), 전년비 6.3%로 2022년 12월 이후 최대...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70485",
@@ -9123,42 +9052,13 @@
       "datetime": "2026-10-15T13:32:57.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
         "ai-policy",
         "equity"
       ],
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>뉴욕시 감사관, Anthropic에 IPO 추진 중단 촉구 (CNBC) •뉴욕 감사관 마크 레빈은 인터뷰에서 Anthropic의 최고경영자 다리오 아모데이에게 서한을 보내 회사가 계획 중인 IPO를 중단할..."
-    },
-    {
-      "id": "HANAchina/70484",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70484",
-      "datetime": "2026-10-15T13:31:48.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 40,
-      "hasText": true,
-      "tickers": [],
-      "summary": "•BDI운임지수 2,545pt (-4.57%) •9거래일 연속 급락"
-    },
-    {
-      "id": "HANAchina/70483",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70483",
-      "datetime": "2026-10-15T13:20:18.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": ""
+      "summary": ">>뉴욕시 감사관, Anthropic에 IPO 추진 중단 촉구 (CNBC) •뉴욕 감사관 마크 레빈은 인터뷰에서 Anthropic의 최고경영자 다리오 아모데이에게 서한을 보내 회사가 계획 중인 IPO를 중단할...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20649",
@@ -9201,8 +9101,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "ㅈ망 PPI MoM 1.3%/0.6%(컨센) PPI YoY 6.3%/5.3%(컨센)"
+      "summary": "ㅈ망 PPI MoM 1.3%/0.6%(컨센) PPI YoY 6.3%/5.3%(컨센)",
+      "tickers": []
     },
     {
       "id": "insidertracking/66375",
@@ -9235,13 +9135,13 @@
       ],
       "score": 60,
       "hasText": true,
+      "summary": "JP모건, 알파벳( $GOOGL ), 클라우드 실적 추정치를 상향 '비중확대(Overweight)' 투자의견을 유지, 목표주가를 420달러에서 425달러로 상향 가장 큰 변화는 당사의 구글 클라우드 성장률...",
       "tickers": [
         "GOOG"
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": "JP모건, 알파벳( $GOOGL ), 클라우드 실적 추정치를 상향 '비중확대(Overweight)' 투자의견을 유지, 목표주가를 420달러에서 425달러로 상향 가장 큰 변화는 당사의 구글 클라우드 성장률..."
+      ]
     },
     {
       "id": "bornlupin/20647",
@@ -9250,15 +9150,14 @@
       "datetime": "2026-10-15T12:07:29.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "power",
-        "healthcare"
+        "power"
       ],
       "score": 52,
       "hasText": true,
+      "summary": "셈텍(Semtech), 애널리스트 데이에서 데이터센터 성장 전략 발표 셈텍(Semtech Corporation, Nasdaq: SMTC)이 산호세에서 열린 '애널리스트 데이'를 통해 AI 데이터센터...",
       "tickers": [
         "SMTC"
-      ],
-      "summary": "셈텍(Semtech), 애널리스트 데이에서 데이터센터 성장 전략 발표 셈텍(Semtech Corporation, Nasdaq: SMTC)이 산호세에서 열린 '애널리스트 데이'를 통해 AI 데이터센터..."
+      ]
     },
     {
       "id": "insidertracking/66369",
@@ -9287,18 +9186,17 @@
       "localDateKst": "2026-10-15",
       "tags": [
         "macro",
-        "semi",
         "power"
       ],
       "score": 88,
       "hasText": true,
+      "summary": "블랙스톤, 2,000억 달러 규모 데이터센터 포트폴리오 구축…AI 투자 가속화 1. 데이터센터 투자 확대 세계 최대 대체자산 운용사 블랙스톤(Blackstone)은 2,000억 달러(약 280조 원) 규모의...",
       "tickers": [
         "NVDA",
         "GOOG",
         "AVGO",
         "BX"
-      ],
-      "summary": "블랙스톤, 2,000억 달러 규모 데이터센터 포트폴리오 구축…AI 투자 가속화 1. 데이터센터 투자 확대 세계 최대 대체자산 운용사 블랙스톤(Blackstone)은 2,000억 달러(약 280조 원) 규모의..."
+      ]
     },
     {
       "id": "insidertracking/66368",
@@ -9324,18 +9222,16 @@
       "localDateKst": "2026-10-15",
       "tags": [
         "macro",
-        "semi",
-        "ai-policy",
         "equity"
       ],
       "score": 86,
       "hasText": true,
+      "summary": "도이체방크, 코어위브(CoreWeave) 저가 매수 추천 — 128% 상승 여력 전망 도이체방크는 코어위브( $CRWV)에 대한 '매수(Buy)' 의견과 목표주가 150달러를 유지했으며, 이는 수요일 종가...",
       "tickers": [
         "NVDA",
         "META",
         "CRWV"
-      ],
-      "summary": "도이체방크, 코어위브(CoreWeave) 저가 매수 추천 — 128% 상승 여력 전망 도이체방크는 코어위브( $CRWV)에 대한 '매수(Buy)' 의견과 목표주가 150달러를 유지했으며, 이는 수요일 종가..."
+      ]
     },
     {
       "id": "bornlupin/20644",
@@ -9349,22 +9245,8 @@
       ],
       "score": 69,
       "hasText": true,
-      "tickers": [],
-      "summary": "코어위브, 최근 급락 이후 회사채 가격 급반등 코어위브의 회사채가 부채 관련 우려로 급락한 이후 매수세가 다시 유입되면서 반등하고 있습니다. - 2031년 10월 만기 회사채: 액면가 1달러당 3.3센트..."
-    },
-    {
-      "id": "aetherjapanresearch/25873",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25873",
-      "datetime": "2026-10-15T11:48:26.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "macro"
-      ],
-      "score": 47,
-      "hasText": true,
-      "tickers": [],
-      "summary": "코어위브($CRWV) 채권, 최근 급락 이후 큰 폭 반등 코어위브 채권이 회사의 부채에 대한 우려로 급락한 이후 매수세가 다시 유입되면서 회복세를 보이고 있습니다. 2031년 10월 만기 채권은 액면가..."
+      "summary": "코어위브, 최근 급락 이후 회사채 가격 급반등 코어위브의 회사채가 부채 관련 우려로 급락한 이후 매수세가 다시 유입되면서 반등하고 있습니다. - 2031년 10월 만기 회사채: 액면가 1달러당 3.3센트...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20643",
@@ -9373,32 +9255,16 @@
       "datetime": "2026-10-15T11:46:50.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "credit",
         "macro",
-        "semi",
         "power",
         "earnings"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "BofA, 코어위브(CoreWeave, $CRWV ) 매수 의견, 목표주가 140달러 유지 1. 전력 용량 확대와 가격 상승에 따른 매출 전망 상향 BofA는 코어위브의 매출 성장률 전망치를 상향...",
       "tickers": [
         "CRWV"
-      ],
-      "summary": "BofA, 코어위브(CoreWeave, $CRWV ) 매수 의견, 목표주가 140달러 유지 1. 전력 용량 확대와 가격 상승에 따른 매출 전망 상향 BofA는 코어위브의 매출 성장률 전망치를 상향..."
-    },
-    {
-      "id": "aetherjapanresearch/25872",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25872",
-      "datetime": "2026-10-15T11:45:05.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": "제미나이 vs 오푸스 블렌더 테스트"
+      ]
     },
     {
       "id": "bornlupin/20642",
@@ -9408,29 +9274,14 @@
       "localDateKst": "2026-10-15",
       "tags": [
         "macro",
-        "power",
-        "earnings"
+        "power"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도...",
       "tickers": [
         "BE"
-      ],
-      "summary": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도..."
-    },
-    {
-      "id": "aetherjapanresearch/25871",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25871",
-      "datetime": "2026-10-15T11:42:02.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "media-only"
-      ],
-      "score": 0,
-      "hasText": false,
-      "tickers": [],
-      "summary": ""
+      ]
     },
     {
       "id": "aetherjapanresearch/25870",
@@ -9439,18 +9290,15 @@
       "datetime": "2026-10-15T11:35:07.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
         "semi",
-        "power",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "score": 81,
       "hasText": true,
+      "summary": "JP모건 TSMC 첫 인상; 강한 4Q가이던스, 빠른 캐파 성장, 보합세의 매출총이익률 TSMC의 3분기 실적과 4분기 매출 가이던스는 N2 공정의 강한 램프업과 N3 수요 강세에 힘입어 예상을 웃돌았습니다....",
       "tickers": [
         "TSM"
-      ],
-      "summary": "JP모건 TSMC 첫 인상; 강한 4Q가이던스, 빠른 캐파 성장, 보합세의 매출총이익률 TSMC의 3분기 실적과 4분기 매출 가이던스는 N2 공정의 강한 램프업과 N3 수요 강세에 힘입어 예상을 웃돌았습니다...."
+      ]
     },
     {
       "id": "aetherjapanresearch/25869",
@@ -9459,14 +9307,12 @@
       "datetime": "2026-10-15T11:31:41.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "credit",
-        "macro",
-        "earnings"
+        "macro"
       ],
       "score": 74,
       "hasText": true,
-      "tickers": [],
-      "summary": "Citi) 미국 경제; 데일리 업데이트 - 금리의 왕복 운동 씨티의 견해 예상보다 훨씬 강한 근원 인플레이션 수치가 수요일 오전 금리를 크게 끌어올렸습니다. 하지만 장 마감 무렵에는 주가가 하락하고 신용..."
+      "summary": "Citi) 미국 경제; 데일리 업데이트 - 금리의 왕복 운동 씨티의 견해 예상보다 훨씬 강한 근원 인플레이션 수치가 수요일 오전 금리를 크게 끌어올렸습니다. 하지만 장 마감 무렵에는 주가가 하락하고 신용...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66367",
@@ -9483,62 +9329,6 @@
       "tickers": [
         "CRWV"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25868",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25868",
-      "datetime": "2026-10-15T11:20:00.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "media-only"
-      ],
-      "score": 0,
-      "hasText": false,
-      "tickers": [],
-      "summary": ""
-    },
-    {
-      "id": "aetherjapanresearch/25865",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25865",
-      "datetime": "2026-10-15T11:19:30.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": "싸다 비싸다 선동당하지 말고 대충 사도 줏어먹는장에 하고 어려운장에 쉬십쇼 기관 아니면"
-    },
-    {
-      "id": "aetherjapanresearch/25866",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25866",
-      "datetime": "2026-10-15T11:19:30.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": "헛짓거리 3번하면 계좌깡통납니다"
-    },
-    {
-      "id": "aetherjapanresearch/25867",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25867",
-      "datetime": "2026-10-15T11:19:30.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": "개인인데 왜 안되는걸 어거지로 할라고함?"
     },
     {
       "id": "insidertracking/66366",
@@ -9576,43 +9366,12 @@
       "datetime": "2026-10-15T10:42:37.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "score": 99,
       "hasText": true,
-      "tickers": [],
-      "summary": "번스타인) 코어위브(CRWV): 부채 극대화... 말 그대로 어떤 대가를 치르더라도 성장? TP $74.(2026.10.14) 코어위브는 수요일 약 15% 하락했는데, 이는 투자자들이 회사 설비 용량에 대한..."
-    },
-    {
-      "id": "aetherjapanresearch/25863",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25863",
-      "datetime": "2026-10-15T09:37:40.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": "돈꼴면 술먹어야지..."
-    },
-    {
-      "id": "aetherjapanresearch/25861",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25861",
-      "datetime": "2026-10-15T09:37:25.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 40,
-      "hasText": true,
-      "tickers": [],
-      "summary": "귀주모태주(좌) +2.1% CXMT(우) -5.2%"
+      "summary": "번스타인) 코어위브(CRWV): 부채 극대화... 말 그대로 어떤 대가를 치르더라도 성장? TP $74.(2026.10.14) 코어위브는 수요일 약 15% 하락했는데, 이는 투자자들이 회사 설비 용량에 대한...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66360",
@@ -9629,34 +9388,6 @@
       "tickers": []
     },
     {
-      "id": "aetherjapanresearch/25860",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25860",
-      "datetime": "2026-10-15T09:31:08.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": "그러면 그동안은 안 원해서 안 끝냈다는 거냐"
-    },
-    {
-      "id": "aetherjapanresearch/25859",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25859",
-      "datetime": "2026-10-15T09:30:53.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "geo"
-      ],
-      "score": 45,
-      "hasText": true,
-      "tickers": [],
-      "summary": "이란과의 전쟁은 아주 곧 끝날 것입니다. 아주 곧 끝날 것입니다. 제가 원하면 언제든지 끝낼 수 있지만, 아주 곧 끝날 것입니다."
-    },
-    {
       "id": "insidertracking/66356",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/66356",
@@ -9669,22 +9400,6 @@
       "hasText": true,
       "summary": "악시오스가 복수의 소식통을 인용해 보도한 바에 따르면, 빌 게이츠가 인공지능(AI)에 대한 규제 강화를 추진하기 위해 대규모 개인 자원을 투입하는 방안을 검토 중. 게이츠는 AI 안전 관련 활동을 대폭...",
       "tickers": []
-    },
-    {
-      "id": "HANAchina/70482",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70482",
-      "datetime": "2026-10-15T09:02:10.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 39,
-      "hasText": true,
-      "tickers": [
-        "AAPL"
-      ],
-      "summary": ">>팀 쿡: Apple Intelligence, 10월 말 중국에서 테스트 버전 출시… Siri AI는 제외 •10월 15일, 애플 이사회 의장 팀 쿡이 상하이를 방문해 언론 인터뷰. Apple..."
     },
     {
       "id": "HANAchina/70481",
@@ -9709,16 +9424,15 @@
       "datetime": "2026-10-15T08:06:39.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "semi",
-        "kr-market"
+        "market-note"
       ],
       "score": 73,
       "hasText": true,
+      "summary": "CNBC 오늘 라이브에서 한국 금융당국 비판 “방금 50초 전에 나온 소식이니, 아주 따끈한 속보입니다. 한국 금융당국이 시장 안정과 투자자 보호를 위한 선제적 대응을 지시했습니다. 금융회사들에는 과도한...",
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "CNBC 오늘 라이브에서 한국 금융당국 비판 “방금 50초 전에 나온 소식이니, 아주 따끈한 속보입니다. 한국 금융당국이 시장 안정과 투자자 보호를 위한 선제적 대응을 지시했습니다. 금융회사들에는 과도한..."
+      ]
     },
     {
       "id": "HANAchina/70480",
@@ -9772,16 +9486,15 @@
       "datetime": "2026-10-15T07:12:18.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
         "semi",
         "earnings"
       ],
       "score": 73,
       "hasText": true,
+      "summary": "제목 : [실적 속보] TSMC, 생산능력 투자 확대 발언에 주가 하락 *연합인포맥스* TSMC(NYS: TSM)는 ‘26년 3분기 실적을 다음과 같이 발표했다. 매출 1조 4,900억...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "제목 : [실적 속보] TSMC, 생산능력 투자 확대 발언에 주가 하락 *연합인포맥스* TSMC(NYS: TSM)는 ‘26년 3분기 실적을 다음과 같이 발표했다. 매출 1조 4,900억..."
+      ]
     },
     {
       "id": "bornlupin/20641",
@@ -9794,10 +9507,10 @@
       ],
       "score": 61,
       "hasText": true,
+      "summary": "TSMC 어닝콜 중 Q) 모두발언에서 AI 가속기 칩셋 수요가 CPU와 네트워킹 스위치를 포함한 에이전틱(Agentic) AI 수요로 확산되고 있다고 언급하셨습니다. 수익화(monetization)가...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 어닝콜 중 Q) 모두발언에서 AI 가속기 칩셋 수요가 CPU와 네트워킹 스위치를 포함한 에이전틱(Agentic) AI 수요로 확산되고 있다고 언급하셨습니다. 수익화(monetization)가..."
+      ]
     },
     {
       "id": "bornlupin/20640",
@@ -9810,10 +9523,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "TSMC 테라팹 관련 우리는 캐파 확장을 위해 매우 열심히 노력하고 있습니다. 대형 고객사 대부분이 미국에 있고 이들이 TSMC에 캐파 증설을 요청하고 있으며, 미국 정부도 매우 협조적이기 때문에 미국 내...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 테라팹 관련 우리는 캐파 확장을 위해 매우 열심히 노력하고 있습니다. 대형 고객사 대부분이 미국에 있고 이들이 TSMC에 캐파 증설을 요청하고 있으며, 미국 정부도 매우 협조적이기 때문에 미국 내..."
+      ]
     },
     {
       "id": "HANAchina/70479",
@@ -9841,23 +9554,16 @@
       "datetime": "2026-10-15T07:03:19.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "earnings",
-        "flows",
-        "japan"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "JP모건 Data Assets & Alpha Group의 10월 15일자 모닝 브리핑 중 테크와 한국 관련 내용을 정리 브리핑은 \"모든 것은 테크에 달려 있다\"는 진단으로 시작합니다. 오늘 아침 아시아태평양...",
       "tickers": [
         "MU",
         "TSM",
         "SNDK"
-      ],
-      "summary": "JP모건 Data Assets & Alpha Group의 10월 15일자 모닝 브리핑 중 테크와 한국 관련 내용을 정리 브리핑은 \"모든 것은 테크에 달려 있다\"는 진단으로 시작합니다. 오늘 아침 아시아태평양..."
+      ]
     },
     {
       "id": "bornlupin/20639",
@@ -9870,10 +9576,10 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": "TSMC - 2027년 공급 상황: 2027년에는 2026년보다 공급이 더욱 빠듯해질 전망 . - 고객 수요: 고객들의 수요는 계속해서 증가하고 있음. - 생산능력(Capacity) 증가율: 역사적으로 연간...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC - 2027년 공급 상황: 2027년에는 2026년보다 공급이 더욱 빠듯해질 전망 . - 고객 수요: 고객들의 수요는 계속해서 증가하고 있음. - 생산능력(Capacity) 증가율: 역사적으로 연간..."
+      ]
     },
     {
       "id": "bornlupin/20638",
@@ -9882,15 +9588,14 @@
       "datetime": "2026-10-15T06:33:00.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 59,
       "hasText": true,
+      "summary": "TSMC - 수요와 공급: 수요가 공급을 계속해서 초과하고 있음. - High-NA EUV: 2030년부터 High-NA EUV 기술을 활용할 예정. - 설비투자(CapEx): 향후 설비투자 규모는 현재보다...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC - 수요와 공급: 수요가 공급을 계속해서 초과하고 있음. - High-NA EUV: 2030년부터 High-NA EUV 기술을 활용할 예정. - 설비투자(CapEx): 향후 설비투자 규모는 현재보다..."
+      ]
     },
     {
       "id": "bornlupin/20637",
@@ -9904,10 +9609,10 @@
       ],
       "score": 59,
       "hasText": true,
+      "summary": "TSMC, 대만 타이난에 N3(3나노) 공장 추가 건설 계획… 2028년 A14(1.4나노) 양산 목표 - 미국의 전력 공급 및 데이터센터 개발 현황을 점검하기 위해 현지에 조사팀 파견. TSMC, 이례적으로...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC, 대만 타이난에 N3(3나노) 공장 추가 건설 계획… 2028년 A14(1.4나노) 양산 목표 - 미국의 전력 공급 및 데이터센터 개발 현황을 점검하기 위해 현지에 조사팀 파견. TSMC, 이례적으로..."
+      ]
     },
     {
       "id": "HANAchina/70477",
@@ -9936,10 +9641,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "TSMC -AI가 장기적인 '메가트렌드'라는 강한 확신을 유지. 4분기 수요: 강한 수요가 지속될 것으로 예상. 최첨단 공정 기술 수요: '매우 견조한(Very robust)' 수준 을 유지. 반도체 장비...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC -AI가 장기적인 '메가트렌드'라는 강한 확신을 유지. 4분기 수요: 강한 수요가 지속될 것으로 예상. 최첨단 공정 기술 수요: '매우 견조한(Very robust)' 수준 을 유지. 반도체 장비..."
+      ]
     },
     {
       "id": "bornlupin/20635",
@@ -9953,10 +9658,10 @@
       ],
       "score": 71,
       "hasText": true,
+      "summary": "TSMC 설비투자(CapEx) 전망: 600억~640억 달러 유지 2026~2028년 설비투자: 향후 3년간(2026~2028년) 설비투자 규모가 직전 3년간(2023~2025년) 대비 상당히 높을 것이라는...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 설비투자(CapEx) 전망: 600억~640억 달러 유지 2026~2028년 설비투자: 향후 3년간(2026~2028년) 설비투자 규모가 직전 3년간(2023~2025년) 대비 상당히 높을 것이라는..."
+      ]
     },
     {
       "id": "bornlupin/20634",
@@ -9971,10 +9676,10 @@
       ],
       "score": 68,
       "hasText": true,
+      "summary": "TSMC 2026년 4분기 실적 가이던스 - 매출 전망: 523억~543억 달러 (시장 예상치 503억 5,000만 달러) - 매출총이익률(GPM) 전망: 65~67% (3분기 66.4%) -...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 2026년 4분기 실적 가이던스 - 매출 전망: 523억~543억 달러 (시장 예상치 503억 5,000만 달러) - 매출총이익률(GPM) 전망: 65~67% (3분기 66.4%) -..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25855",
@@ -10038,16 +9743,14 @@
       "tags": [
         "macro",
         "semi",
-        "power",
-        "kr-market",
         "earnings"
       ],
       "score": 97,
       "hasText": true,
+      "summary": "TSMC 2026년 3분기 실적 IR 1. 매출 : 467.2억 달러 (NT$1조 4,942억). 가이던스(446~458억 달러) 상단을 상회 . 전분기 대비 +16.2%, 전년 동기 대비 +41.2%...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 2026년 3분기 실적 IR 1. 매출 : 467.2억 달러 (NT$1조 4,942억). 가이던스(446~458억 달러) 상단을 상회 . 전분기 대비 +16.2%, 전년 동기 대비 +41.2%..."
+      ]
     },
     {
       "id": "HANAchina/70473",
@@ -10129,10 +9832,10 @@
       ],
       "score": 63,
       "hasText": true,
+      "summary": "TSMC: 3분기 순이익 7,631억 대만달러 (예상치 7,463억 대만달러)",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC: 3분기 순이익 7,631억 대만달러 (예상치 7,463억 대만달러)"
+      ]
     },
     {
       "id": "insidertracking/66345",
@@ -10157,15 +9860,14 @@
       "datetime": "2026-10-15T05:33:18.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
         "power"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "마이크로소프트, 2032년까지 데이터센터 용량 3배 이상 확대 마이크로소프트(MS)가 클라우드 및 AI 연산력 병목 현상을 해소하기 위해 2032년까지 글로벌 데이터센터 용량을 대폭 확장하기로 하면서,...",
       "tickers": [
         "MSFT"
-      ],
-      "summary": "마이크로소프트, 2032년까지 데이터센터 용량 3배 이상 확대 마이크로소프트(MS)가 클라우드 및 AI 연산력 병목 현상을 해소하기 위해 2032년까지 글로벌 데이터센터 용량을 대폭 확장하기로 하면서,..."
+      ]
     },
     {
       "id": "HANAchina/70471",
@@ -10180,20 +9882,6 @@
       "hasText": true,
       "summary": "•심천 ChiNext -4%, 연중 최저 •반도체 지수 과창50 -3.5%",
       "tickers": []
-    },
-    {
-      "id": "bornlupin/20630",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20630",
-      "datetime": "2026-10-15T05:14:07.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "earnings"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": "2026.10.15 14:11:53 기업명: 필에너지(시가총액: 2,487억) A378340 보고서명: 단일판매ㆍ공급계약체결 계약상대 : Factorial Energy Inc. 계약내용 : 전고체 배터리..."
     },
     {
       "id": "HANAchina/70469",
@@ -10227,21 +9915,6 @@
         "005930.KS",
         "000660.KS"
       ]
-    },
-    {
-      "id": "bornlupin/20629",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20629",
-      "datetime": "2026-10-15T04:50:23.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "power",
-        "earnings"
-      ],
-      "score": 48,
-      "hasText": true,
-      "tickers": [],
-      "summary": "2026.10.15 13:10:45 기업명: SK이터닉스(시가총액: 1조 3,763억) A475150 보고서명: 단일판매ㆍ공급계약체결 계약상대 : - 계약내용 : ( 상품공급 ) 직접전력거래계약 공급지역 :..."
     },
     {
       "id": "insidertracking/66342",
