@@ -1,6 +1,6 @@
 # 리서치 라이브러리
 
-리서치 라이브러리 is the reading shelf: 개념·분석 프레임 (notes, concepts, lessons, columns), 산업·밸류체인 (industry maps) and 운용사·13F (manager holdings). Every tab shares one research shell with a page title, a library-wide search, the 서가 shelf, and a TOC → document → 연결 layout.
+리서치 라이브러리 is the reading shelf: 개념·분석 (notes, concepts, lessons, columns), 산업 지도 (industry maps) and 대가 보유 종목 (manager holdings). The driver reads these titles from `RESEARCH_PAGES` (src/ui/knowledge/research-shell.js), so a rename does not need a driver edit. Every tab shares one research shell with a page title, a library-wide search, the 서가 shelf, and a TOC → document → 연결 layout.
 
 ## Sub-features
 
@@ -13,7 +13,7 @@
 ## How to get to it (user POV)
 
 - Sidebar 리서치 › 리서치 라이브러리.
-- Hub tabs 개념·분석 프레임 / 산업·밸류체인 / 운용사·13F.
+- Hub tabs 개념·분석 / 산업 지도 / 대가 보유 종목.
 - Deep links `#principles`, `#atlas`, `#masters`. The product guide is topbar `도움말` (see shell.md).
 
 ## Driving it with verify-aio
@@ -22,13 +22,13 @@ Preconditions:
 
 - Doctor OK.
 
-- **Open.** Click sidebar `리서치 라이브러리`. `page-principles`; tabs exactly `개념·분석 프레임,산업·밸류체인,운용사·13F`.
-- **Title + shelf.** `h1.rl-title` = `개념·분석 프레임`; shelf summary matches `/컬렉션/`.
+- **Open.** Click sidebar `리서치 라이브러리`. `page-principles`; tabs exactly the three RESEARCH_PAGES titles.
+- **Title + shelf.** `h1.rl-title` = the principles title (`개념·분석`); shelf summary matches `/컬렉션/`.
 - **Search.** Fill `ROIC`; ≥1 result.
 - **Open a document.** Esc, click the first non-active `frame` TOC item; `.rl-main` changes and that item is active.
 - **Shelf.** Open the shelf, click chip `칼럼`: spine count equals the chip's count. Click the first spine: the card `h3` matches the spine label. Click `읽기`: the URL gains `chapter=`.
-- **Atlas.** Tab `산업·밸류체인` → title `산업·밸류체인`.
-- **Masters.** Tab `운용사·13F` → title `운용사·13F`; ≥1 manager TOC item.
+- **Atlas.** Tab `산업 지도` → title `산업 지도`.
+- **Masters.** Tab `대가 보유 종목` → title `대가 보유 종목`; ≥1 manager TOC item.
 - **Proof.** `drive learn` evidence folder.
 
 ## Gotchas

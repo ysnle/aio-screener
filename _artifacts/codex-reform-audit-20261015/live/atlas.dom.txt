@@ -1,0 +1,145 @@
+- link "메인 콘텐츠로 건너뛰기":
+  - /url: "#main-content"
+- navigation "메인 네비게이션":
+  - generic: AIO
+  - generic: Investment Screener
+  - generic: 데일리
+  - button "오늘 페이지":
+    - generic: 오늘
+  - generic: 시장
+  - button "시장 상태 페이지":
+    - generic: 시장 상태
+  - button "거시 · 금리 페이지":
+    - generic: 거시 · 금리
+  - button "테마 · 섹터 페이지":
+    - generic: 테마 · 섹터
+  - generic: 내 투자
+  - button "종목 페이지":
+    - generic: 종목
+  - button "스크리너 페이지":
+    - generic: 스크리너
+  - button "포트폴리오 페이지":
+    - generic: 포트폴리오
+  - generic: 리서치
+  - button "리서치 라이브러리 페이지":
+    - generic: 리서치 라이브러리
+  - button "용어 사전 페이지":
+    - generic: 용어 사전
+  - button "다크 모드로 전환":
+    - generic: 다크 모드로 전환
+  - generic: AI 도우미
+  - generic: "ON"
+  - text: GPT-6 Luna · 공용 AI 연결
+  - text: 개인 AI 키 입력 없이 이용합니다.
+  - generic "연결 상태"
+  - generic "보안 설정"
+- banner:
+  - button "메뉴 열기" [expanded]: ☰
+  - generic: 리서치 라이브러리/산업 지도
+  - generic "미국 정규장 중 · 최신 관측 10/15 22:55 KST":
+    - generic: LIVE
+  - generic "미국 정규장 중 · 최신 관측 10/15 22:55 KST": 22:55 기준 · 시세 16종 · 실시간 관측 56종
+  - 'generic "v57.82 · 확인: 2026.10.15"': v57.82
+  - button "도움말"
+  - button "AI 도우미 열기/닫기": AI 도우미
+- main:
+  - navigation "화면 안 하위 메뉴":
+    - button "개념·분석"
+    - button "산업 지도"
+    - button "대가 보유 종목"
+  - text: 펼치기 ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▲ ▼ ▼ 펼치기 ▾ ▸ ▸ ▸ ▸ ▸ ▸ ▸ ▸ ▸ 펼치기 펼치기 펼치기 닫기 펼치기 닫기 펼치기 ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▼ ▼ + ▲ ▼ ▼ ▼ ▼ ▲ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▼ ▼ + ▲ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▲ ▲ ▼ ▲ ▲ + ▼ ▲ ▼ ▼ ▼ ▼ ▲ ▲ ▲ ▲ + ▲ ▼ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▼ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ 펼치기 펼치기 펼치기 펼치기 펼치기 펼치기
+  - region "산업 지도":
+    - generic: 산업 지도
+    - region "산업 지도 탐색":
+      - heading "산업 지도" [level=1]
+      - paragraph: 산업 분야별 구조와 관계, 기업 역할, AI 기초
+      - searchbox "리서치 라이브러리 통합 검색"
+      - generic "서가 405편 · 7개 컬렉션 · 82개 주제 · 183편 읽음 펼치기":
+        - generic: 서가
+        - generic: 405편
+        - text: ·
+        - generic: 7개 컬렉션
+        - text: ·
+        - generic: 82개 주제
+        - text: ·
+        - generic: 183편 읽음
+        - generic: 펼치기
+      - navigation "산업 지도 목차":
+        - button "산업 지도 19" [expanded]
+        - button "AI 기초 7"
+        - button "관계 가이드 5"
+        - button "클라우드·AI 플랫폼" [pressed]
+        - button "하이퍼스케일러 클라우드"
+        - button "관리형 AI 서비스"
+        - button "가동률·작업 구성"
+        - button "클라우드 장기 약정"
+        - button "감가상각 주기"
+        - button "네오클라우드·GPU 금융"
+        - button "AI 연산·주문형 반도체"
+        - button "메모리·스토리지·데이터 이동"
+        - button "파운드리·장비·소재"
+        - button "첨단 패키징·기판"
+        - button "네트워크·광학·CPO"
+        - button "AI 데이터센터·서버·냉각"
+        - button "전력·에너지·전력망"
+        - button "온디바이스·Physical AI"
+        - button "AI CAPEX·ROIC·기업 재무"
+        - button "Physical AI·로보틱스·자율성"
+        - button "드론·방산·자율 시스템"
+        - button "우주·항공·재사용 시스템"
+        - button "AI 응용 산업"
+        - button "자원·소재·산업재"
+        - button "지정학·산업정책·보안"
+        - button "자본시장·기업 지도"
+        - button "인접 미래 기술"
+      - article:
+        - paragraph: 산업 지도
+        - heading "클라우드·AI 플랫폼" [level=2]
+        - paragraph: AI 붐의 돈은 대부분 몇몇 클라우드 회사의 설비투자에서 출발한다. 이들이 칩을 사고 데이터센터를 짓고 전력을 계약하면, 그 돈이 반도체와 전력과 건설 회사의 매출이 된다. 클라우드는 AI 경제의 수도꼭지다.
+        - figure "클라우드·AI 플랫폼 세부 영역 지도":
+          - generic: 이 분야를 읽는 순서
+          - list:
+            - button "1 하이퍼스케일러 클라우드 여러 작업 부하를 한 시설과 소프트웨어 층에서 통합":
+              - generic: "1"
+              - strong: 하이퍼스케일러 클라우드
+              - generic: 여러 작업 부하를 한 시설과 소프트웨어 층에서 통합
+            - button "2 관리형 AI 서비스 모델 사용의 복잡성을 서비스 운영 층으로 흡수":
+              - generic: "2"
+              - strong: 관리형 AI 서비스
+              - generic: 모델 사용의 복잡성을 서비스 운영 층으로 흡수
+            - button "3 가동률·작업 구성 수요의 양뿐 아니라 시간대·모델·고객별 사용 패턴을 해석":
+              - generic: "3"
+              - strong: 가동률·작업 구성
+              - generic: 수요의 양뿐 아니라 시간대·모델·고객별 사용 패턴을 해석
+            - button "4 클라우드 장기 약정 미래 매출 단서를 제공하지만 사용량·해지·회계 인식과 분리":
+              - generic: "4"
+              - strong: 클라우드 장기 약정
+              - generic: 미래 매출 단서를 제공하지만 사용량·해지·회계 인식과 분리
+            - button "5 감가상각 주기 매출 성장과 회계비용·자산 회수 속도를 연결":
+              - generic: "5"
+              - strong: 감가상각 주기
+              - generic: 매출 성장과 회계비용·자산 회수 속도를 연결
+        - paragraph: 클라우드 회사는 거대한 설비를 지어 놓고 그 계산 능력을 쓴 만큼, 혹은 약정한 만큼 판다. 설비가 클수록 단가가 내려가는 규모의 경제가 강해, 소수의 하이퍼스케일러가 시장을 나눠 갖는다.
+        - paragraph: 이 분야를 읽는 핵심은 투자와 회수의 균형이다. 설비투자가 매출보다 얼마나 빨리 느는지, 늘어난 설비가 얼마나 빨리 채워지는지, 감가상각이 이익을 얼마나 누르는지가 다음 몇 년의 이익을 정한다.
+        - paragraph: 아래 세부 영역은 그 흐름을 따라간다. 하이퍼스케일러와 관리형 AI 서비스가 매출을 만들고, 가동률과 장기 약정이 그 매출의 질을 정하며, 감가상각 주기가 이익의 모양을 바꾼다.
+        - heading "자주 빗나가는 해석" [level=3]
+        - paragraph: 클라우드 매출이 빠르게 는다고 AI 투자가 회수되고 있다고 단정하면 안 된다. 투자가 매출을 오래 앞지르면 감가상각이 이익을 깎고, 그때 설비투자 계획이 줄어들면 공급망 전체가 함께 흔들린다.
+        - generic "근거와 가정 보기"
+      - complementary "연결"
+    - generic "데이터 출처"
+- complementary:
+  - generic: AI 도우미 · 시대 지식 지도 리서치
+  - button: 새 대화
+  - button: ×
+  - text: 지금 보는 화면의 수치와 근거를 읽고 질문에 답합니다.
+  - generic: 답변 범위
+  - text: AI 도우미 · 읽기 전용 리서치 · 투자·법률·세무 조건부 분석과 수치 시나리오를 제공합니다. 불법 실행 절차·주문 실행·확정적 보장은 제외합니다.
+  - generic: 맥락 기준 · 시세 10/15 22:55 관측 · 종가 10/14 · 뉴스 10/15 08:00까지 + 장중 속보 6건
+  - generic: 현재 화면의 데이터를 근거로 질의할 수 있습니다
+  - button: AI 시스템 원리
+  - button: AI 가치사슬
+  - button: 전력·메모리 병목
+  - button: 기업·현금흐름 연결
+  - textbox:
+    - /placeholder: 궁금한 것을 물어보세요
+  - button: 전송

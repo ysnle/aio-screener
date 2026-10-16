@@ -352,7 +352,7 @@ export function analysisAttributesCause(body) {
 // Nasdaq-100 fell 3.9% in five sessions and the Russell 2000 slipped under its 200-day line. While the regime context
 // carries the leadership-break flag (regime-scenarios renderMarketScenarioContext), a sentence saying semis/AI lead is
 // rejected unless it names the recent drop. Narrow on purpose: quoted titles and conditional sentences are not claims.
-export const LEADERSHIP_BREAK_FLAG = /주도 영역 이탈\(leadershipBreak\): 예/;
+export const LEADERSHIP_BREAK_FLAG = /주도 영역 이탈\(leadershipBreak\): (?:예|확산 미확인)/; // v57.83: weak leaders count too
 const LEADER_SUBJECT = /반도체|인공지능|(?<![A-Za-z])AI(?![A-Za-z])|빅테크|대형 기술주/;
 const LEADS_CLAIM = /주도|이끌|이끄|견인|앞장/;
 const LEADER_DROP_NAMED = /하락|급락|약세|밀리|밀려|밀렸|떨어|꺾이|꺾여|꺾였|조정|낙폭|약해|부진|이탈|[-−]\s?\d/;

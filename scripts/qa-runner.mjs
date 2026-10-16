@@ -855,6 +855,13 @@ try { rmSync(outputStagingDir, { recursive: true, force: true }); }
 catch (error) { console.error(`[qa] WARN could not clean failure-output staging (${error.code || 'cleanup-failed'})`); }
 
 const counts = results.reduce((acc, result) => ({ ...acc, [result.status]: (acc[result.status] || 0) + 1 }), {});
+// Codex audit F13 (2026-10-15): gate PASS and the operations-slo performance target are different facts (R701). A boot
+// report written by this run that missed its target is carried in the run report and printed beside the counts.
+const targets = {};
+{
+  const boot = readJsonLogged(join(root, '_artifacts', 'boot-interaction-report.json'), null, 'boot report');
+  if (boot && Date.parse(boot.observedAt || '') >= startedMs && boot.targetStatus) targets.boot = { status: boot.targetStatus, policy: boot.targetPolicy || 'report-not-blocking', failures: boot.targetFailures || [] };
+}
 const report = {
   schemaVersion: 'aio-qa-run.v1',
   runId,
@@ -870,8 +877,10 @@ const report = {
   keepGoing,
   concurrency: { static: maxStaticJobs, browser: maxBrowserJobs, external: 2 },
   counts,
+  targets,
   results
 };
+if (targets.boot?.status === 'TARGET_MISS') console.log(`[qa] TARGET_MISS boot performance (reported, not blocking): ${targets.boot.failures.join('; ')}`);
 // P1265/E2-C6 P0: per-run report + compat pointer, both atomic. The per-run copy
 // survives any later run overwriting last-run.json.
 writeJsonAtomic(runReportPath, report);

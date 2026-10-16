@@ -4,6 +4,7 @@
 // for every issuer from its own latest fiscal year (and the year before), and the company is placed
 // by percentile among peers whose latest fiscal year ended within a year of its own.
 import { finiteFact, isPriorAnnualPeriod } from './period.js';
+import { isLendingFinancial } from './fiscal-read.js';
 const finite = finiteFact;
 
 export const PEER_METRICS = Object.freeze([
@@ -64,7 +65,7 @@ export function buildPeerRead({ symbol, sector = null, seriesFor = () => null, p
   // P1627: banks' operating cash flows include deposit/loan/trading asset changes.
   // OCF minus capex remains an arithmetic fact, but it is not an industrial FCF
   // margin and cannot supply a higher-is-better financial-sector percentile.
-  const financial = /financ|bank/i.test(String(sector));
+  const financial = isLendingFinancial(symbol, sector); // v57.84: one lending-financial rule (Visa is not a bank)
   const peerMetrics = (peers || [])
     .filter((peer) => peer && peer !== symbol)
     .map((peer) => ({ symbol: peer, metrics: fiscalMetrics(seriesFor(peer)) }))

@@ -43,10 +43,6 @@ function observationDateLabel(observation) {
   return `관측 ${observedAt}`;
 }
 
-function allowedUseLabel(value) {
-  const labels = { 'reference-only': '참고용', 'current-context': '현재 맥락 참고', observation: '관측값', education: '학습 참고' };
-  return labels[value] || '용도 제한';
-}
 
 function currentObservationMatches(observation, page, context = {}) {
   if (!observation || !Array.isArray(observation.pageTargets) || !observation.pageTargets.includes(page)) return false;
@@ -115,7 +111,7 @@ export function createCurrentObservationBlock(documentRef, rawArtifact, { page, 
     element(documentRef, 'div', 'knowledge-current-observations-eyebrow', '기준일이 있는 참고 관측값'),
     element(documentRef, 'h4', 'knowledge-current-observations-title', title),
     element(documentRef, 'p', 'knowledge-current-observations-boundary', observations.length
-      ? '선택한 개념에 직접 연결된 기준일·출처·허용 용도의 참고값만 표시합니다. 현재 가격·목표가·매매 신호가 아닙니다.'
+      ? '선택한 개념에 직접 연결된 관측값을 기준일과 함께 보여 줍니다.'
       : '이 개념에 직접 연결된 관측값은 아직 없습니다. 전체 시장 수치로 확대 해석하지 말고, 연결 그래프와 원문 출처를 따라가세요.')
   );
   const grid = element(documentRef, 'div', 'knowledge-current-observations-grid');
@@ -127,7 +123,7 @@ export function createCurrentObservationBlock(documentRef, rawArtifact, { page, 
     const value = element(documentRef, 'strong', 'knowledge-current-observation-value', observation.displayValue ?? String(observation.value ?? '—'));
     const meta = element(documentRef, 'div', 'knowledge-current-observation-meta', `${observation.label} · ${unitLabel(observation.unit)}`);
     const dateLabel = observation.live ? `자동 갱신 · 관측 ${observation.observedAt}` : observationDateLabel(observation);
-    const provenance = element(documentRef, 'p', 'knowledge-current-observation-provenance', `${sourceKindLabel(observation.sourceKind)} · ${allowedUseLabel(observation.allowedUse)} · ${dateLabel}`);
+    const provenance = element(documentRef, 'p', 'knowledge-current-observation-provenance', `${sourceKindLabel(observation.sourceKind)} · ${dateLabel}` /* v57.84: usage chips (참고용 / 학습 참고 …) dropped; the date stays */);
     const source = element(documentRef, 'a', 'knowledge-current-observation-source', observation.source || observation.sourceId || '출처 보기');
     applySafeExternalLink(source, observation.sourceUrl);
     source.title = `${observation.source || '원문 출처'} · ${dateLabel}`;

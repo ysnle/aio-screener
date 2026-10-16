@@ -10,12 +10,18 @@ export default {
     ['섹터 회전 판정 + 사분면 카드', async (p) => ({ ...(await expectCount(p, '#rrg-quadrant-cards > *', 1)), ...(await expectCount(p, CHIP, 1)) })],
     ['범위 서브섹터 → 11섹터', async (p) => {
       const pill = (arg) => `#rrg-view-tabs [data-action="setRRGView"][data-arg="${arg}"]`;
+      // Codex audit F12: the pill turns active before the rAF/250ms repaint, so wait for the chip set itself to change.
+      const chips = () => p.$$eval(CHIP, (n) => n.map((x) => x.dataset.arg).join(','));
+      const changedFrom = (prev) => p.waitForFunction(({ sel, prev }) => [...document.querySelectorAll(sel)].map((x) => x.dataset.arg).join(',') !== prev, { sel: CHIP, prev }, { timeout: 8000 });
+      const initial = await chips();
       await p.click(pill('subsectors'));
       await p.waitForFunction((s) => document.querySelector(s)?.classList.contains('active'), pill('subsectors'), { timeout: 8000 });
-      const sub = await p.$$eval(CHIP, (n) => n.map((x) => x.dataset.arg).join(','));
+      await changedFrom(initial).catch(() => {}); // already on subsectors: the set may legitimately stay
+      const sub = await chips();
       await p.click(pill('sectors'));
       await p.waitForFunction((s) => document.querySelector(s)?.classList.contains('active'), pill('sectors'), { timeout: 8000 });
-      const sectors = await p.$$eval(CHIP, (n) => n.map((x) => x.dataset.arg).join(','));
+      await changedFrom(sub);
+      const sectors = await chips();
       if (sub === sectors) throw new Error('scope toggle did not change the chip set');
       return { subsectorChips: sub.split(',').length, sectorChips: sectors.split(',').length };
     }],

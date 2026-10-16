@@ -1,0 +1,120 @@
+{
+  "purpose": "Policy logic examples, not product regression certification or new mandatory sample targets.",
+  "zeroErrorsOneSided95Percent": [
+    {
+      "n": 5,
+      "errors": 0,
+      "upper": 0.4507197283469412,
+      "assumption": "Independent identically distributed Bernoulli trials; household observations need not satisfy this."
+    },
+    {
+      "n": 15,
+      "errors": 0,
+      "upper": 0.18103627252208465,
+      "assumption": "Independent identically distributed Bernoulli trials; household observations need not satisfy this."
+    },
+    {
+      "n": 59,
+      "errors": 0,
+      "upper": 0.049507609888227,
+      "assumption": "Independent identically distributed Bernoulli trials; household observations need not satisfy this."
+    }
+  ],
+  "minimumNForZeroErrorsUpperAtMost5Percent": 59,
+  "ruleGapParser": {
+    "actualGaps": [
+      111,
+      113,
+      136,
+      137,
+      171
+    ],
+    "narrowHeadingParserGaps": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      111,
+      113,
+      136,
+      137,
+      171,
+      172,
+      173,
+      174,
+      175,
+      176,
+      177,
+      178
+    ],
+    "falseAbsenceCount": 60,
+    "evidence": "scripts/ci-ledger-integrity-check.mjs:39 vs frozen source-snapshot RULES text"
+  },
+  "conditionCount": {
+    "observedConditions": 7,
+    "metConditions": 5,
+    "probabilityIdentified": false,
+    "reason": "Count alone identifies neither dependence, relative weights, outcome definition, nor calibrated probability."
+  },
+  "fixedReplayRule": {
+    "threshold": 25,
+    "input": 26,
+    "expectedLabelByDefinition": "burden",
+    "invariantPassProves": "implementation follows its definition",
+    "doesNotProve": [
+      "economic validity",
+      "prospective accuracy",
+      "optimal threshold",
+      "low false-positive rate"
+    ]
+  }
+}

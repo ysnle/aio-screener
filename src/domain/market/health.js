@@ -127,7 +127,9 @@ export function computeMarketHealth({ quotes = {}, spxMA = {}, spxATH = null } =
 
   const ma50 = finite(spxMA?.[50]);
   const ma200 = finite(spxMA?.[200]);
-  const spyPrice = quoteValue(quotes, 'SPY', 'price');
+  // v57.84 review: the moving averages and ATH are S&P 500 index levels (~7,700); comparing them with the SPY ETF price
+  // (~770) made every reading 'below the 50-day' and ~90% off the high. The index quote is the same unit.
+  const spyPrice = quoteValue(quotes, '^GSPC', 'price');
   const trendObserved = [];
   if (ma50 > 0) trendObserved.push('ma50');
   if (ma200 > 0) trendObserved.push('ma200');

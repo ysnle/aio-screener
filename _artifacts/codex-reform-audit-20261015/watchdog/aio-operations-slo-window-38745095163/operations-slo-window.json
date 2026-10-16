@@ -1,0 +1,364 @@
+{
+  "schemaVersion": "operations-slo-window.v3",
+  "status": "NOT_CERTIFIED",
+  "observedAt": "2026-10-15T13:43:36.535Z",
+  "collectionMode": "MEASURED_RUNTIME",
+  "query": {
+    "repository": "ysnle/aio-screener",
+    "cutoff": "2026-09-15T13:43:36.535Z",
+    "workflows": {
+      "market": "refresh-data.yml",
+      "screener": "refresh-screener.yml",
+      "watchdog": "data-watchdog.yml"
+    },
+    "completeness": {
+      "market": {
+        "workflow": "refresh-data.yml",
+        "pagesFetched": 3,
+        "maxPages": 30,
+        "paginationComplete": true,
+        "truncated": false,
+        "excluded": {
+          "nonCompleted": 0,
+          "outsideWindow": 4
+        }
+      },
+      "screener": {
+        "workflow": "refresh-screener.yml",
+        "pagesFetched": 2,
+        "maxPages": 30,
+        "paginationComplete": true,
+        "truncated": false,
+        "excluded": {
+          "nonCompleted": 0,
+          "outsideWindow": 2
+        }
+      },
+      "watchdog": {
+        "workflow": "data-watchdog.yml",
+        "pagesFetched": 2,
+        "maxPages": 30,
+        "paginationComplete": true,
+        "truncated": false,
+        "excluded": {
+          "nonCompleted": 0,
+          "outsideWindow": 3
+        }
+      },
+      "alerts": {
+        "pagesFetched": 1,
+        "maxPages": 3,
+        "paginationComplete": true
+      }
+    }
+  },
+  "targets": {
+    "artifactSuccessRate30d": 0.995,
+    "watchdogSuccessRate30d": 0.995,
+    "exactSourceIdentityCoverage": 1,
+    "scheduledArrivalRate": 0.9,
+    "consecutiveFailureAlertAt": 2
+  },
+  "domains": {
+    "market": {
+      "workflow": "refresh-data.yml",
+      "required": true,
+      "expectedRuns": 1470,
+      "observedRuns": 187,
+      "scheduledArrivalRate": 0.127211,
+      "manualRunsExcluded": 85,
+      "successRate": 0.802139,
+      "observedDays": 31,
+      "status": "DEGRADED"
+    },
+    "screener": {
+      "workflow": "refresh-screener.yml",
+      "required": true,
+      "expectedRuns": 150,
+      "observedRuns": 102,
+      "scheduledArrivalRate": 0.68,
+      "manualRunsExcluded": 16,
+      "successRate": 0.823529,
+      "observedDays": 31,
+      "status": "DEGRADED"
+    },
+    "watchdog": {
+      "workflow": "data-watchdog.yml",
+      "required": true,
+      "expectedRuns": 720,
+      "observedRuns": 144,
+      "scheduledArrivalRate": 0.2,
+      "manualRunsExcluded": 3,
+      "successRate": 0.270833,
+      "observedDays": 31,
+      "status": "DEGRADED"
+    }
+  },
+  "windows": {
+    "7d": {
+      "requiredDays": 7,
+      "observedDays": 8,
+      "status": "FAIL",
+      "domains": {
+        "market": {
+          "workflow": "refresh-data.yml",
+          "required": true,
+          "expectedRuns": 343,
+          "observedRuns": 40,
+          "manualRunsExcluded": 75,
+          "nonScheduledRunsExcluded": 0,
+          "nonScheduledEventBreakdown": {},
+          "cancelledRuns": 0,
+          "scheduledArrivalRate": 0.116618,
+          "completed": 40,
+          "succeeded": 37,
+          "failed": 3,
+          "successRate": 0.925,
+          "observedDays": 8,
+          "exactSourceIdentityCoverage": 1,
+          "status": "DEGRADED"
+        },
+        "screener": {
+          "workflow": "refresh-screener.yml",
+          "required": true,
+          "expectedRuns": 35,
+          "observedRuns": 22,
+          "manualRunsExcluded": 12,
+          "nonScheduledRunsExcluded": 0,
+          "nonScheduledEventBreakdown": {},
+          "cancelledRuns": 0,
+          "scheduledArrivalRate": 0.628571,
+          "completed": 22,
+          "succeeded": 18,
+          "failed": 4,
+          "successRate": 0.818182,
+          "observedDays": 8,
+          "exactSourceIdentityCoverage": 1,
+          "status": "DEGRADED"
+        },
+        "watchdog": {
+          "workflow": "data-watchdog.yml",
+          "required": true,
+          "expectedRuns": 168,
+          "observedRuns": 30,
+          "manualRunsExcluded": 3,
+          "nonScheduledRunsExcluded": 47,
+          "nonScheduledEventBreakdown": {
+            "workflow_run": 47
+          },
+          "cancelledRuns": 0,
+          "scheduledArrivalRate": 0.178571,
+          "completed": 30,
+          "succeeded": 19,
+          "failed": 11,
+          "successRate": 0.633333,
+          "observedDays": 8,
+          "exactSourceIdentityCoverage": 1,
+          "status": "DEGRADED"
+        }
+      },
+      "coverage": {
+        "requiredDomains": [
+          "market",
+          "screener",
+          "watchdog"
+        ],
+        "missingDomains": [],
+        "incompleteSources": [],
+        "everyRequiredDomainObserved": true,
+        "everySourcePaginated": true
+      },
+      "artifact": {
+        "completed": 62,
+        "succeeded": 55,
+        "failed": 7,
+        "successRate": 0.887097,
+        "observedDays": 8,
+        "exactSourceIdentityCoverage": 1
+      },
+      "watchdog": {
+        "workflow": "data-watchdog.yml",
+        "required": true,
+        "expectedRuns": 168,
+        "observedRuns": 30,
+        "manualRunsExcluded": 3,
+        "nonScheduledRunsExcluded": 47,
+        "nonScheduledEventBreakdown": {
+          "workflow_run": 47
+        },
+        "cancelledRuns": 0,
+        "scheduledArrivalRate": 0.178571,
+        "completed": 30,
+        "succeeded": 19,
+        "failed": 11,
+        "successRate": 0.633333,
+        "observedDays": 8,
+        "exactSourceIdentityCoverage": 1,
+        "status": "DEGRADED"
+      },
+      "source": "github-actions-api"
+    },
+    "30d": {
+      "requiredDays": 30,
+      "observedDays": 31,
+      "status": "FAIL",
+      "domains": {
+        "market": {
+          "workflow": "refresh-data.yml",
+          "required": true,
+          "expectedRuns": 1470,
+          "observedRuns": 187,
+          "manualRunsExcluded": 85,
+          "nonScheduledRunsExcluded": 0,
+          "nonScheduledEventBreakdown": {},
+          "cancelledRuns": 0,
+          "scheduledArrivalRate": 0.127211,
+          "completed": 187,
+          "succeeded": 150,
+          "failed": 37,
+          "successRate": 0.802139,
+          "observedDays": 31,
+          "exactSourceIdentityCoverage": 1,
+          "status": "DEGRADED"
+        },
+        "screener": {
+          "workflow": "refresh-screener.yml",
+          "required": true,
+          "expectedRuns": 150,
+          "observedRuns": 102,
+          "manualRunsExcluded": 16,
+          "nonScheduledRunsExcluded": 0,
+          "nonScheduledEventBreakdown": {},
+          "cancelledRuns": 0,
+          "scheduledArrivalRate": 0.68,
+          "completed": 102,
+          "succeeded": 84,
+          "failed": 18,
+          "successRate": 0.823529,
+          "observedDays": 31,
+          "exactSourceIdentityCoverage": 1,
+          "status": "DEGRADED"
+        },
+        "watchdog": {
+          "workflow": "data-watchdog.yml",
+          "required": true,
+          "expectedRuns": 720,
+          "observedRuns": 144,
+          "manualRunsExcluded": 3,
+          "nonScheduledRunsExcluded": 47,
+          "nonScheduledEventBreakdown": {
+            "workflow_run": 47
+          },
+          "cancelledRuns": 0,
+          "scheduledArrivalRate": 0.2,
+          "completed": 144,
+          "succeeded": 39,
+          "failed": 105,
+          "successRate": 0.270833,
+          "observedDays": 31,
+          "exactSourceIdentityCoverage": 1,
+          "status": "DEGRADED"
+        }
+      },
+      "coverage": {
+        "requiredDomains": [
+          "market",
+          "screener",
+          "watchdog"
+        ],
+        "missingDomains": [],
+        "incompleteSources": [],
+        "everyRequiredDomainObserved": true,
+        "everySourcePaginated": true
+      },
+      "artifact": {
+        "completed": 289,
+        "succeeded": 234,
+        "failed": 55,
+        "successRate": 0.809689,
+        "observedDays": 31,
+        "exactSourceIdentityCoverage": 1
+      },
+      "watchdog": {
+        "workflow": "data-watchdog.yml",
+        "required": true,
+        "expectedRuns": 720,
+        "observedRuns": 144,
+        "manualRunsExcluded": 3,
+        "nonScheduledRunsExcluded": 47,
+        "nonScheduledEventBreakdown": {
+          "workflow_run": 47
+        },
+        "cancelledRuns": 0,
+        "scheduledArrivalRate": 0.2,
+        "completed": 144,
+        "succeeded": 39,
+        "failed": 105,
+        "successRate": 0.270833,
+        "observedDays": 31,
+        "exactSourceIdentityCoverage": 1,
+        "status": "DEGRADED"
+      },
+      "source": "github-actions-api"
+    }
+  },
+  "metrics": {
+    "artifact": {
+      "completed": 289,
+      "succeeded": 234,
+      "failed": 55,
+      "successRate": 0.809689,
+      "observedDays": 31,
+      "exactSourceIdentityCoverage": 1
+    },
+    "watchdog": {
+      "workflow": "data-watchdog.yml",
+      "required": true,
+      "expectedRuns": 720,
+      "observedRuns": 144,
+      "manualRunsExcluded": 3,
+      "nonScheduledRunsExcluded": 47,
+      "nonScheduledEventBreakdown": {
+        "workflow_run": 47
+      },
+      "cancelledRuns": 0,
+      "scheduledArrivalRate": 0.2,
+      "completed": 144,
+      "succeeded": 39,
+      "failed": 105,
+      "successRate": 0.270833,
+      "observedDays": 31,
+      "exactSourceIdentityCoverage": 1,
+      "status": "DEGRADED"
+    }
+  },
+  "failureRecovery": {
+    "failureCount": 105,
+    "recoveryCount": 23,
+    "consecutiveFailuresMax": 55,
+    "dedupedAlerts": {
+      "issueCount": 7,
+      "workflowCount": 7,
+      "duplicateMarkerCount": 0,
+      "openCount": 1,
+      "closedCount": 6,
+      "deduped": true,
+      "pagesFetched": 1,
+      "paginationComplete": true,
+      "source": "github-issues-api"
+    },
+    "status": "MEASURED_DEDUPED"
+  },
+  "revisionLanes": {
+    "liveRevision": null,
+    "dataRevision": null,
+    "localFixturePromotesLive": false,
+    "sourceShaCoverage": 1
+  },
+  "certification": {
+    "thirtyDaySlo": "FAIL",
+    "alertDedupe": "PASS",
+    "publicPromotionAllowed": false
+  },
+  "reason": "Per-domain lanes measure scheduled arrival and success independently; a required domain with zero observed runs in the window cannot be certified. Actions history measures execution success and recovery; repository issues measure workflow-keyed alert dedupe. Provider rights, live revision, and public promotion remain independent operator evidence."
+}

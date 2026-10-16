@@ -127,7 +127,9 @@ export function buildMarketTemperature(rows = [], { rules = TEMPERATURE_RULES } 
   for (let i = last; i >= 0 && states[i] === states[last]; i -= 1) streak += 1;
 
   // Evidence: forward price returns after the first day of each spell (a re-entry within clusterGapSessions joins the
-  // previous spell), against every ranked day as the baseline. Cluster starts, not all spell days, so the samples do not overlap by construction.
+  // previous spell), against every ranked day as the baseline. Spell starts can sit closer together than the horizon
+  // (a 21-session gap is shorter than a 63-session window — codex audit F05, 2026-10-15), so each horizon keeps only
+  // starts at least h sessions after the previous kept one: n is the non-overlapping sample, clusters the spell count.
   const forward = (i, h) => (i + h < n ? (closes[i + h] / closes[i] - 1) * 100 : null);
   const outcomes = {};
   for (const state of ['cold', 'hot']) {
@@ -139,7 +141,11 @@ export function buildMarketTemperature(rows = [], { rules = TEMPERATURE_RULES } 
       lastIn = i;
     }
     outcomes[state] = { clusters: starts.length, lastStart: starts.length ? dates[starts.at(-1)] : null };
-    for (const h of rules.horizons) outcomes[state][`h${h}`] = stats(starts.map((i) => forward(i, h)).filter((r) => r != null));
+    for (const h of rules.horizons) {
+      const kept = [];
+      for (const i of starts) if (forward(i, h) != null && (!kept.length || i - kept.at(-1) >= h)) kept.push(i);
+      outcomes[state][`h${h}`] = { ...stats(kept.map((i) => forward(i, h))), spells: starts.length, nonOverlapping: true };
+    }
   }
   const firstRanked = states.findIndex((s) => s != null);
   outcomes.all = {};

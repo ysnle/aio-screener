@@ -342,7 +342,9 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
     if (passedOnly && row.screenStatus !== 'passed') return false;
     if (custom.length && !matchesConditions(row, custom, customRead)) return false;
     if (!query) return true;
-    if (exactSymbol) return row.sym?.toLowerCase() === exactSymbol;
+    // v57.84 review: 'ai' is both C3.ai's ticker and a theme alias of 21 names — an exact ticker joins the alias group
+    // instead of hiding it (low, now, all, key, it, bio … collide the same way).
+    if (exactSymbol) return row.sym?.toLowerCase() === exactSymbol || matchedSymbols.has(row.sym);
     const setupText = Array.isArray(row.setupProfile?.tags) ? row.setupProfile.tags.join(' ') : '';
     // 2026-10-13 news audit N03: the headline memo is not searchable — a word in another company's headline (or in
     // this company's) is not a property of the stock, and it made searches return unrelated rows.

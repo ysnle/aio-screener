@@ -13,6 +13,7 @@ import { reconcileSecRecord } from '../domain/fundamental/sec-report.js';
 import { secFundamentalRowFields } from '../domain/fundamental/sec-row-fields.js';
 import { createScreenerProvider } from './providers/screener.js';
 import { computeFactorRanks } from '../domain/screener/factor-ranks.js';
+import { secClassification } from '../domain/fundamental/sic-sector.js';
 
 export const ON_DEMAND_MODEL_VERSION = 'out-of-universe-read.v1';
 export const ON_DEMAND_MAX_CONCURRENT = 2;
@@ -76,18 +77,22 @@ export function secSummaryRecord(record) {
 }
 
 /** Canonical screener row for the candidate through the same provider normalization the published rows use. */
-export async function canonicalOnDemandRow(symbol, raw, { name = null, computedAt, readLiveData = () => ({}), now = () => Date.now() } = {}) {
+export async function canonicalOnDemandRow(symbol, raw, { name = null, classification = null, computedAt, readLiveData = () => ({}), now = () => Date.now() } = {}) {
   const id = onDemandEligibleSymbol(symbol);
   if (!id || !raw) return null;
+  // v57.83: the SEC SIC classification (when it maps) is the row's sector, through the same identity field the
+  // published universe uses, so the sector read and the in-sector placement work like a published row.
+  const sector = classification?.sector || null;
   const httpClient = { async requestJson(url) {
-    if (/screener-universe\.json/.test(url)) return { ok: true, data: { universe: [{ sym: id, name: name || id }] } };
+    if (/screener-universe\.json/.test(url)) return { ok: true, data: { universe: [{ sym: id, name: name || id, ...(sector ? { sector } : {}) }] } };
     if (/screener\.json/.test(url)) return { ok: true, data: { asOf: computedAt, factorObservedAt: raw.factorObservedAt || null, data: { [id]: raw } } };
     return { ok: false, error: 'NOT_REQUESTED' };
   } };
   const provider = createScreenerProvider({ httpClient, readLiveData, clock: { now, iso: () => new Date(now()).toISOString() }, yieldImpl: () => Promise.resolve() });
   const state = await provider.readCurrent({ refresh: true });
   const row = (state?.rows || []).find((item) => item?.sym === id);
-  return row ? { ...row, identitySource: 'on-demand:us-listing', onDemand: Object.freeze({ model: ON_DEMAND_MODEL_VERSION, computedAt }) } : null;
+  return row ? { ...row, ...(classification ? { sector: sector || row.sector || null, industry: classification.description ? `${classification.description} (SEC SIC ${classification.sic})` : `SEC SIC ${classification.sic}`, classification } : {}),
+    identitySource: 'on-demand:us-listing', onDemand: Object.freeze({ model: ON_DEMAND_MODEL_VERSION, computedAt }) } : null;
 }
 
 /** Where the candidate would sit in the current universe, by the same ranking model and inputs. */
@@ -177,11 +182,12 @@ export function createOnDemandSymbolReader({ fetchChart, fetchJson = null, isLis
     // The directory's security name carries the share description ("… - Common Stock"); the issuer name is shown.
     const name = String(listing?.name || chartResult.meta?.longName || chartResult.meta?.shortName || '')
       .replace(/\s*-?\s*(Common Stock|Common Shares|Ordinary Shares|Class [A-C] Common Stock)\s*$/i, '').trim() || null;
-    const row = await canonicalOnDemandRow(id, built.raw, { name, computedAt, readLiveData, now });
+    const classification = etf ? null : secClassification(secSubmissions);
+    const row = await canonicalOnDemandRow(id, built.raw, { name, classification, computedAt, readLiveData, now });
     if (!row) return { ...base, status: 'unavailable', reason: 'normalization-failed', listing };
     let placement = null;
     try { placement = placeAgainstUniverse(row, rows, { ...(rankInputs() || {}), nowMs }); } catch (_) { placement = null; }
-    return Object.freeze({ ...base, status: 'ready', computedAt, listing: listing?.listed ? listing : null, registeredName: known,
+    return Object.freeze({ ...base, status: 'ready', computedAt, listing: listing?.listed ? listing : null, registeredName: known, classification,
       name, etf, row, placement, sec: secSummaryRecord(built.sec), secStatus: built.sec ? built.secStatus : secStatus,
       sessionDate: row.factorSessionDate || null, barCount: built.history?.closes?.length || 0,
       // The factor row's own last completed close (not a live price), for holdings valued at the close while a quote waits.

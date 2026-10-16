@@ -123,6 +123,18 @@ assert.equal(basisAge('2026-10-05', Date.parse('2026-10-12T06:00:00Z')).stale, t
 assert.equal(basisAge('2026-10-12T03:00:00Z', Date.parse('2026-10-12T06:30:00Z')).age, '3시간 전');
 assert.match(basisAge('2026-10-12T03:00:00Z', Date.parse('2026-10-12T06:30:00Z')).label, /KST/, 'U03: timestamps carry their zone');
 assert.equal(basisAge('', 0), null);
+// v57.83 codex audit F16: freshness follows the source's cadence — an undeclared old timestamp claims neither fresh nor
+// late, a declared intraday one is late after a day, a fiscal-year-end date is judged on the annual cadence, and a
+// consumer's own freshness verdict wins.
+{
+  const at = Date.parse('2026-10-15T13:00:00Z');
+  assert.equal(basisAge('2020-01-01T00:00:00Z', at).stale, null, 'v57.83: an undeclared 2020 timestamp is not "fresh"');
+  assert.equal(basisAge('2020-01-01T00:00:00Z', at, { cadence: 'intraday' }).stale, true);
+  assert.equal(basisAge('2026-01-25', at, { cadence: 'annual' }).stale, false, 'v57.83: a fiscal-year end nine months ago is not 갱신 지연');
+  assert.equal(basisAge('2025-01-25', at, { cadence: 'annual' }).stale, true);
+  assert.equal(basisAge('2026-10-01', at, { freshness: 'current' }).stale, false, 'v57.83: the consumer freshness verdict wins');
+  assert.ok(/data-cadence', 'annual'/.test(readFileSync(new URL('../src/ui/pages/entity.js', import.meta.url), 'utf8')), 'v57.83: SEC fiscal-year dates declare the annual cadence');
+}
 const bootstrapSource = readFileSync(new URL('../src/app/bootstrap.js', import.meta.url), 'utf8');
 assert.match(bootstrapSource, /installValueBasis\(documentRef/, 'P1643: the basis card is installed at boot');
 console.log('scenario guidance fixture (basis card): PASS');
@@ -403,6 +415,19 @@ console.log('scenario guidance fixture (basis card): PASS');
   const oneWeek = run(make({ spxGap: 3, ndxDrop5: -3.5, rutBelow200: false, breadth50: 34, breadth200: 38, adv: 0.5, highs: 40, lows: 12, dist: 3 }));
   assert.ok(oneWeek.regime.leadership.proxyWeak && !oneWeek.regime.leadershipBreak, 'v57.81 the leaders falling alone (0 of 4 confirmations) is not a leadership break');
   assert.equal(leadershipBreakOf({}, asOf).state, 'unknown', 'v57.81 a missing proxy is 확인 불가, never holding');
+  // v57.83 crash replay (2026-07-28: Nasdaq-100 -9.5% from its high read 'holding'): weak leaders without the confirmations
+  // are 'weak', which the scenario cards, the AI packet and the claim validator all treat as not holding.
+  assert.equal(oneWeek.regime.leadership.state, 'weak', 'v57.83 the leaders falling alone read 주도주 약세, not 유지');
+  assert.ok(oneWeek.regime.conflicts.some((text) => /^주도주 약세 — 나스닥 100 5거래일 -3\.5%/.test(text)), 'v57.83 the weak leaders are named among the conflicts');
+  const weakContext = renderMarketScenarioContext(oneWeek.input, { regime: oneWeek.regime });
+  assert.match(weakContext, /주도 영역 이탈\(leadershipBreak\): 확산 미확인/, 'v57.83 the AI scenario context does not say 아니오 for weak leaders');
+  assert.deepEqual(leadershipClaimIssues('반도체가 시장을 주도했습니다.', { context: weakContext }), ['leadership-claim-during-break'], 'v57.83 "semis lead" is rejected while the leaders are weak');
+  assert.notEqual(oneWeek.scenarios.scenarios.find((item) => item.id === 'concentration').confirmed, true, 'v57.83 소수 종목 주도 is not confirmed with weak leaders');
+  // R707: "under the 50-day line" needs the 1% buffer (2026-08-06 read a break at -0.0% in a +4.5% week).
+  const atLine = { ndx: { value: 99.5, ma50: 100, d5: 95, yearMax: 104, date: asOf } };
+  assert.ok(!leadershipBreakOf(atLine, asOf).belowMa50 && leadershipBreakOf(atLine, asOf).state === 'holding', 'v57.83 0.5% under the 50-day line is inside the buffer');
+  const under = { ndx: { value: 95, ma50: 100, d5: 96, yearMax: 105, date: asOf } };
+  assert.ok(leadershipBreakOf(under, asOf).belowMa50 && leadershipBreakOf(under, asOf).state !== 'holding' && /1년 고점 대비 -9\.5%/.test(leadershipBreakOf(under, asOf).summary), 'v57.83 5% under the line is weak and names the drawdown');
   console.log('scenario guidance fixture (v57.81 trend buffer, cross-index cap, leadership break, transition, AI claim rule): PASS');
 }
 
@@ -437,6 +462,17 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.ok(credit.state === 'burden' && /20거래일 동안 \+\d+bp 넓어졌습니다\(자체 기록 \d+개 20거래일 변화 중 \d+백분위/.test(credit.read), `v57.81 the credit axis says the 20-session condition fired (${credit.read})`);
   assert.equal(creditState({ hyBp: 316, hy5: 13, hy20: 40 }), 'neutral', 'v57.81 without the record flag a +40bp month stays 중립 (the record decides)');
   assert.equal(creditState({ hyBp: 316, hy5: 13, hy20: 40, hy20Stress: true }), 'burden');
+  {
+    // v57.83 codex audit F06: the macro chain and gauge name the 20-session record as the cause, never "수준이 부담".
+    const { buildMacroRead } = await import('../src/domain/macro/macro-read.js');
+    const mh = { schemaVersion: 'macro-history.v1', series: { hyOas: { observations: hyObs(rise) } } };
+    const macroRead = buildMacroRead({ macro: { hyOAS: 3.16, hyOASDelta5: 0.13 }, macroHistory: mh, regime: { axes: [{ id: 'credit', state: 'burden' }] } });
+    const branch = macroRead.chain.branches.find((b) => b.id === 'credit');
+    assert.ok(/20거래일 \+\d+bp 확대/.test(branch.effect) && !/수준이 부담/.test(branch.effect), `v57.83 the credit chain names the 20-session widening (${branch.effect})`);
+    assert.match(macroRead.sharedGauges.credit.gauge.label, /20거래일 변화/, 'v57.83 the credit gauge draws the input that decided the burden');
+    const levelRead = buildMacroRead({ macro: { hyOAS: 4.8, hyOASDelta5: 0.02 }, macroHistory: mh, regime: { axes: [{ id: 'credit', state: 'burden' }] } });
+    assert.match(levelRead.chain.branches.find((b) => b.id === 'credit').effect, /스프레드 수준\(480bp\)이 부담 구간/, 'v57.83 a level burden still says the level');
+  }
   const latch = latchedState([{ date: 'a', value: 40 }, { date: 'b', value: 30 }, { date: 'c', value: 26 }], (p) => p.value >= 35, (p) => p.value < 25);
   const released = latchedState([{ date: 'a', value: 40 }, { date: 'b', value: 30 }, { date: 'c', value: 20 }], (p) => p.value >= 35, (p) => p.value < 25);
   assert.ok(latch.on && latch.since === 'a' && !released.on, 'v57.81 hysteresis: entered at 40, held at 30/26, released under 25');
@@ -597,7 +633,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   const inflModel = buildMacroCrossroads({ read: inflRead, macroHistory: inflMh });
   const condition = (id) => inflModel.items.find((item) => item.id === id).conditions[0][1];
   assert.ok(condition('reheat') === false && condition('softland') === false, 'v57.81 the reheat and softland branches read the same flag as the quadrant');
-  assert.ok(inflAxis.state === 'burden' && inflAxis.detail.firedBy === 'reaccel' && /근원 CPI\(9월\)/.test(inflAxis.read), `v57.81 the 물가 axis states which condition fired (${inflAxis.read})`);
+  assert.ok(inflAxis.state === 'neutral' && /근원 CPI\(9월\)만 빨라지고/.test(inflAxis.read) && /두 지표가 함께 가리키는 재가속은 아닙니다/.test(inflAxis.read), `v57.84 one measure re-accelerating against the other is not 부담 on the 물가 axis; the read names it (${inflAxis.state}: ${inflAxis.read})`);
   // PCE 3.0076% vs the 3.0% line, no re-acceleration: not 부담 by the level alone; 3.2% is.
   const flatMh = mhOf({ corePceIndex: monthly(2024, 5, 28, 3.0, 3.0) });
   const edge = buildMacroRead({ macro: { corePce: 3.0076 }, macroHistory: flatMh }).axes.find((axis) => axis.id === 'inflation');
@@ -724,4 +760,59 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.match(lines, /2차전지\(3개월·1개월 기준/, 'v57.81 KR themes name their 3-month window');
   assert.ok(themeLeadClaimIssues('반도체가 시장을 주도했습니다.', { context: lines }).length === 1, 'v57.81 the validator reads the five-session move from the same packet');
   console.log('scenario guidance fixture (v57.81 packet theme lines with window and 5-session move): PASS');
+}
+
+// v57.83 codex audit F09 + R706: a frequency sentence carries the small-sample note for 10-29 cases, shows no rate
+// below 10, and drops the note from 30 cases.
+{
+  const { frequencyText } = await import('../src/domain/scenarios/analogs.js');
+  const line = (n) => frequencyText({ n, up: Math.round(n * 0.6), median: 1.2, p25: -2, p75: 3, horizon: 63, from: '2015-01-02', to: '2026-10-14', baseUpPct: 57 }, '조건');
+  assert.ok(!/비슷한 때/.test(line(9)) && /표본이 작아/.test(line(9)), 'v57.83 below 10 cases: counts only');
+  for (const n of [10, 29]) assert.ok(/비슷한 때/.test(line(n)) && /작은 표본/.test(line(n)), `v57.83 ${n} cases carry the small-sample note`);
+  assert.ok(/비슷한 때/.test(line(30)) && !/작은 표본|표본이 작아/.test(line(30)), 'v57.83 30 cases need no small-sample note');
+  console.log('scenario guidance fixture (v57.83 R706 small-sample note at n 9/10/29/30): PASS');
+}
+
+// v57.83 codex audit F07: a release later today is still next; once its release time passes it is not, and an
+// indicator card whose value came from that release points at the following date. Legacy clocks mirror the ESM ones.
+{
+  const { upcomingMacroEvents } = await import('../src/domain/market/macro-crossroads.js');
+  const { RELEASE_CLOCKS } = await import('../src/domain/briefing/schedule.js');
+  const schedules = { 'us-retail': ['2026-10-15', '2026-11-17'] };
+  const at = (iso) => upcomingMacroEvents({ schedules, nowMs: Date.parse(iso) }).find((e) => e.id === 'us-retail')?.date;
+  assert.equal(at('2026-10-15T12:29:00Z'), '2026-10-15', 'v57.83 before 08:30 ET the same-day release is next');
+  assert.equal(at('2026-10-15T12:31:00Z'), '2026-11-17', 'v57.83 after 08:30 ET the next release moves on');
+  assert.equal(at('2026-03-09T12:31:00Z') ?? null, null, 'v57.83 (DST week) no retail date in range is not invented');
+  const core = readFileSync(new URL('../js/aio-core.js', import.meta.url), 'utf8');
+  // P1844: the legacy calendar, run with the native clock the compatibility layer installs, moves on after 08:30 ET.
+  const { releaseAtMs } = await import('../src/domain/briefing/schedule.js');
+  const { runInNewContext } = await import('node:vm');
+  const start = core.indexOf('window.AIO.refreshMacroCalendarFromOfficialSchedule = function(now) {');
+  const legacyNext = (iso, withClock = true) => {
+    const context = {
+      window: { AIO: {}, AIO_MACRO_CALENDAR: { releases: { 'us-retail': { lastRelease: '2026-09-16', nextRelease: '2026-10-15' } } }, AIO_MACRO_OFFICIAL_SCHEDULES: { 'us-retail': ['2026-10-15', '2026-11-17'] },
+        _aioMacroReleaseNotYet: withClock ? (key, date, nowMs, today) => { const t = releaseAtMs(key, date); return Number.isFinite(t) ? t > nowMs : date >= today; } : undefined },
+      _aioMacroTodayIso: (now) => now.toISOString().slice(0, 10),
+      _aioMacroIsoDate: (date) => /^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : null
+    };
+    runInNewContext(core.slice(start, core.indexOf('\n};', start) + 3), context, { timeout: 1000 });
+    context.window.AIO.refreshMacroCalendarFromOfficialSchedule(new Date(iso));
+    return context.window.AIO_MACRO_CALENDAR.releases['us-retail'].nextRelease;
+  };
+  assert.equal(legacyNext('2026-10-15T12:29:00Z'), '2026-10-15', 'v57.83 legacy calendar: before 08:30 ET the same-day release is next');
+  assert.equal(legacyNext('2026-10-15T12:31:00Z'), '2026-11-17', 'v57.83 legacy calendar: after 08:30 ET it moves on (native clock)');
+  assert.equal(legacyNext('2026-10-15T12:31:00Z', false), '2026-10-15', 'v57.83 without the native clock the legacy date rule is unchanged');
+  assert.ok(Object.keys(RELEASE_CLOCKS).includes('us-retail'));
+  console.log('scenario guidance fixture (v57.83 release clock decides "다음 발표"): PASS');
+}
+
+// v57.83 codex audit F10: fixed market-reading copy states what to check, not an unbacked qualitative probability
+// ("가능성이 높습니다/커집니다/큽니다") — a probability needs its non-overlapping sample (R706).
+{
+  const { readdirSync } = await import('node:fs');
+  const dirs = ['src/domain/market', 'src/domain/briefing', 'src/domain/macro'];
+  const files = [...dirs.flatMap((dir) => readdirSync(new URL(`../${dir}/`, import.meta.url)).filter((f) => f.endsWith('.js')).map((f) => `${dir}/${f}`)), 'js/aio-kr-data.js'];
+  const hits = files.flatMap((file) => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8').split('\n').map((line, i) => [file, i + 1, line]).filter(([, , line]) => /가능성이 (높|커|큽|크)/.test(line)).map(([f, n]) => `${f}:${n}`));
+  assert.deepEqual(hits, [], `v57.83 unbacked qualitative probability in market copy: ${hits.join(', ')}`);
+  console.log('scenario guidance fixture (v57.83 no unbacked probability in market copy): PASS');
 }

@@ -86,7 +86,10 @@ function releaseInfo({ releases, schedules, id, asOf, daily, releasedAt }) {
   const [year, month] = asOf.split('-').map(Number);
   const monthEnd = new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
   const dates = (Array.isArray(schedules?.[id]) ? schedules[id] : []).map(isoDate).filter(Boolean).sort();
-  return { last: dates.find((date) => date > monthEnd) || null, next };
+  const last = dates.find((date) => date > monthEnd) || null;
+  // Codex audit F07: the value on screen already came from `last`, so the next release is a later date — the card read
+  // "9월분 · 10/15 발표 · 다음 10/15" while the calendar still held the same-day date.
+  return { last, next: last && next && next <= last ? dates.find((date) => date > last) || null : next };
 }
 
 // P1426: the plotted 24-month series for one indicator, derived from the raw FRED observations.

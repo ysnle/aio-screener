@@ -305,6 +305,12 @@ async function main() {
     check('v57.61 translate error bodies carry short codes only, never model output or exception text',
       failureBodies.every((text) => !text.includes(MODEL_TEXT) && !/"detail"/.test(text) && /"error":"[a-z0-9:-]+"/.test(text))
       && JSON.parse(failureBodies[1]).error === 'workers-ai-unparsed:count-mismatch' && JSON.parse(failureBodies[2]).error === 'workers-ai-unparsed:empty-item', failureBodies);
+    // v57.83 codex audit F18: the operator kill switch stops Workers AI too (it is billed outside the OpenAI ledger).
+    let killedRuns = 0;
+    const killed = await worker.fetch(translate(titles(2)), { AIO_AUTOMATION_TOKEN: AUTOMATION, AI_KILL_SWITCH: '1', AI: { run: async () => { killedRuns++; return { response: '["a","b"]' }; } } });
+    check('v57.83 AI_KILL_SWITCH=1 stops Workers AI translation before any AI.run', killed.status === 503 && killedRuns === 0 && (await killed.json()).error === 'kill-switch', { status: killed.status, killedRuns });
+    const limited = { AIO_AUTOMATION_TOKEN: AUTOMATION, RATE_LIMIT_WORKERS_AI: { limit: async () => ({ success: false }) }, AI: { run: async () => ({ response: '["a","b"]' }) } };
+    check('v57.83 a Workers AI rate-limit binding refuses a runaway caller with 429', (await worker.fetch(translate(titles(2)), limited)).status === 429);
     // Client side: larger lists are chunked to <=20 titles per request, and a failure reason keeps the code only.
     const { requestWorkersAiTranslation } = await import('./lib/ai-shared-analysis.mjs');
     const sizes = [];

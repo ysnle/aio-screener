@@ -58,11 +58,19 @@ const report = {
 };
 
 check('semantic review script exists', exists('scripts/ci-semantic-review-check.mjs'));
-check('audit inventory is measurable', auditDefs >= 50 && auditLikeLabels.length >= 100 && shapeOnlyLabels.length >= 50, JSON.stringify(report));
+// v57.84: the inventory is a report, not a floor. The old `shapeOnlyLabels >= 50` floor made deleting a shallow
+// shape-only assertion fail CI, so the gate rewarded keeping the very tests it called a backlog.
+check('audit inventory is measurable', assertLabels.length > 0, JSON.stringify(report));
 check('runtime contract gate references semantic review', /ci-semantic-review-check\.mjs/.test(runtimeGate) && /semantic review/.test(runtimeGate));
+// v57.84: certification was impossible by construction (`releaseCertified === false` was required). It may now
+// be true only with a named reviewer, a date, an evidence path, and full current-line coverage.
+const certificationValid = coverage?.releaseCertified === false
+  || (coverage?.releaseCertified === true && typeof coverage.certifiedAt === 'string' && /^\d{4}-\d{2}-\d{2}/.test(coverage.certifiedAt)
+    && typeof coverage.certifiedBy === 'string' && coverage.certifiedBy.trim() && typeof coverage.certificationEvidence === 'string'
+    && exists(coverage.certificationEvidence) && currentCoveragePct >= 100);
 check('line-level semantic coverage ledger exists and stays fail-closed until certified',
   !!coverage
-  && coverage.releaseCertified === false
+  && certificationValid
   && Number.isFinite(currentCoveragePct) && currentCoveragePct >= 0 && currentCoveragePct <= 100
   && Number.isFinite(historyCoveragePct) && historyCoveragePct >= 0 && historyCoveragePct <= 100
   && Number(coverage.currentSemanticallyReviewedLines || 0) <= Number(coverage.codeConfigCurrentLines || 0)

@@ -8,6 +8,7 @@
 // lean, and past frequency (long history from scenario-outcomes.json when published, else AIO's own closes) with its
 // sample size. Never a probability percentage, a price, a size, a date to act or a named stock.
 import { buildCloseSeries, sessionPointBack, dollarRiseBurden } from '../briefing/market-read.js';
+import { releaseAtMs } from '../briefing/schedule.js';
 import { seriesOf, yoySeries, annualised3m } from '../macro/macro-read.js';
 import { RULES } from '../rules/thresholds.js';
 import { changeBand, bandDirection, changeOverDays, inflationDirection, oilDivergence, sentimentRank, MACRO_SIGNAL_RULES } from '../macro/macro-signals.js';
@@ -53,16 +54,18 @@ export function upcomingMacroEvents({ releases = {}, schedules = {}, nowMs = Dat
   const today = new Date(nowMs).toISOString().slice(0, 10);
   const horizon = new Date(nowMs + horizonDays * 86400000).toISOString().slice(0, 10);
   const alias = { 'us-fomc': 'us-fed-rate' }; // the official FOMC page and the policy-rate release share one date set
+  // Codex audit F07: a release later today is still next; one whose release time has passed is not.
+  const notYet = (id, date) => { const at = releaseAtMs(id, date); return Number.isFinite(at) ? at > nowMs : date >= today; };
   const out = new Map();
   for (const [rawId, dates] of Object.entries(schedules || {})) {
     const id = alias[rawId] || rawId;
     if (out.has(id)) continue;
-    const next = (Array.isArray(dates) ? dates : []).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date) && date >= today).sort()[0];
+    const next = (Array.isArray(dates) ? dates : []).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date) && notYet(id, date)).sort()[0];
     if (next) out.set(id, next);
   }
   for (const [id, row] of Object.entries(releases || {})) {
     const date = String(row?.nextRelease || '').slice(0, 10);
-    if (!out.has(id) && /^\d{4}-\d{2}-\d{2}$/.test(date) && date >= today) out.set(id, date);
+    if (!out.has(id) && /^\d{4}-\d{2}-\d{2}$/.test(date) && notYet(id, date)) out.set(id, date);
   }
   return [...out].filter(([id, date]) => EVENT_NAMES[id] && date <= horizon).map(([id, date]) => ({ id, name: EVENT_NAMES[id], date })).sort((a, b) => a.date.localeCompare(b.date));
 }
@@ -142,7 +145,7 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
     sentiment: finite(last(mh('consumerSentiment'))?.value), sentimentRank: sentimentRank(mh('consumerSentiment')),
     breakeven20: changeOver(mh('breakeven10'), 20), termPremium: mh('termPremium10'), termPremium20: changeOver(mh('termPremium10'), 20),
     curve20: changeOver(mh('t10y3m'), 20), curve2s10s20: changeOver(curve2s10s, 20), realYield20: changeOver(mh('realYield10'), 20), hy20: hy20 == null ? null : hy20 * 100,
-    cccGap20: changeOver(gap, 20), nfci: finite(last(nfci)?.value), nfci4: changeOverDays(nfci, MACRO_SIGNAL_RULES.nfciWindowDays)?.value ?? null, bands,
+    cccGap20: changeOver(gap, 20), nfci: finite(last(nfci)?.value), hyBp: finite(last(hy)?.value) == null ? null : last(hy).value * 100, nfci4: changeOverDays(nfci, MACRO_SIGNAL_RULES.nfciWindowDays)?.value ?? null, bands,
     cash: last(mh('sofr')), oil20, oilVsYear, brent20: finite(oilCheck?.brent20), brentBasis: oilCheck?.basis || null, oilHeld: oilDiv.held, oilHeldKind: oilDiv.kind, oilHeldText: oilDiv.text, wtiPosition,
     oilSurging: oilDiv.held || oil20 == null ? null : oil20 >= RULES.oil.rise20dPct || (oilVsYear != null && oilVsYear >= 25),
     tnx: last(tnx), tnx20: changeOver(tnx, 20), spx5: pctOver(spx, 5), spx20, ndxRel20: all(ndx20, spx20) ? ndx20 - spx20 : null, dxy20: pctOver(dxy, 20), krw20: pctOver(krw, 20),
@@ -209,7 +212,7 @@ export const BRANCHES = Object.freeze([
     favored: ['wait', 'defend'], favoredWhy: '금리 상승이 이어지는 시나리오에서는 기다림의 비용(놓친 상승 − 현금 이자)이 작고, 성급한 매수의 비용(밸류에이션 추가 하락)이 큽니다.',
     explore: [['fxbond', '금리 · 환율', '10년물·2년물과 달러가 실제로 오르는지'], ['themes', '테마 · 섹터', '에너지·금융의 상대강도']] },
   { id: 'softland', shape: 'expansion', axes: ['inflation', 'growth'], title: '물가 둔화 + 고용 완만 — 금리가 내려갈 여지가 생기는 시나리오',
-    gate: [0], conditions: [['근원 물가 둔화 (근원 PCE·CPI 모두 3개월 속도가 1년치보다 0.5%p 이상 느림)', disinflating], [`고용 완만 (Sahm ${G.sahmRecessionAt}%p 미만 + 일자리 3개월 평균 증가)`, (s) => all(s.sahm, s.payroll3) ? s.sahm < G.sahmRecessionAt && s.payroll3 > 0 : null], ['유가 안정 (WTI 20거래일 +5% 미만)', (s) => s.oilHeld ? null : has(s.oil20) ? s.oil20 < 5 : null], ['신용 안정 (하이일드 스프레드 양호)', (s) => s.credit === 'unknown' ? null : s.credit === 'favorable']],
+    gate: [0], conditions: [['근원 물가 둔화 (근원 PCE·CPI 모두 3개월 속도가 1년치보다 0.5%p 이상 느림)', disinflating], [`고용 완만 (Sahm ${G.sahmWatchAt}%p 미만 + 일자리 3개월 평균 증가)`, (s) => all(s.sahm, s.payroll3) ? s.sahm < G.sahmWatchAt && s.payroll3 > 0 : null] /* v57.84: 0.3–0.5 is 고용 급랭's 주의 band, so 완만 ends at 0.3 */, ['유가 안정 (WTI 20거래일 +5% 미만)', (s) => s.oilHeld ? null : has(s.oil20) ? s.oil20 < 5 : null], ['신용 안정 (하이일드 스프레드 양호)', (s) => s.credit === 'unknown' ? null : s.credit === 'favorable']],
     chain: ['물가 둔화', '금리 인하 기대', '2년·10년 금리 하락', '할인율 하락 → 밸류에이션 지지', '참여 확산 (중소형·후행 업종)'],
     firmer: ['growth', 'yield', 'consumer', 'liquidity', 'cyclical'], weaker: ['energy', 'defensive'],
     triggers: [['us-cpi', '근원 CPI 전월 대비 0.2% 이하 (연율 약 2.4%, 목표 부근)', (a) => a.coreMoM <= 0.2], ['us-nfp', '일자리 7.5만~20만 명 + 실업률 보합~+0.1%p', (a) => a.payroll >= 75 && a.payroll <= 200 && (a.unempDelta ?? 0) <= 0.1], ['us-pce', '근원 PCE 전월 대비 0.2% 이하', (a) => a.coreMoM <= 0.2], ['us-fed-rate', '기준금리 인하 (신용이 안정된 상태에서)', (a) => a.upperDelta < 0]],
@@ -235,16 +238,16 @@ export const BRANCHES = Object.freeze([
     chain: ['유가 급등', '헤드라인 물가 상승 + 소비 여력 감소', '연준 딜레마 (물가 대응 vs 성장)', '금리 하락이 막히고 이익은 압박', '원유 수입국(한국) 원화 부담'],
     firmer: ['energy'], weaker: ['consumer', 'cyclical', 'growth'], mixed: ['dollar'],
     triggers: [['us-cpi', '헤드라인 CPI가 근원보다 전월 대비 0.2%p 이상 높음 (에너지발 물가)', (a) => a.headMoM != null && a.headMoM - a.coreMoM >= 0.2]],
-    pricing: deltaPricing('breakeven20', '10년 기대인플레이션 20회 관측', '%p→bp', 0, true),
+    pricing: deltaPricing('breakeven20', '10년 기대인플레이션 20회 관측', '%p→bp', 0, true), pricingInConditions: true,
     choices: { wait: '유가 상승이 멈추는 신호(20거래일 변화가 마이너스로 전환)를 기다리는 비용이 작은 시나리오입니다.', stage: '분할 접근은 에너지 비용을 가격에 넘길 수 있는 영역에 한정하는 편이 맞습니다.', hold: '보유 종목 중 연료·물류비 비중이 큰 업종을 점검합니다.', defend: '에너지 업종 비중이 유가 충격을 일부 상쇄합니다. 유가가 급반락하면 이 기회비용이 커집니다.' },
     favored: ['wait'], favoredWhy: '유가 충격은 물가와 성장을 함께 누르므로, 유가가 꺾이는 것을 확인하기 전 서두르는 쪽의 비용이 큽니다.',
     explore: [['fxbond', '금리 · 환율', '기대인플레이션과 10년물이 유가를 따라 오르는지'], ['themes', '테마 · 섹터', '에너지 업종의 상대강도']] },
   { id: 'creditstress', shape: 'weakness', axes: ['credit'], title: '신용 경색 — 돈줄이 마르는 시나리오',
-    gate: [0, 1], conditions: [['신용 지표 부담 (하이일드 스프레드 높음 또는 빠른 확대)', (s) => s.credit === 'unknown' ? null : s.credit === 'burden'], ['하이일드 스프레드 20회 관측 +50bp 이상 확대', (s) => has(s.hy20) ? s.hy20 >= 50 : null], ['가장 약한 등급(CCC)과 B 등급 격차 20회 관측 확대 (평소 변동 범위 밖)', (s) => rose(s, 'cccGap20')], ['금융여건지수(NFCI) 4주 전보다 긴축 방향 (평소 변동 범위 밖)', (s) => rose(s, 'nfci4')]],
+    gate: [0, 1], conditions: [['신용 지표 부담 (하이일드 스프레드 높음 또는 빠른 확대)', (s) => s.credit === 'unknown' ? null : s.credit === 'burden'], [`스프레드 수준이 경계 이상 (하이일드 ${RULES.credit.tightBelowBp}bp 이상 또는 금융여건지수 0 초과)`, (s) => has(s.hyBp) || has(s.nfci) ? (has(s.hyBp) && s.hyBp >= RULES.credit.tightBelowBp) || (has(s.nfci) && s.nfci > 0) : null] /* v57.84: the +50bp 20-session test implied condition 0, so one move counted twice and 325bp with NFCI −0.5 read 4/4 '돈줄이 마르는' */, ['가장 약한 등급(CCC)과 B 등급 격차 20회 관측 확대 (평소 변동 범위 밖)', (s) => rose(s, 'cccGap20')], ['금융여건지수(NFCI) 4주 전보다 긴축 방향 (평소 변동 범위 밖)', (s) => rose(s, 'nfci4')]],
     chain: ['신용 스프레드 확대', '약한 기업부터 차환·조달 곤란', '투자·고용 축소', '이익 하향 + 위험 회피', '주가 하락이 신용 위험으로 번짐'],
     firmer: ['defensive'], weaker: ['financials', 'liquidity', 'cyclical', 'growth', 'consumer'],
     triggers: [['us-fed-rate', '긴급 유동성 공급·인하 (신용 불안 대응)', (a) => a.upperDelta < 0]],
-    pricing: deltaPricing('hy20', '하이일드 스프레드 20회 관측', 'bp', 0, true),
+    pricing: deltaPricing('hy20', '하이일드 스프레드 20회 관측', 'bp', 0, true), pricingInConditions: true,
     choices: { wait: '신용이 흔들리는 동안 기다리는 비용이 가장 작은 시나리오입니다 — 확대가 멈추는 것을 먼저 확인합니다.', stage: '분할 접근은 스프레드 확대가 멈추고 줄어들기 시작한 뒤가 맞습니다. 그 전의 "싸 보임"은 근거가 약합니다.', hold: '차입 비중이 크거나 자금 조달이 잦은 기업 비중부터 점검합니다.', defend: '현금흐름이 안정적인 방어 업종과 우량 채권이 상대적으로 버팁니다.' },
     favored: ['wait', 'defend'], favoredWhy: '신용 경색은 주가보다 늦게 끝나는 경향이 있어, 확대가 멈춘 것을 확인하기 전의 매수는 비용이 큽니다.',
     explore: [['signal', '시장 상태', '하이일드·CCC 격차와 시장 폭'], ['sentiment', '투자 심리', 'VIX와 신용이 같은 쪽인지']] },
@@ -262,7 +265,7 @@ export const BRANCHES = Object.freeze([
     chain: ['고용·소비 재가속', '이익 추정치 상향', '성장 기대로 금리 상승', '경기민감·금융 이익 개선', '방어·배당주 상대 부진'],
     firmer: ['cyclical', 'financials', 'energy', 'consumer'], weaker: ['defensive', 'yield'],
     triggers: [['us-nfp', '일자리 20만 명 이상', (a) => a.payroll >= 200], ['us-retail', '소매판매 전월 대비 +0.5% 이상', (a) => a.mom >= 0.5]],
-    pricing: deltaPricing('curve20', '10년−3개월 금리차 20회 관측', '%p→bp', 0, true),
+    pricing: deltaPricing('curve20', '10년−3개월 금리차 20회 관측', '%p→bp', 0, true), pricingInConditions: true,
     choices: { wait: '이익이 함께 오르는 시나리오에서는 기다림의 기회비용이 큽니다.', stage: '금리 상승이 이익 개선을 동반하는지 확인하며 나눠 들어가는 쪽이 자연스럽습니다.', hold: '경기민감·금융 보유가 유리해지는 시나리오입니다.', defend: '방어 전환의 기회비용이 큰 시나리오입니다.' },
     favored: ['hold', 'stage'], favoredWhy: '금리 상승이 성장 기대 때문이라면 이익이 함께 늘어 주가가 버티는 경향이 있습니다 — 물가 때문인 금리 상승과 구분합니다.',
     explore: [['themes', '테마 · 섹터', '경기민감·금융 업종 개선'], ['screener', '스크리너', '이익 추정이 오르는 후보']] },
@@ -274,7 +277,7 @@ export const BRANCHES = Object.freeze([
     chain: ['AI 설비투자 기대 후퇴', '반도체·데이터센터 이익 하향', '투자·고용 둔화', '금리 인하 압력 + 신용 스프레드 확대', '정책 대응은 연쇄를 막아도 이익 전망은 못 바꿈'],
     firmer: ['defensive'], weaker: ['aicapex', 'growth', 'liquidity', 'cyclical'], mixed: ['yield'],
     triggers: [['us-nfp', '일자리 5만~7.5만 명 (채용 둔화)', (a) => a.payroll >= 50 && a.payroll < 75]],
-    pricing: deltaPricing('ndxRel20', '나스닥100 − S&P 500 20거래일', '%p', 1, false),
+    pricing: deltaPricing('ndxRel20', '나스닥100 − S&P 500 20거래일', '%p', 1, false), pricingInConditions: true, /* v57.84: the pricing series is one of the conditions, so it is not independent confirmation */
     choices: { wait: 'AI 투자 기대가 꺾이는 동안 기다리는 비용은 작습니다. 이익 하향은 몇 분기에 걸쳐 확인되는 경향이 있어 서둘러 놓치는 것이 적습니다.', stage: '분할 접근은 하이일드 스프레드 확대가 멈추고 빅테크 설비투자 지침이 확인된 뒤가 맞습니다. 그 전의 "싸 보임"은 이익이 더 내려갈 수 있다는 점을 놓칩니다.', hold: '보유는 AI 설비투자에 매출이 직접 걸린 반도체·데이터센터·광통신 비중부터 점검합니다.', defend: '방어 업종이 상대적으로 버팁니다. 다만 금리 민감 배당주는 장기 금리가 함께 오르면 기대만큼 지켜 주지 못합니다.' },
     favored: ['wait', 'defend'], favoredWhy: 'AI 투자 꺾임은 이익 하향이 늦게 끝나는 경향이 있어, 확인 전 매수의 비용이 크고 기다림의 비용(현금 이자로 일부 상쇄)은 작습니다.',
     explore: [['themes', '테마 · 섹터', '반도체·AI 인프라 테마의 단계와 약화 신호'], ['signal', '시장 상태', '하이일드 스프레드와 시장 폭이 함께 나빠지는지']] },
@@ -464,6 +467,6 @@ export function renderMacroCrossroadsContext(model, { state = null } = {}) {
   }
   if (state?.transitions?.length) lines.push(`최근 변화(자동 기록): ${state.transitions.slice(-6).map((t) => `${String(t.at).slice(5, 10)} ${t.text}`).join(' / ')}`);
   if (state?.eventOutcomes?.length) lines.push(`지난 발표 판정(자동): ${state.eventOutcomes.slice(-4).map((e) => `${e.name} ${e.period}: ${e.actualText} → ${e.matched.length ? `${e.matched.map((m) => m.title).join('·')} 기준 충족` : '어느 시나리오의 기준도 아님'}`).join(' / ')}`);
-  lines.push('규칙: 가능성은 위 세 근거(조건 충족 수·시장 가격 방향·과거 빈도와 표본 수)로만 말하고 %·확률 숫자를 만들지 마라. 선택지별 기회비용과 상대적으로 유리한 쪽은 말하되, 가격·수량·시점·특정 종목 매매 지시는 하지 말고 세부 선별은 차트·기업·테마·스크리너 화면에서 사용자가 하도록 안내하라.');
+  lines.push('규칙: 조건 충족 수는 가능성이 아니라 개수다. 각 시나리오는 세 근거(조건 충족 수·시장 가격 방향·과거 빈도와 표본 수)를 나란히 말하고 %·확률 숫자를 만들지 마라. 선택지별 기회비용과 상대적으로 유리한 쪽은 말하되, 가격·수량·시점·특정 종목 매매 지시는 하지 말고 세부 선별은 차트·기업·테마·스크리너 화면에서 사용자가 하도록 안내하라.');
   return lines.join('\n');
 }

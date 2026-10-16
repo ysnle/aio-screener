@@ -87,8 +87,11 @@ export function detectContractions(bars, { lookback = 130, span = 3 } = {}) {
   const start = Math.max(0, bars.length - lookback);
   const recent = bars.slice(start);
   if (recent.length < 30) return { contractions: [], valid: false, pivot: null };
+  // v57.84 review: the base high is searched only up to the last confirmable swing (span bars before the end). Taking
+  // the newest bar made a new-high breakout erase its own base — no contractions, no pivot, state 'none'.
   let baseIndex = 0;
-  recent.forEach((bar, index) => { if (bar.high > recent[baseIndex].high) baseIndex = index; });
+  const baseLimit = Math.max(1, recent.length - span - 1);
+  recent.slice(0, baseLimit).forEach((bar, index) => { if (bar.high > recent[baseIndex].high) baseIndex = index; });
   const { highs, lows } = swings(recent, span);
   const contractions = [];
   let cursorHigh = baseIndex;
@@ -107,7 +110,7 @@ export function detectContractions(bars, { lookback = 130, span = 3 } = {}) {
   // The pattern is the latest run of successively shallower pullbacks (Minervini's 'T' count),
   // not the whole base: walk back from the last pullback while each earlier one was deeper.
   let startRun = all.length - 1;
-  while (startRun > 0 && all[startRun - 1].depth >= all[startRun].depth * 0.9) startRun--;
+  while (startRun > 0 && all[startRun - 1].depth > all[startRun].depth) startRun--; // v57.84: strictly shallower, as the comment says
   const meaningful = all.slice(Math.max(0, startRun));
   const valid = meaningful.length >= 2 && meaningful[meaningful.length - 1].depth <= 12 && meaningful[0].depth <= 40;
   const last = meaningful[meaningful.length - 1] || null;
@@ -261,13 +264,16 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   let state = 'none';
   const recent = bars.slice(-10);
   const pivot = vcp.pivot;
-  const brokeOut = pivot != null && recent.some((bar, i) => bar.close > pivot && (i === 0 ? bars[n - 10].close : recent[i - 1].close) <= pivot);
+  // v57.84 review: 'failed' needs a breakout that counted — a volume-confirmed close above the pivot — and every pivot
+  // state needs a valid contraction run; a pivot from an invalid pattern is only the latest swing high.
+  const heavyUpAbove = (i) => i > 0 && vol50[i] && volumes[i] >= 1.4 * vol50[i] && bars[i].close > pivot && bars[i].close > bars[i - 1].close;
+  const brokeOut = pivot != null && vcp.valid && Array.from({ length: 10 }, (_, k) => n - 9 + k).some((i) => i > 0 && heavyUpAbove(i) && bars[i - 1].close <= pivot * 1.05);
   if (sma200[n] != null && (last.close < sma200[n] || (sma50[n] < sma200[n] && last.close < sma50[n]))) state = 'downtrend';
   else if (pivot != null && brokeOut && last.close < pivot) state = 'failed';
   // P1428 (Codex review): the heavy-volume day must itself close up and above the pivot — a heavy sell-off
   // below the pivot two days earlier is not breakout volume.
-  else if (pivot != null && last.close > pivot && last.close <= pivot * 1.05 && [n - 2, n - 1, n].some((i) => i > 0 && vol50[i] && volumes[i] >= 1.4 * vol50[i] && bars[i].close > pivot && bars[i].close > bars[i - 1].close)) state = 'breakout';
-  else if (pivot != null && last.close > pivot * 1.05) state = 'extended';
+  else if (vcp.valid && pivot != null && last.close > pivot && last.close <= pivot * 1.05 && [n - 2, n - 1, n].some(heavyUpAbove)) state = 'breakout';
+  else if (vcp.valid && pivot != null && last.close > pivot * 1.05) state = 'extended';
   else if (vcp.valid && pivot != null && last.close >= pivot * 0.92 && last.close <= pivot) state = 'setup';
   // P1639 (owner materials 2026-10-12): how far price has run from the 50-day line in units of its own
   // daily range (ATR 14), where it sits above the 52-week low, and the 5/20-day EMA order used to judge
@@ -360,7 +366,9 @@ export function chartReading(analysis, regime = null) {
     downtrend: '하락 추세(200일선 아래) 구간이라 VCP 셋업 조건이 성립하지 않습니다',
     // Codex browser audit H33: "상승 추세 · 템플릿 8/8 · 셋업 없음" read as a contradiction. Trend and setup answer
     // different questions; the sentence says which condition is missing and that no setup is not a negative.
-    none: analysis.templatePass >= 6
+    // v57.84: a valid contraction run with price more than 8% under the pivot is not 'no contraction'.
+    none: analysis.vcp?.valid && analysis.pivot ? `변동성 수축은 확인되지만 가격이 피벗보다 ${((1 - analysis.last.close / analysis.pivot) * 100).toFixed(1)}% 아래라 아직 셋업 자리는 아닙니다`
+      : analysis.templatePass >= 6
       ? `장기 추세는 상승(${TEMPLATE_LABEL} ${analysis.templatePass}/8)이지만, 최근 변동성이 차례로 줄어드는 수축${analysis.dryUp != null && analysis.dryUp >= 0.8 ? '과 거래량 감소' : ''}가 확인되지 않아 VCP 셋업은 성립하지 않습니다 — 셋업이 없다는 것이 악재라는 뜻은 아닙니다${vcp ? ` (${vcp})` : ''}`
       : `뚜렷한 셋업은 없습니다${vcp ? ` (${vcp})` : ''}`
   }[analysis.state];

@@ -1,10 +1,289 @@
 ---
-last_verified: 2026-10-15
+last_verified: 2026-10-16
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1870 - v57.84 - AI 요청 분류가 방어 교육과 단순 공시 언급을 차단·법률 모드로 보냄 (2026-10-16)
+
+- symptom/reproduction: 금지 주제(선행매매·시세조종 등)가 들어간 질문은 '하세요'·'방법'만 있으면 "선행매매 탐지 방법"·"왜 불법인지 설명하세요" 같은 방어 교육도 차단됐다. "SEC 공시 보고 매수할까"처럼 SEC를 언급만 한 종목 질문은 법률·세무 모드로 갔다. 첫 완화 시도는 반대로 "실행 단계도 알려줘"와 "SEC tax compliance 아래 무엇을 살까"를 놓쳤다(계약 사례 2개 실패).
+- root_cause: 실행 판정이 일반 어미('하세요')와 '방법'에 걸렸고, 관할 판정은 SEC·규제라는 단어만으로 켜졌다.
+- fix: 금지 주제는 방어 질문(탐지·적발·예방·왜 불법인지)이 아니고, 실행 표현(조작하·우회·숨기·활용 방법·실행 단계·단계별·step by step)이 있거나 교육 표현 없이 실행형일 때만 차단한다. 법률·세무 모드는 실제 법률 판단 질문이거나, 매매·개인 질문에 세금·세법·양도세·compliance·legal 같은 법률 실체어가 있을 때만 쓴다. 소유자 승인 후 적용.
+- violated_rule: 번호 규칙 없음 — 안전 게이트 오탐·미탐.
+- prevention: ci-ai-intelligence-contract-check.mjs 방어 교육 2건·공시 언급 1건·단계별 실행 1건 사례 P1870, browser-unit G103 T989/T990.
+- verification/residual: ci-ai-intelligence-contract-check 30 사례 통과, browser-unit 통과.
+
+## P1868 - v57.84 - 브리핑 문장 규칙과 종합 라벨이 비대칭 (2026-10-16)
+
+- symptom/reproduction: "금리 하락·주가 하락" 문장이 S&P가 거의 그대로여도 붙었고, "지수 방어"는 당일 하락에도 나왔다. 공포 구간에서 신용이 중립이어도 "신용으로 번지지 않았습니다"라고 단정했다. 종합 라벨은 부담 쪽과 양호 쪽 기준이 달랐다. 분배일·변동성 비율·일일 비교 임계값이 화면마다 따로 적혀 있었다.
+- root_cause: 문장 조건에 크기 하한이 없었고, 라벨 표를 부담 쪽만 다듬었다. 임계값 복제.
+- fix: 주가 5일 -1% 이하·0% 이상, 당일 상승 같은 크기 조건을 추가했다. 번지지 않았다는 문장은 신용 상태가 유리할 때만 쓴다. 라벨은 부담 우세/다소 부담/혼조/다소 양호/양호 우세를 대칭으로 정의했다. page-flow·sentiment-board·daily-diff가 RULES 상수를 쓰고, 일일 비교 머리말에 신용 축 미포함을 적었다.
+- violated_rule: R713(같은 검토에서 만든 판정 정의 규칙).
+- prevention: review-integrity 라벨 fixture, esm-core P1868.
+- verification/residual: core·knowledge 그룹 통과.
+
+## P1867 - v57.84 - 스크리너 프리셋이 같은 종합 순위를 네 번 거른 것에 불과 (2026-10-16)
+
+- symptom/reproduction: 모멘텀 지속 274개가 모두 균형 결과 안에 있었고, 저변동·퀄리티 기준은 거의 전부를 통과시켰다. 돌파 관찰은 VCP 점수만 봐서 실제 돌파·피벗 근처가 아닌 종목을 골랐다. 정확한 티커 검색(예: ai)이 같은 별칭의 테마 종목을 빼버렸다.
+- root_cause: 프리셋이 자기 신호로 정렬하지 않았고 기준이 분포를 가르지 못했다.
+- fix: 모멘텀은 3개월 수익률 순, 저변동 25% 이하, 퀄리티 ROE 15%·마진 10% 이상, 돌파 관찰은 vcpStage 돌파/피벗 근처 + 거래량 1.4배 이상. 정확 티커는 별칭 그룹과 합친다.
+- violated_rule: 번호 규칙 없음.
+- prevention: ci-screener-workbench-contract 프리셋 행(통과·탈락·불가) P1867.
+- verification/residual: ci-screener-workbench-contract 통과.
+
+## P1866 - v57.84 - AI 답변 행동 게이트가 일반 문장을 매매 지시로 오인 (2026-10-16)
+
+- symptom/reproduction: 답변 행동 게이트가 '정리'를 매매 행동으로 읽어 "근거를 정리하세요" 같은 문장을 바꿨고, 격언 인용("…라는 것은 원칙")을 직접 지시로 봤다.
+- root_cause: 행동 단어 목록이 너무 넓었다.
+- fix: 행동 목록을 포지션 정리·신규 진입 등 실제 매매 표현으로 좁히고 인용 구문을 간접 표현으로 분류했다. "포지션 정리하세요"는 계속 바뀐다.
+- violated_rule: 번호 규칙 없음 — 안전 게이트 오탐.
+- prevention: js/aio-chat.js 행동 게이트 P1866.
+- verification/residual: node --check, browser-unit.
+
+## P1865 - v57.84 - 13F 스타일 분류와 지연 설명이 실제와 다름 (2026-10-16)
+
+- symptom/reproduction: 글로벌 롱 운용사가 멀티에셋으로 분류됐고, Tepper 스타일이 실제 운용과 다르게 적혔다. 13F 화면이 45일 지연과 "청산"의 뜻(분기 말 기준 미보유)을 설명하지 않았다.
+- root_cause: 스타일 프레임에 글로벌 롱 범주가 없었다.
+- fix: 'global-long' 프레임을 추가하고 Tepper를 '가치·전환·부실 신용'으로 고쳤다(카탈로그·포맷·검색 색인 동기). 13F 주석에 지연과 청산 의미를 넣었다.
+- violated_rule: 번호 규칙 없음.
+- prevention: masters 검사, knowledge-generated-parity P1865.
+- verification/residual: data·knowledge 그룹 통과.
+
+## P1864 - v57.84 - 포트폴리오가 선언된 환율 경로가 없으면 계산 거부 (2026-10-16)
+
+- symptom/reproduction: 해외 보유분에 환율 레그가 선언되지 않으면 앱이 가진 USD/KRW 종가가 있어도 평가를 거부했다. ETF 한 종목 집중을 개별주 집중과 같은 주의로 표시했고, 기준 통화와 같은 통화 쏠림도 주의로 띄웠다. 수익 통계 최소 표본이 너무 작았고, 한국 스트레스는 코스피 동조 가정을 밝히지 않았다.
+- root_cause: 보조 환율 원천을 쓰지 않았고, 상품 유형·기준 통화를 구분하지 않았다.
+- fix: 보유·원가 통화가 USD·KRW뿐이면 선언 레그가 없을 때 앱 종가(source app-close)로 환산하고 화면 주석에 "앱 USD/KRW 종가"라고 적는다. 선언 레그가 우선이고, 다른 통화(JPY 등)는 예전처럼 보류한다. ETF 집중은 설명 줄로 낮추고, 기준 통화 쏠림은 정보로 둔다. 최소 표본 41, 스트레스 가정을 기준 문구에 적었다. 머리말에 조정·반등 폭과 "지금 구성으로 계산하면"을 넣었다.
+- violated_rule: 번호 규칙 없음.
+- prevention: ci-esm-core-unit-check 앱 종가 대체·선언 우선·JPY 보류 사례, ci-portfolio-vault-e2e 보류 대조를 JPY로 이동 (P1864).
+- verification/residual: core 그룹 portfolio 사례 통과.
+
+## P1863 - v57.84 - 컨센서스 PER이 가격 날짜 없이도 계산되고 금융주 규칙이 누락 (2026-10-16)
+
+- symptom/reproduction: consensus-read가 가격 날짜가 없으면 날짜 검사를 건너뛰어(fail-open) 오래된 가격으로 Forward PER을 냈다. 동종 비교·기업 분석이 대출 금융사를 일반 기업처럼 마진으로 비교했고, 50일선 근처 경고가 1 ADR 이내 흔들림에도 떴다. 순이익 방향은 0 근처 잡음도 증감으로 읽었고 ROE 우수 기준이 화면마다 달랐다.
+- root_cause: 검증 실패 시 통과하는 분기, 금융주 판정 헬퍼 미사용, 평탄 구간 미적용.
+- fix: 가격 날짜가 없으면 null을 돌려준다. peer-read·company-analysis가 isLendingFinancial을 쓰고, 근접 경고는 1 ADR 밖에서만 낸다. 순이익은 ±FISCAL_FLAT_BAND 안을 보합으로, ROE 우수는 20% 이상으로 통일했다.
+- violated_rule: R709(검증할 수 없으면 계산하지 않는다).
+- prevention: esm-core lossView 날짜·무날짜 null 사례, data-pipeline factorSessionDate P1863.
+- verification/residual: esm-core·data-pipeline 통과.
+
+## P1862 - v57.84 - 종목·테마 판정이 화면마다 다른 정의를 사용 (2026-10-16)
+
+- symptom/reproduction: 종목 읽기의 RRG 사분면 문장이 테마 화면과 다른 뜻을 썼고, 최근 확인(rsRecentCheck)이 없으면 반대 신호로 취급했다. RSI 문장이 예측처럼 읽혔다. 테마 플레이북은 50일선 위 비율 하한을 단계마다 다르게 적어 같은 테마가 두 단계 조건을 동시에 만족했다.
+- root_cause: 같은 개념의 정의가 모듈마다 복제됐고, 결측을 반대 증거로 처리했다.
+- fix: 사분면 문장을 테마 화면 정의로 통일하고, 확인값이나 임계값이 없으면 판단 보류(null)로 둔다. RSI는 현재 상태 서술로 바꾸고 "유리한 대응" 접미사를 뺐다. 플레이북 하한을 ABOVE50_FLOOR=50 하나로 통일했다. 벤치마크가 어긋나면 5일 수익률도 비운다.
+- violated_rule: R709(결측은 판단 보류).
+- prevention: esm-core·data 그룹 P1862.
+- verification/residual: core·data 그룹 통과.
+
+## P1861 - v57.84 - 차트 돌파 상태가 사실상 도달 불가 (2026-10-16)
+
+- symptom/reproduction: 기준 고점을 최근 구간 전체에서 찾아 새 고점이 나오면 피벗이 현재가와 같아져 돌파·과열 상태가 나오지 않고 "없음"이 됐다. VCP 수축 연속은 같은 깊이도 수축으로 셌고, 돌파는 거래량 확인 없이도 기록됐다.
+- root_cause: 기준 고점 탐색 범위에 현재 수축 구간이 포함됐고, 돌파·과열이 유효한 VCP를 전제하지 않았다.
+- fix: 기준 고점은 현재 수축 구간 이전에서 찾는다. 수축은 엄격히 얕아질 때만 센다. 돌파·과열은 유효한 VCP와 최근 10봉 안의 거래량 확인 마감을 요구한다. 피벗보다 8% 넘게 아래인 유효 VCP는 그 사실을 문장으로 설명한다.
+- violated_rule: 번호 규칙 없음.
+- prevention: ci-chart-scenarios-fixture 합성 신고가 → extended P1861.
+- verification/residual: ci-chart-scenarios-fixture 통과.
+
+## P1860 - v57.84 - 시장 건강 점수가 SPY 가격을 S&P 지수 이동평균과 비교 (2026-10-16)
+
+- symptom/reproduction: health.js가 SPY ETF 가격(약 1/10 단위)을 ^GSPC 기준 이동평균과 비교해, 지수가 이동평균 위에 있어도 아래로 판정할 수 있었다.
+- root_cause: 가격과 이동평균의 출처 심볼이 달랐다.
+- fix: 가격도 ^GSPC에서 읽는다. 단위 테스트에 ^GSPC 시세를 넣었다.
+- violated_rule: R614(비교하는 두 값은 같은 단위·같은 원천).
+- prevention: ci-esm-core-unit-check.mjs health 사례 P1860.
+- verification/residual: esm-core 통과.
+
+## P1859 - v57.84 - 판정 이름이 그 이름을 정의하는 조건 없이 붙음 (2026-10-16)
+
+- symptom/reproduction: 시장 흐름 전망이 확장·집중·약세 중 충족 조건 수가 가장 많은 흐름을 선두로 골라, 확장인데 시장 폭이 불리하거나 약세인데 추세 부담이 없는 경우에도 그 이름을 붙였다. 인플레 축은 한 지표만 빨라져도 재가속 부담으로 셌고, 갈림길의 신용 경색 조건 1은 단기 변화만 봐서 스프레드가 낮은 수준이어도 충족됐다. 연착륙은 Sahm 경계 이상에서도 충족됐다.
+- root_cause: 판정이 이름을 정의하는 핵심 조건과 보조 조건을 구분하지 않고 개수만 셌다. 일부 임계값은 RULES 상수가 아니라 화면마다 손으로 적힌 숫자였다.
+- fix: 흐름마다 정의 조건(확장=시장 폭 유리, 집중=시장 폭 부담, 약세=추세 부담)을 두고, 정의 조건을 갖춘 흐름 중에서만 선두를 고른다. 없으면 선두 없음. 재가속은 방향이 위일 때만, 신용 경색은 HY 350bp 이상 또는 금융여건지수 0 초과일 때만, 연착륙은 Sahm 경계 미만일 때만 충족한다. 이미 가격에 반영되는 시나리오에 pricingInConditions를 표시하고, 조건 충족 수는 가능성이 아니라 개수라고 AI 규칙에 적었다.
+- violated_rule: 번호 규칙 없음 — 새 규칙 R713.
+- prevention: ci-scenario-guidance-fixture.mjs 혼합 인플레 사례 P1859, scenario-outlook 정의 조건 게이트.
+- verification/residual: ci-scenario-guidance-fixture, esm-core 통과.
+
+## P1858 - v57.84 - 분해·텍스트 핀 게이트를 서식 변경으로 통과 가능 (2026-10-16)
+
+- symptom/reproduction: v57.83에서 레거시 js/ 증가 게이트(줄 수)를 선언을 한 줄로 합쳐 통과했다. text-pin-ok 표시는 개수 제한이 없었고, --write는 핀 증가도 그대로 기록했다.
+- root_cause: 측정값(줄 수)이 서식에 반응하고, 예외 표시와 기준선 갱신이 스스로 승인하는 통로였다.
+- fix: 분해 게이트에 공백 제외 문자 수 래칫(여유 400자, --write는 축소만 기록)을 더했다. text-pin-ok 줄 수도 동결하고, --write는 --allow-growth 없이 증가를 기록하지 않는다.
+- violated_rule: R620 분해 래칫, v57.54 텍스트 핀 래칫.
+- prevention: ci-decomp-hotspot-check.mjs, ci-text-pin-ratchet-check.mjs P1858.
+- verification/residual: 두 게이트 통과, 기준선 기록.
+
+## P1857 - v57.84 - AI 403 'forbidden' 응답을 지역 차단으로 오분류 (2026-10-16)
+
+- symptom/reproduction: Worker가 Origin forbidden 같은 403을 주면 normalizeAiError가 'regional_forbidden'(지역 차단, 재시도 가능)으로 분류해 사용자에게 지역 문제라고 안내했다.
+- root_cause: 지역 판정 정규식에 'forbidden'·'hkg'가 들어 있었고, 출처·토큰 오류 분기보다 먼저 평가됐다.
+- fix: 지역 판정은 region·location·country·territory 서명이 있고 origin·token·auth가 없을 때만 한다. R292의 자동 재시도 처방은 P1421 단일 시도 이후 역사 기록으로 표시하고, 배치(Smart Placement)를 운영자 해법으로 적었다.
+- violated_rule: R292(분류는 공급자 자신의 오류 서명으로만).
+- prevention: js/aio-tests.js Group92에 'Origin forbidden'·'Forbidden' 사례 추가 P1857.
+- verification/residual: node --check, browser-unit Group92.
+
+## P1856 - v57.84 - 의미 검토 게이트가 얕은 테스트를 지키고 인증을 원천 차단 (2026-10-16)
+
+- symptom/reproduction: ci-semantic-review-check.mjs가 "모양만 보는 감사 assertion 50개 이상"을 요구해, 백로그라고 부르는 얕은 테스트를 지우면 CI가 실패했다. releaseCertified === false도 필수여서 인증은 구조적으로 불가능했다.
+- root_cause: 보고용 재고 수치를 하한선으로 강제했고, fail-closed를 "영원히 false"로 구현했다.
+- fix: 재고는 보고만 하고, 하한은 측정 가능 여부(assertion 1개 이상)로 낮췄다. releaseCertified true는 certifiedAt·certifiedBy·실재하는 증거 경로·현재 라인 100% 검토가 있을 때만 허용한다.
+- violated_rule: 번호 규칙 없음 — 게이트가 개선을 실패로 만드는 역유인(Goodhart).
+- prevention: ci-semantic-review-check.mjs P1856 certificationValid.
+- verification/residual: node scripts/ci-semantic-review-check.mjs 통과(현재 6.89%, 미인증).
+
+## P1855 - v57.84 - 원장 파서가 규칙 60개를 없는 번호로 동결 (2026-10-16)
+
+- symptom/reproduction: rule-gap-manifest.json이 R1–R53·R172–R178을 포함한 65개를 "없는 번호"로 동결했다. 실제로 본문이 없는 번호는 R111·R113·R136·R137·R171 다섯 개뿐이었다. 같은 번호가 두 규칙을 가리키는 경우(R230 2개, R301 2개)도 있었다.
+- root_cause: ci-ledger-integrity-check.mjs가 `## R<n>.`만 읽고 `### R<n>.`(옛 형식)과 범위 섹션의 인라인 `**R<n> —` 본문을 무시했다. 중복 번호 검사도 없었다.
+- fix: 세 가지 헤딩 형태를 모두 읽고 중복 번호를 실패로 처리한다. 나중에 생긴 중복 규칙은 재번호했다(R230 partial-data → R709, R301 boot path → R710). 매니페스트를 실제 공백 5개로 재생성했다.
+- violated_rule: R618 원장 루프(게이트가 원장의 실제 구조를 읽어야 한다).
+- prevention: ci-ledger-integrity-check.mjs P1855 중복 번호 검사 + 3형태 파서.
+- verification/residual: node scripts/ci-ledger-integrity-check.mjs: gaps 5, 중복 0.
+
+## P1854 - v57.83 - 주도주 약세를 유지로 표시 (2026-10-16)
+
+- symptom/reproduction: 2026-07-28 나스닥 100이 1년 고점 대비 -9.5%·50일선 -5.8%였는데 주도 영역이 "유지"로 판정돼 AI 지시문에 "주도 영역 이탈: 아니오"가 들어갔다. 8/6에는 50일선 -0.0%의 반등 주간에 이탈로 판정됐다.
+- root_cause: 주도주 약세지만 하루 단위 확인 조건이 안 맞으면 holding으로 떨어졌고, 50일선 이탈에 여유 구간이 없었다.
+- fix: 확인 조건 없이 약하면 weak(주도주 약세 · 확산 미확인) 상태로 두고 시나리오·AI 지시문·주장 검증기가 유지로 취급하지 않는다. 엇갈리는 신호에 주도주 약세 문장을 넣고, 50일선 이탈은 1% 여유를 넘어야 한다.
+- violated_rule: R707 여유 구간·이름 붙은 창, R706 근거 없는 주도 주장 금지.
+- prevention: ci-scenario-guidance-fixture.mjs P1854 weak 상태·여유 구간, ci-crash-replay-check.mjs 2026-07 실제 구간.
+- verification/residual: 재생 검사와 픽스처 통과. 확인 조건의 하루 단위 깜빡임(이탈↔약세)은 남음.
+
+## P1853 - v57.83 - 매매 점수 추세 항목 여유 구간·200일선 아래 상한 (2026-10-16)
+
+- symptom/reproduction: 50일선 위 0.15%를 "위"로 채점했고, 200일선 아래 약세장 반등(2022-07/08)이 50일선 +2% 위라는 이유로 추세 최고점 82를 받았다. 같은 날 시장 상태 추세 축은 부담이었다.
+- root_cause: 점수 추세 밴드가 시장 상태 축의 1% 여유와 200일선 조건을 따르지 않았다.
+- fix: 50일선 ±1%는 59, 위·아래 판정은 여유를 넘어야 하며, 200일선 아래에서는 32/15 밴드만 쓴다. 모델 trading-score.v5, 골든 픽스처 재생성.
+- violated_rule: R707 판정 여유 구간과 화면 간 일관성.
+- prevention: ci-crash-replay-check.mjs가 P1853 200일선 아래 추세 점수 32 이하를 모든 재생일에 검사, R708.
+- verification/residual: 재생 검사·도메인 패리티·ESM 단위 검사 통과.
+
+## P1852 - v57.83 - 운영 도착률 분모 소급·Worker dispatch 제외 (2026-10-16)
+
+- symptom/reproduction: SLO 도착률이 오늘 cron을 30일 전체에 소급했고, 설계된 Worker 스케줄러 dispatch를 수동 실행으로 빼 DEGRADED가 됐다.
+- root_cause: 기대 실행 수가 현재 workflow 파일 하나에서만 나왔고 dispatch 출처를 구분하지 않았다.
+- fix: workflow 커밋 이력으로 구간별 기대 수를 더하고, run-name의 scheduler 표시로 자동 dispatch를 전달률에 포함한다. 측정 대상이 workflow 실행임을 명시한다.
+- violated_rule: R701 PASS와 운영 건강의 구분.
+- prevention: ci-operations-slo-window-check.mjs P1852.
+- verification/residual: 단위 검사 통과. 다음 watchdog 실행에서 실제 값 확인.
+
+## P1851 - v57.83 - 홈 내 종목 8개 이후·빈 일정 구분 (2026-10-16)
+
+- symptom/reproduction: 홈은 내 종목 8개만 보여 나머지의 존재를 알리지 않았고, 일정 미수신과 실제 0건이 같은 빈 문장이었다.
+- root_cause: daily-loop가 초과 개수와 수신 상태를 몰랐다.
+- fix: 8개 초과 시 "전체 N개 중 8개 표시 · 나머지는 스크리너의 내 워치리스트에서" 버튼을 두고, 거시 일정 미수신·실적 로딩 중·실제 없음을 나눴다.
+- violated_rule: 번호 규칙 없음 — 빈 상태가 원인(미수신·로딩·0건)을 구분.
+- prevention: ci-esm-core-unit-check.mjs P1851.
+- verification/residual: 단위 검사 통과. 버튼 이동은 브라우저 확인 항목.
+
+## P1850 - v57.83 - 전일 종가 보정 경고 반복 (2026-10-16)
+
+- symptom/reproduction: 같은 종목·기준의 전일 종가 보정 경고가 갱신마다 반복 기록됐다.
+- root_cause: 경고에 중복 제거 키가 없었다.
+- fix: 종목·기준·공급자 값으로 한 번만 경고한다.
+- violated_rule: R701 경고 신호의 신뢰성.
+- prevention: 코드 검토. 별도 게이트 없음.
+- verification/residual: 정적 확인.
+
+## P1849 - v57.83 - Workers AI 번역 한도·중단 제어 없음 (2026-10-16)
+
+- symptom/reproduction: /workers-ai/translate가 분당 한도와 AI 중단 스위치를 따르지 않았다.
+- root_cause: 번역 경로가 다른 AI 경로의 kill switch·rate limit 래퍼 밖에 있었다.
+- fix: AI_KILL_SWITCH=1이면 503, RATE_LIMIT_WORKERS_AI 분당 30회 초과 시 429를 반환하고 README에 경로를 적었다.
+- violated_rule: 번호 규칙 없음 — 유료·한도 경로의 비용 경계.
+- prevention: ci-worker-relay-check.mjs P1849 kill switch·429.
+- verification/residual: 릴레이 검사 통과. Worker 배포는 미실행.
+
+## P1848 - v57.83 - 근거 팝업 신선도와 발행 주기 불일치 (2026-10-16)
+
+- symptom/reproduction: 근거 팝업이 월간·분기·연간 자료를 일간 기준으로 오래됨 판정했고, 산업 지식 currentness artifact가 런타임 정책과 달랐다. 컨센서스 추정 비교에 오래된 종가가 쓰일 수 있었다.
+- root_cause: basisAge가 발행 주기를 몰랐고 artifact는 7일 고정 정책을 들고 있었다. 컨센서스는 추정일만 검사하고 가격일은 검사하지 않았다.
+- fix: basisAge가 cadence(월 75·분기 135·연 456일)와 data-freshness-state를 따르고 미선언 시 판정을 보류한다. artifact는 런타임 판정으로 위임하고, 10일 넘은 종가는 컨센서스 비교에서 뺀다.
+- violated_rule: R707 판정 창 명시.
+- prevention: ci-scenario-guidance-fixture.mjs·ci-atlas-contract-check.mjs·ci-esm-core-unit-check.mjs P1848.
+- verification/residual: 단위 검사 통과.
+
+## P1847 - v57.83 - 브리핑 원시 evidence ID 노출 재발 (2026-10-16)
+
+- symptom/reproduction: AI 브리핑 본문에 evidence id·해시·헤드라인 인용이 그대로 보였다.
+- root_cause: 이전 수정이 단일 id 형식만 지웠고 쉼표 목록·해시 형식이 새로 생겼다.
+- fix: _aioStripEvidenceIds가 쉼표 목록·단일 id·해시·헤드라인 인용을 지우고 분석 출력이 이를 거친다.
+- violated_rule: 번호 규칙 없음 — 내부 식별자를 읽는 사람에게 노출하지 않음.
+- prevention: ci-codex-structure-regression-fixture.mjs가 P1847 실제 정리 함수를 실행.
+- verification/residual: 픽스처 통과.
+
+## P1846 - v57.83 - 표본 없는 정성 확률 문장 (2026-10-16)
+
+- symptom/reproduction: 시장 흐름·한국 화면에 "가능성이 큽니다" 같은 표본 없는 확률 표현이 남았다.
+- root_cause: 이전 정리에서 일부 생성 경로(scenario-outlook, market-read, aio-kr-data)가 빠졌다.
+- fix: 해당 문장을 확인할 조건 중심 문장으로 바꿨다.
+- violated_rule: R706 근거 없는 확률 표현 금지.
+- prevention: ci-scenario-guidance-fixture.mjs P1846 시장 문구 스캔.
+- verification/residual: 정적 스캔 통과.
+
+## P1845 - v57.83 - 미국 보유 하락 비율 분모 (2026-10-16)
+
+- symptom/reproduction: "미국 보유 중 하락" 비율이 한·미 전체 평가액을 분모로 썼다.
+- root_cause: portfolio-read가 시장별 분모를 나누지 않았다.
+- fix: 미국 보유의 추세 판정 대상 평가액을 분모로 쓴다.
+- violated_rule: 번호 규칙 없음 — 비율의 분모는 그 비율이 말하는 집합.
+- prevention: ci-review-integrity-unit-check.mjs P1845.
+- verification/residual: 단위 검사 통과.
+
+## P1844 - v57.83 - 발표된 지표를 다음 발표로 안내 (2026-10-16)
+
+- symptom/reproduction: 발표 시각이 지난 날에도 같은 지표를 "다음 발표"로 보였다.
+- root_cause: 일정 비교가 날짜만 보고 발표 시각을 몰랐다.
+- fix: RELEASE_CLOCKS와 releaseAtMs로 발표 시각을 계산해 legacy·native 일정과 지표 카드가 시각 기준으로 다음 발표를 고른다.
+- violated_rule: R707 판정 기준 시각 명시.
+- prevention: ci-scenario-guidance-fixture.mjs P1844 발표 시각 전후.
+- verification/residual: 단위 검사 통과.
+
+## P1843 - v57.83 - 신용 부담 원인 오설명 (2026-10-16)
+
+- symptom/reproduction: 거시 화면이 20거래일 확대 기록 때문에 부담인 HY를 수준 부담처럼 설명했다.
+- root_cause: 거시 체인이 시장 상태의 원인(수준·5일·20일 기록)을 받지 않고 수준만 보여 줬다.
+- fix: creditCause를 공유해 원인이 20일 확대이면 20거래일 변화 게이지와 "수준은 부담 구간이 아니지만 20거래일 +Nbp 확대가 지난 1년 중 가장 큰 폭" 문장을 쓴다.
+- violated_rule: R707 판정 근거와 문장의 일치.
+- prevention: ci-scenario-guidance-fixture.mjs P1843 원인별 문장.
+- verification/residual: 단위 검사 통과.
+
+## P1842 - v57.83 - 겹치는 표본의 표준오차와 작은 표본 표기 (2026-10-16)
+
+- symptom/reproduction: 시장 온도의 63거래일 결과는 시작일이 겹치는데 독립 표본처럼 평균·표준오차를 보였고, 10~29사례 빈도에 작은 표본 주석이 없었다.
+- root_cause: 구간 시작일을 21거래일 간격으로만 묶어 h보다 가까운 시작이 남았다. frequencyText가 n 구간별 표기를 몰랐다.
+- fix: 각 기간마다 직전 채택 시작에서 h거래일 이상 떨어진 시작만 쓴다(nonOverlapping). 10개 미만은 횟수만, 10~29개는 작은 표본 주석을 붙인다.
+- violated_rule: R706 겹치지 않는 사례와 표본 크기 표기.
+- prevention: ci-esm-core-unit-check.mjs·ci-scenario-guidance-fixture.mjs가 n 9/10/29/30 경계와 비중첩을 검사.
+- verification/residual: 단위 검사 통과.
+
+## P1841 - v57.83 - MWR 기간 초 첫날 입금 누락 (2026-10-16)
+
+- symptom/reproduction: 기간 첫날 입금이 MWR 원금에서 빠져 수익률이 부풀었다.
+- root_cause: MWR 현금흐름 창이 TWR과 다른 경계(> first)를 썼다.
+- fix: 기간 초 기준은 date >= first && date < last, 기간 말 기준은 date > first && date <= last로 TWR과 같은 창을 쓴다.
+- violated_rule: 번호 규칙 없음 — 같은 기간의 두 수익률은 같은 현금흐름 창.
+- prevention: ci-esm-core-unit-check.mjs P1841 첫날 입금 사례.
+- verification/residual: 단위 검사 통과.
+
+## P1840 - v57.83 - AI 대화 기록 삭제·용량 초과·고지 불일치 (2026-10-16)
+
+- symptom/reproduction: 마지막 대화를 지워도 저장소에 남았고, 긴 대화가 용량을 넘으면 최신 턴이 조용히 사라졌다. 동의 문구는 PIN 암호화·보관 기간·AI 전송을 설명하지 않았고 답변 완료가 보조기기에 알려지지 않았다.
+- root_cause: 빈 목록 저장 시 키를 지우지 않았고 pruneSessions가 맞지 않는 대화를 통째로 버렸다. 고지 문구와 getChatHistoryPolicy가 원문 보관 키를 몰랐다.
+- fix: 빈 목록은 키를 삭제하고, 맞지 않는 대화는 최신 턴부터 남기며, 용량 실패 시 가장 오래된 턴을 줄이고 실패를 role=status로 알린다. 동의·목록 문구에 이 브라우저 저장·PIN 암호화 대상 아님·삭제 전까지 보관·이어가기 시 최근 턴 전송을 적고, 정책 객체와 기록 끄기·지우기가 원문 키를 함께 다룬다. 답변 완료를 aria-live 영역으로 알린다.
+- violated_rule: 번호 규칙 없음 — 저장·전송 고지의 정확성, WCAG 4.1.3 상태 메시지.
+- prevention: ci-ai-intelligence-contract-check.mjs에 P1840 삭제·최신 턴 보존·실패 고지·문구·aria-live 검사.
+- verification/residual: 재현 스크립트에서 삭제 후 0건, 마지막 턴 보존 확인. 스크린리더 실제 낭독은 미검증.
+
+## P1839 - v57.83 - DOMPurify 3.0.9 알려진 취약점 (2026-10-16)
+
+- symptom/reproduction: AI 답변·뉴스 HTML을 정리하는 DOMPurify가 공개 권고(GHSA-gx9m-whjm-85jf) 대상인 3.0.9였다.
+- root_cause: CDN 고정 버전과 SRI가 2024년 값에 머물렀고 의존성 권고를 확인하는 단계가 없었다.
+- fix: index.html의 preload·script를 3.4.16과 새 SRI로 바꾸고 T912 정규식을 맞췄다.
+- violated_rule: 번호 규칙 없음 — 고정한 외부 의존성의 보안 권고 확인.
+- prevention: js/aio-tests.js T912가 고정 버전 문자열을 검사한다.
+- verification/residual: 정적 검사 통과. CDN 실제 로드는 브라우저 확인 항목으로 남김.
 
 ## P1838 - v57.82 - The first live US listing dropped NYSE Texas listings such as ET (2026-10-15)
 

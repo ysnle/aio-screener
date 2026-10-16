@@ -1,0 +1,138 @@
+{
+  "observedAt": "2026-10-16T01:05:05.890Z",
+  "purpose": "Read-only workspace checks during policy audit; not concurrent product release certification.",
+  "results": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "label": "generated-state",
+        "cmd": "node scripts/generate-workspace-state.mjs --check",
+        "chunk_id": "5501e0",
+        "wall_time_seconds": 4.4563269,
+        "exit_code": 0,
+        "original_token_count": 16,
+        "output": "Workspace state OK: v57.83, 19 routes, 76 context documents.\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "label": "workspace-contract",
+        "cmd": "node scripts/ci-workspace-contract-check.mjs",
+        "chunk_id": "96b84f",
+        "wall_time_seconds": 6.4763835,
+        "exit_code": 0,
+        "original_token_count": 23,
+        "output": "Workspace contract OK: v57.83, 76 context docs, 9 skills, 4 agent profiles, 13 workflows.\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "label": "knowledge-lint",
+        "cmd": "node scripts/ci-knowledge-lint-check.mjs",
+        "chunk_id": "2d979e",
+        "wall_time_seconds": 4.8506878,
+        "exit_code": 0,
+        "original_token_count": 184,
+        "output": "Knowledge lint warnings:\n - _context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md contains replacement-character encoding damage: historical evidence remains explicit-only until recovered from Git history\n - _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md contains replacement-character encoding damage: historical evidence remains explicit-only until recovered from Git history\n - _context/RESEARCH-INTEGRATION-AI-INFRA-MARKET-RISK-2026-08-22.md last_verified is 55d old: threshold=45d\n - _context/RESEARCH-INTEGRATION-SUPPLIED-MATERIALS-2026-08-29.md last_verified is 48d old: threshold=45d\nKnowledge lint OK: 76 context documents, 39 prescriptive surfaces, 4 warning(s). Mechanical PASS does not certify semantic truth.\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "label": "skill-contract",
+        "cmd": "node scripts/ci-skill-contract-check.mjs",
+        "chunk_id": "2c9a87",
+        "wall_time_seconds": 4.4407361,
+        "exit_code": 0,
+        "original_token_count": 15,
+        "output": "Skill contract check OK: 9 skill(s), 9 command wrapper(s).\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "label": "skill-fixture",
+        "cmd": "node scripts/ci-skill-eval-fixture-check.mjs",
+        "chunk_id": "cdb931",
+        "wall_time_seconds": 4.3045993,
+        "exit_code": 0,
+        "original_token_count": 25,
+        "output": "Skill eval fixtures OK: 9 skills, 27 cases; behavioral execution remains a separate evidence level.\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "label": "ledger-integrity",
+        "cmd": "node scripts/ci-ledger-integrity-check.mjs",
+        "chunk_id": "c8a347",
+        "wall_time_seconds": 4.3347927,
+        "exit_code": 0,
+        "original_token_count": 53,
+        "output": "[ledger-integrity] QA open items: 186 | without verify_by: 100 (baseline 100) | RULES R708, gaps 65\nLedger integrity OK: R gap set is frozen and every new open QA item must declare how it will be re-verified.\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "label": "assertion-trace",
+        "cmd": "node scripts/ci-assertion-trace-check.mjs",
+        "chunk_id": "7d9e0f",
+        "wall_time_seconds": 4.4447105,
+        "exit_code": 0,
+        "original_token_count": 25,
+        "output": "Assertion trace OK: 3305 labelled assertions, 1058 grandfathered (baseline 1109), 0 new untraced.\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "label": "profiles-sync",
+        "cmd": "node scripts/sync-agent-profiles.mjs --check",
+        "chunk_id": "f107e8",
+        "wall_time_seconds": 4.2486571,
+        "exit_code": 0,
+        "original_token_count": 17,
+        "output": "Agent profiles verified: 4 profile(s), Claude and Codex surfaces.\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "label": "skills-sync",
+        "cmd": "node scripts/sync-agent-skills.mjs --check",
+        "chunk_id": "7c697e",
+        "wall_time_seconds": 4.2738544,
+        "exit_code": 0,
+        "original_token_count": 12,
+        "output": "Agent skill mirror OK: 53 file(s) synchronized.\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "label": "workflow-compaction",
+        "cmd": "node scripts/ci-workflow-compaction-check.mjs",
+        "chunk_id": "c2cd3b",
+        "wall_time_seconds": 4.3593636,
+        "exit_code": 0,
+        "original_token_count": 163,
+        "output": "Workflow compaction check OK: v57.83.\nDefault preflight: 16054 bytes (limit 65536).\nLargest context files:\n - BUG-POSTMORTEM.md: 10375 lines, 2030777 bytes\n - RULES.md: 3563 lines, 473512 bytes\n - QA-CHECKLIST.md: 2470 lines, 440383 bytes\n - KNOWLEDGE-BASE.md: 1434 lines, 187530 bytes\n - ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md: 835 lines, 136748 bytes\nSkill compaction candidates:\nGoverned large context files:\n - BUG-POSTMORTEM.md: 10375 lines, 2030777 bytes, routed=true\n - RULES.md: 3563 lines, 473512 bytes, routed=true\n - QA-CHECKLIST.md: 2470 lines, 440383 bytes, routed=true\n - KNOWLEDGE-BASE.md: 1434 lines, 187530 bytes, routed=true\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "label": "diff-check",
+        "cmd": "git diff --check",
+        "chunk_id": "e05211",
+        "wall_time_seconds": 4.6326842,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    }
+  ]
+}

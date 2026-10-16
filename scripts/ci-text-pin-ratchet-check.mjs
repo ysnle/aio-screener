@@ -58,6 +58,17 @@ export function compareToBaseline(counts, baseline) {
   return failures;
 }
 
+// v57.84: the `text-pin-ok` escape was itself unbounded — marking a line was a free way past the ratchet. The number
+// of marked lines is frozen too, and --write no longer records growth unless --allow-growth says so on purpose.
+function countExemptions() {
+  let n = 0;
+  for (const name of readdirSync(join(root, 'scripts')).filter((f) => /^ci-.*\.mjs$/.test(f))) {
+    if (name === 'ci-text-pin-ratchet-check.mjs') continue;
+    n += (readFileSync(join(root, 'scripts', name), 'utf8').match(/text-pin-ok:/g) || []).length;
+  }
+  return n;
+}
+
 function measure() {
   const counts = {};
   for (const name of readdirSync(join(root, 'scripts')).filter((n) => /^ci-.*\.mjs$/.test(n)).sort()) {
@@ -92,6 +103,18 @@ if (isMain) {
   }
   const counts = measure();
   const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
+  const exemptLines = countExemptions();
+  const prior = existsSync(join(root, BASELINE_PATH)) ? JSON.parse(readFileSync(join(root, BASELINE_PATH), 'utf8')) : null;
+  const exemptAllowed = Number.isFinite(prior?.exemptLines) ? prior.exemptLines : null;
+  if (write && prior && !process.argv.includes('--allow-growth')) {
+    const growth = compareToBaseline(counts, prior.counts || {});
+    if (exemptAllowed != null && exemptLines > exemptAllowed) growth.push(`text-pin-ok lines grew ${exemptAllowed} → ${exemptLines}`);
+    if (growth.length) {
+      for (const g of growth) console.error(`REFUSED ${g}`);
+      console.error('Refusing to record growth; --write records shrinks only (use --allow-growth for a justified raise).');
+      process.exit(1);
+    }
+  }
   if (write) {
     writeFileSync(join(root, BASELINE_PATH), `${JSON.stringify({
       schemaVersion: 'aio-text-pin-baseline.v1',
@@ -99,6 +122,7 @@ if (isMain) {
       note: 'Per-gate count of product-source text pins. Shrink only; never raise a count or add a file.',
       files: Object.keys(counts).length,
       totalPins: total,
+      exemptLines,
       counts,
     }, null, 2)}\n`);
     console.log(`Text-pin baseline written: ${Object.keys(counts).length} files, ${total} pins.`);
@@ -107,8 +131,10 @@ if (isMain) {
       console.error(`FAIL ${BASELINE_PATH} missing — run with --write once.`);
       process.exit(1);
     }
-    const baseline = JSON.parse(readFileSync(join(root, BASELINE_PATH), 'utf8')).counts || {};
+    const baseline = prior.counts || {};
     const failures = compareToBaseline(counts, baseline);
+    if (exemptAllowed == null) failures.push(`${BASELINE_PATH} has no exemptLines record — run with --write`);
+    else if (exemptLines > exemptAllowed) failures.push(`text-pin-ok lines grew ${exemptAllowed} → ${exemptLines} — the escape is frozen like the pins`);
     const shrunk = Object.entries(baseline).filter(([file, n]) => (counts[file] || 0) < n).length;
     if (failures.length) {
       for (const failure of failures) console.error(`FAIL ${failure}`);

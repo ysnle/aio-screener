@@ -59,7 +59,9 @@ export const RULES = Object.freeze({
   growth: Object.freeze({ sahmRecessionAt: 0.5, sahmWatchAt: 0.3, payrollSolidK: 100, payrollSlowdownK: 25 }),
   // FOMC longer-run goal: 2% PCE inflation; core PCE 3% a clear miss; a 3-month pace 0.5pp above the year re-accelerating.
   inflation: Object.freeze({ targetPct: 2, nearTargetPct: 2.5, missPct: 3, reaccelPp: 0.5 }),
-  // 2-year yield vs the policy midpoint: ±0.25pp is one 25bp move priced; the FOMC longer-run 3.0% less 2% ≈ 1% neutral real rate.
+  // 2-year yield vs the policy midpoint: ±0.25pp is a heuristic band of one 25bp step. The 2-year also carries a term premium
+  // and averages two years of expected policy, so it is a direction proxy, not a fed-funds-futures count of priced moves
+  // (v57.84 review). FOMC longer-run 3.0% less 2% ≈ 1% neutral real rate.
   policy: Object.freeze({ pricedMovePp: 0.25, neutralRealPct: 1, restrictiveRealPct: 2 }),
   // CNN Fear & Greed integer bands: extreme fear 0-24, fear 25-44, neutral 45-55, greed 56-75, extreme greed 76-100
   // (as reproduced from CNN Business by https://www.nerdwallet.com/article/investing/what-is-the-fear-and-greed-index;

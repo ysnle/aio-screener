@@ -31,27 +31,46 @@ function titleOf(question) {
   return text.length > 40 ? `${text.slice(0, 39)}…` : text || '새 대화';
 }
 
-/** Keep the newest sessions within count and size limits. */
+const turnChars = (t) => t.q.length + t.a.length;
+
+/** Keep the newest sessions within count and size limits. A conversation that does not fit whole keeps its newest
+ *  turns (the reader's latest question must never be the part that is dropped — codex audit F03, 2026-10-15). */
 export function pruneSessions(sessions) {
   const sorted = [...sessions].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, LIMITS.sessions);
-  let total = 0;
-  return sorted.filter((session) => { total += session.turns.reduce((sum, t) => sum + t.q.length + t.a.length, 0); return total <= LIMITS.totalChars; });
+  let left = LIMITS.totalChars;
+  const out = [];
+  for (const session of sorted) {
+    if (left <= 0) break;
+    const size = session.turns.reduce((sum, t) => sum + turnChars(t), 0);
+    if (size <= left) { out.push(session); left -= size; continue; }
+    const turns = [];
+    for (const turn of [...session.turns].reverse()) { if (turnChars(turn) > left) break; turns.unshift(turn); left -= turnChars(turn); }
+    if (turns.length) out.push({ ...session, turns });
+    break; // anything older than a conversation that had to be cut does not fit either
+  }
+  return out;
 }
 
+/** Write the conversations; an empty list removes the key (deleting the last conversation must leave nothing behind —
+ *  codex audit F02). Returns false when nothing could be written, so the caller can tell the reader. */
 export function saveSessions(storage, sessions) {
   if (consentState(storage) !== 'granted') return false;
-  // A full store keeps the newest conversations: drop the oldest half and retry instead of failing silently.
   let kept = pruneSessions(sessions);
+  if (!kept.length) return safe(() => { storage.removeItem(SESSIONS_KEY); return true; }, false);
+  // A full store keeps the newest conversations: drop the oldest half and retry; the last one left halves its oldest turns.
   while (kept.length) {
     if (safe(() => { storage.setItem(SESSIONS_KEY, JSON.stringify(kept)); return true; }, false)) return true;
-    kept = kept.slice(0, Math.floor(kept.length / 2));
+    if (kept.length > 1) kept = kept.slice(0, Math.floor(kept.length / 2));
+    else if (kept[0].turns.length > 1) kept = [{ ...kept[0], turns: kept[0].turns.slice(Math.ceil(kept[0].turns.length / 2)) }];
+    else break;
   }
   return false;
 }
 
 export function newSessionId() { return `s${now().toString(36)}${Math.random().toString(36).slice(2, 7)}`; }
 
-/** Append one completed turn to the active conversation (creating it on the first turn). Returns the session. */
+/** Append one completed turn to the active conversation (creating it on the first turn). Returns the session;
+ *  session.saved is false when the browser store refused the write. */
 export function appendTurn(storage, { sessionId, ctx, question, answer, at = now() }) {
   const sessions = loadSessions(storage);
   let session = sessions.find((s) => s.id === sessionId);
@@ -59,11 +78,11 @@ export function appendTurn(storage, { sessionId, ctx, question, answer, at = now
   session.turns.push({ ctx: String(ctx || ''), q: String(question || '').slice(0, LIMITS.charsPerMessage), a: String(answer || '').slice(0, LIMITS.charsPerMessage), at });
   if (session.turns.length > LIMITS.turnsPerSession) session.turns = session.turns.slice(-LIMITS.turnsPerSession);
   session.updatedAt = at;
-  saveSessions(storage, sessions);
-  return session;
+  const saved = saveSessions(storage, sessions);
+  return Object.assign(session, { saved });
 }
 
-export function deleteSession(storage, id) { saveSessions(storage, loadSessions(storage).filter((s) => s.id !== id)); }
+export function deleteSession(storage, id) { return saveSessions(storage, loadSessions(storage).filter((s) => s.id !== id)); }
 
 /** The model context for a reopened conversation: the most recent turns within the panel's budget. */
 export function sessionMessages(session, { maxChars = 40000 } = {}) {

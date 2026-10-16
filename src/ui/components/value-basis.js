@@ -13,28 +13,45 @@ const KST = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: '2
 // U03: a date-only basis is a session, not an instant — its age is counted in that market's trading sessions
 // against the latest completed one (no invented close time). A timestamp is shown in KST with its age in hours.
 // U02: "갱신 지연" follows the same rule as the market read (more than two sessions behind), not an hour guess.
-export function basisAge(stamp, nowMs, { market = 'US' } = {}) {
+// Codex audit F16 (2026-10-15): age and "missed its next publication" are different facts, and the second depends on
+// the source's cadence. A consumer that already judged freshness (data-freshness-state) wins; otherwise the declared
+// data-cadence decides (session · intraday · monthly · quarterly · annual), and an undeclared timestamp shows its age
+// without claiming fresh or late (stale: null) — a 2020 timestamp read "stale: false" before, and a fiscal-year-end
+// date read "갱신 지연" under the two-session rule.
+const CADENCE_DAYS = Object.freeze({ monthly: 75, quarterly: 135, annual: 456 }); // a month's value can be ~75 days old just before the next release; 15 months for annual filings (P1652)
+export function basisAge(stamp, nowMs, { market = 'US', cadence = null, freshness = null } = {}) {
   const text = String(stamp || '').trim();
   if (!text) return null;
+  const judged = freshness ? (/stale|expired|delayed|late/.test(freshness) ? true : /current|fresh|ok/.test(freshness) ? false : null) : undefined;
   if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    if (CADENCE_DAYS[cadence]) {
+      const days = Math.max(0, Math.floor((nowMs - Date.parse(`${text}T00:00:00Z`)) / 86400000));
+      const age = days < 60 ? `${days}일 전` : `약 ${Math.round(days / 30.4)}개월 전`;
+      return { label: `${text} 기준`, age, days, cadence, stale: judged !== undefined ? judged : days > CADENCE_DAYS[cadence] };
+    }
     const latest = (market === 'KR' ? latestCompletedKrSession(nowMs) : latestCompletedUsSession(nowMs, { requirePrevious: false }))?.date || null;
     const lag = latest && latest > text ? countOpenSessionsBetween(text, latest, market) : 0;
-    return { label: `${text} 기준`, age: lag === 0 ? '최신 거래일' : `${lag}거래일 전`, lag, stale: lag > 2 };
+    return { label: `${text} 기준`, age: lag === 0 ? '최신 거래일' : `${lag}거래일 전`, lag, stale: judged !== undefined ? judged : lag > 2 };
   }
   const parsed = Date.parse(text);
   if (!Number.isFinite(parsed)) return null;
   const hours = (nowMs - parsed) / 3600000;
   const label = `${KST.format(new Date(parsed)).replace(/\.\s?/g, '-').replace(/-\s*$/, '').replace(/-(\d{2}:)/, ' $1')} KST 관측`;
-  if (hours < 0) return { label, age: null, hours, stale: false };
+  if (hours < 0) return { label, age: null, hours, stale: judged !== undefined ? judged : false };
   const age = hours < 1 ? '1시간 이내' : hours < 48 ? `${Math.floor(hours)}시간 전` : `${Math.floor(hours / 24)}일 전`;
-  return { label, age, hours, stale: false };
+  const byCadence = cadence === 'intraday' ? hours > 24 : cadence === 'session' ? hours > 96 : CADENCE_DAYS[cadence] ? hours / 24 > CADENCE_DAYS[cadence] : null;
+  return { label, age, hours, stale: judged !== undefined ? judged : byCadence };
 }
 
 function observedOf(el) {
   for (let node = el; node && node.nodeType === 1; node = node.parentElement) {
     for (const attr of DATE_ATTRS) {
       const value = node.getAttribute?.(attr);
-      if (value) return { value, market: node.closest?.('[data-market]')?.getAttribute('data-market') === 'KR' ? 'KR' : 'US' };
+      if (value) {
+        const declared = node.closest?.('[data-cadence]')?.getAttribute('data-cadence') || null;
+        const freshness = node.closest?.('[data-freshness-state]')?.getAttribute('data-freshness-state') || null;
+        return { value, market: node.closest?.('[data-market]')?.getAttribute('data-market') === 'KR' ? 'KR' : 'US', cadence: declared, freshness: freshness && freshness !== 'unknown' ? freshness : null };
+      }
     }
     if (node.classList?.contains('page')) break;
   }
@@ -86,7 +103,7 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
     lines[0].className = 'aio-basis-text';
     lines[0].textContent = el.getAttribute('data-basis');
     const observed = observedOf(el);
-    const age = observed ? basisAge(observed.value, now(), { market: observed.market }) : null;
+    const age = observed ? basisAge(observed.value, now(), { market: observed.market, cadence: observed.cadence, freshness: observed.freshness }) : null;
     if (age) {
       const meta = doc.createElement('p');
       meta.className = 'aio-basis-meta';

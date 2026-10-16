@@ -14,6 +14,7 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, 
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { definedRuleIds } from './lib/rule-ids.mjs';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const tool = join(repo, 'scripts', 'record-fix.mjs');
@@ -28,6 +29,7 @@ const FILES = [
   '_artifacts/full-audit-20260927/EXECUTION-STATUS.md',
 ];
 const LEDGER_GATE = 'scripts/ci-ledger-integrity-check.mjs';
+const LEDGER_LIB = 'scripts/lib/rule-ids.mjs'; // v57.84: the ledger gate imports the shared R parser
 
 const sha = (buf) => createHash('sha256').update(buf).digest('hex');
 const hashReal = () => Object.fromEntries([...FILES, LEDGER_GATE, 'scripts/record-fix.mjs'].filter((f) => existsSync(join(repo, f))).map((f) => [f, sha(readFileSync(join(repo, f)))]));
@@ -41,7 +43,7 @@ const tmpRoots = [];
 function makeRoot({ crlf = false, mutate } = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'aio-record-fix-'));
   tmpRoots.push(dir);
-  for (const rel of [...FILES, LEDGER_GATE]) {
+  for (const rel of [...FILES, LEDGER_GATE, LEDGER_LIB]) {
     const src = join(repo, rel);
     if (!existsSync(src)) continue;
     const dst = join(dir, rel);
@@ -137,7 +139,7 @@ try {
 
   check('R heading matches `## R<n>. <title> (<version>, <P>)` with Rule/Validation paragraphs (QA-OPS-REC-03)', new RegExp(`^## ${R}\\. Fixture rule title \\(v99\\.1, ${P}\\)\\n\\n\\*\\*Rule\\*\\*: Fixture rule body for ${R}\\.\\n\\n\\*\\*Validation\\*\\*: Fixture validation for ${P}\\.\\n\\n## R`, 'm').test(rules));
   check('R heading parses with the ledger-integrity regex and adds no gap outside the manifest (QA-OPS-REC-03)', (() => {
-    const defined = new Set([...rules.matchAll(/^## R(\d+)\./gm)].map((m) => Number(m[1])));
+    const defined = definedRuleIds(rules);
     const frozen = new Set(JSON.parse(read(dir, FILES[3])).absentR);
     for (let n = 1; n <= Math.max(...defined); n += 1) if (!defined.has(n) && !frozen.has(n)) return false;
     return true;

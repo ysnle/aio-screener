@@ -7,6 +7,11 @@ const acceptance = artifact.acceptance || {};
 const sessions = artifact.sessions || [];
 const requiredDimensions = ['screen-reader-reading-order', 'keyboard-only', 'computed-contrast', '200-percent-zoom-reflow', 'dialog-focus-trap-and-return'];
 if (artifact.schemaVersion !== 'human-validation.v1' || study.participantsPerPersona < 5 || study.personas?.length !== 3 || study.tasks?.length < 6 || requiredDimensions.some((dimension) => !study.manualAccessibilityDimensions?.includes(dimension))) fail('study topology is incomplete');
+// v57.83 codex audit F23: the study covers phone and tablet as well as desktop, and the household pilot (the real readers)
+// is declared without ever certifying anything.
+if (!['desktop', 'phone', 'tablet'].every((platform) => study.platforms?.includes(platform))) fail('study must cover desktop, phone and tablet');
+const pilot = artifact.householdPilot || {};
+if (!Array.isArray(pilot.tasks) || pilot.tasks.length < 4 || !['phone', 'tablet', 'desktop'].every((platform) => pilot.platforms?.includes(platform)) || !/never sets certification/.test(pilot.purpose || '')) fail('household pilot must name its tasks, devices and that it never certifies');
 if (acceptance.taskCompletionRateMin < 0.9 || acceptance.criticalMisunderstandingRateMax > 0.05 || acceptance.accessibilityCriticalFailuresMax !== 0) fail('acceptance thresholds are weaker than the product boundary');
 for (const session of sessions) {
   for (const field of acceptance.requiredFieldsPerSession || []) if (session[field] == null || session[field] === '') fail(`session ${session.evidenceId || 'unknown'} missing ${field}`);

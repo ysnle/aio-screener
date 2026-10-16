@@ -158,5 +158,28 @@ const manualOnly = buildSloWindow({
 });
 check('P1166 manual runs do not substitute for scheduled arrivals', manualOnly.status !== 'CERTIFIED_WINDOW' && manualOnly.windows['30d'].domains.screener.observedRuns === 0);
 
+// v57.83 codex audit F30: Worker scheduler dispatches count toward delivery (operator dispatches still do not), and a
+// schedule changed mid-window is not back-filled over the whole window.
+{
+  const { expectedRunsFromHistory, isAutomatedDispatch } = await import('./build-operations-slo-window.mjs');
+  const dispatch = (title) => ({ event: 'workflow_dispatch', display_title: title });
+  check('v57.83 a scheduler dispatch is automated; an operator dispatch is not', isAutomatedDispatch(dispatch('Refresh market data · scheduler')) && !isAutomatedDispatch(dispatch('Refresh market data · operator')) && !isAutomatedDispatch(dispatch('Refresh market data')));
+  const workerFed = buildSloWindow({
+    observed: {
+      market: fixtureRuns(cadence.market, 30, at).map((run, index) => (index % 2 ? { ...run, event: 'workflow_dispatch', display_title: 'Refresh market data · scheduler', id: index } : { ...run, id: index })),
+      screener: fixtureRuns(cadence.screener, 30, at),
+      watchdog: fixtureRuns(cadence.watchdog, 30, at)
+    },
+    cadencePerDay: cadence, query: completeQuery, alertEvidence: { deduped: true, source: 'github-issues-api' }, now: at
+  });
+  const lane = workerFed.windows['30d'].domains.market;
+  check('v57.83 Worker dispatches fill delivery while GitHub-cron arrival stays its own figure', lane.automatedDispatchRuns > 0 && lane.deliveryRate >= 0.9 && lane.scheduledArrivalRate < 0.6 && lane.status === 'MEASURED' && lane.measures === 'workflow-execution');
+  const t0 = at.getTime() - 30 * dayMs;
+  const history = [{ from: new Date(t0).toISOString(), perDay: 24 }, { from: new Date(t0 + 20 * dayMs).toISOString(), perDay: 48 }];
+  check('v57.83 a mid-window schedule change sums per segment (24x20 + 48x10 = 960, not 48x30)', expectedRunsFromHistory(history, t0, at.getTime()) === 960);
+  const withHistory = buildSloWindow({ observed: validObserved, cadencePerDay: cadence, cadenceHistory: { market: history }, query: completeQuery, alertEvidence: { deduped: true, source: 'github-issues-api' }, now: at });
+  check('v57.83 the lane names its denominator basis', withHistory.windows['30d'].domains.market.expectedRunsBasis === 'cadence-history' && withHistory.windows['30d'].domains.screener.expectedRunsBasis === 'current-cron-backfilled');
+}
+
 if (errors.length) { errors.forEach(error => console.error(' - ' + error)); process.exit(1); }
 console.log(`Operations SLO window check OK: 7d=${artifact.windows['7d'].status}, 30d=${artifact.windows['30d'].status}, certification=${artifact.certification?.thirtyDaySlo}, per-domain lanes + O04 repro guard verified.`);

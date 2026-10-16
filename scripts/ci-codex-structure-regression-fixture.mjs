@@ -108,6 +108,15 @@ assert.ok(!/가격·비중·손절·목표 범위도 근거와 사용자 조건�
 assert.ok(!/v49\.75 구조:/.test(chat), 'P1652: no developer structure badge under answers');
 const core = fs.readFileSync(new URL('../js/aio-core.js', import.meta.url), 'utf8');
 assert.ok(core.includes('(?:headline:|market-analysis:'), 'P1651: whole citation brackets are stripped from AI text');
+{
+  // v57.83 codex audit F11: run the real stripper on the inputs that leaked (a comma list of dotted ids on the briefing)
+  // instead of only checking that part of the regex exists; ordinary brackets, parentheses and links survive.
+  const { stripEvidenceIds: strip } = await import('../src/domain/briefing/evidence-text.js');
+  assert.equal(strip('지수가 올랐습니다 [market.index.spx, market.index.kospi]. 다음'), '지수가 올랐습니다. 다음', 'v57.83: a comma list of evidence ids is removed');
+  assert.equal(strip('단일 [market.index.spx] 해시 [90b7eec7] 출처 [headline:https://x.com/a] 끝'), '단일 해시 출처 끝', 'v57.83: single ids, hashes and headline citations are removed');
+  assert.equal(strip('정상 [참고] (S&P 500) (node.js) 링크 [텍스트](https://a.b) 2.5%'), '정상 [참고] (S&P 500) (node.js) 링크 [텍스트](https://a.b) 2.5%', 'v57.83: ordinary brackets, parentheses and links are kept');
+  assert.ok(core.includes("window._aioStripEvidenceIds(txt)"), 'v57.83: the legacy analysis sink uses the native stripper (P1847)');
+}
 
 // P1653: AI is always on, web search is automatic, one AI panel.
 const shell = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');

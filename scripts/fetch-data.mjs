@@ -696,8 +696,12 @@ const HIST_SYMBOLS = {
   'JPY=X': 'usdjpy',
   // P1586: 20-year Treasury ETF closes feed the safe-haven component of the self-computed sentiment index.
   'TLT': 'tlt',
+  // v57.83 (owner 2026-10-16: "지수는 덜 빠져도 AI·반도체는 많이 빠졌다"): the semiconductor ETF, already collected in
+  // SYMBOLS, gets a daily close column so a semiconductor drawdown under a steady index (2026-02~03, 2026-07) is on record.
+  // The <60-observation rule backfills one year on the next run. Nothing reads it for a judgement yet.
+  'SMH': 'smh',
 };
-const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','brent','gold','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','fg'];
+const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','brent','gold','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','smh','fg'];
 // P1246 (data-refresh: 품질 경계): 히스토리 시장 필드의 **단일** 타당 범위 선언. producer가 이 범위를
 // 벗어난 값을 관측으로 승격하지 않고(null + fieldMeta 없음 = P1101의 무관측 표기), 게이트가 같은 선언을
 // 가져와 아티팩트를 검사한다 — 선언과 집행이 서로 다른 리터럴을 들고 어긋나는 경로를 만들지 않는다.
@@ -710,6 +714,7 @@ export const HIST_FIELD_PLAUSIBILITY = Object.freeze({
   usdkrw: [800, 2000],
   usdjpy: [50, 400],
   tlt: [20, 400],
+  smh: [20, 2000],
 });
 export function histValueWithinPlausibility(field, value) {
   const range = HIST_FIELD_PLAUSIBILITY[field];
@@ -2400,6 +2405,8 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     const trendLine = trend ? `추세 판정: ${trend.stateLabel || trend.state}${trend.testing ? ' (50일선 시험 구간)' : ''}${trend.capped ? ' (나스닥 100·러셀 2000 동반 약세로 중립 상한)' : ''} · 근거: ${(trend.evidence || []).map(([label, value]) => `${label} ${value}`).join('; ')}` : '';
     const leadership = regime.leadership;
     const leadershipLine = leadership?.break ? `주도 영역 이탈(leadershipBreak): 예 — ${leadership.summary}. 반도체·AI가 지금도 주도한다고 쓰지 말고, 최근 하락을 함께 적을 것.`
+      // v57.83: leaders weak without market-wide confirmation is not "아니오" — the narrative must not say they still lead.
+      : leadership?.state === 'weak' ? `주도 영역 이탈(leadershipBreak): 확산 미확인 — ${leadership.summary}. 반도체·AI가 지금도 주도한다고 쓰지 말고, 최근 하락을 함께 적을 것.`
       : leadership?.state === 'holding' ? '주도 영역 이탈(leadershipBreak): 아니오.' : '주도 영역 이탈(leadershipBreak): 확인 불가.';
     const conflicts = (regime.conflicts || []).length ? `엇갈리는 신호: ${regime.conflicts.join(' ')}` : '';
     // v57.81: the validator rejects a Korea-vs-US sentence without both session dates when they differ; the packet says so.

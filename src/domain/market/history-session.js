@@ -19,6 +19,7 @@ const VALID_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const BAR_ZONE = Object.freeze({
   spx: 'America/New_York', nasdaq: 'America/New_York', ndx: 'America/New_York', dow: 'America/New_York', rut: 'America/New_York',
   vix: 'America/New_York', vix3m: 'America/New_York', vvix: 'America/New_York', tnx: 'America/New_York', tlt: 'America/New_York',
+  smh: 'America/New_York',
   dxy: 'America/New_York', wti: 'America/New_York', brent: 'America/New_York', gold: 'America/New_York',
   usdkrw: 'Europe/London', usdjpy: 'Europe/London',
   kospi: 'Asia/Seoul', kosdaq: 'Asia/Seoul',
@@ -26,7 +27,7 @@ const BAR_ZONE = Object.freeze({
 });
 // Exchange-calendar sessions for listed indices; futures, FX and DXY trade on US holidays (weekday sessions); BTC daily.
 const FIELD_CALENDAR = Object.freeze({
-  spx: 'US', nasdaq: 'US', ndx: 'US', dow: 'US', rut: 'US', vix: 'US', vix3m: 'US', vvix: 'US', tnx: 'US', tlt: 'US',
+  spx: 'US', nasdaq: 'US', ndx: 'US', dow: 'US', rut: 'US', vix: 'US', vix3m: 'US', vvix: 'US', tnx: 'US', tlt: 'US', smh: 'US',
   kospi: 'KR', kosdaq: 'KR',
 });
 

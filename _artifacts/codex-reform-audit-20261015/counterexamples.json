@@ -1,0 +1,228 @@
+{
+  "observedAt": "2026-10-15T14:11:45.934Z",
+  "version": "v57.82",
+  "boundary": "synthetic fixtures and checked-in artifacts; no external truth certification",
+  "observations": [
+    {
+      "id": "F04-period-start-deposit",
+      "result": {
+        "status": "ready",
+        "twrPct": 10.000000000000009,
+        "mwrPct": 119.99999999999997,
+        "warnings": [],
+        "expectedMwrPct": 10
+      }
+    },
+    {
+      "id": "F02-last-session-delete",
+      "result": {
+        "afterDelete": 1,
+        "rawRetained": true,
+        "expected": 0
+      }
+    },
+    {
+      "id": "F03-large-session",
+      "result": {
+        "attempted": 40,
+        "persisted": 31,
+        "lastQuestionSuffix": "030",
+        "expectedNewestSuffix": "039"
+      }
+    },
+    {
+      "id": "F05-temperature-overlap",
+      "result": {
+        "market": "spx",
+        "state": "hot",
+        "overlap": [
+          {
+            "from": "2025-07-21",
+            "to": "2025-09-10",
+            "gap": 36
+          }
+        ]
+      }
+    },
+    {
+      "id": "F05-temperature-overlap",
+      "result": {
+        "market": "nasdaq",
+        "state": "cold",
+        "overlap": [
+          {
+            "from": "2026-02-05",
+            "to": "2026-03-20",
+            "gap": 30
+          }
+        ]
+      }
+    },
+    {
+      "id": "F05-temperature-overlap",
+      "result": {
+        "market": "nikkei",
+        "state": "hot",
+        "overlap": [
+          {
+            "from": "2025-06-30",
+            "to": "2025-08-12",
+            "gap": 29
+          }
+        ]
+      }
+    },
+    {
+      "id": "F08-us-denominator",
+      "result": {
+        "actual": "그중 50%가 상승 추세(50·200일선 위), 50%가 하락 추세에 있습니다 — 하락 추세 중 가장 큰 비중은 AAPL(50%, 평가액의 50%). 미국 시장 폭이 좁은 지금은 미국 보유 중 하락 추세 종목(50%)이 지수보다 먼저 흔들리기 쉬운 환경입니다.",
+        "expectedUsDownPct": 100
+      }
+    },
+    {
+      "id": "F09-small-sample",
+      "result": {
+        "actual": "리츠 추세 속 조정: AIO 종가 기록(2015~2026-10)의 겹치지 않는 26번 중 16번은 이후 63거래일 S&P 500이 올랐습니다 (중앙값 +1.7%, 가운데 절반 -3.4%~+4.6%). 비슷한 때 62% · 같은 기록 전체 거래일에서는 57%가 올라, 둘의 차이가 이 조건이 더하는 정보입니다.",
+        "sample": 26,
+        "smallBuckets": [
+          {
+            "key": ".themes.reits.pullback",
+            "n": 26
+          },
+          {
+            "key": ".themes.reits.rebound",
+            "n": 19
+          },
+          {
+            "key": ".themes.reits.weak",
+            "n": 24
+          },
+          {
+            "key": ".themes.comm.leading",
+            "n": 24
+          },
+          {
+            "key": ".themes.comm.pullback",
+            "n": 19
+          },
+          {
+            "key": ".themes.comm.rebound",
+            "n": 10
+          },
+          {
+            "key": ".themes.comm.weak",
+            "n": 13
+          },
+          {
+            "key": ".themes.robotics.leading",
+            "n": 29
+          },
+          {
+            "key": ".themes.robotics.pullback",
+            "n": 24
+          },
+          {
+            "key": ".themes.robotics.rebound",
+            "n": 15
+          },
+          {
+            "key": ".themes.robotics.weak",
+            "n": 20
+          }
+        ]
+      }
+    },
+    {
+      "id": "F06-credit-reason",
+      "result": {
+        "delta20": {
+          "value": 40.000000000000036,
+          "date": "2026-10-13",
+          "from": "2026-09-15"
+        },
+        "record": {
+          "value": 40,
+          "date": "2026-10-13",
+          "enterBp": 31,
+          "pct": 96,
+          "n": 247,
+          "stress": true,
+          "since": "2026-09-28"
+        },
+        "gauge": {
+          "gauge": {
+            "label": "하이일드 스프레드",
+            "value": 316,
+            "min": 200,
+            "max": 700,
+            "unit": "bp",
+            "digits": 0,
+            "bands": [
+              {
+                "from": 200,
+                "to": 350,
+                "tone": "neutral"
+              },
+              {
+                "from": 350,
+                "to": 450,
+                "tone": "neutral"
+              },
+              {
+                "from": 450,
+                "to": 700,
+                "tone": "burden"
+              }
+            ],
+            "markers": [
+              {
+                "at": 350,
+                "label": "350"
+              },
+              {
+                "at": 450,
+                "label": "450"
+              }
+            ],
+            "clipped": false
+          },
+          "headline": "하이일드 316bp (5거래일 +13bp)"
+        },
+        "chain": {
+          "id": "credit",
+          "label": "신용 스프레드",
+          "value": "5거래일 +13bp",
+          "dir": "flat",
+          "effect": "5거래일 변화는 작지만 스프레드 수준이 부담 구간입니다(시장 상태 신용 지표 부담)",
+          "impact": "flat"
+        }
+      }
+    },
+    {
+      "id": "F16-basis-age",
+      "result": {
+        "timestamp": {
+          "label": "01-01 09:00 KST 관측",
+          "age": "2479일 전",
+          "hours": 59509,
+          "stale": false
+        }
+      }
+    },
+    {
+      "id": "F18-workers-ai-control",
+      "result": {
+        "statuses": [
+          200,
+          200,
+          200
+        ],
+        "aiRunCalls": 3,
+        "globalKillSwitch": "1",
+        "configuredMonthlyBudget": "0",
+        "quotaBinding": false,
+        "boundary": "AI.run mock only; no provider inference or billing"
+      }
+    }
+  ]
+}

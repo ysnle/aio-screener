@@ -1,0 +1,36 @@
+{
+  "feature": "learn",
+  "title": "리서치 라이브러리 (탭별 제목 · 통합 검색 · 목차 문서 열기)",
+  "viewport": "phone",
+  "ok": false,
+  "url": "http://127.0.0.1:8791",
+  "version": "v57.82",
+  "finishedAt": "2026-10-15T13:52:32.884Z",
+  "steps": [
+    {
+      "step": "nav 리서치 라이브러리",
+      "ok": true,
+      "ms": 2015,
+      "observed": {
+        "activePage": "page-principles",
+        "hash": "#principles",
+        "tabs": [
+          "개념·분석",
+          "산업 지도",
+          "대가 보유 종목"
+        ]
+      }
+    },
+    {
+      "step": "허브 탭 3개",
+      "ok": false,
+      "ms": 4,
+      "error": "hub tabs [\"개념·분석\",\"산업 지도\",\"대가 보유 종목\"] != [\"개념·분석 프레임\",\"산업·밸류체인\",\"운용사·13F\"]",
+      "activePage": "page-principles"
+    }
+  ],
+  "pageErrors": [],
+  "unexpectedConsoleErrors": [],
+  "networkNoiseCount": 4,
+  "failedLocalRequests": []
+}

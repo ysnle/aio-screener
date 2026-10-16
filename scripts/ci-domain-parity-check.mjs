@@ -115,7 +115,7 @@ if (process.env.AIO_REGEN_TRADING_GOLDEN === '1') {
     fixture.legacyOutput = Object.fromEntries([...SCORE_FIELDS, 'componentMissing'].map((field) => [field, out[field]]));
   }
   golden.rebaselinedAt = new Date().toISOString();
-  golden.rebaselineReason = 'P1388 trading-score.v4: risk-appetite axis = put/call + HY; F&G removed from the composite';
+  golden.rebaselineReason = process.env.AIO_REGEN_TRADING_REASON || 'P1388 trading-score.v4: risk-appetite axis = put/call + HY; F&G removed from the composite';
   writeFileSync(goldenPath, `${JSON.stringify(golden, null, 2)}\n`);
 }
 for (const fixture of golden.fixtures) {

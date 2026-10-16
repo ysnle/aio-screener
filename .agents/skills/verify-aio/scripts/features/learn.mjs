@@ -1,14 +1,20 @@
 // Map: features/learn.md
 import { openFromNav, tabTo, expectText, expectCount, expectTabs } from '../lib/drive.mjs';
+import { RESEARCH_PAGES } from '../../../../../src/ui/knowledge/research-shell.js';
 
-const title = (route, text) => (p) => expectText(p, `.rl-shell[data-research-page="${route}"] h1.rl-title`, { pattern: new RegExp(`^${text}$`) });
+// Codex audit F12 (2026-10-15): titles come from the product registry, not copies — a renamed tab failed the drive
+// while the screen worked.
+const T = Object.fromEntries(RESEARCH_PAGES.map((page) => [page.route, page.title]));
+
+const escape = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const title = (route) => (p) => expectText(p, `.rl-shell[data-research-page="${route}"] h1.rl-title`, { pattern: new RegExp(`^${escape(T[route])}$`) });
 
 export default {
   title: '리서치 라이브러리 (탭별 제목 · 통합 검색 · 목차 문서 열기)',
   steps: [
     ['nav 리서치 라이브러리', (p) => openFromNav(p, '리서치 라이브러리', 'page-principles')],
-    ['허브 탭 3개', (p) => expectTabs(p, ['개념·분석 프레임', '산업·밸류체인', '운용사·13F'])],
-    ['개념·분석 프레임 제목 + 서가', async (p) => ({ ...(await title('principles', '개념·분석 프레임')(p)), ...(await expectText(p, '#page-principles .rl-shelf > summary', { pattern: /컬렉션/ })) })],
+    ['허브 탭 3개', (p) => expectTabs(p, [T.principles, T.atlas, T.masters])],
+    ['개념·분석 제목 + 서가', async (p) => ({ ...(await title('principles')(p)), ...(await expectText(p, '#page-principles .rl-shelf > summary', { pattern: /컬렉션/ })) })],
     ['통합 검색 ROIC → 결과', async (p) => {
       await p.fill('#page-principles input[aria-label="리서치 라이브러리 통합 검색"]', 'ROIC');
       return expectCount(p, '#page-principles .rl-result[data-research-result]', 1, 10000);
@@ -44,10 +50,10 @@ export default {
       await p.waitForFunction(() => /[?&]chapter=/.test(location.search), null, { timeout: 10000 });
       return { columns: want, opened: heading, search: await p.evaluate(() => location.search) };
     }],
-    ['탭 산업·밸류체인', async (p) => ({ ...(await tabTo(p, '산업·밸류체인', 'page-atlas')), ...(await title('atlas', '산업·밸류체인')(p)) })],
-    ['탭 운용사·13F + 운용사 목차', async (p) => ({
-      ...(await tabTo(p, '운용사·13F', 'page-masters')),
-      ...(await title('masters', '운용사·13F')(p)),
+    ['탭 산업 지도', async (p) => ({ ...(await tabTo(p, T.atlas, 'page-atlas')), ...(await title('atlas')(p)) })],
+    ['탭 대가 보유 종목 + 운용사 목차', async (p) => ({
+      ...(await tabTo(p, T.masters, 'page-masters')),
+      ...(await title('masters')(p)),
       ...(await expectCount(p, '#page-masters .rl-nav-item[data-masters-action]', 1))
     })]
   ]

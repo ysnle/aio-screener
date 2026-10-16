@@ -132,6 +132,7 @@ export function renderMarketScenarioContext(input = {}, options = {}) {
   if (!model.available) return '';
   // v57.81: the leadership-break flag is stated before the cards, so the narrative cannot say the leaders are still leading.
   const lead = model.leadership?.break ? `주도 영역 이탈(leadershipBreak): 예 — ${model.leadership.summary}. 소수 종목 주도 조건 미충족, '${TRANSITION_TITLE}'.\n`
+    : model.leadership?.state === 'weak' ? `주도 영역 이탈(leadershipBreak): 확산 미확인 — ${model.leadership.summary}. 주도주는 약해졌고 시장 전반 확인은 ${model.leadership.met}/${model.leadership.total}개. 소수 종목 주도 조건 미충족.\n`
     : model.leadership?.state === 'holding' ? '주도 영역 이탈(leadershipBreak): 아니오.\n' : '주도 영역 이탈(leadershipBreak): 확인 불가.\n';
   return `시장 화면과 같은 ${model.asOf} 확정 종가의 조건부 해석. 예측 확률·목표가가 아닙니다.${model.reason ? ` ${model.reason}` : ''}\n` + lead
     + model.scenarios.map(item => `${item.transition || item.title} (${item.status}): ${item.interpretation}\n관측: ${item.facts.join('; ')}\n유효 조건: ${item.conditions.join(' ')}\n반증: ${item.counterEvidence}\n다음 확인: ${item.observe.join('; ')}`).join('\n');

@@ -1,0 +1,3537 @@
+[
+  {
+    "id": "R708",
+    "line": 22,
+    "title": "R708. 판정 규칙은 급변 구간 재생을 통과한다 (v57.83, P1853)"
+  },
+  {
+    "id": "R707",
+    "line": 28,
+    "title": "R707. A judgement needs a noise buffer, a recent-move check and its window (v57.81, P1829)"
+  },
+  {
+    "id": "R706",
+    "line": 34,
+    "title": "R706. Past frequencies need non-overlapping cases and a sample floor (v57.79, P1824)"
+  },
+  {
+    "id": "R705",
+    "line": 40,
+    "title": "R705. Retiring a surface retires its writers (v57.47, P1670)"
+  },
+  {
+    "id": "R704",
+    "line": 46,
+    "title": "R704. Declared native surfaces must exist (v57.47, P1667)"
+  },
+  {
+    "id": "R703",
+    "line": 52,
+    "title": "R703. 작은 UI 조작과 색 테마의 실행 계약 (v57.34, P1604)"
+  },
+  {
+    "id": "R702",
+    "line": 58,
+    "title": "R702. 뉴스 원본 식별·변경 이력 보존 (v57.33, P1601)"
+  },
+  {
+    "id": "R701",
+    "line": 64,
+    "title": "R701. 운영 게이트와 전체 건강 상태 분리 (v57.32, P1596)"
+  },
+  {
+    "id": "R700",
+    "line": 70,
+    "title": "R700. 템플릿 슬롯 뒤 조사는 받침으로 고른다 (v57.31, P1592)"
+  },
+  {
+    "id": "R699",
+    "line": 76,
+    "title": "R699. A cited ledger id must exist (v57.30, P1545)"
+  },
+  {
+    "id": "R698",
+    "line": 82,
+    "title": "R698. An AI answer is filtered by sentence, and a personalized directive is never confirmed (v57.30, P1539)"
+  },
+  {
+    "id": "R697",
+    "line": 88,
+    "title": "R697. A reader sees measured conditions, never a grade, an unvalidated sum or an instruction (v57.30, P1538)"
+  },
+  {
+    "id": "R696",
+    "line": 94,
+    "title": "R696. An internal code is not reader text (v57.30, P1535)"
+  },
+  {
+    "id": "R695",
+    "line": 100,
+    "title": "R695. A threshold that drives an alert has one owner and pinned copies (v57.30, P1534)"
+  },
+  {
+    "id": "R694",
+    "line": 106,
+    "title": "R694. The domain layer sits below the AI layer, and one calendar answers every session count (v57.30, P1533)"
+  },
+  {
+    "id": "R693",
+    "line": 112,
+    "title": "R693. Visible text states the observed condition, not an instruction or an unsourced probability (v57.30, P1523)"
+  },
+  {
+    "id": "R692",
+    "line": 118,
+    "title": "R692. A figure that is withheld is withheld at every consumer (v57.30, P1522)"
+  },
+  {
+    "id": "R691",
+    "line": 124,
+    "title": "R691. A newer main is stale for a Worker plane only when it changes that plane's deployment inputs (v57.30, P1520)"
+  },
+  {
+    "id": "R690",
+    "line": 130,
+    "title": "R690. QA 증명은 실제 검사 범위·내용과 커밋 전체 index에 결속 (v57.29, P1518)"
+  },
+  {
+    "id": "R689",
+    "line": 136,
+    "title": "R689. 관측 사실과 해석을 문장 안에서 분리 (v57.28, P1516)"
+  },
+  {
+    "id": "R688",
+    "line": 142,
+    "title": "R688. 같은 개념은 레슨·노트·사전·도움말에서 한 정의 (v57.28, P1515)"
+  },
+  {
+    "id": "R687",
+    "line": 148,
+    "title": "R687. AI 문맥의 현재 수치는 화면과 같은 기준 (v57.28, P1514)"
+  },
+  {
+    "id": "R686",
+    "line": 154,
+    "title": "R686. 공시 금액은 동일 증권 간 단위를 대조하고, 미연결은 0이 아니다 (v57.28, P1513)"
+  },
+  {
+    "id": "R685",
+    "line": 160,
+    "title": "R685. 한 화면의 결과 수·표·다음 링크는 같은 집합 (v57.28, P1512)"
+  },
+  {
+    "id": "R684",
+    "line": 166,
+    "title": "R684. 내용 분류의 근거는 본문 텍스트 (v57.28, P1511)"
+  },
+  {
+    "id": "R683",
+    "line": 172,
+    "title": "R683. 기간·기준일 라벨은 계산에서 파생 (v57.28, P1510)"
+  },
+  {
+    "id": "R682",
+    "line": 178,
+    "title": "R682. Distinguish operator artifacts from optional personal provider queries (v57.06, P1422)"
+  },
+  {
+    "id": "R681",
+    "line": 186,
+    "title": "R681. All AIO AI shares one metered server credential boundary (v57.06, P1421)"
+  },
+  {
+    "id": "R680",
+    "line": 192,
+    "title": "R680. Budget scope, reservation and invoice remain distinct (v56.87, P1353)"
+  },
+  {
+    "id": "R679",
+    "line": 200,
+    "title": "R679. Presentation cannot strengthen evidence meaning (v56.87, P1352)"
+  },
+  {
+    "id": "R678",
+    "line": 206,
+    "title": "R678. Financial security follows purpose and asynchronous lifetime (v56.87, P1350)"
+  },
+  {
+    "id": "R677",
+    "line": 212,
+    "title": "R677. Observation identity precedes collection chronology (v56.87, P1349)"
+  },
+  {
+    "id": "R676",
+    "line": 218,
+    "title": "R676. Owner decisions and the change flow are shared repository state (v56.85, P1343)"
+  },
+  {
+    "id": "R675",
+    "line": 224,
+    "title": "R675. Initializers are reachable from a route or event, not only from tests (v56.84, P1339)"
+  },
+  {
+    "id": "R674",
+    "line": 230,
+    "title": "R674. Privileged workflow_run deploys act only on pushes to this repository (v56.83, P1334)"
+  },
+  {
+    "id": "R673",
+    "line": 236,
+    "title": "R673. QA and self-audit machinery stays out of the user runtime (v56.82, P1329)"
+  },
+  {
+    "id": "R672",
+    "line": 242,
+    "title": "R672. Korean themes are user content with one label owner (v56.81, P1327)"
+  },
+  {
+    "id": "R671",
+    "line": 248,
+    "title": "R671. Currentness labels come from observations and the calendar, via one presenter (v56.81, P1326)"
+  },
+  {
+    "id": "R670",
+    "line": 254,
+    "title": "R670. Reference descriptions use the latest completed US regular close and say so (v56.81, P1328)"
+  },
+  {
+    "id": "R669",
+    "line": 260,
+    "title": "R669. Responsive scope follows the current owner decision (v57.38, P1618)"
+  },
+  {
+    "id": "R668",
+    "line": 266,
+    "title": "R668. First screen shows values before summaries; blocked summaries collapse and name the cause (v56.80, P1322)"
+  },
+  {
+    "id": "R649",
+    "line": 272,
+    "title": "R649. refresh freshness requires the published snapshot's own generatedAt (v56.61, P1300)"
+  },
+  {
+    "id": "R650",
+    "line": 278,
+    "title": "R650. A passed macro schedule date is not evidence of a completed release (v56.62, P1301)"
+  },
+  {
+    "id": "R651",
+    "line": 284,
+    "title": "R651. Generated knowledge builders run before their downstream consumers (v56.68, P1306)"
+  },
+  {
+    "id": "R652",
+    "line": 290,
+    "title": "R652. Worker auto-deploys require exact CI evidence and a verified rollback target (v56.69, P1307)"
+  },
+  {
+    "id": "R653",
+    "line": 296,
+    "title": "R653. Worker auto-deploy must recover coalesced changes from the live source SHA (v56.70, P1308)"
+  },
+  {
+    "id": "R654",
+    "line": 302,
+    "title": "R654. SEC ownership polling and 13F row imports use separate, semantic cadences (v56.71, P1309)"
+  },
+  {
+    "id": "R657",
+    "line": 308,
+    "title": "R657. Operator alerts preserve explicit evidence and fail closed (v56.73, P1311)"
+  },
+  {
+    "id": "R658",
+    "line": 314,
+    "title": "R658. Operator AI usage evidence stays authenticated and private (v56.74, P1312)"
+  },
+  {
+    "id": "R659",
+    "line": 320,
+    "title": "R659. Operator alert collectors preserve source, market, and privacy boundaries (v56.75, P1313)"
+  },
+  {
+    "id": "R660",
+    "line": 326,
+    "title": "R660. Knowledge candidate builders cannot follow symlinks outside their isolated copy (v56.76, P1314)"
+  },
+  {
+    "id": "R661",
+    "line": 332,
+    "title": "R661. A personal-data export carries every personal section, or says what it omits (v56.77, P1316)"
+  },
+  {
+    "id": "R662",
+    "line": 338,
+    "title": "R662. Visible facts are derived from their owner, not restated in static copy (v56.77, P1315)"
+  },
+  {
+    "id": "R663",
+    "line": 344,
+    "title": "R663. One instrument, one canonical symbol across route, quote request and screener (v56.78, P1317)"
+  },
+  {
+    "id": "R664",
+    "line": 350,
+    "title": "R664. Reference-only filters use plausibility-checked reference values, not decision-grade gates (v56.78, P1318)"
+  },
+  {
+    "id": "R667",
+    "line": 356,
+    "title": "R667. Ledger frontmatter is metadata, not an evidence log (v56.79)"
+  },
+  {
+    "id": "R666",
+    "line": 362,
+    "title": "R666. A removed route is removed everywhere (v56.79, P1321)"
+  },
+  {
+    "id": "R665",
+    "line": 368,
+    "title": "R665. Explanations are reachable by pointer and keyboard, fully on screen (v56.78, P1320)"
+  },
+  {
+    "id": "R656",
+    "line": 374,
+    "title": "R656. CI meta-gate downgrades require a complete weekly backstop (v56.72)"
+  },
+  {
+    "id": "R655",
+    "line": 380,
+    "title": "R655. Generated knowledge candidates preserve exact provenance and require human review (v56.72, P1310)"
+  },
+  {
+    "id": "R648",
+    "line": 386,
+    "title": "R648. FOMC schedule alignment requires the canonical official Fed calendar source (v56.61, P1298)"
+  },
+  {
+    "id": "R647",
+    "line": 392,
+    "title": "R647. future and malformed timestamps outrank forced refresh audit statuses (v56.61, P1297)"
+  },
+  {
+    "id": "R646",
+    "line": 398,
+    "title": "R646. live-core freshness uses a fixed millisecond-precision 12-hour budget (v56.61, P1296)"
+  },
+  {
+    "id": "R645",
+    "line": 404,
+    "title": "R645. future generatedAt never makes browser market data fresh (v56.61, P1295)"
+  },
+  {
+    "id": "R644",
+    "line": 412,
+    "title": "R644. macro calendar source labels are separate from safe official links (v56.61, P1294)"
+  },
+  {
+    "id": "R643",
+    "line": 418,
+    "title": "R643. central-bank policy audit requires current Fed and BOK evidence together (v56.61, P1293)"
+  },
+  {
+    "id": "R642",
+    "line": 424,
+    "title": "R642. future snapshot timestamps never report current or pass promotion (v56.61, P1292)"
+  },
+  {
+    "id": "R641",
+    "line": 432,
+    "title": "R641. browser decisions and operations status use the same strict live-core freshness boundary (v56.61, P1291)"
+  },
+  {
+    "id": "R640",
+    "line": 438,
+    "title": "R640. snapshot promotion requires a fresh published artifact in every market session (v56.60, P1290)"
+  },
+  {
+    "id": "R639",
+    "line": 444,
+    "title": "R639. 실패한 market-snapshot 주기는 비밀 없이 재진단 가능한 bounded artifact를 남긴다 (v56.59, P1289)"
+  },
+  {
+    "id": "R638",
+    "line": 450,
+    "title": "R638. legacy 뉴스 의사결정 소비자도 공통 최소 표본을 강제한다 (v56.58, P1288)"
+  },
+  {
+    "id": "R637",
+    "line": 456,
+    "title": "R637. live-core freshness는 시장 휴장으로 SLA를 넘겨 통과하지 않는다 (v56.58, P1287)"
+  },
+  {
+    "id": "R636",
+    "line": 464,
+    "title": "R636. 실패한 QA 출력은 비밀을 마스킹한 run별 전체 증거로 보존한다 (v56.57, P1286)"
+  },
+  {
+    "id": "R635",
+    "line": 470,
+    "title": "R635. 저장 뉴스 점수 이력은 현재 모델의 충분한 표본 증거가 있어야 차트에 남는다 (v56.57, P1285)"
+  },
+  {
+    "id": "R634",
+    "line": 476,
+    "title": "R634. live-core 신선도 감사에는 stale 데이터를 통과시키는 실행 모드가 없어야 한다 (v56.56, P1283)"
+  },
+  {
+    "id": "R633",
+    "line": 482,
+    "title": "R633. 뉴스 감성·위험은 최소 표본을 채우기 전 분석 결과로 발행하지 않는다 (v56.56, P1284)"
+  },
+  {
+    "id": "R632",
+    "line": 488,
+    "title": "R632. 선언 입력에는 writer가 있어야 하고, 저장 경로는 durable ack를 버리지 않는다 (v56.19, P1187)"
+  },
+  {
+    "id": "R631",
+    "line": 494,
+    "title": "R631. 성과·위험 결과는 측정 경로·분모·현금·RF·표본을 선언하지 않으면 인증하지 않는다 (v56.17, P1182)"
+  },
+  {
+    "id": "R630",
+    "line": 500,
+    "title": "R630. 식별자·정체성 해시는 그 대상의 입력에서 파생한다 — 표시·overlay 파생값을 넣지 않는다 (v56.15, P1177)"
+  },
+  {
+    "id": "R629",
+    "line": 506,
+    "title": "R629. 미설정 입력을 0으로 직렬화하지 않는다 — 0이 값을 뜻하는 필드와 미설정 필드를 타입으로 구분한다 (v56.14, P1176)"
+  },
+  {
+    "id": "R628",
+    "line": 512,
+    "title": "R628. 결측은 조건도 구간도 관측값도 만족시키지 않는다 — 경계에서 `Number(null)===0`을 먼저 막는다 (v56.02, P1164)"
+  },
+  {
+    "id": "R627",
+    "line": 518,
+    "title": "R627. 선언된 자격증명·기능은 도달 가능한 경로가 증명되기 전까지 제공된 것으로 취급하지 않는다 (v56, P1151~P1155)"
+  },
+  {
+    "id": "R626",
+    "line": 524,
+    "title": "R626. 생성 산출물의 병합은 필드 소유권으로 결정한다 (v55.21, P1141)"
+  },
+  {
+    "id": "R625",
+    "line": 530,
+    "title": "R625. 픽스처가 검출기의 언어를 대신 맞춰주면 그 검사는 아무것도 검사하지 않는다 (v55.20, P1139)"
+  },
+  {
+    "id": "R624",
+    "line": 536,
+    "title": "R624. 전역은 하나의 구현만 가진다 — 그리고 로드 순서는 계약이다 (v55.19, P1138)"
+  },
+  {
+    "id": "R623",
+    "line": 542,
+    "title": "R623. 같은 집합을 여러 곳에 손으로 적지 않는다 — 순서까지 파생시킨다 (v55.18, P1137)"
+  },
+  {
+    "id": "R622",
+    "line": 548,
+    "title": "R622. 인라인 코드의 추출은 실행 \"위치\"를 보존한다 (v55.16, P1135)"
+  },
+  {
+    "id": "R621",
+    "line": 554,
+    "title": "R621. 프리캐시는 부트 필수분만, 나머지는 요청 기반 런타임 캐시다 (v55.15, P1134)"
+  },
+  {
+    "id": "R620",
+    "line": 560,
+    "title": "R620. 분해 압력은 벽이 아니라 래칫이다 (v55.08, P1127)"
+  },
+  {
+    "id": "R619",
+    "line": 566,
+    "title": "R619. 같은 의미의 구현은 하나만 둔다 (v55.07, P1126)"
+  },
+  {
+    "id": "R618",
+    "line": 572,
+    "title": "R618. 원장 루프는 서술이 아니라 기계로 닫는다 (v55.06, P1123~P1125)"
+  },
+  {
+    "id": "R617",
+    "line": 578,
+    "title": "R617. 사설 도구의 경계는 결과를 막지 않고 밝힌다 (v55.05, P1120~P1122)"
+  },
+  {
+    "id": "R616",
+    "line": 584,
+    "title": "R616. 정합은 화면이 실제로 읽는 경로에서 성립한다 (v55.04, P1116~P1119)"
+  },
+  {
+    "id": "R615",
+    "line": 590,
+    "title": "R615. 참조·측정면·퇴역은 발행 시점에 함께 닫는다 (v55.03, P1109~P1114)"
+  },
+  {
+    "id": "R614",
+    "line": 596,
+    "title": "R614. 발행 산출물의 의미 계약은 소비자·계보·만료까지 닫는다 (v55.02, P1096~P1108)"
+  },
+  {
+    "id": "R613",
+    "line": 602,
+    "title": "R613. 발행 산출물은 값·단위·시각·어휘가 스스로 정합해야 한다 (v55.01, P1090~P1095)"
+  },
+  {
+    "id": "R612",
+    "line": 608,
+    "title": "R612. 운영자 프로비저닝 경계는 문서-계약으로 검사한다 (v54.99, P1089)"
+  },
+  {
+    "id": "R611",
+    "line": 614,
+    "title": "R611. 클라이언트별 훅 페이로드는 각각 픽스처로 고정한다 (v54.99, P1084)"
+  },
+  {
+    "id": "R610",
+    "line": 620,
+    "title": "R610. 진단·요약 스텝은 셸 확장을 거치지 않는 파일에서 실행한다 (v54.99, P1083)"
+  },
+  {
+    "id": "R609",
+    "line": 626,
+    "title": "R609. 레인 격리는 진단을 위한 것이고, 발행 경계는 fail-closed로 유지한다 (v54.99, P1085)"
+  },
+  {
+    "id": "R608",
+    "line": 632,
+    "title": "R608. 캐시 폴백은 읽기 시점에 스스로 나이를 판정한다 (v54.99, P1086)"
+  },
+  {
+    "id": "R607",
+    "line": 638,
+    "title": "R607. 모든 워크플로 job은 실행 상한을 선언한다 (v54.99, P1088)"
+  },
+  {
+    "id": "R606",
+    "line": 644,
+    "title": "R606. 봇이 유발한 이벤트는 워크플로 체인을 잇지 못한다 — 수렴을 명시적으로 구동한다 (v54.99, P1087)"
+  },
+  {
+    "id": "R605",
+    "line": 650,
+    "title": "R605. 정적 DB는 data-refresh 주기에 맞춰 갱신하거나 명시적으로 보류한다 (v54.98, P1081)"
+  },
+  {
+    "id": "R604",
+    "line": 656,
+    "title": "R604. 정적 DB는 구성만 보관하고 시점 박힌 수치를 남기지 않는다 (v54.98, P1080)"
+  },
+  {
+    "id": "R603",
+    "line": 660,
+    "title": "R603. 생성물은 고빈도 데이터 refresh가 바꾸는 휘발값을 고정하지 않는다 (v54.98, P1079)"
+  },
+  {
+    "id": "R602",
+    "line": 664,
+    "title": "R602. 같은 라벨이 두 정의를 가리키면 정의나 라벨을 하나로 만든다 (v54.98, P1078)"
+  },
+  {
+    "id": "R601",
+    "line": 668,
+    "title": "R601. 사용자 출력 계약은 렌더된 결과로 단언한다 (v54.98, P1077)"
+  },
+  {
+    "id": "R600",
+    "line": 672,
+    "title": "R600. 감사는 자기 부작용을 검증하지 않는다 (v54.98, P1076)"
+  },
+  {
+    "id": "R599",
+    "line": 676,
+    "title": "R599. 가드의 스위치는 guard 대상 콘텐츠에서 파생한다 (v54.98, P1075)"
+  },
+  {
+    "id": "R598",
+    "line": 680,
+    "title": "R598. 완료한 작업은 표준 진입점에서 발견 가능한 핸드오프 기록을 남긴다 (v54.98, P1074)"
+  },
+  {
+    "id": "R597",
+    "line": 684,
+    "title": "R597. 값의 표시 소유자는 하나여야 하고, 소유권 이전은 승계 확인을 요구한다 (v54.98, P1074)"
+  },
+  {
+    "id": "R596",
+    "line": 688,
+    "title": "R596. 바이트 계약·정본 어휘·단위 환산은 손 목록과 체크아웃 설정에 의존하지 않는다 (v54.98, P1074)"
+  },
+  {
+    "id": "R595",
+    "line": 692,
+    "title": "R595. Refresh producer는 push 전 fail-closed gate와 exact-SHA attestation을 함께 요구한다 (v54.96, P1073)"
+  },
+  {
+    "id": "R594",
+    "line": 696,
+    "title": "R594. 자동 PASS와 line-by-line semantic coverage는 서로 다른 증거다 (v54.96, P1072)"
+  },
+  {
+    "id": "R593",
+    "line": 700,
+    "title": "R593. 운영 실패 알림은 signature·failed gate·notification budget을 보존한다 (v54.96, P1071)"
+  },
+  {
+    "id": "R592",
+    "line": 704,
+    "title": "R592. fast data plane은 no-op publish와 liveness write를 분리하고 KV budget을 계약화한다 (v54.96, P1069)"
+  },
+  {
+    "id": "R591",
+    "line": 708,
+    "title": "R591. company-primary 출처는 registry 검증된 issuer identity 없이는 승격하지 않는다 (v54.96, P1068)"
+  },
+  {
+    "id": "R590",
+    "line": 712,
+    "title": "R590. AI decision premise는 common evidence contract의 명시적 사용·권리·revision·freshness를 요구한다 (v54.96, P1068)"
+  },
+  {
+    "id": "R589",
+    "line": 716,
+    "title": "R589. QA gate의 실제 읽기·쓰기 범위는 manifest 입력·영향 규칙·격리 경로와 일치해야 한다 (v54.95, P1067)"
+  },
+  {
+    "id": "R588",
+    "line": 720,
+    "title": "R588. 레거시 이벤트와 파생 route는 native 경계에서 한 번만 정규화한다 (v54.95, P1066)"
+  },
+  {
+    "id": "R587",
+    "line": 724,
+    "title": "R587. 출처 등급·관측시각·수집시각·revision은 서로 대신할 수 없다 (v54.95, P1064/P1065)"
+  },
+  {
+    "id": "R586",
+    "line": 728,
+    "title": "R586. 결측 팩터는 중립값이 아니며 순위 분모를 희석하지 않는다 (v54.95, P1063)"
+  },
+  {
+    "id": "R585",
+    "line": 732,
+    "title": "R585. 저장소 불변성과 구독 알림은 바깥 객체 상태나 한 구독자 실패에 의존하지 않는다 (v54.95, P1062)"
+  },
+  {
+    "id": "R584",
+    "line": 736,
+    "title": "R584. 사용자 표면은 결측·선택·통화·렌더러 소유권을 producer 계약 그대로 보존한다 (v54.76 working tree, P1033)"
+  },
+  {
+    "id": "R583",
+    "line": 742,
+    "title": "R583. 브라우저 QA는 canonical route·제품 viewport·settled paint를 검사하고 실행 자원을 분리한다 (v54.76 working tree, P1032)"
+  },
+  {
+    "id": "R582",
+    "line": 748,
+    "title": "R582. 비동기 fallback·delegated action·route scheduler는 하나의 epoch와 owner를 사용한다 (v54.76 working tree, P1031)"
+  },
+  {
+    "id": "R581",
+    "line": 754,
+    "title": "R581. 발행 상태는 완전한 cycle tuple과 유효한 관측시각에서만 current가 된다 (v54.76 working tree, P1030)"
+  },
+  {
+    "id": "R580",
+    "line": 760,
+    "title": "R580. 검색·필터는 렌더러와 동일한 canonical 관계 필드를 사용한다 (v54.76, P1029)"
+  },
+  {
+    "id": "R579",
+    "line": 766,
+    "title": "R579. producer 상태 vocabulary와 사용자 문구를 같은 실제 렌더에서 검증한다 (v54.76, P1028)"
+  },
+  {
+    "id": "R578",
+    "line": 772,
+    "title": "R578. private index 전환은 모든 consumer를 resolver 또는 read-only adapter로 함께 이관한다 (v54.76, P1027)"
+  },
+  {
+    "id": "R577",
+    "line": 778,
+    "title": "R577. AI의 분석·검색·응답은 입력 모양이 아니라 추적 가능한 사용 계약으로 승격한다 (v54.76, P1026)"
+  },
+  {
+    "id": "R576",
+    "line": 784,
+    "title": "R576. 앱·지식·금융 계산의 경계는 종료·관계 의미·결측·비용 의미를 보존한다 (v54.76, P1023~P1025)"
+  },
+  {
+    "id": "R575",
+    "line": 790,
+    "title": "R575. 금액·관측·근거 계약은 추정으로 빈칸을 채우지 않고 실제 소비 경계를 밝힌다 (v54.75, P1018~P1022)"
+  },
+  {
+    "id": "R574",
+    "line": 796,
+    "title": "R574. 집합 충족률·개별 유효성·표시·보관 재현을 서로 대신하지 않는다 (v54.74, P1013~P1016)"
+  },
+  {
+    "id": "R573",
+    "line": 804,
+    "title": "R573. 계산 계약은 경계값·시점·상태 전이를 실제 실행으로 검증한다 (v54.73, P1011/P1012)"
+  },
+  {
+    "id": "R572",
+    "line": 810,
+    "title": "R572. 표시·정렬·비교·복귀는 같은 관측과 실제 사용자 문맥을 사용한다 (v54.70, P1010)"
+  },
+  {
+    "id": "R571",
+    "line": 816,
+    "title": "R571. 요청·캐시·수집 시도·실제 관측의 수명주기를 분리한다 (v54.69, P1006~P1009)"
+  },
+  {
+    "id": "R570",
+    "line": 822,
+    "title": "R570. 관측의 종목·주기·출처와 사용 범위를 소비자까지 보존한다 (v54.68, P1004)"
+  },
+  {
+    "id": "R569",
+    "line": 828,
+    "title": "R569. 독립 hydration 경로는 각자의 완성 조건을 기다린다 (v54.65, P1003)"
+  },
+  {
+    "id": "R568",
+    "line": 834,
+    "title": "R568. 출처 세부표시와 공식 발표 일정은 의미를 보존하며 함께 전진한다 (v54.65, P1002)"
+  },
+  {
+    "id": "R567",
+    "line": 840,
+    "title": "R567. 자동 refresh는 producer가 바꾼 모든 readiness와 generated evidence를 같은 커밋에 수렴시킨다 (v54.64, P1001)"
+  },
+  {
+    "id": "R566",
+    "line": 848,
+    "title": "R566. AI 안전·검색·지식 결손은 답변 전체가 아니라 실제 위험·주장 범위에서만 강등한다 (v54.64, P1000)"
+  },
+  {
+    "id": "R565",
+    "line": 854,
+    "title": "R565. 텍스트 projection manifest의 digest·bytes는 checkout 줄바꿈에 독립적이어야 한다 (v54.63, P999)"
+  },
+  {
+    "id": "R564",
+    "line": 860,
+    "title": "R564. 생성 상태의 텍스트 크기는 checkout 줄바꿈과 무관해야 한다 (v54.63, P998)"
+  },
+  {
+    "id": "R563",
+    "line": 866,
+    "title": "R563. 자동 데이터 merge의 마지막 생성물은 current workspace state다 (v54.63, P997)"
+  },
+  {
+    "id": "R562",
+    "line": 872,
+    "title": "R562. producer 자동화 상태와 lineage 회귀 계약은 같은 변경에서 이동한다 (v54.63, P996)"
+  },
+  {
+    "id": "R561",
+    "line": 878,
+    "title": "R561. 공개 주기 데이터는 수동 숫자가 아니라 release-aware producer와 실패 가시성으로 닫는다 (v54.63, P995)"
+  },
+  {
+    "id": "R560",
+    "line": 884,
+    "title": "R560. 병렬 검사에 노출된 generated JSON은 완성본 단위로 원자 교체한다 (v54.63, P994)"
+  },
+  {
+    "id": "R559",
+    "line": 890,
+    "title": "R559. 새 화면 지표는 sink·source alias·발표 일정까지 같은 변경으로 닫는다 (v54.63, P993)"
+  },
+  {
+    "id": "R558",
+    "line": 896,
+    "title": "R558. 주간 데이터 freshness는 다음 공식 발표 가능 시각 전까지 release-aware로 계산한다 (v54.63, P992)"
+  },
+  {
+    "id": "R557",
+    "line": 902,
+    "title": "R557. 공개 AI 경로와 bootstrap payload는 동일한 readiness·byte evidence에서 생성한다 (v54.63, P991)"
+  },
+  {
+    "id": "R556",
+    "line": 908,
+    "title": "R556. 팩터 순위의 confidence는 입력 근거 진단이며 수익확률·매매신호가 아니다 (v54.63, P990)"
+  },
+  {
+    "id": "R555",
+    "line": 914,
+    "title": "R555. 같은 지표명의 계절조정·비계절조정과 field별 권한을 합치지 않는다 (v54.63, P989)"
+  },
+  {
+    "id": "R554",
+    "line": 920,
+    "title": "R554. 헤드라인은 발견 근거이지 기사 수준 분석·인과 근거가 아니다 (v54.63, P988)"
+  },
+  {
+    "id": "R553",
+    "line": 926,
+    "title": "R553. 기본 route와 정적 카드는 숨은 provider 호출·시점 없는 투자 숫자를 만들지 않는다 (v54.63, P987)"
+  },
+  {
+    "id": "R552",
+    "line": 932,
+    "title": "R552. lazy mount 전 headless 상태 보존과 mount 후 브라우저 가시성을 분리한다 (v54.62, P986)"
+  },
+  {
+    "id": "R551",
+    "line": 938,
+    "title": "R551. 보이는 투자 숫자는 기준일·출처·허용 용도를 같은 표면에 둔다 (v54.62, P985)"
+  },
+  {
+    "id": "R550",
+    "line": 944,
+    "title": "R550. derived route의 선택 state는 owning lazy renderer가 소비할 때까지 보존한다 (v54.62, P984)"
+  },
+  {
+    "id": "R549",
+    "line": 950,
+    "title": "R549. 실패 결과는 성공 TTL cache가 아니며 모든 안전 제약은 cache identity다 (v54.62, P983)"
+  },
+  {
+    "id": "R548",
+    "line": 956,
+    "title": "R548. freshness·LKG·readiness는 producer에서 UI까지 단조롭게 강등된다 (v54.62, P982)"
+  },
+  {
+    "id": "R547",
+    "line": 962,
+    "title": "R547. AI 행동 권한은 모든 provider·quota·retrieval보다 앞선 단일 오케스트레이터 경계다 (v54.62, P981)"
+  },
+  {
+    "id": "R546",
+    "line": 968,
+    "title": "R546. 운영 알림 임계값·dedupe·복구 증거는 같은 workflow identity로 수렴한다 (v54.61, P980)"
+  },
+  {
+    "id": "R545",
+    "line": 974,
+    "title": "R545. 관측 생략·실패·유효기간 내 LKG를 서로 다른 운영 상태로 보존한다 (v54.61, P979)"
+  },
+  {
+    "id": "R544",
+    "line": 980,
+    "title": "R544. 최초 browser lifecycle과 실패 group 재검사는 서로 다른 실행 단위다 (v54.61, P978)"
+  },
+  {
+    "id": "R543",
+    "line": 986,
+    "title": "R543. native ownership, lazy delivery, bulk retention은 독립적으로 증명한다 (v54.61, P977)"
+  },
+  {
+    "id": "R542",
+    "line": 992,
+    "title": "R542. 버전 범프는 revision-bound 실행 증거를 자동 승격하지 않고 무효화한다 (v54.60, P976)"
+  },
+  {
+    "id": "R541",
+    "line": 998,
+    "title": "R541. 런타임 상태 요약과 릴리스 전수 감사는 실행 경계와 비용 예산을 공유하지 않는다 (v54.60, P975)"
+  },
+  {
+    "id": "R540",
+    "line": 1004,
+    "title": "R540. 비ASCII 민감정보 단위는 ASCII `\\b` 경계에 의존하지 않는다 (v54.59, P974)"
+  },
+  {
+    "id": "R539",
+    "line": 1010,
+    "title": "R539. Compatibility facade의 현재 표면과 목표 표면을 구분하고 확장을 ratchet한다 (v54.59, P972)"
+  },
+  {
+    "id": "R538",
+    "line": 1016,
+    "title": "R538. Service worker 설치는 작은 핵심 셸만 원자적으로 precache한다 (v54.59, P972)"
+  },
+  {
+    "id": "R537",
+    "line": 1024,
+    "title": "R537. 자동 접근성 PASS는 수동 접근성 인증을 대신하지 않는다 (v54.59, P972)"
+  },
+  {
+    "id": "R536",
+    "line": 1030,
+    "title": "R536. Pages는 CI가 발행한 불변 SHA attestation만 배포한다 (v54.59, P973)"
+  },
+  {
+    "id": "R535",
+    "line": 1036,
+    "title": "R535. 제품 범위·non-goal·trust plane은 구현보다 먼저 계약한다 (v54.59, P972)"
+  },
+  {
+    "id": "R534",
+    "line": 1042,
+    "title": "R534. QA 영향 범위는 task baseline 또는 명시적 파일 목록으로 결정한다 (v54.59, P971)"
+  },
+  {
+    "id": "R533",
+    "line": 1048,
+    "title": "R533. 성능·운영 측정은 revision·commit·환경·명령·artifact에 묶는다 (v54.59, P970)"
+  },
+  {
+    "id": "R532",
+    "line": 1054,
+    "title": "R532. AI quota reservation과 upstream 실행은 하나의 idempotency 경계를 가진다 (v54.59, P969)"
+  },
+  {
+    "id": "R531",
+    "line": 1060,
+    "title": "R531. 민감 로컬 보존은 기본 OFF·최소화·암호화 정확성을 요구한다 (v54.59, P968)"
+  },
+  {
+    "id": "R530",
+    "line": 1066,
+    "title": "R530. Evidence allowedUse는 생성 이후 오직 더 제한적으로만 바뀐다 (v54.59, P967)"
+  },
+  {
+    "id": "R529",
+    "line": 1072,
+    "title": "R529. 모든 CI script는 실행 경로 또는 명시적 퇴역 원장을 가져야 한다 (v54.59, P966)"
+  },
+  {
+    "id": "R525",
+    "line": 1078,
+    "title": "R525. QA는 영향 기반 manifest와 단계별 전수 실패 수집을 사용한다 (v54.58, P965)"
+  },
+  {
+    "id": "R526",
+    "line": 1084,
+    "title": "R526. 앱 릴리스와 데이터-only 릴리스는 검증·checkout 경계를 공유하지 않는다 (v54.58, P965)"
+  },
+  {
+    "id": "R527",
+    "line": 1090,
+    "title": "R527. Endpoint 구성과 현재 운영 증거는 같은 파일에 저장하지 않는다 (v54.58, P965)"
+  },
+  {
+    "id": "R528",
+    "line": 1096,
+    "title": "R528. Cloudflare 배포는 수동 권한·직렬 ownership·관측·smoke를 함께 가진다 (v54.58, P965)"
+  },
+  {
+    "id": "R520",
+    "line": 1104,
+    "title": "R520. Current workspace facts are generated once and historical ledgers are search-only (v54.57, P964)"
+  },
+  {
+    "id": "R521",
+    "line": 1110,
+    "title": "R521. Agent hooks are portable guardrails and never mutate repository authority state (v54.57, P964)"
+  },
+  {
+    "id": "R522",
+    "line": 1116,
+    "title": "R522. Skills and agent profiles require generated parity plus observable eval inputs (v54.57, P964)"
+  },
+  {
+    "id": "R523",
+    "line": 1122,
+    "title": "R523. Workspace and knowledge drift are push gates with deduplicated operational escalation (v54.57, P964)"
+  },
+  {
+    "id": "R524",
+    "line": 1128,
+    "title": "R524. Structural knowledge completeness and semantic certification are separate state machines (v54.57, P964)"
+  },
+  {
+    "id": "R509",
+    "line": 1134,
+    "title": "R509. Learning pages require narrative order, destination consumption and filing-semantic labels (v54.43, P953)"
+  },
+  {
+    "id": "R510",
+    "line": 1140,
+    "title": "R510. User-supplied market commentary stays reference-only until a producer reconciles it (v54.44, P954)"
+  },
+  {
+    "id": "R511",
+    "line": 1146,
+    "title": "R511. Missing macro transmission variables are blocked, not inferred from proxies (v54.44, P955)"
+  },
+  {
+    "id": "R512",
+    "line": 1152,
+    "title": "R512. Missing numeric observations, news topic suppression and chart observers fail closed together (v54.45, P956)"
+  },
+  {
+    "id": "R514",
+    "line": 1158,
+    "title": "R514. Cancellation, focus return and coverage denominators are one boundary (v54.48, P958)"
+  },
+  {
+    "id": "R515",
+    "line": 1164,
+    "title": "R515. Page hydration must follow route ownership (v54.49, P959)"
+  },
+  {
+    "id": "R516",
+    "line": 1170,
+    "title": "R516. Direct entity routes must start from neutral, accessible empty state (v54.50, P960)"
+  },
+  {
+    "id": "R517",
+    "line": 1176,
+    "title": "R517. Freshness, source precedence and missingness must remain visible across compatibility boundaries (v54.50, P961)"
+  },
+  {
+    "id": "R519",
+    "line": 1182,
+    "title": "R519. Browser network assertions must correlate to the initiating user action (v54.55, P963)"
+  },
+  {
+    "id": "R518",
+    "line": 1188,
+    "title": "R518. Portfolio financial values and cross-route detail controls fail closed (v54.54, P962)"
+  },
+  {
+    "id": "R513",
+    "line": 1194,
+    "title": "R513. Currentness, cancellation, source semantics and stale disclosure share one negative-control gate (v54.47, P957)"
+  },
+  {
+    "id": "R508",
+    "line": 1200,
+    "title": "R508. Rendering, coverage, persistence and publication readiness are separate contracts (v54.42, P952)"
+  },
+  {
+    "id": "R507",
+    "line": 1206,
+    "title": "R507. Refresh audits distinguish observed, policy-blocked and runtime-derived categories (v54.41, P951)"
+  },
+  {
+    "id": "R506",
+    "line": 1212,
+    "title": "R506. Detail artifacts belong to the narrowest interaction and retain honest failure state (v54.40, P950)"
+  },
+  {
+    "id": "R505",
+    "line": 1218,
+    "title": "R505. Summary-only surfaces consume compact projections, not completion corpora (v54.39, P949)"
+  },
+  {
+    "id": "R504",
+    "line": 1224,
+    "title": "R504. Browser runtime data uses bounded shards and shared request coalescing (v54.39, P949)"
+  },
+  {
+    "id": "R502",
+    "line": 1230,
+    "title": "R502. Every golden route belongs to shared viewport and accessibility coverage (v54.38, P948)"
+  },
+  {
+    "id": "R501",
+    "line": 1236,
+    "title": "R501. Structured knowledge depth is not human certification (v54.38, P948)"
+  },
+  {
+    "id": "R500",
+    "line": 1242,
+    "title": "R500. Knowledge routes load by route-owned capability and preserve interaction state (v54.38, P948)"
+  },
+  {
+    "id": "R499",
+    "line": 1248,
+    "title": "R499. Regulatory universes require discovery, fair access, amendment composition and last-known-good preservation (v54.38, P948)"
+  },
+  {
+    "id": "R498",
+    "line": 1254,
+    "title": "R498. Screener factor rows cannot be created by fundamentals alone (v54.37, P945)"
+  },
+  {
+    "id": "R497",
+    "line": 1260,
+    "title": "R497. Public AI chat is certified as a fresh-browser consumer outcome (v54.37, P944)"
+  },
+  {
+    "id": "R496",
+    "line": 1266,
+    "title": "R496. Dated observations must be scoped to the selected knowledge node (v54.33)"
+  },
+  {
+    "id": "R495",
+    "line": 1272,
+    "title": "R495. Learner-first knowledge surfaces use declarative exploration, not quiz prompts (v54.33)"
+  },
+  {
+    "id": "R492",
+    "line": 1278,
+    "title": "R492. Official static release calendars must be date-advanced and source-verified (v54.23)"
+  },
+  {
+    "id": "R493",
+    "line": 1284,
+    "title": "R493. SEC fallback concepts must be unioned before newest-observation selection (v54.24)"
+  },
+  {
+    "id": "R491",
+    "line": 1290,
+    "title": "R491. Browser goldens and renderers are certified from the same committed tree (v54.22)"
+  },
+  {
+    "id": "R490",
+    "line": 1296,
+    "title": "R490. Asynchronous artifact tests wait on runtime-owned settled state (v54.22)"
+  },
+  {
+    "id": "R489",
+    "line": 1302,
+    "title": "R489. Playwright workflow steps inherit an explicit browser-install prerequisite (v54.22)"
+  },
+  {
+    "id": "R488",
+    "line": 1308,
+    "title": "R488. Scope gates validate their direct inputs from the committed tree (v54.22)"
+  },
+  {
+    "id": "R487",
+    "line": 1316,
+    "title": "R487. Selective releases validate R1 surfaces from the staged tree (v54.22)"
+  },
+  {
+    "id": "R486",
+    "line": 1322,
+    "title": "R486. Initial paint and synthetic route latency require a browser presentation boundary (v54.22)"
+  },
+  {
+    "id": "R485",
+    "line": 1328,
+    "title": "R485. Keyless official downloads close critical single-series gaps without relabeling access (v54.22)"
+  },
+  {
+    "id": "R484",
+    "line": 1334,
+    "title": "R484. Factor fixtures carry the same field-family observation epochs as production rows (v54.22)"
+  },
+  {
+    "id": "R483",
+    "line": 1340,
+    "title": "R483. Versioned domain-contract changes update every independent golden gate atomically (v54.22)"
+  },
+  {
+    "id": "R482",
+    "line": 1346,
+    "title": "R482. Runtime-imported modules must enter the service-worker shell in the same change (v54.22)"
+  },
+  {
+    "id": "R481",
+    "line": 1352,
+    "title": "R481. Professional data capabilities are promoted only by artifact-backed partial scopes (v54.22)"
+  },
+  {
+    "id": "R480",
+    "line": 1358,
+    "title": "R480. Every changing or hardcoded data category has a daily-audited source and limitation contract (v54.21)"
+  },
+  {
+    "id": "R479",
+    "line": 1364,
+    "title": "R479. Quant rows and rankings preserve separate source epochs and rendered-symbol refresh demand (v54.20)"
+  },
+  {
+    "id": "R478",
+    "line": 1370,
+    "title": "R478. Market-sensitive fields retain one machine-checkable timeline and direction basis (v54.19)"
+  },
+  {
+    "id": "R477",
+    "line": 1376,
+    "title": "R477. Market-sensitive routes consume one evidence-derived market epoch (v54.18)"
+  },
+  {
+    "id": "R474",
+    "line": 1382,
+    "title": "R474. Owner-approved desktop, mobile and tablet scope (v57.38, P1618)"
+  },
+  {
+    "id": "R476",
+    "line": 1390,
+    "title": "R476. Retired mobile touch-target checks do not block desktop-only releases (v54.17)"
+  },
+  {
+    "id": "R475",
+    "line": 1398,
+    "title": "R475. Release versions use canonical major or two-digit patch notation (v54.17)"
+  },
+  {
+    "id": "R472",
+    "line": 1404,
+    "title": "R472. Browser lifecycle gates must stabilize known boot-delayed timers before leak comparison (v54.12)"
+  },
+  {
+    "id": "R473",
+    "line": 1410,
+    "title": "R473. New public-data artifacts require same-change lineage policy registration (v54.13)"
+  },
+  {
+    "id": "R471",
+    "line": 1416,
+    "title": "R471. Screener Workbench contracts must be the single lifecycle boundary (v54.12)"
+  },
+  {
+    "id": "R470",
+    "line": 1422,
+    "title": "R470. Knowledge research artifacts must preserve completion and currentness boundaries (v54.7)"
+  },
+  {
+    "id": "R464",
+    "line": 1428,
+    "title": "R464. Knowledge concepts require one canonical namespace and explicit overlap equivalence (v54.6)"
+  },
+  {
+    "id": "R465",
+    "line": 1434,
+    "title": "R465. Knowledge graph edge metadata must be explicit before runtime consumption (v54.6)"
+  },
+  {
+    "id": "R466",
+    "line": 1440,
+    "title": "R466. Evidence directness is a claim-level boundary (v54.6)"
+  },
+  {
+    "id": "R467",
+    "line": 1446,
+    "title": "R467. Structured article drafts cannot be published as completed learning content (v54.6)"
+  },
+  {
+    "id": "R468",
+    "line": 1452,
+    "title": "R468. Knowledge route state and partial capability loading must fail soft (v54.6)"
+  },
+  {
+    "id": "R469",
+    "line": 1458,
+    "title": "R469. 주식·경제·금융·기술 백과사전은 전체 corpus와 Web Research를 별도 인증한다 (v54.6, P910)"
+  },
+  {
+    "id": "R419",
+    "line": 1464,
+    "title": "R419. 릴리스 아키텍처 매니페스트는 R1 버전과 함께 동기화해야 한다 (v53.64, P864)"
+  },
+  {
+    "id": "R420",
+    "line": 1470,
+    "title": "R420. 공식 일정의 완료 이벤트는 nextRelease로 남기지 않는다 (v53.64, P865)"
+  },
+  {
+    "id": "R421",
+    "line": 1476,
+    "title": "R421. 데이터 refresh 이후 릴리스 SSOT를 같은 revision tuple로 승격한다 (v53.64, P866)"
+  },
+  {
+    "id": "R422",
+    "line": 1482,
+    "title": "R422. LKG 값은 개인 공급자 재시도나 최신 성공시각으로 간주하지 않는다 (v53.65, P867)"
+  },
+  {
+    "id": "R423",
+    "line": 1488,
+    "title": "R423. 일별 시계열에는 완료된 시장 세션 값만 저장한다 (v53.65, P868)"
+  },
+  {
+    "id": "R424",
+    "line": 1494,
+    "title": "R424. 모든 라우트의 현재시장 문맥은 하나의 서버 24시간 컷을 사용한다 (v53.65, P869)"
+  },
+  {
+    "id": "R356",
+    "line": 1500,
+    "title": "R356. Yahoo chart proxy는 공통 health registry를 통해서만 실행해야 한다 (v53.19, P784)"
+  },
+  {
+    "id": "R357",
+    "line": 1506,
+    "title": "R357. Native bounded technical surfaces must have one pure model and an explicit legacy writer fence (v53.20, P785)"
+  },
+  {
+    "id": "R358",
+    "line": 1514,
+    "title": "R358. Signal primary text must derive from one Trading Score model and fence the legacy dashboard writer (v53.21, P786)"
+  },
+  {
+    "id": "R359",
+    "line": 1522,
+    "title": "R359. Home aggregate primary text must reuse signal presentation and fence legacy summary writers (v53.22, P787)"
+  },
+  {
+    "id": "R360",
+    "line": 1530,
+    "title": "R360. Derived theme-detail summary must use an explicit event/child boundary (v53.23, P788)"
+  },
+  {
+    "id": "R361",
+    "line": 1536,
+    "title": "R361. Theme-detail composition/breadth must use normalized quote evidence and a fenced legacy writer (v53.24, P789)"
+  },
+  {
+    "id": "R362",
+    "line": 1542,
+    "title": "R362. Theme-detail leader cards must have one native writer and fail-closed quote display (v53.25, P790)"
+  },
+  {
+    "id": "R363",
+    "line": 1548,
+    "title": "R363. Theme-detail temperature narrative must derive from canonical performance and fence the legacy section (v53.26, P791)"
+  },
+  {
+    "id": "R364",
+    "line": 1554,
+    "title": "R364. Theme-detail performance spread must rank only observed quote changes (v53.27, P792)"
+  },
+  {
+    "id": "R365",
+    "line": 1560,
+    "title": "R365. Theme-detail breadth-health narrative must use normalized breadth and fence the legacy section (v53.28, P793)"
+  },
+  {
+    "id": "R366",
+    "line": 1566,
+    "title": "R366. Theme-detail subtheme-gap narrative must use normalized subtheme quote evidence and fence the legacy section (v53.29, P794)"
+  },
+  {
+    "id": "R368",
+    "line": 1572,
+    "title": "R368. Home Quality must not reuse Trading Score and must fail closed without canonical inputs (v53.34, P821)"
+  },
+  {
+    "id": "R369",
+    "line": 1580,
+    "title": "R369. Technical candle text and legacy canvas lifecycle must remain separate (v53.34, P822)"
+  },
+  {
+    "id": "R370",
+    "line": 1586,
+    "title": "R370. Theme-detail comparison formatters must reject non-finite quote percentages (v53.35, P823)"
+  },
+  {
+    "id": "R371",
+    "line": 1592,
+    "title": "R371. Shared currentness sanitizers must not rewrite native renderer-owned narrative sinks (v53.36, P824)"
+  },
+  {
+    "id": "R372",
+    "line": 1598,
+    "title": "R372. Dynamic detail panels must keep aria-live announcements intentionally scarce (v53.37, P825)"
+  },
+  {
+    "id": "R373",
+    "line": 1604,
+    "title": "R373. Derived routes must replay through their canonical mount in compatibility navigation (v53.38, P826)"
+  },
+  {
+    "id": "R374",
+    "line": 1610,
+    "title": "R374. Portfolio summary cutovers must transfer the pure model and fence every legacy writer (v53.40, P831)"
+  },
+  {
+    "id": "R375",
+    "line": 1616,
+    "title": "R375. Official SEC report surfaces must use one finite-safe projection and keep mixed-source sections separate (v53.41, P832)"
+  },
+  {
+    "id": "R367",
+    "line": 1622,
+    "title": "R367. Theme-detail benchmark narrative must use normalized theme/benchmark evidence and fence the legacy section (v53.30, P795)"
+  },
+  {
+    "id": "R355",
+    "line": 1628,
+    "title": "R355. Durable snapshot은 reference readiness이며 client live enrichment의 outage gate다 (v53.18, P783)"
+  },
+  {
+    "id": "R354",
+    "line": 1634,
+    "title": "R354. 서비스워커 버전 표시는 현재 controller 전환을 따라야 한다 (v53.18, P782)"
+  },
+  {
+    "id": "R353",
+    "line": 1640,
+    "title": "R353. route ownership 요약은 route별 선언에서 재계산한다 (v53.18, P781)"
+  },
+  {
+    "id": "R352",
+    "line": 1646,
+    "title": "R352. Architecture migration must transfer an executable owner and monotonically retire legacy coupling (v53.15, P736)"
+  },
+  {
+    "id": "R351",
+    "line": 1690,
+    "title": "R351. History bucket dates must not replace field-level observation provenance (v53.14, P735)"
+  },
+  {
+    "id": "R350",
+    "line": 1696,
+    "title": "R350. Protected portfolio reloads and RSS backstops must fail closed at the visible boundary (v53.13, P734)"
+  },
+  {
+    "id": "R349",
+    "line": 1702,
+    "title": "R349. Workflow module heredocs require an ESM runtime-import contract (v53.12, P733)"
+  },
+  {
+    "id": "R348",
+    "line": 1708,
+    "title": "R348. Workflow heredocs must declare the same Node module mode that their source syntax requires (v53.11, P732)"
+  },
+  {
+    "id": "R347",
+    "line": 1714,
+    "title": "R347. Durable and fast data planes must expose independent revisions and fail closed until operator SLO evidence exists (v53.11, AR-07)"
+  },
+  {
+    "id": "R346",
+    "line": 1722,
+    "title": "R346. Legacy event adapters must normalize the actual EventTarget and payload shape at the boundary (v53.9, P729)"
+  },
+  {
+    "id": "R345",
+    "line": 1730,
+    "title": "R345. 고빈도 데이터 batch는 Store 기록과 DOM 반영을 분리하고 전역 scan·rewrite를 batch당 한 번만 수행한다 (v53.9, P728)"
+  },
+  {
+    "id": "R344",
+    "line": 1738,
+    "title": "R344. 퇴역 UI의 렌더 경로와 주기 작업은 canonical owner 하나만 남기고 실행 가능한 게이트로 고정한다 (v53.8, P727)"
+  },
+  {
+    "id": "R343",
+    "line": 1746,
+    "title": "R343. 신용 판정은 HYG 등 듀레이션 오염 가격이 아니라 FRED HY OAS(bp) 실측만 사용하고, 결측 시 null 사전 차단으로 0을 방지한다 (v53.7, P726)"
+  },
+  {
+    "id": "R342",
+    "line": 1754,
+    "title": "R342. 변동 데이터와 현재형 서술은 런타임 증거만 사용하고 결측을 정적 시드로 메우지 않는다 (v53.4, P717)"
+  },
+  {
+    "id": "R341",
+    "line": 1764,
+    "title": "R341. 퇴역 기능은 inert stub로 보존하지 않고 수직 경로와 공개 artifact에서 완전히 제거한다 (v53.3, P716)"
+  },
+  {
+    "id": "R340",
+    "line": 1772,
+    "title": "R340. 파생 시장 결론은 필수 관측 입력의 의미·기준일·coverage가 충족될 때만 표시한다 (v52.99, P712)"
+  },
+  {
+    "id": "R339",
+    "line": 1780,
+    "title": "R339. 증분 정성 피드는 전체 관측 lineage와 capped 소비 payload를 분리하고 현재 narrative를 재생성한다 (v52.97, P711)"
+  },
+  {
+    "id": "R338",
+    "line": 1788,
+    "title": "R338. 데이터 artifact lineage는 정책별 timestamp와 반영 commit을 함께 검증하고, 다른 시각을 승격하지 않는다 (v52.96, P710)"
+  },
+  {
+    "id": "R335",
+    "line": 1796,
+    "title": "R335. BLS 공식 macro evidence는 FRED 대체값이 아니라 typed primary producer로 보존한다 (v52.94)"
+  },
+  {
+    "id": "R336",
+    "line": 1802,
+    "title": "R336. 모든 route의 page completeness는 producer failure와 reference fallback을 종결 상태로 노출한다 (v52.94)"
+  },
+  {
+    "id": "R337",
+    "line": 1808,
+    "title": "R337. Runtime fixture override와 reference fallback drift의 의미를 테스트 계약에 고정한다 (v52.94, P709)"
+  },
+  {
+    "id": "R313",
+    "line": 1814,
+    "title": "R313. AI reference retrieval must be intent-aware, top-k bounded, source-separated, and deterministically compacted (v52.78, P693)"
+  },
+  {
+    "id": "R314",
+    "line": 1822,
+    "title": "R314. External AI inputs must be explicitly untrusted and portfolio data must be allowlisted (v52.79, P694)"
+  },
+  {
+    "id": "R315",
+    "line": 1830,
+    "title": "R315. Personalized financial action permission must be evaluated once at the shared response boundary (v52.79, P694)"
+  },
+  {
+    "id": "R316",
+    "line": 1840,
+    "title": "R316. Automated content must pass a publish audit and retain a deterministic fallback/source label (v52.80, P695)"
+  },
+  {
+    "id": "R317",
+    "line": 1848,
+    "title": "R317. AI page context contracts must be projected from the existing page registry (v52.80, P695)"
+  },
+  {
+    "id": "R326",
+    "line": 1856,
+    "title": "R326. Tool capabilities are read-only by default and mutation/unknown operations are denied (v52.86, P701)"
+  },
+  {
+    "id": "R327",
+    "line": 1864,
+    "title": "R327. Provider/data/output rights, retention, training, redistribution, and region require explicit registry approval (v52.86, P701)"
+  },
+  {
+    "id": "R324",
+    "line": 1872,
+    "title": "R324. Coverage and exposure audits must neutralize missingness before recommendations (v52.85, P700)"
+  },
+  {
+    "id": "R325",
+    "line": 1880,
+    "title": "R325. Human chat claims require signed cross-mode evidence and explicit incomplete states (v52.85, P700)"
+  },
+  {
+    "id": "R322",
+    "line": 1888,
+    "title": "R322. Model releases require replay provenance, approval, canary, and rollback evidence (v52.84, P699)"
+  },
+  {
+    "id": "R323",
+    "line": 1896,
+    "title": "R323. AI cache identity, idempotency, and stream completion must be tenant-safe and auditable (v52.84, P699)"
+  },
+  {
+    "id": "R320",
+    "line": 1904,
+    "title": "R320. Retrieval documents require lifecycle metadata and poisoning quarantine before AI use (v52.83, P698)"
+  },
+  {
+    "id": "R321",
+    "line": 1912,
+    "title": "R321. Financial conduct classification must preserve P0, legal-review, and educational states (v52.83, P698)"
+  },
+  {
+    "id": "R318",
+    "line": 1920,
+    "title": "R318. AI operations and release claims require measured SLO, deterministic benchmark, and manifest-linked feedback (v52.81, P696)"
+  },
+  {
+    "id": "R319",
+    "line": 1928,
+    "title": "R319. Conversation state and finance arithmetic must be deterministic, scoped, and auditable (v52.82, P697)"
+  },
+  {
+    "id": "R312",
+    "line": 1936,
+    "title": "R312. Structured current-sensitive AI claims must preserve typed Evidence identity and fail closed on mismatch (v52.77, P692)"
+  },
+  {
+    "id": "R311",
+    "line": 1944,
+    "title": "R311. 공개 AI의 모든 진입점은 동일 요청 envelope·응답 pipeline·validator/block-policy 버전을 기록하고 retry는 같은 completion contract를 재사용한다 (v52.76, P691)"
+  },
+  {
+    "id": "R310",
+    "line": 1950,
+    "title": "R310. 공개 AI는 렌더 경계까지 베타·교육/리서치 보조 정책을 강제하고, 검증되지 않은 자동 문장을 공개하지 않는다 (v52.75, P690)"
+  },
+  {
+    "id": "R301",
+    "line": 1957,
+    "title": "R301. 일반 사용자 부팅 경로에서는 배포·공유·전수 Evidence 감사를 실행하지 않는다 (v52.74)"
+  },
+  {
+    "id": "R300",
+    "line": 1963,
+    "title": "R300. When turning on new error/warning signal collection inside a test harness that deliberately blocks network access, expect the app's own legitimate failure-detection code to surface through that same channel — trace it to source before allowlisting or failing on it (v52.52)"
+  },
+  {
+    "id": "R299",
+    "line": 1970,
+    "title": "R299. A factor backtest's universe composition and lookback window can flip the sign of a well-known factor — don't compare against academic-literature factor performance without matching sample characteristics (v52.51)"
+  },
+  {
+    "id": "R298",
+    "line": 1979,
+    "title": "R298. A hand-tuned score using fixed absolute-level thresholds on a macro indicator must be re-validated against realized outcomes across a regime-shifting window before trusting its sign, not just its shape (v52.49)"
+  },
+  {
+    "id": "R297",
+    "line": 1990,
+    "title": "R297. A score's evidence/provenance registry must list every input the score function actually reads — not just the subset registered when the registry was first built (v52.49)"
+  },
+  {
+    "id": "R280",
+    "line": 1999,
+    "title": "R280. A global function declared in more than one non-module `<script>` (inline or external) silently loses all but the last-loaded definition — with no error, no warning (v52.8, mechanically gated v52.19)"
+  },
+  {
+    "id": "R279",
+    "line": 2008,
+    "title": "R279. A regression test must assert the structural property a value is supposed to satisfy, not the specific value/date/count observed when the test was written — that literal will itself go stale (v52.7, broadened v52.20)"
+  },
+  {
+    "id": "R278",
+    "line": 2017,
+    "title": "R278. A `workflow_run`-triggered job that needs the commit its trigger produced must checkout `head_branch`, not `head_sha` (v52.5)"
+  },
+  {
+    "id": "R277",
+    "line": 2026,
+    "title": "R277. An external deploy/publish action known to fail transiently must retry once in the same job, not rely on the next scheduled cycle to self-heal (v52.4)"
+  },
+  {
+    "id": "R276",
+    "line": 2027,
+    "title": "R276. New code needing current market/risk/regime/breadth/cycle condition must consume `window.AIO.marketState`, not re-derive it independently (v52.3)"
+  },
+  {
+    "id": "R275",
+    "line": 2040,
+    "title": "R275. A shared global object populated by multiple files must always be merged, never plainly overwritten — even if today's load order happens to make it safe (v51.99)"
+  },
+  {
+    "id": "R274",
+    "line": 2041,
+    "title": "R274. A live-fetch binding introduced for an existing labeled/thresholded field must fetch the exact same named indicator the label represents — not a same-topic substitute (v51.97)"
+  },
+  {
+    "id": "R273",
+    "line": 2042,
+    "title": "R273. A value that's supposed to mirror or track another value must be verified equal by evaluating both, not by eyeballing the diff — and duplicate/mirror fields must be named to be found (v51.96)"
+  },
+  {
+    "id": "R272",
+    "line": 2043,
+    "title": "R272. A bot/Action-authored push using the default `GITHUB_TOKEN` never triggers other `on: push` workflows — chain via `workflow_run` instead, not `[skip ci]` removal alone (v51.95)"
+  },
+  {
+    "id": "R271",
+    "line": 2044,
+    "title": "R271. After editing `SCREENER_DB` (js/aio-data.js), always re-run `scripts/sync-screener-universe.mjs` before committing (v51.94)"
+  },
+  {
+    "id": "R270",
+    "line": 2046,
+    "title": "R270. A third-party data source's availability and symbol convention must be live-verified, never assumed from a report or general knowledge — and an integration must be scoped down to only the asset classes actually confirmed (v51.92)"
+  },
+  {
+    "id": "R269",
+    "line": 2047,
+    "title": "R269. A CI job that whitelists known-failing tests must classify each entry by cause, and adding to the whitelist is only valid right after a fresh, real measurement (v51.91)"
+  },
+  {
+    "id": "R268",
+    "line": 2048,
+    "title": "R268. Combining sub-signals of different natural scale into one factor requires normalizing each first (v51.89)"
+  },
+  {
+    "id": "R267",
+    "line": 2049,
+    "title": "R267. \"Current\"-labeled rolling aggregations must anchor windows to the newest observation (v51.88)"
+  },
+  {
+    "id": "R266",
+    "line": 2050,
+    "title": "R266. When a measured value and a proxy heuristic coexist, consumers must prefer the measurement — and fetchers must store measurements consumably (v51.88)"
+  },
+  {
+    "id": "R265",
+    "line": 2051,
+    "title": "R265. Code that claims parity with a named external tool/methodology must match that source's exact definition, verified by recomputation (v51.86)"
+  },
+  {
+    "id": "R264",
+    "line": 2052,
+    "title": "R264. An API key in a URL must never be routed through a third-party proxy; a \"sensitive URL\" guard must block the egress, not just caching (v51.85)"
+  },
+  {
+    "id": "R263",
+    "line": 2053,
+    "title": "R263. Every producer of deployable artifacts must actually trigger the deploy path, and the watchdog must verify the DEPLOYED surface, not just the repo (v51.84)"
+  },
+  {
+    "id": "R262",
+    "line": 2054,
+    "title": "R262. Scheduled scrapers/fetchers hitting external feeds must self-throttle with a persisted cursor, not stateless full re-scans (v51.83)"
+  },
+  {
+    "id": "R261",
+    "line": 2061,
+    "title": "R261. A \"single responsibility\" canonical updater must include every DOM sink for its metric (v51.83)"
+  },
+  {
+    "id": "R259",
+    "line": 2068,
+    "title": "R259. Re-registerable event listeners must guard against duplicate registration consistently across sibling elements (v51.83)"
+  },
+  {
+    "id": "R260",
+    "line": 2069,
+    "title": "R260. A function must never be redefined more than once at the same scope in the same file (v51.83)"
+  },
+  {
+    "id": "R258",
+    "line": 2070,
+    "title": "R258. A hardening measure added to one surface must be checked against equivalent surfaces (v51.83)"
+  },
+  {
+    "id": "R257",
+    "line": 2071,
+    "title": "R257. Persisted-and-later-rendered free text needs both input-boundary validation and escaped render (v51.83)"
+  },
+  {
+    "id": "R256",
+    "line": 2072,
+    "title": "R256. Every external data source in the fetch pipeline must track per-unit failures, not just an aggregate ok flag (v51.83)"
+  },
+  {
+    "id": "R255",
+    "line": 2073,
+    "title": "R255. Automated workflows pushing to a shared branch must rebase/retry on rejection, never push-once-and-drop (v51.83)"
+  },
+  {
+    "id": "R254",
+    "line": 2074,
+    "title": "R254. External classification tags are not ground truth without independent keyword support, and AI prompts must verify tag-content consistency (v51.83)"
+  },
+  {
+    "id": "R253",
+    "line": 2075,
+    "title": "R253. Multiple DOM bindings for the same metric must share one resolver, not independently-ordered fallback chains (v51.83)"
+  },
+  {
+    "id": "R252",
+    "line": 2076,
+    "title": "R252. A static/curated list overlaid with live per-item data must flag contradictions, not silently keep them (v51.83)"
+  },
+  {
+    "id": "R251",
+    "line": 2077,
+    "title": "R251. XBRL/multi-source financial data must resolve to the freshest tag and validated period, and refresh handlers must have a real data source (v51.83)"
+  },
+  {
+    "id": "R250",
+    "line": 2078,
+    "title": "R250. A shared cross-page renderer must resolve each page's own parameters, not one hardcoded default (v51.83)"
+  },
+  {
+    "id": "R249",
+    "line": 2079,
+    "title": "R249. Externally-sourced text must be escaped at the pipeline entry point, not at each render call site (v51.83)"
+  },
+  {
+    "id": "R248",
+    "line": 2080,
+    "title": "R248. Deployment must be wired to the CI gate, not merely run alongside it (v51.82)"
+  },
+  {
+    "id": "R247",
+    "line": 2088,
+    "title": "R247. CDN/script load-failure detection must not race against `defer` (v51.82)"
+  },
+  {
+    "id": "R246",
+    "line": 2089,
+    "title": "R246. Version-bump commits must land atomically; never leave main in a partially-synced state (v51.82)"
+  },
+  {
+    "id": "R245",
+    "line": 2090,
+    "title": "R245. Prioritized/boosted content selection must guarantee its picks already ran through required enrichment (v51.82)"
+  },
+  {
+    "id": "R244",
+    "line": 2098,
+    "title": "R244. A live-state value shown in multiple UI surfaces must not be computed independently per surface (v51.82)"
+  },
+  {
+    "id": "R243",
+    "line": 2099,
+    "title": "R243. Portfolio UX must close input -> AI analysis -> journal reflection -> learning loop (v51.80)"
+  },
+  {
+    "id": "R242",
+    "line": 2100,
+    "title": "R242. Portfolio backtests must expose assumptions, monthly construction, drawdown recovery, and active risk (v51.79)"
+  },
+  {
+    "id": "R241",
+    "line": 2101,
+    "title": "R241. Public readiness must expose page-level source/asOf, not only aggregate status (v51.78)"
+  },
+  {
+    "id": "R240",
+    "line": 2102,
+    "title": "R240. User-supplied trader frameworks must be centralized as REFERENCE, not live levels (v51.77)"
+  },
+  {
+    "id": "R239",
+    "line": 2103,
+    "title": "R239. External-share readiness must be visible on the default home path (v51.76, P551)"
+  },
+  {
+    "id": "R238",
+    "line": 2105,
+    "title": "R238. Page currentness must be source-capped before visible decisions (v51.74, P549)"
+  },
+  {
+    "id": "R237",
+    "line": 2106,
+    "title": "R237. Skills must use one canonical router-plus-reference tree; assistant-specific roots are generated mirrors, never independent instructions (v53.96, P894)"
+  },
+  {
+    "id": "R236",
+    "line": 2107,
+    "title": "R236. Skills, command wrappers, references, encoding sentinels, and any materialized local mirror must be contract-gated (v53.96, P894)"
+  },
+  {
+    "id": "R235",
+    "line": 2108,
+    "title": "R235. calcTechnicalSnapshot fields must close producer-consumer-artifact-gate together (v51.71, P548)"
+  },
+  {
+    "id": "R234",
+    "line": 2109,
+    "title": "R234. 신규 UI 블록은 검증 전까지 기본값 hidden (v51.64, P545 예방)"
+  },
+  {
+    "id": "R233",
+    "line": 2110,
+    "title": "R233. Ticker technical analysis must prioritize Minervini price/MA/volume/supply logic (v51.45, P536)"
+  },
+  {
+    "id": "R232",
+    "line": 2111,
+    "title": "R232. Cross-asset trading factors must use comparable scales (v51.44, P535)"
+  },
+  {
+    "id": "R231",
+    "line": 2119,
+    "title": "R231. Visual hierarchy must not be locked to the old Bloomberg-terminal premise (v51.43, P534)"
+  },
+  {
+    "id": "R226",
+    "line": 2127,
+    "title": "R226. Server news backstop must rank by market impact, not arrival order (v50.98)"
+  },
+  {
+    "id": "R228",
+    "line": 2128,
+    "title": "R228. Default-route UX must remove collapsed noise and avoid empty grid tracks (v51.30, P529)"
+  },
+  {
+    "id": "R229",
+    "line": 2139,
+    "title": "R229. Scheduled workflow embedded scripts must be syntax-gated (v51.30, P530)"
+  },
+  {
+    "id": "R230",
+    "line": 2140,
+    "title": "R230. Default-path numeric renderers must be partial-data safe (v51.42, P533)"
+  },
+  {
+    "id": "R225",
+    "line": 2146,
+    "title": "R225. News surfaces must provide Korean market rewrite, not translation-only headlines (v50.97)"
+  },
+  {
+    "id": "R224",
+    "line": 2147,
+    "title": "R224. Currentness and fallback data must be visible at the consumer surface (v50.96)"
+  },
+  {
+    "id": "R223",
+    "line": 2148,
+    "title": "R223. News translation must degrade to Korean insight, not raw English-only context (v50.95)"
+  },
+  {
+    "id": "R222",
+    "line": 2149,
+    "title": "R222. Public-data pipelines require an Actions-to-consumer contract gate (v50.94)"
+  },
+  {
+    "id": "R221",
+    "line": 2156,
+    "title": "R221. Telegram/news auto-refresh must close the ticker memo consumer path (v50.93)"
+  },
+  {
+    "id": "R165",
+    "line": 2157,
+    "title": "R165. AIO_TICKER_NAME_REGISTRY 의미적 정확성 + 한글 별명 일관성 의무 (v49.80 Codex)"
+  },
+  {
+    "id": "R166",
+    "line": 2158,
+    "title": "R166. AIO_THEME_SEMANTIC_EXCLUSION_RULES 의미적 misfit 배제 의무 (v49.80 Codex)"
+  },
+  {
+    "id": "R159",
+    "line": 2159,
+    "title": "R159. ticker / options context는 _currentTickerId null + _liveData 미수신 양쪽 가드 의무 (v49.79)"
+  },
+  {
+    "id": "R160",
+    "line": 2161,
+    "title": "R160. kr-macro 정적 데이터 / 시점 토큰 진입부 staleness 경고 의무 (v49.79)"
+  },
+  {
+    "id": "R161",
+    "line": 2162,
+    "title": "R161. localStorage QuotaExceededError 강화 처리 + 사용자 toast 의무 (v49.79)"
+  },
+  {
+    "id": "R162",
+    "line": 2163,
+    "title": "R162. 외부 fetch 결과 schema 검증 + graceful degrade 의무 (v49.79)"
+  },
+  {
+    "id": "R163",
+    "line": 2164,
+    "title": "R163. 멀티탭 localStorage storage 이벤트 리스너 의무 (v49.79)"
+  },
+  {
+    "id": "R164",
+    "line": 2165,
+    "title": "R164. Claude API 호출 토큰 사용량 누적 추적 + 비용 가시화 의무 (v49.79)"
+  },
+  {
+    "id": "R156",
+    "line": 2167,
+    "title": "R156. 외부 fetch 폴백 chain은 sequential 금지, Promise.race 병렬 의무 (v49.78 코드 단위 진단)"
+  },
+  {
+    "id": "R157",
+    "line": 2169,
+    "title": "R157. innerHTML 호출 전 _aioSafeMD fallback chain 의무 (v49.78)"
+  },
+  {
+    "id": "R158",
+    "line": 2170,
+    "title": "R158. chatSend atomic streaming lock — 입력 검증 통과 직후 즉시 (v49.78)"
+  },
+  {
+    "id": "R153",
+    "line": 2171,
+    "title": "R153. chatSend silent return 모든 경로 사용자 피드백 의무 (v49.77)"
+  },
+  {
+    "id": "R154",
+    "line": 2172,
+    "title": "R154. callClaude 최종 실패 시 friendly 안내 + 자가 진단 가이드 (v49.77)"
+  },
+  {
+    "id": "R155",
+    "line": 2173,
+    "title": "R155. 데이터 ✗ / 환각 검출 시 답변 위 액션 버튼 배너 의무 (v49.77)"
+  },
+  {
+    "id": "R151",
+    "line": 2174,
+    "title": "R151. 시세 데이터 ✗ 시 답변에 가격 수치 절대 금지 — HARD STOP (v49.76)"
+  },
+  {
+    "id": "R152",
+    "line": 2175,
+    "title": "R152. 모바일 채팅 레이아웃 100vw 비율 의무 (v49.76)"
+  },
+  {
+    "id": "R147",
+    "line": 2176,
+    "title": "R147. CHAT_CONTEXTS 등록은 DOM 패널과 항상 쌍 (Pattern A 일반화) (v49.75)"
+  },
+  {
+    "id": "R148",
+    "line": 2178,
+    "title": "R148. ABSOLUTE RULES는 system prompt 정의 + 답변 후처리 양쪽 의무 (Pattern B 일반화) (v49.75)"
+  },
+  {
+    "id": "R149",
+    "line": 2179,
+    "title": "R149. 외부 fetch 실패는 사용자 ❌ 라벨로 surfacing 의무 (Pattern C 일반화) (v49.75)"
+  },
+  {
+    "id": "R150",
+    "line": 2181,
+    "title": "R150. AI 답변에 등장한 날짜 토큰은 세션 시각 대비 stale 자동 검출 (Pattern D 일반화) (v49.75)"
+  },
+  {
+    "id": "R145",
+    "line": 2182,
+    "title": "R145. AI 답변에 학습 데이터 자기 인용 + 시점 환각 절대 금지 (v49.74 hotfix)"
+  },
+  {
+    "id": "R146",
+    "line": 2183,
+    "title": "R146. home 페이지 인라인 채팅 패널 의무 (v49.74 hotfix)"
+  },
+  {
+    "id": "R143",
+    "line": 2185,
+    "title": "R143. AI 답변 품질 audit는 11 페이지 평가 의무 (KR 4 페이지 포함) (v49.74)"
+  },
+  {
+    "id": "R144",
+    "line": 2187,
+    "title": "R144. AI 채팅 멀티턴 윈도잉 + 요약 prepend 의무 (v49.74)"
+  },
+  {
+    "id": "R140",
+    "line": 2188,
+    "title": "R140. AI 답변에서 정성 표현 사용 시 정량 근거 1개 이상 괄호 동반 의무 (v49.73)"
+  },
+  {
+    "id": "R141",
+    "line": 2189,
+    "title": "R141. AI 답변 표준 4 구조 강제 (결론/정량/시나리오/액션) (v49.73)"
+  },
+  {
+    "id": "R142",
+    "line": 2191,
+    "title": "R142. 모든 정량 인용 시 (출처 · 기준일) 괄호 필수 (v49.73)"
+  },
+  {
+    "id": "R138",
+    "line": 2192,
+    "title": "R138. fundamental 종목 검색 시 7 차트 자동 렌더 의무 (v49.72)"
+  },
+  {
+    "id": "R139",
+    "line": 2194,
+    "title": "R139. AI 채팅 답변에 종목 detect 시 \"📊 차트 보기\" 버튼 자동 삽입 의무 (v49.72)"
+  },
+  {
+    "id": "R135",
+    "line": 2195,
+    "title": "R135. 4/5차는 감사 함수만으로 완료 금지"
+  },
+  {
+    "id": "R1",
+    "line": 2234,
+    "title": "R1. 버전 동기화 (7곳 필수)"
+  },
+  {
+    "id": "R1-A",
+    "line": 2260,
+    "title": "R1-A. GitHub 배포 후 브라우저 버전 확인 (필수)"
+  },
+  {
+    "id": "R2",
+    "line": 2273,
+    "title": "R2. 버전 체계"
+  },
+  {
+    "id": "R3",
+    "line": 2278,
+    "title": "R3. 버그 수정 시 사후 분석 필수"
+  },
+  {
+    "id": "R4",
+    "line": 2291,
+    "title": "R4. 동적 DOM 삽입 주의"
+  },
+  {
+    "id": "R5",
+    "line": 2292,
+    "title": "R5. CSS overflow 3중 방어"
+  },
+  {
+    "id": "R6",
+    "line": 2293,
+    "title": "R6. LLM 응답 렌더링 안전장치"
+  },
+  {
+    "id": "R7",
+    "line": 2294,
+    "title": "R7. 한국어 텍스트 레이아웃 검증 (v31.9 추가)"
+  },
+  {
+    "id": "R8",
+    "line": 2295,
+    "title": "R8. 차트 카드 텍스트 폴백 필수 (v31.9 추가)"
+  },
+  {
+    "id": "R10",
+    "line": 2296,
+    "title": "R10. 종목코드 입력 시 3중 검증 필수 (v35.6 추가)"
+  },
+  {
+    "id": "R11",
+    "line": 2302,
+    "title": "R11. 비상장 기업 코드 할당 금지 (v35.6 추가)"
+  },
+  {
+    "id": "R12",
+    "line": 2306,
+    "title": "R12. 유사 이름 모자회사 구분 (v35.6 추가)"
+  },
+  {
+    "id": "R13",
+    "line": 2309,
+    "title": "R13. CHAT_CONTEXTS 이원화 필수 (v37.5 추가)"
+  },
+  {
+    "id": "R14",
+    "line": 2310,
+    "title": "R14. 뉴스 키워드 현행화 (v37.6 추가)"
+  },
+  {
+    "id": "R9",
+    "line": 2311,
+    "title": "R9. Dead Page 방지 — 페이지 3종 세트 + init 가드 리셋 필수 (v31.10 추가, v42.1 강화)"
+  },
+  {
+    "id": "R15",
+    "line": 2321,
+    "title": "R15. 데이터 미수신 vs 진짜 0% 구분 필수 (v38.3 추가, P25, v42.1 강화)"
+  },
+  {
+    "id": "R16",
+    "line": 2331,
+    "title": "R16. 뉴스 티커 표시 규칙 (v39.0 추가, P30)"
+  },
+  {
+    "id": "R17",
+    "line": 2337,
+    "title": "R17. 뉴스 키워드 추가 시 길이 제한 (v39.0 추가, P28, v42.1 강화, v42.5 재정의)"
+  },
+  {
+    "id": "R18",
+    "line": 2345,
+    "title": "R18. 텔레그램 채널 관리 (v39.0 추가, P29)"
+  },
+  {
+    "id": "R19",
+    "line": 2346,
+    "title": "R19. _context/ 지식 정합성 린팅 (v40.4 추가)"
+  },
+  {
+    "id": "R20",
+    "line": 2347,
+    "title": "R20. 에이전트 산출물 검증 상태 관리 (v40.4 추가)"
+  },
+  {
+    "id": "R21",
+    "line": 2348,
+    "title": "R21. 하드코딩 차트 데이터 경과일 관리 (v40.4 추가, P31)"
+  },
+  {
+    "id": "R22",
+    "line": 2354,
+    "title": "R22. 뉴스 3곳 계층적 선별 체계 (v40.4 추가, P32)"
+  },
+  {
+    "id": "R23",
+    "line": 2360,
+    "title": "R23. 외국 기업(ADR) 재무 파싱 (v40.4 추가, P33)"
+  },
+  {
+    "id": "R24",
+    "line": 2361,
+    "title": "R24. _context/ 인덱스 자동 관리 (v41.6 추가)"
+  },
+  {
+    "id": "R25",
+    "line": 2366,
+    "title": "R25. 버그 역참조 체계 (v41.6 추가)"
+  },
+  {
+    "id": "R26",
+    "line": 2372,
+    "title": "R26. 기술 인사이트 환류 (v41.6 추가)"
+  },
+  {
+    "id": "R27",
+    "line": 2378,
+    "title": "R27. Commands ↔ Skills 동기화 (v46.2 추가, P69 교훈)"
+  },
+  {
+    "id": "R28",
+    "line": 2385,
+    "title": "R28. 실제 클릭 테스트 필수 (v46.5 추가, P82 교훈)"
+  },
+  {
+    "id": "R29",
+    "line": 2386,
+    "title": "R29. AI 채팅 데이터 검증 태그 (v46.5 추가)"
+  },
+  {
+    "id": "R30",
+    "line": 2387,
+    "title": "R30. 지표 라벨/임계값 전역 통일 (v46.8 추가, P83~P104 교훈)"
+  },
+  {
+    "id": "R31",
+    "line": 2388,
+    "title": "R31. innerHTML XSS 전수 점검 (v46.8 추가, P100 교훈)"
+  },
+  {
+    "id": "R33",
+    "line": 2389,
+    "title": "R33. 데이터 Freshness 추적 의무화 — DATE_ENGINE + _markFetch + _aioFeedHealth (v48.39 추가, P133 교훈)"
+  },
+  {
+    "id": "R52",
+    "line": 2390,
+    "title": "R52. 외부 CDN 스크립트 SRI 의무 (v48.69 추가, P140 교훈, 구 R34 → R52 재번호)"
+  },
+  {
+    "id": "R53",
+    "line": 2391,
+    "title": "R53. 독립 병렬 fetch는 단일 실패 격리 (v48.69 추가, P143 교훈, 구 R35 → R53 재번호)"
+  },
+  {
+    "id": "R32",
+    "line": 2392,
+    "title": "R32. Event Delegation 의무화 — onclick 인라인 핸들러 금지 (v48.35 추가, P132 교훈)"
+  },
+  {
+    "id": "R34",
+    "line": 2489,
+    "title": "R34. CSS 색상 토큰 우선 — rgba 하드코딩 금지 (v48.54 추가)"
+  },
+  {
+    "id": "R35",
+    "line": 2523,
+    "title": "R35. 신규 페이지 → CHAT_CONTEXTS 동시 생성 (v48.54 추가, P106 교훈)"
+  },
+  {
+    "id": "R36",
+    "line": 2524,
+    "title": "R36. Themes 페이지 종목 추가 → LIVE_SYMBOLS 동시 등록 (v48.54 추가)"
+  },
+  {
+    "id": "R37",
+    "line": 2525,
+    "title": "R37. data-snap 신규 추가 → 자동 렌더러 참여 (v48.54 추가, P108 교훈)"
+  },
+  {
+    "id": "R38",
+    "line": 2526,
+    "title": "R38. `on*` 인라인 이벤트 핸들러 금지 — 전체 확장 (R32 확장, v48.54 추가)"
+  },
+  {
+    "id": "R39",
+    "line": 2527,
+    "title": "R39. extractTickers → UI 노출 경로 필수 페어링 (v48.55 추가, P116/P121/P122/P125 교훈)"
+  },
+  {
+    "id": "R40",
+    "line": 2528,
+    "title": "R40. CHAT_CONTEXTS system() = persona + 메서드론만 (v48.55 추가)"
+  },
+  {
+    "id": "R41",
+    "line": 2529,
+    "title": "R41. 기업 분석 맥락 ctx 전원 FMP 심층 활성 (v48.55 추가)"
+  },
+  {
+    "id": "R42",
+    "line": 2531,
+    "title": "R42. Agent 결과 실측 교차검증 의무 (v48.59 추가, Agent 오판 5회 누적)"
+  },
+  {
+    "id": "R43",
+    "line": 2532,
+    "title": "R43. Canvas context는 CSS var 미해석 (R34 예외, v48.59 추가)"
+  },
+  {
+    "id": "R44",
+    "line": 2534,
+    "title": "R44. setTimeout 무한 재귀 종료 카운터 필수 (v48.59 추가, renderAllEtfGrid 교훈)"
+  },
+  {
+    "id": "R45",
+    "line": 2535,
+    "title": "R45. 페이지 전환 active 설정은 `dataset.arg` 기반 (v48.59 추가, v48.32 onclick 0건 후 잔존 버그)"
+  },
+  {
+    "id": "R46",
+    "line": 2536,
+    "title": "R46. HTML 외 JS 파일까지 sed 치환 범위 확대 (v48.61 추가)"
+  },
+  {
+    "id": "R47",
+    "line": 2537,
+    "title": "R47. CSS 변수 자기순환 참조 금지 (v48.61 추가, surface-1~5 교훈)"
+  },
+  {
+    "id": "R49",
+    "line": 2538,
+    "title": "R49. 새 페이지 추가 시 결론 바 의무 (v48.62 추가)"
+  },
+  {
+    "id": "R50",
+    "line": 2539,
+    "title": "R50. fb-estimated 배지 사용 기준 (v48.62 추가)"
+  },
+  {
+    "id": "R51",
+    "line": 2541,
+    "title": "R51. 콘텐츠 카드 본문 폰트 최소 12px (v48.62 추가)"
+  },
+  {
+    "id": "R48",
+    "line": 2543,
+    "title": "R48. Canvas 렌더러 전역 변수 참조 시 실제 설정 위치 확인 (v48.61 추가, _pcRatio vs _putCallRatio 교훈)"
+  },
+  {
+    "id": "R54",
+    "line": 2557,
+    "title": "R54. `data-aio-archive` 마킹 원칙 (v49.21 추가)"
+  },
+  {
+    "id": "R55",
+    "line": 2558,
+    "title": "R55. 동일 지표 multi-sink 단일화 (v49.24 추가, P216/P218 근본)"
+  },
+  {
+    "id": "R56",
+    "line": 2559,
+    "title": "R56. 임계값·라벨 단일 출처 — THRESHOLD_REGISTRY (v49.24 추가, P219 근본)"
+  },
+  {
+    "id": "R57",
+    "line": 2560,
+    "title": "R57. 정적 테이블 stale 감지 의무 (v49.24 추가, P217 근본)"
+  },
+  {
+    "id": "R58",
+    "line": 2561,
+    "title": "R58. DOM 인라인 vs DATA_SNAPSHOT 3-way 정합 (v49.24 추가, P213 근본)"
+  },
+  {
+    "id": "R59",
+    "line": 2562,
+    "title": "R59. 점수 스케일 단일 정의 — SCORE_SCALES (v49.25 추가, L1 근본)"
+  },
+  {
+    "id": "R60",
+    "line": 2564,
+    "title": "R60. 매매 전략 권장값 단일 출처 — ATR_PRESETS (v49.25 추가, L4 근본)"
+  },
+  {
+    "id": "R61",
+    "line": 2566,
+    "title": "R61. 다중 신호 합의 알고리즘 — diagnoseBreadthConsensus (v49.25 추가, L3 근본)"
+  },
+  {
+    "id": "R62",
+    "line": 2567,
+    "title": "R62. 정량 지표 자동 채점 — PIOTROSKI_CHECKLIST (v49.25 추가, L7 근본)"
+  },
+  {
+    "id": "R63",
+    "line": 2568,
+    "title": "R63. 라벨 인라인 사용 자동 audit — getThresholdLabelAudit (v49.25 추가, R56 자동화)"
+  },
+  {
+    "id": "R64",
+    "line": 2569,
+    "title": "R64. 점수 가중치 단일 정의 — WEIGHT_REGISTRY (v49.26 추가, I2 근본)"
+  },
+  {
+    "id": "R65",
+    "line": 2571,
+    "title": "R65. 시각 위계 단일 정의 — CARD_HIERARCHY (v49.26 추가, I3 근본)"
+  },
+  {
+    "id": "R66",
+    "line": 2573,
+    "title": "R66. 중복 콘텐츠 자동 감사 — getDuplicateContentAudit (v49.26 추가, I4 근본)"
+  },
+  {
+    "id": "R67",
+    "line": 2574,
+    "title": "R67. 동적 판정 함수 단일화 — getCycleFromMacro (v49.26 추가, I7 근본)"
+  },
+  {
+    "id": "R68",
+    "line": 2575,
+    "title": "R68. 페이지 placeholder 표준 — 동적 검색 가이드 (v49.26 추가, I5/I6 근본)"
+  },
+  {
+    "id": "R69",
+    "line": 2576,
+    "title": "R69. Action Item 단일 출처 — ACTION_RULES (v49.27 추가, E1/E2 근본)"
+  },
+  {
+    "id": "R70",
+    "line": 2578,
+    "title": "R70. 페이지 목적 단일 정의 — PAGE_PURPOSE_REGISTRY (v49.27 추가, E3/E4 근본)"
+  },
+  {
+    "id": "R71",
+    "line": 2579,
+    "title": "R71. 이론 vs 실행 비율 audit — getPagePurposeRatioAudit (v49.27 추가, E5 근본)"
+  },
+  {
+    "id": "R72",
+    "line": 2580,
+    "title": "R72. 시나리오 확률 시간 의존 — SCENARIO_REGISTRY (v49.27 추가, L6 근본)"
+  },
+  {
+    "id": "R73",
+    "line": 2582,
+    "title": "R73. 인프라 추가 시 페이지 적용 동반 의무 (v49.28 추가, P239 메타 근본)"
+  },
+  {
+    "id": "R74",
+    "line": 2599,
+    "title": "R74. DOM 인라인 폴백 vs DATA_SNAPSHOT 동시 갱신 의무 (v49.30 추가, P252/M1 근본)"
+  },
+  {
+    "id": "R75",
+    "line": 2600,
+    "title": "R75. 정적 콘텐츠 lifecycle 메타 필수 (v49.30 추가, P253/M2 근본)"
+  },
+  {
+    "id": "R76",
+    "line": 2601,
+    "title": "R76. 정치/관료 이름 NAMED_ENTITY_REGISTRY 경유 의무 (v49.30 추가, P254/M3 근본)"
+  },
+  {
+    "id": "R77",
+    "line": 2602,
+    "title": "R77. 거시지표 MACRO_CALENDAR 등록 + 자동 stale (v49.30 추가, P254/M4 근본)"
+  },
+  {
+    "id": "R78",
+    "line": 2603,
+    "title": "R78. KR 거시 KR_MACRO_RELEASE 등록 + 발표 캘린더 의무 (v49.30 추가, P255/M5 근본)"
+  },
+  {
+    "id": "R79",
+    "line": 2604,
+    "title": "R79. 지정학 시나리오 단일 출처 — GEOPOLITICAL_CONTEXT_REGISTRY (v49.31 추가, H3 근본)"
+  },
+  {
+    "id": "R80",
+    "line": 2605,
+    "title": "R80. 정적 데이터베이스 메타 의무 — SCREENER_DB_META (v49.31 추가, H1 근본)"
+  },
+  {
+    "id": "R81",
+    "line": 2606,
+    "title": "R81. 정기 발표 데이터 사용자 가시 마커 (v49.31 추가, H4 근본)"
+  },
+  {
+    "id": "R82",
+    "line": 2607,
+    "title": "R82. AI 채팅 가격 fetch 실패 시 Hard Guard 의무 (v49.32 추가, P263 근본)"
+  },
+  {
+    "id": "R83",
+    "line": 2608,
+    "title": "R83. 채팅 응답 post-hoc 가격 검증 의무 (v49.32 추가, P264 근본)"
+  },
+  {
+    "id": "R84",
+    "line": 2609,
+    "title": "R84. System 프롬프트 정량 수치 화이트리스트 (v49.32 추가, P262 근본)"
+  },
+  {
+    "id": "R85",
+    "line": 2610,
+    "title": "R85. 종목명-티커 단일 출처 — TICKER_NAME_REGISTRY (v49.32 추가, P266 근본)"
+  },
+  {
+    "id": "R86",
+    "line": 2611,
+    "title": "R86. 환각 패턴 자동 탐지 + 의심 점수 (v49.32 추가, P264 보강)"
+  },
+  {
+    "id": "R87",
+    "line": 2612,
+    "title": "R87. 종목별 데이터 무결성 통합 검증 (v49.32 확장, 사용자 추가 요청)"
+  },
+  {
+    "id": "R88",
+    "line": 2613,
+    "title": "R88. Fundamental 15 분석 기준 데이터 출처 매핑 (v49.32 확장)"
+  },
+  {
+    "id": "R89",
+    "line": 2614,
+    "title": "R89. AI 채팅 응답 자동 검증 통합 의무 (v49.33 추가, P269 근본)"
+  },
+  {
+    "id": "R90",
+    "line": 2615,
+    "title": "R90. 종목 정성 분석 출처 의무 — ANALYSIS_FRAMEWORK_REGISTRY (v49.34 추가, 사용자 지적)"
+  },
+  {
+    "id": "R91",
+    "line": 2616,
+    "title": "R91. 페이지 표시 분석 기준 registry 등록 + 가용성 가시화 의무 (v49.35 추가, P275 근본)"
+  },
+  {
+    "id": "R92",
+    "line": 2617,
+    "title": "R92. 페이지 표시 분석 기준 100% 커버 의무 (v49.36 추가, P278 근본)"
+  },
+  {
+    "id": "R93",
+    "line": 2618,
+    "title": "R93. 페이지 sequential audit 의무 (v49.37 추가, P282 메타 근본)"
+  },
+  {
+    "id": "R94",
+    "line": 2619,
+    "title": "R94. 페이지 인라인 임계값 표 REGISTRY 정합 의무 (v49.38 추가, P286 근본)"
+  },
+  {
+    "id": "R95",
+    "line": 2620,
+    "title": "R95. 페이지 간 동일 ticker 정합 의무 (v49.39 추가, P290 근본)"
+  },
+  {
+    "id": "R96",
+    "line": 2621,
+    "title": "R96. data-action 핸들러 등록 검증 (v49.39 추가, P291 근본)"
+  },
+  {
+    "id": "R98",
+    "line": 2622,
+    "title": "R98. JS 함수 내 var X + const/let X 충돌 자동 탐지 (v49.44 추가, P311 근본)"
+  },
+  {
+    "id": "R134",
+    "line": 2623,
+    "title": "R134. AI 채팅 데이터 다운로드 + 금액/% 시뮬레이션 의무 (v49.70 추가, P373~P374 근본)"
+  },
+  {
+    "id": "R133",
+    "line": 2624,
+    "title": "R133. AI 채팅 알람/임계값 트리거 의무 (v49.70 추가, P372 근본)"
+  },
+  {
+    "id": "R132",
+    "line": 2625,
+    "title": "R132. AI 채팅 사용자 투자 프로필 메모리 의무 (v49.70 추가, P371 근본)"
+  },
+  {
+    "id": "R131",
+    "line": 2626,
+    "title": "R131. AI 채팅 거시 시나리오 동적 시뮬레이션 + 약어/별명 fuzzy 매칭 의무 (v49.69 추가, P368~P369 근본)"
+  },
+  {
+    "id": "R130",
+    "line": 2628,
+    "title": "R130. AI 채팅 자동 페이지 이동 + 포트폴리오 동적 시뮬레이션 의무 (v49.69 추가, P366~P367 근본)"
+  },
+  {
+    "id": "R129",
+    "line": 2629,
+    "title": "R129. AI 채팅 후속 질문 자동 제안 의무 (v49.69 추가, P365 근본)"
+  },
+  {
+    "id": "R128",
+    "line": 2630,
+    "title": "R128. AI 채팅 시각 단서 표준 + 데이터 소스 우선순위 + 출처 타임스탬프 (v49.68 추가, P361~P363 근본)"
+  },
+  {
+    "id": "R127",
+    "line": 2631,
+    "title": "R127. AI 채팅 Bull/Base/Bear 3 시나리오 분기 강제 (v49.68 추가, P361 근본)"
+  },
+  {
+    "id": "R126",
+    "line": 2633,
+    "title": "R126. AI 채팅 기관급 분석 프레임워크 8개 인용 의무 (v49.68 추가, P360 근본)"
+  },
+  {
+    "id": "R123",
+    "line": 2634,
+    "title": "R123. 사이드바 Audit row 의미 분리 표시 의무 (v49.67 추가, P357 근본)"
+  },
+  {
+    "id": "R122",
+    "line": 2636,
+    "title": "R122. AI 채팅 사용자 체감 품질 의무 (v49.67 추가, P352~P356 근본)"
+  },
+  {
+    "id": "R121",
+    "line": 2637,
+    "title": "R121. AI 채팅 시스템 정의-호출 정합 의무 (v49.66 추가, P348~P351 근본)"
+  },
+  {
+    "id": "R119",
+    "line": 2638,
+    "title": "R119. 3대 본질 정렬 감사 의무 (v49.65 추가, P346 근본)"
+  },
+  {
+    "id": "R120",
+    "line": 2639,
+    "title": "R120. 초보자 초기 상태 문구는 보이는 DOM 기준으로만 감사 (v49.65 추가, P347 근본)"
+  },
+  {
+    "id": "R118",
+    "line": 2640,
+    "title": "R118. REGISTRY coveragePct와 실등록 카운트 분리 감사 의무 (v49.65 추가, P339 근본)"
+  },
+  {
+    "id": "R117",
+    "line": 2641,
+    "title": "R117. dataConfidence:low 분야 환각 차단 알림 의무 (v49.65 추가, P340 근본)"
+  },
+  {
+    "id": "R116",
+    "line": 2642,
+    "title": "R116. 새 분석 관점 추가 시 4축 동시 갱신 의무 (v49.65 추가, P340 근본)"
+  },
+  {
+    "id": "R115",
+    "line": 2643,
+    "title": "R115. 사용자 가시 placeholder 텍스트 표준 의무 (v49.64 추가, P334 근본)"
+  },
+  {
+    "id": "R114",
+    "line": 2644,
+    "title": "R114. 외부 워크트리 통합 시 함수 존재 vs 페이지 실행 검증 분리 의무 (v49.63 추가, P331 근본)"
+  },
+  {
+    "id": "R112",
+    "line": 2645,
+    "title": "R112. 모든 CHAT_CONTEXTS는 _getChatRules() 호출 의무 (v49.59 추가, P327 근본)"
+  },
+  {
+    "id": "R110",
+    "line": 2646,
+    "title": "R110. signal/breadth/sentiment context는 라이브 수치 자동 주입 의무 (v49.59 추가, P324 근본)"
+  },
+  {
+    "id": "R109",
+    "line": 2647,
+    "title": "R109. fxbond 한국 금리 스냅샷 시점 명시 의무 (v49.59 추가, P326 근본)"
+  },
+  {
+    "id": "R108",
+    "line": 2648,
+    "title": "R108. Audit 함수 추가 시 사이드바 위젯에도 노출 의무 (v49.58 추가, P322 근본)"
+  },
+  {
+    "id": "R107",
+    "line": 2650,
+    "title": "R107. 채팅 fetch는 반드시 Promise.allSettled + 개별 timeout 의무 (v49.58 추가, P321 근본)"
+  },
+  {
+    "id": "R106",
+    "line": 2651,
+    "title": "R106. 새 페이지 CHAT_CONTEXTS 신규 시 window._currentXxxId 자동 주입 의무 (v49.58 추가, P319 근본)"
+  },
+  {
+    "id": "R105",
+    "line": 2652,
+    "title": "R105. 테마 페이지 진입 시 채팅 컨텍스트에 활성 테마 ticker 라이브 가격 주입 의무 (v49.57 추가, P316/P317 근본)"
+  },
+  {
+    "id": "R104",
+    "line": 2653,
+    "title": "R104. _fetchTickerDataForChat 신규 fetch 추가 시 ABSOLUTE RULES 동기 확장 의무 (v49.57 추가, P317 근본)"
+  },
+  {
+    "id": "R103",
+    "line": 2654,
+    "title": "R103. SCR_KEYWORD_ALIASES 신규 테마 추가 시 AIO_TICKER_NAME_REGISTRY 등록 의무 (v49.57 추가, P316 근본)"
+  },
+  {
+    "id": "R102",
+    "line": 2655,
+    "title": "R102. 페이지 cell-level audit 의무 (v49.48 추가, P318 근본)"
+  },
+  {
+    "id": "R101",
+    "line": 2656,
+    "title": "R101. DOM ticker vs LIVE_SYMBOLS coverage 의무 (v49.48 추가, P317 근본)"
+  },
+  {
+    "id": "R75",
+    "line": 2657,
+    "title": "R75 보강 (v49.48, P316 근본 — Jensen hardcoded → 일반화)"
+  },
+  {
+    "id": "R100",
+    "line": 2671,
+    "title": "R100. API 키 저장 2중화 + 백업/복원 UX 의무 (v49.45 추가, P312 근본)"
+  },
+  {
+    "id": "R99",
+    "line": 2673,
+    "title": "R99. SW SHELL_ASSETS 자산 무결성 자동 검증 (v49.44 추가, P310 근본)"
+  },
+  {
+    "id": "R97",
+    "line": 2674,
+    "title": "R97. data-snap 키 vs DATA_SNAPSHOT 시드 정합 (v49.41 추가, P301 근본)"
+  },
+  {
+    "id": "R125",
+    "line": 2675,
+    "title": "R125. Second/third-pass text, function, and data meaning audit required (v49.67 added, P359 root prevention)"
+  },
+  {
+    "id": "R124",
+    "line": 2676,
+    "title": "R124. DOM-first full surface audit required (v49.67 added, P358 root prevention)"
+  },
+  {
+    "id": "R167",
+    "line": 2677,
+    "title": "R167. innerHTML 삽입 시 모든 사용자/외부 변수에 escHtml() 의무 + 정규식 메타문자 이스케이프 (v49.81 added, P433~P435 root prevention)"
+  },
+  {
+    "id": "R168",
+    "line": 2678,
+    "title": "R168. vendor-prefix CSS 속성은 표준 속성과 동시 선언 + inline hover: 금지 (v49.81 added, P436~P437 root prevention)"
+  },
+  {
+    "id": "R169",
+    "line": 2679,
+    "title": "R169. 동일 함수 내 var/const/let 이름 충돌 금지 + 신규 코드 let/const 우선 (v49.81 added, P438 root prevention, P311 패턴 재발 방지)"
+  },
+  {
+    "id": "R170",
+    "line": 2680,
+    "title": "R170. 외부 작업본 통합 시 KR/외국 ticker 매핑 다중 위치 cross-check 의무 (v49.82 added, P439~P441 root prevention)"
+  },
+  {
+    "id": "R172",
+    "line": 2683,
+    "title": "R172 — MACRO_CALENDAR auto-advance 의무**: 발표 캘린더 entry는 일자 경과 시 자동 next event compute. `AIO._aioRecomputeMacroCalendar({ dryRun: true })` 사이드바 18축 노출 의무."
+  },
+  {
+    "id": "R173",
+    "line": 2685,
+    "title": "R173 — cross-asset correlation matrix 의무**: 자산 간 30일 rolling Pearson correlation + regime classification 자동 산출. `AIO.computeCrossAssetCorrelation()` `_priceHistory` 활용. 사이드바 16축."
+  },
+  {
+    "id": "R174",
+    "line": 2687,
+    "title": "R174 — AI 답변 정량 비율 측정 의무**: Answer quality is measured by typed claim/evidence coverage (R456), not by numeric-token ratio. (v57.79 rewrite) 이력: 채팅 답변에서 정량 토큰 비율 7%+ 권장. `AIO.assertQuantitativeRatioAudit()` 자동 측정 + 사이드바 17축. <4% 시 'fail' (정성 과다 환각 위험)."
+  },
+  {
+    "id": "R175",
+    "line": 2689,
+    "title": "R175 — earnings call transcript 통합 의무**: **Retired (v57.79)**: earnings-call transcripts came from personal FMP keys, removed in v57.76. 이력: 종목 분석 시 FMP /earning_call_transcript 자동 fetch + 시스템 프롬프트 [Earnings Call (Qx YYYY)] 라벨 주입. AlphaSense/Sentieo 대체 무료 옵션."
+  },
+  {
+    "id": "R176",
+    "line": 2691,
+    "title": "R176 — AI 답변 시각 자료 의무**: 답변 종목 detect 시 30일 mini sparkline SVG 자동 인라인 삽입. `_aioBuildSparklineSvg` 활용. 양수 green / 음수 red. 최대 3 종목."
+  },
+  {
+    "id": "R177",
+    "line": 2693,
+    "title": "R177 — 사이드바 audit 일반/개발자 mode 토글 의무**: Audit rows render only in developer/QA mode (`body.aio-dev-mode`, `?aioAudit=1` or detailed mode); user surfaces show none and have no web_search toggle. (v57.79 rewrite) 이력: 18+ audit row metric은 일반 사용자에게 부담. `localStorage.aio_audit_mode = 'simple' | 'detailed'` 토글 의무."
+  },
+  {
+    "id": "R178",
+    "line": 2695,
+    "title": "R178 — audit failure status sticky top + pulse 의무**: Audit rows, including failure ordering, render only in developer/QA mode; user surfaces show none. (v57.79 rewrite) 이력: ✗ failure rows는 자동 top sort + 빨간 border + 2s pulse animation. ⚠ warn = amber. 위기 시그널 즉각 가시."
+  },
+  {
+    "id": "R179",
+    "line": 2701,
+    "title": "R179. 클라이언트 접속 시 자동운영 모델 — 부팅 로더 명시 + 서버 cron 금지 (v49.88 added, P447 root)"
+  },
+  {
+    "id": "R180",
+    "line": 2703,
+    "title": "R180. 데이터 lineage 5단계 연결 의무 + 자동 audit (v49.89 added, P450 root)"
+  },
+  {
+    "id": "R181",
+    "line": 2704,
+    "title": "R181. 데이터 검증은 카테고리 + cell-level(개별 sink→source) 둘 다 (v49.90 added, P451 root)"
+  },
+  {
+    "id": "R182",
+    "line": 2705,
+    "title": "R182. cell-level은 연결 + 값 정확성 둘 다 / 텍스트 수치는 동적 참조 (v49.91 added, P452 root)"
+  },
+  {
+    "id": "R183",
+    "line": 2706,
+    "title": "R183. WebSearch 수치는 지표별 정상 band 검증 후 수용 (v49.92 added, P453 root)"
+  },
+  {
+    "id": "R184",
+    "line": 2708,
+    "title": "R184. 동일 지표가 2개 저장소(DATA_SNAPSHOT 본체 + _fallback 미러)에 존재 시 정합 의무 (v49.96 added, P459 root)"
+  },
+  {
+    "id": "R185",
+    "line": 2710,
+    "title": "R185. 재발방지 audit은 pull이 아닌 push — 지속 운영 중 자동 surfacing 의무 (v49.96 added, P461 root)"
+  },
+  {
+    "id": "R186",
+    "line": 2711,
+    "title": "R186. 첫 접속/새로고침 시 진행률 로더 + 정적 콘텐츠 만료 시 동적 폴스루 의무 (v49.97 added, P462 root)"
+  },
+  {
+    "id": "R200",
+    "line": 2712,
+    "title": "R200. v50 페이지 계약/데이터 증거/AI 답변/배포 게이트 4원칙 (v50.0 added, P476 root)"
+  },
+  {
+    "id": "R187",
+    "line": 2713,
+    "title": "R187. 매매 핵심 페이지(종합 5)는 진입 시 stale하면 즉시 재fetch 의무 (v49.98 added, P463 root)"
+  },
+  {
+    "id": "R188",
+    "line": 2715,
+    "title": "R188. 전체 데이터 최신화 진행률은 중앙 refresh state를 단일 진실 원천으로 표시한다 (v49.101 added, P464 root)"
+  },
+  {
+    "id": "R189",
+    "line": 2716,
+    "title": "R189. 5개 종합 페이지 개별 데이터는 page profile 심볼/태스크 union으로 최신화한다 (v49.102 added, P465 root)"
+  },
+  {
+    "id": "R190",
+    "line": 2718,
+    "title": "R190. 보이는 차트/지표/시세/수치/수식/텍스트 표면은 최신화 감사에 자동 편입한다 (v49.103 added, P466 root)"
+  },
+  {
+    "id": "R191",
+    "line": 2719,
+    "title": "R191. AI 채팅의 종목 답변은 strict preflight 후 최신 시세/기업 데이터 블록만 인용한다 (v49.104 added, P467 root)"
+  },
+  {
+    "id": "R192",
+    "line": 2720,
+    "title": "R192. `forceFresh` for AI stock answers must bypass every local freshness shortcut (v49.105 added, P468 root)"
+  },
+  {
+    "id": "R193",
+    "line": 2721,
+    "title": "R193. AI chat must vary answer structure by intent and use only injected current data for current claims (v49.106 added, P469 root)"
+  },
+  {
+    "id": "R194",
+    "line": 2722,
+    "title": "R194. Critical-10 refresh success must be followed by DOM binding verification (v49.107 added, P470 root)"
+  },
+  {
+    "id": "R195",
+    "line": 2723,
+    "title": "R195. Trading-use market data must pass DataTruthGate before decision use (v49.108 added, P471 root)"
+  },
+  {
+    "id": "R196",
+    "line": 2724,
+    "title": "R196. Trading-use quotes require independent cross-source validation when available (v49.109 added, P472 root)"
+  },
+  {
+    "id": "R197",
+    "line": 2725,
+    "title": "R197. Critical-10 freshness must audit visible market surface, not only refresh schedules (v49.110 added, P473 root)"
+  },
+  {
+    "id": "R198",
+    "line": 2726,
+    "title": "R198. Critical-10 page content must be compared with current market reference/regime before being trusted (v49.111 added, P474 root)"
+  },
+  {
+    "id": "R199",
+    "line": 2727,
+    "title": "R199. Critical-10 content checks must use a full evidence matrix, not representative samples (v49.112 added, P475 root)"
+  },
+  {
+    "id": "R201",
+    "line": 2728,
+    "title": "R201. Trading decision logic must pass current evidence gate (v50.1 added, P477 root)"
+  },
+  {
+    "id": "R202",
+    "line": 2729,
+    "title": "R202. Runtime version uses one or two decimal digits only (v50.1 added)"
+  },
+  {
+    "id": "R203",
+    "line": 2730,
+    "title": "R203. News surfaces must use the shared evidence-style surface contract (v50.2 added, P478 root)"
+  },
+  {
+    "id": "R204",
+    "line": 2731,
+    "title": "R204. User-facing market text must pass the text surface contract (v50.3 added, P479 root)"
+  },
+  {
+    "id": "R205",
+    "line": 2732,
+    "title": "R205. Static market calendars must separate official releases from source-dependent topics (v50.4 added, P480 root)"
+  },
+  {
+    "id": "R206",
+    "line": 2733,
+    "title": "R206. 사용자 가시 텍스트에 개발자/버전 마커 금지 (v50.14 added, v50.13 UX audit root)"
+  },
+  {
+    "id": "R207",
+    "line": 2734,
+    "title": "R207. 접근성 WCAG AA 유지 — 접근 이름·최소 폰트·tap target (v50.14 added)"
+  },
+  {
+    "id": "R208",
+    "line": 2735,
+    "title": "R208. 분석 UI 상태·수량·정밀 주장·향후 일정은 증거 원천에서 파생 (v50.55 added, P500 root)"
+  },
+  {
+    "id": "R209",
+    "line": 2736,
+    "title": "R209. 계약 수·시간대·복합 가격 카드는 단일 진실 원천에서 파생 (v50.56 added, P501 root)"
+  },
+  {
+    "id": "R210",
+    "line": 2737,
+    "title": "R210. 런타임 scope·sink 소유권·증거 게이트 의미를 함께 검증 (v50.56 added, P502 root)"
+  },
+  {
+    "id": "R211",
+    "line": 2738,
+    "title": "R211. 넓은 AI 종목 추천은 분산 후보군을 먼저 만들고 반복 앵커를 감점 (v50.57 added, P503 root)"
+  },
+  {
+    "id": "R212",
+    "line": 2740,
+    "title": "R212. AI 채팅 정확성 가드는 사용자 의도별로 적용하고 답변력을 억제하지 않는다 (v50.58 added, P504 root)"
+  },
+  {
+    "id": "R213",
+    "line": 2741,
+    "title": "R213. AI 채팅 데이터 기능은 자연어 라우팅과 출처 레지스트리까지 연결해야 한다 (v50.59 added, P505 root)"
+  },
+  {
+    "id": "R214",
+    "line": 2742,
+    "title": "R214. AI 채팅은 AIO 전용 통합 답변 계약까지 주입해야 한다 (v50.60 added, P506 root)"
+  },
+  {
+    "id": "R215",
+    "line": 2743,
+    "title": "R215. Telegram/외부 정성 소스는 digest -> 화면 -> 스크리너 -> 채팅 -> 테스트까지 환류해야 한다 (v50.61 added, P507 root)"
+  },
+  {
+    "id": "R216",
+    "line": 2744,
+    "title": "R216. Data/news refresh must separate collection freshness from consumption coverage (v50.62 added, P508 root)"
+  },
+  {
+    "id": "R217",
+    "line": 2745,
+    "title": "R217. Scheduled data sources must close the collect -> artifact -> consume -> audit loop (v50.63 added, P509 root)"
+  },
+  {
+    "id": "R218",
+    "line": 2746,
+    "title": "R218. Runtime contract / share readiness gate is mandatory (v50.79)"
+  },
+  {
+    "id": "R219",
+    "line": 2747,
+    "title": "R219. Audit/gate is not semantic review (v50.89, P513 root)"
+  },
+  {
+    "id": "R227",
+    "line": 2766,
+    "title": "R227. Recommendation verification must exercise the no-ticker screener path (v51.30, P526 root)"
+  },
+  {
+    "id": "R220",
+    "line": 2767,
+    "title": "R220. Workflow memory must be compacted before it is extended (v50.89, P514 root)"
+  },
+  {
+    "id": "R230",
+    "line": 2781,
+    "title": "R230. Dynamic news refresh must prove source quality and visible freshness (v51.30, P531 root)"
+  },
+  {
+    "id": "R281",
+    "line": 2794,
+    "title": "R281. Live/browser QA must cover rendered route surfaces, not only prior static findings (v52.23, P633 root)"
+  },
+  {
+    "id": "R282",
+    "line": 2795,
+    "title": "R282. Assertive market-verdict/interpretation text must gate on live-sourced inputs — fallback/snapshot/blocked data may show numbers, but must not assert a directional or confidence-implying verdict (v52.24, P634/P635 root)"
+  },
+  {
+    "id": "R283",
+    "line": 2796,
+    "title": "R283. Interactive detail surfaces must be canonical, all registry entries must render, and same-screen metrics must share the same source (v52.27, P642 root)"
+  },
+  {
+    "id": "R284",
+    "line": 2797,
+    "title": "R284. Proxy responses, visible value slots, and browser QA matrices must be typed and executable (v52.28, P643 root)"
+  },
+  {
+    "id": "R285",
+    "line": 2798,
+    "title": "R285. Operational health labels and feed quality gates must distinguish sources and use accumulated evidence (v52.29, P644 root)"
+  },
+  {
+    "id": "R286",
+    "line": 2799,
+    "title": "R286. AI chat key gates must test the effective Claude route, not only the personal-key field (v52.30, P645 root)"
+  },
+  {
+    "id": "R287",
+    "line": 2801,
+    "title": "R287. Market breadth color, label, and gauge bars must share the canonical breadth regime (v52.31, P646 root)"
+  },
+  {
+    "id": "R288",
+    "line": 2802,
+    "title": "R288. Route x viewport audits must include topbar clipping and SVG text geometry, not only page overflow (v52.32, P647 root)"
+  },
+  {
+    "id": "R289",
+    "line": 2803,
+    "title": "R289. Live quote bridges must keep DATA_SNAPSHOT and `_fallback` mirrors synchronized (v52.33, P648 root)"
+  },
+  {
+    "id": "R290",
+    "line": 2804,
+    "title": "R290. Live-deployed invariants must be re-verified on a schedule independent of new commits (v52.38, P653 root)"
+  },
+  {
+    "id": "R291",
+    "line": 2817,
+    "title": "R291. Static page-education content must state invariant mechanisms only, never a current level/date/verdict, and must inherit the existing declutter/accessibility gates (v52.39, P654 root)"
+  },
+  {
+    "id": "R292",
+    "line": 2833,
+    "title": "R292. A client-side call routed through a region-unpinned shared edge proxy must auto-retry on the provider's own regional-block error signature, not just report it (v52.44, B8/P659 root)"
+  },
+  {
+    "id": "R294",
+    "line": 2847,
+    "title": "R294. A security/encryption UI claim and a lock gate are two separate things to verify — a settings screen existing is not proof its protection is wired into the actual read path (v52.46, WO-1A/P661 root)"
+  },
+  {
+    "id": "R295",
+    "line": 2861,
+    "title": "R295. A special-purpose route added to a shared edge proxy must pass through the same defenses as every other route on that proxy — a new route is a new perimeter, not an exception to the old one (v52.47, WO-1B/P662 root)"
+  },
+  {
+    "id": "R296",
+    "line": 2875,
+    "title": "R296. A session-scoped automation hook must not hardcode an absolute environment fact, and must scope its side effects to what changed during its own session, not whatever it finds lying around (v52.47, WO-5/P663 root)"
+  },
+  {
+    "id": "R293",
+    "line": 2890,
+    "title": "R293. Every workflow YAML must be hard-gated for control-character corruption and parseability; other bot-written text gets a baseline-tracked regression gate (v52.45, WO-0/P660 root)"
+  },
+  {
+    "id": "R301",
+    "line": 2904,
+    "title": "R301. A current market metric must have one canonical selector and an explicit provenance state; a snapshot may render as reference but must never silently drive a decision (v52.55, H3-A/P671 root)"
+  },
+  {
+    "id": "R302",
+    "line": 2912,
+    "title": "R302. Historical event context must expire before it can influence a current action; derived regimes need a missing-input quorum gate (v52.55, H3-B/C/P672 root)"
+  },
+  {
+    "id": "R303",
+    "line": 2920,
+    "title": "R303. PC geometry and external-source failures must be explicit, bounded, and user-visible (v52.56, H3-D/E/P673 root)"
+  },
+  {
+    "id": "R304",
+    "line": 2928,
+    "title": "R304. Third-party libraries are progressive enhancements and must never block the local route boot queue (v52.57, H3-F/P674 root)"
+  },
+  {
+    "id": "R305",
+    "line": 2936,
+    "title": "R305. Partial third-party chart stubs must be treated as unavailable before registry access (v52.58, P675 root)"
+  },
+  {
+    "id": "R306",
+    "line": 2942,
+    "title": "R306. Typed provenance must separate evidence state from action strength (v52.59, P676 root)"
+  },
+  {
+    "id": "R307",
+    "line": 2948,
+    "title": "R307. Full-route accessibility is a blocking local gate; assistive technology remains separate (v52.59, P676 root)"
+  },
+  {
+    "id": "R308",
+    "line": 2956,
+    "title": "R308. Fallback/reference freshness must not be forced into live parity (v52.60, P677 root)"
+  },
+  {
+    "id": "R309",
+    "line": 2962,
+    "title": "R309. Bulk text-replacement scripts must not run blindly across JS string literals — check for characters doing double duty as logic markers before a global find-replace (v52.62, P678 root)"
+  },
+  {
+    "id": "R328",
+    "line": 2968,
+    "title": "R328. 승인된 화면 시안은 장식층이 아니라 기본 정보구조이며, 접힌 레거시는 통합으로 간주하지 않는다 (v52.87, P702 root)"
+  },
+  {
+    "id": "R329",
+    "line": 2976,
+    "title": "R329. 시안 기본 경로 계약은 초기 HTML이 아니라 런타임 주입이 끝난 최종 화면에 적용한다 (v52.88, P703 root)"
+  },
+  {
+    "id": "R330",
+    "line": 2984,
+    "title": "R330. 사용자 표면 수와 내부 QA 라우트 수를 분리하고, 시안 정보 위계를 모든 사용자 표면에 적용한다 (v52.89, P704 root)"
+  },
+  {
+    "id": "R331",
+    "line": 2994,
+    "title": "R331. 시안의 최종 렌더 계약은 loaded/empty/degraded/closed 상태 전환과 종료 시간까지 포함한다 (v52.90, P705 root)"
+  },
+  {
+    "id": "R332",
+    "line": 3002,
+    "title": "R332. 데이터 파일 갱신시각·외부 관측시각·마지막 수집 성공시각을 분리하고 missing을 판단값으로 승격하지 않는다 (v52.91, P706 root)"
+  },
+  {
+    "id": "R333",
+    "line": 3010,
+    "title": "R333. 핵심 수집 실패는 마지막 정상 산출물을 덮어쓰지 않으며 공급자 가용성과 구현 완료를 분리한다 (v52.92, P707 root)"
+  },
+  {
+    "id": "R334",
+    "line": 3018,
+    "title": "R334. 데이터 대체 계획은 독립 실행·행 단위 lineage·publish 전 의미 검사로 닫는다 (v52.93, P708 root)"
+  },
+  {
+    "id": "R376",
+    "line": 3025,
+    "title": "R376. Cloudflare fast quote plane의 R2는 승인된 optional durability layer이며 KV-only 배포에서는 R2 binding/secret을 요구하지 않는다 (v53.42, P833)"
+  },
+  {
+    "id": "R377",
+    "line": 3031,
+    "title": "R377. 사용자 제공 시장자료는 하나의 REFERENCE 프레임으로 통합하되 현재성 수치와 분리한다 (v53.43, P834)"
+  },
+  {
+    "id": "R378",
+    "line": 3039,
+    "title": "R378. Reference market material must expose reusable chart, behavior, and communication protocols (v53.44, P835)"
+  },
+  {
+    "id": "R379",
+    "line": 3047,
+    "title": "R379. SEC refresh queues must rotate untried candidates before retrying known failures (v53.45, P836)"
+  },
+  {
+    "id": "R380",
+    "line": 3055,
+    "title": "R380. Fast-plane deploy smoke must distinguish bootstrap from failure (v53.46, P837)"
+  },
+  {
+    "id": "R381",
+    "line": 3061,
+    "title": "R381. Decision models must consume normalized decision evidence (v53.47, P838)"
+  },
+  {
+    "id": "R382",
+    "line": 3069,
+    "title": "R382. Route resources and sensitive-key persistence must be scope-owned (v53.48, P839)"
+  },
+  {
+    "id": "R383",
+    "line": 3077,
+    "title": "R383. Ticker action narratives require entity evidence (v53.49, P840)"
+  },
+  {
+    "id": "R384",
+    "line": 3083,
+    "title": "R384. Vault ciphertext must be versioned and migrate legacy KDF values (v53.49, P840)"
+  },
+  {
+    "id": "R385",
+    "line": 3089,
+    "title": "R385. Vertical slices must be executable route contracts (v53.50, P841)"
+  },
+  {
+    "id": "R386",
+    "line": 3095,
+    "title": "R386. Route/resource stability must be proven by a repeated blocking soak (v53.51, P843)"
+  },
+  {
+    "id": "R387",
+    "line": 3101,
+    "title": "R387. Operational and public-readiness claims must remain revisioned and operator-explicit (v53.51, P843)"
+  },
+  {
+    "id": "R388",
+    "line": 3107,
+    "title": "R388. Capability claims must be manifest-backed and fail closed (v53.51, P842)"
+  },
+  {
+    "id": "R389",
+    "line": 3113,
+    "title": "R389. Credential persistence must be registry-backed and readback-proven (v53.52, P844)"
+  },
+  {
+    "id": "R390",
+    "line": 3119,
+    "title": "R390. AI route readiness must be explicit and fail closed (v53.52, P844)"
+  },
+  {
+    "id": "R391",
+    "line": 3125,
+    "title": "R391. AI/data operations must expose five readiness dimensions (v53.52, P844)"
+  },
+  {
+    "id": "R392",
+    "line": 3131,
+    "title": "R392. Compatibility entrypoints must be safe during initialization races (v53.53, P845)"
+  },
+  {
+    "id": "R393",
+    "line": 3137,
+    "title": "R393. Compatibility exports must preserve global call contracts (v53.54, P846)"
+  },
+  {
+    "id": "R394",
+    "line": 3143,
+    "title": "R394. Current-sensitive server prose requires typed metric and source evidence (v53.54, P847)"
+  },
+  {
+    "id": "R395",
+    "line": 3149,
+    "title": "R395. AI questions must enter through one typed QuestionPlan/Orchestrator (v53.55, P848)"
+  },
+  {
+    "id": "R396",
+    "line": 3155,
+    "title": "R396. Current-sensitive AI answers require MarketSessionEvidence and strict AnswerPlan/ClaimLedger (v53.55, P848)"
+  },
+  {
+    "id": "R397",
+    "line": 3161,
+    "title": "R397. Research-relative rankings must not become confirmed recommendations (v53.55, P848)"
+  },
+  {
+    "id": "R398",
+    "line": 3167,
+    "title": "R398. AI post-processing must inherit the response policy (v53.55, P848)"
+  },
+  {
+    "id": "R399",
+    "line": 3173,
+    "title": "R399. Domain analysis engines must be deterministic and evidence-bounded (v53.55, P849)"
+  },
+  {
+    "id": "R400",
+    "line": 3179,
+    "title": "R400. Model benchmark and operations status must not be overstated (v53.55, P849)"
+  },
+  {
+    "id": "R401",
+    "line": 3185,
+    "title": "R401. Research requirement and research capability must remain separate (v53.56, P850)"
+  },
+  {
+    "id": "R402",
+    "line": 3191,
+    "title": "R402. Chat quote evidence must cross the typed-claim boundary without lossy field mapping (v53.57, P851)"
+  },
+  {
+    "id": "R403",
+    "line": 3197,
+    "title": "R403. ResearchDecision/ResearchPlan must be the same evidence gate for every chat surface (v53.58, P852)"
+  },
+  {
+    "id": "R404",
+    "line": 3203,
+    "title": "R404. Question plans and observation provenance are request-bound (v53.58, P852)"
+  },
+  {
+    "id": "R405",
+    "line": 3209,
+    "title": "R405. Partial research results retain their original sub-query identity (v53.58, P852)"
+  },
+  {
+    "id": "R406",
+    "line": 3215,
+    "title": "R406. Accessibility target warnings are blocking (v53.58, P852)"
+  },
+  {
+    "id": "R407",
+    "line": 3221,
+    "title": "R407. Quote price/change/previous-close fields must share one producer revision (v53.59, P853)"
+  },
+  {
+    "id": "R408",
+    "line": 3225,
+    "title": "R408. AI quota must not imply route capability (v53.59, P855)"
+  },
+  {
+    "id": "R409",
+    "line": 3229,
+    "title": "R409. Release data revisions must match the published snapshot (v53.59, P856)"
+  },
+  {
+    "id": "R410",
+    "line": 3233,
+    "title": "R410. Public readiness must mirror measured boot-performance status (v53.60, P857)"
+  },
+  {
+    "id": "R411",
+    "line": 3237,
+    "title": "R411. Secondary producers must declare a post-boot phase boundary (v53.62, P858)"
+  },
+  {
+    "id": "R412",
+    "line": 3243,
+    "title": "R412. Native data readers are the only route-provider boundary (v53.63, P833)"
+  },
+  {
+    "id": "R413",
+    "line": 3254,
+    "title": "R413. Native chart ownership requires a registry, marker, and legacy fence (v53.63, P834-P835)"
+  },
+  {
+    "id": "R414",
+    "line": 3265,
+    "title": "R414. Current decision scores require a typed decision-use grant (v53.64, P860)"
+  },
+  {
+    "id": "R415",
+    "line": 3276,
+    "title": "R415. Freshness-scoped news models require observable event time (v53.64, P861)"
+  },
+  {
+    "id": "R416",
+    "line": 3285,
+    "title": "R416. Partial portfolio aggregates must remain partial (v53.64, P862)"
+  },
+  {
+    "id": "R417",
+    "line": 3294,
+    "title": "R417. Native secondary theme performance surfaces need one scoped writer (v53.64, P859)"
+  },
+  {
+    "id": "R418",
+    "line": 3305,
+    "title": "R418. Worker reachability, capability, and soak are separate operations states (v53.64, P863)"
+  },
+  {
+    "id": "R425",
+    "line": 3317,
+    "title": "R425. Current news and research lanes are separate (v53.66, P870)"
+  },
+  {
+    "id": "R426",
+    "line": 3323,
+    "title": "R426. Decision headers must be explicit mounted route elements (v53.67, P871)"
+  },
+  {
+    "id": "R427",
+    "line": 3329,
+    "title": "R427. Provider session hints must be reconciled with venue schedules (v53.68, P872)"
+  },
+  {
+    "id": "R428",
+    "line": 3335,
+    "title": "R428. Data refresh and release manifests must publish one atomic revision tuple (v53.68, P873)"
+  },
+  {
+    "id": "R429",
+    "line": 3341,
+    "title": "R429. Operations status must derive from the capability it claims (v53.68, P874)"
+  },
+  {
+    "id": "R430",
+    "line": 3347,
+    "title": "R430. Reference learning surfaces must expose real state and freshness (v53.78, P875)"
+  },
+  {
+    "id": "R431",
+    "line": 3353,
+    "title": "R431. Source-document coverage must be measured per content unit (v53.79, P876)"
+  },
+  {
+    "id": "R432",
+    "line": 3359,
+    "title": "R432. Domain expansion must preserve publication and normalization boundaries (v53.80, P877)"
+  },
+  {
+    "id": "R433",
+    "line": 3365,
+    "title": "R433. Educational player/product references require resolved evidence edges (v53.81, P881)"
+  },
+  {
+    "id": "R434",
+    "line": 3371,
+    "title": "R434. Authored reference artifacts require renderer and coverage gates (v53.83, P884-P887)"
+  },
+  {
+    "id": "R435",
+    "line": 3377,
+    "title": "R435. Reference currentness overlays must remain educational and status-labeled (v53.84, P888)"
+  },
+  {
+    "id": "R436",
+    "line": 3383,
+    "title": "R436. 시장 휴장일 freshness 유예는 완전한 Tier-0 snapshot에만 허용한다 (v53.86, P889)"
+  },
+  {
+    "id": "R437",
+    "line": 3391,
+    "title": "R437. 최신 13F 없음과 지연 상태를 구분하는 SEC availability evidence를 기록한다 (v53.87, P890)"
+  },
+  {
+    "id": "R438",
+    "line": 3397,
+    "title": "R438. 학습 지도는 의미 단위별 원고와 기본 공개 흐름을 함께 검증한다 (v53.88, P891)"
+  },
+  {
+    "id": "R439",
+    "line": 3403,
+    "title": "R439. 분기 비교는 실제 인접 공시와 유한한 사용자 표면을 함께 검증한다 (v53.89, P892)"
+  },
+  {
+    "id": "R440",
+    "line": 3409,
+    "title": "R440. 참고 자료의 셋업·전력·자료품질 프레임은 관찰용으로만 승격한다 (v53.91)"
+  },
+  {
+    "id": "R441",
+    "line": 3415,
+    "title": "R441. Telegram 다채널 discovery는 source catalog·신선도·실패 상태를 함께 보존한다 (v53.92)"
+  },
+  {
+    "id": "R442",
+    "line": 3421,
+    "title": "R442. 브라우저 테스트 그룹은 registry·예외·planned/completed invariant를 하나의 release gate로 기록한다 (v53.96, P895)"
+  },
+  {
+    "id": "R443",
+    "line": 3426,
+    "title": "R443. 예상 외 브라우저 runtime 오류와 차단된 외부 네트워크는 서로 다른 상태로 분류한다 (v53.96, P895)"
+  },
+  {
+    "id": "R444",
+    "line": 3432,
+    "title": "R444. AI 시장 분석은 claim마다 canonical evidence ID를 가지며 provider 실패도 동일 schema fallback을 낸다 (v53.96, P895)"
+  },
+  {
+    "id": "R445",
+    "line": 3438,
+    "title": "R445. Worker quota는 atomic reserve/release와 idempotency를 제공해야 하며 legacy KV는 fail-closed다 (v53.96, P895)"
+  },
+  {
+    "id": "R446",
+    "line": 3444,
+    "title": "R446. route ownership은 native/legacy/not-applicable를 구분하고 revision lanes를 혼합하지 않는다 (v53.96, P895)"
+  },
+  {
+    "id": "R447",
+    "line": 3450,
+    "title": "R447. 시장 시간은 event/observed/collected/published와 exchange calendar를 분리하며 calendar 누락은 UNKNOWN이다 (v53.96, P895)"
+  },
+  {
+    "id": "R448",
+    "line": 3456,
+    "title": "R448. SEC fundamental anomaly는 quarantine하고 current/missing/not-applicable classification을 공개한다 (v53.96, P895)"
+  },
+  {
+    "id": "R449",
+    "line": 3462,
+    "title": "R449. 연구 모델은 PIT/walk-forward/holdout/cost/liquidity/parity 상태를 함께 공개하고 검증 전 research-only다 (v53.96, P895)"
+  },
+  {
+    "id": "R450",
+    "line": 3468,
+    "title": "R450. CSP·decomposition·operations gates는 local PASS와 live certification을 분리한다 (v53.96, P895)"
+  },
+  {
+    "id": "R451",
+    "line": 3474,
+    "title": "R451. 학습 필드 존재와 백과사전급 깊이를 분리해 인증한다 (v53.98, P896)"
+  },
+  {
+    "id": "R452",
+    "line": 3480,
+    "title": "R452. 지식 그래프·출처·artifact 상태는 실제 consumer와 같은 해석기로 인증한다 (v53.99, P897)"
+  },
+  {
+    "id": "R453",
+    "line": 3486,
+    "title": "R453. AI Research는 하나의 실행 결과 계약과 관측된 capability 증거로만 공개한다 (v54.0, P898)"
+  },
+  {
+    "id": "R454",
+    "line": 3492,
+    "title": "R454. Service-worker takeover fixture는 1회 reload 전후 상태를 보존해 검증한다 (v54.0, P899)"
+  },
+  {
+    "id": "R455",
+    "line": 3498,
+    "title": "R455. 변동 데이터 게이트는 실제 관측과 완전한 unavailable 튜플을 모두 실행 검증한다 (v54.1, P900)"
+  },
+  {
+    "id": "R456",
+    "line": 3504,
+    "title": "R456. AI 채팅은 단일 QuestionPlan→Evidence→AnswerPlan 계약으로 종단간 검증한다 (v54.2, P901)"
+  },
+  {
+    "id": "R457",
+    "line": 3510,
+    "title": "R457. 변동 원본 artifact와 파생 인덱스는 producer가 원자적으로 발행하고 실제 Git index에서 검증한다 (v54.2, P902, v56.33 P1204)"
+  },
+  {
+    "id": "R458",
+    "line": 3516,
+    "title": "R458. AI edge Worker는 소스·배포·readiness를 하나의 릴리스 계약으로 닫는다 (v54.3, P903)"
+  },
+  {
+    "id": "R459",
+    "line": 3522,
+    "title": "R459. Provider 허용 지역은 location hint가 아니라 관할권 실행 증거로 고정한다 (v54.4, P904)"
+  },
+  {
+    "id": "R460",
+    "line": 3528,
+    "title": "R460. 소수 사용자용 금융 안전 경계는 답변 범위와 실제 실행 위험을 분리한다 (v54.4, P905)"
+  },
+  {
+    "id": "R461",
+    "line": 3534,
+    "title": "R461. 공급자·근거 장애는 답변 전체가 아니라 영향받는 주장 범위만 저하시킨다 (v54.4, P906)"
+  },
+  {
+    "id": "R462",
+    "line": 3540,
+    "title": "R462. 다중 공급자 coverage 계약은 partial 상태를 성공·실패 lineage와 함께 보존한다 (v54.4, P907)"
+  },
+  {
+    "id": "R463",
+    "line": 3546,
+    "title": "R463. AI readiness는 저장된 credential이 아니라 실제 선택된 endpoint를 검증한다 (v54.5, P908)"
+  },
+  {
+    "id": "R494",
+    "line": 3552,
+    "title": "R494. 관측 불가능한 경제변수와 기업 목표는 관계 지도에서도 시점·추정·반증 경계를 보존한다 (v54.25, P937)"
+  },
+  {
+    "id": "R503",
+    "line": 3558,
+    "title": "R503. reference-depth·currentness·provider-review는 서로 다른 승격 단계로 보존한다 (v54.36, P943)"
+  }
+]

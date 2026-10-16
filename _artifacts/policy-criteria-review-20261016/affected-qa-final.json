@@ -1,0 +1,199 @@
+{
+  "schemaVersion": "aio-qa-run.v1",
+  "runId": "2026-10-16T01-07-50-611Z-18648-ugwb0u",
+  "manifestVersion": "aio-qa-pipeline.v1",
+  "profile": "affected",
+  "groups": [
+    "preflight"
+  ],
+  "changeSource": "explicit-files",
+  "changedFiles": [
+    "System.Object[]",
+    "_artifacts/codex-reform-audit-20261015/HANDOFF.md"
+  ],
+  "startedAt": "2026-10-16T01:07:50.620Z",
+  "completedAt": "2026-10-16T01:07:55.445Z",
+  "durationMs": 4825,
+  "noCache": false,
+  "keepGoing": false,
+  "concurrency": {
+    "static": 4,
+    "browser": 1,
+    "external": 2
+  },
+  "counts": {
+    "CACHED": 7,
+    "PASS": 7
+  },
+  "targets": {},
+  "results": [
+    {
+      "id": "version",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 136,
+      "fingerprint": "5b3ef79d0aa21eca7726f961c3b194ef20d16de2685a5a88c7861a4333d5615d"
+    },
+    {
+      "id": "syntax",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 2043,
+      "fingerprint": "91ba76b510dc6810641e7fa74bb8e0bd9bdb163fbc0b35e4f8a74eafd51ac027",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "Syntax check OK: 707 JS/ESM files (1 checked, 706 unchanged since a cached pass; 8 workers).",
+      "error": ""
+    },
+    {
+      "id": "native-decision",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 181,
+      "fingerprint": "7e09cf2b964fb3d8856fc729880a2a45a206f13d3c04cd5df634ad602d97b57d"
+    },
+    {
+      "id": "vertical-slice",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 128,
+      "fingerprint": "57d9e4ae6ca21c03ea2f31d4d22cb4a035d1c6ae8d24aa3322f79af127b88183"
+    },
+    {
+      "id": "capability-claims",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 107,
+      "fingerprint": "d9c26a20515b3bfe585e5b16b60c83567e052bdac1317d3d7a3f0373bc0be082"
+    },
+    {
+      "id": "product-charter",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 165,
+      "fingerprint": "3673241ca43285f7f60e8750840106204d968533f63089e90690b050d45e2a90",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "Product charter OK: self-directed-investment-research-and-decision-support, 7 trust planes, 14 audited domains, execution=NONE.",
+      "error": ""
+    },
+    {
+      "id": "reference-curriculum",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 115,
+      "fingerprint": "22f1f2bb49ffb2f4e30c8d5ba3284c726cb7a3ac8d592a282d9e16e7f1a52630"
+    },
+    {
+      "id": "route-registry",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 155,
+      "fingerprint": "d2ff8f848afa26e13bca859221ab3ff0092480573d5cccd911004626e5fccc61"
+    },
+    {
+      "id": "operations-contract",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 199,
+      "fingerprint": "6544e99ee68f9d6a59572ec50a4f8167fb24021913835cbe18b2181d5ab16950",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "{\n  \"ok\": true,\n  \"version\": \"v57.83\",\n  \"workflowCount\": 13,\n  \"actionCount\": 60,\n  \"routeCount\": 19,\n  \"stateCount\": 5,\n  \"routeSoak\": \"pending\",\n  \"errors\": []\n}",
+      "error": ""
+    },
+    {
+      "id": "generated-state",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 406,
+      "fingerprint": "c9dea7491b1de4776e56f48945f848d61a34b514b32986f551a8e6266efc9082",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "Workspace state OK: v57.83, 19 routes, 76 context documents.",
+      "error": ""
+    },
+    {
+      "id": "qa-runner-behavior",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 20397,
+      "fingerprint": "a75ce31629cc9739bd13b090ea4ab7e57937cdbc79732439856299b0863f06f0"
+    },
+    {
+      "id": "architecture",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 1322,
+      "fingerprint": "4b68c3b5ec5e86a634c913789f673ca292072c4167b18325403ed3ee959c7df9",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "{\"ok\":true,\"routes\":19,\"firstVerticalSlice\":\"sentiment\",\"baseline\":{\"generatedAt\":\"2026-07-27\",\"version\":\"v53.97\",\"observedRevision\":\"v53.97\",\"observedAt\":\"2026-08-10T00:00:00+09:00\",\"observationSource\":\"local-working-tree\",\"revisionLanes\":{\"local\":{\"revision\":\"v53.97\",\"status\":\"observed\",\"source\":\"version.json\"},\"release\":{\"revision\":\"v53.97\",\"status\":\"observed-local\",\"source\":\"architecture/release-manifest.json\"},\"live\":{\"revision\":null,\"status\":\"unverified\",\"source\":\"external-observation-required\"}},\"routeGraph\":{\"ownerManifest\":\"architecture/route-owners.json\",\"supportedRoutesCount\":19,\"supportedRoutesSource\":\"architecture/route-owners.json.routes\",\"dependencyRule\":\"dependencies must reference route IDs or explicit external gates; local/release/live observations remain separate\"},\"scope\":[\"index.html\",\"js/aio-core.js\",\"js/aio-data.js\",\"js/aio-ui.js\",\"js/aio-chat.js\"],\"explicitWindowWrites\":1097,\"directFetch\":42,\"directStorage\":187,\"htmlSinks\":409,\"burnDown\":{\"explicitWindowWritesMax\":1097,\"retiredDataShowPageMonkeyPatch\":true,\"retiredSentimentLegacyInitHook\":true,\"retiredSentimentLegacyBadgeWriter\":true,\"retiredWeinsteinCompositeDeadCode\":true,\"retiredMtfCompositeDeadCode\":true,\"retiredOrphanedBreadthWsAnalysisWriter\":true,\"retiredBreadthStageSummaryInnerHtmlReset\":true}},\"current\":{\"explicitWindowWrites\":685,\"directFetch\":23,\"directStorage\":109,\"htmlSinks\":92},\"perfScreenerDispatchP95Ms\":0.121}",
+      "error": ""
+    },
+    {
+      "id": "workspace-contract",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 2173,
+      "fingerprint": "886ca461ee86fd63b5beaad954f8ba294fd0e766dff1e20208def52758210599",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "Workspace contract OK: v57.83, 76 context docs, 9 skills, 4 agent profiles, 13 workflows.",
+      "error": ""
+    },
+    {
+      "id": "workflow-yaml",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 2725,
+      "fingerprint": "539939db66fdb46ee34a06858b8362c3532a8d45543c52fb61c2436054911ce7",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "Control character check OK: 13 workflow YAML(s) clean+parseable, 0 file(s) with baseline-tracked pre-existing control chars, 0 regressions.",
+      "error": ""
+    }
+  ]
+}

@@ -9,7 +9,7 @@ import {
 } from './evidence-lineage.js';
 
 export const CONDITIONAL_EVIDENCE_VERSION = 'conditional-evidence.v2';
-export const CONDITIONAL_EVIDENCE_DISCLAIMER = '과거 조건부 빈도이며 예측이나 투자조언이 아닙니다.';
+export const CONDITIONAL_EVIDENCE_DISCLAIMER = '과거에 같은 조건이 나타났을 때의 빈도입니다.';
 
 export const CONDITIONAL_EVIDENCE_REGISTRY = Object.freeze({
   gapFill: Object.freeze({

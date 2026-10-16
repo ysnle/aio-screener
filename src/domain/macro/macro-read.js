@@ -9,7 +9,7 @@
 // Rates, credit and oil/dollar reuse the 시장 상태 axes, so the two screens never disagree.
 // What a regime has tended to mean for stocks is labelled 해석 (a historical tendency, not a forecast).
 
-import { buildCloseSeries, closeBasis, creditState, hyDelta20Bp, sessionPointBack as closeSessionPointBack } from '../briefing/market-read.js';
+import { buildCloseSeries, closeBasis, creditCause, creditState, hyDelta20Bp, hyWidening20Record, sessionPointBack as closeSessionPointBack } from '../briefing/market-read.js';
 import { RULES } from '../rules/thresholds.js';
 import { brentWtiCheck } from './liquidity-growth.js';
 import { inflationDirection, oilDivergence, MACRO_SIGNAL_RULES } from './macro-signals.js';
@@ -195,7 +195,10 @@ function inflationAxis({ macro, mh }) {
   let firedBy = null;
   if (yoy == null) state = 'unknown';
   else if (yoy >= levelAt) { state = 'burden'; firedBy = 'level'; }
-  else if (yoy >= I.nearTargetPct && reaccel.length) { state = 'burden'; firedBy = 'reaccel'; }
+  // v57.84 review: one measure re-accelerating while the other slows is 엇갈림 on the quadrant and fails the 물가 재가속
+  // branch, so the axis no longer calls it 부담 — a single 3-month pace is noisy (±0.1pp a month is ±1.2pp annualised).
+  // The axis fires on agreement (direction 'up') and names the mixed reading otherwise.
+  else if (yoy >= I.nearTargetPct && reaccel.length && direction.dir === 'up') { state = 'burden'; firedBy = 'reaccel'; }
   else if (yoy <= I.nearTargetPct && !direction.anyUp && (pace ? pace.value <= yoy : delta != null && delta <= 0)) state = 'favorable';
   const gap = yoy == null ? null : yoy - 2;
   const fired = reaccel[0] || null;
@@ -207,7 +210,7 @@ function inflationAxis({ macro, mh }) {
       : `근원 PCE 물가가 ${yoy.toFixed(1)}%로 목표보다 ${gap.toFixed(1)}%p 높고, ${fired.name}${fired.month ? `(${fired.month})` : ''}의 최근 3개월 속도(연율 ${fired.pace.toFixed(1)}%)가 1년치(${fired.yoy.toFixed(1)}%)보다 ${fired.margin.toFixed(1)}%p 빨라 다시 오르고 있습니다 — 부담 판정은 이 재가속 때문입니다. 연준이 금리를 내리기 어려운 조건입니다.${mixedNote}`)
     : state === 'favorable' ? `근원 PCE 물가가 ${yoy.toFixed(1)}%로 목표에 가깝고 오르는 속도가 줄고 있습니다 — 금리 인하 여지가 생기는 조건입니다.`
       : state === 'unknown' ? '물가 자료를 기다리는 중입니다.'
-        : `근원 PCE 물가 ${yoy.toFixed(1)}% — 목표보다 높지만 다시 빨라지는 신호는 뚜렷하지 않습니다.${yoy >= I.missPct ? ` ${I.missPct.toFixed(1)}% 선과의 차이가 ${MACRO_SIGNAL_RULES.inflationLevelBufferPp}%p 미만이라 수준만으로 부담으로 보지 않습니다.` : ''}${pace ? '' : ' 3개월 속도는 월별 기록이 쌓이면 반영됩니다.'}`;
+        : `근원 PCE 물가 ${yoy.toFixed(1)}% — 목표보다 높지만 ${direction.state === 'mixed' && reaccel.length ? `${reaccel[0].name}${reaccel[0].month ? `(${reaccel[0].month})` : ''}만 빨라지고${mixedNote ? mixedNote.replace(/^ /, ' ') : ''} 두 지표가 함께 가리키는 재가속은 아닙니다.` : '다시 빨라지는 신호는 뚜렷하지 않습니다.'}${yoy >= I.missPct ? ` ${I.missPct.toFixed(1)}% 선과의 차이가 ${MACRO_SIGNAL_RULES.inflationLevelBufferPp}%p 미만이라 수준만으로 부담으로 보지 않습니다.` : ''}${pace ? '' : ' 3개월 속도는 월별 기록이 쌓이면 반영됩니다.'}`;
   const gaugeOf = state === 'burden' && firedBy === 'reaccel' && fired
     ? gauge({ label: `${fired.name} 3개월 속도 − 1년치 (재가속 폭)`, value: fired.margin, unit: '%p', digits: 1, ...cuts(-2, 3, [0, I.reaccelPp], ['favorable', 'neutral', 'burden'], [[0, '0'], [I.reaccelPp, `+${I.reaccelPp} 재가속`]]) })
     : gauge({ label: '근원 PCE 물가 (전년 대비)', value: yoy, unit: '%', digits: 1, ...cuts(0, 5, [I.nearTargetPct, levelAt], ['favorable', 'neutral', 'burden'], [[I.targetPct, `목표 ${I.targetPct}%`], [levelAt, `${levelAt.toFixed(1)}%`]]) });
@@ -286,12 +289,18 @@ function sharedGauges({ macro, rateFx, regime }) {
   const hy = finite(macro.hyOAS);
   const hyBp = hy == null ? null : hy * 100;
   const hy5 = finite(macro.hyOASDelta5) == null ? null : finite(macro.hyOASDelta5) * 100;
-  const creditByChange = stateOf('credit') === 'burden' && (hyBp == null || hyBp < RULES.credit.stressAtBp) && hy5 != null && hy5 >= RULES.credit.widen5dBp;
+  // Codex audit F06: the gauge follows creditCause — a burden from the 20-session record is drawn on that change.
+  const cause = stateOf('credit') === 'burden' ? creditCause({ hyBp, hy5, hy20Record: rateFx?.hy20Record || null }) : { primary: null };
+  const creditByChange = cause.primary === 'fast5';
+  const creditBy20 = cause.primary === 'wide20' && finite(rateFx?.hy20Record?.value) != null;
   // v57.50 (W1 request): a level under the tight cut is drawn favourable only when creditState() says so (5-day not
   // widening, no 20-session widening, no heavy hedging) — otherwise that band is neutral, as on the 시장 상태 axis.
   const creditVerdict = stateOf('credit') !== 'unknown' ? stateOf('credit') : creditState({ hyBp, hy5, hy20: rateFx?.hy20 ?? null, pcr: null }); // hy20: macro-history 20-session change
   const lowTone = creditVerdict === 'favorable' ? 'favorable' : 'neutral';
-  const credit = creditByChange
+  const record20 = rateFx?.hy20Record;
+  const credit = creditBy20
+    ? gauge({ label: '하이일드 스프레드 20거래일 변화', value: record20.value, unit: 'bp', digits: 0, ...cuts(-50, Math.max(150, Math.ceil(record20.value / 50) * 50 + 50), [RULES.credit.widen20dBp, record20.enterBp], ['favorable', 'neutral', 'burden'], [[RULES.credit.widen20dBp, `+${RULES.credit.widen20dBp}`], [record20.enterBp, `+${Math.round(record20.enterBp)} 1년 상위`]]) })
+    : creditByChange
     ? gauge({ label: '하이일드 스프레드 5거래일 변화', value: hy5, unit: 'bp', digits: 0, ...cuts(-50, 100, [0, RULES.credit.widen5dBp], ['favorable', 'neutral', 'burden'], [[0, '0'], [RULES.credit.widen5dBp, `+${RULES.credit.widen5dBp} 급확대`]]) })
     : gauge({ label: '하이일드 스프레드', value: hyBp, unit: 'bp', digits: 0, ...cuts(200, 700, [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], [lowTone, 'neutral', 'burden'], [[RULES.credit.tightBelowBp, `${RULES.credit.tightBelowBp}`], [RULES.credit.stressAtBp, `${RULES.credit.stressAtBp}`]]) });
   const tnx20 = rateFx?.tnx20 ?? null;
@@ -312,7 +321,7 @@ function sharedGauges({ macro, rateFx, regime }) {
     rates: { gauge: rates, headline: tnx20 == null ? null : `10년물 20일 ${signed(tnx20, 0, 'bp')}` },
     // P1726: the 5-session WTI move is named when it runs against the 20-session direction.
     commodities: { gauge: commodities, headline: wti20 == null ? null : `WTI 20일 ${signed(wti20, 1, '%')}${rateFx?.wti5 != null && Math.abs(rateFx.wti5) >= 3 && Math.sign(rateFx.wti5) !== Math.sign(wti20) ? `(최근 5일 ${signed(rateFx.wti5, 1, '%')})` : ''} · 달러 ${signed(dxy20, 1, '%')}` },
-    credit: { gauge: credit, headline: hyBp == null ? null : `하이일드 ${hyBp.toFixed(0)}bp${hy5 == null ? '' : ` (5거래일 ${signed(hy5, 0, 'bp')})`}` },
+    credit: { gauge: credit, headline: hyBp == null ? null : `하이일드 ${hyBp.toFixed(0)}bp${hy5 == null ? '' : ` (5거래일 ${signed(hy5, 0, 'bp')}${creditBy20 ? ` · 20거래일 ${signed(record20.value, 0, 'bp')}` : ''})`}` },
     korea: stateOf('korea') === 'burden' && (rateFx?.krw20 == null || rateFx.krw20 < RULES.fx.krwMove20dPct) && rateFx?.jpy20 != null && rateFx.jpy20 <= -RULES.fx.yenRally20dPct
       ? { gauge: gauge({ label: '엔화 20일 강세 폭 (엔/달러 하락률)', value: -rateFx.jpy20, unit: '%', digits: 1, ...cuts(-5, 8, [RULES.fx.yenRally20dPct], ['neutral', 'burden'], [[RULES.fx.yenRally20dPct, `+${RULES.fx.yenRally20dPct}% 엔 급강세`]]) }), headline: `엔화 20일 ${signed(-rateFx.jpy20, 1, '%')} 강세` }
       : { gauge: gauge({ label: '원/달러 20일 변화', value: rateFx?.krw20 ?? null, unit: '%', digits: 1, ...cuts(-5, 5, [-RULES.fx.krwMove20dPct, RULES.fx.krwMove20dPct], ['favorable', 'neutral', 'burden'], [[-RULES.fx.krwMove20dPct, `−${RULES.fx.krwMove20dPct}%`], [RULES.fx.krwMove20dPct, `+${RULES.fx.krwMove20dPct}%`]]) }), headline: rateFx?.krw20 == null ? null : `원/달러 20일 ${signed(rateFx.krw20, 1, '%')}` }
@@ -433,8 +442,15 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
   // v57.50 (coordinator rule): "안정" is said only when creditState() is favorable — the same verdict as the 시장 상태 credit
   // axis. A small 5-day move alone is not calm (the level or a 20-session widening can still hold the axis at 중립/부담).
   const creditVerdict = axisById.credit?.state || creditState({ hyBp: finite(macro.hyOAS) == null ? null : finite(macro.hyOAS) * 100, hy5: hy5 == null ? null : hy5 * 100, hy20: hyDelta20Bp(mh)?.value ?? null, pcr: null });
+  // Codex audit F06: a 부담 names the input that decided it (level / 5-session / 20-session record), never a fixed "수준".
+  const hyBpNow = finite(macro.hyOAS) == null ? null : finite(macro.hyOAS) * 100;
+  const record20 = mh ? hyWidening20Record(mh) : null;
+  const cause = creditCause({ hyBp: hyBpNow, hy5: hy5 == null ? null : hy5 * 100, hy20Record: record20 });
+  const burdenText = cause.level ? `스프레드 수준(${Math.round(hyBpNow)}bp)이 부담 구간(${RULES.credit.stressAtBp}bp 이상)입니다(시장 상태 신용 지표 부담)`
+    : cause.wide20 ? `수준(${Math.round(hyBpNow)}bp)은 부담 구간이 아니지만 20거래일 ${signed(record20.value, 0, 'bp')} 확대가 ${record20.pct >= 100 ? '지난 1년 중 가장 큰 폭' : `지난 1년 변화의 ${record20.pct}백분위`}라 부담입니다(시장 상태 신용 지표 부담)`
+      : '신용 지표가 부담입니다 — 수준과 5·20거래일 변화를 함께 확인하세요(시장 상태 신용 지표 부담)';
   const creditCalm = creditVerdict === 'favorable' ? '신용 시장은 안정적입니다(시장 상태 신용 지표 양호)'
-    : creditVerdict === 'burden' ? '5거래일 변화는 작지만 스프레드 수준이 부담 구간입니다(시장 상태 신용 지표 부담)'
+    : creditVerdict === 'burden' ? burdenText
       : creditVerdict === 'neutral' ? '5거래일 변화는 작지만 신용 지표는 중립입니다 — 수준이나 20거래일 변화 때문에 안정으로 보지 않습니다'
         : '신용 지표 판정 보류 — 스프레드 기록을 기다립니다';
   const dir = (value, up, down) => value == null ? 'unknown' : value >= up ? 'up' : value <= down ? 'down' : 'flat';
@@ -465,7 +481,7 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
   }
   const branches = [
     { id: 'dollar', label: '달러', value: dxy20 == null ? '—' : `20일 ${signed(dxy20, 1, '%')}`, dir: dir(dxy20, RULES.dollar.rise20dPct, RULES.dollar.fall20dPct), effect: dxy20 == null ? null : dxy20 >= RULES.dollar.rise20dPct ? '달러 강세 → 미국 다국적 기업의 해외 매출 환산 감소, 신흥국·원화 약세(외국인 순매도 압력)' : dxy20 <= RULES.dollar.fall20dPct ? '달러 약세 → 해외 매출 환산 증가, 신흥국·원화에 우호적' : '달러는 큰 방향 없이 움직이고 있습니다' },
-    { id: 'credit', label: '신용 스프레드', value: hy5 == null ? '—' : `5거래일 ${signed(hy5 * 100, 0, 'bp')}`, dir: dir(hy5 == null ? null : hy5 * 100, RULES.credit.widen5dBp, -RULES.credit.widen5dBp), effect: hy5 == null ? null : hy5 * 100 >= RULES.credit.widen5dBp ? '스프레드 확대 → 기업 자금 조달 비용 상승, 주식 위험 프리미엄 상승' : hy5 * 100 <= -RULES.credit.widen5dBp ? '스프레드 축소 → 자금 조달 여건 개선' : creditCalm }
+    { id: 'credit', label: '신용 스프레드', value: hy5 == null ? '—' : `5거래일 ${signed(hy5 * 100, 0, 'bp')}${cause.wide20 && finite(record20?.value) != null ? ` · 20거래일 ${signed(record20.value, 0, 'bp')}` : ''}`, dir: dir(hy5 == null ? null : hy5 * 100, RULES.credit.widen5dBp, -RULES.credit.widen5dBp), effect: hy5 == null ? null : hy5 * 100 >= RULES.credit.widen5dBp ? '스프레드 확대 → 기업 자금 조달 비용 상승, 주식 위험 프리미엄 상승' : hy5 * 100 <= -RULES.credit.widen5dBp ? '스프레드 축소 → 자금 조달 여건 개선' : creditCalm }
   ];
   // Colour by effect on stocks: every node rising is a headwind except valuation, where a fall is.
   const impact = (node) => node.dir === 'unknown' || node.dir === 'flat' ? node.dir : (node.id === 'valuation' ? node.dir === 'down' : node.dir === 'up') ? 'burden' : 'favorable';
@@ -530,7 +546,7 @@ export function buildMacroRead({ macro = null, macroHistory = null, regime = nul
   if (!rateFx && Array.isArray(history)) rateFx = closeChanges(history);
   const m = macro && typeof macro === 'object' ? macro : {};
   const mh = macroHistory?.schemaVersion === 'macro-history.v1' ? macroHistory : null;
-  const gauges = sharedGauges({ macro: m, rateFx: { ...(rateFx || {}), hy20: hyDelta20Bp(mh)?.value ?? null }, regime });
+  const gauges = sharedGauges({ macro: m, rateFx: { ...(rateFx || {}), hy20: hyDelta20Bp(mh)?.value ?? null, hy20Record: mh ? hyWidening20Record(mh) : null }, regime });
   const oil = brentWtiCheck(macroHistory, Array.isArray(history) ? history : []);
   const growth = growthAxis({ macro: m, mh });
   const inflation = inflationAxis({ macro: m, mh });

@@ -85,7 +85,9 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
     const down = trendMix.find((row) => row.state === 'down').pct;
     // v57.81: the breadth axis is the US sample's, so its clause speaks only to the US holdings (on the same denominator).
     const usTrend = known.filter((row) => !isKr(row.symbol) && trendState(row.data));
-    const usDown = usTrend.filter((row) => trendState(row.data) === 'down').reduce((sum, row) => sum + row.value, 0) / trendTotal * 100;
+    // Codex audit F08: "미국 보유 중" is a share of the US holdings with a trend read, not of every market's.
+    const usTrendValue = usTrend.reduce((sum, row) => sum + row.value, 0);
+    const usDown = usTrendValue > 0 ? usTrend.filter((row) => trendState(row.data) === 'down').reduce((sum, row) => sum + row.value, 0) / usTrendValue * 100 : 0;
     const breadthClause = breadth?.state !== 'burden' || !usTrend.length ? ''
       : usDown > 0 ? ` 미국 시장 폭이 좁은 지금은 미국 보유 중 하락 추세 종목(${usDown.toFixed(0)}%)이 지수보다 먼저 흔들리기 쉬운 환경입니다.`
         : ' 미국 시장 폭이 좁은 가운데 미국 보유 종목은 하락 추세에 있지 않습니다.';
@@ -186,8 +188,11 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   const upPct = trendMix.find((row) => row.state === 'up')?.pct;
   const downPct = trendMix.find((row) => row.state === 'down')?.pct;
   const nearPct = trendMix.find((row) => row.state === 'near')?.pct;
-  const headline = [trendMix.length ? `${plainBasis} ${upPct.toFixed(0)}%는 오르는 흐름(50·200일선 위), ${downPct.toFixed(0)}%는 내리는 흐름입니다${nearPct > 0 ? `(${nearPct.toFixed(0)}%는 선 근처라 판정 보류)` : ''}.` : null,
-    book3 != null && bench3 != null ? `최근 3개월은 지수보다 ${Math.abs(book3 - bench3).toFixed(1)}%p ${book3 >= bench3 ? '앞섰습니다' : '뒤처졌습니다'}${relativeBasisNote}.` : null,
+  // v57.84 review: the mix names the remainder (조정·반등) so the shares add up, and the 3-month line says it is the
+  // current holdings looked back on, not the account's own track record.
+  const otherPct = trendMix.length ? Math.max(0, 100 - (upPct || 0) - (downPct || 0) - (nearPct || 0)) : 0;
+  const headline = [trendMix.length ? `${plainBasis} ${(upPct || 0).toFixed(0)}%는 오르는 흐름(50·200일선 위), ${(downPct || 0).toFixed(0)}%는 내리는 흐름입니다${otherPct >= 1 ? ` · 조정·반등 ${otherPct.toFixed(0)}%` : ''}${nearPct > 0 ? `(${nearPct.toFixed(0)}%는 선 근처라 판정 보류)` : ''}.` : null,
+    book3 != null && bench3 != null ? `지금 구성으로 계산하면 최근 3개월은 지수보다 ${Math.abs(book3 - bench3).toFixed(1)}%p ${book3 >= bench3 ? '앞섰습니다' : '뒤처졌습니다'}${relativeBasisNote}.` : null,
     regime?.available ? `미국 시장 상태는 '${regime.overall}'입니다.` : null, krLine?.headline || null].filter(Boolean).join(' ');
   const next = [];
   if (weakest[0]) next.push({ action: 'showTicker', arg: weakest[0].symbol, route: 'ticker', label: weakest[0].symbol, why: '하락 추세 중 비중이 가장 큰 종목의 요약·차트' });

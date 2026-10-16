@@ -6,9 +6,19 @@ below; the `aio-proxy` Worker (source: `../cloudflare-worker-proxy.js`, config:
 server-key route, and the `/relay` server-side key relay. AI generation uses
 `gpt-6-luna` and the operator's `OPENAI_API_KEY` Worker secret. Browser chat,
 translation and Actions analysis share one atomic UTC-month reservation budget
-of at most $20 (owner approval 2026-10-11). Conditional OpenAI web search is enabled with at most two built-in calls per request; no per-user search allowance is imposed. Search requests retain a $0.10 policy reserve per permitted tool call plus their text reserve because hosted-search billing cannot be certified from response token usage alone. This reserve is not a provider invoice or guaranteed billing bound. The provider key never enters the
+of at most $20 (owner approval 2026-10-11). Conditional OpenAI web search is enabled with at most two built-in calls per request; no per-user search allowance is imposed. Search requests reserve their text and per-call search allowance up front; a completed searched answer settles at its usage tokens plus one fee per `web_search_call` item (v57.62), while a missing, failed or cancelled receipt keeps the full reserve. The ledger is not a provider invoice or guaranteed billing bound. The provider key never enters the
 browser or Actions; Actions authenticates with a separate `AIO_AUTOMATION_TOKEN`.
 See [_context/OPERATOR-RUNBOOK.md](../_context/OPERATOR-RUNBOOK.md) for provisioning.
+
+## `/workers-ai/translate` — headline translation (v57.61, v57.83)
+
+Actions-only (automation token; any other caller sees 404). It runs on the account's Workers AI
+allowance — **outside** the OpenAI reservation ledger above (Cloudflare: 10,000 free neurons a day;
+overage is charged on a paid Workers plan). Bounds: at most 20 titles per call, `AI_KILL_SWITCH=1`
+stops it like every AI path, and 30 calls a minute (`RATE_LIMIT_WORKERS_AI` binding, else the
+isolate map) cuts a runaway caller (codex audit F18). Whether the account is on the free plan
+(hard stop) or paid (overage) is an operator fact to confirm in the Cloudflare dashboard; this code
+does not count neurons. Any failure returns 503 and the caller falls back to the shared OpenAI path.
 
 ## `/relay` — fixed-provider relay (P1151)
 
@@ -54,7 +64,7 @@ The bounds that are *not* per-isolate:
   in Workers Logs. A missing or throwing binding falls back to the in-isolate `Map`.
 - the atomic Durable Object daily cap (`AI_DAILY_CAP`, `RELAY_DAILY_CAP`) — **volume,
   not identity**, and only on `/openai` and `/relay`; the generic `?url=` proxy has none.
-- P1759: a per-connection AI day cap (`AI_PER_CLIENT_DAILY_CAP`, default 150 — a household shares one IP) checked in the same
+- P1759: a per-connection AI day cap (`AI_PER_CLIENT_DAILY_CAP`: code default 150, deployed `wrangler.proxy.toml` value 200 — a household shares one IP) checked in the same
   DO admission transaction. The key is an HMAC of the UTC day and the caller IP (IPv6 by /64;
   key material `AI_CLIENT_KEY_SALT` or, if unset, `OPENAI_API_KEY`); raw IPs are never stored.
   Exceeding it returns 429 `client-daily-cap` with `Retry-After` to the next UTC midnight.

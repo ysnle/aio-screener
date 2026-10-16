@@ -99,7 +99,14 @@ check('v57.81 client lookup: listed, unlisted, no fuzzy rewrite, no name search'
   const appl = client.lookupUsListing(index, 'APPL');
   assert.equal(appl.listed, false, 'APPL is not rewritten to AAPL');
   assert.equal(appl.name, null);
-  assert.equal(client.lookupUsListing(index, 'Hawkins').listed, false, 'company names are never searched');
+  assert.equal(client.lookupUsListing(index, 'Hawkins').listed, false, 'company names are never resolved by the exact lookup');
+  // v57.83: a name search offers candidates to choose from (never an automatic resolution); short or non-Latin queries return none.
+  const named = client.searchUsListingNames(index, 'hawkins');
+  assert.equal(named[0]?.symbol, 'HWKN', 'a company name is offered as a listing candidate');
+  assert.equal(named[0]?.exchange, 'Nasdaq');
+  assert.deepEqual(client.searchUsListingNames(index, 'ha'), [], 'under three letters: no candidates');
+  assert.deepEqual(client.searchUsListingNames(index, '호킨스'), [], 'no Latin letter: no candidates');
+  assert.deepEqual(client.searchUsListingNames(index, 'hawkins', { exclude: ['HWKN'] }).map((pick) => pick.symbol).includes('HWKN'), false, 'registry picks are not repeated');
   assert.equal(client.lookupUsListing(index, 'BRKB').listed, false);
   assert.equal(client.usListingSymbol('brk.b'), 'BRK-B');
   assert.equal(client.usListingSymbol('APPL'), 'APPL');

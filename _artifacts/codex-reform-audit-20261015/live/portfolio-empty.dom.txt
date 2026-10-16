@@ -1,0 +1,111 @@
+- link "메인 콘텐츠로 건너뛰기":
+  - /url: "#main-content"
+- navigation "메인 네비게이션":
+  - generic: AIO
+  - generic: Investment Screener
+  - generic: 데일리
+  - button "오늘 페이지":
+    - generic: 오늘
+  - generic: 시장
+  - button "시장 상태 페이지":
+    - generic: 시장 상태
+  - button "거시 · 금리 페이지":
+    - generic: 거시 · 금리
+  - button "테마 · 섹터 페이지":
+    - generic: 테마 · 섹터
+  - generic: 내 투자
+  - button "종목 페이지":
+    - generic: 종목
+  - button "스크리너 페이지":
+    - generic: 스크리너
+  - button "포트폴리오 페이지":
+    - generic: 포트폴리오
+  - generic: 리서치
+  - button "리서치 라이브러리 페이지":
+    - generic: 리서치 라이브러리
+  - button "용어 사전 페이지":
+    - generic: 용어 사전
+  - button "다크 모드로 전환":
+    - generic: 다크 모드로 전환
+  - generic: AI 도우미
+  - generic: "ON"
+  - text: GPT-6 Luna · 공용 AI 연결
+  - text: 개인 AI 키 입력 없이 이용합니다.
+  - generic "연결 상태"
+  - generic "보안 설정"
+- banner:
+  - button "메뉴 열기" [expanded]: ☰
+  - generic: 포트폴리오
+  - generic "미국 정규장 중 · 최신 관측 10/15 22:55 KST":
+    - generic: LIVE
+  - generic "미국 정규장 중 · 최신 관측 10/15 22:55 KST": 22:55 기준 · 시세 16종 · 실시간 관측 56종
+  - 'generic "v57.82 · 확인: 2026.10.15"': v57.82
+  - button "도움말"
+  - button "AI 도우미 열기/닫기": AI 도우미
+- main:
+  - text: 펼치기 ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▲ ▼ ▼ 펼치기 ▾ ▸ ▸ ▸ ▸ ▸ ▸ ▸ ▸ ▸ 펼치기 펼치기 펼치기 닫기 펼치기 닫기 펼치기 ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▼ ▼ + ▲ ▼ ▼ ▼ ▼ ▲ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▼ ▼ + ▲ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▲ ▲ ▼ ▲ ▲ + ▼ ▲ ▼ ▼ ▼ ▼ ▲ ▲ ▲ ▲ + ▲ ▼ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▼ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼
+  - region "포트폴리오":
+    - heading "포트폴리오" [active] [level=1]
+    - text: 보유 자산의 비중·손익·위험을 시장과 함께 읽습니다.
+    - generic "저장·전송 범위"
+    - button "종목 추가"
+    - button "내보내기"
+    - button "백업 파일에서 포트폴리오 가져오기": 가져오기
+    - paragraph: 보유 종목이나 현금을 넣으면 총 자산·손익·현금 비중·변동성 구간이 여기에 계산됩니다.
+    - generic: 보유 종목
+    - button "⟳ 시세 갱신"
+    - button "전체 삭제" [disabled]
+    - region "자료 표 가로 스크롤":
+      - table "보유 종목 data table 3":
+        - rowgroup:
+          - row "종목 수량 매수 단가 현재가 손익 (기준 통화) 수익률 목표가(내 메모) 주식 중 비중 관리":
+            - columnheader "종목"
+            - columnheader "수량"
+            - columnheader "매수 단가"
+            - columnheader "현재가"
+            - columnheader "손익 (기준 통화)"
+            - columnheader "수익률"
+            - columnheader "목표가(내 메모)"
+            - columnheader "주식 중 비중"
+            - columnheader "관리"
+        - rowgroup:
+          - row "포트폴리오가 비어 있습니다 종목을 추가하면 변동성·섹터 쏠림·시장 국면과의 연결이 여기에 나타납니다. 첫 종목 추가 보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN 설정 후 저장 시 AES-256 암호화.":
+            - cell "포트폴리오가 비어 있습니다 종목을 추가하면 변동성·섹터 쏠림·시장 국면과의 연결이 여기에 나타납니다. 첫 종목 추가 보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN 설정 후 저장 시 AES-256 암호화.":
+              - generic: 포트폴리오가 비어 있습니다
+              - generic: 종목을 추가하면 변동성·섹터 쏠림·시장 국면과의 연결이 여기에 나타납니다.
+              - button "첫 종목 추가"
+              - generic: 보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN 설정 후 저장 시 AES-256 암호화.
+    - generic "AI 메모 · 매매 돌아보기 펼치기"
+    - option "전체 포트폴리오" [selected]
+    - generic: 비중 현황 · 섹터 배분
+    - generic: 비중 현황
+    - generic: 가용 현금
+    - generic: 원화 ₩
+    - spinbutton "원화 현금 금액"
+    - generic: 달러 $
+    - spinbutton "달러 현금 금액"
+    - text: 섹터 배분(현금 포함 자산 비중)
+    - button "섹터 배분 설명": "?"
+    - generic: 종목을 추가하면 섹터 비중이 표시됩니다
+    - text: 펼치기 펼치기
+    - generic "관심종목 리스트 · 위험 계산 (예상 최대 손실·종목 간 연동) 펼치기"
+    - option "리스트 1개"
+    - option "1 (1종목)" [selected]
+    - generic "데이터 출처"
+  - text: 펼치기 펼치기
+- complementary:
+  - generic: AI 도우미 · 포트폴리오 리서치
+  - button: 새 대화
+  - button: ×
+  - text: 지금 보는 화면의 수치와 근거를 읽고 질문에 답합니다.
+  - generic: 답변 범위
+  - text: AI 도우미 · 읽기 전용 리서치 · 투자·법률·세무 조건부 분석과 수치 시나리오를 제공합니다. 불법 실행 절차·주문 실행·확정적 보장은 제외합니다.
+  - generic: 맥락 기준 · 시세 10/15 22:55 관측 · 종가 10/14 · 뉴스 10/15 08:00까지 + 장중 속보 6건
+  - generic: 현재 화면의 데이터를 근거로 질의할 수 있습니다
+  - button: 포트폴리오 종합 분석
+  - button: 보유 종목 점검
+  - button: 매매 복기
+  - button: 다음 학습 과제
+  - textbox:
+    - /placeholder: 궁금한 것을 물어보세요
+  - button: 전송

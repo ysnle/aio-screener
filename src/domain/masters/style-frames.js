@@ -34,6 +34,12 @@ export const STYLE_FRAMES = Object.freeze([
   S({ id: 'event', label: '역발상·이벤트', match: /비대칭|이벤트|역발상/,
     problem: '시장이 크게 잘못 가격을 매긴 소수의 상황을 찾아 비대칭 수익을 노린다', source: '역발상 판단, 특수 상황', risk: '타이밍 오류, 소수 포지션 손실, 긴 대기',
     sees: '소수 종목과 큰 분기 변화, 일부 옵션', blind: '숏·신용부도스와프 같은 하락 베팅 대부분' }),
+  // v57.84 review: Fisher Asset Management is a long-only listed-equity manager — 13F shows most of its US-listed book;
+  // the blind spot is ordinary shares listed abroad, not private markets. Appaloosa (Tepper) is equity and distressed
+  // credit, not a futures/FX macro book, so its style now reads 가치·전환·부실 신용 and lands on the credit frame.
+  S({ id: 'global-long', label: '글로벌 롱온리', match: /글로벌·롱온리|글로벌·분산·대형주/,
+    problem: '전 세계 대형 상장주식을 분산 보유해 장기 수익을 노린다', source: '국가·업종 배분과 종목 선택', risk: '세계 주식시장 동반 하락, 배분 판단 오류',
+    sees: '미국 상장 주식과 ADR 대부분', blind: '해외 거래소에 상장된 원주 보유' }),
   S({ id: 'multi-asset', label: '다자산·장기 분산', match: /다자산|대학기금|분산|글로벌·분산|리서치|액티브·장기|기관/,
     problem: '여러 자산군에 나눠 장기 목표 수익을 맞춘다', source: '자산 배분과 각 운용 부문', risk: '자산군 동반 하락, 유동성 낮은 대체투자',
     sees: '상장 주식 부분', blind: '사모·부동산·인프라·헤지펀드 등 대체투자의 대부분' })

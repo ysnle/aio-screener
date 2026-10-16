@@ -6,7 +6,10 @@
 // wrapper gated it before. The formula itself (thresholds, weights,
 // corrections, order of operations) is transcribed unchanged — this is code motion, not a new
 // model (R352/F-03: legacy and native must not diverge into two different formulas).
-export const TRADING_SCORE_MODEL_VERSION = 'trading-score.v4';
+import { RULES } from '../rules/thresholds.js';
+
+// v5 (v57.83, R707): the trend component uses the market read's 1% noise buffer around the 50-day line.
+export const TRADING_SCORE_MODEL_VERSION = 'trading-score.v5';
 export const SIGNAL_DECISION_MODEL_VERSION = 'signal-from-trading-score.v1';
 export const SIGNAL_PRESENTATION_MODEL_VERSION = 'signal-presentation.v2';
 
@@ -149,10 +152,18 @@ export function computeTradingScoreModel(input = {}) {
   let momScore = appetiteParts.length ? Math.round(appetiteParts.reduce((sum, part) => sum + part, 0) / appetiteParts.length) : null;
 
   // 3. Trend Score (20%) — SPX vs estimated MAs (종가 기준)
+  // v57.83 (R707, trading-score.v5): a close 0.15% above the 50-day line scored as "above" while the market read already
+  // called it 시험 구간. Within ±RULES.trend.bufferPct (1%) of the line the component sits between above (68) and
+  // below (50); "above"/"below" need the buffer cleared, the same rule as the 시장 상태 trend axis.
+  // v57.83 crash replay: a close under the 200-day line is 부담 on that axis, but a bear-market rally 2%+ over a falling
+  // 50-day line (2022-07/08) scored the top band 82. Under the 200-day line only the 32/15 bands apply.
+  const trendBuffer = RULES.trend.bufferPct / 100;
   let trendCalcScore = null;
   if (!spxPrice || !spx50ma || !spx200ma) trendCalcScore = null;
+  else if (spxPrice <= spx200ma) trendCalcScore = spxPrice > spx200ma * 0.97 ? 32 : 15;
   else if (spxPrice > spx50ma * 1.02) trendCalcScore = 82;
-  else if (spxPrice > spx50ma) trendCalcScore = 68;
+  else if (spxPrice >= spx50ma * (1 + trendBuffer)) trendCalcScore = 68;
+  else if (spxPrice > spx50ma * (1 - trendBuffer) && spxPrice > spx200ma) trendCalcScore = 59;
   else if (spxPrice > spx200ma) trendCalcScore = 50;
   else if (spxPrice > spx200ma * 0.97) trendCalcScore = 32;
   else trendCalcScore = 15;
@@ -403,7 +414,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       breakdown,
       basisLabel,
       decision: `시장환경 관찰 — ${CONDITION_BAND_LABELS[conditionBand]} 구간 · 예측 검증 미확립`,
-      description: `${basisLabel ? `${basisLabel}. ` : ''}${missingText ? `${missingText} 자료가 없어 나머지 항목(${breakdown?.availableWeight ?? '—'}점 만점)을 100점으로 환산했습니다. ` : ''}변동성·추세·위험선호·시장 폭·거시 상태를 묶은 설명값이며 매매 신호가 아닙니다.${optionalText}`,
+      description: `${basisLabel ? `${basisLabel}. ` : ''}${missingText ? `${missingText} 자료가 없어 나머지 항목(${breakdown?.availableWeight ?? '—'}점 만점)을 100점으로 환산했습니다. ` : ''}변동성·추세·위험선호·시장 폭·거시 상태를 묶은 설명값입니다.${optionalText}`,
       reasons: Object.freeze(['predictive-validation-not-established', ...reasons])
     });
   }

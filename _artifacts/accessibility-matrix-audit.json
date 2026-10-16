@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-15T05:26:45.004Z",
-  "appRevision": "v57.76",
-  "gitHead": "20a1a2249a86ef3504edda661e7bfb5f268ca698",
+  "observedAt": "2026-10-16T02:53:51.467Z",
+  "appRevision": "v57.84",
+  "gitHead": "fd0745080c499756407c79383e199fd84f004017",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -95,13 +95,20 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
+      "smallTargetExceptionCount": 2,
       "smallTargetExceptions": [
         {
           "id": "",
           "text": "뉴스",
           "width": 24,
           "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "OAS",
+          "width": 23,
+          "height": 28,
           "exception": "wcag-inline-text"
         }
       ],
@@ -220,7 +227,7 @@
       "routeId": "portfolio",
       "active": true,
       "nameless": [],
-      "selectCount": 0,
+      "selectCount": 2,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,

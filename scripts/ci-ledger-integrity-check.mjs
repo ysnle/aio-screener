@@ -22,6 +22,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ruleIdOccurrences } from './lib/rule-ids.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const write = process.argv.includes('--write');
@@ -36,8 +37,13 @@ const check = (label, ok, detail = '') => { if (!ok) errors.push(detail ? `${lab
 
 // ── 1. R number gaps are an explicit, frozen set ────────────────────────────
 const rulesText = read('_context/RULES.md');
-const defined = new Set([...rulesText.matchAll(/^## R(\d+)\./gm)].map((match) => Number(match[1])));
+// v57.84: reading only `## R<n>.` froze R1–R53 and R172–R178 as "absent" although their bodies exist.
+const occurrences = ruleIdOccurrences(rulesText);
+const defined = new Set(occurrences);
 if (!defined.size) errors.push('RULES.md declares no R headings; the ledger parser is broken or the file moved');
+const seenIds = new Set();
+const duplicateIds = occurrences.filter((n) => (seenIds.has(n) ? true : (seenIds.add(n), false)));
+check('v57.84 one R number names one rule (a reused number makes every citation ambiguous)', duplicateIds.length === 0, `duplicated: ${[...new Set(duplicateIds)].map((n) => `R${n}`).join(', ')}`);
 const maxR = Math.max(...defined);
 const actualGaps = [];
 for (let n = 1; n <= maxR; n += 1) if (!defined.has(n)) actualGaps.push(n);

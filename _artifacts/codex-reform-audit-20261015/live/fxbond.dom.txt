@@ -1,0 +1,294 @@
+- link "메인 콘텐츠로 건너뛰기":
+  - /url: "#main-content"
+- navigation "메인 네비게이션":
+  - generic: AIO
+  - generic: Investment Screener
+  - generic: 데일리
+  - button "오늘 페이지":
+    - generic: 오늘
+  - generic: 시장
+  - button "시장 상태 페이지":
+    - generic: 시장 상태
+  - button "거시 · 금리 페이지":
+    - generic: 거시 · 금리
+  - button "테마 · 섹터 페이지":
+    - generic: 테마 · 섹터
+  - generic: 내 투자
+  - button "종목 페이지":
+    - generic: 종목
+  - button "스크리너 페이지":
+    - generic: 스크리너
+  - button "포트폴리오 페이지":
+    - generic: 포트폴리오
+  - generic: 리서치
+  - button "리서치 라이브러리 페이지":
+    - generic: 리서치 라이브러리
+  - button "용어 사전 페이지":
+    - generic: 용어 사전
+  - button "다크 모드로 전환":
+    - generic: 다크 모드로 전환
+  - generic: AI 도우미
+  - generic: "ON"
+  - text: GPT-6 Luna · 공용 AI 연결
+  - text: 개인 AI 키 입력 없이 이용합니다.
+  - generic "연결 상태"
+  - generic "보안 설정"
+- banner:
+  - button "메뉴 열기" [expanded]: ☰
+  - generic: 거시 · 금리/금리 · 환율
+  - generic "미국 정규장 중 · 최신 관측 10/15 23:00 KST":
+    - generic: LIVE
+  - generic "미국 정규장 중 · 최신 관측 10/15 23:00 KST": 23:00 기준 · 시세 16종 · 실시간 관측 68종
+  - 'generic "v57.82 · 확인: 2026.10.15"': v57.82
+  - button "도움말"
+  - button "AI 도우미 열기/닫기": AI 도우미
+- main:
+  - navigation "화면 안 하위 메뉴":
+    - button "거시 경제"
+    - button "금리 · 환율"
+  - text: 펼치기 ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▲ ▼ ▼ 펼치기 ▾ ▸ ▸ ▸ ▸ ▸ ▸ ▸ ▸ ▸ 펼치기
+  - region "금리 · 환율":
+    - heading "금리 · 환율" [active] [level=1]
+    - generic: 10/14 미국 종가 기준 · 국채 금리 10/14 공식 고시 기준
+    - region "미 국채 수익률 곡선 재무부 공식 곡선 · 10/14 기준":
+      - heading "미 국채 수익률 곡선 재무부 공식 곡선 · 10/14 기준" [level=2]:
+        - text: 미 국채 수익률 곡선
+        - generic: 재무부 공식 곡선 · 10/14 기준
+      - generic "같은 날 10년물에서 10년–3개월 금리차를 빼서 구한 값":
+        - generic: 3개월
+        - generic: 4.28%
+      - generic: 2년
+      - generic: 4.82%
+      - generic: 1일 +3bp · 1주 +3bp
+      - generic: 5년
+      - generic: 5.00%
+      - generic: 1일 ±0bp · 1주 −3bp
+      - generic "재무부 공식 곡선 · 10/14 기준의 변화입니다. 시장 상태와 아래 10년물 카드의 '5일' 변화는 일별 종가 기준이라 기준일이 다를 수 있습니다.":
+        - generic: 10년
+        - generic: 5.19%
+        - generic: 1일 −2bp · 1주 −8bp
+      - generic: 20년
+      - generic: 5.57%
+      - generic: 1일 −3bp · 1주 −11bp
+      - generic: 30년
+      - generic: 5.52%
+      - generic: 1일 −4bp · 1주 −12bp
+      - 'img "미 국채 수익률 곡선: 3개월 4.28%, 2년 4.82%, 5년 5.00%, 10년 5.19%, 20년 5.57%, 30년 5.52%"':
+        - generic: 4.1%
+        - generic: 4.9%
+        - generic: 5.7%
+        - generic: 3개월
+        - generic: "4.28"
+        - generic: 2년
+        - generic: "4.82"
+        - generic: 5년
+        - generic: "5.00"
+        - generic: 10년
+        - generic: "5.19"
+        - generic: 20년
+        - generic: "5.57"
+        - generic: 30년
+        - generic: "5.52"
+      - generic: 2년–10년 (10년 − 2년)
+      - generic: +0.37%p
+      - generic: 5년–30년 (30년 − 5년)
+      - generic: +0.52%p
+      - paragraph:
+        - text: 10년물이 2년물보다 0.37%p 높습니다 (양의 기울기).
+        - button "3개월물"
+        - text: 은 같은 날 10년물에서 10년–3개월 금리차를 빼서 구한 값입니다.
+      - paragraph
+      - paragraph: 10년–3개월 금리차 +0.91%p (10/14 — 뉴욕 연준 경기침체 확률 모형이 쓰는 금리차)
+    - generic "수익률 곡선 읽는 법"
+    - region "실질금리 · 기대인플레이션 · 신용":
+      - heading "실질금리 · 기대인플레이션 · 신용" [level=2]
+      - 'article "출처: FRED"':
+        - heading "10년 실질금리 (TIPS)" [level=3]
+        - generic: 2.88%
+        - generic: 5거래일 −0.07%p
+        - generic: 1년 전보다 +1.08%p
+        - img "최근 12개월(일별 관측 260개) 추이 25.09~26.10, 범위 1.7~3.0"
+        - generic: "25.09"
+        - generic: "26.10"
+        - paragraph: 기간 고점 2.95% · 저점 1.68%
+        - generic: 10/13
+        - paragraph: 물가를 뺀 금리입니다. 높을수록 미래 이익의 현재 가치가 낮아집니다. 기준일 2026-10-13 — 옆 카드와 날짜가 다릅니다.
+        - button "10년 실질금리 (TIPS) 근거 보기": 근거
+      - 'article "출처: FRED"':
+        - heading "10년 기대인플레이션" [level=3]
+        - generic: 2.35%
+        - generic: 5거래일 −0.01%p
+        - generic: 1년 전보다 −0.01%p
+        - img "최근 12개월(일별 관측 260개) 추이 25.09~26.10, 범위 2.2~2.5"
+        - generic: "25.09"
+        - generic: "26.10"
+        - paragraph: 기간 고점 2.50% · 저점 2.18%
+        - generic: 10/14
+        - paragraph: 국채와 물가연동채 금리 차이로 본 시장의 물가 예상입니다. 실질금리(2026-10-13)와 기대인플레이션(2026-10-14)의 기준일이 달라, 두 값을 더해 같은 날의 명목금리로 맞춰 보지 않습니다.
+        - button "10년 기대인플레이션 근거 보기": 근거
+      - 'article "출처: FRED"':
+        - heading "하이일드 스프레드" [level=3]
+        - generic: 316bp
+        - generic: 5거래일 +13bp
+        - generic: 1년 전보다 +12bp
+        - img "최근 12개월(일별 관측 260개) 추이 25.10~26.10, 범위 260bp~346bp"
+        - generic: "25.10"
+        - generic: "26.10"
+        - paragraph:
+          - text: 기간 고점 346
+          - button "bp"
+          - text: · 저점 260bp
+        - generic: 10/13
+        - paragraph: 투기등급 회사채가 국채보다 더 받는 금리입니다. 넓어질수록 신용 위험을 크게 봅니다.
+        - button "하이일드 스프레드 근거 보기": 근거
+      - 'article "출처: FRED THREEFYTP10 (연준 이사회 모형)"':
+        - heading "10년 기간 프리미엄 (Kim-Wright)" [level=3]
+        - generic: 1.07%
+        - generic: 3개월 +0.27%p
+        - generic: 1년 전보다 +0.56%p
+        - generic: 같은 날 10년 금리 5.24% 중 단기금리 예상분 약 4.17%
+        - img "최근 12개월(일별 관측 260개) 추이 25.09~26.10, 범위 0.4~1.1"
+        - generic: "25.09"
+        - generic: "26.10"
+        - paragraph: 기간 고점 1.10% · 저점 0.42%
+        - generic: 10/9 · 3거래일 전
+        - paragraph: 10년 금리 가운데 앞으로의 단기금리 예상이 아니라 오래 묶어 두는 위험에 대한 보상으로 추정되는 부분입니다. 관측값이 아닌 모형 추정치이고, 뉴욕 연준 ACM 등 다른 모형과는 수준이 다릅니다.
+        - button "10년 기간 프리미엄 (Kim-Wright) 근거 보기": 근거
+    - region "환율이 증시에 주는 영향":
+      - heading "환율이 증시에 주는 영향" [level=2]
+      - paragraph:
+        - text: 통화정책·금리·유가·신용이 증시에 주는 영향은
+        - button "거시 경제의 6요인 판정"
+        - text: 에서 함께 봅니다.
+      - heading "환율 (원 · 엔)" [level=3]
+      - generic: 중립
+      - generic: 원/달러 20일 −1.6%
+      - generic: 원/달러 20일 변화 · −1.6%
+      - 'img "원/달러 20일 변화: −1.6%, 중립 구간"':
+        - generic: −2%
+        - generic: +2%
+      - paragraph: 원/달러·엔/달러가 중립 범위입니다.
+      - generic "환율 (원 · 엔) 더 깊이 보기 · 원리와 읽는 법"
+    - region "달러 · 원화 · 엔화 · 10년물 — 최근 6개월":
+      - heading "달러 · 원화 · 엔화 · 10년물 — 최근 6개월" [level=2]
+      - heading "달러 인덱스 (DXY)" [level=3]
+      - generic: "102.55"
+      - generic: 10/14 종가
+      - generic: 직전 거래일 종가 대비 +0.36% · 20거래일 +2.2%
+      - img "달러 인덱스 (DXY) 26.04.16~26.10.14 추이, 최근 102.5":
+        - generic: "96.0"
+        - generic: "98.0"
+        - generic: "100.0"
+        - generic: "102.0"
+        - generic: "104.0"
+        - generic: 5월
+        - generic: 6월
+        - generic: 7월
+        - generic: 8월
+        - generic: 9월
+        - generic: 10월
+      - paragraph: 주요 6개 통화 대비 달러 가치입니다.
+      - heading "원/달러" [level=3]
+      - generic: 1,341.6원
+      - generic: 10/14 종가
+      - generic: 직전 거래일 종가 대비 +0.13% · 20거래일 −1.6%
+      - img "원/달러 26.04.15~26.10.14 추이, 최근 1342원":
+        - generic: 1300원
+        - generic: 1400원
+        - generic: 1500원
+        - generic: 1600원
+        - generic: 5월
+        - generic: 6월
+        - generic: 7월
+        - generic: 8월
+        - generic: 9월
+        - generic: 10월
+      - paragraph: 원/달러가 오르면 원화 약세입니다. 일별 값은 뉴욕 외환 거래일 마감 무렵 종가라, 실시간 시세의 전일 대비(한국 시간 오전 8시 기준)와 기준 시각이 다릅니다.
+      - heading "엔/달러" [level=3]
+      - generic: 158.05엔
+      - generic: 10/14 종가
+      - generic: 직전 거래일 종가 대비 −0.18% · 20거래일 +1.8%
+      - img "엔/달러 26.04.15~26.10.14 추이, 최근 158.1엔":
+        - generic: 150.0엔
+        - generic: 155.0엔
+        - generic: 160.0엔
+        - generic: 165.0엔
+        - generic: 5월
+        - generic: 6월
+        - generic: 7월
+        - generic: 8월
+        - generic: 9월
+        - generic: 10월
+      - paragraph: 엔화 가치 기준 20일 −1.8% (엔 약세 — 위 엔/달러 환율과 부호가 반대) — 엔화 가치가 3% 이상 오르면 시장 상태 환율 축이 '부담'으로 바뀝니다.
+      - heading "미 10년물 금리 (일별 종가)" [level=3]
+      - generic: 5.19%
+      - generic: 10/14 종가
+      - generic: 5일 −9bp · 20일 +18bp
+      - img "미 10년물 금리 (일별 종가) 26.04.16~26.10.14 추이, 최근 5.2%":
+        - generic: 4.0%
+        - generic: 4.5%
+        - generic: 5.0%
+        - generic: 5.5%
+        - generic: 5월
+        - generic: 6월
+        - generic: 7월
+        - generic: 8월
+        - generic: 9월
+        - generic: 10월
+      - paragraph: 일별 종가 기준이며 시장 상태의 10년물 5일·20일 변화와 같은 계열입니다. 위 재무부 공식 곡선(10/14)과는 기준일과 소수점이 다를 수 있습니다.
+    - region "그 밖의 통화 참고 환율 · 10/15 고시 · 하루 1회 갱신, 등락 없음":
+      - heading "그 밖의 통화 참고 환율 · 10/15 고시 · 하루 1회 갱신, 등락 없음" [level=2]:
+        - text: 그 밖의 통화
+        - generic: 참고 환율 · 10/15 고시 · 하루 1회 갱신, 등락 없음
+      - generic: EUR/USD
+      - generic "reference:fx:open.er-api · 관측 2026-10-15 00:02:31 UTC · 수신 2026-10-15 14:00:53.036 UTC": "1.118"
+      - 'img "시세 상태: reference:fx:open.er-api · 갱신 지연"'
+      - text: ▲
+      - generic: GBP/USD
+      - generic "reference:fx:open.er-api · 관측 2026-10-15 00:02:31 UTC · 수신 2026-10-15 14:00:53.036 UTC": "1.3225"
+      - 'img "시세 상태: reference:fx:open.er-api · 갱신 지연"'
+      - generic: USD/CNY
+      - generic "reference:fx:open.er-api · 관측 2026-10-15 00:02:31 UTC · 수신 2026-10-15 14:00:53.036 UTC": "6.7065"
+      - 'img "시세 상태: reference:fx:open.er-api · 갱신 지연"'
+      - generic: AUD/USD
+      - generic "reference:fx:open.er-api · 관측 2026-10-15 00:02:31 UTC · 수신 2026-10-15 14:00:53.036 UTC": "0.6978"
+      - 'img "시세 상태: reference:fx:open.er-api · 갱신 지연"'
+    - navigation "이어서 볼 곳":
+      - heading "이어서 볼 곳" [level=2]
+      - list:
+        - button "거시 경제 →"
+        - generic: 물가 부담 · 통화정책 부담 — 금리 경로를 움직이는 쪽
+        - button "시장 상태 →"
+        - generic: 금리 부담 · 환율 축(엔화 20일 −1.8%)이 추세·시장 폭과 합쳐진 판정
+        - button "테마 · 섹터 →"
+        - generic: 금리 부담 국면에서 섹터 회전(선도·후행)이 어떻게 나타나는지
+        - button "데일리 브리핑 →"
+        - generic: 다음 7일 국채·물가·연준 일정과 오늘 금리·달러 움직임 해석
+    - paragraph: 금리와 환율은 주식의 할인율과 해외 자금 흐름을 읽는 배경 자료이며 매매 신호가 아닙니다.
+    - generic "데이터 출처"
+  - text: 펼치기 펼치기 닫기 펼치기 닫기 펼치기 ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▼ ▼ + ▲ ▼ ▼ ▼ ▼ ▲ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▼ ▼ + ▲ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▲ ▲ ▼ ▲ ▲ + ▼ ▲ ▼ ▼ ▼ ▼ ▲ ▲ ▲ ▲ + ▲ ▼ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▼ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ 펼치기 펼치기 펼치기 펼치기 펼치기 펼치기
+- complementary:
+  - generic: AI 도우미 · 금리·환율 리서치
+  - button: 새 대화
+  - button: ×
+  - text: 지금 보는 화면의 수치와 근거를 읽고 질문에 답합니다.
+  - generic: 답변 범위
+  - text: AI 도우미 · 읽기 전용 리서치 · 투자·법률·세무 조건부 분석과 수치 시나리오를 제공합니다. 불법 실행 절차·주문 실행·확정적 보장은 제외합니다.
+  - generic: 맥락 기준 · 시세 10/15 23:00 관측 · 종가 10/14 · 뉴스 10/15 08:00까지 + 장중 속보 6건
+  - generic: 현재 거시 화면에서 신용 부담의 원인이 스프레드 수준인지 확대 속도인지, 자료의 기준일과 근거를 구분해서 짧게 설명해 주세요. 화면에서 확인하지 못하는 것은 보류해 주세요.
+  - text: ※ 표시한 값 외의 최신 수치는 확인 안 됨 현재 화면의 신용 부담은 스프레드 절대 수준보다 최근 확대 속도 쪽에 더 직접적인 근거가 있습니다. 다만 화면 지표만으로 원인을 확정할 수는 없습니다.
+  - strong: 확인된 수치
+  - generic: "• 하이일드 스프레드: 316bp [종가 기준 · 2026-10-13 종가]"
+  - heading [level=5]: 절대 수준보다 최근 확대가 부담 신호
+  - text: "반면 화면에는 최근 5·20거래일 동안 스프레드가 확대된 것으로 표시됩니다. 해석: 따라서 현재 부담 판정은 높은 절대 수준보다는 확대 방향·속도에 더 기대고 있습니다. 다만 화면의 “신용 부담”은 신용 경색 확정과 같은 뜻은 아닙니다. 무효화·다음 확인: 이후 관측에서 확대가 멈추거나 축소되는지 확인해야 합니다. CCC–B 등급 격차와 금융여건지수의 기준일·원자료는 이 화면만으로 대조할 수 없어 판단을 보류합니다."
+  - paragraph: 이 대화를 이 기기에 저장할까요?
+  - paragraph: 저장하면 대화 목록에서 다시 열어 이어서 물을 수 있고, AI가 이전 질문을 참고해 답합니다. 이 브라우저에만 남고 서버로 보내지 않으며, 언제든 목록에서 지우거나 저장을 끌 수 있습니다.
+  - button: 저장
+  - button: 저장하지 않음
+  - button: 금리 변화의 원인 분해
+  - button: 실질금리와 기대물가
+  - button: 수익률곡선 읽기
+  - button: 환율과 금리의 연결
+  - textbox:
+    - /placeholder: 궁금한 것을 물어보세요
+  - button: 전송

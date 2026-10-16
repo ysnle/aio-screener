@@ -40,9 +40,13 @@ export default {
       return { ...r, ...(await expectText(p, '#ticker-hero-name', { pattern: /삼성전자/ })) };
     }],
     ['잘못된 입력 → 안내, 화면 유지', async (p) => {
+      // Codex audit F12: the miss is a persistent role=status hint beside the search (no toast); the subject stays.
+      const before = await visibleText(p, SUBJECT);
       await search(p, '!!');
-      await p.waitForSelector('text=올바른 티커를 입력하세요', { timeout: 5000 });
-      return { subject: await visibleText(p, SUBJECT) };
+      await p.waitForFunction(() => { const h = document.querySelector('#ticker-search-hint[role="status"]'); return h && /일치하는 종목이 없습니다|입력해 주세요/.test(h.textContent || ''); }, null, { timeout: 8000 });
+      const subject = await visibleText(p, SUBJECT);
+      if (subject !== before) throw new Error(`an invalid search replaced the subject: "${before}" -> "${subject}"`);
+      return { subject, hint: (await visibleText(p, '#ticker-search-hint')).slice(0, 80) };
     }]
   ]
 };

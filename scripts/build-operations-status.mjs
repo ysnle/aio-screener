@@ -666,6 +666,8 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
       fred: {
         rights: fredConfigured ? 'REVIEW_REQUIRED' : 'OPERATOR_REQUIRED', statusCode: fredConfigured ? 'RIGHTS_REVIEW_REQUIRED' : 'NOT_CONFIGURED',
         use: 'official-series',
+        // v57.84: FRED relays third-party series; the ICE BofA HY OAS carries ICE's own reproduction restriction.
+        rightsNotes: ['BAMLH0A0HYM2: ICE Data Indices — reproduction requires ICE prior written permission (FRED series notice)'],
         status: fredProviderStatus,
         lastAttemptAt: data?.meta?.fredAttemptedAt || data?.meta?.generatedAt || null,
         lastFetchAt: data?.meta?.fredFetchOk ? (data?.meta?.fredLastSuccessfulAt || data?.meta?.generatedAt || null) : null

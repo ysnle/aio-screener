@@ -60,16 +60,19 @@ export function derivePortfolioChecks({ surface = null, assetTypeOf = () => null
   const heldNote = `가격을 못 가져온 종목이 ${excluded}개라 아직 판단하지 않았어요(가격을 확인한 ${valued.length}종목만 계산하면 ${top.name} ${top.pct.toFixed(0)}%).`;
   // v57.48 expert review #18: the 10/15/25% tiers are this app's own bands, not a published standard —
   // labelled '내부 구간'; 10~25% is shown for reference and only above 25% reads '주의'.
+  // v57.84 review: a broad index ETF (QQQ, SPY) is many companies — 40% of it is not '한 종목' risk; it is named instead.
+  const topIsEtf = assetTypeOf(top.name) === 'ETF';
   const checks = [
     { id: 'single-holding', label: '한 종목 쏠림', value: shareHeld ? '판정 보류' : `${top.name} ${top.pct.toFixed(1)}%`,
-      status: shareHeld ? 'unknown' : top.pct > SINGLE_HOLDING_TIERS[2] ? 'attention' : top.pct > SINGLE_HOLDING_TIERS[0] ? 'info' : 'ok',
-      detail: shareHeld ? heldNote : top.pct > SINGLE_HOLDING_TIERS[2] ? '한 종목이 투자금의 25%를 넘습니다 — 이 종목 하나의 급락이 계좌 전체를 좌우할 수 있는 수준입니다.'
+      status: shareHeld ? 'unknown' : top.pct > SINGLE_HOLDING_TIERS[2] && !topIsEtf ? 'attention' : top.pct > SINGLE_HOLDING_TIERS[0] ? 'info' : 'ok',
+      detail: shareHeld ? heldNote : top.pct > SINGLE_HOLDING_TIERS[2] && topIsEtf ? `가장 큰 보유가 ETF(${top.name})라 한 회사 쏠림은 아닙니다 — 그 ETF가 담은 지수·업종의 쏠림은 섹터 구성으로 확인합니다.` : top.pct > SINGLE_HOLDING_TIERS[2] ? '한 종목이 투자금의 25%를 넘습니다 — 이 종목 하나의 급락이 계좌 전체를 좌우할 수 있는 수준입니다.'
         : top.pct > SINGLE_HOLDING_TIERS[1] ? '한 종목이 15%를 넘습니다(참고 구간).' : top.pct > SINGLE_HOLDING_TIERS[0] ? '한 종목이 10%를 넘습니다(참고 구간).' : '가장 큰 종목도 투자금의 10% 이하입니다.',
       basis: '내부 구간: 10~25% 참고 · 25% 초과 주의', tier: holdingTier },
     { id: 'single-currency', label: '한 통화 쏠림', value: `${topCurrency.name} ${topCurrency.pct.toFixed(0)}%`,
       // X10 (2026-10-13): this is the valuation (listing) currency mix. Translation risk exists only against a
       // different base currency; the companies' own revenue/cost FX exposure is not measured here.
-      status: topCurrency.pct / 100 > SINGLE_CURRENCY_MAX ? (byCurrency.length === 1 ? 'info' : 'attention') : 'ok',
+      // v57.84: holding the base currency itself carries no translation risk, so a KRW-base 70% KRW mix is information.
+      status: topCurrency.pct / 100 > SINGLE_CURRENCY_MAX ? (byCurrency.length === 1 || (baseCurrency && topCurrency.name === baseCurrency) ? 'info' : 'attention') : 'ok',
       detail: (byCurrency.length === 1
         ? (baseCurrency && topCurrency.name === baseCurrency
           ? `모든 종목이 기준 통화(${baseCurrency})로 평가돼 환산에 따른 환율 효과는 없습니다`

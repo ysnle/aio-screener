@@ -84,9 +84,12 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
   'hy-oas': entry({
     cadence: 'daily', refreshMode: 'scheduled', producer: 'scripts/fetch-data.mjs:fetchFred', artifacts: ['public-data/data.json'], consumers: ['fxbond', 'signal', 'briefing'],
     origins: [
-      { id: 'fred-baml-hy-oas', authority: 'official-government-relay', sourceKind: 'T1_OFFICIAL', access: 'api-key', url: 'https://fred.stlouisfed.org/series/BAMLH0A0HYM2', fields: ['BAMLH0A0HYM2'] },
-      { id: 'fred-baml-hy-oas-public-csv', authority: 'official-government-relay', sourceKind: 'T1_OFFICIAL', access: 'public-download', url: 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2', fields: ['BAMLH0A0HYM2'] }
+      { id: 'fred-baml-hy-oas', authority: 'official-government-relay', sourceKind: 'T1_OFFICIAL', access: 'api-key', url: 'https://fred.stlouisfed.org/series/BAMLH0A0HYM2', owner: 'ICE Data Indices', rights: 'owner-permission-required', fields: ['BAMLH0A0HYM2'] },
+      { id: 'fred-baml-hy-oas-public-csv', authority: 'official-government-relay', sourceKind: 'T1_OFFICIAL', access: 'public-download', url: 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2', owner: 'ICE Data Indices', rights: 'owner-permission-required', fields: ['BAMLH0A0HYM2'] }
     ],
+    // v57.84: FRED relays this series but does not own it — the FRED page carries ICE's notice that reproduction in any form
+    // needs ICE's prior written permission, and since April 2026 FRED serves only 3 years of it. The relay tier describes
+    // accuracy, not rights; publishing the value in public artifacts stays an operator rights decision (provider-rights).
     structuralLimit: { kind: 'independent-reconciliation', reason: 'No independent spread-level cross-check is configured.', remediation: 'Add a redistribution-approved ICE/Bloomberg/LSEG or equivalent source.' }
   }),
   'cpi-pce': entry({

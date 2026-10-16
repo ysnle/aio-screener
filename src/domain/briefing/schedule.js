@@ -37,6 +37,18 @@ function etWallClockToMs(date, [hour, minute]) {
   return Date.UTC(y, m - 1, d, hour + 4, minute);
 }
 
+/** When a scheduled release becomes public (ms), or null for an id without a known release time. Codex audit F07: a
+ *  release whose time has passed is not "다음" any more, while one later today still is (date >= today was both). */
+export function releaseAtMs(id, date) {
+  const profile = RELEASE_PROFILES[id === 'us-fed-rate' ? 'us-fomc' : id];
+  if (!profile || !/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) return null;
+  return profile.kst
+    ? Date.parse(`${date}T${String(profile.kst[0]).padStart(2, '0')}:${String(profile.kst[1]).padStart(2, '0')}:00+09:00`)
+    : etWallClockToMs(date, profile.et);
+}
+/** The release clock the legacy calendar mirrors (scripts gate the copy). */
+export const RELEASE_CLOCKS = Object.freeze(Object.fromEntries(Object.entries(RELEASE_PROFILES).map(([id, p]) => [id, p.kst ? { kst: p.kst } : { et: p.et }])));
+
 function kstParts(ms) {
   const text = new Date(ms).toLocaleString('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
   const [date, time] = text.split(', ');

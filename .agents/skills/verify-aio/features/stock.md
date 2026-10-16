@@ -8,7 +8,7 @@
 - `stock-summary` — hero `#ticker-hero-name`, `#ticker-hero-fullname`, `#ticker-hero-price` (number or `—`), basis line `#ticker-summary-price-basis` that explains a missing price.
 - `stock-chart` — 차트 tab's visible chart is the stock-chart component: `#stock-chart-form` / `#stock-chart-input`, title `#stock-chart-title` = `<SYM> 일봉`. The legacy folds below it (incl. `#deep-analysis-section`) are hidden outside `body.aio-dev-mode` (P702) — never drive them.
 - `stock-subject` — `#aio-hub-tabs .aio-hub-subject strong` = the symbol on all three tabs.
-- `stock-invalid` — input failing `^[A-Z0-9.-]{1,12}$` shows `올바른 티커를 입력하세요.` and the screen stays; a well-formed unknown (e.g. `ZZZZ`) opens with `시세 수신 대기`.
+- `stock-invalid` — input failing `^[A-Z0-9.-]{1,12}$` shows the persistent `#ticker-search-hint` (role=status, "…정확히 일치하는 종목이 없습니다" with candidates) and the subject stays; a well-formed unknown (e.g. `ZZZZ`) opens with `시세 수신 대기`.
 
 ## How to get to it (user POV)
 
@@ -27,7 +27,7 @@ Preconditions:
 - **Chart / filings.** Tabs `차트` → `page-technical`, `재무 공시` → `page-fundamental`; subject stays `NVDA` (failure if lost). Tab `요약` returns to the same hero.
 - **Chart follows the company.** On 차트, `#stock-chart-title` starts with `NVDA` (failure if it stayed on SPY or the previous company).
 - **Korean name.** Fill `삼성전자`, Enter. Subject `005930.KS`; hero name contains `삼성전자`.
-- **Invalid.** Fill `!!`, Enter. Toast `올바른 티커를 입력하세요` appears.
+- **Invalid.** Fill `!!`, Enter. `#ticker-search-hint[role=status]` names the miss; the subject is unchanged.
 - **Proof.** `drive stock` evidence; `report.json` records `priceState`.
 
 ## Gotchas

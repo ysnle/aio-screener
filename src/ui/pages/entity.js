@@ -456,6 +456,7 @@ function renderFundamentalStatus(documentRef, state, onDemand = null) {
   element.setAttribute('data-operational-use', 'reference-only');
   if (observedAt) element.setAttribute('data-observed-at', observedAt);
   else element.removeAttribute('data-observed-at');
+  element.setAttribute('data-cadence', 'annual'); // codex audit F16: a fiscal-year-end date is judged by the filing cadence, not two sessions
 }
 
 function formatFundamentalNumber(value) {
@@ -503,6 +504,7 @@ function renderFundamentalSummary(documentRef, state) {
   element.setAttribute('data-operational-use', 'reference-only');
   if (available && fundamentals?.observedAt) element.setAttribute('data-observed-at', fundamentals.observedAt);
   else element.removeAttribute('data-observed-at');
+  element.setAttribute('data-cadence', 'annual');
 }
 
 function formatSecWatchlistValue(value, { percent = false } = {}) {
@@ -571,7 +573,7 @@ function renderFundamentalWatchlist(documentRef, state) {
     card.setAttribute('data-source-label', row.source || meta.source || 'SEC EDGAR companyfacts');
     card.setAttribute('data-operational-use', 'reference-only');
     card.setAttribute('data-decision-eligible', 'false');
-    if (row.observedAt) card.setAttribute('data-observed-at', row.observedAt);
+    if (row.observedAt) { card.setAttribute('data-observed-at', row.observedAt); card.setAttribute('data-cadence', 'annual'); }
     card.style.cssText = 'appearance:none;width:100%;background:var(--bg-card);border-radius:4px;padding:14px;border:1px solid var(--border);cursor:pointer;text-align:left;color:inherit;';
 
     const heading = documentRef.createElement('div');
@@ -833,6 +835,8 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
               if (String(root?._currentTickerId || '').toUpperCase() !== id || root?._liveData?.[id]?.price) return;
               label.textContent = listing?.listed === true ? `미국 상장 종목${listing.name ? `(${listing.name})` : ''} · ${quoteFailed}`
                 : listing?.listed === false ? 'AIO에 등록된 종목이 아니고 미국 상장 목록에도 없습니다 · 티커 철자를 확인하세요' : quoteFailed; // v57.54 review: NVDAA is not a slow source
+              // v57.83: a one-word company name ("Opendoor") has ticker shape and lands here; offer listing-name candidates.
+              if (listing?.listed === false && /^[A-Z]{3,12}$/.test(id) && typeof root?._aioTickerSearchMiss === 'function') root._aioTickerSearchMiss(id);
             }).catch(() => {});
           });
         } }) : null;

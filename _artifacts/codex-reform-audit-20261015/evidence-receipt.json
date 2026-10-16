@@ -1,0 +1,86 @@
+{
+  "observedAt": "2026-10-15T14:00:01.866Z",
+  "head": "1dff3b233c0382dee6bf978b4b625901ead5012f",
+  "restoredTaskOwnedGateOutputs": [
+    "_artifacts/accessibility-matrix-audit.json",
+    "_artifacts/boot-interaction-report.json",
+    "_artifacts/critical10-human-surface-audit.json",
+    "_artifacts/entity-quality-20261012/browser-desktop-dark-fiscal.png",
+    "_artifacts/entity-quality-20261012/browser-desktop-dark-summary.png",
+    "_artifacts/entity-quality-20261012/browser-desktop-dark-technical.png",
+    "_artifacts/entity-quality-20261012/browser-desktop-light-fiscal.png",
+    "_artifacts/entity-quality-20261012/browser-desktop-light-summary.png",
+    "_artifacts/entity-quality-20261012/browser-desktop-light-technical.png",
+    "_artifacts/entity-quality-20261012/browser-phone-dark-fiscal.png",
+    "_artifacts/entity-quality-20261012/browser-phone-dark-summary.png",
+    "_artifacts/entity-quality-20261012/browser-phone-dark-technical.png",
+    "_artifacts/entity-quality-20261012/browser-phone-light-fiscal.png",
+    "_artifacts/entity-quality-20261012/browser-phone-light-summary.png",
+    "_artifacts/entity-quality-20261012/browser-phone-light-technical.png",
+    "_artifacts/entity-quality-20261012/browser-report.json",
+    "_artifacts/entity-quality-20261012/browser-tablet-dark-fiscal.png",
+    "_artifacts/entity-quality-20261012/browser-tablet-dark-summary.png",
+    "_artifacts/entity-quality-20261012/browser-tablet-dark-technical.png",
+    "_artifacts/entity-quality-20261012/browser-tablet-light-fiscal.png",
+    "_artifacts/entity-quality-20261012/browser-tablet-light-summary.png",
+    "_artifacts/entity-quality-20261012/browser-tablet-light-technical.png",
+    "_artifacts/out-of-universe-20261015/browser-desktop-ufpt-placement.png",
+    "_artifacts/out-of-universe-20261015/browser-desktop-ufpt.png",
+    "_artifacts/out-of-universe-20261015/browser-phone-ufpt-placement.png",
+    "_artifacts/out-of-universe-20261015/browser-phone-ufpt.png",
+    "_artifacts/out-of-universe-20261015/browser-report.json",
+    "_artifacts/portfolio-vault/report.json",
+    "_artifacts/responsive-browser/phone390-ai.png",
+    "_artifacts/responsive-browser/phone390-glossary-dark.png",
+    "_artifacts/responsive-browser/phone390-glossary-light.png",
+    "_artifacts/responsive-browser/phone390-market-regime.png",
+    "_artifacts/responsive-browser/phone390-theme-1.png",
+    "_artifacts/responsive-browser/phone390-theme-comparison.png",
+    "_artifacts/responsive-browser/report.json",
+    "_artifacts/responsive-browser/tablet1024-ai.png",
+    "_artifacts/responsive-browser/tablet1024-glossary-dark.png",
+    "_artifacts/responsive-browser/tablet1024-glossary-light.png",
+    "_artifacts/responsive-browser/tablet1024-market-regime.png",
+    "_artifacts/responsive-browser/tablet1024-theme-1.png",
+    "_artifacts/responsive-browser/tablet1024-theme-comparison.png",
+    "_artifacts/responsive-browser/tablet768-ai.png",
+    "_artifacts/responsive-browser/tablet768-glossary-dark.png",
+    "_artifacts/responsive-browser/tablet768-glossary-light.png",
+    "_artifacts/responsive-browser/tablet768-market-regime.png",
+    "_artifacts/responsive-browser/tablet768-theme-1.png",
+    "_artifacts/responsive-browser/tablet768-theme-comparison.png",
+    "_artifacts/route-soak-report.json",
+    "_artifacts/structural-quality-20260906/browser.json",
+    "_artifacts/structural-quality-20260906/guide.png",
+    "_artifacts/touch-ergonomics/report.json",
+    "_artifacts/ui-render-hygiene/phone360-topbar.png",
+    "_artifacts/ui-render-hygiene/report.json"
+  ],
+  "copiedEvidence": [
+    [
+      ".cache/aio-qa/runs/2026-10-15T13-49-02-790Z-4220-3algjw.json",
+      "full-qa.json"
+    ],
+    [
+      ".cache/aio-qa/runs/2026-10-15T13-49-23-447Z-26492-l2kzjz.json",
+      "external-qa.json"
+    ],
+    [
+      ".cache/aio-qa/external-pipeline-status.json",
+      "external-pipeline-status.json"
+    ],
+    [
+      "_artifacts/verify-aio/codex-audit-20261015/summary-desktop.json",
+      "summary-desktop.json"
+    ],
+    [
+      "_artifacts/verify-aio/codex-audit-20261015/summary-phone.json",
+      "summary-phone.json"
+    ],
+    [
+      "_artifacts/verify-aio/codex-audit-20261015/registry.json",
+      "registry.json"
+    ]
+  ],
+  "baseline": "clean before task; generated gate outputs archived here then restored to HEAD"
+}

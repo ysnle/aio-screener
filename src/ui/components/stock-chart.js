@@ -246,7 +246,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   if (forward.available) {
     const section = el(doc, 'section', null, 'chart-scenarios');
     section.append(el(doc, 'h3', '앞으로 구분할 세 가지 흐름', 'briefing-h2'));
-    section.append(el(doc, 'p', `${forward.asOf} 완료 봉의 가격 구조 기준 · 조건이 성립했을 때의 해석이며 발생 확률이나 목표가는 아닙니다.`, 'theme-strength-basis'));
+    section.append(el(doc, 'p', `${forward.asOf} 완료 봉의 가격 구조 기준 · 조건이 성립했을 때의 해석입니다.`, 'theme-strength-basis'));
     for (const scenario of forward.scenarios) {
       const card = el(doc, 'div', null, 'chart-scenario'); card.dataset.scenario = scenario.id;
       card.append(el(doc, 'h4', scenario.title), el(doc, 'p', scenario.text)); section.append(card);

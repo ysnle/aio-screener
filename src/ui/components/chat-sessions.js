@@ -32,17 +32,41 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
   // (2) Record each completed turn; ask once, after the first answer, whether to keep conversations on this device.
   const pending = [];
   const originalSave = root.saveChatEntry;
+  // Codex audit F24 (2026-10-15): the message list is a plain div that only scrolls, so a screen-reader user heard
+  // nothing when an answer finished. Every completed turn (normal or gate-blocked) passes saveChatEntry, so one polite
+  // status line announces the completion once — the streamed text itself is not re-read.
+  const status = el(doc, 'p', '', 'sr-only');
+  status.id = 'ai-panel-status';
+  status.setAttribute('role', 'status');
+  status.setAttribute('aria-live', 'polite');
+  doc.getElementById('ai-panel')?.append(status);
+  const announce = (answer) => {
+    status.textContent = '';
+    const size = String(answer || '').length;
+    root.setTimeout?.(() => { status.textContent = `AI 답변이 완료되었습니다${size ? ` (${size.toLocaleString('ko-KR')}자)` : ''}. 위쪽 대화 영역에서 읽을 수 있습니다.`; }, 50);
+  };
   root.saveChatEntry = function (ctxId, question, answer) {
+    announce(answer);
     const state = consentState(storage);
     if (state === 'granted') {
       if (!api.sessionId) setActive(newSessionId());
-      appendTurn(storage, { sessionId: api.sessionId, ctx: ctxId, question, answer });
+      const saved = appendTurn(storage, { sessionId: api.sessionId, ctx: ctxId, question, answer });
+      if (saved.saved === false) notifySaveFailed();
     } else if (state === 'unasked') {
       pending.push({ ctx: ctxId, question, answer });
       askConsent();
     }
     return typeof originalSave === 'function' ? originalSave.apply(this, arguments) : false;
   };
+  // Codex audit F03: a refused write is said once in the panel instead of silently losing the newest turn.
+  function notifySaveFailed() {
+    const anchor = doc.getElementById('ai-panel')?.querySelector('.ai-chips');
+    if (!anchor || doc.getElementById('ai-session-save-failed')) return;
+    const note = el(doc, 'p', '이 브라우저의 저장 공간이 가득 차 방금 대화를 저장하지 못했습니다. 대화 목록에서 오래된 대화를 지우면 다시 저장됩니다.', 'ai-session-consent-body');
+    note.id = 'ai-session-save-failed';
+    note.setAttribute('role', 'status');
+    anchor.before(note);
+  }
   function askConsent() {
     // The card sits between the messages and the question chips (a sibling, not inside the classic message list),
     // so a screen switch that repaints the messages keeps the question open.
@@ -53,7 +77,7 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
     card.setAttribute('role', 'group');
     card.setAttribute('aria-label', '대화 저장 여부');
     card.append(el(doc, 'p', '이 대화를 이 기기에 저장할까요?', 'ai-session-consent-title'),
-      el(doc, 'p', '저장하면 대화 목록에서 다시 열어 이어서 물을 수 있고, AI가 이전 질문을 참고해 답합니다. 이 브라우저에만 남고 서버로 보내지 않으며, 언제든 목록에서 지우거나 저장을 끌 수 있습니다.', 'ai-session-consent-body'));
+      el(doc, 'p', '저장하면 대화 목록에서 다시 열어 이어서 물을 수 있습니다. 대화 원문은 이 브라우저에만 보관되고(PIN 암호화 대상 아님), 지울 때까지 남습니다. 저장한 대화를 이어서 물으면 답을 만들기 위해 최근 대화가 질문과 함께 AI 서버로 전송됩니다. 언제든 목록에서 지우거나 저장을 끌 수 있습니다.', 'ai-session-consent-body'));
     const row = el(doc, 'div', null, 'ai-session-actions');
     const yes = el(doc, 'button', '저장', 'ai-session-btn is-primary'); yes.type = 'button';
     const no = el(doc, 'button', '저장하지 않음', 'ai-session-btn'); no.type = 'button';
@@ -137,7 +161,7 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
       remove.setAttribute('aria-label', `'${session.title}' 대화 삭제`);
       remove.addEventListener('click', () => {
         if (remove.dataset.confirm !== '1') { remove.dataset.confirm = '1'; remove.textContent = '한 번 더 누르면 삭제'; return; }
-        deleteSession(storage, session.id);
+        if (deleteSession(storage, session.id) === false) { remove.textContent = '삭제하지 못했습니다'; return; }
         // Deleting the open conversation also clears it from the panel and from the next question's context.
         if (session.id === api.sessionId) { cancel('session-delete'); setActive(null); shared.messages.length = 0; repaint(); }
         openList();
@@ -151,7 +175,7 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
       if (off.dataset.confirm !== '1') { off.dataset.confirm = '1'; off.textContent = '한 번 더 누르면 모두 지웁니다'; return; }
       setConsent(storage, false); setActive(null); shared.messages.length = 0; repaint(); closeList(); refreshHeader();
     });
-    foot.append(el(doc, 'p', '이 브라우저에만 저장됩니다 · 최근 40개 대화', 'ai-session-meta'), off);
+    foot.append(el(doc, 'p', '이 브라우저에만 저장 · PIN 암호화 대상 아님 · 최근 40개 대화', 'ai-session-meta'), off);
     panel.replaceChildren(top, items, foot);
     panel.style.top = `${head?.offsetHeight || 52}px`; // the header wraps on a phone; the list starts below it
     panel.hidden = false;

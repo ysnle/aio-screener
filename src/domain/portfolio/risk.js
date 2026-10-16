@@ -575,8 +575,12 @@ export function assessAccountPerformance(input) {
   var terminalYears = yearFraction(lastDate);
   var cashflows = [{ years: 0, amount: -valuations[0].amount }];
   var flowResolvable = true;
+  // Codex audit F04 (2026-10-15): the MWR cash-flow window is the TWR window — start-of-period counts a first-day flow
+  // (and leaves a last-day flow to the next period); end-of-period does the opposite. A different window made a
+  // first-day deposit read TWR 10% / MWR 120% on the same ledger.
   flows.forEach(function(tx) {
-    if (tx.date <= firstDate || tx.date > lastDate) return;
+    var inside = flowTiming === 'start-of-period' ? (tx.date >= firstDate && tx.date < lastDate) : (tx.date > firstDate && tx.date <= lastDate);
+    if (!inside) return;
     var years = yearFraction(tx.date);
     if (years == null) { flowResolvable = false; return; }
     cashflows.push({ years: years, amount: tx.kind === 'deposit' ? -tx.amount : tx.amount });

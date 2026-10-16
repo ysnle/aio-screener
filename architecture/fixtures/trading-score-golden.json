@@ -304,11 +304,11 @@
         "newsRiskImpacts": []
       },
       "legacyOutput": {
-        "total": 61,
-        "score": 61,
+        "total": 59,
+        "score": 59,
         "volScore": 54,
         "momScore": 55,
-        "trendScore": 68,
+        "trendScore": 59,
         "breadthScore": 72,
         "macroScore": 55,
         "componentCoveragePct": 100,
@@ -462,6 +462,6 @@
       }
     }
   ],
-  "rebaselinedAt": "2026-10-02T01:23:52.490Z",
-  "rebaselineReason": "P1388 trading-score.v4: risk-appetite axis = put/call + HY; F&G removed from the composite"
+  "rebaselinedAt": "2026-10-16T00:43:04.946Z",
+  "rebaselineReason": "v57.83 crash replay: under the 200-day line only the 32/15 trend bands"
 }

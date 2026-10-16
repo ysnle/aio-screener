@@ -2,7 +2,8 @@
 // scripts/build-us-listings.mjs from the Nasdaq Trader symbol directory + SEC CIKs). Never on the boot path: it is
 // loaded only when a symbol is unknown to the name registry, the KRX list and the screener universe.
 // Exact symbol match only (P1339). The one rewrite is the documented class-share separator (BRK.B / BRK/B -> BRK-B,
-// the form the universe, quotes and SEC use). Company names in the listing are never searched.
+// the form the universe, quotes and SEC use). Company names are never resolved automatically (R663); since v57.83 a
+// name search offers listing candidates for the reader to choose from (searchUsListingNames), nothing more.
 import { loadJsonArtifact } from './artifact-cache.js';
 
 export const US_LISTINGS_URL = './public-data/us-listings.json';
@@ -86,6 +87,31 @@ export async function isListedUsSymbol(sym) {
     return { listed: false, name: null, exchange: null, etf: null, asOf: index?.asOf || null, cik: null };
   }
   return lookupUsListing(await loadUsListings(), symbol);
+}
+
+const SHARE_SUFFIX_RE = /\s*-?\s*(Common Stock|Common Shares|Ordinary Shares|Class [A-C] (?:Common Stock|Ordinary Shares)|American Depositary Shares?.*|Depositary Shares?.*)\s*$/i;
+/**
+ * v57.83 (owner 2026-10-16: no company-name search for symbols outside the universe): listing names that contain the
+ * query at a word start, as candidates the reader picks from. Operating companies before funds, a name that starts
+ * with the query first; never auto-selected (R663). Queries under 3 letters or with no Latin letter return nothing.
+ */
+export function searchUsListingNames(index, raw, { limit = 6, exclude = [] } = {}) {
+  const query = String(raw || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  if (!index || query.length < 3 || !/[a-z]/.test(query)) return [];
+  const names = Array.isArray(index.columns.name) ? index.columns.name : [];
+  const symbols = index.columns.sym || [];
+  const skip = new Set(exclude.map((symbol) => String(symbol).toUpperCase()));
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const wordStart = new RegExp(`(?:^|[\\s(&./-])${escaped}`);
+  const found = [];
+  for (let at = 0; at < names.length; at += 1) {
+    const name = String(names[at] || '');
+    const lower = name.toLowerCase();
+    if (!wordStart.test(lower) || skip.has(symbols[at])) continue;
+    found.push({ at, starts: lower.startsWith(query), etf: String(index.columns.etf || '').charAt(at) === '1', name: name.replace(SHARE_SUFFIX_RE, '').trim() || name });
+  }
+  found.sort((a, b) => Number(b.starts) - Number(a.starts) || Number(a.etf) - Number(b.etf) || a.name.length - b.name.length);
+  return found.slice(0, limit).map(({ at, name, etf }) => ({ symbol: symbols[at], label: name, exchange: index.exchanges[String(index.columns.exch || '').charAt(at)] || null, etf }));
 }
 
 /** Test seam: forget the in-memory copy. */

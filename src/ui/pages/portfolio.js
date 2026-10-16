@@ -42,7 +42,7 @@ function renderPortfolioStatus(documentRef, state, surface) {
     // v57.81: every holding is on 가격 없음 (no quote and no close yet), so no total is shown rather than a partial one.
     element.textContent = `${surface.holdingCount}종목 모두 가격 없음 · 가격을 받으면 총자산과 손익을 계산합니다`;
   } else if (valuation === 'complete') {
-    element.textContent = `${surface?.holdingCount ?? 0}종목 평가 완료${closeNote(surface)} · 참고용 계산이며 실제 계좌 손익과 다를 수 있습니다`;
+    element.textContent = `${surface?.holdingCount ?? 0}종목 평가 완료${closeNote(surface)}`;
   } else {
     element.textContent = '포트폴리오 데이터 수신 대기';
   }
@@ -271,10 +271,13 @@ function renderPortfolioSurface(documentRef, page, surface) {
   setSurfaceText(documentRef, 'pf-cash-pct-hero', surface.cashPct == null ? '—' : `${surface.cashPct.toFixed(1)}%`, surface.cashPct, surface);
   // E3/P1181 (11 P11-02): 통화 상태를 표시에 드러낸다 — 혼합 통화는 환산근거가 없어 합계를 만들지
   // 않았고, 그 이유를 화면이 말해야 '값 소실'과 '의도된 보류'를 구분할 수 있다.
+  // v57.84 P1864: a USD/KRW conversion may use the app's own close instead of a declared leg; the note names which.
+  const fxSources = new Set((surface.conversion?.legs || []).map((leg) => leg.source === 'app-close' ? 'app' : 'declared'));
+  const fxBasisLabel = fxSources.has('app') ? (fxSources.has('declared') ? '선언 rate·앱 USD/KRW 종가' : '앱 USD/KRW 종가') : '선언 rate';
   const currencyNoteBase = surface.readState !== 'ready' || !surface.holdingCount
     ? '—'
     : surface.currencyState === 'converted-with-declared-rates'
-      ? `통화 환산(선언 rate) → ${surface.baseCurrency}`
+      ? `통화 환산(${fxBasisLabel}) → ${surface.baseCurrency}`
       : surface.currencyState === 'mixed-without-conversion'
         ? `통화 혼합(${(surface.declaredCurrencies || []).join('/')}) — 환산 없어 합계 보류`
         : surface.currencyState === 'declared-single' ? `통화 ${surface.baseCurrency}`
@@ -284,7 +287,7 @@ function renderPortfolioSurface(documentRef, page, surface) {
   // v57.48 expert review #23: a converted cost uses today's declared rate, not the rate on the purchase date —
   // the P&L then leaves out the currency move since purchase, and the note says so.
   const currencyHeld = (surface.costCurrencyState === 'cost-price-mismatch-held' ? ' · 원가/시세 불일치 — P&L 보류'
-    : surface.costCurrencyState === 'cost-price-mismatch-converted' ? ' · 원가/시세 불일치 — 선언 rate로 환산' : '')
+    : surface.costCurrencyState === 'cost-price-mismatch-converted' ? ` · 원가/시세 불일치 — ${fxBasisLabel}로 환산` : '')
     + (surface.conversion?.costApplied ? ' · 원가는 현재 환율로 환산 — 매수 이후 환율 효과 제외' : '');
   const currencyHeldActive = (surface.currencyState === 'mixed-without-conversion' || surface.costCurrencyState === 'cost-price-mismatch-held') && surface.readState === 'ready' && !!surface.holdingCount;
   setSurfaceText(documentRef, 'pf-currency-note', currencyNoteBase === '—' ? '—' : currencyNoteBase + currencyHeld, surface.holdingCount || null, surface, currencyHeldActive ? 'var(--data-amber)' : 'var(--text-dim)');

@@ -1083,7 +1083,7 @@ function createStyleComparison(documentRef, catalog) {
   box.appendChild(summary);
   const note = documentRef.createElement('p');
   note.className = 'masters-style-note';
-  note.textContent = '13F는 분기 말 미국 상장 주식(일부 옵션·전환사채 포함)의 롱 포지션만 보여 줍니다. 같은 13F라도 운용 방식에 따라 보이는 부분과 보이지 않는 부분이 크게 다릅니다.';
+  note.textContent = '13F는 분기 말 미국 상장 주식(일부 옵션·전환사채 포함)의 롱 포지션만 보여 주고, 분기 말로부터 최대 45일 뒤에 공개됩니다. 사라진 종목은 매도했거나 보고 대상(소액·비밀 취급)에서 빠진 것입니다. 같은 13F라도 운용 방식에 따라 보이는 부분과 보이지 않는 부분이 크게 다릅니다.';
   box.appendChild(note);
   const groups = groupManagersByStyle(catalog?.managers || []);
   const methodOnlyNames = new Set((catalog?.managers || []).filter((manager) => manager.type === 'METHOD_ONLY').map((manager) => manager.displayName || manager.id));

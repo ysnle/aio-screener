@@ -766,6 +766,10 @@
           "script": "scripts/ci-scenario-guidance-fixture.mjs"
         },
         {
+          "id": "crash-replay-check",
+          "script": "scripts/ci-crash-replay-check.mjs"
+        },
+        {
           "id": "codex-structure-regression-fixture",
           "script": "scripts/ci-codex-structure-regression-fixture.mjs"
         },

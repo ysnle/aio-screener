@@ -1,6 +1,6 @@
 ---
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
-last_verified: 2026-10-15
+last_verified: 2026-10-16
 confidence: medium
 target_version: v57.79
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
@@ -18,6 +18,30 @@ target_version: v57.79
 - **수집·신선도**: R634 신선도 감사에 stale을 통과시키는 모드가 없다 · R641 화면 판단과 운영 상태는 같은 신선도 경계 · R654 SEC 소유 공시와 13F는 서로 다른 주기 · R701 blocking 게이트 PASS를 전체 정상으로 올리지 않는다
 - **운영·AI**: R652 Worker 자동 배포는 CI 증거와 롤백 대상이 있어야 · R657 운영 알림은 증거를 남기고 닫힌 쪽으로 실패 · R681 모든 AI는 공용 Worker 한 경로로, 웹검색 포함 월 $20 이하 예산을 함께 쓴다
 - **화면**: R697 등급·검증 안 된 합산·행동 지시 없이 측정한 조건과 근거만 보인다 · R669 데스크톱·휴대폰·아이패드가 같은 라우트·데이터를 쓰고 레이아웃만 적응한다 · R703 한 사용자 입력은 한 owner가 처리하고 색 테마는 storage 실패와 무관
+
+## R713. 판정 이름은 그 이름을 정의하는 조건이 있을 때만 붙이고, 임계값은 공용 상수에서 읽는다 (v57.84, P1859)
+
+**Rule**: 확장·약세·재가속·경색처럼 이름이 붙는 판정은 그 이름을 정의하는 핵심 조건이 충족될 때만 쓴다. 보조 조건 개수가 많다는 이유로 이름을 붙이지 않는다. 충족 조건 수는 가능성이 아니라 개수로 표시한다. 화면 문장과 판정이 쓰는 임계값은 RULES 상수에서 읽고, 화면에 숫자를 따로 적지 않는다.
+
+**Validation**: node scripts/ci-scenario-guidance-fixture.mjs; node scripts/ci-esm-core-unit-check.mjs
+
+## R712. 게이트 지표는 서식 변경으로 만족되지 않고, 예외 통로도 래칫한다 (v57.84, P1858)
+
+**Rule**: 크기·핀 게이트는 줄바꿈·병합 같은 서식 변경으로 바뀌지 않는 지표를 함께 잰다. 예외 표시(text-pin-ok 등)와 기준선 재기록(--write)은 그 자체로 증가할 수 없다 — 증가는 --allow-growth와 커밋 사유로만 기록한다.
+
+**Validation**: node scripts/ci-decomp-hotspot-check.mjs; node scripts/ci-text-pin-ratchet-check.mjs
+
+## R711. 규칙 번호 하나는 규칙 하나를 가리키고, 원장 게이트는 실제 헤딩 형태를 모두 읽는다 (v57.84, P1855)
+
+**Rule**: 원장 게이트는 원장에 실제로 쓰이는 헤딩 형태(`## R<n>.`, `### R<n>.`, 범위 섹션의 인라인 `**R<n> —`)를 모두 읽는다. 같은 번호를 두 규칙에 쓰지 않는다 — 인용이 어느 규칙인지 알 수 없게 된다. 충돌하면 나중에 생긴 쪽을 다음 빈 번호로 옮기고 옛 번호를 본문에 남긴다.
+
+**Validation**: node scripts/ci-ledger-integrity-check.mjs
+
+## R708. 판정 규칙은 급변 구간 재생을 통과한다 (v57.83, P1853)
+
+**Rule**: 이 검사는 **회귀·정합 검사**이지 예측력 검증이 아니다 — 기준점 재생 구간은 공개 종가 기준점 사이를 지어낸 경로로 잇는 합성 스트레스이고, 2026년 구간만 실제 관측 기록이다. 통과가 판정의 정확도·수익성을 뜻하지 않으며(R697 예측 검증은 별개), 검사 출력도 두 종류를 구분해 표시한다. 시장 판정·점수 규칙을 바꾸면 ci-crash-replay-check.mjs로 2022년 하락장·2024년 8월·2025년 4월(공개 종가 기준점 재생)과 실제 기록이 있는 2026년 구간(2~3월·7월·10/12~15)을 날마다 재생해, 200일선 아래 추세 양호 금지·VIX 25 이상 변동성 부담·HY 450bp 이상 신용 부담·주도주가 50일선 아래면 유지 금지 같은 불변식을 확인한다. 실제 기록이 있는 구간은 지어낸 경로로 대신하지 않는다.
+
+**Validation**: node scripts/ci-crash-replay-check.mjs
 
 ## R707. A judgement needs a noise buffer, a recent-move check and its window (v57.81, P1829)
 
@@ -571,7 +595,7 @@ target_version: v57.79
 
 ## R617. 사설 도구의 경계는 결과를 막지 않고 밝힌다 (v55.05, P1120~P1122)
 
-**Rule**: 차단(block)은 **반증 가능한 오류**에만 쓴다. 그 밖의 경계는 결과를 유지한 채 이름을 붙인다(disclosure). (1) **달성 불가능한 조건은 게이트가 아니다**: 입력이 항상 `null`/`false`로 들어오는 조건을 차단 사유로 두면 그것은 검사가 아니라 상시 차단이다 — 그런 조건은 `limitations`로 내려야 한다. (2) **차단은 틀릴 수 있는 것에만**: 값·단위·배율처럼 사실과 다를 수 있는 주장은 차단하고, 근거의 종류·출처 등급·적합성 정보의 부재는 공시한다. "정확한 근거가 없음"과 "틀린 값"은 다른 사건이다. (3) **부분 실패는 부분만 버린다**: 정합 항등식이 답변 전체 단위면 복구 가능한 문장까지 함께 사라진다. 위반한 주장만 탈락시키고 탈락 범위를 명시한다. (4) **프롬프트가 첫 번째 게이트다**: 모델이 스스로 "확인 필요"로 축약하면 파이프라인 게이트를 풀어도 답은 나아지지 않는다. 무엇을 하지 말라뿐 아니라 **무엇을 하라**(일반 원리·조건·시나리오·확인 방법으로 끝까지 답하기)와 **최종 판단의 귀속**(사용자에게 넘긴다)을 함께 규정한다. (5) **자기 정책과 모순되는 게이트는 게이트가 아니다**: 저장소가 이미 "답변 전체를 안전 모드로 바꾸지 말라"고 선언했다면, 상시 차단은 정책 위반으로 취급한다. (6) **조악한 휴리스틱은 정밀 검사를 대체하지 않는다**: 근접·존재 여부 같은 근사 규칙을 차단에 쓰면 정상 문장을 막는다. 정밀 검사가 따로 있다면 근사 규칙은 경고로 내린다. (7) **권리 경계와 결과 제공은 분리한다**: 어떤 자료를 보존하지 않기로 한 결정이 그 자료와 무관한 서술까지 막아서는 안 된다 — 보존하지 않는 대신 **귀속(attribution)** 과 공시로 대체한다.
+**Rule**: 차단(block)은 **반증 가능한 오류**에만 쓴다. 그 밖의 경계는 결과를 유지한 채 이름을 붙인다(disclosure). (1) **달성 불가능한 조건은 게이트가 아니다**: 입력이 항상 `null`/`false`로 들어오는 조건을 차단 사유로 두면 그것은 검사가 아니라 상시 차단이다 — 그런 조건은 `limitations`로 내려야 한다. (2) **차단은 틀릴 수 있는 것에만**: 값·단위·배율처럼 사실과 다를 수 있는 주장은 차단하고, 근거의 종류·출처 등급·적합성 정보의 부재는 공시한다. "정확한 근거가 없음"과 "틀린 값"은 다른 사건이다. (3) **부분 실패는 부분만 버린다**: 정합 항등식이 답변 전체 단위면 복구 가능한 문장까지 함께 사라진다. 위반한 주장만 탈락시키고 탈락 범위를 명시한다. (4) **프롬프트가 첫 번째 게이트다**: 모델이 스스로 "확인 필요"로 축약하면 파이프라인 게이트를 풀어도 답은 나아지지 않는다. 무엇을 하지 말라뿐 아니라 **무엇을 하라**(일반 원리·조건·시나리오·확인 방법으로 끝까지 답하기)와 **최종 판단의 귀속**(사용자에게 넘긴다)을 함께 규정한다. (5) **자기 정책과 모순되는 게이트는 게이트가 아니다**: 저장소가 이미 "답변 전체를 안전 모드로 바꾸지 말라"고 선언했다면, 상시 차단은 정책 위반으로 취급한다. (6) **조악한 휴리스틱은 정밀 검사를 대체하지 않는다**: 근접·존재 여부 같은 근사 규칙을 차단에 쓰면 정상 문장을 막는다. 정밀 검사가 따로 있다면 근사 규칙은 경고로 내린다. (7) **권리 경계와 결과 제공은 분리한다**: 어떤 자료를 보존하지 않기로 한 결정이 그 자료와 무관한 서술까지 막아서는 안 된다 — 보존하지 않는 대신 **귀속(attribution)** 과 공시로 대체한다. (8) **R590과의 경계(v57.84)**: '판단 근거 승격 보류(UNVERIFIED)'는 차단이 아니다 — 답과 서술은 유지되고, 근거 계약을 통과하지 못한 값이 판단 전제로 쓰이지 않을 뿐이다. 반증 가능한 오류만 지우고, 미검증은 등급으로 표시한다.
 
 **Validation**: `js/aio-tests.js` T949/T964/T965(차단→limitation·disclosure), `scripts/ci-ai-intelligence-contract-check.mjs`(오케스트레이터 `actionLimitations` 디스패치, `blocked-action-permission` 부재, 조건부 분석 허용), `scripts/ci-runtime-contract-check.mjs`(금지 행위 차단 유지 + 개인화 limitation), `scripts/ci-data-pipeline-contract-check.mjs`(`causal-evidence-missing`·`metric-identity-proximity`는 warning, `metric-value-mismatch`·`nfp-scale-mismatch`는 issue, `headline-attributed-with-disclosure` 정책), `scripts/ci-headless-tests.mjs`(골든 코퍼스 g09 기대값 = 공시).
 
@@ -589,13 +613,13 @@ target_version: v57.79
 
 ## R614. 발행 산출물의 의미 계약은 소비자·계보·만료까지 닫는다 (v55.02, P1096~P1108)
 
-**Rule**: 값·단위·시각·어휘의 자기 정합(R613)만으로는 부족하다. 산출물이 발행되는 순간부터 소비자와 계보가 함께 닫혀야 하고, 전환 면제는 시한을 가져야 한다. (1) **전환 면제는 만료된다**: 프로듀서 수정이 다음 refresh에야 발행물에 반영되므로 한 사이클 면제가 필요하지만, 면제는 시한을 갖고 만료 후 단언이 무조건 실행되어야 하며, 면제 중에도 남은 부채를 수치로 보고해야 한다. 면제 분기가 단언을 감싸 영구 공허 통과가 되어서는 안 된다. (2) **비율은 자기 분모를 넘을 수 없다**: 분자와 분모는 같은 모집단이어야 하고, 넘으면 이름이 틀렸거나 분자가 틀렸다. (3) **자기보고 카운트는 payload와 일치해야 한다**: 발행물이 스스로 보고하는 개수는 같은 발행물의 배열·집합과 대조되며, 의미가 다른 두 수를 한 이름으로 발행하지 않는다. (4) **시계열은 조인 가능해야 한다**: 달력 단위 시계열은 단위 기간당 1포인트여야 하고, 값의 출처 메타는 그 값의 출처이며, 행의 열 집합은 균질하고 "미관측"은 `null` + 메타 부재로만 표현한다(키 삭제 금지). (5) **선언 없는 축을 발행하지 않는다**: 상태·권리·정합성 축은 각각 다른 이름의 어휘를 발행하고, 값은 그 어휘로 해석 가능해야 한다. 권리·검증 축은 관측 완전성(체크리스트 통과)으로 승격하지 않는다 — 승격은 기록된 운영자 검증만 인정한다. (6) **프로듀서는 소비자·계보 정책과 함께 온다**: 어떤 산출물도 소비자 경로와 계보 정책 없이 발행되어서는 안 되며, 그 3자 일치를 게이트로 고정한다. (7) **중간 계층은 소비자가 읽는 메타데이터를 버리지 않는다**: 한쪽이 선언한 provenance를 다른 쪽이 조용히 탈락시키면 폴백 리터럴이 사실을 대체한다.
+**Rule**: 값·단위·시각·어휘의 자기 정합(R613)만으로는 부족하다. 산출물이 발행되는 순간부터 소비자와 계보가 함께 닫혀야 하고, 전환 면제는 시한을 가져야 한다. (1) **전환 면제는 만료된다**: 프로듀서 수정이 다음 refresh에야 발행물에 반영되므로 한 사이클 면제가 필요하지만, 면제는 시한을 갖고 만료 후 단언이 무조건 실행되어야 하며, 면제 중에도 남은 부채를 수치로 보고해야 한다. 면제 분기가 단언을 감싸 영구 공허 통과가 되어서는 안 된다. (2) **부분/전체 비율은 자기 분모를 넘을 수 없다**: 커버리지·점유율처럼 분자가 분모의 부분집합인 비율은 같은 모집단이어야 하고, 100%를 넘으면 이름이 틀렸거나 분자가 틀렸다. 성장률·배수·전기 대비처럼 100%를 넘을 수 있는 비율은 이름과 단위로 구분한다(v57.84). (3) **자기보고 카운트는 payload와 일치해야 한다**: 발행물이 스스로 보고하는 개수는 같은 발행물의 배열·집합과 대조되며, 의미가 다른 두 수를 한 이름으로 발행하지 않는다. (4) **시계열은 조인 가능해야 한다**: 달력 단위 시계열은 단위 기간당 1포인트여야 하고, 값의 출처 메타는 그 값의 출처이며, 행의 열 집합은 균질하고 "미관측"은 `null` + 메타 부재로만 표현한다(키 삭제 금지). (5) **선언 없는 축을 발행하지 않는다**: 상태·권리·정합성 축은 각각 다른 이름의 어휘를 발행하고, 값은 그 어휘로 해석 가능해야 한다. 권리·검증 축은 관측 완전성(체크리스트 통과)으로 승격하지 않는다 — 승격은 기록된 운영자 검증만 인정한다. (6) **프로듀서는 소비자·계보 정책과 함께 온다**: 어떤 산출물도 소비자 경로와 계보 정책 없이 발행되어서는 안 되며, 그 3자 일치를 게이트로 고정한다. (7) **중간 계층은 소비자가 읽는 메타데이터를 버리지 않는다**: 한쪽이 선언한 provenance를 다른 쪽이 조용히 탈락시키면 폴백 리터럴이 사실을 대체한다.
 
 **Validation**: `scripts/ci-artifact-semantics-check.mjs`(data 그룹 `artifact-semantics`, `inTransition` 만료 헬퍼), `scripts/ci-history-field-time-contract-check.mjs`(행 정규화·BEA 문단 픽스처), `scripts/ci-runtime-contract-check.mjs`(FRED 선언·시계열 메타 연결), `scripts/ci-data-pipeline-contract-check.mjs`(프로듀서-소비자-계보 3자), `scripts/ci-data-lineage-audit.mjs`(주간 캘린더 창), `src/data/contracts/operations.js`·`reconciliation.js`의 어휘 발행·검증.
 
 ## R613. 발행 산출물은 값·단위·시각·어휘가 스스로 정합해야 한다 (v55.01, P1090~P1095)
 
-**Rule**: 발행되는 아티팩트는 스키마와 신선도만 맞으면 되는 것이 아니다. 같은 산출물 안에서 값과 라벨이 서로 모순되어서는 안 되며, 다음을 실행 가능한 게이트로 고정한다. (1) 출처가 살아있는 1차 출처인데 신선도 플래그가 stale이면 실패한다 — 플래그는 설정만 하지 말고 복구 시 해제한다. (2) 어떤 값의 관측 시각은 그 값의 관측 시각이어야 한다: 이전 세션 종가를 현재 관측 시각으로 스탬프하지 말고, 모르면 null로 fail-closed하며 `observationRelation`·`observedAtSource`로 관계를 드러낸다. (3) 서술·주장의 `evidenceIds`는 발행 산출물 안에서 해소되어야 하고, 단위와 metricId는 중복 정의하지 않고 정본 스냅샷에서 가져온다. (4) 화면이 명시한 계산식(가중치 등)은 표시값으로 재구성 가능해야 한다 — 총점을 사후에 바꾸는 조정(보정·클램프)은 반드시 항목으로 노출한다. (5) 어휘를 선언하는 필드는 그 이름이 가리키는 축의 값 전부를 포함해야 하며, 서로 다른 축(status/statusCode)은 다른 이름으로 선언한다. (6) 빌드 시점에 계산해 동결되는 판정에는 `evaluatedAt`을 남겨 점시점 판정임을 드러낸다.
+**Rule**: 발행되는 아티팩트는 스키마와 신선도만 맞으면 되는 것이 아니다. 같은 산출물 안에서 값과 라벨이 서로 모순되어서는 안 되며, 다음을 실행 가능한 게이트로 고정한다. (1) 신선도는 출처의 응답 여부가 아니라 값의 관측 시각과 그 출처의 발행 주기로 판정한다 — 1차 출처가 응답해도 새 발행이 있어야 할 시점을 지난 값은 stale이 맞다. 플래그는 설정만 하지 말고, 관측 시각이 실제로 갱신될 때 해제한다(v57.84: '출처가 살아 있으면 stale 해제'는 공휴일·발행 지연을 현재값으로 속인다). (2) 어떤 값의 관측 시각은 그 값의 관측 시각이어야 한다: 이전 세션 종가를 현재 관측 시각으로 스탬프하지 말고, 모르면 null로 fail-closed하며 `observationRelation`·`observedAtSource`로 관계를 드러낸다. (3) 서술·주장의 `evidenceIds`는 발행 산출물 안에서 해소되어야 하고, 단위와 metricId는 중복 정의하지 않고 정본 스냅샷에서 가져온다. (4) 화면이 명시한 계산식(가중치 등)은 표시값으로 재구성 가능해야 한다 — 총점을 사후에 바꾸는 조정(보정·클램프)은 반드시 항목으로 노출한다. (5) 어휘를 선언하는 필드는 그 이름이 가리키는 축의 값 전부를 포함해야 하며, 서로 다른 축(status/statusCode)은 다른 이름으로 선언한다. (6) 빌드 시점에 계산해 동결되는 판정에는 `evaluatedAt`을 남겨 점시점 판정임을 드러낸다.
 
 **Validation**: `scripts/ci-artifact-semantics-check.mjs`(data 그룹 `artifact-semantics`), `src/data/contracts/operations.js`의 어휘 순회 검증, `scripts/ci-domain-parity-check.mjs`(총점 파리티 유지).
 
@@ -1573,6 +1597,8 @@ target_version: v57.79
 
 ## R369. Technical candle text and legacy canvas lifecycle must remain separate (v53.34, P822)
 
+**History (v57.84)**: the legacy candle canvas this rule fenced is gone from the native stock chart; the durable part is the general rule that one owner writes one text sink and absent OHLCV waits (R616 render-path consistency). Kept for the P822 trail.
+
 **Rule**: Technical candle title/meta text comes only from normalized analysis input and stays waiting when OHLCV is absent. Legacy chart code retains canvas/indicator lifecycle but must not write the same text sinks.
 
 **Validation**: the architecture contract checks legacy writer deletion and native markers; Chromium checks native title/meta state and the stable 17-route resource round trip.
@@ -1948,7 +1974,7 @@ target_version: v57.79
 - current-sensitive 답변은 기준시각·Evidence 상태·원천/원문 재확인 안내를 표시하고, `marketAnalysisOk` 생성 성공만으로 자동 LLM 문장을 공개하지 않는다. 의미 검증 `marketAnalysisSemanticOk=true` 또는 명시적 `status: verified`가 필요하다.
 - 검증은 T932–T936와 `ci-runtime-contract-check.mjs`로 concrete/강한 방향성 action 차단·교육성 답변·disclosure 메타·unverified marketAnalysis 폴백을 모두 고정한다. 현재 로컬 Chromium 기준선은 `997/997 PASS`이며, 실제 Pages/Worker와 모델 문답은 별도 live gate다.
 
-## R301. 일반 사용자 부팅 경로에서는 배포·공유·전수 Evidence 감사를 실행하지 않는다 (v52.74)
+## R710. 일반 사용자 부팅 경로에서는 배포·공유·전수 Evidence 감사를 실행하지 않는다 (v52.74; v57.84 중복 R301에서 재번호)
 
 - 부팅 및 페이지 이동 이벤트가 호출하는 함수는 활성 페이지와 이미 수집된 런타임 상태만 읽어야 한다. `getShareReadinessAudit`, `getDeploymentGateAudit`, `getAutoOpsReadiness`, full-surface DOM/text 감사는 CI·명시적 개발자 모드에서만 허용한다.
 - 초기 상태 UI는 `pointer-events:none`인 비차단 표시여야 하며 3초 이내 강제 해제한다. 상태 표시의 존재를 성능 개선으로 간주하지 않는다.
@@ -2131,9 +2157,9 @@ target_version: v57.79
 - `scripts/ci-ux-default-path-check.mjs` must stay wired into CI and must fail if default routes regain visible analysis-flow summaries, duplicate diagnostic widgets, `auto-fill` finite card grids, or lose the guide methodology reference.
 
 ## R229. Scheduled workflow embedded scripts must be syntax-gated (v51.30, P530)
-## R230. Default-path numeric renderers must be partial-data safe (v51.42, P533)
+## R709. Default-path numeric renderers must be partial-data safe (v51.42, P533; renumbered from a duplicated R230 in v57.84)
 
-- Live/default-path renderers must not call `.toFixed()` directly on nested live, scenario, chart, or event-context fields. Normalize through `Number(...)` plus `Number.isFinite(...)`, or use `window._aioSafeFixed()`.
+- Live/default-path renderers must not call `.toFixed()` directly on nested live, scenario, chart, or event-context fields. Normalize through a null-preserving finite check (`Number(null)` is 0 and `Number('')` is 0, so a bare `Number(...)` turns a missing value into a real-looking zero) or use `window._aioSafeFixed()`, which goes through `_aioStrictFinite`. A missing input renders as a missing state, never as 0.
 - Treat `_liveData`, public-data JSON, scenario registry outputs, Chart.js tooltip payloads, and event-context objects as partial until proven otherwise.
 - `scripts/ci-runtime-contract-check.mjs` must fail if unsafe direct patterns such as `live.price.toFixed`, `sumCheck.sum.toFixed`, or `ctx.parsed.y.toFixed` return.
 
@@ -2158,8 +2184,8 @@ target_version: v57.79
 ## R163. 멀티탭 localStorage storage 이벤트 리스너 의무 (v49.79)
 ## R164. Claude API 호출 토큰 사용량 누적 추적 + 비용 가시화 의무 (v49.79)
 **Superseded by R681 (v57.79)**: AI cost is the shared Worker budget ledger for gpt-6-luna, not a client token counter.
-## R156. 외부 fetch 폴백 chain은 sequential 금지, Promise.race 병렬 의무 (v49.78 코드 단위 진단)
-**Rule**: Fallback chains use `Promise.any` (first success) with a per-attempt timeout/abort, bounded to providers whose rate budget allows fan-out; `Promise.race` settles on the first failure and is not a fallback. (v57.79 rewrite)
+## R156. 외부 fetch 폴백은 첫 번째 '유효한' 결과를 쓰고, 동시 요청은 비용·한도가 허락할 때만 (v49.78; v57.84 개정)
+**Rule**: A fallback chain settles on the first *valid* result — a payload that passed validation (shape, finite values, observation time), not merely a fulfilled promise; `Promise.any` alone accepts a stale or empty 200. Budgeted or paid providers run sequentially with a per-attempt timeout/abort; a bounded hedge (start the next provider after a short delay) is allowed only where the rate budget permits fan-out. `Promise.race` settles on the first failure and is not a fallback.
 ## R157. innerHTML 호출 전 _aioSafeMD fallback chain 의무 (v49.78)
 ## R158. chatSend atomic streaming lock — 입력 검증 통과 직후 즉시 (v49.78)
 ## R153. chatSend silent return 모든 경로 사용자 피드백 의무 (v49.77)
@@ -2676,7 +2702,7 @@ ctx.strokeStyle = 'rgba(255,255,255,0.08)';  // 또는 '#8888884A'
 
 **R172 — MACRO_CALENDAR auto-advance 의무**: 발표 캘린더 entry는 일자 경과 시 자동 next event compute. `AIO._aioRecomputeMacroCalendar({ dryRun: true })` 사이드바 18축 노출 의무.
 
-**R173 — cross-asset correlation matrix 의무**: 자산 간 30일 rolling Pearson correlation + regime classification 자동 산출. `AIO.computeCrossAssetCorrelation()` `_priceHistory` 활용. 사이드바 16축.
+**R173 — cross-asset correlation matrix 의무** *(v57.84 폐기: 30일 Pearson 상관·국면 자동 산출을 전 서비스 의무로 둘 근거가 없다 — 실제 질문·정렬된 자료·표본 진단이 있을 때 선택 기능으로 재제안. 아래는 역사 기록)*: 자산 간 30일 rolling Pearson correlation + regime classification 자동 산출. `AIO.computeCrossAssetCorrelation()` `_priceHistory` 활용. 사이드바 16축.
 
 **R174 — AI 답변 정량 비율 측정 의무**: Answer quality is measured by typed claim/evidence coverage (R456), not by numeric-token ratio. (v57.79 rewrite) 이력: 채팅 답변에서 정량 토큰 비율 7%+ 권장. `AIO.assertQuantitativeRatioAudit()` 자동 측정 + 사이드바 17축. <4% 시 'fail' (정성 과다 환각 위험).
 
@@ -2826,7 +2852,7 @@ ctx.strokeStyle = 'rgba(255,255,255,0.08)';  // 또는 '#8888884A'
 
 ## R292. A client-side call routed through a region-unpinned shared edge proxy must auto-retry on the provider's own regional-block error signature, not just report it (v52.44, B8/P659 root)
 
-**Rule**: Shared-Worker AI calls retry once, immediately, only on the upstream provider's own regional-block error shape, never on the Worker's own errors. (v57.79 rewrite)
+**Superseded (v57.84)**: P1421 already made paid AI transport a single attempt (no blind retry; T887 `paid_transport_no_blind_retry`), so the auto-retry prescription below is history. Retrying until anycast lands on a permitted edge is not a compliance answer to a provider's regional policy; the legitimate fix is Worker placement (operator: Smart Placement or a placement hint). What remains current: a regional 403 is classified only from the provider's region/country/territory signature, never from a bare 'forbidden' or the Worker's own origin/token errors (`normalizeAiError`, Group92 cases), and the user sees a retry hint, not an automatic retry.
 
 **Why this matters**: found on B8 (`_context/DEFERRED-BLOCKS.md`) — curl reproduced the exact mechanism 3 times: identical requests through Cloudflare's free-plan Worker landed on `CF-RAY:...-NRT` (Tokyo, 200 OK) or `CF-RAY:...-HKG` (Hong Kong, 403) depending on which edge anycast happened to select, and the 403 body was Anthropic's own `{error:{type:'forbidden',message:'Request not allowed'}}` — not the Worker's own `errorResponse()` shape (`{error,status}`) — proving Anthropic itself, not the repo's Worker code, rejected the Hong-Kong-routed request by regional policy. The repo, secrets, and deploy were all otherwise correct; there was nothing to fix upstream, only a client-side mitigation to add. A prior, unrelated 403 investigation on the same route (B5) had guessed "Anthropic rate/concurrency limiting" — that guess was wrong (corrected once this mechanism was actually reproduced), which is itself a caution against assuming a cause for a recurring status code without reproducing the actual error body.
 
@@ -3070,7 +3096,9 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 
 ## R383. Ticker action narratives require entity evidence (v53.49, P840)
 
-**Rule**: The ticker route must not emit `WATCH`, entry, or other action language when the selected entity, its finite quote, or market-health evidence is missing. Market-level score context may remain descriptive, but it cannot substitute for entity evidence.
+**Revised (v57.84)**: the premise that action language becomes allowed once evidence exists is retired — AGENTS bars entry/stop/target/trim language on every route (R697/R698). The stock route shows observed setup facts; missing entity, quote or health evidence holds that setup state.
+
+**Rule (history)**: The ticker route must not emit `WATCH`, entry, or other action language when the selected entity, its finite quote, or market-health evidence is missing. Market-level score context may remain descriptive, but it cannot substitute for entity evidence.
 
 **Validation**: `_aioDefaultDecision('ticker')` must apply an explicit entity/quote/health gate, set `decisionBlocked`, and return a fail-closed action; the runtime contract must retain the missing-evidence fixture markers.
 
@@ -3315,6 +3343,8 @@ endpoint identity while retaining explicit operator blockers.
 **Validation**: `ci-data-pipeline-contract-check.mjs` checks `current24hItems/current24hWindow`, `windowKind`, route SSOT, native news summary, and cycle-manifest fields; the runtime Telegram feed must render only `AIO_TELEGRAM_CURRENT_ITEMS`.
 
 ## R426. Decision headers must be explicit mounted route elements (v53.67, P871)
+
+**Under review (v57.84)**: the every-route mandate predates the 8-screen declutter; learning, disclosure and static research contexts need no market decision header. The attribute contract below still binds any header that is mounted (ci-page-decision-reference-check); which routes mount one is an owner IA decision.
 
 **Rule**: `_aioRenderPageDecisionHeader()` must emit a balanced, discoverable `.aio-decision-header` wrapper for every route, carrying `data-aio-decision-page`, `data-source-kind`, `data-as-of`, and shared market-cut boundaries. Initial route headers must mount immediately when the document is already ready; delayed refresh may reconcile later data but cannot be the only mount path.
 

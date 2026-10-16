@@ -29,16 +29,18 @@ export function temperatureStateText(market, rules = TEMPERATURE_RULES) {
 }
 
 // The 63-session result after past first days of the same spell, against any day; the ± is two standard errors
-// (cluster starts are independent samples; the all-days baseline uses n/63 windows, the stress-outcomes D08 rule).
+// (spell starts at least 63 sessions apart, so the windows do not overlap; the all-days baseline uses n/63 windows, the
+// stress-outcomes D08 rule). R706: under 10 cases no averages, 10-29 a small-sample note.
 export function temperatureEvidence(market, state = market.state) {
   const from = String(market.from || '').slice(0, 4);
   const spell = market.outcomes?.[state]?.h63;
   const all = market.outcomes?.all?.h63;
   const label = STATE_LABEL[state];
-  if (!spell?.n || spell.n < 5 || !all?.n) return `${from}년 이후 ${label} 구간이 시작된 사례가 ${spell?.n || 0}회뿐이라 그 뒤 결과를 요약하지 않습니다.`;
+  if (!spell?.n || spell.n < 10 || !all?.n) return `${from}년 이후 ${label} 구간에서 서로 겹치지 않는 석 달이 ${spell?.n || 0}번뿐이라 그 뒤 결과를 평균으로 요약하지 않습니다.`;
   const half = 2 * (spell.se || 0), allHalf = 2 * (all.se || 0);
   const overlap = spell.mean - half <= all.mean + allHalf && all.mean - allHalf <= spell.mean + half;
-  return `${from}년 이후 ${label} 구간이 시작된 첫날 ${spell.n}회 뒤 석 달(63거래일) 동안 평균 ${pct(spell.mean)} ±${half.toFixed(1)}%p, 오른 비율 ${spell.hitRate}%, 하위 10% 결과 ${pct(spell.p10)}였습니다. 아무 날에나 시작한 석 달은 평균 ${pct(all.mean)} ±${allHalf.toFixed(1)}%p라 ${overlap ? '두 범위가 겹쳐 평균 차이는 구별되지 않습니다' : '두 범위가 겹치지 않습니다'}. 과거의 분포이지 이번 석 달의 예측은 아닙니다.`;
+  const small = spell.n < 30 ? ' 30번 미만의 작은 표본입니다.' : '';
+  return `${from}년 이후 ${label} 구간이 시작된 첫날 중 서로 겹치지 않는 ${spell.n}번의 석 달(63거래일) 동안 평균 ${pct(spell.mean)} ±${half.toFixed(1)}%p, 오른 비율 ${spell.hitRate}%, 하위 10% 결과 ${pct(spell.p10)}였습니다. 아무 날에나 시작한 석 달은 평균 ${pct(all.mean)} ±${allHalf.toFixed(1)}%p라 ${overlap ? '두 범위가 겹쳐 평균 차이는 구별되지 않습니다' : '두 범위가 겹치지 않습니다'}.${small}`;
 }
 
 export function extremeSpans(history = [], rules = TEMPERATURE_RULES) {
@@ -153,12 +155,14 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
       for (const state of ['cold', 'hot']) {
         const h = item.outcomes?.[state]?.h63;
         if (!h?.n) continue;
-        table.append(el(doc, 'dt', `${item.label} · ${STATE_LABEL[state]} 첫날 뒤 석 달`), el(doc, 'dd', `평균 ${pct(h.mean)} ±${(2 * (h.se || 0)).toFixed(1)}%p · 오른 비율 ${h.hitRate}% · 하위 10% 결과 ${pct(h.p10)} · ${h.n}회`));
+        const dt = el(doc, 'dt', `${item.label} · ${STATE_LABEL[state]} 첫날 뒤 석 달`);
+        if (h.n < 10) { table.append(dt, el(doc, 'dd', `겹치지 않는 사례 ${h.n}번 — 10번 미만이라 평균·비율을 쓰지 않습니다`)); continue; }
+        table.append(dt, el(doc, 'dd', `평균 ${pct(h.mean)} ±${(2 * (h.se || 0)).toFixed(1)}%p · 오른 비율 ${h.hitRate}% · 하위 10% 결과 ${pct(h.p10)} · 겹치지 않는 ${h.n}번${h.n < 30 ? '(작은 표본)' : ''}`));
       }
       const all = item.outcomes?.all?.h63;
       if (all?.n) table.append(el(doc, 'dt', `${item.label} · 아무 날 뒤 석 달`), el(doc, 'dd', `평균 ${pct(all.mean)} ±${(2 * (all.se || 0)).toFixed(1)}%p · 오른 비율 ${all.hitRate}%`));
     }
-    deep.append(el(doc, 'h4', '과거 결과 (가격 수익률, 배당 제외)'), el(doc, 'p', `같은 구간 안에서 ${rules.clusterGapSessions}거래일 안에 다시 들어온 날은 하나의 구간으로 묶고, 구간이 시작된 첫날만 표본으로 셉니다. ±는 표준오차의 2배입니다. 과도한 냉각 뒤 평균이 높아 보여도 범위가 겹치면 '바닥 신호'로 읽을 근거는 없습니다.`), table);
+    deep.append(el(doc, 'h4', '과거 결과 (가격 수익률, 배당 제외)'), el(doc, 'p', `같은 구간 안에서 ${rules.clusterGapSessions}거래일 안에 다시 들어온 날은 하나의 구간으로 묶고, 구간이 시작된 첫날만 표본으로 셉니다. 그 첫날끼리도 석 달 안에 붙어 있으면 결과 기간이 겹치므로, 앞 표본에서 63거래일이 지난 첫날만 셉니다. ±는 표준오차의 2배입니다. 과도한 냉각 뒤 평균이 높아 보여도 범위가 겹치면 '바닥 신호'로 읽을 근거는 없습니다.`), table);
 
     const body = el(doc, 'div', null, 'temp-body');
     const plot = el(doc, 'div', null, 'temp-plot');

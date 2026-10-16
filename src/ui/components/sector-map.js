@@ -179,7 +179,7 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
   const guide = el(doc, 'details', null, 'sector-map-table');
   guide.append(el(doc, 'summary', '지도 읽는 법'));
   guide.append(el(doc, 'p', `큰 상자는 섹터, 그 안의 타일은 종목입니다. 타일 넓이는 지금의 지수 비중이고, 위 평균은 기간이 시작될 때의 비중(지금 비중 ÷ (1 + 그 종목 수익률))으로 가중해 지수 수익률과 같은 방식으로 셉니다. 색은 ${model.periodLabel} 수익률이며 오르면 초록, 내리면 빨강, 진할수록 크게 움직였습니다. 기간이 길수록 색 구간도 넓혀 같은 진하기가 비슷한 정도의 움직임을 뜻합니다. 회색은 AIO가 수익률을 수집하지 않는 종목입니다.`, 'regime-read'));
-  guide.append(el(doc, 'p', '지도에 초록이 넓어도 소수 대형주만 오른 날이면 시장 폭은 좁을 수 있습니다 — 위 문장의 상위 10개 기업과 나머지, 같은 비중 평균을 시장 상태의 시장 폭과 함께 봅니다. 색은 지난 움직임이며 매수·매도 신호가 아닙니다.', 'regime-read'));
+  guide.append(el(doc, 'p', '지도에 초록이 넓어도 소수 대형주만 오른 날이면 시장 폭은 좁을 수 있습니다 — 위 문장의 상위 10개 기업과 나머지, 같은 비중 평균을 시장 상태의 시장 폭과 함께 봅니다. 색은 지난 움직임입니다.', 'regime-read'));
   host.append(table, guide);
   return model;
 }

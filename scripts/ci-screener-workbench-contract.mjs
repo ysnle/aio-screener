@@ -76,7 +76,7 @@ function fixtureRow(symbol, market, offset = 0) {
     kalmanVel: 0.8,
     kalmanVelConf: 0.7,
     vcpScore: 72,
-    vcpStage: 'ready',
+    vcpStage: 'near_pivot',
     ema8: 101,
     ema21: 99,
     ema60: 94,
@@ -735,9 +735,9 @@ async function run() {
   // ⑤ 6 preset에 유효한 ranked/pass/fail/unavailable 행 — preview=execute, Why 설명, 저장/replay.
   {
     const goodRow = fixtureRow('PGOOD', 'US', 0);
-    const badRow = { ...fixtureRow('PFAIL', 'US', 5), rank: 10, ret3m: -8, ret1m: -5, pctSma50: -6, pctSma200: -9, vol: 60, roe: -3, margin: -12, revGrowth: -20, vcpScore: 5, rvol20: 0.3, kalmanVel: 0.1, ema8: 90, ema21: 95 };
+    const badRow = { ...fixtureRow('PFAIL', 'US', 5), rank: 10, ret3m: -8, ret1m: -5, pctSma50: -6, pctSma200: -9, vol: 60, roe: -3, margin: -12, revGrowth: -20, vcpScore: 5, vcpStage: 'not_stage2', rvol20: 0.3, kalmanVel: 0.1, ema8: 90, ema21: 95 };
     const gapRow = fixtureRow('PGAP', 'US', 9);
-    const gapRequired = ['price.ret1m', 'price.ret3m', 'price.pctSma50', 'price.pctSma200', 'price.rsi14', 'price.volatility', 'price.rvol20', 'quality.roe', 'quality.margin', 'quality.revGrowth', 'technical.kalmanVelocity', 'technical.vcpScore', 'technical.ema8', 'technical.ema21'];
+    const gapRequired = ['price.ret1m', 'price.ret3m', 'price.pctSma50', 'price.pctSma200', 'price.rsi14', 'price.volatility', 'price.rvol20', 'quality.roe', 'quality.margin', 'quality.revGrowth', 'technical.kalmanVelocity', 'technical.vcpScore', 'technical.vcpStage', 'technical.ema8', 'technical.ema21'];
     const gapRowKeys = new Set(gapRequired.map((fieldId) => SCREENER_FIELD_REGISTRY.get(fieldId)?.rowKey).filter(Boolean));
     for (const rowKey of gapRowKeys) gapRow[rowKey] = null;
     gapRow.fieldReadiness = {

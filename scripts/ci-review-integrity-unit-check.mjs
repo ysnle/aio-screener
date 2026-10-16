@@ -133,6 +133,10 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   const trend = krBook.points.find((point) => point.id === 'trend');
   if (krBook.trendMix.find((row) => row.state === 'near').pct !== 30 || krBook.trendMix.find((row) => row.state === 'up').pct !== 0) fail(`v57.81 QQQ at +0.38% vs its 50-day line reads 선 근처, not 오르는 흐름: ${JSON.stringify(krBook.trendMix)}`);
   if (/미국 보유 중 하락 추세/.test(trend.text) || !/선 근처라 판정 보류/.test(krBook.headline)) fail(`v57.81 the US breadth clause covers only US holdings (KRX names in a downtrend are not "시장 폭" exposure): ${trend.text}`);
+  // v57.83 codex audit F08: "미국 보유 중 X%" is measured on the US holdings with a trend read — US 50 all down beside
+  // KR 50 all up is 100%, not 50%.
+  const mixed = buildPortfolioRead({ surface: { rows: [{ symbol: 'AAPL', value: 50 }, { symbol: '005930.KS', value: 50 }] }, rows: [{ sym: 'AAPL', pctSma50: -10, pctSma200: -10 }, { sym: '005930.KS', pctSma50: 10, pctSma200: 10 }], regime });
+  if (!/미국 보유 중 하락 추세 종목\(100%\)/.test(mixed.points.find((point) => point.id === 'trend').text)) fail(`v57.83 the US clause uses the US denominator: ${mixed.points.find((point) => point.id === 'trend').text}`);
   // Contradiction: '부담 우세' (burden 3 · favourable 1) can never be read as a calm environment.
   const heavy = buildPortfolioRead({ surface: { rows: [{ symbol: 'QQQ', value: 100 }] }, rows: krRows, regime: { ...regime, overall: '부담 우세', counts: { favorable: 1, neutral: 2, burden: 3 } } });
   const heavyMarket = heavy.points.find((point) => point.id === 'market');

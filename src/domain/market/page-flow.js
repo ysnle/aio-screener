@@ -81,7 +81,7 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
     const gap = spx20 > -2 && b50d20 <= -10 ? '지수보다 참여가 훨씬 빨리 줄어 괴리가 커졌습니다. 지수가 버티는 동안 소수 종목 의존이 깊어진 상태입니다'
       : spx20 < 0 && down ? '지수와 참여가 함께 약해지는 중입니다'
         // v57.69 (2026-10-15 audit): "healthy" sat beside six distribution days (84th percentile) on the same screen.
-        : spx20 > 0 && up ? (dd != null && dd >= 5 ? '지수와 참여가 함께 넓어졌지만 분배일이 경고 구간(5회 이상)이라 건강하다고 단정하지 않습니다' : '지수와 참여가 함께 넓어지는 건강한 흐름입니다')
+        : spx20 > 0 && up ? (dd != null && dd >= RULES.leadership.distributionDaysAt ? `지수와 참여가 함께 넓어졌지만 분배일이 ${RULES.leadership.distributionDaysAt}회 이상이라 건강하다고 단정하지 않습니다` : '지수와 참여가 함께 넓어지는 건강한 흐름입니다')
           : spx20 <= 0 && up ? '지수는 쉬지만 참여는 오히려 넓어져 바닥 다지기 쪽입니다'
             // P1591 (M05): index up / participation down but smaller than the -10%p gap rule.
             : spx20 > 0 && down ? '지수는 올랐지만 참여는 소폭 줄었습니다 — 아직 큰 괴리(10%p 이상 감소)는 아닙니다'

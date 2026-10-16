@@ -1,6 +1,6 @@
 {
   "schemaVersion": "public-readiness-v1",
-  "appRevision": "v57.82",
+  "appRevision": "v57.84",
   "currentStage": "RESEARCH_BETA_CONDITIONAL",
   "nextStage": "PUBLIC_BETA",
   "criteria": [
@@ -27,7 +27,7 @@
     {
       "id": "route-soak",
       "status": "PENDING_LOCAL_GATE",
-      "evidence": "Previous route-soak evidence predates v57.82; run ci-route-soak-check.mjs once at the release boundary."
+      "evidence": "Previous route-soak evidence predates v57.84; run ci-route-soak-check.mjs once at the release boundary."
     },
     {
       "id": "boot-performance",
@@ -47,7 +47,7 @@
     {
       "id": "live-revision",
       "status": "OPERATOR_REQUIRED",
-      "evidence": "Observed 2026-09-27 11:00 KST: GitHub Pages /deployment.json is HTTP 200, sourceSha fc75c775467001af6c1781cfc150c286b5a14806, appRevision v56.33, deployedAt 2026-09-26T01:41:02.613Z. Local v56.54 exact-SHA CI/Pages deployment remains unverified."
+      "evidence": "Measured per release by the external gate (node scripts/qa-runner.mjs external: Pages /deployment.json and AI proxy sourceSha against HEAD), not pinned here. Historical observation 2026-09-27 (v56.33) kept in git history; codex audit F22 (2026-10-15) moved it out of the current criterion."
     },
     {
       "id": "edge-security-headers",

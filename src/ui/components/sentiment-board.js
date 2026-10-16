@@ -119,7 +119,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   const creditCalm = credit_ === 'favorable';
   const creditStress = credit_ === 'burden';
   const volKnown = ratio != null;
-  const volCalm = volKnown && ratio < 1;
+  const volCalm = volKnown && ratio < RULES.volatility.calmRatioBelow; // v57.84: the card and the axis call 0.95–1 flat, not calm
   const fearSource = fgFear ? `F&G ${Math.round(fg)}(${fgBand.label})` : '';
   const aaiiLine = bear != null ? `AAII 약세 응답 ${bear.toFixed(1)}%는 장기 평균(${AAII_AVERAGE.bear.toFixed(1)}%)보다 ${signedPp(bear - AAII_AVERAGE.bear)}입니다.` : null;
   let synthesis;

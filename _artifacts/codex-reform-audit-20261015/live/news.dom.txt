@@ -1,0 +1,363 @@
+- link "메인 콘텐츠로 건너뛰기":
+  - /url: "#main-content"
+- navigation "메인 네비게이션":
+  - generic: AIO
+  - generic: Investment Screener
+  - generic: 데일리
+  - button "오늘 페이지":
+    - generic: 오늘
+  - generic: 시장
+  - button "시장 상태 페이지":
+    - generic: 시장 상태
+  - button "거시 · 금리 페이지":
+    - generic: 거시 · 금리
+  - button "테마 · 섹터 페이지":
+    - generic: 테마 · 섹터
+  - generic: 내 투자
+  - button "종목 페이지":
+    - generic: 종목
+  - button "스크리너 페이지":
+    - generic: 스크리너
+  - button "포트폴리오 페이지":
+    - generic: 포트폴리오
+  - generic: 리서치
+  - button "리서치 라이브러리 페이지":
+    - generic: 리서치 라이브러리
+  - button "용어 사전 페이지":
+    - generic: 용어 사전
+  - button "다크 모드로 전환":
+    - generic: 다크 모드로 전환
+  - generic: AI 도우미
+  - generic: "ON"
+  - text: GPT-6 Luna · 공용 AI 연결
+  - text: 개인 AI 키 입력 없이 이용합니다.
+  - generic "연결 상태"
+  - generic "보안 설정"
+- banner:
+  - button "메뉴 열기" [expanded]: ☰
+  - generic: 오늘/뉴스
+  - generic "미국 정규장 중 · 최신 관측 10/15 22:57 KST":
+    - generic: LIVE
+  - generic "미국 정규장 중 · 최신 관측 10/15 22:57 KST": 22:57 기준 · 시세 16종 · 실시간 관측 60종
+  - 'generic "v57.82 · 확인: 2026.10.15"': v57.82
+  - button "도움말"
+  - button "AI 도우미 열기/닫기": AI 도우미
+- main:
+  - navigation "화면 안 하위 메뉴":
+    - button "대시보드"
+    - button "브리핑"
+    - button "뉴스"
+  - text: 펼치기 ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▲ ▼ ▼ 펼치기 ▾ ▸ ▸ ▸ ▸ ▸ ▸ ▸ ▸ ▸ 펼치기 펼치기 펼치기 닫기 펼치기 닫기 펼치기 ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▼ ▼ + ▲ ▼ ▼ ▼ ▼ ▲ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▼ ▼ + ▲ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▲ ▲ ▼ ▲ ▲ + ▼ ▲ ▼ ▼ ▼ ▼ ▲ ▲ ▲ ▲ + ▲ ▼ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▼ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ 펼치기 펼치기 펼치기 펼치기 펼치기
+  - region "뉴스":
+    - heading "뉴스" [active] [level=1]
+    - generic: 10/14 08:00 ~ 10/15 08:00 KST 기사 · 한국장 시간대 기사는 장중 속보 칸에, 정식 묶음은 다음 08:00 수집본
+    - button "새로고침"
+    - generic: 24시간 수집
+    - generic: "28"
+    - generic: 25개 소스
+    - status: 조건에 맞는 기사 28건 · 같은 사건 묶은 뒤 23건 중 12건 표시 · 중요 사건 5건 · 필터 없음
+    - generic: 마지막 수집 10. 15. 오후 10:21
+    - region "08:00 이후 장중 속보 · 잠정 10/15 08:00 이후 헤드라인 · 다음 08:00 수집본 전까지":
+      - heading "08:00 이후 장중 속보 · 잠정 10/15 08:00 이후 헤드라인 · 다음 08:00 수집본 전까지" [level=2]:
+        - text: 08:00 이후 장중 속보 · 잠정
+        - generic: 10/15 08:00 이후 헤드라인 · 다음 08:00 수집본 전까지
+      - list:
+        - time: 22:16
+        - link "TSMC, 6분기 연속 순이익 신기록…美텍사스 투자 검토(종합2보)":
+          - /url: https://www.yna.co.kr/view/AKR20261015124352089
+        - time: 21:30
+        - link "Inflation anxiety drags on AI stocks for a second day as markets point to a mixed open":
+          - /url: https://news.google.com/rss/articles/CBMizwFBVV95cUxPcWs3V205eUhST181UkNwU2c4Rk40aU56SnEtR2ZjVFFTWXZidlJEU0c4TjU4b1F0eHV4ZjBFaWxWTUNGWkNmYkFwXzE3QnZRN2VKN0lQTGxoNkhVVFBGNGxtQ2pUZWs0UVBQdm1xcXFvdVdHektrN0NZUW5XTEtwSmY2bnNnM0V5VWR4cW8zd1huS093NlJ1VG43bEZneEFycVU0TGFRZmxVNU8xVXl2WlBsM1U2WjAwRTllNzRRM0hRbVI1eEZIam1scW9sSFk?oc=5
+        - time: 18:46
+        - link "Gold Prices Recover as Weaker Dollar and Falling Bond Yields Offset US Inflation Concerns":
+          - /url: https://news.google.com/rss/articles/CBMiigFBVV95cUxOSFVaWno3TG10cU9rNzktMkhhWnY4VmpVZE9PQzlmY0l0Z0xoTDN3UTJUVk9BRUM2R3JiRTM5VlVMMTcwT1kxRVZTZVNSYkVDYTc4UW5XdkF3RnB2OVFzQzZQYWd5Y0hud1M0dUp6U0tjWW1kX0dpRjFTZ2hyN2h6ODNmTkFDS1RFd1E?oc=5
+        - time: 17:27
+        - link "Oil Prices Fall as Traders Weigh Gulf Supply Recovery, Hormuz Attacks":
+          - /url: https://news.google.com/rss/articles/CBMiuAFBVV95cUxNNW1MMHhCS1RGcmU1N242QUVfclBfWW56RTVPeWhhUFowX2owYlRJWlBFa1BEMFZaM2daaFVtbG1aVlBBOFJhbnVhR19jMEhmZ0FpYXFZcTllS25ETExYdUtWRTVIVkI3MVdGMDBDOTZDOVhJQm9CUkVDaDNvcWFQeFQxZ1NmdkpHZGZTdmFEUWNJS2R6QVNyZXNrWTNOazZOTUlvVWNwaVV5NENQbTNkTEJ2MVFyYmR6?oc=5
+        - time: 16:49
+        - link "日닛케이지수, 4.9% 급락…AI·반도체 약세 등 여파(종합)":
+          - /url: https://www.yna.co.kr/view/AKR20261015063651073
+        - time: 12:16
+        - 'link "Dow, S&P 500, Nasdaq Decline Amid Hot Inflation Data, AI Selloff: CRWV, NBIS, NVDA, IBRX Stocks In Focus"':
+          - /url: https://news.google.com/rss/articles/CBMikwFBVV95cUxPWjlGNUxDY2ozdVVQdmhpNWEtWGZNbWFlbjE3WnJpZF84cGluVFM1NkRXOF82VTlhMTFJVDJPNXlncnY5eGVDb1pEaGdoc2ZwTWt6bXV5ZFpROTVCXzFTbFBCTWgtSFQ2VGhtVVhfelVUczFXeEtkM0VnSUVPNFFnSFJ1R2g1WnlqNW4ybk9mYnpHRDQ?oc=5
+    - region "중요 뉴스 주제별 핵심 · 10/15 08:00 KST까지 24시간":
+      - heading "중요 뉴스 주제별 핵심 · 10/15 08:00 KST까지 24시간" [level=2]:
+        - text: 중요 뉴스
+        - generic: 주제별 핵심 · 10/15 08:00 KST까지 24시간
+      - generic "Oil Prices Rise as Traders Weigh Saudi Aramco Attack Report, Hormuz Shipping Risks":
+        - generic "발행 2026. 10. 15. 05:12 GMT+9 (한국 시간)":
+          - generic: 10/15
+          - text: 05:12
+        - link "트레이더들, 사우디 아람코 공격 보도와 호르무즈 해협 선박 운항 위험 저울질에 유가 상승 — 원문 새 창에서 열기":
+          - /url: https://news.google.com/rss/articles/CBMiygFBVV95cUxNZzlrRVp3SjY0Qjc1ejhzdHcxQWFQejJLS2hfZzJocWhnV3AtUi1OM1NGX2s2b0NjQkV4NnpYZUxTOGJTRVBlSEM2blAzMXRhbjNydFRjVnYyNGM4a25waTR1aGVTVWt1MXlKOURybDlzS0kxQXVrbUNlQTlRN3lxa3YxMEZ5djByOUhzTlg4MUZUYTRMT1V6MzBYODY3d2FhSk5zRkxMdWpocU1KYTV0TUVLMUtHcWZHbkJWVHVHc2NIRGFwQ1F2c0x3?oc=5
+          - text: 트레이더들, 사우디 아람코 공격 보도와 호르무즈 해협 선박 운항 위험 저울질에 유가 상승
+        - generic: WSJ · 지정학 · 유가·변동성 충격 시나리오 · 17시간 전
+        - generic "기사 · 출처·시각 — 트레이더들, 사우디 아람코 공격 보도와 호르무즈 해협 선박 운항 위험 저울질에 유가 상승": 기사 · 출처·시각
+      - generic "10-year Treasury yield dips as traders look ahead to Thursday economic reports":
+        - generic "발행 2026. 10. 14. 16:20 GMT+9 (한국 시간)":
+          - generic: 10/14
+          - text: 16:20
+        - link "10년 만기 재무부 채권 수익률 하락, 투자자들이 목요일 경제 보고서를 예상 — 원문 새 창에서 열기":
+          - /url: https://news.google.com/rss/articles/CBMiggFBVV95cUxNZ2tMMWR6VndxZ3BieEtlc2x3bVYtemRBenlFMndFRGxiQ1o1UngxUnFLb1VrMXdCUHYzbUR0a2p6d2lHa2twcU5mQWd6ODIxdk4tdGhLTEREN3VndDFrd1NDY3R2Rm5VTTJ6SFdxVnZzS3NaczlCMG5GcGRVVHpoZ1Bn0gGHAUFVX3lxTE1fNTFuZmRWb092MjVDZHFGTmE1SDFld2RJeFpsdGd2UEF2aEhJbE5Pb2xHbDNYc01WZ09BT3lxOEd6M1g1MjBfQS1pSE5RcmdSNHJYRnBzTy1JVzkzSFZyNlYxOEUtNUpmQnVUUG5nM3l5WTNyQXNTbG5vRVZ0T1duSUd1bUZPdw?oc=5
+          - text: 10년 만기 재무부 채권 수익률 하락, 투자자들이 목요일 경제 보고서를 예상
+        - generic: CNBC · 거시 · 물가·고용 시나리오 · 1일 전
+        - generic "기사 · 출처·시각 — 10년 만기 재무부 채권 수익률 하락, 투자자들이 목요일 경제 보고서를 예상": 기사 · 출처·시각
+      - generic "코스피 6000선 붕괴에도 원화 강세…반도체 수출 호조에 환율·증시 공식 흔들":
+        - generic "발행 2026. 10. 14. 15:17 GMT+9 (한국 시간)":
+          - generic: 10/14
+          - text: 15:17
+        - link "코스피 6000선 붕괴에도 원화 강세…반도체 수출 호조에 환율·증시 공식 흔들 — 원문 새 창에서 열기":
+          - /url: https://news.google.com/rss/articles/CBMibkFVX3lxTFBZVUNmNk9xd2pFLTMyX2hiZlRTeURpYnZYWHNnQ21Qcm9oZkdzeEJuTnU4TU5DZ3NQSmVzWEYtazhoU2ZJYkNrX252QkVldXNGaHkzQzdtUXZ5RzBubU9lbnV3WGtRQVBtZllyLTVR?oc=5
+          - text: 코스피 6000선 붕괴에도 원화 강세…반도체 수출 호조에 환율·증시 공식 흔들
+        - generic: 폴리뉴스 Polinews · 한국 · 1일 전
+        - generic "기사 · 출처·시각 — 코스피 6000선 붕괴에도 원화 강세…반도체 수출 호조에 환율·증시 공식 흔들": 기사 · 출처·시각
+      - generic "Metals weaken as front-end yields, Hormuz risk offset softer dollar - Kitco PM Report":
+        - generic "발행 2026. 10. 14. 15:03 GMT+9 (한국 시간)":
+          - generic: 10/14
+          - text: 15:03
+        - link "금속 가격은 약세로 돌아서며, 호르무즈 해협 위험과 더부룩한 달러에 대한 우려가 앞서게 되나 - Kitco PM 리포트 — 원문 새 창에서 열기":
+          - /url: https://news.google.com/rss/articles/CBMiugFBVV95cUxQelNlVGxGUi1zVHF6VmttSGxpcXA5R0dzSU1hQWZobi0zTHI4WmxRY21RSmVhQ1VZM2sxVjN5TmllMGZwQVl5eC14a0dXaU9OdThubG9LRlBpWVZyQzdxQ0pDN0R6R2FQWVlDdDhoWWIyNkVYYUVFZzhuYzhHcExjTXkyVG5obVBIUTBaVVc1V3FOSXhGNFh3dU5XVG5va0FfeTBGaU5Wams5ZUxFSjJGY1FucDBKT1oyc3c?oc=5
+          - text: 금속 가격은 약세로 돌아서며, 호르무즈 해협 위험과 더부룩한 달러에 대한 우려가 앞서게 되나 - Kitco PM 리포트
+        - generic: Kitco · 금리·외환 · 물가·달러 시나리오 · 1일 전
+        - generic "기사 · 출처·시각 — 금속 가격은 약세로 돌아서며, 호르무즈 해협 위험과 더부룩한 달러에 대한 우려가 앞서게 되나 - Kitco PM 리포트": 기사 · 출처·시각
+      - generic "UBS cuts Workday stock price target on reaffirmed guidance":
+        - generic "발행 2026. 10. 15. 00:13 GMT+9 (한국 시간)":
+          - generic: 10/15
+          - text: 00:13
+        - button "$WDAY"
+        - link "UBS, 워크데이(WDAY) 주가 목표치 하향 조정 — 원문 새 창에서 열기":
+          - /url: https://news.google.com/rss/articles/CBMiugFBVV95cUxNSU5BXzBuaDNwMm03MnNzMXpwYWhGVWNHUEpncmNDeXNUOGN0MUZ6d3BlbXJyT3NnbHJfZzg4T2NtbDVPWUt6d0VMNzV1c3FjTFBTNzMwT1JjcmliM09rZzRJMERWRTdENDlJZTRCaGZFWGd4QTRIX0NwRU5LOGY5YVluMU5LY0xpNHlHZTN6czNhMlFFNTc0N0JHWHRkc0p1MExkenJPbDhCb2ttdERQQWJ6TXdWbXpkakE?oc=5
+          - text: UBS, 워크데이(WDAY) 주가 목표치 하향 조정
+        - generic: Investing.com · 22시간 전
+        - generic "기사 · 출처·시각 — UBS, 워크데이(WDAY) 주가 목표치 하향 조정": 기사 · 출처·시각
+    - generic: 전체 뉴스
+    - generic: "정렬:"
+    - button "최신순"
+    - button "중요도순"
+    - generic: ✓ 26건 처리됨
+    - group "뉴스 필터":
+      - group "국가":
+        - button "전체 국가" [pressed]
+        - button "미국"
+        - button "한국"
+        - button "아시아"
+        - button "유럽"
+        - button "텔레그램"
+      - group "주제":
+        - button "전체 주제" [pressed]
+        - button "기업"
+        - button "거시"
+        - button "주식"
+        - button "반도체·AI"
+        - button "지정학"
+        - button "에너지"
+        - button "채권·금리"
+        - button "외환"
+        - button "크립토"
+    - text: 펼치기
+    - generic "TORM Raises 2026 Earnings Guidance on Product Tanker Market Strength":
+      - generic "발행 2026. 10. 15. 05:42 GMT+9 (한국 시간)":
+        - generic: 10/15
+        - text: 05:42
+      - link "TORM, 2026년 실적 가이던스 상향... 제품 탱커 시장 강세에 따른 결정 — 원문 새 창에서 열기":
+        - /url: https://news.google.com/rss/articles/CBMi6wFBVV95cUxNalh4M2doVTZyTGVlRE04Zjk0ZGItTWNESjhaeFZ1b2VtczdEVkNtNHBfdWEwd1E2T21zc2VjNUc3NEJNZHRicUNsSnZfZnNiY0VQaWEyaUpLM2daVlJjaUtzVFowRzlYTnN1UFdPYkU3cnZWdDFwZzR6ellQLWdQQlN5LTVqUGR0aTRRTThEbWdIUjVzQ1FhZVQwOFNQanZYX3BWMjd3UVRCUmxaWXE4eGhBZENaNlBTc3ZNUVVkUURFR2JMaXdzLTBiOHZhTDhCdDA2UG54ZlNBUXZIbTJSM3JvUjBnTzExWlFJ?oc=5
+        - text: TORM, 2026년 실적 가이던스 상향... 제품 탱커 시장 강세에 따른 결정
+      - generic: The Globe and Mail · 17시간 전
+      - generic "기사 · 출처·시각 — TORM, 2026년 실적 가이던스 상향... 제품 탱커 시장 강세에 따른 결정": 기사 · 출처·시각
+    - generic "Bond trading weakens for US banks as interest rate volatility affects investors":
+      - generic "발행 2026. 10. 15. 04:18 GMT+9 (한국 시간)":
+        - generic: 10/15
+        - text: 04:18
+      - link "미국 은행의 채권 거래 약화, 금리 변동성으로 투자자 영향 — 원문 새 창에서 열기":
+        - /url: https://news.google.com/rss/articles/CBMirAFBVV95cUxNV2NfUEFMcENaUmhTU25ZZk82bGxMWjRzU004YjVXcXppWUhMTFBkcTI1MG9fbmlULVFEYjhuanl4U1V2a0lIdjVzY296ZG1LOTY4S2JuMzkxYVB4Z1NJWWNuU2p1LWlUVTdDSTlwaDFEZW5aeUlJbWs4cHJqeWc5SXVlMEVaaGdWOTVsNEpYM1VoVExhN3FlNWJ2TV9QOVFBbDRsMEs3VjU3cGto?oc=5
+        - text: 미국 은행의 채권 거래 약화, 금리 변동성으로 투자자 영향
+      - generic: KELO-AM · 금리·외환 · 물가·달러 시나리오 · 18시간 전
+      - generic "기사 · 출처·시각 — 미국 은행의 채권 거래 약화, 금리 변동성으로 투자자 영향": 기사 · 출처·시각
+    - generic "Stocks Turn Lower as AI, Tech Shares Slump":
+      - generic "발행 2026. 10. 15. 03:19 GMT+9 (한국 시간)":
+        - generic: 10/15
+        - text: 03:19
+      - link "AI 및 기술 주가가 하락하면서 주가가 하락하다 — 원문 새 창에서 열기":
+        - /url: https://news.google.com/rss/articles/CBMitAFBVV95cUxQWDg0c0hqOWpocm5NRkdFQUVhdHlsbUFoTDloRFFRdW12ZUhwQzRRRGFYZXhRQUQ5WFoyMm93Q0tJd2JkbWpQR3JDZVM4Q3MzdWhXTzhkWTJDUm0wZlZSSGg2WWhVdWtEaXNVanNPNElNMjFpc2J4dnl2cTMzejFPUWp2c1pvN29sQW4zSk5OSjBYSF80MEhTd2xXa1RaSmpqQlhpS0J6QUFqeVZncXo2azFMQ2Y?oc=5
+        - text: AI 및 기술 주가가 하락하면서 주가가 하락하다
+      - generic: WSJ · 거시 · 물가·고용 시나리오 · 19시간 전
+      - generic "기사 · 출처·시각 — AI 및 기술 주가가 하락하면서 주가가 하락하다": 기사 · 출처·시각
+    - generic "Trade Desk (TTD) Faces A UBS Price Target Cut, Is It 58% Below Fair Value?":
+      - generic "발행 2026. 10. 15. 03:11 GMT+9 (한국 시간)":
+        - generic: 10/15
+        - text: 03:11
+      - button "$TTD"
+      - link "Trade Desk (TTD) 이 UBS 의 가격 목표 하향 조정에 직면해 있다. 공정 가치보다 58% 낮은가? — 원문 새 창에서 열기":
+        - /url: https://news.google.com/rss/articles/CBMikwFBVV95cUxQbGhmMFkzRUxOTTlyOFFmYktfQzUya0hKNjUyODBUWnI2QWNLbExBN2tNa1hwVGoxTkNhalBFQ0hXOVFVWHB2WkhPRDBMQVRTb3BCRHRaNFotM28zTDVscUIyU3hfV1ZkZFV2cmtoenhuWFlIUzFkajJFX3lPV3IzYThjX2JZX3RYemVLbVR0SG1FWk0?oc=5
+        - text: Trade Desk (TTD) 이 UBS 의 가격 목표 하향 조정에 직면해 있다. 공정 가치보다 58% 낮은가?
+      - generic: Yahoo Finance · 19시간 전
+      - generic "기사 · 출처·시각 — Trade Desk (TTD) 이 UBS 의 가격 목표 하향 조정에 직면해 있다. 공정 가치보다 58% 낮은가?": 기사 · 출처·시각
+    - generic "Attacks on Ships in Strait of Hormuz Escalate Sharply":
+      - generic "발행 2026. 10. 15. 03:20 GMT+9 (한국 시간)":
+        - generic: 10/15
+        - text: 03:20
+      - link "호르무즈 해협의 선박 공격이 급격히 증가 — 원문 새 창에서 열기":
+        - /url: https://news.google.com/rss/articles/CBMifEFVX3lxTE1uTTFfTURzNnFkMDYyU0czbk5Oai1adnh2U0dLVlA4eFlZUGJ6MlgtS2VNejU4c09aVE55d2ZyQXJMR0VuZ0xHUDRIdlNiUWJZUlhBUUFDX2NZRlpOU0c2T0ZXYWlUSnJYbGw2VVZiTkJiZ2szdEtNdmxzYXY?oc=5
+        - text: 호르무즈 해협의 선박 공격이 급격히 증가
+      - generic: The New York Times · 지정학 · 유가·변동성 충격 시나리오 · 19시간 전
+      - generic "기사 · 출처·시각 — 호르무즈 해협의 선박 공격이 급격히 증가": 기사 · 출처·시각
+    - generic "Survey Links Unverified AI Guidance to Higher Regulatory Fines":
+      - generic "발행 2026. 10. 15. 02:54 GMT+9 (한국 시간)":
+        - generic: 10/15
+        - text: 02:54
+      - link "미확인 AI 가이드와 높은 규제 벌금 사이의 조사 연관성 — 원문 새 창에서 열기":
+        - /url: https://news.google.com/rss/articles/CBMirgFBVV95cUxNSmJ4U19JZFpUZldhdmpjZUVNV3d5QkdSZkNhVUJjRlZtOTlMdnVkUllON2dzenJTNEFZcTVDMlh6TVEtLUpYTHUwcUNQZzhfWmJnVWpGUFZGYzhHRzBfbHptSGpxa2RNUUJ5ZHRVTUJfZ2NqU3FvQ01MN3RVSkFRSy1UZlR6b3RCS1V3SEZrVE1xSzhjN2ZMdDQyUm0wcTdoRlNlbnJ2RU5WYUF3NGc?oc=5
+        - text: 미확인 AI 가이드와 높은 규제 벌금 사이의 조사 연관성
+      - generic: Occupational Health & Safety · 반도체·AI · 20시간 전
+      - generic "기사 · 출처·시각 — 미확인 AI 가이드와 높은 규제 벌금 사이의 조사 연관성": 기사 · 출처·시각
+    - generic "Oil Prices Reached Over $100 a Barrel Due to Strikes in the Middle East":
+      - generic "발행 2026. 10. 15. 01:51 GMT+9 (한국 시간)":
+        - generic: 10/15
+        - text: 01:51
+      - link "중동의 파업으로 인해 원유 가격이 1배럴당 100달러 이상으로 상승 — 원문 새 창에서 열기":
+        - /url: https://news.google.com/rss/articles/CBMi1gFBVV95cUxQSk8xeFlpdTh2R3duWmp4THozUWVSRV9oeS1MLV81dDZ3Yk1wa3h2eGFjekFVb09VWXRHUnJPV3hTcFAtdXdmU2E3c2lMTE9zc0dfaklheEJvNHBoYzk5WUhiNVhfR1FxbGZ5YVlndTZuRWxBV0k4bXFYWkdzZTBDcnlERXJoR09TWWtuSEdWNkwyNThkQUtPTm5yMEM2TmhqdFFpUGlYa1lVRnMtbEVaSnFWa3N1TkFvTVFXeDNnVGlNc2Eyc3VuUEF1eXl3c0UtU2xfWTJB?oc=5
+        - text: 중동의 파업으로 인해 원유 가격이 1배럴당 100달러 이상으로 상승
+      - generic: The Institute for Energy Research · 지정학 · 유가·변동성 충격 시나리오 · 21시간 전
+      - generic "기사 · 출처·시각 — 중동의 파업으로 인해 원유 가격이 1배럴당 100달러 이상으로 상승": 기사 · 출처·시각
+    - 'generic "10-year treasury: Why is US Bond market benchmark yield rising on Wednesday? What does this mean for econo"':
+      - generic "발행 2026. 10. 15. 01:46 GMT+9 (한국 시간)":
+        - generic: 10/15
+        - text: 01:46
+      - 'link "10년 만기 국채: 왜 미국 국채 시장 벤치마크 수익률이 수요일에 상승하고 있나요? 이것은 경제에 어떤 영향을 미칩니까? — 원문 새 창에서 열기"':
+        - /url: https://news.google.com/rss/articles/CBMirAJBVV95cUxNQ2pyZUJpY1ZnbVJSZXZSNEQ1UF92Um50Vk5odHBPbHdvQ1FKUnA4YW0yYTdiV0YtQlZCd2oxWGJnVkQyVnVCZW5sdGM1WjVvMURTNFAzZTNmMTFNWjRuSzcxdGhIbl9rT2lpNDlqV01OcGVlQ0dKVy1QdUpKQ1dFSTdJNmc2VGMxUHVrcGZnU0tKX0J6NXFROGdOOXE5WGMxTlRYc0hYc0dSVDB6NFI0VHVPTUVrU1ZmcDZGTUQzNHVEOVh3TEVQY1g2MGRHaXNGa1Zfdk14VUNDSjJmSjJnX2M1S2hfM28yNk1zVkJkTU4wQzl3ZnVxSEhvYjdERklvcG8wM3NjQmR6QTZDQTItWEw5VE9WVENXVDVWT0ZIM0Jad3RwTXRWd0tpd3XSAawCQVVfeXFMTUNqcmVCaWNWZ21SUmV2UjRENVBfdlJudFZOaHRwT2x3b0NRSlJwOGFtMmE3YldGLUJWQndqMVhiZ1ZEMlZ1QmVubHRjNVo1bzFEUzRQM2UzZjExTVo0bks3MXRoSG5fa09paTQ5aldNTnBlZUNHSlctUHVKSkNXRUk3STZnNlRjMVB1a3BmZ1NLSl9CejVxUThnTjlxOVhjMU5UWHNIWHNHUlQwejRSNFR1T01Fa1NWZnA2Rk1EMzR1RDlYd0xFUGNYNjBkR2lzRmtWX3ZNeFVDQ0oyZkoyZ19jNUtoXzNvMjZNc1ZCZE1OMEM5d2Z1cUhIb2I3REZJb3BvMDNzY0JkekE2Q0EyLVhMOVRPVlRDV1Q1Vk9GSDNCWnd0cE10VndLaXd1?oc=5
+        - text: "10년 만기 국채: 왜 미국 국채 시장 벤치마크 수익률이 수요일에 상승하고 있나요? 이것은 경제에 어떤 영향을 미칩니까?"
+      - generic: The Economic Times · 금리·외환 · 물가·달러 시나리오 · 21시간 전
+      - 'generic "기사 · 출처·시각 — 10년 만기 국채: 왜 미국 국채 시장 벤치마크 수익률이 수요일에 상승하고 있나요? 이것은 경제에 어떤 영향을 미칩니까?"': 기사 · 출처·시각
+    - generic "Wall Street analyst updates Oracle stock price target":
+      - generic "발행 2026. 10. 14. 23:38 GMT+9 (한국 시간)":
+        - generic: 10/14
+        - text: 23:38
+      - button "$ORCL"
+      - link "월 스트리트 분석가, 오라클 주가 목표를 업데이트하다 — 원문 새 창에서 열기":
+        - /url: https://news.google.com/rss/articles/CBMif0FVX3lxTE1VdjBoWGY3TTFUMlRwSDBNdTZ6ZWNxYWZ0RDQ3VXhrenZ2Um0wSFhlSkpKM19UQnFZSjJSaHRlbXU4Sl9iM0FGc0txODhUYkVPbWZ5aVlsTG5YRGlUYy1KUnZKUzZmaEE3enVkSFVsdWlSOHJDNW5xRjNSVWR3dkk?oc=5
+        - text: 월 스트리트 분석가, 오라클 주가 목표를 업데이트하다
+      - generic: Finbold · 23시간 전
+      - generic "기사 · 출처·시각 — 월 스트리트 분석가, 오라클 주가 목표를 업데이트하다": 기사 · 출처·시각
+    - generic "Global oil prices cross $100 a barrel as Iran war sends fuel prices surging":
+      - generic "발행 2026. 10. 14. 22:58 GMT+9 (한국 시간)":
+        - generic: 10/14
+        - text: 22:58
+      - link "글로벌 유가가 100달러 이상으로 상승하며 이란 전쟁으로 연료 가격이 급등 — 원문 새 창에서 열기":
+        - /url: https://news.google.com/rss/articles/CBMi0AlBVV95cUxQaW5fUG1Kc3VRUURDTjBFUENEZ2xoZVJHS2UwMTNUZ2tRNWNabnU3bVc5TDVrSzhrcnR0U0RsZWR6RVVpeXJwTl9rYXRVcXhIa1hUUEFXbDZhNVlhMmRwMUs2b2k1YjJXZVRjRkhJeDZhbHVQeTFycy1Md1pIWjlaQldBRlR3Nm94NEpyY3pEMHctcjV2UmZ4NzhWY1o5N1luUTBReTNNTFB5WGx0R3lzYWpNX0hoVUloOFdyZTFMLUdUbEhsWFRZQmdOX010Zm5PVnhrQTZUUnJORmY1a3ZrRkQtWFdGUVpza3g2MVRKSUJpOGR1TTZ6SC0ySHBuaGhZMzd0R2I2TW1sWGc4blhmcll6VlUxOTNWUXBLbkhmNFhaLWIyeF9VcHE0OWNmeFBuN25YYXhEdE5kMkQ3eC12a2daTU5kUXItWkNOcWNHQzFzOS1OWVh2YlhzWTBUSkFfN0dzckFvajNWTElnYi1SM1RPNGowa2lVNHd4eHJ0MHJCMW1kNG9QYS1PcnZVVUpsWjJrc1JacnlWZUhXb1ZidTM2cG5nWDZ0OGpuNmVBSTdmZW1kMUltMWFGenphT3hmUU1wUEF1d3RnYXhJN3VZOFh0N1RQYlRMcTlzTkVzajR5Z3FwenRsMkF5aEtnM003RmU4alBqdVR4RkdpOHBYNV9XaEthZWpjT19KQzViZmRSTHBWejl5SkhQSU9GckRFNlNHTVdpbXYybW01Q3VNX0FKdjVkbFZ4S21mRzhfSGNaeEdDY2txenNNcmZRblo1SG1wcDM3dm1hdGpRVmtXLTlIbnRVS2xLRlRJckJaMV9wUGJZN1htUEZzcDRLYWlrdXBWTVE2ckV3LTZoOUFpaVFXY2o2ZUc5ZDBPUEVnMEprQjZIUkJtdVl1NzVsMjZqZDk4N25iM0FKMm5FZF9EYTUyUHZOWHV4S2h4Y0JZcTdMWnByVlFVdXJ4eVdIRzlyOTQ0V1dzMnk4aXZxSUVUU1VQX2tnSFpsZEhXdjdVcHY4OWZveFNqYkhKODJkSGlwOGd6a2Zzd1lLN0hJblJCNjltdDZEVjdrbDgyQkg2ZHdPSThld1N5RC11ZjE3VmtyY3pmemNkd09MeXpPZ1RreDM4LUdiSmliN2FzZlhxbi1KZ2FqalI3emN6OEpiNnExbzFUdC1oQnB1TzBrVVJrUWI0YmtsN2NfcFhYS3I3X1RqYk92eV9ESkFfWUJuX0ozbU8zd09jZEViSzk3WXNhOGZ4dkFhWFNLR2JXRzRDRl80QktiNGlselEzZkh4azV0ZmhLV0ZSQTI5SzFxR3ZTemJ1MlY3ejFzclhJTVpXaG9fTmtHcWh6UGVmS0ZXaE82NE9udWNjQlBrUDVDM2VTN1BwUVhERzlHaXM5ZTVxdkVyWV9Ha0ZtT1BBU2h6anRRV3BQcDgzMDVVYkVOWXVsdkQzMFQtUE9DN0E4RTR1SXlWandaZkxGQnB1THE0SDl5V21fWmxqQUJaTGxBSkRQUjM2S0Zhd1JRVGdjNktLOFFZdC1xcU1oSWhsWFV6a0dWZFNFVmFvNGwtYUZwWE1NaTlzeUxLQzlSdFNER1FnVVVHSmZXRmFlNlRsQTZ3QkdQVWpGMWdGMTB4dVVyRVJUdA?oc=5
+        - text: 글로벌 유가가 100달러 이상으로 상승하며 이란 전쟁으로 연료 가격이 급등
+      - generic: ABC7 Bay Area · 지정학 · 유가·변동성 충격 시나리오 · 23시간 전
+      - generic "기사 · 출처·시각 — 글로벌 유가가 100달러 이상으로 상승하며 이란 전쟁으로 연료 가격이 급등": 기사 · 출처·시각
+    - generic "New Complaints Highlight AI Platforms and Data Center Infrastructure D&O Risk":
+      - generic "발행 2026. 10. 14. 21:55 GMT+9 (한국 시간)":
+        - generic: 10/14
+        - text: 21:55
+      - link "신규 고소, AI 플랫폼과 데이터 센터 인프라의 D&O 위험 강조 — 원문 새 창에서 열기":
+        - /url: https://news.google.com/rss/articles/CBMi0AFBVV95cUxNVG5nMU5yUHFHMVRMdGNVbnIxcWxhZU0xd0ZvR1d0cElZclFGMzFwY3lha3lPa205b2w3Rk5kXzItVUx0Z0NNV2F1dkI3cEV1OWRNQkdlSTRUcWl6bXV6RzZHcjBuN2ZXSjhOUG5nWDh6aDRXSjNFa0F4MXNmRmZjeVZxek55cHNXYzZmM3ZmN1N4Y0FUelVCam1XTmp3Q2VHdVo4TUpKUmE5WU1RY041UG5VLUNTQWxFOGdPUWl2X1JIVHJPbFoxb01meG5oZEZU?oc=5
+        - text: 신규 고소, AI 플랫폼과 데이터 센터 인프라의 D&O 위험 강조
+      - generic: The D&O Diary · 반도체·AI · 1일 전
+      - generic "기사 · 출처·시각 — 신규 고소, AI 플랫폼과 데이터 센터 인프라의 D&O 위험 강조": 기사 · 출처·시각
+    - generic "Analysts revise forecasts ahead of Equity Bancshares earnings":
+      - generic "발행 2026. 10. 14. 21:57 GMT+9 (한국 시간)":
+        - generic: 10/14
+        - text: 21:57
+      - link "Analysts revise forecasts ahead of Equity Bancshares earnings — 원문 새 창에서 열기":
+        - /url: https://news.google.com/rss/articles/CBMiugFBVV95cUxONkVUaE1sYi1lSDRKSk1IT3lRbnBEMVdaaXNSNTltNWdRbWRheHdLQUF3VUlURHVXeEJfeS1MS0lmMk5HUkdMdlptZlhGNWZTdGtqTm9PVm90c0J2RlZaOWU0eHM1WVpTem1ERlNGeFRacml4WkRFS3dBVTdOQWtGbFRxSGJEM3MtZGloQkpQcTQ2UzhWcW44QmlHeDRxbU11SXZ0anpiYUZIeGFWWUF2aWdvYk16N1BUbGc?oc=5
+        - text: Analysts revise forecasts ahead of Equity Bancshares earnings
+      - generic: scanx.trade · 1일 전
+      - generic "기사 · 출처·시각 — Analysts revise forecasts ahead of Equity Bancshares earnings": 기사 · 출처·시각
+    - generic "아래 사건 23건 중 아직 표시하지 않은 사건을 펼칩니다.":
+      - generic: 기사 28건 · 아래 사건 23건 중 12건 표시
+      - button "11개 더 보기"
+    - generic: 채널 소식
+    - generic "텔레그램 공개 채널 4곳 · 완료된 24시간 · 글마다 원문 링크": 정상 수신 · 텔레그램 공개 채널 4곳 · 완료된 24시간 · 글마다 원문 링크
+    - generic: 텔레그램 전체 피드
+    - generic "2026-10-01~2026-10-15 KST": 10-15 · 12건 · 수집 당시 24시간 자료
+    - link "시장소식 @insidertracking · 미국 속보 · 10-15 폭스뉴스 여론조사에서 미국 유권자 3분의 2가 현재 국가 발전 방향에 불만을 가진 것으로 나타남. 10월 15일 폭스뉴스의 최신 여론조사에 따르면 미국 선거일이 다가오는 가운데 유권자들이 경제 상황과 트럼프...":
+      - /url: https://t.me/insidertracking/66309
+      - generic: 시장소식
+      - generic: "@insidertracking · 미국 속보 · 10-15"
+      - generic: 폭스뉴스 여론조사에서 미국 유권자 3분의 2가 현재 국가 발전 방향에 불만을 가진 것으로 나타남. 10월 15일 폭스뉴스의 최신 여론조사에 따르면 미국 선거일이 다가오는 가운데 유권자들이 경제 상황과 트럼프...
+    - link "반도체 @aetherjapanresearch · 일본·아시아 반도체 · 10-15 [SK증권 반도체 한동희, 손 건/해외주식 박제민] ASML FY3Q26 컨퍼런스콜 주요 코멘트 AI 투자 가시성 확대 TSM 삼성전자":
+      - /url: https://t.me/aetherjapanresearch/25846
+      - generic: 반도체
+      - generic: "@aetherjapanresearch · 일본·아시아 반도체 · 10-15"
+      - generic: "[SK증권 반도체 한동희, 손 건/해외주식 박제민] ASML FY3Q26 컨퍼런스콜 주요 코멘트 AI 투자 가시성 확대"
+      - generic: TSM
+      - generic: 삼성전자
+    - link "거시 @HANAchina · 중국·신흥국 · 10-15 >>CoreWeave 주가 15% 폭락, 채권은 부실채권 수준으로 하락…머스크 “무섭다”, CEO는 강력한 수주 잔고 강조 •애널리스트들은 CoreWeave가 약 9% 금리로 자금을 조달하면서도 투자… CRWV":
+      - /url: https://t.me/HANAchina/70438
+      - generic: 거시
+      - generic: "@HANAchina · 중국·신흥국 · 10-15"
+      - generic: ">>CoreWeave 주가 15% 폭락, 채권은 부실채권 수준으로 하락…머스크 “무섭다”, CEO는 강력한 수주 잔고 강조 •애널리스트들은 CoreWeave가 약 9% 금리로 자금을 조달하면서도 투자…"
+      - generic: CRWV
+    - link "거시 @HANAchina · 중국·신흥국 · 10-15 >>S&P 500, 6년여 만에 가장 긴 평온기 종료…53거래일 만에 처음으로 1% 넘게 하락, AI 트레이딩 열기 식어 •수요일 미 증시 하락의 주요 원인은 미국 9월 CPI 예상상회와 AI…":
+      - /url: https://t.me/HANAchina/70437
+      - generic: 거시
+      - generic: "@HANAchina · 중국·신흥국 · 10-15"
+      - generic: ">>S&P 500, 6년여 만에 가장 긴 평온기 종료…53거래일 만에 처음으로 1% 넘게 하락, AI 트레이딩 열기 식어 •수요일 미 증시 하락의 주요 원인은 미국 9월 CPI 예상상회와 AI…"
+    - link "실적 @bornlupin · 한국 반도체·증권사 자료 · 10-15 앤트로픽, 2026년 3분기 매출 168억 달러로 급증 1. 3분기 매출 전분기 대비 약 46% 증가 앤트로픽의 2026년 3분기 매출은 168억 달러로, 2분기 115억 달러 대비 약 46% 증가. AI...":
+      - /url: https://t.me/bornlupin/20618
+      - generic: 실적
+      - generic: "@bornlupin · 한국 반도체·증권사 자료 · 10-15"
+      - generic: 앤트로픽, 2026년 3분기 매출 168억 달러로 급증 1. 3분기 매출 전분기 대비 약 46% 증가 앤트로픽의 2026년 3분기 매출은 168억 달러로, 2분기 115억 달러 대비 약 46% 증가. AI...
+    - 'link "반도체 @insidertracking · 미국 속보 · 10-15 트럼프 대통령: 방금 TSMC 회장과 통화함 TSM"':
+      - /url: https://t.me/insidertracking/66305
+      - generic: 반도체
+      - generic: "@insidertracking · 미국 속보 · 10-15"
+      - generic: "트럼프 대통령: 방금 TSMC 회장과 통화함"
+      - generic: TSM
+    - link "실적 @HANAchina · 중국·신흥국 · 10-15 •Anthropic의 3분기 매출이 168억 달러 증가 •회사는 투자자들에게 3분기 사업이 조정 기준으로 흑자를 기록했다고 밝힘 (FT)":
+      - /url: https://t.me/HANAchina/70435
+      - generic: 실적
+      - generic: "@HANAchina · 중국·신흥국 · 10-15"
+      - generic: •Anthropic의 3분기 매출이 168억 달러 증가 •회사는 투자자들에게 3분기 사업이 조정 기준으로 흑자를 기록했다고 밝힘 (FT)
+    - link "실적 @insidertracking · 미국 속보 · 10-15 앤트로픽의 기업공개(IPO) 전 무기한 선물 계약 평가액이 2조 달러 아래로 하락. 앤트로픽이 기관투자자들에게 재무정보를 공개한 가운데, 3분기 매출은 전 분기 대비 46% 증가한 168억 달러를 기록....":
+      - /url: https://t.me/insidertracking/66304
+      - generic: 실적
+      - generic: "@insidertracking · 미국 속보 · 10-15"
+      - generic: 앤트로픽의 기업공개(IPO) 전 무기한 선물 계약 평가액이 2조 달러 아래로 하락. 앤트로픽이 기관투자자들에게 재무정보를 공개한 가운데, 3분기 매출은 전 분기 대비 46% 증가한 168억 달러를 기록....
+    - link "시장소식 @insidertracking · 미국 속보 · 10-15 10월 14일(현지시간) 미국 8개 주 법무장관들이 오픈AI가 챗GPT의 안전성을 허위로 설명하고 충분한 보호 조치를 마련하지 않아 청소년을 포함한 사용자들의 자살, 자해 및 폭력 행위를 조장했다고 주장....":
+      - /url: https://t.me/insidertracking/66301
+      - generic: 시장소식
+      - generic: "@insidertracking · 미국 속보 · 10-15"
+      - generic: 10월 14일(현지시간) 미국 8개 주 법무장관들이 오픈AI가 챗GPT의 안전성을 허위로 설명하고 충분한 보호 조치를 마련하지 않아 청소년을 포함한 사용자들의 자살, 자해 및 폭력 행위를 조장했다고 주장....
+    - link "전력인프라 @insidertracking · 미국 속보 · 10-15 10월 15일 미주인 브리핑 • CPI 예상 상회 · 나스닥 1.88% 하락 • 연준 금리 인상 확률 급등 · 국채금리 5.32% 돌파 • 코어위브 장중 15% 급락 · AI 데이터센터 부채 우려 • 사우디... TSM":
+      - /url: https://t.me/insidertracking/66294
+      - generic: 전력인프라
+      - generic: "@insidertracking · 미국 속보 · 10-15"
+      - generic: 10월 15일 미주인 브리핑 • CPI 예상 상회 · 나스닥 1.88% 하락 • 연준 금리 인상 확률 급등 · 국채금리 5.32% 돌파 • 코어위브 장중 15% 급락 · AI 데이터센터 부채 우려 • 사우디...
+      - generic: TSM
+    - link "시장소식 @insidertracking · 미국 속보 · 10-15 트럼프 대통령에 따르면 대만이 향후 20년간 알래스카 가스 파이프라인을 통해 공급되는 천연가스의 30%를 구매하기로 합의. 트럼프 대통령은 이번 계약이 프로젝트의 성공을 보장하는 핵심 요인이라고 강조. 트럼프...":
+      - /url: https://t.me/insidertracking/66283
+      - generic: 시장소식
+      - generic: "@insidertracking · 미국 속보 · 10-15"
+      - generic: 트럼프 대통령에 따르면 대만이 향후 20년간 알래스카 가스 파이프라인을 통해 공급되는 천연가스의 30%를 구매하기로 합의. 트럼프 대통령은 이번 계약이 프로젝트의 성공을 보장하는 핵심 요인이라고 강조. 트럼프...
+    - link "지정학 @insidertracking · 미국 속보 · 10-15 10월 27일 예정된 이스라엘 총선이 다가오는 가운데, 최근 폴리마켓에서 선거 결과에 대한 투자자들의 전망이 변화하는 중. 지난 10월 7일 하마스 공격 이전 최소 2개 역내 국가가 이스라엘에 사전 경고했다는...":
+      - /url: https://t.me/insidertracking/66281
+      - generic: 지정학
+      - generic: "@insidertracking · 미국 속보 · 10-15"
+      - generic: 10월 27일 예정된 이스라엘 총선이 다가오는 가운데, 최근 폴리마켓에서 선거 결과에 대한 투자자들의 전망이 변화하는 중. 지난 10월 7일 하마스 공격 이전 최소 2개 역내 국가가 이스라엘에 사전 경고했다는...
+    - navigation "이어서 볼 곳":
+      - heading "이어서 볼 곳" [level=2]
+      - list:
+        - button "브리핑 →"
+        - generic: 기사 속 사건이 최근 마감의 지수·금리·유가·달러 움직임과 같은 쪽이었는지
+        - button "시장 상태 →"
+        - generic: 사건이 6개 지표(추세·시장 폭·변동성·금리·신용·달러/원자재) 판정을 바꿀 만큼 가격에 반영됐는지
+    - generic "데이터 출처"
+- complementary:
+  - generic: AI 도우미 · 뉴스 리서치
+  - button: 새 대화
+  - button: ×
+  - text: 지금 보는 화면의 수치와 근거를 읽고 질문에 답합니다.
+  - generic: 답변 범위
+  - text: AI 도우미 · 읽기 전용 리서치 · 투자·법률·세무 조건부 분석과 수치 시나리오를 제공합니다. 불법 실행 절차·주문 실행·확정적 보장은 제외합니다.
+  - generic: 맥락 기준 · 시세 10/15 22:57 관측 · 종가 10/14 · 뉴스 10/15 08:00까지 + 장중 속보 6건
+  - generic: 현재 화면의 데이터를 근거로 질의할 수 있습니다
+  - button: 오늘 핵심 뉴스
+  - button: 뉴스가 시장에 미친 영향
+  - button: 섹터별 뉴스 흐름
+  - button: 추가 확인할 이슈
+  - textbox:
+    - /placeholder: 궁금한 것을 물어보세요
+  - button: 전송

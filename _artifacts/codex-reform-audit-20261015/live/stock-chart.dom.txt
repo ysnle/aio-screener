@@ -1,0 +1,172 @@
+- link "메인 콘텐츠로 건너뛰기":
+  - /url: "#main-content"
+- navigation "메인 네비게이션":
+  - generic: AIO
+  - generic: Investment Screener
+  - generic: 데일리
+  - button "오늘 페이지":
+    - generic: 오늘
+  - generic: 시장
+  - button "시장 상태 페이지":
+    - generic: 시장 상태
+  - button "거시 · 금리 페이지":
+    - generic: 거시 · 금리
+  - button "테마 · 섹터 페이지":
+    - generic: 테마 · 섹터
+  - generic: 내 투자
+  - button "종목 페이지":
+    - generic: 종목
+  - button "스크리너 페이지":
+    - generic: 스크리너
+  - button "포트폴리오 페이지":
+    - generic: 포트폴리오
+  - generic: 리서치
+  - button "리서치 라이브러리 페이지":
+    - generic: 리서치 라이브러리
+  - button "용어 사전 페이지":
+    - generic: 용어 사전
+  - button "다크 모드로 전환":
+    - generic: 다크 모드로 전환
+  - generic: AI 도우미
+  - generic: "ON"
+  - text: GPT-6 Luna · 공용 AI 연결
+  - text: 개인 AI 키 입력 없이 이용합니다.
+  - generic "연결 상태"
+  - generic "보안 설정"
+- banner:
+  - button "메뉴 열기" [expanded]: ☰
+  - generic: 종목/차트
+  - generic "미국 정규장 중 · 최신 관측 10/15 22:53 KST":
+    - generic: LIVE
+  - generic "미국 정규장 중 · 최신 관측 10/15 22:53 KST": 22:53 기준 · 시세 16종 · 실시간 관측 47종
+  - 'generic "v57.82 · 확인: 2026.10.15"': v57.82
+  - button "도움말"
+  - button "AI 도우미 열기/닫기": AI 도우미
+- main:
+  - navigation "화면 안 하위 메뉴":
+    - button "요약"
+    - button "차트"
+    - button "재무 공시"
+    - strong: NVDA
+    - text: NVIDIA Corporation
+  - text: 펼치기 ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▲ ▼ ▼
+  - region "차트":
+    - heading "차트" [active] [level=1]
+    - generic: 이 종목의 추세·셋업과, 그 셋업이 놓인 시장 상태
+    - region "시장 상태 요약":
+      - generic: 부담 우세
+      - generic: 10/14 미국 종가 기준 · 양호 0 · 중립 2 · 부담 4
+      - button "시장 상태에서 근거 보기"
+      - generic: 추세
+      - generic: 중립
+      - generic: 시장 폭
+      - generic: 부담
+      - generic: 변동성
+      - generic: 중립
+      - generic: 금리
+      - generic: 부담
+      - generic: 신용 · 위험선호
+      - generic: 부담
+      - generic: 달러 · 원자재
+      - generic: 부담
+      - generic "한국 참고 — 위 양호·중립·부담 합계에 넣지 않습니다": 참고 · 환율(원·엔) 중립
+    - region "NVDA 일봉":
+      - heading "NVDA 일봉" [level=2]
+      - generic: 2026-10-14 종가 $221.30 (-3.16%) · 장중인 오늘 봉은 분석에서 제외
+      - generic: 뚜렷한 패턴 없음
+      - group "봉 주기":
+        - button "5분"
+        - button "15분"
+        - button "30분"
+        - button "1시간"
+        - button "4시간"
+        - button "일" [pressed]
+        - button "주"
+        - button "월"
+      - img "일봉 캔들 차트와 이동평균·피벗·거래량":
+        - region "자료 표 가로 스크롤":
+          - table:
+            - row "Charting by TradingView":
+              - cell
+              - cell "Charting by TradingView":
+                - link "Charting by TradingView":
+                  - /url: https://www.tradingview.com/?utm_medium=lwc-link&utm_campaign=lwc-chart&utm_source=ysnle.github.io/aio-screener/
+              - cell
+            - row:
+              - cell
+              - cell
+              - cell
+      - generic: ━ 8일 EMA
+      - generic: ━ 21일 EMA
+      - generic: ━ 50일선
+      - generic: ┅ 200일선
+      - generic: ━ 피벗(마지막 수축 고점)
+      - generic: ▲▼ 수축 저점·8일선 이탈/회복·거래량 갭·변동성 압축·과열
+      - complementary "차트 근거":
+        - paragraph: "장기 추세는 상승(미너비니 템플릿(변형: 6개월 S&P 초과) 7/8)이지만, 최근 변동성이 차례로 줄어드는 수축과 거래량 감소가 확인되지 않아 VCP 셋업은 성립하지 않습니다 — 셋업이 없다는 것이 악재라는 뜻은 아닙니다"
+        - paragraph: "근거: 주봉으로는 Weinstein 2단계(상승 추세), 미너비니 템플릿(변형: 6개월 S&P 초과) 7/8, 6개월 수익률이 S&P 500보다 1.4%p 높음."
+        - paragraph: "시장 상태: 부담 우세."
+        - generic: Weinstein 단계 (30주선)
+        - list:
+          - listitem: 1 바닥
+          - listitem: 2 상승
+          - listitem: 3 천장
+          - listitem: 4 하락
+        - generic: "미너비니 템플릿(변형: 6개월 S&P 초과) 7/8"
+        - list:
+          - listitem "종가 > 150·200일선 — 충족": ✓
+          - listitem "150일선 > 200일선 — 충족": ✓
+          - listitem "200일선 1개월 이상 상승 — 충족": ✓
+          - listitem "50일선 > 150·200일선 — 충족": ✓
+          - listitem "종가 > 50일선 — 미충족": ✕
+          - listitem "52주 저점 대비 +30% 이상 — 충족": ✓
+          - listitem "52주 고점 대비 -25% 이내 — 충족": ✓
+          - listitem "상대강도 (S&P 500 대비 6개월 우위) — 충족": ✓
+        - generic "근거 전체 (20개)"
+        - heading "앞으로 구분할 세 가지 흐름" [level=3]
+        - paragraph: 2026-10-14 완료 봉의 가격 구조 기준 · 조건이 성립했을 때의 해석이며 발생 확률이나 목표가는 아닙니다.
+        - heading "회복·확장 조건" [level=4]
+        - paragraph: 최근 20거래일 고점 243.37 위 종가와 이후 유지 여부를 확인합니다. 거래량이 함께 증가하면 가격과 참여가 같은 방향이라는 근거가 보강됩니다. 다시 이 가격 아래로 마감하면 회복 해석은 약해집니다.
+        - heading "범위 안 흐름" [level=4]
+        - paragraph: 217.15~243.37 안에서 머무르면 방향보다 범위와 거래량 변화를 살펴봅니다. 고점·저점이 함께 높아지는지, 하락일 거래량이 늘어나는지가 다음 구분 기준입니다.
+        - heading "약화 조건" [level=4]
+        - paragraph: 최근 20거래일 저점 217.15 아래 종가가 이어지면 기존 가격 구조가 약해집니다. 이후 같은 가격을 회복하는지에 따라 이탈 지속과 범위 복귀를 구분합니다.
+        - heading "거래 집중 가격대 · 일봉 추정" [level=3]
+        - paragraph: 2026-04-10~2026-10-14 · 130거래일
+        - generic: 208.91~211.37
+        - generic: 8.3%
+        - generic: 199.07~201.53
+        - generic: 7.5%
+        - generic: 218.76~221.22
+        - generic: 7.3%
+        - paragraph: 일별 거래량을 그날 저가~고가 범위에 균등 배분한 참고 분포입니다. 실제 가격별 체결량·보유자의 매입단가·매수/매도 우위를 보여주지는 않습니다. 구간은 관찰할 가격대이며 지지·저항을 보장하지 않습니다.
+        - generic "차트를 읽는 순서와 계산 기준"
+      - paragraph: 셋업 상태는 공개된 기법(미너비니 VCP·추세 템플릿, 오닐 피벗 돌파, 와일더 ADX)으로 계산한 설명이며 매매 권고가 아닙니다.
+    - navigation "이어서 볼 곳":
+      - heading "이어서 볼 곳" [level=2]
+      - list:
+        - button "요약 →"
+        - generic: 이 셋업이 섹터 회전·지수 대비 강도와 같은 방향인지
+        - button "재무 공시 →"
+        - generic: 가격 추세를 매출·이익이 뒷받침하는지
+        - button "시장 상태 →"
+        - generic: 셋업이 놓인 환경 — 지금은 부담 우세
+    - generic "한국 시장 — 코스피·코스닥 추세와 한국 종목 (한국 종가 기준) 펼치기"
+    - generic "데이터 출처"
+  - text: ▾ ▸ ▸ ▸ ▸ ▸ ▸ ▸ ▸ ▸ 펼치기 펼치기 펼치기 닫기 펼치기 닫기 펼치기 ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▼ ▼ + ▲ ▼ ▼ ▼ ▼ ▲ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▼ ▼ + ▲ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▲ ▲ ▼ ▲ ▲ + ▼ ▲ ▼ ▼ ▼ ▼ ▲ ▲ ▲ ▲ + ▲ ▼ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▲ ▼ ▲ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ 펼치기 펼치기 펼치기 펼치기 펼치기 펼치기
+- complementary:
+  - generic: AI 도우미 · 기술적 리서치
+  - button: 새 대화
+  - button: ×
+  - text: 지금 보는 화면의 수치와 근거를 읽고 질문에 답합니다.
+  - generic: 답변 범위
+  - text: AI 도우미 · 읽기 전용 리서치 · 투자·법률·세무 조건부 분석과 수치 시나리오를 제공합니다. 불법 실행 절차·주문 실행·확정적 보장은 제외합니다.
+  - generic: 맥락 기준 · 시세 10/15 22:53 관측 · 종가 10/14 · 뉴스 10/15 08:00까지 + 장중 속보 6건
+  - generic: 현재 화면의 데이터를 근거로 질의할 수 있습니다
+  - button: 추세 상태 설명
+  - button: 이동평균 위치 해석
+  - button: 셋업이 없는 이유
+  - button: 이 차트를 반박하는 신호
+  - textbox:
+    - /placeholder: 궁금한 것을 물어보세요
+  - button: 전송

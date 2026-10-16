@@ -133,7 +133,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       const peText = pe == null ? '' : peTtm != null
         ? `, PER 약 ${peTtm.toFixed(1)}배(최근 4개 분기 합 · ${ttm[ttm.length - 1].periodEnd.slice(0, 7)} 분기까지) · ${fyLabel || '연간'} 기준 ${pe.toFixed(1)}배(${earningsBasis})`
         : `, PER ${pe.toFixed(1)}배(${earningsBasis})`;
-      points.push({ id: 'earnings', tone: niGrowth >= 0 ? 'favorable' : 'burden', title: '이익과 가격',
+      points.push({ id: 'earnings', tone: niGrowth > FISCAL_FLAT_BAND ? 'favorable' : niGrowth < -FISCAL_FLAT_BAND ? 'burden' : 'neutral', title: '이익과 가격', /* v57.84: the same flat band as revenue and margin */
         // Codex review 2026-10-05: a PEG from last year's income growth cannot say whether the price is a
         // burden — that needs the growth ahead. The number is shown with its basis, without a verdict.
         text: `순이익 ${formatUsdShort(niNow)}(${signed(niGrowth)})${peText}${peg != null ? `, PEG ${peg.toFixed(2)}(${fyLabel ? `${fyLabel} ` : ''}PER ÷ ${fyLabel ? `${fyLabel} ` : '그 회계연도 '}순이익 성장률)${pegTtm != null ? ` · 최근 4개 분기 합 기준 약 ${pegTtm.toFixed(2)}` : ''}` : ''}. PEG는 지난 성장률로 계산한 값이라, 앞으로의 성장이 다르면 같은 숫자도 뜻이 달라집니다.`,
@@ -157,7 +157,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
   const financial = isLendingFinancial(symbol, row?.sector);
   const equityChange = latest?.equity > 0 && prevYear?.equity > 0 ? (latest.equity / prevYear.equity - 1) * 100 : null;
   const roeBasis = roeAvg != null ? '평균 자기자본 기준' : '기말 자기자본 기준';
-  if (roe != null) points.push({ id: 'roe', tone: roe >= 15 ? 'favorable' : roe < 5 ? 'burden' : 'neutral', title: '자본 효율',
+  if (roe != null) points.push({ id: 'roe', tone: roe >= 20 ? 'favorable' : roe < 5 ? 'burden' : 'neutral', title: '자본 효율', /* v57.84: green only where the text says 높은 (≥20) */
     // Codex browser audit H37: the generic "buybacks or debt" explanation read as this company's cause. The reading
     // now uses what is measured here (margin, equity change) and names what is not (assets, so no DuPont split).
     text: `ROE ${roe.toFixed(1)}%(${roeBasis}) — ${roe < 0 ? '순손실로 자본이 줄어든 해' : roe >= 20 ? '자기자본 대비 높은 이익' : roe >= 10 ? '평균적인 자본 효율' : '자본 대비 이익이 낮은 편'}입니다.${roe >= 40 ? ` 이 수준에서는 순이익률${latest?.margin != null ? `(${latest.margin.toFixed(1)}%)` : ''}·자산 회전·재무 레버리지 중 무엇이 끌어올렸는지 나눠 봐야 합니다. 이 화면에는 자산 총계가 없어 그 분해는 하지 않습니다${equityChange != null ? ` — 자기자본은 전년보다 ${signed(equityChange)} 변했습니다` : ''}.` : ''}` });

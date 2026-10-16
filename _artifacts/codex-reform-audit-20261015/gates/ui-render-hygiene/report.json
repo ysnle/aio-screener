@@ -1,0 +1,30 @@
+{
+  "gate": "v57.54 ui-render-hygiene",
+  "status": "PASS",
+  "minTarget": 24,
+  "counts": {
+    "desktop1440.target-size": 0,
+    "desktop1440.empty-structure": 0,
+    "phone390.target-size": 0,
+    "phone390.empty-structure": 0
+  },
+  "offenderKinds": 0,
+  "baseline": 0,
+  "fixedSinceBaseline": [],
+  "fresh": [],
+  "shell": [
+    {
+      "docOverflow": 0,
+      "barOverflow": 0,
+      "compact": "37분 전",
+      "after": "\"37분 전\"",
+      "tsCut": false,
+      "tsText": "서버 37분 전 · 시세 16종",
+      "version": true,
+      "help": true,
+      "ai": true
+    }
+  ],
+  "failures": [],
+  "offenders": []
+}

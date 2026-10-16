@@ -1,8 +1,15 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-15
+last_verified: 2026-10-16
 confidence: medium
 ---
+
+## v57.84 기술 지표 정의 통일 (2026-10-16)
+
+
+## v57.83 급변 구간 재생 (2026-10-16)
+
+- [x] QA-REPLAY-01: P1853/R708: 급변 구간 재생에서 날짜별 불변식과 고정 점검일 판정이 통과한다. verify_by: node scripts/ci-crash-replay-check.mjs
 
 ## v57.71 오늘의 한 문장 (v57.71) (2026-10-15)
 
@@ -229,9 +236,9 @@ confidence: medium
 - [ ] QA-V5731-17: SEC rows declare equityBasis and registrant name. verify_by: after next SEC refresh: public-data/sec-fundamentals.json BAC entityName
 - [x] QA-V5731-18: Sourceless KR indicator widget stays hidden. verify_by: browser check of the KR macro page
 - [ ] QA-V5731-19: AAII degradation warns without blocking refresh. verify_by: next refresh-data run with AAII unavailable
-- [ ] QA-V5731-20: Market analysis publishes verified on most runs. verify_by: public-data/data.json marketAnalysis.status over the next 10 refresh runs
-- [ ] QA-V5731-21: the sentiment composite is a met-condition count (n of 7 conditions), not a calibrated score (AGENTS: likelihood uses only met-condition count); after the first refresh with TLT/IG it should show at least 5 of 7 conditions available. verify_by: #sentiment composite card condition count after push
-- [ ] QA-V5731-22: No screener P/E above 5,000 from share-scale errors. verify_by: after next SEC refresh: public-data/screener.json PKG pe
+- [ ] QA-V5731-20: Market analysis status is explained on every run — a verified run's claims match the published inputs, a held run names the failed check, and the held/verified count over the window is reported (v57.84: 'verified on most runs' rewarded passing over correct holds). verify_by: public-data/data.json marketAnalysis.status + reason over the next 10 refresh runs
+- [ ] QA-V5731-21: the sentiment composite is a met-condition count (n of 7 conditions), not a calibrated score or a likelihood; each missing condition shows as missing (never counted as met or unmet) and the card states n of available, not n of 7, when inputs are absent (v57.84 revision). verify_by: #sentiment composite card condition count after push
+- [ ] QA-V5731-22: An extreme screener P/E is reconciled against the filing (shares class and scale, EPS period, units) before it is kept or held — a very high P/E from a tiny profit is legitimate, a share-scale error is not (v57.84: 'above 5,000' is not the test). verify_by: after next SEC refresh: public-data/screener.json PKG pe vs SEC companyfacts
 - [x] QA-V5731-23: Theme taxonomy follows membership rules. verify_by: node scripts/ci-runtime-contract-check.mjs
 - [x] QA-V5731-24: Universe KR suffixes match listing exchanges. verify_by: Yahoo exchange probe of every .KS/.KQ symbol in SCREENER_DB
 - [ ] QA-V5731-25: Rotation covers 31 sector/subsector ETFs after the next refresh. verify_by: public-data/data.json rotationHistory.items count
@@ -269,7 +276,7 @@ confidence: medium
 
 ## v57.08 거시 direction reads (2026-10-03)
 
-- [ ] QA-MACRO-HISTORY-LIVE-01: P1426: after the next refresh-data run, public-data/macro-history.json carries FRED observations for all 18 series and the 거시 경제 regime, Sahm gap, payroll trend and 3-month inflation pace render from it. verify_by: refresh-data run log 'macro history' line + 거시 경제 regime label not '국면 판정 보류'
+- [ ] QA-MACRO-HISTORY-LIVE-01: P1426: after the next refresh-data run, public-data/macro-history.json carries FRED observations for each of the 18 series it can fetch, missing ones are named, and the 거시 경제 regime, Sahm gap, payroll trend and 3-month inflation pace render from it — a hold is correct when its inputs are missing (v57.84: requiring the hold to disappear invited a judgement on missing data). verify_by: refresh-data run log 'macro history' line + 거시 경제 regime label matches the series actually present
 
 ## v57.06 GPT-6 Luna shared AI migration (2026-10-03)
 

@@ -745,8 +745,8 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
 
   const now = Date.parse('2026-10-15T00:00:00.000Z');
   const est = (trailing) => ({ asOf: '2026-10-14T17:38:53.081Z', fwd: { from: '2026-09', to: '2027-06', eps: 12.94, hi: 14.08, lo: 12, minEstimates: 6, up4w: 4, down4w: 1 }, trailing: { from: '2025-09', to: '2026-06', eps: trailing } });
-  const gap = consensusView({ valuationPrice: 353.78 }, est(19.91), { now });
-  const same = consensusView({ valuationPrice: 353.78 }, est(11.5), { now });
+  const gap = consensusView({ valuationPrice: 353.78, factorSessionDate: '2026-10-13' }, est(19.91), { now });
+  const same = consensusView({ valuationPrice: 353.78, factorSessionDate: '2026-10-13' }, est(11.5), { now });
   const gapText = buildConsensusPoint({ valuationPrice: 353.78, factorSessionDate: '2026-10-13' }, est(19.91), { now })?.text || '';
   check('v57.70 a forward sum 30% or more below the trailing sum is not compared as the same basis',
     gap.trailingPe === null && gap.growth === null && gap.basisGap === true && gap.fwdPe > 27 && same.growth > 12 && same.trailingPe > 30

@@ -1,4 +1,7 @@
 name: Refresh market data
+# Codex audit F30: the run title carries the dispatch trigger so the 30-day SLO window can tell the data-plane Worker's
+# scheduler dispatches (designed cadence, P1377) from operator runs (excluded).
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('Refresh market data · {0}', inputs.trigger || 'operator') || 'Refresh market data' }}
 
 # GitHub Actions fetches market/news data server-side and commits same-origin
 # JSON files for the static GitHub Pages app. Schedule is offset from :00 to

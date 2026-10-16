@@ -1177,7 +1177,7 @@
     var staticAudit = window.AIO && typeof window.AIO.getStaticDataGovernanceAudit === 'function' ? window.AIO.getStaticDataGovernanceAudit() : null;
     _assert('T147 static_data_governance: audit shape', staticAudit && Array.isArray(staticAudit.items) && typeof staticAudit.issueCount === 'number', staticAudit && JSON.stringify({ items: staticAudit.items && staticAudit.items.length, issues: staticAudit.issueCount }));
 
-    // Full-document rendering is an explicit audit action; normal boot is active-page scoped (P689/R301).
+    // Full-document rendering is an explicit audit action; normal boot is active-page scoped (P689/R710).
     console.debug('[AIO TEST PROGRESS] group=G024 step=T148-full-badges-start'); var badgeFixture148 = document.createElement('div'); badgeFixture148.innerHTML = '<span data-snap-date="t148-fixture" data-snap-date-value="2026-04-17">2026-04-17</span>'; document.body.appendChild(badgeFixture148); // P1425: no shell sinks remain
     var badgeAudit = window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function' ? window.AIO.renderStaticDataGovernanceBadges({ full: true }) : null;
     console.debug('[AIO TEST PROGRESS] group=G024 step=T148-full-badges-done');
@@ -7844,8 +7844,8 @@
     _assert('T910 external_source_malformed_fixture (H3-E)', malformed910.status === 'malformed' && malformed910.allowedUse === 'none', JSON.stringify(malformed910));
     var table910 = document.querySelector('#scr-tab-ranking .aio-table-scroll');
     _assert('T911 screener_horizontal_scroll_affordance (H3-D)', !!table910 && table910.getAttribute('role') === 'region' && table910.getAttribute('tabindex') === '0', table910 ? table910.outerHTML.slice(0, 180) : 'wrapper missing');
-    var bootCdn912 = Array.prototype.slice.call(document.querySelectorAll('script[src]')).filter(function(el) { return /chart\.js@4\.4\.0|dompurify@3\.0\.9|lightweight-charts@4\.2\.0/.test(el.src || ''); });
-    _assert('T912 P1756 external_cdn_does_not_block_local_boot_queue (H3-F)', bootCdn912.some(function(el) { return /dompurify@3\.0\.9/.test(el.src); }) && typeof window._aioEnsureChartLibrary === 'function' && bootCdn912.every(function(el) { return el.async === true && el.defer === false; }), bootCdn912.map(function(el) { return { src: el.src, async: el.async, defer: el.defer }; }));
+    var bootCdn912 = Array.prototype.slice.call(document.querySelectorAll('script[src]')).filter(function(el) { return /chart\.js@4\.4\.0|dompurify@3\.4\.16|lightweight-charts@4\.2\.0/.test(el.src || ''); });
+    _assert('T912 P1756 external_cdn_does_not_block_local_boot_queue (H3-F)', bootCdn912.some(function(el) { return /dompurify@3\.4\.16/.test(el.src); }) && typeof window._aioEnsureChartLibrary === 'function' && bootCdn912.every(function(el) { return el.async === true && el.defer === false; }), bootCdn912.map(function(el) { return { src: el.src, async: el.async, defer: el.defer }; }));
     var contract913 = window.AIO.getPageContractAudit && window.AIO.getPageContractAudit();
     var lineage913 = window.AIO.getDataLineageAudit && window.AIO.getDataLineageAudit();
     // P1076: the contract audit must REPORT authored-vs-derived coverage instead of
@@ -7916,7 +7916,7 @@
     var cases92 = [
       [{ status: 200, message: 'success' }, 'success'],
       [{ status: 403, message: 'forbidden region HKG' }, 'regional_forbidden'],
-      [{ status: 403, message: 'Origin not allowed' }, 'auth_or_origin'],
+      [{ status: 403, message: 'Origin not allowed' }, 'auth_or_origin'], [{ status: 403, message: 'Origin forbidden' }, 'auth_or_origin'], [{ status: 403, message: 'Forbidden' }, 'unknown'],
       [{ status: 429, message: 'Too many requests' }, 'rate_limit'],
       [{ status: 503, message: 'KV binding missing' }, 'upstream_unavailable'],
       [{ status: 408, message: 'AbortError timeout' }, 'timeout']

@@ -49,7 +49,7 @@ export function installCustomConditions(documentRef) {
   const head = el(documentRef, 'div', 'scr-custom-hd');
   const title = el(documentRef, 'strong', '', '맞춤 조건');
   title.id = 'scr-custom-title';
-  head.append(title, el(documentRef, 'span', '', '고른 조건을 모두 만족하는 종목만 표에 남깁니다. 걸러 보는 도구이며 매매 신호가 아닙니다.'));
+  head.append(title, el(documentRef, 'span', '', '고른 조건을 모두 만족하는 종목만 표에 남깁니다.'));
 
   const textRow = el(documentRef, 'div', 'scr-custom-row');
   const text = el(documentRef, 'input');

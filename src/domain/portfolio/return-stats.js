@@ -69,7 +69,7 @@ function _btVarOrderAudit(values, order, observedAt) {
 function deriveVarStability({ returns = [], iterations = 400, quantile = 0.05, thresholds = {}, order = 'unspecified', observedAt = null } = {}) {
   const clean = (Array.isArray(returns) ? returns : []).filter((value) => typeof value === 'number' && isFinite(value));
   const declared = {
-    minSampleN: Number.isFinite(thresholds.minSampleN) ? thresholds.minSampleN : 36,
+    minSampleN: Number.isFinite(thresholds.minSampleN) ? thresholds.minSampleN : 41, // v57.84: the 5% R7 tail holds ≥3 points only from n=41; 36 always held
     minTailN: Number.isFinite(thresholds.minTailN) ? thresholds.minTailN : 3,
     maxRelativeBand: Number.isFinite(thresholds.maxRelativeBand) ? thresholds.maxRelativeBand : 0.75,
     maxRelativeSensitivity: Number.isFinite(thresholds.maxRelativeSensitivity) ? thresholds.maxRelativeSensitivity : 0.5

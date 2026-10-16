@@ -399,8 +399,19 @@ export function creditState({ hyBp = null, hy5 = null, hy20 = null, pcr = null, 
   if (finite(hyBp) == null) return 'unknown';
   if (hyBp >= RULES.credit.stressAtBp || (hy5 != null && hy5 >= RULES.credit.widen5dBp) || hy20Stress) return 'burden';
   const widening20 = hy20 != null && hy20 >= RULES.credit.widen20dBp;
-  if (hyBp < RULES.credit.tightBelowBp && hy5 != null && hy5 <= 0 && !widening20 && (pcr == null || pcr < RULES.credit.putCallHedgeAt)) return 'favorable';
+  if (hyBp < RULES.credit.tightBelowBp && hy5 != null && hy5 <= RULES.credit.calm5dBp && !widening20 /* v57.84: 0 sat inside the 5-day noise (IQR −6~+6bp) */ && (pcr == null || pcr < RULES.credit.putCallHedgeAt)) return 'favorable';
   return 'neutral';
+}
+
+// Codex audit F06 (2026-10-15): which input made the credit verdict a 부담 — the level, a fast 5-session widening or a
+// 20-session widening at the top of its own record. The macro chain sentence and gauge said "수준이 부담" for a 316bp
+// (neutral) level whose 20-session +40bp widening (96th percentile) was the real trigger. One owner, many readers.
+export function creditCause({ hyBp = null, hy5 = null, hy20Record = null } = {}) {
+  const level = finite(hyBp) != null && hyBp >= RULES.credit.stressAtBp;
+  const fast5 = finite(hy5) != null && hy5 >= RULES.credit.widen5dBp;
+  const wide20 = hy20Record?.stress === true;
+  const primary = level ? 'level' : fast5 ? 'fast5' : wide20 ? 'wide20' : null;
+  return { level, fast5, wide20, primary };
 }
 
 // P1723 (2026-10-13: KOSPI -5.46%, five sessions -13.8%): the six US axes are judged on US closes, so a Korean shock
@@ -538,8 +549,10 @@ export function buildMarketRead(input = {}) {
     const rateText = `10년물 금리 5일 ${signed(tnx5, 0, 'bp')}(${fmt(tnx.value)}%${atHigh ? ', 1년 최고권' : ''})`;
     if (tnx5 > 0 && spx5 >= 0) add('rates-up-stocks-up', Math.min(95, 40 + tnx5 * 2), `${rateText}에도 S&P 500은 ${signed(spx5)}.`, 'rates', { reading: '주가가 금리 부담을 견디고 있습니다 — 실적·성장 기대가 받치는 것으로 볼 수 있습니다.', check: `금리가 더 오를 때도 주가가 버티는지(10년물 ${fmt(tnx.value)}% 기준)` });
     else if (tnx5 > 0) add('rates-up-stocks-down', Math.min(95, 45 + tnx5 * 2), `${rateText}, S&P 500 ${signed(spx5)}.`, 'rates', { reading: '금리 상승이 주가 할인율 부담으로 작용하는 모습입니다.', check: `10년물이 ${fmt(tnx.value)}% 위에서 굳는지, S&P 500이 50일선(${fmt(spx.ma50, 0)})을 지키는지` });
-    else if (spx5 < 0) add('rates-down-stocks-down', Math.min(95, 45 - tnx5 * 2), `${rateText}에도 S&P 500 ${signed(spx5)}.`, 'rates', { reading: '금리보다 성장 둔화 우려가 앞설 가능성이 있습니다 — 경기 지표로 확인이 필요합니다.', check: '다음 경기 지표(고용·ISM)가 둔화를 확인하는지' });
-    else add('rates-down-stocks-up', Math.min(90, 35 - tnx5 * 2), `${rateText} 속에 S&P 500 ${signed(spx5)}.`, 'rates', { reading: '금리 하락이 주가를 받치는 모습입니다.' });
+    // v57.84: a falling S&P 500 needs a real move (≥1% over 5 days) before the week is read as growth fear, and the weight
+    // stays below a credit sentence — −0.27% on 2026-10-15 led the briefing over HY +16bp.
+    else if (spx5 <= -1) add('rates-down-stocks-down', Math.min(70, 45 - tnx5 * 2), `${rateText}에도 S&P 500 ${signed(spx5)}.`, 'rates', { reading: '금리보다 성장 둔화 우려가 앞설 가능성이 있습니다 — 경기 지표로 확인이 필요합니다.', check: '다음 경기 지표(고용·ISM)가 둔화를 확인하는지' });
+    else if (spx5 >= 0) add('rates-down-stocks-up', Math.min(90, 35 - tnx5 * 2), `${rateText} 속에 S&P 500 ${signed(spx5)}.`, 'rates', { reading: '금리 하락이 주가를 받치는 모습입니다.' });
   }
   if (tnx?.yearPosition != null && tnx.yearPosition >= 0.95 && !statements.some((row) => row.axis === 'rates')) add('rates-year-high', 70, `10년물 금리 ${fmt(tnx.value)}%는 최근 1년 범위의 최상단입니다(1년 최저 ${fmt(tnx.yearMin)}%).`, 'rates');
 
@@ -572,7 +585,7 @@ export function buildMarketRead(input = {}) {
   }
   // (c) a weaker dollar with higher long rates points inward (inflation, growth, supply), not to FX.
   const dxyWeek = s.dxy ? pct(s.dxy.value, s.dxy.d5) : null;
-  if (dxyWeek != null && tnx5 != null && dxyWeek <= -0.3 && tnx5 >= 8) add('weak-dollar-higher-rates', 55, `달러 5일 ${signed(dxyWeek)}인데 10년물은 ${signed(tnx5, 0, 'bp')}.`, 'rates', { reading: '해외 요인보다 미국 내부 요인(물가·성장·국채 공급)이 장기금리를 밀어 올렸을 가능성이 큽니다.' });
+  if (dxyWeek != null && tnx5 != null && dxyWeek <= -0.3 && tnx5 >= 8) add('weak-dollar-higher-rates', 55, `달러 5일 ${signed(dxyWeek)}인데 10년물은 ${signed(tnx5, 0, 'bp')}.`, 'rates', { reading: '달러가 약한데 장기금리가 올라, 해외 요인보다 미국 내부 요인(물가·성장·국채 공급)을 먼저 확인할 조합입니다 — 원인을 확정하지는 않습니다.' });
 
   // 2. Index vs participation.
   const b50 = s.breadth50?.value ?? null;
@@ -634,7 +647,7 @@ export function buildMarketRead(input = {}) {
   if (adv != null && spxDay != null && s.advanceRatio.date === spx.date) {
     const advPct = adv <= 1 ? adv * 100 : adv;
     if (spxDay <= -0.8 && advPct < 30) add('broad-derisking', 65, `S&P 500 ${signed(spxDay)}, 상승 종목 ${fmt(advPct, 0)}%.`, 'index', { reading: '특정 섹터가 아닌 시장 전반의 고른 위험 축소로 보입니다.' });
-    else if (spxDay >= -0.3 && advPct < 45) add('index-defended', 62, `S&P 500 ${signed(spxDay)}인데 상승 종목은 ${fmt(advPct, 0)}%.`, 'index', { reading: '지수와 다수 종목의 방향이 갈렸습니다 — 시가총액이 큰 일부 종목이 지수를 받쳤을 가능성이 큽니다(종목별 기여는 테마 화면의 S&P 500 지도에서 확인).' });
+    else if (spxDay > 0 && advPct < 45) add('index-defended', /* v57.84: a falling index is not 'defended' */ 62, `S&P 500 ${signed(spxDay)}인데 상승 종목은 ${fmt(advPct, 0)}%.`, 'index', { reading: '지수와 다수 종목의 방향이 갈렸습니다 — 시가총액이 큰 일부 종목이 지수를 받쳤는지 테마 화면의 S&P 500 지도에서 종목별 기여로 확인합니다.' });
   }
 
   // 4. Fear gauge vs credit: is the fear priced in credit too?
@@ -644,21 +657,22 @@ export function buildMarketRead(input = {}) {
   // level-only gate cannot prove contagion absence — the reading splits on the 5-day change
   // (KNOWLEDGE-BASE: the HY 350bp breakout inverts ' 공포는 신용으로 번지지 않았다').
   // v57.81: a 20-session widening at the top of its own record is the credit axis's 부담 — not "경계선 아래".
-  if (fg != null && fg < 35 && hyBp != null && c.hy20Stress) {
+  const fearBelow = RULES.fearGreed.fearBelow; // v57.84: one fear line with the F&G band (was a separate 35)
+  if (fg != null && fg < fearBelow && hyBp != null && c.hy20Stress) {
     add('fear-with-credit-widening', 80, `F&G ${fmt(fg, 0)}(공포)와 함께 HY 신용 스프레드가 20거래일 ${signed(c.hy20, 0, 'bp')} 넓어졌습니다(${fmt(hyBp, 0)}bp${c.hy20Record?.pct != null ? `, 20거래일 변화 기록 ${c.hy20Record.pct}백분위` : ''}).`, 'risk', {
-      reading: '수준은 아직 낮지만 확대 폭이 드문 수준이라, 공포가 신용 시장으로 번지는 중인지 확인할 단계입니다.',
+      reading: hyBp < RULES.credit.tightBelowBp ? '수준은 아직 낮지만 확대 폭이 드문 수준이라, 공포가 신용 시장으로 번지는 중인지 확인할 단계입니다.' : '수준도 경계선을 넘었고 확대 폭이 드문 수준이라, 공포가 신용 시장으로 번지는 중입니다.',
       check: `20거래일 확대가 +${RULES.credit.widen20dBp}bp 아래로 줄어드는지, 수준이 ${RULES.credit.tightBelowBp}bp를 넘는지(현재 ${fmt(hyBp, 0)}bp)`
     });
-  } else if (fg != null && fg < 35 && hyBp != null && hyBp < RULES.credit.tightBelowBp && vix && vix.value < RULES.volatility.calmBelow) {
+  } else if (fg != null && fg < fearBelow && hyBp != null && hyBp < RULES.credit.tightBelowBp && vix && vix.value < RULES.volatility.calmBelow) {
     const widening = hyWeek != null && hyWeek >= RULES.credit.widen5dBp / 2;
     const widening20 = c.hy20 != null && c.hy20 >= RULES.credit.widen20dBp; // T05
     add('fear-without-credit-stress', 80, `F&G ${fmt(fg, 0)}(공포)인데 HY 신용 스프레드 ${fmt(hyBp, 0)}bp·VIX ${fmt(vix.value)}는 경계선 아래입니다${hyWeek != null ? ` (HY 5일 ${signed(hyWeek, 0, 'bp')}${c.hy20 != null ? `, 20거래일 ${signed(c.hy20, 0, 'bp')}` : ''})` : ''}.`, 'risk', {
       reading: widening || widening20
         ? `아직 ${RULES.credit.tightBelowBp}bp 아래지만 ${widening ? `5일 ${signed(hyWeek, 0, 'bp')}` : `20거래일 ${signed(c.hy20, 0, 'bp')}`} 확대됐습니다 — 공포가 신용으로 번지지 않았다고 말하려면 확대가 멈추는지 확인이 필요합니다.`
-        : '공포가 아직 신용 시장으로 번지지 않았습니다.',
+        : creditState({ hyBp, hy5: hyWeek, hy20: c.hy20, pcr: c.pcr, hy20Stress: c.hy20Stress }) === 'favorable' ? '공포가 아직 신용 시장으로 번지지 않았습니다.' : `아직 ${RULES.credit.tightBelowBp}bp 아래지만 5일 변화가 줄지 않아 신용 판정이 양호는 아닙니다 — 번지는지 확인할 단계입니다.`, /* v57.84: 'not spread' only when the shared credit verdict is 양호 */
       check: `HY 스프레드가 ${RULES.credit.tightBelowBp}bp(신용 지표가 양호에서 벗어나는 선)를 넘는지(현재 ${fmt(hyBp, 0)}bp), 5일 확대가 멈추는지(현재 ${hyWeek == null ? '—' : signed(hyWeek, 0, 'bp')})`
     });
-  } else if (fg != null && fg > 70 && vix && vix.value < 14) {
+  } else if (fg != null && fg > RULES.fearGreed.extremeGreedAbove && vix && vix.value < 14) {
     add('complacency', 60, `F&G ${fmt(fg, 0)}(탐욕)·VIX ${fmt(vix.value)}.`, 'risk', { reading: '낙관이 강하고 변동성 대비가 얇은 상태입니다.' });
   }
   if (hyWeek != null && hyWeek >= RULES.credit.widenWatch5dBp && hyBp != null && hyBp < RULES.credit.stressAtBp) add('credit-widening', 72, `HY 신용 스프레드 5일 ${signed(hyWeek, 0, 'bp')} 확대(${fmt(hyBp, 0)}bp).`, 'risk', { reading: '자금 조달 여건이 빠듯해지는 신호입니다.', check: 'HY 스프레드 확대가 이어지는지 — 이어지면 주식보다 신용이 먼저 위험을 반영' });
@@ -785,14 +799,20 @@ export const MIN_KNOWN_AXES = 4; // of the six US axes, before an overall label 
 // Nasdaq-100 (the history has no semiconductor series). A break needs the proxy weakening (5-session drop of
 // RULES.trend.leaderDrop5dPct or a close under its 50-day line) AND at least RULES.leadership.minConfirmations market-wide
 // confirmations; the session counts (new highs/lows, advancers, distribution days) count only on the basis close.
-// state: 'break' | 'holding' | 'unknown' (missing inputs could still decide it — never read as holding).
+// state: 'break' | 'weak' | 'holding' | 'unknown' (missing inputs could still decide it — never read as holding).
+// v57.83 crash replay (owner 2026-10-16: "지수는 덜 빠져도 AI·반도체는 많이 빠졌다"): on 2026-07-28 the Nasdaq-100 was 9.5%
+// under its one-year high and 5.8% under its 50-day line, but the single-session confirmations had not fired, and the
+// state read 'holding' — the AI packet then said "주도 영역 이탈: 아니오". A weak proxy without the confirmations is now
+// 'weak' (주도주 약세 · 확산 미확인), never 'holding'; and "under the 50-day line" needs RULES.trend.bufferPct (R707) —
+// 2026-08-06 read a break at -0.0% in a +4.5% week.
 export function leadershipBreakOf(s = {}, basis = null) {
   const rule = RULES.leadership;
   const ndx = s?.ndx;
   if (!ndx || ndx.ma50 == null) return { available: false, break: false, state: 'unknown', proxy: 'ndx', proxyLabel: '나스닥 100', proxyWeak: null, drop5: null, belowMa50: null, confirmations: [], met: 0, known: 0, need: rule.minConfirmations };
   const onBasis = (stat) => stat && (!basis || stat.date === basis) ? stat : null;
   const drop5 = pct(ndx.value, ndx.d5);
-  const belowMa50 = ndx.value < ndx.ma50;
+  const belowMa50 = ndx.value < ndx.ma50 * (1 - RULES.trend.bufferPct / 100);
+  const offHigh = ndx.yearMax ? pct(ndx.value, ndx.yearMax) : null;
   const proxyWeak = (drop5 != null && drop5 <= -RULES.trend.leaderDrop5dPct) || belowMa50;
   const highs = onBasis(s.breadthNewHighs), lows = onBasis(s.breadthNewLows), adv = onBasis(s.advanceRatio), dist = onBasis(s.distributionDays), rut = s.rut;
   const advRatio = adv ? (adv.value > 1 ? adv.value / 100 : adv.value) : null;
@@ -806,9 +826,9 @@ export function leadershipBreakOf(s = {}, basis = null) {
   const known = confirmations.filter((item) => item.ok != null).length;
   const broken = proxyWeak && met >= rule.minConfirmations;
   const undecided = proxyWeak && !broken && met + (confirmations.length - known) >= rule.minConfirmations;
-  const proxyText = `나스닥 100 5거래일 ${signed(drop5)}${belowMa50 ? ' · 50일선 아래' : ''}`;
-  return { available: true, break: broken, state: broken ? 'break' : undecided ? 'unknown' : 'holding', proxy: 'ndx', proxyLabel: '나스닥 100',
-    proxyWeak, drop5, belowMa50, date: ndx.date, confirmations, met, known, need: rule.minConfirmations,
+  const proxyText = `나스닥 100 5거래일 ${signed(drop5)}${belowMa50 ? ` · 50일선 ${signed(pct(ndx.value, ndx.ma50))}` : ''}${proxyWeak && offHigh != null ? ` · 1년 고점 대비 ${signed(offHigh)}` : ''}`;
+  return { available: true, break: broken, state: broken ? 'break' : undecided ? 'unknown' : proxyWeak ? 'weak' : 'holding', proxy: 'ndx', proxyLabel: '나스닥 100',
+    proxyWeak, drop5, belowMa50, offHigh, date: ndx.date, confirmations, met, known, need: rule.minConfirmations,
     summary: [proxyText, ...confirmations.filter((item) => item.ok).map((item) => item.value)].join(' · ') };
 }
 
@@ -1181,7 +1201,9 @@ export function buildMarketRegime(input = {}) {
   const staleBasis = basisLag > 2 ? { basis, latest, lag: basisLag } : null;
   const enough = known.length >= MIN_KNOWN_AXES && !staleBasis;
   const overall = !enough ? '판정 보류'
-    : burden >= 4 || (burden >= 3 && favorable <= 1) ? '부담 우세' : favorable >= 4 && burden === 0 ? '양호 우세' : favorable >= 3 && burden <= 1 ? '다소 양호' : burden >= 2 && favorable <= 1 ? '다소 부담' : '혼조';
+    // v57.84 review: the label is symmetric — 1·2·3 read '부담 우세' while its mirror 3·2·1 read only '다소 양호'.
+    : burden >= 4 && favorable <= 1 ? '부담 우세' : favorable >= 4 && burden <= 1 ? '양호 우세'
+      : (burden >= 3 && favorable <= 1) || (burden >= 2 && favorable === 0) ? '다소 부담' : (favorable >= 3 && burden <= 1) || (favorable >= 2 && burden === 0) ? '다소 양호' : '혼조';
   // Codex review 2026-10-05: '방어적 환경' read like a validated stance. The label now names only how the
   // six conventional axes split (counts beside it); it is a description, not an allocation call.
   const byId = Object.fromEntries(axes.map((row) => [row.id, row]));
@@ -1189,6 +1211,8 @@ export function buildMarketRegime(input = {}) {
   if (byId.trend?.state === 'favorable' && byId.breadth?.state === 'burden') conflicts.push('추세는 양호인데 시장 폭은 부담 — 지수는 오르는 흐름이지만 함께 오르는 종목은 적어, 몇몇 큰 종목이 지수를 떠받치고 있을 수 있습니다.'); // v57.55 beginner panel: plain words
   // v57.81: the leaders and the small caps breaking down together is named beside the axes (the 시장 상태 conflict list and
   // the AI context read it), so a narrow-leadership reading cannot stand while it holds.
+  // v57.83: leaders weak without the market-wide confirmations — the index can hold while AI·semis fall (2026-07).
+  if (leadership.state === 'weak') conflicts.push(`주도주 약세 — ${leadership.summary}. 시장 전반의 확인 신호(신저가 우위·상승 종목 감소·분배일·러셀 2000 약세)는 ${leadership.met}/${leadership.confirmations.length}개라 아직 동반 약세로 번지지 않았지만, 지수만 보고 주도 영역이 건재하다고 읽지 않습니다.`);
   if (leadership.break) conflicts.push(`주도 영역이 꺾이는 신호 — ${leadership.summary}(확인 ${leadership.met}/${leadership.confirmations.length}, ${leadership.need}개 이상이면 판정). 소수 종목이 지수를 받치던 흐름에서 함께 약해지는 흐름으로 넘어가는지 확인할 구간입니다.`);
   // P1591 (M02): the HY clause follows the observed 5-day direction — "확대가 이어지면" read as already widening
   // when the spread had narrowed 9bp.

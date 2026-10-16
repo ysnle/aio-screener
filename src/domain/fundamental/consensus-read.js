@@ -5,6 +5,8 @@
 
 export const CONSENSUS_MAX_AGE_DAYS = 21;
 export const CONSENSUS_THIN_ESTIMATES = 3;
+/** A close more than 10 calendar days old (about a week of sessions plus a holiday weekend) is not the current price. */
+export const CONSENSUS_PRICE_MAX_AGE_DAYS = 10;
 /** Net 4-week revisions (up − down) needed before the tone leans either way. */
 export const CONSENSUS_NET_REVISION_FLOOR = 2;
 // v57.70 (2026-10-15 audit): GOOGL read "직전 4개 분기 PER 17.8배 · 예상 이익 -35%" — the trailing sum (19.91) carried
@@ -26,8 +28,13 @@ export function consensusView(row, estimate, { now = Date.now() } = {}) {
   const fwdEps = finite(estimate.fwd.eps);
   const trailingEps = finite(estimate.trailing.eps);
   if (price == null || price <= 0 || fwdEps == null || trailingEps == null) return null;
+  // Codex audit F29 (2026-10-15): the estimate's age was checked but the close's was not — a 2020 close beside a 2026
+  // consensus produced a "current" Forward PER. A dated close older than CONSENSUS_PRICE_MAX_AGE_DAYS is not used.
+  const priceDate = String(row?.factorSessionDate || '').slice(0, 10) || null;
+  const priceMs = priceDate ? Date.parse(`${priceDate}T00:00:00Z`) : NaN;
+  if (!priceDate || !Number.isFinite(priceMs) || now - priceMs > CONSENSUS_PRICE_MAX_AGE_DAYS * DAY_MS) return null; // v57.84: an undated close fails closed
   return {
-    price, priceDate: String(row?.factorSessionDate || '').slice(0, 10) || null, asOf: new Date(asOf).toISOString().slice(0, 10),
+    price, priceDate, asOf: new Date(asOf).toISOString().slice(0, 10),
     fwdEps, trailingEps, fwdFrom: estimate.fwd.from, fwdTo: estimate.fwd.to,
     fwdPe: fwdEps > 0 ? price / fwdEps : null,
     ...(() => {

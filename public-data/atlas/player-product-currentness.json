@@ -5,13 +5,14 @@
   "publication": "EDUCATIONAL_REFERENCE_ONLY",
   "reviewedAt": "2026-08-15",
   "artifactAuditedAt": "2026-08-18",
-  "freshnessStatus": "STALE_REFERENCE_REVIEW_REQUIRED",
+  "freshnessStatus": "CADENCE_JUDGED_AT_RUNTIME",
   "freshnessPolicy": {
-    "referenceReviewWindowDays": 7,
+    "policySource": "src/domain/knowledge/knowledge-cadence.js",
+    "companyRoleMaxAgeDays": 365,
+    "productionStatusMaxAgeDays": 90,
     "latestPlayerAsOf": "2026-08-13",
     "latestProductAsOf": "2026-08-13",
-    "staleReferenceRows": 40,
-    "interpretation": "기준일이 검토 창을 지난 reference 행은 공식 페이지 재확인 전까지 최신 현재성으로 해석하지 않는다."
+    "interpretation": "역할·제품군은 1년, 제품 세대·양산 상태는 90일마다 재확인한다. 기한 판정은 런타임(registryCadenceSummary)이 한 곳에서 하고, 이 파일은 날짜만 싣는다(codex 감사 F17, 2026-10-15: 이전 7일 창은 런타임 정책과 달라 두 정본이 생겼다)."
   },
   "coverage": {
     "players": 21,

@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.82';
+const APP_VERSION = 'v57.84';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -177,7 +177,7 @@ function _aioNormalizeAiError(error, context) {
   if ((status >= 200 && status < 300 || status === 0) && /success|ok/i.test(raw) && !/error|fail/i.test(raw)) reason = 'success';
   else if (/aborterror|timeout|timed out|시간 초과|연결 시간 초과|chunk_timeout/i.test(lower)) { reason = 'timeout'; retryable = true; }
   else if (status === 429 || /rate.?limit|too many|일일.*한도|호출.*한도/i.test(lower)) { reason = 'rate_limit'; retryable = true; }
-  else if (status === 403 && /region|regional|location|country|hkg|forbidden/i.test(lower)) { reason = 'regional_forbidden'; retryable = true; }
+  else if (status === 403 && /region|location|country|territor/i.test(lower) && !/origin|token|auth/i.test(lower)) { reason = 'regional_forbidden'; retryable = true; } // v57.84: a bare 'forbidden' is not a regional block
   else if (status === 401 || (status === 403 && /origin|token|key|auth|unauthor/i.test(lower))) { reason = 'auth_or_origin'; }
   else if (status === 503 || status === 502 || status === 500 || status === 529 || /upstream|temporarily unavailable|kv|서버.*일시|서비스.*중단/i.test(lower)) { reason = 'upstream_unavailable'; retryable = true; }
   else if (/missing|미설정|키를 저장|api key|credential/i.test(lower)) { reason = 'missing_credentials'; }
@@ -3057,7 +3057,7 @@ if (typeof document !== 'undefined') {
       sinks.forEach(function(el){
         var mode = el.getAttribute('data-market-analysis-sink') || 'one'; if (el.hasAttribute('data-analysis-server-only') && !serverLLM) { el.textContent = ''; el.hidden = true; return; } el.hidden = false; // P1383: the template synthesis printed '?' slots and an uncalibrated n/100
         var src = serverLLM || syn;
-        var txt = String(mode === 'full' ? (src.full || syn.full) : (src.oneLine || syn.oneLine) || '').replace(/\s*\[[^\]\n]*(?:headline:|market-analysis:|[a-z]+(?:[.-][a-z0-9]+)+:[0-9a-f]{8})[^\]\n]*\]/gi, '').replace(/\s*\(?\b(?:market-analysis:[^\s,)]+|[a-z]+(?:[.-][a-z0-9]+)+:[0-9a-f]{8})\b\)?/gi, '').replace(/\s*\(\d{4}-\d{2}-\d{2}T[\d:.]+Z\)/g, '').replace(/[ \t]*\[(?:[0-9a-f]{8}|[a-z][a-z0-9]*(?:[-_.][a-z0-9]+)+)\](?!\()/g, '').replace(/[ \t]{2,}/g, ' ').replace(/[ \t]+([.,;])/g, '$1'); // X20: short ledger ids ([90b7eec7], [regime-context]) too; P1428: evidence ids and raw ISO stamps stay in the evidence store, not in the reader's text; P1651: whole citation brackets incl. headline URLs
+        var txt = String(mode === 'full' ? (src.full || syn.full) : (src.oneLine || syn.oneLine) || ''); txt = typeof window._aioStripEvidenceIds === 'function' ? window._aioStripEvidenceIds(txt) : txt.replace(/\s*\[[^\]\n]*(?:headline:|market-analysis:|[a-z]+(?:[.-][a-z0-9]+)+:[0-9a-f]{8})[^\]\n]*\]/gi, '').replace(/\s*\(?\b(?:market-analysis:[^\s,)]+|[a-z]+(?:[.-][a-z0-9]+)+:[0-9a-f]{8})\b\)?/gi, '').replace(/\s*\(\d{4}-\d{2}-\d{2}T[\d:.]+Z\)/g, '').replace(/[ \t]*\[(?:[0-9a-f]{8}|[a-z][a-z0-9]*(?:[-_.][a-z0-9]+)+)\](?!\()/g, '').replace(/[ \t]{2,}/g, ' ').replace(/[ \t]+([.,;])/g, '$1'); // X20/P1428/P1651; P1847 (codex F11): the native stripper (src/domain/briefing/evidence-text.js) also removes id lists
         // P1122: a published narrative carries its own boundary note; show it with the full text.
         var note = (mode === 'full' && serverLLM && typeof serverLLM.disclosure === 'string') ? serverLLM.disclosure : '';
         // X20: the narrative mixes US closes, delayed quotes and the KOSPI close — its scope chip names that (not the parent title).
@@ -3466,7 +3466,7 @@ window._aioCloseGlossary = function() {
 window._aioChatHistoryClear = function() {
   if (typeof window.showConfirmModal !== 'function') return;
   window.showConfirmModal('대화 기록 전체 삭제', '모든 대화 기록이 영구 삭제됩니다. 계속하시겠습니까?', function() {
-    try { localStorage.removeItem('aio_chat_history'); } catch(_){}
+    try { localStorage.removeItem('aio_chat_history'); localStorage.removeItem('aio_chat_sessions_v1'); localStorage.removeItem('aio_chat_active_session'); } catch(_){}
     var ov = document.querySelector('.chat-history-overlay');
     if (ov) { if (ov._aioClose) ov._aioClose(); else ov.remove(); }
   }, '');
@@ -5195,12 +5195,12 @@ window.AIO.getPortfolioAIPrivacyPreview = function(positions, options) {
 window.AIO.getChatHistoryPolicy = function() {
   var enabled = false;
   try { enabled = localStorage.getItem('aio_chat_history_enabled') === '1'; } catch(_) {}
-  return { version: _AIO_AI_SECURITY_VERSION, enabled: enabled, optInRequired: true, storage: enabled ? 'localStorage-redacted' : 'off', retentionDays: 30, maxEntries: 50 };
+  return { version: _AIO_AI_SECURITY_VERSION, enabled: enabled, optInRequired: true, storage: enabled ? 'localStorage-redacted' : 'off', retentionDays: 30, maxEntries: 50, transcripts: { key: 'aio_chat_sessions_v1', storage: enabled ? 'localStorage-full-text' : 'off', retention: 'until-deleted', maxSessions: 40, pinEncrypted: false, sentToAI: 'recent-turns-on-continue' } }; // P1840 (codex F15): the full-text conversations are a separate store from the redacted summary
 };
 window.AIO.setChatHistoryEnabled = function(enabled) {
   try {
     localStorage.setItem('aio_chat_history_enabled', enabled === true ? '1' : '0');
-    if (enabled !== true) localStorage.removeItem('aio_chat_history');
+    if (enabled !== true) { localStorage.removeItem('aio_chat_history'); localStorage.removeItem('aio_chat_sessions_v1'); localStorage.removeItem('aio_chat_active_session'); }
   } catch(_) {}
   var policy = window.AIO.getChatHistoryPolicy();
   return Object.assign({}, policy, { cleared: enabled !== true });
@@ -9125,7 +9125,7 @@ function _aioMacroTodayIso(now) {
   return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0');
 }
 window.AIO.refreshMacroCalendarFromOfficialSchedule = function(now) {
-  var registry = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases;
+  var registry = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases, nowMs = now == null || !(+now >= 0) ? Date.now() : +now, notYet = typeof window._aioMacroReleaseNotYet === 'function' ? window._aioMacroReleaseNotYet : function(k, d, n, t) { return d >= t; }; // P1844 (codex F07): native release clock
   var artifact = window.AIO_MACRO_OFFICIAL_SCHEDULES || {};
   var today = _aioMacroTodayIso(now);
   var updated = [];
@@ -9141,7 +9141,7 @@ window.AIO.refreshMacroCalendarFromOfficialSchedule = function(now) {
     var entry = registry[key] || {};
     var dates = Array.isArray(artifact[key]) ? artifact[key].map(_aioMacroIsoDate).filter(Boolean).sort() : [];
     var last = _aioMacroIsoDate(entry.lastRelease); // Schedule passage alone is not result evidence.
-    var next = dates.find(function(date) { return date >= today; }) || null;
+    var next = dates.find(function(date) { return notYet(key, date, nowMs, today); }) || null;
     entry.lastRelease = last || null;
     entry.nextRelease = next;
     entry.scheduleArtifact = dates.length ? 'AIO_MACRO_OFFICIAL_SCHEDULES' : null;
@@ -9171,7 +9171,7 @@ window.AIO.refreshMacroCalendarFromOfficialSchedule();
 
 window.AIO.renderMacroNextRelease = function() {
   var el = document.getElementById('macro-next-release');
-  var releases = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases;
+  var releases = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases, nowMs = Date.now(), notYet = typeof window._aioMacroReleaseNotYet === 'function' ? window._aioMacroReleaseNotYet : function(k, d, n, t) { return d >= t; }; // P1844 (codex F07): native release clock
   if (!el) return null;
   if (!releases) {
     el.textContent = '공식 일정 원천 수신 대기';
@@ -9185,7 +9185,7 @@ window.AIO.renderMacroNextRelease = function() {
   var upcoming = Object.keys(releases).map(function(key) {
     return { key:key, name:releases[key].name, date:releases[key].nextRelease };
   }).filter(function(item) {
-    return item.date && item.date >= todayKst;
+    return item.date && notYet(item.key, item.date, nowMs, todayKst);
   }).sort(function(a, b) {
     return a.date.localeCompare(b.date);
   });

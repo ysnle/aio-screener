@@ -6,7 +6,8 @@ export default {
   steps: [
     ['nav 오늘 → 대시보드', (p) => openFromNav(p, '오늘', 'page-home')],
     ['허브 탭 3개', (p) => expectTabs(p, ['대시보드', '브리핑', '뉴스'])],
-    ['대시보드 판정 헤드라인 (종가 기준 · 6개 축)', (p) => expectText(p, '#home-hero-headline', { pattern: /종가 기준.*6개 축/ })],
+    // Codex audit F12: check what the headline must carry (close basis + the axis tally), not one wording of it.
+    ['대시보드 판정 헤드라인 (종가 기준 · 지표 집계)', (p) => expectText(p, '#home-hero-headline', { pattern: /종가 기준.*(?:양호|중립|부담)\s*\d/ })],
     ['탭 브리핑', (p) => tabTo(p, '브리핑', 'page-briefing')],
     ['브리핑 날짜줄', (p) => expectText(p, '#briefing-date-line')],
     ['탭 뉴스', (p) => tabTo(p, '뉴스', 'page-market-news')],

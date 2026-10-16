@@ -460,7 +460,7 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
 
   // 1) 테마 온도 진단
   if (avg >= 3) ss.push('<b>매우 강세</b> — 시장에서 가장 뜨거운 테마 중 하나입니다. 외국인·기관 동반 매수가 집중될 수 있으나, 단기 과열에 따른 차익실현 압력도 경계가 필요합니다.');
-  else if (avg >= 1) ss.push('<b>강세</b> — 모멘텀이 살아있는 테마입니다. 실적 발표, 정책 수혜, 수주 등 펀더멘털 촉매가 주가를 떠받치고 있을 가능성이 높습니다.');
+  else if (avg >= 1) ss.push('<b>강세</b> — 모멘텀이 살아있는 테마입니다. 실적 발표·정책·수주 같은 펀더멘털 촉매가 있는지 공시와 뉴스로 확인할 구간입니다.');
   else if (avg >= 0) ss.push(' <b>보합</b> — 방향성 탐색 구간입니다. 시장이 이 테마에 대해 뚜렷한 확신을 갖지 못하고 있으며, 새로운 촉매가 필요합니다.');
   else if (avg >= -2) ss.push('<b>약세</b> — 차익실현 매물 또는 섹터 로테이션 매도가 출회되고 있습니다. 펀더멘털이 훼손된 것인지 일시적 수급 이탈인지 구분이 핵심입니다.');
   else ss.push(' <b>급락</b> — 시장에서 외면받고 있는 테마입니다. 구조적 악재(정책 변경, 수요 급감, 경쟁 심화)가 있는지 점검이 필요합니다.');
@@ -476,7 +476,7 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
   // 3) 상승 비율 기반 건강도 — v38.3: 데이터 수신 종목 수 기준으로 계산 (미수신 종목 제외)
   var dataCounted = upCnt + dnCnt;
   var upRatio = dataCounted > 0 ? Math.round(upCnt / dataCounted * 100) : 0;
-  if (upRatio >= 70) ss.push(' <b>테마 건강도 우수</b> — 구성종목 중 ' + upRatio + '%가 상승. 광범위한 매수세가 테마 전체를 지지하고 있어 추세 지속 가능성이 높습니다.');
+  if (upRatio >= 70) ss.push(' <b>테마 건강도 우수</b> — 구성종목 중 ' + upRatio + '%가 상승. 오름세가 대장주에 그치지 않고 테마 전체로 퍼져 있습니다. 하루 비율이라 추세 지속을 뜻하지는 않습니다.');
   else if (upRatio >= 50) ss.push(' <b>테마 건강도 보통</b> — 상승 ' + upCnt + '개 vs 하락 ' + dnCnt + '개. 대장주 위주로만 오르고 있다면 폭이 좁은 랠리로, 후발주 확산 여부를 모니터링해야 합니다.');
   else ss.push('<b>테마 건강도 취약</b> — 하락 종목(' + dnCnt + '개)이 상승 종목(' + upCnt + '개)보다 많습니다. 테마 모멘텀이 꺾이는 신호일 수 있어 추격 진입의 위험이 커집니다.');
 

@@ -154,6 +154,17 @@ function renderMyNames(doc, host, root, store, regime = null) {
     list.append(li);
   }
   host.append(list);
+  // Codex audit F25 (2026-10-15): more than eight names were cut silently; the count and the way to the rest are said.
+  if (model.names.length > 8) {
+    const more = el(doc, 'button', `전체 ${model.names.length}개 중 8개 표시 · 나머지는 스크리너의 내 워치리스트에서 →`, 'flow-next-link');
+    more.type = 'button';
+    more.addEventListener('click', () => {
+      root?.showPage?.('screener');
+      const only = doc.getElementById('scr-watchlist-only');
+      if (only && !only.checked) { only.checked = true; only.dispatchEvent(new root.Event('change', { bubbles: true })); }
+    });
+    host.append(more);
+  }
   return model;
 }
 
@@ -194,7 +205,15 @@ function renderSchedule(doc, host, root) {
   }).filter((row) => !row.passed);
   host.replaceChildren(el(doc, 'h2', '다가오는 일정', 'briefing-h2'));
   host.querySelector('h2').append(el(doc, 'span', '3일 · 한국 시간', 'briefing-h2-note'));
-  if (!schedule.length) { host.append(el(doc, 'p', '3일 안에 예정된 주요 발표가 없습니다.', 'daily-empty')); return; }
+  // Codex audit F26 (2026-10-15): "없습니다" only when the calendars were actually read — a missing macro calendar or an
+  // earnings calendar still loading/failed is said as such, not merged into the empty sentence.
+  const macroKnown = !!root.AIO_MACRO_CALENDAR?.releases && Object.keys(root.AIO_MACRO_CALENDAR.releases).length > 0;
+  const earningsKnown = !!root._aioEarningsSnapshot;
+  if (!schedule.length) {
+    host.append(el(doc, 'p', !macroKnown ? '발표 일정 자료를 아직 받지 못했습니다. 잠시 뒤 다시 확인합니다.'
+      : earningsKnown ? '3일 안에 예정된 주요 발표가 없습니다.' : '3일 안에 예정된 주요 경제 발표가 없습니다. 실적 발표 일정은 아직 받는 중입니다.', 'daily-empty'));
+    return;
+  }
   const list = el(doc, 'ul', null, 'daily-schedule');
   for (const row of schedule.slice(0, 5)) {
     const li = el(doc, 'li', null, `daily-event${row.today ? ' is-today' : ''}`);

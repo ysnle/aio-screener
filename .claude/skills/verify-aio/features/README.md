@@ -38,7 +38,7 @@ Each feature file has an H1, one paragraph of user-visible behavior, then exactl
 - [종목](./stock.md) — ticker search and the same company across 요약/차트/재무 공시.
 - [스크리너](./screener.md) — ranked rows and text search.
 - [포트폴리오](./portfolio.md) — add a holding and keep it across reload.
-- [리서치 라이브러리](./learn.md) — 개념·분석 프레임, 산업·밸류체인, 운용사·13F.
+- [리서치 라이브러리](./learn.md) — 개념·분석, 산업 지도, 대가 보유 종목 (탭 이름은 `src/ui/knowledge/research-shell.js` RESEARCH_PAGES에서 읽는다).
 - [용어 사전](./glossary.md) — open, search, close.
 - [AI 도우미 패널](./ai-panel.md) — open, chips, Enter send (degraded path locally), Esc close.
 - [공통 셸](./shell.md) — 도움말 guide, dark/light switch kept across reload, deep links.

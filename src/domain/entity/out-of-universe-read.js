@@ -64,7 +64,7 @@ export function buildOutOfUniverseRead(record) {
   }
   lines.push(`계산에 쓴 항목: ${used.length ? used.join(', ') : '없음'}${missing.length ? ` · 빠진 항목: ${missing.join(', ')}` : ''}. 빠진 항목은 추정하지 않고 비워 둡니다.`);
   if (record.secStatus && record.secStatus !== 'ready' && SEC_STATUS_TEXT[record.secStatus]) lines.push(`${SEC_STATUS_TEXT[record.secStatus]}.`);
-  lines.push(`${computed ? `${computed}에 요청 시 계산한 값` : '요청 시 계산한 값'}이며 공개 순위에는 들어가지 않습니다${record.row?.sector ? '' : ' · 섹터 분류가 없어 섹터 안이 아닌 유니버스 전체 기준으로 비교했습니다'}.`);
+  lines.push(`${computed ? `${computed}에 요청 시 계산한 값` : '요청 시 계산한 값'}이며 공개 순위에는 들어가지 않습니다${record.row?.sector ? (record.classification?.sic ? ` · 섹터 ${record.row.sector}는 SEC 산업분류(SIC ${record.classification.sic}${record.classification.description ? ` ${record.classification.description}` : ''})를 옮긴 값입니다` : '') : ' · 섹터 분류가 없어 섹터 안이 아닌 유니버스 전체 기준으로 비교했습니다'}.`);
   return { available: rank != null, state: 'ready', title: OUT_OF_UNIVERSE_TITLE, symbol, rank, topPct: rank != null ? Math.max(1, 100 - rank) : null,
     ranked, computedAt: record.computedAt || null, computedLabel: computed, sessionDate: record.sessionDate || null, lines, inputs, used, missing,
     factorScores: placement?.factorScores || null, secStatus: record.secStatus || null };

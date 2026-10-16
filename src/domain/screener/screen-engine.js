@@ -320,10 +320,12 @@ const preset = (screenId, name, objective, filtersAST, requiredFields, ranking =
 export function createDefaultScreenDefinitions() {
   return Object.freeze([
     preset('preset-balanced', '균형 상대 랭킹', 'balanced-research', { type: 'range', field: 'rank', min: 60, nullPolicy: 'unknown' }, ['price.ret3m', 'price.pctSma200', 'price.rsi14']),
-    preset('preset-momentum', '모멘텀 지속', 'momentum-research', { type: 'and', children: [{ type: 'range', field: 'price.ret3m', min: 0, nullPolicy: 'unknown' }, { type: 'range', field: 'rank', min: 60, nullPolicy: 'unknown' }] }, ['price.ret1m', 'price.ret3m', 'technical.kalmanVelocity']),
+    // v57.84 review: the presets were the composite rank filtered four ways (모멘텀 지속 274/274 inside 균형). Each now sorts by
+    // its own signal, uses thresholds that select (분포 기준), and 돌파 관찰 needs an actual breakout/near-pivot stage.
+    preset('preset-momentum', '모멘텀 지속', 'momentum-research', { type: 'and', children: [{ type: 'range', field: 'price.ret3m', min: 0, nullPolicy: 'unknown' }, { type: 'range', field: 'rank', min: 60, nullPolicy: 'unknown' }] }, ['price.ret1m', 'price.ret3m', 'technical.kalmanVelocity'], { field: 'price.ret3m', direction: 'desc' }),
     preset('preset-trend', '추세 정렬', 'trend-research', { type: 'and', children: [{ type: 'range', field: 'price.pctSma50', min: 0, nullPolicy: 'unknown' }, { type: 'range', field: 'price.pctSma200', min: 0, nullPolicy: 'unknown' }] }, ['price.pctSma50', 'price.pctSma200']),
-    preset('preset-lowvol', '저변동 방어', 'low-volatility-research', { type: 'range', field: 'price.volatility', max: 35, nullPolicy: 'unknown' }, ['price.volatility', 'price.rsi14'], { field: 'price.volatility', direction: 'asc' }),
-    preset('preset-quality', '퀄리티 결합', 'quality-research', { type: 'and', children: [{ type: 'range', field: 'quality.roe', min: 10, nullPolicy: 'unknown' }, { type: 'range', field: 'quality.margin', min: 5, nullPolicy: 'unknown' }] }, ['quality.roe', 'quality.margin', 'quality.revGrowth']),
-    preset('preset-breakout-observation', '돌파 관찰', 'breakout-observation', { type: 'and', children: [{ type: 'range', field: 'technical.vcpScore', min: 50, nullPolicy: 'unknown' }, { type: 'range', field: 'price.rvol20', min: 1, nullPolicy: 'unknown' }] }, ['technical.vcpScore', 'price.rvol20', 'technical.ema8', 'technical.ema21'])
+    preset('preset-lowvol', '저변동 방어', 'low-volatility-research', { type: 'range', field: 'price.volatility', max: 25, nullPolicy: 'unknown' }, ['price.volatility', 'price.rsi14'], { field: 'price.volatility', direction: 'asc' }),
+    preset('preset-quality', '퀄리티 결합', 'quality-research', { type: 'and', children: [{ type: 'range', field: 'quality.roe', min: 15, nullPolicy: 'unknown' }, { type: 'range', field: 'quality.margin', min: 10, nullPolicy: 'unknown' }] }, ['quality.roe', 'quality.margin']),
+    preset('preset-breakout-observation', '돌파 관찰', 'breakout-observation', { type: 'and', children: [{ type: 'enum', field: 'technical.vcpStage', values: ['breakout', 'near_pivot'], nullPolicy: 'unknown' }, { type: 'range', field: 'price.rvol20', min: 1.4, nullPolicy: 'unknown' }] }, ['technical.vcpScore', 'price.rvol20', 'technical.ema8', 'technical.ema21'])
   ]);
 }

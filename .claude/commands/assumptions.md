@@ -10,6 +10,7 @@ For each assumption:
   (or the fix the assumption implies). Name the file and the exact change.
 
 Then **stop**. Do not apply any fix. Wait for the user's manual review and explicit go-ahead.
+The stop belongs to this command: it runs only when the user invokes `/assumptions`, and a batch the user already approved continues once they answer.
 
 Guidelines
 - Prefer fewer, sharper assumptions over a long generic list; group trivial ones.

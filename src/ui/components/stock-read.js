@@ -200,7 +200,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   // sessions behind the market's latest completed close that factor session is.
   const benchmark = benchmarkRowFor(sym, root?._aioHistory || [], { through: row?.factorSessionDate || null });
   const rotation = currentRotationItems(root?._serverDataMeta?.rotationHistory, Date.now());
-  const alignedBenchmark = row?.factorSessionDate && benchmark.asOf === row.factorSessionDate ? benchmark : { ...benchmark, ret1m:null, ret3m:null, ret6m:null };
+  const alignedBenchmark = row?.factorSessionDate && benchmark.asOf === row.factorSessionDate ? benchmark : { ...benchmark, ret5d:null, ret1m:null, ret3m:null, ret6m:null }; // v57.84: the 5-day window too
   const market = screenerMarket({ sym });
   const latestSession = market === 'KR' ? latestCompletedKrSession(Date.now()) : latestCompletedUsSession(Date.now(), { requirePrevious: false });
   const factorSession = String(row?.factorSessionDate || '').slice(0, 10);

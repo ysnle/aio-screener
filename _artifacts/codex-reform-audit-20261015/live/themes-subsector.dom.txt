@@ -1,0 +1,924 @@
+- link "메인 콘텐츠로 건너뛰기":
+  - /url: "#main-content"
+- navigation "메인 네비게이션":
+  - generic: AIO
+  - generic: Investment Screener
+  - generic: 데일리
+  - button "오늘 페이지":
+    - generic: 오늘
+  - generic: 시장
+  - button "시장 상태 페이지":
+    - generic: 시장 상태
+  - button "거시 · 금리 페이지":
+    - generic: 거시 · 금리
+  - button "테마 · 섹터 페이지":
+    - generic: 테마 · 섹터
+  - generic: 내 투자
+  - button "종목 페이지":
+    - generic: 종목
+  - button "스크리너 페이지":
+    - generic: 스크리너
+  - button "포트폴리오 페이지":
+    - generic: 포트폴리오
+  - generic: 리서치
+  - button "리서치 라이브러리 페이지":
+    - generic: 리서치 라이브러리
+  - button "용어 사전 페이지":
+    - generic: 용어 사전
+  - button "다크 모드로 전환":
+    - generic: 다크 모드로 전환
+  - generic: AI 도우미
+  - generic: "ON"
+  - text: GPT-6 Luna · 공용 AI 연결
+  - text: 개인 AI 키 입력 없이 이용합니다.
+  - generic "연결 상태"
+  - generic "보안 설정"
+- banner:
+  - button "메뉴 열기" [expanded]: ☰
+  - generic: 테마 · 섹터
+  - generic "미국 정규장 중 · 최신 관측 10/15 22:51 KST":
+    - generic: LIVE
+  - generic "미국 정규장 중 · 최신 관측 10/15 22:51 KST": 22:51 기준 · 시세 16종 · 실시간 관측 44종
+  - 'generic "v57.82 · 확인: 2026.10.15"': v57.82
+  - button "도움말"
+  - button "AI 도우미 열기/닫기": AI 도우미
+- main:
+  - text: 펼치기 ▼ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▲ ▼ ▼ 펼치기 ▾ ▸ ▸ ▸ ▸ ▸ ▸ ▸ ▸ ▸ 펼치기 펼치기
+  - region "테마 · 섹터":
+    - heading "테마 · 섹터" [level=1]
+    - generic: 어느 업종·테마의 가격이 시장보다 앞서는지 — 섹터 상대강도 회전과 하위 테마 순위
+    - button "11섹터"
+    - button "서브섹터" [active]
+    - button "전체"
+    - generic: 하위 테마 상대강도 · 선도·개선 4/20 · 약화·후행 15/20 · 경계 1/20
+    - region "섹터 회전 판정":
+      - heading "섹터 회전 판정" [level=2]
+      - paragraph: 약 50일 상대강도 기준 선도 E&P·소프트웨어·사이버보안 · 개선 반도체(최근 5거래일 상대강도 -8.8% 반락). 선도·개선 4개 중 방어 업종(유틸리티·필수소비·헬스케어·부동산) 0개, 경기 민감 업종 4개입니다. 약화 0 · 후행 15. 경계(100 근처라 사분면을 정하지 않음) 오일서비스.
+      - generic: 선도 3 · 개선 1 · 약화 0 · 후행 15 · 경계 1 · 약 50일 상대강도 · 10/14 미국 종가 기준
+      - img "섹터 상대강도 산점도 — 가로축 시장 대비 상대강도, 세로축 상대강도 변화 속도. 사분면별 섹터 목록은 아래 접힌 칸에 있습니다."
+      - generic "사분면별 섹터"
+    - generic: 섹터 1일·1주 등락
+    - text: 성과와 사분면 상태
+    - button "섹터 RS 설명": "?"
+    - button "11섹터"
+    - button "+서브섹터"
+    - button "1일"
+    - button "1주"
+    - generic: 10/14 미국 종가 기준 · 값이 없는 섹터는 대기
+    - generic: XLV
+    - generic: 헬스케어/제약
+    - generic: +2.51%
+    - generic: 선도
+    - generic: XLP
+    - generic: 필수소비재
+    - generic: +2.22%
+    - generic: 선도
+    - generic: XLE
+    - generic: 에너지
+    - generic: +0.64%
+    - generic: 선도
+    - generic: XLB
+    - generic: 원자재
+    - generic: "-0.10%"
+    - generic: 후행
+    - generic: XLU
+    - generic: 유틸리티
+    - generic: "-0.36%"
+    - generic: 개선
+    - generic: XLF
+    - generic: 금융
+    - generic: "-0.55%"
+    - generic: 후행
+    - generic: XLY
+    - generic: 임의소비재
+    - generic: "-0.77%"
+    - generic: 후행
+    - generic: XLRE
+    - generic: 리츠/부동산
+    - generic: "-0.81%"
+    - generic: 후행
+    - generic: XLI
+    - generic: 산업재/물류
+    - generic: "-0.97%"
+    - generic: 후행
+    - generic: XLC
+    - generic: 통신서비스
+    - generic: "-1.30%"
+    - generic: 개선
+    - generic: XLK
+    - generic: 기술
+    - generic: "-2.98%"
+    - generic: 선도
+    - region "S&P 500 지도":
+      - heading "S&P 500 지도" [level=2]
+      - group "수익률 기간":
+        - button "1일" [pressed]
+        - button "1주"
+        - button "1개월"
+        - button "3개월"
+      - paragraph: 넓이 = 지수 비중(503종목 · 10/13 보유 비중) · 색 = 1일 수익률 · 10/14 미국 종가 기준
+      - paragraph: 기간 시작 비중으로 가중한 평균 -1.11% · 502종목 중 241개 상승 · 11개 섹터 중 3개 상승. 가장 강한 섹터는 필수소비재(+2.46%), 가장 약한 섹터는 기술(-2.62%)입니다. 시가총액 상위 10개 기업이 지도 면적의 41%이고 -2.06%, 나머지는 -0.45%로 상위 10개 기업이 1.6%p 약했습니다. 종목마다 같은 비중을 두면 평균 -0.61%입니다.
+      - img "S&P 500 섹터 지도, 1일 수익률. 기간 시작 비중으로 가중한 평균 -1.11% · 502종목 중 241개 상승 · 11개 섹터 중 3개 상승. 가장 강한 섹터는 필수소비재(+2.46%), 가장 약한 섹터는 기술(-2.62%)입니다. 시가총액 상위 10개 기업이 지도 면적의 41%이고 -2.06%, 나머지는 -0.45%로 상위 10개 기업이 1.6%p 약했습니다. 종목마다 같은 비중을 두면 평균 -0.61%입니다. 섹터별 숫자와 종목 이동은 아래 '섹터별 숫자'에서 볼 수 있습니다.":
+        - generic: 기술 -2.6%
+        - generic: 금융 -0.6%
+        - generic: 통신 -1.8%
+        - generic: 헬스케어 +2.4%
+        - generic: 경기소비재 -1.1%
+        - generic: 산업재 -1.0%
+        - generic: 필수소비재 +2.5%
+        - generic: 에너지 +0.8%
+        - generic: 유틸리티 -0.3%
+        - generic: 부동산 -0.8%
+        - generic: 소재 -0.4%
+        - strong: NVDA
+        - generic: "-3.16%"
+        - strong: AAPL
+        - generic: +0.50%
+        - strong: MSFT
+        - generic: "-1.80%"
+        - strong: AVGO
+        - generic: "-3.10%"
+        - strong: MU
+        - generic: "-4.08%"
+        - strong: AMD
+        - generic: "-5.73%"
+        - strong: INTC
+        - generic: "-4.56%"
+        - strong: PLTR
+        - generic: "-3.69%"
+        - strong: CSCO
+        - generic: "-1.24%"
+        - strong: LRCX
+        - generic: "-4.71%"
+        - strong: AMAT
+        - generic: "-3.79%"
+        - strong: PANW
+        - generic: "-5.54%"
+        - strong: CRWD
+        - generic: "-4.56%"
+        - strong: TXN
+        - generic: "-2.50%"
+        - strong: ORCL
+        - generic: "-8.83%"
+        - strong: KLAC
+        - generic: "-2.82%"
+        - strong: MRVL
+        - generic: "-8.73%"
+        - strong: IBM
+        - generic: "-1.26%"
+        - strong: SNDK
+        - generic: "-5.33%"
+        - strong: ANET
+        - generic: "-4.45%"
+        - strong: APH
+        - generic: "-3.73%"
+        - strong: ADI
+        - generic: "-2.68%"
+        - strong: CRM
+        - generic: "-0.87%"
+        - strong: QCOM
+        - generic: "-2.40%"
+        - strong: DELL
+        - generic: "-11.3%"
+        - strong: STX
+        - generic: "-4.50%"
+        - strong: NOW
+        - generic: +0.99%
+        - strong: WDC
+        - generic: "-4.36%"
+        - strong: ACN
+        - strong: GLW
+        - strong: FTNT
+        - strong: DDOG
+        - strong: HPE
+        - strong: LITE
+        - strong: MSI
+        - strong: P
+        - strong: "ON"
+        - strong: Q
+        - strong: BRK-B
+        - generic: +1.11%
+        - strong: JPM
+        - generic: +1.16%
+        - strong: V
+        - generic: "-1.17%"
+        - strong: MA
+        - generic: "-0.26%"
+        - strong: BAC
+        - generic: "-4.76%"
+        - strong: GS
+        - generic: "-1.48%"
+        - strong: WFC
+        - generic: +0.20%
+        - strong: MS
+        - generic: "-2.75%"
+        - strong: C
+        - generic: "-1.81%"
+        - strong: AXP
+        - generic: "-0.93%"
+        - strong: SCHW
+        - generic: +0.90%
+        - strong: BLK
+        - generic: +0.72%
+        - strong: PGR
+        - generic: "-4.23%"
+        - strong: SPGI
+        - generic: "-0.35%"
+        - strong: CB
+        - generic: +1.15%
+        - strong: COF
+        - generic: "-1.88%"
+        - strong: CME
+        - strong: BNY
+        - strong: USB
+        - strong: ICE
+        - strong: PNC
+        - strong: BX
+        - strong: TRV
+        - strong: MCO
+        - strong: KKR
+        - strong: AJG
+        - strong: ALL
+        - strong: AON
+        - strong: APO
+        - strong: MET
+        - strong: AFL
+        - strong: RF
+        - strong: L
+        - strong: GOOGL
+        - generic: "-1.74%"
+        - strong: META
+        - generic: "-3.27%"
+        - strong: GOOG
+        - generic: "-1.68%"
+        - strong: NFLX
+        - generic: +0.16%
+        - strong: DIS
+        - generic: +0.38%
+        - strong: VZ
+        - generic: +2.04%
+        - strong: T
+        - generic: +0.88%
+        - strong: APP
+        - strong: LLY
+        - generic: +3.62%
+        - strong: JNJ
+        - generic: +2.13%
+        - strong: ABBV
+        - generic: +3.32%
+        - strong: MRK
+        - generic: +3.80%
+        - strong: UNH
+        - generic: +4.73%
+        - strong: TMO
+        - generic: +1.53%
+        - strong: AMGN
+        - generic: +3.21%
+        - strong: GILD
+        - generic: +3.80%
+        - strong: ABT
+        - generic: +0.35%
+        - strong: PFE
+        - generic: +2.96%
+        - strong: ISRG
+        - generic: "-0.43%"
+        - strong: DHR
+        - generic: +0.83%
+        - strong: VRTX
+        - generic: +2.74%
+        - strong: BMY
+        - generic: +4.61%
+        - strong: MDT
+        - strong: MCK
+        - strong: CVS
+        - strong: SYK
+        - strong: ELV
+        - strong: CI
+        - strong: BDX
+        - strong: EW
+        - strong: A
+        - strong: AMZN
+        - generic: "-1.74%"
+        - strong: TSLA
+        - generic: "-2.15%"
+        - strong: HD
+        - generic: +0.54%
+        - strong: MCD
+        - generic: +1.06%
+        - strong: TJX
+        - generic: +0.95%
+        - strong: BKNG
+        - strong: LOW
+        - strong: SBUX
+        - strong: MAR
+        - strong: HLT
+        - strong: GM
+        - strong: F
+        - strong: AZO
+        - strong: CAT
+        - generic: "-3.08%"
+        - strong: GE
+        - generic: "-0.20%"
+        - strong: GEV
+        - generic: "-6.20%"
+        - strong: RTX
+        - generic: +1.89%
+        - strong: UNP
+        - generic: +1.44%
+        - strong: ETN
+        - generic: "-4.54%"
+        - strong: DE
+        - generic: +0.06%
+        - strong: BA
+        - generic: "-0.98%"
+        - strong: UBER
+        - generic: "-2.85%"
+        - strong: PH
+        - strong: ADP
+        - strong: TT
+        - strong: PWR
+        - strong: LMT
+        - strong: JCI
+        - strong: VRT
+        - strong: EMR
+        - strong: CSX
+        - strong: HWM
+        - strong: GD
+        - strong: MMM
+        - strong: WM
+        - strong: BE
+        - strong: CMI
+        - strong: NSC
+        - strong: UPS
+        - strong: ITW
+        - strong: URI
+        - strong: HON
+        - strong: NOC
+        - strong: FDX
+        - strong: TDG
+        - strong: AME
+        - strong: GWW
+        - strong: WAB
+        - strong: ROK
+        - strong: DAL
+        - strong: IR
+        - strong: J
+        - strong: WMT
+        - generic: +3.46%
+        - strong: COST
+        - generic: +2.87%
+        - strong: PG
+        - generic: +2.28%
+        - strong: KO
+        - generic: +1.85%
+        - strong: PM
+        - generic: +3.16%
+        - strong: PEP
+        - generic: +1.55%
+        - strong: MO
+        - strong: CL
+        - strong: TGT
+        - strong: KR
+        - strong: XOM
+        - generic: +1.68%
+        - strong: CVX
+        - generic: +1.98%
+        - strong: COP
+        - generic: +1.02%
+        - strong: MPC
+        - generic: +1.66%
+        - strong: VLO
+        - generic: +0.73%
+        - strong: PSX
+        - strong: WMB
+        - strong: SLB
+        - strong: KMI
+        - strong: OKE
+        - strong: BKR
+        - strong: NEE
+        - generic: +0.19%
+        - strong: SO
+        - strong: CEG
+        - strong: DUK
+        - strong: AEP
+        - strong: D
+        - strong: ED
+        - strong: WELL
+        - generic: +0.88%
+        - strong: PLD
+        - generic: "-2.31%"
+        - strong: AMT
+        - strong: SPG
+        - strong: DLR
+        - strong: O
+        - strong: LIN
+        - generic: +0.12%
+        - strong: NEM
+        - strong: FCX
+        - strong: SHW
+        - strong: ECL
+        - strong: APD
+        - strong: NUE
+        - strong: CRH
+      - paragraph: 1일 가장 크게 오른 종목 UNH(헬스케어) +4.73% · 가장 크게 내린 종목 SKYD(통신) -23.84%
+      - generic: −3%
+      - generic: −1.5%
+      - generic: −0.5%
+      - generic: "0"
+      - generic: +0.5%
+      - generic: +1.5%
+      - generic: +3%
+      - generic "섹터별 숫자"
+      - generic "지도 읽는 법"
+    - region "테마 시나리오 — 단계와 거시 영향":
+      - heading "테마 시나리오 — 단계와 거시 영향" [level=2]
+      - paragraph: 최근 1개월(9/15~10/14) 미국 테마는 강한 쪽 광통신/포토닉스(+4.8%, 5거래일 -13.8%), 필수소비재(+4.2%, 5거래일 +5.4%), 로보틱스/자동화(+3.8%) · 약한 쪽 유틸리티(-12.3%), 크립토/블록체인(-9.7%, 5거래일 -11.2%), 금융(-9.1%)입니다 — 성격별로 묶을 테마 수가 부족해(성격마다 5개 미만) 강약 이동으로 읽지 않습니다.
+      - paragraph:
+        - text: 미국 10/14 · 한국 10/15 확정 종가 · 테마 46개 · 중심 시나리오 '신용 경색' 기준. 단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500 · 한국 코스피)와 비교해 정하고(1개월 ±1.5%p, 6개월 ±3.7%p 안의 차이는 앞선 것으로 보지 않음), 최근 5거래일이 평소 1주 움직임의 2배를 넘게 반대로 움직이면 1개월 판정을 보류합니다. 바람은 테마 성격과 거시 시나리오가 강하게·약하게 만드는 영역의 겹침으로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다. 레버리지·포지션 쏠림을 직접 재는 자료는 없어 가격 단서(1개월 낙폭·
+        - button "50일선"
+        - text: 위 비율)로만 봅니다.
+      - img "테마 46개의 긴 추세와 최근 1개월 움직임 지도":
+        - generic: 주도 지속
+        - generic: 추세 속 조정
+        - generic: 반등 시도
+        - generic: 약세 지속
+        - generic: 긴 추세, 지수 대비 (미국 6개월 · 한국 3개월) →
+        - generic: 1개월, 지수 대비 →
+        - 'generic "[미국] 에너지: 약세 지속 · 1개월 -2.1% · 긴 추세 +11.9% (S&P 500 대비 -3.8%p · +2.0%p) · 5거래일 +6.9% · 부담"'
+        - 'generic "[미국] AI 인프라/데이터센터: 추세 약화 확인 중 · 1개월 +2.2% · 긴 추세 +39.0% (S&P 500 대비 +0.5%p · +29.1%p) · 5거래일 -12.7% · 부담"'
+        - 'generic "[미국] 소프트웨어/클라우드: 주도 지속 · 1개월 +2.3% · 긴 추세 +23.1% (S&P 500 대비 +0.5%p · +13.2%p) · 5거래일 -0.1% · 부담"'
+        - 'generic "[미국] 원자재: 약세 지속 · 1개월 -3.5% · 긴 추세 -6.2% (S&P 500 대비 -5.3%p · -16.1%p) · 5거래일 -1.6% · 부담"'
+        - 'generic "[미국] 헬스케어/제약: 약세 지속 · 1개월 +2.5% · 긴 추세 +13.3% (S&P 500 대비 +0.8%p · +3.4%p) · 5거래일 +3.1% · 수혜"'
+        - 'generic "[미국] 반도체: 추세 약화 확인 중 · 1개월 +3.5% · 긴 추세 +19.7% (S&P 500 대비 +1.7%p · +9.8%p) · 5거래일 -12.6% · 부담"'
+        - 'generic "[미국] 필수소비재: 반등 시도 · 1개월 +4.2% · 긴 추세 +8.5% (S&P 500 대비 +2.4%p · -1.5%p) · 5거래일 +5.4% · 수혜"'
+        - 'generic "[미국] 산업재/물류: 약세 지속 · 1개월 +2.2% · 긴 추세 +4.7% (S&P 500 대비 +0.4%p · -5.2%p) · 5거래일 +0.1% · 부담"'
+        - 'generic "[미국] 로보틱스/자동화: 반등 시도 · 1개월 +3.8% · 긴 추세 -8.2% (S&P 500 대비 +2.1%p · -18.1%p) · 5거래일 -1.9% · 부담"'
+        - 'generic "[미국] 금융: 약세 지속 · 1개월 -9.1% · 긴 추세 -1.3% (S&P 500 대비 -10.9%p · -11.2%p) · 5거래일 +0.0% · 부담"'
+        - 'generic "[미국] 통신서비스: 약세 지속 · 1개월 -6.4% · 긴 추세 -11.1% (S&P 500 대비 -8.2%p · -21.0%p) · 5거래일 +2.0% · 부담"'
+        - 'generic "[미국] 해외 대형 ADR: 약세 지속 · 1개월 +1.7% · 긴 추세 -3.4% (S&P 500 대비 -0.1%p · -13.3%p) · 5거래일 +1.8% · 부담"'
+        - 'generic "[미국] 임의소비재: 약세 지속 · 1개월 -1.1% · 긴 추세 -10.7% (S&P 500 대비 -2.9%p · -20.6%p) · 5거래일 -0.4% · 부담"'
+        - 'generic "[미국] 방산/항공우주: 약세 지속 · 1개월 -6.4% · 긴 추세 -19.7% (S&P 500 대비 -8.1%p · -29.6%p) · 5거래일 +0.8% · 수혜"'
+        - 'generic "[미국] 광통신/포토닉스: 반등 시도 · 1개월 +4.8% · 긴 추세 -14.6% (S&P 500 대비 +3.1%p · -24.5%p) · 5거래일 -13.8% · 부담"'
+        - 'generic "[미국] 유틸리티: 약세 지속 · 1개월 -12.3% · 긴 추세 -19.3% (S&P 500 대비 -14.1%p · -29.2%p) · 5거래일 -8.1% · 수혜"'
+        - 'generic "[미국] 리츠/부동산: 약세 지속 · 1개월 -1.9% · 긴 추세 -4.6% (S&P 500 대비 -3.6%p · -14.5%p) · 5거래일 +2.7% · 영향 작음"'
+        - 'generic "[미국] 크립토/블록체인: 약세 지속 · 1개월 -9.7% · 긴 추세 -6.5% (S&P 500 대비 -11.4%p · -16.4%p) · 5거래일 -11.2% · 부담"'
+        - 'generic "[한국] K-방산: 추세 약화 확인 중 · 1개월 -22.1% · 긴 추세 -15.7% (코스피 대비 -1.0%p · +10.0%p) · 5거래일 -15.3% · 영향 작음"'
+        - 'generic "[한국] 반도체: 추세 약화 확인 중 · 1개월 -17.5% · 긴 추세 -13.6% (코스피 대비 +3.5%p · +12.1%p) · 5거래일 -24.7% · 부담"'
+        - 'generic "[한국] 조선: 추세 속 조정 · 1개월 -25.5% · 긴 추세 -22.8% (코스피 대비 -4.5%p · +3.0%p) · 5거래일 -13.5% · 부담"'
+        - 'generic "[한국] AI: 추세 약화 확인 중 · 1개월 -14.0% · 긴 추세 -9.5% (코스피 대비 +7.1%p · +16.2%p) · 5거래일 -9.8% · 부담"'
+        - 'generic "[한국] 전력기기: 추세 약화 확인 중 · 1개월 -15.8% · 긴 추세 -22.0% (코스피 대비 +5.2%p · +3.7%p) · 5거래일 -23.2% · 영향 작음"'
+        - 'generic "[한국] 원전: 추세 속 조정 · 1개월 -32.0% · 긴 추세 -9.5% (코스피 대비 -10.9%p · +16.2%p) · 5거래일 -21.1% · 영향 작음"'
+        - 'generic "[한국] 2차전지: 주도 지속 · 1개월 -10.1% · 긴 추세 -2.6% (코스피 대비 +10.9%p · +23.1%p) · 5거래일 -9.9% · 부담"'
+        - 'generic "[한국] 바이오: 추세 약화 확인 중 · 1개월 -17.5% · 긴 추세 -10.3% (코스피 대비 +3.5%p · +15.4%p) · 5거래일 -9.7% · 부담"'
+        - 'generic "[한국] K-뷰티: 추세 약화 확인 중 · 1개월 -11.3% · 긴 추세 -3.1% (코스피 대비 +9.7%p · +22.6%p) · 5거래일 -13.5% · 부담"'
+        - 'generic "[한국] K-콘텐츠: 주도 지속 · 1개월 -4.3% · 긴 추세 -9.8% (코스피 대비 +16.8%p · +15.9%p) · 5거래일 -1.8% · 부담"'
+        - 'generic "[한국] 자동차: 추세 약화 확인 중 · 1개월 -19.5% · 긴 추세 -22.9% (코스피 대비 +1.6%p · +2.8%p) · 5거래일 -10.4% · 부담"'
+        - 'generic "[한국] 로봇: 추세 속 조정 · 1개월 -24.2% · 긴 추세 -22.0% (코스피 대비 -3.1%p · +3.7%p) · 5거래일 -23.1% · 부담"'
+        - 'generic "[한국] 금융: 추세 약화 확인 중 · 1개월 -8.8% · 긴 추세 -12.0% (코스피 대비 +12.2%p · +13.7%p) · 5거래일 -6.0% · 부담"'
+        - 'generic "[한국] K-푸드: 추세 약화 확인 중 · 1개월 -5.7% · 긴 추세 +1.5% (코스피 대비 +15.4%p · +27.2%p) · 5거래일 +0.5% · 수혜"'
+        - 'generic "[한국] 크립토: 추세 약화 확인 중 · 1개월 -11.6% · 긴 추세 -9.2% (코스피 대비 +9.4%p · +16.5%p) · 5거래일 -12.9% · 부담"'
+        - 'generic "[한국] 통신: 주도 지속 · 1개월 -1.9% · 긴 추세 -4.8% (코스피 대비 +19.1%p · +20.9%p) · 5거래일 -0.2% · 수혜"'
+        - 'generic "[한국] 건설: 추세 속 조정 · 1개월 -29.1% · 긴 추세 -15.4% (코스피 대비 -8.0%p · +10.3%p) · 5거래일 -18.0% · 부담"'
+        - 'generic "[한국] 유통: 추세 약화 확인 중 · 1개월 -18.1% · 긴 추세 -20.8% (코스피 대비 +2.9%p · +4.9%p) · 5거래일 -8.1% · 부담"'
+        - 'generic "[한국] 철강: 추세 약화 확인 중 · 1개월 -14.9% · 긴 추세 -7.2% (코스피 대비 +6.1%p · +18.5%p) · 5거래일 -9.1% · 부담"'
+        - 'generic "[한국] 물류: 추세 약화 확인 중 · 1개월 -5.5% · 긴 추세 -6.2% (코스피 대비 +15.5%p · +19.5%p) · 5거래일 -4.6% · 부담"'
+        - 'generic "[한국] 의료기기: 추세 약화 확인 중 · 1개월 +0.8% · 긴 추세 -7.8% (코스피 대비 +21.8%p · +17.9%p) · 5거래일 -11.7% · 부담"'
+        - 'generic "[한국] 에너지: 주도 지속 · 1개월 +1.9% · 긴 추세 +23.4% (코스피 대비 +22.9%p · +49.1%p) · 5거래일 -4.9% · 영향 작음"'
+        - 'generic "[한국] 광통신: 추세 약화 확인 중 · 1개월 -3.4% · 긴 추세 -8.6% (코스피 대비 +17.6%p · +17.1%p) · 5거래일 -21.0% · 부담"'
+        - 'generic "[한국] 풍력: 추세 약화 확인 중 · 1개월 -5.2% · 긴 추세 -6.5% (코스피 대비 +15.9%p · +19.2%p) · 5거래일 -12.6% · 부담"'
+        - 'generic "[한국] 양자컴퓨팅: 추세 약화 확인 중 · 1개월 -10.4% · 긴 추세 -11.7% (코스피 대비 +10.7%p · +14.0%p) · 5거래일 -16.2% · 부담"'
+        - 'generic "[한국] UAM: 약세 지속 · 1개월 -24.6% · 긴 추세 -25.2% (코스피 대비 -3.5%p · +0.5%p) · 5거래일 -16.5% · 부담"'
+        - 'generic "[한국] 수소에너지: 추세 약화 확인 중 · 1개월 -17.3% · 긴 추세 -14.3% (코스피 대비 +3.7%p · +11.4%p) · 5거래일 -15.9% · 부담"'
+        - 'generic "[한국] 우주항공: 약세 지속 · 1개월 -23.6% · 긴 추세 -27.6% (코스피 대비 -2.6%p · -1.9%p) · 5거래일 -16.3% · 부담"'
+        - generic: 한국 에너지
+        - generic: 한국 의료기기
+        - generic: 한국 통신
+        - generic: 한국 K-푸드
+        - generic: 유틸리티
+        - generic: 한국 K-콘텐츠
+        - generic: 방산
+        - generic: 한국 2차전지
+      - generic: 수혜
+      - generic: 부담
+      - generic: 혼재
+      - generic: 영향 작음
+      - generic: "원: 미국 · 네모: 한국 · 중심 시나리오 기준"
+      - paragraph: 한국은 강한 쪽 에너지(+1.9%, 5거래일 -4.9%)·의료기기(+0.8%), 약한 쪽 원전(-32.0%)·건설(-29.1%)입니다. 가격 흐름 기준이며 자금 유출입 자료는 아닙니다.
+      - paragraph: "거시 부담에도 주도하는 테마(6개월·1개월 지수 대비, 최근 5거래일 확인): 미국 소프트웨어/클라우드(5거래일 -0.1%), 한국 2차전지(5거래일 -9.9%), 한국 K-콘텐츠(5거래일 -1.8%) — 업종 고유 동력(실적·구조 수요)이 있는지 확인이 필요합니다."
+      - paragraph: "거시 수혜에도 약세인 테마: 미국 헬스케어/제약, 미국 방산/항공우주, 미국 유틸리티 — 업종 고유의 문제가 있는지 먼저 봅니다."
+      - generic "주도 지속 (긴 추세가 지수보다 앞서고 1개월도 뒤처지지 않음) · 5개"
+      - generic "추세 약화 확인 중 (긴 추세는 앞서나 50일선 위 비율·조건·최근 5거래일이 받쳐 주지 않음) · 20개"
+      - generic "추세 속 조정 (긴 추세는 앞서나 1개월은 뒤처짐) · 4개"
+      - generic "반등 시도 (긴 추세는 앞서지 못하나 1개월은 앞섬) · 3개"
+      - generic "약세 지속 (긴 추세도 1개월도 앞서지 못함) · 14개"
+      - paragraph: 세부 종목 선택은 테마 상세·차트·기업·스크리너에서 직접 합니다.
+    - region "하위 테마 상대강도 순위":
+      - heading "미국 하위 테마 상대강도 순위" [level=2]
+      - button "1개월"
+      - button "3개월" [pressed]
+      - button "6개월"
+      - paragraph: 3개월 상위는 정유 · 서버/HW · 엔터프라이즈 SaaS. 그중 서버/HW · 엔터프라이즈 SaaS · 금 광산은 1개월 순위가 3개월보다 크게 낮아 강세가 식는 중. 반대로 DC 전력/냉각/건설 · 전력장비/그리드는 1개월 순위가 3개월보다 크게 앞서 최근 강해지는 곳. 네트워킹/인터커넥트(최근 5거래일 -13.8%)는 1개월 순위는 올랐지만 최근 5거래일에 평소 1주 움직임의 2배를 넘게 밀려 강해지는 중으로 보지 않습니다. 상위 5개 중 2개는 구성 종목 대부분이 50일선 위입니다.
+      - paragraph: 10/14 미국 종가 기준 · 구성 종목 3개월 수익률의 중앙값으로 순위 · S&P 500 3개월 +2.5% · 1주 = 최근 5거래일 · 순위 변화는 1개월 순위와 3개월 순위 비교(1개월 순위가 크게 앞서면 순위 상승)
+      - region "하위 테마 상대강도 순위 표, 가로 스크롤":
+        - table:
+          - rowgroup:
+            - row "순위 하위 테마 1주 1개월 3개월 6개월 S&P 대비 50일선 위 순위 변화(1개월 vs 3개월) 구성 종목 전체":
+              - columnheader "순위"
+              - columnheader "하위 테마"
+              - columnheader "1주"
+              - columnheader "1개월"
+              - columnheader "3개월"
+              - columnheader "6개월"
+              - columnheader "S&P 대비"
+              - columnheader "50일선 위"
+              - columnheader "순위 변화(1개월 vs 3개월)"
+              - columnheader "구성 종목 전체"
+          - rowgroup:
+            - row "1 정유 에너지 · 4종목 정유 구성 종목끼리 비교 +8.9% +14.0% +51.1% +96.1% +48.6% 100% 순위 유지 MPC PSX VLO DK":
+              - cell "1"
+              - cell "정유 에너지 · 4종목 정유 구성 종목끼리 비교":
+                - text: 정유 에너지 · 4종목
+                - button "정유 구성 종목끼리 비교": 비교
+              - cell "+8.9%"
+              - cell "+14.0%"
+              - cell "+51.1%"
+              - cell "+96.1%"
+              - cell "+48.6%"
+              - cell "100%"
+              - cell "순위 유지"
+              - cell "MPC PSX VLO DK":
+                - button "MPC"
+                - button "PSX"
+                - button "VLO"
+                - button "DK"
+            - row "2 서버/HW AI 인프라/데이터센터 · 4종목 서버/HW 구성 종목끼리 비교 -12.7% +1.2% +35.1% +94.4% +32.6% 25% 순위 하락 DELL SMCI HPE CLS":
+              - cell "2"
+              - cell "서버/HW AI 인프라/데이터센터 · 4종목 서버/HW 구성 종목끼리 비교":
+                - text: 서버/HW AI 인프라/데이터센터 · 4종목
+                - button "서버/HW 구성 종목끼리 비교": 비교
+              - cell "-12.7%"
+              - cell "+1.2%"
+              - cell "+35.1%"
+              - cell "+94.4%"
+              - cell "+32.6%"
+              - cell "25%"
+              - cell "순위 하락"
+              - cell "DELL SMCI HPE CLS":
+                - button "DELL"
+                - button "SMCI"
+                - button "HPE"
+                - button "CLS"
+            - row "3 엔터프라이즈 SaaS 소프트웨어/클라우드 · 7종목 엔터프라이즈 SaaS 구성 종목끼리 비교 +3.4% -5.3% +29.8% +33.4% +27.3% 43% 순위 하락 ORCL CRM NOW INTU ADBE WDAY TEAM":
+              - cell "3"
+              - cell "엔터프라이즈 SaaS 소프트웨어/클라우드 · 7종목 엔터프라이즈 SaaS 구성 종목끼리 비교":
+                - text: 엔터프라이즈 SaaS 소프트웨어/클라우드 · 7종목
+                - button "엔터프라이즈 SaaS 구성 종목끼리 비교": 비교
+              - cell "+3.4%"
+              - cell "-5.3%"
+              - cell "+29.8%"
+              - cell "+33.4%"
+              - cell "+27.3%"
+              - cell "43%"
+              - cell "순위 하락"
+              - cell "ORCL CRM NOW INTU ADBE WDAY TEAM":
+                - button "ORCL"
+                - button "CRM"
+                - button "NOW"
+                - button "INTU"
+                - button "ADBE"
+                - button "WDAY"
+                - button "TEAM"
+            - row "4 데이터/AI 플랫폼 소프트웨어/클라우드 · 6종목 데이터/AI 플랫폼 구성 종목끼리 비교 -0.0% +8.1% +27.5% +69.9% +25.1% 83% 순위 유지 PLTR SNOW DDOG MDB ESTC AI":
+              - cell "4"
+              - cell "데이터/AI 플랫폼 소프트웨어/클라우드 · 6종목 데이터/AI 플랫폼 구성 종목끼리 비교":
+                - text: 데이터/AI 플랫폼 소프트웨어/클라우드 · 6종목
+                - button "데이터/AI 플랫폼 구성 종목끼리 비교": 비교
+              - cell "-0.0%"
+              - cell "+8.1%"
+              - cell "+27.5%"
+              - cell "+69.9%"
+              - cell "+25.1%"
+              - cell "83%"
+              - cell "순위 유지"
+              - cell "PLTR SNOW DDOG MDB ESTC AI":
+                - button "PLTR"
+                - button "SNOW"
+                - button "DDOG"
+                - button "MDB"
+                - button "ESTC"
+                - button "AI"
+            - row "5 금 광산 원자재 · 5종목 금 광산 구성 종목끼리 비교 -1.9% -10.2% +23.1% -12.0% +20.6% 0% 순위 하락 NEM AEM B WPM KGC":
+              - cell "5"
+              - cell "금 광산 원자재 · 5종목 금 광산 구성 종목끼리 비교":
+                - text: 금 광산 원자재 · 5종목
+                - button "금 광산 구성 종목끼리 비교": 비교
+              - cell "-1.9%"
+              - cell "-10.2%"
+              - cell "+23.1%"
+              - cell "-12.0%"
+              - cell "+20.6%"
+              - cell "0%"
+              - cell "순위 하락"
+              - cell "NEM AEM B WPM KGC":
+                - button "NEM"
+                - button "AEM"
+                - button "B"
+                - button "WPM"
+                - button "KGC"
+            - row "6 통합 메이저 에너지 · 4종목 통합 메이저 구성 종목끼리 비교 +8.1% +4.6% +22.4% +21.2% +20.0% 100% 순위 유지 XOM CVX SU SHEL":
+              - cell "6"
+              - cell "통합 메이저 에너지 · 4종목 통합 메이저 구성 종목끼리 비교":
+                - text: 통합 메이저 에너지 · 4종목
+                - button "통합 메이저 구성 종목끼리 비교": 비교
+              - cell "+8.1%"
+              - cell "+4.6%"
+              - cell "+22.4%"
+              - cell "+21.2%"
+              - cell "+20.0%"
+              - cell "100%"
+              - cell "순위 유지"
+              - cell "XOM CVX SU SHEL":
+                - button "XOM"
+                - button "CVX"
+                - button "SU"
+                - button "SHEL"
+            - row "7 사이버보안 소프트웨어/클라우드 · 7종목 사이버보안 구성 종목끼리 비교 -6.1% +2.8% +19.0% +121.8% +16.6% 100% 순위 하락 PANW CRWD FTNT ZS NET S RBRK":
+              - cell "7"
+              - cell "사이버보안 소프트웨어/클라우드 · 7종목 사이버보안 구성 종목끼리 비교":
+                - text: 사이버보안 소프트웨어/클라우드 · 7종목
+                - button "사이버보안 구성 종목끼리 비교": 비교
+              - cell "-6.1%"
+              - cell "+2.8%"
+              - cell "+19.0%"
+              - cell "+121.8%"
+              - cell "+16.6%"
+              - cell "100%"
+              - cell "순위 하락"
+              - cell "PANW CRWD FTNT ZS NET S RBRK":
+                - button "PANW"
+                - button "CRWD"
+                - button "FTNT"
+                - button "ZS"
+                - button "NET"
+                - button "S"
+                - button "RBRK"
+            - row "8 생명과학/진단 헬스케어/제약 · 5종목 생명과학/진단 구성 종목끼리 비교 +2.8% +5.0% +15.4% +26.8% +13.0% 80% 순위 유지 TMO DHR A WAT IDXX":
+              - cell "8"
+              - cell "생명과학/진단 헬스케어/제약 · 5종목 생명과학/진단 구성 종목끼리 비교":
+                - text: 생명과학/진단 헬스케어/제약 · 5종목
+                - button "생명과학/진단 구성 종목끼리 비교": 비교
+              - cell "+2.8%"
+              - cell "+5.0%"
+              - cell "+15.4%"
+              - cell "+26.8%"
+              - cell "+13.0%"
+              - cell "80%"
+              - cell "순위 유지"
+              - cell "TMO DHR A WAT IDXX":
+                - button "TMO"
+                - button "DHR"
+                - button "A"
+                - button "WAT"
+                - button "IDXX"
+            - row "9 E&P(탐사/생산) 에너지 · 7종목 E&P(탐사/생산) 구성 종목끼리 비교 +6.9% -2.8% +15.0% +11.9% +12.5% 86% 순위 하락 COP EOG CNQ OXY DVN FANG TPL":
+              - cell "9"
+              - cell "E&P(탐사/생산) 에너지 · 7종목 E&P(탐사/생산) 구성 종목끼리 비교":
+                - text: E&P(탐사/생산) 에너지 · 7종목
+                - button "E&P(탐사/생산) 구성 종목끼리 비교": 비교
+              - cell "+6.9%"
+              - cell "-2.8%"
+              - cell "+15.0%"
+              - cell "+11.9%"
+              - cell "+12.5%"
+              - cell "86%"
+              - cell "순위 하락"
+              - cell "COP EOG CNQ OXY DVN FANG TPL":
+                - button "COP"
+                - button "EOG"
+                - button "CNQ"
+                - button "OXY"
+                - button "DVN"
+                - button "FANG"
+                - button "TPL"
+            - row "10 광업/금속 원자재 · 4종목 광업/금속 구성 종목끼리 비교 -1.5% -0.0% +12.8% +5.6% +10.4% 25% 순위 하락 SCCO FCX NUE AA":
+              - cell "10"
+              - cell "광업/금속 원자재 · 4종목 광업/금속 구성 종목끼리 비교":
+                - text: 광업/금속 원자재 · 4종목
+                - button "광업/금속 구성 종목끼리 비교": 비교
+              - cell "-1.5%"
+              - cell "-0.0%"
+              - cell "+12.8%"
+              - cell "+5.6%"
+              - cell "+10.4%"
+              - cell "25%"
+              - cell "순위 하락"
+              - cell "SCCO FCX NUE AA":
+                - button "SCCO"
+                - button "FCX"
+                - button "NUE"
+                - button "AA"
+            - row "11 테스트/패키징 반도체 · 5종목 테스트/패키징 구성 종목끼리 비교 -14.3% +8.0% +11.6% -1.4% +9.1% 20% 순위 유지 TER AMKR FORM COHU KLIC":
+              - cell "11"
+              - cell "테스트/패키징 반도체 · 5종목 테스트/패키징 구성 종목끼리 비교":
+                - text: 테스트/패키징 반도체 · 5종목
+                - button "테스트/패키징 구성 종목끼리 비교": 비교
+              - cell "-14.3%"
+              - cell "+8.0%"
+              - cell "+11.6%"
+              - cell "-1.4%"
+              - cell "+9.1%"
+              - cell "20%"
+              - cell "순위 유지"
+              - cell "TER AMKR FORM COHU KLIC":
+                - button "TER"
+                - button "AMKR"
+                - button "FORM"
+                - button "COHU"
+                - button "KLIC"
+            - row "12 바이오텍 헬스케어/제약 · 9종목 바이오텍 구성 종목끼리 비교 +3.1% +0.6% +11.4% +11.2% +9.0% 44% 순위 하락 VRTX REGN AMGN GILD MRNA BIIB ALNY ARGX VKTX":
+              - cell "12"
+              - cell "바이오텍 헬스케어/제약 · 9종목 바이오텍 구성 종목끼리 비교":
+                - text: 바이오텍 헬스케어/제약 · 9종목
+                - button "바이오텍 구성 종목끼리 비교": 비교
+              - cell "+3.1%"
+              - cell "+0.6%"
+              - cell "+11.4%"
+              - cell "+11.2%"
+              - cell "+9.0%"
+              - cell "44%"
+              - cell "순위 하락"
+              - cell "VRTX REGN AMGN GILD MRNA BIIB ALNY ARGX VKTX":
+                - button "VRTX"
+                - button "REGN"
+                - button "AMGN"
+                - button "GILD"
+                - button "MRNA"
+                - button "BIIB"
+                - button "ALNY"
+                - button "ARGX"
+                - button "VKTX"
+            - row "13 병원/유통/서비스 헬스케어/제약 · 5종목 병원/유통/서비스 구성 종목끼리 비교 +6.7% +6.7% +9.4% +13.3% +6.9% 100% 순위 유지 HCA MCK COR CAH DVA":
+              - cell "13"
+              - cell "병원/유통/서비스 헬스케어/제약 · 5종목 병원/유통/서비스 구성 종목끼리 비교":
+                - text: 병원/유통/서비스 헬스케어/제약 · 5종목
+                - button "병원/유통/서비스 구성 종목끼리 비교": 비교
+              - cell "+6.7%"
+              - cell "+6.7%"
+              - cell "+9.4%"
+              - cell "+13.3%"
+              - cell "+6.9%"
+              - cell "100%"
+              - cell "순위 유지"
+              - cell "HCA MCK COR CAH DVA":
+                - button "HCA"
+                - button "MCK"
+                - button "COR"
+                - button "CAH"
+                - button "DVA"
+            - row "14 AI 칩/커스텀 ASIC 반도체 · 5종목 AI 칩/커스텀 ASIC 구성 종목끼리 비교 -11.6% +4.3% +6.8% +49.4% +4.4% 40% 순위 유지 NVDA AVGO AMD MRVL ARM":
+              - cell "14"
+              - cell "AI 칩/커스텀 ASIC 반도체 · 5종목 AI 칩/커스텀 ASIC 구성 종목끼리 비교":
+                - text: AI 칩/커스텀 ASIC 반도체 · 5종목
+                - button "AI 칩/커스텀 ASIC 구성 종목끼리 비교": 비교
+              - cell "-11.6%"
+              - cell "+4.3%"
+              - cell "+6.8%"
+              - cell "+49.4%"
+              - cell "+4.4%"
+              - cell "40%"
+              - cell "순위 유지"
+              - cell "NVDA AVGO AMD MRVL ARM":
+                - button "NVDA"
+                - button "AVGO"
+                - button "AMD"
+                - button "MRVL"
+                - button "ARM"
+            - row "15 관리의료/보험 헬스케어/제약 · 6종목 관리의료/보험 구성 종목끼리 비교 +5.5% +3.1% +6.2% +33.1% +3.7% 83% 순위 유지 UNH ELV CI CVS HUM CNC":
+              - cell "15"
+              - cell "관리의료/보험 헬스케어/제약 · 6종목 관리의료/보험 구성 종목끼리 비교":
+                - text: 관리의료/보험 헬스케어/제약 · 6종목
+                - button "관리의료/보험 구성 종목끼리 비교": 비교
+              - cell "+5.5%"
+              - cell "+3.1%"
+              - cell "+6.2%"
+              - cell "+33.1%"
+              - cell "+3.7%"
+              - cell "83%"
+              - cell "순위 유지"
+              - cell "UNH ELV CI CVS HUM CNC":
+                - button "UNH"
+                - button "ELV"
+                - button "CI"
+                - button "CVS"
+                - button "HUM"
+                - button "CNC"
+      - button "전체 89개 보기"
+      - generic: 수익률이 있는 구성 종목이 3개 미만인 1개 하위 테마는 순위에서 제외
+      - generic: · 3종목 하위 테마 19개는 중앙값이 한 종목에 크게 흔들려 순위 없이 '참고'로 표시
+      - generic "순위 밖 테마의 전체 구성 보기"
+    - region "AI 설비투자 흐름":
+      - heading "AI 설비투자 100달러는 어디로 가나" [level=2]
+      - paragraph: 2026-08 공개 리서치 인용 배분 · 참고 자료(현재 신호 아님) · 각 층의 관련 테마 수익률은 위 순위와 같은 3개월 기준 · 테마 값은 하위 테마 중앙값의 중앙값(테마 시나리오와 같은 방식)
+      - img "반도체 50, 전력 20, 네트워크 15, 냉각 7.5, 시설·건설 7.5":
+        - generic: 반도체
+        - generic: 전력
+        - generic: 네트워크
+      - paragraph:
+        - generic: 반도체 $50
+        - generic: 전력 $20
+        - generic: 네트워크 $15
+        - generic: 냉각 $7.5
+        - generic: 시설·건설 $7.5
+      - paragraph: 각 카드 아래 막대는 관련 부품·장비의 납기 범위(최소~최대)입니다. 모든 카드가 같은 0~420주 축이라 길이를 서로 비교할 수 있습니다.
+      - heading "반도체" [level=3]
+      - generic "AI 설비투자 100달러 중 반도체에 가는 몫 (2026-08 공개 리서치 인용)": $50 / $100
+      - paragraph: 100달러 중 인용 배분 · 가속기 25 · 메모리 15 · CPU·서버 10 (이 중 반도체 장비 약 8)
+      - button "반도체 -1.9%"
+      - list:
+        - generic: 니어라인 HDD
+        - generic "니어라인 HDD 납기 50~104주 (공통 축 0~420주)"
+        - generic: 50~104주
+        - generic: CoWoS 패키징
+        - generic "CoWoS 패키징 납기 40~60주 (공통 축 0~420주)"
+        - generic: 40~60주
+        - generic: ABF 기판
+        - generic "ABF 기판 납기 48~56주 (공통 축 0~420주)"
+        - generic: 48~56주
+        - generic: HBM
+        - generic "HBM 납기 40~52주 (공통 축 0~420주)"
+        - generic: 40~52주
+        - generic: DRAM
+        - generic "DRAM 납기 20~40주 (공통 축 0~420주)"
+        - generic: 20~40주
+        - generic: GPU 시스템
+        - generic "GPU 시스템 납기 20~30주 (공통 축 0~420주)"
+        - generic: 20~30주 · 원활
+        - generic: NAND
+        - generic "NAND 납기 16~26주 (공통 축 0~420주)"
+        - generic: 16~26주
+        - generic: MLCC
+        - generic "MLCC 납기 12~30주 (공통 축 0~420주)"
+        - generic: 12~30주
+      - heading "전력" [level=3]
+      - generic "AI 설비투자 100달러 중 전력에 가는 몫 (2026-08 공개 리서치 인용)": $20 / $100
+      - paragraph: 100달러 중 인용 배분 · 계통 연결·자가발전 10 · 전력 분배 6.5 · 현장 배전 3.5
+      - button "유틸리티 -19.1%"
+      - button "전력장비/그리드 -1.5%"
+      - list:
+        - generic: 가스터빈
+        - generic "가스터빈 납기 260~420주 (공통 축 0~420주)"
+        - generic: 260~420주
+        - generic: 변압기
+        - generic "변압기 납기 104~260주 (공통 축 0~420주)"
+        - generic: 104~260주
+        - generic: MW급 스위치기어
+        - generic "MW급 스위치기어 납기 52~104주 (공통 축 0~420주)"
+        - generic: 52~104주
+      - heading "네트워크" [level=3]
+      - generic "AI 설비투자 100달러 중 네트워크에 가는 몫 (2026-08 공개 리서치 인용)": $15 / $100
+      - paragraph: 100달러 중 인용 배분 · 광 트랜시버 5.5 · 스위치 4.5 · 네트워크 칩 3 · 케이블 2
+      - button "광통신/포토닉스 -6.1%"
+      - list:
+        - generic: 800G 광 모듈
+        - generic "800G 광 모듈 납기 40~60주 (공통 축 0~420주)"
+        - generic: 40~60주
+      - heading "냉각" [level=3]
+      - generic "AI 설비투자 100달러 중 냉각에 가는 몫 (2026-08 공개 리서치 인용)": $7.5 / $100
+      - paragraph: 100달러 중 인용 배분 · 액체·공랭 냉각 설비
+      - button "AI 인프라/데이터센터 +1.2%"
+      - heading "시설·건설" [level=3]
+      - generic "AI 설비투자 100달러 중 시설·건설에 가는 몫 (2026-08 공개 리서치 인용)": $7.5 / $100
+      - paragraph: 100달러 중 인용 배분 · 데이터센터 건물·부지·건설
+      - button "AI 인프라/데이터센터 +1.2%"
+      - button "산업재/물류 -5.1%"
+      - paragraph: "납기: 2026-09-14 기준 — 칩은 제때 오지만 짓고 전원을 넣는 것이 병목 — 공급사는 원 자료에 나온 곳만 표시"
+    - text: 펼치기 닫기 펼치기 닫기
+    - generic "한국 테마 (28개 중 28개를 10/15 확정 종가로 비교) 펼치기"
+    - text: + + + + + + + + + + + + + + + + + + +
+    - navigation "이어서 볼 곳":
+      - heading "이어서 볼 곳" [level=2]
+      - list:
+        - button "스크리너 →"
+        - generic: 개선 사분면(반도체)에서 상대강도가 먼저 오르는 종목
+        - button "시장 폭 →"
+        - generic: 섹터 쏠림이 참여 종목 수(시장 폭 부담)에도 나타나는지
+        - button "거시 경제 →"
+        - generic: 금리·유가·달러가 어느 업종에 유리한 국면인지
+    - generic "데이터 출처"
+  - text: 펼치기 펼치기 펼치기 펼치기 펼치기 펼치기
+- complementary:
+  - generic: AI 도우미 · 테마 리서치
+  - button: 새 대화
+  - button: ×
+  - text: 지금 보는 화면의 수치와 근거를 읽고 질문에 답합니다.
+  - generic: 답변 범위
+  - text: AI 도우미 · 읽기 전용 리서치 · 투자·법률·세무 조건부 분석과 수치 시나리오를 제공합니다. 불법 실행 절차·주문 실행·확정적 보장은 제외합니다.
+  - generic: 맥락 기준 · 시세 10/15 22:51 관측 · 종가 10/14 · 뉴스 10/15 08:00까지 + 장중 속보 6건
+  - generic: 현재 화면의 데이터를 근거로 질의할 수 있습니다
+  - button: 가격이 앞서는 업종
+  - button: 상대강도와 기간
+  - button: 테마 안의 차이
+  - button: 이 흐름이 꺾이는 신호
+  - textbox:
+    - /placeholder: 궁금한 것을 물어보세요
+  - button: 전송

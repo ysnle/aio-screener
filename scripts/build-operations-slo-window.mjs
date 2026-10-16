@@ -55,15 +55,35 @@ export function parseCronRunsPerDay(expression) {
   return dailyCronSlots(expression)?.length ?? null;
 }
 
-export async function deriveExpectedRunsPerDay(workflowFile, root = repoRoot) {
-  let source;
-  try { source = await readFile(resolve(root, '.github/workflows', workflowFile), 'utf8'); }
-  catch (_) { return null; }
-  const crons = [...source.matchAll(/^\s*-\s*cron:\s*['"]([^'"]+)['"]/gm)].map((match) => match[1]);
+export function cronRunsPerDayFromSource(source) {
+  const crons = [...String(source || '').matchAll(/^\s*-\s*cron:\s*['"]([^'"]+)['"]/gm)].map((match) => match[1]);
   if (!crons.length) return null;
   const slots = crons.map(dailyCronSlots);
   if (slots.some((value) => value == null)) return null;
   return new Set(slots.flat()).size;
+}
+
+export async function deriveExpectedRunsPerDay(workflowFile, root = repoRoot) {
+  let source;
+  try { source = await readFile(resolve(root, '.github/workflows', workflowFile), 'utf8'); }
+  catch (_) { return null; }
+  return cronRunsPerDayFromSource(source);
+}
+
+// Codex audit F30 (2026-10-15): the denominator was today's cron x the window, so a schedule changed mid-window was
+// back-filled over all 30 days. With the workflow file's commit history the expected count is summed per segment
+// ([{ from, perDay }] ascending; each segment runs until the next one starts).
+export function expectedRunsFromHistory(segments, fromMs, toMs) {
+  if (!Array.isArray(segments) || !segments.length) return null;
+  let total = 0;
+  for (let i = 0; i < segments.length; i += 1) {
+    const start = Math.max(fromMs, Date.parse(segments[i].from));
+    const end = Math.min(toMs, i + 1 < segments.length ? Date.parse(segments[i + 1].from) : toMs);
+    if (!(end > start)) continue;
+    if (!Number.isFinite(segments[i].perDay)) return null;
+    total += segments[i].perDay * (end - start) / 86400000;
+  }
+  return Math.floor(total);
 }
 
 async function fetchRuns(file) {
@@ -92,6 +112,29 @@ async function fetchRuns(file) {
   }
   // 06 O02: 일부 페이지만 읽고 30일을 달성했다고 인증하지 않는다.
   return { runs, pagesFetched, maxPages: MAX_PAGES, paginationComplete, truncated: !paginationComplete, excluded };
+}
+
+async function githubJson(url) {
+  const response = await fetch(url, { headers: { accept: 'application/vnd.github+json', 'user-agent': 'aio-slo-window', ...(token ? { authorization: `Bearer ${token}` } : {}) }, signal: AbortSignal.timeout(20000) });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}
+
+// F30: cadence segments for the window from the workflow file's commits (the shallow watchdog checkout has no history).
+// Any failure returns null and the lane says its denominator is the current cron back-filled.
+async function fetchCadenceHistory(file, sinceMs) {
+  try {
+    const path = `.github/workflows/${file}`;
+    const base = `https://api.github.com/repos/${repository}`;
+    const sinceIso = new Date(sinceMs).toISOString();
+    const [before] = await githubJson(`${base}/commits?path=${encodeURIComponent(path)}&sha=main&until=${sinceIso}&per_page=1`);
+    const within = (await githubJson(`${base}/commits?path=${encodeURIComponent(path)}&sha=main&since=${sinceIso}&per_page=100`)).reverse();
+    const perDayAt = async (sha) => cronRunsPerDayFromSource(Buffer.from((await githubJson(`${base}/contents/${path}?ref=${sha}`)).content || '', 'base64').toString('utf8'));
+    const segments = [];
+    if (before) segments.push({ from: sinceIso, perDay: await perDayAt(before.sha), sha: before.sha });
+    for (const commit of within) segments.push({ from: commit.commit?.committer?.date || commit.commit?.author?.date, perDay: await perDayAt(commit.sha), sha: commit.sha });
+    return segments.length && segments.every((segment) => Number.isFinite(segment.perDay) && Number.isFinite(Date.parse(segment.from))) ? segments : null;
+  } catch (_) { return null; }
 }
 
 async function fetchAlertIssues() {
@@ -144,24 +187,35 @@ const summarize = (runs) => {
 // workflow_dispatch만 제외하고 push 등 나머지 trigger를 전부 scheduled로 세어, 30일간 push 성공만
 // 있는 lane도 MEASURED·창 PASS가 될 수 있었다. 다른 trigger는 별도 lane의 사실이므로 제외하고
 // 개수·종류만 남긴다. 결과적으로 push-only 창은 NOT_OBSERVED이며 PASS가 될 수 없다.
-const buildLane = (runs, { workflow, required, expectedRuns }) => {
-  const manual = runs.filter((run) => run.event === 'workflow_dispatch');
+// F30: the data-plane Worker's dispatches are the designed scheduler (P1377: GitHub cron ran every 4-6 h), not an
+// operator's manual run. They carry trigger=scheduler, which the workflow's run-name puts in display_title, so they
+// count toward delivery; operator dispatches stay excluded. scheduledArrivalRate keeps its GitHub-cron meaning.
+export const isAutomatedDispatch = (run) => run.event === 'workflow_dispatch' && /(?:^|[\s·(])scheduler(?:$|[\s)])/.test(String(run.display_title || ''));
+const buildLane = (runs, { workflow, required, expectedRuns, expectedRunsBasis = 'current-cron-backfilled' }) => {
+  const automated = runs.filter(isAutomatedDispatch);
+  const manual = runs.filter((run) => run.event === 'workflow_dispatch' && !isAutomatedDispatch(run));
   const scheduled = runs.filter((run) => run.event === 'schedule');
   const otherEvents = runs.filter((run) => run.event !== 'schedule' && run.event !== 'workflow_dispatch');
-  const summary = summarize(scheduled);
-  const arrivalRate = expectedRuns ? round(Math.min(1, summary.completed / expectedRuns)) : null;
+  const summary = summarize([...scheduled, ...automated]);
+  const arrivalRate = expectedRuns ? round(Math.min(1, scheduled.length / expectedRuns)) : null;
+  const deliveryRate = expectedRuns ? round(Math.min(1, summary.completed / expectedRuns)) : null;
   const status = summary.completed === 0
     ? 'NOT_OBSERVED'
     : summary.successRate >= SLO_TARGETS.domainSuccessRate
       && summary.exactSourceIdentityCoverage === 1
-      && arrivalRate != null && arrivalRate >= SLO_TARGETS.scheduledArrivalRate
+      && deliveryRate != null && deliveryRate >= SLO_TARGETS.scheduledArrivalRate
       ? 'MEASURED'
       : 'DEGRADED';
   return {
     workflow,
     required,
     expectedRuns,
+    expectedRunsBasis,
+    measures: 'workflow-execution', // not data freshness or provider uptime
     observedRuns: summary.completed,
+    scheduledRuns: scheduled.length,
+    automatedDispatchRuns: automated.length,
+    deliveryRate,
     manualRunsExcluded: manual.length,
     nonScheduledRunsExcluded: otherEvents.length,
     nonScheduledEventBreakdown: Object.fromEntries([...new Set(otherEvents.map((run) => run.event || 'unknown'))]
@@ -174,7 +228,7 @@ const buildLane = (runs, { workflow, required, expectedRuns }) => {
 };
 
 // 순수 계산부: 네트워크 없이 repro fixture로 검증할 수 있도록 export한다.
-export function buildSloWindow({ observed = {}, cadencePerDay = {}, query = {}, alertEvidence = {}, now: evaluatedAt = new Date(), cutoff: evaluatedCutoff = evaluatedAt, repository: repo = repository, collectionMode = 'MEASURED_RUNTIME' }) {
+export function buildSloWindow({ observed = {}, cadencePerDay = {}, cadenceHistory = {}, query = {}, alertEvidence = {}, now: evaluatedAt = new Date(), cutoff: evaluatedCutoff = evaluatedAt, repository: repo = repository, collectionMode = 'MEASURED_RUNTIME' }) {
   // P1597: future/invalid timestamps and duplicate API run IDs cannot create evidence.
   observed = Object.fromEntries(Object.keys(SLO_DOMAINS).map(id => {
     const seen = new Set();
@@ -196,10 +250,12 @@ export function buildSloWindow({ observed = {}, cadencePerDay = {}, query = {}, 
     for (const [id, domain] of Object.entries(SLO_DOMAINS)) {
       const runs = (observed[id] || []).filter((run) => new Date(run.created_at) >= since);
       const perDay = cadencePerDay[id];
+      const fromHistory = expectedRunsFromHistory(cadenceHistory[id], since.getTime(), evaluatedAt.getTime());
       lanes[id] = buildLane(runs, {
         workflow: domain.workflow,
         required: domain.required,
-        expectedRuns: perDay == null ? null : Math.floor(perDay * days)
+        expectedRuns: fromHistory != null ? fromHistory : perDay == null ? null : Math.floor(perDay * days),
+        expectedRunsBasis: fromHistory != null ? 'cadence-history' : 'current-cron-backfilled'
       });
     }
     const requiredIds = Object.entries(lanes).filter(([, lane]) => lane.required).map(([id]) => id);
@@ -302,9 +358,10 @@ if (process.argv[1] && new URL(`file://${process.argv[1].replaceAll('\\', '/')}`
   const now = new Date();
   const cutoff = new Date(now.getTime() - 30 * 86400000);
   const fetched = await Promise.all(Object.entries(SLO_DOMAINS).map(async ([id, domain]) => [id, await fetchRuns(domain.workflow)]));
-  const [alertEvidence, cadenceEntries] = await Promise.all([
+  const [alertEvidence, cadenceEntries, historyEntries] = await Promise.all([
     fetchAlertIssues(),
-    Promise.all(Object.entries(SLO_DOMAINS).map(async ([id, domain]) => [id, await deriveExpectedRunsPerDay(domain.workflow)]))
+    Promise.all(Object.entries(SLO_DOMAINS).map(async ([id, domain]) => [id, await deriveExpectedRunsPerDay(domain.workflow)])),
+    Promise.all(Object.entries(SLO_DOMAINS).map(async ([id, domain]) => [id, await fetchCadenceHistory(domain.workflow, cutoff.getTime())]))
   ]);
   const observed = Object.fromEntries(fetched.map(([id, result]) => [id, result.runs]));
   const query = Object.fromEntries(fetched.map(([id, result]) => [id, {
@@ -316,7 +373,7 @@ if (process.argv[1] && new URL(`file://${process.argv[1].replaceAll('\\', '/')}`
     excluded: result.excluded
   }]));
   query.alerts = { pagesFetched: alertEvidence.pagesFetched, maxPages: 3, paginationComplete: alertEvidence.paginationComplete };
-  const artifact = buildSloWindow({ observed, cadencePerDay: Object.fromEntries(cadenceEntries), query, alertEvidence, now, cutoff, repository });
+  const artifact = buildSloWindow({ observed, cadencePerDay: Object.fromEntries(cadenceEntries), cadenceHistory: Object.fromEntries(historyEntries.filter(([, segments]) => segments)), query, alertEvidence, now, cutoff, repository });
   await writeFile(output, `${JSON.stringify(artifact, null, 2)}\n`, 'utf8');
   console.log(JSON.stringify({
     ok: true,

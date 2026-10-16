@@ -60,5 +60,20 @@
     }
   ],
   "facadePolicy": "bounded compatibility facade only; no permanent duplicate primary writer",
-  "codeMapRescan": "required after any change greater than 500 lines"
+  "codeMapRescan": "required after any change greater than 500 lines",
+  "recordedNonWhitespaceChars": {
+    "index.html": 429078,
+    "js/aio-core.js": 860444,
+    "js/aio-data.js": 719246,
+    "js/aio-ui.js": 193267,
+    "js/aio-chat.js": 334353,
+    "js/aio-tests.js": 580441,
+    "js/aio-glossary.js": 45995,
+    "js/aio-pages.js": 94527,
+    "js/aio-kr-data.js": 87147,
+    "js/aio-macro-tech.js": 3906,
+    "js/aio-workspace.js": 130158,
+    "js/aio-qa-audits.js": 250122
+  },
+  "nonWhitespaceCharSlack": 400
 }

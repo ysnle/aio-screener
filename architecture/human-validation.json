@@ -5,17 +5,72 @@
   "rawEvidencePolicy": "Store consent records and raw session material in a private operator-controlled system; commit only anonymized aggregate evidence IDs and signed summaries.",
   "minimumStudy": {
     "participantsPerPersona": 5,
-    "personas": ["novice-investor", "experienced-investor", "assistive-technology-user"],
-    "platforms": ["desktop"],
-    "assistiveTechnology": ["NVDA-or-JAWS", "VoiceOver"],
-    "manualAccessibilityDimensions": ["screen-reader-reading-order", "keyboard-only", "computed-contrast", "200-percent-zoom-reflow", "dialog-focus-trap-and-return"],
-    "tasks": ["identify-current-decision-and-source", "distinguish-stale-reference-blocked", "run-and-explain-a-screen", "compare-13f-managers-with-lag-boundary", "follow-knowledge-to-professional-route", "recover-from-partial-or-timeout-state"]
+    "personas": [
+      "novice-investor",
+      "experienced-investor",
+      "assistive-technology-user"
+    ],
+    "platforms": [
+      "desktop",
+      "phone",
+      "tablet"
+    ],
+    "assistiveTechnology": [
+      "NVDA-or-JAWS",
+      "VoiceOver"
+    ],
+    "manualAccessibilityDimensions": [
+      "screen-reader-reading-order",
+      "keyboard-only",
+      "computed-contrast",
+      "200-percent-zoom-reflow",
+      "dialog-focus-trap-and-return"
+    ],
+    "tasks": [
+      "identify-current-decision-and-source",
+      "distinguish-stale-reference-blocked",
+      "run-and-explain-a-screen",
+      "compare-13f-managers-with-lag-boundary",
+      "follow-knowledge-to-professional-route",
+      "recover-from-partial-or-timeout-state"
+    ]
+  },
+  "householdPilot": {
+    "purpose": "The realistic first step for a family service of about five readers (codex audit F23, 2026-10-15): observe the real readers on their own devices before any recruited study. It does not replace or lower minimumStudy; it never sets certification.",
+    "participants": "3-5 actual readers",
+    "platforms": [
+      "phone",
+      "tablet",
+      "desktop"
+    ],
+    "tasks": [
+      "read-close-basis-and-delay",
+      "find-a-stock-by-name-or-code",
+      "enter-holdings-and-back-up",
+      "read-ai-answer-evidence"
+    ],
+    "record": "Per task: completed, where the reader hesitated or misread, device, date. Anonymized aliases only; raw notes stay private.",
+    "status": "NOT_STARTED",
+    "findings": []
   },
   "acceptance": {
     "taskCompletionRateMin": 0.9,
     "criticalMisunderstandingRateMax": 0.05,
     "accessibilityCriticalFailuresMax": 0,
-    "requiredFieldsPerSession": ["evidenceId", "participantAlias", "persona", "platform", "assistiveTechnology", "taskId", "completed", "criticalMisunderstanding", "observedAt", "reviewer", "signedAt"]
+    "statisticalBasis": "v57.84 review: 5 participants per persona is a usability-discovery size (finds most severe problems), not a sample that can estimate a rate. With 5 readers, one critical misunderstanding is already 20%, so the 5% ceiling means zero observed per persona, and a 90% completion rate over 30 task attempts has a wide interval. Report counts with the attempts behind them; read a pass as 'no severe problem observed in this group', never as a measured population rate.",
+    "requiredFieldsPerSession": [
+      "evidenceId",
+      "participantAlias",
+      "persona",
+      "platform",
+      "assistiveTechnology",
+      "taskId",
+      "completed",
+      "criticalMisunderstanding",
+      "observedAt",
+      "reviewer",
+      "signedAt"
+    ]
   },
   "sessions": [],
   "aggregate": {

@@ -25,7 +25,9 @@ const shortDay = (date) => { const [, m, d] = String(date || '').split('-').map(
 export const THEME_BENCHMARKS = Object.freeze({ US: { field: 'spx', name: 'S&P 500' }, KR: { field: 'kospi', name: '코스피' } });
 // v57.81: a leading trend needs the 50-day share condition or at least this many met conditions to stay 주도 지속.
 export const LEAD_CONFIRM_MET = 3;
-export const ABOVE50_FLOOR = 30;
+// v57.84 review: one line with leadingStageText (50%) and R708 — at 30% the stage read 주도 지속 while its own sentence
+// said "50일선 위 종목이 30%뿐이라 추세가 넓게 받쳐 주지 않습니다".
+export const ABOVE50_FLOOR = 50;
 /** The shared credit rule (scenario-outlook.js creditStable): stable only when the credit axis reads favourable. */
 export const creditStable = (credit) => (credit == null || credit === 'unknown' ? null : credit === 'favorable');
 

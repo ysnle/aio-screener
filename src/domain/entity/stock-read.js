@@ -95,10 +95,12 @@ export function sectorsForEtf(code) {
 }
 const SECTOR_KO = Object.freeze({ XLK: '기술', XLF: '금융', XLE: '에너지', XLV: '헬스케어', XLI: '산업재', XLY: '경기소비재', XLP: '필수소비재', XLRE: '부동산', XLB: '소재', XLU: '유틸리티', XLC: '통신' });
 const QUADRANT = Object.freeze({
-  Leading: { label: '선도', tone: 'favorable', read: '시장보다 강하고 더 강해지는 중' },
-  Improving: { label: '개선', tone: 'neutral', read: '아직 시장보다 약하지만 회복 중' },
-  Weakening: { label: '약화', tone: 'neutral', read: '시장보다 강하지만 힘이 빠지는 중' },
-  Lagging: { label: '후행', tone: 'burden', read: '시장보다 약하고 더 약해지는 중' }
+  // v57.84: the same words as 테마 · 섹터 — RS-Ratio sits against its own 100-day average (not "stronger than the market")
+  // and RS-Momentum compares with ~50 sessions ago (not a present-tense "getting stronger").
+  Leading: { label: '선도', tone: 'favorable', read: '시장 대비 상대가격이 100일 평균보다 높고 약 50일 전보다 올라섬' },
+  Improving: { label: '개선', tone: 'neutral', read: '시장 대비 상대가격이 100일 평균보다 낮지만 약 50일 전보다 올라섬' },
+  Weakening: { label: '약화', tone: 'neutral', read: '시장 대비 상대가격이 100일 평균보다 높지만 약 50일 전보다 내려옴' },
+  Lagging: { label: '후행', tone: 'burden', read: '시장 대비 상대가격이 100일 평균보다 낮고 약 50일 전보다도 내려옴' }
 });
 
 // Position inside the 52-week range from the artifact's own distances (no live quote needed):
@@ -127,7 +129,9 @@ function rotationView(item) {
   const check = rsRecentCheck(item.relativeStrength);
   const strengthening = finite(item.rsMomentum) != null && finite(item.rsMomentum) >= 100;
   // Opposite sign = the last five sessions moved against the quadrant's direction; a missing series fails closed.
-  const opposed = check == null ? null : strengthening ? check.change < 0 : check.change > 0;
+  // v57.84 (R707): against the quadrant only beyond twice the usual 5-session move — the themes screen's rule; the bare
+  // sign flagged 13 of 31 ETFs where the themes screen flagged 2.
+  const opposed = check == null || check.threshold == null ? null : strengthening ? check.fell : check.rose;
   const recent = check ? `최근 5거래일 상대강도 ${signedPct(check.change)}` : '';
   const border = !!zone?.border;
   const label = border ? '경계' : base.label;
@@ -226,7 +230,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     const { overbought: hot, oversold: cold, climax } = RULES.technical.rsi;
     // v57.81: "neither overbought nor oversold" is the absence of a signal, not a favourable one — neutral throughout.
     points.push({ id: 'rsi', tone: 'neutral', title: '단기 과열',
-      text: rsi >= climax ? `RSI ${shown} — 과열권(${hot} 이상) 중에서도 스크리너가 '과열 정점 주의'로 표시하는 ${climax} 이상 구간입니다.` : rsi >= hot ? `RSI ${shown} — 과열권(${hot} 이상)이라 추세가 강해도 쉬어 가기 쉬운 자리입니다.` : rsi <= cold ? `RSI ${shown} — 과매도권(${cold} 이하)이라 반등 시도가 나오기 쉬운 자리이지만 추세 확인이 먼저입니다.` : rsi >= hot - 5 ? `RSI ${shown} — 과열 기준(${hot}) 바로 아래 구간입니다.` : rsi <= cold + 5 ? `RSI ${shown} — 과매도 기준(${cold}) 바로 위 구간입니다.` : `RSI ${shown} — 과열도 과매도도 아닌 구간입니다.` });
+      text: rsi >= climax ? `RSI ${shown} — 과열권(${hot} 이상) 중에서도 스크리너가 '과열 정점 주의'로 표시하는 ${climax} 이상 구간입니다.` : rsi >= hot ? `RSI ${shown} — 과열권(${hot} 이상)입니다. 강한 추세에서는 이 구간이 오래 이어지기도 합니다.` : rsi <= cold ? `RSI ${shown} — 과매도권(${cold} 이하)입니다. 약한 추세에서는 이 구간이 이어지기도 해 추세 확인이 먼저입니다.` : rsi >= hot - 5 ? `RSI ${shown} — 과열 기준(${hot}) 바로 아래 구간입니다.` : rsi <= cold + 5 ? `RSI ${shown} — 과매도 기준(${cold}) 바로 위 구간입니다.` : `RSI ${shown} — 과열도 과매도도 아닌 구간입니다.` });
   }
 
   // P1447: US sector ETFs describe US sectors; a KRX listing is not read against them.
@@ -239,7 +243,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   // choice is the theme's, never an instruction on this stock. The rotation-quadrant wording stays as folded evidence.
   const stages = (Array.isArray(themeStages) ? themeStages : []).filter((stage) => stage?.id && stage.stateLabel);
   const stageLines = stages.map((stage) => ({ id: stage.id, label: stage.label,
-    text: `테마 ${stage.label}: ${stage.stateLabel}${stage.wind ? ` · 거시 ${stage.wind}` : ''}${stage.favoured?.length ? ` · 테마 단계상 유리한 대응: ${stage.favoured.join(', ')}` : ''}` }));
+    text: `테마 ${stage.label}: ${stage.stateLabel}${stage.wind ? ` · 거시 ${stage.wind}` : ''}` }));
   let rotationText = null;
   let tailwind = false;
   if (sector?.quadrant || topTheme?.quadrant) {

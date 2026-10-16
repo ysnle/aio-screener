@@ -1,0 +1,1850 @@
+[
+  {
+    "id": "R464",
+    "line": 1428,
+    "title": "R464. Knowledge concepts require one canonical namespace and explicit overlap equivalence (v54.6)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "canonical ID·alias는 유용하다. 표현이 비슷해도 의미·학습 목적이 다른 개념은 억지로 합치지 않는다."
+  },
+  {
+    "id": "R465",
+    "line": 1434,
+    "title": "R465. Knowledge graph edge metadata must be explicit before runtime consumption (v54.6)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "그래프의 방향·조건·근거를 명시하고 generic default로 의미를 발명하지 않는다."
+  },
+  {
+    "id": "R466",
+    "line": 1440,
+    "title": "R466. Evidence directness is a claim-level boundary (v54.6)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "claim 직접성은 유지하되 출처 간 이견을 전부 build 실패로 만들지 않는다. 상충 근거·주장 범위·해결 상태를 병기한다."
+  },
+  {
+    "id": "R467",
+    "line": 1446,
+    "title": "R467. Structured article drafts cannot be published as completed learning content (v54.6)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "scaffold를 완성 원고라 부르지 않는다. 내용 검토와 사용자·검색 검증을 단계별로 구분하며 모든 참고 문서에 대규모 인수 인증을 강제하지 않는다."
+  },
+  {
+    "id": "R468",
+    "line": 1452,
+    "title": "R468. Knowledge route state and partial capability loading must fail soft (v54.6)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "공유 route·학습 상태는 복구 가능하게 하고 부분 자료 실패가 전체 지식을 지우지 않게 한다."
+  },
+  {
+    "id": "R469",
+    "line": 1458,
+    "title": "R469. 주식·경제·금융·기술 백과사전은 전체 corpus와 Web Research를 별도 인증한다 (v54.6, P910)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "단위별 근거·고유 설명은 유지한다. 고정 corpus 수·모든 단위 별도 web dossier·전체 금융 전파를 절대 완료 조건으로 강제하지 않는다."
+  },
+  {
+    "id": "R419",
+    "line": 1464,
+    "title": "R419. 릴리스 아키텍처 매니페스트는 R1 버전과 함께 동기화해야 한다 (v53.64, P864)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "현재 릴리스 선언은 일치시킨다. 측정 artifact의 실제 당시 revision·환경까지 일괄 bump하지 않는다."
+  },
+  {
+    "id": "R420",
+    "line": 1470,
+    "title": "R420. 공식 일정의 완료 이벤트는 nextRelease로 남기지 않는다 (v53.64, P865)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "다음 공식 일정과 실제 발표 결과를 구분하고 추정 날짜를 공식 확정처럼 표시하지 않는다."
+  },
+  {
+    "id": "R421",
+    "line": 1476,
+    "title": "R421. 데이터 refresh 이후 릴리스 SSOT를 같은 revision tuple로 승격한다 (v53.64, P866)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "데이터 변경과 그 데이터 revision 선언을 같은 배포 단위로 게시한다."
+  },
+  {
+    "id": "R422",
+    "line": 1482,
+    "title": "R422. LKG 값은 개인 공급자 재시도나 최신 성공시각으로 간주하지 않는다 (v53.65, P867)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "이전 성공 값의 원시각을 보존하고 현재 인증·연결 성공으로 위장하지 않는다."
+  },
+  {
+    "id": "R423",
+    "line": 1488,
+    "title": "R423. 일별 시계열에는 완료된 시장 세션 값만 저장한다 (v53.65, P868)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "일별 종가와 장중값을 구분한다. 각 거래소·24시간 자산의 실제 세션 정의를 따로 적용한다."
+  },
+  {
+    "id": "R424",
+    "line": 1494,
+    "title": "R424. 모든 라우트의 현재시장 문맥은 하나의 서버 24시간 컷을 사용한다 (v53.65, P869)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "모든 라우트에 동일 뉴스 24시간 컷을 강제하지 않는다. 종가·속보·월간 발표·13F의 자연 시계와 조사 맥락을 함께 보존한다."
+  },
+  {
+    "id": "R356",
+    "line": 1500,
+    "title": "R356. Yahoo chart proxy는 공통 health registry를 통해서만 실행해야 한다 (v53.19, P784)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "proxy health는 공유하되 종목 없음·payload 오류·망 장애를 구분한다. 모든 실패 3회 cooldown은 실측으로 보정한다."
+  },
+  {
+    "id": "R357",
+    "line": 1506,
+    "title": "R357. Native bounded technical surfaces must have one pure model and an explicit legacy writer fence (v53.20, P785)",
+    "status": "퇴역",
+    "disposition": "역사 기록",
+    "reason": "퇴역 표시와 보존 본문을 읽었다. 현행 규칙으로 재승인하지 않으며 사고 이력과 대체 경계만 보존한다."
+  },
+  {
+    "id": "R358",
+    "line": 1514,
+    "title": "R358. Signal primary text must derive from one Trading Score model and fence the legacy dashboard writer (v53.21, P786)",
+    "status": "퇴역",
+    "disposition": "역사 기록",
+    "reason": "퇴역 표시와 보존 본문을 읽었다. 현행 규칙으로 재승인하지 않으며 사고 이력과 대체 경계만 보존한다."
+  },
+  {
+    "id": "R359",
+    "line": 1522,
+    "title": "R359. Home aggregate primary text must reuse signal presentation and fence legacy summary writers (v53.22, P787)",
+    "status": "퇴역",
+    "disposition": "역사 기록",
+    "reason": "퇴역 표시와 보존 본문을 읽었다. 현행 규칙으로 재승인하지 않으며 사고 이력과 대체 경계만 보존한다."
+  },
+  {
+    "id": "R360",
+    "line": 1530,
+    "title": "R360. Derived theme-detail summary must use an explicit event/child boundary (v53.23, P788)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "단일 writer·명시 selection은 유지하되 영구적으로 legacy child가 채워져야 한다는 과거 이관 처방은 역사로 옮긴다."
+  },
+  {
+    "id": "R361",
+    "line": 1536,
+    "title": "R361. Theme-detail composition/breadth must use normalized quote evidence and a fenced legacy writer (v53.24, P789)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "normalized evidence는 유지한다. live quote만 없다는 이유로 유효한 완료 종가까지 무자료로 처리하지 않는다."
+  },
+  {
+    "id": "R362",
+    "line": 1542,
+    "title": "R362. Theme-detail leader cards must have one native writer and fail-closed quote display (v53.25, P790)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "리더 표시의 단일 writer·결측 상태는 유지한다. legacy 경계와 17-route 고정 수는 현재 registry로 바꾼다."
+  },
+  {
+    "id": "R363",
+    "line": 1548,
+    "title": "R363. Theme-detail temperature narrative must derive from canonical performance and fence the legacy section (v53.26, P791)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "관측 근거에 따른 해석은 유지한다. 과거 child 이름·legacy body·온도 진단의 영구 의무는 기능 필요로 재평가한다."
+  },
+  {
+    "id": "R364",
+    "line": 1554,
+    "title": "R364. Theme-detail performance spread must rank only observed quote changes (v53.27, P792)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "관측된 변화만으로 spread를 계산한다. 2개는 산술 최소 수일 뿐 신뢰도·시장 대표성의 증명이 아니다."
+  },
+  {
+    "id": "R365",
+    "line": 1560,
+    "title": "R365. Theme-detail breadth-health narrative must use normalized breadth and fence the legacy section (v53.28, P793)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "시장 폭의 측정 분모와 결측을 보존한다. 과거 legacy writer 경계를 현행 구조의 영구 의무로 두지 않는다."
+  },
+  {
+    "id": "R366",
+    "line": 1566,
+    "title": "R366. Theme-detail subtheme-gap narrative must use normalized subtheme quote evidence and fence the legacy section (v53.29, P794)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "동일 기간·분모로 하위 테마 차이를 설명한다. 2개 관측은 설명 가능성만 보장하며 예측 신호가 아니다."
+  },
+  {
+    "id": "R368",
+    "line": 1572,
+    "title": "R368. Home Quality must not reuse Trading Score and must fail closed without canonical inputs (v53.34, P821)",
+    "status": "퇴역",
+    "disposition": "역사 기록",
+    "reason": "퇴역 표시와 보존 본문을 읽었다. 현행 규칙으로 재승인하지 않으며 사고 이력과 대체 경계만 보존한다."
+  },
+  {
+    "id": "R369",
+    "line": 1580,
+    "title": "R369. Technical candle text and legacy canvas lifecycle must remain separate (v53.34, P822)",
+    "status": "현행 본문 검토",
+    "disposition": "폐기",
+    "reason": "퇴역한 technical candle text와 legacy canvas의 영구 분리 의무는 현재 native stock chart 구조에 맞지 않는다. 일반 lifetime 원칙으로 흡수한다."
+  },
+  {
+    "id": "R370",
+    "line": 1586,
+    "title": "R370. Theme-detail comparison formatters must reject non-finite quote percentages (v53.35, P823)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "finite 검증을 거친 값만 정렬·서식화하여 sentinel·NaN 누출을 막는다."
+  },
+  {
+    "id": "R371",
+    "line": 1592,
+    "title": "R371. Shared currentness sanitizers must not rewrite native renderer-owned narrative sinks (v53.36, P824)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "native text의 단일 writer는 유지한다. 자료의 최신성 검사는 공통 selector에서 일관되게 수행한다."
+  },
+  {
+    "id": "R372",
+    "line": 1598,
+    "title": "R372. Dynamic detail panels must keep aria-live announcements intentionally scarce (v53.37, P825)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "의미 있는 상태 알림을 조정하되 aria-live 전역 개수 상한은 폐기한다. 작업별 완료·오류·중복 읽기를 실제 평가한다."
+  },
+  {
+    "id": "R373",
+    "line": 1604,
+    "title": "R373. Derived routes must replay through their canonical mount in compatibility navigation (v53.38, P826)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "파생 뷰는 실제 canonical mount와 선택 맥락으로 재진입한다."
+  },
+  {
+    "id": "R374",
+    "line": 1610,
+    "title": "R374. Portfolio summary cutovers must transfer the pure model and fence every legacy writer (v53.40, P831)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "normalized portfolio·단일 writer는 유지한다. 필요한 값이 다른 총평가·손익·섹터 집계를 하나의 결측 규칙으로 묶지 않는다."
+  },
+  {
+    "id": "R375",
+    "line": 1616,
+    "title": "R375. Official SEC report surfaces must use one finite-safe projection and keep mixed-source sections separate (v53.41, P832)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "공시 정체성·회계기간·단위·원천을 지키고 추정·외부 관측을 공식 SEC 사실과 분리한다."
+  },
+  {
+    "id": "R367",
+    "line": 1622,
+    "title": "R367. Theme-detail benchmark narrative must use normalized theme/benchmark evidence and fence the legacy section (v53.30, P795)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "테마와 benchmark의 동일 기준 비교는 유지한다. 현재 owner와 benchmark 정의에 맞춰 오래된 packet 계약은 갱신한다."
+  },
+  {
+    "id": "R355",
+    "line": 1628,
+    "title": "R355. Durable snapshot은 reference readiness이며 client live enrichment의 outage gate다 (v53.18, P783)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "artifact transport라는 이유로 모두 reference-only라 하지 않는다. 최신 공식 종가도 현재 관측이며 상태·권리를 별도로 판정한다."
+  },
+  {
+    "id": "R354",
+    "line": 1634,
+    "title": "R354. 서비스워커 버전 표시는 현재 controller 전환을 따라야 한다 (v53.18, P782)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "설치·대기·활성 SW 버전을 구분하고 reload loop를 막는다."
+  },
+  {
+    "id": "R353",
+    "line": 1640,
+    "title": "R353. route ownership 요약은 route별 선언에서 재계산한다 (v53.18, P781)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "이관 진척·소유권 수를 원본 registry에서 파생한다."
+  },
+  {
+    "id": "R352",
+    "line": 1646,
+    "title": "R352. Architecture migration must transfer an executable owner and monotonically retire legacy coupling (v53.15, P736)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "실제 owner 이전·레거시 퇴역은 유지한다. batch마다 최소 한 개 삭제 의무와 장문의 과거 packet 처방은 현재 일반 계약에서 분리한다."
+  },
+  {
+    "id": "R351",
+    "line": 1690,
+    "title": "R351. History bucket dates must not replace field-level observation provenance (v53.14, P735)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "행 bucket 날짜가 필드 관측시각을 대체하지 않도록 provenance를 보존한다."
+  },
+  {
+    "id": "R350",
+    "line": 1696,
+    "title": "R350. Protected portfolio reloads and RSS backstops must fail closed at the visible boundary (v53.13, P734)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "암호화 잠금과 뉴스 창의 의미를 실제 재로드·복구 경로에서 검증한다."
+  },
+  {
+    "id": "R349",
+    "line": 1702,
+    "title": "R349. Workflow module heredocs require an ESM runtime-import contract (v53.12, P733)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "module-mode heredoc에서 사용할 수 없는 전역 require를 남기지 않는다."
+  },
+  {
+    "id": "R348",
+    "line": 1708,
+    "title": "R348. Workflow heredocs must declare the same Node module mode that their source syntax requires (v53.11, P732)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "워크플로 프로그램과 검사기의 실제 ESM 실행 모드를 맞춘다."
+  },
+  {
+    "id": "R347",
+    "line": 1714,
+    "title": "R347. Durable and fast data planes must expose independent revisions and fail closed until operator SLO evidence exists (v53.11, AR-07)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "빠른·느린 데이터와 권리 증거를 분리한다. 고정 7일 soak는 가족 pilot과 공개 확대의 서로 다른 수용 기준으로 재설계한다."
+  },
+  {
+    "id": "R346",
+    "line": 1722,
+    "title": "R346. Legacy event adapters must normalize the actual EventTarget and payload shape at the boundary (v53.9, P729)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "실제 event target과 payload를 경계에서 정규화하는 원칙은 유지한다."
+  },
+  {
+    "id": "R345",
+    "line": 1730,
+    "title": "R345. 고빈도 데이터 batch는 Store 기록과 DOM 반영을 분리하고 전역 scan·rewrite를 batch당 한 번만 수행한다 (v53.9, P728)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "고빈도 저장과 공통 DOM 작업을 분리하고 batch별 중복 전수 scan을 제한한다."
+  },
+  {
+    "id": "R344",
+    "line": 1738,
+    "title": "R344. 퇴역 UI의 렌더 경로와 주기 작업은 canonical owner 하나만 남기고 실행 가능한 게이트로 고정한다 (v53.8, P727)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "퇴역 sink와 호출을 함께 정리한다. 이름 있는 timer registry는 현 구현 선택이며 라이브러리의 scope 소유 timer도 인정한다."
+  },
+  {
+    "id": "R343",
+    "line": 1746,
+    "title": "R343. 신용 판정은 HYG 등 듀레이션 오염 가격이 아니라 FRED HY OAS(bp) 실측만 사용하고, 결측 시 null 사전 차단으로 0을 방지한다 (v53.7, P726)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "HYG 가격과 credit spread를 혼동하지 않는다. FRED 단독 경로를 경제적 진리로 고정하지 말고 동등 OAS의 승인 원천을 허용한다."
+  },
+  {
+    "id": "R342",
+    "line": 1754,
+    "title": "R342. 변동 데이터와 현재형 서술은 런타임 증거만 사용하고 결측을 정적 시드로 메우지 않는다 (v53.4, P717)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "현재 관측의 정적 합성은 금지한다. 유효한 날짜의 사례·공식 규칙·모델 상수까지 고정 텍스트 금지로 넓히지 않는다."
+  },
+  {
+    "id": "R341",
+    "line": 1764,
+    "title": "R341. 퇴역 기능은 inert stub로 보존하지 않고 수직 경로와 공개 artifact에서 완전히 제거한다 (v53.3, P716)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "퇴역 코드를 실제 삭제하는 방향은 유지한다. 동적 export·외부 API 참조를 단순 grep 무참조로 오판하지 않는다."
+  },
+  {
+    "id": "R340",
+    "line": 1772,
+    "title": "R340. 파생 시장 결론은 필수 관측 입력의 의미·기준일·coverage가 충족될 때만 표시한다 (v52.99, P712)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "동일 의미·기간·coverage와 결측 차단은 유지한다. 영향받는 주장 단위로 제한하고 무관한 화면까지 차단하지 않는다."
+  },
+  {
+    "id": "R339",
+    "line": 1780,
+    "title": "R339. 증분 정성 피드는 전체 관측 lineage와 capped 소비 payload를 분리하고 현재 narrative를 재생성한다 (v52.97, P711)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "증분 lineage와 capped 본문 분리는 유지하되 Telegram mirror 접근·본문 보관·AI 주입에는 별도 계약 검토를 선행한다."
+  },
+  {
+    "id": "R338",
+    "line": 1788,
+    "title": "R338. 데이터 artifact lineage는 정책별 timestamp와 반영 commit을 함께 검증하고, 다른 시각을 승격하지 않는다 (v52.96, P710)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "artifact별 시각·원천·revision은 유지한다. 80% 등 임의 coverage 상한은 계산 목적·모집단별 근거가 필요하다."
+  },
+  {
+    "id": "R335",
+    "line": 1796,
+    "title": "R335. BLS 공식 macro evidence는 FRED 대체값이 아니라 typed primary producer로 보존한다 (v52.94)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "공식 BLS의 단위·기간·발표 근거는 보존한다. 12시간 cache는 발행 일정·재시도 필요에 따라 조절한다."
+  },
+  {
+    "id": "R336",
+    "line": 1802,
+    "title": "R336. 모든 route의 page completeness는 producer failure와 reference fallback을 종결 상태로 노출한다 (v52.94)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "완료 상태·금지 claim은 명시한다. 모든 batch에 같은 전체 QA 행렬을 강제하기보다 변경 위험으로 범위를 정한다."
+  },
+  {
+    "id": "R337",
+    "line": 1808,
+    "title": "R337. Runtime fixture override와 reference fallback drift의 의미를 테스트 계약에 고정한다 (v52.94, P709)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "fixture 장애 override는 시험 환경에 격리한다. 운영자 flag를 실제 자료·공급자 건강성의 대체 증거로 쓰지 않는다."
+  },
+  {
+    "id": "R313",
+    "line": 1814,
+    "title": "R313. AI reference retrieval must be intent-aware, top-k bounded, source-separated, and deterministically compacted (v52.78, P693)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "의도별 검색과 예산 제한은 유지하되 한국어에서 chars/4 추정 ±10%와 고정 2K~6K를 보증하지 말고 실제 token·품질을 측정한다."
+  },
+  {
+    "id": "R314",
+    "line": 1822,
+    "title": "R314. External AI inputs must be explicitly untrusted and portfolio data must be allowlisted (v52.79, P694)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "외부 텍스트 비신뢰·포트폴리오 최소 전송은 유지한다. 세션 동의는 법적 근거·국외이전 검토의 대체물이 아니다."
+  },
+  {
+    "id": "R315",
+    "line": 1830,
+    "title": "R315. Personalized financial action permission must be evaluated once at the shared response boundary (v52.79, P694)",
+    "status": "대체됨",
+    "disposition": "역사 기록",
+    "reason": "대체 표시와 보존 본문을 읽었다. 이 과거 처방은 현행 승인 대상이 아니며 명시된 후속 규칙과 분리한다."
+  },
+  {
+    "id": "R316",
+    "line": 1840,
+    "title": "R316. Automated content must pass a publish audit and retain a deterministic fallback/source label (v52.80, P695)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "자동 해설·번역도 공개 산출물로 검증하고 원문과 fallback의 상태를 구분한다."
+  },
+  {
+    "id": "R317",
+    "line": 1848,
+    "title": "R317. AI page context contracts must be projected from the existing page registry (v52.80, P695)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "라우트별 필요한 근거는 선언하되 모든 route의 beginner/expert 답변 양식을 강제하지 않고 실제 질문·사용자 요구에 맞춘다."
+  },
+  {
+    "id": "R326",
+    "line": 1856,
+    "title": "R326. Tool capabilities are read-only by default and mutation/unknown operations are denied (v52.86, P701)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "읽기 전용 AI는 이 제품의 합리적 범위다. 모든 AI 제품의 법적 의무인 것처럼 일반화하지 않는다."
+  },
+  {
+    "id": "R327",
+    "line": 1864,
+    "title": "R327. Provider/data/output rights, retention, training, redistribution, and region require explicit registry approval (v52.86, P701)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "권리 검토는 유지하되 source×operation×territory×retention별 허용표로 만든다. reference 상태는 별도 사용 허가가 아니다."
+  },
+  {
+    "id": "R324",
+    "line": 1872,
+    "title": "R324. Coverage and exposure audits must neutralize missingness before recommendations (v52.85, P700)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "missing을 긍정 점수로 승격하지 않는다. 다만 missing을 neutral 관측값으로 바꾸지도 말고 unknown·측정 분모를 별도 표시한다."
+  },
+  {
+    "id": "R325",
+    "line": 1880,
+    "title": "R325. Human chat claims require signed cross-mode evidence and explicit incomplete states (v52.85, P700)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "실사용자·보조기기 증거는 필요하나 인원·서명 양식을 인증법처럼 고정하지 않는다. 실제 3~5인 반복 관찰부터 진행한다."
+  },
+  {
+    "id": "R322",
+    "line": 1888,
+    "title": "R322. Model releases require replay provenance, approval, canary, and rollback evidence (v52.84, P699)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "재현 근거와 rollback은 유지한다. 비결정적 모델의 원문 동일성 대신 claim·정책·허용 오차로 replay를 평가한다."
+  },
+  {
+    "id": "R323",
+    "line": 1896,
+    "title": "R323. AI cache identity, idempotency, and stream completion must be tenant-safe and auditable (v52.84, P699)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "세션·종목·근거 격리는 유지하되 5인 서비스에 tenant 구조를 강제하지 않는다. 저장 정보는 필요한 범위로 제한한다."
+  },
+  {
+    "id": "R320",
+    "line": 1904,
+    "title": "R320. Retrieval documents require lifecycle metadata and poisoning quarantine before AI use (v52.83, P698)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "독성·철회 문서는 격리한다. 날짜가 지난 문서를 역사 질문에서도 배제하거나 단순 인코딩을 악성으로 단정하지 않는다."
+  },
+  {
+    "id": "R321",
+    "line": 1912,
+    "title": "R321. Financial conduct classification must preserve P0, legal-review, and educational states (v52.83, P698)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "법률·세무 단어의 일괄 차단은 피하되 자격이 필요한 맞춤 자문은 관할·공급자 계약·전문가 관여 조건으로 구분한다."
+  },
+  {
+    "id": "R318",
+    "line": 1920,
+    "title": "R318. AI operations and release claims require measured SLO, deterministic benchmark, and manifest-linked feedback (v52.81, P696)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "비용·지연·정확성 회귀 증거는 필요하다. 고정 벤치마크 점수를 실제 사용 품질로 인증하지 않는다."
+  },
+  {
+    "id": "R319",
+    "line": 1928,
+    "title": "R319. Conversation state and finance arithmetic must be deterministic, scoped, and auditable (v52.82, P697)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "현재 요청의 소유권과 금융 계산의 결정성·검증 근거를 분리해 보존한다."
+  },
+  {
+    "id": "R312",
+    "line": 1936,
+    "title": "R312. Structured current-sensitive AI claims must preserve typed Evidence identity and fail closed on mismatch (v52.77, P692)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "수치 tuple 일치는 유지한다. 모든 주장에 정확히 하나의 evidence ID만 강제하면 여러 자료를 결합한 파생 주장에 부적합하다."
+  },
+  {
+    "id": "R311",
+    "line": 1944,
+    "title": "R311. 공개 AI의 모든 진입점은 동일 요청 envelope·응답 pipeline·validator/block-policy 버전을 기록하고 retry는 같은 completion contract를 재사용한다 (v52.76, P691)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "공통 pipeline·요청 이력은 유효하나 번역·대화·자동 해설 각각 필요한 계약을 최소 형태로 적용한다."
+  },
+  {
+    "id": "R310",
+    "line": 1950,
+    "title": "R310. 공개 AI는 렌더 경계까지 베타·교육/리서치 보조 정책을 강제하고, 검증되지 않은 자동 문장을 공개하지 않는다 (v52.75, P690)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "교육·베타 표시는 법적 면책이나 의미 검증이 아니다. 설명형 선택지와 개인 지시를 구분하고 실제 허용 범위를 밝힌다."
+  },
+  {
+    "id": "R301",
+    "line": 1957,
+    "title": "R301. 일반 사용자 부팅 경로에서는 배포·공유·전수 Evidence 감사를 실행하지 않는다 (v52.74)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "일반 부팅에서 전수 감사는 제외하되 2초·3초·2.5초 고정값은 사용자 행동과 장치별 측정에 근거한 성능예산으로 관리한다."
+  },
+  {
+    "id": "R300",
+    "line": 1963,
+    "title": "R300. When turning on new error/warning signal collection inside a test harness that deliberately blocks network access, expect the app's own legitimate failure-detection code to surface through that same channel — trace it to source before allowlisting or failing on it (v52.52)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "시험 환경이 만든 예상 실패와 실제 회귀를 원인별로 분리하며 broad ignore를 피한다."
+  },
+  {
+    "id": "R299",
+    "line": 1970,
+    "title": "R299. A factor backtest's universe composition and lookback window can flip the sign of a well-known factor — don't compare against academic-literature factor performance without matching sample characteristics (v52.51)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "표본·정의 차이를 밝히는 원칙은 유지한다. 문헌·통계 재계산은 해당 모델 변경 때 위험에 맞춰 수행한다."
+  },
+  {
+    "id": "R298",
+    "line": 1979,
+    "title": "R298. A hand-tuned score using fixed absolute-level thresholds on a macro indicator must be re-validated against realized outcomes across a regime-shifting window before trusting its sign, not just its shape (v52.49)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "예측 주장에는 체제별 검증을 요구하되 관측형 경제 기준까지 미래 수익률 예측력으로 정당화하게 강제하지 않는다."
+  },
+  {
+    "id": "R297",
+    "line": 1990,
+    "title": "R297. A score's evidence/provenance registry must list every input the score function actually reads — not just the subset registered when the registry was first built (v52.49)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "입력 registry 완전성은 유지하되 고정 count 단언만으로 새 입력 누락을 잡는다는 주장은 틀리다. 실제 의존을 대조한다."
+  },
+  {
+    "id": "R280",
+    "line": 1999,
+    "title": "R280. A global function declared in more than one non-module `<script>` (inline or external) silently loses all but the last-loaded definition — with no error, no warning (v52.8, mechanically gated v52.19)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "classic script의 전역 중복은 금지하되 ESM·지역 scope의 합법적 동명 함수까지 금지하지 않는다."
+  },
+  {
+    "id": "R279",
+    "line": 2008,
+    "title": "R279. A regression test must assert the structural property a value is supposed to satisfy, not the specific value/date/count observed when the test was written — that literal will itself go stale (v52.7, broadened v52.20)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "변동 관측값 대신 불변조건을 검사한다. 단 고정 golden fixture 자체의 정확값 검증은 정당한 별도 사례다."
+  },
+  {
+    "id": "R278",
+    "line": 2017,
+    "title": "R278. A `workflow_run`-triggered job that needs the commit its trigger produced must checkout `head_branch`, not `head_sha` (v52.5)",
+    "status": "대체됨",
+    "disposition": "역사 기록",
+    "reason": "대체 표시와 보존 본문을 읽었다. 이 과거 처방은 현행 승인 대상이 아니며 명시된 후속 규칙과 분리한다."
+  },
+  {
+    "id": "R277",
+    "line": 2026,
+    "title": "R277. An external deploy/publish action known to fail transiently must retry once in the same job, not rely on the next scheduled cycle to self-heal (v52.4)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R276",
+    "line": 2027,
+    "title": "R276. New code needing current market/risk/regime/breadth/cycle condition must consume `window.AIO.marketState`, not re-derive it independently (v52.3)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "레거시 marketState에 모든 새 파생식을 추가하라는 의무를 폐지하고 현재 domain selector·종가 판정 owner로 연결한다."
+  },
+  {
+    "id": "R275",
+    "line": 2040,
+    "title": "R275. A shared global object populated by multiple files must always be merged, never plainly overwritten — even if today's load order happens to make it safe (v51.99)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R274",
+    "line": 2041,
+    "title": "R274. A live-fetch binding introduced for an existing labeled/thresholded field must fetch the exact same named indicator the label represents — not a same-topic substitute (v51.97)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R273",
+    "line": 2042,
+    "title": "R273. A value that's supposed to mirror or track another value must be verified equal by evaluating both, not by eyeballing the diff — and duplicate/mirror fields must be named to be found (v51.96)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R272",
+    "line": 2043,
+    "title": "R272. A bot/Action-authored push using the default `GITHUB_TOKEN` never triggers other `on: push` workflows — chain via `workflow_run` instead, not `[skip ci]` removal alone (v51.95)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R271",
+    "line": 2044,
+    "title": "R271. After editing `SCREENER_DB` (js/aio-data.js), always re-run `scripts/sync-screener-universe.mjs` before committing (v51.94)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "기준 레지스트리 변경의 check와 producer write를 구분하는 현행 문구는 로컬 제약과 일치한다."
+  },
+  {
+    "id": "R270",
+    "line": 2046,
+    "title": "R270. A third-party data source's availability and symbol convention must be live-verified, never assumed from a report or general knowledge — and an integration must be scoped down to only the asset classes actually confirmed (v51.92)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R269",
+    "line": 2047,
+    "title": "R269. A CI job that whitelists known-failing tests must classify each entry by cause, and adding to the whitelist is only valid right after a fresh, real measurement (v51.91)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R268",
+    "line": 2048,
+    "title": "R268. Combining sub-signals of different natural scale into one factor requires normalizing each first (v51.89)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R267",
+    "line": 2049,
+    "title": "R267. \"Current\"-labeled rolling aggregations must anchor windows to the newest observation (v51.88)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R266",
+    "line": 2050,
+    "title": "R266. When a measured value and a proxy heuristic coexist, consumers must prefer the measurement — and fetchers must store measurements consumably (v51.88)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R265",
+    "line": 2051,
+    "title": "R265. Code that claims parity with a named external tool/methodology must match that source's exact definition, verified by recomputation (v51.86)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R264",
+    "line": 2052,
+    "title": "R264. An API key in a URL must never be routed through a third-party proxy; a \"sensitive URL\" guard must block the egress, not just caching (v51.85)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R263",
+    "line": 2053,
+    "title": "R263. Every producer of deployable artifacts must actually trigger the deploy path, and the watchdog must verify the DEPLOYED surface, not just the repo (v51.84)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R262",
+    "line": 2054,
+    "title": "R262. Scheduled scrapers/fetchers hitting external feeds must self-throttle with a persisted cursor, not stateless full re-scans (v51.83)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "cursor와 재시도 제한은 효율 원칙이다. 공개 mirror 접근·저장·AI 사용 권한의 증거로 취급하지 않는다."
+  },
+  {
+    "id": "R261",
+    "line": 2061,
+    "title": "R261. A \"single responsibility\" canonical updater must include every DOM sink for its metric (v51.83)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "같은 지표의 표시 일치는 타당하다. 수동 sink 목록 대신 현재 DOM·소유권 계약으로 누락을 검출한다."
+  },
+  {
+    "id": "R259",
+    "line": 2068,
+    "title": "R259. Re-registerable event listeners must guard against duplicate registration consistently across sibling elements (v51.83)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R260",
+    "line": 2069,
+    "title": "R260. A function must never be redefined more than once at the same scope in the same file (v51.83)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R258",
+    "line": 2070,
+    "title": "R258. A hardening measure added to one surface must be checked against equivalent surfaces (v51.83)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R257",
+    "line": 2071,
+    "title": "R257. Persisted-and-later-rendered free text needs both input-boundary validation and escaped render (v51.83)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R256",
+    "line": 2072,
+    "title": "R256. Every external data source in the fetch pipeline must track per-unit failures, not just an aggregate ok flag (v51.83)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R255",
+    "line": 2073,
+    "title": "R255. Automated workflows pushing to a shared branch must rebase/retry on rejection, never push-once-and-drop (v51.83)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R254",
+    "line": 2074,
+    "title": "R254. External classification tags are not ground truth without independent keyword support, and AI prompts must verify tag-content consistency (v51.83)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R253",
+    "line": 2075,
+    "title": "R253. Multiple DOM bindings for the same metric must share one resolver, not independently-ordered fallback chains (v51.83)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R252",
+    "line": 2076,
+    "title": "R252. A static/curated list overlaid with live per-item data must flag contradictions, not silently keep them (v51.83)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R251",
+    "line": 2077,
+    "title": "R251. XBRL/multi-source financial data must resolve to the freshest tag and validated period, and refresh handlers must have a real data source (v51.83)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R250",
+    "line": 2078,
+    "title": "R250. A shared cross-page renderer must resolve each page's own parameters, not one hardcoded default (v51.83)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R249",
+    "line": 2079,
+    "title": "R249. Externally-sourced text must be escaped at the pipeline entry point, not at each render call site (v51.83)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R248",
+    "line": 2080,
+    "title": "R248. Deployment must be wired to the CI gate, not merely run alongside it (v51.82)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "검증 산출물에 배포를 결속하되 모든 보고용 검사를 무조건 blocking으로 승격하지 말고 위험·비용을 평가한다."
+  },
+  {
+    "id": "R247",
+    "line": 2088,
+    "title": "R247. CDN/script load-failure detection must not race against `defer` (v51.82)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R246",
+    "line": 2089,
+    "title": "R246. Version-bump commits must land atomically; never leave main in a partially-synced state (v51.82)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R245",
+    "line": 2090,
+    "title": "R245. Prioritized/boosted content selection must guarantee its picks already ran through required enrichment (v51.82)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "선정된 기사까지 번역 품질을 보장하되 추가 AI 호출을 의무화하지 말고 예산·권리·실패 상태를 함께 제한한다."
+  },
+  {
+    "id": "R244",
+    "line": 2098,
+    "title": "R244. A live-state value shown in multiple UI surfaces must not be computed independently per surface (v51.82)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R243",
+    "line": 2099,
+    "title": "R243. Portfolio UX must close input -> AI analysis -> journal reflection -> learning loop (v51.80)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R242",
+    "line": 2100,
+    "title": "R242. Portfolio backtests must expose assumptions, monthly construction, drawdown recovery, and active risk (v51.79)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R241",
+    "line": 2101,
+    "title": "R241. Public readiness must expose page-level source/asOf, not only aggregate status (v51.78)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R240",
+    "line": 2102,
+    "title": "R240. User-supplied trader frameworks must be centralized as REFERENCE, not live levels (v51.77)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R281",
+    "line": 2794,
+    "title": "R281. Live/browser QA must cover rendered route surfaces, not only prior static findings (v52.23, P633 root)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R282",
+    "line": 2795,
+    "title": "R282. Assertive market-verdict/interpretation text must gate on live-sourced inputs — fallback/snapshot/blocked data may show numbers, but must not assert a directional or confidence-implying verdict (v52.24, P634/P635 root)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R283",
+    "line": 2796,
+    "title": "R283. Interactive detail surfaces must be canonical, all registry entries must render, and same-screen metrics must share the same source (v52.27, P642 root)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R284",
+    "line": 2797,
+    "title": "R284. Proxy responses, visible value slots, and browser QA matrices must be typed and executable (v52.28, P643 root)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R285",
+    "line": 2798,
+    "title": "R285. Operational health labels and feed quality gates must distinguish sources and use accumulated evidence (v52.29, P644 root)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R286",
+    "line": 2799,
+    "title": "R286. AI chat key gates must test the effective Claude route, not only the personal-key field (v52.30, P645 root)",
+    "status": "대체됨",
+    "disposition": "역사 기록",
+    "reason": "대체 표시와 보존 본문을 읽었다. 이 과거 처방은 현행 승인 대상이 아니며 명시된 후속 규칙과 분리한다."
+  },
+  {
+    "id": "R287",
+    "line": 2801,
+    "title": "R287. Market breadth color, label, and gauge bars must share the canonical breadth regime (v52.31, P646 root)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R288",
+    "line": 2802,
+    "title": "R288. Route x viewport audits must include topbar clipping and SVG text geometry, not only page overflow (v52.32, P647 root)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R289",
+    "line": 2803,
+    "title": "R289. Live quote bridges must keep DATA_SNAPSHOT and `_fallback` mirrors synchronized (v52.33, P648 root)",
+    "status": "제목만 보존",
+    "disposition": "본문 미확인",
+    "reason": "현재 파일에는 제목만 있으며 과거 Git 전문을 열람하지 않았다. 제목 확인을 의미 검수 통과나 현행 재승인으로 계산하지 않는다."
+  },
+  {
+    "id": "R290",
+    "line": 2804,
+    "title": "R290. Live-deployed invariants must be re-verified on a schedule independent of new commits (v52.38, P653 root)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "배포 후 변화를 별도 관측하는 원칙은 타당하다. 일정·항목은 장애 탐지 효용과 외부 요청 비용으로 정한다."
+  },
+  {
+    "id": "R291",
+    "line": 2817,
+    "title": "R291. Static page-education content must state invariant mechanisms only, never a current level/date/verdict, and must inherit the existing declutter/accessibility gates (v52.39, P654 root)",
+    "status": "대체됨",
+    "disposition": "역사 기록",
+    "reason": "대체 표시와 보존 본문을 읽었다. 이 과거 처방은 현행 승인 대상이 아니며 명시된 후속 규칙과 분리한다."
+  },
+  {
+    "id": "R292",
+    "line": 2833,
+    "title": "R292. A client-side call routed through a region-unpinned shared edge proxy must auto-retry on the provider's own regional-block error signature, not just report it (v52.44, B8/P659 root)",
+    "status": "현행 본문 검토",
+    "disposition": "폐기",
+    "reason": "지역 차단을 routing luck으로 재시도하는 처방은 공급자 지역 정책 준수의 대안이 아니다. 허용 경로를 확정한다."
+  },
+  {
+    "id": "R294",
+    "line": 2847,
+    "title": "R294. A security/encryption UI claim and a lock gate are two separate things to verify — a settings screen existing is not proof its protection is wired into the actual read path (v52.46, WO-1A/P661 root)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "암호화 주장과 실제 접근 gate를 각각 행동으로 증명해야 한다는 원칙은 유지한다."
+  },
+  {
+    "id": "R295",
+    "line": 2861,
+    "title": "R295. A special-purpose route added to a shared edge proxy must pass through the same defenses as every other route on that proxy — a new route is a new perimeter, not an exception to the old one (v52.47, WO-1B/P662 root)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "경로마다 비용·크기·quota 경계를 적용하되 Origin 검사를 인증으로 취급하지 않는다. 현행 위협모형과 결속한다."
+  },
+  {
+    "id": "R296",
+    "line": 2875,
+    "title": "R296. A session-scoped automation hook must not hardcode an absolute environment fact, and must scope its side effects to what changed during its own session, not whatever it finds lying around (v52.47, WO-5/P663 root)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "상대 경로·세션 소유 변경·무승인 자동 commit 금지는 공동 작업과 기존 dirty 보호에 부합한다."
+  },
+  {
+    "id": "R293",
+    "line": 2890,
+    "title": "R293. Every workflow YAML must be hard-gated for control-character corruption and parseability; other bot-written text gets a baseline-tracked regression gate (v52.45, WO-0/P660 root)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "실행 파일 손상 차단과 기존 문서 손상 래칫을 구분하는 예방책은 범위·비용에 비례한다."
+  },
+  {
+    "id": "R301",
+    "line": 2904,
+    "title": "R301. A current market metric must have one canonical selector and an explicit provenance state; a snapshot may render as reference but must never silently drive a decision (v52.55, H3-A/P671 root)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "관측·시각·용도 selector를 공유하고 stale snapshot을 현재 판정으로 몰래 올리지 않는 원칙은 타당하다."
+  },
+  {
+    "id": "R302",
+    "line": 2912,
+    "title": "R302. Historical event context must expire before it can influence a current action; derived regimes need a missing-input quorum gate (v52.55, H3-B/C/P672 root)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "만료는 단일 age가 아니라 사건·출처 발행 주기로 정한다. 종가·역사 설명과 개인 행동 허가를 분리한다."
+  },
+  {
+    "id": "R303",
+    "line": 2920,
+    "title": "R303. PC geometry and external-source failures must be explicit, bounded, and user-visible (v52.56, H3-D/E/P673 root)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "표·캔버스의 읽기 가능성과 외부 실패의 명시적 종료 상태는 기능적 요구이며 유지한다."
+  },
+  {
+    "id": "R304",
+    "line": 2928,
+    "title": "R304. Third-party libraries are progressive enhancements and must never block the local route boot queue (v52.57, H3-F/P674 root)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "외부 CDN 손실이 로컬 기본 기능 전체를 막지 않게 하는 progressive enhancement는 현재 배포에 적합하다."
+  },
+  {
+    "id": "R305",
+    "line": 2936,
+    "title": "R305. Partial third-party chart stubs must be treated as unavailable before registry access (v52.58, P675 root)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "truthy library symbol만 믿지 않는 방어는 유효하다. 이미 퇴역한 initializer를 영구 보존할 이유는 없다."
+  },
+  {
+    "id": "R306",
+    "line": 2942,
+    "title": "R306. Typed provenance must separate evidence state from action strength (v52.59, P676 root)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "자료의 상태와 권리를 직교 필드로 보존하되 action-strength·cautious-only는 현재 관측 중심 정책으로 대체한다."
+  },
+  {
+    "id": "R307",
+    "line": 2948,
+    "title": "R307. Full-route accessibility is a blocking local gate; assistive technology remains separate (v52.59, P676 root)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "10px 최소 글자와 단일 viewport 행렬은 WCAG 적합성 기준이 아니다. 대비·200% 확대·reflow·실제 작업을 포함한다."
+  },
+  {
+    "id": "R308",
+    "line": 2956,
+    "title": "R308. Fallback/reference freshness must not be forced into live parity (v52.60, P677 root)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "참고 snapshot과 현재 공급자의 시각을 억지로 같게 만들지 않는 원칙은 유지한다."
+  },
+  {
+    "id": "R309",
+    "line": 2962,
+    "title": "R309. Bulk text-replacement scripts must not run blindly across JS string literals — check for characters doing double duty as logic markers before a global find-replace (v52.62, P678 root)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "전역 문자열 교체가 제어 문법까지 바꾸지 않도록 변경 범위와 실행 반례를 확인한다."
+  },
+  {
+    "id": "R328",
+    "line": 2968,
+    "title": "R328. 승인된 화면 시안은 장식층이 아니라 기본 정보구조이며, 접힌 레거시는 통합으로 간주하지 않는다 (v52.87, P702 root)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "시안은 검증할 가설이다. 결론·근거의 명료성을 우선하고 교육·무자료 상태를 시안 밖이라는 이유만으로 일괄 숨기지 않는다."
+  },
+  {
+    "id": "R329",
+    "line": 2976,
+    "title": "R329. 시안 기본 경로 계약은 초기 HTML이 아니라 런타임 주입이 끝난 최종 화면에 적용한다 (v52.88, P703 root)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "최종 비동기 DOM에도 정보 위계를 적용한다. 첫 화면 수·높이 제한은 관측된 사용성 근거로 조절한다."
+  },
+  {
+    "id": "R330",
+    "line": 2984,
+    "title": "R330. 사용자 표면 수와 내부 QA 라우트 수를 분리하고, 시안 정보 위계를 모든 사용자 표면에 적용한다 (v52.89, P704 root)",
+    "status": "대체됨",
+    "disposition": "역사 기록",
+    "reason": "대체 표시와 보존 본문을 읽었다. 이 과거 처방은 현행 승인 대상이 아니며 명시된 후속 규칙과 분리한다."
+  },
+  {
+    "id": "R331",
+    "line": 2994,
+    "title": "R331. 시안의 최종 렌더 계약은 loaded/empty/degraded/closed 상태 전환과 종료 시간까지 포함한다 (v52.90, P705 root)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "유한 시간 내 정상·부분·실패 종료는 유지한다. 무자료 widget 숨김은 선택 기능만 적용하고 핵심 자료 부재는 설명한다."
+  },
+  {
+    "id": "R332",
+    "line": 3002,
+    "title": "R332. 데이터 파일 갱신시각·외부 관측시각·마지막 수집 성공시각을 분리하고 missing을 판단값으로 승격하지 않는다 (v52.91, P706 root)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "관측·수집·성공 시각과 발행 주기를 구분하고 missing·예측 미확인을 정직하게 표현한다."
+  },
+  {
+    "id": "R333",
+    "line": 3010,
+    "title": "R333. 핵심 수집 실패는 마지막 정상 산출물을 덮어쓰지 않으며 공급자 가용성과 구현 완료를 분리한다 (v52.92, P707 root)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "실패 시 정상 artifact와 원 관측을 보존하며 대체 소스 존재를 권리·구현 완료와 구분한다."
+  },
+  {
+    "id": "R334",
+    "line": 3018,
+    "title": "R334. 데이터 대체 계획은 독립 실행·행 단위 lineage·publish 전 의미 검사로 닫는다 (v52.93, P708 root)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "무료 공식 원천 우선은 예산에 부합한다. 무료라는 이유로 취득·재배포·AI 사용권을 추정하지 않는다."
+  },
+  {
+    "id": "R376",
+    "line": 3025,
+    "title": "R376. Cloudflare fast quote plane의 R2는 승인된 optional durability layer이며 KV-only 배포에서는 R2 binding/secret을 요구하지 않는다 (v53.42, P833)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "카드 등록 없는 무료 운영 결정은 유지한다. 저장 기술 이름은 영구 제품 법칙이 아니라 승인된 비용 경계로 관리한다."
+  },
+  {
+    "id": "R377",
+    "line": 3031,
+    "title": "R377. 사용자 제공 시장자료는 하나의 REFERENCE 프레임으로 통합하되 현재성 수치와 분리한다 (v53.43, P834)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "제공 자료의 날짜·출처·한계는 보존하되 모든 자료에 Q1~Q5와 특정 AI 산업 프레임을 강제하지 않는다."
+  },
+  {
+    "id": "R378",
+    "line": 3039,
+    "title": "R378. Reference market material must expose reusable chart, behavior, and communication protocols (v53.44, P835)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "모든 참고 문헌에 차트·행동 playbook을 생산시키지 않는다. 해당 자료가 실제 제공하는 설명·반례·관측 질문만 연결한다."
+  },
+  {
+    "id": "R379",
+    "line": 3047,
+    "title": "R379. SEC refresh queues must rotate untried candidates before retrying known failures (v53.45, P836)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "미시도 후보가 반복 실패 때문에 굶지 않도록 queue와 cooldown을 관리한다."
+  },
+  {
+    "id": "R380",
+    "line": 3055,
+    "title": "R380. Fast-plane deploy smoke must distinguish bootstrap from failure (v53.46, P837)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "빈 초기 저장소와 장애는 구분한다. bootstrap 예외에는 종료 시점·다음 관측을 두어 영구 면제를 막는다."
+  },
+  {
+    "id": "R381",
+    "line": 3061,
+    "title": "R381. Decision models must consume normalized decision evidence (v53.47, P838)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "source 상태와 분석 용도를 구분한다. 역사·주간 자료도 기준일에 맞는 연구에는 유효하며 fresh/live만이 연구 입력은 아니다."
+  },
+  {
+    "id": "R382",
+    "line": 3069,
+    "title": "R382. Route resources and sensitive-key persistence must be scope-owned (v53.48, P839)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "비동기 자원과 민감 저장의 lifetime·소유권을 명시한다."
+  },
+  {
+    "id": "R383",
+    "line": 3077,
+    "title": "R383. Ticker action narratives require entity evidence (v53.49, P840)",
+    "status": "현행 본문 검토",
+    "disposition": "폐기",
+    "reason": "근거가 있으면 ticker action 언어를 허용한다는 전제는 현재 지시 금지와 맞지 않는다. 관측형 setup 계약으로 흡수한다."
+  },
+  {
+    "id": "R384",
+    "line": 3083,
+    "title": "R384. Vault ciphertext must be versioned and migrate legacy KDF values (v53.49, P840)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "암호문 버전과 KDF 이행·구버전 복구를 명시적으로 검증한다."
+  },
+  {
+    "id": "R385",
+    "line": 3089,
+    "title": "R385. Vertical slices must be executable route contracts (v53.50, P841)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "실행 가능한 route 계약은 유효하다. alias·파생 뷰와 실제 화면을 구분하고 전체 행렬은 위험에 맞춰 실행한다."
+  },
+  {
+    "id": "R386",
+    "line": 3095,
+    "title": "R386. Route/resource stability must be proven by a repeated blocking soak (v53.51, P843)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "반복 이동으로 누적 자원·늦은 응답을 검출한다. 3회 통과를 장기 운영 안정성 인증으로 부르지 않는다."
+  },
+  {
+    "id": "R387",
+    "line": 3101,
+    "title": "R387. Operational and public-readiness claims must remain revisioned and operator-explicit (v53.51, P843)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "로컬·배포·권리·인수 증거는 분리한다. 공개 beta와 5인 pilot의 위험을 구분하고 30일을 보편 인증 조건으로 두지 않는다."
+  },
+  {
+    "id": "R388",
+    "line": 3107,
+    "title": "R388. Capability claims must be manifest-backed and fail closed (v53.51, P842)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "사용자에게 약속하는 기능·자동성·현재성은 실제 capability와 일치시킨다."
+  },
+  {
+    "id": "R389",
+    "line": 3113,
+    "title": "R389. Credential persistence must be registry-backed and readback-proven (v53.52, P844)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "정확한 저장·삭제·readback 상태는 유지하되 퇴역한 개인 공급자 키 경로를 보존하는 의무는 제거한다."
+  },
+  {
+    "id": "R390",
+    "line": 3119,
+    "title": "R390. AI route readiness must be explicit and fail closed (v53.52, P844)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "endpoint 건강·인증·quota·이전 호출 성공을 서로 다른 상태로 보여준다."
+  },
+  {
+    "id": "R391",
+    "line": 3125,
+    "title": "R391. AI/data operations must expose five readiness dimensions (v53.52, P844)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "5차원 상태 분리는 유지하되 secret 구성·권리·건강성을 public 화면에 같은 상세도로 노출할 의무는 두지 않는다."
+  },
+  {
+    "id": "R392",
+    "line": 3131,
+    "title": "R392. Compatibility entrypoints must be safe during initialization races (v53.53, P845)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "초기 호출 가능한 진입점이 아직 초기화되지 않은 lexical 상태를 직접 읽지 않게 한다."
+  },
+  {
+    "id": "R393",
+    "line": 3137,
+    "title": "R393. Compatibility exports must preserve global call contracts (v53.54, P846)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "유효한 공개 호출 계약은 보존하되 퇴역한 개인-key overload·provider 선택 경로의 영구 보존은 삭제한다."
+  },
+  {
+    "id": "R394",
+    "line": 3143,
+    "title": "R394. Current-sensitive server prose requires typed metric and source evidence (v53.54, P847)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "typed 자료와 claim 연결은 필요조건이다. 근거 연결만으로 인과 설명·내용 진실이 검증됐다고 표시하지 않는다."
+  },
+  {
+    "id": "R395",
+    "line": 3149,
+    "title": "R395. AI questions must enter through one typed QuestionPlan/Orchestrator (v53.55, P848)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "공통 planner와 dispatch owner는 현 구조에 적합하다. 대표 7case가 전체 질문 정확성 증거는 아니다."
+  },
+  {
+    "id": "R396",
+    "line": 3155,
+    "title": "R396. Current-sensitive AI answers require MarketSessionEvidence and strict AnswerPlan/ClaimLedger (v53.55, P848)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "현재 수치의 typed tuple은 유지하되 외부 응답의 JSON 형식 일치가 진실·완전성 인증은 아니다. 주장별 누락을 분리한다."
+  },
+  {
+    "id": "R397",
+    "line": 3161,
+    "title": "R397. Research-relative rankings must not become confirmed recommendations (v53.55, P848)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "상대 순위를 검증된 추천이나 상승 확률로 승격하지 않는다."
+  },
+  {
+    "id": "R398",
+    "line": 3167,
+    "title": "R398. AI post-processing must inherit the response policy (v53.55, P848)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "답변에서 차단된 의미를 후행 카드·칩이 다시 도입하지 않게 한다."
+  },
+  {
+    "id": "R399",
+    "line": 3173,
+    "title": "R399. Domain analysis engines must be deterministic and evidence-bounded (v53.55, P849)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "계산은 실제 supplied input에서만 하며 미확인 원인·값·확률을 만들지 않는다."
+  },
+  {
+    "id": "R400",
+    "line": 3179,
+    "title": "R400. Model benchmark and operations status must not be overstated (v53.55, P849)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "routing corpus와 실제 모델 품질·live canary를 혼동하지 않는다."
+  },
+  {
+    "id": "R401",
+    "line": 3185,
+    "title": "R401. Research requirement and research capability must remain separate (v53.56, P850)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "필요 근거와 공급 능력은 분리한다. 현재 자료 부재가 무관한 일반 개념 답변까지 금지하는 기준이 되어서는 안 된다."
+  },
+  {
+    "id": "R402",
+    "line": 3191,
+    "title": "R402. Chat quote evidence must cross the typed-claim boundary without lossy field mapping (v53.57, P851)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "quote를 동일 metric·값·단위·시각 tuple로 정규화하여 검증 경계에 전달한다."
+  },
+  {
+    "id": "R403",
+    "line": 3197,
+    "title": "R403. ResearchDecision/ResearchPlan must be the same evidence gate for every chat surface (v53.58, P852)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "모든 현재 질문에 동일 출처 수·independent floor를 강제하지 않는다. 공식 단일 발표와 인과 가설은 서로 다른 입증을 요구한다."
+  },
+  {
+    "id": "R404",
+    "line": 3203,
+    "title": "R404. Question plans and observation provenance are request-bound (v53.58, P852)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "질문 계획과 시세 provenance는 요청에 결속하며 수신시각을 관측시각으로 바꾸지 않는다."
+  },
+  {
+    "id": "R405",
+    "line": 3209,
+    "title": "R405. Partial research results retain their original sub-query identity (v53.58, P852)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "부분 성공 결과에도 원 query identity·source tier·문서 깊이를 유지한다."
+  },
+  {
+    "id": "R406",
+    "line": 3215,
+    "title": "R406. Accessibility target warnings are blocking (v53.58, P852)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "WCAG 2.2 AA의 24×24 CSS px와 spacing·inline·essential 등 예외를 실제 측정한다. 단순 24px 한 축 규칙은 불충분하다."
+  },
+  {
+    "id": "R407",
+    "line": 3221,
+    "title": "R407. Quote price/change/previous-close fields must share one producer revision (v53.59, P853)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "가격·변화·직전 종가·시각을 동일 producer envelope에서 선택한다."
+  },
+  {
+    "id": "R408",
+    "line": 3225,
+    "title": "R408. AI quota must not imply route capability (v53.59, P855)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "남은 quota가 실제 AI route 준비 완료를 뜻하지 않도록 분리한다."
+  },
+  {
+    "id": "R409",
+    "line": 3229,
+    "title": "R409. Release data revisions must match the published snapshot (v53.59, P856)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "배포 가능한 artifact의 revision 묶음은 맞춘다. 과거 실측의 revision을 현재 버전 문자열로 바꾸지는 않는다."
+  },
+  {
+    "id": "R410",
+    "line": 3233,
+    "title": "R410. Public readiness must mirror measured boot-performance status (v53.60, P857)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "성능 실패·미측정·과거 측정은 서로 다른 상태다. 같은 BLOCKED 문자열로 통합하거나 측정 창을 임의 조절하지 않는다."
+  },
+  {
+    "id": "R411",
+    "line": 3237,
+    "title": "R411. Secondary producers must declare a post-boot phase boundary (v53.62, P858)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "비핵심 작업의 간섭은 줄이되 고정 2초 금지창보다 실제 사용자 입력·idle·deadline·요청 중요도로 스케줄한다."
+  },
+  {
+    "id": "R412",
+    "line": 3243,
+    "title": "R412. Native data readers are the only route-provider boundary (v53.63, P833)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "UI와 원천 자료 사이 native data 경계는 유지한다. 특정 파일명이 영구적 정답인 것은 아니다."
+  },
+  {
+    "id": "R413",
+    "line": 3254,
+    "title": "R413. Native chart ownership requires a registry, marker, and legacy fence (v53.63, P834-P835)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "차트 lifetime·scope·결측 경계는 유지하되 Chart.js 전용 계약을 Lightweight Charts 등 현재 renderer에도 일반화한다."
+  },
+  {
+    "id": "R414",
+    "line": 3265,
+    "title": "R414. Current decision scores require a typed decision-use grant (v53.64, P860)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "allowedUse decision flag만으로 의사결정 적합성이 생기지 않는다. 자료 권리·현재성·산식·예측 주장 검증을 각각 확인한다."
+  },
+  {
+    "id": "R415",
+    "line": 3276,
+    "title": "R415. Freshness-scoped news models require observable event time (v53.64, P861)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "날짜 없는 기사를 현재 score에 넣지 않는다. 날짜 미확인 자료의 archive·원문 열람까지 금지하지 않는다."
+  },
+  {
+    "id": "R416",
+    "line": 3285,
+    "title": "R416. Partial portfolio aggregates must remain partial (v53.64, P862)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "총평가·손익별 필수 입력을 정의한다. 부분 합계도 분모·제외액을 밝히면 유용하며 전체를 모두 unavailable로 만들 필요는 없다."
+  },
+  {
+    "id": "R417",
+    "line": 3294,
+    "title": "R417. Native secondary theme performance surfaces need one scoped writer (v53.64, P859)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "현재 기간·데이터가 바뀔 때 scoped writer 하나가 성과 표면을 갱신한다."
+  },
+  {
+    "id": "R418",
+    "line": 3305,
+    "title": "R418. Worker reachability, capability, and soak are separate operations states (v53.64, P863)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "도달 가능·기능 준비·운영 관측은 분리한다. 7일은 고정 법적 인증값이 아니라 서비스 위험별 수용 기간이다."
+  },
+  {
+    "id": "R425",
+    "line": 3317,
+    "title": "R425. Current news and research lanes are separate (v53.66, P870)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "완료 08시 브리핑과 연구 보관 창은 분리하되 뉴스의 08시 이후 새 사건을 current 표면에서 일괄 배제하지 않는다."
+  },
+  {
+    "id": "R426",
+    "line": 3323,
+    "title": "R426. Decision headers must be explicit mounted route elements (v53.67, P871)",
+    "status": "현행 본문 검토",
+    "disposition": "폐기",
+    "reason": "모든 route에 자동 시장 decision header를 의무화하는 처방은 8화면 declutter와 정적 학습·공시 문맥에 맞지 않는다."
+  },
+  {
+    "id": "R427",
+    "line": 3329,
+    "title": "R427. Provider session hints must be reconciled with venue schedules (v53.68, P872)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "공급자의 세션 hint보다 실제 거래소 달력·관측시각을 우선한다."
+  },
+  {
+    "id": "R428",
+    "line": 3335,
+    "title": "R428. Data refresh and release manifests must publish one atomic revision tuple (v53.68, P873)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "갱신 데이터·매니페스트의 원자적 revision과 명시적 LKG 상태를 유지한다."
+  },
+  {
+    "id": "R429",
+    "line": 3341,
+    "title": "R429. Operations status must derive from the capability it claims (v53.68, P874)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "운영 준비 상태는 자신이 주장하는 capability의 실제 성공 자료에서 파생한다."
+  },
+  {
+    "id": "R430",
+    "line": 3347,
+    "title": "R430. Reference learning surfaces must expose real state and freshness (v53.78, P875)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "무동작 컨트롤을 기능처럼 보이지 않게 하며 참고 자료의 실제 기준·부재를 쉬운 문장으로 표현한다."
+  },
+  {
+    "id": "R431",
+    "line": 3353,
+    "title": "R431. Source-document coverage must be measured per content unit (v53.79, P876)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "content unit의 의미 검수는 유지하되 모든 개념에 KPI·동일 인과사슬·동일 필드를 강제하지 않고 해당 없음 근거를 허용한다."
+  },
+  {
+    "id": "R432",
+    "line": 3359,
+    "title": "R432. Domain expansion must preserve publication and normalization boundaries (v53.80, P877)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "검증된 식별자 대조는 필요하다. 19/95/1102/1122·zero mapped 고정 수를 현재 진실로 고정하지 않는다."
+  },
+  {
+    "id": "R433",
+    "line": 3365,
+    "title": "R433. Educational player/product references require resolved evidence edges (v53.81, P881)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "구조적 제품 정보와 현재 양산·매출 주장을 구분한다. 교육 자료라는 이유만으로 확인된 날짜까지 반드시 null로 두지 않는다."
+  },
+  {
+    "id": "R434",
+    "line": 3371,
+    "title": "R434. Authored reference artifacts require renderer and coverage gates (v53.83, P884-P887)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "원고가 실제 renderer와 연결되는지 확인하되 고정 개수 통과를 내용·교육적 품질 승인으로 쓰지 않는다."
+  },
+  {
+    "id": "R435",
+    "line": 3377,
+    "title": "R435. Reference currentness overlays must remain educational and status-labeled (v53.84, P888)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "웹페이지 확인·구조 매핑을 현재 생산·투자 사실로 승격하지 않고 검토 범위를 밝힌다."
+  },
+  {
+    "id": "R436",
+    "line": 3383,
+    "title": "R436. 시장 휴장일 freshness 유예는 완전한 Tier-0 snapshot에만 허용한다 (v53.86, P889)",
+    "status": "대체됨",
+    "disposition": "역사 기록",
+    "reason": "대체 표시와 보존 본문을 읽었다. 이 과거 처방은 현행 승인 대상이 아니며 명시된 후속 규칙과 분리한다."
+  },
+  {
+    "id": "R437",
+    "line": 3391,
+    "title": "R437. 최신 13F 없음과 지연 상태를 구분하는 SEC availability evidence를 기록한다 (v53.87, P890)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "최신 공시가 없다는 사실과 수집 지연을 구분한다. 재확인은 SEC 발행 주기·필요도에 맞춘다."
+  },
+  {
+    "id": "R438",
+    "line": 3397,
+    "title": "R438. 학습 지도는 의미 단위별 원고와 기본 공개 흐름을 함께 검증한다 (v53.88, P891)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "개별 설명·반례의 고유성은 유지하되 기본 tree·필드 수·111개 레슨을 사용성 정답으로 고정하지 않는다."
+  },
+  {
+    "id": "R439",
+    "line": 3403,
+    "title": "R439. 분기 비교는 실제 인접 공시와 유한한 사용자 표면을 함께 검증한다 (v53.89, P892)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "실제 직전 공시를 비교하고 표·검색의 유한값·포커스·중첩 제어를 검증한다."
+  },
+  {
+    "id": "R440",
+    "line": 3409,
+    "title": "R440. 참고 자료의 셋업·전력·자료품질 프레임은 관찰용으로만 승격한다 (v53.91)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "공식·계측 근거 없는 현재 주장을 만들지 않는다. 자료 일부가 검증되면 해당 claim만 승격하고 나머지는 참고로 남긴다."
+  },
+  {
+    "id": "R441",
+    "line": 3415,
+    "title": "R441. Telegram 다채널 discovery는 source catalog·신선도·실패 상태를 함께 보존한다 (v53.92)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "secondary discovery·반복 전파의 한계는 유지한다. 공개 mirror·요약·reference가 플랫폼 AI·보관 계약의 허가가 되지는 않는다."
+  },
+  {
+    "id": "R442",
+    "line": 3421,
+    "title": "R442. 브라우저 테스트 그룹은 registry·예외·planned/completed invariant를 하나의 release gate로 기록한다 (v53.96, P895)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "테스트 그룹의 실제 실행·완료 누락을 registry invariant로 검출한다."
+  },
+  {
+    "id": "R443",
+    "line": 3426,
+    "title": "R443. 예상 외 브라우저 runtime 오류와 차단된 외부 네트워크는 서로 다른 상태로 분류한다 (v53.96, P895)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "예상 외 오류는 blocking한다. allowlist는 환경·원인별로 최소화하며 offline 차단을 서비스 성공으로 보지 않는다."
+  },
+  {
+    "id": "R444",
+    "line": 3432,
+    "title": "R444. AI 시장 분석은 claim마다 canonical evidence ID를 가지며 provider 실패도 동일 schema fallback을 낸다 (v53.96, P895)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "evidence ID는 추적성이지 의미 검증 자체가 아니다. 주장별 지원 관계를 확인하고 raw ID가 사용자 본문에 노출되지 않게 한다."
+  },
+  {
+    "id": "R445",
+    "line": 3438,
+    "title": "R445. Worker quota는 atomic reserve/release와 idempotency를 제공해야 하며 legacy KV는 fail-closed다 (v53.96, P895)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "공용 예산의 원자 예약·중복 방지는 유지한다. origin·연결별 cap은 인증이나 실제 청구 상한이 아니다."
+  },
+  {
+    "id": "R446",
+    "line": 3444,
+    "title": "R446. route ownership은 native/legacy/not-applicable를 구분하고 revision lanes를 혼합하지 않는다 (v53.96, P895)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "소유권의 비적용과 레거시를 구분하고 로컬·배포·실측 revision을 혼합하지 않는다."
+  },
+  {
+    "id": "R447",
+    "line": 3450,
+    "title": "R447. 시장 시간은 event/observed/collected/published와 exchange calendar를 분리하며 calendar 누락은 UNKNOWN이다 (v53.96, P895)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "달력 미확인 시 현재 세션을 단정하지 않는다. 날짜가 명시된 과거·참고 설명까지 중단하지 않는다."
+  },
+  {
+    "id": "R448",
+    "line": 3456,
+    "title": "R448. SEC fundamental anomaly는 quarantine하고 current/missing/not-applicable classification을 공개한다 (v53.96, P895)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "음수 이익·금리·현금흐름은 정상 관측일 수 있다. 음수라는 이유로 quarantine하지 말고 metric별 유효 범위·회계 의미를 검사한다."
+  },
+  {
+    "id": "R449",
+    "line": 3462,
+    "title": "R449. 연구 모델은 PIT/walk-forward/holdout/cost/liquidity/parity 상태를 함께 공개하고 검증 전 research-only다 (v53.96, P895)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "예측 우위에는 PIT·비용·유동성·표본 검증이 필요하다. 설명형 순위·관측 통계에 같은 기관급 인증을 강제하지 않는다."
+  },
+  {
+    "id": "R450",
+    "line": 3468,
+    "title": "R450. CSP·decomposition·operations gates는 local PASS와 live certification을 분리한다 (v53.96, P895)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "로컬 검사와 실제 edge 적용·운영 실측을 분리한다. 7/30일은 서비스 목적에 맞춘 자율 운영 기준이다."
+  },
+  {
+    "id": "R451",
+    "line": 3474,
+    "title": "R451. 학습 필드 존재와 백과사전급 깊이를 분리해 인증한다 (v53.98, P896)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "필드 존재와 학습 품질을 분리한다. 분량 하한·모든 경제 전파·정량 예제 의무는 개념별 학습 목표와 해당 없음 근거로 바꾼다."
+  },
+  {
+    "id": "R452",
+    "line": 3480,
+    "title": "R452. 지식 그래프·출처·artifact 상태는 실제 consumer와 같은 해석기로 인증한다 (v53.99, P897)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "실제 consumer로 그래프·근거 참조·부분 실패를 검증하며 구조 통과를 의미·사람 검증으로 승격하지 않는다."
+  },
+  {
+    "id": "R453",
+    "line": 3486,
+    "title": "R453. AI Research는 하나의 실행 결과 계약과 관측된 capability 증거로만 공개한다 (v54.0, P898)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "실행 결과·실제 검색 준비 증거는 유지한다. 출처 수·snippet 제한은 질문의 주장 유형·원문 접근 범위에 맞춰 적용한다."
+  },
+  {
+    "id": "R454",
+    "line": 3492,
+    "title": "R454. Service-worker takeover fixture는 1회 reload 전후 상태를 보존해 검증한다 (v54.0, P899)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "SW fixture가 재로드 상태를 잘못 초기화하지 않아야 한다. 연속 두 실행은 특정 회귀 반례이지 보편 release 의무는 아니다."
+  },
+  {
+    "id": "R455",
+    "line": 3498,
+    "title": "R455. 변동 데이터 게이트는 실제 관측과 완전한 unavailable 튜플을 모두 실행 검증한다 (v54.1, P900)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "실제 관측과 명시적 unavailable tuple의 일치를 확인하고 placeholder를 성공으로 세지 않는다."
+  },
+  {
+    "id": "R456",
+    "line": 3504,
+    "title": "R456. AI 채팅은 단일 QuestionPlan→Evidence→AnswerPlan 계약으로 종단간 검증한다 (v54.2, P901)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "claim tuple·질문 의도·출력 지시 검사를 분리하는 원칙은 유지한다. 조건부 가격·비중 허용 문구는 최신 AGENTS 지시 금지와 정합화한다."
+  },
+  {
+    "id": "R457",
+    "line": 3510,
+    "title": "R457. 변동 원본 artifact와 파생 인덱스는 producer가 원자적으로 발행하고 실제 Git index에서 검증한다 (v54.2, P902, v56.33 P1204)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "producer와 파생 산출물을 원자 발행하고 실제 staged 내용까지 검증한다."
+  },
+  {
+    "id": "R458",
+    "line": 3516,
+    "title": "R458. AI edge Worker는 소스·배포·readiness를 하나의 릴리스 계약으로 닫는다 (v54.3, P903)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "Pages와 AI Worker의 배포·준비 증거는 별도 확인한다. US DO는 선택한 계약 이행 설계이며 전세계 법적 의무는 아니다."
+  },
+  {
+    "id": "R459",
+    "line": 3522,
+    "title": "R459. Provider 허용 지역은 location hint가 아니라 관할권 실행 증거로 고정한다 (v54.4, P904)",
+    "status": "현행 본문 검토",
+    "disposition": "조건부 유지",
+    "reason": "jurisdiction은 DO의 실행·저장 범위를 보장한다. 전체 네트워크 egress·로그·수탁자 관할까지 보장한다고 확대하지 않는다."
+  },
+  {
+    "id": "R460",
+    "line": 3528,
+    "title": "R460. 소수 사용자용 금융 안전 경계는 답변 범위와 실제 실행 위험을 분리한다 (v54.4, P905)",
+    "status": "현행 본문 검토",
+    "disposition": "개정",
+    "reason": "개념·조건부 설명을 살리되 자격이 필요한 맞춤 법률·세무 자문은 공급자 계약·관할·전문가 관여 조건을 따로 집행한다."
+  },
+  {
+    "id": "R461",
+    "line": 3534,
+    "title": "R461. 공급자·근거 장애는 답변 전체가 아니라 영향받는 주장 범위만 저하시킨다 (v54.4, P906)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "자료 장애는 영향받는 현재 주장만 보류하고 근거 있는 일반 설명까지 지우지 않는다."
+  },
+  {
+    "id": "R462",
+    "line": 3540,
+    "title": "R462. 다중 공급자 coverage 계약은 partial 상태를 성공·실패 lineage와 함께 보존한다 (v54.4, P907)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "부분 성공을 구조적으로 유효한 degraded 상태로 다루고 성공률·원인을 숨기지 않는다."
+  },
+  {
+    "id": "R463",
+    "line": 3546,
+    "title": "R463. AI readiness는 저장된 credential이 아니라 실제 선택된 endpoint를 검증한다 (v54.5, P908)",
+    "status": "현행 본문 검토",
+    "disposition": "유지",
+    "reason": "설정 존재가 아니라 실제 선택 endpoint의 건강·인증을 검증한다."
+  }
+]

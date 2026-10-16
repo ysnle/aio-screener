@@ -669,8 +669,9 @@ async function main() {
       const strategyHtml = (document.getElementById('pf-risk-metrics') || {}).innerHTML || '';
       window.savePortfolioAssumption('pf-exposure-path-input', 'current_composition_retrospective');
       const positions = JSON.parse(localStorage.getItem('aio_portfolio_data'));
-      positions[1].currency = 'KRW';       // 기준 통화와 다른 보유 통화 → 혼합
-      positions[0].costCurrency = 'KRW';   // 원가 통화와 시세 통화 불일치 → P&L 보류
+      // v57.84 P1864: JPY — the app's USD/KRW close would convert KRW, so the hold path needs a pair the app has no close for
+      positions[1].currency = 'JPY';       // 기준 통화와 다른 보유 통화 → 혼합
+      positions[0].costCurrency = 'JPY';   // 원가 통화와 시세 통화 불일치 → P&L 보류
       localStorage.setItem('aio_portfolio_data', JSON.stringify(positions));
       window.showPage('home');
       await new Promise((resolve) => setTimeout(resolve, 60));
@@ -699,15 +700,15 @@ async function main() {
       localStorage.setItem('aio_portfolio_vault_optout', '1');
       localStorage.setItem('aio_portfolio_data', JSON.stringify([
         { ticker: 'AAA', qty: 10, cost: 100, currency: 'USD', costCurrency: 'USD', sector: 'Tech', targetWeight: 50 },
-        { ticker: 'BBB', qty: 10, cost: 10000, currency: 'KRW', costCurrency: 'KRW', sector: 'Health', targetWeight: 50 }
+        { ticker: 'BBB', qty: 10, cost: 10000, currency: 'JPY', costCurrency: 'JPY', sector: 'Health', targetWeight: 50 }
       ]));
       localStorage.setItem('aio_portfolio_cash', '0');
       localStorage.setItem('aio_portfolio_base_currency', 'USD');
       localStorage.setItem('aio_portfolio_cash_currency', 'USD');
       const setValue = (id, value) => { const el = document.getElementById(id); if (el) el.value = value; };
       setValue('pf-fx-from', 'USD');
-      setValue('pf-fx-to', 'KRW');
-      setValue('pf-fx-rate', '1350');
+      setValue('pf-fx-to', 'JPY');
+      setValue('pf-fx-rate', '150');
       setValue('pf-fx-date', new Date().toISOString().slice(0, 10));
       await window._aioAddFxLeg();
       const stored = window.getPortfolioFxLegs();
@@ -726,7 +727,7 @@ async function main() {
     });
     check('PFE2-19 declared_fx_leg_converts_and_reverts (P1194)',
       fxFlow.removedOk === true && fxFlow.listed === 1 && fxFlow.remaining === 0
-      && fxFlow.stored.length === 1 && fxFlow.stored[0].from === 'USD' && fxFlow.stored[0].to === 'KRW' && fxFlow.stored[0].rate === 1350
+      && fxFlow.stored.length === 1 && fxFlow.stored[0].from === 'USD' && fxFlow.stored[0].to === 'JPY' && fxFlow.stored[0].rate === 150
       && fxFlow.convertedNote.includes('통화 환산(선언 rate) → USD')
       && fxFlow.heldNote.includes('통화 혼합') && fxFlow.heldNote.includes('환산 없어 합계 보류'),
       JSON.stringify(fxFlow));
@@ -737,7 +738,7 @@ async function main() {
       localStorage.setItem('aio_portfolio_vault_optout', '1');
       localStorage.setItem('aio_portfolio_fx_legs', '[]');
       localStorage.setItem('aio_portfolio_data', JSON.stringify([
-        { ticker: 'AAA', qty: 10, cost: 15000, price: 200, currency: 'USD', costCurrency: 'KRW', sector: 'Tech' }
+        { ticker: 'AAA', qty: 10, cost: 1666.7, price: 200, currency: 'USD', costCurrency: 'JPY', sector: 'Tech' }
       ]));
       localStorage.setItem('aio_portfolio_cash', '0');
       localStorage.setItem('aio_portfolio_base_currency', 'USD');
@@ -757,9 +758,9 @@ async function main() {
       };
       const held = await remount();
       const setValue = (id, value) => { const el = document.getElementById(id); if (el) el.value = value; };
-      setValue('pf-fx-from', 'KRW');
+      setValue('pf-fx-from', 'JPY');
       setValue('pf-fx-to', 'USD');
-      setValue('pf-fx-rate', String(1 / 1350));
+      setValue('pf-fx-rate', String(1 / 150));
       setValue('pf-fx-date', new Date().toISOString().slice(0, 10));
       await window._aioAddFxLeg();
       const converted = await remount();

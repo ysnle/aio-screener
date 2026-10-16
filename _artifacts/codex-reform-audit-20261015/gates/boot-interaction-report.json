@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "aio-boot-performance-evidence.v1",
+  "observedAt": "2026-10-15T13:51:49.373Z",
+  "appRevision": "v57.82",
+  "gitHead": "1dff3b233c0382dee6bf978b4b625901ead5012f",
+  "gitClean": false,
+  "environment": {
+    "browser": "chromium",
+    "browserVersion": "149.0.7827.55",
+    "platform": "win32",
+    "node": "v24.18.0",
+    "viewport": "1440x1000"
+  },
+  "command": "node scripts/ci-boot-interaction-check.mjs",
+  "gateStatus": "PASS",
+  "targetStatus": "TARGET_MISS",
+  "targetFailures": [
+    "max long task 467 > 200",
+    "total long task 1205 > 1000"
+  ],
+  "metrics": {
+    "fcpMs": 1908,
+    "dclMs": 576,
+    "loadMs": 582,
+    "maxLongTaskMs": 467,
+    "totalLongTaskMs": 1205,
+    "longTaskCount": 6,
+    "longTaskObservationWindowMs": 2000,
+    "domNodes": 4042,
+    "activeRouteDomNodes": 970,
+    "activePage": "page-signal",
+    "bootStatusPresent": false,
+    "routeMs": 300,
+    "wallMs": 8723,
+    "totalExternalRequests": 52,
+    "quoteRequests": 28,
+    "initialExternalRequests": 7,
+    "initialQuoteRequests": 0,
+    "bootObservationWindowMs": 2000,
+    "delayedPrimaryChart": {
+      "passed": true,
+      "bootRequests": 0,
+      "primaryRequests": 1,
+      "secondaryRequests": 0,
+      "lwcRequests": 0,
+      "chartName": "DelayedPrimaryChart",
+      "localFallback": false,
+      "built": true,
+      "defaultsReplayed": true,
+      "placeholderLoads": 1,
+      "direct": true
+    }
+  }
+}

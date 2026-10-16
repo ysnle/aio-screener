@@ -305,8 +305,7 @@ function createNewsCard(documentRef, root, item, index) {
   detail.textContent = [`발행 ${formatAbsoluteTime(facts.publishedAt) || '미제공'}`, `관찰 ${formatAbsoluteTime(facts.observedAt) || '미제공'}`,
     `수집 ${formatAbsoluteTime(item?.fetchedAt) || '미제공'}`,
     // LC-31 (v57.77): the 카테고리별 view that named this boundary left; a feed-query topic says so in the card's fold.
-    isNewsTopicReviewRequired(item) && topicLabel ? `주제 표시(${topicLabel})는 출처 기준 분류 · 기사 본문으로 확인 전` : '',
-    '기사 내용의 사실 여부는 원 출처에서 확인'].filter(Boolean).join(' · ');
+    isNewsTopicReviewRequired(item) && topicLabel ? `주제 표시(${topicLabel})는 출처 기준 분류 · 기사 본문으로 확인 전` : ''].filter(Boolean).join(' · ');
   evidence.appendChild(detail);
   if (item?.storyArticles?.length > 1) {
     evidence.appendChild(text(documentRef, item.storySelection));

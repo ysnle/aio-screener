@@ -1380,10 +1380,17 @@ const workersAiModelUnavailable = (error) => /\b(5018|5007)\b|not allowed to acc
 // surface as a count mismatch carrying model text. Error bodies carry short codes only — they are written to
 // Actions logs by scripts/lib/ai-shared-analysis.mjs, so no model output and no exception message.
 export const WORKERS_AI_TRANSLATE_MAX_TITLES = 20;
+// Codex audit F18 (2026-10-15): Workers AI is billed outside the OpenAI reservation ledger (10,000 free neurons a day,
+// overage on a paid plan), so it obeys the same operator stop and has its own per-minute ceiling: AI_KILL_SWITCH=1
+// stops every AI path, and a runaway caller (a loop in a workflow) is cut at WORKERS_AI_TRANSLATE_PER_MINUTE calls.
+export const WORKERS_AI_TRANSLATE_PER_MINUTE = 30;
+const workersAiRateLimitMap = new Map();
 async function handleWorkersAiTranslate(request, env) {
   // Token first: an anonymous caller sees 404 for every method, like /_ops/ai-usage.
   if (!await matchesOperatorToken(env?.AIO_AUTOMATION_TOKEN, request.headers.get('X-AIO-Automation-Token'))) return privateOperatorResponse(null, 404);
   if (request.method !== 'POST') return privateOperatorResponse({ error: 'post-required' }, 405);
+  if (env?.AI_KILL_SWITCH === '1') return privateOperatorResponse({ error: 'kill-switch' }, 503);
+  if (!await enforceRateLimit(env, 'RATE_LIMIT_WORKERS_AI', workersAiRateLimitMap, WORKERS_AI_TRANSLATE_PER_MINUTE, 'automation')) return privateOperatorResponse({ error: 'rate-limit' }, 429);
   if (!env?.AI || typeof env.AI.run !== 'function') return privateOperatorResponse({ error: 'workers-ai-unbound' }, 503);
   let titles;
   try {

@@ -293,7 +293,7 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   const restOpen = !!target.querySelector('.xr-map-rest[open]');
   const focused = target.contains?.(doc.activeElement) ? doc.activeElement?.closest?.('.xr-branch')?.dataset.branch : null;
   if (!model.available) { target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead')); return model; }
-  const basis = el(doc, 'p', `${model.asOf || '기준일 미확인'} 관측 기준 · 예측이 아닙니다. 다음 발표 때 무엇을 보고 어떻게 대응할지 정리했습니다. 가능성은 조건 충족 수 · 시장 가격 방향 · 과거 빈도로만 말하고 확률 숫자는 쓰지 않습니다.`, 'xr-basis');
+  const basis = el(doc, 'p', `${model.asOf || '기준일 미확인'} 관측 기준. 다음 발표 때 무엇을 보고 어떻게 대응할지 정리했습니다. 각 갈래는 조건 충족 수 · 시장 가격 방향 · 과거 빈도를 나란히 보여 줍니다.`, 'xr-basis');
   // The rate hub (why rates lead, the proxy caveat once) comes first; the map below opens each branch in place.
   // v57.79 (UI review): the heading says what the list is (ordered by conditions met), not how to use it.
   const mapHead = el(doc, 'h3', `시나리오 ${model.items.length}개 — 조건 충족 순`, 'xr-h3');

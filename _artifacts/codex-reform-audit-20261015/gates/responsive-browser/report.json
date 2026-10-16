@@ -1,0 +1,578 @@
+{
+  "postmortem": "P1618",
+  "isolatedInjection": false,
+  "status": "PASS",
+  "observations": [
+    {
+      "viewport": "phone390",
+      "route": "home",
+      "active": "page-home",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 2958,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "home",
+      "active": "page-home",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 2958,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "home",
+      "active": "page-home",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 2958,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "signal",
+      "active": "page-signal",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 7592,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "signal",
+      "active": "page-signal",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 7592,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "breadth",
+      "active": "page-breadth",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1742,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "signal",
+      "active": "page-signal",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 7592,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "sentiment",
+      "active": "page-sentiment",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 2522,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "breadth",
+      "active": "page-breadth",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 89,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "breadth",
+      "active": "page-breadth",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 89,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "sentiment",
+      "active": "page-sentiment",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1911,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "sentiment",
+      "active": "page-sentiment",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1911,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "briefing",
+      "active": "page-briefing",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 531,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "technical",
+      "active": "page-technical",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 390,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "briefing",
+      "active": "page-briefing",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 531,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "briefing",
+      "active": "page-briefing",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 531,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "macro",
+      "active": "page-macro",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 383,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "technical",
+      "active": "page-technical",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 448,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "technical",
+      "active": "page-technical",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 390,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "fxbond",
+      "active": "page-fxbond",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 2495,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "fundamental",
+      "active": "page-fundamental",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 133,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "themes",
+      "active": "page-themes",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 238,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "macro",
+      "active": "page-macro",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 383,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "macro",
+      "active": "page-macro",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 383,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "fxbond",
+      "active": "page-fxbond",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 2495,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "fxbond",
+      "active": "page-fxbond",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 2495,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "fundamental",
+      "active": "page-fundamental",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 133,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "fundamental",
+      "active": "page-fundamental",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 136,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "theme-detail",
+      "active": "page-themes",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 7931,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "portfolio",
+      "active": "page-portfolio",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 488,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "themes",
+      "active": "page-themes",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 238,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "themes",
+      "active": "page-themes",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 238,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "ticker",
+      "active": "page-ticker",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 98,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "market-news",
+      "active": "page-market-news",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 4792,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "theme-detail",
+      "active": "page-themes",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 8096,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "theme-detail",
+      "active": "page-themes",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 8457,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "principles",
+      "active": "page-principles",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 2456,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "portfolio",
+      "active": "page-portfolio",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 488,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "masters",
+      "active": "page-masters",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 3112,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "portfolio",
+      "active": "page-portfolio",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 488,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "ticker",
+      "active": "page-ticker",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 98,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "ticker",
+      "active": "page-ticker",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 98,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "atlas",
+      "active": "page-atlas",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1226,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "guide",
+      "active": "page-guide",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1707,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "market-news",
+      "active": "page-market-news",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 4810,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "market-news",
+      "active": "page-market-news",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 4792,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "principles",
+      "active": "page-principles",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 3427,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "principles",
+      "active": "page-principles",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 3427,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "masters",
+      "active": "page-masters",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 3112,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "masters",
+      "active": "page-masters",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 3112,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "atlas",
+      "active": "page-atlas",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1226,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "phone390",
+      "route": "screener",
+      "active": "page-screener",
+      "width": 366,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 707,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "atlas",
+      "active": "page-atlas",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1226,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "guide",
+      "active": "page-guide",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1707,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "guide",
+      "active": "page-guide",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 1707,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet768",
+      "route": "screener",
+      "active": "page-screener",
+      "width": 728,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 754,
+      "zeroCharts": []
+    },
+    {
+      "viewport": "tablet1024",
+      "route": "screener",
+      "active": "page-screener",
+      "width": 984,
+      "docOverflow": 0,
+      "clipped": [],
+      "textLength": 754,
+      "zeroCharts": []
+    }
+  ],
+  "failures": []
+}

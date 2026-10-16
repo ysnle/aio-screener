@@ -1,16 +1,17 @@
 // P1624: one issuer model for every registered symbol; no example-symbol branches.
-import { buildFiscalRead } from '../fundamental/fiscal-read.js';
+import { buildFiscalRead, isLendingFinancial } from '../fundamental/fiscal-read.js';
 import { deriveSecReport } from '../fundamental/sec-report.js';
 import { resolveInstrument, INSTRUMENT_REGISTRY } from '../market/instrument-registry.js';
 import { screenerMarket, marketRows, MARKET_POPULATION_POLICY } from '../screener/market-scope.js';
 import { fieldValueForPurpose } from '../../data/contracts/screener.js';
 import { latestCompletedUsSession, latestCompletedKrSession } from '../market/market-calendar.js';
 import { outOfUniverseContext } from './out-of-universe-read.js';
+import { NEAR_LINE_ADR } from '../technical/bands.js';
 
 export const COMPANY_ANALYSIS_MODEL_VERSION = 'company-analysis.v1';
 export function companyAnalysisContext(model) {
   if(!model?.available)return '';
-  return `현재 선택 기업 ${model.symbol}. ${model.headline}\n정체성: ${model.identity.market||'시장 미확인'} / ${model.identity.assetType||'유형 미확인'} / ${model.identity.sector||'섹터 미확인'}.\n사업: ${model.business.description || '내부 사업 설명 미수집. 필요하면 공식 회사 소개·공시의 사업부문을 웹검색으로 확인하고 추정하지 말 것.'}\n연결 테마: ${model.associations.map(item=>item.name).join(', ')||'없음'} (사업부문 매출 비중이 아님).\n재무: ${model.financial.periodEnd||'미확인'} 회계연도. ${model.financial.fiscal.points.map(item=>`${item.title}: ${item.text}`).join(' ')}\n관찰: ${model.risks.map(item=>item.text).join(' ')||'추가 관측 없음'}. 미수집 자료는 없음으로 알리고 출처·관측일을 분리할 것.${model.outOfUniverse?.context ? `\n${model.outOfUniverse.context}` : ''}`;
+  return `현재 선택 기업 ${model.symbol}. ${model.headline}\n정체성: ${model.identity.market||'시장 미확인'} / ${model.identity.assetType||'유형 미확인'} / ${model.identity.sector||'섹터 미확인'}${model.identity.industry ? ` (산업분류: ${model.identity.industry})` : ''}.\n사업: ${model.business.description || '내부 사업 설명 미수집. 필요하면 공식 회사 소개·공시의 사업부문을 웹검색으로 확인하고 추정하지 말 것.'}\n연결 테마: ${model.associations.map(item=>item.name).join(', ')||'없음'} (사업부문 매출 비중이 아님).\n재무: ${model.financial.periodEnd||'미확인'} 회계연도. ${model.financial.fiscal.points.map(item=>`${item.title}: ${item.text}`).join(' ')}\n관찰: ${model.risks.map(item=>item.text).join(' ')||'추가 관측 없음'}. 미수집 자료는 없음으로 알리고 출처·관측일을 분리할 것.${model.outOfUniverse?.context ? `\n${model.outOfUniverse.context}` : ''}`;
 }
 const sym = value => String(value || '').trim().toUpperCase();
 const finite = value => typeof value === 'number' && Number.isFinite(value) ? value : null;
@@ -73,8 +74,11 @@ export function buildCompanyAnalysis({ symbol, row = null, summary = null, profi
   if (finite(latest?.netIncome) < 0) risks.push({ id:'loss', text:`${latest.periodEnd} 연간 공시는 순손실입니다. 매출 성장과 순이익을 구분해서 확인합니다.` });
   if (fiscal.lastGrowth != null && fiscal.lastGrowth < 0) risks.push({ id:'revenue', text:`최근 회계연도 매출은 전년 대비 ${signed(fiscal.lastGrowth)}입니다.` });
   if (finite(latest?.equity) < 0) risks.push({ id:'equity', text:'공시 자기자본이 음수입니다. 일반적인 양(+)의 자기자본 ROE 해석을 적용하지 않습니다.' });
-  if (finite(latest?.operatingCashFlow) < 0 && !/financ|bank/i.test(matchedRow?.sector || '')) risks.push({ id:'cash', text:'최근 회계연도 영업현금흐름은 유출입니다. 원인과 다음 공시에서의 변화를 확인할 지점입니다.' });
-  if (pctSma50 != null && pctSma50 < 0) risks.push({ id:'trend', text:`${sessionDate} 종가는 50일선보다 ${Math.abs(pctSma50).toFixed(1)}% 아래입니다.` });
+  if (finite(latest?.operatingCashFlow) < 0 && !isLendingFinancial(matchedRow?.symbol || resolved?.symbol, matchedRow?.sector)) risks.push({ id:'cash', text:'최근 회계연도 영업현금흐름은 유출입니다. 원인과 다음 공시에서의 변화를 확인할 지점입니다.' });
+  // v57.84 (R707): inside one ADR of the line is 50일선 부근 on the stock summary, so it is not a risk watch here either.
+  const adr50 = Number(matchedRow?.adrPct);
+  const near50 = pctSma50 != null && Number.isFinite(adr50) && adr50 > 0 && Math.abs(pctSma50) < NEAR_LINE_ADR * adr50;
+  if (pctSma50 != null && pctSma50 < 0 && !near50) risks.push({ id:'trend', text:`${sessionDate} 종가는 50일선보다 ${Math.abs(pctSma50).toFixed(1)}% 아래입니다.` });
   // v57.81: an on-demand row (out-of-universe listing) is not a registered universe row.
   const identity = { registered: !!matchedRow && !matchedRow.onDemand, verification: resolved.verification, name, market, currency, assetType, sector: matchedRow?.sector || null, industry: matchedRow?.industry || matchedSummary?.industry || null, source: matchedRow?.identitySource || matchedSummary?.sourceUrl || null };
   const financialStatus = !isCompany ? 'not-applicable' : market === 'KR' ? 'kr-disclosure-required' : fiscal.available ? 'reference' : 'missing';

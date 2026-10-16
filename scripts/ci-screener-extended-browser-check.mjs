@@ -92,7 +92,12 @@ try {
     if (extended.rankTitles.length && extended.rankTitles.some((id) => id !== 'extended-universe')) fail(viewport.id, `rank cells not labelled with the extended contract: ${extended.rankTitles.join(',')}`);
 
     // Search finds a shard row.
+    // v57.83: the stub copies a real core row, so whether it passes the default preset (rank 60+, 통과 종목만) depends on the
+    // day's data (2026-10-16: rank 54). The search, compare and row-open steps test a shard row, so the pass filter is off while they run.
     const target = identityRows[0].sym;
+    const setPassedOnly = (on) => page.evaluate((value) => { const box = document.getElementById('scr-passed-only'); if (box && box.checked !== value) { box.checked = value; box.dispatchEvent(new Event('change', { bubbles: true })); } }, on);
+    const passedOnly = await page.evaluate(() => document.getElementById('scr-passed-only')?.checked === true);
+    if (passedOnly) await setPassedOnly(false);
     await page.fill('#scr-text-search', target);
     await page.waitForFunction((sym) => [...document.querySelectorAll('#screener-results-body [data-aio-screener-ticker]')].some((node) => node.dataset.aioScreenerTicker === sym), target, { timeout: 10000 });
     await page.fill('#scr-text-search', '');
@@ -144,6 +149,7 @@ try {
       return row ? { tier: row.universeTier, contract: row.rankingUniverse, ret3m: row.ret3m } : null;
     }, target);
     if (!tickerRow || tickerRow.tier !== 'extended' || tickerRow.contract !== 'extended') fail(viewport.id, `ticker page does not read the shard row: ${JSON.stringify(tickerRow)}`);
+    if (passedOnly) await setPassedOnly(true);
 
     // Reload: the choice is remembered; the shard is fetched again only once the screener shows.
     shardRequests = 0;

@@ -36,6 +36,12 @@ const config = JSON.parse(await readFile(CONFIG, 'utf8'));
 const files = config.measuredFiles || [];
 const ceiling = config.ceiling || {};
 const recorded = { ...(config.recordedLines || {}) };
+// v57.84: lines alone are gameable — merging declarations onto one long line keeps the count flat while logic grows
+// (the v57.83 batch did exactly that to pass). Non-whitespace characters do not move when lines are merged, so they
+// ratchet too, with a small slack so a one-line correctness fix still passes without a recorded raise.
+const recordedChars = { ...(config.recordedNonWhitespaceChars || {}) };
+const charSlack = Number.isFinite(Number(config.nonWhitespaceCharSlack)) ? Number(config.nonWhitespaceCharSlack) : 400;
+const measuredChars = {};
 
 const errors = [];
 const measured = {};
@@ -49,6 +55,11 @@ for (const file of files) {
   }
   const lines = source.split(/\r?\n/).length;
   measured[file] = lines;
+  const chars = source.replace(/\s+/g, '').length;
+  measuredChars[file] = chars;
+  const previousChars = Number(recordedChars[file]);
+  if (!Number.isFinite(previousChars)) errors.push(`v57.84 ${file} has no recorded non-whitespace character count — run with --write`);
+  else if (chars > previousChars + charSlack) errors.push(`v57.84 ${file} grew ${previousChars} -> ${chars} non-whitespace chars (+${chars - previousChars}, slack ${charSlack}). Merging lines does not shrink a file; move the logic to src/ or record the raise with --write --allow-growth.`);
   const cap = Number(ceiling[file]);
   if (Number.isFinite(cap) && lines > cap) errors.push(`P1127/R620 ${file} line count ${lines} exceeds declared ceiling ${cap}`);
   const previous = Number(recorded[file]);
@@ -79,7 +90,13 @@ if (write) {
     }
   }
   for (const file of files) if (Number.isFinite(measured[file])) recorded[file] = measured[file];
-  const next = { ...config, recordedLines: recorded };
+  // Without --allow-growth the character record only tightens, so repeated --write cannot creep the slack upward.
+  for (const file of files) {
+    if (!Number.isFinite(measuredChars[file])) continue;
+    const before = Number(recordedChars[file]);
+    recordedChars[file] = !Number.isFinite(before) || allowGrowth ? measuredChars[file] : Math.min(before, measuredChars[file]);
+  }
+  const next = { ...config, recordedLines: recorded, recordedNonWhitespaceChars: recordedChars, nonWhitespaceCharSlack: charSlack };
   await writeFile(CONFIG, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
   console.log(`[decomp] recorded ${files.length} file(s): ${files.map((file) => `${file}=${recorded[file]}`).join(', ')}`);
   process.exit(0);

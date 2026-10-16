@@ -284,13 +284,23 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   };
   let currencyCompatible = currencyBasis !== 'mixed';
   let costConversionApplied = false;
-  if (declaredBaseCurrency && fxLegs.length && (currencyBasis === 'mixed' || costConversionNeeded)) {
+  // v57.84 review: the app's own published USD/KRW close (already used for cash) also converts holdings when no declared
+  // leg covers the pair — refusing it held every KRW-base account with US stocks and expired declarations every 72 hours.
+  // The leg is labelled with its close date; a declared leg still wins.
+  const appLeg = (from, to) => cashFx && cashFx.rate > 0 && ((from === 'USD' && to === 'KRW') || (from === 'KRW' && to === 'USD'))
+    ? { rate: from === 'USD' ? cashFx.rate : 1 / cashFx.rate, leg: { from: 'USD', to: 'KRW', rate: cashFx.rate, observedAt: cashFx.date, source: 'app-close', label: cashFx.label }, inverted: from === 'KRW' } : null;
+  // The app close only covers USD/KRW: with any other currency in play (or no close) the declared legs alone decide, so
+  // a JPY holding without a leg is held exactly as before instead of falling through as "converted".
+  const appCovers = !!(cashFx && cashFx.rate > 0) && [...effectiveCurrencies, ...rows.map(costCurrencyOf)].filter(Boolean).every((c) => c === 'USD' || c === 'KRW');
+  if (declaredBaseCurrency && (fxLegs.length || appCovers) && (currencyBasis === 'mixed' || costConversionNeeded)) {
     const usedLegs = [];
     const held = [];
     const costHeld = [];
     const convert = (amount, currency, sink) => {
       if (amount == null) return amount;
-      const result = convertWithDeclaredRates({ value: amount, from: currency || declaredBaseCurrency, to: declaredBaseCurrency, legs: fxLegs, asOfMs: now });
+      let result = convertWithDeclaredRates({ value: amount, from: currency || declaredBaseCurrency, to: declaredBaseCurrency, legs: fxLegs, asOfMs: now });
+      const fallback = !result.ok && result.reason !== 'value-missing' ? appLeg(currency || declaredBaseCurrency, declaredBaseCurrency) : null;
+      if (fallback) result = { ok: true, value: Number(amount) * fallback.rate, rate: fallback.rate, leg: fallback.leg, inverted: fallback.inverted };
       if (!result.ok) {
         const pair = result.pair || `${currency || '?'}/${declaredBaseCurrency}`;
         if (!sink.some((entry) => entry.pair === pair && entry.reason === result.reason)) {

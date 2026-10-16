@@ -107,5 +107,5 @@ export function frequencyText(freq, label, { source = 'AIO 종가 기록' } = {}
   const signed = (value) => `${value > 0 ? '+' : ''}${value}%`;
   // v57.79: a percentage needs at least 10 non-overlapping cases; below that the counts stand alone.
   const base = Number.isFinite(freq.baseUpPct) && freq.n >= 10 ?` 비슷한 때 ${Math.round(freq.up / freq.n * 100)}% · 같은 기록 전체 거래일에서는 ${freq.baseUpPct}%가 올라, 둘의 차이가 이 조건이 더하는 정보입니다.` : '';
-  return `${label}: ${source}(${span})의 겹치지 않는 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 ${hasFinalConsonant(freq.subject || 'S&P 500') ? `${freq.subject || 'S&P 500'}이` : `${freq.subject || 'S&P 500'}가`} 올랐습니다 (중앙값 ${signed(freq.median)}${freq.p25 != null && freq.n >= 8 ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''}).${base}${freq.n < 10 ? ' 표본이 작아 경향 참고용입니다.' : ''}`;
+  return `${label}: ${source}(${span})의 겹치지 않는 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 ${hasFinalConsonant(freq.subject || 'S&P 500') ? `${freq.subject || 'S&P 500'}이` : `${freq.subject || 'S&P 500'}가`} 올랐습니다 (중앙값 ${signed(freq.median)}${freq.p25 != null && freq.n >= 8 ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''}).${base}${freq.n < 10 ? ' 표본이 작아 경향 참고용입니다.' : freq.n < 30 ? ' 30번 미만의 작은 표본이라 비율은 참고용입니다.' : ''}`; // R706: 10-29 cases carry a small-sample note (codex audit F09)
 }

@@ -8,14 +8,20 @@ const POLICY_ROWS = Object.freeze([
   { id: 'rumor-amplification', severity: 'P0', mode: 'prohibited', pattern: /(?:허위루머|거짓\s*소문|false\s+rumou?r|rumou?r\s+amplif)/i },
   { id: 'restricted-security', severity: 'P0', mode: 'prohibited', pattern: /(?:restricted\s+security|거래제한\s*종목|제한\s*증권)/i },
   { id: 'leverage-risk', severity: 'P1', mode: 'conditional-analysis', pattern: /(?:레버리지|옵션|선물|마진|leverage|options?|futures?|margin)/i },
-  { id: 'jurisdictional-advice', severity: 'P1', mode: 'legal-scope', pattern: /(?:세법|세금|법률|법적으로|규제|regulatory|legal\s+advice|sec\b|finra\b|tax\b|compliance|증권법|투자자문업)/i }
+  { id: 'jurisdictional-advice', severity: 'P1', mode: 'legal-scope', pattern: /(?:세법|세금|법률|법적으로|규제|regulatory|legal\s+advice|\bsec\b|\bfinra\b|\btax\b|compliance|양도세|증권법|투자자문업)/i }
 ]);
 
 const EDUCATIONAL = /(?:무엇|뭐야|뭐지|설명|원리|개념|정의|차이|비교|영향|전망|위험|리스크|작동|의미|구조|사례|체크리스트|what\s+is|explain|how\s+does|overview|outlook|risk|difference|compare)/i;
 const PERSONALIZED = /(?:내\s*(?:계좌|거래|세금|포트폴리오|상황)|제가|나는|나한테|보유\s*종목|my\s+(?:account|trade|tax|portfolio|holdings)|for\s+me)/i;
 const OPERATIONAL = /(?:방법|단계|먼저|활용|퍼뜨|조작|실행|우회|숨기|회피|하라|하세요|how\s+to|steps?|execute|use\s+it|evade|bypass)/i;
+// v57.84: a prohibited topic is blocked only when the request asks how to do it. "왜 불법인지 설명하세요" or "선행매매 탐지
+// 방법" is defensive education; the old operational test fired on any 하세요/방법 and blocked it.
+const DEFENSIVE = /(?:탐지|적발|감시|처벌|불법인지|위법인지|왜\s|피하려면|당하지|예방|detect|why\s)/i;
+const EXECUTION = /(?:퍼뜨|조작하|우회|숨기|회피|(?:활용|이용)\s*(?:방법|법|하는\s*법)|하는\s*법|실행\s*단계|단계별|step[- ]by[- ]step|evade|bypass|execute|how\s+to\s+(?:do|use|run))/i;
 const DIRECT_MARKET_ACTION = /(?:매수|매도|추가매수|진입|청산|손절|익절|목표가|진입가|손절가|비중|포지션|리밸런싱|buy|sell|trade|allocate|position|stop[- ]?loss|take[- ]?profit)/i;
 const LEGAL_DETERMINATION = /(?:신고(?:해야|할까|의무)|납부(?:해야|할까|의무)|합법(?:인가|이야|입니까)|불법(?:인가|이야|입니까)|법적으로\s*(?:가능|문제|해야|허용)|세금\s*(?:얼마|계산|내야)|규제\s*(?:준수|위반)|법률\s*자문|legal\s+advice|is\s+it\s+legal|tax\s+(?:filing|liability)|must\s+i\s+(?:file|pay))/i;
+// A bare SEC/FINRA/규제 mention is disclosure context; tax and compliance terms make a trade question a legal-scope one.
+const LEGAL_SUBSTANCE = /(?:세법|세금|양도세|법률|법적으로|규제\s*준수|\btax\b|compliance|legal)/i;
 const RESPONSE_LEGAL_DIRECTIVE = /(?:세금\s*(?:신고|납부)|법률상\s*(?:의무|허용)|규제\s*준수).{0,40}(?:하세요|해야\s*합니다|의무입니다|가능합니다)/i;
 
 export function getAIConductPolicy() {
@@ -48,7 +54,7 @@ export function classifyAIRequest({ query = '' } = {}) {
   const operational = OPERATIONAL.test(queryText);
   const asksLegalDetermination = LEGAL_DETERMINATION.test(queryText);
 
-  if (prohibitedCategories.length && operational) {
+  if (prohibitedCategories.length && !DEFENSIVE.test(queryText) && (EXECUTION.test(queryText) || (operational && !educational))) {
     return Object.freeze({
       version: AI_CONDUCT_POLICY_VERSION, requestMode: 'PROHIBITED_INSTRUCTION',
       status: 'BLOCKED_P0', severity: 'P0', categories: Object.freeze(categories),
@@ -58,10 +64,9 @@ export function classifyAIRequest({ query = '' } = {}) {
     });
   }
 
-  const legalTaxAnalysis = categories.includes('jurisdictional-advice') && (
-    (asksLegalDetermination && (personalized || directAction || !educational)) ||
-    (directAction && !educational)
-  );
+  // v57.84: a stock question that merely mentions the SEC or regulation ("SEC 공시 보고 매수할까?") is market analysis;
+  // the jurisdiction/fact-pattern mode needs an actual legal or tax determination in the question.
+  const legalTaxAnalysis = categories.includes('jurisdictional-advice') && (asksLegalDetermination || ((personalized || directAction) && LEGAL_SUBSTANCE.test(queryText)));
   if (legalTaxAnalysis) {
     return Object.freeze({
       version: AI_CONDUCT_POLICY_VERSION, requestMode: 'LEGAL_TAX_ANALYSIS',

@@ -99,7 +99,7 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   if (stageCounts.size) {
     const themed = top.filter((row) => Array.isArray(row?.themeStages) && row.themeStages.length).length;
     points.push({ id: 'theme-stage', tone: 'neutral', title: '상위권의 테마 단계',
-      text: `${topName} 중 테마에 속한 ${themed}종목의 테마 단계: ${STAGE_ORDER.filter((key) => stageCounts.has(key)).map((key) => `${stageCounts.get(key).label} ${stageCounts.get(key).n}종목`).join(' · ')}. 단계는 테마 전체의 흐름이며 개별 종목의 매매 신호가 아닙니다.` });
+      text: `${topName} 중 테마에 속한 ${themed}종목의 테마 단계: ${STAGE_ORDER.filter((key) => stageCounts.has(key)).map((key) => `${stageCounts.get(key).label} ${stageCounts.get(key).n}종목`).join(' · ')}. 단계는 종목이 아니라 테마 전체의 흐름입니다.` });
   }
   // 2026-10-14 audit #3/#14: the verdicts lead (sector tilt, then what the past record says), then the one denominator.
   const spreadValue = finite(validation?.spreadNet);

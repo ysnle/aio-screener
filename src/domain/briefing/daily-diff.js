@@ -4,6 +4,7 @@ import { deriveQuotePresentation } from '../market/quote-presentation.js';
 // Pure functions over the completed-close history and the published screener rows — no live quote is
 // promoted to a close, and a measure missing on either session is left out rather than read as zero.
 import { buildCloseSeries, buildMarketRegime, closeBasis, krSessionThrough } from './market-read.js';
+import { RULES } from '../rules/thresholds.js';
 import { countOpenSessionsBetween, openSessionDatesBetween } from '../market/market-calendar.js';
 
 const shortDay = (date) => { const [, month, day] = String(date || '').split('-').map(Number); return month && day ? `${month}/${day}` : ''; };
@@ -106,12 +107,13 @@ export function buildDailyChanges(history = [], { now = Date.now() } = {}) {
     .map((axis) => ({ id: axis.id, title: axis.title, from: before[axis.id].stateLabel, to: axis.stateLabel, toState: axis.state }));
   const big = moves.filter((move) => ['spx', 'nasdaq', 'kospi', 'kosdaq'].includes(move.key) ? Math.abs(move.value) >= 1
     : move.key === 'vix' ? Math.abs(move.value) >= 2 : move.key === 'tnx' ? Math.abs(move.value) >= 8
-      : move.key === 'breadth50' ? Math.abs(move.value) >= 5 : move.key === 'fg' ? Math.abs(move.value) >= 8
+      : move.key === 'breadth50' ? Math.abs(move.value) >= 5 : move.key === 'fg' ? Math.abs(move.value) >= RULES.sentiment.namedMovePt
         : Math.abs(move.value) >= 1.5);
   const headline = flips.length
     ? `${flips.map((flip) => `${flip.title} ${flip.from} → ${flip.to}`).join(' · ')} — 시장 상태 판정에 들어가는 지표가 바뀌었습니다.`
-    : big.length ? `지표 판정은 그대로이고, 크게 움직인 것은 ${big.map((move) => `${move.label}${move.market === 'KR' ? `(한국 ${shortDay(move.to)})` : ''} ${move.text}`).join(' · ')}입니다.`
-      : '지표 판정이 그대로이고 크게 움직인 지표도 없습니다.';
+    // v57.84: this comparison rebuilds the regime from closes only, so the credit axis never enters it — the headline says so.
+    : big.length ? `지표 판정은 그대로이고(신용 축은 이 비교에 넣지 않음), 크게 움직인 것은 ${big.map((move) => `${move.label}${move.market === 'KR' ? `(한국 ${shortDay(move.to)})` : ''} ${move.text}`).join(' · ')}입니다.`
+      : '지표 판정이 그대로이고(신용 축은 이 비교에 넣지 않음) 크게 움직인 지표도 없습니다.';
   return { available: true, date: basis, prevDate, missing: missingSessionsBetween(prevDate, basis), notCompared, notComparedNotes, moves, flips, big: big.map((move) => move.key), headline };
 }
 

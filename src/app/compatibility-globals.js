@@ -15,6 +15,8 @@ import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence } fr
 import { isKnownSymbol, resolveHoldingInput, resolveRegisteredName, searchCandidates } from '../domain/ticker/resolve-name.js';
 import { hasFinalConsonant } from '../domain/content/korean-particle.js';
 import { isListedUsSymbol, usListingSymbol } from '../data/us-listings.js';
+import { stripEvidenceIds } from '../domain/briefing/evidence-text.js';
+import { releaseAtMs } from '../domain/briefing/schedule.js';
 import { groupNewsStories, isNewsRevision, newsArticleKey, resolveNewsIssuers } from '../domain/news/stories.js';
 // Portfolio statistics/backtest is a native ESM module; importing it during
 // bootstrap keeps the classic regression surface available before lazy route
@@ -197,6 +199,12 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
   // v57.81: the official US listing (public-data/us-listings.json) is fetched only when a symbol is unknown to the
   // registries above — never at boot. Exact symbol only; listed:null means it could not be checked (never accept).
   window._aioCheckUsListing = (symbol) => isListedUsSymbol(symbol);
+  // P1847 / P1844 (codex F11/F07): the legacy analysis sink and macro calendar read these native rules (one owner each).
+  window._aioStripEvidenceIds = stripEvidenceIds;
+  window._aioMacroReleaseNotYet = (key, date, nowMs, today) => {
+    const at = releaseAtMs(key, date);
+    return Number.isFinite(at) ? at > nowMs : date >= today;
+  };
   window._aioUsListingSymbol = (symbol) => usListingSymbol(symbol);
   window._aioTickerSearchMiss = (raw) => {
     const input = document.getElementById('ticker-direct-search');
@@ -223,15 +231,30 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
     const list = document.createElement('div');
     list.className = 'ticker-search-picks';
     list.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;';
-    for (const pick of picks) {
+    const addPick = (pick) => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'q-chip';
-      button.textContent = `${pick.label} · ${pick.symbol}`;
+      button.textContent = `${pick.label} · ${pick.symbol}${pick.exchange ? ` (${pick.exchange}${pick.etf ? ' ETF' : ''})` : ''}`;
       button.addEventListener('click', () => window.showTicker?.(pick.symbol));
       list.append(button);
-    }
+    };
+    picks.forEach(addPick);
     hint.replaceChildren(lead, ...(picks.length ? [list] : []));
+    // v57.83 (owner 2026-10-16): a company name outside the name registry is searched in the US listing directory and
+    // offered as candidates — the reader chooses; nothing is resolved automatically (R663). Loaded only on a miss.
+    if (query.length >= 3 && /[A-Za-z]/.test(query) && picks.length < 6) {
+      const token = (hint.dataset.listingQuery = query);
+      import('../data/us-listings.js').then(async (module) => {
+        const extra = module.searchUsListingNames(await module.loadUsListings(), query, { limit: 6 - picks.length, exclude: picks.map((pick) => pick.symbol) });
+        if (!extra.length || hint.dataset.listingQuery !== token || !hint.isConnected) return;
+        extra.forEach(addPick);
+        if (!picks.length) {
+          lead.textContent = `'${query.slice(0, 40)}'${hasFinalConsonant(query.slice(0, 40)) ? '과' : '와'} 정확히 일치하는 종목은 없지만, 미국 상장 목록에서 이름이 비슷한 종목이 있습니다. 맞는 종목을 골라 주세요.`;
+          hint.append(list);
+        }
+      }).catch(() => {});
+    }
   };
   window._aioNewsStories = { key: newsArticleKey, group: groupNewsStories, isRevision: isNewsRevision,
     issuers: (row, candidates) => resolveNewsIssuers(row, candidates, window.AIO_TICKER_NAME_REGISTRY?.entries) };

@@ -143,7 +143,15 @@ try {
       domNodes: document.getElementsByTagName('*').length,
       activeRouteDomNodes: document.querySelector('.page.active')?.getElementsByTagName('*').length || 0,
       activePage: document.querySelector('.page.active')?.id || '',
-      bootStatusPresent: !!document.getElementById('aio-boot-status')
+      bootStatusPresent: !!document.getElementById('aio-boot-status'),
+      // Codex audit F14 (2026-10-15): decodedJsMbMax had no measurement. Same-origin scripts (classic + native ESM)
+      // fetched by the end of the observation window, decoded bytes; cross-origin CDN libraries report 0 decoded bytes
+      // without Timing-Allow-Origin, so they are counted separately and not added to the budget figure.
+      ...(() => {
+        const scripts = performance.getEntriesByType('resource').filter((entry) => entry.initiatorType === 'script' || /\.m?js(?:[?#]|$)/.test(entry.name));
+        const local = scripts.filter((entry) => entry.name.startsWith(location.origin));
+        return { decodedJsBytes: local.reduce((sum, entry) => sum + (entry.decodedBodySize || 0), 0), sameOriginScripts: local.length, crossOriginScripts: scripts.length - local.length };
+      })()
     };
   }, BOOT_OBSERVATION_WINDOW_MS);
   result.routeMs = routeMs;
@@ -169,6 +177,8 @@ try {
   if (result.domNodes > targets.totalDomNodesDiagnosticMax) targetFailures.push(`total DOM ${result.domNodes} > ${targets.totalDomNodesDiagnosticMax}`);
   if (result.maxLongTaskMs > targets.maxLongTaskMs) targetFailures.push(`max long task ${result.maxLongTaskMs} > ${targets.maxLongTaskMs}`);
   if (result.totalLongTaskMs > targets.totalLongTaskMs) targetFailures.push(`total long task ${result.totalLongTaskMs} > ${targets.totalLongTaskMs}`);
+  result.decodedJsMb = Math.round(result.decodedJsBytes / 10485.76) / 100;
+  if (Number.isFinite(targets.decodedJsMbMax) && result.decodedJsMb > targets.decodedJsMbMax) targetFailures.push(`decoded same-origin JS ${result.decodedJsMb}MB > ${targets.decodedJsMbMax}MB`);
   const statusLines = git(['status', '--short']) || '';
   evidence = {
     schemaVersion: 'aio-boot-performance-evidence.v1',
@@ -180,11 +190,15 @@ try {
     command: 'node scripts/ci-boot-interaction-check.mjs',
     gateStatus: failures.length ? 'FAIL' : 'PASS',
     targetStatus: targetFailures.length ? 'TARGET_MISS' : 'TARGET_COMPLIANT',
+    // Codex audit F13 (2026-10-15): the operations-slo targets are a reported goal, not a blocking gate; qa-runner
+    // prints a TARGET_MISS line beside the PASS so a green run is never read as "performance target met" (R701).
+    targetPolicy: 'report-not-blocking',
     targetFailures,
     metrics: result
   };
   writeFileSync(resolve(root, '_artifacts', 'boot-interaction-report.json'), `${JSON.stringify(evidence, null, 2)}\n`);
   console.log(JSON.stringify(evidence, null, 2));
+  if (targetFailures.length) console.error(`[boot] TARGET_MISS (reported, not blocking): ${targetFailures.join('; ')}`);
   if (failures.length) throw new Error(`boot interaction gate failed: ${failures.join('; ')}`);
 } finally {
   await closeAll({ browser, server });
