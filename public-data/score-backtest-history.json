@@ -1,11 +1,11 @@
 {
- "generatedAt": "2026-10-16T02:51:54.598Z",
+ "generatedAt": "2026-10-16T05:09:18.469Z",
  "note": "Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). summary의 sampleSizeSufficient는 관측 수 바닥일 뿐이며, 이 하네스는 CI/p-value를 계산하지 않아 statistical significance는 UNKNOWN, statisticallyMeaningful은 false로 fail-closed한다.",
  "summary": {
   "n5d": 314,
-  "corr5d": -0.243,
+  "corr5d": -0.245,
   "n21d": 298,
-  "corr21d": -0.388,
+  "corr21d": -0.386,
   "sampleSizeSufficient": true,
   "significanceStatus": "UNKNOWN",
   "statisticallyMeaningful": false
@@ -1429,11 +1429,11 @@
   },
   {
    "date": "2026-06-10",
-   "reconstructedScore": 53,
+   "reconstructedScore": 50,
    "subScores": {
     "vol": 42,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -1741,11 +1741,11 @@
   },
   {
    "date": "2026-06-23",
-   "reconstructedScore": 61,
+   "reconstructedScore": 63,
    "subScores": {
     "vol": 62,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 55
    },
@@ -1765,11 +1765,11 @@
   },
   {
    "date": "2026-06-24",
-   "reconstructedScore": 61,
+   "reconstructedScore": 63,
    "subScores": {
     "vol": 62,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 55
    },
@@ -1789,11 +1789,11 @@
   },
   {
    "date": "2026-06-25",
-   "reconstructedScore": 61,
+   "reconstructedScore": 63,
    "subScores": {
     "vol": 62,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 55
    },
@@ -1813,11 +1813,11 @@
   },
   {
    "date": "2026-06-26",
-   "reconstructedScore": 61,
+   "reconstructedScore": 63,
    "subScores": {
     "vol": 62,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 55
    },
@@ -1837,11 +1837,11 @@
   },
   {
    "date": "2026-06-27",
-   "reconstructedScore": 61,
+   "reconstructedScore": 63,
    "subScores": {
     "vol": 62,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 55
    },
@@ -1861,11 +1861,11 @@
   },
   {
    "date": "2026-06-28",
-   "reconstructedScore": 61,
+   "reconstructedScore": 63,
    "subScores": {
     "vol": 62,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 55
    },
@@ -1885,11 +1885,11 @@
   },
   {
    "date": "2026-06-29",
-   "reconstructedScore": 70,
+   "reconstructedScore": 68,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 55
    },
@@ -1933,11 +1933,11 @@
   },
   {
    "date": "2026-07-01",
-   "reconstructedScore": 70,
+   "reconstructedScore": 68,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 55
    },
@@ -1957,11 +1957,11 @@
   },
   {
    "date": "2026-07-02",
-   "reconstructedScore": 70,
+   "reconstructedScore": 68,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 55
    },
@@ -1981,11 +1981,11 @@
   },
   {
    "date": "2026-07-03",
-   "reconstructedScore": 70,
+   "reconstructedScore": 68,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 55
    },
@@ -2005,11 +2005,11 @@
   },
   {
    "date": "2026-07-04",
-   "reconstructedScore": 70,
+   "reconstructedScore": 68,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 55
    },
@@ -2029,11 +2029,11 @@
   },
   {
    "date": "2026-07-05",
-   "reconstructedScore": 70,
+   "reconstructedScore": 68,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 55
    },
@@ -2077,11 +2077,11 @@
   },
   {
    "date": "2026-07-07",
-   "reconstructedScore": 69,
+   "reconstructedScore": 67,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2101,11 +2101,11 @@
   },
   {
    "date": "2026-07-08",
-   "reconstructedScore": 69,
+   "reconstructedScore": 67,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2221,11 +2221,11 @@
   },
   {
    "date": "2026-07-13",
-   "reconstructedScore": 69,
+   "reconstructedScore": 67,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2245,11 +2245,11 @@
   },
   {
    "date": "2026-07-14",
-   "reconstructedScore": 69,
+   "reconstructedScore": 67,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2293,11 +2293,11 @@
   },
   {
    "date": "2026-07-16",
-   "reconstructedScore": 69,
+   "reconstructedScore": 67,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2317,11 +2317,11 @@
   },
   {
    "date": "2026-07-17",
-   "reconstructedScore": 59,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 62,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2341,11 +2341,11 @@
   },
   {
    "date": "2026-07-18",
-   "reconstructedScore": 59,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 62,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2365,11 +2365,11 @@
   },
   {
    "date": "2026-07-19",
-   "reconstructedScore": 59,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 62,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2389,11 +2389,11 @@
   },
   {
    "date": "2026-07-20",
-   "reconstructedScore": 59,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 62,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2413,11 +2413,11 @@
   },
   {
    "date": "2026-07-21",
-   "reconstructedScore": 69,
+   "reconstructedScore": 67,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2437,11 +2437,11 @@
   },
   {
    "date": "2026-07-22",
-   "reconstructedScore": 69,
+   "reconstructedScore": 67,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2461,11 +2461,11 @@
   },
   {
    "date": "2026-07-23",
-   "reconstructedScore": 54,
+   "reconstructedScore": 57,
    "subScores": {
     "vol": 62,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2485,11 +2485,11 @@
   },
   {
    "date": "2026-07-24",
-   "reconstructedScore": 59,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 62,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2509,11 +2509,11 @@
   },
   {
    "date": "2026-07-25",
-   "reconstructedScore": 59,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 62,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2533,11 +2533,11 @@
   },
   {
    "date": "2026-07-26",
-   "reconstructedScore": 59,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 62,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2557,11 +2557,11 @@
   },
   {
    "date": "2026-07-27",
-   "reconstructedScore": 59,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 62,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2581,11 +2581,11 @@
   },
   {
    "date": "2026-07-28",
-   "reconstructedScore": 59,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 62,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2629,11 +2629,11 @@
   },
   {
    "date": "2026-07-30",
-   "reconstructedScore": 64,
+   "reconstructedScore": 67,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2653,11 +2653,11 @@
   },
   {
    "date": "2026-07-31",
-   "reconstructedScore": 69,
+   "reconstructedScore": 67,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2677,11 +2677,11 @@
   },
   {
    "date": "2026-08-01",
-   "reconstructedScore": 69,
+   "reconstructedScore": 67,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -2701,11 +2701,11 @@
   },
   {
    "date": "2026-08-02",
-   "reconstructedScore": 69,
+   "reconstructedScore": 67,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3301,11 +3301,11 @@
   },
   {
    "date": "2026-09-01",
-   "reconstructedScore": 64,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3325,11 +3325,11 @@
   },
   {
    "date": "2026-09-02",
-   "reconstructedScore": 64,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3445,11 +3445,11 @@
   },
   {
    "date": "2026-09-08",
-   "reconstructedScore": 64,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3469,11 +3469,11 @@
   },
   {
    "date": "2026-09-09",
-   "reconstructedScore": 64,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3493,11 +3493,11 @@
   },
   {
    "date": "2026-09-10",
-   "reconstructedScore": 54,
+   "reconstructedScore": 57,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3517,11 +3517,11 @@
   },
   {
    "date": "2026-09-11",
-   "reconstructedScore": 59,
+   "reconstructedScore": 57,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3541,11 +3541,11 @@
   },
   {
    "date": "2026-09-12",
-   "reconstructedScore": 59,
+   "reconstructedScore": 57,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3565,11 +3565,11 @@
   },
   {
    "date": "2026-09-14",
-   "reconstructedScore": 54,
+   "reconstructedScore": 57,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3589,11 +3589,11 @@
   },
   {
    "date": "2026-09-15",
-   "reconstructedScore": 54,
+   "reconstructedScore": 57,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3637,11 +3637,11 @@
   },
   {
    "date": "2026-09-17",
-   "reconstructedScore": 59,
+   "reconstructedScore": 57,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3661,11 +3661,11 @@
   },
   {
    "date": "2026-09-18",
-   "reconstructedScore": 63,
+   "reconstructedScore": 60,
    "subScores": {
     "vol": 90,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3685,11 +3685,11 @@
   },
   {
    "date": "2026-09-19",
-   "reconstructedScore": 68,
+   "reconstructedScore": 65,
    "subScores": {
     "vol": 90,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3709,11 +3709,11 @@
   },
   {
    "date": "2026-09-20",
-   "reconstructedScore": 68,
+   "reconstructedScore": 65,
    "subScores": {
     "vol": 90,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3781,11 +3781,11 @@
   },
   {
    "date": "2026-09-23",
-   "reconstructedScore": 64,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3805,11 +3805,11 @@
   },
   {
    "date": "2026-09-24",
-   "reconstructedScore": 64,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3829,11 +3829,11 @@
   },
   {
    "date": "2026-09-25",
-   "reconstructedScore": 68,
+   "reconstructedScore": 65,
    "subScores": {
     "vol": 90,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3853,11 +3853,11 @@
   },
   {
    "date": "2026-09-26",
-   "reconstructedScore": 68,
+   "reconstructedScore": 65,
    "subScores": {
     "vol": 90,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3877,11 +3877,11 @@
   },
   {
    "date": "2026-09-28",
-   "reconstructedScore": 59,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3901,11 +3901,11 @@
   },
   {
    "date": "2026-09-29",
-   "reconstructedScore": 64,
+   "reconstructedScore": 67,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3925,11 +3925,11 @@
   },
   {
    "date": "2026-09-30",
-   "reconstructedScore": 59,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3949,11 +3949,11 @@
   },
   {
    "date": "2026-10-01",
-   "reconstructedScore": 59,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3973,11 +3973,11 @@
   },
   {
    "date": "2026-10-02",
-   "reconstructedScore": 64,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -3997,11 +3997,11 @@
   },
   {
    "date": "2026-10-03",
-   "reconstructedScore": 64,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -4021,11 +4021,11 @@
   },
   {
    "date": "2026-10-04",
-   "reconstructedScore": 64,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -4117,11 +4117,11 @@
   },
   {
    "date": "2026-10-08",
-   "reconstructedScore": 64,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -4261,11 +4261,11 @@
   },
   {
    "date": "2026-10-14",
-   "reconstructedScore": 64,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -4285,11 +4285,11 @@
   },
   {
    "date": "2026-10-15",
-   "reconstructedScore": 64,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
@@ -4309,11 +4309,11 @@
   },
   {
    "date": "2026-10-16",
-   "reconstructedScore": 64,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
