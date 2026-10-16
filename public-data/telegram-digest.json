@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-16T09:22:09.465Z",
-  "attemptedAt": "2026-10-16T09:22:09.465Z",
-  "lastSuccessfulAt": "2026-10-16T09:22:09.465Z",
+  "generatedAt": "2026-10-16T09:51:21.756Z",
+  "attemptedAt": "2026-10-16T09:51:21.756Z",
+  "lastSuccessfulAt": "2026-10-16T09:51:21.756Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-02T09:22:05.406Z",
-  "until": "2026-10-16T09:22:05.406Z",
+  "since": "2026-10-02T09:51:17.056Z",
+  "until": "2026-10-16T09:51:17.056Z",
   "current24hWindow": {
     "start": "2026-10-14T23:00:00.000Z",
     "end": "2026-10-15T23:00:00.000Z",
@@ -93,12 +93,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1149,
+      "count": 1148,
       "freshCount": 40,
-      "eligibleTextCount": 780,
+      "eligibleTextCount": 781,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 66452
+      "lastPostId": 66453
     },
     {
       "channel": "bornlupin",
@@ -117,52 +117,53 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 691,
+      "count": 693,
       "freshCount": 40,
-      "eligibleTextCount": 513,
+      "eligibleTextCount": 515,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 70526
+      "lastPostId": 70528
     }
   ],
-  "count": 2330,
+  "count": 2331,
   "retainedItemCount": 488,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2330,
-    "eligibleTextCount": 1702,
-    "mediaOnlyCount": 628,
-    "highSignalCount": 501,
-    "broadSignalCount": 1032,
+    "observedCount": 2331,
+    "eligibleTextCount": 1705,
+    "mediaOnlyCount": 626,
+    "highSignalCount": 500,
+    "broadSignalCount": 1033,
     "selectedRawCount": 411,
     "selectedEligibleCount": 408,
-    "selectedRawCoveragePct": 24,
+    "selectedRawCoveragePct": 23.9,
     "selectedOfObservedPct": 17.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 766,
-    "macro": 765,
+    "market-note": 767,
     "semi": 596,
+    "power": 331,
+    "macro": 766,
     "kr-market": 206,
     "earnings": 437,
     "flows": 161,
     "healthcare": 110,
     "credit": 93,
-    "ai-policy": 189,
-    "power": 331,
+    "ai-policy": 188,
     "media-only": 50,
     "japan": 137,
-    "geo": 350,
+    "geo": 349,
     "equity": 170,
     "insider": 40,
     "optical": 52,
     "crypto": 7
   },
   "tickerCounts": {
+    "GOOG": 54,
     "TSM": 133,
     "AVGO": 23,
     "005930.KS": 65,
@@ -173,7 +174,6 @@
     "CRWV": 12,
     "NVDA": 64,
     "AAPL": 11,
-    "GOOG": 53,
     "MU": 25,
     "MS": 4,
     "2454.TW": 1,
@@ -262,14 +262,14 @@
     "NOW": 1
   },
   "themes": [
-    "Market Notes (766 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 15일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 미국 내 디젤 가격 부담을 완화하기 위해 연방 디젤세의 한시적 중단을 지지할 수 있다고...",
-    "Macro/Rates (765 posts in 14-day research window): 2026년 10월 16일 미국 증시 브리핑 미국 증시는 인플레이션 재가속과 중동 지정학적 긴장에도 상승 마감. 다우지수는 1.08%, S&P500은 0.33%, 나스닥은 0.08%, 러셀2000은 1.38%...",
+    "Market Notes (767 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 15일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 미국 내 디젤 가격 부담을 완화하기 위해 연방 디젤세의 한시적 중단을 지지할 수 있다고...",
+    "Macro/Rates (766 posts in 14-day research window): 2026년 10월 16일 미국 증시 브리핑 미국 증시는 인플레이션 재가속과 중동 지정학적 긴장에도 상승 마감. 다우지수는 1.08%, S&P500은 0.33%, 나스닥은 0.08%, 러셀2000은 1.38%...",
     "Semiconductors/Memory (596 posts in 14-day research window): >>AI 최대 병목은 전력도 반도체도 아닌 자금 (중국언론 인용) •자금 조달 비용 상승, AI 투자 확대의 최대 제약 요인 : AI 산업의 최대 병목이 전력과 반도체 공급에서 자금 조달 능력과 금융비용으로...",
     "Earnings/Corporate (437 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단...",
-    "Geopolitics (350 posts in 14-day research window): 트럼프 SNS 발언 모음 미국 해군의 창설 기념일을 축하한다! 미국 해군은 지난 251년 동안 과거부터 현재까지 수많은 승리를 거둬왔다. 호르무즈 해협에서 구축한 뚫을 수 없는 강철...",
+    "Geopolitics (349 posts in 14-day research window): 트럼프 SNS 발언 모음 미국 해군의 창설 기념일을 축하한다! 미국 해군은 지난 251년 동안 과거부터 현재까지 수많은 승리를 거둬왔다. 호르무즈 해협에서 구축한 뚫을 수 없는 강철...",
     "AI Power/Grid (331 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터...",
     "Korea Market (206 posts in 14-day research window): [NH/백준기] 스몰캡 - 엠케이전자 [NH/스몰캡(목진원)] [엠케이전자] ★큰 그림은 변한 것이 없다 3Q26 Preview: 환율이 깎은 국내 마진, 중국 법인은 순항 중 3분기 연결 실적은 매출액...",
-    "AI Policy/Export Controls (189 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
+    "AI Policy/Export Controls (188 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
   ],
   "catalysts": [
     {
@@ -294,7 +294,7 @@
     },
     {
       "key": "GOOG",
-      "count": 53,
+      "count": 54,
       "text": "2026년 10월 16일 미국 증시 브리핑 미국 증시는 인플레이션 재가속과 중동 지정학적 긴장에도 상승 마감. 다우지수는 1.08%, S&P500은 0.33%, 나스닥은 0.08%, 러셀2000은 1.38%..."
     },
     {
@@ -340,7 +340,7 @@
       "topics": [
         "macro"
       ],
-      "count": 765,
+      "count": 766,
       "focus": "2026년 10월 16일 미국 증시 브리핑 미국 증시는 인플레이션 재가속과 중동 지정학적 긴장에도 상승 마감. 다우지수는 1.08%, S&P500은 0.33%, 나스닥은 0.08%, 러셀2000은 1.38%..."
     },
     {
@@ -349,7 +349,7 @@
       "topics": [
         "geo"
       ],
-      "count": 350,
+      "count": 349,
       "focus": "트럼프 SNS 발언 모음 미국 해군의 창설 기념일을 축하한다! 미국 해군은 지난 251년 동안 과거부터 현재까지 수많은 승리를 거둬왔다. 호르무즈 해협에서 구축한 뚫을 수 없는 강철..."
     },
     {
@@ -394,7 +394,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 189,
+      "count": 188,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
     },
     {
@@ -475,7 +475,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 766,
+      "count": 767,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 15일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 미국 내 디젤 가격 부담을 완화하기 위해 연방 디젤세의 한시적 중단을 지지할 수 있다고..."
     }
   ],
@@ -1662,6 +1662,37 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/70528",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70528",
+      "datetime": "2026-10-16T09:30:32.000Z",
+      "localDateKst": "2026-10-16",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "score": 64,
+      "hasText": true,
+      "tickers": [
+        "GOOG"
+      ],
+      "summary": ">>기관 전망: 내년 1분기 HBM 가격 80~100% 인상, 메모리 장기 공급계약 2035년까지 체결 가능성 •KeyBanc의 애널리스트 Vinh는 메모리 공급업체들이 생산능력을 데이터센터로 대폭 전환하고..."
+    },
+    {
+      "id": "HANAchina/70527",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70527",
+      "datetime": "2026-10-16T09:29:41.000Z",
+      "localDateKst": "2026-10-16",
+      "tags": [
+        "macro"
+      ],
+      "score": 62,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>BofA : 여전히 10월 금리 인상 예상, ‘연준이 가장 중시하는’ 물가 지표 전망 상향 (중국언론) •BofA는 인플레이션 확산 정도가 심화되고 있어 근원 인플레이션의 지속적인 하락을 위한 진전이..."
+    },
+    {
       "id": "HANAchina/70526",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70526",
@@ -2563,14 +2594,12 @@
       "datetime": "2026-10-15T13:53:05.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
-        "power",
-        "earnings"
+        "market-note"
       ],
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>ESS 생산능력 확대 효과 축소, 100GWh급 업체들 장기 사이클 시장 쟁탈전 •중국 ESS 업계에서 생산능력 확대를 통한 비용 절감 효과가 축소, 100GWh급 업체들이 장주기 ESS 제품과 시스템..."
+      "summary": ">>ESS 생산능력 확대 효과 축소, 100GWh급 업체들 장기 사이클 시장 쟁탈전 •중국 ESS 업계에서 생산능력 확대를 통한 비용 절감 효과가 축소, 100GWh급 업체들이 장주기 ESS 제품과 시스템...",
+      "tickers": []
     },
     {
       "id": "aetherjapanresearch/25881",
@@ -7756,34 +7785,6 @@
       ]
     },
     {
-      "id": "HANAchina/70286",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70286",
-      "datetime": "2026-10-12T09:46:08.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "market-note"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": ">>헤지펀드는 기술주 비중을 줄였지만, Mag 7 보유 규모는 사상 최고치 기록 - 골드만삭스: 시장 곳곳에서 기록이 나오고 있지만, 유일하게 부족한 것은 신뢰 (중국언론 ) •골드만삭스는 현재 시장의 위험은...",
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/70284",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70284",
-      "datetime": "2026-10-12T09:03:07.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "semi"
-      ],
-      "score": 60,
-      "hasText": true,
-      "summary": ">>반도체 이익 전망이 15% 하향 조정돼도 S&P 500은 두 자릿수 상승률을 유지할 수 있을까? (바클레이스) •바클레이스는 S&P 500의 이익 성장이 반도체에 대한 의존도가 점점 높아지고 있다고...",
-      "tickers": []
-    },
-    {
       "id": "aetherjapanresearch/25774",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25774",
@@ -8495,20 +8496,6 @@
       "summary": "악시오스에 따르면 트럼프 행정부가 캘리포니아주와 선거 관리 공무원 2명을 상대로 소송 제기. 트럼프 행정부는 캘리포니아주가 투표 자격이 없는 것으로 의심되는 일부 유권자에게 오는 11월 선거의 우편투표 용지를..."
     },
     {
-      "id": "insidertracking/66412",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66412",
-      "datetime": "2026-10-15T21:24:40.000Z",
-      "localDateKst": "2026-10-16",
-      "tags": [
-        "kr-market"
-      ],
-      "score": 48,
-      "hasText": true,
-      "tickers": [],
-      "summary": "코스피 야간선물은 3.9% 상승 마감!"
-    },
-    {
       "id": "bornlupin/20652",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20652",
@@ -8847,14 +8834,12 @@
       "datetime": "2026-10-15T13:53:05.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "macro",
-        "power",
-        "earnings"
+        "market-note"
       ],
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>ESS 생산능력 확대 효과 축소, 100GWh급 업체들 장기 사이클 시장 쟁탈전 •중국 ESS 업계에서 생산능력 확대를 통한 비용 절감 효과가 축소, 100GWh급 업체들이 장주기 ESS 제품과 시스템..."
+      "summary": ">>ESS 생산능력 확대 효과 축소, 100GWh급 업체들 장기 사이클 시장 쟁탈전 •중국 ESS 업계에서 생산능력 확대를 통한 비용 절감 효과가 축소, 100GWh급 업체들이 장주기 ESS 제품과 시스템...",
+      "tickers": []
     },
     {
       "id": "aetherjapanresearch/25881",
@@ -8937,20 +8922,6 @@
         "MS"
       ],
       "summary": "Morgan Stanley: 메모리 채널 체크 HBM / 엔비디아 루빈 → 2027년 HBM ASP는 전년 대비 +121% 상승할 것으로 예상됩니다. HBM4 가격은 Gb당 3~5달러, HBM4e는 Gb당..."
-    },
-    {
-      "id": "HANAchina/70487",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70487",
-      "datetime": "2026-10-15T13:38:54.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "earnings"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": ">>‘대표적 강세론자’ 야데니, S&P 500 연말 목표치 하향 조정… 문제는 실적이 아닌 밸류에이션 •야데니 리서치는 S&P 500의 연말 목표치를 7,900pt로, 밸류에이션 목표를 18.6배로 하향...."
     },
     {
       "id": "aetherjapanresearch/25875",
