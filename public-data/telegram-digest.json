@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-16T20:21:46.657Z",
-  "attemptedAt": "2026-10-16T20:21:46.657Z",
-  "lastSuccessfulAt": "2026-10-16T20:21:46.657Z",
+  "generatedAt": "2026-10-16T21:21:24.127Z",
+  "attemptedAt": "2026-10-16T21:21:24.127Z",
+  "lastSuccessfulAt": "2026-10-16T21:21:24.127Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-02T20:21:42.228Z",
-  "until": "2026-10-16T20:21:42.228Z",
+  "since": "2026-10-02T21:21:18.233Z",
+  "until": "2026-10-16T21:21:18.233Z",
   "current24hWindow": {
     "start": "2026-10-14T23:00:00.000Z",
     "end": "2026-10-15T23:00:00.000Z",
@@ -84,33 +84,33 @@
       "count": 268,
       "freshCount": 18,
       "eligibleTextCount": 232,
-      "selectedCount": 87,
+      "selectedCount": 86,
       "error": null,
       "lastPostId": 25905
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 3,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1155,
-      "freshCount": 40,
-      "eligibleTextCount": 803,
+      "count": 1177,
+      "freshCount": 59,
+      "eligibleTextCount": 824,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 66475
+      "lastPostId": 66499
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 221,
-      "freshCount": 20,
-      "eligibleTextCount": 185,
-      "selectedCount": 82,
+      "count": 226,
+      "freshCount": 40,
+      "eligibleTextCount": 190,
+      "selectedCount": 83,
       "error": null,
-      "lastPostId": 20669
+      "lastPostId": 20674
     },
     {
       "channel": "HANAchina",
@@ -125,46 +125,48 @@
       "lastPostId": 70536
     }
   ],
-  "count": 2337,
-  "retainedItemCount": 470,
+  "count": 2364,
+  "retainedItemCount": 490,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2337,
-    "eligibleTextCount": 1741,
-    "mediaOnlyCount": 596,
-    "highSignalCount": 502,
-    "broadSignalCount": 1031,
+    "observedCount": 2364,
+    "eligibleTextCount": 1767,
+    "mediaOnlyCount": 597,
+    "highSignalCount": 505,
+    "broadSignalCount": 1040,
     "selectedRawCount": 412,
     "selectedEligibleCount": 409,
-    "selectedRawCoveragePct": 23.5,
-    "selectedOfObservedPct": 17.6,
+    "selectedRawCoveragePct": 23.1,
+    "selectedOfObservedPct": 17.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "macro": 763,
-    "geo": 352,
-    "semi": 598,
+    "macro": 771,
+    "semi": 605,
+    "earnings": 445,
+    "insider": 43,
+    "geo": 355,
+    "ai-policy": 187,
+    "equity": 171,
+    "market-note": 785,
+    "japan": 141,
+    "optical": 53,
+    "kr-market": 211,
+    "flows": 164,
+    "healthcare": 113,
+    "media-only": 51,
     "power": 330,
-    "ai-policy": 185,
-    "equity": 169,
-    "earnings": 441,
-    "healthcare": 111,
-    "kr-market": 209,
-    "flows": 162,
-    "market-note": 776,
-    "japan": 140,
-    "media-only": 50,
     "credit": 93,
-    "insider": 42,
-    "optical": 52,
     "crypto": 7
   },
   "tickerCounts": {
+    "NBIS": 1,
+    "GOOG": 59,
+    "BE": 16,
     "AAPL": 13,
-    "GOOG": 58,
     "TSM": 135,
     "RKLB": 4,
     "V": 5,
@@ -184,7 +186,6 @@
     "LITE": 12,
     "AMD": 60,
     "SNDK": 4,
-    "BE": 15,
     "SMTC": 1,
     "BX": 1,
     "META": 19,
@@ -261,14 +262,14 @@
     "MPC": 1
   },
   "themes": [
-    "Market Notes (776 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 15일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 미국 내 디젤 가격 부담을 완화하기 위해 연방 디젤세의 한시적 중단을 지지할 수 있다고...",
-    "Macro/Rates (763 posts in 14-day research window): 2026년 10월 17일 미국 레딧 베스트 게시물 분석 > NBIS / Neoclouds - AI 인프라 전쟁 · NBIS -31% 밈 등장 · 하루 -10%대 낙폭까지 조롱 · 레버리지 데이터센터 투자자 capitulation 인증 · “드디어 끝났다. 난 자유다” · Burry가 AI Bulls 참교육 중이라는...",
-    "Semiconductors/Memory (598 posts in 14-day research window): >>AI 최대 병목은 전력도 반도체도 아닌 자금 (중국언론 인용) •자금 조달 비용 상승, AI 투자 확대의 최대 제약 요인 : AI 산업의 최대 병목이 전력과 반도체 공급에서 자금 조달 능력과 금융비용으로...",
-    "Earnings/Corporate (441 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단...",
-    "Geopolitics (352 posts in 14-day research window): 트럼프 SNS 발언 모음 미국 해군의 창설 기념일을 축하한다! 미국 해군은 지난 251년 동안 과거부터 현재까지 수많은 승리를 거둬왔다. 호르무즈 해협에서 구축한 뚫을 수 없는 강철...",
+    "Market Notes (785 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 15일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 미국 내 디젤 가격 부담을 완화하기 위해 연방 디젤세의 한시적 중단을 지지할 수 있다고...",
+    "Macro/Rates (771 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/16 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (59.89%) 2위: DIREXION SHARES ETF TRUST DAILY MSCI SOUTH KOREA...",
+    "Semiconductors/Memory (605 posts in 14-day research window): >>AI 최대 병목은 전력도 반도체도 아닌 자금 (중국언론 인용) •자금 조달 비용 상승, AI 투자 확대의 최대 제약 요인 : AI 산업의 최대 병목이 전력과 반도체 공급에서 자금 조달 능력과 금융비용으로...",
+    "Earnings/Corporate (445 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단...",
+    "Geopolitics (355 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 16일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란에 핵무기를 사용하거나 지상군을 투입할 계획이 없다고 밝혀. 러시아 및 중국과 핵군축...",
     "AI Power/Grid (330 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터...",
-    "Korea Market (209 posts in 14-day research window): [NH/백준기] 스몰캡 - 엠케이전자 [NH/스몰캡(목진원)] [엠케이전자] ★큰 그림은 변한 것이 없다 3Q26 Preview: 환율이 깎은 국내 마진, 중국 법인은 순항 중 3분기 연결 실적은 매출액...",
-    "AI Policy/Export Controls (185 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
+    "Korea Market (211 posts in 14-day research window): [NH/백준기] 스몰캡 - 엠케이전자 [NH/스몰캡(목진원)] [엠케이전자] ★큰 그림은 변한 것이 없다 3Q26 Preview: 환율이 깎은 국내 마진, 중국 법인은 순항 중 3분기 연결 실적은 매출액...",
+    "AI Policy/Export Controls (187 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
   ],
   "catalysts": [
     {
@@ -293,7 +294,7 @@
     },
     {
       "key": "GOOG",
-      "count": 58,
+      "count": 59,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 16일 > 오후 2시~오후 9시 🇺🇸 아메리카 • 트럼프 대통령은 우크라이나의 러시아 정유시설 공격을 수치스러운 행위라고 비판하며 젤렌스키 대통령을 공개적으로 질책. • 연준 워시 의장은 2026년 남은 FOMC 회의에서의 정책 결정을 미리 예측하는 데 회의적이라는..."
     },
     {
@@ -328,8 +329,8 @@
     },
     {
       "key": "BE",
-      "count": 15,
-      "text": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도..."
+      "count": 16,
+      "text": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도 지금으로서는). 우리가 같은 이야기를 반복하는 것일 수도 있지만, 시장의 기대치가 그만큼 빠르게 변화하고 있는 것일..."
     }
   ],
   "categories": [
@@ -339,8 +340,8 @@
       "topics": [
         "macro"
       ],
-      "count": 763,
-      "focus": "2026년 10월 17일 미국 레딧 베스트 게시물 분석 > NBIS / Neoclouds - AI 인프라 전쟁 · NBIS -31% 밈 등장 · 하루 -10%대 낙폭까지 조롱 · 레버리지 데이터센터 투자자 capitulation 인증 · “드디어 끝났다. 난 자유다” · Burry가 AI Bulls 참교육 중이라는..."
+      "count": 771,
+      "focus": "서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/16 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (59.89%) 2위: DIREXION SHARES ETF TRUST DAILY MSCI SOUTH KOREA..."
     },
     {
       "id": "geo",
@@ -348,8 +349,8 @@
       "topics": [
         "geo"
       ],
-      "count": 352,
-      "focus": "트럼프 SNS 발언 모음 미국 해군의 창설 기념일을 축하한다! 미국 해군은 지난 251년 동안 과거부터 현재까지 수많은 승리를 거둬왔다. 호르무즈 해협에서 구축한 뚫을 수 없는 강철..."
+      "count": 355,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 10월 16일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란에 핵무기를 사용하거나 지상군을 투입할 계획이 없다고 밝혀. 러시아 및 중국과 핵군축..."
     },
     {
       "id": "credit",
@@ -366,7 +367,7 @@
       "topics": [
         "semi"
       ],
-      "count": 598,
+      "count": 605,
       "focus": ">>AI 최대 병목은 전력도 반도체도 아닌 자금 (중국언론 인용) •자금 조달 비용 상승, AI 투자 확대의 최대 제약 요인 : AI 산업의 최대 병목이 전력과 반도체 공급에서 자금 조달 능력과 금융비용으로..."
     },
     {
@@ -375,7 +376,7 @@
       "topics": [
         "optical"
       ],
-      "count": 52,
+      "count": 53,
       "focus": "$LITE $COHR $AAOI $SIVE OCP에서 AI 스위치 내부의 레이저 경쟁이 본격적으로 불붙었습니다. OCP에서 InnoLight(TeraHop을 통해)는 실제 현장 데이터를 공개했습니다. 자사의..."
     },
     {
@@ -393,7 +394,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 185,
+      "count": 187,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
     },
     {
@@ -402,7 +403,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 209,
+      "count": 211,
       "focus": "[NH/백준기] 스몰캡 - 엠케이전자 [NH/스몰캡(목진원)] [엠케이전자] ★큰 그림은 변한 것이 없다 3Q26 Preview: 환율이 깎은 국내 마진, 중국 법인은 순항 중 3분기 연결 실적은 매출액..."
     },
     {
@@ -411,7 +412,7 @@
       "topics": [
         "equity"
       ],
-      "count": 169,
+      "count": 171,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 마크 저커버그 CEO가 장기적인 AI 시장 주도권 확보를 위해 최대..."
     },
     {
@@ -429,7 +430,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 441,
+      "count": 445,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단..."
     },
     {
@@ -438,7 +439,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 111,
+      "count": 113,
       "focus": "52주 신고가 (시총 $1B 이상) 에너지 · APA Corporation · BP · Canadian Natural Resources · Chevron · ConocoPhillips · Eni · EOG Resources · Equinor · Exxon Mobil Corporation · HighPeak..."
     },
     {
@@ -447,7 +448,7 @@
       "topics": [
         "japan"
       ],
-      "count": 140,
+      "count": 141,
       "focus": "다음주 일정 (11일): 한국 1~10일 수출입 12일: 일본 휴장, IMF, 세계은행 연차총회(~18일) OCP Global Summit 2026(~15일): 주제:“Scaling Innovation for..."
     },
     {
@@ -456,7 +457,7 @@
       "topics": [
         "flows"
       ],
-      "count": 162,
+      "count": 164,
       "focus": "[메리츠증권 전기전자/IT부품 양승수] - TrendForce, AI 서버 핵심 부품 공급망 점검 자료 업데이트. 금주 주요 AI 하드웨어 7개 품목의 수급 상태 및 리드타임은 전주와 동일한 수준 유지 -..."
     },
     {
@@ -465,8 +466,8 @@
       "topics": [
         "insider"
       ],
-      "count": 42,
-      "focus": "No retained full-text sample; 42 observed posts in the 14-day research window."
+      "count": 43,
+      "focus": "No retained full-text sample; 43 observed posts in the 14-day research window."
     },
     {
       "id": "market-note",
@@ -474,7 +475,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 776,
+      "count": 785,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 15일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 미국 내 디젤 가격 부담을 완화하기 위해 연방 디젤세의 한시적 중단을 지지할 수 있다고..."
     }
   ],
@@ -719,6 +720,47 @@
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
     {
+      "id": "insidertracking/66481",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66481",
+      "datetime": "2026-10-16T20:28:42.000Z",
+      "localDateKst": "2026-10-17",
+      "tags": [
+        "macro",
+        "semi",
+        "optical",
+        "kr-market",
+        "flows",
+        "healthcare"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [],
+      "listTickers": [
+        "AMD",
+        "MSFT",
+        "GOOG",
+        "TSM",
+        "LITE",
+        "STX",
+        "GOOGL",
+        "PEP",
+        "TMO",
+        "INTC",
+        "PANW",
+        "CRWD",
+        "NKE",
+        "SNOW",
+        "IONQ",
+        "SMR",
+        "CLS",
+        "CRWV",
+        "TEM",
+        "SHOP"
+      ],
+      "summary": "서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/16 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+    },
+    {
       "id": "insidertracking/66475",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/66475",
@@ -912,16 +954,18 @@
       "datetime": "2026-10-15T11:46:50.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
+        "credit",
         "macro",
+        "semi",
         "power",
         "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "BofA, 코어위브(CoreWeave, $CRWV ) 매수 의견, 목표주가 140달러 유지 1. 전력 용량 확대와 가격 상승에 따른 매출 전망 상향 BofA는 코어위브의 매출 성장률 전망치를 상향...",
       "tickers": [
         "CRWV"
-      ]
+      ],
+      "summary": "BofA, 코어위브(CoreWeave, $CRWV ) 매수 의견, 목표주가 140달러 유지 1. 전력 용량 확대와 가격 상승에 따른 매출 전망 상향 BofA는 코어위브의 매출 성장률 전망치를 상향..."
     },
     {
       "id": "aetherjapanresearch/25856",
@@ -1369,40 +1413,6 @@
       ]
     },
     {
-      "id": "insidertracking/66070",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66070",
-      "datetime": "2026-10-12T20:30:49.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "semi",
-        "flows"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 10월 12일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (71.83%) 2위: DIREXION SHARES...",
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "AMZN",
-        "TSM",
-        "ORCL",
-        "BE",
-        "SNDK",
-        "000660.KS",
-        "COIN",
-        "IONQ",
-        "ASTS",
-        "SMR",
-        "JOBY",
-        "SHOP",
-        "O",
-        "QQQ",
-        "IVZ",
-        "LEU"
-      ]
-    },
-    {
       "id": "aetherjapanresearch/25764",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25764",
@@ -1684,6 +1694,197 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/66499",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66499",
+      "datetime": "2026-10-16T21:09:54.000Z",
+      "localDateKst": "2026-10-17",
+      "tags": [
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "score": 64,
+      "hasText": true,
+      "tickers": [],
+      "summary": "10월 17일 미주인 브리핑 • 나스닥 2.14% 급락 · 공포탐욕지수 18 • 코어위브·네비우스 10% 이상 하락 • 중국 CXMT 소식으로 인한 투매 · 반도체주 급락 • 국제유가 상승 · 미국 재정적자..."
+    },
+    {
+      "id": "bornlupin/20674",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20674",
+      "datetime": "2026-10-16T21:07:36.000Z",
+      "localDateKst": "2026-10-17",
+      "tags": [
+        "semi"
+      ],
+      "score": 60,
+      "hasText": true,
+      "tickers": [],
+      "summary": "엔비디아 CEO 젠슨 황, AI 시장 혼란에 대해 “이 모든 것은 결국 지나갈 것입니다” 엔비디아 CEO 젠슨 황은 베를린 행사에서 현재 AI 시장의 변동성은 결국 진정될 것 이라고 말했습니다. AI가 산업..."
+    },
+    {
+      "id": "bornlupin/20673",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20673",
+      "datetime": "2026-10-16T21:05:23.000Z",
+      "localDateKst": "2026-10-17",
+      "tags": [
+        "macro",
+        "insider"
+      ],
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NBIS"
+      ],
+      "summary": "네비우스 $NBIS 내부자 매수 이사회 이사, 사전 계획된 거래를 통해 약 5만 달러 규모의 주식 매입 네비우스 그룹(Nebius Group N.V., $NBIS)의 내부자 거래 공시에 따르면, 이사회 이사인..."
+    },
+    {
+      "id": "insidertracking/66498",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66498",
+      "datetime": "2026-10-16T21:03:37.000Z",
+      "localDateKst": "2026-10-17",
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "score": 57,
+      "hasText": true,
+      "tickers": [],
+      "summary": "미국 중부사령부(CENTCOM) 사령관 브래드 쿠퍼 제독이 이란에 대한 군사작전 현황을 발표 . 쿠퍼 제독에 따르면 미국의 해상 봉쇄로 이란의 석유 수출 수익이 최소 250억 달러 차단됐으며, 인도적 지원을..."
+    },
+    {
+      "id": "insidertracking/66486",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66486",
+      "datetime": "2026-10-16T20:37:58.000Z",
+      "localDateKst": "2026-10-17",
+      "tags": [
+        "semi"
+      ],
+      "score": 72,
+      "hasText": true,
+      "tickers": [],
+      "listTickers": [
+        "AMD",
+        "MSFT",
+        "GOOG",
+        "AVGO",
+        "AMZN",
+        "000660.KS"
+      ],
+      "summary": "주요 기술주 전반이 약세를 보인 가운데 메모리 관련주 지수 6.28%, 필라델피아 반도체지수 3.83% 급락. 코어위브 약 12%, Arm 약 7% 하락했으며, 샌디스크·웨스턴디지털·SK하이닉스는 6% 이상..."
+    },
+    {
+      "id": "insidertracking/66485",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66485",
+      "datetime": "2026-10-16T20:36:00.000Z",
+      "localDateKst": "2026-10-17",
+      "tags": [
+        "macro"
+      ],
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 10월 21일 수요일 23:30 – 원유재고 2026년 10월 22일 목요일 21:30 – 신규 실업수당청구건수 2026년 10월 23일 금요일..."
+    },
+    {
+      "id": "insidertracking/66483",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66483",
+      "datetime": "2026-10-16T20:30:29.000Z",
+      "localDateKst": "2026-10-17",
+      "tags": [
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "score": 59,
+      "hasText": true,
+      "tickers": [],
+      "summary": "블룸버그에 따르면 중국 메모리 반도체 기업 창신메모리(CXMT)는 올해 1~9월 순이익이 1,310억~1,325억 위안(약 196억~198억 달러)에 이를 것으로 전망. 지난해 같은 기간 기록한 53억 위안의..."
+    },
+    {
+      "id": "insidertracking/66481",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66481",
+      "datetime": "2026-10-16T20:28:42.000Z",
+      "localDateKst": "2026-10-17",
+      "tags": [
+        "macro",
+        "semi",
+        "optical",
+        "kr-market",
+        "flows",
+        "healthcare"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [],
+      "listTickers": [
+        "AMD",
+        "MSFT",
+        "GOOG",
+        "TSM",
+        "LITE",
+        "STX",
+        "GOOGL",
+        "PEP",
+        "TMO",
+        "INTC",
+        "PANW",
+        "CRWD",
+        "NKE",
+        "SNOW",
+        "IONQ",
+        "SMR",
+        "CLS",
+        "CRWV",
+        "TEM",
+        "SHOP"
+      ],
+      "summary": "서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/16 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+    },
+    {
+      "id": "insidertracking/66480",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66480",
+      "datetime": "2026-10-16T20:25:55.000Z",
+      "localDateKst": "2026-10-17",
+      "tags": [
+        "macro",
+        "semi",
+        "kr-market",
+        "equity",
+        "flows",
+        "healthcare"
+      ],
+      "score": 97,
+      "hasText": true,
+      "tickers": [],
+      "listTickers": [
+        "CAT",
+        "AMZN",
+        "ORCL",
+        "PLTR",
+        "PEP",
+        "MRNA",
+        "IONQ",
+        "RGTI",
+        "SMR",
+        "CRWV",
+        "O",
+        "VLO",
+        "QQQ",
+        "SLV",
+        "IVZ"
+      ],
+      "summary": "2026년 10월 16일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (67.12%) 2위: IONQ INC (6.12%)..."
+    },
     {
       "id": "insidertracking/66475",
       "channel": "insidertracking",
@@ -2210,21 +2411,17 @@
       "datetime": "2026-10-16T04:54:18.000Z",
       "localDateKst": "2026-10-16",
       "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "earnings",
-        "japan"
+        "market-note"
       ],
       "score": 93,
       "hasText": true,
+      "summary": "2026년 10월 16일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 1시 45분 기준 일제히 상승. 다우 선물 +0.16%, S&P500 선물 +0.18%, 나스닥100 선물 +0.18%,...",
       "tickers": [
         "AVGO",
         "005930.KS",
         "000660.KS",
         "V"
-      ],
-      "summary": "2026년 10월 16일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 1시 45분 기준 일제히 상승. 다우 선물 +0.16%, S&P500 선물 +0.18%, 나스닥100 선물 +0.18%,..."
+      ]
     },
     {
       "id": "insidertracking/66437",
@@ -2233,14 +2430,12 @@
       "datetime": "2026-10-16T04:54:07.000Z",
       "localDateKst": "2026-10-16",
       "tags": [
-        "macro",
-        "geo",
-        "japan"
+        "geo"
       ],
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 16일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란에 핵무기를 사용하거나 지상군을 투입할 계획이 없다고 밝혀. 러시아 및 중국과 핵군축..."
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 16일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란에 핵무기를 사용하거나 지상군을 투입할 계획이 없다고 밝혀. 러시아 및 중국과 핵군축...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66433",
@@ -3127,13 +3322,13 @@
       ],
       "score": 60,
       "hasText": true,
-      "summary": "JP모건, 알파벳( $GOOGL ), 클라우드 실적 추정치를 상향 '비중확대(Overweight)' 투자의견을 유지, 목표주가를 420달러에서 425달러로 상향 가장 큰 변화는 당사의 구글 클라우드 성장률...",
       "tickers": [
         "GOOG"
       ],
       "relatedTickers": [
         "AVGO"
-      ]
+      ],
+      "summary": "JP모건, 알파벳( $GOOGL ), 클라우드 실적 추정치를 상향 '비중확대(Overweight)' 투자의견을 유지, 목표주가를 420달러에서 425달러로 상향 가장 큰 변화는 당사의 구글 클라우드 성장률..."
     },
     {
       "id": "bornlupin/20647",
@@ -3142,14 +3337,15 @@
       "datetime": "2026-10-15T12:07:29.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "power"
+        "power",
+        "healthcare"
       ],
       "score": 52,
       "hasText": true,
-      "summary": "셈텍(Semtech), 애널리스트 데이에서 데이터센터 성장 전략 발표 셈텍(Semtech Corporation, Nasdaq: SMTC)이 산호세에서 열린 '애널리스트 데이'를 통해 AI 데이터센터...",
       "tickers": [
         "SMTC"
-      ]
+      ],
+      "summary": "셈텍(Semtech), 애널리스트 데이에서 데이터센터 성장 전략 발표 셈텍(Semtech Corporation, Nasdaq: SMTC)이 산호세에서 열린 '애널리스트 데이'를 통해 AI 데이터센터..."
     },
     {
       "id": "insidertracking/66369",
@@ -3178,17 +3374,18 @@
       "localDateKst": "2026-10-15",
       "tags": [
         "macro",
+        "semi",
         "power"
       ],
       "score": 88,
       "hasText": true,
-      "summary": "블랙스톤, 2,000억 달러 규모 데이터센터 포트폴리오 구축…AI 투자 가속화 1. 데이터센터 투자 확대 세계 최대 대체자산 운용사 블랙스톤(Blackstone)은 2,000억 달러(약 280조 원) 규모의...",
       "tickers": [
         "NVDA",
         "GOOG",
         "AVGO",
         "BX"
-      ]
+      ],
+      "summary": "블랙스톤, 2,000억 달러 규모 데이터센터 포트폴리오 구축…AI 투자 가속화 1. 데이터센터 투자 확대 세계 최대 대체자산 운용사 블랙스톤(Blackstone)은 2,000억 달러(약 280조 원) 규모의..."
     },
     {
       "id": "insidertracking/66368",
@@ -3214,16 +3411,18 @@
       "localDateKst": "2026-10-15",
       "tags": [
         "macro",
+        "semi",
+        "ai-policy",
         "equity"
       ],
       "score": 86,
       "hasText": true,
-      "summary": "도이체방크, 코어위브(CoreWeave) 저가 매수 추천 — 128% 상승 여력 전망 도이체방크는 코어위브( $CRWV)에 대한 '매수(Buy)' 의견과 목표주가 150달러를 유지했으며, 이는 수요일 종가...",
       "tickers": [
         "NVDA",
         "META",
         "CRWV"
-      ]
+      ],
+      "summary": "도이체방크, 코어위브(CoreWeave) 저가 매수 추천 — 128% 상승 여력 전망 도이체방크는 코어위브( $CRWV)에 대한 '매수(Buy)' 의견과 목표주가 150달러를 유지했으며, 이는 수요일 종가..."
     },
     {
       "id": "bornlupin/20644",
@@ -3237,8 +3436,8 @@
       ],
       "score": 69,
       "hasText": true,
-      "summary": "코어위브, 최근 급락 이후 회사채 가격 급반등 코어위브의 회사채가 부채 관련 우려로 급락한 이후 매수세가 다시 유입되면서 반등하고 있습니다. - 2031년 10월 만기 회사채: 액면가 1달러당 3.3센트...",
-      "tickers": []
+      "tickers": [],
+      "summary": "코어위브, 최근 급락 이후 회사채 가격 급반등 코어위브의 회사채가 부채 관련 우려로 급락한 이후 매수세가 다시 유입되면서 반등하고 있습니다. - 2031년 10월 만기 회사채: 액면가 1달러당 3.3센트..."
     },
     {
       "id": "bornlupin/20643",
@@ -3247,16 +3446,18 @@
       "datetime": "2026-10-15T11:46:50.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
+        "credit",
         "macro",
+        "semi",
         "power",
         "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "BofA, 코어위브(CoreWeave, $CRWV ) 매수 의견, 목표주가 140달러 유지 1. 전력 용량 확대와 가격 상승에 따른 매출 전망 상향 BofA는 코어위브의 매출 성장률 전망치를 상향...",
       "tickers": [
         "CRWV"
-      ]
+      ],
+      "summary": "BofA, 코어위브(CoreWeave, $CRWV ) 매수 의견, 목표주가 140달러 유지 1. 전력 용량 확대와 가격 상승에 따른 매출 전망 상향 BofA는 코어위브의 매출 성장률 전망치를 상향..."
     },
     {
       "id": "bornlupin/20642",
@@ -3266,14 +3467,15 @@
       "localDateKst": "2026-10-15",
       "tags": [
         "macro",
-        "power"
+        "power",
+        "earnings"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도...",
       "tickers": [
         "BE"
-      ]
+      ],
+      "summary": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도..."
     },
     {
       "id": "aetherjapanresearch/25870",
@@ -3499,10 +3701,10 @@
       ],
       "score": 61,
       "hasText": true,
-      "summary": "TSMC 어닝콜 중 Q) 모두발언에서 AI 가속기 칩셋 수요가 CPU와 네트워킹 스위치를 포함한 에이전틱(Agentic) AI 수요로 확산되고 있다고 언급하셨습니다. 수익화(monetization)가...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC 어닝콜 중 Q) 모두발언에서 AI 가속기 칩셋 수요가 CPU와 네트워킹 스위치를 포함한 에이전틱(Agentic) AI 수요로 확산되고 있다고 언급하셨습니다. 수익화(monetization)가..."
     },
     {
       "id": "bornlupin/20640",
@@ -3515,10 +3717,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "TSMC 테라팹 관련 우리는 캐파 확장을 위해 매우 열심히 노력하고 있습니다. 대형 고객사 대부분이 미국에 있고 이들이 TSMC에 캐파 증설을 요청하고 있으며, 미국 정부도 매우 협조적이기 때문에 미국 내...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC 테라팹 관련 우리는 캐파 확장을 위해 매우 열심히 노력하고 있습니다. 대형 고객사 대부분이 미국에 있고 이들이 TSMC에 캐파 증설을 요청하고 있으며, 미국 정부도 매우 협조적이기 때문에 미국 내..."
     },
     {
       "id": "HANAchina/70479",
@@ -3568,10 +3770,10 @@
       ],
       "score": 56,
       "hasText": true,
-      "summary": "TSMC - 2027년 공급 상황: 2027년에는 2026년보다 공급이 더욱 빠듯해질 전망 . - 고객 수요: 고객들의 수요는 계속해서 증가하고 있음. - 생산능력(Capacity) 증가율: 역사적으로 연간...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC - 2027년 공급 상황: 2027년에는 2026년보다 공급이 더욱 빠듯해질 전망 . - 고객 수요: 고객들의 수요는 계속해서 증가하고 있음. - 생산능력(Capacity) 증가율: 역사적으로 연간..."
     },
     {
       "id": "bornlupin/20638",
@@ -3580,14 +3782,15 @@
       "datetime": "2026-10-15T06:33:00.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
       "score": 59,
       "hasText": true,
-      "summary": "TSMC - 수요와 공급: 수요가 공급을 계속해서 초과하고 있음. - High-NA EUV: 2030년부터 High-NA EUV 기술을 활용할 예정. - 설비투자(CapEx): 향후 설비투자 규모는 현재보다...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC - 수요와 공급: 수요가 공급을 계속해서 초과하고 있음. - High-NA EUV: 2030년부터 High-NA EUV 기술을 활용할 예정. - 설비투자(CapEx): 향후 설비투자 규모는 현재보다..."
     },
     {
       "id": "bornlupin/20637",
@@ -3601,10 +3804,10 @@
       ],
       "score": 59,
       "hasText": true,
-      "summary": "TSMC, 대만 타이난에 N3(3나노) 공장 추가 건설 계획… 2028년 A14(1.4나노) 양산 목표 - 미국의 전력 공급 및 데이터센터 개발 현황을 점검하기 위해 현지에 조사팀 파견. TSMC, 이례적으로...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC, 대만 타이난에 N3(3나노) 공장 추가 건설 계획… 2028년 A14(1.4나노) 양산 목표 - 미국의 전력 공급 및 데이터센터 개발 현황을 점검하기 위해 현지에 조사팀 파견. TSMC, 이례적으로..."
     },
     {
       "id": "HANAchina/70477",
@@ -3633,10 +3836,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "TSMC -AI가 장기적인 '메가트렌드'라는 강한 확신을 유지. 4분기 수요: 강한 수요가 지속될 것으로 예상. 최첨단 공정 기술 수요: '매우 견조한(Very robust)' 수준 을 유지. 반도체 장비...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC -AI가 장기적인 '메가트렌드'라는 강한 확신을 유지. 4분기 수요: 강한 수요가 지속될 것으로 예상. 최첨단 공정 기술 수요: '매우 견조한(Very robust)' 수준 을 유지. 반도체 장비..."
     },
     {
       "id": "bornlupin/20635",
@@ -3650,10 +3853,10 @@
       ],
       "score": 71,
       "hasText": true,
-      "summary": "TSMC 설비투자(CapEx) 전망: 600억~640억 달러 유지 2026~2028년 설비투자: 향후 3년간(2026~2028년) 설비투자 규모가 직전 3년간(2023~2025년) 대비 상당히 높을 것이라는...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC 설비투자(CapEx) 전망: 600억~640억 달러 유지 2026~2028년 설비투자: 향후 3년간(2026~2028년) 설비투자 규모가 직전 3년간(2023~2025년) 대비 상당히 높을 것이라는..."
     },
     {
       "id": "bornlupin/20634",
@@ -6896,41 +7099,6 @@
       ]
     },
     {
-      "id": "insidertracking/66113",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66113",
-      "datetime": "2026-10-13T06:08:46.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우...",
-      "tickers": [
-        "005930.KS",
-        "000660.KS"
-      ]
-    },
-    {
-      "id": "insidertracking/66112",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66112",
-      "datetime": "2026-10-13T06:04:41.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "market-note"
-      ],
-      "score": 99,
-      "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 13일 > 오전 6시~오후 3시 기준 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 러시아 대통령과 젤렌스키 우크라이나 대통령이 직접 만나...",
-      "tickers": [
-        "GOOG",
-        "005930.KS",
-        "000660.KS"
-      ]
-    },
-    {
       "id": "HANAchina/70349",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70349",
@@ -6944,35 +7112,6 @@
       "score": 72,
       "hasText": true,
       "summary": "•중국 오후장 과창50과 ChiNext +1% •HBM, PCB, CPI, 항공우주 최상위 •지수형 ETF 순매수 규모 확대 ...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/66111",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66111",
-      "datetime": "2026-10-13T05:29:00.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "맥쿼리그룹은 미국의 9월 소비자물가지수(CPI) 상승세가 가속화되더라도 연방준비제도(Fed)의 10월 기준금리 인상으로 이어질 가능성은 낮다고 전망. 맥쿼리그룹의 글로벌 외환·금리 전략가 티에리 위즈먼은...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/66110",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66110",
-      "datetime": "2026-10-13T05:08:34.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "macro",
-        "japan"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "10월 13일 일본은행 우에다 가즈오 총재는 기조적 인플레이션이 점진적으로 상승하면서 2% 목표에 매우 근접했다고 발언. 우에다 총재는 화요일 국회 질의응답에서 물가 상승률을 일본은행의 2% 목표 부근에서...",
       "tickers": []
     },
     {
@@ -7119,35 +7258,6 @@
       ]
     },
     {
-      "id": "insidertracking/66105",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66105",
-      "datetime": "2026-10-13T02:24:05.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "score": 59,
-      "hasText": true,
-      "summary": "레딧 관심도 마이크론, 메타, 샌디스크 그리고 유가",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/66104",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66104",
-      "datetime": "2026-10-13T02:22:23.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "미국 10년물 국채금리가 5bp(0.05%포인트) 하락한 5.1935%를 기록. 미국 30년물 국채금리도 4bp(0.04%포인트) 하락한 5.5546%를 기록",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20591",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20591",
@@ -7236,20 +7346,6 @@
       "score": 82,
       "hasText": true,
       "summary": "중국, 테크 기업들의 엔비디아 칩 의존 탈피에 난항 미국의 강력한 수출 통제와 중국 정부의 독자 자립(탈엔비디아) 정책에도 불구하고, 중국 대형 테크 기업들이 급증하는 인공지능(AI) 연산 수요를 감당하기...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/66100",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66100",
-      "datetime": "2026-10-13T00:46:08.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "market-note"
-      ],
-      "score": 84,
-      "hasText": true,
-      "summary": "뱅크오브아메리카(BofA)는 스페이스X의 스타링크 모바일 사업이 애플에 세 가지 측면에서 위협이 될 수 있다고 분석. • 통신사 보조금 모델 위협: 미국 3대 통신사를 통해 연간 약 5,300만 대의 아이폰이...",
       "tickers": []
     },
     {
@@ -8263,40 +8359,6 @@
       "tickers": [
         "005930.KS"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25751",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25751",
-      "datetime": "2026-10-11T07:56:44.000Z",
-      "localDateKst": "2026-10-11",
-      "tags": [
-        "power"
-      ],
-      "score": 91,
-      "hasText": true,
-      "summary": "TD Cowen, 오라클(ORCL) 데이터센터 용량 및 운영 모델 발표 (2026년 10월 9일) TD Cowen은 오라클의 데이터센터 용량을 GW 단위로 추적하는 새 운영 모델을 공개하고, 투자의견 매수와...",
-      "tickers": [
-        "ORCL"
-      ]
-    },
-    {
-      "id": "bornlupin/20561",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20561",
-      "datetime": "2026-10-11T01:15:28.000Z",
-      "localDateKst": "2026-10-11",
-      "tags": [
-        "market-note"
-      ],
-      "score": 82,
-      "hasText": true,
-      "summary": "일론 머스크 ‘X Takeover 2026’ 인터뷰 장소: 테슬라 기가 텍사스 1. 스페이스X 스타십: 궤도 진입과 완전 재사용 - 14차 비행에서 엔진 1기가 정지했지만 궤도 진입에 성공. 원인은 개별 엔진...",
-      "tickers": [
-        "GOOG",
-        "TSM",
-        "005930.KS"
-      ]
     }
   ],
   "current24hItems": [
@@ -8819,6 +8881,22 @@
       "tickers": []
     },
     {
+      "id": "bornlupin/20649",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20649",
+      "datetime": "2026-10-15T12:59:14.000Z",
+      "localDateKst": "2026-10-15",
+      "tags": [
+        "market-note"
+      ],
+      "score": 39,
+      "hasText": true,
+      "tickers": [
+        "AMZN"
+      ],
+      "summary": "일론 머스크 어쩌면 우리도 아마존의 경쟁사를 하나 만들어야 할지도 모르겠네요. ( 아마존이 Grok 봇들의 주문을 차단 중이라는 글 인용) (그냥 하는 소리가 아닐지도..)"
+    },
+    {
       "id": "insidertracking/66376",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/66376",
@@ -8877,13 +8955,13 @@
       ],
       "score": 60,
       "hasText": true,
-      "summary": "JP모건, 알파벳( $GOOGL ), 클라우드 실적 추정치를 상향 '비중확대(Overweight)' 투자의견을 유지, 목표주가를 420달러에서 425달러로 상향 가장 큰 변화는 당사의 구글 클라우드 성장률...",
       "tickers": [
         "GOOG"
       ],
       "relatedTickers": [
         "AVGO"
-      ]
+      ],
+      "summary": "JP모건, 알파벳( $GOOGL ), 클라우드 실적 추정치를 상향 '비중확대(Overweight)' 투자의견을 유지, 목표주가를 420달러에서 425달러로 상향 가장 큰 변화는 당사의 구글 클라우드 성장률..."
     },
     {
       "id": "bornlupin/20647",
@@ -8892,14 +8970,15 @@
       "datetime": "2026-10-15T12:07:29.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "power"
+        "power",
+        "healthcare"
       ],
       "score": 52,
       "hasText": true,
-      "summary": "셈텍(Semtech), 애널리스트 데이에서 데이터센터 성장 전략 발표 셈텍(Semtech Corporation, Nasdaq: SMTC)이 산호세에서 열린 '애널리스트 데이'를 통해 AI 데이터센터...",
       "tickers": [
         "SMTC"
-      ]
+      ],
+      "summary": "셈텍(Semtech), 애널리스트 데이에서 데이터센터 성장 전략 발표 셈텍(Semtech Corporation, Nasdaq: SMTC)이 산호세에서 열린 '애널리스트 데이'를 통해 AI 데이터센터..."
     },
     {
       "id": "insidertracking/66369",
@@ -8928,17 +9007,18 @@
       "localDateKst": "2026-10-15",
       "tags": [
         "macro",
+        "semi",
         "power"
       ],
       "score": 88,
       "hasText": true,
-      "summary": "블랙스톤, 2,000억 달러 규모 데이터센터 포트폴리오 구축…AI 투자 가속화 1. 데이터센터 투자 확대 세계 최대 대체자산 운용사 블랙스톤(Blackstone)은 2,000억 달러(약 280조 원) 규모의...",
       "tickers": [
         "NVDA",
         "GOOG",
         "AVGO",
         "BX"
-      ]
+      ],
+      "summary": "블랙스톤, 2,000억 달러 규모 데이터센터 포트폴리오 구축…AI 투자 가속화 1. 데이터센터 투자 확대 세계 최대 대체자산 운용사 블랙스톤(Blackstone)은 2,000억 달러(약 280조 원) 규모의..."
     },
     {
       "id": "insidertracking/66368",
@@ -8964,16 +9044,18 @@
       "localDateKst": "2026-10-15",
       "tags": [
         "macro",
+        "semi",
+        "ai-policy",
         "equity"
       ],
       "score": 86,
       "hasText": true,
-      "summary": "도이체방크, 코어위브(CoreWeave) 저가 매수 추천 — 128% 상승 여력 전망 도이체방크는 코어위브( $CRWV)에 대한 '매수(Buy)' 의견과 목표주가 150달러를 유지했으며, 이는 수요일 종가...",
       "tickers": [
         "NVDA",
         "META",
         "CRWV"
-      ]
+      ],
+      "summary": "도이체방크, 코어위브(CoreWeave) 저가 매수 추천 — 128% 상승 여력 전망 도이체방크는 코어위브( $CRWV)에 대한 '매수(Buy)' 의견과 목표주가 150달러를 유지했으며, 이는 수요일 종가..."
     },
     {
       "id": "bornlupin/20644",
@@ -8987,8 +9069,8 @@
       ],
       "score": 69,
       "hasText": true,
-      "summary": "코어위브, 최근 급락 이후 회사채 가격 급반등 코어위브의 회사채가 부채 관련 우려로 급락한 이후 매수세가 다시 유입되면서 반등하고 있습니다. - 2031년 10월 만기 회사채: 액면가 1달러당 3.3센트...",
-      "tickers": []
+      "tickers": [],
+      "summary": "코어위브, 최근 급락 이후 회사채 가격 급반등 코어위브의 회사채가 부채 관련 우려로 급락한 이후 매수세가 다시 유입되면서 반등하고 있습니다. - 2031년 10월 만기 회사채: 액면가 1달러당 3.3센트..."
     },
     {
       "id": "bornlupin/20643",
@@ -8997,16 +9079,18 @@
       "datetime": "2026-10-15T11:46:50.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
+        "credit",
         "macro",
+        "semi",
         "power",
         "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "BofA, 코어위브(CoreWeave, $CRWV ) 매수 의견, 목표주가 140달러 유지 1. 전력 용량 확대와 가격 상승에 따른 매출 전망 상향 BofA는 코어위브의 매출 성장률 전망치를 상향...",
       "tickers": [
         "CRWV"
-      ]
+      ],
+      "summary": "BofA, 코어위브(CoreWeave, $CRWV ) 매수 의견, 목표주가 140달러 유지 1. 전력 용량 확대와 가격 상승에 따른 매출 전망 상향 BofA는 코어위브의 매출 성장률 전망치를 상향..."
     },
     {
       "id": "bornlupin/20642",
@@ -9016,14 +9100,15 @@
       "localDateKst": "2026-10-15",
       "tags": [
         "macro",
-        "power"
+        "power",
+        "earnings"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도...",
       "tickers": [
         "BE"
-      ]
+      ],
+      "summary": "Baird, 블룸에너지(Bloom Energy, $BE ) 목표주가 310달러에서 351달러로 상향, 투자의견‘Outperform 등급 유지 \"세 번째 시도에서 마침내 성공한 것일지도 모릅니다(적어도..."
     },
     {
       "id": "aetherjapanresearch/25870",
@@ -9249,10 +9334,10 @@
       ],
       "score": 61,
       "hasText": true,
-      "summary": "TSMC 어닝콜 중 Q) 모두발언에서 AI 가속기 칩셋 수요가 CPU와 네트워킹 스위치를 포함한 에이전틱(Agentic) AI 수요로 확산되고 있다고 언급하셨습니다. 수익화(monetization)가...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC 어닝콜 중 Q) 모두발언에서 AI 가속기 칩셋 수요가 CPU와 네트워킹 스위치를 포함한 에이전틱(Agentic) AI 수요로 확산되고 있다고 언급하셨습니다. 수익화(monetization)가..."
     },
     {
       "id": "bornlupin/20640",
@@ -9265,10 +9350,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "TSMC 테라팹 관련 우리는 캐파 확장을 위해 매우 열심히 노력하고 있습니다. 대형 고객사 대부분이 미국에 있고 이들이 TSMC에 캐파 증설을 요청하고 있으며, 미국 정부도 매우 협조적이기 때문에 미국 내...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC 테라팹 관련 우리는 캐파 확장을 위해 매우 열심히 노력하고 있습니다. 대형 고객사 대부분이 미국에 있고 이들이 TSMC에 캐파 증설을 요청하고 있으며, 미국 정부도 매우 협조적이기 때문에 미국 내..."
     },
     {
       "id": "HANAchina/70479",
@@ -9318,10 +9403,10 @@
       ],
       "score": 56,
       "hasText": true,
-      "summary": "TSMC - 2027년 공급 상황: 2027년에는 2026년보다 공급이 더욱 빠듯해질 전망 . - 고객 수요: 고객들의 수요는 계속해서 증가하고 있음. - 생산능력(Capacity) 증가율: 역사적으로 연간...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC - 2027년 공급 상황: 2027년에는 2026년보다 공급이 더욱 빠듯해질 전망 . - 고객 수요: 고객들의 수요는 계속해서 증가하고 있음. - 생산능력(Capacity) 증가율: 역사적으로 연간..."
     },
     {
       "id": "bornlupin/20638",
@@ -9330,14 +9415,15 @@
       "datetime": "2026-10-15T06:33:00.000Z",
       "localDateKst": "2026-10-15",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
       "score": 59,
       "hasText": true,
-      "summary": "TSMC - 수요와 공급: 수요가 공급을 계속해서 초과하고 있음. - High-NA EUV: 2030년부터 High-NA EUV 기술을 활용할 예정. - 설비투자(CapEx): 향후 설비투자 규모는 현재보다...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC - 수요와 공급: 수요가 공급을 계속해서 초과하고 있음. - High-NA EUV: 2030년부터 High-NA EUV 기술을 활용할 예정. - 설비투자(CapEx): 향후 설비투자 규모는 현재보다..."
     },
     {
       "id": "bornlupin/20637",
@@ -9351,10 +9437,10 @@
       ],
       "score": 59,
       "hasText": true,
-      "summary": "TSMC, 대만 타이난에 N3(3나노) 공장 추가 건설 계획… 2028년 A14(1.4나노) 양산 목표 - 미국의 전력 공급 및 데이터센터 개발 현황을 점검하기 위해 현지에 조사팀 파견. TSMC, 이례적으로...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC, 대만 타이난에 N3(3나노) 공장 추가 건설 계획… 2028년 A14(1.4나노) 양산 목표 - 미국의 전력 공급 및 데이터센터 개발 현황을 점검하기 위해 현지에 조사팀 파견. TSMC, 이례적으로..."
     },
     {
       "id": "HANAchina/70477",
@@ -9383,10 +9469,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "TSMC -AI가 장기적인 '메가트렌드'라는 강한 확신을 유지. 4분기 수요: 강한 수요가 지속될 것으로 예상. 최첨단 공정 기술 수요: '매우 견조한(Very robust)' 수준 을 유지. 반도체 장비...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC -AI가 장기적인 '메가트렌드'라는 강한 확신을 유지. 4분기 수요: 강한 수요가 지속될 것으로 예상. 최첨단 공정 기술 수요: '매우 견조한(Very robust)' 수준 을 유지. 반도체 장비..."
     },
     {
       "id": "bornlupin/20635",
@@ -9400,10 +9486,10 @@
       ],
       "score": 71,
       "hasText": true,
-      "summary": "TSMC 설비투자(CapEx) 전망: 600억~640억 달러 유지 2026~2028년 설비투자: 향후 3년간(2026~2028년) 설비투자 규모가 직전 3년간(2023~2025년) 대비 상당히 높을 것이라는...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC 설비투자(CapEx) 전망: 600억~640억 달러 유지 2026~2028년 설비투자: 향후 3년간(2026~2028년) 설비투자 규모가 직전 3년간(2023~2025년) 대비 상당히 높을 것이라는..."
     },
     {
       "id": "bornlupin/20634",
