@@ -7,7 +7,7 @@ import { RULES } from '../rules/thresholds.js';
 import { TRANSITION_TITLE } from './regime-scenarios.js';
 import { resolveMarketCalendarSession } from './market-calendar.js';
 import { shortDate } from '../content/date-labels.js';
-import { rsRecentCheck, rrgZone } from '../themes/recent-check.js';
+import { rsRecentCheck, rrgSettledQuadrant } from '../themes/recent-check.js';
 
 export const SCENARIO_OUTLOOK_VERSION = 'scenario-outlook.v1';
 
@@ -39,9 +39,12 @@ export function sectorRecentCheck(row) {
   return check ? { rel5: check.change, fell: check.fell, threshold: check.threshold } : null;
 }
 export const sectorRelative5d = (row) => sectorRecentCheck(row)?.rel5 ?? null;
-export const leaderFading = (row) => row?.quadrant === 'Leading' && row?.fell === true && Number.isFinite(row?.rel5);
-// v57.81: the themes screen's RRG neutral band — a point within ±RRG_NEUTRAL_BAND of 100 is 경계, not 선도/개선.
-export const rrgBorder = (row) => Number.isFinite(row?.rsRatio) && Number.isFinite(row?.rsMomentum) ? !!rrgZone(row.rsRatio, row.rsMomentum)?.border : false;
+// v57.84 (owner decision 3-3): the settled quadrant (the row's own-noise band + hysteresis), as on 테마 · 섹터; the raw
+// quadrant only when the row has no coordinates.
+const quadrantOf = (row) => { const settled = rrgSettledQuadrant(row); return settled && settled !== 'Border' ? settled : settled ? null : row?.quadrant; };
+export const leaderFading = (row) => quadrantOf(row) === 'Leading' && row?.fell === true && Number.isFinite(row?.rel5);
+// v57.81: the themes screen's RRG neutral band — a point too close to 100 is 경계, not 선도/개선.
+export const rrgBorder = (row) => rrgSettledQuadrant(row) === 'Border';
 const rel5Text = (rows) => rows.map((row) => `${row.label} 상대강도 ${row.rel5 >= 0 ? '+' : ''}${row.rel5.toFixed(1)}%`).join(' · ');
 const likelihoodOf = (met, total, confirmed) => confirmed ? '높음' : met / total >= 0.5 ? '중간' : '낮음'; // internal ordering key only
 export const fitLabel = (met, total) => `조건 충족 ${met}/${total}`; // P1745: one notation with the branches
@@ -62,14 +65,14 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
   const creditAxis = (regime.axes || []).find((axis) => axis.id === 'credit');
   const creditStable = state.credit === 'favorable';
   const creditNote = creditStable || state.credit === 'burden' ? null : state.credit === 'unknown' || !state.credit ? '확인 불가' : creditAxis?.widening ? '확대 중' : '신용 지표 중립';
-  const leadingRows = sectors.filter((row) => row.quadrant === 'Leading' && !leaderFading(row) && !rrgBorder(row));
+  const leadingRows = sectors.filter((row) => quadrantOf(row) === 'Leading' && !leaderFading(row) && !rrgBorder(row));
   const fadingRows = sectors.filter(leaderFading);
   const leading = leadingRows.map((row) => row.label);
   const fadingNote = fadingRows.length ? ` · 선도였지만 최근 5거래일 상대강도가 꺾임: ${rel5Text(fadingRows)}` : '';
-  const improvingRows = sectors.filter((row) => row.quadrant === 'Improving' && !rrgBorder(row));
+  const improvingRows = sectors.filter((row) => quadrantOf(row) === 'Improving' && !rrgBorder(row));
   const improving = improvingRows.map((row) => row.label);
   // v57.81: 약화(Weakening) is losing momentum — it is not called "버티는"; a fading 선도 is not either.
-  const defensiveHolding = sectors.filter((row) => DEFENSIVE.has(row.symbol) && (row.quadrant === 'Leading' || row.quadrant === 'Improving') && !leaderFading(row) && !rrgBorder(row)).map((row) => row.label);
+  const defensiveHolding = sectors.filter((row) => DEFENSIVE.has(row.symbol) && (quadrantOf(row) === 'Leading' || quadrantOf(row) === 'Improving') && !leaderFading(row) && !rrgBorder(row)).map((row) => row.label);
   const topThemeRows = themes.slice(0, 3);
   const topThemes = topThemeRows.map((row) => row.name);
   // v57.54 audit (9): the missing-rotation reason was developer copy on the reader's face; the sentence just points to 테마.
@@ -90,11 +93,11 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
   const themeLinks = topThemeRows.map((row) => ({ kind: 'theme', label: row.name, themeId: row.themeId || null }));
   const guide = {
     expansion: {
-      posture: '이 흐름이라면 상승이 소수 대형주를 넘어 다수 종목으로 퍼지는 국면입니다. 그동안 뒤처졌던 업종과 중소형주의 참여가 함께 늘어나는지가 이 해석을 확인하는 근거입니다. 반증: 50일선·200일선 위 비율이 60% 아래로 다시 내려오거나 HY 스프레드가 넓어지면 확산 해석을 다시 봅니다.',
+      posture: '이 흐름이라면 상승이 소수 대형주를 넘어 다수 종목으로 퍼지는 국면입니다. 그동안 뒤처졌던 업종과 중소형주의 참여가 함께 늘어나는지가 이 해석을 확인하는 근거입니다. 반증: 50일선·200일선 위 비율이 ' + RULES.breadth.broadAtLeast + '% 아래로 다시 내려오거나 HY 스프레드가 넓어지면 확산 해석을 다시 봅니다.',
       // v57.81: the RRG window is named (수 주 기준) and a fading 선도 is listed apart with its five-session relative return.
       opportunity: (improving.length || leading.length ? `${improving.length ? `섹터 회전(RRG·수 주 기준)에서 개선 중: ${join(improving)}` : '개선 중인 섹터는 아직 없음'} · 선도: ${join(leading) || '없음'}` : `확산이 확인되면 후행 업종의 개선 여부를 섹터 회전에서 확인합니다${sectorNote}.`) + fadingNote,
       opportunityLinks: [{ label: '섹터 회전(수 주 기준)에서 개선 중', links: sectorLinks(improving) }, { label: '선도', links: sectorLinks(leading) }].filter((part) => part.links.length),
-      check: ['50일선·200일선 위 종목 비율이 함께 60% 이상을 유지하는지', '52주 신고가 종목이 신저가보다 꾸준히 많은지', '러셀 2000이 S&P 500을 따라오거나 앞서는지'],
+      check: [`50일선·200일선 위 종목 비율이 함께 ${RULES.breadth.broadAtLeast}% 이상을 유지하는지`, '52주 신고가 종목이 신저가보다 꾸준히 많은지', '러셀 2000이 S&P 500을 따라오거나 앞서는지'],
       caution: ['20일선 위 비율만 오르고 50일선 비율이 따라오지 않으면 확산이라고 보기 이릅니다.', 'HY 스프레드가 다시 넓어지면 회복의 근거가 약해집니다.'],
       // P1727: "지수 하루 하락" read as "ignore today's -5.5% KOSPI"; the item names the ordinary US day and excludes rare moves.
       ignore: ['VIX의 하루 등락', '미국 지수의 평범한 하루 하락 — 참여 비율이 유지되면 추세 판단을 바꿀 근거가 아닙니다(기록상 드문 급락이나 한국 시장의 급락은 넘기지 않고 따로 확인).']
@@ -115,7 +118,7 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
       posture: '이 흐름이라면 지수와 참여도의 약화가 신용 또는 변동성 스트레스와 함께 나타나는 국면입니다. 하루 반등보다 지수의 50일선 회복과 시장 폭 개선이 함께 확인되는지가 흐름이 바뀌었는지 가르는 근거입니다. 반증: HY 확대가 멈추고 VIX 단기 불안 비율 역전이 풀리며 S&P 500이 200일선을 되찾으면 약화 해석을 다시 봅니다.',
       opportunity: defensiveHolding.length ? `상대적으로 버티는 방어 섹터: ${join(defensiveHolding)}` : `방어 섹터(헬스케어·필수소비재·유틸리티)의 상대강도를 섹터 회전에서 확인합니다${sectorNote}.`,
       opportunityLinks: [{ label: '상대적으로 버티는 방어 섹터', links: sectorLinks(defensiveHolding) }].filter((part) => part.links.length),
-      check: ['HY 스프레드 확대가 멈추는지', 'VIX 단기 불안 비율 역전(1 이상)이 풀리는지', 'S&P 500이 200일선을 되찾는지'],
+      check: ['HY 스프레드 확대가 멈추는지', `VIX 단기 불안 비율 역전(${RULES.volatility.invertedRatioAt} 이상)이 풀리는지`, 'S&P 500이 200일선을 되찾는지'],
       caution: ['급락 직후 하루 반등만으로는 추세 회복을 확인할 수 없습니다 — 50일선 회복과 시장 폭 개선이 함께 필요합니다.', '"많이 빠져서 싸다"는 것은 추세 회복의 근거가 아닙니다.'],
       ignore: ['단기 과매도 지표 하나만의 신호', '하루짜리 정책·뉴스 헤드라인']
     }

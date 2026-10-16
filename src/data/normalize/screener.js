@@ -9,6 +9,8 @@ export function normalizeScreener(raw = {}) {
     // v57.81: present only when the extended shard is loaded (core|extended, and RUSSELL2000/NASDAQ/index tags).
     ...(row?.universeTier ? { universeTier: row.universeTier === 'extended' ? 'extended' : 'core' } : {}),
     ...(Array.isArray(row?.membership) ? { membership: row.membership.map(String) } : {}),
+    // 2026-10-16: the filer's SEC SIC code when the extended shard carries one (blank checks 6770 leave the ranking).
+    ...(row?.sic ? { sic: String(row.sic) } : {}),
     market: row?.market || row?.instrumentRef?.market || null,
     currency: row?.currency || row?.instrumentRef?.currency || null,
     signal: row?.signal || null,

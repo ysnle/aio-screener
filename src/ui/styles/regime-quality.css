@@ -223,6 +223,7 @@ body.dark-theme .sector-map .is-na { background: #36383b; color: #c8c6c0; }
 .page .xr-tag { font-size: 12.5px; padding: 2px 8px; border-radius: 3px; border: 1px solid var(--border); color: var(--text-secondary); }
 .page .xr-tag.is-same { color: var(--text-primary); border-color: var(--text-primary); }
 .page .xr-tag.is-against { color: var(--data-red); border-color: var(--data-red); }
+.page .xr-tag.is-past-conflict { color: var(--data-amber); border-color: var(--data-amber); }
 .page .xr-tag.is-choice { color: var(--data-green); border-color: var(--data-green); }
 .page .xr-meter { display: inline-flex; gap: 4px; align-items: center; }
 .page .xr-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--text-secondary); }

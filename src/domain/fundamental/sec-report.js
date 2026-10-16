@@ -162,7 +162,13 @@ export const SEC_MARGIN_HOLD_ABOVE_PCT = 100;
 // 2026-10-14 (sec-annual-concepts.v4): utility totals compete as primary; a goods-only line is a fallback because the
 // selection takes one row per period (never a sum), so a goods or services component must not outrank a total.
 // SalesRevenueServicesNet is not added: without summation it would publish a partial revenue for mixed filers.
-export const SEC_PRIMARY_REVENUE_CONCEPTS = Object.freeze(['Revenues', 'RevenueFromContractWithCustomerExcludingAssessedTax', 'SalesRevenueNet', 'RevenuesNetOfInterestExpense', 'RegulatedAndUnregulatedOperatingRevenue', 'ElectricUtilityRevenue']);
+// 2026-10-16 (sec-annual-concepts.v5): regional banks tag no total revenue at all (TFC, FITB, RF, PNFP, SYF) or only a
+// fee subtotal under the ASC 606 concepts (MTB 1.66B, HBAN 1.56B, EWBC 0.06B — margins 141-1,218%, withheld). Their
+// net revenue is net interest income + noninterest income of the same filing, the definition the large banks tag as
+// RevenuesNetOfInterestExpense (GS FY2025: 13,559M + 44,724M = 58,283M exactly). It is the one derived concept and
+// competes as primary, so the largest-total rule replaces a fee subtotal with it.
+export const SEC_BANK_NET_REVENUE_CONCEPT = 'derived:InterestIncomeExpenseNet+NoninterestIncome';
+export const SEC_PRIMARY_REVENUE_CONCEPTS = Object.freeze(['Revenues', 'RevenueFromContractWithCustomerExcludingAssessedTax', 'SalesRevenueNet', 'RevenuesNetOfInterestExpense', 'RegulatedAndUnregulatedOperatingRevenue', 'ElectricUtilityRevenue', SEC_BANK_NET_REVENUE_CONCEPT]);
 export const SEC_FALLBACK_REVENUE_CONCEPTS = Object.freeze(['RevenueFromContractWithCustomerIncludingAssessedTax', 'SalesRevenueGoodsNet']);
 // Reference market-cap plausibility (P1318): a share basis whose implied daily turnover falls outside this band is
 // a scale, ADR-ratio or share-class error, not a company size.

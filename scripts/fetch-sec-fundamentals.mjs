@@ -15,6 +15,7 @@ import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod,
 // v57.81: the companyfacts normalizer lives in src/domain/fundamental/sec-normalize.js (shared with the browser's
 // out-of-universe issuer read); re-exported here so the gates and callers keep their imports.
 import { tickerKey, SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, classifyIssuerCapability, parseClassShareFacts, classInstanceUrl, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
+import { secClassification } from '../src/domain/fundamental/sic-sector.js';
 export { SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, classifyIssuerCapability, parseClassShareFacts, CLASS_EPS_TOLERANCE, selectClassDimensionedShares, classInstanceUrl, RECENT_FILING_WINDOW_DAYS, RECENT_FILING_MAX, recentFilingsFrom, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
 import { buildDomainReceipt } from './lib/domain-receipt.mjs';
 
@@ -148,6 +149,13 @@ function buildTickerMap(payload) {
 export const SEC_EXTENDED_LEDGER = `${ROOT}/public-data/sec-fundamentals-extended.json`;
 export const SEC_EXTENDED_UNIVERSE = `${ROOT}/public-data/screener-extended-universe.json`;
 export const SEC_EXTENDED_DEFAULT_BATCH = 600;
+// 2026-10-16 (P1872 follow-up): the ledger keeps each issuer's SEC Standard Industrial Classification in `issuerSic`
+// so the ranker can drop blank-check companies (SIC 6770) by the filer's own code instead of its name. Every
+// submissions read records it — including issuers whose facts are terminal-unsupported (most SPACs report no
+// revenue) — and a SIC-only pass (one submissions request each, same 150 ms pace) fills issuers without a code or
+// with one older than 30 days (a de-SPAC can keep its ticker and change code). A failed read keeps the previous code.
+export const SEC_SIC_BACKFILL_DEFAULT = 800;
+export const SEC_SIC_REFRESH_AFTER_MS = 30 * 86400000;
 export function compactSecRecord(record) {
   if (!record || typeof record !== 'object') return record;
   const { recentFilings, ...rest } = record;
@@ -163,11 +171,22 @@ export function extendedSecOptions(env = process.env) {
     outPath: SEC_EXTENDED_LEDGER,
     compact: true,
     requireRestored: false,
-    batchLimit: Math.max(1, Math.min(2000, Number(env.SEC_EXTENDED_BATCH_LIMIT) || SEC_EXTENDED_DEFAULT_BATCH))
+    batchLimit: Math.max(1, Math.min(2000, Number(env.SEC_EXTENDED_BATCH_LIMIT) || SEC_EXTENDED_DEFAULT_BATCH)),
+    sicBackfillLimit: Math.max(0, Math.min(2000, Number(env.SEC_SIC_BACKFILL_LIMIT ?? SEC_SIC_BACKFILL_DEFAULT) || 0))
   };
 }
 
-export async function refreshSecFundamentals(priceHints = null, { scope = 'core', universePath = UNIVERSE_PATH, outPath = OUT, compact = false, requireRestored = true, batchLimit = null } = {}) {
+// Pure: the SIC-only pass picks issuers not already read this run — never-classified first, then the oldest code.
+export function sicBackfillTargets(eligible, issuerSic, attemptedSymbols, { limit, nowMs, refreshAfterMs = SEC_SIC_REFRESH_AFTER_MS }) {
+  if (!(limit > 0)) return [];
+  const observed = (symbol) => Date.parse(issuerSic[symbol]?.observedAt || '');
+  return eligible
+    .filter(symbol => !attemptedSymbols.has(symbol) && !(nowMs - observed(symbol) < refreshAfterMs))
+    .sort((a, b) => Number(Boolean(issuerSic[a])) - Number(Boolean(issuerSic[b])) || (observed(a) || 0) - (observed(b) || 0) || a.localeCompare(b))
+    .slice(0, limit);
+}
+
+export async function refreshSecFundamentals(priceHints = null, { scope = 'core', universePath = UNIVERSE_PATH, outPath = OUT, compact = false, requireRestored = true, batchLimit = null, sicBackfillLimit = 0 } = {}) {
   const universePayload = await readJSON(universePath, { universe: [] });
   const screener = await readJSON(SCREENER_PATH, { data: {} });
   let previousExists = true;
@@ -243,12 +262,13 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
       // waited 2-5 days behind 700 outdated records), so it is refreshed first among the due records.
       sharesMissing: Boolean(previous.data && previous.data[symbol] && !(Number(previous.data[symbol].sharesOutstanding) > 0)),
       lastFailureAt: previousFailureAt.get(symbol) || null,
-      priorFailure: previousFailureRecords.get(symbol) || null
+      priorFailure: previousFailureRecords.get(symbol) || null,
+      conceptSetChanged: previousFailureRecords.get(symbol)?.reasonCode === 'required-us-gaap-annual-concepts-unavailable'
+        && previousFailureRecords.get(symbol)?.conceptSetVersion !== SEC_CONCEPT_SET_VERSION
     }))
     .filter(row => {
       if (force) return true;
-      const conceptSetChanged = row.priorFailure?.reasonCode === 'required-us-gaap-annual-concepts-unavailable'
-        && row.priorFailure?.conceptSetVersion !== SEC_CONCEPT_SET_VERSION;
+      const conceptSetChanged = row.conceptSetChanged;
       if (row.priorFailure?.status === 'TERMINAL_UNSUPPORTED' && !recheckUnsupported && !conceptSetChanged) return false;
       if (conceptSetChanged) return true;
       const dataDue = !row.fetchedAt || row.cashChainMissing || row.normalizerOutdated || now - new Date(row.fetchedAt).getTime() >= REFRESH_AFTER_MS;
@@ -257,13 +277,22 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
     })
     // Prefer never-attempted and retryable candidates. Terminal taxonomy
     // failures remain in the audit but cannot starve fresh coverage.
-    .sort((a, b) => Number(Boolean(a.priorFailure)) - Number(Boolean(b.priorFailure)) || Number(b.sharesMissing) - Number(a.sharesMissing) || String(a.fetchedAt || '').localeCompare(String(b.fetchedAt || '')) || a.symbol.localeCompare(b.symbol))
+    // 2026-10-16: a failure recorded under an older concept set is rechecked FIRST. It sorted last behind every due
+    // record, and a normalizer bump makes ~750 records due at 24 per run, so GS/CRWD/VLO/ODFL/KHC/ARE/SJM (normalizable
+    // since v3/v4) sat a month as failures. Each recheck stamps the current version, so this set is bounded.
+    .sort((a, b) => Number(b.conceptSetChanged) - Number(a.conceptSetChanged) || Number(Boolean(a.priorFailure)) - Number(Boolean(b.priorFailure)) || Number(b.sharesMissing) - Number(a.sharesMissing) || String(a.fetchedAt || '').localeCompare(String(b.fetchedAt || '')) || a.symbol.localeCompare(b.symbol))
     .slice(0, limit);
 
   const data = { ...(previous.data || {}) };
   const failuresBySymbol = new Map([...previousFailureRecords.entries()]);
   let updated = 0;
   const attemptedAt = new Date(now).toISOString();
+  const issuerSic = previous.issuerSic && typeof previous.issuerSic === 'object' ? { ...previous.issuerSic } : {};
+  const recordSic = (symbol, cik, submissions) => {
+    const classification = secClassification(submissions);
+    if (classification) issuerSic[symbol] = { sic: classification.sic, description: classification.description, cik, observedAt: attemptedAt };
+    return Boolean(classification);
+  };
   for (const target of targets) {
     const meta = tickerMap.get(tickerKey(target.symbol));
     try {
@@ -271,6 +300,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
         fetchJSON(`${SEC_FACTS_BASE}${meta.cik}.json`, 2),
         fetchJSON(`${SEC_SUBMISSIONS_BASE}${meta.cik}.json`, 2)
       ]);
+      recordSic(target.symbol, meta.cik, submissions);
       // P715 공개 계약 때문에 screener.json에는 원시가가 없다. 같은 파이프라인
       // 실행에서 전달받은 메모리 한정 priceHints(adjusted close)를 우선 쓰고,
       // 없으면 종전대로 screener.json 값을 본다. 어느 경로도 발행 아티팩트에
@@ -328,6 +358,19 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
     await new Promise(resolve => setTimeout(resolve, 150));
   }
 
+  const sicTargets = sicBackfillTargets(eligible, issuerSic, new Set(targets.map(target => target.symbol)), { limit: sicBackfillLimit, nowMs: now });
+  let sicUpdated = 0;
+  let sicFailed = 0;
+  for (const symbol of sicTargets) {
+    const meta = tickerMap.get(tickerKey(symbol));
+    try {
+      if (recordSic(symbol, meta.cik, await fetchJSON(`${SEC_SUBMISSIONS_BASE}${meta.cik}.json`, 2))) sicUpdated++;
+    } catch {
+      sicFailed++;
+    }
+    await new Promise(resolve => setTimeout(resolve, 150));
+  }
+
   // P1449: heal stored rows at publish time. Records written before the P1402 parent-first
   // concept order (for example Agilent, whose NCI-inclusive tag carried its AOCI value) keep
   // shipping -226M until their 28-day re-fetch; when the same filing's parent
@@ -344,6 +387,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
     const healed = reconcileSecEquity(reconcileSecRevenueShares(record));
     if (healed !== record) { data[symbol] = healed; healedCount++; }
   }
+  for (const symbol of Object.keys(issuerSic)) if (etfSymbols.has(symbol) || !universeSymbols.has(symbol)) delete issuerSic[symbol];
 
   const payload = {
     schemaVersion: '2.0',
@@ -388,8 +432,11 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
     data
   };
   if (scope !== 'core') { payload.scope = scope; payload.recordPolicy = compact ? 'compact: normalized annual record without point-in-time observation arrays' : 'full'; }
+  payload.issuerSicPolicy = `SEC submissions sic per issuer; recorded on every submissions read plus a SIC-only pass of up to ${sicBackfillLimit} issuers (missing first, then older than ${SEC_SIC_REFRESH_AFTER_MS / 86400000} days); a failed read keeps the previous code`;
+  payload.issuerSicCoverage = { classified: Object.keys(issuerSic).length, eligible: eligible.length, passAttempted: sicTargets.length, passUpdated: sicUpdated, passFailed: sicFailed };
+  payload.issuerSic = Object.fromEntries(Object.entries(issuerSic).sort(([a], [b]) => a.localeCompare(b)));
   await atomicWrite(outPath, payload);
-  console.log(`[sec-fundamentals${scope === 'core' ? '' : `:${scope}`}] stored=${payload.stored}/${payload.eligible} attempted=${payload.attempted} updated=${updated} failed=${payload.failures.length} terminalUnsupported=${payload.terminalUnsupported.length} healed=${healedCount} etfPruned=${etfPruned}`);
+  console.log(`[sec-fundamentals${scope === 'core' ? '' : `:${scope}`}] stored=${payload.stored}/${payload.eligible} attempted=${payload.attempted} updated=${updated} failed=${payload.failures.length} terminalUnsupported=${payload.terminalUnsupported.length} healed=${healedCount} etfPruned=${etfPruned} sic=${payload.issuerSicCoverage.classified} (pass ${sicUpdated}/${sicTargets.length})`);
   return payload;
 }
 

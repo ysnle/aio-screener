@@ -7,7 +7,9 @@ import { withTopicParticle } from '../content/korean-particle.js';
 import { EXTENSION_BANDS } from '../screener/setup-profile.js';
 import { RULES } from '../rules/thresholds.js';
 import { NEAR_LINE_ADR, bufferedTrend, extensionBand } from '../technical/bands.js';
-import { rrgZone, rsRecentCheck, relativeBand, signedPct } from '../themes/recent-check.js';
+import { rrgRecentReading, relativeBand, signedPct } from '../themes/recent-check.js';
+import { RRG_QUADRANT_READS, RRG_QUADRANT_WORDS } from '../themes/rrg.js';
+import { extensionMultiple } from '../technical/definitions.js';
 import { secFilingUrl } from '../fundamental/sec-report.js';
 
 // N20 (2026-10-13): the issuer's own recent filings, from the annual-facts record's submissions snapshot (8-K with
@@ -97,10 +99,10 @@ const SECTOR_KO = Object.freeze({ XLK: '기술', XLF: '금융', XLE: '에너지'
 const QUADRANT = Object.freeze({
   // v57.84: the same words as 테마 · 섹터 — RS-Ratio sits against its own 100-day average (not "stronger than the market")
   // and RS-Momentum compares with ~50 sessions ago (not a present-tense "getting stronger").
-  Leading: { label: '선도', tone: 'favorable', read: '시장 대비 상대가격이 100일 평균보다 높고 약 50일 전보다 올라섬' },
-  Improving: { label: '개선', tone: 'neutral', read: '시장 대비 상대가격이 100일 평균보다 낮지만 약 50일 전보다 올라섬' },
-  Weakening: { label: '약화', tone: 'neutral', read: '시장 대비 상대가격이 100일 평균보다 높지만 약 50일 전보다 내려옴' },
-  Lagging: { label: '후행', tone: 'burden', read: '시장 대비 상대가격이 100일 평균보다 낮고 약 50일 전보다도 내려옴' }
+  Leading: { label: RRG_QUADRANT_WORDS.Leading, tone: 'favorable', read: RRG_QUADRANT_READS.Leading },
+  Improving: { label: RRG_QUADRANT_WORDS.Improving, tone: 'neutral', read: RRG_QUADRANT_READS.Improving },
+  Weakening: { label: RRG_QUADRANT_WORDS.Weakening, tone: 'neutral', read: RRG_QUADRANT_READS.Weakening },
+  Lagging: { label: RRG_QUADRANT_WORDS.Lagging, tone: 'burden', read: RRG_QUADRANT_READS.Lagging }
 });
 
 // Position inside the 52-week range from the artifact's own distances (no live quote needed):
@@ -123,15 +125,15 @@ const trendOf = bufferedTrend;
 // relative-strength line's last five sessions run against the quadrant's direction its favourable tone and its
 // "더 강해지는 중" clause are withheld. The five-session relative move is always shown when the series exists.
 function rotationView(item) {
-  const base = item ? QUADRANT[item.quadrant] || null : null;
-  if (!base) return null;
-  const zone = rrgZone(finite(item.rsRatio), finite(item.rsMomentum));
-  const check = rsRecentCheck(item.relativeStrength);
-  const strengthening = finite(item.rsMomentum) != null && finite(item.rsMomentum) >= 100;
-  // Opposite sign = the last five sessions moved against the quadrant's direction; a missing series fails closed.
-  // v57.84 (R707): against the quadrant only beyond twice the usual 5-session move — the themes screen's rule; the bare
-  // sign flagged 13 of 31 ETFs where the themes screen flagged 2.
-  const opposed = check == null || check.threshold == null ? null : strengthening ? check.fell : check.rose;
+  if (!item || !QUADRANT[item.quadrant]) return null;
+  // v57.84 (R707): against the quadrant only beyond twice the usual 5-session move — the bare sign flagged 13 of 31 ETFs
+  // where the themes screen flagged 2. v57.84: the zone, the check and that rule are the themes screen's own reading
+  // (rrgRecentReading); a missing series fails closed (opposed null).
+  const zone = rrgRecentReading({ rsRatio: finite(item.rsRatio), rsMomentum: finite(item.rsMomentum), trail: item.trail || null }, item.relativeStrength);
+  // v57.84 (owner decision 3-3): the settled quadrant (own-noise band + hysteresis) names the sector, as on 테마 · 섹터.
+  const base = QUADRANT[zone?.quadrant || item.quadrant];
+  const check = zone?.check || null;
+  const opposed = zone ? zone.opposed : null;
   const recent = check ? `최근 5거래일 상대강도 ${signedPct(check.change)}` : '';
   const border = !!zone?.border;
   const label = border ? '경계' : base.label;
@@ -200,7 +202,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   const adr = finite(row.adrPct);
   // 2026-10-13 review S09: the bands are the screener's (setup-profile EXTENSION_BANDS) — 3.8x is not "near".
   if (pct50 != null && adr != null && adr > 0) {
-    const multiple = Math.round(pct50 / adr * 10) / 10;
+    const multiple = extensionMultiple(pct50, adr);
     // v57.81: a price under the line has its own band ('below'); within one daily range either side is 부근 (bands.js).
     const band = extensionBand(multiple);
     const nearLine = Math.abs(pct50) < NEAR_LINE_ADR * adr;

@@ -2,7 +2,7 @@
 // the browser can read an out-of-universe issuer's filing with the same functions (the producer imports and
 // re-exports them). Pure: companyfacts/submissions JSON in, one annual record out; no I/O.
 import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
-import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS } from './sec-report.js';
+import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS, SEC_BANK_NET_REVENUE_CONCEPT } from './sec-report.js';
 
 function round(n, digits = 2) {
   const p = 10 ** digits;
@@ -27,6 +27,31 @@ function factRows(companyFacts, taxonomy, concepts, unit) {
     if (Array.isArray(conceptRows) && conceptRows.length) conceptRows.forEach(row => collected.push({ ...row, concept }));
   }
   return collected;
+}
+
+// v5 (2026-10-16): bank net revenue = net interest income + noninterest income, paired within one filing (same
+// accession, period and form) so a restated comparative never mixes with the original. Rows without both operands
+// are not derived. InterestRevenueExpenseNet is the newer name some filers use for the same net interest income.
+const BANK_NET_INTEREST_CONCEPTS = ['InterestIncomeExpenseNet', 'InterestRevenueExpenseNet'];
+function bankNetRevenueRows(companyFacts) {
+  const key = (row) => `${row.accn || ''}|${row.start || ''}|${row.end || ''}|${row.form || ''}|${row.fp || ''}`;
+  const nonInterest = new Map(factRows(companyFacts, 'us-gaap', ['NoninterestIncome'], 'USD').map((row) => [key(row), row]));
+  if (!nonInterest.size) return [];
+  const netInterest = new Map();
+  factRows(companyFacts, 'us-gaap', BANK_NET_INTEREST_CONCEPTS, 'USD').forEach((row) => { if (!netInterest.has(key(row))) netInterest.set(key(row), row); });
+  const rows = [];
+  for (const [k, nii] of netInterest) {
+    const other = nonInterest.get(k);
+    const a = finiteFact(nii.val);
+    const b = finiteFact(other?.val);
+    if (a == null || b == null) continue;
+    rows.push({ ...nii, val: a + b, concept: SEC_BANK_NET_REVENUE_CONCEPT });
+  }
+  return rows;
+}
+
+function revenueFactRows(companyFacts) {
+  return [...factRows(companyFacts, 'us-gaap', [...SEC_PRIMARY_REVENUE_CONCEPTS, ...SEC_FALLBACK_REVENUE_CONCEPTS], 'USD'), ...bankNetRevenueRows(companyFacts)];
 }
 
 function dedupeLatestFiled(rows) {
@@ -70,7 +95,8 @@ function acceptedAtByAccession(submissions) {
 const REPORT_RECENCY_MAX_DAYS = FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
 // Stored records written by an older normalizer are due to be read again (in addition to the publish-time heal).
 // 2026-10-15 (P1798): class-dimensioned 10-K share counts for multi-class filers.
-export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-10-15';
+// 2026-10-16: bank net revenue (v5 concept set) — stored bank records with a fee-subtotal revenue are re-read.
+export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-10-16';
 
 // The earliest instant a single operand could have been known: its accession acceptance time
 // when available, otherwise the filing date (which is a date, not an intraday time).
@@ -96,7 +122,8 @@ function latestIso(values) {
 // v3 (2026-10-13 F06): RevenueFromContractWithCustomerIncludingAssessedTax added (VLO; XOM rechecked).
 // v4 (2026-10-14): utility revenue (RegulatedAndUnregulatedOperatingRevenue, ElectricUtilityRevenue) as primary,
 // SalesRevenueGoodsNet as fallback; EPS-implied share count as the last share candidate.
-export const SEC_CONCEPT_SET_VERSION = 'sec-annual-concepts.v4';
+// v5 (2026-10-16): bank net revenue = net interest income + noninterest income of one filing (sec-report.js).
+export const SEC_CONCEPT_SET_VERSION = 'sec-annual-concepts.v5';
 
 export function classifyIssuerCapability(companyFacts, submissions = null) {
   const taxonomies = Object.keys(companyFacts?.facts || {});
@@ -142,13 +169,13 @@ function compactPitRows(rows, field, acceptedMap, maxRows = 40) {
 
 function buildPointInTimeFacts(companyFacts, submissions) {
   const acceptedMap = acceptedAtByAccession(submissions);
-  const REVENUE_CONCEPTS = [...SEC_PRIMARY_REVENUE_CONCEPTS, ...SEC_FALLBACK_REVENUE_CONCEPTS]; // F05/F06: consumers pick per period via bestRevenueRowsByPeriod
+  // F05/F06: every revenue concept (and the v5 bank net revenue) is kept; consumers pick per period via bestRevenueRowsByPeriod.
   // Codex review 2026-10-05 (분기 추이): discrete-quarter facts (about three months) from 10-Q/10-K.
   // A fourth quarter is rarely tagged on its own; the projection derives it from FY minus Q1–Q3 and labels it.
   const quarterly = (row) => { const days = durationDays(row); return /^(10-Q|10-K)(\/A)?$/.test(row.form || '') && days != null && days >= 80 && days <= 100; };
-  const revenueQRows = factRows(companyFacts, 'us-gaap', REVENUE_CONCEPTS, 'USD').filter(quarterly);
+  const revenueQRows = revenueFactRows(companyFacts).filter(quarterly);
   const incomeQRows = factRows(companyFacts, 'us-gaap', ['NetIncomeLoss', 'ProfitLoss'], 'USD').filter(quarterly);
-  const revenueRows = factRows(companyFacts, 'us-gaap', REVENUE_CONCEPTS, 'USD').filter(row => {
+  const revenueRows = revenueFactRows(companyFacts).filter(row => {
     const days = durationDays(row);
     return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400;
   });
@@ -350,10 +377,7 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   // (largest primary concept, assessed-tax-inclusive only as a fallback). P1374 bank net revenue stays a
   // primary concept.
   // (annualDurationRows dedupes by period+form across concepts, so the per-concept rows are filtered here instead.)
-  const revenues = bestRevenueRowsByPeriod(factRows(companyFacts, 'us-gaap', [
-    ...SEC_PRIMARY_REVENUE_CONCEPTS,
-    ...SEC_FALLBACK_REVENUE_CONCEPTS
-  ], 'USD').filter(row => {
+  const revenues = bestRevenueRowsByPeriod(revenueFactRows(companyFacts).filter(row => {
     const days = durationDays(row);
     return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400 && finiteFact(row.val) != null;
   }));

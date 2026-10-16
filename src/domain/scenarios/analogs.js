@@ -1,4 +1,5 @@
 import { hasFinalConsonant } from '../content/korean-particle.js';
+import { relativeBand } from '../themes/recent-check.js';
 // P1743: one definition of "a similar market move in the past" per branch, shared by the weekly long-history producer
 // (scripts/build-scenario-outcomes.mjs, decades of daily closes) and the browser (AIO's own close record as fallback).
 // Episodes never overlap: after a hit, the scan jumps past its outcome window, so one long episode counts once.
@@ -67,37 +68,70 @@ export function alignCloses(seriesByField) {
  * Theme stages. v57.81 (analysis audit): the screen measures them against the S&P 500 (KR: KOSPI) over the same window with
  * a ± band (src/domain/themes/recent-check.js), so the labels speak of the index. 'fading' is a leading trend that its
  * 50-day share, its conditions or the last five sessions no longer support (theme-playbook.js decides it; the long-history
- * proxy outcomes below never produce it). The weekly proxy outcomes still use absolute returns with no band.
+ * proxy outcomes below never produce it).
+ * v57.84 (owner decision, TECHNICAL-DEFINITIONS 3-1/3-2 안 A): a long trend inside ±band of the index is 동행, not 약세 or
+ * 반등 (US energy +9.0% against the S&P 500's +10.0% read 약세 지속); 반등 시도·약세 지속 need the long trend more than the
+ * band behind. A trend ahead of the index whose own return is 0 or below is 상대 방어 — falling less is not leading (KOSPI
+ * −25.7%, batteries −2.6% read 주도 지속). The proxy outcomes use the same rule against ^GSPC.
  */
 export const THEME_STATES = Object.freeze({
   leading: '주도 지속 (긴 추세가 지수보다 앞서고 1개월도 뒤처지지 않음)',
   fading: '추세 약화 확인 중 (긴 추세는 앞서나 50일선 위 비율·조건·최근 5거래일이 받쳐 주지 않음)',
   pullback: '추세 속 조정 (긴 추세는 앞서나 1개월은 뒤처짐)',
-  rebound: '반등 시도 (긴 추세는 앞서지 못하나 1개월은 앞섬)',
-  weak: '약세 지속 (긴 추세도 1개월도 앞서지 못함)'
+  defensive: '상대 방어 (지수보다 앞서지만 긴 추세 수익률이 0 이하 — 덜 하락한 것)',
+  inline: '동행 (긴 추세가 지수와 비슷함)',
+  rebound: '반등 시도 (긴 추세는 지수보다 뒤처지나 1개월은 앞섬)',
+  weak: '약세 지속 (긴 추세가 지수보다 뒤처지고 1개월도 앞서지 못함)'
 });
-/** `band` / `recentBand` (%p, ≥ 0): a trend must clear +band to count as ahead; with 0 this is the plain sign rule. */
-export function themeStateOf(trend, recent, { band = 0, recentBand = 0 } = {}) {
+/**
+ * `trend`/`recent` are the long-window and 1-month returns less the index's (or own returns when band is 0); `band` /
+ * `recentBand` (%p, ≥ 0) are the ± zones; `absolute` is the theme's own long-window return (null = not checked).
+ */
+export function themeStateOf(trend, recent, { band = 0, recentBand = 0, absolute = null } = {}) {
   if (trend == null || recent == null) return null;
-  if (trend > band) return recent >= -recentBand ? 'leading' : 'pullback';
+  if (trend > band) {
+    if (absolute != null && absolute <= 0) return 'defensive';
+    return recent >= -recentBand ? 'leading' : 'pullback';
+  }
+  if (band > 0 && trend >= -band) return 'inline';
   return recent > recentBand ? 'rebound' : 'weak';
 }
-export function themeStateOutcomes(closes, { horizon = 63 } = {}) {
+/** 동행 qualifier from the 1-month relative move: 'up' (앞서기 시작) · 'down' (뒤처지기 시작) · null. */
+export function inlineDrift(recent, recentBand = 0) {
+  if (recent == null) return null;
+  return recent > recentBand ? 'up' : recent < -recentBand ? 'down' : null;
+}
+export const INLINE_DRIFT_LABELS = Object.freeze({ up: '1개월 앞서기 시작', down: '1개월 뒤처지기 시작' });
+/** ± bands the live screen uses (R714: recent-check.js relativeBand, not a second copy). */
+const OUTCOME_BANDS = Object.freeze({ trend: relativeBand('ret6m'), recent: relativeBand('ret1m') });
+/**
+ * Past stages of a proxy ETF and what followed. With `benchmark` ([[date, close]], ^GSPC) the stage is the live rule —
+ * 6-month and 1-month returns less the index's with the same bands, and the ETF's own 6-month return for 상대 방어 —
+ * and meta.basis is 'relative-banded'; without it the old absolute sign rule stays and basis is 'absolute' (the screen
+ * then does not compare it with the live stage).
+ */
+export function themeStateOutcomes(closes, { horizon = 63, benchmark = null } = {}) {
   const list = (closes || []).filter(([, value]) => finite(value) > 0);
+  const bench = Array.isArray(benchmark) && benchmark.length ? new Map(benchmark.filter(([, v]) => finite(v) > 0)) : null;
   const buckets = Object.fromEntries(Object.keys(THEME_STATES).map((state) => [state, []])); // 'fading' stays empty here
   const next = Object.fromEntries(Object.keys(THEME_STATES).map((state) => [state, 0]));
   let baseN = 0, baseUp = 0;
   for (let i = 126; i + horizon < list.length; i += 1) { baseN += 1; if (list[i + horizon][1] > list[i][1]) baseUp += 1; }
   for (let i = 126; i + horizon < list.length; i += 1) {
-    const trend = (list[i][1] / list[i - 126][1] - 1) * 100;
-    const recent = (list[i][1] / list[i - 21][1] - 1) * 100;
-    const state = themeStateOf(trend, recent);
+    const trendAbs = (list[i][1] / list[i - 126][1] - 1) * 100;
+    const recentAbs = (list[i][1] / list[i - 21][1] - 1) * 100;
+    let state;
+    if (bench) {
+      const b0 = bench.get(list[i - 126][0]), b1 = bench.get(list[i - 21][0]), b2 = bench.get(list[i][0]);
+      if (!(b0 && b1 && b2)) continue;
+      state = themeStateOf(trendAbs - (b2 / b0 - 1) * 100, recentAbs - (b2 / b1 - 1) * 100, { band: OUTCOME_BANDS.trend, recentBand: OUTCOME_BANDS.recent, absolute: trendAbs });
+    } else state = themeStateOf(trendAbs, recentAbs);
     if (!state || i < next[state]) continue; // non-overlapping within each state
     buckets[state].push((list[i + horizon][1] / list[i][1] - 1) * 100);
     next[state] = i + horizon;
   }
-  const meta = { from: list[0]?.[0] || null, to: list[list.length - 1]?.[0] || null, horizon, ...baseRate(baseUp, baseN) };
-  return Object.fromEntries(Object.entries(buckets).map(([state, values]) => [state, summarise(values, meta)]));
+  const meta = { from: list[0]?.[0] || null, to: list[list.length - 1]?.[0] || null, horizon, basis: bench ? 'relative-banded' : 'absolute', ...baseRate(baseUp, baseN) };
+  return { ...Object.fromEntries(Object.entries(buckets).map(([state, values]) => [state, summarise(values, meta)])), basis: meta.basis };
 }
 
 export function frequencyText(freq, label, { source = 'AIO 종가 기록' } = {}) {

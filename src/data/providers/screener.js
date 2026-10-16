@@ -437,6 +437,8 @@ export function createScreenerProvider({
           // v57.51 V09: a secondary share class names its primary line so equal-weight counts take one issuer once.
           shareClassOf: identity.shareClassOf || null,
           memo: identity.memo || null,
+          // 2026-10-16: the filer's SEC SIC code (extended shard identity); rankingPopulationExclusion reads it first.
+          ...(identity.sic ? { sic: String(identity.sic) } : {}),
           source: factor.source || 'screener-artifact',
           sourceKind: factor.sourceKind || null,
           allowedUse: factor.allowedUse || null,

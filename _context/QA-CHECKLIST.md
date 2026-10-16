@@ -6,6 +6,15 @@ confidence: medium
 
 ## v57.84 기술 지표 정의 통일 (2026-10-16)
 
+- [x] QA-TECHDEF-01: P1871/R714: 같은 봉에서 차트 ADR·50일선 거리 배수가 스크리너 생산자·요약 값과 같고, 252봉 미만은 52주로 표시·판정되지 않으며, RRG 경계 판정이 생산자 사분면 경계와 같다. verify_by: node scripts/ci-chart-scenarios-fixture.mjs
+- [ ] QA-VERIFY-33: P1871 push 뒤 다음 스크리너 갱신에서 252봉 미만 종목의 pctFrom52wHigh/Low가 null이고 해당 종목 vcpStage가 not_stage2이며, 종목 차트 근거 행이 "50일선 대비 일평균 변동폭 배수 (ADR20 …%)"로 스크리너 상대 상태와 같은 배수를 보인다. verify_by: push 뒤 public-data/screener.json과 운영 사이트 종목 차트 확인
+- [x] QA-SCRMODEL-01: P1872/R715: 화면 경로로 재현한 미국 핵심 순위에서 가치·퀄리티가 활성이고, 펀드·SPAC·확장 저유동성 행은 rank null + populationExclusion으로 남아 '순위 밖' 내역에 사유별로 집계된다. verify_by: node scripts/ci-screener-workbench-contract.mjs
+- [ ] QA-VERIFY-34: P1872: push 뒤 첫 refresh-screener 실행에서 screener-candidate-archive.json의 최신 entry에 shadow(model candidate-v1, top·bottom·universe)가 있고 summary.shadow.recorded ≥ 1이며, 기본 entry identity의 factorRanksModelVersion이 factor-ranks.v7이다. verify_by: push 뒤 public-data/screener-candidate-archive.json 확인
+- [ ] QA-VERIFY-35: P1873: push 뒤 refresh-screener 실행에서 sec-fundamentals failures의 required-us-gaap-annual-concepts-unavailable 행이 모두 conceptSetVersion sec-annual-concepts.v5를 갖고, TFC·FITB·RF·GS·CRWD·VLO가 data로 옮겨지며, MTB·HBAN·EWBC 재수집 뒤 revenueConcept가 derived:InterestIncomeExpenseNet+NoninterestIncome이고 margin이 보류되지 않는지 확인한다. 미국 핵심 순위 수가 747 근처인지 본다. verify_by: push 뒤 refresh-screener 2~3회 실행 후 data-store 원장과 screener.json 검사
+- [x] QA-TECHDEF-02: P1874: 지수와 ±띠 안인 테마는 동행, 지수보다 앞서도 자기 긴 추세가 0 이하이면 상대 방어로 읽히고, 지수 기준일이 다르면 판정 보류이며, RRG 사분면은 생산 궤적의 잡음 띠·이력으로 정해지고, 생산자 VCP 피벗이 차트 피벗과 같다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs; node scripts/ci-chart-scenarios-fixture.mjs; node scripts/ci-esm-core-unit-check.mjs
+- [ ] QA-VERIFY-36: P1874 push 뒤 첫 refresh-data에서 rotationHistory 행마다 trail 20점이 있고 테마 화면 산점도·카드·막대 배지가 같은 정착 사분면을 보이며, 첫 스크리너 갱신에서 vcpStage 분포 변화(near_pivot·breakout 수)를 기록하고, 다음 주간 scenario-outcomes 갱신에서 themes[*].basis가 relative-banded가 된다. verify_by: push 뒤 public-data/data.json rotationHistory·screener.json·scenario-outcomes.json과 운영 사이트 테마 화면 확인
+- [x] QA-SCRMODEL-02: v57.85: rankingPopulationExclusion은 SIC 6770 또는 이름 규칙이면 spac이다(Churchill Capital Corp XI·Talon Capital Corp는 6770으로, Plum Acquisition Corp. IV는 4911이어도 이름으로). 확장 SEC 원장의 SIC 전용 조회는 미분류 우선, 이후 30일 지난 코드를 오래된 순으로 읽고, 이번 실행에 읽은 발행사는 건너뛴다. 샤드 identity는 유효한 SIC만 싣고, SIC 6770 확장 행은 ranker에서 rank null + populationExclusion spac이 된다. verify_by: node scripts/ci-screener-extended-contract-check.mjs && node scripts/ci-screener-workbench-contract.mjs
+- [ ] QA-VERIFY-37: v57.85: push 뒤 첫 refresh-screener 확장 실행에서 sec-fundamentals-extended.json에 issuerSic와 issuerSicCoverage가 있고(passAttempted 800 이하, passFailed 기록), 다음 샤드의 identity에 sic가 실린다. 확장 전체 분류는 4~5회 실행 안에 수렴하고, 순위 밖 SPAC 집계는 실측 257 근처다. verify_by: push 뒤 public-data/sec-fundamentals-extended.json issuerSicCoverage + screener-extended.json identity[].sic 확인
 
 ## v57.83 급변 구간 재생 (2026-10-16)
 

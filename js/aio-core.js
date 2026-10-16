@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.84';
+const APP_VERSION = 'v57.85';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -13637,35 +13637,15 @@ function _calcVCP(bars, indicators) {
   // 52주 고점 (최대 252바)
   var lk52 = Math.min(252, n);
   var h52 = highs.slice(n - lk52).reduce(function(m, v) { return v > m ? v : m; }, 0);
-  var pct52 = h52 > 0 ? (price - h52) / h52 * 100 : null;
-  // Stage 2: 가격 > SMA150 > SMA200, 가격 > SMA50, 52주 고점 -30% 이내
+  var pct52 = n >= 252 && h52 > 0 ? (price - h52) / h52 * 100 : null;
+  // Stage 2: 가격 > SMA150 > SMA200, 가격 > SMA50, 52주 고점 -30% 이내 — v57.84: _calcVCPServer·technical/definitions와 같이 252봉 미만은 판정 보류
   var stage2 = !!(sma50 && sma150 && sma200 && price > sma150 && sma150 > sma200 && price > sma50 && pct52 !== null && pct52 >= -30);
   // 베이스 구간: 최근 65봉(또는 n-10)
-  var bLen = Math.min(65, n - 10);
-  var bH = highs.slice(n - bLen), bL = lows.slice(n - bLen), bV = volumes.slice(n - bLen);
-  // 스윙 고/저 감지 (좌우 N=4봉 기준)
-  var N = 4, swH = [], swL = [];
-  for (var i = N; i < bH.length - N; i++) {
-    var isHi = true, isLo = true;
-    for (var j = i - N; j <= i + N; j++) {
-      if (j === i) continue;
-      if (bH[j] >= bH[i]) isHi = false;
-      if (bL[j] <= bL[i]) isLo = false;
-    }
-    if (isHi) swH.push({ idx: i, p: bH[i] });
-    if (isLo)  swL.push({ idx: i, p: bL[i] });
-  }
-  // 수축 구간: 스윙고→다음 스윙저 쌍 (깊이 1~45%)
-  var ctrs = [];
-  for (var swhi = 0; swhi < swH.length; swhi++) {
-    var nl = null;
-    for (var swli = 0; swli < swL.length; swli++) { if (swL[swli].idx > swH[swhi].idx) { nl = swL[swli]; break; } }
-    if (!nl) continue;
-    var dep = (swH[swhi].p - nl.p) / swH[swhi].p * 100;
-    if (dep >= 1 && dep <= 45) ctrs.push({ depth: Math.round(dep * 10) / 10, highPx: swH[swhi].p, lowPx: nl.p });
-  }
-  var cnt = ctrs.length;
-  var shrink = cnt >= 2 && ctrs.every(function(c, ci) { return ci === 0 || ctrs[ci].depth < ctrs[ci - 1].depth; });
+  var bLen = Math.min(65, n - 10), bV = volumes.slice(n - bLen);
+  // v57.84: 수축·피벗은 차트·스크리너 생산자와 같은 감지기(src/domain/technical/definitions.js detectContractions) — ESM 미탑재 시 수축 없음(판정 보류)
+  var _det = window.AIO_ARCH && typeof window.AIO_ARCH.detectContractions === 'function' ? window.AIO_ARCH.detectContractions(bars.filter(function(b) { return b.high > 0 && b.low > 0 && b.high >= b.low; })) : { contractions: [], valid: false, pivot: null };
+  var ctrs = _det.contractions.map(function(c) { return { depth: Math.round(c.depth * 10) / 10, highPx: c.high, lowPx: c.low }; });
+  var cnt = ctrs.length, shrink = !!_det.valid;
   // 거래량 고갈: 후반부 평균 < 전반부 평균 × 0.85
   var volDry = false;
   if (bV.length >= 20) {
@@ -13676,11 +13656,7 @@ function _calcVCP(bars, indicators) {
     var sa = sv.length ? sv.reduce(function(s, v) { return s + v; }, 0) / sv.length : 0;
     volDry = fa > 0 && sa > 0 && sa < fa * 0.85;
   }
-  // 피벗: 베이스 최근 25봉 내 가장 최근 스윙고
-  var pivot = null;
-  var recSH = swH.filter(function(sh) { return sh.idx >= bH.length - 25; });
-  if (recSH.length) pivot = recSH[recSH.length - 1].p;
-  else if (swH.length) pivot = swH[swH.length - 1].p;
+  var pivot = _det.valid ? _det.pivot : null; // v57.84: 유효한 수축 구간의 마지막 고점만 피벗
   var nearPivot = !!(pivot && price >= pivot * 0.97 && price <= pivot * 1.03);
   var rvol20 = (ind.rvol20 != null) ? ind.rvol20 : null;
   var _bk = bars[n - 1], brk = !!(pivot && price > pivot && rvol20 !== null && rvol20 > 1.4 && (price > closes[n - 2] || (_bk.high > _bk.low && (price - _bk.low) / (_bk.high - _bk.low) >= 0.5)) && closes.slice(-6, -1).some(function(c) { return c <= pivot; })); // v57.81: same breakout rule as _calcVCPServer

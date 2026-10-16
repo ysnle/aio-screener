@@ -11,7 +11,7 @@ import {
 } from './lib/extended-universe.mjs';
 import { validateExtendedShard } from './lib/screener-extended-validate.mjs';
 import { buildExtendedShardPayload, extendedRefreshDue, EXTENDED_SHARD_COVERAGE_FLOOR } from './fetch-data.mjs';
-import { compactSecRecord, extendedSecOptions } from './fetch-sec-fundamentals.mjs';
+import { compactSecRecord, extendedSecOptions, sicBackfillTargets, SEC_SIC_BACKFILL_DEFAULT } from './fetch-sec-fundamentals.mjs';
 import { deriveExtendedScreenerAvailability } from './build-operations-status.mjs';
 import {
   EXTENDED_SHARD_SCHEMA, EXTENDED_SHARD_URL, RANKING_CONTRACTS, encodeShardRows, expandShardRows, readUniverseScope, writeUniverseScope
@@ -131,7 +131,8 @@ identityRows.push({ sym: 'ZXQZZ', name: 'Unfetched fixture', sector: null, index
 const membership = { generatedAt: '2026-10-15T00:00:00.000Z', meta: { sources: { r2000: { status: 'CURRENT', asOf: '2026-10-14' }, nasdaq: { status: 'CURRENT', asOf: '2026-10-14T14:01' } }, counts: { extended: identityRows.length } }, coreMembership: { AAPL: ['NASDAQ'], MSFT: ['NASDAQ'] } };
 const shard = buildExtendedShardPayload({
   data: shardData, syms: identityRows.map((row) => row.sym), identityRows, membership,
-  secResult: { ok: 0, stored: 0, eligible: 0, model: 'sec-fy-normalized-v2', generatedAt: null }, computedAt: core.factorComputedAt, ok: Object.keys(shardData).length, nowIso: core.asOf
+  secResult: { ok: 0, stored: 0, eligible: 0, model: 'sec-fy-normalized-v2', generatedAt: null, sicBySymbol: { [renamed[1].sym]: { sic: '6770' }, [renamed[2].sym]: { sic: '7372' }, [renamed[3].sym]: { sic: 'n/a' } } },
+  computedAt: core.factorComputedAt, ok: Object.keys(shardData).length, nowIso: core.asOf
 });
 const parity = validateExtendedShard(shard, { coreData: core.data, freshness: false });
 check('v57.81 shard schema parity: a shard built by the producer validates against the core row schema', parity.ok, parity.errors.join(' | '));
@@ -164,6 +165,18 @@ check('v57.81 due: missing shard is due; core session advance is due; same sessi
   && extendedRefreshDue({ previousShard: { ...shard, asOf: '2026-10-14T19:00:00Z', factorSessionDateByMarket: { US: '2026-10-15' } }, coreScreener: { factorSessionDateByMarket: { US: '2026-10-15' } }, nowMs }).due);
 const compact = compactSecRecord({ symbol: 'X', revenue: 1, recentFilings: [{ form: '8-K' }], pit: { schemaVersion: 'sec-pit-facts.v1', status: 'filed-date-only', observationCount: 3, acceptedTimeCount: 0, observations: { revenue: [1, 2, 3] } } });
 const secOptions = extendedSecOptions({});
+// 2026-10-16 (P1872 follow-up): SEC SIC rides the extended ledger (issuerSic) into the shard identity and the ranker.
+const sicNow = Date.parse('2026-10-16T00:00:00Z');
+const sicLedger = { OLD: { sic: '6770', observedAt: '2026-09-01T00:00:00Z' }, NEW: { sic: '7372', observedAt: '2026-10-10T00:00:00Z' }, OLDER: { sic: '6770', observedAt: '2026-08-01T00:00:00Z' } };
+check('v57.84 SIC SIC-only pass: missing codes first, then codes older than 30 days oldest first; symbols read this run and fresh codes are skipped; bounded; 0 disables',
+  same(sicBackfillTargets(['NEW', 'OLD', 'NONE', 'OLDER', 'DONE'], sicLedger, new Set(['DONE']), { limit: 10, nowMs: sicNow }), ['NONE', 'OLDER', 'OLD'])
+  && same(sicBackfillTargets(['NEW', 'OLD', 'NONE', 'OLDER'], sicLedger, new Set(), { limit: 2, nowMs: sicNow }), ['NONE', 'OLDER'])
+  && sicBackfillTargets(['NONE'], sicLedger, new Set(), { limit: 0, nowMs: sicNow }).length === 0
+  && secOptions.sicBackfillLimit === SEC_SIC_BACKFILL_DEFAULT && extendedSecOptions({ SEC_SIC_BACKFILL_LIMIT: '0' }).sicBackfillLimit === 0 && extendedSecOptions({ SEC_SIC_BACKFILL_LIMIT: '9999' }).sicBackfillLimit === 2000);
+const sicIdentity = Object.fromEntries(shard.identity.map((row) => [row.sym, row.sic]));
+check('v57.84 SIC the shard identity carries a valid SEC SIC code from the ledger and drops a malformed one',
+  sicIdentity[renamed[1].sym] === '6770' && sicIdentity[renamed[2].sym] === '7372' && !(renamed[3].sym in sicIdentity && sicIdentity[renamed[3].sym]) && !('sic' in shard.identity.find((row) => row.sym === renamed[4].sym)));
+check('v57.84 SIC the workflow sets the SIC-only pass budget on the extended SEC step', /SEC_SIC_BACKFILL_LIMIT: \d+/.test(read('.github/workflows/refresh-screener.yml')));
 check('v57.81 extended SEC ledger: compact records drop observation arrays and filings; bounded 600-issuer batch; own files',
   !compact.recentFilings && !compact.pit.observations && compact.pit.observationCount === 3 && compact.revenue === 1
   && secOptions.batchLimit === 600 && secOptions.compact === true && secOptions.requireRestored === false
@@ -225,6 +238,11 @@ check('v57.81 ranking metadata names its contract (core vs extended) and extende
   && coreState?.metadata?.ranking?.contract === RANKING_CONTRACTS.core.id && coreState.rows.every((row) => !('rankingUniverse' in row)), JSON.stringify({ e: extendedState?.metadata?.ranking?.contract, c: coreState?.metadata?.ranking?.contract }));
 const rankedExtended = extendedState.rows.filter((row) => row.universeTier === 'extended' && Number.isFinite(row.rank));
 check('v57.81 extended rows are ranked with the same factor model as core rows', rankedExtended.length >= Math.floor(renamed.length * 0.5), `${rankedExtended.length}/${renamed.length}`);
+const blankCheck = extendedState.rows.find((row) => row.sym === renamed[1].sym);
+const operating = extendedState.rows.find((row) => row.sym === renamed[2].sym);
+check('v57.84 SIC an extended row with SEC SIC 6770 reaches the ranker and leaves the ranked population as a SPAC; another SIC code does not',
+  blankCheck?.sic === '6770' && blankCheck.rank == null && blankCheck.populationExclusion === 'spac' && operating?.sic === '7372' && operating.populationExclusion !== 'spac',
+  JSON.stringify({ b: blankCheck && { sic: blankCheck.sic, rank: blankCheck.rank, ex: blankCheck.populationExclusion }, o: operating && { sic: operating.sic, ex: operating.populationExclusion } }));
 console.log(`[screener-extended] provider + ranking over ${extendedState.rows.length} rows: ${extendedMs} ms (node)`);
 
 // ── 6. Scope storage (v57.81) ───────────────────────────────────────────────────────────────────────────────────

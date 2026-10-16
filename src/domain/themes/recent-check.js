@@ -8,11 +8,20 @@
 //      typical weekly move (median absolute 5-session move), the label says so and drops present-tense direction words.
 // The RRG neutral band (경계) also lives here so every reader of sector rotation (테마·섹터, the market screens) shares it.
 import { buildCloseSeries } from '../briefing/market-read.js';
+import { classifyRRG, RRG_QUADRANT_WORDS } from './rrg.js';
 
 export const RECENT_SESSIONS = 5;
 export const NOISE_MULTIPLE = 2;
-/** RS-Ratio / RS-Momentum points around 100 that are too close to call a quadrant (both axes). */
+/** RS-Ratio / RS-Momentum points around 100 that are too close to call a quadrant (both axes) when no trail exists. */
 export const RRG_NEUTRAL_BAND = 1;
+// v57.84 (owner decision, TECHNICAL-DEFINITIONS 3-3 안 A): with the produced trail the band is each sector's own typical
+// 5-session move on that axis (median |change|), held inside [RRG_BAND_MIN, RRG_BAND_MAX]; a fixed ±1 was narrower than a
+// normal week for most of the 31 ETFs (0.65–4.1 on RS-Ratio, 1.3–9.8 on RS-Momentum) and ICLN changed quadrant 9 times in
+// 20 sessions. Hysteresis: a side is entered beyond 100 ± band and left only past the other side's band × RRG_EXIT_SHARE.
+export const RRG_BAND_MIN = 0.5;
+export const RRG_BAND_MAX = 3;
+export const RRG_EXIT_SHARE = 0.5;
+const RRG_MIN_TRAIL = 10;
 /** %p per month: a typical sector's tracking error against its index (~5%/yr ÷ √12). */
 export const MONTHLY_RELATIVE_BAND = 1.5;
 export const WINDOW_SESSIONS = Object.freeze({ ret5d: 5, ret1m: 21, ret3m: 63, ret6m: 126 });
@@ -105,19 +114,63 @@ export function rsRecentCheck(series, { sessions = RECENT_SESSIONS } = {}) {
   return Object.freeze({ change, noise, threshold, sessions, fell: threshold != null && change <= -threshold, rose: threshold != null && change >= threshold });
 }
 
-export const RRG_QUADRANT_WORDS = Object.freeze({ Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행' });
+export { RRG_QUADRANT_WORDS };
 
-/** Quadrant with a neutral band: a point within ±band of 100 on either axis is 경계 between the quadrants it touches. */
-export function rrgZone(rsRatio, rsMomentum, { band = RRG_NEUTRAL_BAND } = {}) {
+const clampBand = (value) => Math.min(RRG_BAND_MAX, Math.max(RRG_BAND_MIN, value));
+function trailPoints(trail, ratio, momentum) {
+  const points = (Array.isArray(trail) ? trail : []).map((point) => [finite(point?.rsRatio), finite(point?.rsMomentum)]).filter(([r, m]) => r != null && m != null);
+  const last = points.at(-1);
+  if (!last || Math.abs(last[0] - ratio) > 1e-6 || Math.abs(last[1] - momentum) > 1e-6) points.push([ratio, momentum]);
+  return points;
+}
+/** Per-axis band: the median absolute 5-session change on the trail (clamped), or null when the trail is too short. */
+export function rrgNoiseBands(trail) {
+  const points = (Array.isArray(trail) ? trail : []).map((point) => [finite(point?.rsRatio), finite(point?.rsMomentum)]).filter(([r, m]) => r != null && m != null);
+  if (points.length < RRG_MIN_TRAIL) return null;
+  const moves = (axis) => points.slice(RECENT_SESSIONS).map((point, i) => Math.abs(point[axis] - points[i][axis]));
+  return Object.freeze({ ratio: clampBand(medianOf(moves(0))), momentum: clampBand(medianOf(moves(1))) });
+}
+// One axis through the trail: +1 / −1 once beyond 100 ± band, kept until it crosses past the other side's band × exit
+// share, 0 (undecided) in between.
+function settledSide(values, band) {
+  let side = 0;
+  for (const value of values) {
+    if (side > 0 && value < 100 - band * RRG_EXIT_SHARE) side = 0;
+    else if (side < 0 && value > 100 + band * RRG_EXIT_SHARE) side = 0;
+    if (side === 0) side = value >= 100 + band ? 1 : value <= 100 - band ? -1 : 0;
+  }
+  return side;
+}
+/**
+ * Quadrant with a neutral band: a point too close to 100 on either axis is 경계 between the quadrants it touches. With a
+ * produced `trail` (rotation-history items) the band is the sector's own and the sides carry hysteresis; without one it is
+ * the fixed ±RRG_NEUTRAL_BAND on the latest point. `quadrant` is the settled one; `raw` is classifyRRG's.
+ */
+export function rrgZone(rsRatio, rsMomentum, { band = RRG_NEUTRAL_BAND, trail = null } = {}) {
   const ratio = finite(rsRatio), momentum = finite(rsMomentum);
   if (ratio == null || momentum == null) return null;
-  const quadrant = ratio >= 100 ? (momentum >= 100 ? 'Leading' : 'Weakening') : (momentum >= 100 ? 'Improving' : 'Lagging');
-  const nearRatio = Math.abs(ratio - 100) < band, nearMomentum = Math.abs(momentum - 100) < band;
-  if (!nearRatio && !nearMomentum) return Object.freeze({ quadrant, border: false, between: null });
-  const between = nearRatio && nearMomentum ? '네 사분면'
-    : nearRatio ? (momentum >= 100 ? '선도/개선' : '약화/후행')
-      : (ratio >= 100 ? '선도/약화' : '개선/후행');
-  return Object.freeze({ quadrant, border: true, between });
+  // v57.84: the raw quadrant boundaries are classifyRRG's (the producer's), not a second copy.
+  const { quadrant: raw } = classifyRRG(ratio, momentum);
+  if (raw === 'unknown') return null;
+  const bands = rrgNoiseBands(trail);
+  const points = bands ? trailPoints(trail, ratio, momentum) : [[ratio, momentum]];
+  const bandRatio = bands ? bands.ratio : band, bandMomentum = bands ? bands.momentum : band;
+  const sideR = settledSide(points.map(([r]) => r), bandRatio), sideM = settledSide(points.map(([, m]) => m), bandMomentum);
+  const meta = { raw, bands: Object.freeze({ ratio: bandRatio, momentum: bandMomentum, basis: bands ? 'own-5-session-move' : 'fixed' }), hysteresis: !!bands };
+  if (sideR && sideM) {
+    const quadrant = sideR > 0 ? (sideM > 0 ? 'Leading' : 'Weakening') : (sideM > 0 ? 'Improving' : 'Lagging');
+    return Object.freeze({ quadrant, border: false, between: null, ...meta });
+  }
+  const between = !sideR && !sideM ? '네 사분면'
+    : !sideR ? (sideM > 0 ? '선도/개선' : '약화/후행')
+      : (sideR > 0 ? '선도/약화' : '개선/후행');
+  return Object.freeze({ quadrant: raw, border: true, between, ...meta });
+}
+
+/** v57.84: the settled quadrant of a produced rotation row (its trail's band + hysteresis): a quadrant, 'Border' or null. */
+export function rrgSettledQuadrant(row) {
+  const zone = rrgZone(row?.rsRatio, row?.rsMomentum, { trail: row?.trail || null });
+  return zone ? (zone.border ? 'Border' : zone.quadrant) : null;
 }
 
 /**
@@ -125,13 +178,16 @@ export function rrgZone(rsRatio, rsMomentum, { band = RRG_NEUTRAL_BAND } = {}) {
  * relative-strength line when they run against the quadrant's direction (Leading/Improving = strengthening).
  */
 export function rrgRecentReading(item, series = null) {
-  const zone = rrgZone(item?.rsRatio, item?.rsMomentum);
+  const zone = rrgZone(item?.rsRatio, item?.rsMomentum, { trail: item?.trail || null });
   if (!zone) return null;
   const check = rsRecentCheck(series);
-  const strengthening = finite(item.rsMomentum) >= 100;
+  // v57.84: the direction is the settled quadrant's (Leading/Improving = strengthening), not the raw momentum sign.
+  const strengthening = zone.border ? finite(item.rsMomentum) >= 100 : zone.quadrant === 'Leading' || zone.quadrant === 'Improving';
   const reversal = check ? (strengthening && check.fell ? 'fell' : !strengthening && check.rose ? 'rose' : null) : null;
+  // v57.84: tri-state for readers that colour a tone — null when the series or its typical move is missing (fails closed).
+  const opposed = check == null || check.threshold == null ? null : reversal != null;
   const word = RRG_QUADRANT_WORDS[zone.quadrant];
   const head = zone.border ? `경계(${zone.between} 사이)` : `${word}(약 50일 기준)`;
   const clause = reversal ? ` · 최근 5거래일 상대강도 ${signedPct(check.change)}로 ${reversal === 'fell' ? '반락' : '반등'}` : '';
-  return Object.freeze({ ...zone, check, reversal, label: `${head}${clause}`, clause });
+  return Object.freeze({ ...zone, check, reversal, opposed, label: `${head}${clause}`, clause });
 }

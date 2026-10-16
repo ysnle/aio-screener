@@ -1106,6 +1106,39 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('P1374 SEC normalizer covers bank revenue net of interest expense without overriding standard revenue', ok, detail.slice(0, 500));
 }
 {
+  // P1873 (v57.84, sec-annual-concepts.v5): regional banks (TFC, FITB, RF) tag no total revenue, or only an ASC 606 fee
+  // subtotal (MTB 1.66B, margin 172% withheld). Net interest income + noninterest income of ONE filing is their net
+  // revenue and outranks the subtotal; a pair split across filings, or either operand alone, is never derived.
+  // A failure recorded under an older concept set is rechecked before routine refreshes (it sat a month at the back).
+  let ok = false;
+  let detail = '';
+  try {
+    const { normalizeSecCompanyFacts, SEC_CONCEPT_SET_VERSION } = await import('./fetch-sec-fundamentals.mjs');
+    const { reconcileSecRevenueShares, SEC_BANK_NET_REVENUE_CONCEPT, SEC_PRIMARY_REVENUE_CONCEPTS } = await import('../src/domain/fundamental/sec-report.js');
+    const row = (val, accn, start, end, filed) => ({ val, accn, start, end, filed, form: '10-K', fp: 'FY' });
+    const y24 = (val, accn = 'a') => row(val, accn, '2024-01-01', '2024-12-31', '2025-02-20');
+    const y25 = (val, accn = 'b') => row(val, accn, '2025-01-01', '2025-12-31', '2026-02-20');
+    const usd = (...rows) => ({ units: { USD: rows } });
+    const base = { NetIncomeLoss: usd(y24(1.8e9), y25(2.0e9)), StockholdersEquity: { units: { USD: [{ end: '2025-12-31', filed: '2026-02-20', form: '10-K', fp: 'FY', val: 20e9, accn: 'b' }] } } };
+    const bank = normalizeSecCompanyFacts('BNK', { cik: 5, facts: { 'us-gaap': { ...base,
+      InterestIncomeExpenseNet: usd(y24(6.0e9), y25(6.5e9)), NoninterestIncome: usd(y24(2.0e9), y25(2.5e9)),
+      RevenueFromContractWithCustomerExcludingAssessedTax: usd(y24(1.5e9), y25(1.6e9)) } } }, null, null);
+    const split = normalizeSecCompanyFacts('SPL', { cik: 6, facts: { 'us-gaap': { ...base,
+      InterestIncomeExpenseNet: usd(y25(6.5e9, 'b')), NoninterestIncome: usd(y25(2.5e9, 'x')) } } }, null, null);
+    const alone = normalizeSecCompanyFacts('NII', { cik: 7, facts: { 'us-gaap': { ...base, InterestIncomeExpenseNet: usd(y24(6.0e9), y25(6.5e9)) } } }, null, null);
+    const healed = bank && reconcileSecRevenueShares(bank);
+    const pitConcepts = (bank?.pit?.observations?.revenue || []).map((obs) => obs.concept);
+    const secSource = readFileSync(new URL('./fetch-sec-fundamentals.mjs', import.meta.url), 'utf8');
+    ok = bank?.revenueConcept === SEC_BANK_NET_REVENUE_CONCEPT && bank.revenue === 9e9 && bank.margin === 22.2 && bank.revGrowth === 12.5
+      && healed?.revenue === 9e9 && !healed.revenueHealedFrom && pitConcepts.includes(SEC_BANK_NET_REVENUE_CONCEPT)
+      && SEC_PRIMARY_REVENUE_CONCEPTS.includes(SEC_BANK_NET_REVENUE_CONCEPT) && split === null && alone === null
+      && SEC_CONCEPT_SET_VERSION === 'sec-annual-concepts.v5'
+      && /Number\(b\.conceptSetChanged\) - Number\(a\.conceptSetChanged\)/.test(secSource);
+    detail = JSON.stringify({ bank: bank && { c: bank.revenueConcept, rev: bank.revenue, m: bank.margin, g: bank.revGrowth }, healed: healed && healed.revenue, pitConcepts, split: !!split, alone: !!alone, v: SEC_CONCEPT_SET_VERSION });
+  } catch (error) { detail = error.message; }
+  check('P1873 SEC bank net revenue = net interest income + noninterest income of one filing, and stale concept-set failures are rechecked first', ok, detail.slice(0, 500));
+}
+{
   // W09-B/P1148 (F02): a derived ratio cannot have been reproducible before its LATEST operand
   // was public. Revenue filed 2024-02-01 with a later income/equity/shares restatement must move
   // the ratio availability to June — not keep the February revenue accession's provenance.
@@ -1417,6 +1450,7 @@ check('server _rsi14 and client _calcRSILast are numerically equivalent (P584/R2
 // closes/highs/lows/volumes arrays, make a synthetic-data equivalence test disproportionate to what
 // this is guarding): confirm the same core numeric literals appear in both extracted function bodies.
 let vcpParityDetail = '';
+const { RULES: RULES_FOR_VCP } = await import('../src/domain/rules/thresholds.js');
 const vcpParityOk = (() => {
   try {
     const serverSrc = extractFunctionSource(fetchData, '_calcVCPServer');
@@ -1428,18 +1462,20 @@ const vcpParityOk = (() => {
     // `N\s*=\s*4` match on whichever side's comment happens to still say the old value, hiding a
     // real drift in the code itself. Verified by deliberately mutating just the code declaration
     // (not the comment) and confirming a loose pattern missed it before tightening to these.
+    // v57.84 (owner decision): both sides delegate contractions and the pivot to technical/definitions.js detectContractions
+    // (the chart's detector); the old 65-bar / 4-bar-swing / 1-45% literals are gone from both, and must not come back.
     const params = [
       { label: 'minimum bar count (60)', re: /\bn\s*<\s*60\b/ },
-      { label: 'base window length (min(65, n-10))', re: /Math\.min\(65,\s*n\s*-\s*10\)/ },
-      { label: 'swing pivot half-window (N=4 declaration)', re: /\bN\s*=\s*4\s*[;,]\s*(?:const\s+)?sw[HL]\s*=\s*\[\]/ },
-      { label: '52-week lookback cap (min(252, n))', re: /Math\.min\(252,\s*n\)/ },
-      { label: 'stage-2 52w-off-high floor (-30)', re: /pct52\s*>=\s*-30/ },
-      { label: 'contraction depth floor (>= 1)', re: /(?:d|dep)\s*>=\s*1\s*&&/ },
-      { label: 'contraction depth ceiling (<= 45)', re: /<=\s*45\)\s*ctrs\.push/ },
+      { label: 'shared contraction detector', server: /detectContractions\(bars\)/, client: /window\.AIO_ARCH\.detectContractions\(/ },
+      { label: 'pivot only from a valid contraction run', server: /const pivot = detected\.valid \? detected\.pivot : null/, client: /var pivot = _det\.valid \? _det\.pivot : null/ },
+      { label: 'no private swing pairing left (N=4 / 1-45%)', re: /\bN\s*=\s*4\s*[;,]|<=\s*45\)\s*ctrs\.push/, absent: true },
+      { label: '52-week full-year rule (252 sessions)', server: /rangeExtremesOf\(highs, lows\)[\s\S]*range\?\.fullYear/, client: /n\s*>=\s*252\s*&&\s*h52\s*>\s*0/ },
+      { label: 'stage-2 52w-off-high floor (-30)', server: /pct52\s*>=\s*-RULES\.technical\.stage2Gate\.nearHighPct/, client: /pct52\s*>=\s*-30\b/, constant: RULES_FOR_VCP.technical.stage2Gate.nearHighPct === 30 },
     ];
-    const mismatches = params.filter((p) => p.re.test(serverSrc) !== p.re.test(clientSrc));
+    const sides = (p) => p.re ? [p.re.test(serverSrc), p.re.test(clientSrc)] : [p.server.test(serverSrc), p.client.test(clientSrc) && p.constant !== false];
+    const mismatches = params.filter((p) => { const [a, b] = sides(p); return p.absent ? a || b : p.re ? a !== b : !(a && b); });
     if (mismatches.length) {
-      vcpParityDetail = mismatches.map((p) => `${p.label}: server=${p.re.test(serverSrc)} client=${p.re.test(clientSrc)}`).join('; ');
+      vcpParityDetail = mismatches.map((p) => `${p.label}: server=${sides(p)[0]} client=${sides(p)[1]}`).join('; ');
       return false;
     }
     return true;

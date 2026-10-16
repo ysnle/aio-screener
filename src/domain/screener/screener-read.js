@@ -3,12 +3,15 @@
 // ones leading the rotation, how healthy the top names' trends are, and how the same ranking has done
 // after the fact. Pure: the ranked rows, the rotation items, the regime and the validation summary.
 import { SECTOR_ETF, normalizeSectorKey } from '../entity/stock-read.js';
+import { THEME_STATES } from '../scenarios/analogs.js';
+import { RRG_QUADRANT_WORDS } from '../themes/rrg.js';
+import { rrgSettledQuadrant } from '../themes/recent-check.js';
 import { NEAR_LINE_ADR, RECENT_DROP_ADR, adrMultiple, recentDrop } from '../technical/bands.js';
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 // V13: labels are keyed by the canonical sector key only; aliases fold through normalizeSectorKey.
 const SECTOR_KO = Object.freeze({ Technology: '기술', Financials: '금융', Energy: '에너지', Healthcare: '헬스케어', Industrials: '산업재', Consumer: '경기소비재', 'Consumer Defensive': '필수소비재', 'Real Estate': '부동산', Materials: '소재', Utilities: '유틸리티', 'Communication Services': '통신', ETF: 'ETF' });
-const QUADRANT_KO = Object.freeze({ Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행' });
+const QUADRANT_KO = RRG_QUADRANT_WORDS; // R714: one set of quadrant words (themes/rrg.js)
 
 export function sectorLabel(sector) {
   return SECTOR_KO[normalizeSectorKey(sector)] || sector || '분류 없음';
@@ -30,9 +33,12 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   };
   const topShare = share(top);
   const allShare = share(ranked);
+  // A 경계 sector has no quadrant to compare with the tilt; it drops out of the comparison rather than reading 선도.
+  const settledOrNull = (row) => { const settled = rrgSettledQuadrant(row); return settled === 'Border' ? null : settled ?? row.quadrant ?? null; };
   const mix = [...topShare.entries()].map(([sector, count]) => ({
     sector, label: sectorLabel(sector), top: count / top.length * 100, all: (allShare.get(sector) || 0) / ranked.length * 100,
-    quadrant: SECTOR_ETF[sector] && rotation[SECTOR_ETF[sector]] ? rotation[SECTOR_ETF[sector]].quadrant : null
+    // v57.84: the settled quadrant (own-noise band + hysteresis); null when it is 경계 on 테마 · 섹터.
+    quadrant: SECTOR_ETF[sector] && rotation[SECTOR_ETF[sector]] ? settledOrNull(rotation[SECTOR_ETF[sector]]) : null
   })).sort((a, b) => b.top - a.top);
   const over = mix.filter((row) => row.top - row.all >= 5).slice(0, 3);
   const points = [];
@@ -85,7 +91,8 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   }
   // 2026-10-14 audit #5: how many of the top fifth sit in themes at each stage (same rows as 테마 시나리오). Counts only;
   // a stock in two themes at different stages counts once per stage. Absent rows (state not 'ok') add nothing.
-  const STAGE_ORDER = ['leading', 'pullback', 'rebound', 'weak'];
+  // v57.84: every stage in THEME_STATES order — the fixed list dropped 추세 약화 확인 중 and would drop 상대 방어·동행.
+  const STAGE_ORDER = Object.keys(THEME_STATES);
   const stageCounts = new Map();
   for (const row of top) {
     const seen = new Set();

@@ -6,11 +6,13 @@
 //  3. a stale-feed stock (last bar before the anchor) is not measured, not shifted;
 //  4. measured entries are never overwritten by a same-date re-run; old lists are trimmed;
 //  5. the summary only averages entries of the latest model identity;
-//  6. the published artifact (when present) is the declared schema with a consistent summary.
+//  6. the published artifact (when present) is the declared schema with a consistent summary;
+//  7. (2026-10-16) the candidate model is ranked on the same rows, recorded beside the entry as `shadow`, measured on
+//     the entry's dates and summarized on its own identity, while the default ranking keeps its own definitions.
 import { readFile } from 'node:fs/promises';
 import {
-  CANDIDATE_ARCHIVE_SCHEMA, anchorSessionDates, buildCandidateEntry, emptyCandidateArchive, fillCandidateOutcomes,
-  forwardReturn, rankPublishedScreener, summarizeCandidateArchive, upsertCandidateEntry
+  CANDIDATE_ARCHIVE_SCHEMA, CANDIDATE_SHADOW_MODEL, anchorSessionDates, buildCandidateEntry, buildShadowRecord, emptyCandidateArchive,
+  fillCandidateOutcomes, forwardReturn, rankPublishedScreener, signedYields, summarizeCandidateArchive, upsertCandidateEntry
 } from './lib/candidate-archive.mjs';
 import { buildRankingIdentity } from '../src/domain/screener/model-fingerprint.js';
 
@@ -20,7 +22,7 @@ const root = new URL('../', import.meta.url);
 // 1. Page-path ranking on the repository artifacts.
 const screener = JSON.parse(await readFile(new URL('public-data/screener.json', root), 'utf8'));
 const now = Date.parse(screener.asOf) + 60_000;
-const { ranking } = await rankPublishedScreener({ root, now });
+const { ranking, shadowRanking } = await rankPublishedScreener({ root, now });
 if (!ranking?.available || !(ranking.rows || []).some((row) => Number.isFinite(row.rank))) fail('page-path ranking did not produce ranks from the published artifacts');
 const identity = buildRankingIdentity({ appliedFactorWeights: ranking.appliedFactorWeights, activeFactors: ranking.activeFactors });
 if (!identity) fail('ranking identity missing');
@@ -74,6 +76,21 @@ if (summary.identity !== 'other-model' || summary.measured !== 1 || summary.mean
 archive.entries.pop();
 summary = summarizeCandidateArchive(archive);
 if (summary.measured !== 1 || summary.identity !== identity) fail('summary identity drifted');
+
+// 7. Shadow record: same rows, its own definitions and identity, measured on the entry's dates, summarized apart.
+if (ranking.factorDefinitions?.momentum !== 'blend-1-3-6' || ranking.factorDefinitions?.value !== 'positive-multiples') fail('the default ranking must keep its own factor definitions');
+const shadow = buildShadowRecord({ shadowRanking });
+if (!shadow || shadow.model !== CANDIDATE_SHADOW_MODEL.id || !shadow.identity.startsWith(`${CANDIDATE_SHADOW_MODEL.id}:`)
+  || shadowRanking.factorDefinitions?.momentum !== 'six-minus-one' || shadowRanking.factorDefinitions?.value !== 'signed-yields') fail('shadow ranking/record missing or not the candidate model');
+const loss = signedYields('X', { price: 10, shares: 1e6 }, { quarters: { X: '2025-03-31:1:-1:r;2025-06-30:1:-1:r;2025-09-30:1:-1:r;2025-12-31:1:-1:d' }, data: { X: '2025-12-31:4:-4:5::::1' } });
+if (loss.earningsYieldTtm !== -0.4 || loss.bookYield !== 0.5) fail(`signed yields must keep a loss negative: ${JSON.stringify(loss)}`);
+const shadowArchive = emptyCandidateArchive();
+const shadowSeries = new Map([...new Set([...String(entry.universe || '').split(','), ...shadow.universe.split(',')].filter(Boolean))]
+  .map((sym, i) => [sym, { dates: days.slice(0, 27), adjCloses: days.slice(0, 27).map((_, d) => 100 * (1 + (i % 5) / 100) ** d) }]));
+upsertCandidateEntry(shadowArchive, { ...entry, shadow: { ...shadow } });
+fillCandidateOutcomes(shadowArchive, shadowSeries);
+const shadowSummary = summarizeCandidateArchive(shadowArchive).shadow;
+if (!shadowArchive.entries[0].shadow.outcome || shadowSummary?.measured !== 1 || shadowSummary.identity !== shadow.identity) fail('shadow outcome/summary not recorded beside the default entry');
 
 // 6. Published artifact, when the producer has written one.
 let published = null;

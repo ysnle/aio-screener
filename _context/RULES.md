@@ -19,6 +19,18 @@ target_version: v57.79
 - **운영·AI**: R652 Worker 자동 배포는 CI 증거와 롤백 대상이 있어야 · R657 운영 알림은 증거를 남기고 닫힌 쪽으로 실패 · R681 모든 AI는 공용 Worker 한 경로로, 웹검색 포함 월 $20 이하 예산을 함께 쓴다
 - **화면**: R697 등급·검증 안 된 합산·행동 지시 없이 측정한 조건과 근거만 보인다 · R669 데스크톱·휴대폰·아이패드가 같은 라우트·데이터를 쓰고 레이아웃만 적응한다 · R703 한 사용자 입력은 한 owner가 처리하고 색 테마는 storage 실패와 무관
 
+## R715. 한 필드의 사용 가능 기한은 한 상수에서 읽고, 순위 모집단은 비교 가능한 보통주로 한정한다 (v57.85, P1872)
+
+**Rule**: 같은 데이터의 계산 사용 기한을 두 곳(필드 레지스트리, 순위 모델)에 따로 두지 않는다. 연간 공시 수치는 FUNDAMENTAL_MAX_PERIOD_AGE_DAYS를 읽는다. 종합 순위의 비교 모집단에서 펀드(유니버스 선언 index 'ETF'), SPAC, 확장 구간의 30일 평균 거래대금 $1M 미만 종목을 뺀다. 뺀 행은 화면에 남기고 rank null과 사유(populationExclusion)를 표시한다. 새 팩터 정의는 기본 순위를 바꾸기 전에 후보 아카이브의 그림자 기록으로 같은 날짜에 쌓아 비교한다.
+
+**Validation**: node scripts/ci-screener-workbench-contract.mjs; node scripts/ci-candidate-archive-check.mjs; src/domain/screener/factor-ranks.js rankingPopulationExclusion; src/data/contracts/screener.js FIELD_ROWS
+
+## R714. 기술 지표 정의는 technical/definitions.js 한 곳에서, RRG 사분면은 themes/rrg.js 한 곳에서 읽는다 (v57.85, P1871)
+
+**Rule**: SMA·EMA·ATR(Wilder)·ADR%·52주 범위(252봉 요건)·50일선 거리 배수와 구간·주봉·Weinstein 단계는 src/domain/technical/definitions.js의 함수를, 기간·구간·과열/돌파 배수는 RULES.technical을 사용한다. 차트·스크리너 생산자·요약·설정 프로필은 같은 이름의 지표를 다시 계산하지 않는다. RRG 사분면 경계·단어·설명은 themes/rrg.js(classifyRRG·RRG_QUADRANT_WORDS·RRG_QUADRANT_READS)에서, 경계 띠·최근 반대 판정은 recent-check.js rrgRecentReading에서 읽는다. 테마 행과 그룹 행은 같은 단계 규칙을 쓴다. 이름이 같지만 질문이 다른 시험(템플릿 25% vs 이동평균 관문 30%, 각 정배열)은 라벨에 선·기준을 밝힌다.
+
+**Validation**: node scripts/ci-chart-scenarios-fixture.mjs; node scripts/ci-scenario-guidance-fixture.mjs; node scripts/ci-data-pipeline-contract-check.mjs; src/domain/technical/definitions.js
+
 ## R713. 판정 이름은 그 이름을 정의하는 조건이 있을 때만 붙이고, 임계값은 공용 상수에서 읽는다 (v57.84, P1859)
 
 **Rule**: 확장·약세·재가속·경색처럼 이름이 붙는 판정은 그 이름을 정의하는 핵심 조건이 충족될 때만 쓴다. 보조 조건 개수가 많다는 이유로 이름을 붙이지 않는다. 충족 조건 수는 가능성이 아니라 개수로 표시한다. 화면 문장과 판정이 쓰는 임계값은 RULES 상수에서 읽고, 화면에 숫자를 따로 적지 않는다.

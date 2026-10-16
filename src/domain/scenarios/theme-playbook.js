@@ -11,7 +11,7 @@
 // Rotation is read from all themes at once: which exposure tags gained and lost over the month.
 // No price, size, timing or named stock; stock-level selection stays on the theme, chart, company and screener screens.
 import { EXPOSURE_TAGS, WIND_LABELS, themeProfile, windFor } from './exposures.js';
-import { THEME_STATES, themeStateOf, frequencyText } from './analogs.js';
+import { THEME_STATES, themeStateOf, frequencyText, inlineDrift, INLINE_DRIFT_LABELS } from './analogs.js';
 import { CHOICES } from '../market/macro-crossroads.js';
 import { marketWindowReturns, recentMove, recentMoveText, relativeBand, weeklyNoiseFromVol, WINDOW_LABELS } from '../themes/recent-check.js';
 
@@ -36,7 +36,10 @@ const FAVOURED = {
   fading: { tail: ['wait'], head: ['wait'], mixed: ['wait'], none: ['wait'] },
   pullback: { tail: ['stage'], head: ['wait'], mixed: ['stage', 'wait'], none: ['stage', 'wait'] },
   rebound: { tail: ['stage'], head: ['wait'], mixed: ['wait'], none: ['wait'] },
-  weak: { tail: ['wait'], head: ['wait'], mixed: ['wait'], none: ['wait'] }
+  weak: { tail: ['wait'], head: ['wait'], mixed: ['wait'], none: ['wait'] },
+  // v57.84 (owner decision): 상대 방어 is not leadership and 동행 has no edge of its own over the index.
+  defensive: { tail: ['wait'], head: ['wait'], mixed: ['wait'], none: ['wait'] },
+  inline: { tail: ['hold'], head: ['wait'], mixed: ['wait'], none: ['wait'] }
 };
 const WHY = {
   leading: { tail: '추세와 거시 수혜가 같은 방향이라 보유를 이어 가는 쪽의 기회비용이 작습니다.',
@@ -51,14 +54,19 @@ const WHY = {
     other: '하락 추세 속 반등은 전환인지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.' },
   weak: { tail: '거시 수혜에도 약세가 이어진다면 업종 고유의 문제가 있을 수 있어, 원인이 확인될 때까지 기다리는 쪽이 맞습니다.',
     head: '약세와 거시 부담이 겹쳐 기다림의 비용이 가장 작은 조합입니다.',
-    other: '약세가 이어지는 동안 기다림의 비용은 작습니다.' }
+    other: '약세가 이어지는 동안 기다림의 비용은 작습니다.' },
+  defensive: { other: '지수보다 덜 빠졌을 뿐 긴 추세 수익률이 0 이하라 주도로 읽지 않습니다. 지수 하락이 멈추고 이 테마의 긴 추세가 플러스로 돌아서는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.' },
+  inline: { tail: '거시 수혜 성격이지만 가격은 아직 지수와 비슷하게 움직여, 보유는 이어 가되 지수보다 앞서기 시작하는지 확인하는 쪽이 맞습니다.',
+    other: '지수와 비슷한 폭으로 움직여 이 테마만의 우위가 확인되지 않습니다. 새로 들어가는 판단은 긴 추세가 지수보다 앞서기 시작한 뒤가 비용이 작습니다.' }
 };
 const CHOICE_TEXT = {
   leading: { wait: '기다리는 동안 추세가 이어지면 놓친 상승이 기회비용이 됩니다.', hold: '추세가 살아 있는 동안 보유를 이어 가는 비용은 작습니다.', defend: '추세가 강할 때의 방어 전환은 남은 상승을 포기하는 기회비용이 큽니다.' },
   fading: { wait: '판정이 다시 받쳐질 때(50일선 위 비율 회복·5거래일 흐름 안정)까지 기다리면, 추세가 곧바로 이어질 경우의 상승을 놓칩니다.', stage: '급락 직후 나눠 들어가면 평균 가격은 낮아지지만, 추세가 꺾이는 중이라면 하락을 함께 떠안습니다.', hold: '보유는 긴 추세가 지수보다 앞서 있는지와 구조 가설이 깨지는 신호를 확인하며 유지합니다.', defend: '추세가 실제로 꺾이면 방어 쪽이 손실을 줄이지만, 일시적 흔들림이면 반등을 놓칩니다.' },
   pullback: { wait: '조정이 쉬어 가기로 끝나면 다음 상승을 놓치는 것이 기회비용입니다.', stage: '나눠 들어가면 바닥을 맞히지 않아도 되지만, 하락이 길어지면 평균 가격도 함께 내려갑니다 — 구조 가설이 깨지는 신호가 중단 조건입니다.', hold: '보유는 조정 폭이 긴 추세 안에 머무는지(6개월 수익 범위 안인지) 확인하며 유지합니다.', defend: '조정 중의 방어 전환은 반등을 놓치는 비용이 클 수 있습니다.' },
   rebound: { wait: '반등이 전환으로 이어지면 초입을 놓치는 것이 기회비용입니다.', stage: '반등 초기에 나눠 들어가면 전환을 일부 잡지만, 반등이 실패하면 하락 추세로 되돌아갑니다.', hold: '보유는 반등이 이전 고점·50일선을 회복하는지 확인하며 유지합니다.', defend: '하락 추세가 끝나지 않았다면 방어 쪽이 손실을 줄입니다.' },
-  weak: { wait: '약세가 이어지는 동안 기다림의 비용은 작습니다.', stage: '약세 속 분할은 "싸 보임"에 기대기 쉬워, 추세 회복 신호 없이 나눠 들어가는 비용이 큽니다.', hold: '보유는 약세의 원인(실적·업황)을 확인하며 비중을 점검합니다.', defend: '약세 업종 비중을 줄이는 쪽의 기회비용은 작습니다.' }
+  weak: { wait: '약세가 이어지는 동안 기다림의 비용은 작습니다.', stage: '약세 속 분할은 "싸 보임"에 기대기 쉬워, 추세 회복 신호 없이 나눠 들어가는 비용이 큽니다.', hold: '보유는 약세의 원인(실적·업황)을 확인하며 비중을 점검합니다.', defend: '약세 업종 비중을 줄이는 쪽의 기회비용은 작습니다.' },
+  defensive: { wait: '지수 하락이 멈추고 긴 추세가 돌아설 때까지 기다리면 반등 초입 일부를 놓칠 수 있습니다.', stage: '덜 빠진 테마에 나눠 들어가도 지수가 더 내리면 함께 내려갑니다 — 지수보다 앞선다는 것이 플러스 수익을 뜻하지는 않습니다.', hold: '보유는 지수보다 덜 빠지는 흐름이 유지되는지와 긴 추세가 0 위로 돌아서는지 확인하며 유지합니다.', defend: '하락장이 이어지면 방어 쪽이 손실을 줄이지만, 지수가 반등하면 회복을 늦게 탑니다.' },
+  inline: { wait: '지수와 같이 움직이는 동안 기다리는 비용은 지수를 갖고 있지 않은 비용과 비슷합니다.', stage: '나눠 들어가면 사실상 지수 노출을 사는 것과 비슷합니다 — 긴 추세가 지수보다 앞서기 시작하는지가 기준입니다.', hold: '보유는 지수 판단과 같이 갑니다. 긴 추세가 지수보다 뒤처지기 시작하면 다시 봅니다.', defend: '이 테마만 따로 방어로 돌릴 근거는 약합니다 — 지수 전체 판단의 문제입니다.' }
 };
 // v57.81 (audit): "이미 벌어진 50일선과의 거리를 감수합니다" was printed while only 22.5% of the members sat above the line.
 function leadingStageText(above50) {
@@ -77,9 +85,10 @@ function midNote(state, ret6m, ret3m) {
   return '';
 }
 
-function depthOk(trend, ret1m) {
+function depthOk(trend, ret1m, { relative = false } = {}) {
   if (trend == null || ret1m == null || ret1m >= 0) return null;
-  const before = ((1 + trend / 100) / (1 + ret1m / 100) - 1) * 100; // gain up to the start of the month
+  // v57.84 (owner decision 3-2): against the index the lead is additive — the excess up to the month is trend − month.
+  const before = relative ? trend - ret1m : ((1 + trend / 100) / (1 + ret1m / 100) - 1) * 100; // gain up to the start of the month
   return before > 0 ? -ret1m <= before / 2 : false;
 }
 
@@ -87,19 +96,29 @@ function depthOk(trend, ret1m) {
 // way hold that month's verdict.
 const UP_CLAIM = new Set(['leading', 'fading', 'rebound']);
 
+// v57.81: stage relative to the market's index over the same windows, with a ± band; absolute only when the index has
+// no close on the theme's own date (then the label says so). v57.84: one rule for a theme row and its group rows — the
+// groups were read on the bare sign of their own returns, so a group could be 주도 inside a theme that was not.
+// v57.84 (owner decision 3-2): with no index close on the theme's date the stage is withheld (판정 보류) instead of read on
+// absolute returns — two bases never share one set of names. The theme's own long return decides 상대 방어.
+function relativeStage({ ret1m, ret3m, ret6m, basis, benchmark }) {
+  const trendKey = ret6m != null ? 'ret6m' : 'ret3m';
+  const trend = ret6m ?? ret3m;
+  const bench = benchmark && basis && benchmark.asOf === basis && finite(benchmark[trendKey]) != null && finite(benchmark.ret1m) != null ? benchmark : null;
+  const trendX = trend == null || !bench ? null : trend - bench[trendKey];
+  const recentX = ret1m == null || !bench ? null : ret1m - bench.ret1m;
+  const band = relativeBand(trendKey), recentBand = relativeBand('ret1m');
+  const state = bench ? themeStateOf(trendX, recentX, { band, recentBand, absolute: trend }) : null;
+  return { trendKey, trend, bench, trendX, recentX, band, recentBand, state, drift: state === 'inline' ? inlineDrift(recentX, recentBand) : null };
+}
+
 function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = null, memberCount = 1, above50, basis, benchmark = null, groups = [], members = null, crossroads, credit, outcomes }) {
   const profile = themeProfile(market, id);
   const tags = profile?.tags || [];
-  const trendKey = ret6m != null ? 'ret6m' : 'ret3m';
-  const trend = ret6m ?? ret3m;
-  // v57.81: stage relative to the market's index over the same windows, with a ± band; absolute only when the index has
-  // no close on the theme's own date (then the label says so).
-  const bench = benchmark && basis && benchmark.asOf === basis && finite(benchmark[trendKey]) != null && finite(benchmark.ret1m) != null ? benchmark : null;
+  const stage = relativeStage({ ret1m, ret3m, ret6m, basis, benchmark });
+  const { trendKey, trend, bench, trendX, recentX, band, recentBand, drift } = stage;
   const benchName = THEME_BENCHMARKS[market]?.name || '지수';
-  const trendX = trend == null ? null : bench ? trend - bench[trendKey] : trend;
-  const recentX = ret1m == null ? null : bench ? ret1m - bench.ret1m : ret1m;
-  const band = bench ? relativeBand(trendKey) : 0, recentBand = bench ? relativeBand('ret1m') : 0;
-  let state = themeStateOf(trendX, recentX, { band, recentBand });
+  let state = stage.state;
   const weeklyNoise = weeklyNoiseFromVol(vol, { members: memberCount });
   const recent = recentMove({ ret5d, benchRet5d: bench ? finite(bench.ret5d) : null, noise: weeklyNoise });
   const lead = crossroads?.items?.find((item) => item.id === crossroads.leadId) || null;
@@ -113,7 +132,7 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
     // v57.81: one credit rule with 시장 상태 — neutral or widening credit is not "stable".
     ['신용 안정 (신용 지표 양호)', creditStable(credit)],
     // A drop that has taken back more than half of the gain before it is no longer a pause inside the trend.
-    ...(state === 'pullback' ? [['조정 깊이 (1개월 낙폭이 그 전까지 오른 폭의 절반 이하)', depthOk(trend, ret1m)]] : [])
+    ...(state === 'pullback' ? [['조정 깊이 (1개월 지수 대비 낙폭이 그 전까지 앞선 폭의 절반 이하)', depthOk(trendX, recentX, { relative: true })]] : [])
   ] : [];
   const known = conditions.filter(([, ok]) => ok != null);
   const met = known.filter(([, ok]) => ok).length;
@@ -123,19 +142,24 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
     if (above50Ok !== true && met < LEAD_CONFIRM_MET) fadeReasons.push(`${above50 != null ? `50일선 위 ${above50}%` : '50일선 위 비율 확인 불가'} · 조건 ${met}/${conditions.length}`);
     if (recent?.broken || fadeReasons.length) state = 'fading';
   }
-  const deep = state === 'pullback' && depthOk(trend, ret1m) === false;
-  const contradicted = !!recent && (UP_CLAIM.has(state) ? recent.broken : recent.surged);
+  const deep = state === 'pullback' && depthOk(trendX, recentX, { relative: true }) === false;
+  // v57.84: 동행 claims a direction only through its drift; 상대 방어 claims none.
+  const upClaim = UP_CLAIM.has(state) || drift === 'up';
+  const downClaim = state === 'pullback' || state === 'weak' || drift === 'down';
+  const contradicted = !!recent && (upClaim ? recent.broken : downClaim ? recent.surged : false);
   const favored = deep ? ['wait'] : state === 'leading' ? (met >= LEAD_CONFIRM_MET ? ['hold'] : ['hold', 'wait']) : state ? FAVOURED[state][wind.lead] : [];
   const why = deep ? '1개월 낙폭이 그 전까지 오른 폭의 절반을 넘어, 쉬어 가기보다 추세가 꺾이는 신호일 수 있습니다. 낙폭이 멈추고 50일선 위 종목 비율이 회복되는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.'
     : state ? (WHY[state][wind.lead] || WHY[state].other) : '';
-  const proxy = state && state !== 'fading' ? outcomes?.themes?.[id]?.[state] : null;
+  // v57.84 (owner decision 3-2): the proxy's past stages count only when they were classified on the live rule.
+  const proxyRelative = outcomes?.themes?.[id]?.basis === 'relative-banded';
+  const proxy = state && state !== 'fading' && proxyRelative ? outcomes?.themes?.[id]?.[state] : null;
   const proxySymbol = outcomes?.themes?.[id]?.symbol;
   const windowName = `${WINDOW_LABELS[trendKey]}·1개월, ${bench ? `${benchName} 대비` : '절대 수익률(지수 비교 불가)'}`;
   const recentClause = recent && (contradicted || recent.broken)
-    ? ` · ${recentMoveText(recent, { benchmarkName: benchName })}${contradicted ? `, 평소 1주 움직임의 2배를 넘는 ${UP_CLAIM.has(state) ? '급락' : '반등'} — 1개월 판정 보류` : ''}`
+    ? ` · ${recentMoveText(recent, { benchmarkName: benchName })}${contradicted ? `, 평소 1주 움직임의 2배를 넘는 ${upClaim ? '급락' : '반등'} — 1개월 판정 보류` : ''}`
     : '';
-  const shortName = state ? THEME_STATES[state].split(' (')[0] : null;
-  const stateLabel = !state ? '판정 보류'
+  const shortName = state ? `${THEME_STATES[state].split(' (')[0]}${drift && !contradicted ? ` · ${INLINE_DRIFT_LABELS[drift]}` : ''}` : null;
+  const stateLabel = !state ? (bench ? '판정 보류' : `판정 보류 (${benchName} 종가가 테마 기준일과 맞지 않음)`)
     : `${shortName} (${windowName}${fadeReasons.length ? ` · ${fadeReasons.join(' · ')}` : ''})${contradicted ? '' : midNote(state, ret6m, ret3m)}${recentClause}`;
   const choices = state ? { ...CHOICE_TEXT[state], ...(state === 'leading' ? { stage: leadingStageText(above50) } : {}) } : {};
   return {
@@ -147,7 +171,8 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
     fit: known.length < 2 ? '판단 보류' : `조건 충족 ${met}/${conditions.length}`, met, total: conditions.length, known: known.length,
     basisText: conditions.map(([text, ok]) => `${text} ${ok == null ? '확인 불가' : ok ? '충족' : '미충족'}`),
     past: state === 'fading' ? '이 단계는 50일선 위 비율과 최근 5거래일을 함께 보는 판정이라 장기 기록(대표 ETF)과 같은 기준으로 비교하지 않습니다.'
-      : proxy ? frequencyText({ ...proxy, subject: proxySymbol }, `대표 ETF ${proxySymbol}가 같은 단계(${shortName}, 과거 판정은 절대 수익률 기준)였을 때`, { source: '장기 일봉 기록' }) : '같은 단계의 장기 과거 기록(대표 ETF)이 없어 빈도를 말하지 않습니다.',
+      : proxySymbol && !proxyRelative ? '대표 ETF의 장기 기록은 아직 절대 수익률 기준으로 분류돼 있어, 지수 대비인 지금 단계와 비교하지 않습니다(다음 장기 기록 갱신 때 같은 기준으로 다시 계산).'
+      : proxy ? frequencyText({ ...proxy, subject: proxySymbol }, `대표 ETF ${proxySymbol}가 같은 단계(${THEME_STATES[state].split(' (')[0]}, S&P 500 대비 같은 기준)였을 때`, { source: '장기 일봉 기록' }) : '같은 단계의 장기 과거 기록(대표 ETF)이 없어 빈도를 말하지 않습니다.',
     positioning: '직접 자료는 없습니다 — 1개월 낙폭과 50일선 위 비율로 추정합니다.',
     groups
   };
@@ -182,7 +207,8 @@ export function buildThemePlaybook({ usGroups = [], krThemes = [], crossroads = 
     rows.push(themeRow({ market: 'US', id, label: labels[id] || groups[0].themeName || id, ret1m, ret3m, ret6m, above50: median(groups.map((g) => g.above50Pct)),
       ret5d: median(groups.map((g) => g.ret5d)), vol: median(groups.map((g) => g.vol)), memberCount: groups.reduce((sum, g) => sum + (finite(g.members) ?? 0), 0) || 1,
       basis: groups.map((g) => g.basis).filter(Boolean).sort().at(-1) || null, benchmark: benchmarks.US,
-      groups: groups.map((g) => ({ name: g.name, ret1m: g.ret1m, ret3m: g.ret3m, ret6m: g.ret6m, ret5d: g.ret5d ?? null, above50: g.above50Pct, state: themeStateOf(g.ret6m ?? g.ret3m, g.ret1m) })),
+      groups: groups.map((g) => ({ name: g.name, ret1m: g.ret1m, ret3m: g.ret3m, ret6m: g.ret6m, ret5d: g.ret5d ?? null, above50: g.above50Pct,
+        state: relativeStage({ ret1m: g.ret1m, ret3m: g.ret3m, ret6m: g.ret6m, basis: g.basis || null, benchmark: benchmarks.US }).state })),
       crossroads, credit, outcomes }));
   }
   for (const theme of krThemes) {

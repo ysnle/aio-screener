@@ -285,6 +285,8 @@ jobs:
         env:
           SEC_LEDGER_SCOPE: extended
           SEC_EXTENDED_BATCH_LIMIT: 600
+          # SIC-only submissions reads (blank-check 6770 exclusion); same 150 ms pace, ~4 min at 800.
+          SEC_SIC_BACKFILL_LIMIT: 800
           SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
         run: |
           set -euo pipefail

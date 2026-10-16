@@ -36,6 +36,11 @@ export function refreshScenarioArtifacts(root, repaint) {
   }
 }
 
+const pastConflictTag = (doc, item) => {
+  const tag = el(doc, 'span', '과거 표본과 어긋남', 'xr-tag is-past-conflict');
+  tag.title = `비슷한 때 이후 ${item.pastConflict.horizon}거래일 상승 ${item.pastConflict.sharePct}% · 같은 기록 전체 거래일 ${item.pastConflict.basePct}% (${item.pastConflict.n}번)`;
+  return tag;
+};
 function meter(doc, item) {
   const box = el(doc, 'span', null, 'xr-meter');
   // v57.61 WCAG 1.1.1: the fit text is printed right beside the dots, so the meter is decorative for assistive tech.
@@ -203,6 +208,8 @@ function branchCard(doc, root, item, lead, open = false) {
   const tags = el(doc, 'span', null, 'xr-map-tags');
   tags.append(el(doc, 'span', TONE[item.pricing.tone] || TONE.unknown, `xr-tag is-${item.pricing.tone}`),
     el(doc, 'span', `유리한 대응: ${item.favored.map((key) => CHOICES[key]).join(' · ')}`, 'xr-tag is-choice'));
+  // v57.84 (owner 2026-10-16): favored stays; a conflict with the past frequency is named beside it.
+  if (item.pastConflict) tags.append(pastConflictTag(doc, item));
   summary.append(head, ...(sub ? [el(doc, 'span', sub, 'xr-map-sub')] : []), tags, el(doc, 'span', '근거와 선택지', 'xr-map-more'));
   card.append(summary);
   const body = el(doc, 'div', null, 'xr-branch-body');
@@ -334,6 +341,7 @@ function pathCard(doc, root, item, { kicker, fit }) {
   // v57.55 review (E1-13/E2-16): the owner-approved "상대적으로 유리한 쪽" (2026-10-13); its scope note is written once under the cards.
   const favoredRow = el(doc, 'dd', item.favored.map((key) => CHOICES[key]).join(' · '));
   favoredRow.title = item.favoredWhy || '';
+  if (item.pastConflict) favoredRow.append(' ', pastConflictTag(doc, item));
   rows.append(el(doc, 'dt', '유리한 대응'), favoredRow);
   if (item.shape && SHAPES[item.shape]) rows.append(el(doc, 'dt', '이후 시장 흐름'), el(doc, 'dd', `'${SHAPES[item.shape]}'`));
   card.append(head, tags, rows);

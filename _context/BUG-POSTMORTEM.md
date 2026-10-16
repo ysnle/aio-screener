@@ -6,6 +6,42 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1874 - v57.85 - 테마 단계·RRG 사분면·VCP 피벗이 정의 조건 없는 이름을 붙임(지수와 동행인데 약세, 하락 중인데 주도, 띠보다 큰 잡음에 사분면이 매일 바뀜, 화면마다 다른 피벗) (2026-10-16)
+
+- symptom/reproduction: 2026-10-15 산출물에서 US 에너지(6개월 +9.0%, S&P 500 +10.0%, 50일선 위 71%)가 "약세 지속", 필수소비재가 "반등 시도". 코스피 3개월 −25.7% 국면에서 절대 −2.6%인 2차전지가 "주도 지속", KR 테마 24개 중 21개가 주도·조정 계열. 과거 결과(대표 ETF)는 띠 없는 절대 부호로 분류돼 지금 단계와 기준이 다름. RRG 경계 띠 고정 ±1이 5거래일 변화 중앙값(RS-Ratio 0.65~4.1, RS-Momentum 1.3~9.8)보다 좁아 ICLN이 20거래일에 사분면을 9번 바꿈. 스크리너 생산자·레거시는 65봉·스윙 4·수축과 무관한 최근 스윙 고점을 피벗으로 써서 종목 차트와 피벗이 다름.
+- root_cause: themeStateOf가 긴 추세 앞섬/못 앞섬 두 갈래뿐이라 지수와 동행인 구간과 절대 하락 속 상대 우위를 표현할 이름이 없었고, 지수 비교 불가 시 절대 수익률로 대체했다. RRG 경계 띠와 사분면에 계열 잡음·이력(R707)이 적용되지 않았다. VCP 감지기가 차트(v57.84 수정)와 생산자·레거시에 따로 있었다.
+- fix: 소유자 결정(TECHNICAL-DEFINITIONS-v57.84.md 3절 안 A, 2026-10-16): THEME_STATES에 동행(inline, 1개월 앞서기/뒤처지기 시작 표기)·상대 방어(defensive) 추가, 반등 시도·약세 지속은 긴 추세가 −띠 아래일 때만, 지수 종가가 테마 기준일과 다르면 판정 보류, 조정 깊이는 지수 대비, 그룹 행도 같은 규칙, 선택·이유·기회비용 문구 추가. themeStateOutcomes가 ^GSPC 대비·같은 띠로 과거 단계를 분류하고 basis를 기록(build-scenario-outcomes가 spx 전달), 절대 기준 산출물은 비교하지 않음. 생산자 rotation-history가 행마다 20거래일 trail(relativeRotationTrail)을 발행하고 rrgZone이 축별 5거래일 변화 중앙값(0.5~3) 띠와 슈미트 트리거(이탈은 반대쪽 띠의 절반)로 정착 사분면을 판정; themes 화면·종목 요약·포트폴리오·시나리오 전망·스크리너 요약이 rrgSettledQuadrant/rrgRecentReading을 사용. detectContractions를 definitions.js로 옮겨 _calcVCPServer와 레거시 _calcVCP(AIO_ARCH 위임, aio-core −24줄)가 같은 감지기·유효 구간 피벗을 사용. 스크리너 요약 단계 순서는 THEME_STATES 전체(추세 약화가 빠지던 고정 목록 제거).
+- violated_rule: R713(정의 조건 없는 판정 이름), R707(잡음 버퍼·이력), R714(단일 정의)
+- prevention: ci-scenario-guidance-fixture: 동행·상대 방어·1개월 표기·지수 기준 보류·과거 결과 basis 단언. ci-chart-scenarios-fixture: RRG 잡음 띠·이력·정착 사분면 단언. ci-rotation-history-check: 20거래일 trail·마지막 점 = 발행 점. ci-esm-core-unit-check: 생산자 VCP 피벗 = 차트 피벗, 유효 구간 없으면 피벗 없음. ci-data-pipeline-contract-check: 서버·레거시가 공용 감지기에 위임하고 옛 스윙 리터럴이 없어야 통과.
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs; node scripts/ci-chart-scenarios-fixture.mjs; node scripts/ci-rotation-history-check.mjs; node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-data-pipeline-contract-check.mjs; node scripts/ci-decomp-hotspot-check.mjs
+
+## P1873 - v57.85 - SEC 재무 정규화 실패 112종목 중 미국 종목 다수가 한 달째 재검사되지 않았고, 지역은행은 매출 개념이 없어 실패하거나 수수료 소계를 매출로 씀 (2026-10-16)
+
+- symptom/reproduction: 스크리너 순위 모델 재설계(P1872) 뒤 미국 핵심 899종목 중 112종목이 행 단위 근거 80%를 못 채워 순위가 보류됐다. 실패 목록의 'required-us-gaap-annual-concepts-unavailable' 56건 가운데 GS·CRWD·VLO·ODFL·KHC·ARE·SJM은 현재 정규화기(v3/v4)로 이미 읽히는데 2026-09-15~10-10 기록 그대로 남아 있었다. TFC·FITB·RF·PNFP·SYF는 매출 개념이 없어 실패했고, 저장된 MTB(1.66B)·HBAN(1.56B)·EWBC(0.06B, 2019년)는 ASC 606 수수료 소계를 매출로 써서 이익률 141~1,218%가 보류돼 있었다.
+- root_cause: (1) 수집 대상 정렬이 이전 실패 행을 항상 맨 뒤에 두었다. 정규화기 버전이 바뀌면 약 750개 저장 레코드가 한꺼번에 재수집 대상이 되고 한 번에 24개씩만 처리하므로, 개념 세트가 바뀐 실패 행은 매번 밀려 재검사되지 않았다. (2) 지역은행은 총매출 개념(Revenues·RevenuesNetOfInterestExpense)을 태그하지 않고 순이자이익(InterestIncomeExpenseNet)과 비이자이익(NoninterestIncome)만 태그한다. 정규화기는 합산을 하지 않으므로 매출이 없거나, 있으면 수수료 소계만 잡혔다.
+- fix: src/domain/fundamental/sec-report.js에 은행 순매출 파생 개념(derived:InterestIncomeExpenseNet+NoninterestIncome)을 1차 개념으로 추가하고, sec-normalize.js가 같은 공시(accession·기간·form)의 두 값을 짝지어 연간·분기·PIT 매출 행을 만든다. 한쪽만 있거나 공시가 다르면 만들지 않는다. GS FY2025는 13,559M + 44,724M = 58,283M로 RevenuesNetOfInterestExpense와 정확히 일치한다. 개념 세트 v5·정규화기 2026-10-16으로 올렸다. scripts/fetch-sec-fundamentals.mjs는 개념 세트가 바뀐 실패 행을 정기 갱신보다 먼저 재검사한다. 실측(SEC companyfacts 직접 수집): 핵심 실패 56건 중 17건 정규화(GS·CRWD·VLO·ODFL·KHC·ARE·SJM·FLUT·RKT·SOUN·BIRD·B + 은행 TFC·FITB·RF·PNFP·SYF), 확장 실패 262건 중 38건(현재 회계연도 35). 미국 핵심 순위 730 → 747(+17, 이탈 0). 기존 대형 은행·비금융 22종목 매출은 변화 없음.
+- violated_rule: 데이터 품질은 수집 범위가 아니라 실제 입력으로 판정한다 — 개념 세트 변경이 재검사로 이어지는지 측정하지 않았다
+- prevention: P1873: ci-data-pipeline-contract-check가 은행 순매출 파생(소계보다 우선, 공시가 다르거나 한쪽만 있으면 null, PIT 치유 후에도 유지)과 개념 세트 변경 실패 우선 정렬을 단언한다.
+- verification/residual: ci-data-pipeline-contract-check P1873 통과(같은 게이트의 VCP 동등성 1건 실패는 다른 세션의 price-factors.js·fetch-data.mjs 편집 중 상태), ci-sec-runtime-projection-check(747 records compared)·ci-screener-workbench-contract·ci-fiscal-quality-fixture·ci-esm-core-unit-check·ci-domain-parity-check 통과. 순위 수는 화면과 같은 provider→normalizeScreener→calculationRow→computeFactorRanks 경로에서 기준 730을 재현한 뒤 측정했다.
+
+## P1872 - v57.85 - 종합 순위가 가격 신호만으로 계산되고 펀드·SPAC이 주식과 한 순위에 섞임 (2026-10-16)
+
+- symptom/reproduction: 화면 경로(normalizeScreener → calculationRow → computeFactorRanks)로 재현한 미국 핵심 순위의 입력 커버리지가 가치 0.4%, 퀄리티 5.2%였다. 활성 팩터는 모멘텀·추세·저변동·칼만 4개이고, 독립 신호는 2.1개(모멘텀–추세 순위 상관 0.95)였다. 종합 상위 20%와 모멘텀 단독 상위 20%가 77.2% 겹쳤다. 펀드 57개(SPY·TLT·VXX·USO 등)가 주식과 같은 순위에 있었고 9개가 상위 20%였다. 확장 순위에서는 SPAC 77개와 하루 거래대금 $1M 미만 162개가 상위 20%에 들었다.
+- root_cause: 같은 질문(연간 공시 수치를 지금 써도 되는가)에 규칙이 두 개 있었다. 필드 레지스트리는 공시 시각 기준 PER·PBR 30일, ROE·이익률·성장률 90일로 calculationRow에서 값을 null로 만들었다. 순위 모델은 회계기간 456일 규칙(S01)이었다. 연간 공시의 경과일 중앙값이 238일이라 S01 수정이 화면 순위에 닿지 않았다. 순위 모집단에는 유형·유동성 경계가 없어서, 신탁 현금(SPAC)과 채권 ETF의 낮은 변동성이 저변동 팩터 최상위를 차지했다.
+- fix: 레지스트리의 PER·PBR·ROE·순이익률·매출 성장률 계산 기한을 FUNDAMENTAL_MAX_PERIOD_AGE_DAYS(456일)로 맞췄다. computeFactorRanks 경계에 rankingPopulationExclusion을 추가했다. 대상은 유니버스 선언 index 'ETF'인 펀드, 등록 법인명 규칙의 SPAC, 확장 구간의 30일 평균 거래대금 $1M 미만이다. 이 행들은 rank null + populationExclusion 사유로 남고, 순위 칸 title과 '순위 밖' 내역에 사유가 표시된다. factor-ranks.v7. 화면 머리글은 '가격 흐름과 공시 재무로 매긴 상대 순위'로 고쳤다. 후보 모델(6-1 모멘텀 .35·저변동 .15·부호 있는 TTM E/P·B/P 가치 .25·퀄리티 .25)은 후보 아카이브에 entry.shadow로 같은 날 함께 기록하고, 화면에는 표시하지 않는다. 결과: 미국 핵심 순위 899 → 730종목, 활성 팩터 6개(가치·퀄리티 포함), 독립 신호 3.6개.
+- violated_rule: R713(임계값은 공용 상수에서 읽는다) — 같은 필드의 신선도 기한이 레지스트리와 순위 모델에 따로 있었다.
+- prevention: R715. ci-screener-workbench-contract P1872 단언(레지스트리 기한 = 456일, 제외 규칙 8사례, 펀드 행이 사유와 함께 남고 분모에서 빠짐). ci-candidate-archive-check 7절(그림자 기록이 같은 행·날짜로 기록·측정되고 기본 순위 정의는 바뀌지 않음).
+- verification/residual: ci-screener-workbench-contract, ci-candidate-archive-check, ci-esm-core-unit-check, ci-domain-parity-check, ci-research-model-contract-check, ci-screener-extended-contract-check, ci-data-pipeline-contract-check, validate-screener-artifact 통과. 로컬 브라우저(#screener): 활성 팩터에 밸류·퀄리티 포함, 비중 밸류 11%·퀄리티 10%, 미국 729종목, '순위 밖 175종목 — ETF·펀드 57 · 공시 재무 등 팩터 근거 부족 109 · 필수 자료 부족 5 · 점수 계산 불가 4'. ETF 필터에서 SHY·BND 순위 칸에 사유 title 표시. 확장: 순위 3,130종목, SPAC 97 · 거래대금 미만 997 제외. 잔여: SEC 정규화 실패 112종목(TSM·XOM·GS·CRWD·ASML 등, US-GAAP 53·IFRS 47)은 순위 보류(소유자 승인). SPAC은 이름 규칙이라 'Churchill Capital Corp XI'처럼 이름에 Acquisition이 없는 SPAC은 남는다. 권위 있는 SEC SIC 6770 연결은 후속. 보고서: _artifacts/screener-model-redesign-20261016/REPORT.md
+
+## P1871 - v57.85 - 같은 기술 지표가 모듈마다 다르게 정의되어 차트·스크리너·요약·테마 화면이 같은 종목·섹터를 다르게 판정함 (2026-10-16)
+
+- symptom/reproduction: 차트의 50일선 거리 배수는 (종가−SMA50)÷단순 ATR14인데 스크리너·요약은 pctSma50÷ADR이라 같은 2/4/7 구간에서 "확장"과 "보통"이 갈림. 스크리너 생산자가 60~251봉 종목의 고점·저점 거리를 "52주"로 발행하고 stage2 관문도 통과시킴. ADR이 저가 결측 봉(null >= 0이 참)을 전폭 봉으로 셈. 테마 그룹 행 단계는 자기 수익률 부호만 봐서 지수 대비 판정인 테마 행과 어긋남. 테마 화면 섹터 막대 배지는 경계 띠를 무시해 산점도의 "경계"를 "선도"로 표시. RRG 사분면 경계·단어·설명이 4곳에 복제. 8EMA 과열·이탈, 템플릿 25/30%, 돌파 거래량 1.4배, 지수 고점권 −3%가 손글씨 숫자.
+- root_cause: 지표 계산 기본형(SMA·EMA·ATR·ADR·52주 범위·Weinstein)과 판정 구간의 소유 모듈이 없어 차트(chart-analysis)·생산자(price-factors)·레거시(aio-core)·요약(stock-read·setup-profile·bands)이 각자 구현했고, R713의 상수화가 거시 축에만 적용되고 기술 지표에는 미치지 않음.
+- fix: src/domain/technical/definitions.js를 단일 정의 모듈로 신설(smaSeries/smaLast/emaSeries/emaLast·Wilder atrWilder·adrPctOf·rangeExtremesOf(252봉 미만 fullYear=false)·extensionMultiple/extensionStateFor·weeklyCloses·weinsteinStage)하고 기간·구간을 RULES.technical(atrPeriod·adrPeriod·rangeSessions·nearHighPct·extension·nearLineAdr·recentDropAdr·ema8·weinstein·template·stage2Gate·breakout)로 이동. 차트는 50일선 거리를 ADR 단위(스크리너와 같은 숫자)로 표시하고 ATR은 Wilder로, 생산자는 52주 거리를 252봉 미만에서 null·stage2 관문은 미확인 시 불통과, 레거시 _calcVCP는 같은 규칙. RRG는 rrgZone이 classifyRRG 경계를 쓰고 RRG_QUADRANT_WORDS/READS 한 벌, stock-read는 rrgRecentReading을 그대로 사용, 막대 배지는 경계 반영. 테마 그룹 행은 테마 행과 같은 relativeStage. 브리핑·일일 변화의 고점권 −3%는 RULES.technical.nearHighPct.
+- violated_rule: R713(임계값은 공용 상수), R352(병렬 모델 금지), P1428(252봉 미만은 52주 아님)
+- prevention: ci-chart-scenarios-fixture에 v57.84 정의 단언(차트 ADR·배수 = 생산자, Wilder ATR, 252봉 미만 52주 null·stage2 불통과, 저가 결측 ADR, Weinstein 단일 함수, RRG 경계 = classifyRRG, 결측 계열 보류), ci-scenario-guidance-fixture 그룹 행 단계 단언, ci-data-pipeline-contract-check VCP 패리티를 정의 모듈·RULES 기준으로 갱신. R714 신설.
+- verification/residual: node scripts/ci-chart-scenarios-fixture.mjs; node scripts/ci-scenario-guidance-fixture.mjs; node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-data-pipeline-contract-check.mjs; node scripts/ci-entity-summary-fixture.mjs; node scripts/ci-domain-parity-check.mjs
+
 ## P1870 - v57.84 - AI 요청 분류가 방어 교육과 단순 공시 언급을 차단·법률 모드로 보냄 (2026-10-16)
 
 - symptom/reproduction: 금지 주제(선행매매·시세조종 등)가 들어간 질문은 '하세요'·'방법'만 있으면 "선행매매 탐지 방법"·"왜 불법인지 설명하세요" 같은 방어 교육도 차단됐다. "SEC 공시 보고 매수할까"처럼 SEC를 언급만 한 종목 질문은 법률·세무 모드로 갔다. 첫 완화 시도는 반대로 "실행 단계도 알려줘"와 "SEC tax compliance 아래 무엇을 살까"를 놓쳤다(계약 사례 2개 실패).
@@ -14,6 +50,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 - violated_rule: 번호 규칙 없음 — 안전 게이트 오탐·미탐.
 - prevention: ci-ai-intelligence-contract-check.mjs 방어 교육 2건·공시 언급 1건·단계별 실행 1건 사례 P1870, browser-unit G103 T989/T990.
 - verification/residual: ci-ai-intelligence-contract-check 30 사례 통과, browser-unit 통과.
+
+## P1869 - v57.85 - 거시 게이지와 브리핑 문장이 축 판정과 다른 임계값을 사용 (2026-10-16)
+
+- symptom/reproduction: 달러 게이지는 +2%부터 부담 구간을 칠했지만 축은 +2.5%(1년 범위 80% 이상이면 +2%)부터 부담이라 DXY +2.2%에서 축은 중립, 바늘은 부담 구간이었다. 하락 구간은 유가 조건 없이 양호로 칠해졌다. 브리핑 분배일 문장은 5일부터, 주도주 이탈 판정은 6일부터 셌다. '금리 최고권인데 VIX 낮음'은 VIX 20, 변동성 축의 안정선은 18이었다. 시나리오 조건 문구 20여 곳은 RULES 값을 숫자로 다시 적었고, payrollSlowdownK 하나가 사분면에서는 폭, 고용 급랭에서는 수준으로 쓰였다.
+- root_cause: R713 이전에 만든 게이지 구간·문장·시나리오 조건이 판정 함수(dollarRiseBurden, leadership, volatility)를 거치지 않고 숫자를 직접 적었다. 공용 상수는 축 판정에만 연결돼 있었다.
+- fix: 달러 게이지 부담 선을 dollarRiseBurden과 같은 선(rise20dPct + bufferPct, 범위 상단이면 rise20dPct)으로, 하락 구간은 축이 양호일 때만 양호 색으로 그림(rateFx.dxyPosition 추가). 분배일 문장은 RULES.leadership.distributionDaysAt, VIX 문장은 calmBelow·spike5dPct·invertedRatioAt, 시장 폭 문장은 breadth.weakBelow·broadAtLeast로 통일. RULES에 oil.aboveYearAvgPct·turn5dPct, fx.krwFlatPct, volatility.complacentBelow, growth.payrollStallK·claimsWatchAbovePct·claimsRiseAbovePct 추가. 시나리오·브리핑·거시 문구는 상수를 출력. 비교표·남은 게이지 모순(G3~G8)·favored 근거는 _artifacts/policy-criteria-review-20261016/MACRO-THRESHOLD-CONSOLIDATION-v57.84.md.
+- violated_rule: R713
+- prevention: ci-scenario-guidance-fixture가 달러 게이지 구간 색(중립 축 +2.2% → 중립, +2.6% → 부담, 하락만으로는 양호 아님)과 유가 급등·실업수당 청구 조건 문구가 RULES 값을 출력하는지 확인한다.
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs; node scripts/ci-esm-core-unit-check.mjs
 
 ## P1868 - v57.84 - 브리핑 문장 규칙과 종합 라벨이 비대칭 (2026-10-16)
 

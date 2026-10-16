@@ -1379,7 +1379,9 @@ export async function enrichSecFundamentals(syms, priceData, priceResults = null
       eligible: Number(payload.eligible) || 0,
       model: payload.model || 'sec-fy-normalized-v2',
       generatedAt: payload.generatedAt || null,
-      source: payload.source || 'SEC EDGAR companyfacts'
+      source: payload.source || 'SEC EDGAR companyfacts',
+      // 2026-10-16: the filer's SEC SIC code per issuer (scripts/fetch-sec-fundamentals.mjs issuerSic).
+      sicBySymbol: payload.issuerSic && typeof payload.issuerSic === 'object' ? payload.issuerSic : {}
     };
   } catch (error) {
     return { data: {}, ok: 0, stored: 0, eligible: 0, model: 'sec-fy-normalized-v2', generatedAt: null, source: 'SEC EDGAR companyfacts', error: String(error && error.message || error) };
@@ -1894,7 +1896,9 @@ export function buildExtendedShardPayload({ data, syms, identityRows, membership
     identity: identityRows.map((row) => ({
       sym: row.sym, name: row.name || row.sym, sector: row.sector || null, index: row.index || null,
       membership: Array.isArray(row.membership) ? row.membership : [], exchange: row.exchange || null,
-      ...(row.nasdaqFinancialStatus ? { nasdaqFinancialStatus: row.nasdaqFinancialStatus } : {})
+      ...(row.nasdaqFinancialStatus ? { nasdaqFinancialStatus: row.nasdaqFinancialStatus } : {}),
+      // 2026-10-16: SEC SIC from the extended ledger; the ranker drops blank checks (6770) by this code, not the name.
+      ...(/^\d{3,4}$/.test(String(secResult?.sicBySymbol?.[row.sym]?.sic || '')) ? { sic: String(secResult.sicBySymbol[row.sym].sic) } : {})
     })),
     ...encoded
   };

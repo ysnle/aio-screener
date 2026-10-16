@@ -43,16 +43,68 @@ export async function rankPublishedScreener({ root, now }) {
   const provider = createScreenerProvider({ httpClient, clock: { now: () => now, iso: () => new Date(now).toISOString() }, yieldImpl: () => Promise.resolve() });
   const current = await provider.readCurrent();
   const normalized = normalizeScreener(current);
-  const ranking = computeFactorRanks({
-    rows: normalized.rows.map(calculationRow),
-    weights: MODEL_DEFAULT_WEIGHTS,
-    weightsPolicy: 'model-default',
-    fundamentalCoveragePct: Number(normalized.metadata?.fundamentalCoveragePct) || 0,
-    fmpOk: !!normalized.metadata?.fmpOk,
-    now,
-    inputVersion: normalized.revision || 'candidate-archive'
+  const calculationRows = normalized.rows.map(calculationRow);
+  const common = { fundamentalCoveragePct: Number(normalized.metadata?.fundamentalCoveragePct) || 0, fmpOk: !!normalized.metadata?.fmpOk, now, inputVersion: normalized.revision || 'candidate-archive' };
+  const ranking = computeFactorRanks({ ...common, rows: calculationRows, weights: MODEL_DEFAULT_WEIGHTS, weightsPolicy: 'model-default' });
+  // 2026-10-16 review (owner: shadow record only): the candidate model is ranked on the same rows and recorded beside
+  // the default ranking. It is never shown; the two forward records decide whether it replaces the default.
+  let fiscal = null;
+  try { fiscal = JSON.parse(await readFile(new URL('public-data/sec-fiscal-history.json', root), 'utf8')); } catch (_) { /* no yields: value stays inactive */ }
+  const valuation = new Map((current.rows || []).map((row) => [row.sym, { price: row._valuationPrice, shares: row._valuationSharesOutstanding }]));
+  const shadowRanking = computeFactorRanks({
+    ...common,
+    rows: calculationRows.map((row) => ({ ...row, ...signedYields(row.sym, valuation.get(row.sym), fiscal) })),
+    weights: CANDIDATE_SHADOW_MODEL.weights,
+    weightsPolicy: 'explicit',
+    momentumDefinition: CANDIDATE_SHADOW_MODEL.momentumDefinition,
+    valueDefinition: CANDIDATE_SHADOW_MODEL.valueDefinition
   });
-  return { ranking, metadata: normalized.metadata || {} };
+  return { ranking, shadowRanking, metadata: normalized.metadata || {} };
+}
+
+// The candidate model from _artifacts/screener-model-redesign-20261016/REPORT.md (V4): one momentum signal instead of
+// three overlapping price signals, low volatility, signed value and quality. Weights are the proposal, not fitted.
+export const CANDIDATE_SHADOW_MODEL = Object.freeze({
+  id: 'candidate-v1',
+  weights: Object.freeze({ momentum: 0.35, lowvol: 0.15, value: 0.25, quality: 0.25 }),
+  momentumDefinition: 'six-minus-one',
+  valueDefinition: 'signed-yields'
+});
+
+// TTM net income (last four reported/derived quarters) and the latest fiscal-year equity over close × SEC shares.
+// A loss gives a negative yield; a missing input stays missing (nothing is estimated).
+export function signedYields(sym, valuation, fiscal) {
+  const price = Number(valuation?.price);
+  const shares = Number(valuation?.shares);
+  const marketValueM = price > 0 && shares > 0 ? price * shares / 1e6 : null;
+  if (!marketValueM || !fiscal) return { earningsYieldTtm: null, bookYield: null };
+  const quarters = String(fiscal.quarters?.[sym] || '').split(';').filter(Boolean).map((part) => part.split(':'));
+  const lastFour = quarters.slice(-4).map((part) => Number(part[2]));
+  const ttm = lastFour.length === 4 && lastFour.every(Number.isFinite) ? lastFour.reduce((sum, value) => sum + value, 0) : null;
+  const annual = String(fiscal.data?.[sym] || '').split(';').filter(Boolean).map((part) => part.split(':')).pop();
+  const equity = annual && annual[3] !== '' ? Number(annual[3]) : null;
+  return {
+    earningsYieldTtm: ttm == null ? null : round(ttm / marketValueM, 6),
+    bookYield: Number.isFinite(equity) ? round(equity / marketValueM, 6) : null
+  };
+}
+
+export function buildShadowRecord({ shadowRanking }) {
+  if (!shadowRanking?.available || !Array.isArray(shadowRanking.rows)) return null;
+  const ranked = shadowRanking.rows.filter((row) => row?.sym && isNum(row.rank))
+    .sort((a, b) => (b.rank - a.rank) || ((isNum(b._compositeZ) ? b._compositeZ : -Infinity) - (isNum(a._compositeZ) ? a._compositeZ : -Infinity)) || String(a.sym).localeCompare(String(b.sym)));
+  if (ranked.length < 25) return null;
+  const q = Math.floor(ranked.length / 5);
+  return {
+    model: CANDIDATE_SHADOW_MODEL.id,
+    identity: `${CANDIDATE_SHADOW_MODEL.id}:${buildRankingIdentity({ appliedFactorWeights: shadowRanking.appliedFactorWeights, activeFactors: Object.keys(shadowRanking.appliedFactorWeights || {}) })}`,
+    ranked: ranked.length,
+    quintile: q,
+    top: ranked.slice(0, q).map((row) => row.sym).join(','),
+    bottom: ranked.slice(-q).map((row) => row.sym).join(','),
+    universe: ranked.map((row) => row.sym).join(','),
+    outcome: null
+  };
 }
 
 // Today's entry: the top and bottom fifth of ranked rows (rank, then composite z for ties).
@@ -109,35 +161,45 @@ function measure(entry, seriesBySymbol, fwd) {
 
 // Fill outcomes for entries whose forward window has closed; drop the symbol lists of measured
 // entries after the retention window so the artifact stays small (the outcome remains).
+function outcomeOf(record, seriesBySymbol, fwd) {
+  const { legs, forwardDates } = measure(record, seriesBySymbol, fwd);
+  const coverage = legs.top.listed ? Math.min(legs.top.measured / legs.top.listed, legs.bottom.measured / Math.max(1, legs.bottom.listed)) : 0;
+  if (coverage < 0.8 || !isNum(legs.top.mean) || !isNum(legs.bottom.mean) || !isNum(legs.universe.mean)) return null;
+  return {
+    fwdSessions: fwd,
+    forwardDate: [...forwardDates].sort().pop() || null,
+    topPct: round(legs.top.mean * 100, 3),
+    bottomPct: round(legs.bottom.mean * 100, 3),
+    universePct: round(legs.universe.mean * 100, 3),
+    spreadPct: round((legs.top.mean - legs.bottom.mean) * 100, 3),
+    topVsUniversePct: round((legs.top.mean - legs.universe.mean) * 100, 3),
+    measured: { top: legs.top.measured, bottom: legs.bottom.measured, universe: legs.universe.measured },
+    listed: { top: legs.top.listed, bottom: legs.bottom.listed, universe: legs.universe.listed },
+    costs: 'not-modelled'
+  };
+}
+
 export function fillCandidateOutcomes(archive, seriesBySymbol, { fwd = CANDIDATE_FWD_SESSIONS, today = null } = {}) {
   let filled = 0;
   for (const entry of archive.entries) {
-    if (entry.outcome || entry.expired) continue;
-    const { legs, forwardDates } = measure(entry, seriesBySymbol, fwd);
-    const coverage = legs.top.listed ? Math.min(legs.top.measured / legs.top.listed, legs.bottom.measured / Math.max(1, legs.bottom.listed)) : 0;
-    if (coverage < 0.8 || !isNum(legs.top.mean) || !isNum(legs.bottom.mean) || !isNum(legs.universe.mean)) continue;
-    entry.outcome = {
-      fwdSessions: fwd,
-      forwardDate: [...forwardDates].sort().pop() || null,
-      topPct: round(legs.top.mean * 100, 3),
-      bottomPct: round(legs.bottom.mean * 100, 3),
-      universePct: round(legs.universe.mean * 100, 3),
-      spreadPct: round((legs.top.mean - legs.bottom.mean) * 100, 3),
-      topVsUniversePct: round((legs.top.mean - legs.universe.mean) * 100, 3),
-      measured: { top: legs.top.measured, bottom: legs.bottom.measured, universe: legs.universe.measured },
-      listed: { top: legs.top.listed, bottom: legs.bottom.listed, universe: legs.universe.listed },
-      costs: 'not-modelled'
-    };
-    filled += 1;
+    if (entry.expired) continue;
+    if (!entry.outcome) {
+      const outcome = outcomeOf(entry, seriesBySymbol, fwd);
+      if (outcome) { entry.outcome = outcome; filled += 1; }
+    }
+    // The shadow record is measured on the entry's own session dates, exactly like the default ranking.
+    if (entry.shadow && !entry.shadow.outcome) entry.shadow.outcome = outcomeOf({ ...entry.shadow, date: entry.date, sessionDates: entry.sessionDates }, seriesBySymbol, fwd);
   }
   if (today) {
     const cutoff = new Date(Date.parse(`${today}T00:00:00Z`) - CANDIDATE_LIST_RETENTION_DAYS * 86400000).toISOString().slice(0, 10);
     for (const entry of archive.entries) {
-      if (entry.date < cutoff) {
-        delete entry.universe;
-        if (entry.outcome) { delete entry.top; delete entry.bottom; }
-        else if (!entry.expired) entry.expired = 'forward-window-not-measurable';
-      } else if (entry.outcome) delete entry.universe; // measured: the universe list is no longer needed
+      for (const record of entry.shadow ? [entry, entry.shadow] : [entry]) {
+        if (entry.date < cutoff) {
+          delete record.universe;
+          if (record.outcome) { delete record.top; delete record.bottom; }
+        } else if (record.outcome) delete record.universe; // measured: the universe list is no longer needed
+      }
+      if (entry.date < cutoff && !entry.outcome && !entry.expired) entry.expired = 'forward-window-not-measurable';
     }
   }
   return filled;
@@ -192,9 +254,11 @@ export async function updateCandidateArchive({ root, results, now = Date.now(), 
   if (!archive || archive.schemaVersion !== CANDIDATE_ARCHIVE_SCHEMA || !Array.isArray(archive.entries)) archive = emptyCandidateArchive();
   const seriesBySymbol = new Map((results || []).filter((row) => row?.sym && Array.isArray(row.dates) && Array.isArray(row.adjCloses))
     .map((row) => [String(row.sym).toUpperCase(), { dates: row.dates, adjCloses: row.adjCloses }]));
-  const { ranking } = await rankPublishedScreener({ root, now });
+  const { ranking, shadowRanking } = await rankPublishedScreener({ root, now });
   const recordedAt = new Date(now).toISOString();
   const entry = buildCandidateEntry({ ranking, sessionDates: anchorSessionDates(seriesBySymbol), recordedAt });
+  const shadow = entry ? buildShadowRecord({ shadowRanking }) : null;
+  if (entry && shadow) entry.shadow = shadow;
   const action = upsertCandidateEntry(archive, entry);
   const filled = fillCandidateOutcomes(archive, seriesBySymbol, { today: recordedAt.slice(0, 10) });
   archive.startedAt = archive.startedAt || archive.entries[0]?.recordedAt || null;

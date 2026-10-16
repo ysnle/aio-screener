@@ -23,7 +23,30 @@ export function summarizeCandidateArchive(archive) {
     meanSpreadPct: round(mean(spread), 3),
     meanTopVsUniversePct: round(mean(vsUniverse), 3),
     topBeatUniverse: vsUniverse.filter((value) => value > 0).length,
-    identity
+    identity,
+    ...shadowSummary(entries)
+  };
+}
+
+// 2026-10-16: the candidate model recorded beside the default ranking (entry.shadow), averaged over its own latest
+// identity on the same dates. Absent until the producer has written a shadow record.
+function shadowSummary(entries) {
+  const withShadow = entries.filter((entry) => entry?.shadow?.identity);
+  const identity = withShadow[withShadow.length - 1]?.shadow.identity || null;
+  if (!identity) return {};
+  const same = withShadow.filter((entry) => entry.shadow.identity === identity);
+  const measured = same.filter((entry) => entry.shadow.outcome);
+  const vsUniverse = measured.map((entry) => entry.shadow.outcome.topVsUniversePct).filter(isNum);
+  return {
+    shadow: {
+      model: same[same.length - 1].shadow.model || null,
+      identity,
+      recorded: same.length,
+      measured: measured.length,
+      meanSpreadPct: round(mean(measured.map((entry) => entry.shadow.outcome.spreadPct).filter(isNum)), 3),
+      meanTopVsUniversePct: round(mean(vsUniverse), 3),
+      topBeatUniverse: vsUniverse.filter((value) => value > 0).length
+    }
   };
 }
 

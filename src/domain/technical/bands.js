@@ -6,25 +6,22 @@
 //   - a five-session fall of more than RECENT_DROP_ADR daily ranges is a short-term break that a slow up-trend label
 //     must not hide (two full daily ranges in a week is well outside a normal week for that stock).
 // A missing input never passes: the favourable states need every value they test.
-import { EXTENSION_BANDS, extensionStateFor } from '../screener/setup-profile.js';
+import { EXTENSION_BANDS } from '../screener/setup-profile.js';
 import { RULES } from '../rules/thresholds.js';
+import { extensionMultiple, extensionStateFor } from './definitions.js';
 
-/** |distance to the 50-day line| below this many average daily ranges = 부근 (neither side). */
-export const NEAR_LINE_ADR = 1;
+/** |distance to the 50-day line| below this many average daily ranges = 부근 (neither side). v57.84: RULES constant. */
+export const NEAR_LINE_ADR = RULES.technical.nearLineAdr;
 /** A five-session return below −(this × ADR) = 단기 급락. */
-export const RECENT_DROP_ADR = 2;
+export const RECENT_DROP_ADR = RULES.technical.recentDropAdr;
 /** Entry-ready needs the price at least this many daily ranges over its 50-day line (just past the 부근 band). */
 export const ENTRY_MIN_ADR_OVER_50 = NEAR_LINE_ADR;
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 const signed = (value, digits = 1, unit = '%') => `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
 
-/** pct ÷ ADR to one decimal, or null when either is missing or ADR is not positive. */
-export function adrMultiple(pct, adrPct) {
-  const value = finite(pct);
-  const adr = finite(adrPct);
-  return value == null || adr == null || !(adr > 0) ? null : Math.round(value / adr * 10) / 10;
-}
+/** pct ÷ ADR to one decimal, or null when either is missing or ADR is not positive (technical/definitions.js). */
+export const adrMultiple = extensionMultiple;
 
 /** The screener's extension bands with their own state for a price under the line ('below'). */
 export function extensionBand(multiple) {
@@ -38,7 +35,7 @@ export function recentDrop(row) {
   const ret5d = finite(row?.ret5d);
   const adr = finite(row?.adrPct);
   if (ret5d == null || adr == null || !(adr > 0)) return null;
-  const multiple = Math.round(ret5d / adr * 10) / 10;
+  const multiple = adrMultiple(ret5d, adr);
   return Object.freeze({ ret5d, adr, multiple, broken: ret5d < -RECENT_DROP_ADR * adr });
 }
 

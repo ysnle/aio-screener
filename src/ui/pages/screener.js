@@ -392,8 +392,8 @@ const FIELD_BY_ROW_KEY = new Map(SCREENER_FIELD_REGISTRY.fields.map((definition)
 export function customRead(row, key) {
   if (key === 'fwdPe') return forwardPe(row);
   const fieldId = FIELD_BY_ROW_KEY.get(key);
-  // Annual filing figures (PER·PBR·ROE·이익률·성장률) read STALE against the 30-day budget the rank uses; a filter labelled
-  // '최근 회계연도' reads them as the table displays them, but never a CONFLICT value.
+  // Annual filing figures (PER·PBR·ROE·이익률·성장률) share the rank's 456-day budget (2026-10-16); a filter labelled
+  // '최근 회계연도' still reads an older STALE figure as the table displays it, but never a CONFLICT value.
   if (row?.fieldReadiness && fieldId && FILING_KEYS.has(key)) return FILING_STATUSES.has(row.fieldReadiness.fields?.[fieldId]?.status) ? finite(row[key]) : null;
   if (row?.fieldReadiness && fieldId) return fieldValueForPurpose(row, fieldId, 'calculation');
   return typeof row?.[key] === 'string' || typeof row?.[key] === 'boolean' ? row[key] : finite(row?.[key]);
@@ -440,8 +440,12 @@ function createRankNode(documentRef, row, hold = null) {
     return wrap;
   }
   const rank = visibleRank(row);
-  if (rank == null) wrap.appendChild(text(documentRef, '—'));
-  else {
+  if (rank == null) {
+    wrap.appendChild(text(documentRef, '—'));
+    // 2026-10-16: a fund, a SPAC or a thinly traded 확장 name is shown but not compared with operating companies.
+    const excluded = { fund: 'ETF·펀드는 기업 주식과 같은 기준으로 비교하지 않아 순위에서 뺐습니다.', spac: '기업인수목적회사(SPAC)는 신탁 현금이라 주가가 거의 움직이지 않아 순위에서 뺐습니다.', illiquid: '하루 평균 거래대금이 100만 달러 미만이라 확장 순위에서 뺐습니다.' }[row.populationExclusion];
+    if (excluded) wrap.title = excluded;
+  } else {
     const value = documentRef.createElement('div');
     value.textContent = String(rank);
     // v57.81: the percentile names its population — the core universe, or core + Russell 2000·Nasdaq (확장).
@@ -1455,10 +1459,16 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
       const left = population.length - rankedCount;
       const missing = population.filter((row) => row?.screenStatus === 'unavailable').length;
       const rejected = population.filter((row) => row?.screenStatus === 'rejected').length;
-      const unscored = population.filter((row) => row?.screenStatus === 'passed' && finite(row?.screenRank) == null).length;
+      // 2026-10-16: funds, SPACs and sub-$1M 확장 names are left out of the ranked population by design.
+      const outside = (reason) => population.filter((row) => row?.screenStatus === 'passed' && row?.populationExclusion === reason).length;
+      const funds = outside('fund');
+      const spacs = outside('spac');
+      const illiquid = outside('illiquid');
+      const thin = population.filter((row) => row?.screenStatus === 'passed' && row?.rankingEligibility === 'insufficient-row-factor-coverage').length;
+      const unscored = population.filter((row) => row?.screenStatus === 'passed' && finite(row?.screenRank) == null && !row?.populationExclusion && row?.rankingEligibility !== 'insufficient-row-factor-coverage').length;
       excluded.hidden = !(screened && left > 0);
       excluded.querySelector('summary').textContent = `순위 밖 ${left}종목`;
-      excluded.querySelector('p').textContent = `${MARKET_LABELS[listingMarket]} 모집단 ${population.length}종목 중 ${left}종목은 순위를 매기지 않습니다 — ${[missing ? `필수 자료 부족 ${missing}` : null, rejected ? `조건 미통과 ${rejected}` : null, unscored ? `점수 계산 불가 ${unscored}` : null].filter(Boolean).join(' · ') || '사유 미확인'}.`;
+      excluded.querySelector('p').textContent = `${MARKET_LABELS[listingMarket]} 모집단 ${population.length}종목 중 ${left}종목은 순위를 매기지 않습니다 — ${[funds ? `ETF·펀드 ${funds}` : null, spacs ? `SPAC ${spacs}` : null, illiquid ? `하루 거래대금 100만 달러 미만 ${illiquid}` : null, thin ? `공시 재무 등 팩터 근거 부족 ${thin}` : null, missing ? `필수 자료 부족 ${missing}` : null, rejected ? `조건 미통과 ${rejected}` : null, unscored ? `점수 계산 불가 ${unscored}` : null].filter(Boolean).join(' · ') || '사유 미확인'}.`;
     }
     const sessionLag = !(ranking.ranked > 0) ? factorSessionLag(listingMarket, currentState.metadata.factorSessionDateByMarket?.[listingMarket], Date.now()) : null;
     if (sessionLag) diagnostics.textContent += ` · 가격 자료 ${sessionLag.session.slice(5).replace('-', '/')} 종가 기준, ${sessionLag.latest.slice(5).replace('-', '/')} ${sessionLag.label} 반영 대기`;

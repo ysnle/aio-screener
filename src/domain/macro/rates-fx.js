@@ -179,7 +179,7 @@ export function buildRatesFx({ macro = null, history = [], macroHistory = null }
       burden: yenStrength >= YEN_RALLY_RULE,
       // v57.70 (2026-10-15 audit): "20거래일 +1.5%" (USD/JPY) above "엔화 20일 −1.5%" read as a sign error; the second is the
       // yen's own value, and that is now said.
-      text: `엔화 가치 기준 20일 ${signed(yenStrength, 1, '%')} (${yenStrength >= 0 ? '엔 강세' : '엔 약세'} — 위 엔/달러 환율과 부호가 반대) — 엔화 가치가 3% 이상 오르면 시장 상태 환율 축이 '부담'으로 바뀝니다.`
+      text: `엔화 가치 기준 20일 ${signed(yenStrength, 1, '%')} (${yenStrength >= 0 ? '엔 강세' : '엔 약세'} — 위 엔/달러 환율과 부호가 반대) — 엔화 가치가 ${YEN_RALLY_RULE}% 이상 오르면 시장 상태 환율 축이 '부담'으로 바뀝니다.`
     };
   const tnxAll = buildCloseSeries(history, 'tnx', { through: basis });
   const tnx = tnxAll.slice(-CHART_SESSIONS);

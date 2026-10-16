@@ -4,6 +4,7 @@
 // formulas (MA-stack thresholds, stage enum, MTF trend thresholds) are transcribed unchanged —
 // this is code motion, not a new model (R352/F-03: legacy and native must not diverge).
 import { finiteNumber as finite } from '../shared/number.js';
+import { smaLast } from './definitions.js';
 export const STAGE_MODEL_VERSION = 'stage.v3';
 const STAGE_BY_TREND = Object.freeze({ UPTREND: 'STAGE_2_ADVANCE', TOPPING: 'STAGE_3_TOPPING', PULLBACK: 'STAGE_2_PULLBACK', DOWNTREND: 'STAGE_4_DECLINE', TREND_DAMAGED: 'STAGE_4_OR_BASE_REPAIR', MIXED: 'STAGE_1_OR_3_TRANSITION' });
 export const MTF_MODEL_VERSION = 'mtf.v1';
@@ -97,20 +98,9 @@ export function deriveMultiTimeframeView(snapshot) {
   });
 }
 
-// 2026-07-21/P756: sma(closes, period) replicates js/aio-core.js:_calcSMA exactly (simple average
-// of the last `period` finite values, null if fewer than `period` are available) — not a legacy
-// extraction (that function is one small piece of the much larger, still-legacy
-// calcTechnicalSnapshot, which also computes ATR/RSI/MACD/Bollinger/VCP/Fibonacci/volume-profile
-// and is out of scope here), but a faithful reimplementation of an unambiguous, single-definition
-// arithmetic primitive (mean of N values) — not a "parallel model" in the R352 sense that rule
-// guards against (that rule is about competing SCORING formulas with judgment calls, not about
-// which of two files computes an average the same way).
-function sma(closes, period) {
-  if (!Array.isArray(closes) || closes.length < period || period <= 0) return null;
-  let sum = 0;
-  for (let i = closes.length - period; i < closes.length; i++) sum += closes[i];
-  return sum / period;
-}
+// 2026-07-21/P756: sma(closes, period) is the simple average of the last `period` values (null if fewer) — the legacy
+// _calcSMA. v57.84: it is technical/definitions.js smaLast, the one copy the chart and the screener producer also use.
+const sma = smaLast;
 
 /**
  * OHLCV -> MA-stack/stage classification, composed from the already-extracted, already-parity-

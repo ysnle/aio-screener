@@ -2,6 +2,9 @@
 // compute an out-of-universe symbol's factors with the same functions (scripts/lib/factors.mjs imports and re-exports
 // them; scripts/fetch-data.mjs re-exports from there). Pure functions over arrays; no I/O.
 import { FACTOR_FRESHNESS_MS } from './factor-ranks.js';
+import { RULES } from '../rules/thresholds.js';
+// v57.84: the 52-week range, ADR, moving averages and EMAs are technical/definitions.js — the chart's own definitions.
+import { smaLast, emaLast, adrPctOf, rangeExtremesOf, detectContractions } from '../technical/definitions.js';
 import { listingMarketOfSymbol, sessionDateInMarket, timeZoneForMarket, timeZoneForSymbol } from '../market/session-time.js';
 export const round = (v, d) => (typeof v === 'number' && isFinite(v)) ? Number(v.toFixed(d)) : null;
 const BACKTEST_MIN_LIQUIDITY_OBSERVATIONS = 10;
@@ -106,7 +109,8 @@ export function closesToFactors(closes) {
     // 2026-10-14 (owner: custom screener conditions): short averages and the 1-year closing high as distances on the
     // same series, so "5/10/20 정배열" and "52주 신고가" are read without publishing a raw price (P715).
     ...Object.fromEntries([5, 10, 20].map((n) => { const sma = _mean(closes.slice(-n)); return [`pctSma${n}`, sma > 0 ? round((price / sma - 1) * 100, 2) : null]; })),
-    pctFromCloseHigh52w: closes.length >= 250 ? (() => { const high = Math.max(...closes.slice(-252)); return high > 0 ? round((price / high - 1) * 100, 2) : null; })() : null,
+    // v57.84: a 52-week closing high needs the full 252 sessions (it required 250 while reading a 252 window).
+    pctFromCloseHigh52w: closes.length >= RULES.technical.rangeSessions ? (() => { const high = Math.max(...closes.slice(-RULES.technical.rangeSessions)); return high > 0 ? round((price / high - 1) * 100, 2) : null; })() : null,
     kalmanVel:    kalman ? kalman.vel     : null,
     kalmanPt:     kalman ? kalman.pt      : null,
     kalmanInnovZ: kalman ? kalman.innovZ  : null,
@@ -121,40 +125,26 @@ export const VCP_BREAKOUT_LOOKBACK = 5;
 export function _calcVCPServer(closes, highs, lows, volumes) {
   const n = closes.length;
   if (n < 60) return null;
-  function sma(arr, p) {
-    if (arr.length < p) return null;
-    let s = 0; for (let i = arr.length - p; i < arr.length; i++) s += arr[i]; return s / p;
-  }
   function avg(arr) { return arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : 0; }
   const price = closes[n - 1];
-  const s50 = sma(closes, 50), s150 = sma(closes, 150), s200 = sma(closes, 200);
-  const lk52 = Math.min(252, n);
-  const h52 = highs.slice(n - lk52).reduce((m, v) => v > m ? v : m, 0);
-  const pct52 = h52 > 0 ? (price - h52) / h52 * 100 : null;
-  const stage2 = !!(s50 && s150 && s200 && price > s150 && s150 > s200 && price > s50 && pct52 !== null && pct52 >= -30);
-  const bLen = Math.min(65, n - 10);
-  const bH = highs.slice(n - bLen), bL = lows.slice(n - bLen), bV = volumes.slice(n - bLen);
-  const N = 4; const swH = [], swL = [];
-  for (let i = N; i < bH.length - N; i++) {
-    let h = true, l = true;
-    for (let j = i - N; j <= i + N; j++) {
-      if (j === i) continue;
-      if (bH[j] >= bH[i]) h = false;
-      if (bL[j] <= bL[i]) l = false;
-    }
-    if (h) swH.push({ idx: i, p: bH[i] });
-    if (l) swL.push({ idx: i, p: bL[i] });
-  }
-  const ctrs = [];
-  for (let hi = 0; hi < swH.length; hi++) {
-    let nl = null;
-    for (let li = 0; li < swL.length; li++) { if (swL[li].idx > swH[hi].idx) { nl = swL[li]; break; } }
-    if (!nl) continue;
-    const d = (swH[hi].p - nl.p) / swH[hi].p * 100;
-    if (d >= 1 && d <= 45) ctrs.push({ depth: Math.round(d * 10) / 10 });
-  }
+  const s50 = smaLast(closes, 50), s150 = smaLast(closes, 150), s200 = smaLast(closes, 200);
+  // v57.84: the 52-week high is definitions.rangeExtremesOf — below 252 sessions it is not a 52-week figure, so the gate's
+  // "52주 고점 대비" check is unknown and the gate fails closed (it used to read 200 sessions of highs as a year).
+  const range = rangeExtremesOf(highs, lows);
+  const pct52 = range?.fullYear && range.high > 0 ? (price - range.high) / range.high * 100 : null;
+  const stage2 = !!(s50 && s150 && s200 && price > s150 && s150 > s200 && price > s50 && pct52 !== null && pct52 >= -RULES.technical.stage2Gate.nearHighPct);
+  // v57.84 (owner decision): contractions and the pivot come from the chart's detector (technical/definitions.js
+  // detectContractions) — the 65-bar, 4-bar-swing pairing gave a second pivot for the same stock (the latest swing high in 25
+  // bars, valid pattern or not). Bars with a missing high/low are left out, as on the chart. Only a valid contraction run
+  // (≥ 2 successively shallower pullbacks, the last ≤ 12%, the first ≤ 40%) sets a pivot.
+  const bars = [];
+  for (let i = 0; i < n; i++) if (highs[i] > 0 && lows[i] > 0 && highs[i] >= lows[i]) bars.push({ high: highs[i], low: lows[i], close: closes[i] });
+  const detected = detectContractions(bars);
+  const ctrs = detected.contractions.map((row) => ({ depth: Math.round(row.depth * 10) / 10 }));
   const cnt = ctrs.length;
-  const shrink = cnt >= 2 && ctrs.every((c, i) => i === 0 || ctrs[i].depth < ctrs[i - 1].depth);
+  const shrink = detected.valid;
+  const bLen = Math.min(65, n - 10);
+  const bV = volumes.slice(n - bLen);
   let volDry = false;
   if (bV.length >= 20) {
     const half = Math.floor(bV.length / 2);
@@ -163,10 +153,7 @@ export function _calcVCPServer(closes, highs, lows, volumes) {
     const fa = avg(fv), sa = avg(sv);
     volDry = fa > 0 && sa > 0 && sa < fa * 0.85;
   }
-  let pivot = null;
-  const recSH = swH.filter(sh => sh.idx >= bH.length - 25);
-  if (recSH.length) pivot = recSH[recSH.length - 1].p;
-  else if (swH.length) pivot = swH[swH.length - 1].p;
+  const pivot = detected.valid ? detected.pivot : null;
   const nearPivot = !!(pivot && price >= pivot * 0.97 && price <= pivot * 1.03);
   const lv = volumes[n - 1];
   const vs = volumes.slice(-21, -1).filter(v => v > 0);
@@ -175,7 +162,7 @@ export function _calcVCPServer(closes, highs, lows, volumes) {
   // pivot on heavy volume was enough. A breakout is a close through the pivot: some close in the last
   // VCP_BREAKOUT_LOOKBACK sessions was at or below it, and the day closed up (above the prior close, or in the upper half
   // of its range). A close above the pivot on heavy volume that fails the up-day test is 'pivot_down'.
-  const candidate = !!(pivot && price > pivot && rvol !== null && rvol > 1.4);
+  const candidate = !!(pivot && price > pivot && rvol !== null && rvol > RULES.technical.breakout.volumeMultiple);
   const prevClose = closes[n - 2];
   const dayHigh = highs[n - 1], dayLow = lows[n - 1];
   const upDay = (prevClose > 0 && price > prevClose) || (dayHigh > dayLow && (price - dayLow) / (dayHigh - dayLow) >= 0.5);
@@ -192,7 +179,7 @@ export function _calcVCPServer(closes, highs, lows, volumes) {
   score = Math.min(100, Math.round(score));
   const vcpStage = !stage2 ? 'not_stage2' : brk ? 'breakout' : pivotDown ? 'pivot_down' : nearPivot ? 'near_pivot' : (cnt >= 2 && shrink) ? 'contracting' : cnt >= 1 ? 'basing' : 'stage2_only';
   // 2026-10-14: the latest contraction against the one before it (isShrinking requires every step to shrink).
-  const latestShrinking = cnt >= 2 ? ctrs[cnt - 1].depth < ctrs[cnt - 2].depth : null;
+  const latestShrinking = cnt >= 2 ? detected.contractions[cnt - 1].depth < detected.contractions[cnt - 2].depth : null;
   return { vcpScore: score, vcpStage, pivotLevel: pivot,
            contractionCount: cnt, isShrinking: shrink, latestShrinking, volumeDrying: volDry,
            pctFrom52wHigh: pct52 !== null ? Math.round(pct52 * 10) / 10 : null };
@@ -237,26 +224,14 @@ export function _calcSetupScreenFields(closes, adjCloses, highs, lows, volumes) 
     const vals = arr.filter(v => typeof v === 'number' && Number.isFinite(v) && v > 0);
     return vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
   };
-  const ema = (arr, period) => {
-    if (arr.length < period) return null;
-    let value = avg(arr.slice(0, period));
-    if (value == null) return null;
-    const alpha = 2 / (period + 1);
-    for (let i = period; i < arr.length; i++) value = arr[i] * alpha + value * (1 - alpha);
-    return value;
-  };
+  const ema = emaLast;
   const price = closes[n - 1];
-  const lowWindow = tail(lows, Math.min(252, n)).filter(v => v > 0);
-  const highWindow = tail(highs, Math.min(252, n)).filter(v => v > 0);
-  const low52 = lowWindow.length ? Math.min(...lowWindow) : null;
-  const high52 = highWindow.length ? Math.max(...highWindow) : null;
-  const adrWindow = Math.min(20, n);
-  const adrPct = price > 0 ? avg(tail(highs, adrWindow).map((h, i) => {
-    const idx = n - adrWindow + i;
-    const lo = lows[idx];
-    const base = closes[idx];
-    return h > 0 && lo >= 0 && base > 0 ? (h - lo) / base * 100 : null;
-  }).filter(v => v != null)) : null;
+  // v57.84: definitions.rangeExtremesOf / adrPctOf — the chart's own range and ADR. Below 252 sessions the range is not
+  // 52 weeks, so pctFrom52wLow/High stay null instead of naming a shorter record "52주" (P1428).
+  const range = rangeExtremesOf(highs.slice(0, n), lows.slice(0, n));
+  const low52 = range?.fullYear ? range.low : null;
+  const high52 = range?.fullYear ? range.high : null;
+  const adrPct = price > 0 ? adrPctOf(highs.slice(0, n), lows.slice(0, n), closes.slice(0, n)) : null;
   const avgVolume30d = avg(tail(volumes, Math.min(30, n)));
   const latestVolume = typeof volumes[n - 1] === 'number' && Number.isFinite(volumes[n - 1]) && volumes[n - 1] > 0
     ? volumes[n - 1] : null;

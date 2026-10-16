@@ -45,6 +45,10 @@ assert.ok(Math.abs(row.rsRatio-rs)<1e-7 && Math.abs(row.rsMomentum-100*rs/rsMid)
 assert.ok(Math.abs(row.dailyPct-100*(sector.at(-1).adjClose/sector.at(-2).adjClose-1))<1e-7,'P1358 daily percentage is one completed session total return');
 assert.ok(Math.abs(row.weeklyPct-100*(sector.at(-1).adjClose/sector.at(-6).adjClose-1))<1e-7,'P1358 weekly percentage is five completed sessions total return');
 assert.equal(row.relativeStrength[0].value,100,'P1358 indexed relative history removes absolute quote prices');
+// v57.84 (owner decision 3-3): the last 20 daily RRG points on the same model, the newest equal to the published point.
+assert.ok(Array.isArray(row.trail) && row.trail.length === 20, 'v57.84 rotation rows carry a 20-session RRG trail');
+assert.ok(Math.abs(row.trail.at(-1).rsRatio - row.rsRatio) < 1e-3 && Math.abs(row.trail.at(-1).rsMomentum - row.rsMomentum) < 1e-3 && row.trail.at(-1).sessionDate === row.sessionDate, 'v57.84 the newest trail point is the published point');
+assert.ok(row.trail.every((point, i) => i === 0 || point.sessionDate > row.trail[i - 1].sessionDate), 'v57.84 the trail is in session order');
 assert.ok(!/("close"|"adjClose"|"price"|"closes")\s*:/.test(JSON.stringify(baseline)),'P1358 raw quote prices remain unpublished under P715');
 assert.equal(row.allowedUseCeiling,'reference','P1358 delayed source is not promoted to decision use');
 assert.equal(row.rightsStatus,'REVIEW_REQUIRED','P1358 free access does not establish redistribution rights');

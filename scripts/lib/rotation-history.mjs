@@ -1,7 +1,7 @@
 // P1358: durable, date-aligned completed-session research evidence. Raw prices
 // remain private to the producer (P715); no intraday ticks or invented seeds.
 import { latestCompletedUsSession, nyParts, resolveMarketCalendarSession } from '../../src/ai/time/market-session.js';
-import { computeRelativeRotation } from '../../src/domain/themes/rrg.js';
+import { computeRelativeRotation, relativeRotationTrail, RRG_WINDOW_SESSIONS } from '../../src/domain/themes/rrg.js';
 
 export const ROTATION_SYMBOLS = Object.freeze(['XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLRE','XLB','XLU','XLC','SMH','IGV','XBI','ITA','OIH','AMLP','URA','XOP','HACK','GDX','BOTZ','ICLN','LIT','KRE','ITB','XRT','IYT','JETS','COPX','KWEB']);
 const CONTRACT = Object.freeze({ schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v2', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', source: 'Yahoo chart completed daily history', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'research-reference-only', allowedUseCeiling: 'reference', rightsStatus: 'REVIEW_REQUIRED', decisionUse: false, completionGraceMinutes: 5 });
@@ -82,7 +82,8 @@ export function buildRotationHistory({ histories = {}, previous = null, now = Da
     const prior = trustedPrevious?.items?.[symbol];
     const asset = target && !benchmark.error ? normalizeSeries(histories[symbol], target, symbol, computedMs) : { error: benchmark.error };
     if (asset.error) { items[symbol] = retainedRow(prior, asset.error); continue; }
-    const dates = benchmark.dates.filter(date => asset.byDate.has(date)).slice(-100);
+    const allDates = benchmark.dates.filter(date => asset.byDate.has(date));
+    const dates = allDates.slice(-RRG_WINDOW_SESSIONS);
     if (dates.length < 30) { items[symbol] = retainedRow(prior, 'aligned-completed-sessions-lt-30'); continue; }
     const assetCloses = dates.map(date => asset.byDate.get(date));
     const benchmarkCloses = dates.map(date => benchmark.byDate.get(date));
@@ -115,7 +116,10 @@ export function buildRotationHistory({ histories = {}, previous = null, now = Da
       dailyPct: returnAt(1), weeklyPct: returnAt(5), performanceBasis: 'adjusted-close-total-return',
       performanceWindows: { dailySessions: 1, weeklySessions: 5 },
       // Indexing removes absolute asset/SPY price levels; no raw quote redistribution.
-      relativeStrength: dates.map((sessionDate,index) => ({ sessionDate, value: rounding(indexedRatios[index]) }))
+      relativeStrength: dates.map((sessionDate,index) => ({ sessionDate, value: rounding(indexedRatios[index]) })),
+      // v57.84 (owner decision 3-3): the last 20 daily RRG points, each on its own trailing 100-session window, for the
+      // reader's noise-sized boundary band and hysteresis (recent-check.js rrgZone).
+      trail: relativeRotationTrail({ history: allDates.map(date => asset.byDate.get(date)), benchmarkHistory: allDates.map(date => benchmark.byDate.get(date)), dates: allDates })
     };
     updated++;
   }

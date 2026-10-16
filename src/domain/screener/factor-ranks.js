@@ -21,7 +21,8 @@ import { latestCompletedUsSession, latestCompletedKrSession, resolveMarketCalend
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../fundamental/period.js';
 import { finiteNumber as finite } from '../shared/number.js';
 
-export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v6';
+// v7 (2026-10-16): funds, SPACs and sub-$1M 확장 names leave the ranked population (rankingPopulationExclusion).
+export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v7';
 export const FACTOR_RANKS_ALLOWED_USE = 'research-relative-ranking-only';
 
 const DAY_MS = 86_400_000;
@@ -75,6 +76,25 @@ function momRaw(row) {
   if (finite(row?.ret6m) != null) parts.push({ v: row.ret6m, w: 0.2 });
   const denom = parts.reduce((sum, p) => sum + p.w, 0);
   return denom > 0 ? parts.reduce((sum, p) => sum + p.v * p.w, 0) / denom : null;
+}
+
+// 2026-10-16 review — candidate definitions, used only by the shadow record in the candidate archive (never the page's
+// rank until a forward record supports them). 6-1 skips the latest month, whose reversal noise the 1-3-6 blend keeps.
+// Signed yields (TTM earnings and book over market value, supplied by the caller) give a loss-maker a low value; with
+// positive multiples only, a loss-maker's value is missing and renormalization reads it as average.
+function momSixMinusOneRaw(row) {
+  const r6 = finite(row?.ret6m);
+  const r1 = finite(row?.ret1m);
+  return r6 != null && r1 != null && r1 > -100 ? ((1 + r6 / 100) / (1 + r1 / 100) - 1) * 100 : null;
+}
+
+function signedYieldValueRaw(row) {
+  const parts = [];
+  const earningsYield = finite(row?.earningsYieldTtm);
+  const bookYield = finite(row?.bookYield);
+  if (earningsYield != null) parts.push(Math.max(-0.2, Math.min(0.2, earningsYield)) / 0.2);
+  if (bookYield != null) parts.push(Math.max(-1, Math.min(2, bookYield)) / 2);
+  return parts.length ? avg(parts) : null;
 }
 
 function trendRaw(row) {
@@ -394,9 +414,11 @@ function emptyResult({ inputVersion, regimeLabel, weights, reason = 'fewer than 
 function computeFactorRanksForPopulation({
   rows = [], weights = null, regimeLabel = null, fundamentalCoveragePct = 0, fmpOk = false,
   now = Date.now(), inputVersion = 'unknown', previousRanks = null, previousRegimeLabel = null, previousWeights = null,
-  topPct = 20, weightsPolicy = null
+  topPct = 20, weightsPolicy = null, momentumDefinition = 'blend-1-3-6', valueDefinition = 'positive-multiples'
 } = {}) {
   const inputRows = Array.isArray(rows) ? rows : [];
+  const momentumFn = momentumDefinition === 'six-minus-one' ? momSixMinusOneRaw : momRaw;
+  const valueFn = valueDefinition === 'signed-yields' ? signedYieldValueRaw : valueRaw;
   const seenSymbols = new Set();
   let duplicateRows = 0;
   let missingIdentityRows = 0;
@@ -428,11 +450,11 @@ function computeFactorRanksForPopulation({
   }
 
   const candidateFactors = [
-    { key: 'momentum', fn: momRaw },
+    { key: 'momentum', fn: momentumFn },
     { key: 'trend', fn: trendRaw },
     { key: 'lowvol', fn: lowvolRaw },
     { key: 'size', fn: sizeRaw },
-    { key: 'value', fn: valueRaw },
+    { key: 'value', fn: valueFn },
     { key: 'quality', fn: qualityRaw },
     { key: 'kalman', fn: kalmanRaw }
   ];
@@ -473,7 +495,7 @@ function computeFactorRanksForPopulation({
   const mcapCurrentCount = working.filter((row) => sizeRaw(row) != null && row._factorEvidence.size?.ok).length;
   const sizeActive = mcapCurrentCount >= Math.ceil(items.length * MIN_CROSS_SECTION_COVERAGE) && factorCoverage.size.coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100;
   const fundamentalCurrentCount = working.filter((row) => {
-    const hasInput = valueRaw(row) != null || qualityRaw(row) != null;
+    const hasInput = valueFn(row) != null || qualityRaw(row) != null;
     return hasInput && (row._factorEvidence.value?.ok || row._factorEvidence.quality?.ok);
   }).length;
   const fundamentalCurrentPct = items.length ? fundamentalCurrentCount / items.length * 100 : 0;
@@ -741,6 +763,7 @@ function computeFactorRanksForPopulation({
     excludedFactorWeights: Object.freeze({ ...excludedFactorWeights }),
     requestedWeightCoveragePct,
     weightsPolicy: explicitWeights ? 'explicit' : 'model-default',
+    factorDefinitions: Object.freeze({ momentum: momentumFn === momRaw ? 'blend-1-3-6' : 'six-minus-one', value: valueFn === valueRaw ? 'positive-multiples' : 'signed-yields' }),
     rankingState: 'ranked',
     rankingUnavailableReason: null,
     inactiveFactorReasons: Object.freeze(inactiveFactorReasons),
@@ -769,17 +792,49 @@ function computeFactorRanksForPopulation({
   });
 }
 
+// 2026-10-16 screener model review (owner-approved): funds, SPACs and — in the 확장 tier — names trading under $1M a day
+// are not ranked against operating companies. A bond ETF or a SPAC's trust cash has near-zero volatility and topped the
+// low-volatility factor (77 SPACs in the extended top fifth). The rows stay on the screen with a null rank and the reason.
+// Funds use the universe's declared index 'ETF'. SPACs: the filer's SEC SIC code 6770 (Blank Checks), which the
+// extended SEC ledger records per issuer (issuerSic) and the shard carries as identity.sic, OR the registered-name
+// rule. Neither alone is complete (2026-10-16 measurement over 3,913 extended rows): SIC 6770 caught 42 SPACs the name
+// misses (Churchill Capital Corp XII, Cantor Equity Partners, Talon Capital Corp), and 23 pre-merger SPACs named
+// "... Acquisition Corp" are filed under their target industry's code (7372, 2836, 8200), not 6770. The name rule
+// only ever removes a rank with its reason; it never assigns an identity (R628). Known miss: a de-SPAC whose SEC code
+// was never updated (Innventure, 6770 since its 2024 merger) leaves the ranking until SEC reclassifies it.
+export const EXTENDED_MIN_DOLLAR_VOLUME_30D = 1_000_000;
+export const SPAC_SIC = '6770';
+const SPAC_NAME = /acquisitions?\s*(?:\d+|I{1,3}|IV|VI{0,3})?\s*(?:corp(?:oration)?|company|co|inc|ltd|limited)\b|acquisitions?\s+(?:I{1,3}|IV|VI{0,3})\s*$|\bspac\b|\bblank check\b|\bmerger corp(?:oration)?\b/i;
+export function rankingPopulationExclusion(row) {
+  if (row?.index === 'ETF' || row?.assetType === 'ETF' || row?.instrumentRef?.assetType === 'ETF') return 'fund';
+  if (String(row?.sic ?? '').trim() === SPAC_SIC || SPAC_NAME.test(String(row?.name || ''))) return 'spac';
+  const dollarVolume = finite(row?.dollarVolume30d);
+  if (row?.universeTier === 'extended' && dollarVolume != null && dollarVolume < EXTENDED_MIN_DOLLAR_VOLUME_30D) return 'illiquid';
+  return null;
+}
+
 // P1625: both legacy compatibility and native orchestration call this boundary.
 export function computeFactorRanks(input = {}) {
   // v57.51 F07/V04: Tokyo/Taiwan listings (listingMarket INTL) stay visible in the US list but are not ranked against
   // the US cross-section — a different session calendar and currency are not one comparison population.
   const isIntl = (row) => [row?.market, row?.listingMarket, row?.instrumentRef?.market].some((value) => String(value || '').toUpperCase() === 'INTL') || /\.(T|TWO?)$/i.test(String(row?.sym || row?.symbol || ''));
-  const rows = (Array.isArray(input.rows) ? input.rows : []).filter((row) => !isIntl(row));
+  const excludedRows = [];
+  const populationExclusions = { fund: 0, spac: 0, illiquid: 0 };
+  const rows = (Array.isArray(input.rows) ? input.rows : []).filter((row) => {
+    if (isIntl(row)) return false;
+    const reason = rankingPopulationExclusion(row);
+    if (!reason) return true;
+    populationExclusions[reason] += 1;
+    const sym = String(row?.sym || row?.symbol || '').trim().toUpperCase();
+    if (sym) excludedRows.push(Object.freeze({ sym, rank: null, quantSignal: null, _compositeZ: null, factorScores: Object.freeze({}), missingFactors: Object.freeze([]), rankingEligibility: 'population-excluded', populationExclusion: reason, allowedUse: FACTOR_RANKS_ALLOWED_USE, decisionEligible: false }));
+    return false;
+  });
+  const exclusionSummary = Object.freeze({ ...populationExclusions, extendedMinDollarVolume30d: EXTENDED_MIN_DOLLAR_VOLUME_30D });
   const markets = [...new Set(rows.map(screenerMarket).filter(Boolean))];
   if (markets.length <= 1) {
     const result = computeFactorRanksForPopulation({ ...input, rows });
     const market = markets[0] || 'US';
-    return Object.freeze({ ...result, populationPolicy: MARKET_POPULATION_POLICY, populationMarket: market, byMarket: Object.freeze({ [market]: result }) });
+    return Object.freeze({ ...result, populationPolicy: MARKET_POPULATION_POLICY, populationMarket: market, populationExclusions: exclusionSummary, byMarket: Object.freeze({ [market]: result }), rows: Object.freeze([...result.rows, ...excludedRows]) });
   }
   const byMarket = Object.fromEntries(markets.map(market => {
     const result = computeFactorRanksForPopulation({ ...input, rows: rows.filter(row => screenerMarket(row) === market), previousRanks: Array.isArray(input.previousRanks) ? input.previousRanks.filter(row => screenerMarket(row) === market) : null });
@@ -789,10 +844,10 @@ export function computeFactorRanks(input = {}) {
   const available = Object.values(byMarket).some(result => result.available);
   return Object.freeze({
     ...primary, available,
-    populationPolicy: MARKET_POPULATION_POLICY, populationMarket: null,
+    populationPolicy: MARKET_POPULATION_POLICY, populationMarket: null, populationExclusions: exclusionSummary,
     byMarket: Object.freeze(byMarket),
     ranked: Object.values(byMarket).reduce((sum, result) => sum + (result.ranked || 0), 0),
     inputAudit: Object.freeze({ ...primary.inputAudit, inputRows: rows.length, eligibleRows: Object.values(byMarket).reduce((sum, result) => sum + (result.inputAudit?.eligibleRows || 0), 0) }),
-    rows: Object.freeze(markets.flatMap(market => byMarket[market].rows.map(row => ({ ...row, rankingMarket: market, populationPolicy: MARKET_POPULATION_POLICY }))))
+    rows: Object.freeze([...markets.flatMap(market => byMarket[market].rows.map(row => ({ ...row, rankingMarket: market, populationPolicy: MARKET_POPULATION_POLICY }))), ...excludedRows])
   });
 }

@@ -22,6 +22,16 @@ function positive(value) {
   return Number.isFinite(number) && number > 0 ? number : null;
 }
 
+/** v57.84: the one set of quadrant words and readings (themes scatter, chips, bars, stock summary). The readings name
+ * both windows — RS-Ratio against its own 100-session average, RS-Momentum against ~50 sessions ago (v57.81/v57.84). */
+export const RRG_QUADRANT_WORDS = Object.freeze({ Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행' });
+export const RRG_QUADRANT_READS = Object.freeze({
+  Leading: '시장 대비 상대가격이 100일 평균보다 높고, 약 50일 전보다 올라섬',
+  Improving: '시장 대비 상대가격이 100일 평균보다 낮지만, 약 50일 전보다 올라섬',
+  Weakening: '시장 대비 상대가격이 100일 평균보다 높지만, 약 50일 전보다 내려옴',
+  Lagging: '시장 대비 상대가격이 100일 평균보다 낮고, 약 50일 전보다도 내려옴'
+});
+
 export function classifyRRG(rsRatio, rsMom) {
   const ratio = positive(rsRatio);
   const momentum = positive(rsMom);
@@ -42,6 +52,26 @@ export function classifyRRG(rsRatio, rsMom) {
  */
 // P1591 (T02): one minimum for the client fallback and the produced artifact (alignedSessionCount >= 30).
 export const RRG_MIN_SESSIONS = 30;
+// v57.84 (owner decision, TECHNICAL-DEFINITIONS 3-3 안 A): the producer publishes this many daily points on the same model
+// (each on its own trailing window) so a reader can size the boundary band from the sector's own movement and apply
+// hysteresis without stored state (themes/recent-check.js rrgZone).
+export const RRG_TRAIL_SESSIONS = 20;
+export const RRG_WINDOW_SESSIONS = 100;
+
+/** Daily (rsRatio, rsMomentum) for the last `sessions` sessions, oldest first; each point on its own trailing span. */
+export function relativeRotationTrail({ history = [], benchmarkHistory = [], dates = [], sessions = RRG_TRAIL_SESSIONS, span = RRG_WINDOW_SESSIONS } = {}) {
+  const n = Math.min(history.length, benchmarkHistory.length);
+  const out = [];
+  for (let k = sessions - 1; k >= 0; k--) {
+    const end = n - k;
+    if (end < RRG_MIN_SESSIONS) continue;
+    const from = Math.max(0, end - span);
+    const point = computeRelativeRotation({ history: history.slice(from, end), benchmarkHistory: benchmarkHistory.slice(from, end) });
+    if (point.quadrant === 'unknown') continue;
+    out.push(Object.freeze({ sessionDate: dates[end - 1] ?? null, rsRatio: Math.round(point.rsRatio * 1e4) / 1e4, rsMomentum: Math.round(point.rsMom * 1e4) / 1e4 }));
+  }
+  return out;
+}
 export function computeRelativeRotation({ history = null, benchmarkHistory = null, hasQuote = false, hasBenchmarkQuote = false } = {}) {
   const hasHist = Array.isArray(history) && history.length >= RRG_MIN_SESSIONS && Array.isArray(benchmarkHistory) && benchmarkHistory.length >= RRG_MIN_SESSIONS;
   if (!hasHist && (!hasQuote || !hasBenchmarkQuote)) {

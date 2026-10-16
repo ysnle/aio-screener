@@ -48,6 +48,7 @@ import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
+import { detectContractions } from '../domain/technical/definitions.js';
 import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SAMPLE, normalizeNewsSentimentHistory } from '../domain/news/scoring.js';
 import { classifyBreadthParticipation } from '../domain/market/breadth.js';
 import { computeMarketHealth } from '../domain/market/health.js';
@@ -1031,6 +1032,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     ,computeRelativeRotation
     ,classifyMovingAverageStructure
     ,deriveMultiTimeframeView
+    // v57.84 (owner decision): the one VCP contraction detector — legacy calcTechnicalSnapshot's _calcVCP delegates here.
+    ,detectContractions
     ,computeNewsSentimentScore
     ,computeNewsRiskSignals
     ,MIN_NEWS_ANALYSIS_SAMPLE

@@ -91,7 +91,7 @@ export async function canonicalOnDemandRow(symbol, raw, { name = null, classific
   const provider = createScreenerProvider({ httpClient, readLiveData, clock: { now, iso: () => new Date(now()).toISOString() }, yieldImpl: () => Promise.resolve() });
   const state = await provider.readCurrent({ refresh: true });
   const row = (state?.rows || []).find((item) => item?.sym === id);
-  return row ? { ...row, ...(classification ? { sector: sector || row.sector || null, industry: classification.description ? `${classification.description} (SEC SIC ${classification.sic})` : `SEC SIC ${classification.sic}`, classification } : {}),
+  return row ? { ...row, ...(classification ? { sic: classification.sic, sector: sector || row.sector || null, industry:classification.description ? `${classification.description} (SEC SIC ${classification.sic})` : `SEC SIC ${classification.sic}`, classification } : {}),
     identitySource: 'on-demand:us-listing', onDemand: Object.freeze({ model: ON_DEMAND_MODEL_VERSION, computedAt }) } : null;
 }
 

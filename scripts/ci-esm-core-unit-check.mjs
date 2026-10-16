@@ -4104,6 +4104,13 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (!result.available || !['setup', 'none', 'extended', 'breakout', 'failed', 'downtrend'].includes(result.state) || /등급|grade/i.test(JSON.stringify(result.evidence))) fail(`P1397 chart analysis contract: ${result.state}`);
   if (!result.evidence.some(([label]) => label === '미너비니 템플릿(변형: 6개월 S&P 초과)') || !result.evidence.some(([label]) => label === '마지막 수축 저점') || result.evidence.some(([label]) => /무효화/.test(label))) fail('P1397/S14 evidence rows missing or carry instruction wording');
   if (analyzeChart(bars.slice(0, 40)).available) fail('P1397 fewer than 60 bars must not be analysed');
+  // v57.84 (owner decision): the screener producer finds the same contractions and the same pivot as the chart.
+  const { _calcVCPServer } = await load('src/domain/screener/price-factors.js');
+  const server = _calcVCPServer(bars.map((bar) => bar.close), bars.map((bar) => bar.high), bars.map((bar) => bar.low), bars.map((bar) => bar.volume));
+  if (server.pivotLevel !== result.pivot || server.contractionCount !== result.vcp.contractions.length || server.isShrinking !== result.vcp.valid) fail(`v57.84 producer VCP must equal the chart detector: ${JSON.stringify({ server: [server.pivotLevel, server.contractionCount, server.isShrinking], chart: [result.pivot, result.vcp.contractions.length, result.vcp.valid] })}`);
+  const flat = bars.slice(0, 220);
+  const flatServer = _calcVCPServer(flat.map((bar) => bar.close), flat.map((bar) => bar.high), flat.map((bar) => bar.low), flat.map((bar) => bar.volume));
+  if (flatServer.pivotLevel !== null || ['near_pivot', 'breakout', 'pivot_down'].includes(flatServer.vcpStage)) fail(`v57.84 no valid contraction run, no pivot state: ${JSON.stringify(flatServer)}`);
 }
 
 console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks', 'domain/screener/setup-profile:deriveScreenerSetupProfile', 'domain/portfolio/surface', 'domain/fundamental/sec-report', 'bootstrap:stop-lifecycle'] }));

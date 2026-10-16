@@ -5,6 +5,7 @@ import { CANONICAL_SOURCE_TIERS, canonicalSourceTier } from './source-kind.js';
 import { latestCompletedUsSession, latestCompletedKrSession, nyParts } from '../../ai/time/market-session.js';
 import { listingMarketOfSymbol, timeZoneForSymbol } from '../../domain/market/session-time.js';
 import { finiteNumber as finite } from '../../domain/shared/number.js';
+import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../../domain/fundamental/period.js';
 
 export const SCREENER_CONTRACT_VERSION = 'screener-workbench.v1';
 export const FIELD_STATUS = Object.freeze([
@@ -177,11 +178,13 @@ const FIELD_ROWS = [
   ['technical.ema21', 'EMA21', 'number', 'currency', 'ema21', 3],
   ['technical.ema60', 'EMA60', 'number', 'currency', 'ema60', 3],
   ['valuation.marketCap', '시가총액', 'number', 'USD_bn', 'mcap', 7],
-  ['valuation.pe', 'PER', 'number', 'multiple', 'pe', 30],
-  ['valuation.pb', 'PBR', 'number', 'multiple', 'pb', 30],
-  ['quality.roe', 'ROE', 'number', 'percent', 'roe', 90],
-  ['quality.margin', '순이익률', 'number', 'percent', 'margin', 90],
-  ['quality.revGrowth', '매출 성장률', 'number', 'percent', 'revGrowth', 90],
+  // 2026-10-16 (owner-approved): annual filing figures share the factor ranker's 456-day rule. The former 30/90-day
+  // budgets made calculationRow null PER·ROE for 0.4%/5.2% of rows, so value and quality never reached the rank.
+  ['valuation.pe', 'PER', 'number', 'multiple', 'pe', FUNDAMENTAL_MAX_PERIOD_AGE_DAYS],
+  ['valuation.pb', 'PBR', 'number', 'multiple', 'pb', FUNDAMENTAL_MAX_PERIOD_AGE_DAYS],
+  ['quality.roe', 'ROE', 'number', 'percent', 'roe', FUNDAMENTAL_MAX_PERIOD_AGE_DAYS],
+  ['quality.margin', '순이익률', 'number', 'percent', 'margin', FUNDAMENTAL_MAX_PERIOD_AGE_DAYS],
+  ['quality.revGrowth', '매출 성장률', 'number', 'percent', 'revGrowth', FUNDAMENTAL_MAX_PERIOD_AGE_DAYS],
   ['fundamental.filedAt', '재무 보고일', 'date', 'date', '_fundamentalFiledAt', 365],
   ['fundamental.availableAt', '재무 이용 가능일', 'date', 'date', '_fundamentalObservedAt', 365],
   ['fundamental.source', '재무 출처', 'string', 'source', '_fundamentalSource', 365],

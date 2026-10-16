@@ -76,7 +76,12 @@ try {
   const requiredFailures = result.timeline.checks.filter((check) => check.required && check.status !== 'PASS');
   if (result.timeline.checks.length !== 6 || requiredFailures.length) throw new Error(`required quant timeline failed: ${JSON.stringify(requiredFailures)}`);
   if (!result.ranking?.available || result.ranking?.inputVersion !== result.timeline.checks.find((check) => check.id === 'screener.snapshot')?.revision) throw new Error(`ranking revision mismatch: ${JSON.stringify(result.ranking)}`);
-  if ((result.ranking.activeFactors || []).includes('value') || (result.ranking.activeFactors || []).includes('quality')) throw new Error(`stale fundamentals activated ranking factors: ${JSON.stringify(result.ranking.activeFactors)}`);
+  // P1872: annual SEC figures within the 456-day rule are current, so value/quality may be active — but only on the
+  // ranker's own terms (coverage of current fundamentals at least 80% of ranked rows), never from stale inputs.
+  for (const factor of ['value', 'quality']) {
+    const coverage = result.ranking.factorCoverage?.[factor];
+    if ((result.ranking.activeFactors || []).includes(factor) && !(coverage?.coveragePct >= coverage?.minCoveragePct)) throw new Error(`P1872 ${factor} active below its coverage floor: ${JSON.stringify(coverage)}`);
+  }
 
   // v57.54: the condition list is shown once — the preset buttons; the select stays as hidden internal state.
   const screenChoices = await page.locator('#scr-workbench-presets [data-aio-screener-action="screen-preset"]').evaluateAll(nodes => nodes.map(node => node.dataset.aioScreenerArg));

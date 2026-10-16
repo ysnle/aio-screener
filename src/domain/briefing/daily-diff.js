@@ -134,10 +134,10 @@ export function buildMyNames({ symbols = [], rows = [], live = {}, holdings = []
     const rsi = finite(row?.rsi);
     const notes = [];
     if (sma50 != null) notes.push(sma50 < 0 ? `50일선 아래(${signed(sma50, 1, '%')})` : `50일선 위(${signed(sma50, 1, '%')})`);
-    if (high != null && high > -3) notes.push(`52주 고점 근처(${signed(high, 1, '%')})`);
+    if (high != null && high > -RULES.technical.nearHighPct) notes.push(`52주 고점 근처(${signed(high, 1, '%')})`);
     else if (high != null && high <= -25) notes.push(`52주 고점 대비 ${signed(high, 0, '%')}`);
-    if (rsi != null && rsi >= 70) notes.push(`RSI ${rsi.toFixed(0)} 과열권`);
-    else if (rsi != null && rsi <= 30) notes.push(`RSI ${rsi.toFixed(0)} 과매도권`);
+    if (rsi != null && rsi >= RULES.technical.rsi.overbought) notes.push(`RSI ${rsi.toFixed(0)} 과열권`);
+    else if (rsi != null && rsi <= RULES.technical.rsi.oversold) notes.push(`RSI ${rsi.toFixed(0)} 과매도권`);
     const attention = (daySignalled && Math.abs(dayPct) >= 3 ? 2 : 0) + (rsi != null && (rsi >= 70 || rsi <= 30) ? 1 : 0) + (sma50 != null && sma50 < 0 ? 1 : 0);
     return {
       symbol, name: row?.name || '', held: held.has(symbol), dayPct, daySignalled,

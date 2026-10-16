@@ -23,7 +23,9 @@ export const RULES = Object.freeze({
   // and the regime-drift alert already compares these bands). VIX above its 3-month (ratio >= 1) is an inverted term structure.
   // v57.81: 양호 needs VIX at least calmBufferPt under the calm edge, or under the edge and not rising over five sessions;
   // a five-session rise of rise5dWatchPct or more holds it at 중립 (VIX 16.87 after +11.9% in a week read 양호, 1.1pt off 18).
-  volatility: Object.freeze({ calmBelow: 18, stressAt: 25, highAt: 32, calmRatioBelow: 0.95, invertedRatioAt: 1, spike5dPct: 25, calmBufferPt: 1, rise5dWatchPct: 10 }),
+  // v57.84 (macro threshold consolidation): complacentBelow — VIX under 14 beside extreme greed is the briefing's thin-hedging
+  // reading (a low-volatility convention, not a validated predictor).
+  volatility: Object.freeze({ calmBelow: 18, stressAt: 25, highAt: 32, calmRatioBelow: 0.95, invertedRatioAt: 1, spike5dPct: 25, calmBufferPt: 1, rise5dWatchPct: 10, complacentBelow: 14 }),
   // 10-year Treasury: a 25bp move in 20 sessions, or the top 10% of its one-year range while still rising.
   // v57.81 hysteresis: once 부담, it stays until the range position falls under rangeExitAt or the 20-session rise is
   // under exit20dBp (a 5-day dip of -9bp at 91% of the range flipped 부담 to 중립 and back on one week's sign).
@@ -35,14 +37,34 @@ export const RULES = Object.freeze({
   // T10: total put/call 1.1+ is heavy hedging, below 0.7 call-heavy optimism (one table for the card and the axis).
   // v57.50 C16: one RSI reading for stock summary, screener, briefing and AI (screener entry filters may be stricter,
   // but they are labelled as a filter, not as "과열").
-  technical: Object.freeze({ rsi: Object.freeze({ overbought: 70, oversold: 30, climax: 80 }) }),
+  // v57.84 (technical definitions): the periods and bands every chart, screener field and summary sentence reads, so a
+  // stock cannot be "확장 4배" on the chart and something else in the screener (src/domain/technical/definitions.js).
+  //   atrPeriod/adrPeriod: Wilder ATR(14) and the average daily range (high − low) ÷ that day's close over 20 sessions;
+  //   rangeSessions: a 52-week range needs 252 sessions, a shorter record is labelled by its length (P1428);
+  //   nearHighPct: an index or stock within 3% of its 52-week high is 고점권 (briefing and daily diff);
+  //   extension: distance to the 50-day line in ADRs — 2 near the base, 4 extended, 7 stretched (setup-profile, v57.50 C20);
+  //   nearLineAdr/recentDropAdr: within 1 ADR of the 50-day line is 부근; a five-session fall beyond 2 ADRs is 단기 급락;
+  //   ema8: 10% over the 8-day EMA is 과열권, 5% under it a break below the line;
+  //   weinstein: 30-week average, its 4-week slope, flat inside ±1%, and 26 weeks back to tell a base from a top;
+  //   template: Minervini's published 52-week rules (within 25% of the high, 30% above the low); stage2Gate: the screener's
+  //   own looser moving-average gate (within 30% of the high) — a separate, separately named test;
+  //   breakout: the volume multiple of a breakout day (both the chart and the screener's VCP).
+  technical: Object.freeze({ rsi: Object.freeze({ overbought: 70, oversold: 30, climax: 80 }),
+    atrPeriod: 14, adrPeriod: 20, rangeSessions: 252, nearHighPct: 3,
+    extension: Object.freeze({ nearBase: 2, extended: 4, stretched: 7 }), nearLineAdr: 1, recentDropAdr: 2,
+    ema8: Object.freeze({ overheatPct: 10, breakBelowPct: 5 }),
+    weinstein: Object.freeze({ maWeeks: 30, slopeWeeks: 4, flatSlopePct: 1, priorWeeks: 26 }),
+    template: Object.freeze({ nearHighPct: 25, aboveLowPct: 30 }), stage2Gate: Object.freeze({ nearHighPct: 30 }),
+    breakout: Object.freeze({ volumeMultiple: 1.4 }) }),
   // v57.81: a 20-session widening reaches 부담 when it is in the top stress20dPct of the series' own 20-session changes (or
   // stress20dMultiple x widen20dBp when the record is shorter than recordMin); it stays 부담 until the 20-session change
   // is back under widen20dBp (hysteresis). HY +40bp in 20 sessions — the 96th percentile — could never reach 부담 before.
   credit: Object.freeze({ tightBelowBp: 350, stressAtBp: 450, widen5dBp: 25, widenWatch5dBp: 15, calm5dBp: 5, widen20dBp: 25, putCallHedgeAt: 1.1, putCallOptimismBelow: 0.7,
     stress20dPct: 90, stress20dMultiple: 2, recordMin: 120, latchSessions: 60 }),
   // WTI against its own one-year range (P1394) and 20-session change; the dollar index 20-session change.
-  oil: Object.freeze({ rise20dPct: 10, fall20dPct: -5, rangeHighAt: 0.85 }),
+  // v57.84: aboveYearAvgPct — WTI 25% above its one-year average is the second 유가 급등 test of the 거시 branches; turn5dPct — a
+  // five-session WTI move this large against the 20-session direction is named beside it (시장 axis and 거시 headline).
+  oil: Object.freeze({ rise20dPct: 10, fall20dPct: -5, rangeHighAt: 0.85, aboveYearAvgPct: 25, turn5dPct: 3 }),
   // v57.81: a dollar rise counts as 부담 only bufferPct past rise20dPct, or past rise20dPct with the dollar index in the top
   // of its own one-year range (rangeHighAt) — DXY +2.23% against a 2.0% line read 부담 on 0.23pp.
   dollar: Object.freeze({ rise20dPct: 2, fall20dPct: -2, bufferPct: 0.5, rangeHighAt: 0.8 }),
@@ -50,13 +72,18 @@ export const RULES = Object.freeze({
   // v57.81: a won move counts only when the 20-session change and the shift of the 20-session mean agree (meanShareOfBar of
   // the bar, same sign) — an endpoint on a one-day spike (9/17 1376.6) made a flat won read -2.5%. A KOSPI fall of
   // kospiContradict20dPct or more over 20 sessions (or a rare KOSPI day) holds a won-strength reading at 중립 (혼조).
-  fx: Object.freeze({ krwMove20dPct: 2, yenRally20dPct: 3, meanShareOfBar: 0.5, kospiContradict20dPct: 5 }),
+  // v57.84: krwFlatPct — a won move inside ±0.5% is 보합권 on every window (20-session card, 5-session sentence, the last session
+  // that holds a won-strength verdict at 중립).
+  fx: Object.freeze({ krwMove20dPct: 2, yenRally20dPct: 3, meanShareOfBar: 0.5, kospiContradict20dPct: 5, krwFlatPct: 0.5 }),
   // v57.81: a Fear & Greed move of namedMovePt or more over one or five sessions is always named beside the 20-session read.
   sentiment: Object.freeze({ namedMovePt: 10 }),
   // Breakeven (10Y inflation compensation) weekly move used as the chain's inflation-expectation link.
   breakeven: Object.freeze({ move5dBp: 5 }),
   // Sahm (2019): 3-month average unemployment 0.5pp above its prior 12-month low; 0.3 an early watch level.
-  growth: Object.freeze({ sahmRecessionAt: 0.5, sahmWatchAt: 0.3, payrollSolidK: 100, payrollSlowdownK: 25 }),
+  // v57.84: payrollSlowdownK is a step (3-month average this far under the prior 3 months = 둔화, the quadrant); payrollStallK is
+  // a level (3-month average under 25k = 고용 급랭 condition) — one number had served both meanings. Initial claims (4-week
+  // average) above their one-year low: claimsWatchAbovePct a watch level, claimsRiseAbovePct a clear rise (Sahm-style pair).
+  growth: Object.freeze({ sahmRecessionAt: 0.5, sahmWatchAt: 0.3, payrollSolidK: 100, payrollSlowdownK: 25, payrollStallK: 25, claimsWatchAbovePct: 10, claimsRiseAbovePct: 15 }),
   // FOMC longer-run goal: 2% PCE inflation; core PCE 3% a clear miss; a 3-month pace 0.5pp above the year re-accelerating.
   inflation: Object.freeze({ targetPct: 2, nearTargetPct: 2.5, missPct: 3, reaccelPp: 0.5 }),
   // 2-year yield vs the policy midpoint: ±0.25pp is a heuristic band of one 25bp step. The 2-year also carries a term premium

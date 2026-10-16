@@ -6,18 +6,15 @@ import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../research/nathan-previo
 import { NATHAN_ANALYSIS_PROTOCOL } from '../knowledge/nathan-framework-pack.js';
 import { RULES } from '../rules/thresholds.js';
 import { finiteNumber as finite } from '../shared/number.js';
+import { extensionMultiple as extensionMultipleOf, extensionStateFor } from '../technical/definitions.js';
 
 export const SCREENER_SETUP_MODEL_VERSION = 'screener-setup.v3';
 
 // 2026-10-13 review S09: one set of reference bands for "50-day distance in units of the average daily range".
 // The stock summary called 3.8x "near the line" while the screener called only <=2x near; both read these now.
-export const EXTENSION_BANDS = Object.freeze({ nearBase: 2, extended: 4, stretched: 7 });
-export function extensionStateFor(multiple) {
-  const value = finite(multiple);
-  return value == null ? 'unavailable'
-    : value >= EXTENSION_BANDS.stretched ? 'stretched' : value >= EXTENSION_BANDS.extended ? 'extended'
-      : value <= EXTENSION_BANDS.nearBase ? 'near-base' : 'normal';
-}
+// v57.84: the bands are RULES.technical.extension and the multiple and its state live in technical/definitions.js.
+export const EXTENSION_BANDS = RULES.technical.extension;
+export { extensionStateFor };
 
 /**
  * @param {object} row normalized screener row, optionally after factor ranking
@@ -62,7 +59,7 @@ export function deriveScreenerSetupProfile(row = {}) {
   // P1507 (owner materials 2026-10-07): how far price has run from the 50-day line, in units of its own average daily
   // range. A late entry pays for the base-building time with no profit cushion; this says how late. ADR stands in for
   // ATR (same idea, published already). Reference bands, not signals: under 2 near the line, 4+ extended, 7+ stretched.
-  const extensionMultiple = pctSma50 != null && adrPct != null && adrPct > 0 ? Math.round((pctSma50 / adrPct) * 10) / 10 : null;
+  const extensionMultiple = extensionMultipleOf(pctSma50, adrPct);
   const extensionState = extensionStateFor(extensionMultiple);
   const relativeStrengthEvidenceAvailable = rank != null && benchmarkRelativeStrength != null && ret1m != null
     && (ret3m != null || ret6m != null) && pctSma200 != null && pctSma50 != null;

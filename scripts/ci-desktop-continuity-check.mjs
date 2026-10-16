@@ -84,21 +84,28 @@ assert.equal(vcpStageLabel('unknown'), '관측');
 // is 'pivot_down'.
 {
   const { _calcVCPServer } = await import('../src/domain/screener/price-factors.js');
+  const { detectContractions } = await import('../src/domain/technical/definitions.js');
+  // v57.84 (owner decision): the producer's pivot is the chart detector's — the last high of a valid contraction run — so
+  // the base is a real VCP (pullbacks 15% → 8% → 4% after an uptrend), not a flat plateau whose latest swing high was the
+  // old pivot.
+  const base = [];
+  let level = 50;
+  for (let i = 0; i < 220; i += 1) base.push(level *= 1.004);
+  const top = level;
+  for (const [a, b] of [[1.0, 0.85], [0.85, 0.96], [0.96, 0.883], [0.883, 0.955], [0.955, 0.917], [0.917, 0.95]]) for (let k = 1; k <= 8; k += 1) base.push(top * (a + (b - a) * k / 8));
+  const shape = (close) => ({ high: close * 1.004, low: close * 0.996, close });
+  const pivot = detectContractions(base.map(shape)).pivot;
+  assert.ok(detectContractions(base.map(shape)).valid && pivot > 0, 'v57.84 the fixture base is a valid contraction run');
   const bars = (tail) => {
-    const closes = [];
-    for (let i = 0; i < 200; i += 1) closes.push(50 + i * 0.2);
-    for (let i = 200; i <= 240; i += 1) closes.push(90 + (i - 200) * 0.25);
-    while (closes.length < 260 - tail.length) closes.push(95);
-    closes.push(...tail.map((bar) => bar.close));
-    const highs = closes.map((close, i) => tail[i - (260 - tail.length)]?.high ?? close * 1.01);
-    const lows = closes.map((close, i) => tail[i - (260 - tail.length)]?.low ?? close * 0.99);
-    const volumes = closes.map((_, i) => (i === 259 ? 1650 : 1000));
-    return _calcVCPServer(closes, highs, lows, volumes);
+    const rows = [...base.map(shape), ...tail.map((bar) => ({ ...shape(bar.close * pivot), ...(bar.high ? { high: bar.high * pivot } : {}), ...(bar.low ? { low: bar.low * pivot } : {}) }))];
+    const volumes = rows.map((_, i) => (i === rows.length - 1 ? 1650 : 1000));
+    return _calcVCPServer(rows.map((row) => row.close), rows.map((row) => row.high), rows.map((row) => row.low), volumes);
   };
-  const real = bars([{ close: 96 }, { close: 97 }, { close: 98 }, { close: 99 }, { close: 100 }, { close: 103, high: 103.5, low: 100 }]);
+  const real = bars([{ close: 0.99 }, { close: 0.993 }, { close: 0.996 }, { close: 0.998 }, { close: 1.0 }, { close: 1.02, high: 1.024, low: 1.0 }]);
+  assert.equal(real?.pivotLevel, pivot, 'v57.84 the producer pivot is the chart detector pivot');
   assert.equal(real?.vcpStage, 'breakout', `v57.81 clean: a close through the pivot on an up day stays a breakout (${JSON.stringify(real)})`);
-  const fall = bars([{ close: 118 }, { close: 119 }, { close: 120 }, { close: 120 }, { close: 120 }, { close: 105, high: 119, low: 104 }]);
-  assert.notEqual(fall?.vcpStage, 'breakout', 'v57.81 a -12.5% day above the pivot is not 피벗 돌파');
+  const fall = bars([{ close: 1.01 }, { close: 1.015 }, { close: 1.02 }, { close: 1.02 }, { close: 1.02 }, { close: 1.005, high: 1.022, low: 1.0 }]);
+  assert.notEqual(fall?.vcpStage, 'breakout', 'v57.81 a heavy-volume down day above the pivot is not 피벗 돌파');
   assert.equal(fall?.vcpStage, 'pivot_down', `v57.81 a heavy-volume down close above the pivot reads pivot_down (${JSON.stringify(fall)})`);
   assert.equal(vcpStageLabel('pivot_down'), '피벗 위 하락(거래량 증가)');
   assert.equal(vcpStageLabel('breakout'), '피벗 돌파');

@@ -57,7 +57,8 @@ export function buildScenarioOutcomes({ market = {}, proxies = {}, themeProxy = 
   for (const [themeId, symbol] of Object.entries(themeProxy)) {
     const closes = proxies[symbol];
     if (!closes?.length) continue;
-    themes[themeId] = { symbol, ...themeStateOutcomes(closes, { horizon: 63 }) };
+    // v57.84 (owner decision): past stages on the live rule — returns less ^GSPC with the same bands (basis 'relative-banded').
+    themes[themeId] = { symbol, ...themeStateOutcomes(closes, { horizon: 63, benchmark: market.spx || null }) };
   }
   return { branches, themes, from: rows[0]?.date || null, to: rows.at(-1)?.date || null };
 }

@@ -35,6 +35,8 @@ import { deriveRegimeState, replayRegime } from '../src/domain/screener/regime.j
 import { createValidationGate, promotionDecision, validatePITRun } from '../src/domain/screener/pit-validation.js';
 import { calculateOutcome, expectedExitDate } from '../src/domain/screener/outcome-ledger.js';
 import { filterRows } from '../src/ui/pages/screener.js';
+import { EXTENDED_MIN_DOLLAR_VOLUME_30D, computeFactorRanks, rankingPopulationExclusion } from '../src/domain/screener/factor-ranks.js';
+import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../src/domain/fundamental/period.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const failures = [];
@@ -876,6 +878,37 @@ async function run() {
   for (const token of ['resolveInstrument(', 'INSTRUMENT_REGISTRY', 'analysisEligibilityFor(', 'assetTypeVerification', 'registrySource']) {
     assert(providerSource.includes(token), `P1171 G-SCR-REGISTRY: the screener provider must consume the registry (${token} missing)`);
   }
+
+  // P1872: one freshness rule for annual filing figures. The registry's calculation budget equals the factor ranker's
+  // 456-day period rule (30/90 days nulled PER·ROE before the ranker saw them), and funds, SPACs and sub-$1M 확장 rows
+  // leave the ranked population but stay as rows with a null rank and the reason.
+  for (const fieldId of ['valuation.pe', 'valuation.pb', 'quality.roe', 'quality.margin', 'quality.revGrowth']) {
+    assert(SCREENER_FIELD_REGISTRY.get(fieldId)?.freshnessBudgetMs === FUNDAMENTAL_MAX_PERIOD_AGE_DAYS * 86400000, `P1872 ${fieldId} calculation budget must be the 456-day fundamental rule`, String(SCREENER_FIELD_REGISTRY.get(fieldId)?.freshnessBudgetMs));
+  }
+  const exclusionCases = [
+    [{ index: 'ETF', name: 'iShares 1-3Y Treasury' }, 'fund'],
+    [{ name: 'Armada Acquisition Corp. III' }, 'spac'],
+    [{ name: 'StoneBridge Acquisition II Corporation' }, 'spac'],
+    [{ name: 'Ares Capital Corporation' }, null],
+    // v57.84 SIC: SEC SIC 6770 OR the name rule — SIC catches SPACs without "Acquisition" in the name, and pre-merger
+    // SPACs filed under a target-industry code (Plum Acquisition Corp. IV, 4911) still leave by name.
+    [{ name: 'Churchill Capital Corp XI', sic: '6770' }, 'spac'],
+    [{ name: 'Talon Capital Corp', sic: '6770' }, 'spac'],
+    [{ name: 'Plum Acquisition Corp. IV', sic: '4911' }, 'spac'],
+    [{ name: 'Northgate Capital Corp', sic: '7372' }, null],
+    [{ name: 'Talon Capital Corp.' }, null],
+    [{ name: 'Northern Trust' }, null],
+    [{ name: 'Small Co', universeTier: 'extended', dollarVolume30d: EXTENDED_MIN_DOLLAR_VOLUME_30D - 1 }, 'illiquid'],
+    [{ name: 'Small Co', universeTier: 'extended', dollarVolume30d: null }, null],
+    [{ name: 'Core Co', dollarVolume30d: 1000 }, null]
+  ];
+  for (const [row, expected] of exclusionCases) assert(rankingPopulationExclusion(row) === expected, `P1872 population exclusion ${row.name} -> ${expected}`, String(rankingPopulationExclusion(row)));
+  const exclusionRows = Array.from({ length: 8 }, (_, index) => ({ sym: `EQ${index}`, name: `Equity ${index}`, sector: 'Tech', ret1m: index, ret3m: index * 2, ret6m: index * 3, vol: 20 + index, pctSma50: index, pctSma200: index }));
+  exclusionRows.push({ sym: 'BOND', name: 'Bond ETF', index: 'ETF', sector: 'ETF', ret1m: 0.1, ret3m: 0.2, ret6m: 0.3, vol: 2, pctSma50: 0, pctSma200: 0 });
+  const excludedResult = computeFactorRanks({ rows: exclusionRows, weights: { momentum: 1, lowvol: 1 }, weightsPolicy: 'explicit', now: 0 });
+  const bond = excludedResult.rows.find((row) => row.sym === 'BOND');
+  assert(excludedResult.populationExclusions?.fund === 1 && bond?.rank === null && bond?.rankingEligibility === 'population-excluded' && bond?.populationExclusion === 'fund' && excludedResult.inputAudit?.eligibleRows === 8,
+    'P1872 a fund stays as a row with a null rank and its reason and never enters the percentile denominator', JSON.stringify({ excl: excludedResult.populationExclusions, bond, eligible: excludedResult.inputAudit?.eligibleRows }));
 
   const report = { schemaVersion: 'screener-workbench-ci.v1', generatedAt: new Date().toISOString(), status: failures.length ? 'FAIL' : 'PASS', checks, failures, baseline: { universe: artifact.universe, ok: artifact.ok, fundamentalCoveragePct: artifact.fundamentalCoveragePct }, fieldRegistry: registryCheck.size, presetCount: presetsA.length };
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);

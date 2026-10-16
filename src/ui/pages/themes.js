@@ -13,7 +13,7 @@ import { rotationFlow, themeDetailFlow } from '../../domain/market/page-flow.js'
 import { krThemeArtifactRead } from '../../domain/themes/kr-themes.js';
 import { buildGroupStrength } from '../../domain/themes/group-strength.js';
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
-import { rrgAxisDomain, RRG_DEFINITION } from '../../domain/themes/rrg.js';
+import { rrgAxisDomain, RRG_DEFINITION, RRG_QUADRANT_READS, RRG_QUADRANT_WORDS } from '../../domain/themes/rrg.js';
 import { rrgRecentReading, RRG_NEUTRAL_BAND } from '../../domain/themes/recent-check.js';
 import { benchmarkReturns, basisOf } from '../components/theme-strength.js';
 import { readMarketRegime } from '../components/market-regime.js';
@@ -24,22 +24,21 @@ import { renderNextSteps } from '../components/page-flow.js';
 // compares with about 50 sessions ago, so a sector can sit in 선도 while its last week fell hard (the chip then says so).
 // A point within the neutral band around 100 on either axis is 경계 and stays out of the four verdicts.
 const QUADRANTS = Object.freeze([
-  { key: 'Leading', label: '선도', note: '시장 대비 상대가격이 100일 평균보다 높고, 약 50일 전보다 올라섬' },
-  { key: 'Improving', label: '개선', note: '시장 대비 상대가격이 100일 평균보다 낮지만, 약 50일 전보다 올라섬' },
-  { key: 'Weakening', label: '약화', note: '시장 대비 상대가격이 100일 평균보다 높지만, 약 50일 전보다 내려옴' },
-  { key: 'Lagging', label: '후행', note: '시장 대비 상대가격이 100일 평균보다 낮고, 약 50일 전보다도 내려옴' },
-  { key: 'Border', label: '경계', note: `두 축 중 하나가 100에서 ±${RRG_NEUTRAL_BAND} 안이라 사분면을 정하지 않음`, optional: true }
+  ...['Leading', 'Improving', 'Weakening', 'Lagging'].map((key) => ({ key, label: RRG_QUADRANT_WORDS[key], note: RRG_QUADRANT_READS[key] })),
+  // v57.84 (owner decision 3-3): the band is each sector's own typical 5-session move on that axis, with hysteresis.
+  { key: 'Border', label: '경계', note: `두 축 중 하나가 100에 그 섹터의 평소 5거래일 움직임만큼 가까워 사분면을 정하지 않음(움직임 기록이 없으면 ±${RRG_NEUTRAL_BAND}). 한 번 정한 사분면은 반대쪽으로 그 폭의 절반을 넘어야 바뀜`, optional: true }
 ]);
 
 // v57.81: the banded zone and the five-session relative-strength check of one item, from the session-checked artifact row.
 function readingOf(root, item) {
   const symbol = String(item?.symbol || item?.id || '');
   const produced = symbol ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, symbol, Date.now()) : null;
-  return rrgRecentReading(item, produced?.relativeStrength || null);
+  // v57.84: the produced 20-session trail sizes the band and carries hysteresis (recent-check.js rrgZone).
+  return rrgRecentReading({ ...item, trail: produced?.trail || item?.trail || null }, produced?.relativeStrength || null);
 }
 function zoneKey(root, item) {
   const reading = readingOf(root, item);
-  return reading?.border ? 'Border' : String(item?.quadrant || '');
+  return reading?.border ? 'Border' : String(reading?.quadrant || item?.quadrant || '');
 }
 
 function finite(value) {
@@ -207,7 +206,7 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   validItems.forEach((item) => {
     const x = px(item.rsRatio);
     const y = py(item.rsMomentum);
-    const color = colors[item.quadrant] || muted;
+    const color = colors[zoneKey(root, item)] || muted; // v57.84: the settled zone's colour (경계 muted), as in the cards
     context.beginPath();
     context.arc(x, y, compact ? 5 : 6, 0, Math.PI * 2);
     context.fillStyle = color;
@@ -315,7 +314,8 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
       symbol: String(item?.symbol || item?.id || ''),
       label: themeItemLabel(root, item),
       pct: finite(mode === '1w' ? item?.weeklyPct : item?.pct),
-      quadrant: String(item?.quadrant || 'neutral')
+      // v57.84: the bar badge reads the same banded zone as the scatter — a point within ±band of 100 is 경계 here too.
+      quadrant: zoneKey(root, item) || 'neutral'
     }))
     .filter((row) => row.symbol)
     .sort((a, b) => {
@@ -372,7 +372,7 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
     value.textContent = row.pct == null ? '—' : `${row.pct >= 0 ? '+' : ''}${row.pct.toFixed(2)}%`;
     value.style.cssText = `width:62px;text-align:right;font-size:12px;font-weight:700;font-family:var(--font-mono);color:${row.pct == null ? 'var(--text-muted)' : row.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)'};flex-shrink:0;`;
     const badge = documentRef.createElement('span');
-    badge.textContent = row.pct == null ? '대기' : ({ Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행' }[row.quadrant] || '중립');
+    badge.textContent = row.pct == null ? '대기' : (row.quadrant === 'Border' ? '경계' : RRG_QUADRANT_WORDS[row.quadrant] || '중립');
     badge.style.cssText = `width:36px;text-align:center;flex-shrink:0;font-size:10px;color:${row.pct == null ? 'var(--text-muted)' : colors[row.quadrant] || 'var(--text-muted)'};`;
     line.append(symbol, label, track, value, badge);
     host.appendChild(line);
@@ -473,7 +473,7 @@ function renderThemes({ documentRef, root, store, route }) {
       // v57.81: the neutral band (경계) and the five-session reversal travel with the item to the chip and the verdict line.
       const reading = readingOf(root, item);
       const reversal = reading?.reversal ? `상대강도 ${reading.check.change >= 0 ? '+' : ''}${reading.check.change.toFixed(1)}% ${reading.reversal === 'fell' ? '반락' : '반등'}` : null;
-      groups.get(reading?.border ? 'Border' : quadrant).push({ ...item, rrgReading: reading, recentReversal: reversal });
+      groups.get(reading?.border ? 'Border' : (reading?.quadrant || quadrant)).push({ ...item, rrgReading: reading, recentReversal: reversal });
     }
   });
   groups.forEach((group) => group.sort((a, b) => (finite(b?.pct) ?? -Infinity) - (finite(a?.pct) ?? -Infinity)));
