@@ -171,7 +171,7 @@ const FIELD_ROWS = [
   ['price.rvol20', '20일 상대 거래량', 'number', 'ratio', 'rvol20', 3],
   ['price.dollarVolume30d', '30일 달러 거래대금', 'number', 'USD', 'dollarVolume30d', 3],
   ['technical.kalmanVelocity', '칼만 추세 속도', 'number', 'score', 'kalmanVel', 3],
-  ['technical.kalmanConfidence', '칼만 추세 신뢰도', 'number', 'score', 'kalmanVelConf', 3],
+  ['technical.kalmanConfidence', '칼만 추세 속도(불확실성 할인)', 'number', 'score', 'kalmanVelConf', 3],
   ['technical.vcpScore', 'VCP 점수', 'number', 'score', 'vcpScore', 3],
   ['technical.vcpStage', 'VCP 단계', 'enum', 'stage', 'vcpStage', 3],
   ['technical.ema8', 'EMA8', 'number', 'currency', 'ema8', 3],

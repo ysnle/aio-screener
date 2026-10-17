@@ -2,16 +2,21 @@ import { createResourceBag } from '../../app/lifecycle.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
 import { renderScreenerValidation } from '../components/screener-validation.js';
-import { buildRankingIdentity, liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
+import { buildPopulationRankingIdentity, liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
 import { measuredCandidateEntries, summarizeCandidateArchive } from '../../domain/screener/candidate-record.js';
 import { measureFactorOverlap, overlapSentence } from '../../domain/screener/factor-overlap.js';
 
 // P1468: factor overlap measured once per ranked row set (the Why drawer and the 검증 view share it).
+// 2026-10-17 audit: z-scores are per market (P1625), so a `market` measures that market's rows against that market's
+// active factors; the Why drawer used to pool US and KR rows under the US factor list.
 const overlapCache = new WeakMap();
-function currentOverlap(rows, ranking) {
+function currentOverlap(rows, ranking, market = null) {
   if (!Array.isArray(rows) || !rows.length) return null;
-  if (!overlapCache.has(rows)) overlapCache.set(rows, measureFactorOverlap(rows, ranking?.activeFactors || []));
-  return overlapCache.get(rows);
+  if (!overlapCache.has(rows)) overlapCache.set(rows, new Map());
+  const byMarket = overlapCache.get(rows);
+  const key = market || '*';
+  if (!byMarket.has(key)) byMarket.set(key, measureFactorOverlap(market ? marketRows(rows, market) : rows, ranking?.activeFactors || []));
+  return byMarket.get(key);
 }
 import { renderScreenerRead, syncScreenerNextLead, reapplyScreenerNextLead } from '../components/screener-read.js';
 import { selectScreenerState } from '../../state/selectors/screener.js';
@@ -116,7 +121,7 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'pctSma50', label: 'vs 50MA', sortable: true, align: 'right', width: 82, group: 'market' },
   // P1507: the same 50-day distance in units of the stock's own average daily range — how late an entry would be.
   { key: 'extension', label: '50일선 거리(변동폭 배수)', sortable: true, align: 'right', width: 118, group: 'setup' },
-  { key: 'kalman', label: '추세 신뢰도', hint: '칼만 추세(잡음을 걸러 낸 추세 추정)의 방향 확신도 — 연구 지표, 매매 신호 아님', sortable: true, align: 'right', width: 102, group: 'market', researchOnly: true },
+  { key: 'kalman', label: '추세 속도', hint: '칼만 필터로 잡음을 걸러 낸 최근 추세의 하루 속도(같은 섹터 안 정규화 점수) — 확신도가 아니며, 연구 지표·매매 신호 아님', sortable: true, align: 'right', width: 102, group: 'market', researchOnly: true },
   { key: 'vcpScore', label: '수축 구조(VCP)·충족도', hint: 'VCP(변동성 수축 패턴): 조정 폭이 차례로 줄며 바닥을 다지는 가격 구조 — 충족도는 그 조건을 얼마나 채웠는지', sortable: true, align: 'right', width: 96, group: 'setup', researchOnly: true },
   { key: 'mcap', label: '시총', sortable: true, align: 'right', width: 82, group: 'market' },
   { key: 'entry', label: '상대 상태', sortable: false, align: 'center', width: 118, group: 'setup', researchOnly: true },
@@ -445,7 +450,7 @@ function createRankNode(documentRef, row, hold = null) {
   if (rank == null) {
     wrap.appendChild(text(documentRef, '—'));
     // 2026-10-16: a fund, a SPAC or a thinly traded 확장 name is shown but not compared with operating companies.
-    const excluded = { fund: 'ETF·펀드는 기업 주식과 같은 기준으로 비교하지 않아 순위에서 뺐습니다.', spac: '기업인수목적회사(SPAC)는 신탁 현금이라 주가가 거의 움직이지 않아 순위에서 뺐습니다.', illiquid: '하루 평균 거래대금이 100만 달러 미만이라 확장 순위에서 뺐습니다.' }[row.populationExclusion];
+    const excluded = { fund: 'ETF·펀드는 기업 주식과 같은 기준으로 비교하지 않아 순위에서 뺐습니다.', spac: '기업인수목적회사(SPAC)는 신탁 현금이라 주가가 거의 움직이지 않아 순위에서 뺐습니다.', illiquid: '하루 평균 거래대금이 100만 달러 미만이라 확장 순위에서 뺐습니다.', foreign: '도쿄·대만 상장 종목은 거래일과 통화가 달라 미국 종목과 같은 순위로 비교하지 않습니다.' }[row.populationExclusion];
     if (excluded) wrap.title = excluded;
   } else {
     const value = documentRef.createElement('div');
@@ -839,7 +844,8 @@ function renderFactorTab(documentRef, metadata) {
   if (confidenceNode) {
     const confidence = finite(ranking.confidence);
     const composite = finite(ranking.compositeConfidence);
-    const status = ranking.qualityStatus || 'unavailable';
+    // D9 (2026-10-17 audit): the run's input status in words, not the model's enum.
+    const status = ({ ready: '정상', partial: '일부 제한', unavailable: '계산 불가' })[ranking.qualityStatus] || '계산 불가';
     confidenceNode.textContent = confidence == null
       ? '입력 신뢰도 산출 불가 — 미래 수익률 확률이 아닙니다.'
       : `행 근거 평균 ${Math.round(confidence * 100)}% · 횡단면 진단 ${composite == null ? '—' : `${Math.round(composite * 100)}%`} · 품질 ${status} · 미래 수익률 확률 아님`;
@@ -861,9 +867,11 @@ function renderFactorTab(documentRef, metadata) {
     const parts = [
       `섹터 중립 ${sector.status || '미확인'}${sectorGroups != null ? ` (${sectorGroups}개 그룹${sectorUnknown ? `, 미분류 ${sectorUnknown}` : ''})` : ''}`,
       `극단치 완화 ${outlierCount != null ? `${outlierCount}건` : '미확인'}`,
-      `상위군 회전 ${turnoverPct != null ? `${turnoverPct}%` : turnover.status || '이전 스냅샷 없음'}`,
-      `국면 안정성 ${regimeStability.status || '이전 스냅샷 없음'}`
-    ];
+      // D10 (2026-10-17 audit): no caller supplies a prior ranking or regime snapshot, so these two read
+      // '이전 스냅샷 없음' on every visit. They appear only when they were actually measured.
+      turnover.status === 'observed' && turnoverPct != null ? `상위군 회전 ${turnoverPct}%` : null,
+      ['stable', 'transition'].includes(regimeStability.status) ? `국면 안정성 ${regimeStability.status === 'stable' ? '유지' : '전환'}` : null
+    ].filter(Boolean);
     diagnosticsNode.textContent = `${parts.join(' · ')} · 연구용 상대 순위이며 매매 신호/자동 가중 승격에 사용하지 않습니다.`;
     diagnosticsNode.dataset.decisionEligible = String(ranking.researchBoundary?.decisionEligible === true);
   }
@@ -916,7 +924,7 @@ function renderBacktest(documentRef, metadata, root = globalThis, rows = null) {
     : composite > 0.03 && net != null && net > 0 ? `최근 ${rebalances ?? '—'}번의 시점에서 순위가 다음 21거래일 수익률과 약하게 같은 방향(IC ${composite.toFixed(3)})이었고 상위 20%가 하위보다 비용 후 ${net.toFixed(2)}% 앞섰습니다. 표본이 작아 우연과 구분되지는 않습니다.`
       : `최근 ${rebalances ?? '—'}번의 시점에서 순위와 이후 수익률의 관계가 확인되지 않았습니다(종합 IC ${composite.toFixed(3)}, 상위−하위 비용 후 ${net == null ? '—' : `${net.toFixed(2)}%`}). 이 실험에서 순위의 우월성이 보이지 않았다는 뜻이며, 전략이 영구히 무효라는 증명은 아닙니다.`;
   panel.append(el('p', verdict, 'briefing-read-headline'), el('p', parity, 'theme-strength-basis'));
-  const labels = { momentum: '모멘텀', trend: '추세', lowvol: '저변동', kalman: '칼만 추세', composite: '종합 순위' };
+  const labels = { momentum: '모멘텀', trend: '추세', lowvol: '저변동', kalman: '추세 속도', composite: '종합 순위' };
   const bars = el('div', null, 'scr-ic-bars');
   for (const [key, label] of Object.entries(labels)) {
     const value = finite(ic[key]);
@@ -945,18 +953,19 @@ function renderBacktest(documentRef, metadata, root = globalThis, rows = null) {
   if (longrun) {
     panel.append(el('p', `10년 연구(시가총액 상위 현재 생존 ${longrun.universe?.fullUniverseSize ?? 120}종목, 이전 모델): 21거래일 종합 IC ${fwd21 == null ? '—' : Number(fwd21).toFixed(3)}, 기준 기간 ${ref == null ? '—' : Number(ref).toFixed(3)}, 검증 기간(holdout) ${hold == null ? '—' : Number(hold).toFixed(3)}. 기간이 길어도 현재 살아남은 대형주만 담은 실험이라 검증된 전략이라고 부를 수 없습니다.`, 'theme-strength-basis'));
   }
-  renderCandidateRecord(panel, el, root?._aioCandidateArchive, metadata?.ranking);
+  renderCandidateRecord(panel, el, root?._aioCandidateArchive, metadata?.populationRanking || metadata?.ranking);
 }
 
 // P1465: the forward record — what the default ranking listed each session, measured 21 of each
 // stock's own sessions later. Unlike the back-test, the list was written before the outcome existed.
-function renderCandidateRecord(panel, el, archive, ranking) {
+function renderCandidateRecord(panel, el, archive, populationRanking) {
   const box = el('section', null, 'scr-candidate-record');
   box.append(el('h3', '실제 순위 기록 — 앞으로 쌓이는 검증', 'stock-read-vis-title'));
   if (!archive || !Array.isArray(archive.entries)) { box.append(el('p', '기록 파일을 아직 받지 못했습니다.', 'theme-strength-basis')); panel.append(box); return; }
   const summary = summarizeCandidateArchive(archive);
   const measured = measuredCandidateEntries(archive, 30);
-  const liveIdentity = ranking?.appliedFactorWeights ? buildRankingIdentity({ appliedFactorWeights: ranking.appliedFactorWeights, activeFactors: ranking.activeFactors }) : null;
+  // The record pools both markets under one identity of every market's model; compare it with the same population.
+  const liveIdentity = populationRanking?.appliedFactorWeights || populationRanking?.byMarket ? buildPopulationRankingIdentity(populationRanking) : null;
   const sameModel = summary.identity && liveIdentity ? summary.identity === liveIdentity : null;
   if (!summary.recorded) {
     box.append(el('p', '첫 기록은 다음 스크리너 갱신에서 시작됩니다. 매 거래일 기본 순위의 상위·하위 20%를 먼저 적어 두고, 21거래일 뒤 실제 수익률을 채웁니다.', 'theme-strength-basis'));
@@ -982,7 +991,7 @@ function renderCandidateRecord(panel, el, archive, ranking) {
     box.append(bars, el('p', '막대 = 그날 기록한 상위 20%의 21거래일 수익률 − 같은 날 순위가 매겨진 전체 평균', 'theme-strength-basis'));
   }
   const notes = ['기본 가중 순위로 기록합니다'];
-  if (sameModel === false) notes.push('지금 화면은 다른 가중치(프로필)로 순위를 매기고 있어 이 기록은 지금 화면 순위의 검증이 아닙니다');
+  if (sameModel === false) notes.push('지금 화면의 순위 모델(선택한 프로필의 가중치나 계산에 들어간 팩터)이 기록한 모델과 달라, 이 기록은 지금 화면 순위의 검증이 아닙니다');
   if (summary.sameModelRecorded < summary.recorded) notes.push(`모델이 바뀐 뒤의 ${summary.sameModelRecorded}일만 평균에 넣었습니다`);
   notes.push('종목마다 자기 시장의 거래일로 21일을 세고, 수정주가 기준·같은 비중·거래비용 제외입니다');
   box.append(el('p', `${notes.join(' · ')}.`, 'theme-strength-basis'));
@@ -1348,7 +1357,7 @@ function syncUniverseScopeControl(documentRef, root, state, listingMarket) {
 function render({ documentRef, root = globalThis, store, readLiveData, readWatchlist, readAliases, sortState, visibleLimit, onWatchlistToggle, onExplain, onCompare, onVisibleSymbols, selectedSymbols, compareSymbols, columnPreset = 'discovery', customColumns = [], rowsOverride = null, workbenchResult = null, previewResult = null, onDataChange = null }) {
   const rawState = selectScreenerState(store?.getState?.() || {});
   const listingMarket = selectedValue(documentRef, 'scr-listing-market') || 'US';
-  const currentState = { ...rawState, metadata: { ...rawState?.metadata, ranking: marketRankingMetadata(rawState?.metadata, listingMarket) } };
+  const currentState = { ...rawState, metadata: { ...rawState?.metadata, populationRanking: rawState?.metadata?.ranking || null, ranking: marketRankingMetadata(rawState?.metadata, listingMarket) } };
   const sourceState = workbenchResult?.run ? { ...currentState, metadata: workbenchResult.snapshotMetadata || {}, status: 'partial', lastRun: workbenchResult.run, readiness: workbenchResult.readiness } : currentState;
   const state = { ...sourceState, metadata: { ...sourceState.metadata, selectionMarket: listingMarket, ranking: marketRankingMetadata(sourceState.metadata, listingMarket) } };
   // P1165: 실행 전에는 파이프라인 기본 결과가 아니라 **선택한 정의**의 미리보기를 표시한다.
@@ -1485,11 +1494,12 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
       const funds = outside('fund');
       const spacs = outside('spac');
       const illiquid = outside('illiquid');
+      const foreign = outside('foreign');
       const thin = population.filter((row) => row?.screenStatus === 'passed' && row?.rankingEligibility === 'insufficient-row-factor-coverage').length;
       const unscored = population.filter((row) => row?.screenStatus === 'passed' && finite(row?.screenRank) == null && !row?.populationExclusion && row?.rankingEligibility !== 'insufficient-row-factor-coverage').length;
       excluded.hidden = !(screened && left > 0);
       excluded.querySelector('summary').textContent = `순위 밖 ${left}종목`;
-      excluded.querySelector('p').textContent = `${MARKET_LABELS[listingMarket]} 모집단 ${population.length}종목 중 ${left}종목은 순위를 매기지 않습니다 — ${[funds ? `ETF·펀드 ${funds}` : null, spacs ? `SPAC ${spacs}` : null, illiquid ? `하루 거래대금 100만 달러 미만 ${illiquid}` : null, thin ? `공시 재무 등 팩터 근거 부족 ${thin}` : null, missing ? `필수 자료 부족 ${missing}` : null, rejected ? `조건 미통과 ${rejected}` : null, unscored ? `점수 계산 불가 ${unscored}` : null].filter(Boolean).join(' · ') || '사유 미확인'}.`;
+      excluded.querySelector('p').textContent = `${MARKET_LABELS[listingMarket]} 모집단 ${population.length}종목 중 ${left}종목은 순위를 매기지 않습니다 — ${[funds ? `ETF·펀드 ${funds}` : null, spacs ? `SPAC ${spacs}` : null, illiquid ? `하루 거래대금 100만 달러 미만 ${illiquid}` : null, foreign ? `해외 상장 ${foreign}` : null, thin ? `공시 재무 등 팩터 근거 부족 ${thin}` : null, missing ? `필수 자료 부족 ${missing}` : null, rejected ? `조건 미통과 ${rejected}` : null, unscored ? `점수 계산 불가 ${unscored}` : null].filter(Boolean).join(' · ') || '사유 미확인'}.`;
     }
     const sessionLag = !(ranking.ranked > 0) ? factorSessionLag(listingMarket, currentState.metadata.factorSessionDateByMarket?.[listingMarket], Date.now()) : null;
     if (sessionLag) diagnostics.textContent += ` · 가격 자료 ${sessionLag.session.slice(5).replace('-', '/')} 종가 기준, ${sessionLag.latest.slice(5).replace('-', '/')} ${sessionLag.label} 반영 대기`;
@@ -1787,7 +1797,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
               renderScreenerValidation({ documentRef, root }); readSignature = ''; renderRead();
               // The 10-year study and the candidate record arrive after the first render of the 검증 view.
               const latest = selectScreenerState(store?.getState?.() || {});
-              renderBacktest(documentRef, { ...latest?.metadata, selectionMarket: selectedValue(documentRef, 'scr-listing-market') || 'US', ranking: marketRankingMetadata(latest?.metadata, selectedValue(documentRef, 'scr-listing-market') || 'US') }, root, marketRows(latest?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US'));
+              renderBacktest(documentRef, { ...latest?.metadata, populationRanking: latest?.metadata?.ranking || null, selectionMarket: selectedValue(documentRef, 'scr-listing-market') || 'US', ranking: marketRankingMetadata(latest?.metadata, selectedValue(documentRef, 'scr-listing-market') || 'US') }, root, marketRows(latest?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US'));
             }
           });
         }
@@ -1965,7 +1975,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            const overlap = documentRef.createElement('div');
            overlap.className = 'scr-why-factor-note';
            const screenState = selectScreenerState(store?.getState?.() || {});
-           overlap.textContent = `${overlapSentence(currentOverlap(screenState?.rows, screenState?.metadata?.ranking))} 백분위는 기업의 질이나 상승 확률을 뜻하지 않습니다.`;
+           const overlapMarket = screenerMarket(row);
+           overlap.textContent = `${overlapSentence(currentOverlap(screenState?.rows, marketRankingMetadata(screenState?.metadata, overlapMarket), overlapMarket))} 백분위는 기업의 질이나 상승 확률을 뜻하지 않습니다.`;
            factorList.appendChild(overlap);
          }
          const ticker = documentRef.querySelector('[data-aio-screener-action="open-ticker"]');

@@ -14,7 +14,7 @@ import {
   CANDIDATE_ARCHIVE_SCHEMA, CANDIDATE_SHADOW_MODEL, anchorSessionDates, buildCandidateEntry, buildShadowRecord, emptyCandidateArchive,
   fillCandidateOutcomes, forwardReturn, rankPublishedScreener, signedYields, summarizeCandidateArchive, upsertCandidateEntry
 } from './lib/candidate-archive.mjs';
-import { buildRankingIdentity } from '../src/domain/screener/model-fingerprint.js';
+import { buildPopulationRankingIdentity, buildRankingIdentity } from '../src/domain/screener/model-fingerprint.js';
 
 const fail = (message) => { throw new Error(`[candidate-archive] ${message}`); };
 const root = new URL('../', import.meta.url);
@@ -24,8 +24,20 @@ const screener = JSON.parse(await readFile(new URL('public-data/screener.json', 
 const now = Date.parse(screener.asOf) + 60_000;
 const { ranking, shadowRanking } = await rankPublishedScreener({ root, now });
 if (!ranking?.available || !(ranking.rows || []).some((row) => Number.isFinite(row.rank))) fail('page-path ranking did not produce ranks from the published artifacts');
-const identity = buildRankingIdentity({ appliedFactorWeights: ranking.appliedFactorWeights, activeFactors: ranking.activeFactors });
+const identity = buildPopulationRankingIdentity(ranking);
 if (!identity) fail('ranking identity missing');
+// 2026-10-17 audit: the entry pools every market's ranked rows, so a model change in any one market (here KR alone)
+// must change the identity; a single-market ranking keeps the plain buildRankingIdentity string.
+{
+  const markets = Object.keys(ranking.byMarket || {});
+  if (markets.length > 1) {
+    const other = markets.find((market) => market !== 'US') || markets[1];
+    const changed = { ...ranking, byMarket: { ...ranking.byMarket, [other]: { ...ranking.byMarket[other], appliedFactorWeights: { momentum: 1 }, activeFactors: ['momentum'] } } };
+    if (buildPopulationRankingIdentity(changed) === identity) fail(`a ${other}-only model change left the pooled identity unchanged`);
+  }
+  const single = { appliedFactorWeights: { momentum: 0.5, trend: 0.5 }, activeFactors: ['momentum', 'trend'] };
+  if (buildPopulationRankingIdentity({ ...single, byMarket: { US: single } }) !== buildRankingIdentity(single)) fail('a single-market identity must keep the buildRankingIdentity string');
+}
 
 // Synthetic completed-session calendars: 30 sessions; anchor at index 5 → forward index 26.
 const days = Array.from({ length: 30 }, (_, i) => new Date(Date.UTC(2026, 0, 5 + i)).toISOString().slice(0, 10));

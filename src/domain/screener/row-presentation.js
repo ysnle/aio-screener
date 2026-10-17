@@ -10,10 +10,12 @@ export const FACTOR_LABELS = Object.freeze({
   momentum: { label: '모멘텀', color: 'var(--data-green)', description: '1개월 40%·3개월 40%·6개월 20% 수익률' },
   trend: { label: '추세', color: 'var(--data-green)', description: '50일선 거리 60%·200일선 거리 40%' },
   lowvol: { label: '저변동', color: 'var(--data-cyan)', description: '실현 변동성의 역순' },
-  size: { label: '사이즈', color: 'var(--text-muted)', description: '시가총액의 역순' },
+  size: { label: '규모', color: 'var(--text-muted)', description: '시가총액의 역순(작을수록 높음)' },
   value: { label: '밸류', color: 'var(--data-amber)', description: '저PER·저PBR — 최근 연간(FY) 순이익·자본 기준' },
   quality: { label: '퀄리티', color: 'var(--data-amber)', description: 'ROE·마진·매출성장 — 최근 연간(FY) 공시 기준' },
-  kalman: { label: '추세 속도', color: 'var(--accent)', description: '칼만 추세 신뢰도' }
+  // 2026-10-17 audit: kalmanVelConf is the filter's daily trend velocity discounted by its own uncertainty, and the discount
+  // is 1~9% (median 2%) because the state covariance is in log units — it reads as a speed, not a confidence.
+  kalman: { label: '추세 속도', color: 'var(--accent)', description: '칼만 필터로 추정한 최근 90거래일 추세의 하루 속도(불확실성만큼 소폭 할인)' }
 });
 
 // P1318/R664: size-bucket value in USD billions — decision-grade live cap first, else the

@@ -910,6 +910,11 @@ async function run() {
   const bond = excludedResult.rows.find((row) => row.sym === 'BOND');
   assert(excludedResult.populationExclusions?.fund === 1 && bond?.rank === null && bond?.rankingEligibility === 'population-excluded' && bond?.populationExclusion === 'fund' && excludedResult.inputAudit?.eligibleRows === 8,
     'P1872 a fund stays as a row with a null rank and its reason and never enters the percentile denominator', JSON.stringify({ excl: excludedResult.populationExclusions, bond, eligible: excludedResult.inputAudit?.eligibleRows }));
+  // 2026-10-17 audit: a Tokyo/Taiwan listing leaves the US cross-section with its reason, not silently.
+  const foreignResult = computeFactorRanks({ rows: [...exclusionRows, { sym: '8035.T', name: 'Tokyo Electron', listingMarket: 'INTL', sector: 'Tech', ret1m: 1, ret3m: 2, ret6m: 3, vol: 30, pctSma50: 1, pctSma200: 1 }], weights: { momentum: 1, lowvol: 1 }, weightsPolicy: 'explicit', now: 0 });
+  const tokyo = foreignResult.rows.find((row) => row.sym === '8035.T');
+  assert(foreignResult.populationExclusions?.foreign === 1 && tokyo?.rank === null && tokyo?.populationExclusion === 'foreign' && foreignResult.inputAudit?.eligibleRows === 8,
+    'audit 2026-10-17 a foreign listing stays as a row with a null rank and the foreign reason', JSON.stringify({ excl: foreignResult.populationExclusions, tokyo }));
 
   const report = { schemaVersion: 'screener-workbench-ci.v1', generatedAt: new Date().toISOString(), status: failures.length ? 'FAIL' : 'PASS', checks, failures, baseline: { universe: artifact.universe, ok: artifact.ok, fundamentalCoveragePct: artifact.fundamentalCoveragePct }, fieldRegistry: registryCheck.size, presetCount: presetsA.length };
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);

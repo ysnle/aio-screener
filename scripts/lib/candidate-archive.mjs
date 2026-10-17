@@ -15,7 +15,7 @@ import { normalizeScreener } from '../../src/data/normalize/screener.js';
 import { calculationRow } from '../../src/data/contracts/screener.js';
 import { computeFactorRanks } from '../../src/domain/screener/factor-ranks.js';
 import { MODEL_DEFAULT_WEIGHTS } from '../../src/domain/screener/factor-weights.js';
-import { buildRankingIdentity } from '../../src/domain/screener/model-fingerprint.js';
+import { buildPopulationRankingIdentity, buildRankingIdentity } from '../../src/domain/screener/model-fingerprint.js';
 import { marketOfSymbol } from '../../src/domain/market/session-time.js';
 import { summarizeCandidateArchive } from '../../src/domain/screener/candidate-record.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../../src/domain/fundamental/period.js';
@@ -124,7 +124,8 @@ export function buildCandidateEntry({ ranking, sessionDates = {}, recordedAt }) 
     date,
     sessionDates: { US: sessionDates.US || null, KR: sessionDates.KR || null },
     recordedAt,
-    identity: buildRankingIdentity({ appliedFactorWeights: ranking.appliedFactorWeights, activeFactors: ranking.activeFactors }),
+    // The ranked list pools both markets, so the identity is every market's model (model-fingerprint.js).
+    identity: buildPopulationRankingIdentity(ranking),
     activeFactors: [...(ranking.activeFactors || [])],
     ranked: ranked.length,
     quintile: q,
