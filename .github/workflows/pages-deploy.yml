@@ -36,7 +36,7 @@ jobs:
   deploy:
     if: >-
       github.event_name == 'workflow_dispatch'
-      || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+      || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -121,8 +121,10 @@ jobs:
 
       # The staging step's bundle/minify pass imports the lockfile-pinned esbuild. Every other step (deployment.json,
       # ci-external-pipeline-check, ci-live-invariant-check and their relative imports) uses Node built-ins only.
+      # --ignore-scripts: no package lifecycle script runs in this privileged job; esbuild resolves its
+      # lockfile-pinned platform binary package without its optional postinstall.
       - name: Install pinned build tooling
-        run: npm ci --no-audit --no-fund
+        run: npm ci --no-audit --no-fund --ignore-scripts
 
       - name: Stage explicit public artifact allowlist
         env:

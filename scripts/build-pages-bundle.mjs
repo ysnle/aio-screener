@@ -79,7 +79,10 @@ for (const file of GLOBAL_SCRIPTS) {
 // 2. Native ESM graph. Bundle from the pristine staged sources into a temp dir, then swap it in.
 const bundleOut = fs.mkdtempSync(path.join(path.dirname(dist), '.aio-esm-bundle-'));
 const build = await esbuild.build({
-  entryPoints: { 'app/bootstrap': path.join(dist, ESM_ENTRY) },
+  // Input paths resolve relative to the staged dir, so chunk hashes depend only on the shipped code (a data-only
+  // deploy keeps the same bytes and the service worker's code hash), not on where the runner staged it.
+  absWorkingDir: dist,
+  entryPoints: { 'app/bootstrap': ESM_ENTRY },
   outdir: bundleOut,
   bundle: true,
   splitting: true,
@@ -108,7 +111,7 @@ const pruneEmpty = (dir) => {
 pruneEmpty(srcDir);
 
 // 3. Boot set = entry plus the chunks it imports statically (lazy page chunks load on navigation).
-const outputs = Object.fromEntries(Object.entries(build.metafile.outputs).map(([file, value]) => [rel(path.join(srcDir, path.relative(bundleOut, path.resolve(file)))), value]));
+const outputs = Object.fromEntries(Object.entries(build.metafile.outputs).map(([file, value]) => [rel(path.join(srcDir, path.relative(bundleOut, path.resolve(dist, file)))), value]));
 const bootModules = new Set();
 const queue = [ESM_ENTRY];
 while (queue.length) {
@@ -116,7 +119,7 @@ while (queue.length) {
   if (bootModules.has(file)) continue;
   bootModules.add(file);
   for (const item of outputs[file]?.imports || []) {
-    if (item.kind === 'import-statement') queue.push(rel(path.join(srcDir, path.relative(bundleOut, path.resolve(item.path)))));
+    if (item.kind === 'import-statement') queue.push(rel(path.join(srcDir, path.relative(bundleOut, path.resolve(dist, item.path)))));
   }
 }
 
