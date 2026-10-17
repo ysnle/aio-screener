@@ -1229,7 +1229,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('P1875 SEC IFRS and non-USD filers are read ratio-only on one basis; price ratios and non-USD amounts are withheld', ok, detail.slice(0, 600));
 }
 {
-  // 2026-10-17 SEC logic audit: (1) a US-GAAP 20-F that adds a USD convenience translation (BABA/JD/PDD in CNY) is read on its
+  // P1910 (v57.99, 2026-10-17 SEC logic audit): (1) a US-GAAP 20-F that adds a USD convenience translation (BABA/JD/PDD in CNY) is read on its
   // statements' own currency, so USD growth no longer carries the exchange rate; (2) a 20-F share count (ordinary shares, ADS
   // ratio unknown) prices nothing — in the normalizer and in the publish-time heal of stored records; a 40-F keeps its count;
   // (3) P/E and P/B are priced only on the supplied close; (4) a 52/53-week year ending in early January is the prior FY;
@@ -1267,7 +1267,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && SEC_FRESHNESS_POLICY.currentMaxAgeDays === FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
     detail = JSON.stringify({ cny: cny && { cur: cny.reportingCurrency, g: cny.revGrowth, sc: cny.sharesCheck }, usd20f: usd20f && { sh: usd20f.sharesOutstanding, sc: usd20f.sharesCheck }, usd40f: usd40f && { sh: usd40f.sharesOutstanding, pe: usd40f.pe }, healed: { sh: healed.sharesOutstanding, held: healed.sharesHeld }, priced: priced && { pe: priced.pe, pb: priced.pb } });
   } catch (error) { detail = error.message; }
-  check('2026-10-17 SEC audit: convenience-translated filers read on their own currency, 20-F counts price nothing, ratios use the supplied close', ok, detail.slice(0, 600));
+  check('P1910 SEC audit: convenience-translated filers read on their own currency, 20-F counts price nothing, ratios use the supplied close', ok, detail.slice(0, 600));
 }
 {
   // P1910 (v57.99, owner-approved audit recommendations D1/D2/D6/D7/D8): P/E is priced on the last four quarters when they end after the

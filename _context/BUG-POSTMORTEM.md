@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1910 - v57.99 - SEC 재무 정규화가 USD 편의환산을 USD 보고로, 20-F 보통주 수를 ADS 가격 기준으로 읽음 (2026-10-17)
+
+- symptom/reproduction: BABA P/E 142·P/B 13.9·참조 시가총액 약 $3.3조(1 ADS = 8주), PDD·JD P/E 2~4배 과대, 중국 ADR 매출 성장률에 연도별 환율 변화가 섞임. 같은 감사에서 레거시 기업 분석 FCF Yield가 모든 종목에서 음수, SEC 보고서가 다음 10-K 기한 전에 '최신 연간 보고서 아님'을 표시, 1월 초 마감 52/53주 회계연도가 다음 해로 라벨링됨.
+- root_cause: reportingBasis가 US-GAAP USD 연간 매출의 존재만으로 USD 보고로 판정했고(편의환산 행은 공시마다 한 번씩만 그 해 환율로 존재), v6의 '20-F 주식 수는 보통주' 근거를 IFRS에만 적용했다. 레거시 파서는 현행 US-GAAP에 없는 영업현금흐름 개념명을 썼고, 보고서 신선도만 400일 별도 예산을 썼다.
+- fix: 같은 공시·같은 기간의 비USD 매출이 있으면 그 통화를 보고 기준으로 삼고(비율만 공개), US-GAAP 20-F 주식 수로는 가격 비율을 만들지 않으며(정규화 + 공개 시점 heal), 행 필드 P/E·P/B는 넘겨받은 종가로만 계산한다. 보고서 신선도는 456일 단일 규칙, PIT as-of 매출은 생산자 개념 규칙, fiscalYearLabel로 1월 1~7일 마감은 전년도. 레거시 파서는 개념명·10-Q 기간·최신 제출·같은 마감일 비율·라벨을 고쳤다.
+- violated_rule: 한 레코드의 모든 피연산자는 한 택소노미·한 통화에서 온다(v6 소유자 결정); 가격 비율의 주식 수는 상장선과 같은 단위여야 한다.
+- prevention: ci-data-pipeline-contract-check에 편의환산 통화 판정·20-F 보류·40-F 유지·heal·종가 재계산·회계연도 라벨·456일 신선도 회귀 테스트를 추가했다.
+- verification/residual: data-store 원장 832개(확장 2,262개) 재현: 20-F heal 핵심 15·확장 276건, as-of 매출이 생산자 매출과 0건 차이; ci-data-pipeline-contract-check, ci-professional-data-gap-check, ci-runtime-contract-check, ci-sec-runtime-projection-check, ci-fiscal-quality-fixture 통과.
+
 ## P1909 - v57.94 - 주도 영역 이탈 판정이 하루 단위 확인 조건 때문에 이탈·약세를 오갔음 (2026-10-17)
 
 - symptom/reproduction: 2026년 7월 나스닥 100이 계속 50일선 아래로 밀리는데 주도 영역 판정이 7/23 이탈 → 7/24~28 약세 → 7/29 이탈 → 7/30~8/3 확인 불가로 바뀌었다. 2026-01~10 199거래일 동안 상태 변화는 33회였다.
