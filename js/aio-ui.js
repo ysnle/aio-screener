@@ -2191,7 +2191,6 @@ function _renderFundFinancials(d) {
   var lastDebt = (sf.totalDebt && sf.totalDebt.length > 0) ? sf.totalDebt[sf.totalDebt.length - 1] : null;
   var lastShares = (sf.sharesOut && sf.sharesOut.length > 0) ? sf.sharesOut[sf.sharesOut.length - 1] : null;
 
-  // SEC 값 헬퍼
   function sv(item) { return item ? (item.val || item.value || 0) : 0; }
   // v49.0 P183: API Infinity/NaN → 'N/A' 가드
   var _fn = window._aioFiniteNum || function(v) { return (v != null && isFinite(v)) ? v : null; };
@@ -2206,10 +2205,7 @@ function _renderFundFinancials(d) {
   var secOpCFVal = sv(lastOpCF);
   var secCapexVal = sv(lastCapex);
   var secDebtVal = sv(lastDebt);
-  // 2026-10-17 (logic audit): each series keeps its own latest period, so a ratio is formed only when both operands close on
-  // the same date (a FY2025 gross profit over a FY2024 revenue is not a margin). FCF needs both cash-flow facts of one year —
-  // a missing operating cash flow used to make FCF = −capex.
-  function samePeriod(a, b) { return !!(a && b && a.end && a.end === b.end); }
+  function samePeriod(a, b) { return !!(a && b && a.end && a.end === b.end); } // P1910: ratios only within one period
   var secROE = (samePeriod(lastNI, lastEquity) && secEquityVal > 0) ? secNIVal / secEquityVal : null;
   var secGrossMargin = (samePeriod(lastGross, lastRev) && secRevVal) ? secGrossVal / secRevVal : null;
   var secFCF = samePeriod(lastOpCF, lastCapex) ? secOpCFVal - Math.abs(secCapexVal) : null;
@@ -2220,7 +2216,6 @@ function _renderFundFinancials(d) {
   var secSharesVal = sv(lastShares);
   var secMktCap = (d.price && secSharesVal) ? d.price * secSharesVal : 0;
   // PE from SEC
-  // 2026-10-17: the 10-K EPS is the last fiscal year's, not the last four quarters'; a loss year has no P/E.
   var secPE = (secEpsVal > 0 && d.price) ? d.price / secEpsVal : null;
 
   var _missingCards = []; // P1591 (S09): unreceived metrics collapse into one line instead of a grid of N/A cards
@@ -2246,16 +2241,16 @@ function _renderFundFinancials(d) {
 
   var html = '';
   html += card('시가총액', mktCap > 0 ? '$' + _fmtNum(mktCap) : 'N/A', p.sector || (isSEC ? 'SEC XBRL' : ''));
-  html += card(isSEC ? 'P/E (최근 회계연도)' : 'P/E (TTM)', _fn(peVal) !== null ? peVal.toFixed(1) + 'x' : 'N/A', isSEC ? '주가 ÷ 최근 연간 보고서 EPS' + (lastEps && lastEps.end ? '(' + String(lastEps.end).slice(0, 7) + ' 마감)' : '') + ' · 최근 4개 분기 합이 아님' : '주가 ÷ 최근 4개 분기 EPS · 성장률·위험과 함께 비교');
+  html += card('P/E (최근 회계연도)', _fn(peVal) !== null ? peVal.toFixed(1) + 'x' : 'N/A', '주가 ÷ 연간 보고서 EPS · 4개 분기 합 아님');
   html += card('ROE', _fn(roeVal) !== null ? (roeVal * 100).toFixed(1) + '%' : 'N/A', '순이익 ÷ 자기자본 · 공급자 기준(위 재무 흐름은 평균 자기자본 기준)');
-  html += card(isSEC ? 'EPS (최근 회계연도)' : 'EPS (TTM)', epsVal ? '$' + epsVal.toFixed(2) : 'N/A', '');
+  html += card('EPS (최근 회계연도)', epsVal ? '$' + epsVal.toFixed(2) : 'N/A', '');
   html += card('매출', revVal ? '$' + _fmtNum(revVal) : 'N/A', revYear ? 'FY ' + revYear : '');
   html += card('순이익', niVal ? '$' + _fmtNum(niVal) : 'N/A', '', (niVal || 0) >= 0 ? 'var(--data-green)' : 'var(--data-red)');
   html += card('Gross Margin', gmVal ? (gmVal * 100).toFixed(1) + '%' : 'N/A', '매출총이익률');
   html += card('FCF Yield', m.freeCashFlowYield ? (m.freeCashFlowYield * 100).toFixed(1) + '%' : (secFCF != null && mktCap > 0 ? ((secFCF / mktCap) * 100).toFixed(1) + '%' : 'N/A'), '잉여현금흐름 수익률');
   html += card('EV/EBITDA', _fn(m.enterpriseValueOverEBITDA) !== null ? m.enterpriseValueOverEBITDA.toFixed(1) + 'x' : 'N/A', '기업가치 대비');
   html += card('P/B', _fn(m.pbRatio) !== null ? m.pbRatio.toFixed(2) + 'x' : (secEquityVal && d.price && secEquityVal > 0 ? (mktCap / secEquityVal).toFixed(2) + 'x' : 'N/A'), '주가순자산비율');
-  html += card('부채비율', _fn(deVal) !== null ? deVal.toFixed(2) + 'x' : 'N/A', (isSEC ? '장기부채' : '부채') + ' ÷ 자기자본 · 업종마다 정상 범위가 다름');
+  html += card('부채비율', _fn(deVal) !== null ? deVal.toFixed(2) + 'x' : 'N/A', '장기부채 ÷ 자기자본 · 업종마다 정상 범위가 다름');
   // P1164/B01: FMP profile이 없으면 배당 원천 자체가 미수신이다. 부재를 '0%'라는 실측값으로
   // 표시하지 않는다 — 실제 무배당(lastDiv===0)만 0.00%로 남는다.
   var hasDivValue = typeof p.lastDiv === 'number' && isFinite(p.lastDiv);
@@ -2290,7 +2285,7 @@ function _renderFundFinancials(d) {
     if (lastCash) qHtml += card('현금 포지션', '$' + _fmtNum(lastCash), 'Cash & Equivalents');
     if (lastInv) qHtml += card('재고', '$' + _fmtNum(lastInv), '');
     if (lastRcv) qHtml += card('매출채권', '$' + _fmtNum(lastRcv), '');
-    if (lastCurDebt) qHtml += card('단기 차입금', '$' + _fmtNum(lastCurDebt), '1년 내 상환할 차입금 · 유동부채 전체가 아님'); // 2026-10-17: DebtCurrent is debt due within a year, not total current liabilities
+    if (lastCurDebt) qHtml += card('단기 차입금', '$' + _fmtNum(lastCurDebt), '1년 내 상환할 차입금');
     html += qHtml;
   }
 

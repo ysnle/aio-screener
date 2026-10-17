@@ -4876,6 +4876,7 @@ function _isQuotaExceeded(providerKey) {
 }
 
 // SEC EDGAR XBRL → 핵심 재무 지표 파싱 (매출, 순이익, 자산, 자본, EPS, FCF)
+function _secByEndFiled(a, b) { return String(a.end).localeCompare(String(b.end)) || String(a.filed || '').localeCompare(String(b.filed || '')); }
 function _parseSECFinancials(xbrlData) {
   if (!xbrlData || !xbrlData.facts) return null;
   // v40.4: IFRS 기업(ASML, TSM 등 ADR) 대응 — us-gaap 우선, 없으면 ifrs-full 폴백
@@ -4910,18 +4911,10 @@ function _parseSECFinancials(xbrlData) {
       // P560: reject entries whose start-end span doesn't match the expected period length —
       // a stray quarterly/stub fact tagged under a 10-K filing would otherwise be treated as
       // a full-year figure and distort ratios against genuinely-annual concepts.
-      // 2026-10-17 (logic audit): a 10-Q carries the three-month AND the year-to-date (six/nine-month) fact for the same end
-      // date, and position decided which one survived — a quarter could read as nine months. Quarterly facts must span about
-      // three months, as the native 분기 추이 projection requires (80-100 days).
-      filtered = filtered.filter(function(d) {
-        if (!d.start) return true; // instant (point-in-time) facts have no start/duration
-        var days = (new Date(d.end) - new Date(d.start)) / 86400000;
-        return formType === '10-K' ? days >= 300 && days <= 400 : days >= 80 && days <= 100;
-      });
-      // One row per period end: the latest filing (a restated comparative or amendment), not whichever came last in the array.
-      filtered.sort(function(a, b) { return String(a.end).localeCompare(String(b.end)) || String(a.filed || '').localeCompare(String(b.filed || '')); });
+      // P1910: quarters span ~3 months (a 10-Q also tags 6/9-month YTD facts); one row per end, the latest filing.
+      filtered = filtered.filter(function(d) { var days = d.start ? (new Date(d.end) - new Date(d.start)) / 86400000 : 0; return !d.start || (formType === '10-K' ? days >= 300 && days <= 400 : days >= 80 && days <= 100); });
       var byEnd = {};
-      filtered.forEach(function(d) { byEnd[d.end] = d; });
+      filtered.sort(_secByEndFiled).forEach(function(d) { byEnd[d.end] = d; });
       var unique = Object.keys(byEnd).sort().map(function(end) { return byEnd[end]; });
       if (unique.length > 0) {
         var thisEnd = unique[unique.length - 1].end;
@@ -4936,8 +4929,6 @@ function _parseSECFinancials(xbrlData) {
   result.totalAssets = extractSeries(['Assets'], '10-K', 5);
   result.equity = extractSeries(['StockholdersEquity','StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest'], '10-K', 5);
   result.eps = extractSeries(['EarningsPerShareDiluted','EarningsPerShareBasic'], '10-K', 5);
-  // 2026-10-17 (logic audit): the US-GAAP operating cash flow concept is NetCashProvidedByUsedInOperatingActivities; the two
-  // names here matched no current filer, so FCF read as −capex and the FCF Yield card showed a negative number for everyone.
   result.opCashFlow = extractSeries(['NetCashProvidedByUsedInOperatingActivities','NetCashProvidedByUsedInOperatingActivitiesContinuingOperations'], '10-K', 5);
   result.capex = extractSeries(['PaymentsToAcquirePropertyPlantAndEquipment','CapitalExpenditure'], '10-K', 5);
   result.grossProfit = extractSeries(['GrossProfit'], '10-K', 5);
@@ -4946,7 +4937,7 @@ function _parseSECFinancials(xbrlData) {
   result.costOfRevenue = extractSeries(['CostOfRevenue','CostOfGoodsAndServicesSold'], '10-K', 5);
   // v48.0: 성장주 품질 분석 필수 — R&D 지출, SBC(주식기반보상), SG&A
   result.rd = extractSeries(['ResearchAndDevelopmentExpense','ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost'], '10-K', 5);
-  result.sbc = extractSeries(['ShareBasedCompensation','AllocatedShareBasedCompensationExpense'], '10-K', 5); // 2026-10-17: StockBasedCompensation is not a US-GAAP concept
+  result.sbc = extractSeries(['ShareBasedCompensation','AllocatedShareBasedCompensationExpense'], '10-K', 5);
   result.sga = extractSeries(['SellingGeneralAndAdministrativeExpense','GeneralAndAdministrativeExpense'], '10-K', 5);
   // P560/R251: shares outstanding was never extracted, so the market-cap fallback
   // (`d.price * (d.sharesOut || 0)`) always multiplied by 0 whenever FMP was unavailable —
@@ -4955,8 +4946,7 @@ function _parseSECFinancials(xbrlData) {
   if (!sharesSeries.length) {
     var deiFacts = (xbrlData.facts['dei'] || {})['EntityCommonStockSharesOutstanding'];
     var deiArr = deiFacts && deiFacts.units && (deiFacts.units['shares'] || Object.values(deiFacts.units)[0]);
-    // 2026-10-17: the newest cover date, not the array's last element (companyfacts order is not a date order).
-    if (deiArr && deiArr.length) sharesSeries = [deiArr.slice().sort(function(a, b) { return String(a.end).localeCompare(String(b.end)) || String(a.filed || '').localeCompare(String(b.filed || '')); })[deiArr.length - 1]];
+    if (deiArr && deiArr.length) sharesSeries = [deiArr.slice().sort(_secByEndFiled)[deiArr.length - 1]];
   }
   result.sharesOut = sharesSeries;
   // v48.0: 현금 포지션·운전자본 건전성
@@ -5144,12 +5134,8 @@ async function fundamentalSearch() {
   try {
     var _cik = collected.sec && collected.sec.cik;
     if (_cik) {
-      // 최신 완료 분기 — 10-Q 제출 여유. 2026-10-17 (logic audit): the code took the quarter just ended (October → Q3, whose
-      // 10-Qs arrive through mid-November), so the frame held only early filers and the company was often absent. The quarter
-      // used is the latest calendar quarter that ended at least 75 days ago (40-45 day 10-Q deadline plus frame lag).
-      var _ref = new Date(Date.now() - 75 * 86400000);
-      var _year = _ref.getUTCFullYear();
-      var _q = Math.floor(_ref.getUTCMonth() / 3);  // quarters fully ended before the reference date
+      // 최신 완료 분기 — 10-Q 제출 여유(P1910: 75일 이상 지난 분기)
+      var _ref = new Date(Date.now() - 75 * 86400000), _year = _ref.getUTCFullYear(), _q = Math.floor(_ref.getUTCMonth() / 3);
       if (_q <= 0) { _q = 4; _year -= 1; }
       var _period = 'CY' + _year + 'Q' + _q;
       updateProgress('SEC Frames 보고기업 비교 조회 중 (' + _period + ')...');
