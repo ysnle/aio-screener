@@ -4,6 +4,10 @@ last_verified: 2026-10-17
 confidence: medium
 ---
 
+## v57.94 주도 영역 이탈 안정화 (2026-10-17)
+
+- [x] QA-REPLAY-02: P1909: 주도 영역 이탈은 최근 5거래일 확인 조건으로 판정하고 나스닥 100 약세가 이어지는 동안 유지된다(2026-07-17~08-03 이탈, 08-04 해제). verify_by: node scripts/ci-crash-replay-check.mjs
+
 ## v57.92 지식 근거·전수 감사 반영 (2026-10-17)
 
 - [x] QA-KNOW-EVID-01: P1903 AI 기초 글의 근거 사실이 같은 분야만 가리킨다 — 용량과 수율·데이터 품질·후속학습·평가·외부 메모리에 거시·회계·패키징 사실이 없다. verify_by: node scripts/ci-review-integrity-unit-check.mjs

@@ -183,8 +183,8 @@ for (const [w, window] of WINDOWS.entries()) {
 // Real 2026 windows, replayed day by day from the published history.json + macro-history.json (no synthetic path).
 // - 2026-02..03: S&P 500 -9.1%, Nasdaq-100 -11.8%, VIX 31 on 3/27. history.json starts 2025-08-22, so the 200-day line —
 //   and with it the trend axis — is not computable from this file before 2026-06; the replay says so instead of guessing.
-// - 2026-07: the S&P 500 fell at most 4.5% while the Nasdaq-100 (the leadership proxy; the history has no semiconductor
-//   series) fell 11.3% from 6/2 to 7/29 (owner 2026-10-16: "지수는 덜 빠져도 AI·반도체는 많이 빠졌다"). A leadership
+// - 2026-07: the S&P 500 fell at most 4.5% while the Nasdaq-100 (the leadership proxy; SMH is reference-only) fell
+//   11.3% from 6/2 to 7/29 (owner 2026-10-16: "지수는 덜 빠져도 AI·반도체는 많이 빠졌다"). A leadership
 //   state of 'holding' then told the AI packet "주도 영역 이탈: 아니오".
 // - 2026-10-12..15: the v57.81 rule changes came from this week (0.15% over the 50-day line and VIX 16.87 after +11.9%
 //   in five sessions both read 양호 on 10/14).
@@ -208,6 +208,7 @@ for (const [w, window] of WINDOWS.entries()) {
 
   // Day-by-day invariants over all three windows.
   for (const [label, from, to] of [['2026-02~03', '2026-01-27', '2026-04-09'], ['2026-07', '2026-06-29', '2026-08-07'], ['2026-10', '2026-10-12', '2026-10-15']]) {
+    let previous = null;
     for (const date of sessions(from, to)) {
       const read = realAt(date);
       const { row, states, leadership, credit } = read;
@@ -217,6 +218,9 @@ for (const [w, window] of WINDOWS.entries()) {
       // A leadership proxy clearly under its 50-day line is never 'holding' (v57.83).
       if (leadership.belowMa50) check(leadership.state !== 'holding', `${where}: 나스닥 100이 50일선 아래(${leadership.summary})인데 주도 영역 유지`);
       if (leadership.state === 'break') check(leadership.proxyWeak === true, `${where}: 주도주 약세 없이 이탈 판정`);
+      // v57.94: a break holds while the proxy stays weak (7/23 이탈 -> 7/24 약세 -> 7/29 이탈 was single-session counts).
+      if (previous?.break && leadership.proxyWeak) check(leadership.break, `${where}: 전날 이탈·나스닥 100 약세 지속인데 ${leadership.state} (${leadership.summary})`);
+      previous = leadership;
     }
   }
 
@@ -237,12 +241,20 @@ for (const [w, window] of WINDOWS.entries()) {
     if (date === '2026-07-29') check(read.states.trend !== 'favorable', `${date}: S&P 500 50일선 -2.0%인데 추세 양호`);
     summary.push(line(read, ` ndx/high:${read.leadership.offHigh?.toFixed(1)}%`));
   }
+  // v57.94: with the 5-session confirmation window the July break reads from 7/17 (Nasdaq-100 -4.1% in five sessions, 상승
+  // 종목 32% that day and 분배일 6 on 7/13) and holds through 8/3; 8/4 regains the 50-day line and releases it.
+  for (const date of sessions('2026-07-17', '2026-08-03')) {
+    const read = realAt(date);
+    check(read.leadership.break, `${date}: 7월 주도주 하락 구간인데 주도 영역 ${read.leadership.state} (${read.leadership.summary})`);
+  }
+  const aug4 = need('2026-08-04', '2026-07');
+  if (aug4) check(!aug4.leadership.break, `2026-08-04: 나스닥 100이 50일선을 되찾았는데 이탈 유지 (${aug4.leadership.summary})`);
   // 2026-08-06: Nasdaq-100 at its 50-day line (-0.0%) in a +4.5% week — inside the 1% buffer, not a break.
   const aug6 = need('2026-08-06', '2026-07');
   if (aug6) { check(!aug6.leadership.break, `2026-08-06: 50일선 ±1% 안 반등 주간에 주도 영역 이탈 (${aug6.leadership.summary})`); summary.push(line(aug6)); }
 
-  // SMH (semiconductors) joined history.json in v57.83 and backfills a year on the next refresh. Report-only: no judgement
-  // reads it yet, so its drawdown beside the leadership state is evidence for the owner, not a gate.
+  // SMH (semiconductors) joined history.json in v57.83. Report-only: no judgement reads it — v57.94 compared it as a second
+  // proxy and it read 이탈 through the +8% rebound week of 8/5~8/10 — so its drawdown is evidence for the owner, not a gate.
   for (const [label, from, to] of [['2026-02~03', '2026-01-02', '2026-04-09'], ['2026-07', '2026-06-01', '2026-08-07']]) {
     const smh = rows.filter((row) => row.date >= from && row.date <= to && Number.isFinite(row.smh));
     if (smh.length < 20) { summary.push(`${label} SMH: 기록 없음 (다음 갱신 때 1년 백필)`); continue; }
