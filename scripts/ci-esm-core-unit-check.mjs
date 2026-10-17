@@ -1942,6 +1942,12 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const bearStack = stage.classifyMovingAverageStructure({ sma5: 400, sma10: 410, sma20: 420, sma50: 450, sma100: 480, sma200: 520, sma50Prior: 460, lastClose: 390 });
   if (pulled.trendState === 'UPTREND' || /정배열/.test(stage.MA_STRUCTURE_LABELS[pulled.stageEstimate] || '') || broken.trendState !== 'TREND_DAMAGED' || !/역배열/.test(stage.MA_STRUCTURE_LABELS[bearStack.stageEstimate] || '')
     || Object.values({ pulled, broken, bearStack }).some((s) => !stage.MA_STRUCTURE_LABELS[s.stageEstimate])) fail(`v57.81 MA stack must read the close first and every stage must have one label, got ${pulled.stageEstimate}/${broken.stageEstimate}/${bearStack.stageEstimate}`);
+  // Audit 2026-10-17 (owner D7): a close over a rising 50-day line that is over the 200-day line is 상승 추세 even when the
+  // 5·10·20 order is mixed after two quiet sessions; that order stays its own field.
+  const quiet = stage.classifyMovingAverageStructure({ sma5: 584, sma10: 586, sma20: 580, sma50: 540, sma100: 500, sma200: 420, sma50Prior: 530, lastClose: 585 });
+  if (quiet.trendState !== 'UPTREND' || quiet.shortMAState !== 'SHORT_MIXED' || !/상승 추세/.test(stage.MA_STRUCTURE_LABELS[quiet.stageEstimate])) fail(`D7 close > rising 50 > 200 with a mixed short order is 상승 추세, got ${quiet.trendState}/${quiet.shortMAState}`);
+  const crossDown = stage.classifyMovingAverageStructure({ sma5: 584, sma10: 586, sma20: 580, sma50: 540, sma100: 560, sma200: 550, sma50Prior: 530, lastClose: 585 });
+  if (crossDown.trendState === 'UPTREND') fail('D7 a 50-day line under the 200-day line is not 상승 추세');
   const dropBars = Array.from({ length: 220 }, (_, index) => ({ date: new Date(Date.UTC(2026, 0, 1) + index * 86400000).toISOString().slice(0, 10), close: index < 219 ? 100 + index * 0.5 : (100 + 218 * 0.5) * 0.97 }));
   const dellLike = stage.deriveTechnicalStageFromOhlcv({ symbol: 'dell', ohlcv: dropBars, now: Date.UTC(2026, 7, 9) });
   // One validation count basis (net of cost) for the screener read, the stock read and the 과거 검증 tab.
