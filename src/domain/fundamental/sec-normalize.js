@@ -2,7 +2,8 @@
 // the browser can read an out-of-universe issuer's filing with the same functions (the producer imports and
 // re-exports them). Pure: companyfacts/submissions JSON in, one annual record out; no I/O.
 import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
-import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS, SEC_BANK_NET_REVENUE_CONCEPT, SEC_IFRS_PRIMARY_REVENUE_CONCEPTS, SEC_IFRS_FALLBACK_REVENUE_CONCEPTS } from './sec-report.js';
+import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, FOREIGN_ORDINARY_SHARE_FORMS, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS, SEC_BANK_NET_REVENUE_CONCEPT, SEC_IFRS_PRIMARY_REVENUE_CONCEPTS, SEC_IFRS_FALLBACK_REVENUE_CONCEPTS } from './sec-report.js';
+import { reconcileSecEarningsBasis, SEC_COMMON_INCOME_CONCEPT } from './sec-earnings.js';
 
 function round(n, digits = 2) {
   const p = 10 ** digits;
@@ -86,9 +87,28 @@ function revenueFactRows(companyFacts, basis = US_GAAP_BASIS) {
 
 const isAnnualFy = (row) => { const days = durationDays(row); return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400 && finiteFact(row.val) != null; };
 
+// 2026-10-17 (logic audit): a US-GAAP filer reporting in another currency often adds a USD convenience translation of the
+// latest year in the same 20-F (BABA, JD, PDD, TCOM in CNY; HDB in INR). companyfacts then holds a USD annual row per year,
+// each translated at its own year's rate, so the USD "growth" carried the exchange rate (BABA +8.1%) and the record read as a
+// USD reporter. A non-USD revenue row of the same filing and period names the statements' own currency, which is the basis.
+function convenienceTranslationCurrency(companyFacts, usdEnd) {
+  const accessions = new Set(revenueFactRows(companyFacts, US_GAAP_BASIS).filter((row) => isAnnualFy(row) && String(row.end) === usdEnd && row.accn).map((row) => row.accn));
+  if (!accessions.size) return null;
+  const facts = companyFacts?.facts?.['us-gaap'] || {};
+  for (const concept of BASIS_CONCEPTS['us-gaap'].revenue) {
+    for (const [unit, rows] of Object.entries(facts[concept]?.units || {})) {
+      if (unit === 'USD' || !/^[A-Z]{3}$/.test(unit)) continue;
+      if ((rows || []).some((row) => accessions.has(row.accn) && String(row.end) === usdEnd && isAnnualFy(row))) return unit;
+    }
+  }
+  return null;
+}
+
 export function reportingBasis(companyFacts, nowMs = Date.now()) {
   const latestEnd = (basis) => revenueFactRows(companyFacts, basis).filter(isAnnualFy).reduce((max, row) => (String(row.end) > max ? String(row.end) : max), '');
   const usd = latestEnd(US_GAAP_BASIS);
+  const native = usd ? convenienceTranslationCurrency(companyFacts, usd) : null;
+  if (native) return Object.freeze({ taxonomy: 'us-gaap', currency: native });
   if (usd && (nowMs - Date.parse(usd)) / 86400000 <= REPORT_RECENCY_MAX_DAYS) return US_GAAP_BASIS;
   let best = usd ? { ...US_GAAP_BASIS, end: usd } : null;
   for (const taxonomy of ['us-gaap', 'ifrs-full']) {
@@ -154,7 +174,8 @@ const REPORT_RECENCY_MAX_DAYS = FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
 // 2026-10-15 (P1798): class-dimensioned 10-K share counts for multi-class filers.
 // 2026-10-16: bank net revenue (v5 concept set) — stored bank records with a fee-subtotal revenue are re-read.
 // 2026-10-16b: reporting basis (IFRS / non-USD) — stale US-GAAP records of IFRS filers (TM 2013, VALE 2012) are re-read.
-export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-10-16b';
+// 2026-10-17: USD convenience translations read on the statements' own currency; 20-F share counts withheld (ADS ratio).
+export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-10-17';
 
 // The earliest instant a single operand could have been known: its accession acceptance time
 // when available, otherwise the filing date (which is a date, not an intraday time).
@@ -293,6 +314,9 @@ function buildPointInTimeFacts(companyFacts, submissions, basis = US_GAAP_BASIS)
   const ocfRows = amountRows(concepts.operatingCashFlow).filter(annualFy);
   const capexRows = amountRows(concepts.capex).filter(annualFy);
   const debtRows = amountRows(concepts.longTermDebt).filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
+  // 2026-10-17 (logic audit D7): earnings available to common stockholders (net income less preferred dividends and
+  // participating-securities allocations), annual and quarterly, for the P/E numerator; US-GAAP only.
+  const commonRows = basis.taxonomy === 'us-gaap' ? amountRows([SEC_COMMON_INCOME_CONCEPT]) : [];
   const observations = {
     revenue: compactPitRows(revenueRows, 'revenue', acceptedMap),
     netIncome: compactPitRows(incomeRows, 'netIncome', acceptedMap),
@@ -302,7 +326,11 @@ function buildPointInTimeFacts(companyFacts, submissions, basis = US_GAAP_BASIS)
     capex: compactPitRows(capexRows, 'capex', acceptedMap),
     longTermDebt: compactPitRows(debtRows, 'longTermDebt', acceptedMap),
     revenueQ: compactPitRows(revenueQRows, 'revenueQ', acceptedMap, 16),
-    netIncomeQ: compactPitRows(incomeQRows, 'netIncomeQ', acceptedMap, 16)
+    netIncomeQ: compactPitRows(incomeQRows, 'netIncomeQ', acceptedMap, 16),
+    ...(commonRows.length ? {
+      netIncomeCommon: compactPitRows(commonRows.filter(annualFy), 'netIncomeCommon', acceptedMap, 12),
+      netIncomeCommonQ: compactPitRows(commonRows.filter(quarterly), 'netIncomeCommonQ', acceptedMap, 16)
+    } : {})
   };
   const all = Object.values(observations).flat();
   return {
@@ -502,7 +530,10 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   // v6 (owner decision 2026-10-16): price-based ratios need a share count on the quote's basis. A non-USD report never
   // meets the USD quote, and an IFRS 20-F/40-F count is ordinary shares while the US line is often an ADS of 0.5-6
   // shares (AZN 0.5, BHP/SHEL 2, HSBC 5, BP 6), so both are withheld instead of converted.
-  const shareSelection = usGaapUsd
+  // 2026-10-17 (logic audit): the same holds for a US-GAAP 20-F — BABA's 19,235M ordinary shares priced at the ADS close (1 ADS =
+  // 8 shares) published P/E 142 and a $3.3T reference cap. A 40-F (Canadian MJDS) lists its common shares directly and is kept.
+  const foreignShareBasis = FOREIGN_ORDINARY_SHARE_FORMS.test(String(currentRevenue.form || ''));
+  const shareSelection = usGaapUsd && !foreignShareBasis
     ? selectShareCount(companyFacts, currentRevenue, netIncome, eps, dilutedEpsRow, classFacts, symbol)
     : { row: null, value: null, basis: null, check: basis.currency !== 'USD' ? 'reporting-currency-differs' : 'foreign-share-basis-unverified' };
   const currentShares = shareSelection.row;
@@ -614,5 +645,6 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   ['revGrowth', 'margin', 'roe', 'pe', 'pb'].forEach(key => {
     if (Number.isFinite(record[key])) record.coverage.push(key);
   });
-  return record;
+  // 2026-10-17 (logic audit D1/D2/D7): average-equity ROE and the TTM / common-earnings P/E numerator, by the same heal.
+  return reconcileSecEarningsBasis(record);
 }

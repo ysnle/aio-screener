@@ -1316,7 +1316,7 @@ check('P784/SA-01: proxy registry opens cooldown after three failures and reject
 
 check('W1-04: SEC annual facts expose versioned freshness and fail-closed decision eligibility',
   secReportDomain.includes("SEC_REPORT_MODEL_VERSION = 'sec-report.v3'")
-    && /currentMaxAgeDays:\s*400/.test(secReportDomain)
+    && /currentMaxAgeDays:\s*FUNDAMENTAL_MAX_PERIOD_AGE_DAYS/.test(secReportDomain) // 2026-10-17: the one 456-day fiscal-year-end rule
     && /agedMaxAgeDays:\s*730/.test(secReportDomain)
     && /state:\s*'historical'/.test(secReportDomain)
     && /decisionEligible:\s*status === 'current'/.test(secReportDomain)

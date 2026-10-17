@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFile, rename, writeFile } from 'node:fs/promises';
-import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod } from '../src/domain/fundamental/sec-report.js';
+import { reconcileSecRecord, bestRevenueRowsByPeriod } from '../src/domain/fundamental/sec-report.js';
+import { anchorConcept, anchorConceptRows, discreteQuarterSeries, SEC_FIELD_CONCEPT_PREFERENCE } from '../src/domain/fundamental/sec-earnings.js';
 
 const SOURCE = new URL('../public-data/sec-fundamentals.json', import.meta.url);
 const OUTPUT = new URL('../public-data/sec-fundamentals-summary.json', import.meta.url);
@@ -36,36 +37,20 @@ async function writeAtomic(url, value) {
 // only when the fiscal year total and exactly three discrete quarters inside it exist, and is flagged 'd'.
 export const QUARTER_FORMAT = 'periodEnd:revenue:netIncome:basis (USD millions; basis r=reported, d=derived FY−Q1..Q3)';
 export function quarterlyHistory(observations = {}) {
-  const pick = (rows) => {
-    const byEnd = new Map();
-    for (const row of Array.isArray(rows) ? rows : []) {
-      if (!Number.isFinite(row?.value) || !row.periodEnd || !row.periodStart) continue;
-      const days = (Date.parse(row.periodEnd) - Date.parse(row.periodStart)) / 86400000;
-      if (!(days >= 80 && days <= 100)) continue;
-      const prev = byEnd.get(row.periodEnd);
-      if (!prev || String(row.filedAt) > String(prev.filedAt)) byEnd.set(row.periodEnd, row);
-    }
-    return byEnd;
-  };
-  const annual = (rows) => (Array.isArray(rows) ? rows : []).filter((row) => row?.fiscalPeriod === 'FY' && Number.isFinite(row.value) && row.periodStart && row.periodEnd
-    && (Date.parse(row.periodEnd) - Date.parse(row.periodStart)) / 86400000 >= 330);
   const quarters = new Map();
   for (const [field, qField, fyField] of [['revenue', 'revenueQ', 'revenue'], ['netIncome', 'netIncomeQ', 'netIncome']]) {
     // 2026-10-13 F05: revenue rows are reduced to one per period by the shared concept rule first.
-    const discrete = pick(field === 'revenue' ? bestRevenueRowsByPeriod(observations[qField]) : observations[qField]);
-    for (const [end, row] of discrete) {
-      const q = quarters.get(end) || { periodEnd: end, derived: false };
+    // 2026-10-17 (logic audit D6): net income keeps the concept of its latest quarter (the derived fourth quarter
+    // nets a fiscal year of that same concept); another concept fills only a quarter it never reported.
+    const anchor = field === 'netIncome' ? anchorConcept(observations[qField], SEC_FIELD_CONCEPT_PREFERENCE.netIncome) : null;
+    const pref = anchor ? [anchor, ...SEC_FIELD_CONCEPT_PREFERENCE.netIncome] : SEC_FIELD_CONCEPT_PREFERENCE.netIncome;
+    const quarterRows = field === 'revenue' ? bestRevenueRowsByPeriod(observations[qField]) : anchorConceptRows(observations[qField], pref);
+    const annualRows = field === 'revenue' ? bestRevenueRowsByPeriod(observations[fyField]) : anchorConceptRows(observations[fyField], pref);
+    for (const row of discreteQuarterSeries(quarterRows, annualRows)) {
+      const q = quarters.get(row.periodEnd) || { periodEnd: row.periodEnd, derived: false };
       q[field] = row.value;
-      quarters.set(end, q);
-    }
-    for (const fy of annual(field === 'revenue' ? bestRevenueRowsByPeriod(observations[fyField]) : observations[fyField])) {
-      if (discrete.has(fy.periodEnd)) continue;
-      const inside = [...discrete.values()].filter((row) => row.periodEnd > fy.periodStart && row.periodEnd < fy.periodEnd);
-      if (inside.length !== 3) continue;
-      const q = quarters.get(fy.periodEnd) || { periodEnd: fy.periodEnd, derived: true };
-      q[field] = fy.value - inside.reduce((sum, row) => sum + row.value, 0);
-      q.derived = true;
-      quarters.set(fy.periodEnd, q);
+      if (row.derived) q.derived = true;
+      quarters.set(row.periodEnd, q);
     }
   }
   const m = compactFiscalMillions;
@@ -94,16 +79,19 @@ function fiscalHistory(observations = {}) {
   for (const field of FY_FIELDS) {
     // 2026-10-13 F05: one revenue row per period by the shared concept rule (a REIT's customer-contract subtotal
     // no longer wins a same-filing tie against total revenues).
-    const fieldRows = field === 'revenue' ? bestRevenueRowsByPeriod(observations.revenue) : observations[field];
-    for (const row of Array.isArray(fieldRows) ? fieldRows : []) {
+    const fieldRows = (field === 'revenue' ? bestRevenueRowsByPeriod(observations.revenue) : Array.isArray(observations[field]) ? observations[field] : []).filter((row) => {
       // P1627: the source also collects annual foreign-issuer 20-F/40-F facts.
       // Dropping their form here left ARM/BABA/NBIS/MNDY on a one-year fallback.
-      if (!/^(10-K|20-F|40-F)(\/A)?$/.test(String(row?.form || '')) || !Number.isFinite(row?.value) || !row.periodEnd) continue;
-      if (DURATION_FIELDS.has(field)) {
-        if (row?.fiscalPeriod !== 'FY') continue;
-        const days = (Date.parse(row.periodEnd) - Date.parse(row.periodStart || '')) / 86400000;
-        if (!(days >= 330 && days <= 380)) continue;
-      }
+      if (!/^(10-K|20-F|40-F)(\/A)?$/.test(String(row?.form || '')) || !Number.isFinite(row?.value) || !row.periodEnd) return false;
+      if (!DURATION_FIELDS.has(field)) return true;
+      const days = (Date.parse(row.periodEnd) - Date.parse(row.periodStart || '')) / 86400000;
+      return row?.fiscalPeriod === 'FY' && days >= 330 && days <= 380;
+    });
+    // 2026-10-17 (logic audit D6): one concept per series — the concept of the latest year — so a year-over-year read
+    // never compares LongTermDebt with LongTermDebtNoncurrent or NetIncomeLoss with ProfitLoss. Equity keeps its
+    // parent-first rank (P1449) and revenue its per-period rule (F05).
+    const anchored = SEC_FIELD_CONCEPT_PREFERENCE[field] ? anchorConceptRows(fieldRows, SEC_FIELD_CONCEPT_PREFERENCE[field]) : fieldRows;
+    for (const row of anchored) {
       const entry = byEnd.get(row.periodEnd) || { periodEnd: row.periodEnd, filedAt: {}, conceptRank: {} };
       const rowRank = row.concept === 'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest' ? 1 : 0;
       const storedFiledAt = entry.filedAt[field];
@@ -153,13 +141,20 @@ function fiscalHistory(observations = {}) {
 // are intentionally NOT trimmed, so no record silently loses its own declared basis.
 const data = Object.fromEntries(Object.entries(source.data || {}).map(([symbol, record]) => {
   // 2026-10-13 F03/F05: the same revenue/shares heal the producer and the screener merge apply (idempotent).
-  const reconciled = reconcileSecEquity(reconcileSecRevenueShares(record));
+  const reconciled = reconcileSecRecord(record); // + 2026-10-17 D1/D2/D7 earnings basis
   if (reconciled && reconciled.equityConcept === 'StockholdersEquity') delete reconciled.equityConcept; // restates the projection policy; conflict evidence stays
   delete reconciled.source; // uniform: equals the artifact header every record
   delete reconciled.model; // uniform: sec-fy-normalized-v2; unused by the page render
   // P1632: producer-side availability/PIT audit fields have no page consumer and pushed the projection
   // past its 1 MiB bound (1,055,257 B), failing the whole screener/SEC lane. The canonical artifact keeps them.
   for (const field of ['operandAvailability', 'derivedAvailability', 'accessionByField', 'transportFetchedAt', 'availabilityModel', 'reportRecency', 'normalizerVersion', 'revenueConcept', 'revenueHealedFrom']) delete reconciled[field];
+  // 2026-10-17 (logic audit D1/D2): the page needs the P/E numerator's basis and end, not its audit fields (1 MiB bound);
+  // an average-equity ROE is implied by equityPrior.
+  if (reconciled.peEarnings) {
+    const { basis, through, value, concept } = reconciled.peEarnings;
+    reconciled.peEarnings = { basis, through, value, ...(concept === 'common' ? { concept } : {}) };
+  }
+  if (reconciled.roeBasis === 'average-equity' && reconciled.equityPrior != null) delete reconciled.roeBasis;
   // N20 (2026-10-13): recent filings ship as compact "filedAt|form|items|accession" strings (1 MiB bound).
   if (Array.isArray(reconciled.recentFilings)) {
     reconciled.recentFilings = reconciled.recentFilings.map((filing) => [filing.filedAt, filing.form, (filing.items || []).join(','), filing.accession].join('|'));

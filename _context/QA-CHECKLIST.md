@@ -4,6 +4,11 @@ last_verified: 2026-10-17
 confidence: medium
 ---
 
+## v57.99 SEC 재무 기준 (2026-10-17)
+
+- [ ] QA-SEC-BASIS-01: v57.99 이후 refresh-screener가 BABA·JD·PDD를 다시 읽으면 sec-fundamentals 원장 레코드의 reportingCurrency가 CNY이고 revenue는 null, margin·roe·revGrowth만 있으며, screener 행의 pe·pb·referenceMarketCap이 비어 있다. verify_by: node scripts/sec-fundamentals-store.mjs restore 후 원장의 BABA/JD/PDD 레코드 확인 + public-data/screener.json의 같은 행
+- [ ] QA-SEC-BASIS-02: v57.99 이후 refresh-screener가 돈 뒤 screener 행의 peEarningsBasis가 최근 4개 분기가 회계연도 뒤에 끝난 종목에서 'ttm'이고(원장 기준 832개 중 669개), 원장 레코드 roe가 평균 자기자본 기준(equityPrior 존재, 771개)이며, 보통주 귀속 이익 태그가 있는 종목은 재수집 뒤 peEarnings.concept가 'common'이다. verify_by: node scripts/sec-fundamentals-store.mjs restore 후 원장의 peEarnings·equityPrior·roeBasis 분포 + public-data/screener.json의 peEarningsBasis
+
 ## v57.97 배포 번들링 (2026-10-17)
 
 - [ ] QA-DEPLOY-BUNDLE-01: v57.97 push 뒤 라이브 배포의 deployment.json에 bundle.files가 있고, 라이브 불변 검사가 index.html·전역 스크립트 9개·부팅 모듈 전체의 sha256 일치를 통과하며, 첫 화면이 부팅 대체(legacy fallback) 없이 열린다. verify_by: node scripts/ci-live-invariant-check.mjs (배포 직후 pages-deploy 마지막 단계) + 라이브 첫 화면 확인

@@ -2178,45 +2178,14 @@ function _renderFundFinancials(d) {
   var inc = (d.fmpIncome && d.fmpIncome[0]) || {};
   var ev = (d.fmpEV && d.fmpEV[0]) || {};
 
-  // SEC XBRL 폴백 데이터 준비
-  var sf = d.secFin || {};
-  var lastRev = (sf.revenue && sf.revenue.length > 0) ? sf.revenue[sf.revenue.length - 1] : null;
-  var lastNI = (sf.netIncome && sf.netIncome.length > 0) ? sf.netIncome[sf.netIncome.length - 1] : null;
-  var lastEps = (sf.eps && sf.eps.length > 0) ? sf.eps[sf.eps.length - 1] : null;
-  var lastAssets = (sf.totalAssets && sf.totalAssets.length > 0) ? sf.totalAssets[sf.totalAssets.length - 1] : null;
-  var lastEquity = (sf.equity && sf.equity.length > 0) ? sf.equity[sf.equity.length - 1] : null;
-  var lastGross = (sf.grossProfit && sf.grossProfit.length > 0) ? sf.grossProfit[sf.grossProfit.length - 1] : null;
-  var lastOpCF = (sf.opCashFlow && sf.opCashFlow.length > 0) ? sf.opCashFlow[sf.opCashFlow.length - 1] : null;
-  var lastCapex = (sf.capex && sf.capex.length > 0) ? sf.capex[sf.capex.length - 1] : null;
-  var lastDebt = (sf.totalDebt && sf.totalDebt.length > 0) ? sf.totalDebt[sf.totalDebt.length - 1] : null;
-  var lastShares = (sf.sharesOut && sf.sharesOut.length > 0) ? sf.sharesOut[sf.sharesOut.length - 1] : null;
-
-  // SEC 값 헬퍼
+  // SEC XBRL 폴백 — 2026-10-17 (D8): 파생 지표는 ESM sec-statements가 한 기간·보고 통화·검증 주식 수로 계산한다.
+  var sf = d.secFin || {}, sm = sf.metrics || {}, cur = sm.currency && sm.currency !== 'USD' ? sm.currency + ' ' : '$';
+  function lastOf(a) { return a && a.length ? a[a.length - 1] : null; }
+  var lastRev = lastOf(sf.revenue);
   function sv(item) { return item ? (item.val || item.value || 0) : 0; }
   // v49.0 P183: API Infinity/NaN → 'N/A' 가드
   var _fn = window._aioFiniteNum || function(v) { return (v != null && isFinite(v)) ? v : null; };
-
-  // SEC 기반 파생 지표 계산
-  var secRevVal = sv(lastRev);
-  var secNIVal = sv(lastNI);
-  var secEpsVal = sv(lastEps);
-  var secEquityVal = sv(lastEquity);
-  var secAssetsVal = sv(lastAssets);
-  var secGrossVal = sv(lastGross);
-  var secOpCFVal = sv(lastOpCF);
-  var secCapexVal = sv(lastCapex);
-  var secDebtVal = sv(lastDebt);
-  var secROE = (secEquityVal && secNIVal) ? secNIVal / secEquityVal : null;
-  var secGrossMargin = (secRevVal && secGrossVal) ? secGrossVal / secRevVal : null;
-  var secFCF = secOpCFVal - Math.abs(secCapexVal);
-  var secDE = (secEquityVal && secDebtVal) ? secDebtVal / secEquityVal : null;
-  // P560/R251: d.sharesOut was never set anywhere — this always multiplied by 0, which is why
-  // Market Cap showed "N/A" even with a live, non-null price. sf.sharesOut (from
-  // _parseSECFinancials' new CommonStockSharesOutstanding/dei extraction) is now used instead.
-  var secSharesVal = sv(lastShares);
-  var secMktCap = (d.price && secSharesVal) ? d.price * secSharesVal : 0;
-  // PE from SEC
-  var secPE = (secEpsVal && d.price) ? d.price / secEpsVal : null;
+  var secRevVal = sv(lastRev), secNIVal = sv(lastOf(sf.netIncome)), secEpsVal = sm.eps || 0;
 
   var _missingCards = []; // P1591 (S09): unreceived metrics collapse into one line instead of a grid of N/A cards
   function card(label, value, sub, color) {
@@ -2228,29 +2197,30 @@ function _renderFundFinancials(d) {
   }
 
   // 값 선택: FMP 우선, SEC XBRL 폴백
-  var mktCap = p.mktCap || ev.marketCapitalization || secMktCap || 0;
-  var peVal = m.peRatio || p.pe || secPE;
-  var roeVal = r.returnOnEquity || secROE;
+  var mktCap = p.mktCap || ev.marketCapitalization || sm.marketCap || 0;
+  var peVal = m.peRatio || p.pe || sm.pe;
+  var roeVal = r.returnOnEquity || sm.roe;
   var epsVal = inc.epsdiluted || secEpsVal;
   var revVal = inc.revenue || secRevVal;
   var niVal = inc.netIncome || secNIVal;
-  var gmVal = r.grossProfitMargin || secGrossMargin;
-  var deVal = r.debtEquityRatio || secDE;
+  var gmVal = r.grossProfitMargin || sm.grossMargin;
+  var deVal = r.debtEquityRatio || sm.debtToEquity;
   var revYear = inc.revenue ? (inc.calendarYear || inc.date || '').slice(0,4) : (lastRev ? (lastRev.end||'').slice(0,4) : '');
   var isSEC = !inc.revenue && secRevVal; // SEC 폴백 사용 여부
 
   var html = '';
   html += card('시가총액', mktCap > 0 ? '$' + _fmtNum(mktCap) : 'N/A', p.sector || (isSEC ? 'SEC XBRL' : ''));
-  html += card('P/E (TTM)', _fn(peVal) !== null ? peVal.toFixed(1) + 'x' : 'N/A', '주가 ÷ 최근 4개 분기 EPS · 성장률·위험과 함께 비교');
-  html += card('ROE', _fn(roeVal) !== null ? (roeVal * 100).toFixed(1) + '%' : 'N/A', '순이익 ÷ 자기자본 · 공급자 기준(위 재무 흐름은 평균 자기자본 기준)');
-  html += card('EPS (TTM)', epsVal ? '$' + epsVal.toFixed(2) : 'N/A', '');
-  html += card('매출', revVal ? '$' + _fmtNum(revVal) : 'N/A', revYear ? 'FY ' + revYear : '');
-  html += card('순이익', niVal ? '$' + _fmtNum(niVal) : 'N/A', '', (niVal || 0) >= 0 ? 'var(--data-green)' : 'var(--data-red)');
+  html += card('P/E', _fn(peVal) !== null ? peVal.toFixed(1) + 'x' : 'N/A', (m.peRatio || p.pe) ? '공급자 기준' : sm.peBasis === 'ttm' ? '시가총액 ÷ 최근 4개 분기 순이익(' + String(sm.peThrough || '').slice(0, 7) + '까지)' : '시가총액 ÷ 최근 회계연도 순이익');
+  html += card('ROE', _fn(roeVal) !== null ? (roeVal * 100).toFixed(1) + '%' : 'N/A', r.returnOnEquity ? '공급자 기준' : sm.roeBasis === 'average-equity' ? '순이익 ÷ 평균 자기자본(전년·당해 말)' : '순이익 ÷ 기말 자기자본');
+  var vc = inc.revenue ? '$' : cur;
+  html += card('EPS (최근 회계연도)', epsVal ? vc + epsVal.toFixed(2) : 'N/A', '');
+  html += card('매출', revVal ? vc + _fmtNum(revVal) : 'N/A', revYear ? 'FY ' + revYear : '');
+  html += card('순이익', niVal ? vc + _fmtNum(niVal) : 'N/A', '', (niVal || 0) >= 0 ? 'var(--data-green)' : 'var(--data-red)');
   html += card('Gross Margin', gmVal ? (gmVal * 100).toFixed(1) + '%' : 'N/A', '매출총이익률');
-  html += card('FCF Yield', m.freeCashFlowYield ? (m.freeCashFlowYield * 100).toFixed(1) + '%' : (secFCF && mktCap > 0 ? ((secFCF / mktCap) * 100).toFixed(1) + '%' : 'N/A'), '잉여현금흐름 수익률');
+  html += card('FCF Yield', m.freeCashFlowYield ? (m.freeCashFlowYield * 100).toFixed(1) + '%' : (sm.fcfYield != null ? (sm.fcfYield * 100).toFixed(1) + '%' : 'N/A'), '잉여현금흐름 수익률');
   html += card('EV/EBITDA', _fn(m.enterpriseValueOverEBITDA) !== null ? m.enterpriseValueOverEBITDA.toFixed(1) + 'x' : 'N/A', '기업가치 대비');
-  html += card('P/B', _fn(m.pbRatio) !== null ? m.pbRatio.toFixed(2) + 'x' : (secEquityVal && d.price && secEquityVal > 0 ? (mktCap / secEquityVal).toFixed(2) + 'x' : 'N/A'), '주가순자산비율');
-  html += card('부채비율', _fn(deVal) !== null ? deVal.toFixed(2) + 'x' : 'N/A', '부채 ÷ 자기자본 · 업종마다 정상 범위가 다름');
+  html += card('P/B', _fn(m.pbRatio) !== null ? m.pbRatio.toFixed(2) + 'x' : (sm.pb != null ? sm.pb.toFixed(2) + 'x' : 'N/A'), '주가순자산비율');
+  html += card('부채비율', _fn(deVal) !== null ? deVal.toFixed(2) + 'x' : 'N/A', '장기부채 ÷ 자기자본 · 업종마다 정상 범위가 다름');
   // P1164/B01: FMP profile이 없으면 배당 원천 자체가 미수신이다. 부재를 '0%'라는 실측값으로
   // 표시하지 않는다 — 실제 무배당(lastDiv===0)만 0.00%로 남는다.
   var hasDivValue = typeof p.lastDiv === 'number' && isFinite(p.lastDiv);
@@ -2262,13 +2232,8 @@ function _renderFundFinancials(d) {
 
   // v48.1: SEC XBRL 신규 8필드 품질/건전성 카드 추가
   //   R&D Intensity (R&D/매출), SBC 희석 (SBC/매출), SG&A 비중, Cash 포지션, 운전자본(재고/매출채권/유동부채)
-  var lastRd = (sf.rd && sf.rd.length > 0) ? sv(sf.rd[sf.rd.length - 1]) : 0;
-  var lastSbc = (sf.sbc && sf.sbc.length > 0) ? sv(sf.sbc[sf.sbc.length - 1]) : 0;
-  var lastSga = (sf.sga && sf.sga.length > 0) ? sv(sf.sga[sf.sga.length - 1]) : 0;
-  var lastCash = (sf.cash && sf.cash.length > 0) ? sv(sf.cash[sf.cash.length - 1]) : 0;
-  var lastInv = (sf.inventory && sf.inventory.length > 0) ? sv(sf.inventory[sf.inventory.length - 1]) : 0;
-  var lastRcv = (sf.receivables && sf.receivables.length > 0) ? sv(sf.receivables[sf.receivables.length - 1]) : 0;
-  var lastCurDebt = (sf.currentDebt && sf.currentDebt.length > 0) ? sv(sf.currentDebt[sf.currentDebt.length - 1]) : 0;
+  var lastRd = sv(lastOf(sf.rd)), lastSbc = sv(lastOf(sf.sbc)), lastSga = sv(lastOf(sf.sga)), lastCash = sv(lastOf(sf.cash));
+  var lastInv = sv(lastOf(sf.inventory)), lastRcv = sv(lastOf(sf.receivables)), lastCurDebt = sv(lastOf(sf.currentDebt));
   var hasQuality = lastRd || lastSbc || lastSga || lastCash || lastInv || lastRcv || lastCurDebt;
   if (hasQuality) {
     var qHtml = '<div style="grid-column:1/-1;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text-secondary);font-weight:600;">공시 기반 — 비용 구조와 운전자본</div>';
@@ -2282,10 +2247,10 @@ function _renderFundFinancials(d) {
       qHtml += card('주식 보상 비용 비중', sbcRatio.toFixed(1) + '%', '주식 보상 비용 ÷ 매출' + (sbcRatio > 10 ? ' · 높음' : sbcRatio > 3 ? ' · 중간' : '') + ' — 실제 희석은 주식 수 변화로 확인', sbcRatio > 10 ? '#ff5b50' : sbcRatio > 3 ? '#ffa31a' : '#00e5a0');
     }
     if (lastSga && secRevVal) qHtml += card('SG&A 비중', ((lastSga / secRevVal) * 100).toFixed(1) + '%', '판매관리비 / 매출');
-    if (lastCash) qHtml += card('현금 포지션', '$' + _fmtNum(lastCash), 'Cash & Equivalents');
-    if (lastInv) qHtml += card('재고', '$' + _fmtNum(lastInv), '');
-    if (lastRcv) qHtml += card('매출채권', '$' + _fmtNum(lastRcv), '');
-    if (lastCurDebt) qHtml += card('유동부채', '$' + _fmtNum(lastCurDebt), '1년 내 상환');
+    if (lastCash) qHtml += card('현금 포지션', cur + _fmtNum(lastCash), 'Cash & Equivalents');
+    if (lastInv) qHtml += card('재고', cur + _fmtNum(lastInv), '');
+    if (lastRcv) qHtml += card('매출채권', cur + _fmtNum(lastRcv), '');
+    if (lastCurDebt) qHtml += card('단기 차입금', cur + _fmtNum(lastCurDebt), '1년 내 상환할 차입금');
     html += qHtml;
   }
 
@@ -2746,16 +2711,16 @@ function _renderFundStatements(d) {
     html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:10px;">';
     html += '<tr style="border-bottom:1px solid var(--border);">';
     html += '<th style="text-align:left;padding:6px;color:var(--text-muted);">항목</th>';
-    d.secFin.revenue.forEach(function(r) { html += '<th style="text-align:right;padding:6px;color:var(--text-muted);">' + (r.end||'').slice(0,4) + '</th>'; });
+    d.secFin.revenue.forEach(function(r) { html += '<th style="text-align:right;padding:6px;color:var(--text-muted);">' + (r.year || (r.end||'').slice(0,4)) + '</th>'; });
     html += '</tr>';
 
     function secRow(label, arr) {
       var r = '<tr style="border-bottom:1px solid var(--surface-2);">';
       r += '<td style="padding:5px 6px;color:var(--text-secondary);">' + label + '</td>';
-      (arr||[]).forEach(function(v) {
-        var val = v.val || v.value || 0;
-        var color = val < 0 ? '#ff5b50' : 'var(--text-primary)';
-        r += '<td style="text-align:right;padding:5px 6px;color:' + color + ';font-family:var(--font-mono);">$' + _fmtNum(val) + '</td>';
+      // 2026-10-17 (D8): columns follow the revenue years; a year the field was not filed reads '—', amounts in the report currency.
+      d.secFin.revenue.forEach(function(y) {
+        var v = (arr || []).filter(function(x) { return x.end === y.end; })[0], val = v ? v.val : null;
+        r += '<td style="text-align:right;padding:5px 6px;color:' + (val < 0 ? '#ff5b50' : 'var(--text-primary)') + ';font-family:var(--font-mono);">' + (val == null ? '—' : (d.secFin.currency && d.secFin.currency !== 'USD' ? d.secFin.currency + ' ' : '$') + _fmtNum(val)) + '</td>';
       });
       r += '</tr>';
       return r;

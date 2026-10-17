@@ -1229,6 +1229,86 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('P1875 SEC IFRS and non-USD filers are read ratio-only on one basis; price ratios and non-USD amounts are withheld', ok, detail.slice(0, 600));
 }
 {
+  // P1910 (v57.99, 2026-10-17 SEC logic audit): (1) a US-GAAP 20-F that adds a USD convenience translation (BABA/JD/PDD in CNY) is read on its
+  // statements' own currency, so USD growth no longer carries the exchange rate; (2) a 20-F share count (ordinary shares, ADS
+  // ratio unknown) prices nothing — in the normalizer and in the publish-time heal of stored records; a 40-F keeps its count;
+  // (3) P/E and P/B are priced only on the supplied close; (4) a 52/53-week year ending in early January is the prior FY;
+  // (5) the report's 'current' age is the one 456-day rule.
+  let ok = false;
+  let detail = '';
+  try {
+    const { normalizeSecCompanyFacts, reportingBasis } = await import('../src/domain/fundamental/sec-normalize.js');
+    const { reconcileSecRevenueShares, SEC_FRESHNESS_POLICY } = await import('../src/domain/fundamental/sec-report.js');
+    const { secFundamentalRowFields } = await import('../src/domain/fundamental/sec-row-fields.js');
+    const { fiscalYearLabel, annualFilingStatus, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } = await import('../src/domain/fundamental/period.js');
+    const fy = (val, accn, start, end, filed, form) => ({ val, accn, start, end, filed, form, fp: 'FY' });
+    const facts = (form, withCny) => ({ facts: {
+      dei: { EntityCommonStockSharesOutstanding: { units: { shares: [{ end: '2026-05-01', filed: '2026-05-20', form, fp: 'FY', val: 19.2e9, accn: 'b' }] } } },
+      'us-gaap': {
+        Revenues: { units: { USD: [fy(137.3e9, 'a', '2024-04-01', '2025-03-31', '2025-06-26', form), fy(148.4e9, 'b', '2025-04-01', '2026-03-31', '2026-05-20', form)],
+          ...(withCny ? { CNY: [fy(941e9, 'a', '2024-04-01', '2025-03-31', '2025-06-26', form), fy(941e9, 'b', '2024-04-01', '2025-03-31', '2026-05-20', form), fy(1070e9, 'b', '2025-04-01', '2026-03-31', '2026-05-20', form)] } : {}) } },
+        NetIncomeLoss: { units: { USD: [fy(15e9, 'b', '2025-04-01', '2026-03-31', '2026-05-20', form)], ...(withCny ? { CNY: [fy(108e9, 'b', '2025-04-01', '2026-03-31', '2026-05-20', form)] } : {}) } },
+        StockholdersEquity: { units: { USD: [{ end: '2026-03-31', filed: '2026-05-20', form, fp: 'FY', val: 150e9, accn: 'b' }] } },
+        EarningsPerShareDiluted: { units: { 'USD/shares': [fy(0.78, 'b', '2025-04-01', '2026-03-31', '2026-05-20', form)] } }
+      } } });
+    const now = Date.parse('2026-10-17T00:00:00Z');
+    const cny = normalizeSecCompanyFacts('BABA', facts('20-F', true), 170, null);
+    const usd20f = normalizeSecCompanyFacts('ARMX', facts('20-F', false), 170, null);
+    const usd40f = normalizeSecCompanyFacts('CNQX', facts('40-F', false), 170, null);
+    const healed = reconcileSecRevenueShares({ form: '20-F', observedAt: '2026-03-31', sharesOutstanding: 19.2e9, sharesObservedAt: '2026-05-01', sharesCheck: 'consistent', pe: 142, pb: 13.9, coverage: ['sharesOutstanding', 'pe', 'pb'] });
+    const priced = secFundamentalRowFields({ observedAt: '2026-03-31', filedAt: '2026-05-20', fetchedAt: '2026-10-01', netIncome: 10e9, equity: 50e9, sharesOutstanding: 1e9, sharesObservedAt: '2026-05-01', sharesCheck: 'consistent', pe: 5, pb: 1 }, { price: 100, nowMs: now });
+    ok = reportingBasis(facts('20-F', true), now).currency === 'CNY' && reportingBasis(facts('20-F', false), now).currency === 'USD'
+      && cny?.reportingCurrency === 'CNY' && cny.revenue === null && cny.revGrowth === 13.7 && cny.pe == null && cny.sharesCheck === 'reporting-currency-differs'
+      && usd20f?.reportingCurrency === 'USD' && usd20f.revenue === 148.4e9 && usd20f.sharesOutstanding === null && usd20f.pe == null && usd20f.sharesCheck === 'foreign-share-basis-unverified'
+      && usd40f?.sharesOutstanding > 0 && usd40f.pe > 0
+      && healed.sharesOutstanding === null && healed.pe === undefined && healed.pb === undefined && healed.sharesHeld?.reason === 'foreign-share-basis-unverified' && !healed.coverage.includes('pe')
+      && priced?.pe === 10 && priced.pePrice === 100 && priced.pb === 2
+      && fiscalYearLabel('2026-01-03') === 'FY2025' && fiscalYearLabel('2026-01-31') === 'FY2026' && annualFilingStatus('2026-01-02', now)?.fyLabel === 'FY2025'
+      && SEC_FRESHNESS_POLICY.currentMaxAgeDays === FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
+    detail = JSON.stringify({ cny: cny && { cur: cny.reportingCurrency, g: cny.revGrowth, sc: cny.sharesCheck }, usd20f: usd20f && { sh: usd20f.sharesOutstanding, sc: usd20f.sharesCheck }, usd40f: usd40f && { sh: usd40f.sharesOutstanding, pe: usd40f.pe }, healed: { sh: healed.sharesOutstanding, held: healed.sharesHeld }, priced: priced && { pe: priced.pe, pb: priced.pb } });
+  } catch (error) { detail = error.message; }
+  check('P1910 SEC audit: convenience-translated filers read on their own currency, 20-F counts price nothing, ratios use the supplied close', ok, detail.slice(0, 600));
+}
+{
+  // P1910 (v57.99, owner-approved audit recommendations D1/D2/D6/D7/D8): P/E is priced on the last four quarters when they end after the
+  // fiscal year (a fourth quarter filed only in the 10-K is FY − Q1..Q3), on earnings available to common when every period tags them;
+  // ROE is over average equity; a series keeps its latest concept; the company panel's statements come from the ESM parser.
+  let ok = false;
+  let detail = '';
+  try {
+    const { reconcileSecEarningsBasis, anchorConceptRows, SEC_FIELD_CONCEPT_PREFERENCE } = await import('../src/domain/fundamental/sec-earnings.js');
+    const { secFundamentalRowFields } = await import('../src/domain/fundamental/sec-row-fields.js');
+    const { parseSecStatements } = await import('../src/domain/fundamental/sec-statements.js');
+    const row = (field, concept, value, periodStart, periodEnd, filedAt, form = '10-Q') => ({ field, concept, value, periodStart, periodEnd, filedAt, form, fiscalPeriod: form === '10-K' ? 'FY' : 'Q' });
+    const q = (field, concept, d) => [row(field, concept, 100 - d, '2025-01-01', '2025-03-31', '2025-05-01'), row(field, concept, 100 - d, '2025-04-01', '2025-06-30', '2025-08-01'),
+      row(field, concept, 100 - d, '2025-07-01', '2025-09-30', '2025-11-01'), row(field, concept, 150 - d, '2026-01-01', '2026-03-31', '2026-05-01'), row(field, concept, 150 - d, '2026-04-01', '2026-06-30', '2026-08-01')];
+    const base = { observedAt: '2025-12-31', netIncome: 400, equity: 2000, roe: 20, sharesOutstanding: 10, sharesObservedAt: '2026-02-01', sharesCheck: 'consistent', filedAt: '2026-02-20', fetchedAt: '2026-10-10', coverage: ['roe'],
+      pit: { observations: {
+        netIncome: [row('netIncome', 'NetIncomeLoss', 400, '2025-01-01', '2025-12-31', '2026-02-20', '10-K'), row('netIncome', 'ProfitLoss', 420, '2025-01-01', '2025-12-31', '2026-02-20', '10-K')],
+        netIncomeQ: q('netIncomeQ', 'NetIncomeLoss', 0),
+        equity: [{ field: 'equity', concept: 'StockholdersEquity', value: 2000, periodEnd: '2025-12-31', filedAt: '2026-02-20', form: '10-K' }, { field: 'equity', concept: 'StockholdersEquity', value: 1600, periodEnd: '2024-12-31', filedAt: '2026-02-20', form: '10-K' }] } } };
+    const ttm = reconcileSecEarningsBasis(base);
+    const withCommon = reconcileSecEarningsBasis({ ...base, pit: { observations: { ...base.pit.observations, netIncomeCommon: [row('netIncomeCommon', 'NetIncomeLossAvailableToCommonStockholdersBasic', 360, '2025-01-01', '2025-12-31', '2026-02-20', '10-K')], netIncomeCommonQ: q('netIncomeCommonQ', 'NetIncomeLossAvailableToCommonStockholdersBasic', 10) } } });
+    const noPrior = reconcileSecEarningsBasis({ ...base, pit: { observations: { ...base.pit.observations, equity: base.pit.observations.equity.slice(0, 1), netIncomeQ: [] } } });
+    const priced = secFundamentalRowFields(ttm, { price: 100, nowMs: Date.parse('2026-10-17T00:00:00Z') });
+    const debt = anchorConceptRows([{ concept: 'LongTermDebt', value: 9, periodEnd: '2025-12-31' }, { concept: 'LongTermDebtNoncurrent', value: 8, periodEnd: '2025-12-31' }, { concept: 'LongTermDebtNoncurrent', value: 7, periodEnd: '2024-12-31' }, { concept: 'LongTermDebt', value: 6, periodEnd: '2024-12-31' }, { concept: 'LongTermDebt', value: 5, periodEnd: '2023-12-31' }], SEC_FIELD_CONCEPT_PREFERENCE.longTermDebt);
+    const fyRow = (val, start, end) => ({ val, start, end, filed: '2025-03-10', form: '20-F', fp: 'FY', accn: 'x' });
+    const twd = parseSecStatements({ facts: { 'ifrs-full': { Revenue: { units: { TWD: [fyRow(2.16e12, '2023-01-01', '2023-12-31'), fyRow(2.89e12, '2024-01-01', '2024-12-31')] } }, ProfitLossAttributableToOwnersOfParent: { units: { TWD: [fyRow(1.17e12, '2024-01-01', '2024-12-31')] } } } } }, { symbol: 'TSM', price: 300 });
+    const chatSource = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+    const bridgeSource = readFileSync(new URL('../src/app/compatibility-globals.js', import.meta.url), 'utf8');
+    ok = ttm.peEarnings?.basis === 'ttm' && ttm.peEarnings.value === 500 && ttm.peEarnings.through === '2026-06-30' && ttm.peEarnings.derivedQuarter === true && ttm.peEarnings.concept === 'net-income'
+      && withCommon.peEarnings?.concept === 'common' && withCommon.peEarnings.value === 460
+      && ttm.roe === 22.2 && ttm.roeBasis === 'average-equity' && ttm.equityPrior === 1600 && noPrior.roe === 20 && noPrior.roeBasis === 'year-end-equity' && noPrior.peEarnings == null
+      && reconcileSecEarningsBasis(ttm) === ttm
+      && priced?.pe === 2 && priced.peEarningsBasis === 'ttm' && priced.peEarningsThrough === '2026-06-30'
+      && debt.map((r) => r.value).join() === '8,7,5'
+      && twd?.currency === 'TWD' && twd.metrics.pe == null && twd.metrics.marketCap == null && twd.revenue.map((r) => r.year).join() === '2023,2024'
+      && !/_parseSECFinancials\(/.test(chatSource) && /window\.AIO\.parseSecStatements\(secFin/.test(chatSource) && /window\.AIO\.parseSecStatements = parseSecStatements/.test(bridgeSource);
+    detail = JSON.stringify({ ttm: ttm.peEarnings, roe: [ttm.roe, ttm.roeBasis], common: withCommon.peEarnings?.value, noPrior: [noPrior.roe, noPrior.roeBasis], pe: priced?.pe, debt: debt.map((r) => r.value), twd: twd && { cur: twd.currency, years: twd.revenue.map((r) => r.year) } });
+  } catch (error) { detail = error.message; }
+  check('P1910 SEC audit (owner-approved D1/D2/D6/D7/D8): TTM and common-earnings P/E, average-equity ROE, one concept per series, ESM statements parser', ok, detail.slice(0, 700));
+}
+{
   // v57.87: a successor registrant (8-K12B holding reorganization, XOM CIK 2115436) has only its first 10-Q; the
   // predecessor's 10-K facts and filings are read with it, once per entry version, and the producer is wired to do so.
   let ok = false;
