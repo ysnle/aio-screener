@@ -3793,7 +3793,7 @@ function calcKrYieldSpreads() {
 
 // ── 한국 시장 브레드스 업데이트 ─────────────────────────────────
 function updateKrBreadth() {
-  var b = window._krBreadthLiveData;
+  var b = typeof window._aioScreenerBreadth === 'function' ? window._aioScreenerBreadth().kr : null;
   var available = !!(b && b.ts && Date.now() - b.ts <= 96 * 3600000 && b.coveragePct >= 85);
   function set(id, text, color, title) {
     var el = document.getElementById(id);

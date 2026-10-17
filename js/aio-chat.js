@@ -931,7 +931,7 @@ function _aioAIInfraCycleContext(ctxId, q) {
     var tnx = pick(live.tnx, snap.tnx);
     var hy = pick(snap.hyOAS, root._hySpreadBp != null ? Number(root._hySpreadBp) / 100 : null);
     var wti = pick(snap.wti, root._liveData && root._liveData['CL=F'] ? Number(root._liveData['CL=F'].price) : null);
-    var breadth = root._breadthLiveData || null;
+    var breadth = (typeof root._aioScreenerBreadth === 'function' && root._aioScreenerBreadth().us) || null;
     var asOf = snap._updated || snap._marketDataUpdated || null;
     if (finite(vix)) obs.push('VIX=' + vix + (snap._fieldTs && snap._fieldTs.vix ? ' @' + snap._fieldTs.vix : ''));
     if (finite(tnx)) obs.push('US10Y=' + tnx + '%');

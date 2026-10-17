@@ -1115,7 +1115,12 @@ check('WP-AI19/20: shared pipeline carries tool and rights audits and denies mut
 // v52.91: third-pass live currentness/root-cause gates.
 check('LIVE3-01: stored API secrets never re-enter DOM values or reveal partial key fragments', /el\.value = '••••••••'/.test(ui + core) && !/el\.value = saved/.test(ui) && !/inp\.value = key;\s*\/\/ 실제 키 표시/.test(html) && !/slice\(0, 8\) \+ '\.\.\.' \+/.test(html + core));
 check('LIVE3-02: early snapshot-date rendering uses the post-initialization window bridge and avoids DATA_SNAPSHOT TDZ', /var snap = window\.DATA_SNAPSHOT \|\| null/.test(core));
-check('LIVE3-03: 20SMA breadth uses its value-specific server observation timestamp and fails closed', /id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadthScreener'/.test(core) && /_aioApplyScreenerBreadth/.test(data) && /coveragePct\s*>=\s*85/.test(data) && /ageHours\s*<=\s*96/.test(data) && /window\._breadthLiveData\s*=/.test(data) && /getCurrentBreadthEvidence/.test(core) && /snapshotKey:null/.test(core));
+const { readScreenerBreadth } = await import('../src/domain/market/screener-breadth.js');
+const breadthFixture = (us) => ({ schemaVersion: '1.0', source: 'fixture', segments: { us: { above5: 40, above20: 35, above50: 36, above200: 52, advanceRatio: 0.6, coveragePct: 97, eligible: 700, observedAt: new Date(Date.now() - 86400000).toISOString(), ...us } } });
+const screenerBreadthFailsClosed = readScreenerBreadth(breadthFixture({})).us?.sma20 === 35
+  && readScreenerBreadth(breadthFixture({ coveragePct: 84 })).us === null
+  && readScreenerBreadth(breadthFixture({ observedAt: new Date(Date.now() - 97 * 3600000).toISOString() })).us === null;
+check('LIVE3-03: 20SMA breadth uses its value-specific server observation timestamp and fails closed', /id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadthScreener'/.test(core) && /_aioApplyScreenerBreadth/.test(data) && screenerBreadthFailsClosed && /getCurrentBreadthEvidence/.test(core) && /snapshotKey:null/.test(core));
 check('LIVE3-04: Yahoo/FRED bridge never fabricates a missing 2Y or overwrites official T10Y2Y', !/:\s*4\.0\s*\)/.test(String((data.match(/function _syncYahooToFred\([\s\S]*?\n\}/) || [''])[0])) && /!fd\['T10Y2Y'\]/.test(data) && /Number\(window\._live2Y\)/.test(data));
 check('LIVE3-05: MOVE/SKEW regimes require live observations, missing values render unavailable, and SKEW has one native read model', /quote\('\^SKEW'\)/.test(core) && /quote\('\^MOVE'\)/.test(core) && /'move':\s*'—'/.test(core) && /'skew':\s*'—'/.test(core) && !/sent-skew-value/.test(html) /* P1396: the sourceless SKEW card and its page read model were retired */ && !/_bridge\('\^SKEW'/.test(ui));
 check('LIVE3-06 v57.60: late breadth producer refreshes signal and home consumers atomically; the retired updateBreadthBars DOM writer stays gone', !/updateBreadthBars/.test(data + ui + core + pagesSource) && /refreshSignalDashboard\(\)/.test(data) && /refreshHomeDashboard\(\)/.test(data));
@@ -1365,7 +1370,7 @@ check('P1118: signal page renders post-composite adjustments in a native-owned s
     && /id="regime-board"/.test(html));
 
 // P1274: native breadth card and theme cycle must read the same dated US universe.
-// Exercise the actual compatibility selector, including an absent legacy projection.
+// Exercise the actual compatibility selector over the shared breadth read.
 let breadthParityP1274 = false;
 try {
   const start = core.indexOf('window.AIO.getCurrentBreadthEvidence = function(maxAgeMs) {');
@@ -1373,20 +1378,21 @@ try {
   if (start >= 0 && end > start) {
     const segment = { observedAt:new Date(Date.now() - 86400000).toISOString(), above5:41.7, above20:34.1, above50:35.5, above200:52.2, advanceRatio:0.6117, coveragePct:97.1, eligible:707 };
     const breadth = { schemaVersion:'1.0', source:'github-actions:yahoo-1y-adjusted-close', segments:{ us:segment } };
-    const context = { window:{ AIO:{}, AIO_ARCH:{ getScreenerState:(path) => { const state = { metadata:{ breadth } }; return typeof path === 'string' ? path.split('.').reduce((node, key) => node == null ? undefined : node[key], state) : state; } }, _breadthLiveData:null },
+    const context = { window:{ AIO:{}, _aioScreenerBreadth:() => readScreenerBreadth(breadth) },
       _aioStrictFinite:(value) => typeof value === 'number' && Number.isFinite(value) ? value : null,
       _aioMetricTs:(value) => typeof value === 'number' ? value : Date.parse(value) };
     runInNewContext(core.slice(start, end), context);
     const get = context.window.AIO.getCurrentBreadthEvidence;
     const native = get();
-    context.window._breadthLiveData = { sma5:10, sma20:10, sma50:10, ts:Date.now() - 10 * 86400000, source:'stale-legacy' };
-    const fallback = get();
+    segment.observedAt = new Date(Date.now() - 10 * 86400000).toISOString();
+    const stale = get();
+    segment.observedAt = new Date(Date.now() - 86400000).toISOString();
     segment.coveragePct = 20;
     const insufficient = get();
-    breadthParityP1274 = native.available && native.sma50 === 35.5 && fallback.sma50 === 35.5 && !insufficient.available;
+    breadthParityP1274 = native.available && native.sma50 === 35.5 && !stale.available && !insufficient.available;
   }
 } catch (_) {}
-check('P1755 P1274: native current 50SMA reaches theme selector (facade dot-path read); stale legacy and inadequate coverage do not replace it', breadthParityP1274);
+check('P1755 P1274: native current 50SMA reaches theme selector through the one checked breadth read; a stale observation and inadequate coverage are not available', breadthParityP1274);
 // P1275: the CP2 text must use the same official FOMC decision as the registry.
 // P1737: both CP2 writers read the one Fed-range answer (producer policyRates.fed -> FRED -> manual within its window).
 // v57.60: the retired cp2-detail / macro-fed-meaning DOM sinks left _aioApplyEventFreshnessGate; getCP2Text is the one CP2 text owner.

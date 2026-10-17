@@ -1742,7 +1742,14 @@ check('telegram digest registers four channels and fail-closed source catalog', 
 
 check('app loads server data artifact', /public-data\/data\.json/.test(data) && /_aioLoadServerData/.test(data));
 check('app applies quotes, macro, F&G, news, telegram, LLM, and native screener metadata', /applyLiveQuotes\(d\.quotes\)/.test(data) && /DATA_SNAPSHOT/.test(data) && /_applyFearGreedScore/.test(data) && /_aioApplyNewsBackstop/.test(data) && /_aioLoadServerTelegramDigest/.test(data) && /_serverMarketAnalysis/.test(data) && /_aioApplyNativeScreenerState/.test(data) && /aio:nativeScreenerReady/.test(data));
-check('app gates and applies screener breadth with observation time and coverage', /_aioApplyScreenerBreadth/.test(data) && /breadthScreener/.test(data) && /coveragePct\s*>=\s*85/.test(data) && /ageHours\s*<=\s*96/.test(data));
+// 2026-10-17: the coverage/age gate lives in src/domain/market/screener-breadth.js, which every breadth reader asks.
+{
+  const { readScreenerBreadth } = await import('../src/domain/market/screener-breadth.js');
+  const us = (extra) => ({ schemaVersion: '1.0', source: 'fixture', segments: { us: { above5: 40, above20: 35, above50: 36, above200: 52, advanceRatio: 0.6, coveragePct: 97, eligible: 700, observedAt: new Date(Date.now() - 3600000).toISOString(), ...extra } } });
+  check('app gates and applies screener breadth with observation time and coverage', /_aioApplyScreenerBreadth/.test(data) && /breadthScreener/.test(data)
+    && readScreenerBreadth(us({})).us !== null && readScreenerBreadth(us({ coveragePct: 84 })).us === null
+    && readScreenerBreadth(us({ observedAt: new Date(Date.now() - 97 * 3600000).toISOString() })).us === null);
+}
 check('v57.78: quant readiness audit had no production caller and stays retired (research-only ranking contract is enforced by validate-screener-artifact)', !/getQuantReadinessAudit/.test(data)); // text-pin-ok: retirement absence
 check('native screener only admits versioned log-scale Kalman fields and preserves stale backtest disclosure', /factor\.kalmanScale/.test(screenerProvider) && /kalmanVelConf/.test(screenerProvider) && /kalmanInnovZ/.test(screenerProvider) && /backtest:\s*artifact\.backtest/.test(screenerProvider) && /legacy_kalman_scale/.test(data));
 check('app exposes public-data operational meta', /window\._serverDataMeta/.test(data) && /fredHasKey/.test(data) && /marketAnalysisOk/.test(data) && /telegramMemoOverlay/.test(data));

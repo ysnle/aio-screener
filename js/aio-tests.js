@@ -5452,14 +5452,14 @@
         showPage('breadth');
         var vEl = document.getElementById('breadth-consensus-verdict');
         var beforeV = vEl ? vEl.textContent : '';
-        var oldBreadth769 = window._breadthLiveData;
-        window._breadthLiveData = { sma5:30, sma20:28, sma50:31, ts:Date.now(), source:'test-observed' };
+        var oldBreadth769 = window._aioScreenerBreadth;
+        window._aioScreenerBreadth = function() { return { state: {}, us: { sma5:30, sma20:28, sma50:31, ts:Date.now(), source:'test-observed' }, kr: null }; };
         var r1 = window.AIO.refreshActivePageNarratives('test');
         var afterV = vEl ? vEl.textContent : '';
         liveRerenderOk = !!(r1 && r1.page === 'breadth') && (!vEl || beforeV !== afterV); // P1392: the verdict sink left with the signal duplicate
         var r2 = window.AIO.refreshActivePageNarratives('test2'); // 즉시 2회차 → 스로틀
         throttleOk = (r2 === null);
-        window._breadthLiveData = oldBreadth769;
+        window._aioScreenerBreadth = oldBreadth769;
       }
       t769ok = (regPages.length >= 4) && hasCore && namedOk && hasRefresh && hasStamp && liveRerenderOk && throttleOk;
       t769detail = 'pages=' + regPages.length + ' core=' + hasCore + ' named=' + namedOk + ' refresh=' + hasRefresh + ' stamp=' + hasStamp + ' rerender=' + liveRerenderOk + ' throttle=' + throttleOk;
@@ -6191,8 +6191,8 @@
     // T817: computeMarketState 정본 full 객체(breadthConsensusFull/cycleFull) + 페이지 렌더러 4종 marketState 소비 + audit 이중정의 해소
     var t817ok = false, t817detail = '';
     try {
-      var oldBreadth817 = window._breadthLiveData;
-      window._breadthLiveData = { sma5:61, sma20:57, sma50:52, ts:Date.now(), source:'test-observed' };
+      var oldBreadth817 = window._aioScreenerBreadth;
+      window._aioScreenerBreadth = function() { return { state: {}, us: { sma5:61, sma20:57, sma50:52, ts:Date.now(), source:'test-observed' }, kr: null }; };
       var ms817 = (window.AIO && typeof window.AIO.computeMarketState === 'function') ? window.AIO.computeMarketState() : null;
       // A1: 정본 full 객체 + breadthScore가 .consensus(수치)로 채워짐(이전 .score=undefined 버그 시정)
       var fullOk = !!(ms817 && ms817.breadthConsensusFull && ms817.breadthConsensusFull.verdict && ms817.cycleFull && ms817.cycleFull.phase && typeof ms817.breadthScore === 'number');
@@ -6208,7 +6208,7 @@
       var dedupOk = !!(canonFn && /buildEvidenceStore/.test(canonFn.toString()) && typeof window.AIO._deadV49112_getCritical10ContentEvidenceMatrix === 'undefined');
       t817ok = fullOk && consumerOk && breadthMatch && dedupOk;
       t817detail = 'full=' + fullOk + ' consumers4=' + consumerOk + ' breadthMatch=' + breadthMatch + ' dedup=' + dedupOk;
-      window._breadthLiveData = oldBreadth817;
+      window._aioScreenerBreadth = oldBreadth817;
     } catch(e) { t817detail = 'ERR:' + e.message; }
     _assert('T817 v5044_consumer_transition: 정본 full 객체 + 페이지 렌더러 4종 marketState 소비 + audit 이중정의 해소', t817ok, t817detail);
 
@@ -7372,11 +7372,11 @@
 
     // T873 (EF-02): breadth 표면 3곳(홈 스트립·헤더배지/종합신호·신고저 카드)이 canonical 소스/정직한 상태를 쓰는지
     try {
-      var oldBreadth873 = window._breadthLiveData;
+      var oldBreadth873 = window._aioScreenerBreadth;
       var okA873 = false, detailA873 = 'n/a';
       try {
         if (typeof NARRATIVE_ENGINE !== 'undefined' && typeof updateMarketPulse === 'function' && document.getElementById('mp-breadth-label')) {
-          window._breadth50 = 25; window._breadthLiveData = { sma5:24, sma20:26, sma50:25, ts:Date.now(), source:'test-observed' }; window._breadth20 = 26;
+          window._aioScreenerBreadth = function() { return { state: {}, us: { sma5:24, sma20:26, sma50:25, ts:Date.now(), source:'test-observed' }, kr: null }; };
           updateMarketPulse();
           var mpLabelEl873 = document.getElementById('mp-breadth-label');
           var expectedReg873 = NARRATIVE_ENGINE.getBreadthRegime(25);
@@ -7407,7 +7407,7 @@
         detailC873 = 'v57.60 legacy init=' + typeof initBreadthPage + ' cards=' + !!document.getElementById('breadth-new-highs');
       } catch (eC873) { detailC873 = 'threw: ' + (eC873 && eC873.message); }
 
-      window._breadthLiveData = oldBreadth873;
+      window._aioScreenerBreadth = oldBreadth873;
       _assert('T873 breadth_regime_unification_v5240 (EF-02): market-pulse strip + breadth header-badge/diag-signal use canonical getBreadthRegime/consensus, dead new-high/low cards render honest na state',
         okA873 && okB873 && okC873, detailA873 + ' | ' + detailB873 + ' | ' + detailC873);
     } catch (e873) { _assert('T873 breadth_regime_unification_v5240 (EF-02)', false, 'threw: ' + (e873 && e873.message)); }
@@ -8762,11 +8762,11 @@
         JSON.stringify(krYieldMissing));
     } finally { window._liveData = krYieldOldLd; }
 
-    var breadthOld = window._breadthLiveData;
+    var breadthOld = window._aioScreenerBreadth;
     try {
-      window._breadthLiveData = {};
+      window._aioScreenerBreadth = function() { return { state: {}, us: {}, kr: null }; };
       var breadthMissing = window.AIO && window.AIO.getCurrentBreadthEvidence ? window.AIO.getCurrentBreadthEvidence() : null;
-      window._breadthLiveData = { sma5:61, sma20:57, sma50:52, ts:Date.now(), source:'test-observed' };
+      window._aioScreenerBreadth = function() { return { state: {}, us: { sma5:61, sma20:57, sma50:52, ts:Date.now(), source:'test-observed' }, kr: null }; };
       var breadthObserved = window.AIO && window.AIO.getCurrentBreadthEvidence ? window.AIO.getCurrentBreadthEvidence() : null;
       var nativeBreadth1036 = window.AIO_ARCH && window.AIO_ARCH.getScreenerState && window.AIO_ARCH.getScreenerState()?.metadata?.breadth;
       var missingSourceValid1036 = breadthMissing && (breadthMissing.available
@@ -8776,7 +8776,7 @@
         missingSourceValid1036 && breadthObserved && breadthObserved.available === true && breadthObserved.sma50 === 52 &&
         typeof window.updateBreadthBars !== 'function' /* v57.60: legacy breadth DOM writer retired */,
         JSON.stringify({ missing:breadthMissing, observed:breadthObserved, legacyWriter:typeof window.updateBreadthBars }));
-    } finally { window._breadthLiveData = breadthOld; }
+    } finally { window._aioScreenerBreadth = breadthOld; }
 
     var fredBridgeSrc = typeof _syncYahooToFred === 'function' ? String(_syncYahooToFred) : '';
     _assert('T1037 treasury_bridge_no_default_2y: missing 2Y cannot fabricate or overwrite an official T10Y2Y observation',

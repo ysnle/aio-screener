@@ -15631,25 +15631,10 @@ window.AIO = window.AIO || {};
 window.AIO.getCurrentBreadthEvidence = function(maxAgeMs) {
   var maxAge = Number(maxAgeMs) > 0 ? Number(maxAgeMs) : 4 * 24 * 60 * 60 * 1000;
   var strictOptional = function(value) { return _aioStrictFinite(value); };
-  var candidates = [window._breadthLiveData];
-  // P1274: native breadth card와 테마/국면이 동일한 screener 관측을 읽는다.
-  // Legacy projection이 실행되지 않아도 native store의 검증된 US segment를 사용할 수 있다.
-  try {
-    var root = window.AIO_ARCH && window.AIO_ARCH.getScreenerState && window.AIO_ARCH.getScreenerState('metadata.breadth'); // P1755: path read, no slice clone
-    var segment = root && root.segments && root.segments.us;
-    var validNative = root && root.schemaVersion === '1.0' && root.source && segment
-      && Number(segment.coveragePct) >= 85 && Number(segment.eligible) >= 300
-      && ['above5','above20','above50','above200','advanceRatio'].every(function(key) {
-        var value = strictOptional(segment[key]);
-        return value != null && value >= 0 && value <= (key === 'advanceRatio' ? 1 : 100);
-      });
-    if (validNative) candidates.push({
-      sma5:segment.above5, sma20:segment.above20, sma50:segment.above50,
-      advances:segment.advances, declines:segment.declines, advanceRatio:segment.advanceRatio,
-      coveragePct:segment.coveragePct, eligible:segment.eligible, ts:segment.observedAt,
-      source:root.source
-    });
-  } catch (_) {}
+  // P1274: every breadth reader takes the one checked screener observation (src/domain/market/screener-breadth.js).
+  var screenerBreadth = null;
+  try { screenerBreadth = typeof window._aioScreenerBreadth === 'function' ? window._aioScreenerBreadth() : null; } catch (_) {}
+  var candidates = [screenerBreadth && screenerBreadth.us];
   for (var i = 0; i < candidates.length; i++) {
     var b = candidates[i] || {};
     var tsRaw = b.ts != null ? b.ts : b.generatedAt != null ? b.generatedAt : b.asOf;
@@ -18085,7 +18070,8 @@ function _aioExternalReferenceMap(externalReferences) {
         quality: pcrMetric && (pcrMetric.quality || pcrMetric.contract) || pcrPayload.quality || null
       };
     } else if (input && input.id === 'breadth200-participation') {
-      var breadthState = window._aioScreenerBreadthState || {}, breadthData = window._breadthLiveData || {};
+      var breadthRead = typeof window._aioScreenerBreadth === 'function' ? window._aioScreenerBreadth() : null;
+      var breadthState = (breadthRead && breadthRead.state) || {}, breadthData = (breadthRead && breadthRead.us) || {};
       evidence = {
         value: currentBreadth.available ? currentBreadth.sma20 : null, // v57.62: value, source and time come from one observation
         source: (currentBreadth.available && currentBreadth.source) || breadthData.source || breadthState.source || null,

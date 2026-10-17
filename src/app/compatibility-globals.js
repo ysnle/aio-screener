@@ -40,6 +40,7 @@ import { KR_THEME_LABELS, krThemesForSymbol } from '../domain/themes/kr-themes.j
 import { MA_STRUCTURE_LABELS } from '../domain/technical/stage.js';
 import { completedBars } from '../ui/components/stock-chart.js';
 import { keywordMayMatch, textPairs } from '../domain/news/keyword-prefilter.js';
+import { readScreenerBreadth } from '../domain/market/screener-breadth.js';
 import { buildScreenerAiContext, detectSectorQuery, formatScreenerResultPrompt, runScreenerQuery } from '../ai/context/screener-query.js';
 
 export function installCompatibilityGlobals(root = globalThis) {
@@ -60,6 +61,8 @@ export function installCompatibilityGlobals(root = globalThis) {
   // Legacy unification (2026-10-17): the chat's screener query engine moved here from js/aio-data.js. Every call reads
   // the canonical rows the native screener orchestrator ranked (no second ranking run) and the producer's factor date.
   const screenerState = (path) => { try { return window.AIO_ARCH?.getScreenerState?.(path) ?? null; } catch (_) { return null; } };
+  // Screener-universe breadth, checked once (legacy unification 2026-10-17: replaces the projected breadth globals).
+  window._aioScreenerBreadth = (breadth = screenerState('metadata.breadth'), now = Date.now()) => readScreenerBreadth(breadth, now);
   const screenerFactorAsOf = () => screenerState('metadata.asOf') || screenerState('revision') || null;
   const screenerQueryInput = () => ({
     rows: (typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() : null) || [],
