@@ -4188,6 +4188,16 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const flat = bars.slice(0, 220);
   const flatServer = _calcVCPServer(flat.map((bar) => bar.close), flat.map((bar) => bar.high), flat.map((bar) => bar.low), flat.map((bar) => bar.volume));
   if (flatServer.pivotLevel !== null || ['near_pivot', 'breakout', 'pivot_down'].includes(flatServer.vcpStage)) fail(`v57.84 no valid contraction run, no pivot state: ${JSON.stringify(flatServer)}`);
+  // Technical audit 2026-10-17: two swing highs with no swing low between them (a shallow dip held on equal lows). The
+  // pullback starts from the higher one (116), not the first (112) — otherwise the pivot sits under the real peak.
+  const knots = [[0, 80], [10, 89], [20, 120], [30, 100], [38, 112], [41, 110], [44, 116], [52, 106], [57, 114]];
+  const twinHighs = [];
+  for (let k = 0; k < knots.length - 1; k++) for (let i = knots[k][0]; i < knots[k + 1][0]; i++) twinHighs.push(knots[k][1] + (knots[k + 1][1] - knots[k][1]) * (i - knots[k][0]) / (knots[k + 1][0] - knots[k][0]));
+  twinHighs.push(knots.at(-1)[1]);
+  const twinBars = twinHighs.map((high, i) => ({ high, low: i >= 39 && i <= 43 ? 109 : high - 1, close: high - 0.5 }));
+  const twin = detectContractions(twinBars);
+  const lastTwin = twin.contractions.at(-1);
+  if (twin.pivot !== 116 || lastTwin?.high !== 116 || !(Math.abs(lastTwin.depth - (116 - 105) / 116 * 100) < 1e-9)) fail(`audit 2026-10-17 a pullback must start from the highest swing high before the next swing low: ${JSON.stringify(twin.contractions)}`);
 }
 
 console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks', 'domain/screener/setup-profile:deriveScreenerSetupProfile', 'domain/portfolio/surface', 'domain/fundamental/sec-report', 'bootstrap:stop-lifecycle'] }));

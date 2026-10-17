@@ -194,9 +194,14 @@ export function detectContractions(bars, { lookback = 130, span = 3 } = {}) {
     const low = Math.min(...segment.map((bar) => bar.low));
     const depth = (recent[cursorHigh].high - low) / recent[cursorHigh].high * 100;
     contractions.push({ highIndex: start + cursorHigh, lowIndex: start + lowIndex, high: recent[cursorHigh].high, low, depth });
-    const nextHigh = highs.find((index) => index > lowIndex);
-    if (nextHigh == null) break;
-    cursorHigh = nextHigh;
+    // The next pullback starts from the highest swing high before the next swing low. Two swing highs can stand
+    // without a swing low between them (a shallow dip); taking the first one measured the pullback from a lower
+    // high and set the pivot under the real peak, so a close between the two read as above the pivot.
+    const firstHigh = highs.find((index) => index > lowIndex);
+    if (firstHigh == null) break;
+    const nextLow = lows.find((index) => index > firstHigh);
+    cursorHigh = highs.filter((index) => index >= firstHigh && (nextLow == null || index < nextLow))
+      .reduce((best, index) => (recent[index].high > recent[best].high ? index : best), firstHigh);
   }
   const all = contractions.filter((row) => row.depth >= 2);
   // The pattern is the latest run of successively shallower pullbacks (Minervini's 'T' count),

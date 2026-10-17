@@ -943,7 +943,9 @@ export function buildMarketRegime(input = {}) {
   let trendCap = null;
   {
     const series = buildCloseSeries(input.history, 'spx', { through: basis });
-    const ma50Then = series.length >= 70 ? series.slice(-70, -20).reduce((sum, point) => sum + point.value, 0) / 50 : null;
+    // The 50-day line RULES.trend.slopeLookback sessions ago (the rule's constants, not a second copy of 50/20).
+    const { maShort, slopeLookback } = RULES.trend;
+    const ma50Then = series.length >= maShort + slopeLookback ? series.slice(-(maShort + slopeLookback), -slopeLookback).reduce((sum, point) => sum + point.value, 0) / maShort : null;
     const rising = spx.ma50 != null && ma50Then != null ? spx.ma50 > ma50Then : null;
     const fromHigh = pct(spx.value, spx.yearMax);
     const buffer = RULES.trend.bufferPct;

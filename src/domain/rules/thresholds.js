@@ -63,7 +63,8 @@ export const RULES = Object.freeze({
     breakout: Object.freeze({ volumeMultiple: 1.4 }),
     // v57.87 (owner X-bookmark read 2026-10-16): stock-level follow-through evidence (technical/follow-through.js).
     // Pocket pivot: an up close whose volume beats every down-close volume of the prior 10 sessions (Morales/Kacher).
-    // Heavy down day: a close ≥ 0.2% lower on more volume than the prior session (O'Neil distribution day, per stock).
+    // Heavy down day: a close ≥ heavyDownPct (1%) lower on volume above the stock's own heavyDownAvgSessions (50) average
+    // (v57.88; the index distribution-day rule of 0.2% on more volume than the prior session is too loose for one stock).
     // Base: a pullback of ≥ basePullbackPct from a closing high lasting ≥ baseMinSessions, completed by a close above that
     // high; the count restarts after a drawdown of resetDrawdownPct or a new 52-week closing low. Climax checks apply only
     // after a run of climaxMinRunPct from the 52-week low. Down-day resilience: index down closes in the last 60 sessions.
