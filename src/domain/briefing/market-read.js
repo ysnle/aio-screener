@@ -822,7 +822,7 @@ export const MIN_KNOWN_AXES = 4; // of the six US axes, before an overall label 
 // state read 'holding' — the AI packet then said "주도 영역 이탈: 아니오". A weak proxy without the confirmations is now
 // 'weak' (주도주 약세 · 확산 미확인), never 'holding'; and "under the 50-day line" needs RULES.trend.bufferPct (R707) —
 // 2026-08-06 read a break at -0.0% in a +4.5% week.
-// v57.93 (owner 2026-10-17, July 2026 replay): the confirmations are single-session counts, so the state flickered
+// v57.94 (owner 2026-10-17, July 2026 replay): the confirmations are single-session counts, so the state flickered
 // 7/23 이탈 → 7/24~28 약세 → 7/29 이탈 while the Nasdaq-100 kept falling. With the history, a confirmation counts when it
 // held on any of the last RULES.leadership.confirmWindowSessions sessions, and a break holds while the proxy stays weak
 // (hysteresis, R707); without the history (fixtures) the reading is the single session's. SMH stays reference-only — as a

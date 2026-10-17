@@ -14,7 +14,7 @@ export const RULES = Object.freeze({
   // its 50-day line, AND at least minConfirmations of: new lows above new highs; fewer than 45% of issues advancing on the
   // last session (more decliners than advancers by a margin); O'Neil's 6+ distribution days in 25 sessions (heavy
   // institutional selling); the Russell 2000 under its 200-day line. Conventions, not validated predictors.
-  // v57.93 (owner 2026-10-17): a confirmation counts when it held on any of the last confirmWindowSessions sessions, and a
+  // v57.94 (owner 2026-10-17): a confirmation counts when it held on any of the last confirmWindowSessions sessions, and a
   // break holds while the proxy stays weak — single-session counts read 7/23 이탈 → 7/24~28 약세 → 7/29 이탈 in July 2026.
   leadership: Object.freeze({ advanceRatioWeakBelow: 0.45, distributionDaysAt: 6, minConfirmations: 2, confirmWindowSessions: 5 }),
   // v57.81: "회복 중" only when the last session did not give back reversalShare of the window's gain (a 5-day +8pp bounce

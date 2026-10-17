@@ -218,7 +218,7 @@ for (const [w, window] of WINDOWS.entries()) {
       // A leadership proxy clearly under its 50-day line is never 'holding' (v57.83).
       if (leadership.belowMa50) check(leadership.state !== 'holding', `${where}: 나스닥 100이 50일선 아래(${leadership.summary})인데 주도 영역 유지`);
       if (leadership.state === 'break') check(leadership.proxyWeak === true, `${where}: 주도주 약세 없이 이탈 판정`);
-      // v57.93: a break holds while the proxy stays weak (7/23 이탈 -> 7/24 약세 -> 7/29 이탈 was single-session counts).
+      // v57.94: a break holds while the proxy stays weak (7/23 이탈 -> 7/24 약세 -> 7/29 이탈 was single-session counts).
       if (previous?.break && leadership.proxyWeak) check(leadership.break, `${where}: 전날 이탈·나스닥 100 약세 지속인데 ${leadership.state} (${leadership.summary})`);
       previous = leadership;
     }
@@ -241,7 +241,7 @@ for (const [w, window] of WINDOWS.entries()) {
     if (date === '2026-07-29') check(read.states.trend !== 'favorable', `${date}: S&P 500 50일선 -2.0%인데 추세 양호`);
     summary.push(line(read, ` ndx/high:${read.leadership.offHigh?.toFixed(1)}%`));
   }
-  // v57.93: with the 5-session confirmation window the July break reads from 7/17 (Nasdaq-100 -4.1% in five sessions, 상승
+  // v57.94: with the 5-session confirmation window the July break reads from 7/17 (Nasdaq-100 -4.1% in five sessions, 상승
   // 종목 32% that day and 분배일 6 on 7/13) and holds through 8/3; 8/4 regains the 50-day line and releases it.
   for (const date of sessions('2026-07-17', '2026-08-03')) {
     const read = realAt(date);
@@ -253,7 +253,7 @@ for (const [w, window] of WINDOWS.entries()) {
   const aug6 = need('2026-08-06', '2026-07');
   if (aug6) { check(!aug6.leadership.break, `2026-08-06: 50일선 ±1% 안 반등 주간에 주도 영역 이탈 (${aug6.leadership.summary})`); summary.push(line(aug6)); }
 
-  // SMH (semiconductors) joined history.json in v57.83. Report-only: no judgement reads it — v57.93 compared it as a second
+  // SMH (semiconductors) joined history.json in v57.83. Report-only: no judgement reads it — v57.94 compared it as a second
   // proxy and it read 이탈 through the +8% rebound week of 8/5~8/10 — so its drawdown is evidence for the owner, not a gate.
   for (const [label, from, to] of [['2026-02~03', '2026-01-02', '2026-04-09'], ['2026-07', '2026-06-01', '2026-08-07']]) {
     const smh = rows.filter((row) => row.date >= from && row.date <= to && Number.isFinite(row.smh));
