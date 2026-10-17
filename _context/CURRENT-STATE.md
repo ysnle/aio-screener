@@ -1,6 +1,6 @@
 ---
 generated_by: scripts/generate-workspace-state.mjs
-generated_from_build: 2026-10-17T16:06:00+09:00
+generated_from_build: 2026-10-17T16:32:00+09:00
 auto_refresh: true
 last_verified: 2026-10-17
 ---
@@ -11,7 +11,7 @@ last_verified: 2026-10-17
 
 ## Application
 
-- Version: `v58.06`
+- Version: `v58.07`
 - Architecture: `hybrid-static-shell-native-esm`
 - Active routes: 19 (source: `architecture/route-owners.json`)
 - App shell: 7,068 lines / 549,604 bytes
@@ -19,11 +19,11 @@ last_verified: 2026-10-17
 | Source | Lines | Bytes |
 |---|---:|---:|
 | `index.html` | 7,068 | 549,604 |
-| `js/aio-core.js` | 19,212 | 1,148,846 |
-| `js/aio-data.js` | 14,621 | 922,928 |
-| `js/aio-ui.js` | 4,431 | 261,408 |
-| `js/aio-chat.js` | 6,188 | 454,929 |
-| `js/aio-tests.js` | 9,240 | 735,952 |
+| `js/aio-core.js` | 19,198 | 1,148,079 |
+| `js/aio-data.js` | 14,553 | 920,126 |
+| `js/aio-ui.js` | 4,431 | 261,529 |
+| `js/aio-chat.js` | 6,188 | 454,989 |
+| `js/aio-tests.js` | 9,240 | 736,203 |
 | `js/aio-glossary.js` | 409 | 111,312 |
 
 ## Workspace

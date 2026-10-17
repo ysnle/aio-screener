@@ -3183,7 +3183,8 @@ async function fetchBreadthData() {
   // The server artifact is the primary value-specific collector and the native breadth board owns
   // the route. P1754: the client-side top-movers call that used to follow here was removed — its
   // response was no longer rendered anywhere and it only spent the shared Alpha Vantage quota.
-  if (window._aioScreenerBreadthState && window._aioScreenerBreadthState.status === 'verified_current') {
+  var screenerBreadth = typeof window._aioScreenerBreadth === 'function' ? window._aioScreenerBreadth() : null;
+  if (screenerBreadth && screenerBreadth.state.status === 'verified_current') {
     return { updated:false, source:'screener-breadth-primary' };
   }
 }
@@ -4608,36 +4609,6 @@ function _aioApplyNativeScreenerState(nativeState) {
     nativeRevision: state.revision || null
   };
   window._aioScreenerLoadState = loadState;
-  window._aioServerScreener = {
-    asOf: loadState.asOf,
-    factorObservedAt: loadState.factorObservedAt,
-    universe: loadState.universe,
-    fmpOk: loadState.fmpOk,
-    secFundamentalsOk: loadState.secFundamentalsOk,
-    secFundamentalsCount: loadState.secFundamentalsCount,
-    secFundamentalsStored: loadState.secFundamentalsStored,
-    secFundamentalsEligible: loadState.secFundamentalsEligible,
-    secFundamentalsModel: loadState.secFundamentalsModel,
-    fundamentalCoveragePct: loadState.fundamentalCoveragePct,
-    universeCurrentness: loadState.universeCurrentness,
-    universeLastBulkUpdate: loadState.universeLastBulkUpdate,
-    universeStaleAfterDays: loadState.universeStaleAfterDays,
-    universeFreshnessStatus: loadState.universeFreshnessStatus,
-    rankingContract: metadata.rankingContract || null,
-    backtest: metadata.backtest || null,
-    breadth: metadata.breadth || null,
-    ranking: metadata.ranking || null,
-    nativeState: state
-  };
-  window._aioScreenerFactorAsOf = loadState.asOf;
-  window._aioScreenerFactorObservedAt = loadState.factorObservedAt;
-  if (metadata.backtest && metadata.backtest.kalmanScale === 'log_pct_day') {
-    window._aioFactorBacktest = metadata.backtest;
-    window._aioFactorBacktestStaleReason = null;
-  } else if (metadata.backtest) {
-    window._aioFactorBacktest = null;
-    window._aioFactorBacktestStaleReason = 'legacy_kalman_scale';
-  }
   if (window.SCREENER_DB_META && loadState.asOf) {
     if (loadState.universeLastBulkUpdate) window.SCREENER_DB_META.lastBulkUpdate = String(loadState.universeLastBulkUpdate).slice(0, 10);
     if (loadState.universeStaleAfterDays != null) window.SCREENER_DB_META.staleAfterDays = loadState.universeStaleAfterDays;
@@ -4659,6 +4630,21 @@ function _aioApplyNativeScreenerState(nativeState) {
   return true;
 }
 window._aioApplyNativeScreenerState = _aioApplyNativeScreenerState;
+// Native screener metadata by path (no slice clone). The legacy readers below take these instead of the copies this
+// projection used to keep in _aioServerScreener / _aioScreenerFactorAsOf / _aioScreenerFactorObservedAt / _aioFactorBacktest.
+function _aioScreenerMetadata(path) {
+  var arch = window.AIO_ARCH;
+  try { return arch && typeof arch.getScreenerState === 'function' ? arch.getScreenerState('metadata.' + path) : undefined; } catch (_) { return undefined; }
+}
+function _aioScreenerFactorAsOf() {
+  var arch = window.AIO_ARCH;
+  try { return _aioScreenerMetadata('asOf') || (arch && typeof arch.getScreenerState === 'function' ? arch.getScreenerState('revision') : null) || null; } catch (_) { return null; }
+}
+// A backtest on the old Kalman scale (legacy_kalman_scale) is withheld rather than shown.
+function _aioScreenerFactorBacktest() {
+  var backtest = _aioScreenerMetadata('backtest');
+  return backtest && backtest.kalmanScale === 'log_pct_day' ? backtest : null;
+}
 try {
   window.addEventListener('aio:nativeScreenerReady', function(event) {
     _aioApplyNativeScreenerState(event && event.detail);
@@ -5548,15 +5534,16 @@ function _aioRenderDataFreshness() {
     // 스크리너: 팩터 기준시각 | 가격 기준시각
     var asEl = document.querySelector('#page-screener [data-factor-asof]');
     if (asEl) {
-      var scrTs = window._aioScreenerFactorObservedAt ? _aioKstShortFromIso(window._aioScreenerFactorObservedAt) : null;
+      var scrObservedAt = _aioScreenerMetadata('factorObservedAt');
+      var scrTs = scrObservedAt ? _aioKstShortFromIso(scrObservedAt) : null;
       var scrGeneratedTs = window._aioGetFieldTs('screener');
       var priceTs = window._aioGetFieldTs('prices');
       if (scrTs && priceTs) {
         asEl.textContent = '팩터 관측 ' + scrTs + (scrGeneratedTs ? ' · 파일 ' + scrGeneratedTs : '') + ' | 가격 ' + priceTs;
       } else if (scrTs) {
         asEl.textContent = '팩터 관측 ' + scrTs + (scrGeneratedTs ? ' · 파일 ' + scrGeneratedTs : '');
-      } else if (window._aioScreenerFactorAsOf) {
-        asEl.textContent = '팩터 기준 ' + String(window._aioScreenerFactorAsOf).slice(0, 10);
+      } else if (_aioScreenerFactorAsOf()) {
+        asEl.textContent = '팩터 기준 ' + String(_aioScreenerFactorAsOf()).slice(0, 10);
       } else {
         asEl.textContent = '팩터 데이터 대기';
       }
@@ -5884,8 +5871,7 @@ function _aioRenderPipelineStatus() {
       var fmpDetail = '유료 FMP는 사용하지 않음 · 무료 SEC companyfacts 누적 커버리지 ' + coverageLabel;
       msgs.push({ icon: '', text: '재무 팩터 축소 모드', detail: fmpDetail, color: '#ef4444' });
     }
-    var screenerUniverse = window._aioServerScreener || {};
-    if (screenerUniverse.universeFreshnessStatus === 'stale') {
+    if (_aioScreenerMetadata('universeFreshnessStatus') === 'stale') {
       msgs.push({ icon: '!', text: '스크리너 종목 유니버스 갱신 필요', detail: '팩터 파일과 종목 식별 유니버스의 기준일이 다릅니다. 현재 결과는 연구용 부분 상태입니다.', color: '#f59e0b' });
     }
     if (!meta.fredHasKey) {
@@ -13902,76 +13888,22 @@ function updateScreenerFromLiveData() {
   console.log('[AIO] 스크리너 DB mcap 라이브 업데이트 완료');
 }
 
-// Apply server-computed daily breadth only when observation time and coverage pass.
+// Apply server-computed daily breadth to the macro snapshot only when observation time and coverage pass
+// (src/domain/market/screener-breadth.js checks it; every other breadth reader asks _aioScreenerBreadth()).
 // This is an AIO US screener-universe measurement, not official exchange breadth.
 function _aioApplyScreenerBreadth(sd) {
-  var root = sd && sd.breadth;
-  var b = root && root.segments && root.segments.us;
-  var kr = root && root.segments && root.segments.kr;
-  var observedMs = b && b.observedAt ? new Date(b.observedAt).getTime() : 0;
-  var ageHours = observedMs ? (Date.now() - observedMs) / 3600000 : null;
-  var valuesOk = b && ['above5','above20','above50','above200','advanceRatio'].every(function(k) {
-    return typeof b[k] === 'number' && isFinite(b[k]) && b[k] >= 0 && b[k] <= (k === 'advanceRatio' ? 1 : 100);
-  });
-  var checks = {
-    schema: !!(root && root.schemaVersion === '1.0'),
-    coverage: !!(b && b.coveragePct >= 85 && b.eligible >= 300),
-    observed: !!(observedMs && ageHours >= -1 && ageHours <= 96),
-    values: !!valuesOk
-  };
-  var passed = Object.keys(checks).every(function(k){ return checks[k]; });
-  window._aioScreenerBreadthState = {
-    status: passed ? 'verified_current' : 'blocked',
-    source: root && root.source || null,
-    label: b && b.label || null,
-    observedAt: b && b.observedAt || null,
-    ageHours: ageHours,
-    coveragePct: b && b.coveragePct,
-    eligible: b && b.eligible,
-    checks: checks,
-    decisionScope: root && root.decisionScope || 'research/reference'
-  };
-  if (!passed) return false;
-
-  window._breadth20 = b.above20;
-  window._breadth200 = b.above20; // legacy consumer name: this value is 20SMA breadth
-  window._breadth50 = b.above50;
-  window._breadthLiveData = {
-    sma5: b.above5,
-    sma20: b.above20,
-    sma50: b.above50,
-    above200: b.above200,
-    advances: b.advances,
-    declines: b.declines,
-    advanceRatio: b.advanceRatio,
-    ts: observedMs,
-    generatedAt: b.observedAt,
-    source: root.source || b.label || 'AIO US screener universe',
-    coveragePct: b.coveragePct,
-    eligible: b.eligible
-  };
-  var krObservedMs = kr && kr.observedAt ? new Date(kr.observedAt).getTime() : 0;
-  var krAgeHours = krObservedMs ? (Date.now() - krObservedMs) / 3600000 : null;
-  var krValuesOk = kr && ['above5','above20','above50','above200','advanceRatio'].every(function(k) {
-    return typeof kr[k] === 'number' && isFinite(kr[k]) && kr[k] >= 0 && kr[k] <= (k === 'advanceRatio' ? 1 : 100);
-  });
-  var krPassed = !!(krValuesOk && kr.coveragePct >= 85 && kr.eligible >= 100 && krAgeHours >= -1 && krAgeHours <= 96);
-  window._krBreadthLiveData = krPassed ? {
-    sma5: kr.above5, sma20: kr.above20, sma50: kr.above50, above200: kr.above200,
-    advances: kr.advances, declines: kr.declines, unchanged: kr.unchanged,
-    advanceRatio: kr.advanceRatio, ts: krObservedMs, observedAt: kr.observedAt,
-    source: root.source || kr.label, label: kr.label,
-    coveragePct: kr.coveragePct, eligible: kr.eligible,
-    decisionScope: root.decisionScope || 'research/reference'
-  } : null;
+  var read = typeof window._aioScreenerBreadth === 'function' ? window._aioScreenerBreadth(sd && sd.breadth) : null;
+  var b = read && read.us;
+  if (!b) return false;
+  var observedMs = b.ts;
   window._lastFetch = window._lastFetch || {};
   window._lastFetch.breadthScreener = observedMs;
   if (window.DATA_SNAPSHOT) {
-    window.DATA_SNAPSHOT.breadth5sma = b.above5;
-    window.DATA_SNAPSHOT.breadth20sma = b.above20;
-    window.DATA_SNAPSHOT.breadth50sma = b.above50;
+    window.DATA_SNAPSHOT.breadth5sma = b.sma5;
+    window.DATA_SNAPSHOT.breadth20sma = b.sma20;
+    window.DATA_SNAPSHOT.breadth50sma = b.sma50;
     window.DATA_SNAPSHOT._fieldTs = window.DATA_SNAPSHOT._fieldTs || {};
-    window.DATA_SNAPSHOT._fieldTs.breadth_screener = b.observedAt;
+    window.DATA_SNAPSHOT._fieldTs.breadth_screener = b.generatedAt;
   }
   try {
     if (typeof applyDataSnapshot === 'function') applyDataSnapshot();

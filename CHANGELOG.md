@@ -1,3 +1,7 @@
+## v58.07 (2026-10-17)
+- **레거시·ESM 통합 3단계 (v58.07):** js/aio-data.js가 네이티브 스크리너 상태를 복사해 두던 전역 10개(_aioServerScreener·_aioScreenerFactorAsOf·_aioScreenerFactorObservedAt·_aioFactorBacktest·_aioScreenerBreadthState·_breadthLiveData·_krBreadthLiveData·_breadth20/50/200)를 없애고, 데이터 신선도 줄·파이프라인 상태·팩터 백테스트 차트·AI 질의·심볼 순위·브레스 근거·증거 매트릭스·한국 브레스 카드가 AIO_ARCH.getScreenerState와 순수 모듈 src/domain/market/screener-breadth.js(window._aioScreenerBreadth)에서 직접 읽는다. 브레스 검증 기준은 동일(스키마 1.0, 커버리지 85%, 300종목, 96시간, 한국 100종목)하되 이제 읽는 시점에 검사하므로, 오래 열린 세션에서도 96시간 지난 관측은 현재로 읽지 않고 미국 구간이 실패하면 한국 카드가 이전 값을 유지하지 않는다.
+- R1 7곳 v58.07
+
 ## v58.06 (2026-10-17)
 - **스크리너 실시간 시세 증분 재계산 (v58.06):** 스크리너가 열린 동안 실시간 시세(aio:liveQuotes)가 들어오면 시세가 바뀐 행만 다시 계산하고 나머지 행 객체는 그대로 재사용한다(공급자 행 재사용·스냅샷 해시 재사용·정규화 행 WeakMap). 실제 산출물에서 시세 120개 변경 시 기본 1,451→290ms, 확장 8,161→1,034ms이며 결과 상태는 전체 재계산과 바이트 단위로 같다. 시세가 안 바뀐 행의 시간 기반 필드 상태는 최대 5분 늦게 갱신될 수 있고, 새로고침·화면 진입·프로필 변경이나 5분 경과 시에는 전 행을 다시 계산한다. 읽는 곳 없던 전역 _breadth5·_breadth200Actual을 제거했다.
 - R1 7곳 v58.06

@@ -4948,3 +4948,15 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const late = bySym(await provider.readCurrent({ refresh: false, quotesOnly: true }));
   if (late.BBB === plain.BBB) fail('quote tick: rows re-derive once the reuse window has passed');
 }
+{
+  // Legacy unification (2026-10-17): one checked screener-breadth read replaces the projected breadth globals.
+  const { readScreenerBreadth } = await load('src/domain/market/screener-breadth.js');
+  const now = Date.parse('2026-10-17T06:00:00Z');
+  const seg = (extra) => ({ above5: 40, above20: 35, above50: 36, above200: 52, advanceRatio: 0.6, coveragePct: 97, eligible: 700, advances: 400, declines: 300, observedAt: '2026-10-16T20:00:00Z', ...extra });
+  const read = readScreenerBreadth({ schemaVersion: '1.0', source: 'fixture', segments: { us: seg({}), kr: seg({ eligible: 150, unchanged: 5 }) } }, now);
+  if (read.state.status !== 'verified_current' || read.us.sma50 !== 36 || read.us.ts !== Date.parse('2026-10-16T20:00:00Z') || read.kr?.unchanged !== 5) fail(`screener breadth: a covered current observation reads for both markets: ${JSON.stringify(read)}`);
+  const krThin = readScreenerBreadth({ schemaVersion: '1.0', source: 'fixture', segments: { us: seg({}), kr: seg({ eligible: 90 }) } }, now);
+  if (!krThin.us || krThin.kr !== null) fail('screener breadth: a thin KR segment is held while US stays');
+  const wrongSchema = readScreenerBreadth({ schemaVersion: '2.0', source: 'fixture', segments: { us: seg({}), kr: seg({}) } }, now);
+  if (wrongSchema.us !== null || wrongSchema.kr !== null || wrongSchema.state.checks.schema !== false) fail('screener breadth: an unknown schema blocks both markets');
+}
