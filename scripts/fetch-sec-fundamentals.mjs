@@ -261,7 +261,9 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
       normalizerOutdated: Boolean(previous.data && previous.data[symbol] && previous.data[symbol].normalizerVersion !== SEC_NORMALIZER_VERSION),
       // P1798: a stored record without a share count leaves market cap, P/E and the value factor blank (GOOGL/META
       // waited 2-5 days behind 700 outdated records), so it is refreshed first among the due records.
-      sharesMissing: Boolean(previous.data && previous.data[symbol] && !(Number(previous.data[symbol].sharesOutstanding) > 0)),
+      // 2026-10-17: a count withheld by policy (non-USD report, 20-F ordinary shares) is not missing — a re-read cannot fill it.
+      sharesMissing: Boolean(previous.data && previous.data[symbol] && !(Number(previous.data[symbol].sharesOutstanding) > 0)
+        && !['reporting-currency-differs', 'foreign-share-basis-unverified'].includes(previous.data[symbol].sharesCheck)),
       lastFailureAt: previousFailureAt.get(symbol) || null,
       priorFailure: previousFailureRecords.get(symbol) || null,
       // v6: the terminal IFRS rows (no conceptSetVersion) are rechecked under the IFRS basis the same way.

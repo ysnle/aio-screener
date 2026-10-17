@@ -3,6 +3,7 @@
 // scripts/fetch-data.mjs enrichSecFundamentals so the browser's out-of-universe read builds the same fields; the
 // producer calls this per symbol. Returns null when nothing usable remains (the producer then skips the symbol).
 import { secSharesTrust } from './sec-report.js';
+import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
 
 export function secFundamentalRowFields(row, { price = null, dollarVolume30d = null, factorSessionDate = null, payloadModel = null, nowMs = Date.now() } = {}) {
   if (!row) return null;
@@ -12,20 +13,22 @@ export function secFundamentalRowFields(row, { price = null, dollarVolume30d = n
   // daily turnover is plausible, may price P/E, P/B or the reference market cap. PKG's stored 1000x cover count
   // (P/E 26,255) fails the turnover band; a stale-period or scale-mismatched count is never used.
   const trust = secSharesTrust(row, { price: px, dollarVolume30d });
-  ['roe','margin','revGrowth'].concat(trust.shares ? ['pe','pb'] : []).forEach(key => {
+  ['roe','margin','revGrowth'].forEach(key => {
     if (typeof row[key] === 'number' && Number.isFinite(row[key])) rec[key] = row[key];
   });
+  // 2026-10-17 (logic audit): P/E and P/B are priced only on the close passed here. A ratio stored in the ledger was priced on the
+  // close of its fetch day (up to 28 days earlier) and carried no pePrice, so it is never copied through.
   if (Number.isFinite(px) && px > 0 && trust.shares) {
     const shares = trust.shares;
     const netIncome = Number(row.netIncome);
     const equity = Number(row.equity);
     const mcap = px * shares;
-    if (rec.pe == null && Number.isFinite(netIncome) && netIncome > 0) {
+    if (Number.isFinite(netIncome) && netIncome > 0) {
       rec.pe = Math.round(mcap / netIncome * 100) / 100;
       rec.pePrice = px;
       rec.pePriceBasis = 'adjusted-close';
     }
-    if (rec.pb == null && Number.isFinite(equity) && equity > 0) {
+    if (Number.isFinite(equity) && equity > 0) {
       rec.pb = Math.round(mcap / equity * 100) / 100;
       rec.pbPrice = px;
       rec.pbPriceBasis = 'adjusted-close';
@@ -43,7 +46,7 @@ export function secFundamentalRowFields(row, { price = null, dollarVolume30d = n
   // F15: the same 456-day fiscal-year-end age (period.js FUNDAMENTAL_MAX_PERIOD_AGE_DAYS) sets the quality label.
   const sessionMs = Date.parse(String(factorSessionDate || '').slice(0, 10));
   const reportAgeDays = row.observedAt ? Math.floor(((Number.isFinite(sessionMs) ? sessionMs : nowMs) - Date.parse(row.observedAt)) / 86400000) : null;
-  if (row.observedAt && (nowMs - Date.parse(row.observedAt)) / 86400000 > 456) return null;
+  if (row.observedAt && (nowMs - Date.parse(row.observedAt)) / 86400000 > FUNDAMENTAL_MAX_PERIOD_AGE_DAYS) return null;
   // P1652: P/E under 2 or P/B under 0.1 is a share-class/unit mismatch (BRK-B, IBKR), not a valuation — and the
   // same share basis cannot size a reference market cap either.
   const shareBasisMismatch = (rec.pe != null && !(rec.pe >= 2)) || (rec.pb != null && !(rec.pb >= 0.1));
@@ -71,12 +74,12 @@ export function secFundamentalRowFields(row, { price = null, dollarVolume30d = n
     // F15: CURRENT meant "has a filing date" (624/624 rows). The label now follows the fiscal-year-end age
     // against the factor session (456-day rule); rows past it are not merged at all (above).
     fundamentalQuality: {
-      status: !(row.availableAt || row.acceptedAt || row.filedAt) ? 'MISSING' : reportAgeDays != null && reportAgeDays <= 456 ? 'CURRENT' : 'STALE',
-      stale: !(row.availableAt || row.acceptedAt || row.filedAt) || !(reportAgeDays != null && reportAgeDays <= 456),
+      status: !(row.availableAt || row.acceptedAt || row.filedAt) ? 'MISSING' : reportAgeDays != null && reportAgeDays <= FUNDAMENTAL_MAX_PERIOD_AGE_DAYS ? 'CURRENT' : 'STALE',
+      stale: !(row.availableAt || row.acceptedAt || row.filedAt) || !(reportAgeDays != null && reportAgeDays <= FUNDAMENTAL_MAX_PERIOD_AGE_DAYS),
       basis: 'fiscal-year-end-age',
       period: 'FY',
       reportAgeDays,
-      maxAgeDays: 456,
+      maxAgeDays: FUNDAMENTAL_MAX_PERIOD_AGE_DAYS,
       decisionUse: false,
       allowedUse: 'reference'
     },

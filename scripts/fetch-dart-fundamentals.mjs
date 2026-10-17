@@ -78,8 +78,10 @@ async function main() {
   const zip = Buffer.from(await (await fetch(`${API}/corpCode.xml?crtfc_key=${encodeURIComponent(key)}`)).arrayBuffer());
   const corps = parseCorpCodes(unzipFirstEntry(zip).toString('utf8'));
   const now = new Date();
-  // An annual report for fiscal year Y is due by the end of March of Y+1; before April use Y-2 as the latest.
-  const latestYear = now.getUTCMonth() >= 3 ? now.getUTCFullYear() - 1 : now.getUTCFullYear() - 2;
+  // An annual report for fiscal year Y is due by the end of March of Y+1. 2026-10-17 (logic audit): before April the last
+  // year's report is still tried first — most large filers publish it in early-to-mid March, and starting at Y-2 kept their
+  // previous year for weeks. A report not filed yet answers with no list and the year before is read.
+  const latestYear = now.getUTCFullYear() - 1;
   const companies = {};
   const failed = [];
   for (const sym of symbols) {

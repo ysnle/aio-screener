@@ -3,7 +3,7 @@
 // one year's raw numbers. Inputs: the SEC FY series in the runtime summary (fiscalHistory) and the
 // screener row for price context (returns, P/E). A missing year or field drops its sentence.
 import { withObjectParticle } from '../content/korean-particle.js';
-import { finiteFact, isPriorAnnualPeriod, annualFilingStatus } from './period.js';
+import { finiteFact, isPriorAnnualPeriod, annualFilingStatus, fiscalYearLabel } from './period.js';
 // v57.81: a change inside this many %p (margin) or % (revenue) reads as flat in the text, so its tone is neutral too.
 export const FISCAL_FLAT_BAND = 2;
 const NON_LENDING_FINANCIALS = new Set(['V', 'MA', 'PYPL', 'FI', 'FIS', 'GPN', 'CPAY', 'JKHY', 'CME', 'ICE', 'NDAQ', 'CBOE', 'SPGI', 'MCO', 'MSCI', 'FDS', 'BLK', 'BX', 'KKR', 'APO', 'ARES', 'TROW', 'BEN', 'IVZ', 'AMP', 'BR']);
@@ -101,7 +101,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       // P1449: this read sees revenue and net income only. It cannot split interest, tax or
       // one-offs from operations, so attribution like "영업 레버리지" is withheld (P1441 family).
       points.push({ id: 'margin', tone: Math.abs(delta) < FISCAL_FLAT_BAND ? 'neutral' : delta > 0 ? 'favorable' : 'burden', title: '수익성',
-        text: `순이익률 ${marginNow.toFixed(1)}%(${String(thenYear.periodEnd).slice(0, 4)} 회계연도 ${marginThen.toFixed(1)}%) — ${Math.abs(delta) < FISCAL_FLAT_BAND ? '수익성이 비슷하게 유지됩니다' : delta > 0 ? `${Math.abs(delta).toFixed(1)}%p 높아졌습니다(순이익 기준 관측이며, 세금·이자·일회성 항목과 영업 효과의 구분은 이 화면의 자료로 검증하지 않습니다)` : '매출 대비 남는 이익이 줄었습니다 — 비용·가격 압력을 확인할 지점입니다'}.` });
+        text: `순이익률 ${marginNow.toFixed(1)}%(${(fiscalYearLabel(thenYear.periodEnd) || String(thenYear.periodEnd).slice(0, 4)).replace(/^FY/, '')} 회계연도 ${marginThen.toFixed(1)}%) — ${Math.abs(delta) < FISCAL_FLAT_BAND ? '수익성이 비슷하게 유지됩니다' : delta > 0 ? `${Math.abs(delta).toFixed(1)}%p 높아졌습니다(순이익 기준 관측이며, 세금·이자·일회성 항목과 영업 효과의 구분은 이 화면의 자료로 검증하지 않습니다)` : '매출 대비 남는 이익이 줄었습니다 — 비용·가격 압력을 확인할 지점입니다'}.` });
     }
     const niNow = latest.netIncome;
     const niPrev = history[history.length - 2].netIncome;
@@ -116,7 +116,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       const monthsSince = /^\d{4}-\d{2}-\d{2}$/.test(earningsEnd) && /^\d{4}-\d{2}-\d{2}$/.test(sessionEnd)
         ? (Number(sessionEnd.slice(0, 4)) - Number(earningsEnd.slice(0, 4))) * 12 + Number(sessionEnd.slice(5, 7)) - Number(earningsEnd.slice(5, 7)) - (Number(sessionEnd.slice(8, 10)) < Number(earningsEnd.slice(8, 10)) ? 1 : 0)
         : null;
-      const fyLabel = /^\d{4}-\d{2}/.test(earningsEnd) ? `FY${earningsEnd.slice(0, 4)}` : null;
+      const fyLabel = fiscalYearLabel(earningsEnd);
       const earningsBasis = fyLabel ? `${fyLabel} 순이익 기준 · ${earningsEnd.slice(0, 7)} 마감${monthsSince != null && monthsSince >= 0 ? ` · 경과 ${monthsSince}개월` : ''}` : '공시 이익 기준';
       // 2026-10-14 audit #2: the PER method is unchanged (the last fiscal year's net income). When four newer
       // consecutive quarters are filed, the same price over their summed net income is shown beside it, labelled.
