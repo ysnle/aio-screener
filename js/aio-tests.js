@@ -6401,9 +6401,8 @@
       var nativePage822 = !!document.getElementById('page-screener');
       var nativeBacktest822 = !!panel822;
       var honestState822 = nativePage822 && nativeBacktest822;
-      var earlyFailure822 = typeof window._aioLoadServerData === 'function' &&
-        String(window._aioLoadServerData).indexOf('data.json HTTP') >= 0 &&
-        String(window._aioLoadServerData).indexOf('invalid data.json payload') >= 0;
+      var earlyFailure822 = typeof window._aioFetchServerData === 'function' && // reasons: src/data/server-data.js (unit-tested)
+        String(window._aioLoadServerData).indexOf('fetched.reason') >= 0;
       t822ok = sourceMeta822 && topics822 && claims822 && honestState822 && earlyFailure822;
       t822detail = 'sources=' + sources822 + ' meta=' + sourceMeta822 + ' topics=' + topics822 + ' claims=' + claims822 + ' unavailable=' + honestState822 + ' earlyFailure=' + earlyFailure822;
     } catch(e) { t822detail = 'ERR:' + e.message; }

@@ -361,7 +361,25 @@ check('screener Kalman factor uses comparable log percent scale', /Math\.log\(v\
 check('screener pipeline emits timestamped universe breadth and a research-only ranking contract', /computeScreenerBreadth/.test(fetchData) && /factorObservedAt/.test(fetchData) && /coveragePct/.test(fetchData) && /rankingContract/.test(fetchData) && /research-relative-ranking-only/.test(fetchData));
 check('fetch-data preserves the last-known-good artifact on core quote outage', /CORE_QUOTE_COVERAGE_FAILED/.test(fetchData) && fetchData.indexOf('CORE_QUOTE_COVERAGE_FAILED') < fetchData.indexOf('await atomicWriteFile(OUT'));
 check('22-category reconciliation is computed from executable artifact checks, not a static status table', /buildReconciliationStatus/.test(reconciliationBuilder) && /evidenceCheck/.test(reconciliationBuilder) && /runtimeBlockedCategories/.test(reconciliationBuilder) && /policyBlockedCategories/.test(reconciliationBuilder) && !/const CATEGORY_STATUS/.test(reconciliationBuilder));
-check('browser reloads reconciliation with data polling and rejects market revision drift', /reconciliation-status\.json\?t=/.test(data) && /reconciliation-status-v2/.test(data) && /sourceRevisionMatches/.test(data) && /market snapshot revision mismatch/.test(data) && /getDataReconciliationStatus/.test(data));
+// Legacy unification (2026-10-17): the data.json fetch, reconciliation check and market-cycle gate live in
+// src/data/server-data.js; run them instead of reading the loader's source.
+const serverData = await import('../src/data/server-data.js');
+const serverMetaFixture = (meta, nowIso = '2026-09-12T15:20:00.000Z') => serverData.buildServerDataMeta({ meta: { generatedAt: '2026-09-12T15:16:10.361Z', cycleStatus: 'PUBLISHED', marketSnapshotPublished: true, marketSnapshotCoverage: { tier0Required: 16, tier0Observed: 16 }, ...meta } }, { reconciliation: null, now: Date.parse(nowIso) });
+{
+  const categories = Array.from({ length: 22 }, (_, i) => ({ categoryId: `c${i}` }));
+  const payload = { schemaVersion: 'reconciliation-status-v2', categories, closure: { sourceRevision: 'rev-a' } };
+  const requested = [];
+  const fakeFetch = async (url) => { requested.push(String(url).split('?')[0]); return { ok: true, json: async () => (String(url).includes('data.json') ? { meta: { marketSnapshotRevision: 'rev-b' } } : payload) }; };
+  const fetched = await serverData.fetchServerData({ fetch: fakeFetch, now: () => 0 });
+  const matched = serverData.readReconciliationState(payload, 'rev-a', 0);
+  check('browser reloads reconciliation with data polling and rejects market revision drift',
+    JSON.stringify(requested) === '["./public-data/data.json","./public-data/reconciliation-status.json"]'
+      && fetched.reconciliation.status === 'stale' && fetched.reconciliation.detail === 'market snapshot revision mismatch'
+      && matched.status === 'ready' && matched.sourceRevisionMatches === true
+      && serverData.readReconciliationState({ ...payload, schemaVersion: 'v1' }, 'rev-a', 0).status === 'unavailable'
+      && /getDataReconciliationStatus/.test(data),
+    JSON.stringify({ requested, fetched: fetched.reconciliation?.status, matched: matched.status }));
+}
 check('all market-sensitive pages share one category-to-epoch contract', /PAGE_MARKET_EPOCH_CONTRACT/.test(core) && /getPageMarketEpochState/.test(core) && /applyPageMarketEpoch/.test(core) && /getPageMarketEpochAudit/.test(core));
 check('page evidence is fail-closed by shared market epoch and revision state', /market-epoch-blocked/.test(core) && /market-epoch-partial/.test(core) && /data-market-revision/.test(core) && /data-market-cut-end/.test(core) && /aio:marketEpochUpdated/.test(core));
   check('server quote rows emit explicit observation/fetch/delay/session/venue/use lineage', /observedAt:\s*Number\.isFinite\(m\.regularMarketTime\)/.test(fetchData) && /fetchedAt:\s*new Date\(\)\.toISOString\(\)/.test(fetchData) && /delayedByMs:/.test(fetchData) && /marketSession:/.test(fetchData) && /venue:/.test(fetchData) && /sourceKind:\s*'T3_PUBLIC_DELAYED'/.test(fetchData) && /allowedUse:\s*'reference-only'/.test(fetchData));
@@ -371,7 +389,12 @@ check('ticker news keeps publication and fetch timestamps separate and provider 
 check('core refresh ingests official delayed Cboe statistics without a public CORS proxy', /parseCboePutCallHtml/.test(fetchData) && /Cboe Daily Market Statistics/.test(fetchData) && /sourceKind:\s*'T3_PUBLIC_DELAYED'/.test(fetchData) && /fetchCboePutCall\(\)/.test(fetchData));
 check('client applies server Cboe data first and protects it from failed legacy proxy fallback', /d\.putCall\.totalPutCall/.test(data) && /sourceLabel:\s*'Cboe Daily Market Statistics'/.test(data) && /must not overwrite a fresher official/.test(data));
 // v57.76: the personal-FRED-key retry after a server FRED failure was removed with the retired personal keys.
-check('client preserves the server shared cycle; v57.76 no personal FRED retry remains', /newsCycleStart:\s*d\.meta\.newsCycleStart/.test(data) && /marketSnapshotRevision:\s*d\.meta\.marketSnapshotRevision/.test(data) && /cycleManifestRevision:\s*d\.meta\.cycleManifestRevision/.test(data) && /marketCycleFreshnessSlaHours/.test(data) && !/_clientFredKey|DATA_APIS\.fred/.test(data));
+{
+  const shared = serverMetaFixture({ newsCycleStart: 'n0', marketSnapshotRevision: 'm0', cycleManifestRevision: 'c0', marketCycleFreshnessSlaHours: 48 });
+  check('client preserves the server shared cycle; v57.76 no personal FRED retry remains',
+    shared.newsCycleStart === 'n0' && shared.marketSnapshotRevision === 'm0' && shared.cycleManifestRevision === 'c0' && shared.marketCycleFreshnessSlaHours === 12
+      && /_aioBuildServerDataMeta\(d, fetched\.reconciliation\)/.test(data) && !/_clientFredKey|DATA_APIS\.fred/.test(data));
+}
 check('cold server-data projection performs a bounded full-loader replay until DATA_SNAPSHOT exists', /_snapshotBridgeWait\s*<\s*60/.test(data) && /_aioServerDataBridgeAttempts\s*<=\s*5/.test(data) && /_aioLoadServerData\(\)/.test(data));
 check('P1518 free SEC fundamentals use bounded batches and shared atomic persistence', exists('scripts/fetch-sec-fundamentals.mjs') && /SEC_BATCH_LIMIT/.test(read('scripts/fetch-sec-fundamentals.mjs')) && /SEC_USER_AGENT/.test(read('scripts/fetch-sec-fundamentals.mjs')) && /import \{ atomicWriteFile \} from '\.\/lib\/atomic-write\.mjs'/.test(read('scripts/fetch-sec-fundamentals.mjs')) && /await atomicWriteFile\(path, JSON\.stringify\(value, null, 1\)\)/.test(read('scripts/fetch-sec-fundamentals.mjs')));
 check('BLS direct adapter is keyless, bounded, cadence-gated, and merged as typed official evidence',
@@ -1869,27 +1892,16 @@ const runtimeDataSource = read('js/aio-data.js');
 const operationsStatusSource = read('scripts/build-operations-status.mjs');
 check('P1291/R641 browser and operations status never waive stale live-core freshness at market close',
   !/marketClosedGrace|_utcDay/.test(runtimeDataSource)
-  && /var _liveCoreEligible = _marketCyclePublished && _liveCoreFresh/.test(runtimeDataSource)
+  && serverMetaFixture({}, '2026-09-26T00:30:00.000Z').liveCoreEligible === false
+  && serverMetaFixture({}, '2026-09-26T00:30:00.000Z').marketCyclePublished === true
   && !/marketClosedGrace|utcDay/.test(operationsStatusSource)
   && /fresh: withinSla && coverageComplete && quoteQualityComplete/.test(operationsStatusSource));
-let strictLiveCoreAgeFixtures = false;
-try {
-  const freshnessStart = runtimeDataSource.indexOf('function _aioIsStrictLiveCoreFreshnessAge(ageMs) {');
-  const freshnessEnd = runtimeDataSource.indexOf('\n}', freshnessStart) + 2;
-  if (freshnessStart >= 0 && freshnessEnd > freshnessStart) {
-    const sandbox = {};
-    runInNewContext(`${runtimeDataSource.slice(freshnessStart, freshnessEnd)}\nthis.assess = _aioIsStrictLiveCoreFreshnessAge;`, sandbox, { timeout: 1000 });
-    strictLiveCoreAgeFixtures = sandbox.assess(12 * 60 * 60 * 1000) === true
-      && sandbox.assess(12 * 60 * 60 * 1000 + 1) === false
-      && sandbox.assess(-1) === false
-      && sandbox.assess(NaN) === false;
-  }
-} catch (_) {}
+const assessAge = serverData.isStrictLiveCoreFreshnessAge;
+const strictLiveCoreAgeFixtures = assessAge(12 * 60 * 60 * 1000) === true && assessAge(12 * 60 * 60 * 1000 + 1) === false && assessAge(-1) === false && assessAge(NaN) === false;
 check('P1295/R645 + P1296/R646 runtime uses fixed exact 12h age and rejects future, +1ms, and metadata overrides',
   strictLiveCoreAgeFixtures
-  && /var _marketCycleFreshnessSlaHours = 12/.test(runtimeDataSource)
-  && /_liveCoreFresh = _aioIsStrictLiveCoreFreshnessAge\(_serverAgeMs\)/.test(runtimeDataSource)
-  && !/Number\(d\.meta\.marketCycleFreshnessSlaHours\)/.test(runtimeDataSource)
+  && serverMetaFixture({ marketCycleFreshnessSlaHours: 48 }, '2026-09-13T15:16:10.361Z').liveCoreEligible === false
+  && !/marketCycleFreshnessSlaHours/.test(runtimeDataSource)
   && /const MARKET_CYCLE_FRESHNESS_SLA_MS = 12 \* 60 \* 60 \* 1000/.test(operationsStatusSource)
   && !/Number\(data\?\.meta\?\.marketCycleFreshnessSlaHours/.test(operationsStatusSource));
 const legacyNewsSignalSource = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;

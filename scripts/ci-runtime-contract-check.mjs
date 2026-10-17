@@ -1016,7 +1016,13 @@ check('PERF-BOOT-06: shell FCP is presented before synthetic route timing and al
 check('WP-AI0: one shared public AI policy exposes beta/research wording, action gate, and Evidence/as-of disclosure helpers', /_AIO_PUBLIC_AI_POLICY/.test(chat) && /_aioPublicAIActionPolicyPrompt/.test(chat) && /_aioApplyAIActionGate/.test(chat) && /_aioBuildAIResponseDisclosure/.test(chat) && /_aioAppendAIPublicDisclosure/.test(chat));
 check('v57.62 WP-AI0: the unified chat path gates streaming/final output and persists gated text only', /_uniChunkResult\.text/.test(chat) && /_publicGate = _uniDoneResult\.actionGate/.test(chat) &&/state\.messages\.push\(\{ role: 'assistant', content: visible \}\)/.test(chat) && /extractChips\(visible\)/.test(chat));
 check('R460/P905: public surfaces identify read-only conditional analysis scope and current-data recheck', /id="ai-panel-policy"/.test(html) && /AI 도우미 · 읽기 전용 리서치/.test(html) && /투자·법률·세무 조건부 분석/.test(html) && /불법 실행 절차·주문 실행·확정적 보장/.test(html) && /data-ai-public-policy="beta-research"/.test(chat));
-check('WP-AI0: server market prose requires explicit semantic verification before sink selection', /marketAnalysisSemanticOk/.test(data) && /status: _serverMarketAnalysisVerified \? 'verified' : 'blocked-unverified'/.test(data) && /_serverMarketAnalysis\.status === 'verified'/.test(core));
+let wpAi0SemanticGate = false;
+{
+  const { buildServerDataMeta } = await import('../src/data/server-data.js');
+  const proseMeta = (meta) => buildServerDataMeta({ meta: { generatedAt: '2026-10-17T00:00:00Z', ...meta } }, { now: Date.parse('2026-10-17T01:00:00Z') });
+  wpAi0SemanticGate = proseMeta({ marketAnalysisOk: true }).marketAnalysisOk === false && proseMeta({ marketAnalysisOk: true, marketAnalysisSemanticOk: true }).marketAnalysisOk === true;
+}
+check('WP-AI0: server market prose requires explicit semantic verification before sink selection', wpAi0SemanticGate && /status: _serverMarketAnalysisVerified \? 'verified' : 'blocked-unverified'/.test(data) && /_serverMarketAnalysis\.status === 'verified'/.test(core));
 check('WP-AI0: regression fixtures cover action block, educational pass, strong wording, disclosure metadata, and unverified market prose', /_testV5275PublicAIContract/.test(tests) && /T932/.test(tests) && /T933/.test(tests) && /T934/.test(tests) && /T935/.test(tests) && /T936/.test(tests));
 
 // v52.76 (WP-AI1): one request envelope/response pipeline across all public

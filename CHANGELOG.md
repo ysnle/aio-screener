@@ -1,3 +1,7 @@
+## v58.09 (2026-10-17)
+- **data.json 로더 이전 2단계 (v58.09):** 서버 데이터 산출물의 fetch, reconciliation 무결성 검사, 시장 사이클 신선도 게이트(게시·tier-0 커버리지·12시간 창), _serverDataMeta 구성을 js/aio-data.js 인라인 코드에서 src/data/server-data.js(fetchServerData·readReconciliationState·assessServerCycle·buildServerDataMeta)로 옮겼다. 레거시 로더는 호환 브리지(window._aioFetchServerData·_aioBuildServerDataMeta)를 호출해 DATA_SNAPSHOT과 증거 전역을 이전과 같이 투영한다. data-refresh 감사와 데이터 파이프라인 게이트가 손으로 쓴 사본 대신 런타임 모듈을 실행한다. 화면 변화는 없다.
+- R1 7곳 v58.09
+
 ## v58.08 (2026-10-17)
 - **data.json 로더 이전 1단계 (v58.08):** 화면별 데이터 완결성 검사(AIO.getPageDataCompleteness, data-aio-vertical-slice-* 속성)를 js/aio-core.js에서 src/data/page-completeness.js로 옮기고, 스크리너 산출물 상태를 _aioScreenerLoadState 전역 대신 네이티브 스크리너 슬라이스에서 읽는다(백테스트·현재 유니버스가 있으면 ready, 아니면 partial, 미기록 loading, 실패 unavailable). 레거시 data.json 로더와 스크리너 투영은 더 이상 스크리너 로드 상태를 쓰지 않으며, 로더의 초기 실패 사유는 로그로 남긴다. 화면 변화는 없고 완결성 속성은 CI 게이트만 읽는다.
 - R1 7곳 v58.08
