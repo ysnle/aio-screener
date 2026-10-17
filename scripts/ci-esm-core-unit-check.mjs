@@ -3969,6 +3969,11 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const bars = Array.from({ length: 40 }, (_, i) => ({ date: `2026-08-${String(i + 1).padStart(2, '0')}`, close: 100 - (i % 3 === 0 ? i * 0.5 : 0), volume: 1000 + i * 10 }));
   const dist = distributionDaySeries(bars);
   if (dist[10].count !== null || !Number.isInteger(dist[39].count) || dist[39].count < 1) fail(`P1416 distribution count wrong: ${JSON.stringify(dist.slice(-2))}`);
+  // Audit 2026-10-17 (owner D8): a distribution day is retired once a later close is 5% above it.
+  const rally = Array.from({ length: 31 }, (_, i) => ({ date: `2026-09-${String(i + 1).padStart(2, '0')}`, close: i < 10 ? 100 : 99 + (i - 10) * 0.25, volume: i === 10 ? 2000 : 1000 + i }));
+  const rallied = distributionDaySeries(rally);
+  // Day 10 (-1% on heavier volume) is the one distribution day; day 29 closes at 103.75 (+4.8%), day 30 at 104 (+5.1%).
+  if (rallied[29].count !== 1 || rallied[30].count !== 0) fail(`D8 a 5% rally retires the distribution day: ${JSON.stringify(rallied.slice(29, 31))}`);
   const { computeScreenerBreadthHistory } = await import('./fetch-data.mjs');
   const dates = Array.from({ length: n }, (_, i) => new Date(Date.UTC(2025, 8, 1) + i * 86400000).toISOString().slice(0, 10));
   const rows = computeScreenerBreadthHistory(['AAA'], [{ sym: 'AAA', dates, closes, adjCloses: closes, highs, lows, volumes }], 252, Date.parse('2027-01-01T00:00:00Z'));

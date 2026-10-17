@@ -2366,7 +2366,7 @@ async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), distributi
       observedAt: `${point.date}T20:00:00.000Z`, fetchedAt, lastSuccessfulAt: fetchedAt,
       source: 'Yahoo chart ^GSPC daily bars', sourceKind: 'derived-research', allowedUse: 'research-history',
       observationRelation: 'latest-completed-close', observedAtSource: 'derived-from-index-daily-bars',
-      model: BREADTH_SIGNAL_MODEL_VERSION, rule: 'close <= -0.2% on volume above the prior session; latest 25 sessions'
+      model: BREADTH_SIGNAL_MODEL_VERSION, rule: 'close <= -0.2% on volume above the prior session; latest 25 sessions; retired once a later close is 5% above it'
     };
     distributionRows += 1;
   }

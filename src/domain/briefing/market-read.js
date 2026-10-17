@@ -841,7 +841,7 @@ function leadershipSessionOf(s = {}, basis = null) {
   const confirmations = [
     { id: 'newLows', label: '52주 신저가가 신고가보다 많음', ok: highs && lows ? lows.value > highs.value : null, value: highs && lows ? `신저가 ${fmt(lows.value, 0)}, 신고가 ${fmt(highs.value, 0)}` : null },
     { id: 'advance', label: `마감일 상승 종목 ${fmt(rule.advanceRatioWeakBelow * 100, 0)}% 미만`, ok: advRatio == null ? null : advRatio < rule.advanceRatioWeakBelow, value: advRatio == null ? null : `상승 종목 ${fmt(advRatio * 100, 0)}%`, ratio: advRatio },
-    { id: 'distribution', label: `분배일 ${rule.distributionDaysAt}일 이상`, ok: dist ? dist.value >= rule.distributionDaysAt : null, value: dist ? `분배일 ${fmt(dist.value, 0)}일` : null },
+    { id: 'distribution', label: `S&P 500 분배일 ${rule.distributionDaysAt}일 이상`, ok: dist ? dist.value >= rule.distributionDaysAt : null, value: dist ? `S&P 500 분배일 ${fmt(dist.value, 0)}일` : null },
     { id: 'smallcaps', label: '러셀 2000이 200일선 아래', ok: rut?.ma200 != null ? rut.value < rut.ma200 : null, value: rut?.ma200 != null ? `러셀 2000 200일선 대비 ${signed(pct(rut.value, rut.ma200))}` : null }
   ];
   return { date: ndx.date, ndx, drop5, belowMa50, offHigh, proxyWeak, confirmations };

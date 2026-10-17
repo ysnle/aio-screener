@@ -11,13 +11,15 @@
 //     session; the count covers the latest 25 sessions.
 // Every count carries its own eligible denominator; a missing input is unknown, never a zero.
 
-export const BREADTH_SIGNAL_MODEL_VERSION = 'breadth-signals.v1';
+export const BREADTH_SIGNAL_MODEL_VERSION = 'breadth-signals.v2';
 export const MOVER_THRESHOLD = 0.04;
 export const MOVER_MIN_VOLUME = 100000;
 export const NEW_HIGH_LOW_MIN_PRIOR = 240;
 export const NEW_HIGH_LOW_WINDOW = 251;
 export const DISTRIBUTION_DROP = -0.002;
 export const DISTRIBUTION_WINDOW = 25;
+// Audit 2026-10-17 (owner D8): IBD retires a distribution day once the index closes this share above that day's close.
+export const DISTRIBUTION_RALLY_EXPIRY = 0.05;
 
 const finite = (value) => (value == null || value === '' ? null : Number.isFinite(Number(value)) ? Number(value) : null);
 
@@ -76,7 +78,9 @@ export function evaluateSymbolSignals({ closes = [], adjCloses = [], highs = [],
 }
 
 /**
- * Distribution days of an index for each session (count over the latest DISTRIBUTION_WINDOW sessions).
+ * Distribution days of an index for each session (count over the latest DISTRIBUTION_WINDOW sessions). A day stops
+ * counting once a later close, up to that session, stands DISTRIBUTION_RALLY_EXPIRY (5%) above its own close — the
+ * IBD rule; without it a sharp rally kept its old selling days on the count for five weeks.
  * @param {Array<{ date: string, close: number, volume: number }>} bars ascending
  * @returns {Array<{ date: string, distribution: boolean|null, count: number|null }>}
  */
@@ -92,7 +96,15 @@ export function distributionDaySeries(bars = []) {
   });
   return bars.map((bar, i) => {
     if (i + 1 < DISTRIBUTION_WINDOW + 1) return { date: bar.date, distribution: flags[i], count: null };
-    const span = flags.slice(i + 1 - DISTRIBUTION_WINDOW, i + 1);
-    return { date: bar.date, distribution: flags[i], count: span.some((flag) => flag == null) ? null : span.filter(Boolean).length };
+    const from = i + 1 - DISTRIBUTION_WINDOW;
+    const span = flags.slice(from, i + 1);
+    if (span.some((flag) => flag == null)) return { date: bar.date, distribution: flags[i], count: null };
+    let count = 0, highest = -Infinity;
+    // Walk back from the session so `highest` is the best close after each candidate day, up to session i.
+    for (let j = i; j >= from; j -= 1) {
+      if (flags[j] && !(highest >= finite(bars[j].close) * (1 + DISTRIBUTION_RALLY_EXPIRY))) count += 1;
+      highest = Math.max(highest, finite(bars[j].close) ?? -Infinity);
+    }
+    return { date: bar.date, distribution: flags[i], count };
   });
 }
