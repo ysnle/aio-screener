@@ -37,7 +37,10 @@ export function assembleRiskEstimateInput({
 
   // Cost is historical context, never a current-value fallback. Require a
   // timestamped decision-authorized quote for each live portfolio weight.
+  // Portfolio audit 2026-10-17: two lots of one ticker overwrote each other's value (AAPL 1 + 9 shares read 9 + 9), so the
+  // map now sums every lot and keeps the total quantity for the unit price.
   const currentValueMap = {};
+  const qtyByTicker = {};
   const missingCurrent = [];
   const currencyByTicker = {};
   (Array.isArray(positions) ? positions : []).forEach((p) => {
@@ -45,7 +48,10 @@ export function assembleRiskEstimateInput({
     const price = evidence && evidence.allowedUse === true ? finite(evidence.value) : null;
     currencyByTicker[p.ticker] = holdingPriceCurrency(p, evidence);
     if (price == null || price <= 0) missingCurrent.push(p.ticker);
-    else currentValueMap[p.ticker] = price * Number(p.qty);
+    else {
+      currentValueMap[p.ticker] = (currentValueMap[p.ticker] || 0) + price * Number(p.qty);
+      qtyByTicker[p.ticker] = (qtyByTicker[p.ticker] || 0) + Number(p.qty);
+    }
   });
   if (missingCurrent.length) {
     return { ok: false, code: 'missing-current', tickers: missingCurrent };
@@ -69,7 +75,7 @@ export function assembleRiskEstimateInput({
   });
   if (heldPairs.length) return { ok: false, code: 'currency-unconverted', pairs: heldPairs, baseCurrency };
   Object.assign(currentValueMap, baseValueMap);
-  const totalCurrentValue = (Array.isArray(positions) ? positions : []).reduce((s, p) => s + (currentValueMap[p.ticker] || 0), 0);
+  const totalCurrentValue = Object.values(currentValueMap).reduce((s, value) => s + (value || 0), 0);
   if (!(totalCurrentValue > 0)) {
     return { ok: false, code: 'no-current-value' };
   }
@@ -125,7 +131,7 @@ export function assembleRiskEstimateInput({
         ticker: p.ticker,
         qty: Number(p.qty),
         // P1407: the base-currency unit value, so the snapshot's quantity × price is in one currency.
-        price: currentValueMap[p.ticker] != null && Number(p.qty) > 0 ? currentValueMap[p.ticker] / Number(p.qty) : null,
+        price: currentValueMap[p.ticker] != null && qtyByTicker[p.ticker] > 0 ? currentValueMap[p.ticker] / qtyByTicker[p.ticker] : null,
         priceCurrency: currencyByTicker[p.ticker],
         priceObservedAt: ev && ev.ts != null ? new Date(ev.ts).toISOString() : null,
         priceSource: ev && ev.source != null ? String(ev.source) : null

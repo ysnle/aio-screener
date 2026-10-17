@@ -70,7 +70,9 @@ function resolvePositionValue(position) {
   const qtyField = firstField(position, ['qty', 'shares']);
   if (qtyField.parsed.state === 'invalid') return { state: 'invalid-input', reason: `non-numeric-${qtyField.key}`, value: null };
   if (qtyField.parsed.state === 'ok' && qtyField.parsed.value < 0) return { state: 'invalid-input', reason: `negative-${qtyField.key}`, value: null };
-  const qty = qtyField.parsed.state === 'ok' ? qtyField.parsed.value : 0;
+  // Portfolio audit 2026-10-17: a missing quantity is held like a missing price (CON-01), not valued at 0.
+  if (qtyField.parsed.state === 'missing') return { state: 'data-insufficient', reason: 'quantity-unavailable', value: null };
+  const qty = qtyField.parsed.value;
 
   const priceField = firstField(position, ['price', 'currentPrice']);
   if (priceField.parsed.state === 'invalid') return { state: 'invalid-input', reason: `non-numeric-${priceField.key}`, value: null };

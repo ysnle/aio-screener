@@ -12,6 +12,8 @@ import { createCompositionSnapshot, deriveRiskEstimate, assessAccountPerformance
 import { assembleRiskEstimateInput } from '../src/ui/panels/portfolio-risk-input.js';
 import { normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
 import { deriveVarStability } from '../src/domain/portfolio/return-stats.js';
+import { _calcDailyReturns } from '../src/domain/portfolio/backtest.js';
+import { deriveConcentrationRisk } from '../src/domain/portfolio/concentration.js';
 import { rangeExtremesOf } from '../src/domain/technical/definitions.js';
 import { shareClassTag } from '../src/ui/pages/masters.js';
 
@@ -44,8 +46,11 @@ const rows = { AAA: { sym: 'AAA', ret3m: 10, sector: 'Technology', factorSession
 const market = (symbol) => (/\.KS$/.test(symbol) ? { ret3m: -15, label: '코스피', asOf: '2026-10-12' } : { ret3m: 3, label: 'S&P 500(SPY)', asOf: '2026-10-12' });
 const attribution = buildAttribution({ holdings: [{ symbol: 'AAA', value: 600, convertedFrom: 'USD' }, { symbol: '000001.KS', value: 200 }], cash: 200, baseCurrency: 'KRW', rowFor: (s) => rows[s], marketReturnFor: market, usdkrwReturnPct: 2 });
 const excessSum = attribution.excess.reduce((sum, part) => sum + part.pct, 0);
-if (!attribution.available || !near(excessSum, attribution.excessPct) || !near(attribution.totalPct, 4.92) || !near(attribution.blendedPct, -1.5)) fail(`P1466 attribution identity broken: ${JSON.stringify(attribution.excess)} total ${attribution.totalPct}`);
-if (attribution.components.find((c) => c.id === 'sector').pct !== 1.8 || attribution.excess.find((c) => c.id === 'cash').pct !== 0.3) fail('P1466 sector/cash components drifted');
+if (!attribution.available || !near(excessSum, attribution.excessPct) || !near(attribution.totalPct, 3.95) || !near(attribution.blendedPct, -2.37)) fail(`P1466 attribution identity broken: ${JSON.stringify(attribution.excess)} total ${attribution.totalPct}`);
+// Portfolio audit 2026-10-17: weights are start-of-window values (today's value ÷ its 3-month base-currency growth).
+if (attribution.components.find((c) => c.id === 'sector').pct !== 1.67 || attribution.excess.find((c) => c.id === 'cash').pct !== 0.49) fail('P1466 sector/cash components drifted');
+const lookAhead = buildAttribution({ holdings: [{ symbol: 'AAA', value: 200 }, { symbol: 'BBB', value: 100 }], rowFor: (s) => ({ AAA: { ret3m: 100, factorSessionDate: '2026-10-12' }, BBB: { ret3m: 0, factorSessionDate: '2026-10-12' } })[s], marketReturnFor: market });
+if (!near(lookAhead.totalPct, 50)) fail(`portfolio audit 2026-10-17 today's quantities went 200 → 300 (+50%), not the end-weighted +66.7%: ${lookAhead.totalPct}`);
 if (!near(fxReturnInto('KRW', 'USD', 2), 1 / 1.02 - 1, 1e-9) || fxReturnInto('EUR', 'KRW', 2) !== null) fail('P1466 FX conversion must invert KRW→USD and refuse unknown pairs');
 const noFx = buildAttribution({ holdings: [{ symbol: 'AAA', value: 100, convertedFrom: 'USD' }], baseCurrency: 'KRW', rowFor: (s) => rows[s], marketReturnFor: market, usdkrwReturnPct: null });
 if (noFx.available || noFx.skipped[0]?.reason !== 'no-fx') fail('P1466 a converted holding without an FX return must be skipped, not counted at 0');
@@ -56,7 +61,7 @@ const held = buildPortfolioRead({ surface: { currencyState: 'mixed-without-conve
 if (held.available !== false) fail('P1449 mixed currencies without rates must still hold the read');
 const book = buildPortfolioRead({ surface: { rows: [{ symbol: 'AAA', value: 600, convertedFrom: 'USD' }, { symbol: '000001.KS', value: 200 }], cash: 200, baseCurrency: 'KRW' }, rows: Object.values(rows), marketReturnFor: market, usdkrwReturnPct: 2 });
 const relative = book.points.find((point) => point.id === 'relative')?.text || '';
-if (!/환율·현금 포함/.test(relative) || !/차이의 구성: 섹터 \+1\.8%p/.test(relative)) fail(`P1466 the 지수 대비 sentence must come from the attribution: ${relative}`);
+if (!/환율 포함 · 현금은 수익률 0%로 계산/.test(relative) || !/차이의 구성: 섹터 \+1\.7%p/.test(relative)) fail(`P1466 the 지수 대비 sentence must come from the attribution: ${relative}`);
 
 // P1467: peers use the same definitions, a 12-month fiscal window and a minimum count.
 const series = (rev, ni, eq, end = '2025-12-31') => [{ periodEnd: '2024-12-31', revenue: 100, netIncome: 10, equity: eq }, { periodEnd: end, revenue: rev, netIncome: ni, equity: eq }];
@@ -186,6 +191,15 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   const withFx = assembleRiskEstimateInput({ ...fxInput, fxHistory: dates.map((date, i) => ({ date, value: 1300 + i * 20 })) });
   if (noFx.fxIncluded !== false || noFx.returnCurrencyBasis !== 'local-currency-per-holding') fail(`E04 USD-only/KRW-base without FX history: ${noFx.returnCurrencyBasis}/${noFx.fxIncluded}`);
   if (withFx.fxIncluded !== true || withFx.returnCurrencyBasis !== 'KRW-incl-fx') fail(`E04 USD-only/KRW-base with FX history: ${withFx.returnCurrencyBasis}/${withFx.fxIncluded}`);
+  // Portfolio audit 2026-10-17: two lots of one ticker add up (AAA 1 + 9 shares beside BBB 10 at $100 is 50/50, not 64/36).
+  const lots = assembleRiskEstimateInput({ ...fxInput, positions: [{ ticker: 'AAA', qty: 1, currency: 'USD' }, { ticker: 'AAA', qty: 9, currency: 'USD' }, { ticker: 'BBB', qty: 10, currency: 'USD' }], priceEvidenceMap: { AAA: fxInput.priceEvidenceMap.AAA, BBB: fxInput.priceEvidenceMap.AAA }, historyMap: { AAA: fxInput.historyMap.AAA, BBB: fxInput.historyMap.AAA }, validTickers: ['AAA', 'BBB'], declarations: { baseCurrency: 'USD' }, fxLegs: [] });
+  const lotWeight = (lots.snapshot?.members || []).filter((m) => m.ticker === 'AAA').reduce((sum, m) => sum + m.resolvedWeight, 0);
+  if (!near(lotWeight, 0.5, 1e-9)) fail(`portfolio audit 2026-10-17 lots of one ticker must sum to its weight (0.5), got ${lotWeight}`);
+  const shortCash = risk({ cashReturn: { mode: 'observed_cash_series', series: [0.0001] } });
+  if ((shortCash.wholeAccountReturns || []).some((value) => !Number.isFinite(value))) fail('portfolio audit 2026-10-17 a cash series shorter than the member series must hold the account path, not publish NaN');
+  const holiday = _calcDailyReturns([101, 90], ['2024-05-24', '2024-05-28']);
+  if (holiday.length !== 1 || !near(holiday[0], 90 / 101 - 1, 1e-12)) fail(`portfolio audit 2026-10-17 a return across a holiday (Fri → Tue) is kept: ${JSON.stringify(holiday)}`);
+  if (deriveConcentrationRisk({ positions: [{ ticker: 'A', price: 10 }] }).heldItems[0]?.reason !== 'quantity-unavailable') fail('portfolio audit 2026-10-17 a missing quantity is held, not valued at 0');
   // E05: a Q4 EPS in the same 10-K (fp=FY, same end) cannot set the annual share count, whatever the row order.
   const annual = { start: '2025-01-01', end: '2025-12-31', filed: '2026-02-15', form: '10-K', fp: 'FY', fy: 2025, accn: 'fixture' };
   const sec = (eps) => normalizeSecCompanyFacts('AAA', { cik: 1, facts: { 'us-gaap': { Revenues: { units: { USD: [{ ...annual, val: 1000 }] } }, NetIncomeLoss: { units: { USD: [{ ...annual, val: 100 }] } }, EarningsPerShareDiluted: { units: { 'USD/shares': eps } } } } }, 10);

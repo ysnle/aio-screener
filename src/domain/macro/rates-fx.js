@@ -115,7 +115,9 @@ function treasury(macro) {
       : `10년물이 2년물보다 ${spread2s10s.toFixed(2)}%p 높습니다 (양의 기울기).`;
   // The New York Fed's term-spread research: inversions preceded most U.S. recessions since the
   // 1960s, with a variable lead. It is a hypothesis about the economy, not a market timing rule.
-  const reading = inverted ? '과거 미국 경기침체 대부분에 앞서 장단기 금리 역전이 나타났습니다(뉴욕 연준 연구). 다만 시차가 일정하지 않아 시점 판단에는 쓰지 않습니다.' : null;
+  // Macro audit 2026-10-17: the New York Fed's recession model reads 10-year minus 3-month, not this 2-year spread, so the
+  // sentence names the spread its research uses instead of lending it to 2s10s.
+  const reading = inverted ? '과거 미국 경기침체 대부분에 앞서 장단기 금리 역전이 나타났습니다. 뉴욕 연준의 침체 확률 모형은 10년−3개월 금리차를 쓰며, 2년–10년 역전도 대부분의 침체에 앞섰습니다. 다만 시차가 일정하지 않아 시점 판단에는 쓰지 않습니다.' : null;
   const asOf = dates.length === 1 ? dates[0] : dates.sort().pop() || null;
   // v57.50 C10: the curve's levels and 1-day/1-week changes are the Treasury's official cut on its own date, which can be
   // a session or more behind the ^TNX close the 시장 상태 10-year "5일" change reads. The label carries the source and date.

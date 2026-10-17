@@ -6,6 +6,7 @@ import { round } from './producer-math.mjs';
 import { LIST_ITEM_BREAK, analysisLevelsAfterLabels, analysisProse, isNonMetricNumber } from './market-analysis-numbers.mjs';
 import { sessionDateInMarket } from '../../src/domain/market/session-time.js';
 import { buildCloseSeries } from '../../src/domain/briefing/market-read.js';
+import { isConditionalNumericSentence } from '../../src/ai/response/publication.js';
 
 const MARKET_ANALYSIS_QUOTE_DEFS = [
   { symbol: '^GSPC', metricId: 'market.spx', label: 'SPX', unit: 'index', aliases: ['S&P 500'] },
@@ -216,6 +217,9 @@ export function validateAnalysisMetricMentions(text, metricEvidence = [], change
   for (const mention of analysisMetricMentions(text)) {
     const row = metricEvidence.find((item) => item.metricId === mention.metricId);
     if (!row) continue;
+    // Briefing audit 2026-10-17: an invalidation threshold the prompt asks for ("S&P 500이 3% 넘게 하락하면") is a rule,
+    // not a reading of today's move — the chat publication guard already reads it this way.
+    if (isConditionalNumericSentence(mention.sentence)) continue;
     const rate = row.unit === 'percent';
     const level = Number(row.value);
     const changePct = changes.get(row.evidenceId);
@@ -234,7 +238,9 @@ export function validateAnalysisMetricMentions(text, metricEvidence = [], change
       if (isNonMetricNumber(mention.clause, match.index, match[0].length) || /^(?:%p|%포인트|포인트)$/i.test(suffix)) continue;
       // review: a multi-period move ("20일 동안 8.2% 하락") or a share ("40%를 차지") is not the one-session change.
       const before = mention.clause.slice(Math.max(0, match.index - 16), match.index);
-      if (/(?:\d\s?(?:일|주|개월|년|거래일|세션)|연초|연간|올해|분기|월간|주간)[^\d]{0,8}$/.test(before) || /^\s*(?:를|을|의|가|이)?\s*(?:차지|비중|비율|확률|가능성|점유)/.test(after)) continue;
+      // Briefing audit 2026-10-17: "10월 16일 +5%" is a dated one-session move, not a period — a day of the month does not
+      // switch the check off (the prompt asks for dated close moves).
+      if (/(?:(?<!월\s?\d?)\d\s?일|\d\s?(?:주|개월|년|거래일|세션)|연초|연간|올해|분기|월간|주간)[^\d]{0,8}$/.test(before) || /^\s*(?:를|을|의|가|이)?\s*(?:차지|비중|비율|확률|가능성|점유)/.test(after)) continue;
       // v57.81: "변동성지수 +10.48%, 미국 주가지수 -1.11%" — the number after a list comma belongs to the next item.
       if (previousEnd >= 0 && LIST_ITEM_BREAK.test(mention.clause.slice(previousEnd, match.index))) break;
       previousEnd = match.index + match[0].length;
@@ -285,7 +291,7 @@ export function validateAnalysisMetricMentions(text, metricEvidence = [], change
 }
 
 // M06: typed admission for the claims the prompt forbids or the evidence can disprove. These are blocking issues.
-const ANALYSIS_TRADE_INSTRUCTION = /(?:매수|매도|매집|손절|익절|진입|청산)(?:하세요|하십시오|해라|하라|할\s*때입니다|하시길)|(?:사세요|파세요|사라|팔아라|담으세요|비중을\s*(?:늘리|줄이)세요)|목표\s*가(?:는|를)?\s*\$?\d|\b(?:buy|sell)\s+now\b/i;
+const ANALYSIS_TRADE_INSTRUCTION = /(?:매수|매도|매집|손절|익절|진입|청산)(?:하세요|하십시오|해라|하라|할\s*때입니다|하시길)|(?:사세요|파세요|사라(?![지졌진질져])|팔아라|담으세요|비중을\s*(?:늘리|줄이)세요)|목표\s*가(?:는|를)?\s*\$?\d|\b(?:buy|sell)\s+now\b/i;
 const ANALYSIS_PROBABILITY = /\d+(?:\.\d+)?\s*%\s*(?:의\s*)?(?:확률|가능성|승률)|(?:확률|가능성|승률)(?:은|이|는|로|이\s*약)?\s*(?:약\s*)?\d+(?:\.\d+)?\s*%/;
 export function validateAnalysisAdmission(body, { changes = new Map(), context = '' } = {}) {
   const issues = [];
@@ -294,7 +300,8 @@ export function validateAnalysisAdmission(body, { changes = new Map(), context =
   // v57.75: likelihood in words ("반등 가능성이 높습니다") and past frequency without a sample size ("과거엔 대부분 반등")
   // are the same claims without the evidence the owner's rule asks for (conditions n/m, frequency with n).
   for (const sentence of body.replace(/\[[^\]]*\]/g, '').split(/(?<=[.?!。])\s+|\n+/)) {
-    if (/(?:가능성|확률)(?:이|은|도)?\s?(?:높|낮|크|작|커|적)/.test(sentence) && !/\d+\s*\/\s*\d+/.test(sentence)) issues.push('likelihood-qualitative');
+    // Briefing audit 2026-10-17: only a condition count exempts the sentence — a date ("10/16 이후") passed as n/m.
+    if (/(?:가능성|확률)(?:이|은|도)?\s?(?:높|낮|크|작|커|적)/.test(sentence) && !/(?:충족|조건)\D{0,6}\d+\s*\/\s*\d+|\d+\s*\/\s*\d+\s*(?:충족|조건)/.test(sentence)) issues.push('likelihood-qualitative');
     if (/과거/.test(sentence) && /대부분|대체로|자주|흔히/.test(sentence) && !/\d+\s*(?:번|회|건|차례)|표본/.test(sentence)) issues.push('frequency-without-sample');
   }
   // Condition counts must be well-formed and, when a regime context was supplied, appear in it.
@@ -765,7 +772,7 @@ export function priorSessionMoveIssues(body, { context = '' } = {}) {
 // that verdict, the reading carries it in its own words. v57.88: phrase-level — a bare 이르 also matched 이르면 / 이른바.
 export function noLeadIssues(body, { context = '' } = {}) {
   if (!/보기 이릅니다|중심 시나리오를 정하지 않습니다/.test(String(context || ''))) return [];
-  return /(?:보기|정하기|판단하기|말하기|단정하기)s?(?:는s?)?(?:아직s?)?(?:이르|이릅)|이릅니다|이르다|정하지 않|중심\s?(?:흐름|시나리오)(?:이|가|은|는)?\s?없|핵심 조건(?:이|은|는)?\s?(?:미충족|갖춰지지|충족되지)|판단을 보류/.test(String(body || '')) ? [] : ['no-lead-overstated'];
+  return /(?:보기|정하기|판단하기|말하기|단정하기)\s?(?:는\s?)?(?:아직\s?)?(?:이르|이릅|이른)|이릅니다|이르다|정하지 않|중심\s?(?:흐름|시나리오)(?:이|가|은|는)?\s?없|핵심 조건(?:이|은|는)?\s?(?:미충족|갖춰지지|충족되지)|판단을 보류/.test(String(body || '')) ? [] : ['no-lead-overstated'];
 }
 
 // v57.69: retry guidance for the rules that carry no metric id.
@@ -864,7 +871,7 @@ export function lastVerifiedMarketAnalysis(previous, nowMs = Date.now()) {
 const MARKET_ANALYSIS_PLAIN_NAMES = Object.freeze({
   'market.spx': 'S&P 500', 'market.vix': 'VIX(변동성 지수)', 'market.us10y': '미국 10년물 금리', 'market.dxy': '달러 지수',
   'market.wti': 'WTI 유가', 'market.gold': '금', 'market.kospi': '코스피', 'macro.cpi': '미국 소비자물가(전년비)',
-  'macro.fed-rate': '미국 기준금리', 'macro.nfp-mom': '미국 비농업 고용 증감', 'sentiment.fear-greed': '공포·탐욕 지수'
+  'macro.fed-rate': '미국 실효 연방기금금리(월평균)', 'macro.nfp-mom': '미국 비농업 고용 증감', 'sentiment.fear-greed': '공포·탐욕 지수'
 });
 const _plainNumber = (value, unit) => {
   const text = Number(value).toLocaleString('en-US', { maximumFractionDigits: 2 });
@@ -936,7 +943,8 @@ export function splitMarketSentence(text) {
   sentence = sentence.replace(/^(?:\*\*|__)|(?:\*\*|__)$/g, '').trim().replace(/^["“'「]|["”'」]$/g, '').trim();
   return { body: lines.filter((_, i) => !drop.has(i)).join('\n').trim(), sentence: sentence || null };
 }
-const SENTENCE_INSTRUCTION = /(?:사세요|사라|사야|매수|매도|팔아|팔세요|담아|담을|담으세요|들어가라|들어가세요|비중을\s?(?:늘|줄)|추천|확실히|반드시\s?오른|보장)/;
+// Briefing audit 2026-10-17: 부담을 and 매수세 matched 담을 / 매수, silently dropping the day's sentence.
+const SENTENCE_INSTRUCTION = /(?:사세요|사라(?![지졌진질져])|사야|매수(?!세)|매도(?!세)|팔아|팔세요|(?<![가-힣])담(?:아|을|으세요)|들어가라|들어가세요|비중을\s?(?:늘|줄)|추천|확실히|반드시\s?오른|보장)/;
 // v57.75: the sentence names no company or index (the card sits above every market), states no likelihood or certainty
 // and no policy rescue, and cannot assert easing inflation while CPI is rising.
 const SENTENCE_NAMES = /코스피|코스닥|나스닥|다우|에스앤피|S&P|엔비디아|삼성|하이닉스|애플|테슬라|마이크로소프트|알파벳|구글|아마존|메타|브로드컴|TSMC|코어위브/i;

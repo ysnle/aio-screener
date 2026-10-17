@@ -27,11 +27,14 @@ export function analogOutcome(rows, analog, { horizon = 20, lookback = 20 } = {}
   if (list.length <= lookback + horizon) return null;
   const outcomes = [];
   // Base rate: every session in the same window, condition or not, so the reader can see whether the condition adds anything.
+  // Macro audit 2026-10-17: only sessions where the condition could be tested count — a base that also spans years before a
+  // needed series starts (WTI, VIX, DXY) is a different sample from the cases it is set against.
+  const testable = (i) => !analog.needs.some((field) => finite(list[i][field]) == null || finite(list[i - lookback][field]) == null);
   let baseN = 0, baseUp = 0;
-  for (let i = lookback; i + horizon < list.length; i += 1) { baseN += 1; if (list[i + horizon].spx > list[i].spx) baseUp += 1; }
+  for (let i = lookback; i + horizon < list.length; i += 1) { if (!testable(i)) continue; baseN += 1; if (list[i + horizon].spx > list[i].spx) baseUp += 1; }
   for (let i = lookback; i + horizon < list.length; i += 1) {
     const now = list[i], then = list[i - lookback];
-    if (analog.needs.some((field) => finite(now[field]) == null || finite(then[field]) == null)) continue;
+    if (!testable(i)) continue;
     const pct = (field) => then[field] ? (now[field] / then[field] - 1) * 100 : null;
     const v = { tnx20: finite(now.tnx) != null && finite(then.tnx) != null ? now.tnx - then.tnx : null, vix: finite(now.vix),
       wti20: pct('wti'), dxy20: pct('dxy'), spx20: pct('spx') };
