@@ -41,6 +41,7 @@ import { MA_STRUCTURE_LABELS } from '../domain/technical/stage.js';
 import { completedBars } from '../ui/components/stock-chart.js';
 import { keywordMayMatch, textPairs } from '../domain/news/keyword-prefilter.js';
 import { readScreenerBreadth } from '../domain/market/screener-breadth.js';
+import { installPageCompleteness } from '../data/page-completeness.js';
 import { buildScreenerAiContext, detectSectorQuery, formatScreenerResultPrompt, runScreenerQuery } from '../ai/context/screener-query.js';
 
 export function installCompatibilityGlobals(root = globalThis) {
@@ -63,6 +64,14 @@ export function installCompatibilityGlobals(root = globalThis) {
   const screenerState = (path) => { try { return window.AIO_ARCH?.getScreenerState?.(path) ?? null; } catch (_) { return null; } };
   // Screener-universe breadth, checked once (legacy unification 2026-10-17: replaces the projected breadth globals).
   window._aioScreenerBreadth = (breadth = screenerState('metadata.breadth'), now = Date.now()) => readScreenerBreadth(breadth, now);
+  // Per-screen data completeness reads the native screener slice (legacy unification 2026-10-17).
+  installPageCompleteness(window, {
+    readScreener: () => {
+      const metadata = {};
+      for (const key of ['universeFreshnessStatus', 'backtest', 'detail']) { const value = screenerState(`metadata.${key}`); if (value != null) metadata[key] = key === 'backtest' ? true : value; }
+      return { status: screenerState('status'), revision: screenerState('revision'), updatedAt: screenerState('updatedAt'), metadata };
+    }
+  });
   const screenerFactorAsOf = () => screenerState('metadata.asOf') || screenerState('revision') || null;
   const screenerQueryInput = () => ({
     rows: (typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() : null) || [],

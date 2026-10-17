@@ -4576,56 +4576,22 @@ async function _idbLoadNews(maxAgeMs) {
 function _aioApplyNativeScreenerState(nativeState) {
   var arch = window.AIO_ARCH || null;
   // v57.81 (P1755 path read): with no event payload, read only the fields used here; the bare call cloned the whole slice.
-  var state = nativeState || (arch && typeof arch.getScreenerState === 'function' ? { status: arch.getScreenerState('status'), revision: arch.getScreenerState('revision'), metadata: arch.getScreenerState('metadata'), rowCount: arch.getScreenerState('rows.length') } : null);
+  var state = nativeState || (arch && typeof arch.getScreenerState === 'function' ? { status: arch.getScreenerState('status'), revision: arch.getScreenerState('revision'), metadata: arch.getScreenerState('metadata') } : null);
   if (!state || typeof state !== 'object' || (!nativeState && state.status == null && state.metadata == null)) return false;
   var metadata = state.metadata && typeof state.metadata === 'object' ? state.metadata : {};
-  var hasArtifact = state.status === 'current' || state.status === 'partial' || state.status === 'ready';
-  var status = hasArtifact ? (metadata.universeFreshnessStatus === 'stale' ? 'partial' : (metadata.backtest ? 'ready' : 'partial')) : (state.status || 'unavailable');
-  var numberOrNull = function(value) { return value == null || value === '' ? null : (isFinite(Number(value)) ? Number(value) : null); };
-  var loadState = {
-    status: status,
-    checkedAt: Date.now(),
-    asOf: metadata.asOf || state.revision || null,
-    factorObservedAt: metadata.factorObservedAt || null,
-    count: Number(metadata.artifactRows) || (Array.isArray(state.rows) ? state.rows.length : (Number(state.rowCount) || 0)),
-    universe: Number(metadata.universe) || null,
-    fundamentalCoverageDenominator: numberOrNull(metadata.fundamentalCoverageDenominator),
-    fundamentalModels: Array.isArray(metadata.fundamentalModels) ? metadata.fundamentalModels.slice() : [],
-    fundamentalCoverageScope: metadata.fundamentalCoverageScope || null,
-    fmpOk: !!metadata.fmpOk,
-    secFundamentalsOk: !!metadata.secFundamentalsOk,
-    secFundamentalsCount: numberOrNull(metadata.secFundamentalsCount),
-    secFundamentalsStored: numberOrNull(metadata.secFundamentalsStored),
-    secFundamentalsEligible: numberOrNull(metadata.secFundamentalsEligible),
-    secFundamentalsModel: metadata.secFundamentalsModel || null,
-    secFundamentalsGeneratedAt: metadata.secFundamentalsGeneratedAt || null,
-    fundamentalCoveragePct: numberOrNull(metadata.fundamentalCoveragePct),
-    universeCurrentness: metadata.universeCurrentness || 'UNKNOWN',
-    universeLastBulkUpdate: metadata.universeLastBulkUpdate || null,
-    universeStaleAfterDays: numberOrNull(metadata.universeStaleAfterDays),
-    universeFreshnessStatus: metadata.universeFreshnessStatus || 'unknown',
-    breadthStatus: 'blocked',
-    source: metadata.source || 'native-screener-state',
-    nativeRevision: state.revision || null
-  };
-  window._aioScreenerLoadState = loadState;
-  if (window.SCREENER_DB_META && loadState.asOf) {
-    if (loadState.universeLastBulkUpdate) window.SCREENER_DB_META.lastBulkUpdate = String(loadState.universeLastBulkUpdate).slice(0, 10);
-    if (loadState.universeStaleAfterDays != null) window.SCREENER_DB_META.staleAfterDays = loadState.universeStaleAfterDays;
-    window.SCREENER_DB_META.currentness = loadState.universeCurrentness;
-    window.SCREENER_DB_META.stale = loadState.universeFreshnessStatus === 'stale';
+  var asOf = metadata.asOf || state.revision || null;
+  if (window.SCREENER_DB_META && asOf) {
+    var staleAfterDays = metadata.universeStaleAfterDays;
+    if (metadata.universeLastBulkUpdate) window.SCREENER_DB_META.lastBulkUpdate = String(metadata.universeLastBulkUpdate).slice(0, 10);
+    if (staleAfterDays != null && staleAfterDays !== '' && isFinite(Number(staleAfterDays))) window.SCREENER_DB_META.staleAfterDays = Number(staleAfterDays);
+    window.SCREENER_DB_META.currentness = metadata.universeCurrentness || 'UNKNOWN';
+    window.SCREENER_DB_META.stale = metadata.universeFreshnessStatus === 'stale';
   }
-  if (typeof _aioApplyScreenerBreadth === 'function' && metadata.breadth) {
-    loadState.breadthStatus = _aioApplyScreenerBreadth({ breadth: metadata.breadth }) ? 'verified_current' : 'blocked';
+  if (typeof _aioApplyScreenerBreadth === 'function' && metadata.breadth) _aioApplyScreenerBreadth({ breadth: metadata.breadth });
+  if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs && asOf) {
+    window.DATA_SNAPSHOT._fieldTs.screener = asOf;
   }
-  if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs && loadState.asOf) {
-    window.DATA_SNAPSHOT._fieldTs.screener = loadState.asOf;
-  }
-  if (window._serverDataMeta) {
-    window._serverDataMeta.artifacts = window._serverDataMeta.artifacts || {};
-    window._serverDataMeta.artifacts.screenerJson = status;
-    window._serverDataMeta.screener = loadState;
-  }
+  // The screener artifact's load state is read from the native slice (src/data/page-completeness.js screenerLoadState).
   try { if (typeof _aioRenderDataFreshness === 'function') _aioRenderDataFreshness(); } catch (_) {}
   return true;
 }
@@ -4744,17 +4710,16 @@ function _aioIsStrictLiveCoreFreshnessAge(ageMs) {
 }
 
 async function _aioLoadServerData() {
-  globalThis._aioScreenerLoadState = { status:'loading', checkedAt:Date.now() };
   try {
     var url = './public-data/data.json?t=' + Math.floor(Date.now() / 60000); // 분 단위 캐시버스터 — v57.61 kept: bypasses the 10-min CDN copy so data.json and reconciliation-status (revision-matched below) come from the same origin minute
     var r = await fetch(url, { cache: 'no-cache' });
     if (!r.ok) {
-      globalThis._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'data.json HTTP ' + r.status };
+      if (typeof _aioLog === 'function') _aioLog('warn', 'data', 'data.json HTTP ' + r.status);
       return false;
     }
     var d = await r.json();
     if (!d || !d.meta) {
-      globalThis._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'invalid data.json payload' };
+      if (typeof _aioLog === 'function') _aioLog('warn', 'data', 'invalid data.json payload');
       return false;
     }
     // The 22-category artifact is rebuilt from data.json, market-snapshot,
@@ -4805,11 +4770,6 @@ async function _aioLoadServerData() {
       // skipping macro projection. Bound the retries so a genuinely broken
       // core does not create an endless fetch loop.
       globalThis._aioServerDataBridgeAttempts = (window._aioServerDataBridgeAttempts || 0) + 1;
-      globalThis._aioScreenerLoadState = {
-        status: 'waiting-for-snapshot',
-        checkedAt: Date.now(),
-        detail: 'DATA_SNAPSHOT bridge attempt ' + window._aioServerDataBridgeAttempts
-      };
       if (window._aioServerDataBridgeAttempts <= 5 && !window._aioServerDataBridgeRetryTimer) {
         globalThis._aioServerDataBridgeRetryTimer = setTimeout(function() {
           globalThis._aioServerDataBridgeRetryTimer = null;
@@ -4927,7 +4887,7 @@ async function _aioLoadServerData() {
       beaNextReleaseAt: d.meta.beaNextReleaseAt || (d.macro && d.macro._bea && d.macro._bea.nextReleaseAt) || null,
       reconciliation: _reconciliationState,
       loadedAt: Date.now(),
-      artifacts: { dataJson: _liveCoreEligible ? 'ready' : 'stale', reconciliationStatus: _reconciliationState.status, telegramDigest: 'pending', screenerJson: 'pending' }
+      artifacts: { dataJson: _liveCoreEligible ? 'ready' : 'stale', reconciliationStatus: _reconciliationState.status, telegramDigest: 'pending' }
     };
 
     // Artifact provenance is the only snapshot-level timestamp. It describes
@@ -5320,28 +5280,8 @@ async function _aioLoadServerData() {
       }
       try { if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_) {}
     }
-    // 6) P768/ARX-16: screener artifact는 native provider/orchestrator가 단일 fetch한다.
-    // legacy loader는 native state의 metadata/breadth만 compatibility surface로 연결한다.
-    // P1186/E2 S-D: 여기서는 투영하지 않는다 — 단일 트리거는 aio:nativeScreenerReady 이벤트이고,
-    // 같은 state를 두 번 투영하면(이벤트 + 이 경로) 중복 렌더와 순서 역전 덮어쓰기가 생긴다.
-    // 이 경로가 필요한 것은 '투영'이 아니라 '이미 투영된 state가 있는가'의 확인이다.
-    try {
-      var nativeStateApplied = !!(window._aioScreenerLoadState && window._aioScreenerLoadState.status
-        && window._aioScreenerLoadState.status !== 'loading');
-      if (!nativeStateApplied) {
-        window._aioScreenerLoadState = { status:'loading', checkedAt:Date.now(), detail:'native screener state pending' };
-        if (window._serverDataMeta) {
-          window._serverDataMeta.artifacts.screenerJson = 'pending';
-          window._serverDataMeta.screener = window._aioScreenerLoadState;
-        }
-      }
-    } catch(e) {
-      window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:(e && e.message) || 'native state unavailable' };
-      if (window._serverDataMeta) {
-        window._serverDataMeta.artifacts.screenerJson = 'unavailable';
-        window._serverDataMeta.screener = window._aioScreenerLoadState;
-      }
-    }
+    // 6) P768/ARX-16: screener artifact는 native provider/orchestrator가 단일 fetch하고, 그 load state는
+    // native slice에서 읽는다(src/data/page-completeness.js). P1186: 이 경로는 투영도 상태 기록도 하지 않는다.
     if (typeof _aioLog === 'function') _aioLog('info', 'data', 'server data.json 적용: quotes ' + (d.quotes ? d.quotes.length : 0) + ', age ' + ageMin + 'min');
     _aioRenderServerDataAge();  // v50.24/WO-4: 나이 배지 갱신
     try { if (typeof _aioRenderPipelineStatus === 'function') _aioRenderPipelineStatus(); } catch(_) {} // v51.65: 파이프라인 상태 배너
@@ -5357,7 +5297,6 @@ async function _aioLoadServerData() {
     } catch(_) {}
     return true;
   } catch (e) {
-    window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'server data unavailable' };
     if (typeof _aioLog === 'function') _aioLog('warn', 'data', 'server data.json 로드 실패(폴백): ' + (e && e.message || e));
     return false;
   }

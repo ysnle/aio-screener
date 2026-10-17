@@ -3795,8 +3795,8 @@ window.AIO.getDataPipelineAudit = function() {
         artifacts: sm.artifacts || {},
         telegramDigestStatus: sm.telegramDigest && sm.telegramDigest.status || null,
         telegramMemoApplied: sm.telegramMemoOverlay && sm.telegramMemoOverlay.appliedCount || 0,
-        screenerStatus: sm.screener && sm.screener.status || null,
-        screenerCount: sm.screener && sm.screener.count || null
+        screenerStatus: window.AIO && typeof window.AIO.getScreenerLoadState === 'function' ? window.AIO.getScreenerLoadState().status : null,
+        screenerCount: window.AIO_ARCH && typeof window.AIO_ARCH.getScreenerState === 'function' ? (Number(window.AIO_ARCH.getScreenerState('metadata.artifactRows')) || Number(window.AIO_ARCH.getScreenerState('rows.length')) || null) : null
       };
     }
   } catch(_) {}

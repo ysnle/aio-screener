@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.07';
+const APP_VERSION = 'v58.08';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -17069,126 +17069,7 @@ function _aioExternalReferenceMap(externalReferences) {
     var id = String(pageId || '').replace(/^page-/, '');
     return (window.AIO_PAGE_CONTRACTS && window.AIO_PAGE_CONTRACTS.pages && window.AIO_PAGE_CONTRACTS.pages[id]) || null;
   };
-  function _aioIsoMs(ms) {
-    return ms && isFinite(ms) ? new Date(ms).toISOString() : null;
-  }
-  function _aioProducerState(producer) {
-    var meta = window._serverDataMeta || {};
-    var cfg = window.REFRESH_SCHEDULE && window.REFRESH_SCHEDULE[producer] || null;
-    var state = {
-      producer: producer,
-      status: 'missing',
-      coverage: null,
-      attemptedAt: cfg && cfg._attemptedAt || null,
-      lastSuccessfulAt: cfg && (cfg._lastSuccessfulAt || _aioIsoMs(cfg._lastOk)) || null,
-      evidenceIds: cfg && Array.isArray(cfg._evidenceIds) ? cfg._evidenceIds.slice() : [],
-      failureReason: cfg && (cfg._failureReason || cfg._lastErr) || null,
-      sourceKind: cfg && cfg._sourceKind || null,
-      allowedUse: cfg && cfg._allowedUse || null
-    };
-    var direct = {
-      // P1116: derive the citation from the producer's publication flag; data.json.quotes is published empty (P715).
-      quotes: meta.generatedAt && Number(meta.symbolsOk) > 0 ? { status: Number(meta.symbolsFail || 0) ? 'partial' : 'loaded', coverage: (Number(meta.symbolsOk) / Math.max(1, Number(meta.symbolsOk) + Number(meta.symbolsFail || 0))) * 100, lastSuccessfulAt: meta.generatedAt, evidenceIds:[meta.quotesPublished === true ? 'data.json:quotes' : 'market-snapshot.json:quotes'], sourceKind:'delayed-eod' } : null,
-      news: meta.generatedAt && meta.newsOk ? { status:'loaded', coverage:100, lastSuccessfulAt:meta.generatedAt, evidenceIds:['data.json:news'], sourceKind:'server-cache' } : null,
-      fred: meta.generatedAt && meta.fredFetchOk ? { status:'loaded', coverage:100, lastSuccessfulAt:meta.generatedAt, evidenceIds:['data.json:macro:fred'], sourceKind:'official-primary' } : null,
-      sentiment: meta.generatedAt && meta.fearGreedOk ? { status:'loaded', coverage:100, lastSuccessfulAt:meta.generatedAt, evidenceIds:['data.json:fearGreed'], sourceKind:'delayed' } : null,
-      breadth: meta.screener && meta.screener.status === 'ready' ? { status:'loaded', coverage:Number(meta.screener.coveragePct || 100), lastSuccessfulAt:meta.screener.generatedAt || meta.generatedAt, evidenceIds:['screener.json:breadth'], sourceKind:'delayed-eod' } : null,
-      screenerArtifact: meta.screener && meta.screener.status === 'ready' ? { status:'loaded', coverage:Number(meta.screener.coveragePct || (Number(meta.screener.ok) / Math.max(1, Number(meta.screener.universe)) * 100)), lastSuccessfulAt:meta.screener.generatedAt || meta.generatedAt, evidenceIds:['screener.json'], sourceKind:'delayed-eod', allowedUse:'research-relative-ranking-only' } : null
-    }[producer] || null;
-    if (direct) state = Object.assign(state, direct);
-    if (cfg) {
-      if (cfg._status) state.status = cfg._status;
-      if (cfg._coverage != null) state.coverage = Number(cfg._coverage);
-      if (cfg._lastSuccessfulAt) state.lastSuccessfulAt = cfg._lastSuccessfulAt;
-      if (cfg._attemptedAt) state.attemptedAt = cfg._attemptedAt;
-      if (Array.isArray(cfg._evidenceIds) && cfg._evidenceIds.length) state.evidenceIds = cfg._evidenceIds.slice();
-      if (cfg._failureReason || cfg._lastErr) state.failureReason = cfg._failureReason || cfg._lastErr;
-      if (cfg._sourceKind) state.sourceKind = cfg._sourceKind;
-      if (cfg._allowedUse) state.allowedUse = cfg._allowedUse;
-      if (!state.lastSuccessfulAt && cfg._lastOk) state.lastSuccessfulAt = _aioIsoMs(cfg._lastOk);
-      if (state.status === 'missing' && cfg._lastOk) state.status = 'loaded';
-    }
-    if (producer === 'screenerArtifact') {
-      var load = window._aioScreenerLoadState || {};
-      // A test/operator load-state fixture is authoritative even when a
-      // server artifact is present; without an explicit status preserve the
-      // direct artifact metadata.
-      if (load.status) {
-        state.status = load.status === 'ready' ? 'loaded' : load.status === 'loading' ? 'loading' : load.status;
-        state.attemptedAt = load.checkedAt ? _aioIsoMs(load.checkedAt) : state.attemptedAt;
-        state.failureReason = load.detail || state.failureReason;
-      }
-    }
-    return state;
-  }
-  window.AIO.getPageDataCompleteness = function(pageId) {
-    var id = String(pageId || '').replace(/^page-/, '');
-    var contract = window.AIO.getPageContract(id);
-    if (!contract) return { version:'wp10.page-completeness.v1', pageId:id, status:'blocked', reason:'unknown-route', producers:{} };
-    var producerIds = Array.from(new Set((contract.requiredProducers || []).concat(contract.optionalProducers || [])));
-    var producers = {};
-    var issues = [];
-    producerIds.forEach(function(producer) {
-      var state = _aioProducerState(producer);
-      var maxAgeMs = contract.maxAge && contract.maxAge[producer] != null ? Number(contract.maxAge[producer]) : Infinity;
-      var minCoverage = contract.minCoverage && contract.minCoverage[producer] != null ? Number(contract.minCoverage[producer]) : 0;
-      var ageMs = state.lastSuccessfulAt ? Date.now() - new Date(state.lastSuccessfulAt).getTime() : null;
-      if (state.status === 'loaded' && ageMs != null && isFinite(maxAgeMs) && ageMs > maxAgeMs) state.status = 'stale';
-      if (state.status === 'loaded' && state.coverage != null && state.coverage < minCoverage) state.status = state.coverage <= 0 ? 'zero' : 'partial';
-      state.ageMs = ageMs;
-      state.maxAgeMs = maxAgeMs;
-      state.minCoverage = minCoverage;
-      producers[producer] = state;
-    });
-    (contract.requiredProducers || []).forEach(function(producer) {
-      var state = producers[producer];
-      if (!state) return;
-      if (['missing','loading','failed','unavailable','error','stale','zero','partial','blocked','reference','neutral'].indexOf(state.status) >= 0) {
-        issues.push({ producer:producer, status:state.status, failureReason:state.failureReason || null, coverage:state.coverage, maxAgeMs:state.maxAgeMs });
-      }
-    });
-    var blocked = issues.some(function(issue) { return issue.status === 'blocked' || contract.failureState === 'blocked' && issue.status === 'failed'; });
-    var staleReference = issues.some(function(issue) { return issue.status === 'reference'; });
-    var emptyStatuses = ['missing','zero','empty'];
-    var empty = issues.length > 0 && issues.length === (contract.requiredProducers || []).length && issues.every(function(issue) { return emptyStatuses.indexOf(issue.status) >= 0; });
-    var status = !issues.length ? 'loaded' : staleReference ? 'stale-reference' : empty ? 'empty' : blocked ? 'blocked' : 'partial';
-    return {
-      version:'wp10.page-completeness.v1',
-      pageId:id,
-      status:status,
-      requiredProducers:(contract.requiredProducers || []).slice(),
-      optionalProducers:(contract.optionalProducers || []).slice(),
-      minCoverage:Object.assign({}, contract.minCoverage || {}),
-      maxAge:Object.assign({}, contract.maxAge || {}),
-      failureState:contract.failureState || 'partial',
-      forbiddenClaims:(contract.forbiddenClaims || []).slice(),
-      producers:producers,
-      issues:issues,
-      checkedAt:new Date().toISOString()
-    };
-  };
-  window.AIO.auditPageDataCompleteness = function(opts) {
-    opts = opts || {};
-    var ids = opts.allRoutes ? (window.AIO_PAGE_CONTRACTS.routePageIds || []).slice() : (Array.isArray(opts.pageIds) && opts.pageIds.length ? opts.pageIds.slice() : [String(opts.pageId || '').replace(/^page-/, '')]);
-    ids = ids.filter(Boolean);
-    var pages = ids.map(function(id) { return window.AIO.getPageDataCompleteness(id); });
-    var blockedCount = pages.filter(function(row) { return row.status === 'blocked'; }).length;
-    var partialCount = pages.filter(function(row) { return row.status === 'partial'; }).length;
-    var emptyCount = pages.filter(function(row) { return row.status === 'empty'; }).length;
-    var staleReferenceCount = pages.filter(function(row) { return row.status === 'stale-reference'; }).length;
-    return {
-      version:'wp10.page-completeness.v1',
-      status:blockedCount ? 'blocked' : staleReferenceCount ? 'stale-reference' : emptyCount ? 'empty' : partialCount ? 'partial' : 'loaded',
-      routeCount:ids.length,
-      loadedCount:pages.filter(function(row) { return row.status === 'loaded'; }).length,
-      partialCount:partialCount,
-      blockedCount:blockedCount,
-      emptyCount:emptyCount,
-      staleReferenceCount:staleReferenceCount,
-      pages:pages,
-      checkedAt:new Date().toISOString()
-    };
-  };
+  // AIO.getPageDataCompleteness / auditPageDataCompleteness: src/data/page-completeness.js (installed at boot).
   window.AIO.getPageAIContract = function(pageId) {
     var contract = window.AIO.getPageContract(pageId);
     return contract && contract.ai ? contract.ai : null;

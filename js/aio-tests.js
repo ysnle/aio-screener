@@ -8291,11 +8291,11 @@
     _assert('T1021 page_completeness_contract_fields (WP-10): all current routes carry producer, coverage, age, failure, and forbidden-claim contracts',
       routeIds.length === 19 && contractFields, JSON.stringify({ routeCount:routeIds.length, contractFields:contractFields }));
 
-    var beforeScreener = window._aioScreenerLoadState;
-    window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'fixture producer disconnected' };
-    var screener = window.AIO.getPageDataCompleteness('screener');
-    var guide = window.AIO.getPageDataCompleteness('guide');
-    window._aioScreenerLoadState = beforeScreener;
+    var archDescriptor = Object.getOwnPropertyDescriptor(window, 'AIO_ARCH'), screener = null, guide = null;
+    try {
+      Object.defineProperty(window, 'AIO_ARCH', { configurable:true, writable:true, value:{ getScreenerState:function(path) { return { status:'unavailable', 'metadata.detail':'fixture producer disconnected' }[path]; } } });
+      screener = window.AIO.getPageDataCompleteness('screener'); guide = window.AIO.getPageDataCompleteness('guide');
+    } finally { Object.defineProperty(window, 'AIO_ARCH', archDescriptor); }
     _assert('T1022 producer_disconnect_failure_state (WP-10): a disconnected screener producer is explicit partial while static guide remains loaded',
       screener && screener.status === 'partial' && screener.producers && screener.producers.screenerArtifact && screener.producers.screenerArtifact.status === 'unavailable' && guide && guide.status === 'loaded',
       JSON.stringify({ screener:screener, guide:guide }));

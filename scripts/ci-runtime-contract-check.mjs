@@ -123,9 +123,10 @@ check('P1185 the dead runtime screener reader is not re-introduced', !/readScree
 check('P768: native screener is the sole runtime artifact fetch and legacy receives metadata/breadth only', /_aioApplyNativeScreenerState/.test(data) && /aio:nativeScreenerReady/.test(bootstrap) && /getScreenerState/.test(bootstrap) && /breadth:\s*artifact\.breadth/.test(screenerProvider) && !/fetch\([^\n]*screener\.json/.test(data) && !/_aioApplyServerScreener/.test(data));
 // P1186/E2 S-D: native screener state의 투영 트리거는 readiness 이벤트 하나여야 한다. 종전에는
 // server data.json 적용 경로가 같은 state를 다시 투영해(중복 렌더 + 순서 역전 시 더 새로운 투영을
-// 덮어쓸 수 있음) 실제로 두 번 적용됐다 — 이제 그 경로는 '이미 투영됐는가'만 확인한다.
+// 덮어쓸 수 있음) 실제로 두 번 적용됐다. 2026-10-17: 그 경로의 load-state 기록도 없어졌다 — 화면별 완결성은
+// native slice에서 읽는다(src/data/page-completeness.js).
 check('P1186 native screener state has exactly one projection trigger (the readiness event)',
-  (data.match(/_aioApplyNativeScreenerState\(/g) || []).length === 2 && /nativeScreenerReady/.test(data) && /nativeStateApplied/.test(data),
+  (data.match(/_aioApplyNativeScreenerState\(/g) || []).length === 2 && /nativeScreenerReady/.test(data) && !/_aioScreenerLoadState/.test(data),
   'a second projection path for native screener state returned');
 // v57.81: without an event payload the projection reads only the screener fields it uses (P1755 path read), never the
 // whole slice; run the real function against a recording facade.
@@ -134,10 +135,10 @@ check('P1186 native screener state has exactly one projection trigger (the readi
   const end = data.indexOf('window._aioApplyNativeScreenerState = _aioApplyNativeScreenerState;', start);
   const reads = [];
   const slice = { status: 'current', revision: 'r1', metadata: { asOf: '2026-10-15' }, rows: [{}, {}, {}] };
-  const sandbox = { window: { AIO_ARCH: { getScreenerState: (path) => { reads.push(path); return path ? path.split('.').reduce((n, k) => (n == null ? undefined : n[k]), slice) : slice; } } }, isFinite, Number, Array, Date, String };
+  const sandbox = { window: { DATA_SNAPSHOT: { _fieldTs: {} }, AIO_ARCH: { getScreenerState: (path) => { reads.push(path); return path ? path.split('.').reduce((n, k) => (n == null ? undefined : n[k]), slice) : slice; } } }, isFinite, Number, Array, Date, String };
   let applied = false;
   try { applied = start >= 0 && end > start && runInNewContext(data.slice(start, end) + '\n_aioApplyNativeScreenerState();', sandbox); } catch (_) { applied = false; }
-  check('v57.81 the native screener projection reads named paths, never the whole slice', applied === true && reads.length > 0 && reads.every((path) => typeof path === 'string' && path) && sandbox.window._aioScreenerLoadState?.count === 3, JSON.stringify({ applied, reads }));
+  check('v57.81 the native screener projection reads named paths, never the whole slice', applied === true && reads.length > 0 && reads.every((path) => typeof path === 'string' && path) && sandbox.window.DATA_SNAPSHOT._fieldTs.screener === '2026-10-15', JSON.stringify({ applied, reads }));
 }
 // P1239 follow-up (2026-10-17): the chat's screener query engine lives in src/ai/context/screener-query.js and the bridge
 // feeds it the canonical screener rows (no second ranking run).
@@ -1173,8 +1174,32 @@ check('LIVE3-11: every external dependency has an explicit free-only replacement
 check('LIVE3-12: a core quote outage preserves the last-known-good data artifact and screener refresh can run in isolation', /CORE_QUOTE_COVERAGE_FAILED/.test(fetchScript) && fetchScript.indexOf('CORE_QUOTE_COVERAGE_FAILED') < fetchScript.indexOf('await atomicWriteFile(OUT') && /SCREENER_ONLY/.test(fetchScript));
 check('WP-10: every route contract carries required/optional producers, coverage, age, failure, and forbidden-claim state',
   /function _pageCompletenessContract\(id\)/.test(core) && /requiredProducers:/.test(core) && /optionalProducers:/.test(core) && /minCoverage:/.test(core) && /maxAge:/.test(core) && /failureState:/.test(core) && /forbiddenClaims:/.test(core));
-check('WP-10: runtime exposes one page completeness API and distinguishes missing/stale/partial/blocked producer states',
-  core.includes('getPageDataCompleteness') && core.includes('auditPageDataCompleteness') && core.includes('wp10.page-completeness.v1') && core.includes('stale-reference') && core.includes('empty') && core.includes('partial') && core.includes('blocked'));
+// Legacy unification (2026-10-17): the API lives in src/data/page-completeness.js and is installed by the compat bridge;
+// run it instead of reading its source.
+{
+  const completeness = await import('../src/data/page-completeness.js');
+  const now = Date.parse('2026-10-17T00:00:00Z');
+  const contract = (failureState = 'partial') => ({ requiredProducers: ['a', 'b'], optionalProducers: [], minCoverage: { a: 50 }, maxAge: { a: 3600000 }, failureState, forbiddenClaims: [] });
+  const states = (a, b) => (producer) => ({ ...(producer === 'a' ? a : b) });
+  const loaded = { status: 'loaded', coverage: 100, lastSuccessfulAt: '2026-10-16T23:30:00Z' };
+  const statusOf = (a, b, failureState) => completeness.pageDataCompleteness('x', contract(failureState), states(a, b), now).status;
+  const cases = {
+    loaded: statusOf(loaded, loaded),
+    stale: statusOf({ ...loaded, lastSuccessfulAt: '2026-10-16T20:00:00Z' }, loaded),
+    partial: statusOf({ ...loaded, coverage: 20 }, loaded),
+    blocked: statusOf({ status: 'failed' }, loaded, 'blocked'),
+    empty: statusOf({ status: 'missing' }, { status: 'zero' }),
+    reference: statusOf({ status: 'reference' }, loaded)
+  };
+  const root = { AIO: { getPageContract: () => contract() }, AIO_PAGE_CONTRACTS: { routePageIds: ['x', 'y'] } };
+  completeness.installPageCompleteness(root, { readScreener: () => ({}) });
+  const audit = root.AIO.auditPageDataCompleteness({ allRoutes: true });
+  check('WP-10: runtime exposes one page completeness API and distinguishes missing/stale/partial/blocked producer states',
+    typeof compatRoot.AIO?.getPageDataCompleteness === 'function' && typeof compatRoot.AIO?.auditPageDataCompleteness === 'function'
+      && JSON.stringify(cases) === JSON.stringify({ loaded: 'loaded', stale: 'partial', partial: 'partial', blocked: 'blocked', empty: 'empty', reference: 'stale-reference' })
+      && audit.version === 'wp10.page-completeness.v1' && audit.routeCount === 2 && audit.pages.length === 2,
+    JSON.stringify({ cases, audit: { status: audit.status, routeCount: audit.routeCount } }));
+}
 check('WP-10: scheduler records attemptedAt/lastSuccessfulAt/coverage/evidenceIds and failure reason',
   /cfg\._attemptedAt/.test(data) && /cfg\._lastSuccessfulAt/.test(data) && /cfg\._coverage/.test(data) && /cfg\._evidenceIds/.test(data) && /cfg\._failureReason/.test(data));
 check('WP-10: browser fixtures cover current route contract fields and disconnected producer failure state',
@@ -1351,9 +1376,13 @@ check('W2-05: Vault envelope has versioned KDF plus legacy decrypt and re-encryp
 // P1116: the loaded quote plane cited `data.json:quotes`, an artifact the P715
 // client-direct fetch policy publishes empty. The citation must follow the producer's
 // own publication flag so it can never name a file that carries no quote row.
-check('P1116: quote-plane evidence cites the artifact that actually publishes quotes',
-  /quotesPublished === true \? 'data\.json:quotes' : 'market-snapshot\.json:quotes'/.test(core)
-    && !/evidenceIds:\['data\.json:quotes'\]/.test(core));
+{
+  const { producerState } = await import('../src/data/page-completeness.js');
+  const quoteEvidence = (quotesPublished) => producerState('quotes', { meta: { generatedAt: '2026-10-17T00:00:00Z', symbolsOk: 5, quotesPublished } }).evidenceIds;
+  check('P1116: quote-plane evidence cites the artifact that actually publishes quotes',
+    JSON.stringify(quoteEvidence(false)) === '["market-snapshot.json:quotes"]' && JSON.stringify(quoteEvidence(true)) === '["data.json:quotes"]',
+    JSON.stringify({ unpublished: quoteEvidence(false), published: quoteEvidence(true) }));
+}
 
 // P1118: the signal hero shows five factor bars against a total they do not sum to.
 // The post-composite adjustments and the [5,100] clamp must reach the presentation the
