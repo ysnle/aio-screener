@@ -4209,6 +4209,13 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const twin = detectContractions(twinBars);
   const lastTwin = twin.contractions.at(-1);
   if (twin.pivot !== 116 || lastTwin?.high !== 116 || !(Math.abs(lastTwin.depth - (116 - 105) / 116 * 100) < 1e-9)) fail(`audit 2026-10-17 a pullback must start from the highest swing high before the next swing low: ${JSON.stringify(twin.contractions)}`);
+  // Audit 2026-10-17 (owner D9): a tight last contraction (1.6%) stays in the run and sets the pivot (113, not the earlier 114).
+  const tightKnots = [[0, 80], [10, 90], [20, 120], [30, 102], [40, 114], [48, 107], [56, 113], [62, 112.2], [68, 113.5]];
+  const tightHighs = [];
+  for (let k = 0; k < tightKnots.length - 1; k++) for (let i = tightKnots[k][0]; i < tightKnots[k + 1][0]; i++) tightHighs.push(tightKnots[k][1] + (tightKnots[k + 1][1] - tightKnots[k][1]) * (i - tightKnots[k][0]) / (tightKnots[k + 1][0] - tightKnots[k][0]));
+  tightHighs.push(tightKnots.at(-1)[1]);
+  const tight = detectContractions(tightHighs.map((high) => ({ high, low: high - 1, close: high - 0.5 })));
+  if (tight.pivot !== 113 || !tight.valid || tight.contractions.length !== 3 || !(tight.contractions.at(-1).depth < 2)) fail(`D9 a tight last contraction sets the pivot: ${JSON.stringify(tight.contractions)}`);
   // Audit 2026-10-17 (owner D6): one breakout day — prior 50-session volume (the day excluded), up close, at most +5% over the pivot.
   const { isBreakoutDay } = await load('src/domain/technical/definitions.js');
   const flatVol = Array(60).fill(1000);

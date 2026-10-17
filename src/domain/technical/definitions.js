@@ -225,7 +225,9 @@ export function detectContractions(bars, { lookback = 130, span = 3 } = {}) {
     cursorHigh = highs.filter((index) => index >= firstHigh && (nextLow == null || index < nextLow))
       .reduce((best, index) => (recent[index].high > recent[best].high ? index : best), firstHigh);
   }
-  const all = contractions.filter((row) => row.depth >= 2);
+  // Pullbacks under 2% are swing noise and drop out — except the latest one. Audit 2026-10-17 (owner D9): a tight last
+  // contraction (Minervini's best case) used to vanish, and the pivot fell back to the earlier, lower high.
+  const all = contractions.filter((row, index) => row.depth >= 2 || (index === contractions.length - 1 && row.depth > 0));
   // The pattern is the latest run of successively shallower pullbacks (Minervini's 'T' count),
   // not the whole base: walk back from the last pullback while each earlier one was deeper.
   let startRun = all.length - 1;
