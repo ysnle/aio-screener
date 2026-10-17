@@ -4,6 +4,10 @@ last_verified: 2026-10-17
 confidence: medium
 ---
 
+## v57.95 스크리너 산출물 압축 (2026-10-17)
+
+- [ ] QA-SCR-43: v57.95 이후 첫 refresh-screener 데이터 커밋의 public-data/screener.json이 rowEncoding row-defaults.v1로 쓰이고, 스크리너 표·시장 폭·AI 문맥이 같은 행을 읽는다. verify_by: node scripts/ci-screener-extended-contract-check.mjs (v57.95 published core artifact is row-defaults encoded) + node scripts/validate-screener-artifact.mjs
+
 ## v57.94 주도 영역 이탈 안정화 (2026-10-17)
 
 - [x] QA-REPLAY-02: P1909: 주도 영역 이탈은 최근 5거래일 확인 조건으로 판정하고 나스닥 100 약세가 이어지는 동안 유지된다(2026-07-17~08-03 이탈, 08-04 해제). verify_by: node scripts/ci-crash-replay-check.mjs
