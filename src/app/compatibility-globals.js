@@ -40,6 +40,7 @@ import { KR_THEME_LABELS, krThemesForSymbol } from '../domain/themes/kr-themes.j
 import { MA_STRUCTURE_LABELS } from '../domain/technical/stage.js';
 import { completedBars } from '../ui/components/stock-chart.js';
 import { keywordMayMatch, textPairs } from '../domain/news/keyword-prefilter.js';
+import { buildScreenerAiContext, detectSectorQuery, formatScreenerResultPrompt, runScreenerQuery } from '../ai/context/screener-query.js';
 
 export function installCompatibilityGlobals(root = globalThis) {
   const window = root;
@@ -56,6 +57,18 @@ export function installCompatibilityGlobals(root = globalThis) {
   window._calcCorrelationMatrix = _calcCorrelationMatrix;
   window._aioTextPairs = textPairs; // v57.91 (P1901): news keyword prefilter read by js/aio-data.js scoreItem
   window._aioKwMay = keywordMayMatch;
+  // Legacy unification (2026-10-17): the chat's screener query engine moved here from js/aio-data.js. Every call reads
+  // the canonical rows the native screener orchestrator ranked (no second ranking run) and the producer's factor date.
+  const screenerQueryInput = () => ({
+    rows: (typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() : null) || [],
+    live: window._liveData || {},
+    aliases: window.SCR_KEYWORD_ALIASES || {},
+    rankAsOf: window._aioScreenerFactorAsOf || null
+  });
+  window._aioRunScreenerQuery = (query, opts) => runScreenerQuery(query, { ...screenerQueryInput(), recentTickers: opts?.recentTickers || [] });
+  window._formatScreenerResultPrompt = (result) => formatScreenerResultPrompt(result, { rankAsOf: window._aioScreenerFactorAsOf || null });
+  window._aioBuildScreenerAiContext = (query, messages, logger) => buildScreenerAiContext(query, messages, { ...screenerQueryInput(), logger });
+  window._detectSectorQuery = (text) => detectSectorQuery(text, { rows: screenerQueryInput().rows });
   window.AIO = window.AIO || {};
   window.AIO.describeSharedConnection = describeSharedConnection;
   window.AIO.formatSecResearchEvidence = formatSecResearchEvidence;

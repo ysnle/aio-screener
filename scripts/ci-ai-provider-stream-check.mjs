@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 
 const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
 const start = source.indexOf('async function callSharedAi(');
-const end = source.indexOf('// ── 스크리너 함수', start);
+const end = source.indexOf('// ── 스크리너 질의', start);
 assert(start >= 0 && end > start);
 // P1245 (05 A05): callSharedAi records native citations and research tool errors in the per-request
 // stream store, so this isolated transport context must execute the real store rather than a stub

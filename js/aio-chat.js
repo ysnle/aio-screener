@@ -2176,16 +2176,8 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   }
 }
 
-// ── 스크리너 함수 — aio-data.js로 이동됨 (v51.17). window.* 전역 alias ──
-// P512: var _SECTOR_KEYWORDS 제거 — aio-data.js const와 충돌해 line 1847 이후 chatSend 등 미실행 (v51.30 수정)
-var _detectSectorQuery = window._detectSectorQuery;
-var _aioIsBroadRecommendationQuery = window._aioIsBroadRecommendationQuery;
-var _aioInferTickerMarket = window._aioInferTickerMarket;
-var _aioCapBucket = window._aioCapBucket;
-var _aioExtractRecentRecommendationTickers = window._aioExtractRecentRecommendationTickers;
-var _aioBuildDiversifiedRecommendationRows = window._aioBuildDiversifiedRecommendationRows;
-var _aioRunScreenerQuery = window._aioRunScreenerQuery;
-var _formatScreenerResultPrompt = window._formatScreenerResultPrompt;
+// ── 스크리너 질의 — src/ai/context/screener-query.js (legacy unification 2026-10-17). The chat calls the window names
+// (_detectSectorQuery, _aioBuildScreenerAiContext) that src/app/compatibility-globals.js binds after the ESM boot.
 
 // 섹터 비교 — 다중 종목 현재가(_liveData) + Naver 컨센서스·한국어명 (v57.76: personal FMP branch removed)
 async function _fetchSectorCompareData(stocks, opts) {

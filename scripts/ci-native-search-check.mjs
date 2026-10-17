@@ -45,7 +45,7 @@ assert.equal(select({ decision: optional, questionPlan: { ...plan, query: 'NVDA 
 assert.equal(select({ decision: optional, questionPlan: { ...plan, query: 'NVDA 경쟁 해자' }, internalReferenceEvidence: { deep: true } }), true, 'P1608 financial evidence alone does not cover a moat question');
 assert.equal(select({ decision: optional, internalReferenceEvidence: {} }), true, 'P1608 missing optional company evidence permits supplementation');
 const start = chat.indexOf('async function callSharedAi(');
-const end = chat.indexOf('\nvar _detectSectorQuery', start);
+const end = chat.indexOf('\n// ── 스크리너 질의', start);
 assert.ok(start >= 0 && end > start, 'P1608 production adapter extraction exists');
 let sent, done, error;
 const stream = { citations: [], researchError: null };

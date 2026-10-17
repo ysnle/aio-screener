@@ -142,7 +142,7 @@ export function backtestFactors(stockData, opts) {
   var droppedRebalanceDates = requestedRebalanceDates.filter(function(date){ return rebalanceDates.indexOf(date) < 0; });
   var dateReadyRecords = datedStocks;
   // v51.91 P586/C2: this backtest validates a *fixed* 4-factor subset, not the live ranking model
-  // (js/aio-data.js:_aioComputeFactorRanks), whose marketState tilts are currently
+  // (src/domain/screener/factor-ranks.js computeFactorRanks), whose marketState tilts are currently
   // proposal-only; production ranks remain fixed at NEUTRAL until an explicit
   // promotion record proves live/backtest parity and receives human review. The UI
   // previously implied "종합 랭크가 검증 기반" (the live composite rank is what's validated) —

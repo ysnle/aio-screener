@@ -4915,3 +4915,17 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!rank || rank.month !== `${Number(survey.at(-1).date.slice(5, 7))}월` || !(rank.percentile >= 0 && rank.percentile <= 100)) fail(`v57.81 sentimentRank names the month and a percentile: ${JSON.stringify(rank)}`);
   if (ms.sentimentRank(survey.slice(-10)).percentile !== null) fail('v57.81 fewer than 24 releases give no percentile');
 }
+{
+  // Legacy unification (2026-10-17): the chat's screener query engine is a pure module fed the canonical rows.
+  const sq = await load('src/ai/context/screener-query.js');
+  const sectors = ['Technology', 'Energy', 'Utilities', 'Healthcare', 'Financials', 'Industrials'];
+  const rows = Array.from({ length: 24 }, (_, i) => ({ sym: `T${String.fromCharCode(65 + i)}X`, name: `Co ${i}`, sector: sectors[i % 6], rank: i + 1, score: 90 - i, mcap: 5e9 * (i + 1), rsi: 25 + i * 2, signal: i % 3 ? 'HOLD' : 'BUY' }));
+  if (sq.runScreenerQuery('오늘 기분 어때', { rows }) !== null) fail('screener-query: a question with no screen condition returns null');
+  const rsi = sq.runScreenerQuery('rsi 30 이하', { rows });
+  if (!rsi?.matched || !rsi.rows.length || !rsi.rows.every((row) => row.rsi <= 30)) fail(`screener-query: RSI ceiling filters rows: ${JSON.stringify(rsi?.criteria)}`);
+  const recent = sq.extractRecentRecommendationTickers([{ content: 'TAX와 TBX, NOPE를 봤어' }], { rows });
+  if (recent.join(",") !== "TAX,TBX") fail(`screener-query: recent tickers are the known symbols in the conversation: ${recent}`);
+  const ctx = sq.buildScreenerAiContext('종목 추천해줘', [{ content: 'TAX, TBX' }], { rows });
+  if (ctx.result?.mode !== 'diversified-recommendation' || !(ctx.result.recentSuppressed >= 1) || !ctx.prompt) fail(`screener-query: a broad ask diversifies and suppresses recent picks: ${JSON.stringify({ mode: ctx.result?.mode, suppressed: ctx.result?.recentSuppressed })}`);
+  if (sq.buildScreenerAiContext('오늘 기분 어때', [], { rows }).prompt !== '') fail('screener-query: no match gives an empty prompt');
+}

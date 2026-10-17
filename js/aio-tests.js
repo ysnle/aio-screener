@@ -2848,37 +2848,9 @@
     var found = canvasIds.filter(function(id){ return !!document.getElementById(id); });
     _assert('T857 seven_canvas_dom_v4972: 7 canvas DOM 모두 존재',
       found.length === 7, 'found=' + found.length + '/7');
-    // T858: v51.30 Maker-Checker — _aioMakerCheckerVerify 함수 정의 + 퀀트 검증 구조
-    var t858ok = false, t858detail = '';
-    try {
-      var fn858 = typeof window._aioMakerCheckerVerify === 'function';
-      var r858null = fn858 ? window._aioMakerCheckerVerify([]) : 'skip';   // 빈 배열 → null
-      var r858str  = fn858 ? window._aioMakerCheckerVerify(['__NO_SUCH_SYM__']) : 'skip'; // 없는 티커 → null
-      var r858query = (typeof window._aioRunScreenerQuery === 'function') ? window._aioRunScreenerQuery('종목 추천') : null;
-      var r858cands = (r858query && Array.isArray(r858query.rows)) ? r858query.rows.slice(0, 5).map(function(r){ return r && r.sym; }).filter(Boolean) : [];
-      var r858broad = fn858 && r858cands.length ? window._aioMakerCheckerVerify(r858cands) : null;
-      var structOk858 = !r858null && !r858str;   // 데이터 없을 때 null 반환
-      // P626-followup: _aioMakerCheckerVerify (js/aio-data.js) only ranks tickers that already
-      // have a numeric SCREENER_DB row.rank — populated by _aioComputeFactorRanks, which itself
-      // needs ret1m/ret3m-enriched rows (server screener.json enrichment). In this headless suite's
-      // offline/seed-fallback environment that enrichment may not have completed by the time this
-      // test runs, so _aioMakerCheckerVerify correctly, by design, returns null for real candidate
-      // tickers rather than fabricating a verdict — that's the function behaving correctly, not a
-      // defect. Accept that as a passing outcome specifically when the DB-wide evidence confirms no
-      // rank data exists yet at all (distinct from these particular candidates mysteriously lacking
-      // ranks while others have them, which would still indicate a real bug).
-      var dbHasAnyRank858 = (typeof SCREENER_DB !== 'undefined' && Array.isArray(SCREENER_DB)) ? SCREENER_DB.some(function(r) { return r && typeof r.rank === 'number'; }) : false;
-      var verdictShapeOk858 = r858broad && r858broad.length > 0 && r858broad.every(function(row) {
-        return row && typeof row.verdict === 'string' && ['RESEARCH_CANDIDATE','CAUTION','REJECTED'].indexOf(row.verdict) >= 0 &&
-          typeof row.rank === 'number' && Array.isArray(row.reasons);
-      });
-      var verdictOk858 = verdictShapeOk858 || (r858broad === null && !dbHasAnyRank858);
-      // v57.62: the chat wiring (maker-checker chips under an answer) lived only in the retired per-page chatSend.
-      var chatRetired858 = typeof window.chatSend === 'undefined';
-      t858ok = fn858 && structOk858 && verdictOk858 && chatRetired858 && r858cands.length > 0;
-      t858detail = 'fn=' + fn858 + ' nullGate=' + structOk858 + ' broadCandidates=' + r858cands.length + ' verdictOk=' + verdictOk858 + ' (shapeOk=' + verdictShapeOk858 + ' dbHasAnyRank=' + dbHasAnyRank858 + ') perPageChatRetired=' + chatRetired858;
-    } catch(e) { t858detail = 'ERR:' + e.message; }
-    _assert('T858 v57.62 maker_checker_verify: _aioMakerCheckerVerify 함수 + null 게이트 + verdict 구조 (per-page chatSend 연결 퇴역)', t858ok, t858detail);
+    // T858: the maker-checker verdict helper had no caller after the per-page chatSend retired (v57.62); the screener
+    // query engine moved to src/ai/context/screener-query.js (2026-10-17) without it.
+    _assert('T858 maker_checker_retired: _aioMakerCheckerVerify 퇴역 (호출처 없음)', typeof window._aioMakerCheckerVerify === 'undefined' && typeof window.chatSend === 'undefined', 'fn=' + typeof window._aioMakerCheckerVerify);
     // T566: fundamentalSearch가 fetchQuarterlyFinancials + _renderFundamentalFinancialsCharts 호출
     var fundSrc = typeof window.fundamentalSearch === 'function' ? window.fundamentalSearch.toString() : '';
     _assert('T566 fundamental_search_integrated_v4972: fundamentalSearch fetch + render 통합',
@@ -6081,7 +6053,8 @@
       // proving the capability by checking the call site AND that the helper itself runs the query.
       var hasScreenerWire = csSrc809.indexOf('_aioBuildScreenerAiContext') >= 0 && csSrc809.indexOf('_uniScreenerStr') >= 0
         && typeof window._aioBuildScreenerAiContext === 'function'
-        && String(window._aioBuildScreenerAiContext).indexOf('_aioRunScreenerQuery') >= 0;
+        && String(window._aioBuildScreenerAiContext).indexOf('buildScreenerAiContext(') >= 0
+        && typeof (window._aioBuildScreenerAiContext('오늘 기분 어때', []) || {}).prompt === 'string';
       t809ok = hasTickerGate && hasGeneralBranch && hasScreenerBranch && hasScreenerWire;
       t809detail = 'tickerGate=' + hasTickerGate + ' policyMode=' + hasGeneralBranch + ' modeGuide=' + hasScreenerBranch + ' screenerWire=' + hasScreenerWire;
     } catch(e) { t809detail = 'ERR:' + e.message; }
@@ -6582,7 +6555,7 @@
         // P1239/E2 S-E: recent-recommendation extraction moved into the shared screener helper.
         csSrc825.indexOf('_aioBuildScreenerAiContext') >= 0 &&
         typeof window._aioBuildScreenerAiContext === 'function' &&
-        String(window._aioBuildScreenerAiContext).indexOf('_aioExtractRecentRecommendationTickers') >= 0 &&
+        ((window._aioBuildScreenerAiContext('종목 추천해줘', [{ role: 'assistant', content: recentSeed825.join(', ') }]) || {}).result || {}).recentSuppressed >= 1 &&
         csSrc825.indexOf('[통합 AI 패널 추천 편향 방지]') >= 0 && csSrc825.indexOf("_uniScreenerResult.mode === 'diversified-recommendation'") >= 0);
       t825detail = JSON.stringify({
         mode:broad825 && broad825.mode,
@@ -6879,7 +6852,7 @@
         // P1239/E2 S-E: the unified panel consumes the same shared screener helper.
         unifiedSrc833.indexOf('_aioBuildScreenerAiContext') >= 0 &&
         typeof window._aioBuildScreenerAiContext === 'function' &&
-        String(window._aioBuildScreenerAiContext).indexOf('_aioRunScreenerQuery') >= 0 &&
+        String(window._aioBuildScreenerAiContext).indexOf('buildScreenerAiContext(') >= 0 &&
         unifiedSrc833.indexOf('_aioDomainContextForQuestion') >= 0 && // P1621 both chat entry points use the same native selector.
         unifiedSrc833.indexOf('_buildAioIntegratedAnswerContext') >= 0 &&
         unifiedSrc833.indexOf('_shouldUseClaudeWebSearch') >= 0;

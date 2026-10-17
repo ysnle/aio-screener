@@ -81,6 +81,8 @@ const telegramConsumedTags = new Set(Object.values(telegramPageTags).flat());
 const staticBusters = [...html.matchAll(/<script\s+src="\.\/js\/aio-[^"]+\?v=([\d.]+)"/g)].map((m) => m[1]);
 check('all static aio script cachebusters match version.json', staticBusters.length >= 5 && staticBusters.every((v) => v === versionNum), `found ${staticBusters.join(',')}, expected ${versionNum}`);
 
+const compatRoot = { _aioGetCanonicalScreenerRows: () => [{ sym: 'AAA', name: 'Alpha', sector: 'Energy', rank: 1, rsi: 20, signal: 'BUY' }] };
+(await import('../src/app/compatibility-globals.js')).installCompatibilityGlobals(compatRoot);
 const callableRefs = [...new Set([...chat.matchAll(/\b(_aio[A-Za-z0-9_]+)\s*\(/g)].map((m) => m[1]))]
   .filter((name) => !['_aioSafeMD', '_aioAskAiFromPageDecision'].includes(name));
 for (const name of callableRefs) {
@@ -89,7 +91,8 @@ for (const name of callableRefs) {
     || runtimeBundle.includes(`function ${name}`)
     || chat.includes(`window.${name}`)
     || chat.includes(`function ${name}`)
-    || new RegExp(`(?:var|let|const)\\s+${name}\\b`).test(runtimeBundle);
+    || new RegExp(`(?:var|let|const)\\s+${name}\\b`).test(runtimeBundle)
+    || typeof compatRoot[name] === 'function'; // ESM functions installCompatibilityGlobals binds for the classic scripts
   check(`AI prompt/runtime callable exists: ${name}`, existsInRuntime, 'referenced from js/aio-chat.js');
 }
 
@@ -136,12 +139,11 @@ check('P1186 native screener state has exactly one projection trigger (the readi
   try { applied = start >= 0 && end > start && runInNewContext(data.slice(start, end) + '\n_aioApplyNativeScreenerState();', sandbox); } catch (_) { applied = false; }
   check('v57.81 the native screener projection reads named paths, never the whole slice', applied === true && reads.length > 0 && reads.every((path) => typeof path === 'string' && path) && sandbox.window._aioScreenerLoadState?.count === 3, JSON.stringify({ applied, reads }));
 }
-const canonicalScreenerConsumerNames = ['_aioExtractRecentRecommendationTickers', '_detectSectorQuery', '_aioRunScreenerQuery', '_aioMakerCheckerVerify'];
-for (const name of canonicalScreenerConsumerNames) {
-  const start = data.indexOf(`function ${name}`);
-  const end = data.indexOf(`window.${name}`, start);
-  const body = start >= 0 && end > start ? data.slice(start, end) : '';
-  check(`${name} reads canonical screener rows`, body.includes('_aioGetCanonicalScreenerRows()') && !/typeof\s+SCREENER_DB/.test(body), 'legacy static row read remains in consumer body');
+// P1239 follow-up (2026-10-17): the chat's screener query engine lives in src/ai/context/screener-query.js and the bridge
+// feeds it the canonical screener rows (no second ranking run).
+{
+  const viaBridge = compatRoot._aioBuildScreenerAiContext('rsi 30 이하', []);
+  check('P1239 screener query engine reads canonical rows through one bridge', viaBridge?.result?.rows?.[0]?.sym === 'AAA' && /AAA/.test(viaBridge.prompt), JSON.stringify({ rows: viaBridge?.result?.rows?.length }));
 }
 // v57.78: getTelegramPipelineAudit and its channel checks live in the QA bundle (read through `core`).
 check('Telegram memo overlay is exposed through audit',/_aioTelegramMemoOverlayAudit/.test(data) && /memoOverlay/.test(data) && /getTelegramPipelineAudit/.test(core));
@@ -339,7 +341,7 @@ check('E2/S-C/P1241 screener row resolution has one owner and a declared intent'
   && /export function resolveScreenerRows\(root, intent/.test(read('src/data/screener-row-policy.js'))
   && /function screenerNativePublished\(/.test(read('src/data/screener-row-policy.js')));
 // E2/S-E/P1239: one helper owns the screener AI context for both chats.
-check('E2/S-E/P1239 the chat consumes one screener AI context helper', /function _aioBuildScreenerAiContext\(/.test(data) && /_aioBuildScreenerAiContext\(q, state\.messages/.test(chat) && !/_aioRunScreenerQuery\(q, \{ recentTickers/.test(chat)); // v57.62: per-page chatSend retired
+check('E2/S-E/P1239 the chat consumes one screener AI context helper', /window\._aioBuildScreenerAiContext = \(query, messages, logger\) => buildScreenerAiContext\(/.test(read('src/app/compatibility-globals.js')) && /_aioBuildScreenerAiContext\(q, state\.messages/.test(chat) && !/_aioRunScreenerQuery\(q, \{ recentTickers/.test(chat)); // v57.62: per-page chatSend retired
 // E2/S-F/P1238: the news cache DB is news-scoped and migrates the legacy name without deleting it.
 check('E2/S-F/P1238 the news cache DB is news-scoped and migrates the legacy name', /_AIO_IDB_NAME = 'AIOScreenerNewsCache'/.test(data) && /_AIO_IDB_LEGACY_NAME = 'AIOScreenerDB'/.test(data) && /function _idbMigrateLegacyNews\(/.test(data) && /store-not-empty/.test(data));
 // P1753: the retired US deep-analysis renderer carried its own MA-stack and volume-profile copy; the shared

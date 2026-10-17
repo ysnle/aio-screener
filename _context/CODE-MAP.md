@@ -220,7 +220,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | `AIO_PAGE_CONTRACTS` materialization | `js/aio-core.js:23547` |
 | `destroyPageCharts` / `showPage` | `js/aio-core.js:24983` / `25758` |
 | `fetchLiveQuotes` / `applyLiveQuotes` | `js/aio-data.js:13732` / `15186` |
-| `_aioApplyNativeScreenerState` / `_aioComputeFactorRanks` | `js/aio-data.js:4864` / `15357` |
+| `_aioApplyNativeScreenerState` | `js/aio-data.js:4864` (`_aioComputeFactorRanks` 퇴역 2026-10-17 — native orchestrator가 유일한 랭킹) |
 | native sentiment page (legacy `initBreadthPage` 삭제 v57.60) | `src/ui/pages/sentiment.js:243` |
 | `CHAT_CONTEXTS` / `chatSendUnified` (per-page `chatSend` 삭제 v57.62) | `js/aio-chat.js` |
 
@@ -469,12 +469,10 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | `vixToPercentile` | 14286 | VIX percentile 로그 외삽 |
 | `toggleSignalMode` | 16184 | signal UI mode state |
 | `_aioFactorWeights` | 15342 | storage/profile 입력을 pure `factor-weights.v1`에 연결하는 호환 브릿지 |
-| `_aioComputeFactorRanks` | 15357 (wrapper; export: 15397) | legacy 호출용 hidden input/weight 해석과 SCREENER_DB 호환 projection만 수행. 계산 owner는 `src/domain/screener/factor-ranks.js:105`; native route는 state에 직접 rank를 보유 |
+| ~~`_aioComputeFactorRanks`~~ | 퇴역 (2026-10-17) | 같은 행을 두 번째로 랭킹하던 legacy wrapper. rank·factorScores는 native screener orchestrator가 canonical row에 싣는다 |
 > P763 correction: deterministic factor-weight math moved to `src/domain/screener/factor-weights.js`; `_aioFactorWeights` now resolves compatibility inputs and bridges the pure result only.
 | `computeFactorRanks` | `src/domain/screener/factor-ranks.js:105` | 순수 7팩터 랭킹: 섹터 z-score·winsorize·활성 factor·percentile rank. global/DOM/storage 접근 없음 |
-| `_aioBuildDiversifiedRecommendationRows` | 16558 | 넓은 종목 추천용 분산 후보군(R211) |
-| `_aioRunScreenerQuery` | 16631 | 자연어 스크리너/추천 후보 생성 |
-| `_formatScreenerResultPrompt` | 16767 | 스크리너/균형 추천 후보 프롬프트 |
+| `buildDiversifiedRecommendationRows` / `runScreenerQuery` / `formatScreenerResultPrompt` / `buildScreenerAiContext` | `src/ai/context/screener-query.js` | 자연어 스크리너·분산 추천(R211)·프롬프트. 순수 모듈, `src/app/compatibility-globals.js`가 canonical row를 넣어 `window._aioRunScreenerQuery` 등으로 바인딩 (2026-10-17 aio-data.js에서 이전, maker-checker 퇴역) |
 
 > 2026-07-21 재확인(직접 grep, ARX 재진입 세션): `_aioFactorWeights`/`_aioComputeFactorRanks` 좌표를 15871/15947(export
 > 16082)으로 정정했다 — 이전 좌표(15829/15905, v50.60 이관)는 여러 세대에 걸쳐 재확인 없이 그대로 옮겨 다녀 자기모순
@@ -519,7 +517,6 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | `_buildAioIntegratedAnswerContext` | 3777 | 현재 시장+정량+정성+페이지 연결 계약(R214) |
 | `_googleSearch` | 4208 | Google CSE fallback |
 | `fundamentalSearch` | 6559 | 기업 분석 수집/렌더 |
-| `_aioBuildDiversifiedRecommendationRows` / `_aioRunScreenerQuery` / `_formatScreenerResultPrompt` | 1890~1892 (alias) | **실제 정의는 aio-data.js**(17286/17352/17486) — 로드순서 의존 alias |
 | `_fmtNum` | 6443 (alias) | **실제 정의는 aio-core.js:24102** |
 | `_renderFundHeader`/`_renderFundFinancials`/`_renderFundEarnings`/`_renderFundNews` | 6866~6874 (alias) | **실제 정의는 aio-ui.js**(§ 위 표) — 4개 모두 로드순서 의존 alias |
 
