@@ -822,10 +822,15 @@ export const MIN_KNOWN_AXES = 4; // of the six US axes, before an overall label 
 // state read 'holding' — the AI packet then said "주도 영역 이탈: 아니오". A weak proxy without the confirmations is now
 // 'weak' (주도주 약세 · 확산 미확인), never 'holding'; and "under the 50-day line" needs RULES.trend.bufferPct (R707) —
 // 2026-08-06 read a break at -0.0% in a +4.5% week.
-export function leadershipBreakOf(s = {}, basis = null) {
+// v57.93 (owner 2026-10-17, July 2026 replay): the confirmations are single-session counts, so the state flickered
+// 7/23 이탈 → 7/24~28 약세 → 7/29 이탈 while the Nasdaq-100 kept falling. With the history, a confirmation counts when it
+// held on any of the last RULES.leadership.confirmWindowSessions sessions, and a break holds while the proxy stays weak
+// (hysteresis, R707); without the history (fixtures) the reading is the single session's. SMH stays reference-only — as a
+// proxy it read 이탈 through the +8% rebound week of 8/5~8/10.
+function leadershipSessionOf(s = {}, basis = null) {
   const rule = RULES.leadership;
   const ndx = s?.ndx;
-  if (!ndx || ndx.ma50 == null) return { available: false, break: false, state: 'unknown', proxy: 'ndx', proxyLabel: '나스닥 100', proxyWeak: null, drop5: null, belowMa50: null, confirmations: [], met: 0, known: 0, need: rule.minConfirmations };
+  if (!ndx || ndx.ma50 == null) return null;
   const onBasis = (stat) => stat && (!basis || stat.date === basis) ? stat : null;
   const drop5 = pct(ndx.value, ndx.d5);
   const belowMa50 = ndx.value < ndx.ma50 * (1 - RULES.trend.bufferPct / 100);
@@ -834,19 +839,75 @@ export function leadershipBreakOf(s = {}, basis = null) {
   const highs = onBasis(s.breadthNewHighs), lows = onBasis(s.breadthNewLows), adv = onBasis(s.advanceRatio), dist = onBasis(s.distributionDays), rut = s.rut;
   const advRatio = adv ? (adv.value > 1 ? adv.value / 100 : adv.value) : null;
   const confirmations = [
-    { id: 'newLows', label: '52주 신저가가 신고가보다 많음', ok: highs && lows ? lows.value > highs.value : null, value: highs && lows ? `신저가 ${fmt(lows.value, 0)} · 신고가 ${fmt(highs.value, 0)}` : null },
+    { id: 'newLows', label: '52주 신저가가 신고가보다 많음', ok: highs && lows ? lows.value > highs.value : null, value: highs && lows ? `신저가 ${fmt(lows.value, 0)}, 신고가 ${fmt(highs.value, 0)}` : null },
     { id: 'advance', label: `마감일 상승 종목 ${fmt(rule.advanceRatioWeakBelow * 100, 0)}% 미만`, ok: advRatio == null ? null : advRatio < rule.advanceRatioWeakBelow, value: advRatio == null ? null : `상승 종목 ${fmt(advRatio * 100, 0)}%` },
     { id: 'distribution', label: `분배일 ${rule.distributionDaysAt}일 이상`, ok: dist ? dist.value >= rule.distributionDaysAt : null, value: dist ? `분배일 ${fmt(dist.value, 0)}일` : null },
     { id: 'smallcaps', label: '러셀 2000이 200일선 아래', ok: rut?.ma200 != null ? rut.value < rut.ma200 : null, value: rut?.ma200 != null ? `러셀 2000 200일선 대비 ${signed(pct(rut.value, rut.ma200))}` : null }
   ];
+  return { date: ndx.date, ndx, drop5, belowMa50, offHigh, proxyWeak, confirmations };
+}
+
+// Sessions before `through`, oldest first: the run of weak-proxy sessions just before it plus the window ahead of that run.
+const LEADERSHIP_FIELDS = Object.freeze(['ndx', 'rut', 'breadthNewHighs', 'breadthNewLows', 'advanceRatio', 'distributionDays']);
+const LEADERSHIP_HOLD_MAX_SESSIONS = 260;
+function leadershipPriorSessions(history, through, { window, run }) {
+  const series = Object.fromEntries(LEADERSHIP_FIELDS.map((field) => [field, buildCloseSeries(history, field, { through })]));
+  const dates = series.ndx.map((point) => point.date).filter((date) => date < through);
+  const readingOn = (date) => {
+    const at = {};
+    for (const field of LEADERSHIP_FIELDS) {
+      const points = series[field].filter((point) => point.date <= date);
+      const stat = points.length ? stats(points) : null;
+      at[field] = stat && isUsable(alignInput(stat.date, date)) ? stat : null;
+    }
+    return leadershipSessionOf(at, date);
+  };
+  const out = [];
+  let inRun = run, extra = window - 1;
+  for (let index = dates.length - 1; index >= 0 && extra > 0 && out.length < LEADERSHIP_HOLD_MAX_SESSIONS; index -= 1) {
+    const reading = readingOn(dates[index]);
+    if (!reading) break;
+    out.unshift(reading);
+    if (inRun && !reading.proxyWeak) inRun = false;
+    if (!inRun) extra -= 1;
+  }
+  return out;
+}
+
+// A confirmation counts when it held on any session in the window ending at seq[k]; it carries the date it held on.
+function windowedConfirmations(seq, k, window) {
+  return seq[k].confirmations.map((item, index) => {
+    for (let j = k; j >= Math.max(0, k - window + 1); j -= 1) {
+      const seen = seq[j].confirmations[index];
+      if (seen.ok === true) return { ...item, ok: true, value: seen.value, date: seq[j].date };
+    }
+    return item;
+  });
+}
+
+export function leadershipBreakOf(s = {}, basis = null, history = null) {
+  const rule = RULES.leadership;
+  const today = leadershipSessionOf(s, basis);
+  if (!today) return { available: false, break: false, state: 'unknown', proxy: 'ndx', proxyLabel: '나스닥 100', proxyWeak: null, drop5: null, belowMa50: null, confirmations: [], met: 0, known: 0, need: rule.minConfirmations };
+  const window = Array.isArray(history) && history.length ? rule.confirmWindowSessions : 1;
+  const seq = [...(window > 1 ? leadershipPriorSessions(history, today.date, { window, run: today.proxyWeak }) : []), today];
+  let heldSince = null, confirmations = today.confirmations;
+  for (let k = 0; k < seq.length; k += 1) {
+    confirmations = windowedConfirmations(seq, k, window);
+    if (!seq[k].proxyWeak) { heldSince = null; continue; }
+    if (!heldSince && confirmations.filter((item) => item.ok === true).length >= rule.minConfirmations) heldSince = seq[k].date;
+  }
+  const { proxyWeak, drop5, belowMa50, offHigh, ndx } = today;
   const met = confirmations.filter((item) => item.ok === true).length;
   const known = confirmations.filter((item) => item.ok != null).length;
-  const broken = proxyWeak && met >= rule.minConfirmations;
+  const broken = proxyWeak && heldSince != null;
+  const held = broken && met < rule.minConfirmations;
   const undecided = proxyWeak && !broken && met + (confirmations.length - known) >= rule.minConfirmations;
   const proxyText = `나스닥 100 5거래일 ${signed(drop5)}${belowMa50 ? ` · 50일선 ${signed(pct(ndx.value, ndx.ma50))}` : ''}${proxyWeak && offHigh != null ? ` · 1년 고점 대비 ${signed(offHigh)}` : ''}`;
+  const seenText = (item) => item.date && item.date !== today.date ? `${item.value}(${shortDate(item.date)})` : item.value;
   return { available: true, break: broken, state: broken ? 'break' : undecided ? 'unknown' : proxyWeak ? 'weak' : 'holding', proxy: 'ndx', proxyLabel: '나스닥 100',
-    proxyWeak, drop5, belowMa50, offHigh, date: ndx.date, confirmations, met, known, need: rule.minConfirmations,
-    summary: [proxyText, ...confirmations.filter((item) => item.ok).map((item) => item.value)].join(' · ') };
+    proxyWeak, drop5, belowMa50, offHigh, date: today.date, confirmations, met, known, need: rule.minConfirmations, window, heldSince: broken ? heldSince : null, held,
+    summary: [proxyText, ...confirmations.filter((item) => item.ok).map(seenText), held ? `${shortDate(heldSince)} 이탈 판정 후 나스닥 100 약세 지속` : null].filter(Boolean).join(' · ') };
 }
 
 // v57.81: one evidence line per index — level, distance to its own 50/200-day lines and to its one-year high.
@@ -878,7 +939,7 @@ export function buildMarketRegime(input = {}) {
   // margin read 양호 while the leaders fell 3.9% in a week); inside ±bufferPct the index is testing the line (중립). The axis
   // stays S&P 500-based, but the Nasdaq-100 and Russell 2000 are shown beside it, and when the small caps are under their
   // 200-day line while the Nasdaq-100 fell RULES.trend.leaderDrop5dPct in five sessions the state is capped at 중립.
-  const leadership = leadershipBreakOf(s, basis);
+  const leadership = leadershipBreakOf(s, basis, input.history);
   let trendCap = null;
   {
     const series = buildCloseSeries(input.history, 'spx', { through: basis });
@@ -1230,7 +1291,7 @@ export function buildMarketRegime(input = {}) {
   // the AI context read it), so a narrow-leadership reading cannot stand while it holds.
   // v57.83: leaders weak without the market-wide confirmations — the index can hold while AI·semis fall (2026-07).
   if (leadership.state === 'weak') conflicts.push(`주도주 약세 — ${leadership.summary}. 시장 전반의 확인 신호(신저가 우위·상승 종목 감소·분배일·러셀 2000 약세)는 ${leadership.met}/${leadership.confirmations.length}개라 아직 동반 약세로 번지지 않았지만, 지수만 보고 주도 영역이 건재하다고 읽지 않습니다.`);
-  if (leadership.break) conflicts.push(`주도 영역이 꺾이는 신호 — ${leadership.summary}(확인 ${leadership.met}/${leadership.confirmations.length}, ${leadership.need}개 이상이면 판정). 소수 종목이 지수를 받치던 흐름에서 함께 약해지는 흐름으로 넘어가는지 확인할 구간입니다.`);
+  if (leadership.break) conflicts.push(`주도 영역이 꺾이는 신호 — ${leadership.summary}(확인 ${leadership.met}/${leadership.confirmations.length}${leadership.window > 1 ? `·최근 ${leadership.window}거래일` : ''}, ${leadership.need}개 이상이면 판정${leadership.held ? '·나스닥 100 약세가 풀릴 때까지 유지' : ''}). 소수 종목이 지수를 받치던 흐름에서 함께 약해지는 흐름으로 넘어가는지 확인할 구간입니다.`);
   // P1591 (M02): the HY clause follows the observed 5-day direction — "확대가 이어지면" read as already widening
   // when the spread had narrowed 9bp.
   const hyClause = c?.hy5 == null ? '하이일드 스프레드의 5일 방향은 아직 확인하지 못했습니다'
