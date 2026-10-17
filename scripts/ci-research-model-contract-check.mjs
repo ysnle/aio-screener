@@ -121,7 +121,7 @@ check('P1184 factor evidence publishes the bar-start basis instead of a bare obs
 const fundamentalLineage = { _fundamentalObservedAt: '2026-08-20T00:00:00.000Z', _fundamentalSourceKind: 'T1_OFFICIAL', _fundamentalAllowedUse: 'research-relative-ranking-only', _fundamentalQuality: { status: 'CURRENT', stale: false } };
 const withFundamentals = (row, index) => ({ ...row, ...fundamentalLineage, pe: 10 + index, pb: 1 + index / 10, roe: 5 + index, margin: 4 + index, revGrowth: index });
 
-check('D5 확장 rows without filings do not switch value/quality off for the core tier', (() => {
+check('v57.98 audit D5 확장 rows without filings do not switch value/quality off for the core tier', (() => {
   const core = rankRows.map(withFundamentals);
   const extended = Array.from({ length: 24 }, (_, index) => rankRow(`EXT${index}`, index % 2 ? 'Technology' : 'Healthcare', index % 11 + 1, { universeTier: 'extended' }));
   const result = computeFactorRanks({ rows: [...core, ...extended], inputVersion: 'core-tier-coverage-fixture', now: Date.parse('2026-08-27T00:00:00Z') });
@@ -131,14 +131,14 @@ check('D5 확장 rows without filings do not switch value/quality off for the co
     && result.rows.filter((row) => row.sym.startsWith('EXT')).every((row) => row.rank === null && row.rankingEligibility === 'insufficient-row-factor-coverage');
 })());
 
-check('D6 size has no default weight: present market caps neither activate it nor move the ranks', (() => {
+check('v57.98 audit D6 size has no default weight: present market caps neither activate it nor move the ranks', (() => {
   const mcapLineage = { _mcapObservedAt: '2026-08-26T00:00:00.000Z', _mcapSourceKind: 'T3_PUBLIC_DELAYED', _mcapAllowedUse: 'research-relative-ranking-only', _mcapQuality: { status: 'CURRENT', stale: false } };
   const withCap = computeFactorRanks({ rows: rankRows.map((row, index) => ({ ...row, ...mcapLineage, mcap: (index + 1) * 10 })), now: Date.parse('2026-08-27T00:00:00Z') });
   return !withCap.activeFactors.includes('size') && withCap.appliedFactorWeights.size === undefined
     && withCap.rows.every((row, index) => row.rank === rankResult.rows[index].rank);
 })());
 
-check('D9 winsorized outliers alone do not mark the run partial', (() => {
+check('v57.98 audit D9 winsorized outliers alone do not mark the run partial', (() => {
   const result = computeFactorRanks({ rows: rankRows.map((row, index) => index === 11 ? { ...row, ret1m: 1000, ret3m: 800 } : row), now: Date.parse('2026-08-27T00:00:00Z') });
   return result.outlierDiagnostics.totalOutliers > 0 && result.qualityStatus === (result.compositeConfidence >= 0.8 ? 'ready' : 'partial');
 })());
