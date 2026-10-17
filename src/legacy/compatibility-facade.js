@@ -256,8 +256,9 @@ function readScreener(root) {
   // reader declares the evidence intent — it never substitutes the bundled legacy DB, and the s-b
   // retired global is no longer reachable from this path.
   const rows = resolveScreenerRows(root, SCREENER_ROW_INTENT.EVIDENCE);
-  const metadata = root?._serverDataMeta?.screener || root?._aioScreenerLoadState || {};
-  return Object.freeze({ rows: clone(rows), revision: metadata.revision || metadata.generatedAt || null, updatedAt: metadata.asOf || metadata.generatedAt || new Date().toISOString() });
+  const read = typeof root?.AIO_ARCH?.getScreenerState === 'function' ? root.AIO_ARCH.getScreenerState : () => null;
+  const revision = read('revision') || null;
+  return Object.freeze({ rows: clone(rows), revision, updatedAt: read('metadata.asOf') || revision || new Date().toISOString() });
 }
 
 export function createLegacyFacade(root = globalThis, eventTarget = root?.document || root) {

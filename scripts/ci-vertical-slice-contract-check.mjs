@@ -21,5 +21,8 @@ const bootstrap = read('src/app/bootstrap.js');
 if (!router.includes('getVerticalSliceContract') || !router.includes('aioVerticalSlice') || !router.includes('requiredData')) fail('router does not mount vertical slice markers');
 if (!bootstrap.includes('auditVerticalSliceContracts') || !bootstrap.includes('getVerticalSliceContracts')) fail('architecture API does not expose the vertical slice registry');
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
-if (!core.includes('AIO_PAGE_CONTRACTS') || !core.includes('getPageDataCompleteness') || !core.includes('blocked') || !core.includes('stale-reference')) fail('page completeness contract is not wired to the slice gate');
+// Legacy unification (2026-10-17): the completeness API moved to src/data/page-completeness.js; the router's slice
+// markers are only as good as the contracts it reads and the API it calls.
+const completeness = read('src/data/page-completeness.js');
+if (!core.includes('AIO_PAGE_CONTRACTS') || !completeness.includes('AIO.getPageDataCompleteness') || !completeness.includes('blocked') || !completeness.includes('stale-reference')) fail('page completeness contract is not wired to the slice gate');
 console.log(JSON.stringify({ ok: true, slices: VERTICAL_SLICE_CONTRACTS.map((slice) => ({ id: slice.id, routes: slice.routes, requiredData: slice.requiredData })), routes: ROUTE_IDS.length }));

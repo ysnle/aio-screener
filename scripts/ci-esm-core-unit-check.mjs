@@ -4960,3 +4960,21 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const wrongSchema = readScreenerBreadth({ schemaVersion: '2.0', source: 'fixture', segments: { us: seg({}), kr: seg({}) } }, now);
   if (wrongSchema.us !== null || wrongSchema.kr !== null || wrongSchema.state.checks.schema !== false) fail('screener breadth: an unknown schema blocks both markets');
 }
+{
+  // Legacy unification (2026-10-17): per-screen completeness reads the screener artifact's state from the native slice.
+  const { screenerLoadState, producerState } = await load('src/data/page-completeness.js');
+  const cases = {
+    pending: screenerLoadState({ status: 'unavailable', revision: null, updatedAt: null, metadata: {} }).status,
+    failed: screenerLoadState({ status: 'unavailable', updatedAt: '2026-10-17T00:00:00Z', metadata: { detail: 'HTTP 503' } }),
+    ready: screenerLoadState({ status: 'current', metadata: { backtest: true } }).status,
+    noBacktest: screenerLoadState({ status: 'current', metadata: {} }).status,
+    staleUniverse: screenerLoadState({ status: 'current', metadata: { backtest: true, universeFreshnessStatus: 'stale' } }).status
+  };
+  if (JSON.stringify(cases) !== JSON.stringify({ pending: 'loading', failed: { status: 'unavailable', detail: 'HTTP 503' }, ready: 'ready', noBacktest: 'partial', staleUniverse: 'partial' })) fail(`page completeness: screener load states: ${JSON.stringify(cases)}`);
+  const meta = { generatedAt: '2026-10-17T00:00:00Z' };
+  const schedule = { screenerArtifact: { _status: 'loaded', _lastOk: Date.parse('2026-10-16T00:00:00Z') } };
+  const artifact = producerState('screenerArtifact', { meta, refreshSchedule: schedule, screener: { status: 'unavailable', updatedAt: meta.generatedAt, metadata: { detail: 'HTTP 503' } }, now: Date.parse(meta.generatedAt) });
+  if (artifact.status !== 'unavailable' || artifact.failureReason !== 'HTTP 503' || artifact.attemptedAt !== '2026-10-17T00:00:00.000Z') fail(`page completeness: the slice state overrides the schedule for the screener artifact: ${JSON.stringify(artifact)}`);
+  const breadth = producerState('breadth', { meta, screener: { status: 'current', metadata: { backtest: true } } });
+  if (breadth.status !== 'loaded' || breadth.coverage !== 100 || breadth.lastSuccessfulAt !== meta.generatedAt) fail(`page completeness: a ready screener loads breadth: ${JSON.stringify(breadth)}`);
+}
