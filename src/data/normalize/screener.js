@@ -114,6 +114,8 @@ export function normalizeScreener(raw = {}) {
     _fundamentalAccession: row?._fundamentalAccession || null,
     _valuationPePrice: finite(row?._valuationPePrice),
     _valuationPePriceBasis: row?._valuationPePriceBasis || null,
+    _valuationPeEarningsBasis: row?._valuationPeEarningsBasis || null,
+    _valuationPeEarningsThrough: row?._valuationPeEarningsThrough || null,
     _valuationPbPrice: finite(row?._valuationPbPrice),
     _valuationPbPriceBasis: row?._valuationPbPriceBasis || null,
     _valuationSharesOutstanding: finite(row?._valuationSharesOutstanding),

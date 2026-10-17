@@ -578,6 +578,8 @@ export function createScreenerProvider({
           _valuationPePrice: finite(factor.pePrice),
           _valuationPrice: finite(factor.valuationPrice) ?? finite(factor.pePrice) ?? finite(factor.pbPrice), // v57.54: Forward PER close (F10 order)
           _valuationPePriceBasis: factor.pePriceBasis || null,
+          _valuationPeEarningsBasis: factor.peEarningsBasis || null, // 2026-10-17 D1: 'ttm' | 'fy'
+          _valuationPeEarningsThrough: factor.peEarningsThrough || null,
           _valuationPbPrice: finite(factor.pbPrice),
           _valuationPbPriceBasis: factor.pbPriceBasis || null,
           _valuationSharesOutstanding: finite(factor.valuationSharesOutstanding),

@@ -11,7 +11,7 @@ import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../src/domain/fundamental/period.js';
-import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS } from '../src/domain/fundamental/sec-report.js';
+import { reconcileSecRecord, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS } from '../src/domain/fundamental/sec-report.js';
 // v57.81: the companyfacts normalizer lives in src/domain/fundamental/sec-normalize.js (shared with the browser's
 // out-of-universe issuer read); re-exported here so the gates and callers keep their imports.
 import { tickerKey, SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, SEC_CONCEPT_SET_REASON_CODES, SEC_SUCCESSOR_ISSUERS, mergeSuccessorCompanyFacts, mergeSuccessorSubmissions, classifyIssuerCapability, parseClassShareFacts, classInstanceUrl, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
@@ -404,7 +404,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
   const universeSymbols = new Set(symbols);
   for (const [symbol, record] of Object.entries(data)) {
     if (etfSymbols.has(symbol) || (scope !== 'core' && !universeSymbols.has(symbol))) { delete data[symbol]; etfPruned++; continue; }
-    const healed = reconcileSecEquity(reconcileSecRevenueShares(record));
+    const healed = reconcileSecRecord(record); // + 2026-10-17 D1/D2/D7 earnings basis
     if (healed !== record) { data[symbol] = healed; healedCount++; }
   }
   for (const symbol of Object.keys(issuerSic)) if (etfSymbols.has(symbol) || !universeSymbols.has(symbol)) delete issuerSic[symbol];

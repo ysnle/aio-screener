@@ -1270,6 +1270,45 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('2026-10-17 SEC audit: convenience-translated filers read on their own currency, 20-F counts price nothing, ratios use the supplied close', ok, detail.slice(0, 600));
 }
 {
+  // P1910 (v57.99, owner-approved audit recommendations D1/D2/D6/D7/D8): P/E is priced on the last four quarters when they end after the
+  // fiscal year (a fourth quarter filed only in the 10-K is FY − Q1..Q3), on earnings available to common when every period tags them;
+  // ROE is over average equity; a series keeps its latest concept; the company panel's statements come from the ESM parser.
+  let ok = false;
+  let detail = '';
+  try {
+    const { reconcileSecEarningsBasis, anchorConceptRows, SEC_FIELD_CONCEPT_PREFERENCE } = await import('../src/domain/fundamental/sec-earnings.js');
+    const { secFundamentalRowFields } = await import('../src/domain/fundamental/sec-row-fields.js');
+    const { parseSecStatements } = await import('../src/domain/fundamental/sec-statements.js');
+    const row = (field, concept, value, periodStart, periodEnd, filedAt, form = '10-Q') => ({ field, concept, value, periodStart, periodEnd, filedAt, form, fiscalPeriod: form === '10-K' ? 'FY' : 'Q' });
+    const q = (field, concept, d) => [row(field, concept, 100 - d, '2025-01-01', '2025-03-31', '2025-05-01'), row(field, concept, 100 - d, '2025-04-01', '2025-06-30', '2025-08-01'),
+      row(field, concept, 100 - d, '2025-07-01', '2025-09-30', '2025-11-01'), row(field, concept, 150 - d, '2026-01-01', '2026-03-31', '2026-05-01'), row(field, concept, 150 - d, '2026-04-01', '2026-06-30', '2026-08-01')];
+    const base = { observedAt: '2025-12-31', netIncome: 400, equity: 2000, roe: 20, sharesOutstanding: 10, sharesObservedAt: '2026-02-01', sharesCheck: 'consistent', filedAt: '2026-02-20', fetchedAt: '2026-10-10', coverage: ['roe'],
+      pit: { observations: {
+        netIncome: [row('netIncome', 'NetIncomeLoss', 400, '2025-01-01', '2025-12-31', '2026-02-20', '10-K'), row('netIncome', 'ProfitLoss', 420, '2025-01-01', '2025-12-31', '2026-02-20', '10-K')],
+        netIncomeQ: q('netIncomeQ', 'NetIncomeLoss', 0),
+        equity: [{ field: 'equity', concept: 'StockholdersEquity', value: 2000, periodEnd: '2025-12-31', filedAt: '2026-02-20', form: '10-K' }, { field: 'equity', concept: 'StockholdersEquity', value: 1600, periodEnd: '2024-12-31', filedAt: '2026-02-20', form: '10-K' }] } } };
+    const ttm = reconcileSecEarningsBasis(base);
+    const withCommon = reconcileSecEarningsBasis({ ...base, pit: { observations: { ...base.pit.observations, netIncomeCommon: [row('netIncomeCommon', 'NetIncomeLossAvailableToCommonStockholdersBasic', 360, '2025-01-01', '2025-12-31', '2026-02-20', '10-K')], netIncomeCommonQ: q('netIncomeCommonQ', 'NetIncomeLossAvailableToCommonStockholdersBasic', 10) } } });
+    const noPrior = reconcileSecEarningsBasis({ ...base, pit: { observations: { ...base.pit.observations, equity: base.pit.observations.equity.slice(0, 1), netIncomeQ: [] } } });
+    const priced = secFundamentalRowFields(ttm, { price: 100, nowMs: Date.parse('2026-10-17T00:00:00Z') });
+    const debt = anchorConceptRows([{ concept: 'LongTermDebt', value: 9, periodEnd: '2025-12-31' }, { concept: 'LongTermDebtNoncurrent', value: 8, periodEnd: '2025-12-31' }, { concept: 'LongTermDebtNoncurrent', value: 7, periodEnd: '2024-12-31' }, { concept: 'LongTermDebt', value: 6, periodEnd: '2024-12-31' }, { concept: 'LongTermDebt', value: 5, periodEnd: '2023-12-31' }], SEC_FIELD_CONCEPT_PREFERENCE.longTermDebt);
+    const fyRow = (val, start, end) => ({ val, start, end, filed: '2025-03-10', form: '20-F', fp: 'FY', accn: 'x' });
+    const twd = parseSecStatements({ facts: { 'ifrs-full': { Revenue: { units: { TWD: [fyRow(2.16e12, '2023-01-01', '2023-12-31'), fyRow(2.89e12, '2024-01-01', '2024-12-31')] } }, ProfitLossAttributableToOwnersOfParent: { units: { TWD: [fyRow(1.17e12, '2024-01-01', '2024-12-31')] } } } } }, { symbol: 'TSM', price: 300 });
+    const chatSource = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+    const bridgeSource = readFileSync(new URL('../src/app/compatibility-globals.js', import.meta.url), 'utf8');
+    ok = ttm.peEarnings?.basis === 'ttm' && ttm.peEarnings.value === 500 && ttm.peEarnings.through === '2026-06-30' && ttm.peEarnings.derivedQuarter === true && ttm.peEarnings.concept === 'net-income'
+      && withCommon.peEarnings?.concept === 'common' && withCommon.peEarnings.value === 460
+      && ttm.roe === 22.2 && ttm.roeBasis === 'average-equity' && ttm.equityPrior === 1600 && noPrior.roe === 20 && noPrior.roeBasis === 'year-end-equity' && noPrior.peEarnings == null
+      && reconcileSecEarningsBasis(ttm) === ttm
+      && priced?.pe === 2 && priced.peEarningsBasis === 'ttm' && priced.peEarningsThrough === '2026-06-30'
+      && debt.map((r) => r.value).join() === '8,7,5'
+      && twd?.currency === 'TWD' && twd.metrics.pe == null && twd.metrics.marketCap == null && twd.revenue.map((r) => r.year).join() === '2023,2024'
+      && !/_parseSECFinancials\(/.test(chatSource) && /window\.AIO\.parseSecStatements\(secFin/.test(chatSource) && /window\.AIO\.parseSecStatements = parseSecStatements/.test(bridgeSource);
+    detail = JSON.stringify({ ttm: ttm.peEarnings, roe: [ttm.roe, ttm.roeBasis], common: withCommon.peEarnings?.value, noPrior: [noPrior.roe, noPrior.roeBasis], pe: priced?.pe, debt: debt.map((r) => r.value), twd: twd && { cur: twd.currency, years: twd.revenue.map((r) => r.year) } });
+  } catch (error) { detail = error.message; }
+  check('P1910 SEC audit (owner-approved D1/D2/D6/D7/D8): TTM and common-earnings P/E, average-equity ROE, one concept per series, ESM statements parser', ok, detail.slice(0, 700));
+}
+{
   // v57.87: a successor registrant (8-K12B holding reorganization, XOM CIK 2115436) has only its first 10-Q; the
   // predecessor's 10-K facts and filings are read with it, once per entry version, and the producer is wired to do so.
   let ok = false;

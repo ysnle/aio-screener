@@ -20,13 +20,19 @@ export function secFundamentalRowFields(row, { price = null, dollarVolume30d = n
   // close of its fetch day (up to 28 days earlier) and carried no pePrice, so it is never copied through.
   if (Number.isFinite(px) && px > 0 && trust.shares) {
     const shares = trust.shares;
-    const netIncome = Number(row.netIncome);
+    // 2026-10-17 (logic audit D1/D7): the numerator is the last four quarters when they end after the fiscal year
+    // (TTM), and earnings available to common when the filer tags them; the basis travels with the row.
+    const earnings = row.peEarnings && Number.isFinite(Number(row.peEarnings.value)) ? row.peEarnings : null;
+    const netIncome = earnings ? Number(earnings.value) : Number(row.netIncome);
     const equity = Number(row.equity);
     const mcap = px * shares;
     if (Number.isFinite(netIncome) && netIncome > 0) {
       rec.pe = Math.round(mcap / netIncome * 100) / 100;
       rec.pePrice = px;
       rec.pePriceBasis = 'adjusted-close';
+      rec.peEarningsBasis = earnings?.basis || 'fy';
+      rec.peEarningsThrough = earnings?.through || row.observedAt || null;
+      if (earnings?.concept === 'common') rec.peEarningsConcept = 'common';
     }
     if (Number.isFinite(equity) && equity > 0) {
       rec.pb = Math.round(mcap / equity * 100) / 100;
@@ -50,7 +56,7 @@ export function secFundamentalRowFields(row, { price = null, dollarVolume30d = n
   // P1652: P/E under 2 or P/B under 0.1 is a share-class/unit mismatch (BRK-B, IBKR), not a valuation — and the
   // same share basis cannot size a reference market cap either.
   const shareBasisMismatch = (rec.pe != null && !(rec.pe >= 2)) || (rec.pb != null && !(rec.pb >= 0.1));
-  if (rec.pe != null && !(rec.pe >= 2)) { delete rec.pe; delete rec.pePrice; delete rec.pePriceBasis; }
+  if (rec.pe != null && !(rec.pe >= 2)) ['pe', 'pePrice', 'pePriceBasis', 'peEarningsBasis', 'peEarningsThrough', 'peEarningsConcept'].forEach((key) => delete rec[key]);
   if (rec.pb != null && !(rec.pb >= 0.1)) { delete rec.pb; delete rec.pbPrice; delete rec.pbPriceBasis; }
   if (shareBasisMismatch) {
     ['valuationPrice', 'valuationPriceBasis', 'valuationSharesOutstanding', 'valuationSharesObservedAt', 'valuationSharesCheck', 'valuationSharesBasis'].forEach((key) => delete rec[key]);

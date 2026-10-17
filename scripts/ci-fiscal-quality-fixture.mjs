@@ -75,6 +75,8 @@ const fiscalSourceEnd = producer.indexOf('// P1449: the page projection', fiscal
 assert.ok(fiscalSourceStart >= 0 && fiscalSourceEnd > fiscalSourceStart, 'P1627 pure fiscal projection boundary must be identifiable without running the producer');
 // P1708: fiscal history picks revenue with the shared domain rule; the sandbox receives the same import.
 sandbox.bestRevenueRowsByPeriod = (await import('../src/domain/fundamental/sec-report.js')).bestRevenueRowsByPeriod;
+// P1910 (v57.99, audit D6): one concept per series — the same shared anchor the producer imports.
+Object.assign(sandbox, await import('../src/domain/fundamental/sec-earnings.js'));
 vm.runInContext(producer.slice(fiscalSourceStart, fiscalSourceEnd).replace(/^export /gm, '') + '\nthis.fiscal = fiscalHistory;', sandbox);
 for (const form of ['10-K', '20-F', '40-F', '20-F/A']) {
   const year = { form, periodStart: '2025-01-01', periodEnd: '2025-12-31', fiscalPeriod: 'FY', filedAt: '2026-03-01' };

@@ -1,4 +1,5 @@
 import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
+import { reconcileSecEarningsBasis } from './sec-earnings.js';
 
 export const SEC_REPORT_MODEL_VERSION = 'sec-report.v3';
 // 2026-10-17 (logic audit): 'current' follows the project's one fiscal-year-end age rule (456 days = the next 10-K's latest
@@ -115,7 +116,12 @@ export function selectSecFundamentalsAsOf(record = {}, asOf, { priceAsOf = null 
   };
   if (priorRevenue && finite(priorRevenue.value) > 0) result.revGrowth = Math.round((result.revenue / finite(priorRevenue.value) - 1) * 1000) / 10;
   if (result.netIncome != null && result.revenue !== 0) result.margin = Math.round(result.netIncome / result.revenue * 1000) / 10;
-  if (result.netIncome != null && result.equity > 0) result.roe = Math.round(result.netIncome / result.equity * 1000) / 10;
+  // 2026-10-17 (logic audit D2): ROE over the average of the prior and current year-end equity (same concept), as the producer.
+  const priorEquity = priorRevenue ? finite(selectObservationAsOf((Array.isArray(observations.equity) ? observations.equity : []).filter((row) => !equity?.concept || row.concept === equity.concept), asOfMs, priorRevenue)?.value) : null;
+  if (result.netIncome != null && result.equity > 0) {
+    result.roeBasis = priorEquity > 0 ? 'average-equity' : 'year-end-equity';
+    result.roe = Math.round(result.netIncome / (priorEquity > 0 ? (result.equity + priorEquity) / 2 : result.equity) * 1000) / 10;
+  }
   const price = finite(priceAsOf);
   const marketCap = price > 0 && result.sharesOutstanding > 0 ? price * result.sharesOutstanding : null;
   if (marketCap && result.netIncome > 0) result.pe = Math.round(marketCap / result.netIncome * 100) / 100;
@@ -304,8 +310,9 @@ export function reconcileSecRevenueShares(record) {
   return next;
 }
 
+// 2026-10-17 (logic audit D1/D2/D7): the TTM / common-earnings P/E numerator and the average-equity ROE follow the heal.
 export function reconcileSecRecord(record) {
-  return reconcileSecEquity(reconcileSecRevenueShares(record));
+  return reconcileSecEarningsBasis(reconcileSecEquity(reconcileSecRevenueShares(record)));
 }
 
 // F04/F10: which share count may price a market cap. A count the producer matched to net income ÷ diluted EPS
@@ -355,7 +362,8 @@ export function deriveSecReport(fundamentals = null) {
   const coverage = Array.isArray(input.coverage) ? input.coverage.filter((field) => typeof field === 'string' && knownMetrics.has(field)) : [];
   const metrics = METRIC_DEFINITIONS
     .filter(([key]) => coverage.includes(key) && finite(input[key]) != null)
-    .map(([key, label, unit]) => Object.freeze({ key, label, unit, value: finite(input[key]) }));
+    // 2026-10-17 (logic audit D1): a P/E healed onto the last four quarters says so.
+    .map(([key, label, unit]) => Object.freeze({ key, label: key === 'pe' && input.peEarnings?.basis === 'ttm' ? 'P/E(최근 4개 분기 순이익)' : label, unit, value: finite(input[key]) }));
   const anomalies = detectAnomalies(input, metrics);
   const notApplicable = input.notApplicable === true || input.applicability === 'not-applicable';
   const classification = notApplicable ? 'not-applicable' : metrics.length > 0 ? 'current' : 'missing';

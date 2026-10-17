@@ -3,6 +3,7 @@
 // re-exports them). Pure: companyfacts/submissions JSON in, one annual record out; no I/O.
 import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
 import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, FOREIGN_ORDINARY_SHARE_FORMS, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS, SEC_BANK_NET_REVENUE_CONCEPT, SEC_IFRS_PRIMARY_REVENUE_CONCEPTS, SEC_IFRS_FALLBACK_REVENUE_CONCEPTS } from './sec-report.js';
+import { reconcileSecEarningsBasis, SEC_COMMON_INCOME_CONCEPT } from './sec-earnings.js';
 
 function round(n, digits = 2) {
   const p = 10 ** digits;
@@ -313,6 +314,9 @@ function buildPointInTimeFacts(companyFacts, submissions, basis = US_GAAP_BASIS)
   const ocfRows = amountRows(concepts.operatingCashFlow).filter(annualFy);
   const capexRows = amountRows(concepts.capex).filter(annualFy);
   const debtRows = amountRows(concepts.longTermDebt).filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
+  // 2026-10-17 (logic audit D7): earnings available to common stockholders (net income less preferred dividends and
+  // participating-securities allocations), annual and quarterly, for the P/E numerator; US-GAAP only.
+  const commonRows = basis.taxonomy === 'us-gaap' ? amountRows([SEC_COMMON_INCOME_CONCEPT]) : [];
   const observations = {
     revenue: compactPitRows(revenueRows, 'revenue', acceptedMap),
     netIncome: compactPitRows(incomeRows, 'netIncome', acceptedMap),
@@ -322,7 +326,11 @@ function buildPointInTimeFacts(companyFacts, submissions, basis = US_GAAP_BASIS)
     capex: compactPitRows(capexRows, 'capex', acceptedMap),
     longTermDebt: compactPitRows(debtRows, 'longTermDebt', acceptedMap),
     revenueQ: compactPitRows(revenueQRows, 'revenueQ', acceptedMap, 16),
-    netIncomeQ: compactPitRows(incomeQRows, 'netIncomeQ', acceptedMap, 16)
+    netIncomeQ: compactPitRows(incomeQRows, 'netIncomeQ', acceptedMap, 16),
+    ...(commonRows.length ? {
+      netIncomeCommon: compactPitRows(commonRows.filter(annualFy), 'netIncomeCommon', acceptedMap, 12),
+      netIncomeCommonQ: compactPitRows(commonRows.filter(quarterly), 'netIncomeCommonQ', acceptedMap, 16)
+    } : {})
   };
   const all = Object.values(observations).flat();
   return {
@@ -637,5 +645,6 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   ['revGrowth', 'margin', 'roe', 'pe', 'pb'].forEach(key => {
     if (Number.isFinite(record[key])) record.coverage.push(key);
   });
-  return record;
+  // 2026-10-17 (logic audit D1/D2/D7): average-equity ROE and the TTM / common-earnings P/E numerator, by the same heal.
+  return reconcileSecEarningsBasis(record);
 }

@@ -1631,7 +1631,7 @@ export function mergeSecIntoFactorRows(data, secData = {}) {
       // 메모리 한정 가격으로 재계산한 pe/pb는 계산 근거(가격·기저·발행주식·관측일)를
       // 행에 함께 남긴다. 발행 아티팩트에 원시가를 기록하지 않는다.
       // 2026-10-13 F04/F10: the verified share basis and the close it multiplies travel with the row.
-      ['pePrice','pePriceBasis','pbPrice','pbPriceBasis','valuationPrice','valuationPriceBasis','valuationSharesOutstanding','valuationSharesObservedAt','valuationSharesCheck','valuationSharesBasis','valuationHeldReason'].forEach(key => {
+      ['pePrice','pePriceBasis','peEarningsBasis','peEarningsThrough','peEarningsConcept','pbPrice','pbPriceBasis','valuationPrice','valuationPriceBasis','valuationSharesOutstanding','valuationSharesObservedAt','valuationSharesCheck','valuationSharesBasis','valuationHeldReason'].forEach(key => {
         if (sec[key] != null) data[sym][key] = sec[key];
       });
     }

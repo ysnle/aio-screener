@@ -5,6 +5,7 @@ import { installGlossaryBridge } from '../ui/knowledge/glossary-bridge.js';
 import { createPersonalProviderTransport } from '../data/providers/personal-transport.js';
 import { describeSharedConnection } from '../domain/connections/shared.js';
 import { formatSecResearchEvidence } from '../ai/context/sec-fundamentals.js';
+import { parseSecStatements } from '../domain/fundamental/sec-statements.js';
 import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/context/market-content.js';
 import { renderAnswerVisuals, chooseAnswerVisuals, attachAnswerVisuals } from '../ui/components/ai-answer-visuals.js';
 import { chooseAnswerMode, answerModeGuide } from '../ai/response/answer-modes.js';
@@ -58,6 +59,7 @@ export function installCompatibilityGlobals(root = globalThis) {
   window.AIO = window.AIO || {};
   window.AIO.describeSharedConnection = describeSharedConnection;
   window.AIO.formatSecResearchEvidence = formatSecResearchEvidence;
+  window.AIO.parseSecStatements = parseSecStatements; // 2026-10-17 D8: replaces js/aio-chat.js _parseSECFinancials
   window.AIO.buildMarketContentContext = buildMarketContentContext;
   window.AIO.buildQuestionDomainContext = buildQuestionDomainContext;
   window.AIO.renderAnswerVisuals = renderAnswerVisuals; // P1741: data-drawn figures under an AI answer
