@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1911 - v58.01 - 후보 기록 모델 정체성이 미국 모델만 담아 한국 모델 변경이 기록 평균에 섞임 (2026-10-17)
+
+- symptom/reproduction: 전진 후보 기록은 미국+한국 상·하위 20%를 함께 담는데 정체성 문자열은 미국 모델만 반영했다. 한국 모델만 바뀌면 정체성이 그대로여서 두 모델 결과가 한 평균에 섞였고, 한국 탭에는 같은 모델인데도 다른 프로필 경고가 떴다. 같은 점검에서 '왜' 패널 팩터 겹침이 시장을 섞어 쟀고, 도쿄·대만 행은 이유 없이 순위에서 사라졌으며, 칼만 팩터가 실제로는 추세 속도인데 '신뢰도'로 설명됐다.
+- root_cause: 모델 지문을 모집단(시장)별이 아니라 미국 단일 모델로 만들었고, 겹침 측정·제외 사유·팩터 라벨이 시장 경계와 실제 계산을 따르지 않았다.
+- fix: buildPopulationRankingIdentity가 시장별 적용 모델을 모두 담는다(단일 시장이면 기존 문자열 유지). 팩터 겹침은 행의 시장 행·순위 메타로 측정, 해외 상장은 populationExclusion 'foreign' 행으로 남기고, 칼만 팩터는 '추세 속도'로 통일했다(src/domain/screener/model-fingerprint.js, factor-ranks.js, factor-overlap.js, row-presentation.js, scripts/lib/candidate-archive.mjs, src/ui/pages/screener.js).
+- violated_rule: 한 기록 모집단의 모델 정체성은 그 모집단에 섞인 모든 시장의 적용 모델을 담아야 한다; 팩터 라벨은 실제 계산을 서술한다.
+- prevention: ci-candidate-archive-check에 '한국 모델만 바뀌어도 정체성이 바뀐다' 단언, ci-screener-workbench-contract에 해외 상장 제외 단언 추가.
+- verification/residual: node scripts/ci-candidate-archive-check.mjs; node scripts/ci-screener-workbench-contract.mjs; qa-runner core·data 통과
+
 ## P1910 - v57.99 - SEC 재무 정규화가 USD 편의환산을 USD 보고로, 20-F 보통주 수를 ADS 가격 기준으로 읽음 (2026-10-17)
 
 - symptom/reproduction: BABA P/E 142·P/B 13.9·참조 시가총액 약 $3.3조(1 ADS = 8주), PDD·JD P/E 2~4배 과대, 중국 ADR 매출 성장률에 연도별 환율 변화가 섞임. 같은 감사에서 레거시 기업 분석 FCF Yield가 모든 종목에서 음수, SEC 보고서가 다음 10-K 기한 전에 '최신 연간 보고서 아님'을 표시, 1월 초 마감 52/53주 회계연도가 다음 해로 라벨링됨.
