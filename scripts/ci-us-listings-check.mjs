@@ -114,7 +114,7 @@ check('v57.81 client lookup: listed, unlisted, no fuzzy rewrite, no name search'
   assert.equal(client.indexUsListings({ schemaVersion: 'other', columns: { sym: ['AAPL'] } }), null);
 });
 
-check('v57.94 name candidates leave out warrants, rights and SPAC units, keep partnership units, and prefer universe symbols', () => {
+check('v57.96 name candidates leave out warrants, rights and SPAC units, keep partnership units, and prefer universe symbols', () => {
   const index = client.indexUsListings({ schemaVersion: client.US_LISTINGS_SCHEMA, asOf: '2026-10-17', exchanges: { Q: 'Nasdaq', N: 'NYSE' },
     columns: { sym: ['OPEN', 'OPENW', 'OPENL', 'RKTO', 'RKLB', 'ROCKU', 'ET', 'ETW'], exch: 'QQQQQQNN', etf: '00000000', cik: [],
       name: ['Opendoor Technologies Inc', 'Opendoor Technologies Inc - Series K Warrants', 'Opendoor Technologies Inc - Series A Warrants, each whole warrant',
@@ -125,7 +125,7 @@ check('v57.94 name candidates leave out warrants, rights and SPAC units, keep pa
   assert.deepEqual(client.searchUsListingNames(index, 'energy transfer').map((pick) => pick.symbol), ['ET'], 'partnership common units stay, a rights line goes');
   assert.equal(client.isDerivativeListingName('Plains All American Pipeline, L.P. - Common Units representing'), false);
 });
-check('v57.94 refused watchlist, alert and holding names show listing candidates through one native owner', () => {
+check('v57.96 refused watchlist, alert and holding names show listing candidates through one native owner', () => {
   const compat = read('src/app/compatibility-globals.js');
   assert.match(compat, /window\._aioListingNameSuggestion = \(raw\) =>/);
   assert.match(compat, /window\._aioToastWithNameHint = \(raw, message\) =>/);
