@@ -701,8 +701,10 @@ const HIST_SYMBOLS = {
   // SYMBOLS, gets a daily close column so a semiconductor drawdown under a steady index (2026-02~03, 2026-07) is on record.
   // The <60-observation rule backfills one year on the next run. Nothing reads it for a judgement yet.
   'SMH': 'smh',
+  // Audit 2026-10-17 (owner D5): the equal-weight S&P 500 ETF, already in SYMBOLS, is the US theme stage's benchmark.
+  'RSP': 'rsp',
 };
-const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','brent','gold','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','smh','fg'];
+const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','brent','gold','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','smh','rsp','fg'];
 // P1246 (data-refresh: 품질 경계): 히스토리 시장 필드의 **단일** 타당 범위 선언. producer가 이 범위를
 // 벗어난 값을 관측으로 승격하지 않고(null + fieldMeta 없음 = P1101의 무관측 표기), 게이트가 같은 선언을
 // 가져와 아티팩트를 검사한다 — 선언과 집행이 서로 다른 리터럴을 들고 어긋나는 경로를 만들지 않는다.
@@ -716,6 +718,7 @@ export const HIST_FIELD_PLAUSIBILITY = Object.freeze({
   usdjpy: [50, 400],
   tlt: [20, 400],
   smh: [20, 2000],
+  rsp: [20, 2000],
 });
 export function histValueWithinPlausibility(field, value) {
   const range = HIST_FIELD_PLAUSIBILITY[field];
@@ -2363,7 +2366,7 @@ async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), distributi
       observedAt: `${point.date}T20:00:00.000Z`, fetchedAt, lastSuccessfulAt: fetchedAt,
       source: 'Yahoo chart ^GSPC daily bars', sourceKind: 'derived-research', allowedUse: 'research-history',
       observationRelation: 'latest-completed-close', observedAtSource: 'derived-from-index-daily-bars',
-      model: BREADTH_SIGNAL_MODEL_VERSION, rule: 'close <= -0.2% on volume above the prior session; latest 25 sessions'
+      model: BREADTH_SIGNAL_MODEL_VERSION, rule: 'close <= -0.2% on volume above the prior session; latest 25 sessions; retired once a later close is 5% above it'
     };
     distributionRows += 1;
   }

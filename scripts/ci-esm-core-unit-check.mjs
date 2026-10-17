@@ -54,7 +54,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const { selectProducedRotation } = await load('src/domain/themes/produced-rotation.js');
   const { createThemesProvider } = await load('src/data/providers/themes.js');
   const now = Date.parse('2026-10-01T00:34:00Z');
-  const artifact = { schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v2', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', sourceKind: 'T3_PUBLIC_DELAYED', allowedUseCeiling: 'reference', decisionUse: false, latestCompletedSession: '2026-09-30', items: { XLK: { status: 'CURRENT', sessionDate: '2026-09-30', observedAt: '2026-09-30T20:00:00Z', fetchedAt: '2026-10-01T00:33:00Z', rsRatio: 101, rsMomentum: 102, quadrant: 'Leading', dailyPct: 1.2, weeklyPct: 3.5, alignedSessionCount: 60, performanceBasis: 'adjusted-close-total-return' } } };
+  const artifact = { schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v3', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', sourceKind: 'T3_PUBLIC_DELAYED', allowedUseCeiling: 'reference', decisionUse: false, latestCompletedSession: '2026-09-30', items: { XLK: { status: 'CURRENT', sessionDate: '2026-09-30', observedAt: '2026-09-30T20:00:00Z', fetchedAt: '2026-10-01T00:33:00Z', rsRatio: 101, rsMomentum: 102, quadrant: 'Leading', dailyPct: 1.2, weeklyPct: 3.5, alignedSessionCount: 60, performanceBasis: 'adjusted-close-total-return' } } };
   if (!selectProducedRotation(artifact, 'XLK', now)) fail('P1358 coherent producer rotation was lost');
   // P1366: an absent 1/5-session return keeps the valid coordinates; a non-numeric return does not.
   const partialReturn = selectProducedRotation({ ...artifact, items: { XLK: { ...artifact.items.XLK, dailyPct: null, weeklyPct: null } } }, 'XLK', now);
@@ -1942,6 +1942,12 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const bearStack = stage.classifyMovingAverageStructure({ sma5: 400, sma10: 410, sma20: 420, sma50: 450, sma100: 480, sma200: 520, sma50Prior: 460, lastClose: 390 });
   if (pulled.trendState === 'UPTREND' || /정배열/.test(stage.MA_STRUCTURE_LABELS[pulled.stageEstimate] || '') || broken.trendState !== 'TREND_DAMAGED' || !/역배열/.test(stage.MA_STRUCTURE_LABELS[bearStack.stageEstimate] || '')
     || Object.values({ pulled, broken, bearStack }).some((s) => !stage.MA_STRUCTURE_LABELS[s.stageEstimate])) fail(`v57.81 MA stack must read the close first and every stage must have one label, got ${pulled.stageEstimate}/${broken.stageEstimate}/${bearStack.stageEstimate}`);
+  // Audit 2026-10-17 (owner D7): a close over a rising 50-day line that is over the 200-day line is 상승 추세 even when the
+  // 5·10·20 order is mixed after two quiet sessions; that order stays its own field.
+  const quiet = stage.classifyMovingAverageStructure({ sma5: 584, sma10: 586, sma20: 580, sma50: 540, sma100: 500, sma200: 420, sma50Prior: 530, lastClose: 585 });
+  if (quiet.trendState !== 'UPTREND' || quiet.shortMAState !== 'SHORT_MIXED' || !/상승 추세/.test(stage.MA_STRUCTURE_LABELS[quiet.stageEstimate])) fail(`D7 close > rising 50 > 200 with a mixed short order is 상승 추세, got ${quiet.trendState}/${quiet.shortMAState}`);
+  const crossDown = stage.classifyMovingAverageStructure({ sma5: 584, sma10: 586, sma20: 580, sma50: 540, sma100: 560, sma200: 550, sma50Prior: 530, lastClose: 585 });
+  if (crossDown.trendState === 'UPTREND') fail('D7 a 50-day line under the 200-day line is not 상승 추세');
   const dropBars = Array.from({ length: 220 }, (_, index) => ({ date: new Date(Date.UTC(2026, 0, 1) + index * 86400000).toISOString().slice(0, 10), close: index < 219 ? 100 + index * 0.5 : (100 + 218 * 0.5) * 0.97 }));
   const dellLike = stage.deriveTechnicalStageFromOhlcv({ symbol: 'dell', ohlcv: dropBars, now: Date.UTC(2026, 7, 9) });
   // One validation count basis (net of cost) for the screener read, the stock read and the 과거 검증 tab.
@@ -3963,6 +3969,11 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const bars = Array.from({ length: 40 }, (_, i) => ({ date: `2026-08-${String(i + 1).padStart(2, '0')}`, close: 100 - (i % 3 === 0 ? i * 0.5 : 0), volume: 1000 + i * 10 }));
   const dist = distributionDaySeries(bars);
   if (dist[10].count !== null || !Number.isInteger(dist[39].count) || dist[39].count < 1) fail(`P1416 distribution count wrong: ${JSON.stringify(dist.slice(-2))}`);
+  // Audit 2026-10-17 (owner D8): a distribution day is retired once a later close is 5% above it.
+  const rally = Array.from({ length: 31 }, (_, i) => ({ date: `2026-09-${String(i + 1).padStart(2, '0')}`, close: i < 10 ? 100 : 99 + (i - 10) * 0.25, volume: i === 10 ? 2000 : 1000 + i }));
+  const rallied = distributionDaySeries(rally);
+  // Day 10 (-1% on heavier volume) is the one distribution day; day 29 closes at 103.75 (+4.8%), day 30 at 104 (+5.1%).
+  if (rallied[29].count !== 1 || rallied[30].count !== 0) fail(`D8 a 5% rally retires the distribution day: ${JSON.stringify(rallied.slice(29, 31))}`);
   const { computeScreenerBreadthHistory } = await import('./fetch-data.mjs');
   const dates = Array.from({ length: n }, (_, i) => new Date(Date.UTC(2025, 8, 1) + i * 86400000).toISOString().slice(0, 10));
   const rows = computeScreenerBreadthHistory(['AAA'], [{ sym: 'AAA', dates, closes, adjCloses: closes, highs, lows, volumes }], 252, Date.parse('2027-01-01T00:00:00Z'));
@@ -4188,6 +4199,31 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const flat = bars.slice(0, 220);
   const flatServer = _calcVCPServer(flat.map((bar) => bar.close), flat.map((bar) => bar.high), flat.map((bar) => bar.low), flat.map((bar) => bar.volume));
   if (flatServer.pivotLevel !== null || ['near_pivot', 'breakout', 'pivot_down'].includes(flatServer.vcpStage)) fail(`v57.84 no valid contraction run, no pivot state: ${JSON.stringify(flatServer)}`);
+  // Technical audit 2026-10-17: two swing highs with no swing low between them (a shallow dip held on equal lows). The
+  // pullback starts from the higher one (116), not the first (112) — otherwise the pivot sits under the real peak.
+  const knots = [[0, 80], [10, 89], [20, 120], [30, 100], [38, 112], [41, 110], [44, 116], [52, 106], [57, 114]];
+  const twinHighs = [];
+  for (let k = 0; k < knots.length - 1; k++) for (let i = knots[k][0]; i < knots[k + 1][0]; i++) twinHighs.push(knots[k][1] + (knots[k + 1][1] - knots[k][1]) * (i - knots[k][0]) / (knots[k + 1][0] - knots[k][0]));
+  twinHighs.push(knots.at(-1)[1]);
+  const twinBars = twinHighs.map((high, i) => ({ high, low: i >= 39 && i <= 43 ? 109 : high - 1, close: high - 0.5 }));
+  const twin = detectContractions(twinBars);
+  const lastTwin = twin.contractions.at(-1);
+  if (twin.pivot !== 116 || lastTwin?.high !== 116 || !(Math.abs(lastTwin.depth - (116 - 105) / 116 * 100) < 1e-9)) fail(`audit 2026-10-17 a pullback must start from the highest swing high before the next swing low: ${JSON.stringify(twin.contractions)}`);
+  // Audit 2026-10-17 (owner D9): a tight last contraction (1.6%) stays in the run and sets the pivot (113, not the earlier 114).
+  const tightKnots = [[0, 80], [10, 90], [20, 120], [30, 102], [40, 114], [48, 107], [56, 113], [62, 112.2], [68, 113.5]];
+  const tightHighs = [];
+  for (let k = 0; k < tightKnots.length - 1; k++) for (let i = tightKnots[k][0]; i < tightKnots[k + 1][0]; i++) tightHighs.push(tightKnots[k][1] + (tightKnots[k + 1][1] - tightKnots[k][1]) * (i - tightKnots[k][0]) / (tightKnots[k + 1][0] - tightKnots[k][0]));
+  tightHighs.push(tightKnots.at(-1)[1]);
+  const tight = detectContractions(tightHighs.map((high) => ({ high, low: high - 1, close: high - 0.5 })));
+  if (tight.pivot !== 113 || !tight.valid || tight.contractions.length !== 3 || !(tight.contractions.at(-1).depth < 2)) fail(`D9 a tight last contraction sets the pivot: ${JSON.stringify(tight.contractions)}`);
+  // Audit 2026-10-17 (owner D6): one breakout day — prior 50-session volume (the day excluded), up close, at most +5% over the pivot.
+  const { isBreakoutDay } = await load('src/domain/technical/definitions.js');
+  const flatVol = Array(60).fill(1000);
+  const closesAt = (last) => [...Array(59).fill(99), last];
+  if (!isBreakoutDay({ closes: closesAt(102), volumes: [...flatVol.slice(0, 59), 1400], i: 59, pivot: 100 })) fail('D6 +2% over the pivot on 1.4x the prior 50-session volume is a breakout day');
+  if (isBreakoutDay({ closes: closesAt(106), volumes: [...flatVol.slice(0, 59), 2000], i: 59, pivot: 100 })) fail('D6 +6% over the pivot is extended, not a breakout day');
+  if (isBreakoutDay({ closes: [...Array(58).fill(99), 103, 102], volumes: [...flatVol.slice(0, 59), 2000], i: 59, pivot: 100 })) fail('D6 a down close is not a breakout day');
+  if (isBreakoutDay({ closes: closesAt(102), volumes: [...flatVol.slice(0, 59), 1390], i: 59, pivot: 100 })) fail('D6 1.39x the prior average is not breakout volume');
 }
 
 console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks', 'domain/screener/setup-profile:deriveScreenerSetupProfile', 'domain/portfolio/surface', 'domain/fundamental/sec-report', 'bootstrap:stop-lifecycle'] }));

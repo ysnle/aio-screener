@@ -105,7 +105,7 @@ const { latestCompletedUsSession } = await import('../src/domain/market/market-c
 const fixtureNow = Date.parse('2026-10-10T12:00:00Z');
 const session = latestCompletedUsSession(fixtureNow - 5 * 60000);
 const rrgRow = (symbol, dailyPct, rsRatio, rsMomentum, quadrant, sessionDate = session.date) => ({ status: 'CURRENT', symbol, sessionDate, dailyPct, weeklyPct: dailyPct * 2, rsRatio, rsMomentum, quadrant, alignedSessionCount: 60, observedAt: new Date(session.closeMs).toISOString(), fetchedAt: '2026-10-10T01:00:00Z' });
-const validRotation = { schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v2', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', decisionUse: false, allowedUseCeiling: 'reference', latestCompletedSession: session.date,
+const validRotation = { schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v3', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', decisionUse: false, allowedUseCeiling: 'reference', latestCompletedSession: session.date,
   items: { XLK: rrgRow('XLK', 0.5, 101, 101, 'Leading'), XLU: rrgRow('XLU', -1.2, 99, 99, 'Lagging'), XLE: rrgRow('XLE', 1.4, 99, 101, 'Improving'), XLF: { ...rrgRow('XLF', 3, 101, 99, 'Weakening'), status: 'STALE' } } };
 const moves = sectorMoves(validRotation, fixtureNow);
 assert.deepEqual(moves.rows.map((row) => row.symbol), ['XLE', 'XLK', 'XLU'], 'P1641/M13: exact current rows, strongest first; the stale XLF row is left out');
@@ -265,7 +265,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   // v57.84 (owner decision 3-2): a stage needs the index on the theme's date — a flat index keeps these cases on their own returns.
   const flatBench = (asOf) => ({ asOf, ret5d: 0, ret1m: 0, ret3m: 0, ret6m: 0, from: {} });
   const playbook = buildThemePlaybook({ usGroups: groups, krThemes, crossroads: fakeCross, credit: 'favorable', benchmarks: { US: flatBench('2026-10-12') }, labels: { semiconductor: '반도체', software: '소프트웨어', energy: '에너지' } });
-  assert.ok(buildThemePlaybook({ usGroups: groups, crossroads: fakeCross }).themes.every((row) => row.state === null && /^판정 보류 \(S&P 500 종가가 테마 기준일과 맞지 않음\)$/.test(row.stateLabel)), 'v57.84 no index close on the theme date withholds the stage (no absolute fallback)');
+  assert.ok(buildThemePlaybook({ usGroups: groups, crossroads: fakeCross }).themes.every((row) => row.state === null && /^판정 보류 \(S&P 500 동일가중 종가가 테마 기준일과 맞지 않음\)$/.test(row.stateLabel)), 'v57.84 no index close on the theme date withholds the stage (no absolute fallback)');
   const semi = playbook.themes.find((row) => row.market === 'US' && row.id === 'semiconductor');
   assert.equal(semi.state, 'pullback', 'P1743: a long uptrend with a 1-month drop is read as a pullback inside the trend');
   assert.equal(semi.wind.lead, 'tail', 'P1743: semiconductors get the soft-landing tailwind through their exposure tags');
@@ -375,7 +375,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     for (let k = 1; k <= 5; k += 1) ndx[n - 6 + k] = base * (1 + ndxDrop5 / 100 * k / 5);
     const rut = days.map((_, i) => rutBelow200 ? (i < n - 40 ? 2800 : 2800 - (i - (n - 40)) * 3) : 2000 + i * 3);
     return days.map((date, i) => ({ date, spx: spx[i], ndx: ndx[i], nasdaq: ndx[i] * 0.9, rut: rut[i], vix: 16.87, vix3m: 19.5, tnx: 4.1, wti: 80, dxy: 100, gold: 2000,
-      breadth50, breadth200, breadth20: breadth50 + 10, advanceRatio: i === n - 1 ? adv : 0.55, breadthNewHighs: highs, breadthNewLows: lows, distributionDays: dist }));
+      breadth50, breadth200, breadth20: breadth50 + 10, advanceRatio: i >= n - 5 ? adv : 0.55 /* audit 2026-10-17 D1: the advance confirmation is the 5-session mean */, breadthNewHighs: highs, breadthNewLows: lows, distributionDays: dist }));
   };
   const asOf = days[n - 1];
   const calmCredit = { hyBp: 290, hyAsOf: asOf, hyDelta5Bp: -4, hyDelta20Bp: 5 };
@@ -398,6 +398,17 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.equal(oct14.regime.leadership.met, 4);
   assert.equal(oct14.scenarios.scenarios.find((item) => item.id === 'concentration').confirmed, false, 'v57.81 소수 종목 주도 is not confirmed during a leadership break');
   assert.notEqual(oct14.outlook.leadId, 'concentration', 'v57.81 소수 종목 주도 is not the selected flow on 10/14 numbers');
+  // Audit 2026-10-17 (owner D2): after weeks above +1%, a close +0.5% over the rising 50-day line holds 양호; under the line it is 중립.
+  const calmShape = { ndxDrop5: 0.5, rutBelow200: false, breadth50: 62, breadth200: 64, adv: 0.55, highs: 40, lows: 10, dist: 2 };
+  const held = run(make({ ...calmShape, spxGap: 0.5 }));
+  assert.equal(held.trend.state, 'favorable', `D2 +0.5% after a +1% run holds 양호 (${held.trend.read})`);
+  assert.match(held.trend.read, /50일선 아래로 마감하기 전까지 유지/, 'D2 the held 양호 says what ends it');
+  assert.equal(run(make({ ...calmShape, spxGap: -0.3 })).trend.state, 'neutral', 'D2 a close under the 50-day line ends the hold');
+  // D1: one weak session in five no longer confirms — the 5-session mean of 0.55 x4 and 0.39 is 0.52.
+  const oneWeak = make({ spxGap: 0.15, ndxDrop5: -3.9, rutBelow200: true, breadth50: 33.6, breadth200: 48.9, adv: 0.39, highs: 28, lows: 40, dist: 7 }).map((row, i, rows) => i >= rows.length - 5 && i < rows.length - 1 ? { ...row, advanceRatio: 0.55 } : row);
+  const advance = run(oneWeak, { hyBp: 316, hyAsOf: asOf, hyDelta5Bp: 13, hyDelta20Bp: 40 }).regime.leadership.confirmations.find((item) => item.id === 'advance');
+  assert.equal(advance.ok, false, `D1 one session under 45% in five is not the advance confirmation (${advance.value})`);
+  assert.match(advance.value, /5거래일 평균 51\.8%/, 'D1 the confirmation names the 5-session mean');
   const conc = oct14.outlook.items.find((item) => item.id === 'concentration');
   assert.ok(conc.total === 5 && /주도 영역 유지 미충족\(주도 영역 이탈\)/.test(conc.basis), `v57.81 concentration lists 주도 영역 유지 as its 5th check (${conc.basis})`);
   const weak = oct14.outlook.items.find((item) => item.id === 'weakness');
@@ -714,7 +725,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   const { themeStagesFor, SCENARIO_STATE_CURRENT } = await import('../src/domain/scenarios/theme-stage.js');
   const { themeStrengthLead, themeDetailFlow, rotationFlow } = await import('../src/domain/market/page-flow.js');
   const { themeLeadClaimIssues } = await import('./lib/market-analysis-validate.mjs');
-  const spx = { asOf: '2026-10-14', ret5d: -1.06, ret1m: 1.76, ret3m: 2.46, ret6m: 9.91, from: { ret1m: '2026-09-15' } };
+  const spx = { field: 'spx', name: 'S&P 500', asOf: '2026-10-14', ret5d: -1.06, ret1m: 1.76, ret3m: 2.46, ret6m: 9.91, from: { ret1m: '2026-09-15' } };
   const kospi = { asOf: '2026-10-15', ret5d: -18.4, ret1m: -21.0, ret3m: -25.7, ret6m: -5.4, from: { ret1m: '2026-09-10' } };
   const g = (themeId, name, values) => ({ themeId, themeName: themeId, name, basis: '2026-10-14', current: true, members: 10, vol: 50, ...values });
   const usGroups = [
@@ -745,7 +756,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     // v57.84 (owner decision, TECHNICAL-DEFINITIONS 3-1/3-2 안 A) on the 10/15 rows: in line with the index is 동행, ahead
     // of a falling index with a negative own trend is 상대 방어, and a 동행 row names its 1-month drift.
     const { themeStateOf: stateOf, themeStateOutcomes: outcomesOf } = await import('../src/domain/scenarios/analogs.js');
-    const live = buildThemePlaybook({ usGroups: [g('energy', 'E1', { ret1m: 1.5, ret3m: 11.1, ret6m: 9.03, ret5d: 1.5, above50Pct: 71 }), g('staples', 'P2', { ret1m: 4.4, ret3m: 2, ret6m: 10.1, ret5d: 0.5, above50Pct: 83 })],
+    const live = buildThemePlaybook({ usGroups: [g('energy', 'E1', { ret1m: 1.5, ret3m: 11.1, ret6m: 9.03, ret5d: 1.5, above50Pct: 71 }), g('staples', 'P2', { ret1m: 7.0 /* audit 2026-10-17 D4: beyond the 4.3%p 1-month band */, ret3m: 2, ret6m: 10.1, ret5d: 0.5, above50Pct: 83 })],
       krThemes: [{ id: 'battery', label: '2차전지', covered: 10, ret1m: -10.1, ret3m: -2.6, ret5d: -3, vol: 50, above50Pct: 30, basis: '2026-10-15' }],
       crossroads: cross, credit: 'neutral', benchmarks: { US: spx, KR: kospi } });
     const at = (id) => live.themes.find((item) => item.id === id);
@@ -765,14 +776,30 @@ console.log('scenario guidance fixture (basis card): PASS');
     assert.equal(outcomesOf(etf).basis, 'absolute', 'v57.84 without the index the outcome basis says absolute');
     const absPast = buildThemePlaybook({ usGroups: [g('software', 'W1', { ret1m: 6.0, ret3m: 9.0, ret6m: 24.0, ret5d: 1.0, above50Pct: 65 })], crossroads: cross, credit: 'neutral', benchmarks: { US: spx },
       outcomes: { themes: { software: { symbol: 'IGV', basis: 'absolute', leading: { n: 20, up: 12, median: 3, horizon: 63 } } } } }).themes[0];
-    assert.match(absPast.past, /절대 수익률 기준으로 분류돼 있어/, 'v57.84 an absolute-basis proxy record is not compared with the relative stage');
+    assert.match(absPast.past, /다른 기준\(절대 수익률이거나/, 'v57.84 an absolute-basis proxy record is not compared with the relative stage');
+    // Audit 2026-10-17 (owner D5): with RSP on record the US stage reads against the equal-weight S&P 500 and names the
+    // cap-weighted index beside it; without RSP on the theme's date it stays on the S&P 500.
+    {
+      const sessions = [];
+      for (let t = Date.parse('2026-01-02T12:00:00Z'); sessions.length < 160; t += 86400000) { const day = new Date(t).getUTCDay(); if (day && day !== 6) sessions.push(new Date(t).toISOString().slice(0, 10)); }
+      const hist = sessions.map((date, i) => ({ date, spx: 6000 * (1 + 0.0008 * i), rsp: 180 * (1 + 0.0002 * i) }));
+      const theme = [g('software', 'W1', { basis: sessions.at(-1), ret1m: 6.0, ret3m: 9.0, ret6m: 24.0, ret5d: 1.0, above50Pct: 65 })];
+      const ew = buildThemePlaybook({ usGroups: theme, crossroads: cross, credit: 'neutral', history: hist }).themes[0];
+      assert.equal(ew.relative?.field, 'rsp', `D5 the US stage reads against RSP when it has the theme's date (${ew.stateLabel})`);
+      assert.match(ew.stateLabel, /S&P 500 동일가중 대비 · 참고: S&P 500 대비 6개월 [+-]\d+\.\d%p/, `D5 the cap-weighted index is named beside it (${ew.stateLabel})`);
+      const capOnly = buildThemePlaybook({ usGroups: theme, crossroads: cross, credit: 'neutral', history: hist.map(({ rsp, ...row }) => row) }).themes[0];
+      assert.ok(capOnly.relative?.field === 'spx' && /S&P 500 대비\)/.test(capOnly.stateLabel), `D5 without RSP the stage stays on the S&P 500 (${capOnly.stateLabel})`);
+      const oldRule = buildThemePlaybook({ usGroups: theme, crossroads: cross, credit: 'neutral', history: hist,
+        outcomes: { themes: { software: { symbol: 'IGV', basis: 'relative-banded', leading: { n: 20, up: 12, median: 3, horizon: 63 } } } } }).themes[0];
+      assert.match(oldRule.past, /다른 기준/, 'D4/D5 a past-stage count without the current rule stamp is not compared');
+    }
     // v57.87 (10/16 market-screen re-check): heavyweights that fell more than KOSPI withhold an ahead-of-index Korean stage;
     // a 추세 속 조정 with a broken week or a non-positive own long return favours waiting, not 분할.
     const heavy = buildThemePlaybook({ krThemes: [{ id: 'semiconductor', label: '반도체', covered: 12, ret1m: -4.5, ret3m: 2, ret5d: -3, vol: 50, above50Pct: 20, basis: '2026-10-15',
       heavyweights: [{ sym: '000660.KS', name: 'SK하이닉스', ret1m: -29.8 }, { sym: '005930.KS', name: '삼성전자', ret1m: -26.4 }, { sym: '042700.KS', name: '한미반도체', ret1m: -25 }], heavyweightNote: '거래대금 상위 3종목 중앙값 -26.4%' }],
     crossroads: cross, credit: 'neutral', benchmarks: { KR: kospi } }).themes[0];
     assert.ok(heavy.state === null && /^판정 보류 — 거래대금 상위 종목이 코스피보다 더 빠져/.test(heavy.stateLabel), `v57.87 heavyweights below KOSPI withhold the stage (${heavy.state}: ${heavy.stateLabel})`);
-    const shaky = buildThemePlaybook({ usGroups: [g('aicapex', 'A1', { ret1m: -2.0, ret3m: 8.0, ret6m: 18.0, ret5d: -12.2, above50Pct: 0 })], crossroads: cross, credit: 'neutral', benchmarks: { US: spx } }).themes[0];
+    const shaky = buildThemePlaybook({ usGroups: [g('aicapex', 'A1', { ret1m: -4.0, ret3m: 8.0, ret6m: 24.0 /* audit 2026-10-17 D4: beyond the 10.6%p band */, ret5d: -12.2, above50Pct: 0 })], crossroads: cross, credit: 'neutral', benchmarks: { US: spx } }).themes[0];
     {
       const { BRANCHES: branchList } = await import('../src/domain/market/macro-crossroads.js');
       const oilCalm = branchList.find((item) => item.id === 'softland').conditions.find(([label]) => /유가 안정/.test(label))[1];
@@ -780,7 +807,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     }
     assert.ok(shaky.state === 'pullback' && shaky.favored.length === 1 && shaky.favored[0] === 'wait' && /5거래일/.test(shaky.favoredWhy), `v57.87 a broken-week pullback favours waiting (${shaky.state}: ${shaky.favored} · ${shaky.favoredWhy})`);
   }
-  assert.ok(relativeBand('ret1m') === 1.5 && relativeBand('ret6m') === 3.7, 'v57.81 the band scales with the window (tracking error ≈ 1.5%p a month)');
+  assert.ok(relativeBand('ret1m') === 4.3 && relativeBand('ret6m') === 10.6, 'audit 2026-10-17 D4: the band scales with the window (15%/yr tracking error ≈ 4.3%p a month)');
   // Clean case: ahead of the S&P on both windows, a positive week and most members above the 50-day line stays 주도.
   assert.equal(row('software').state, 'leading', `v57.81 a confirmed index-relative leader stays 주도 지속 (${row('software').stateLabel})`);
   assert.match(row('software').stateLabel, /^주도 지속 \(6개월·1개월, S&P 500 대비\)$/);

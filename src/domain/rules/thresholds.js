@@ -9,13 +9,18 @@ export const RULES = Object.freeze({
   // ±1% of the 50-day line the index is testing the line, not trending. A Nasdaq-100 drop of 3% in five sessions is about
   // one weekly standard deviation of that index (annual volatility in the low 20s); with the Russell 2000 under its own
   // 200-day line it means leaders and small caps are falling together, so the S&P 500 alone cannot read 양호.
-  trend: Object.freeze({ maShort: 50, maLong: 200, slopeLookback: 20, bufferPct: 1, leaderDrop5dPct: 3 }),
+  // Audit 2026-10-17 (owner D2): 양호 is entered at bufferPct above the rising 50-day line and held while the close stays at
+  // or above the line plus holdAbovePct (the line itself), the line keeps rising and stays over the 200-day line; the
+  // single-session rule flipped 양호/중립 19 times in 97 sessions of 2026-06~10 (9 with the hold).
+  trend: Object.freeze({ maShort: 50, maLong: 200, slopeLookback: 20, bufferPct: 1, holdAbovePct: 0, latchSessions: 60, leaderDrop5dPct: 3 }),
   // v57.81: leadership break — the leadership proxy (Nasdaq-100) dropped leaderDrop5dPct in five sessions or closed under
   // its 50-day line, AND at least minConfirmations of: new lows above new highs; fewer than 45% of issues advancing on the
   // last session (more decliners than advancers by a margin); O'Neil's 6+ distribution days in 25 sessions (heavy
   // institutional selling); the Russell 2000 under its 200-day line. Conventions, not validated predictors.
   // v57.94 (owner 2026-10-17): a confirmation counts when it held on any of the last confirmWindowSessions sessions, and a
   // break holds while the proxy stays weak — single-session counts read 7/23 이탈 → 7/24~28 약세 → 7/29 이탈 in July 2026.
+  // Audit 2026-10-17 (owner D1): the advance confirmation is the mean advance ratio over those sessions, not "any one of
+  // them" — one session under 45% in five held on 87 of 97 sessions of 2026-06~10 (the mean on 20).
   leadership: Object.freeze({ advanceRatioWeakBelow: 0.45, distributionDaysAt: 6, minConfirmations: 2, confirmWindowSessions: 5 }),
   // v57.81: "회복 중" only when the last session did not give back reversalShare of the window's gain (a 5-day +8pp bounce
   // that lost 4pp on the last close is 되밀림, not recovery); a last-session drop of lastSessionNoticePp or more is named.
@@ -53,17 +58,22 @@ export const RULES = Object.freeze({
   //   weinstein: 30-week average, its 4-week slope, flat inside ±1%, and 26 weeks back to tell a base from a top;
   //   template: Minervini's published 52-week rules (within 25% of the high, 30% above the low); stage2Gate: the screener's
   //   own looser moving-average gate (within 30% of the high) — a separate, separately named test;
-  //   breakout: the volume multiple of a breakout day (both the chart and the screener's VCP).
+  //   breakout: the breakout day shared by the chart and the screener's VCP (technical/definitions.js isBreakoutDay).
   technical: Object.freeze({ rsi: Object.freeze({ overbought: 70, oversold: 30, climax: 80 }),
     atrPeriod: 14, adrPeriod: 20, rangeSessions: 252, fullYearSessions: 240, nearHighPct: 3,
     extension: Object.freeze({ nearBase: 2, extended: 4, stretched: 7 }), nearLineAdr: 1, recentDropAdr: 2,
     ema8: Object.freeze({ overheatPct: 10, breakBelowPct: 5 }),
     weinstein: Object.freeze({ maWeeks: 30, slopeWeeks: 4, flatSlopePct: 1, priorWeeks: 26 }),
     template: Object.freeze({ nearHighPct: 25, aboveLowPct: 30 }), stage2Gate: Object.freeze({ nearHighPct: 30 }),
-    breakout: Object.freeze({ volumeMultiple: 1.4 }),
+    // Audit 2026-10-17 (owner D6): one breakout day for the chart, the screener and the legacy snapshot — O'Neil's close above
+    // the pivot, no more than maxAbovePct over it, up from the prior close, on volume ≥ volumeMultiple × the prior
+    // volumeSessions average (the day excluded). The chart used a 50-day average that included the day; the screener a
+    // 20-day one, no ceiling, and an upper-half-of-range day counted as up.
+    breakout: Object.freeze({ volumeMultiple: 1.4, volumeSessions: 50, maxAbovePct: 5 }),
     // v57.87 (owner X-bookmark read 2026-10-16): stock-level follow-through evidence (technical/follow-through.js).
     // Pocket pivot: an up close whose volume beats every down-close volume of the prior 10 sessions (Morales/Kacher).
-    // Heavy down day: a close ≥ 0.2% lower on more volume than the prior session (O'Neil distribution day, per stock).
+    // Heavy down day: a close ≥ heavyDownPct (1%) lower on volume above the stock's own heavyDownAvgSessions (50) average
+    // (v57.88; the index distribution-day rule of 0.2% on more volume than the prior session is too loose for one stock).
     // Base: a pullback of ≥ basePullbackPct from a closing high lasting ≥ baseMinSessions, completed by a close above that
     // high; the count restarts after a drawdown of resetDrawdownPct or a new 52-week closing low. Climax checks apply only
     // after a run of climaxMinRunPct from the 52-week low. Down-day resilience: index down closes in the last 60 sessions.

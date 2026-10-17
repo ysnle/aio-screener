@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1912 - v58.02 - VCP 수축 탐지가 다음 조정을 첫 스윙 고점에서 시작해 피벗이 실제 고점보다 낮게 찍힘 (2026-10-17)
+
+- symptom/reproduction: 고점 112 → 얕은 눌림(스윙 저점 없음) → 116 → 105 조정에서 피벗 112·깊이 6.3%로 기록되고, 현재가 114가 피벗 위로 읽혀 돌파·확장 상태가 날 수 있었다.
+- root_cause: detectContractions가 한 조정의 저점 뒤 '첫' 스윙 고점을 다음 조정의 시작으로 썼다. 두 스윙 고점 사이에 스윙 저점이 없으면 뒤의 더 높은 고점이 무시된다.
+- fix: 다음 스윙 저점 전까지의 스윙 고점 중 가장 높은 것에서 다음 조정을 시작한다(src/domain/technical/definitions.js). 차트·스크리너 생산자·레거시 스냅샷이 같은 함수를 쓴다.
+- violated_rule: 한 판정의 입력 구간은 그 판정이 정의한 구조(가장 높은 스윙 고점)를 따라야 한다.
+- prevention: scripts/ci-esm-core-unit-check.mjs P1397 블록에 연속 스윙 고점 픽스처 추가(피벗 116, 깊이 9.5%).
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs (수정 전 실패, 수정 후 통과)
+
 ## P1911 - v58.01 - 후보 기록 모델 정체성이 미국 모델만 담아 한국 모델 변경이 기록 평균에 섞임 (2026-10-17)
 
 - symptom/reproduction: 전진 후보 기록은 미국+한국 상·하위 20%를 함께 담는데 정체성 문자열은 미국 모델만 반영했다. 한국 모델만 바뀌면 정체성이 그대로여서 두 모델 결과가 한 평균에 섞였고, 한국 탭에는 같은 모델인데도 다른 프로필 경고가 떴다. 같은 점검에서 '왜' 패널 팩터 겹침이 시장을 섞어 쟀고, 도쿄·대만 행은 이유 없이 순위에서 사라졌으며, 칼만 팩터가 실제로는 추세 속도인데 '신뢰도'로 설명됐다.

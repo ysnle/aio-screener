@@ -132,15 +132,19 @@ for (const [w, window] of WINDOWS.entries()) {
   const reads = new Map();
   // Whipsaw is counted as reversals between the two outer readings (양호 <-> 부담; 중립 is the ±1% testing band, where a
   // day-to-day 양호/중립 change is the owner's rule, not noise) against reversals of a bare close-vs-50-day sign.
-  let regimeFlips = 0, naiveFlips = 0, lastOuter = null, lastSide = null;
+  let regimeFlips = 0, naiveFlips = 0, lastOuter = null, lastSide = null, lastTrend = null;
   for (let i = start; i < rows.length; i += 1) {
     const read = readAt(rows, i);
     reads.set(read.date, { ...read, index: i });
     const { row, states, ma50, ma200, score } = read;
     const where = `${window.id} ${row.date}`;
     // Day-by-day invariants: the published rules hold on every replayed session, not only on the checked dates.
-    if (states.trend === 'favorable') check(row.spx >= ma50 * (1 + RULES.trend.bufferPct / 100) && ma50 > ma200, `${where}: 추세 양호인데 50일선+${RULES.trend.bufferPct}% 위·50>200 조건이 아님`);
-    if (row.spx < ma200) check(states.trend === 'burden', `${where}: 200일선 아래인데 추세가 ${states.trend}`);
+    // Audit 2026-10-17 (owner D2): 양호 is entered at +bufferPct and held down to the 50-day line (+holdAbovePct).
+    if (states.trend === 'favorable') check(row.spx >= ma50 * (1 + RULES.trend.holdAbovePct / 100) && ma50 > ma200, `${where}: 추세 양호인데 50일선 위·50>200 조건이 아님`);
+    if (states.trend === 'favorable' && lastTrend !== 'favorable') check(row.spx >= ma50 * (1 + RULES.trend.bufferPct / 100), `${where}: 50일선+${RULES.trend.bufferPct}% 아래에서 추세 양호로 진입`);
+    lastTrend = states.trend;
+    if (row.spx < ma200 * (1 - RULES.trend.bufferPct / 100)) check(states.trend === 'burden', `${where}: 200일선 -${RULES.trend.bufferPct}% 아래인데 추세가 ${states.trend}`);
+    if (row.spx < ma200) check(states.trend !== 'favorable', `${where}: 200일선 아래인데 추세 양호`);
     if (row.vix >= RULES.volatility.stressAt) check(states.volatility === 'burden', `${where}: VIX ${row.vix.toFixed(1)}인데 변동성이 ${states.volatility}`);
     if (row.vix >= RULES.volatility.calmBelow) check(states.volatility !== 'favorable', `${where}: VIX ${row.vix.toFixed(1)}(18 이상)인데 변동성 양호`);
     if (row.hy >= RULES.credit.stressAtBp) check(states.credit === 'burden', `${where}: HY ${row.hy.toFixed(0)}bp인데 신용이 ${states.credit}`);
@@ -241,9 +245,10 @@ for (const [w, window] of WINDOWS.entries()) {
     if (date === '2026-07-29') check(read.states.trend !== 'favorable', `${date}: S&P 500 50일선 -2.0%인데 추세 양호`);
     summary.push(line(read, ` ndx/high:${read.leadership.offHigh?.toFixed(1)}%`));
   }
-  // v57.94: with the 5-session confirmation window the July break reads from 7/17 (Nasdaq-100 -4.1% in five sessions, 상승
-  // 종목 32% that day and 분배일 6 on 7/13) and holds through 8/3; 8/4 regains the 50-day line and releases it.
-  for (const date of sessions('2026-07-17', '2026-08-03')) {
+  // v57.94: with the 5-session confirmation window the July break read from 7/17 (Nasdaq-100 -4.1% in five sessions, 상승
+  // 종목 32% that day and 분배일 6 on 7/13). Audit 2026-10-17 (owner D1): the advance confirmation is the 5-session mean, so
+  // one weak session no longer confirms; the break reads from 7/23 and holds through 8/3; 8/4 regains the 50-day line.
+  for (const date of sessions('2026-07-23', '2026-08-03')) {
     const read = realAt(date);
     check(read.leadership.break, `${date}: 7월 주도주 하락 구간인데 주도 영역 ${read.leadership.state} (${read.leadership.summary})`);
   }

@@ -8492,8 +8492,8 @@
         "fullMAState": "PARTIAL_STACK",
         "maStackScore": 68,
         "sma50Rising": true,
-        "trendState": "MIXED",
-        "stageEstimate": "STAGE_1_OR_3_TRANSITION",
+        "trendState": "UPTREND",
+        "stageEstimate": "STAGE_2_ADVANCE",
         "vcp": {
           "ok": true,
           "vcpScore": 35,
@@ -18489,5 +18489,6 @@
         ]
       }
     }
-  ]
+  ],
+  "trendRevision": "Audit 2026-10-17 (owner decision D7, stage.v4): UPTREND/TOPPING/PULLBACK read the close over a 50-day line that is over the 200-day line instead of the full 5>10>20>50>100>200 stack. trendState/stageEstimate were rebaselined from classifyMovingAverageStructure; every other field is the legacy dump unchanged."
 }

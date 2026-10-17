@@ -38,10 +38,10 @@ assert.notEqual(row.observedAt,row.fetchedAt,'P1358 collection and close observa
 assert.equal(row.alignedSessionCount,75,'P1358 complete common dates counted');
 const ratios = sector.map((item,index) => item.adjClose/spy[index].adjClose);
 const mean = values => values.reduce((sum,value)=>sum+value,0)/values.length;
-const rs = 100*ratios.at(-1)/mean(ratios);
-const mid = Math.floor(ratios.length/2);
-const rsMid = 100*ratios[mid]/mean(ratios.slice(0,mid+1));
-assert.ok(Math.abs(row.rsRatio-rs)<1e-7 && Math.abs(row.rsMomentum-100*rs/rsMid)<1e-7,'P1358 rotation matches independently calculated date-aligned ratio oracle');
+// Audit 2026-10-17 (owner D3, rrg.v3): RS-Ratio on the last 50 sessions; RS-Momentum against the same ratio 10 sessions earlier.
+const rs = 100*ratios.at(-1)/mean(ratios.slice(-50));
+const rsThen = 100*ratios.at(-11)/mean(ratios.slice(-60,-10));
+assert.ok(Math.abs(row.rsRatio-rs)<1e-7 && Math.abs(row.rsMomentum-100*rs/rsThen)<1e-7,'P1358 rotation matches independently calculated date-aligned ratio oracle');
 assert.ok(Math.abs(row.dailyPct-100*(sector.at(-1).adjClose/sector.at(-2).adjClose-1))<1e-7,'P1358 daily percentage is one completed session total return');
 assert.ok(Math.abs(row.weeklyPct-100*(sector.at(-1).adjClose/sector.at(-6).adjClose-1))<1e-7,'P1358 weekly percentage is five completed sessions total return');
 assert.equal(row.relativeStrength[0].value,100,'P1358 indexed relative history removes absolute quote prices');

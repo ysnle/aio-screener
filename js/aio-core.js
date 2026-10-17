@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.01';
+const APP_VERSION = 'v58.02';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -13660,8 +13660,7 @@ function _calcVCP(bars, indicators) {
   }
   var pivot = _det.valid ? _det.pivot : null; // v57.84: 유효한 수축 구간의 마지막 고점만 피벗
   var nearPivot = !!(pivot && price >= pivot * 0.97 && price <= pivot * 1.03);
-  var rvol20 = (ind.rvol20 != null) ? ind.rvol20 : null;
-  var _bk = bars[n - 1], brk = !!(pivot && price > pivot && rvol20 !== null && rvol20 > 1.4 && (price > closes[n - 2] || (_bk.high > _bk.low && (price - _bk.low) / (_bk.high - _bk.low) >= 0.5)) && closes.slice(-6, -1).some(function(c) { return c <= pivot; })); // v57.81: same breakout rule as _calcVCPServer
+  var brk = !!(pivot && typeof window.AIO_ARCH.isBreakoutDay === 'function' && window.AIO_ARCH.isBreakoutDay({ closes: closes, volumes: volumes, i: n - 1, pivot: pivot }) && closes.slice(-6, -1).some(function(c) { return c <= pivot; })); // audit 2026-10-17 D6: the shared breakout day (technical/definitions.js), as _calcVCPServer
   // VCP 점수 (0~100)
   var score = 0;
   if (stage2)    score += 25;

@@ -48,7 +48,7 @@ import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
-import { detectContractions } from '../domain/technical/definitions.js';
+import { detectContractions, isBreakoutDay } from '../domain/technical/definitions.js';
 import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SAMPLE, normalizeNewsSentimentHistory } from '../domain/news/scoring.js';
 import { classifyBreadthParticipation } from '../domain/market/breadth.js';
 import { computeMarketHealth } from '../domain/market/health.js';
@@ -1034,6 +1034,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     ,deriveMultiTimeframeView
     // v57.84 (owner decision): the one VCP contraction detector — legacy calcTechnicalSnapshot's _calcVCP delegates here.
     ,detectContractions
+    // Audit 2026-10-17 (owner D6): the one breakout-day test — legacy _calcVCP reads it too.
+    ,isBreakoutDay
     ,computeNewsSentimentScore
     ,computeNewsRiskSignals
     ,MIN_NEWS_ANALYSIS_SAMPLE
