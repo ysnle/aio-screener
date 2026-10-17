@@ -1828,7 +1828,7 @@ window._aioDiagram = (function () {
   }
 
   function _buildBacktest() {
-    return { backtest: window._aioFactorBacktest || {} };
+    return { backtest: (typeof _aioScreenerFactorBacktest === 'function' && _aioScreenerFactorBacktest()) || {} };
   }
 
   function _buildSectors() {

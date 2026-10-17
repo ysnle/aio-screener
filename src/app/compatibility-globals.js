@@ -59,14 +59,16 @@ export function installCompatibilityGlobals(root = globalThis) {
   window._aioKwMay = keywordMayMatch;
   // Legacy unification (2026-10-17): the chat's screener query engine moved here from js/aio-data.js. Every call reads
   // the canonical rows the native screener orchestrator ranked (no second ranking run) and the producer's factor date.
+  const screenerState = (path) => { try { return window.AIO_ARCH?.getScreenerState?.(path) ?? null; } catch (_) { return null; } };
+  const screenerFactorAsOf = () => screenerState('metadata.asOf') || screenerState('revision') || null;
   const screenerQueryInput = () => ({
     rows: (typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() : null) || [],
     live: window._liveData || {},
     aliases: window.SCR_KEYWORD_ALIASES || {},
-    rankAsOf: window._aioScreenerFactorAsOf || null
+    rankAsOf: screenerFactorAsOf()
   });
   window._aioRunScreenerQuery = (query, opts) => runScreenerQuery(query, { ...screenerQueryInput(), recentTickers: opts?.recentTickers || [] });
-  window._formatScreenerResultPrompt = (result) => formatScreenerResultPrompt(result, { rankAsOf: window._aioScreenerFactorAsOf || null });
+  window._formatScreenerResultPrompt = (result) => formatScreenerResultPrompt(result, { rankAsOf: screenerFactorAsOf() });
   window._aioBuildScreenerAiContext = (query, messages, logger) => buildScreenerAiContext(query, messages, { ...screenerQueryInput(), logger });
   window._detectSectorQuery = (text) => detectSectorQuery(text, { rows: screenerQueryInput().rows });
   window.AIO = window.AIO || {};
@@ -161,12 +163,11 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
     isListed: checkListed,
     isKnown: (id) => window._aioIsKnownTicker?.(id) === true,
     universeRows: () => window._aioGetCanonicalScreenerRows?.() || [],
-    // The inputs the screener's own ranking run uses (js/aio-data.js _aioComputeFactorRanks).
+    // The inputs the native screener's ranking run uses.
     rankInputs: () => {
       const weights = typeof window._aioFactorWeights === 'function' ? window._aioFactorWeights(window.AIO?.marketState) : null;
-      const server = window._aioServerScreener || {};
       return { weights: weights?.weights || null, weightsPolicy: weights?.source === 'explicit-user-profile' ? 'explicit' : 'model-default',
-        regimeLabel: weights?.regimeLabel || null, fundamentalCoveragePct: Number(server.fundamentalCoveragePct || 0), fmpOk: !!server.fmpOk };
+        regimeLabel: weights?.regimeLabel || null, fundamentalCoveragePct: Number(screenerState('metadata.fundamentalCoveragePct') || 0), fmpOk: !!screenerState('metadata.fmpOk') };
     },
     readLiveData: () => window._liveData || {},
     onRecord: (record) => {

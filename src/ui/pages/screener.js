@@ -1707,7 +1707,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (holdEl) {
     // LC-73 style (P1449): when a re-rank is held, the visible summary (not just a tooltip)
     // discloses that the previous calculation was discarded and why.
-    const holdCopy = describeRankingHold(hold, { market: listingMarket, factorSessionDate: state?.metadata?.factorSessionDateByMarket?.[listingMarket] || state?.metadata?.factorSessionDate || root?._aioScreenerFactorAsOf || null });
+    const holdCopy = describeRankingHold(hold, { market: listingMarket, factorSessionDate: state?.metadata?.factorSessionDateByMarket?.[listingMarket] || state?.metadata?.factorSessionDate || state?.metadata?.asOf || state?.revision || null });
     holdEl.hidden = !holdCopy;
     if (holdCopy) {
       holdEl.textContent = holdCopy;

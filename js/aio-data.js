@@ -4608,36 +4608,6 @@ function _aioApplyNativeScreenerState(nativeState) {
     nativeRevision: state.revision || null
   };
   window._aioScreenerLoadState = loadState;
-  window._aioServerScreener = {
-    asOf: loadState.asOf,
-    factorObservedAt: loadState.factorObservedAt,
-    universe: loadState.universe,
-    fmpOk: loadState.fmpOk,
-    secFundamentalsOk: loadState.secFundamentalsOk,
-    secFundamentalsCount: loadState.secFundamentalsCount,
-    secFundamentalsStored: loadState.secFundamentalsStored,
-    secFundamentalsEligible: loadState.secFundamentalsEligible,
-    secFundamentalsModel: loadState.secFundamentalsModel,
-    fundamentalCoveragePct: loadState.fundamentalCoveragePct,
-    universeCurrentness: loadState.universeCurrentness,
-    universeLastBulkUpdate: loadState.universeLastBulkUpdate,
-    universeStaleAfterDays: loadState.universeStaleAfterDays,
-    universeFreshnessStatus: loadState.universeFreshnessStatus,
-    rankingContract: metadata.rankingContract || null,
-    backtest: metadata.backtest || null,
-    breadth: metadata.breadth || null,
-    ranking: metadata.ranking || null,
-    nativeState: state
-  };
-  window._aioScreenerFactorAsOf = loadState.asOf;
-  window._aioScreenerFactorObservedAt = loadState.factorObservedAt;
-  if (metadata.backtest && metadata.backtest.kalmanScale === 'log_pct_day') {
-    window._aioFactorBacktest = metadata.backtest;
-    window._aioFactorBacktestStaleReason = null;
-  } else if (metadata.backtest) {
-    window._aioFactorBacktest = null;
-    window._aioFactorBacktestStaleReason = 'legacy_kalman_scale';
-  }
   if (window.SCREENER_DB_META && loadState.asOf) {
     if (loadState.universeLastBulkUpdate) window.SCREENER_DB_META.lastBulkUpdate = String(loadState.universeLastBulkUpdate).slice(0, 10);
     if (loadState.universeStaleAfterDays != null) window.SCREENER_DB_META.staleAfterDays = loadState.universeStaleAfterDays;
@@ -4659,6 +4629,21 @@ function _aioApplyNativeScreenerState(nativeState) {
   return true;
 }
 window._aioApplyNativeScreenerState = _aioApplyNativeScreenerState;
+// Native screener metadata by path (no slice clone). The legacy readers below take these instead of the copies this
+// projection used to keep in _aioServerScreener / _aioScreenerFactorAsOf / _aioScreenerFactorObservedAt / _aioFactorBacktest.
+function _aioScreenerMetadata(path) {
+  var arch = window.AIO_ARCH;
+  try { return arch && typeof arch.getScreenerState === 'function' ? arch.getScreenerState('metadata.' + path) : undefined; } catch (_) { return undefined; }
+}
+function _aioScreenerFactorAsOf() {
+  var arch = window.AIO_ARCH;
+  try { return _aioScreenerMetadata('asOf') || (arch && typeof arch.getScreenerState === 'function' ? arch.getScreenerState('revision') : null) || null; } catch (_) { return null; }
+}
+// A backtest on the old Kalman scale (legacy_kalman_scale) is withheld rather than shown.
+function _aioScreenerFactorBacktest() {
+  var backtest = _aioScreenerMetadata('backtest');
+  return backtest && backtest.kalmanScale === 'log_pct_day' ? backtest : null;
+}
 try {
   window.addEventListener('aio:nativeScreenerReady', function(event) {
     _aioApplyNativeScreenerState(event && event.detail);
@@ -5548,15 +5533,16 @@ function _aioRenderDataFreshness() {
     // 스크리너: 팩터 기준시각 | 가격 기준시각
     var asEl = document.querySelector('#page-screener [data-factor-asof]');
     if (asEl) {
-      var scrTs = window._aioScreenerFactorObservedAt ? _aioKstShortFromIso(window._aioScreenerFactorObservedAt) : null;
+      var scrObservedAt = _aioScreenerMetadata('factorObservedAt');
+      var scrTs = scrObservedAt ? _aioKstShortFromIso(scrObservedAt) : null;
       var scrGeneratedTs = window._aioGetFieldTs('screener');
       var priceTs = window._aioGetFieldTs('prices');
       if (scrTs && priceTs) {
         asEl.textContent = '팩터 관측 ' + scrTs + (scrGeneratedTs ? ' · 파일 ' + scrGeneratedTs : '') + ' | 가격 ' + priceTs;
       } else if (scrTs) {
         asEl.textContent = '팩터 관측 ' + scrTs + (scrGeneratedTs ? ' · 파일 ' + scrGeneratedTs : '');
-      } else if (window._aioScreenerFactorAsOf) {
-        asEl.textContent = '팩터 기준 ' + String(window._aioScreenerFactorAsOf).slice(0, 10);
+      } else if (_aioScreenerFactorAsOf()) {
+        asEl.textContent = '팩터 기준 ' + String(_aioScreenerFactorAsOf()).slice(0, 10);
       } else {
         asEl.textContent = '팩터 데이터 대기';
       }
@@ -5884,8 +5870,7 @@ function _aioRenderPipelineStatus() {
       var fmpDetail = '유료 FMP는 사용하지 않음 · 무료 SEC companyfacts 누적 커버리지 ' + coverageLabel;
       msgs.push({ icon: '', text: '재무 팩터 축소 모드', detail: fmpDetail, color: '#ef4444' });
     }
-    var screenerUniverse = window._aioServerScreener || {};
-    if (screenerUniverse.universeFreshnessStatus === 'stale') {
+    if (_aioScreenerMetadata('universeFreshnessStatus') === 'stale') {
       msgs.push({ icon: '!', text: '스크리너 종목 유니버스 갱신 필요', detail: '팩터 파일과 종목 식별 유니버스의 기준일이 다릅니다. 현재 결과는 연구용 부분 상태입니다.', color: '#f59e0b' });
     }
     if (!meta.fredHasKey) {
