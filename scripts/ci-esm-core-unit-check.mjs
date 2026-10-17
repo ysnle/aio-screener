@@ -4978,3 +4978,21 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const breadth = producerState('breadth', { meta, screener: { status: 'current', metadata: { backtest: true } } });
   if (breadth.status !== 'loaded' || breadth.coverage !== 100 || breadth.lastSuccessfulAt !== meta.generatedAt) fail(`page completeness: a ready screener loads breadth: ${JSON.stringify(breadth)}`);
 }
+{
+  // Legacy unification (2026-10-17): the data.json loader's fetch and market-cycle gate.
+  const { assessServerCycle, fetchServerData } = await load('src/data/server-data.js');
+  const now = Date.parse('2026-10-17T12:00:00Z');
+  const base = { generatedAt: '2026-10-17T11:00:00Z', cycleStatus: 'PUBLISHED', marketSnapshotPublished: true };
+  const legacyCoverage = assessServerCycle({ ...base, marketSnapshotCoverage: { required: 16, observed: 16 } }, now);
+  if (!legacyCoverage.eligible || legacyCoverage.coverage.tier0Required !== 16 || legacyCoverage.ageMin !== 60) fail(`server data: the older {required, observed} coverage form still publishes: ${JSON.stringify(legacyCoverage)}`);
+  const reasons = [
+    assessServerCycle({ ...base, marketSnapshotCoverage: { tier0Required: 16, tier0Observed: 16 }, failedSymbols: ['SPY'] }, now).staleReason,
+    assessServerCycle({ ...base, generatedAt: null, marketSnapshotCoverage: { tier0Required: 16, tier0Observed: 16 } }, now).staleReason,
+    assessServerCycle({ ...base, generatedAt: '2026-10-16T23:00:00Z', marketSnapshotCoverage: { tier0Required: 16, tier0Observed: 16 } }, now).staleReason
+  ];
+  if (JSON.stringify(reasons) !== JSON.stringify(['market-cycle-not-published', 'generatedAt-missing-or-invalid', 'market-cycle-freshness-sla-exceeded'])) fail(`server data: stale reasons: ${JSON.stringify(reasons)}`);
+  const failed = await fetchServerData({ fetch: async () => ({ ok: false, status: 503 }), now: () => now });
+  const invalid = await fetchServerData({ fetch: async () => ({ ok: true, json: async () => ({}) }), now: () => now });
+  const brokenReconciliation = await fetchServerData({ fetch: async (url) => (String(url).includes('data.json') ? { ok: true, json: async () => ({ meta: {} }) } : { ok: false, status: 404 }), now: () => now });
+  if (failed.reason !== 'data.json HTTP 503' || invalid.reason !== 'invalid data.json payload' || brokenReconciliation.reconciliation.status !== 'unavailable' || brokenReconciliation.reconciliation.detail !== 'HTTP 404') fail(`server data: fetch failures: ${JSON.stringify({ failed, invalid, rec: brokenReconciliation.reconciliation })}`);
+}

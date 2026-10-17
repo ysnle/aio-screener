@@ -657,22 +657,11 @@ if (failedAttemptFixture.publishedAt !== '2026-09-11T02:36:03.988Z'
 // fresh generatedAt plus complete *attempted* coverage is still not eligible
 // when the producer reports DEGRADED/marketSnapshotPublished=false.
 const cycleFixture = json('architecture/fixtures/data-cycle-freshness.json');
+// Legacy unification (2026-10-17): the fixtures run the runtime's own market-cycle gate (src/data/server-data.js), not a copy.
+const { assessServerCycle } = await import('../src/data/server-data.js');
 function assessRuntimeCycle(fixture) {
-  const coverage = fixture.coverage || {};
-  const coverageComplete = Number(coverage.tier0Required) > 0
-    && Number(coverage.tier0Observed) === Number(coverage.tier0Required);
-  const published = fixture.cycleStatus === 'PUBLISHED'
-    && fixture.marketSnapshotPublished === true
-    && coverageComplete;
-  const generatedMs = Date.parse(fixture.generatedAt || '');
-  const nowMs = Date.parse(fixture.now || '');
-  const fresh = Number.isFinite(generatedMs) && Number.isFinite(nowMs)
-    && nowMs >= generatedMs && nowMs - generatedMs <= 12 * 60 * 60 * 1000;
-  return {
-    marketCyclePublished: published,
-    liveCoreEligible: published && fresh,
-    snapshotClockAdvances: published && fresh
-  };
+  const cycle = assessServerCycle({ generatedAt: fixture.generatedAt, cycleStatus: fixture.cycleStatus, marketSnapshotPublished: fixture.marketSnapshotPublished, marketSnapshotCoverage: fixture.coverage, marketCycleFreshnessSlaHours: fixture.marketCycleFreshnessSlaHours }, Date.parse(fixture.now || ''));
+  return { marketCyclePublished: cycle.published, liveCoreEligible: cycle.eligible, snapshotClockAdvances: cycle.eligible };
 }
 for (const name of ['failedAttempt', 'publishedCycle', 'futurePublishedCycle', 'extendedMetadataSlaCycle', 'exactTwelveHourBoundary']) {
   const assessed = assessRuntimeCycle(cycleFixture[name]);
@@ -692,7 +681,7 @@ for (const name of ['failedAttempt', 'publishedCycle', 'futurePublishedCycle', '
     throw new Error(`runtime cycle fixture mismatch (staleWeekendCycle): ${JSON.stringify(assessed)}`);
   }
 }
-if (!/var _marketCyclePublished = d\.meta\.cycleStatus === 'PUBLISHED'[\s\S]{0,180}d\.meta\.marketSnapshotPublished === true[\s\S]{0,100}_marketCoverageComplete/.test(dataRuntime)
+if (!/var _liveCoreEligible = window\._serverDataMeta\.liveCoreEligible/.test(dataRuntime)
   || !/if \(_liveCoreEligible && \(!isFinite\(_existingSnapshotMs\)/.test(dataRuntime)) {
   throw new Error('runtime cycle regression: loader publication/clock gate is missing');
 }

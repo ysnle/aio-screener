@@ -4705,55 +4705,15 @@ function _aioApplyServerTreasuryEvidence(macro, metadata) {
   return { applied: fields.length, fields };
 }
 
-function _aioIsStrictLiveCoreFreshnessAge(ageMs) {
-  return Number.isFinite(ageMs) && ageMs >= 0 && ageMs <= 12 * 60 * 60 * 1000;
-}
-
 async function _aioLoadServerData() {
   try {
-    var url = './public-data/data.json?t=' + Math.floor(Date.now() / 60000); // 분 단위 캐시버스터 — v57.61 kept: bypasses the 10-min CDN copy so data.json and reconciliation-status (revision-matched below) come from the same origin minute
-    var r = await fetch(url, { cache: 'no-cache' });
-    if (!r.ok) {
-      if (typeof _aioLog === 'function') _aioLog('warn', 'data', 'data.json HTTP ' + r.status);
+    // Fetch, reconciliation check and market-cycle gate: src/data/server-data.js (bound by the compat bridge).
+    var fetched = await window._aioFetchServerData();
+    if (!fetched.ok) {
+      if (typeof _aioLog === 'function') _aioLog('warn', 'data', fetched.reason);
       return false;
     }
-    var d = await r.json();
-    if (!d || !d.meta) {
-      if (typeof _aioLog === 'function') _aioLog('warn', 'data', 'invalid data.json payload');
-      return false;
-    }
-    // The 22-category artifact is rebuilt from data.json, market-snapshot,
-    // screener and history on every server refresh. Load it with the same
-    // polling cycle so the browser sees category degradation without reload.
-    var _reconciliationState = { status:'unavailable', checkedAt:Date.now(), detail:'not loaded' };
-    try {
-      var _reconciliationUrl = './public-data/reconciliation-status.json?t=' + Math.floor(Date.now() / 60000);
-      var _reconciliationResponse = await fetch(_reconciliationUrl, { cache:'no-cache' });
-      if (!_reconciliationResponse.ok) throw new Error('HTTP ' + _reconciliationResponse.status);
-      var _reconciliation = await _reconciliationResponse.json();
-      if (!_reconciliation || _reconciliation.schemaVersion !== 'reconciliation-status-v2' || !Array.isArray(_reconciliation.categories) || _reconciliation.categories.length !== 22) {
-        throw new Error('invalid reconciliation payload');
-      }
-      var _sourceRevisionMatches = !!(_reconciliation.closure && _reconciliation.closure.sourceRevision && d.meta.marketSnapshotRevision)
-        && _reconciliation.closure.sourceRevision === d.meta.marketSnapshotRevision;
-      _reconciliationState = {
-        status: _sourceRevisionMatches ? 'ready' : 'stale',
-        checkedAt: Date.now(),
-        generatedAt: _reconciliation.generatedAt || null,
-        revision: _reconciliation.revision || null,
-        sourceRevision: _reconciliation.closure && _reconciliation.closure.sourceRevision || null,
-        sourceRevisionMatches: _sourceRevisionMatches,
-        overall: _reconciliation.overall || 'BLOCKED',
-        counts: _reconciliation.counts || {},
-        categories: _reconciliation.categories,
-        partialCategories: _reconciliation.closure && _reconciliation.closure.partialCategories || [],
-        policyBlockedCategories: _reconciliation.closure && _reconciliation.closure.policyBlockedCategories || [],
-        runtimeBlockedCategories: _reconciliation.closure && _reconciliation.closure.runtimeBlockedCategories || [],
-        detail: _sourceRevisionMatches ? null : 'market snapshot revision mismatch'
-      };
-    } catch (_reconciliationError) {
-      _reconciliationState.detail = String(_reconciliationError && _reconciliationError.message || _reconciliationError);
-    }
+    var d = fetched.data;
     // P867: data.json can resolve before aio-core exposes DATA_SNAPSHOT on a
     // cold origin. Previously the macro block was then skipped permanently
     // even though cycle/news metadata loaded, producing saved-key + blank-card
@@ -4780,115 +4740,10 @@ async function _aioLoadServerData() {
     }
     globalThis._aioServerDataBridgeAttempts = 0;
 
+    window._serverDataMeta = window._aioBuildServerDataMeta(d, fetched.reconciliation);
     var _serverGeneratedMs = d.meta.generatedAt ? new Date(d.meta.generatedAt).getTime() : NaN;
-    var _serverNowMs = Date.now();
-    var _serverAgeMs = isFinite(_serverGeneratedMs) ? _serverNowMs - _serverGeneratedMs : NaN;
-    // v57.50: whole minutes — the raw quotient reached the news stale banner as "118.27963333333334분".
-    var ageMin = isFinite(_serverAgeMs) ? Math.max(0, Math.round(_serverAgeMs / 60000)) : null;
-    // R646/P1295/P1296: canonical policy is 12h; artifact metadata does not configure runtime freshness.
-    var _marketCycleFreshnessSlaHours = 12;
-    var _liveCoreAgeHours = isFinite(_serverAgeMs) ? _serverAgeMs / 3600000 : Infinity;
-    var _marketCoverageRaw = d.meta.marketSnapshotCoverage || {};
-    // Older producers returned {required, observed, ratio}; newer snapshot
-    // contracts also expose tier0Required/tier0Observed. Normalize both forms
-    // here so a complete published cycle is not blocked merely by schema shape.
-    var _marketCoverage = Object.assign({}, _marketCoverageRaw, {
-      tier0Required: Number(_marketCoverageRaw.tier0Required ?? _marketCoverageRaw.required),
-      tier0Observed: Number(_marketCoverageRaw.tier0Observed ?? _marketCoverageRaw.observed)
-    });
-    var _marketCoverageComplete = Number(_marketCoverage.tier0Required) > 0
-      && Number(_marketCoverage.tier0Observed) === Number(_marketCoverage.tier0Required)
-      && (!Array.isArray(d.meta.failedSymbols) || d.meta.failedSymbols.length === 0);
-    var _liveCoreFresh = _aioIsStrictLiveCoreFreshnessAge(_serverAgeMs);
-    // generatedAt is an attempt/payload timestamp. It is not permission to promote
-    // an incomplete market cycle: a failed refresh can have a fresh generatedAt while
-    // its quotes remain last-known-good. Require the producer's publication gate and
-    // complete tier-0 coverage before the live quote plane or snapshot clock advances.
-    var _marketCyclePublished = d.meta.cycleStatus === 'PUBLISHED'
-      && d.meta.marketSnapshotPublished === true
-      && _marketCoverageComplete;
-    // P1291/R641: closed-market timing does not extend the wall-clock age of a live artifact.
-    var _liveCoreEligible = _marketCyclePublished && _liveCoreFresh;
-    var _liveCoreStaleReason = _liveCoreEligible ? null
-      : (!_marketCyclePublished ? 'market-cycle-not-published'
-        : (!isFinite(_liveCoreAgeHours) ? 'generatedAt-missing-or-invalid' : 'market-cycle-freshness-sla-exceeded'));
-    window._serverDataMeta = {
-      generatedAt: d.meta.generatedAt, rotationHistory: d.rotationHistory || null,
-      attemptedAt: d.meta.attemptedAt || d.meta.generatedAt || null,
-      artifactGeneratedAt: d.meta.artifactGeneratedAt || d.meta.generatedAt || null,
-      ageMin: ageMin,
-      symbolsOk: d.meta.symbolsOk,
-      symbolsFail: d.meta.symbolsFail,
-      failedSymbols: d.meta.failedSymbols || [],
-      fearGreedOk: !!d.meta.fearGreedOk,
-      fredHasKey: !!d.meta.fredHasKey,
-      fredFetchOk: !!d.meta.fredFetchOk,
-      fredOk: !!d.meta.fredOk,
-      fredFetchedKeyCount: d.meta.fredFetchedKeyCount || 0,
-      fredLastSuccessfulAt: d.meta.fredLastSuccessfulAt || null,
-      treasuryStatus: d.meta.treasuryStatus || (d.macro && d.macro._treasury && d.macro._treasury.status) || 'unavailable',
-      treasuryObservedAt: d.meta.treasuryObservedAt || (d.macro && d.macro._treasury && d.macro._treasury.observedAt) || null,
-      treasuryLastSuccessfulAt: d.meta.treasuryLastSuccessfulAt || (d.macro && d.macro._treasury && d.macro._treasury.lastSuccessfulAt) || null,
-      macroKeyCount: d.meta.macroKeyCount || 0,
-      newsOk: !!d.meta.newsOk,
-      newsCount: d.meta.newsCount || (Array.isArray(d.news) ? d.news.length : 0),
-      newsCyclePolicy: d.meta.newsCyclePolicy || null,
-      newsCycleStart: d.meta.newsCycleStart || null,
-      newsCycleEnd: d.meta.newsCycleEnd || null,
-      newsCycleLabel: d.meta.newsCycleLabel || null,
-      newsNextRefresh: d.meta.newsNextRefresh || null,
-      marketSnapshotRevision: d.meta.marketSnapshotRevision || null,
-      marketSnapshotAttemptRevision: d.meta.marketSnapshotAttemptRevision || null,
-      marketSnapshotAttemptedAt: d.meta.marketSnapshotAttemptedAt || null,
-      marketSnapshotPublishedAt: d.meta.marketSnapshotPublishedAt || null,
-      marketSnapshotLastSuccessfulAt: d.meta.marketSnapshotLastSuccessfulAt || null,
-      // Keep the published quote coverage beside the revision so shell-level
-      // status consumers can distinguish a loaded reference snapshot from an
-      // empty/unknown state without reaching into the loader's local scope.
-      marketSnapshotCoverage: _marketCoverage,
-      marketSnapshotPublished: d.meta.marketSnapshotPublished === true,
-      marketCyclePublished: _marketCyclePublished,
-      cycleId: d.meta.cycleId || null,
-      cycleStatus: d.meta.cycleStatus || 'unknown',
-      marketCycleFreshnessSlaHours: _marketCycleFreshnessSlaHours,
-      liveCoreAgeHours: isFinite(_liveCoreAgeHours) ? _liveCoreAgeHours : null,
-      liveCoreFresh: _liveCoreFresh,
-      liveCoreEligible: _liveCoreEligible,
-      liveCoreStaleReason: _liveCoreStaleReason,
-      cycleManifestRevision: d.meta.cycleManifestRevision || null,
-      cycleManifestAttemptRevision: d.meta.cycleManifestAttemptRevision || null,
-      cycleComponents: d.meta.cycleComponents || null,
-      putCallOk: !!d.meta.putCallOk,
-      putCallAsOf: d.meta.putCallAsOf || (d.putCall && d.putCall.asOf) || null,
-      // v52.75/WP-AI0: generation success is not semantic verification.
-      // The raw LLM marketAnalysis remains blocked until the producer emits
-      // an explicit semantic-gate pass.
-      marketAnalysisSemanticOk: d.meta.marketAnalysisSemanticOk === true,
-      marketAnalysisOk: d.meta.marketAnalysisOk === true && d.meta.marketAnalysisSemanticOk === true,
-      // P1729: the AI panel names a blocked scheduled analysis or the retained previous verified one.
-      marketAnalysisReason: d.meta.marketAnalysisReason || null,
-      marketAnalysisRetained: d.meta.marketAnalysisRetained || null,
-      fmpHasKey: d.meta.fmpHasKey != null ? !!d.meta.fmpHasKey : null, // null = screener skipped이라 미확인
-      fmpOk: !!d.meta.fmpOk,
-      fmpCount: d.meta.fmpCount == null ? null : Number(d.meta.fmpCount),
-      fmpPlanError: !!d.meta.fmpPlanError,
-      secFundamentalsOk: !!d.meta.secFundamentalsOk,
-      secFundamentalsCount: d.meta.secFundamentalsCount == null ? null : Number(d.meta.secFundamentalsCount),
-      fundamentalCoveragePct: d.meta.fundamentalCoveragePct == null ? null : Number(d.meta.fundamentalCoveragePct),
-      blsStatus: d.meta.blsStatus || (d.macro && d.macro._bls && d.macro._bls.status) || 'unavailable',
-      blsSeriesCount: d.meta.blsSeriesCount || 0,
-      blsFailedSeries: d.meta.blsFailedSeries || [],
-      blsAttemptedAt: d.meta.blsAttemptedAt || (d.macro && d.macro._bls && d.macro._bls.attemptedAt) || null,
-      blsLastSuccessfulAt: d.meta.blsLastSuccessfulAt || (d.macro && d.macro._bls && d.macro._bls.lastSuccessfulAt) || null,
-      beaStatus: d.meta.beaStatus || (d.macro && d.macro._bea && d.macro._bea.status) || 'unavailable',
-      beaAttemptedAt: d.meta.beaAttemptedAt || (d.macro && d.macro._bea && d.macro._bea.attemptedAt) || null,
-      beaLastSuccessfulAt: d.meta.beaLastSuccessfulAt || (d.macro && d.macro._bea && d.macro._bea.lastSuccessfulAt) || null,
-      beaReleaseAt: d.meta.beaReleaseAt || (d.macro && d.macro._bea && d.macro._bea.releasedAt) || null,
-      beaNextReleaseAt: d.meta.beaNextReleaseAt || (d.macro && d.macro._bea && d.macro._bea.nextReleaseAt) || null,
-      reconciliation: _reconciliationState,
-      loadedAt: Date.now(),
-      artifacts: { dataJson: _liveCoreEligible ? 'ready' : 'stale', reconciliationStatus: _reconciliationState.status, telegramDigest: 'pending' }
-    };
+    var _liveCoreEligible = window._serverDataMeta.liveCoreEligible;
+    var ageMin = window._serverDataMeta.ageMin;
 
     // Artifact provenance is the only snapshot-level timestamp. It describes
     // the payload, not every field; per-field timestamps remain authoritative.

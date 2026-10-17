@@ -42,6 +42,7 @@ import { completedBars } from '../ui/components/stock-chart.js';
 import { keywordMayMatch, textPairs } from '../domain/news/keyword-prefilter.js';
 import { readScreenerBreadth } from '../domain/market/screener-breadth.js';
 import { installPageCompleteness } from '../data/page-completeness.js';
+import { fetchServerData, buildServerDataMeta } from '../data/server-data.js';
 import { buildScreenerAiContext, detectSectorQuery, formatScreenerResultPrompt, runScreenerQuery } from '../ai/context/screener-query.js';
 
 export function installCompatibilityGlobals(root = globalThis) {
@@ -72,6 +73,9 @@ export function installCompatibilityGlobals(root = globalThis) {
       return { status: screenerState('status'), revision: screenerState('revision'), updatedAt: screenerState('updatedAt'), metadata };
     }
   });
+  // The legacy data.json loader fetches and gates the server artifact here (legacy unification 2026-10-17).
+  window._aioFetchServerData = () => fetchServerData({ fetch: (...args) => window.fetch(...args) });
+  window._aioBuildServerDataMeta = (data, reconciliation) => buildServerDataMeta(data, { reconciliation });
   const screenerFactorAsOf = () => screenerState('metadata.asOf') || screenerState('revision') || null;
   const screenerQueryInput = () => ({
     rows: (typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() : null) || [],
