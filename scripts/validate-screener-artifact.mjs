@@ -1,7 +1,8 @@
 import { readFile } from 'node:fs/promises';
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 
 const path = process.argv[2] || 'public-data/screener.json';
-const payload = JSON.parse(await readFile(path, 'utf8'));
+const payload = expandScreenerArtifact(JSON.parse(await readFile(path, 'utf8')));
 const errors = [];
 const rows = payload && payload.data && typeof payload.data === 'object' ? Object.values(payload.data) : [];
 const universe = Number(payload && payload.universe);

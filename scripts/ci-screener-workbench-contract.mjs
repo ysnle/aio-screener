@@ -37,6 +37,7 @@ import { calculateOutcome, expectedExitDate } from '../src/domain/screener/outco
 import { filterRows } from '../src/ui/pages/screener.js';
 import { EXTENDED_MIN_DOLLAR_VOLUME_30D, computeFactorRanks, rankingPopulationExclusion } from '../src/domain/screener/factor-ranks.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../src/domain/fundamental/period.js';
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const failures = [];
@@ -374,7 +375,7 @@ async function run() {
     && expectedExitDate('2026-08-28', 'T+1', { sessionDates: ['2026-08-28', '2026-08-31'] }) === '2026-08-31T00:00:00.000Z',
   'G-SCR-OUTCOME: T+n uses explicit sessions and stays unavailable without a calendar');
 
-  const artifact = readJson('public-data/screener.json');
+  const artifact = expandScreenerArtifact(readJson('public-data/screener.json'));
   const model = readJson('public-data/model-validation-status.json');
   const validationGate = readJson('public-data/screener-validation-gate.json');
   const artifactRows = Object.values(artifact.data || {});

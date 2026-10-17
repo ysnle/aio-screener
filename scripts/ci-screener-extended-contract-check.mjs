@@ -14,7 +14,8 @@ import { buildExtendedShardPayload, extendedRefreshDue, EXTENDED_SHARD_COVERAGE_
 import { compactSecRecord, extendedSecOptions, sicBackfillTargets, SEC_SIC_BACKFILL_DEFAULT } from './fetch-sec-fundamentals.mjs';
 import { deriveExtendedScreenerAvailability } from './build-operations-status.mjs';
 import {
-  EXTENDED_SHARD_SCHEMA, EXTENDED_SHARD_URL, RANKING_CONTRACTS, encodeShardRows, expandShardRows, readUniverseScope, writeUniverseScope
+  EXTENDED_ROW_ENCODING, EXTENDED_SHARD_SCHEMA, EXTENDED_SHARD_URL, RANKING_CONTRACTS, encodeScreenerArtifact, encodeShardRows, expandScreenerArtifact,
+  expandShardRow, expandShardRows, readUniverseScope, writeUniverseScope
 } from '../src/data/screener-extended.js';
 import { createScreenerProvider } from '../src/data/providers/screener.js';
 import { createScreenerOrchestrator } from '../src/data/orchestrators/screener.js';
@@ -111,12 +112,28 @@ const nothing = buildExtendedUniverse({ iwmError: 'down', nasdaqError: 'down', p
 check('v57.81 retain: no source and no previous file is unusable (the producer writes nothing)', nothing.usable === false && nothing.payload.meta.sources.r2000.status === 'UNAVAILABLE');
 
 // ── 3. Lossless row encoding and shard schema parity (v57.81) ────────────────────────────────────────────────────
-const core = json('public-data/screener.json');
+const publishedCore = json('public-data/screener.json');
+const core = expandScreenerArtifact(publishedCore);
 const coreUniverse = json('public-data/screener-universe.json').universe || [];
 const encodedCore = encodeShardRows(core.data);
 const expandedCore = expandShardRows({ ...encodedCore, schemaVersion: EXTENDED_SHARD_SCHEMA });
 const mismatched = Object.keys(core.data).filter((sym) => !same(Object.entries(expandedCore[sym] || {}).sort(), Object.entries(core.data[sym]).sort()));
 check('v57.81 row-defaults encoding is lossless on every core row', mismatched.length === 0 && Object.keys(expandedCore).length === Object.keys(core.data).length, mismatched.slice(0, 5).join(','));
+// v57.95: screener.json itself ships in that encoding once the producer has run. Whichever shape the committed file
+// has, it expands to full rows, and the producer's encode -> reader's expand round trip returns every row and every
+// top-level field unchanged.
+const roundTrip = expandScreenerArtifact(JSON.parse(JSON.stringify(encodeScreenerArtifact(core))));
+const sortedRow = (row) => Object.entries(row || {}).sort(([a], [b]) => a.localeCompare(b));
+const roundTripMismatch = Object.keys(core.data).filter((sym) => !same(sortedRow(roundTrip.data[sym]), sortedRow(core.data[sym])));
+const metaKeys = (artifact) => Object.keys(artifact).filter((key) => key !== 'data').sort();
+check('v57.95 the published core artifact (encoded or not yet re-produced) expands to the plain shape',
+  [EXTENDED_ROW_ENCODING, undefined].includes(publishedCore.rowEncoding) && !('rowEncoding' in core) && !('rowDefaults' in core) && !('rowDefaultsWhen' in core)
+  && Object.keys(core.data).length === Object.keys(publishedCore.data).length && Object.values(publishedCore.data).every((row, index) => same(sortedRow(expandShardRow(publishedCore, row)), sortedRow(Object.values(core.data)[index]))),
+  `rowEncoding=${publishedCore.rowEncoding}`);
+check('v57.95 core encode/expand round trip is lossless (rows and top-level fields)',
+  roundTripMismatch.length === 0 && Object.keys(roundTrip.data).length === Object.keys(core.data).length && same(metaKeys(roundTrip), metaKeys(core)),
+  roundTripMismatch.slice(0, 5).join(','));
+check('v57.95 an unencoded artifact (fixture, older file) passes through expansion unchanged', expandScreenerArtifact(core) === core && expandScreenerArtifact(null) === null);
 const usStocks = coreUniverse.filter((row) => core.data[row.sym] && !/\.(KS|KQ|T|TW|TWO)$/.test(row.sym) && row.index !== 'ETF' && row.sector !== 'ETF').slice(0, 80);
 const renamed = usStocks.map((row, index) => ({ from: row.sym, sym: `ZXQ${String.fromCharCode(65 + (index % 26))}${String.fromCharCode(65 + Math.floor(index / 26))}`, row }));
 const NEWS_KEYS = ['newsMemo', 'newsTs', 'newsObservedAt', 'newsFetchedAt', 'newsMemoVerified', 'newsMemoSources'];
@@ -189,7 +206,7 @@ check('v57.81 operations status: extended availability AVAILABLE / DEGRADED(stal
 
 // ── 5. Provider: lazy shard read, merge and ranking contract (v57.81) ───────────────────────────────────────────
 const responses = {
-  './public-data/screener.json': core,
+  './public-data/screener.json': publishedCore,
   './public-data/screener-universe.json': json('public-data/screener-universe.json'),
   './public-data/model-validation-status.json': json('public-data/model-validation-status.json'),
   [EXTENDED_SHARD_URL]: shard
@@ -201,6 +218,19 @@ let allowFetch = true;
 const provider = createScreenerProvider({ httpClient, readUniverseScope: () => scope, allowExtendedFetch: () => allowFetch, yieldImpl: async () => {} });
 const coreRead = await provider.readCurrent();
 check('v57.81 default view does not request the extended shard', requested.length === 3 && !requested.includes(EXTENDED_SHARD_URL) && coreRead.metadata.universeScope === 'core' && !coreRead.rows.some((row) => 'universeTier' in row || 'membership' in row), JSON.stringify(requested));
+{
+  // v57.95: the provider reads the encoded core file into the same rows as the plain (expanded) file.
+  const fixedNow = Date.parse(core.asOf) + 3600000;
+  const clock = { now: () => fixedNow, iso: () => new Date(fixedNow).toISOString() };
+  const readWith = async (artifact) => createScreenerProvider({
+    httpClient: { requestJson: async (url) => (url === './public-data/screener.json' ? { ok: true, data: JSON.parse(JSON.stringify(artifact)) } : responses[url] ? { ok: true, data: JSON.parse(JSON.stringify(responses[url])) } : { ok: false, error: 'HTTP_404' }) },
+    clock, yieldImpl: async () => {}
+  }).readCurrent();
+  const [fromEncoded, fromPlain] = await Promise.all([readWith(publishedCore), readWith(core)]);
+  const rowsText = (read) => JSON.stringify(read.rows.map((row) => Object.entries(row).sort(([a], [b]) => a.localeCompare(b))));
+  check('v57.95 the provider builds identical rows from the encoded and the plain core artifact',
+    fromEncoded.rows.length === fromPlain.rows.length && fromEncoded.rows.length > 0 && rowsText(fromEncoded) === rowsText(fromPlain), `${fromEncoded.rows.length}/${fromPlain.rows.length}`);
+}
 scope = 'extended'; allowFetch = false; requested.length = 0;
 const deferred = await provider.readCurrent({ refresh: false });
 check('v57.81 a remembered 확장 choice does not download the shard outside the screener route', !requested.includes(EXTENDED_SHARD_URL) && deferred.metadata.extended?.status === 'deferred' && deferred.metadata.universeScope === 'core');

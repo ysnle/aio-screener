@@ -9,12 +9,13 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { buildExtendedShardPayload } from './fetch-data.mjs';
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_SCREENER_EXTENDED_TEST_PORT || 8957);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const json = (rel) => JSON.parse(readFileSync(resolve(root, rel), 'utf8'));
-const core = json('public-data/screener.json');
+const core = expandScreenerArtifact(json('public-data/screener.json'));
 const universe = json('public-data/screener-universe.json').universe || [];
 
 // A small shard from real US core rows under new symbols: the same row schema the producer writes.

@@ -22,6 +22,7 @@ import { krThemeArtifactRead } from '../src/domain/themes/kr-themes.js';
 import { buildThemePlaybook } from '../src/domain/scenarios/theme-playbook.js';
 import { THEME_STATES } from '../src/domain/scenarios/analogs.js';
 import { SCENARIO_STATE_CURRENT } from '../src/domain/scenarios/theme-stage.js';
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PD = (name) => path.join(ROOT, 'public-data', name);
@@ -107,7 +108,7 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
   const breadthState = regime?.axes?.find((axis) => axis.id === 'breadth')?.state || null;
   const events = upcomingMacroEvents({ schedules: calendar?.schedules || {}, nowMs });
   const crossroads = buildMacroCrossroads({ read: read ? { ...read, breadthState } : read, macroHistory, history, events, outcomes, previousLeadId: previous?.crossroads?.leadId || null });
-  const rows = Object.entries(screener?.data || {}).map(([sym, row]) => ({ sym, ...row }));
+  const rows = Object.entries(expandScreenerArtifact(screener)?.data || {}).map(([sym, row]) => ({ sym, ...row }));
   const maps = themeMaps || { usThemes: [], krThemeMap: {}, labels: {} };
   const usGroups = buildGroupStrength({ themes: maps.usThemes, rows, sortKey: 'ret3m' }).groups || [];
   const krThemes = krThemeArtifactRead({ themeMap: maps.krThemeMap, rows }).themes || [];

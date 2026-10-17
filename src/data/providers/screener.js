@@ -7,7 +7,7 @@ import { evaluateQuoteContract } from './quote-contract.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../../domain/fundamental/period.js';
 import { SEC_REFERENCE_TURNOVER_BOUNDS, SEC_MARGIN_HOLD_ABOVE_PCT } from '../../domain/fundamental/sec-report.js';
 import { finiteNumber as finite } from '../../domain/shared/number.js';
-import { EXTENDED_SHARD_URL, RANKING_CONTRACTS, expandShardRows, isValidShard, normalizeUniverseScope, rowMembership, shardIdentityRows } from '../screener-extended.js';
+import { EXTENDED_SHARD_URL, RANKING_CONTRACTS, expandScreenerArtifact, expandShardRows, isValidShard, normalizeUniverseScope, rowMembership, shardIdentityRows } from '../screener-extended.js';
 
 // P1173 (17 작업 단위 4 / O07): this consumer declares which input set it can combine. The three
 // artifacts may be refreshed on their own cadence, so equal generation dates are not required; what is
@@ -292,8 +292,9 @@ export function createScreenerProvider({
       }
       const now = typeof clock.now === 'function' ? clock.now() : Date.now();
       const LIVE_QUOTE_MAX_AGE_MS = 15 * 60 * 1000;
+      // v57.95: the core rows arrive in the row-defaults encoding; one held response is expanded once.
       const receivedArtifact = artifactResponse.ok && artifactResponse.data && typeof artifactResponse.data === 'object'
-        ? artifactResponse.data
+        ? expandScreenerArtifact(artifactResponse.data)
         : null;
       const universePayload = universeResponse.ok && universeResponse.data && typeof universeResponse.data === 'object'
         ? universeResponse.data

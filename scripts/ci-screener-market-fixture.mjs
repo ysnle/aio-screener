@@ -6,6 +6,7 @@ import { filterRows, sortRows } from '../src/ui/pages/screener.js';
 import { buildGroupStrength } from '../src/domain/themes/group-strength.js';
 import { normalizeScreener } from '../src/data/normalize/screener.js';
 import { createScreenerOrchestrator } from '../src/data/orchestrators/screener.js';
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 
 // P1625: extreme observations in another listing market must not move US peer ranks.
 const fixtureRow = (sym, seed, market = 'US') => ({
@@ -58,7 +59,7 @@ await orchestrator.sync();
 assert.equal(published.rows[0].rank, null, 'P1625: unavailable rerank cannot retain artifact rank');
 
 // Actual artifact audit is local read-only evidence, not a forced PLTR ranking expectation.
-const artifact = JSON.parse(readFileSync(new URL('../public-data/screener.json', import.meta.url)));
+const artifact = expandScreenerArtifact(JSON.parse(readFileSync(new URL('../public-data/screener.json', import.meta.url))));
 const pltr = artifact.data?.PLTR;
 assert.ok(pltr, 'P1625: PLTR remains in the published screener artifact');
 assert.equal(typeof pltr.ret3m, 'number', 'P1625: PLTR return evidence is present');
