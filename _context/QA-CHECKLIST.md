@@ -4,6 +4,10 @@ last_verified: 2026-10-17
 confidence: medium
 ---
 
+## v57.97 배포 번들링 (2026-10-17)
+
+- [ ] QA-DEPLOY-BUNDLE-01: v57.97 push 뒤 라이브 배포의 deployment.json에 bundle.files가 있고, 라이브 불변 검사가 index.html·전역 스크립트 9개·부팅 모듈 전체의 sha256 일치를 통과하며, 첫 화면이 부팅 대체(legacy fallback) 없이 열린다. verify_by: node scripts/ci-live-invariant-check.mjs (배포 직후 pages-deploy 마지막 단계) + 라이브 첫 화면 확인
+
 ## v57.95 스크리너 산출물 압축 (2026-10-17)
 
 - [ ] QA-SCR-43: v57.95 이후 첫 refresh-screener 데이터 커밋의 public-data/screener.json이 rowEncoding row-defaults.v1로 쓰이고, 스크리너 표·시장 폭·AI 문맥이 같은 행을 읽는다. verify_by: node scripts/ci-screener-extended-contract-check.mjs (v57.95 published core artifact is row-defaults encoded) + node scripts/validate-screener-artifact.mjs

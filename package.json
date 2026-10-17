@@ -12,6 +12,7 @@
     "qa:external": "node scripts/qa-runner.mjs external --no-cache"
   },
   "devDependencies": {
+    "esbuild": "0.28.2",
     "js-yaml": "5.4.2",
     "playwright": "^1.48.0"
   }

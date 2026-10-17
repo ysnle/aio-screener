@@ -36,7 +36,7 @@ jobs:
   deploy:
     if: >-
       github.event_name == 'workflow_dispatch'
-      || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+      || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -119,8 +119,12 @@ jobs:
         with:
           node-version: '24'
 
-      # No `npm ci`: every later step (staging, deployment.json, ci-external-pipeline-check, ci-live-invariant-check
-      # and their relative imports) uses Node built-ins only. Restore the install if a step adds a package import.
+      # The staging step's bundle/minify pass imports the lockfile-pinned esbuild. Every other step (deployment.json,
+      # ci-external-pipeline-check, ci-live-invariant-check and their relative imports) uses Node built-ins only.
+      # --ignore-scripts: no package lifecycle script runs in this privileged job; esbuild resolves its
+      # lockfile-pinned platform binary package without its optional postinstall.
+      - name: Install pinned build tooling
+        run: npm ci --no-audit --no-fund --ignore-scripts
 
       - name: Stage explicit public artifact allowlist
         env:
@@ -142,13 +146,17 @@ jobs:
             --exclude 'masters/issuer-aggregates.json' \
             --exclude 'masters/managers/' \
             public-data/ "$RUNNER_TEMP/pages-dist/public-data/"
+          # Deploy-time bundle: minify the classic js/ scripts one by one and bundle the src/ module graph into hashed
+          # chunks, in the staged copy only (source layout, CI and local serving are unchanged). It runs before the
+          # code hash so the service worker keys its shell cache on the bytes actually shipped.
+          node scripts/build-pages-bundle.mjs "$RUNNER_TEMP/pages-dist" --manifest "$RUNNER_TEMP/aio-bundle-manifest.json"
           # v57.54: key the service worker's cache-first shell on the shipped code, so a code fix released under the
           # same version string still reaches returning readers; data-only deploys keep the hash (no cache churn).
           code_hash="$(cd "$RUNNER_TEMP/pages-dist" && find index.html js src -type f | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -c1-12)"
           grep -q "^const SW_CODE_HASH = 'local';$" "$RUNNER_TEMP/pages-dist/sw.js" || { echo "::error::sw.js SW_CODE_HASH placeholder missing"; exit 1; }
           sed -i "s/^const SW_CODE_HASH = 'local';$/const SW_CODE_HASH = '${code_hash}';/" "$RUNNER_TEMP/pages-dist/sw.js"
           echo "service worker code hash: ${code_hash}"
-          node --input-type=module -e "import fs from 'node:fs'; const version=JSON.parse(fs.readFileSync('version.json','utf8')).version; const artifact={schemaVersion:'aio-deployment.v1',sourceSha:process.env.AIO_SOURCE_SHA,appRevision:version,attestationRunId:Number(process.env.AIO_ATTESTATION_RUN_ID),deploymentRunId:Number(process.env.AIO_DEPLOYMENT_RUN_ID),deployedAt:new Date().toISOString()}; if(!/^[0-9a-f]{40}$/.test(artifact.sourceSha)) process.exit(1); fs.writeFileSync(process.env.RUNNER_TEMP+'/pages-dist/deployment.json',JSON.stringify(artifact,null,2)+'\n');"
+          node --input-type=module -e "import fs from 'node:fs'; const version=JSON.parse(fs.readFileSync('version.json','utf8')).version; const artifact={schemaVersion:'aio-deployment.v1',sourceSha:process.env.AIO_SOURCE_SHA,appRevision:version,attestationRunId:Number(process.env.AIO_ATTESTATION_RUN_ID),deploymentRunId:Number(process.env.AIO_DEPLOYMENT_RUN_ID),deployedAt:new Date().toISOString(),bundle:JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+'/aio-bundle-manifest.json','utf8'))}; if(!/^[0-9a-f]{40}$/.test(artifact.sourceSha)) process.exit(1); fs.writeFileSync(process.env.RUNNER_TEMP+'/pages-dist/deployment.json',JSON.stringify(artifact,null,2)+'\n');"
 
       - name: Setup Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
