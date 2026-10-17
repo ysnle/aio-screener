@@ -43,20 +43,10 @@
       "atlas-foundation-data-quality"
     ],
     "sourceIds": [
-      "PS-12",
-      "WEB-BLS-CPI-CONCEPTS"
+      "PS-12"
     ],
-    "researchEvidence": [
-      {
-        "factId": "fact:bls:cpi",
-        "sourceId": "WEB-BLS-CPI-CONCEPTS",
-        "statement": "BLS defines CPI as the average change over time in prices paid by urban consumers for a market basket; it is used in some official escalation and deflation contexts but is not every household's personal cost of living.",
-        "scope": "Consumer price measurement",
-        "invalidation": "Population coverage, basket weights, substitution, quality adjustment, seasonality, and geography matter; do not treat a CPI movement as a universal household or asset-price measure.",
-        "asOf": "2026-08-12"
-      }
-    ],
-    "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+    "researchEvidence": [],
+    "researchCoverage": "RESEARCH_REQUIRED"
   },
   "quality": {
     "coreTextCharacters": 254,

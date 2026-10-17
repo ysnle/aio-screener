@@ -163,6 +163,7 @@ check('scheduled knowledge lint also checks workspace contract', /ci-workspace-c
 check('failure escalation workflow exists', exists('.github/workflows/operations-alert.yml'));
 const operationsAlert = read('.github/workflows/operations-alert.yml');
 check('operations alert monitors each required workflow', ['CI', 'Data freshness watchdog', 'Knowledge base lint'].every((name) => operationsAlert.includes(`'${name}'`)));
+check('v57.92 W04 operations alert serializes per workflow, not in one global pending slot', /group: aio-operations-alert-\$\{\{ github\.event\.workflow_run\.name \}\}/.test(operationsAlert));
 check('operations alert deduplicates one issue by workflow marker', /aio-operations-alert:\$\{workflow\}/.test(operationsAlert) && /listForRepo/.test(operationsAlert) && /includes\(marker\)/.test(operationsAlert));
 check('operations alert threshold matches the two-consecutive-failure SLO', /consecutiveFailures\s*=\s*1/.test(operationsAlert) && /consecutiveFailures\s*<\s*2/.test(operationsAlert) && /candidate\.conclusion === 'success'/.test(operationsAlert));
 check('operations alert updates failures without duplicate-comment spam and closes matching recovery', /state:\s*'open'/.test(operationsAlert) && /listComments/.test(operationsAlert) && /failureSignature/.test(operationsAlert) && /sameSignatureSeen/.test(operationsAlert) && /reopened/.test(operationsAlert) && /signatureChanged/.test(operationsAlert) && !/Still failing:/.test(operationsAlert) && /state:\s*'closed'/.test(operationsAlert) && /if \(succeeded\)/.test(operationsAlert));

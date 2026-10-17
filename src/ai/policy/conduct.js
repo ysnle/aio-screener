@@ -23,6 +23,10 @@ const DEFENSIVE = /(?:탐지|적발|감시|처벌|불법인지|위법인지|피�
 const WHY = /(?:왜\s|why\s)/i;
 const EVASION = /(?:(?:감시|적발|단속|추적|조사|금감원|금융당국|당국|거래소|감독)\S*\s*(?:피|안\s*당|안\s*걸|우회|빠져)|들키지|안\s*걸리게|걸리지\s*않게|avoid\s+(?:detection|surveillance)|without\s+getting\s+caught|evade\s+(?:detection|surveillance))/i;
 const STRONG_EXECUTION = /(?:하는\s*법|실행\s*단계|단계별|step[- ]by[- ]step|how\s+to\s+(?:do|use|run))/i;
+// v57.92 (internal audit A01): one defensive word anywhere ("처벌과 실행 단계를 함께") cancelled an explicit execution
+// request. Only a how-to that is itself defensive ("탐지하는 법", "단계별 적발 사례") is exempt; the strong execution test
+// runs on what is left after those phrases are removed.
+const DEFENSIVE_HOW_TO = /(?:(?:탐지|적발|감시|예방|식별|구별|알아채|신고)\s*(?:하는\s*법|하는\s*방법|방법|단계)|단계별\s*(?:탐지|적발|감시|처벌|예방|신고)|(?:불법인지|위법인지|처벌\S*|탐지\S*|적발\S*)\s*단계별(?:로)?|how\s+to\s+(?:detect|spot|report|avoid\s+being))/gi;
 const EXECUTION = /(?:퍼뜨|조작하|우회|숨기|회피|(?:활용|이용)\s*(?:방법|법|하는\s*법)|하는\s*법|실행\s*단계|단계별|step[- ]by[- ]step|evade|bypass|execute|how\s+to\s+(?:do|use|run))/i;
 const DIRECT_MARKET_ACTION = /(?:매수|매도|추가매수|진입|청산|손절|익절|목표가|진입가|손절가|비중|포지션|리밸런싱|buy|sell|trade|allocate|position|stop[- ]?loss|take[- ]?profit)/i;
 const LEGAL_DETERMINATION = /(?:신고(?:해야|할까|의무)|납부(?:해야|할까|의무)|합법(?:인가|이야|입니까)|불법(?:인가|이야|입니까)|법적으로\s*(?:가능|문제|해야|허용)|세금\s*(?:얼마|계산|내야)|규제\s*(?:준수|위반)|법률\s*자문|legal\s+advice|is\s+it\s+legal|tax\s+(?:filing|liability)|must\s+i\s+(?:file|pay))/i;
@@ -62,8 +66,9 @@ export function classifyAIRequest({ query = '' } = {}) {
 
   const defensive = DEFENSIVE.test(queryText);
   const evasion = EVASION.test(queryText);
-  const asksExecution = evasion || (!defensive && (STRONG_EXECUTION.test(queryText)
-    || (!WHY.test(queryText) && (EXECUTION.test(queryText) || (operational && !educational)))));
+  const strongExecution = STRONG_EXECUTION.test(queryText.replace(DEFENSIVE_HOW_TO, ' '));
+  const asksExecution = evasion || strongExecution || (!defensive
+    && !WHY.test(queryText) && (EXECUTION.test(queryText) || (operational && !educational)));
   if (prohibitedCategories.length && asksExecution) {
     return Object.freeze({
       version: AI_CONDUCT_POLICY_VERSION, requestMode: 'PROHIBITED_INSTRUCTION',

@@ -46,7 +46,7 @@
           "chain": ["수요 증가 또는 공급 제약", "가격 상승", "가계 구매력 변화", "기업 매출·원가·마진의 분화"],
           "marketBridge": "같은 인플레이션 환경에서도 가격 결정력과 비용 구조가 다른 기업의 이익 경로는 달라진다.",
           "checkpoint": "매출이 10% 늘었을 때 판매량이 늘어난 것인지, 가격만 오른 것인지 구분할 수 있는가?",
-          "lessonIds": ["B1", "B2", "B4", "H1"],
+          "lessonIds": ["B1", "B2", "B3", "K6"],
           "sources": [
             { "label": "BLS · Consumer Price Index", "url": "https://www.bls.gov/cpi/" }
           ]
@@ -74,7 +74,7 @@
           "chain": ["현재 소비의 포기", "시간·물가·신용 위험 보상", "할인율 형성", "미래 현금흐름의 현재가치"],
           "marketBridge": "금리가 오르면 무조건 모든 주식이 같은 폭으로 내려가는 것이 아니라, 현금흐름의 시점·확실성·재무구조에 따라 충격이 달라진다.",
           "checkpoint": "같은 100억 원의 이익이라도 내년에 버는 기업과 10년 뒤에 벌 것으로 기대되는 기업의 가치는 왜 달라야 할까?",
-          "lessonIds": ["C1", "C2", "C4", "J2"],
+          "lessonIds": ["D1", "D2", "C1", "B4"],
           "sources": [
             { "label": "Investor.gov · Compound interest and investing basics", "url": "https://www.investor.gov/introduction-investing/investing-basics" }
           ]
@@ -135,7 +135,7 @@
           "classificationLabel": "분석 프레임",
           "lead": "유동성은 물처럼 고르게 퍼지기보다, 담보·수익 기대·정책·시장 규모가 허락하는 통로로 먼저 흐른다.",
           "paragraphs": [
-            "금융시스템에 공급된 돈은 은행 대출, 국채, 머니마켓, 부동산, 주식과 기업투자를 거쳐 실물경제로 이동한다. 어느 통로가 열려 있는지에 따라 자산가격과 소비자물가가 움직이는 순서가 달라진다.",
+            "중앙은행이 공급하는 준비금은 은행끼리 결제하는 돈이라 그대로 주식시장으로 가지 않는다. 은행 대출이 새 예금을 만들거나, 자산 매입으로 투자자의 예금이 늘고 그 투자자가 다른 자산을 사는 경로를 거쳐야 가격과 실물에 닿는다. 어느 통로가 열려 있는지에 따라 자산가격과 소비자물가가 움직이는 순서가 달라진다.",
             "이미 자산을 가진 사람은 가격 상승의 혜택을 먼저 받을 수 있지만, 자산이 없는 사람은 생활비 상승을 먼저 겪을 수 있다. 같은 경제 안에서 자산과 소득의 경로가 갈라지는 이유다.",
             "따라서 ‘돈이 풀렸다’는 말만으로 투자 결론을 내릴 수 없다. 누가 자금을 공급하고, 누가 빌릴 수 있으며, 어느 시장이 그 돈을 흡수할 만큼 크고 매력적인지를 추적해야 한다."
           ],
@@ -170,7 +170,7 @@
           "chain": ["자본·노동·기술 투입", "매출과 매출총이익", "영업이익과 세후영업이익", "재투자 후 잉여현금흐름·ROIC"],
           "marketBridge": "산업 성장률보다 기업의 단위경제성, 재투자 필요량, 현금 전환율이 주주가치에 더 직접적이다.",
           "checkpoint": "매출이 빠르게 성장해도 잉여현금흐름이 계속 악화된다면 무엇을 확인해야 할까?",
-          "lessonIds": ["H1", "H2", "H4", "I1", "I3"],
+          "lessonIds": ["G1", "K10", "K6", "K9", "I2"],
           "routeTarget": { "routeId": "fundamental", "conceptId": "free-cash-flow", "metric": "FCF_ROIC", "timeframe": "TTM_3Y", "label": "기업 분석 화면에서 확인" },
           "sources": [
             { "label": "SEC · Financial statement basics", "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-stock-tables/financial-statements" }
@@ -191,7 +191,7 @@
           "chain": ["미래 매출 성장", "마진·재투자·현금 전환", "할인율과 위험 프리미엄", "시장 기대와 실제 결과의 차이"],
           "marketBridge": "주가의 방향은 절대적으로 좋은 실적보다 컨센서스와 가격에 내장된 기대를 얼마나 넘어섰는지에 좌우될 수 있다.",
           "checkpoint": "현재 주가가 정당화되려면 5년 뒤 매출·마진·투하자본이 어느 수준이어야 하는가?",
-          "lessonIds": ["J1", "J2", "J4", "K1"],
+          "lessonIds": ["G5", "G6", "H2", "I2"],
           "routeTarget": { "routeId": "fundamental", "conceptId": "valuation-expectations", "metric": "DCF_EXPECTATIONS", "timeframe": "5Y", "label": "밸류에이션 화면으로 연결" },
           "sources": [
             { "label": "SEC EDGAR · Company filings", "url": "https://www.sec.gov/edgar/search-and-access" }
@@ -241,7 +241,7 @@
           "chain": ["선행 CAPEX", "감가상각·운영비·사용률", "매출과 영업현금흐름", "유지투자 후 FCF·ROIC"],
           "marketBridge": "AI 투자 사이클의 핵심은 CAPEX 규모 자체가 아니라 그 자본이 얼마나 빨리, 오래, 높은 수익률로 현금화되는가이다.",
           "checkpoint": "사용률이 예상보다 낮거나 장비 교체주기가 짧아질 때 어떤 기업의 이익과 현금흐름이 먼저 흔들릴까?",
-          "lessonIds": ["M1", "M3", "M7", "M9"],
+          "lessonIds": ["L1", "K10", "K7", "L15", "M8"],
           "routeTarget": { "routeId": "atlas", "conceptId": "economics-roic", "metric": "CAPEX_FCF_ROIC", "timeframe": "3Y_5Y", "label": "AI 경제성 지도로 이동" },
           "sources": [
             { "label": "SEC EDGAR · Filed company evidence", "url": "https://www.sec.gov/edgar/search-and-access" }
@@ -270,7 +270,7 @@
           "chain": ["정보·기대·포지션", "시장 가격 형성", "기업 실적과 기대의 대조", "가치·추세·반증을 함께 판단"],
           "marketBridge": "투자자는 시장을 존중하되 시장 가격을 진실 그 자체로 받아들이지 않고, 틀렸을 때 확인할 조건을 미리 정한다.",
           "checkpoint": "주가가 내 분석과 반대로 움직일 때, 어느 사실이 바뀌면 내 가설을 폐기할 것인가?",
-          "lessonIds": ["N1", "N3", "N8", "N12"],
+          "lessonIds": ["H1", "H2", "H3", "H4", "H5"],
           "routeTarget": { "routeId": "masters", "conceptId": "institutional-position-change", "metric": "13F_QUARTERLY_CHANGE", "timeframe": "QUARTERLY_LAGGED", "label": "기관의 공개 보유 변화로 가설 대조" },
           "sources": [
             { "label": "Investor.gov · How markets and investing work", "url": "https://www.investor.gov/introduction-investing" }
@@ -291,7 +291,7 @@
           "chain": ["가설과 기대수익", "손실 가능성과 생존 조건", "지속적 재검증", "선택권을 보존하는 소유 구조"],
           "marketBridge": "종목 선택보다 먼저 포지션 크기, 시간축, 반증 조건, 현금 필요 시점을 정해야 한다.",
           "checkpoint": "내 가설이 틀렸을 때도 다음 결정을 내릴 자본과 시간을 남겨 두었는가?",
-          "lessonIds": ["O1", "O2", "O4", "O5"],
+          "lessonIds": ["J3", "J4", "J5", "O5"],
           "sources": [
             { "label": "Investor.gov · Diversification", "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/diversification" }
           ]

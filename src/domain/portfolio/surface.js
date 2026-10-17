@@ -264,7 +264,9 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   // E3/P1196: 원가 통화가 시세 통화와 다른 경우도 같은 근거로 환산한다 — 값이 USD이고 원가가 KRW면
   // 환산 없이는 P&L을 만들 수 없지만, leg가 선언되면 두 축이 같은 단위가 되어 P&L이 성립한다.
   // 값·현금 환산은 합계를 좌우하므로 하나라도 실패하면 보류하고, 원가 환산 실패는 P&L만 보류한다.
-  const costBasisConflict = rows.some((row) => row.costCurrency && row.currency && row.costCurrency !== row.currency);
+  // v57.92: the value side resolves its unit with the listing fallback, so the conflict check must too — a KRW cost on an
+  // undeclared US quote was subtracted from a dollar value (-139,900 on a $100 holding).
+  const costBasisConflict = rows.some((row) => row.costCurrency && (row.currency || row.listingCurrency) && row.costCurrency !== (row.currency || row.listingCurrency));
   // 원가 축이 이미 기준 통화면 환산할 것이 없다 — 필요한 경우에만 leg를 요구한다.
   // P1684: the cost axis falls back exactly like the value axis (quote currency, then listing currency) — a quote
   // without a currency once left a US cost of $2,000 as ₩2,000 and printed +333% instead of +22%.

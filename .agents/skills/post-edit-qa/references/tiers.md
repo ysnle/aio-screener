@@ -63,10 +63,10 @@ The canonical mapping is `architecture/qa-pipeline.json`. Capture `session-start
 - Retry: after a failure batch, fix the complete batch and run `rerun-failed`; it selects exact failed gates plus declared dependencies, not all siblings in their groups. Run `affected` again after changing a different surface. Run `full --no-cache` once at the final release boundary, not after every edit.
 - Evidence: `.cache/aio-qa/last-run.json` records selection, timing, PASS/FAIL/SKIP and the phase that blocked later work.
 
-## Tier 13: Live Deployment Verification (R290/P653)
+## Tier 13: Real-Browser Verification (R290/P653)
 
 For UI/UX-visible changes, run this tier before claiming the change works, not just that its source compiles or its unit tests pass — static checks and headless DOM assertions verify structure, not what a user actually sees render.
 
-- If Chrome MCP browser tools are connected: navigate to the local dev server (or the live site when checking deployed behavior), interact with the changed control the way a user would, screenshot before/after, and read the console for new errors/warnings.
-- If Chrome MCP is not connected: do not claim this tier passed. State explicitly in the report that live-browser verification was not run and why, and record it as a QA-CHECKLIST unverified item rather than letting it disappear into prose that the next session has to rediscover.
+- The evidence level is set by what was done and observed, not by which tool did it: any real browser (the app's built-in browser, Claude in Chrome, or the verify-aio Playwright driver) that navigates, interacts with the changed control the way a user would, takes before/after screenshots and reads the console meets this tier. Name the environment: a local server is local-browser evidence, the deployed site is deployment evidence; never report one as the other. An automated driver PASS asserts the scripted steps; it is not a visual review of every screen.
+- If no real browser was run: do not claim this tier passed. State explicitly in the report that live-browser verification was not run and why, and record it as a QA-CHECKLIST unverified item rather than letting it disappear into prose that the next session has to rediscover.
 - This tier is distinct from Tier 4 (chart/layout static checks) and `scripts/ci-viewport-matrix-check.mjs` (headless geometry matrix): both of those catch structural regressions without a real browser paint. Use this tier when the question is "does this actually look/work right," not "is the DOM well-formed."

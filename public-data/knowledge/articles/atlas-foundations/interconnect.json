@@ -45,19 +45,10 @@
     "sourceIds": [
       "PS-01",
       "PS-02",
-      "WEB-OECD-PRODUCTIVITY-METHODS",
       "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",
       "WEB-TSMC-3DFABRIC-2026"
     ],
     "researchEvidence": [
-      {
-        "factId": "fact:oecd:productivity",
-        "sourceId": "WEB-OECD-PRODUCTIVITY-METHODS",
-        "statement": "OECD productivity measurement combines output with labour and capital inputs; growth can reflect more or better inputs as well as improved efficiency in how inputs are combined.",
-        "scope": "Productivity measurement and growth accounting",
-        "invalidation": "Productivity ratios depend on output definition, hours and capital-service measurement, price adjustments, capacity utilization, and measurement error; they are not a pure measure of worker effort.",
-        "asOf": "2026-08-12"
-      },
       {
         "factId": "fact:nvidia:cuda-parallel",
         "sourceId": "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",

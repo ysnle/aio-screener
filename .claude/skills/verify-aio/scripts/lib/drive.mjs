@@ -66,8 +66,8 @@ export async function bootPage(context, baseUrl, viewport) {
   const page = await context.newPage();
   await page.goto(`${baseUrl}/index.html`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => typeof window.showPage === 'function' && document.querySelector('.page.active'), null, { timeout: 30000 });
-  if (viewport === 'phone') {
-    // Phone layout hides the sidebar behind the menu toggle; open it before each sidebar click.
+  if (viewport !== 'desktop') {
+    // Phone and iPad-portrait layouts (<= 1100px) hide the sidebar behind the menu toggle; open it before each sidebar click.
     const orig = page.click.bind(page);
     page.click = async (sel, o) => {
       if (String(sel).startsWith('.sidebar')) {
@@ -80,7 +80,8 @@ export async function bootPage(context, baseUrl, viewport) {
   return page;
 }
 
-export const VIEWPORTS = { desktop: { width: 1440, height: 1000 }, phone: { width: 390, height: 844 } };
+// tablet: iPad portrait (820x1180) — the desktop and phone runs alone do not show the one-column tablet layout (R669).
+export const VIEWPORTS = { desktop: { width: 1440, height: 1000 }, tablet: { width: 820, height: 1180 }, phone: { width: 390, height: 844 } };
 
 export async function driveOne(browser, id, spec, { baseUrl, run, viewport, sendAi }) {
   const dir = join(evidenceRoot, run, `${id}-${viewport}`);

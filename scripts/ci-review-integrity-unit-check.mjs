@@ -7,6 +7,13 @@ import { buildAttribution, fxReturnInto } from '../src/domain/portfolio/attribut
 import { buildPortfolioRead } from '../src/domain/portfolio/portfolio-read.js';
 import { buildPeerRead, fiscalMetrics } from '../src/domain/fundamental/peer-read.js';
 import { measureFactorOverlap, overlapSentence } from '../src/domain/screener/factor-overlap.js';
+import { derivePortfolioSurface } from '../src/domain/portfolio/surface.js';
+import { createCompositionSnapshot, deriveRiskEstimate, assessAccountPerformance } from '../src/domain/portfolio/risk.js';
+import { assembleRiskEstimateInput } from '../src/ui/panels/portfolio-risk-input.js';
+import { normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
+import { deriveVarStability } from '../src/domain/portfolio/return-stats.js';
+import { rangeExtremesOf } from '../src/domain/technical/definitions.js';
+import { shareClassTag } from '../src/ui/pages/masters.js';
 
 const fail = (message) => { throw new Error(`[review-integrity] ${message}`); };
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
@@ -103,7 +110,7 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   const perf = assessAccountPerformance({ ledger: { currency: 'USD', dayCount: 'actual-365', flowTiming: 'end-of-period', coverage, transactions: [{ date: '2026-03-01', kind: 'trade', amount: 0 }], valuations: [{ date: '2026-01-01', amount: 100 }, { date: '2027-01-01', amount: 121 }] } });
   if (perf.status !== 'ready' || perf.units?.twr !== 'period-cumulative' || perf.units?.mwr !== 'annualized-irr') fail(`#6 account performance must name the TWR/MWR units: ${perf.status} ${JSON.stringify(perf.units)}`);
   const workspace = read('js/aio-workspace.js');
-  if (!/TWR\(기간 누적\)/.test(workspace) || !/MWR\(연율\)/.test(workspace)) fail('#6 the ledger panel must label TWR(기간 누적) and MWR(연율)');
+  if (!/TWR\(기간 누적/.test(workspace) || !/MWR\(연율\)/.test(workspace)) fail('#6 the ledger panel must label TWR(기간 누적) and MWR(연율)');
   // #8/#17/#16: thin 99% sample reads 표본 최악일 with the tail count; no Sharpe/MDD grades; internal codes folded.
   if (!/표본 최악일/.test(workspace) || !/thin99 = !\(n >= 100\)/.test(workspace)) fail('#8 a sub-100-day 99% VaR must read 표본 최악일');
   if (/'우수' : v >= 1 \? '양호'|'위험' : v >= 0\.15 \? '주의'/.test(workspace)) fail('#17 3-month Sharpe/MDD must not carry grades');
@@ -155,4 +162,72 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   if (!/100%가 시장보다 강해지는 '선도' 섹터/.test(xlkClear.points.find((point) => point.id === 'rotation').text)) fail('v57.81 clean: a clear 선도 point without a recent reversal still reads 선도');
 }
 
-console.log(JSON.stringify({ ok: true, checks: ['P1462', 'P1463', 'P1464', 'P1466', 'P1467', 'P1468', 'P1469', 'v57.48-review-1·2·3·6·8·9·10·12·15·16·17·18·22·25', 'v57.81-portfolio-read'] }));
+// v57.92 exhaustive audit E01–E08: synthetic counterexamples that passed the earlier fixtures.
+{
+  const now = Date.parse('2026-10-16T13:00:00Z');
+  // E01: a KRW cost on an undeclared US quote is a unit conflict (listing fallback), not a -99.9% loss.
+  const e01 = derivePortfolioSurface({ now, state: { readState: 'ready', baseCurrency: 'USD', cash: 0, holdings: [{ symbol: 'AAA', shares: 1, price: 100, avgCost: 140000, costCurrency: 'KRW' }] } });
+  if (e01.totalPnl != null || e01.costCurrencyState !== 'cost-price-mismatch-held') fail(`E01 KRW cost on a USD-listed quote must hold P&L: ${e01.totalPnl} ${e01.costCurrencyState}`);
+  const snapshot = createCompositionSnapshot({ members: [{ ticker: 'AAA', qty: 1, price: 100 }], cash: { amount: 25, currency: 'USD' }, baseCurrency: 'USD', asOf: new Date(now).toISOString(), weightBasis: 'whole_account' });
+  const risk = (extra) => deriveRiskEstimate({ snapshot, returnsMap: { AAA: [0.1, 0.1] }, exposureHistoryMode: 'current_composition_retrospective', ...extra });
+  // E02: the cash rate that changed the account path is part of the identity.
+  const cash0 = risk({ cashReturn: { mode: 'explicit_assumption', annualRate: 0 } });
+  const cash10 = risk({ cashReturn: { mode: 'explicit_assumption', annualRate: 0.1 } });
+  if (cash0.publishedReturns[0] === cash10.publishedReturns[0] || cash0.estimateId === cash10.estimateId) fail('E02 different cash rates must give different returns and different estimateIds');
+  // E03: the invested sleeve of an 80% stock / 20% cash target is the stock's own return, every bar and every policy.
+  for (const policy of ['daily', 'buy-and-hold']) {
+    const sleeve = risk({ exposureHistoryMode: 'fixed_target_weight_strategy', targetWeights: { AAA: 0.8 }, rebalancePolicy: policy }).investedSleeveReturns;
+    if (!sleeve.every((value) => near(value, 0.1, 1e-9))) fail(`E03 ${policy} sleeve must be [0.1,0.1]: ${JSON.stringify(sleeve)}`);
+  }
+  // E04: one USD holding in a KRW account is a foreign holding — local return without FX history is labelled.
+  const dates = ['2026-10-05', '2026-10-06', '2026-10-07', '2026-10-08', '2026-10-09', '2026-10-12'];
+  const fxInput = { positions: [{ ticker: 'AAA', qty: 1, currency: 'USD' }], priceEvidenceMap: { AAA: { value: 100, allowedUse: true, ts: now, source: 'fixture' } }, historyMap: { AAA: Object.fromEntries(dates.map((day, i) => [day, 100 + i])) }, validTickers: ['AAA'], commonDates: dates, cashValue: 0, declarations: { baseCurrency: 'KRW' }, fxLegs: [{ from: 'USD', to: 'KRW', rate: 1400, observedAt: new Date(now).toISOString(), source: 'fixture' }], nowIso: new Date(now).toISOString() };
+  const noFx = assembleRiskEstimateInput(fxInput);
+  const withFx = assembleRiskEstimateInput({ ...fxInput, fxHistory: dates.map((date, i) => ({ date, value: 1300 + i * 20 })) });
+  if (noFx.fxIncluded !== false || noFx.returnCurrencyBasis !== 'local-currency-per-holding') fail(`E04 USD-only/KRW-base without FX history: ${noFx.returnCurrencyBasis}/${noFx.fxIncluded}`);
+  if (withFx.fxIncluded !== true || withFx.returnCurrencyBasis !== 'KRW-incl-fx') fail(`E04 USD-only/KRW-base with FX history: ${withFx.returnCurrencyBasis}/${withFx.fxIncluded}`);
+  // E05: a Q4 EPS in the same 10-K (fp=FY, same end) cannot set the annual share count, whatever the row order.
+  const annual = { start: '2025-01-01', end: '2025-12-31', filed: '2026-02-15', form: '10-K', fp: 'FY', fy: 2025, accn: 'fixture' };
+  const sec = (eps) => normalizeSecCompanyFacts('AAA', { cik: 1, facts: { 'us-gaap': { Revenues: { units: { USD: [{ ...annual, val: 1000 }] } }, NetIncomeLoss: { units: { USD: [{ ...annual, val: 100 }] } }, EarningsPerShareDiluted: { units: { 'USD/shares': eps } } } } }, 10);
+  const eA = { ...annual, val: 1 }, eQ = { ...annual, start: '2025-10-01', val: 0.2 };
+  if (sec([eQ, eA]).pe !== 10 || sec([eA, eQ]).pe !== 10) fail(`E05 P/E must use the annual EPS in either order: ${sec([eQ, eA]).pe}/${sec([eA, eQ]).pe}`);
+  // E06: the "VaR/CVaR certified" claim covers CVaR — one -90% day that moves only CVaR holds it.
+  const baseTail = Array.from({ length: 100 }, (_, i) => (i % 3 === 0 ? -0.02 : 0.01));
+  const steady = deriveVarStability({ returns: baseTail, order: 'chronological' });
+  if (steady.certification !== 'certified' || steady.cvarCertification !== 'certified') fail('E06 control: the steady sample certifies both VaR and CVaR');
+  const outlier = deriveVarStability({ returns: [-0.9, ...baseTail.slice(1)], order: 'chronological' });
+  if (outlier.cvarCertification !== 'held' || !outlier.cvarCertificationReasons.some((reason) => /^cvar-/.test(reason))) fail(`E06 a CVaR-only tail shock must hold CVaR certification: ${outlier.cvarCertificationReasons}`);
+  // E07: lending peers leave the FCF-margin comparison set on the peer side too.
+  const series = (ocf) => [{ periodEnd: '2024-12-31', revenue: 100, equity: 100 }, { periodEnd: '2025-12-31', revenue: 100, equity: 100, netIncome: 10, operatingCashFlow: ocf, capex: 0 }];
+  const visa = buildPeerRead({ symbol: 'V', sector: 'Financials', peers: ['JPM', 'BAC', 'C', 'WFC', 'GS'], seriesFor: (t) => series(t === 'V' ? 20 : 50) });
+  const fcf = visa.rows?.find((row) => row.id === 'fcfMargin');
+  if (fcf && fcf.percentile != null) fail(`E07 Visa FCF margin must not be ranked against banks: percentile ${fcf.percentile}`);
+  // E08: a flow between valuations makes the TWR a boundary approximation, and it says so.
+  const coverage = Object.fromEntries(['trades', 'deposits-withdrawals', 'dividends-splits', 'fees-taxes', 'fx', 'valuation-cuts'].map((key) => [key, true]));
+  const perf = (marks) => assessAccountPerformance({ ledger: { currency: 'USD', dayCount: 'actual-365', flowTiming: 'end-of-period', coverage, transactions: [{ date: '2026-06-30', kind: 'deposit', amount: 50 }], valuations: marks } });
+  const sparse = perf([{ date: '2026-01-01', amount: 100 }, { date: '2027-01-01', amount: 160 }]);
+  const dense = perf([{ date: '2026-01-01', amount: 100 }, { date: '2026-06-30', amount: 150 }, { date: '2027-01-01', amount: 160 }]);
+  if (sparse.twrExact !== false || !sparse.warnings.some((text) => /근사치/.test(text))) fail('E08 sparse valuations must mark the TWR as an approximation');
+  if (dense.twrExact !== true || !near(dense.twr, 0.066667, 1e-5)) fail(`E08 a valuation on the flow date gives the exact chain: ${dense.twr}`);
+}
+
+// v57.92 internal review M02 + audit K01 + masters share class.
+{
+  // M02: a full-year range needs a year of real bars, not a year-long array of empty rows.
+  const empty = Array(239).fill(null);
+  const sparse = rangeExtremesOf([...empty, 10], [...empty, 9]);
+  if (!sparse || sparse.fullYear !== false) fail(`M02 239 empty rows + 1 bar must not be a 52-week range: ${JSON.stringify(sparse)}`);
+  const year = Array.from({ length: 252 }, (_, i) => 10 + (i % 5));
+  if (rangeExtremesOf(year, year.map((v) => v - 1))?.fullYear !== true) fail('M02 252 real bars are a full-year range');
+  const gap = year.map((v, i) => (i === 100 ? null : v));
+  if (rangeExtremesOf(gap, gap.map((v) => (v == null ? null : v - 1)))?.fullYear !== true) fail('M02 one interior gap keeps a full-year range');
+  // K01: generic words (yield, quality, policy, memory) must not attach macro facts to AI/hardware foundations.
+  const evidence = (id) => JSON.parse(read(`public-data/knowledge/articles/atlas-foundations/${id}.json`)).article.researchEvidence.map((fact) => fact.factId);
+  const crossed = [['capacity-and-yield', /fred|nyfed/], ['data-quality', /bls:cpi/], ['post-training', /fed:|nyfed/], ['evaluation', /sec:/], ['parameter-vs-external-memory', /tsmc|micron/]]
+    .filter(([id, pattern]) => evidence(id).some((factId) => pattern.test(factId)));
+  if (crossed.length) fail(`K01 cross-domain evidence attached: ${crossed.map(([id]) => id).join(', ')}`);
+  // Masters: two share classes of one issuer read apart.
+  if (shareClassTag('CAP STK CL A') !== 'A주' || shareClassTag('CAP STK CL C') !== 'C주' || shareClassTag('COM') !== null || shareClassTag('CLASS B COM') !== 'B주') fail('masters share-class tag');
+}
+
+console.log(JSON.stringify({ ok: true, checks: ['P1462', 'P1463', 'P1464', 'P1466', 'P1467', 'P1468', 'P1469', 'v57.48-review-1·2·3·6·8·9·10·12·15·16·17·18·22·25', 'v57.81-portfolio-read', 'v57.92-E01-E08', 'v57.92-M02-K01-masters'] }));

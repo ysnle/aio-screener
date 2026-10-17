@@ -116,7 +116,7 @@ for (const unit of matrix.units || []) {
     q4StructuralMechanism: `Trace ${unit.title} through inputs, constraints, outputs and measurable consequences before applying a market interpretation.`,
     q5AdjacentImpact: 'Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.',
     status,
-    completion: { researchComplete: hasDatedEvidence, sourceProfileComplete: selectedSources.length > 0, semanticReview: 'REQUIRED', userValidation: 'NOT_CONDUCTED' }
+    completion: { evidenceAttached: hasDatedEvidence, sourceProfileComplete: selectedSources.length > 0, semanticReview: 'REQUIRED', userValidation: 'NOT_CONDUCTED' }
   };
   dossiers.push(dossier);
   write(`public-data/knowledge/research-dossiers/${safeFile(unit.unitId)}.json`, dossier);

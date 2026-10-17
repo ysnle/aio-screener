@@ -334,9 +334,16 @@ function createCatalogCoverage(documentRef, catalog, registry, holdings, preview
 
 // v57.54: the CUSIP (security code) is a lookup key, not a reading — it moves from its own column to the issuer
 // cell's hover and accessible name.
+// v57.92: "CAP STK CL A" → "A주". Two classes of one issuer (Alphabet A and C) otherwise read as the same name.
+export function shareClassTag(title) {
+  const letter = String(title || '').match(/\bCL(?:ASS)?\s*([A-Z])\b/i)?.[1];
+  return letter ? `${letter.toUpperCase()}주` : null;
+}
+
 function issuerCell(documentRef, row) {
   const cusip = row.cusipNormalized || row.cusip || '';
-  const td = element(documentRef, 'td', '', row.issuer || '—');
+  const tag = shareClassTag(row.titleOfClass);
+  const td = element(documentRef, 'td', '', `${row.issuer || '—'}${tag ? ` · ${tag}` : ''}`);
   if (cusip) { td.title = `CUSIP(증권 코드) ${cusip}`; td.dataset.cusip = cusip; }
   return td;
 }
@@ -896,7 +903,10 @@ function createTopWeightBars(documentRef, manager, holdingMeta, rows, withheld) 
   const baseLabel = (row) => `${row.issuer || row.cusipNormalized || '—'}${row.putCall ? ` ${row.putCall}` : ''}`;
   const repeated = new Set(top.map(baseLabel).filter((label, index, all) => all.indexOf(label) !== index));
   // Two share classes of one issuer (e.g. class A and C) are separate rows; name the class so they read apart.
-  const weights = top.map((row) => ({ label: repeated.has(baseLabel(row)) && row.titleOfClass ? `${baseLabel(row)} · ${row.titleOfClass}` : baseLabel(row), pct: Number(row.value) / total * 100 }));
+  // v57.92: the full class title ("CAP STK CL A") was cut by the label ellipsis on a tablet, so both Alphabet rows read
+  // "ALPHABET INC · CAP STK…"; the class letter is kept short ("A주") so the part that tells them apart stays visible.
+  const classTag = (title) => shareClassTag(title) || title;
+  const weights = top.map((row) => ({ label: repeated.has(baseLabel(row)) && row.titleOfClass ? `${baseLabel(row)} · ${classTag(row.titleOfClass)}` : baseLabel(row), fullLabel: repeated.has(baseLabel(row)) && row.titleOfClass ? `${baseLabel(row)} · ${row.titleOfClass}` : baseLabel(row), pct: Number(row.value) / total * 100 }));
   const max = Math.max(...weights.map((item) => item.pct));
   const sum = weights.reduce((acc, item) => acc + item.pct, 0);
   const section = element(documentRef, 'section', 'masters-weight-bars');
@@ -910,7 +920,7 @@ function createTopWeightBars(documentRef, manager, holdingMeta, rows, withheld) 
   weights.forEach((item) => {
     const row = element(documentRef, 'div', 'af-bar-row');
     const label = element(documentRef, 'span', 'af-bar-label', item.label);
-    label.title = item.label;
+    label.title = item.fullLabel;
     const track = element(documentRef, 'div', 'af-bar-track');
     const fill = element(documentRef, 'span', 'af-bar-fill');
     fill.style.width = `${Math.max(1, item.pct / max * 100).toFixed(1)}%`;

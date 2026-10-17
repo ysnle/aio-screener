@@ -46,6 +46,8 @@ if ((workflow.match(/name: Refresh weekly SEC 13F and daily 13D-G discovery/g) |
   || !/cron: '33 7 \* \* \*'/.test(workflow)
   || !/steps\.daily-lane\.outputs\.due == 'true'/.test(mastersWorkflowStep)
   || !/daily-lane-age\.mjs/.test(workflow)
+  // v57.92 (audit W03): the restored marker is also written and saved after a published daily poll
+  || !/daily-lane-age\.mjs --write-marker/.test(workflow) || !/name: Save daily-lane poll marker[\s\S]*?actions\/cache\/save@[\s\S]*?path: \.cache\/daily-lane/.test(workflow)
   || !/MASTERS_MODE.*operator/.test(mastersWorkflowStep)
   || !/collect-13f-discovery\.mjs --ownership-only/.test(mastersWorkflowStep)
   || !/pending_13f_hr.*-gt 0/.test(mastersWorkflowStep)

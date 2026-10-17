@@ -18,12 +18,14 @@ const atlas = readJson('public-data/atlas/foundation-lessons.json').lessons || [
 const researchFacts = readJson('public-data/knowledge/research-facts.json').facts || [];
 
 const principleFactIdsByChapter = Object.freeze({
-  A: ['fact:oecd:productivity'],
+  // v57.92 (exhaustive audit K02): the productivity fact supports A2 only (see principleFactIdsByLesson); scarcity and the
+  // circular flow cited it as their evidence. F is fiscal policy — a corporate financial-statement fact supports none of it.
+  A: [],
   B: ['fact:fred:real-rates', 'fact:bls:cpi'],
   C: ['fact:fed:financial-stability'],
   D: ['fact:fred:real-rates', 'fact:fed:policy-transmission'],
   E: ['fact:fred:real-rates'],
-  F: ['fact:sec:financial-statements'],
+  F: [],
   G: ['fact:sec:financial-statements', 'fact:sec:10k-reading'],
   H: ['fact:finra:orders', 'fact:krx:listed-products'],
   J: ['fact:finra:orders'],
@@ -35,6 +37,8 @@ const principleFactIdsByChapter = Object.freeze({
   O: ['fact:fred:real-rates', 'fact:sec:10k-reading', 'fact:krx:listed-products']
 });
 
+const principleFactIdsByLesson = Object.freeze({ A2: ['fact:oecd:productivity'] });
+
 // P1475 (knowledge review 2026-10-04): chapter-wide facts were attached to every lesson of a chapter, so a
 // lesson on semiconductor front-end processing listed the Transformer paper and data-center PUE as its
 // evidence. In the industry chapters (K–O) a chapter fact is attached only when the lesson itself is about
@@ -42,8 +46,11 @@ const principleFactIdsByChapter = Object.freeze({
 const TOPIC_SCOPED_CHAPTERS = new Set(['K', 'L', 'M', 'N', 'O']);
 const factMatches = (lesson, surface) => {
   const haystack = `${lesson.id} ${lesson.title || ''} ${lesson.definition || ''} ${lesson.mechanism || ''} ${lesson.example || ''}`.toLowerCase();
-  const matchesLesson = (fact) => (fact.appliesTo || []).some((token) => haystack.includes(String(token).toLowerCase()));
-  const chapterFacts = surface === 'principles' ? principleFactIdsByChapter[lesson.chapterId] || [] : [];
+  // v57.92 (exhaustive audit K01): whole-token match (a hyphenated id is one token). A substring match attached the
+  // bond-yield r* fact to "capacity-and-yield", SEC valuation facts to "evaluation", and HBM to "generalization-and-memory".
+  const words = new Set(haystack.split(/[^a-z0-9&\-]+/).filter(Boolean));
+  const matchesLesson = (fact) => (fact.appliesTo || []).some((token) => words.has(String(token).toLowerCase()));
+  const chapterFacts = surface === 'principles' ? [...(principleFactIdsByChapter[lesson.chapterId] || []), ...(principleFactIdsByLesson[lesson.id] || [])] : [];
   const explicit = TOPIC_SCOPED_CHAPTERS.has(lesson.chapterId)
     ? chapterFacts.filter((id) => { const fact = researchFacts.find((item) => item.factId === id); return fact && matchesLesson(fact); })
     : chapterFacts;

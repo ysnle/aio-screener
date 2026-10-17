@@ -25,13 +25,6 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-ASML-EUV-2026",
       "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
       "publisher": "ASML",
@@ -51,18 +44,16 @@
       "publisher": "NIST",
       "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
       "sourceTier": "PRIMARY_OFFICIAL"
-    }
-  ],
-  "selectedSources": [
+    },
     {
       "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
       "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
       "publisher": "NIST AI Resource Center",
       "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
+      "sourceTier": "PRIMARY_OFFICIAL"
+    }
+  ],
+  "selectedSources": [
     {
       "sourceId": "WEB-ASML-EUV-2026",
       "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
@@ -89,13 +80,22 @@
       "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    },
+    {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
     "COMPANY_TECHNICAL_DOCUMENT",
-    "ACADEMIC_TEXTBOOK_STANDARD"
+    "ACADEMIC_TEXTBOOK_STANDARD",
+    "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [
     {
@@ -105,7 +105,6 @@
     }
   ],
   "researchFactIds": [
-    "fact:nist:ai-rmf-core",
     "fact:ibm:silicon-doping"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
@@ -119,7 +118,7 @@
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
   "status": "RESEARCHED",
   "completion": {
-    "researchComplete": true,
+    "evidenceAttached": true,
     "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

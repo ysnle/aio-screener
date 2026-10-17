@@ -170,7 +170,7 @@
       "domainId": "domain-memory-storage",
       "claimType": "STRUCTURAL_REFERENCE",
       "status": "PARTIAL",
-      "statement": "메모리 계층은 계산기와 데이터 사이의 이동량·대역폭·지연·용량을 결정한다.",
+      "statement": "메모리 계층은 알고리즘·워크로드와 함께 계산기와 데이터 사이의 이동량·대역폭·지연·용량을 결정한다.",
       "sourceIds": [
         "AT-MS-01",
         "AT-MS-02",
@@ -238,7 +238,7 @@
       "domainId": "domain-foundry-equipment",
       "claimType": "STRUCTURAL_REFERENCE",
       "status": "PARTIAL",
-      "statement": "노광·증착·식각·검사와 고객 qualification이 usable output을 결정한다.",
+      "statement": "노광·증착·식각·검사 공정과 고객 qualification은 제품 설계·투입 소재·가용 capacity와 함께 usable output을 결정한다.",
       "sourceIds": [
         "AT-FE-01",
         "AT-FE-02",
@@ -306,7 +306,7 @@
       "domainId": "domain-packaging-substrate",
       "claimType": "STRUCTURAL_REFERENCE",
       "status": "PARTIAL",
-      "statement": "패키지 capacity와 고객 qualification은 wafer capacity와 별도의 병목이다.",
+      "statement": "패키지 capacity와 고객 qualification은 wafer capacity와 별도로 병목이 될 수 있다.",
       "sourceIds": [
         "AT-PA-01",
         "AT-PA-02",
@@ -374,7 +374,7 @@
       "domainId": "domain-aidc-cooling",
       "claimType": "STRUCTURAL_REFERENCE",
       "status": "PARTIAL",
-      "statement": "AIDC 처리능력은 서버 수가 아니라 IT load·전력변환·냉각·시설 가동률의 결합이다.",
+      "statement": "AIDC 처리능력은 서버 수만으로 정해지지 않고 IT load·전력변환·냉각·시설 가동률의 결합으로 정해진다.",
       "sourceIds": [
         "AT-AC-01",
         "AT-AC-02",
@@ -561,7 +561,7 @@
       "domainId": "domain-ai-economics",
       "claimType": "STRUCTURAL_REFERENCE",
       "status": "PARTIAL",
-      "statement": "가격·활용률·자본비용이 바뀌면 같은 AI capacity의 ROIC와 회수기간이 달라진다.",
+      "statement": "가격·활용률이 바뀌면 같은 AI capacity의 ROIC와 회수기간이 달라지고, 자본비용이 바뀌면 ROIC가 넘어야 할 기준과 할인된 회수기간이 달라진다.",
       "sourceIds": [
         "AT-AE-01",
         "AT-AE-02",
@@ -612,7 +612,7 @@
       "domainId": "domain-physical-ai-robotics",
       "claimType": "STRUCTURAL_REFERENCE",
       "status": "PARTIAL",
-      "statement": "하드웨어·통합·유지보수 비용이 workflow 개선액보다 크면 기술 시연은 사업으로 전환되지 않는다.",
+      "statement": "하드웨어·통합·유지보수 비용이 비용 절감·품질·안전·매출 증가를 합한 가치보다 크면 기술 시연은 사업으로 전환되지 않는다.",
       "sourceIds": [
         "AT-RB-01",
         "AT-RB-02",
@@ -629,7 +629,7 @@
       "domainId": "domain-drone-defense",
       "claimType": "STRUCTURAL_REFERENCE",
       "status": "PARTIAL",
-      "statement": "방산 수요는 threat·requirement·budget·procurement·production·sustainment의 순서로 전달된다.",
+      "statement": "방산 수요는 대개 threat·requirement·budget·procurement·production·sustainment 순서로 전달되며, 긴급 조달과 반복 개발은 일부 단계를 겹치거나 건너뛴다.",
       "sourceIds": [
         "AT-DD-01",
         "AT-DD-02",
@@ -731,7 +731,7 @@
       "domainId": "domain-ai-applications",
       "claimType": "STRUCTURAL_REFERENCE",
       "status": "PARTIAL",
-      "statement": "AI 애플리케이션의 가치는 모델 성능보다 workflow·권한·감사·사용자 지불에 의해 결정된다.",
+      "statement": "AI 애플리케이션의 가치는 모델 성능만이 아니라 workflow·권한·감사·사용자 지불이 함께 결정한다.",
       "sourceIds": [
         "AT-AA-01",
         "AT-AA-02",
@@ -748,7 +748,7 @@
       "domainId": "domain-ai-applications",
       "claimType": "STRUCTURAL_REFERENCE",
       "status": "PARTIAL",
-      "statement": "도입 전 baseline과 human review 범위를 고정해야 생산성 주장을 검증할 수 있다.",
+      "statement": "생산성 주장은 비교 기준(도입 전 baseline 또는 대조군·로그 설계)과 human review 범위를 고정해야 검증할 수 있다.",
       "sourceIds": [
         "AT-AA-01",
         "AT-AA-02",
@@ -782,7 +782,7 @@
       "domainId": "domain-resources-materials",
       "claimType": "STRUCTURAL_REFERENCE",
       "status": "PARTIAL",
-      "statement": "자원 공급은 매장량이 아니라 채굴·분리·정제·규격 인증·물류의 usable output 문제다.",
+      "statement": "자원 공급은 매장량이 장기 상한을 정하고, 단기 공급은 채굴·분리·정제·규격 인증·물류의 usable output이 정한다.",
       "sourceIds": [
         "AT-RM-01",
         "AT-RM-02",
@@ -918,7 +918,7 @@
       "domainId": "domain-capital-markets-company-map",
       "claimType": "STRUCTURAL_REFERENCE",
       "status": "PARTIAL",
-      "statement": "가격결정력은 기술 설명이 아니라 고객·대체재·공급능력·자본회수 자료로 확인한다.",
+      "statement": "가격결정력은 기술 설명만으로 판단하지 않고, 대체 가능성을 보여 주는 기술 근거와 고객·대체재·공급능력·자본회수 자료로 확인한다.",
       "sourceIds": [
         "AT-CM-01",
         "AT-CM-02",

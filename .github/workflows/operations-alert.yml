@@ -15,8 +15,11 @@ permissions:
 # workflow_run completion. Without a group, two completions close together can start two
 # reconcile runs that race on the same marker issue. Serialize them; never cancel, because
 # the second run carries the newer conclusion.
+# v57.92 (audit W04): one global group kept a single pending slot — A running, B pending, C arriving cancelled B, and a
+# failure of another workflow in B was never reconciled. Each workflow owns its own marker issue, so the group is per
+# workflow: runs racing on the same issue still serialize, and other workflows no longer evict each other.
 concurrency:
-  group: aio-operations-alert
+  group: aio-operations-alert-${{ github.event.workflow_run.name }}
   cancel-in-progress: false
 
 jobs:

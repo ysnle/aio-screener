@@ -76,8 +76,10 @@
   .page .rl-grid, .page .rl-head { grid-template-columns: minmax(0, 1fr); }
   .page .rl-nav, .page .rl-aside { position: static; max-height: none; min-width: 0; }
   .page .rl-main { order: 1; }
-  .page .rl-nav { order: 2; max-height: 260px; }
-  .page .rl-aside { order: 3; }
+  /* v57.92: in one column the 424-item list sat between the article and its next/prerequisite links, so the
+     reading flow ran into an inner scroller; the article's own links follow it and the full list comes last. */
+  .page .rl-aside { order: 2; }
+  .page .rl-nav { order: 3; max-height: 260px; }
   .page .rl-pages { flex-wrap: wrap; }
   :is(.trend-grid, .briefing-driver-grid, .guide-screen-grid, .regime-board, .pf-checks-list, .kr-theme-grid, .macro-chain-branches) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
   body #ai-panel { width: min(440px, 100vw); height: var(--aio-visual-height, 100dvh); top: var(--aio-visual-top, 0px); bottom: auto; }

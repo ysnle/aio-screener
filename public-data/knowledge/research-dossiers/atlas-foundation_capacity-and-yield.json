@@ -32,20 +32,6 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-      "url": "https://fred.stlouisfed.org/release?rid=500",
-      "publisher": "Federal Reserve Bank of St. Louis",
-      "title": "Inflation Expectations release",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-NYFED-RSTAR-MARKETS-2025",
-      "url": "https://libertystreeteconomics.newyorkfed.org/2025/08/are-financial-markets-good-predictors-of-r-star/",
-      "publisher": "Federal Reserve Bank of New York",
-      "title": "Are Financial Markets Good Predictors of R-Star?",
-      "sourceTier": "PRIMARY_RESEARCH"
-    },
-    {
       "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
       "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
       "publisher": "U.S. Department of Energy",
@@ -61,24 +47,6 @@
     }
   ],
   "selectedSources": [
-    {
-      "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-      "url": "https://fred.stlouisfed.org/release?rid=500",
-      "publisher": "Federal Reserve Bank of St. Louis",
-      "title": "Inflation Expectations release",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-NYFED-RSTAR-MARKETS-2025",
-      "url": "https://libertystreeteconomics.newyorkfed.org/2025/08/are-financial-markets-good-predictors-of-r-star/",
-      "publisher": "Federal Reserve Bank of New York",
-      "title": "Are Financial Markets Good Predictors of R-Star?",
-      "sourceTier": "PRIMARY_RESEARCH",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
     {
       "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
       "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
@@ -100,8 +68,7 @@
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
-    "PRIMARY_RESEARCH"
+    "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [
     {
@@ -110,11 +77,8 @@
       "requiredAction": "independent direct source required"
     }
   ],
-  "researchFactIds": [
-    "fact:fred:real-rates",
-    "fact:nyfed:rstar-model-market"
-  ],
-  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
+  "researchFactIds": [],
+  "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -123,9 +87,9 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace Capacity and yield through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCHED",
+  "status": "RESEARCH_IN_PROGRESS",
   "completion": {
-    "researchComplete": true,
+    "evidenceAttached": false,
     "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

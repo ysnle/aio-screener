@@ -25,13 +25,6 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
       "url": "https://arxiv.org/abs/1706.03762",
       "publisher": "arXiv / Vaswani et al.",
@@ -39,45 +32,27 @@
       "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
     },
     {
-      "sourceId": "WEB-GOOGLE-ML-TYPES-2026",
-      "url": "https://developers.google.com/machine-learning/intro-to-ml/what-is-ml",
-      "publisher": "Google for Developers",
-      "title": "What is Machine Learning?",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-NIST-AI-RMF-2023",
       "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
       "publisher": "NIST",
       "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
       "sourceTier": "PRIMARY_OFFICIAL"
-    }
-  ],
-  "selectedSources": [
+    },
     {
       "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
       "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
       "publisher": "NIST AI Resource Center",
       "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
+      "sourceTier": "PRIMARY_OFFICIAL"
+    }
+  ],
+  "selectedSources": [
     {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
       "url": "https://arxiv.org/abs/1706.03762",
       "publisher": "arXiv / Vaswani et al.",
       "title": "Attention Is All You Need",
       "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-GOOGLE-ML-TYPES-2026",
-      "url": "https://developers.google.com/machine-learning/intro-to-ml/what-is-ml",
-      "publisher": "Google for Developers",
-      "title": "What is Machine Learning?",
-      "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
     },
@@ -89,12 +64,21 @@
       "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    },
+    {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
-    "ACADEMIC_TEXTBOOK_STANDARD"
+    "ACADEMIC_TEXTBOOK_STANDARD",
+    "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [
     {
@@ -104,7 +88,6 @@
     }
   ],
   "researchFactIds": [
-    "fact:nist:ai-rmf-core",
     "fact:transformer:attention",
     "fact:google:learning-types"
   ],
@@ -119,7 +102,7 @@
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
   "status": "RESEARCHED",
   "completion": {
-    "researchComplete": true,
+    "evidenceAttached": true,
     "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

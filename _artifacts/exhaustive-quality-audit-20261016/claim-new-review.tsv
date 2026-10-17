@@ -1,0 +1,115 @@
+claimId|판정|개별 검토 이유
+TG-C01|내부정합|복수 병목 인정·특정 공급자 보편 이동 단정 차단
+TG-C02|외부확인|KIOXIA LTA 발언 원문·날짜·회사주장과 실적 구분 필요
+TG-C03|내부정합|투자수요와 조달·계약 의무·ROIC 결론 분리
+TG-C04|내부정합|미완료 source packet을 질문으로 남겨 포지셔닝 사실 만들지 않음
+TG-C05|외부확인|에너지→물가 공식자료의 지지 범위 대조 필요
+TG-C06|내부정합|통계·운영조건과 token단가 구분
+TG-C07|내부정합|일본정책 후보와 기업 공급·마진 증거 분리
+TG-C08|외부확인|KVcache·SSD 발언 원문 필요; 전체NAND 전망 확장 차단
+TG-C09|내부정합|지각·계획·제어와 제품페이지의 현장신뢰성 한계 구분
+TG-C10|내부정합|데이터·권한·도입이 가치 매개; 모델만으로 ROI 확정 안함
+TG-C11|내부정합|발사·기체·부품·운영과 반복 경제성 구분
+TG-C12|내부정합|광물보유와 분리·정제·자석·승인 역량 구분
+TG-C13|내부정합|HBM 성능·전력·승인과 점유율·출하 주장 구분
+TG-C14|내부정합|양자 접근·실행·오류와 상업 우위 구분
+domain-cloud-platform-claim-1|내부정합|workload·자산·사용량·계약·감가 연결 관점 일치
+domain-cloud-platform-claim-2|내부정합|예약·실사용 및 투자·매출의 측정 대상 구분
+domain-cloud-platform-claim-3|내부정합|전력·가동률·집중을 조건부 실패요인으로 제한
+domain-neocloud-finance-claim-1|내부정합|GPU수만으로 수익성 결론 불가 경계 명확
+domain-neocloud-finance-claim-2|내부정합|가동·임대·부채·집중의 현금·회수 연결 일치
+domain-neocloud-finance-claim-3|내부정합|금융조건별 투자가능 용량·가치 구분
+domain-compute-silicon-claim-1|내부정합|실성능에 메모리·통신·compiler도 관여
+domain-compute-silicon-claim-2|내부정합|peak와 처리량·지연·전력효율 구분
+domain-compute-silicon-claim-3|내부정합|benchmark의 workload·실패 분포 조건 요구
+domain-memory-storage-claim-1|보완|이동량은 알고리즘·workload도 결정함
+domain-memory-storage-claim-2|내부정합|제품 발표와 시장전체 가격·수급 구분
+domain-memory-storage-claim-3|내부정합|추론·RAG·pipeline 저장요구 변화를 조건화
+domain-foundry-equipment-claim-1|내부정합|노드명이 밀도·전력·수율의 완전 대리변수 아님
+domain-foundry-equipment-claim-2|보완|양품산출에 제품설계·투입물·capacity 조건도 필요
+domain-foundry-equipment-claim-3|내부정합|명목capacity와 양품출하·승인 시차 분리
+domain-packaging-substrate-claim-1|내부정합|die·메모리·기판·열·전력·검사 시스템 관점
+domain-packaging-substrate-claim-2|내부정합|대역폭의 비용·열·수율·검사 tradeoff 포함
+domain-packaging-substrate-claim-3|보완|wafer와 구분해도 package가 항상 실제 병목 아님
+domain-network-photonics-claim-1|내부정합|클러스터 확장과 link·switch·protocol 연결
+domain-network-photonics-claim-2|내부정합|대역폭 외 지연·전력·오류 포함
+domain-network-photonics-claim-3|내부정합|시연과 양산·수율·승인 증거 구분
+domain-aidc-cooling-claim-1|보완|서버수 배제보다 서버수만으로 불충분이 정확
+domain-aidc-cooling-claim-2|내부정합|밀도상승의 냉각·배전·서비스 조건 제시
+domain-aidc-cooling-claim-3|내부정합|PUE·overhead와 수익성·탄소효율 구분
+domain-power-grid-claim-1|내부정합|발전·송전·접속·냉각의 연결 문제로 설명
+domain-power-grid-claim-2|내부정합|설치서버와 실제접속·사용부하 구분
+domain-power-grid-claim-3|내부정합|가격·대기·증설과 회수시차 인과 구체적
+domain-on-device-physical-ai-claim-1|내부정합|지연·privacy·연결·전력 공동최적화 관점
+domain-on-device-physical-ai-claim-2|내부정합|edge/cloud의 workload·update·지원 경계 구분
+domain-on-device-physical-ai-claim-3|내부정합|센서·연산·배터리·업데이트와 비용 연결
+domain-ai-economics-claim-1|내부정합|성장 외 감가·현금·리스·계약·가동률 검토
+domain-ai-economics-claim-2|내부정합|투자계획과 인식수요·매출 구분
+domain-ai-economics-claim-3|보완|자본비용 상승이 NOPAT/투하자본 ROIC를 자동변경 안함
+domain-physical-ai-robotics-claim-1|내부정합|지각·계획·제어에 안전·서비스·개입 결합
+domain-physical-ai-robotics-claim-2|내부정합|simulation·pilot과 반복현장 성공 구분
+domain-physical-ai-robotics-claim-3|보완|절감액 외 품질·안전·매출 가치도 존재
+domain-drone-defense-claim-1|보완|고정순서로 긴급조달·반복개발 설명 못함
+domain-drone-defense-claim-2|내부정합|시연과 임무·통신·승인 증거 구분
+domain-drone-defense-claim-3|내부정합|개발·생산·IDIQ·backlog를 현금·매출과 구분
+domain-space-aerospace-claim-1|내부정합|기술과 제조·조달·운영주기를 함께 검토
+domain-space-aerospace-claim-2|내부정합|cadence·성능과 가격·반복매출 구분
+domain-space-aerospace-claim-3|내부정합|개발·인증·생산·운영 현금시차 명시
+domain-ai-applications-claim-1|보완|workflow가 모델성능보다 중요하다는 순위 근거 없음
+domain-ai-applications-claim-2|보완|사전baseline 외 사후 통제·log 설계도 가능
+domain-ai-applications-claim-3|내부정합|사용·갱신·단위원가로 반복매출과 pilot 구분
+domain-resources-materials-claim-1|보완|매장량 역시 장기공급 제약이므로 배제 표현 부정확
+domain-resources-materials-claim-2|내부정합|증설·대체·재활용의 가격결정·안정 범위 적절
+domain-resources-materials-claim-3|내부정합|가격·정책발표에서 특정기업 이익우위 바로 도출 안함
+domain-geopolitics-policy-security-claim-1|내부정합|정책영향을 접근·납기·비용·고객·자본 경로로 설명
+domain-geopolitics-policy-security-claim-2|내부정합|정책범위와 기업노출·대체기간 분리
+domain-geopolitics-policy-security-claim-3|내부정합|보안·규제의 수요·비용 양면 포함
+domain-capital-markets-company-map-claim-1|내부정합|지도는 역할·제품·현금·기대 편집원칙에 한정
+domain-capital-markets-company-map-claim-2|내부정합|공시와 기대·가치평가 층 분리
+domain-capital-markets-company-map-claim-3|보완|기술설명도 대체가능성 증거가 될 수 있음
+domain-adjacent-future-tech-claim-1|내부정합|연구가능성과 제품·양산·통합 단계 구분
+domain-adjacent-future-tech-claim-2|내부정합|논문·시연과 반복성·제조·인증·지원 구분
+domain-adjacent-future-tech-claim-3|내부정합|기술 외 지불단위·실패비용 포함
+player-role-nvidia|내부정합|가속기·software 복수역할의 편집분류로 제한
+player-role-amd|내부정합|CPU·가속기 병렬 설계역할 분류
+player-role-google-cloud|내부정합|cloud제공·자체silicon 설계 구분
+player-role-aws|내부정합|cloud·silicon 복수역할 양립
+player-role-tsmc|내부정합|foundry·첨단packaging 역할 구분
+player-role-asml|내부정합|노광역할만 분류·점유율확장 없음
+player-role-micron|내부정합|memory·storage 제조역할 병기
+player-role-kioxia|내부정합|NAND제조·SSD공급 역할 구분
+player-role-sandisk|내부정합|NAND·SSD·저장 역할과 실적우위 구분
+player-role-synopsys|내부정합|EDA·IP 역할 구분
+player-role-broadcom|내부정합|network silicon·customASIC 역할 구분
+player-role-coherent|내부정합|광학부품 공급으로 범위 제한
+player-role-vertiv|내부정합|데이터센터 전력·냉각 역할에 제한
+player-role-tesla|보완|physicalAIplatform이 제품·방향·운영 중 무엇인지 모호
+player-role-shield-ai|내부정합|방산자율성·software 역할과 임무성공 구분
+player-role-rocket-lab|내부정합|발사·우주시스템 통합 역할 분리
+player-role-palantir|내부정합|기업AI역할과 고객ROI 확정 구분
+player-role-mp-materials|보완|integrator의 채굴·분리·자석 단계 범위 없음
+player-role-samsung-electronics|내부정합|memory·foundry 병행역할 분류
+player-role-ibm|내부정합|quantum·기업compute 역할과 상업우위 구분
+player-role-siemens|내부정합|산업software·자동화 통합역할 구분
+product-taxonomy-nvidia-gpu-accelerator-platform|내부정합|GPU·interconnect 관련학습 연결로 해석 가능
+product-taxonomy-amd-instinct-accelerator-family|내부정합|computeGPU 관련분류 일치
+product-taxonomy-cloud-tpu-family|내부정합|ASIC·cloud서비스의 다른층 연결
+product-taxonomy-aws-trainium-family|내부정합|전용silicon·제공서비스 교육연결 가능
+product-taxonomy-tsmc-3dfabric-family|내부정합|2.5D·3Dstacking 관련주제 계열분류
+product-taxonomy-asml-euv-lithography-family|보완|is-a·enables를 같은 mapped-to로 표현
+product-taxonomy-micron-hbm-family|내부정합|HBM을 DRAM/HBM 주제와 연결
+product-taxonomy-kioxia-enterprise-ssd-family|내부정합|SSD제품·NAND기술을 관련주제로 연결
+product-taxonomy-sandisk-bics-enterprise-ssd-family|내부정합|NAND·enterpriseSSD 구조연결 일치
+product-taxonomy-sandisk-hbf-roadmap|보완|HBF기술·memory계층과 enterpriseSSD를 단일분류
+product-taxonomy-synopsys-eda-flow|내부정합|EDAflow·설계생태계 연결 자연스러움
+product-taxonomy-broadcom-ethernet-switch-family|내부정합|switch·fabric 관련연결 일치
+product-taxonomy-coherent-optical-module-family|보완|제품군 전부가 siliconphotonics인지 일부관련인지 없음
+product-taxonomy-vertiv-thermal-power-solutions|보완|transformer 연결이 공급제품·시설의존성인지 모호
+product-taxonomy-tesla-optimus-and-autonomy-stack|보완|로봇·자동차 자율성을 한 노드에 묶어 속성전이 위험
+product-taxonomy-shield-ai-hivemind-autonomy|보완|C2·ISR·EW 관련주제가 전기능제공 뜻하지 않게 구분 필요
+product-taxonomy-rocket-lab-electron-neutron-space-systems|보완|발사체·우주시스템 묶어 재사용·항공공급망 속성 혼재
+product-taxonomy-palantir-aip|내부정합|금융·제조·payer를 관련학습 주제로 연결
+product-taxonomy-mp-materials-rare-earth-magnetics|내부정합|희토류·정제·회복력 관련연결 일치
+product-taxonomy-samsung-hbm-family|내부정합|HBM·DRAM·3Dstacking 구조연결 일치
+product-taxonomy-ibm-quantum-platform|내부정합|양자주제연결에 기술·상업우위 추가 안함
+product-taxonomy-siemens-industrial-copilot|보완|copilot·digitaltwin의 통합·적용·종속 관계 불명확

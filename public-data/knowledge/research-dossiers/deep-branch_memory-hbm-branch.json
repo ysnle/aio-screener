@@ -58,11 +58,8 @@
   ],
   "claimCoverage": [],
   "researchFactIds": [
-    "fact:ml:generalization-memory",
     "fact:tsmc:3dfabric",
-    "fact:micron:hbm2e",
-    "fact:pagedattention:kv-cache",
-    "fact:pagedattention:kv-capacity-drivers"
+    "fact:micron:hbm2e"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
@@ -75,7 +72,7 @@
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
   "status": "RESEARCHED",
   "completion": {
-    "researchComplete": true,
+    "evidenceAttached": true,
     "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

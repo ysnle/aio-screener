@@ -62,6 +62,14 @@ check('P1312/R658/QA-OPS-02 private AI usage route and Durable Object query are 
     && deployStep.indexOf('grep -Eqi') > 0 && deployStep.indexOf('grep -Eqi') < deployStep.indexOf("sed -i '/^\\[ai\\]")
     && /not retrying without the binding"\s*\n\s*exit 1/.test(deployStep)
     && /workersAiBound: !!\(env && env\.AI\)/.test(worker));
+  // v57.92 (audit W01/W02): a single auth failure is retried with the binding before it is dropped, and a policy 429 from
+  // the paid smoke is operating-blocked (warning), not a code failure that rolls back to a revision on the same ledger.
+  const smokeStep = proxyWorkflow.slice(proxyWorkflow.indexOf('- name: Verify health, readiness'), proxyWorkflow.indexOf('- name: Roll back failed AI-proxy'));
+  check('v57.92 W01 the [ai] binding is dropped only after the same deploy fails twice',
+    deployStep.indexOf('(retry)') > 0 && deployStep.indexOf('(retry)') < deployStep.indexOf("sed -i '/^\\[ai\\]"));
+  check('v57.92 W02 a Worker policy 429 skips paid checks without failing the smoke',
+    /\['monthly-budget','daily-cap','client-daily-cap','rate-limit'\]\.includes\(r\?\.error\?\.code\)/.test(smokeStep)
+    && /ai_proxy_operating_blocked/.test(smokeStep) && /elif \[ "\$upstream_status" != '200' \]/.test(smokeStep));
 }
 check('both Workers expose an exact deployment source SHA', [proxyToml, dataToml].every((toml) => /AIO_SOURCE_SHA/.test(toml)) && /env\.AIO_SOURCE_SHA/.test(worker) && /sourceSha:\s*env\?\.AIO_SOURCE_SHA/.test(read('worker/data-plane.js')));
 for (const [name, workflow, workerKey] of [['proxy', proxyWorkflow, 'aiProxy'], ['data-plane', dataWorkflow, 'dataPlane']]) {

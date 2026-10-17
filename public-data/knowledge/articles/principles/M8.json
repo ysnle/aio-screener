@@ -8,14 +8,14 @@
   "publication": "EDUCATIONAL_REFERENCE_ONLY",
   "reviewedAt": "2026-08-18",
   "summary": {
-    "definition": "데이터센터 전력은 IT 장비가 사용하는 전력과 냉각·전력변환·네트워크 등 시설 부하를 합친 수요다.",
+    "definition": "데이터센터 전력은 IT 장비(서버·스토리지·네트워크)가 사용하는 전력과 냉각·전력변환·조명 등 시설 부하를 합친 수요다.",
     "mechanism": "서버의 peak 전력보다 실제 가동률·PUE·랙 밀도·전력 품질·접속 용량이 서비스 가능한 compute와 비용을 결정한다.",
     "example": "가속기 랙을 추가해도 변전소와 냉각이 따라오지 못하면 서버를 설치한 뒤에도 사용 가능한 처리량이 늘지 않는다.",
     "counterScenario": "MW 규모 발표를 곧바로 매출·가동 가능한 AI 용량으로 바꾸면 접속 시기·PUE·임대료·가동률을 놓친다.",
     "visualization": "계통 접속 → IT 부하 + 시설 부하 → compute·매출"
   },
   "article": {
-    "intuition": "데이터센터 전력은 IT 장비가 사용하는 전력과 냉각·전력변환·네트워크 등 시설 부하를 합친 수요다.",
+    "intuition": "데이터센터 전력은 IT 장비(서버·스토리지·네트워크)가 사용하는 전력과 냉각·전력변환·조명 등 시설 부하를 합친 수요다.",
     "formalModelOrRationale": {
       "kind": "SOURCE_MECHANISM",
       "text": "서버의 peak 전력보다 실제 가동률·PUE·랙 밀도·전력 품질·접속 용량이 서비스 가능한 compute와 비용을 결정한다."
@@ -69,7 +69,7 @@
     "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
   },
   "quality": {
-    "coreTextCharacters": 330,
+    "coreTextCharacters": 342,
     "contentForm": "SOURCE_SUMMARY",
     "semanticReview": "REQUIRED",
     "sourceDirectnessReview": "REQUIRED",
@@ -83,7 +83,7 @@
       "research-evidence"
     ],
     "uniqueDraftSeed": {
-      "definition": "데이터센터 전력은 IT 장비가 사용하는 전력과 냉각·전력변환·네트워크 등 시설 부하를 합친 수요다.",
+      "definition": "데이터센터 전력은 IT 장비(서버·스토리지·네트워크)가 사용하는 전력과 냉각·전력변환·조명 등 시설 부하를 합친 수요다.",
       "mechanism": "서버의 peak 전력보다 실제 가동률·PUE·랙 밀도·전력 품질·접속 용량이 서비스 가능한 compute와 비용을 결정한다.",
       "example": "가속기 랙을 추가해도 변전소와 냉각이 따라오지 못하면 서버를 설치한 뒤에도 사용 가능한 처리량이 늘지 않는다.",
       "counterScenario": "MW 규모 발표를 곧바로 매출·가동 가능한 AI 용량으로 바꾸면 접속 시기·PUE·임대료·가동률을 놓친다.",

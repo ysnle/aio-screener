@@ -22,12 +22,10 @@
   "sourceTiers": [],
   "claimCoverage": [],
   "researchFactIds": [
-    "fact:ml:generalization-memory",
-    "fact:tsmc:3dfabric",
-    "fact:micron:hbm2e",
-    "fact:pagedattention:kv-cache",
     "fact:3dnand:reliability-boundary",
-    "fact:sandisk:2026-investor-day-model"
+    "fact:sandisk:2026-investor-day-model",
+    "fact:sandisk:bics10-roadmap",
+    "fact:sandisk:hbf-option"
   ],
   "consensus": "Not assessed.",
   "disagreement": "Not assessed until independent source comparison is complete.",
@@ -40,7 +38,7 @@
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
   "status": "RESEARCH_REQUIRED",
   "completion": {
-    "researchComplete": false,
+    "evidenceAttached": false,
     "sourceProfileComplete": false,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

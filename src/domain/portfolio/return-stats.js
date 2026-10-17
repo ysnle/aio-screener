@@ -81,15 +81,23 @@ function deriveVarStability({ returns = [], iterations = 400, quantile = 0.05, t
 
   const random = _btMulberry32(_btFnv1a(clean.map((value) => Number(value).toFixed(8)).join(',')));
   const varSamples = [];
+  const cvarSamples = [];
   const draws = Math.max(1, Math.floor(iterations));
   for (let i = 0; i < draws; i += 1) {
     const resample = new Array(clean.length);
     for (let j = 0; j < clean.length; j += 1) resample[j] = clean[Math.floor(random() * clean.length)];
-    varSamples.push(_btTailRisk(resample, quantile).var);
+    const tail = _btTailRisk(resample, quantile);
+    varSamples.push(tail.var);
+    cvarSamples.push(tail.cvar);
   }
   const sortedVars = varSamples.slice().sort((a, b) => a - b);
   const band = { p05: _quantileR7(sortedVars, 0.05), median: _quantileR7(sortedVars, 0.5), p95: _quantileR7(sortedVars, 0.95) };
   const relativeBand = point.var > 0 ? (band.p95 - band.p05) / point.var : null;
+  // v57.92: the certificate was published as "VaR/CVaR", but only VaR was resampled — one -90% day in 100 moved CVaR
+  // 2%→4.6% and still read "certified". CVaR now gets the same two checks and its own certification (below).
+  const sortedCvars = cvarSamples.slice().sort((a, b) => a - b);
+  const cvarBand = { p05: _quantileR7(sortedCvars, 0.05), median: _quantileR7(sortedCvars, 0.5), p95: _quantileR7(sortedCvars, 0.95) };
+  const cvarRelativeBand = point.cvar > 0 ? (cvarBand.p95 - cvarBand.p05) / point.cvar : null;
 
   const orderAudit = _btVarOrderAudit(clean, order, observedAt);
   const ascending = clean.slice().sort((a, b) => a - b);
@@ -102,6 +110,8 @@ function deriveVarStability({ returns = [], iterations = 400, quantile = 0.05, t
     .map((entry) => ({ id: entry.id, var: entry.var, deviation: entry.var - point.var }));
   const maxAbsDeviation = variants.length ? Math.max.apply(null, variants.map((entry) => Math.abs(entry.deviation))) : null;
   const relativeSensitivity = point.var > 0 && maxAbsDeviation != null ? maxAbsDeviation / point.var : null;
+  const cvarLeaveOneOut = ascending.length > 2 ? _btTailRisk(ascending.slice(1), quantile).cvar : null;
+  const cvarRelativeSensitivity = point.cvar > 0 && cvarLeaveOneOut != null && isFinite(cvarLeaveOneOut) ? Math.abs(cvarLeaveOneOut - point.cvar) / point.cvar : null;
 
   const reasons = [];
   if (clean.length < declared.minSampleN) reasons.push('sample-below-declared-minimum');
@@ -109,6 +119,10 @@ function deriveVarStability({ returns = [], iterations = 400, quantile = 0.05, t
   if (relativeBand == null || relativeBand > declared.maxRelativeBand) reasons.push('bootstrap-band-exceeds-declared-maximum');
   if (relativeSensitivity == null || relativeSensitivity > declared.maxRelativeSensitivity) reasons.push('estimator-sensitivity-exceeds-declared-maximum');
   if (!orderAudit.usable) reasons.push(`recent-half-order-${orderAudit.state}`);
+  // CVaR is certified on its own: a sample can pin the 5% quantile while two crash days make the tail mean unstable.
+  const cvarReasons = reasons.filter((reason) => reason === 'sample-below-declared-minimum' || reason === 'tail-below-declared-minimum');
+  if (cvarRelativeBand == null || cvarRelativeBand > declared.maxRelativeBand) cvarReasons.push('cvar-bootstrap-band-exceeds-declared-maximum');
+  if (cvarRelativeSensitivity == null || cvarRelativeSensitivity > declared.maxRelativeSensitivity) cvarReasons.push('cvar-sensitivity-exceeds-declared-maximum');
 
   return {
     status: 'ready',
@@ -116,11 +130,13 @@ function deriveVarStability({ returns = [], iterations = 400, quantile = 0.05, t
     sampleN: clean.length,
     tailN: point.tailN,
     point: { var: point.var, cvar: point.cvar },
-    bootstrap: { iterations: draws, seed: 'sample-derived-fnv1a', band, relativeBand },
-    sensitivity: { variants, maxAbsDeviation, relativeSensitivity, recentHalfOrder: orderAudit.state },
+    bootstrap: { iterations: draws, seed: 'sample-derived-fnv1a', band, relativeBand, cvarBand, cvarRelativeBand },
+    sensitivity: { variants, maxAbsDeviation, relativeSensitivity, cvarLeaveOneWorstOut: cvarLeaveOneOut, cvarRelativeSensitivity, recentHalfOrder: orderAudit.state },
     thresholds: declared,
     certification: reasons.length ? 'held' : 'certified',
-    certificationReasons: reasons
+    certificationReasons: reasons,
+    cvarCertification: cvarReasons.length ? 'held' : 'certified',
+    cvarCertificationReasons: cvarReasons
   };
 }
 

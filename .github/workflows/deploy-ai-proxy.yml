@@ -217,6 +217,12 @@ jobs:
             # the release still lands; headline translation then stays on the shared OpenAI path (the route answers 503).
             # v57.61: only that permission failure may drop the binding; any other deploy error fails the job as-is.
             grep -q '^\[ai\]' worker/wrangler.proxy.deploy.toml || exit 1
+            # v57.92 (audit W01): that pattern also matches a one-off authentication error, so the binding is dropped only
+            # when the same deploy fails again — a missing permission repeats, a transient failure does not.
+            sleep 15
+            if wrangler deploy --config worker/wrangler.proxy.deploy.toml --message "AIO AI proxy $SOURCE_SHA (retry)" 2>&1 | tee "$deploy_log"; then
+              exit 0
+            fi
             if ! grep -Eqi 'workers[ -]?ai|binding[^[:alnum:]]+ai([^[:alnum:]]|$)|ai[^[:alnum:]]+binding|authentication error|\[code: 10000\]|not authori[sz]ed|permission' "$deploy_log"; then
               echo "::error::Worker deploy failed for a reason other than the Workers AI permission; not retrying without the binding"
               exit 1
@@ -284,14 +290,25 @@ jobs:
           done
           if [ "$blocked" != '403' ]; then echo "::error::ai_proxy_origin_gate_failed: HTTP $blocked"; exit 1; fi
           upstream_status="$(curl --silent --show-error --dump-header "$RUNNER_TEMP/aio-ai-upstream-headers.txt" --output "$RUNNER_TEMP/aio-ai-upstream.json" --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' -H 'Content-Type: application/json' -H "X-AIO-Idempotency-Key: deploy-${EXPECTED_SHA}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" -d '{"model":"gpt-6-luna","max_output_tokens":32,"reasoning":{"effort":"none"},"input":[{"role":"user","content":"Reply exactly OK"}],"store":false}' "$AI_PROXY_URL/openai")"
-          if [ "$upstream_status" != '200' ]; then cat "$RUNNER_TEMP/aio-ai-upstream.json" || true; echo "::error::ai_proxy_upstream_failed: HTTP $upstream_status"; exit 1; fi
-          node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.argv[1]));if(r.status!=='completed'||!Array.isArray(r.output)||!r.output.some(x=>x?.type==='message'&&x.content?.some(p=>p?.type==='output_text'&&typeof p.text==='string')))process.exit(1)" "$RUNNER_TEMP/aio-ai-upstream.json"
-          node -e "const fs=require('fs');const h=fs.readFileSync(process.argv[1],'utf8').toLowerCase();if(!/^x-aio-upstream-authority:\\s*durable-object-us\\s*$/m.test(h))process.exit(1)" "$RUNNER_TEMP/aio-ai-upstream-headers.txt"
+          # v57.92 (audit W02): a 429 carrying the Worker's own policy code (month budget, daily cap, rate limit) is the new
+          # code enforcing the shared ledger — the previous revision reads the same ledger, so rolling back fixes nothing.
+          # It is reported as operating-blocked; any other non-200 is still a code failure and rolls back.
+          policy_blocked=0
+          if [ "$upstream_status" = '429' ] && node -e "const r=JSON.parse(require('fs').readFileSync(process.argv[1]));if(!['monthly-budget','daily-cap','client-daily-cap','rate-limit'].includes(r?.error?.code))process.exit(1)" "$RUNNER_TEMP/aio-ai-upstream.json"; then
+            policy_blocked=1
+            echo "::warning::ai_proxy_operating_blocked: paid smoke answered 429 $(node -e "console.log(JSON.parse(require('fs').readFileSync(process.argv[1])).error.code)" "$RUNNER_TEMP/aio-ai-upstream.json") — the deployed code enforced the budget; paid checks skipped, not rolled back"
+          elif [ "$upstream_status" != '200' ]; then cat "$RUNNER_TEMP/aio-ai-upstream.json" || true; echo "::error::ai_proxy_upstream_failed: HTTP $upstream_status"; exit 1; fi
+          if [ "$policy_blocked" != '1' ]; then
+            node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.argv[1]));if(r.status!=='completed'||!Array.isArray(r.output)||!r.output.some(x=>x?.type==='message'&&x.content?.some(p=>p?.type==='output_text'&&typeof p.text==='string')))process.exit(1)" "$RUNNER_TEMP/aio-ai-upstream.json"
+            node -e "const fs=require('fs');const h=fs.readFileSync(process.argv[1],'utf8').toLowerCase();if(!/^x-aio-upstream-authority:\\s*durable-object-us\\s*$/m.test(h))process.exit(1)" "$RUNNER_TEMP/aio-ai-upstream-headers.txt"
+          fi
           automation_blocked="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Content-Type: application/json' -d '{"model":"gpt-6-luna","max_output_tokens":32,"input":"Reply exactly OK","store":false}' "$AI_PROXY_URL/openai")"
           if [ "$automation_blocked" != '403' ]; then echo "::error::ai_proxy_automation_gate_failed: HTTP $automation_blocked"; exit 1; fi
+          if [ "$policy_blocked" != '1' ]; then
           automation_status="$(curl --silent --show-error --output "$RUNNER_TEMP/aio-ai-automation.json" --write-out '%{http_code}' -H 'Content-Type: application/json' -H "X-AIO-Automation-Token: $AIO_AUTOMATION_TOKEN" -H "X-AIO-Idempotency-Key: deploy-automation-${EXPECTED_SHA}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" -d '{"model":"gpt-6-luna","max_output_tokens":32,"reasoning":{"effort":"none"},"input":"Reply exactly OK","store":false}' "$AI_PROXY_URL/openai")"
           if [ "$automation_status" != '200' ]; then echo "::error::ai_proxy_automation_upstream_failed: HTTP $automation_status"; exit 1; fi
           node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.argv[1]));if(r.status!=='completed'||!r.output?.some(x=>x?.type==='message'&&x.content?.some(p=>p?.type==='output_text'&&typeof p.text==='string')))process.exit(1)" "$RUNNER_TEMP/aio-ai-automation.json"
+          fi
           # v57.79: the personal-key FRED relay was retired; the Worker must answer it as an unknown provider.
           relay_retired="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/relay?provider=fred&series_id=DGS10&limit=1")"
           if [ "$relay_retired" != '400' ]; then echo "::error::ai_proxy_retired_fred_relay_still_served: HTTP $relay_retired"; exit 1; fi

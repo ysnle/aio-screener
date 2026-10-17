@@ -75,7 +75,10 @@ export function buildPeerRead({ symbol, sector = null, seriesFor = () => null, p
     const value = finite(own[metric.id]);
     if (financial && metric.id === 'fcfMargin') return { ...metric, label: '잉여현금 마진(금융사 비교 보류)', higherIs: null,
       value, median: null, percentile: null, n: 0, reason: 'financial-cash-flow-not-comparable' };
-    const values = peerMetrics.map((peer) => finite(peer.metrics[metric.id])).filter((v) => v != null);
+    // v57.92: the same rule applies to the peer side — a card network's FCF margin was ranked against five banks' OCF−capex
+    // (0th percentile) while the bank itself was held. Lending peers drop out of the FCF comparison set, so n shrinks.
+    const values = peerMetrics.filter((peer) => metric.id !== 'fcfMargin' || !isLendingFinancial(peer.symbol, sector))
+      .map((peer) => finite(peer.metrics[metric.id])).filter((v) => v != null);
     if (value == null || values.length < minPeers) return { ...metric, value, median: median(values), percentile: null, n: values.length };
     return { ...metric, value, median: median(values), percentile: percentileAmong(value, values), n: values.length };
   });

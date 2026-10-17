@@ -79,12 +79,9 @@
   ],
   "claimCoverage": [],
   "researchFactIds": [
-    "fact:oecd:productivity",
-    "fact:bls:cpi",
-    "fact:fed:policy-transmission",
-    "fact:sec:capex-depreciation",
     "fact:sandisk:2026-investor-day-model",
-    "fact:sia:semiconductor-value-chain"
+    "fact:sia:semiconductor-value-chain",
+    "fact:nist:supply-chain-risk"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
@@ -97,7 +94,7 @@
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
   "status": "RESEARCHED",
   "completion": {
-    "researchComplete": true,
+    "evidenceAttached": true,
     "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

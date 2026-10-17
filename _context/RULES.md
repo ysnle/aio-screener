@@ -1,6 +1,6 @@
 ---
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
-last_verified: 2026-10-16
+last_verified: 2026-10-17
 confidence: medium
 target_version: v57.79
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
@@ -18,6 +18,12 @@ target_version: v57.79
 - **수집·신선도**: R634 신선도 감사에 stale을 통과시키는 모드가 없다 · R641 화면 판단과 운영 상태는 같은 신선도 경계 · R654 SEC 소유 공시와 13F는 서로 다른 주기 · R701 blocking 게이트 PASS를 전체 정상으로 올리지 않는다
 - **운영·AI**: R652 Worker 자동 배포는 CI 증거와 롤백 대상이 있어야 · R657 운영 알림은 증거를 남기고 닫힌 쪽으로 실패 · R681 모든 AI는 공용 Worker 한 경로로, 웹검색 포함 월 $20 이하 예산을 함께 쓴다
 - **화면**: R697 등급·검증 안 된 합산·행동 지시 없이 측정한 조건과 근거만 보인다 · R669 데스크톱·휴대폰·아이패드가 같은 라우트·데이터를 쓰고 레이아웃만 적응한다 · R703 한 사용자 입력은 한 owner가 처리하고 색 테마는 storage 실패와 무관
+
+## R718. 자동 근거 연결 토큰은 분야 고유어만 (v57.92, P1903)
+
+**Rule**: research-facts.json의 appliesTo에는 그 사실의 분야에서만 쓰이는 토큰을 둔다. yield·quality·policy·memory·model·risk·ai처럼 여러 분야에서 다른 뜻으로 쓰이는 단어는 넣지 않고, 필요하면 글 id(예: memory-wall)를 직접 적는다. 사실이 붙은 상태는 evidenceAttached이며 연구 완료가 아니다.
+
+**Validation**: node scripts/ci-review-integrity-unit-check.mjs (v57.92-M02-K01-masters 블록)
 
 ## R717. main에 커밋되는 데이터 파일은 50MB 미만으로 설계한다 (v57.89, P1899)
 
@@ -1183,13 +1189,13 @@ target_version: v57.79
 
 **Rule**: X posts, screenshots, interviews, estimates, rumors and role-level deal maps may seed durable hypotheses, keywords, chat context and monitoring lenses, but they may not become current quotes, valuation, event results, option positioning, trade instructions or live ranking without a dated official/provider evidence row. Every consumer must expose `REFERENCE`/`UNVERIFIED` and preserve the source/as-of boundary.
 
-**Validation**: `_context/RESEARCH-INTEGRATION-AI-INFRA-MARKET-RISK-2026-08-22.md`, `src/domain/ai/inference-efficiency.js`, `src/domain/macro/transmission.js`, `QA-REF-AI-01~02`, and the existing typed AI evidence/runtime audits.
+**Validation**: `_context/RESEARCH-INTEGRATION-AI-INFRA-MARKET-RISK-2026-08-22.md`, `src/domain/ai/inference-efficiency.js`, `src/domain/macro/macro-read.js` buildChain (transmission.js retired v57.08/P1426), `QA-REF-AI-01~02`, and the existing typed AI evidence/runtime audits.
 
 ## R511. Missing macro transmission variables are blocked, not inferred from proxies (v54.44, P955)
 
 **Rule**: a causal macro lens may consume connected 2Y/10Y/30Y, FRED HY OAS, VIX, breadth and cross-asset quotes, but term premium, Treasury/corporate issuance, dealer gamma/options positioning and China credit/investment remain distinct inputs. A 10Y level, VIX level, HYG price or narrative headline cannot silently substitute for a missing producer; the UI must name the blocked field and its next connection gate.
 
-**Validation**: `src/domain/macro/transmission.js`, `src/ui/pages/market.js`, `QA-REF-MACRO-01`, and the provider/data-refresh contracts when a producer is added.
+**Validation**: `src/domain/macro/macro-read.js` buildChain (transmission.js retired v57.08/P1426), `src/ui/pages/market.js`, `QA-REF-MACRO-01`, and the provider/data-refresh contracts when a producer is added.
 
 ## R512. Missing numeric observations, news topic suppression and chart observers fail closed together (v54.45, P956)
 
@@ -2093,6 +2099,9 @@ target_version: v57.79
 ## R267. "Current"-labeled rolling aggregations must anchor windows to the newest observation (v51.88)
 ## R266. When a measured value and a proxy heuristic coexist, consumers must prefer the measurement — and fetchers must store measurements consumably (v51.88)
 ## R265. Code that claims parity with a named external tool/methodology must match that source's exact definition, verified by recomputation (v51.86)
+
+**Rule** (body restored v57.92 from the pre-2026-07-18 ledger): a feature described as matching a named source (Portfolio Visualizer, a published formula, an index methodology) reproduces that source's exact definition, including the denominator. Verify by recomputing a known case from scratch, not by reading the formula. Origin: `_aioBtSortino` divided downside excess by the negative-observation count instead of N and understated Sortino about 46% (P574).
+
 ## R264. An API key in a URL must never be routed through a third-party proxy; a "sensitive URL" guard must block the egress, not just caching (v51.85)
 ## R263. Every producer of deployable artifacts must actually trigger the deploy path, and the watchdog must verify the DEPLOYED surface, not just the repo (v51.84)
 ## R262. Scheduled scrapers/fetchers hitting external feeds must self-throttle with a persisted cursor, not stateless full re-scans (v51.83)

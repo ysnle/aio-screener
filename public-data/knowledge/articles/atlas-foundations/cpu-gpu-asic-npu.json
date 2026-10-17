@@ -60,7 +60,7 @@
       {
         "factId": "fact:google:tpu",
         "sourceId": "WEB-GOOGLE-TPU-ARCHITECTURE-2026",
-        "statement": "Google Cloud documents TPUs as application-specific integrated circuits designed for machine-learning workloads, with matrix-multiply units, vector/scalar units, reduced-precision arithmetic, and on-chip high-bandwidth memory.",
+        "statement": "Google Cloud documents TPUs as application-specific integrated circuits designed for machine-learning workloads, with matrix-multiply units, vector/scalar units, reduced-precision arithmetic, and high-bandwidth memory (HBM) attached to each chip. The HBM stacks sit beside the compute die in the same package; they are not on the die itself.",
         "scope": "Domain-specific AI accelerators and matrix-oriented hardware",
         "invalidation": "A TPU architecture is one accelerator design; its features cannot be generalized to all ASICs, NPUs, models, or production cost/performance without workload-specific evidence.",
         "asOf": "2026-08-12"

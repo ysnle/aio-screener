@@ -1,10 +1,46 @@
 ---
-last_verified: 2026-10-16
+last_verified: 2026-10-17
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1906 - v57.92 - 태블릿에서 학습 글의 다음 단계가 목록 뒤로 밀리고 13F 같은 회사 두 종목이 구분 안 됨 (2026-10-17)
+
+- symptom/reproduction: 1100px 이하에서 학습 글 본문 다음에 424개 목록이 먼저 나와 '다음 글·선행 글' 링크가 화면 맨 아래로 갔다. 13F 화면에서 Alphabet A주와 C주가 같은 이름으로 두 줄 보였다.
+- root_cause: 반응형 블록에 rl-aside/rl-nav 순서가 없었다. 발행사 셀이 증권 종류(CL A/CL C)를 버렸다.
+- fix: ≤1100px에서 rl-aside를 order 2, rl-nav를 order 3(최대 높이 260px)으로 둔다. 발행사 셀과 비중 막대 라벨에 'A주/C주' 표시를 붙인다(shareClassTag).
+- violated_rule: 데스크톱·모바일·아이패드 반응형 지원(AGENTS 2026-10-11)
+- prevention: verify-aio에 tablet(820×1180) 뷰포트를 추가했고, 단위 검사가 shareClassTag를 고정한다.
+- verification/residual: node .claude/skills/verify-aio/scripts/verify-aio.mjs --route learn --viewport tablet && node scripts/ci-review-integrity-unit-check.mjs
+
+## P1905 - v57.92 - 스킬 평가 고정 목록이 새 스킬 3개를 빠뜨림 (2026-10-17)
+
+- symptom/reproduction: verify-aio·create-verification-skill·maintain-verification-skill의 평가 사례를 지워도 ci-skill-eval-fixture-check가 통과했다.
+- root_cause: 필수 스킬 목록이 9개 중 6개로 고정돼 있었다.
+- fix: .claude/skills 아래 SKILL.md가 있는 모든 디렉터리(밑줄 시작 제외)를 필수 목록으로 유도하고 최소 9개를 요구한다.
+- violated_rule: R27 Commands↔Skills 동기화
+- prevention: 새 스킬은 디렉터리만 생겨도 평가 사례 누락으로 실패한다.
+- verification/residual: node scripts/ci-skill-eval-fixture-check.mjs
+
+## P1904 - v57.92 - 52주 범위 판정이 빈 행까지 기간으로 셈 (2026-10-17)
+
+- symptom/reproduction: 고가·저가 배열이 240칸이고 실제 값이 1쌍뿐이어도 rangeExtremesOf가 fullYear:true를 돌려 '52주' 범위로 부를 수 있었다.
+- root_cause: fullYear를 배열 길이(n − from)로 판정했다. 유효 봉이 시작되는 위치를 보지 않았다.
+- fix: 첫 유효 봉(firstValid)부터 끝까지의 길이로 fullYear를 판정한다. 생산자·차트 봉은 빈 행이 없어 기존 결과는 같다.
+- violated_rule: R713 기술 정의 단일화 — 52주는 240거래일 이상의 실제 범위
+- prevention: 단위 검사가 빈 행 239+1봉(false), 252봉(true), 중간 결측 1칸(true)을 고정한다.
+- verification/residual: node scripts/ci-review-integrity-unit-check.mjs
+
+## P1903 - v57.92 - 지식 근거 자동 연결이 다의어로 다른 분야 사실을 붙임 (2026-10-17)
+
+- symptom/reproduction: AI 기초 글 '용량과 수율'에 실질금리·r* 사실, '데이터 품질'에 CPI 정의, '후속학습'에 연준 정책 전달, '외부 메모리'에 패키징·HBM 사실이 근거로 붙었다. 연구 진척 필드는 사실이 붙기만 해도 researchComplete로 셌다.
+- root_cause: research-facts.json appliesTo에 yield·quality·policy·memory·model·risk·ai 같은 분야 횡단 다의어가 있었고, factMatches가 글 본문 단어와 그대로 대조했다. 부분 문자열 대조(capacity-and-yield ⊃ yield)도 겹쳤다.
+- fix: factMatches를 하이픈 포함 단어 단위 대조로 바꾸고, 20개 사실의 appliesTo에서 다의어를 뺐다. completion.researchComplete를 evidenceAttached로 바꿔 '근거가 붙음'과 '연구 완료'를 분리했다. TPU 사실의 'on-chip HBM'은 같은 패키지 안의 HBM으로 정정했다.
+- violated_rule: 근거는 주장을 직접 지지해야 한다(존재≠지지)
+- prevention: R718 단위 검사가 대표 교차 연결 5건(capacity-and-yield·data-quality·post-training·evaluation·parameter-vs-external-memory)을 막는다.
+- verification/residual: node scripts/ci-review-integrity-unit-check.mjs && node scripts/ci-knowledge-generated-parity-check.mjs
 
 ## P1902 - v57.91 - 브리핑 금 문장이 실질금리 자료가 있는데도 '실질금리 자료 미수신'으로 표시 (2026-10-16)
 

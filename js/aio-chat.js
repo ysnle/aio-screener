@@ -2395,8 +2395,17 @@ async function _fetchTickerTrend(ticker) {
     var d = await r.json();
     var result = d && d.chart && d.chart.result && d.chart.result[0];
     if (!result) return null;
-    var closes = ((result.indicators && result.indicators.quote && result.indicators.quote[0] && result.indicators.quote[0].close) || []).filter(function(v){ return v != null && !isNaN(v); });
+    // v57.92 (internal audit A04): dated bars, and the still-moving session bar is dropped exactly as the chart does
+    // (completedBars) — the 5D/20D line was computed on an intraday price and called a trend without a date.
+    var rawCloses = (result.indicators && result.indicators.quote && result.indicators.quote[0] && result.indicators.quote[0].close) || [];
+    var tz = (result.meta && result.meta.exchangeTimezoneName) || 'America/New_York';
+    var bars = (Array.isArray(result.timestamp) ? result.timestamp : []).map(function(ts, i) {
+      return { time: new Date(ts * 1000).toLocaleDateString('en-CA', { timeZone: tz }), close: rawCloses[i] };
+    }).filter(function(bar) { return typeof bar.close === 'number' && isFinite(bar.close) && bar.close > 0; });
+    if (typeof window._aioCompletedBars === 'function') bars = window._aioCompletedBars(bars, { meta: result.meta }).bars;
+    var closes = bars.map(function(bar) { return bar.close; });
     if (closes.length < 20) return null;
+    var lastDay = bars[bars.length - 1].time;
     var now = closes[closes.length - 1];
     var d5 = closes[Math.max(0, closes.length - 6)];
     var d20 = closes[Math.max(0, closes.length - 21)];
@@ -2418,7 +2427,7 @@ async function _fetchTickerTrend(ticker) {
     var hi = Math.max.apply(null, closes);
     var lo = Math.min.apply(null, closes);
     var pos = hi > lo ? Math.round(((now - lo) / (hi - lo)) * 100) : 50;
-    var text = label + ' (5D ' + (pct5>=0?'+':'') + pct5.toFixed(1) + '% · 20D ' + (pct20>=0?'+':'') + pct20.toFixed(1) + '% · 3M ' + (pct60>=0?'+':'') + pct60.toFixed(1) + '% · 3M 범위 ' + pos + '% 위치)';
+    var text = label + ' (' + Number(lastDay.slice(5, 7)) + '/' + Number(lastDay.slice(8, 10)) + ' 완료 종가까지 5거래일 ' + (pct5>=0?'+':'') + pct5.toFixed(1) + '% · 20거래일 ' + (pct20>=0?'+':'') + pct20.toFixed(1) + '% · 3개월 ' + (pct60>=0?'+':'') + pct60.toFixed(1) + '% · 3개월 범위 ' + pos + '% 위치)';
     window._tickerTrendCache[ticker] = { text: text, _ts: Date.now() };
     return text;
   } catch(e) { return null; }
@@ -4750,7 +4759,7 @@ window._aioChatFreshnessInfo = function() {
     (ldAgeMin == null ? '' : ' · 가장 최근 관측 ' + ldAgeMin + '분 전') +
     ' — 각 종목의 기준시각·시장 세션·출처를 따로 적용. 참고값은 현재가로 단정하지 않음';
   var snapAge = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._updated)
-    ? Math.round((Date.now() - new Date(DATA_SNAPSHOT._updated).getTime()) / 3600000) : 999;
+    ? Math.round((Date.now() - new Date(DATA_SNAPSHOT._updated).getTime()) / 3600000) : null; // v57.92 A07: unknown is not 999h
   return { todayStr: todayStr, ldAgeMin: ldAgeMin, liveStatus: liveStatus, snapAge: snapAge };
 };
 
@@ -6016,7 +6025,7 @@ async function chatSendUnified(_aioDispatchOptions) {
 
   // P1740: one principles block chosen by the question (src/ai/response/answer-principles.js).
   var _fi2 = window._aioChatFreshnessInfo ? window._aioChatFreshnessInfo() : {};
-  var _pSnapAge = _fi2.snapAge != null ? _fi2.snapAge : 999;
+  var _pSnapAge = Number.isFinite(_fi2.snapAge) ? _fi2.snapAge : null;
   var _liveStatus = _fi2.liveStatus || '미수신 — 가격 수치 인용 자체 금지. "실시간 연결 중" 안내만';
   var _todayStr = _fi2.todayStr || new Date().toISOString().slice(0,10);
   var _pHasTrend = sysPrompt.indexOf('[주가 추이]') !== -1;

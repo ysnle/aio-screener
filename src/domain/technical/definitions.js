@@ -91,7 +91,11 @@ export function rangeExtremesOf(highs, lows, sessions = T.rangeSessions) {
   const hi = highs.slice(from, n).filter((value) => value > 0);
   const lo = lows.slice(from, n).filter((value) => value > 0);
   if (!hi.length || !lo.length) return null;
-  return Object.freeze({ high: Math.max(...hi), low: Math.min(...lo), sessions: n - from, fullYear: n >= Math.min(sessions, T.fullYearSessions) });
+  // v57.92 (internal review M02): the full-year test counts the span of real bars, not the array length — 239 null pairs
+  // and one valid bar used to pass as a 52-week range. Producer and chart bars carry no null rows, so their result is unchanged.
+  let firstValid = from;
+  while (firstValid < n && !(highs[firstValid] > 0 && lows[firstValid] > 0)) firstValid += 1;
+  return Object.freeze({ high: Math.max(...hi), low: Math.min(...lo), sessions: n - from, fullYear: n - firstValid >= Math.min(sessions, T.fullYearSessions) });
 }
 
 /** Distance to the 50-day line in average daily ranges, one decimal; null when either input is missing or ADR ≤ 0. */

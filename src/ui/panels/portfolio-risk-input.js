@@ -168,12 +168,15 @@ export function assembleRiskEstimateInput({
     sampleDates: dates.slice(1)
   }) : null;
 
+  const hasForeign = currencies.some((currency) => currency !== baseCurrency);
   return {
     ok: true,
     valueCurrency: baseCurrency,
     // P1445: base-currency returns when the FX history covered the window; otherwise local and labelled.
-    returnCurrencyBasis: currencies.length <= 1 ? baseCurrency : fxMissing ? 'local-currency-per-holding' : fxApplied ? `${baseCurrency}-incl-fx` : baseCurrency,
-    fxIncluded: currencies.length <= 1 ? null : !fxMissing,
+    // v57.92: the question is whether any holding is priced outside the base, not how many currencies there are — one
+    // USD holding in a KRW account returned the dollar move labelled as won, with no missing-FX warning.
+    returnCurrencyBasis: !hasForeign ? baseCurrency : fxMissing ? 'local-currency-per-holding' : fxApplied ? `${baseCurrency}-incl-fx` : baseCurrency,
+    fxIncluded: !hasForeign ? null : !fxMissing,
     returnsMap,
     snapshot,
     estimate,

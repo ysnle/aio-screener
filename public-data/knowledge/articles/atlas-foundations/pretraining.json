@@ -44,33 +44,15 @@
     ],
     "sourceIds": [
       "FND-GOOGLE-TRANSFORMER",
-      "WEB-NIST-AI-RMF-CORE-2023",
-      "WEB-ARXIV-TRANSFORMER-2017",
-      "WEB-GOOGLE-ML-TYPES-2026"
+      "WEB-ARXIV-TRANSFORMER-2017"
     ],
     "researchEvidence": [
-      {
-        "factId": "fact:nist:ai-rmf-core",
-        "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-        "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-        "scope": "AI risk-management framework structure",
-        "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-        "asOf": "2026-08-12"
-      },
       {
         "factId": "fact:transformer:attention",
         "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
         "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
         "scope": "Transformer architecture history and mechanism",
         "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:google:learning-types",
-        "sourceId": "WEB-GOOGLE-ML-TYPES-2026",
-        "statement": "Google's machine-learning reference distinguishes supervised learning by labeled targets, unsupervised learning by structure discovery in unlabeled data, reinforcement learning by rewards or penalties from actions, and generative systems by producing new content from learned patterns.",
-        "scope": "Learning paradigms and the difference between explicit rules and data-trained models",
-        "invalidation": "These are category-level definitions; a production system can combine paradigms, and a label such as generative AI does not establish quality, safety, or generalization.",
         "asOf": "2026-08-12"
       }
     ],

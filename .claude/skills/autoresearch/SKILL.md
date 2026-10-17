@@ -36,7 +36,7 @@ Read only what the current task needs; this is not an all-files reading checklis
 | AR1 | Are all evals yes/no and independently observable? |
 | AR2 | Was the baseline measured before any change? |
 | AR3 | Did each experiment change exactly one variable? |
-| AR4 | Were equal or worse experiments rejected? |
+| AR4 | Were worse experiments rejected, and was an equal-score change kept only when it lowers cost (lines, tokens, time) with no new critical failure? |
 | AR5 | Are results and changelog written? |
 | AR6 | Did the matching command wrapper remain synced? |
 | AR7 | Are deterministic fixture results and independent behavioral-run results reported separately? |

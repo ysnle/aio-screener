@@ -1,0 +1,20 @@
+domainId|판정|개별 검토 이유
+domain-adjacent-future-tech|보완|서로 다른 기술을 단일 단위 묶음으로 표현한 범위 과넓음
+domain-ai-applications|보완|payer·ROI 질문 유용하나 의료 상환은 모든 응용 공통 KPI 아님
+domain-ai-economics|보완|현금 CAPEX와 비현금 감가상각의 FCF·ROIC 경로 분리 필요
+domain-aidc-cooling|초안정합|usable cooling·power 구분 유용; PUE 측정 분모·부하 조건 연구 필요
+domain-capital-markets-company-map|보완|역할·현금·기대 연결 유용; 연결 기업 둘을 대표표본으로 해석 불가
+domain-cloud-platform|보완|예약·실사용·인식시점 구분; 공개모델 branch 직접 편입 이유 없음
+domain-compute-silicon|초안정합|workload 처리량·전환비용 질문 적합; precision은 제품단계와 다른 축
+domain-drone-defense|보완|mission·조달 구분 유용; Artemis·우주재사용 direct branch 혼합
+domain-foundry-equipment|초안정합|노드·실제 양품 구분 적합; 공정·장비·소재·설계는 단일 단계 아님
+domain-geopolitics-policy-security|보완|발표·시행·기업비용 구분; cyber·산업정책 공통기제는 후보에 한정
+domain-memory-storage|보완|용량·이동량 질문 유용; 계층·제품·인터페이스의 병렬 목록 혼합
+domain-neocloud-finance|보완|계약·지급·회수 질문 유용; rental yield−funding cost는 전체 수익성 아님
+domain-network-photonics|초안정합|link speed·실제scaling 구분; CPO/LPO 비교조건 연구 필요
+domain-on-device-physical-ai|보완|온디바이스 배포경계와 actuator 폐루프 제어 범위를 합침
+domain-packaging-substrate|보완|열·수율·승인 질문 일치; 2.5D/3D 구조와 ABF/glass 재료는 다른 축
+domain-physical-ai-robotics|초안정합|지각·계획·제어·복구와 개입비용 연결; task·분모 연구 필요
+domain-power-grid|보완|접속·계약MW 구분; generation→load→storage는 순차 인과로 미검증
+domain-resources-materials|보완|정제·양품·리드타임 질문 유용; 광종별 기제·단위 묶음 비교 불가
+domain-space-aerospace|보완|cadence·운영·회수 구분; 민항·방산·위성서비스 direct 범위 과넓음

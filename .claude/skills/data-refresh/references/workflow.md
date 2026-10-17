@@ -6,10 +6,10 @@ Use `inventory.md` only to locate the relevant categories.
 
 1. Assess the requested categories; use the full 22-category table only for a complete freshness audit.
 2. Refresh CRITICAL categories first.
-3. Update generated artifacts by dispatching the producing workflow (`refresh-data.yml`, `refresh-screener.yml`); do not run producer scripts locally.
+3. Update generated artifacts by dispatching the producing workflow (`refresh-data.yml`, `refresh-screener.yml`) only when the user explicitly asked for a refresh (a freshness check reports, it does not dispatch); do not run producer scripts locally.
 4. Keep producer, artifact, consumer, and gate together.
 5. Update docs that describe refreshed surfaces.
-6. Bump version with `node scripts/bump-version.mjs <version>`.
+6. Bump the app version with `node scripts/bump-version.mjs <version>` only when product code or docs changed; a data-only refresh is tracked by its data revision and asOf.
 7. Run data, runtime, version, and skill gates relevant to the touched surfaces.
 
 ## Non-Negotiables

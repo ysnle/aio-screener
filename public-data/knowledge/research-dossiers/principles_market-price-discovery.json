@@ -43,7 +43,6 @@
   "claimCoverage": [],
   "researchFactIds": [
     "fact:finra:orders",
-    "fact:bls:cpi",
     "fact:krx:listed-products"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
@@ -57,7 +56,7 @@
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
   "status": "RESEARCHED",
   "completion": {
-    "researchComplete": true,
+    "evidenceAttached": true,
     "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

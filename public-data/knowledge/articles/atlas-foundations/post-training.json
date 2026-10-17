@@ -44,36 +44,9 @@
     ],
     "sourceIds": [
       "FND-NIST-AI-RMF",
-      "WEB-NIST-AI-RMF-CORE-2023",
-      "WEB-ARXIV-TRANSFORMER-2017",
-      "WEB-FED-MPR-JULY-2026",
       "WEB-GOOGLE-ML-TYPES-2026"
     ],
     "researchEvidence": [
-      {
-        "factId": "fact:nist:ai-rmf-core",
-        "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-        "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-        "scope": "AI risk-management framework structure",
-        "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:transformer:attention",
-        "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-        "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-        "scope": "Transformer architecture history and mechanism",
-        "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:fed:policy-transmission",
-        "sourceId": "WEB-FED-MPR-JULY-2026",
-        "statement": "The Federal Reserve's policy report separates policy-rate decisions, inflation, labour-market conditions, real interest rates, and capital investment; a policy signal is therefore an input to several transmission channels rather than a one-variable price forecast.",
-        "scope": "Official monetary-policy reporting and transmission framing",
-        "invalidation": "This source is a dated policy report, not a timeless causal estimate or a guarantee that a rate change will move every maturity, credit spread, asset, or economy in the same direction.",
-        "asOf": "2026-08-12"
-      },
       {
         "factId": "fact:google:learning-types",
         "sourceId": "WEB-GOOGLE-ML-TYPES-2026",

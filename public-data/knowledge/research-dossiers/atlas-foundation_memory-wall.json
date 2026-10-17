@@ -32,13 +32,6 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-ARXIV-GENERALIZE-MEMORIZE-2018",
-      "url": "https://arxiv.org/abs/1805.06822",
-      "publisher": "arXiv / Cohen, Sapiro, Giryes",
-      "title": "DNN or k-NN: That is the Generalize vs. Memorize Question",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
-    },
-    {
       "sourceId": "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",
       "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/index.html",
       "publisher": "NVIDIA",
@@ -57,20 +50,18 @@
       "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
       "publisher": "TSMC",
       "title": "3DFabric advanced packaging",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
+    },
+    {
+      "sourceId": "WEB-MICRON-HBM2E-2020",
+      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
+      "publisher": "Micron",
+      "title": "Integrating and Operating HBM2E Memory",
       "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
     }
   ],
   "selectedSources": [
     {
-      "sourceId": "WEB-ARXIV-GENERALIZE-MEMORIZE-2018",
-      "url": "https://arxiv.org/abs/1805.06822",
-      "publisher": "arXiv / Cohen, Sapiro, Giryes",
-      "title": "DNN or k-NN: That is the Generalize vs. Memorize Question",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
       "sourceId": "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",
       "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/index.html",
       "publisher": "NVIDIA",
@@ -93,6 +84,15 @@
       "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
       "publisher": "TSMC",
       "title": "3DFabric advanced packaging",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-MICRON-HBM2E-2020",
+      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
+      "publisher": "Micron",
+      "title": "Integrating and Operating HBM2E Memory",
       "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
       "directness": "DIRECT",
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
@@ -100,7 +100,6 @@
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "ACADEMIC_TEXTBOOK_STANDARD",
     "COMPANY_TECHNICAL_DOCUMENT"
   ],
   "claimCoverage": [
@@ -111,12 +110,10 @@
     }
   ],
   "researchFactIds": [
-    "fact:ml:generalization-memory",
     "fact:nvidia:cuda-parallel",
     "fact:google:tpu",
     "fact:tsmc:3dfabric",
-    "fact:micron:hbm2e",
-    "fact:pagedattention:kv-cache"
+    "fact:micron:hbm2e"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
@@ -129,7 +126,7 @@
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
   "status": "RESEARCHED",
   "completion": {
-    "researchComplete": true,
+    "evidenceAttached": true,
     "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

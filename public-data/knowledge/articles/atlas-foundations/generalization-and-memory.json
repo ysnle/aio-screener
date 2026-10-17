@@ -44,10 +44,7 @@
     ],
     "sourceIds": [
       "PS-12",
-      "WEB-ARXIV-GENERALIZE-MEMORIZE-2018",
-      "WEB-TSMC-3DFABRIC-2026",
-      "WEB-MICRON-HBM2E-2020",
-      "WEB-ARXIV-PAGEDATTENTION-2023"
+      "WEB-ARXIV-GENERALIZE-MEMORIZE-2018"
     ],
     "researchEvidence": [
       {
@@ -57,30 +54,6 @@
         "scope": "Model generalization, memorization, and evaluation boundary",
         "invalidation": "The cited study is empirical and task-specific; it does not provide a universal test for all architectures, datasets, or deployment settings.",
         "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:tsmc:3dfabric",
-        "sourceId": "WEB-TSMC-3DFABRIC-2026",
-        "statement": "TSMC describes 3DFabric as a family of 3D silicon stacking and advanced-packaging technologies that integrates logic, memory, and other chiplets at the system level; packaging therefore affects bandwidth, latency, power, form factor, and cost rather than being only a final enclosure step.",
-        "scope": "Advanced packaging, heterogeneous integration, chiplets, and system bottlenecks",
-        "invalidation": "This is a vendor technology description; customer yield, capacity, pricing, supply availability, and product economics require independent filing and production evidence.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:micron:hbm2e",
-        "sourceId": "WEB-MICRON-HBM2E-2020",
-        "statement": "Micron's HBM2E technical brief describes a wide-interface stacked-memory design whose bandwidth and capacity characteristics differ from conventional graphics memory; system-level bandwidth depends on the memory stack, interface, package, and workload.",
-        "scope": "High-bandwidth memory architecture and memory bottlenecks",
-        "invalidation": "The cited HBM2E document is product-generation specific; it does not establish current HBM availability, pricing, yield, or performance for later generations.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:pagedattention:kv-cache",
-        "sourceId": "WEB-ARXIV-PAGEDATTENTION-2023",
-        "statement": "The PagedAttention paper models the KV cache as a major and dynamically sized memory component in LLM serving and applies virtual-memory-style paging to reduce fragmentation and improve sharing. It supports a causal link from context and concurrency to memory pressure, not a universal claim that the cache must reside on SSD.",
-        "scope": "KV-cache memory management in LLM serving",
-        "invalidation": "Reported throughput gains depend on models, hardware, workloads, runtime and baselines; later attention and cache-compression methods can change the bottleneck.",
-        "asOf": "2023-09-12"
       }
     ],
     "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"

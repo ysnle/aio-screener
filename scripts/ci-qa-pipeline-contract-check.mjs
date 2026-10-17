@@ -555,6 +555,9 @@ check('convergence driver cannot bypass attestation or mutate repository state',
   && !/deploy-pages@/.test(convergenceSource)
   && !/writeFileSync\([^)]*'\.\//.test(convergenceSource)
   && !/git\s+push/.test(convergenceSource));
+// v57.92 (audit W06): both convergence branches turn a settled CI failure red.
+check('v57.92 W06 default convergence branch propagates a settled CI failure',
+  /finish\('UNATTESTED_REVISION', settledFailure \? 1 : 0\)/.test(convergenceSource) && /ciFailed \? 1 : 0/.test(convergenceSource));
 check('CI accepts exact refresh SHA and emits immutable attestation', /release_sha:/.test(ciSource) && /aio-release-attestation\.v1/.test(ciSource) && /actions\/upload-artifact@[0-9a-f]{40}/.test(ciSource));
 const releaseUploadStep = ciSource.match(/- name: Upload release attestation([\s\S]*?)(?=\n      - name:|\n\n  [a-z]|$)/)?.[1] || '';
 check('P1308/R653/QA-DATA-50 release attestation includes its hidden directory in the artifact',

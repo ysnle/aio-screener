@@ -32,13 +32,6 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-OECD-PRODUCTIVITY-METHODS",
-      "url": "https://www.oecd.org/sdd/productivity-stats/OECD-Productivity-Statistics-Methodological-note.pdf",
-      "publisher": "OECD",
-      "title": "OECD Productivity Statistics methodological note",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",
       "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/index.html",
       "publisher": "NVIDIA",
@@ -61,15 +54,6 @@
     }
   ],
   "selectedSources": [
-    {
-      "sourceId": "WEB-OECD-PRODUCTIVITY-METHODS",
-      "url": "https://www.oecd.org/sdd/productivity-stats/OECD-Productivity-Statistics-Methodological-note.pdf",
-      "publisher": "OECD",
-      "title": "OECD Productivity Statistics methodological note",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
     {
       "sourceId": "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",
       "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/index.html",
@@ -100,7 +84,6 @@
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
     "COMPANY_TECHNICAL_DOCUMENT"
   ],
   "claimCoverage": [
@@ -111,7 +94,6 @@
     }
   ],
   "researchFactIds": [
-    "fact:oecd:productivity",
     "fact:nvidia:cuda-parallel",
     "fact:tsmc:3dfabric"
   ],
@@ -126,7 +108,7 @@
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
   "status": "RESEARCHED",
   "completion": {
-    "researchComplete": true,
+    "evidenceAttached": true,
     "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

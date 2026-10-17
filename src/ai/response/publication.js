@@ -69,12 +69,16 @@ export function splitAnswerSentences(line) {
 // is a rule, not an observation. Stripping every sentence with a number removed exactly the invalidation levels and
 // confirmation signals the answer contract asks for. A sentence is a condition only when it has a conditional
 // ending and no marker of a present or past observation; "현재 15인 VIX가 20을 넘으면" still carries a current value.
-var CONDITIONAL_MARKER = /(?:[가-힣](?:으면|면|라면|이라면)(?=[\s,.!?)]|$)|(?:경우|때)(?:에는|에|는)?(?=[\s,.!?)]|$)|\s시(?:에는|에)?(?=[\s,.!?)]|$)|이상이면|이하이면|넘어서면|웃돌면|밑돌면|조건|기준선|임계|트리거|무효화|\b(?:if|when|unless|above|below)\b)/i;
+var CONDITIONAL_MARKER = /(?:[가-힣](?:으면|면|라면|이라면)(?=[\s,.!?)]|$)|(?:경우|때)(?:에는|에|는)?(?=[\s,.!?)]|$)|\s시(?:에는|에)?(?=[\s,.!?)]|$)|이상이면|이하이면|넘어서면|웃돌면|밑돌면|\b(?:if|when|unless|above|below)\b)/i;
+// v57.92 (internal audit A02): a threshold noun alone made "VIX는 15.2로 기준선 아래입니다" a condition, so an unverified
+// current reading survived. The noun now counts only when the number is the threshold it names ("20을 기준선으로",
+// "임계값 70", "무효화 가격 95") — not when a metric's own value sits beside it.
+var THRESHOLD_NOUN_RULE = /(?:\d[\d,.]*\s*(?:%|bp|포인트|pt)?\s*(?:을|를|이|가|은|는)?\s*(?:기준선|임계|트리거|무효화|조건)|(?:기준선|임계(?:값|치)?|트리거|무효화\s*(?:선|가격|수준|기준)?|조건)\s*(?:은|는|이|가|:|=|으로|로)?\s*\d)/i;
 var NON_CONDITIONAL_MYEON = /(?:반면|측면|전면|국면|이면서|표면|화면|단면|정면|방면|양면|평면|내면|외면|지면|장면)(?=[\s,.!?)]|$)/;
 var OBSERVATION_MARKER = /(?:현재|지금|오늘|금일|현시점|방금|최근|어제|전일|전날|지난\s*(?:주|달|분기|해)|이번\s*(?:주|달|분기)|마감|종가|기록(?:했|한|하)|나타냈|보였|올랐|내렸|떨어졌|하락했|상승했|급등|급락|발표된|발표했|as of|currently|today|yesterday|closed at|now)/i;
 export function isConditionalNumericSentence(sentence) {
   var text = String(sentence || '');
-  if (!CONDITIONAL_MARKER.test(text.replace(NON_CONDITIONAL_MYEON, ' '))) return false;
+  if (!CONDITIONAL_MARKER.test(text.replace(NON_CONDITIONAL_MYEON, ' ')) && !THRESHOLD_NOUN_RULE.test(text)) return false;
   if (OBSERVATION_MARKER.test(text)) return false;
   return !/\b(?:19|20)\d{2}-\d{2}-\d{2}\b|\b(?:19|20)\d{2}년\s*\d{1,2}월/.test(text);
 }
@@ -95,6 +99,27 @@ export function stripUnverifiedCurrentNumericSentences(value) {
     var kept = splitAnswerSentences(line).filter(function(sentence) { var bare = sentence.replace(/(?:https?:\/\/|www\.)\S+/gi, ' '); return !hasCurrentNumericContent(bare) || isConditionalNumericSentence(bare); }).join(' ');
     return kept || null;
   }).filter(function(line) { return line !== null; }).join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+// v57.92 (internal audit A03): the numeric checks never saw a current event without a number — "연준이 금리를 인하했고 신용
+// 스트레스도 해소됐다" stayed in an answer plan bound to no evidence at all. With zero publishable evidence, a sentence that
+// reports a completed market event is dropped; a dated history ("2020년 3월"), a general pattern ("과거에는", "보통") and
+// a condition stay, so general explanation is untouched.
+var CURRENT_EVENT = /(?:인하|인상|동결|발표|해소|급등|급락|상승|하락|반등|폭락|폭등|돌파|붕괴|경신|확대|축소|완화|악화|개선|둔화|가속|진정|전환)(?:했|됐|되었|하였|되면서|하면서)|(?:올랐|내렸|떨어졌|뛰었|밀렸|꺾였|풀렸)/;
+var GENERAL_OR_HISTORICAL = /(?:\b(?:19|20)\d{2}\s*년|역사적으로|과거에|과거\s|예전에|일반적으로|보통|대체로|흔히|전형적으로|사례|예를\s*들어|가령|historically|typically|in\s+general)/i;
+export function stripUnverifiedCurrentEventSentences(value) {
+  var dropped = 0;
+  var text = String(value || '').split('\n').map(function(line) {
+    if (!line.trim() || /^\s*\|.*\|\s*$/.test(line)) return line;
+    var kept = splitAnswerSentences(line).filter(function(sentence) {
+      var bare = sentence.replace(/(?:https?:\/\/|www\.)\S+/gi, ' ');
+      var event = CURRENT_EVENT.test(bare) && !GENERAL_OR_HISTORICAL.test(bare) && !isConditionalNumericSentence(bare) && !CONDITIONAL_MARKER.test(bare.replace(NON_CONDITIONAL_MYEON, ' '));
+      if (event) dropped += 1;
+      return !event;
+    }).join(' ');
+    return kept || null;
+  }).filter(function(line) { return line !== null; }).join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  return { text: text, dropped: dropped };
 }
 
 export function extractAnswerFallback(rawText, currentSensitive) {
@@ -191,12 +216,22 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
     var label = boundLabels.get(claim) || [claim.entity, claim.metric].filter(Boolean).join(' · ');
     return Object.assign({}, claim, { text: label || '검증된 수치' });
   });
-  var summary = currentSensitive ? stripUnverifiedCurrentNumericSentences(plan.summary) : String(plan.summary || '').trim();
+  var eventsDropped = 0;
+  var noEvidence = currentSensitive && rows.length === 0;
+  var clean = function(text) {
+    var out = stripUnverifiedCurrentNumericSentences(text);
+    if (!noEvidence) return out;
+    var events = stripUnverifiedCurrentEventSentences(out);
+    eventsDropped += events.dropped;
+    return events.text;
+  };
+  var summary = currentSensitive ? clean(plan.summary) : String(plan.summary || '').trim();
   var sections = (Array.isArray(plan.sections) ? plan.sections : []).map(function(section) {
-    if (typeof section === 'string') return currentSensitive ? stripUnverifiedCurrentNumericSentences(section) : section;
+    if (typeof section === 'string') return currentSensitive ? clean(section) : section;
     if (!section || typeof section !== 'object') return null;
-    return Object.assign({}, section, { title: currentSensitive ? stripUnverifiedCurrentNumericSentences(section.title) : section.title, body: currentSensitive ? stripUnverifiedCurrentNumericSentences(section.body) : section.body });
+    return Object.assign({}, section, { title: currentSensitive ? stripUnverifiedCurrentNumericSentences(section.title) : section.title, body: currentSensitive ? clean(section.body) : section.body });
   }).filter(function(section) { return typeof section === 'string' ? !!section.trim() : !!(section && section.title && section.body); });
+  if (eventsDropped) droppedClaims.push({ claimId: null, reasons: ['current-event-unverified'], count: eventsDropped });
   return {
     plan: Object.assign({}, plan, { summary: summary, sections: sections, claims: { schemaVersion: 'claim-ledger.v1', claims: safeClaims }, citations: (Array.isArray(plan.citations) ? plan.citations : []).filter(function(citation) {
       var url = claimSourceUrl(typeof citation === 'string' ? citation : citation && citation.url);

@@ -1,0 +1,53 @@
+id|판정|구체 사유
+problem-and-ability|양호|업무목표·기준선·규칙대안부터 정의
+learning-method|보완|자기지도 이름누락·LLM모든방식 혼합 일반화
+model-architecture|보완|decoder 미래token masking 생략
+learning-objective|양호|학습보상·실목적 불일치 설명
+finished-system|양호|model·검색·권한·운영system 구별
+execution-hardware|보완|전체성능=가장느린부품 속도 비유 과장
+energy-and-power|양호|에너지·전력·열제거 관계 설명
+vectors-and-matrices|양호|행렬연산·공급병목 구별
+probability-and-statistics|양호|생성확률·사실정확성 구별
+parallel-processing|양호|통신·고장·비선형 확장 설명
+silicon-and-doping|보완|미세화가 절전 자동보장 암시
+bottlenecks-and-scarcity|보완|GPU→HBM→전력을 단일시간순 이동 일반화
+capex-and-depreciation|양호|자산화·현금·회계/경제수명 구별
+rules-vs-learning|양호|규칙·학습 결합·data부족 경계 설명
+model-parameters-training|보완|수만chip·수조단어를 일반학습 필수처럼 표현
+data-quality|확인필요|공개고품질글 거의소진 현재주장 근거 필요
+learning-types|보완|자기지도 사전학습 이름 생략
+neural-networks|양호|층별특징·가중치·분포밖 실패 설명
+forward-backpropagation|보완|중간결과 전부저장 단정·재계산 누락
+generalization-and-memory|보완|거의모든인터넷 학습 과장·오염가능성과 구별 필요
+hallucination-and-verification|양호|자신감·사실·검색·도구 검증 구별
+tokenization|양호|token·글자·언어별 비용 구별
+embedding-and-position|보완|벡터등식·위치정보 덧셈방식 한정
+self-attention|보완|모든token 참조를 causaldecoder에 일반화
+multi-head-attention|보완|고정model차원에서 head수와 연산량 등치 불가
+context-window|양호|입력길이·실제근거 활용 구별
+kv-cache|양호|K/V재사용·문맥memory 비용 설명
+pretraining|확인필요|항상가장비싼 과정의 시점·규모 대조 필요
+post-training|보완|후속학습 비용·신규능력 일률축소
+evaluation|양호|오염·업무·비용·회귀평가 구별
+deployment|양호|배치·압축·traffic·추론운영비 설명
+parameter-vs-external-memory|양호|내부지식·수정가능 외부근거 구별
+retrieval-augmented-generation|양호|검색오류·답변오류 분리
+tool-use|양호|도구이점·인자·권한 오류 설명
+agent-loop|보완|95%^20의 조건독립·무재시도 가정 필요
+state-action-dynamics|양호|상태·행동·전이·현실잡음 관계
+planning-and-control|양호|계획·feedback 시간척도 구별
+world-model-limitations|양호|그럴듯한영상·행동유효예측 구별
+workload-shape|보완|추론지출이 모든edge수요로 전이 불가
+cpu-gpu-asic-npu|보완|NPU를 휴대폰·노트북 전용 한정
+precision-and-tensor-core|보완|8bit는16bit의 정확2배 성능 보장 못함
+memory-wall|양호|decode의 이동병목 설명
+hbm|보완|1불량 전체폐기 단정·선별·수리 가능성 누락
+interconnect|보완|거리=속도·chip만큼 지출 수치근거 없음
+advanced-packaging|양호|chiplet선별·연결·packaging 병목 설명
+rack-density-and-cooling|보완|공랭종료 과장·고밀도 범위 필요
+power-and-grid|양호|전원·송전·변압·접속·중복신청 구별
+unit-economics|양호|요청매출·변동비·정액고사용자 손실 설명
+utilization|양호|저가동률의 작업당 고정비 증가 설명
+capacity-and-yield|보완|wafer능력×수율에 chip수·가동률 누락
+fcf-and-funding|양호|자체현금·조달·좋은투자 반례 설명
+roic-and-counter-scenario|오류|평균ROIC로 새 성장투자 가치단정

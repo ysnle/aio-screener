@@ -1,0 +1,115 @@
+id|판정|구체 사유
+cloud-hyperscaler|보완|규모확대가 전력단가 자동하락 아님
+cloud-ai-service|보완|token단가하락·GPU임대유지만으로 총수요 확정 불가
+cloud-utilization|양호|유휴·가동·작업배치·원가 연결
+cloud-commitments|양호|RPO·취소·기간·고객신용 구별
+cloud-depreciation|양호|회계·경제수명·손상·교체 구별
+neocloud-gpu-rental|보완|회수 설명에 운영현금유출 포함 필요
+neocloud-capacity-reservation|양호|예약·선급·전력·실발주 질 구별
+neocloud-lease-burden|양호|초기현금 완화·고정의무 구별
+neocloud-customer-concentration|보완|고객 외부판매를 임대공급자 이탈과 등치
+neocloud-rental-yield|보완|총투자수익·이자차감수익 자본기준 혼합
+compute-gpu|양호|실측·전환비용·경쟁 구별
+compute-asic|보완|한가지일만 하는chip 과도단순화
+compute-npu|양호|내부처리 비용·전력·수요 경계 설명
+compute-precision|양호|저정밀·정확도·변환비용 설명
+compute-interconnect|보완|up=랙구리·out=랙간광 예외 존재
+memory-sram|양호|cache속도·면적·외부memory 균형
+memory-dram-hbm|보완|HBM설비의 범용DRAM 전환시간·제약 누락
+memory-nand|보완|적층수·셀비트수 내구효과 혼합
+memory-enterprise-ssd|양호|IOPS·지연·내구·원가·cycle 구별
+memory-cxl|확인필요|현재확장보급·pool검증 단계 시점 필요
+foundry-design-ecosystem|양호|PDK·IP·EDA·설계/마스크 전환비용
+foundry-process-node|양호|노드명·실밀도·전력·수율 구별
+foundry-equipment|확인필요|EUV공급자·가격 시점근거 필요
+foundry-materials|양호|원가비중·품질·인증·위험 구별
+foundry-capacity-yield|양호|50→80수율의60%물량·가동률 설명
+package-2-5d|보완|2.5D전체를 silicon판 기반 한정
+package-3d-stacking|오류|적층수 증가와 대역폭 증가 직접연결
+package-interposer|보완|interposer를silicon만 한정
+package-substrate|양호|배선·전력·지지·고급/범용 구별
+package-glass|확인필요|현재개발단계는 제품별 양산 확인 필요
+network-switch|양호|포트·총대역·혼잡·topology 구별
+network-optical-module|보완|칩당module·세대2배를 보편법칙화
+network-silicon-photonics|보완|packaging원가 절반 수치범위·근거 필요
+network-cpo|보완|전기한계=광필수 단정·고정도입순서
+network-fabric|양호|지연·혼잡·확장효율 설명
+aidc-rack-density|확인필요|MW랙·800V전환 운영/로드맵 구별 필요
+aidc-liquid-cooling|보완|모든AI칩 공랭불가 일반화
+aidc-thermal-design|양호|열경로·저항·peak부하 설명
+aidc-server-platform|양호|통합·검증·운전자본·회사주장 구별
+aidc-pue|보완|순간전력보다 동일기간 에너지 기준 필요
+power-it-load|양호|최대TDP합·실평균/peak·가동률 구별
+power-generation|양호|발전원·상시·계약·신규용량 구별
+power-transmission|양호|발전·송전·허가·요금승인 구별
+power-interconnection|양호|신청·보강·승인·중복철회 구별
+power-transformer|확인필요|납기2~3년·한국수혜 현재근거 필요
+edge-soc-npu|보완|모든휴대폰 modem단일chip 통합 일반화
+edge-memory-power|양호|용량·대역·에너지·순간전력 구별
+physical-ai-sensing|양호|센서·환경·상태추정 실패 설명
+physical-ai-control|양호|feedback·안전·마모·현장신뢰 설명
+physical-ai-digital-twin|보완|단순simulation·실물연동twin 구별 부족
+economics-revenue-model|양호|사용·예약·구독·최종수요 구별
+economics-capex|보완|전체CAPEX=AI투자·매출전망 일반화 주의
+economics-depreciation|양호|수명·경제성·현금흐름 비교
+economics-fcf|보완|비현금lease의 FCF비교 효과 필요
+economics-roic|오류|평균ROIC로 신규성장 가치판정
+physical-ai-perception|양호|센서다양·안전성과 구별
+physical-ai-world-model|양호|예측오차·범위·비용·행동한계
+physical-ai-planning|양호|순서·재계획·feedback·환경 구별
+physical-ai-actuation|보완|모터/기어 한정·손/팔 최난도 단정
+physical-ai-unit-economics|보완|구매가격·감가를 총비용에 함께 나열
+defense-kill-chain|보완|총시간=가장느린고리 시간 등치
+defense-c2-isr-ew|양호|C2·ISR·EW와 통합 역할 구별
+defense-autonomy|양호|승인·감독·범위·책임·기록·안전 구별
+defense-drone-production|확인필요|전쟁 월소모량의 기간·출처 필요
+defense-procurement-economics|양호|개발·조달·정비·예산·고정가격 구별
+space-rocket-physics|보완|연료/산화제 추진제 의미·비용2경로 한정 보완
+space-reusability|양호|회수·재비행·정비·빈도·수요 구별
+space-satellite-economics|보완|운영지분=반복매출 인식 단정
+space-artemis-architecture|양호|구성·예산·일정·계약·지급 구별
+space-aircraft-supply-chain|보완|엔진사 항상안정이익 단정
+application-healthcare|양호|연구·승인·업무·급여·사용률 구별
+application-manufacturing|양호|효과단위·공장전이·배포비용 구별
+application-automotive|양호|robotaxi·운전보조·규제·원격비 구별
+application-finance|양호|손실감소·오탐피해·감사비용 병기
+application-roi-payer|양호|순편익·ROI·회수·구매자 구별
+resources-copper|양호|광석·정제·재고·공급·대체 경로
+resources-lithium|확인필요|80%하락의 가격기준·원천 필요
+resources-rare-earths|보완|대체수익성이 정부지원에만 의존 단정
+resources-refining|양호|채굴·정제·회수·원산지 역할 구별
+resources-industrial-equipment|확인필요|십여년 수요정체·무증설 범위 필요
+policy-export-controls|양호|품목·허가·선제구매·대체개발 상반경로
+policy-supply-chain-resilience|보완|다변화·재고·근거리화 모두 순비용증가 단정
+policy-semiconductor-incentives|양호|약정·조건·집행·경쟁력 구별
+policy-cybersecurity|양호|입력공격·오염·권한·예산집행 구별
+policy-national-security-risk|양호|지역·제재·대체시장·선반영 설명
+capital-company-role|보완|병목·접점이 반드시 고이익 단정
+capital-revenue-quality|양호|반복·집중·현금회수·영업외 구별
+capital-margin-structure|양호|총이익·영업·고정·믹스·역레버리지
+capital-balance-sheet|보완|현금투자는 무부담 표현·유동성기회비용 누락
+capital-market-expectation|오류|기대변화없는 요구수익·시간경과 누락
+future-quantum|보완|어느방식도 장거리광 필수 일반화
+future-photonic-compute|보완|빛의낮은열=전체system 에너지이점
+future-neuromorphic|오류|기존chip 모든회로 상시동작 대조 부정확
+future-new-energy|양호|미래계약·검증·허가·실공급 구별
+future-uncertainty-gate|보완|개발진척이 실패확률 반드시 감소 암시
+domain-cloud-platform|보완|CAPEX증가·매출회수 비교기간·사업범위 필요
+domain-neocloud-finance|보완|차입상환·chip회수를 별도비용처럼 중복
+domain-compute-silicon|양호|GPU·ASIC·기기·software·정밀·연결 구별
+domain-memory-storage|양호|계층·HBM·범용 가격cycle 구별
+domain-foundry-equipment|보완|소재매출도 장비처럼 CAPEX직접비례 암시
+domain-packaging-substrate|양호|가속기·NPU의 요구 차이 구별
+domain-network-photonics|보완|확장이 칩당광module 자동증가 아님
+domain-aidc-cooling|양호|고밀도 범위·전력·냉각·설치 병목
+domain-power-grid|양호|계통·발표·중복·지연·효율 구별
+domain-on-device-physical-ai|양호|기기제약·실패·교체수요 검증 구별
+domain-ai-economics|보완|매출대비 자본증가=ROIC하락에 마진 누락
+domain-physical-ai-robotics|양호|지각·예측·구동·안전·경제성 병기
+domain-drone-defense|양호|관심·예산·계약·생산·매출 구별
+domain-space-aerospace|양호|발사·서비스·인증·교체·예산 연결
+domain-ai-applications|양호|효과·지불·사용·갱신 구별
+domain-resources-materials|양호|가격기준·정제·대체·증설 설명
+domain-geopolitics-policy-security|보완|공급망재편의 비용증가 모든경우 일반화
+domain-capital-markets-company-map|오류|선반영과 이후기대수익 부재 혼동
+domain-adjacent-future-tech|보완|단계진척·실패확률하락 자동연결

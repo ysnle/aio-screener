@@ -479,6 +479,24 @@ jobs:
           echo "sha=$final_sha" >> "$GITHUB_OUTPUT"
           echo "Dispatched CI for exact refresh commit $final_sha"
 
+      # v57.92 (audit W03): the marker was restored above but never written or saved, so after a quiet SEC day the
+      # artifact clock alone kept the daily lane "due" on every 30-minute cycle. It is written only after the daily
+      # poll succeeded and its result passed every gate and the commit step (a no-change commit counts) — a failed
+      # cycle leaves the marker where it was, so the lane stays due.
+      - name: Record daily-lane poll marker
+        id: daily-lane-marker-write
+        if: ${{ !cancelled() && steps.daily-lane.outputs.due == 'true' && steps.masters.outcome == 'success' && steps.commit.outcome == 'success' }}
+        continue-on-error: true
+        run: node scripts/daily-lane-age.mjs --write-marker
+
+      - name: Save daily-lane poll marker
+        if: ${{ !cancelled() && steps.daily-lane-marker-write.outcome == 'success' }}
+        continue-on-error: true
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: .cache/daily-lane
+          key: daily-lane-marker-${{ github.run_id }}-${{ github.run_attempt }}
+
   converge:
     needs: [cadence, refresh]
     # Runs even when the producer failed so a lost hand-over self-heals (R606). A weekend skip slot (P1757) has

@@ -27,10 +27,10 @@ Follow `.claude/skills/_shared/operating-contract.md`; reuse it if already read.
 
 ## Drive
 
-`drive <feature|all> [--viewport desktop|phone] [--run <id>] [--send-ai]`; `list` prints ids (`ai-panel glossary learn macro market portfolio screener shell stock themes today`).
+`drive <feature|all> [--viewport desktop|tablet|phone] [--run <id>] [--send-ai]`; `list` prints ids (`ai-panel glossary learn macro market portfolio screener shell stock themes today`).
 
 - Each feature runs in a fresh Chromium context (service workers blocked, empty storage) that is closed afterwards.
-- Handles are user-facing: sidebar `.nav-item[role=button]` by label, hub tabs `#aio-hub-tabs button.aio-hub-tab` by label, then ids and aria-labels. `--viewport phone` (390x844) opens the sidebar through the hamburger.
+- Handles are user-facing: sidebar `.nav-item[role=button]` by label, hub tabs `#aio-hub-tabs button.aio-hub-tab` by label, then ids and aria-labels. `--viewport phone` (390x844) and `--viewport tablet` (iPad portrait 820x1180) open the sidebar through the hamburger; desktop and phone runs alone do not certify the iPad layout.
 - `expectText` never accepts loading copy (`—`, `판정 대기`, `…불러오는 중입니다.`); prefer element ids over page text length.
 - `--send-ai` is the only path that can spend the shared AI budget; locally the Worker is unreachable, so the AI drive proves the free degraded path instead.
 

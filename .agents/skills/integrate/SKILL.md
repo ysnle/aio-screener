@@ -18,7 +18,7 @@ Read only what the current task needs; this is not an all-files reading checklis
 - Read `references/workflow.md` for classification, extraction, integration targets, and self-eval.
 - Read `references/framework-extraction.md` for Q1-Q5 framework extraction, multi-source reconciliation, and invalidation boundaries.
 - Read `_context/RULES.md` for R13, R16, R17, R24, R26, and any affected runtime rule.
-- Read `CODE-MAP.md` before patching large app files.
+- Read `_context/CODE-MAP.md` before patching large app files.
 - Use `data-refresh` instead when the material primarily asks for dated market value updates.
 
 ## Core Workflow

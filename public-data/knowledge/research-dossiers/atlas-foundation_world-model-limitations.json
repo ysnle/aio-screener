@@ -25,24 +25,17 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "url": "https://arxiv.org/abs/1706.03762",
-      "publisher": "arXiv / Vaswani et al.",
-      "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
-    },
-    {
-      "sourceId": "WEB-GOOGLE-ML-TYPES-2026",
-      "url": "https://developers.google.com/machine-learning/intro-to-ml/what-is-ml",
-      "publisher": "Google for Developers",
-      "title": "What is Machine Learning?",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-ARXIV-WORLD-MODELS-2018",
       "url": "https://arxiv.org/abs/1803.10122",
       "publisher": "arXiv / Ha and Schmidhuber",
       "title": "World Models",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
+    },
+    {
+      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "publisher": "arXiv / Vaswani et al.",
+      "title": "Attention Is All You Need",
       "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
     },
     {
@@ -62,24 +55,6 @@
   ],
   "selectedSources": [
     {
-      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "url": "https://arxiv.org/abs/1706.03762",
-      "publisher": "arXiv / Vaswani et al.",
-      "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-GOOGLE-ML-TYPES-2026",
-      "url": "https://developers.google.com/machine-learning/intro-to-ml/what-is-ml",
-      "publisher": "Google for Developers",
-      "title": "What is Machine Learning?",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
       "sourceId": "WEB-ARXIV-WORLD-MODELS-2018",
       "url": "https://arxiv.org/abs/1803.10122",
       "publisher": "arXiv / Ha and Schmidhuber",
@@ -87,6 +62,15 @@
       "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
       "directness": "DIRECT",
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "publisher": "arXiv / Vaswani et al.",
+      "title": "Attention Is All You Need",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     },
     {
       "sourceId": "WEB-NIST-AI-RMF-2023",
@@ -120,10 +104,7 @@
     }
   ],
   "researchFactIds": [
-    "fact:transformer:attention",
-    "fact:google:learning-types",
-    "fact:world-models:planning",
-    "fact:nist:ai-rmf-core"
+    "fact:world-models:planning"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
@@ -136,7 +117,7 @@
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
   "status": "RESEARCHED",
   "completion": {
-    "researchComplete": true,
+    "evidenceAttached": true,
     "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

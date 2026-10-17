@@ -22,10 +22,7 @@
   "sourceTiers": [],
   "claimCoverage": [],
   "researchFactIds": [
-    "fact:ml:generalization-memory",
     "fact:nvidia:cuda-parallel",
-    "fact:tsmc:3dfabric",
-    "fact:micron:hbm2e",
     "fact:pagedattention:kv-cache",
     "fact:pagedattention:kv-capacity-drivers"
   ],
@@ -40,7 +37,7 @@
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
   "status": "RESEARCH_REQUIRED",
   "completion": {
-    "researchComplete": false,
+    "evidenceAttached": false,
     "sourceProfileComplete": false,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

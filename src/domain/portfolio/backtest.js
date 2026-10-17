@@ -900,9 +900,10 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       '월말 관측일이 자산 간 ' + maxAlignmentGapDays + '일을 초과하는 월은 비동시성 편향 방지를 위해 제외했습니다.',
       // P1252 (BT-05): 경고는 실제 판정을 말한다 — 인증된 표본에 고정 "인증 보류"를 붙이지 않고,
       // 보류면 실제 certificationReasons를 나열한다.
-      varCertification.certification === 'certified'
-        ? ('VaR/CVaR 표본 ' + varCertification.sampleN + '개·꼬리 ' + varCertification.tailN + '개 — 인증됨(표본 안정성 통과).')
-        : ('VaR/CVaR 표본 ' + varCertification.sampleN + '개·꼬리 ' + varCertification.tailN + '개 — 인증 보류(' + (varCertification.certificationReasons || []).join(', ') + ').'),
+      // v57.92 E06: VaR and CVaR are certified separately — the tail mean can be unstable while the quantile is not.
+      'VaR/CVaR 표본 ' + varCertification.sampleN + '개·꼬리 ' + varCertification.tailN + '개 — VaR '
+        + (varCertification.certification === 'certified' ? '인증됨(표본 안정성 통과)' : '인증 보류(' + (varCertification.certificationReasons || []).join(', ') + ')')
+        + ' · CVaR ' + (varCertification.cvarCertification === 'certified' ? '인증됨' : '인증 보류(' + (varCertification.cvarCertificationReasons || []).join(', ') + ')') + '.',
       rfInvalid ? '무위험수익률(RF)은 연간 소수(decimal) 단위(-1, 1]만 허용합니다. 입력 단위가 잘못되어 Sharpe·Sortino·Alpha를 산출하지 않았습니다.' : rfAnnual == null ? '무위험수익률(RF)을 입력하지 않아 Sharpe·Sortino·Alpha를 산출하지 않았습니다.' : ('RF 가정: 연 소수 ' + rfAnnual.toFixed(6) + ' (' + (rfAnnual * 100).toFixed(2) + '%).'),
       '거래 가능한 실현 성과·매매 지시로 승격하지 않습니다.',
       '무료 Yahoo chart 데이터 범위와 각 종목 상장일에 따라 시작 월이 자동 제한됩니다.',

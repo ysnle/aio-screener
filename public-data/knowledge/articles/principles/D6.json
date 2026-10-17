@@ -49,8 +49,8 @@
       "MP-BLS",
       "WEB-FRED-INFLATION-EXPECTATIONS",
       "WEB-FED-MPR-JULY-2026",
-      "WEB-OECD-PRODUCTIVITY-METHODS",
-      "WEB-NYFED-RSTAR-2026"
+      "WEB-NYFED-RSTAR-2026",
+      "WEB-NYFED-RSTAR-MARKETS-2025"
     ],
     "researchEvidence": [
       {
@@ -70,19 +70,19 @@
         "asOf": "2026-08-12"
       },
       {
-        "factId": "fact:oecd:productivity",
-        "sourceId": "WEB-OECD-PRODUCTIVITY-METHODS",
-        "statement": "OECD productivity measurement combines output with labour and capital inputs; growth can reflect more or better inputs as well as improved efficiency in how inputs are combined.",
-        "scope": "Productivity measurement and growth accounting",
-        "invalidation": "Productivity ratios depend on output definition, hours and capital-service measurement, price adjustments, capacity utilization, and measurement error; they are not a pure measure of worker effort.",
-        "asOf": "2026-08-12"
-      },
-      {
         "factId": "fact:nyfed:rstar-definition",
         "sourceId": "WEB-NYFED-RSTAR-2026",
         "statement": "The New York Fed defines the natural rate of interest, r-star, as the real short-term interest rate expected to prevail when the economy is at full strength and inflation is stable. It is unobservable and must be estimated rather than read directly from a market price.",
         "scope": "Neutral-rate definition and observability",
         "invalidation": "Do not treat a single model estimate, the SEP longer-run policy rate, or a TIPS yield as the true r-star; each has a different definition and uncertainty.",
+        "asOf": "2026-08-15"
+      },
+      {
+        "factId": "fact:nyfed:rstar-model-market",
+        "sourceId": "WEB-NYFED-RSTAR-MARKETS-2025",
+        "statement": "New York Fed research compares model-based r-star estimates with market measures and warns that long-horizon real yields can contain time-varying risk and liquidity premia. Market-model disagreement is therefore evidence to investigate, not a mechanical replacement of one estimate by the other.",
+        "scope": "Neutral-rate estimation disagreement",
+        "invalidation": "The research does not establish that one estimator will dominate in every sample or regime; preserve maturity, model, observation date, and confidence interval.",
         "asOf": "2026-08-15"
       }
     ],

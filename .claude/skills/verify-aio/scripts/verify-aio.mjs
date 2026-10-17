@@ -5,7 +5,7 @@
 //   node .claude/skills/verify-aio/scripts/verify-aio.mjs doctor   [--port 8791]
 //   node .claude/skills/verify-aio/scripts/verify-aio.mjs check                       (static: map <-> driver parity, no browser)
 //   node .claude/skills/verify-aio/scripts/verify-aio.mjs list
-//   node .claude/skills/verify-aio/scripts/verify-aio.mjs drive <feature|all> [--port 8791] [--viewport desktop|phone] [--run <id>] [--send-ai]
+//   node .claude/skills/verify-aio/scripts/verify-aio.mjs drive <feature|all> [--port 8791] [--viewport desktop|tablet|phone] [--run <id>] [--send-ai]
 //   node .claude/skills/verify-aio/scripts/verify-aio.mjs registry [--port 8791] [--run <id>]   (route-owners surfaces vs live DOM)
 //   node .claude/skills/verify-aio/scripts/verify-aio.mjs cleanup  [--port 8791]
 // Evidence: _artifacts/verify-aio/<run>/ (git-ignored, survives cleanup).

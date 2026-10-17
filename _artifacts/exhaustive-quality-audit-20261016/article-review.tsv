@@ -1,0 +1,161 @@
+articleId|판정|개별 검토 이유
+atlas-foundations:advanced-packaging|내부정합|연결 기능과 열·수율·검증 제약이 예시와 일치
+atlas-foundations:agent-loop|내부정합|반복 제어·종료·권한과 ReAct 적용 한계가 일치
+atlas-foundations:bottlenecks-and-scarcity|보완|다음 병목으로 이동하려면 잔여 수요 조건 필요
+atlas-foundations:capacity-and-yield|근거연결오류|양품률 설명에 실질금리·r* fact가 연결됨
+atlas-foundations:capex-and-depreciation|내부정합|투자 현금 유출과 사용 개시 후 비용 인식 구분
+atlas-foundations:claim-source-as-of|보완|NIST 구조 fact는 개별 주장 기록 규칙의 직접 근거 아님
+atlas-foundations:context-window|보완|Transformer 역사만으로 장문 중간 정보 누락 지지 불충분
+atlas-foundations:cpu-gpu-asic-npu|외부확인|on-chip HBM 표현의 원문·물리 계층 구분 필요
+atlas-foundations:data-quality|근거연결오류|학습 데이터 품질 설명에 CPI 정의 fact 연결
+atlas-foundations:deployment|보완|World Models fact와 배포 운영 논증 사이 연결 없음
+atlas-foundations:embedding-and-position|보완|최초 embedding과 attention 이후 문맥 표현 구분 필요
+atlas-foundations:energy-and-power|보완|NIST 위험관리 fact는 전력 작동 원리의 직접 근거 아님
+atlas-foundations:evaluation|근거연결오류|모델 평가에 SEC 재무제표·10-K fact 연결
+atlas-foundations:fcf-and-funding|외부확인|Sandisk 목표·계약의 비GAAP 정의·기준일 대조 필요
+atlas-foundations:forward-backpropagation|보완|NIST 위험관리 fact는 역전파 원리 입증 못함
+atlas-foundations:generalization-and-memory|근거연결오류|일반화 근거에 패키징·HBM·KV cache fact 혼재
+atlas-foundations:hallucination-and-verification|보완|Transformer 역사만으로 환각·검증 효과 입증 불충분
+atlas-foundations:hbm|내부정합|적층·인터페이스·패키지 제약과 세대별 경계 구분
+atlas-foundations:human-review|내부정합|사람의 승인·수정·보류와 검토 오류 가능성 병기
+atlas-foundations:interconnect|보완|OECD 생산성 fact가 링크·프로토콜 설명에 섞임
+atlas-foundations:kv-cache|보완|용량식은 구체적이나 SSD 수요와의 직접 근거 부족
+atlas-foundations:learning-types|내부정합|학습 신호를 구분하고 혼합 시스템 인정
+atlas-foundations:memory-wall|보완|일반화·암기 연구의 memory는 하드웨어 병목과 다름
+atlas-foundations:model-parameters-training|보완|gradient 갱신 설명을 해당 신경망 학습 범위로 제한 필요
+atlas-foundations:multi-head-attention|내부정합|projection 결합과 head 수의 비보장 효과 구분
+atlas-foundations:neural-networks|내부정합|변환·비선형·loss 연결과 규모 확대 한계 일치
+atlas-foundations:parallel-processing|내부정합|병렬 이득과 통신·직렬 구간 비용 함께 설명
+atlas-foundations:parameter-vs-external-memory|근거연결오류|적합한 RAG fact와 무관한 패키징·HBM fact 혼재
+atlas-foundations:planning-and-control|내부정합|계획·feedback 보정과 센서·actuator 지연 구분
+atlas-foundations:post-training|근거연결오류|모델 후속학습 설명에 Fed 정책 전달 fact 포함
+atlas-foundations:power-and-grid|보완|PUE fact만으로 송전·변압기·접속 대기 입증 불충분
+atlas-foundations:precision-and-tensor-core|외부확인|TPU on-chip HBM의 계층·원문 표현 대조 필요
+atlas-foundations:pretraining|보완|NIST·학습 분류·역사만으로 optimizer·분산 비용 설명 부족
+atlas-foundations:probability-and-statistics|보완|모든 모델 출력을 token/class 분포로 일반화하는 범위 문제
+atlas-foundations:rack-density-and-cooling|내부정합|열밀도·배전 제약과 PUE의 수익성 한계 구분
+atlas-foundations:retrieval-augmented-generation|내부정합|검색·생성과 적합성·인용 정확성을 분리
+atlas-foundations:roic-and-counter-scenario|보완|NOPAT/투하자본 정의 없이 자본비용 관계 적용 어려움
+atlas-foundations:rules-vs-learning|내부정합|명시 규칙과 데이터 조정을 구분하고 혼합 인정
+atlas-foundations:self-attention|내부정합|Q/K·V 역할과 attention의 인과 설명 한계 구분
+atlas-foundations:silicon-and-doping|내부정합|도핑 기능과 공정·노드 해석 한계 구분
+atlas-foundations:state-action-dynamics|보완|제어가 반드시 연결을 학습해야 한다는 표현은 물리모델 제어 누락
+atlas-foundations:tokenization|보완|Transformer 역사만으로 언어별 tokenization 차이 입증 부족
+atlas-foundations:tool-use|내부정합|도구 선택·인자·실행·권한·입력검증 역할 구분
+atlas-foundations:unit-economics|보완|CUDA·감가상각 fact만으로 고객 단위 수익성 지지 부족
+atlas-foundations:utilization|내부정합|사용률·서비스 품질·수익성이 같지 않음을 명시
+atlas-foundations:vectors-and-matrices|외부확인|TPU on-chip HBM 표현을 원문과 대조 필요
+atlas-foundations:workload-shape|보완|일반화·NIST fact와 하드웨어 선택 사이 연결 부족
+atlas-foundations:world-model-limitations|내부정합|추정 dynamics와 현실·분포 이동의 차이 명시
+principles:A1|근거연결오류|희소성·기회비용에 생산성 측정 fact만 연결
+principles:A2|내부정합|투입 증가와 단위 투입당 산출 개선 구분
+principles:A3|보완|생산성 fact는 소유·계약·경쟁 제도의 직접 설명 아님
+principles:A4|근거연결오류|경제주체 자금 순환에 생산성 측정 fact만 연결
+principles:B1|보완|실질금리·CPI fact는 화폐 기능·결제 구조의 직접 근거 아님
+principles:B2|내부정합|상대가격·물가와 공급충격 확산을 조건부로 구분
+principles:B3|보완|그림의 명목소득−물가는 금액·지수 단위 혼합 위험
+principles:B4|보완|실제 복리 계산 예와 재투자 메커니즘 근거 부족
+principles:C1|내부정합|현재 자금·미래 상환을 만기·담보·현금 조건으로 검토
+principles:C2|보완|예금 창출과 자금조달 제약을 구분할 설명 필요
+principles:C3|내부정합|레버리지 손익 확대와 ROE 분모 효과 함께 설명
+principles:C4|내부정합|담보·청산·신용 feedback과 유동성·부실 구분
+principles:D1|내부정합|시간·위험·유동성 및 할인 효과 구분
+principles:D2|내부정합|사전·사후 실질금리와 근사식 경계 명시
+principles:D3|보완|인하를 가격 즉시 하락으로 보는 반례는 방향 혼동 위험
+principles:D4|내부정합|중앙은행 자산·준비금과 신용·명목지출 분리
+principles:D5|내부정합|물가·고용·안정 상충과 공급충격 대응 한계 조건부 설명
+principles:D6|외부확인|FOMC 3.625%·SEP 3.1% 발표·기준일 원문 대조 필요
+principles:E1|내부정합|현금흐름·가격·수익률·쿠폰 및 만기 구분
+principles:E2|보완|비교 곡선에는 통화·발행자·옵션 조건도 필요
+principles:E3|보완|실질금리 시리즈 정의만으로 글로벌 담보 역할 입증 부족
+principles:E4|보완|실질금리 fact는 신용스프레드 구성의 직접 근거 아님
+principles:E5|보완|실질금리 fact는 국제 결제·담보 시스템의 직접 근거 아님
+principles:E6|보완|환율 전달 설명과 실질금리 fact의 직접 연결 부족
+principles:E7|보완|금리차·환율 안정만으로 투자자산 손익 양수 보장 못함
+principles:F1|근거연결오류|정부 재정 설명에 기업 재무제표 구분 fact 연결
+principles:F2|근거연결오류|재정승수 설명에 기업 재무제표 fact 연결·승수 비율 미제시
+principles:F3|근거연결오류|국가부채 동학을 기업 재무제표 fact로 뒷받침
+principles:F4|근거연결오류|지정학·제재 설명에 기업 재무제표 구분 fact 연결
+principles:G1|정의오류|회계이익과 자기자본 기회비용 차감 경제적 이익 혼합
+principles:G2|보완|모든 주식에 의결권이 있다는 범위는 종류주식 누락
+principles:G3|내부정합|조달을 비용·만기·희석·회수기간 조건으로 비교
+principles:G4|정의오류|기존 주주의 구주매출과 발행사의 신주발행 혼동
+principles:G5|보완|EPS=0의 PER 미정의 예외·원인 분해 축 중복
+principles:G6|보완|SEC 일반 안내는 DCF·배수 평가 논리의 직접 근거 아님
+principles:G7|보완|지수 복제·리밸런싱 조건과 직접 출처 필요
+principles:G8|보완|서로 다른 파생·공매도 위험을 일반 재무제표 자료로 지지 못함
+principles:H1|보완|숨은 유동성·취소율 관측자료와 식별 한계 없음
+principles:H2|보완|기대치 측정과 민감도 범위를 주문 유형 출처가 지지 못함
+principles:H3|보완|효율성 설명에 위험조정 기준 보완 필요
+principles:H4|보완|검색·가격·포지션 동행만으로 군중심리 인과 식별 불가 경계 필요
+principles:H5|보완|거래량의 정보·청산 기여도를 구분할 자료 한계 미제시
+principles:I1|보완|재고 중심 경기 설명의 서비스·공급충격 적용 범위 필요
+principles:I2|보완|금융안정 일반 자료로 기업 재고평가 시차 입증 불충분
+principles:I3|내부정합|동일 정책금리에서도 신용경로 긴축 가능성 설명
+principles:I4|보완|산업 순환 제목에 비해 성장주 할인율 예시에 편중
+principles:I5|내부정합|상관의 국면 의존과 영구 헤지 가정 반례 일치
+principles:J1|보완|투자·투기의 관점성·혼합 사례 표시 필요
+principles:J2|보완|패시브 비용 비교 범위와 적합한 직접 근거 필요
+principles:J3|보완|손실·청산 가능성의 실제 산정 예 부족
+principles:J4|내부정합|손실50% 후 회복100% 예가 비선형 부담을 설명
+principles:J5|보완|운·실력 구분에는 반복 표본·기준선도 필요
+principles:K1|보완|정의의 지불자·사용자 통합과 확인질문의 분리 요구 충돌
+principles:K10|보완|운전자본 자산·부채 증감과 현금 방향 예 필요
+principles:K11|내부정합|대체·경쟁·규제 제약과 외삽 반례 연결
+principles:K12|보완|현재 AIO 데이터 제목에 실제 지표·위치·주기 없음
+principles:K2|보완|NIST는 지불 의사·파일럿 매출 전환의 직접 근거 아님
+principles:K3|보완|가치사슬 현금·매출 설명에 AI 위험관리 4기능 fact 연결
+principles:K4|내부정합|단계별 입출력·검증·병목을 분석 질문으로 연결
+principles:K5|보완|매출보다 큰 경제적 중요성의 비교 단위 모호
+principles:K6|내부정합|공급자 전환비용과 구매자 집중을 함께 고려
+principles:K7|보완|증설18개월은 예시 가정 표시·대체 경로 필요
+principles:K8|보완|병목과 단일고장점의 독립 검증 예 부족
+principles:K9|보완|반복성이 잔존율을 높인다는 인과의 계약·선택효과 구분 필요
+principles:L1|보완|NIST는 AI 수요·단위경제의 직접 근거 아님
+principles:L10|내부정합|패키징 이점과 열·검사·조립 비용 및 근거 주제 일치
+principles:L11|보완|수율을 die로 고정 정의하나 확인질문은 wafer·package도 구분
+principles:L12|보완|단일GPU CUDA 자료로 클러스터 광통신 경제성 입증 못함
+principles:L13|내부정합|용량·대역폭·지연·접근 패턴의 차이 구분
+principles:L14|보완|공기·액체·직접칩 냉각은 겹치는 분류 축
+principles:L15|보완|이익 풀의 실제 지불·원가·이익 숫자 예 없음
+principles:L16|보완|HBM 공급자·세대 자료를 산업 현재 사실로 확대 불가
+principles:L2|내부정합|peak와 처리량 및 메모리·통신·전력 제약 구분
+principles:L3|내부정합|반도체의 논리·기억·센싱·전력변환 차이 구분
+principles:L4|내부정합|fabless·foundry·IDM의 역할·자본집약도 구분
+principles:L5|내부정합|IP·검증 시간 이점과 라이선스·호환성 비용 병기
+principles:L6|외부확인|공정·편차·수율 전문 내용을 지지할 기술 원문 필요
+principles:L7|외부확인|소재 순도·오염·인증의 기술 근거·사례 필요
+principles:L8|내부정합|공정·IP·mask 전환비용과 노드 발표·수익성 구분
+principles:L9|보완|DRAM과 하위 HBM 병렬 분류·HBM2E 세대 한계 표시 필요
+principles:M1|내부정합|발전량과 지역·시간별 실제 공급 가능성 구분
+principles:M10|보완|변동성 태양광·풍력을 재생에너지 전체로 확대
+principles:M11|외부확인|규제자산·정산·저장 수익의 관할·시장설계 필요
+principles:M12|보완|공급자 매출과 자산 소유자 규제자산 현금 경계 필요
+principles:M2|보완|가스 유연성·원전 이용률의 기술·운영 조건 필요
+principles:M3|보완|특정 한계가격 도매시장을 전력시장 전체 정의로 확대
+principles:M4|내부정합|발전 설비와 혼잡·접속·손실·전달 전력 구분
+principles:M5|보완|변전은 승압도 포함하는데 마지막 감압으로만 정의
+principles:M6|외부확인|전압·UPS·보호의 장비 민감도·기술 기준 필요
+principles:M7|내부정합|MWh와 출력·시간·효율·열화의 차이 구분
+principles:M8|정의오류|IT 네트워크 장비를 시설 overhead로 분류해 PUE 경계 혼동
+principles:M9|보완|원전 수명연장·신규 건설의 관할별 비용·금융·규제 필요
+principles:N1|내부정합|최종 서비스와 연료·전력 변환 및 수요 이동 구분
+principles:N10|내부정합|배포비·지원·개발비와 사용자·수익성 구분
+principles:N11|내부정합|가격·물량·믹스·판촉·재고와 가격결정력 구분
+principles:N12|내부정합|물동량·공차·피크 용량과 원가 관계 구체적
+principles:N13|내부정합|자산가격과 사업 현금·공사비·만기 시점 구분
+principles:N14|보완|단일 발행사 CAPEX 자료로 통신 ARPU·주파수 경제성 지지 부족
+principles:N15|내부정합|곡물 충격의 전가·계약·재고별 차이를 설명
+principles:N2|내부정합|매장량·정제·인증·물류와 실제 공급 구분
+principles:N3|내부정합|시연보다 현장 예외·다운타임과 단위경제 연결
+principles:N4|보완|무개입 정의와 원격 개입의 자동화 수준 경계 불명확
+principles:N5|외부확인|국가·계약별 조달 절차 직접 출처 필요
+principles:N6|내부정합|발사·데이터 서비스의 반복·실패·회수 시점 구분
+principles:N7|외부확인|임상 단계·적응증별 성공확률 자료·추정 한계 필요
+principles:N8|외부확인|수가·코드·조달 제도의 관할·제품별 확인 필요
+principles:N9|내부정합|거래액·예금·이익과 신용손실·조달비용 구분
+principles:O1|보완|NIST·미국 단일 발행사 자료는 한국 이익 전이의 직접 근거 아님
+principles:O2|내부정합|원/달러 표시 방향과 주가·환율 결합 비율식 정확
+principles:O3|보완|해외 기술자료·단일10-K는 한국 현재 인증·수율 입증 못함
+principles:O4|외부확인|한국 정책·전력 제도의 사업·기준일 자료 필요
+principles:O5|보완|세후 현금 비교에 계좌·거주지·세목·기준일 필요

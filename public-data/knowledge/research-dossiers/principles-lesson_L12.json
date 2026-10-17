@@ -25,13 +25,6 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",
       "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/index.html",
       "publisher": "NVIDIA",
@@ -47,15 +40,6 @@
     }
   ],
   "selectedSources": [
-    {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
     {
       "sourceId": "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",
       "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/index.html",
@@ -77,7 +61,6 @@
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
     "COMPANY_TECHNICAL_DOCUMENT"
   ],
   "claimCoverage": [
@@ -88,7 +71,6 @@
     }
   ],
   "researchFactIds": [
-    "fact:nist:ai-rmf-core",
     "fact:nvidia:cuda-parallel"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
@@ -102,7 +84,7 @@
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
   "status": "RESEARCHED",
   "completion": {
-    "researchComplete": true,
+    "evidenceAttached": true,
     "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

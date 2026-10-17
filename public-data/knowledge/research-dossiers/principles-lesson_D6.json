@@ -60,18 +60,18 @@
       "sourceTier": "PRIMARY_OFFICIAL"
     },
     {
-      "sourceId": "WEB-OECD-PRODUCTIVITY-METHODS",
-      "url": "https://www.oecd.org/sdd/productivity-stats/OECD-Productivity-Statistics-Methodological-note.pdf",
-      "publisher": "OECD",
-      "title": "OECD Productivity Statistics methodological note",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-NYFED-RSTAR-2026",
       "url": "https://www.newyorkfed.org/research/policy/rstar",
       "publisher": "Federal Reserve Bank of New York",
       "title": "Measuring the Natural Rate of Interest",
       "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-NYFED-RSTAR-MARKETS-2025",
+      "url": "https://libertystreeteconomics.newyorkfed.org/2025/08/are-financial-markets-good-predictors-of-r-star/",
+      "publisher": "Federal Reserve Bank of New York",
+      "title": "Are Financial Markets Good Predictors of R-Star?",
+      "sourceTier": "PRIMARY_RESEARCH"
     }
   ],
   "selectedSources": [
@@ -94,15 +94,6 @@
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
     },
     {
-      "sourceId": "WEB-OECD-PRODUCTIVITY-METHODS",
-      "url": "https://www.oecd.org/sdd/productivity-stats/OECD-Productivity-Statistics-Methodological-note.pdf",
-      "publisher": "OECD",
-      "title": "OECD Productivity Statistics methodological note",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
       "sourceId": "WEB-NYFED-RSTAR-2026",
       "url": "https://www.newyorkfed.org/research/policy/rstar",
       "publisher": "Federal Reserve Bank of New York",
@@ -110,11 +101,21 @@
       "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-NYFED-RSTAR-MARKETS-2025",
+      "url": "https://libertystreeteconomics.newyorkfed.org/2025/08/are-financial-markets-good-predictors-of-r-star/",
+      "publisher": "Federal Reserve Bank of New York",
+      "title": "Are Financial Markets Good Predictors of R-Star?",
+      "sourceTier": "PRIMARY_RESEARCH",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
     }
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL"
+    "PRIMARY_OFFICIAL",
+    "PRIMARY_RESEARCH"
   ],
   "claimCoverage": [
     {
@@ -126,10 +127,9 @@
   "researchFactIds": [
     "fact:fred:real-rates",
     "fact:fed:policy-transmission",
-    "fact:oecd:productivity",
     "fact:nyfed:rstar-definition",
-    "fact:ibm:silicon-doping",
     "fact:nyfed:rstar-model-market",
+    "fact:ibm:silicon-doping",
     "fact:fed:2026-june-policy-neutral-reference",
     "fact:bls:2026-june-headline-core",
     "fact:nyfed:rstar-estimation-method"
@@ -145,7 +145,7 @@
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
   "status": "RESEARCHED",
   "completion": {
-    "researchComplete": true,
+    "evidenceAttached": true,
     "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

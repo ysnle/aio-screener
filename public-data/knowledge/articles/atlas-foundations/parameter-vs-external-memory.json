@@ -45,42 +45,15 @@
     "sourceIds": [
       "PS-03",
       "PS-04",
-      "WEB-ARXIV-GENERALIZE-MEMORIZE-2018",
-      "WEB-ARXIV-RAG-2020",
-      "WEB-TSMC-3DFABRIC-2026",
-      "WEB-MICRON-HBM2E-2020"
+      "WEB-ARXIV-RAG-2020"
     ],
     "researchEvidence": [
-      {
-        "factId": "fact:ml:generalization-memory",
-        "sourceId": "WEB-ARXIV-GENERALIZE-MEMORIZE-2018",
-        "statement": "Research on deep networks treats memorization and generalization as distinguishable behaviors that can coexist; fitting training examples alone is not evidence that a model will perform reliably on unseen data.",
-        "scope": "Model generalization, memorization, and evaluation boundary",
-        "invalidation": "The cited study is empirical and task-specific; it does not provide a universal test for all architectures, datasets, or deployment settings.",
-        "asOf": "2026-08-12"
-      },
       {
         "factId": "fact:rag:parametric-external-memory",
         "sourceId": "WEB-ARXIV-RAG-2020",
         "statement": "The RAG paper separates parametric memory stored in a pretrained sequence-to-sequence model from non-parametric memory retrieved from an external vector index, making provenance and knowledge updates a separate design problem from model parameters.",
         "scope": "Parametric memory, external retrieval, and provenance",
         "invalidation": "The paper's architecture and benchmarks do not guarantee factuality, freshness, or security for every retrieval system; index quality and retrieval behavior remain independent failure points.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:tsmc:3dfabric",
-        "sourceId": "WEB-TSMC-3DFABRIC-2026",
-        "statement": "TSMC describes 3DFabric as a family of 3D silicon stacking and advanced-packaging technologies that integrates logic, memory, and other chiplets at the system level; packaging therefore affects bandwidth, latency, power, form factor, and cost rather than being only a final enclosure step.",
-        "scope": "Advanced packaging, heterogeneous integration, chiplets, and system bottlenecks",
-        "invalidation": "This is a vendor technology description; customer yield, capacity, pricing, supply availability, and product economics require independent filing and production evidence.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:micron:hbm2e",
-        "sourceId": "WEB-MICRON-HBM2E-2020",
-        "statement": "Micron's HBM2E technical brief describes a wide-interface stacked-memory design whose bandwidth and capacity characteristics differ from conventional graphics memory; system-level bandwidth depends on the memory stack, interface, package, and workload.",
-        "scope": "High-bandwidth memory architecture and memory bottlenecks",
-        "invalidation": "The cited HBM2E document is product-generation specific; it does not establish current HBM availability, pricing, yield, or performance for later generations.",
         "asOf": "2026-08-12"
       }
     ],

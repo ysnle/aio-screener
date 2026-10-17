@@ -7,7 +7,7 @@
     {
       "factId": "fact:nist:ai-rmf-core",
       "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "appliesTo": ["ai", "evaluation", "human-review", "deployment", "risk", "governance"],
+      "appliesTo": ["evaluation", "human-review", "deployment", "governance"],
       "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
       "scope": "AI risk-management framework structure",
       "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
@@ -25,7 +25,7 @@
     {
       "factId": "fact:sec:10k-reading",
       "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-      "appliesTo": ["10-k", "filing", "risk", "md&a", "financial", "company", "valuation"],
+      "appliesTo": ["10-k", "filing", "md&a", "financial", "company", "valuation"],
       "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
       "scope": "U.S. public-company filing navigation",
       "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
@@ -61,7 +61,7 @@
     {
       "factId": "fact:fred:real-rates",
       "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-      "appliesTo": ["inflation", "real-rate", "interest", "yield", "macro", "purchasing-power"],
+      "appliesTo": ["inflation", "real-rate", "interest", "macro", "purchasing-power"],
       "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
       "scope": "Inflation-expectation and real-rate data definitions",
       "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
@@ -70,7 +70,7 @@
     {
       "factId": "fact:transformer:attention",
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "appliesTo": ["transformer", "attention", "token", "embedding", "parallel", "sequence", "model"],
+      "appliesTo": ["transformer", "attention", "token", "embedding", "sequence"],
       "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
       "scope": "Transformer architecture history and mechanism",
       "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
@@ -79,7 +79,7 @@
     {
       "factId": "fact:oecd:productivity",
       "sourceId": "WEB-OECD-PRODUCTIVITY-METHODS",
-      "appliesTo": ["productivity", "output", "labour", "capital", "growth", "efficiency"],
+      "appliesTo": ["productivity", "labour"],
       "statement": "OECD productivity measurement combines output with labour and capital inputs; growth can reflect more or better inputs as well as improved efficiency in how inputs are combined.",
       "scope": "Productivity measurement and growth accounting",
       "invalidation": "Productivity ratios depend on output definition, hours and capital-service measurement, price adjustments, capacity utilization, and measurement error; they are not a pure measure of worker effort.",
@@ -88,7 +88,7 @@
     {
       "factId": "fact:bls:cpi",
       "sourceId": "WEB-BLS-CPI-CONCEPTS",
-      "appliesTo": ["cpi", "inflation", "purchasing-power", "price", "real", "basket", "quality"],
+      "appliesTo": ["cpi", "inflation", "purchasing-power", "basket"],
       "statement": "BLS defines CPI as the average change over time in prices paid by urban consumers for a market basket; it is used in some official escalation and deflation contexts but is not every household's personal cost of living.",
       "scope": "Consumer price measurement",
       "invalidation": "Population coverage, basket weights, substitution, quality adjustment, seasonality, and geography matter; do not treat a CPI movement as a universal household or asset-price measure.",
@@ -97,7 +97,7 @@
     {
       "factId": "fact:fed:policy-transmission",
       "sourceId": "WEB-FED-MPR-JULY-2026",
-      "appliesTo": ["monetary", "policy", "interest", "rates", "inflation", "labour", "capital", "real-rate"],
+      "appliesTo": ["monetary", "interest", "rates", "inflation", "real-rate"],
       "statement": "The Federal Reserve's policy report separates policy-rate decisions, inflation, labour-market conditions, real interest rates, and capital investment; a policy signal is therefore an input to several transmission channels rather than a one-variable price forecast.",
       "scope": "Official monetary-policy reporting and transmission framing",
       "invalidation": "This source is a dated policy report, not a timeless causal estimate or a guarantee that a rate change will move every maturity, credit spread, asset, or economy in the same direction.",
@@ -115,7 +115,7 @@
     {
       "factId": "fact:fed:financial-stability",
       "sourceId": "WEB-FED-FINANCIAL-STABILITY",
-      "appliesTo": ["credit", "bank", "debt", "leverage", "liquidity", "cycle", "financial-stability", "maturity", "funding", "risk"],
+      "appliesTo": ["credit", "bank", "debt", "leverage", "liquidity", "cycle", "financial-stability", "maturity", "funding"],
       "statement": "The Federal Reserve describes a stable financial system as one that continues to provide financing through banks, lenders, and markets without becoming excessively vulnerable to shocks; leverage, liquidity, interconnectedness, and maturity transformation can amplify stress.",
       "scope": "Credit creation, banking, liquidity, and financial-stability mechanisms",
       "invalidation": "This is a mechanism and monitoring framework, not a diagnosis of current stability, a recession forecast, or evidence that every credit expansion is unsafe.",
@@ -124,7 +124,7 @@
     {
       "factId": "fact:google:learning-types",
       "sourceId": "WEB-GOOGLE-ML-TYPES-2026",
-      "appliesTo": ["rules-vs-learning", "learning-types", "supervised", "unsupervised", "reinforcement", "generative", "training", "model"],
+      "appliesTo": ["rules-vs-learning", "learning-types", "supervised", "unsupervised", "reinforcement", "generative", "training"],
       "statement": "Google's machine-learning reference distinguishes supervised learning by labeled targets, unsupervised learning by structure discovery in unlabeled data, reinforcement learning by rewards or penalties from actions, and generative systems by producing new content from learned patterns.",
       "scope": "Learning paradigms and the difference between explicit rules and data-trained models",
       "invalidation": "These are category-level definitions; a production system can combine paradigms, and a label such as generative AI does not establish quality, safety, or generalization.",
@@ -133,7 +133,7 @@
     {
       "factId": "fact:ml:generalization-memory",
       "sourceId": "WEB-ARXIV-GENERALIZE-MEMORIZE-2018",
-      "appliesTo": ["generalization-and-memory", "generalization", "memorization", "memory"],
+      "appliesTo": ["generalization-and-memory", "generalization", "memorization"],
       "statement": "Research on deep networks treats memorization and generalization as distinguishable behaviors that can coexist; fitting training examples alone is not evidence that a model will perform reliably on unseen data.",
       "scope": "Model generalization, memorization, and evaluation boundary",
       "invalidation": "The cited study is empirical and task-specific; it does not provide a universal test for all architectures, datasets, or deployment settings.",
@@ -188,7 +188,7 @@
       "factId": "fact:google:tpu",
       "sourceId": "WEB-GOOGLE-TPU-ARCHITECTURE-2026",
       "appliesTo": ["cpu-gpu-asic-npu", "vectors-and-matrices", "precision-and-tensor-core", "memory-wall", "matrix", "asic", "accelerator"],
-      "statement": "Google Cloud documents TPUs as application-specific integrated circuits designed for machine-learning workloads, with matrix-multiply units, vector/scalar units, reduced-precision arithmetic, and on-chip high-bandwidth memory.",
+      "statement": "Google Cloud documents TPUs as application-specific integrated circuits designed for machine-learning workloads, with matrix-multiply units, vector/scalar units, reduced-precision arithmetic, and high-bandwidth memory (HBM) attached to each chip. The HBM stacks sit beside the compute die in the same package; they are not on the die itself.",
       "scope": "Domain-specific AI accelerators and matrix-oriented hardware",
       "invalidation": "A TPU architecture is one accelerator design; its features cannot be generalized to all ASICs, NPUs, models, or production cost/performance without workload-specific evidence.",
       "asOf": "2026-08-12"
@@ -196,7 +196,7 @@
     {
       "factId": "fact:tsmc:3dfabric",
       "sourceId": "WEB-TSMC-3DFABRIC-2026",
-      "appliesTo": ["bottlenecks-and-scarcity", "hbm", "advanced-packaging", "chiplet", "interconnect", "packaging", "bandwidth", "memory"],
+      "appliesTo": ["bottlenecks-and-scarcity", "hbm", "advanced-packaging", "chiplet", "interconnect", "packaging"],
       "statement": "TSMC describes 3DFabric as a family of 3D silicon stacking and advanced-packaging technologies that integrates logic, memory, and other chiplets at the system level; packaging therefore affects bandwidth, latency, power, form factor, and cost rather than being only a final enclosure step.",
       "scope": "Advanced packaging, heterogeneous integration, chiplets, and system bottlenecks",
       "invalidation": "This is a vendor technology description; customer yield, capacity, pricing, supply availability, and product economics require independent filing and production evidence.",
@@ -205,7 +205,7 @@
     {
       "factId": "fact:micron:hbm2e",
       "sourceId": "WEB-MICRON-HBM2E-2020",
-      "appliesTo": ["hbm", "memory-wall", "bandwidth", "memory", "stacked-memory"],
+      "appliesTo": ["hbm", "memory-wall", "bandwidth", "stacked-memory"],
       "statement": "Micron's HBM2E technical brief describes a wide-interface stacked-memory design whose bandwidth and capacity characteristics differ from conventional graphics memory; system-level bandwidth depends on the memory stack, interface, package, and workload.",
       "scope": "High-bandwidth memory architecture and memory bottlenecks",
       "invalidation": "The cited HBM2E document is product-generation specific; it does not establish current HBM availability, pricing, yield, or performance for later generations.",
@@ -214,7 +214,7 @@
     {
       "factId": "fact:sec:capex-depreciation",
       "sourceId": "WEB-SEC-GOOGLE-10K-2025",
-      "appliesTo": ["capex-and-depreciation", "unit-economics", "utilization", "fcf-and-funding", "capital", "depreciation", "capex"],
+      "appliesTo": ["capex-and-depreciation", "unit-economics", "utilization", "fcf-and-funding", "depreciation", "capex"],
       "statement": "A filed 2025 Form 10-K example separates property-and-equipment capital expenditures in investing cash flow from depreciation recognized after assets are placed in service; capacity investment, accounting expense, and cash generation therefore need separate time and statement-line analysis.",
       "scope": "CAPEX, depreciation, utilization, unit economics, and free-cash-flow interpretation",
       "invalidation": "This is one issuer's filing example and not a universal accounting policy or current forecast; company disclosures, useful lives, capitalization policy, and reporting standards must be checked separately.",
@@ -223,7 +223,7 @@
     {
       "factId": "fact:nyfed:rstar-definition",
       "sourceId": "WEB-NYFED-RSTAR-2026",
-      "appliesTo": ["interest", "macro", "policy", "neutral-rate", "r-star", "real-rate", "D3", "D6"],
+      "appliesTo": ["interest", "macro", "neutral-rate", "r-star", "real-rate", "D3", "D6"],
       "statement": "The New York Fed defines the natural rate of interest, r-star, as the real short-term interest rate expected to prevail when the economy is at full strength and inflation is stable. It is unobservable and must be estimated rather than read directly from a market price.",
       "scope": "Neutral-rate definition and observability",
       "invalidation": "Do not treat a single model estimate, the SEP longer-run policy rate, or a TIPS yield as the true r-star; each has a different definition and uncertainty.",
@@ -232,7 +232,7 @@
     {
       "factId": "fact:nyfed:rstar-model-market",
       "sourceId": "WEB-NYFED-RSTAR-MARKETS-2025",
-      "appliesTo": ["interest", "yield", "macro", "neutral-rate", "r-star", "tips", "term-premium", "D3", "D6", "E2"],
+      "appliesTo": ["interest", "macro", "neutral-rate", "r-star", "tips", "term-premium", "D3", "D6", "E2"],
       "statement": "New York Fed research compares model-based r-star estimates with market measures and warns that long-horizon real yields can contain time-varying risk and liquidity premia. Market-model disagreement is therefore evidence to investigate, not a mechanical replacement of one estimate by the other.",
       "scope": "Neutral-rate estimation disagreement",
       "invalidation": "The research does not establish that one estimator will dominate in every sample or regime; preserve maturity, model, observation date, and confidence interval.",
@@ -241,7 +241,7 @@
     {
       "factId": "fact:fed:2026-june-policy-neutral-reference",
       "sourceId": "WEB-FED-SEP-2026-06",
-      "appliesTo": ["interest", "macro", "policy", "neutral-rate", "D3", "D6"],
+      "appliesTo": ["interest", "macro", "neutral-rate", "D3", "D6"],
       "statement": "The June 2026 SEP reported a 3.1 percent median longer-run federal funds rate, while the June FOMC statement maintained a 3.50 to 3.75 percent target range. The midpoint-minus-longer-run comparison is a dated policy-stance reference, not a direct observation of r-star.",
       "scope": "Dated June 2026 policy-rate comparison",
       "invalidation": "Recompute after a new FOMC target range or SEP, and do not ignore uncertainty, expected inflation, the balance sheet, fiscal conditions, or credit spreads.",
@@ -259,7 +259,7 @@
     {
       "factId": "fact:pagedattention:kv-cache",
       "sourceId": "WEB-ARXIV-PAGEDATTENTION-2023",
-      "appliesTo": ["kv-cache", "memory", "inference", "llm-serving", "memory-hierarchy"],
+      "appliesTo": ["kv-cache", "inference", "llm-serving", "memory-hierarchy"],
       "statement": "The PagedAttention paper models the KV cache as a major and dynamically sized memory component in LLM serving and applies virtual-memory-style paging to reduce fragmentation and improve sharing. It supports a causal link from context and concurrency to memory pressure, not a universal claim that the cache must reside on SSD.",
       "scope": "KV-cache memory management in LLM serving",
       "invalidation": "Reported throughput gains depend on models, hardware, workloads, runtime and baselines; later attention and cache-compression methods can change the bottleneck.",
@@ -313,7 +313,7 @@
     {
       "factId": "fact:nist:supply-chain-risk",
       "sourceId": "WEB-NIST-SCRM-2026",
-      "appliesTo": ["supply-chain", "risk", "criticality", "taxonomy", "semiconductor"],
+      "appliesTo": ["supply-chain", "criticality", "taxonomy", "semiconductor"],
       "statement": "NIST defines supply-chain risk management as identifying susceptibilities, vulnerabilities and threats throughout the chain and developing mitigation strategies. A visual network should therefore store evidence, tier, substitutability and mitigation rather than infer a chokepoint from node size alone.",
       "scope": "Supply-chain risk methodology",
       "invalidation": "The NIST definition is general and does not assign criticality to any semiconductor company or commercial relationship.",
@@ -331,7 +331,7 @@
     {
       "factId": "fact:nyfed:rstar-estimation-method",
       "sourceId": "WEB-NYFED-RSTAR-KALMAN-2023",
-      "appliesTo": ["interest", "macro", "policy", "neutral-rate", "r-star", "real-time-vintage", "D3", "D6"],
+      "appliesTo": ["interest", "macro", "neutral-rate", "r-star", "real-time-vintage", "D3", "D6"],
       "statement": "The LW/HLW approach treats r-star, trend growth and the output gap as latent states inferred from observable GDP, inflation and interest-rate data with a Kalman-filter framework. Real-time one-sided estimates and later two-sided smoothed estimates answer different questions and can be revised as data and the full sample change.",
       "scope": "Latent-state estimation and real-time revision risk",
       "invalidation": "Do not backfill a revised two-sided estimate into a historical policy decision or present a point estimate without its data vintage, model version and uncertainty range.",
@@ -358,7 +358,7 @@
     {
       "factId": "fact:pagedattention:kv-capacity-drivers",
       "sourceId": "WEB-ARXIV-PAGEDATTENTION-2023",
-      "appliesTo": ["kv-cache", "memory", "inference", "llm-serving", "memory-hierarchy", "capacity-model"],
+      "appliesTo": ["kv-cache", "inference", "llm-serving", "memory-hierarchy", "capacity-model"],
       "statement": "For a conventional transformer cache, capacity scales with active tokens, layers, KV heads, head dimension and bytes per stored element, with separate key and value tensors. Grouped or multi-query attention, quantization, eviction, sharing and recomputation change those factors, so context length alone is not a sufficient storage-demand model.",
       "scope": "KV-cache capacity-driver model",
       "invalidation": "Treat the expression as an architecture-dependent capacity model, not a universal byte forecast or proof of SSD demand; validate the serving implementation and residency policy.",

@@ -37,12 +37,14 @@ import { normalizeTickerInput, tickerDisplayName } from '../domain/entity/ticker
 import { describeQuoteCurrentness } from '../domain/market/quote-currentness.js';
 import { KR_THEME_LABELS, krThemesForSymbol } from '../domain/themes/kr-themes.js';
 import { MA_STRUCTURE_LABELS } from '../domain/technical/stage.js';
+import { completedBars } from '../ui/components/stock-chart.js';
 import { keywordMayMatch, textPairs } from '../domain/news/keyword-prefilter.js';
 
 export function installCompatibilityGlobals(root = globalThis) {
   const window = root;
   const document = root.document;
   window._aioPersonalProviderTransport = createPersonalProviderTransport({ fetch: (...args) => window.fetch(...args) });
+  window._aioCompletedBars = completedBars; // v57.92 A04: the AI trend line reads completed sessions only, like the chart
   window._statMean = _statMean;
   window._statStdDev = _statStdDev;
   window._calcDailyReturns = _calcDailyReturns;

@@ -6,8 +6,8 @@ Use the project script for version synchronization.
 
 1. Choose the next monotonically increasing version using R2: `v{major}.{patch}` with the canonical form enforced by `bump-version.mjs`; two-digit patches are valid.
 2. Run `node scripts/bump-version.mjs vX.Y` with the bundled Node runtime when `node` is not on PATH.
-3. Update `version.json.note` with the actual change summary.
-4. Ensure `CHANGELOG.md` has the current version entry.
+3. Write the change summary through `record-fix` (below): it writes `version.json.note` and the CHANGELOG bullets. Do not hand-edit either.
+4. Ensure `CHANGELOG.md` has the current version heading (created by `bump-version`).
 5. Regenerate `_context/CURRENT-STATE.md`/`CONTEXT-CATALOG.json` and run `node scripts/ci-version-check.mjs` plus `node scripts/ci-workspace-contract-check.mjs`.
 
 ## Ledger Recording Flow (record-fix)

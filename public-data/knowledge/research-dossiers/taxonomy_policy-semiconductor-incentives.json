@@ -80,11 +80,9 @@
   "claimCoverage": [],
   "researchFactIds": [
     "fact:asml:euv",
-    "fact:fed:policy-transmission",
     "fact:ibm:silicon-doping",
-    "fact:nyfed:rstar-definition",
-    "fact:fed:2026-june-policy-neutral-reference",
-    "fact:sia:semiconductor-value-chain"
+    "fact:sia:semiconductor-value-chain",
+    "fact:nist:supply-chain-risk"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
@@ -97,7 +95,7 @@
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
   "status": "RESEARCHED",
   "completion": {
-    "researchComplete": true,
+    "evidenceAttached": true,
     "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

@@ -989,9 +989,11 @@ function refreshPortfolioLedgerPerformance() {
   var perfPct = function(v) { return v == null ? '보류' : (v >= 0 ? '+' : '') + (v * 100).toFixed(2) + '%'; };
   var html;
   if (accountPerf.status === 'ready') {
-    html = '<b>실제 계좌 성과 TWR(기간 누적) ' + _escHtmlSafe(perfPct(accountPerf.twr)) + ' · MWR(연율) ' + _escHtmlSafe(perfPct(accountPerf.mwr)) + '</b> — ' // #6: different units, both named
-      + _escHtmlSafe(accountPerf.currency + ' · ' + accountPerf.flowTiming + ' · ' + accountPerf.sample.periods + '기간 ' + accountPerf.sample.from + '~' + accountPerf.sample.to)
-      + (accountPerf.mwr == null ? ' · ' + _escHtmlSafe((accountPerf.warnings && accountPerf.warnings[0]) || 'MWR 계산 불가') : '')
+    // v57.92: a TWR whose flows fall between valuations is a boundary approximation — named as such, with the engine's reason.
+    var twrApprox = accountPerf.twrExact === false;
+    html = '<b>실제 계좌 성과 TWR(기간 누적' + (twrApprox ? ', 근사' : '') + ') ' + _escHtmlSafe(perfPct(accountPerf.twr)) + ' · MWR(연율) ' + _escHtmlSafe(perfPct(accountPerf.mwr)) + '</b> — ' // #6: different units, both named
+      + _escHtmlSafe(accountPerf.currency + ' · ' + (accountPerf.flowTiming === 'start-of-period' ? '입출금 기간 시작 반영' : '입출금 기간 끝 반영') + ' · ' + accountPerf.sample.periods + '기간 ' + accountPerf.sample.from + '~' + accountPerf.sample.to)
+      + ((accountPerf.warnings || []).length ? ' · ' + _escHtmlSafe(accountPerf.warnings.join(' ')) : '')
       + ' (시세 이력 검증과 무관하게 원장 규약 선언만으로 계산됩니다)';
   } else {
     html = '<b>실제 계좌 성과(TWR/MWR) 보류</b> — ' + _escHtmlSafe(accountPerf.message || '원장 규약이 선언되지 않았습니다') + '. 원장 항목·규약을 선언하면 시세 이력과 무관하게 계산됩니다.';
@@ -1442,8 +1444,18 @@ var PF_VAR_REASON_LABELS = {
   'tail-below-declared-minimum': '꼬리 부족',
   'bootstrap-band-exceeds-declared-maximum': '부트스트랩 변동 큼',
   'estimator-sensitivity-exceeds-declared-maximum': '추정량 민감',
-  'tail-sample-single-observation': '꼬리 1개'
+  'tail-sample-single-observation': '꼬리 1개',
+  'cvar-bootstrap-band-exceeds-declared-maximum': '부트스트랩 변동 큼',
+  'cvar-sensitivity-exceeds-declared-maximum': '최악 1개에 민감'
 };
+// v57.92 E06: CVaR has its own certification (the tail mean can move while the 5% quantile holds).
+function _aioBtCvarCertLabel(cert) {
+  var stability = cert && cert.stability;
+  if (!stability || !stability.cvarCertification) return '';
+  if (stability.cvarCertification === 'certified') return 'CVaR 인증';
+  var reasons = Array.isArray(stability.cvarCertificationReasons) ? stability.cvarCertificationReasons : [];
+  return 'CVaR 인증 보류' + (reasons.length ? ' — ' + reasons.map(function(reason) { return PF_VAR_REASON_LABELS[reason] || reason; }).join(', ') : '');
+}
 function _aioBtVarCertLabel(cert) {
   if (!cert || typeof cert !== 'object') return '인증 보류';
   if (cert.certification === 'certified') return '인증';
@@ -1479,7 +1491,7 @@ function _aioRenderPortfolioBacktestLab(model) {
     ['Sharpe / Sortino', _aioFmtBtNum(p.sharpe) + ' / ' + _aioFmtBtNum(p.sortino), '—'],
     ['Active / Tracking Error / IR', _aioFmtBtPct(p.activeReturn) + ' / ' + _aioFmtBtPct(p.trackingError) + ' / ' + _aioFmtBtNum(p.informationRatio), '—'],
     ['Beta / Alpha / Corr', _aioFmtBtNum(p.beta) + ' / ' + _aioFmtBtPct(p.alpha) + ' / ' + _aioFmtBtNum(p.benchmarkCorrelation), '—'],
-    ['VaR / CVaR 5% monthly' + (p.varCertification ? ' (표본 ' + p.varCertification.sampleN + '·꼬리 ' + p.varCertification.tailN + ' · ' + _aioBtVarCertLabel(p.varCertification) + ')' : ''), _aioFmtBtPct(-p.historicalVar5) + ' / ' + _aioFmtBtPct(-p.conditionalVar5), '—'],
+    ['VaR / CVaR 5% monthly' + (p.varCertification ? ' (표본 ' + p.varCertification.sampleN + '·꼬리 ' + p.varCertification.tailN + ' · VaR ' + _aioBtVarCertLabel(p.varCertification) + (_aioBtCvarCertLabel(p.varCertification) ? ' · ' + _aioBtCvarCertLabel(p.varCertification) : '') + ')' : ''), _aioFmtBtPct(-p.historicalVar5) + ' / ' + _aioFmtBtPct(-p.conditionalVar5), '—'],
     ['Up / Down Capture', _aioFmtBtPct(p.upsideCapture) + ' / ' + _aioFmtBtPct(p.downsideCapture), '—']
   ];
   var metricHtml = metricRows.map(function(r) {

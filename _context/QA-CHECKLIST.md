@@ -1,8 +1,13 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-16
+last_verified: 2026-10-17
 confidence: medium
 ---
+
+## v57.92 지식 근거·전수 감사 반영 (2026-10-17)
+
+- [x] QA-KNOW-EVID-01: P1903 AI 기초 글의 근거 사실이 같은 분야만 가리킨다 — 용량과 수율·데이터 품질·후속학습·평가·외부 메모리에 거시·회계·패키징 사실이 없다. verify_by: node scripts/ci-review-integrity-unit-check.mjs
+- [x] QA-VERIFY-58: P1906 push 뒤 라이브 아이패드 폭(820px)에서 학습 글 바로 아래에 다음 글·선행 글이 보이고, 13F 화면에 'ALPHABET INC · A주 / C주'가 나뉘어 보인다. verify_by: 라이브 820×1180 학습·13F 화면 확인
 
 ## v57.91 v57.91 로딩·렉 최적화 (2026-10-16)
 

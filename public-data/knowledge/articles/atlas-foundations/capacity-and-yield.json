@@ -44,29 +44,10 @@
     ],
     "sourceIds": [
       "PS-01",
-      "PS-14",
-      "WEB-FRED-INFLATION-EXPECTATIONS",
-      "WEB-NYFED-RSTAR-MARKETS-2025"
+      "PS-14"
     ],
-    "researchEvidence": [
-      {
-        "factId": "fact:fred:real-rates",
-        "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-        "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-        "scope": "Inflation-expectation and real-rate data definitions",
-        "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:nyfed:rstar-model-market",
-        "sourceId": "WEB-NYFED-RSTAR-MARKETS-2025",
-        "statement": "New York Fed research compares model-based r-star estimates with market measures and warns that long-horizon real yields can contain time-varying risk and liquidity premia. Market-model disagreement is therefore evidence to investigate, not a mechanical replacement of one estimate by the other.",
-        "scope": "Neutral-rate estimation disagreement",
-        "invalidation": "The research does not establish that one estimator will dominate in every sample or regime; preserve maturity, model, observation date, and confidence interval.",
-        "asOf": "2026-08-15"
-      }
-    ],
-    "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+    "researchEvidence": [],
+    "researchCoverage": "RESEARCH_REQUIRED"
   },
   "quality": {
     "coreTextCharacters": 321,

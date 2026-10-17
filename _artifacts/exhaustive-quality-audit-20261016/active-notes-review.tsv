@@ -1,0 +1,72 @@
+id|判定|개별 사유
+geo-mean|내부정합|복리 계산 정합·분산 보정 근사 경계 명시
+real-relative|내부정합|명목·실질·상대 계산과 비교위험 구분
+three-statements|보완|운전자본의 매입채무·매출인식 조건 생략
+capex-roic|개선확인|첫해 ROIC와 프로젝트 NPV 분리
+elasticity|내부정합|가격×물량 매출 증감 계산 정합
+macro-reading|보완|물가지수 계산 정합·정책 수요우선 과장
+credit-money|보완|예금은 대출상환 때만 사라진다는 배타 표현
+crisis-response|보완|분배 계산 정합·자산 선행회복 일반화
+long-bond|보완|duration 정합·간접낙찰을 해외수요와 혼동
+bond-collateral|내부정합|원금 부족과 haircut 유지 부족 구분
+hike-cycle|부분개선|인과 미입증 경계 추가·본문 확정표현 잔여
+fx-exporters|내부정합|외화 매출·원가 환산과 투자수익 구분
+expectations|보완|급등 후 수주 내 회귀의 빈도근거 없음
+index-weight|내부정합|가격 상승과 추가매수 분리 수치 정합
+multiple-durability|내부정합|기간·배수·배당생략 가정 명시
+valuation-cycle|외부미검증|날짜·가정 명시·원시장 수치 대조 안함
+capital-allocation|보완|관찰에서 손실한도별 보유비중 처방 확장
+semi-process|보완|12단 적층을12회 접합으로 계산할 조건 불명확
+memory-optics|내부정합|메모리·연결 역할과 경쟁구간 구분
+tech-vs-profit|보완|현재AI 이익의 반도체 집중 집계근거 없음
+bank|수정필요|은행 차입 담보 대부분 채권이라는 일반화
+insurance|보완|합산비율의 경과·수입보험료 분모 생략
+reit|보완|caprate=요구수익률 표현은 성장조건 생략
+consumer|내부정합|평균단가 기준 물량역산·가격결정 조건 구분
+software|내부정합|총이익 LTV 계산·이탈률 가정 일치
+biotech|보완|기술이전 후 무희석 단정·계약조건 생략
+energy|보완|생산자 원가불변·매출증가 일률화
+transport|부분개선|잔고인도 가정 명시·공급증가 분모 모호
+agri|내부정합|원가비중·매출총이익률 분모 일치
+credit-distribution-refinancing|내부정합|등급·만기·평가분모와 생존/주주성과 구분
+financing-perimeter-overlap|내부정합|참여거래총액을 실제출자액으로 바꾸지 않음
+measurement-scope-comparison|내부정합|환매 요청·지급·순유출과 평가분모 구분
+evidence-role-conflict|내부정합|대상·기간·반대근거를 합산없이 보존
+rotation-bottleneck-confirmation|내부정합|참여확대와 예정병목순서 구분·조건화
+supply-relief-margin|수정필요|고마진일수록 단가하락 민감도 크다는 방향 오류
+backtest-rejection|보완|평균범위 중첩만으로 차이 식별불가 판정
+crowding-breadth-extreme|보완|설문을 포지션으로 읽고 좁은폭을 위험과 등치
+ai-capex-payback|보완|회수부족에서 재차입 필요로 바로 도약
+tech-claim-stages|보완|양산·수율·고객인증을 고정직렬 단계화
+policy-floor-limits|수정필요|정책이 이익전망 못바꾼다는 인과 단절
+breadth-confirmation|보완|특정 참여문턱을 검증없이 확인완료 단정
+price-revision-matrix|수정필요|3×3 방향 조합에서6칸만 제시
+top-three-layers|보완|조달악화·추정하향을 붕괴 필요조건화
+bottom-formation-types|보완|유형별 위험감소·성공가능성 실증 없음
+climax-extension|수정필요|ATR%와 이평괴리율의 기준가격 분모 혼합
+breakout-follow-through|기존잔여|문헌귀속·미재현 경계 추가·실패율 표본 없음
+price-cycle-stages|보완|밴드밖 종가를 추세지속으로 단정
+relative-resilience|보완|RS개선을 종목자체 바닥형성으로 확대
+reserve-buffer-regime|기존잔여|RRP잔고를 실제자금 이동 충분조건화
+liquidity-layers|수정필요|QE를 대출·M2 결과로 재정의
+private-credit-redemption|기존잔여|자동이월·환매분모·손실실현 계약조건 없음
+labor-inflation-split|신규오류|LF·실업자 변화와 고용불변 예제 대사 불일치
+four-asset-joint|기존잔여|자산 동행으로 실질금리 원인 확정
+oil-shock-split|기존잔여|식별모형없이 유가premium에서 위기기간 역산
+ai-power-delivery|보완|core·GPU전력 및 token처리시간 단위 생략
+interconnect-distance-time|신규오류|광학침투 순서의 도식·본문 반대
+bottleneck-pricing-power|보완|고객구성만으로 인상후 수요손실 확정
+backlog-funding-quality|보완|벤더투자 중첩을 실제자금 순환과 등치
+evidence-grades-falsifier|기존잔여|조사순서와 독자용 결론우선 배치 혼동
+money-is-choice|내부정합|선택권·명목·구매력 차이를 조건부 설명
+inflation-purchasing-power|연결보완|구매력B3 누락·주문장H1 연결
+interest-time-price|연결오류|은행·위기·패시브 연결·핵심금리 누락
+central-bank-transmission|내부정합|전달 시차·고정금리·재정 조건 명시
+bonds-dollar-trust|내부정합|금리 원인 분리·신뢰붕괴 단정 방지
+liquidity-asset-inflation|보완|준비금·예금·거래자금을 하나의 이동물처럼 설명
+company-economic-machine|연결오류|기업현금 칼럼에 주문장·군중·경기 레슨 연결
+valuation-expectations|연결오류|평가칼럼에 투자유형·손실·고객 레슨 연결
+ai-physical-bottleneck|내부정합|물리제약·병목이동·해자 구분
+ai-capex-economics|연결오류|CAPEX칼럼에 전력·저장·원전 레슨 연결
+market-expectations-prices|연결오류|기대칼럼에 에너지·로봇·의료·물류 연결
+ownership-risk-process|연결오류|위험관리칼럼에 국가시장·환율·정책 연결

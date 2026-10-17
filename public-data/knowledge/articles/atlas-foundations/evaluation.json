@@ -45,9 +45,7 @@
     "sourceIds": [
       "PS-12",
       "PS-13",
-      "WEB-NIST-AI-RMF-CORE-2023",
-      "WEB-SEC-FINANCIAL-STATEMENTS-2024",
-      "WEB-SEC-INVESTOR-10K-2020"
+      "WEB-NIST-AI-RMF-CORE-2023"
     ],
     "researchEvidence": [
       {
@@ -56,22 +54,6 @@
         "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
         "scope": "AI risk-management framework structure",
         "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:sec:financial-statements",
-        "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
-        "statement": "SEC investor materials distinguish the balance sheet, income statement, cash-flow statement, and statement of shareholders' equity; each answers a different time or position question and should not be substituted for the others.",
-        "scope": "Public-company financial statement literacy",
-        "invalidation": "Definitions and presentation can depend on the reporting framework, filing, footnotes, and company-specific classification; do not infer current performance from a generic description.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:sec:10k-reading",
-        "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-        "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-        "scope": "U.S. public-company filing navigation",
-        "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
         "asOf": "2026-08-12"
       }
     ],

@@ -1,0 +1,1282 @@
+[
+  {
+    "articleId": "atlas-foundations:advanced-packaging",
+    "path": "public-data/knowledge/articles/atlas-foundations/advanced-packaging.json",
+    "verdict": "내부정합",
+    "reason": "연결 기능과 열·수율·검증 제약이 예시와 일치",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:agent-loop",
+    "path": "public-data/knowledge/articles/atlas-foundations/agent-loop.json",
+    "verdict": "내부정합",
+    "reason": "반복 제어·종료·권한과 ReAct 적용 한계가 일치",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:bottlenecks-and-scarcity",
+    "path": "public-data/knowledge/articles/atlas-foundations/bottlenecks-and-scarcity.json",
+    "verdict": "보완",
+    "reason": "다음 병목으로 이동하려면 잔여 수요 조건 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:capacity-and-yield",
+    "path": "public-data/knowledge/articles/atlas-foundations/capacity-and-yield.json",
+    "verdict": "근거연결오류",
+    "reason": "양품률 설명에 실질금리·r* fact가 연결됨",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:capex-and-depreciation",
+    "path": "public-data/knowledge/articles/atlas-foundations/capex-and-depreciation.json",
+    "verdict": "내부정합",
+    "reason": "투자 현금 유출과 사용 개시 후 비용 인식 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:claim-source-as-of",
+    "path": "public-data/knowledge/articles/atlas-foundations/claim-source-as-of.json",
+    "verdict": "보완",
+    "reason": "NIST 구조 fact는 개별 주장 기록 규칙의 직접 근거 아님",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:context-window",
+    "path": "public-data/knowledge/articles/atlas-foundations/context-window.json",
+    "verdict": "보완",
+    "reason": "Transformer 역사만으로 장문 중간 정보 누락 지지 불충분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:cpu-gpu-asic-npu",
+    "path": "public-data/knowledge/articles/atlas-foundations/cpu-gpu-asic-npu.json",
+    "verdict": "외부확인",
+    "reason": "on-chip HBM 표현의 원문·물리 계층 구분 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:data-quality",
+    "path": "public-data/knowledge/articles/atlas-foundations/data-quality.json",
+    "verdict": "근거연결오류",
+    "reason": "학습 데이터 품질 설명에 CPI 정의 fact 연결",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:deployment",
+    "path": "public-data/knowledge/articles/atlas-foundations/deployment.json",
+    "verdict": "보완",
+    "reason": "World Models fact와 배포 운영 논증 사이 연결 없음",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:embedding-and-position",
+    "path": "public-data/knowledge/articles/atlas-foundations/embedding-and-position.json",
+    "verdict": "보완",
+    "reason": "최초 embedding과 attention 이후 문맥 표현 구분 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:energy-and-power",
+    "path": "public-data/knowledge/articles/atlas-foundations/energy-and-power.json",
+    "verdict": "보완",
+    "reason": "NIST 위험관리 fact는 전력 작동 원리의 직접 근거 아님",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:evaluation",
+    "path": "public-data/knowledge/articles/atlas-foundations/evaluation.json",
+    "verdict": "근거연결오류",
+    "reason": "모델 평가에 SEC 재무제표·10-K fact 연결",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:fcf-and-funding",
+    "path": "public-data/knowledge/articles/atlas-foundations/fcf-and-funding.json",
+    "verdict": "외부확인",
+    "reason": "Sandisk 목표·계약의 비GAAP 정의·기준일 대조 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:forward-backpropagation",
+    "path": "public-data/knowledge/articles/atlas-foundations/forward-backpropagation.json",
+    "verdict": "보완",
+    "reason": "NIST 위험관리 fact는 역전파 원리 입증 못함",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:generalization-and-memory",
+    "path": "public-data/knowledge/articles/atlas-foundations/generalization-and-memory.json",
+    "verdict": "근거연결오류",
+    "reason": "일반화 근거에 패키징·HBM·KV cache fact 혼재",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:hallucination-and-verification",
+    "path": "public-data/knowledge/articles/atlas-foundations/hallucination-and-verification.json",
+    "verdict": "보완",
+    "reason": "Transformer 역사만으로 환각·검증 효과 입증 불충분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:hbm",
+    "path": "public-data/knowledge/articles/atlas-foundations/hbm.json",
+    "verdict": "내부정합",
+    "reason": "적층·인터페이스·패키지 제약과 세대별 경계 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:human-review",
+    "path": "public-data/knowledge/articles/atlas-foundations/human-review.json",
+    "verdict": "내부정합",
+    "reason": "사람의 승인·수정·보류와 검토 오류 가능성 병기",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:interconnect",
+    "path": "public-data/knowledge/articles/atlas-foundations/interconnect.json",
+    "verdict": "보완",
+    "reason": "OECD 생산성 fact가 링크·프로토콜 설명에 섞임",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:kv-cache",
+    "path": "public-data/knowledge/articles/atlas-foundations/kv-cache.json",
+    "verdict": "보완",
+    "reason": "용량식은 구체적이나 SSD 수요와의 직접 근거 부족",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:learning-types",
+    "path": "public-data/knowledge/articles/atlas-foundations/learning-types.json",
+    "verdict": "내부정합",
+    "reason": "학습 신호를 구분하고 혼합 시스템 인정",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:memory-wall",
+    "path": "public-data/knowledge/articles/atlas-foundations/memory-wall.json",
+    "verdict": "보완",
+    "reason": "일반화·암기 연구의 memory는 하드웨어 병목과 다름",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:model-parameters-training",
+    "path": "public-data/knowledge/articles/atlas-foundations/model-parameters-training.json",
+    "verdict": "보완",
+    "reason": "gradient 갱신 설명을 해당 신경망 학습 범위로 제한 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:multi-head-attention",
+    "path": "public-data/knowledge/articles/atlas-foundations/multi-head-attention.json",
+    "verdict": "내부정합",
+    "reason": "projection 결합과 head 수의 비보장 효과 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:neural-networks",
+    "path": "public-data/knowledge/articles/atlas-foundations/neural-networks.json",
+    "verdict": "내부정합",
+    "reason": "변환·비선형·loss 연결과 규모 확대 한계 일치",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:parallel-processing",
+    "path": "public-data/knowledge/articles/atlas-foundations/parallel-processing.json",
+    "verdict": "내부정합",
+    "reason": "병렬 이득과 통신·직렬 구간 비용 함께 설명",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:parameter-vs-external-memory",
+    "path": "public-data/knowledge/articles/atlas-foundations/parameter-vs-external-memory.json",
+    "verdict": "근거연결오류",
+    "reason": "적합한 RAG fact와 무관한 패키징·HBM fact 혼재",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:planning-and-control",
+    "path": "public-data/knowledge/articles/atlas-foundations/planning-and-control.json",
+    "verdict": "내부정합",
+    "reason": "계획·feedback 보정과 센서·actuator 지연 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:post-training",
+    "path": "public-data/knowledge/articles/atlas-foundations/post-training.json",
+    "verdict": "근거연결오류",
+    "reason": "모델 후속학습 설명에 Fed 정책 전달 fact 포함",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:power-and-grid",
+    "path": "public-data/knowledge/articles/atlas-foundations/power-and-grid.json",
+    "verdict": "보완",
+    "reason": "PUE fact만으로 송전·변압기·접속 대기 입증 불충분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:precision-and-tensor-core",
+    "path": "public-data/knowledge/articles/atlas-foundations/precision-and-tensor-core.json",
+    "verdict": "외부확인",
+    "reason": "TPU on-chip HBM의 계층·원문 표현 대조 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:pretraining",
+    "path": "public-data/knowledge/articles/atlas-foundations/pretraining.json",
+    "verdict": "보완",
+    "reason": "NIST·학습 분류·역사만으로 optimizer·분산 비용 설명 부족",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:probability-and-statistics",
+    "path": "public-data/knowledge/articles/atlas-foundations/probability-and-statistics.json",
+    "verdict": "보완",
+    "reason": "모든 모델 출력을 token/class 분포로 일반화하는 범위 문제",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:rack-density-and-cooling",
+    "path": "public-data/knowledge/articles/atlas-foundations/rack-density-and-cooling.json",
+    "verdict": "내부정합",
+    "reason": "열밀도·배전 제약과 PUE의 수익성 한계 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:retrieval-augmented-generation",
+    "path": "public-data/knowledge/articles/atlas-foundations/retrieval-augmented-generation.json",
+    "verdict": "내부정합",
+    "reason": "검색·생성과 적합성·인용 정확성을 분리",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:roic-and-counter-scenario",
+    "path": "public-data/knowledge/articles/atlas-foundations/roic-and-counter-scenario.json",
+    "verdict": "보완",
+    "reason": "NOPAT/투하자본 정의 없이 자본비용 관계 적용 어려움",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:rules-vs-learning",
+    "path": "public-data/knowledge/articles/atlas-foundations/rules-vs-learning.json",
+    "verdict": "내부정합",
+    "reason": "명시 규칙과 데이터 조정을 구분하고 혼합 인정",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:self-attention",
+    "path": "public-data/knowledge/articles/atlas-foundations/self-attention.json",
+    "verdict": "내부정합",
+    "reason": "Q/K·V 역할과 attention의 인과 설명 한계 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:silicon-and-doping",
+    "path": "public-data/knowledge/articles/atlas-foundations/silicon-and-doping.json",
+    "verdict": "내부정합",
+    "reason": "도핑 기능과 공정·노드 해석 한계 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:state-action-dynamics",
+    "path": "public-data/knowledge/articles/atlas-foundations/state-action-dynamics.json",
+    "verdict": "보완",
+    "reason": "제어가 반드시 연결을 학습해야 한다는 표현은 물리모델 제어 누락",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:tokenization",
+    "path": "public-data/knowledge/articles/atlas-foundations/tokenization.json",
+    "verdict": "보완",
+    "reason": "Transformer 역사만으로 언어별 tokenization 차이 입증 부족",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:tool-use",
+    "path": "public-data/knowledge/articles/atlas-foundations/tool-use.json",
+    "verdict": "내부정합",
+    "reason": "도구 선택·인자·실행·권한·입력검증 역할 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:unit-economics",
+    "path": "public-data/knowledge/articles/atlas-foundations/unit-economics.json",
+    "verdict": "보완",
+    "reason": "CUDA·감가상각 fact만으로 고객 단위 수익성 지지 부족",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:utilization",
+    "path": "public-data/knowledge/articles/atlas-foundations/utilization.json",
+    "verdict": "내부정합",
+    "reason": "사용률·서비스 품질·수익성이 같지 않음을 명시",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:vectors-and-matrices",
+    "path": "public-data/knowledge/articles/atlas-foundations/vectors-and-matrices.json",
+    "verdict": "외부확인",
+    "reason": "TPU on-chip HBM 표현을 원문과 대조 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:workload-shape",
+    "path": "public-data/knowledge/articles/atlas-foundations/workload-shape.json",
+    "verdict": "보완",
+    "reason": "일반화·NIST fact와 하드웨어 선택 사이 연결 부족",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "atlas-foundations:world-model-limitations",
+    "path": "public-data/knowledge/articles/atlas-foundations/world-model-limitations.json",
+    "verdict": "내부정합",
+    "reason": "추정 dynamics와 현실·분포 이동의 차이 명시",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:A1",
+    "path": "public-data/knowledge/articles/principles/A1.json",
+    "verdict": "근거연결오류",
+    "reason": "희소성·기회비용에 생산성 측정 fact만 연결",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:A2",
+    "path": "public-data/knowledge/articles/principles/A2.json",
+    "verdict": "내부정합",
+    "reason": "투입 증가와 단위 투입당 산출 개선 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:A3",
+    "path": "public-data/knowledge/articles/principles/A3.json",
+    "verdict": "보완",
+    "reason": "생산성 fact는 소유·계약·경쟁 제도의 직접 설명 아님",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:A4",
+    "path": "public-data/knowledge/articles/principles/A4.json",
+    "verdict": "근거연결오류",
+    "reason": "경제주체 자금 순환에 생산성 측정 fact만 연결",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:B1",
+    "path": "public-data/knowledge/articles/principles/B1.json",
+    "verdict": "보완",
+    "reason": "실질금리·CPI fact는 화폐 기능·결제 구조의 직접 근거 아님",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:B2",
+    "path": "public-data/knowledge/articles/principles/B2.json",
+    "verdict": "내부정합",
+    "reason": "상대가격·물가와 공급충격 확산을 조건부로 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:B3",
+    "path": "public-data/knowledge/articles/principles/B3.json",
+    "verdict": "보완",
+    "reason": "그림의 명목소득−물가는 금액·지수 단위 혼합 위험",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:B4",
+    "path": "public-data/knowledge/articles/principles/B4.json",
+    "verdict": "보완",
+    "reason": "실제 복리 계산 예와 재투자 메커니즘 근거 부족",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:C1",
+    "path": "public-data/knowledge/articles/principles/C1.json",
+    "verdict": "내부정합",
+    "reason": "현재 자금·미래 상환을 만기·담보·현금 조건으로 검토",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:C2",
+    "path": "public-data/knowledge/articles/principles/C2.json",
+    "verdict": "보완",
+    "reason": "예금 창출과 자금조달 제약을 구분할 설명 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:C3",
+    "path": "public-data/knowledge/articles/principles/C3.json",
+    "verdict": "내부정합",
+    "reason": "레버리지 손익 확대와 ROE 분모 효과 함께 설명",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:C4",
+    "path": "public-data/knowledge/articles/principles/C4.json",
+    "verdict": "내부정합",
+    "reason": "담보·청산·신용 feedback과 유동성·부실 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:D1",
+    "path": "public-data/knowledge/articles/principles/D1.json",
+    "verdict": "내부정합",
+    "reason": "시간·위험·유동성 및 할인 효과 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:D2",
+    "path": "public-data/knowledge/articles/principles/D2.json",
+    "verdict": "내부정합",
+    "reason": "사전·사후 실질금리와 근사식 경계 명시",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:D3",
+    "path": "public-data/knowledge/articles/principles/D3.json",
+    "verdict": "보완",
+    "reason": "인하를 가격 즉시 하락으로 보는 반례는 방향 혼동 위험",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:D4",
+    "path": "public-data/knowledge/articles/principles/D4.json",
+    "verdict": "내부정합",
+    "reason": "중앙은행 자산·준비금과 신용·명목지출 분리",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:D5",
+    "path": "public-data/knowledge/articles/principles/D5.json",
+    "verdict": "내부정합",
+    "reason": "물가·고용·안정 상충과 공급충격 대응 한계 조건부 설명",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:D6",
+    "path": "public-data/knowledge/articles/principles/D6.json",
+    "verdict": "외부확인",
+    "reason": "FOMC 3.625%·SEP 3.1% 발표·기준일 원문 대조 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:E1",
+    "path": "public-data/knowledge/articles/principles/E1.json",
+    "verdict": "내부정합",
+    "reason": "현금흐름·가격·수익률·쿠폰 및 만기 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:E2",
+    "path": "public-data/knowledge/articles/principles/E2.json",
+    "verdict": "보완",
+    "reason": "비교 곡선에는 통화·발행자·옵션 조건도 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:E3",
+    "path": "public-data/knowledge/articles/principles/E3.json",
+    "verdict": "보완",
+    "reason": "실질금리 시리즈 정의만으로 글로벌 담보 역할 입증 부족",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:E4",
+    "path": "public-data/knowledge/articles/principles/E4.json",
+    "verdict": "보완",
+    "reason": "실질금리 fact는 신용스프레드 구성의 직접 근거 아님",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:E5",
+    "path": "public-data/knowledge/articles/principles/E5.json",
+    "verdict": "보완",
+    "reason": "실질금리 fact는 국제 결제·담보 시스템의 직접 근거 아님",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:E6",
+    "path": "public-data/knowledge/articles/principles/E6.json",
+    "verdict": "보완",
+    "reason": "환율 전달 설명과 실질금리 fact의 직접 연결 부족",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:E7",
+    "path": "public-data/knowledge/articles/principles/E7.json",
+    "verdict": "보완",
+    "reason": "금리차·환율 안정만으로 투자자산 손익 양수 보장 못함",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:F1",
+    "path": "public-data/knowledge/articles/principles/F1.json",
+    "verdict": "근거연결오류",
+    "reason": "정부 재정 설명에 기업 재무제표 구분 fact 연결",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:F2",
+    "path": "public-data/knowledge/articles/principles/F2.json",
+    "verdict": "근거연결오류",
+    "reason": "재정승수 설명에 기업 재무제표 fact 연결·승수 비율 미제시",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:F3",
+    "path": "public-data/knowledge/articles/principles/F3.json",
+    "verdict": "근거연결오류",
+    "reason": "국가부채 동학을 기업 재무제표 fact로 뒷받침",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:F4",
+    "path": "public-data/knowledge/articles/principles/F4.json",
+    "verdict": "근거연결오류",
+    "reason": "지정학·제재 설명에 기업 재무제표 구분 fact 연결",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:G1",
+    "path": "public-data/knowledge/articles/principles/G1.json",
+    "verdict": "정의오류",
+    "reason": "회계이익과 자기자본 기회비용 차감 경제적 이익 혼합",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:G2",
+    "path": "public-data/knowledge/articles/principles/G2.json",
+    "verdict": "보완",
+    "reason": "모든 주식에 의결권이 있다는 범위는 종류주식 누락",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:G3",
+    "path": "public-data/knowledge/articles/principles/G3.json",
+    "verdict": "내부정합",
+    "reason": "조달을 비용·만기·희석·회수기간 조건으로 비교",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:G4",
+    "path": "public-data/knowledge/articles/principles/G4.json",
+    "verdict": "정의오류",
+    "reason": "기존 주주의 구주매출과 발행사의 신주발행 혼동",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:G5",
+    "path": "public-data/knowledge/articles/principles/G5.json",
+    "verdict": "보완",
+    "reason": "EPS=0의 PER 미정의 예외·원인 분해 축 중복",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:G6",
+    "path": "public-data/knowledge/articles/principles/G6.json",
+    "verdict": "보완",
+    "reason": "SEC 일반 안내는 DCF·배수 평가 논리의 직접 근거 아님",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:G7",
+    "path": "public-data/knowledge/articles/principles/G7.json",
+    "verdict": "보완",
+    "reason": "지수 복제·리밸런싱 조건과 직접 출처 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:G8",
+    "path": "public-data/knowledge/articles/principles/G8.json",
+    "verdict": "보완",
+    "reason": "서로 다른 파생·공매도 위험을 일반 재무제표 자료로 지지 못함",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:H1",
+    "path": "public-data/knowledge/articles/principles/H1.json",
+    "verdict": "보완",
+    "reason": "숨은 유동성·취소율 관측자료와 식별 한계 없음",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:H2",
+    "path": "public-data/knowledge/articles/principles/H2.json",
+    "verdict": "보완",
+    "reason": "기대치 측정과 민감도 범위를 주문 유형 출처가 지지 못함",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:H3",
+    "path": "public-data/knowledge/articles/principles/H3.json",
+    "verdict": "보완",
+    "reason": "효율성 설명에 위험조정 기준 보완 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:H4",
+    "path": "public-data/knowledge/articles/principles/H4.json",
+    "verdict": "보완",
+    "reason": "검색·가격·포지션 동행만으로 군중심리 인과 식별 불가 경계 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:H5",
+    "path": "public-data/knowledge/articles/principles/H5.json",
+    "verdict": "보완",
+    "reason": "거래량의 정보·청산 기여도를 구분할 자료 한계 미제시",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:I1",
+    "path": "public-data/knowledge/articles/principles/I1.json",
+    "verdict": "보완",
+    "reason": "재고 중심 경기 설명의 서비스·공급충격 적용 범위 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:I2",
+    "path": "public-data/knowledge/articles/principles/I2.json",
+    "verdict": "보완",
+    "reason": "금융안정 일반 자료로 기업 재고평가 시차 입증 불충분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:I3",
+    "path": "public-data/knowledge/articles/principles/I3.json",
+    "verdict": "내부정합",
+    "reason": "동일 정책금리에서도 신용경로 긴축 가능성 설명",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:I4",
+    "path": "public-data/knowledge/articles/principles/I4.json",
+    "verdict": "보완",
+    "reason": "산업 순환 제목에 비해 성장주 할인율 예시에 편중",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:I5",
+    "path": "public-data/knowledge/articles/principles/I5.json",
+    "verdict": "내부정합",
+    "reason": "상관의 국면 의존과 영구 헤지 가정 반례 일치",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:J1",
+    "path": "public-data/knowledge/articles/principles/J1.json",
+    "verdict": "보완",
+    "reason": "투자·투기의 관점성·혼합 사례 표시 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:J2",
+    "path": "public-data/knowledge/articles/principles/J2.json",
+    "verdict": "보완",
+    "reason": "패시브 비용 비교 범위와 적합한 직접 근거 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:J3",
+    "path": "public-data/knowledge/articles/principles/J3.json",
+    "verdict": "보완",
+    "reason": "손실·청산 가능성의 실제 산정 예 부족",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:J4",
+    "path": "public-data/knowledge/articles/principles/J4.json",
+    "verdict": "내부정합",
+    "reason": "손실50% 후 회복100% 예가 비선형 부담을 설명",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:J5",
+    "path": "public-data/knowledge/articles/principles/J5.json",
+    "verdict": "보완",
+    "reason": "운·실력 구분에는 반복 표본·기준선도 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:K1",
+    "path": "public-data/knowledge/articles/principles/K1.json",
+    "verdict": "보완",
+    "reason": "정의의 지불자·사용자 통합과 확인질문의 분리 요구 충돌",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:K10",
+    "path": "public-data/knowledge/articles/principles/K10.json",
+    "verdict": "보완",
+    "reason": "운전자본 자산·부채 증감과 현금 방향 예 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:K11",
+    "path": "public-data/knowledge/articles/principles/K11.json",
+    "verdict": "내부정합",
+    "reason": "대체·경쟁·규제 제약과 외삽 반례 연결",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:K12",
+    "path": "public-data/knowledge/articles/principles/K12.json",
+    "verdict": "보완",
+    "reason": "현재 AIO 데이터 제목에 실제 지표·위치·주기 없음",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:K2",
+    "path": "public-data/knowledge/articles/principles/K2.json",
+    "verdict": "보완",
+    "reason": "NIST는 지불 의사·파일럿 매출 전환의 직접 근거 아님",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:K3",
+    "path": "public-data/knowledge/articles/principles/K3.json",
+    "verdict": "보완",
+    "reason": "가치사슬 현금·매출 설명에 AI 위험관리 4기능 fact 연결",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:K4",
+    "path": "public-data/knowledge/articles/principles/K4.json",
+    "verdict": "내부정합",
+    "reason": "단계별 입출력·검증·병목을 분석 질문으로 연결",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:K5",
+    "path": "public-data/knowledge/articles/principles/K5.json",
+    "verdict": "보완",
+    "reason": "매출보다 큰 경제적 중요성의 비교 단위 모호",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:K6",
+    "path": "public-data/knowledge/articles/principles/K6.json",
+    "verdict": "내부정합",
+    "reason": "공급자 전환비용과 구매자 집중을 함께 고려",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:K7",
+    "path": "public-data/knowledge/articles/principles/K7.json",
+    "verdict": "보완",
+    "reason": "증설18개월은 예시 가정 표시·대체 경로 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:K8",
+    "path": "public-data/knowledge/articles/principles/K8.json",
+    "verdict": "보완",
+    "reason": "병목과 단일고장점의 독립 검증 예 부족",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:K9",
+    "path": "public-data/knowledge/articles/principles/K9.json",
+    "verdict": "보완",
+    "reason": "반복성이 잔존율을 높인다는 인과의 계약·선택효과 구분 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:L1",
+    "path": "public-data/knowledge/articles/principles/L1.json",
+    "verdict": "보완",
+    "reason": "NIST는 AI 수요·단위경제의 직접 근거 아님",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:L10",
+    "path": "public-data/knowledge/articles/principles/L10.json",
+    "verdict": "내부정합",
+    "reason": "패키징 이점과 열·검사·조립 비용 및 근거 주제 일치",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:L11",
+    "path": "public-data/knowledge/articles/principles/L11.json",
+    "verdict": "보완",
+    "reason": "수율을 die로 고정 정의하나 확인질문은 wafer·package도 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:L12",
+    "path": "public-data/knowledge/articles/principles/L12.json",
+    "verdict": "보완",
+    "reason": "단일GPU CUDA 자료로 클러스터 광통신 경제성 입증 못함",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:L13",
+    "path": "public-data/knowledge/articles/principles/L13.json",
+    "verdict": "내부정합",
+    "reason": "용량·대역폭·지연·접근 패턴의 차이 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:L14",
+    "path": "public-data/knowledge/articles/principles/L14.json",
+    "verdict": "보완",
+    "reason": "공기·액체·직접칩 냉각은 겹치는 분류 축",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:L15",
+    "path": "public-data/knowledge/articles/principles/L15.json",
+    "verdict": "보완",
+    "reason": "이익 풀의 실제 지불·원가·이익 숫자 예 없음",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:L16",
+    "path": "public-data/knowledge/articles/principles/L16.json",
+    "verdict": "보완",
+    "reason": "HBM 공급자·세대 자료를 산업 현재 사실로 확대 불가",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:L2",
+    "path": "public-data/knowledge/articles/principles/L2.json",
+    "verdict": "내부정합",
+    "reason": "peak와 처리량 및 메모리·통신·전력 제약 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:L3",
+    "path": "public-data/knowledge/articles/principles/L3.json",
+    "verdict": "내부정합",
+    "reason": "반도체의 논리·기억·센싱·전력변환 차이 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:L4",
+    "path": "public-data/knowledge/articles/principles/L4.json",
+    "verdict": "내부정합",
+    "reason": "fabless·foundry·IDM의 역할·자본집약도 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:L5",
+    "path": "public-data/knowledge/articles/principles/L5.json",
+    "verdict": "내부정합",
+    "reason": "IP·검증 시간 이점과 라이선스·호환성 비용 병기",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:L6",
+    "path": "public-data/knowledge/articles/principles/L6.json",
+    "verdict": "외부확인",
+    "reason": "공정·편차·수율 전문 내용을 지지할 기술 원문 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:L7",
+    "path": "public-data/knowledge/articles/principles/L7.json",
+    "verdict": "외부확인",
+    "reason": "소재 순도·오염·인증의 기술 근거·사례 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:L8",
+    "path": "public-data/knowledge/articles/principles/L8.json",
+    "verdict": "내부정합",
+    "reason": "공정·IP·mask 전환비용과 노드 발표·수익성 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:L9",
+    "path": "public-data/knowledge/articles/principles/L9.json",
+    "verdict": "보완",
+    "reason": "DRAM과 하위 HBM 병렬 분류·HBM2E 세대 한계 표시 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:M1",
+    "path": "public-data/knowledge/articles/principles/M1.json",
+    "verdict": "내부정합",
+    "reason": "발전량과 지역·시간별 실제 공급 가능성 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:M10",
+    "path": "public-data/knowledge/articles/principles/M10.json",
+    "verdict": "보완",
+    "reason": "변동성 태양광·풍력을 재생에너지 전체로 확대",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:M11",
+    "path": "public-data/knowledge/articles/principles/M11.json",
+    "verdict": "외부확인",
+    "reason": "규제자산·정산·저장 수익의 관할·시장설계 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:M12",
+    "path": "public-data/knowledge/articles/principles/M12.json",
+    "verdict": "보완",
+    "reason": "공급자 매출과 자산 소유자 규제자산 현금 경계 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:M2",
+    "path": "public-data/knowledge/articles/principles/M2.json",
+    "verdict": "보완",
+    "reason": "가스 유연성·원전 이용률의 기술·운영 조건 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:M3",
+    "path": "public-data/knowledge/articles/principles/M3.json",
+    "verdict": "보완",
+    "reason": "특정 한계가격 도매시장을 전력시장 전체 정의로 확대",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:M4",
+    "path": "public-data/knowledge/articles/principles/M4.json",
+    "verdict": "내부정합",
+    "reason": "발전 설비와 혼잡·접속·손실·전달 전력 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:M5",
+    "path": "public-data/knowledge/articles/principles/M5.json",
+    "verdict": "보완",
+    "reason": "변전은 승압도 포함하는데 마지막 감압으로만 정의",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:M6",
+    "path": "public-data/knowledge/articles/principles/M6.json",
+    "verdict": "외부확인",
+    "reason": "전압·UPS·보호의 장비 민감도·기술 기준 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:M7",
+    "path": "public-data/knowledge/articles/principles/M7.json",
+    "verdict": "내부정합",
+    "reason": "MWh와 출력·시간·효율·열화의 차이 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:M8",
+    "path": "public-data/knowledge/articles/principles/M8.json",
+    "verdict": "정의오류",
+    "reason": "IT 네트워크 장비를 시설 overhead로 분류해 PUE 경계 혼동",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:M9",
+    "path": "public-data/knowledge/articles/principles/M9.json",
+    "verdict": "보완",
+    "reason": "원전 수명연장·신규 건설의 관할별 비용·금융·규제 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:N1",
+    "path": "public-data/knowledge/articles/principles/N1.json",
+    "verdict": "내부정합",
+    "reason": "최종 서비스와 연료·전력 변환 및 수요 이동 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:N10",
+    "path": "public-data/knowledge/articles/principles/N10.json",
+    "verdict": "내부정합",
+    "reason": "배포비·지원·개발비와 사용자·수익성 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:N11",
+    "path": "public-data/knowledge/articles/principles/N11.json",
+    "verdict": "내부정합",
+    "reason": "가격·물량·믹스·판촉·재고와 가격결정력 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:N12",
+    "path": "public-data/knowledge/articles/principles/N12.json",
+    "verdict": "내부정합",
+    "reason": "물동량·공차·피크 용량과 원가 관계 구체적",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:N13",
+    "path": "public-data/knowledge/articles/principles/N13.json",
+    "verdict": "내부정합",
+    "reason": "자산가격과 사업 현금·공사비·만기 시점 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:N14",
+    "path": "public-data/knowledge/articles/principles/N14.json",
+    "verdict": "보완",
+    "reason": "단일 발행사 CAPEX 자료로 통신 ARPU·주파수 경제성 지지 부족",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:N15",
+    "path": "public-data/knowledge/articles/principles/N15.json",
+    "verdict": "내부정합",
+    "reason": "곡물 충격의 전가·계약·재고별 차이를 설명",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:N2",
+    "path": "public-data/knowledge/articles/principles/N2.json",
+    "verdict": "내부정합",
+    "reason": "매장량·정제·인증·물류와 실제 공급 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:N3",
+    "path": "public-data/knowledge/articles/principles/N3.json",
+    "verdict": "내부정합",
+    "reason": "시연보다 현장 예외·다운타임과 단위경제 연결",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:N4",
+    "path": "public-data/knowledge/articles/principles/N4.json",
+    "verdict": "보완",
+    "reason": "무개입 정의와 원격 개입의 자동화 수준 경계 불명확",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:N5",
+    "path": "public-data/knowledge/articles/principles/N5.json",
+    "verdict": "외부확인",
+    "reason": "국가·계약별 조달 절차 직접 출처 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:N6",
+    "path": "public-data/knowledge/articles/principles/N6.json",
+    "verdict": "내부정합",
+    "reason": "발사·데이터 서비스의 반복·실패·회수 시점 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:N7",
+    "path": "public-data/knowledge/articles/principles/N7.json",
+    "verdict": "외부확인",
+    "reason": "임상 단계·적응증별 성공확률 자료·추정 한계 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:N8",
+    "path": "public-data/knowledge/articles/principles/N8.json",
+    "verdict": "외부확인",
+    "reason": "수가·코드·조달 제도의 관할·제품별 확인 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:N9",
+    "path": "public-data/knowledge/articles/principles/N9.json",
+    "verdict": "내부정합",
+    "reason": "거래액·예금·이익과 신용손실·조달비용 구분",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:O1",
+    "path": "public-data/knowledge/articles/principles/O1.json",
+    "verdict": "보완",
+    "reason": "NIST·미국 단일 발행사 자료는 한국 이익 전이의 직접 근거 아님",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:O2",
+    "path": "public-data/knowledge/articles/principles/O2.json",
+    "verdict": "내부정합",
+    "reason": "원/달러 표시 방향과 주가·환율 결합 비율식 정확",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:O3",
+    "path": "public-data/knowledge/articles/principles/O3.json",
+    "verdict": "보완",
+    "reason": "해외 기술자료·단일10-K는 한국 현재 인증·수율 입증 못함",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:O4",
+    "path": "public-data/knowledge/articles/principles/O4.json",
+    "verdict": "외부확인",
+    "reason": "한국 정책·전력 제도의 사업·기준일 자료 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  },
+  {
+    "articleId": "principles:O5",
+    "path": "public-data/knowledge/articles/principles/O5.json",
+    "verdict": "보완",
+    "reason": "세후 현금 비교에 계좌·거주지·세목·기준일 필요",
+    "scope": "All unique draft summary/article/deepArticle/evidence strings; not all external sources",
+    "externalFactCertified": false
+  }
+]

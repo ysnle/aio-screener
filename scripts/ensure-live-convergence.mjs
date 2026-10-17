@@ -208,7 +208,11 @@ try {
         finish('DISPATCHED_CI');
       }
       note(`no successful attested CI run for the target revision (${runs.length} run(s), completed=${anyCompleted})`);
-      finish('UNATTESTED_REVISION');
+      // v57.92 (audit W06): the --await-sha branch already turned a settled CI failure red (v57.88); this default branch
+      // (used after "No changes" cycles) ended green on the same state. Both now share the rule: every run finished and
+      // one failed → exit 1. A cancelled run or one still running stays green.
+      const settledFailure = runs.length > 0 && runs.every((run) => run.status === 'completed') && runs.some((run) => run.conclusion === 'failure');
+      finish('UNATTESTED_REVISION', settledFailure ? 1 : 0);
     }
     report.ciRunId = attested.id;
   }

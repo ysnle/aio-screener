@@ -1,0 +1,90 @@
+id|core판정|story판정|구체 사유
+pct-vs-pp|양호|양호|상대변화와 비율차 계산 구별
+arith-vs-geo|양호|양호|산술평균0과 실제누적손실 구별
+compounding|양호|보완|손실회피가 더 확실하다는 단정
+present-value|양호|보완|미래돈이 항상 덜 가치있다는 단정
+expected-value|양호|보완|옵션매도 위험을 기대값 탓으로 일반화
+correlation|양호|보완|동시금리하락만으로 물가충격 원인 부정 불가
+base-rate|양호|양호|기저율·포착률·오경보·적중률 표 일치
+three-statements|양호|양호|기간손익·시점재무·현금흐름 연결
+working-capital|양호|양호|순운전자본·영업운전자본 근사 구별
+accounting-vs-economic-profit|양호|보완|사업위험 자본비용 대신 국채 비교 강조
+roic|양호|양호|평균·한계ROIC 분리
+roi-vs-net-benefit|양호|양호|순편익·ROI·회수기간 구별
+capex|양호|양호|투자현금·감가 비용 구별
+depreciation|양호|양호|현금시점·회계수명 영향 구별
+dilution|보완|양호|첫문장 주당가치 감소 단정과 반례 충돌
+primary-vs-secondary|양호|보완|구주매출을 내부자 고점판단으로 일반화
+fcf-vs-funding|양호|양호|차입현금·사업FCF 분리
+credit-creation|양호|양호|대출예금 동시생성·자본·유동성 제약 설명
+nominal-real-relative|양호|양호|실질4.8%·상대−10%p 계산 정확
+price-level-vs-rate|양호|보완|모든deflation을 악화로 단정
+one-price-vs-general|보완|보완|일부품목도 종합물가지수 올릴 수 있음
+cpi-vs-cost-of-living|양호|양호|공식바구니·개인지출 차이 설명
+wage-nominal-real|양호|양호|실질임금·비용·생산성 조건 구별
+asset-vs-consumer-prices|양호|양호|자산직접제외·임대료 간접경로 구별
+term-premium|양호|보완|실질금리·BEI 밖 잔여처럼 설명
+policy-vs-long-rate|양호|보완|역전해소를 대개 침체진행으로 일반화
+seasonal-revision|양호|양호|계절성 제거·발표 수정 의미 구별
+level-vs-change|양호|보완|주가의 변화의변화 선행반응 단정
+private-credit|오류|오류|예금통화 비창출과 신용 비창출 혼동
+opportunity-cost|양호|보완|유동성가치 없이 사후상승 전체를 손실 취급
+yield-gap|양호|보완|수익률차를 실제 투자수익 차이처럼 설명
+cyclical-per|보완|보완|정점저PER을 필연·행동격언으로 일반화
+psr|보완|보완|저성장 차입인수는 반드시 가치희석 단정
+sotp|양호|양호|부문·본사비용·순부채·중복위험 설명
+sunk-cost-rebuy|보완|보완|재매수 부정=본전심리 단정·세금비용 누락
+sector-rotation-cycle|양호|양호|사후참고틀·실제순서 차이 구별
+marginal|보완|보완|낮은한계비용만으로 규모의 마진상승 단정
+elasticity|양호|양호|가격반응·기간별 대체 탐색 구별
+information-asymmetry|양호|양호|역선택·도덕적해이·대응 연결
+competition-moat|양호|양호|기술중요·수익·진입장벽 구별
+nim|양호|양호|NII·NIM·예대차 구별
+deposit-beta|보완|양호|정의에도 예금금리변화/정책변화 비율 필요
+credit-cost|양호|보완|충당금의 항상선행 단정
+bank-capital|양호|양호|위험가중자본·유동성 구별
+loss-ratio|보완|보완|발생손해·경과보험료 명시 필요
+expense-ratio|보완|보완|경과·수입보험료 분모 차이 누락
+combined-ratio|양호|양호|보험영업·투자손익 구별
+insurance-reserves|양호|보완|유형·회계별 금리손익 경로 다름
+alm|양호|양호|부채duration·자산민감도·해지위험 설명
+float|양호|보완|합산비율100%의 무비용 경계 story누락
+occupancy|양호|양호|임대율·실질임대료·혜택·만기 설명
+noi|양호|양호|이자·감가제외 자산영업성과 설명
+cap-rate|양호|양호|NOI증가·환원율상승의 가치하락 산술 정합
+ffo|양호|양호|FFO·현금·AFFO·유지보수 구별
+refinancing|양호|양호|만기·금리·조달가능성 구별
+pf|양호|보완|PF를 토지도없는 무담보차입처럼 묘사
+price-volume-mix|양호|보완|가격주도 성장을 일괄 열위 취급
+same-store-sales|보완|보완|회사별 동일점포 편입기간을1년 고정
+inventory-turnover|양호|양호|회전율·전략재고 반례 설명
+retention|양호|양호|NRR·고객유지·GRR 분모 구별
+cac-ltv|양호|보완|총이익 기준 타당·3배 문턱 출처 필요
+gmv-vs-revenue|양호|양호|거래액·순액매출·직접판매 예외 구별
+rpo|양호|보완|채권·재고증가만으로 다음해 인도 단정
+clinical-phases|양호|확인필요|최초인체후 평균10년의 근거 필요
+endpoint|양호|양호|사전1차·대리·하위분석 구별
+reimbursement|양호|양호|허가·급여·약가 별도 문턱
+patent-cliff|양호|양호|만료와 biosimilar 지연 반례 설명
+crack-spread|보완|양호|원유·제품 단위·수율·basket 일치 필요
+cost-curve|양호|양호|한계공급자·기술변화 원가곡선 설명
+inventory-effect|보완|보완|원료상승은 자동평가이익 아님
+freight-capacity|보완|확인필요|붕괴를2~3년뒤 인도 탓으로 묶은 연혁 필요
+utilization-contract|양호|보완|운송비가 승객수와 무관하게 같다는 예시 과장
+stocks-to-use|양호|양호|재고/사용량·거래가능재고 구별
+pass-through|양호|보완|전가조건 타당·수혜방향은 조건부
+fx-revenue-cost|양호|양호|매출·원가·부채·헤지·경쟁통화 구별
+fx-return-for-foreigners|양호|보완|환산 계산 정합·외국인 행동 일률화
+shareholder-return|양호|보완|소각전 자사주 유통주식 감소 누락
+yield|양호|양호|60→80수율의 원가−25%·단계수율 구별
+front-back-end|양호|양호|전공정·검사·절단·packaging 역할 구별
+hbm|양호|확인필요|증설→인증1~2년 고정근거 필요
+bandwidth-vs-capacity|양호|보완|대역폭을 실제속도와 등치하지 않을 조건 필요
+optical-interconnect|양호|보완|칩당module·세대속도2배 일반법칙화
+silicon-photonics|양호|확인필요|SiGe표준·화합물틈새 시장별 확인
+cpo|양호|양호|전기거리·전력과 교체·신뢰성 구별
+photonic-compute|양호|보완|빛의낮은열에 시스템변환손실 누락
+workload|양호|양호|학습·추론내 메모리·연산·CPU 병목 구별
+qualification|양호|양호|개발·인증·주문 사건 구별
+nre|양호|양호|일회개발·반복양산 수익 구별
+pue|양호|양호|시설/IT 에너지·기간·가동률 한계 설명

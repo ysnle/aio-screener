@@ -308,7 +308,13 @@ export function deriveRiskEstimate(input) {
     if ((rebalancePolicy === 'monthly' || rebalancePolicy === 'quarterly') && !sampleDates) {
       return { status: 'blocked', code: 'strategy-rebalance-window-required', estimateId: null, publishedScope: null };
     }
-    sleeveWeights = resolved.weights;
+    // v57.92: the sleeve is the stocks alone, so its weights sum to 1 — passing the declared 0.8 printed 8% for a stock
+    // that rose 10%, and the first drift renormalisation silently changed that definition after one bar. The declared
+    // weights (with the cash remainder) still drive the whole-account path below.
+    if (!(resolved.sum > 0)) {
+      return { status: 'blocked', code: 'strategy-target-weights-invalid', estimateId: null, publishedScope: null };
+    }
+    sleeveWeights = resolved.weights.map(function(weight) { return weight / resolved.sum; });
     strategyDeclaration = { targetWeights: resolved.targetWeights, targetWeightSum: resolved.sum, cashWeight: resolved.cashWeight };
   } else {
     sleeveWeights = memberSeries.map(function(entry) { return entry.marketValue / snapshot.equityValue; });
@@ -337,7 +343,7 @@ export function deriveRiskEstimate(input) {
       // drift and rebalancing apply to the stock legs and the cash leg alike.
       var cashSeries = [];
       for (var ws = 0; ws < n; ws += 1) cashSeries[ws] = cashResolved.mode === 'explicit_assumption' ? cashResolved.dailyRate : cashResolved.series[ws];
-      wholeAccountReturns = _pfStrategyPathReturns(memberSeries.concat([{ ticker: '__cash__', series: cashSeries }]), sleeveWeights.concat([declaredCashWeight]), rebalancePolicy, sampleDates);
+      wholeAccountReturns = _pfStrategyPathReturns(memberSeries.concat([{ ticker: '__cash__', series: cashSeries }]), resolved.weights.concat([declaredCashWeight]), rebalancePolicy, sampleDates);
     }
   } else if (strategyPath) {
     // A hypothetical strategy declares its sleeve allocation, not the account's
@@ -390,6 +396,11 @@ export function deriveRiskEstimate(input) {
     rebalancePolicy: rebalancePolicyApplied ? rebalancePolicy : null,
     publishedScope: publishedScope,
     cashTreatment: cashTreatment,
+    // v57.92: the cash rate that actually entered the account path is part of the computation — 0% and 10% gave the
+    // same estimateId for different returns. A rate the result did not use stays out (P1197).
+    cashReturn: wholeAccountReturns && cashResolved && cashTreatment !== 'zero-cash'
+      ? (cashResolved.mode === 'explicit_assumption' ? { mode: cashResolved.mode, annualRate: cashResolved.annualRate } : { mode: cashResolved.mode, series: cashResolved.series })
+      : null,
     wholeAccountHold: wholeAccountHold,
     rf: rf,
     sampleDates: sampleDates,
@@ -561,6 +572,14 @@ export function assessAccountPerformance(input) {
     periods.push({ start: previous.date, end: current.date, startValue: previous.amount, endValue: current.amount, netFlow: netFlow, periodReturn: periodReturn });
   }
   var twr = growth - 1;
+  // v57.92: a true TWR needs a valuation at each external flow. A flow dated strictly inside a valuation period is placed
+  // at the declared boundary instead, so the chain is a boundary-convention approximation — 100→160 with a +50 deposit
+  // reads 10% whether the deposit came in February or December, and 6.67% once the 6/30 valuation is known.
+  var valuationDates = {};
+  valuations.forEach(function(row) { valuationDates[row.date] = true; });
+  var interiorFlows = flows.filter(function(tx) {
+    return tx.date > valuations[0].date && tx.date < valuations[valuations.length - 1].date && !valuationDates[tx.date];
+  }).length;
 
   var firstDate = valuations[0].date;
   var lastDate = valuations[valuations.length - 1].date;
@@ -591,6 +610,7 @@ export function assessAccountPerformance(input) {
 
   var warnings = [];
   if (mwr == null) warnings.push('MWR(금액가중수익률)은 구간 내 부호 변화가 없어 계산하지 않았습니다 — TWR만 게시합니다.');
+  if (interiorFlows) warnings.push('입출금 ' + interiorFlows + '건의 날짜에 평가액이 없어 TWR은 그 입출금을 기간 ' + (flowTiming === 'start-of-period' ? '시작' : '끝') + '에 둔 근사치입니다 — 입출금일 평가액을 원장에 넣으면 정확한 시간가중 수익률이 됩니다.');
 
   return {
     status: 'ready',
@@ -607,7 +627,9 @@ export function assessAccountPerformance(input) {
     // v57.48 expert review #6: the two numbers are on different units — TWR is the chained return over the
     // whole sample (not annualized), MWR is the annualized IRR. A display must name both units.
     units: { twr: 'period-cumulative', mwr: 'annualized-irr' },
-    conventions: { returnBasis: 'time-weighted-subperiod-chain', flowTiming: flowTiming, annualization: 'actual-365', irrMethod: 'bisection' },
+    conventions: { returnBasis: interiorFlows ? 'time-weighted-boundary-approximation' : 'time-weighted-subperiod-chain', flowTiming: flowTiming, annualization: 'actual-365', irrMethod: 'bisection' },
+    twrExact: interiorFlows === 0,
+    interiorFlowCount: interiorFlows,
     requiredInputs: requiredInputs,
     warnings: warnings
   };

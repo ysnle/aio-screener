@@ -45,8 +45,8 @@ For each experiment:
 2. Choose exactly one prompt, instruction, routing, or reference change.
 3. Apply that single change to the working copy, not the original baseline.
 4. Re-run the same prompts and evals.
-5. Keep the change only if the score improves.
-6. Revert if the score is equal or worse.
+5. Keep the change if the score improves, or if the score is equal and the change lowers cost (lines, tokens, time) without a new critical failure (WORKFLOW-GOVERNANCE tie rule).
+6. Revert if the score is worse, or equal with no cost reduction. Before final adoption, confirm on a few prompts not used during the loop.
 7. Record the score, decision, and reason in `results.tsv` and `changelog.md`.
 
 One variable means one causal hypothesis. A change may touch multiple files when those files form one contract boundary, such as canonical skill plus generated-mirror gate.

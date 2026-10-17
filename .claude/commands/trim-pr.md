@@ -30,5 +30,5 @@ Writers add more code than required; asking them to be concise up front does not
 
 ## Rules for the reviewer
 - Read-only; no git writes; never run fetch-/build-/sync-/refresh-/generate-/bump-version/record-fix or `--write`.
-- A CUT needs verified evidence (no runtime, test or gate caller). Otherwise mark it `guessed`.
-- Do not trim ledgers/CHANGELOG history; RULES entries are contracts — name the rule a cut would violate.
+- A CUT needs verified evidence of no runtime caller. A test- or gate-only caller does not keep code alive: per R675 such code is cut together with its test when no product path reaches it. Otherwise mark it `guessed`.
+- Do not trim ledgers/CHANGELOG history. The core rules listed at the top of `_context/RULES.md` and rules with a current body are contracts — name the rule a cut would violate. Header-only entries are recurrence history, not by themselves a reason to keep code.

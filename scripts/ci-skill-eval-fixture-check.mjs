@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -18,7 +18,13 @@ if (data) {
       if (!Array.isArray(item.mustNotClaim) || item.mustNotClaim.length < 1) errors.push(`${skill}[${index}] lacks a negative-control claim`);
     }
   }
-  const canonicalSkills = ['autoresearch', 'bug-fix', 'data-refresh', 'integrate', 'knowledge-lint', 'post-edit-qa'];
+  // v57.92 (internal review G08): the required list was a frozen six of nine skills, so deleting the
+  // verify/create/maintain fixtures still passed. Every skill directory with a SKILL.md now needs cases.
+  const skillsDir = join(root, '.claude', 'skills');
+  const canonicalSkills = readdirSync(skillsDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && !entry.name.startsWith('_') && existsSync(join(skillsDir, entry.name, 'SKILL.md')))
+    .map((entry) => entry.name);
+  if (canonicalSkills.length < 9) errors.push(`expected at least 9 canonical skills under .claude/skills, found ${canonicalSkills.length}`);
   for (const skill of canonicalSkills) if (!data.skills?.[skill]) errors.push(`missing eval cases for ${skill}`);
 }
 if (errors.length) {

@@ -490,13 +490,15 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   const revenue = Number(currentRevenue.val);
   const netIncome = finiteFact(currentIncome?.val);
   const equity = finiteFact(currentEquity?.val);
+  // v57.92: both EPS reads require a ~1-year duration (isAnnualFy). fp=FY only names the filing — a 10-K also carries the
+  // Q4 EPS with the same end date, and whichever came first set the share count (annual 1.00 → 100 shares, Q4 0.20 → 500).
   // P1587: the share count is cross-checked against net income ÷ diluted EPS for the same fiscal year. PKG's
   // companyfacts carried 89,213,394,000 cover shares (1000x), which published P/E 26,500 and P/B 4,461.
   const epsRow = dedupeLatestFiled(factRows(companyFacts, 'us-gaap', ['EarningsPerShareDiluted', 'EarningsPerShareBasic'], 'USD/shares')
-    .filter((row) => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && row.end === currentRevenue.end && finiteFact(row.val) != null))[0] || null;
+    .filter((row) => isAnnualFy(row) && row.end === currentRevenue.end))[0] || null;
   const eps = finiteFact(epsRow?.val);
   const dilutedEpsRow = dedupeLatestFiled(factRows(companyFacts, 'us-gaap', ['EarningsPerShareDiluted'], 'USD/shares')
-    .filter((row) => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && row.end === currentRevenue.end && finiteFact(row.val) != null))[0] || null;
+    .filter((row) => isAnnualFy(row) && row.end === currentRevenue.end))[0] || null;
   // v6 (owner decision 2026-10-16): price-based ratios need a share count on the quote's basis. A non-USD report never
   // meets the USD quote, and an IFRS 20-F/40-F count is ordinary shares while the US line is often an ADS of 0.5-6
   // shares (AZN 0.5, BHP/SHEL 2, HSBC 5, BP 6), so both are withheld instead of converted.
