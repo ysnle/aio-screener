@@ -34,7 +34,6 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
 <script src="./js/aio-workspace.js?v=58.04" defer></script>
-<script src="./js/aio-macro-tech.js?v=58.04" defer></script>
 <script src="./js/aio-kr-data.js?v=58.04" defer></script>
 <script src="./js/aio-pages.js?v=58.04" defer></script>
   <link rel="preload" as="script" href="./js/aio-core.js?v=58.04">
@@ -6924,7 +6923,7 @@ button[data-filter-active="true"] {
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
 <script src="./js/aio-chat.js?v=58.04" defer></script>
 
-  <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
+  <!-- P1135: 블록 B(매크로/기술 렌더)는 js/aio-macro-tech.js를 거쳐 네이티브 ESM으로 옮겨졌고, 그 파일은 퇴역했다. -->
 
   <!-- P1134: 블록 C(KR/SEC 데이터 플레인 3,473줄)는 js/aio-kr-data.js로 이동했다. -->
   <!-- 이 블록은 파싱 시점 실행이었고 뒤에 오는 인라인 블록이 없으므로 defer로 옮겨도 안전하다. -->

@@ -5700,20 +5700,16 @@
     _assert('T785/P1267 market_pulse_breadth_source: 50SMA 미수신은 판정 보류, 20SMA·ETF 하루 수익률 대체 금지', t785ok, t785detail);
 
     // ─── v50.24 P0 구조 시정 (OPUS-HANDOFF 백로그 WO-1~4) ───
-    // T786 (WO-2/P498): SPX ATH 단일 출처 헬퍼 — floor가 DATA_SNAPSHOT.spxATH 아래로 안 내려감 + applyLiveQuotes 7412.84 하드코딩 제거
-    // P722: `_aioSpxAthFloor() == null`을 영구 단언하면 "관측값 없음"이 불변식이 된다 — artifact/
-    // 히스토리에 SPX가 있으면(정당한 상태) CI가 깨진다. 진짜 불변식은 "상수 floor 없음"이다:
-    // 관측값 없으면 null, 있으면 관측 유래의 유한 양수. applyLiveQuotes의 하드코딩 부재 검사는 유지.
+    // T786 (WO-2/P498 → legacy unification): the SPX ATH tracker only fed the retired 0-100 market-health grade.
+    // With that model gone the tracker and its floor helper are retired too; the stale 7412.84 constant must not return.
     var t786ok = false, t786detail = '';
     try {
-      var hasFloor786 = typeof window._aioSpxAthFloor === 'function';
-      var floorVal786 = hasFloor786 ? window._aioSpxAthFloor() : undefined;
       var aqSrc786 = (typeof applyLiveQuotes === 'function') ? applyLiveQuotes.toString() : '';
-      var noHardcode786 = aqSrc786.indexOf('7412.84') === -1 && /_aioSpxAthFloor/.test(aqSrc786);
-      t786ok = hasFloor786 && noHardcode786 && (floorVal786 == null || (isFinite(floorVal786) && floorVal786 > 0));
-      t786detail = 'floor=' + floorVal786 + ' noHardcode=' + noHardcode786;
+      t786ok = aqSrc786.length > 0 && aqSrc786.indexOf('7412.84') === -1 && !/_spxATH/.test(aqSrc786)
+        && typeof window._aioSpxAthFloor !== 'function' && typeof window.computeMarketHealth !== 'function';
+      t786detail = 'floorHelper=' + typeof window._aioSpxAthFloor + ' athWrite=' + /_spxATH/.test(aqSrc786) + ' health=' + typeof window.computeMarketHealth;
     } catch(e) { t786detail = 'ERR:' + e.message; }
-    _assert('T786 spx_ath_has_no_static_floor (null or observation-derived positive)', t786ok, t786detail);
+    _assert('T786 spx_ath_tracker_retired_with_market_health (no static floor, no tracker)', t786ok, t786detail);
 
     // T787 (v57.60): the retired mkt-regime-sub ATH-gap writer ("Near ATH" label) is gone with its node; no stale label can be written.
     var t787ok = false, t787detail = '';
@@ -8774,14 +8770,14 @@
       typeof window._aioBreadthCanvasRender !== 'function',
       'canvasFallback=' + typeof window._aioBreadthCanvasRender);
 
-    var healthOldLd = window._liveData;
-    try {
-      window._liveData = {};
-      var healthMissing = typeof computeMarketHealth === 'function' ? computeMarketHealth() : null;
-      _assert('T1034 market_health_required_inputs_fail_closed: missing SPY/QQQ/VIX cannot produce a grade',
-        healthMissing && healthMissing.available === false && healthMissing.score === null && healthMissing.missing.length === 3,
-        JSON.stringify(healthMissing));
-    } finally { window._liveData = healthOldLd; }
+    // T1034 (legacy unification): the 0-100 market-health grade (A+~F) is retired end to end — no legacy wrapper,
+    // no facade entry. The ticker decision gate reads the 시장 상태 regime's own sufficiency instead.
+    var regime1034 = null;
+    try { regime1034 = typeof window._aioMarketRegimeSummary === 'function' ? window._aioMarketRegimeSummary() : null; } catch (_) { regime1034 = null; }
+    _assert('T1034 market_health_grade_retired: no computeMarketHealth global or facade entry; regime summary carries sufficiency',
+      typeof window.computeMarketHealth !== 'function' && !(window.AIO_ARCH && 'computeMarketHealth' in window.AIO_ARCH)
+        && (regime1034 == null || typeof regime1034.sufficient === 'boolean'),
+      'global=' + typeof window.computeMarketHealth + ' facade=' + !!(window.AIO_ARCH && 'computeMarketHealth' in window.AIO_ARCH) + ' sufficient=' + (regime1034 && regime1034.sufficient));
 
     var krYieldOldLd = window._liveData;
     try {

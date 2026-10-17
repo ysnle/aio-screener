@@ -4,7 +4,7 @@
   "scope": {
     "markup": ["index.html"],
     "scripts": ["src/ui/**/*.js"],
-    "legacyScripts": ["js/aio-core.js", "js/aio-data.js", "js/aio-ui.js", "js/aio-pages.js", "js/aio-chat.js", "js/aio-kr-data.js", "js/aio-macro-tech.js", "js/aio-workspace.js", "js/aio-glossary.js"],
+    "legacyScripts": ["js/aio-core.js", "js/aio-data.js", "js/aio-ui.js", "js/aio-pages.js", "js/aio-chat.js", "js/aio-kr-data.js", "js/aio-workspace.js", "js/aio-glossary.js"],
     "visibleAttributes": ["title", "aria-label", "placeholder", "alt"],
     "note": "Markup text nodes and visible attributes (no <script>, <style> or comments); JS string literals and template text (no comments). Only strings with Hangul or a pattern match are inspected."
   },

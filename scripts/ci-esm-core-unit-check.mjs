@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // RM-05 item 3: minimal isolated unit contracts for the new ESM core (store/router/lifecycle/
@@ -996,47 +996,10 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (classifyBreadthParticipation({ sma20: 120, sma50: -1 }).available !== false) fail('breadth: percentages outside 0..100 must fail closed');
 }
 
-// ── domain/market/health.js (P785: technical primary surface model) ─────────────────────────
-{
-  const { computeMarketHealth, MARKET_HEALTH_MODEL_VERSION } = await load('src/domain/market/health.js');
-  const unavailable = computeMarketHealth({ quotes: { SPY: { pct: 1 }, QQQ: { pct: 1 } } });
-  if (unavailable.available || unavailable.modelVersion !== MARKET_HEALTH_MODEL_VERSION || unavailable.score !== null || !unavailable.missing.includes('VIX')) fail(`market-health: missing VIX must fail closed, got ${JSON.stringify(unavailable)}`);
-  const bullish = computeMarketHealth({
-    quotes: {
-      SPY: { pct: 1.5, price: 550 }, '^GSPC': { price: 550 } /* v57.84: index level, same unit as spxMA */, QQQ: { pct: 1.2, price: 480 }, '^VIX': { price: 14 },
-      AAPL: { pct: 1 }, MSFT: { pct: 1 }, GOOGL: { pct: 1 }, AMZN: { pct: 1 }, NVDA: { pct: 1 }, META: { pct: 1 }, TSLA: { pct: 1 },
-      XLK: { pct: 1 }, XLF: { pct: 1 }, XLE: { pct: 1 }, XLV: { pct: 1 }, XLI: { pct: 1 }, XLY: { pct: 1 }
-    },
-    spxMA: { 50: 500, 200: 450 },
-    spxATH: 560
-  });
-  if (!bullish.available || bullish.score !== 100 || bullish.grade !== 'A+' || bullish.bars.trend !== 85 || bullish.inputs.leaderTotal !== 7) fail(`market-health: bullish thresholds drifted, got ${JSON.stringify(bullish)}`);
-  const defensive = computeMarketHealth({ quotes: { SPY: { pct: -2, price: 400 }, '^GSPC': { price: 400 }, QQQ: { pct: -2 }, '^VIX': { price: 35 } }, spxMA: { 50: 450, 200: 500 } });
-  if (!defensive.available || defensive.score !== 4 || defensive.grade !== 'F' || defensive.regime !== '극심한 약세') fail(`market-health: defensive thresholds drifted, got ${JSON.stringify(defensive)}`);
-  const neutral = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 } } });
-  // v57.50 C13: VIX 20 sits in the RULES.volatility 통상 범위 (18-25, no points), so 50 - 4 (QQQ flat) = 46.
-  if (!neutral.available || neutral.score !== 46 || neutral.grade !== 'C' || !neutral.details.some((line) => /VIX 20\.0 통상 범위/.test(line)) || neutral.bars.spy !== 50 || neutral.bars.qqq !== 50) fail(`market-health: neutral baseline drifted, got ${JSON.stringify(neutral)}`);
-  const invalidOptional = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 }, AAPL: { pct: null }, XLK: { pct: 'bad' } } });
-  if (invalidOptional.inputs.leaderTotal !== 0 || invalidOptional.inputs.sectorTotal !== 0) fail('market-health: invalid optional quotes were counted as declining observations');
-  if (computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: -1 } } }).available) fail('market-health: impossible negative VIX was accepted');
-  // W08-A/P1147 (H01): an unavailable bar is null, not a fabricated neutral 50.
-  if (unavailable.bars.spy !== null || unavailable.bars.trend !== null) fail(`market-health: unavailable dimensions must not publish fabricated neutral bars, got ${JSON.stringify(unavailable.bars)}`);
-  if (bullish.status !== 'current' || (bullish.partialComponents || []).length !== 0) fail(`W08-A: fully observed components must read current, got ${JSON.stringify({ status: bullish.status, partial: bullish.partialComponents })}`);
-  // The M7 denominator stays the full seven-name universe; a thin sample withholds leadership
-  // instead of granting +8 "strong leadership" on a 1/1 sample.
-  const thinLeadership = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 }, AAPL: { pct: 1 } }, spxMA: { 50: 500, 200: 450 } });
-  if (thinLeadership.leadership.observed !== 1 || thinLeadership.leadership.expected !== 7 || thinLeadership.leadership.withheld !== true) fail(`W08-A: a 1/7 M7 sample must withhold leadership against the full denominator, got ${JSON.stringify(thinLeadership.leadership)}`);
-  if (thinLeadership.status !== 'partial' || !thinLeadership.partialComponents.includes('m7-leadership')) fail(`W08-A: an insufficient M7 sample must mark the result partial, got ${JSON.stringify({ status: thinLeadership.status, partial: thinLeadership.partialComponents })}`);
-  if (thinLeadership.score >= 50 + 8) fail(`W08-A: a withheld leadership sample must not raise the score, got ${thinLeadership.score}`);
-  // A missing 50/200MA is an unavailable trend dimension, never a neutral 50 bar.
-  const noTrend = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 } } });
-  if (noTrend.bars.trend !== null || !noTrend.partialComponents.includes('spx-trend')) fail(`W08-A: a missing 50/200MA must be an unavailable trend bar, got ${JSON.stringify({ trend: noTrend.bars.trend, partial: noTrend.partialComponents })}`);
-  const zeroMa = computeMarketHealth({ quotes: { SPY: { pct: 0, price: 100 }, QQQ: { pct: 0 }, '^VIX': { price: 20 } }, spxMA: { 50: 0, 200: 0 } });
-  if (zeroMa.bars.trend !== null) fail('W08-A: a zero MA is missing evidence, not an observed trend');
-  // A genuinely observed zero percentage stays observed (distinct from missing).
-  const zeroPct = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 } } });
-  if (zeroPct.bars.spy !== 50 || zeroPct.bars.qqq !== 50) fail(`W08-A: a valid 0% move must stay observed, got ${JSON.stringify({ spy: zeroPct.bars.spy, qqq: zeroPct.bars.qqq })}`);
-}
+// ── domain/market/health.js retired (legacy unification, audit 2026-10-17 follow-up) ──────────
+// The 0-100 market-health grade (A+~F) had no surface after P1420 and only gated the ticker narrative; the gate reads
+// the 시장 상태 regime's sufficiency now, so the model may not return.
+if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired market-health model returned (src/domain/market/health.js)');
 
 // ── W08-B/P1147 (H02): the 2s10s spread names its two legs and their alignment ──────────────
 {

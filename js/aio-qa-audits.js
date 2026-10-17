@@ -3770,7 +3770,7 @@ window.AIO.getDataPipelineAudit = function() {
   var requiredFns = [
     'fetchWithTimeout', 'fetchViaProxy', 'fetchLiveQuotes', 'applyLiveQuotes',
     'applyDataSnapshot', 'fetchAllNews', // v57.77: renderFeed does not exist; v57.79: the renderHomeFeed no-op stub was removed
-    'renderBriefingFeed', 'computeTradingScore', 'computeMarketHealth',
+    'renderBriefingFeed', 'computeTradingScore',
     'updateBenchmarkChart'
   ];
   var missingFns = requiredFns.filter(function(name) { return !exists(name); });

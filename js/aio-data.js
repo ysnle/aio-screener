@@ -4581,23 +4581,6 @@ async function _idbLoadNews(maxAgeMs) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// v50.24/WO-2 (P498): SPX ATH 기준값 단일 출처. 하드코딩 7412.84(stale)가 두 곳에 중복돼
-// 한쪽(L13125)만 v50.16에서 시정되고, 먼저 실행되어 window._spxATH를 오염시키는 쪽은 미시정 →
-// SPX -2.9% 급락일에 레짐이 "Near ATH"로 오표시됐다. 두 호출점이 같은 floor를 쓰도록 통일한다.
-// floor = max(런타임 추적값, live, history.json 관측값). 상수 floor는 사용하지 않는다.
-function _aioSpxAthFloor() {
-  var values = [];
-  [window._spxATH, window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.spxATH,
-    window._liveData && window._liveData['^GSPC'] && window._liveData['^GSPC'].price].forEach(function(v) {
-    v = Number(v); if (isFinite(v) && v > 0) values.push(v);
-  });
-  var history = typeof _aioHistorySeries === 'function' ? _aioHistorySeries('spx', 1) : null;
-  if (history) history.forEach(function(p) { var v = Number(p.value); if (isFinite(v) && v > 0) values.push(v); });
-  return values.length ? Math.max.apply(null, values) : null;
-}
-window._aioSpxAthFloor = _aioSpxAthFloor;
-
-// ─────────────────────────────────────────────────────────────────────────
 // v50.23: 서버측 데이터 로더 — GitHub Actions(.github/workflows/refresh-data.yml)가
 // scripts/fetch-data.mjs로 생성한 public-data/data.json을 "같은 출처"로 읽어 즉시 적용.
 // CORS 프록시·키노출 없이 항상 신선 → 이게 PRIMARY 소스. 기존 클라이언트 fetchLiveQuotes는
@@ -13693,11 +13676,7 @@ function applyLiveQuotes(quotes) {
     } catch(_truthErr) {}
     const pctStr = hasPct ? ((pct >= 0 ? '+' : '') + pct.toFixed(2) + '%') : '—';
     const cls    = hasPct ? (pct >= 0 ? 'pnl pos' : 'pnl neg') : 'pnl neutral';
-    // Track SPX vs ATH for Market Regime display
-    if (q.symbol === '^GSPC') {
-      window._spxATH = Math.max(_aioSpxAthFloor(), q.regularMarketPrice);  // v50.24/WO-2: 단일 출처 헬퍼 (stale 하드코딩 제거, P498)
-      // v57.60: retired mkt-regime-sub ATH-gap writer removed (node no longer exists); window._spxATH stays for computeMarketHealth.
-    }
+    // The SPX all-time-high tracker and its floor helper only fed the retired 0-100 market-health grade; both are gone.
     // price 요소 — 스테일 데이터 지시자 포함
     const isMarketHours = (() => {
       try {

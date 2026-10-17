@@ -3602,7 +3602,7 @@ document.addEventListener('keydown', function(e) {
 // NEW FUNCTIONS: Enhanced Technical Analysis Features
 // ═════════════════════════════════════════════════════════════════
 
-// v57.77: the computeMarketHealth wrapper that painted #m7-health-row / #breadth-bar / #breadth-pct is retired — none of
+// v57.77: the market-health wrapper that painted #m7-health-row / #breadth-bar / #breadth-pct is retired — none of
 // those sinks exist, and the wrapper dropped the call arguments.
 
 // Ticker Analysis Deep Dive

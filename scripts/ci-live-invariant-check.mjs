@@ -37,9 +37,9 @@ async function fetchResponse(path) {
 }
 
 async function main() {
-  let html, core, data, ui, chat, glossary, pages, krData, macroTech, workspace, versionJson, deployment, publicConfig, indexResponse;
+  let html, core, data, ui, chat, glossary, pages, krData, workspace, versionJson, deployment, publicConfig, indexResponse;
   try {
-    [indexResponse, core, data, ui, chat, glossary, pages, krData, macroTech, workspace] = await Promise.all([
+    [indexResponse, core, data, ui, chat, glossary, pages, krData, workspace] = await Promise.all([
       fetchResponse('index.html'),
       fetchText('js/aio-core.js'),
       fetchText('js/aio-data.js'),
@@ -48,7 +48,6 @@ async function main() {
       fetchText('js/aio-glossary.js'),
       fetchText('js/aio-pages.js'),
       fetchText('js/aio-kr-data.js'),
-      fetchText('js/aio-macro-tech.js'),
       fetchText('js/aio-workspace.js'),
     ]);
     html = await indexResponse.text();
@@ -148,7 +147,6 @@ async function main() {
       'js/aio-glossary.js': glossary,
       'js/aio-pages.js': pages,
       'js/aio-kr-data.js': krData,
-      'js/aio-macro-tech.js': macroTech,
       'js/aio-workspace.js': workspace,
     };
     const bootModules = Array.isArray(bundle.bootModules) ? bundle.bootModules : [];
@@ -174,7 +172,6 @@ async function main() {
     'js/aio-glossary.js': glossary,
     'js/aio-pages.js': pages,
     'js/aio-kr-data.js': krData,
-    'js/aio-macro-tech.js': macroTech,
     'js/aio-workspace.js': workspace,
   };
   const TOP_LEVEL_FN_RE = /^(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/gm;
