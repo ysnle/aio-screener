@@ -458,17 +458,18 @@ function computeFactorRanksForPopulation({
     { key: 'quality', fn: qualityRaw },
     { key: 'kalman', fn: kalmanRaw }
   ];
-  const working = items.map((row, index) => ({
-    ...row,
-    sym: String(row.sym || row.symbol).trim().toUpperCase(),
-    _factorIndex: index,
-    _sectorKey: normalizeSector(row.sector),
-    _factorEvidence: Object.fromEntries(candidateFactors.map((factor) => [factor.key, factorEvidenceUsable(row, factor.key, now)])),
-    _factorValues: Object.fromEntries(candidateFactors.map((factor) => {
-      const evidence = factorEvidenceUsable(row, factor.key, now);
-      return [factor.key, evidence.ok ? factor.fn(row) : null];
-    }))
-  }));
+  const working = items.map((row, index) => {
+    // One lineage verdict per row and factor: the value below is read only when that same verdict passes.
+    const evidence = Object.fromEntries(candidateFactors.map((factor) => [factor.key, factorEvidenceUsable(row, factor.key, now)]));
+    return {
+      ...row,
+      sym: String(row.sym || row.symbol).trim().toUpperCase(),
+      _factorIndex: index,
+      _sectorKey: normalizeSector(row.sector),
+      _factorEvidence: evidence,
+      _factorValues: Object.fromEntries(candidateFactors.map((factor) => [factor.key, evidence[factor.key].ok ? factor.fn(row) : null]))
+    };
+  });
   const bySector = new Map();
   working.forEach((row) => {
     const key = row._sectorKey;
@@ -819,10 +820,11 @@ export function computeFactorRanks(input = {}) {
   // the US cross-section — a different session calendar and currency are not one comparison population.
   const isIntl = (row) => [row?.market, row?.listingMarket, row?.instrumentRef?.market].some((value) => String(value || '').toUpperCase() === 'INTL') || /\.(T|TWO?)$/i.test(String(row?.sym || row?.symbol || ''));
   const excludedRows = [];
-  const populationExclusions = { fund: 0, spac: 0, illiquid: 0 };
+  const populationExclusions = { fund: 0, spac: 0, illiquid: 0, foreign: 0 };
   const rows = (Array.isArray(input.rows) ? input.rows : []).filter((row) => {
-    if (isIntl(row)) return false;
-    const reason = rankingPopulationExclusion(row);
+    // 2026-10-17 audit: a Tokyo/Taiwan row left the ranking with no row and no reason, so the page counted it as
+    // '점수 계산 불가'. It now carries its exclusion like a fund or a SPAC.
+    const reason = isIntl(row) ? 'foreign' : rankingPopulationExclusion(row);
     if (!reason) return true;
     populationExclusions[reason] += 1;
     const sym = String(row?.sym || row?.symbol || '').trim().toUpperCase();

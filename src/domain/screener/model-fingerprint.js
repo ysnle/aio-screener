@@ -86,6 +86,19 @@ export function buildRankingIdentity({ appliedFactorWeights = null, activeFactor
   return JSON.stringify(canonicalize({ factorRanksModelVersion: FACTOR_RANKS_MODEL_VERSION, factorWeightsModelVersion: FACTOR_WEIGHTS_MODEL_VERSION, populationPolicy: RANKING_POPULATION_POLICY, activeFactors: active, appliedWeights: applied }));
 }
 
+// 2026-10-17 audit: a ranking over more than one market is one model per market (P1625). The candidate record pools
+// the US and KR rows, so its identity names every market's applied model; a KR-only model change used to leave the
+// identity (built from the US result alone) unchanged and mix two models in one average. A single-market ranking keeps
+// the buildRankingIdentity string exactly.
+export function buildPopulationRankingIdentity(ranking = null) {
+  const byMarket = ranking?.byMarket && typeof ranking.byMarket === 'object' ? ranking.byMarket : null;
+  const markets = byMarket ? Object.keys(byMarket).filter((market) => byMarket[market]?.available !== false).sort() : [];
+  const identityOf = (result) => buildRankingIdentity({ appliedFactorWeights: result?.appliedFactorWeights, activeFactors: result?.activeFactors });
+  if (markets.length <= 1) return identityOf(markets.length ? byMarket[markets[0]] : ranking);
+  const parts = Object.fromEntries(markets.map((market) => [market, identityOf(byMarket[market])]).filter(([, identity]) => identity));
+  return Object.keys(parts).length ? JSON.stringify(canonicalize({ byMarket: parts })) : null;
+}
+
 // Live runtime model identity. The UI compares this with the artifact's stored fingerprint;
 // a mismatch means the stored rows were produced by a different model and must read as
 // disclosure, not validation. P1463: the identity is built from the weights the screen is

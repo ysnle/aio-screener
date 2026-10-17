@@ -6222,7 +6222,7 @@ button[data-filter-active="true"] {
             <th data-scr-sort="ret6m" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">6M<span class="scr-arrow"></span></th>
             <th data-scr-sort="rsi" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">RSI<span class="scr-arrow"></span></th>
             <th data-scr-sort="pctSma50" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">vs 50MA<span class="scr-arrow"></span></th>
-            <th data-scr-sort="kalman" role="button" title="추세 신뢰도(연구 지표) — 칼만 필터(Kalman) 기반 추세 방향 확신도. 예측 검증 미확립·상대 랭킹 연구 전용이며 매매 신호가 아닙니다" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">추세신뢰도<span style="font-size:10px;color:var(--text-muted);">(연구)</span><span class="scr-arrow"></span></th>
+            <th data-scr-sort="kalman" role="button" title="추세 속도(연구 지표) — 칼만 필터(Kalman)로 잡음을 걸러 낸 최근 추세의 하루 속도. 확신도가 아닙니다. 예측 검증 미확립·상대 랭킹 연구 전용이며 매매 신호가 아닙니다" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">추세속도<span style="font-size:10px;color:var(--text-muted);">(연구)</span><span class="scr-arrow"></span></th>
             <th data-scr-sort="vcpScore" role="button" title="VCP(변동성 수축 패턴) 가격 구조의 상대 상태. 매매 신호가 아님" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">VCP 구조<span class="scr-arrow"></span></th>
             <th class="scr-adv-col" data-scr-sort="mcap" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">시총<span class="scr-arrow"></span></th>
             <th class="scr-adv-col" style="text-align:center;padding:7px 8px;font-size:10px;border-left:1px solid var(--border);" title="RSI·상대 랭크·모멘텀 조합 상태. 매매 신호가 아님">상대 상태</th>
@@ -6248,7 +6248,7 @@ button[data-filter-active="true"] {
       <div>
         <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:12px;">읽는 법</div>
         <div style="display:flex;flex-direction:column;gap:9px;">
-          <div class="scr-reading-row" style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);flex-shrink:0;width:80px;">추세 신뢰도</span><span style="font-size:13px;color:var(--text-secondary);line-height:1.6;">칼만 추세(잡음을 걸러 낸 추세 추정)의 방향 확신도. 예측력이 검증되지 않은 연구 지표라 상대 비교에만 씁니다 — 매매 신호가 아닙니다.</span></div>
+          <div class="scr-reading-row" style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);flex-shrink:0;width:80px;">추세 속도</span><span style="font-size:13px;color:var(--text-secondary);line-height:1.6;">칼만 필터로 잡음을 걸러 낸 최근 추세의 하루 속도(+ 상승, − 하락). 확신도가 아니라 속도입니다. 예측력이 검증되지 않은 연구 지표라 상대 비교에만 씁니다 — 매매 신호가 아닙니다.</span></div>
           <div class="scr-reading-row" style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);flex-shrink:0;width:80px;" title="VCP(변동성 수축 패턴): 조정 폭이 차례로 줄며 바닥을 다지는 가격 구조">수축 구조(VCP)</span><span style="font-size:13px;color:var(--text-secondary);line-height:1.6;">변동성 수축과 피벗 근접도를 설명하는 가격 구조 지표. 이후 수익률이나 돌파 성공을 보장하지 않음</span></div>
           <div class="scr-reading-row" style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);flex-shrink:0;width:80px;">사용 원칙</span><span style="font-size:13px;color:var(--text-secondary);line-height:1.6;">상대 순위는 조사 후보를 좁히는 도구이며, 주문·포지션 결정에는 별도 검증이 필요</span></div>
         </div>
@@ -6294,7 +6294,7 @@ button[data-filter-active="true"] {
       <!-- Info boxes (compact) -->
       <div class="aio-info-box is-warn">
         <span style="color:var(--data-amber);"><b>저변동은 거꾸로 읽습니다</b>: 가격 흔들림이 작을수록 점수가 높습니다.</span>
-        <span style="display:block;margin-top:3px;color:var(--text-muted);"><b>추세 신뢰도</b>: 최근 90일 가격이 오르는 쪽(+)인지 내리는 쪽(−)인지를 하루하루의 잡음을 걸러 내고 잰 값입니다. 흐름이 들쭉날쭉해 추정이 불안정할수록 점수를 낮춥니다.</span>
+        <span style="display:block;margin-top:3px;color:var(--text-muted);"><b>추세 속도</b>: 최근 90일 가격이 오르는 쪽(+)인지 내리는 쪽(−)인지, 얼마나 빠른지를 하루하루의 잡음을 걸러 내고 잰 값입니다. 추정이 불안정한 만큼 할인하지만 할인 폭은 1~9% 정도라 사실상 속도 그대로입니다.</span>
       </div>
     </div>
 
