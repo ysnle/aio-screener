@@ -11,6 +11,7 @@
 // or ci-structural-check.mjs already enforce at commit time — that would double-maintain the same
 // fact against two independently-drifting lists. See _context/RULES.md R290.
 
+import { createHash } from 'node:crypto';
 import { evaluateLiveHeader, resolveLiveHeaderPolicy } from './live-header-policy.mjs';
 
 const BASE = String(process.env.AIO_LIVE_BASE || 'https://ysnle.github.io/aio-screener').replace(/\/$/, '');
@@ -129,12 +130,42 @@ async function main() {
     else if (result.outcome === 'WARN') warn(`operator-required live response header ${name}`, false, `observed=${actual || 'missing'}; policy=${headerPolicy}`);
   }
 
-  // Predicate 2 (P605/R280 class): re-run the exact same cross-file top-level function
-  // shadow-declaration scan that ci-structural-check.mjs runs locally, against the LIVE
-  // served bytes instead. A source-correct repo could still ship a stale/mixed bundle.
+  // Predicate 2 (P605/R280 class): a source-correct repo could still ship a stale/mixed bundle.
+  // Bundled Pages deployments ship minified scripts (scripts/build-pages-bundle.mjs), and the cross-file
+  // name scan below cannot read minified one-line files. A bundled deployment therefore proves the
+  // stronger property directly: every served runtime file is byte-identical to the build that
+  // deployment.json records for the attested SHA (the name scan itself still runs on the source
+  // in ci-structural-check.mjs, and the build fails if minification drops a top-level name).
+  const bundle = deployment?.bundle;
+  if (bundle) {
+    const sha256 = (text) => createHash('sha256').update(text, 'utf8').digest('hex');
+    const served = {
+      'index.html': html,
+      'js/aio-core.js': core,
+      'js/aio-data.js': data,
+      'js/aio-ui.js': ui,
+      'js/aio-chat.js': chat,
+      'js/aio-glossary.js': glossary,
+      'js/aio-pages.js': pages,
+      'js/aio-kr-data.js': krData,
+      'js/aio-macro-tech.js': macroTech,
+      'js/aio-workspace.js': workspace,
+    };
+    const bootModules = Array.isArray(bundle.bootModules) ? bundle.bootModules : [];
+    try {
+      for (const file of bootModules) served[file] = await fetchText(file);
+    } catch (error) {
+      check('live bundled boot modules are served (R280)', false, error?.message || String(error));
+    }
+    check('live deployment carries a bundle manifest for its boot set (R280)', bundle.schemaVersion === 'aio-pages-bundle.v1' && bootModules.includes(bundle.entry) && bundle.files && typeof bundle.files === 'object', JSON.stringify({ schemaVersion: bundle.schemaVersion, entry: bundle.entry, bootModules: bootModules.length }));
+    const drifted = Object.entries(served).filter(([file, text]) => bundle.files?.[file] !== sha256(text)).map(([file]) => file);
+    check('every LIVE runtime file is byte-identical to the attested build (R280, live re-check)', drifted.length === 0, drifted.join(', '));
+  }
+  // Unbundled deployments (no bundle manifest) keep the original re-run of the exact same cross-file
+  // top-level function shadow-declaration scan that ci-structural-check.mjs runs locally.
   // Mirrors ci-structural-check.mjs's RUNTIME_SCRIPT_FILES set and TOP_LEVEL_FN_RE exactly;
   // if that file's KNOWN_SHADOW_ALLOWLIST ever becomes non-empty, mirror it here too.
-  const RUNTIME_SCRIPT_FILES = {
+  const RUNTIME_SCRIPT_FILES = bundle ? {} : {
     'index.html': html,
     'js/aio-core.js': core,
     'js/aio-data.js': data,
