@@ -4906,6 +4906,38 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (ms.oilDivergence({ ...base, brent20: -1, wti20: -8 }).kind !== 'unconfirmed') fail('v57.81 a WTI fall Brent does not follow by half is unconfirmed');
   if (ms.oilDivergence({ ...base, brent20: -6, wti20: -8 }).held || ms.oilDivergence({ ...base, basis: 'spot', brent20: 5, wti20: -8 }).held) fail('v57.81 a confirmed move, or a spot Brent, does not hold the WTI read');
   if (!ms.oilDivergence({ abnormal: true }).held) fail('v57.81 an abnormal same-day gap holds every oil read');
+  // Macro audit 2026-10-17: WTI lags Brent only below half of Brent's move — +10.1% beside +9.9% is not a divergence.
+  const ramp = (start, pctMove) => Array.from({ length: 30 }, (_, i) => ({ date: new Date(Date.UTC(2026, 0, 2) + i * 86400000).toISOString().slice(0, 10), value: start * (1 + (i < 9 ? 0 : pctMove / 100 * (i - 9) / 20)) }));
+  if (ms.brentWtiFromSeries({ brent: ramp(70, 10.1), wti: ramp(66, 9.9) }).diverges) fail('macro audit 2026-10-17 Brent +10.1% beside WTI +9.9% is not "WTI만 덜 올라"');
+  if (!ms.brentWtiFromSeries({ brent: ramp(70, 12), wti: ramp(66, 3) }).diverges) fail('macro audit 2026-10-17 Brent +12% beside WTI +3% still diverges');
+  const mr = await load('src/domain/macro/macro-read.js');
+  const wideRange = mr.buildMacroRead({ macro: { fedTargetUpper: 4.5, fedTargetLower: 4.0, dgs2: 4.5, corePce: 2.4 } });
+  const policyNode = wideRange.chain.nodes.find((node) => node.id === 'policy');
+  const policyAxis = wideRange.axes.find((row) => row.id === 'policy');
+  if (policyNode.dir !== 'up' || Math.abs(policyAxis.detail.pricing - 0.25) > 1e-9) fail(`macro audit 2026-10-17 the chain's policy node reads the same range midpoint as the policy axis: ${JSON.stringify({ policyNode, pricing: policyAxis.detail.pricing })}`);
+  const belowTarget = mr.buildMacroRead({ macro: { corePce: 1.8 } }).axes.find((row) => row.id === 'inflation');
+  if (/목표보다 높지만/.test(belowTarget.read)) fail(`macro audit 2026-10-17 core PCE under 2% is not read as above target: ${belowTarget.read}`);
+  const an = await load('src/domain/scenarios/analogs.js');
+  const analogRows = Array.from({ length: 200 }, (_, i) => ({ date: `r${String(i).padStart(3, '0')}`, spx: 100 + i, ...(i >= 100 ? { wti: 50 } : {}) }));
+  const analogFreq = an.analogOutcome(analogRows, an.BRANCH_ANALOGS.oilshock);
+  if (!analogFreq || analogFreq.baseN !== 60) fail(`macro audit 2026-10-17 the base rate counts only sessions where the analog could be tested: ${JSON.stringify(analogFreq)}`);
+  // Audit D3/D5 (owner 2026-10-17): cuts priced while growth is a burden are not 양호; one negative payroll month is not a burden.
+  const shrinking = { schemaVersion: 'macro-history.v1', series: { payrolls: { observations: Array.from({ length: 8 }, (_, i) => [`2026-0${i + 1}-01`, 159000 - i * 40]) } } };
+  const cutBase = { fedTargetUpper: 4.5, fedTargetLower: 4.25, dgs2: 3.5, corePce: 2.4 };
+  const recessionCut = mr.buildMacroRead({ macro: cutBase, macroHistory: shrinking });
+  if (recessionCut.axes.find((row) => row.id === 'growth').state !== 'burden' || recessionCut.axes.find((row) => row.id === 'policy').state !== 'neutral' || !/경기 악화 때문에 인하/.test(recessionCut.axes.find((row) => row.id === 'policy').read)) fail(`audit D3 cuts priced beside a growth burden read neutral: ${JSON.stringify(recessionCut.axes.find((row) => row.id === 'policy'))}`);
+  if (mr.buildMacroRead({ macro: cutBase }).axes.find((row) => row.id === 'policy').state !== 'favorable') fail('audit D3 the same pricing without a growth burden stays favorable');
+  const oneMonth = mr.buildMacroRead({ macro: { nfp: -30 } }).axes.find((row) => row.id === 'growth');
+  if (oneMonth.state !== 'neutral' || !/한 달 수치/.test(oneMonth.read)) fail(`audit D5 one negative payroll month is held at neutral: ${JSON.stringify({ state: oneMonth.state, read: oneMonth.read })}`);
+  // Audit D6/D8 (owner 2026-10-17): the briefing's oil-and-rates line is the axes' line, and every large-move threshold lives in RULES.largeMove.
+  const { RULES: rules } = await load('src/domain/rules/thresholds.js');
+  if ('oilRates20dPct' in rules.briefing || !/wti20 >= RULES\.oil\.rise20dPct && tnx20 >= RULES\.rates\.move20dBp/.test(readFileSync(path.join(root, 'src/domain/briefing/market-read.js'), 'utf8'))) fail('audit D6 the oil-and-rates sentence uses oil.rise20dPct and rates.move20dBp');
+  const mav = await load('scripts/lib/market-analysis-validate.mjs');
+  if (mav.LARGE_MOVE_ATTRIBUTION_PCT !== rules.largeMove.attributionUsPct || mav.KOREA_MOVE_MENTION_PCT !== rules.largeMove.attributionKospiPct) fail('audit D8 the validator reads RULES.largeMove');
+  // Audit D9 (owner 2026-10-17): macro evidence carries what the number measures.
+  const macroEvidence = mav.buildMarketAnalysisEvidence({ macro: { _source: 'fred', cpi: 3.7, _asOf_cpi: '2026-09-01', nfp: 120, _asOf_nfp: '2026-09-01' } });
+  const cpiRow = macroEvidence.find((row) => row.metricId === 'macro.cpi'), nfpRow = macroEvidence.find((row) => row.metricId === 'macro.nfp-mom');
+  if (!/전년 대비/.test(cpiRow?.basis || '') || !/전월 대비 증감, 천 명/.test(nfpRow?.basis || '')) fail(`audit D9 macro evidence names its basis: ${JSON.stringify({ cpiRow, nfpRow })}`);
   const day = (i) => new Date(Date.UTC(2026, 0, 2) + i * 86400000).toISOString().slice(0, 10);
   const wti = Array.from({ length: 60 }, (_, i) => ({ date: day(i), value: i < 39 ? 100 : 100 * (1 - 0.072 * (i - 39) / 20) }));
   const brent = wti.map((row, i) => ({ date: row.date, value: i < 39 ? 103.4 : 103.4 * (1 + 0.002 * (i - 39) / 20) }));

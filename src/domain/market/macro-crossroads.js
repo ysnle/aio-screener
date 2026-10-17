@@ -12,7 +12,7 @@ import { releaseAtMs } from '../briefing/schedule.js';
 import { seriesOf, yoySeries, annualised3m } from '../macro/macro-read.js';
 import { RULES } from '../rules/thresholds.js';
 import { changeBand, bandDirection, changeOverDays, inflationDirection, oilDivergence, sentimentRank, MACRO_SIGNAL_RULES } from '../macro/macro-signals.js';
-import { BRANCH_ANALOGS, analogOutcome, frequencyText } from '../scenarios/analogs.js';
+import { BRANCH_ANALOGS, analogOutcome, frequencyText, BASE_RATE_SE } from '../scenarios/analogs.js';
 import { EXPOSURE_TAGS } from '../scenarios/exposures.js';
 
 export const MACRO_CROSSROADS_VERSION = 'macro-crossroads.v2';
@@ -337,16 +337,20 @@ export const BRANCHES = Object.freeze([
     explore: [['sentiment', '투자 심리', 'VIX·단기 불안 비율·심리 지표'], ['signal', '시장 상태', '신용 지표가 버티는지']] }
 ]);
 
+// Audit D2 (owner 2026-10-17, option 1): the analogs test daily market moves, not the branch's gate conditions (macro
+// series are monthly and the long record carries only spx/tnx/vix/wti/dxy), so every frequency line says so once.
+const PAST_BASIS_NOTE = ' 이 빈도는 시나리오 조건이 아니라 시장 움직임 기준으로 고른 비교입니다.';
+
 function pastFor(branchId, { history, outcomes }) {
   const analog = BRANCH_ANALOGS[branchId];
   if (!analog) return { text: '과거 비교 기준이 정의되지 않았습니다.', n: 0 };
   const long = outcomes?.branches?.[branchId];
-  if (long && long.n >= 3) return { ...long, text: frequencyText(long, analog.label, { source: outcomes.sourceLabel || '장기 일봉 기록' }), source: 'long' };
+  if (long && long.n >= 3) return { ...long, text: `${frequencyText(long, analog.label, { source: outcomes.sourceLabel || '장기 일봉 기록' })}${PAST_BASIS_NOTE}`, source: 'long' };
   const fields = ['spx', 'tnx', 'vix', 'wti', 'dxy'];
   const maps = Object.fromEntries(fields.map((field) => [field, new Map(buildCloseSeries(history, field).map((p) => [p.date, p.value]))]));
   const rows = [...maps.spx].map(([date, spx]) => Object.fromEntries([['date', date], ['spx', spx], ...fields.slice(1).filter((f) => maps[f].has(date)).map((f) => [f, maps[f].get(date)])]));
   const local = analogOutcome(rows, analog);
-  return { ...(local || { n: 0 }), text: frequencyText(local, analog.label), source: 'local' };
+  return { ...(local || { n: 0 }), text: `${frequencyText(local, analog.label)}${local?.n >= 3 ? PAST_BASIS_NOTE : ''}`, source: 'local' };
 }
 
 // When the past-frequency line points the other way from the favoured choices (stocks mostly rose after the same
@@ -358,10 +362,11 @@ const subjectParticle = (text) => (lastBatchim(text) ? '이' : '가');
 const andParticle = (text) => (lastBatchim(text) ? '과' : '와');
 // v57.84 (owner 2026-10-16: favored stays, a conflict with the past frequency is named beside it). The favoured choices lean
 // one way — all wait/defend expects a weaker tape than usual, none of them a stronger one; a mixed pair leans neither way.
-// The past frequency conflicts when its up-share sits on the other side of the record's base rate by more than one binomial
-// standard error of that base rate at the branch's sample size (65% against a 64% base over 94 cases is the base rate, not
-// a contradiction). Needs the app-wide floor of 10 non-overlapping cases.
-const PAST_CONFLICT_SE = 1;
+// The past frequency conflicts when its up-share sits on the other side of the record's base rate by more than two binomial
+// standard errors of that base rate at the branch's sample size (BASE_RATE_SE, shared with frequencyText so the two never
+// disagree; 56% against a 64% base over 73 cases is sampling noise, not a contradiction). Needs the app-wide floor of 10
+// non-overlapping cases.
+const PAST_CONFLICT_SE = BASE_RATE_SE;
 export function pastConflict(branch, past) {
   if (!past || !(past.n >= 10) || !Number.isFinite(past.up) || !Number.isFinite(past.baseUpPct)) return null;
   const defensive = branch.favored.every((key) => DEFENSIVE_CHOICES.has(key));
@@ -449,6 +454,8 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
   // "유가 하락 진행 중". European spot Brent (no futures record yet) is quoted for reference only (P1726).
   // v57.81 (audit X4): the same held verdict as the 거시 chain and the scenario conditions (macro-signals oilDivergence).
   const oilSplit = !!s.oilHeld;
+  // Audit D4: "falling" uses the transmission chain's own threshold (RULES.oil.fall20dPct), not any decline below zero.
+  const oilFalling = has(s.oil20) && s.oil20 <= RULES.oil.fall20dPct;
   const p = s.policy;
   const policyLine = p ? `연준 ${p.changeDate ? `${md(p.changeDate)} ${p.change > 0 ? '인상' : '인하'}(${bpChange(p.change)}) 뒤 ` : ''}상단 ${fmt(p.upper, 2)}%${p.bill != null ? ` · 3개월물 ${fmt(p.bill, 2)}%(${md(p.billDate)}) — ${p.bill > p.upper ? `목표 범위 상단보다 ${Math.round((p.bill - p.upper) * 100)}bp 높게 거래` : p.bill < p.upper - 0.25 ? `목표 범위 하단보다 ${Math.round((p.upper - 0.25 - p.bill) * 100)}bp 낮게 거래` : '목표 범위 안에서 거래'}${p.bill > p.upper || p.bill < p.upper - 0.25 ? '(국채 수급도 섞인 관측값이라 정책 예상으로 단정하지 않음)' : ''}` : ''}` : null;
   const rateHub = {
@@ -460,8 +467,8 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
       { id: 'disinflation', label: '물가 둔화', ok: disinflating(s),
         stateText: inflationOf(s).state === 'mixed' ? '엇갈림' : null,
         evidence: has(s.corePace) ? `근원 PCE 3개월 속도 ${fmt(s.corePace)}% · 1년 전 대비 ${fmt(s.coreYoy)}%${s.coreCpiPace != null ? ` · 근원 CPI 3개월 속도 ${fmt(s.coreCpiPace)}%${s.coreCpiYoy != null ? ` · 1년 전 대비 ${fmt(s.coreCpiYoy)}%` : ''}` : ''}${inflationOf(s).state === 'mixed' ? ` — ${[inflationOf(s).pce, inflationOf(s).cpi].map((row) => `${row.name}${row.month ? `(${row.month})` : ''} ${row.dir === 'up' ? '재가속' : '둔화'}`).join(' · ')}: 두 지표가 엇갈려 둔화로 보지 않습니다` : ''}` : '물가 기록 대기', next: [when('us-cpi'), when('us-pce')].filter(Boolean).join(' · ') },
-      { id: 'oil', label: '유가 하락', ok: oilSplit ? null : has(s.oil20) ? s.oil20 < 0 && !(s.oilVsYear >= 10) : null, stateText: oilSplit ? '혼재' : has(s.oil20) && s.oil20 < 0 && s.oilVsYear >= 10 ? '내려도 높은 수준' : null,
-        evidence: has(s.oil20) ? `WTI 20거래일 ${signed(s.oil20, 1, '%')}${has(s.brent20) ? ` · 브렌트${s.brentBasis === 'futures' ? '' : ' 현물'} ${signed(s.brent20, 1, '%')}` : ''}${s.oilVsYear != null ? ` · WTI 1년 평균 대비 ${signed(s.oilVsYear, 0, '%')}` : ''}${oilSplit ? (s.oilHeldKind === 'unconfirmed' ? ' — 브렌트가 WTI 움직임을 따라가지 않아 하락으로 보지 않습니다' : s.oilHeldKind === 'abnormal' ? ' — 같은 날 두 유가의 차이가 비정상이라 하락으로 보지 않습니다' : ' — 두 유가의 방향이 달라 하락으로 보지 않습니다') : s.oil20 < 0 && s.oilVsYear >= 10 ? ' — 최근엔 내렸지만 1년 평균보다 아직 높아 물가 부담이 풀렸다고 보지 않습니다' : ''}` : '유가 기록 대기', next: '매일 유가 종가' },
+      { id: 'oil', label: '유가 하락', ok: oilSplit ? null : has(s.oil20) ? oilFalling && !(s.oilVsYear >= 10) : null, stateText: oilSplit ? '혼재' : oilFalling && s.oilVsYear >= 10 ? '내려도 높은 수준' : has(s.oil20) && s.oil20 < 0 && !oilFalling ? '뚜렷한 하락 아님' : null,
+        evidence: has(s.oil20) ? `WTI 20거래일 ${signed(s.oil20, 1, '%')}${has(s.brent20) ? ` · 브렌트${s.brentBasis === 'futures' ? '' : ' 현물'} ${signed(s.brent20, 1, '%')}` : ''}${s.oilVsYear != null ? ` · WTI 1년 평균 대비 ${signed(s.oilVsYear, 0, '%')}` : ''}${oilSplit ? (s.oilHeldKind === 'unconfirmed' ? ' — 브렌트가 WTI 움직임을 따라가지 않아 하락으로 보지 않습니다' : s.oilHeldKind === 'abnormal' ? ' — 같은 날 두 유가의 차이가 비정상이라 하락으로 보지 않습니다' : ' — 두 유가의 방향이 달라 하락으로 보지 않습니다') : s.oil20 < 0 && !oilFalling ? ` — 하락 폭이 전달 경로 기준(${RULES.oil.fall20dPct}%)에 못 미쳐 하락 진행으로 보지 않습니다` : oilFalling && s.oilVsYear >= 10 ? ' — 최근엔 내렸지만 1년 평균보다 아직 높아 물가 부담이 풀렸다고 보지 않습니다' : ''}` : '유가 기록 대기', next: '매일 유가 종가' },
       { id: 'cooling', label: '고용·경기 둔화', ok: s.growthState === 'unknown' ? null : s.growthState === 'burden' ? true : s.growthState === 'favorable' ? false : null,
         stateText: s.growthState === 'neutral' ? '채용만 둔화' : null,
         evidence: has(s.sahm) ? `Sahm ${fmt(s.sahm, 2)}%p · 일자리 3개월 평균 ${s.payroll3 == null ? '—' : manPeople(s.payroll3)}${s.growthState === 'neutral' ? ' — 채용은 기준 아래지만 실업률은 아직 오르지 않았습니다(고용 축 중립)' : ''}` : '고용 기록 대기', next: [when('us-nfp'), '매주 목요일 실업수당 청구'].filter(Boolean).join(' · ') }

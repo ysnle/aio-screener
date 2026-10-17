@@ -133,7 +133,9 @@ export function brentWtiFromSeries({ brent = [], wti = [], pointBack = indexBack
   const wti20 = w0 ? pct(last.wti, w0.value) : null;
   const back = pairs.length > 20 ? pairs[pairs.length - 21] : null;
   const check = { date: last.date, brent: last.brent, wti: last.wti, spread, spreadMedian, spread20Back: back ? back.brent - back.wti : null, brent20, wti20,
-    diverges: brent20 != null && brent20 >= RULES.oil.rise20dPct && (wti20 == null || wti20 < RULES.oil.rise20dPct),
+    // Macro audit 2026-10-17: Brent +10.1% beside WTI +9.9% read "WTI만 덜 올라" — a cliff at the surge line. WTI now lags only
+    // when it covers less than oilConfirmShare of Brent's move, the share the 'unconfirmed' rule below already uses.
+    diverges: brent20 != null && brent20 >= RULES.oil.rise20dPct && (wti20 == null || wti20 < brent20 * MACRO_SIGNAL_RULES.oilConfirmShare),
     abnormal: Math.abs(spread) > BRENT_WTI_SPREAD_HOLD_USD, basis: 'futures' };
   return { ...check, ...oilDivergence(check) };
 }

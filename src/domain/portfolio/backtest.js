@@ -28,9 +28,12 @@ function _calcDailyReturns(prices, timestamps) {
       continue;
     }
     if (previous != null) {
+      // Portfolio audit 2026-10-17: a 3-day limit dropped every return across a holiday (Fri → Tue over Memorial Day, −10.9%
+      // gone), lowering volatility, VaR and drawdown. Consecutive closes up to 10 calendar days apart (KRX Chuseok closures
+      // run a week) are one return; a longer gap is a hole in the record and still breaks the chain.
       const adjacent = currentTs == null || previousTs == null
         ? true
-        : currentTs > previousTs && currentTs - previousTs <= 3 * 24 * 60 * 60 * 1000;
+        : currentTs > previousTs && currentTs - previousTs <= 10 * 24 * 60 * 60 * 1000;
       if (adjacent) returns.push((Number(current) - previous) / previous);
     }
     previous = Number(current);
@@ -767,6 +770,10 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     certification: varStability.certification === 'certified' ? 'certified' : 'held',
     certificationReasons: (tail.length < 2 ? ['tail-sample-single-observation'] : [])
       .concat(varStability.certification === 'certified' ? [] : varStability.certificationReasons),
+    // Portfolio audit 2026-10-17: the warning below reads these two fields; they lived only under .stability, so a certified
+    // CVaR always printed "CVaR 인증 보류()".
+    cvarCertification: varStability.cvarCertification || 'held',
+    cvarCertificationReasons: varStability.cvarCertificationReasons || [],
     stability: varStability
   };
   var upBench = [], upPf = [], downBench = [], downPf = [];

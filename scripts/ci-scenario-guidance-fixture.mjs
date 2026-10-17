@@ -213,17 +213,21 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.equal(easing({ corePace: 2.5, coreYoy: 3, coreCpiPace: 3.6, coreCpiYoy: 2.6 }), false, 'v57.69 a hot core CPI pace is not disinflation');
   assert.equal(easing({ corePace: 2.5, coreYoy: 3, coreCpiPace: null, coreCpiYoy: null }), true, 'v57.69 PCE alone still counts when CPI is unavailable');
   // Audit 4: a past sample pointing opposite to the favoured choice carries one bridging sentence (no invented %).
-  const bridged = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 12, up: 10, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20, baseUpPct: 64 } } } }).items.find((item) => item.id === 'reheat');
+  const bridged = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 20, up: 19, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20, baseUpPct: 64 } } } }).items.find((item) => item.id === 'reheat');
   const thin = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 4, up: 4, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20 } } } }).items.find((item) => item.id === 'reheat');
   assert.ok(!thin.pastBridge && !/비슷한 때 \d+%/.test(thin.past?.text || ''), 'v57.79 fewer than 10 cases make no "mostly" claim and no hit-rate percentage');
   assert.match(bridged.pastBridge, /^과거 표본과 어긋남 — 비슷한 때 이후 20거래일 주가가 오른 비율이 같은 기록 전체 거래일보다 높았습니다\. 이 시나리오의 결론\(관망·방어 전환\)은 '금리가 더 오르는 시나리오'가 실제로 이어질 때의 비용 기준이며, 표본이 작습니다\.$/, 'v57.84 (audit 4, v57.79 small-sample note): the conflict bridge sentence');
-  assert.ok(bridged.pastConflict?.lean === 'defensive', 'v57.84 favored wait/defend with 83% up against a 64% base is a past-sample conflict');
+  assert.ok(bridged.pastConflict?.lean === 'defensive', 'v57.84 favored wait/defend with 95% up against a 64% base (n 20) is a past-sample conflict');
+  // Audit D1 (owner 2026-10-17): two standard errors, shared with frequencyText — 10/12 against 64% is sampling noise now.
+  const noisy = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 12, up: 10, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20, baseUpPct: 64 } } } }).items.find((item) => item.id === 'reheat');
+  assert.ok(!noisy.pastConflict && !noisy.pastBridge && /표본 오차 범위 안/.test(noisy.past.text) && /시장 움직임 기준/.test(noisy.past.text), 'audit D1/D2: within 2 SE the frequency line says sampling noise and names its market-move basis');
   {
-    // v57.84 (owner 2026-10-16): favored stays; a conflict needs the up-share past the base rate by one binomial standard error.
+    // v57.84 (owner 2026-10-16): favored stays; audit D1 (owner 2026-10-17): a conflict needs the up-share past the base rate by two binomial standard errors.
     const { pastConflict } = await import('../src/domain/market/macro-crossroads.js');
     const branch = (favored) => ({ favored, title: 'x — y' });
     assert.equal(pastConflict(branch(['defend', 'wait']), { n: 94, up: 61, baseUpPct: 64 }), null, 'v57.84 65% against a 64% base is the base rate, not a conflict');
-    assert.equal(pastConflict(branch(['hold', 'stage']), { n: 73, up: 41, baseUpPct: 64 })?.lean, 'risky', 'v57.84 hold/stage with 56% against 64% (n 73) conflicts');
+    assert.equal(pastConflict(branch(['hold', 'stage']), { n: 73, up: 41, baseUpPct: 64 }), null, 'audit D1: hold/stage with 56% against 64% (n 73) is inside 2 SE');
+    assert.equal(pastConflict(branch(['hold', 'stage']), { n: 73, up: 33, baseUpPct: 64 })?.lean, 'risky', 'audit D1: hold/stage with 45% against 64% (n 73) conflicts');
     assert.equal(pastConflict(branch(['stage', 'wait']), { n: 69, up: 30, baseUpPct: 64 }), null, 'v57.84 a mixed pair leans neither way');
     assert.equal(pastConflict(branch(['wait']), { n: 9, up: 9, baseUpPct: 64 }), null, 'v57.84 under 10 cases names no conflict');
     assert.equal(pastConflict(branch(['wait']), { n: 40, up: 39 }), null, 'v57.84 no base rate, no conflict');
@@ -236,6 +240,15 @@ console.log('scenario guidance fixture (basis card): PASS');
   const wtiDown = /WTI 20거래일 −/.test(model.rateHub.pathsDown.find((path) => path.id === 'oil').evidence);
   const split = buildMacroCrossroads({ read: { ...read, oil: { brent20: wtiDown ? 0.9 : -0.9, basis: 'futures', abnormal: false } }, macroHistory, history: rows, events }).rateHub.pathsDown.find((path) => path.id === 'oil');
   if (/WTI 20거래일 [+−]/.test(split.evidence)) assert.ok(split.stateText === '혼재' && split.ok == null && /브렌트 [+−]0\.9%/.test(split.evidence), 'audit 6: the WTI/Brent split is labelled 혼재 with both moves');
+  // Audit D4 (owner 2026-10-17): the rate hub's "유가 하락" path uses the chain's −5% line, not any decline below zero.
+  {
+    const withWti = (pct) => { const out = rows.map((row) => ({ ...row })); const idx = out.map((row, i) => (Number(row.wti) > 0 ? i : -1)).filter((i) => i >= 0); const tail = idx.slice(-21); idx.forEach((i) => { out[i].wti = 70; }); tail.forEach((i, k) => { out[i].wti = 70 * (1 + pct / 100 * k / 20); }); return out; };
+    const oilPath = (pct) => buildMacroCrossroads({ read: { ...read, oil: { brent20: pct, basis: 'futures', abnormal: false } }, macroHistory, history: withWti(pct), events }).rateHub.pathsDown.find((path) => path.id === 'oil');
+    const mild = oilPath(-2);
+    assert.ok(mild.ok === false && mild.stateText === '뚜렷한 하락 아님' && /전달 경로 기준\(-5%\)/.test(mild.evidence), `audit D4: WTI −2% is not "유가 하락 진행 중": ${JSON.stringify(mild)}`);
+    const deep = oilPath(-7);
+    assert.ok(deep.ok === true || deep.stateText === '내려도 높은 수준', `audit D4: WTI −7% is a falling-oil path: ${JSON.stringify(deep)}`);
+  }
   // Audit 7/10: every branch names the 거시 axes it tests; the oil-shock branch no longer links to its own screen.
   for (const branch of BRANCHES) assert.ok(branch.axes?.length, `audit 7 ${branch.id}: axes for the six-axis card links`);
   assert.ok(!BRANCHES.find((branch) => branch.id === 'oilshock').explore.some(([route]) => route === 'macro'), 'audit 10: 거시 does not link to itself');

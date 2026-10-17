@@ -55,26 +55,31 @@ export function buildAttribution({ holdings = [], cash = null, baseCurrency = nu
     const s = etf ? finite(rowFor(etf)?.ret3m) : null;
     const local = r / 100;
     const base = (1 + local) * (1 + fx) - 1;
-    parts.push({ symbol: holding.symbol, value, r: local, m: m / 100, s: s == null ? m / 100 : s / 100, sectorKnown: s != null, base, fx, converted: !!from, marketLabel: market.label, basis: rBasis || mBasis });
+    // Portfolio audit 2026-10-17: the weight is the holding's value at the start of the window (today's value ÷ its 3-month
+    // base-currency growth). Today's value over-weighted the winners — A +100% beside B 0% read +50%, while the same
+    // quantities went 150 → 200 (+33.3%).
+    parts.push({ symbol: holding.symbol, value, start: base > -1 ? value / (1 + base) : value, r: local, m: m / 100, s: s == null ? m / 100 : s / 100, sectorKnown: s != null, base, fx, converted: !!from, marketLabel: market.label, basis: rBasis || mBasis });
   }
   const invested = parts.reduce((sum, part) => sum + part.value, 0);
   const holdingsValue = Math.max(holdings.reduce((t, h) => t + (finite(h?.value) > 0 ? Number(h.value) : 0), 0), finite(wholeHoldingsValue) || 0);
   const declaredCash = finite(cash) != null && cash > 0 ? Number(cash) : 0;
   const cashValue = holdingsValue > 0 ? declaredCash * invested / holdingsValue : declaredCash;
-  const denominator = invested + cashValue;
+  // Cash earns 0% here, so its start value is its value today.
+  const denominator = parts.reduce((sum, part) => sum + part.start, 0) + cashValue;
   if (!(invested > 0) || parts.length === 0) return { available: false, skipped };
-  const sum = (fn) => parts.reduce((total, part) => total + part.value / denominator * fn(part), 0);
+  const sum = (fn) => parts.reduce((total, part) => total + part.start / denominator * fn(part), 0);
   const market = sum((part) => part.m);
   const sector = sum((part) => part.s - part.m);
   const stock = sum((part) => part.r - part.s);
   const fx = sum((part) => part.base - part.r);
   const total = market + sector + stock + fx;
-  const cashShare = cashValue / denominator;
-  const blended = parts.reduce((t, part) => t + part.value * part.m, 0) / invested;
-  const cashEffect = -cashShare * blended;
+  // The cash share shown is today's; the cash effect uses the start-of-window share the weights above use.
+  const cashShare = cashValue / (invested + cashValue);
+  const blended = parts.reduce((t, part) => t + part.start * part.m, 0) / (denominator - cashValue);
+  const cashEffect = -(cashValue / denominator) * blended;
   const pct = (value) => Math.round(value * 10000) / 100;
   const labels = [...new Set(parts.map((part) => part.marketLabel).filter(Boolean))];
-  const contributors = parts.map((part) => ({ symbol: part.symbol, stockPct: pct(part.value / denominator * (part.r - part.s)) }))
+  const contributors = parts.map((part) => ({ symbol: part.symbol, stockPct: pct(part.start / denominator * (part.r - part.s)) }))
     .sort((a, b) => Math.abs(b.stockPct) - Math.abs(a.stockPct));
   return {
     available: true,

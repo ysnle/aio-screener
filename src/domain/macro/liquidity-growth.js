@@ -129,7 +129,8 @@ export function brentWtiCheck(macroHistory, history = []) {
   // P1726: even between the two futures, a same-day gap above $15 is outside the range where the series have been
   // comparable (one-year median about $6) — a roll mismatch or a source error. The spread and the Brent-based reading
   // are held instead of explained.
-  const heldTail = diverges ? ' — 국제 유가는 오르는데 WTI만 내린 구간이라, WTI 하락을 물가 완화로 읽는 판단은 보류합니다.'
+  // Macro audit 2026-10-17: the divergence case is WTI rising less than half as much as Brent, not WTI falling.
+  const heldTail = diverges ? ' — 국제 유가는 크게 오르는데 WTI는 그 절반도 오르지 않아, WTI로 유가 방향이나 물가 완화를 읽는 판단은 보류합니다.'
     : check.held ? ` — ${check.text.split(' — ').slice(1).join(' — ')}` : '.';
   const sentence = abnormal
     ? `같은 날(${md}) 브렌트 선물 ${fmt(check.brent, 2)}달러 · WTI 선물 ${fmt(check.wti, 2)}달러로 차이가 ${fmt(spread, 1)}달러입니다 — 최근 1년 같은 날 차이의 중앙값(${spreadMedian == null ? '—' : fmt(spreadMedian, 1)}달러)과 동떨어져 두 가격의 기준이 다르거나 원천 오류일 수 있습니다. 차이의 해석과 브렌트 기준 판단, WTI 하락을 물가 완화로 읽는 판단을 모두 보류합니다.`

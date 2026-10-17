@@ -28,6 +28,7 @@ import { factorScopesByMarket, listingMarketOfSymbol, sessionDateInMarket, timeZ
 import { latestCompletedUsSession, nyParts, resolveMarketCalendarSession } from '../src/ai/time/market-session.js';
 import { barSessionDateForField, historyFieldSessionDate, observationSessionDate } from '../src/domain/market/history-session.js'; // v57.81
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
+import { RULES } from '../src/domain/rules/thresholds.js'; // audit D8: shared large-move table
 import { reconcileSecRecord } from '../src/domain/fundamental/sec-report.js'; // P1402 + 2026-10-13 F03-F05
 import { secFundamentalRowFields } from '../src/domain/fundamental/sec-row-fields.js'; // v57.81: shared with the browser's out-of-universe read
 import { evaluateSymbolSignals, distributionDaySeries, BREADTH_SIGNAL_MODEL_VERSION } from '../src/domain/market/breadth-signals.js'; // P1416
@@ -2442,7 +2443,7 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     const conflicts = (regime.conflicts || []).length ? `엇갈리는 신호: ${regime.conflicts.join(' ')}` : '';
     // v57.81: the validator rejects a Korea-vs-US sentence without both session dates when they differ; the packet says so.
     const krDate = buildCloseSeries(input.history, 'kospi').at(-1)?.date || null;
-    const sessions = krDate && regime.asOf && krDate !== regime.asOf ? `세션 기준일: 미국 ${regime.asOf.slice(5).replace('-', '/').replace(/^0/, '')} · 한국 ${krDate.slice(5).replace('-', '/').replace(/^0/, '')} — 두 시장을 한 문장에서 함께 말하면 두 날짜(M/D)를 모두 적을 것.` : '';
+    const sessions = krDate && regime.asOf && krDate !== regime.asOf ? `세션 기준일: 미국 ${regime.asOf.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} · 한국 ${krDate.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} — 두 시장을 한 문장에서 함께 말하면 두 날짜(M/D)를 모두 적을 것.` : '';
     return [`종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, priorSessionMoveLines(input.history), trendLine, leadershipLine, conflicts, axes,
       renderMarketScenarioContext(input, { regime }), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(data, input, regime)].filter(Boolean).join('\n');
   } catch (error) {
@@ -2453,8 +2454,8 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
 // v57.87 (10/16 audit): on the session after KOSPI's -7.6% close the commentary spoke only of the next morning's
 // in-session rebound — METRIC_EVIDENCE carries the latest observation, so the completed crash close never reached the
 // prompt. A completed close that moved 3% in a session or 8% over five sessions travels as its own dated line.
-export const PRIOR_SESSION_MOVE_1D_PCT = 3;
-export const PRIOR_SESSION_MOVE_5D_PCT = 8;
+export const PRIOR_SESSION_MOVE_1D_PCT = RULES.largeMove.priorSession1dPct;
+export const PRIOR_SESSION_MOVE_5D_PCT = RULES.largeMove.priorSession5dPct;
 export function priorSessionMoveLines(history = []) {
   const md = (date) => String(date || '').slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/');
   const signed = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
@@ -2600,7 +2601,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       if (row.unit === 'percent') { const bp = (row.value - row.value / (1 + pct / 100)) * 100; return ` change=${bp >= 0 ? '+' : ''}${bp.toFixed(1)}bp vs previous close`; }
       return ` change=${pct >= 0 ? '+' : ''}${pct.toFixed(2)}% vs previous close`;
     };
-    const evidenceLines = promptEvidence.slice(0, 16).map(row => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit}${changeText(row)} observedAt=${row.observedAt} session=${row.session || 'n/a'} source=${row.source}`).join('\n');
+    const evidenceLines = promptEvidence.slice(0, 16).map(row => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit}${row.basis ? ` (${row.basis})` : ''}${changeText(row)} observedAt=${row.observedAt} session=${row.session || 'n/a'} source=${row.source}`).join('\n');
     // v57.69 (2026-10-15 crash audit): KOSPI fell over 5% in session and the commentary, built from completed closes only,
     // never mentioned it. A Korean move of 3% or more in session is offered on its own, labelled 장중 with its KST time.
     const kstTime = (iso) => new Date(Date.parse(iso) + 9 * 3600000).toISOString().slice(11, 16);

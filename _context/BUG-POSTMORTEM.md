@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1913 - v58.03 - 거시·브리핑·포트폴리오 해석이 서로 다른 기준·월·가중을 써서 판정이 어긋남 (2026-10-17)
+
+- symptom/reproduction: 금리 체인이 정책 축과 다른 정책금리 중간값을 썼고, 인플레 재가속 판정이 다른 달의 YoY와 속도를 비교했다. 근원 PCE 2% 미만에도 '목표보다 높지만'으로 서술했고, 브렌트/WTI 괴리가 0.2%p 절벽에서 뒤집혔다. 유사 국면 기준률이 데이터 없는 세션까지 셌고, 포트폴리오 비중이 한 티커의 여러 로트를 무시했으며, 기여도가 오늘 평가액으로 가중돼 미래 정보를 썼다. 짧은 현금 시계열은 NaN, 휴장 공백은 수익률을 떨어뜨렸다. AI 검증기는 조건문·'매수세'·'사라지다'를 매매 지시로 오판했고, 행위 분류기는 MNPI 매매와 체결 방법 질문을 놓쳤다.
+- root_cause: 같은 개념(정책 목표 중간값, 비교 월, 평가 가중, 표본 유효성)을 모듈마다 따로 계산했고, 결측을 보류 대신 추정·중립값으로 채웠다.
+- fix: 정책 축과 체인이 한 목표 범위 중간값을 공유하고, 인플레 축은 같은 달끼리 비교, 목표 미만 문구 수정, 괴리는 WTI 확인 비중 사용, 유사 국면은 검정 가능한 세션만, 로트는 티커별 합산, 기여도는 기초 평가액 가중(항등식 유지), 짧은 현금 시계열·수량 결측은 보류한다. 검증기·가드 오탐을 제거하고 행위 분류 공백을 메웠다. 브리핑 임계 25개를 RULES.briefing으로 옮겼다(값 불변). src/domain/{macro,market,scenarios,briefing,portfolio,rules}, src/ai/{policy,response}, scripts/lib/market-analysis-validate.mjs.
+- violated_rule: 같은 개념은 한 곳에서 계산하고 결측은 추정·중립값이 아니라 보류로 둔다.
+- prevention: ci-esm-core-unit-check·ci-scenario-guidance-fixture·ci-review-integrity-unit-check에 회귀 단언 추가(각각 수정 전 코드에서 실패).
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-scenario-guidance-fixture.mjs; node scripts/ci-review-integrity-unit-check.mjs
+
 ## P1912 - v58.02 - VCP 수축 탐지가 다음 조정을 첫 스윙 고점에서 시작해 피벗이 실제 고점보다 낮게 찍힘 (2026-10-17)
 
 - symptom/reproduction: 고점 112 → 얕은 눌림(스윙 저점 없음) → 116 → 105 조정에서 피벗 112·깊이 6.3%로 기록되고, 현재가 114가 피벗 위로 읽혀 돌파·확장 상태가 날 수 있었다.

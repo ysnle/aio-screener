@@ -158,7 +158,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
     const parts = attribution.excess.filter((part) => Math.abs(part.pct) >= 0.05).map((part) => `${part.label} ${signed(part.pct, 1, '%p')}`).join(' · ');
     const lead = attribution.topStock[0];
     points.push({ id: 'relative', tone: gap >= 0 ? 'favorable' : 'burden', title: '지수 대비',
-      text: `지금 구성의 3개월 수익률 ${signed(book3)}(환율·현금 포함) vs ${attribution.blendedLabel} ${signed(bench3)}${relativeBasisNote} — ${Math.abs(gap).toFixed(1)}%p ${gap >= 0 ? '앞섭니다' : '뒤처집니다'}. 차이의 구성: ${parts || '모두 0.1%p 미만'}${lead && Math.abs(lead.stockPct) >= 0.1 ? `(종목 선택에서 가장 큰 기여는 ${lead.symbol} ${signed(lead.stockPct, 1, '%p')})` : ''}. 실제 매매 시점과 다를 수 있는 현재 구성 기준 값입니다.` });
+      text: `지금 구성의 3개월 수익률 ${signed(book3)}(환율 포함 · 현금은 수익률 0%로 계산) vs ${attribution.blendedLabel} ${signed(bench3)}${relativeBasisNote} — ${Math.abs(gap).toFixed(1)}%p ${gap >= 0 ? '앞섭니다' : '뒤처집니다'}. 차이의 구성: ${parts || '모두 0.1%p 미만'}${lead && Math.abs(lead.stockPct) >= 0.1 ? `(종목 선택에서 가장 큰 기여는 ${lead.symbol} ${signed(lead.stockPct, 1, '%p')})` : ''}. 실제 매매 시점과 다를 수 있는 현재 구성 기준 값입니다.` });
   }
   // v57.81 (analysis audit 2026-10-15): the tally is the six US axes, so it is named as the US state, and its sentence
   // follows the overall label (부담 우세 at burden 3 · favourable 1 read "극단적이지 않아"). A book whose Korean part is at
