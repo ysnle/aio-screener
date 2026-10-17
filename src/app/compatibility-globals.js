@@ -211,6 +211,26 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
     return Number.isFinite(at) ? at > nowMs : date >= today;
   };
   window._aioUsListingSymbol = (symbol) => usListingSymbol(symbol);
+  const universeSymbols = () => new Set((typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [])
+    .map((row) => String(row?.sym || row?.symbol || '').toUpperCase()).filter(Boolean));
+  // 2026-10-17: the watchlist, price-alert and holding boxes accept symbols only; when a typed company name is refused,
+  // the refusal names the listing candidates (registry names first, then the US listing) for the reader to type.
+  window._aioListingNameSuggestion = (raw) => {
+    const query = String(raw || '').trim();
+    if (query.length < 2) return Promise.resolve('');
+    const picks = searchCandidates(query, { entries: window.AIO_TICKER_NAME_REGISTRY?.entries, krStockDb: window.KR_STOCK_DB, krToYahoo: window.krTickerToYahoo }).slice(0, 3);
+    const listed = query.length >= 3 && /[A-Za-z]/.test(query) && picks.length < 3
+      ? import('../data/us-listings.js').then(async (module) => module.searchUsListingNames(await module.loadUsListings(), query, { limit: 3 - picks.length, exclude: picks.map((pick) => pick.symbol), prefer: universeSymbols() })).catch(() => [])
+      : Promise.resolve([]);
+    // The refusal is not held for a slow listing download: after 3 seconds it shows without listing candidates.
+    const timeout = new Promise((resolve) => setTimeout(() => resolve([]), 3000));
+    return Promise.race([listed, timeout]).then((extra) => {
+      const all = [...picks, ...extra];
+      return all.length ? `회사명으로 찾은 후보: ${all.map((pick) => `${pick.symbol}(${pick.label})`).join(', ')}` : '';
+    });
+  };
+  window._aioToastWithNameHint = (raw, message) => window._aioListingNameSuggestion(raw).catch(() => '')
+    .then((hint) => window.showToast?.(hint ? `${message} ${hint}` : message));
   window._aioTickerSearchMiss = (raw) => {
     const input = document.getElementById('ticker-direct-search');
     const row = input?.parentElement;
@@ -251,7 +271,7 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
     if (query.length >= 3 && /[A-Za-z]/.test(query) && picks.length < 6) {
       const token = (hint.dataset.listingQuery = query);
       import('../data/us-listings.js').then(async (module) => {
-        const extra = module.searchUsListingNames(await module.loadUsListings(), query, { limit: 6 - picks.length, exclude: picks.map((pick) => pick.symbol) });
+        const extra = module.searchUsListingNames(await module.loadUsListings(), query, { limit: 6 - picks.length, exclude: picks.map((pick) => pick.symbol), prefer: universeSymbols() });
         if (!extra.length || hint.dataset.listingQuery !== token || !hint.isConnected) return;
         extra.forEach(addPick);
         if (!picks.length) {

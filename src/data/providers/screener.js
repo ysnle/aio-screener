@@ -7,6 +7,7 @@ import { evaluateQuoteContract } from './quote-contract.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../../domain/fundamental/period.js';
 import { SEC_REFERENCE_TURNOVER_BOUNDS, SEC_MARGIN_HOLD_ABOVE_PCT } from '../../domain/fundamental/sec-report.js';
 import { finiteNumber as finite } from '../../domain/shared/number.js';
+import { SIC_SECTOR_SOURCE, sectorFromSic } from '../../domain/fundamental/sic-sector.js';
 import { EXTENDED_SHARD_URL, RANKING_CONTRACTS, expandScreenerArtifact, expandShardRows, isValidShard, normalizeUniverseScope, rowMembership, shardIdentityRows } from '../screener-extended.js';
 
 // P1173 (17 작업 단위 4 / O07): this consumer declares which input set it can combine. The three
@@ -217,6 +218,13 @@ function liveEnrichment(symbol, liveData) {
   };
 }
 
+// The on-demand reader's industry wording (src/data/on-demand-symbol.js): SEC's description, then the code.
+function sicIndustry(sic, descriptions) {
+  const code = String(sic);
+  const description = descriptions && typeof descriptions === 'object' && typeof descriptions[code] === 'string' ? descriptions[code].trim() : '';
+  return description ? `${description} (SEC SIC ${code})` : `SEC SIC ${code}`;
+}
+
 export function createScreenerProvider({
   httpClient,
   url = './public-data/screener.json',
@@ -418,6 +426,9 @@ export function createScreenerProvider({
         const hasExplicitNewsObservation = Object.prototype.hasOwnProperty.call(factor, 'newsObservedAt');
         const newsObservedAt = hasExplicitNewsObservation ? isoTimestamp(factor.newsObservedAt) : isoTimestamp(factor.newsTs);
         const newsFetchedAt = isoTimestamp(factor.newsFetchedAt);
+        // 2026-10-17 (owner: 유니버스 밖 종목 섹터 빈칸): a Nasdaq-only extended row has no curated sector, but its shard
+        // identity carries the filer's SEC SIC code; the fixed SIC translation fills the sector and the row names it.
+        const sicSector = !identity.sector && identity.sic ? sectorFromSic(identity.sic) : null;
         const instrumentRef = createInstrumentRef({
           instrumentId: `${market}:${symbol}`,
           symbol,
@@ -433,7 +444,8 @@ export function createScreenerProvider({
           symbol,
           sym: symbol,
           name: identity.name || '',
-          sector: identity.sector || null,
+          sector: identity.sector || sicSector || null,
+          ...(sicSector ? { sectorSource: SIC_SECTOR_SOURCE, industry: sicIndustry(identity.sic, extendedArtifact?.sicDescriptions) } : {}),
           index: identity.index || null,
           // v57.51 V09: a secondary share class names its primary line so equal-weight counts take one issuer once.
           shareClassOf: identity.shareClassOf || null,

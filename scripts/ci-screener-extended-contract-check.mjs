@@ -145,10 +145,11 @@ const shardData = Object.fromEntries(renamed.map(({ from, sym }) => {
 }));
 const identityRows = renamed.map(({ sym, row }, index) => ({ sym, name: `${row.name} (fixture)`, sector: row.sector || null, index: index % 2 ? 'NASDAQ' : 'RUSSELL2000', membership: index % 2 ? ['NASDAQ'] : ['RUSSELL2000', 'NASDAQ'], exchange: 'NASDAQ' }));
 identityRows.push({ sym: 'ZXQZZ', name: 'Unfetched fixture', sector: null, index: 'NASDAQ', membership: ['NASDAQ'], exchange: 'NASDAQ' });
+identityRows[1].sector = null; identityRows[2].sector = null; identityRows[5].sector = 'Healthcare'; // v57.96: Nasdaq-only rows without a sector (a blank check, an operating company) and a curated sector beside a SIC code
 const membership = { generatedAt: '2026-10-15T00:00:00.000Z', meta: { sources: { r2000: { status: 'CURRENT', asOf: '2026-10-14' }, nasdaq: { status: 'CURRENT', asOf: '2026-10-14T14:01' } }, counts: { extended: identityRows.length } }, coreMembership: { AAPL: ['NASDAQ'], MSFT: ['NASDAQ'] } };
 const shard = buildExtendedShardPayload({
   data: shardData, syms: identityRows.map((row) => row.sym), identityRows, membership,
-  secResult: { ok: 0, stored: 0, eligible: 0, model: 'sec-fy-normalized-v2', generatedAt: null, sicBySymbol: { [renamed[1].sym]: { sic: '6770' }, [renamed[2].sym]: { sic: '7372' }, [renamed[3].sym]: { sic: 'n/a' } } },
+  secResult: { ok: 0, stored: 0, eligible: 0, model: 'sec-fy-normalized-v2', generatedAt: null, sicBySymbol: { [renamed[1].sym]: { sic: '6770' }, [renamed[2].sym]: { sic: '7372', description: 'Services-Prepackaged Software' }, [renamed[3].sym]: { sic: 'n/a' }, [renamed[5].sym]: { sic: '3826', description: 'Laboratory Analytical Instruments' } } },
   computedAt: core.factorComputedAt, ok: Object.keys(shardData).length, nowIso: core.asOf
 });
 const parity = validateExtendedShard(shard, { coreData: core.data, freshness: false });
@@ -273,6 +274,12 @@ const operating = extendedState.rows.find((row) => row.sym === renamed[2].sym);
 check('v57.84 SIC an extended row with SEC SIC 6770 reaches the ranker and leaves the ranked population as a SPAC; another SIC code does not',
   blankCheck?.sic === '6770' && blankCheck.rank == null && blankCheck.populationExclusion === 'spac' && operating?.sic === '7372' && operating.populationExclusion !== 'spac',
   JSON.stringify({ b: blankCheck && { sic: blankCheck.sic, rank: blankCheck.rank, ex: blankCheck.populationExclusion }, o: operating && { sic: operating.sic, ex: operating.populationExclusion } }));
+const curated = extendedState.rows.find((row) => row.sym === renamed[5].sym);
+check('v57.96 a Nasdaq-only row without a sector takes the SEC SIC sector, marked with its source and SEC description; a curated sector and a blank check are left as they are',
+  operating?.sector === 'Technology' && operating.sectorSource === 'sec-sic' && operating.industry === 'Services-Prepackaged Software (SEC SIC 7372)'
+  && curated?.sector === 'Healthcare' && !curated.sectorSource && blankCheck?.sector == null && !blankCheck?.sectorSource
+  && same(shard.sicDescriptions, { 3826: 'Laboratory Analytical Instruments', 7372: 'Services-Prepackaged Software' }),
+  JSON.stringify({ b: blankCheck && [blankCheck.sector, blankCheck.sectorSource], o: operating && [operating.sector, operating.sectorSource, operating.industry], c: curated && [curated.sector, curated.sectorSource], d: shard.sicDescriptions }));
 console.log(`[screener-extended] provider + ranking over ${extendedState.rows.length} rows: ${extendedMs} ms (node)`);
 
 // ── 6. Scope storage (v57.81) ───────────────────────────────────────────────────────────────────────────────────

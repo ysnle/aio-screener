@@ -508,7 +508,17 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     identity.append(symbol, name);
     return identity;
   }
-  if (key === 'sector') return row.sector;
+  if (key === 'sector') {
+    if (row.sectorSource !== 'sec-sic' || !row.sector) return row.sector;
+    // 2026-10-17: a sector translated from the SEC SIC code (no curated sector) says so beside the value.
+    const cell = documentRef.createElement('span');
+    const tag = documentRef.createElement('small');
+    tag.textContent = ' SIC';
+    tag.style.cssText = 'color:var(--text-muted);font-size:11px;';
+    cell.append(documentRef.createTextNode(row.sector), tag);
+    cell.title = `SEC 산업분류${row.sic ? `(SIC ${row.sic})` : ''}에서 옮긴 섹터`;
+    return cell;
+  }
   if (['momentum', 'trend', 'lowvol', 'value', 'quality', 'kalman'].includes(key)) {
     if (row.screenStatus === 'unavailable') return '—';
     const value = row.factorScores?.[key];

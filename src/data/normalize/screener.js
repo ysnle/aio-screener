@@ -18,6 +18,9 @@ export function normalizeScreener(raw = {}) {
     score: finite(row?.score),
     rank: finite(row?.rank),
     sector: row?.sector || null,
+    // 2026-10-17: a sector translated from the SEC SIC code is marked, with the code as its industry text.
+    ...(row?.sectorSource === 'sec-sic' ? { sectorSource: 'sec-sic' } : {}),
+    ...(row?.industry ? { industry: String(row.industry) } : {}),
     source: row?.source || 'screener-artifact',
     sourceKind: row?.sourceKind || null,
     allowedUse: row?.allowedUse || null,
