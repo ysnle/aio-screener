@@ -2,18 +2,23 @@
 // global reads — every value the legacy wrapper read from its own live-quote/price-history
 // globals is now an explicit parameter. The formula (RS-Ratio/RS-Momentum thresholds, quadrant
 // boundaries) is transcribed unchanged — this is code motion, not a new model (R352/F-03).
-export const RRG_MODEL_VERSION = 'rrg.v2';
+// Audit 2026-10-17 (owner D3): rrg.v3 — RS-Momentum compares RS-Ratio with itself RRG_MOMENTUM_LAG sessions earlier,
+// both on the same RRG_RATIO_SESSIONS span; rrg.v2 divided a 100-session-window ratio by a ~51-session-window ratio
+// at the midpoint, so a steady relative trend (no change in speed) read 102.5 (선도) or 97.6 (후행) instead of 100; on
+// the 10/16 artifact 17 of the 31 ETFs sat in a different quadrant than the same-window reading.
+export const RRG_MODEL_VERSION = 'rrg.v3';
+export const RRG_RATIO_SESSIONS = 50;
+export const RRG_MOMENTUM_LAG = 10;
 
-// v57.50 D13/D14: what the two axes actually are (description only — the model below is unchanged). The produced
-// artifact feeds the last 100 aligned sessions (scripts/lib/rotation-history.mjs), so:
-//   RS-Ratio    = 100 × (price ÷ SPY now) ÷ (its average over those 100 sessions) — a position, not "vs SPY = 100";
-//   RS-Momentum = 100 × RS-Ratio ÷ (the same ratio computed at the window's midpoint, ~50 sessions earlier).
+// What the two axes are (rrg.v3). The produced artifact feeds the last 100 aligned sessions (scripts/lib/rotation-history.mjs):
+//   RS-Ratio    = 100 × (price ÷ SPY now) ÷ (its average over the last 50 sessions) — a position, not "vs SPY = 100";
+//   RS-Momentum = 100 × RS-Ratio ÷ (RS-Ratio 10 sessions earlier, on the same 50-session window) — 100 = steady.
 // It is not the JdK smoothed/normalized RS-Ratio. The benchmark is cap-weighted SPY, so a few mega-caps leading the
 // index put many sectors below 100 at once without any of them weakening on its own.
 export const RRG_DEFINITION = Object.freeze({
   // v57.76: plain-Korean axis names (the themes scatter is the only reader).
-  ratio: '가로축 상대강도(시장 대비)는 지금의 상대가격(섹터 ÷ SPY)이 최근 100거래일 평균의 몇 %인지입니다(100 = 자기 평균 수준)',
-  momentum: '세로축 상대강도 변화 속도는 그 값이 약 50거래일 전 같은 방식으로 잰 값보다 높은지입니다(100 초과 = 나아지는 중)',
+  ratio: `가로축 상대강도(시장 대비)는 지금의 상대가격(섹터 ÷ SPY)이 최근 ${RRG_RATIO_SESSIONS}거래일 평균의 몇 %인지입니다(100 = 자기 평균 수준)`,
+  momentum: `세로축 상대강도 변화 속도는 그 값이 ${RRG_MOMENTUM_LAG}거래일 전 같은 방식으로 잰 값보다 높은지입니다(100 초과 = 나아지는 중, 100 = 같은 속도 유지)`,
   benchmarkBias: '기준인 SPY는 시가총액 가중이라, 소수 초대형주가 지수를 끄는 국면에서는 여러 섹터가 동시에 100 아래(후행·약화)로 보일 수 있습니다 — 각 섹터가 스스로 약해졌다는 뜻은 아닙니다.'
 });
 
@@ -23,13 +28,13 @@ function positive(value) {
 }
 
 /** v57.84: the one set of quadrant words and readings (themes scatter, chips, bars, stock summary). The readings name
- * both windows — RS-Ratio against its own 100-session average, RS-Momentum against ~50 sessions ago (v57.81/v57.84). */
+ * both windows — RS-Ratio against its own 50-session average, RS-Momentum against 10 sessions ago (rrg.v3). */
 export const RRG_QUADRANT_WORDS = Object.freeze({ Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행' });
 export const RRG_QUADRANT_READS = Object.freeze({
-  Leading: '시장 대비 상대가격이 100일 평균보다 높고, 약 50일 전보다 올라섬',
-  Improving: '시장 대비 상대가격이 100일 평균보다 낮지만, 약 50일 전보다 올라섬',
-  Weakening: '시장 대비 상대가격이 100일 평균보다 높지만, 약 50일 전보다 내려옴',
-  Lagging: '시장 대비 상대가격이 100일 평균보다 낮고, 약 50일 전보다도 내려옴'
+  Leading: '시장 대비 상대가격이 50일 평균보다 높고, 10거래일 전보다 그 격차가 커짐',
+  Improving: '시장 대비 상대가격이 50일 평균보다 낮지만, 10거래일 전보다 그 격차가 줄어듦',
+  Weakening: '시장 대비 상대가격이 50일 평균보다 높지만, 10거래일 전보다 그 격차가 줄어듦',
+  Lagging: '시장 대비 상대가격이 50일 평균보다 낮고, 10거래일 전보다 그 격차가 커짐'
 });
 
 export function classifyRRG(rsRatio, rsMom) {
@@ -91,14 +96,16 @@ export function computeRelativeRotation({ history = null, benchmarkHistory = nul
       if (asset != null && benchmark != null) rsVals.push(asset / benchmark);
     }
     if (rsVals.length >= RRG_MIN_SESSIONS) {
-      const rsLatest = rsVals[rsVals.length - 1];
-      const rsAvg = rsVals.reduce((sum, value) => sum + value, 0) / rsVals.length;
-      const rsRatio = rsAvg > 0 ? (100 * rsLatest) / rsAvg : 100;
-      const mid = Math.floor(rsVals.length / 2);
-      const rsMid = rsVals[mid] || rsVals[0];
-      const rsMidAvg = rsVals.slice(0, mid + 1).reduce((sum, value) => sum + value, 0) / (mid + 1);
-      const rsMidRatio = rsMidAvg > 0 ? (100 * rsMid) / rsMidAvg : 100;
-      const rsMom = rsMidRatio > 0 ? (100 * rsRatio) / rsMidRatio : 100;
+      // rrg.v3: one window for both points; a short history (30~59 sessions) shortens the window, never the lag.
+      const window = Math.min(RRG_RATIO_SESSIONS, rsVals.length - RRG_MOMENTUM_LAG);
+      const ratioAt = (end) => {
+        const slice = rsVals.slice(end - window, end);
+        const avg = slice.reduce((sum, value) => sum + value, 0) / window;
+        return avg > 0 ? (100 * slice[slice.length - 1]) / avg : null;
+      };
+      const rsRatio = ratioAt(rsVals.length);
+      const rsThen = ratioAt(rsVals.length - RRG_MOMENTUM_LAG);
+      const rsMom = rsRatio != null && rsThen ? (100 * rsRatio) / rsThen : null;
       return classifyRRG(rsRatio, rsMom);
     }
   }

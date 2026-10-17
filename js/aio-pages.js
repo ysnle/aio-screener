@@ -669,8 +669,8 @@ var ALL_RRG_ETFS = RRG_SECTORS.concat(RRG_SUBSECTORS);
 //  RS (Relative Strength) 계산 시스템 — screener_pro.py 방법론
 // ══════════════════════════════════════════════════════════════════
 // 스크리너 공식: rs_comp = 0.40×rs252 + 0.20×rs126 + 0.20×rs63 + 0.20×rs21
-// RRG: RS_Ratio = 100 × (Sector/SPY) / MA(Sector/SPY, 13wk)
-//      RS_Momentum = 100 × RS_Ratio / MA(RS_Ratio, 13wk)
+// RRG (rrg.v3, src/domain/themes/rrg.js): RS_Ratio = 100 × (Sector/SPY) / MA(Sector/SPY, 50 sessions)
+//      RS_Momentum = 100 × RS_Ratio / (RS_Ratio 10 sessions earlier, same window)
 
 // 히스토리컬 가격 데이터 저장소 (심볼별)
 var _priceHistory = {};

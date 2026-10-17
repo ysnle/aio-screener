@@ -177,11 +177,11 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   context.textAlign = 'center';
   // v57.50 D13: 100 is the sector's own 100-session average relative price, not "the same as SPY".
   // v57.76: plain-Korean axis titles; the precise definitions sit once in the 사분면별 섹터 fold.
-  context.fillText(compact ? '상대강도(시장 대비) →' : '상대강도(시장 대비 · 100 = 100일 평균) →', (plot.left + plot.right) / 2, height - 6);
+  context.fillText(compact ? '상대강도(시장 대비) →' : '상대강도(시장 대비 · 100 = 50일 평균) →', (plot.left + plot.right) / 2, height - 6);
   context.save();
   context.translate(11, (plot.top + plot.bottom) / 2);
   context.rotate(-Math.PI / 2);
-  context.fillText(compact ? '상대강도 변화 속도 ↑' : '상대강도 변화 속도(약 50일 전 대비) ↑', 0, 0);
+  context.fillText(compact ? '상대강도 변화 속도 ↑' : '상대강도 변화 속도(10거래일 전 대비) ↑', 0, 0);
   context.restore();
   const note = documentRef.getElementById('rrg-method-note');
   if (note) note.textContent = `이 그림은 흔히 RRG(상대 회전 그래프)라 부르는 방식입니다. ${RRG_DEFINITION.ratio}. ${RRG_DEFINITION.momentum}. ${RRG_DEFINITION.benchmarkBias}`;
@@ -491,7 +491,7 @@ function renderThemes({ documentRef, root, store, route }) {
   legend.dataset.themeDetailLegend = 'true';
   // Codex browser audit H22: the quadrant and the chip return answer different windows; the legend says which.
   // v57.76: the quadrant definition is the fold's method note (rrg-method-note); the legend keeps only the chip facts.
-  legend.textContent = `칩 옆 % = 1일 등락률로, 사분면(가로 100일 평균 대비 · 세로 약 50일 전 대비)과 별개라 후행 섹터가 그날은 올랐을 수 있습니다. '최근 5거래일 상대강도'는 그 주 움직임이 평소 1주 움직임의 2배를 넘게 사분면과 반대일 때만 붙습니다. 실선 칩 ${detailCount}개는 테마 상세, 점선 칩 ${Math.max(0, items.length - detailCount)}개는 세부 테마 순위로 연결됩니다.`;
+  legend.textContent = `칩 옆 % = 1일 등락률로, 사분면(가로 50일 평균 대비 · 세로 10거래일 전 대비)과 별개라 후행 섹터가 그날은 올랐을 수 있습니다. '최근 5거래일 상대강도'는 그 주 움직임이 평소 1주 움직임의 2배를 넘게 사분면과 반대일 때만 붙습니다. 실선 칩 ${detailCount}개는 테마 상세, 점선 칩 ${Math.max(0, items.length - detailCount)}개는 세부 테마 순위로 연결됩니다.`;
   legend.style.cssText = 'grid-column:1/-1;font-size:12px;color:var(--text-muted);padding:2px 0 6px;';
   if (classifiedCount) container.appendChild(legend); // P1591 (T01): no quadrant legend over an empty quadrant area
   const appendUnclassified = () => {

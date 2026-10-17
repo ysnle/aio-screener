@@ -97,8 +97,8 @@ export function sectorsForEtf(code) {
 }
 const SECTOR_KO = Object.freeze({ XLK: '기술', XLF: '금융', XLE: '에너지', XLV: '헬스케어', XLI: '산업재', XLY: '경기소비재', XLP: '필수소비재', XLRE: '부동산', XLB: '소재', XLU: '유틸리티', XLC: '통신' });
 const QUADRANT = Object.freeze({
-  // v57.84: the same words as 테마 · 섹터 — RS-Ratio sits against its own 100-day average (not "stronger than the market")
-  // and RS-Momentum compares with ~50 sessions ago (not a present-tense "getting stronger").
+  // v57.84: the same words as 테마 · 섹터 — RS-Ratio sits against its own 50-session average (not "stronger than the market")
+  // and RS-Momentum compares with the same reading 10 sessions ago (rrg.v3) (not a present-tense "getting stronger").
   Leading: { label: RRG_QUADRANT_WORDS.Leading, tone: 'favorable', read: RRG_QUADRANT_READS.Leading },
   Improving: { label: RRG_QUADRANT_WORDS.Improving, tone: 'neutral', read: RRG_QUADRANT_READS.Improving },
   Weakening: { label: RRG_QUADRANT_WORDS.Weakening, tone: 'neutral', read: RRG_QUADRANT_READS.Weakening },
