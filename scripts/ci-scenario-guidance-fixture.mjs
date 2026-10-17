@@ -375,7 +375,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     for (let k = 1; k <= 5; k += 1) ndx[n - 6 + k] = base * (1 + ndxDrop5 / 100 * k / 5);
     const rut = days.map((_, i) => rutBelow200 ? (i < n - 40 ? 2800 : 2800 - (i - (n - 40)) * 3) : 2000 + i * 3);
     return days.map((date, i) => ({ date, spx: spx[i], ndx: ndx[i], nasdaq: ndx[i] * 0.9, rut: rut[i], vix: 16.87, vix3m: 19.5, tnx: 4.1, wti: 80, dxy: 100, gold: 2000,
-      breadth50, breadth200, breadth20: breadth50 + 10, advanceRatio: i === n - 1 ? adv : 0.55, breadthNewHighs: highs, breadthNewLows: lows, distributionDays: dist }));
+      breadth50, breadth200, breadth20: breadth50 + 10, advanceRatio: i >= n - 5 ? adv : 0.55 /* audit 2026-10-17 D1: the advance confirmation is the 5-session mean */, breadthNewHighs: highs, breadthNewLows: lows, distributionDays: dist }));
   };
   const asOf = days[n - 1];
   const calmCredit = { hyBp: 290, hyAsOf: asOf, hyDelta5Bp: -4, hyDelta20Bp: 5 };
@@ -398,6 +398,17 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.equal(oct14.regime.leadership.met, 4);
   assert.equal(oct14.scenarios.scenarios.find((item) => item.id === 'concentration').confirmed, false, 'v57.81 소수 종목 주도 is not confirmed during a leadership break');
   assert.notEqual(oct14.outlook.leadId, 'concentration', 'v57.81 소수 종목 주도 is not the selected flow on 10/14 numbers');
+  // Audit 2026-10-17 (owner D2): after weeks above +1%, a close +0.5% over the rising 50-day line holds 양호; under the line it is 중립.
+  const calmShape = { ndxDrop5: 0.5, rutBelow200: false, breadth50: 62, breadth200: 64, adv: 0.55, highs: 40, lows: 10, dist: 2 };
+  const held = run(make({ ...calmShape, spxGap: 0.5 }));
+  assert.equal(held.trend.state, 'favorable', `D2 +0.5% after a +1% run holds 양호 (${held.trend.read})`);
+  assert.match(held.trend.read, /50일선 아래로 마감하기 전까지 유지/, 'D2 the held 양호 says what ends it');
+  assert.equal(run(make({ ...calmShape, spxGap: -0.3 })).trend.state, 'neutral', 'D2 a close under the 50-day line ends the hold');
+  // D1: one weak session in five no longer confirms — the 5-session mean of 0.55 x4 and 0.39 is 0.52.
+  const oneWeak = make({ spxGap: 0.15, ndxDrop5: -3.9, rutBelow200: true, breadth50: 33.6, breadth200: 48.9, adv: 0.39, highs: 28, lows: 40, dist: 7 }).map((row, i, rows) => i >= rows.length - 5 && i < rows.length - 1 ? { ...row, advanceRatio: 0.55 } : row);
+  const advance = run(oneWeak, { hyBp: 316, hyAsOf: asOf, hyDelta5Bp: 13, hyDelta20Bp: 40 }).regime.leadership.confirmations.find((item) => item.id === 'advance');
+  assert.equal(advance.ok, false, `D1 one session under 45% in five is not the advance confirmation (${advance.value})`);
+  assert.match(advance.value, /5거래일 평균 51\.8%/, 'D1 the confirmation names the 5-session mean');
   const conc = oct14.outlook.items.find((item) => item.id === 'concentration');
   assert.ok(conc.total === 5 && /주도 영역 유지 미충족\(주도 영역 이탈\)/.test(conc.basis), `v57.81 concentration lists 주도 영역 유지 as its 5th check (${conc.basis})`);
   const weak = oct14.outlook.items.find((item) => item.id === 'weakness');

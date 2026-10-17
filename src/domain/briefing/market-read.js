@@ -840,7 +840,7 @@ function leadershipSessionOf(s = {}, basis = null) {
   const advRatio = adv ? (adv.value > 1 ? adv.value / 100 : adv.value) : null;
   const confirmations = [
     { id: 'newLows', label: '52주 신저가가 신고가보다 많음', ok: highs && lows ? lows.value > highs.value : null, value: highs && lows ? `신저가 ${fmt(lows.value, 0)}, 신고가 ${fmt(highs.value, 0)}` : null },
-    { id: 'advance', label: `마감일 상승 종목 ${fmt(rule.advanceRatioWeakBelow * 100, 0)}% 미만`, ok: advRatio == null ? null : advRatio < rule.advanceRatioWeakBelow, value: advRatio == null ? null : `상승 종목 ${fmt(advRatio * 100, 0)}%` },
+    { id: 'advance', label: `마감일 상승 종목 ${fmt(rule.advanceRatioWeakBelow * 100, 0)}% 미만`, ok: advRatio == null ? null : advRatio < rule.advanceRatioWeakBelow, value: advRatio == null ? null : `상승 종목 ${fmt(advRatio * 100, 0)}%`, ratio: advRatio },
     { id: 'distribution', label: `분배일 ${rule.distributionDaysAt}일 이상`, ok: dist ? dist.value >= rule.distributionDaysAt : null, value: dist ? `분배일 ${fmt(dist.value, 0)}일` : null },
     { id: 'smallcaps', label: '러셀 2000이 200일선 아래', ok: rut?.ma200 != null ? rut.value < rut.ma200 : null, value: rut?.ma200 != null ? `러셀 2000 200일선 대비 ${signed(pct(rut.value, rut.ma200))}` : null }
   ];
@@ -875,8 +875,17 @@ function leadershipPriorSessions(history, through, { window, run }) {
 }
 
 // A confirmation counts when it held on any session in the window ending at seq[k]; it carries the date it held on.
+// Audit 2026-10-17 (owner D1): the advance ratio is the window's mean instead — under 45% on any one of five sessions held
+// on most sessions, so the confirmation hardly confirmed. It needs window − 1 observed sessions, else it is unknown.
 function windowedConfirmations(seq, k, window) {
+  const rule = RULES.leadership;
   return seq[k].confirmations.map((item, index) => {
+    if (item.id === 'advance' && window > 1) {
+      const ratios = seq.slice(Math.max(0, k - window + 1), k + 1).map((session) => session.confirmations[index].ratio).filter((value) => value != null);
+      const mean = ratios.length >= window - 1 ? ratios.reduce((sum, value) => sum + value, 0) / ratios.length : null;
+      return { ...item, label: `상승 종목 비율 ${window}거래일 평균 ${fmt(rule.advanceRatioWeakBelow * 100, 0)}% 미만`, ok: mean == null ? null : mean < rule.advanceRatioWeakBelow,
+        value: mean == null ? null : `상승 종목 ${window}거래일 평균 ${fmt(mean * 100, 1)}%`, ratio: mean };
+    }
     for (let j = k; j >= Math.max(0, k - window + 1); j -= 1) {
       const seen = seq[j].confirmations[index];
       if (seen.ok === true) return { ...item, ok: true, value: seen.value, date: seq[j].date };
@@ -951,10 +960,41 @@ export function buildMarketRegime(input = {}) {
     const buffer = RULES.trend.bufferPct;
     const gap50 = spx.ma50 ? pct(spx.value, spx.ma50) : null;
     const testing = gap50 != null && Math.abs(gap50) < buffer;
+    // Audit 2026-10-17 (owner D2): 양호 is entered at +bufferPct and held while the close stays at or above the 50-day line
+    // plus holdAbovePct with the line rising over the 200-day line — the same hysteresis as the rates and credit axes (R707).
+    // A session the leadership cap below held at 중립 ends the hold too: 10/14 (capped) → 10/15 at +0.5% must not read 양호.
+    const { holdAbovePct, latchSessions } = RULES.trend;
+    const ndxSeries = buildCloseSeries(input.history, 'ndx', { through: basis });
+    const rutSeries = buildCloseSeries(input.history, 'rut', { through: basis });
+    const cappedOn = (date) => {
+      const ndxAt = stats(ndxSeries.filter((point) => point.date <= date));
+      const rutAt = stats(rutSeries.filter((point) => point.date <= date));
+      const drop = ndxAt?.date === date ? pct(ndxAt.value, ndxAt.d5) : null;
+      return rutAt?.ma200 != null && rutAt.value < rutAt.ma200 && drop != null && drop <= -RULES.trend.leaderDrop5dPct;
+    };
+    const daily = series.slice(-latchSessions).map((point, index, list) => {
+      const upto = series.length - list.length + index + 1;
+      const closes = series.slice(0, upto);
+      const mean = (from, to) => closes.slice(from, to).reduce((sum, item) => sum + item.value, 0) / maShort;
+      const ma50 = upto >= maShort ? mean(-maShort) : null;
+      const ma200 = upto >= RULES.trend.maLong ? closes.slice(-RULES.trend.maLong).reduce((sum, item) => sum + item.value, 0) / RULES.trend.maLong : null;
+      const then = upto >= maShort + slopeLookback ? mean(-(maShort + slopeLookback), -slopeLookback) : null;
+      const gap = ma50 ? pct(point.value, ma50) : null;
+      const up = ma50 != null && ma200 != null && then != null && ma50 > ma200 && ma50 > then;
+      // The cap is only looked up where it could matter (a session that would otherwise enter or hold 양호).
+      return { date: point.date, gap, up, capped: gap != null && gap >= holdAbovePct && up ? cappedOn(point.date) : false };
+    });
+    const trendLatch = latchedState(daily, (point) => point.gap != null && point.gap >= buffer && point.up && !point.capped,
+      (point) => point.gap == null || point.gap < holdAbovePct || !point.up || point.capped);
     let state = 'neutral';
     if (spx.ma50 == null || spx.ma200 == null || rising == null) state = 'unknown';
     else if (gap50 >= buffer && spx.ma50 > spx.ma200 && rising) state = 'favorable';
-    else if (spx.value < spx.ma200 || (gap50 <= -buffer && !rising)) state = 'burden';
+    // Audit 2026-10-17 (owner D2): the 200-day line gets the same ±bufferPct band — a close 0.1% under it was 부담.
+    const gap200 = pct(spx.value, spx.ma200);
+    const under200 = gap200 != null && gap200 <= -buffer;
+    if (state !== 'unknown' && state !== 'favorable' && (under200 || (gap50 <= -buffer && !rising))) state = 'burden';
+    const trendHeld = state === 'neutral' && trendLatch.on && daily.at(-1)?.date === spx.date && gap50 >= holdAbovePct && spx.ma50 > spx.ma200 && rising;
+    if (trendHeld) state = 'favorable';
     const ndx = s.ndx, rut = s.rut;
     const ndx5 = ndx ? pct(ndx.value, ndx.d5) : null;
     const smallBelow200 = rut?.ma200 != null && rut.value < rut.ma200;
@@ -968,12 +1008,13 @@ export function buildMarketRegime(input = {}) {
     const structure = movingAverageStructure(spx);
     const horizon = structure.short && structure.long
       ? ` 단기(5·10·20일)는 ${structure.shortLabel}, 장기(20·50·100·200일)는 ${structure.longLabel}${structure.short !== structure.long ? ' — 두 기간의 방향이 달라 단기 흐름이 장기 추세로 이어지는지 확인할 구간입니다' : ''}.` : '';
-    const baseRead = state === 'favorable' ? `지수가 오르는 50일선보다 ${signed(gap50)} 위에 있고 50일선이 200일선 위 — 상승 추세가 유지되고 있습니다.`
-      : state === 'burden' ? (spx.value < spx.ma200 ? 'S&P 500이 200일선 아래 — 장기 추세가 꺾였습니다.' : 'S&P 500이 하락하는 50일선 아래 — 단기 추세가 약해졌습니다.')
+    const baseRead = state === 'favorable' ? `지수가 오르는 50일선보다 ${signed(gap50)} 위에 있고 50일선이 200일선 위 — 상승 추세가 유지되고 있습니다.${trendHeld ? ` 양호 판정은 ${shortDate(trendLatch.since)}부터 이어지고 있으며, 50일선 아래로 마감하기 전까지 유지합니다.` : ''}`
+      : state === 'burden' ? (under200 ? `S&P 500이 200일선보다 ${signed(gap200)} 아래 — 장기 추세가 꺾였습니다.` : 'S&P 500이 하락하는 50일선 아래 — 단기 추세가 약해졌습니다.')
         : state === 'unknown' ? '이동평균 계산에 필요한 종가 기록(200거래일 이상)이 부족합니다.'
           // T21: 중립 covers several shapes; each is named instead of a blanket "추세는 유지되지만".
+          : spx.value < spx.ma200 ? `S&P 500이 200일선보다 ${fmt(Math.abs(gap200), 1)}% 아래 — 200일선 근처에서 되찾을지 가리는 구간입니다. ${buffer}% 넘게 아래로 마감하면 부담으로 봅니다.`
           : spx.ma50 < spx.ma200 ? 'S&P 500은 200일선 위지만 50일선이 200일선 아래 — 장기 추세 회복이 아직 확인되지 않은 혼조 상태입니다.'
-            : testing ? `S&P 500이 50일선보다 ${fmt(Math.abs(gap50), 1)}% ${gap50 >= 0 ? '위 — 50일선 근처에서 버티는 구간입니다' : '아래 — 50일선 근처에서 되찾을지 가리는 구간입니다'}. 50일선보다 ${buffer}% 이상 위에서 마감해야 상승 추세 유지로, ${buffer}% 넘게 아래면 약화로 봅니다.`
+            : testing ? `S&P 500이 50일선보다 ${fmt(Math.abs(gap50), 1)}% ${gap50 >= 0 ? '위 — 50일선 근처에서 버티는 구간입니다' : '아래 — 50일선 근처에서 되찾을지 가리는 구간입니다'}. 50일선보다 ${buffer}% 이상 위에서 마감하면 양호로, ${buffer}% 넘게 아래면 약화로 봅니다.`
               : spx.value < spx.ma50 ? 'S&P 500이 오르는 50일선 아래로 내려왔지만 200일선 위 — 단기 조정인지 추세 약화인지 확인할 구간입니다.'
                 : capped ? 'S&P 500은 오르는 50일선 위입니다.'
                   : '지수는 50일선·200일선 위지만 50일선이 내려가기 시작해 상승 탄력이 약해진 상태입니다.';
@@ -982,12 +1023,12 @@ export function buildMarketRegime(input = {}) {
     const down = spx.ma50 != null ? spx.ma50 * (1 - buffer / 100) : null;
     const capFlip = capped ? ` (러셀 2000이 200일선을 되찾거나 나스닥 100의 5거래일 낙폭이 ${RULES.trend.leaderDrop5dPct}% 안으로 줄어야 함)` : '';
     const flip = state === 'unknown' ? null
-      : state === 'favorable' ? `S&P 500이 50일선+${buffer}%(${fmt(up, 0)}) 아래로 마감하면 중립, 200일선(${fmt(spx.ma200, 0)}) 아래면 부담`
-        : state === 'burden' ? `S&P 500이 200일선(${fmt(spx.ma200, 0)})과 50일선(${fmt(spx.ma50, 0)}) 위로 회복하면 중립으로 바뀜`
-          : `S&P 500이 상승하는 50일선보다 ${buffer}% 이상 위(${fmt(up, 0)} 이상)에서 마감하고 50일선이 200일선 위면 양호${capFlip} · 200일선(${fmt(spx.ma200, 0)}) 아래이거나 하락하는 50일선보다 ${buffer}% 넘게 아래(${fmt(down, 0)} 미만)면 부담`;
+      : state === 'favorable' ? `S&P 500이 50일선(${fmt(spx.ma50 * (1 + holdAbovePct / 100), 0)}) 아래로 마감하거나 50일선이 꺾이면 중립, 200일선-${buffer}%(${fmt(spx.ma200 * (1 - buffer / 100), 0)}) 아래면 부담`
+        : state === 'burden' ? `S&P 500이 200일선-${buffer}%(${fmt(spx.ma200 * (1 - buffer / 100), 0)}) 위로 올라오고 하락하는 50일선보다 ${buffer}% 넘게 아래가 아니면 중립으로 바뀜`
+          : `S&P 500이 상승하는 50일선보다 ${buffer}% 이상 위(${fmt(up, 0)} 이상)에서 마감하고 50일선이 200일선 위면 양호${capFlip} · 200일선보다 ${buffer}% 넘게 아래(${fmt(spx.ma200 * (1 - buffer / 100), 0)} 미만)이거나 하락하는 50일선보다 ${buffer}% 넘게 아래(${fmt(down, 0)} 미만)면 부담`;
     const rows = [
       ['S&P 500', `${fmt(spx.value)} (20일 ${signed(pct(spx.value, spx.d20))})`, alignments.spx],
-      ['50일선 대비', gap50 == null ? null : `${signed(gap50, 2)} (양호 기준 +${buffer}% 이상)`, alignments.spx],
+      ['50일선 대비', gap50 == null ? null : `${signed(gap50, 2)} (양호 진입 +${buffer}% 이상 · 유지 ${holdAbovePct ? `+${holdAbovePct}%` : '50일선'} 이상)`, alignments.spx],
       ['단기 추세 (종가>5>10>20일선)', structure.shortText, alignments.spx],
       ['장기 추세 (20>50>100>200일선)', structure.longText, alignments.spx],
       ['50일선 / 200일선', spx.ma50 != null && spx.ma200 != null ? `${fmt(spx.ma50, 0)} / ${fmt(spx.ma200, 0)}` : null, alignments.spx],
