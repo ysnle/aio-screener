@@ -129,7 +129,15 @@ try {
     await page.fill('#scr-text-search', target);
     // Wait for the debounced search render (one row left) so the click lands on the settled table.
     await page.waitForFunction((sym) => { const rows = [...document.querySelectorAll('#screener-results-body [data-aio-screener-ticker]')]; return rows.length === 1 && rows[0].dataset.aioScreenerTicker === sym && !!document.querySelector(`[data-aio-screener-compare="${sym}"]`); }, target, { timeout: 10000 });
-    await page.waitForTimeout(300);
+    // The settled table stays put: the visible-row quote request (and its retries) must not rebuild the rows
+    // (the extended view used to rebuild the table every few hundred ms and detach the button under the click).
+    const idleRebuilds = await page.evaluate(() => new Promise((resolve) => {
+      let removed = 0;
+      const observer = new MutationObserver((list) => { removed += list.filter((entry) => entry.removedNodes.length).length; });
+      observer.observe(document.getElementById('screener-results-body'), { childList: true });
+      setTimeout(() => { observer.disconnect(); resolve(removed); }, 2500);
+    }));
+    if (idleRebuilds) fail(viewport.id, `settled table rebuilt ${idleRebuilds} time(s) with no input`);
     await page.locator(`[data-aio-screener-compare="${target}"]`).first().click();
     await page.waitForFunction((sym) => !document.getElementById('scr-compare-tray')?.hidden && (document.getElementById('scr-compare-list')?.textContent || '').includes(sym), target, { timeout: 10000 });
     // Core-only line in the validation tab.

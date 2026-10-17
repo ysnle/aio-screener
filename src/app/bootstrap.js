@@ -548,14 +548,39 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // from the held artifacts plus current live quotes (refresh:false), exactly like the live-quote path.
   const SCREENER_ARTIFACT_RECHECK_MS = 30 * 60 * 1000;
   let screenerArtifactReadAt = null;
-  function syncScreenerData({ scope = router.activeScope(), refresh = true } = {}) {
+  // A quote-only re-derivation rebuilds every row (about 5,000 with the 확장 shard), and a newer sync used to
+  // discard an older one only after both had done that work. A refresh:false request that arrives while a sync is
+  // running now waits and joins one follow-up run, which still reads the newest live quotes; artifact reads
+  // (refresh:true) start at once as before.
+  let screenerSyncRunning = null;
+  let screenerSyncQueued = null;
+  function startScreenerSync({ scope, refresh }) {
     if (refresh) screenerArtifactReadAt = clock.now();
-    return syncScreener.sync({ scope, refresh }).then((result) => {
+    const run = syncScreener.sync({ scope, refresh }).then((result) => {
       if (result) {
         eventTarget.dispatchEvent(new CustomEvent('aio:nativeScreenerReady', { detail: result }));
       }
       return result;
     });
+    screenerSyncRunning = run;
+    const settle = () => { if (screenerSyncRunning === run) screenerSyncRunning = null; };
+    run.then(settle, settle);
+    return run;
+  }
+  function syncScreenerData({ scope = router.activeScope(), refresh = true } = {}) {
+    if (refresh || !screenerSyncRunning) return startScreenerSync({ scope, refresh });
+    if (screenerSyncQueued) {
+      screenerSyncQueued.scope = scope;
+      return screenerSyncQueued.promise;
+    }
+    const queued = { scope, promise: null };
+    screenerSyncQueued = queued;
+    queued.promise = (async () => {
+      while (screenerSyncRunning) await screenerSyncRunning.then(() => {}, () => {});
+      if (screenerSyncQueued === queued) screenerSyncQueued = null;
+      return startScreenerSync({ scope: queued.scope, refresh: false });
+    })();
+    return queued.promise;
   }
 
   const requiredMarketSymbols = Object.freeze([...new Set(Object.values(PAGE_DATA_TIMELINE_CONTRACTS)
@@ -733,7 +758,13 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       // v57.79: a manual refresh also drops the held validation/fiscal artifacts (maxAgeMs up to 6h) so a remounted
       // tab reads the newly published files instead of the pre-refresh copies.
       if (forced && typeof root.fetch === 'function') clearArtifactCache(root.fetch.bind(root), { abortInFlight: false });
-      return syncScreenerData({ refresh: forced || screenerArtifactReadDue() });
+      const due = forced || screenerArtifactReadDue();
+      // A quotes-only run (the screener's own visible-row request) re-derives nothing here: quotes that arrived were
+      // already announced by aio:liveQuotes below, and a run that got none (offline, unquoted 확장 names) changed
+      // nothing. Re-deriving on it rebuilt every row after every visible-row request and its retries.
+      const keys = Array.isArray(event?.detail?.keys) ? event.detail.keys : [];
+      if (!due && keys.length && keys.every((key) => key === 'quotes')) return null;
+      return syncScreenerData({ refresh: due });
     });
     const stopScreenerQuotes = legacy.on('aio:liveQuotes', () => {
       if (String(store.getState()?.route || router.active() || '').replace(/^page-/, '') === 'screener') return syncScreenerData({ refresh: false });
