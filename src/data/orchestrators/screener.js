@@ -26,16 +26,18 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
   // shared screener artifact to the native consumer.
   let generation = 0;
   let disposed = false;
-  async function sync({ scope, refresh = true } = {}) {
+  // Normalized rows keyed by the provider's row object: a quotes-only read hands back the rows it reused unchanged.
+  let normalizedRowCache = new WeakMap();
+  async function sync({ scope, refresh = true, quotesOnly = false } = {}) {
     const thisGeneration = ++generation;
     let raw;
-    try { raw = await provider.readCurrent({ signal: scope?.signal, refresh }); }
+    try { raw = await provider.readCurrent({ signal: scope?.signal, refresh, quotesOnly }); }
     catch (error) {
       if (disposed || thisGeneration !== generation || scope?.signal?.aborted || error?.name === 'AbortError') return null;
       throw error;
     }
     if (disposed || thisGeneration !== generation || (scope && !scope.isCurrent())) return null;
-    const normalized = normalizeScreener(raw);
+    const normalized = normalizeScreener(raw, { rowCache: normalizedRowCache });
     if (scope && !scope.isCurrent()) return null;
     const context = rankingContext?.() || {};
     const ranking = typeof ranker === 'function' ? ranker({

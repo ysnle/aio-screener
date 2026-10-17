@@ -13933,11 +13933,9 @@ function _aioApplyScreenerBreadth(sd) {
   };
   if (!passed) return false;
 
-  window._breadth5 = b.above5;
   window._breadth20 = b.above20;
   window._breadth200 = b.above20; // legacy consumer name: this value is 20SMA breadth
   window._breadth50 = b.above50;
-  window._breadth200Actual = b.above200;
   window._breadthLiveData = {
     sma5: b.above5,
     sma20: b.above20,

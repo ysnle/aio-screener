@@ -553,9 +553,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // (refresh:true) start at once as before.
   let screenerSyncRunning = null;
   let screenerSyncQueued = null;
-  function startScreenerSync({ scope, refresh }) {
+  function startScreenerSync({ scope, refresh, quotesOnly = false }) {
     if (refresh) screenerArtifactReadAt = clock.now();
-    const run = syncScreener.sync({ scope, refresh }).then((result) => {
+    const run = syncScreener.sync({ scope, refresh, quotesOnly }).then((result) => {
       if (result) {
         eventTarget.dispatchEvent(new CustomEvent('aio:nativeScreenerReady', { detail: result }));
       }
@@ -566,18 +566,21 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     run.then(settle, settle);
     return run;
   }
-  function syncScreenerData({ scope = router.activeScope(), refresh = true } = {}) {
-    if (refresh || !screenerSyncRunning) return startScreenerSync({ scope, refresh });
+  // quotesOnly: a live-quote tick, which lets the provider reuse every row whose quote did not change. A joined run
+  // stays quotes-only only when every request it stands for was.
+  function syncScreenerData({ scope = router.activeScope(), refresh = true, quotesOnly = false } = {}) {
+    if (refresh || !screenerSyncRunning) return startScreenerSync({ scope, refresh, quotesOnly: !refresh && quotesOnly });
     if (screenerSyncQueued) {
       screenerSyncQueued.scope = scope;
+      screenerSyncQueued.quotesOnly = screenerSyncQueued.quotesOnly && quotesOnly;
       return screenerSyncQueued.promise;
     }
-    const queued = { scope, promise: null };
+    const queued = { scope, quotesOnly, promise: null };
     screenerSyncQueued = queued;
     queued.promise = (async () => {
       while (screenerSyncRunning) await screenerSyncRunning.then(() => {}, () => {});
       if (screenerSyncQueued === queued) screenerSyncQueued = null;
-      return startScreenerSync({ scope: queued.scope, refresh: false });
+      return startScreenerSync({ scope: queued.scope, refresh: false, quotesOnly: queued.quotesOnly });
     })();
     return queued.promise;
   }
@@ -766,7 +769,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       return syncScreenerData({ refresh: due });
     });
     const stopScreenerQuotes = legacy.on('aio:liveQuotes', () => {
-      if (String(store.getState()?.route || router.active() || '').replace(/^page-/, '') === 'screener') return syncScreenerData({ refresh: false });
+      if (String(store.getState()?.route || router.active() || '').replace(/^page-/, '') === 'screener') return syncScreenerData({ refresh: false, quotesOnly: true });
     });
     const stopScreenerShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['screener']), ({ scope }) => syncScreenerData({ scope, refresh: screenerArtifactReadDue() }), { withScope: true }));
     const stopAnalysisRefresh = compatibilityEvents.on('aio:refresh:done', syncAnalysis.sync);
