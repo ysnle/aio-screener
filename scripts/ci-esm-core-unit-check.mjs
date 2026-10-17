@@ -4198,6 +4198,14 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const twin = detectContractions(twinBars);
   const lastTwin = twin.contractions.at(-1);
   if (twin.pivot !== 116 || lastTwin?.high !== 116 || !(Math.abs(lastTwin.depth - (116 - 105) / 116 * 100) < 1e-9)) fail(`audit 2026-10-17 a pullback must start from the highest swing high before the next swing low: ${JSON.stringify(twin.contractions)}`);
+  // Audit 2026-10-17 (owner D6): one breakout day — prior 50-session volume (the day excluded), up close, at most +5% over the pivot.
+  const { isBreakoutDay } = await load('src/domain/technical/definitions.js');
+  const flatVol = Array(60).fill(1000);
+  const closesAt = (last) => [...Array(59).fill(99), last];
+  if (!isBreakoutDay({ closes: closesAt(102), volumes: [...flatVol.slice(0, 59), 1400], i: 59, pivot: 100 })) fail('D6 +2% over the pivot on 1.4x the prior 50-session volume is a breakout day');
+  if (isBreakoutDay({ closes: closesAt(106), volumes: [...flatVol.slice(0, 59), 2000], i: 59, pivot: 100 })) fail('D6 +6% over the pivot is extended, not a breakout day');
+  if (isBreakoutDay({ closes: [...Array(58).fill(99), 103, 102], volumes: [...flatVol.slice(0, 59), 2000], i: 59, pivot: 100 })) fail('D6 a down close is not a breakout day');
+  if (isBreakoutDay({ closes: closesAt(102), volumes: [...flatVol.slice(0, 59), 1390], i: 59, pivot: 100 })) fail('D6 1.39x the prior average is not breakout volume');
 }
 
 console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks', 'domain/screener/setup-profile:deriveScreenerSetupProfile', 'domain/portfolio/surface', 'domain/fundamental/sec-report', 'bootstrap:stop-lifecycle'] }));

@@ -58,14 +58,18 @@ export const RULES = Object.freeze({
   //   weinstein: 30-week average, its 4-week slope, flat inside ±1%, and 26 weeks back to tell a base from a top;
   //   template: Minervini's published 52-week rules (within 25% of the high, 30% above the low); stage2Gate: the screener's
   //   own looser moving-average gate (within 30% of the high) — a separate, separately named test;
-  //   breakout: the volume multiple of a breakout day (both the chart and the screener's VCP).
+  //   breakout: the breakout day shared by the chart and the screener's VCP (technical/definitions.js isBreakoutDay).
   technical: Object.freeze({ rsi: Object.freeze({ overbought: 70, oversold: 30, climax: 80 }),
     atrPeriod: 14, adrPeriod: 20, rangeSessions: 252, fullYearSessions: 240, nearHighPct: 3,
     extension: Object.freeze({ nearBase: 2, extended: 4, stretched: 7 }), nearLineAdr: 1, recentDropAdr: 2,
     ema8: Object.freeze({ overheatPct: 10, breakBelowPct: 5 }),
     weinstein: Object.freeze({ maWeeks: 30, slopeWeeks: 4, flatSlopePct: 1, priorWeeks: 26 }),
     template: Object.freeze({ nearHighPct: 25, aboveLowPct: 30 }), stage2Gate: Object.freeze({ nearHighPct: 30 }),
-    breakout: Object.freeze({ volumeMultiple: 1.4 }),
+    // Audit 2026-10-17 (owner D6): one breakout day for the chart, the screener and the legacy snapshot — O'Neil's close above
+    // the pivot, no more than maxAbovePct over it, up from the prior close, on volume ≥ volumeMultiple × the prior
+    // volumeSessions average (the day excluded). The chart used a 50-day average that included the day; the screener a
+    // 20-day one, no ceiling, and an upper-half-of-range day counted as up.
+    breakout: Object.freeze({ volumeMultiple: 1.4, volumeSessions: 50, maxAbovePct: 5 }),
     // v57.87 (owner X-bookmark read 2026-10-16): stock-level follow-through evidence (technical/follow-through.js).
     // Pocket pivot: an up close whose volume beats every down-close volume of the prior 10 sessions (Morales/Kacher).
     // Heavy down day: a close ≥ heavyDownPct (1%) lower on volume above the stock's own heavyDownAvgSessions (50) average

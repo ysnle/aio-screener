@@ -2576,7 +2576,7 @@ async function _fetchTechnicalDataForChat(tickers, opts) {
     lines += '• MACD 히스토그램 ' + (snap.macd && snap.macd.hist != null ? f(snap.macd.hist) + (snap.macd.hist > 0 ? ' 상승모멘텀' : ' 하락모멘텀') : 'N/A') + ' · 볼린저 ' + (snap.bbReentry ? '상단 재진입(소진주의)' : snap.bbOutsideUpper ? '상단 돌파' : '밴드 내') + ' · RVOL20 ' + f(snap.rvol20, 1) + 'x\n';
     lines += '• 20일 고/저 $' + f(snap.recentHigh20) + '/$' + f(snap.recentLow20) + (posVs20 != null ? ' (레인지 ' + posVs20 + '% 위치)' : '') + ' · 50일 고/저 $' + f(snap.recentHigh50) + '/$' + f(snap.recentLow50) + '\n';
     if (snap.vcp) {
-      var vcpLabel = snap.vcpStage === 'breakout' ? '돌파' : snap.vcpStage === 'near_pivot' ? '피벗 근접' : snap.vcpStage === 'contracting' ? '수축 진행' : snap.vcpStage === 'basing' ? '베이스' : snap.vcpStage === 'stage2_only' ? 'Stage2 단독' : snap.vcpStage === 'not_stage2' ? 'Stage2 미충족' : '데이터 부족';
+      var vcpLabel = snap.vcpStage === 'breakout' ? '돌파' : snap.vcpStage === 'extended' ? '피벗에서 확장' : snap.vcpStage === 'near_pivot' ? '피벗 근접' : snap.vcpStage === 'contracting' ? '수축 진행' : snap.vcpStage === 'basing' ? '베이스' : snap.vcpStage === 'stage2_only' ? 'Stage2 단독' : snap.vcpStage === 'not_stage2' ? 'Stage2 미충족' : '데이터 부족';
       lines += '• VCP: ' + vcpLabel + (snap.vcp.contractionCount != null ? ' · 수축 ' + snap.vcp.contractionCount + '회' + ((snap.vcp.contractionDepths || []).length ? '(깊이 ' + snap.vcp.contractionDepths.map(function(d) { return f(d, 1) + '%'; }).join('→') + ')' : '') : '') + (snap.vcpPivot ? ' · 피벗 $' + f(snap.vcpPivot) : '') + (snap.vcp.volumeDrying ? ' · 거래량 고갈 확인' : '') + '\n';
     }
     if (snap.fibNearest || snap.volProfile) {
