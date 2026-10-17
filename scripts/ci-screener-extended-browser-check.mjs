@@ -9,7 +9,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 import { buildExtendedShardPayload } from './fetch-data.mjs';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.93 core row encoding
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_SCREENER_EXTENDED_TEST_PORT || 8957);

@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.93 core row encoding
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 
 const path = process.argv[2] || 'public-data/screener.json';
 const payload = expandScreenerArtifact(JSON.parse(await readFile(path, 'utf8')));

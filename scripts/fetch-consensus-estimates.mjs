@@ -10,7 +10,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.93 core row encoding
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const ROOT = `${__dir}/..`;

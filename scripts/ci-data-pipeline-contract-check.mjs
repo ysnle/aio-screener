@@ -11,7 +11,7 @@ import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { SHARED_AI_MODEL, extractCompletedResponseText, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
 import { marketAnalysisDiagnostic, summarizeOperationalChecks, workflowCadence, operationalSummary } from './lib/operational-health.mjs';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.93 core row encoding
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');

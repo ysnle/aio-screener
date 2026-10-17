@@ -40,7 +40,7 @@ import { buildScenarioOutlook, renderScenarioOutlookContext } from '../src/domai
 import { buildMacroRead } from '../src/domain/macro/macro-read.js';
 import { buildMacroCrossroads, upcomingMacroEvents, renderMacroCrossroadsContext } from '../src/domain/market/macro-crossroads.js';
 import { round } from './lib/producer-math.mjs';
-import { EXTENDED_SHARD_SCHEMA, RANKING_CONTRACTS, encodeScreenerArtifact, encodeShardRows, expandScreenerArtifact, isValidShard } from '../src/data/screener-extended.js'; // v57.81; v57.93 core encoding
+import { EXTENDED_SHARD_SCHEMA, RANKING_CONTRACTS, encodeScreenerArtifact, encodeShardRows, expandScreenerArtifact, isValidShard } from '../src/data/screener-extended.js'; // v57.81; v57.95 core encoding
 import { _mean, closesToFactors, backtestFactors } from './lib/factors.mjs'; // v57.62 split
 import { deriveFactorQuality, isSessionComplete, sessionSegmentOfSymbol, listingCurrencyOf, dailyRowsFromYahooChart, priceHistoryFromRows, priceFactorRow } from '../src/domain/screener/price-factors.js'; // v57.81: shared with the browser
 import { indexReturnsByDate } from '../src/domain/technical/follow-through.js'; // v57.87: down-day resilience
@@ -1809,7 +1809,7 @@ export async function enrichScreener() {
     data,
     backtest,
   };
-  // v57.93: rows are written in the row-defaults encoding (shared lineage once per file); readers expand it.
+  // v57.95: rows are written in the row-defaults encoding (shared lineage once per file); readers expand it.
   await atomicWriteFile(SCREENER_OUT, JSON.stringify(encodeScreenerArtifact(payload)));
   // P1465: record today's default-profile candidates (the page's own ranking path on the files just
   // written) and fill the outcomes of entries whose 21-session window has closed. Non-fatal.

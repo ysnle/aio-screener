@@ -172,7 +172,7 @@ export function expandShardRows(shard) {
   return out;
 }
 
-// v57.93: screener.json carries its rows in the same row-defaults encoding (3.5 MB -> ~1.8 MB raw). The producer
+// v57.95: screener.json carries its rows in the same row-defaults encoding (3.5 MB -> ~1.8 MB raw). The producer
 // writes encodeScreenerArtifact(payload); every reader of the file goes through expandScreenerArtifact, which returns
 // the plain shape ({ ...meta, data: { sym: fullRow } }) and passes an unencoded artifact (fixtures, older files) through.
 const ENCODING_KEYS = ['rowEncoding', 'rowDefaults', 'rowDefaultsWhen'];

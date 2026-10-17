@@ -18,7 +18,7 @@ import { tickerKey, SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, SEC_CONCEPT
 import { secClassification } from '../src/domain/fundamental/sic-sector.js';
 export { SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, SEC_CONCEPT_SET_REASON_CODES, reportingBasis, classifyIssuerCapability, parseClassShareFacts, CLASS_EPS_TOLERANCE, selectClassDimensionedShares, classInstanceUrl, RECENT_FILING_WINDOW_DAYS, RECENT_FILING_MAX, recentFilingsFrom, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
 import { buildDomainReceipt } from './lib/domain-receipt.mjs';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.93 core row encoding
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 
 // P1256: 도메인 receipt 계약은 이제 모든 수집 도메인이 공유한다(SEC는 첫 수용자).
 export { buildDomainReceipt };

@@ -1,7 +1,7 @@
 // v57.81: validates the extended screener shard before the refresh workflow commits it (freshness included).
 import { readFile } from 'node:fs/promises';
 import { validateExtendedShard } from './lib/screener-extended-validate.mjs';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.93 core row encoding
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 
 const path = process.argv[2] || 'public-data/screener-extended.json';
 let shard;

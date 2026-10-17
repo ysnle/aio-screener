@@ -8,7 +8,7 @@ const outIndex = process.argv.indexOf('--out');
 const requestedOut = process.argv.find((arg) => arg.startsWith('--out='))?.slice(6) || (outIndex >= 0 ? process.argv[outIndex + 1] : null) || '_artifacts/screener-scale-benchmark.json';
 const samples = 9;
 
-// v57.93: rows are the published screener rows (~3 KB each with lineage, news and fundamentals), not ~200-byte
+// v57.95: rows are the published screener rows (~3 KB each with lineage, news and fundamentals), not ~200-byte
 // synthetic rows, so parse cost and bytes match what the page receives. Larger sizes cycle the real rows under new
 // symbols. The first size is the current core row count; 5,000 is about core + extended; 20,000 is headroom.
 const artifactPath = path.resolve(root, 'public-data/screener.json');

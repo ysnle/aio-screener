@@ -37,7 +37,7 @@ import { calculateOutcome, expectedExitDate } from '../src/domain/screener/outco
 import { filterRows } from '../src/ui/pages/screener.js';
 import { EXTENDED_MIN_DOLLAR_VOLUME_30D, computeFactorRanks, rankingPopulationExclusion } from '../src/domain/screener/factor-ranks.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../src/domain/fundamental/period.js';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.93 core row encoding
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const failures = [];

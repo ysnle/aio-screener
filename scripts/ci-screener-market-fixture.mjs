@@ -6,7 +6,7 @@ import { filterRows, sortRows } from '../src/ui/pages/screener.js';
 import { buildGroupStrength } from '../src/domain/themes/group-strength.js';
 import { normalizeScreener } from '../src/data/normalize/screener.js';
 import { createScreenerOrchestrator } from '../src/data/orchestrators/screener.js';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.93 core row encoding
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 
 // P1625: extreme observations in another listing market must not move US peer ranks.
 const fixtureRow = (sym, seed, market = 'US') => ({

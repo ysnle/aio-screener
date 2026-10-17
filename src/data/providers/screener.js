@@ -292,7 +292,7 @@ export function createScreenerProvider({
       }
       const now = typeof clock.now === 'function' ? clock.now() : Date.now();
       const LIVE_QUOTE_MAX_AGE_MS = 15 * 60 * 1000;
-      // v57.93: the core rows arrive in the row-defaults encoding; one held response is expanded once.
+      // v57.95: the core rows arrive in the row-defaults encoding; one held response is expanded once.
       const receivedArtifact = artifactResponse.ok && artifactResponse.data && typeof artifactResponse.data === 'object'
         ? expandScreenerArtifact(artifactResponse.data)
         : null;

@@ -22,7 +22,7 @@ import { krThemeArtifactRead } from '../src/domain/themes/kr-themes.js';
 import { buildThemePlaybook } from '../src/domain/scenarios/theme-playbook.js';
 import { THEME_STATES } from '../src/domain/scenarios/analogs.js';
 import { SCENARIO_STATE_CURRENT } from '../src/domain/scenarios/theme-stage.js';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.93 core row encoding
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PD = (name) => path.join(ROOT, 'public-data', name);
