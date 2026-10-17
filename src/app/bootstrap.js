@@ -51,7 +51,6 @@ import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../dom
 import { detectContractions, isBreakoutDay } from '../domain/technical/definitions.js';
 import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SAMPLE, normalizeNewsSentimentHistory } from '../domain/news/scoring.js';
 import { classifyBreadthParticipation } from '../domain/market/breadth.js';
-import { computeMarketHealth } from '../domain/market/health.js';
 import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
 import { latestCompletedUsSession, latestCompletedKrSession } from '../ai/time/market-session.js';
 import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
@@ -230,7 +229,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   root._aioMarketRegimeSummary = () => {
     try {
       const regime = readMarketRegime(root);
-      return regime ? Object.freeze({ available: !!regime.available, overall: regime.overall || null, asOf: regime.asOf || null, counts: regime.counts || null }) : null;
+      return regime ? Object.freeze({ available: !!regime.available, sufficient: regime.sufficient === true, overall: regime.overall || null, asOf: regime.asOf || null, counts: regime.counts || null }) : null;
     } catch (_) { return null; }
   };
   root._aioLatestCompletedSessionDate = (market = 'US') => (market === 'KR' ? latestCompletedKrSession(clock.now()) : latestCompletedUsSession(clock.now()))?.date || null;
@@ -1095,9 +1094,6 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // P1449: the legacy bridge (LC-39/P1215 family) needs the same subject continuity the native
     // renders use — the 종목 · 차트 button names the company for the whole 종목 screen.
     ,setStockSubject
-    // P785/v57.77: single pure market-health model; js/aio-macro-tech.js computeMarketHealth() is a
-    // pure adapter (no DOM, no fence) read by the aio-core ticker gate and runtime-readers.
-    ,computeMarketHealth
     ,getVerticalSliceContract: (route) => getVerticalSliceContract(route)
     ,getVerticalSliceContracts: () => VERTICAL_SLICE_CONTRACTS.slice()
     ,auditVerticalSliceContracts: (routes = ROUTE_IDS) => auditVerticalSliceContracts(routes)

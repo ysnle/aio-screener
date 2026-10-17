@@ -3602,7 +3602,7 @@ document.addEventListener('keydown', function(e) {
 // NEW FUNCTIONS: Enhanced Technical Analysis Features
 // ═════════════════════════════════════════════════════════════════
 
-// v57.77: the computeMarketHealth wrapper that painted #m7-health-row / #breadth-bar / #breadth-pct is retired — none of
+// v57.77: the market-health wrapper that painted #m7-health-row / #breadth-bar / #breadth-pct is retired — none of
 // those sinks exist, and the wrapper dropped the call arguments.
 
 // Ticker Analysis Deep Dive
@@ -4050,11 +4050,10 @@ window._aioRenderTickerOverview = function(tkr) {
     prov.textContent = srcs.length ? srcs.join(' · ') : '원천 미수신 — 표시값 없음';
   }
   // 3) P1748: 관련 테마 칩 퇴역 — src/ui/components/company-analysis.js의 테마 버튼이 같은 연결(테마 단계 포함)을 맡는다.
-  // 4) 팩터 프로파일 — SCREENER_DB factorScores(섹터 기준 정규화 점수 0~100, 서술적). W07-C/P1146: empirical percentile도 정규분포 누적확률도 아니며, 순위 percentile은 별도 composite rank다.
+  // 4) 팩터 프로파일 — 스크리너 순위 실행이 만든 canonical row factorScores(섹터 기준 정규화 점수 0~100, 서술적). W07-C/P1146: empirical percentile도 정규분포 누적확률도 아니며, 순위 percentile은 별도 composite rank다.
   var rowsEl = document.getElementById('ticker-ov-factor-rows');
   var radarC = document.getElementById('ticker-ov-factor-radar');
   var radarWrap = radarC && radarC.parentElement;
-  if (scr && !scr.factorScores && typeof _aioComputeFactorRanks === 'function') { try { _aioComputeFactorRanks(); } catch(_frErr) {} }
   var fs = scr && scr.factorScores;
   var F_LBL = { momentum:'모멘텀', trend:'추세', lowvol:'저변동성', size:'사이즈', value:'밸류', quality:'퀄리티', kalman:'칼만 추세' }, F_HINT = { kalman:'칼만 추세: 잡음을 걸러 낸 추세 추정' };
   if (fs && rowsEl) {

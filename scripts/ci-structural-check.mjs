@@ -18,7 +18,6 @@ const glossary = read('js/aio-glossary.js');
 // duplicate-global scan blind to it — the exact gap P605 exploited.
 const pages = read('js/aio-pages.js');
 const krData = read('js/aio-kr-data.js');
-const macroTech = read('js/aio-macro-tech.js');
 const workspace = read('js/aio-workspace.js');
 const tests = read('js/aio-tests.js');
 const html = read('index.html');
@@ -87,7 +86,6 @@ const RUNTIME_SCRIPT_FILES = {
   'js/aio-glossary.js': glossary,
   'js/aio-pages.js': pages,
   'js/aio-kr-data.js': krData,
-  'js/aio-macro-tech.js': macroTech,
   'js/aio-workspace.js': workspace,
 };
 // Column-0-anchored on purpose: only true top-level declarations share the global scope this way.

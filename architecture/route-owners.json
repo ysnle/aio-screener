@@ -173,7 +173,7 @@
       "nativeSecondarySurface": [],
       "contestedIds": [],
       "legacyWriterEvidence": [],
-      "p785Boundary": "analysis.js consumes the canonical market-health.v1 model; since v57.77 js/aio-macro-tech.js computeMarketHealth is a pure adapter with no DOM writes and no fence.",
+      "p785Boundary": "Legacy unification (2026-10-17): the 0-100 market-health model, its legacy adapter and the js/aio-macro-tech.js file are retired; the technical summary is the 시장 상태 regime board rendered by analysis.js.",
       "p822Boundary": "Retired: P1420/P1670 removed the technical candle title, meta and canvases; stock-chart.js owns price history on the 종목 screen.",
       "p833Boundary": "Retired: loadTechCandleChart no longer exists (ci-architecture-contract-check keeps it absent); price and volume charts are native in stock-chart.js.",
       "notes": "The technical regime surface is native and has no legacy writers since v57.78 (loadTechCandleChart, _initTechnicalPage and the health renderer are gone). Shares analysis.js with home/signal.",

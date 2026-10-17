@@ -10,9 +10,9 @@ const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa
 const chat = read('js/aio-chat.js');
 // P1132/R619: the inline Yahoo chart helper moved from index.html's block F into js/aio-ui.js.
 const ui = read('js/aio-ui.js');
-// P1135/R620: updateSRLevels and the technical-level renderers moved from index.html's block B
-// into js/aio-macro-tech.js.
-const macroTech = read('js/aio-macro-tech.js');
+// P1135/R620 → legacy unification: js/aio-macro-tech.js (block B) is retired; the price reference-line pin scans the
+// remaining legacy shell files instead.
+const macroTech = ['js/aio-pages.js', 'js/aio-ui.js', 'js/aio-core.js'].map(read).join('\n');
 function section(source, start, end) {
   const from = source.indexOf(start);
   const to = source.indexOf(end, from + start.length);

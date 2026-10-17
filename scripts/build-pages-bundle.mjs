@@ -19,7 +19,7 @@ import crypto from 'node:crypto';
 import zlib from 'node:zlib';
 import * as esbuild from 'esbuild';
 
-const GLOBAL_SCRIPTS = ['aio-workspace', 'aio-macro-tech', 'aio-kr-data', 'aio-pages', 'aio-core', 'aio-data', 'aio-ui', 'aio-chat', 'aio-glossary'].map((name) => `js/${name}.js`);
+const GLOBAL_SCRIPTS = ['aio-workspace', 'aio-kr-data', 'aio-pages', 'aio-core', 'aio-data', 'aio-ui', 'aio-chat', 'aio-glossary'].map((name) => `js/${name}.js`);
 const ESM_ENTRY = 'src/app/bootstrap.js';
 // Classic scripts already require ES2020 (optional chaining); the module graph already requires ES2021 (||=).
 // Pinning the targets keeps the minifier from introducing newer syntax than the source ships today.

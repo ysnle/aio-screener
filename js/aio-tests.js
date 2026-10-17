@@ -2848,37 +2848,9 @@
     var found = canvasIds.filter(function(id){ return !!document.getElementById(id); });
     _assert('T857 seven_canvas_dom_v4972: 7 canvas DOM 모두 존재',
       found.length === 7, 'found=' + found.length + '/7');
-    // T858: v51.30 Maker-Checker — _aioMakerCheckerVerify 함수 정의 + 퀀트 검증 구조
-    var t858ok = false, t858detail = '';
-    try {
-      var fn858 = typeof window._aioMakerCheckerVerify === 'function';
-      var r858null = fn858 ? window._aioMakerCheckerVerify([]) : 'skip';   // 빈 배열 → null
-      var r858str  = fn858 ? window._aioMakerCheckerVerify(['__NO_SUCH_SYM__']) : 'skip'; // 없는 티커 → null
-      var r858query = (typeof window._aioRunScreenerQuery === 'function') ? window._aioRunScreenerQuery('종목 추천') : null;
-      var r858cands = (r858query && Array.isArray(r858query.rows)) ? r858query.rows.slice(0, 5).map(function(r){ return r && r.sym; }).filter(Boolean) : [];
-      var r858broad = fn858 && r858cands.length ? window._aioMakerCheckerVerify(r858cands) : null;
-      var structOk858 = !r858null && !r858str;   // 데이터 없을 때 null 반환
-      // P626-followup: _aioMakerCheckerVerify (js/aio-data.js) only ranks tickers that already
-      // have a numeric SCREENER_DB row.rank — populated by _aioComputeFactorRanks, which itself
-      // needs ret1m/ret3m-enriched rows (server screener.json enrichment). In this headless suite's
-      // offline/seed-fallback environment that enrichment may not have completed by the time this
-      // test runs, so _aioMakerCheckerVerify correctly, by design, returns null for real candidate
-      // tickers rather than fabricating a verdict — that's the function behaving correctly, not a
-      // defect. Accept that as a passing outcome specifically when the DB-wide evidence confirms no
-      // rank data exists yet at all (distinct from these particular candidates mysteriously lacking
-      // ranks while others have them, which would still indicate a real bug).
-      var dbHasAnyRank858 = (typeof SCREENER_DB !== 'undefined' && Array.isArray(SCREENER_DB)) ? SCREENER_DB.some(function(r) { return r && typeof r.rank === 'number'; }) : false;
-      var verdictShapeOk858 = r858broad && r858broad.length > 0 && r858broad.every(function(row) {
-        return row && typeof row.verdict === 'string' && ['RESEARCH_CANDIDATE','CAUTION','REJECTED'].indexOf(row.verdict) >= 0 &&
-          typeof row.rank === 'number' && Array.isArray(row.reasons);
-      });
-      var verdictOk858 = verdictShapeOk858 || (r858broad === null && !dbHasAnyRank858);
-      // v57.62: the chat wiring (maker-checker chips under an answer) lived only in the retired per-page chatSend.
-      var chatRetired858 = typeof window.chatSend === 'undefined';
-      t858ok = fn858 && structOk858 && verdictOk858 && chatRetired858 && r858cands.length > 0;
-      t858detail = 'fn=' + fn858 + ' nullGate=' + structOk858 + ' broadCandidates=' + r858cands.length + ' verdictOk=' + verdictOk858 + ' (shapeOk=' + verdictShapeOk858 + ' dbHasAnyRank=' + dbHasAnyRank858 + ') perPageChatRetired=' + chatRetired858;
-    } catch(e) { t858detail = 'ERR:' + e.message; }
-    _assert('T858 v57.62 maker_checker_verify: _aioMakerCheckerVerify 함수 + null 게이트 + verdict 구조 (per-page chatSend 연결 퇴역)', t858ok, t858detail);
+    // T858: the maker-checker verdict helper had no caller after the per-page chatSend retired (v57.62); the screener
+    // query engine moved to src/ai/context/screener-query.js (2026-10-17) without it.
+    _assert('T858 maker_checker_retired: _aioMakerCheckerVerify 퇴역 (호출처 없음)', typeof window._aioMakerCheckerVerify === 'undefined' && typeof window.chatSend === 'undefined', 'fn=' + typeof window._aioMakerCheckerVerify);
     // T566: fundamentalSearch가 fetchQuarterlyFinancials + _renderFundamentalFinancialsCharts 호출
     var fundSrc = typeof window.fundamentalSearch === 'function' ? window.fundamentalSearch.toString() : '';
     _assert('T566 fundamental_search_integrated_v4972: fundamentalSearch fetch + render 통합',
@@ -5700,20 +5672,16 @@
     _assert('T785/P1267 market_pulse_breadth_source: 50SMA 미수신은 판정 보류, 20SMA·ETF 하루 수익률 대체 금지', t785ok, t785detail);
 
     // ─── v50.24 P0 구조 시정 (OPUS-HANDOFF 백로그 WO-1~4) ───
-    // T786 (WO-2/P498): SPX ATH 단일 출처 헬퍼 — floor가 DATA_SNAPSHOT.spxATH 아래로 안 내려감 + applyLiveQuotes 7412.84 하드코딩 제거
-    // P722: `_aioSpxAthFloor() == null`을 영구 단언하면 "관측값 없음"이 불변식이 된다 — artifact/
-    // 히스토리에 SPX가 있으면(정당한 상태) CI가 깨진다. 진짜 불변식은 "상수 floor 없음"이다:
-    // 관측값 없으면 null, 있으면 관측 유래의 유한 양수. applyLiveQuotes의 하드코딩 부재 검사는 유지.
+    // T786 (WO-2/P498 → legacy unification): the SPX ATH tracker only fed the retired 0-100 market-health grade.
+    // With that model gone the tracker and its floor helper are retired too; the stale 7412.84 constant must not return.
     var t786ok = false, t786detail = '';
     try {
-      var hasFloor786 = typeof window._aioSpxAthFloor === 'function';
-      var floorVal786 = hasFloor786 ? window._aioSpxAthFloor() : undefined;
       var aqSrc786 = (typeof applyLiveQuotes === 'function') ? applyLiveQuotes.toString() : '';
-      var noHardcode786 = aqSrc786.indexOf('7412.84') === -1 && /_aioSpxAthFloor/.test(aqSrc786);
-      t786ok = hasFloor786 && noHardcode786 && (floorVal786 == null || (isFinite(floorVal786) && floorVal786 > 0));
-      t786detail = 'floor=' + floorVal786 + ' noHardcode=' + noHardcode786;
+      t786ok = aqSrc786.length > 0 && aqSrc786.indexOf('7412.84') === -1 && !/_spxATH/.test(aqSrc786)
+        && typeof window._aioSpxAthFloor !== 'function' && typeof window.computeMarketHealth !== 'function';
+      t786detail = 'floorHelper=' + typeof window._aioSpxAthFloor + ' athWrite=' + /_spxATH/.test(aqSrc786) + ' health=' + typeof window.computeMarketHealth;
     } catch(e) { t786detail = 'ERR:' + e.message; }
-    _assert('T786 spx_ath_has_no_static_floor (null or observation-derived positive)', t786ok, t786detail);
+    _assert('T786 spx_ath_tracker_retired_with_market_health (no static floor, no tracker)', t786ok, t786detail);
 
     // T787 (v57.60): the retired mkt-regime-sub ATH-gap writer ("Near ATH" label) is gone with its node; no stale label can be written.
     var t787ok = false, t787detail = '';
@@ -6085,7 +6053,8 @@
       // proving the capability by checking the call site AND that the helper itself runs the query.
       var hasScreenerWire = csSrc809.indexOf('_aioBuildScreenerAiContext') >= 0 && csSrc809.indexOf('_uniScreenerStr') >= 0
         && typeof window._aioBuildScreenerAiContext === 'function'
-        && String(window._aioBuildScreenerAiContext).indexOf('_aioRunScreenerQuery') >= 0;
+        && String(window._aioBuildScreenerAiContext).indexOf('buildScreenerAiContext(') >= 0
+        && typeof (window._aioBuildScreenerAiContext('오늘 기분 어때', []) || {}).prompt === 'string';
       t809ok = hasTickerGate && hasGeneralBranch && hasScreenerBranch && hasScreenerWire;
       t809detail = 'tickerGate=' + hasTickerGate + ' policyMode=' + hasGeneralBranch + ' modeGuide=' + hasScreenerBranch + ' screenerWire=' + hasScreenerWire;
     } catch(e) { t809detail = 'ERR:' + e.message; }
@@ -6586,7 +6555,7 @@
         // P1239/E2 S-E: recent-recommendation extraction moved into the shared screener helper.
         csSrc825.indexOf('_aioBuildScreenerAiContext') >= 0 &&
         typeof window._aioBuildScreenerAiContext === 'function' &&
-        String(window._aioBuildScreenerAiContext).indexOf('_aioExtractRecentRecommendationTickers') >= 0 &&
+        ((window._aioBuildScreenerAiContext('종목 추천해줘', [{ role: 'assistant', content: recentSeed825.join(', ') }]) || {}).result || {}).recentSuppressed >= 1 &&
         csSrc825.indexOf('[통합 AI 패널 추천 편향 방지]') >= 0 && csSrc825.indexOf("_uniScreenerResult.mode === 'diversified-recommendation'") >= 0);
       t825detail = JSON.stringify({
         mode:broad825 && broad825.mode,
@@ -6883,7 +6852,7 @@
         // P1239/E2 S-E: the unified panel consumes the same shared screener helper.
         unifiedSrc833.indexOf('_aioBuildScreenerAiContext') >= 0 &&
         typeof window._aioBuildScreenerAiContext === 'function' &&
-        String(window._aioBuildScreenerAiContext).indexOf('_aioRunScreenerQuery') >= 0 &&
+        String(window._aioBuildScreenerAiContext).indexOf('buildScreenerAiContext(') >= 0 &&
         unifiedSrc833.indexOf('_aioDomainContextForQuestion') >= 0 && // P1621 both chat entry points use the same native selector.
         unifiedSrc833.indexOf('_buildAioIntegratedAnswerContext') >= 0 &&
         unifiedSrc833.indexOf('_shouldUseClaudeWebSearch') >= 0;
@@ -8774,14 +8743,14 @@
       typeof window._aioBreadthCanvasRender !== 'function',
       'canvasFallback=' + typeof window._aioBreadthCanvasRender);
 
-    var healthOldLd = window._liveData;
-    try {
-      window._liveData = {};
-      var healthMissing = typeof computeMarketHealth === 'function' ? computeMarketHealth() : null;
-      _assert('T1034 market_health_required_inputs_fail_closed: missing SPY/QQQ/VIX cannot produce a grade',
-        healthMissing && healthMissing.available === false && healthMissing.score === null && healthMissing.missing.length === 3,
-        JSON.stringify(healthMissing));
-    } finally { window._liveData = healthOldLd; }
+    // T1034 (legacy unification): the 0-100 market-health grade (A+~F) is retired end to end — no legacy wrapper,
+    // no facade entry. The ticker decision gate reads the 시장 상태 regime's own sufficiency instead.
+    var regime1034 = null;
+    try { regime1034 = typeof window._aioMarketRegimeSummary === 'function' ? window._aioMarketRegimeSummary() : null; } catch (_) { regime1034 = null; }
+    _assert('T1034 market_health_grade_retired: no computeMarketHealth global or facade entry; regime summary carries sufficiency',
+      typeof window.computeMarketHealth !== 'function' && !(window.AIO_ARCH && 'computeMarketHealth' in window.AIO_ARCH)
+        && (regime1034 == null || typeof regime1034.sufficient === 'boolean'),
+      'global=' + typeof window.computeMarketHealth + ' facade=' + !!(window.AIO_ARCH && 'computeMarketHealth' in window.AIO_ARCH) + ' sufficient=' + (regime1034 && regime1034.sufficient));
 
     var krYieldOldLd = window._liveData;
     try {

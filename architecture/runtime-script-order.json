@@ -4,7 +4,6 @@
   "whyItMatters": "P1135: a block extracted into a file that loaded after js/aio-ui.js made aio-ui.js call a global that did not exist yet at its own evaluation time. The resulting ReferenceError killed the whole file, so every later definition in it (window._aioRenderTickerOverview and the rest) never ran. headless passed 1,133/1,133 and every static gate passed; only the real-browser check caught it.",
   "order": [
     "js/aio-workspace.js",
-    "js/aio-macro-tech.js",
     "js/aio-kr-data.js",
     "js/aio-pages.js",
     "js/aio-core.js",
@@ -15,7 +14,6 @@
   ],
   "reasons": {
     "js/aio-workspace.js": "P1136 — inline block A (user state / workspace). Originally the first thing to run after the shell markup; core, data and ui read its globals at their own evaluation time.",
-    "js/aio-macro-tech.js": "P1135 — inline block B (macro/technical). js/aio-ui.js calls computeMarketHealth at module-eval time (ui:5047), so this must precede core and ui.",
     "js/aio-kr-data.js": "P1134 — inline block C (KR/SEC data plane). Originally ran before every defer script.",
     "js/aio-pages.js": "P1133 — inline block D (page renderers). Originally ran before every defer script.",
     "js/aio-core.js": "The classic runtime core. Everything above it is code that used to be inline, so it must keep running first.",

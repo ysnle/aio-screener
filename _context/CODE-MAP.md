@@ -220,7 +220,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | `AIO_PAGE_CONTRACTS` materialization | `js/aio-core.js:23547` |
 | `destroyPageCharts` / `showPage` | `js/aio-core.js:24983` / `25758` |
 | `fetchLiveQuotes` / `applyLiveQuotes` | `js/aio-data.js:13732` / `15186` |
-| `_aioApplyNativeScreenerState` / `_aioComputeFactorRanks` | `js/aio-data.js:4864` / `15357` |
+| `_aioApplyNativeScreenerState` | `js/aio-data.js:4864` (`_aioComputeFactorRanks` 퇴역 2026-10-17 — native orchestrator가 유일한 랭킹) |
 | native sentiment page (legacy `initBreadthPage` 삭제 v57.60) | `src/ui/pages/sentiment.js:243` |
 | `CHAT_CONTEXTS` / `chatSendUnified` (per-page `chatSend` 삭제 v57.62) | `js/aio-chat.js` |
 
@@ -274,7 +274,7 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | `js/aio-glossary.js` | 용어사전 데이터 리터럴 |
 | `js/aio-pages.js` | **P1133으로 index.html 인라인 블록 D에서 추출한 페이지 렌더러** — 신호 대시보드, 기업분석 레거시 위젯(P1425: FX/채권·크로스에셋 렌더러 삭제), RRG/섹터/테마 맵, `showThemeDetail` 네이티브 브리지, 가격 이력·RRG 하이드레이션, ETF/서브테마 그리드. `defer`로 로드되며 `index.html`의 `data-action` 위임이 그대로 호출한다 |
 | `js/aio-workspace.js` | **P1136으로 index.html 인라인 블록 A에서 추출한 사용자 상태·워크스페이스 계층** — 포트폴리오(`updatePortfolioSummary`/`refreshPortfolioPrices`/`refreshPortfolioRisk`/`exportPortfolio`/`importPortfolio`), 백테스트 랩(`_aioRenderPortfolioBacktestLab`/`runPortfolioBacktestLab`), 워치리스트(`getWatchlists`/`createWatchlist`/`switchWatchlist`/`addToWatchlist`), 투자 일지·채팅 이력(`PF_JOURNAL_KEY`/`CHAT_HISTORY_LS`/`CHAT_DEFAULT_CHIPS`), 공용 헬퍼(`showToast`/`_escHtmlSafe`). **`defer` 그룹의 첫 번째** — core·data·ui가 자기 평가 시점에 이 전역들을 읽는다(P1136/R622) |
-| `js/aio-macro-tech.js` | **P1135로 index.html 인라인 블록 B에서 추출한 매크로/기술 렌더 계층** — 인라인 `computeMarketHealth` 구현과 네이티브 fence(`_aioIsNativeTechnicalHealth`), `updateTechIndicators`/`updateSRLevels`/`loadTechCandleChart`/`updatePatternSignals`, `renderOfficialFutureCalendar` (P1425: 거시 렌더러 `generateMacroStoryline`/`renderEconCalendar`/`renderYieldCurve`/`computeEconomicTemperature`/`updateMacroRegimePill`/`updateWtiBrentSpread`/`_aioSyncMacroLiveSpxMini` 삭제 — native `macro-board.js`가 대체). **`defer`이지만 core·aio-ui.js보다 먼저 로드된다** — `aio-ui.js`가 자기 모듈 평가 시점에 `computeMarketHealth`를 호출하기 때문(P1135 실브라우저 회귀) |
+| ~~`js/aio-macro-tech.js`~~ | **퇴역(2026-10-17 레거시 통합)** — P1135로 인라인 블록 B에서 추출된 뒤 남아 있던 `computeMarketHealth` 호환 wrapper와 채팅 칩 덮어쓰기만 있었다. 0-100 시장 건강도 모델(`src/domain/market/health.js`)과 함께 삭제했고, 종목 판단 게이트는 `window._aioMarketRegimeSummary().sufficient`(시장 상태 6축 판정 충분성)를 읽는다. 칩은 `js/aio-workspace.js` `CHAT_DEFAULT_CHIPS`에 한 번만 선언한다. |
 | `js/aio-kr-data.js` | **P1134로 index.html 인라인 블록 C에서 추출한 KR/SEC 데이터 플레인** — KR 테마 카드·심층분석(`initKoreaThemes`/`showKrThemeDetail`), KR 수급(`fetchKrSupplyData`/`updateKrSupplyDOM`), VKOSPI 동적 수집·이력(`fetchVkospiDynamic`/`AIO_VKOSPI_HIST_KEY`), KR 투자자 TOP10과 캐시, `KR_STOCK_DB`/`KR_THEME_MAP`/`_KR_SECTOR_MAP`, SEC 공시·재무(`fetchSECFilings`/`fetchSECFinancials`). 렌더러가 아니라 수집·정규화 계층이다 |
 
 ---
@@ -469,12 +469,10 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | `vixToPercentile` | 14286 | VIX percentile 로그 외삽 |
 | `toggleSignalMode` | 16184 | signal UI mode state |
 | `_aioFactorWeights` | 15342 | storage/profile 입력을 pure `factor-weights.v1`에 연결하는 호환 브릿지 |
-| `_aioComputeFactorRanks` | 15357 (wrapper; export: 15397) | legacy 호출용 hidden input/weight 해석과 SCREENER_DB 호환 projection만 수행. 계산 owner는 `src/domain/screener/factor-ranks.js:105`; native route는 state에 직접 rank를 보유 |
+| ~~`_aioComputeFactorRanks`~~ | 퇴역 (2026-10-17) | 같은 행을 두 번째로 랭킹하던 legacy wrapper. rank·factorScores는 native screener orchestrator가 canonical row에 싣는다 |
 > P763 correction: deterministic factor-weight math moved to `src/domain/screener/factor-weights.js`; `_aioFactorWeights` now resolves compatibility inputs and bridges the pure result only.
 | `computeFactorRanks` | `src/domain/screener/factor-ranks.js:105` | 순수 7팩터 랭킹: 섹터 z-score·winsorize·활성 factor·percentile rank. global/DOM/storage 접근 없음 |
-| `_aioBuildDiversifiedRecommendationRows` | 16558 | 넓은 종목 추천용 분산 후보군(R211) |
-| `_aioRunScreenerQuery` | 16631 | 자연어 스크리너/추천 후보 생성 |
-| `_formatScreenerResultPrompt` | 16767 | 스크리너/균형 추천 후보 프롬프트 |
+| `buildDiversifiedRecommendationRows` / `runScreenerQuery` / `formatScreenerResultPrompt` / `buildScreenerAiContext` | `src/ai/context/screener-query.js` | 자연어 스크리너·분산 추천(R211)·프롬프트. 순수 모듈, `src/app/compatibility-globals.js`가 canonical row를 넣어 `window._aioRunScreenerQuery` 등으로 바인딩 (2026-10-17 aio-data.js에서 이전, maker-checker 퇴역) |
 
 > 2026-07-21 재확인(직접 grep, ARX 재진입 세션): `_aioFactorWeights`/`_aioComputeFactorRanks` 좌표를 15871/15947(export
 > 16082)으로 정정했다 — 이전 좌표(15829/15905, v50.60 이관)는 여러 세대에 걸쳐 재확인 없이 그대로 옮겨 다녀 자기모순
@@ -519,7 +517,6 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | `_buildAioIntegratedAnswerContext` | 3777 | 현재 시장+정량+정성+페이지 연결 계약(R214) |
 | `_googleSearch` | 4208 | Google CSE fallback |
 | `fundamentalSearch` | 6559 | 기업 분석 수집/렌더 |
-| `_aioBuildDiversifiedRecommendationRows` / `_aioRunScreenerQuery` / `_formatScreenerResultPrompt` | 1890~1892 (alias) | **실제 정의는 aio-data.js**(17286/17352/17486) — 로드순서 의존 alias |
 | `_fmtNum` | 6443 (alias) | **실제 정의는 aio-core.js:24102** |
 | `_renderFundHeader`/`_renderFundFinancials`/`_renderFundEarnings`/`_renderFundNews` | 6866~6874 (alias) | **실제 정의는 aio-ui.js**(§ 위 표) — 4개 모두 로드순서 의존 alias |
 

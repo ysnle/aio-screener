@@ -128,8 +128,10 @@ const coreSource = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/
 const uiSource = read('js/aio-ui.js');
 // P1133/R620: page-level renderers extracted from index.html's inline block D live in js/aio-pages.js.
 const pagesSource = read('js/aio-pages.js');
-// P1135/R620: the macro/technical layer extracted from inline block B lives in js/aio-macro-tech.js.
-const macroTechSource = read('js/aio-macro-tech.js');
+// P1135/R620 → legacy unification: js/aio-macro-tech.js (inline block B) is retired; the retirement pins that used to
+// scan it now scan every remaining legacy runtime file, so a retired writer cannot come back under another file.
+const legacyRuntimeSource = ['js/aio-workspace.js', 'js/aio-kr-data.js', 'js/aio-pages.js', 'js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js'].map(read).join(String.fromCharCode(10));
+if (fs.existsSync(path.join(root, 'js/aio-macro-tech.js'))) fail('legacy unification: retired js/aio-macro-tech.js returned');
 // P1136/R620: the user-state/workspace layer extracted from inline block A lives in js/aio-workspace.js.
 const workspaceSource = read('js/aio-workspace.js');
 const chatSource = read('js/aio-chat.js');
@@ -159,7 +161,6 @@ const entityPageSource = read('src/ui/pages/entity.js');
 const portfolioPageSource = read('src/ui/pages/portfolio.js');
 const analysisPageSource = read('src/ui/pages/analysis.js');
 const themesPageSource = read('src/ui/pages/themes.js');
-const marketHealthSource = read('src/domain/market/health.js');
 if (!bootstrapSource.includes('const ingestSentiment') || !bootstrapSource.includes('ingestSentiment,')) fail('sentiment canonical ingest gateway missing');
 if (!dataSource.includes('AIO_ARCH.ingestSentiment')) fail('legacy sentiment producer gateway notification missing');
 if (!bootstrapSource.includes('createRuntimeReaders') || /create[A-Za-z]+Provider\(\{\s*read:\s*legacy\.read/.test(bootstrapSource)) fail('native route providers must use data-layer runtime readers rather than legacy.read projections');
@@ -263,7 +264,7 @@ if (!marketPageSource.includes("page.dataset.aioMacroRenderer = 'native'") || !m
     if (shell.includes(`id="${retired}"`)) fail(`P1425 retired 거시 node returned: ${retired}`);
   }
   for (const retired of ['function generateMacroStoryline', 'function computeEconomicTemperature', 'function updateMacroRegimePill', 'function renderYieldCurve', 'function renderEconCalendar']) {
-    if (macroTechSource.includes(retired)) fail(`P1425 retired legacy 거시 writer returned: ${retired}`);
+    if (legacyRuntimeSource.includes(retired)) fail(`P1425 retired legacy 거시 writer returned: ${retired}`);
   }
   if (pagesSource.includes('function updateFxBondPage') || pagesSource.includes('function updateCrossAssetMatrix') || dataSource.includes('function _aioRenderCarryUnwindRisk') || dataSource.includes('function _renderFredCharts')) fail('P1425 retired legacy FX/bond writer returned');
 }
@@ -291,7 +292,7 @@ if (/['"](?:ticker-candle-symbol|ticker-entry-symbol|realtime-pattern-indicator|
   const retiredTechnicalIds = ['vis-technical', 'tech-indicators-live', 'tech-rsi-val', 'ws-analysis', 'ind-pressure-fill', 'tv-chart-technical', 'tv-tech-ohlc', 'tv-widget-technical', 'institutional-technical-brief', 'tech-brief-symbol', 'mtf-analysis', 'pattern-signals', 'kr-health-val', 'kr-health-label', 'kr-health-foreign-streak', 'stock-chart-form', 'stock-chart-input'];
   const returnedIds = retiredTechnicalIds.filter((id) => technicalPage.includes(`id="${id}"`)); // text-pin-ok: retirement absence pin (v57.76)
   if (returnedIds.length || /12가지 매매 셋업|기술 분석 핵심 용어/.test(technicalPage)) fail(`v57.76 retired 차트 tab block returned: ${returnedIds.join(', ') || 'how-to/score text'}`); // text-pin-ok: retirement absence pin (v57.76)
-  if (/function\s+(?:updateTechIndicators|updatePatternSignals|applyTechIndicators|runInstitutionalTechnicalBrief|renderTechnicalBrief|_aioSyncTvOhlcFallback)\s*\(|updateWeinsteinStage\s*=|updateMTF\s*=|function _buildPrice|getElementById\('kr-health-(?:val|label)'\)/.test(macroTechSource + uiSource + dataSource + coreSource)) fail('v57.76 retired 차트 tab writer returned'); // text-pin-ok: retirement absence pin (v57.76)
+  if (/function\s+(?:updateTechIndicators|updatePatternSignals|applyTechIndicators|runInstitutionalTechnicalBrief|renderTechnicalBrief|_aioSyncTvOhlcFallback)\s*\(|updateWeinsteinStage\s*=|updateMTF\s*=|function _buildPrice|getElementById\('kr-health-(?:val|label)'\)/.test(legacyRuntimeSource + uiSource + dataSource + coreSource)) fail('v57.76 retired 차트 tab writer returned'); // text-pin-ok: retirement absence pin (v57.76)
 }
 // P818: themes.js owns the derived detail-panel display/current-theme marker after
 // the compatibility event; inline selection/close helpers retain only compatibility
@@ -370,7 +371,7 @@ if (dataSource.includes('home-quality-meter') || dataSource.includes('home-quali
 for (const marker of ['renderTechnicalCandleMeta', 'renderTechnicalCharts', 'tech-candle-title', 'tech-candle-meta', 'tech-candle-chart']) {
   if (analysisPageSource.includes(marker)) fail(`retired technical candle writer returned in analysis.js: ${marker}`);
 }
-if (read('js/aio-macro-tech.js').includes('function loadTechCandleChart')) fail('retired legacy technical candle loader returned');
+if (legacyRuntimeSource.includes('function loadTechCandleChart')) fail('retired legacy technical candle loader returned');
 // P1670: writers, timers and controls whose sinks left the page stay retired (they ran on every
 // signal visit / quote tick or every 5-45s and painted nothing; one button did nothing).
 {
@@ -383,7 +384,7 @@ if (read('js/aio-macro-tech.js').includes('function loadTechCandleChart')) fail(
   if (/aio_price_alerts|data-action="_aioRefreshFreshness"/.test(legacyJs + indexHtmlSource)) fail('P1670 ghost price alerts or the no-op freshness button returned');
   // P1672: writers whose sinks were retired but which gates used to pin as presence markers.
   const pinnedRetired = ['updateEntryChecklist', '_aioRenderBreadthConsensus', '_aioSyncBreadth50Readout', 'generateDynamicBriefing', 'renderOfficialFutureCalendar', 'updateSRLevels']
-    .filter((name) => new RegExp(`(?:function\\s+${name}\\s*\\(|window\\.${name}\\s*=)`).test(legacyJs + read('js/aio-macro-tech.js')));
+    .filter((name) => new RegExp(`(?:function\\s+${name}\\s*\\(|window\\.${name}\\s*=)`).test(legacyRuntimeSource));
   if (pinnedRetired.length) fail(`P1672 retired legacy writer returned: ${pinnedRetired.join(', ')}`);
 }
 // R705/R344 dead-id scan (v57.79; QA-VERIFY-04 used to run it as a scratch audit over js/ only). Every id that
@@ -542,11 +543,11 @@ if (!dataSource.includes('function _aioIsNativeMacroElement') || dataSource.incl
 // P835: portfolio position allocation chart lifecycle is native from normalized holding
 // values and drawPositionDonut remains a compatibility fallback behind the route marker.
 if (routeOwners.routes?.portfolio?.chartOwner !== 'native' || !portfolioPageSource.includes('renderPortfolioChart') || !portfolioPageSource.includes('aioPortfolioChartRenderer') || !pagesSource.includes("c.dataset.aioPortfolioChartRenderer === 'native'")) fail('native portfolio chart ownership/fence missing (P1592: the legacy donut must yield on the canvas marker the native renderer writes)');
-// P785: technical owns only the market-health primary surface. The pure model is the single
-// formula owner; both legacy compatibility entry points must consult the native technical fence.
-for (const marker of ['MARKET_HEALTH_MODEL_VERSION', 'export function computeMarketHealth', 'bars:', 'details:']) {
-  if (!marketHealthSource.includes(marker)) fail(`market-health model marker missing: ${marker}`);
-}
+// P785 → legacy unification (audit 2026-10-17 follow-up): the 0-100 market-health grade (A+~F) is retired end to end.
+// No model, no facade entry, no legacy wrapper; the ticker decision gate reads the 시장 상태 regime's sufficiency.
+if (fs.existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired market-health model returned (src/domain/market/health.js)');
+if (/computeMarketHealth/.test(legacyRuntimeSource + bootstrapSource + read('src/legacy/compatibility-facade.js') + read('src/data/runtime-readers.js'))) fail('retired computeMarketHealth returned to a runtime source');
+if (!/_aioMarketRegimeSummary\(\)[\s\S]{0,600}_tickerGateRegime\.sufficient !== true/.test(read('js/aio-core.js')) || !/sufficient: regime\.sufficient === true/.test(bootstrapSource)) fail('ticker decision gate must read the 시장 상태 regime sufficiency');
 // P1420: the technical page shows the 시장 상태 six-axis summary instead of the 0-100 health score;
 // the score surface must not return to the page. v57.55 review: the reader takes a rerender callback for late credit history.
 for (const marker of ['renderTechnicalHealth', "page.dataset.aioTechnicalRenderer = 'native'", 'readMarketRegime(root, ', 'tech-regime-chips']) {
@@ -554,12 +555,10 @@ for (const marker of ['renderTechnicalHealth', "page.dataset.aioTechnicalRendere
 }
 if (read('index.html').includes('id="health-score-display"') || analysisPageSource.includes('health.score')) fail('P1420 retired technical health score returned to the page');
 const htmlSource = read('index.html');
-// P1135/R620: the inline market-health model moved with block B to js/aio-macro-tech.js.
-// v57.77: the wrapper is pure (delegates to AIO_ARCH.computeMarketHealth); the legacy health renderer,
-// its native fence and the technical page-bus hooks that re-ran it were deleted with their DOM.
-if (!macroTechSource.includes('function computeMarketHealth()') || !macroTechSource.includes('window.AIO_ARCH.computeMarketHealth')) fail('v57.77 market-health compatibility wrapper missing');
+// v57.77: the legacy health renderer, its native fence and the technical page-bus hooks that re-ran it were deleted
+// with their DOM (the pure wrapper itself left with the model above).
 for (const retired of ['_aioRenderLegacyMarketHealth', '_aioLegacyHealthElement', 'function _aioIsNativeTechnicalHealth', "'html-technical-shown'", "'html-tech-macro-live'"]) { // text-pin-ok: retirement absence
-  if (macroTechSource.includes(retired)) fail(`v57.77 retired legacy market-health renderer returned: ${retired}`);
+  if (legacyRuntimeSource.includes(retired)) fail(`v57.77 retired legacy market-health renderer returned: ${retired}`);
 }
 // P1339: the orphaned legacy technical initializer (and its native-health fence) was deleted.
 // P1399: since P1392 the 시장 상태 screen and the home hero are the six-axis regime board in
@@ -661,7 +660,7 @@ function extractWrittenIds(source) {
   return ids;
 }
 // A05 (Codex review): native renderers live in components and knowledge as well as pages, and the legacy shell
-// was split into aio-pages / aio-workspace / aio-macro-tech / aio-glossary. Scan every production writer.
+// was split into aio-pages / aio-workspace / aio-glossary (aio-macro-tech is retired). Scan every production writer.
 const nativeWrittenIds = new Map();
 for (const dir of ['src/ui/pages', 'src/ui/components', 'src/ui/knowledge']) {
   for (const file of fs.readdirSync(path.join(root, dir), { recursive: true }).map(String).filter((entry) => entry.endsWith('.js'))) {

@@ -33,7 +33,8 @@ export function classifyMovingAverageStructure({ sma5 = null, sma10 = null, sma2
   const shortMAState = shortBull ? 'SHORT_BULL_STACK_5_10_20' : shortBear ? 'SHORT_BEAR_STACK_5_10_20' : 'SHORT_MIXED';
   const longMAState = longBull ? 'LONG_BULL_STACK_50_100_200' : longBear ? 'LONG_BEAR_STACK_50_100_200' : 'LONG_MIXED';
   const fullMAState = fullBull ? 'FULL_BULL_STACK_5_10_20_50_100_200' : fullBear ? 'FULL_BEAR_STACK_5_10_20_50_100_200' : 'PARTIAL_STACK';
-  const maStackScore = (shortBull ? 25 : shortBear ? 0 : 10) + (longBull ? 35 : longBear ? 0 : 15) + (fullBull ? 25 : fullBear ? 0 : 8) + ((sma50 && lastClose >= sma50) ? 8 : 0) + ((sma200 && lastClose >= sma200) ? 7 : 0);
+  // Audit 2026-10-17 follow-up: the 0-100 maStackScore composite had no surface and no stated basis (AGENTS: no grade
+  // without evidence), so the model returns only the named stack states.
   // v57.81 (analysis audit): the close is read against the 50- and 20-day lines before the stack. A full bull stack with
   // the close under the 50-day line is damaged, and under the 20-day line a pullback — DELL closed 9.1% under its
   // 20-day line and read "정배열(50일선 상승)". A missing close never reads as an advance.
@@ -49,7 +50,7 @@ export function classifyMovingAverageStructure({ sma5 = null, sma10 = null, sma2
   return Object.freeze({
     modelVersion: STAGE_MODEL_VERSION,
     shortBull, shortBear, longBull, longBear, fullBull, fullBear, sma50Rising,
-    shortMAState, longMAState, fullMAState, maStackScore, trendState, stageEstimate
+    shortMAState, longMAState, fullMAState, trendState, stageEstimate
   });
 }
 

@@ -4,10 +4,8 @@ import { normalizeSignalScoreMode, describeSignalScoreMode } from '../../domain/
 import { deriveHomeSummary } from '../../domain/home/summary.js';
 
 export function normalizeAnalysis(raw = {}) {
-  const technicalBase = raw.technical?.modelVersion ? raw.technical : deriveTechnicalStageFromOhlcv(raw.technical || {});
-  const technical = raw.technical?.health
-    ? Object.freeze({ ...technicalBase, health: raw.technical.health })
-    : technicalBase;
+  // The retired 0-100 market-health grade no longer rides on the technical slice (no surface read it after P1420).
+  const technical = raw.technical?.modelVersion ? raw.technical : deriveTechnicalStageFromOhlcv(raw.technical || {});
   const tradingScore = raw.tradingScore?.modelVersion === TRADING_SCORE_MODEL_VERSION
     ? raw.tradingScore
     : computeTradingScoreModel(raw.tradingScoreInputs || {});

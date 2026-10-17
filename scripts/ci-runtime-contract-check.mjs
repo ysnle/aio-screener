@@ -27,8 +27,9 @@ const chat = read('js/aio-chat.js');
 const pagesSource = read('js/aio-pages.js');
 // P1134/R620: the KR/SEC data plane extracted from inline block C lives in js/aio-kr-data.js.
 const krData = read('js/aio-kr-data.js');
-// P1135/R620: the macro/technical layer extracted from inline block B lives in js/aio-macro-tech.js.
-const macroTech = read('js/aio-macro-tech.js');
+// P1135/R620 → legacy unification: js/aio-macro-tech.js (inline block B) is retired. Retirement pins that scanned it
+// now scan the remaining legacy shell files, so `macroTech` names that combined text.
+const macroTech = ['js/aio-workspace.js', 'js/aio-kr-data.js', 'js/aio-pages.js', 'js/aio-ui.js'].map(read).join('\n');
 // P1136/R620: the user-state/workspace layer extracted from inline block A lives in js/aio-workspace.js.
 const workspace = read('js/aio-workspace.js');
 const tests = read('js/aio-tests.js');
@@ -80,6 +81,8 @@ const telegramConsumedTags = new Set(Object.values(telegramPageTags).flat());
 const staticBusters = [...html.matchAll(/<script\s+src="\.\/js\/aio-[^"]+\?v=([\d.]+)"/g)].map((m) => m[1]);
 check('all static aio script cachebusters match version.json', staticBusters.length >= 5 && staticBusters.every((v) => v === versionNum), `found ${staticBusters.join(',')}, expected ${versionNum}`);
 
+const compatRoot = { _aioGetCanonicalScreenerRows: () => [{ sym: 'AAA', name: 'Alpha', sector: 'Energy', rank: 1, rsi: 20, signal: 'BUY' }] };
+(await import('../src/app/compatibility-globals.js')).installCompatibilityGlobals(compatRoot);
 const callableRefs = [...new Set([...chat.matchAll(/\b(_aio[A-Za-z0-9_]+)\s*\(/g)].map((m) => m[1]))]
   .filter((name) => !['_aioSafeMD', '_aioAskAiFromPageDecision'].includes(name));
 for (const name of callableRefs) {
@@ -88,7 +91,8 @@ for (const name of callableRefs) {
     || runtimeBundle.includes(`function ${name}`)
     || chat.includes(`window.${name}`)
     || chat.includes(`function ${name}`)
-    || new RegExp(`(?:var|let|const)\\s+${name}\\b`).test(runtimeBundle);
+    || new RegExp(`(?:var|let|const)\\s+${name}\\b`).test(runtimeBundle)
+    || typeof compatRoot[name] === 'function'; // ESM functions installCompatibilityGlobals binds for the classic scripts
   check(`AI prompt/runtime callable exists: ${name}`, existsInRuntime, 'referenced from js/aio-chat.js');
 }
 
@@ -135,12 +139,11 @@ check('P1186 native screener state has exactly one projection trigger (the readi
   try { applied = start >= 0 && end > start && runInNewContext(data.slice(start, end) + '\n_aioApplyNativeScreenerState();', sandbox); } catch (_) { applied = false; }
   check('v57.81 the native screener projection reads named paths, never the whole slice', applied === true && reads.length > 0 && reads.every((path) => typeof path === 'string' && path) && sandbox.window._aioScreenerLoadState?.count === 3, JSON.stringify({ applied, reads }));
 }
-const canonicalScreenerConsumerNames = ['_aioExtractRecentRecommendationTickers', '_detectSectorQuery', '_aioRunScreenerQuery', '_aioMakerCheckerVerify'];
-for (const name of canonicalScreenerConsumerNames) {
-  const start = data.indexOf(`function ${name}`);
-  const end = data.indexOf(`window.${name}`, start);
-  const body = start >= 0 && end > start ? data.slice(start, end) : '';
-  check(`${name} reads canonical screener rows`, body.includes('_aioGetCanonicalScreenerRows()') && !/typeof\s+SCREENER_DB/.test(body), 'legacy static row read remains in consumer body');
+// P1239 follow-up (2026-10-17): the chat's screener query engine lives in src/ai/context/screener-query.js and the bridge
+// feeds it the canonical screener rows (no second ranking run).
+{
+  const viaBridge = compatRoot._aioBuildScreenerAiContext('rsi 30 이하', []);
+  check('P1239 screener query engine reads canonical rows through one bridge', viaBridge?.result?.rows?.[0]?.sym === 'AAA' && /AAA/.test(viaBridge.prompt), JSON.stringify({ rows: viaBridge?.result?.rows?.length }));
 }
 // v57.78: getTelegramPipelineAudit and its channel checks live in the QA bundle (read through `core`).
 check('Telegram memo overlay is exposed through audit',/_aioTelegramMemoOverlayAudit/.test(data) && /memoOverlay/.test(data) && /getTelegramPipelineAudit/.test(core));
@@ -338,14 +341,14 @@ check('E2/S-C/P1241 screener row resolution has one owner and a declared intent'
   && /export function resolveScreenerRows\(root, intent/.test(read('src/data/screener-row-policy.js'))
   && /function screenerNativePublished\(/.test(read('src/data/screener-row-policy.js')));
 // E2/S-E/P1239: one helper owns the screener AI context for both chats.
-check('E2/S-E/P1239 the chat consumes one screener AI context helper', /function _aioBuildScreenerAiContext\(/.test(data) && /_aioBuildScreenerAiContext\(q, state\.messages/.test(chat) && !/_aioRunScreenerQuery\(q, \{ recentTickers/.test(chat)); // v57.62: per-page chatSend retired
+check('E2/S-E/P1239 the chat consumes one screener AI context helper', /window\._aioBuildScreenerAiContext = \(query, messages, logger\) => buildScreenerAiContext\(/.test(read('src/app/compatibility-globals.js')) && /_aioBuildScreenerAiContext\(q, state\.messages/.test(chat) && !/_aioRunScreenerQuery\(q, \{ recentTickers/.test(chat)); // v57.62: per-page chatSend retired
 // E2/S-F/P1238: the news cache DB is news-scoped and migrates the legacy name without deleting it.
 check('E2/S-F/P1238 the news cache DB is news-scoped and migrates the legacy name', /_AIO_IDB_NAME = 'AIOScreenerNewsCache'/.test(data) && /_AIO_IDB_LEGACY_NAME = 'AIOScreenerDB'/.test(data) && /function _idbMigrateLegacyNews\(/.test(data) && /store-not-empty/.test(data));
 // P1753: the retired US deep-analysis renderer carried its own MA-stack and volume-profile copy; the shared
 // technical snapshot (core) and the AI chat keep both readings.
 check('P1753 5/10/20 + 50/100/200 MA stack reaches the AI chat via the shared snapshot; the retired deep-analysis copy stays gone', /FULL_BULL_STACK_5_10_20_50_100_200/.test(core + '\n' + chat) && !/단기 정배열 5>10>20/.test(ui));
 check('P1753 volume profile (POC / Value Area) stays in the shared technical snapshot; the retired deep-analysis beginner guide stays gone', /Volume Profile/.test(core) && /POC/.test(core) && /Value Area/.test(core) && !/beginnerNote/.test(ui));
-check('technical snapshot exposes full MA stack to AI chat', /sma5/.test(core) && /sma100/.test(core) && /shortMAState/.test(core) && /longMAState/.test(core) && /maStackScore/.test(core) && /5SMA/.test(chat) && /100SMA/.test(chat));
+check('technical snapshot exposes full MA stack to AI chat', /sma5/.test(core) && /sma100/.test(core) && /shortMAState/.test(core) && /longMAState/.test(core) && !/maStackScore/.test(core) && /5SMA/.test(chat) && /100SMA/.test(chat));
 check('event risk context fails closed without an embedded point-in-time timeline', /AIO_EVENT_RISK_CONTEXT/.test(core) && /available:\s*false/.test(core) && /asOf:\s*null/.test(core) && /timeline:\s*\[\]/.test(core) && !/headlineYoY:\s*\d/.test(core));
 check('page body redesign hub registry exists', /AIO_PAGE_ACTION_HUBS/.test(core) && /_aioApplyPageBodyRedesign/.test(core));
 check('page evidence currentness contract exists', /AIO_PAGE_EVIDENCE_CONTRACT/.test(core) && /getPageEvidenceState/.test(core) && /getPageEvidenceCurrentnessAudit/.test(core));
@@ -1190,7 +1193,7 @@ check('R340/P712: future-event calendar is data-driven and no stale 7\/10 BOK ro
   // P1389: the briefing schedule (buildBriefingSchedule over AIO_MACRO_CALENDAR) replaced the archived calendar block.
   /export function buildBriefingSchedule/.test(read('src/domain/briefing/schedule.js')) && /id="briefing-schedule-rows"/.test(html) && !/>7\/10<\/span>[\s\S]{0,260}한국은행 금통위/.test(html + macroTech));
 check('R340/P712: semantic market-integrity tests cover curve exactness and KR missingness',
-  /T1025 treasury_curve_exact_2s10s/.test(tests) && /T1027 kr_theme_missingness_fail_closed/.test(tests) && /T1028 technical_indicator_no_intraday_synthesis/.test(tests) && /T1029 ticker_chart_native_tabs_and_ranges/.test(tests) && /T1030 rrg_history_fail_closed/.test(tests) && /T1031 mcclellan_requires_advance_decline_history/.test(tests) && /T1032 hy_oas_official_only/.test(tests) && /T1033 breadth_chart_no_random_series/.test(tests) && /T1034 market_health_required_inputs_fail_closed/.test(tests));
+  /T1025 treasury_curve_exact_2s10s/.test(tests) && /T1027 kr_theme_missingness_fail_closed/.test(tests) && /T1028 technical_indicator_no_intraday_synthesis/.test(tests) && /T1029 ticker_chart_native_tabs_and_ranges/.test(tests) && /T1030 rrg_history_fail_closed/.test(tests) && /T1031 mcclellan_requires_advance_decline_history/.test(tests) && /T1032 hy_oas_official_only/.test(tests) && /T1033 breadth_chart_no_random_series/.test(tests) && /T1034 market_health_grade_retired/.test(tests));
 check('R340/P712: synthetic market-series formulas are absent from decision paths',
   !/50\s*\+\s*\(chg\s*\*\s*5\)/.test(html) && !/500\s*\*\s*abv50/.test(html) && !/\(85\s*-\s*p\)\s*\*\s*20\s*\+\s*250/.test(ui) && !/latestLiveVal\s*\*\s*\(1\s*\+\s*\(Math\.random/.test(core));
 check('R340/P712: KR yields and US breadth require timestamped current evidence and fail closed otherwise',
@@ -1324,10 +1327,11 @@ check('W1-04: SEC annual facts expose versioned freshness and fail-closed decisi
     && /acceptedTimeCount/.test(secReportDomain)
     && /filingMetadata:\s*Object\.freeze/.test(secReportDomain)
     && /data-freshness-state/.test(entityPage));
-check('W1-05: ticker action narrative fails closed without entity quote and market-health evidence',
+check('W1-05: ticker action narrative fails closed without entity quote and market-state evidence (regime sufficiency; the 0-100 health grade is retired)',
   /pageId === 'ticker'/.test(core)
     && /_tickerGateMissing/.test(core)
-    && /computeMarketHealth\(\{ render: false \}\)/.test(core)
+    && /_tickerGateRegime\.sufficient !== true/.test(core)
+    && !/computeMarketHealth/.test(core)
     && /_tickerGateBlocked/.test(core)
     && /d\.decisionBlocked = _scoreBlocked \|\| _tickerGateBlocked/.test(core));
 check('W2-05: Vault envelope has versioned KDF plus legacy decrypt and re-encrypt migration',

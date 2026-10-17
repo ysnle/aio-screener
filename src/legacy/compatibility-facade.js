@@ -1,4 +1,3 @@
-import { computeMarketHealth } from '../domain/market/health.js';
 import { SCREENER_ROW_INTENT, resolveScreenerRows } from '../data/screener-row-policy.js';
 import { createRuntimeReaders } from '../data/runtime-readers.js';
 import { finiteNumber as finite } from '../domain/shared/number.js';
@@ -465,7 +464,6 @@ export function exposeArchitecture(root, api, { immutableState = false } = {}) {
       concentrationPenaltyForWeight: api.concentrationPenaltyForWeight,
       computeFactorRanks: api.computeFactorRanks,
       deriveFactorWeights: api.deriveFactorWeights
-       ,computeMarketHealth: api.computeMarketHealth
        ,getVerticalSliceContract: api.getVerticalSliceContract
        ,getVerticalSliceContracts: api.getVerticalSliceContracts
        ,auditVerticalSliceContracts: api.auditVerticalSliceContracts

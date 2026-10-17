@@ -2101,20 +2101,10 @@ const CHAT_DEFAULT_CHIPS = {
     '시장 국면(상승/조정/하락)별로 섹터 성과가 어떻게 달랐는지 데이터로 보여줘',
     '풋콜 비율과 공포탐욕 지수가 지금 뭘 시사하고 있어?'
   ],
-  macro: [
-    '현재 Yield Curve 역전 해소 속도가 경기침체 타이밍에 대해 뭘 시사해?',
-    '연준 QT 종료와 유동성 전환이 자산별 수급에 미칠 영향 분석해줘',
-    'ISM 제조업 vs 서비스업 괴리가 커지는데, 이게 스태그 시그널이야?',
-    '달러 약세 전환 시 EM·원자재·Gold가 과거에 보인 움직임과 예외는?',
-    '국채 공급·term premium·HY OAS·시장폭을 하나의 위험 전이 사슬로 분석해줘',
-    'AI CAPEX와 기업채 발행이 장기금리·신용·주식 변동성에 미치는 경로를 검증해줘'
-  ],
-  technical: [
-    '현재 시장 폭(Breadth) 지표들이 200MA 대비 어떤 시그널 주고 있어?',
-    'VIX Term Structure 콘탱고/백워데이션 상태에서 최적 헤지 전략은?',
-    'NVDA의 볼린저밴드·MACD·거래량 지표가 엇갈리는 부분과 반대 신호는?',
-    'S&P 섹터 로테이션에서 상대강도가 개선되는 섹터와 그 근거의 한계는?'
-  ],
+  // P1135 follow-up: the short macro/technical chips used to be overwritten from js/aio-macro-tech.js after this
+  // literal ran; that file is retired, so the effective chips are declared here once.
+  macro: ['금리·물가 확인', '공식 발표 일정', '환율 영향 점검'],
+  technical: ['기술적 구조 확인', '추세 무효화 조건', '변동성 점검'],
   fundamental: [
     'Mag7 실적 성장률 둔화 구간에서 PEG 기준 종목 비교와 전제 조건은?',
     'AI capex 사이클에서 수혜-피해 밸류체인을 FCF 기준으로 정리해줘',

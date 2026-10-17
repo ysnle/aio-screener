@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.04';
+const APP_VERSION = 'v58.05';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -4178,18 +4178,18 @@ function _aioDefaultDecision(pageId) {
     },
     // v53.7 (P725): KR 전용 5페이지 결론 항목 제거 — 통합 섹션은 대상 페이지(themes/macro/technical) 결론을 따름
   };
-  // W1-05: ticker narrative must fail closed when the selected entity, quote,
-  // or market-health evidence is absent. A market score alone is not a
-  // security-specific action signal.
+  // W1-05: ticker narrative fails closed without the selected entity, its quote and market-state evidence (the 시장 상태
+  // regime's own sufficiency: 4+ of 6 axes on a current close basis). A market read alone is not a security signal.
   var _tickerGateMissing = [];
   var _tickerGateBlocked = false;
   if (pageId === 'ticker') {
     var _tickerGateId = window._currentTickerId || window._currentTickerSym || (typeof _currentTickerSym !== 'undefined' ? _currentTickerSym : '');
     var _tickerGateQuote = _tickerGateId && window._liveData ? window._liveData[String(_tickerGateId).toUpperCase()] : null;
-    var _tickerGateHealth = typeof computeMarketHealth === 'function' ? computeMarketHealth({ render: false }) : null;
+    var _tickerGateRegime = null;
+    try { _tickerGateRegime = typeof window._aioMarketRegimeSummary === 'function' ? window._aioMarketRegimeSummary() : null; } catch (_) { _tickerGateRegime = null; }
     if (!_tickerGateId) _tickerGateMissing.push('ticker');
     if (!_tickerGateQuote || !Number.isFinite(Number(_tickerGateQuote.price))) _tickerGateMissing.push('quote');
-    if (!_tickerGateHealth || _tickerGateHealth.available !== true || !Number.isFinite(Number(_tickerGateHealth.score))) _tickerGateMissing.push('market-health');
+    if (!_tickerGateRegime || _tickerGateRegime.available !== true || _tickerGateRegime.sufficient !== true) _tickerGateMissing.push('market-state');
     _tickerGateBlocked = _tickerGateMissing.length > 0;
   }
   // H3-C: quorum 미달이면 수치 밴드가 있어도 현재 행동 결론을 생성하지 않는다.
@@ -4203,7 +4203,7 @@ function _aioDefaultDecision(pageId) {
   }
   if (_tickerGateBlocked && map[pageId]) {
     map[pageId].decision = '판단 보류 · 티커 근거 부족';
-    map[pageId].action = '현재 티커의 시세·시장 건강도 근거가 확보되기 전에는 매매·비중 결론을 생성하지 않습니다.';
+    map[pageId].action = '현재 티커의 시세·시장 상태 근거가 확보되기 전에는 매매·비중 결론을 생성하지 않습니다.';
     map[pageId].caveat = '필수 티커 근거 미수신: ' + _tickerGateMissing.join(', ');
   }
   var d = map[pageId] || {
@@ -13918,7 +13918,7 @@ function calcTechnicalSnapshot(ohlcv) {
   var maStructure = _stageFn ? _stageFn({ sma5: sma5, sma10: sma10, sma20: sma20, sma50: sma50, sma100: sma100, sma200: sma200, sma50Prior: sma50_5d, lastClose: last.close }) : {
     // Fail-closed fallback for the (unexpected) case the ESM architecture runtime never mounted —
     // mirrors the model's own "insufficient data" shape instead of duplicating the formula here.
-    shortMAState: 'SHORT_MIXED', longMAState: 'LONG_MIXED', fullMAState: 'PARTIAL_STACK', maStackScore: 0, sma50Rising: null, trendState: 'MIXED', stageEstimate: 'STAGE_1_OR_3_TRANSITION'
+    shortMAState: 'SHORT_MIXED', longMAState: 'LONG_MIXED', fullMAState: 'PARTIAL_STACK', sma50Rising: null, trendState: 'MIXED', stageEstimate: 'STAGE_1_OR_3_TRANSITION'
   };
   var rvol20 = _calcRVOL(volumes, 20);
   var vcp = bars.length >= 60 ? _calcVCP(bars, { sma50: sma50, sma200: sma200, rvol20: rvol20 }) : { ok: false, vcpScore: 0, vcpStage: 'insufficient_data' };
@@ -13949,7 +13949,6 @@ function calcTechnicalSnapshot(ohlcv) {
     shortMAState: maStructure.shortMAState,
     longMAState: maStructure.longMAState,
     fullMAState: maStructure.fullMAState,
-    maStackScore: maStructure.maStackScore,
     sma50Rising: maStructure.sma50Rising,
     trendState: maStructure.trendState,
     stageEstimate: maStructure.stageEstimate,
