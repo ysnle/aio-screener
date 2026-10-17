@@ -22,7 +22,9 @@ import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../fun
 import { finiteNumber as finite } from '../shared/number.js';
 
 // v7 (2026-10-16): funds, SPACs and sub-$1M 확장 names leave the ranked population (rankingPopulationExclusion).
-export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v7';
+// v8 (2026-10-17 audit, owner-approved): factor activation is judged on the core tier when 확장 rows are present, a
+// zero-weight factor is not active in the model-default run, and outliers no longer mark the run 'partial'.
+export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v8';
 export const FACTOR_RANKS_ALLOWED_USE = 'research-relative-ranking-only';
 
 const DAY_MS = 86_400_000;
@@ -477,14 +479,22 @@ function computeFactorRanksForPopulation({
     bySector.get(key).push(row);
   });
 
+  // 2026-10-17 audit (D5, owner-approved): whether a factor is part of the model is judged on the core tier when 확장
+  // rows are present. The extended rows' thinner filings (fundamental coverage 62.5% against 89% in the core) used to
+  // switch value and quality off for every row, so the 확장 toggle changed the core names' model. Extended rows
+  // without a fundamental now meet the row-level evidence floor like any other row.
+  const coreRows = working.filter((row) => row.universeTier !== 'extended');
+  const coverageRows = coreRows.length >= MIN_RANKED_ROWS && coreRows.length < working.length ? coreRows : working;
+  const coverageBasis = coverageRows === working ? 'all-eligible-rows' : 'core-tier';
   const factorCoverage = {};
   candidateFactors.forEach((factor) => {
-    const observed = working.filter((row) => finite(row._factorValues[factor.key]) != null).length;
-    const coverage = items.length ? observed / items.length : 0;
+    const observed = coverageRows.filter((row) => finite(row._factorValues[factor.key]) != null).length;
+    const coverage = coverageRows.length ? observed / coverageRows.length : 0;
     const lineageBlocked = working.filter((row) => !row._factorEvidence[factor.key]?.ok).length;
     factorCoverage[factor.key] = freezeRecord({
       observations: observed,
-      eligibleRows: items.length,
+      eligibleRows: coverageRows.length,
+      coverageBasis,
       lineageBlocked,
       coveragePct: Math.round(coverage * 1000) / 10,
       minCoveragePct: MIN_CROSS_SECTION_COVERAGE * 100,
@@ -493,14 +503,14 @@ function computeFactorRanksForPopulation({
     });
   });
 
-  const mcapCurrentCount = working.filter((row) => sizeRaw(row) != null && row._factorEvidence.size?.ok).length;
-  const sizeActive = mcapCurrentCount >= Math.ceil(items.length * MIN_CROSS_SECTION_COVERAGE) && factorCoverage.size.coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100;
-  const fundamentalCurrentCount = working.filter((row) => {
+  const mcapCurrentCount = coverageRows.filter((row) => sizeRaw(row) != null && row._factorEvidence.size?.ok).length;
+  const sizeActive = mcapCurrentCount >= Math.ceil(coverageRows.length * MIN_CROSS_SECTION_COVERAGE) && factorCoverage.size.coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100;
+  const fundamentalCurrentCount = coverageRows.filter((row) => {
     const hasInput = valueFn(row) != null || qualityRaw(row) != null;
     return hasInput && (row._factorEvidence.value?.ok || row._factorEvidence.quality?.ok);
   }).length;
-  const fundamentalCurrentPct = items.length ? fundamentalCurrentCount / items.length * 100 : 0;
-  const fundamentalCurrent = fundamentalCurrentCount >= Math.ceil(items.length * MIN_CROSS_SECTION_COVERAGE);
+  const fundamentalCurrentPct = coverageRows.length ? fundamentalCurrentCount / coverageRows.length * 100 : 0;
+  const fundamentalCurrent = fundamentalCurrentCount >= Math.ceil(coverageRows.length * MIN_CROSS_SECTION_COVERAGE);
   const valueActive = fundamentalCurrent && factorCoverage.value.coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100;
   const qualityActive = fundamentalCurrent && factorCoverage.quality.coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100;
   factorCoverage.size = freezeRecord({ ...factorCoverage.size, active: sizeActive, status: sizeActive ? 'active' : 'freshness-or-coverage-blocked' });
@@ -516,7 +526,7 @@ function computeFactorRanksForPopulation({
   if (valueActive) activeCandidates.add('value');
   if (qualityActive) activeCandidates.add('quality');
   if (factorCoverage.kalman.coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100) activeCandidates.add('kalman');
-  const FACTORS = candidateFactors.filter((factor) => activeCandidates.has(factor.key));
+  let FACTORS = candidateFactors.filter((factor) => activeCandidates.has(factor.key));
   const inactiveFactorReasons = {
     momentum: factorCoverage.momentum.active ? null : `모멘텀 유효값 커버리지 80% 미만 (${factorCoverage.momentum.coveragePct.toFixed(1)}%)`,
     trend: factorCoverage.trend.active ? null : `추세 유효값 커버리지 80% 미만 (${factorCoverage.trend.coveragePct.toFixed(1)}%)`,
@@ -577,8 +587,21 @@ function computeFactorRanksForPopulation({
     requestedWeightCoveragePct = Math.round(resolution.coverage * 1000) / 10;
   } else {
     appliedFactorWeights = sanitizeWeights(activeWeights, FACTORS);
+    // D6 (2026-10-17 audit): a factor the default model weights at 0 (size, until it has an artifact-fixed market cap)
+    // is not part of the model even when its data is present — it neither scores rows nor changes the model identity.
+    const weighted = FACTORS.filter((factor) => appliedFactorWeights[factor.key] > 0);
+    if (weighted.length && weighted.length < FACTORS.length) {
+      FACTORS.filter((factor) => !(appliedFactorWeights[factor.key] > 0)).forEach((factor) => {
+        inactiveFactorReasons[factor.key] = `기본 모델 가중 0 — ${factor.key === 'size' ? '규모는 실시간 시가총액이 일부 종목에만 들어와 기본 순위에 쓰지 않음' : '기본 순위에 쓰지 않음'}`;
+        delete appliedFactorWeights[factor.key];
+      });
+      FACTORS = weighted;
+    }
   }
 
+  // D8 (2026-10-17 audit, kept): every factor, price factors included, is compared inside its sector. This removes
+  // industry momentum from the momentum factor on purpose — the ranking should separate stocks within a sector rather
+  // than restate the sector rotation (테마 · 섹터 owns that), and it keeps the top fifth from filling with one sector.
   const outlierByFactor = {};
   FACTORS.forEach((factor) => {
     const finiteRows = working.filter((row) => finite(row._factorValues[factor.key]) != null);
@@ -721,7 +744,11 @@ function computeFactorRanksForPopulation({
   const compositeConfidence = Math.max(0, Math.min(1, 0.55 * (activeCoverage || 0) + 0.25 * crossSectionConfidence + 0.20 * sectorConfidence));
   const outlierTotal = Object.values(outlierByFactor).reduce((sum, entry) => sum + entry.count, 0);
   const rowCoverageBlocked = working.filter((row) => row.rankingEligibility !== 'eligible').length;
-  const qualityStatus = compositeConfidence >= 0.8 && invalidCoreRows === 0 && duplicateRows === 0 && outlierTotal === 0 && rowCoverageBlocked === 0 ? 'ready' : 'partial';
+  // D9 (2026-10-17 audit): extreme values are already winsorized and listed in outlierDiagnostics, and rows below the
+  // row-level evidence floor are listed on the page as '순위 밖'; neither is an input failure of the run. Requiring zero
+  // of both meant an 800-row universe (46 outliers, 41 thin rows) could never read 'ready'. A run is partial when more
+  // than a tenth of its rows could not be ranked.
+  const qualityStatus = compositeConfidence >= 0.8 && invalidCoreRows === 0 && duplicateRows === 0 && rowCoverageBlocked <= items.length * 0.1 ? 'ready' : 'partial';
   const smallSectorGroups = sectorCounts.filter((entry) => entry.known && entry.count < MIN_SECTOR_OBSERVATIONS);
   const unknownRows = sectorCounts.find((entry) => !entry.known)?.count || 0;
   const sectorNeutrality = freezeRecord({
@@ -764,6 +791,7 @@ function computeFactorRanksForPopulation({
     excludedFactorWeights: Object.freeze({ ...excludedFactorWeights }),
     requestedWeightCoveragePct,
     weightsPolicy: explicitWeights ? 'explicit' : 'model-default',
+    coverageBasis,
     factorDefinitions: Object.freeze({ momentum: momentumFn === momRaw ? 'blend-1-3-6' : 'six-minus-one', value: valueFn === valueRaw ? 'positive-multiples' : 'signed-yields' }),
     rankingState: 'ranked',
     rankingUnavailableReason: null,

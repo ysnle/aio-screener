@@ -844,7 +844,8 @@ function renderFactorTab(documentRef, metadata) {
   if (confidenceNode) {
     const confidence = finite(ranking.confidence);
     const composite = finite(ranking.compositeConfidence);
-    const status = ranking.qualityStatus || 'unavailable';
+    // D9 (2026-10-17 audit): the run's input status in words, not the model's enum.
+    const status = ({ ready: '정상', partial: '일부 제한', unavailable: '계산 불가' })[ranking.qualityStatus] || '계산 불가';
     confidenceNode.textContent = confidence == null
       ? '입력 신뢰도 산출 불가 — 미래 수익률 확률이 아닙니다.'
       : `행 근거 평균 ${Math.round(confidence * 100)}% · 횡단면 진단 ${composite == null ? '—' : `${Math.round(composite * 100)}%`} · 품질 ${status} · 미래 수익률 확률 아님`;
@@ -866,9 +867,11 @@ function renderFactorTab(documentRef, metadata) {
     const parts = [
       `섹터 중립 ${sector.status || '미확인'}${sectorGroups != null ? ` (${sectorGroups}개 그룹${sectorUnknown ? `, 미분류 ${sectorUnknown}` : ''})` : ''}`,
       `극단치 완화 ${outlierCount != null ? `${outlierCount}건` : '미확인'}`,
-      `상위군 회전 ${turnoverPct != null ? `${turnoverPct}%` : turnover.status || '이전 스냅샷 없음'}`,
-      `국면 안정성 ${regimeStability.status || '이전 스냅샷 없음'}`
-    ];
+      // D10 (2026-10-17 audit): no caller supplies a prior ranking or regime snapshot, so these two read
+      // '이전 스냅샷 없음' on every visit. They appear only when they were actually measured.
+      turnover.status === 'observed' && turnoverPct != null ? `상위군 회전 ${turnoverPct}%` : null,
+      ['stable', 'transition'].includes(regimeStability.status) ? `국면 안정성 ${regimeStability.status === 'stable' ? '유지' : '전환'}` : null
+    ].filter(Boolean);
     diagnosticsNode.textContent = `${parts.join(' · ')} · 연구용 상대 순위이며 매매 신호/자동 가중 승격에 사용하지 않습니다.`;
     diagnosticsNode.dataset.decisionEligible = String(ranking.researchBoundary?.decisionEligible === true);
   }

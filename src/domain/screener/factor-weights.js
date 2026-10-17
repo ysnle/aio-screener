@@ -1,9 +1,13 @@
 // P763/ARX-10 follow-up: the factor-weight regime/profile resolver is pure.
 // Storage/profile lookup remains at the compatibility boundary; this module owns only the
 // deterministic weight math so native and legacy screener consumers cannot diverge.
-export const FACTOR_WEIGHTS_MODEL_VERSION = 'factor-weights.v3';
+// v4 (2026-10-17 audit D6, owner-approved): the default model gives size no weight. Its only input is the live quote's
+// market cap, which the published artifacts never carry, so the declared 8% was renormalized away on every run — and
+// would have switched on, re-ranking every row, the moment live quotes reached 80% coverage. The applied default
+// weights are unchanged (size was never active). The key stays at 0 so user profiles that name size remain valid.
+export const FACTOR_WEIGHTS_MODEL_VERSION = 'factor-weights.v4';
 
-const NEUTRAL = Object.freeze({ momentum: 0.27, trend: 0.20, lowvol: 0.16, size: 0.08, value: 0.10, quality: 0.09, kalman: 0.10 });
+const NEUTRAL = Object.freeze({ momentum: 0.27, trend: 0.20, lowvol: 0.16, size: 0, value: 0.10, quality: 0.09, kalman: 0.10 });
 const RISK_OFF = Object.freeze({ momentum: 0.12, trend: 0.18, lowvol: 0.28, size: 0.05, value: 0.10, quality: 0.18, kalman: 0.09 });
 const RISK_ON = Object.freeze({ momentum: 0.33, trend: 0.24, lowvol: 0.09, size: 0.08, value: 0.07, quality: 0.07, kalman: 0.12 });
 // P1449: the ranking model falls back to exactly this vector when its caller passes no weights
