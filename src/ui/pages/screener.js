@@ -6,6 +6,17 @@ import { buildPopulationRankingIdentity, liveScreenerModelFingerprint } from '..
 import { measuredCandidateEntries, summarizeCandidateArchive } from '../../domain/screener/candidate-record.js';
 import { measureFactorOverlap, overlapSentence } from '../../domain/screener/factor-overlap.js';
 
+// Row arrays from the store and the workbench are replaced, never edited in place, so one market's slice is cut once
+// per array. Handing renderBacktest the same slice also lets the factor-overlap cache below hit (a fresh filter result
+// every render re-measured the overlap on each keystroke).
+const marketRowsCache = new WeakMap();
+function scopedRows(rows, market) {
+  if (!Array.isArray(rows)) return marketRows(rows, market);
+  let byMarket = marketRowsCache.get(rows);
+  if (!byMarket) marketRowsCache.set(rows, (byMarket = new Map()));
+  if (!byMarket.has(market)) byMarket.set(market, marketRows(rows, market));
+  return byMarket.get(market);
+}
 // P1468: factor overlap measured once per ranked row set (the Why drawer and the 검증 view share it).
 // 2026-10-17 audit: z-scores are per market (P1625), so a `market` measures that market's rows against that market's
 // active factors; the Why drawer used to pool US and KR rows under the US factor list.
@@ -37,7 +48,7 @@ import { sectorsForEtf } from '../../domain/entity/stock-read.js';
 import { consensusView } from '../../domain/fundamental/consensus-read.js';
 import { parseConditionValue, matchesConditions, conditionCoverage, availableConditionIds } from '../../domain/screener/custom-conditions.js';
 import { installCustomConditions } from '../components/screener-custom.js';
-import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
+import { requestConsensusEstimates, consensusRowFor, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { sectorLabel } from '../../domain/screener/screener-read.js';
 import { themeStagesFor, scenarioStateCurrent } from '../../domain/scenarios/theme-stage.js';
 import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
@@ -224,7 +235,7 @@ export function entryTiming(row) {
   return ['중립권', 'entry-wait'];
 }
 
-function liveRow(row, readLiveData) {
+export function liveRow(row, readLiveData) {
   const live = readLiveData?.()?.[row.sym] || {};
   const rowCurrency = String(row.instrumentRef?.currency || row.currency || '').trim().toUpperCase() || null;
   const liveCurrency = String(live.currency || '').trim().toUpperCase() || null;
@@ -408,23 +419,36 @@ export function customRead(row, key) {
 let customPanel = null;
 let availableCache = {};
 
+// The value a sort column reads from the display row (liveRow) — the registry gates registered fields for display.
+// Only price and 시총 take the live overlay, so only they build the whole display row; the other columns read the one
+// value they need. Keys are computed once per row instead of once per comparison.
+const FACTOR_SORT_COLUMNS = new Set(['momentum', 'trend', 'lowvol', 'value', 'quality', 'kalman']);
+const DISPLAY_FIELD_BY_ROW_KEY = new Map(SCREENER_FIELD_REGISTRY.fields.filter((definition) => !definition.fieldId.startsWith('identity.')).map((definition) => [definition.rowKey, definition.fieldId]));
+function displayValue(row, key) {
+  const fieldId = row.fieldReadiness ? DISPLAY_FIELD_BY_ROW_KEY.get(key) : null;
+  return fieldId ? fieldValueForPurpose(row, fieldId, 'display') : row[key];
+}
+function sortKey(row, sortColumn, readLiveData) {
+  if (sortColumn === 'price') return liveRow(row, readLiveData).price;
+  if (sortColumn === 'mcap') return capFilterValue(liveRow(row, readLiveData)); // v57.55 (8n): the same value the cap filter uses (reference cap when no live cap)
+  if (sortColumn === 'extension') return extensionMultiple({ pctSma50: displayValue(row, 'pctSma50'), adrPct: displayValue(row, 'adrPct') });
+  if (sortColumn === 'fwdPe') return forwardPe({ sym: displayValue(row, 'sym'), symbol: displayValue(row, 'symbol') });
+  if (sortColumn === 'rank') return visibleRank({ screenStatus: displayValue(row, 'screenStatus'), rank: displayValue(row, 'rank') });
+  if (FACTOR_SORT_COLUMNS.has(sortColumn)) return displayValue(row, 'factorScores')?.[sortColumn];
+  return displayValue(row, sortColumn);
+}
+
 export function sortRows(rows, sortColumn, ascending, readLiveData) {
-  return rows.map(row => ({ row, view: liveRow(row, readLiveData) })).sort(({ view: a }, { view: b }) => {
-    const factorColumn = ['momentum', 'trend', 'lowvol', 'value', 'quality', 'kalman'].includes(sortColumn);
-    let av = factorColumn ? a.factorScores?.[sortColumn] : a[sortColumn];
-    let bv = factorColumn ? b.factorScores?.[sortColumn] : b[sortColumn];
-    if (sortColumn === 'price') { av = a.price; bv = b.price; }
-    if (sortColumn === 'extension') { av = extensionMultiple(a); bv = extensionMultiple(b); }
-    if (sortColumn === 'fwdPe') { av = forwardPe(a); bv = forwardPe(b); }
-    if (sortColumn === 'mcap') { av = capFilterValue(a); bv = capFilterValue(b); } // v57.55 (8n): the same value the cap filter uses (reference cap when no live cap)
-    if (sortColumn === 'rank') { av = visibleRank(a); bv = visibleRank(b); }
-    const missing = (value) => value == null || value === '' || (typeof value === 'number' && !Number.isFinite(value));
-    if (missing(av) || missing(bv)) return missing(av) === missing(bv) ? 0 : missing(av) ? 1 : -1;
-    if (typeof av === 'string') av = av.toUpperCase();
-    if (typeof bv === 'string') bv = bv.toUpperCase();
-    const comparison = av > bv ? 1 : av < bv ? -1 : 0;
+  const missing = (value) => value == null || value === '' || (typeof value === 'number' && !Number.isFinite(value));
+  return rows.map((row) => {
+    const key = sortKey(row, sortColumn, readLiveData);
+    const absent = missing(key);
+    return { row, absent, key: !absent && typeof key === 'string' ? key.toUpperCase() : key };
+  }).sort((a, b) => {
+    if (a.absent || b.absent) return a.absent === b.absent ? 0 : a.absent ? 1 : -1;
+    const comparison = a.key > b.key ? 1 : a.key < b.key ? -1 : 0;
     return ascending ? comparison : -comparison;
-  }).map(entry => entry.row);
+  }).map((entry) => entry.row);
 }
 
 function createRankNode(documentRef, row, hold = null) {
@@ -734,7 +758,7 @@ const SETUP_OPTION_EVIDENCE = Object.freeze({
   CLIMAX: (setup) => setup?.climaxRisk && setup.climaxRisk !== 'unavailable'
 });
 export function syncScreenerControlAvailability(documentRef, { rows = [], listingMarket = 'US', ranking = {}, profiles = null } = {}) {
-  const marketList = marketRows(rows, listingMarket);
+  const marketList = scopedRows(rows, listingMarket);
   const cap = documentRef?.getElementById?.('scr-cap');
   if (cap) {
     const capAvailable = marketList.some((row) => capFilterValue(row) != null);
@@ -1354,6 +1378,67 @@ function syncUniverseScopeControl(documentRef, root, state, listingMarket) {
   }
 }
 
+// Filter and sort results are reused while their inputs stay the same: the same row array, the same control values and
+// sort order. A text search (it also reads the name registries) and a Forward PER condition or column (estimates load
+// later) are not tracked here, so those always recompute; price and 시총 sorts read live quotes and do too.
+const FILTER_CONTROL_IDS = ['scr-listing-market', 'scr-market', 'scr-sector', 'scr-cap', 'scr-text-search', 'scr-min-rank', 'scr-rsi-min', 'scr-rsi-max', 'scr-min-mom', 'scr-setup', 'scr-custom-conditions'];
+const LIVE_SORT_COLUMNS = new Set(['price', 'mcap', 'fwdPe']);
+let filterCache = null;
+let sortCache = null;
+function filterAndSortRows(rows, documentRef, { readWatchlist, readAliases, sortState, readLiveData }) {
+  const values = FILTER_CONTROL_IDS.map((id) => selectedValue(documentRef, id));
+  const watchlistOnly = !!documentRef.getElementById('scr-watchlist-only')?.checked;
+  const passedOnly = !!documentRef.getElementById('scr-passed-only')?.checked;
+  const trackedFilter = !values[4].trim() && !parseConditionValue(values[10]).some((item) => item.id === 'fwdpe-max');
+  const filterKey = [...values, watchlistOnly, passedOnly, watchlistOnly ? (readWatchlist?.() || []).join(',') : ''].join('\u0001');
+  let filtered;
+  if (trackedFilter && filterCache?.rows === rows && filterCache.key === filterKey) filtered = filterCache.result;
+  else {
+    filtered = filterRows(rows, documentRef, { readWatchlist, readAliases });
+    filterCache = trackedFilter ? { rows, key: filterKey, result: filtered } : null;
+  }
+  const { column, ascending } = sortState;
+  if (!LIVE_SORT_COLUMNS.has(column) && sortCache?.filtered === filtered && sortCache.column === column && sortCache.ascending === ascending) return sortCache.result;
+  const sorted = sortRows(filtered, column, ascending, readLiveData);
+  sortCache = LIVE_SORT_COLUMNS.has(column) ? null : { filtered, column, ascending, result: sorted };
+  return sorted;
+}
+
+// A table row keeps its node while everything it shows is unchanged: the same row object, columns, selection, compare
+// and watchlist marks, rank hold, live quote fields and (with the Forward PER column) estimate. A re-render that changes
+// nothing then leaves the table alone, so focus, hover and a click in flight are not lost to a rebuilt row.
+const tableRowCache = new WeakMap();
+function tableRowInputs(row, { readLiveData, readWatchlist, selectedSymbols, compareSymbols, visibleColumns, rankHold }, columnsKey) {
+  const symbol = row.sym || row.symbol;
+  const live = readLiveData?.()?.[row.sym] || {};
+  const inputs = [row, columnsKey, !!selectedSymbols?.has(symbol), !!compareSymbols?.has(row.sym), (readWatchlist?.() || []).includes(row.sym), rankHold ? `hold:${rankHold.reason}` : '',
+    live.currency, live.marketCapCurrency, live.price, live.marketCap, live.observedAt, live.ts, live.source, live.revision];
+  if (visibleColumns.some((column) => column.key === 'fwdPe')) {
+    const estimates = consensusRoot?.[CONSENSUS_KEY];
+    inputs.push(estimates, consensusRowFor(consensusRoot, symbol), estimates?.coverage?.covered, estimates?.coverage?.universeUs);
+  }
+  return inputs;
+}
+function tableRowNodes(documentRef, body, rows, options) {
+  const columnsKey = options.visibleColumns.map((column) => `${column.key}:${column.label}:${column.align}:${column.width}:${column.sticky ? 1 : 0}`).join('|');
+  let cache = tableRowCache.get(body);
+  // A new mount brings new handlers; rows built with the old ones are not reused.
+  if (!cache || cache.owner !== options.onExplain) cache = { owner: options.onExplain, bySymbol: new Map() };
+  const next = new Map();
+  const nodes = rows.map((row) => {
+    const inputs = tableRowInputs(row, options, columnsKey);
+    const key = row.sym || row.symbol || '';
+    const kept = cache.bySymbol.get(key);
+    const node = kept && !next.has(key) && kept.inputs.length === inputs.length && kept.inputs.every((value, index) => Object.is(value, inputs[index]))
+      ? kept.node
+      : createTableRow(documentRef, row, options);
+    if (!next.has(key)) next.set(key, { node, inputs });
+    return node;
+  });
+  tableRowCache.set(body, { owner: cache.owner, bySymbol: next });
+  return nodes;
+}
+
 function render({ documentRef, root = globalThis, store, readLiveData, readWatchlist, readAliases, sortState, visibleLimit, onWatchlistToggle, onExplain, onCompare, onVisibleSymbols, selectedSymbols, compareSymbols, columnPreset = 'discovery', customColumns = [], rowsOverride = null, workbenchResult = null, previewResult = null, onDataChange = null }) {
   const rawState = selectScreenerState(store?.getState?.() || {});
   const listingMarket = selectedValue(documentRef, 'scr-listing-market') || 'US';
@@ -1366,7 +1451,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (!page) return;
   const rows = rowsOverride || state?.rows || [];
   syncScreenerControlAvailability(documentRef, { rows: currentState.rows || [], listingMarket, ranking: currentState.metadata.ranking, profiles: root?.AIO_TRADER_PROFILES || null });
-  const filtered = sortRows(filterRows(rows, documentRef, { readWatchlist, readAliases }), sortState.column, sortState.ascending, readLiveData);
+  const filtered = filterAndSortRows(rows, documentRef, { readWatchlist, readAliases, sortState, readLiveData });
   const chosenDefinition = workbenchResult?.definition || preview?.definition || state?.screenDefinition;
   const presetOrder = documentRef.getElementById('scr-order')?.querySelector('option[value="screenRank"]');
   if (presetOrder && chosenDefinition?.ranking) {
@@ -1380,7 +1465,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   const visibleColumns = getVisibleColumns(columnPreset, customColumns).filter((column) => !['value', 'quality'].includes(column.key) || scored(column.key));
   consensusRoot = root;
   const custom = parseConditionValue(selectedValue(documentRef, 'scr-custom-conditions'));
-  const scopeRows = marketRows(rows, listingMarket);
+  const scopeRows = scopedRows(rows, listingMarket);
   // v57.59: a condition the market has no data for (e.g. SEC financials for 한국) is greyed out instead of returning 0.
   // Forward PER loads on demand, so it stays offered for 미국 even before the estimates arrive.
   if (availableCache.rows !== scopeRows.length || availableCache.market !== listingMarket || availableCache.source !== rows) {
@@ -1396,7 +1481,6 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     const focusedRow = documentRef.activeElement?.closest?.('[data-aio-screener-ticker]');
     const focusedSymbol = body.contains(focusedRow) ? focusedRow.dataset.aioScreenerTicker : null;
     const focusedAction = focusedSymbol && documentRef.activeElement?.getAttribute('aria-label');
-    body.replaceChildren();
     const visible = filtered.slice(0, visibleLimit.value);
     {
       const lead = filtered.find((row) => row.screenStatus === 'passed') || null;
@@ -1404,6 +1488,8 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     }
     if (!workbenchResult?.run) onVisibleSymbols?.(visible.map((row) => row.sym || row.symbol).filter(Boolean));
     if (!visible.length) {
+      body.replaceChildren();
+      tableRowCache.delete(body);
       const empty = documentRef.createElement('tr');
       // LC-73: 필터 0건의 "거절"과 "데이터 미상으로 판정 보류"를 분리해 말한다 — 시총 필터가
       // 걸려 있는데 시총이 없는 행을 조용히 제외하면 0건이 '조건 미달 0건'으로만 읽힌다.
@@ -1450,7 +1536,11 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
         empty.firstChild.appendChild(actions);
       }
       body.appendChild(empty);
-    } else visible.forEach((row) => body.appendChild(createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold: currentState.metadata.ranking.available === false ? { reason: currentState.metadata.ranking.rankingUnavailableReason } : root._aioRankingHold || null })));
+    } else {
+      const nodes = tableRowNodes(documentRef, body, visible, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold: currentState.metadata.ranking.available === false ? { reason: currentState.metadata.ranking.rankingUnavailableReason } : root._aioRankingHold || null });
+      const children = body.children;
+      if (children.length !== nodes.length || nodes.some((node, index) => children[index] !== node)) body.replaceChildren(...nodes);
+    }
     if (focusedSymbol) {
       const row = [...body.querySelectorAll('[data-aio-screener-ticker]')].find((node) => node.dataset.aioScreenerTicker === focusedSymbol);
       const action = row && [...row.querySelectorAll('button')].find((node) => node.getAttribute('aria-label') === focusedAction);
@@ -1477,7 +1567,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     const order = documentRef.getElementById('scr-order')?.selectedOptions?.[0]?.textContent || SCREENER_COLUMN_REGISTRY.find(column => column.key === sortState.column)?.label || '조건 순위';
     // 2026-10-14 audit #3: one denominator on this screen — the rows the ranking actually ranked (the same set the
     // reading's top 20% and the stock summary's rank use). Why the rest of the population is not ranked is folded.
-    const population = marketRows(currentState.rows || [], listingMarket);
+    const population = scopedRows(currentState.rows || [], listingMarket);
     const screened = population.filter((row) => finite(row?.screenRank) != null).length;
     const rankedCount = screened || ranking.ranked || 0;
     // v57.81: which population the percentiles come from — the core universe or the extended one.
@@ -1505,7 +1595,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     if (sessionLag) diagnostics.textContent += ` · 가격 자료 ${sessionLag.session.slice(5).replace('-', '/')} 종가 기준, ${sessionLag.latest.slice(5).replace('-', '/')} ${sessionLag.label} 반영 대기`;
     diagnostics.title = '백분위는 같은 시장의 계산 가능한 종목끼리 비교합니다. 정렬과 조건, 표시 필터는 서로 다른 역할입니다. 데이터가 없거나 조건을 통과하지 못한 종목은 순위에서 제외합니다.';
   }
-  const allRows = marketRows(rows, listingMarket);
+  const allRows = scopedRows(rows, listingMarket);
   const total = documentRef.getElementById('scr-kpi-total');
   const top = documentRef.getElementById('scr-kpi-top');
   const factorCount = documentRef.getElementById('scr-kpi-factors');
@@ -1627,7 +1717,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   }
   const rankingState = state?.metadata?.ranking || {};
   renderFactorTab(documentRef, state?.metadata);
-  renderBacktest(documentRef, state?.metadata, root, marketRows(state?.rows || [], listingMarket));
+  renderBacktest(documentRef, state?.metadata, root, scopedRows(state?.rows || [], listingMarket));
   renderConditionalEvidence(documentRef, state?.metadata);
   page.querySelectorAll('[data-scr-sort]').forEach((header) => {
     const arrow = header.querySelector('.scr-arrow');
@@ -1748,7 +1838,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       // P1437: the lead reading of the ranking — recomputed only when the ranked set or validation changes.
       let readSignature = '';
       const renderRead = () => {
-        const rows = marketRows(selectScreenerState(store?.getState?.() || {})?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US');
+        const rows = scopedRows(selectScreenerState(store?.getState?.() || {})?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US');
         const signature = `${selectedValue(documentRef, 'scr-listing-market')}|${root?._aioScenarioState?.status || ''}:${root?._aioScenarioState?.generatedAt || ''}|${rows.length}|${rows.slice(0, 5).map((row) => `${row?.sym}:${row?.screenRank}`).join(',')}|${(root?._aioScreenerBacktestHistory || []).length}|${(root?._aioHistory || []).length}|${Object.keys(root?._serverDataMeta?.rotationHistory?.items || {}).length}`;
         if (signature === readSignature) return;
         readSignature = signature;
@@ -1797,7 +1887,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
               renderScreenerValidation({ documentRef, root }); readSignature = ''; renderRead();
               // The 10-year study and the candidate record arrive after the first render of the 검증 view.
               const latest = selectScreenerState(store?.getState?.() || {});
-              renderBacktest(documentRef, { ...latest?.metadata, populationRanking: latest?.metadata?.ranking || null, selectionMarket: selectedValue(documentRef, 'scr-listing-market') || 'US', ranking: marketRankingMetadata(latest?.metadata, selectedValue(documentRef, 'scr-listing-market') || 'US') }, root, marketRows(latest?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US'));
+              renderBacktest(documentRef, { ...latest?.metadata, populationRanking: latest?.metadata?.ranking || null, selectionMarket: selectedValue(documentRef, 'scr-listing-market') || 'US', ranking: marketRankingMetadata(latest?.metadata, selectedValue(documentRef, 'scr-listing-market') || 'US') }, root, scopedRows(latest?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US'));
             }
           });
         }
@@ -2428,7 +2518,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          if (!activeResult && preview && workbenchStatus) {
            // P1431: plain status; the definition id/hash stay on the element for audit, not in the sentence.
            const screenLabel = documentRef.getElementById('scr-screen-select')?.selectedOptions?.[0]?.textContent || preview.definition?.screenId || '선택한 조건';
-           workbenchStatus.textContent = `${screenLabel} 미리보기 · 대상 ${marketRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').length}종목 중 조건 통과 ${marketRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').filter(row => row.screenStatus === 'passed').length} · 조건 판단 자료 부족 ${marketRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').filter(row => row.screenStatus === 'unavailable').length}`;
+           workbenchStatus.textContent = `${screenLabel} 미리보기 · 대상 ${scopedRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').length}종목 중 조건 통과 ${scopedRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').filter(row => row.screenStatus === 'passed').length} · 조건 판단 자료 부족 ${scopedRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').filter(row => row.screenStatus === 'unavailable').length}`;
            workbenchStatus.title = `${preview.definition?.screenId || '—'} · ${String(preview.definition?.definitionHash || '').slice(0, 8)} · 조건 실행을 누르면 이 입력으로 고정합니다`;
          }
          renderCompareTray();
@@ -2702,7 +2792,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       const fillSelect = (id, key, label) => {
         const select = documentRef.getElementById(id);
         if (!select) return;
-        const values = [...new Set(marketRows(selectScreenerState(store.getState())?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').map((row) => row[key]).filter(Boolean))].sort();
+        const values = [...new Set(scopedRows(selectScreenerState(store.getState())?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').map((row) => row[key]).filter(Boolean))].sort();
         const signature = `${selectedValue(documentRef, 'scr-listing-market')}|${values.join('|')}`;
         if (select.dataset.aioValues === signature) return;
         const current = select.value;
