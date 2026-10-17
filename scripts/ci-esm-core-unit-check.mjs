@@ -4929,3 +4929,22 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (ctx.result?.mode !== 'diversified-recommendation' || !(ctx.result.recentSuppressed >= 1) || !ctx.prompt) fail(`screener-query: a broad ask diversifies and suppresses recent picks: ${JSON.stringify({ mode: ctx.result?.mode, suppressed: ctx.result?.recentSuppressed })}`);
   if (sq.buildScreenerAiContext('오늘 기분 어때', [], { rows }).prompt !== '') fail('screener-query: no match gives an empty prompt');
 }
+{
+  // Legacy unification follow-up (2026-10-17): a live-quote tick re-derives only the rows whose quote changed.
+  const { createScreenerProvider } = await load('src/data/providers/screener.js');
+  const artifact = { asOf: '2026-10-16T21:00:00Z', factorObservedAt: '2026-10-16T20:00:00Z', data: { AAA: { ret3m: 4, rsi: 50, observedAt: '2026-10-16T20:00:00Z' }, BBB: { ret3m: 2, rsi: 40, observedAt: '2026-10-16T20:00:00Z' } } };
+  const httpClient = { requestJson: async (url) => url.includes('screener.json') ? { ok: true, data: artifact } : { ok: false, error: 'HTTP_404' } };
+  let nowMs = Date.parse('2026-10-17T06:00:00Z');
+  let live = {};
+  const provider = createScreenerProvider({ httpClient, readLiveData: () => live, clock: { now: () => nowMs, iso: () => new Date(nowMs).toISOString() }, yieldImpl: async () => {} });
+  const bySym = (read) => Object.fromEntries(read.rows.map((row) => [row.sym, row]));
+  const base = bySym(await provider.readCurrent());
+  live = { AAA: { price: 101, currency: 'USD', marketCap: 2e10 } };
+  const tick = bySym(await provider.readCurrent({ refresh: false, quotesOnly: true }));
+  if (tick.BBB !== base.BBB || tick.AAA === base.AAA || tick.AAA.nativeMarketCap?.value !== 2e10) fail('quote tick: an unchanged quote reuses its row and a changed quote re-derives it');
+  const plain = bySym(await provider.readCurrent({ refresh: false }));
+  if (plain.BBB === tick.BBB) fail('quote tick: a read that is not quotes-only re-derives every row');
+  nowMs += 6 * 60 * 1000;
+  const late = bySym(await provider.readCurrent({ refresh: false, quotesOnly: true }));
+  if (late.BBB === plain.BBB) fail('quote tick: rows re-derive once the reuse window has passed');
+}
