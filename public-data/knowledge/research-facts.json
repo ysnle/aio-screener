@@ -363,6 +363,33 @@
       "scope": "KV-cache capacity-driver model",
       "invalidation": "Treat the expression as an architecture-dependent capacity model, not a universal byte forecast or proof of SSD demand; validate the serving implementation and residency policy.",
       "asOf": "2023-09-12"
+    },
+    {
+      "factId": "fact:backprop:weight-updates",
+      "sourceId": "WEB-NATURE-BACKPROP-1986",
+      "appliesTo": ["forward-backpropagation", "neural-networks", "backpropagation", "back-propagation"],
+      "statement": "Rumelhart, Hinton and Williams describe back-propagation as repeatedly adjusting connection weights to reduce the difference between a network's actual output and the desired output; the error is passed backward through the layers, and hidden units come to represent features of the task that were not given as inputs.",
+      "scope": "Gradient-based weight updates in layered neural networks",
+      "invalidation": "The paper shows the learning procedure on small networks; it does not establish convergence to a global optimum, generalization on unseen data, or the behaviour of today's large models.",
+      "asOf": "1986-10-09"
+    },
+    {
+      "factId": "fact:dedup:training-data",
+      "sourceId": "WEB-ARXIV-DEDUP-2021",
+      "appliesTo": ["data-quality", "deduplication", "duplicates"],
+      "statement": "Lee et al. found that common language-model training sets contain many near-duplicate examples and long repeated substrings; over 1 percent of unprompted output of models trained on them was copied verbatim from training data, and models trained on deduplicated data emitted memorized text about ten times less often while reaching the same or better accuracy in fewer steps.",
+      "scope": "Effect of duplicated training data on memorization and training efficiency",
+      "invalidation": "Measured on the datasets and model sizes in the paper; deduplication is one dimension of data quality and does not address label errors, bias, coverage or rights.",
+      "asOf": "2021-07-14"
+    },
+    {
+      "factId": "fact:w3c:prov-attribution",
+      "sourceId": "WEB-W3C-PROV-O-2013",
+      "appliesTo": ["claim-source-as-of", "provenance"],
+      "statement": "The W3C PROV Ontology describes provenance with entities, the activities that generated or used them and the agents responsible, including attribution and generation time, so a statement can be traced to who produced it, from what, and when.",
+      "scope": "Provenance record structure (who, from what, when)",
+      "invalidation": "PROV is a vocabulary for recording provenance; it does not verify that a recorded source is accurate or that a claim is true.",
+      "asOf": "2013-04-30"
     }
   ]
 }

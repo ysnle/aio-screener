@@ -6,6 +6,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1908 - v57.93 - 기업·제품 분류 관계가 종류 없이 한 목록으로 묶임 (2026-10-17)
+
+- symptom/reproduction: 주장 원장이 'EUV 장비 → 장비·공정 노드', 'HBF 로드맵 → 기업용 SSD', 'Optimus·자율주행 → 로봇·자동차'를 같은 'mapped to' 관계로 적어, 장비를 공정 노드로, 로드맵을 출하 제품으로, 로봇 성과를 차량에 옮겨 읽을 수 있었다. 도메인 안내문 13곳은 구조·재료 축이나 공급·수요 축을 한 흐름으로 섞었다.
+- root_cause: player-product-registry에 노드별 관계 종류 필드가 없었고, 도메인 안내문이 축 구분 없이 화살표 하나로 이어졌다.
+- fix: 제품 8개에 taxonomyRelations(is-a·part-of·enables·uses·applies-to·roadmap·depends-on·adjacent·context)와 용어 정의를 추가하고 주장 문장에 종류를 표시한다. Tesla·MP Materials에 역할 범위 주석. domain-guides 13곳에서 축(구조/재료, 공급/수요, 현금 지출/감가상각)을 분리했다.
+- violated_rule: 구조 참조는 관계의 종류를 밝혀야 속성이 잘못 옮겨지지 않는다
+- prevention: build-knowledge-evidence-registry가 taxonomyRelations를 주장 문장에 반영하고 parity 게이트가 생성물을 고정한다.
+- verification/residual: node scripts/ci-atlas-contract-check.mjs && node scripts/ci-knowledge-generated-parity-check.mjs
+
+## P1907 - v57.93 - AI 원인 귀속 엔진이 경쟁 원인과 방향 없는 교차자산을 지지로 셈 (2026-10-17)
+
+- symptom/reproduction: buildCausalAttribution은 시간 창 안에 다른 원인 후보 이벤트가 있거나, 방향 정보 없는 교차자산 행이 같은 시간대에 있기만 해도 status를 supported로 올렸다.
+- root_cause: 지지 조건을 '시간 정렬 + (교차자산 존재 또는 대안 이벤트 존재)'로 정의했다. 경쟁 원인은 반대 근거인데 지지로 셌고, 교차자산은 움직인 방향을 보지 않았다.
+- fix: 교차자산은 direction이 expectedDirection과 같을 때만 지지, 다르면 반대 근거로 센다. 경쟁 원인이나 반대 근거가 있으면 partial로 두고 이유를 결론 문장에 밝힌다. 현행 어댑터는 입력을 비워 화면 노출은 없었다.
+- violated_rule: 근거는 주장을 직접 지지해야 한다(시간 일치 ≠ 인과 지지)
+- prevention: R719 계약 사례 causal-direction-required가 방향 없음·반대 방향·경쟁 원인 세 경우를 모두 partial로 고정한다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs
+
 ## P1906 - v57.92 - 태블릿에서 학습 글의 다음 단계가 목록 뒤로 밀리고 13F 같은 회사 두 종목이 구분 안 됨 (2026-10-17)
 
 - symptom/reproduction: 1100px 이하에서 학습 글 본문 다음에 424개 목록이 먼저 나와 '다음 글·선행 글' 링크가 화면 맨 아래로 갔다. 13F 화면에서 Alphabet A주와 C주가 같은 이름으로 두 줄 보였다.

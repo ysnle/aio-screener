@@ -5,9 +5,9 @@
   "boundary": "Dossiers preserve a per-unit research contract. RESEARCHED means a dated fact and canonical source are attached to the stated scope; it does not certify independent source comparison, semantic review or user validation.",
   "counts": {
     "total": 455,
-    "researchRequired": 179,
-    "researchInProgress": 53,
-    "researched": 223
+    "researchRequired": 176,
+    "researchInProgress": 52,
+    "researched": 227
   },
   "dossiers": [
     {
@@ -10275,8 +10275,8 @@
         "Data and data quality official data standard filing evidence",
         "Data and data quality disconfirming evidence limitations"
       ],
-      "searchedAt": null,
-      "method": "NOT_STARTED",
+      "searchedAt": "2026-08-18",
+      "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
       "candidateSources": [
         {
           "sourceId": "PS-12",
@@ -10284,11 +10284,30 @@
           "publisher": "NIST",
           "title": "Expanding the AI Evaluation Toolbox with Statistical Models",
           "sourceTier": null
+        },
+        {
+          "sourceId": "WEB-ARXIV-DEDUP-2021",
+          "url": "https://arxiv.org/abs/2107.06499",
+          "publisher": "arXiv / Lee et al. (ACL 2022)",
+          "title": "Deduplicating Training Data Makes Language Models Better",
+          "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
         }
       ],
-      "selectedSources": [],
+      "selectedSources": [
+        {
+          "sourceId": "WEB-ARXIV-DEDUP-2021",
+          "url": "https://arxiv.org/abs/2107.06499",
+          "publisher": "arXiv / Lee et al. (ACL 2022)",
+          "title": "Deduplicating Training Data Makes Language Models Better",
+          "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
+          "directness": "DIRECT",
+          "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+        }
+      ],
       "rejectedSources": [],
-      "sourceTiers": [],
+      "sourceTiers": [
+        "ACADEMIC_TEXTBOOK_STANDARD"
+      ],
       "claimCoverage": [
         {
           "claimId": "atlas-foundation-data-quality",
@@ -10296,8 +10315,10 @@
           "requiredAction": "independent direct source required"
         }
       ],
-      "researchFactIds": [],
-      "consensus": "Not assessed.",
+      "researchFactIds": [
+        "fact:dedup:training-data"
+      ],
+      "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -10306,10 +10327,10 @@
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
       "q4StructuralMechanism": "Trace Data and data quality through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-      "status": "RESEARCH_REQUIRED",
+      "status": "RESEARCHED",
       "completion": {
-        "evidenceAttached": false,
-        "sourceProfileComplete": false,
+        "evidenceAttached": true,
+        "sourceProfileComplete": true,
         "semanticReview": "REQUIRED",
         "userValidation": "NOT_CONDUCTED"
       }
@@ -10455,8 +10476,8 @@
         "Neural networks official data standard filing evidence",
         "Neural networks disconfirming evidence limitations"
       ],
-      "searchedAt": null,
-      "method": "NOT_STARTED",
+      "searchedAt": "2026-08-18",
+      "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
       "candidateSources": [
         {
           "sourceId": "FND-NVIDIA-TENSOR",
@@ -10471,11 +10492,30 @@
           "publisher": "PyTorch",
           "title": "Automatic Differentiation with torch.autograd",
           "sourceTier": null
+        },
+        {
+          "sourceId": "WEB-NATURE-BACKPROP-1986",
+          "url": "https://www.nature.com/articles/323533a0",
+          "publisher": "Nature / Rumelhart, Hinton & Williams",
+          "title": "Learning representations by back-propagating errors",
+          "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
         }
       ],
-      "selectedSources": [],
+      "selectedSources": [
+        {
+          "sourceId": "WEB-NATURE-BACKPROP-1986",
+          "url": "https://www.nature.com/articles/323533a0",
+          "publisher": "Nature / Rumelhart, Hinton & Williams",
+          "title": "Learning representations by back-propagating errors",
+          "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
+          "directness": "DIRECT",
+          "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+        }
+      ],
       "rejectedSources": [],
-      "sourceTiers": [],
+      "sourceTiers": [
+        "ACADEMIC_TEXTBOOK_STANDARD"
+      ],
       "claimCoverage": [
         {
           "claimId": "atlas-foundation-neural-networks",
@@ -10483,8 +10523,10 @@
           "requiredAction": "independent direct source required"
         }
       ],
-      "researchFactIds": [],
-      "consensus": "Not assessed.",
+      "researchFactIds": [
+        "fact:backprop:weight-updates"
+      ],
+      "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -10493,10 +10535,10 @@
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
       "q4StructuralMechanism": "Trace Neural networks through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-      "status": "RESEARCH_REQUIRED",
+      "status": "RESEARCHED",
       "completion": {
-        "evidenceAttached": false,
-        "sourceProfileComplete": false,
+        "evidenceAttached": true,
+        "sourceProfileComplete": true,
         "semanticReview": "REQUIRED",
         "userValidation": "NOT_CONDUCTED"
       }
@@ -10517,8 +10559,8 @@
         "Forward pass and backpropagation official data standard filing evidence",
         "Forward pass and backpropagation disconfirming evidence limitations"
       ],
-      "searchedAt": null,
-      "method": "NOT_STARTED",
+      "searchedAt": "2026-08-18",
+      "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
       "candidateSources": [
         {
           "sourceId": "FND-PYTORCH-AUTOGRAD",
@@ -10526,11 +10568,30 @@
           "publisher": "PyTorch",
           "title": "Automatic Differentiation with torch.autograd",
           "sourceTier": null
+        },
+        {
+          "sourceId": "WEB-NATURE-BACKPROP-1986",
+          "url": "https://www.nature.com/articles/323533a0",
+          "publisher": "Nature / Rumelhart, Hinton & Williams",
+          "title": "Learning representations by back-propagating errors",
+          "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
         }
       ],
-      "selectedSources": [],
+      "selectedSources": [
+        {
+          "sourceId": "WEB-NATURE-BACKPROP-1986",
+          "url": "https://www.nature.com/articles/323533a0",
+          "publisher": "Nature / Rumelhart, Hinton & Williams",
+          "title": "Learning representations by back-propagating errors",
+          "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
+          "directness": "DIRECT",
+          "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+        }
+      ],
       "rejectedSources": [],
-      "sourceTiers": [],
+      "sourceTiers": [
+        "ACADEMIC_TEXTBOOK_STANDARD"
+      ],
       "claimCoverage": [
         {
           "claimId": "atlas-foundation-forward-backpropagation",
@@ -10538,8 +10599,10 @@
           "requiredAction": "independent direct source required"
         }
       ],
-      "researchFactIds": [],
-      "consensus": "Not assessed.",
+      "researchFactIds": [
+        "fact:backprop:weight-updates"
+      ],
+      "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -10548,10 +10611,10 @@
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
       "q4StructuralMechanism": "Trace Forward pass and backpropagation through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-      "status": "RESEARCH_REQUIRED",
+      "status": "RESEARCHED",
       "completion": {
-        "evidenceAttached": false,
-        "sourceProfileComplete": false,
+        "evidenceAttached": true,
+        "sourceProfileComplete": true,
         "semanticReview": "REQUIRED",
         "userValidation": "NOT_CONDUCTED"
       }
@@ -14355,6 +14418,13 @@
           "sourceTier": null
         },
         {
+          "sourceId": "WEB-W3C-PROV-O-2013",
+          "url": "https://www.w3.org/TR/prov-o/",
+          "publisher": "W3C",
+          "title": "PROV-O: The PROV Ontology (W3C Recommendation)",
+          "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
+        },
+        {
           "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
           "url": "https://arxiv.org/abs/1706.03762",
           "publisher": "arXiv / Vaswani et al.",
@@ -14377,6 +14447,15 @@
         }
       ],
       "selectedSources": [
+        {
+          "sourceId": "WEB-W3C-PROV-O-2013",
+          "url": "https://www.w3.org/TR/prov-o/",
+          "publisher": "W3C",
+          "title": "PROV-O: The PROV Ontology (W3C Recommendation)",
+          "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
+          "directness": "DIRECT",
+          "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+        },
         {
           "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
           "url": "https://arxiv.org/abs/1706.03762",
@@ -14417,8 +14496,10 @@
           "requiredAction": "independent direct source required"
         }
       ],
-      "researchFactIds": [],
-      "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
+      "researchFactIds": [
+        "fact:w3c:prov-attribution"
+      ],
+      "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -14427,9 +14508,9 @@
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
       "q4StructuralMechanism": "Trace Claim, source and as-of discipline through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-      "status": "RESEARCH_IN_PROGRESS",
+      "status": "RESEARCHED",
       "completion": {
-        "evidenceAttached": false,
+        "evidenceAttached": true,
         "sourceProfileComplete": true,
         "semanticReview": "REQUIRED",
         "userValidation": "NOT_CONDUCTED"
@@ -20695,7 +20776,9 @@
       ],
       "sourceTiers": [],
       "claimCoverage": [],
-      "researchFactIds": [],
+      "researchFactIds": [
+        "fact:w3c:prov-attribution"
+      ],
       "consensus": "Not assessed.",
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",

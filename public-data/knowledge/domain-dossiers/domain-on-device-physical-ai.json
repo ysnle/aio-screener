@@ -6,7 +6,7 @@
   "dossierId": "domain-dossier:domain-on-device-physical-ai",
   "domainId": "domain-on-device-physical-ai",
   "title": "domain-on-device-physical-ai",
-  "definition": "온디바이스·physical AI는 제한된 전력과 지연 안에서 센서·모델·제어를 실행하는 계층이다.",
+  "definition": "온디바이스·physical AI는 제한된 전력과 지연 안에서 센서·모델·제어를 실행하는 계층이다. 기기 안 추론(배포 위치의 문제)과 센서-구동 폐루프 제어(물리 안전의 문제)는 전력·지연 제약을 공유할 뿐 서로 다른 문제다.",
   "mechanism": "센서 입력 → edge SoC/NPU·메모리 → 로컬 추론 → actuator·통신·안전",
   "unit": "지연·전력·메모리·작업 성공률",
   "bottlenecks": [

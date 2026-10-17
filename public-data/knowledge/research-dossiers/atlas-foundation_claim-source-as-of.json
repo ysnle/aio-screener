@@ -32,6 +32,13 @@
       "sourceTier": null
     },
     {
+      "sourceId": "WEB-W3C-PROV-O-2013",
+      "url": "https://www.w3.org/TR/prov-o/",
+      "publisher": "W3C",
+      "title": "PROV-O: The PROV Ontology (W3C Recommendation)",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
+    },
+    {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
       "url": "https://arxiv.org/abs/1706.03762",
       "publisher": "arXiv / Vaswani et al.",
@@ -54,6 +61,15 @@
     }
   ],
   "selectedSources": [
+    {
+      "sourceId": "WEB-W3C-PROV-O-2013",
+      "url": "https://www.w3.org/TR/prov-o/",
+      "publisher": "W3C",
+      "title": "PROV-O: The PROV Ontology (W3C Recommendation)",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
     {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
       "url": "https://arxiv.org/abs/1706.03762",
@@ -94,8 +110,10 @@
       "requiredAction": "independent direct source required"
     }
   ],
-  "researchFactIds": [],
-  "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
+  "researchFactIds": [
+    "fact:w3c:prov-attribution"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -104,9 +122,9 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace Claim, source and as-of discipline through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCH_IN_PROGRESS",
+  "status": "RESEARCHED",
   "completion": {
-    "evidenceAttached": false,
+    "evidenceAttached": true,
     "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

@@ -19,6 +19,12 @@ target_version: v57.79
 - **운영·AI**: R652 Worker 자동 배포는 CI 증거와 롤백 대상이 있어야 · R657 운영 알림은 증거를 남기고 닫힌 쪽으로 실패 · R681 모든 AI는 공용 Worker 한 경로로, 웹검색 포함 월 $20 이하 예산을 함께 쓴다
 - **화면**: R697 등급·검증 안 된 합산·행동 지시 없이 측정한 조건과 근거만 보인다 · R669 데스크톱·휴대폰·아이패드가 같은 라우트·데이터를 쓰고 레이아웃만 적응한다 · R703 한 사용자 입력은 한 owner가 처리하고 색 테마는 storage 실패와 무관
 
+## R719. 원인 지지는 방향 일치만 (v57.93, P1907)
+
+**Rule**: AI 원인 귀속에서 교차자산은 그 원인이 예측하는 방향으로 움직였을 때만 지지 근거다. 반대 방향은 반대 근거, 방향 정보가 없으면 시간 일치일 뿐이다. 같은 시간 창의 다른 원인 후보는 지지가 아니라 경쟁 설명이며, 있으면 단일 원인으로 단정하지 않는다.
+
+**Validation**: node scripts/ci-ai-intelligence-contract-check.mjs (causal-direction-required)
+
 ## R718. 자동 근거 연결 토큰은 분야 고유어만 (v57.92, P1903)
 
 **Rule**: research-facts.json의 appliesTo에는 그 사실의 분야에서만 쓰이는 토큰을 둔다. yield·quality·policy·memory·model·risk·ai처럼 여러 분야에서 다른 뜻으로 쓰이는 단어는 넣지 않고, 필요하면 글 id(예: memory-wall)를 직접 적는다. 사실이 붙은 상태는 evidenceAttached이며 연구 완료가 아니다.

@@ -116,9 +116,18 @@ check('answer-plan-renderer-surfaces-verified-claims', renderAnswerPlan(rendered
 const causal = buildCausalAttribution({
   target: { metricId: 'SPX', direction: 'BEARISH', observedAt: '2026-07-28T12:00:00Z' },
   events: [{ eventId: 'n1', title: 'macro event', publishedAt: '2026-07-28T11:30:00Z', source: 'wire', sourceKind: 'LIVE', evidenceId: 'event:n1', type: 'macro' }],
-  crossAssets: [{ metricId: 'VIX', observedAt: '2026-07-28T11:50:00Z', source: 'snapshot', sourceKind: 'LIVE', evidenceId: 'metric:vix' }]
+  crossAssets: [{ metricId: 'VIX', observedAt: '2026-07-28T11:50:00Z', source: 'snapshot', sourceKind: 'LIVE', evidenceId: 'metric:vix', direction: 'UP', expectedDirection: 'UP' }]
 });
 check('causal-temporal-cross-asset', causal.status === 'supported' && causal.alignedEventCount === 1 && causal.corroboratingCrossAssetCount === 1);
+// v57.93 A05: co-timed without direction, moved the other way, or a competing event in the window — none is support.
+const causalWith = (row, extraEvents = []) => buildCausalAttribution({
+  target: { metricId: 'SPX', direction: 'BEARISH', observedAt: '2026-07-28T12:00:00Z' },
+  events: [{ eventId: 'n1', title: 'macro event', publishedAt: '2026-07-28T11:30:00Z', source: 'wire', sourceKind: 'LIVE', evidenceId: 'event:n1', type: 'macro' }, ...extraEvents],
+  crossAssets: [{ metricId: 'VIX', observedAt: '2026-07-28T11:50:00Z', source: 'snapshot', sourceKind: 'LIVE', evidenceId: 'metric:vix', ...row }]
+});
+const competing = { eventId: 'n2', title: 'sector alternative', publishedAt: '2026-07-28T11:40:00Z', source: 'wire', sourceKind: 'LIVE', evidenceId: 'event:n2', type: 'alternative' };
+check('P1907 causal-direction-required', causalWith({}).status === 'partial' && causalWith({ direction: 'DOWN', expectedDirection: 'UP' }).status === 'partial'
+  && causalWith({ direction: 'DOWN', expectedDirection: 'UP' }).contradictingCrossAssetCount === 1 && causalWith({ direction: 'UP', expectedDirection: 'UP' }, [competing]).status === 'partial');
 const causalOutsideWindow = buildCausalAttribution({
   target: { metricId: 'SPX', observedAt: '2026-07-28T12:00:00Z' },
   events: [

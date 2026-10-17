@@ -8,12 +8,12 @@
   "title": "domain-ai-applications",
   "definition": "AI 애플리케이션은 모델 능력이 의료·제조·자동차·금융 업무의 결과와 지불 구조로 번역되는 계층이다.",
   "mechanism": "모델·데이터 → workflow·권한·인증 → 작업 성공·오류 비용 → payer·ROI",
-  "unit": "작업 시간·오류율·성공률·전환비용·상환",
+  "unit": "작업 시간·오류율·성공률·전환비용·업종별 지불 방식(의료는 보험 상환, 제조는 원가 절감 등)",
   "bottlenecks": [
     "규제·책임·데이터 권한·현장 통합·지불자"
   ],
   "uniqueKpis": [
-    "작업 시간·오류율·성공률·전환비용·상환"
+    "작업 시간·오류율·성공률·전환비용·업종별 지불 방식(의료는 보험 상환, 제조는 원가 절감 등)"
   ],
   "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
   "metrics": [],
@@ -176,7 +176,7 @@
   ],
   "unclassifiedCandidates": {
     "measurementDimensions": [
-      "작업 시간·오류율·성공률·전환비용·상환"
+      "작업 시간·오류율·성공률·전환비용·업종별 지불 방식(의료는 보험 상환, 제조는 원가 절감 등)"
     ],
     "verificationQuestions": [
       "사용량·토큰이 아니라 기준선 대비 작업 결과가 개선됐는가?",

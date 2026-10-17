@@ -44,10 +44,20 @@
     ],
     "sourceIds": [
       "FND-NVIDIA-TENSOR",
-      "FND-PYTORCH-AUTOGRAD"
+      "FND-PYTORCH-AUTOGRAD",
+      "WEB-NATURE-BACKPROP-1986"
     ],
-    "researchEvidence": [],
-    "researchCoverage": "RESEARCH_REQUIRED"
+    "researchEvidence": [
+      {
+        "factId": "fact:backprop:weight-updates",
+        "sourceId": "WEB-NATURE-BACKPROP-1986",
+        "statement": "Rumelhart, Hinton and Williams describe back-propagation as repeatedly adjusting connection weights to reduce the difference between a network's actual output and the desired output; the error is passed backward through the layers, and hidden units come to represent features of the task that were not given as inputs.",
+        "scope": "Gradient-based weight updates in layered neural networks",
+        "invalidation": "The paper shows the learning procedure on small networks; it does not establish convergence to a global optimum, generalization on unseen data, or the behaviour of today's large models.",
+        "asOf": "1986-10-09"
+      }
+    ],
+    "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
   },
   "quality": {
     "coreTextCharacters": 263,

@@ -11,7 +11,7 @@
     "integratedFrameworks": 29,
     "withConcepts": 105,
     "unmappedConcepts": 112,
-    "withSources": 27,
+    "withSources": 28,
     "withRouteTargets": 217
   },
   "articles": [
@@ -5381,7 +5381,16 @@
         "metric": "학습 방식·모델 품질",
         "timeframe": "분기~다년"
       },
-      "sources": [],
+      "sources": [
+        {
+          "id": "WEB-ARXIV-DEDUP-2021",
+          "publisher": "arXiv / Lee et al. (ACL 2022)",
+          "title": "Deduplicating Training Data Makes Language Models Better",
+          "url": "https://arxiv.org/abs/2107.06499",
+          "allowedUse": "REFERENCE_ONLY",
+          "directness": "CANDIDATE_REVIEW_REQUIRED"
+        }
+      ],
       "summary": {
         "definition": "데이터 품질은 정확성뿐 아니라 대표성·중복·누락·시간 일관성·권리·라벨 품질을 포함한다.",
         "mechanism": "데이터 오류는 학습·평가·검색의 각 단계로 전파되어 출력 분포와 실패율을 바꾼다.",

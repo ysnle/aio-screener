@@ -589,6 +589,45 @@
       "observedUse": ["network exploration", "filter hierarchy", "chokepoint drill-down", "beginner-friendly visual structure"],
       "directness": "CONTEXT_ONLY",
       "accessedAt": "2026-08-15"
+    },
+    {
+      "id": "WEB-NATURE-BACKPROP-1986",
+      "namespace": "WEB",
+      "publisher": "Nature / Rumelhart, Hinton & Williams",
+      "title": "Learning representations by back-propagating errors",
+      "url": "https://www.nature.com/articles/323533a0",
+      "publishedAt": "1986-10-09",
+      "sourceRole": "ACADEMIC_PAPER",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
+      "observedUse": ["back-propagation", "neural network training", "hidden representations"],
+      "directness": "DIRECT",
+      "accessedAt": "2026-10-17"
+    },
+    {
+      "id": "WEB-ARXIV-DEDUP-2021",
+      "namespace": "WEB",
+      "publisher": "arXiv / Lee et al. (ACL 2022)",
+      "title": "Deduplicating Training Data Makes Language Models Better",
+      "url": "https://arxiv.org/abs/2107.06499",
+      "publishedAt": "2021-07-14",
+      "sourceRole": "ACADEMIC_PAPER",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
+      "observedUse": ["training data duplication", "memorization", "data quality"],
+      "directness": "DIRECT",
+      "accessedAt": "2026-10-17"
+    },
+    {
+      "id": "WEB-W3C-PROV-O-2013",
+      "namespace": "WEB",
+      "publisher": "W3C",
+      "title": "PROV-O: The PROV Ontology (W3C Recommendation)",
+      "url": "https://www.w3.org/TR/prov-o/",
+      "publishedAt": "2013-04-30",
+      "sourceRole": "INDUSTRY_STANDARD_REFERENCE",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
+      "observedUse": ["provenance", "attribution", "generation time"],
+      "directness": "DIRECT",
+      "accessedAt": "2026-10-17"
     }
   ]
 }

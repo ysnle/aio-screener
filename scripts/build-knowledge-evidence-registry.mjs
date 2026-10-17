@@ -105,7 +105,7 @@ for (const player of registry.players || []) addClaim({
   surface: 'atlas',
   entityId: player.playerId,
   claimType: 'ENTITY_RELATION',
-  statement: `${player.name} is represented as ${player.roleIds?.join(', ') || 'an industry participant'}.`,
+  statement: `${player.name} is represented as ${player.roleIds?.join(', ') || 'an industry participant'}.${player.roleNote ? ` ${player.roleNote}` : ''}`,
   status: 'STRUCTURAL_REFERENCE_ONLY',
   directness: 'STRUCTURAL',
   sourceIds: player.sourceIds
@@ -115,7 +115,9 @@ for (const product of registry.products || []) addClaim({
   surface: 'atlas',
   entityId: product.productId,
   claimType: 'ENTITY_TAXONOMY_RELATION',
-  statement: `${product.productId} is structurally mapped to ${product.taxonomyNodeIds?.join(', ') || 'no taxonomy node'}.`,
+  // v57.93 (exhaustive audit claim review): one "mapped to" list read an EUV tool as a process node and a roadmap as a
+  // shipping SSD. taxonomyRelations names each link's kind (is-a · part-of · enables · roadmap …) when the registry has it.
+  statement: `${product.productId} is structurally mapped to ${product.taxonomyNodeIds?.map((id) => (product.taxonomyRelations?.[id] ? `${id} (${product.taxonomyRelations[id]})` : id)).join(', ') || 'no taxonomy node'}.`,
   status: 'STRUCTURAL_REFERENCE_ONLY',
   directness: 'STRUCTURAL',
   sourceIds: product.sourceIds

@@ -7,7 +7,7 @@
   "domainId": "domain-memory-storage",
   "title": "domain-memory-storage",
   "definition": "메모리·스토리지는 계산에 필요한 데이터를 보관하고 이동시키는 계층이다.",
-  "mechanism": "데이터 접근 → cache·DRAM·HBM·NAND·SSD → 대역폭·지연·내구성 → 시스템 비용",
+  "mechanism": "데이터 접근 → 계층(SRAM 캐시 → DRAM·HBM → NAND 기반 SSD)과 연결 방식(CXL 등) → 대역폭·지연·내구성 → 시스템 비용",
   "unit": "byte·대역폭·IOPS·지연·전력",
   "bottlenecks": [
     "메모리 wall·HBM 공급·쓰기 내구성·데이터 이동·용량 수요"
@@ -90,7 +90,7 @@
       }
     ],
     "edges": [],
-    "mechanismNarrative": "데이터 접근 → cache·DRAM·HBM·NAND·SSD → 대역폭·지연·내구성 → 시스템 비용"
+    "mechanismNarrative": "데이터 접근 → 계층(SRAM 캐시 → DRAM·HBM → NAND 기반 SSD)과 연결 방식(CXL 등) → 대역폭·지연·내구성 → 시스템 비용"
   },
   "taxonomyNodeIds": [
     "memory-sram",
@@ -197,7 +197,7 @@
       "SSD 수요를 추론 workload와 전체 NAND 수급으로 어떻게 분리하는가"
     ],
     "mechanismNarrative": [
-      "데이터 접근 → cache·DRAM·HBM·NAND·SSD → 대역폭·지연·내구성 → 시스템 비용"
+      "데이터 접근 → 계층(SRAM 캐시 → DRAM·HBM → NAND 기반 SSD)과 연결 방식(CXL 등) → 대역폭·지연·내구성 → 시스템 비용"
     ]
   },
   "marketTransmission": {

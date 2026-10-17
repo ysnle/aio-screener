@@ -348,7 +348,7 @@
       "researchQuestions": [
         {
           "questionId": "question:domain-neocloud-finance:1",
-          "question": "예약 매출이 확정인지, 고객의 실제 사용과 지급능력이 검증됐는가?",
+          "question": "예약 매출이 확정인지, 고객의 실제 사용과 지급능력이 검증됐는가? 임대 수익률과 조달 비용의 차이는 이자 전 마진의 한 조각이며, 전체 수익성은 운영비·감가상각·잔존가치까지 넣어야 한다.",
           "verificationCondition": null,
           "metricIds": [],
           "status": "UNCLASSIFIED_CANDIDATE"
@@ -408,7 +408,7 @@
           "GPU시간·예약기간·임대료·리스 의무"
         ],
         "verificationQuestions": [
-          "예약 매출이 확정인지, 고객의 실제 사용과 지급능력이 검증됐는가?",
+          "예약 매출이 확정인지, 고객의 실제 사용과 지급능력이 검증됐는가? 임대 수익률과 조달 비용의 차이는 이자 전 마진의 한 조각이며, 전체 수익성은 운영비·감가상각·잔존가치까지 넣어야 한다.",
           "GPU rental의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
           "Capacity reservation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
           "Lease burden의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
@@ -451,7 +451,7 @@
       "domainId": "domain-compute-silicon",
       "title": "domain-compute-silicon",
       "definition": "AI compute는 workload에 맞는 범용·전용 실리콘과 소프트웨어 스택의 조합이다.",
-      "mechanism": "연산 패턴·정밀도 → CPU·GPU·ASIC·NPU → 메모리·인터커넥트 → 실제 처리량·지연",
+      "mechanism": "연산 패턴 → CPU·GPU·ASIC·NPU(정밀도는 칩 종류와 별개로 고르는 축) → 메모리·인터커넥트 → 실제 처리량·지연",
       "unit": "작업당 연산·지연·전력·달러",
       "bottlenecks": [
         "메모리 대역폭·생태계 전환비용·패키지·공급·검증"
@@ -534,7 +534,7 @@
           }
         ],
         "edges": [],
-        "mechanismNarrative": "연산 패턴·정밀도 → CPU·GPU·ASIC·NPU → 메모리·인터커넥트 → 실제 처리량·지연"
+        "mechanismNarrative": "연산 패턴 → CPU·GPU·ASIC·NPU(정밀도는 칩 종류와 별개로 고르는 축) → 메모리·인터커넥트 → 실제 처리량·지연"
       },
       "taxonomyNodeIds": [
         "compute-gpu",
@@ -636,7 +636,7 @@
           "GPU·ASIC·NPU의 전환비용과 software enablement는 무엇인가"
         ],
         "mechanismNarrative": [
-          "연산 패턴·정밀도 → CPU·GPU·ASIC·NPU → 메모리·인터커넥트 → 실제 처리량·지연"
+          "연산 패턴 → CPU·GPU·ASIC·NPU(정밀도는 칩 종류와 별개로 고르는 축) → 메모리·인터커넥트 → 실제 처리량·지연"
         ]
       },
       "marketTransmission": {
@@ -669,7 +669,7 @@
       "domainId": "domain-memory-storage",
       "title": "domain-memory-storage",
       "definition": "메모리·스토리지는 계산에 필요한 데이터를 보관하고 이동시키는 계층이다.",
-      "mechanism": "데이터 접근 → cache·DRAM·HBM·NAND·SSD → 대역폭·지연·내구성 → 시스템 비용",
+      "mechanism": "데이터 접근 → 계층(SRAM 캐시 → DRAM·HBM → NAND 기반 SSD)과 연결 방식(CXL 등) → 대역폭·지연·내구성 → 시스템 비용",
       "unit": "byte·대역폭·IOPS·지연·전력",
       "bottlenecks": [
         "메모리 wall·HBM 공급·쓰기 내구성·데이터 이동·용량 수요"
@@ -752,7 +752,7 @@
           }
         ],
         "edges": [],
-        "mechanismNarrative": "데이터 접근 → cache·DRAM·HBM·NAND·SSD → 대역폭·지연·내구성 → 시스템 비용"
+        "mechanismNarrative": "데이터 접근 → 계층(SRAM 캐시 → DRAM·HBM → NAND 기반 SSD)과 연결 방식(CXL 등) → 대역폭·지연·내구성 → 시스템 비용"
       },
       "taxonomyNodeIds": [
         "memory-sram",
@@ -859,7 +859,7 @@
           "SSD 수요를 추론 workload와 전체 NAND 수급으로 어떻게 분리하는가"
         ],
         "mechanismNarrative": [
-          "데이터 접근 → cache·DRAM·HBM·NAND·SSD → 대역폭·지연·내구성 → 시스템 비용"
+          "데이터 접근 → 계층(SRAM 캐시 → DRAM·HBM → NAND 기반 SSD)과 연결 방식(CXL 등) → 대역폭·지연·내구성 → 시스템 비용"
         ]
       },
       "marketTransmission": {
@@ -892,7 +892,7 @@
       "domainId": "domain-foundry-equipment",
       "title": "domain-foundry-equipment",
       "definition": "Foundry와 장비·소재는 설계가 양산 가능한 transistor와 wafer output으로 바뀌는 제조 계층이다.",
-      "mechanism": "설계 → 공정·장비·소재 → 수율·검사 → 양품 capacity·고객 qualification",
+      "mechanism": "설계 생태계 → 공정(장비와 소재가 함께 정함) → 수율·검사 → 양품 capacity·고객 qualification",
       "unit": "wafer·die·공정 단계·yield·lead time",
       "bottlenecks": [
         "공정 복잡성·장비 설치·소재 순도·수율·고객 인증"
@@ -975,7 +975,7 @@
           }
         ],
         "edges": [],
-        "mechanismNarrative": "설계 → 공정·장비·소재 → 수율·검사 → 양품 capacity·고객 qualification"
+        "mechanismNarrative": "설계 생태계 → 공정(장비와 소재가 함께 정함) → 수율·검사 → 양품 capacity·고객 qualification"
       },
       "taxonomyNodeIds": [
         "foundry-design-ecosystem",
@@ -1086,7 +1086,7 @@
           "장비 설치 capacity와 양품 output의 차이는 무엇인가"
         ],
         "mechanismNarrative": [
-          "설계 → 공정·장비·소재 → 수율·검사 → 양품 capacity·고객 qualification"
+          "설계 생태계 → 공정(장비와 소재가 함께 정함) → 수율·검사 → 양품 capacity·고객 qualification"
         ]
       },
       "marketTransmission": {
@@ -1119,7 +1119,7 @@
       "domainId": "domain-packaging-substrate",
       "title": "domain-packaging-substrate",
       "definition": "첨단 패키징은 여러 die·HBM·substrate를 전기·열·기계적으로 하나의 시스템으로 연결한다.",
-      "mechanism": "die 분할·적층 → interposer·substrate·검사 → 대역폭·열·수율·원가",
+      "mechanism": "구조 축(2.5D 나란히 배치·3D 적층)과 재료 축(실리콘 인터포저·ABF 유기 기판·유리 기판) → 검사 → 대역폭·열·수율·원가",
       "unit": "package·die·연결 수·열·양품률",
       "bottlenecks": [
         "interposer·substrate·조립 수율·열 설계·검사 capacity"
@@ -1202,7 +1202,7 @@
           }
         ],
         "edges": [],
-        "mechanismNarrative": "die 분할·적층 → interposer·substrate·검사 → 대역폭·열·수율·원가"
+        "mechanismNarrative": "구조 축(2.5D 나란히 배치·3D 적층)과 재료 축(실리콘 인터포저·ABF 유기 기판·유리 기판) → 검사 → 대역폭·열·수율·원가"
       },
       "taxonomyNodeIds": [
         "package-2-5d",
@@ -1303,7 +1303,7 @@
           "패키지 capacity와 고객 qualification이 출하를 어떻게 제한하는가"
         ],
         "mechanismNarrative": [
-          "die 분할·적층 → interposer·substrate·검사 → 대역폭·열·수율·원가"
+          "구조 축(2.5D 나란히 배치·3D 적층)과 재료 축(실리콘 인터포저·ABF 유기 기판·유리 기판) → 검사 → 대역폭·열·수율·원가"
         ]
       },
       "marketTransmission": {
@@ -1771,7 +1771,7 @@
       "domainId": "domain-power-grid",
       "title": "domain-power-grid",
       "definition": "전력·에너지·grid는 AI 인프라가 언제 어디서 실제로 가동될 수 있는지를 결정한다.",
-      "mechanism": "발전 → 송전·변전·접속 → IT load·냉각 → 저장·수요반응·계통 제약",
+      "mechanism": "공급 측(발전·송전·변전·접속)과 수요 측(IT load·냉각)이 계통 제약 안에서 맞물리고, 저장·수요반응은 둘 사이의 시간차를 조정한다",
       "unit": "MW·MWh·접속기간·PUE·전력 품질",
       "bottlenecks": [
         "발전 mix·송전·변압기·허가·접속 대기·지역 수급"
@@ -1854,7 +1854,7 @@
           }
         ],
         "edges": [],
-        "mechanismNarrative": "발전 → 송전·변전·접속 → IT load·냉각 → 저장·수요반응·계통 제약"
+        "mechanismNarrative": "공급 측(발전·송전·변전·접속)과 수요 측(IT load·냉각)이 계통 제약 안에서 맞물리고, 저장·수요반응은 둘 사이의 시간차를 조정한다"
       },
       "taxonomyNodeIds": [
         "power-it-load",
@@ -1954,7 +1954,7 @@
           "전력 가격·허가·접속 대기가 산업 투자 회수에 어떤 시차를 만드는가"
         ],
         "mechanismNarrative": [
-          "발전 → 송전·변전·접속 → IT load·냉각 → 저장·수요반응·계통 제약"
+          "공급 측(발전·송전·변전·접속)과 수요 측(IT load·냉각)이 계통 제약 안에서 맞물리고, 저장·수요반응은 둘 사이의 시간차를 조정한다"
         ]
       },
       "marketTransmission": {
@@ -1986,7 +1986,7 @@
       "dossierId": "domain-dossier:domain-on-device-physical-ai",
       "domainId": "domain-on-device-physical-ai",
       "title": "domain-on-device-physical-ai",
-      "definition": "온디바이스·physical AI는 제한된 전력과 지연 안에서 센서·모델·제어를 실행하는 계층이다.",
+      "definition": "온디바이스·physical AI는 제한된 전력과 지연 안에서 센서·모델·제어를 실행하는 계층이다. 기기 안 추론(배포 위치의 문제)과 센서-구동 폐루프 제어(물리 안전의 문제)는 전력·지연 제약을 공유할 뿐 서로 다른 문제다.",
       "mechanism": "센서 입력 → edge SoC/NPU·메모리 → 로컬 추론 → actuator·통신·안전",
       "unit": "지연·전력·메모리·작업 성공률",
       "bottlenecks": [
@@ -2207,7 +2207,7 @@
       "domainId": "domain-ai-economics",
       "title": "domain-ai-economics",
       "definition": "AI economics는 기능과 인프라 투자가 매출·마진·감가상각·FCF·ROIC로 번역되는 경로다.",
-      "mechanism": "수요·가격·가동률 → 매출·변동비 → CAPEX·감가상각 → FCF·ROIC·반례",
+      "mechanism": "수요·가격·가동률 → 매출·변동비 → 감가상각을 뺀 영업이익 → 투하자본 대비 ROIC; 같은 투자의 현금 지출(CAPEX)은 FCF에서 따로 빠진다 → 반례",
       "unit": "요청·GPU시간·매출·마진·CAPEX·FCF",
       "bottlenecks": [
         "가격 하락·고정비·과잉 capacity·자금비용·수요 질"
@@ -2290,7 +2290,7 @@
           }
         ],
         "edges": [],
-        "mechanismNarrative": "수요·가격·가동률 → 매출·변동비 → CAPEX·감가상각 → FCF·ROIC·반례"
+        "mechanismNarrative": "수요·가격·가동률 → 매출·변동비 → 감가상각을 뺀 영업이익 → 투하자본 대비 ROIC; 같은 투자의 현금 지출(CAPEX)은 FCF에서 따로 빠진다 → 반례"
       },
       "taxonomyNodeIds": [
         "economics-revenue-model",
@@ -2380,7 +2380,7 @@
           "AI 서비스의 단위경제성과 고객 retention을 어떻게 검증하는가"
         ],
         "mechanismNarrative": [
-          "수요·가격·가동률 → 매출·변동비 → CAPEX·감가상각 → FCF·ROIC·반례"
+          "수요·가격·가동률 → 매출·변동비 → 감가상각을 뺀 영업이익 → 투하자본 대비 ROIC; 같은 투자의 현금 지출(CAPEX)은 FCF에서 따로 빠진다 → 반례"
         ]
       },
       "marketTransmission": {
@@ -2845,7 +2845,7 @@
       "dossierId": "domain-dossier:domain-space-aerospace",
       "domainId": "domain-space-aerospace",
       "title": "domain-space-aerospace",
-      "definition": "우주·항공은 발사 물리, 재사용, 위성 시스템, 공급망과 조달 일정을 연결하는 산업이다.",
+      "definition": "우주·항공은 발사 물리, 재사용, 위성 시스템, 공급망과 조달 일정을 연결하는 산업이다. 민항 공급망·정부 우주 프로그램·위성 서비스는 고객과 현금 구조가 달라 따로 읽는다.",
       "mechanism": "발사체·발사장 → 궤도·위성 → 지상·데이터 서비스 → 고객 계약·반복 운용",
       "unit": "발사 성공·회전율·위성 수명·서비스 매출·보험",
       "bottlenecks": [
@@ -3063,12 +3063,12 @@
       "title": "domain-ai-applications",
       "definition": "AI 애플리케이션은 모델 능력이 의료·제조·자동차·금융 업무의 결과와 지불 구조로 번역되는 계층이다.",
       "mechanism": "모델·데이터 → workflow·권한·인증 → 작업 성공·오류 비용 → payer·ROI",
-      "unit": "작업 시간·오류율·성공률·전환비용·상환",
+      "unit": "작업 시간·오류율·성공률·전환비용·업종별 지불 방식(의료는 보험 상환, 제조는 원가 절감 등)",
       "bottlenecks": [
         "규제·책임·데이터 권한·현장 통합·지불자"
       ],
       "uniqueKpis": [
-        "작업 시간·오류율·성공률·전환비용·상환"
+        "작업 시간·오류율·성공률·전환비용·업종별 지불 방식(의료는 보험 상환, 제조는 원가 절감 등)"
       ],
       "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
       "metrics": [],
@@ -3231,7 +3231,7 @@
       ],
       "unclassifiedCandidates": {
         "measurementDimensions": [
-          "작업 시간·오류율·성공률·전환비용·상환"
+          "작업 시간·오류율·성공률·전환비용·업종별 지불 방식(의료는 보험 상환, 제조는 원가 절감 등)"
         ],
         "verificationQuestions": [
           "사용량·토큰이 아니라 기준선 대비 작업 결과가 개선됐는가?",
@@ -3278,12 +3278,12 @@
       "title": "domain-resources-materials",
       "definition": "자원·소재·산업재는 채굴·정제·가공·장비·인증을 거쳐 AI와 전력 인프라에 투입된다.",
       "mechanism": "광석·원재료 → 정제·가공 → 장비·부품·인증 → 공급 capacity·가격·마진",
-      "unit": "톤·순도·회수율·yield·lead time·인증",
+      "unit": "톤·순도·회수율·yield·lead time·인증 (광종마다 단위와 가격 기준이 달라 서로 직접 비교하지 않는다)",
       "bottlenecks": [
         "정제 capacity·환경 허가·고객 qualification·장비·지역 집중"
       ],
       "uniqueKpis": [
-        "톤·순도·회수율·yield·lead time·인증"
+        "톤·순도·회수율·yield·lead time·인증 (광종마다 단위와 가격 기준이 달라 서로 직접 비교하지 않는다)"
       ],
       "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
       "metrics": [],
@@ -3441,7 +3441,7 @@
       ],
       "unclassifiedCandidates": {
         "measurementDimensions": [
-          "톤·순도·회수율·yield·lead time·인증"
+          "톤·순도·회수율·yield·lead time·인증 (광종마다 단위와 가격 기준이 달라 서로 직접 비교하지 않는다)"
         ],
         "verificationQuestions": [
           "자원 매장량과 판매 가능한 양품·정제 capacity를 어떻게 구분하는가?",
@@ -3487,7 +3487,7 @@
       "domainId": "domain-geopolitics-policy-security",
       "title": "domain-geopolitics-policy-security",
       "definition": "산업정책·수출통제·공급망 회복력·사이버 보안은 기술과 자본의 이동 경계를 바꾼다.",
-      "mechanism": "법·보조금·통제 → 공급자·고객·지역 선택 → 비용·지연·회복력·보안",
+      "mechanism": "법·보조금·통제 → 공급자·고객·지역 선택 → 비용·지연·회복력·보안 (수출통제·보조금·사이버 보안은 기제가 서로 달라 공통 경로는 후보로만 본다)",
       "unit": "허가·수출 대상·보조금·조달·incident·lead time",
       "bottlenecks": [
         "정책 변경·규정 준수·대체 공급·보안 사고·동맹 관계"
@@ -3570,7 +3570,7 @@
           }
         ],
         "edges": [],
-        "mechanismNarrative": "법·보조금·통제 → 공급자·고객·지역 선택 → 비용·지연·회복력·보안"
+        "mechanismNarrative": "법·보조금·통제 → 공급자·고객·지역 선택 → 비용·지연·회복력·보안 (수출통제·보조금·사이버 보안은 기제가 서로 달라 공통 경로는 후보로만 본다)"
       },
       "taxonomyNodeIds": [
         "policy-export-controls",
@@ -3671,7 +3671,7 @@
           "규제·보안 요구가 비용·고객·대체 기간을 어떻게 바꾸는가"
         ],
         "mechanismNarrative": [
-          "법·보조금·통제 → 공급자·고객·지역 선택 → 비용·지연·회복력·보안"
+          "법·보조금·통제 → 공급자·고객·지역 선택 → 비용·지연·회복력·보안 (수출통제·보조금·사이버 보안은 기제가 서로 달라 공통 경로는 후보로만 본다)"
         ]
       },
       "marketTransmission": {
@@ -3915,7 +3915,7 @@
       "dossierId": "domain-dossier:domain-adjacent-future-tech",
       "domainId": "domain-adjacent-future-tech",
       "title": "domain-adjacent-future-tech",
-      "definition": "인접 미래 기술은 현재 시스템을 곧바로 대체한다고 가정하지 않고 측정 가능한 실험과 통합 경계로 평가한다.",
+      "definition": "인접 미래 기술은 현재 시스템을 곧바로 대체한다고 가정하지 않고 측정 가능한 실험과 통합 경계로 평가한다. 양자·광·뉴로모픽·신에너지는 성숙도와 측정 단위가 서로 달라 한 묶음으로 비교하지 않는다.",
       "mechanism": "새 하드웨어·소자 → 실험·오류·측정 → 소프트웨어·전력·제조 통합 → 제한된 use case",
       "unit": "오류·정확도·전력/bit·수율·통합비용·접근성",
       "bottlenecks": [

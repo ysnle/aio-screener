@@ -4157,7 +4157,7 @@
       "surface": "atlas",
       "entityId": "tesla",
       "claimType": "ENTITY_RELATION",
-      "statement": "Tesla is represented as physical-ai-platform, automotive-system-integrator.",
+      "statement": "Tesla is represented as physical-ai-platform, automotive-system-integrator. physical-ai-platform은 휴머노이드(Optimus)와 차량 자율주행 소프트웨어를 개발하는 역할이다. 두 제품은 인지·계획·제어 스택을 공유하지만 고객·안전 기준·매출 구조가 달라 한쪽의 성과를 다른 쪽에 옮기지 않는다. 매출 대부분은 차량·에너지에서 나오며 공시로 확인한다.",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "directness": "STRUCTURAL",
       "sourceIds": [
@@ -4221,7 +4221,7 @@
       "surface": "atlas",
       "entityId": "mp-materials",
       "claimType": "ENTITY_RELATION",
-      "statement": "MP Materials is represented as rare-earths-producer, critical-materials-integrator.",
+      "statement": "MP Materials is represented as rare-earths-producer, critical-materials-integrator. critical-materials-integrator는 채굴·분리에서 자석 생산까지 단계를 넓히는 역할을 뜻한다. 단계별 가동·양산 여부와 매출 비중은 공시로 따로 확인한다.",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "directness": "STRUCTURAL",
       "sourceIds": [
@@ -4366,7 +4366,7 @@
       "surface": "atlas",
       "entityId": "asml-euv-lithography-family",
       "claimType": "ENTITY_TAXONOMY_RELATION",
-      "statement": "asml-euv-lithography-family is structurally mapped to foundry-equipment, foundry-process-node.",
+      "statement": "asml-euv-lithography-family is structurally mapped to foundry-equipment (is-a), foundry-process-node (enables).",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "directness": "STRUCTURAL",
       "sourceIds": [
@@ -4435,7 +4435,7 @@
       "surface": "atlas",
       "entityId": "sandisk-hbf-roadmap",
       "claimType": "ENTITY_TAXONOMY_RELATION",
-      "statement": "sandisk-hbf-roadmap is structurally mapped to memory-enterprise-ssd.",
+      "statement": "sandisk-hbf-roadmap is structurally mapped to memory-enterprise-ssd (roadmap).",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "directness": "STRUCTURAL",
       "sourceIds": [
@@ -4484,7 +4484,7 @@
       "surface": "atlas",
       "entityId": "coherent-optical-module-family",
       "claimType": "ENTITY_TAXONOMY_RELATION",
-      "statement": "coherent-optical-module-family is structurally mapped to network-optical-module, network-silicon-photonics.",
+      "statement": "coherent-optical-module-family is structurally mapped to network-optical-module (is-a), network-silicon-photonics (part-of).",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "directness": "STRUCTURAL",
       "sourceIds": [
@@ -4500,7 +4500,7 @@
       "surface": "atlas",
       "entityId": "vertiv-thermal-power-solutions",
       "claimType": "ENTITY_TAXONOMY_RELATION",
-      "statement": "vertiv-thermal-power-solutions is structurally mapped to aidc-liquid-cooling, aidc-rack-density, power-transformer.",
+      "statement": "vertiv-thermal-power-solutions is structurally mapped to aidc-liquid-cooling (is-a), aidc-rack-density (enables), power-transformer (adjacent).",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "directness": "STRUCTURAL",
       "sourceIds": [
@@ -4516,7 +4516,7 @@
       "surface": "atlas",
       "entityId": "tesla-optimus-and-autonomy-stack",
       "claimType": "ENTITY_TAXONOMY_RELATION",
-      "statement": "tesla-optimus-and-autonomy-stack is structurally mapped to physical-ai-perception, physical-ai-planning, physical-ai-control, application-automotive.",
+      "statement": "tesla-optimus-and-autonomy-stack is structurally mapped to physical-ai-perception (is-a), physical-ai-planning (is-a), physical-ai-control (is-a), application-automotive (applies-to).",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "directness": "STRUCTURAL",
       "sourceIds": [
@@ -4532,7 +4532,7 @@
       "surface": "atlas",
       "entityId": "shield-ai-hivemind-autonomy",
       "claimType": "ENTITY_TAXONOMY_RELATION",
-      "statement": "shield-ai-hivemind-autonomy is structurally mapped to defense-autonomy, defense-c2-isr-ew, physical-ai-planning, physical-ai-control.",
+      "statement": "shield-ai-hivemind-autonomy is structurally mapped to defense-autonomy (is-a), defense-c2-isr-ew (part-of), physical-ai-planning (is-a), physical-ai-control (is-a).",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "directness": "STRUCTURAL",
       "sourceIds": [
@@ -4548,7 +4548,7 @@
       "surface": "atlas",
       "entityId": "rocket-lab-electron-neutron-space-systems",
       "claimType": "ENTITY_TAXONOMY_RELATION",
-      "statement": "rocket-lab-electron-neutron-space-systems is structurally mapped to space-rocket-physics, space-reusability, space-satellite-economics, space-aircraft-supply-chain.",
+      "statement": "rocket-lab-electron-neutron-space-systems is structurally mapped to space-rocket-physics (is-a), space-reusability (roadmap), space-satellite-economics (part-of), space-aircraft-supply-chain (depends-on).",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "directness": "STRUCTURAL",
       "sourceIds": [
@@ -4628,7 +4628,7 @@
       "surface": "atlas",
       "entityId": "siemens-industrial-copilot",
       "claimType": "ENTITY_TAXONOMY_RELATION",
-      "statement": "siemens-industrial-copilot is structurally mapped to application-manufacturing, physical-ai-digital-twin, capital-company-role.",
+      "statement": "siemens-industrial-copilot is structurally mapped to application-manufacturing (applies-to), physical-ai-digital-twin (uses), capital-company-role (context).",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "directness": "STRUCTURAL",
       "sourceIds": [

@@ -299,7 +299,7 @@ export const BRANCHES = Object.freeze([
     firmer: ['cyclical', 'financials', 'energy', 'consumer'], weaker: ['defensive', 'yield'],
     triggers: [['us-nfp', '일자리 20만 명 이상', (a) => a.payroll >= 200], ['us-retail', '소매판매 전월 대비 +0.5% 이상', (a) => a.mom >= 0.5]],
     pricing: deltaPricing('curve20', '10년−3개월 금리차 20회 관측', '%p→bp', 0, true), pricingInConditions: true,
-    choices: { wait: '이익이 함께 오르는 시나리오에서는 기다림의 기회비용이 큽니다.', stage: '금리 상승이 이익 개선을 동반하는지 확인하며 나눠 들어가는 쪽이 자연스럽습니다.', hold: '경기민감·금융 보유가 유리해지는 시나리오입니다.', defend: '방어 전환의 기회비용이 큰 시나리오입니다.' },
+    choices: { wait: '이익이 함께 오르는 시나리오에서는 기다림의 기회비용이 큽니다.', stage: '금리 상승이 이익 개선을 동반하는지 확인하며 나눠 들어가는 쪽이 자연스럽습니다.', hold: '경기민감·금융 업종의 이익이 늘기 쉬운 시나리오라 보유의 비용이 작습니다.', defend: '방어 전환의 기회비용이 큰 시나리오입니다.' },
     favored: ['hold', 'stage'], favoredWhy: '금리 상승이 성장 기대 때문이라면 이익이 함께 늘어 주가가 버티는 경향이 있습니다 — 물가 때문인 금리 상승과 구분합니다.',
     explore: [['themes', '테마 · 섹터', '경기민감·금융 업종 개선'], ['screener', '스크리너', '이익 추정이 오르는 후보']] },
   // v57.75 (owner 2026-10-15, US thesis; US scenario audit): the AI-capex cycle had no branch — semiconductor, AI infra,
@@ -332,7 +332,7 @@ export const BRANCHES = Object.freeze([
     firmer: ['defensive'], weaker: ['liquidity', 'growth', 'cyclical'],
     triggers: [],
     pricing: (s) => s.vixRatio == null ? { tone: 'unknown', text: 'VIX 단기 불안 비율 기록이 없어 보류합니다.' } : { tone: s.vixRatio >= V.invertedRatioAt ? 'same' : 'against', text: `VIX / 3개월 VIX ${s.vixRatio.toFixed(2)} — ${s.vixRatio >= V.invertedRatioAt ? '단기 공포가 중기보다 큼(역전)' : '정상 구조(단기 공포가 중기보다 작음)'}` },
-    choices: { wait: 'VIX 단기 불안 비율 역전이 풀릴 때까지 기다리는 쪽은 바닥 근처를 놓칠 수 있지만, 신용이 함께 무너지는 경우의 손실을 피합니다.', stage: '신용이 버티는 공포에서는 나눠 들어가는 쪽이 유리했던 경우가 많았습니다 — 아래 과거 빈도와 신용 지표를 함께 확인합니다.', hold: '보유는 레버리지·변동성이 큰 종목 비중부터 점검합니다.', defend: '방어 전환은 급락 뒤에 하면 반등을 놓치는 기회비용이 커집니다.' },
+    choices: { wait: 'VIX 단기 불안 비율 역전이 풀릴 때까지 기다리는 쪽은 바닥 근처를 놓칠 수 있지만, 신용이 함께 무너지는 경우의 손실을 피합니다.', stage: '신용이 버티는 공포라면 나눠 들어가는 쪽이 바닥을 놓치는 비용과 더 내릴 때의 손실을 함께 줄입니다 — 아래 과거 빈도와 신용 지표로 확인합니다.', hold: '보유는 레버리지·변동성이 큰 종목 비중부터 점검합니다.', defend: '방어 전환은 급락 뒤에 하면 반등을 놓치는 기회비용이 커집니다.' },
     favored: ['stage', 'wait'], favoredWhy: '신용이 버티면 분할 접근, 신용도 무너지면 기다림 — 갈림 조건은 하이일드 스프레드입니다.',
     explore: [['sentiment', '투자 심리', 'VIX·단기 불안 비율·심리 지표'], ['signal', '시장 상태', '신용 지표가 버티는지']] }
 ]);
@@ -514,7 +514,7 @@ export function renderMacroCrossroadsContext(model, { state = null } = {}) {
       ? `- ${item.title}: ${item.status || item.fit} [${item.basis.join(', ')}]. 인과: ${item.chain.join(' → ')}. 강해지는 쪽: ${item.impact.firmer}; 약해지는 쪽: ${item.impact.weaker}${item.impact.mixed ? `; 혼재: ${item.impact.mixed}` : ''}. 시장 가격: ${item.pricing.text.replace(/\.$/, '')}. 과거 빈도: ${item.past.text}${item.pastBridge ? ` ${item.pastBridge}` : ''} 확인 일정: ${item.triggers.map((t) => `${t.when} — ${t.text}`).join('; ') || '일정 없음(시장 지표로 확인)'}. 선택지: ${Object.entries(item.choices).map(([key, text]) => `${CHOICES[key]} — ${text}`).join(' / ')} 이 시나리오에서 상대적으로 유리한 쪽(비용 가설 — 과거 성과로 검증한 우위 아님): ${item.favored.map((key) => CHOICES[key]).join(', ')} (${item.favoredWhy})${item.pastConflict ? ` [과거 표본과 어긋남: 비슷한 때 ${item.pastConflict.sharePct}% 상승 · 전체 ${item.pastConflict.basePct}%]` : ''}${item.checks?.length ? ` 더 확인할 것(참고): ${item.checks.join('; ')}.` : ''}${item.invalidation?.length ? ` 이 읽기가 빗나가는 조건: ${item.invalidation.join('; ')}.` : ''}`
       // v57.88 (screen audit): the one-line branches carried no past frequency, so the reading said "과거 빈도와 표본 수는
       // 제공되지 않아" while the screen showed 138 cases — the count line is kept short but present.
-      : `- ${item.title}: ${item.status || item.fit}. 인과: ${item.chain.join(' → ')}. 과거 빈도: ${item.past?.n ? item.past.text : '비교 표본 없음'}. 시장 가격: ${item.pricing.tone === 'same' ? '이 시나리오 쪽' : item.pricing.tone === 'against' ? '반대쪽' : item.pricing.tone === 'neutral' ? '중립' : '보류'}. 이 시나리오라면 유리: ${item.favored.map((key) => CHOICES[key]).join(', ')}${item.pastConflict ? ' (과거 표본과 어긋남)' : ''}`);
+      : `- ${item.title}: ${item.status || item.fit}. 인과: ${item.chain.join(' → ')}. 과거 빈도: ${item.past?.n ? item.past.text : '비교 표본 없음'}. 시장 가격: ${item.pricing.tone === 'same' ? '이 시나리오 쪽' : item.pricing.tone === 'against' ? '반대쪽' : item.pricing.tone === 'neutral' ? '중립' : '보류'}. 이 시나리오라면 상대적으로 유리(비용 가설): ${item.favored.map((key) => CHOICES[key]).join(', ')}${item.pastConflict ? ' (과거 표본과 어긋남)' : ''}`);
   }
   if (state?.transitions?.length) lines.push(`최근 변화(자동 기록): ${state.transitions.slice(-6).map((t) => `${String(t.at).slice(5, 10)} ${t.text}`).join(' / ')}`);
   if (state?.eventOutcomes?.length) lines.push(`지난 발표 판정(자동): ${state.eventOutcomes.slice(-4).map((e) => `${e.name} ${e.period}: ${e.actualText} → ${e.matched.length ? `${e.matched.map((m) => m.title).join('·')} 기준 충족` : '어느 시나리오의 기준도 아님'}`).join(' / ')}`);

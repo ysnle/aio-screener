@@ -7,7 +7,7 @@
   "domainId": "domain-ai-economics",
   "title": "domain-ai-economics",
   "definition": "AI economics는 기능과 인프라 투자가 매출·마진·감가상각·FCF·ROIC로 번역되는 경로다.",
-  "mechanism": "수요·가격·가동률 → 매출·변동비 → CAPEX·감가상각 → FCF·ROIC·반례",
+  "mechanism": "수요·가격·가동률 → 매출·변동비 → 감가상각을 뺀 영업이익 → 투하자본 대비 ROIC; 같은 투자의 현금 지출(CAPEX)은 FCF에서 따로 빠진다 → 반례",
   "unit": "요청·GPU시간·매출·마진·CAPEX·FCF",
   "bottlenecks": [
     "가격 하락·고정비·과잉 capacity·자금비용·수요 질"
@@ -90,7 +90,7 @@
       }
     ],
     "edges": [],
-    "mechanismNarrative": "수요·가격·가동률 → 매출·변동비 → CAPEX·감가상각 → FCF·ROIC·반례"
+    "mechanismNarrative": "수요·가격·가동률 → 매출·변동비 → 감가상각을 뺀 영업이익 → 투하자본 대비 ROIC; 같은 투자의 현금 지출(CAPEX)은 FCF에서 따로 빠진다 → 반례"
   },
   "taxonomyNodeIds": [
     "economics-revenue-model",
@@ -180,7 +180,7 @@
       "AI 서비스의 단위경제성과 고객 retention을 어떻게 검증하는가"
     ],
     "mechanismNarrative": [
-      "수요·가격·가동률 → 매출·변동비 → CAPEX·감가상각 → FCF·ROIC·반례"
+      "수요·가격·가동률 → 매출·변동비 → 감가상각을 뺀 영업이익 → 투하자본 대비 ROIC; 같은 투자의 현금 지출(CAPEX)은 FCF에서 따로 빠진다 → 반례"
     ]
   },
   "marketTransmission": {

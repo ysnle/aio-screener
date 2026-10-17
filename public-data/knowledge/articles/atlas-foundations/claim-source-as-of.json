@@ -44,10 +44,20 @@
     ],
     "sourceIds": [
       "PS-12",
-      "PS-13"
+      "PS-13",
+      "WEB-W3C-PROV-O-2013"
     ],
-    "researchEvidence": [],
-    "researchCoverage": "RESEARCH_REQUIRED"
+    "researchEvidence": [
+      {
+        "factId": "fact:w3c:prov-attribution",
+        "sourceId": "WEB-W3C-PROV-O-2013",
+        "statement": "The W3C PROV Ontology describes provenance with entities, the activities that generated or used them and the agents responsible, including attribution and generation time, so a statement can be traced to who produced it, from what, and when.",
+        "scope": "Provenance record structure (who, from what, when)",
+        "invalidation": "PROV is a vocabulary for recording provenance; it does not verify that a recorded source is accurate or that a claim is true.",
+        "asOf": "2013-04-30"
+      }
+    ],
+    "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
   },
   "quality": {
     "coreTextCharacters": 283,

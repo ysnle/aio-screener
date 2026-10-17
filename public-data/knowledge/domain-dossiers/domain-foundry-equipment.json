@@ -7,7 +7,7 @@
   "domainId": "domain-foundry-equipment",
   "title": "domain-foundry-equipment",
   "definition": "Foundry와 장비·소재는 설계가 양산 가능한 transistor와 wafer output으로 바뀌는 제조 계층이다.",
-  "mechanism": "설계 → 공정·장비·소재 → 수율·검사 → 양품 capacity·고객 qualification",
+  "mechanism": "설계 생태계 → 공정(장비와 소재가 함께 정함) → 수율·검사 → 양품 capacity·고객 qualification",
   "unit": "wafer·die·공정 단계·yield·lead time",
   "bottlenecks": [
     "공정 복잡성·장비 설치·소재 순도·수율·고객 인증"
@@ -90,7 +90,7 @@
       }
     ],
     "edges": [],
-    "mechanismNarrative": "설계 → 공정·장비·소재 → 수율·검사 → 양품 capacity·고객 qualification"
+    "mechanismNarrative": "설계 생태계 → 공정(장비와 소재가 함께 정함) → 수율·검사 → 양품 capacity·고객 qualification"
   },
   "taxonomyNodeIds": [
     "foundry-design-ecosystem",
@@ -201,7 +201,7 @@
       "장비 설치 capacity와 양품 output의 차이는 무엇인가"
     ],
     "mechanismNarrative": [
-      "설계 → 공정·장비·소재 → 수율·검사 → 양품 capacity·고객 qualification"
+      "설계 생태계 → 공정(장비와 소재가 함께 정함) → 수율·검사 → 양품 capacity·고객 qualification"
     ]
   },
   "marketTransmission": {

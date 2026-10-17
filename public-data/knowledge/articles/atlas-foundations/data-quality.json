@@ -43,10 +43,20 @@
       "atlas-foundation-data-quality"
     ],
     "sourceIds": [
-      "PS-12"
+      "PS-12",
+      "WEB-ARXIV-DEDUP-2021"
     ],
-    "researchEvidence": [],
-    "researchCoverage": "RESEARCH_REQUIRED"
+    "researchEvidence": [
+      {
+        "factId": "fact:dedup:training-data",
+        "sourceId": "WEB-ARXIV-DEDUP-2021",
+        "statement": "Lee et al. found that common language-model training sets contain many near-duplicate examples and long repeated substrings; over 1 percent of unprompted output of models trained on them was copied verbatim from training data, and models trained on deduplicated data emitted memorized text about ten times less often while reaching the same or better accuracy in fewer steps.",
+        "scope": "Effect of duplicated training data on memorization and training efficiency",
+        "invalidation": "Measured on the datasets and model sizes in the paper; deduplication is one dimension of data quality and does not address label errors, bias, coverage or rights.",
+        "asOf": "2021-07-14"
+      }
+    ],
+    "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
   },
   "quality": {
     "coreTextCharacters": 254,

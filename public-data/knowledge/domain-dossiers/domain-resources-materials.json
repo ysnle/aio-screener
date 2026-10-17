@@ -8,12 +8,12 @@
   "title": "domain-resources-materials",
   "definition": "자원·소재·산업재는 채굴·정제·가공·장비·인증을 거쳐 AI와 전력 인프라에 투입된다.",
   "mechanism": "광석·원재료 → 정제·가공 → 장비·부품·인증 → 공급 capacity·가격·마진",
-  "unit": "톤·순도·회수율·yield·lead time·인증",
+  "unit": "톤·순도·회수율·yield·lead time·인증 (광종마다 단위와 가격 기준이 달라 서로 직접 비교하지 않는다)",
   "bottlenecks": [
     "정제 capacity·환경 허가·고객 qualification·장비·지역 집중"
   ],
   "uniqueKpis": [
-    "톤·순도·회수율·yield·lead time·인증"
+    "톤·순도·회수율·yield·lead time·인증 (광종마다 단위와 가격 기준이 달라 서로 직접 비교하지 않는다)"
   ],
   "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
   "metrics": [],
@@ -171,7 +171,7 @@
   ],
   "unclassifiedCandidates": {
     "measurementDimensions": [
-      "톤·순도·회수율·yield·lead time·인증"
+      "톤·순도·회수율·yield·lead time·인증 (광종마다 단위와 가격 기준이 달라 서로 직접 비교하지 않는다)"
     ],
     "verificationQuestions": [
       "자원 매장량과 판매 가능한 양품·정제 capacity를 어떻게 구분하는가?",

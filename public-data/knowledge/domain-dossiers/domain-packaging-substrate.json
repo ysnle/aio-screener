@@ -7,7 +7,7 @@
   "domainId": "domain-packaging-substrate",
   "title": "domain-packaging-substrate",
   "definition": "첨단 패키징은 여러 die·HBM·substrate를 전기·열·기계적으로 하나의 시스템으로 연결한다.",
-  "mechanism": "die 분할·적층 → interposer·substrate·검사 → 대역폭·열·수율·원가",
+  "mechanism": "구조 축(2.5D 나란히 배치·3D 적층)과 재료 축(실리콘 인터포저·ABF 유기 기판·유리 기판) → 검사 → 대역폭·열·수율·원가",
   "unit": "package·die·연결 수·열·양품률",
   "bottlenecks": [
     "interposer·substrate·조립 수율·열 설계·검사 capacity"
@@ -90,7 +90,7 @@
       }
     ],
     "edges": [],
-    "mechanismNarrative": "die 분할·적층 → interposer·substrate·검사 → 대역폭·열·수율·원가"
+    "mechanismNarrative": "구조 축(2.5D 나란히 배치·3D 적층)과 재료 축(실리콘 인터포저·ABF 유기 기판·유리 기판) → 검사 → 대역폭·열·수율·원가"
   },
   "taxonomyNodeIds": [
     "package-2-5d",
@@ -191,7 +191,7 @@
       "패키지 capacity와 고객 qualification이 출하를 어떻게 제한하는가"
     ],
     "mechanismNarrative": [
-      "die 분할·적층 → interposer·substrate·검사 → 대역폭·열·수율·원가"
+      "구조 축(2.5D 나란히 배치·3D 적층)과 재료 축(실리콘 인터포저·ABF 유기 기판·유리 기판) → 검사 → 대역폭·열·수율·원가"
     ]
   },
   "marketTransmission": {

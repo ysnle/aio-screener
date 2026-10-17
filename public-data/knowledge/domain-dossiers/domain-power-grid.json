@@ -7,7 +7,7 @@
   "domainId": "domain-power-grid",
   "title": "domain-power-grid",
   "definition": "전력·에너지·grid는 AI 인프라가 언제 어디서 실제로 가동될 수 있는지를 결정한다.",
-  "mechanism": "발전 → 송전·변전·접속 → IT load·냉각 → 저장·수요반응·계통 제약",
+  "mechanism": "공급 측(발전·송전·변전·접속)과 수요 측(IT load·냉각)이 계통 제약 안에서 맞물리고, 저장·수요반응은 둘 사이의 시간차를 조정한다",
   "unit": "MW·MWh·접속기간·PUE·전력 품질",
   "bottlenecks": [
     "발전 mix·송전·변압기·허가·접속 대기·지역 수급"
@@ -90,7 +90,7 @@
       }
     ],
     "edges": [],
-    "mechanismNarrative": "발전 → 송전·변전·접속 → IT load·냉각 → 저장·수요반응·계통 제약"
+    "mechanismNarrative": "공급 측(발전·송전·변전·접속)과 수요 측(IT load·냉각)이 계통 제약 안에서 맞물리고, 저장·수요반응은 둘 사이의 시간차를 조정한다"
   },
   "taxonomyNodeIds": [
     "power-it-load",
@@ -190,7 +190,7 @@
       "전력 가격·허가·접속 대기가 산업 투자 회수에 어떤 시차를 만드는가"
     ],
     "mechanismNarrative": [
-      "발전 → 송전·변전·접속 → IT load·냉각 → 저장·수요반응·계통 제약"
+      "공급 측(발전·송전·변전·접속)과 수요 측(IT load·냉각)이 계통 제약 안에서 맞물리고, 저장·수요반응은 둘 사이의 시간차를 조정한다"
     ]
   },
   "marketTransmission": {

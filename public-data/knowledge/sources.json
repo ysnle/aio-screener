@@ -9,7 +9,7 @@
     "STRUCTURAL": "taxonomy/entity relationship reference; not a current operating claim"
   },
   "counts": {
-    "sources": 199,
+    "sources": 202,
     "conflicts": 0
   },
   "sources": [
@@ -2499,6 +2499,26 @@
       "reviewedAt": "2026-08-11"
     },
     {
+      "id": "WEB-ARXIV-DEDUP-2021",
+      "namespace": "WEB",
+      "publisher": "arXiv / Lee et al. (ACL 2022)",
+      "title": "Deduplicating Training Data Makes Language Models Better",
+      "url": "https://arxiv.org/abs/2107.06499",
+      "publishedAt": "2021-07-14",
+      "scope": null,
+      "sourceRole": "ACADEMIC_PAPER",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
+      "directness": "DIRECT",
+      "observedUse": [
+        "training data duplication",
+        "memorization",
+        "data quality"
+      ],
+      "accessedAt": "2026-10-17",
+      "allowedUse": "REFERENCE_ONLY",
+      "reviewedAt": "2026-08-11"
+    },
+    {
       "id": "WEB-ARXIV-GENERALIZE-MEMORIZE-2018",
       "namespace": "WEB",
       "publisher": "arXiv / Cohen, Sapiro, Giryes",
@@ -3004,6 +3024,26 @@
       "reviewedAt": "2026-08-11"
     },
     {
+      "id": "WEB-NATURE-BACKPROP-1986",
+      "namespace": "WEB",
+      "publisher": "Nature / Rumelhart, Hinton & Williams",
+      "title": "Learning representations by back-propagating errors",
+      "url": "https://www.nature.com/articles/323533a0",
+      "publishedAt": "1986-10-09",
+      "scope": null,
+      "sourceRole": "ACADEMIC_PAPER",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
+      "directness": "DIRECT",
+      "observedUse": [
+        "back-propagation",
+        "neural network training",
+        "hidden representations"
+      ],
+      "accessedAt": "2026-10-17",
+      "allowedUse": "REFERENCE_ONLY",
+      "reviewedAt": "2026-08-11"
+    },
+    {
       "id": "WEB-NIST-AI-RMF-2023",
       "namespace": "WEB",
       "publisher": "NIST",
@@ -3420,6 +3460,26 @@
         "heterogeneous integration"
       ],
       "accessedAt": "2026-08-12",
+      "allowedUse": "REFERENCE_ONLY",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "id": "WEB-W3C-PROV-O-2013",
+      "namespace": "WEB",
+      "publisher": "W3C",
+      "title": "PROV-O: The PROV Ontology (W3C Recommendation)",
+      "url": "https://www.w3.org/TR/prov-o/",
+      "publishedAt": "2013-04-30",
+      "scope": null,
+      "sourceRole": "INDUSTRY_STANDARD_REFERENCE",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
+      "directness": "DIRECT",
+      "observedUse": [
+        "provenance",
+        "attribution",
+        "generation time"
+      ],
+      "accessedAt": "2026-10-17",
       "allowedUse": "REFERENCE_ONLY",
       "reviewedAt": "2026-08-11"
     }

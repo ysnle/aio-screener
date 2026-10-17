@@ -7,7 +7,7 @@
   "domainId": "domain-compute-silicon",
   "title": "domain-compute-silicon",
   "definition": "AI compute는 workload에 맞는 범용·전용 실리콘과 소프트웨어 스택의 조합이다.",
-  "mechanism": "연산 패턴·정밀도 → CPU·GPU·ASIC·NPU → 메모리·인터커넥트 → 실제 처리량·지연",
+  "mechanism": "연산 패턴 → CPU·GPU·ASIC·NPU(정밀도는 칩 종류와 별개로 고르는 축) → 메모리·인터커넥트 → 실제 처리량·지연",
   "unit": "작업당 연산·지연·전력·달러",
   "bottlenecks": [
     "메모리 대역폭·생태계 전환비용·패키지·공급·검증"
@@ -90,7 +90,7 @@
       }
     ],
     "edges": [],
-    "mechanismNarrative": "연산 패턴·정밀도 → CPU·GPU·ASIC·NPU → 메모리·인터커넥트 → 실제 처리량·지연"
+    "mechanismNarrative": "연산 패턴 → CPU·GPU·ASIC·NPU(정밀도는 칩 종류와 별개로 고르는 축) → 메모리·인터커넥트 → 실제 처리량·지연"
   },
   "taxonomyNodeIds": [
     "compute-gpu",
@@ -192,7 +192,7 @@
       "GPU·ASIC·NPU의 전환비용과 software enablement는 무엇인가"
     ],
     "mechanismNarrative": [
-      "연산 패턴·정밀도 → CPU·GPU·ASIC·NPU → 메모리·인터커넥트 → 실제 처리량·지연"
+      "연산 패턴 → CPU·GPU·ASIC·NPU(정밀도는 칩 종류와 별개로 고르는 축) → 메모리·인터커넥트 → 실제 처리량·지연"
     ]
   },
   "marketTransmission": {
