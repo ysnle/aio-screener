@@ -4893,63 +4893,16 @@ async function _aioLoadServerData() {
     // instruction) and shown on the home card even when this run's long reading was held.
     window._aioMarketSentence = d.marketAnalysis && d.marketAnalysis.sentence && d.marketAnalysis.sentence.text ? d.marketAnalysis.sentence : null;
     try { if (typeof _aioRenderOperatorNote === 'function') _aioRenderOperatorNote(); } catch(_) {}
-    if (d.marketAnalysis && (d.marketAnalysis.full || d.marketAnalysis.oneLine)) {
-      var _serverMarketMetricEvidence = Array.isArray(d.marketAnalysis.metricEvidence) ? d.marketAnalysis.metricEvidence : [];
-      var _serverMarketMetricEvidenceValid = _serverMarketMetricEvidence.length >= 2 && _serverMarketMetricEvidence.every(function(row) {
-        return row && row.metricId && row.unit && row.source && row.asOf && isFinite(Number(row.value)) && !isNaN(new Date(row.asOf).getTime());
-      });
-      var _serverMarketSemanticIssues = Array.isArray(d.marketAnalysis.semanticIssues) ? d.marketAnalysis.semanticIssues : [];
-      var _serverMarketEvidenceIds = _serverMarketMetricEvidence.map(function(row) { return row.evidenceId; }).filter(Boolean);
-      var _serverMarketClaimsValid = d.marketAnalysis.schemaVersion === 'market-analysis.v2'
-        && Array.isArray(d.marketAnalysis.claims)
-        && d.marketAnalysis.claims.every(function(claim) {
-          return claim && claim.text && Array.isArray(claim.evidenceIds) && claim.evidenceIds.length > 0
-            && claim.evidenceIds.every(function(id) { return _serverMarketEvidenceIds.indexOf(id) >= 0 || (Array.isArray(d.marketAnalysis.newsEvidence) && d.marketAnalysis.newsEvidence.some(function(row) { return row.evidenceId === id; })); });
-        });
-      var _serverMarketSemanticContract = d.marketAnalysis.semanticStatus === 'verified'
-        && _serverMarketSemanticIssues.length === 0
-        && _serverMarketMetricEvidenceValid
-        && _serverMarketClaimsValid;
-      var _serverMarketPublishAudit = window.AIO && typeof window.AIO.validateAIAutomatedPublish === 'function'
-        ? window.AIO.validateAIAutomatedPublish({ entrypoint: 'market-analysis', text: d.marketAnalysis.full || d.marketAnalysis.oneLine, currentSensitive: true, requiresStructuredClaims: false, evidence: _serverMarketMetricEvidence })
-        : { blocked: false, sourceLabel: 'AI_GENERATED' };
-      // P846/P847: metadata alone must never certify current-sensitive prose. The
-      // producer must supply typed metric identity/value/unit/asOf/source evidence.
-      var _serverMarketAnalysisVerified = _serverMarketSemanticContract && !_serverMarketPublishAudit.blocked;
-      var _serverMarketAnalysisGeneratedAt = d.marketAnalysis.generatedAt || d.meta.generatedAt;
-      var _serverMarketAnalysisSource = d.marketAnalysis.source || d.marketAnalysis.model || 'github-actions-market-analysis';
-      if (_serverMarketAnalysisVerified) {
-        window._serverMarketAnalysis = {
-          status: 'verified',
-          full: d.marketAnalysis.full || d.marketAnalysis.oneLine,
-          oneLine: d.marketAnalysis.oneLine || d.marketAnalysis.full,
-          generatedAt: _serverMarketAnalysisGeneratedAt,
-          source: _serverMarketAnalysisSource,
-          // P1122: the narrative is published with its boundary, not instead of one.
-          disclosure: typeof d.marketAnalysis.disclosure === 'string' ? d.marketAnalysis.disclosure : null,
-          scope: _aioMarketAnalysisScope(d.marketAnalysis, _serverMarketAnalysisGeneratedAt),
-          semanticWarnings: Array.isArray(d.marketAnalysis.semanticWarnings) ? d.marketAnalysis.semanticWarnings : [],
-          // P1719/P1729: this run's text was blocked and the previous verified analysis is shown (<= 12h old).
-          retained: d.marketAnalysis.retained && typeof d.marketAnalysis.retained === 'object' ? d.marketAnalysis.retained : null,
-          publishAudit: _serverMarketPublishAudit,
-          sourceLabel: window.AIO && typeof window.AIO.getAIOutputSourceLabel === 'function' ? window.AIO.getAIOutputSourceLabel('AI_GENERATED', _serverMarketPublishAudit) : 'AI_GENERATED'
-        };
-      }
-      if (window._serverDataMeta) {
-        window._serverDataMeta.marketAnalysis = {
-          status: _serverMarketAnalysisVerified ? 'verified' : 'blocked-unverified',
-          generatedAt: _serverMarketAnalysisGeneratedAt,
-          source: _serverMarketAnalysisSource,
-          fullLength: String(d.marketAnalysis.full || d.marketAnalysis.oneLine || '').length,
-          metricEvidenceCount: _serverMarketMetricEvidence.length,
-          reason: _serverMarketAnalysisVerified ? null : (_serverMarketPublishAudit.blocked ? 'automated-publish-gate' : (_serverMarketMetricEvidenceValid ? 'semantic-gate-required' : 'metric-evidence-required')),
-          // P1719/P1729: the producer kept the previous verified analysis because this run's text was blocked.
-          retained: d.marketAnalysis.retained && typeof d.marketAnalysis.retained === 'object' ? d.marketAnalysis.retained : null,
-          disclosure: typeof d.marketAnalysis.disclosure === 'string' ? d.marketAnalysis.disclosure : null,
-          publishAudit: _serverMarketPublishAudit,
-          fallback: 'AIO.synthesizeMarketAnalysis'
-        };
-      }
+    // Typed-evidence + semantic + publish gate: src/data/server-market-analysis.js (bound by the compat bridge).
+    var _serverMarketGate = window._aioVerifyServerMarketAnalysis(d.marketAnalysis, {
+      fallbackGeneratedAt: d.meta.generatedAt,
+      validatePublish: window.AIO && typeof window.AIO.validateAIAutomatedPublish === 'function' ? window.AIO.validateAIAutomatedPublish.bind(window.AIO) : null,
+      describeScope: _aioMarketAnalysisScope,
+      sourceLabelFor: window.AIO && typeof window.AIO.getAIOutputSourceLabel === 'function' ? window.AIO.getAIOutputSourceLabel.bind(window.AIO) : null
+    });
+    if (_serverMarketGate.meta) {
+      window._serverMarketAnalysis = _serverMarketGate.analysis;
+      if (window._serverDataMeta) window._serverDataMeta.marketAnalysis = _serverMarketGate.meta;
       try { if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_) {}
     }
     // 6) P768/ARX-16: screener artifact는 native provider/orchestrator가 단일 fetch하고, 그 load state는

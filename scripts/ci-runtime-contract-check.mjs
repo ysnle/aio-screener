@@ -1022,7 +1022,9 @@ let wpAi0SemanticGate = false;
   const proseMeta = (meta) => buildServerDataMeta({ meta: { generatedAt: '2026-10-17T00:00:00Z', ...meta } }, { now: Date.parse('2026-10-17T01:00:00Z') });
   wpAi0SemanticGate = proseMeta({ marketAnalysisOk: true }).marketAnalysisOk === false && proseMeta({ marketAnalysisOk: true, marketAnalysisSemanticOk: true }).marketAnalysisOk === true;
 }
-check('WP-AI0: server market prose requires explicit semantic verification before sink selection', wpAi0SemanticGate && /status: _serverMarketAnalysisVerified \? 'verified' : 'blocked-unverified'/.test(data) && /_serverMarketAnalysis\.status === 'verified'/.test(core));
+const { verifyServerMarketAnalysis } = await import('../src/data/server-market-analysis.js');
+const unverifiedProse = verifyServerMarketAnalysis({ full: 'prose', semanticStatus: 'pending', metricEvidence: [] }, { validatePublish: () => ({ blocked: false }) });
+check('WP-AI0: server market prose requires explicit semantic verification before sink selection', wpAi0SemanticGate && unverifiedProse.analysis === null && unverifiedProse.meta.status === 'blocked-unverified' && /_serverMarketAnalysis\.status === 'verified'/.test(core));
 check('WP-AI0: regression fixtures cover action block, educational pass, strong wording, disclosure metadata, and unverified market prose', /_testV5275PublicAIContract/.test(tests) && /T932/.test(tests) && /T933/.test(tests) && /T934/.test(tests) && /T935/.test(tests) && /T936/.test(tests));
 
 // v52.76 (WP-AI1): one request envelope/response pipeline across all public
@@ -1072,7 +1074,7 @@ check('WP-AI4/5: page and unified entry points pass the active query to the comm
 check('WP-AI4/5: deterministic regression fixtures cover injection, redaction, consent, history off, conduct, evidence, pipeline, and calibration', /_testAIUntrustedSecurityAndConduct/.test(tests) && /T958/.test(tests) && /T959/.test(tests) && /T960/.test(tests) && /T961/.test(tests) && /T962/.test(tests) && /T963/.test(tests) && /T964/.test(tests) && /T965/.test(tests) && /T966/.test(tests));
 
 // v52.80 (WP-AI6/7): automated publish fallback and derived 22-route AI page contracts.
-check('WP-AI6: automated translation/briefing/market-analysis outputs expose structured publish validation and deterministic fallback labels', /validateAIAutomatedPublish/.test(core) && /buildDeterministicEvidenceSummary/.test(core) && /getAIOutputSourceLabel/.test(core) && /publishAudit/.test(chat) && /requiresStructuredClaims/.test(data) && /fallback: 'AIO.synthesizeMarketAnalysis'/.test(data));
+check('WP-AI6: automated translation/briefing/market-analysis outputs expose structured publish validation and deterministic fallback labels', /validateAIAutomatedPublish/.test(core) && /buildDeterministicEvidenceSummary/.test(core) && /getAIOutputSourceLabel/.test(core) && /publishAudit/.test(chat) && /_aioVerifyServerMarketAnalysis\(d\.marketAnalysis/.test(data) && unverifiedProse.meta.fallback === 'AIO.synthesizeMarketAnalysis');
 check('WP-AI7: the existing AIO_PAGE_CONTRACTS registry projects required/optional/forbidden AI page contracts without a parallel registry', /_aiPageContract/.test(core) && /ai: _aiPageContract/.test(core) && /getPageAIContract/.test(core) && /auditPageAIContracts/.test(core) && /kr-technical/.test(core));
 check('all route contracts and decision headers share one server-authored KST 08:00 market cut', /marketContext:\s*\{/.test(core) && /kst-0800-completed-24h/.test(core) && /getSharedMarketCut/.test(core) && /data-market-cut-start/.test(core) && /independent-page-cycle/.test(core));
 check('WP-AI6/7: regression fixtures cover structured publish blocking, fallback audit, 22-route coverage, answer modes, and source labels', /_testV5280PublishAndPageContracts/.test(tests) && /T967/.test(tests) && /T968/.test(tests) && /T969/.test(tests) && /T970/.test(tests) && /T971/.test(tests));

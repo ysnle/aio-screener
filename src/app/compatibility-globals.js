@@ -44,6 +44,7 @@ import { readScreenerBreadth } from '../domain/market/screener-breadth.js';
 import { installPageCompleteness } from '../data/page-completeness.js';
 import { fetchServerData, buildServerDataMeta } from '../data/server-data.js';
 import { applyServerMacro } from '../data/server-macro.js';
+import { verifyServerMarketAnalysis } from '../data/server-market-analysis.js';
 import { buildScreenerAiContext, detectSectorQuery, formatScreenerResultPrompt, runScreenerQuery } from '../ai/context/screener-query.js';
 
 export function installCompatibilityGlobals(root = globalThis) {
@@ -78,6 +79,7 @@ export function installCompatibilityGlobals(root = globalThis) {
   window._aioFetchServerData = () => fetchServerData({ fetch: (...args) => window.fetch(...args) });
   window._aioBuildServerDataMeta = (data, reconciliation) => buildServerDataMeta(data, { reconciliation });
   window._aioApplyServerMacro = (data, snapshot, evidence, serverMeta) => applyServerMacro({ data, snapshot, evidence, serverMeta });
+  window._aioVerifyServerMarketAnalysis = verifyServerMarketAnalysis;
   const screenerFactorAsOf = () => screenerState('metadata.asOf') || screenerState('revision') || null;
   const screenerQueryInput = () => ({
     rows: (typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() : null) || [],
