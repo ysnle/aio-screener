@@ -97,6 +97,11 @@ const { FOUNDATION_STORIES, FOUNDATION_HIDDEN_MODULES } = await import('../src/d
 const { INDUSTRY_NODE_STORIES, INDUSTRY_DOMAIN_STORIES } = await import('../src/domain/knowledge/industry-node-stories.js');
 const { CONCEPT_STORIES } = await import('../src/domain/knowledge/concept-stories.js');
 if (library.lessons.some((lesson) => !lesson.story) || Object.keys(PRINCIPLE_STORIES).length !== library.lessons.length) fail('P1480 every principles lesson needs reading text');
+// v57.98: every principles lesson carries a worked-number block (inputs → steps → result → limit) within the
+// reading standard, authored once in scripts/lib/principles-worked*.mjs and copied into the library.
+const { PRINCIPLE_WORKED, workedProblems } = await import('./lib/principles-worked.mjs');
+const workedIssues = library.lessons.flatMap((lesson) => workedProblems(lesson.id, lesson.worked));
+if (workedIssues.length || library.lessons.some((lesson) => JSON.stringify(lesson.worked) !== JSON.stringify(PRINCIPLE_WORKED[lesson.id]))) fail(`v57.98 principles lesson worked-number block missing, stale or outside the standard: ${workedIssues.slice(0, 5).join('; ')}`);
 const foundationIds = json('public-data/atlas/foundation-lessons.json').lessons.map((lesson) => lesson.id).filter((id) => !FOUNDATION_HIDDEN_MODULES.includes(id));
 if (foundationIds.some((id) => !FOUNDATION_STORIES[id])) fail('P1480 every listed AI-foundation module needs reading text');
 const domains = json('public-data/atlas/source-packets.json').taxonomyDomains;
