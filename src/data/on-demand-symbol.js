@@ -13,7 +13,7 @@ import { reconcileSecRecord } from '../domain/fundamental/sec-report.js';
 import { secFundamentalRowFields } from '../domain/fundamental/sec-row-fields.js';
 import { createScreenerProvider } from './providers/screener.js';
 import { computeFactorRanks } from '../domain/screener/factor-ranks.js';
-import { secClassification } from '../domain/fundamental/sic-sector.js';
+import { SIC_SECTOR_SOURCE, secClassification } from '../domain/fundamental/sic-sector.js';
 
 export const ON_DEMAND_MODEL_VERSION = 'out-of-universe-read.v1';
 export const ON_DEMAND_MAX_CONCURRENT = 2;
@@ -91,7 +91,7 @@ export async function canonicalOnDemandRow(symbol, raw, { name = null, classific
   const provider = createScreenerProvider({ httpClient, readLiveData, clock: { now, iso: () => new Date(now()).toISOString() }, yieldImpl: () => Promise.resolve() });
   const state = await provider.readCurrent({ refresh: true });
   const row = (state?.rows || []).find((item) => item?.sym === id);
-  return row ? { ...row, ...(classification ? { sic: classification.sic, sector: sector || row.sector || null, industry:classification.description ? `${classification.description} (SEC SIC ${classification.sic})` : `SEC SIC ${classification.sic}`, classification } : {}),
+  return row ? { ...row, ...(classification ? { sic: classification.sic, sector: sector || row.sector || null, ...(sector ? { sectorSource: SIC_SECTOR_SOURCE } : {}), industry:classification.description ? `${classification.description} (SEC SIC ${classification.sic})` : `SEC SIC ${classification.sic}`, classification } : {}),
     identitySource: 'on-demand:us-listing', onDemand: Object.freeze({ model: ON_DEMAND_MODEL_VERSION, computedAt }) } : null;
 }
 

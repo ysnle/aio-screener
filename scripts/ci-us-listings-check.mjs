@@ -114,6 +114,26 @@ check('v57.81 client lookup: listed, unlisted, no fuzzy rewrite, no name search'
   assert.equal(client.indexUsListings({ schemaVersion: 'other', columns: { sym: ['AAPL'] } }), null);
 });
 
+check('v57.94 name candidates leave out warrants, rights and SPAC units, keep partnership units, and prefer universe symbols', () => {
+  const index = client.indexUsListings({ schemaVersion: client.US_LISTINGS_SCHEMA, asOf: '2026-10-17', exchanges: { Q: 'Nasdaq', N: 'NYSE' },
+    columns: { sym: ['OPEN', 'OPENW', 'OPENL', 'RKTO', 'RKLB', 'ROCKU', 'ET', 'ETW'], exch: 'QQQQQQNN', etf: '00000000', cik: [],
+      name: ['Opendoor Technologies Inc', 'Opendoor Technologies Inc - Series K Warrants', 'Opendoor Technologies Inc - Series A Warrants, each whole warrant',
+        'Rocket One Inc.', 'Rocket Lab Corporation', 'Rocket Acquisition Corp - Units', 'Energy Transfer LP Common Units', 'Energy Transfer Warrants Corp - Right'] } });
+  assert.deepEqual(client.searchUsListingNames(index, 'opendoor').map((pick) => pick.symbol), ['OPEN'], 'warrant lines are not company candidates');
+  assert.deepEqual(client.searchUsListingNames(index, 'rocket').map((pick) => pick.symbol), ['RKTO', 'RKLB'], 'units are dropped; without a preference the shorter name leads');
+  assert.deepEqual(client.searchUsListingNames(index, 'rocket', { prefer: ['RKLB'] }).map((pick) => pick.symbol), ['RKLB', 'RKTO'], 'a universe symbol leads among equal matches');
+  assert.deepEqual(client.searchUsListingNames(index, 'energy transfer').map((pick) => pick.symbol), ['ET'], 'partnership common units stay, a rights line goes');
+  assert.equal(client.isDerivativeListingName('Plains All American Pipeline, L.P. - Common Units representing'), false);
+});
+check('v57.94 refused watchlist, alert and holding names show listing candidates through one native owner', () => {
+  const compat = read('src/app/compatibility-globals.js');
+  assert.match(compat, /window\._aioListingNameSuggestion = \(raw\) =>/);
+  assert.match(compat, /window\._aioToastWithNameHint = \(raw, message\) =>/);
+  assert.match(read('js/aio-workspace.js'), /else window\._aioToastWithNameHint\(ticker, ticker \+ ': 등록 종목·미국 상장 목록에서 찾지 못한 티커입니다/);
+  assert.match(read('js/aio-workspace.js'), /window\._aioToastWithNameHint\(pfRawTicker \|\| ticker, '"' \+ \(pfRawTicker \|\| ticker\) \+ '" 검증되지 않은 티커라 저장하지 않았습니다/);
+  assert.match(read('js/aio-chat.js'), /window\._aioToastWithNameHint\(newAlert\.tickerOrIndex, /);
+});
+
 const response = (body, status = 200) => ({ ok: status >= 200 && status < 300, status, headers: { get: () => null }, json: async () => JSON.parse(body), text: async () => body });
 const originalFetch = globalThis.fetch;
 await checkAsync('v57.81 isListedUsSymbol: listed through the lazy artifact, one request for many checks', async () => {

@@ -487,7 +487,7 @@ var _pfConfirmedAdd = null; async function addPortfolioPosition() { // v57.55 re
   var pfListing = null, pfListingSym = typeof window._aioUsListingSymbol === 'function' ? window._aioUsListingSymbol(ticker) : ticker; if (!isKnown && typeof window._aioCheckUsListing === 'function') { try { pfListing = await window._aioCheckUsListing(pfListingSym); } catch (_) { pfListing = null; } if (!pfListing || pfListing.listed == null) { showToast('"' + (pfRawTicker || ticker) + '"는 AIO 종목 목록에 없어 미국 상장 목록과 대조해야 하는데, 지금 상장 목록을 불러오지 못해 저장하지 않았습니다. 잠시 후 다시 시도하세요.'); return; } if (pfListing.listed === true) { ticker = pfListingSym; isKnown = true; } }
   var krCode = /^\d{6}$/.test(ticker), krListed = krCode && typeof window._aioIsKnownTicker === 'function' && (window._aioIsKnownTicker(ticker) || window._aioIsKnownTicker(ticker + '.KS') || window._aioIsKnownTicker(ticker + '.KQ')), pfRefPrice = (ld[ticker] && +ld[ticker].price) || 0, pfWarn = krCode && !krListed ? '"' + ticker + '"는 AIO 한국 종목 목록에 없는 코드입니다. 시세·차트를 받지 못할 수 있어요. 코드가 맞으면 그대로 저장할까요?' : (!krCode && (costCurrency || 'USD') === 'USD' && (pfRefPrice > 0 ? cost > pfRefPrice * 10 : cost >= 50000 && ticker !== 'BRK-A')) ? '매수 단가(' + cost.toLocaleString() + ')는 달러로 저장됩니다' + (pfRefPrice > 0 ? '(현재가 $' + pfRefPrice.toFixed(2) + '의 10배 이상)' : '') + '. 원화로 산 금액이라면 원가 통화 칸에 KRW를 적어 주세요. 그대로 저장할까요?' : ''; if (isKnown && pfWarn && _pfConfirmedAdd !== ticker + '|' + cost) { showConfirmModal('입력값 확인', pfWarn, function() { _pfConfirmedAdd = ticker + '|' + cost; addPortfolioPosition(); }); return; } _pfConfirmedAdd = null;
   if (!isKnown) {
-    showToast('"' + (pfRawTicker || ticker) + '" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다.'); // v57.81
+    window._aioToastWithNameHint(pfRawTicker || ticker, '"' + (pfRawTicker || ticker) + '" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다.'); // v57.81
     return;
   }
 
@@ -1883,7 +1883,7 @@ function addToWatchlist(ticker, note) {
     var noteInp = document.getElementById('wl-add-note');
     note = noteInp ? noteInp.value.trim() : '';
   }
-  if (!ticker) { showToast('티커를 입력하세요.'); return; } if (arguments[2] !== true && typeof window._aioAcceptSymbol === 'function') { window._aioAcceptSymbol(ticker).then(function(r) { if (r.ok || r.reason === 'listing-unavailable') addToWatchlist(r.id || ticker, note, true); else showToast(ticker + ': 등록 종목·미국 상장 목록에서 찾지 못한 티커입니다. 철자를 확인하세요.'); }); return; } // v57.81: known or US-listed (listing directory) symbols only; accepted ones join the quote request set
+  if (!ticker) { showToast('티커를 입력하세요.'); return; } if (arguments[2] !== true && typeof window._aioAcceptSymbol === 'function') { window._aioAcceptSymbol(ticker).then(function(r) { if (r.ok || r.reason === 'listing-unavailable') addToWatchlist(r.id || ticker, note, true); else window._aioToastWithNameHint(ticker, ticker + ': 등록 종목·미국 상장 목록에서 찾지 못한 티커입니다. 철자를 확인하세요.'); }); return; } // v57.81: known or US-listed (listing directory) symbols only; accepted ones join the quote request set
   var lists = getWatchlists();
   var wl = lists.find(function(l) { return l.id === activeId; });
   if (!wl) return;

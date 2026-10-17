@@ -4308,7 +4308,7 @@ function _aioAddAlert(alert) {
   var id = 'alert_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
   var newAlert = Object.assign({ id: id, createdAt: Date.now(), triggered: false, triggerCount: 0 }, alert);
   alerts.push(newAlert);
-  _aioSetAlerts(alerts); if (newAlert.metric === 'price' && newAlert.tickerOrIndex && typeof window._aioAcceptSymbol === 'function') window._aioAcceptSymbol(newAlert.tickerOrIndex).then(function(r) { if (r.ok || r.reason === 'listing-unavailable') return; _aioSetAlerts(_aioGetAlerts().filter(function(a) { return a.id !== id; })); if (typeof showToast === 'function') showToast(newAlert.tickerOrIndex + ': 등록 종목·미국 상장 목록에서 찾지 못한 티커라 가격 알림을 만들지 않았습니다.'); }); // v57.81: known or US-listed symbols only; accepted ones join the quote request set
+  _aioSetAlerts(alerts); if (newAlert.metric === 'price' && newAlert.tickerOrIndex && typeof window._aioAcceptSymbol === 'function') window._aioAcceptSymbol(newAlert.tickerOrIndex).then(function(r) { if (r.ok || r.reason === 'listing-unavailable') return; _aioSetAlerts(_aioGetAlerts().filter(function(a) { return a.id !== id; })); window._aioToastWithNameHint(newAlert.tickerOrIndex, newAlert.tickerOrIndex + ': 등록 종목·미국 상장 목록에서 찾지 못한 티커라 가격 알림을 만들지 않았습니다.'); }); // v57.81: known or US-listed symbols only; accepted ones join the quote request set
   return newAlert;
 }
 // v57.77: the test-only alert remover and natural-language alert parser are retired (no production caller).

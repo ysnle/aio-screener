@@ -3,23 +3,29 @@
 // (SIC) code. This is a fixed, documented translation of that code into the universe's eleven sector keys — not an
 // estimate from prices or names. Codes that do not map cleanly (public administration, non-classifiable 9xxx, blank
 // checks 6770) stay null, and every consumer names the SIC code and its SEC description beside the sector.
-export const SIC_SECTOR_MODEL = 'sic-to-universe-sector.v1';
+// v2 (2026-10-17): three codes whose filers the published sectors place elsewhere almost without exception, measured on
+// the 1,908 extended-universe issuers that carry both a sector and a SIC code — 1531 operative builders (9/9 Consumer),
+// 3533 oil & gas field machinery (5/6 Energy), 3826 laboratory analytical instruments (7/8 Healthcare). Codes with a
+// split vote (7370, 7389, 4412) keep the division default.
+export const SIC_SECTOR_MODEL = 'sic-to-universe-sector.v2';
+/** sectorSource on a row whose sector was translated from its SEC SIC code (not the universe's curated sector). */
+export const SIC_SECTOR_SOURCE = 'sec-sic';
 
 // [from, to, sector] — first match wins, so narrow ranges sit before the broad division they belong to.
 const RANGES = Object.freeze([
   [100, 999, 'Consumer Defensive'], // agriculture, forestry, fishing
   [1000, 1099, 'Materials'], [1200, 1399, 'Energy'], [1400, 1499, 'Materials'], // mining: metals · coal/oil & gas · minerals
-  [1500, 1799, 'Industrials'], // construction
+  [1531, 1531, 'Consumer'], [1500, 1799, 'Industrials'], // operative builders (homebuilders) · construction
   [2000, 2199, 'Consumer Defensive'], // food, beverages, tobacco
   [2200, 2399, 'Consumer'], [2400, 2499, 'Materials'], [2500, 2599, 'Consumer'], [2600, 2699, 'Materials'],
   [2700, 2799, 'Communication Services'], // printing and publishing
   [2833, 2836, 'Healthcare'], [2840, 2844, 'Consumer Defensive'], [2800, 2899, 'Materials'], // pharma · household · chemicals
   [2900, 2999, 'Energy'], // petroleum refining
   [3000, 3099, 'Materials'], [3100, 3199, 'Consumer'], [3200, 3399, 'Materials'], [3400, 3499, 'Industrials'],
-  [3570, 3579, 'Technology'], [3500, 3599, 'Industrials'], // computers · industrial machinery
+  [3533, 3533, 'Energy'], [3570, 3579, 'Technology'], [3500, 3599, 'Industrials'], // oil-field machinery · computers · industrial machinery
   [3630, 3639, 'Consumer'], [3651, 3652, 'Consumer'], [3660, 3679, 'Technology'], [3600, 3699, 'Industrials'], // appliances · audio · comms/semis · electrical
   [3710, 3716, 'Consumer'], [3750, 3751, 'Consumer'], [3700, 3799, 'Industrials'], // vehicles · motorcycles · aerospace/rail/ships
-  [3820, 3829, 'Technology'], [3840, 3851, 'Healthcare'], [3860, 3869, 'Technology'], [3870, 3873, 'Consumer'], [3800, 3899, 'Industrials'],
+  [3826, 3826, 'Healthcare'], [3820, 3829, 'Technology'], [3840, 3851, 'Healthcare'], [3860, 3869, 'Technology'], [3870, 3873, 'Consumer'], [3800, 3899, 'Industrials'],
   [3900, 3999, 'Consumer'], // misc manufacturing (toys, jewelry, sporting goods)
   [4000, 4799, 'Industrials'], // transportation
   [4800, 4899, 'Communication Services'],

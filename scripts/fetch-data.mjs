@@ -1904,6 +1904,9 @@ export function buildExtendedShardPayload({ data, syms, identityRows, membership
       allowedUse: 'research-reference-not-predictive-validation'
     },
     coreMembership: membership?.coreMembership && typeof membership.coreMembership === 'object' ? membership.coreMembership : {},
+    // 2026-10-17: SEC's description of each SIC code the identity rows carry, written once per code (the browser fills a
+    // Nasdaq-only row's sector from its code and names the code and this description as the industry).
+    sicDescriptions: sicDescriptionMap(identityRows.map((row) => secResult?.sicBySymbol?.[row.sym])),
     identity: identityRows.map((row) => ({
       sym: row.sym, name: row.name || row.sym, sector: row.sector || null, index: row.index || null,
       membership: Array.isArray(row.membership) ? row.membership : [], exchange: row.exchange || null,
@@ -1913,6 +1916,16 @@ export function buildExtendedShardPayload({ data, syms, identityRows, membership
     })),
     ...encoded
   };
+}
+
+export function sicDescriptionMap(entries) {
+  const map = {};
+  for (const entry of Array.isArray(entries) ? entries : []) {
+    const code = String(entry?.sic || '');
+    const description = String(entry?.description || '').replace(/\s+/g, ' ').trim();
+    if (/^\d{3,4}$/.test(code) && description && !map[code]) map[code] = description;
+  }
+  return Object.fromEntries(Object.entries(map).sort(([a], [b]) => a.localeCompare(b)));
 }
 
 export async function enrichScreenerExtended({ nowMs = Date.now() } = {}) {

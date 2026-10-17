@@ -89,28 +89,39 @@ export async function isListedUsSymbol(sym) {
   return lookupUsListing(await loadUsListings(), symbol);
 }
 
+// 2026-10-17: SPAC units, warrants and rights ("Opendoor Technologies Inc - Series A Warrants") are not the company's
+// shares; the directory names them after " - ". Partnership and trust units ("- Common Units Representing …") stay.
+const DERIVATIVE_LINE_RE = /\s-\s.*\b(?:warrants?|rights?|units?)\b/i;
+const EQUITY_UNITS_RE = /\b(?:common|partnership|depositary|beneficial|representing)\b[^-]*\bunits?\b/i;
+export function isDerivativeListingName(name) {
+  const text = String(name || '');
+  return DERIVATIVE_LINE_RE.test(text) && !EQUITY_UNITS_RE.test(text);
+}
 const SHARE_SUFFIX_RE = /\s*-?\s*(Common Stock|Common Shares|Ordinary Shares|Class [A-C] (?:Common Stock|Ordinary Shares)|American Depositary Shares?.*|Depositary Shares?.*)\s*$/i;
 /**
  * v57.83 (owner 2026-10-16: no company-name search for symbols outside the universe): listing names that contain the
  * query at a word start, as candidates the reader picks from. Operating companies before funds, a name that starts
  * with the query first; never auto-selected (R663). Queries under 3 letters or with no Latin letter return nothing.
+ * 2026-10-17: warrants, rights and SPAC units are left out, and symbols in `prefer` (the screener's own universe) sort
+ * before other listings that start the same way ("Rocket" → Rocket Lab before Rocket One).
  */
-export function searchUsListingNames(index, raw, { limit = 6, exclude = [] } = {}) {
+export function searchUsListingNames(index, raw, { limit = 6, exclude = [], prefer = [] } = {}) {
   const query = String(raw || '').trim().toLowerCase().replace(/\s+/g, ' ');
   if (!index || query.length < 3 || !/[a-z]/.test(query)) return [];
   const names = Array.isArray(index.columns.name) ? index.columns.name : [];
   const symbols = index.columns.sym || [];
   const skip = new Set(exclude.map((symbol) => String(symbol).toUpperCase()));
+  const preferred = prefer instanceof Set ? prefer : new Set((Array.isArray(prefer) ? prefer : []).map((symbol) => String(symbol).toUpperCase()));
   const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const wordStart = new RegExp(`(?:^|[\\s(&./-])${escaped}`);
   const found = [];
   for (let at = 0; at < names.length; at += 1) {
     const name = String(names[at] || '');
     const lower = name.toLowerCase();
-    if (!wordStart.test(lower) || skip.has(symbols[at])) continue;
-    found.push({ at, starts: lower.startsWith(query), etf: String(index.columns.etf || '').charAt(at) === '1', name: name.replace(SHARE_SUFFIX_RE, '').trim() || name });
+    if (!wordStart.test(lower) || skip.has(symbols[at]) || isDerivativeListingName(name)) continue;
+    found.push({ at, starts: lower.startsWith(query), etf: String(index.columns.etf || '').charAt(at) === '1', known: preferred.has(symbols[at]), name: name.replace(SHARE_SUFFIX_RE, '').trim() || name });
   }
-  found.sort((a, b) => Number(b.starts) - Number(a.starts) || Number(a.etf) - Number(b.etf) || a.name.length - b.name.length);
+  found.sort((a, b) => Number(b.starts) - Number(a.starts) || Number(a.etf) - Number(b.etf) || Number(b.known) - Number(a.known) || a.name.length - b.name.length);
   return found.slice(0, limit).map(({ at, name, etf }) => ({ symbol: symbols[at], label: name, exchange: index.exchanges[String(index.columns.exch || '').charAt(at)] || null, etf }));
 }
 
