@@ -106,13 +106,16 @@ export function inlineDrift(recent, recentBand = 0) {
 export const INLINE_DRIFT_LABELS = Object.freeze({ up: '1개월 앞서기 시작', down: '1개월 뒤처지기 시작' });
 /** ± bands the live screen uses (R714: recent-check.js relativeBand, not a second copy). */
 const OUTCOME_BANDS = Object.freeze({ trend: relativeBand('ret6m'), recent: relativeBand('ret1m') });
+// Audit 2026-10-17 (owner D4/D5): the stage rule a stored past-stage count was classified on. A count from another rule
+// (the 5%/yr bands, or the cap-weighted S&P 500 basis) is not compared with the live stage until the artifact is rebuilt.
+export const THEME_STAGE_RULE = 'theme-stage.v2';
 /**
  * Past stages of a proxy ETF and what followed. With `benchmark` ([[date, close]], ^GSPC) the stage is the live rule —
  * 6-month and 1-month returns less the index's with the same bands, and the ETF's own 6-month return for 상대 방어 —
  * and meta.basis is 'relative-banded'; without it the old absolute sign rule stays and basis is 'absolute' (the screen
  * then does not compare it with the live stage).
  */
-export function themeStateOutcomes(closes, { horizon = 63, benchmark = null } = {}) {
+export function themeStateOutcomes(closes, { horizon = 63, benchmark = null, benchmarkField = 'spx' } = {}) {
   const list = (closes || []).filter(([, value]) => finite(value) > 0);
   const bench = Array.isArray(benchmark) && benchmark.length ? new Map(benchmark.filter(([, v]) => finite(v) > 0)) : null;
   const buckets = Object.fromEntries(Object.keys(THEME_STATES).map((state) => [state, []])); // 'fading' stays empty here
@@ -133,7 +136,8 @@ export function themeStateOutcomes(closes, { horizon = 63, benchmark = null } = 
     next[state] = i + horizon;
   }
   const meta = { from: list[0]?.[0] || null, to: list[list.length - 1]?.[0] || null, horizon, basis: bench ? 'relative-banded' : 'absolute', ...baseRate(baseUp, baseN) };
-  return { ...Object.fromEntries(Object.entries(buckets).map(([state, values]) => [state, summarise(values, meta)])), basis: meta.basis };
+  return { ...Object.fromEntries(Object.entries(buckets).map(([state, values]) => [state, summarise(values, meta)])), basis: meta.basis,
+    ...(bench ? { rule: THEME_STAGE_RULE, benchmark: benchmarkField } : {}) };
 }
 
 export function frequencyText(freq, label, { source = 'AIO 종가 기록' } = {}) {
