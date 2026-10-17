@@ -130,11 +130,14 @@ function growthAxis({ macro, mh }) {
   const unrate = finite(macro.unemployment) ?? lastOf(unemployment)?.value ?? null;
   let state = 'neutral';
   if (sahm == null && payroll == null && nfp == null) state = 'unknown';
-  else if ((sahm && sahm.value >= G.sahmRecessionAt) || (payroll && payroll.avg3 < 0) || (!payroll && nfp != null && nfp < 0)) state = 'burden';
+  // Audit D5: one payroll month (revised, noisy) no longer decides burden on its own; the 3-month average does.
+  else if ((sahm && sahm.value >= G.sahmRecessionAt) || (payroll && payroll.avg3 < 0)) state = 'burden';
   else if (sahm && sahm.value < G.sahmWatchAt && payroll && payroll.avg3 >= G.payrollSolidK) state = 'favorable';
   const partial = !sahm || !payroll ? ' 3개월 추세와 Sahm 지표는 월별 기록이 쌓이면 반영됩니다.' : '';
   // Expert review M18: the neutral reading names the indicator that held it there instead of a generic either/or.
-  const neutralRead = sahm && sahm.value >= G.sahmWatchAt
+  const neutralRead = !payroll && nfp != null && nfp < 0 && !(sahm && sahm.value >= G.sahmWatchAt)
+    ? `최근 1개월 일자리가 ${Math.abs(Math.round(nfp))}천 명 줄었지만, 한 달 수치는 수정과 변동이 커서 3개월 추세가 쌓일 때까지 부담으로 보지 않습니다.${partial}`
+    : sahm && sahm.value >= G.sahmWatchAt
     ? `실업률 3개월 평균이 1년 저점보다 ${sahm.value.toFixed(2)}%p 올라 주의 구간(${G.sahmWatchAt}~${G.sahmRecessionAt}%p)입니다. 아직 Sahm 경기침체 신호(${G.sahmRecessionAt}%p)에는 못 미칩니다.`
     : payroll && payroll.avg3 < G.payrollSolidK
       ? `일자리가 최근 3개월 평균 ${Math.round(payroll.avg3)}천 명씩 늘어 기준(${G.payrollSolidK / 10}만 명)에 못 미칩니다${sahm ? ` — 실업률 Sahm 지표는 ${sahm.value.toFixed(2)}%p로 낮아 침체 신호는 아닙니다` : ''}.`
@@ -248,14 +251,17 @@ function policyPricing(macro) {
   return { upper, lower, mid, twoYear, pricing: mid != null && twoYear != null ? twoYear - mid : null };
 }
 
-function policyAxis({ macro, inflationState }) {
+function policyAxis({ macro, inflationState, growthState = null }) {
   const { upper, lower, mid, twoYear, pricing } = policyPricing(macro);
   const corePce = finite(macro.corePce);
   const realPolicy = mid != null && corePce != null ? mid - corePce : null;
   let state = 'neutral';
   if (mid == null || (pricing == null && realPolicy == null)) state = 'unknown';
   else if ((pricing != null && pricing >= P.pricedMovePp) || (realPolicy != null && realPolicy >= P.restrictiveRealPct)) state = 'burden';
-  else if (pricing != null && pricing <= -P.pricedMovePp && inflationState !== 'burden') state = 'favorable';
+  // Audit D3: cuts priced because growth is breaking are not a tailwind (the axis link says so), so a weak growth axis
+  // holds the reading at neutral instead of favorable.
+  const recessionCut = pricing != null && pricing <= -P.pricedMovePp && growthState === 'burden';
+  if (state === 'neutral' && pricing != null && pricing <= -P.pricedMovePp && inflationState !== 'burden' && !recessionCut) state = 'favorable';
   // P1449: 2년물 − 기준금리 중간값은 정책 경로와 기간·위험 프리미엄을 분리하지 못한 대용 지표다.
   // 관측(수준)은 그대로 말하고, "시장이 인상/인하를 반영"이라는 해석은 프리미엄 미분해를 명시한다.
   const PRICING_BASIS = '기간·위험 프리미엄 분해 자료가 없는 대용 지표(2년물 − 기준금리 중간값)';
@@ -266,7 +272,8 @@ function policyAxis({ macro, inflationState }) {
       : `물가를 뺀 실질 기준금리가 ${realPolicy.toFixed(1)}%로 중립 수준(약 ${P.neutralRealPct}%)보다 훨씬 높은 긴축 상태입니다.`)
     : state === 'favorable' ? `2년물이 기준금리보다 ${Math.abs(pricing).toFixed(2)}%p 낮습니다. 인하 가능성이 일부 반영됐을 수 있지만, 프리미엄을 분리한 자료가 없어 ‘인하 예상’으로 단정할 수는 없습니다.`
       : state === 'unknown' ? '정책금리나 2년물 자료를 기다리는 중입니다.'
-        : `시장이 보는 2년물은 당분간 ${pricingText || '큰 변화 없는'} 수준입니다(${PRICING_BASIS}).`;
+        : recessionCut ? `2년물이 기준금리보다 ${Math.abs(pricing).toFixed(2)}%p 낮지만, 성장 축이 부담이라 경기 악화 때문에 인하를 반영하는 쪽으로 읽어 양호로 보지 않습니다(${PRICING_BASIS}).`
+          : `시장이 보는 2년물은 당분간 ${pricingText || '큰 변화 없는'} 수준입니다(${PRICING_BASIS}).`;
   return axis('policy', '통화정책', state, {
     gauge: state === 'burden' && (pricing == null || pricing < P.pricedMovePp) && realPolicy != null ? gauge({ label: '실질 기준금리 (중간값 − 근원 PCE)', value: realPolicy, unit: '%', digits: 1, ...cuts(-2, 4, [P.restrictiveRealPct], ['neutral', 'burden'], [[P.neutralRealPct, `중립 약 ${P.neutralRealPct}%`], [P.restrictiveRealPct, `${P.restrictiveRealPct}%`]]) }) : gauge({ label: '2년물 − 기준금리 중간값', value: pricing, unit: '%p', digits: 2, ...cuts(-1.5, 1.5, [-P.pricedMovePp, P.pricedMovePp], ['favorable', 'neutral', 'burden'], [[-P.pricedMovePp, `−${P.pricedMovePp}%p`], [P.pricedMovePp, `+${P.pricedMovePp}%p`]]) }),
     // Codex review 2026-10-05: the headline states the observed gap; the reading below says why it is not
@@ -278,7 +285,7 @@ function policyAxis({ macro, inflationState }) {
       ['실질 기준금리 (중간값 − 근원 PCE)', realPolicy == null ? null : `${realPolicy.toFixed(1)}% (중립 약 ${P.neutralRealPct}%)`]
     ],
     read,
-    flip: state === 'unknown' ? null : `2년물이 기준금리 중간값보다 ${P.pricedMovePp}%p 이상 높거나 실질 기준금리 ${P.restrictiveRealPct}% 이상이면 부담 · ${P.pricedMovePp}%p 이상 낮고(인하 반영) 물가가 부담이 아니면 양호`,
+    flip: state === 'unknown' ? null : `2년물이 기준금리 중간값보다 ${P.pricedMovePp}%p 이상 높거나 실질 기준금리 ${P.restrictiveRealPct}% 이상이면 부담 · ${P.pricedMovePp}%p 이상 낮고(인하 반영) 물가·성장이 부담이 아니면 양호`,
     link: '2년물 금리에는 앞으로 1~2년의 기준금리 예상과 기간·위험 프리미엄이 함께 들어 있습니다. 위쪽으로 벌어지면 달러 강세와 높은 할인율이 함께 오고, 인하 쪽이면 반대입니다. 단, 경기 악화 때문에 인하를 반영하는 경우는 주식에 좋은 신호가 아닙니다.',
     asOf: macro._asOf_dgs2 || null,
     detail: { mid, pricing, realPolicy }
@@ -571,7 +578,7 @@ export function buildMacroRead({ macro = null, macroHistory = null, regime = nul
   const oil = brentWtiCheck(macroHistory, Array.isArray(history) ? history : []);
   const growth = growthAxis({ macro: m, mh });
   const inflation = inflationAxis({ macro: m, mh });
-  const policy = policyAxis({ macro: m, inflationState: inflation.state });
+  const policy = policyAxis({ macro: m, inflationState: inflation.state, growthState: growth.state });
   const axes = [
     growth, inflation, policy,
     reuse(regime, 'rates', '금리 · 할인율', '10년물 금리는 주식 가치를 계산하는 할인율의 기준입니다. 빠르게 오르면 PER이 높은 성장주부터 부담을 받습니다.', gauges.rates),

@@ -115,13 +115,21 @@ export const RULES = Object.freeze({
   policy: Object.freeze({ pricedMovePp: 0.25, neutralRealPct: 1, restrictiveRealPct: 2 }),
   // Macro audit 2026-10-17: the lines of the briefing's 오늘 종가 해석 sentences (market-read buildMarketRead). They decide only
   // whether a sentence is written and its weight — no axis state reads them — and moved here unchanged from literals in that
-  // function, so every number a briefing sentence tests sits in this one table. Known gaps left for an owner decision: the
-  // oil-and-rates sentence fires at WTI +8% / 10-year +15bp in 20 sessions while the axes use oil.rise20dPct 10 and
-  // rates.move20dBp 25; the index-defended line (45%) equals leadership.advanceRatioWeakBelow but is kept as its own key.
+  // function, so every number a briefing sentence tests sits in this one table. Audit D6 (owner 2026-10-17): the oil-and-rates
+  // sentence uses the axes' own lines (oil.rise20dPct, rates.move20dBp) instead of the lower 8% / 15bp it had, so the
+  // sentence and the axes never disagree on whether oil and rates rose together. The index-defended line (45%) equals
+  // leadership.advanceRatioWeakBelow but is kept as its own key.
   briefing: Object.freeze({ rateMove5dBp: 8, stocksDown5dPct: 1, yearExtremeAt: 0.95, curveMove5dBp: 8, dollarSoft5dPct: 0.3,
     broadWeakBelow: 30, newLowsMin: 10, newHighsMin: 20, highsOverLows: 3, techGap20dPp: 2, smallcapGap20dPp: 3,
     derisk1dPct: 0.8, deriskAdvanceBelow: 30, defendedAdvanceBelow: 45, goldDollar5dPct: 0.5, havenDollar5dPct: 1, havenGold20dPct: 3,
-    goldFall20dPct: 3, goldRates20dBp: 10, oilRates20dPct: 8, oilRatesTnx20dBp: 15, krGap5dPp: 2, krGap1dPp: 1.5, krTailPct: 10 }),
+    goldFall20dPct: 3, goldRates20dBp: 10, krGap5dPp: 2, krGap1dPp: 1.5, krTailPct: 10 }),
+  // Audit D8 (owner 2026-10-17): every "large move" the briefing pipeline tests, gathered in one table with the values
+  // unchanged. attribution* — the validator asks for a cause headline (S&P 500/Nasdaq vs KOSPI, 1-session % change);
+  // priorSession* — the packet names the last completed close; dailyDiff* — 어제와 달라진 점 lists a move; watchDayPct
+  // — a watch-list name gets the strong attention mark. The equity 1% sits near a one-in-four day for the S&P 500,
+  // 3% about one in fifty; retune here, not at the call sites.
+  largeMove: Object.freeze({ attributionUsPct: 1, attributionKospiPct: 3, priorSession1dPct: 3, priorSession5dPct: 8,
+    dailyDiffIndexPct: 1, dailyDiffVixPt: 2, dailyDiffTnxBp: 8, dailyDiffBreadthPp: 5, dailyDiffOtherPct: 1.5, watchDayPct: 3 }),
   // CNN Fear & Greed integer bands: extreme fear 0-24, fear 25-44, neutral 45-55, greed 56-75, extreme greed 76-100
   // (as reproduced from CNN Business by https://www.nerdwallet.com/article/investing/what-is-the-fear-and-greed-index;
   // the index is published as a whole number, so a reading is rounded before it is banded).

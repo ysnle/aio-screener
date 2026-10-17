@@ -713,7 +713,7 @@ export function buildMarketRead(input = {}) {
   // v57.81: when Brent and WTI disagree (the macro screen's oil check), WTI alone does not carry an oil sentence.
   const oilHeld = s.wti ? oilCheckOf(input.history, basis) : null;
   if (oilHeld?.held) add('oil-held', 45, oilHeld.text, 'commodities', { reading: 'WTI 한 가지로 유가 방향이나 물가 경로를 단정하지 않습니다.' });
-  else if (wti20 != null && tnx20 != null && wti20 >= B.oilRates20dPct && tnx20 >= B.oilRatesTnx20dBp) add('oil-rates-inflation', 80, `WTI 20일 ${signed(wti20)}${win20(s.wti)}·10년물 20일 ${signed(tnx20, 0, 'bp')}${win20(tnx)} 동반 상승.`, 'commodities', {
+  else if (wti20 != null && tnx20 != null && wti20 >= RULES.oil.rise20dPct && tnx20 >= RULES.rates.move20dBp) add('oil-rates-inflation', 80, `WTI 20일 ${signed(wti20)}${win20(s.wti)}·10년물 20일 ${signed(tnx20, 0, 'bp')}${win20(tnx)} 동반 상승.`, 'commodities', {
     reading: bei5 != null && bei5 > 0 ? '기대인플레도 올라, 유가가 물가 기대를 거쳐 금리를 밀어 올리는 경로와 맞습니다.' : '유가가 물가 기대를 거쳐 금리를 밀어 올리는 경로일 수 있습니다.'
   });
   else if (s.wti?.yearPosition != null && s.wti.yearPosition >= RULES.oil.rangeHighAt) add('oil-high', 50, `WTI ${fmt(s.wti.value)}달러, 1년 범위 상단(${fmt(s.wti.yearPosition * 100, 0)}%).`, 'commodities', { reading: '높은 유가는 물가·금리 부담 요인입니다.', check: 'WTI가 1년 범위 상단에 머무는지 — 머물면 다음 물가 지표 부담' }); // P1394: range-relative

@@ -143,12 +143,21 @@ export function themeStateOutcomes(closes, { horizon = 63, benchmark = null, ben
     ...(bench ? { rule: THEME_STAGE_RULE, benchmark: benchmarkField } : {}) };
 }
 
+// One significance rule for every "differs from the base rate" reading (pastConflict, frequencyText): the share must sit
+// more than two binomial standard errors of the base rate (about 95%) away. Overlapping base-rate sessions make the true
+// error wider still, so one standard error flagged ordinary sampling noise as a contradiction.
+export const BASE_RATE_SE = 2;
+export const beyondBaseRate = (share, base, n) => Math.abs(share - base) > BASE_RATE_SE * Math.sqrt(base * (1 - base) / n);
+
 export function frequencyText(freq, label, { source = 'AIO 종가 기록' } = {}) {
   if (!freq) return `${label}: 과거 기록이 없어 빈도를 계산하지 않습니다.`;
   const span = `${String(freq.from || '').slice(0, 4)}~${String(freq.to || '').slice(0, 7)}`;
   if (freq.n < 3) return `${label}: ${source}(${span})에서 같은 움직임이 ${freq.n}번뿐이라 빈도로 말하지 않습니다.`;
   const signed = (value) => `${value > 0 ? '+' : ''}${value}%`;
   // v57.79: a percentage needs at least 10 non-overlapping cases; below that the counts stand alone.
-  const base = Number.isFinite(freq.baseUpPct) && freq.n >= 10 ?` 비슷한 때 ${Math.round(freq.up / freq.n * 100)}% · 같은 기록 전체 거래일에서는 ${freq.baseUpPct}%가 올라, 둘의 차이가 이 조건이 더하는 정보입니다.` : '';
+  const sharePct = Math.round(freq.up / freq.n * 100);
+  const base = Number.isFinite(freq.baseUpPct) && freq.n >= 10
+    ? ` 비슷한 때 ${sharePct}% · 같은 기록 전체 거래일에서는 ${freq.baseUpPct}%가 올라, ${beyondBaseRate(freq.up / freq.n, freq.baseUpPct / 100, freq.n) ? '둘의 차이가 이 조건이 더하는 정보입니다.' : '차이는 표본 오차 범위 안이라 이 조건만의 정보로 보기 어렵습니다.'}`
+    : '';
   return `${label}: ${source}(${span})의 겹치지 않는 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 ${hasFinalConsonant(freq.subject || 'S&P 500') ? `${freq.subject || 'S&P 500'}이` : `${freq.subject || 'S&P 500'}가`} 올랐습니다 (중앙값 ${signed(freq.median)}${freq.p25 != null && freq.n >= 8 ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''}).${base}${freq.n < 10 ? ' 표본이 작아 경향 참고용입니다.' : freq.n < 30 ? ' 30번 미만의 작은 표본이라 비율은 참고용입니다.' : ''}`; // R706: 10-29 cases carry a small-sample note (codex audit F09)
 }

@@ -7,6 +7,7 @@ import { LIST_ITEM_BREAK, analysisLevelsAfterLabels, analysisProse, isNonMetricN
 import { sessionDateInMarket } from '../../src/domain/market/session-time.js';
 import { buildCloseSeries } from '../../src/domain/briefing/market-read.js';
 import { isConditionalNumericSentence } from '../../src/ai/response/publication.js';
+import { RULES } from '../../src/domain/rules/thresholds.js';
 
 const MARKET_ANALYSIS_QUOTE_DEFS = [
   { symbol: '^GSPC', metricId: 'market.spx', label: 'SPX', unit: 'index', aliases: ['S&P 500'] },
@@ -20,9 +21,11 @@ const MARKET_ANALYSIS_QUOTE_DEFS = [
 // v57.81: the completed-close series in history.json for each quote (see buildCompletedCloseBasis).
 const MARKET_ANALYSIS_HISTORY_FIELDS = Object.freeze({ 'market.spx': 'spx', 'market.vix': 'vix', 'market.us10y': 'tnx', 'market.dxy': 'dxy', 'market.wti': 'wti', 'market.gold': 'gold', 'market.kospi': 'kospi' });
 const MARKET_ANALYSIS_MACRO_DEFS = [
-  { key: 'cpi', metricId: 'macro.cpi', label: 'CPI', unit: 'percent', aliases: [] },
-  { key: 'fedRate', metricId: 'macro.fed-rate', label: 'FedRate', unit: 'percent', aliases: ['Fed rate', 'Fed funds'] },
-  { key: 'nfp', blsMetricId: 'nonfarmPayroll', metricId: 'macro.nfp-mom', label: 'NFP', unit: 'thousands', aliases: ['nonfarm payroll'] },
+  // Audit D9 (owner 2026-10-17): `basis` tells the model what the number measures, so "CPI 3.7%" is written as a
+  // year-over-year rate and NFP as a monthly change in thousands (the validator matches these values in the same units).
+  { key: 'cpi', metricId: 'macro.cpi', label: 'CPI', unit: 'percent', basis: '전년 대비, 계절조정 전(NSA)', aliases: [] },
+  { key: 'fedRate', metricId: 'macro.fed-rate', label: 'FedRate', unit: 'percent', basis: '실효 연방기금금리 월평균', aliases: ['Fed rate', 'Fed funds'] },
+  { key: 'nfp', blsMetricId: 'nonfarmPayroll', metricId: 'macro.nfp-mom', label: 'NFP', unit: 'thousands', basis: '전월 대비 증감, 천 명(1만 명 = 10천 명)', aliases: ['nonfarm payroll'] },
 ];
 
 function _validIsoDate(value) {
@@ -88,6 +91,7 @@ export function buildMarketAnalysisEvidence(data, options = {}) {
       label: def.label,
       value,
       unit: def.unit,
+      basis: def.basis,
       observedAt: asOf,
       collectedAt: data?.meta?.generatedAt || null,
       asOf,
@@ -136,8 +140,8 @@ function _analysisNumberAfterLabel(body, labels) {
 // Korean name the model actually writes — now has its % move checked against that metric's own changePct, a rate may
 // move only in bp, and an in-session value must be written as 장중 with its time.
 // v57.69: thresholds for the large-move rules in validateMarketAnalysisText (percent change vs the previous close).
-export const KOREA_MOVE_MENTION_PCT = 3;
-export const LARGE_MOVE_ATTRIBUTION_PCT = 1;
+export const KOREA_MOVE_MENTION_PCT = RULES.largeMove.attributionKospiPct;
+export const LARGE_MOVE_ATTRIBUTION_PCT = RULES.largeMove.attributionUsPct;
 export const MARKET_ANALYSIS_CLOSED_SESSIONS = Object.freeze(['MARKET_CLOSED', 'CLOSED_CURRENT', 'COMPLETED', 'CLOSED', 'REGULAR']);
 const MARKET_ANALYSIS_MENTIONS = Object.freeze({
   'market.spx': ['S&P\\s?500', 'SPX', 'S&P', '에스앤피\\s?(?:오백|500)'],
