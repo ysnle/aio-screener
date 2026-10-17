@@ -1,3 +1,7 @@
+## v58.08 (2026-10-17)
+- **data.json 로더 이전 1단계 (v58.08):** 화면별 데이터 완결성 검사(AIO.getPageDataCompleteness, data-aio-vertical-slice-* 속성)를 js/aio-core.js에서 src/data/page-completeness.js로 옮기고, 스크리너 산출물 상태를 _aioScreenerLoadState 전역 대신 네이티브 스크리너 슬라이스에서 읽는다(백테스트·현재 유니버스가 있으면 ready, 아니면 partial, 미기록 loading, 실패 unavailable). 레거시 data.json 로더와 스크리너 투영은 더 이상 스크리너 로드 상태를 쓰지 않으며, 로더의 초기 실패 사유는 로그로 남긴다. 화면 변화는 없고 완결성 속성은 CI 게이트만 읽는다.
+- R1 7곳 v58.08
+
 ## v58.07 (2026-10-17)
 - **레거시·ESM 통합 3단계 (v58.07):** js/aio-data.js가 네이티브 스크리너 상태를 복사해 두던 전역 10개(_aioServerScreener·_aioScreenerFactorAsOf·_aioScreenerFactorObservedAt·_aioFactorBacktest·_aioScreenerBreadthState·_breadthLiveData·_krBreadthLiveData·_breadth20/50/200)를 없애고, 데이터 신선도 줄·파이프라인 상태·팩터 백테스트 차트·AI 질의·심볼 순위·브레스 근거·증거 매트릭스·한국 브레스 카드가 AIO_ARCH.getScreenerState와 순수 모듈 src/domain/market/screener-breadth.js(window._aioScreenerBreadth)에서 직접 읽는다. 브레스 검증 기준은 동일(스키마 1.0, 커버리지 85%, 300종목, 96시간, 한국 100종목)하되 이제 읽는 시점에 검사하므로, 오래 열린 세션에서도 96시간 지난 관측은 현재로 읽지 않고 미국 구간이 실패하면 한국 카드가 이전 값을 유지하지 않는다.
 - R1 7곳 v58.07
