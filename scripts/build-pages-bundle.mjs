@@ -70,8 +70,9 @@ for (const file of GLOBAL_SCRIPTS) {
     sourcefile: file,
     logLevel: 'error'
   });
+  const outputFunctions = new Set([...result.code.matchAll(/(?:^|[^\w$.])function ([A-Za-z_$][\w$]*)\(/g)].map((match) => match[1]));
   const missing = [...new Set([...source.matchAll(TOP_LEVEL_FN_RE)].map((match) => match[1]))]
-    .filter((name) => !new RegExp(`(?:^|[^\\w$.])function ${name.replace(/\$/g, '\\$')}\\(`).test(result.code));
+    .filter((name) => !outputFunctions.has(name));
   if (missing.length) throw new Error(`${file}: minified output lost top-level function names: ${missing.slice(0, 10).join(', ')}`);
   fs.writeFileSync(full, result.code);
 }
