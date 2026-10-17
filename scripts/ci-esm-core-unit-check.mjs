@@ -4996,3 +4996,14 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const brokenReconciliation = await fetchServerData({ fetch: async (url) => (String(url).includes('data.json') ? { ok: true, json: async () => ({ meta: {} }) } : { ok: false, status: 404 }), now: () => now });
   if (failed.reason !== 'data.json HTTP 503' || invalid.reason !== 'invalid data.json payload' || brokenReconciliation.reconciliation.status !== 'unavailable' || brokenReconciliation.reconciliation.detail !== 'HTTP 404') fail(`server data: fetch failures: ${JSON.stringify({ failed, invalid, rec: brokenReconciliation.reconciliation })}`);
 }
+{
+  // Legacy unification (2026-10-17): the server macro projection.
+  const { applyServerMacro } = await load('src/data/server-macro.js');
+  const snapshot = { _fieldTs: {}, _dgs10Delta5: 0.3 };
+  const evidence = {};
+  const macro = { unemployment: 4.2, dgs10: 4.1, dgs10Delta5: 0.1, _source_dgs10: 'us-treasury-official-primary', _asOf_dgs10: '2026-10-16', _deltaAsOf_dgs10: '2026-10-15', pce: 2.5, _bea: { status: 'ok', lastSuccessfulAt: 'b' } };
+  const result = applyServerMacro({ data: { meta: { fredFetchOk: true, fredLastSuccessfulAt: 'f' }, macro }, snapshot, evidence });
+  if (snapshot.usUnemploy !== 4.2 || '_dgs10Delta5' in snapshot || evidence.pce?.source !== 'bea-official-primary' || evidence.pce.fetchedAt !== 'b' || evidence.unemployment?.fetchedAt !== 'f' || result.fredApplied !== 1 || result.beaApplied !== 1 || result.applied !== 3) {
+    fail(`server macro: unemployment mirror, misaligned Treasury delta and BEA source: ${JSON.stringify({ snapshot, evidence, result })}`);
+  }
+}

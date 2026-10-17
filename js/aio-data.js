@@ -4782,169 +4782,21 @@ async function _aioLoadServerData() {
       applyLiveQuotes(d.quotes);
     }
     // 2) 매크로 → DATA_SNAPSHOT (FRED 서버값, 채팅/macro 페이지가 소비)
-    var _serverMacroApplied = 0;
-    var _serverFredApplied = 0;
-    var _serverBeaApplied = 0;
     globalThis._serverMacroEvidence = window._serverMacroEvidence || {}; globalThis._aioServerMacro = d.macro && typeof d.macro === 'object' ? d.macro : null; // P1425: native 거시 boards read the published macro block (dates, deltas, freshness)
+    // FRED/BEA/BLS/HY OAS/surveys → DATA_SNAPSHOT + evidence: src/data/server-macro.js (bound by the compat bridge).
+    var _serverMacro = window._aioApplyServerMacro(d, window.DATA_SNAPSHOT, window._serverMacroEvidence, window._serverDataMeta);
+    var _serverFredApplied = _serverMacro.fredApplied;
+    if (_serverMacro.highYield) {
+      var _serverHy = _serverMacro.highYield.evidence;
+      Object.assign(window, { _hySpreadBp: _serverHy.valueBp, _hySpreadDate: _serverHy.observedAt, _hySpreadSource: _serverHy.source });
+      try {
+        if (window.AIO_ARCH && typeof window.AIO_ARCH.ingestSentiment === 'function') {
+          window.AIO_ARCH.ingestSentiment({ hySpread: _serverHy.valueBp, hySpreadSourceKind: _serverMacro.highYield.official ? 'delayed' : 'snapshot', hySpreadSource: _serverHy.source, hySpreadDate: _serverHy.observedAt || d.meta.generatedAt || null, hySpreadAllowedUse: 'reference', now: new Date().toISOString() });
+        }
+      } catch (_) {}
+    }
+    if (_serverMacro.aaiiBearish != null) window['_aaiiBearish'] = _serverMacro.aaiiBearish;
     if (d.macro && window.DATA_SNAPSHOT) {
-      // v51.97/Phase 2 [B2]: housingStarts/retailSales/usWageGrowth 서버 FRED 자동화 편입.
-      // consConf(Conf. Board)는 제외 유지 — FRED엔 해당 시리즈가 없고, UMCSENT(미시간대)는
-      // 별개 지표라 혼입 금지(P593).
-      ['cpi','coreCpi','cpiSa','coreCpiSa','pce','corePce','fedRate','fedTargetLower','fedTargetUpper','unemployment','nfp','housingStarts','retailSales','usWageGrowth','dgs2','dgs5','dgs10','dgs20','dgs30','t10y2y','realYield10','breakeven10'].forEach(function(k){
-        var _blsCanonicalCpi = d.macro._bls && d.macro._bls.series && d.macro._bls.series[k];
-        var _canonicalCpiDefinitionBlocked = (k === 'cpi' || k === 'coreCpi')
-          && _blsCanonicalCpi
-          && String(_blsCanonicalCpi.seasonalAdjustment || '').toUpperCase() !== 'NSA';
-        if (!_canonicalCpiDefinitionBlocked && typeof d.macro[k] === 'number' && isFinite(d.macro[k])) {
-          window.DATA_SNAPSHOT[k] = d.macro[k]; var _deltaAligned = d.macro['_source_' + k] !== 'us-treasury-official-primary' || (d.macro['_deltaAsOf_' + k] && d.macro['_deltaAsOf_' + k] === d.macro['_asOf_' + k]); /* Codex review 2026-10-05: no FRED change beside a newer Treasury level */ if (_deltaAligned && typeof d.macro[k + 'Delta5'] === 'number' && isFinite(d.macro[k + 'Delta5'])) window.DATA_SNAPSHOT['_' + k + 'Delta5'] = d.macro[k + 'Delta5']; else delete window.DATA_SNAPSHOT['_' + k + 'Delta5']; // P1390: one-week change for the briefing read
-          // P1142: 선언된 스냅샷 필드는 `usUnemploy`(aio-core DATA_SNAPSHOT 키)지만 서버 매크로 키는
-          // `unemployment`라 미러가 없었고, 선언 키를 읽는 가용성 소비자(aio-ui 매크로 컨텍스트)는
-          // 데이터가 있어도 null을 봤다 — 감사에서 발견된 키 3중 drift 통합.
-          if (k === 'unemployment') window.DATA_SNAPSHOT.usUnemploy = d.macro[k];
-          var _macroSource = d.macro['_' + 'source_' + k]
-            || ((k === 'pce' || k === 'corePce') && d.macro._bea && d.macro._bea.status === 'ok' ? 'bea-official-primary' : null)
-            || (d.meta.fredFetchOk ? 'fred-official-primary' : 'last-known-good');
-          window.DATA_SNAPSHOT['_' + k + '_src'] = _macroSource;
-          window._serverMacroEvidence[k] = {
-            observedAt: d.macro['_asOf_' + k] || null,
-            fetchedAt: _macroSource === 'bea-official-primary'
-              ? (d.macro._bea && d.macro._bea.lastSuccessfulAt || null)
-              : (d.meta.fredFetchOk ? d.meta.fredLastSuccessfulAt || d.meta.generatedAt || null : null),
-            releasedAt: _macroSource === 'bea-official-primary' && d.macro._bea ? d.macro._bea.releasedAt || null : null,
-            source: _macroSource,
-            allowedUse: _macroSource === 'last-known-good' ? 'reference-only' : 'macro-evidence-with-observation-date'
-          };
-          if (_macroSource === 'fred-official-primary') _serverFredApplied++;
-          if (_macroSource === 'bea-official-primary') _serverBeaApplied++;
-          if (window.DATA_SNAPSHOT._fieldTs && d.macro['_asOf_' + k]) {
-            window.DATA_SNAPSHOT._fieldTs['macro_' + k] = d.macro['_asOf_' + k];
-          }
-          _serverMacroApplied++;
-        }
-        // v51.67: FRED MoM delta 필드 소비
-        if (typeof d.macro[k + 'Delta'] === 'number' && isFinite(d.macro[k + 'Delta'])) {
-          window.DATA_SNAPSHOT['_' + k + 'Delta'] = d.macro[k + 'Delta'];
-        }
-      });
-      // AR-07 Batch 2: the durable FRED HY OAS value is the primary published
-      // success path. Do not wait for the browser's CORS/proxy fetch and never
-      // derive OAS from HYG's dollar price (duration-contaminated proxy).
-      if (typeof d.macro.hyOAS === 'number' && isFinite(d.macro.hyOAS)) {
-        var _serverHySpreadBp = Math.round(d.macro.hyOAS * 100); if (window.DATA_SNAPSHOT && typeof d.macro.hyOASDelta5 === 'number' && isFinite(d.macro.hyOASDelta5)) window.DATA_SNAPSHOT._hySpreadDelta5Bp = Math.round(d.macro.hyOASDelta5 * 100); // P1390
-        var _serverHySource = d.macro._source_hyOAS || 'last-known-good';
-        var _serverHyOfficial = _serverHySource === 'fred-official-public-csv' || _serverHySource === 'fred-official-primary';
-        var _serverHyEvidence = {
-          value: d.macro.hyOAS,
-          valueBp: _serverHySpreadBp,
-          observedAt: d.macro._asOf_hyOAS || null,
-          fetchedAt: _serverHyOfficial ? d.meta.generatedAt || null : null,
-          source: _serverHySource,
-          sourceKind: _serverHyOfficial ? 'T1_OFFICIAL' : 'T3_PUBLIC_DELAYED',
-          allowedUse: _serverHyOfficial ? 'reference-until-freshness-gate' : 'reference'
-        };
-        Object.assign(window, {
-          _hySpreadBp: _serverHySpreadBp,
-          _hySpreadDate: d.macro._asOf_hyOAS || null,
-          _hySpreadSource: _serverHySource
-        });
-        Object.assign(window.DATA_SNAPSHOT, {
-          hyOAS: d.macro.hyOAS,
-          hySpread: _serverHySpreadBp,
-          _hySpreadSource: _serverHySource
-        });
-        if (window.DATA_SNAPSHOT._fieldTs && d.macro._asOf_hyOAS) window.DATA_SNAPSHOT._fieldTs.hySpread = d.macro._asOf_hyOAS;
-        window._serverMacroEvidence.hyOAS = _serverHyEvidence;
-        if (window._serverDataMeta) window._serverDataMeta.hyOAS = _serverHyEvidence;
-        try {
-          if (window.AIO_ARCH && typeof window.AIO_ARCH.ingestSentiment === 'function') {
-            window.AIO_ARCH.ingestSentiment({
-              hySpread: _serverHySpreadBp,
-              hySpreadSourceKind: _serverHyOfficial ? 'delayed' : 'snapshot',
-              hySpreadSource: _serverHySource,
-              hySpreadDate: d.macro._asOf_hyOAS || d.meta.generatedAt || null,
-              hySpreadAllowedUse: _serverHyOfficial ? 'reference' : 'reference',
-              now: new Date().toISOString()
-            });
-          }
-        } catch (_) {}
-        _serverMacroApplied++;
-      }
-      // BLS stays a separate official evidence family. It is projected into
-      // namespaced snapshot fields and never silently replaces the FRED values
-      // above; the typed series retains observation/release/fetch semantics.
-      var _blsEvidence = d.macro._bls || null;
-      var _beaEvidence = d.macro._bea || null;
-      window._serverBlsMacro = _blsEvidence;
-      globalThis._serverBeaMacro = _beaEvidence;
-      if (window._serverDataMeta) {
-        window._serverDataMeta.bls = _blsEvidence ? {
-          status: _blsEvidence.status || 'unavailable',
-          sourceKind: _blsEvidence.sourceKind || 'T1_OFFICIAL',
-          attemptedAt: _blsEvidence.attemptedAt || null,
-          fetchedAt: _blsEvidence.fetchedAt || null,
-          lastSuccessfulAt: _blsEvidence.lastSuccessfulAt || null,
-          releaseAt: _blsEvidence.releaseAt || null,
-          failures: Array.isArray(_blsEvidence.failures) ? _blsEvidence.failures.slice() : [],
-          series: _blsEvidence.series || {}
-        } : null;
-        window._serverDataMeta.bea = _beaEvidence ? {
-          status: _beaEvidence.status || 'unavailable',
-          sourceKind: _beaEvidence.sourceKind || 'T1_OFFICIAL',
-          attemptedAt: _beaEvidence.attemptedAt || null,
-          fetchedAt: _beaEvidence.fetchedAt || null,
-          lastSuccessfulAt: _beaEvidence.lastSuccessfulAt || null,
-          releasedAt: _beaEvidence.releasedAt || null,
-          nextReleaseAt: _beaEvidence.nextReleaseAt || null,
-          observedAt: _beaEvidence.observedAt || null,
-          releaseUrl: _beaEvidence.releaseUrl || null,
-          values: _beaEvidence.values || {}
-        } : null;
-      }
-      if (_blsEvidence && _blsEvidence.values) {
-        Object.keys(_blsEvidence.values).forEach(function(k) {
-          var value = _blsEvidence.values[k];
-          if (typeof value !== 'number' || !isFinite(value)) return;
-          window.DATA_SNAPSHOT[k] = value;
-          window.DATA_SNAPSHOT['_' + k + '_src'] = 'bls-official-primary';
-        });
-        if (window.DATA_SNAPSHOT._fieldTs && (_blsEvidence.lastSuccessfulAt || _blsEvidence.fetchedAt)) {
-          window.DATA_SNAPSHOT._fieldTs.macro_bls = _blsEvidence.lastSuccessfulAt || _blsEvidence.fetchedAt;
-        }
-      }
-      // BLS headline/core CPI fields are canonical only when the typed series
-      // explicitly says NSA.  The SA companions remain namespaced and visible
-      // for analysis; they never overwrite the market-standard slots.
-      var _blsCpiPromotions = [
-        { metricId: 'cpi', valueKey: 'blsCpiYoY', snapshotKey: 'cpi', saMetricId: 'cpiSa', saValueKey: 'blsCpiSaYoY', saSnapshotKey: 'cpiSa' },
-        { metricId: 'coreCpi', valueKey: 'blsCoreCpiYoY', snapshotKey: 'coreCpi', saMetricId: 'coreCpiSa', saValueKey: 'blsCoreCpiSaYoY', saSnapshotKey: 'coreCpiSa' }
-      ];
-      _blsCpiPromotions.forEach(function(definition) {
-        var standard = _blsEvidence && _blsEvidence.series && _blsEvidence.series[definition.metricId];
-        var standardValue = _blsEvidence && _blsEvidence.values ? Number(_blsEvidence.values[definition.valueKey]) : NaN;
-        if (standard && standard.status === 'ok' && String(standard.seasonalAdjustment || '').toUpperCase() === 'NSA' && isFinite(standardValue)) {
-          window.DATA_SNAPSHOT[definition.snapshotKey] = standardValue;
-          window.DATA_SNAPSHOT['_' + definition.snapshotKey + '_src'] = standard.source || 'bls-official-primary';
-          window.DATA_SNAPSHOT['_' + definition.snapshotKey + '_definition'] = standard.definition || 'BLS CPI-U NSA';
-          if (window.DATA_SNAPSHOT._fieldTs && standard.observedAt) window.DATA_SNAPSHOT._fieldTs['macro_' + definition.snapshotKey] = standard.observedAt;
-          if (window._serverMacroEvidence) window._serverMacroEvidence[definition.snapshotKey] = Object.assign({}, window._serverMacroEvidence[definition.snapshotKey] || {}, {
-            value: standardValue,
-            observedAt: standard.observedAt || null,
-            source: standard.source || 'BLS Public Data API v1',
-            sourceKind: standard.sourceKind || 'T1_OFFICIAL',
-            seasonalAdjustment: 'NSA',
-            definition: standard.definition || null,
-            allowedUse: standard.allowedUse || 'macro-evidence-with-observation-date'
-          });
-        }
-        var sa = _blsEvidence && _blsEvidence.series && _blsEvidence.series[definition.saMetricId];
-        var saValue = _blsEvidence && _blsEvidence.values ? Number(_blsEvidence.values[definition.saValueKey]) : NaN;
-        if (sa && sa.status === 'ok' && String(sa.seasonalAdjustment || '').toUpperCase() === 'SA' && isFinite(saValue)) {
-          window.DATA_SNAPSHOT[definition.saSnapshotKey] = saValue;
-          window.DATA_SNAPSHOT['_' + definition.saSnapshotKey + '_src'] = sa.source || 'bls-official-primary';
-          window.DATA_SNAPSHOT['_' + definition.saSnapshotKey + '_definition'] = sa.definition || 'BLS CPI-U SA analytical companion';
-          if (window.DATA_SNAPSHOT._fieldTs && sa.observedAt) window.DATA_SNAPSHOT._fieldTs['macro_' + definition.saSnapshotKey] = sa.observedAt;
-        }
-      });
       var _serverTreasuryProjection = _aioApplyServerTreasuryEvidence(d.macro, window._serverDataMeta);
       if (window._serverDataMeta) {
         window._serverDataMeta.treasury = d.macro._treasury ? Object.freeze({
@@ -4953,41 +4805,6 @@ async function _aioLoadServerData() {
           values: Object.freeze({ ...(d.macro._treasury.values || {}) })
         }) : null;
         window._serverDataMeta.treasuryProjectedFields = _serverTreasuryProjection.fields;
-      }
-      if (_beaEvidence && _beaEvidence.status === 'ok' && window.DATA_SNAPSHOT._fieldTs && (_beaEvidence.releasedAt || _beaEvidence.lastSuccessfulAt)) {
-        window.DATA_SNAPSHOT._fieldTs.macro_bea = _beaEvidence.releasedAt || _beaEvidence.lastSuccessfulAt;
-      }
-      // Publisher sentiment surveys are an operator-captured WebSearch artifact.
-      // Project dated values for reference UI only; never treat them as a live
-      // trading input or manufacture a replacement when a source is stale.
-      var _marketSurveys = d.marketSurveys || {};
-      var _officialWebReferences = d.officialWebReferences || {};
-      var _aaiiSurvey = _marketSurveys.aaii || null;
-      if (_aaiiSurvey && typeof _aaiiSurvey.bearish === 'number' && isFinite(_aaiiSurvey.bearish)) {
-        window.DATA_SNAPSHOT.aaiiBull = typeof _aaiiSurvey.bullish === 'number' ? _aaiiSurvey.bullish : null;
-        window.DATA_SNAPSHOT.aaiiNeutral = typeof _aaiiSurvey.neutral === 'number' ? _aaiiSurvey.neutral : null;
-        window.DATA_SNAPSHOT.aaiiBear = _aaiiSurvey.bearish;
-        window['_aaiiBearish'] = _aaiiSurvey.bearish;
-        window.DATA_SNAPSHOT._aaiiSource = _aaiiSurvey.sourceUrl || null;
-        if (window.DATA_SNAPSHOT._fieldTs && _aaiiSurvey.observedAt) window.DATA_SNAPSHOT._fieldTs.aaii = _aaiiSurvey.observedAt;
-      }
-      // P1737 (2026-10-13): NAAIM is retired — the official page shows only an undated three-month-delayed number that
-      // cannot be verified against the page, so no NAAIM value is projected (DATA_SNAPSHOT.naaimExposure stays null).
-      if (window._serverDataMeta) {
-        window._serverDataMeta.marketSurveys = {
-          status: _marketSurveys.policy || 'unavailable',
-          checkedAt: _marketSurveys.checkedAt || null,
-          aaii: _aaiiSurvey,
-          investorsIntelligence: _marketSurveys.investorsIntelligence || null
-        };
-        window._serverDataMeta.officialWebReferences = _officialWebReferences;
-      }
-      var _webReferenceSnapshot = window.DATA_SNAPSHOT;
-      if (_officialWebReferences.krExports && _webReferenceSnapshot) {
-        _webReferenceSnapshot.krExportReference = _officialWebReferences.krExports;
-        if (_webReferenceSnapshot._fieldTs && _officialWebReferences.krExports.observedAt) {
-          _webReferenceSnapshot._fieldTs.krExportReference = _officialWebReferences.krExports.observedAt;
-        }
       }
     }
     // P1737: the producer's Fed range (policyRates.fed) and the official web-reference artifact replace the hand-kept
