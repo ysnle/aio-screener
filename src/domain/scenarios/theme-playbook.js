@@ -174,7 +174,7 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
   const proxyRelative = proxyOutcome?.basis === 'relative-banded' && proxyOutcome.rule === THEME_STAGE_RULE && (proxyOutcome.benchmark || 'spx') === (bench?.field || THEME_BENCHMARKS[market]?.field);
   const proxy = state && state !== 'fading' && proxyRelative ? outcomes?.themes?.[id]?.[state] : null;
   const proxySymbol = outcomes?.themes?.[id]?.symbol;
-  const windowName = `${WINDOW_LABELS[trendKey]}·1개월, ${bench ? `${benchName} 대비` : '절대 수익률(지수 비교 불가)'}${reference ? ` · 참고: ${reference.name} 대비 ${WINDOW_LABELS[trendKey]} ${pct(reference.trend).replace('%', '%p')}` : ''}`;
+  const windowName = `${WINDOW_LABELS[trendKey]}·1개월, ${bench ? `${benchName} 대비` : '절대 수익률(지수 비교 불가)'}${reference ? ` · 참고: ${reference.name} 대비 ${WINDOW_LABELS[trendKey]} ${pct(reference.trend).replace(/%$/, '%p')}` : ''}`;
   const recentClause = recent && (contradicted || recent.broken)
     ? ` · ${recentMoveText(recent, { benchmarkName: benchName })}${contradicted ? `, 평소 1주 움직임의 2배를 넘는 ${upClaim ? '급락' : '반등'} — 1개월 판정 보류` : ''}`
     : '';
