@@ -10,6 +10,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.93 core row encoding
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const ROOT = `${__dir}/..`;
@@ -110,7 +111,7 @@ export function consensusPriority(screener) {
     const sym = String(row?.[symAt] || '').toUpperCase(); const weight = Number(row?.[weightAt]);
     if (sym && Number.isFinite(weight)) priority[sym] = { ...(priority[sym] || {}), weight };
   }
-  for (const [sym, row] of Object.entries(screener?.data || {})) {
+  for (const [sym, row] of Object.entries(expandScreenerArtifact(screener)?.data || {})) {
     const value = Number(row?.dollarVolume30d);
     if (Number.isFinite(value) && (!row?.dollarVolumeCurrency || row.dollarVolumeCurrency === 'USD')) priority[sym.toUpperCase()] = { ...(priority[sym.toUpperCase()] || {}), dollarVolume30d: value };
   }

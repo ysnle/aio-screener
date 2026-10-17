@@ -11,6 +11,7 @@ import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { SHARED_AI_MODEL, extractCompletedResponseText, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
 import { marketAnalysisDiagnostic, summarizeOperationalChecks, workflowCadence, operationalSummary } from './lib/operational-health.mjs';
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.93 core row encoding
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -1860,7 +1861,7 @@ const screenerPageSource = read('src/ui/pages/screener.js');
 check('P1170 D04 the screener reads the session date instead of presenting the bar start as an observation',
   screenerPageSource.includes('factorSessionDate') && /관측시각 아님|관측시각이 아닙니다/.test(screenerPageSource));
 
-const producedScreeners = JSON.parse(read('public-data/screener.json'));
+const producedScreeners = expandScreenerArtifact(JSON.parse(read('public-data/screener.json')));
 const producedRows = Object.values(producedScreeners.data || {}).filter((row) => row && row.factorBarStart);
 if (producedRows.length) {
   check('P1170 D04 produced rows carry a session date and an explicit bar-start basis',

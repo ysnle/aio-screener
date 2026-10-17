@@ -40,7 +40,7 @@ import { buildScenarioOutlook, renderScenarioOutlookContext } from '../src/domai
 import { buildMacroRead } from '../src/domain/macro/macro-read.js';
 import { buildMacroCrossroads, upcomingMacroEvents, renderMacroCrossroadsContext } from '../src/domain/market/macro-crossroads.js';
 import { round } from './lib/producer-math.mjs';
-import { EXTENDED_SHARD_SCHEMA, RANKING_CONTRACTS, encodeShardRows, isValidShard } from '../src/data/screener-extended.js'; // v57.81
+import { EXTENDED_SHARD_SCHEMA, RANKING_CONTRACTS, encodeScreenerArtifact, encodeShardRows, expandScreenerArtifact, isValidShard } from '../src/data/screener-extended.js'; // v57.81; v57.93 core encoding
 import { _mean, closesToFactors, backtestFactors } from './lib/factors.mjs'; // v57.62 split
 import { deriveFactorQuality, isSessionComplete, sessionSegmentOfSymbol, listingCurrencyOf, dailyRowsFromYahooChart, priceHistoryFromRows, priceFactorRow } from '../src/domain/screener/price-factors.js'; // v57.81: shared with the browser
 import { indexReturnsByDate } from '../src/domain/technical/follow-through.js'; // v57.87: down-day resilience
@@ -1601,7 +1601,7 @@ async function _enrichTickerNews(prioSyms, data) {
   // v57.51: the same ETF rule as breadth and SEC (sector SPDRs carry a GICS sector but index 'ETF').
   const eligible = prioSyms.filter((sym) => data[sym] && meta.has(sym) && screenerAssetType(meta.get(sym)) !== 'ETF' && names[sym]);
   let previous = {};
-  try { previous = JSON.parse(await readFile(SCREENER_OUT, 'utf8')).data || {}; } catch (_) { previous = {}; }
+  try { previous = expandScreenerArtifact(JSON.parse(await readFile(SCREENER_OUT, 'utf8'))).data || {}; } catch (_) { previous = {}; }
   const nowMs = Date.now();
   const plan = planTickerNewsTargets(eligible, nowMs);
   const tickerNewsResults = await mapLimit(plan.targets, 3, async (sym) => {
@@ -1809,7 +1809,8 @@ export async function enrichScreener() {
     data,
     backtest,
   };
-  await atomicWriteFile(SCREENER_OUT, JSON.stringify(payload));
+  // v57.93: rows are written in the row-defaults encoding (shared lineage once per file); readers expand it.
+  await atomicWriteFile(SCREENER_OUT, JSON.stringify(encodeScreenerArtifact(payload)));
   // P1465: record today's default-profile candidates (the page's own ranking path on the files just
   // written) and fill the outcomes of entries whose 21-session window has closed. Non-fatal.
   try {

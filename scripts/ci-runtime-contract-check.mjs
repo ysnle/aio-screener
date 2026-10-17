@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import { readProducerSource } from './lib/producer-source.mjs';
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.93 core row encoding
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -652,7 +653,7 @@ check(
 );
 
 try {
-  const screenerPayload = JSON.parse(read('public-data/screener.json'));
+  const screenerPayload = expandScreenerArtifact(JSON.parse(read('public-data/screener.json')));
   const rows = Object.values(screenerPayload.data || {});
   const vcpRows = rows.filter((row) => row && typeof row.vcpScore === 'number');
   const stages = new Set(rows.map((row) => row && row.vcpStage).filter(Boolean));

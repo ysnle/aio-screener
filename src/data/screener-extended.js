@@ -15,6 +15,9 @@ export const MEMBERSHIP_TAGS = Object.freeze({ R2000: 'RUSSELL2000', NASDAQ: 'NA
 // Fields shared by most rows are written once per shard. Rows that carry a `when` key also take that group's
 // defaults (fundamental lineage repeats on every SEC-backed row). The key that switches a group is never hoisted.
 export const EXTENDED_DEFAULT_GROUPS = Object.freeze(['fundamentalSource', 'valuationPrice']);
+// The core artifact (screener.json) uses the same encoding; its news rows add one group (newsMemoVerified repeats on
+// every row with a memo). Readers take the groups from the file, so the list only steers the producer.
+export const CORE_DEFAULT_GROUPS = Object.freeze([...EXTENDED_DEFAULT_GROUPS, 'newsMemo']);
 
 // Ranking contracts. Percentiles are recomputed in the browser over the rows that arrived: the core contract over the
 // core universe only (the published reading, candidate record and validation use it), the extended contract over
@@ -146,10 +149,52 @@ export function expandShardRow(shard, row) {
 export function expandShardRows(shard) {
   const data = shard?.data && typeof shard.data === 'object' && !Array.isArray(shard.data) ? shard.data : {};
   const out = {};
-  for (const [sym, row] of Object.entries(data)) {
-    const expanded = expandShardRow(shard, row);
-    if (expanded) out[sym] = expanded;
+  if (shard?.rowEncoding !== EXTENDED_ROW_ENCODING) {
+    for (const [sym, row] of Object.entries(data)) if (row && typeof row === 'object') out[sym] = { ...row };
+    return out;
   }
+  // Same result as expandShardRow per row, with the defaults merged once per group combination (core: ~1,100 rows
+  // x ~35 hoisted keys on every screener read). Nested default values are shared between rows, as before.
+  const groups = (Array.isArray(shard.rowDefaultsWhen) ? shard.rowDefaultsWhen : []).filter((group) => group && typeof group.when === 'string');
+  const merged = new Map();
+  for (const [sym, row] of Object.entries(data)) {
+    if (!row || typeof row !== 'object') continue;
+    let mask = 0;
+    groups.forEach((group, index) => { if (Object.prototype.hasOwnProperty.call(row, group.when)) mask |= 1 << index; });
+    let base = merged.get(mask);
+    if (!base) {
+      base = { ...(shard.rowDefaults || {}) };
+      groups.forEach((group, index) => { if (mask & (1 << index)) Object.assign(base, group.defaults || {}); });
+      merged.set(mask, base);
+    }
+    out[sym] = Object.assign({}, base, row);
+  }
+  return out;
+}
+
+// v57.93: screener.json carries its rows in the same row-defaults encoding (3.5 MB -> ~1.8 MB raw). The producer
+// writes encodeScreenerArtifact(payload); every reader of the file goes through expandScreenerArtifact, which returns
+// the plain shape ({ ...meta, data: { sym: fullRow } }) and passes an unencoded artifact (fixtures, older files) through.
+const ENCODING_KEYS = ['rowEncoding', 'rowDefaults', 'rowDefaultsWhen'];
+
+export function encodeScreenerArtifact(payload = {}, { groups = CORE_DEFAULT_GROUPS } = {}) {
+  const { data = {}, ...meta } = payload || {};
+  const encoded = encodeShardRows(data, { groups });
+  const out = {};
+  for (const [key, value] of Object.entries(meta)) if (!ENCODING_KEYS.includes(key)) out[key] = value;
+  return { ...out, rowEncoding: encoded.rowEncoding, rowDefaults: encoded.rowDefaults, rowDefaultsWhen: encoded.rowDefaultsWhen, data: encoded.data };
+}
+
+const expandedArtifacts = new WeakMap();
+export function expandScreenerArtifact(artifact) {
+  if (!artifact || typeof artifact !== 'object' || artifact.rowEncoding !== EXTENDED_ROW_ENCODING) return artifact;
+  // The provider re-derives rows from one held response on every live-quote tick; expand that object once.
+  const held = expandedArtifacts.get(artifact);
+  if (held) return held;
+  const out = {};
+  for (const [key, value] of Object.entries(artifact)) if (!ENCODING_KEYS.includes(key) && key !== 'data') out[key] = value;
+  out.data = expandShardRows(artifact);
+  expandedArtifacts.set(artifact, out);
   return out;
 }
 
