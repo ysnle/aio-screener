@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1914 - v58.04 - 확장 범위(5,057행)에서 스크리너 표가 입력 뒤 수백 ms마다 다시 그려지고 화면이 수 초씩 멈춤 (2026-10-17)
+
+- symptom/reproduction: 확장 범위에서 정렬·섹터·검색을 바꾸면 6초 안에 표가 최대 43번 다시 만들어지고 후속 계산이 약 54초(겹친 long task 합)에 달했다. 클릭 대상 버튼이 사라져 확장 브라우저 검사가 간헐적으로 실패했다(PR #24 병합 때 발견).
+- root_cause: 렌더마다 보이는 행 시세를 요청하고, 그 시세 전용 새로고침의 aio:refresh:done이 스크리너 전 행 재구성(provider+normalize+재순위, 5천 행에서 1~10초)을 다시 돌렸다. 시세가 안 오면 4초 간격 재시도가 같은 일을 반복했고, 겹친 재구성은 각자 끝까지 계산한 뒤에야 폐기됐다.
+- fix: src/app/bootstrap.js: 강제가 아닌 시세 전용 새로고침 완료는 재구성하지 않는다(시세 도착은 aio:liveQuotes가 처리). 실행 중에 온 refresh:false 동기화는 한 번의 후속 실행으로 합친다. src/ui/pages/screener.js: 정렬 키를 행당 한 번 계산, 입력이 같으면 필터·정렬 결과 재사용, 시장 슬라이스 캐시(팩터 겹침 캐시 적중), 입력이 같은 표 행은 노드 유지.
+- violated_rule: 부분 갱신 이벤트(시세 전용)는 전체 재구성을 부르지 않고, 겹친 비싼 계산은 하나로 합친다.
+- prevention: ci-screener-workbench-contract.mjs G-SCR-RENDER(정렬 순서가 기존 비교기와 전 열·양방향 동일), ci-screener-extended-browser-check.mjs에 '입력 없이 안정된 표가 다시 만들어지지 않음' 단언 추가(수정 전 실패, 수정 후 통과).
+- verification/residual: node scripts/ci-screener-workbench-contract.mjs; node scripts/ci-screener-extended-browser-check.mjs; node scripts/ci-screener-auto-refresh-browser-check.mjs
+
 ## P1913 - v58.03 - 거시·브리핑·포트폴리오 해석이 서로 다른 기준·월·가중을 써서 판정이 어긋남 (2026-10-17)
 
 - symptom/reproduction: 금리 체인이 정책 축과 다른 정책금리 중간값을 썼고, 인플레 재가속 판정이 다른 달의 YoY와 속도를 비교했다. 근원 PCE 2% 미만에도 '목표보다 높지만'으로 서술했고, 브렌트/WTI 괴리가 0.2%p 절벽에서 뒤집혔다. 유사 국면 기준률이 데이터 없는 세션까지 셌고, 포트폴리오 비중이 한 티커의 여러 로트를 무시했으며, 기여도가 오늘 평가액으로 가중돼 미래 정보를 썼다. 짧은 현금 시계열은 NaN, 휴장 공백은 수익률을 떨어뜨렸다. AI 검증기는 조건문·'매수세'·'사라지다'를 매매 지시로 오판했고, 행위 분류기는 MNPI 매매와 체결 방법 질문을 놓쳤다.
