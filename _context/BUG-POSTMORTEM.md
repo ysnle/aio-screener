@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1916 - v58.14 - 대시보드 '섹터 등락'의 RRG 사분면이 테마·섹터 화면과 달랐음 (XLB·XLY·XLF·XLU) (2026-10-18)
+
+- symptom/reproduction: 2026-10-16 종가 기준 대시보드 '섹터 등락'은 XLB·XLY·XLF를 '기준선 부근', XLU를 '선도'로 표시했지만 테마·섹터 화면은 넷 다 '개선'으로 표시했다.
+- root_cause: src/ui/components/sector-moves.js만 마지막 한 점에 고정 ±1 밴드를 적용하는 rrgZone(rsRatio, rsMomentum)을 썼다. 다른 화면은 v57.84 소유자 결정(3-3 안 A)에 따라 20세션 trail에서 구한 자기 5거래일 밴드와 히스테리시스(rrgSettledQuadrant)를 쓴다. 대시보드가 이 정본에서 빠진 유일한 판독기였다.
+- fix: sector-moves.js가 rrgSettledQuadrant(row)를 사용한다(Border는 '기준선 부근'). 11개 섹터 모두 대시보드와 테마·섹터 화면의 사분면이 일치한다.
+- violated_rule: 같은 지표의 판정은 모든 화면이 하나의 공유 분류기를 쓴다.
+- prevention: ci-scenario-guidance-fixture.mjs에 고정 밴드에선 경계, trail 밴드에선 개선이 되는 XLY 행으로 대시보드 판정이 공유 분류기와 같은지 단언한다(수정 전 실패, 수정 후 통과).
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs
+
 ## P1915 - v58.10 - history.json 행마다 pcr 열 유무가 달라 열 일관성 게이트가 유예 만료 뒤 main CI를 막음 (2026-10-18)
 
 - symptom/reproduction: 2026-10-18 00:00Z에 artifact-semantics 검사의 유예가 끝나자 main과 모든 PR CI가 'every history row exposes the same column set: 6 rows differ'로 실패했다. 10/9~10/16 6개 행에만 pcr이 있고 최신 10/17 행을 포함한 414개 행에는 pcr 열이 없었다.
