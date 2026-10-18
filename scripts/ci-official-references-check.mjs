@@ -357,7 +357,7 @@ async function single(id, candidate, options = {}) {
   // Review follow-up (#19): krExports failed as a bare source-fetch-failed; the network cause must reach the run log.
   const tlsError = Object.assign(new TypeError('fetch failed'), { cause: Object.assign(new Error('unable to verify the first certificate'), { code: 'UNABLE_TO_VERIFY_LEAF_SIGNATURE' }) });
   const failed = await fetchOfficialPage(URLS.exports, ['customs.go.kr'], { fetchImpl: async () => { throw tlsError; } });
-  check('official page fetch failure keeps its reason and carries the network cause', failed.ok === false && failed.reason === 'source-fetch-failed'
+  check('P1734 an official page fetch failure keeps its reason and carries the network cause', failed.ok === false && failed.reason === 'source-fetch-failed'
     && failed.detail === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE', JSON.stringify(failed));
 }
 
