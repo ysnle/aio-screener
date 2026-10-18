@@ -1024,7 +1024,7 @@ body {
 .briefing-ai:has(> [hidden]) { display: none; }
 .briefing-ai-label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
 .briefing-ai > div:last-child { font-size: 14px; line-height: 1.8; color: var(--text-secondary); }
-.briefing-driver-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0 32px; }
+.briefing-driver-grid { display: block; columns: 300px 3; column-gap: 32px; } /* layout review 2026-10-18: five groups of uneven height flow into balanced columns instead of a grid row with an empty third cell */ .briefing-driver-grid > * { break-inside: avoid; }
 /* P1599 (F101): 1d/5d move bars from a zero line; % and bp blocks never share a scale. */
 .briefing-move-chart { display: grid; grid-template-columns: minmax(0, 560px) minmax(0, 360px); align-items: start; gap: 8px 48px; margin: 4px 0 18px; }
 .briefing-move-head { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }

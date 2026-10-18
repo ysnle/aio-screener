@@ -14,11 +14,11 @@ last_verified: 2026-10-18
 - Version: `v58.22`
 - Architecture: `hybrid-static-shell-native-esm`
 - Active routes: 19 (source: `architecture/route-owners.json`)
-- App shell: 7,067 lines / 548,581 bytes
+- App shell: 7,067 lines / 548,730 bytes
 
 | Source | Lines | Bytes |
 |---|---:|---:|
-| `index.html` | 7,067 | 548,581 |
+| `index.html` | 7,067 | 548,730 |
 | `js/aio-core.js` | 19,004 | 1,136,493 |
 | `js/aio-data.js` | 14,063 | 887,130 |
 | `js/aio-ui.js` | 4,383 | 259,073 |
