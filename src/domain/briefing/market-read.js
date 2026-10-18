@@ -1242,6 +1242,9 @@ export function buildMarketRegime(input = {}) {
     if (!tnx || tnx20 == null) state = 'unknown';
     else if (latch.on) state = 'burden';
     else if (tnx20 <= -R.move20dBp) state = 'favorable';
+    // Owner 2026-10-18: 중립 judges the move, not the level — a 10-year in the upper third of its year range is named, so
+    // "중립" never reads as "rates are low".
+    const neutralLevel = tnx?.yearPosition != null && tnx.yearPosition >= R.levelHighThird ? ` 방향은 중립이지만 10년물 ${fmt(tnx.value)}%는 1년 범위 ${fmt(tnx.yearPosition * 100, 0)}% 위치로 수준 자체는 높은 편입니다${r.realYield10 != null ? `(실질금리 ${fmt(r.realYield10)}%)` : ''}.` : '';
     const realLed = real5 != null && bei5 != null && real5 > 0 && Math.abs(real5) >= Math.abs(bei5);
     // P1592 (F44): name the window — a 20-day rise with a small 5-day pullback is not 'rising now'.
     const rateMove = tnx20 != null && tnx20 >= RULES.rates.move20dBp
@@ -1252,8 +1255,8 @@ export function buildMarketRegime(input = {}) {
       : state === 'favorable' ? '장기금리가 내려오는 구간 — 할인율 부담이 줄고 있습니다.'
         : state === 'unknown' ? (tnx ? '10년물 20일 변화를 계산할 기록이 부족합니다.' : staleRead('금리', alignments.tnx))
           // v57.55 review (E2-09): "+22bp" read as "뚜렷한 방향 없이" — below the burden bar is not the same as no direction.
-          : Math.abs(tnx20) >= RULES.rates.move20dBp / 2 ? `장기금리가 20거래일 ${signed(tnx20, 0, 'bp')} ${tnx20 > 0 ? '올랐지만' : '내렸지만'} 판정 기준(±${RULES.rates.move20dBp}bp)에는 못 미칩니다${atHigh ? ' · 1년 범위 상단' : ''}.`
-            : '금리가 뚜렷한 방향 없이 움직이고 있습니다.';
+          : (Math.abs(tnx20) >= RULES.rates.move20dBp / 2 ? `장기금리가 20거래일 ${signed(tnx20, 0, 'bp')} ${tnx20 > 0 ? '올랐지만' : '내렸지만'} 판정 기준(±${RULES.rates.move20dBp}bp)에는 못 미칩니다${atHigh ? ' · 1년 범위 상단' : ''}.`
+            : '금리가 뚜렷한 방향 없이 움직이고 있습니다.') + neutralLevel;
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `10년물 20일 변화 +${RULES.rates.move20dBp}bp 미만(현재 ${signed(tnx20, 0, 'bp')})이고, 1년 범위 위치가 ${R.rangeExitAt * 100}% 아래로 내려오거나 20일 상승이 +${R.exit20dBp}bp 아래로 줄면 중립으로 바뀜`
         : state === 'favorable' ? `10년물 20일 변화가 -${RULES.rates.move20dBp}bp 위로 올라오면 중립, +${RULES.rates.move20dBp}bp 이상이면 부담`

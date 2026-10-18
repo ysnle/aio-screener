@@ -2662,7 +2662,7 @@ function _fetchDomainContextForChat(ctxId) {
       // P576/P713 계열 표면(2026-07-18): AI 컨텍스트는 HYG 달러 가격 대신 FRED HY OAS(bp) 실측을 우선 인용 —
       // HYG 가격은 듀레이션(금리) 노출이 섞여 있어 AI가 신용 레벨로 오인용할 위험이 있음.
       var hyOasBpChat = Number(window._hySpreadBp);
-      if (dxy != null) lines.push('• 달러(DXY): ' + dxy.toFixed(2) + (dxy >= 100 ? ' (강세권·EM 압박)' : ' (약세권·원자재/EM에 유리)'));
+      if (dxy != null) lines.push('• 달러(DXY): ' + dxy.toFixed(2) + ' (수준 — 달러 강약은 시장 상태의 20거래일 변화 기준으로 판단)'); /* owner 2026-10-18: no fixed 100 강세권 line */
       if (tnx != null || twoY != null) lines.push('• 미 국채: ' + (tnx != null ? '10Y ' + tnx.toFixed(2) + '%' : '') + (twoY != null ? ' · 2Y ' + twoY.toFixed(2) + '%' : '') + (spreadBp != null ? ' · 2s10s ' + spreadBp + ' (' + spreadBasis + (spread < 0 ? ' · 역전' : '') + ')' : ''));
       if (isFinite(hyOasBpChat)) lines.push('• 크레딧(HY OAS): ' + Math.round(hyOasBpChat) + 'bp' + (hyg != null ? ' · HYG $' + hyg.toFixed(2) + '(참고 가격)' : ''));
       else if (hyg != null) lines.push('• 크레딧(HYG 가격, OAS 미수신): ' + hyg.toFixed(2) + ' — 절대 스프레드 수준 아님, 방향 참고만');
@@ -3222,7 +3222,7 @@ async function _fetchTickerDataForChat(tickers, opts) {
       // market-wide verdict is the 시장 상태 screen's overall (same axes and counts the user sees).
       var _regimeSum = _close ? _close.regime : (typeof window._aioMarketRegimeSummary === 'function' ? window._aioMarketRegimeSummary() : null);
       var _overallLine = _regimeSum && _regimeSum.overall
-        ? '• **시장 상태 종합**: ' + _regimeSum.overall + (_regimeSum.counts ? ' (양호 ' + _regimeSum.counts.favorable + ' · 중립 ' + _regimeSum.counts.neutral + ' · 부담 ' + _regimeSum.counts.burden + ')' : '') + (_regimeSum.asOf ? ' · ' + _regimeSum.asOf + ' 종가' : '') + '\n'
+        ? '• **시장 상태 종합**: ' + _regimeSum.overall + (_regimeSum.counts ? ' (양호 ' + _regimeSum.counts.favorable + ' · 중립 ' + _regimeSum.counts.neutral + ' · 부담 ' + _regimeSum.counts.burden + ')' : '') + (_regimeSum.leadership === 'break' ? ' · 주도 영역(나스닥 100·반도체) 이탈' : _regimeSum.leadership === 'weak' ? ' · 주도 영역 약세(확산 미확인)' : '') + (_regimeSum.asOf ? ' · ' + _regimeSum.asOf + ' 종가' : '') + '\n'
         : '';
       var _marketAsOf;
       if (_close) {

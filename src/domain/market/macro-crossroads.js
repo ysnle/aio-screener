@@ -19,6 +19,7 @@ export const MACRO_CROSSROADS_VERSION = 'macro-crossroads.v2';
 
 const G = RULES.growth;
 const P = RULES.policy;
+const L = RULES.leadership;
 const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;
 const last = (series) => series.length ? series[series.length - 1] : null;
 // v57.54 review: "20거래일" counts open sessions like 시장 상태 and 거시 (sessionPointBack), not array slots — a gap
@@ -106,7 +107,7 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
   const axis = (id) => read?.axes?.find((row) => row.id === id) || null;
   const growth = axis('growth')?.detail || {}, inflation = axis('inflation')?.detail || {}, policy = axis('policy')?.detail || {};
   const close = (field) => buildCloseSeries(history, field);
-  const wti = close('wti'), tnx = close('tnx'), spx = close('spx'), ndx = close('ndx'), dxy = close('dxy'), krw = close('usdkrw'), vix = close('vix'), vix3m = close('vix3m');
+  const wti = close('wti'), tnx = close('tnx'), spx = close('spx'), ndx = close('ndx'), dxy = close('dxy'), krw = close('usdkrw'), vix = close('vix'), vix3m = close('vix3m'), smh = close('smh');
   const mh = (field) => seriesOf(macroHistory, field);
   const ccc = mh('cccOas'), b = mh('bOas');
   const bByDate = new Map(b.map((row) => [row.date, row.value]));
@@ -121,7 +122,7 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
   // v57.75 (US scenario audit): 10y − 2y paired by date (bear steepening) and Nasdaq-100 against the S&P 500 (AI leadership).
   const d2ByDate = new Map(mh('dgs2').map((row) => [row.date, row.value]));
   const curve2s10s = mh('dgs10').filter((row) => d2ByDate.has(row.date)).map((row) => ({ date: row.date, value: row.value - d2ByDate.get(row.date) }));
-  const ndx20 = pctOver(ndx, 20), spx20 = pctOver(spx, 20);
+  const ndx20 = pctOver(ndx, 20), spx20 = pctOver(spx, 20), smh20 = pctOver(smh, 20);
   // Brent beside WTI (buildMacroRead().oil → brentWtiCheck): an abnormal same-day gap is never compared.
   const oilCheck = read?.oil && !read.oil.abnormal ? read.oil : null;
   // v57.81 (audit X4): one Brent/WTI rule for every oil read — a held pair makes every WTI-based condition 확인 불가.
@@ -152,7 +153,7 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
     cash: last(mh('sofr')), oil20, oilVsYear, brent20: finite(oilCheck?.brent20), brentBasis: oilCheck?.basis || null, oilHeld: oilDiv.held, oilHeldKind: oilDiv.kind, oilHeldText: oilDiv.text, wtiPosition,
     // v57.86 (live review): a held pair still answers a test both 20-session moves pass — only a split answer is 확인 불가.
     oilSurging: oilDiv.held ? (bothOil((v) => v >= RULES.oil.rise20dPct) === true ? true : null) : oil20 == null ? null : oil20 >= RULES.oil.rise20dPct || (oilVsYear != null && oilVsYear >= RULES.oil.aboveYearAvgPct),
-    tnx: last(tnx), tnx20: changeOver(tnx, 20), spx5: pctOver(spx, 5), spx20, ndxRel20: all(ndx20, spx20) ? ndx20 - spx20 : null, dxy20: pctOver(dxy, 20), krw20: pctOver(krw, 20),
+    tnx: last(tnx), tnx20: changeOver(tnx, 20), spx5: pctOver(spx, 5), spx20, ndxRel20: all(ndx20, spx20) ? ndx20 - spx20 : null, smhRel20: all(smh20, spx20) ? smh20 - spx20 : null, dxy20: pctOver(dxy, 20), krw20: pctOver(krw, 20),
     vix: vixLast?.value ?? null, vixRatio: vixLast && vix3mLast && vixLast.date === vix3mLast.date && vix3mLast.value ? vixLast.value / vix3mLast.value : null,
     pricing, mid: finite(policy.mid), lean: pricing == null ? 'unknown' : pricing >= P.pricedMovePp ? 'hike' : pricing <= -P.pricedMovePp ? 'cut' : 'hold',
     credit: axis('credit')?.state || 'unknown', growthState: axis('growth')?.state || 'unknown',
@@ -304,9 +305,9 @@ export const BRANCHES = Object.freeze([
     explore: [['themes', '테마 · 섹터', '경기민감·금융 업종 개선'], ['screener', '스크리너', '이익 추정이 오르는 후보']] },
   // v57.75 (owner 2026-10-15, US thesis; US scenario audit): the AI-capex cycle had no branch — semiconductor, AI infra,
   // photonics and KR memory were judged only through growth/cyclical tags. Nasdaq-100 against the S&P 500 is the
-  // measured proxy for AI leadership (the SMH series is research-reference-only, never a condition).
+  // measured proxy for AI leadership; owner 2026-10-18: semis (SMH) lagging by RULES.leadership.aiLagSemis20dPp also opens it.
   { id: 'aibust', shape: 'weakness', axes: ['growth', 'credit'], title: 'AI 투자 꺾임 — 이익과 고용이 함께 식는 시나리오',
-    gate: [0], conditions: [['나스닥100이 S&P 500보다 20거래일 3%p 이상 뒤처짐 (AI 대형주 주도 약화)', (s) => has(s.ndxRel20) ? s.ndxRel20 <= -3 : null], ['일자리 3개월 평균이 그 전 3개월보다 적음', (s) => all(s.payroll3, s.payrollPrior3) ? s.payroll3 < s.payrollPrior3 : null], [`하이일드 스프레드 20회 관측 +${RULES.credit.widen20dBp}bp 이상 확대`, (s) => has(s.hy20) ? s.hy20 >= RULES.credit.widen20dBp : null], [`실업수당 청구 4주 평균이 1년 저점보다 ${G.claimsWatchAbovePct}% 이상 높음`, (s) => has(s.claimsUp) ? s.claimsUp >= G.claimsWatchAbovePct : null]],
+    gate: [0], conditions: [[`나스닥100이 S&P 500보다 20거래일 ${L.aiLagNdx20dPp}%p 이상, 또는 반도체(SMH)가 ${L.aiLagSemis20dPp}%p 이상 뒤처짐 (AI 주도 약화)`, (s) => has(s.ndxRel20) || has(s.smhRel20) ? (has(s.ndxRel20) && s.ndxRel20 <= -L.aiLagNdx20dPp) || (has(s.smhRel20) && s.smhRel20 <= -L.aiLagSemis20dPp) : null], ['일자리 3개월 평균이 그 전 3개월보다 적음', (s) => all(s.payroll3, s.payrollPrior3) ? s.payroll3 < s.payrollPrior3 : null], [`하이일드 스프레드 20회 관측 +${RULES.credit.widen20dBp}bp 이상 확대`, (s) => has(s.hy20) ? s.hy20 >= RULES.credit.widen20dBp : null], [`실업수당 청구 4주 평균이 1년 저점보다 ${G.claimsWatchAbovePct}% 이상 높음`, (s) => has(s.claimsUp) ? s.claimsUp >= G.claimsWatchAbovePct : null]],
     chain: ['AI 설비투자 기대 후퇴', '반도체·데이터센터 이익 하향', '투자·고용 둔화', '금리 인하 압력 + 신용 스프레드 확대', '정책 대응은 연쇄를 막아도 이익 전망은 못 바꿈'],
     firmer: ['defensive'], weaker: ['aicapex', 'growth', 'liquidity', 'cyclical'], mixed: ['yield'],
     triggers: [['us-nfp', '일자리 5만~7.5만 명 (채용 둔화)', (a) => a.payroll >= 50 && a.payroll < 75]],
