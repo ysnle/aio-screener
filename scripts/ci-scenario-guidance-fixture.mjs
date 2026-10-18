@@ -111,6 +111,16 @@ const moves = sectorMoves(validRotation, fixtureNow);
 assert.deepEqual(moves.rows.map((row) => row.symbol), ['XLE', 'XLK', 'XLU'], 'P1641/M13: exact current rows, strongest first; the stale XLF row is left out');
 assert.equal(moves.session, session.date);
 assert.equal(sectorMoves(rotation, fixtureNow).rows.length, 0, 'M13: a non-schema artifact yields no rows');
+// XLB·XLY (UI review 2026-10-18): 오늘 섹터 등락 reads the settled quadrant from the row's trail, as 테마·섹터 does — a fixed ±1
+// band on the last point alone read 기준선 부근 for a sector the themes screen showed as 개선.
+{
+  const { rrgSettledQuadrant } = await import('../src/domain/themes/recent-check.js');
+  const trail = Array.from({ length: 20 }, (_, i) => ({ rsRatio: 97 + (2.43 * i) / 19, rsMomentum: 104 }));
+  const xly = { ...rrgRow('XLY', 0.8, trail.at(-1).rsRatio, 104, 'Improving'), trail };
+  assert.equal(rrgSettledQuadrant(xly), 'Improving', 'XLY fixture settles in 개선 on its own trail band');
+  const settled = sectorMoves({ ...validRotation, items: { ...validRotation.items, XLY: xly } }, fixtureNow).rows.find((row) => row.symbol === 'XLY');
+  assert.equal(settled.quadrant, '개선', '오늘 섹터 등락 shows the settled quadrant (테마·섹터), not the fixed-band 기준선 부근');
+}
 
 console.log('scenario guidance fixture (radar, credit tiers, chart evidence, sectors): PASS');
 

@@ -3,13 +3,14 @@
 // whose row is not current for that session is left out rather than shown with an old number.
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
 import { SECTOR_ETF_LABELS, sectorRecentCheck, leaderFading } from '../../domain/market/scenario-outlook.js';
-import { rrgZone } from '../../domain/themes/recent-check.js';
+import { rrgSettledQuadrant } from '../../domain/themes/recent-check.js';
 import { el } from './dom.js';
 
 const particle = (word) => { const code = word.charCodeAt(word.length - 1) - 0xac00; return code >= 0 && code < 11172 && code % 28 ? '이' : '가'; };
 // Audit 2026-10-14: one date format on 오늘 (M/D), and the block is an h2 like its sibling sections.
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : String(date || ''); };
-const QUADRANT = { Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행' };
+const QUADRANT = { Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행', Border: '기준선 부근' };
+const quadrantLabel = (key) => QUADRANT[key] || null;
 
 export function sectorMoves(artifact, nowMs = Date.now()) {
   const rows = Object.entries(SECTOR_ETF_LABELS).map(([symbol, label]) => {
@@ -22,8 +23,9 @@ export function sectorMoves(artifact, nowMs = Date.now()) {
     const rel5 = recent?.rel5 ?? null;
     const fading = leaderFading({ quadrant: row.quadrant, ...(recent || {}) });
     return { symbol, label, daily, weekly: Number.isFinite(row.weeklyPct) ? row.weeklyPct : null, rel5, fading,
-      // v57.81: inside the themes screen's RRG neutral band the badge reads 경계, as on 테마·섹터.
-      quadrant: fading ? `상대강도 5일 ${rel5.toFixed(1)}%` : rrgZone(row.rsRatio, row.rsMomentum)?.border ? '기준선 부근' : QUADRANT[row.quadrant] || null, session: row.sessionDate };
+      // The settled quadrant (the row's own 5-session band + hysteresis from its trail), the one 테마·섹터 shows. A fixed ±1 band
+      // on the last point alone read XLB·XLY·XLF 기준선 부근 and XLU 선도 here while 테마·섹터 read 개선.
+      quadrant: fading ? `상대강도 5일 ${rel5.toFixed(1)}%` : quadrantLabel(rrgSettledQuadrant(row) ?? row.quadrant), session: row.sessionDate };
   }).filter(Boolean).sort((a, b) => b.daily - a.daily);
   return { rows, session: rows[0]?.session || null };
 }
