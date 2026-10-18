@@ -5993,7 +5993,7 @@
       var idxIn = function(page, el){ return (page && el) ? Array.prototype.indexOf.call(page.children, el) : -2; };
       // technical: 헤더 직후 = 시장 건강도(결론)
       var ptT = document.getElementById('page-technical');
-      var hdrT = dchild(ptT, '.page-title'), verT = dchild(ptT, '#tech-regime-summary'); // P1420: the six-axis summary is the conclusion block
+      var hdrT = dchild(ptT, '.page-title'), verT = dchild(ptT, '#stock-chart-section'); // 2026-10-18 owner decision: the stock chart leads the 차트 tab; the P1420 summary follows it
       var techOk = !!(hdrT && verT) && idxIn(ptT, verT) === idxIn(ptT, hdrT) + 1;
       // themes: 헤더 직후 = 사이클 국면 판정(결론)
       var ptH = document.getElementById('page-themes');
