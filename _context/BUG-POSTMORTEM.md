@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1926 - v58.21 - 금리 축 bp 차이가 부동소수점 오차로 10bp 미만으로 읽혀 '부담' 래치가 풀렸음 (2026-10-18)
+
+- symptom/reproduction: 2026-10-16 종가에 미 10년물이 5.10%(20세션 전 5.00%)로 1년 고점 부근이었는데, 대시보드 금리 축이 '부담'에서 '중립'으로 내려갔다.
+- root_cause: src/domain/briefing/market-read.js의 bp(now, then)가 (now - then) * 100을 그대로 반환해 5.10 - 5.00이 9.999999999999964bp가 됐다. 금리 래치의 '20세션 상승 +10bp 미만이면 해제' 조건이 이 반올림 오차를 실제 하락으로 읽었다.
+- fix: bp()가 결과를 0.01bp로 반올림한다(Math.round(diff * 1e6) / 1e4). 같은 PR에서 추세(50일선 하회 + 주도 이탈 확인 시 부담), 시장 폭(40% 하회 후 45% 회복까지 부담 유지), 바닥 확인 조건(bottomWatchOf), 한 문장 재료의 반도체 줄도 추가됐다.
+- violated_rule: 임계값 비교에 쓰는 단위 환산 값은 표시 정밀도로 정규화한 뒤 비교한다.
+- prevention: ci-regime-scenarios-fixture.mjs가 bp(5.10, 5.00) === 10, bp(4.30, 4.20) === 10, bp(5.00, 5.10) === -10을 단언한다(수정 전 9.999999999999964로 실패, 수정 후 통과).
+- verification/residual: node scripts/ci-regime-scenarios-fixture.mjs
+
 ## P1925 - v58.20 - 선택 항목인 실적 캘린더(Finnhub) 실패 한 번이 스크리너·SEC 갱신 전체를 중단 (2026-10-18)
 
 - symptom/reproduction: Finnhub 시간 초과·429·5xx 한 번이면 refresh-screener 작업이 핵심 스크리너와 SEC 원장 게시 전에 멈췄다.
