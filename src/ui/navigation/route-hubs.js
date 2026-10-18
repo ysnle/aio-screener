@@ -29,11 +29,26 @@ export function readStockSubject(root) {
   return { symbol, name: name && name.toUpperCase() !== symbol ? name : '', from: Object.hasOwn(SUBJECT_ORIGINS, from) ? from : null };
 }
 
-function renderSubject(documentRef, nav, subject) {
+// 2026-10-18 UI review: 차트 had no way to pick a company and 재무 공시's own box only looked separate; one
+// control on the hub line opens the 요약 search, which already sets the company for all three tabs.
+function pickButton(documentRef, root, label) {
+  const pick = documentRef.createElement('button');
+  pick.type = 'button';
+  pick.className = 'aio-hub-subject-pick';
+  pick.textContent = label;
+  pick.addEventListener('click', () => {
+    root?.showPage?.('ticker');
+    root?.setTimeout?.(() => documentRef.getElementById('ticker-direct-search')?.focus(), 60);
+  });
+  return pick;
+}
+
+function renderSubject(documentRef, nav, subject, root, routeId) {
   const box = documentRef.createElement('span');
   box.className = 'aio-hub-subject';
   if (!subject) {
     box.textContent = '종목을 고르면 세 탭이 같은 종목을 보여줍니다';
+    if (routeId !== 'ticker') box.append(' ', pickButton(documentRef, root, '종목 고르기'));
     nav.appendChild(box);
     return;
   }
@@ -50,6 +65,7 @@ function renderSubject(documentRef, nav, subject) {
     back.textContent = `← ${SUBJECT_ORIGINS[subject.from]}`;
     box.appendChild(back);
   }
+  if (routeId !== 'ticker') box.appendChild(pickButton(documentRef, root, '다른 종목'));
   nav.appendChild(box);
 }
 
@@ -87,7 +103,7 @@ export function renderHubTabs({ documentRef, routeId, root = globalThis }) {
     if (tab.id === routeId || (tab.also || []).includes(routeId)) button.setAttribute('aria-current', 'page');
     nav.appendChild(button);
   }
-  if (hub.id === 'stock') renderSubject(documentRef, nav, subject);
+  if (hub.id === 'stock') renderSubject(documentRef, nav, subject, root, routeId);
   return hub.id;
 }
 
