@@ -101,6 +101,13 @@ function drawChart(root, host, analysis, previous) {
   const markers = (analysis.vcp.valid ? analysis.vcp.contractions : []).map((row) => ({ time: analysis.bars[row.lowIndex].time, position: 'belowBar', color: '#c7892a', shape: 'arrowUp', text: `수축 -${row.depth.toFixed(1)}%` }));
   for (const event of analysis.events || []) markers.push({ time: analysis.bars[event.index].time, position: event.position, color: toneColor[event.tone] || '#8a8271', shape: event.position === 'aboveBar' ? 'arrowDown' : 'arrowUp', text: event.text });
   if (analysis.state === 'breakout') markers.push({ time: analysis.last.time, position: 'aboveBar', color: up, shape: 'arrowDown', text: '피벗 돌파' });
+  // 2026-10-18 UI review: the same label (8일 EMA 회복 …) printed at every occurrence piled up over the latest bars; older
+  // repeats keep their arrow and only the most recent one is labelled.
+  const labelled = new Set();
+  for (const marker of [...markers].sort((a, b) => b.time.localeCompare(a.time))) {
+    if (labelled.has(marker.text)) marker.text = '';
+    else labelled.add(marker.text);
+  }
   candles.setMarkers(markers.sort((a, b) => a.time.localeCompare(b.time)));
   const showRecent = () => chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, analysis.bars.length - 130), to: analysis.bars.length + 3 });
   showRecent();
