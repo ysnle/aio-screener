@@ -21,7 +21,9 @@ export const RULES = Object.freeze({
   // break holds while the proxy stays weak — single-session counts read 7/23 이탈 → 7/24~28 약세 → 7/29 이탈 in July 2026.
   // Audit 2026-10-17 (owner D1): the advance confirmation is the mean advance ratio over those sessions, not "any one of
   // them" — one session under 45% in five held on 87 of 97 sessions of 2026-06~10 (the mean on 20).
-  leadership: Object.freeze({ advanceRatioWeakBelow: 0.45, distributionDaysAt: 6, minConfirmations: 2, confirmWindowSessions: 5 }),
+  // Owner 2026-10-18: AI 투자 꺾임 gate — Nasdaq-100 or semis (SMH) lagging the S&P 500 over 20 sessions. SMH's 20-session
+  // relative move swings ~3x the Nasdaq-100's (sd 8.2 vs 2.7pp, 2025-11~2026-10), so its edge is 8pp against the NDX's 3pp.
+  leadership: Object.freeze({ advanceRatioWeakBelow: 0.45, distributionDaysAt: 6, minConfirmations: 2, confirmWindowSessions: 5, aiLagNdx20dPp: 3, aiLagSemis20dPp: 8 }),
   // v57.81: "회복 중" only when the last session did not give back reversalShare of the window's gain (a 5-day +8pp bounce
   // that lost 4pp on the last close is 되밀림, not recovery); a last-session drop of lastSessionNoticePp or more is named.
   // indexConfirmDeadZonePp: a 20-session participation change inside ±3pp is "거의 변하지 않음", not 넓어짐/줄어듦.
@@ -41,7 +43,7 @@ export const RULES = Object.freeze({
   // 10-year Treasury: a 25bp move in 20 sessions, or the top 10% of its one-year range while still rising.
   // v57.81 hysteresis: once 부담, it stays until the range position falls under rangeExitAt or the 20-session rise is
   // under exit20dBp (a 5-day dip of -9bp at 91% of the range flipped 부담 to 중립 and back on one week's sign).
-  rates: Object.freeze({ move20dBp: 25, rangeHighAt: 0.9, rangeExitAt: 0.8, exit20dBp: 10, latchSessions: 60 }),
+  rates: Object.freeze({ move20dBp: 25, rangeHighAt: 0.9, rangeExitAt: 0.8, exit20dBp: 10, latchSessions: 60, levelHighThird: 2 / 3 }),
   // ICE BofA US High Yield OAS: below 350bp tight, 450bp+ stressed, +25bp in five sessions a fast widening;
   // +15bp in five sessions is the early-watch level (P1449: HY 324bp +44bp must read as widening
   // stress forming, not calm), and ≤5bp / five sessions counts as calm for the smallcap reading.
