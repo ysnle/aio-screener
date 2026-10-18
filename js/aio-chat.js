@@ -3222,7 +3222,7 @@ async function _fetchTickerDataForChat(tickers, opts) {
       // market-wide verdict is the 시장 상태 screen's overall (same axes and counts the user sees).
       var _regimeSum = _close ? _close.regime : (typeof window._aioMarketRegimeSummary === 'function' ? window._aioMarketRegimeSummary() : null);
       var _overallLine = _regimeSum && _regimeSum.overall
-        ? '• **시장 상태 종합**: ' + _regimeSum.overall + (_regimeSum.counts ? ' (양호 ' + _regimeSum.counts.favorable + ' · 중립 ' + _regimeSum.counts.neutral + ' · 부담 ' + _regimeSum.counts.burden + ')' : '') + (_regimeSum.asOf ? ' · ' + _regimeSum.asOf + ' 종가' : '') + '\n'
+        ? '• **시장 상태 종합**: ' + _regimeSum.overall + (_regimeSum.counts ? ' (양호 ' + _regimeSum.counts.favorable + ' · 중립 ' + _regimeSum.counts.neutral + ' · 부담 ' + _regimeSum.counts.burden + ')' : '') + (_regimeSum.leadership === 'break' ? ' · 주도 영역(나스닥 100·반도체) 이탈' : _regimeSum.leadership === 'weak' ? ' · 주도 영역 약세(확산 미확인)' : '') + (_regimeSum.asOf ? ' · ' + _regimeSum.asOf + ' 종가' : '') + '\n'
         : '';
       var _marketAsOf;
       if (_close) {
