@@ -8,7 +8,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
   OFFICIAL_REFERENCES_SCHEMA, LANE_POLICY, refreshOfficialReferences, validateOfficialReferences, dueDecision,
-  numberRegExps, dateRegExps, pageText, CUSTOMS_PRESS_BOARD, customsReleaseLinks,
+  numberRegExps, dateRegExps, pageText, CUSTOMS_PRESS_BOARD, customsReleaseLinks, fetchOfficialPage,
 } from './lib/web-reference-verify.mjs';
 import { buildSharedWebSearchBody, requestSharedAnalysis } from './lib/ai-shared-analysis.mjs';
 import { prepareOpenAiBudget } from '../worker/openai-budget.mjs';
@@ -351,6 +351,14 @@ async function single(id, candidate, options = {}) {
   } else {
     console.log('[P1734] public-data/official-references.json not produced yet (first refresh-data run writes it).');
   }
+}
+
+{
+  // Review follow-up (#19): krExports failed as a bare source-fetch-failed; the network cause must reach the run log.
+  const tlsError = Object.assign(new TypeError('fetch failed'), { cause: Object.assign(new Error('unable to verify the first certificate'), { code: 'UNABLE_TO_VERIFY_LEAF_SIGNATURE' }) });
+  const failed = await fetchOfficialPage(URLS.exports, ['customs.go.kr'], { fetchImpl: async () => { throw tlsError; } });
+  check('P1734 an official page fetch failure keeps its reason and carries the network cause', failed.ok === false && failed.reason === 'source-fetch-failed'
+    && failed.detail === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE', JSON.stringify(failed));
 }
 
 if (failures.length) {
