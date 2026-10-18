@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1927 - v58.23 - 브리핑과 AI 경기 사이클 국면이 시장 상태와 다른 주도주·추세 판정을 읽었음 (2026-10-18)
+
+- symptom/reproduction: 2026-10-16 종가에 시장 상태는 주도 영역 이탈(나스닥 100 5거래일 -5.5%, SMH -10.5%)을 판정했는데, 브리핑 '오늘의 시장 해석'은 F&G·VIX로 시작해 이 하락을 언급하지 않았고 하루 신고가 집계(36 대 12)를 확산처럼 읽었다. AI 대화의 거시·테마 맥락은 S&P 500 하루 등락 부호를 '추세'로 썼다.
+- root_cause: buildMarketRead(src/domain/briefing/market-read.js)가 leadershipBreakOf를 호출하지 않아 시장 상태의 주도 판정과 연결되지 않았고, 레거시 getCycleFromMacro(js/aio-core.js)가 시장 상태 추세 축 대신 호출자가 넘긴 하루 S&P 500 부호를 추세 입력으로 받았다.
+- fix: buildMarketRead가 leadershipBreakOf·bottomWatchOf를 읽어 주도 이탈 문장을 앞세우고, 이탈 중에는 신고가 집계를 확산으로 읽지 않으며, 금리 하락·주가 하락 주간은 주도주 하락을 이름으로 든다. getCycleFromMacro는 시장 상태 추세 축(양호=상승, 부담=하락, 중립=입력 없음)을 쓰고 레짐이 없을 때만 하루 부호로 돌아간다.
+- violated_rule: 같은 지표의 판정은 모든 화면이 하나의 공유 분류기를 쓴다.
+- prevention: ci-scenario-guidance-fixture.mjs가 시장 상태에서 주도 영역 이탈로 판정되는 10/14 형태 입력에 대해 buildMarketRead가 leadership-break 문장을 내는지 단언한다(수정 전 실패, 수정 후 통과).
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs
+
 ## P1926 - v58.21 - 금리 축 bp 차이가 부동소수점 오차로 10bp 미만으로 읽혀 '부담' 래치가 풀렸음 (2026-10-18)
 
 - symptom/reproduction: 2026-10-16 종가에 미 10년물이 5.10%(20세션 전 5.00%)로 1년 고점 부근이었는데, 대시보드 금리 축이 '부담'에서 '중립'으로 내려갔다.

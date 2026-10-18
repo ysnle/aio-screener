@@ -554,6 +554,9 @@ export function buildMarketRead(input = {}) {
   const tnx20 = tnx ? bp(tnx.value, tnx.d20) : null;
   const real5 = r.realYield10Delta5 == null ? null : r.realYield10Delta5 * 100;
   const bei5 = r.breakeven10Delta5 == null ? null : r.breakeven10Delta5 * 100;
+  // Owner 2026-10-18: the briefing reads the same leadership test as 시장 상태 — the week the Nasdaq-100 and semiconductors
+  // broke, the briefing led with F&G and VIX and called one day's new-high count broadening.
+  const leaders = leadershipBreakOf(s, basis, input.history);
 
   // 1. Rates vs equities over a week — which force is winning.
   if (tnx5 != null && spx5 != null && Math.abs(tnx5) >= B.rateMove5dBp) {
@@ -563,7 +566,9 @@ export function buildMarketRead(input = {}) {
     else if (tnx5 > 0) add('rates-up-stocks-down', Math.min(95, 45 + tnx5 * 2), `${rateText}, S&P 500 ${signed(spx5)}.`, 'rates', { reading: '금리 상승이 주가 할인율 부담으로 작용하는 모습입니다.', check: `10년물이 ${fmt(tnx.value)}% 위에서 굳는지, S&P 500이 50일선(${fmt(spx.ma50, 0)})을 지키는지` });
     // v57.84: a falling S&P 500 needs a real move (≥1% over 5 days) before the week is read as growth fear, and the weight
     // stays below a credit sentence — −0.27% on 2026-10-15 led the briefing over HY +16bp.
-    else if (spx5 <= -B.stocksDown5dPct) add('rates-down-stocks-down', Math.min(70, 45 - tnx5 * 2), `${rateText}에도 S&P 500 ${signed(spx5)}.`, 'rates', { reading: '금리보다 성장 둔화 우려가 앞설 가능성이 있습니다 — 경기 지표로 확인이 필요합니다.', check: '다음 경기 지표(고용·ISM)가 둔화를 확인하는지' });
+    else if (spx5 <= -B.stocksDown5dPct) add('rates-down-stocks-down', Math.min(70, 45 - tnx5 * 2), `${rateText}에도 S&P 500 ${signed(spx5)}.`, 'rates', { reading: leaders.break
+      ? '금리가 내렸는데도 주가가 밀린 주간은 주도 영역(AI·반도체) 조정이 지수를 끌어내린 영향이 큽니다 — 성장 둔화 우려까지 겹쳤는지는 경기 지표로 따로 확인합니다.'
+      : '금리보다 성장 둔화 우려가 앞설 가능성이 있습니다 — 경기 지표로 확인이 필요합니다.', check: '다음 경기 지표(고용·ISM)가 둔화를 확인하는지' });
     else if (spx5 >= 0) add('rates-down-stocks-up', Math.min(90, 35 - tnx5 * 2), `${rateText} 속에 S&P 500 ${signed(spx5)}.`, 'rates', { reading: '금리 하락이 주가를 받치는 모습입니다.' });
   }
   if (tnx?.yearPosition != null && tnx.yearPosition >= B.yearExtremeAt && !statements.some((row) => row.axis === 'rates')) add('rates-year-high', 70, `10년물 금리 ${fmt(tnx.value)}%는 최근 1년 범위의 최상단입니다(1년 최저 ${fmt(tnx.yearMin)}%).`, 'rates');
@@ -615,7 +620,9 @@ export function buildMarketRead(input = {}) {
   if (nh != null && nl != null && spxFromHigh != null) {
     if (spxFromHigh > -RULES.technical.nearHighPct && nl > nh && nl >= B.newLowsMin) add('highs-lows-divergence', 76, `S&P 500은 고점권(${signed(spxFromHigh)})인데 52주 신저가 종목 ${fmt(nl, 0)}개가 신고가 ${fmt(nh, 0)}개보다 많습니다.`, 'index', { reading: '지수 아래에서 약해지는 종목이 늘고 있습니다 — 주도주 폭이 좁아지는 괴리입니다.', check: `52주 신고가 종목이 신저가보다 다시 많아지는지(현재 ${fmt(nh, 0)} / ${fmt(nl, 0)})` });
     // Codex browser audit H19: one day's count says where leadership is today, not that it is spreading.
-    else if (nh >= B.newHighsMin && nh >= B.highsOverLows * Math.max(1, nl)) add('leadership-broadening', 52, `52주 신고가 종목 ${fmt(nh, 0)}개, 신저가 ${fmt(nl, 0)}개(수집 대상 기준, 하루 집계).`, 'index', { reading: '오늘 기준으로 신고가 쪽이 신저가보다 훨씬 많습니다. 확산 중인지는 이 숫자가 며칠 이어지는지로 확인합니다.' });
+    else if (nh >= B.newHighsMin && nh >= B.highsOverLows * Math.max(1, nl)) add('leadership-broadening', 52, `52주 신고가 종목 ${fmt(nh, 0)}개, 신저가 ${fmt(nl, 0)}개(수집 대상 기준, 하루 집계).`, 'index', { reading: leaders.break
+      ? '하루 집계로는 신고가가 많지만 주도 영역 이탈이 이어지는 중이라 확산으로 읽지 않습니다 — 이 숫자가 며칠 이어지는지, 어느 업종의 신고가인지 확인합니다.'
+      : '오늘 기준으로 신고가 쪽이 신저가보다 훨씬 많습니다. 확산 중인지는 이 숫자가 며칠 이어지는지로 확인합니다.' });
   }
   const dd = s.distributionDays?.value ?? null;
   // v57.50 D05: the textbook 5-6 line is crossed on about half of AIO's recorded days, so the reading quotes where
@@ -639,6 +646,16 @@ export function buildMarketRead(input = {}) {
   const rut20 = s.rut ? pct(s.rut.value, s.rut.d20) : null;
   // C25: this series is the Nasdaq Composite; the home KPI cell is the Nasdaq-100 — each names its own index.
   if (ndx20 != null && spx20 != null && Math.abs(ndx20 - spx20) >= B.techGap20dPp) add(ndx20 > spx20 ? 'tech-leads' : 'tech-lags', 50, `나스닥 종합 20일 ${signed(ndx20)}${win20(s.nasdaq) === win20(spx) ? '' : win20(s.nasdaq)} · S&P 500 ${signed(spx20)}${win20(spx)} —${ndx20 > spx20 ? '기술주가 상승을 주도' : '기술주가 시장보다 약함'}.`, 'index');
+  if (leaders.break || leaders.state === 'weak') {
+    const smh = s.smh, smh5 = smh ? pct(smh.value, smh.d5) : null, smhHigh = smh?.yearMax ? pct(smh.value, smh.yearMax) : null;
+    const n = leaders.confirmations.length;
+    add('leadership-break', leaders.break ? 86 : 72, `나스닥 100 5거래일 ${signed(leaders.drop5)}${smh5 != null ? ` · 반도체(SMH) 5거래일 ${signed(smh5)}${smhHigh != null ? `(1년 고점 대비 ${signed(smhHigh)})` : ''}` : ''} · S&P 500 ${signed(spx5)}.`, 'index', {
+      reading: leaders.break ? `AI·반도체 주도 영역이 지수보다 크게 밀렸고 시장 전반의 확인 신호도 ${n}개 중 ${leaders.met}개가 겹쳐, 주도주 조정이 지금 시장의 중심 변수입니다.`
+        : `AI·반도체 주도 영역이 지수보다 크게 밀렸지만 시장 전반의 확인 신호는 ${n}개 중 ${leaders.met}개라 아직 동반 약세로 번지지 않았습니다.`,
+      check: `나스닥 100${smh ? '과 SMH' : ''}가 50일선(나스닥 100 ${fmt(leaders.ndx?.ma50 ?? s.ndx?.ma50, 0)}${smh?.ma50 != null ? ` · SMH ${fmt(smh.ma50, 0)}` : ''})을 되찾는지` });
+  }
+  const bottom = bottomWatchOf({ s, c, input, basis });
+  if (bottom && (bottom.exhaustionMet >= 2 || bottom.confirmationMet >= 2)) add('bottom-watch', 64, bottom.text, 'risk');
   const hyWeek = c.hy5;
   // v57.50 C01/C02: "안정" only when the shared credit judgement is favorable — level alone missed a +45bp
   // 20-session widening. A neutral credit state names why the credit cause cannot be ruled out.

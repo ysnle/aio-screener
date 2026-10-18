@@ -229,7 +229,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   root._aioMarketRegimeSummary = () => {
     try {
       const regime = readMarketRegime(root);
-      return regime ? Object.freeze({ available: !!regime.available, sufficient: regime.sufficient === true, overall: regime.overall || null, asOf: regime.asOf || null, counts: regime.counts || null }) : null;
+      // Owner 2026-10-18: the trend axis state and the leadership read travel too, so legacy consumers (cycle model, AI
+      // context) read the 시장 상태 trend instead of one session's S&P 500 sign.
+      const trend = (regime?.axes || []).find((axis) => axis.id === 'trend')?.state || null;
+      return regime ? Object.freeze({ available: !!regime.available, sufficient: regime.sufficient === true, overall: regime.overall || null, asOf: regime.asOf || null, counts: regime.counts || null,
+        trend, leadership: regime.leadership?.state || null }) : null;
     } catch (_) { return null; }
   };
   root._aioLatestCompletedSessionDate = (market = 'US') => (market === 'KR' ? latestCompletedKrSession(clock.now()) : latestCompletedUsSession(clock.now()))?.date || null;
