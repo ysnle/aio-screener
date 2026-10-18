@@ -4,7 +4,7 @@
 import { FACTOR_FRESHNESS_MS } from './factor-ranks.js';
 import { RULES } from '../rules/thresholds.js';
 // v57.84: the 52-week range, ADR, moving averages and EMAs are technical/definitions.js — the chart's own definitions.
-import { smaLast, emaLast, adrPctOf, rangeExtremesOf, detectContractions } from '../technical/definitions.js';
+import { smaLast, emaLast, adrPctOf, rangeExtremesOf, detectContractions, isBreakoutDay, priorVolumeAverage } from '../technical/definitions.js';
 import { followThroughFields } from '../technical/follow-through.js';
 import { listingMarketOfSymbol, sessionDateInMarket, timeZoneForMarket, timeZoneForSymbol } from '../market/session-time.js';
 export const round = (v, d) => (typeof v === 'number' && isFinite(v)) ? Number(v.toFixed(d)) : null;
@@ -156,20 +156,19 @@ export function _calcVCPServer(closes, highs, lows, volumes) {
   }
   const pivot = detected.valid ? detected.pivot : null;
   const nearPivot = !!(pivot && price >= pivot * 0.97 && price <= pivot * 1.03);
-  const lv = volumes[n - 1];
-  const vs = volumes.slice(-21, -1).filter(v => v > 0);
-  const rvol = (vs.length >= 10 && lv > 0) ? lv / avg(vs) : null;
   // v57.81 (analysis audit 2026-10-15): 031980.KQ read "피벗 돌파" on a -12.5% day (rvol 1.65) because a close above the
   // pivot on heavy volume was enough. A breakout is a close through the pivot: some close in the last
-  // VCP_BREAKOUT_LOOKBACK sessions was at or below it, and the day closed up (above the prior close, or in the upper half
-  // of its range). A close above the pivot on heavy volume that fails the up-day test is 'pivot_down'.
-  const candidate = !!(pivot && price > pivot && rvol !== null && rvol > RULES.technical.breakout.volumeMultiple);
-  const prevClose = closes[n - 2];
-  const dayHigh = highs[n - 1], dayLow = lows[n - 1];
-  const upDay = (prevClose > 0 && price > prevClose) || (dayHigh > dayLow && (price - dayLow) / (dayHigh - dayLow) >= 0.5);
+  // VCP_BREAKOUT_LOOKBACK sessions was at or below it. Audit 2026-10-17 (owner D6): the day itself is the chart's
+  // breakout day (technical/definitions.js isBreakoutDay — prior 50-session volume, up from the prior close, at most
+  // +5% over the pivot). A close above the pivot on heavy volume that did not close up is 'pivot_down'; a close more than
+  // +5% over it is 'extended', as on the chart.
+  const B = RULES.technical.breakout;
   const crossed = closes.slice(-1 - VCP_BREAKOUT_LOOKBACK, -1).some((value) => value <= pivot);
-  const brk = candidate && upDay && crossed;
-  const pivotDown = candidate && !upDay;
+  const brk = !!pivot && crossed && isBreakoutDay({ closes, volumes, i: n - 1, pivot });
+  const volumeBase = priorVolumeAverage(volumes, n - 1);
+  const heavy = volumeBase != null && volumes[n - 1] >= B.volumeMultiple * volumeBase;
+  const pivotDown = !brk && !!pivot && price > pivot && price <= pivot * (1 + B.maxAbovePct / 100) && heavy && !(closes[n - 2] > 0 && price > closes[n - 2]);
+  const extended = !!pivot && price > pivot * (1 + B.maxAbovePct / 100);
   let score = 0;
   if (stage2)    score += 25;
   if (cnt >= 2)  score += Math.min(20, cnt * 7);
@@ -178,7 +177,7 @@ export function _calcVCPServer(closes, highs, lows, volumes) {
   if (nearPivot) score += 10;
   if (brk)       score += 10;
   score = Math.min(100, Math.round(score));
-  const vcpStage = !stage2 ? 'not_stage2' : brk ? 'breakout' : pivotDown ? 'pivot_down' : nearPivot ? 'near_pivot' : (cnt >= 2 && shrink) ? 'contracting' : cnt >= 1 ? 'basing' : 'stage2_only';
+  const vcpStage = !stage2 ? 'not_stage2' : brk ? 'breakout' : pivotDown ? 'pivot_down' : extended ? 'extended' : nearPivot ? 'near_pivot' : (cnt >= 2 && shrink) ? 'contracting' : cnt >= 1 ? 'basing' : 'stage2_only';
   // 2026-10-14: the latest contraction against the one before it (isShrinking requires every step to shrink).
   const latestShrinking = cnt >= 2 ? detected.contractions[cnt - 1].depth < detected.contractions[cnt - 2].depth : null;
   return { vcpScore: score, vcpStage, pivotLevel: pivot,

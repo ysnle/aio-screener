@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-portfolio-vault-evidence.v1",
-  "observedAt": "2026-10-17T01:56:19.127Z",
-  "appRevision": "v57.93",
-  "gitHead": "520571943fb04682652c4e36c95ff775b0c5ae10",
+  "observedAt": "2026-10-17T03:04:59.677Z",
+  "appRevision": "v57.98",
+  "gitHead": "78aaf6f745a3ef505b6e1b27b4adb24cc4e49be7",
   "checks": [
     {
       "id": "P1277 evidence revision bound",
@@ -92,22 +92,22 @@
     {
       "id": "PFE2-24 listed_universe_symbol_accepted_exactly (v57.81)",
       "ok": true,
-      "detail": "{\"nearMissSaved\":[],\"exact\":[\"SPCX\"],\"alias\":[\"SPCX\"],\"toasts\":[\"\\\"SPCXX\\\" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다.\",\"\\\"SPACEX\\\" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다.\",\"SPCX 포지션 추가 완료 · 브라우저에 저장됨\",\"SPCX 포지션 추가 완료 (\\\"스엑\\\" = SPCX) · 브라우저에 저장됨\"]}"
+      "detail": "{\"nearMissSaved\":[],\"exact\":[\"SPCX\"],\"alias\":[\"SPCX\"],\"toasts\":[\"\\\"SPCXX\\\" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다.\",\"\\\"SPACEX\\\" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다. 회사명으로 찾은 후보: SPCX(스페이스X), XAIW(SpaceXAI Lab Ecosystem ETF), SPCF(ProShares Ultra SpaceX)\",\"SPCX 포지션 추가 완료 · 브라우저에 저장됨\",\"SPCX 포지션 추가 완료 (\\\"스엑\\\" = SPCX) · 브라우저에 저장됨\"]}"
     },
     {
       "id": "PFE2-25 verified_nickname_resolves_by_registry (v57.81)",
       "ok": true,
-      "detail": "{\"nearMissSaved\":[],\"exact\":[\"SPCX\"],\"alias\":[\"SPCX\"],\"toasts\":[\"\\\"SPCXX\\\" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다.\",\"\\\"SPACEX\\\" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다.\",\"SPCX 포지션 추가 완료 · 브라우저에 저장됨\",\"SPCX 포지션 추가 완료 (\\\"스엑\\\" = SPCX) · 브라우저에 저장됨\"]}"
+      "detail": "{\"nearMissSaved\":[],\"exact\":[\"SPCX\"],\"alias\":[\"SPCX\"],\"toasts\":[\"\\\"SPCXX\\\" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다.\",\"\\\"SPACEX\\\" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다. 회사명으로 찾은 후보: SPCX(스페이스X), XAIW(SpaceXAI Lab Ecosystem ETF), SPCF(ProShares Ultra SpaceX)\",\"SPCX 포지션 추가 완료 · 브라우저에 저장됨\",\"SPCX 포지션 추가 완료 (\\\"스엑\\\" = SPCX) · 브라우저에 저장됨\"]}"
     },
     {
       "id": "PFE2-13 import_does_not_claim_completion_on_persist_failure (P1187)",
-      "ok": false,
-      "detail": "{\"preModalHidden\":true,\"modalShown\":false,\"messages\":[]}"
+      "ok": true,
+      "detail": "{\"preModalHidden\":true,\"modalShown\":true,\"messages\":[\"영구 저장 실패 — 가져오기가 확정되지 않았습니다. 새로고침 시 이전 데이터로 되돌아올 수 있습니다.\"]}"
     },
     {
       "id": "PFE2-14 clear_all_does_not_claim_completion_on_persist_failure (P1187)",
-      "ok": false,
-      "detail": "{\"preModalHidden\":false,\"modalShown\":true,\"messages\":[\"영구 저장 실패 — 전체 삭제가 확정되지 않았습니다. 새로고침 시 되돌아올 수 있습니다.\"]}"
+      "ok": true,
+      "detail": "{\"preModalHidden\":true,\"modalShown\":true,\"messages\":[\"영구 저장 실패 — 전체 삭제가 확정되지 않았습니다. 새로고침 시 되돌아올 수 있습니다.\"]}"
     },
     {
       "id": "PFE2-15 assumption_writer_declares_and_rejects (P1188, v57.81)",
@@ -142,12 +142,12 @@
     {
       "id": "PFE2-21 undeclared_policy_is_never_invented (P1198)",
       "ok": true,
-      "detail": "{\"retrospective\":\"\\n      \\n        \\n          위험 계산 (예상 최대 손실·종목끼리 함께 움직이는 정도)\\n          위험 대비 수익(Sharpe) · 최대 낙폭(MDD) 포함\\n        \\n        ⟳ 계산\\n      \\n      현재 구성을 표본 기간에 그대로 적용한 소급 계산 · 분모 계좌 전체 · RF 입력 · 표본 39일 · 실제 계좌 이력 아님 · 선언 정책 monthly 미사용계산 식별자path current_composition_retrospective · rebalance monthly(미사용) · scope whole_account · lineage legacy-risk-path · snapshot pfcomp-f10f7e6f6e59a581 @ 2026-10-17T01:57:\",\"undeclared\":\"\\n      \\n        \\n          위험 계산 (예상 최대 손실·종목끼리 함께 움직이는 정도)\\n          위험 대비 수익(Sharpe) · 최대 낙폭(MDD) 포함\\n        \\n        ⟳ 계산\\n      \\n      위험 추정 입력을 확정하지 못해 보류합니다: rebalance-policy-required.\\n      \\n      실제 계좌 성과 TWR(기간 누적, 근사) +10.00% · MWR(연율) +8.01% — USD · 입출금 기간 끝 반영 · 1기간 2026-01-01~2027-01-01 · 입출금 1건의 날짜에 평가액이 없어 TWR은 그 입출금을 기간 끝에 둔 근사치입니다 — 입출금일 평가액을 원장에 넣으면 정확한 시간가중 수익률이 됩니다. (시세 이력 검증과 무\",\"declared\":\"\\n      \\n        \\n          위험 계산 (예상 최대 손실·종목끼리 함께 움직이는 정도)\\n          위험 대비 수익(Sharpe) · 최대 낙폭(MDD) 포함\\n        \\n        ⟳ 계산\\n      \\n      목표 비중 유지 전략 · 분모 주식 부분 · RF 입력 · 표본 39일 · 목표 비중 유지 전략 · 실제 계좌 이력 아님 · 목표 AAA 50.0%/BBB 50.0%현금 보류: 전략 경로의 계좌 범위 미선언 — 계좌 전체 위험은 게시하지 않습니다(주식 부분만 게시).계산 식별자path fixed_target_weight_strategy · rebalance monthly · scope invested_sleeve · lineage fixed-target-weight\"}"
+      "detail": "{\"retrospective\":\"\\n      \\n        \\n          위험 계산 (예상 최대 손실·종목끼리 함께 움직이는 정도)\\n          위험 대비 수익(Sharpe) · 최대 낙폭(MDD) 포함\\n        \\n        ⟳ 계산\\n      \\n      현재 구성을 표본 기간에 그대로 적용한 소급 계산 · 분모 계좌 전체 · RF 입력 · 표본 39일 · 실제 계좌 이력 아님 · 선언 정책 monthly 미사용계산 식별자path current_composition_retrospective · rebalance monthly(미사용) · scope whole_account · lineage legacy-risk-path · snapshot pfcomp-524b62698f249777 @ 2026-10-17T03:05:\",\"undeclared\":\"\\n      \\n        \\n          위험 계산 (예상 최대 손실·종목끼리 함께 움직이는 정도)\\n          위험 대비 수익(Sharpe) · 최대 낙폭(MDD) 포함\\n        \\n        ⟳ 계산\\n      \\n      위험 추정 입력을 확정하지 못해 보류합니다: rebalance-policy-required.\\n      \\n      실제 계좌 성과 TWR(기간 누적, 근사) +10.00% · MWR(연율) +8.01% — USD · 입출금 기간 끝 반영 · 1기간 2026-01-01~2027-01-01 · 입출금 1건의 날짜에 평가액이 없어 TWR은 그 입출금을 기간 끝에 둔 근사치입니다 — 입출금일 평가액을 원장에 넣으면 정확한 시간가중 수익률이 됩니다. (시세 이력 검증과 무\",\"declared\":\"\\n      \\n        \\n          위험 계산 (예상 최대 손실·종목끼리 함께 움직이는 정도)\\n          위험 대비 수익(Sharpe) · 최대 낙폭(MDD) 포함\\n        \\n        ⟳ 계산\\n      \\n      목표 비중 유지 전략 · 분모 주식 부분 · RF 입력 · 표본 39일 · 목표 비중 유지 전략 · 실제 계좌 이력 아님 · 목표 AAA 50.0%/BBB 50.0%현금 보류: 전략 경로의 계좌 범위 미선언 — 계좌 전체 위험은 게시하지 않습니다(주식 부분만 게시).계산 식별자path fixed_target_weight_strategy · rebalance monthly · scope invested_sleeve · lineage fixed-target-weight\"}"
     },
     {
       "id": "PFE2-22 strategy_cash_share_and_inert_policy_ux (P1200/P1201)",
       "ok": true,
-      "detail": "{\"partial\":\"목표 비중 유지 전략 · 분모 계좌 전체 · RF 입력 · 표본 39일 · 목표 비중 유지 전략 · 실제 계좌 이력 아님 · 현금 20.0% · 목표 AAA 40.0%/BBB 40.0%계산 식별자path fixed_target_weight_strategy · rebalance monthly · scope whole_account · lineage fixed-target-weight-strategy · snapshot pfcomp-21f3e4fc7addb4a2 @ 2026-10-17T01:57:21.847Z1일 VaR (95%) · \",\"over\":\"위험 추정 입력을 확정하지 못해 보류합니다: strategy-target-weights-invalid.\",\"retrospective\":{\"panel\":\"현재 구성을 표본 기간에 그대로 적용한 소급 계산 · 분모 계좌 전체 · RF 입력 · 표본 39일 · 실제 계좌 이력 아님 · 선언 정책 monthly 미사용계산 식별자path current_composition_retrospective · rebalance monthly(미사용) · scope whole_account · lineage legacy-ri\",\"disabled\":true}}"
+      "detail": "{\"partial\":\"목표 비중 유지 전략 · 분모 계좌 전체 · RF 입력 · 표본 39일 · 목표 비중 유지 전략 · 실제 계좌 이력 아님 · 현금 20.0% · 목표 AAA 40.0%/BBB 40.0%계산 식별자path fixed_target_weight_strategy · rebalance monthly · scope whole_account · lineage fixed-target-weight-strategy · snapshot pfcomp-86e342da45d5db64 @ 2026-10-17T03:05:08.168Z1일 VaR (95%) · \",\"over\":\"위험 추정 입력을 확정하지 못해 보류합니다: strategy-target-weights-invalid.\",\"retrospective\":{\"panel\":\"현재 구성을 표본 기간에 그대로 적용한 소급 계산 · 분모 계좌 전체 · RF 입력 · 표본 39일 · 실제 계좌 이력 아님 · 선언 정책 monthly 미사용계산 식별자path current_composition_retrospective · rebalance monthly(미사용) · scope whole_account · lineage legacy-ri\",\"disabled\":true}}"
     },
     {
       "id": "PFE2-23 var_certification_render_states (P1203)",
@@ -312,12 +312,12 @@
     {
       "id": "v57.81 listed out-of-universe symbol saves with its official name",
       "ok": true,
-      "detail": "{\"toasts\":[\"HWKN 포지션 추가 완료 · Hawkins, Inc. · 브라우저에 저장됨\",\"GHC 포지션 추가 완료 · Graham Holdings Company Class B · 브라우저에 저장됨\",\"\\\"APPL\\\" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다.\"],\"stored\":[{\"ticker\":\"HWKN\",\"qty\":3,\"cost\":40},{\"ticker\":\"GHC\",\"qty\":3,\"cost\":40}]}"
+      "detail": "{\"toasts\":[\"HWKN 포지션 추가 완료 · Hawkins, Inc. · 브라우저에 저장됨\",\"GHC 포지션 추가 완료 · Graham Holdings Company Class B · 브라우저에 저장됨\",\"\\\"APPL\\\" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다. 회사명으로 찾은 후보: AAPL(애플), AMAT(어플라이드머티어리얼즈), AAOI(AAOI)\"],\"stored\":[{\"ticker\":\"HWKN\",\"qty\":3,\"cost\":40},{\"ticker\":\"GHC\",\"qty\":3,\"cost\":40}]}"
     },
     {
       "id": "v57.81 unlisted APPL is rejected, not rewritten to AAPL",
       "ok": true,
-      "detail": "{\"toasts\":[\"HWKN 포지션 추가 완료 · Hawkins, Inc. · 브라우저에 저장됨\",\"GHC 포지션 추가 완료 · Graham Holdings Company Class B · 브라우저에 저장됨\",\"\\\"APPL\\\" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다.\"],\"stored\":[{\"ticker\":\"HWKN\",\"qty\":3,\"cost\":40},{\"ticker\":\"GHC\",\"qty\":3,\"cost\":40}]}"
+      "detail": "{\"toasts\":[\"HWKN 포지션 추가 완료 · Hawkins, Inc. · 브라우저에 저장됨\",\"GHC 포지션 추가 완료 · Graham Holdings Company Class B · 브라우저에 저장됨\",\"\\\"APPL\\\" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다. 회사명으로 찾은 후보: AAPL(애플), AMAT(어플라이드머티어리얼즈), AAOI(AAOI)\"],\"stored\":[{\"ticker\":\"HWKN\",\"qty\":3,\"cost\":40},{\"ticker\":\"GHC\",\"qty\":3,\"cost\":40}]}"
     },
     {
       "id": "v57.81 every holding joins the quote request set (in or out of the universe)",

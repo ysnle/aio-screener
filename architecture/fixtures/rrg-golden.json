@@ -96,9 +96,9 @@
         "hasBenchmarkQuote": true
       },
       "legacyOutput": {
-        "rsRatio": 107.71736004822267,
-        "rsMom": 103.16003216438567,
-        "quadrant": "Leading"
+        "rsRatio": 105.51304165379213,
+        "rsMom": 99.4705401008837,
+        "quadrant": "Weakening"
       }
     },
     {
@@ -194,9 +194,9 @@
         "hasBenchmarkQuote": true
       },
       "legacyOutput": {
-        "rsRatio": 101.8588060406288,
-        "rsMom": 95.44739295626542,
-        "quadrant": "Weakening"
+        "rsRatio": 99.45771991854643,
+        "rsMom": 93.9979033863712,
+        "quadrant": "Lagging"
       }
     },
     {
@@ -292,8 +292,8 @@
         "hasBenchmarkQuote": true
       },
       "legacyOutput": {
-        "rsRatio": 106.72568827351093,
-        "rsMom": 113.22726292342294,
+        "rsRatio": 108.37077712697759,
+        "rsMom": 111.25864811112915,
         "quadrant": "Leading"
       }
     },
@@ -390,9 +390,9 @@
         "hasBenchmarkQuote": true
       },
       "legacyOutput": {
-        "rsRatio": 90.16954593686279,
-        "rsMom": 95.38564589770137,
-        "quadrant": "Lagging"
+        "rsRatio": 92.75889732121094,
+        "rsMom": 100.4126388117711,
+        "quadrant": "Improving"
       }
     },
     {
@@ -628,5 +628,6 @@
         "quadrant": "Leading"
       }
     }
-  ]
+  ],
+  "modelRevision": "Audit 2026-10-17 (owner decision D3): rrg.v3 — RS-Momentum compares RS-Ratio with itself 10 sessions earlier on the same 50-session window. rsRatio/rsMom/quadrant were rebaselined from computeRelativeRotation; the inputs and reason strings are the legacy dump unchanged."
 }

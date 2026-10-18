@@ -5,6 +5,8 @@
 // eigenvalues: (Σλ)² ÷ Σλ²; equals the factor count when uncorrelated, 1 when identical).
 // The weights are not changed here — a decorrelated model is a different model and must be validated
 // as one (the candidate record, P1465, is where that evidence accumulates).
+import { FACTOR_LABELS as PRESENTATION_LABELS } from './row-presentation.js';
+
 const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 
 function ranks(values) {
@@ -60,7 +62,8 @@ function symmetricEigenvalues(matrix) {
   return a.map((row, i) => row[i]);
 }
 
-export const FACTOR_LABELS = Object.freeze({ momentum: '모멘텀', trend: '추세', lowvol: '저변동', kalman: '칼만 추세', size: '규모', value: '밸류', quality: '퀄리티' });
+// One factor vocabulary: the table, the Why drawer and this sentence read the same labels (row-presentation.js).
+export const FACTOR_LABELS = Object.freeze(Object.fromEntries(Object.entries(PRESENTATION_LABELS).map(([key, item]) => [key, item.label])));
 
 export function measureFactorOverlap(rows = [], activeFactors = []) {
   const factors = (activeFactors || []).filter((factor) => FACTOR_LABELS[factor]);
@@ -86,7 +89,7 @@ export function measureFactorOverlap(rows = [], activeFactors = []) {
 }
 
 export function overlapSentence(overlap) {
-  if (!overlap) return '모멘텀·추세·칼만 추세는 같은 가격 움직임에서 계산돼 서로 겹칠 수 있습니다(오늘 표본으로는 측정하지 못했습니다).';
+  if (!overlap) return '모멘텀·추세·추세 속도(칼만)는 같은 가격 움직임에서 계산돼 서로 겹칠 수 있습니다(오늘 표본으로는 측정하지 못했습니다).';
   const strongest = overlap.pairs[0];
   const high = overlap.pairs.filter((pair) => Math.abs(pair.rho) >= 0.6).map((pair) => `${pair.label} ${pair.rho.toFixed(2)}`);
   return `오늘 ${overlap.n}종목에서 잰 순위 상관: ${high.length ? high.join(' · ') : `가장 높은 쌍 ${strongest.label} ${strongest.rho.toFixed(2)}`} — 지표 ${overlap.factors.length}개가 실질적으로는 독립된 신호 약 ${overlap.effective?.toFixed(1) ?? '—'}개만큼의 정보입니다. 함께 높다고 근거가 그 수만큼 쌓인 것은 아닙니다.`;

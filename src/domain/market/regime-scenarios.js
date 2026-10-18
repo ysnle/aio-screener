@@ -110,7 +110,7 @@ export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(in
     { id: 'concentration', title: '소수 종목 주도', confirmed: confirmed(byId.trend?.state === 'favorable' && byId.breadth?.state === 'burden' && calmRisk && leadersHolding),
       interpretation: '이 조건들이 함께 보이면 지수 추세와 표본 종목의 참여도가 갈라진 흐름으로 읽습니다. 일부 종목에 상승이 집중됐을 가능성을 살피되, 실제 지수 구성 종목의 기여도를 확인하기 전에는 대형주가 원인이라고 단정하지 않습니다.',
       conditions: [`S&P 500의 상승 추세가 유지되지만 50일선·200일선 위 비율 중 하나가 ${RULES.breadth.weakBelow}% 미만.`, `신용 지표가 양호(HY ${RULES.credit.tightBelowBp}bp 미만, 5일·20거래일 확대 없음)이고 변동성이 부담 판정이 아닌 상태.`,
-        `주도 영역 유지: 나스닥 100이 5거래일 -${RULES.trend.leaderDrop5dPct}% 이상 밀리거나 50일선 아래로 내려간 상태에서 신저가 우위·상승 종목 ${Math.round(RULES.leadership.advanceRatioWeakBelow * 100)}% 미만·분배일 ${RULES.leadership.distributionDaysAt}일 이상·러셀 2000 200일선 아래 중 ${RULES.leadership.minConfirmations}개 이상이 겹치지 않은 상태.`],
+        `주도 영역 유지: 나스닥 100이 5거래일 -${RULES.trend.leaderDrop5dPct}% 이상 밀리거나 50일선 아래로 내려간 상태에서 신저가 우위·상승 종목 비율 ${RULES.leadership.confirmWindowSessions}거래일 평균 ${Math.round(RULES.leadership.advanceRatioWeakBelow * 100)}% 미만·분배일 ${RULES.leadership.distributionDaysAt}일 이상·러셀 2000 200일선 아래 중 ${RULES.leadership.minConfirmations}개 이상이 겹치지 않은 상태.`],
       counterEvidence: `참여도 두 비율이 모두 ${RULES.breadth.broadAtLeast}% 이상으로 넓어지면 고른 상승 쪽을 확인합니다. 주도 영역이 꺾이고 신저가·분배일·중소형주 약세가 겹치거나, 지수 추세가 약해지면서 HY·변동성 부담까지 커지면 소수 종목 주도 해석은 약해집니다.`,
       observe: ['지수 고점과 참여 종목 비율 사이의 괴리가 줄어드는지', '기존 주도 종목과 새로 강해지는 종목이 바뀌는지', '신용·변동성이 주가와 다른 경고를 내는지'] },
     { id: 'weakness', title: '동반 약세', confirmed: confirmed(byId.trend?.state === 'burden' && byId.breadth?.state === 'burden' && (byId.credit?.state === 'burden' || byId.volatility?.state === 'burden')),

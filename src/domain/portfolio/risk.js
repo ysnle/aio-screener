@@ -149,6 +149,9 @@ function _pfCashDailyRate(cashReturn) {
     return { mode: 'explicit_assumption', annualRate: rate, dailyRate: Math.pow(1 + rate, 1 / 252) - 1 };
   }
   if (cashReturn.mode === 'observed_cash_series' && Array.isArray(cashReturn.series)) {
+    // Portfolio audit 2026-10-17: a non-finite entry made the whole-account path NaN while status read 'ready'; the
+    // length is checked against the member series by the caller.
+    if (!cashReturn.series.every(function(value) { return typeof value === 'number' && isFinite(value); })) return null;
     return { mode: 'observed_cash_series', series: cashReturn.series.slice() };
   }
   return null;
@@ -326,6 +329,8 @@ export function deriveRiskEstimate(input) {
   var cashAmount = snapshot.cash && typeof snapshot.cash.amount === 'number' && isFinite(snapshot.cash.amount) && snapshot.cash.amount >= 0
     ? snapshot.cash.amount : 0;
   var cashResolved = _pfCashDailyRate(input.cashReturn);
+  // Portfolio audit 2026-10-17: an observed cash series shorter than the member series read NaN past its end.
+  if (cashResolved && cashResolved.mode === 'observed_cash_series' && cashResolved.series.length !== n) cashResolved = null;
   var wholeAccountReturns = null;
   var wholeAccountHold = null;
   var cashTreatment = null;

@@ -130,11 +130,14 @@ function growthAxis({ macro, mh }) {
   const unrate = finite(macro.unemployment) ?? lastOf(unemployment)?.value ?? null;
   let state = 'neutral';
   if (sahm == null && payroll == null && nfp == null) state = 'unknown';
-  else if ((sahm && sahm.value >= G.sahmRecessionAt) || (payroll && payroll.avg3 < 0) || (!payroll && nfp != null && nfp < 0)) state = 'burden';
+  // Audit D5: one payroll month (revised, noisy) no longer decides burden on its own; the 3-month average does.
+  else if ((sahm && sahm.value >= G.sahmRecessionAt) || (payroll && payroll.avg3 < 0)) state = 'burden';
   else if (sahm && sahm.value < G.sahmWatchAt && payroll && payroll.avg3 >= G.payrollSolidK) state = 'favorable';
   const partial = !sahm || !payroll ? ' 3개월 추세와 Sahm 지표는 월별 기록이 쌓이면 반영됩니다.' : '';
   // Expert review M18: the neutral reading names the indicator that held it there instead of a generic either/or.
-  const neutralRead = sahm && sahm.value >= G.sahmWatchAt
+  const neutralRead = !payroll && nfp != null && nfp < 0 && !(sahm && sahm.value >= G.sahmWatchAt)
+    ? `최근 1개월 일자리가 ${Math.abs(Math.round(nfp))}천 명 줄었지만, 한 달 수치는 수정과 변동이 커서 3개월 추세가 쌓일 때까지 부담으로 보지 않습니다.${partial}`
+    : sahm && sahm.value >= G.sahmWatchAt
     ? `실업률 3개월 평균이 1년 저점보다 ${sahm.value.toFixed(2)}%p 올라 주의 구간(${G.sahmWatchAt}~${G.sahmRecessionAt}%p)입니다. 아직 Sahm 경기침체 신호(${G.sahmRecessionAt}%p)에는 못 미칩니다.`
     : payroll && payroll.avg3 < G.payrollSolidK
       ? `일자리가 최근 3개월 평균 ${Math.round(payroll.avg3)}천 명씩 늘어 기준(${G.payrollSolidK / 10}만 명)에 못 미칩니다${sahm ? ` — 실업률 Sahm 지표는 ${sahm.value.toFixed(2)}%p로 낮아 침체 신호는 아닙니다` : ''}.`
@@ -182,8 +185,13 @@ function inflationAxis({ macro, mh }) {
   const breakeven = finite(macro.breakeven10);
   // v57.81 (audit X1): the direction of core inflation needs core PCE and core CPI to agree, each on its newest release —
   // the quadrant, this axis and the '물가 재가속' / '물가 둔화' scenarios all read this one flag.
+  // Macro audit 2026-10-17: the PCE pair compares the 3-month pace with the year-over-year rate of the same month, as the
+  // CPI pair already did — the released yoy (macro.corePce) can be a month newer than the history the pace is read from.
+  const paceYoy = pace ? corePceYoySeries.find((row) => row.date === pace.date)?.value ?? null : null;
+  const releasedSameMonth = pace && String(macro._asOf_corePce || '').slice(0, 7) === pace.date.slice(0, 7);
+  const pceYoyForPace = paceYoy ?? (releasedSameMonth ? yoy : null);
   const direction = inflationDirection({
-    pce: pace && yoy != null ? { pace: pace.value, yoy, date: pace.date } : null,
+    pce: pace && pceYoyForPace != null ? { pace: pace.value, yoy: pceYoyForPace, date: pace.date } : null,
     cpi: coreCpiPace && coreCpiYoy && coreCpiYoy.date === coreCpiPace.date ? { pace: coreCpiPace.value, yoy: coreCpiYoy.value, date: coreCpiPace.date } : null
   });
   const accelerating = direction.state === 'unknown' ? null : direction.dir === 'up';
@@ -199,7 +207,7 @@ function inflationAxis({ macro, mh }) {
   // branch, so the axis no longer calls it 부담 — a single 3-month pace is noisy (±0.1pp a month is ±1.2pp annualised).
   // The axis fires on agreement (direction 'up') and names the mixed reading otherwise.
   else if (yoy >= I.nearTargetPct && reaccel.length && direction.dir === 'up') { state = 'burden'; firedBy = 'reaccel'; }
-  else if (yoy <= I.nearTargetPct && !direction.anyUp && (pace ? pace.value <= yoy : delta != null && delta <= 0)) state = 'favorable';
+  else if (yoy <= I.nearTargetPct && !direction.anyUp && (pace ? pace.value <= (pceYoyForPace ?? yoy) : delta != null && delta <= 0)) state = 'favorable';
   const gap = yoy == null ? null : yoy - I.targetPct;
   const fired = reaccel[0] || null;
   const slowing = direction.state === 'mixed' ? [direction.pce, direction.cpi].find((row) => row?.dir === 'down') : null;
@@ -210,7 +218,7 @@ function inflationAxis({ macro, mh }) {
       : `근원 PCE 물가가 ${yoy.toFixed(1)}%로 목표보다 ${gap.toFixed(1)}%p 높고, ${fired.name}${fired.month ? `(${fired.month})` : ''}의 최근 3개월 속도(연율 ${fired.pace.toFixed(1)}%)가 1년치(${fired.yoy.toFixed(1)}%)보다 ${fired.margin.toFixed(1)}%p 빨라 다시 오르고 있습니다 — 부담 판정은 이 재가속 때문입니다. 연준이 금리를 내리기 어려운 조건입니다.${mixedNote}`)
     : state === 'favorable' ? `근원 PCE 물가가 ${yoy.toFixed(1)}%로 목표에 가깝고 오르는 속도가 줄고 있습니다 — 금리 인하 여지가 생기는 조건입니다.`
       : state === 'unknown' ? '물가 자료를 기다리는 중입니다.'
-        : `근원 PCE 물가 ${yoy.toFixed(1)}% — 목표보다 높지만 ${direction.state === 'mixed' && reaccel.length ? `${reaccel[0].name}${reaccel[0].month ? `(${reaccel[0].month})` : ''}만 빨라지고${mixedNote ? mixedNote.replace(/^ /, ' ') : ''} 두 지표가 함께 가리키는 재가속은 아닙니다.` : '다시 빨라지는 신호는 뚜렷하지 않습니다.'}${yoy >= I.missPct ? ` 수준 기준(${levelAt.toFixed(1)}%)에는 못 미쳐 수준만으로 부담으로 보지 않습니다.` : ''}${pace ? '' : ' 3개월 속도는 월별 기록이 쌓이면 반영됩니다.'}`;
+        : `근원 PCE 물가 ${yoy.toFixed(1)}% — ${yoy > I.targetPct ? '목표보다 높지만' : yoy < I.targetPct ? '목표보다 낮고' : '목표 수준이고'} ${direction.state === 'mixed' && reaccel.length ? `${reaccel[0].name}${reaccel[0].month ? `(${reaccel[0].month})` : ''}만 빨라지고${mixedNote} 두 지표가 함께 가리키는 재가속은 아닙니다.` : '다시 빨라지는 신호는 뚜렷하지 않습니다.'}${yoy >= I.missPct ? ` 수준 기준(${levelAt.toFixed(1)}%)에는 못 미쳐 수준만으로 부담으로 보지 않습니다.` : ''}${pace ? '' : ' 3개월 속도는 월별 기록이 쌓이면 반영됩니다.'}`;
   const gaugeOf = state === 'burden' && firedBy === 'reaccel' && fired
     ? gauge({ label: `${fired.name} 3개월 속도 − 1년치 (재가속 폭)`, value: fired.margin, unit: '%p', digits: 1, ...cuts(-2, 3, [0, I.reaccelPp], ['favorable', 'neutral', 'burden'], [[0, '0'], [I.reaccelPp, `+${I.reaccelPp} 재가속`]]) })
     : gauge({ label: '근원 PCE 물가 (전년 대비)', value: yoy, unit: '%', digits: 1, ...cuts(0, 5, [I.nearTargetPct, levelAt], ['favorable', 'neutral', 'burden'], [[I.targetPct, `목표 ${I.targetPct}%`], [levelAt, `${levelAt.toFixed(1)}%`]]) });
@@ -219,7 +227,7 @@ function inflationAxis({ macro, mh }) {
     headline: yoy == null ? null : `근원 PCE ${yoy.toFixed(1)}%${firedBy === 'reaccel' && fired ? ` · ${fired.name} 재가속` : ''}`,
     evidence: [
       ['근원 PCE (전년 대비)', yoy == null ? null : `${yoy.toFixed(1)}% (목표 ${I.targetPct}% 대비 ${signed(gap, 1, '%p')})`],
-      ['근원 PCE 3개월 속도 (연율)', pace ? `${pace.value.toFixed(1)}% ${pace.value > yoy ? '— 1년치(전년 대비)보다 빠름' : '— 1년치(전년 대비)보다 느림'}` : null],
+      ['근원 PCE 3개월 속도 (연율)', pace ? `${pace.value.toFixed(1)}% ${pace.value > (pceYoyForPace ?? yoy) ? '— 1년치(전년 대비)보다 빠름' : '— 1년치(전년 대비)보다 느림'}` : null],
       ['근원 CPI 3개월 속도 (연율)', coreCpiPace ? `${coreCpiPace.value.toFixed(1)}%${coreCpiYoy ? ` (${monthLabel(coreCpiPace.date)} · 전년 대비 ${coreCpiYoy.value.toFixed(1)}%)` : ''}` : null],
       ['물가 방향 (PCE·CPI)', direction.state === 'unknown' ? null : `${direction.label} — ${direction.text}`],
       ['6개월 전 근원 PCE', sixMonthsAgo == null ? null : `${sixMonthsAgo.toFixed(1)}%`],
@@ -230,22 +238,30 @@ function inflationAxis({ macro, mh }) {
     flip: state === 'unknown' ? null : `근원 PCE ${levelAt.toFixed(1)}% 이상(${I.missPct.toFixed(1)}% 선 + ${MACRO_SIGNAL_RULES.inflationLevelBufferPp}%p), 또는 ${I.nearTargetPct}% 이상에서 근원 PCE·CPI가 함께 재가속(3개월 속도가 1년치보다 ${I.reaccelPp}%p 이상 빠름)하면 부담 · ${I.nearTargetPct}% 이하이면서 3개월 속도가 1년치 이하(두 지표 모두 재가속 아님)면 양호`,
     link: '물가가 목표보다 높으면 연준은 금리를 높게 유지합니다. 높은 금리는 미래 이익의 현재 가치를 낮춰 성장주 밸류에이션(PER)에 특히 부담이 됩니다.',
     asOf: macro._asOf_corePce || pace?.date || null,
-    detail: { yoy, pace, accelerating, direction, firedBy }
+    detail: { yoy, pace, paceYoy: pceYoyForPace, accelerating, direction, firedBy }
   });
 }
 
-function policyAxis({ macro, inflationState }) {
+/** The 2-year yield against the target-range midpoint — one definition for the policy axis and the chain's policy node. */
+function policyPricing(macro) {
   const upper = finite(macro.fedTargetUpper);
   const lower = finite(macro.fedTargetLower);
   const mid = upper != null && lower != null ? (upper + lower) / 2 : null;
-  const corePce = finite(macro.corePce);
   const twoYear = finite(macro.dgs2);
+  return { upper, lower, mid, twoYear, pricing: mid != null && twoYear != null ? twoYear - mid : null };
+}
+
+function policyAxis({ macro, inflationState, growthState = null }) {
+  const { upper, lower, mid, twoYear, pricing } = policyPricing(macro);
+  const corePce = finite(macro.corePce);
   const realPolicy = mid != null && corePce != null ? mid - corePce : null;
-  const pricing = mid != null && twoYear != null ? twoYear - mid : null;
   let state = 'neutral';
   if (mid == null || (pricing == null && realPolicy == null)) state = 'unknown';
   else if ((pricing != null && pricing >= P.pricedMovePp) || (realPolicy != null && realPolicy >= P.restrictiveRealPct)) state = 'burden';
-  else if (pricing != null && pricing <= -P.pricedMovePp && inflationState !== 'burden') state = 'favorable';
+  // Audit D3: cuts priced because growth is breaking are not a tailwind (the axis link says so), so a weak growth axis
+  // holds the reading at neutral instead of favorable.
+  const recessionCut = pricing != null && pricing <= -P.pricedMovePp && growthState === 'burden';
+  if (state === 'neutral' && pricing != null && pricing <= -P.pricedMovePp && inflationState !== 'burden' && !recessionCut) state = 'favorable';
   // P1449: 2년물 − 기준금리 중간값은 정책 경로와 기간·위험 프리미엄을 분리하지 못한 대용 지표다.
   // 관측(수준)은 그대로 말하고, "시장이 인상/인하를 반영"이라는 해석은 프리미엄 미분해를 명시한다.
   const PRICING_BASIS = '기간·위험 프리미엄 분해 자료가 없는 대용 지표(2년물 − 기준금리 중간값)';
@@ -256,7 +272,8 @@ function policyAxis({ macro, inflationState }) {
       : `물가를 뺀 실질 기준금리가 ${realPolicy.toFixed(1)}%로 중립 수준(약 ${P.neutralRealPct}%)보다 훨씬 높은 긴축 상태입니다.`)
     : state === 'favorable' ? `2년물이 기준금리보다 ${Math.abs(pricing).toFixed(2)}%p 낮습니다. 인하 가능성이 일부 반영됐을 수 있지만, 프리미엄을 분리한 자료가 없어 ‘인하 예상’으로 단정할 수는 없습니다.`
       : state === 'unknown' ? '정책금리나 2년물 자료를 기다리는 중입니다.'
-        : `시장이 보는 2년물은 당분간 ${pricingText || '큰 변화 없는'} 수준입니다(${PRICING_BASIS}).`;
+        : recessionCut ? `2년물이 기준금리보다 ${Math.abs(pricing).toFixed(2)}%p 낮지만, 성장 축이 부담이라 경기 악화 때문에 인하를 반영하는 쪽으로 읽어 양호로 보지 않습니다(${PRICING_BASIS}).`
+          : `시장이 보는 2년물은 당분간 ${pricingText || '큰 변화 없는'} 수준입니다(${PRICING_BASIS}).`;
   return axis('policy', '통화정책', state, {
     gauge: state === 'burden' && (pricing == null || pricing < P.pricedMovePp) && realPolicy != null ? gauge({ label: '실질 기준금리 (중간값 − 근원 PCE)', value: realPolicy, unit: '%', digits: 1, ...cuts(-2, 4, [P.restrictiveRealPct], ['neutral', 'burden'], [[P.neutralRealPct, `중립 약 ${P.neutralRealPct}%`], [P.restrictiveRealPct, `${P.restrictiveRealPct}%`]]) }) : gauge({ label: '2년물 − 기준금리 중간값', value: pricing, unit: '%p', digits: 2, ...cuts(-1.5, 1.5, [-P.pricedMovePp, P.pricedMovePp], ['favorable', 'neutral', 'burden'], [[-P.pricedMovePp, `−${P.pricedMovePp}%p`], [P.pricedMovePp, `+${P.pricedMovePp}%p`]]) }),
     // Codex review 2026-10-05: the headline states the observed gap; the reading below says why it is not
@@ -268,7 +285,7 @@ function policyAxis({ macro, inflationState }) {
       ['실질 기준금리 (중간값 − 근원 PCE)', realPolicy == null ? null : `${realPolicy.toFixed(1)}% (중립 약 ${P.neutralRealPct}%)`]
     ],
     read,
-    flip: state === 'unknown' ? null : `2년물이 기준금리 중간값보다 ${P.pricedMovePp}%p 이상 높거나 실질 기준금리 ${P.restrictiveRealPct}% 이상이면 부담 · ${P.pricedMovePp}%p 이상 낮고(인하 반영) 물가가 부담이 아니면 양호`,
+    flip: state === 'unknown' ? null : `2년물이 기준금리 중간값보다 ${P.pricedMovePp}%p 이상 높거나 실질 기준금리 ${P.restrictiveRealPct}% 이상이면 부담 · ${P.pricedMovePp}%p 이상 낮고(인하 반영) 물가·성장이 부담이 아니면 양호`,
     link: '2년물 금리에는 앞으로 1~2년의 기준금리 예상과 기간·위험 프리미엄이 함께 들어 있습니다. 위쪽으로 벌어지면 달러 강세와 높은 할인율이 함께 오고, 인하 쪽이면 반대입니다. 단, 경기 악화 때문에 인하를 반영하는 경우는 주식에 좋은 신호가 아닙니다.',
     asOf: macro._asOf_dgs2 || null,
     detail: { mid, pricing, realPolicy }
@@ -359,7 +376,7 @@ function buildRegime(growth, inflation, mh = null) {
   const growthMargin = g?.payroll && g?.sahm && g.sahm.value < G.sahmWatchAt ? g.payroll.avg3 - (g.payroll.prior3 - G.payrollSlowdownK) : null;
   // v57.81 (audit X1): the inflation direction is the shared PCE·CPI flag (inflationAxis detail.direction).
   const dirFlag = i?.direction && i.direction.state !== 'unknown' ? i.direction : null;
-  const inflationMargin = i?.pace && i.yoy != null ? i.pace.value - i.yoy : null;
+  const inflationMargin = i?.pace && (i.paceYoy ?? i.yoy) != null ? i.pace.value - (i.paceYoy ?? i.yoy) : null;
   const splitShort = dirFlag?.state === 'mixed' ? [dirFlag.pce, dirFlag.cpi].map((row) => `${row.name}${row.month ? ` ${row.month}` : ''} ${row.dir === 'up' ? '재가속' : '둔화'}`).join(' · ') : null;
   const flatNote = dirFlag?.state === 'flat' ? [dirFlag.pce, dirFlag.cpi].filter(Boolean).filter((row) => row.dir === 'flat').map((row) => `${row.name} 3개월 연율과 전년 대비의 차이 ${Math.abs(row.margin).toFixed(1)}%p(${I.reaccelPp}%p 미만)`).join(' · ') : null;
   const near = {
@@ -407,7 +424,7 @@ function buildRegime(growth, inflation, mh = null) {
     g?.sahm ? ['Sahm 지표', `${n(g.sahm.value, 2)}%p`, `${G.sahmWatchAt}%p 이상이면 둔화`, g.sahm.value >= G.sahmWatchAt ? '둔화 신호' : '기준 미만'] : ['Sahm 지표', '—', `${G.sahmWatchAt}%p 이상이면 둔화`, '자료 없음'],
     g?.payroll ? ['일자리 증가 3개월 평균', `${n(g.payroll.avg3, 0)}천 명 (직전 3개월 ${n(g.payroll.prior3, 0)}천 명)`, `직전보다 ${G.payrollSlowdownK}천 명 넘게 적으면 둔화 · ${G.payrollSolidK}천 명 이상이면 견조`, growthHeld ? (near.growth ? '경계 · 방향 보류 (근소)' : `${growthHeld} — 방향 보류`) : g.sahm && g.sahm.value >= G.sahmWatchAt ? '판정은 Sahm 지표' : growthDir === 'down' ? '둔화 신호' : '견조'] : ['일자리 증가 3개월 평균', '—', '직전 3개월과 비교', '자료 없음'],
     ...(dirFlag ? [dirFlag.pce, dirFlag.cpi].filter(Boolean).map((row) => [`${row.name}${row.month ? ` (${row.month})` : ''}`, `최근 3개월 연율 ${n(row.pace)}% · 전년 대비 ${n(row.yoy)}%`, `차이 ${I.reaccelPp}%p 이상이면 그 방향(빠르면 상승, 느리면 둔화)`, row.dir === 'up' ? '상승 방향' : row.dir === 'down' ? '둔화 방향' : `방향 없음 (차이 ${n(Math.abs(row.margin))}%p)`])
-      : [i?.pace && i.yoy != null ? ['근원 PCE', `최근 3개월 연율 ${n(i.pace.value)}% · 전년 대비 ${n(i.yoy)}%`, `차이 ${I.reaccelPp}%p 이상이면 그 방향(빠르면 상승, 느리면 둔화)`, inflationHeld ? `${inflationHeld} (차이 ${n(Math.abs(inflationMargin))}%p)` : inflationDir === 'up' ? '상승 방향' : '둔화 방향'] : ['근원 PCE', '—', '3개월 연율과 전년 대비 비교', '자료 없음']]),
+      : [i?.pace && i.yoy != null ? ['근원 PCE', `최근 3개월 연율 ${n(i.pace.value)}% · 전년 대비 ${n(i.paceYoy ?? i.yoy)}%`, `차이 ${I.reaccelPp}%p 이상이면 그 방향(빠르면 상승, 느리면 둔화)`, inflationHeld ? `${inflationHeld} (차이 ${n(Math.abs(inflationMargin))}%p)` : inflationDir === 'up' ? '상승 방향' : '둔화 방향'] : ['근원 PCE', '—', '3개월 연율과 전년 대비 비교', '자료 없음']]),
     ...(dirFlag && !dirFlag.single ? [['물가 방향 (두 지표)', dirFlag.label, '두 지표가 같은 쪽이어야 방향 · 반대면 엇갈림', inflationDir ? (inflationDir === 'up' ? '상승 방향' : '둔화 방향') : `${inflationHeld} — 방향 보류`]] : [])
   ];
   const picked = key ? table[key] : null;
@@ -437,13 +454,14 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
   const oilHeld = oilDivergence(oil).held;
   // P1726 (P1592 pattern): a 5-session move against the 20-session direction is named beside it (direction unchanged).
   const wti5 = fx.wti5 ?? null;
-  const oilShort = wti20 != null && wti5 != null && Math.abs(wti5) >= 3 && Math.sign(wti5) !== Math.sign(wti20) ? `(최근 5일 ${signed(wti5, 1, '%')} ${wti5 > 0 ? '반등' : '반락'})` : '';
+  const oilShort = wti20 != null && wti5 != null && Math.abs(wti5) >= RULES.oil.turn5dPct && Math.sign(wti5) !== Math.sign(wti20) ? `(최근 5일 ${signed(wti5, 1, '%')} ${wti5 > 0 ? '반등' : '반락'})` : '';
   // P1528 (audit H17): a real yield and a breakeven observed on different days are not comparable. The briefing already
   // holds them apart (market-read splitHeld); the chain must not draw or compare their 5-day moves either.
   const asOfDay = (value) => String(value || '').slice(0, 10);
   const splitReal = !!(macro._asOf_realYield10 && macro._asOf_breakeven10 && asOfDay(macro._asOf_realYield10) !== asOfDay(macro._asOf_breakeven10));
   const bei5 = splitReal ? null : finite(macro.breakeven10Delta5);
-  const pricing = finite(macro.dgs2) != null && finite(macro.fedTargetUpper) != null ? finite(macro.dgs2) - (finite(macro.fedTargetUpper) - 0.125) : null;
+  // Macro audit 2026-10-17: the same midpoint as the 통화정책 axis — upper − 0.125 assumed a 25bp-wide range.
+  const pricing = policyPricing(macro).pricing;
   const tnx20 = fx.tnx20 ?? null;
   const real5 = splitReal ? null : finite(macro.realYield10Delta5);
   const dxy20 = fx.dxy20 ?? null;
@@ -560,7 +578,7 @@ export function buildMacroRead({ macro = null, macroHistory = null, regime = nul
   const oil = brentWtiCheck(macroHistory, Array.isArray(history) ? history : []);
   const growth = growthAxis({ macro: m, mh });
   const inflation = inflationAxis({ macro: m, mh });
-  const policy = policyAxis({ macro: m, inflationState: inflation.state });
+  const policy = policyAxis({ macro: m, inflationState: inflation.state, growthState: growth.state });
   const axes = [
     growth, inflation, policy,
     reuse(regime, 'rates', '금리 · 할인율', '10년물 금리는 주식 가치를 계산하는 할인율의 기준입니다. 빠르게 오르면 PER이 높은 성장주부터 부담을 받습니다.', gauges.rates),

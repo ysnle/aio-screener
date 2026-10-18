@@ -346,7 +346,16 @@ check('market analysis news selection uses independent clusters instead of a bli
 check('news artifacts expose source tier, content depth, event time, and independence lineage', /sourceTierLabel/.test(fetchData) && /contentDepth:\s*'headline-only'/.test(fetchData) && /eventTime:/.test(fetchData) && /independenceKey:/.test(fetchData));
 check('market-analysis news evidence excludes headline-only rows and requires article content', /isMarketAnalysisNewsEligible/.test(fetchData) && /MARKET_ANALYSIS_NEWS_HEADLINE_DEPTHS/.test(fetchData) && /body\.length\s*>=\s*40/.test(fetchData) && /causalEvidence\s*=\s*buildMarketAnalysisNewsEvidence\(data\)/.test(fetchData));
 check('server Treasury curve bridge projects every dated maturity to browser consumers', /AIO_SERVER_TREASURY_FIELDS/.test(data) && ['dgs2', 'dgs5', 'dgs10', 'dgs20', 'dgs30', 't10y2y'].every((field) => new RegExp(`field:\\s*'${field}'`).test(data)) && /window\._fredData\s*=\s*fred/.test(data) && /DATA_SNAPSHOT\[snapshotKey\]/.test(data) && /globalThis\[definition\.runtimeKey\]/.test(data) && /window\._live5Y/.test(data) && /window\._live20Y/.test(data) && /tnx20y/.test(data) && /treasuryProjectedFields/.test(data));
-check('CPI contract keeps BLS NSA market-standard and SA analytical series explicitly separate', /CUUR0000SA0/.test(fetchData) && /CUSR0000SA0/.test(fetchData) && /seasonalAdjustment:\s*'NSA'/.test(fetchData) && /seasonalAdjustment:\s*'SA'/.test(fetchData) && /blsCpiSaYoY/.test(fetchData) && /blsCoreCpiSaYoY/.test(fetchData) && /CPIAUCNS/.test(fetchData) && /expectedAdjustment/.test(fetchData) && /_canonicalCpiDefinitionBlocked/.test(data));
+// Legacy unification (2026-10-17): the browser macro projection lives in src/data/server-macro.js; run it.
+const { applyServerMacro } = await import('../src/data/server-macro.js');
+const cpiProjection = (adjustment) => {
+  const snapshot = { _fieldTs: {} };
+  const series = { cpi: { status: 'ok', seasonalAdjustment: adjustment }, cpiSa: { status: 'ok', seasonalAdjustment: 'SA' } };
+  applyServerMacro({ data: { meta: { fredFetchOk: true }, macro: { cpi: 3.1, _bls: { series, values: { blsCpiYoY: 2.9, blsCpiSaYoY: 2.8 } } } }, snapshot, evidence: {} });
+  return snapshot;
+};
+const cpiDefinitionGate = cpiProjection('NSA').cpi === 2.9 && cpiProjection('NSA').cpiSa === 2.8 && cpiProjection('SA').cpi === undefined && cpiProjection('SA').cpiSa === 2.8;
+check('CPI contract keeps BLS NSA market-standard and SA analytical series explicitly separate', /CUUR0000SA0/.test(fetchData) && /CUSR0000SA0/.test(fetchData) && /seasonalAdjustment:\s*'NSA'/.test(fetchData) && /seasonalAdjustment:\s*'SA'/.test(fetchData) && /blsCpiSaYoY/.test(fetchData) && /blsCoreCpiSaYoY/.test(fetchData) && /CPIAUCNS/.test(fetchData) && /expectedAdjustment/.test(fetchData) && cpiDefinitionGate);
 check('screener validator exposes mixed revision and fundamental field lineage gates', /mixedRevision/.test(read('scripts/validate-screener-artifact.mjs')) && /fundamental rows require source\/model\/observedAt lineage/.test(read('scripts/validate-screener-artifact.mjs')) && /fieldCoverage/.test(read('scripts/validate-screener-artifact.mjs')));
 check('fetch-data ranks backstop news by market-impact score', /scoreServerNewsItem/.test(fetchData) && /SERVER_NEWS_PRIORITY_RULES/.test(fetchData) && /selectionReason/.test(fetchData) && /serverNewsScored/.test(fetchData) && /newsScoreMax/.test(fetchData));
 check('fetch-data has first-class credit/funding news backstop', /Google News - Credit\/Funding/.test(fetchData) && /topic:\s*'credit'/.test(fetchData) && /credit-funding/.test(fetchData) && /capex funding/.test(fetchData) && /data center financing/.test(fetchData));
@@ -361,7 +370,25 @@ check('screener Kalman factor uses comparable log percent scale', /Math\.log\(v\
 check('screener pipeline emits timestamped universe breadth and a research-only ranking contract', /computeScreenerBreadth/.test(fetchData) && /factorObservedAt/.test(fetchData) && /coveragePct/.test(fetchData) && /rankingContract/.test(fetchData) && /research-relative-ranking-only/.test(fetchData));
 check('fetch-data preserves the last-known-good artifact on core quote outage', /CORE_QUOTE_COVERAGE_FAILED/.test(fetchData) && fetchData.indexOf('CORE_QUOTE_COVERAGE_FAILED') < fetchData.indexOf('await atomicWriteFile(OUT'));
 check('22-category reconciliation is computed from executable artifact checks, not a static status table', /buildReconciliationStatus/.test(reconciliationBuilder) && /evidenceCheck/.test(reconciliationBuilder) && /runtimeBlockedCategories/.test(reconciliationBuilder) && /policyBlockedCategories/.test(reconciliationBuilder) && !/const CATEGORY_STATUS/.test(reconciliationBuilder));
-check('browser reloads reconciliation with data polling and rejects market revision drift', /reconciliation-status\.json\?t=/.test(data) && /reconciliation-status-v2/.test(data) && /sourceRevisionMatches/.test(data) && /market snapshot revision mismatch/.test(data) && /getDataReconciliationStatus/.test(data));
+// Legacy unification (2026-10-17): the data.json fetch, reconciliation check and market-cycle gate live in
+// src/data/server-data.js; run them instead of reading the loader's source.
+const serverData = await import('../src/data/server-data.js');
+const serverMetaFixture = (meta, nowIso = '2026-09-12T15:20:00.000Z') => serverData.buildServerDataMeta({ meta: { generatedAt: '2026-09-12T15:16:10.361Z', cycleStatus: 'PUBLISHED', marketSnapshotPublished: true, marketSnapshotCoverage: { tier0Required: 16, tier0Observed: 16 }, ...meta } }, { reconciliation: null, now: Date.parse(nowIso) });
+{
+  const categories = Array.from({ length: 22 }, (_, i) => ({ categoryId: `c${i}` }));
+  const payload = { schemaVersion: 'reconciliation-status-v2', categories, closure: { sourceRevision: 'rev-a' } };
+  const requested = [];
+  const fakeFetch = async (url) => { requested.push(String(url).split('?')[0]); return { ok: true, json: async () => (String(url).includes('data.json') ? { meta: { marketSnapshotRevision: 'rev-b' } } : payload) }; };
+  const fetched = await serverData.fetchServerData({ fetch: fakeFetch, now: () => 0 });
+  const matched = serverData.readReconciliationState(payload, 'rev-a', 0);
+  check('browser reloads reconciliation with data polling and rejects market revision drift',
+    JSON.stringify(requested) === '["./public-data/data.json","./public-data/reconciliation-status.json"]'
+      && fetched.reconciliation.status === 'stale' && fetched.reconciliation.detail === 'market snapshot revision mismatch'
+      && matched.status === 'ready' && matched.sourceRevisionMatches === true
+      && serverData.readReconciliationState({ ...payload, schemaVersion: 'v1' }, 'rev-a', 0).status === 'unavailable'
+      && /getDataReconciliationStatus/.test(data),
+    JSON.stringify({ requested, fetched: fetched.reconciliation?.status, matched: matched.status }));
+}
 check('all market-sensitive pages share one category-to-epoch contract', /PAGE_MARKET_EPOCH_CONTRACT/.test(core) && /getPageMarketEpochState/.test(core) && /applyPageMarketEpoch/.test(core) && /getPageMarketEpochAudit/.test(core));
 check('page evidence is fail-closed by shared market epoch and revision state', /market-epoch-blocked/.test(core) && /market-epoch-partial/.test(core) && /data-market-revision/.test(core) && /data-market-cut-end/.test(core) && /aio:marketEpochUpdated/.test(core));
   check('server quote rows emit explicit observation/fetch/delay/session/venue/use lineage', /observedAt:\s*Number\.isFinite\(m\.regularMarketTime\)/.test(fetchData) && /fetchedAt:\s*new Date\(\)\.toISOString\(\)/.test(fetchData) && /delayedByMs:/.test(fetchData) && /marketSession:/.test(fetchData) && /venue:/.test(fetchData) && /sourceKind:\s*'T3_PUBLIC_DELAYED'/.test(fetchData) && /allowedUse:\s*'reference-only'/.test(fetchData));
@@ -371,8 +398,13 @@ check('ticker news keeps publication and fetch timestamps separate and provider 
 check('core refresh ingests official delayed Cboe statistics without a public CORS proxy', /parseCboePutCallHtml/.test(fetchData) && /Cboe Daily Market Statistics/.test(fetchData) && /sourceKind:\s*'T3_PUBLIC_DELAYED'/.test(fetchData) && /fetchCboePutCall\(\)/.test(fetchData));
 check('client applies server Cboe data first and protects it from failed legacy proxy fallback', /d\.putCall\.totalPutCall/.test(data) && /sourceLabel:\s*'Cboe Daily Market Statistics'/.test(data) && /must not overwrite a fresher official/.test(data));
 // v57.76: the personal-FRED-key retry after a server FRED failure was removed with the retired personal keys.
-check('client preserves the server shared cycle; v57.76 no personal FRED retry remains', /newsCycleStart:\s*d\.meta\.newsCycleStart/.test(data) && /marketSnapshotRevision:\s*d\.meta\.marketSnapshotRevision/.test(data) && /cycleManifestRevision:\s*d\.meta\.cycleManifestRevision/.test(data) && /marketCycleFreshnessSlaHours/.test(data) && !/_clientFredKey|DATA_APIS\.fred/.test(data));
-check('cold server-data projection performs a bounded full-loader replay until DATA_SNAPSHOT exists', /_snapshotBridgeWait\s*<\s*60/.test(data) && /_aioServerDataBridgeAttempts\s*<=\s*5/.test(data) && /_aioLoadServerData\(\)/.test(data) && /waiting-for-snapshot/.test(data));
+{
+  const shared = serverMetaFixture({ newsCycleStart: 'n0', marketSnapshotRevision: 'm0', cycleManifestRevision: 'c0', marketCycleFreshnessSlaHours: 48 });
+  check('client preserves the server shared cycle; v57.76 no personal FRED retry remains',
+    shared.newsCycleStart === 'n0' && shared.marketSnapshotRevision === 'm0' && shared.cycleManifestRevision === 'c0' && shared.marketCycleFreshnessSlaHours === 12
+      && /_aioBuildServerDataMeta\(d, fetched\.reconciliation\)/.test(data) && !/_clientFredKey|DATA_APIS\.fred/.test(data));
+}
+check('cold server-data projection performs a bounded full-loader replay until DATA_SNAPSHOT exists', /_snapshotBridgeWait\s*<\s*60/.test(data) && /_aioServerDataBridgeAttempts\s*<=\s*5/.test(data) && /_aioLoadServerData\(\)/.test(data));
 check('P1518 free SEC fundamentals use bounded batches and shared atomic persistence', exists('scripts/fetch-sec-fundamentals.mjs') && /SEC_BATCH_LIMIT/.test(read('scripts/fetch-sec-fundamentals.mjs')) && /SEC_USER_AGENT/.test(read('scripts/fetch-sec-fundamentals.mjs')) && /import \{ atomicWriteFile \} from '\.\/lib\/atomic-write\.mjs'/.test(read('scripts/fetch-sec-fundamentals.mjs')) && /await atomicWriteFile\(path, JSON\.stringify\(value, null, 1\)\)/.test(read('scripts/fetch-sec-fundamentals.mjs')));
 check('BLS direct adapter is keyless, bounded, cadence-gated, and merged as typed official evidence',
   /BLS_SERIES/.test(fetchData) && /api\.bls\.gov\/publicAPI\/v1\/timeseries\/data/.test(fetchData) &&
@@ -1229,6 +1261,86 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('P1875 SEC IFRS and non-USD filers are read ratio-only on one basis; price ratios and non-USD amounts are withheld', ok, detail.slice(0, 600));
 }
 {
+  // P1910 (v57.99, 2026-10-17 SEC logic audit): (1) a US-GAAP 20-F that adds a USD convenience translation (BABA/JD/PDD in CNY) is read on its
+  // statements' own currency, so USD growth no longer carries the exchange rate; (2) a 20-F share count (ordinary shares, ADS
+  // ratio unknown) prices nothing — in the normalizer and in the publish-time heal of stored records; a 40-F keeps its count;
+  // (3) P/E and P/B are priced only on the supplied close; (4) a 52/53-week year ending in early January is the prior FY;
+  // (5) the report's 'current' age is the one 456-day rule.
+  let ok = false;
+  let detail = '';
+  try {
+    const { normalizeSecCompanyFacts, reportingBasis } = await import('../src/domain/fundamental/sec-normalize.js');
+    const { reconcileSecRevenueShares, SEC_FRESHNESS_POLICY } = await import('../src/domain/fundamental/sec-report.js');
+    const { secFundamentalRowFields } = await import('../src/domain/fundamental/sec-row-fields.js');
+    const { fiscalYearLabel, annualFilingStatus, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } = await import('../src/domain/fundamental/period.js');
+    const fy = (val, accn, start, end, filed, form) => ({ val, accn, start, end, filed, form, fp: 'FY' });
+    const facts = (form, withCny) => ({ facts: {
+      dei: { EntityCommonStockSharesOutstanding: { units: { shares: [{ end: '2026-05-01', filed: '2026-05-20', form, fp: 'FY', val: 19.2e9, accn: 'b' }] } } },
+      'us-gaap': {
+        Revenues: { units: { USD: [fy(137.3e9, 'a', '2024-04-01', '2025-03-31', '2025-06-26', form), fy(148.4e9, 'b', '2025-04-01', '2026-03-31', '2026-05-20', form)],
+          ...(withCny ? { CNY: [fy(941e9, 'a', '2024-04-01', '2025-03-31', '2025-06-26', form), fy(941e9, 'b', '2024-04-01', '2025-03-31', '2026-05-20', form), fy(1070e9, 'b', '2025-04-01', '2026-03-31', '2026-05-20', form)] } : {}) } },
+        NetIncomeLoss: { units: { USD: [fy(15e9, 'b', '2025-04-01', '2026-03-31', '2026-05-20', form)], ...(withCny ? { CNY: [fy(108e9, 'b', '2025-04-01', '2026-03-31', '2026-05-20', form)] } : {}) } },
+        StockholdersEquity: { units: { USD: [{ end: '2026-03-31', filed: '2026-05-20', form, fp: 'FY', val: 150e9, accn: 'b' }] } },
+        EarningsPerShareDiluted: { units: { 'USD/shares': [fy(0.78, 'b', '2025-04-01', '2026-03-31', '2026-05-20', form)] } }
+      } } });
+    const now = Date.parse('2026-10-17T00:00:00Z');
+    const cny = normalizeSecCompanyFacts('BABA', facts('20-F', true), 170, null);
+    const usd20f = normalizeSecCompanyFacts('ARMX', facts('20-F', false), 170, null);
+    const usd40f = normalizeSecCompanyFacts('CNQX', facts('40-F', false), 170, null);
+    const healed = reconcileSecRevenueShares({ form: '20-F', observedAt: '2026-03-31', sharesOutstanding: 19.2e9, sharesObservedAt: '2026-05-01', sharesCheck: 'consistent', pe: 142, pb: 13.9, coverage: ['sharesOutstanding', 'pe', 'pb'] });
+    const priced = secFundamentalRowFields({ observedAt: '2026-03-31', filedAt: '2026-05-20', fetchedAt: '2026-10-01', netIncome: 10e9, equity: 50e9, sharesOutstanding: 1e9, sharesObservedAt: '2026-05-01', sharesCheck: 'consistent', pe: 5, pb: 1 }, { price: 100, nowMs: now });
+    ok = reportingBasis(facts('20-F', true), now).currency === 'CNY' && reportingBasis(facts('20-F', false), now).currency === 'USD'
+      && cny?.reportingCurrency === 'CNY' && cny.revenue === null && cny.revGrowth === 13.7 && cny.pe == null && cny.sharesCheck === 'reporting-currency-differs'
+      && usd20f?.reportingCurrency === 'USD' && usd20f.revenue === 148.4e9 && usd20f.sharesOutstanding === null && usd20f.pe == null && usd20f.sharesCheck === 'foreign-share-basis-unverified'
+      && usd40f?.sharesOutstanding > 0 && usd40f.pe > 0
+      && healed.sharesOutstanding === null && healed.pe === undefined && healed.pb === undefined && healed.sharesHeld?.reason === 'foreign-share-basis-unverified' && !healed.coverage.includes('pe')
+      && priced?.pe === 10 && priced.pePrice === 100 && priced.pb === 2
+      && fiscalYearLabel('2026-01-03') === 'FY2025' && fiscalYearLabel('2026-01-31') === 'FY2026' && annualFilingStatus('2026-01-02', now)?.fyLabel === 'FY2025'
+      && SEC_FRESHNESS_POLICY.currentMaxAgeDays === FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
+    detail = JSON.stringify({ cny: cny && { cur: cny.reportingCurrency, g: cny.revGrowth, sc: cny.sharesCheck }, usd20f: usd20f && { sh: usd20f.sharesOutstanding, sc: usd20f.sharesCheck }, usd40f: usd40f && { sh: usd40f.sharesOutstanding, pe: usd40f.pe }, healed: { sh: healed.sharesOutstanding, held: healed.sharesHeld }, priced: priced && { pe: priced.pe, pb: priced.pb } });
+  } catch (error) { detail = error.message; }
+  check('P1910 SEC audit: convenience-translated filers read on their own currency, 20-F counts price nothing, ratios use the supplied close', ok, detail.slice(0, 600));
+}
+{
+  // P1910 (v57.99, owner-approved audit recommendations D1/D2/D6/D7/D8): P/E is priced on the last four quarters when they end after the
+  // fiscal year (a fourth quarter filed only in the 10-K is FY − Q1..Q3), on earnings available to common when every period tags them;
+  // ROE is over average equity; a series keeps its latest concept; the company panel's statements come from the ESM parser.
+  let ok = false;
+  let detail = '';
+  try {
+    const { reconcileSecEarningsBasis, anchorConceptRows, SEC_FIELD_CONCEPT_PREFERENCE } = await import('../src/domain/fundamental/sec-earnings.js');
+    const { secFundamentalRowFields } = await import('../src/domain/fundamental/sec-row-fields.js');
+    const { parseSecStatements } = await import('../src/domain/fundamental/sec-statements.js');
+    const row = (field, concept, value, periodStart, periodEnd, filedAt, form = '10-Q') => ({ field, concept, value, periodStart, periodEnd, filedAt, form, fiscalPeriod: form === '10-K' ? 'FY' : 'Q' });
+    const q = (field, concept, d) => [row(field, concept, 100 - d, '2025-01-01', '2025-03-31', '2025-05-01'), row(field, concept, 100 - d, '2025-04-01', '2025-06-30', '2025-08-01'),
+      row(field, concept, 100 - d, '2025-07-01', '2025-09-30', '2025-11-01'), row(field, concept, 150 - d, '2026-01-01', '2026-03-31', '2026-05-01'), row(field, concept, 150 - d, '2026-04-01', '2026-06-30', '2026-08-01')];
+    const base = { observedAt: '2025-12-31', netIncome: 400, equity: 2000, roe: 20, sharesOutstanding: 10, sharesObservedAt: '2026-02-01', sharesCheck: 'consistent', filedAt: '2026-02-20', fetchedAt: '2026-10-10', coverage: ['roe'],
+      pit: { observations: {
+        netIncome: [row('netIncome', 'NetIncomeLoss', 400, '2025-01-01', '2025-12-31', '2026-02-20', '10-K'), row('netIncome', 'ProfitLoss', 420, '2025-01-01', '2025-12-31', '2026-02-20', '10-K')],
+        netIncomeQ: q('netIncomeQ', 'NetIncomeLoss', 0),
+        equity: [{ field: 'equity', concept: 'StockholdersEquity', value: 2000, periodEnd: '2025-12-31', filedAt: '2026-02-20', form: '10-K' }, { field: 'equity', concept: 'StockholdersEquity', value: 1600, periodEnd: '2024-12-31', filedAt: '2026-02-20', form: '10-K' }] } } };
+    const ttm = reconcileSecEarningsBasis(base);
+    const withCommon = reconcileSecEarningsBasis({ ...base, pit: { observations: { ...base.pit.observations, netIncomeCommon: [row('netIncomeCommon', 'NetIncomeLossAvailableToCommonStockholdersBasic', 360, '2025-01-01', '2025-12-31', '2026-02-20', '10-K')], netIncomeCommonQ: q('netIncomeCommonQ', 'NetIncomeLossAvailableToCommonStockholdersBasic', 10) } } });
+    const noPrior = reconcileSecEarningsBasis({ ...base, pit: { observations: { ...base.pit.observations, equity: base.pit.observations.equity.slice(0, 1), netIncomeQ: [] } } });
+    const priced = secFundamentalRowFields(ttm, { price: 100, nowMs: Date.parse('2026-10-17T00:00:00Z') });
+    const debt = anchorConceptRows([{ concept: 'LongTermDebt', value: 9, periodEnd: '2025-12-31' }, { concept: 'LongTermDebtNoncurrent', value: 8, periodEnd: '2025-12-31' }, { concept: 'LongTermDebtNoncurrent', value: 7, periodEnd: '2024-12-31' }, { concept: 'LongTermDebt', value: 6, periodEnd: '2024-12-31' }, { concept: 'LongTermDebt', value: 5, periodEnd: '2023-12-31' }], SEC_FIELD_CONCEPT_PREFERENCE.longTermDebt);
+    const fyRow = (val, start, end) => ({ val, start, end, filed: '2025-03-10', form: '20-F', fp: 'FY', accn: 'x' });
+    const twd = parseSecStatements({ facts: { 'ifrs-full': { Revenue: { units: { TWD: [fyRow(2.16e12, '2023-01-01', '2023-12-31'), fyRow(2.89e12, '2024-01-01', '2024-12-31')] } }, ProfitLossAttributableToOwnersOfParent: { units: { TWD: [fyRow(1.17e12, '2024-01-01', '2024-12-31')] } } } } }, { symbol: 'TSM', price: 300 });
+    const chatSource = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+    const bridgeSource = readFileSync(new URL('../src/app/compatibility-globals.js', import.meta.url), 'utf8');
+    ok = ttm.peEarnings?.basis === 'ttm' && ttm.peEarnings.value === 500 && ttm.peEarnings.through === '2026-06-30' && ttm.peEarnings.derivedQuarter === true && ttm.peEarnings.concept === 'net-income'
+      && withCommon.peEarnings?.concept === 'common' && withCommon.peEarnings.value === 460
+      && ttm.roe === 22.2 && ttm.roeBasis === 'average-equity' && ttm.equityPrior === 1600 && noPrior.roe === 20 && noPrior.roeBasis === 'year-end-equity' && noPrior.peEarnings == null
+      && reconcileSecEarningsBasis(ttm) === ttm
+      && priced?.pe === 2 && priced.peEarningsBasis === 'ttm' && priced.peEarningsThrough === '2026-06-30'
+      && debt.map((r) => r.value).join() === '8,7,5'
+      && twd?.currency === 'TWD' && twd.metrics.pe == null && twd.metrics.marketCap == null && twd.revenue.map((r) => r.year).join() === '2023,2024'
+      && !/_parseSECFinancials\(/.test(chatSource) && /window\.AIO\.parseSecStatements\(secFin/.test(chatSource) && /window\.AIO\.parseSecStatements = parseSecStatements/.test(bridgeSource);
+    detail = JSON.stringify({ ttm: ttm.peEarnings, roe: [ttm.roe, ttm.roeBasis], common: withCommon.peEarnings?.value, noPrior: [noPrior.roe, noPrior.roeBasis], pe: priced?.pe, debt: debt.map((r) => r.value), twd: twd && { cur: twd.currency, years: twd.revenue.map((r) => r.year) } });
+  } catch (error) { detail = error.message; }
+  check('P1910 SEC audit (owner-approved D1/D2/D6/D7/D8): TTM and common-earnings P/E, average-equity ROE, one concept per series, ESM statements parser', ok, detail.slice(0, 700));
+}
+{
   // v57.87: a successor registrant (8-K12B holding reorganization, XOM CIK 2115436) has only its first 10-Q; the
   // predecessor's 10-K facts and filings are read with it, once per entry version, and the producer is wired to do so.
   let ok = false;
@@ -1662,7 +1774,14 @@ check('telegram digest registers four channels and fail-closed source catalog', 
 
 check('app loads server data artifact', /public-data\/data\.json/.test(data) && /_aioLoadServerData/.test(data));
 check('app applies quotes, macro, F&G, news, telegram, LLM, and native screener metadata', /applyLiveQuotes\(d\.quotes\)/.test(data) && /DATA_SNAPSHOT/.test(data) && /_applyFearGreedScore/.test(data) && /_aioApplyNewsBackstop/.test(data) && /_aioLoadServerTelegramDigest/.test(data) && /_serverMarketAnalysis/.test(data) && /_aioApplyNativeScreenerState/.test(data) && /aio:nativeScreenerReady/.test(data));
-check('app gates and applies screener breadth with observation time and coverage', /_aioApplyScreenerBreadth/.test(data) && /breadthScreener/.test(data) && /coveragePct\s*>=\s*85/.test(data) && /ageHours\s*<=\s*96/.test(data));
+// 2026-10-17: the coverage/age gate lives in src/domain/market/screener-breadth.js, which every breadth reader asks.
+{
+  const { readScreenerBreadth } = await import('../src/domain/market/screener-breadth.js');
+  const us = (extra) => ({ schemaVersion: '1.0', source: 'fixture', segments: { us: { above5: 40, above20: 35, above50: 36, above200: 52, advanceRatio: 0.6, coveragePct: 97, eligible: 700, observedAt: new Date(Date.now() - 3600000).toISOString(), ...extra } } });
+  check('app gates and applies screener breadth with observation time and coverage', /_aioApplyScreenerBreadth/.test(data) && /breadthScreener/.test(data)
+    && readScreenerBreadth(us({})).us !== null && readScreenerBreadth(us({ coveragePct: 84 })).us === null
+    && readScreenerBreadth(us({ observedAt: new Date(Date.now() - 97 * 3600000).toISOString() })).us === null);
+}
 check('v57.78: quant readiness audit had no production caller and stays retired (research-only ranking contract is enforced by validate-screener-artifact)', !/getQuantReadinessAudit/.test(data)); // text-pin-ok: retirement absence
 check('native screener only admits versioned log-scale Kalman fields and preserves stale backtest disclosure', /factor\.kalmanScale/.test(screenerProvider) && /kalmanVelConf/.test(screenerProvider) && /kalmanInnovZ/.test(screenerProvider) && /backtest:\s*artifact\.backtest/.test(screenerProvider) && /legacy_kalman_scale/.test(data));
 check('app exposes public-data operational meta', /window\._serverDataMeta/.test(data) && /fredHasKey/.test(data) && /marketAnalysisOk/.test(data) && /telegramMemoOverlay/.test(data));
@@ -1782,27 +1901,16 @@ const runtimeDataSource = read('js/aio-data.js');
 const operationsStatusSource = read('scripts/build-operations-status.mjs');
 check('P1291/R641 browser and operations status never waive stale live-core freshness at market close',
   !/marketClosedGrace|_utcDay/.test(runtimeDataSource)
-  && /var _liveCoreEligible = _marketCyclePublished && _liveCoreFresh/.test(runtimeDataSource)
+  && serverMetaFixture({}, '2026-09-26T00:30:00.000Z').liveCoreEligible === false
+  && serverMetaFixture({}, '2026-09-26T00:30:00.000Z').marketCyclePublished === true
   && !/marketClosedGrace|utcDay/.test(operationsStatusSource)
   && /fresh: withinSla && coverageComplete && quoteQualityComplete/.test(operationsStatusSource));
-let strictLiveCoreAgeFixtures = false;
-try {
-  const freshnessStart = runtimeDataSource.indexOf('function _aioIsStrictLiveCoreFreshnessAge(ageMs) {');
-  const freshnessEnd = runtimeDataSource.indexOf('\n}', freshnessStart) + 2;
-  if (freshnessStart >= 0 && freshnessEnd > freshnessStart) {
-    const sandbox = {};
-    runInNewContext(`${runtimeDataSource.slice(freshnessStart, freshnessEnd)}\nthis.assess = _aioIsStrictLiveCoreFreshnessAge;`, sandbox, { timeout: 1000 });
-    strictLiveCoreAgeFixtures = sandbox.assess(12 * 60 * 60 * 1000) === true
-      && sandbox.assess(12 * 60 * 60 * 1000 + 1) === false
-      && sandbox.assess(-1) === false
-      && sandbox.assess(NaN) === false;
-  }
-} catch (_) {}
+const assessAge = serverData.isStrictLiveCoreFreshnessAge;
+const strictLiveCoreAgeFixtures = assessAge(12 * 60 * 60 * 1000) === true && assessAge(12 * 60 * 60 * 1000 + 1) === false && assessAge(-1) === false && assessAge(NaN) === false;
 check('P1295/R645 + P1296/R646 runtime uses fixed exact 12h age and rejects future, +1ms, and metadata overrides',
   strictLiveCoreAgeFixtures
-  && /var _marketCycleFreshnessSlaHours = 12/.test(runtimeDataSource)
-  && /_liveCoreFresh = _aioIsStrictLiveCoreFreshnessAge\(_serverAgeMs\)/.test(runtimeDataSource)
-  && !/Number\(d\.meta\.marketCycleFreshnessSlaHours\)/.test(runtimeDataSource)
+  && serverMetaFixture({ marketCycleFreshnessSlaHours: 48 }, '2026-09-13T15:16:10.361Z').liveCoreEligible === false
+  && !/marketCycleFreshnessSlaHours/.test(runtimeDataSource)
   && /const MARKET_CYCLE_FRESHNESS_SLA_MS = 12 \* 60 \* 60 \* 1000/.test(operationsStatusSource)
   && !/Number\(data\?\.meta\?\.marketCycleFreshnessSlaHours/.test(operationsStatusSource));
 const legacyNewsSignalSource = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;

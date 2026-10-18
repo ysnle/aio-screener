@@ -648,7 +648,6 @@
         "shortMAState": "SHORT_BULL_STACK_5_10_20",
         "longMAState": "LONG_BULL_STACK_50_100_200",
         "fullMAState": "FULL_BULL_STACK_5_10_20_50_100_200",
-        "maStackScore": 100,
         "sma50Rising": true,
         "trendState": "UPTREND",
         "stageEstimate": "STAGE_2_ADVANCE",
@@ -3264,7 +3263,6 @@
         "shortMAState": "SHORT_BEAR_STACK_5_10_20",
         "longMAState": "LONG_BEAR_STACK_50_100_200",
         "fullMAState": "FULL_BEAR_STACK_5_10_20_50_100_200",
-        "maStackScore": 0,
         "sma50Rising": false,
         "trendState": "DOWNTREND",
         "stageEstimate": "STAGE_4_DECLINE",
@@ -5874,7 +5872,6 @@
         "shortMAState": "SHORT_BEAR_STACK_5_10_20",
         "longMAState": "LONG_BULL_STACK_50_100_200",
         "fullMAState": "PARTIAL_STACK",
-        "maStackScore": 50,
         "sma50Rising": false,
         "trendState": "TREND_DAMAGED",
         "stageEstimate": "STAGE_4_OR_BASE_REPAIR",
@@ -8490,10 +8487,9 @@
         "shortMAState": "SHORT_MIXED",
         "longMAState": "LONG_BULL_STACK_50_100_200",
         "fullMAState": "PARTIAL_STACK",
-        "maStackScore": 68,
         "sma50Rising": true,
-        "trendState": "MIXED",
-        "stageEstimate": "STAGE_1_OR_3_TRANSITION",
+        "trendState": "UPTREND",
+        "stageEstimate": "STAGE_2_ADVANCE",
         "vcp": {
           "ok": true,
           "vcpScore": 35,
@@ -11106,7 +11102,6 @@
         "shortMAState": "SHORT_BULL_STACK_5_10_20",
         "longMAState": "LONG_MIXED",
         "fullMAState": "PARTIAL_STACK",
-        "maStackScore": 63,
         "sma50Rising": true,
         "trendState": "MIXED",
         "stageEstimate": "STAGE_1_OR_3_TRANSITION",
@@ -13722,7 +13717,6 @@
         "shortMAState": "SHORT_BEAR_STACK_5_10_20",
         "longMAState": "LONG_MIXED",
         "fullMAState": "PARTIAL_STACK",
-        "maStackScore": 23,
         "sma50Rising": false,
         "trendState": "TREND_DAMAGED",
         "stageEstimate": "STAGE_4_OR_BASE_REPAIR",
@@ -15754,7 +15748,6 @@
         "shortMAState": "SHORT_BULL_STACK_5_10_20",
         "longMAState": "LONG_MIXED",
         "fullMAState": "PARTIAL_STACK",
-        "maStackScore": 48,
         "sma50Rising": null,
         "trendState": "MIXED",
         "stageEstimate": "STAGE_1_OR_3_TRANSITION",
@@ -16635,7 +16628,6 @@
         "shortMAState": "SHORT_BEAR_STACK_5_10_20",
         "longMAState": "LONG_BULL_STACK_50_100_200",
         "fullMAState": "PARTIAL_STACK",
-        "maStackScore": 50,
         "sma50Rising": true,
         "trendState": "TREND_DAMAGED",
         "stageEstimate": "STAGE_4_OR_BASE_REPAIR",
@@ -18489,5 +18481,6 @@
         ]
       }
     }
-  ]
+  ],
+  "trendRevision": "Audit 2026-10-17 (owner decision D7, stage.v4): UPTREND/TOPPING/PULLBACK read the close over a 50-day line that is over the 200-day line instead of the full 5>10>20>50>100>200 stack. trendState/stageEstimate were rebaselined from classifyMovingAverageStructure; every other field is the legacy dump unchanged."
 }

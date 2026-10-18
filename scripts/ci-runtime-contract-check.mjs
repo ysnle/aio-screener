@@ -27,8 +27,9 @@ const chat = read('js/aio-chat.js');
 const pagesSource = read('js/aio-pages.js');
 // P1134/R620: the KR/SEC data plane extracted from inline block C lives in js/aio-kr-data.js.
 const krData = read('js/aio-kr-data.js');
-// P1135/R620: the macro/technical layer extracted from inline block B lives in js/aio-macro-tech.js.
-const macroTech = read('js/aio-macro-tech.js');
+// P1135/R620 → legacy unification: js/aio-macro-tech.js (inline block B) is retired. Retirement pins that scanned it
+// now scan the remaining legacy shell files, so `macroTech` names that combined text.
+const macroTech = ['js/aio-workspace.js', 'js/aio-kr-data.js', 'js/aio-pages.js', 'js/aio-ui.js'].map(read).join('\n');
 // P1136/R620: the user-state/workspace layer extracted from inline block A lives in js/aio-workspace.js.
 const workspace = read('js/aio-workspace.js');
 const tests = read('js/aio-tests.js');
@@ -80,6 +81,8 @@ const telegramConsumedTags = new Set(Object.values(telegramPageTags).flat());
 const staticBusters = [...html.matchAll(/<script\s+src="\.\/js\/aio-[^"]+\?v=([\d.]+)"/g)].map((m) => m[1]);
 check('all static aio script cachebusters match version.json', staticBusters.length >= 5 && staticBusters.every((v) => v === versionNum), `found ${staticBusters.join(',')}, expected ${versionNum}`);
 
+const compatRoot = { _aioGetCanonicalScreenerRows: () => [{ sym: 'AAA', name: 'Alpha', sector: 'Energy', rank: 1, rsi: 20, signal: 'BUY' }] };
+(await import('../src/app/compatibility-globals.js')).installCompatibilityGlobals(compatRoot);
 const callableRefs = [...new Set([...chat.matchAll(/\b(_aio[A-Za-z0-9_]+)\s*\(/g)].map((m) => m[1]))]
   .filter((name) => !['_aioSafeMD', '_aioAskAiFromPageDecision'].includes(name));
 for (const name of callableRefs) {
@@ -88,7 +91,8 @@ for (const name of callableRefs) {
     || runtimeBundle.includes(`function ${name}`)
     || chat.includes(`window.${name}`)
     || chat.includes(`function ${name}`)
-    || new RegExp(`(?:var|let|const)\\s+${name}\\b`).test(runtimeBundle);
+    || new RegExp(`(?:var|let|const)\\s+${name}\\b`).test(runtimeBundle)
+    || typeof compatRoot[name] === 'function'; // ESM functions installCompatibilityGlobals binds for the classic scripts
   check(`AI prompt/runtime callable exists: ${name}`, existsInRuntime, 'referenced from js/aio-chat.js');
 }
 
@@ -119,9 +123,10 @@ check('P1185 the dead runtime screener reader is not re-introduced', !/readScree
 check('P768: native screener is the sole runtime artifact fetch and legacy receives metadata/breadth only', /_aioApplyNativeScreenerState/.test(data) && /aio:nativeScreenerReady/.test(bootstrap) && /getScreenerState/.test(bootstrap) && /breadth:\s*artifact\.breadth/.test(screenerProvider) && !/fetch\([^\n]*screener\.json/.test(data) && !/_aioApplyServerScreener/.test(data));
 // P1186/E2 S-D: native screener state의 투영 트리거는 readiness 이벤트 하나여야 한다. 종전에는
 // server data.json 적용 경로가 같은 state를 다시 투영해(중복 렌더 + 순서 역전 시 더 새로운 투영을
-// 덮어쓸 수 있음) 실제로 두 번 적용됐다 — 이제 그 경로는 '이미 투영됐는가'만 확인한다.
+// 덮어쓸 수 있음) 실제로 두 번 적용됐다. 2026-10-17: 그 경로의 load-state 기록도 없어졌다 — 화면별 완결성은
+// native slice에서 읽는다(src/data/page-completeness.js).
 check('P1186 native screener state has exactly one projection trigger (the readiness event)',
-  (data.match(/_aioApplyNativeScreenerState\(/g) || []).length === 2 && /nativeScreenerReady/.test(data) && /nativeStateApplied/.test(data),
+  (data.match(/_aioApplyNativeScreenerState\(/g) || []).length === 2 && /nativeScreenerReady/.test(data) && !/_aioScreenerLoadState/.test(data),
   'a second projection path for native screener state returned');
 // v57.81: without an event payload the projection reads only the screener fields it uses (P1755 path read), never the
 // whole slice; run the real function against a recording facade.
@@ -130,17 +135,16 @@ check('P1186 native screener state has exactly one projection trigger (the readi
   const end = data.indexOf('window._aioApplyNativeScreenerState = _aioApplyNativeScreenerState;', start);
   const reads = [];
   const slice = { status: 'current', revision: 'r1', metadata: { asOf: '2026-10-15' }, rows: [{}, {}, {}] };
-  const sandbox = { window: { AIO_ARCH: { getScreenerState: (path) => { reads.push(path); return path ? path.split('.').reduce((n, k) => (n == null ? undefined : n[k]), slice) : slice; } } }, isFinite, Number, Array, Date, String };
+  const sandbox = { window: { DATA_SNAPSHOT: { _fieldTs: {} }, AIO_ARCH: { getScreenerState: (path) => { reads.push(path); return path ? path.split('.').reduce((n, k) => (n == null ? undefined : n[k]), slice) : slice; } } }, isFinite, Number, Array, Date, String };
   let applied = false;
   try { applied = start >= 0 && end > start && runInNewContext(data.slice(start, end) + '\n_aioApplyNativeScreenerState();', sandbox); } catch (_) { applied = false; }
-  check('v57.81 the native screener projection reads named paths, never the whole slice', applied === true && reads.length > 0 && reads.every((path) => typeof path === 'string' && path) && sandbox.window._aioScreenerLoadState?.count === 3, JSON.stringify({ applied, reads }));
+  check('v57.81 the native screener projection reads named paths, never the whole slice', applied === true && reads.length > 0 && reads.every((path) => typeof path === 'string' && path) && sandbox.window.DATA_SNAPSHOT._fieldTs.screener === '2026-10-15', JSON.stringify({ applied, reads }));
 }
-const canonicalScreenerConsumerNames = ['_aioExtractRecentRecommendationTickers', '_detectSectorQuery', '_aioRunScreenerQuery', '_aioMakerCheckerVerify'];
-for (const name of canonicalScreenerConsumerNames) {
-  const start = data.indexOf(`function ${name}`);
-  const end = data.indexOf(`window.${name}`, start);
-  const body = start >= 0 && end > start ? data.slice(start, end) : '';
-  check(`${name} reads canonical screener rows`, body.includes('_aioGetCanonicalScreenerRows()') && !/typeof\s+SCREENER_DB/.test(body), 'legacy static row read remains in consumer body');
+// P1239 follow-up (2026-10-17): the chat's screener query engine lives in src/ai/context/screener-query.js and the bridge
+// feeds it the canonical screener rows (no second ranking run).
+{
+  const viaBridge = compatRoot._aioBuildScreenerAiContext('rsi 30 이하', []);
+  check('P1239 screener query engine reads canonical rows through one bridge', viaBridge?.result?.rows?.[0]?.sym === 'AAA' && /AAA/.test(viaBridge.prompt), JSON.stringify({ rows: viaBridge?.result?.rows?.length }));
 }
 // v57.78: getTelegramPipelineAudit and its channel checks live in the QA bundle (read through `core`).
 check('Telegram memo overlay is exposed through audit',/_aioTelegramMemoOverlayAudit/.test(data) && /memoOverlay/.test(data) && /getTelegramPipelineAudit/.test(core));
@@ -338,14 +342,14 @@ check('E2/S-C/P1241 screener row resolution has one owner and a declared intent'
   && /export function resolveScreenerRows\(root, intent/.test(read('src/data/screener-row-policy.js'))
   && /function screenerNativePublished\(/.test(read('src/data/screener-row-policy.js')));
 // E2/S-E/P1239: one helper owns the screener AI context for both chats.
-check('E2/S-E/P1239 the chat consumes one screener AI context helper', /function _aioBuildScreenerAiContext\(/.test(data) && /_aioBuildScreenerAiContext\(q, state\.messages/.test(chat) && !/_aioRunScreenerQuery\(q, \{ recentTickers/.test(chat)); // v57.62: per-page chatSend retired
+check('E2/S-E/P1239 the chat consumes one screener AI context helper', /window\._aioBuildScreenerAiContext = \(query, messages, logger\) => buildScreenerAiContext\(/.test(read('src/app/compatibility-globals.js')) && /_aioBuildScreenerAiContext\(q, state\.messages/.test(chat) && !/_aioRunScreenerQuery\(q, \{ recentTickers/.test(chat)); // v57.62: per-page chatSend retired
 // E2/S-F/P1238: the news cache DB is news-scoped and migrates the legacy name without deleting it.
 check('E2/S-F/P1238 the news cache DB is news-scoped and migrates the legacy name', /_AIO_IDB_NAME = 'AIOScreenerNewsCache'/.test(data) && /_AIO_IDB_LEGACY_NAME = 'AIOScreenerDB'/.test(data) && /function _idbMigrateLegacyNews\(/.test(data) && /store-not-empty/.test(data));
 // P1753: the retired US deep-analysis renderer carried its own MA-stack and volume-profile copy; the shared
 // technical snapshot (core) and the AI chat keep both readings.
 check('P1753 5/10/20 + 50/100/200 MA stack reaches the AI chat via the shared snapshot; the retired deep-analysis copy stays gone', /FULL_BULL_STACK_5_10_20_50_100_200/.test(core + '\n' + chat) && !/단기 정배열 5>10>20/.test(ui));
 check('P1753 volume profile (POC / Value Area) stays in the shared technical snapshot; the retired deep-analysis beginner guide stays gone', /Volume Profile/.test(core) && /POC/.test(core) && /Value Area/.test(core) && !/beginnerNote/.test(ui));
-check('technical snapshot exposes full MA stack to AI chat', /sma5/.test(core) && /sma100/.test(core) && /shortMAState/.test(core) && /longMAState/.test(core) && /maStackScore/.test(core) && /5SMA/.test(chat) && /100SMA/.test(chat));
+check('technical snapshot exposes full MA stack to AI chat', /sma5/.test(core) && /sma100/.test(core) && /shortMAState/.test(core) && /longMAState/.test(core) && !/maStackScore/.test(core) && /5SMA/.test(chat) && /100SMA/.test(chat));
 check('event risk context fails closed without an embedded point-in-time timeline', /AIO_EVENT_RISK_CONTEXT/.test(core) && /available:\s*false/.test(core) && /asOf:\s*null/.test(core) && /timeline:\s*\[\]/.test(core) && !/headlineYoY:\s*\d/.test(core));
 check('page body redesign hub registry exists', /AIO_PAGE_ACTION_HUBS/.test(core) && /_aioApplyPageBodyRedesign/.test(core));
 check('page evidence currentness contract exists', /AIO_PAGE_EVIDENCE_CONTRACT/.test(core) && /getPageEvidenceState/.test(core) && /getPageEvidenceCurrentnessAudit/.test(core));
@@ -1012,7 +1016,15 @@ check('PERF-BOOT-06: shell FCP is presented before synthetic route timing and al
 check('WP-AI0: one shared public AI policy exposes beta/research wording, action gate, and Evidence/as-of disclosure helpers', /_AIO_PUBLIC_AI_POLICY/.test(chat) && /_aioPublicAIActionPolicyPrompt/.test(chat) && /_aioApplyAIActionGate/.test(chat) && /_aioBuildAIResponseDisclosure/.test(chat) && /_aioAppendAIPublicDisclosure/.test(chat));
 check('v57.62 WP-AI0: the unified chat path gates streaming/final output and persists gated text only', /_uniChunkResult\.text/.test(chat) && /_publicGate = _uniDoneResult\.actionGate/.test(chat) &&/state\.messages\.push\(\{ role: 'assistant', content: visible \}\)/.test(chat) && /extractChips\(visible\)/.test(chat));
 check('R460/P905: public surfaces identify read-only conditional analysis scope and current-data recheck', /id="ai-panel-policy"/.test(html) && /AI 도우미 · 읽기 전용 리서치/.test(html) && /투자·법률·세무 조건부 분석/.test(html) && /불법 실행 절차·주문 실행·확정적 보장/.test(html) && /data-ai-public-policy="beta-research"/.test(chat));
-check('WP-AI0: server market prose requires explicit semantic verification before sink selection', /marketAnalysisSemanticOk/.test(data) && /status: _serverMarketAnalysisVerified \? 'verified' : 'blocked-unverified'/.test(data) && /_serverMarketAnalysis\.status === 'verified'/.test(core));
+let wpAi0SemanticGate = false;
+{
+  const { buildServerDataMeta } = await import('../src/data/server-data.js');
+  const proseMeta = (meta) => buildServerDataMeta({ meta: { generatedAt: '2026-10-17T00:00:00Z', ...meta } }, { now: Date.parse('2026-10-17T01:00:00Z') });
+  wpAi0SemanticGate = proseMeta({ marketAnalysisOk: true }).marketAnalysisOk === false && proseMeta({ marketAnalysisOk: true, marketAnalysisSemanticOk: true }).marketAnalysisOk === true;
+}
+const { verifyServerMarketAnalysis } = await import('../src/data/server-market-analysis.js');
+const unverifiedProse = verifyServerMarketAnalysis({ full: 'prose', semanticStatus: 'pending', metricEvidence: [] }, { validatePublish: () => ({ blocked: false }) });
+check('WP-AI0: server market prose requires explicit semantic verification before sink selection', wpAi0SemanticGate && unverifiedProse.analysis === null && unverifiedProse.meta.status === 'blocked-unverified' && /_serverMarketAnalysis\.status === 'verified'/.test(core));
 check('WP-AI0: regression fixtures cover action block, educational pass, strong wording, disclosure metadata, and unverified market prose', /_testV5275PublicAIContract/.test(tests) && /T932/.test(tests) && /T933/.test(tests) && /T934/.test(tests) && /T935/.test(tests) && /T936/.test(tests));
 
 // v52.76 (WP-AI1): one request envelope/response pipeline across all public
@@ -1062,7 +1074,7 @@ check('WP-AI4/5: page and unified entry points pass the active query to the comm
 check('WP-AI4/5: deterministic regression fixtures cover injection, redaction, consent, history off, conduct, evidence, pipeline, and calibration', /_testAIUntrustedSecurityAndConduct/.test(tests) && /T958/.test(tests) && /T959/.test(tests) && /T960/.test(tests) && /T961/.test(tests) && /T962/.test(tests) && /T963/.test(tests) && /T964/.test(tests) && /T965/.test(tests) && /T966/.test(tests));
 
 // v52.80 (WP-AI6/7): automated publish fallback and derived 22-route AI page contracts.
-check('WP-AI6: automated translation/briefing/market-analysis outputs expose structured publish validation and deterministic fallback labels', /validateAIAutomatedPublish/.test(core) && /buildDeterministicEvidenceSummary/.test(core) && /getAIOutputSourceLabel/.test(core) && /publishAudit/.test(chat) && /requiresStructuredClaims/.test(data) && /fallback: 'AIO.synthesizeMarketAnalysis'/.test(data));
+check('WP-AI6: automated translation/briefing/market-analysis outputs expose structured publish validation and deterministic fallback labels', /validateAIAutomatedPublish/.test(core) && /buildDeterministicEvidenceSummary/.test(core) && /getAIOutputSourceLabel/.test(core) && /publishAudit/.test(chat) && /_aioVerifyServerMarketAnalysis\(d\.marketAnalysis/.test(data) && unverifiedProse.meta.fallback === 'AIO.synthesizeMarketAnalysis');
 check('WP-AI7: the existing AIO_PAGE_CONTRACTS registry projects required/optional/forbidden AI page contracts without a parallel registry', /_aiPageContract/.test(core) && /ai: _aiPageContract/.test(core) && /getPageAIContract/.test(core) && /auditPageAIContracts/.test(core) && /kr-technical/.test(core));
 check('all route contracts and decision headers share one server-authored KST 08:00 market cut', /marketContext:\s*\{/.test(core) && /kst-0800-completed-24h/.test(core) && /getSharedMarketCut/.test(core) && /data-market-cut-start/.test(core) && /independent-page-cycle/.test(core));
 check('WP-AI6/7: regression fixtures cover structured publish blocking, fallback audit, 22-route coverage, answer modes, and source labels', /_testV5280PublishAndPageContracts/.test(tests) && /T967/.test(tests) && /T968/.test(tests) && /T969/.test(tests) && /T970/.test(tests) && /T971/.test(tests));
@@ -1112,7 +1124,12 @@ check('WP-AI19/20: shared pipeline carries tool and rights audits and denies mut
 // v52.91: third-pass live currentness/root-cause gates.
 check('LIVE3-01: stored API secrets never re-enter DOM values or reveal partial key fragments', /el\.value = '••••••••'/.test(ui + core) && !/el\.value = saved/.test(ui) && !/inp\.value = key;\s*\/\/ 실제 키 표시/.test(html) && !/slice\(0, 8\) \+ '\.\.\.' \+/.test(html + core));
 check('LIVE3-02: early snapshot-date rendering uses the post-initialization window bridge and avoids DATA_SNAPSHOT TDZ', /var snap = window\.DATA_SNAPSHOT \|\| null/.test(core));
-check('LIVE3-03: 20SMA breadth uses its value-specific server observation timestamp and fails closed', /id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadthScreener'/.test(core) && /_aioApplyScreenerBreadth/.test(data) && /coveragePct\s*>=\s*85/.test(data) && /ageHours\s*<=\s*96/.test(data) && /window\._breadthLiveData\s*=/.test(data) && /getCurrentBreadthEvidence/.test(core) && /snapshotKey:null/.test(core));
+const { readScreenerBreadth } = await import('../src/domain/market/screener-breadth.js');
+const breadthFixture = (us) => ({ schemaVersion: '1.0', source: 'fixture', segments: { us: { above5: 40, above20: 35, above50: 36, above200: 52, advanceRatio: 0.6, coveragePct: 97, eligible: 700, observedAt: new Date(Date.now() - 86400000).toISOString(), ...us } } });
+const screenerBreadthFailsClosed = readScreenerBreadth(breadthFixture({})).us?.sma20 === 35
+  && readScreenerBreadth(breadthFixture({ coveragePct: 84 })).us === null
+  && readScreenerBreadth(breadthFixture({ observedAt: new Date(Date.now() - 97 * 3600000).toISOString() })).us === null;
+check('LIVE3-03: 20SMA breadth uses its value-specific server observation timestamp and fails closed', /id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadthScreener'/.test(core) && /_aioApplyScreenerBreadth/.test(data) && screenerBreadthFailsClosed && /getCurrentBreadthEvidence/.test(core) && /snapshotKey:null/.test(core));
 check('LIVE3-04: Yahoo/FRED bridge never fabricates a missing 2Y or overwrites official T10Y2Y', !/:\s*4\.0\s*\)/.test(String((data.match(/function _syncYahooToFred\([\s\S]*?\n\}/) || [''])[0])) && /!fd\['T10Y2Y'\]/.test(data) && /Number\(window\._live2Y\)/.test(data));
 check('LIVE3-05: MOVE/SKEW regimes require live observations, missing values render unavailable, and SKEW has one native read model', /quote\('\^SKEW'\)/.test(core) && /quote\('\^MOVE'\)/.test(core) && /'move':\s*'—'/.test(core) && /'skew':\s*'—'/.test(core) && !/sent-skew-value/.test(html) /* P1396: the sourceless SKEW card and its page read model were retired */ && !/_bridge\('\^SKEW'/.test(ui));
 check('LIVE3-06 v57.60: late breadth producer refreshes signal and home consumers atomically; the retired updateBreadthBars DOM writer stays gone', !/updateBreadthBars/.test(data + ui + core + pagesSource) && /refreshSignalDashboard\(\)/.test(data) && /refreshHomeDashboard\(\)/.test(data));
@@ -1165,8 +1182,32 @@ check('LIVE3-11: every external dependency has an explicit free-only replacement
 check('LIVE3-12: a core quote outage preserves the last-known-good data artifact and screener refresh can run in isolation', /CORE_QUOTE_COVERAGE_FAILED/.test(fetchScript) && fetchScript.indexOf('CORE_QUOTE_COVERAGE_FAILED') < fetchScript.indexOf('await atomicWriteFile(OUT') && /SCREENER_ONLY/.test(fetchScript));
 check('WP-10: every route contract carries required/optional producers, coverage, age, failure, and forbidden-claim state',
   /function _pageCompletenessContract\(id\)/.test(core) && /requiredProducers:/.test(core) && /optionalProducers:/.test(core) && /minCoverage:/.test(core) && /maxAge:/.test(core) && /failureState:/.test(core) && /forbiddenClaims:/.test(core));
-check('WP-10: runtime exposes one page completeness API and distinguishes missing/stale/partial/blocked producer states',
-  core.includes('getPageDataCompleteness') && core.includes('auditPageDataCompleteness') && core.includes('wp10.page-completeness.v1') && core.includes('stale-reference') && core.includes('empty') && core.includes('partial') && core.includes('blocked'));
+// Legacy unification (2026-10-17): the API lives in src/data/page-completeness.js and is installed by the compat bridge;
+// run it instead of reading its source.
+{
+  const completeness = await import('../src/data/page-completeness.js');
+  const now = Date.parse('2026-10-17T00:00:00Z');
+  const contract = (failureState = 'partial') => ({ requiredProducers: ['a', 'b'], optionalProducers: [], minCoverage: { a: 50 }, maxAge: { a: 3600000 }, failureState, forbiddenClaims: [] });
+  const states = (a, b) => (producer) => ({ ...(producer === 'a' ? a : b) });
+  const loaded = { status: 'loaded', coverage: 100, lastSuccessfulAt: '2026-10-16T23:30:00Z' };
+  const statusOf = (a, b, failureState) => completeness.pageDataCompleteness('x', contract(failureState), states(a, b), now).status;
+  const cases = {
+    loaded: statusOf(loaded, loaded),
+    stale: statusOf({ ...loaded, lastSuccessfulAt: '2026-10-16T20:00:00Z' }, loaded),
+    partial: statusOf({ ...loaded, coverage: 20 }, loaded),
+    blocked: statusOf({ status: 'failed' }, loaded, 'blocked'),
+    empty: statusOf({ status: 'missing' }, { status: 'zero' }),
+    reference: statusOf({ status: 'reference' }, loaded)
+  };
+  const root = { AIO: { getPageContract: () => contract() }, AIO_PAGE_CONTRACTS: { routePageIds: ['x', 'y'] } };
+  completeness.installPageCompleteness(root, { readScreener: () => ({}) });
+  const audit = root.AIO.auditPageDataCompleteness({ allRoutes: true });
+  check('WP-10: runtime exposes one page completeness API and distinguishes missing/stale/partial/blocked producer states',
+    typeof compatRoot.AIO?.getPageDataCompleteness === 'function' && typeof compatRoot.AIO?.auditPageDataCompleteness === 'function'
+      && JSON.stringify(cases) === JSON.stringify({ loaded: 'loaded', stale: 'partial', partial: 'partial', blocked: 'blocked', empty: 'empty', reference: 'stale-reference' })
+      && audit.version === 'wp10.page-completeness.v1' && audit.routeCount === 2 && audit.pages.length === 2,
+    JSON.stringify({ cases, audit: { status: audit.status, routeCount: audit.routeCount } }));
+}
 check('WP-10: scheduler records attemptedAt/lastSuccessfulAt/coverage/evidenceIds and failure reason',
   /cfg\._attemptedAt/.test(data) && /cfg\._lastSuccessfulAt/.test(data) && /cfg\._coverage/.test(data) && /cfg\._evidenceIds/.test(data) && /cfg\._failureReason/.test(data));
 check('WP-10: browser fixtures cover current route contract fields and disconnected producer failure state',
@@ -1190,7 +1231,7 @@ check('R340/P712: future-event calendar is data-driven and no stale 7\/10 BOK ro
   // P1389: the briefing schedule (buildBriefingSchedule over AIO_MACRO_CALENDAR) replaced the archived calendar block.
   /export function buildBriefingSchedule/.test(read('src/domain/briefing/schedule.js')) && /id="briefing-schedule-rows"/.test(html) && !/>7\/10<\/span>[\s\S]{0,260}한국은행 금통위/.test(html + macroTech));
 check('R340/P712: semantic market-integrity tests cover curve exactness and KR missingness',
-  /T1025 treasury_curve_exact_2s10s/.test(tests) && /T1027 kr_theme_missingness_fail_closed/.test(tests) && /T1028 technical_indicator_no_intraday_synthesis/.test(tests) && /T1029 ticker_chart_native_tabs_and_ranges/.test(tests) && /T1030 rrg_history_fail_closed/.test(tests) && /T1031 mcclellan_requires_advance_decline_history/.test(tests) && /T1032 hy_oas_official_only/.test(tests) && /T1033 breadth_chart_no_random_series/.test(tests) && /T1034 market_health_required_inputs_fail_closed/.test(tests));
+  /T1025 treasury_curve_exact_2s10s/.test(tests) && /T1027 kr_theme_missingness_fail_closed/.test(tests) && /T1028 technical_indicator_no_intraday_synthesis/.test(tests) && /T1029 ticker_chart_native_tabs_and_ranges/.test(tests) && /T1030 rrg_history_fail_closed/.test(tests) && /T1031 mcclellan_requires_advance_decline_history/.test(tests) && /T1032 hy_oas_official_only/.test(tests) && /T1033 breadth_chart_no_random_series/.test(tests) && /T1034 market_health_grade_retired/.test(tests));
 check('R340/P712: synthetic market-series formulas are absent from decision paths',
   !/50\s*\+\s*\(chg\s*\*\s*5\)/.test(html) && !/500\s*\*\s*abv50/.test(html) && !/\(85\s*-\s*p\)\s*\*\s*20\s*\+\s*250/.test(ui) && !/latestLiveVal\s*\*\s*\(1\s*\+\s*\(Math\.random/.test(core));
 check('R340/P712: KR yields and US breadth require timestamped current evidence and fail closed otherwise',
@@ -1316,7 +1357,7 @@ check('P784/SA-01: proxy registry opens cooldown after three failures and reject
 
 check('W1-04: SEC annual facts expose versioned freshness and fail-closed decision eligibility',
   secReportDomain.includes("SEC_REPORT_MODEL_VERSION = 'sec-report.v3'")
-    && /currentMaxAgeDays:\s*400/.test(secReportDomain)
+    && /currentMaxAgeDays:\s*FUNDAMENTAL_MAX_PERIOD_AGE_DAYS/.test(secReportDomain) // 2026-10-17: the one 456-day fiscal-year-end rule
     && /agedMaxAgeDays:\s*730/.test(secReportDomain)
     && /state:\s*'historical'/.test(secReportDomain)
     && /decisionEligible:\s*status === 'current'/.test(secReportDomain)
@@ -1324,10 +1365,11 @@ check('W1-04: SEC annual facts expose versioned freshness and fail-closed decisi
     && /acceptedTimeCount/.test(secReportDomain)
     && /filingMetadata:\s*Object\.freeze/.test(secReportDomain)
     && /data-freshness-state/.test(entityPage));
-check('W1-05: ticker action narrative fails closed without entity quote and market-health evidence',
+check('W1-05: ticker action narrative fails closed without entity quote and market-state evidence (regime sufficiency; the 0-100 health grade is retired)',
   /pageId === 'ticker'/.test(core)
     && /_tickerGateMissing/.test(core)
-    && /computeMarketHealth\(\{ render: false \}\)/.test(core)
+    && /_tickerGateRegime\.sufficient !== true/.test(core)
+    && !/computeMarketHealth/.test(core)
     && /_tickerGateBlocked/.test(core)
     && /d\.decisionBlocked = _scoreBlocked \|\| _tickerGateBlocked/.test(core));
 check('W2-05: Vault envelope has versioned KDF plus legacy decrypt and re-encrypt migration',
@@ -1342,9 +1384,13 @@ check('W2-05: Vault envelope has versioned KDF plus legacy decrypt and re-encryp
 // P1116: the loaded quote plane cited `data.json:quotes`, an artifact the P715
 // client-direct fetch policy publishes empty. The citation must follow the producer's
 // own publication flag so it can never name a file that carries no quote row.
-check('P1116: quote-plane evidence cites the artifact that actually publishes quotes',
-  /quotesPublished === true \? 'data\.json:quotes' : 'market-snapshot\.json:quotes'/.test(core)
-    && !/evidenceIds:\['data\.json:quotes'\]/.test(core));
+{
+  const { producerState } = await import('../src/data/page-completeness.js');
+  const quoteEvidence = (quotesPublished) => producerState('quotes', { meta: { generatedAt: '2026-10-17T00:00:00Z', symbolsOk: 5, quotesPublished } }).evidenceIds;
+  check('P1116: quote-plane evidence cites the artifact that actually publishes quotes',
+    JSON.stringify(quoteEvidence(false)) === '["market-snapshot.json:quotes"]' && JSON.stringify(quoteEvidence(true)) === '["data.json:quotes"]',
+    JSON.stringify({ unpublished: quoteEvidence(false), published: quoteEvidence(true) }));
+}
 
 // P1118: the signal hero shows five factor bars against a total they do not sum to.
 // The post-composite adjustments and the [5,100] clamp must reach the presentation the
@@ -1361,7 +1407,7 @@ check('P1118: signal page renders post-composite adjustments in a native-owned s
     && /id="regime-board"/.test(html));
 
 // P1274: native breadth card and theme cycle must read the same dated US universe.
-// Exercise the actual compatibility selector, including an absent legacy projection.
+// Exercise the actual compatibility selector over the shared breadth read.
 let breadthParityP1274 = false;
 try {
   const start = core.indexOf('window.AIO.getCurrentBreadthEvidence = function(maxAgeMs) {');
@@ -1369,20 +1415,21 @@ try {
   if (start >= 0 && end > start) {
     const segment = { observedAt:new Date(Date.now() - 86400000).toISOString(), above5:41.7, above20:34.1, above50:35.5, above200:52.2, advanceRatio:0.6117, coveragePct:97.1, eligible:707 };
     const breadth = { schemaVersion:'1.0', source:'github-actions:yahoo-1y-adjusted-close', segments:{ us:segment } };
-    const context = { window:{ AIO:{}, AIO_ARCH:{ getScreenerState:(path) => { const state = { metadata:{ breadth } }; return typeof path === 'string' ? path.split('.').reduce((node, key) => node == null ? undefined : node[key], state) : state; } }, _breadthLiveData:null },
+    const context = { window:{ AIO:{}, _aioScreenerBreadth:() => readScreenerBreadth(breadth) },
       _aioStrictFinite:(value) => typeof value === 'number' && Number.isFinite(value) ? value : null,
       _aioMetricTs:(value) => typeof value === 'number' ? value : Date.parse(value) };
     runInNewContext(core.slice(start, end), context);
     const get = context.window.AIO.getCurrentBreadthEvidence;
     const native = get();
-    context.window._breadthLiveData = { sma5:10, sma20:10, sma50:10, ts:Date.now() - 10 * 86400000, source:'stale-legacy' };
-    const fallback = get();
+    segment.observedAt = new Date(Date.now() - 10 * 86400000).toISOString();
+    const stale = get();
+    segment.observedAt = new Date(Date.now() - 86400000).toISOString();
     segment.coveragePct = 20;
     const insufficient = get();
-    breadthParityP1274 = native.available && native.sma50 === 35.5 && fallback.sma50 === 35.5 && !insufficient.available;
+    breadthParityP1274 = native.available && native.sma50 === 35.5 && !stale.available && !insufficient.available;
   }
 } catch (_) {}
-check('P1755 P1274: native current 50SMA reaches theme selector (facade dot-path read); stale legacy and inadequate coverage do not replace it', breadthParityP1274);
+check('P1755 P1274: native current 50SMA reaches theme selector through the one checked breadth read; a stale observation and inadequate coverage are not available', breadthParityP1274);
 // P1275: the CP2 text must use the same official FOMC decision as the registry.
 // P1737: both CP2 writers read the one Fed-range answer (producer policyRates.fed -> FRED -> manual within its window).
 // v57.60: the retired cp2-detail / macro-fed-meaning DOM sinks left _aioApplyEventFreshnessGate; getCP2Text is the one CP2 text owner.

@@ -5,7 +5,7 @@
 // this is code motion, not a new model (R352/F-03: legacy and native must not diverge).
 import { finiteNumber as finite } from '../shared/number.js';
 import { smaLast } from './definitions.js';
-export const STAGE_MODEL_VERSION = 'stage.v3';
+export const STAGE_MODEL_VERSION = 'stage.v4';
 const STAGE_BY_TREND = Object.freeze({ UPTREND: 'STAGE_2_ADVANCE', TOPPING: 'STAGE_3_TOPPING', PULLBACK: 'STAGE_2_PULLBACK', DOWNTREND: 'STAGE_4_DECLINE', TREND_DAMAGED: 'STAGE_4_OR_BASE_REPAIR', MIXED: 'STAGE_1_OR_3_TRANSITION' });
 export const MTF_MODEL_VERSION = 'mtf.v1';
 
@@ -33,20 +33,24 @@ export function classifyMovingAverageStructure({ sma5 = null, sma10 = null, sma2
   const shortMAState = shortBull ? 'SHORT_BULL_STACK_5_10_20' : shortBear ? 'SHORT_BEAR_STACK_5_10_20' : 'SHORT_MIXED';
   const longMAState = longBull ? 'LONG_BULL_STACK_50_100_200' : longBear ? 'LONG_BEAR_STACK_50_100_200' : 'LONG_MIXED';
   const fullMAState = fullBull ? 'FULL_BULL_STACK_5_10_20_50_100_200' : fullBear ? 'FULL_BEAR_STACK_5_10_20_50_100_200' : 'PARTIAL_STACK';
-  const maStackScore = (shortBull ? 25 : shortBear ? 0 : 10) + (longBull ? 35 : longBear ? 0 : 15) + (fullBull ? 25 : fullBear ? 0 : 8) + ((sma50 && lastClose >= sma50) ? 8 : 0) + ((sma200 && lastClose >= sma200) ? 7 : 0);
+  // Audit 2026-10-17 follow-up: the 0-100 maStackScore composite had no surface and no stated basis (AGENTS: no grade
+  // without evidence), so the model returns only the named stack states.
   // v57.81 (analysis audit): the close is read against the 50- and 20-day lines before the stack. A full bull stack with
   // the close under the 50-day line is damaged, and under the 20-day line a pullback — DELL closed 9.1% under its
   // 20-day line and read "정배열(50일선 상승)". A missing close never reads as an advance.
   const under50 = !!(sma50 && lastClose != null && lastClose < sma50);
   const under20 = !!(sma20 && lastClose != null && lastClose < sma20);
-  const bullHeld = fullBull && lastClose != null && !under50;
+  // Audit 2026-10-17 (owner D7): the trend is the close over a 50-day line that is over the 200-day line (Minervini's core
+  // template), not the full 5>10>20>50>100>200 stack — on the 10/16 screener rows 172 of 286 names above both lines with
+  // the 50 over the 200 read 혼조 after two quiet sessions. The short 5·10·20 order stays its own field (shortMAState).
+  const bullHeld = !!(sma50 && sma200 && lastClose != null && !under50 && lastClose > sma50 && sma50 > sma200);
   const trendState = bullHeld && !under20 && sma50Rising !== false ? 'UPTREND' : bullHeld && !under20 ? 'TOPPING' : bullHeld ? 'PULLBACK'
     : fullBear ? 'DOWNTREND' : under50 ? 'TREND_DAMAGED' : 'MIXED';
   const stageEstimate = STAGE_BY_TREND[trendState];
   return Object.freeze({
     modelVersion: STAGE_MODEL_VERSION,
     shortBull, shortBear, longBull, longBear, fullBull, fullBear, sma50Rising,
-    shortMAState, longMAState, fullMAState, maStackScore, trendState, stageEstimate
+    shortMAState, longMAState, fullMAState, trendState, stageEstimate
   });
 }
 
@@ -54,8 +58,8 @@ export function classifyMovingAverageStructure({ sma5 = null, sma10 = null, sma2
 // Weinstein's 30-week stage. The enum ids stay for parity; anything shown to a reader uses these names, and
 // 'Stage n' is reserved for the Weinstein reading (chart-analysis weinstein).
 export const MA_STRUCTURE_LABELS = Object.freeze({
-  STAGE_2_ADVANCE: '이동평균 배열 · 정배열(50일선 상승)',
-  STAGE_3_TOPPING: '이동평균 배열 · 정배열(50일선 둔화)',
+  STAGE_2_ADVANCE: '이동평균 배열 · 상승 추세(50일선 상승)',
+  STAGE_3_TOPPING: '이동평균 배열 · 상승 추세(50일선 둔화)',
   STAGE_2_PULLBACK: '이동평균 배열 · 20일선 아래 눌림(50일선 위)',
   STAGE_4_DECLINE: '이동평균 배열 · 역배열',
   STAGE_4_OR_BASE_REPAIR: '이동평균 배열 · 50일선 아래(훼손)',

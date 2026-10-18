@@ -34,7 +34,7 @@ import { alignFxToValuationTime, assertComparableReturns, convertReturnToBaseCur
 import { deriveRegimeState, replayRegime } from '../src/domain/screener/regime.js';
 import { createValidationGate, promotionDecision, validatePITRun } from '../src/domain/screener/pit-validation.js';
 import { calculateOutcome, expectedExitDate } from '../src/domain/screener/outcome-ledger.js';
-import { filterRows } from '../src/ui/pages/screener.js';
+import { filterRows, liveRow, sortRows, extensionMultiple, forwardPe, capFilterValue, visibleRank } from '../src/ui/pages/screener.js';
 import { EXTENDED_MIN_DOLLAR_VOLUME_30D, computeFactorRanks, rankingPopulationExclusion } from '../src/domain/screener/factor-ranks.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../src/domain/fundamental/period.js';
 import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
@@ -845,6 +845,43 @@ async function run() {
   assert(filterRows([{ sym: 'MISSING', mcap: null }, { sym: 'SMALL', mcap: 1 }], capDocument('SMALL')).map(row => row.sym).join(',') === 'SMALL', 'G-SCR-FILTER: missing market cap does not become a small cap');
   assert(filterRows([{ sym: 'BOUNDARY', mcap: 10 }], capDocument('MID')).length === 0, 'G-SCR-FILTER: market-cap buckets do not overlap at 10 billion');
 
+  // G-SCR-RENDER: sortRows computes each row's key once (and reads a single display value for non-live columns); the
+  // order must equal the per-comparison comparator over the full display row (liveRow) it replaced — price and 시총
+  // with a live overlay (one quote in a conflicting currency), the gated registry fields, factors, rank and 확장배수.
+  {
+    const sortSymbols = Object.keys(artifact.data).slice(0, 80);
+    const sortUniverse = { meta: { currentness: 'CURRENT', lastBulkUpdate: artifact.asOf, staleAfterDays: 30 }, universe: sortSymbols.map((sym) => ({ sym, name: sym, sector: artifact.data[sym]?.sector || null, index: 'SP500' })) };
+    const sortArtifact = { ...artifact, data: Object.fromEntries(sortSymbols.map((sym) => [sym, artifact.data[sym]])) };
+    const sortSource = (await createScreenerProvider({
+      httpClient: { requestJson: async (url) => ({ ok: true, data: url.includes('screener-universe') ? sortUniverse : sortArtifact }) },
+      clock: { now: () => Date.parse(artifact.asOf) + 3600000 }
+    }).readCurrent()).rows;
+    const scored = computeFactorRanks({ rows: sortSource.map(calculationRow), now: Date.parse(artifact.asOf) + 3600000 });
+    const bySym = new Map((scored.rows || []).map((row) => [row.sym, row]));
+    const sortInput = sortSource.map((row, index) => ({ ...row, ...(bySym.get(row.sym) || {}), sym: row.sym, symbol: row.symbol, screenStatus: index % 9 === 0 ? 'rejected' : index % 7 === 0 ? 'unavailable' : 'passed', adrPct: index % 5 ? 2 + (index % 4) : null }));
+    const sortLive = Object.fromEntries(sortInput.slice(0, 30).map((row, index) => [row.sym, { price: 50 + (index % 6), currency: index === 3 ? 'KRW' : 'USD', marketCap: index * 7e9, marketCapCurrency: 'USD', observedAt: artifact.asOf }]));
+    const readSortLive = () => sortLive;
+    const referenceSort = (rows, column, ascending) => rows.map((row) => ({ row, view: liveRow(row, readSortLive) })).sort(({ view: a }, { view: b }) => {
+      const factorColumn = ['momentum', 'trend', 'lowvol', 'value', 'quality', 'kalman'].includes(column);
+      let av = factorColumn ? a.factorScores?.[column] : a[column];
+      let bv = factorColumn ? b.factorScores?.[column] : b[column];
+      if (column === 'price') { av = a.price; bv = b.price; }
+      if (column === 'extension') { av = extensionMultiple(a); bv = extensionMultiple(b); }
+      if (column === 'fwdPe') { av = forwardPe(a); bv = forwardPe(b); }
+      if (column === 'mcap') { av = capFilterValue(a); bv = capFilterValue(b); }
+      if (column === 'rank') { av = visibleRank(a); bv = visibleRank(b); }
+      const missing = (value) => value == null || value === '' || (typeof value === 'number' && !Number.isFinite(value));
+      if (missing(av) || missing(bv)) return missing(av) === missing(bv) ? 0 : missing(av) ? 1 : -1;
+      if (typeof av === 'string') av = av.toUpperCase();
+      if (typeof bv === 'string') bv = bv.toUpperCase();
+      const comparison = av > bv ? 1 : av < bv ? -1 : 0;
+      return ascending ? comparison : -comparison;
+    }).map((entry) => entry.row.sym).join(',');
+    const sortColumns = ['rank', 'screenRank', 'price', 'mcap', 'extension', 'fwdPe', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'pctFrom52wHigh', 'vcpScore', 'pe', 'roe', 'sym', 'name', 'sector', 'momentum', 'trend', 'lowvol', 'value', 'quality', 'kalman'];
+    const sortMismatches = sortColumns.flatMap((column) => [true, false].filter((ascending) => sortRows(sortInput, column, ascending, readSortLive).map((row) => row.sym).join(',') !== referenceSort(sortInput, column, ascending)).map((ascending) => `${column}:${ascending ? 'asc' : 'desc'}`));
+    assert(sortSource.length === sortSymbols.length && !sortMismatches.length, 'G-SCR-RENDER: precomputed sort keys keep the display-row comparator order for every sortable column', { rows: sortSource.length, mismatches: sortMismatches });
+  }
+
   // ── P1171 (15 D05): instrument registry ─────────────────────────────────────────────────────
   // The published universe carries only sym/name/sector/index/memo, so MIC/assetType/share class
   // have no source. Identity is resolved from declared entries that carry a source, the inference
@@ -910,6 +947,11 @@ async function run() {
   const bond = excludedResult.rows.find((row) => row.sym === 'BOND');
   assert(excludedResult.populationExclusions?.fund === 1 && bond?.rank === null && bond?.rankingEligibility === 'population-excluded' && bond?.populationExclusion === 'fund' && excludedResult.inputAudit?.eligibleRows === 8,
     'P1872 a fund stays as a row with a null rank and its reason and never enters the percentile denominator', JSON.stringify({ excl: excludedResult.populationExclusions, bond, eligible: excludedResult.inputAudit?.eligibleRows }));
+  // 2026-10-17 audit: a Tokyo/Taiwan listing leaves the US cross-section with its reason, not silently.
+  const foreignResult = computeFactorRanks({ rows: [...exclusionRows, { sym: '8035.T', name: 'Tokyo Electron', listingMarket: 'INTL', sector: 'Tech', ret1m: 1, ret3m: 2, ret6m: 3, vol: 30, pctSma50: 1, pctSma200: 1 }], weights: { momentum: 1, lowvol: 1 }, weightsPolicy: 'explicit', now: 0 });
+  const tokyo = foreignResult.rows.find((row) => row.sym === '8035.T');
+  assert(foreignResult.populationExclusions?.foreign === 1 && tokyo?.rank === null && tokyo?.populationExclusion === 'foreign' && foreignResult.inputAudit?.eligibleRows === 8,
+    'audit 2026-10-17 a foreign listing stays as a row with a null rank and the foreign reason', JSON.stringify({ excl: foreignResult.populationExclusions, tokyo }));
 
   const report = { schemaVersion: 'screener-workbench-ci.v1', generatedAt: new Date().toISOString(), status: failures.length ? 'FAIL' : 'PASS', checks, failures, baseline: { universe: artifact.universe, ok: artifact.ok, fundamentalCoveragePct: artifact.fundamentalCoveragePct }, fieldRegistry: registryCheck.size, presetCount: presetsA.length };
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);

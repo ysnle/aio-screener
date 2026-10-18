@@ -534,8 +534,11 @@ check('chat-dispatches-through-orchestrator', /AIO_ARCH\.getAIOrchestrator/.test
 check('orchestrator-downgrades-action-permission-to-a-disclosure', /actionPermission\.allowed === false/.test(read('src/ai/orchestrator/answer-orchestrator.js')) && /actionLimitations/.test(read('src/ai/orchestrator/answer-orchestrator.js')) && !/blocked-action-permission/.test(read('src/ai/orchestrator/answer-orchestrator.js')));
 check('v57.62 chat-surface-has-pre-provider-action-boundary', /_uniPreProviderPermission/.test(chat) && !/_aioPreProviderPermission/.test(chat)); // v57.62: per-page copy retired
 check('v57.62 chat-surface-hides-unverified-research-streams', /Web Research 근거를 검증 중/.test(chat));
-check('no-confirmed-verdict', !/verdict\s*=\s*[^;]*CONFIRMED/.test(data) && /RESEARCH_CANDIDATE/.test(data) && /research-relative-ranking-only/.test(data));
-check('producer-observed-time', /producer observation time/.test(data) && /관측시각 미확인/.test(data));
+// 2026-10-17: the maker-checker verdict (its only RESEARCH_CANDIDATE producer) had no caller and is retired; the screener
+// prompt moved to src/ai/context/screener-query.js with the producer-time rule.
+const screenerQuery = read('src/ai/context/screener-query.js');
+check('no-confirmed-verdict', !/verdict\s*=\s*[^;]*CONFIRMED/.test(data + screenerQuery) && !/_aioMakerCheckerVerify/.test(data));
+check('producer-observed-time', /producer observation time/.test(screenerQuery) && /관측시각 미확인/.test(screenerQuery));
 check('probability-policy-is-strict', /calibrated !== true/.test(core) && /보정\(calibration\).*확률/.test(chat));
 
 check('answer-format-is-question-adaptive', !/반드시 \*\*Bull\/Base\/Bear 3 시나리오/.test(chat) && /질문 복잡도에 맞춘다/.test(chat));

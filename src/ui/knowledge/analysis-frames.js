@@ -200,6 +200,19 @@ function figure(doc, spec) {
   return null;
 }
 
+// The worked-number block shared by analysis notes and principles lessons (v57.98): premises → steps →
+// result, plus the limit of the calculation when the document states one.
+export function renderWorkedCalc(doc, example) {
+  const calc = el(doc, 'div', 'af-calc');
+  const dl = el(doc, 'dl');
+  dl.append(el(doc, 'dt', null, '전제'), el(doc, 'dd', null, example.inputs.join(' · ')));
+  example.steps.forEach((step, index) => dl.append(el(doc, 'dt', null, index ? '' : '계산'), el(doc, 'dd', null, step)));
+  dl.append(el(doc, 'dt', null, '결과'), el(doc, 'dd', null, example.result));
+  if (example.limit) dl.append(el(doc, 'dt', null, '한계'), el(doc, 'dd', null, example.limit));
+  calc.appendChild(dl);
+  return calc;
+}
+
 export function renderFrameArticle(doc, lesson) {
   ensureFrameStyle(doc);
   const article = el(doc, 'article', 'af-article');
@@ -216,16 +229,7 @@ export function renderFrameArticle(doc, lesson) {
   article.appendChild(prose);
   const fig = figure(doc, lesson.figure);
   if (fig) article.append(el(doc, 'h3', 'af-section', '흐름으로 보면'), fig);
-  if (lesson.example) {
-    article.appendChild(el(doc, 'h3', 'af-section', '숫자로 따라가 보면'));
-    const calc = el(doc, 'div', 'af-calc');
-    const dl = el(doc, 'dl');
-    dl.append(el(doc, 'dt', null, '전제'), el(doc, 'dd', null, lesson.example.inputs.join(' · ')));
-    lesson.example.steps.forEach((step, index) => dl.append(el(doc, 'dt', null, index ? '' : '계산'), el(doc, 'dd', null, step)));
-    dl.append(el(doc, 'dt', null, '결과'), el(doc, 'dd', null, lesson.example.result));
-    calc.appendChild(dl);
-    article.appendChild(calc);
-  }
+  if (lesson.example) article.append(el(doc, 'h3', 'af-section', '숫자로 따라가 보면'), renderWorkedCalc(doc, lesson.example));
   article.append(el(doc, 'h3', 'af-section', '자주 빗나가는 해석'), el(doc, 'p', 'af-twist', lesson.reverse));
   const basis = renderBasis(doc, {
     sources: [...(lesson.sources || []), ...(FRAME_EXTRA_SOURCES[lesson.id] || [])],

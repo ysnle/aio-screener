@@ -4,7 +4,7 @@ import { latestCompletedUsSession } from '../market/market-calendar.js';
 export function selectProducedRotation(artifact, symbol, nowMs = Date.now()) {
   const basis = latestCompletedUsSession(Number(nowMs) - 5 * 60000);
   const row = artifact?.items?.[symbol];
-  if (artifact?.schemaVersion !== 'rotation-history.v1' || artifact.modelVersion !== 'rrg.v2'
+  if (artifact?.schemaVersion !== 'rotation-history.v1' || artifact.modelVersion !== 'rrg.v3'
     || artifact.benchmark !== 'SPY' || artifact.timeframe !== '1d' || artifact.priceBasis !== 'adjusted-close'
     || artifact.decisionUse !== false || artifact.allowedUseCeiling !== 'reference'
     || !basis || artifact.latestCompletedSession !== basis.date || row?.status !== 'CURRENT' || row.sessionDate !== basis.date) return null;

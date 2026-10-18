@@ -126,6 +126,28 @@ export function weeklyCloses(bars) {
   return weekly;
 }
 
+/** Average volume of the `sessions` sessions before index `i` (the day itself excluded); null under 80% coverage. */
+export function priorVolumeAverage(volumes, i, sessions = T.breakout.volumeSessions) {
+  if (!Array.isArray(volumes) || i < sessions) return null;
+  let sum = 0, count = 0;
+  for (let k = i - sessions; k < i; k++) if (volumes[k] > 0) { sum += volumes[k]; count += 1; }
+  return count >= Math.ceil(sessions * 0.8) ? sum / count : null;
+}
+
+/**
+ * Audit 2026-10-17 (owner D6): the one breakout-day test (RULES.technical.breakout). Session `i` closed above `pivot`, at
+ * most maxAbovePct over it, higher than the prior close, on volume ≥ volumeMultiple × the prior volumeSessions average.
+ * `ceiling: false` drops the maxAbovePct cap (the chart's "did a breakout happen" check, whose state applies the cap).
+ */
+export function isBreakoutDay({ closes, volumes, i, pivot, ceiling = true }) {
+  const rule = T.breakout;
+  if (!(pivot > 0) || !(i > 0) || !Array.isArray(closes) || !Array.isArray(volumes)) return false;
+  const close = closes[i], prior = closes[i - 1];
+  const base = priorVolumeAverage(volumes, i);
+  return close > pivot && (!ceiling || close <= pivot * (1 + rule.maxAbovePct / 100)) && prior > 0 && close > prior
+    && base != null && volumes[i] >= rule.volumeMultiple * base;
+}
+
 export const WEINSTEIN_READS = Object.freeze({
   1: '바닥 형성 — 30주선이 평평하거나 아직 내려가는 중이고, 가격이 그 주변에서 다지는 단계',
   2: '상승 추세 — 가격이 오르는 30주선 위에 있는 단계(추세 추종이 유효한 구간)',
@@ -194,11 +216,18 @@ export function detectContractions(bars, { lookback = 130, span = 3 } = {}) {
     const low = Math.min(...segment.map((bar) => bar.low));
     const depth = (recent[cursorHigh].high - low) / recent[cursorHigh].high * 100;
     contractions.push({ highIndex: start + cursorHigh, lowIndex: start + lowIndex, high: recent[cursorHigh].high, low, depth });
-    const nextHigh = highs.find((index) => index > lowIndex);
-    if (nextHigh == null) break;
-    cursorHigh = nextHigh;
+    // The next pullback starts from the highest swing high before the next swing low. Two swing highs can stand
+    // without a swing low between them (a shallow dip); taking the first one measured the pullback from a lower
+    // high and set the pivot under the real peak, so a close between the two read as above the pivot.
+    const firstHigh = highs.find((index) => index > lowIndex);
+    if (firstHigh == null) break;
+    const nextLow = lows.find((index) => index > firstHigh);
+    cursorHigh = highs.filter((index) => index >= firstHigh && (nextLow == null || index < nextLow))
+      .reduce((best, index) => (recent[index].high > recent[best].high ? index : best), firstHigh);
   }
-  const all = contractions.filter((row) => row.depth >= 2);
+  // Pullbacks under 2% are swing noise and drop out — except the latest one. Audit 2026-10-17 (owner D9): a tight last
+  // contraction (Minervini's best case) used to vanish, and the pivot fell back to the earlier, lower high.
+  const all = contractions.filter((row, index) => row.depth >= 2 || (index === contractions.length - 1 && row.depth > 0));
   // The pattern is the latest run of successively shallower pullbacks (Minervini's 'T' count),
   // not the whole base: walk back from the last pullback while each earlier one was deeper.
   let startRun = all.length - 1;

@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.97';
+const APP_VERSION = 'v58.15';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1597,26 +1597,13 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
       return true;
     }
     var count = 0;
-    function markFallbackCanvas(canvas) {
-      try {
-        var markCtx = canvas.getContext('2d');
-        if (markCtx) {
-          markCtx.save();
-          markCtx.setTransform(1, 0, 0, 1, 0, 0);
-          markCtx.fillStyle = 'rgba(148,163,184,0.45)';
-          markCtx.fillRect(2, 2, 8, 8);
-          markCtx.restore();
-        }
-      } catch(_) {}
-    }
     Array.prototype.slice.call(page.querySelectorAll('canvas')).forEach(function(canvas) {
       var preset = presets[canvas.id];
       if (!preset) return;
       if (canvas.dataset.aioBreadthChartRenderer === 'native' || canvas.dataset.aioFxbondChartRenderer === 'native' || canvas.dataset.aioTickerChartRenderer === 'native') return; // v57.79: the native ticker chart owns one loading/error/chart state (no ghost message or grey corner square)
-      if (!isBlank(canvas)) {
-        markFallbackCanvas(canvas);
-        return;
-      }
+      // UI review 2026-10-18: a drawn canvas is left as drawn — the old grey 8px corner mark showed on every rendered
+      // chart (the 테마 · 섹터 scatter) as an unexplained square.
+      if (!isBlank(canvas)) return;
       var ok = preset.type === 'message'
         ? window.AIO.drawFallbackMessageCanvas(canvas, preset.label, { name: 'page-canvas-reference' })
         : window.AIO.drawFallbackLineChart(canvas, [{ data: preset.data, color: preset.color, width: 2 }], {
@@ -4178,18 +4165,18 @@ function _aioDefaultDecision(pageId) {
     },
     // v53.7 (P725): KR 전용 5페이지 결론 항목 제거 — 통합 섹션은 대상 페이지(themes/macro/technical) 결론을 따름
   };
-  // W1-05: ticker narrative must fail closed when the selected entity, quote,
-  // or market-health evidence is absent. A market score alone is not a
-  // security-specific action signal.
+  // W1-05: ticker narrative fails closed without the selected entity, its quote and market-state evidence (the 시장 상태
+  // regime's own sufficiency: 4+ of 6 axes on a current close basis). A market read alone is not a security signal.
   var _tickerGateMissing = [];
   var _tickerGateBlocked = false;
   if (pageId === 'ticker') {
     var _tickerGateId = window._currentTickerId || window._currentTickerSym || (typeof _currentTickerSym !== 'undefined' ? _currentTickerSym : '');
     var _tickerGateQuote = _tickerGateId && window._liveData ? window._liveData[String(_tickerGateId).toUpperCase()] : null;
-    var _tickerGateHealth = typeof computeMarketHealth === 'function' ? computeMarketHealth({ render: false }) : null;
+    var _tickerGateRegime = null;
+    try { _tickerGateRegime = typeof window._aioMarketRegimeSummary === 'function' ? window._aioMarketRegimeSummary() : null; } catch (_) { _tickerGateRegime = null; }
     if (!_tickerGateId) _tickerGateMissing.push('ticker');
     if (!_tickerGateQuote || !Number.isFinite(Number(_tickerGateQuote.price))) _tickerGateMissing.push('quote');
-    if (!_tickerGateHealth || _tickerGateHealth.available !== true || !Number.isFinite(Number(_tickerGateHealth.score))) _tickerGateMissing.push('market-health');
+    if (!_tickerGateRegime || _tickerGateRegime.available !== true || _tickerGateRegime.sufficient !== true) _tickerGateMissing.push('market-state');
     _tickerGateBlocked = _tickerGateMissing.length > 0;
   }
   // H3-C: quorum 미달이면 수치 밴드가 있어도 현재 행동 결론을 생성하지 않는다.
@@ -4203,7 +4190,7 @@ function _aioDefaultDecision(pageId) {
   }
   if (_tickerGateBlocked && map[pageId]) {
     map[pageId].decision = '판단 보류 · 티커 근거 부족';
-    map[pageId].action = '현재 티커의 시세·시장 건강도 근거가 확보되기 전에는 매매·비중 결론을 생성하지 않습니다.';
+    map[pageId].action = '현재 티커의 시세·시장 상태 근거가 확보되기 전에는 매매·비중 결론을 생성하지 않습니다.';
     map[pageId].caveat = '필수 티커 근거 미수신: ' + _tickerGateMissing.join(', ');
   }
   var d = map[pageId] || {
@@ -13660,8 +13647,7 @@ function _calcVCP(bars, indicators) {
   }
   var pivot = _det.valid ? _det.pivot : null; // v57.84: 유효한 수축 구간의 마지막 고점만 피벗
   var nearPivot = !!(pivot && price >= pivot * 0.97 && price <= pivot * 1.03);
-  var rvol20 = (ind.rvol20 != null) ? ind.rvol20 : null;
-  var _bk = bars[n - 1], brk = !!(pivot && price > pivot && rvol20 !== null && rvol20 > 1.4 && (price > closes[n - 2] || (_bk.high > _bk.low && (price - _bk.low) / (_bk.high - _bk.low) >= 0.5)) && closes.slice(-6, -1).some(function(c) { return c <= pivot; })); // v57.81: same breakout rule as _calcVCPServer
+  var brk = !!(pivot && typeof window.AIO_ARCH.isBreakoutDay === 'function' && window.AIO_ARCH.isBreakoutDay({ closes: closes, volumes: volumes, i: n - 1, pivot: pivot }) && closes.slice(-6, -1).some(function(c) { return c <= pivot; })); // audit 2026-10-17 D6: the shared breakout day (technical/definitions.js), as _calcVCPServer
   // VCP 점수 (0~100)
   var score = 0;
   if (stage2)    score += 25;
@@ -13919,7 +13905,7 @@ function calcTechnicalSnapshot(ohlcv) {
   var maStructure = _stageFn ? _stageFn({ sma5: sma5, sma10: sma10, sma20: sma20, sma50: sma50, sma100: sma100, sma200: sma200, sma50Prior: sma50_5d, lastClose: last.close }) : {
     // Fail-closed fallback for the (unexpected) case the ESM architecture runtime never mounted —
     // mirrors the model's own "insufficient data" shape instead of duplicating the formula here.
-    shortMAState: 'SHORT_MIXED', longMAState: 'LONG_MIXED', fullMAState: 'PARTIAL_STACK', maStackScore: 0, sma50Rising: null, trendState: 'MIXED', stageEstimate: 'STAGE_1_OR_3_TRANSITION'
+    shortMAState: 'SHORT_MIXED', longMAState: 'LONG_MIXED', fullMAState: 'PARTIAL_STACK', sma50Rising: null, trendState: 'MIXED', stageEstimate: 'STAGE_1_OR_3_TRANSITION'
   };
   var rvol20 = _calcRVOL(volumes, 20);
   var vcp = bars.length >= 60 ? _calcVCP(bars, { sma50: sma50, sma200: sma200, rvol20: rvol20 }) : { ok: false, vcpScore: 0, vcpStage: 'insufficient_data' };
@@ -13950,7 +13936,6 @@ function calcTechnicalSnapshot(ohlcv) {
     shortMAState: maStructure.shortMAState,
     longMAState: maStructure.longMAState,
     fullMAState: maStructure.fullMAState,
-    maStackScore: maStructure.maStackScore,
     sma50Rising: maStructure.sma50Rising,
     trendState: maStructure.trendState,
     stageEstimate: maStructure.stageEstimate,
@@ -15633,25 +15618,10 @@ window.AIO = window.AIO || {};
 window.AIO.getCurrentBreadthEvidence = function(maxAgeMs) {
   var maxAge = Number(maxAgeMs) > 0 ? Number(maxAgeMs) : 4 * 24 * 60 * 60 * 1000;
   var strictOptional = function(value) { return _aioStrictFinite(value); };
-  var candidates = [window._breadthLiveData];
-  // P1274: native breadth card와 테마/국면이 동일한 screener 관측을 읽는다.
-  // Legacy projection이 실행되지 않아도 native store의 검증된 US segment를 사용할 수 있다.
-  try {
-    var root = window.AIO_ARCH && window.AIO_ARCH.getScreenerState && window.AIO_ARCH.getScreenerState('metadata.breadth'); // P1755: path read, no slice clone
-    var segment = root && root.segments && root.segments.us;
-    var validNative = root && root.schemaVersion === '1.0' && root.source && segment
-      && Number(segment.coveragePct) >= 85 && Number(segment.eligible) >= 300
-      && ['above5','above20','above50','above200','advanceRatio'].every(function(key) {
-        var value = strictOptional(segment[key]);
-        return value != null && value >= 0 && value <= (key === 'advanceRatio' ? 1 : 100);
-      });
-    if (validNative) candidates.push({
-      sma5:segment.above5, sma20:segment.above20, sma50:segment.above50,
-      advances:segment.advances, declines:segment.declines, advanceRatio:segment.advanceRatio,
-      coveragePct:segment.coveragePct, eligible:segment.eligible, ts:segment.observedAt,
-      source:root.source
-    });
-  } catch (_) {}
+  // P1274: every breadth reader takes the one checked screener observation (src/domain/market/screener-breadth.js).
+  var screenerBreadth = null;
+  try { screenerBreadth = typeof window._aioScreenerBreadth === 'function' ? window._aioScreenerBreadth() : null; } catch (_) {}
+  var candidates = [screenerBreadth && screenerBreadth.us];
   for (var i = 0; i < candidates.length; i++) {
     var b = candidates[i] || {};
     var tsRaw = b.ts != null ? b.ts : b.generatedAt != null ? b.generatedAt : b.asOf;
@@ -17086,126 +17056,7 @@ function _aioExternalReferenceMap(externalReferences) {
     var id = String(pageId || '').replace(/^page-/, '');
     return (window.AIO_PAGE_CONTRACTS && window.AIO_PAGE_CONTRACTS.pages && window.AIO_PAGE_CONTRACTS.pages[id]) || null;
   };
-  function _aioIsoMs(ms) {
-    return ms && isFinite(ms) ? new Date(ms).toISOString() : null;
-  }
-  function _aioProducerState(producer) {
-    var meta = window._serverDataMeta || {};
-    var cfg = window.REFRESH_SCHEDULE && window.REFRESH_SCHEDULE[producer] || null;
-    var state = {
-      producer: producer,
-      status: 'missing',
-      coverage: null,
-      attemptedAt: cfg && cfg._attemptedAt || null,
-      lastSuccessfulAt: cfg && (cfg._lastSuccessfulAt || _aioIsoMs(cfg._lastOk)) || null,
-      evidenceIds: cfg && Array.isArray(cfg._evidenceIds) ? cfg._evidenceIds.slice() : [],
-      failureReason: cfg && (cfg._failureReason || cfg._lastErr) || null,
-      sourceKind: cfg && cfg._sourceKind || null,
-      allowedUse: cfg && cfg._allowedUse || null
-    };
-    var direct = {
-      // P1116: derive the citation from the producer's publication flag; data.json.quotes is published empty (P715).
-      quotes: meta.generatedAt && Number(meta.symbolsOk) > 0 ? { status: Number(meta.symbolsFail || 0) ? 'partial' : 'loaded', coverage: (Number(meta.symbolsOk) / Math.max(1, Number(meta.symbolsOk) + Number(meta.symbolsFail || 0))) * 100, lastSuccessfulAt: meta.generatedAt, evidenceIds:[meta.quotesPublished === true ? 'data.json:quotes' : 'market-snapshot.json:quotes'], sourceKind:'delayed-eod' } : null,
-      news: meta.generatedAt && meta.newsOk ? { status:'loaded', coverage:100, lastSuccessfulAt:meta.generatedAt, evidenceIds:['data.json:news'], sourceKind:'server-cache' } : null,
-      fred: meta.generatedAt && meta.fredFetchOk ? { status:'loaded', coverage:100, lastSuccessfulAt:meta.generatedAt, evidenceIds:['data.json:macro:fred'], sourceKind:'official-primary' } : null,
-      sentiment: meta.generatedAt && meta.fearGreedOk ? { status:'loaded', coverage:100, lastSuccessfulAt:meta.generatedAt, evidenceIds:['data.json:fearGreed'], sourceKind:'delayed' } : null,
-      breadth: meta.screener && meta.screener.status === 'ready' ? { status:'loaded', coverage:Number(meta.screener.coveragePct || 100), lastSuccessfulAt:meta.screener.generatedAt || meta.generatedAt, evidenceIds:['screener.json:breadth'], sourceKind:'delayed-eod' } : null,
-      screenerArtifact: meta.screener && meta.screener.status === 'ready' ? { status:'loaded', coverage:Number(meta.screener.coveragePct || (Number(meta.screener.ok) / Math.max(1, Number(meta.screener.universe)) * 100)), lastSuccessfulAt:meta.screener.generatedAt || meta.generatedAt, evidenceIds:['screener.json'], sourceKind:'delayed-eod', allowedUse:'research-relative-ranking-only' } : null
-    }[producer] || null;
-    if (direct) state = Object.assign(state, direct);
-    if (cfg) {
-      if (cfg._status) state.status = cfg._status;
-      if (cfg._coverage != null) state.coverage = Number(cfg._coverage);
-      if (cfg._lastSuccessfulAt) state.lastSuccessfulAt = cfg._lastSuccessfulAt;
-      if (cfg._attemptedAt) state.attemptedAt = cfg._attemptedAt;
-      if (Array.isArray(cfg._evidenceIds) && cfg._evidenceIds.length) state.evidenceIds = cfg._evidenceIds.slice();
-      if (cfg._failureReason || cfg._lastErr) state.failureReason = cfg._failureReason || cfg._lastErr;
-      if (cfg._sourceKind) state.sourceKind = cfg._sourceKind;
-      if (cfg._allowedUse) state.allowedUse = cfg._allowedUse;
-      if (!state.lastSuccessfulAt && cfg._lastOk) state.lastSuccessfulAt = _aioIsoMs(cfg._lastOk);
-      if (state.status === 'missing' && cfg._lastOk) state.status = 'loaded';
-    }
-    if (producer === 'screenerArtifact') {
-      var load = window._aioScreenerLoadState || {};
-      // A test/operator load-state fixture is authoritative even when a
-      // server artifact is present; without an explicit status preserve the
-      // direct artifact metadata.
-      if (load.status) {
-        state.status = load.status === 'ready' ? 'loaded' : load.status === 'loading' ? 'loading' : load.status;
-        state.attemptedAt = load.checkedAt ? _aioIsoMs(load.checkedAt) : state.attemptedAt;
-        state.failureReason = load.detail || state.failureReason;
-      }
-    }
-    return state;
-  }
-  window.AIO.getPageDataCompleteness = function(pageId) {
-    var id = String(pageId || '').replace(/^page-/, '');
-    var contract = window.AIO.getPageContract(id);
-    if (!contract) return { version:'wp10.page-completeness.v1', pageId:id, status:'blocked', reason:'unknown-route', producers:{} };
-    var producerIds = Array.from(new Set((contract.requiredProducers || []).concat(contract.optionalProducers || [])));
-    var producers = {};
-    var issues = [];
-    producerIds.forEach(function(producer) {
-      var state = _aioProducerState(producer);
-      var maxAgeMs = contract.maxAge && contract.maxAge[producer] != null ? Number(contract.maxAge[producer]) : Infinity;
-      var minCoverage = contract.minCoverage && contract.minCoverage[producer] != null ? Number(contract.minCoverage[producer]) : 0;
-      var ageMs = state.lastSuccessfulAt ? Date.now() - new Date(state.lastSuccessfulAt).getTime() : null;
-      if (state.status === 'loaded' && ageMs != null && isFinite(maxAgeMs) && ageMs > maxAgeMs) state.status = 'stale';
-      if (state.status === 'loaded' && state.coverage != null && state.coverage < minCoverage) state.status = state.coverage <= 0 ? 'zero' : 'partial';
-      state.ageMs = ageMs;
-      state.maxAgeMs = maxAgeMs;
-      state.minCoverage = minCoverage;
-      producers[producer] = state;
-    });
-    (contract.requiredProducers || []).forEach(function(producer) {
-      var state = producers[producer];
-      if (!state) return;
-      if (['missing','loading','failed','unavailable','error','stale','zero','partial','blocked','reference','neutral'].indexOf(state.status) >= 0) {
-        issues.push({ producer:producer, status:state.status, failureReason:state.failureReason || null, coverage:state.coverage, maxAgeMs:state.maxAgeMs });
-      }
-    });
-    var blocked = issues.some(function(issue) { return issue.status === 'blocked' || contract.failureState === 'blocked' && issue.status === 'failed'; });
-    var staleReference = issues.some(function(issue) { return issue.status === 'reference'; });
-    var emptyStatuses = ['missing','zero','empty'];
-    var empty = issues.length > 0 && issues.length === (contract.requiredProducers || []).length && issues.every(function(issue) { return emptyStatuses.indexOf(issue.status) >= 0; });
-    var status = !issues.length ? 'loaded' : staleReference ? 'stale-reference' : empty ? 'empty' : blocked ? 'blocked' : 'partial';
-    return {
-      version:'wp10.page-completeness.v1',
-      pageId:id,
-      status:status,
-      requiredProducers:(contract.requiredProducers || []).slice(),
-      optionalProducers:(contract.optionalProducers || []).slice(),
-      minCoverage:Object.assign({}, contract.minCoverage || {}),
-      maxAge:Object.assign({}, contract.maxAge || {}),
-      failureState:contract.failureState || 'partial',
-      forbiddenClaims:(contract.forbiddenClaims || []).slice(),
-      producers:producers,
-      issues:issues,
-      checkedAt:new Date().toISOString()
-    };
-  };
-  window.AIO.auditPageDataCompleteness = function(opts) {
-    opts = opts || {};
-    var ids = opts.allRoutes ? (window.AIO_PAGE_CONTRACTS.routePageIds || []).slice() : (Array.isArray(opts.pageIds) && opts.pageIds.length ? opts.pageIds.slice() : [String(opts.pageId || '').replace(/^page-/, '')]);
-    ids = ids.filter(Boolean);
-    var pages = ids.map(function(id) { return window.AIO.getPageDataCompleteness(id); });
-    var blockedCount = pages.filter(function(row) { return row.status === 'blocked'; }).length;
-    var partialCount = pages.filter(function(row) { return row.status === 'partial'; }).length;
-    var emptyCount = pages.filter(function(row) { return row.status === 'empty'; }).length;
-    var staleReferenceCount = pages.filter(function(row) { return row.status === 'stale-reference'; }).length;
-    return {
-      version:'wp10.page-completeness.v1',
-      status:blockedCount ? 'blocked' : staleReferenceCount ? 'stale-reference' : emptyCount ? 'empty' : partialCount ? 'partial' : 'loaded',
-      routeCount:ids.length,
-      loadedCount:pages.filter(function(row) { return row.status === 'loaded'; }).length,
-      partialCount:partialCount,
-      blockedCount:blockedCount,
-      emptyCount:emptyCount,
-      staleReferenceCount:staleReferenceCount,
-      pages:pages,
-      checkedAt:new Date().toISOString()
-    };
-  };
+  // AIO.getPageDataCompleteness / auditPageDataCompleteness: src/data/page-completeness.js (installed at boot).
   window.AIO.getPageAIContract = function(pageId) {
     var contract = window.AIO.getPageContract(pageId);
     return contract && contract.ai ? contract.ai : null;
@@ -18087,7 +17938,8 @@ function _aioExternalReferenceMap(externalReferences) {
         quality: pcrMetric && (pcrMetric.quality || pcrMetric.contract) || pcrPayload.quality || null
       };
     } else if (input && input.id === 'breadth200-participation') {
-      var breadthState = window._aioScreenerBreadthState || {}, breadthData = window._breadthLiveData || {};
+      var breadthRead = typeof window._aioScreenerBreadth === 'function' ? window._aioScreenerBreadth() : null;
+      var breadthState = (breadthRead && breadthRead.state) || {}, breadthData = (breadthRead && breadthRead.us) || {};
       evidence = {
         value: currentBreadth.available ? currentBreadth.sma20 : null, // v57.62: value, source and time come from one observation
         source: (currentBreadth.available && currentBreadth.source) || breadthData.source || breadthState.source || null,

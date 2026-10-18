@@ -22,8 +22,15 @@ export const RRG_BAND_MIN = 0.5;
 export const RRG_BAND_MAX = 3;
 export const RRG_EXIT_SHARE = 0.5;
 const RRG_MIN_TRAIL = 10;
-/** %p per month: a typical sector's tracking error against its index (~5%/yr ÷ √12). */
-export const MONTHLY_RELATIVE_BAND = 1.5;
+// Audit 2026-10-17 (owner D4): the band is one standard deviation of a theme's return less its index's. It assumed a 5%/yr
+// tracking error (1-month ±1.5%p, 6-month ±3.7%p); the 31 sector/theme ETFs measured 13–44%/yr against SPY (median
+// 22.8%), so a noise-sized gap read 주도 or 약세. 15%/yr is the low end of that range — narrow enough that a real lead
+// still reads, and a theme median of 20+ names tracks closer than a single ETF.
+export const ANNUAL_TRACKING_ERROR_PCT = 15;
+/** %p per month: ANNUAL_TRACKING_ERROR_PCT ÷ √12 (≈ 4.3). */
+export const MONTHLY_RELATIVE_BAND = ANNUAL_TRACKING_ERROR_PCT / Math.sqrt(12);
+/** Typical 5-session move of a theme's return less its index's (median |x| of that tracking error over five sessions). */
+export const WEEKLY_RELATIVE_NOISE = ANNUAL_TRACKING_ERROR_PCT * Math.sqrt(5 / 252) * 0.6745;
 export const WINDOW_SESSIONS = Object.freeze({ ret5d: 5, ret1m: 21, ret3m: 63, ret6m: 126 });
 export const WINDOW_LABELS = Object.freeze({ ret5d: '5거래일', ret1m: '1개월', ret3m: '3개월', ret6m: '6개월' });
 // A normal variable's median absolute value is 0.6745 σ; σ of a 5-session move is the annual σ × √(5/252).
@@ -39,7 +46,7 @@ export function medianOf(values) {
   return list.length % 2 ? list[mid] : (list[mid - 1] + list[mid]) / 2;
 }
 
-/** ± band in %p for "ahead of / behind the market" over a window key (ret1m 1.5, ret3m 2.6, ret6m 3.7). */
+/** ± band in %p for "ahead of / behind the market" over a window key (ret1m 4.3, ret3m 7.5, ret6m 10.6). */
 export function relativeBand(key) {
   const sessions = WINDOW_SESSIONS[key];
   return sessions ? round1(MONTHLY_RELATIVE_BAND * Math.sqrt(sessions / WINDOW_SESSIONS.ret1m)) : null;
@@ -75,13 +82,15 @@ export function weeklyNoiseFromVol(annualVolPct, { members = 1, correlation = WI
 /**
  * Five-session contradiction of a slow verdict. `move` is the group's 5-session return less the benchmark's when both
  * exist (leadership is relative), else the group's own. `broken` = fell more than NOISE_MULTIPLE × the typical weekly move.
+ * Audit 2026-10-17 (D4): a relative move is held to the relative noise (tracking error), not the members' own volatility,
+ * which is several times larger and kept 급락 from reading; `noise` stays the yardstick for an own-return move.
  */
-export function recentMove({ ret5d = null, benchRet5d = null, noise = null } = {}) {
+export function recentMove({ ret5d = null, benchRet5d = null, noise = null, relativeNoise = WEEKLY_RELATIVE_NOISE } = {}) {
   const own = finite(ret5d);
   if (own == null) return null;
   const bench = finite(benchRet5d);
   const move = bench == null ? own : own - bench;
-  const typical = finite(noise);
+  const typical = bench == null ? finite(noise) : finite(relativeNoise);
   const threshold = typical == null ? null : NOISE_MULTIPLE * typical;
   return Object.freeze({ ret5d: own, relative: bench != null, move, threshold, broken: threshold != null && move <= -threshold, surged: threshold != null && move >= threshold });
 }

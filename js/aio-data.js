@@ -1274,24 +1274,6 @@ function _aioGetCanonicalScreenerRows(root) {
   return Array.isArray(w.SCREENER_DB) ? w.SCREENER_DB : [];
 }
 
-// E2/S-E (P1239): the general and unified chats used to re-implement the same screener query,
-// recent-ticker extraction and prompt formatting inline. One helper now owns that sequence in both.
-function _aioBuildScreenerAiContext(query, messages, logger) {
-  var result = null;
-  try {
-    if (typeof _aioRunScreenerQuery !== 'function') return { result: null, prompt: '' };
-    var recent = (typeof _aioExtractRecentRecommendationTickers === 'function') ? _aioExtractRecentRecommendationTickers(messages) : [];
-    result = _aioRunScreenerQuery(query, { recentTickers: recent });
-    if (!(result && result.matched)) return { result: result || null, prompt: '' };
-    var prompt = (typeof _formatScreenerResultPrompt === 'function') ? _formatScreenerResultPrompt(result) : '';
-    return { result: result, prompt: prompt || '' };
-  } catch (e) {
-    if (typeof logger === 'function') logger(e);
-    return { result: result, prompt: '' };
-  }
-}
-
-
 // ── ADR% 추정 함수 (Jeff Sun CFTe 프레임워크 기반) ──
 // mcap 티어 + 섹터 변동성 보정으로 ADR% 추정
 // ADR%(Average Daily Range) = 하루 평균 변동폭 비율. 높을수록 변동성 큼.
@@ -2125,7 +2107,6 @@ window._aioGetActiveProfile = function() {
 window._aioSetProfile = function(key) {
   if (!key || !AIO_TRADER_PROFILES[key]) key = 'balanced';
   try { localStorage.setItem('aio_trader_profile', key); } catch (_) {}
-  try { if (typeof _aioComputeFactorRanks === 'function') _aioComputeFactorRanks(); } catch (_) {}
   try { window.dispatchEvent(new CustomEvent('aio:screener:profile', { detail:key })); } catch (_) {}
 };
 window._aioWatchlistGet = function() {
@@ -3202,7 +3183,8 @@ async function fetchBreadthData() {
   // The server artifact is the primary value-specific collector and the native breadth board owns
   // the route. P1754: the client-side top-movers call that used to follow here was removed — its
   // response was no longer rendered anywhere and it only spent the shared Alpha Vantage quota.
-  if (window._aioScreenerBreadthState && window._aioScreenerBreadthState.status === 'verified_current') {
+  var screenerBreadth = typeof window._aioScreenerBreadth === 'function' ? window._aioScreenerBreadth() : null;
+  if (screenerBreadth && screenerBreadth.state.status === 'verified_current') {
     return { updated:false, source:'screener-breadth-primary' };
   }
 }
@@ -4581,23 +4563,6 @@ async function _idbLoadNews(maxAgeMs) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// v50.24/WO-2 (P498): SPX ATH 기준값 단일 출처. 하드코딩 7412.84(stale)가 두 곳에 중복돼
-// 한쪽(L13125)만 v50.16에서 시정되고, 먼저 실행되어 window._spxATH를 오염시키는 쪽은 미시정 →
-// SPX -2.9% 급락일에 레짐이 "Near ATH"로 오표시됐다. 두 호출점이 같은 floor를 쓰도록 통일한다.
-// floor = max(런타임 추적값, live, history.json 관측값). 상수 floor는 사용하지 않는다.
-function _aioSpxAthFloor() {
-  var values = [];
-  [window._spxATH, window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.spxATH,
-    window._liveData && window._liveData['^GSPC'] && window._liveData['^GSPC'].price].forEach(function(v) {
-    v = Number(v); if (isFinite(v) && v > 0) values.push(v);
-  });
-  var history = typeof _aioHistorySeries === 'function' ? _aioHistorySeries('spx', 1) : null;
-  if (history) history.forEach(function(p) { var v = Number(p.value); if (isFinite(v) && v > 0) values.push(v); });
-  return values.length ? Math.max.apply(null, values) : null;
-}
-window._aioSpxAthFloor = _aioSpxAthFloor;
-
-// ─────────────────────────────────────────────────────────────────────────
 // v50.23: 서버측 데이터 로더 — GitHub Actions(.github/workflows/refresh-data.yml)가
 // scripts/fetch-data.mjs로 생성한 public-data/data.json을 "같은 출처"로 읽어 즉시 적용.
 // CORS 프록시·키노출 없이 항상 신선 → 이게 PRIMARY 소스. 기존 클라이언트 fetchLiveQuotes는
@@ -4611,90 +4576,41 @@ window._aioSpxAthFloor = _aioSpxAthFloor;
 function _aioApplyNativeScreenerState(nativeState) {
   var arch = window.AIO_ARCH || null;
   // v57.81 (P1755 path read): with no event payload, read only the fields used here; the bare call cloned the whole slice.
-  var state = nativeState || (arch && typeof arch.getScreenerState === 'function' ? { status: arch.getScreenerState('status'), revision: arch.getScreenerState('revision'), metadata: arch.getScreenerState('metadata'), rowCount: arch.getScreenerState('rows.length') } : null);
+  var state = nativeState || (arch && typeof arch.getScreenerState === 'function' ? { status: arch.getScreenerState('status'), revision: arch.getScreenerState('revision'), metadata: arch.getScreenerState('metadata') } : null);
   if (!state || typeof state !== 'object' || (!nativeState && state.status == null && state.metadata == null)) return false;
   var metadata = state.metadata && typeof state.metadata === 'object' ? state.metadata : {};
-  var hasArtifact = state.status === 'current' || state.status === 'partial' || state.status === 'ready';
-  var status = hasArtifact ? (metadata.universeFreshnessStatus === 'stale' ? 'partial' : (metadata.backtest ? 'ready' : 'partial')) : (state.status || 'unavailable');
-  var numberOrNull = function(value) { return value == null || value === '' ? null : (isFinite(Number(value)) ? Number(value) : null); };
-  var loadState = {
-    status: status,
-    checkedAt: Date.now(),
-    asOf: metadata.asOf || state.revision || null,
-    factorObservedAt: metadata.factorObservedAt || null,
-    count: Number(metadata.artifactRows) || (Array.isArray(state.rows) ? state.rows.length : (Number(state.rowCount) || 0)),
-    universe: Number(metadata.universe) || null,
-    fundamentalCoverageDenominator: numberOrNull(metadata.fundamentalCoverageDenominator),
-    fundamentalModels: Array.isArray(metadata.fundamentalModels) ? metadata.fundamentalModels.slice() : [],
-    fundamentalCoverageScope: metadata.fundamentalCoverageScope || null,
-    fmpOk: !!metadata.fmpOk,
-    secFundamentalsOk: !!metadata.secFundamentalsOk,
-    secFundamentalsCount: numberOrNull(metadata.secFundamentalsCount),
-    secFundamentalsStored: numberOrNull(metadata.secFundamentalsStored),
-    secFundamentalsEligible: numberOrNull(metadata.secFundamentalsEligible),
-    secFundamentalsModel: metadata.secFundamentalsModel || null,
-    secFundamentalsGeneratedAt: metadata.secFundamentalsGeneratedAt || null,
-    fundamentalCoveragePct: numberOrNull(metadata.fundamentalCoveragePct),
-    universeCurrentness: metadata.universeCurrentness || 'UNKNOWN',
-    universeLastBulkUpdate: metadata.universeLastBulkUpdate || null,
-    universeStaleAfterDays: numberOrNull(metadata.universeStaleAfterDays),
-    universeFreshnessStatus: metadata.universeFreshnessStatus || 'unknown',
-    breadthStatus: 'blocked',
-    source: metadata.source || 'native-screener-state',
-    nativeRevision: state.revision || null
-  };
-  window._aioScreenerLoadState = loadState;
-  window._aioServerScreener = {
-    asOf: loadState.asOf,
-    factorObservedAt: loadState.factorObservedAt,
-    universe: loadState.universe,
-    fmpOk: loadState.fmpOk,
-    secFundamentalsOk: loadState.secFundamentalsOk,
-    secFundamentalsCount: loadState.secFundamentalsCount,
-    secFundamentalsStored: loadState.secFundamentalsStored,
-    secFundamentalsEligible: loadState.secFundamentalsEligible,
-    secFundamentalsModel: loadState.secFundamentalsModel,
-    fundamentalCoveragePct: loadState.fundamentalCoveragePct,
-    universeCurrentness: loadState.universeCurrentness,
-    universeLastBulkUpdate: loadState.universeLastBulkUpdate,
-    universeStaleAfterDays: loadState.universeStaleAfterDays,
-    universeFreshnessStatus: loadState.universeFreshnessStatus,
-    rankingContract: metadata.rankingContract || null,
-    backtest: metadata.backtest || null,
-    breadth: metadata.breadth || null,
-    ranking: metadata.ranking || null,
-    nativeState: state
-  };
-  window._aioScreenerFactorAsOf = loadState.asOf;
-  window._aioScreenerFactorObservedAt = loadState.factorObservedAt;
-  if (metadata.backtest && metadata.backtest.kalmanScale === 'log_pct_day') {
-    window._aioFactorBacktest = metadata.backtest;
-    window._aioFactorBacktestStaleReason = null;
-  } else if (metadata.backtest) {
-    window._aioFactorBacktest = null;
-    window._aioFactorBacktestStaleReason = 'legacy_kalman_scale';
+  var asOf = metadata.asOf || state.revision || null;
+  if (window.SCREENER_DB_META && asOf) {
+    var staleAfterDays = metadata.universeStaleAfterDays;
+    if (metadata.universeLastBulkUpdate) window.SCREENER_DB_META.lastBulkUpdate = String(metadata.universeLastBulkUpdate).slice(0, 10);
+    if (staleAfterDays != null && staleAfterDays !== '' && isFinite(Number(staleAfterDays))) window.SCREENER_DB_META.staleAfterDays = Number(staleAfterDays);
+    window.SCREENER_DB_META.currentness = metadata.universeCurrentness || 'UNKNOWN';
+    window.SCREENER_DB_META.stale = metadata.universeFreshnessStatus === 'stale';
   }
-  if (window.SCREENER_DB_META && loadState.asOf) {
-    if (loadState.universeLastBulkUpdate) window.SCREENER_DB_META.lastBulkUpdate = String(loadState.universeLastBulkUpdate).slice(0, 10);
-    if (loadState.universeStaleAfterDays != null) window.SCREENER_DB_META.staleAfterDays = loadState.universeStaleAfterDays;
-    window.SCREENER_DB_META.currentness = loadState.universeCurrentness;
-    window.SCREENER_DB_META.stale = loadState.universeFreshnessStatus === 'stale';
+  if (typeof _aioApplyScreenerBreadth === 'function' && metadata.breadth) _aioApplyScreenerBreadth({ breadth: metadata.breadth });
+  if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs && asOf) {
+    window.DATA_SNAPSHOT._fieldTs.screener = asOf;
   }
-  if (typeof _aioApplyScreenerBreadth === 'function' && metadata.breadth) {
-    loadState.breadthStatus = _aioApplyScreenerBreadth({ breadth: metadata.breadth }) ? 'verified_current' : 'blocked';
-  }
-  if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs && loadState.asOf) {
-    window.DATA_SNAPSHOT._fieldTs.screener = loadState.asOf;
-  }
-  if (window._serverDataMeta) {
-    window._serverDataMeta.artifacts = window._serverDataMeta.artifacts || {};
-    window._serverDataMeta.artifacts.screenerJson = status;
-    window._serverDataMeta.screener = loadState;
-  }
+  // The screener artifact's load state is read from the native slice (src/data/page-completeness.js screenerLoadState).
   try { if (typeof _aioRenderDataFreshness === 'function') _aioRenderDataFreshness(); } catch (_) {}
   return true;
 }
 window._aioApplyNativeScreenerState = _aioApplyNativeScreenerState;
+// Native screener metadata by path (no slice clone). The legacy readers below take these instead of the copies this
+// projection used to keep in _aioServerScreener / _aioScreenerFactorAsOf / _aioScreenerFactorObservedAt / _aioFactorBacktest.
+function _aioScreenerMetadata(path) {
+  var arch = window.AIO_ARCH;
+  try { return arch && typeof arch.getScreenerState === 'function' ? arch.getScreenerState('metadata.' + path) : undefined; } catch (_) { return undefined; }
+}
+function _aioScreenerFactorAsOf() {
+  var arch = window.AIO_ARCH;
+  try { return _aioScreenerMetadata('asOf') || (arch && typeof arch.getScreenerState === 'function' ? arch.getScreenerState('revision') : null) || null; } catch (_) { return null; }
+}
+// A backtest on the old Kalman scale (legacy_kalman_scale) is withheld rather than shown.
+function _aioScreenerFactorBacktest() {
+  var backtest = _aioScreenerMetadata('backtest');
+  return backtest && backtest.kalmanScale === 'log_pct_day' ? backtest : null;
+}
 try {
   window.addEventListener('aio:nativeScreenerReady', function(event) {
     _aioApplyNativeScreenerState(event && event.detail);
@@ -4789,56 +4705,15 @@ function _aioApplyServerTreasuryEvidence(macro, metadata) {
   return { applied: fields.length, fields };
 }
 
-function _aioIsStrictLiveCoreFreshnessAge(ageMs) {
-  return Number.isFinite(ageMs) && ageMs >= 0 && ageMs <= 12 * 60 * 60 * 1000;
-}
-
 async function _aioLoadServerData() {
-  globalThis._aioScreenerLoadState = { status:'loading', checkedAt:Date.now() };
   try {
-    var url = './public-data/data.json?t=' + Math.floor(Date.now() / 60000); // 분 단위 캐시버스터 — v57.61 kept: bypasses the 10-min CDN copy so data.json and reconciliation-status (revision-matched below) come from the same origin minute
-    var r = await fetch(url, { cache: 'no-cache' });
-    if (!r.ok) {
-      globalThis._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'data.json HTTP ' + r.status };
+    // Fetch, reconciliation check and market-cycle gate: src/data/server-data.js (bound by the compat bridge).
+    var fetched = await window._aioFetchServerData();
+    if (!fetched.ok) {
+      if (typeof _aioLog === 'function') _aioLog('warn', 'data', fetched.reason);
       return false;
     }
-    var d = await r.json();
-    if (!d || !d.meta) {
-      globalThis._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'invalid data.json payload' };
-      return false;
-    }
-    // The 22-category artifact is rebuilt from data.json, market-snapshot,
-    // screener and history on every server refresh. Load it with the same
-    // polling cycle so the browser sees category degradation without reload.
-    var _reconciliationState = { status:'unavailable', checkedAt:Date.now(), detail:'not loaded' };
-    try {
-      var _reconciliationUrl = './public-data/reconciliation-status.json?t=' + Math.floor(Date.now() / 60000);
-      var _reconciliationResponse = await fetch(_reconciliationUrl, { cache:'no-cache' });
-      if (!_reconciliationResponse.ok) throw new Error('HTTP ' + _reconciliationResponse.status);
-      var _reconciliation = await _reconciliationResponse.json();
-      if (!_reconciliation || _reconciliation.schemaVersion !== 'reconciliation-status-v2' || !Array.isArray(_reconciliation.categories) || _reconciliation.categories.length !== 22) {
-        throw new Error('invalid reconciliation payload');
-      }
-      var _sourceRevisionMatches = !!(_reconciliation.closure && _reconciliation.closure.sourceRevision && d.meta.marketSnapshotRevision)
-        && _reconciliation.closure.sourceRevision === d.meta.marketSnapshotRevision;
-      _reconciliationState = {
-        status: _sourceRevisionMatches ? 'ready' : 'stale',
-        checkedAt: Date.now(),
-        generatedAt: _reconciliation.generatedAt || null,
-        revision: _reconciliation.revision || null,
-        sourceRevision: _reconciliation.closure && _reconciliation.closure.sourceRevision || null,
-        sourceRevisionMatches: _sourceRevisionMatches,
-        overall: _reconciliation.overall || 'BLOCKED',
-        counts: _reconciliation.counts || {},
-        categories: _reconciliation.categories,
-        partialCategories: _reconciliation.closure && _reconciliation.closure.partialCategories || [],
-        policyBlockedCategories: _reconciliation.closure && _reconciliation.closure.policyBlockedCategories || [],
-        runtimeBlockedCategories: _reconciliation.closure && _reconciliation.closure.runtimeBlockedCategories || [],
-        detail: _sourceRevisionMatches ? null : 'market snapshot revision mismatch'
-      };
-    } catch (_reconciliationError) {
-      _reconciliationState.detail = String(_reconciliationError && _reconciliationError.message || _reconciliationError);
-    }
+    var d = fetched.data;
     // P867: data.json can resolve before aio-core exposes DATA_SNAPSHOT on a
     // cold origin. Previously the macro block was then skipped permanently
     // even though cycle/news metadata loaded, producing saved-key + blank-card
@@ -4855,11 +4730,6 @@ async function _aioLoadServerData() {
       // skipping macro projection. Bound the retries so a genuinely broken
       // core does not create an endless fetch loop.
       globalThis._aioServerDataBridgeAttempts = (window._aioServerDataBridgeAttempts || 0) + 1;
-      globalThis._aioScreenerLoadState = {
-        status: 'waiting-for-snapshot',
-        checkedAt: Date.now(),
-        detail: 'DATA_SNAPSHOT bridge attempt ' + window._aioServerDataBridgeAttempts
-      };
       if (window._aioServerDataBridgeAttempts <= 5 && !window._aioServerDataBridgeRetryTimer) {
         globalThis._aioServerDataBridgeRetryTimer = setTimeout(function() {
           globalThis._aioServerDataBridgeRetryTimer = null;
@@ -4870,115 +4740,10 @@ async function _aioLoadServerData() {
     }
     globalThis._aioServerDataBridgeAttempts = 0;
 
+    window._serverDataMeta = window._aioBuildServerDataMeta(d, fetched.reconciliation);
     var _serverGeneratedMs = d.meta.generatedAt ? new Date(d.meta.generatedAt).getTime() : NaN;
-    var _serverNowMs = Date.now();
-    var _serverAgeMs = isFinite(_serverGeneratedMs) ? _serverNowMs - _serverGeneratedMs : NaN;
-    // v57.50: whole minutes — the raw quotient reached the news stale banner as "118.27963333333334분".
-    var ageMin = isFinite(_serverAgeMs) ? Math.max(0, Math.round(_serverAgeMs / 60000)) : null;
-    // R646/P1295/P1296: canonical policy is 12h; artifact metadata does not configure runtime freshness.
-    var _marketCycleFreshnessSlaHours = 12;
-    var _liveCoreAgeHours = isFinite(_serverAgeMs) ? _serverAgeMs / 3600000 : Infinity;
-    var _marketCoverageRaw = d.meta.marketSnapshotCoverage || {};
-    // Older producers returned {required, observed, ratio}; newer snapshot
-    // contracts also expose tier0Required/tier0Observed. Normalize both forms
-    // here so a complete published cycle is not blocked merely by schema shape.
-    var _marketCoverage = Object.assign({}, _marketCoverageRaw, {
-      tier0Required: Number(_marketCoverageRaw.tier0Required ?? _marketCoverageRaw.required),
-      tier0Observed: Number(_marketCoverageRaw.tier0Observed ?? _marketCoverageRaw.observed)
-    });
-    var _marketCoverageComplete = Number(_marketCoverage.tier0Required) > 0
-      && Number(_marketCoverage.tier0Observed) === Number(_marketCoverage.tier0Required)
-      && (!Array.isArray(d.meta.failedSymbols) || d.meta.failedSymbols.length === 0);
-    var _liveCoreFresh = _aioIsStrictLiveCoreFreshnessAge(_serverAgeMs);
-    // generatedAt is an attempt/payload timestamp. It is not permission to promote
-    // an incomplete market cycle: a failed refresh can have a fresh generatedAt while
-    // its quotes remain last-known-good. Require the producer's publication gate and
-    // complete tier-0 coverage before the live quote plane or snapshot clock advances.
-    var _marketCyclePublished = d.meta.cycleStatus === 'PUBLISHED'
-      && d.meta.marketSnapshotPublished === true
-      && _marketCoverageComplete;
-    // P1291/R641: closed-market timing does not extend the wall-clock age of a live artifact.
-    var _liveCoreEligible = _marketCyclePublished && _liveCoreFresh;
-    var _liveCoreStaleReason = _liveCoreEligible ? null
-      : (!_marketCyclePublished ? 'market-cycle-not-published'
-        : (!isFinite(_liveCoreAgeHours) ? 'generatedAt-missing-or-invalid' : 'market-cycle-freshness-sla-exceeded'));
-    window._serverDataMeta = {
-      generatedAt: d.meta.generatedAt, rotationHistory: d.rotationHistory || null,
-      attemptedAt: d.meta.attemptedAt || d.meta.generatedAt || null,
-      artifactGeneratedAt: d.meta.artifactGeneratedAt || d.meta.generatedAt || null,
-      ageMin: ageMin,
-      symbolsOk: d.meta.symbolsOk,
-      symbolsFail: d.meta.symbolsFail,
-      failedSymbols: d.meta.failedSymbols || [],
-      fearGreedOk: !!d.meta.fearGreedOk,
-      fredHasKey: !!d.meta.fredHasKey,
-      fredFetchOk: !!d.meta.fredFetchOk,
-      fredOk: !!d.meta.fredOk,
-      fredFetchedKeyCount: d.meta.fredFetchedKeyCount || 0,
-      fredLastSuccessfulAt: d.meta.fredLastSuccessfulAt || null,
-      treasuryStatus: d.meta.treasuryStatus || (d.macro && d.macro._treasury && d.macro._treasury.status) || 'unavailable',
-      treasuryObservedAt: d.meta.treasuryObservedAt || (d.macro && d.macro._treasury && d.macro._treasury.observedAt) || null,
-      treasuryLastSuccessfulAt: d.meta.treasuryLastSuccessfulAt || (d.macro && d.macro._treasury && d.macro._treasury.lastSuccessfulAt) || null,
-      macroKeyCount: d.meta.macroKeyCount || 0,
-      newsOk: !!d.meta.newsOk,
-      newsCount: d.meta.newsCount || (Array.isArray(d.news) ? d.news.length : 0),
-      newsCyclePolicy: d.meta.newsCyclePolicy || null,
-      newsCycleStart: d.meta.newsCycleStart || null,
-      newsCycleEnd: d.meta.newsCycleEnd || null,
-      newsCycleLabel: d.meta.newsCycleLabel || null,
-      newsNextRefresh: d.meta.newsNextRefresh || null,
-      marketSnapshotRevision: d.meta.marketSnapshotRevision || null,
-      marketSnapshotAttemptRevision: d.meta.marketSnapshotAttemptRevision || null,
-      marketSnapshotAttemptedAt: d.meta.marketSnapshotAttemptedAt || null,
-      marketSnapshotPublishedAt: d.meta.marketSnapshotPublishedAt || null,
-      marketSnapshotLastSuccessfulAt: d.meta.marketSnapshotLastSuccessfulAt || null,
-      // Keep the published quote coverage beside the revision so shell-level
-      // status consumers can distinguish a loaded reference snapshot from an
-      // empty/unknown state without reaching into the loader's local scope.
-      marketSnapshotCoverage: _marketCoverage,
-      marketSnapshotPublished: d.meta.marketSnapshotPublished === true,
-      marketCyclePublished: _marketCyclePublished,
-      cycleId: d.meta.cycleId || null,
-      cycleStatus: d.meta.cycleStatus || 'unknown',
-      marketCycleFreshnessSlaHours: _marketCycleFreshnessSlaHours,
-      liveCoreAgeHours: isFinite(_liveCoreAgeHours) ? _liveCoreAgeHours : null,
-      liveCoreFresh: _liveCoreFresh,
-      liveCoreEligible: _liveCoreEligible,
-      liveCoreStaleReason: _liveCoreStaleReason,
-      cycleManifestRevision: d.meta.cycleManifestRevision || null,
-      cycleManifestAttemptRevision: d.meta.cycleManifestAttemptRevision || null,
-      cycleComponents: d.meta.cycleComponents || null,
-      putCallOk: !!d.meta.putCallOk,
-      putCallAsOf: d.meta.putCallAsOf || (d.putCall && d.putCall.asOf) || null,
-      // v52.75/WP-AI0: generation success is not semantic verification.
-      // The raw LLM marketAnalysis remains blocked until the producer emits
-      // an explicit semantic-gate pass.
-      marketAnalysisSemanticOk: d.meta.marketAnalysisSemanticOk === true,
-      marketAnalysisOk: d.meta.marketAnalysisOk === true && d.meta.marketAnalysisSemanticOk === true,
-      // P1729: the AI panel names a blocked scheduled analysis or the retained previous verified one.
-      marketAnalysisReason: d.meta.marketAnalysisReason || null,
-      marketAnalysisRetained: d.meta.marketAnalysisRetained || null,
-      fmpHasKey: d.meta.fmpHasKey != null ? !!d.meta.fmpHasKey : null, // null = screener skipped이라 미확인
-      fmpOk: !!d.meta.fmpOk,
-      fmpCount: d.meta.fmpCount == null ? null : Number(d.meta.fmpCount),
-      fmpPlanError: !!d.meta.fmpPlanError,
-      secFundamentalsOk: !!d.meta.secFundamentalsOk,
-      secFundamentalsCount: d.meta.secFundamentalsCount == null ? null : Number(d.meta.secFundamentalsCount),
-      fundamentalCoveragePct: d.meta.fundamentalCoveragePct == null ? null : Number(d.meta.fundamentalCoveragePct),
-      blsStatus: d.meta.blsStatus || (d.macro && d.macro._bls && d.macro._bls.status) || 'unavailable',
-      blsSeriesCount: d.meta.blsSeriesCount || 0,
-      blsFailedSeries: d.meta.blsFailedSeries || [],
-      blsAttemptedAt: d.meta.blsAttemptedAt || (d.macro && d.macro._bls && d.macro._bls.attemptedAt) || null,
-      blsLastSuccessfulAt: d.meta.blsLastSuccessfulAt || (d.macro && d.macro._bls && d.macro._bls.lastSuccessfulAt) || null,
-      beaStatus: d.meta.beaStatus || (d.macro && d.macro._bea && d.macro._bea.status) || 'unavailable',
-      beaAttemptedAt: d.meta.beaAttemptedAt || (d.macro && d.macro._bea && d.macro._bea.attemptedAt) || null,
-      beaLastSuccessfulAt: d.meta.beaLastSuccessfulAt || (d.macro && d.macro._bea && d.macro._bea.lastSuccessfulAt) || null,
-      beaReleaseAt: d.meta.beaReleaseAt || (d.macro && d.macro._bea && d.macro._bea.releasedAt) || null,
-      beaNextReleaseAt: d.meta.beaNextReleaseAt || (d.macro && d.macro._bea && d.macro._bea.nextReleaseAt) || null,
-      reconciliation: _reconciliationState,
-      loadedAt: Date.now(),
-      artifacts: { dataJson: _liveCoreEligible ? 'ready' : 'stale', reconciliationStatus: _reconciliationState.status, telegramDigest: 'pending', screenerJson: 'pending' }
-    };
+    var _liveCoreEligible = window._serverDataMeta.liveCoreEligible;
+    var ageMin = window._serverDataMeta.ageMin;
 
     // Artifact provenance is the only snapshot-level timestamp. It describes
     // the payload, not every field; per-field timestamps remain authoritative.
@@ -5017,169 +4782,21 @@ async function _aioLoadServerData() {
       applyLiveQuotes(d.quotes);
     }
     // 2) 매크로 → DATA_SNAPSHOT (FRED 서버값, 채팅/macro 페이지가 소비)
-    var _serverMacroApplied = 0;
-    var _serverFredApplied = 0;
-    var _serverBeaApplied = 0;
     globalThis._serverMacroEvidence = window._serverMacroEvidence || {}; globalThis._aioServerMacro = d.macro && typeof d.macro === 'object' ? d.macro : null; // P1425: native 거시 boards read the published macro block (dates, deltas, freshness)
+    // FRED/BEA/BLS/HY OAS/surveys → DATA_SNAPSHOT + evidence: src/data/server-macro.js (bound by the compat bridge).
+    var _serverMacro = window._aioApplyServerMacro(d, window.DATA_SNAPSHOT, window._serverMacroEvidence, window._serverDataMeta);
+    var _serverFredApplied = _serverMacro.fredApplied;
+    if (_serverMacro.highYield) {
+      var _serverHy = _serverMacro.highYield.evidence;
+      Object.assign(window, { _hySpreadBp: _serverHy.valueBp, _hySpreadDate: _serverHy.observedAt, _hySpreadSource: _serverHy.source });
+      try {
+        if (window.AIO_ARCH && typeof window.AIO_ARCH.ingestSentiment === 'function') {
+          window.AIO_ARCH.ingestSentiment({ hySpread: _serverHy.valueBp, hySpreadSourceKind: _serverMacro.highYield.official ? 'delayed' : 'snapshot', hySpreadSource: _serverHy.source, hySpreadDate: _serverHy.observedAt || d.meta.generatedAt || null, hySpreadAllowedUse: 'reference', now: new Date().toISOString() });
+        }
+      } catch (_) {}
+    }
+    if (_serverMacro.aaiiBearish != null) window['_aaiiBearish'] = _serverMacro.aaiiBearish;
     if (d.macro && window.DATA_SNAPSHOT) {
-      // v51.97/Phase 2 [B2]: housingStarts/retailSales/usWageGrowth 서버 FRED 자동화 편입.
-      // consConf(Conf. Board)는 제외 유지 — FRED엔 해당 시리즈가 없고, UMCSENT(미시간대)는
-      // 별개 지표라 혼입 금지(P593).
-      ['cpi','coreCpi','cpiSa','coreCpiSa','pce','corePce','fedRate','fedTargetLower','fedTargetUpper','unemployment','nfp','housingStarts','retailSales','usWageGrowth','dgs2','dgs5','dgs10','dgs20','dgs30','t10y2y','realYield10','breakeven10'].forEach(function(k){
-        var _blsCanonicalCpi = d.macro._bls && d.macro._bls.series && d.macro._bls.series[k];
-        var _canonicalCpiDefinitionBlocked = (k === 'cpi' || k === 'coreCpi')
-          && _blsCanonicalCpi
-          && String(_blsCanonicalCpi.seasonalAdjustment || '').toUpperCase() !== 'NSA';
-        if (!_canonicalCpiDefinitionBlocked && typeof d.macro[k] === 'number' && isFinite(d.macro[k])) {
-          window.DATA_SNAPSHOT[k] = d.macro[k]; var _deltaAligned = d.macro['_source_' + k] !== 'us-treasury-official-primary' || (d.macro['_deltaAsOf_' + k] && d.macro['_deltaAsOf_' + k] === d.macro['_asOf_' + k]); /* Codex review 2026-10-05: no FRED change beside a newer Treasury level */ if (_deltaAligned && typeof d.macro[k + 'Delta5'] === 'number' && isFinite(d.macro[k + 'Delta5'])) window.DATA_SNAPSHOT['_' + k + 'Delta5'] = d.macro[k + 'Delta5']; else delete window.DATA_SNAPSHOT['_' + k + 'Delta5']; // P1390: one-week change for the briefing read
-          // P1142: 선언된 스냅샷 필드는 `usUnemploy`(aio-core DATA_SNAPSHOT 키)지만 서버 매크로 키는
-          // `unemployment`라 미러가 없었고, 선언 키를 읽는 가용성 소비자(aio-ui 매크로 컨텍스트)는
-          // 데이터가 있어도 null을 봤다 — 감사에서 발견된 키 3중 drift 통합.
-          if (k === 'unemployment') window.DATA_SNAPSHOT.usUnemploy = d.macro[k];
-          var _macroSource = d.macro['_' + 'source_' + k]
-            || ((k === 'pce' || k === 'corePce') && d.macro._bea && d.macro._bea.status === 'ok' ? 'bea-official-primary' : null)
-            || (d.meta.fredFetchOk ? 'fred-official-primary' : 'last-known-good');
-          window.DATA_SNAPSHOT['_' + k + '_src'] = _macroSource;
-          window._serverMacroEvidence[k] = {
-            observedAt: d.macro['_asOf_' + k] || null,
-            fetchedAt: _macroSource === 'bea-official-primary'
-              ? (d.macro._bea && d.macro._bea.lastSuccessfulAt || null)
-              : (d.meta.fredFetchOk ? d.meta.fredLastSuccessfulAt || d.meta.generatedAt || null : null),
-            releasedAt: _macroSource === 'bea-official-primary' && d.macro._bea ? d.macro._bea.releasedAt || null : null,
-            source: _macroSource,
-            allowedUse: _macroSource === 'last-known-good' ? 'reference-only' : 'macro-evidence-with-observation-date'
-          };
-          if (_macroSource === 'fred-official-primary') _serverFredApplied++;
-          if (_macroSource === 'bea-official-primary') _serverBeaApplied++;
-          if (window.DATA_SNAPSHOT._fieldTs && d.macro['_asOf_' + k]) {
-            window.DATA_SNAPSHOT._fieldTs['macro_' + k] = d.macro['_asOf_' + k];
-          }
-          _serverMacroApplied++;
-        }
-        // v51.67: FRED MoM delta 필드 소비
-        if (typeof d.macro[k + 'Delta'] === 'number' && isFinite(d.macro[k + 'Delta'])) {
-          window.DATA_SNAPSHOT['_' + k + 'Delta'] = d.macro[k + 'Delta'];
-        }
-      });
-      // AR-07 Batch 2: the durable FRED HY OAS value is the primary published
-      // success path. Do not wait for the browser's CORS/proxy fetch and never
-      // derive OAS from HYG's dollar price (duration-contaminated proxy).
-      if (typeof d.macro.hyOAS === 'number' && isFinite(d.macro.hyOAS)) {
-        var _serverHySpreadBp = Math.round(d.macro.hyOAS * 100); if (window.DATA_SNAPSHOT && typeof d.macro.hyOASDelta5 === 'number' && isFinite(d.macro.hyOASDelta5)) window.DATA_SNAPSHOT._hySpreadDelta5Bp = Math.round(d.macro.hyOASDelta5 * 100); // P1390
-        var _serverHySource = d.macro._source_hyOAS || 'last-known-good';
-        var _serverHyOfficial = _serverHySource === 'fred-official-public-csv' || _serverHySource === 'fred-official-primary';
-        var _serverHyEvidence = {
-          value: d.macro.hyOAS,
-          valueBp: _serverHySpreadBp,
-          observedAt: d.macro._asOf_hyOAS || null,
-          fetchedAt: _serverHyOfficial ? d.meta.generatedAt || null : null,
-          source: _serverHySource,
-          sourceKind: _serverHyOfficial ? 'T1_OFFICIAL' : 'T3_PUBLIC_DELAYED',
-          allowedUse: _serverHyOfficial ? 'reference-until-freshness-gate' : 'reference'
-        };
-        Object.assign(window, {
-          _hySpreadBp: _serverHySpreadBp,
-          _hySpreadDate: d.macro._asOf_hyOAS || null,
-          _hySpreadSource: _serverHySource
-        });
-        Object.assign(window.DATA_SNAPSHOT, {
-          hyOAS: d.macro.hyOAS,
-          hySpread: _serverHySpreadBp,
-          _hySpreadSource: _serverHySource
-        });
-        if (window.DATA_SNAPSHOT._fieldTs && d.macro._asOf_hyOAS) window.DATA_SNAPSHOT._fieldTs.hySpread = d.macro._asOf_hyOAS;
-        window._serverMacroEvidence.hyOAS = _serverHyEvidence;
-        if (window._serverDataMeta) window._serverDataMeta.hyOAS = _serverHyEvidence;
-        try {
-          if (window.AIO_ARCH && typeof window.AIO_ARCH.ingestSentiment === 'function') {
-            window.AIO_ARCH.ingestSentiment({
-              hySpread: _serverHySpreadBp,
-              hySpreadSourceKind: _serverHyOfficial ? 'delayed' : 'snapshot',
-              hySpreadSource: _serverHySource,
-              hySpreadDate: d.macro._asOf_hyOAS || d.meta.generatedAt || null,
-              hySpreadAllowedUse: _serverHyOfficial ? 'reference' : 'reference',
-              now: new Date().toISOString()
-            });
-          }
-        } catch (_) {}
-        _serverMacroApplied++;
-      }
-      // BLS stays a separate official evidence family. It is projected into
-      // namespaced snapshot fields and never silently replaces the FRED values
-      // above; the typed series retains observation/release/fetch semantics.
-      var _blsEvidence = d.macro._bls || null;
-      var _beaEvidence = d.macro._bea || null;
-      window._serverBlsMacro = _blsEvidence;
-      globalThis._serverBeaMacro = _beaEvidence;
-      if (window._serverDataMeta) {
-        window._serverDataMeta.bls = _blsEvidence ? {
-          status: _blsEvidence.status || 'unavailable',
-          sourceKind: _blsEvidence.sourceKind || 'T1_OFFICIAL',
-          attemptedAt: _blsEvidence.attemptedAt || null,
-          fetchedAt: _blsEvidence.fetchedAt || null,
-          lastSuccessfulAt: _blsEvidence.lastSuccessfulAt || null,
-          releaseAt: _blsEvidence.releaseAt || null,
-          failures: Array.isArray(_blsEvidence.failures) ? _blsEvidence.failures.slice() : [],
-          series: _blsEvidence.series || {}
-        } : null;
-        window._serverDataMeta.bea = _beaEvidence ? {
-          status: _beaEvidence.status || 'unavailable',
-          sourceKind: _beaEvidence.sourceKind || 'T1_OFFICIAL',
-          attemptedAt: _beaEvidence.attemptedAt || null,
-          fetchedAt: _beaEvidence.fetchedAt || null,
-          lastSuccessfulAt: _beaEvidence.lastSuccessfulAt || null,
-          releasedAt: _beaEvidence.releasedAt || null,
-          nextReleaseAt: _beaEvidence.nextReleaseAt || null,
-          observedAt: _beaEvidence.observedAt || null,
-          releaseUrl: _beaEvidence.releaseUrl || null,
-          values: _beaEvidence.values || {}
-        } : null;
-      }
-      if (_blsEvidence && _blsEvidence.values) {
-        Object.keys(_blsEvidence.values).forEach(function(k) {
-          var value = _blsEvidence.values[k];
-          if (typeof value !== 'number' || !isFinite(value)) return;
-          window.DATA_SNAPSHOT[k] = value;
-          window.DATA_SNAPSHOT['_' + k + '_src'] = 'bls-official-primary';
-        });
-        if (window.DATA_SNAPSHOT._fieldTs && (_blsEvidence.lastSuccessfulAt || _blsEvidence.fetchedAt)) {
-          window.DATA_SNAPSHOT._fieldTs.macro_bls = _blsEvidence.lastSuccessfulAt || _blsEvidence.fetchedAt;
-        }
-      }
-      // BLS headline/core CPI fields are canonical only when the typed series
-      // explicitly says NSA.  The SA companions remain namespaced and visible
-      // for analysis; they never overwrite the market-standard slots.
-      var _blsCpiPromotions = [
-        { metricId: 'cpi', valueKey: 'blsCpiYoY', snapshotKey: 'cpi', saMetricId: 'cpiSa', saValueKey: 'blsCpiSaYoY', saSnapshotKey: 'cpiSa' },
-        { metricId: 'coreCpi', valueKey: 'blsCoreCpiYoY', snapshotKey: 'coreCpi', saMetricId: 'coreCpiSa', saValueKey: 'blsCoreCpiSaYoY', saSnapshotKey: 'coreCpiSa' }
-      ];
-      _blsCpiPromotions.forEach(function(definition) {
-        var standard = _blsEvidence && _blsEvidence.series && _blsEvidence.series[definition.metricId];
-        var standardValue = _blsEvidence && _blsEvidence.values ? Number(_blsEvidence.values[definition.valueKey]) : NaN;
-        if (standard && standard.status === 'ok' && String(standard.seasonalAdjustment || '').toUpperCase() === 'NSA' && isFinite(standardValue)) {
-          window.DATA_SNAPSHOT[definition.snapshotKey] = standardValue;
-          window.DATA_SNAPSHOT['_' + definition.snapshotKey + '_src'] = standard.source || 'bls-official-primary';
-          window.DATA_SNAPSHOT['_' + definition.snapshotKey + '_definition'] = standard.definition || 'BLS CPI-U NSA';
-          if (window.DATA_SNAPSHOT._fieldTs && standard.observedAt) window.DATA_SNAPSHOT._fieldTs['macro_' + definition.snapshotKey] = standard.observedAt;
-          if (window._serverMacroEvidence) window._serverMacroEvidence[definition.snapshotKey] = Object.assign({}, window._serverMacroEvidence[definition.snapshotKey] || {}, {
-            value: standardValue,
-            observedAt: standard.observedAt || null,
-            source: standard.source || 'BLS Public Data API v1',
-            sourceKind: standard.sourceKind || 'T1_OFFICIAL',
-            seasonalAdjustment: 'NSA',
-            definition: standard.definition || null,
-            allowedUse: standard.allowedUse || 'macro-evidence-with-observation-date'
-          });
-        }
-        var sa = _blsEvidence && _blsEvidence.series && _blsEvidence.series[definition.saMetricId];
-        var saValue = _blsEvidence && _blsEvidence.values ? Number(_blsEvidence.values[definition.saValueKey]) : NaN;
-        if (sa && sa.status === 'ok' && String(sa.seasonalAdjustment || '').toUpperCase() === 'SA' && isFinite(saValue)) {
-          window.DATA_SNAPSHOT[definition.saSnapshotKey] = saValue;
-          window.DATA_SNAPSHOT['_' + definition.saSnapshotKey + '_src'] = sa.source || 'bls-official-primary';
-          window.DATA_SNAPSHOT['_' + definition.saSnapshotKey + '_definition'] = sa.definition || 'BLS CPI-U SA analytical companion';
-          if (window.DATA_SNAPSHOT._fieldTs && sa.observedAt) window.DATA_SNAPSHOT._fieldTs['macro_' + definition.saSnapshotKey] = sa.observedAt;
-        }
-      });
       var _serverTreasuryProjection = _aioApplyServerTreasuryEvidence(d.macro, window._serverDataMeta);
       if (window._serverDataMeta) {
         window._serverDataMeta.treasury = d.macro._treasury ? Object.freeze({
@@ -5188,41 +4805,6 @@ async function _aioLoadServerData() {
           values: Object.freeze({ ...(d.macro._treasury.values || {}) })
         }) : null;
         window._serverDataMeta.treasuryProjectedFields = _serverTreasuryProjection.fields;
-      }
-      if (_beaEvidence && _beaEvidence.status === 'ok' && window.DATA_SNAPSHOT._fieldTs && (_beaEvidence.releasedAt || _beaEvidence.lastSuccessfulAt)) {
-        window.DATA_SNAPSHOT._fieldTs.macro_bea = _beaEvidence.releasedAt || _beaEvidence.lastSuccessfulAt;
-      }
-      // Publisher sentiment surveys are an operator-captured WebSearch artifact.
-      // Project dated values for reference UI only; never treat them as a live
-      // trading input or manufacture a replacement when a source is stale.
-      var _marketSurveys = d.marketSurveys || {};
-      var _officialWebReferences = d.officialWebReferences || {};
-      var _aaiiSurvey = _marketSurveys.aaii || null;
-      if (_aaiiSurvey && typeof _aaiiSurvey.bearish === 'number' && isFinite(_aaiiSurvey.bearish)) {
-        window.DATA_SNAPSHOT.aaiiBull = typeof _aaiiSurvey.bullish === 'number' ? _aaiiSurvey.bullish : null;
-        window.DATA_SNAPSHOT.aaiiNeutral = typeof _aaiiSurvey.neutral === 'number' ? _aaiiSurvey.neutral : null;
-        window.DATA_SNAPSHOT.aaiiBear = _aaiiSurvey.bearish;
-        window['_aaiiBearish'] = _aaiiSurvey.bearish;
-        window.DATA_SNAPSHOT._aaiiSource = _aaiiSurvey.sourceUrl || null;
-        if (window.DATA_SNAPSHOT._fieldTs && _aaiiSurvey.observedAt) window.DATA_SNAPSHOT._fieldTs.aaii = _aaiiSurvey.observedAt;
-      }
-      // P1737 (2026-10-13): NAAIM is retired — the official page shows only an undated three-month-delayed number that
-      // cannot be verified against the page, so no NAAIM value is projected (DATA_SNAPSHOT.naaimExposure stays null).
-      if (window._serverDataMeta) {
-        window._serverDataMeta.marketSurveys = {
-          status: _marketSurveys.policy || 'unavailable',
-          checkedAt: _marketSurveys.checkedAt || null,
-          aaii: _aaiiSurvey,
-          investorsIntelligence: _marketSurveys.investorsIntelligence || null
-        };
-        window._serverDataMeta.officialWebReferences = _officialWebReferences;
-      }
-      var _webReferenceSnapshot = window.DATA_SNAPSHOT;
-      if (_officialWebReferences.krExports && _webReferenceSnapshot) {
-        _webReferenceSnapshot.krExportReference = _officialWebReferences.krExports;
-        if (_webReferenceSnapshot._fieldTs && _officialWebReferences.krExports.observedAt) {
-          _webReferenceSnapshot._fieldTs.krExportReference = _officialWebReferences.krExports.observedAt;
-        }
       }
     }
     // P1737: the producer's Fed range (policyRates.fed) and the official web-reference artifact replace the hand-kept
@@ -5311,87 +4893,20 @@ async function _aioLoadServerData() {
     // instruction) and shown on the home card even when this run's long reading was held.
     window._aioMarketSentence = d.marketAnalysis && d.marketAnalysis.sentence && d.marketAnalysis.sentence.text ? d.marketAnalysis.sentence : null;
     try { if (typeof _aioRenderOperatorNote === 'function') _aioRenderOperatorNote(); } catch(_) {}
-    if (d.marketAnalysis && (d.marketAnalysis.full || d.marketAnalysis.oneLine)) {
-      var _serverMarketMetricEvidence = Array.isArray(d.marketAnalysis.metricEvidence) ? d.marketAnalysis.metricEvidence : [];
-      var _serverMarketMetricEvidenceValid = _serverMarketMetricEvidence.length >= 2 && _serverMarketMetricEvidence.every(function(row) {
-        return row && row.metricId && row.unit && row.source && row.asOf && isFinite(Number(row.value)) && !isNaN(new Date(row.asOf).getTime());
-      });
-      var _serverMarketSemanticIssues = Array.isArray(d.marketAnalysis.semanticIssues) ? d.marketAnalysis.semanticIssues : [];
-      var _serverMarketEvidenceIds = _serverMarketMetricEvidence.map(function(row) { return row.evidenceId; }).filter(Boolean);
-      var _serverMarketClaimsValid = d.marketAnalysis.schemaVersion === 'market-analysis.v2'
-        && Array.isArray(d.marketAnalysis.claims)
-        && d.marketAnalysis.claims.every(function(claim) {
-          return claim && claim.text && Array.isArray(claim.evidenceIds) && claim.evidenceIds.length > 0
-            && claim.evidenceIds.every(function(id) { return _serverMarketEvidenceIds.indexOf(id) >= 0 || (Array.isArray(d.marketAnalysis.newsEvidence) && d.marketAnalysis.newsEvidence.some(function(row) { return row.evidenceId === id; })); });
-        });
-      var _serverMarketSemanticContract = d.marketAnalysis.semanticStatus === 'verified'
-        && _serverMarketSemanticIssues.length === 0
-        && _serverMarketMetricEvidenceValid
-        && _serverMarketClaimsValid;
-      var _serverMarketPublishAudit = window.AIO && typeof window.AIO.validateAIAutomatedPublish === 'function'
-        ? window.AIO.validateAIAutomatedPublish({ entrypoint: 'market-analysis', text: d.marketAnalysis.full || d.marketAnalysis.oneLine, currentSensitive: true, requiresStructuredClaims: false, evidence: _serverMarketMetricEvidence })
-        : { blocked: false, sourceLabel: 'AI_GENERATED' };
-      // P846/P847: metadata alone must never certify current-sensitive prose. The
-      // producer must supply typed metric identity/value/unit/asOf/source evidence.
-      var _serverMarketAnalysisVerified = _serverMarketSemanticContract && !_serverMarketPublishAudit.blocked;
-      var _serverMarketAnalysisGeneratedAt = d.marketAnalysis.generatedAt || d.meta.generatedAt;
-      var _serverMarketAnalysisSource = d.marketAnalysis.source || d.marketAnalysis.model || 'github-actions-market-analysis';
-      if (_serverMarketAnalysisVerified) {
-        window._serverMarketAnalysis = {
-          status: 'verified',
-          full: d.marketAnalysis.full || d.marketAnalysis.oneLine,
-          oneLine: d.marketAnalysis.oneLine || d.marketAnalysis.full,
-          generatedAt: _serverMarketAnalysisGeneratedAt,
-          source: _serverMarketAnalysisSource,
-          // P1122: the narrative is published with its boundary, not instead of one.
-          disclosure: typeof d.marketAnalysis.disclosure === 'string' ? d.marketAnalysis.disclosure : null,
-          scope: _aioMarketAnalysisScope(d.marketAnalysis, _serverMarketAnalysisGeneratedAt),
-          semanticWarnings: Array.isArray(d.marketAnalysis.semanticWarnings) ? d.marketAnalysis.semanticWarnings : [],
-          // P1719/P1729: this run's text was blocked and the previous verified analysis is shown (<= 12h old).
-          retained: d.marketAnalysis.retained && typeof d.marketAnalysis.retained === 'object' ? d.marketAnalysis.retained : null,
-          publishAudit: _serverMarketPublishAudit,
-          sourceLabel: window.AIO && typeof window.AIO.getAIOutputSourceLabel === 'function' ? window.AIO.getAIOutputSourceLabel('AI_GENERATED', _serverMarketPublishAudit) : 'AI_GENERATED'
-        };
-      }
-      if (window._serverDataMeta) {
-        window._serverDataMeta.marketAnalysis = {
-          status: _serverMarketAnalysisVerified ? 'verified' : 'blocked-unverified',
-          generatedAt: _serverMarketAnalysisGeneratedAt,
-          source: _serverMarketAnalysisSource,
-          fullLength: String(d.marketAnalysis.full || d.marketAnalysis.oneLine || '').length,
-          metricEvidenceCount: _serverMarketMetricEvidence.length,
-          reason: _serverMarketAnalysisVerified ? null : (_serverMarketPublishAudit.blocked ? 'automated-publish-gate' : (_serverMarketMetricEvidenceValid ? 'semantic-gate-required' : 'metric-evidence-required')),
-          // P1719/P1729: the producer kept the previous verified analysis because this run's text was blocked.
-          retained: d.marketAnalysis.retained && typeof d.marketAnalysis.retained === 'object' ? d.marketAnalysis.retained : null,
-          disclosure: typeof d.marketAnalysis.disclosure === 'string' ? d.marketAnalysis.disclosure : null,
-          publishAudit: _serverMarketPublishAudit,
-          fallback: 'AIO.synthesizeMarketAnalysis'
-        };
-      }
+    // Typed-evidence + semantic + publish gate: src/data/server-market-analysis.js (bound by the compat bridge).
+    var _serverMarketGate = window._aioVerifyServerMarketAnalysis(d.marketAnalysis, {
+      fallbackGeneratedAt: d.meta.generatedAt,
+      validatePublish: window.AIO && typeof window.AIO.validateAIAutomatedPublish === 'function' ? window.AIO.validateAIAutomatedPublish.bind(window.AIO) : null,
+      describeScope: _aioMarketAnalysisScope,
+      sourceLabelFor: window.AIO && typeof window.AIO.getAIOutputSourceLabel === 'function' ? window.AIO.getAIOutputSourceLabel.bind(window.AIO) : null
+    });
+    if (_serverMarketGate.meta) {
+      window._serverMarketAnalysis = _serverMarketGate.analysis;
+      if (window._serverDataMeta) window._serverDataMeta.marketAnalysis = _serverMarketGate.meta;
       try { if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_) {}
     }
-    // 6) P768/ARX-16: screener artifact는 native provider/orchestrator가 단일 fetch한다.
-    // legacy loader는 native state의 metadata/breadth만 compatibility surface로 연결한다.
-    // P1186/E2 S-D: 여기서는 투영하지 않는다 — 단일 트리거는 aio:nativeScreenerReady 이벤트이고,
-    // 같은 state를 두 번 투영하면(이벤트 + 이 경로) 중복 렌더와 순서 역전 덮어쓰기가 생긴다.
-    // 이 경로가 필요한 것은 '투영'이 아니라 '이미 투영된 state가 있는가'의 확인이다.
-    try {
-      var nativeStateApplied = !!(window._aioScreenerLoadState && window._aioScreenerLoadState.status
-        && window._aioScreenerLoadState.status !== 'loading');
-      if (!nativeStateApplied) {
-        window._aioScreenerLoadState = { status:'loading', checkedAt:Date.now(), detail:'native screener state pending' };
-        if (window._serverDataMeta) {
-          window._serverDataMeta.artifacts.screenerJson = 'pending';
-          window._serverDataMeta.screener = window._aioScreenerLoadState;
-        }
-      }
-    } catch(e) {
-      window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:(e && e.message) || 'native state unavailable' };
-      if (window._serverDataMeta) {
-        window._serverDataMeta.artifacts.screenerJson = 'unavailable';
-        window._serverDataMeta.screener = window._aioScreenerLoadState;
-      }
-    }
+    // 6) P768/ARX-16: screener artifact는 native provider/orchestrator가 단일 fetch하고, 그 load state는
+    // native slice에서 읽는다(src/data/page-completeness.js). P1186: 이 경로는 투영도 상태 기록도 하지 않는다.
     if (typeof _aioLog === 'function') _aioLog('info', 'data', 'server data.json 적용: quotes ' + (d.quotes ? d.quotes.length : 0) + ', age ' + ageMin + 'min');
     _aioRenderServerDataAge();  // v50.24/WO-4: 나이 배지 갱신
     try { if (typeof _aioRenderPipelineStatus === 'function') _aioRenderPipelineStatus(); } catch(_) {} // v51.65: 파이프라인 상태 배너
@@ -5407,7 +4922,6 @@ async function _aioLoadServerData() {
     } catch(_) {}
     return true;
   } catch (e) {
-    window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'server data unavailable' };
     if (typeof _aioLog === 'function') _aioLog('warn', 'data', 'server data.json 로드 실패(폴백): ' + (e && e.message || e));
     return false;
   }
@@ -5584,15 +5098,16 @@ function _aioRenderDataFreshness() {
     // 스크리너: 팩터 기준시각 | 가격 기준시각
     var asEl = document.querySelector('#page-screener [data-factor-asof]');
     if (asEl) {
-      var scrTs = window._aioScreenerFactorObservedAt ? _aioKstShortFromIso(window._aioScreenerFactorObservedAt) : null;
+      var scrObservedAt = _aioScreenerMetadata('factorObservedAt');
+      var scrTs = scrObservedAt ? _aioKstShortFromIso(scrObservedAt) : null;
       var scrGeneratedTs = window._aioGetFieldTs('screener');
       var priceTs = window._aioGetFieldTs('prices');
       if (scrTs && priceTs) {
         asEl.textContent = '팩터 관측 ' + scrTs + (scrGeneratedTs ? ' · 파일 ' + scrGeneratedTs : '') + ' | 가격 ' + priceTs;
       } else if (scrTs) {
         asEl.textContent = '팩터 관측 ' + scrTs + (scrGeneratedTs ? ' · 파일 ' + scrGeneratedTs : '');
-      } else if (window._aioScreenerFactorAsOf) {
-        asEl.textContent = '팩터 기준 ' + String(window._aioScreenerFactorAsOf).slice(0, 10);
+      } else if (_aioScreenerFactorAsOf()) {
+        asEl.textContent = '팩터 기준 ' + String(_aioScreenerFactorAsOf()).slice(0, 10);
       } else {
         asEl.textContent = '팩터 데이터 대기';
       }
@@ -5920,8 +5435,7 @@ function _aioRenderPipelineStatus() {
       var fmpDetail = '유료 FMP는 사용하지 않음 · 무료 SEC companyfacts 누적 커버리지 ' + coverageLabel;
       msgs.push({ icon: '', text: '재무 팩터 축소 모드', detail: fmpDetail, color: '#ef4444' });
     }
-    var screenerUniverse = window._aioServerScreener || {};
-    if (screenerUniverse.universeFreshnessStatus === 'stale') {
+    if (_aioScreenerMetadata('universeFreshnessStatus') === 'stale') {
       msgs.push({ icon: '!', text: '스크리너 종목 유니버스 갱신 필요', detail: '팩터 파일과 종목 식별 유니버스의 기준일이 다릅니다. 현재 결과는 연구용 부분 상태입니다.', color: '#f59e0b' });
     }
     if (!meta.fredHasKey) {
@@ -13693,11 +13207,7 @@ function applyLiveQuotes(quotes) {
     } catch(_truthErr) {}
     const pctStr = hasPct ? ((pct >= 0 ? '+' : '') + pct.toFixed(2) + '%') : '—';
     const cls    = hasPct ? (pct >= 0 ? 'pnl pos' : 'pnl neg') : 'pnl neutral';
-    // Track SPX vs ATH for Market Regime display
-    if (q.symbol === '^GSPC') {
-      window._spxATH = Math.max(_aioSpxAthFloor(), q.regularMarketPrice);  // v50.24/WO-2: 단일 출처 헬퍼 (stale 하드코딩 제거, P498)
-      // v57.60: retired mkt-regime-sub ATH-gap writer removed (node no longer exists); window._spxATH stays for computeMarketHealth.
-    }
+    // The SPX all-time-high tracker and its floor helper only fed the retired 0-100 market-health grade; both are gone.
     // price 요소 — 스테일 데이터 지시자 포함
     const isMarketHours = (() => {
       try {
@@ -13942,78 +13452,22 @@ function updateScreenerFromLiveData() {
   console.log('[AIO] 스크리너 DB mcap 라이브 업데이트 완료');
 }
 
-// Apply server-computed daily breadth only when observation time and coverage pass.
+// Apply server-computed daily breadth to the macro snapshot only when observation time and coverage pass
+// (src/domain/market/screener-breadth.js checks it; every other breadth reader asks _aioScreenerBreadth()).
 // This is an AIO US screener-universe measurement, not official exchange breadth.
 function _aioApplyScreenerBreadth(sd) {
-  var root = sd && sd.breadth;
-  var b = root && root.segments && root.segments.us;
-  var kr = root && root.segments && root.segments.kr;
-  var observedMs = b && b.observedAt ? new Date(b.observedAt).getTime() : 0;
-  var ageHours = observedMs ? (Date.now() - observedMs) / 3600000 : null;
-  var valuesOk = b && ['above5','above20','above50','above200','advanceRatio'].every(function(k) {
-    return typeof b[k] === 'number' && isFinite(b[k]) && b[k] >= 0 && b[k] <= (k === 'advanceRatio' ? 1 : 100);
-  });
-  var checks = {
-    schema: !!(root && root.schemaVersion === '1.0'),
-    coverage: !!(b && b.coveragePct >= 85 && b.eligible >= 300),
-    observed: !!(observedMs && ageHours >= -1 && ageHours <= 96),
-    values: !!valuesOk
-  };
-  var passed = Object.keys(checks).every(function(k){ return checks[k]; });
-  window._aioScreenerBreadthState = {
-    status: passed ? 'verified_current' : 'blocked',
-    source: root && root.source || null,
-    label: b && b.label || null,
-    observedAt: b && b.observedAt || null,
-    ageHours: ageHours,
-    coveragePct: b && b.coveragePct,
-    eligible: b && b.eligible,
-    checks: checks,
-    decisionScope: root && root.decisionScope || 'research/reference'
-  };
-  if (!passed) return false;
-
-  window._breadth5 = b.above5;
-  window._breadth20 = b.above20;
-  window._breadth200 = b.above20; // legacy consumer name: this value is 20SMA breadth
-  window._breadth50 = b.above50;
-  window._breadth200Actual = b.above200;
-  window._breadthLiveData = {
-    sma5: b.above5,
-    sma20: b.above20,
-    sma50: b.above50,
-    above200: b.above200,
-    advances: b.advances,
-    declines: b.declines,
-    advanceRatio: b.advanceRatio,
-    ts: observedMs,
-    generatedAt: b.observedAt,
-    source: root.source || b.label || 'AIO US screener universe',
-    coveragePct: b.coveragePct,
-    eligible: b.eligible
-  };
-  var krObservedMs = kr && kr.observedAt ? new Date(kr.observedAt).getTime() : 0;
-  var krAgeHours = krObservedMs ? (Date.now() - krObservedMs) / 3600000 : null;
-  var krValuesOk = kr && ['above5','above20','above50','above200','advanceRatio'].every(function(k) {
-    return typeof kr[k] === 'number' && isFinite(kr[k]) && kr[k] >= 0 && kr[k] <= (k === 'advanceRatio' ? 1 : 100);
-  });
-  var krPassed = !!(krValuesOk && kr.coveragePct >= 85 && kr.eligible >= 100 && krAgeHours >= -1 && krAgeHours <= 96);
-  window._krBreadthLiveData = krPassed ? {
-    sma5: kr.above5, sma20: kr.above20, sma50: kr.above50, above200: kr.above200,
-    advances: kr.advances, declines: kr.declines, unchanged: kr.unchanged,
-    advanceRatio: kr.advanceRatio, ts: krObservedMs, observedAt: kr.observedAt,
-    source: root.source || kr.label, label: kr.label,
-    coveragePct: kr.coveragePct, eligible: kr.eligible,
-    decisionScope: root.decisionScope || 'research/reference'
-  } : null;
+  var read = typeof window._aioScreenerBreadth === 'function' ? window._aioScreenerBreadth(sd && sd.breadth) : null;
+  var b = read && read.us;
+  if (!b) return false;
+  var observedMs = b.ts;
   window._lastFetch = window._lastFetch || {};
   window._lastFetch.breadthScreener = observedMs;
   if (window.DATA_SNAPSHOT) {
-    window.DATA_SNAPSHOT.breadth5sma = b.above5;
-    window.DATA_SNAPSHOT.breadth20sma = b.above20;
-    window.DATA_SNAPSHOT.breadth50sma = b.above50;
+    window.DATA_SNAPSHOT.breadth5sma = b.sma5;
+    window.DATA_SNAPSHOT.breadth20sma = b.sma20;
+    window.DATA_SNAPSHOT.breadth50sma = b.sma50;
     window.DATA_SNAPSHOT._fieldTs = window.DATA_SNAPSHOT._fieldTs || {};
-    window.DATA_SNAPSHOT._fieldTs.breadth_screener = b.observedAt;
+    window.DATA_SNAPSHOT._fieldTs.breadth_screener = b.generatedAt;
   }
   try {
     if (typeof applyDataSnapshot === 'function') applyDataSnapshot();
@@ -14055,104 +13509,10 @@ window._aioFactorWeights = function(ms) {
   return _weightFn({ marketState: ms || null, profile: null });
 };
 
-function _aioComputeFactorRanks() {
-  if (typeof SCREENER_DB === 'undefined') return null;
-  // RM-03 continued (2026-07-21, P759): the ranking formula now has one executable owner in
-  // src/domain/screener/factor-ranks.js. This legacy function only resolves its existing hidden
-  // inputs, invokes the pure model, and projects the result back onto SCREENER_DB for the legacy
-  // table/chat consumers. No formula fallback is retained here (R352/F-03); before the ESM
-  // architecture runtime mounts, the old call sites fail closed and later route/data hooks retry.
-  var _rankFn = window.AIO_ARCH && typeof window.AIO_ARCH.computeFactorRanks === 'function' ? window.AIO_ARCH.computeFactorRanks : null;
-  if (!_rankFn) return null;
-  var serverFundamentals = window._aioServerScreener || {};
-  var W = (typeof _aioFactorWeights === 'function') ? _aioFactorWeights(window.AIO && window.AIO.marketState) : null;
-  // Keep the compatibility fallback aligned with the native resolver: adaptive/regime proposal
-  // weights are metadata until an explicit promotion record is supplied.
-  var weights = (W && W.weights) ? W.weights : { momentum:0.27, trend:0.20, lowvol:0.16, size:0.08, value:0.10, quality:0.09, kalman:0.10 };
-  // Codex review 2026-10-05 (931종목 전부 순위 보류): SCREENER_DB is the identity list; the factor inputs
-  // (returns, trend, volatility) live on the canonical rows the screener renders. Ranking SCREENER_DB
-  // found 0 eligible rows and published a hold over the native ranking.
-  var _rankRows = typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() : null;
-  if (!Array.isArray(_rankRows) || !_rankRows.length) _rankRows = SCREENER_DB;
-  var result = _rankFn({
-    rows: _rankRows,
-    weights: weights,
-    weightsPolicy: W && W.source === 'explicit-user-profile' ? 'explicit' : 'model-default', // W07-A/P1146: only a user profile is an explicit request; the neutral default keeps renormalizing.
-    regimeLabel: W ? W.regimeLabel : null,
-    fundamentalCoveragePct: Number(serverFundamentals.fundamentalCoveragePct || 0),
-    fmpOk: !!serverFundamentals.fmpOk,
-    now: Date.now(),
-    inputVersion: window._aioScreenerFactorAsOf || 'legacy-runtime'
-  });
-  // No factor data loaded yet is not a ranking decision: return without publishing a hold.
-  if (result && result.available === false && result.inputAudit && result.inputAudit.eligibleRows === 0) return null;
-  if (!result || result.available === false) {
-    // P1449 (저리스크 재현): a failed re-rank (e.g. an explicit profile whose computable
-    // coverage is below the threshold) previously returned null while the PREVIOUS run's
-    // relative scores, ranks and factor window state stayed projected on SCREENER_DB rows —
-    // so the summary said "계산 보류 / 팩터 —" while the table still displayed the dead run's
-    // ranks as if they answered the current selection. Fail closed instead: clear the dead
-    // projection, keep a typed hold for the UI banners, and null the window scale state.
-    SCREENER_DB.forEach(function(row){
-      if (!row) return;
-      ['_compositeZ','factorScores','rank','quantSignal'].forEach(function(key){ if (key in row) delete row[key]; });
-      var knownFactors = (window._aioActiveFactors && Array.isArray(window._aioActiveFactors)) ? window._aioActiveFactors : ['momentum','trend','lowvol','size','value','quality','kalman'];
-      knownFactors.forEach(function(key){ if (('_z_' + key) in row) delete row['_z_' + key]; });
-    });
-    window._aioRankingHold = {
-      at: Date.now(),
-      reason: (result && result.rankingUnavailableReason) || 'ranking-unavailable',
-      requestedProfile: (function(){ try { var key = localStorage.getItem('aio_trader_profile'); return key || null; } catch(_) { return null; } })(),
-      requestedFactorWeights: result?.requestedFactorWeights || null,
-      excludedFactorWeights: result?.excludedFactorWeights || null,
-      requestedWeightCoveragePct: result?.requestedWeightCoveragePct ?? null,
-      weightsPolicy: W ? W.source : null
-    };
-    window._aioActiveFactorRegime = null; window._aioRankBySymbol = null;
-    window._aioAppliedFactorWeights = null;
-    window._aioActiveFactorWeights = null;
-    window._aioFactorWeightPolicy = null;
-    window._aioActiveFactors = null;
-    window._aioInactiveFactorReasons = null;
-    window._aioFactorRanksAsOf = null;
-    document.dispatchEvent && document.dispatchEvent(new CustomEvent('aio:screener:rankingHold', { detail: window._aioRankingHold }));
-    try { window.dispatchEvent && window.dispatchEvent(new Event('aio:ranks-invalidated')); } catch(_) {}
-    return null;
-  }
-  var bySym = {};
-  (result.rows || []).forEach(function(row){ bySym[row.sym] = row; }); window._aioRankBySymbol = Object.fromEntries((result.rows || []).filter(function(r){ return typeof r.rank === 'number'; }).map(function(r){ return [r.sym, { rank: r.rank, quantSignal: r.quantSignal || null }]; }));
-  SCREENER_DB.forEach(function(row){
-    var ranked = bySym[row && row.sym];
-    if (!ranked) return;
-    row._compositeZ = ranked._compositeZ;
-    row.factorScores = ranked.factorScores;
-    row.rank = ranked.rank;
-    row.quantSignal = ranked.quantSignal;
-    (result.activeFactors || []).forEach(function(key){ row['_z_' + key] = ranked['_z_' + key]; });
-  });
-  window._aioActiveFactorRegime = result.activeFactorRegime;
-  window._aioAppliedFactorWeights = result.appliedFactorWeights || result.activeFactorWeights || weights;
-  window._aioActiveFactorWeights = window._aioAppliedFactorWeights;
-  window._aioFactorWeightPolicy = {
-    source: W && W.source || 'fixed-neutral-until-promotion',
-    adaptiveApplied: !!(W && W.adaptiveApplied === true),
-    regimeLabel: W && W.regimeLabel || null,
-    proposedRegimeLabel: W && W.proposedRegimeLabel || null,
-    proposedWeights: W && W.proposedWeights || null,
-    appliedWeights: result.appliedFactorWeights || result.activeFactorWeights || weights,
-    promotionRequired: true
-  };
-  window._aioActiveFactors = result.activeFactors;
-  window._aioInactiveFactorReasons = result.inactiveFactorReasons;
-  window._aioFactorRanksAsOf = window._aioScreenerFactorAsOf || null;
-  return {
-    ranked: result.ranked,
-    asOf: window._aioFactorRanksAsOf,
-    weightPolicy: window._aioFactorWeightPolicy || null,
-    activeFactorWeights: window._aioAppliedFactorWeights || result.appliedFactorWeights || result.activeFactorWeights || null
-  };
-}
-window._aioComputeFactorRanks = _aioComputeFactorRanks;
+// Legacy unification (2026-10-17): the legacy re-run of the factor ranking is retired. It
+// ranked the same canonical rows the native screener orchestrator had already ranked with the same model and inputs,
+// then projected the copy onto the identity-only SCREENER_DB and a set of window globals. Every consumer now reads the
+// orchestrator's ranked rows (rank, factorScores, quantSignal) and its ranking hold (src/app/bootstrap.js).
 
 // ═══ v31.9: Yahoo→FRED 실시간 데이터 브릿지 ═════════════════════════
 // FRED 데이터는 1~5일 지연. Yahoo에서 이미 실시간으로 가져오는 동일 데이터가 있으면
@@ -14387,13 +13747,7 @@ _aioPageBus.register('data-page-activation', 'aio:pageShown', function(e) {
       }
     }, 500);
   }
-  // v51.08 BUG-1: 스크리너 첫 진입 시 빈 테이블 수정 — 랭킹 재계산
-  // (P1185/E2 S-A: 종전의 renderScreenerResults() 호출은 리스너 없는 이벤트 dispatch no-op이어서 제거했다)
-  if (pageId === 'screener') {
-    setTimeout(function(){
-      try { if (typeof _aioComputeFactorRanks === 'function') _aioComputeFactorRanks(); } catch(_){}
-    }, 200);
-  }
+  // The screener route's ranking runs in its native orchestrator on page show (the legacy 200 ms re-rank is retired).
   // v51.08: market-news 페이지 진입 시 뉴스 캐시 재렌더 (백스톱 포함)
   if (pageId === 'market-news') {
     setTimeout(function(){
@@ -14756,350 +14110,8 @@ async function fetchHYSpread() {
 // BOK-rate gap and HY OAS — the 58/100 score P1419 retired on the native side) was deleted with its
 // panel; the 금리 · 환율 board states the yen 20-day rule shared with 시장 상태.
 
-// ── 스크리너 질의 엔진 — aio-chat.js에서 이동 (v51.17) ─────────────────────────────
-const _SECTOR_KEYWORDS = {
-  'technology':['Technology'], 'tech':['Technology'], '기술':['Technology'], '기술주':['Technology'], 'IT':['Technology'],
-  'software':['Technology'], '소프트웨어':['Technology','SW','ERP','IT서비스','IT플랫폼','CNS'],
-  'semiconductor':['Technology'], '반도체':['Technology','반도체','반도체장비','반도체소재','파운드리','MLCC'],
-  'ai':['Technology','AI'], 'AI':['Technology','AI'],
-  'financial':['Financials'], 'financials':['Financials'], '금융':['Financials','금융','보험','핀테크','거래소'],
-  'bank':['Financials'], '은행':['Financials','금융'],
-  'healthcare':['Healthcare'], 'health':['Healthcare'], '헬스케어':['Healthcare'], '의료':['Healthcare'],
-  'biotech':['Healthcare'], '바이오':['Healthcare','바이오','바이오시밀러','보톡스','CDMO','항암제','제약'],
-  'pharma':['Healthcare'], '제약':['Healthcare','제약','바이오'],
-  'consumer':['Consumer','Consumer Defensive'], '소비재':['Consumer','Consumer Defensive'],
-  'energy':['Energy'], '에너지':['Energy'], '원유':['Energy'], '석유':['Energy'],
-  'utility':['Utilities'], 'utilities':['Utilities'], '유틸리티':['Utilities'],
-  'industrial':['Industrials'], 'industrials':['Industrials'], '산업재':['Industrials'],
-  'defense':['Industrials'], '방산':['Industrials','방산','방산지주','방산IT','탄약'],
-  'material':['Materials'], 'materials':['Materials'], '소재':['Materials','소재'],
-  'realestate':['Real Estate'], '부동산':['Real Estate'],
-  'communication':['Communication Services'], '통신':['Communication Services','통신'],
-  'etf':['ETF'], 'ETF':['ETF'],
-  '2차전지':['2차전지','양극재'], '배터리':['2차전지','양극재'],
-  '조선':['조선','조선지주'], '자동차':['자동차','자동차부품','가전/전장','전장'],
-  '원전':['원전','원전설계','원전정비','원전기자재'], '전력':['전력기기','전력지주','배전','전선'],
-  '로봇':['로봇','산업로봇','서비스로봇','협동로봇'],
-  '화장품':['화장품','뷰티브랜드','스킨케어','색조'],
-  '게임':['게임','게임/블록체인','엔터','미디어','드라마'],
-};
-
-function _detectSectorQuery(text) {
-  var lower = text.toLowerCase();
-  var intentPatterns = ['비교','추천','찾아','뽑아','골라','싼','저평가','고평가','성장','배당','수익률','밸류','가치','cheapest','best','top','compare','recommend','undervalued','overvalued','screen','pick','find'];
-  var hasIntent = intentPatterns.some(function(p) { return lower.indexOf(p) >= 0; });
-  if (!hasIntent) return null;
-  var matched = null, matchedKey = '';
-  Object.keys(_SECTOR_KEYWORDS).forEach(function(kw) {
-    if (lower.indexOf(kw.toLowerCase()) >= 0 && (!matched || kw.length > matchedKey.length)) { matched = _SECTOR_KEYWORDS[kw]; matchedKey = kw; }
-  });
-  if (!matched) return null;
-  var stocks = _aioGetCanonicalScreenerRows()
-    .filter(function(s) { return matched.some(function(sec) { return s.sector === sec; }); })
-    .sort(function(a,b) { return (b.mcap||0) - (a.mcap||0); }).slice(0, 8);
-  return stocks.length > 0 ? { sectorLabel: matchedKey, stocks: stocks } : null;
-}
-window._detectSectorQuery = _detectSectorQuery;
-
-function _aioIsBroadRecommendationQuery(query) {
-  var q = String(query || '').toLowerCase();
-  if (!q) return false;
-  return /(종목\s*)?(추천|골라|뽑아|찾아줘|아이디어|후보|리스트)|recommend|stock\s*ideas?|top\s*picks?|best\s*stocks?|pick\s*stocks?/i.test(q);
-}
-window._aioIsBroadRecommendationQuery = _aioIsBroadRecommendationQuery;
-
-function _aioInferTickerMarket(sym, index) {
-  var s = String(sym || '');
-  if (/\.KS$|\.KQ$/.test(s)) return 'KR';
-  if (/\.T$/.test(s)) return 'Japan';
-  if (/\.TW$/.test(s)) return 'Taiwan';
-  if (/\.HK$/.test(s)) return 'Hong Kong';
-  if (/ADR/i.test(index || '')) return 'ADR';
-  return 'US';
-}
-window._aioInferTickerMarket = _aioInferTickerMarket;
-
-function _aioCapBucket(mcap) {
-  var v = Number(mcap || 0);
-  if (v >= 500) return 'mega';
-  if (v >= 100) return 'large';
-  if (v >= 10) return 'mid';
-  if (v > 0) return 'small';
-  return 'unknown';
-}
-window._aioCapBucket = _aioCapBucket;
-
-function _aioExtractRecentRecommendationTickers(messages) {
-  try {
-    var db = _aioGetCanonicalScreenerRows();
-    var known = {};
-    (Array.isArray(db) ? db : []).forEach(function(s) { if (s && s.sym) known[s.sym] = true; });
-    var out = {};
-    (messages || []).slice(-8).forEach(function(m) {
-      var text = String((m && m.content) || '');
-      var hits = text.match(/\b[A-Z][A-Z0-9.-]{1,9}(?:\.(?:KS|KQ|T|TW|HK))?\b|\b\d{6}\.(?:KS|KQ)\b/g) || [];
-      hits.forEach(function(t) { if (known[t]) out[t] = true; });
-    });
-    return Object.keys(out);
-  } catch(_) { return []; }
-}
-window._aioExtractRecentRecommendationTickers = _aioExtractRecentRecommendationTickers;
-
-function _aioBuildDiversifiedRecommendationRows(db, live, opts) {
-  opts = opts || {}; live = live || {};
-  var recent = {};
-  (opts.recentTickers || []).forEach(function(t) { recent[t] = true; });
-  var seen = {};
-  var eligible = (Array.isArray(db) ? db : []).filter(function(s) {
-    if (!s || !s.sym || seen[s.sym]) return false;
-    seen[s.sym] = true;
-    if (s.signal === 'SELL') return false;
-    if (s.sector === 'ETF') return false;
-    if (/^\^|=|-USD$/i.test(s.sym)) return false;
-    return true;
-  }).map(function(s) {
-    var ld = live[s.sym] || {};
-    var rank = (typeof s.rank === 'number') ? s.rank : 50;
-    var signalScore = ({ BUY: 18, WATCH: 8, HOLD: 2 })[s.signal] || 0;
-    var rsi = Number(s.rsi);
-    var rsiScore = isFinite(rsi) ? (rsi >= 35 && rsi <= 62 ? 5 : rsi > 75 ? -12 : rsi < 25 ? -6 : 0) : 0;
-    var capScore = Math.min(10, Math.max(0, Math.log10(Math.max(1, Number(s.mcap || 1))) * 2));
-    var pct = (ld && ld.pct != null && isFinite(Number(ld.pct))) ? Number(ld.pct) : null;
-    var liveScore = pct == null ? 0 : Math.max(-5, Math.min(5, pct));
-    var repeatPenalty = recent[s.sym] ? 25 : 0;
-    var market = _aioInferTickerMarket(s.sym, s.index);
-    var score = rank + signalScore + rsiScore + capScore + liveScore - repeatPenalty;
-    return {
-      sym: s.sym, name: s.name, sector: s.sector, signal: s.signal, mcap: s.mcap, rsi: s.rsi,
-      rank: (typeof s.rank === 'number' ? s.rank : null), quantSignal: s.quantSignal || null, factorScores: s.factorScores || null,
-      ret3m: (typeof s.ret3m === 'number' ? s.ret3m : null), vol: (typeof s.vol === 'number' ? s.vol : null),
-      price: ld.price != null ? ld.price : null, pct: pct, memo: (s.memo || '').slice(0, 90),
-      market: market, capBucket: _aioCapBucket(s.mcap), diversityScore: Math.round(score), repeatPenalty: repeatPenalty
-    };
-  }).sort(function(a, b) { return b.diversityScore - a.diversityScore; });
-
-  // P626-followup/T825: recentSuppressed used to be counted from `eligible` *after* the
-  // `_nonRepeat` reassignment below — but that reassignment (which fires almost every real call,
-  // since a universe this size almost always has >=20 non-penalized candidates) replaces
-  // `eligible` with exactly the subset that has zero repeat-penalized rows. Counting "how many
-  // were suppressed" from an array that, by construction, can no longer contain any suppressed
-  // row always returned 0 regardless of what `opts.recentTickers` actually penalized. Count from
-  // the full pre-filter set instead, before it gets narrowed.
-  var recentSuppressed = eligible.filter(function(r) { return r.repeatPenalty > 0; }).length;
-  var _nonRepeat = eligible.filter(function(r) { return r.repeatPenalty === 0; });
-  if (_nonRepeat.length >= 20) { eligible = _nonRepeat; }
-
-  function pickRows(sectorLimit, marketLimit, maxRows) {
-    var picked = [], secCount = {}, marketCount = {};
-    eligible.forEach(function(r) {
-      if (picked.length >= maxRows) return;
-      var sec = r.sector || 'Unknown', mkt = r.market || 'US';
-      if ((secCount[sec] || 0) >= sectorLimit) return;
-      if ((marketCount[mkt] || 0) >= (marketLimit[mkt] || marketLimit._default || maxRows)) return;
-      picked.push(r);
-      secCount[sec] = (secCount[sec] || 0) + 1;
-      marketCount[mkt] = (marketCount[mkt] || 0) + 1;
-    });
-    return { rows: picked, secCount: secCount, marketCount: marketCount };
-  }
-
-  var first = pickRows(2, { US: 7, KR: 5, Japan: 2, Taiwan: 2, 'Hong Kong': 2, ADR: 2, _default: 3 }, 16);
-  if (first.rows.length < 12) first = pickRows(3, { US: 10, KR: 7, Japan: 3, Taiwan: 3, 'Hong Kong': 3, ADR: 3, _default: 4 }, 16);
-  var sectors = {}, markets = {}, capBuckets = {};
-  first.rows.forEach(function(r) {
-    sectors[r.sector || 'Unknown'] = true;
-    markets[r.market || 'US'] = true;
-    capBuckets[r.capBucket || 'unknown'] = true;
-  });
-  return {
-    rows: first.rows, totalMatched: eligible.length, recentSuppressed: recentSuppressed,
-    diversity: { sectorCount: Object.keys(sectors).length, marketCount: Object.keys(markets).length, capBucketCount: Object.keys(capBuckets).length }
-  };
-}
-window._aioBuildDiversifiedRecommendationRows = _aioBuildDiversifiedRecommendationRows;
-
-function _aioRunScreenerQuery(query, opts) {
-  try {
-    opts = opts || {};
-    var db = _aioGetCanonicalScreenerRows();
-    if (!Array.isArray(db) || !db.length) return null;
-    var q = String(query || '').toLowerCase();
-    var crit = {}, labels = [];
-
-    if (/매수\s*(시그널|종목)?|buy\b|사야|살\s*만|저평가\s*매수/.test(q)) crit.signal = 'BUY';
-    else if (/관망|watch\b/.test(q)) crit.signal = 'WATCH';
-    else if (/매도|sell\b|팔\s*/.test(q)) crit.signal = 'SELL';
-    else if (/보유|hold\b/.test(q)) crit.signal = 'HOLD';
-    if (crit.signal) labels.push('시그널=' + crit.signal);
-
-    var rsiUnder = q.match(/rsi\s*(\d{1,3})\s*(?:이하|미만|under|below|아래|<=?)/) || q.match(/(?:이하|미만|under|below)\s*rsi\s*(\d{1,3})/);
-    var rsiOver  = q.match(/rsi\s*(\d{1,3})\s*(?:이상|초과|over|above|위|>=?)/) || q.match(/(?:이상|초과|over|above)\s*rsi\s*(\d{1,3})/);
-    if (rsiUnder) { crit.rsiMax = +rsiUnder[1]; labels.push('RSI≤' + crit.rsiMax); }
-    if (rsiOver)  { crit.rsiMin = +rsiOver[1];  labels.push('RSI≥' + crit.rsiMin); }
-    if (crit.rsiMax == null && crit.rsiMin == null) {
-      if (/과매도|oversold|침체\s*구간/.test(q)) { crit.rsiMax = 35; labels.push('과매도(RSI≤35)'); }
-      else if (/과매수|과열|overbought/.test(q)) { crit.rsiMin = 65; labels.push('과매수(RSI≥65)'); }
-    }
-
-    if (/메가캡|mega\s*-?cap/.test(q)) { crit.mcapMin = 500; labels.push('메가캡(≥$500B)'); }
-    else if (/대형주|large\s*-?cap/.test(q)) { crit.mcapMin = 100; labels.push('대형주(≥$100B)'); }
-    else if (/중형주|mid\s*-?cap/.test(q)) { crit.mcapMin = 10; crit.mcapMax = 100; labels.push('중형주($10~100B)'); }
-    else if (/소형주|small\s*-?cap/.test(q)) { crit.mcapMax = 10; labels.push('소형주(<$10B)'); }
-
-    var matchedSector = null, secKey = '';
-    Object.keys(_SECTOR_KEYWORDS).forEach(function(kw) {
-      if (q.indexOf(kw.toLowerCase()) >= 0 && (!matchedSector || kw.length > secKey.length)) { matchedSector = _SECTOR_KEYWORDS[kw]; secKey = kw; }
-    });
-
-    var themeTickers = null, themeKey = '';
-    var aliases = (typeof SCR_KEYWORD_ALIASES !== 'undefined') ? SCR_KEYWORD_ALIASES : (window.SCR_KEYWORD_ALIASES || {});
-    Object.keys(aliases).forEach(function(kw) {
-      if (q.indexOf(kw.toLowerCase()) >= 0 && Array.isArray(aliases[kw]) && (!themeTickers || kw.length > themeKey.length)) { themeTickers = aliases[kw]; themeKey = kw; }
-    });
-    if (themeTickers && themeTickers.length && themeKey.length >= secKey.length) {
-      crit.themeSet = {}; themeTickers.forEach(function(t) { crit.themeSet[t] = true; }); labels.push('테마=' + themeKey);
-    } else if (matchedSector) { crit.sectors = matchedSector; labels.push('섹터=' + secKey); }
-
-    if (/s&p|sp\s*500|에스앤피/.test(q)) { crit.index = 'SP500'; labels.push('S&P500'); }
-    else if (/다우|dow\b/.test(q)) { crit.index = 'DOW30'; labels.push('다우30'); }
-    else if (/나스닥|nasdaq/.test(q)) { crit.index = 'NASDAQ'; labels.push('나스닥'); }
-
-    if (/급등|상승\s*(종목|률)?|오른|gainer|올라/.test(q)) { crit.dir = 'up'; labels.push('상승 종목'); }
-    else if (/급락|하락\s*(종목|률)?|내린|loser|떨어/.test(q)) { crit.dir = 'down'; labels.push('하락 종목'); }
-
-    if (/퀀트|quant|팩터|factor|랭킹|순위|우량|상위\s*종목|best\b|top\s*\d*/.test(q)) { crit.byRank = true; labels.push('퀀트 랭킹순'); }
-
-    if (typeof _aioComputeFactorRanks === 'function' && !db.some(function(s){ return s.rank != null; })) {
-      try { _aioComputeFactorRanks(); db = _aioGetCanonicalScreenerRows(); } catch(_) {}
-    }
-
-    var isBroadRecommendation = _aioIsBroadRecommendationQuery(q);
-    var onlyGenericRank = crit.byRank && labels.length === 1 && !crit.signal && crit.rsiMax == null && crit.rsiMin == null &&
-      crit.mcapMin == null && crit.mcapMax == null && !crit.sectors && !crit.themeSet && !crit.index && !crit.dir;
-    if (isBroadRecommendation && (labels.length === 0 || onlyGenericRank)) {
-      var diversified = _aioBuildDiversifiedRecommendationRows(db, window._liveData || {}, opts);
-      return { matched: true, mode: 'diversified-recommendation',
-        criteria: onlyGenericRank ? ['균형 추천 후보', '퀀트 랭킹 참고'] : ['균형 추천 후보'],
-        rows: diversified.rows, totalMatched: diversified.totalMatched, diversity: diversified.diversity, recentSuppressed: diversified.recentSuppressed };
-    }
-
-    if (labels.length === 0) return null;
-
-    var live = window._liveData || {};
-    var rows = db.filter(function(s) {
-      if (crit.signal && s.signal !== crit.signal) return false;
-      if (crit.rsiMax != null && !(s.rsi != null && s.rsi <= crit.rsiMax)) return false;
-      if (crit.rsiMin != null && !(s.rsi != null && s.rsi >= crit.rsiMin)) return false;
-      if (crit.mcapMin != null && !((s.mcap || 0) >= crit.mcapMin)) return false;
-      if (crit.mcapMax != null && !((s.mcap || 0) < crit.mcapMax)) return false;
-      if (crit.sectors && !crit.sectors.some(function(sec) { return s.sector === sec; })) return false;
-      if (crit.index && s.index !== crit.index) return false;
-      if (crit.themeSet && !crit.themeSet[s.sym]) return false;
-      if (crit.dir) {
-        var ldp = live[s.sym]; var pct = (ldp && ldp.pct != null) ? ldp.pct : null;
-        if (pct == null) return false;
-        if (crit.dir === 'up' && !(pct > 0)) return false;
-        if (crit.dir === 'down' && !(pct < 0)) return false;
-      }
-      return true;
-    }).map(function(s) {
-      var ld = live[s.sym] || {};
-      return { sym: s.sym, name: s.name, sector: s.sector, signal: s.signal, mcap: s.mcap, rsi: s.rsi,
-        rank: (typeof s.rank === 'number' ? s.rank : null), quantSignal: s.quantSignal || null, factorScores: s.factorScores || null,
-        ret3m: (typeof s.ret3m === 'number' ? s.ret3m : null), vol: (typeof s.vol === 'number' ? s.vol : null),
-        price: ld.price != null ? ld.price : null, pct: ld.pct != null ? ld.pct : null, memo: (s.memo || '').slice(0, 90),
-        // 2026-10-13 news audit N02: only a memo whose headline names this issuer (producer newsMemoVerified) reaches
-        // the AI as this stock's news; an unverified memo was another company's story about 1 time in 5.
-        newsMemo: s.newsMemoVerified === true ? (s.newsMemo || '').slice(0, 200) : '' };
-    });
-
-    rows.sort(function(a, b) {
-      if (crit.byRank) return (b.rank == null ? -1 : b.rank) - (a.rank == null ? -1 : a.rank);
-      if (crit.dir === 'up') return (b.pct == null ? -999 : b.pct) - (a.pct == null ? -999 : a.pct);
-      if (crit.dir === 'down') return (a.pct == null ? 999 : a.pct) - (b.pct == null ? 999 : b.pct);
-      if (crit.rsiMax != null) return (a.rsi == null ? 999 : a.rsi) - (b.rsi == null ? 999 : b.rsi);
-      if (crit.rsiMin != null) return (b.rsi == null ? -999 : b.rsi) - (a.rsi == null ? -999 : a.rsi);
-      if (a.rank != null && b.rank != null) return b.rank - a.rank;
-      return (b.mcap || 0) - (a.mcap || 0);
-    });
-
-    return { matched: true, criteria: labels, rows: rows.slice(0, 12), totalMatched: rows.length };
-  } catch (e) { return null; }
-}
-window._aioRunScreenerQuery = _aioRunScreenerQuery;
-
-// AIQ-P0-05: ranking is a research-relative candidate signal, not a recommendation
-// verifier. Preserve the ranking/allowed-use evidence while preventing a heuristic
-// from being promoted into a decision claim.
-// 입력: 티커 배열 / 출력: [{sym, verdict, rank, quantSignal, reasons, allowedUse}] or null
-function _aioMakerCheckerVerify(tickers) {
-  try {
-    if (!Array.isArray(tickers) || !tickers.length) return null;
-    var db = _aioGetCanonicalScreenerRows();
-    if (!Array.isArray(db) || !db.length) return null;
-    if (typeof _aioComputeFactorRanks === 'function' && !db.some(function(row){ return row && typeof row.rank === 'number'; })) {
-      try { _aioComputeFactorRanks(); db = _aioGetCanonicalScreenerRows(); } catch(_) {}
-    }
-    var results = [];
-    tickers.forEach(function(sym) {
-      if (!sym) return;
-      var s = sym.toUpperCase();
-      var row = null;
-      for (var i = 0; i < db.length; i++) { if (db[i].sym === s) { row = db[i]; break; } }
-      if (row && typeof row.rank !== 'number' && window._aioRankBySymbol && window._aioRankBySymbol[s]) row = Object.assign({}, row, window._aioRankBySymbol[s]); // P1490: rank map from the last canonical-row ranking
-      if (!row || typeof row.rank !== 'number') return;
-      var rank = row.rank, qs = row.quantSignal || null;
-       var verdict = rank >= 60 ? 'RESEARCH_CANDIDATE' : rank >= 40 ? 'CAUTION' : 'REJECTED';
-       var reasons = ['랭크 ' + rank];
-       if (qs) reasons.push(qs);
-       results.push({ sym: s, verdict: verdict, rank: rank, quantSignal: qs, reasons: reasons,
-         allowedUse: 'research-relative-ranking-only', operationalUse: 'blocked', observedAt: window._aioFactorRanksAsOf || null });
-    });
-    return results.length ? results : null;
-  } catch(e) { return null; }
-}
-window._aioMakerCheckerVerify = _aioMakerCheckerVerify;
-
-function _formatScreenerResultPrompt(result) {
-  if (!result || !result.matched || !result.rows || !result.rows.length) return '';
-  var _f = function(v, d) { return v != null && !isNaN(v) ? Number(v).toFixed(d || 1) : 'N/A'; };
-  var _pct = function(v) { return v != null && !isNaN(v) ? (v >= 0 ? '+' : '') + Number(v).toFixed(2) + '%' : 'N/A'; };
-   // AIQ-P0-06: never replace producer observation time with browser generation time.
-   var ts = result.observedAt || result.asOf || window._aioFactorRanksAsOf || '관측시각 미확인';
-  var lines = [];
-  var isDiversified = result.mode === 'diversified-recommendation';
-  lines.push('═══════════════════════════════════════════════════');
-  lines.push(isDiversified ? '【균형 추천 후보 — AIO 종목 DB 분산 샘플링】' : '【스크리너 결과 — AIO 종목 DB 실시간 필터링】');
-  lines.push('조건: ' + result.criteria.join(' · ') + ' | 매칭 ' + result.totalMatched + '종목 (상위 ' + result.rows.length + ' 표시)');
-   lines.push('출처: AIO SCREENER_DB(기관 메모·시그널) × 멀티팩터 퀀트 랭크 × 실시간 시세(_liveData) · 생산자 관측시각 ' + ts);
-  var fAsOf = (typeof window !== 'undefined' && window._aioFactorRanksAsOf) ? window._aioFactorRanksAsOf.slice(0,10) : null;
-  lines.push('퀀트 백분위(같은 조건 종목 중 위치, 100점 만점이 아님) = 섹터 상대 멀티팩터: 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈. ' + (fAsOf ? '팩터 기준일 ' + fAsOf : '팩터 데이터 대기 — 시그널/메모는 editorial(애널리스트 노트)') + '.');
-  if (isDiversified) {
-    var dv = result.diversity || {};
-    lines.push('분산 설계: 섹터 ' + (dv.sectorCount || '?') + '개 · 시장/지역 ' + (dv.marketCount || '?') + '개 · 시총 버킷 ' + (dv.capBucketCount || '?') + '개. 최근 대화 반복 티커는 점수 감점: ' + (result.recentSuppressed || 0) + '개.');
-    lines.push('이 목록은 넓은 "종목 추천" 질문에서 특정 섹터/기업으로 과도하게 수렴하지 않도록 만든 후보군이다. 최종 답변은 이 후보군에서 3~5개만 골라야 하며, 같은 섹터·테마는 최대 2개까지만 선택하라.');
-  } else {
-    lines.push('이 목록은 앱 내부 종목 DB를 실제 필터링·랭킹한 결과다. 학습 데이터로 종목을 추가하거나 임의 변경하지 말고 아래 목록만 사용하라.');
-  }
-  lines.push('═══════════════════════════════════════════════════');
-  result.rows.forEach(function(r, i) {
-    var rankStr = (r.rank != null) ? ('퀀트 백분위 ' + r.rank + '(' + (r.quantSignal || '') + ')') : '퀀트 N/A';
-    var fsStr = r.factorScores ? (' [모멘텀' + r.factorScores.momentum + '·추세' + r.factorScores.trend + '·저변동' + r.factorScores.lowvol + ']') : '';
-    var divStr = isDiversified ? (' · ' + (r.market || 'US') + '/' + (r.capBucket || 'unknown') + ' · 분산점수 ' + (r.diversityScore != null ? r.diversityScore : 'N/A')) : '';
-    lines.push((i + 1) + '. ' + r.sym + ' (' + r.name + ') · ' + r.sector + divStr + ' · ' + rankStr + fsStr +
-      ' · 시그널(editorial) ' + r.signal + ' · 시총 ' + (r.mcap ? '$' + r.mcap + 'B' : 'N/A') + ' · RSI ' + _f(r.rsi, 0) +
-      ' · 3M ' + _pct(r.ret3m) + ' · 가격 ' + (r.price != null ? '$' + _f(r.price, 2) : 'N/A') + ' (' + _pct(r.pct) + ')');
-    if (r.memo) lines.push('   메모: ' + r.memo);
-    if (r.newsMemo) lines.push('   최신뉴스(제목만, 발행 주체 확인됨): ' + r.newsMemo);
-  });
-  lines.push('');
-  if (isDiversified) {
-    lines.push('답변 지침: (1) 먼저 "후보군을 넓게 분산해 봤다"고 밝히고 (2) 성장/퀄리티/방어/경기민감/한국·글로벌 중 최소 3개 관점으로 3~5개를 선택 (3) 제외·보류 후보 2~3개와 이유 제시 (4) 사용자가 공격형/방어형/한국주 선호를 밝히면 다음 답변에서 재랭킹하겠다고 안내. CEG·전력·AVGO·AI 반도체 같은 기존 강한 테마가 포함돼도 자동 1순위로 두지 말고, 비AI/비전력 대안과 비교해 상대 우위가 있을 때만 선택하라. 후보와 수치 근거는 후보군 안에서 제시하되, 사용자가 더 넓은 탐색을 원하면 어떤 조건(시장·섹터·시총·위험도)으로 SCREENER_DB를 다시 펼치면 되는지 안내하라.');
-  } else {
-    lines.push('답변 지침: 위 목록을 사용자 조건에 맞춰 (1) 퀀트 랭크 기준 순위/표 (2) 상위 종목 선정 이유(어느 팩터가 강한지) (3) 주의·제외 사유 (4) 다음 행동 순으로 해설. 퀀트 랭크(객관·데이터)와 시그널/메모(editorial·애널리스트)를 구분해 설명하라. 가격은 위 값 그대로 인용하고 (기준시각) 괄호를 붙여라. 목록에 없는 종목을 새로 만들지 마라.');
-  }
-  return '\n\n' + lines.join('\n') + '\n';
-}
-window._formatScreenerResultPrompt = _formatScreenerResultPrompt;
+// Legacy unification (2026-10-17): the chat's natural-language screener query engine (sector keywords, broad
+// recommendations, query parsing, prompt formatting) lives in src/ai/context/screener-query.js and reads the
+// canonical, natively ranked rows; src/app/compatibility-globals.js binds the window names the chat calls.
 // AIO.ScreenerQuery: 스크리너 공개 API (aio-data.js 이동 완료 v51.17)
 window.AIO = window.AIO || {}

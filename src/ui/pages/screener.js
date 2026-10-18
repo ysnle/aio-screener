@@ -2,16 +2,32 @@ import { createResourceBag } from '../../app/lifecycle.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
 import { renderScreenerValidation } from '../components/screener-validation.js';
-import { buildRankingIdentity, liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
+import { buildPopulationRankingIdentity, liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
 import { measuredCandidateEntries, summarizeCandidateArchive } from '../../domain/screener/candidate-record.js';
 import { measureFactorOverlap, overlapSentence } from '../../domain/screener/factor-overlap.js';
 
+// Row arrays from the store and the workbench are replaced, never edited in place, so one market's slice is cut once
+// per array. Handing renderBacktest the same slice also lets the factor-overlap cache below hit (a fresh filter result
+// every render re-measured the overlap on each keystroke).
+const marketRowsCache = new WeakMap();
+function scopedRows(rows, market) {
+  if (!Array.isArray(rows)) return marketRows(rows, market);
+  let byMarket = marketRowsCache.get(rows);
+  if (!byMarket) marketRowsCache.set(rows, (byMarket = new Map()));
+  if (!byMarket.has(market)) byMarket.set(market, marketRows(rows, market));
+  return byMarket.get(market);
+}
 // P1468: factor overlap measured once per ranked row set (the Why drawer and the 검증 view share it).
+// 2026-10-17 audit: z-scores are per market (P1625), so a `market` measures that market's rows against that market's
+// active factors; the Why drawer used to pool US and KR rows under the US factor list.
 const overlapCache = new WeakMap();
-function currentOverlap(rows, ranking) {
+function currentOverlap(rows, ranking, market = null) {
   if (!Array.isArray(rows) || !rows.length) return null;
-  if (!overlapCache.has(rows)) overlapCache.set(rows, measureFactorOverlap(rows, ranking?.activeFactors || []));
-  return overlapCache.get(rows);
+  if (!overlapCache.has(rows)) overlapCache.set(rows, new Map());
+  const byMarket = overlapCache.get(rows);
+  const key = market || '*';
+  if (!byMarket.has(key)) byMarket.set(key, measureFactorOverlap(market ? marketRows(rows, market) : rows, ranking?.activeFactors || []));
+  return byMarket.get(key);
 }
 import { renderScreenerRead, syncScreenerNextLead, reapplyScreenerNextLead } from '../components/screener-read.js';
 import { selectScreenerState } from '../../state/selectors/screener.js';
@@ -32,7 +48,7 @@ import { sectorsForEtf } from '../../domain/entity/stock-read.js';
 import { consensusView } from '../../domain/fundamental/consensus-read.js';
 import { parseConditionValue, matchesConditions, conditionCoverage, availableConditionIds } from '../../domain/screener/custom-conditions.js';
 import { installCustomConditions } from '../components/screener-custom.js';
-import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
+import { requestConsensusEstimates, consensusRowFor, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { sectorLabel } from '../../domain/screener/screener-read.js';
 import { themeStagesFor, scenarioStateCurrent } from '../../domain/scenarios/theme-stage.js';
 import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
@@ -116,7 +132,7 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'pctSma50', label: 'vs 50MA', sortable: true, align: 'right', width: 82, group: 'market' },
   // P1507: the same 50-day distance in units of the stock's own average daily range — how late an entry would be.
   { key: 'extension', label: '50일선 거리(변동폭 배수)', sortable: true, align: 'right', width: 118, group: 'setup' },
-  { key: 'kalman', label: '추세 신뢰도', hint: '칼만 추세(잡음을 걸러 낸 추세 추정)의 방향 확신도 — 연구 지표, 매매 신호 아님', sortable: true, align: 'right', width: 102, group: 'market', researchOnly: true },
+  { key: 'kalman', label: '추세 속도', hint: '칼만 필터로 잡음을 걸러 낸 최근 추세의 하루 속도(같은 섹터 안 정규화 점수) — 확신도가 아니며, 연구 지표·매매 신호 아님', sortable: true, align: 'right', width: 102, group: 'market', researchOnly: true },
   { key: 'vcpScore', label: '수축 구조(VCP)·충족도', hint: 'VCP(변동성 수축 패턴): 조정 폭이 차례로 줄며 바닥을 다지는 가격 구조 — 충족도는 그 조건을 얼마나 채웠는지', sortable: true, align: 'right', width: 96, group: 'setup', researchOnly: true },
   { key: 'mcap', label: '시총', sortable: true, align: 'right', width: 82, group: 'market' },
   { key: 'entry', label: '상대 상태', sortable: false, align: 'center', width: 118, group: 'setup', researchOnly: true },
@@ -219,7 +235,7 @@ export function entryTiming(row) {
   return ['중립권', 'entry-wait'];
 }
 
-function liveRow(row, readLiveData) {
+export function liveRow(row, readLiveData) {
   const live = readLiveData?.()?.[row.sym] || {};
   const rowCurrency = String(row.instrumentRef?.currency || row.currency || '').trim().toUpperCase() || null;
   const liveCurrency = String(live.currency || '').trim().toUpperCase() || null;
@@ -403,23 +419,36 @@ export function customRead(row, key) {
 let customPanel = null;
 let availableCache = {};
 
+// The value a sort column reads from the display row (liveRow) — the registry gates registered fields for display.
+// Only price and 시총 take the live overlay, so only they build the whole display row; the other columns read the one
+// value they need. Keys are computed once per row instead of once per comparison.
+const FACTOR_SORT_COLUMNS = new Set(['momentum', 'trend', 'lowvol', 'value', 'quality', 'kalman']);
+const DISPLAY_FIELD_BY_ROW_KEY = new Map(SCREENER_FIELD_REGISTRY.fields.filter((definition) => !definition.fieldId.startsWith('identity.')).map((definition) => [definition.rowKey, definition.fieldId]));
+function displayValue(row, key) {
+  const fieldId = row.fieldReadiness ? DISPLAY_FIELD_BY_ROW_KEY.get(key) : null;
+  return fieldId ? fieldValueForPurpose(row, fieldId, 'display') : row[key];
+}
+function sortKey(row, sortColumn, readLiveData) {
+  if (sortColumn === 'price') return liveRow(row, readLiveData).price;
+  if (sortColumn === 'mcap') return capFilterValue(liveRow(row, readLiveData)); // v57.55 (8n): the same value the cap filter uses (reference cap when no live cap)
+  if (sortColumn === 'extension') return extensionMultiple({ pctSma50: displayValue(row, 'pctSma50'), adrPct: displayValue(row, 'adrPct') });
+  if (sortColumn === 'fwdPe') return forwardPe({ sym: displayValue(row, 'sym'), symbol: displayValue(row, 'symbol') });
+  if (sortColumn === 'rank') return visibleRank({ screenStatus: displayValue(row, 'screenStatus'), rank: displayValue(row, 'rank') });
+  if (FACTOR_SORT_COLUMNS.has(sortColumn)) return displayValue(row, 'factorScores')?.[sortColumn];
+  return displayValue(row, sortColumn);
+}
+
 export function sortRows(rows, sortColumn, ascending, readLiveData) {
-  return rows.map(row => ({ row, view: liveRow(row, readLiveData) })).sort(({ view: a }, { view: b }) => {
-    const factorColumn = ['momentum', 'trend', 'lowvol', 'value', 'quality', 'kalman'].includes(sortColumn);
-    let av = factorColumn ? a.factorScores?.[sortColumn] : a[sortColumn];
-    let bv = factorColumn ? b.factorScores?.[sortColumn] : b[sortColumn];
-    if (sortColumn === 'price') { av = a.price; bv = b.price; }
-    if (sortColumn === 'extension') { av = extensionMultiple(a); bv = extensionMultiple(b); }
-    if (sortColumn === 'fwdPe') { av = forwardPe(a); bv = forwardPe(b); }
-    if (sortColumn === 'mcap') { av = capFilterValue(a); bv = capFilterValue(b); } // v57.55 (8n): the same value the cap filter uses (reference cap when no live cap)
-    if (sortColumn === 'rank') { av = visibleRank(a); bv = visibleRank(b); }
-    const missing = (value) => value == null || value === '' || (typeof value === 'number' && !Number.isFinite(value));
-    if (missing(av) || missing(bv)) return missing(av) === missing(bv) ? 0 : missing(av) ? 1 : -1;
-    if (typeof av === 'string') av = av.toUpperCase();
-    if (typeof bv === 'string') bv = bv.toUpperCase();
-    const comparison = av > bv ? 1 : av < bv ? -1 : 0;
+  const missing = (value) => value == null || value === '' || (typeof value === 'number' && !Number.isFinite(value));
+  return rows.map((row) => {
+    const key = sortKey(row, sortColumn, readLiveData);
+    const absent = missing(key);
+    return { row, absent, key: !absent && typeof key === 'string' ? key.toUpperCase() : key };
+  }).sort((a, b) => {
+    if (a.absent || b.absent) return a.absent === b.absent ? 0 : a.absent ? 1 : -1;
+    const comparison = a.key > b.key ? 1 : a.key < b.key ? -1 : 0;
     return ascending ? comparison : -comparison;
-  }).map(entry => entry.row);
+  }).map((entry) => entry.row);
 }
 
 function createRankNode(documentRef, row, hold = null) {
@@ -445,7 +474,7 @@ function createRankNode(documentRef, row, hold = null) {
   if (rank == null) {
     wrap.appendChild(text(documentRef, '—'));
     // 2026-10-16: a fund, a SPAC or a thinly traded 확장 name is shown but not compared with operating companies.
-    const excluded = { fund: 'ETF·펀드는 기업 주식과 같은 기준으로 비교하지 않아 순위에서 뺐습니다.', spac: '기업인수목적회사(SPAC)는 신탁 현금이라 주가가 거의 움직이지 않아 순위에서 뺐습니다.', illiquid: '하루 평균 거래대금이 100만 달러 미만이라 확장 순위에서 뺐습니다.' }[row.populationExclusion];
+    const excluded = { fund: 'ETF·펀드는 기업 주식과 같은 기준으로 비교하지 않아 순위에서 뺐습니다.', spac: '기업인수목적회사(SPAC)는 신탁 현금이라 주가가 거의 움직이지 않아 순위에서 뺐습니다.', illiquid: '하루 평균 거래대금이 100만 달러 미만이라 확장 순위에서 뺐습니다.', foreign: '도쿄·대만 상장 종목은 거래일과 통화가 달라 미국 종목과 같은 순위로 비교하지 않습니다.' }[row.populationExclusion];
     if (excluded) wrap.title = excluded;
   } else {
     const value = documentRef.createElement('div');
@@ -545,6 +574,8 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
       cell.appendChild(text(documentRef, formatScreenerPrice(price, currency)));
       const note = documentRef.createElement('small');
       note.textContent = md ? `${md} 종가` : '종가';
+      note.className = 'scr-close-note';
+      note.dataset.closeDay = md;
       note.style.cssText = 'display:block;font-size:11px;color:var(--text-muted);';
       cell.appendChild(note);
       cell.title = `${currency || '통화 미확인'} · ${md ? `${md} ` : ''}확정 종가(수정 종가) · 실시간 시세가 아닙니다`;
@@ -571,9 +602,15 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     }
     return wrap;
   }
-  if (['ret1m', 'ret3m', 'ret6m'].includes(key)) return returnText(row[key]);
+  // UI review 2026-10-18: returns read at a glance in the app's rise/fall colours (returnColor was defined but unused);
+  // 52주 고점 대비 is never positive, so it stays in the text colour rather than a column of red.
+  if (['ret1m', 'ret3m', 'ret6m', 'pctSma50'].includes(key)) {
+    const node = documentRef.createElement('span');
+    node.textContent = returnText(row[key]);
+    node.style.color = finite(row[key]) == null ? 'var(--text-muted)' : returnColor(row[key]);
+    return node;
+  }
   if (key === 'rsi') return numberText(row.rsi, 1);
-  if (key === 'pctSma50') return returnText(row.pctSma50);
   if (key === 'extension') {
     const multiple = extensionMultiple(row);
     const node = documentRef.createElement('span');
@@ -729,7 +766,7 @@ const SETUP_OPTION_EVIDENCE = Object.freeze({
   CLIMAX: (setup) => setup?.climaxRisk && setup.climaxRisk !== 'unavailable'
 });
 export function syncScreenerControlAvailability(documentRef, { rows = [], listingMarket = 'US', ranking = {}, profiles = null } = {}) {
-  const marketList = marketRows(rows, listingMarket);
+  const marketList = scopedRows(rows, listingMarket);
   const cap = documentRef?.getElementById?.('scr-cap');
   if (cap) {
     const capAvailable = marketList.some((row) => capFilterValue(row) != null);
@@ -839,7 +876,8 @@ function renderFactorTab(documentRef, metadata) {
   if (confidenceNode) {
     const confidence = finite(ranking.confidence);
     const composite = finite(ranking.compositeConfidence);
-    const status = ranking.qualityStatus || 'unavailable';
+    // D9 (2026-10-17 audit): the run's input status in words, not the model's enum.
+    const status = ({ ready: '정상', partial: '일부 제한', unavailable: '계산 불가' })[ranking.qualityStatus] || '계산 불가';
     confidenceNode.textContent = confidence == null
       ? '입력 신뢰도 산출 불가 — 미래 수익률 확률이 아닙니다.'
       : `행 근거 평균 ${Math.round(confidence * 100)}% · 횡단면 진단 ${composite == null ? '—' : `${Math.round(composite * 100)}%`} · 품질 ${status} · 미래 수익률 확률 아님`;
@@ -861,9 +899,11 @@ function renderFactorTab(documentRef, metadata) {
     const parts = [
       `섹터 중립 ${sector.status || '미확인'}${sectorGroups != null ? ` (${sectorGroups}개 그룹${sectorUnknown ? `, 미분류 ${sectorUnknown}` : ''})` : ''}`,
       `극단치 완화 ${outlierCount != null ? `${outlierCount}건` : '미확인'}`,
-      `상위군 회전 ${turnoverPct != null ? `${turnoverPct}%` : turnover.status || '이전 스냅샷 없음'}`,
-      `국면 안정성 ${regimeStability.status || '이전 스냅샷 없음'}`
-    ];
+      // D10 (2026-10-17 audit): no caller supplies a prior ranking or regime snapshot, so these two read
+      // '이전 스냅샷 없음' on every visit. They appear only when they were actually measured.
+      turnover.status === 'observed' && turnoverPct != null ? `상위군 회전 ${turnoverPct}%` : null,
+      ['stable', 'transition'].includes(regimeStability.status) ? `국면 안정성 ${regimeStability.status === 'stable' ? '유지' : '전환'}` : null
+    ].filter(Boolean);
     diagnosticsNode.textContent = `${parts.join(' · ')} · 연구용 상대 순위이며 매매 신호/자동 가중 승격에 사용하지 않습니다.`;
     diagnosticsNode.dataset.decisionEligible = String(ranking.researchBoundary?.decisionEligible === true);
   }
@@ -916,7 +956,7 @@ function renderBacktest(documentRef, metadata, root = globalThis, rows = null) {
     : composite > 0.03 && net != null && net > 0 ? `최근 ${rebalances ?? '—'}번의 시점에서 순위가 다음 21거래일 수익률과 약하게 같은 방향(IC ${composite.toFixed(3)})이었고 상위 20%가 하위보다 비용 후 ${net.toFixed(2)}% 앞섰습니다. 표본이 작아 우연과 구분되지는 않습니다.`
       : `최근 ${rebalances ?? '—'}번의 시점에서 순위와 이후 수익률의 관계가 확인되지 않았습니다(종합 IC ${composite.toFixed(3)}, 상위−하위 비용 후 ${net == null ? '—' : `${net.toFixed(2)}%`}). 이 실험에서 순위의 우월성이 보이지 않았다는 뜻이며, 전략이 영구히 무효라는 증명은 아닙니다.`;
   panel.append(el('p', verdict, 'briefing-read-headline'), el('p', parity, 'theme-strength-basis'));
-  const labels = { momentum: '모멘텀', trend: '추세', lowvol: '저변동', kalman: '칼만 추세', composite: '종합 순위' };
+  const labels = { momentum: '모멘텀', trend: '추세', lowvol: '저변동', kalman: '추세 속도', composite: '종합 순위' };
   const bars = el('div', null, 'scr-ic-bars');
   for (const [key, label] of Object.entries(labels)) {
     const value = finite(ic[key]);
@@ -945,18 +985,19 @@ function renderBacktest(documentRef, metadata, root = globalThis, rows = null) {
   if (longrun) {
     panel.append(el('p', `10년 연구(시가총액 상위 현재 생존 ${longrun.universe?.fullUniverseSize ?? 120}종목, 이전 모델): 21거래일 종합 IC ${fwd21 == null ? '—' : Number(fwd21).toFixed(3)}, 기준 기간 ${ref == null ? '—' : Number(ref).toFixed(3)}, 검증 기간(holdout) ${hold == null ? '—' : Number(hold).toFixed(3)}. 기간이 길어도 현재 살아남은 대형주만 담은 실험이라 검증된 전략이라고 부를 수 없습니다.`, 'theme-strength-basis'));
   }
-  renderCandidateRecord(panel, el, root?._aioCandidateArchive, metadata?.ranking);
+  renderCandidateRecord(panel, el, root?._aioCandidateArchive, metadata?.populationRanking || metadata?.ranking);
 }
 
 // P1465: the forward record — what the default ranking listed each session, measured 21 of each
 // stock's own sessions later. Unlike the back-test, the list was written before the outcome existed.
-function renderCandidateRecord(panel, el, archive, ranking) {
+function renderCandidateRecord(panel, el, archive, populationRanking) {
   const box = el('section', null, 'scr-candidate-record');
   box.append(el('h3', '실제 순위 기록 — 앞으로 쌓이는 검증', 'stock-read-vis-title'));
   if (!archive || !Array.isArray(archive.entries)) { box.append(el('p', '기록 파일을 아직 받지 못했습니다.', 'theme-strength-basis')); panel.append(box); return; }
   const summary = summarizeCandidateArchive(archive);
   const measured = measuredCandidateEntries(archive, 30);
-  const liveIdentity = ranking?.appliedFactorWeights ? buildRankingIdentity({ appliedFactorWeights: ranking.appliedFactorWeights, activeFactors: ranking.activeFactors }) : null;
+  // The record pools both markets under one identity of every market's model; compare it with the same population.
+  const liveIdentity = populationRanking?.appliedFactorWeights || populationRanking?.byMarket ? buildPopulationRankingIdentity(populationRanking) : null;
   const sameModel = summary.identity && liveIdentity ? summary.identity === liveIdentity : null;
   if (!summary.recorded) {
     box.append(el('p', '첫 기록은 다음 스크리너 갱신에서 시작됩니다. 매 거래일 기본 순위의 상위·하위 20%를 먼저 적어 두고, 21거래일 뒤 실제 수익률을 채웁니다.', 'theme-strength-basis'));
@@ -982,7 +1023,7 @@ function renderCandidateRecord(panel, el, archive, ranking) {
     box.append(bars, el('p', '막대 = 그날 기록한 상위 20%의 21거래일 수익률 − 같은 날 순위가 매겨진 전체 평균', 'theme-strength-basis'));
   }
   const notes = ['기본 가중 순위로 기록합니다'];
-  if (sameModel === false) notes.push('지금 화면은 다른 가중치(프로필)로 순위를 매기고 있어 이 기록은 지금 화면 순위의 검증이 아닙니다');
+  if (sameModel === false) notes.push('지금 화면의 순위 모델(선택한 프로필의 가중치나 계산에 들어간 팩터)이 기록한 모델과 달라, 이 기록은 지금 화면 순위의 검증이 아닙니다');
   if (summary.sameModelRecorded < summary.recorded) notes.push(`모델이 바뀐 뒤의 ${summary.sameModelRecorded}일만 평균에 넣었습니다`);
   notes.push('종목마다 자기 시장의 거래일로 21일을 세고, 수정주가 기준·같은 비중·거래비용 제외입니다');
   box.append(el('p', `${notes.join(' · ')}.`, 'theme-strength-basis'));
@@ -1091,6 +1132,28 @@ function getVisibleColumns(columnPreset, customColumns = []) {
   const keys = columnPreset === 'custom' ? customColumns : (COLUMN_PRESETS[columnPreset] || COLUMN_PRESETS.discovery);
   const byKey = new Map(SCREENER_COLUMN_REGISTRY.map((column) => [column.key, column]));
   return keys.map((key) => byKey.get(key)).filter(Boolean);
+}
+
+// UI review 2026-10-18: every row repeated "10/16 종가" under its price. The day most rows share moves to the 가격 header
+// (and the phone card label); a row whose close is from another day keeps its own note, so a stale price still shows its date.
+function shareCloseDay(documentRef, table, body) {
+  const notes = [...body.querySelectorAll('.scr-close-note')];
+  const counts = new Map();
+  notes.forEach((note) => { if (note.dataset.closeDay) counts.set(note.dataset.closeDay, (counts.get(note.dataset.closeDay) || 0) + 1); });
+  const common = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+  notes.forEach((note) => { note.hidden = !!common && note.dataset.closeDay === common; });
+  body.querySelectorAll('td[data-column-key="price"]').forEach((td) => { td.dataset.label = common ? `가격 · ${common} 종가` : '가격'; });
+  const header = table?.querySelector('th[data-column-key="price"]');
+  if (!header) return;
+  let tag = header.querySelector('.scr-head-note');
+  if (!common) { tag?.remove(); return; }
+  if (!tag) {
+    tag = documentRef.createElement('small');
+    tag.className = 'scr-head-note';
+    tag.style.cssText = 'display:block;font-size:11px;font-weight:400;color:var(--text-muted);';
+    header.querySelector('.scr-sort-btn')?.after(tag);
+  }
+  tag.textContent = `${common} 종가`;
 }
 
 function renderTableHeader(documentRef, table, visibleColumns, sortState) {
@@ -1345,10 +1408,71 @@ function syncUniverseScopeControl(documentRef, root, state, listingMarket) {
   }
 }
 
+// Filter and sort results are reused while their inputs stay the same: the same row array, the same control values and
+// sort order. A text search (it also reads the name registries) and a Forward PER condition or column (estimates load
+// later) are not tracked here, so those always recompute; price and 시총 sorts read live quotes and do too.
+const FILTER_CONTROL_IDS = ['scr-listing-market', 'scr-market', 'scr-sector', 'scr-cap', 'scr-text-search', 'scr-min-rank', 'scr-rsi-min', 'scr-rsi-max', 'scr-min-mom', 'scr-setup', 'scr-custom-conditions'];
+const LIVE_SORT_COLUMNS = new Set(['price', 'mcap', 'fwdPe']);
+let filterCache = null;
+let sortCache = null;
+function filterAndSortRows(rows, documentRef, { readWatchlist, readAliases, sortState, readLiveData }) {
+  const values = FILTER_CONTROL_IDS.map((id) => selectedValue(documentRef, id));
+  const watchlistOnly = !!documentRef.getElementById('scr-watchlist-only')?.checked;
+  const passedOnly = !!documentRef.getElementById('scr-passed-only')?.checked;
+  const trackedFilter = !values[4].trim() && !parseConditionValue(values[10]).some((item) => item.id === 'fwdpe-max');
+  const filterKey = [...values, watchlistOnly, passedOnly, watchlistOnly ? (readWatchlist?.() || []).join(',') : ''].join('\u0001');
+  let filtered;
+  if (trackedFilter && filterCache?.rows === rows && filterCache.key === filterKey) filtered = filterCache.result;
+  else {
+    filtered = filterRows(rows, documentRef, { readWatchlist, readAliases });
+    filterCache = trackedFilter ? { rows, key: filterKey, result: filtered } : null;
+  }
+  const { column, ascending } = sortState;
+  if (!LIVE_SORT_COLUMNS.has(column) && sortCache?.filtered === filtered && sortCache.column === column && sortCache.ascending === ascending) return sortCache.result;
+  const sorted = sortRows(filtered, column, ascending, readLiveData);
+  sortCache = LIVE_SORT_COLUMNS.has(column) ? null : { filtered, column, ascending, result: sorted };
+  return sorted;
+}
+
+// A table row keeps its node while everything it shows is unchanged: the same row object, columns, selection, compare
+// and watchlist marks, rank hold, live quote fields and (with the Forward PER column) estimate. A re-render that changes
+// nothing then leaves the table alone, so focus, hover and a click in flight are not lost to a rebuilt row.
+const tableRowCache = new WeakMap();
+function tableRowInputs(row, { readLiveData, readWatchlist, selectedSymbols, compareSymbols, visibleColumns, rankHold }, columnsKey) {
+  const symbol = row.sym || row.symbol;
+  const live = readLiveData?.()?.[row.sym] || {};
+  const inputs = [row, columnsKey, !!selectedSymbols?.has(symbol), !!compareSymbols?.has(row.sym), (readWatchlist?.() || []).includes(row.sym), rankHold ? `hold:${rankHold.reason}` : '',
+    live.currency, live.marketCapCurrency, live.price, live.marketCap, live.observedAt, live.ts, live.source, live.revision];
+  if (visibleColumns.some((column) => column.key === 'fwdPe')) {
+    const estimates = consensusRoot?.[CONSENSUS_KEY];
+    inputs.push(estimates, consensusRowFor(consensusRoot, symbol), estimates?.coverage?.covered, estimates?.coverage?.universeUs);
+  }
+  return inputs;
+}
+function tableRowNodes(documentRef, body, rows, options) {
+  const columnsKey = options.visibleColumns.map((column) => `${column.key}:${column.label}:${column.align}:${column.width}:${column.sticky ? 1 : 0}`).join('|');
+  let cache = tableRowCache.get(body);
+  // A new mount brings new handlers; rows built with the old ones are not reused.
+  if (!cache || cache.owner !== options.onExplain) cache = { owner: options.onExplain, bySymbol: new Map() };
+  const next = new Map();
+  const nodes = rows.map((row) => {
+    const inputs = tableRowInputs(row, options, columnsKey);
+    const key = row.sym || row.symbol || '';
+    const kept = cache.bySymbol.get(key);
+    const node = kept && !next.has(key) && kept.inputs.length === inputs.length && kept.inputs.every((value, index) => Object.is(value, inputs[index]))
+      ? kept.node
+      : createTableRow(documentRef, row, options);
+    if (!next.has(key)) next.set(key, { node, inputs });
+    return node;
+  });
+  tableRowCache.set(body, { owner: cache.owner, bySymbol: next });
+  return nodes;
+}
+
 function render({ documentRef, root = globalThis, store, readLiveData, readWatchlist, readAliases, sortState, visibleLimit, onWatchlistToggle, onExplain, onCompare, onVisibleSymbols, selectedSymbols, compareSymbols, columnPreset = 'discovery', customColumns = [], rowsOverride = null, workbenchResult = null, previewResult = null, onDataChange = null }) {
   const rawState = selectScreenerState(store?.getState?.() || {});
   const listingMarket = selectedValue(documentRef, 'scr-listing-market') || 'US';
-  const currentState = { ...rawState, metadata: { ...rawState?.metadata, ranking: marketRankingMetadata(rawState?.metadata, listingMarket) } };
+  const currentState = { ...rawState, metadata: { ...rawState?.metadata, populationRanking: rawState?.metadata?.ranking || null, ranking: marketRankingMetadata(rawState?.metadata, listingMarket) } };
   const sourceState = workbenchResult?.run ? { ...currentState, metadata: workbenchResult.snapshotMetadata || {}, status: 'partial', lastRun: workbenchResult.run, readiness: workbenchResult.readiness } : currentState;
   const state = { ...sourceState, metadata: { ...sourceState.metadata, selectionMarket: listingMarket, ranking: marketRankingMetadata(sourceState.metadata, listingMarket) } };
   // P1165: 실행 전에는 파이프라인 기본 결과가 아니라 **선택한 정의**의 미리보기를 표시한다.
@@ -1357,7 +1481,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (!page) return;
   const rows = rowsOverride || state?.rows || [];
   syncScreenerControlAvailability(documentRef, { rows: currentState.rows || [], listingMarket, ranking: currentState.metadata.ranking, profiles: root?.AIO_TRADER_PROFILES || null });
-  const filtered = sortRows(filterRows(rows, documentRef, { readWatchlist, readAliases }), sortState.column, sortState.ascending, readLiveData);
+  const filtered = filterAndSortRows(rows, documentRef, { readWatchlist, readAliases, sortState, readLiveData });
   const chosenDefinition = workbenchResult?.definition || preview?.definition || state?.screenDefinition;
   const presetOrder = documentRef.getElementById('scr-order')?.querySelector('option[value="screenRank"]');
   if (presetOrder && chosenDefinition?.ranking) {
@@ -1371,7 +1495,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   const visibleColumns = getVisibleColumns(columnPreset, customColumns).filter((column) => !['value', 'quality'].includes(column.key) || scored(column.key));
   consensusRoot = root;
   const custom = parseConditionValue(selectedValue(documentRef, 'scr-custom-conditions'));
-  const scopeRows = marketRows(rows, listingMarket);
+  const scopeRows = scopedRows(rows, listingMarket);
   // v57.59: a condition the market has no data for (e.g. SEC financials for 한국) is greyed out instead of returning 0.
   // Forward PER loads on demand, so it stays offered for 미국 even before the estimates arrive.
   if (availableCache.rows !== scopeRows.length || availableCache.market !== listingMarket || availableCache.source !== rows) {
@@ -1387,7 +1511,6 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     const focusedRow = documentRef.activeElement?.closest?.('[data-aio-screener-ticker]');
     const focusedSymbol = body.contains(focusedRow) ? focusedRow.dataset.aioScreenerTicker : null;
     const focusedAction = focusedSymbol && documentRef.activeElement?.getAttribute('aria-label');
-    body.replaceChildren();
     const visible = filtered.slice(0, visibleLimit.value);
     {
       const lead = filtered.find((row) => row.screenStatus === 'passed') || null;
@@ -1395,6 +1518,8 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     }
     if (!workbenchResult?.run) onVisibleSymbols?.(visible.map((row) => row.sym || row.symbol).filter(Boolean));
     if (!visible.length) {
+      body.replaceChildren();
+      tableRowCache.delete(body);
       const empty = documentRef.createElement('tr');
       // LC-73: 필터 0건의 "거절"과 "데이터 미상으로 판정 보류"를 분리해 말한다 — 시총 필터가
       // 걸려 있는데 시총이 없는 행을 조용히 제외하면 0건이 '조건 미달 0건'으로만 읽힌다.
@@ -1441,7 +1566,12 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
         empty.firstChild.appendChild(actions);
       }
       body.appendChild(empty);
-    } else visible.forEach((row) => body.appendChild(createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold: currentState.metadata.ranking.available === false ? { reason: currentState.metadata.ranking.rankingUnavailableReason } : root._aioRankingHold || null })));
+    } else {
+      const nodes = tableRowNodes(documentRef, body, visible, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold: currentState.metadata.ranking.available === false ? { reason: currentState.metadata.ranking.rankingUnavailableReason } : root._aioRankingHold || null });
+      const children = body.children;
+      if (children.length !== nodes.length || nodes.some((node, index) => children[index] !== node)) body.replaceChildren(...nodes);
+      shareCloseDay(documentRef, table, body);
+    }
     if (focusedSymbol) {
       const row = [...body.querySelectorAll('[data-aio-screener-ticker]')].find((node) => node.dataset.aioScreenerTicker === focusedSymbol);
       const action = row && [...row.querySelectorAll('button')].find((node) => node.getAttribute('aria-label') === focusedAction);
@@ -1468,7 +1598,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     const order = documentRef.getElementById('scr-order')?.selectedOptions?.[0]?.textContent || SCREENER_COLUMN_REGISTRY.find(column => column.key === sortState.column)?.label || '조건 순위';
     // 2026-10-14 audit #3: one denominator on this screen — the rows the ranking actually ranked (the same set the
     // reading's top 20% and the stock summary's rank use). Why the rest of the population is not ranked is folded.
-    const population = marketRows(currentState.rows || [], listingMarket);
+    const population = scopedRows(currentState.rows || [], listingMarket);
     const screened = population.filter((row) => finite(row?.screenRank) != null).length;
     const rankedCount = screened || ranking.ranked || 0;
     // v57.81: which population the percentiles come from — the core universe or the extended one.
@@ -1485,17 +1615,18 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
       const funds = outside('fund');
       const spacs = outside('spac');
       const illiquid = outside('illiquid');
+      const foreign = outside('foreign');
       const thin = population.filter((row) => row?.screenStatus === 'passed' && row?.rankingEligibility === 'insufficient-row-factor-coverage').length;
       const unscored = population.filter((row) => row?.screenStatus === 'passed' && finite(row?.screenRank) == null && !row?.populationExclusion && row?.rankingEligibility !== 'insufficient-row-factor-coverage').length;
       excluded.hidden = !(screened && left > 0);
       excluded.querySelector('summary').textContent = `순위 밖 ${left}종목`;
-      excluded.querySelector('p').textContent = `${MARKET_LABELS[listingMarket]} 모집단 ${population.length}종목 중 ${left}종목은 순위를 매기지 않습니다 — ${[funds ? `ETF·펀드 ${funds}` : null, spacs ? `SPAC ${spacs}` : null, illiquid ? `하루 거래대금 100만 달러 미만 ${illiquid}` : null, thin ? `공시 재무 등 팩터 근거 부족 ${thin}` : null, missing ? `필수 자료 부족 ${missing}` : null, rejected ? `조건 미통과 ${rejected}` : null, unscored ? `점수 계산 불가 ${unscored}` : null].filter(Boolean).join(' · ') || '사유 미확인'}.`;
+      excluded.querySelector('p').textContent = `${MARKET_LABELS[listingMarket]} 모집단 ${population.length}종목 중 ${left}종목은 순위를 매기지 않습니다 — ${[funds ? `ETF·펀드 ${funds}` : null, spacs ? `SPAC ${spacs}` : null, illiquid ? `하루 거래대금 100만 달러 미만 ${illiquid}` : null, foreign ? `해외 상장 ${foreign}` : null, thin ? `공시 재무 등 팩터 근거 부족 ${thin}` : null, missing ? `필수 자료 부족 ${missing}` : null, rejected ? `조건 미통과 ${rejected}` : null, unscored ? `점수 계산 불가 ${unscored}` : null].filter(Boolean).join(' · ') || '사유 미확인'}.`;
     }
     const sessionLag = !(ranking.ranked > 0) ? factorSessionLag(listingMarket, currentState.metadata.factorSessionDateByMarket?.[listingMarket], Date.now()) : null;
     if (sessionLag) diagnostics.textContent += ` · 가격 자료 ${sessionLag.session.slice(5).replace('-', '/')} 종가 기준, ${sessionLag.latest.slice(5).replace('-', '/')} ${sessionLag.label} 반영 대기`;
     diagnostics.title = '백분위는 같은 시장의 계산 가능한 종목끼리 비교합니다. 정렬과 조건, 표시 필터는 서로 다른 역할입니다. 데이터가 없거나 조건을 통과하지 못한 종목은 순위에서 제외합니다.';
   }
-  const allRows = marketRows(rows, listingMarket);
+  const allRows = scopedRows(rows, listingMarket);
   const total = documentRef.getElementById('scr-kpi-total');
   const top = documentRef.getElementById('scr-kpi-top');
   const factorCount = documentRef.getElementById('scr-kpi-factors');
@@ -1607,7 +1738,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (holdEl) {
     // LC-73 style (P1449): when a re-rank is held, the visible summary (not just a tooltip)
     // discloses that the previous calculation was discarded and why.
-    const holdCopy = describeRankingHold(hold, { market: listingMarket, factorSessionDate: state?.metadata?.factorSessionDateByMarket?.[listingMarket] || state?.metadata?.factorSessionDate || root?._aioScreenerFactorAsOf || null });
+    const holdCopy = describeRankingHold(hold, { market: listingMarket, factorSessionDate: state?.metadata?.factorSessionDateByMarket?.[listingMarket] || state?.metadata?.factorSessionDate || state?.metadata?.asOf || state?.revision || null });
     holdEl.hidden = !holdCopy;
     if (holdCopy) {
       holdEl.textContent = holdCopy;
@@ -1617,7 +1748,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   }
   const rankingState = state?.metadata?.ranking || {};
   renderFactorTab(documentRef, state?.metadata);
-  renderBacktest(documentRef, state?.metadata, root, marketRows(state?.rows || [], listingMarket));
+  renderBacktest(documentRef, state?.metadata, root, scopedRows(state?.rows || [], listingMarket));
   renderConditionalEvidence(documentRef, state?.metadata);
   page.querySelectorAll('[data-scr-sort]').forEach((header) => {
     const arrow = header.querySelector('.scr-arrow');
@@ -1738,7 +1869,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       // P1437: the lead reading of the ranking — recomputed only when the ranked set or validation changes.
       let readSignature = '';
       const renderRead = () => {
-        const rows = marketRows(selectScreenerState(store?.getState?.() || {})?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US');
+        const rows = scopedRows(selectScreenerState(store?.getState?.() || {})?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US');
         const signature = `${selectedValue(documentRef, 'scr-listing-market')}|${root?._aioScenarioState?.status || ''}:${root?._aioScenarioState?.generatedAt || ''}|${rows.length}|${rows.slice(0, 5).map((row) => `${row?.sym}:${row?.screenRank}`).join(',')}|${(root?._aioScreenerBacktestHistory || []).length}|${(root?._aioHistory || []).length}|${Object.keys(root?._serverDataMeta?.rotationHistory?.items || {}).length}`;
         if (signature === readSignature) return;
         readSignature = signature;
@@ -1787,7 +1918,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
               renderScreenerValidation({ documentRef, root }); readSignature = ''; renderRead();
               // The 10-year study and the candidate record arrive after the first render of the 검증 view.
               const latest = selectScreenerState(store?.getState?.() || {});
-              renderBacktest(documentRef, { ...latest?.metadata, selectionMarket: selectedValue(documentRef, 'scr-listing-market') || 'US', ranking: marketRankingMetadata(latest?.metadata, selectedValue(documentRef, 'scr-listing-market') || 'US') }, root, marketRows(latest?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US'));
+              renderBacktest(documentRef, { ...latest?.metadata, populationRanking: latest?.metadata?.ranking || null, selectionMarket: selectedValue(documentRef, 'scr-listing-market') || 'US', ranking: marketRankingMetadata(latest?.metadata, selectedValue(documentRef, 'scr-listing-market') || 'US') }, root, scopedRows(latest?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US'));
             }
           });
         }
@@ -1965,7 +2096,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            const overlap = documentRef.createElement('div');
            overlap.className = 'scr-why-factor-note';
            const screenState = selectScreenerState(store?.getState?.() || {});
-           overlap.textContent = `${overlapSentence(currentOverlap(screenState?.rows, screenState?.metadata?.ranking))} 백분위는 기업의 질이나 상승 확률을 뜻하지 않습니다.`;
+           const overlapMarket = screenerMarket(row);
+           overlap.textContent = `${overlapSentence(currentOverlap(screenState?.rows, marketRankingMetadata(screenState?.metadata, overlapMarket), overlapMarket))} 백분위는 기업의 질이나 상승 확률을 뜻하지 않습니다.`;
            factorList.appendChild(overlap);
          }
          const ticker = documentRef.querySelector('[data-aio-screener-action="open-ticker"]');
@@ -2417,7 +2549,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          if (!activeResult && preview && workbenchStatus) {
            // P1431: plain status; the definition id/hash stay on the element for audit, not in the sentence.
            const screenLabel = documentRef.getElementById('scr-screen-select')?.selectedOptions?.[0]?.textContent || preview.definition?.screenId || '선택한 조건';
-           workbenchStatus.textContent = `${screenLabel} 미리보기 · 대상 ${marketRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').length}종목 중 조건 통과 ${marketRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').filter(row => row.screenStatus === 'passed').length} · 조건 판단 자료 부족 ${marketRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').filter(row => row.screenStatus === 'unavailable').length}`;
+           workbenchStatus.textContent = `${screenLabel} 미리보기 · 대상 ${scopedRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').length}종목 중 조건 통과 ${scopedRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').filter(row => row.screenStatus === 'passed').length} · 조건 판단 자료 부족 ${scopedRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').filter(row => row.screenStatus === 'unavailable').length}`;
            workbenchStatus.title = `${preview.definition?.screenId || '—'} · ${String(preview.definition?.definitionHash || '').slice(0, 8)} · 조건 실행을 누르면 이 입력으로 고정합니다`;
          }
          renderCompareTray();
@@ -2691,7 +2823,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       const fillSelect = (id, key, label) => {
         const select = documentRef.getElementById(id);
         if (!select) return;
-        const values = [...new Set(marketRows(selectScreenerState(store.getState())?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').map((row) => row[key]).filter(Boolean))].sort();
+        const values = [...new Set(scopedRows(selectScreenerState(store.getState())?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').map((row) => row[key]).filter(Boolean))].sort();
         const signature = `${selectedValue(documentRef, 'scr-listing-market')}|${values.join('|')}`;
         if (select.dataset.aioValues === signature) return;
         const current = select.value;

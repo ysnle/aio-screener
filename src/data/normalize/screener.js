@@ -1,6 +1,13 @@
 import { finiteNumber as finite } from '../../domain/shared/number.js';
-export function normalizeScreener(raw = {}) {
-  const rows = Array.isArray(raw.rows) ? raw.rows.map((row) => ({
+// A caller-held WeakMap returns the copy already made for a provider row object (a quotes-only read reuses rows).
+function cachedRow(rowCache, row, build) {
+  if (!rowCache || !row || typeof row !== 'object') return build();
+  let held = rowCache.get(row);
+  if (!held) rowCache.set(row, held = build());
+  return held;
+}
+export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
+  const rows = Array.isArray(raw.rows) ? raw.rows.map((row) => cachedRow(rowCache, row, () => ({
     symbol: String(row?.symbol || row?.sym || '').toUpperCase(),
     sym: String(row?.symbol || row?.sym || '').toUpperCase(),
     name: row?.name || row?.company || '',
@@ -114,6 +121,8 @@ export function normalizeScreener(raw = {}) {
     _fundamentalAccession: row?._fundamentalAccession || null,
     _valuationPePrice: finite(row?._valuationPePrice),
     _valuationPePriceBasis: row?._valuationPePriceBasis || null,
+    _valuationPeEarningsBasis: row?._valuationPeEarningsBasis || null,
+    _valuationPeEarningsThrough: row?._valuationPeEarningsThrough || null,
     _valuationPbPrice: finite(row?._valuationPbPrice),
     _valuationPbPriceBasis: row?._valuationPbPriceBasis || null,
     _valuationSharesOutstanding: finite(row?._valuationSharesOutstanding),
@@ -158,7 +167,7 @@ export function normalizeScreener(raw = {}) {
     factorScores: row?.factorScores && typeof row.factorScores === 'object' ? { ...row.factorScores } : {},
     quantSignal: row?.quantSignal || null,
     _compositeZ: finite(row?._compositeZ)
-  })).filter((row) => row.symbol) : [];
+  }))).filter((row) => row.symbol) : [];
   return Object.freeze({
     rows,
     filters: raw.filters && typeof raw.filters === 'object' ? { ...raw.filters } : {},

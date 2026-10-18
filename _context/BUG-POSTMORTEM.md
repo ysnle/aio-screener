@@ -1,10 +1,73 @@
 ---
-last_verified: 2026-10-17
+last_verified: 2026-10-18
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1916 - v58.14 - 대시보드 '섹터 등락'의 RRG 사분면이 테마·섹터 화면과 달랐음 (XLB·XLY·XLF·XLU) (2026-10-18)
+
+- symptom/reproduction: 2026-10-16 종가 기준 대시보드 '섹터 등락'은 XLB·XLY·XLF를 '기준선 부근', XLU를 '선도'로 표시했지만 테마·섹터 화면은 넷 다 '개선'으로 표시했다.
+- root_cause: src/ui/components/sector-moves.js만 마지막 한 점에 고정 ±1 밴드를 적용하는 rrgZone(rsRatio, rsMomentum)을 썼다. 다른 화면은 v57.84 소유자 결정(3-3 안 A)에 따라 20세션 trail에서 구한 자기 5거래일 밴드와 히스테리시스(rrgSettledQuadrant)를 쓴다. 대시보드가 이 정본에서 빠진 유일한 판독기였다.
+- fix: sector-moves.js가 rrgSettledQuadrant(row)를 사용한다(Border는 '기준선 부근'). 11개 섹터 모두 대시보드와 테마·섹터 화면의 사분면이 일치한다.
+- violated_rule: 같은 지표의 판정은 모든 화면이 하나의 공유 분류기를 쓴다.
+- prevention: ci-scenario-guidance-fixture.mjs에 고정 밴드에선 경계, trail 밴드에선 개선이 되는 XLY 행으로 대시보드 판정이 공유 분류기와 같은지 단언한다(수정 전 실패, 수정 후 통과).
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs
+
+## P1915 - v58.10 - history.json 행마다 pcr 열 유무가 달라 열 일관성 게이트가 유예 만료 뒤 main CI를 막음 (2026-10-18)
+
+- symptom/reproduction: 2026-10-18 00:00Z에 artifact-semantics 검사의 유예가 끝나자 main과 모든 PR CI가 'every history row exposes the same column set: 6 rows differ'로 실패했다. 10/9~10/16 6개 행에만 pcr이 있고 최신 10/17 행을 포함한 414개 행에는 pcr 열이 없었다.
+- root_cause: P1586이 Cboe 풋/콜 비율을 거래일 행에만 pcr로 쌓게 했지만 pcr을 history 공통 열 목록(HIST_ALL_FIELDS)에 넣지 않았다. normalizeHistoryRows는 목록에 있는 열만 null로 채우므로 풋/콜 값이 없는 날의 행에는 pcr 키가 아예 없었다.
+- fix: scripts/fetch-data.mjs: HIST_SENTIMENT_FIELDS=['pcr']를 HIST_ALL_FIELDS에 넣어 모든 행이 pcr을 갖고 값이 없으면 null이 되게 했다. 게시된 public-data/history.json도 같은 normalizeHistoryRows로 한 번 정규화했다(414개 행에 pcr:null 추가, 다른 값 변화 0).
+- violated_rule: 행 단위로 누적되는 새 history 필드는 공통 열 목록에 함께 등록해 모든 행이 같은 열 집합을 갖게 한다.
+- prevention: ci-history-field-time-contract-check.mjs 정규화 픽스처에 pcr 행을 추가해 pcr 없는 행도 pcr:null을 갖는지 단언한다(수정 전 실패, 수정 후 통과). ci-artifact-semantics-check.mjs 열 일관성 단언은 유예 없이 계속 실행된다.
+- verification/residual: node scripts/ci-history-field-time-contract-check.mjs; node scripts/ci-artifact-semantics-check.mjs
+
+## P1914 - v58.04 - 확장 범위(5,057행)에서 스크리너 표가 입력 뒤 수백 ms마다 다시 그려지고 화면이 수 초씩 멈춤 (2026-10-17)
+
+- symptom/reproduction: 확장 범위에서 정렬·섹터·검색을 바꾸면 6초 안에 표가 최대 43번 다시 만들어지고 후속 계산이 약 54초(겹친 long task 합)에 달했다. 클릭 대상 버튼이 사라져 확장 브라우저 검사가 간헐적으로 실패했다(PR #24 병합 때 발견).
+- root_cause: 렌더마다 보이는 행 시세를 요청하고, 그 시세 전용 새로고침의 aio:refresh:done이 스크리너 전 행 재구성(provider+normalize+재순위, 5천 행에서 1~10초)을 다시 돌렸다. 시세가 안 오면 4초 간격 재시도가 같은 일을 반복했고, 겹친 재구성은 각자 끝까지 계산한 뒤에야 폐기됐다.
+- fix: src/app/bootstrap.js: 강제가 아닌 시세 전용 새로고침 완료는 재구성하지 않는다(시세 도착은 aio:liveQuotes가 처리). 실행 중에 온 refresh:false 동기화는 한 번의 후속 실행으로 합친다. src/ui/pages/screener.js: 정렬 키를 행당 한 번 계산, 입력이 같으면 필터·정렬 결과 재사용, 시장 슬라이스 캐시(팩터 겹침 캐시 적중), 입력이 같은 표 행은 노드 유지.
+- violated_rule: 부분 갱신 이벤트(시세 전용)는 전체 재구성을 부르지 않고, 겹친 비싼 계산은 하나로 합친다.
+- prevention: ci-screener-workbench-contract.mjs G-SCR-RENDER(정렬 순서가 기존 비교기와 전 열·양방향 동일), ci-screener-extended-browser-check.mjs에 '입력 없이 안정된 표가 다시 만들어지지 않음' 단언 추가(수정 전 실패, 수정 후 통과).
+- verification/residual: node scripts/ci-screener-workbench-contract.mjs; node scripts/ci-screener-extended-browser-check.mjs; node scripts/ci-screener-auto-refresh-browser-check.mjs
+
+## P1913 - v58.03 - 거시·브리핑·포트폴리오 해석이 서로 다른 기준·월·가중을 써서 판정이 어긋남 (2026-10-17)
+
+- symptom/reproduction: 금리 체인이 정책 축과 다른 정책금리 중간값을 썼고, 인플레 재가속 판정이 다른 달의 YoY와 속도를 비교했다. 근원 PCE 2% 미만에도 '목표보다 높지만'으로 서술했고, 브렌트/WTI 괴리가 0.2%p 절벽에서 뒤집혔다. 유사 국면 기준률이 데이터 없는 세션까지 셌고, 포트폴리오 비중이 한 티커의 여러 로트를 무시했으며, 기여도가 오늘 평가액으로 가중돼 미래 정보를 썼다. 짧은 현금 시계열은 NaN, 휴장 공백은 수익률을 떨어뜨렸다. AI 검증기는 조건문·'매수세'·'사라지다'를 매매 지시로 오판했고, 행위 분류기는 MNPI 매매와 체결 방법 질문을 놓쳤다.
+- root_cause: 같은 개념(정책 목표 중간값, 비교 월, 평가 가중, 표본 유효성)을 모듈마다 따로 계산했고, 결측을 보류 대신 추정·중립값으로 채웠다.
+- fix: 정책 축과 체인이 한 목표 범위 중간값을 공유하고, 인플레 축은 같은 달끼리 비교, 목표 미만 문구 수정, 괴리는 WTI 확인 비중 사용, 유사 국면은 검정 가능한 세션만, 로트는 티커별 합산, 기여도는 기초 평가액 가중(항등식 유지), 짧은 현금 시계열·수량 결측은 보류한다. 검증기·가드 오탐을 제거하고 행위 분류 공백을 메웠다. 브리핑 임계 25개를 RULES.briefing으로 옮겼다(값 불변). src/domain/{macro,market,scenarios,briefing,portfolio,rules}, src/ai/{policy,response}, scripts/lib/market-analysis-validate.mjs.
+- violated_rule: 같은 개념은 한 곳에서 계산하고 결측은 추정·중립값이 아니라 보류로 둔다.
+- prevention: ci-esm-core-unit-check·ci-scenario-guidance-fixture·ci-review-integrity-unit-check에 회귀 단언 추가(각각 수정 전 코드에서 실패).
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-scenario-guidance-fixture.mjs; node scripts/ci-review-integrity-unit-check.mjs
+
+## P1912 - v58.02 - VCP 수축 탐지가 다음 조정을 첫 스윙 고점에서 시작해 피벗이 실제 고점보다 낮게 찍힘 (2026-10-17)
+
+- symptom/reproduction: 고점 112 → 얕은 눌림(스윙 저점 없음) → 116 → 105 조정에서 피벗 112·깊이 6.3%로 기록되고, 현재가 114가 피벗 위로 읽혀 돌파·확장 상태가 날 수 있었다.
+- root_cause: detectContractions가 한 조정의 저점 뒤 '첫' 스윙 고점을 다음 조정의 시작으로 썼다. 두 스윙 고점 사이에 스윙 저점이 없으면 뒤의 더 높은 고점이 무시된다.
+- fix: 다음 스윙 저점 전까지의 스윙 고점 중 가장 높은 것에서 다음 조정을 시작한다(src/domain/technical/definitions.js). 차트·스크리너 생산자·레거시 스냅샷이 같은 함수를 쓴다.
+- violated_rule: 한 판정의 입력 구간은 그 판정이 정의한 구조(가장 높은 스윙 고점)를 따라야 한다.
+- prevention: scripts/ci-esm-core-unit-check.mjs P1397 블록에 연속 스윙 고점 픽스처 추가(피벗 116, 깊이 9.5%).
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs (수정 전 실패, 수정 후 통과)
+
+## P1911 - v58.01 - 후보 기록 모델 정체성이 미국 모델만 담아 한국 모델 변경이 기록 평균에 섞임 (2026-10-17)
+
+- symptom/reproduction: 전진 후보 기록은 미국+한국 상·하위 20%를 함께 담는데 정체성 문자열은 미국 모델만 반영했다. 한국 모델만 바뀌면 정체성이 그대로여서 두 모델 결과가 한 평균에 섞였고, 한국 탭에는 같은 모델인데도 다른 프로필 경고가 떴다. 같은 점검에서 '왜' 패널 팩터 겹침이 시장을 섞어 쟀고, 도쿄·대만 행은 이유 없이 순위에서 사라졌으며, 칼만 팩터가 실제로는 추세 속도인데 '신뢰도'로 설명됐다.
+- root_cause: 모델 지문을 모집단(시장)별이 아니라 미국 단일 모델로 만들었고, 겹침 측정·제외 사유·팩터 라벨이 시장 경계와 실제 계산을 따르지 않았다.
+- fix: buildPopulationRankingIdentity가 시장별 적용 모델을 모두 담는다(단일 시장이면 기존 문자열 유지). 팩터 겹침은 행의 시장 행·순위 메타로 측정, 해외 상장은 populationExclusion 'foreign' 행으로 남기고, 칼만 팩터는 '추세 속도'로 통일했다(src/domain/screener/model-fingerprint.js, factor-ranks.js, factor-overlap.js, row-presentation.js, scripts/lib/candidate-archive.mjs, src/ui/pages/screener.js).
+- violated_rule: 한 기록 모집단의 모델 정체성은 그 모집단에 섞인 모든 시장의 적용 모델을 담아야 한다; 팩터 라벨은 실제 계산을 서술한다.
+- prevention: ci-candidate-archive-check에 '한국 모델만 바뀌어도 정체성이 바뀐다' 단언, ci-screener-workbench-contract에 해외 상장 제외 단언 추가.
+- verification/residual: node scripts/ci-candidate-archive-check.mjs; node scripts/ci-screener-workbench-contract.mjs; qa-runner core·data 통과
+
+## P1910 - v57.99 - SEC 재무 정규화가 USD 편의환산을 USD 보고로, 20-F 보통주 수를 ADS 가격 기준으로 읽음 (2026-10-17)
+
+- symptom/reproduction: BABA P/E 142·P/B 13.9·참조 시가총액 약 $3.3조(1 ADS = 8주), PDD·JD P/E 2~4배 과대, 중국 ADR 매출 성장률에 연도별 환율 변화가 섞임. 같은 감사에서 레거시 기업 분석 FCF Yield가 모든 종목에서 음수, SEC 보고서가 다음 10-K 기한 전에 '최신 연간 보고서 아님'을 표시, 1월 초 마감 52/53주 회계연도가 다음 해로 라벨링됨.
+- root_cause: reportingBasis가 US-GAAP USD 연간 매출의 존재만으로 USD 보고로 판정했고(편의환산 행은 공시마다 한 번씩만 그 해 환율로 존재), v6의 '20-F 주식 수는 보통주' 근거를 IFRS에만 적용했다. 레거시 파서는 현행 US-GAAP에 없는 영업현금흐름 개념명을 썼고, 보고서 신선도만 400일 별도 예산을 썼다.
+- fix: 같은 공시·같은 기간의 비USD 매출이 있으면 그 통화를 보고 기준으로 삼고(비율만 공개), US-GAAP 20-F 주식 수로는 가격 비율을 만들지 않으며(정규화 + 공개 시점 heal), 행 필드 P/E·P/B는 넘겨받은 종가로만 계산한다. 보고서 신선도는 456일 단일 규칙, PIT as-of 매출은 생산자 개념 규칙, fiscalYearLabel로 1월 1~7일 마감은 전년도. 레거시 파서는 개념명·10-Q 기간·최신 제출·같은 마감일 비율·라벨을 고쳤다.
+- violated_rule: 한 레코드의 모든 피연산자는 한 택소노미·한 통화에서 온다(v6 소유자 결정); 가격 비율의 주식 수는 상장선과 같은 단위여야 한다.
+- prevention: ci-data-pipeline-contract-check에 편의환산 통화 판정·20-F 보류·40-F 유지·heal·종가 재계산·회계연도 라벨·456일 신선도 회귀 테스트를 추가했다.
+- verification/residual: data-store 원장 832개(확장 2,262개) 재현: 20-F heal 핵심 15·확장 276건, as-of 매출이 생산자 매출과 0건 차이; ci-data-pipeline-contract-check, ci-professional-data-gap-check, ci-runtime-contract-check, ci-sec-runtime-projection-check, ci-fiscal-quality-fixture 통과.
 
 ## P1909 - v57.94 - 주도 영역 이탈 판정이 하루 단위 확인 조건 때문에 이탈·약세를 오갔음 (2026-10-17)
 

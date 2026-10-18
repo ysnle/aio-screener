@@ -931,7 +931,7 @@ function _aioAIInfraCycleContext(ctxId, q) {
     var tnx = pick(live.tnx, snap.tnx);
     var hy = pick(snap.hyOAS, root._hySpreadBp != null ? Number(root._hySpreadBp) / 100 : null);
     var wti = pick(snap.wti, root._liveData && root._liveData['CL=F'] ? Number(root._liveData['CL=F'].price) : null);
-    var breadth = root._breadthLiveData || null;
+    var breadth = (typeof root._aioScreenerBreadth === 'function' && root._aioScreenerBreadth().us) || null;
     var asOf = snap._updated || snap._marketDataUpdated || null;
     if (finite(vix)) obs.push('VIX=' + vix + (snap._fieldTs && snap._fieldTs.vix ? ' @' + snap._fieldTs.vix : ''));
     if (finite(tnx)) obs.push('US10Y=' + tnx + '%');
@@ -2176,16 +2176,8 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   }
 }
 
-// ── 스크리너 함수 — aio-data.js로 이동됨 (v51.17). window.* 전역 alias ──
-// P512: var _SECTOR_KEYWORDS 제거 — aio-data.js const와 충돌해 line 1847 이후 chatSend 등 미실행 (v51.30 수정)
-var _detectSectorQuery = window._detectSectorQuery;
-var _aioIsBroadRecommendationQuery = window._aioIsBroadRecommendationQuery;
-var _aioInferTickerMarket = window._aioInferTickerMarket;
-var _aioCapBucket = window._aioCapBucket;
-var _aioExtractRecentRecommendationTickers = window._aioExtractRecentRecommendationTickers;
-var _aioBuildDiversifiedRecommendationRows = window._aioBuildDiversifiedRecommendationRows;
-var _aioRunScreenerQuery = window._aioRunScreenerQuery;
-var _formatScreenerResultPrompt = window._formatScreenerResultPrompt;
+// ── 스크리너 질의 — src/ai/context/screener-query.js (legacy unification 2026-10-17). The chat calls the window names
+// (_detectSectorQuery, _aioBuildScreenerAiContext) that src/app/compatibility-globals.js binds after the ESM boot.
 
 // 섹터 비교 — 다중 종목 현재가(_liveData) + Naver 컨센서스·한국어명 (v57.76: personal FMP branch removed)
 async function _fetchSectorCompareData(stocks, opts) {
@@ -2576,7 +2568,7 @@ async function _fetchTechnicalDataForChat(tickers, opts) {
     lines += '• MACD 히스토그램 ' + (snap.macd && snap.macd.hist != null ? f(snap.macd.hist) + (snap.macd.hist > 0 ? ' 상승모멘텀' : ' 하락모멘텀') : 'N/A') + ' · 볼린저 ' + (snap.bbReentry ? '상단 재진입(소진주의)' : snap.bbOutsideUpper ? '상단 돌파' : '밴드 내') + ' · RVOL20 ' + f(snap.rvol20, 1) + 'x\n';
     lines += '• 20일 고/저 $' + f(snap.recentHigh20) + '/$' + f(snap.recentLow20) + (posVs20 != null ? ' (레인지 ' + posVs20 + '% 위치)' : '') + ' · 50일 고/저 $' + f(snap.recentHigh50) + '/$' + f(snap.recentLow50) + '\n';
     if (snap.vcp) {
-      var vcpLabel = snap.vcpStage === 'breakout' ? '돌파' : snap.vcpStage === 'near_pivot' ? '피벗 근접' : snap.vcpStage === 'contracting' ? '수축 진행' : snap.vcpStage === 'basing' ? '베이스' : snap.vcpStage === 'stage2_only' ? 'Stage2 단독' : snap.vcpStage === 'not_stage2' ? 'Stage2 미충족' : '데이터 부족';
+      var vcpLabel = snap.vcpStage === 'breakout' ? '돌파' : snap.vcpStage === 'extended' ? '피벗에서 확장' : snap.vcpStage === 'near_pivot' ? '피벗 근접' : snap.vcpStage === 'contracting' ? '수축 진행' : snap.vcpStage === 'basing' ? '베이스' : snap.vcpStage === 'stage2_only' ? 'Stage2 단독' : snap.vcpStage === 'not_stage2' ? 'Stage2 미충족' : '데이터 부족';
       lines += '• VCP: ' + vcpLabel + (snap.vcp.contractionCount != null ? ' · 수축 ' + snap.vcp.contractionCount + '회' + ((snap.vcp.contractionDepths || []).length ? '(깊이 ' + snap.vcp.contractionDepths.map(function(d) { return f(d, 1) + '%'; }).join('→') + ')' : '') : '') + (snap.vcpPivot ? ' · 피벗 $' + f(snap.vcpPivot) : '') + (snap.vcp.volumeDrying ? ' · 거래량 고갈 확인' : '') + '\n';
     }
     if (snap.fibNearest || snap.volProfile) {
@@ -4875,101 +4867,7 @@ function _isQuotaExceeded(providerKey) {
   } catch(e) { return false; }
 }
 
-// SEC EDGAR XBRL → 핵심 재무 지표 파싱 (매출, 순이익, 자산, 자본, EPS, FCF)
-function _parseSECFinancials(xbrlData) {
-  if (!xbrlData || !xbrlData.facts) return null;
-  // v40.4: IFRS 기업(ASML, TSM 등 ADR) 대응 — us-gaap 우선, 없으면 ifrs-full 폴백
-  var gaap = xbrlData.facts['us-gaap'] || xbrlData.facts['ifrs-full'] || {};
-  var result = {};
-
-  // Helper: 특정 concept의 연간/분기 데이터 추출 (최근 N개)
-  // P560/R251: this used to return on the FIRST alias in conceptNames that had ANY data at
-  // all, regardless of how stale it was. Companies that switched XBRL tags mid-history (e.g.
-  // Apple stopped reporting under "Revenues" around its 2018 ASC-606 transition and moved to
-  // "RevenueFromContractWithCustomerExcludingAssessedTax") still have old entries under the
-  // first, now-abandoned tag — so this always returned 2018-era data as "the latest revenue"
-  // even though a newer tag with current data existed. Now every alias is evaluated and the
-  // one whose latest entry is most recent wins. A duration filter (annual entries must span
-  // ~300-400 days) also rejects stray stub/quarterly facts that slipped into a "10-K" filing,
-  // which is what let mismatched-period figures (e.g. an annual gross profit paired with a
-  // quarterly revenue) distort cross-concept ratios like gross margin above 100%.
-  function extractSeries(conceptNames, formType, count) {
-    var best = null;
-    var bestEnd = '';
-    for (var c = 0; c < conceptNames.length; c++) {
-      var concept = gaap[conceptNames[c]];
-      if (!concept || !concept.units) continue;
-      var usdArr = concept.units['USD'] || concept.units['USD/shares'] || Object.values(concept.units)[0];
-      if (!usdArr) continue;
-      // v40.4: 20-F(외국발행인) 양식도 10-K와 동등하게 처리 (ASML, TSM 등 ADR 대응)
-      var filtered = usdArr.filter(function(d) {
-        if (!d.end) return false;
-        if (formType === '10-K') return d.form === '10-K' || d.form === '20-F' || d.form === '20-F/A';
-        return d.form === formType;
-      });
-      // P560: reject entries whose start-end span doesn't match the expected period length —
-      // a stray quarterly/stub fact tagged under a 10-K filing would otherwise be treated as
-      // a full-year figure and distort ratios against genuinely-annual concepts.
-      if (formType === '10-K') {
-        filtered = filtered.filter(function(d) {
-          if (!d.start) return true; // instant (point-in-time) facts have no start/duration
-          var days = (new Date(d.end) - new Date(d.start)) / 86400000;
-          return days >= 300 && days <= 400;
-        });
-      }
-      // 연간은 filed 기준, frame으로 중복 제거
-      var seen = {};
-      var unique = [];
-      for (var i = filtered.length - 1; i >= 0; i--) {
-        var key = filtered[i].end;
-        if (!seen[key]) { seen[key] = true; unique.unshift(filtered[i]); }
-      }
-      if (unique.length > 0) {
-        var thisEnd = unique[unique.length - 1].end;
-        if (!best || thisEnd > bestEnd) { best = unique; bestEnd = thisEnd; }
-      }
-    }
-    return best ? best.slice(-count) : [];
-  }
-
-  result.revenue = extractSeries(['Revenues','RevenueFromContractWithCustomerExcludingAssessedTax','RevenueFromContractWithCustomerIncludingAssessedTax','SalesRevenueNet'], '10-K', 5);
-  result.netIncome = extractSeries(['NetIncomeLoss'], '10-K', 5);
-  result.totalAssets = extractSeries(['Assets'], '10-K', 5);
-  result.equity = extractSeries(['StockholdersEquity','StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest'], '10-K', 5);
-  result.eps = extractSeries(['EarningsPerShareDiluted','EarningsPerShareBasic'], '10-K', 5);
-  result.opCashFlow = extractSeries(['NetCashProvidedByOperatingActivities','CashProvidedByOperatingActivities'], '10-K', 5);
-  result.capex = extractSeries(['PaymentsToAcquirePropertyPlantAndEquipment','CapitalExpenditure'], '10-K', 5);
-  result.grossProfit = extractSeries(['GrossProfit'], '10-K', 5);
-  result.opIncome = extractSeries(['OperatingIncomeLoss'], '10-K', 5);
-  result.totalDebt = extractSeries(['LongTermDebt','LongTermDebtNoncurrent'], '10-K', 5);
-  result.costOfRevenue = extractSeries(['CostOfRevenue','CostOfGoodsAndServicesSold'], '10-K', 5);
-  // v48.0: 성장주 품질 분석 필수 — R&D 지출, SBC(주식기반보상), SG&A
-  result.rd = extractSeries(['ResearchAndDevelopmentExpense','ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost'], '10-K', 5);
-  result.sbc = extractSeries(['ShareBasedCompensation','StockBasedCompensation'], '10-K', 5);
-  result.sga = extractSeries(['SellingGeneralAndAdministrativeExpense','GeneralAndAdministrativeExpense'], '10-K', 5);
-  // P560/R251: shares outstanding was never extracted, so the market-cap fallback
-  // (`d.price * (d.sharesOut || 0)`) always multiplied by 0 whenever FMP was unavailable —
-  // the concrete cause of "Market Cap: N/A" showing next to a live, non-null price.
-  var sharesSeries = extractSeries(['CommonStockSharesOutstanding'], '10-K', 1);
-  if (!sharesSeries.length) {
-    var deiFacts = (xbrlData.facts['dei'] || {})['EntityCommonStockSharesOutstanding'];
-    var deiArr = deiFacts && deiFacts.units && (deiFacts.units['shares'] || Object.values(deiFacts.units)[0]);
-    if (deiArr && deiArr.length) sharesSeries = [deiArr[deiArr.length - 1]];
-  }
-  result.sharesOut = sharesSeries;
-  // v48.0: 현금 포지션·운전자본 건전성
-  result.cash = extractSeries(['CashAndCashEquivalentsAtCarryingValue','Cash'], '10-K', 5);
-  result.inventory = extractSeries(['InventoryNet','Inventories'], '10-K', 5);
-  result.receivables = extractSeries(['AccountsReceivableNetCurrent','ReceivablesNetCurrent'], '10-K', 5);
-  result.currentDebt = extractSeries(['DebtCurrent','LongTermDebtCurrent'], '10-K', 5);
-
-  // 분기 데이터 (최근 4분기)
-  result.qRevenue = extractSeries(['Revenues','RevenueFromContractWithCustomerExcludingAssessedTax','RevenueFromContractWithCustomerIncludingAssessedTax'], '10-Q', 6);
-  result.qNetIncome = extractSeries(['NetIncomeLoss'], '10-Q', 6);
-  result.qEps = extractSeries(['EarningsPerShareDiluted'], '10-Q', 6);
-
-  return result;
-}
+// 2026-10-17 (logic audit D8): SEC XBRL 재무 파싱·파생 지표는 ESM src/domain/fundamental/sec-statements.js(window.AIO.parseSecStatements) 소유.
 
 // _fmtNum / _fmtPct — aio-core.js로 이동됨 (v51.16). window.* 전역 alias.
 var _fmtNum = window._fmtNum;
@@ -4993,7 +4891,7 @@ function _fundRecentSearches(ticker) {
   // P566/R257: the visible label was inserted raw while the data-arg was escaped — ticker
   // input has no charset whitelist, so typing/persisting an HTML payload rendered unescaped
   // on next paint (stored self-XSS via this element's own localStorage-persisted history).
-  el.innerHTML = '<span style="font-size:11px;color:var(--text-muted);">최근:</span>' + arr.map(function(t) {
+  el.innerHTML = arr.map(function(t) {
     return '<span class="aio-hover-fund-ticker" data-action="fundSearchQuick" data-arg="' + escHtml(t) + '" style="font-size:11px;color:var(--accent);border-radius:4px;padding:2px 7px;cursor:pointer;font-family:var(--font-mono);font-weight:600;">' + escHtml(t) + '</span>';
   }).join('');
 }
@@ -5128,7 +5026,7 @@ async function fundamentalSearch() {
     if (!collected.name || collected.name === ticker) collected.name = secFilings.name || ticker;
   } else { updateFail('SEC 공시 시간 제한 — 부분 데이터로 분석'); }
   if (secFin) {
-    var parsed = _parseSECFinancials(secFin);
+    var parsed = window.AIO && typeof window.AIO.parseSecStatements === 'function' ? window.AIO.parseSecStatements(secFin, { symbol: ticker, price: collected.price }) : null;
     if (parsed) {
       collected.secFin = parsed;
       collected.sources.push('SEC EDGAR XBRL (재무제표 원본)');
@@ -5142,11 +5040,8 @@ async function fundamentalSearch() {
   try {
     var _cik = collected.sec && collected.sec.cik;
     if (_cik) {
-      // 최신 완료 분기 — 현재 날짜 기준 2분기 전 (최신 10-Q 제출 여유)
-      var _now = new Date();
-      var _year = _now.getFullYear();
-      var _m = _now.getMonth() + 1;
-      var _q = Math.ceil(_m / 3) - 1;  // 현재 분기 - 1
+      // 최신 완료 분기 — 10-Q 제출 여유(P1910: 75일 이상 지난 분기)
+      var _ref = new Date(Date.now() - 75 * 86400000), _year = _ref.getUTCFullYear(), _q = Math.floor(_ref.getUTCMonth() / 3);
       if (_q <= 0) { _q = 4; _year -= 1; }
       var _period = 'CY' + _year + 'Q' + _q;
       updateProgress('SEC Frames 보고기업 비교 조회 중 (' + _period + ')...');

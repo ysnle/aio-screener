@@ -5,6 +5,7 @@ import { installGlossaryBridge } from '../ui/knowledge/glossary-bridge.js';
 import { createPersonalProviderTransport } from '../data/providers/personal-transport.js';
 import { describeSharedConnection } from '../domain/connections/shared.js';
 import { formatSecResearchEvidence } from '../ai/context/sec-fundamentals.js';
+import { parseSecStatements } from '../domain/fundamental/sec-statements.js';
 import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/context/market-content.js';
 import { renderAnswerVisuals, chooseAnswerVisuals, attachAnswerVisuals } from '../ui/components/ai-answer-visuals.js';
 import { chooseAnswerMode, answerModeGuide } from '../ai/response/answer-modes.js';
@@ -39,6 +40,12 @@ import { KR_THEME_LABELS, krThemesForSymbol } from '../domain/themes/kr-themes.j
 import { MA_STRUCTURE_LABELS } from '../domain/technical/stage.js';
 import { completedBars } from '../ui/components/stock-chart.js';
 import { keywordMayMatch, textPairs } from '../domain/news/keyword-prefilter.js';
+import { readScreenerBreadth } from '../domain/market/screener-breadth.js';
+import { installPageCompleteness } from '../data/page-completeness.js';
+import { fetchServerData, buildServerDataMeta } from '../data/server-data.js';
+import { applyServerMacro } from '../data/server-macro.js';
+import { verifyServerMarketAnalysis } from '../data/server-market-analysis.js';
+import { buildScreenerAiContext, detectSectorQuery, formatScreenerResultPrompt, runScreenerQuery } from '../ai/context/screener-query.js';
 
 export function installCompatibilityGlobals(root = globalThis) {
   const window = root;
@@ -55,9 +62,39 @@ export function installCompatibilityGlobals(root = globalThis) {
   window._calcCorrelationMatrix = _calcCorrelationMatrix;
   window._aioTextPairs = textPairs; // v57.91 (P1901): news keyword prefilter read by js/aio-data.js scoreItem
   window._aioKwMay = keywordMayMatch;
+  // Legacy unification (2026-10-17): the chat's screener query engine moved here from js/aio-data.js. Every call reads
+  // the canonical rows the native screener orchestrator ranked (no second ranking run) and the producer's factor date.
+  const screenerState = (path) => { try { return window.AIO_ARCH?.getScreenerState?.(path) ?? null; } catch (_) { return null; } };
+  // Screener-universe breadth, checked once (legacy unification 2026-10-17: replaces the projected breadth globals).
+  window._aioScreenerBreadth = (breadth = screenerState('metadata.breadth'), now = Date.now()) => readScreenerBreadth(breadth, now);
+  // Per-screen data completeness reads the native screener slice (legacy unification 2026-10-17).
+  installPageCompleteness(window, {
+    readScreener: () => {
+      const metadata = {};
+      for (const key of ['universeFreshnessStatus', 'backtest', 'detail']) { const value = screenerState(`metadata.${key}`); if (value != null) metadata[key] = key === 'backtest' ? true : value; }
+      return { status: screenerState('status'), revision: screenerState('revision'), updatedAt: screenerState('updatedAt'), metadata };
+    }
+  });
+  // The legacy data.json loader fetches and gates the server artifact here (legacy unification 2026-10-17).
+  window._aioFetchServerData = () => fetchServerData({ fetch: (...args) => window.fetch(...args) });
+  window._aioBuildServerDataMeta = (data, reconciliation) => buildServerDataMeta(data, { reconciliation });
+  window._aioApplyServerMacro = (data, snapshot, evidence, serverMeta) => applyServerMacro({ data, snapshot, evidence, serverMeta });
+  window._aioVerifyServerMarketAnalysis = verifyServerMarketAnalysis;
+  const screenerFactorAsOf = () => screenerState('metadata.asOf') || screenerState('revision') || null;
+  const screenerQueryInput = () => ({
+    rows: (typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() : null) || [],
+    live: window._liveData || {},
+    aliases: window.SCR_KEYWORD_ALIASES || {},
+    rankAsOf: screenerFactorAsOf()
+  });
+  window._aioRunScreenerQuery = (query, opts) => runScreenerQuery(query, { ...screenerQueryInput(), recentTickers: opts?.recentTickers || [] });
+  window._formatScreenerResultPrompt = (result) => formatScreenerResultPrompt(result, { rankAsOf: screenerFactorAsOf() });
+  window._aioBuildScreenerAiContext = (query, messages, logger) => buildScreenerAiContext(query, messages, { ...screenerQueryInput(), logger });
+  window._detectSectorQuery = (text) => detectSectorQuery(text, { rows: screenerQueryInput().rows });
   window.AIO = window.AIO || {};
   window.AIO.describeSharedConnection = describeSharedConnection;
   window.AIO.formatSecResearchEvidence = formatSecResearchEvidence;
+  window.AIO.parseSecStatements = parseSecStatements; // 2026-10-17 D8: replaces js/aio-chat.js _parseSECFinancials
   window.AIO.buildMarketContentContext = buildMarketContentContext;
   window.AIO.buildQuestionDomainContext = buildQuestionDomainContext;
   window.AIO.renderAnswerVisuals = renderAnswerVisuals; // P1741: data-drawn figures under an AI answer
@@ -146,12 +183,11 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
     isListed: checkListed,
     isKnown: (id) => window._aioIsKnownTicker?.(id) === true,
     universeRows: () => window._aioGetCanonicalScreenerRows?.() || [],
-    // The inputs the screener's own ranking run uses (js/aio-data.js _aioComputeFactorRanks).
+    // The inputs the native screener's ranking run uses.
     rankInputs: () => {
       const weights = typeof window._aioFactorWeights === 'function' ? window._aioFactorWeights(window.AIO?.marketState) : null;
-      const server = window._aioServerScreener || {};
       return { weights: weights?.weights || null, weightsPolicy: weights?.source === 'explicit-user-profile' ? 'explicit' : 'model-default',
-        regimeLabel: weights?.regimeLabel || null, fundamentalCoveragePct: Number(server.fundamentalCoveragePct || 0), fmpOk: !!server.fmpOk };
+        regimeLabel: weights?.regimeLabel || null, fundamentalCoveragePct: Number(screenerState('metadata.fundamentalCoveragePct') || 0), fmpOk: !!screenerState('metadata.fmpOk') };
     },
     readLiveData: () => window._liveData || {},
     onRecord: (record) => {

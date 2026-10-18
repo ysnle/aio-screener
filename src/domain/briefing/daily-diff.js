@@ -106,10 +106,11 @@ export function buildDailyChanges(history = [], { now = Date.now() } = {}) {
   const flips = (regimeNow.axes || [])
     .filter((axis) => axis.id !== 'korea' && axis.state !== 'unknown' && before[axis.id] && before[axis.id].state !== 'unknown' && before[axis.id].state !== axis.state)
     .map((axis) => ({ id: axis.id, title: axis.title, from: before[axis.id].stateLabel, to: axis.stateLabel, toState: axis.state }));
-  const big = moves.filter((move) => ['spx', 'nasdaq', 'kospi', 'kosdaq'].includes(move.key) ? Math.abs(move.value) >= 1
-    : move.key === 'vix' ? Math.abs(move.value) >= 2 : move.key === 'tnx' ? Math.abs(move.value) >= 8
-      : move.key === 'breadth50' ? Math.abs(move.value) >= 5 : move.key === 'fg' ? Math.abs(move.value) >= RULES.sentiment.namedMovePt
-        : Math.abs(move.value) >= 1.5);
+  const L = RULES.largeMove;
+  const big = moves.filter((move) => ['spx', 'nasdaq', 'kospi', 'kosdaq'].includes(move.key) ? Math.abs(move.value) >= L.dailyDiffIndexPct
+    : move.key === 'vix' ? Math.abs(move.value) >= L.dailyDiffVixPt : move.key === 'tnx' ? Math.abs(move.value) >= L.dailyDiffTnxBp
+      : move.key === 'breadth50' ? Math.abs(move.value) >= L.dailyDiffBreadthPp : move.key === 'fg' ? Math.abs(move.value) >= RULES.sentiment.namedMovePt
+        : Math.abs(move.value) >= L.dailyDiffOtherPct);
   const headline = flips.length
     ? `${flips.map((flip) => `${flip.title} ${flip.from} → ${flip.to}`).join(' · ')} — 시장 상태 판정에 들어가는 지표가 바뀌었습니다.`
     // v57.84: this comparison rebuilds the regime from closes only, so the credit axis never enters it — the headline says so.
@@ -139,7 +140,7 @@ export function buildMyNames({ symbols = [], rows = [], live = {}, holdings = []
     else if (high != null && high <= -25) notes.push(`52주 고점 대비 ${signed(high, 0, '%')}`);
     if (rsi != null && rsi >= RULES.technical.rsi.overbought) notes.push(`RSI ${rsi.toFixed(0)} 과열권`);
     else if (rsi != null && rsi <= RULES.technical.rsi.oversold) notes.push(`RSI ${rsi.toFixed(0)} 과매도권`);
-    const attention = (daySignalled && Math.abs(dayPct) >= 3 ? 2 : 0) + (rsi != null && (rsi >= 70 || rsi <= 30) ? 1 : 0) + (sma50 != null && sma50 < 0 ? 1 : 0);
+    const attention = (daySignalled && Math.abs(dayPct) >= RULES.largeMove.watchDayPct ? 2 : 0) + (rsi != null && (rsi >= 70 || rsi <= 30) ? 1 : 0) + (sma50 != null && sma50 < 0 ? 1 : 0);
     return {
       symbol, name: row?.name || '', held: held.has(symbol), dayPct, daySignalled,
       ret1m: finite(row?.ret1m), notes, attention, known: !!row || dayPct != null

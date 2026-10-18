@@ -56,6 +56,7 @@ for (const [label, source, marker] of [
   ['lesson group', conceptsView, "{ id: 'lesson', title: '원리 레슨' }"],
   ['concept map group', conceptsView, "{ id: 'map', title: '개념 지도' }"],
   ['lesson reading text', conceptsView, 'lesson.story'],
+  ['lesson worked-number block (v57.98)', conceptsView, 'renderWorkedCalc(doc, lesson.worked)'],
   ['dictionary reading text', page, "import('../../domain/knowledge/concept-stories.js')"],
     ['reviewed content', page, 'reviewedAt: REVIEWED_AT'],
     ['deep article renderer', page, 'renderKnowledgeLesson'],

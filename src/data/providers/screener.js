@@ -253,9 +253,15 @@ export function createScreenerProvider({
   // be recognised instead of being served as one complete observation.
   let previousPublicationSet = null;
   let extendedCache = null;
+  // A live-quote tick used to rebuild every row (1,143, or about 5,000 with the 확장 shard) although only the rows
+  // whose quote changed can differ. A quotes-only read reuses a row derived from the same held responses whose quote
+  // input is unchanged. Rows re-derive in full on any other read and once ROW_REUSE_MAX_MS has passed, so time-derived
+  // field statuses lag by at most that long (an idle screen without quote ticks already keeps its last statuses).
+  const ROW_REUSE_MAX_MS = 5 * 60 * 1000;
+  let rowReuse = null;
 
   return Object.freeze({
-    async readCurrent({ signal, refresh = true } = {}) {
+    async readCurrent({ signal, refresh = true, quotesOnly = false } = {}) {
       const checkAborted = () => { if (signal?.aborted) throw new DOMException('Screener read cancelled', 'AbortError'); };
       checkAborted();
       // P1668: boot fires several screener syncs at once (server data, deferred startup, refresh:done);
@@ -380,7 +386,25 @@ export function createScreenerProvider({
       const usBenchmarkRet3m = finite(usBenchmark?.ret3m);
       const usBenchmarkSession = usBenchmark?.factorSessionDate || null;
       const rows = [];
+      const heldInputs = [artifactResponse.data, universeResponse.data, modelValidationResponse?.data, extendedArtifact];
+      const reusable = quotesOnly && !refresh && rowReuse && now - rowReuse.derivedAt < ROW_REUSE_MAX_MS
+        && heldInputs.every((input, index) => input === rowReuse.heldInputs[index]) ? rowReuse : null;
+      const nextRowReuse = { heldInputs, derivedAt: reusable ? reusable.derivedAt : now, rows: new Map(), snapshot: reusable?.snapshot || null };
+      const yieldBetweenRows = async () => {
+        if (rows.length % 32 === 0 && rows.length < symbols.length) {
+          await yieldImpl();
+          checkAborted();
+        }
+      };
       for (const symbol of symbols) {
+        const liveSignature = JSON.stringify(liveBySymbol.get(symbol));
+        const reused = reusable?.rows.get(symbol);
+        if (reused && reused.liveSignature === liveSignature) {
+          rows.push(reused.row);
+          nextRowReuse.rows.set(symbol, reused);
+          await yieldBetweenRows();
+          continue;
+        }
         const isExtended = extendedSymbolSet.has(symbol);
         // The artifact this row was published in: its asOf/source/rights maps describe the row (P1173 lineage).
         const rowArtifact = isExtended ? extendedArtifact : artifact;
@@ -578,6 +602,8 @@ export function createScreenerProvider({
           _valuationPePrice: finite(factor.pePrice),
           _valuationPrice: finite(factor.valuationPrice) ?? finite(factor.pePrice) ?? finite(factor.pbPrice), // v57.54: Forward PER close (F10 order)
           _valuationPePriceBasis: factor.pePriceBasis || null,
+          _valuationPeEarningsBasis: factor.peEarningsBasis || null, // 2026-10-17 D1: 'ttm' | 'fy'
+          _valuationPeEarningsThrough: factor.peEarningsThrough || null,
           _valuationPbPrice: finite(factor.pbPrice),
           _valuationPbPriceBasis: factor.pbPriceBasis || null,
           _valuationSharesOutstanding: finite(factor.valuationSharesOutstanding),
@@ -626,12 +652,12 @@ export function createScreenerProvider({
           rightsByField,
           sourceKindByField
         });
-        rows.push({ ...baseRow, fieldReadiness: readiness, fieldObservations: readiness.observations });
-        if (rows.length % 32 === 0 && rows.length < symbols.length) {
-          await yieldImpl();
-          checkAborted();
-        }
+        const row = { ...baseRow, fieldReadiness: readiness, fieldObservations: readiness.observations };
+        rows.push(row);
+        nextRowReuse.rows.set(symbol, { liveSignature, row });
+        await yieldBetweenRows();
       }
+      rowReuse = nextRowReuse;
 
       // P1173 (17 작업 단위 4 / O07): judge the input set, not just each file on its own. The three
       // responses arrive from independent URLs with their own cadences, so "each file is fresh" never
@@ -686,7 +712,12 @@ export function createScreenerProvider({
       // identity even when no row value changes.
       const publicationRevisions = Object.fromEntries(publicationSet.members.map((entry) => [entry.member, entry.revision]));
       // v57.81: the shard revision joins the identity only when it was read, so a core snapshot keeps its id.
-      const snapshotId = `screener-snapshot-${await stableHashAsync({ revision: artifact.asOf, source: artifact.source, publicationRevisions, ...(extendedArtifact ? { extendedRevision: extendedArtifact.asOf || null } : {}), rows: snapshotIdentityRows(rows) }, { yieldImpl, signal })}`;
+      // The identity rows drop the live-quote keys; from the held responses only the instrument currency can still move
+      // (an admitted quote's currency), so an unchanged key reuses the hash instead of re-walking every row.
+      const snapshotKey = JSON.stringify([publicationRevisions, rows.map((row) => row.instrumentRef?.currency || '')]);
+      const snapshotId = rowReuse.snapshot?.key === snapshotKey ? rowReuse.snapshot.id
+        : `screener-snapshot-${await stableHashAsync({ revision: artifact.asOf, source: artifact.source, publicationRevisions, ...(extendedArtifact ? { extendedRevision: extendedArtifact.asOf || null } : {}), rows: snapshotIdentityRows(rows) }, { yieldImpl, signal })}`;
+      rowReuse.snapshot = { key: snapshotKey, id: snapshotId };
       if (requestedScope === 'extended' && extendedStatus !== 'loaded' && extendedStatus !== 'deferred') warnings.push('SCREENER_EXTENDED_UNAVAILABLE');
       if (extendedArtifact && !asOfIsFresh(extendedArtifact.asOf, now, ARTIFACT_STALE_AFTER_DAYS)) warnings.push('SCREENER_EXTENDED_STALE');
       const universeScope = extendedArtifact ? 'extended' : 'core';

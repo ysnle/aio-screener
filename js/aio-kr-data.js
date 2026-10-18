@@ -1314,7 +1314,7 @@ async function fetchSECFinancials(ticker) {
     } catch(e) { _aioLog('warn', 'fetch', 'SEC XBRL proxy fetch failed: ' + e.message); }
   }
   if (!data || !data.facts) return null;
-  // 원시 XBRL 데이터 그대로 반환 → _parseSECFinancials()에서 파싱
+  // 원시 XBRL 데이터 그대로 반환 → window.AIO.parseSecStatements()에서 파싱
   data._ticker = ticker;
   data._cik = cik;
   return data;

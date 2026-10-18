@@ -153,7 +153,7 @@ for (const fixture of rrgGolden.fixtures) {
 const stageGoldenPath = path.join(root, 'architecture/fixtures/weinstein-mtf-golden.json');
 const stageGolden = JSON.parse(readFileSync(stageGoldenPath, 'utf8'));
 if (!Array.isArray(stageGolden.fixtures) || stageGolden.fixtures.length < 5) fail('weinstein-mtf golden fixture missing or too small — it is frozen since v57.76 (legacy updateMTF retired); restore it from git history or re-run scripts/dump-weinstein-mtf-fixtures.mjs from a pre-extraction checkout');
-const STAGE_FIELDS = ['shortMAState', 'longMAState', 'fullMAState', 'maStackScore', 'sma50Rising', 'trendState', 'stageEstimate'];
+const STAGE_FIELDS = ['shortMAState', 'longMAState', 'fullMAState', 'sma50Rising', 'trendState', 'stageEstimate'];
 const MTF_DAILY_LABELS = { up: '상승', down: '하락', neutral: '중립', pending: '판정 보류' };
 const MTF_TREND_LABELS = { up: '상승', down: '하락', mixed: '혼조', pending: '판정 보류' };
 for (const fixture of stageGolden.fixtures) {
@@ -382,7 +382,7 @@ for (const fixture of factorRanksGolden.fixtures) {
   if (JSON.stringify(maxima(fgBlock)) !== JSON.stringify(expectedMax)) fail(`P1564 THRESHOLD_REGISTRY.FG edges ${JSON.stringify(maxima(fgBlock))} must match RULES.fearGreed`);
   // And no legacy file may keep a hand-written VIX edge other than the shared 18/25/32 in a comparison against the VIX variable names.
   const oldVixEdges = [];
-  for (const file of ['js/aio-pages.js', 'js/aio-chat.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-macro-tech.js']) {
+  for (const file of ['js/aio-pages.js', 'js/aio-chat.js', 'js/aio-data.js', 'js/aio-ui.js']) {
     readFileSync(path.join(root, file), 'utf8').split('\n').forEach((line, index) => {
       if (/\b(?:vix|vixP|_vix|vp|_rVix)\s*(?:<|<=|>|>=)\s*(?:15|20|30)\b(?!\.\d)/.test(line) && !/\/\/\s*(?:legacy|unrelated)/.test(line)) oldVixEdges.push(`${file}:${index + 1}`);
     });

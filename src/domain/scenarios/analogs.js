@@ -27,11 +27,14 @@ export function analogOutcome(rows, analog, { horizon = 20, lookback = 20 } = {}
   if (list.length <= lookback + horizon) return null;
   const outcomes = [];
   // Base rate: every session in the same window, condition or not, so the reader can see whether the condition adds anything.
+  // Macro audit 2026-10-17: only sessions where the condition could be tested count — a base that also spans years before a
+  // needed series starts (WTI, VIX, DXY) is a different sample from the cases it is set against.
+  const testable = (i) => !analog.needs.some((field) => finite(list[i][field]) == null || finite(list[i - lookback][field]) == null);
   let baseN = 0, baseUp = 0;
-  for (let i = lookback; i + horizon < list.length; i += 1) { baseN += 1; if (list[i + horizon].spx > list[i].spx) baseUp += 1; }
+  for (let i = lookback; i + horizon < list.length; i += 1) { if (!testable(i)) continue; baseN += 1; if (list[i + horizon].spx > list[i].spx) baseUp += 1; }
   for (let i = lookback; i + horizon < list.length; i += 1) {
     const now = list[i], then = list[i - lookback];
-    if (analog.needs.some((field) => finite(now[field]) == null || finite(then[field]) == null)) continue;
+    if (!testable(i)) continue;
     const pct = (field) => then[field] ? (now[field] / then[field] - 1) * 100 : null;
     const v = { tnx20: finite(now.tnx) != null && finite(then.tnx) != null ? now.tnx - then.tnx : null, vix: finite(now.vix),
       wti20: pct('wti'), dxy20: pct('dxy'), spx20: pct('spx') };
@@ -106,13 +109,16 @@ export function inlineDrift(recent, recentBand = 0) {
 export const INLINE_DRIFT_LABELS = Object.freeze({ up: '1개월 앞서기 시작', down: '1개월 뒤처지기 시작' });
 /** ± bands the live screen uses (R714: recent-check.js relativeBand, not a second copy). */
 const OUTCOME_BANDS = Object.freeze({ trend: relativeBand('ret6m'), recent: relativeBand('ret1m') });
+// Audit 2026-10-17 (owner D4/D5): the stage rule a stored past-stage count was classified on. A count from another rule
+// (the 5%/yr bands, or the cap-weighted S&P 500 basis) is not compared with the live stage until the artifact is rebuilt.
+export const THEME_STAGE_RULE = 'theme-stage.v2';
 /**
  * Past stages of a proxy ETF and what followed. With `benchmark` ([[date, close]], ^GSPC) the stage is the live rule —
  * 6-month and 1-month returns less the index's with the same bands, and the ETF's own 6-month return for 상대 방어 —
  * and meta.basis is 'relative-banded'; without it the old absolute sign rule stays and basis is 'absolute' (the screen
  * then does not compare it with the live stage).
  */
-export function themeStateOutcomes(closes, { horizon = 63, benchmark = null } = {}) {
+export function themeStateOutcomes(closes, { horizon = 63, benchmark = null, benchmarkField = 'spx' } = {}) {
   const list = (closes || []).filter(([, value]) => finite(value) > 0);
   const bench = Array.isArray(benchmark) && benchmark.length ? new Map(benchmark.filter(([, v]) => finite(v) > 0)) : null;
   const buckets = Object.fromEntries(Object.keys(THEME_STATES).map((state) => [state, []])); // 'fading' stays empty here
@@ -133,8 +139,15 @@ export function themeStateOutcomes(closes, { horizon = 63, benchmark = null } = 
     next[state] = i + horizon;
   }
   const meta = { from: list[0]?.[0] || null, to: list[list.length - 1]?.[0] || null, horizon, basis: bench ? 'relative-banded' : 'absolute', ...baseRate(baseUp, baseN) };
-  return { ...Object.fromEntries(Object.entries(buckets).map(([state, values]) => [state, summarise(values, meta)])), basis: meta.basis };
+  return { ...Object.fromEntries(Object.entries(buckets).map(([state, values]) => [state, summarise(values, meta)])), basis: meta.basis,
+    ...(bench ? { rule: THEME_STAGE_RULE, benchmark: benchmarkField } : {}) };
 }
+
+// One significance rule for every "differs from the base rate" reading (pastConflict, frequencyText): the share must sit
+// more than two binomial standard errors of the base rate (about 95%) away. Overlapping base-rate sessions make the true
+// error wider still, so one standard error flagged ordinary sampling noise as a contradiction.
+export const BASE_RATE_SE = 2;
+export const beyondBaseRate = (share, base, n) => Math.abs(share - base) > BASE_RATE_SE * Math.sqrt(base * (1 - base) / n);
 
 export function frequencyText(freq, label, { source = 'AIO 종가 기록' } = {}) {
   if (!freq) return `${label}: 과거 기록이 없어 빈도를 계산하지 않습니다.`;
@@ -142,6 +155,9 @@ export function frequencyText(freq, label, { source = 'AIO 종가 기록' } = {}
   if (freq.n < 3) return `${label}: ${source}(${span})에서 같은 움직임이 ${freq.n}번뿐이라 빈도로 말하지 않습니다.`;
   const signed = (value) => `${value > 0 ? '+' : ''}${value}%`;
   // v57.79: a percentage needs at least 10 non-overlapping cases; below that the counts stand alone.
-  const base = Number.isFinite(freq.baseUpPct) && freq.n >= 10 ?` 비슷한 때 ${Math.round(freq.up / freq.n * 100)}% · 같은 기록 전체 거래일에서는 ${freq.baseUpPct}%가 올라, 둘의 차이가 이 조건이 더하는 정보입니다.` : '';
+  const sharePct = Math.round(freq.up / freq.n * 100);
+  const base = Number.isFinite(freq.baseUpPct) && freq.n >= 10
+    ? ` 비슷한 때 ${sharePct}% · 같은 기록 전체 거래일에서는 ${freq.baseUpPct}%가 올라, ${beyondBaseRate(freq.up / freq.n, freq.baseUpPct / 100, freq.n) ? '둘의 차이가 이 조건이 더하는 정보입니다.' : '차이는 표본 오차 범위 안이라 이 조건만의 정보로 보기 어렵습니다.'}`
+    : '';
   return `${label}: ${source}(${span})의 겹치지 않는 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 ${hasFinalConsonant(freq.subject || 'S&P 500') ? `${freq.subject || 'S&P 500'}이` : `${freq.subject || 'S&P 500'}가`} 올랐습니다 (중앙값 ${signed(freq.median)}${freq.p25 != null && freq.n >= 8 ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''}).${base}${freq.n < 10 ? ' 표본이 작아 경향 참고용입니다.' : freq.n < 30 ? ' 30번 미만의 작은 표본이라 비율은 참고용입니다.' : ''}`; // R706: 10-29 cases carry a small-sample note (codex audit F09)
 }

@@ -8,7 +8,7 @@ import { EXTENSION_BANDS } from '../screener/setup-profile.js';
 import { RULES } from '../rules/thresholds.js';
 // v57.84: moving averages, ATR, ADR, the 52-week range, the 50-day extension and the Weinstein stage come from the one
 // definitions module the screener producer and the summary also use.
-import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, extensionMultiple, extensionStateFor, weeklyCloses, weinsteinStage, detectContractions } from './definitions.js';
+import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, extensionMultiple, extensionStateFor, weeklyCloses, weinsteinStage, detectContractions, isBreakoutDay } from './definitions.js';
 const TECH = RULES.technical;
 
 function finite(value) {
@@ -183,14 +183,16 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const pivot = vcp.pivot;
   // v57.84 review: 'failed' needs a breakout that counted — a volume-confirmed close above the pivot — and every pivot
   // state needs a valid contraction run; a pivot from an invalid pattern is only the latest swing high.
-  const heavyUpAbove = (i) => i > 0 && vol50[i] && volumes[i] >= TECH.breakout.volumeMultiple * vol50[i] && bars[i].close > pivot && bars[i].close > bars[i - 1].close;
-  const brokeOut = pivot != null && vcp.valid && Array.from({ length: 10 }, (_, k) => n - 9 + k).some((i) => i > 0 && heavyUpAbove(i) && bars[i - 1].close <= pivot * 1.05);
+  // Audit 2026-10-17 (owner D6): the shared breakout day — volume against the prior 50 sessions, the day excluded.
+  const heavyUpAbove = (i, ceiling = false) => isBreakoutDay({ closes, volumes, i, pivot, ceiling });
+  const ceilingPct = 1 + TECH.breakout.maxAbovePct / 100;
+  const brokeOut = pivot != null && vcp.valid && Array.from({ length: 10 }, (_, k) => n - 9 + k).some((i) => i > 0 && heavyUpAbove(i) && bars[i - 1].close <= pivot * ceilingPct);
   if (sma200[n] != null && (last.close < sma200[n] || (sma50[n] < sma200[n] && last.close < sma50[n]))) state = 'downtrend';
   else if (pivot != null && brokeOut && last.close < pivot) state = 'failed';
   // P1428 (Codex review): the heavy-volume day must itself close up and above the pivot — a heavy sell-off
   // below the pivot two days earlier is not breakout volume.
-  else if (vcp.valid && pivot != null && last.close > pivot && last.close <= pivot * 1.05 && [n - 2, n - 1, n].some(heavyUpAbove)) state = 'breakout';
-  else if (vcp.valid && pivot != null && last.close > pivot * 1.05) state = 'extended';
+  else if (vcp.valid && pivot != null && last.close > pivot && last.close <= pivot * ceilingPct && [n - 2, n - 1, n].some((i) => heavyUpAbove(i, true))) state = 'breakout';
+  else if (vcp.valid && pivot != null && last.close > pivot * ceilingPct) state = 'extended';
   else if (vcp.valid && pivot != null && last.close >= pivot * 0.92 && last.close <= pivot) state = 'setup';
   // P1639 (owner materials 2026-10-12): how far price has run from the 50-day line in units of its own
   // daily range (ATR 14), where it sits above the 52-week low, and the 5/20-day EMA order used to judge
@@ -264,7 +266,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     state,
     stateLabel: STATE_LABELS[state],
     evidence,
-    flip: state === 'setup' ? `피벗 ${fmt(pivot)} 위로 50일 평균의 ${TECH.breakout.volumeMultiple}배 이상 거래량과 함께 마감하면 돌파` : state === 'breakout' ? `피벗 ${fmt(pivot)} 아래로 다시 마감하면 돌파 실패` : state === 'downtrend' ? '200일선 회복과 50일선 상향 여부 확인' : state === 'failed' ? `피벗 ${fmt(pivot)} 재돌파와 그 위 마감 여부 확인` : null
+    flip: state === 'setup' ? `피벗 ${fmt(pivot)} 위(+${TECH.breakout.maxAbovePct}% 이내)로 직전 ${TECH.breakout.volumeSessions}일 평균의 ${TECH.breakout.volumeMultiple}배 이상 거래량과 함께 상승 마감하면 돌파` : state === 'breakout' ? `피벗 ${fmt(pivot)} 아래로 다시 마감하면 돌파 실패` : state === 'downtrend' ? '200일선 회복과 50일선 상향 여부 확인' : state === 'failed' ? `피벗 ${fmt(pivot)} 재돌파와 그 위 마감 여부 확인` : null
   };
 }
 

@@ -28,6 +28,7 @@ import { factorScopesByMarket, listingMarketOfSymbol, sessionDateInMarket, timeZ
 import { latestCompletedUsSession, nyParts, resolveMarketCalendarSession } from '../src/ai/time/market-session.js';
 import { barSessionDateForField, historyFieldSessionDate, observationSessionDate } from '../src/domain/market/history-session.js'; // v57.81
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
+import { RULES } from '../src/domain/rules/thresholds.js'; // audit D8: shared large-move table
 import { reconcileSecRecord } from '../src/domain/fundamental/sec-report.js'; // P1402 + 2026-10-13 F03-F05
 import { secFundamentalRowFields } from '../src/domain/fundamental/sec-row-fields.js'; // v57.81: shared with the browser's out-of-universe read
 import { evaluateSymbolSignals, distributionDaySeries, BREADTH_SIGNAL_MODEL_VERSION } from '../src/domain/market/breadth-signals.js'; // P1416
@@ -701,8 +702,10 @@ const HIST_SYMBOLS = {
   // SYMBOLS, gets a daily close column so a semiconductor drawdown under a steady index (2026-02~03, 2026-07) is on record.
   // The <60-observation rule backfills one year on the next run. Nothing reads it for a judgement yet.
   'SMH': 'smh',
+  // Audit 2026-10-17 (owner D5): the equal-weight S&P 500 ETF, already in SYMBOLS, is the US theme stage's benchmark.
+  'RSP': 'rsp',
 };
-const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','brent','gold','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','smh','fg'];
+const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','brent','gold','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','smh','rsp','fg'];
 // P1246 (data-refresh: 품질 경계): 히스토리 시장 필드의 **단일** 타당 범위 선언. producer가 이 범위를
 // 벗어난 값을 관측으로 승격하지 않고(null + fieldMeta 없음 = P1101의 무관측 표기), 게이트가 같은 선언을
 // 가져와 아티팩트를 검사한다 — 선언과 집행이 서로 다른 리터럴을 들고 어긋나는 경로를 만들지 않는다.
@@ -716,6 +719,7 @@ export const HIST_FIELD_PLAUSIBILITY = Object.freeze({
   usdjpy: [50, 400],
   tlt: [20, 400],
   smh: [20, 2000],
+  rsp: [20, 2000],
 });
 export function histValueWithinPlausibility(field, value) {
   const range = HIST_FIELD_PLAUSIBILITY[field];
@@ -729,7 +733,8 @@ const HIST_MARKET_FIELDS = HIST_FIELDS.filter(field => field !== 'fg');
 // different key sets and a one-row breadth lag was indistinguishable from
 // "unavailable" (P1101). Both lanes now publish every column; absence is null.
 const HIST_BREADTH_FIELDS = ['breadth20','breadth50','breadth200','advanceRatio','advanceDecline','breadth40','breadthUp4','breadthDown4','breadthNewHighs','breadthNewLows','distributionDays']; // P1416
-const HIST_ALL_FIELDS = [...HIST_FIELDS, ...HIST_BREADTH_FIELDS];
+const HIST_SENTIMENT_FIELDS = ['pcr']; // P1586 put/call accumulates only on Cboe trading dates; every other row carries null
+const HIST_ALL_FIELDS = [...HIST_FIELDS, ...HIST_BREADTH_FIELDS, ...HIST_SENTIMENT_FIELDS];
 // Per-row cycle metadata. Rows seeded by the historical backfill never carried
 // it, so the column set differed by row; null records "not recorded" instead.
 const HIST_ROW_META = ['seriesMode','cycleEnd','marketSnapshotRevision'];
@@ -1631,7 +1636,7 @@ export function mergeSecIntoFactorRows(data, secData = {}) {
       // 메모리 한정 가격으로 재계산한 pe/pb는 계산 근거(가격·기저·발행주식·관측일)를
       // 행에 함께 남긴다. 발행 아티팩트에 원시가를 기록하지 않는다.
       // 2026-10-13 F04/F10: the verified share basis and the close it multiplies travel with the row.
-      ['pePrice','pePriceBasis','pbPrice','pbPriceBasis','valuationPrice','valuationPriceBasis','valuationSharesOutstanding','valuationSharesObservedAt','valuationSharesCheck','valuationSharesBasis','valuationHeldReason'].forEach(key => {
+      ['pePrice','pePriceBasis','peEarningsBasis','peEarningsThrough','peEarningsConcept','pbPrice','pbPriceBasis','valuationPrice','valuationPriceBasis','valuationSharesOutstanding','valuationSharesObservedAt','valuationSharesCheck','valuationSharesBasis','valuationHeldReason'].forEach(key => {
         if (sec[key] != null) data[sym][key] = sec[key];
       });
     }
@@ -2363,7 +2368,7 @@ async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), distributi
       observedAt: `${point.date}T20:00:00.000Z`, fetchedAt, lastSuccessfulAt: fetchedAt,
       source: 'Yahoo chart ^GSPC daily bars', sourceKind: 'derived-research', allowedUse: 'research-history',
       observationRelation: 'latest-completed-close', observedAtSource: 'derived-from-index-daily-bars',
-      model: BREADTH_SIGNAL_MODEL_VERSION, rule: 'close <= -0.2% on volume above the prior session; latest 25 sessions'
+      model: BREADTH_SIGNAL_MODEL_VERSION, rule: 'close <= -0.2% on volume above the prior session; latest 25 sessions; retired once a later close is 5% above it'
     };
     distributionRows += 1;
   }
@@ -2439,7 +2444,7 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     const conflicts = (regime.conflicts || []).length ? `엇갈리는 신호: ${regime.conflicts.join(' ')}` : '';
     // v57.81: the validator rejects a Korea-vs-US sentence without both session dates when they differ; the packet says so.
     const krDate = buildCloseSeries(input.history, 'kospi').at(-1)?.date || null;
-    const sessions = krDate && regime.asOf && krDate !== regime.asOf ? `세션 기준일: 미국 ${regime.asOf.slice(5).replace('-', '/').replace(/^0/, '')} · 한국 ${krDate.slice(5).replace('-', '/').replace(/^0/, '')} — 두 시장을 한 문장에서 함께 말하면 두 날짜(M/D)를 모두 적을 것.` : '';
+    const sessions = krDate && regime.asOf && krDate !== regime.asOf ? `세션 기준일: 미국 ${regime.asOf.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} · 한국 ${krDate.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} — 두 시장을 한 문장에서 함께 말하면 두 날짜(M/D)를 모두 적을 것.` : '';
     return [`종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, priorSessionMoveLines(input.history), trendLine, leadershipLine, conflicts, axes,
       renderMarketScenarioContext(input, { regime }), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(data, input, regime)].filter(Boolean).join('\n');
   } catch (error) {
@@ -2450,8 +2455,8 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
 // v57.87 (10/16 audit): on the session after KOSPI's -7.6% close the commentary spoke only of the next morning's
 // in-session rebound — METRIC_EVIDENCE carries the latest observation, so the completed crash close never reached the
 // prompt. A completed close that moved 3% in a session or 8% over five sessions travels as its own dated line.
-export const PRIOR_SESSION_MOVE_1D_PCT = 3;
-export const PRIOR_SESSION_MOVE_5D_PCT = 8;
+export const PRIOR_SESSION_MOVE_1D_PCT = RULES.largeMove.priorSession1dPct;
+export const PRIOR_SESSION_MOVE_5D_PCT = RULES.largeMove.priorSession5dPct;
 export function priorSessionMoveLines(history = []) {
   const md = (date) => String(date || '').slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/');
   const signed = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
@@ -2597,7 +2602,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       if (row.unit === 'percent') { const bp = (row.value - row.value / (1 + pct / 100)) * 100; return ` change=${bp >= 0 ? '+' : ''}${bp.toFixed(1)}bp vs previous close`; }
       return ` change=${pct >= 0 ? '+' : ''}${pct.toFixed(2)}% vs previous close`;
     };
-    const evidenceLines = promptEvidence.slice(0, 16).map(row => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit}${changeText(row)} observedAt=${row.observedAt} session=${row.session || 'n/a'} source=${row.source}`).join('\n');
+    const evidenceLines = promptEvidence.slice(0, 16).map(row => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit}${row.basis ? ` (${row.basis})` : ''}${changeText(row)} observedAt=${row.observedAt} session=${row.session || 'n/a'} source=${row.source}`).join('\n');
     // v57.69 (2026-10-15 crash audit): KOSPI fell over 5% in session and the commentary, built from completed closes only,
     // never mentioned it. A Korean move of 3% or more in session is offered on its own, labelled 장중 with its KST time.
     const kstTime = (iso) => new Date(Date.parse(iso) + 9 * 3600000).toISOString().slice(11, 16);

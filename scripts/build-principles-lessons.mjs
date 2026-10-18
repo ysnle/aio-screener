@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteJsonSync } from './lib/atomic-write.mjs';
 import { PRINCIPLE_STORIES, storyProblems } from './lib/principles-stories.mjs';
+import { PRINCIPLE_WORKED, workedProblems } from './lib/principles-worked.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const chaptersPath = path.join(root, 'public-data/principles/chapters.json');
@@ -309,6 +310,10 @@ for (const source of sources) {
 
 const storyIssues = Object.entries(PRINCIPLE_STORIES).flatMap(([id, story]) => storyProblems(id, story));
 if (storyIssues.length) throw new Error(`Lesson reading text outside the length standard: ${storyIssues.join('; ')}`);
+// v57.98: every lesson carries a worked-number block (inputs → steps → result → limit).
+const workedIssues = drafts.flatMap((draft) => workedProblems(draft.id, PRINCIPLE_WORKED[draft.id]));
+const unknownWorked = Object.keys(PRINCIPLE_WORKED).filter((id) => !drafts.some((draft) => draft.id === id));
+if (workedIssues.length || unknownWorked.length) throw new Error(`Lesson worked-number blocks outside the standard: ${[...workedIssues, ...unknownWorked.map((id) => `${id}: unknown lesson`)].join('; ')}`);
 const unknownStories = Object.keys(PRINCIPLE_STORIES).filter((id) => !drafts.some((draft) => draft.id === id));
 if (unknownStories.length) throw new Error(`Reading text for unknown lessons: ${unknownStories.join(', ')}`);
 
@@ -341,6 +346,7 @@ const lessons = drafts.map((draft) => {
     },
     claimIds: metadata.claimIds || [`principles-lesson-${draft.id}`],
     ...(PRINCIPLE_STORIES[draft.id] ? { story: PRINCIPLE_STORIES[draft.id] } : {}),
+    worked: PRINCIPLE_WORKED[draft.id],
     ...metadata
   };
 });

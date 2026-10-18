@@ -21,15 +21,17 @@ const OPERATIONAL = /(?:방법|단계|먼저|활용|퍼뜨|조작|실행|우회|
 // a bare "왜" no longer cancels an explicit how-to / step-by-step request. Victim-side questions ("당하지 않으려면") stay.
 const DEFENSIVE = /(?:탐지|적발|감시|처벌|불법인지|위법인지|피하려면|당하지|예방|detect)/i;
 const WHY = /(?:왜\s|why\s)/i;
-const EVASION = /(?:(?:감시|적발|단속|추적|조사|금감원|금융당국|당국|거래소|감독)\S*\s*(?:피|안\s*당|안\s*걸|우회|빠져)|들키지|안\s*걸리게|걸리지\s*않게|avoid\s+(?:detection|surveillance)|without\s+getting\s+caught|evade\s+(?:detection|surveillance))/i;
+// Briefing audit 2026-10-17: "탐지 안 되게" asks to evade detection; 탐지 alone had read it as defensive.
+const EVASION = /(?:(?:감시|적발|단속|추적|조사|금감원|금융당국|당국|거래소|감독)\S*\s*(?:피|안\s*당|안\s*걸|우회|빠져)|(?:탐지|적발|감시)\S*\s*안\s*(?:되|당|걸)|들키지|안\s*걸리게|걸리지\s*않게|avoid\s+(?:detection|surveillance)|without\s+getting\s+caught|evade\s+(?:detection|surveillance))/i;
 const STRONG_EXECUTION = /(?:하는\s*법|실행\s*단계|단계별|step[- ]by[- ]step|how\s+to\s+(?:do|use|run))/i;
 // v57.92 (internal audit A01): one defensive word anywhere ("처벌과 실행 단계를 함께") cancelled an explicit execution
 // request. Only a how-to that is itself defensive ("탐지하는 법", "단계별 적발 사례") is exempt; the strong execution test
 // runs on what is left after those phrases are removed.
 const DEFENSIVE_HOW_TO = /(?:(?:탐지|적발|감시|예방|식별|구별|알아채|신고)\s*(?:하는\s*법|하는\s*방법|방법|단계)|단계별\s*(?:탐지|적발|감시|처벌|예방|신고)|(?:불법인지|위법인지|처벌\S*|탐지\S*|적발\S*)\s*단계별(?:로)?|how\s+to\s+(?:detect|spot|report|avoid\s+being))/gi;
-const EXECUTION = /(?:퍼뜨|조작하|우회|숨기|회피|(?:활용|이용)\s*(?:방법|법|하는\s*법)|하는\s*법|실행\s*단계|단계별|step[- ]by[- ]step|evade|bypass|execute|how\s+to\s+(?:do|use|run))/i;
+// Briefing audit 2026-10-17: "부풀리려면 어떻게 해야 돼?" and "…로 돈 버는 법" are how-to requests (they read as education).
+const EXECUTION = /(?:려면\s*어떻게|어떻게\s*(?:해야|하면|하나|하죠)|버는\s*법|퍼뜨|조작하|우회|숨기|회피|(?:활용|이용)\s*(?:방법|법|하는\s*법)|하는\s*법|실행\s*단계|단계별|step[- ]by[- ]step|evade|bypass|execute|how\s+to\s+(?:do|use|run))/i;
 const DIRECT_MARKET_ACTION = /(?:매수|매도|추가매수|진입|청산|손절|익절|목표가|진입가|손절가|비중|포지션|리밸런싱|buy|sell|trade|allocate|position|stop[- ]?loss|take[- ]?profit)/i;
-const LEGAL_DETERMINATION = /(?:신고(?:해야|할까|의무)|납부(?:해야|할까|의무)|합법(?:인가|이야|입니까)|불법(?:인가|이야|입니까)|법적으로\s*(?:가능|문제|해야|허용)|세금\s*(?:얼마|계산|내야)|규제\s*(?:준수|위반)|법률\s*자문|legal\s+advice|is\s+it\s+legal|tax\s+(?:filing|liability)|must\s+i\s+(?:file|pay))/i;
+const LEGAL_DETERMINATION = /(?:신고(?:해야|할까|의무)|납부(?:해야|할까|의무)|합법(?:인가|이야|입니까)|불법(?:인가|이야|입니까)|법적으로\s*(?:가능|문제|해야|허용)|(?:세금|양도세)\s*(?:얼마|계산|내야)|규제\s*(?:준수|위반)|법률\s*자문|legal\s+advice|is\s+it\s+legal|tax\s+(?:filing|liability)|must\s+i\s+(?:file|pay))/i;
 // A bare SEC/FINRA/규제 mention is disclosure context; tax and compliance terms make a trade question a legal-scope one.
 const LEGAL_SUBSTANCE = /(?:세법|세금|양도세|법률|법적으로|규제\s*준수|\btax\b|compliance|legal)/i;
 const RESPONSE_LEGAL_DIRECTIVE = /(?:세금\s*(?:신고|납부)|법률상\s*(?:의무|허용)|규제\s*준수).{0,40}(?:하세요|해야\s*합니다|의무입니다|가능합니다)/i;
@@ -69,7 +71,9 @@ export function classifyAIRequest({ query = '' } = {}) {
   const strongExecution = STRONG_EXECUTION.test(queryText.replace(DEFENSIVE_HOW_TO, ' '));
   const asksExecution = evasion || strongExecution || (!defensive
     && !WHY.test(queryText) && (EXECUTION.test(queryText) || (operational && !educational)));
-  if (prohibitedCategories.length && asksExecution) {
+  // Briefing audit 2026-10-17: trading on non-public information is the act itself ("미공개 정보로 매수해도 돼?").
+  const mnpiTrade = categories.includes('mnpi') && directAction && !defensive && !educational && !asksLegalDetermination;
+  if (prohibitedCategories.length && (asksExecution || mnpiTrade)) {
     return Object.freeze({
       version: AI_CONDUCT_POLICY_VERSION, requestMode: 'PROHIBITED_INSTRUCTION',
       status: 'BLOCKED_P0', severity: 'P0', categories: Object.freeze(categories),

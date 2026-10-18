@@ -11,7 +11,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { BRANCH_ANALOGS, analogOutcome, alignCloses, themeStateOutcomes } from '../src/domain/scenarios/analogs.js';
+import { BRANCH_ANALOGS, analogOutcome, alignCloses, themeStateOutcomes, THEME_STAGE_RULE } from '../src/domain/scenarios/analogs.js';
 import { THEME_PROXY_ETF } from '../src/domain/scenarios/exposures.js';
 import { loadThemeMaps } from './build-scenario-state.mjs';
 
@@ -42,7 +42,7 @@ async function dailyCloses(symbol, minRows = 500) {
 }
 
 /** Pure: closes by field/symbol → the artifact body (tested by ci-scenario-guidance-fixture). */
-export function buildScenarioOutcomes({ market = {}, proxies = {}, themeProxy = {} } = {}) {
+export function buildScenarioOutcomes({ market = {}, proxies = {}, themeProxy = {}, stageBenchmark = null } = {}) {
   const rows = alignCloses(market);
   // ^TNX quotes the 10-year yield ×10 before 2005-ish on some feeds; values above 20 are rescaled to percent.
   for (const row of rows) if (row.tnx != null && row.tnx > 20) row.tnx /= 10;
@@ -57,8 +57,10 @@ export function buildScenarioOutcomes({ market = {}, proxies = {}, themeProxy = 
   for (const [themeId, symbol] of Object.entries(themeProxy)) {
     const closes = proxies[symbol];
     if (!closes?.length) continue;
-    // v57.84 (owner decision): past stages on the live rule — returns less ^GSPC with the same bands (basis 'relative-banded').
-    themes[themeId] = { symbol, ...themeStateOutcomes(closes, { horizon: 63, benchmark: market.spx || null }) };
+    // v57.84 (owner decision): past stages on the live rule — returns less the index with the same bands (basis 'relative-banded').
+    // Audit 2026-10-17 (owner D5): the live US stage reads against the equal-weight S&P 500 (RSP); ^GSPC only without it.
+    const ew = stageBenchmark?.length ? stageBenchmark : null;
+    themes[themeId] = { symbol, ...themeStateOutcomes(closes, { horizon: 63, benchmark: ew || market.spx || null, benchmarkField: ew ? 'rsp' : 'spx' }) };
   }
   return { branches, themes, from: rows[0]?.date || null, to: rows.at(-1)?.date || null };
 }
@@ -66,7 +68,8 @@ export function buildScenarioOutcomes({ market = {}, proxies = {}, themeProxy = 
 async function main() {
   let previous = null;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { /* first run */ }
-  if (previous?.status === 'current' && Date.now() - Date.parse(previous.generatedAt || '') < REFRESH_AFTER_MS && process.env.SCENARIO_OUTCOMES_FORCE !== '1') {
+  const ruleCurrent = Object.values(previous?.themes || {}).every((theme) => theme?.rule === THEME_STAGE_RULE);
+  if (previous?.status === 'current' && ruleCurrent && Date.now() - Date.parse(previous.generatedAt || '') < REFRESH_AFTER_MS && process.env.SCENARIO_OUTCOMES_FORCE !== '1') {
     console.log(`[scenario-outcomes] fresh (${previous.generatedAt}) — skipping`); return;
   }
   const today = new Date().toISOString().slice(0, 10);
@@ -77,9 +80,10 @@ async function main() {
   const themeProxy = { ...THEME_PROXY_ETF, ...Object.fromEntries(usThemes.filter((theme) => theme?.etf).map((theme) => [theme.id, theme.etf])) };
   const proxies = {};
   for (const symbol of new Set(Object.values(themeProxy))) proxies[symbol] = completed(await dailyCloses(symbol, 300));
-  const body = buildScenarioOutcomes({ market, proxies, themeProxy });
+  const stageBenchmark = completed(await dailyCloses('RSP', 2000));
+  const body = buildScenarioOutcomes({ market, proxies, themeProxy, stageBenchmark });
   const payload = { schemaVersion: SCENARIO_OUTCOMES_SCHEMA, status: 'current', generatedAt: new Date().toISOString(),
-    source: 'Yahoo Finance 일봉 종가 (^GSPC, ^TNX, ^VIX, CL=F, DX-Y.NYB, 테마 대표 ETF)', sourceKind: 'T3_PUBLIC_DELAYED', sourceLabel: '장기 일봉 기록',
+    source: 'Yahoo Finance 일봉 종가 (^GSPC, ^TNX, ^VIX, CL=F, DX-Y.NYB, RSP, 테마 대표 ETF)', sourceKind: 'T3_PUBLIC_DELAYED', sourceLabel: '장기 일봉 기록',
     returnBasis: '가격 수익률(배당 제외), 거래일 기준 · 겹치지 않는 표본', ...body };
   await atomicWriteFile(OUT, JSON.stringify(payload));
   console.log(`[scenario-outcomes] ${body.from}~${body.to} · branches ${Object.keys(body.branches).length} · themes ${Object.keys(body.themes).length}`);

@@ -31,6 +31,15 @@ export function fundamentalPeriodTooOld(periodEnd, sessionDate) {
 // The annual figure names its fiscal year, and when the NEXT fiscal year has closed and the longest SEC 10-K deadline
 // (90 days, non-accelerated filers) has passed with no newer annual row, that is said. Nothing is estimated.
 export const ANNUAL_FILING_GRACE_DAYS = 90;
+// 2026-10-17 (logic audit): a 52/53-week fiscal year can close in the first days of January (LDOS 2026-01-02, SNA/TXT/SWK
+// 2026-01-03); the filer calls it the previous year's fiscal year, so it is labelled by that year. Any other end date is
+// labelled by its calendar year (Walmart's year ending 2026-01-31 is its own FY2026).
+export function fiscalYearLabel(periodEnd) {
+  const end = String(periodEnd || '').slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(end)) return null;
+  const [y, m, d] = end.split('-').map(Number);
+  return `FY${m === 1 && d <= 7 ? y - 1 : y}`;
+}
 export function annualFilingStatus(periodEnd, asOf) {
   const end = String(periodEnd || '').slice(0, 10);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(end)) return null;
@@ -38,7 +47,7 @@ export function annualFilingStatus(periodEnd, asOf) {
   const [y, m, d] = end.split('-').map(Number);
   const nextEndMs = Date.UTC(y + 1, m - 1, d);
   const dueMs = nextEndMs + ANNUAL_FILING_GRACE_DAYS * 86400000;
-  return Object.freeze({ fyLabel: `FY${y}`, periodEnd: end, nextDueBy: new Date(dueMs).toISOString().slice(0, 10), overdue: Number.isFinite(asOfMs) && asOfMs > dueMs });
+  return Object.freeze({ fyLabel: fiscalYearLabel(end), periodEnd: end, nextDueBy: new Date(dueMs).toISOString().slice(0, 10), overdue: Number.isFinite(asOfMs) && asOfMs > dueMs });
 }
 
 export function isPriorAnnualPeriod(current, prior) {

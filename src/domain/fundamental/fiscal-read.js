@@ -3,7 +3,7 @@
 // one year's raw numbers. Inputs: the SEC FY series in the runtime summary (fiscalHistory) and the
 // screener row for price context (returns, P/E). A missing year or field drops its sentence.
 import { withObjectParticle } from '../content/korean-particle.js';
-import { finiteFact, isPriorAnnualPeriod, annualFilingStatus } from './period.js';
+import { finiteFact, isPriorAnnualPeriod, annualFilingStatus, fiscalYearLabel } from './period.js';
 // v57.81: a change inside this many %p (margin) or % (revenue) reads as flat in the text, so its tone is neutral too.
 export const FISCAL_FLAT_BAND = 2;
 const NON_LENDING_FINANCIALS = new Set(['V', 'MA', 'PYPL', 'FI', 'FIS', 'GPN', 'CPAY', 'JKHY', 'CME', 'ICE', 'NDAQ', 'CBOE', 'SPGI', 'MCO', 'MSCI', 'FDS', 'BLK', 'BX', 'KKR', 'APO', 'ARES', 'TROW', 'BEN', 'IVZ', 'AMP', 'BR']);
@@ -101,14 +101,14 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       // P1449: this read sees revenue and net income only. It cannot split interest, tax or
       // one-offs from operations, so attribution like "영업 레버리지" is withheld (P1441 family).
       points.push({ id: 'margin', tone: Math.abs(delta) < FISCAL_FLAT_BAND ? 'neutral' : delta > 0 ? 'favorable' : 'burden', title: '수익성',
-        text: `순이익률 ${marginNow.toFixed(1)}%(${String(thenYear.periodEnd).slice(0, 4)} 회계연도 ${marginThen.toFixed(1)}%) — ${Math.abs(delta) < FISCAL_FLAT_BAND ? '수익성이 비슷하게 유지됩니다' : delta > 0 ? `${Math.abs(delta).toFixed(1)}%p 높아졌습니다(순이익 기준 관측이며, 세금·이자·일회성 항목과 영업 효과의 구분은 이 화면의 자료로 검증하지 않습니다)` : '매출 대비 남는 이익이 줄었습니다 — 비용·가격 압력을 확인할 지점입니다'}.` });
+        text: `순이익률 ${marginNow.toFixed(1)}%(${(fiscalYearLabel(thenYear.periodEnd) || String(thenYear.periodEnd).slice(0, 4)).replace(/^FY/, '')} 회계연도 ${marginThen.toFixed(1)}%) — ${Math.abs(delta) < FISCAL_FLAT_BAND ? '수익성이 비슷하게 유지됩니다' : delta > 0 ? `${Math.abs(delta).toFixed(1)}%p 높아졌습니다(순이익 기준 관측이며, 세금·이자·일회성 항목과 영업 효과의 구분은 이 화면의 자료로 검증하지 않습니다)` : '매출 대비 남는 이익이 줄었습니다 — 비용·가격 압력을 확인할 지점입니다'}.` });
     }
     const niNow = latest.netIncome;
     const niPrev = history[history.length - 2].netIncome;
     if (annualPair && niNow != null && niPrev != null && niPrev > 0) {
       const niGrowth = (niNow / niPrev - 1) * 100;
       const pe = finite(row?.pe);
-      const peg = pe != null && pe > 0 && niGrowth > 0 ? pe / niGrowth : null;
+      const peg = pe != null && pe > 0 && niGrowth > 0 && row?._valuationPeEarningsBasis !== 'ttm' ? pe / niGrowth : null;
       // 2026-10-13 review S06: the PER's earnings are the last filed fiscal year, which can be more than a year old.
       // Name that year and how many months have passed since it closed.
       const earningsEnd = String(row?._fundamentalPeriodEnd || latest.periodEnd || '').slice(0, 10);
@@ -116,28 +116,34 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       const monthsSince = /^\d{4}-\d{2}-\d{2}$/.test(earningsEnd) && /^\d{4}-\d{2}-\d{2}$/.test(sessionEnd)
         ? (Number(sessionEnd.slice(0, 4)) - Number(earningsEnd.slice(0, 4))) * 12 + Number(sessionEnd.slice(5, 7)) - Number(earningsEnd.slice(5, 7)) - (Number(sessionEnd.slice(8, 10)) < Number(earningsEnd.slice(8, 10)) ? 1 : 0)
         : null;
-      const fyLabel = /^\d{4}-\d{2}/.test(earningsEnd) ? `FY${earningsEnd.slice(0, 4)}` : null;
+      const fyLabel = fiscalYearLabel(earningsEnd);
       const earningsBasis = fyLabel ? `${fyLabel} 순이익 기준 · ${earningsEnd.slice(0, 7)} 마감${monthsSince != null && monthsSince >= 0 ? ` · 경과 ${monthsSince}개월` : ''}` : '공시 이익 기준';
       // 2026-10-14 audit #2: the PER method is unchanged (the last fiscal year's net income). When four newer
       // consecutive quarters are filed, the same price over their summed net income is shown beside it, labelled.
       // Valid only when the PER's own year is the latest annual row (so PER × FY income recovers the same market value).
-      const ttm = pe != null && pe > 0 && earningsEnd === String(latest.periodEnd || '').slice(0, 10) ? trailingQuarters(quarters, 4) : null;
+      // 2026-10-17 (logic audit D1): a row already priced on the last four quarters carries that basis; its PER is the
+      // four-quarter figure itself and no fiscal-year PER is re-derived from it.
+      const rowTtm = row?._valuationPeEarningsBasis === 'ttm' && /^\d{4}-\d{2}-\d{2}/.test(String(row?._valuationPeEarningsThrough || ''));
+      const ttm = pe != null && pe > 0 && (rowTtm || earningsEnd === String(latest.periodEnd || '').slice(0, 10)) ? trailingQuarters(quarters, 4) : null;
       const ttmIncome = ttm && ttm[ttm.length - 1].periodEnd > earningsEnd ? ttm.reduce((sum, q) => sum + q.netIncome, 0) : null;
-      const peTtm = ttmIncome != null && ttmIncome > 0 ? pe * niNow / ttmIncome : null;
+      const peTtm = rowTtm ? pe : ttmIncome != null && ttmIncome > 0 ? pe * niNow / ttmIncome : null;
       const prior = peTtm != null ? trailingQuarters(quarters, 8) : null;
       const priorIncome = prior ? prior.slice(0, 4).reduce((sum, q) => sum + q.netIncome, 0) : null;
       const ttmGrowth = priorIncome != null && priorIncome > 0 ? (ttmIncome / priorIncome - 1) * 100 : null;
       const pegTtm = peTtm != null && ttmGrowth != null && ttmGrowth > 0 ? peTtm / ttmGrowth : null;
       // v57.54 review: the four-quarter figure is the more current one, so it leads when it exists; the fiscal-year
       // PER (the screener's value factor basis) stays beside it, labelled.
-      const peText = pe == null ? '' : peTtm != null
-        ? `, PER 약 ${peTtm.toFixed(1)}배(최근 4개 분기 합 · ${ttm[ttm.length - 1].periodEnd.slice(0, 7)} 분기까지) · ${fyLabel || '연간'} 기준 ${pe.toFixed(1)}배(${earningsBasis})`
-        : `, PER ${pe.toFixed(1)}배(${earningsBasis})`;
+      const ttmThrough = rowTtm ? String(row._valuationPeEarningsThrough).slice(0, 10) : ttm?.[ttm.length - 1]?.periodEnd;
+      const peText = pe == null ? '' : rowTtm
+        ? `, PER ${pe.toFixed(1)}배(최근 4개 분기 공시 순이익 합 · ${ttmThrough.slice(0, 7)} 분기까지)`
+        : peTtm != null
+          ? `, PER 약 ${peTtm.toFixed(1)}배(최근 4개 분기 합 · ${ttmThrough.slice(0, 7)} 분기까지) · ${fyLabel || '연간'} 기준 ${pe.toFixed(1)}배(${earningsBasis})`
+          : `, PER ${pe.toFixed(1)}배(${earningsBasis})`;
       points.push({ id: 'earnings', tone: niGrowth > FISCAL_FLAT_BAND ? 'favorable' : niGrowth < -FISCAL_FLAT_BAND ? 'burden' : 'neutral', title: '이익과 가격', /* v57.84: the same flat band as revenue and margin */
         // Codex review 2026-10-05: a PEG from last year's income growth cannot say whether the price is a
         // burden — that needs the growth ahead. The number is shown with its basis, without a verdict.
-        text: `순이익 ${formatUsdShort(niNow)}(${signed(niGrowth)})${peText}${peg != null ? `, PEG ${peg.toFixed(2)}(${fyLabel ? `${fyLabel} ` : ''}PER ÷ ${fyLabel ? `${fyLabel} ` : '그 회계연도 '}순이익 성장률)${pegTtm != null ? ` · 최근 4개 분기 합 기준 약 ${pegTtm.toFixed(2)}` : ''}` : ''}. PEG는 지난 성장률로 계산한 값이라, 앞으로의 성장이 다르면 같은 숫자도 뜻이 달라집니다.`,
-        ...(peTtm != null ? { peTtm, ttmThrough: ttm[ttm.length - 1].periodEnd } : {}) });
+        text: `순이익 ${formatUsdShort(niNow)}(${signed(niGrowth)})${peText}${peg != null ? `, PEG ${peg.toFixed(2)}(${fyLabel ? `${fyLabel} ` : ''}PER ÷ ${fyLabel ? `${fyLabel} ` : '그 회계연도 '}순이익 성장률)${pegTtm != null ? ` · 최근 4개 분기 합 기준 약 ${pegTtm.toFixed(2)}` : ''}` : pegTtm != null ? `, PEG 약 ${pegTtm.toFixed(2)}(최근 4개 분기 PER ÷ 그 전 4개 분기 대비 순이익 성장률)` : ''}. PEG는 지난 성장률로 계산한 값이라, 앞으로의 성장이 다르면 같은 숫자도 뜻이 달라집니다.`,
+        ...(peTtm != null ? { peTtm, ttmThrough } : {}) });
     }
   } else if (latest) {
     const growth = finite(fundamentals?.revGrowth);

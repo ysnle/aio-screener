@@ -48,10 +48,9 @@ import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
-import { detectContractions } from '../domain/technical/definitions.js';
+import { detectContractions, isBreakoutDay } from '../domain/technical/definitions.js';
 import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SAMPLE, normalizeNewsSentimentHistory } from '../domain/news/scoring.js';
 import { classifyBreadthParticipation } from '../domain/market/breadth.js';
-import { computeMarketHealth } from '../domain/market/health.js';
 import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
 import { latestCompletedUsSession, latestCompletedKrSession } from '../ai/time/market-session.js';
 import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
@@ -230,7 +229,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   root._aioMarketRegimeSummary = () => {
     try {
       const regime = readMarketRegime(root);
-      return regime ? Object.freeze({ available: !!regime.available, overall: regime.overall || null, asOf: regime.asOf || null, counts: regime.counts || null }) : null;
+      return regime ? Object.freeze({ available: !!regime.available, sufficient: regime.sufficient === true, overall: regime.overall || null, asOf: regime.asOf || null, counts: regime.counts || null }) : null;
     } catch (_) { return null; }
   };
   root._aioLatestCompletedSessionDate = (market = 'US') => (market === 'KR' ? latestCompletedKrSession(clock.now()) : latestCompletedUsSession(clock.now()))?.date || null;
@@ -548,14 +547,42 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // from the held artifacts plus current live quotes (refresh:false), exactly like the live-quote path.
   const SCREENER_ARTIFACT_RECHECK_MS = 30 * 60 * 1000;
   let screenerArtifactReadAt = null;
-  function syncScreenerData({ scope = router.activeScope(), refresh = true } = {}) {
+  // A quote-only re-derivation rebuilds every row (about 5,000 with the 확장 shard), and a newer sync used to
+  // discard an older one only after both had done that work. A refresh:false request that arrives while a sync is
+  // running now waits and joins one follow-up run, which still reads the newest live quotes; artifact reads
+  // (refresh:true) start at once as before.
+  let screenerSyncRunning = null;
+  let screenerSyncQueued = null;
+  function startScreenerSync({ scope, refresh, quotesOnly = false }) {
     if (refresh) screenerArtifactReadAt = clock.now();
-    return syncScreener.sync({ scope, refresh }).then((result) => {
+    const run = syncScreener.sync({ scope, refresh, quotesOnly }).then((result) => {
       if (result) {
         eventTarget.dispatchEvent(new CustomEvent('aio:nativeScreenerReady', { detail: result }));
       }
       return result;
     });
+    screenerSyncRunning = run;
+    const settle = () => { if (screenerSyncRunning === run) screenerSyncRunning = null; };
+    run.then(settle, settle);
+    return run;
+  }
+  // quotesOnly: a live-quote tick, which lets the provider reuse every row whose quote did not change. A joined run
+  // stays quotes-only only when every request it stands for was.
+  function syncScreenerData({ scope = router.activeScope(), refresh = true, quotesOnly = false } = {}) {
+    if (refresh || !screenerSyncRunning) return startScreenerSync({ scope, refresh, quotesOnly: !refresh && quotesOnly });
+    if (screenerSyncQueued) {
+      screenerSyncQueued.scope = scope;
+      screenerSyncQueued.quotesOnly = screenerSyncQueued.quotesOnly && quotesOnly;
+      return screenerSyncQueued.promise;
+    }
+    const queued = { scope, quotesOnly, promise: null };
+    screenerSyncQueued = queued;
+    queued.promise = (async () => {
+      while (screenerSyncRunning) await screenerSyncRunning.then(() => {}, () => {});
+      if (screenerSyncQueued === queued) screenerSyncQueued = null;
+      return startScreenerSync({ scope: queued.scope, refresh: false, quotesOnly: queued.quotesOnly });
+    })();
+    return queued.promise;
   }
 
   const requiredMarketSymbols = Object.freeze([...new Set(Object.values(PAGE_DATA_TIMELINE_CONTRACTS)
@@ -733,10 +760,16 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       // v57.79: a manual refresh also drops the held validation/fiscal artifacts (maxAgeMs up to 6h) so a remounted
       // tab reads the newly published files instead of the pre-refresh copies.
       if (forced && typeof root.fetch === 'function') clearArtifactCache(root.fetch.bind(root), { abortInFlight: false });
-      return syncScreenerData({ refresh: forced || screenerArtifactReadDue() });
+      const due = forced || screenerArtifactReadDue();
+      // A quotes-only run (the screener's own visible-row request) re-derives nothing here: quotes that arrived were
+      // already announced by aio:liveQuotes below, and a run that got none (offline, unquoted 확장 names) changed
+      // nothing. Re-deriving on it rebuilt every row after every visible-row request and its retries.
+      const keys = Array.isArray(event?.detail?.keys) ? event.detail.keys : [];
+      if (!due && keys.length && keys.every((key) => key === 'quotes')) return null;
+      return syncScreenerData({ refresh: due });
     });
     const stopScreenerQuotes = legacy.on('aio:liveQuotes', () => {
-      if (String(store.getState()?.route || router.active() || '').replace(/^page-/, '') === 'screener') return syncScreenerData({ refresh: false });
+      if (String(store.getState()?.route || router.active() || '').replace(/^page-/, '') === 'screener') return syncScreenerData({ refresh: false, quotesOnly: true });
     });
     const stopScreenerShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['screener']), ({ scope }) => syncScreenerData({ scope, refresh: screenerArtifactReadDue() }), { withScope: true }));
     const stopAnalysisRefresh = compatibilityEvents.on('aio:refresh:done', syncAnalysis.sync);
@@ -1034,6 +1067,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     ,deriveMultiTimeframeView
     // v57.84 (owner decision): the one VCP contraction detector — legacy calcTechnicalSnapshot's _calcVCP delegates here.
     ,detectContractions
+    // Audit 2026-10-17 (owner D6): the one breakout-day test — legacy _calcVCP reads it too.
+    ,isBreakoutDay
     ,computeNewsSentimentScore
     ,computeNewsRiskSignals
     ,MIN_NEWS_ANALYSIS_SAMPLE
@@ -1062,9 +1097,6 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // P1449: the legacy bridge (LC-39/P1215 family) needs the same subject continuity the native
     // renders use — the 종목 · 차트 button names the company for the whole 종목 screen.
     ,setStockSubject
-    // P785/v57.77: single pure market-health model; js/aio-macro-tech.js computeMarketHealth() is a
-    // pure adapter (no DOM, no fence) read by the aio-core ticker gate and runtime-readers.
-    ,computeMarketHealth
     ,getVerticalSliceContract: (route) => getVerticalSliceContract(route)
     ,getVerticalSliceContracts: () => VERTICAL_SLICE_CONTRACTS.slice()
     ,auditVerticalSliceContracts: (routes = ROUTE_IDS) => auditVerticalSliceContracts(routes)

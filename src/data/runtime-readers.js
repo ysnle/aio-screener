@@ -729,14 +729,11 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
   };
 
   const readAnalysis = () => {
-    const live = readLive();
     const id = String(root?._currentTickerId || root?._currentTickerSym || '').trim().toUpperCase() || null;
     const history = id ? root?._technicalOHLCV?.[id] || root?._tickerHistory?.[id] || [] : [];
     const sentiment = readSentiment();
     const market = readMarket();
-    const health = typeof root?.AIO?.getMarketHealth === 'function' ? root.AIO.getMarketHealth() : null;
-    const technicalHealth = health || (typeof root?.computeMarketHealth === 'function' ? root.computeMarketHealth({ quotes: live, spxMA: root?._spxMA || {}, spxATH: root?._spxATH }) : null);
-    return Object.freeze({ inputVersion: readSnapshot()._updated || readSnapshot()._snapshotDate || 'native-runtime', technical: { symbol: id, ohlcv: clone(history), health: technicalHealth }, sentiment: { fearGreed: sentiment.fearGreed, vix: sentiment.vix }, market: market.metrics, tradingScoreInputs: decisionInputs(root, now()), newsCount: readNews().length, updatedAt: latestIso([lastSeriesObservedAt(history), sentiment.fearGreedObservedAt, sentiment.vixObservedAt, market.updatedAt]) });
+    return Object.freeze({ inputVersion: readSnapshot()._updated || readSnapshot()._snapshotDate || 'native-runtime', technical: { symbol: id, ohlcv: clone(history) }, sentiment: { fearGreed: sentiment.fearGreed, vix: sentiment.vix }, market: market.metrics, tradingScoreInputs: decisionInputs(root, now()), newsCount: readNews().length, updatedAt: latestIso([lastSeriesObservedAt(history), sentiment.fearGreedObservedAt, sentiment.vixObservedAt, market.updatedAt]) });
   };
 
   // Only canonical store rows are structurally shared/immutable. Mutable legacy

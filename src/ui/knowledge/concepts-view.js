@@ -7,7 +7,7 @@ import { ROUTE_HUBS } from '../navigation/route-hubs.js';
 import { COLUMN_FRAME_LINKS, LESSONS, PATHS, lessonById } from '../../domain/knowledge/learning-core.js';
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
 import { createResearchShell, navGroup, asideBlock, el } from './research-shell.js';
-import { renderFrameArticle, renderFrameConnections, ensureFrameStyle, renderBasis } from './analysis-frames.js';
+import { renderFrameArticle, renderFrameConnections, ensureFrameStyle, renderBasis, renderWorkedCalc } from './analysis-frames.js';
 
 const conceptById = new Map(CONCEPT_CORE.map((concept) => [concept.id, concept]));
 const CONCEPT_CATS = [...new Set(CONCEPT_CORE.map((concept) => concept.cat))];
@@ -208,11 +208,12 @@ function renderLesson(doc, lesson, failed = false, sources = []) {
     String(lesson.diagram).split('→').map((step) => step.trim()).filter(Boolean).forEach((step, i) => { if (i) flow.appendChild(el(doc, 'span', 'af-flow-arrow', '→')); flow.appendChild(el(doc, 'span', 'af-flow-step', step)); });
     article.append(el(doc, 'h3', 'af-section', '흐름으로 보면'), flow);
   }
+  if (lesson.worked) article.append(el(doc, 'h3', 'af-section', '숫자로 따라가 보면'), renderWorkedCalc(doc, lesson.worked));
   const twist = story?.twist || lesson.counterScenario;
   if (twist) article.append(el(doc, 'h3', 'af-section', '자주 빗나가는 해석'), el(doc, 'p', 'af-twist', twist));
   const byId = new Map(sources.map((source) => [source.id, source]));
   const lessonSources = (lesson.sourceIds || []).map((id) => byId.get(id)).filter(Boolean).map((source) => ({ label: source.label || source.title, url: source.url, supports: lesson.sourceNotes?.[source.id] || (lesson.sourceScope === 'chapter-background' ? `${source.checks || '이 장의 배경'} (장 전체 배경)` : source.checks || '이 레슨의 주제 자료') }));
-  const basis = renderBasis(doc, { sources: lessonSources, asOf: lesson.reviewedAt || null });
+  const basis = renderBasis(doc, { sources: lessonSources, assumptions: lesson.worked ? ['‘숫자로 따라가 보면’의 숫자는 구조를 보여 주기 위한 설명용 가정이며 특정 회사·시점의 실제 수치가 아니다.'] : [], asOf: lesson.reviewedAt || null });
   if (basis) article.appendChild(basis);
   return article;
 }

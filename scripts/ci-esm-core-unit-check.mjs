@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // RM-05 item 3: minimal isolated unit contracts for the new ESM core (store/router/lifecycle/
@@ -54,7 +54,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const { selectProducedRotation } = await load('src/domain/themes/produced-rotation.js');
   const { createThemesProvider } = await load('src/data/providers/themes.js');
   const now = Date.parse('2026-10-01T00:34:00Z');
-  const artifact = { schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v2', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', sourceKind: 'T3_PUBLIC_DELAYED', allowedUseCeiling: 'reference', decisionUse: false, latestCompletedSession: '2026-09-30', items: { XLK: { status: 'CURRENT', sessionDate: '2026-09-30', observedAt: '2026-09-30T20:00:00Z', fetchedAt: '2026-10-01T00:33:00Z', rsRatio: 101, rsMomentum: 102, quadrant: 'Leading', dailyPct: 1.2, weeklyPct: 3.5, alignedSessionCount: 60, performanceBasis: 'adjusted-close-total-return' } } };
+  const artifact = { schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v3', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', sourceKind: 'T3_PUBLIC_DELAYED', allowedUseCeiling: 'reference', decisionUse: false, latestCompletedSession: '2026-09-30', items: { XLK: { status: 'CURRENT', sessionDate: '2026-09-30', observedAt: '2026-09-30T20:00:00Z', fetchedAt: '2026-10-01T00:33:00Z', rsRatio: 101, rsMomentum: 102, quadrant: 'Leading', dailyPct: 1.2, weeklyPct: 3.5, alignedSessionCount: 60, performanceBasis: 'adjusted-close-total-return' } } };
   if (!selectProducedRotation(artifact, 'XLK', now)) fail('P1358 coherent producer rotation was lost');
   // P1366: an absent 1/5-session return keeps the valid coordinates; a non-numeric return does not.
   const partialReturn = selectProducedRotation({ ...artifact, items: { XLK: { ...artifact.items.XLK, dailyPct: null, weeklyPct: null } } }, 'XLK', now);
@@ -996,47 +996,10 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (classifyBreadthParticipation({ sma20: 120, sma50: -1 }).available !== false) fail('breadth: percentages outside 0..100 must fail closed');
 }
 
-// ── domain/market/health.js (P785: technical primary surface model) ─────────────────────────
-{
-  const { computeMarketHealth, MARKET_HEALTH_MODEL_VERSION } = await load('src/domain/market/health.js');
-  const unavailable = computeMarketHealth({ quotes: { SPY: { pct: 1 }, QQQ: { pct: 1 } } });
-  if (unavailable.available || unavailable.modelVersion !== MARKET_HEALTH_MODEL_VERSION || unavailable.score !== null || !unavailable.missing.includes('VIX')) fail(`market-health: missing VIX must fail closed, got ${JSON.stringify(unavailable)}`);
-  const bullish = computeMarketHealth({
-    quotes: {
-      SPY: { pct: 1.5, price: 550 }, '^GSPC': { price: 550 } /* v57.84: index level, same unit as spxMA */, QQQ: { pct: 1.2, price: 480 }, '^VIX': { price: 14 },
-      AAPL: { pct: 1 }, MSFT: { pct: 1 }, GOOGL: { pct: 1 }, AMZN: { pct: 1 }, NVDA: { pct: 1 }, META: { pct: 1 }, TSLA: { pct: 1 },
-      XLK: { pct: 1 }, XLF: { pct: 1 }, XLE: { pct: 1 }, XLV: { pct: 1 }, XLI: { pct: 1 }, XLY: { pct: 1 }
-    },
-    spxMA: { 50: 500, 200: 450 },
-    spxATH: 560
-  });
-  if (!bullish.available || bullish.score !== 100 || bullish.grade !== 'A+' || bullish.bars.trend !== 85 || bullish.inputs.leaderTotal !== 7) fail(`market-health: bullish thresholds drifted, got ${JSON.stringify(bullish)}`);
-  const defensive = computeMarketHealth({ quotes: { SPY: { pct: -2, price: 400 }, '^GSPC': { price: 400 }, QQQ: { pct: -2 }, '^VIX': { price: 35 } }, spxMA: { 50: 450, 200: 500 } });
-  if (!defensive.available || defensive.score !== 4 || defensive.grade !== 'F' || defensive.regime !== '극심한 약세') fail(`market-health: defensive thresholds drifted, got ${JSON.stringify(defensive)}`);
-  const neutral = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 } } });
-  // v57.50 C13: VIX 20 sits in the RULES.volatility 통상 범위 (18-25, no points), so 50 - 4 (QQQ flat) = 46.
-  if (!neutral.available || neutral.score !== 46 || neutral.grade !== 'C' || !neutral.details.some((line) => /VIX 20\.0 통상 범위/.test(line)) || neutral.bars.spy !== 50 || neutral.bars.qqq !== 50) fail(`market-health: neutral baseline drifted, got ${JSON.stringify(neutral)}`);
-  const invalidOptional = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 }, AAPL: { pct: null }, XLK: { pct: 'bad' } } });
-  if (invalidOptional.inputs.leaderTotal !== 0 || invalidOptional.inputs.sectorTotal !== 0) fail('market-health: invalid optional quotes were counted as declining observations');
-  if (computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: -1 } } }).available) fail('market-health: impossible negative VIX was accepted');
-  // W08-A/P1147 (H01): an unavailable bar is null, not a fabricated neutral 50.
-  if (unavailable.bars.spy !== null || unavailable.bars.trend !== null) fail(`market-health: unavailable dimensions must not publish fabricated neutral bars, got ${JSON.stringify(unavailable.bars)}`);
-  if (bullish.status !== 'current' || (bullish.partialComponents || []).length !== 0) fail(`W08-A: fully observed components must read current, got ${JSON.stringify({ status: bullish.status, partial: bullish.partialComponents })}`);
-  // The M7 denominator stays the full seven-name universe; a thin sample withholds leadership
-  // instead of granting +8 "strong leadership" on a 1/1 sample.
-  const thinLeadership = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 }, AAPL: { pct: 1 } }, spxMA: { 50: 500, 200: 450 } });
-  if (thinLeadership.leadership.observed !== 1 || thinLeadership.leadership.expected !== 7 || thinLeadership.leadership.withheld !== true) fail(`W08-A: a 1/7 M7 sample must withhold leadership against the full denominator, got ${JSON.stringify(thinLeadership.leadership)}`);
-  if (thinLeadership.status !== 'partial' || !thinLeadership.partialComponents.includes('m7-leadership')) fail(`W08-A: an insufficient M7 sample must mark the result partial, got ${JSON.stringify({ status: thinLeadership.status, partial: thinLeadership.partialComponents })}`);
-  if (thinLeadership.score >= 50 + 8) fail(`W08-A: a withheld leadership sample must not raise the score, got ${thinLeadership.score}`);
-  // A missing 50/200MA is an unavailable trend dimension, never a neutral 50 bar.
-  const noTrend = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 } } });
-  if (noTrend.bars.trend !== null || !noTrend.partialComponents.includes('spx-trend')) fail(`W08-A: a missing 50/200MA must be an unavailable trend bar, got ${JSON.stringify({ trend: noTrend.bars.trend, partial: noTrend.partialComponents })}`);
-  const zeroMa = computeMarketHealth({ quotes: { SPY: { pct: 0, price: 100 }, QQQ: { pct: 0 }, '^VIX': { price: 20 } }, spxMA: { 50: 0, 200: 0 } });
-  if (zeroMa.bars.trend !== null) fail('W08-A: a zero MA is missing evidence, not an observed trend');
-  // A genuinely observed zero percentage stays observed (distinct from missing).
-  const zeroPct = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 } } });
-  if (zeroPct.bars.spy !== 50 || zeroPct.bars.qqq !== 50) fail(`W08-A: a valid 0% move must stay observed, got ${JSON.stringify({ spy: zeroPct.bars.spy, qqq: zeroPct.bars.qqq })}`);
-}
+// ── domain/market/health.js retired (legacy unification, audit 2026-10-17 follow-up) ──────────
+// The 0-100 market-health grade (A+~F) had no surface after P1420 and only gated the ticker narrative; the gate reads
+// the 시장 상태 regime's sufficiency now, so the model may not return.
+if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired market-health model returned (src/domain/market/health.js)');
 
 // ── W08-B/P1147 (H02): the 2s10s spread names its two legs and their alignment ──────────────
 {
@@ -1942,6 +1905,12 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const bearStack = stage.classifyMovingAverageStructure({ sma5: 400, sma10: 410, sma20: 420, sma50: 450, sma100: 480, sma200: 520, sma50Prior: 460, lastClose: 390 });
   if (pulled.trendState === 'UPTREND' || /정배열/.test(stage.MA_STRUCTURE_LABELS[pulled.stageEstimate] || '') || broken.trendState !== 'TREND_DAMAGED' || !/역배열/.test(stage.MA_STRUCTURE_LABELS[bearStack.stageEstimate] || '')
     || Object.values({ pulled, broken, bearStack }).some((s) => !stage.MA_STRUCTURE_LABELS[s.stageEstimate])) fail(`v57.81 MA stack must read the close first and every stage must have one label, got ${pulled.stageEstimate}/${broken.stageEstimate}/${bearStack.stageEstimate}`);
+  // Audit 2026-10-17 (owner D7): a close over a rising 50-day line that is over the 200-day line is 상승 추세 even when the
+  // 5·10·20 order is mixed after two quiet sessions; that order stays its own field.
+  const quiet = stage.classifyMovingAverageStructure({ sma5: 584, sma10: 586, sma20: 580, sma50: 540, sma100: 500, sma200: 420, sma50Prior: 530, lastClose: 585 });
+  if (quiet.trendState !== 'UPTREND' || quiet.shortMAState !== 'SHORT_MIXED' || !/상승 추세/.test(stage.MA_STRUCTURE_LABELS[quiet.stageEstimate])) fail(`D7 close > rising 50 > 200 with a mixed short order is 상승 추세, got ${quiet.trendState}/${quiet.shortMAState}`);
+  const crossDown = stage.classifyMovingAverageStructure({ sma5: 584, sma10: 586, sma20: 580, sma50: 540, sma100: 560, sma200: 550, sma50Prior: 530, lastClose: 585 });
+  if (crossDown.trendState === 'UPTREND') fail('D7 a 50-day line under the 200-day line is not 상승 추세');
   const dropBars = Array.from({ length: 220 }, (_, index) => ({ date: new Date(Date.UTC(2026, 0, 1) + index * 86400000).toISOString().slice(0, 10), close: index < 219 ? 100 + index * 0.5 : (100 + 218 * 0.5) * 0.97 }));
   const dellLike = stage.deriveTechnicalStageFromOhlcv({ symbol: 'dell', ohlcv: dropBars, now: Date.UTC(2026, 7, 9) });
   // One validation count basis (net of cost) for the screener read, the stock read and the 과거 검증 tab.
@@ -3963,6 +3932,11 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const bars = Array.from({ length: 40 }, (_, i) => ({ date: `2026-08-${String(i + 1).padStart(2, '0')}`, close: 100 - (i % 3 === 0 ? i * 0.5 : 0), volume: 1000 + i * 10 }));
   const dist = distributionDaySeries(bars);
   if (dist[10].count !== null || !Number.isInteger(dist[39].count) || dist[39].count < 1) fail(`P1416 distribution count wrong: ${JSON.stringify(dist.slice(-2))}`);
+  // Audit 2026-10-17 (owner D8): a distribution day is retired once a later close is 5% above it.
+  const rally = Array.from({ length: 31 }, (_, i) => ({ date: `2026-09-${String(i + 1).padStart(2, '0')}`, close: i < 10 ? 100 : 99 + (i - 10) * 0.25, volume: i === 10 ? 2000 : 1000 + i }));
+  const rallied = distributionDaySeries(rally);
+  // Day 10 (-1% on heavier volume) is the one distribution day; day 29 closes at 103.75 (+4.8%), day 30 at 104 (+5.1%).
+  if (rallied[29].count !== 1 || rallied[30].count !== 0) fail(`D8 a 5% rally retires the distribution day: ${JSON.stringify(rallied.slice(29, 31))}`);
   const { computeScreenerBreadthHistory } = await import('./fetch-data.mjs');
   const dates = Array.from({ length: n }, (_, i) => new Date(Date.UTC(2025, 8, 1) + i * 86400000).toISOString().slice(0, 10));
   const rows = computeScreenerBreadthHistory(['AAA'], [{ sym: 'AAA', dates, closes, adjCloses: closes, highs, lows, volumes }], 252, Date.parse('2027-01-01T00:00:00Z'));
@@ -4188,6 +4162,31 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const flat = bars.slice(0, 220);
   const flatServer = _calcVCPServer(flat.map((bar) => bar.close), flat.map((bar) => bar.high), flat.map((bar) => bar.low), flat.map((bar) => bar.volume));
   if (flatServer.pivotLevel !== null || ['near_pivot', 'breakout', 'pivot_down'].includes(flatServer.vcpStage)) fail(`v57.84 no valid contraction run, no pivot state: ${JSON.stringify(flatServer)}`);
+  // Technical audit 2026-10-17: two swing highs with no swing low between them (a shallow dip held on equal lows). The
+  // pullback starts from the higher one (116), not the first (112) — otherwise the pivot sits under the real peak.
+  const knots = [[0, 80], [10, 89], [20, 120], [30, 100], [38, 112], [41, 110], [44, 116], [52, 106], [57, 114]];
+  const twinHighs = [];
+  for (let k = 0; k < knots.length - 1; k++) for (let i = knots[k][0]; i < knots[k + 1][0]; i++) twinHighs.push(knots[k][1] + (knots[k + 1][1] - knots[k][1]) * (i - knots[k][0]) / (knots[k + 1][0] - knots[k][0]));
+  twinHighs.push(knots.at(-1)[1]);
+  const twinBars = twinHighs.map((high, i) => ({ high, low: i >= 39 && i <= 43 ? 109 : high - 1, close: high - 0.5 }));
+  const twin = detectContractions(twinBars);
+  const lastTwin = twin.contractions.at(-1);
+  if (twin.pivot !== 116 || lastTwin?.high !== 116 || !(Math.abs(lastTwin.depth - (116 - 105) / 116 * 100) < 1e-9)) fail(`audit 2026-10-17 a pullback must start from the highest swing high before the next swing low: ${JSON.stringify(twin.contractions)}`);
+  // Audit 2026-10-17 (owner D9): a tight last contraction (1.6%) stays in the run and sets the pivot (113, not the earlier 114).
+  const tightKnots = [[0, 80], [10, 90], [20, 120], [30, 102], [40, 114], [48, 107], [56, 113], [62, 112.2], [68, 113.5]];
+  const tightHighs = [];
+  for (let k = 0; k < tightKnots.length - 1; k++) for (let i = tightKnots[k][0]; i < tightKnots[k + 1][0]; i++) tightHighs.push(tightKnots[k][1] + (tightKnots[k + 1][1] - tightKnots[k][1]) * (i - tightKnots[k][0]) / (tightKnots[k + 1][0] - tightKnots[k][0]));
+  tightHighs.push(tightKnots.at(-1)[1]);
+  const tight = detectContractions(tightHighs.map((high) => ({ high, low: high - 1, close: high - 0.5 })));
+  if (tight.pivot !== 113 || !tight.valid || tight.contractions.length !== 3 || !(tight.contractions.at(-1).depth < 2)) fail(`D9 a tight last contraction sets the pivot: ${JSON.stringify(tight.contractions)}`);
+  // Audit 2026-10-17 (owner D6): one breakout day — prior 50-session volume (the day excluded), up close, at most +5% over the pivot.
+  const { isBreakoutDay } = await load('src/domain/technical/definitions.js');
+  const flatVol = Array(60).fill(1000);
+  const closesAt = (last) => [...Array(59).fill(99), last];
+  if (!isBreakoutDay({ closes: closesAt(102), volumes: [...flatVol.slice(0, 59), 1400], i: 59, pivot: 100 })) fail('D6 +2% over the pivot on 1.4x the prior 50-session volume is a breakout day');
+  if (isBreakoutDay({ closes: closesAt(106), volumes: [...flatVol.slice(0, 59), 2000], i: 59, pivot: 100 })) fail('D6 +6% over the pivot is extended, not a breakout day');
+  if (isBreakoutDay({ closes: [...Array(58).fill(99), 103, 102], volumes: [...flatVol.slice(0, 59), 2000], i: 59, pivot: 100 })) fail('D6 a down close is not a breakout day');
+  if (isBreakoutDay({ closes: closesAt(102), volumes: [...flatVol.slice(0, 59), 1390], i: 59, pivot: 100 })) fail('D6 1.39x the prior average is not breakout volume');
 }
 
 console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks', 'domain/screener/setup-profile:deriveScreenerSetupProfile', 'domain/portfolio/surface', 'domain/fundamental/sec-report', 'bootstrap:stop-lifecycle'] }));
@@ -4870,6 +4869,38 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (ms.oilDivergence({ ...base, brent20: -1, wti20: -8 }).kind !== 'unconfirmed') fail('v57.81 a WTI fall Brent does not follow by half is unconfirmed');
   if (ms.oilDivergence({ ...base, brent20: -6, wti20: -8 }).held || ms.oilDivergence({ ...base, basis: 'spot', brent20: 5, wti20: -8 }).held) fail('v57.81 a confirmed move, or a spot Brent, does not hold the WTI read');
   if (!ms.oilDivergence({ abnormal: true }).held) fail('v57.81 an abnormal same-day gap holds every oil read');
+  // Macro audit 2026-10-17: WTI lags Brent only below half of Brent's move — +10.1% beside +9.9% is not a divergence.
+  const ramp = (start, pctMove) => Array.from({ length: 30 }, (_, i) => ({ date: new Date(Date.UTC(2026, 0, 2) + i * 86400000).toISOString().slice(0, 10), value: start * (1 + (i < 9 ? 0 : pctMove / 100 * (i - 9) / 20)) }));
+  if (ms.brentWtiFromSeries({ brent: ramp(70, 10.1), wti: ramp(66, 9.9) }).diverges) fail('macro audit 2026-10-17 Brent +10.1% beside WTI +9.9% is not "WTI만 덜 올라"');
+  if (!ms.brentWtiFromSeries({ brent: ramp(70, 12), wti: ramp(66, 3) }).diverges) fail('macro audit 2026-10-17 Brent +12% beside WTI +3% still diverges');
+  const mr = await load('src/domain/macro/macro-read.js');
+  const wideRange = mr.buildMacroRead({ macro: { fedTargetUpper: 4.5, fedTargetLower: 4.0, dgs2: 4.5, corePce: 2.4 } });
+  const policyNode = wideRange.chain.nodes.find((node) => node.id === 'policy');
+  const policyAxis = wideRange.axes.find((row) => row.id === 'policy');
+  if (policyNode.dir !== 'up' || Math.abs(policyAxis.detail.pricing - 0.25) > 1e-9) fail(`macro audit 2026-10-17 the chain's policy node reads the same range midpoint as the policy axis: ${JSON.stringify({ policyNode, pricing: policyAxis.detail.pricing })}`);
+  const belowTarget = mr.buildMacroRead({ macro: { corePce: 1.8 } }).axes.find((row) => row.id === 'inflation');
+  if (/목표보다 높지만/.test(belowTarget.read)) fail(`macro audit 2026-10-17 core PCE under 2% is not read as above target: ${belowTarget.read}`);
+  const an = await load('src/domain/scenarios/analogs.js');
+  const analogRows = Array.from({ length: 200 }, (_, i) => ({ date: `r${String(i).padStart(3, '0')}`, spx: 100 + i, ...(i >= 100 ? { wti: 50 } : {}) }));
+  const analogFreq = an.analogOutcome(analogRows, an.BRANCH_ANALOGS.oilshock);
+  if (!analogFreq || analogFreq.baseN !== 60) fail(`macro audit 2026-10-17 the base rate counts only sessions where the analog could be tested: ${JSON.stringify(analogFreq)}`);
+  // Audit D3/D5 (owner 2026-10-17): cuts priced while growth is a burden are not 양호; one negative payroll month is not a burden.
+  const shrinking = { schemaVersion: 'macro-history.v1', series: { payrolls: { observations: Array.from({ length: 8 }, (_, i) => [`2026-0${i + 1}-01`, 159000 - i * 40]) } } };
+  const cutBase = { fedTargetUpper: 4.5, fedTargetLower: 4.25, dgs2: 3.5, corePce: 2.4 };
+  const recessionCut = mr.buildMacroRead({ macro: cutBase, macroHistory: shrinking });
+  if (recessionCut.axes.find((row) => row.id === 'growth').state !== 'burden' || recessionCut.axes.find((row) => row.id === 'policy').state !== 'neutral' || !/경기 악화 때문에 인하/.test(recessionCut.axes.find((row) => row.id === 'policy').read)) fail(`audit D3 cuts priced beside a growth burden read neutral: ${JSON.stringify(recessionCut.axes.find((row) => row.id === 'policy'))}`);
+  if (mr.buildMacroRead({ macro: cutBase }).axes.find((row) => row.id === 'policy').state !== 'favorable') fail('audit D3 the same pricing without a growth burden stays favorable');
+  const oneMonth = mr.buildMacroRead({ macro: { nfp: -30 } }).axes.find((row) => row.id === 'growth');
+  if (oneMonth.state !== 'neutral' || !/한 달 수치/.test(oneMonth.read)) fail(`audit D5 one negative payroll month is held at neutral: ${JSON.stringify({ state: oneMonth.state, read: oneMonth.read })}`);
+  // Audit D6/D8 (owner 2026-10-17): the briefing's oil-and-rates line is the axes' line, and every large-move threshold lives in RULES.largeMove.
+  const { RULES: rules } = await load('src/domain/rules/thresholds.js');
+  if ('oilRates20dPct' in rules.briefing || !/wti20 >= RULES\.oil\.rise20dPct && tnx20 >= RULES\.rates\.move20dBp/.test(readFileSync(path.join(root, 'src/domain/briefing/market-read.js'), 'utf8'))) fail('audit D6 the oil-and-rates sentence uses oil.rise20dPct and rates.move20dBp');
+  const mav = await load('scripts/lib/market-analysis-validate.mjs');
+  if (mav.LARGE_MOVE_ATTRIBUTION_PCT !== rules.largeMove.attributionUsPct || mav.KOREA_MOVE_MENTION_PCT !== rules.largeMove.attributionKospiPct) fail('audit D8 the validator reads RULES.largeMove');
+  // Audit D9 (owner 2026-10-17): macro evidence carries what the number measures.
+  const macroEvidence = mav.buildMarketAnalysisEvidence({ macro: { _source: 'fred', cpi: 3.7, _asOf_cpi: '2026-09-01', nfp: 120, _asOf_nfp: '2026-09-01' } });
+  const cpiRow = macroEvidence.find((row) => row.metricId === 'macro.cpi'), nfpRow = macroEvidence.find((row) => row.metricId === 'macro.nfp-mom');
+  if (!/전년 대비/.test(cpiRow?.basis || '') || !/전월 대비 증감, 천 명/.test(nfpRow?.basis || '')) fail(`audit D9 macro evidence names its basis: ${JSON.stringify({ cpiRow, nfpRow })}`);
   const day = (i) => new Date(Date.UTC(2026, 0, 2) + i * 86400000).toISOString().slice(0, 10);
   const wti = Array.from({ length: 60 }, (_, i) => ({ date: day(i), value: i < 39 ? 100 : 100 * (1 - 0.072 * (i - 39) / 20) }));
   const brent = wti.map((row, i) => ({ date: row.date, value: i < 39 ? 103.4 : 103.4 * (1 + 0.002 * (i - 39) / 20) }));
@@ -4883,4 +4914,96 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const rank = ms.sentimentRank(survey);
   if (!rank || rank.month !== `${Number(survey.at(-1).date.slice(5, 7))}월` || !(rank.percentile >= 0 && rank.percentile <= 100)) fail(`v57.81 sentimentRank names the month and a percentile: ${JSON.stringify(rank)}`);
   if (ms.sentimentRank(survey.slice(-10)).percentile !== null) fail('v57.81 fewer than 24 releases give no percentile');
+}
+{
+  // Legacy unification (2026-10-17): the chat's screener query engine is a pure module fed the canonical rows.
+  const sq = await load('src/ai/context/screener-query.js');
+  const sectors = ['Technology', 'Energy', 'Utilities', 'Healthcare', 'Financials', 'Industrials'];
+  const rows = Array.from({ length: 24 }, (_, i) => ({ sym: `T${String.fromCharCode(65 + i)}X`, name: `Co ${i}`, sector: sectors[i % 6], rank: i + 1, score: 90 - i, mcap: 5e9 * (i + 1), rsi: 25 + i * 2, signal: i % 3 ? 'HOLD' : 'BUY' }));
+  if (sq.runScreenerQuery('오늘 기분 어때', { rows }) !== null) fail('screener-query: a question with no screen condition returns null');
+  const rsi = sq.runScreenerQuery('rsi 30 이하', { rows });
+  if (!rsi?.matched || !rsi.rows.length || !rsi.rows.every((row) => row.rsi <= 30)) fail(`screener-query: RSI ceiling filters rows: ${JSON.stringify(rsi?.criteria)}`);
+  const recent = sq.extractRecentRecommendationTickers([{ content: 'TAX와 TBX, NOPE를 봤어' }], { rows });
+  if (recent.join(",") !== "TAX,TBX") fail(`screener-query: recent tickers are the known symbols in the conversation: ${recent}`);
+  const ctx = sq.buildScreenerAiContext('종목 추천해줘', [{ content: 'TAX, TBX' }], { rows });
+  if (ctx.result?.mode !== 'diversified-recommendation' || !(ctx.result.recentSuppressed >= 1) || !ctx.prompt) fail(`screener-query: a broad ask diversifies and suppresses recent picks: ${JSON.stringify({ mode: ctx.result?.mode, suppressed: ctx.result?.recentSuppressed })}`);
+  if (sq.buildScreenerAiContext('오늘 기분 어때', [], { rows }).prompt !== '') fail('screener-query: no match gives an empty prompt');
+}
+{
+  // Legacy unification follow-up (2026-10-17): a live-quote tick re-derives only the rows whose quote changed.
+  const { createScreenerProvider } = await load('src/data/providers/screener.js');
+  const artifact = { asOf: '2026-10-16T21:00:00Z', factorObservedAt: '2026-10-16T20:00:00Z', data: { AAA: { ret3m: 4, rsi: 50, observedAt: '2026-10-16T20:00:00Z' }, BBB: { ret3m: 2, rsi: 40, observedAt: '2026-10-16T20:00:00Z' } } };
+  const httpClient = { requestJson: async (url) => url.includes('screener.json') ? { ok: true, data: artifact } : { ok: false, error: 'HTTP_404' } };
+  let nowMs = Date.parse('2026-10-17T06:00:00Z');
+  let live = {};
+  const provider = createScreenerProvider({ httpClient, readLiveData: () => live, clock: { now: () => nowMs, iso: () => new Date(nowMs).toISOString() }, yieldImpl: async () => {} });
+  const bySym = (read) => Object.fromEntries(read.rows.map((row) => [row.sym, row]));
+  const base = bySym(await provider.readCurrent());
+  live = { AAA: { price: 101, currency: 'USD', marketCap: 2e10 } };
+  const tick = bySym(await provider.readCurrent({ refresh: false, quotesOnly: true }));
+  if (tick.BBB !== base.BBB || tick.AAA === base.AAA || tick.AAA.nativeMarketCap?.value !== 2e10) fail('quote tick: an unchanged quote reuses its row and a changed quote re-derives it');
+  const plain = bySym(await provider.readCurrent({ refresh: false }));
+  if (plain.BBB === tick.BBB) fail('quote tick: a read that is not quotes-only re-derives every row');
+  nowMs += 6 * 60 * 1000;
+  const late = bySym(await provider.readCurrent({ refresh: false, quotesOnly: true }));
+  if (late.BBB === plain.BBB) fail('quote tick: rows re-derive once the reuse window has passed');
+}
+{
+  // Legacy unification (2026-10-17): one checked screener-breadth read replaces the projected breadth globals.
+  const { readScreenerBreadth } = await load('src/domain/market/screener-breadth.js');
+  const now = Date.parse('2026-10-17T06:00:00Z');
+  const seg = (extra) => ({ above5: 40, above20: 35, above50: 36, above200: 52, advanceRatio: 0.6, coveragePct: 97, eligible: 700, advances: 400, declines: 300, observedAt: '2026-10-16T20:00:00Z', ...extra });
+  const read = readScreenerBreadth({ schemaVersion: '1.0', source: 'fixture', segments: { us: seg({}), kr: seg({ eligible: 150, unchanged: 5 }) } }, now);
+  if (read.state.status !== 'verified_current' || read.us.sma50 !== 36 || read.us.ts !== Date.parse('2026-10-16T20:00:00Z') || read.kr?.unchanged !== 5) fail(`screener breadth: a covered current observation reads for both markets: ${JSON.stringify(read)}`);
+  const krThin = readScreenerBreadth({ schemaVersion: '1.0', source: 'fixture', segments: { us: seg({}), kr: seg({ eligible: 90 }) } }, now);
+  if (!krThin.us || krThin.kr !== null) fail('screener breadth: a thin KR segment is held while US stays');
+  const wrongSchema = readScreenerBreadth({ schemaVersion: '2.0', source: 'fixture', segments: { us: seg({}), kr: seg({}) } }, now);
+  if (wrongSchema.us !== null || wrongSchema.kr !== null || wrongSchema.state.checks.schema !== false) fail('screener breadth: an unknown schema blocks both markets');
+}
+{
+  // Legacy unification (2026-10-17): per-screen completeness reads the screener artifact's state from the native slice.
+  const { screenerLoadState, producerState } = await load('src/data/page-completeness.js');
+  const cases = {
+    pending: screenerLoadState({ status: 'unavailable', revision: null, updatedAt: null, metadata: {} }).status,
+    failed: screenerLoadState({ status: 'unavailable', updatedAt: '2026-10-17T00:00:00Z', metadata: { detail: 'HTTP 503' } }),
+    ready: screenerLoadState({ status: 'current', metadata: { backtest: true } }).status,
+    noBacktest: screenerLoadState({ status: 'current', metadata: {} }).status,
+    staleUniverse: screenerLoadState({ status: 'current', metadata: { backtest: true, universeFreshnessStatus: 'stale' } }).status
+  };
+  if (JSON.stringify(cases) !== JSON.stringify({ pending: 'loading', failed: { status: 'unavailable', detail: 'HTTP 503' }, ready: 'ready', noBacktest: 'partial', staleUniverse: 'partial' })) fail(`page completeness: screener load states: ${JSON.stringify(cases)}`);
+  const meta = { generatedAt: '2026-10-17T00:00:00Z' };
+  const schedule = { screenerArtifact: { _status: 'loaded', _lastOk: Date.parse('2026-10-16T00:00:00Z') } };
+  const artifact = producerState('screenerArtifact', { meta, refreshSchedule: schedule, screener: { status: 'unavailable', updatedAt: meta.generatedAt, metadata: { detail: 'HTTP 503' } }, now: Date.parse(meta.generatedAt) });
+  if (artifact.status !== 'unavailable' || artifact.failureReason !== 'HTTP 503' || artifact.attemptedAt !== '2026-10-17T00:00:00.000Z') fail(`page completeness: the slice state overrides the schedule for the screener artifact: ${JSON.stringify(artifact)}`);
+  const breadth = producerState('breadth', { meta, screener: { status: 'current', metadata: { backtest: true } } });
+  if (breadth.status !== 'loaded' || breadth.coverage !== 100 || breadth.lastSuccessfulAt !== meta.generatedAt) fail(`page completeness: a ready screener loads breadth: ${JSON.stringify(breadth)}`);
+}
+{
+  // Legacy unification (2026-10-17): the data.json loader's fetch and market-cycle gate.
+  const { assessServerCycle, fetchServerData } = await load('src/data/server-data.js');
+  const now = Date.parse('2026-10-17T12:00:00Z');
+  const base = { generatedAt: '2026-10-17T11:00:00Z', cycleStatus: 'PUBLISHED', marketSnapshotPublished: true };
+  const legacyCoverage = assessServerCycle({ ...base, marketSnapshotCoverage: { required: 16, observed: 16 } }, now);
+  if (!legacyCoverage.eligible || legacyCoverage.coverage.tier0Required !== 16 || legacyCoverage.ageMin !== 60) fail(`server data: the older {required, observed} coverage form still publishes: ${JSON.stringify(legacyCoverage)}`);
+  const reasons = [
+    assessServerCycle({ ...base, marketSnapshotCoverage: { tier0Required: 16, tier0Observed: 16 }, failedSymbols: ['SPY'] }, now).staleReason,
+    assessServerCycle({ ...base, generatedAt: null, marketSnapshotCoverage: { tier0Required: 16, tier0Observed: 16 } }, now).staleReason,
+    assessServerCycle({ ...base, generatedAt: '2026-10-16T23:00:00Z', marketSnapshotCoverage: { tier0Required: 16, tier0Observed: 16 } }, now).staleReason
+  ];
+  if (JSON.stringify(reasons) !== JSON.stringify(['market-cycle-not-published', 'generatedAt-missing-or-invalid', 'market-cycle-freshness-sla-exceeded'])) fail(`server data: stale reasons: ${JSON.stringify(reasons)}`);
+  const failed = await fetchServerData({ fetch: async () => ({ ok: false, status: 503 }), now: () => now });
+  const invalid = await fetchServerData({ fetch: async () => ({ ok: true, json: async () => ({}) }), now: () => now });
+  const brokenReconciliation = await fetchServerData({ fetch: async (url) => (String(url).includes('data.json') ? { ok: true, json: async () => ({ meta: {} }) } : { ok: false, status: 404 }), now: () => now });
+  if (failed.reason !== 'data.json HTTP 503' || invalid.reason !== 'invalid data.json payload' || brokenReconciliation.reconciliation.status !== 'unavailable' || brokenReconciliation.reconciliation.detail !== 'HTTP 404') fail(`server data: fetch failures: ${JSON.stringify({ failed, invalid, rec: brokenReconciliation.reconciliation })}`);
+}
+{
+  // Legacy unification (2026-10-17): the server macro projection.
+  const { applyServerMacro } = await load('src/data/server-macro.js');
+  const snapshot = { _fieldTs: {}, _dgs10Delta5: 0.3 };
+  const evidence = {};
+  const macro = { unemployment: 4.2, dgs10: 4.1, dgs10Delta5: 0.1, _source_dgs10: 'us-treasury-official-primary', _asOf_dgs10: '2026-10-16', _deltaAsOf_dgs10: '2026-10-15', pce: 2.5, _bea: { status: 'ok', lastSuccessfulAt: 'b' } };
+  const result = applyServerMacro({ data: { meta: { fredFetchOk: true, fredLastSuccessfulAt: 'f' }, macro }, snapshot, evidence });
+  if (snapshot.usUnemploy !== 4.2 || '_dgs10Delta5' in snapshot || evidence.pce?.source !== 'bea-official-primary' || evidence.pce.fetchedAt !== 'b' || evidence.unemployment?.fetchedAt !== 'f' || result.fredApplied !== 1 || result.beaApplied !== 1 || result.applied !== 3) {
+    fail(`server macro: unemployment mirror, misaligned Treasury delta and BEA source: ${JSON.stringify({ snapshot, evidence, result })}`);
+  }
 }
