@@ -86,13 +86,26 @@ export const NEWS_FEEDS = [
   // v57.71 (owner 2026-10-15): Google News indexed no Korean article after 08:00 KST by 09:56 on a -6% KOSPI morning. The
   // wire's own market feed (newest first, minutes old) is read on the same refresh cadence; no per-user request.
   { url: 'https://www.yna.co.kr/rss/market.xml', source: '연합뉴스', topic: 'korea', country: 'kr', tier: 2 },
+  // Owner 2026-10-18 (data-pipeline review): the week of 10/13 was driven by AI-infrastructure funding (CoreWeave bonds,
+  // Anthropic's rating and IPO pricing), the memory cycle (CXMT) and deleveraging, and none of it reached the bundle — the
+  // nine queries above name Nvidia/Micron and oil but no AI-funding, positioning, sovereign-debt or election terms, so
+  // Google's relevance ranking returned oil and gold. Two narrative feeds, each with a slot floor (NEWS_FEED_FLOORS).
+  { query: 'CoreWeave OR OpenAI OR Anthropic OR neocloud OR "AI bubble" OR "AI spending" OR "data center debt" OR "memory prices" OR DRAM OR CXMT when:2d', source: 'Google News - AI narrative/Memory', topic: 'semi', country: 'us', tier: 1 },
+  { query: '"hedge funds" OR deleveraging OR "margin calls" OR "private credit" OR gilts OR "French bonds" OR "European debt" OR "midterm elections" when:2d', source: 'Google News - Positioning/Sovereign/Politics', topic: 'credit', country: 'global', tier: 1 },
 ].map(feed => feed.url ? feed : ({ ...feed, url: _googleNewsSearchUrl(feed.query, feed.country === 'kr' ? 'ko' : 'en-US', feed.country === 'kr' ? 'KR' : 'US', feed.country === 'kr' ? 'KR:ko' : 'US:en') }));
 
 const SERVER_NEWS_PRIORITY_RULES = [
   { label: 'macro-rates', points: 14, re: /\b(fed|fomc|powell|rate cut|rate hike|inflation|cpi|ppi|pce|payroll|jobs report|recession|soft landing|treasury yield|bond yield)\b/i },
   { label: 'geopolitics-energy', points: 14, re: /\b(iran|hormuz|red sea|israel|lebanon|ukraine|sanction|tariff|export control|oil prices?|wti|brent|lng|opec)\b/i },
   { label: 'ai-semis', points: 13, re: /\b(nvidia|nvda|semiconductor|chip|hbm|dram|sk hynix|samsung electronics|tsmc|asml|blackwell|rubin|data center|ai infrastructure)\b/i },
-  { label: 'credit-funding', points: 12, re: /\b(lqd|hyg|oas|credit spreads?|corporate bonds?|investment grade|high yield|rating downgrade|debt financing|funding costs?|capex funding|project finance|data center financing)\b/i },
+  { label: 'credit-funding', points: 12, re: /\b(lqd|hyg|oas|credit spreads?|corporate bonds?|investment grade|high yield|rating downgrade|debt financing|funding costs?|capex funding|project finance|data center financing|private credit|junk|defaults?)\b/i },
+  // Owner 2026-10-18: the narratives that moved the AI complex that week matched no rule, so a headline such as
+  // "Anthropic IPO valuation cut" scored topicHits 0 and was dropped by the floor below before ranking.
+  { label: 'ai-narrative-funding', points: 13, re: /\b(coreweave|crwv|nebius|neoclouds?|openai|anthropic|ai bubble|ai spending|ai capex|ai trade|hyperscalers?|data cent(?:er|re) (?:debt|bonds?|financing)|gpu[- ]backed)\b/i },
+  { label: 'memory-cycle', points: 12, re: /\b(memory (?:chips?|prices?|makers?|stocks?)|dram|nand|micron|sandisk|cxmt|ymtc|kioxia)\b/i },
+  { label: 'deleveraging-positioning', points: 12, re: /\b(deleverag\w*|hedge funds?|margin calls?|forced selling|liquidations?|unwind(?:s|ing)?|crowded trades?|short squeeze|momentum (?:crash|unwind)|risk parity)\b/i },
+  { label: 'sovereign-fiscal', points: 10, re: /\b(gilts?|bunds?|jgbs?|sovereign debt|fiscal deficit|debt crisis|bond vigilantes|term premium|(?:french|european|italian|japanese) (?:debt|bonds?))\b/i },
+  { label: 'politics-elections', points: 8, re: /\b(midterms?|midterm elections?|government shutdown|debt ceiling)\b/i },
   { label: 'earnings-guidance', points: 10, re: /\b(earnings|revenue|eps|guidance|outlook|margin|buyback|dividend|preannounces?)\b/i },
   { label: 'analyst-action', points: 8, re: /\b(upgrade|downgrade|price target|rating|initiates|overweight|underweight|buy rating|sell rating)\b/i },
   { label: 'fx-bonds-commodities', points: 8, re: /\b(dollar|yen|euro|yuan|won|dxy|forex|gold|copper|credit spread|yield curve)\b/i },
@@ -104,7 +117,14 @@ const SERVER_NEWS_PRIORITY_RULES = [
 
 // 2026-10-13 news audit N13: "Adding Nvidia … is How Fortunes Are Made" and the same promise-of-wealth family.
 const SERVER_NEWS_CLICKBAIT_RE = /\b(next nvidia|next tesla|must buy|guaranteed return|millionaire|hidden gem|penny stock|to the moon|won't believe|don't miss|best stocks? to buy now|fortunes? (?:are|is|was|were|could be|can be|will be) made|make you (?:rich|a fortune)|life[- ]changing (?:money|wealth|returns?)|generational wealth|set (?:you )?up for life|retire (?:rich|early|a millionaire)|turn \$?[\d,]+ into)\b/i;
-const SERVER_NEWS_UNVERIFIED_RE = /\b(people familiar|sources say|according to sources|unconfirmed|rumor|reportedly|may be considering|is said to)\b/i;
+const SERVER_NEWS_UNVERIFIED_RE = /\b(people familiar|sources say|according to sources|unconfirmed|rumou?rs?|reportedly|may be considering|is said to|speculation|unnamed sources|people with knowledge)\b/i;
+// Owner 2026-10-18: rumours stay labelled as rumours. Korean wording carries no `\b` boundary, so it is a separate pattern;
+// a matching headline keeps its -8 and is published with verification 'unconfirmed' so the reader and the model see it.
+const SERVER_NEWS_UNVERIFIED_KO_RE = /(루머|소문|찌라시|미확인|관계자(?:들)?(?:에\s*따르면|를\s*인용)|소식통|설\s*(?:나와|돌아|확산))/;
+export function newsHeadlineUnverified(text) {
+  const value = String(text || '');
+  return SERVER_NEWS_UNVERIFIED_RE.test(value) || SERVER_NEWS_UNVERIFIED_KO_RE.test(value);
+}
 const SERVER_NEWS_TIER1_SOURCE_RE = /\b(Reuters|Bloomberg|Associated Press|AP News|Financial Times|Wall Street Journal|WSJ|CNBC)\b/i;
 // P1720: the Korean-edition feed labels these same tier-2 publishers in Korean (연합뉴스 = Yonhap), which `\b` never
 // matches around Hangul, so a Yonhap headline ranked as tier 3. Same publishers, their Korean labels — not new sources.
@@ -114,7 +134,7 @@ const SERVER_NEWS_TIER1_SOURCE_RE = /\b(Reuters|Bloomberg|Associated Press|AP Ne
 const SERVER_NEWS_TIER2_SOURCE_RE = /\b(?:MarketWatch|Barron's|Nikkei|Yonhap|Naver|Korea JoongAng|The Korea Herald|The Hill|Yahoo Finance|Chosunbiz)\b|^(?:연합뉴스|연합인포맥스|뉴스1|뉴시스|중앙일보|조선일보|동아일보|한겨레|코리아\s?헤럴드|한국경제|한경닷컴|매일경제|서울경제|머니투데이|이데일리|파이낸셜뉴스|헤럴드경제|아시아경제|조선비즈|이투데이|KBS\s?뉴스|MBC\s?뉴스|SBS\s?뉴스|YTN)$/i;
 // P1504: the list missed the spellings Google News actually returns ("AD HOC NEWS") and several content farms
 // that filled the 2026-10-06 cycle (TradingKey ×4, livetradingnews, BBN Times, simplywall.st).
-const SERVER_NEWS_LOW_QUALITY_SOURCE_RE = /\b(Ad[- ]?hoc[- ]?news|MSN|GuruFocus|IndexBox|Pluang|Bitget|Stocktwits|TradingPedia|The Vibes|WBFF|Benzinga|Zacks|TradingKey|livetradingnews|BBN Times|simplywall\.st|Simply Wall St(?:reet)?|Telangana Today|Goodreturns|Startup Fortune|BigGo Finance|Eurasia Business News|bitcoinmagazine|GoldSilver|Motley Fool|FX Leaders|Coinpedia|Blockchain\.News|TMGM|VT Markets|Markets\.com|Admirals?|Action Forex|Moomoo|Invezz|Capital\.com|Plus500|XTB|FXOpen|Exness|AvaTrade|eToro|MarketBeat|24\/7 Wall St)\b/i;
+const SERVER_NEWS_LOW_QUALITY_SOURCE_RE = /\b(Ad[- ]?hoc[- ]?news|MSN|GuruFocus|IndexBox|Pluang|Bitget|Stocktwits|TradingPedia|The Vibes|WBFF|Benzinga|Zacks|TradingKey|livetradingnews|BBN Times|simplywall\.st|Simply Wall St(?:reet)?|Telangana Today|Goodreturns|Startup Fortune|BigGo Finance|Eurasia Business News|bitcoinmagazine|GoldSilver|Motley Fool|FX Leaders|Coinpedia|Blockchain\.News|TMGM|VT Markets|Markets\.com|Admirals?|Action Forex|Moomoo|Invezz|Capital\.com|Plus500|XTB|FXOpen|Exness|AvaTrade|eToro|MarketBeat|24\/7 Wall St|Vietnam\.vn|Univest|scanx(?:\.trade)?|NextBigFuture(?:\.com)?)\b/i;
 // N12 (2026-10-13 audit): the additions after Blockchain.News are CFD-broker and trading-app marketing desks (TMGM,
 // VT Markets, Markets.com, Admirals, Action Forex, Moomoo, Invezz …) and template/listicle farms (MarketBeat,
 // 24/7 Wall St). Matching runs on the host-normalised source label, so "www.tmgm.com" is caught as well.
@@ -135,6 +155,10 @@ const SERVER_NEWS_PRIORITY_RULES_KO = [
   { label: 'ko-flows', points: 9, re: /(외국인|기관|순매수|순매도|공매도|수급|리밸런싱|만기)/ },
   { label: 'ko-market', points: 8, re: /(코스피|코스닥|증시|지수|상장|공모)/ },
   { label: 'ko-geo-trade', points: 12, re: /(관세|제재|수출통제|중동|이란|호르무즈|전쟁|대미\s*투자)/ },
+  // Owner 2026-10-18: the same narratives in Korean (the 10/18 intraday "하루 800억씩 강제 청산" headline scored as plain 지수).
+  { label: 'ko-ai-narrative', points: 13, re: /(코어위브|네오클라우드|오픈\s?AI|앤트로픽|앤스로픽|AI\s*(?:버블|거품|수익성)|데이터센터\s*(?:채권|부채))/i },
+  { label: 'ko-deleveraging', points: 12, re: /(디레버리징|헤지\s*펀드|반대\s*매매|마진\s*콜|강제\s*(?:청산|매도)|빚투|신용\s*융자|사모\s*(?:신용|대출))/ },
+  { label: 'ko-sovereign-politics', points: 9, re: /(국채\s*발작|재정\s*적자|중간\s*선거|셧다운|부채\s*한도)/ },
   // v57.87 (10/15 KOSPI -7.6% audit): the three Korean slots went to won headlines (ko-fx+10 with macro words) while
   // the index's own crash story scored only ko-market+8. A headline naming the index together with a large-move word
   // is the session's main story.
@@ -173,7 +197,7 @@ const SERVER_NEWS_OFFTOPIC_RE = /(바카라|카지노\s*게임|슬롯\s*머신|�
 // Owner 2026-10-12 (뉴스 30건 vs 50건): more slots would add noise, not news. Pages that are not articles — quote
 // pages, auto-generated price-target "forecasts", filing-form listings — and reposts whose headline names a month
 // two or more months before the cycle are dropped before ranking.
-const SERVER_NEWS_NOT_ARTICLE_RE = /(Stock Price, News, Quote|Stock Quote|Quote Price and Forecast|Quote & History|Price Target\s*[—-]\s*Prediction|Forecast\s*[—-]\s*Price Target|^Form\s+\d|\bForm 4\b|Stock Price Today|Prices? Today\s*(?:\||$)|Price Prediction (?:for )?20\d\d)/i; // v57.88: "Crude Oil Prices Today | OilPrice.com" is a quote page
+const SERVER_NEWS_NOT_ARTICLE_RE = /(Stock Price, News, Quote|Stock Quote|Quote Price and Forecast|Quote & History|Price Target\s*[—-]\s*Prediction|Forecast\s*[—-]\s*Price Target|^Form\s+\d|\bForm 4\b|Stock Price Today|Prices? Today\s*(?:\||$)|Price Prediction (?:for )?20\d\d|charts, data and news|Prediction for Tomorrow)/i; // v57.88: "Crude Oil Prices Today | OilPrice.com" is a quote page
 const NEWS_MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 export function serverNewsHeadlineMonthStale(headline, nowMs = Date.now()) {
   const match = String(headline || '').toLowerCase().match(/\b(january|february|march|april|june|july|august|september|october|november|december)\s+\d{1,2}\b/);
@@ -214,9 +238,10 @@ export function scoreServerNewsItem(item) {
   // P1504: a headline that touches no market topic is not market news, whatever feed returned it.
   item.topicHits = topicHits;
 
-  if (SERVER_NEWS_UNVERIFIED_RE.test(text)) {
+  if (newsHeadlineUnverified(text)) {
     score -= 8;
     reasons.push('unverified-8');
+    item.verification = 'unconfirmed';
   }
   if (/\b(opinion|sponsored|partner content|advertisement)\b/i.test(text)) {
     score -= 18;
@@ -311,6 +336,10 @@ const NEWS_KEY_ENTITIES = [
   ['treasury', /\b(?:treasur(?:y|ies)|bond yields?|10-year)\b|국채/i],
   ['nvidia', /\bnvidia\b|엔비디아/i],
   ['semis', /\b(?:semiconductors?|chips?|chipmakers?)\b|반도체/i],
+  ['coreweave', /\b(?:coreweave|crwv)\b|코어위브/i],
+  ['anthropic-openai', /\b(?:anthropic|openai)\b|앤트로픽|앤스로픽|오픈\s?AI/i],
+  ['memory', /\b(?:dram|nand|hbm|memory chips?|memory prices?|cxmt)\b|메모리|D램|낸드/i],
+  ['hedge-funds', /\b(?:hedge funds?|deleverag\w*)\b|헤지\s*펀드|디레버리징/i],
 ];
 const NEWS_ENTITY_SINGLE_CAP = { 'index-wrap': 3 };
 const NEWS_ENTITY_SINGLE_CAP_DEFAULT = 4;
@@ -336,6 +365,10 @@ export function createNewsTopicCap() {
     }
   };
 }
+
+// P1373 floors by feed topic; owner 2026-10-18 adds the two narrative feeds by feed name (their topics reuse the news
+// screen's labels, semi/credit, so the floor cannot key on topic alone).
+export const NEWS_FEED_FLOORS = Object.freeze([['fxbond', 3], ['credit', 2], ['Google News - AI narrative/Memory', 3], ['Google News - Positioning/Sovereign/Politics', 2]]);
 
 // P1720: the caller passes the run's attempt time so the collected cycle and meta.newsCycleEnd are one cut even when a
 // run straddles 08:00 KST (23:00Z); otherwise newsIntraday is picked against the previous cut and fails the gate.
@@ -423,6 +456,7 @@ export async function fetchNews(nowMs = Date.now()) {
       pubDate: it.pubDate, topic: it.topic, country: it.country,
       tier: it.tier, score: it.score, selectionReason: it.selectionReason,
       feedSource: it.feedSource,
+      ...(it.verification ? { verification: it.verification } : {}),
       sourceTierLabel: serverNewsSourceTierLabel(it.tier),
       contentDepth: 'headline-only',
       eventTime: isFinite(it.ts) && it.ts > 0 ? new Date(it.ts).toISOString() : null,
@@ -452,11 +486,11 @@ export async function fetchNews(nowMs = Date.now()) {
   }
   // P1373: score-only ranking let semis/macro/geo fill every slot (fxbond and credit got 0 of 40).
   // Reserve a small floor per under-covered topic before the score-ordered fill.
-  for (const [topic, floor] of [['fxbond', 3], ['credit', 2]]) {
+  for (const [topic, floor] of NEWS_FEED_FLOORS) {
     let taken = 0;
     for (const it of items) {
       if (taken >= floor || out.length >= 40) break;
-      if (it.topic !== topic) continue;
+      if (it.topic !== topic && it.feedSource !== topic) continue;
       if (sourceFull(it) || topicFull(it)) continue;
       const k = newsArticleKey(it);
       if (seen.has(k) || sameEvent(it)) continue;
@@ -521,6 +555,7 @@ export function selectNewsIntraday(candidates, { cycleEndMs, nowMs = Date.now(),
       title, link: it.link, source: it.source, publishedAt: new Date(it.ts).toISOString(),
       topic: it.topic, market: it.country, tier: it.tier, sourceTierLabel: serverNewsSourceTierLabel(it.tier),
       score: it.score, selectionReason: it.selectionReason, contentDepth: 'headline-only', provisional: true,
+      ...(it.verification ? { verification: it.verification } : {}),
     });
   };
   for (const it of krIndexStoryFirst(scored.filter((row) => row.country === 'kr'))) if (picked.length < 2) take(it);
