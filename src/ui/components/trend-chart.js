@@ -68,12 +68,17 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
   const y = (value) => PAD.top + (1 - (value - lo) / (hi - lo)) * plotH;
 
   // Y axis: gridlines + labels.
-  for (let tick = lo; tick <= hi + step / 1000; tick += step) {
+  // 2026-10-18 UI review: when every tick reads N.0 (100.0%, 25.0, 165.0엔) the decimal carries nothing — drop it.
+  const ticks = [];
+  for (let tick = lo; tick <= hi + step / 1000; tick += step) ticks.push(tick);
+  const tickLabels = ticks.map((tick) => format(tick));
+  const trimmed = tickLabels.every((text) => /\d\.0+(?!\d)/.test(text)) ? tickLabels.map((text) => text.replace(/(\d)\.0+(?!\d)/, '$1')) : tickLabels;
+  ticks.forEach((tick, index) => {
     svg.append(svgEl(doc, 'line', { x1: PAD.left, x2: W - PAD.right, y1: y(tick), y2: y(tick), class: 'trend-chart-grid' }));
     const text = svgEl(doc, 'text', { x: PAD.left - 8, y: y(tick) + 4, 'text-anchor': 'end', class: 'trend-chart-axis' });
-    text.textContent = format(tick);
+    text.textContent = trimmed[index];
     svg.append(text);
-  }
+  });
   // X axis: one tick on the first day of each month.
   svg.append(svgEl(doc, 'line', { x1: PAD.left, x2: W - PAD.right, y1: PAD.top + plotH, y2: PAD.top + plotH, class: 'trend-chart-baseline' }));
   // Ticks stay monthly; labels are thinned to every k-th month with k dividing 12 so January is always labelled and the

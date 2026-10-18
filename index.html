@@ -6826,7 +6826,7 @@ button[data-filter-active="true"] {
         this.ctx.fillStyle = '#8a8271';
         var data = flattenData(this.config);
         if (!data.length) {
-          this.ctx.fillText('Chart data unavailable', 12, 22);
+          this.ctx.fillText('차트 자료 없음', 12, 22);
           return;
         }
         var min = Math.min.apply(null, data);
@@ -6839,7 +6839,7 @@ button[data-filter-active="true"] {
           if (i === 0) this.ctx.moveTo(x, y); else this.ctx.lineTo(x, y);
         }, this);
         this.ctx.stroke();
-        this.ctx.fillText('Fallback chart', 12, 16);
+        this.ctx.fillText('간이 표시 · 차트 도구를 불러오지 못했습니다', 12, 16);
       } catch(_) {}
     };
     Fallback.__aioFallback = true;
