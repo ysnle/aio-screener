@@ -1,10 +1,19 @@
 ---
-last_verified: 2026-10-17
+last_verified: 2026-10-18
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1915 - v58.10 - history.json 행마다 pcr 열 유무가 달라 열 일관성 게이트가 유예 만료 뒤 main CI를 막음 (2026-10-18)
+
+- symptom/reproduction: 2026-10-18 00:00Z에 artifact-semantics 검사의 유예가 끝나자 main과 모든 PR CI가 'every history row exposes the same column set: 6 rows differ'로 실패했다. 10/9~10/16 6개 행에만 pcr이 있고 최신 10/17 행을 포함한 414개 행에는 pcr 열이 없었다.
+- root_cause: P1586이 Cboe 풋/콜 비율을 거래일 행에만 pcr로 쌓게 했지만 pcr을 history 공통 열 목록(HIST_ALL_FIELDS)에 넣지 않았다. normalizeHistoryRows는 목록에 있는 열만 null로 채우므로 풋/콜 값이 없는 날의 행에는 pcr 키가 아예 없었다.
+- fix: scripts/fetch-data.mjs: HIST_SENTIMENT_FIELDS=['pcr']를 HIST_ALL_FIELDS에 넣어 모든 행이 pcr을 갖고 값이 없으면 null이 되게 했다. 게시된 public-data/history.json도 같은 normalizeHistoryRows로 한 번 정규화했다(414개 행에 pcr:null 추가, 다른 값 변화 0).
+- violated_rule: 행 단위로 누적되는 새 history 필드는 공통 열 목록에 함께 등록해 모든 행이 같은 열 집합을 갖게 한다.
+- prevention: ci-history-field-time-contract-check.mjs 정규화 픽스처에 pcr 행을 추가해 pcr 없는 행도 pcr:null을 갖는지 단언한다(수정 전 실패, 수정 후 통과). ci-artifact-semantics-check.mjs 열 일관성 단언은 유예 없이 계속 실행된다.
+- verification/residual: node scripts/ci-history-field-time-contract-check.mjs; node scripts/ci-artifact-semantics-check.mjs
 
 ## P1914 - v58.04 - 확장 범위(5,057행)에서 스크리너 표가 입력 뒤 수백 ms마다 다시 그려지고 화면이 수 초씩 멈춤 (2026-10-17)
 

@@ -733,7 +733,8 @@ const HIST_MARKET_FIELDS = HIST_FIELDS.filter(field => field !== 'fg');
 // different key sets and a one-row breadth lag was indistinguishable from
 // "unavailable" (P1101). Both lanes now publish every column; absence is null.
 const HIST_BREADTH_FIELDS = ['breadth20','breadth50','breadth200','advanceRatio','advanceDecline','breadth40','breadthUp4','breadthDown4','breadthNewHighs','breadthNewLows','distributionDays']; // P1416
-const HIST_ALL_FIELDS = [...HIST_FIELDS, ...HIST_BREADTH_FIELDS];
+const HIST_SENTIMENT_FIELDS = ['pcr']; // P1586 put/call accumulates only on Cboe trading dates; every other row carries null
+const HIST_ALL_FIELDS = [...HIST_FIELDS, ...HIST_BREADTH_FIELDS, ...HIST_SENTIMENT_FIELDS];
 // Per-row cycle metadata. Rows seeded by the historical backfill never carried
 // it, so the column set differed by row; null records "not recorded" instead.
 const HIST_ROW_META = ['seriesMode','cycleEnd','marketSnapshotRevision'];
