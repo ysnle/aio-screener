@@ -629,7 +629,7 @@ try {
       chips: document.querySelectorAll('#tech-regime-chips .regime-chip').length,
       fxReference: document.querySelectorAll('#tech-regime-chips .regime-chip-reference').length, // 2026-10-14 audit #4: six US chips + one muted FX reference line
       retiredScore: !!document.getElementById('health-score-display') || !!document.getElementById('health-components'),
-      chartFirst: order.indexOf('tech-regime-summary') >= 0 && order.indexOf('tech-regime-summary') < order.indexOf('stock-chart-section'),
+      chartFirst: order.indexOf('stock-chart-section') >= 0 && order.indexOf('tech-regime-summary') > order.indexOf('stock-chart-section'), // 2026-10-18 owner decision: the stock chart leads, the market summary follows
       stockChartForm: document.getElementById('stock-chart-section')?.dataset.aioStockChart || null, // v57.76: install state moved off the retired form
       retiredTechnicalBlocks: ['stock-chart-form', 'vis-technical', 'tech-indicators-live', 'mtf-analysis', 'pattern-signals', 'institutional-technical-brief', 'tv-chart-technical', 'kr-health-val'].filter((id) => document.getElementById(id)),
       candleTitle: document.getElementById('stock-chart-title')?.textContent || '',

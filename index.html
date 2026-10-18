@@ -4131,14 +4131,6 @@ button[data-filter-active="true"] {
     <!-- v57.50 I25: the header pill repeated #tech-regime-summary's overall verdict; removed. -->
   </div>
 
-  <!-- P1420: the retired 0-100 market-health score is replaced by the 시장 상태 six-axis summary
-       (same judgement as the 시장 상태 screen); the stock chart leads the page. -->
-  <section class="aio-section tech-regime" id="tech-regime-summary" aria-label="시장 상태 요약">
-    <div class="tech-regime-head"><span class="tech-regime-overall" id="tech-regime-overall">판정 대기</span><span class="theme-strength-basis" id="tech-regime-basis"></span>
-    <button type="button" class="theme-strength-more" data-action="showPage" data-arg="signal">시장 상태에서 근거 보기</button></div>
-    <div class="tech-regime-chips" id="tech-regime-chips"></div>
-  </section>
-
   <!-- P1397 (owner review 2026-10-03): 종목 차트 — 캔들 위에 VCP 수축·피벗·전일 고저·52주 고점을 그리고, 옆에 근거와
        셋업 상태(등급 없음)를 둔다. Lightweight Charts(Apache-2.0, 셸이 이미 로드). 옛 종가선 캔버스·SPY/QQQ 토글을 대체. -->
   <section class="briefing-block stock-chart" id="stock-chart-section" aria-labelledby="stock-chart-title">
@@ -4155,6 +4147,14 @@ button[data-filter-active="true"] {
       <aside class="stock-chart-evidence" id="stock-chart-evidence" aria-label="차트 근거"></aside>
     </div>
     <p class="briefing-footnote">셋업 상태는 공개된 기법(미너비니 VCP·추세 템플릿, 오닐 피벗 돌파, 와일더 ADX)으로 계산한 설명이며 매매 권고가 아닙니다.</p>
+  </section>
+
+  <!-- P1420: the retired 0-100 market-health score is replaced by the 시장 상태 six-axis summary
+       (same judgement as the 시장 상태 screen). 2026-10-18 owner decision: the stock chart leads the page and this summary follows it. -->
+  <section class="aio-section tech-regime" id="tech-regime-summary" aria-label="시장 상태 요약">
+    <div class="tech-regime-head"><span class="tech-regime-overall" id="tech-regime-overall">판정 대기</span><span class="theme-strength-basis" id="tech-regime-basis"></span>
+    <button type="button" class="theme-strength-more" data-action="showPage" data-arg="signal">시장 상태에서 근거 보기</button></div>
+    <div class="tech-regime-chips" id="tech-regime-chips"></div>
   </section>
   <!-- v57.76: 시장(SPY) 가격 포지션·보조 지표·이동평균 배열·멀티타임프레임·패턴 감지·지표 스트립·TradingView와 심층 기술 브리프,
        12가지 셋업·기술 용어 설명은 퇴역 — 시장 판단은 위 시장 상태 요약, 종목 근거는 차트 옆 근거 패널, 용어는 리서치 라이브러리가 맡는다. -->
