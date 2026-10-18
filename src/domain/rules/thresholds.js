@@ -25,7 +25,12 @@ export const RULES = Object.freeze({
   // v57.81: "회복 중" only when the last session did not give back reversalShare of the window's gain (a 5-day +8pp bounce
   // that lost 4pp on the last close is 되밀림, not recovery); a last-session drop of lastSessionNoticePp or more is named.
   // indexConfirmDeadZonePp: a 20-session participation change inside ±3pp is "거의 변하지 않음", not 넓어짐/줄어듦.
-  breadth: Object.freeze({ weakBelow: 40, broadAtLeast: 60, reversalShare: 0.5, lastSessionNoticePp: 3, indexConfirmDeadZonePp: 3 }),
+  // Owner 2026-10-18: holdExitAt — once a ratio fell under weakBelow, 부담 holds until the lower of the 50/200-day ratios is
+  // back at 45% (latchSessions window), the hysteresis the trend, rates and credit axes already use.
+  // Owner 2026-10-18: 바닥 확인 조건 (market-read bottomWatchOf) — F&G 25 is the CNN extreme-fear edge; new lows at half their
+  // recent peak, a +20pp short-term participation rebound and a 2:1 4%-up thrust are conventions, not validated predictors.
+  bottomWatch: Object.freeze({ fearAtMost: 25, newLowsWindow: 10, newLowsShrinkShare: 0.5, b20Window: 20, b20ReboundPp: 20, thrustRatio: 2 }),
+  breadth: Object.freeze({ weakBelow: 40, broadAtLeast: 60, reversalShare: 0.5, lastSessionNoticePp: 3, indexConfirmDeadZonePp: 3, holdExitAt: 45, latchSessions: 60 }),
   // VIX 18 / 25 / 32: the calm / stress / high band edges (a convention, not a validated predictor; P1367 fixed them
   // and the regime-drift alert already compares these bands). VIX above its 3-month (ratio >= 1) is an inverted term structure.
   // v57.81: 양호 needs VIX at least calmBufferPt under the calm edge, or under the edge and not rising over five sessions;
