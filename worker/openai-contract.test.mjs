@@ -94,6 +94,18 @@ async function main() {
   check('v57.62 a text-only budget never settles a receipt that ran hosted search', verifiedOpenAiCharge(usageResponse({ output: [searchCall('search'), answer] }), budget) === null);
   check('P1421 verified charge uses worst premium without cache discount', charge === Math.ceil(16 * 0.1375 + 8 * 0.55));
   for (const response of [usageResponse({ model: 'gpt-6-sol' }), usageResponse({ status: 'incomplete' }), usageResponse({ usage: { input_tokens: 16, output_tokens: 8 } }), usageResponse({ usage: { input_tokens: 16, output_tokens: 65, total_tokens: 81 } }), usageResponse({ usage: { input_tokens: 16, output_tokens: -1, total_tokens: 15 } }), usageResponse({ service_tier: 'priority' })]) check('P1421 invalid receipt cannot replenish', verifiedOpenAiCharge(response, budget) === null);
+  {
+    // v58.20 review A1: an answer stopped at max_output_tokens settles at its verified usage (it reached the user and was
+    // billed); an incomplete receipt for any other reason, or without a reason, still keeps the whole reservation.
+    const limited = usageResponse({ status: 'incomplete', incomplete_details: { reason: 'max_output_tokens' } });
+    const limitedObserver = createOpenAiReceiptObserver('text/event-stream');
+    limitedObserver.push(new TextEncoder().encode('data: ' + JSON.stringify({ type: 'response.incomplete', response: limited }) + '\n\n'));
+    const filteredObserver = createOpenAiReceiptObserver('text/event-stream');
+    filteredObserver.push(new TextEncoder().encode('data: ' + JSON.stringify({ type: 'response.incomplete', response: usageResponse({ status: 'incomplete', incomplete_details: { reason: 'content_filter' } }) }) + '\n\n'));
+    check('v58.20 an output-limited answer settles at verified usage; other incomplete receipts keep the reservation',
+      verifiedOpenAiCharge(limited, budget) === charge && limitedObserver.finish()?.status === 'incomplete' && filteredObserver.finish() === null
+        && verifiedOpenAiCharge(usageResponse({ status: 'incomplete', incomplete_details: { reason: 'content_filter' } }), budget) === null);
+  }
   const originalFetch = globalThis.fetch; let upstreamCalls = 0, lastRequest;
   let upstream = async () => Response.json(usageResponse());
   globalThis.fetch = async (url, init) => { if (String(url) !== 'https://api.openai.com/v1/responses') throw new Error('unexpected external network fixture'); upstreamCalls++; lastRequest = { url: String(url), init }; return upstream(url, init); };
@@ -282,6 +294,25 @@ async function main() {
     // ── P1759: per-client daily AI cap, coarse budget state, budget-saver search removal ─────────────
     upstream = async () => Response.json(usageResponse());
     const ip = (address, extra = {}) => ({ 'cf-connecting-ip': address, ...extra });
+    {
+      // v58.20 review A1/A2: a connection's reserved micro-USD per UTC day is capped at 1/20 of the month, so one
+      // spoofed browser caller inside its question count cannot reserve the whole month. Settlement returns the unused
+      // part, so verified small answers keep passing.
+      const spendBudget = (budget.reservationMicroUsd * 2 * 20 / 1000000).toFixed(6);
+      const sendAs = async (fixture, address, key) => { const response = await worker.fetch(req(body, { headers: ip(address, key ? { 'X-AIO-Idempotency-Key': key } : {}) }), fixture.env); await response.arrayBuffer(); return response.status; };
+      upstream = async () => Response.json(usageResponse({ usage: undefined }));
+      const unsettled = harness(undefined, { AI_MONTHLY_BUDGET_USD: spendBudget });
+      const unsettledStatuses = [];
+      for (let i = 0; i < 3; i += 1) unsettledStatuses.push(await sendAs(unsettled, '203.0.113.70', 'spend-' + i));
+      const otherConnection = await sendAs(unsettled, '203.0.113.71');
+      upstream = async () => Response.json(usageResponse());
+      const settled = harness(undefined, { AI_MONTHLY_BUDGET_USD: spendBudget });
+      const settledStatuses = [];
+      for (let i = 0; i < 4; i += 1) settledStatuses.push(await sendAs(settled, '203.0.113.72', 'settled-' + i));
+      check('v58.20 one connection cannot reserve more than 1/20 of the month per UTC day; settled answers refund the unused part',
+        unsettledStatuses.join() === '200,200,429' && otherConnection === 200 && settledStatuses.every((status) => status === 200),
+        { unsettledStatuses, otherConnection, settledStatuses });
+    }
     const clientCap = harness(undefined, { AI_PER_CLIENT_DAILY_CAP: '3' }), clientCapBefore = upstreamCalls;
     const clientRace = await Promise.all(Array.from({ length: 6 }, (_, i) => worker.fetch(req(body, { headers: ip('203.0.113.9', { 'X-AIO-Idempotency-Key': 'client-race-' + i }) }), clientCap.env)));
     const clientRaceJson = await Promise.all(clientRace.map(response => response.status === 429 ? response.json() : response.arrayBuffer().then(() => null)));

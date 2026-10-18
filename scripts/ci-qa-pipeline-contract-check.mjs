@@ -558,6 +558,16 @@ check('convergence driver cannot bypass attestation or mutate repository state',
 // v57.92 (audit W06): both convergence branches turn a settled CI failure red.
 check('v57.92 W06 default convergence branch propagates a settled CI failure',
   /finish\('UNATTESTED_REVISION', settledFailure \? 1 : 0\)/.test(convergenceSource) && /ciFailed \? 1 : 0/.test(convergenceSource));
+{
+  // v58.20 review B2: a refresh-dispatched run tests fewer groups, but its commit contains every human commit underneath.
+  const attestJob = ciSource.slice(ciSource.indexOf('\n  attest:'));
+  const guardAt = attestJob.indexOf('Reduced-scope release sits on a fully tested source commit');
+  check('v58.20 reduced-scope refresh CI attests only on top of a source commit with a successful full push CI',
+    guardAt > 0 && guardAt < attestJob.indexOf('Build immutable release attestation')
+      && /inputs\.origin == 'refresh-data' \|\| inputs\.origin == 'refresh-screener'/.test(attestJob)
+      && /git log -1 --first-parent --format=%H "\$EXPECTED_SHA" -- \. ':\(exclude\)public-data'/.test(attestJob)
+      && /event=push&status=success/.test(attestJob) && /permissions:\s*\n\s*contents: read\s*\n\s*actions: read/.test(attestJob));
+}
 check('CI accepts exact refresh SHA and emits immutable attestation', /release_sha:/.test(ciSource) && /aio-release-attestation\.v1/.test(ciSource) && /actions\/upload-artifact@[0-9a-f]{40}/.test(ciSource));
 const releaseUploadStep = ciSource.match(/- name: Upload release attestation([\s\S]*?)(?=\n      - name:|\n\n  [a-z]|$)/)?.[1] || '';
 check('P1308/R653/QA-DATA-50 release attestation includes its hidden directory in the artifact',

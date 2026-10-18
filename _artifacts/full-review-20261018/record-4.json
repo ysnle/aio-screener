@@ -1,0 +1,21 @@
+{
+  "version": "v58.20",
+  "date": "2026-10-18",
+  "r": null,
+  "status": null,
+  "qa": [],
+  "qa_section": "전체 리뷰 2026-10-18",
+  "note": "v58.20 AIO 전체 리뷰(cstack) ACT ON 9건 수정: 분할 후 PER·AI 예산 연결별 금액 상한·VIX 급변 누락·축소 CI 배포·bfcache 타이머·지수 세션 기준·보통주 PER 근거·잘린 답변 정산·실적 캘린더 실패 격리.",
+  "p": {
+    "title": "갱신 봇이 띄운 축소 CI가 사람이 push한 코드까지 포함한 커밋을 검증·배포",
+    "symptom": "사람 커밋 H의 전체 CI가 끝나기 전(또는 실패해도) 데이터 커밋 D가 그 위에 올라가면, D의 축소 그룹 CI 통과만으로 H의 코드가 배포될 수 있었다.",
+    "root_cause": "ci.yml attest 작업이 inputs.origin으로 줄인 그룹 집합을 그대로 인정했고, pages-deploy는 origin을 확인하지 않았다.",
+    "fix": ".github/workflows/ci.yml: refresh-data/refresh-screener origin이면 first-parent 기준으로 생성 경로(public-data·manifest 3종·public-config.json) 밖을 바꾼 마지막 커밋을 찾아, 그 커밋의 성공한 push CI가 있어야 attest(없으면 실패, 다음 갱신에서 재시도). attest 작업에 actions: read 추가.",
+    "violated_rule": "배포 검증 범위",
+    "prevention": "ci-qa-pipeline-contract-check: v58.20 축소 CI attest 가드",
+    "verification": "실제 저장소 기록에서 최근 데이터 커밋들이 PR 머지 커밋(3770e231·8d88c4e9)으로 해석되고 GitHub API 성공 push CI 1건씩 확인."
+  },
+  "changelog": [
+    "**축소 CI 배포 가드 ({P}):** 데이터 갱신 CI는 그 아래 사람 커밋이 전체 CI를 통과한 경우에만 배포 증명을 만든다."
+  ]
+}

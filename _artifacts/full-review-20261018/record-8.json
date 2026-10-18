@@ -1,0 +1,21 @@
+{
+  "version": "v58.20",
+  "date": "2026-10-18",
+  "r": null,
+  "status": null,
+  "qa": [],
+  "qa_section": "전체 리뷰 2026-10-18",
+  "note": "v58.20 AIO 전체 리뷰(cstack) ACT ON 9건 수정: 분할 후 PER·AI 예산 연결별 금액 상한·VIX 급변 누락·축소 CI 배포·bfcache 타이머·지수 세션 기준·보통주 PER 근거·잘린 답변 정산·실적 캘린더 실패 격리.",
+  "p": {
+    "title": "출력 한도에서 잘린 AI 답변이 정산되지 않아 예약 상한 전액이 월 예산에서 차감",
+    "symptom": "max_output_tokens에 도달한 답변(추론 토큰 포함이라 잦음)은 사용자에게 성공으로 보였지만 예약 상한이 그대로 남아 실제 비용보다 약 33% 많이 차감됐다.",
+    "root_cause": "openai-usage.mjs가 response.incomplete를 무효로, verifiedOpenAiCharge가 status completed만 정산 대상으로 봤다.",
+    "fix": "worker/openai-usage.mjs·openai-budget.mjs: incomplete_details.reason이 max_output_tokens인 응답은 검증된 사용량으로 정산. 다른 incomplete 사유는 기존처럼 예약 유지.",
+    "violated_rule": "정산은 실제 청구 근거 기준",
+    "prevention": "worker/openai-contract.test.mjs: v58.20 출력 한도 응답 정산·다른 사유 유지",
+    "verification": "node worker/openai-contract.test.mjs 158건 통과."
+  },
+  "changelog": [
+    "**잘린 답변 정산 ({P}):** 출력 한도에서 멈춘 AI 답변도 실제 사용량으로 정산해 월 예산이 과다 차감되지 않게 한다."
+  ]
+}

@@ -1965,56 +1965,8 @@ window._aioDiagram = (function () {
 
   window._aioRenderPageDiagram = _aioRenderPageDiagram;
 
-  // ── Phase 3: AI 채팅 자동 시각화 ─────────────────────────────
-  // 토픽 감지(q + response text) → 가장 관련 높은 다이어그램 반환 {type, data, label}
-  function _findRow(sym) {
-    var rows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-    if (!Array.isArray(rows)) return null;
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].sym === sym) return rows[i];
-    }
-    return null;
-  }
-
-  var _autoVisRaw = function (question, responseText, tickers) {
-    try {
-      var q = ((question    || '') + ' ' + (responseText || '')).toLowerCase();
-      // 우선순위 순으로 가장 명확한 매치만 반환 (과잉 삽입 방지)
-      // v57.50 (W3 follow-up): the score-breakdown and market-regime diagrams drew the trading score retired from
-      // every screen in P1392; an AI answer no longer attaches them (the market-state screen carries the regime).
-      if (/수익률 곡선|yield curve|장단기 금리|금리 역전|inverted yield|tyx/.test(q)) {
-        return { type: 'yield-curve',     data: _buildYield(),    label: '수익률 곡선' };
-      }
-      if (/fear.*greed|공포.*탐욕|탐욕.*공포|심리 게이지|sentiment gauge|심리 지수/.test(q)) {
-        return { type: 'sentiment-gauge', data: _buildSentiment(),label: '시장 심리 게이지' };
-      }
-      if (/경기 사이클|business cycle|침체 국면|recessio|확장 국면|후기 사이클|초기 확장/.test(q)) {
-        return { type: 'economic-cycle',  data: _buildEcon(),     label: '경기 사이클' };
-      }
-      if (/팩터 백테스트|factor backtest|정보계수|ic.*모멘텀|spearman/.test(q)) {
-        return { type: 'factor-backtest', data: _buildBacktest(), label: '팩터 과거 검증' };
-      }
-      if (tickers && tickers.length > 0 && /팩터 레이더|factor radar|퀀트 랭크|quantrank|rsi.*팩터|팩터.*분석/.test(q)) {
-        var row = _findRow(tickers[0]);
-        if (row) {
-          return {
-            type: 'factor-radar',
-            label: tickers[0] + ' 팩터 레이더',
-            data: {
-              sym: tickers[0],
-              rank: row.quantRank != null ? row.quantRank : null,
-              factors: Object.assign({}, row.factorScores || {}, { rsi: row.rsi }),
-            },
-          };
-        }
-      }
-    } catch (e) {}
-    return null;
-  };
-  window._aioChatAutoVis = function (question, responseText, tickers) {
-    var hit = _autoVisRaw(question, responseText, tickers);
-    return hit && hit.data && hit.data.available === false ? null : hit;
-  };
+  // v58.19: Phase 3 AI 채팅 자동 시각화(_aioChatAutoVis/_autoVisRaw/_findRow)는 호출자가 0건이라 제거했다.
+  // 채팅 답변 도표는 src/ui/components/ai-answer-visuals.js가 맡는다.
 })();
 
 // ── 기업분석 렌더러 — aio-chat.js에서 이동 (v51.17) ─────────────────────────────────

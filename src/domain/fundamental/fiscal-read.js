@@ -108,7 +108,10 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
     if (annualPair && niNow != null && niPrev != null && niPrev > 0) {
       const niGrowth = (niNow / niPrev - 1) * 100;
       const pe = finite(row?.pe);
-      const peg = pe != null && pe > 0 && niGrowth > 0 && row?._valuationPeEarningsBasis !== 'ttm' ? pe / niGrowth : null;
+      // v58.20 review C1: a PER priced on earnings available to common (preferred dividends deducted) is not market cap
+      // over net income, so it is neither rebuilt from net income nor divided by net-income growth, and it says so.
+      const commonBasis = row?._valuationPeEarningsConcept === 'common';
+      const peg = pe != null && pe > 0 && niGrowth > 0 && row?._valuationPeEarningsBasis !== 'ttm' && !commonBasis ? pe / niGrowth : null;
       // 2026-10-13 review S06: the PER's earnings are the last filed fiscal year, which can be more than a year old.
       // Name that year and how many months have passed since it closed.
       const earningsEnd = String(row?._fundamentalPeriodEnd || latest.periodEnd || '').slice(0, 10);
@@ -117,7 +120,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
         ? (Number(sessionEnd.slice(0, 4)) - Number(earningsEnd.slice(0, 4))) * 12 + Number(sessionEnd.slice(5, 7)) - Number(earningsEnd.slice(5, 7)) - (Number(sessionEnd.slice(8, 10)) < Number(earningsEnd.slice(8, 10)) ? 1 : 0)
         : null;
       const fyLabel = fiscalYearLabel(earningsEnd);
-      const earningsBasis = fyLabel ? `${fyLabel} 순이익 기준 · ${earningsEnd.slice(0, 7)} 마감${monthsSince != null && monthsSince >= 0 ? ` · 경과 ${monthsSince}개월` : ''}` : '공시 이익 기준';
+      const earningsBasis = fyLabel ? `${fyLabel} ${commonBasis ? '보통주 귀속 순이익' : '순이익'} 기준 · ${earningsEnd.slice(0, 7)} 마감${monthsSince != null && monthsSince >= 0 ? ` · 경과 ${monthsSince}개월` : ''}` : '공시 이익 기준';
       // 2026-10-14 audit #2: the PER method is unchanged (the last fiscal year's net income). When four newer
       // consecutive quarters are filed, the same price over their summed net income is shown beside it, labelled.
       // Valid only when the PER's own year is the latest annual row (so PER × FY income recovers the same market value).
@@ -126,16 +129,16 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       const rowTtm = row?._valuationPeEarningsBasis === 'ttm' && /^\d{4}-\d{2}-\d{2}/.test(String(row?._valuationPeEarningsThrough || ''));
       const ttm = pe != null && pe > 0 && (rowTtm || earningsEnd === String(latest.periodEnd || '').slice(0, 10)) ? trailingQuarters(quarters, 4) : null;
       const ttmIncome = ttm && ttm[ttm.length - 1].periodEnd > earningsEnd ? ttm.reduce((sum, q) => sum + q.netIncome, 0) : null;
-      const peTtm = rowTtm ? pe : ttmIncome != null && ttmIncome > 0 ? pe * niNow / ttmIncome : null;
+      const peTtm = rowTtm ? pe : !commonBasis && ttmIncome != null && ttmIncome > 0 ? pe * niNow / ttmIncome : null;
       const prior = peTtm != null ? trailingQuarters(quarters, 8) : null;
       const priorIncome = prior ? prior.slice(0, 4).reduce((sum, q) => sum + q.netIncome, 0) : null;
       const ttmGrowth = priorIncome != null && priorIncome > 0 ? (ttmIncome / priorIncome - 1) * 100 : null;
-      const pegTtm = peTtm != null && ttmGrowth != null && ttmGrowth > 0 ? peTtm / ttmGrowth : null;
+      const pegTtm = !commonBasis && peTtm != null && ttmGrowth != null && ttmGrowth > 0 ? peTtm / ttmGrowth : null;
       // v57.54 review: the four-quarter figure is the more current one, so it leads when it exists; the fiscal-year
       // PER (the screener's value factor basis) stays beside it, labelled.
       const ttmThrough = rowTtm ? String(row._valuationPeEarningsThrough).slice(0, 10) : ttm?.[ttm.length - 1]?.periodEnd;
       const peText = pe == null ? '' : rowTtm
-        ? `, PER ${pe.toFixed(1)}배(최근 4개 분기 공시 순이익 합 · ${ttmThrough.slice(0, 7)} 분기까지)`
+        ? `, PER ${pe.toFixed(1)}배(최근 4개 분기 ${commonBasis ? '보통주 귀속 ' : '공시 '}순이익 합 · ${ttmThrough.slice(0, 7)} 분기까지)`
         : peTtm != null
           ? `, PER 약 ${peTtm.toFixed(1)}배(최근 4개 분기 합 · ${ttmThrough.slice(0, 7)} 분기까지) · ${fyLabel || '연간'} 기준 ${pe.toFixed(1)}배(${earningsBasis})`
           : `, PER ${pe.toFixed(1)}배(${earningsBasis})`;

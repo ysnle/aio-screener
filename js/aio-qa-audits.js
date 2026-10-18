@@ -1406,8 +1406,7 @@ window.AIO.assertChatAdvancedFeaturesAudit = function() {
     alertGet: typeof window._aioGetAlerts === 'function',
     alertAdd: typeof window._aioAddAlert === 'function',
     alertCheck: typeof window._aioCheckAlerts === 'function',
-    exportChatData: typeof window._aioExportChatData === 'function',
-    exportFromBtn: typeof window._aioExportFromBtn === 'function'
+    exportChatData: typeof window._aioExportChatData === 'function'
     // v57.77: the test-only alert parser and amount simulator are retired, so they are no longer probed.
   };
   var v48Src = (typeof window._getV48IntegratedContext === 'function') ? window._getV48IntegratedContext.toString() : '';

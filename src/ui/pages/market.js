@@ -374,12 +374,6 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         if (route === 'fxbond' && page.dataset.aioFxbondRenderer === 'native') delete page.dataset.aioFxbondRenderer;
         if (route === 'breadth' && page.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;
         if (route === 'breadth' && page.dataset.aioBreadthRenderer === 'native') delete page.dataset.aioBreadthRenderer;
-        if (route === 'breadth') {
-          ['#breadth-diag-signal', '#breadth-diag-text'].forEach((selector) => {
-            const node = page.querySelector(selector);
-            if (node?.dataset.aioBreadthDiagnosticRenderer === 'native') delete node.dataset.aioBreadthDiagnosticRenderer;
-          });
-        }
         const signalNode = page.querySelector('#breadth-signal-val');
         if (route === 'breadth' && signalNode?.dataset.aioBreadthSignalRenderer === 'native') delete signalNode.dataset.aioBreadthSignalRenderer;
         if (route === 'breadth') {

@@ -18,7 +18,6 @@
 
 // AI credentials are server-only; these compatibility helpers never read a saved key.
 function getApiKey() { return ''; }
-async function setApiKey() { return { ok: false, state: 'SERVER_ONLY_AI' }; }
 function loadSidebarApiKey() {}
 
 

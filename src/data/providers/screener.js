@@ -604,6 +604,7 @@ export function createScreenerProvider({
           _valuationPePriceBasis: factor.pePriceBasis || null,
           _valuationPeEarningsBasis: factor.peEarningsBasis || null, // 2026-10-17 D1: 'ttm' | 'fy'
           _valuationPeEarningsThrough: factor.peEarningsThrough || null,
+          _valuationPeEarningsConcept: factor.peEarningsConcept || null, // v58.20: 'common' when preferred dividends were deducted
           _valuationPbPrice: finite(factor.pbPrice),
           _valuationPbPriceBasis: factor.pbPriceBasis || null,
           _valuationSharesOutstanding: finite(factor.valuationSharesOutstanding),

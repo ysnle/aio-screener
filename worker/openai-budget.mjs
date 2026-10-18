@@ -150,8 +150,11 @@ export function isApprovedOpenAiModel(model) {
 // loop (prompt re-reads and search content tokens are input_tokens); each web_search_call output item is one billed
 // call, whatever its action or status. Missing output, an unknown item shape, more calls than admitted, usage above
 // the reserved bounds or a total above the reservation keeps the whole reservation.
+// v58.20 review A1: an answer stopped at max_output_tokens is billed and shown to the user, so it settles too; its output
+// is bounded by max_output_tokens like any other receipt. Other incomplete reasons keep the whole reservation.
+const outputLimited = (response) => response.status === 'incomplete' && record(response.incomplete_details) && response.incomplete_details.reason === 'max_output_tokens';
 export function verifiedOpenAiCharge(response, budget) {
-  if (!record(response) || response.object !== 'response' || !isApprovedOpenAiModel(response.model) || response.status !== 'completed'
+  if (!record(response) || response.object !== 'response' || !isApprovedOpenAiModel(response.model) || (response.status !== 'completed' && !outputLimited(response))
     || typeof response.id !== 'string' || !response.id || !record(response.usage)) return null;
   const searched = budget.searchReserveMicroUsd > 0;
   let calls = 0;

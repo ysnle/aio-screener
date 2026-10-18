@@ -1783,7 +1783,6 @@ try {
 
 var _scrSortCol = 'mcap';
 var _scrSortAsc = false;
-var _scrVisibleLimit = 12;
 // v49.1 P184: AIO.state 등록
 if (window.AIO && window.AIO.state) {
   window.AIO.state._scrSortCol = _scrSortCol;
@@ -3790,25 +3789,7 @@ window.AIO.getRefreshSchedulerAudit = function() {
 };
 
 
-window.AIO.refreshAllComprehensivePages = async function() {
-  var pages = ['home','signal','breadth','sentiment','briefing'];
-  var taskSet = {};
-  pages.forEach(function(pageId) {
-    var profile = _aioGetRefreshProfile(pageId);
-    (profile.tasks || AIO_PAGE_REFRESH_MAP[pageId] || []).forEach(function(task) { taskSet[task] = true; });
-  });
-  var tasks = Object.keys(taskSet);
-  var refresh = await window.AIO.runScheduledRefresh({
-    keys: tasks,
-    forceRefresh: true,
-    pageId: 'comprehensive-5',
-    reason: 'comprehensive-pages-force-refresh',
-    symbols: _aioGetComprehensiveSymbols()
-  });
-  try { if (typeof applyDataSnapshot === 'function') applyDataSnapshot(); } catch(_) {}
-  try { if (window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function') window.AIO.renderStaticDataGovernanceBadges(); } catch(_) {}
-  return { status: refresh.status, refresh: refresh, audit: window.AIO.getComprehensivePageDataFreshnessAudit(), generatedAt: new Date().toISOString() };
-};
+// v58.20: AIO.refreshAllComprehensivePages (v49.102) had no product caller — refreshes go through AIO.runScheduledRefresh.
 
 window.AIO.refreshAllCriticalPages = async function() {
   var pages = window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
@@ -5792,27 +5773,7 @@ function _aioHistorySeries(field, minPoints) {
 }
 window._aioHistorySeries = _aioHistorySeries;
 
-// 히스토리 데이터 가용성 감사 (소비자 준비 상태)
-window.AIO = window.AIO || {};
-window.AIO.getHistoryDataAudit = function() {
-  var arr = window._aioHistory;
-  var fields = ['spx', 'vix', 'fg', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'btc'];
-  var coverage = {};
-  fields.forEach(function(f) {
-    var s = _aioHistorySeries(f, 1);
-    coverage[f] = s ? s.length : 0;
-  });
-  var days = Array.isArray(arr) ? arr.length : 0;
-  return {
-    status: days > 0 ? 'ok' : 'pending',
-    days: days,
-    chartReady: days >= 20,          // 차트 소비 전환 임계(시드→실데이터)
-    range: window._aioHistoryMeta ? (window._aioHistoryMeta.first + '~' + window._aioHistoryMeta.last) : null,
-    fieldCoverage: coverage,
-    note: days >= 20 ? '실데이터 차트 전환 가능' : (days + '일 누적 — 20일+ 시 시드 대신 자체 데이터 사용'),
-    generatedAt: new Date().toISOString()
-  };
-};
+// v58.20: AIO.getHistoryDataAudit had no product caller — history consumers read _aioHistorySeries directly.
 
 // P858: phase state stays in one boot-coordinator object so the legacy surface
 // does not grow additional window-owned write points for a timing concern.
@@ -9448,22 +9409,7 @@ function getDisplaySummary(item) {
 window._aioBuildNewsLocalKoreanInsight = _aioBuildNewsLocalKoreanInsight;
 window._aioGetNewsTranslation = _aioGetNewsTranslation;
 window.AIO = window.AIO || {};
-window.AIO.getNewsTranslationQualityAudit = function(items) {
-  var src = items || window.newsCache || window._allNewsItems || [];
-  var sample = Array.isArray(src) ? src.slice(0, 80) : [];
-  var audit = { checked: sample.length, koTitle: 0, koSummary: 0, koExplain: 0, koImpact: 0, koRewrite: 0, failed: 0, generatedAt: new Date().toISOString() };
-  sample.forEach(function(item) {
-    var t = _aioGetNewsTranslation(item);
-    if (t.ko_title && isKoreanText(t.ko_title)) audit.koTitle++;
-    if (t.ko_summary) audit.koSummary++;
-    if (t.ko_explain) audit.koExplain++;
-    if (t.ko_impact) audit.koImpact++;
-    if (t.ko_rewrite) audit.koRewrite++;
-    if (t._failed) audit.failed++;
-  });
-  audit.ok = audit.checked === 0 || (audit.koSummary >= Math.min(10, audit.checked) && audit.koExplain >= Math.min(10, audit.checked));
-  return audit;
-};
+// v58.20: AIO.getNewsTranslationQualityAudit had no product caller — news cards call _aioGetNewsTranslation directly.
 // Primary macro/geo/rates stories describe market conditions rather than a
 // single issuable security. Suppressing inferred ticker badges on these rows
 // prevents an ETF/company mention from being presented as an actionable entity

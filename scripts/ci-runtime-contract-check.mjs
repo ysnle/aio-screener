@@ -492,7 +492,7 @@ check(
 );
 // v53.7 (P725) / P1321: the retired KR pages and options keep no page config or sequential-audit entry.
 check('P1753 retired routes (options, kr-home, kr-supply, kr-macro, kr-technical) have no page-registry entry', !/^    '(?:options|kr-home|kr-supply|kr-macro|kr-technical)': \{/m.test(core));
-for (const pageId of ['home','signal','market-news','technical','screener','ticker','portfolio','macro','fxbond','fundamental','kr-themes']) {
+for (const pageId of ['home','signal','market-news','technical','screener','ticker','portfolio','macro','fxbond','fundamental']) { // v58.19: retired kr-themes dropped — only its redirect alias matched
   check(`page redesign config exists for ${pageId}`, new RegExp(`${pageId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:`).test(core) || core.includes(`'${pageId}':`));
 }
 // P1449 (R483: golden gates move atomically with the contract change): the post-P1443
@@ -724,7 +724,7 @@ check('home operational details stay collapsed while completed-24h Telegram feed
 check('P1425 macro route has no legacy yield-curve owner and replays both official calendars after the shared cut', !/_lazyInitChartPage\('macro', 'yieldCurveChart'/.test(core) && !/renderOfficialFutureCalendar/.test(core) && /renderMacroNextRelease\(\)/.test(core) && /aio:sharedMarketCut/.test(core)); // P1672: #official-future-calendar left with P1425 // P1425
 check('official future calendar merges the registry beyond snapshot-only CPI/PCE/NFP/FOMC fields', !/function renderOfficialFutureCalendar/.test(macroTech) && /renderMacroNextRelease/.test(core)); // P1672: the legacy calendar sink left with P1425; renderMacroNextRelease owns the macro calendar
 check('P1425 the legacy yield-curve renderer stays retired with its canvas', !/function renderYieldCurve/.test(macroTech) && !/id="yieldCurveChart"/.test(html));
-check('news and screener use 12-row progressive reveal instead of unbounded first paint', /_aioNewsVisibleLimit\s*\|\|\s*12/.test(data) && /_scrVisibleLimit\s*=\s*12/.test(data) && /id="news-load-more-wrap"/.test(html) && /id="scr-load-more-wrap"/.test(html));
+check('news and screener use 12-row progressive reveal instead of unbounded first paint', /_aioNewsVisibleLimit\s*\|\|\s*12/.test(data) && /const visibleLimit = \{ value: 12 \}/.test(read('src/ui/pages/screener.js')) /* v58.20: the screener's reveal limit lives in screener.js; the unread classic _scrVisibleLimit is gone */ && /id="news-load-more-wrap"/.test(html) && /id="scr-load-more-wrap"/.test(html));
 // P770: native news.js owns the briefing list height/reveal; the uncalled legacy adapters were retired.
 check('P1753 briefing news wall is capped and the retired legacy cap/toggle adapters stay gone', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && !/_aioCapBriefingNews|_aioToggleBriefingNews/.test(core));
 check('portfolio summary exposes total P&L, cash, and exposure rule as three columns', /id="pf-hero-stats"/.test(html) && /id="pf-cash-hero"/.test(html) && /id="pf-exposure-rule"/.test(html) && /#pf-hero-stats\s*\{\s*grid-template-columns:repeat\(3/.test(html));
@@ -790,7 +790,7 @@ check('v57.77: the technical route draws the 한국 지수 추세 cards from com
 // P1134/R620: the codetabs fallback is declared in js/aio-data.js and consumed by the KR fetchers
 // that moved to js/aio-kr-data.js — assert both owners so removing either leg is caught.
 check('EF-19: _fetchYahooChartData proxy chain includes codetabs.com fallback (live network audit showed corsproxy.io/allorigins alone failing repeatedly for KR tickers)', /api\.codetabs\.com\/v1\/proxy/.test(krData + data));
-check('headless tests cover Batch 2 efficacy fixes (EF-08/10/11/12/19)', /_testV5241Batch2Efficacy/.test(tests) && /T874/.test(tests) && /T875/.test(tests) && /T876/.test(tests) && /T877/.test(tests) && /T878/.test(tests));
+check('headless tests cover Batch 2 efficacy fixes (EF-08/10/11/12/19; T874 retired with the carry composite, v58.19)', /_testV5241Batch2Efficacy/.test(tests) && /T875/.test(tests) && /T876/.test(tests) && /T877/.test(tests) && /T878/.test(tests));
 
 // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 3 (EF-06/07/14/15/16) structural gates
 check('EF-06: VIX term-structure seed fallback values render a distinguishable na state instead of the same value state as a live number',
@@ -1081,12 +1081,12 @@ check('WP-AI6/7: regression fixtures cover structured publish blocking, fallback
 
 // v52.81 (WP-AI8/9/10): SLO/quota operations, golden A/B release gate, and feedback manifest.
 check('WP-AI8: actual AI usage can record bounded latency/token/failure SLO samples and quota acquisition has a lock/limit contract', /recordAISLOSample/.test(core) && /getAISLOReport/.test(core) && /tryAcquireAIQuota/.test(core) && /_aioTrackApiUsage/.test(core) && /tryAcquireAIQuota/.test(chat));
-check('WP-AI9: deterministic golden corpus and A/B release gate prevent unsupported regression or P0 release', /getAIGoldenCorpus/.test(core) && /runAIGoldenBenchmark/.test(core) && /evaluateAIGoldenABGate/.test(core) && /p0-errors/.test(core));
+check('WP-AI9: deterministic golden corpus and A/B release gate prevent unsupported regression or P0 release', /_AIO_AI_GOLDEN_CORPUS/.test(core) /* v58.20: the uncalled getAIGoldenCorpus accessor is retired; the corpus feeds runAIGoldenBenchmark */ && /runAIGoldenBenchmark/.test(core) && /evaluateAIGoldenABGate/.test(core) && /p0-errors/.test(core));
 check('WP-AI10: feedback samples retain request/model/prompt/evidence/validator metadata', /createAIFeedbackSample/.test(core) && /createAIFeedbackSample/.test(html + workspace) && /feedbackId/.test(core) && /evidenceStatus/.test(core));
 check('WP-AI8/9/10: regression fixtures cover SLO P95, quota race, golden corpus, A/B gate, and feedback manifest', /_testV5281OpsGoldenFeedback/.test(tests) && /T972/.test(tests) && /T973/.test(tests) && /T974/.test(tests) && /T975/.test(tests) && /T976/.test(tests));
 
 // v52.82 (WP-AI11/12): conversation lifecycle and deterministic calculation evidence.
-check('WP-AI11: request envelope and shared helpers carry session/turn/route/entity lifecycle, trim audit, and late-response rejection', /createAIConversationState/.test(core) && /beginAIConversationTurn/.test(core) && /transitionAIConversationState/.test(core) && /isCurrentAIResponse/.test(core) && /trimAIConversationContext/.test(core) && /conversationState/.test(chat) && /conversationAudit/.test(chat));
+check('WP-AI11: request envelope and shared helpers carry session/turn/route/entity lifecycle, trim audit, and late-response rejection', /createAIConversationState/.test(core) && /beginAIConversationTurn/.test(core) && /transitionAIConversationState/.test(core) && /isCurrentAIResponse/.test(core) && !/AIO\.trimAIConversationContext\s*=/.test(core) /* v58.20: uncalled trim helper retired */ && /conversationState/.test(chat) && /conversationAudit/.test(chat));
 check('WP-AI12: approved deterministic calculators emit CalculationEvidence and fail closed on mutation/invariant errors', /createCalculationEvidence/.test(core) && /validateCalculationEvidence/.test(core) && /checkCalculationInvariant/.test(core) && /runApprovedCalculation/.test(core) && /percent-change.v1/.test(core) && /decisionUse: false/.test(core));
 check('WP-AI11/12: regression fixtures cover route/entity race, request envelope, trim, arithmetic, invariant, unknown calculator, and portfolio weight', /_testV5282ConversationAndCalculation/.test(tests) && /T977/.test(tests) && /T978/.test(tests) && /T979/.test(tests) && /T980/.test(tests) && /T981/.test(tests) && /T982/.test(tests));
 
@@ -1540,6 +1540,37 @@ check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease witho
   check('v57.61 term popover returns focus to its mark, exposes aria-expanded and closes when focus leaves', /mark\.setAttribute\('aria-expanded', 'false'\)/.test(terms) && /restore && hadFocus && mark\?\.isConnected/.test(terms) && /addEventListener\('focusout'/.test(terms)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
   check('v57.61 ticker price basis and chart loading are status regions; the back button name does not read the arrow', /status\.setAttribute\('role', 'status'\)/.test(entity) && /loading\.setAttribute\('role', 'status'\)/.test(entity) && !/aria-label', `← /.test(entity) && !/aria-label', '← /.test(entity)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
   check('v57.61 crossroads meter is decorative beside its printed fit; regime folds name their card', /box\.setAttribute\('aria-hidden', 'true'\)/.test(read('src/ui/components/macro-crossroads.js')) && !/box\.setAttribute\('role', 'img'\)/.test(read('src/ui/components/macro-crossroads.js')) && /readingNodes\(doc, row\.read, 'regime-read', row\.title\)/.test(read('src/ui/components/market-regime.js'))); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
+}
+
+{
+  // v58.20 review D1: the timer registry's unload clear-all must not leave a back/forward-cache restore without timers.
+  // Run the registry IIFE itself on a fake window: register, clear at unload, then fire a persisted pageshow.
+  const coreSource = read('js/aio-core.js');
+  const from = coreSource.indexOf('window._aioTimerRegistry = window._aioTimerRegistry || {};');
+  const to = coreSource.indexOf('// ═══ v48.98: _aioPageBus');
+  const listeners = {};
+  let nextId = 1;
+  const live = new Set();
+  const sandbox = {
+    setInterval: () => { const id = nextId++; live.add(id); return id; },
+    clearInterval: (id) => { live.delete(id); },
+    document: { hidden: false, addEventListener: (type, fn) => { (listeners['doc:' + type] ||= []).push(fn); } },
+    Date
+  };
+  sandbox.window = { addEventListener: (type, fn) => { (listeners['win:' + type] ||= []).push(fn); } };
+  let restored = null;
+  if (from > 0 && to > from) {
+    runInNewContext(coreSource.slice(from, to), sandbox);
+    const win = sandbox.window;
+    win._aioRegisterTimer('dataStatus', () => {}, 60000);
+    win._aioRegisterTimer('signalDashboard', () => {}, 60000);
+    win._aioClearAllTimers();
+    const clearedLive = live.size;
+    (listeners['win:pageshow'] || []).forEach((fn) => fn({ persisted: true }));
+    restored = { clearedLive, registry: Object.keys(win._aioTimerRegistry).sort(), live: live.size };
+  }
+  check('v58.20 timers cleared at unload restart when the page is restored from the back/forward cache',
+    restored?.clearedLive === 0 && restored.live === 2 && restored.registry.join() === 'dataStatus,signalDashboard', JSON.stringify(restored));
 }
 
 if (errors.length) {

@@ -348,9 +348,10 @@ for (const marker of ['data-aio-entity-symbol', 'aio:entityChanged', 'sec-watchl
 }
 if (/\b(?:FUND_FALLBACK|buildFundCard|initFundamentalCards)\b/.test(pagesSource)) fail('legacy hardcoded fundamental watchlist writer returned');
 if (/function\s+fundamentalCardClick\s*\(/.test(pagesSource)) fail('legacy fundamental card provider-search delegate returned');
-// P819: market.js owns the current-evidence breadth diagnostic signal/text (v57.60: the legacy updateBreadthBars writer is gone).
+// P819 -> v58.20: the breadth diagnostic signal/text elements are no longer rendered (no id is created anywhere), so
+// their teardown and reorder code went with them; the ids must not come back as lookups of nothing.
 for (const marker of ['breadth-diag-signal', 'breadth-diag-text', 'aioBreadthDiagnosticRenderer']) {
-  if (!marketPageSource.includes(marker)) fail(`native breadth diagnostic renderer marker missing: ${marker}`);
+  if (marketPageSource.includes(marker)) fail(`v58.20 retired breadth diagnostic lookup returned in market.js: ${marker}`);
 }
 if (/aioBreadthDiagnosticRenderer/.test(uiSource)) fail('v57.60 retired legacy breadth diagnostic writer returned');
 // P1010 completes P820: one native owner for score and label.
@@ -452,7 +453,7 @@ if (legacyRuntimeSource.includes('function loadTechCandleChart')) fail('retired 
 }
 // P1669: the chat "차트 자세히 보기" card goes through the one technical bridge, so the visible
 // chart follows the ticker instead of only the hidden legacy deep-analysis input.
-if (!/window\._aioShowTechnicalChart = function\(ticker\) \{\s*if \(!ticker\) return;\s*_aioOpenTechnicalAnalysis\(ticker\);\s*\}/.test(read('js/aio-core.js'))) fail('P1669 chat chart card must delegate to _aioOpenTechnicalAnalysis');
+if (/window\._aioShowTechnicalChart\s*=/.test(read('js/aio-core.js'))) fail('v58.20 the retired chat chart card handler (_aioShowTechnicalChart, P1669) must not return; chart navigation uses _aioOpenTechnicalAnalysis');
 // P1668: boot and broadcast refreshes leave the SEC fundamentals projection to its two consumer routes.
 {
   const boot = read('src/app/bootstrap.js');

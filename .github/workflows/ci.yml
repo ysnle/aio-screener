@@ -163,6 +163,7 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
+      actions: read
     steps:
       - name: Checkout exact tested SHA
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
@@ -171,6 +172,28 @@ jobs:
           fetch-depth: 0
           # Commits and trees only: the attestation needs ancestry and a name-only diff, not file contents (48 s -> seconds).
           filter: blob:none
+      # v58.20 review B2: a refresh-dispatched run tests a reduced group set, but the commit it attests contains every
+      # human commit the refresh was rebased onto. The newest commit that changes anything outside the refresh-generated
+      # paths must already have a successful full push CI; otherwise this release waits for that run to attest it.
+      # First-parent history: push CI runs on the merge commit main received, not on the merged branch's own commits.
+      - name: Reduced-scope release sits on a fully tested source commit
+        if: inputs.origin == 'refresh-data' || inputs.origin == 'refresh-screener'
+        env:
+          EXPECTED_SHA: ${{ inputs.release_sha || github.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          source_sha="$(git log -1 --first-parent --format=%H "$EXPECTED_SHA" -- . ':(exclude)public-data' ':(exclude)architecture/asset-manifest.json' ':(exclude)architecture/release-manifest.json' ':(exclude)architecture/public-readiness.json' ':(exclude)public-config.json')"
+          if [ -z "$source_sha" ] || [ "$source_sha" = "$EXPECTED_SHA" ]; then
+            echo "::error::reduced-scope CI cannot attest $EXPECTED_SHA: it changes files outside the refresh-generated paths"
+            exit 1
+          fi
+          full_runs="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$source_sha&event=push&status=success&per_page=1" --jq '.total_count')"
+          if ! [ "${full_runs:-0}" -ge 1 ] 2>/dev/null; then
+            echo "::error::source commit $source_sha has no successful full push CI yet; this reduced-scope release is not attested"
+            exit 1
+          fi
+          echo "Reduced-scope release $EXPECTED_SHA sits on fully tested source $source_sha"
       - name: Build immutable release attestation
         env:
           EXPECTED_SHA: ${{ inputs.release_sha || github.sha }}

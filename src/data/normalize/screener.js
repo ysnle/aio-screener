@@ -123,6 +123,7 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     _valuationPePriceBasis: row?._valuationPePriceBasis || null,
     _valuationPeEarningsBasis: row?._valuationPeEarningsBasis || null,
     _valuationPeEarningsThrough: row?._valuationPeEarningsThrough || null,
+    _valuationPeEarningsConcept: row?._valuationPeEarningsConcept || null,
     _valuationPbPrice: finite(row?._valuationPbPrice),
     _valuationPbPriceBasis: row?._valuationPbPriceBasis || null,
     _valuationSharesOutstanding: finite(row?._valuationSharesOutstanding),

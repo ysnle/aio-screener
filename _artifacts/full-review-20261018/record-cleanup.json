@@ -1,0 +1,8 @@
+{
+  "version": "v58.20",
+  "date": "2026-10-18",
+  "note": "v58.20 AIO 전체 리뷰(cstack) ACT ON 9건 수정(P1917~P1925) + v58.19 감사 후속 정리: 호출자 0건 레거시 9건 제거(P1669 고아 차트 핸들러·breadth-diag 조회·테스트 전용 감사 함수 등).",
+  "changelog": [
+    "**v58.19 감사 후속 정리 (v58.20):** 제품 호출자가 0건이고 테스트·게이트만 붙잡고 있던 코드를 근거와 함께 제거했다 — 퇴역한 채팅 차트 카드 핸들러 `_aioShowTechnicalChart`(P1669 게이트를 '부재' 확인으로 전환), 어디서도 만들지 않는 `#breadth-diag-signal`/`#breadth-diag-text` 조회 3곳(market.js teardown·aio-core 재배치·빈 결론 가드), 빈 `_SECTOR_PCT_FALLBACK`, 읽히지 않는 `_scrVisibleLimit`(게이트를 screener.js의 실제 12행 한도로 재지정), `AIO.refreshAllComprehensivePages`·`AIO.getHistoryDataAudit`·`AIO.trimAIConversationContext`·`AIO.getNewsTranslationQualityAudit`(T979 삭제, T700·T796은 살아 있는 판정만 유지). QA 묶음 상수를 읽던 `AIO.getAIGoldenCorpus`는 aio-qa-audits.js로 옮겼다."
+  ]
+}

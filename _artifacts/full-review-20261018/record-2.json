@@ -1,0 +1,21 @@
+{
+  "version": "v58.20",
+  "date": "2026-10-18",
+  "r": null,
+  "status": null,
+  "qa": [],
+  "qa_section": "전체 리뷰 2026-10-18",
+  "note": "v58.20 AIO 전체 리뷰(cstack) ACT ON 9건 수정: 분할 후 PER·AI 예산 연결별 금액 상한·VIX 급변 누락·축소 CI 배포·bfcache 타이머·지수 세션 기준·보통주 PER 근거·잘린 답변 정산·실적 캘린더 실패 격리.",
+  "p": {
+    "title": "공개 AI 프록시의 연결별 상한이 횟수만 세어 한 연결이 월 예산 $20을 약 10분에 소진 가능",
+    "symptom": "공개 앱 토큰과 Origin을 흉내 낸 단일 IP가 하루 질문 상한(200회) 안에서 웹검색 요청 74회로 월 예산 전체를 예약할 수 있었다.",
+    "root_cause": "P1759 연결별 상한이 요청 횟수만 셌고 금액 기준이 없었다. 검색 요청 1건의 예약 상한은 약 $0.27이다.",
+    "fix": "cloudflare-worker-proxy.js: 연결별 UTC 하루 예약 금액을 월 예산의 1/20로 제한(clientSpend 원장, 같은 DO 트랜잭션, 정산 시 미사용분 환급, 그날 첫 예약은 이 몫만으로 거절하지 않음). 질문 재시도 면제분도 금액에는 포함.",
+    "violated_rule": "예산 남용 방지(금액 단위)",
+    "prevention": "worker/openai-contract.test.mjs: v58.20 연결별 금액 상한·정산 환급",
+    "verification": "node worker/openai-contract.test.mjs 158건 통과. 배포 전까지 라이브 Worker에는 미반영."
+  },
+  "changelog": [
+    "**AI 예산 연결별 금액 상한 ({P}):** 한 연결이 하루에 예약할 수 있는 AI 비용을 월 예산의 1/20로 묶어, 질문 횟수 안에서 월 예산을 소진하지 못하게 한다."
+  ]
+}

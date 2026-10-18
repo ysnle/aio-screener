@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.17';
+const APP_VERSION = 'v58.20';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -717,7 +717,7 @@ window.AIO.tryAcquireAIQuota = function(providerKey, limit, options) {
     delete locks[lockKey];
   }
 };
-window.AIO.getAIGoldenCorpus = function() { return JSON.parse(JSON.stringify(_AIO_AI_GOLDEN_CORPUS)); };
+// v58.20: AIO.getAIGoldenCorpus is gone — no product or test caller, and it read _AIO_AI_GOLDEN_CORPUS, which only the QA bundle defines.
 window.AIO.createAIFeedbackSample = function(score, options) {
   options = options || {};
   var latest = (window._aioAiPipelineAudit || []).slice(-1)[0] || {};
@@ -784,15 +784,7 @@ window.AIO.isCurrentAIResponse = function(state, options) {
   options = options || {};
   return !!state && (!options.requestId || String(state.activeRequestId || '') === String(options.requestId)) && (!options.turnId || Number(state.turnId) === Number(options.turnId)) && state.phase !== 'cancelled' && state.phase !== 'error';
 };
-window.AIO.trimAIConversationContext = function(messages, options) {
-  options = options || {};
-  var maxChars = Math.max(4000, Number(options.maxChars) || 90000);
-  var rows = Array.isArray(messages) ? messages.slice() : [];
-  var before = rows.reduce(function(sum, row) { return sum + String(row && row.content || '').length; }, 0);
-  while (rows.length > 2 && rows.reduce(function(sum, row) { return sum + String(row && row.content || '').length; }, 0) > maxChars) rows.shift();
-  var after = rows.reduce(function(sum, row) { return sum + String(row && row.content || '').length; }, 0);
-  return { messages: rows, trimmed: rows.length < (Array.isArray(messages) ? messages.length : 0), beforeChars: before, afterChars: after, turnPreserved: rows.length <= 2 || rows[0].role === 'user' };
-};
+// v58.20: AIO.trimAIConversationContext had no product caller — the chat keeps its last 8 history rows (aio-chat.js).
 
 // v52.82/WP-AI12: calculations are approved deterministic functions producing
 // CalculationEvidence. AI may explain this object but may not become its source.
@@ -1097,15 +1089,7 @@ window._aioSafeMD = function(rawText) {
 };
 
 
-// ═══ v48.94: _aioRenderNum — 숫자 표시 NaN 가드 ════════════════════════════
-// 용도: tech indicator/포트폴리오 숫자 표시 시 NaN → '—' 대체 (P161)
-// 사용: _aioRenderNum(value, '%', 1) → '1.2%' 또는 '—'  (decimals 기본 2)
-window._aioRenderNum = function(v, suffix, decimals) {
-  var n = parseFloat(v);
-  var d = (typeof decimals === 'number' && decimals >= 0) ? decimals : 2;
-  return Number.isFinite(n) ? (n.toFixed(d) + (suffix || '')) : '—';
-};
-
+// v58.19: _aioRenderNum(v48.94)은 제품 호출자 0건이라 제거 — 숫자 표시는 _aioSafeFixed가 맡는다 (R675).
 window._aioSafeFixed = function(v, decimals, fallback) {
   var n = _aioStrictFinite(v); // P1354: null, blanks, booleans and objects are not numeric observations.
   var d = (typeof decimals === 'number' && decimals >= 0) ? decimals : 2;
@@ -1171,20 +1155,7 @@ window.getApiKey = function(name) {
       ((typeof safeLSGetSync === 'function') ? safeLSGetSync(keyName, '') : '');
   } catch(e) { return ''; }
 };
-// setApiKey(storageKey, value) — 저장소에 저장 (Vault 암호화 우선).
-// 인자 1개 legacy 호출은 AI 키가 서버 전용이므로 SERVER_ONLY_AI 상태를 Promise로 반환한다
-// (v57.78: 이 경로를 쓰던 saveSidebarApiKey 스텁은 퇴역).
-window.setApiKey = function(name, value) {
-  if (arguments.length < 2 || name === 'aio_claude_api_key' || name === 'aio_perplexity_key') return Promise.resolve({ ok: false, state: 'SERVER_ONLY_AI' });
-  try {
-    if (typeof safeLSSet === 'function') { safeLSSet(name, value); }
-    else { (window.localStorage || window.sessionStorage).setItem(name, value); }
-    return { ok: true, key: name };
-  } catch(e) {
-    if (typeof _aioLog === 'function') _aioLog('warn', 'apikey', 'setApiKey fail: ' + (e && e.message));
-    return { ok: false, key: name, state: 'PERSISTENCE_FAILED', error: e && e.message || 'write_failed' };
-  }
-};
+// v58.19: setApiKey는 v57.78 saveSidebarApiKey 퇴역 뒤 호출자가 0건이라 제거했다 (AI 키는 서버 전용, R675).
 
 // ═══ v48.95: _wordHit — 유니코드 단어경계 키워드 매칭 ══════════════════════
 // 용도: P1-1 한국어 단글자 '금'.includes('금리') 오탐 방지
@@ -1385,10 +1356,26 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
     if (hiddenPaused[name] && document.hidden) { clearInterval(window._aioTimerRegistry[name]); return (window._aioTimerRegistry[name] = null); }
     return start(name);
   };
+  // v58.20 review D1: beforeunload clears every timer, but Chrome and Safari can restore the page from the back/forward
+  // cache without reloading it — the data reload, age badge, freshness and price-alert timers then stayed dead for the
+  // session. The names cleared at unload are restarted on a persisted pageshow (hidden-paused ones wait for visibility).
+  var clearedAtUnload = [];
   window._aioClearAllTimers = function() {
-    Object.keys(window._aioTimerRegistry || {}).forEach(function(k) { clearInterval(window._aioTimerRegistry[k]); });
+    clearedAtUnload = Object.keys(window._aioTimerRegistry || {});
+    clearedAtUnload.forEach(function(k) { clearInterval(window._aioTimerRegistry[k]); });
     window._aioTimerRegistry = {};
   };
+  window.addEventListener('pageshow', function(e) {
+    if (!e.persisted) return;
+    var names = clearedAtUnload; clearedAtUnload = [];
+    names.forEach(function(name) {
+      var m = meta[name];
+      if (!m || window._aioTimerRegistry[name]) return;
+      if (hiddenPaused[name] && document.hidden) { window._aioTimerRegistry[name] = null; return; }
+      start(name);
+      if (Date.now() - m.last >= m.ms) { m.last = Date.now(); try { m.fn(); } catch (_) {} }
+    });
+  });
   document.addEventListener('visibilitychange', function() {
     Object.keys(hiddenPaused).forEach(function(name) {
       var m = meta[name];
@@ -1656,22 +1643,11 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
   };
 })();
 
-// ═══ v48.98: _aioOnce + _aioGlobalRegistry ═══════════════════════════════
-// _aioOnce(name, fn)      — 동일 name 최초 1회만 fn 실행 (멱등 초기화 가드)
+// ═══ v48.98: _aioGlobalRegistry ═══════════════════════════════════════════
 // _aioGlobalRegistry      — 전역 변수 namespace 이전 시 사용하는 Map
 // P176 — _context/BUG-POSTMORTEM.md
 (function() {
-  // ── _aioOnce ─────────────────────────────────────────────────────────
-  var _onceDone = {};
-  window._aioOnce = function(name, fn) {
-    if (!name || typeof fn !== 'function') return;
-    if (_onceDone[name]) return; // 이미 실행됨
-    _onceDone[name] = true;
-    try { fn(); }
-    catch (e) {
-      if (typeof _aioLog === 'function') _aioLog('warn', 'once', name + ' failed: ' + e.message);
-    }
-  };
+  // v58.19: _aioOnce는 제품 호출자 0건(테스트 T86만)이라 제거했다 (R675).
 
   // ── _aioGlobalRegistry ───────────────────────────────────────────────
   // 전역 변수 → AIO.state.* 이전(migration) 시 구 변수명 → 신 경로 매핑 보관
@@ -2122,22 +2098,7 @@ window._aioTrackApiUsage = function(opts) {
   } catch(_) {}
 };
 
-// v49.77 P411 R154: 데이터 새로고침 핸들러 — callSharedAi 실패 시 사용자가 즉시 액션 가능
-window._aioRefreshAllData = function() {
-  try {
-    if (window.AIO && typeof window.AIO.forceRefreshAllData === 'function') {
-      window.AIO.forceRefreshAllData();
-      if (typeof showToast === 'function') showToast('전체 데이터 새로고침 시작 — 1~2초 대기 후 재질문 권장', 4000);
-    } else if (typeof window.fetchLiveQuotes === 'function') {
-      window.fetchLiveQuotes();
-      if (typeof showToast === 'function') showToast('시세 새로고침 시작', 3000);
-    } else {
-      if (typeof showToast === 'function') showToast('새로고침 함수 미가용 — 페이지 새로고침 (Ctrl+Shift+R) 권장', 4000);
-    }
-  } catch(e) {
-    if (typeof showToast === 'function') showToast('새로고침 오류: ' + (e && e.message || e), 4000);
-  }
-};
+// v58.19: _aioRefreshAllData(v49.77)는 v57.62 채팅 액션 버튼 퇴역 뒤 호출자가 0건이라 제거했다 — AIO.forceRefreshAllData가 정본.
 
 // v49.72 R139: 채팅 답변에 표시되는 "[종목] 재무 차트 보기" 버튼 핸들러
 // — fundamental 페이지로 이동 + 자동 검색 + 7 차트 자동 렌더 (P386 inline chart 대체)
@@ -2157,14 +2118,8 @@ window._aioShowFundamentalChart = function(ticker) {
     }, 800);
   }, 80);
 };
-// v50.38 트랙1b: 채팅 초보자 차트 읽기 카드 "차트 자세히 보기" 버튼 핸들러.
-// P1669: it wrote only the hidden legacy deep-analysis input (P702 keeps that fold out of the
-// user path), so the visible 차트 tab stayed on the previous company. Use the one bridge that
-// names the subject and requests the native chart.
-window._aioShowTechnicalChart = function(ticker) {
-  if (!ticker) return;
-  _aioOpenTechnicalAnalysis(ticker);
-};
+// v58.20: the chat "차트 자세히 보기" card handler (_aioShowTechnicalChart, P1669) is gone — the card itself was retired in
+// v57.62 (T812) and nothing called the handler. Chart navigation goes through _aioOpenTechnicalAnalysis.
 window._aioFetchLiveQuotes = function() {
   if (typeof window.fetchLiveQuotes === 'function') window.fetchLiveQuotes();
 };
@@ -2649,15 +2604,7 @@ if (typeof document !== 'undefined') {
     try {
       // v52.88 P703: sentiment 복합 판단은 시안 3b의 마지막 결론이다.
       // 상단으로 끌어올리던 구 로직을 제거해 헤더→F&G/VIX→지표→복합판단 순서를 보존한다.
-      // breadth: 종합 진단(결론)을 페이지 헤더(2번째 child) 바로 뒤로
-      var pb = document.getElementById('page-breadth');
-      if (pb) {
-        var verdictB = _directChildOf(pb, '#breadth-diag-signal');
-        var anchorB = pb.children[1]; // [0]=insight-box, [1]=페이지 헤더
-        if (verdictB && anchorB && verdictB !== anchorB && verdictB.previousElementSibling !== anchorB) {
-          anchorB.insertAdjacentElement('afterend', verdictB);
-        }
-      }
+      // v58.20: the breadth verdict move (#breadth-diag-signal) is gone — that element is no longer rendered anywhere.
       // signal: Lockout/OPEX 컨트롤(전문 도구)을 티커 바 아래로 — 결론·점수가 먼저
       // v50.33: Signal 핵심 결정 흐름 정렬 — 진입 체크리스트 직후로 [Exit Triggers → Lockout] 순서 고정.
       //   Exit(청산/헷지=핵심 리스크)는 기존 맨 끝에 묻혀 있었음. insertAdjacentElement는 "이동"이라
@@ -2711,8 +2658,7 @@ if (typeof document !== 'undefined') {
   // (결론바·디제스트 등 항상 채워지는 것은 대상 아님 — 데이터 의존 보조 판단 박스만.)
   var _EMPTY_VERDICT_RE = /(수신|입력|판정|계산)\s*(대기|중)|분석\s*중\.\.\.|데이터\s*(수신\s*지연|없음)|대기\.\.\./;
   var _VERDICT_BOXES = [
-    { inner: '#sent-analysis-text', page: 'page-sentiment' },     // 시장 심리 복합 판단
-    { inner: '#breadth-diag-text',  page: 'page-breadth' }        // 시장 폭 종합 진단(보조 텍스트)
+    { inner: '#sent-analysis-text', page: 'page-sentiment' }      // 시장 심리 복합 판단 (v58.20: retired #breadth-diag-text entry removed)
   ];
   window._aioGuardEmptyVerdicts = function(){
     try {
@@ -3469,15 +3415,7 @@ window._aioFetchAllNewsForce = function() {
 };
 window._aioReload = function() { window.location.reload(); };
 
-// v48.45: 교육 콘텐츠 아코디언 토글 (.aio-explain)
-window._aioToggleExplain = function(explainEl, el) {
-  // explainEl은 arg로 전달된 id 또는 closest 탐색
-  var target = null;
-  if (typeof explainEl === 'string') target = document.getElementById(explainEl);
-  if (!target && el) target = el.closest('.aio-explain');
-  if (!target) return;
-  target.classList.toggle('is-open');
-};
+// v58.19: _aioToggleExplain(v48.45)은 호출자 0건이라 제거 — .aio-explain 토글은 src/ui/pages/guide.js가 맡는다.
 
 // v49.7: 각 페이지의 목적/사용 순서/다음 이동을 한 번에 보여주는 상단 요약 레이어.
 // 긴 교육 텍스트는 그대로 보존하되, 초보자가 먼저 볼 3단계 루틴을 페이지마다 통일한다.

@@ -949,9 +949,8 @@ var _sectorWeeklyCache = {}; // sym -> pct
 var _sectorWeeklyFetching = false;
 var _sectorWeeklyTs = 0;
 
-// Current sector/theme rankings must be live/delayed only. Static fallback pct values
-// are intentionally disabled so old market snapshots cannot look tradable.
-var _SECTOR_PCT_FALLBACK = {};
+// Current sector/theme rankings must be live/delayed only; there is no static fallback pct table
+// (v58.20: the empty _SECTOR_PCT_FALLBACK placeholder was read by nothing and is gone).
 
 function setSectorPerfMode(mode, btn) {
   _sectorPerfMode = mode;

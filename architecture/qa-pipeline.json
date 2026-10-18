@@ -532,6 +532,7 @@
             "scripts/build-masters-runtime-artifacts.mjs",
             "scripts/lib/refresh-continuity.mjs",
             "scripts/lib/atomic-write.mjs",
+            "scripts/fetch-earnings-calendar.mjs",
             "src/ai/time/market-session.js",
             "src/domain/market/market-calendar.js",
             "src/data/contracts/market-snapshot.js",
@@ -2534,8 +2535,7 @@
         "scripts/*principles*.mjs",
         "scripts/*masters*.mjs",
         "scripts/lib/masters-manager-store.mjs",
-        "scripts/enrich-knowledge-*.mjs",
-        "architecture/knowledge-*.json"
+        "scripts/enrich-knowledge-*.mjs"
       ],
       "groups": [
         "knowledge",

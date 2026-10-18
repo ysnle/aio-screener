@@ -18,7 +18,10 @@ export function createOpenAiReceiptObserver(contentType) {
     try {
       const event = JSON.parse(data);
       if (event.type === 'response.completed') completedResponse = event.response;
-      if (['error','response.failed','response.incomplete'].includes(event.type)) invalid = true;
+      // v58.20 review A1: an answer stopped at max_output_tokens reached the user and carries valid usage; it settles
+      // like a completed one. Any other incomplete reason still keeps the reservation.
+      else if (event.type === 'response.incomplete' && event.response?.incomplete_details?.reason === 'max_output_tokens') completedResponse = event.response;
+      else if (['error','response.failed','response.incomplete'].includes(event.type)) invalid = true;
     } catch { invalid = true; }
   };
   const consumeFrames = () => {

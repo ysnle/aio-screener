@@ -1,0 +1,21 @@
+{
+  "version": "v58.20",
+  "date": "2026-10-18",
+  "r": null,
+  "status": null,
+  "qa": [],
+  "qa_section": "전체 리뷰 2026-10-18",
+  "note": "v58.20 AIO 전체 리뷰(cstack) ACT ON 9건 수정: 분할 후 PER·AI 예산 연결별 금액 상한·VIX 급변 누락·축소 CI 배포·bfcache 타이머·지수 세션 기준·보통주 PER 근거·잘린 답변 정산·실적 캘린더 실패 격리.",
+  "p": {
+    "title": "지수 1·3·6개월 수익률이 세션이 아니라 행 수로 기준점을 잡아 누락일이 있으면 더 긴 기간을 비교",
+    "symptom": "history.json에 누락일이 있으면 종목 화면의 지수 대비 비교와 포트폴리오 성과 분해에서 지수 3개월 수익률이 과장됐다(fixture 6.50% → 7.57%).",
+    "root_cause": "benchmarks.js indexReturns가 series[length-1-n]로 n개 행 전을 기준점으로 썼다. 다른 n거래일 수치는 sessionPointBack을 쓴다(P1428).",
+    "fix": "src/domain/market/benchmarks.js: sessionPointBack(series, n, market)으로 기준점을 찾고 시장(KR/US)을 넘김. 누락이 허용 폭을 넘으면 null.",
+    "violated_rule": "n거래일 = n세션 (P1428 계열)",
+    "prevention": "ci-esm-core-unit-check: v58.20 누락일 10개 fixture에서 63세션 수익률 일치",
+    "verification": "fixture 6.50% 일치(교정 전 7.57%)."
+  },
+  "changelog": [
+    "**지수 수익률 세션 기준 ({P}):** 종목·포트폴리오의 지수 비교 기간을 행 수가 아니라 거래 세션 수로 맞춘다."
+  ]
+}

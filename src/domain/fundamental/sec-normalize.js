@@ -354,7 +354,34 @@ function buildPointInTimeFacts(companyFacts, submissions, basis = US_GAAP_BASIS)
 // 2026-10-14: when no reported count exists at all (multi-class filers whose dei counts are class-dimensioned),
 // net income ÷ diluted EPS of the same fiscal year is the last candidate. It is not used after a reported
 // count was rejected, so a P1587 scale mismatch is still withheld rather than repriced.
+// 2026-10-18 review B1: every candidate above is on the 10-K's share basis, but the price is today's split-adjusted
+// close. A split after that 10-K (NVDA 10:1, 2024-06) priced P/E 9.9 instead of ~99 and still read 'consistent',
+// because the EPS check uses the same pre-split filing. A later cover count (10-Q or 10-K) that differs from the
+// selected count by a near-integer ratio — the shareSplitBreaks rule in fiscal-read.js — is the post-split count.
+const SPLIT_RATIO_MIN = 1.9;
+const SPLIT_RATIO_TOLERANCE = 0.06;
+function splitRatioOf(later, earlier) {
+  const ratio = later > 0 && earlier > 0 ? later / earlier : null;
+  if (ratio == null) return null;
+  const near = (x) => x >= SPLIT_RATIO_MIN && Math.abs(x - Math.round(x)) / Math.round(x) < SPLIT_RATIO_TOLERANCE;
+  return near(ratio) || near(1 / ratio) ? ratio : null;
+}
+
 function selectShareCount(companyFacts, currentRevenue, netIncome, eps, dilutedEpsRow = null, classFacts = null, symbol = '') {
+  const selected = selectReportedShareCount(companyFacts, currentRevenue, netIncome, eps, dilutedEpsRow, classFacts, symbol);
+  if (!(selected?.value > 0) || !selected.row) return selected;
+  const fiscalEnd = currentRevenue.end;
+  const later = factRows(companyFacts, 'dei', ['EntityCommonStockSharesOutstanding'], 'shares')
+    .filter((row) => /^(10-K|10-Q)(\/A)?$/.test(row.form || '') && finiteFact(row.val) > 0 && row.end && row.filed
+      && String(row.filed) > String(selected.row.filed || '') && String(row.end) > String(selected.row.end || '')
+      && (shareGapDays(row.end, fiscalEnd) ?? Infinity) <= SEC_SHARES_MAX_GAP_DAYS)
+    .sort((a, b) => String(b.end).localeCompare(String(a.end)) || String(b.filed).localeCompare(String(a.filed)))[0] || null;
+  const ratio = later ? splitRatioOf(finiteFact(later.val), selected.value) : null;
+  if (ratio == null) return selected;
+  return { ...selected, row: later, value: finiteFact(later.val), basis: 'dei-cover-post-split', splitRatio: Math.round(ratio * 1000) / 1000 };
+}
+
+function selectReportedShareCount(companyFacts, currentRevenue, netIncome, eps, dilutedEpsRow = null, classFacts = null, symbol = '') {
   const fiscalEnd = currentRevenue.end;
   const gap = (row) => shareGapDays(row.end, fiscalEnd);
   const withinYear = (rows) => rows.filter((row) => { const days = gap(row); return days != null && days <= SEC_SHARES_MAX_GAP_DAYS; });
@@ -619,7 +646,8 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     // P1587 + F03/F04: consistent | scale-mismatch (withheld) | unchecked | stale-period / unreported (no count
     // within 400 days of the fiscal year end — withheld, P/E·P/B·reference market cap stay empty)
     sharesCheck,
-    sharesBasis: Number.isFinite(sharesOutstanding) ? shareSelection.basis : null, // dei-cover | weighted-diluted | common-shares-outstanding | eps-implied | class-dimensioned-10k
+    sharesBasis: Number.isFinite(sharesOutstanding) ? shareSelection.basis : null, // dei-cover | weighted-diluted | common-shares-outstanding | eps-implied | class-dimensioned-10k | dei-cover-post-split
+    ...(shareSelection.splitRatio ? { sharesSplitRatio: shareSelection.splitRatio } : {}),
     // P1798: which class members fed a class-dimensioned count, or why the 10-K's class facts were withheld.
     ...(shareSelection.classMembers ? { sharesClassMembers: shareSelection.classMembers, sharesClassMethod: shareSelection.classMethod } : {}),
     ...(shareSelection.classCheck ? { sharesClassCheck: shareSelection.classCheck } : {}),

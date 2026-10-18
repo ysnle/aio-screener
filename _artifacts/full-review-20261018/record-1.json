@@ -1,0 +1,21 @@
+{
+  "version": "v58.20",
+  "date": "2026-10-18",
+  "r": null,
+  "status": null,
+  "qa": [],
+  "qa_section": "전체 리뷰 2026-10-18",
+  "note": "v58.20 AIO 전체 리뷰(cstack) ACT ON 9건 수정: 분할 후 PER·AI 예산 연결별 금액 상한·VIX 급변 누락·축소 CI 배포·bfcache 타이머·지수 세션 기준·보통주 PER 근거·잘린 답변 정산·실적 캘린더 실패 격리.",
+  "p": {
+    "title": "주식분할 뒤 PER·PBR·참고 시총이 분할 비율만큼 틀리고 eps-consistent로 표시됨",
+    "symptom": "10:1 분할 종목(NVDA형)이 분할 후 종가로 PER 9.9(실제 약 99)로 계산되고 검증 통과로 표시됐다.",
+    "root_cause": "selectShareCount가 10-K 표지 주식 수(분할 전)를 고르고, 같은 10-K의 순이익÷EPS로 검증해 항상 consistent였다. 가격은 분할 조정된 현재 종가였다.",
+    "fix": "src/domain/fundamental/sec-normalize.js: 선택된 주식 수보다 늦게 제출된 10-Q/10-K 표지 주식 수가 거의 정수 배(≥1.9, 6% 이내)로 다르면 분할 후 수치로 교체(sharesBasis dei-cover-post-split, sharesSplitRatio 기록). 자사주 매입 규모 변화는 그대로.",
+    "violated_rule": "가격과 주식 수의 기준 일치",
+    "prevention": "ci-data-pipeline-contract-check: v58.20 분할 후 표지 주식 수 사용 + 자사주 매입 비교",
+    "verification": "분할 fixture PER 26.5(교정 전 2.65), 매입 fixture는 dei-cover 유지."
+  },
+  "changelog": [
+    "**분할 후 PER 교정 ({P}):** 10-K 뒤에 주식분할이 있으면 이후 공시 표지 주식 수로 PER·PBR·참고 시총을 계산한다."
+  ]
+}

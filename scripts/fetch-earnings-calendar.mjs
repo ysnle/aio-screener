@@ -139,5 +139,8 @@ async function main() {
 
 // Run only as a script, so the window/coverage helpers can be imported by checks without a provider call.
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  main().catch((error) => { console.error('[earnings-calendar] failed:', error?.message || error); process.exit(1); });
+  // v58.20 review B1: this optional reference calendar runs before the core screener step under `set -e`, so one Finnhub
+  // timeout/429 used to stop the whole screener and SEC refresh for the cycle. The file is written only at the end, so a
+  // failure keeps the previous one; it is annotated and the job goes on, like the other optional lanes (sp500-weights).
+  main().catch((error) => { console.log(`::warning::earnings calendar not refreshed (${error?.message || error}); previous file kept`); });
 }

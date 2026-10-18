@@ -34,7 +34,7 @@ check('credential save performs readback', core.includes('persistence_readback_m
 check('credential save has no plaintext fallback', !/safeLS[\s\S]{0,120}localStorage\.setItem\(lsKey/.test(core));
 // P1136/R620: the sidebar credential-save handler moved with inline block A into js/aio-workspace.js.
 // P1421: browser personal AI credentials cannot bypass the shared monthly authority.
-check('P1421: personal AI helpers fail closed', workspace.includes("function getApiKey() { return ''; }") && workspace.includes("state: 'SERVER_ONLY_AI'") && !html.includes('id="sidebar-api-key"'));
+check('P1421: personal AI helpers fail closed', workspace.includes("function getApiKey() { return ''; }") && !workspace.includes('function setApiKey') /* v58.19: the zero-caller setApiKey stub is retired, so no saver exists */ && !html.includes('id="sidebar-api-key"'));
 check('P1421: retired AI credentials cannot be read or saved', core.includes("lsKey === 'aio_claude_api_key' || lsKey === 'aio_perplexity_key'") && !core.includes("credentialKey: 'aio_claude_api_key'"));
 check('route readiness is explicit', chat.includes("reason: 'NO_ROUTE'") && chat.includes('WORKER_NOT_READY'));
 check('route readiness follows the selected target and never bypasses Worker health because a personal key also exists', chat.indexOf('if (!target || !target.serverKey)') < chat.indexOf('var cacheTtl = cached && cached.ok') && uiRouteReadinessUsesTarget());

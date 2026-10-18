@@ -6,6 +6,87 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1925 - v58.20 - 선택 항목인 실적 캘린더(Finnhub) 실패 한 번이 스크리너·SEC 갱신 전체를 중단 (2026-10-18)
+
+- symptom/reproduction: Finnhub 시간 초과·429·5xx 한 번이면 refresh-screener 작업이 핵심 스크리너와 SEC 원장 게시 전에 멈췄다.
+- root_cause: fetch-earnings-calendar.mjs가 실패 시 process.exit(1)했고, 해당 단계가 set -e이며 continue-on-error가 없었다. 다른 선택 lane(sp500-weights)은 경고 후 계속한다.
+- fix: scripts/fetch-earnings-calendar.mjs: 실패 시 ::warning::을 남기고 종료 코드 0(파일은 끝에서만 쓰므로 이전 파일 유지). 데이터 연속성 게이트 캐시 입력에 이 파일 추가.
+- violated_rule: 선택 lane 실패 격리
+- prevention: ci-data-continuity-check: v58.20 실적 캘린더 실패가 작업을 중단하지 않음
+- verification/residual: ci-data-continuity-check 66건 통과.
+
+## P1924 - v58.20 - 출력 한도에서 잘린 AI 답변이 정산되지 않아 예약 상한 전액이 월 예산에서 차감 (2026-10-18)
+
+- symptom/reproduction: max_output_tokens에 도달한 답변(추론 토큰 포함이라 잦음)은 사용자에게 성공으로 보였지만 예약 상한이 그대로 남아 실제 비용보다 약 33% 많이 차감됐다.
+- root_cause: openai-usage.mjs가 response.incomplete를 무효로, verifiedOpenAiCharge가 status completed만 정산 대상으로 봤다.
+- fix: worker/openai-usage.mjs·openai-budget.mjs: incomplete_details.reason이 max_output_tokens인 응답은 검증된 사용량으로 정산. 다른 incomplete 사유는 기존처럼 예약 유지.
+- violated_rule: 정산은 실제 청구 근거 기준
+- prevention: worker/openai-contract.test.mjs: v58.20 출력 한도 응답 정산·다른 사유 유지
+- verification/residual: node worker/openai-contract.test.mjs 158건 통과.
+
+## P1923 - v58.20 - 보통주 귀속 이익 기준 PER을 화면이 순이익 기준으로 재계산해 최근 4개 분기 PER·PEG가 틀림 (2026-10-18)
+
+- symptom/reproduction: 우선주 배당을 뺀 보통주 귀속 이익으로 계산한 PER(실데이터 67종목)이 화면에서 순이익으로 시총을 되돌려 최근 4개 분기 PER(13.3 대신 16.7)과 PEG를 잘못 냈고, 근거를 순이익이라고 표시했다.
+- root_cause: sec-row-fields가 peEarningsConcept를 기록했지만 provider·normalizer가 전달하지 않아 fiscal-read가 순이익 기준으로 가정했다.
+- fix: src/data/providers/screener.js·normalize/screener.js가 _valuationPeEarningsConcept를 전달하고, fiscal-read.js는 common이면 순이익으로 재계산하지 않고 PEG를 생략하며 근거를 보통주 귀속 순이익으로 표시.
+- violated_rule: 생산자 필드는 소비자까지 전달
+- prevention: ci-esm-core-unit-check: v58.20 보통주 기준 PER 재계산·PEG 생략 + normalizer·provider 전달
+- verification/residual: fixture에서 peTtm 없음·PEG 없음·근거 문구 확인.
+
+## P1922 - v58.20 - 지수 1·3·6개월 수익률이 세션이 아니라 행 수로 기준점을 잡아 누락일이 있으면 더 긴 기간을 비교 (2026-10-18)
+
+- symptom/reproduction: history.json에 누락일이 있으면 종목 화면의 지수 대비 비교와 포트폴리오 성과 분해에서 지수 3개월 수익률이 과장됐다(fixture 6.50% → 7.57%).
+- root_cause: benchmarks.js indexReturns가 series[length-1-n]로 n개 행 전을 기준점으로 썼다. 다른 n거래일 수치는 sessionPointBack을 쓴다(P1428).
+- fix: src/domain/market/benchmarks.js: sessionPointBack(series, n, market)으로 기준점을 찾고 시장(KR/US)을 넘김. 누락이 허용 폭을 넘으면 null.
+- violated_rule: n거래일 = n세션 (P1428 계열)
+- prevention: ci-esm-core-unit-check: v58.20 누락일 10개 fixture에서 63세션 수익률 일치
+- verification/residual: fixture 6.50% 일치(교정 전 7.57%).
+
+## P1921 - v58.20 - 뒤로가기(bfcache) 복원 뒤 데이터 재적재·나이 배지·가격 알림 타이머가 멈춤 (2026-10-18)
+
+- symptom/reproduction: 같은 탭 링크로 나갔다가 뒤로가기로 돌아오면 데이터 나이 배지가 멈추고 가격 알림이 울리지 않았다.
+- root_cause: beforeunload가 _aioClearAllTimers로 타이머 등록부를 비웠고, pageshow 처리기가 없어 bfcache 복원 시 재시작되지 않았다(visibilitychange는 등록부에 없는 이름을 건너뜀).
+- fix: js/aio-core.js: 언로드 때 지운 이름을 기억하고 persisted pageshow에서 다시 시작(숨김 일시정지 타이머는 보일 때까지 대기, 기한 지난 타이머는 즉시 1회 실행).
+- violated_rule: 페이지 수명주기 복원
+- prevention: ci-runtime-contract-check: v58.20 타이머 등록부 IIFE를 가상 window에서 실행해 언로드→pageshow 복원 확인
+- verification/residual: node 가상 실행에서 타이머 2개 복원. 실제 브라우저 bfcache 복원은 미검증.
+
+## P1920 - v58.20 - 갱신 봇이 띄운 축소 CI가 사람이 push한 코드까지 포함한 커밋을 검증·배포 (2026-10-18)
+
+- symptom/reproduction: 사람 커밋 H의 전체 CI가 끝나기 전(또는 실패해도) 데이터 커밋 D가 그 위에 올라가면, D의 축소 그룹 CI 통과만으로 H의 코드가 배포될 수 있었다.
+- root_cause: ci.yml attest 작업이 inputs.origin으로 줄인 그룹 집합을 그대로 인정했고, pages-deploy는 origin을 확인하지 않았다.
+- fix: .github/workflows/ci.yml: refresh-data/refresh-screener origin이면 first-parent 기준으로 생성 경로(public-data·manifest 3종·public-config.json) 밖을 바꾼 마지막 커밋을 찾아, 그 커밋의 성공한 push CI가 있어야 attest(없으면 실패, 다음 갱신에서 재시도). attest 작업에 actions: read 추가.
+- violated_rule: 배포 검증 범위
+- prevention: ci-qa-pipeline-contract-check: v58.20 축소 CI attest 가드
+- verification/residual: 실제 저장소 기록에서 최근 데이터 커밋들이 PR 머지 커밋(3770e231·8d88c4e9)으로 해석되고 GitHub API 성공 push CI 1건씩 확인.
+
+## P1919 - v58.20 - VIX 급등일(+30% 초과)과 저금리 ^IRX 변동이 공급자 오류로 판정돼 게시 데이터에서 빠짐 (2026-10-18)
+
+- symptom/reproduction: 2024-08-05(+65%)·2018-02-05(+116%) 같은 날 ^VIX가 data.quotes에서 빠지고 Tier-0 스냅샷 게이트가 실패해 이전 스냅샷이 유지됐다.
+- root_cause: _quoteVerifyTol이 VIX에도 일반 30% 상대 변동 한도를 적용했고, 금리 한도는 주석(%p)과 달리 5% 상대 변동이었다.
+- fix: scripts/fetch-data.mjs: 금리는 1.0%p 절대 변동, 변동성 지수(^VIX·VIX3M·VIX9D·VIX6M·VVIX)는 200%, 그 외는 기존 한도. _quoteOk를 export해 테스트.
+- violated_rule: 급변일 데이터 보존
+- prevention: ci-data-pipeline-contract-check: v58.20 VIX 급등·저금리 변동 통과, 비정상 주식 급변은 재시도
+- verification/residual: 실제 급등 사례 2건과 ^IRX 0.10→0.04 통과, SPY +40%와 VIX +250%는 거절.
+
+## P1918 - v58.20 - 공개 AI 프록시의 연결별 상한이 횟수만 세어 한 연결이 월 예산 $20을 약 10분에 소진 가능 (2026-10-18)
+
+- symptom/reproduction: 공개 앱 토큰과 Origin을 흉내 낸 단일 IP가 하루 질문 상한(200회) 안에서 웹검색 요청 74회로 월 예산 전체를 예약할 수 있었다.
+- root_cause: P1759 연결별 상한이 요청 횟수만 셌고 금액 기준이 없었다. 검색 요청 1건의 예약 상한은 약 $0.27이다.
+- fix: cloudflare-worker-proxy.js: 연결별 UTC 하루 예약 금액을 월 예산의 1/20로 제한(clientSpend 원장, 같은 DO 트랜잭션, 정산 시 미사용분 환급, 그날 첫 예약은 이 몫만으로 거절하지 않음). 질문 재시도 면제분도 금액에는 포함.
+- violated_rule: 예산 남용 방지(금액 단위)
+- prevention: worker/openai-contract.test.mjs: v58.20 연결별 금액 상한·정산 환급
+- verification/residual: node worker/openai-contract.test.mjs 158건 통과. 배포 전까지 라이브 Worker에는 미반영.
+
+## P1917 - v58.20 - 주식분할 뒤 PER·PBR·참고 시총이 분할 비율만큼 틀리고 eps-consistent로 표시됨 (2026-10-18)
+
+- symptom/reproduction: 10:1 분할 종목(NVDA형)이 분할 후 종가로 PER 9.9(실제 약 99)로 계산되고 검증 통과로 표시됐다.
+- root_cause: selectShareCount가 10-K 표지 주식 수(분할 전)를 고르고, 같은 10-K의 순이익÷EPS로 검증해 항상 consistent였다. 가격은 분할 조정된 현재 종가였다.
+- fix: src/domain/fundamental/sec-normalize.js: 선택된 주식 수보다 늦게 제출된 10-Q/10-K 표지 주식 수가 거의 정수 배(≥1.9, 6% 이내)로 다르면 분할 후 수치로 교체(sharesBasis dei-cover-post-split, sharesSplitRatio 기록). 자사주 매입 규모 변화는 그대로.
+- violated_rule: 가격과 주식 수의 기준 일치
+- prevention: ci-data-pipeline-contract-check: v58.20 분할 후 표지 주식 수 사용 + 자사주 매입 비교
+- verification/residual: 분할 fixture PER 26.5(교정 전 2.65), 매입 fixture는 dei-cover 유지.
+
 ## P1916 - v58.14 - 대시보드 '섹터 등락'의 RRG 사분면이 테마·섹터 화면과 달랐음 (XLB·XLY·XLF·XLU) (2026-10-18)
 
 - symptom/reproduction: 2026-10-16 종가 기준 대시보드 '섹터 등락'은 XLB·XLY·XLF를 '기준선 부근', XLU를 '선도'로 표시했지만 테마·섹터 화면은 넷 다 '개선'으로 표시했다.

@@ -1,0 +1,21 @@
+{
+  "version": "v58.20",
+  "date": "2026-10-18",
+  "r": null,
+  "status": null,
+  "qa": [],
+  "qa_section": "전체 리뷰 2026-10-18",
+  "note": "v58.20 AIO 전체 리뷰(cstack) ACT ON 9건 수정: 분할 후 PER·AI 예산 연결별 금액 상한·VIX 급변 누락·축소 CI 배포·bfcache 타이머·지수 세션 기준·보통주 PER 근거·잘린 답변 정산·실적 캘린더 실패 격리.",
+  "p": {
+    "title": "보통주 귀속 이익 기준 PER을 화면이 순이익 기준으로 재계산해 최근 4개 분기 PER·PEG가 틀림",
+    "symptom": "우선주 배당을 뺀 보통주 귀속 이익으로 계산한 PER(실데이터 67종목)이 화면에서 순이익으로 시총을 되돌려 최근 4개 분기 PER(13.3 대신 16.7)과 PEG를 잘못 냈고, 근거를 순이익이라고 표시했다.",
+    "root_cause": "sec-row-fields가 peEarningsConcept를 기록했지만 provider·normalizer가 전달하지 않아 fiscal-read가 순이익 기준으로 가정했다.",
+    "fix": "src/data/providers/screener.js·normalize/screener.js가 _valuationPeEarningsConcept를 전달하고, fiscal-read.js는 common이면 순이익으로 재계산하지 않고 PEG를 생략하며 근거를 보통주 귀속 순이익으로 표시.",
+    "violated_rule": "생산자 필드는 소비자까지 전달",
+    "prevention": "ci-esm-core-unit-check: v58.20 보통주 기준 PER 재계산·PEG 생략 + normalizer·provider 전달",
+    "verification": "fixture에서 peTtm 없음·PEG 없음·근거 문구 확인."
+  },
+  "changelog": [
+    "**보통주 기준 PER 표시 ({P}):** 우선주 배당을 뺀 이익으로 계산한 PER은 순이익으로 다시 계산하지 않고 그 근거를 그대로 표시한다."
+  ]
+}

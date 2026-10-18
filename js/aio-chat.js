@@ -4272,12 +4272,7 @@ function _aioExportChatData(ctxId, fullText, detectedTickers, format) {
 window._aioExportChatData = _aioExportChatData;
 window.AIO = window.AIO || {};
 window.AIO.exportChatData = _aioExportChatData;
-// 다운로드 버튼 핸들러 (data-action에서 호출)
-window._aioExportFromBtn = function(dlId, format) {
-  var ctx = window['_aioDlCtx_' + dlId];
-  if (!ctx) return;
-  _aioExportChatData(ctx.ctxId, ctx.fullText, ctx.tickers, format || 'markdown');
-};
+// v58.19: _aioExportFromBtn은 제거 — data-action 버튼도 _aioDlCtx_* 작성자도 없어 항상 조기 반환했다.
 
 // v57.77: the test-only chat simulators (_aioSimulateAmountOrPct, _simulateMacroScenario, _simulatePortfolioAddition) are retired —
 // no production path called them since the per-page chatSend was retired (v57.62).

@@ -2,7 +2,7 @@
 // KOSDAQ, US listings with the S&P 500 — over the same 1/3/6-month windows (21/63/126 completed sessions).
 // Index returns come from the completed-close history (price index, no dividends); the screener's stock
 // returns use adjusted closes (dividends included), so a dividend payer gains ~0.5-1%/quarter in comparison.
-import { buildCloseSeries } from '../briefing/market-read.js';
+import { buildCloseSeries, sessionPointBack } from '../briefing/market-read.js';
 
 const WINDOWS = Object.freeze({ ret1m: 21, ret3m: 63, ret6m: 126 });
 
@@ -13,12 +13,15 @@ export function benchmarkOf(symbol) {
   return { id: 'spx', label: 'S&P 500', field: 'spx', market: 'US' };
 }
 
-export function indexReturns(history = [], field, { through = null } = {}) {
+// v58.20 review C1: "63 sessions back" is 63 sessions, not 63 rows. history.json can skip days (P1428), and counting rows
+// then compared the stock's 63-bar return with a longer index window (6.50% true vs 7.57% with 10 missing days). The base
+// point is found the way every other "n거래일" figure is (sessionPointBack); too many missing days withhold the return.
+export function indexReturns(history = [], field, { through = null, market = 'US' } = {}) {
   const series = buildCloseSeries(history, field, { through });
   const last = series[series.length - 1];
   const out = {};
   for (const [key, sessions] of Object.entries(WINDOWS)) {
-    const then = series.length > sessions ? series[series.length - 1 - sessions] : null;
+    const then = sessionPointBack(series, sessions, market);
     out[key] = last && then && then.value > 0 ? (last.value / then.value - 1) * 100 : null;
   }
   return out;
@@ -30,5 +33,5 @@ export function indexReturns(history = [], field, { through = null } = {}) {
 export function benchmarkRowFor(symbol, history = [], { through = null } = {}) {
   const bench = benchmarkOf(symbol);
   const series = buildCloseSeries(history, bench.field, { through });
-  return { ...indexReturns(history, bench.field, { through }), asOf: series.at(-1)?.date || null, label: bench.label, id: bench.id, market: bench.market };
+  return { ...indexReturns(history, bench.field, { through, market: bench.market }), asOf: series.at(-1)?.date || null, label: bench.label, id: bench.id, market: bench.market };
 }

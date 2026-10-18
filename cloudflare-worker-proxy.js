@@ -619,6 +619,11 @@ const QUOTA_STATE_RETENTION_MS = 3 * 24 * 60 * 60 * 1000;
 const AI_FREE_RETRIES_PER_DAY = 20; // v57.61: retries of a counted question that do not use the connection's daily questions
 const AI_PER_CLIENT_DAILY_CAP_DEFAULT = 150; // v57.54: a household shares one IP; half the 300/day global cap still stops one outsider draining it
 const AI_PER_CLIENT_DAILY_CAP_MAX = 1000;
+// 2026-10-18 review A1/A2: the per-connection cap above counts questions, not money. One connection inside its 200
+// questions could reserve the whole $20 month (74 searched answers at the $0.27 upper bound, ~10 minutes at the
+// 20/min rate limit), so a connection's reserved micro-USD per UTC day is also capped at 1/20 of the month. The
+// reservation is the upper bound and settlement returns the unused part, so ordinary use stays far below it.
+const AI_PER_CLIENT_MONTH_SHARE = 20;
 // Entries <= admitted browser requests today <= AI_DAILY_CAP; this ceiling only binds if an operator raises
 // AI_DAILY_CAP above it. A new client beyond it is refused (fail closed) rather than left uncounted.
 const AI_CLIENT_LEDGER_MAX_ENTRIES = 2000;
@@ -806,7 +811,7 @@ export class AIOQuotaDurableObject {
     this.state = state;
     this.storage = state.storage;
     this.env = env;
-    this.counts = { schemaVersion: BUDGET_SCHEMA, days: {}, months: {}, reservations: {}, legacyUnknownMonths: {}, clients: {}, retryWaivers: {} };
+    this.counts = { schemaVersion: BUDGET_SCHEMA, days: {}, months: {}, reservations: {}, legacyUnknownMonths: {}, clients: {}, clientSpend: {}, retryWaivers: {} };
     // Validated state stays in memory for this object's lifetime (every caller runs under
     // blockConcurrencyWhile, so there is one writer); a failed save drops it so the next call re-reads storage.
     this.loaded = false;
@@ -833,6 +838,9 @@ export class AIOQuotaDurableObject {
     const clientsValid = record(this.counts.clients) && Object.entries(this.counts.clients).every(([day, bucket]) => /^claude:\d{4}-\d{2}-\d{2}$/.test(day)
       && record(bucket) && Object.entries(bucket).every(([key, used]) => AI_CLIENT_KEY_RE.test(key) && Number.isSafeInteger(used) && used >= 0));
     if (!clientsValid) this.counts.clients = {};
+    const spendValid = record(this.counts.clientSpend) && Object.entries(this.counts.clientSpend).every(([day, bucket]) => /^claude:\d{4}-\d{2}-\d{2}$/.test(day)
+      && record(bucket) && Object.entries(bucket).every(([key, used]) => AI_CLIENT_KEY_RE.test(key) && Number.isSafeInteger(used) && used >= 0));
+    if (!spendValid) this.counts.clientSpend = {};
     if (!record(this.counts.retryWaivers)) this.counts.retryWaivers = {}; // v57.61: bounded free retries per connection-day
     for (const count of Object.values(this.counts.days)) if (!Number.isSafeInteger(count) || count < 0) throw new Error('corrupt daily quota count');
     for (const [month, amount] of Object.entries(this.counts.months)) {
@@ -881,6 +889,13 @@ export class AIOQuotaDurableObject {
   // it only answers duplicate request IDs, so it drops with the day counters. Dropping a row only lowers
   // the per-month reservation sums, so load()'s sums <= months check still holds. An un-started
   // reservation may still be released (its amount returned to the month), so it keeps the month-retention rule.
+  refundClientSpend(reservation, amount) {
+    const bucket = reservation?.spendKey ? this.counts.clientSpend?.[reservation.dayKey] : null;
+    if (!bucket || !(bucket[reservation.spendKey] > 0) || !(amount > 0)) return;
+    const left = bucket[reservation.spendKey] - amount;
+    if (left > 0) bucket[reservation.spendKey] = left; else delete bucket[reservation.spendKey];
+  }
+
   prune(now = Date.now()) {
     let changed = false;
     const cutoff = now - QUOTA_STATE_RETENTION_MS;
@@ -907,6 +922,9 @@ export class AIOQuotaDurableObject {
     }
     for (const day of Object.keys(this.counts.retryWaivers || {})) {
       if (day !== currentClientDay) { delete this.counts.retryWaivers[day]; changed = true; }
+    }
+    for (const day of Object.keys(this.counts.clientSpend || {})) {
+      if (day !== currentClientDay) { delete this.counts.clientSpend[day]; changed = true; }
     }
     for (const dayKey of Object.keys(this.counts.days || {})) {
       const match = dayKey.match(/(\d{4}-\d{2}-\d{2})$/);
@@ -1013,11 +1031,21 @@ export class AIOQuotaDurableObject {
             return;
           }
         }
+        // Retries waived from the question count still spend money, so the spend bound follows the connection either way.
+        const spendKey = isAi ? (clientKey || waiverKey) : null;
+        const clientSpent = spendKey ? this.counts.clientSpend?.[dayKey]?.[spendKey] || 0 : 0;
+        // A connection's first reservation of the day is never refused by its share alone (the month bound above still
+        // applies), so a small configured month cannot block every single answer.
+        if (spendKey && clientSpent > 0 && clientSpent + amount > Math.floor(body.monthlyCapMicroUsd / AI_PER_CLIENT_MONTH_SHARE)) {
+          result = { ok: false, reserved: false, duplicate: false, count, reason: 'client-daily-cap', budgetState, clientSpendLimited: true };
+          return;
+        }
         this.counts.days[dayKey] = count + 1;
         if (isAi) {
           this.counts.months[monthKey] = (this.counts.months[monthKey] || 0) + amount;
-          this.counts.reservations[key] = { createdAt: Date.now(), dayKey, monthKey, reservationMicroUsd: amount, started: false, ...(clientKey ? { clientKey } : {}) };
+          this.counts.reservations[key] = { createdAt: Date.now(), dayKey, monthKey, reservationMicroUsd: amount, started: false, ...(clientKey ? { clientKey } : {}), ...(spendKey ? { spendKey } : {}) };
           if (clientKey) (this.counts.clients[dayKey] ||= {})[clientKey] = clientUsed + 1;
+          if (spendKey) ((this.counts.clientSpend ||= {})[dayKey] ||= {})[spendKey] = clientSpent + amount;
           if (waiverKey) { const waivers = ((this.counts.retryWaivers ||= {})[dayKey] ||= {}); waivers[waiverKey] = (waivers[waiverKey] || 0) + 1; }
           budgetState = aiBudgetState(this.counts.months[monthKey], body.monthlyCapMicroUsd, false);
         } else this.counts.reservations[key] = Date.now();
@@ -1050,6 +1078,7 @@ export class AIOQuotaDurableObject {
             if (bucket[reservation.clientKey] === 1) delete bucket[reservation.clientKey];
             else bucket[reservation.clientKey] -= 1;
           }
+          this.refundClientSpend(reservation, reservation.reservationMicroUsd);
         }
         delete this.counts.reservations[key];
         this.counts.days[dayKey] = Math.max(0, Number(this.counts.days[dayKey] || 0) - 1);
@@ -1071,6 +1100,7 @@ export class AIOQuotaDurableObject {
         if (reservation.settled === true) { result = { ok: true, settled: false, duplicate: true }; return; }
         if (!Number.isSafeInteger(body.chargeMicroUsd) || body.chargeMicroUsd < 1 || body.chargeMicroUsd > reservation.reservationMicroUsd) throw new Error('verified charge exceeds reservation or is invalid');
         this.counts.months[reservation.monthKey] -= reservation.reservationMicroUsd - body.chargeMicroUsd;
+        this.refundClientSpend(reservation, reservation.reservationMicroUsd - body.chargeMicroUsd);
         reservation.originalReservationMicroUsd = reservation.reservationMicroUsd;
         reservation.reservationMicroUsd = body.chargeMicroUsd;
         reservation.settled = true;

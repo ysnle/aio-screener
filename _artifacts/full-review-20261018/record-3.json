@@ -1,0 +1,21 @@
+{
+  "version": "v58.20",
+  "date": "2026-10-18",
+  "r": null,
+  "status": null,
+  "qa": [],
+  "qa_section": "전체 리뷰 2026-10-18",
+  "note": "v58.20 AIO 전체 리뷰(cstack) ACT ON 9건 수정: 분할 후 PER·AI 예산 연결별 금액 상한·VIX 급변 누락·축소 CI 배포·bfcache 타이머·지수 세션 기준·보통주 PER 근거·잘린 답변 정산·실적 캘린더 실패 격리.",
+  "p": {
+    "title": "VIX 급등일(+30% 초과)과 저금리 ^IRX 변동이 공급자 오류로 판정돼 게시 데이터에서 빠짐",
+    "symptom": "2024-08-05(+65%)·2018-02-05(+116%) 같은 날 ^VIX가 data.quotes에서 빠지고 Tier-0 스냅샷 게이트가 실패해 이전 스냅샷이 유지됐다.",
+    "root_cause": "_quoteVerifyTol이 VIX에도 일반 30% 상대 변동 한도를 적용했고, 금리 한도는 주석(%p)과 달리 5% 상대 변동이었다.",
+    "fix": "scripts/fetch-data.mjs: 금리는 1.0%p 절대 변동, 변동성 지수(^VIX·VIX3M·VIX9D·VIX6M·VVIX)는 200%, 그 외는 기존 한도. _quoteOk를 export해 테스트.",
+    "violated_rule": "급변일 데이터 보존",
+    "prevention": "ci-data-pipeline-contract-check: v58.20 VIX 급등·저금리 변동 통과, 비정상 주식 급변은 재시도",
+    "verification": "실제 급등 사례 2건과 ^IRX 0.10→0.04 통과, SPY +40%와 VIX +250%는 거절."
+  },
+  "changelog": [
+    "**VIX 급등일 보존 ({P}):** 변동성 지수의 큰 하루 변동과 저금리 구간의 금리 변동을 공급자 오류로 버리지 않는다."
+  ]
+}

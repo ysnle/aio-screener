@@ -1,0 +1,21 @@
+{
+  "version": "v58.20",
+  "date": "2026-10-18",
+  "r": null,
+  "status": null,
+  "qa": [],
+  "qa_section": "전체 리뷰 2026-10-18",
+  "note": "v58.20 AIO 전체 리뷰(cstack) ACT ON 9건 수정: 분할 후 PER·AI 예산 연결별 금액 상한·VIX 급변 누락·축소 CI 배포·bfcache 타이머·지수 세션 기준·보통주 PER 근거·잘린 답변 정산·실적 캘린더 실패 격리.",
+  "p": {
+    "title": "선택 항목인 실적 캘린더(Finnhub) 실패 한 번이 스크리너·SEC 갱신 전체를 중단",
+    "symptom": "Finnhub 시간 초과·429·5xx 한 번이면 refresh-screener 작업이 핵심 스크리너와 SEC 원장 게시 전에 멈췄다.",
+    "root_cause": "fetch-earnings-calendar.mjs가 실패 시 process.exit(1)했고, 해당 단계가 set -e이며 continue-on-error가 없었다. 다른 선택 lane(sp500-weights)은 경고 후 계속한다.",
+    "fix": "scripts/fetch-earnings-calendar.mjs: 실패 시 ::warning::을 남기고 종료 코드 0(파일은 끝에서만 쓰므로 이전 파일 유지). 데이터 연속성 게이트 캐시 입력에 이 파일 추가.",
+    "violated_rule": "선택 lane 실패 격리",
+    "prevention": "ci-data-continuity-check: v58.20 실적 캘린더 실패가 작업을 중단하지 않음",
+    "verification": "ci-data-continuity-check 66건 통과."
+  },
+  "changelog": [
+    "**실적 캘린더 실패 격리 ({P}):** 실적 캘린더를 못 받아도 이전 파일을 유지하고 스크리너 갱신은 계속한다."
+  ]
+}

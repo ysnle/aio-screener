@@ -1863,6 +1863,19 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { benchmarkRowFor } = await load('src/domain/market/benchmarks.js');
   const benchHistory = ['2026-10-06', '2026-10-07', '2026-10-08', '2026-10-12'].map((date, index) => ({ date, kospi: 100 + index }));
   if (benchmarkRowFor('005930.KS', benchHistory, { through: '2026-10-08' }).asOf !== '2026-10-08' || benchmarkRowFor('005930.KS', benchHistory).asOf !== '2026-10-12') fail('S07 benchmark must cut at the factor session when asked');
+  {
+    // v58.20 review C1: index windows count sessions, not rows. S&P +0.1% per session with 10 sessions missing inside the
+    // 63-session window: the true 63-session return is 6.50%; counting rows reached further back (7.57%).
+    const { isCloseSessionDate: usSession } = await load('src/domain/briefing/market-read.js');
+    const sessions = [];
+    for (let t = Date.UTC(2026, 2, 1); t <= Date.UTC(2026, 9, 16); t += 86400000) { const d = new Date(t).toISOString().slice(0, 10); if (usSession(d, 'US')) sessions.push(d); }
+    let level = 5000;
+    const full = sessions.map((date) => ({ date, spx: (level *= 1.001) }));
+    const gapped = full.filter((_, i) => !(i >= sessions.length - 40 && i < sessions.length - 30));
+    const truth = (full.at(-1).spx / full.at(-1 - 63).spx - 1) * 100;
+    const read = benchmarkRowFor('SPY', gapped).ret3m;
+    if (!(Math.abs(read - truth) < 0.01)) fail(`v58.20 benchmark 3m return must span 63 sessions despite missing rows: ${read} vs ${truth}`);
+  }
 
   // v57.81 (analysis audit 2026-10-15, screener + stock): trend labels pass ADR buffers (technical/bands.js), the why-drawer
   // has model-level contrary evidence, the MA stack reads the close first, and one validation count basis. Rows are the
@@ -1947,6 +1960,20 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { buildFiscalRead, formatUsdShort } = await load('src/domain/fundamental/fiscal-read.js');
   if (formatUsdShort(-147.8e9) !== '−$147.8B' || formatUsdShort(416.2e9) !== '$416.2B') fail(`S18 signed USD format drifted: ${formatUsdShort(-147.8e9)}`);
   const per = buildFiscalRead({ symbol: 'AAPL', row: { pe: 45, factorSessionDate: '2026-10-12' }, fundamentals: { symbol: 'AAPL', fiscalHistory: [{ periodEnd: '2024-09-28', revenue: 391e9, netIncome: 93.7e9, equity: 57e9 }, { periodEnd: '2025-09-27', revenue: 416e9, netIncome: 112e9, equity: 74e9 }] } });
+  {
+    // v58.20 review C1: a PER priced on earnings available to common (market cap 1600 / common 80 = 20) is not rebuilt
+    // from net income (1600/120 = 13.3 was shown as 16.7) nor divided by net-income growth, and its basis says common.
+    const commonRow = { pe: 20, _valuationPeEarningsBasis: 'fy', _valuationPeEarningsConcept: 'common', _fundamentalPeriodEnd: '2025-12-31', factorSessionDate: '2026-06-01' };
+    const commonRead = buildFiscalRead({ symbol: 'X', row: commonRow,
+      fundamentals: { symbol: 'X', periodType: 'FY', observedAt: '2025-12-31', revenue: 1000, netIncome: 100, fiscalHistory: [{ periodEnd: '2024-12-31', revenue: 900, netIncome: 90 }, { periodEnd: '2025-12-31', revenue: 1000, netIncome: 100 }] },
+      quarters: [['2025-06-30', 30], ['2025-09-30', 30], ['2025-12-31', 30], ['2026-03-31', 30]].map(([periodEnd, netIncome]) => ({ periodEnd, netIncome })) });
+    const commonPoint = commonRead.points.find((point) => point.id === 'earnings') || {};
+    if (commonPoint.peTtm != null || /PEG/.test(commonPoint.text.split('. PEG는')[0]) || !/PER 20\.0배\(FY2025 보통주 귀속 순이익 기준/.test(commonPoint.text)) fail(`v58.20 common-earnings PER must not be rebuilt from net income or paired with PEG: ${commonPoint.text}`);
+    const { normalizeScreener: normalizeForConcept } = await load('src/data/normalize/screener.js');
+    const carried = normalizeForConcept({ rows: [{ ticker: 'X', sym: 'X', pe: 20, _valuationPeEarningsConcept: 'common' }] }).rows?.[0];
+    if (carried?._valuationPeEarningsConcept !== 'common') fail('v58.20 the screener normalizer must carry the PER earnings concept to consumers');
+    if (!/_valuationPeEarningsConcept: factor\.peEarningsConcept/.test(readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src/data/providers/screener.js'), 'utf8'))) fail('v58.20 the screener provider must map peEarningsConcept');
+  }
   const earnings = per.points.find((point) => point.id === 'earnings')?.text || '';
   // 2026-10-14 audit #2: basis reads "FY2025 순이익 기준 · 2025-09 마감 · 경과 n개월"; four newer quarters add a labelled second figure.
   if (!/PER 45\.0배\(FY2025 순이익 기준 · 2025-09 마감 · 경과 12개월\)/.test(earnings)) fail(`S06 PER must name its fiscal-year basis and age, got ${earnings}`);

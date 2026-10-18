@@ -131,6 +131,16 @@ const fetchData = readProducerSource();
       JSON.stringify({ atOpen, withToday, afterClose, us }));
   }
   {
+    // v58.20 review B1: quote verification keeps real spike days and low-rate moves. ^VIX +65% (2024-08-05) and +116%
+    // (2018-02-05) were dropped as provider errors, and ^IRX 0.10 -> 0.04 failed a relative 5% bound meant as points.
+    const { _quoteOk } = await import('./fetch-data.mjs');
+    const quote = (symbol, prev, price) => ({ symbol, regularMarketPreviousClose: prev, regularMarketPrice: price });
+    check('v58.20 VIX spike days and low-rate yield moves pass quote verification; an implausible equity jump still retries',
+      _quoteOk(quote('^VIX', 23.39, 38.57)) && _quoteOk(quote('^VIX', 17.31, 37.32)) && _quoteOk(quote('^IRX', 0.10, 0.04))
+        && !_quoteOk(quote('^IRX', 4.1, 5.6)) && !_quoteOk(quote('SPY', 500, 700)) && !_quoteOk(quote('^VIX', 20, 70)),
+      'quote tolerance');
+  }
+  {
     // P1587: a cover-page share count 1000x off the EPS-implied count (PKG, 2026) is withheld, never priced.
     const { normalizeSecCompanyFacts } = await import('./fetch-sec-fundamentals.mjs');
     const fy = (val, extra = {}) => ({ val, form: '10-K', fp: 'FY', fy: 2025, start: '2025-01-01', end: '2025-12-31', filed: '2026-02-25', accn: 'a', ...extra });
@@ -140,6 +150,16 @@ const fetchData = readProducerSource();
     check('P1587: SEC share counts far from net income / diluted EPS are withheld before P/E and P/B',
       bad?.sharesCheck === 'scale-mismatch' && bad?.sharesOutstanding === null && bad?.pe == null && good?.sharesCheck === 'consistent' && Math.abs(good?.pe - 26.5) < 0.2,
       JSON.stringify({ bad: bad && { c: bad.sharesCheck, pe: bad.pe }, good: good && { c: good.sharesCheck, pe: good.pe } }));
+    // v58.20 review B1: a split after the 10-K. The FY cover count (pre-split) passes the EPS check from the same filing,
+    // so the post-split close used to price P/E at a tenth of its value. A later 10-Q cover count at a near-integer
+    // ratio replaces it; an ordinary buyback-sized change does not.
+    const withLaterCover = (later) => { const f = facts(89213394); f.facts.dei.EntityCommonStockSharesOutstanding.units.shares.push({ val: later, form: '10-Q', fp: 'Q1', end: '2026-04-20', filed: '2026-04-28', accn: 'q1' }); return f; };
+    const split = normalizeSecCompanyFacts('PKG', withLaterCover(89213394 * 10), 229.94 / 10, null);
+    const buyback = normalizeSecCompanyFacts('PKG', withLaterCover(Math.round(89213394 * 0.97)), 229.94, null);
+    check('v58.20 a share split after the 10-K prices P/E on the later post-split cover count, not the pre-split 10-K count',
+      split?.sharesBasis === 'dei-cover-post-split' && split?.sharesOutstanding === 892133940 && split?.sharesSplitRatio === 10 && Math.abs(split?.pe - 26.5) < 0.2
+        && buyback?.sharesBasis === 'dei-cover' && buyback?.sharesOutstanding === 89213394,
+      JSON.stringify({ split: split && { b: split.sharesBasis, s: split.sharesOutstanding, r: split.sharesSplitRatio, pe: split.pe }, buyback: buyback && { b: buyback.sharesBasis, s: buyback.sharesOutstanding } }));
     // 2026-10-14: a filer with no reported share count (class-dimensioned dei) is priced on net income / diluted EPS;
     // utility revenue concepts count as annual revenue.
     const multiClass = { facts: { 'us-gaap': { RegulatedAndUnregulatedOperatingRevenue: { units: { USD: [fy(8.6e9), fy(8.4e9, { start: '2024-01-01', end: '2024-12-31', fy: 2024, accn: 'b' })] } }, NetIncomeLoss: { units: { USD: [fy(774.1e6)] } }, EarningsPerShareDiluted: { units: { 'USD/shares': [fy(8.62)] } } } } };
@@ -1789,7 +1809,7 @@ check('P1421 core data pipeline audit exposes publicData and shared AI availabil
 check('v57.78: AIO.getOperationalHealth had no production caller and stays retired', !/getOperationalHealth/.test(core)); // text-pin-ok: retirement absence
 
 check('chat consumes news context and screener memo', /_buildNewsContext/.test(chat) && /newsCache/.test(chat) && /SCREENER_DB Memo/.test(chat) && /_aioGetMemoForTicker/.test(chat));
-check('news Korean translation and local insight fallback are wired', /_aioBuildNewsLocalKoreanInsight/.test(data) && /_aioGetNewsTranslation/.test(data) && /ko_explain/.test(data) && /getNewsTranslationQualityAudit/.test(data));
+check('news Korean translation and local insight fallback are wired', /_aioBuildNewsLocalKoreanInsight/.test(data) && /_aioGetNewsTranslation/.test(data) && /ko_explain/.test(data));
 // The Korean rewrite brief renderer was never called (its #news-korean-rewrite-brief slot stayed hidden);
 // the renderer trio and slot were retired. The per-item ko_rewrite/ko_section/ko_market fields stay.
 check('P1753 news Korean rewrite fields stay on items and the uncalled rewrite brief stays retired', /ko_rewrite/.test(data) && /ko_section/.test(data) && /ko_market/.test(data) && !/_aioBuildNewsKoreanRewriteBrief|_aioRenderNewsKoreanRewriteBrief/.test(data) && !/news-korean-rewrite-brief/.test(read('index.html')));

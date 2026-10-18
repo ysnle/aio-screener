@@ -271,19 +271,23 @@ export function fxCloseAtCut(timestamps = [], closes = [], nowMs = Date.now()) {
 
 // v50.99: fetch 성공처럼 보이는 데이터 품질 검증.
 // Yahoo가 에러 없이 stale/비정상 데이터를 반환할 수 있음 — 전일 종가 대비 변동폭으로 판별.
-// 허용 범위: 금리(±5%p) / 크립토(±50%) / 그 외(±30%). 범위 초과 시 재시도 대상.
+// 허용 범위: 금리(±1.0%p 절대 변동) / 변동성 지수(±200%) / 크립토(±50%) / 그 외(±30%). 범위 초과 시 재시도 대상.
+// v58.20 review B1: the rate tolerance was a 5% relative move, which rejected ^IRX at low rates (0.10 -> 0.04) although
+// the comment said percentage points, and the 30% default dropped ^VIX on real spike days (2024-08-05 +65%,
+// 2018-02-05 +116%) — the crash day lost its VIX and failed the Tier-0 snapshot gate.
 function _quoteVerifyTol(symbol) {
-  if (/^\^(TNX|TYX|FVX|IRX)$/.test(symbol)) return 5;
-  if (/-USD$/.test(symbol)) return 50;
-  return 30;
+  if (/^\^(TNX|TYX|FVX|IRX)$/.test(symbol)) return { points: 1 };
+  if (/^\^(VIX|VIX3M|VIX9D|VIX6M|VVIX)$/.test(symbol)) return { pct: 200 };
+  if (/-USD$/.test(symbol)) return { pct: 50 };
+  return { pct: 30 };
 }
-function _quoteOk(q) {
+export function _quoteOk(q) {
   if (!q || q.__error) return false;
   const price = q.regularMarketPrice, prev = q.regularMarketPreviousClose || q.chartPreviousClose;
   if (typeof price !== 'number' || price <= 0) return false;
   if (prev > 0) {
-    const chg = Math.abs((price - prev) / prev) * 100;
-    if (chg > _quoteVerifyTol(q.symbol)) return false;
+    const tol = _quoteVerifyTol(q.symbol);
+    if (tol.points != null ? Math.abs(price - prev) > tol.points : Math.abs((price - prev) / prev) * 100 > tol.pct) return false;
   }
   return true;
 }

@@ -1,3 +1,24 @@
+## v58.20 (2026-10-18)
+- **분할 후 PER 교정 (P1917):** 10-K 뒤에 주식분할이 있으면 이후 공시 표지 주식 수로 PER·PBR·참고 시총을 계산한다.
+- **AI 예산 연결별 금액 상한 (P1918):** 한 연결이 하루에 예약할 수 있는 AI 비용을 월 예산의 1/20로 묶어, 질문 횟수 안에서 월 예산을 소진하지 못하게 한다.
+- **VIX 급등일 보존 (P1919):** 변동성 지수의 큰 하루 변동과 저금리 구간의 금리 변동을 공급자 오류로 버리지 않는다.
+- **축소 CI 배포 가드 (P1920):** 데이터 갱신 CI는 그 아래 사람 커밋이 전체 CI를 통과한 경우에만 배포 증명을 만든다.
+- **뒤로가기 복원 타이머 (P1921):** 뒤로가기로 복원된 페이지에서도 데이터 갱신·가격 알림 타이머가 다시 돈다.
+- **지수 수익률 세션 기준 (P1922):** 종목·포트폴리오의 지수 비교 기간을 행 수가 아니라 거래 세션 수로 맞춘다.
+- **보통주 기준 PER 표시 (P1923):** 우선주 배당을 뺀 이익으로 계산한 PER은 순이익으로 다시 계산하지 않고 그 근거를 그대로 표시한다.
+- **잘린 답변 정산 (P1924):** 출력 한도에서 멈춘 AI 답변도 실제 사용량으로 정산해 월 예산이 과다 차감되지 않게 한다.
+- **실적 캘린더 실패 격리 (P1925):** 실적 캘린더를 못 받아도 이전 파일을 유지하고 스크리너 갱신은 계속한다.
+- **v58.19 감사 후속 정리 (v58.20):** 제품 호출자가 0건이고 테스트·게이트만 붙잡고 있던 코드를 근거와 함께 제거했다 — 퇴역한 채팅 차트 카드 핸들러 `_aioShowTechnicalChart`(P1669 게이트를 '부재' 확인으로 전환), 어디서도 만들지 않는 `#breadth-diag-signal`/`#breadth-diag-text` 조회 3곳(market.js teardown·aio-core 재배치·빈 결론 가드), 빈 `_SECTOR_PCT_FALLBACK`, 읽히지 않는 `_scrVisibleLimit`(게이트를 screener.js의 실제 12행 한도로 재지정), `AIO.refreshAllComprehensivePages`·`AIO.getHistoryDataAudit`·`AIO.trimAIConversationContext`·`AIO.getNewsTranslationQualityAudit`(T979 삭제, T700·T796은 살아 있는 판정만 유지). QA 묶음 상수를 읽던 `AIO.getAIGoldenCorpus`는 aio-qa-audits.js로 옮겼다.
+- R1 7곳 v58.20
+
+## v58.19 (2026-10-18)
+- **죽은 테스트·레거시 코드 정리 (change-only, 심층 테스트 감사).** 읽기 전용 감사 4갈래(브라우저 테스트·src 모듈·legacy 함수·CI 게이트/fixture)의 후보를 grep·git 이력으로 하나씩 재검증한 것만 지웠다. 제품 동작 변화는 없다.
+- **항상 통과하던 headless 테스트 13건 제거·3건 축소.** T138·T139·T458·T464·T561·T232·T233·T190·T191·T182·T179·T854·T874는 대상 DOM/함수가 이미 퇴역해 빈 입력·'요소 없음' 분기로만 통과했다(대상 id 23개 모두 index.html·js·src에서 0건). T873은 항상 참이던 part B(#breadth-header-badge)를, T769는 퇴역한 #breadth-consensus-verdict 비교를, T1035는 퇴역한 updateKrMacroFromLive 소스 검사를 빼고 살아 있는 판정만 남겼다. ci-runtime-contract-check의 T874 요구와 'kr-themes' 페이지 설정 확인(재지정 별칭만 매치)도 함께 뺐다.
+- **호출자 0건인 legacy 함수 제거 (R675).** `_aioChatAutoVis`·`_autoVisRaw`·`_findRow`(aio-ui), `_aioToggleExplain`·`_aioRefreshAllData`·`_aioOnce`·`_aioRenderNum`·`window.setApiKey`(aio-core), `setApiKey` 스텁(aio-workspace), `_aioExportFromBtn`(aio-chat, `_aioDlCtx_*` 작성자가 없어 항상 조기 반환). 이들을 typeof/단위로만 확인하던 T66·T86·T605와 T545·T83의 해당 부분, qa-audits의 exportFromBtn 프로브를 같이 정리했고 T83은 setApiKey가 없음을 고정한다. setApiKey 이중 소유가 사라져 global-ownership-baseline의 documentedFunctionPairs에서 빼고(ratchet), ai-chat-reliability의 P1421 검사는 스텁 문자열 대신 setApiKey 부재를 확인한다.
+- **쓰이지 않는 스크립트·fixture 제거.** `build-knowledge-quantitative-labs.mjs`(P1109 이후 EXCLUDED만 출력하는 스텁, 퇴역 가드는 ci-artifact-semantics가 산출물에 건다), `reconcile-masters-coverage.mjs`(같은 coverage 필드를 collect-13f-reference가 매번 기록 — 현재 데이터로 돌려도 동일값), `architecture/fixtures/screener-workbench-golden.json`(생성 이후 소비자 0건, universe 873 고정값), `schemas/knowledge/quantitative-lab.schema.json`(퇴역 범위), qa-pipeline impactRules의 매치 0 패턴 `architecture/knowledge-*.json`.
+- **유지 판정(근거 확인 후 남김).** start-local.ps1(start-local.cmd가 호출), performance-hunt.mjs(수동 프로파일러, .gitignore 연결), reconcile-atlas-taxonomy.mjs(flowPosition의 유일한 도출기 — ci-atlas-contract-check가 요구), recover-masters-holdings-from-shards.mjs(복구 절차), 게이트 전용 src 모듈 19개(RULES 검증 수단으로 등록), `_aioShowTechnicalChart`(P1669 게이트 고정), 개발자 콘솔용 `_enableDebugLog`/`_disableDebugLog`.
+- R1 7곳 v58.19
+
 ## v58.17 (2026-10-18)
 - **차트 탭 순서: 종목 차트 먼저, 시장 상태 요약은 그 아래 (v58.17):** 차트 탭에서 `#stock-chart-section`이 헤더 바로 뒤에 오고 `#tech-regime-summary`가 차트 아래, '이어서 볼 곳' 위로 이동했다. 소유자 승인(2026-10-18)에 따라 P1420 `chartFirst` 브라우저 게이트와 레거시 T806 검사도 새 순서(차트 → 요약)를 고정하도록 바꿨다 (PR #44).
 - R1 7곳 v58.17

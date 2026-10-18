@@ -68,6 +68,9 @@ The bounds that are *not* per-isolate:
   DO admission transaction. The key is an HMAC of the UTC day and the caller IP (IPv6 by /64;
   key material `AI_CLIENT_KEY_SALT` or, if unset, `OPENAI_API_KEY`); raw IPs are never stored.
   Exceeding it returns 429 `client-daily-cap` with `Retry-After` to the next UTC midnight.
+  v58.20: the same connection's reserved micro-USD per UTC day is also capped at 1/20 of the month
+  (`AI_PER_CLIENT_MONTH_SHARE`; settlement returns the unused part, and the day's first reservation is
+  never refused by the share alone), so one caller cannot reserve the whole month inside its question count.
   Authenticated Actions requests are exempt (global + monthly caps still apply). Below 20% of the
   month (`budgetState: low`) the Worker removes hosted search from new requests. `/health` has its
   own isolate-local bucket (120/min; optional `RATE_LIMIT_HEALTH` binding).

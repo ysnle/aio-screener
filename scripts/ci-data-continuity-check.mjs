@@ -248,6 +248,14 @@ for (const name of ['fetch-earnings-calendar', 'fetch-sec-fundamentals']) { // A
     && source.includes('await atomicWriteFile(') && !/await (?:writeFile|rename)\(/.test(source), 'producer must preserve formatting through shared atomic writer');
 }
 
+// v58.20 review B1: the optional earnings calendar runs before the core screener step under `set -e`; a provider failure
+// must keep the previous file and annotate, not exit non-zero and stop the screener/SEC refresh for the cycle.
+{
+  const source = readText('scripts/fetch-earnings-calendar.mjs');
+  const runner = source.slice(source.lastIndexOf('main().catch('));
+  check('v58.20:producer:fetch-earnings-calendar:optional-lane-does-not-fail-job', /::warning::/.test(runner) && !/process\.exit\(\s*[1-9]/.test(runner), 'earnings calendar failure must not stop refresh-screener');
+}
+
 // Execute actual public parsers and URL-backed atomic writers, not replicas.
 check('regression:hy-empty-csv-not-zero', parseFredHyOasCsv('DATE,BAMLH0A0HYM2\n2026-08-28,') === null, 'blank HY observation must not be 0%');
 check('regression:hy-zero-csv-preserved', parseFredHyOasCsv('DATE,BAMLH0A0HYM2\n2026-08-28,0')?.value === 0, 'numeric zero is an observation');
