@@ -6,6 +6,7 @@ import { PACKET_20261011_SOURCES, PACKET_20261011_CLAIMS } from './packet-202610
 import { PACKET_20261014_SOURCES, PACKET_20261014_IMAGES, PACKET_20261014_CLAIMS } from './packet-20261014.js';
 import { PACKET_20261015_SOURCES, PACKET_20261015_CLAIMS } from './packet-20261015.js';
 import { PACKET_20261016_SOURCES, PACKET_20261016_CLAIMS, PACKET_20261016_AUDIT } from './packet-20261016-x-bookmarks.js';
+import { PACKET_20261018_SOURCES, PACKET_20261018_CLAIMS, PACKET_20261018_AUDIT } from './packet-20261018-x-bookmarks.js';
 
 export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   id: 'supplied-materials-2026-08-29',
@@ -14,6 +15,7 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   reviewedAt: '2026-08-29',
   updatedAt: '2026-09-11',
   sourcePackets: Object.freeze([
+    Object.freeze({ id: '2026-10-18-x-bookmarks', reviewedAt: '2026-10-18', sourceKind: 'REFERENCE', linkCount: 111, readableSources: 111, unreadableSources: 0, note: '10/16 원장 이후 추가된 소유자 X 북마크 111건을 본문·작성자 스레드·Article 전문·첨부 차트와 표까지 확인. 투자 관련 96건을 기존 노트와 대조해, 이미 있는 내용은 기존 노트에 맡기고 새 반복 프레임 12개(강제 매도 사슬, AI 인프라 신용 사다리, 변동성 기저율, 지수 속 순환, 과매도 되돌림, 이야기와 장부, 파운드리 학습, 메모리 순환 선행, AI 생산성 시차, 헤드라인 출처, 지정학 충격 경로, 성장·물가 노출)를 분석 노트로 추가.' }),
     Object.freeze({ id: '2026-10-16-x-bookmarks', reviewedAt: '2026-10-16', sourceKind: 'REFERENCE', linkCount: 834, readableSources: 830, unreadableSources: 4, mediaAuditCount: 2379, note: '소유자 X 북마크 834건(2022-06~2026-10)을 Chrome과 공개 API로 전수 확인: 본문·작성자 스레드 219건·인용 게시물·Article 268건 전문·이미지 전부. 투자 관련 732건을 구조 추출해 기존 반영 상태와 대조(반영 162·부분 331·누락 85·충돌 5), 반복 프레임 19개를 분석 노트로, 충돌 5건을 정정. 2026-08-30 패킷에서 404였던 Article 포인터는 이번에 본문을 읽음. 항목별 원장은 _artifacts/x-bookmarks-20261016/ledger.json' }),
     Object.freeze({ id: '2026-10-14-x-materials', reviewedAt: '2026-10-14', sourceKind: 'REFERENCE', linkCount: 16, readableSources: 16, unreadableSources: 0, mediaAuditCount: 52, note: 'X 16건(Article 6건 전문, 작성자 스레드 이어짐 포함)과 채팅 첨부 이미지 5장을 직접 확인. 시장 온도계는 산식을 밝힌 AIO 계산(지수별 가격 온도, 미국 우선)으로 반영하고, 레짐 레이더는 시장 상태의 국면 레이더가 이미 같은 구조라 새로 만들지 않음. 날짜가 붙은 주장은 공시·FRED·거래소 일봉과 대조해 확인·미확인을 기록.' }),
     Object.freeze({ id: '2026-10-13-x-materials', reviewedAt: '2026-10-13', sourceKind: 'REFERENCE', linkCount: 12, readableSources: 12, unreadableSources: 0, mediaAuditCount: 40, note: 'X 11건(Article 3건 전문, 작성자 스레드 이어짐 포함)과 Anatomy 스킬 페이지, 채팅 첨부 화면 1장을 직접 확인. 이미지 37장과 영상 3개(Gloss 서가 2개·일일 리캡 1개)는 프레임 단위로 확인; 스레드는 작성자 연속 게시물까지 조회. 서가형 라이브러리만 화면에 반영(P1674)하고, 시장 해설·거래 자동화·역공학 자료는 참고 또는 차단으로 분류.' }),
@@ -112,6 +114,9 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   // v57.87: the owner's X bookmarks read in full on 2026-10-16 — the sources the frames cite, and the audit of the whole read.
   packet20261016Observations: PACKET_20261016_SOURCES,
   packet20261016Audit: PACKET_20261016_AUDIT,
+  // The bookmarks added after the 10/16 ledger, read on 2026-10-18 — the sources the new frames cite and what was left to existing notes.
+  packet20261018Observations: PACKET_20261018_SOURCES,
+  packet20261018Audit: PACKET_20261018_AUDIT,
   packet20261013Observations: Object.freeze([
     Object.freeze({ id: 'nutlope-2109322388420841789', author: 'Hassan El Mghari', sourceUrl: 'https://x.com/nutlope/status/2109322388420841789', publishedAtKst: '2026-10-12T01:37:01+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', disposition: 'ADOPTED', summary: '읽을거리를 책등 서가로 보여 주는 라이브러리(영상 2개, 프레임 확인): 주제 색 책등·주제 칩과 개수·정렬·책 펼침 카드·읽음 표시·문장 선택 후 질문. 리서치 라이브러리 서가로 반영(P1674). 북마크 자동 수집 에이전트와 생성 표지 그림은 로그인·로컬 프로듀서 금지·자산 부재로 제외.' }),
     Object.freeze({ id: 'RealSimpleAriel-2109785574366224632', author: 'RealSimpleAriel', sourceUrl: 'https://x.com/RealSimpleAriel/status/2109785574366224632', publishedAtKst: '2026-10-13T08:17:33+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', disposition: 'ALREADY_COVERED', summary: '일일 리캡(영상 18분): 메모리·광통신·반도체 약세와 에너지·필수소비재 주도, 그룹 ETF 기간별 성과, 이동평균 대비 ATR 배수. 테마 화면의 1·3·6개월 순위·50일선 참여·방향과 섹터 1일·1주 성과, 차트 ATR 확장(P1507)이 이미 같은 질문을 다룸.' }),
@@ -135,6 +140,7 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   ]),
   sourceObservations: Object.freeze([
     // v57.54: the 2026-10-14 sources a claim cites (the rest stay in packet20261014Observations with their disposition).
+    ...PACKET_20261018_SOURCES,
     ...PACKET_20261016_SOURCES,
     ...PACKET_20261015_SOURCES,
     ...PACKET_20261014_SOURCES.filter((row) => PACKET_20261014_CLAIMS.some((claim) => claim.sourceRefs.includes(row.id))),
@@ -194,6 +200,7 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
       'allowedConsumers', 'blockedConsumers', 'currentnessBoundary'
     ]),
     claims: Object.freeze([
+      ...PACKET_20261018_CLAIMS,
       ...PACKET_20261016_CLAIMS,
       ...PACKET_20261015_CLAIMS,
       ...PACKET_20261014_CLAIMS,
