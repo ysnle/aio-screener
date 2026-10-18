@@ -740,7 +740,7 @@ export function buildMarketRead(input = {}) {
   // 7. Korea relative to the US, with the currency. P1723: one sentence carries the KRX session's 1- and 5-session move
   // beside the last US close, each with its own date (the former 5-day and 1-day sentences compared a 10/13 KRX close
   // with a 10/12 US close without saying so). Its weight follows where the move sits in AIO's own KOSPI record, so a
-  // rare move reaches the four-sentence leaders. P1725: the won joins with its own date when it differs from the KRX date.
+  // rare move reaches the four-sentence lead. P1725: the won joins with its own date when it differs from the KRX date.
   // P1727: a won move inside ±0.5% is 보합권, the same band the 시장 상태 won card uses.
   const kospi = s.kospi;
   const kospi1 = kospi ? pct(kospi.value, kospi.d1) : null;
@@ -765,7 +765,7 @@ export function buildMarketRead(input = {}) {
   }
 
   statements.sort((a, b) => b.weight - a.weight);
-  // The leaders block shows the four strongest statements; driver rows add only the rest, so no
+  // The lead block shows the four strongest statements; driver rows add only the rest, so no
   // sentence appears twice on the page.
   const lead = statements.slice(0, 4);
   const restFor = (axis) => statements.filter((row) => row.axis === axis && !lead.includes(row)).map(({ text, reading }) => ({ text, reading }));
