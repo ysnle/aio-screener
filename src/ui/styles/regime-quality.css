@@ -103,7 +103,7 @@
 .home-sector-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .home-sector-lead { font-size: 13px; line-height: 1.6; color: var(--text-secondary); margin: 4px 0 8px; }
 .home-sector-bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
-.home-sector-bars li { display: grid; grid-template-columns: 92px minmax(0, 1fr) 62px 36px; gap: 8px; align-items: center; font-size: 12px; }
+.home-sector-bars li { display: grid; grid-template-columns: 92px minmax(0, 1fr) 62px 68px; gap: 8px; align-items: center; font-size: 12px; }
 .home-sector-name { color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .home-sector-bar { position: relative; height: 10px; background: var(--surface-2, transparent); border-left: 0; }
 .home-sector-bar::after { content: ''; position: absolute; left: 50%; top: -2px; bottom: -2px; border-left: 1px solid var(--border); }
@@ -111,7 +111,7 @@
 .home-sector-bars .is-up .home-sector-bar > span { background: var(--data-green); }
 .home-sector-bars .is-down .home-sector-bar > span { background: var(--data-red); }
 .home-sector-value { text-align: right; font-variant-numeric: tabular-nums; }
-.home-sector-quadrant { color: var(--text-muted); font-size: 11px; }
+.home-sector-quadrant { color: var(--text-muted); font-size: 11px; white-space: nowrap; } /* UI review 2026-10-18: "기준선 부근" broke onto two lines in a 36px column */
 
 /* P1643: one basis card for every explained number (hover, focus, or tap). */
 .aio-basis-card { position: fixed; z-index: 1000; max-width: min(340px, calc(100vw - 16px)); padding: 9px 12px; background: var(--bg-elevated); border: 1px solid var(--border-strong); border-radius: var(--radius); box-shadow: var(--shadow-md); color: var(--text-secondary); font-size: var(--fs-xs, 12px); line-height: 1.55; pointer-events: none; }

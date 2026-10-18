@@ -359,7 +359,7 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
     symbol.style.cssText = 'width:35px;font-size:11px;font-weight:700;color:var(--text-secondary);text-align:right;';
     const label = documentRef.createElement('span');
     label.textContent = row.label;
-    label.style.cssText = 'width:70px;font-size:10px;color:var(--text-muted);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+    label.style.cssText = 'width:70px;font-size:11px;color:var(--text-muted);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
     const track = documentRef.createElement('span');
     track.style.cssText = 'flex:1;display:flex;align-items:center;position:relative;min-width:40px;height:12px;';
     const zero = documentRef.createElement('span');
@@ -379,7 +379,7 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
     value.style.cssText = `width:62px;text-align:right;font-size:12px;font-weight:700;font-family:var(--font-mono);color:${row.pct == null ? 'var(--text-muted)' : row.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)'};flex-shrink:0;`;
     const badge = documentRef.createElement('span');
     badge.textContent = row.pct == null ? '대기' : (row.quadrant === 'Border' ? '기준선 부근' : RRG_QUADRANT_WORDS[row.quadrant] || '중립');
-    badge.style.cssText = `width:36px;text-align:center;flex-shrink:0;font-size:10px;color:${row.pct == null ? 'var(--text-muted)' : colors[row.quadrant] || 'var(--text-muted)'};`;
+    badge.style.cssText = `width:68px;padding-left:6px;white-space:nowrap;flex-shrink:0;font-size:11px;color:${row.pct == null ? 'var(--text-muted)' : colors[row.quadrant] || 'var(--text-muted)'};`;
     line.append(symbol, label, track, value, badge);
     host.appendChild(line);
   });
