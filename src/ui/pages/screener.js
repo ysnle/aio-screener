@@ -574,6 +574,8 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
       cell.appendChild(text(documentRef, formatScreenerPrice(price, currency)));
       const note = documentRef.createElement('small');
       note.textContent = md ? `${md} 종가` : '종가';
+      note.className = 'scr-close-note';
+      note.dataset.closeDay = md;
       note.style.cssText = 'display:block;font-size:11px;color:var(--text-muted);';
       cell.appendChild(note);
       cell.title = `${currency || '통화 미확인'} · ${md ? `${md} ` : ''}확정 종가(수정 종가) · 실시간 시세가 아닙니다`;
@@ -600,9 +602,15 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     }
     return wrap;
   }
-  if (['ret1m', 'ret3m', 'ret6m'].includes(key)) return returnText(row[key]);
+  // UI review 2026-10-18: returns read at a glance in the app's rise/fall colours (returnColor was defined but unused);
+  // 52주 고점 대비 is never positive, so it stays in the text colour rather than a column of red.
+  if (['ret1m', 'ret3m', 'ret6m', 'pctSma50'].includes(key)) {
+    const node = documentRef.createElement('span');
+    node.textContent = returnText(row[key]);
+    node.style.color = finite(row[key]) == null ? 'var(--text-muted)' : returnColor(row[key]);
+    return node;
+  }
   if (key === 'rsi') return numberText(row.rsi, 1);
-  if (key === 'pctSma50') return returnText(row.pctSma50);
   if (key === 'extension') {
     const multiple = extensionMultiple(row);
     const node = documentRef.createElement('span');
@@ -1126,6 +1134,28 @@ function getVisibleColumns(columnPreset, customColumns = []) {
   return keys.map((key) => byKey.get(key)).filter(Boolean);
 }
 
+// UI review 2026-10-18: every row repeated "10/16 종가" under its price. The day most rows share moves to the 가격 header
+// (and the phone card label); a row whose close is from another day keeps its own note, so a stale price still shows its date.
+function shareCloseDay(documentRef, table, body) {
+  const notes = [...body.querySelectorAll('.scr-close-note')];
+  const counts = new Map();
+  notes.forEach((note) => { if (note.dataset.closeDay) counts.set(note.dataset.closeDay, (counts.get(note.dataset.closeDay) || 0) + 1); });
+  const common = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+  notes.forEach((note) => { note.hidden = !!common && note.dataset.closeDay === common; });
+  body.querySelectorAll('td[data-column-key="price"]').forEach((td) => { td.dataset.label = common ? `가격 · ${common} 종가` : '가격'; });
+  const header = table?.querySelector('th[data-column-key="price"]');
+  if (!header) return;
+  let tag = header.querySelector('.scr-head-note');
+  if (!common) { tag?.remove(); return; }
+  if (!tag) {
+    tag = documentRef.createElement('small');
+    tag.className = 'scr-head-note';
+    tag.style.cssText = 'display:block;font-size:11px;font-weight:400;color:var(--text-muted);';
+    header.querySelector('.scr-sort-btn')?.after(tag);
+  }
+  tag.textContent = `${common} 종가`;
+}
+
 function renderTableHeader(documentRef, table, visibleColumns, sortState) {
   const thead = table?.querySelector('thead');
   if (!thead) return;
@@ -1540,6 +1570,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
       const nodes = tableRowNodes(documentRef, body, visible, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold: currentState.metadata.ranking.available === false ? { reason: currentState.metadata.ranking.rankingUnavailableReason } : root._aioRankingHold || null });
       const children = body.children;
       if (children.length !== nodes.length || nodes.some((node, index) => children[index] !== node)) body.replaceChildren(...nodes);
+      shareCloseDay(documentRef, table, body);
     }
     if (focusedSymbol) {
       const row = [...body.querySelectorAll('[data-aio-screener-ticker]')].find((node) => node.dataset.aioScreenerTicker === focusedSymbol);

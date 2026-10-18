@@ -35,6 +35,12 @@
      349px frame). It takes the card's full width and wraps; so do the VCP/setup words beside it. */
   #screener-results-table > tbody > tr > td:is([data-column-key="followThrough"], [data-column-key="vcpScore"], [data-column-key="entry"]) { flex: 1 1 100%; white-space: normal; overflow-wrap: anywhere; }
   #screener-results-table > tbody > tr > td[data-column-key="watchlist"] { order: 2; align-self: center; }
+  /* UI review 2026-10-18: each card stands alone, so it keeps its own close date; the sort bar names itself and drops
+     the column names it cannot sort by (they read as a cut-off table header). */
+  #screener-results-table .scr-close-note[hidden] { display: block !important; }
+  #screener-results-table .scr-registry-header .scr-head-note { display: none !important; }
+  #screener-results-table .scr-registry-header > th:not(:has(.scr-sort-btn)) { display: none; }
+  #screener-results-table .scr-registry-header::before { content: "정렬"; flex: 0 0 auto; align-self: center; padding: 0 8px 0 2px; font-size: 11px; color: var(--text-muted); }
 }
 @media (max-width: 599px) {
   .scr-reading-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
@@ -61,3 +67,8 @@
 .scr-compare-feedback > button { flex: 0 0 auto; min-height: 36px; }
 @media (pointer: coarse) { .scr-compare-feedback > button { min-height: 44px; } }
 .scr-compare-btn[aria-pressed="true"] { background: var(--accent-soft, var(--surface-2)); }
+/* UI review 2026-10-18: the four result tabs stay on one line on a phone (the last one wrapped under the others) and scroll sideways. */
+@media (max-width: 700px) {
+  .page .scr-subtabs, .page .scr-subtabs.aio-responsive-row { flex-wrap: nowrap; overflow-x: auto; gap: 0 !important; scrollbar-width: none; }
+  .page .scr-subtabs > button { flex: 0 0 auto; white-space: nowrap; padding-inline: 12px !important; }
+}
