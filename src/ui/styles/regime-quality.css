@@ -80,8 +80,8 @@
 .regime-radar { margin: 0 0 22px; padding: 4px 0 6px; } /* v57.76: sits right under the 6개 지표 h2 — no rule between a heading and its visual */
 .regime-radar-lead { font-size: 14px; line-height: 1.6; color: var(--text-primary); margin: 4px 0 10px; }
 .regime-radar-gap { font-size: 13px; line-height: 1.6; color: var(--text-secondary); margin: -4px 0 10px; padding-left: 10px; border-left: 2px solid var(--border); }
-.regime-radar-body { display: grid; grid-template-columns: minmax(260px, 380px) minmax(0, 1fr); gap: 18px; align-items: start; }
-.regime-radar-svg { width: 100%; height: auto; overflow: visible; }
+.regime-radar-body { display: grid; grid-template-columns: minmax(260px, 400px) minmax(0, 1fr); gap: 18px 36px; align-items: center; } /* layout review 2026-10-18: the axis table fills its side and sits level with the drawing */
+.regime-radar-svg { width: 100%; height: auto; overflow: visible; padding: 0 12px; box-sizing: border-box; } /* side labels (신용 · 위험선호) draw a few px outside the viewBox */
 .regime-radar-ring { fill: none; stroke: var(--border-subtle); stroke-width: 1; }
 .regime-radar-spoke { stroke: var(--border-subtle); stroke-width: 1; }
 .regime-radar-label { font-size: 12px; font-weight: 700; fill: var(--text-primary); }
@@ -125,8 +125,9 @@
 .aio-basis-meta.is-stale { color: var(--warning, #a15c00); }
 [data-basis] { cursor: help; }
 button[data-basis], a[data-basis] { cursor: pointer; }
-.regime-radar-table { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 16px; margin: 4px 0 10px; font-size: 13px; max-width: 520px; }
-.regime-radar-table dt { color: var(--text-secondary); margin: 0; }
+.regime-radar-table { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0; margin: 4px 0 10px; font-size: 13px; max-width: 640px; }
+.regime-radar-table :is(dt, dd) { padding: 7px 0; border-bottom: 1px solid var(--border-subtle); }
+.regime-radar-table dt { color: var(--text-secondary); margin: 0; padding-right: 24px; } /* gap lives in the cell so the row rule runs unbroken */
 .regime-radar-table dd { margin: 0; font-variant-numeric: tabular-nums; color: var(--text-primary); }
 [data-basis]:focus-visible, .regime-radar-value:focus-visible { outline: 2px solid var(--accent, #2a64c8); outline-offset: 2px; border-radius: 2px; }
 /* P1651: latest completed KRX session line under the US regime summary. */
