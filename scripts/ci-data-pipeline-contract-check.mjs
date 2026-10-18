@@ -2192,6 +2192,57 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && /fullRebuild/.test(read('scripts/fetch-sec-fundamentals.mjs')) && /GITHUB_ACTIONS === 'true' && !fullRebuild/.test(read('scripts/fetch-sec-fundamentals.mjs')));
 }
 
+// Owner 2026-10-18 (data-pipeline review): the AI-funding / memory / deleveraging stories of the week were in AIO's Telegram
+// digest and mover headlines but never reached the market reading, the news queries and rules matched none of them, and a
+// rumour headline was only scored down, never labelled.
+{
+  const ns = await import('./lib/news-selection.mjs');
+  const nowMs = Date.parse('2026-10-17T23:00:00.000Z');
+  const score = (title, source = 'Reuters') => { const item = { title, source, ts: nowMs - 3600000, scoringNowMs: nowMs }; const result = ns.scoreServerNewsItem(item); return { ...result, topicHits: item.topicHits, verification: item.verification || null }; };
+  const anthropic = score('Anthropic investors cut IPO valuation expectations as revenue growth slows');
+  const hedge = score('Hedge funds deleverage at fastest pace since 2020, prime book shows');
+  const kr = score('"빚내서 버텼는데 결국"…코스피 급락에 하루 800억씩 강제 청산', '뉴시스');
+  check('v58.24 narrative headlines clear the topic floor (AI funding, deleveraging, Korean forced selling)',
+    anthropic.topicHits > 0 && /ai-narrative-funding/.test(anthropic.selectionReason) && hedge.topicHits > 0 && /deleveraging-positioning/.test(hedge.selectionReason)
+      && /ko-deleveraging/.test(kr.selectionReason), JSON.stringify({ anthropic, hedge, kr }));
+  check('v58.24 rumour and anonymous-source headlines are labelled unconfirmed, English and Korean',
+    score('OpenAI reportedly in talks for new data center debt deal').verification === 'unconfirmed'
+      && score('코어위브 매각설…관계자에 따르면 협상 중', '연합뉴스').verification === 'unconfirmed'
+      && score('CoreWeave bonds slide as debt worries spread').verification === null);
+  check('v58.24 quote pages and prediction pages are not articles',
+    score('Treasury Yield 30 Years (^TYX) charts, data and news', 'Yahoo Finance UK').selectionReason === 'not-article-filter'
+      && score('Gold Price Prediction for Tomorrow: 3 Cues and Key Levels', 'Univest').selectionReason === 'not-article-filter');
+  check('v58.24 the two narrative feeds exist and each has a slot floor',
+    ['Google News - AI narrative/Memory', 'Google News - Positioning/Sovereign/Politics'].every((name) => ns.NEWS_FEEDS.some((feed) => feed.source === name) && ns.NEWS_FEED_FLOORS.some(([key, floor]) => key === name && floor >= 2)));
+  const va = await import('./lib/market-analysis-validate.mjs');
+  const row = (i, topic, feedSource, extra = {}) => ({ title: `headline ${i}`, source: `S${i}`, link: `https://x/${i}`, pubDate: '2026-10-17T20:00:00.000Z', score: 100 - i, topic, feedSource, ...extra });
+  // Five Korean and six oil rows outscore the AI-narrative and credit rows; before, the top eight were all Korean/oil.
+  const oilHeavy = { news: [...[1, 2, 3, 4, 5].map((i) => row(i, 'kr', 'K')), ...[6, 7, 8, 9, 10, 11].map((i) => row(i, 'geo', 'G')),
+    row(12, 'semi', 'Google News - AI narrative/Memory', { verification: 'unconfirmed' }), row(13, 'credit', 'C')] };
+  const context = va.buildMarketAnalysisHeadlineContext(oilHeavy);
+  check('v58.24 HEADLINE_CONTEXT seats up to two per feed before filling by score, and keeps the unconfirmed label',
+    context.some((item) => item.title === 'headline 12' && item.verification === 'unconfirmed') && context.some((item) => item.title === 'headline 13')
+      && context.length === va.HEADLINE_CONTEXT_MAX && context[0].title === 'headline 1', JSON.stringify(context.map((item) => item.title)));
+  const nc = await import('./lib/narrative-context.mjs');
+  const at = Date.parse('2026-10-18T12:00:00.000Z');
+  const post = (id, hoursAgo, summary, score = 60) => ({ id: `ch/${id}`, channel: 'ch', datetime: new Date(at - hoursAgo * 3600000).toISOString(), score, summary });
+  const telegramDigest = { current24hItems: [post(1, 2, 'CoreWeave 채권 급락, 데이터센터 채권 전반 매도 (블룸버그)'), post(2, 5, '코어위브 파산설 확산…관계자에 따르면 구조조정 검토')],
+    broadItems: [post(3, 30, 'CXMT 증산으로 D램 가격 우려'), post(4, 40, '앤트로픽 IPO 밸류에이션 하향 (로이터)'), post(5, 100, '호르무즈 유조선 피격 — 창 밖')] };
+  const screener = { data: { CRWV: { ret5d: -25, dollarVolume30d: 3e9, newsMemo: '[10-17] CoreWeave Stock Faces A Debt Funding Test', newsObservedAt: new Date(at - 20 * 3600000).toISOString() },
+    MSFT: { ret5d: -2, newsMemo: '[10-17] Microsoft and OpenAI', newsObservedAt: new Date(at - 20 * 3600000).toISOString() } } };
+  const narrative = nc.buildNarrativeContext({ telegramDigest, screener, nowMs: at });
+  check('v58.24 NARRATIVE_CONTEXT ranks the funding theme first, labels the rumour, keeps the 72h window, and names the reading note',
+    narrative.themes[0]?.id === 'ai-funding-credit' && /\[루머\]/.test(narrative.text) && /CRWV · 5거래일 급락/.test(narrative.text) && !/호르무즈/.test(narrative.text)
+      && /AI 인프라 신용이 번지는 사다리/.test(narrative.text) && !/MSFT/.test(narrative.text) && narrative.themes.some((theme) => theme.id === 'memory-cycle'), narrative.text);
+  check('v58.24 a change in the leading narrative themes invalidates the reused analysis',
+    va.reusableMarketAnalysis({ status: 'verified', semanticStatus: 'verified', generatedAt: new Date(at - 3600000).toISOString(), metricEvidence: [{ evidenceId: 'm' }], newsEvidence: [], headlineContext: [], narrativeSignature: 'a|b' },
+      { metricEvidence: [{ evidenceId: 'm' }], newsEvidence: [], headlineContext: [], narrativeSignature: 'a|c', nowMs: at }) === null
+      && nc.buildNarrativeContext({ nowMs: at }).text === '');
+  check('v58.24 the market-analysis prompt carries NARRATIVE_CONTEXT with attribution, rumour and no-number rules',
+    /NARRATIVE_CONTEXT \(/.test(fetchData) && /readNarrativeContext\(\{ nowMs \}\)/.test(fetchData) && /"루머" 또는 "미확인"/.test(fetchData) && /METRIC_EVIDENCE가 아니므로 쓰지 않는다/.test(fetchData)
+      && /narrativeSignature: narrativeContext\.signature/.test(fetchData));
+}
+
 if (errors.length) {
   console.error('Data pipeline contract check failed:');
   errors.forEach((error) => console.error(' - ' + error));

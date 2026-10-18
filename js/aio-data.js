@@ -5292,7 +5292,7 @@ function _aioApplyNewsBackstop(force) {
         desc: n.desc || n.description || '',
         summary: n.summary || n.ko_summary || '',
         country: n.country || 'us',
-        selectionReason: n.selectionReason || '',
+        selectionReason: n.selectionReason || '', verification: n.verification === 'unconfirmed' ? 'unconfirmed' : null, // 2026-10-18: rumours stay labelled
         topic: n.topic || '',
         sentiment: n.sentiment || '',
         tier: n.tier,
