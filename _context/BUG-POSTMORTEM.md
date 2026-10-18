@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1928 - v58.26 - AI 투자 꺾임 시나리오 게이트가 반도체 급락을 보지 못했고, AI 대화가 DXY를 100 고정선으로 판정했음 (2026-10-18)
+
+- symptom/reproduction: 2026-10-16 종가에 SMH가 1년 고점 대비 -19%까지 밀렸는데도 거시 갈림길의 'AI 투자 꺾임' 게이트가 열리지 않았다(나스닥 100의 S&P 500 대비 20거래일 격차가 -3%p에 못 미침). 금리 축 '중립'은 10년물이 1년 범위 상단인데도 '뚜렷한 방향 없이'로 읽혔고, AI 대화는 DXY를 100 기준으로 강세권/약세권이라 단정했다.
+- root_cause: macro-crossroads.js의 aibust 게이트가 ndxRel20 <= -3 하나만 보고 SMH는 참고 행으로만 두었다. buildMarketRegime의 금리 중립 문장은 20일 변화만 서술하고 수준은 말하지 않았다. js/aio-chat.js는 시장 상태의 20거래일 달러 판정 대신 고정 100선 문구를 썼다.
+- fix: aibust 게이트가 나스닥 100 3%p(RULES.leadership.aiLagNdx20dPp) 또는 SMH 8%p(aiLagSemis20dPp) 뒤처짐으로 열린다. 금리 중립 판정은 10년물이 1년 범위 상위 1/3(RULES.rates.levelHighThird)이면 수준을 함께 쓴다. AI 대화는 DXY를 수준만 보여 주고, 답변 머리말에 주도 영역 이탈·약세를 표시한다. daily-diff는 RULES.technical 기준을 읽는다.
+- violated_rule: 같은 지표의 판정은 모든 화면이 하나의 공유 분류기를 쓴다.
+- prevention: ci-scenario-guidance-fixture.mjs가 aibust 게이트에 {ndxRel20:-1, smhRel20:-9}는 열림, {-1,-2}는 닫힘, 둘 다 없으면 확인 불가를 단언한다(수정 전 실패, 수정 후 통과).
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs
+
 ## P1927 - v58.23 - 브리핑과 AI 경기 사이클 국면이 시장 상태와 다른 주도주·추세 판정을 읽었음 (2026-10-18)
 
 - symptom/reproduction: 2026-10-16 종가에 시장 상태는 주도 영역 이탈(나스닥 100 5거래일 -5.5%, SMH -10.5%)을 판정했는데, 브리핑 '오늘의 시장 해석'은 F&G·VIX로 시작해 이 하락을 언급하지 않았고 하루 신고가 집계(36 대 12)를 확산처럼 읽었다. AI 대화의 거시·테마 맥락은 S&P 500 하루 등락 부호를 '추세'로 썼다.
