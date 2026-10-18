@@ -246,7 +246,13 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
     for (const row of held) { const card = themeCard(doc, root, row, screenerSector); card.open = openIds.has(card.dataset.theme); fold.append(card); }
     stages.push(fold);
   }
-  host.replaceChildren(el(doc, 'p', reading[0], 'xr-lead'), basis, mapWrap, legend(doc), ...reading.slice(1).map((text) => el(doc, 'p', text, 'xr-reading')), ...stages,
+  // Layout review 2026-10-18: the map (capped at 760px) and its reading share one row on a wide screen, so the
+  // reading no longer leaves the right half of the section empty; a narrow screen stacks them in the same order.
+  const mapRow = el(doc, 'div', null, 'tp-map-row');
+  const mapSide = el(doc, 'div', null, 'tp-map-side');
+  mapSide.append(legend(doc), ...reading.slice(1).map((text) => el(doc, 'p', text, 'xr-reading')));
+  mapRow.append(mapWrap, mapSide);
+  host.replaceChildren(el(doc, 'p', reading[0], 'xr-lead'), basis, mapRow, ...stages,
     el(doc, 'p', '세부 종목 선택은 테마 상세·차트·재무 공시·스크리너에서 직접 합니다.', 'xr-caveat'));
   host.dataset.aioThemePlaybook = 'native';
   return playbook;

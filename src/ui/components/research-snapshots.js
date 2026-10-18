@@ -67,5 +67,9 @@ export function ensureResearchSnapshots({ documentRef: doc, root, host, kind, co
     if (store.undoRemove()) { undo.hidden = true; status.textContent = store.status() === 'persistent' ? '삭제를 되돌렸습니다.' : '현재 앱 세션에서 삭제를 되돌렸습니다.'; draw(); }
     else status.textContent = '저장 공간이 가득 차 되돌릴 수 없습니다. 저장본을 먼저 정리해 주세요.';
   });
-  panel.append(title, note, save, status, undo, list); host.appendChild(panel); draw();
+  panel.append(title, note, save, status, undo, list);
+  // Layout review 2026-10-18: the page's 데이터 출처 fold stays the last block, so the saved-notes panel goes above it.
+  const sources = host.querySelector(':scope > details.page-sources');
+  if (sources) host.insertBefore(panel, sources); else host.appendChild(panel);
+  draw();
 }

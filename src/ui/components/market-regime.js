@@ -425,7 +425,12 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
     // P1633/P1745: home answers "so what" in ONE forward block — the present structure (which of the three it is
     // closest to, and the themes leading it), then the branch the next releases would confirm and where it leads.
     let outlookBox = doc.getElementById('home-outlook');
-    if (!outlookBox) { outlookBox = el(doc, 'div', null, 'home-outlook'); outlookBox.id = 'home-outlook'; chips.insertAdjacentElement('afterend', outlookBox); }
+    // Layout review 2026-10-18: the block is a full-width section of its own, after the completed-close evidence (the
+    // close-to-close changes, which T804 keeps right under the verdict, and the participation chart that also anchors
+    // there). Inside the hero's flex row it shrank to its text width and left the right of a wide screen empty.
+    const outlookAnchor = doc.getElementById('home-participation') || doc.getElementById('home-daily-changes') || hero;
+    if (!outlookBox) { outlookBox = el(doc, 'div', null, 'home-outlook'); outlookBox.id = 'home-outlook'; outlookAnchor.insertAdjacentElement('afterend', outlookBox); }
+    else if (outlookBox.parentElement === hero) outlookAnchor.insertAdjacentElement('afterend', outlookBox);
     outlookBox.hidden = true; // anchor only; the merged block below carries the structure line
     const scenarios = regime.available ? buildMarketScenarios(inputs, { regime }) : null;
     const outlook = scenarios?.available ? outlookForRoot(root, { scenarios, regime, store }) : null;
