@@ -222,6 +222,11 @@ console.log('scenario guidance fixture (basis card): PASS');
   const easing = BRANCHES.find((branch) => branch.id === 'softland').conditions[0][1];
   assert.equal(easing({ corePace: 2.5, coreYoy: 3, coreCpiPace: 3.6, coreCpiYoy: 2.6 }), false, 'v57.69 a hot core CPI pace is not disinflation');
   assert.equal(easing({ corePace: 2.5, coreYoy: 3, coreCpiPace: null, coreCpiYoy: null }), true, 'v57.69 PCE alone still counts when CPI is unavailable');
+  // P1928 (v58.26): the AI 투자 꺾임 gate also opens on semis (SMH) lagging the S&P 500, not only the Nasdaq-100.
+  const aiLag = BRANCHES.find((branch) => branch.id === 'aibust').conditions[0][1];
+  assert.equal(aiLag({ ndxRel20: -1, smhRel20: -9 }), true, 'P1928 SMH 9pp behind the S&P 500 over 20 sessions opens the AI 투자 꺾임 gate');
+  assert.equal(aiLag({ ndxRel20: -1, smhRel20: -2 }), false, 'P1928 small NDX and SMH lags keep the gate closed');
+  assert.equal(aiLag({ ndxRel20: null, smhRel20: null }), null, 'P1928 with neither series the gate is 확인 불가');
   // Audit 4: a past sample pointing opposite to the favoured choice carries one bridging sentence (no invented %).
   const bridged = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 20, up: 19, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20, baseUpPct: 64 } } } }).items.find((item) => item.id === 'reheat');
   const thin = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 4, up: 4, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20 } } } }).items.find((item) => item.id === 'reheat');
