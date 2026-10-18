@@ -4891,7 +4891,7 @@ function _fundRecentSearches(ticker) {
   // P566/R257: the visible label was inserted raw while the data-arg was escaped — ticker
   // input has no charset whitelist, so typing/persisting an HTML payload rendered unescaped
   // on next paint (stored self-XSS via this element's own localStorage-persisted history).
-  el.innerHTML = '<span style="font-size:11px;color:var(--text-muted);">최근:</span>' + arr.map(function(t) {
+  el.innerHTML = arr.map(function(t) {
     return '<span class="aio-hover-fund-ticker" data-action="fundSearchQuick" data-arg="' + escHtml(t) + '" style="font-size:11px;color:var(--accent);border-radius:4px;padding:2px 7px;cursor:pointer;font-family:var(--font-mono);font-weight:600;">' + escHtml(t) + '</span>';
   }).join('');
 }
