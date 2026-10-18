@@ -184,7 +184,7 @@ if (beaYoyOnlyFixture.values.pceMoM !== null || beaYoyOnlyFixture.values.corePce
 // P1101: rows written by the market lane and the screener lane must converge on
 // one column set, and a fieldMeta entry must never outlive its finite value.
 const raggedFixture = normalizeHistoryRows([
-  { date: '2026-09-15', seriesMode: 'completed-market-cut', cycleEnd: '2026-09-14T23:00:00.000Z', spx: 7000, fg: 30, breadth20: 55, fieldMeta: { spx: { observedAt: '2026-09-15T20:00:00.000Z' }, fg: { observedAt: '2026-09-15T00:00:00.000Z' } } },
+  { date: '2026-09-15', seriesMode: 'completed-market-cut', cycleEnd: '2026-09-14T23:00:00.000Z', spx: 7000, fg: 30, breadth20: 55, pcr: 0.92, fieldMeta: { spx: { observedAt: '2026-09-15T20:00:00.000Z' }, fg: { observedAt: '2026-09-15T00:00:00.000Z' }, pcr: { observedAt: '2026-09-15' } } },
   { date: '2026-09-16', fieldMeta: { breadth50: { observedAt: '2026-09-15T13:30:00.000Z' } } },
   { date: '2026-09-17', seriesMode: 'completed-market-cut', cycleEnd: '2026-09-16T23:00:00.000Z', marketSnapshotRevision: 'market-snapshot:x:y', spx: null, fieldMeta: { spx: { observedAt: '2026-09-16T20:00:00.000Z' } } }
 ]);
@@ -193,7 +193,7 @@ if (new Set(fixtureColumns).size !== 1) fail(`history row normalization left rag
 if (Object.keys(raggedFixture[1].fieldMeta).length !== 0 || Object.keys(raggedFixture[2].fieldMeta).length !== 0) {
   fail(`history row normalization kept fieldMeta for a null value: ${JSON.stringify(raggedFixture.map((row) => row.fieldMeta))}`);
 }
-if (!fixtureColumns[0].includes('breadth200,') || !fixtureColumns[0].includes('marketSnapshotRevision') || !fixtureColumns[0].includes('spx')) {
+if (!fixtureColumns[0].includes('breadth200,') || !fixtureColumns[0].includes('marketSnapshotRevision') || !fixtureColumns[0].includes('spx') || raggedFixture[1].pcr !== null) {
   fail(`history row normalization did not fill the shared column set: ${fixtureColumns[0]}`);
 }
 // v57.81: one session is one observation. The 10/12 DXY bar (row 10/12) and the same close read as the previous close
