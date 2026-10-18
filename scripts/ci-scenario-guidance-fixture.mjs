@@ -419,6 +419,12 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.match(oct14.trend.evidence.find(([label]) => label === '러셀 2000')[1], /50일선 -\d+\.\d% · 200일선 -\d+\.\d% · 1년 고점 대비 -\d+\.\d%/, 'v57.81 the Russell 2000 row shows its 50/200-day and one-year-high distances');
   assert.equal(oct14.regime.leadershipBreak, true, 'v57.81 leaders -3.9% with four market-wide confirmations is a leadership break');
   assert.equal(oct14.regime.leadership.met, 4);
+  { // P1927 (v58.23): the briefing reads the same leadership-break verdict as 시장 상태 and leads with it.
+    const { buildMarketRead } = await import('../src/domain/briefing/market-read.js');
+    const read = buildMarketRead(oct14.input);
+    const ids = [...(read.lead || []), ...(read.statements || []), ...(read.drivers || [])].map((row) => row.id);
+    assert.ok(ids.includes('leadership-break'), `P1927 a leadership break in 시장 상태 must appear as the briefing's leadership-break statement (${ids})`);
+  }
   assert.equal(oct14.scenarios.scenarios.find((item) => item.id === 'concentration').confirmed, false, 'v57.81 소수 종목 주도 is not confirmed during a leadership break');
   assert.notEqual(oct14.outlook.leadId, 'concentration', 'v57.81 소수 종목 주도 is not the selected flow on 10/14 numbers');
   // Audit 2026-10-17 (owner D2): after weeks above +1%, a close +0.5% over the rising 50-day line holds 양호; under the line it is 중립.

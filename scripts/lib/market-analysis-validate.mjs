@@ -351,7 +351,8 @@ export function analysisNumberMarkedAsReference(body, value) {
 // clause. The prompt asks for a hedge ("가능한 해석 중 하나"), and a hedge after a comma or 지만 ("…가 배경으로 거론됐지만,
 // 확정 원인은 확인되지 않았다") is not a refusal of the clause that attributes. "속보"·"뉴스" are the prompt's own labels for
 // the post-08:00 headlines. A bare refusal ("보도만으로는 원인을 단정할 수 없다") still does not count (v57.75).
-const ATTRIBUTION_MARKER = /헤드라인|보도|기사|언론|속보|뉴스|according to|headline|reported/i;
+// Owner 2026-10-18: NARRATIVE_CONTEXT is attributed as a relay ("리서치 채널 중계에 따르면"), not as a headline.
+const ATTRIBUTION_MARKER = /헤드라인|보도|기사|언론|속보|뉴스|중계|according to|headline|reported/i;
 const ATTRIBUTION_REFUSAL = /단정할\s?수\s?없|알\s?수\s?없|확인되지\s?않/;
 export function analysisAttributesCause(body) {
   return String(body || '').replace(/\[[^\]]*\]/g, '').split(/(?<=[.?!。])\s+|\n+/)
@@ -676,10 +677,15 @@ export function buildMarketAnalysisNewsEvidence(data) {
 // narrative is allowed to cite by name ("헤드라인에 따르면 …"). Keeping them separate from
 // `newsEvidence` preserves the rights boundary while giving the model something real to
 // attribute instead of forcing an observation-only summary.
+// Owner 2026-10-18 (data-pipeline review): the top eight by score were three Korean weekly previews, gold and four oil/
+// Hormuz items on 10/18, so the model never saw the AI-funding or memory headlines further down. At most
+// HEADLINE_CONTEXT_PER_FEED come from one feed (Korean feeds count as one) before the rest fill by score.
+export const HEADLINE_CONTEXT_MAX = 10;
+export const HEADLINE_CONTEXT_PER_FEED = 2;
 export function buildMarketAnalysisHeadlineContext(data) {
   const rows = Array.isArray(data?.news) ? data.news : [];
   const seen = new Set();
-  return rows
+  const ranked = rows
     .filter(row => row && row.title && row.source && _validIsoDate(row.eventTime || row.pubDate))
     .sort((a, b) => Number(b.score || 0) - Number(a.score || 0))
     .filter(row => {
@@ -687,8 +693,18 @@ export function buildMarketAnalysisHeadlineContext(data) {
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
-    })
-    .slice(0, 8)
+    });
+  const feedOf = (row) => (row.topic === 'kr' ? 'kr' : String(row.feedSource || row.topic || 'general'));
+  const perFeed = new Map();
+  const first = [];
+  const rest = [];
+  for (const row of ranked) {
+    const used = perFeed.get(feedOf(row)) || 0;
+    if (used < HEADLINE_CONTEXT_PER_FEED) { perFeed.set(feedOf(row), used + 1); first.push(row); } else rest.push(row);
+  }
+  const picked = new Set([...first, ...rest].slice(0, HEADLINE_CONTEXT_MAX));
+  return ranked
+    .filter(row => picked.has(row))
     .map(row => {
       const observedAt = _validIsoDate(row.eventTime || row.pubDate);
       return {
@@ -701,6 +717,7 @@ export function buildMarketAnalysisHeadlineContext(data) {
         link: row.link || null,
         allowedUse: 'reference',
         status: 'observed',
+        ...(row.verification === 'unconfirmed' ? { verification: 'unconfirmed' } : {}),
       };
     });
 }
@@ -916,7 +933,7 @@ export function plainMarketFallbackSummary(metricEvidence = []) {
 // un-flagged previous analysis under 12 h old whose metric/news evidence ids and headline ids equal this run's is
 // reused as-is (its generatedAt keeps aging, so it still expires at 12 h). Anything else calls as before.
 
-export function reusableMarketAnalysis(previous, { metricEvidence = [], newsEvidence = [], headlineContext = [], nowMs = Date.now() } = {}) {
+export function reusableMarketAnalysis(previous, { metricEvidence = [], newsEvidence = [], headlineContext = [], narrativeSignature = null, nowMs = Date.now() } = {}) {
   if (!previous || previous.status !== 'verified' || previous.semanticStatus !== 'verified') return null;
   if (Array.isArray(previous.semanticIssues) && previous.semanticIssues.length) return null;
   const generatedMs = Date.parse(previous.generatedAt || '');
@@ -926,6 +943,8 @@ export function reusableMarketAnalysis(previous, { metricEvidence = [], newsEvid
   if (idSet(previous.metricEvidence) !== idSet(metricEvidence)) return null;
   if (idSet(previous.newsEvidence) !== idSet(newsEvidence)) return null;
   if (idSet(previous.headlineContext) !== idSet(headlineContext)) return null;
+  // Owner 2026-10-18: a change in the leading narrative themes is new material even when the headline ids are not.
+  if (narrativeSignature != null && String(previous.narrativeSignature || '') !== String(narrativeSignature)) return null;
   return previous;
 }
 
