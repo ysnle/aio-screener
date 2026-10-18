@@ -137,10 +137,10 @@ export function buildMyNames({ symbols = [], rows = [], live = {}, holdings = []
     const notes = [];
     if (sma50 != null) notes.push(sma50 < 0 ? `50일선 아래(${signed(sma50, 1, '%')})` : `50일선 위(${signed(sma50, 1, '%')})`);
     if (high != null && high > -RULES.technical.nearHighPct) notes.push(`52주 고점 근처(${signed(high, 1, '%')})`);
-    else if (high != null && high <= -25) notes.push(`52주 고점 대비 ${signed(high, 0, '%')}`);
+    else if (high != null && high <= -RULES.technical.template.nearHighPct) notes.push(`52주 고점 대비 ${signed(high, 0, '%')}`);
     if (rsi != null && rsi >= RULES.technical.rsi.overbought) notes.push(`RSI ${rsi.toFixed(0)} 과열권`);
     else if (rsi != null && rsi <= RULES.technical.rsi.oversold) notes.push(`RSI ${rsi.toFixed(0)} 과매도권`);
-    const attention = (daySignalled && Math.abs(dayPct) >= RULES.largeMove.watchDayPct ? 2 : 0) + (rsi != null && (rsi >= 70 || rsi <= 30) ? 1 : 0) + (sma50 != null && sma50 < 0 ? 1 : 0);
+    const attention = (daySignalled && Math.abs(dayPct) >= RULES.largeMove.watchDayPct ? 2 : 0) + (rsi != null && (rsi >= RULES.technical.rsi.overbought || rsi <= RULES.technical.rsi.oversold) ? 1 : 0) + (sma50 != null && sma50 < 0 ? 1 : 0);
     return {
       symbol, name: row?.name || '', held: held.has(symbol), dayPct, daySignalled,
       ret1m: finite(row?.ret1m), notes, attention, known: !!row || dayPct != null

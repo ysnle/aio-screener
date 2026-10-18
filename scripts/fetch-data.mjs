@@ -36,6 +36,7 @@ import { collectRotationHistory } from './lib/rotation-history.mjs';
 import { updateCandidateArchive } from './lib/candidate-archive.mjs'; // P1465
 import { SHARED_AI_MODEL, requestSharedAnalysis, requestWorkersAiTranslation, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
 import { buildMarketRegime, buildCloseSeries } from '../src/domain/briefing/market-read.js'; // P1635; v57.81 session dates
+import { readNarrativeContext } from './lib/narrative-context.mjs'; // owner 2026-10-18: Telegram + mover headlines → NARRATIVE_CONTEXT
 import { buildMarketScenarios, renderMarketScenarioContext } from '../src/domain/market/regime-scenarios.js';
 import { buildScenarioOutlook, renderScenarioOutlookContext } from '../src/domain/market/scenario-outlook.js';
 import { buildMacroRead } from '../src/domain/macro/macro-read.js';
@@ -2446,10 +2447,14 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
       : leadership?.state === 'weak' ? `주도 영역 이탈(leadershipBreak): 확산 미확인 — ${leadership.summary}. 반도체·AI가 지금도 주도한다고 쓰지 말고, 최근 하락을 함께 적을 것.`
       : leadership?.state === 'holding' ? '주도 영역 이탈(leadershipBreak): 아니오.' : '주도 영역 이탈(leadershipBreak): 확인 불가.';
     const conflicts = (regime.conflicts || []).length ? `엇갈리는 신호: ${regime.conflicts.join(' ')}` : '';
+    // Owner 2026-10-18: the semiconductor drawdown travels on its own line so the day's tension is weighed against oil and
+    // rates by the size of the move, not by how many headlines a topic got.
+    const smhRow = (trend?.evidence || []).find(([label]) => label === '반도체 (SMH)');
+    const semisLine = smhRow ? `반도체·AI 주도주: SMH ${smhRow[1]} — 오늘의 긴장을 고를 때 이 하락폭을 유가·금리 변화와 같은 기준(움직임의 크기와 판정 변화)으로 비교할 것.` : '';
     // v57.81: the validator rejects a Korea-vs-US sentence without both session dates when they differ; the packet says so.
     const krDate = buildCloseSeries(input.history, 'kospi').at(-1)?.date || null;
     const sessions = krDate && regime.asOf && krDate !== regime.asOf ? `세션 기준일: 미국 ${regime.asOf.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} · 한국 ${krDate.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} — 두 시장을 한 문장에서 함께 말하면 두 날짜(M/D)를 모두 적을 것.` : '';
-    return [`종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, priorSessionMoveLines(input.history), trendLine, leadershipLine, conflicts, axes,
+    return [`종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, priorSessionMoveLines(input.history), trendLine, leadershipLine, semisLine, conflicts, axes,
       renderMarketScenarioContext(input, { regime }), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(data, input, regime)].filter(Boolean).join('\n');
   } catch (error) {
     return '';
@@ -2580,12 +2585,13 @@ export async function translateHeadlines(items, { previous = [], request = null,
   return { reused, translated: accept(parsed), pending: pending.length, provider: 'shared-openai', reason: null, ...(freeReason ? { freeReason } : {}) };
 }
 
-export async function genMarketAnalysis(data, snapshot = null, { previous = null, request = null, nowMs = Date.now(), history = null } = {}) {
+export async function genMarketAnalysis(data, snapshot = null, { previous = null, request = null, nowMs = Date.now(), history = null, narrative = null } = {}) {
   const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   const newsEvidence = buildMarketAnalysisNewsEvidence(data);
   const keep = { previous, nowMs }; // v57.81: every fallback carries the last verified reading forward
   if (metricEvidence.length < 2) return buildMarketAnalysisFallback(data, 'metric-evidence-insufficient', metricEvidence, newsEvidence, keep);
-  const reused = reusableMarketAnalysis(previous, { metricEvidence, newsEvidence, headlineContext: buildMarketAnalysisHeadlineContext(data), nowMs });
+  const narrativeContext = narrative || readNarrativeContext({ nowMs }); // `narrative` is a fixture seam
+  const reused = reusableMarketAnalysis(previous, { metricEvidence, newsEvidence, headlineContext: buildMarketAnalysisHeadlineContext(data), narrativeSignature: narrativeContext.signature, nowMs });
   if (reused) {
     console.log(`[fetch-data] marketAnalysis evidence and headlines unchanged — reusing verified analysis from ${reused.generatedAt} (no AI call)`);
     return reused;
@@ -2623,7 +2629,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     const largeMove = metricEvidence.some((row) => (row.metricId === 'market.kospi' && Math.abs(changeOf.get(row.evidenceId)) >= KOREA_MOVE_MENTION_PCT)
       || (row.metricId === 'market.spx' && Math.abs(changeOf.get(row.evidenceId)) >= LARGE_MOVE_ATTRIBUTION_PCT));
     const newsLines = newsEvidence.map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
-    const headlineLines = buildMarketAnalysisHeadlineContext(data).map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
+    const headlineLines = buildMarketAnalysisHeadlineContext(data).map(row => `- ${row.evidenceId} ${row.verification === 'unconfirmed' ? '[미확인 보도] ' : ''}${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     // P1719/P1720: post-08:00 headlines are the only news on a Korean session's events before the next bundle; they are
     // labelled provisional so the model does not present them as settled.
     const intradayLines = (Array.isArray(data?.newsIntraday) ? data.newsIntraday : []).slice(0, NEWS_INTRADAY_MAX)
@@ -2657,10 +2663,13 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       'NEWS_CLUSTERS (article-level evidence, may be absent):\n' + (newsLines || 'none'),
       'HEADLINE_CONTEXT (retained headlines — titles only; these are the only news material available):\n' + (headlineLines || 'none')
         + (intradayLines ? '\n08:00 이후 장중 속보(잠정 — 다음 08:00 묶음 전의 미확정 헤드라인, 인용 시 "잠정"으로 표시):\n' + intradayLines : ''),
+      // Owner 2026-10-18: the stories the 08:00 bundle missed (AI funding, memory, deleveraging …) from AIO's own Telegram
+      // digest and mover headlines, with the analysis note that says how to read each. Weighting, not evidence.
+      ...(narrativeContext.text ? ['NARRATIVE_CONTEXT (지난 72시간 2차 자료: 리서치 텔레그램 채널 중계와 5거래일 급등락 종목의 헤드라인. 사실 확정이 아니라 지금 시장이 어떤 이야기에 무게를 두는지 보여 주는 참고다. 쓰는 법: (a) 오늘의 긴장과 (2)~(6)의 주제를 고를 때 HEADLINE_CONTEXT의 건수만 보지 말고 REGIME_CONTEXT의 움직임 크기와 여기의 언급 비중을 함께 본다 (b) 인용하면 "리서치 채널 중계에 따르면"·"…보도에 따르면"으로 귀속하고 한 가지 해석으로 제시한다 (c) [루머]·[미확인·익명 소식통] 항목은 같은 문장에 "루머" 또는 "미확인"을 쓰고 원인으로 단정하지 않는다 (d) 여기의 숫자·종목명·티커는 METRIC_EVIDENCE가 아니므로 쓰지 않는다 (e) 같은 주제에 강세 측 반론이 있으면 함께 적어 한쪽으로 기울지 않는다 (f) "읽는 틀"은 그 주제를 확인하는 순서다 — 다음에 확인할 것(6)에 활용한다):\n' + narrativeContext.text] : []),
       'DIRECTIONAL/CAUSAL PROSE: you may offer a directional or causal reading, but attribute it to the named headline ("헤드라인에 따르면", "According to <source>") and present it as one reading among alternatives, never as a confirmed fact. End with what would invalidate the reading and what the reader should check. The final decision belongs to the reader, not to this text.',
       ...(largeMove ? ['LARGE_MOVE (S&P 500 1% 이상 또는 코스피 3% 이상): 보도된 배경을 반드시 한 문장으로 쓴다 — "헤드라인에 따르면 …이 배경으로 거론됐다"처럼 HEADLINE_CONTEXT(장중 움직임이면 08:00 이후 장중 속보) 헤드라인 하나를 이름과 함께 든다. 그 문장 안에서 "단정할 수 없다·확인되지 않았다"로 귀속을 지우지 말고, 다른 해석이 있다는 점은 다음 문장에 쓴다.'] : []),
       // v57.71 (owner 2026-10-15): the home's one-sentence line, written by the same call (no extra request).
-      `마지막에 7~9줄과 별도로 한 줄을 더 쓴다: "${MARKET_SENTENCE_LABEL} " 뒤에 지금 시장을 관통하는 긴장을 질문이나 대비로 담은 한 문장(40자 안팎). 숫자·%·종목명·티커·매매 지시 없이, 오늘의 근거(METRIC_EVIDENCE·HEADLINE_CONTEXT·REGIME_CONTEXT)에서 나온 갈림을 담는다. 문체 예시(그대로 쓰지 말 것): "오늘의 하락은 기회인가, 서사의 끝을 알리는 신호인가?" / "누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다."`,
+      `마지막에 7~9줄과 별도로 한 줄을 더 쓴다: "${MARKET_SENTENCE_LABEL} " 뒤에 지금 시장을 관통하는 긴장을 질문이나 대비로 담은 한 문장(40자 안팎). 숫자·%·종목명·티커·매매 지시 없이, 오늘의 근거(METRIC_EVIDENCE·HEADLINE_CONTEXT·REGIME_CONTEXT)에서 나온 갈림을 담는다. 갈림의 주제는 REGIME_CONTEXT에서 가장 크게 움직였거나 판정이 바뀐 영역(예: 반도체·AI 주도주 급락, 신용 확대, 유가)에서 고르고, 헤드라인이 많다는 이유만으로 고르지 않는다. 바닥 확인 조건이 있으면 그 갈림(소진 대 확인)을 담아도 된다. 문체 예시(그대로 쓰지 말 것): "오늘의 하락은 기회인가, 서사의 끝을 알리는 신호인가?" / "누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다."`,
     ].join('\n\n');
     // v57.75: the retained text is re-checked against this run's data — on 10/15 a reading verified before the crash
     // ("원화 강세", easing inflation) would otherwise be re-served for 12 h after the evidence turned.
@@ -2700,7 +2709,8 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       }
     }
     if (!text || !semantic.ok) return retainOrFallback(semantic.issues.join(','));
-    return { ...buildStructuredMarketAnalysis({ data, text: semantic.text || text, model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic }), sentenceCandidate, largeMove };
+    return { ...buildStructuredMarketAnalysis({ data, text: semantic.text || text, model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic }), sentenceCandidate, largeMove,
+      narrativeSignature: narrativeContext.signature, narrativeThemes: narrativeContext.themes.map(({ id, label, telegramCount, recentCount, tickerCount }) => ({ id, label, telegramCount, recentCount, tickerCount })) };
   } catch (error) {
     return buildMarketAnalysisFallback(data, error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error', metricEvidence, newsEvidence, keep);
   }

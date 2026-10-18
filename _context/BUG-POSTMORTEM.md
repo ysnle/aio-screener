@@ -6,6 +6,33 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1928 - v58.26 - AI 투자 꺾임 시나리오 게이트가 반도체 급락을 보지 못했고, AI 대화가 DXY를 100 고정선으로 판정했음 (2026-10-18)
+
+- symptom/reproduction: 2026-10-16 종가에 SMH가 1년 고점 대비 -19%까지 밀렸는데도 거시 갈림길의 'AI 투자 꺾임' 게이트가 열리지 않았다(나스닥 100의 S&P 500 대비 20거래일 격차가 -3%p에 못 미침). 금리 축 '중립'은 10년물이 1년 범위 상단인데도 '뚜렷한 방향 없이'로 읽혔고, AI 대화는 DXY를 100 기준으로 강세권/약세권이라 단정했다.
+- root_cause: macro-crossroads.js의 aibust 게이트가 ndxRel20 <= -3 하나만 보고 SMH는 참고 행으로만 두었다. buildMarketRegime의 금리 중립 문장은 20일 변화만 서술하고 수준은 말하지 않았다. js/aio-chat.js는 시장 상태의 20거래일 달러 판정 대신 고정 100선 문구를 썼다.
+- fix: aibust 게이트가 나스닥 100 3%p(RULES.leadership.aiLagNdx20dPp) 또는 SMH 8%p(aiLagSemis20dPp) 뒤처짐으로 열린다. 금리 중립 판정은 10년물이 1년 범위 상위 1/3(RULES.rates.levelHighThird)이면 수준을 함께 쓴다. AI 대화는 DXY를 수준만 보여 주고, 답변 머리말에 주도 영역 이탈·약세를 표시한다. daily-diff는 RULES.technical 기준을 읽는다.
+- violated_rule: 같은 지표의 판정은 모든 화면이 하나의 공유 분류기를 쓴다.
+- prevention: ci-scenario-guidance-fixture.mjs가 aibust 게이트에 {ndxRel20:-1, smhRel20:-9}는 열림, {-1,-2}는 닫힘, 둘 다 없으면 확인 불가를 단언한다(수정 전 실패, 수정 후 통과).
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs
+
+## P1927 - v58.23 - 브리핑과 AI 경기 사이클 국면이 시장 상태와 다른 주도주·추세 판정을 읽었음 (2026-10-18)
+
+- symptom/reproduction: 2026-10-16 종가에 시장 상태는 주도 영역 이탈(나스닥 100 5거래일 -5.5%, SMH -10.5%)을 판정했는데, 브리핑 '오늘의 시장 해석'은 F&G·VIX로 시작해 이 하락을 언급하지 않았고 하루 신고가 집계(36 대 12)를 확산처럼 읽었다. AI 대화의 거시·테마 맥락은 S&P 500 하루 등락 부호를 '추세'로 썼다.
+- root_cause: buildMarketRead(src/domain/briefing/market-read.js)가 leadershipBreakOf를 호출하지 않아 시장 상태의 주도 판정과 연결되지 않았고, 레거시 getCycleFromMacro(js/aio-core.js)가 시장 상태 추세 축 대신 호출자가 넘긴 하루 S&P 500 부호를 추세 입력으로 받았다.
+- fix: buildMarketRead가 leadershipBreakOf·bottomWatchOf를 읽어 주도 이탈 문장을 앞세우고, 이탈 중에는 신고가 집계를 확산으로 읽지 않으며, 금리 하락·주가 하락 주간은 주도주 하락을 이름으로 든다. getCycleFromMacro는 시장 상태 추세 축(양호=상승, 부담=하락, 중립=입력 없음)을 쓰고 레짐이 없을 때만 하루 부호로 돌아간다.
+- violated_rule: 같은 지표의 판정은 모든 화면이 하나의 공유 분류기를 쓴다.
+- prevention: ci-scenario-guidance-fixture.mjs가 시장 상태에서 주도 영역 이탈로 판정되는 10/14 형태 입력에 대해 buildMarketRead가 leadership-break 문장을 내는지 단언한다(수정 전 실패, 수정 후 통과).
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs
+
+## P1926 - v58.21 - 금리 축 bp 차이가 부동소수점 오차로 10bp 미만으로 읽혀 '부담' 래치가 풀렸음 (2026-10-18)
+
+- symptom/reproduction: 2026-10-16 종가에 미 10년물이 5.10%(20세션 전 5.00%)로 1년 고점 부근이었는데, 대시보드 금리 축이 '부담'에서 '중립'으로 내려갔다.
+- root_cause: src/domain/briefing/market-read.js의 bp(now, then)가 (now - then) * 100을 그대로 반환해 5.10 - 5.00이 9.999999999999964bp가 됐다. 금리 래치의 '20세션 상승 +10bp 미만이면 해제' 조건이 이 반올림 오차를 실제 하락으로 읽었다.
+- fix: bp()가 결과를 0.01bp로 반올림한다(Math.round(diff * 1e6) / 1e4). 같은 PR에서 추세(50일선 하회 + 주도 이탈 확인 시 부담), 시장 폭(40% 하회 후 45% 회복까지 부담 유지), 바닥 확인 조건(bottomWatchOf), 한 문장 재료의 반도체 줄도 추가됐다.
+- violated_rule: 임계값 비교에 쓰는 단위 환산 값은 표시 정밀도로 정규화한 뒤 비교한다.
+- prevention: ci-regime-scenarios-fixture.mjs가 bp(5.10, 5.00) === 10, bp(4.30, 4.20) === 10, bp(5.00, 5.10) === -10을 단언한다(수정 전 9.999999999999964로 실패, 수정 후 통과).
+- verification/residual: node scripts/ci-regime-scenarios-fixture.mjs
+
 ## P1925 - v58.20 - 선택 항목인 실적 캘린더(Finnhub) 실패 한 번이 스크리너·SEC 갱신 전체를 중단 (2026-10-18)
 
 - symptom/reproduction: Finnhub 시간 초과·429·5xx 한 번이면 refresh-screener 작업이 핵심 스크리너와 SEC 원장 게시 전에 멈췄다.

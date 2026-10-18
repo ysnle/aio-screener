@@ -290,7 +290,9 @@ function createNewsCard(documentRef, root, item, index) {
   const topicLabel = TOPIC_LABELS[item?.topic || item?.feedTopic] || '';
   // v57.76: the NewsData free-plan delay marker left with the personal NewsData fetcher (no producer sets it).
   const branchLabel = TOPIC_BRANCHES[item?.topic || item?.feedTopic] || '';
-  meta.textContent = [source, topicLabel, branchLabel, timeAgo]
+  // Owner 2026-10-18: a rumour or anonymous-source headline is labelled where the reader sees it, not only scored down.
+  const verificationLabel = item?.verification === 'unconfirmed' ? '미확인 보도(루머·익명 소식통)' : '';
+  meta.textContent = [source, verificationLabel, topicLabel, branchLabel, timeAgo]
     .filter(Boolean)
     .join(' · ');
   body.appendChild(meta);
@@ -420,7 +422,7 @@ function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now(
     time.style.cssText = 'flex:0 0 auto;color:var(--text-muted);font-variant-numeric:tabular-nums;';
     const href = safeUrl(item.link || item.url);
     const titleNode = documentRef.createElement(href ? 'a' : 'span');
-    titleNode.textContent = String(item.title || '');
+    titleNode.textContent = `${item.verification === 'unconfirmed' ? '[미확인] ' : ''}${String(item.title || '')}`;
     if (href) { titleNode.href = href; titleNode.target = '_blank'; titleNode.rel = 'noopener noreferrer'; }
     // P1739: a 12px/1.5 link was an 18-21px target; padding keeps every headline link at least 24px tall.
     // v57.77 (a11y 1.4.3): the browser-default link blue measured 1.94:1 in dark; the text colour token passes in both themes.

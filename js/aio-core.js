@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.20';
+const APP_VERSION = 'v58.26';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2873,10 +2873,7 @@ if (typeof document !== 'undefined') {
       var breadthNum = breadth ? breadth.consensus : null;
       var curveEvidence = typeof A.getUsTreasuryCurveEvidence === 'function' ? A.getUsTreasuryCurveEvidence() : null;
       var spread = curveEvidence && curveEvidence.available ? curveEvidence.spread2s10s : null;
-      var spxPctMetric = (typeof _aioDecisionMetric === 'function') ? _aioDecisionMetric('^GSPC', 'pct', null) : null;
-      var spxTrend = spxPctMetric && spxPctMetric.allowedUse === true && _aioStrictFinite(spxPctMetric.value) != null
-        ? (spxPctMetric.value >= 0 ? 'up' : 'down') : null;
-      var cycle = (typeof A.getCycleFromMacro === 'function') ? A.getCycleFromMacro({ vix: vix, breadth50: bSma50, yield2s10s: spread, spxTrend: spxTrend }) : null;
+      var cycle = (typeof A.getCycleFromMacro === 'function') ? A.getCycleFromMacro({ vix: vix, breadth50: bSma50, yield2s10s: spread }) : null; // trend: 시장 상태 axis (getCycleFromMacro)
       // v50.45: getActionPlan에 newsSignal 전달 — bear 우위 시 보수 tilt(1C에서 사용, 폴백 무회귀).
       var action = (window.AIO_ACTION_RULES && typeof window.AIO_ACTION_RULES.getActionPlan === 'function') ? window.AIO_ACTION_RULES.getActionPlan({ vix: vix, fg: fg, breadth50: bSma50, newsSignal: newsDecisionSignal }) : null;
       // v50.46 [알고리즘 재작성] 종합 리스크 — 비선형 가정 → 정규화 합성(0~100). 각 성분 0(저위험)~1(고위험) 가중합.
@@ -9947,7 +9944,9 @@ window.AIO.getCycleFromMacro = function(macro) {
   var yieldCandidate = macro.yield2s10s;
   var yield2s10s = _aioStrictFinite(yieldCandidate);
   var liveSpxPct = ld['^GSPC'] ? _aioStrictFinite(ld['^GSPC'].pct) : null;
-  var spxTrend = macro.spxTrend === 'up' || macro.spxTrend === 'down' ? macro.spxTrend : liveSpxPct == null ? null : liveSpxPct > 0 ? 'up' : 'down';
+  // Owner 2026-10-18: the 시장 상태 trend axis decides (양호 up · 부담 down · 중립 none); one session's sign only without a regime.
+  var rs = null; try { rs = typeof window._aioMarketRegimeSummary === 'function' ? window._aioMarketRegimeSummary() : null; } catch (_) {} var rt = rs && rs.available && rs.trend !== 'unknown' ? rs.trend : null;
+  var spxTrend = macro.spxTrend === 'up' || macro.spxTrend === 'down' ? macro.spxTrend : rt ? (rt === 'favorable' ? 'up' : rt === 'burden' ? 'down' : null) : liveSpxPct == null ? null : liveSpxPct > 0 ? 'up' : 'down';
 
   var rationale = [];
   // v50.46 [알고리즘 재작성] 단순 의사결정 트리 → 정규화·가중 다신호 모델.
