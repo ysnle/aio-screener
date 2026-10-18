@@ -82,7 +82,16 @@ check('v57.62 the chat surface uses the expanded evidence registry', chat.includ
 check('invalid or unbound AnswerPlan claims degrade claim scope instead of erasing the answer', chat.includes('answer-plan-claim-degraded') && chat.includes('droppedClaims') && !chat.includes("blocked: true,\n      text: 'AI 베타 안전 모드\\n\\n현재성 수치의 AnswerPlan claim"));
 check('partial structured streams hide control JSON until completion', chat.includes("visible = 'AI 답변을 구성하고 근거를 검증하는 중…'") && chat.includes("var isPartialStream = meta.streamPhase === 'partial'"));
 check('Worker token cap and stop reason are consumed by the client', chat.includes('workerMaxTokens') && chat.includes('effectiveMaxTokens') && chat.includes("stopReason === 'max_tokens'") && chat.includes('completion: completion || null'));
-check('server market prose requires typed evidence before client publish', data.includes('_serverMarketMetricEvidenceValid') && data.includes('metric-evidence-required') && data.includes('_serverMarketSemanticContract'));
+// Legacy unification (2026-10-17): the gate lives in src/data/server-market-analysis.js; run it with prose that passes
+// every check except the typed metric evidence.
+{
+  const { verifyServerMarketAnalysis } = await import('../src/data/server-market-analysis.js');
+  const claimed = { full: 'prose', semanticStatus: 'verified', schemaVersion: 'market-analysis.v2', claims: [{ text: 'c', evidenceIds: ['e1'] }] };
+  const row = (id) => ({ evidenceId: id, metricId: 'market.spx', unit: 'pt', source: 's', asOf: '2026-10-16T20:00:00Z', value: 1 });
+  const untyped = verifyServerMarketAnalysis({ ...claimed, metricEvidence: [{ evidenceId: 'e1' }, { evidenceId: 'e2' }] });
+  const typed = verifyServerMarketAnalysis({ ...claimed, metricEvidence: [row('e1'), row('e2')] });
+  check('server market prose requires typed evidence before client publish', untyped.analysis === null && untyped.meta.reason === 'metric-evidence-required' && typed.analysis?.status === 'verified');
+}
 check('Worker exposes health readiness', worker.includes("_u.pathname === '/health'") && worker.includes("schemaVersion: 'aio-worker-health.v1'") && worker.includes('ai: { configured'));
 check('Worker CORS allows every browser chat header', worker.includes('X-AIO-App-Token') && worker.includes('Access-Control-Allow-Headers'));
 // v56: the rollback helper is shared with /relay, so it is no longer Anthropic-specific
