@@ -54,6 +54,10 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   const ratioSeries = vix.filter((point) => vix3m.get(point.date)).map((point) => ({ date: point.date, value: point.value / vix3m.get(point.date) })).slice(-126);
   const ratioLast = ratioSeries[ratioSeries.length - 1] || null;
   const ratioAlign = alignInput(ratioLast?.date, basis);
+  // 2026-10-18 bookmarks (volatility-base-rates): VIX is a 30-day annualised implied volatility, so VIX ÷ √252 is the
+  // S&P 500's implied one-standard-deviation daily move — a yardstick for the day's change, not a forecast.
+  const vixAtRatio = ratioLast ? vix.find((point) => point.date === ratioLast.date)?.value ?? null : null;
+  const impliedDaily = vixAtRatio == null ? '' : `VIX ${vixAtRatio.toFixed(1)} → S&P 500 하루 약 ±${(vixAtRatio / Math.sqrt(252)).toFixed(1)}% (1표준편차·정규 가정)`;
   const aaiiAlign = alignInput(credit.aaiiAsOf, basis, 7); // weekly survey
   // Display values (shown even when excluded) and judged values (usable only).
   const shown = {
@@ -80,7 +84,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
       note: 'VIX·풋콜·정크본드 수요·시장 폭·모멘텀 등 7개 지표를 합친 지수 — 다른 지표와 겹치므로 단독 판단에 쓰지 않음' },
     { id: 'term', title: '단기 불안 비율 (VIX ÷ 3개월 VIX)', value: shown.ratio == null ? '—' : shown.ratio.toFixed(2), basis: alignmentLabel(ratioAlign), basisStatus: ratioAlign.status,
       state: shown.ratio == null ? null : judged(ratio, ratio >= 1 ? { label: '역전 · 단기 불안', tone: 'burden' } : ratio >= 0.95 ? { label: '평탄', tone: 'neutral' } : { label: '정상', tone: 'favorable' }),
-      series: ratioSeries, refLines: [1], format: (value) => value.toFixed(2), change: seriesChange(ratioSeries, 5, '', 2) ? `5일 ${seriesChange(ratioSeries, 5, '', 2)}` : '',
+      series: ratioSeries, refLines: [1], format: (value) => value.toFixed(2), change: [seriesChange(ratioSeries, 5, '', 2) ? `5일 ${seriesChange(ratioSeries, 5, '', 2)}` : '', impliedDaily].filter(Boolean).join(' · '),
       note: '1 미만이면 단기 공포가 중기보다 작은 정상 상태, 1을 넘으면 당장의 충격을 크게 반영하는 역전' },
     { id: 'hy', title: '하이일드 스프레드', series: hySeries, refLines: [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], format: (value) => `${Math.round(value)}bp`, value: shown.hyBp == null ? '—' : `${Math.round(shown.hyBp)}bp`, basis: alignmentLabel(alignments.hy), basisStatus: alignments.hy.status,
       // v57.50 C02: the same creditState() as the 시장 상태 credit axis and the briefing (one judgement, one set of edges).

@@ -2120,6 +2120,18 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       || new Set(packet16.PACKET_20261016_SOURCES.map((row) => row.id)).size !== packet16.PACKET_20261016_SOURCES.length) fail('v57.91 the bookmark item pass must add up and its added sources stay unique');
     if (top('역레포가 바닥이면 TGA가 준비금을 줄이나') !== 'supplied-material:claim-20261016-reserve-buffer-regime' || top('사모신용 환매 대기열') !== 'supplied-material:claim-20261016-private-credit-redemption'
       || top('구리랑 광학 중에 뭐가 이겨') !== 'supplied-material:claim-20261016-interconnect-distance-time') fail('v57.87 chat retrieval must reach the bookmark frames');
+    // x-bookmarks 2026-10-18: the bookmarks added after the 10/16 ledger — twelve frames, each a lesson on a path that cites
+    // listed sources and reaches the claim ledger; dated claims carry a verification state; chat reaches the new frames.
+    const packet18 = await load('src/domain/research/packet-20261018-x-bookmarks.js');
+    const ids18 = new Set(packet18.PACKET_20261018_SOURCES.map((row) => row.id));
+    const claimIds = new Set(supplied.SUPPLIED_MATERIALS_REFERENCE.claimLedger.claims.map((claim) => claim.id));
+    if (packet18.PACKET_20261018_FRAMES.length !== packet18.PACKET_20261018_AUDIT.framesAdded || packet18.PACKET_20261018_FRAMES.length !== 12
+      || packet18.PACKET_20261018_FRAMES.some((frame) => !learning.lessonById(frame.id) || !onPath.has(frame.id) || frame.sourceRefs.some((id) => !ids18.has(id)) || !claimIds.has(`claim-20261018-${frame.id}`))
+      || ids18.size !== packet18.PACKET_20261018_SOURCES.length || [...ids18].some((id) => ids16.has(id))
+      || packet18.PACKET_20261018_SOURCES.flatMap((row) => row.checks).some((row) => !['VERIFIED', 'CONSISTENT', 'UNVERIFIED'].includes(row.state) || !row.basis)
+      || packet18.PACKET_20261018_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('x-bookmarks 2026-10-18 frames must be lessons on a path, cite unique listed sources, reach the claim ledger and stay out of rank/score');
+    if (top('강제 매도인지 펀더멘털 하락인지 어떻게 구분해') !== 'supplied-material:claim-20261018-forced-seller-chain' || top('VIX로 하루 예상 변동폭 계산') !== 'supplied-material:claim-20261018-volatility-base-rates'
+      || top('메모리 주가가 D램 가격보다 먼저 움직이나') !== 'supplied-material:claim-20261018-memory-cycle-lead') fail('x-bookmarks 2026-10-18 chat retrieval must reach the new frames');
   }
 
   // S12: the Korean filing button opens a receipt only when one is published; otherwise the DART search.
@@ -2355,6 +2367,11 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || !custom.matchesConditions({ vcpStage: 'near_pivot', vcpContractions: 3, vcpShrinking: true }, vcpOnly, readRaw)
     || custom.matchesConditions({ vcpStage: 'near_pivot', vcpContractions: 3, vcpShrinking: false }, vcpOnly, (await load('src/ui/pages/screener.js')).customRead)
     || !usable.has('vcp') || usable.has('pe-max')) fail('v57.59: VCP 수렴 needs contraction (near pivot only while still shrinking) and a market without a field greys that condition out');
+  // x-bookmarks 2026-10-18: 하방 과확장 reads the same 50-day ADR multiple as 확장 전, from below; the two phrases stay apart.
+  const downExt = [{ id: 'down-extended', value: 4 }];
+  if (!custom.matchesConditions({ pctSma50: -15, adrPct: 3 }, downExt, readRaw) || custom.matchesConditions({ pctSma50: -6, adrPct: 3 }, downExt, readRaw)
+    || custom.matchesConditions({ pctSma50: -15, adrPct: null }, downExt, readRaw)
+    || custom.parseConditionText('하방 과확장').conditions[0]?.id !== 'down-extended' || custom.parseConditionText('확장 전').conditions[0]?.id !== 'not-extended') fail('x-bookmarks 2026-10-18: 하방 과확장 must need a 50-day distance of at least n ADRs below and parse apart from 확장 전');
   // v57.58 (live review 4f): the long-history position is the share of months at or below the latest one.
   const { longHistoryRows } = await load('src/domain/macro/long-history.js');
   const months = Array.from({ length: 200 }, (_, index) => [`${1990 + Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, '0')}`, index < 199 ? index : 49.5]);
@@ -3883,6 +3900,10 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (sparse.overall !== '판정 보류' || sparse.axes.find((row) => row.id === 'commodities').state === 'favorable') fail(`P1399 one S&P and one WTI value produced a verdict: ${sparse.overall}`);
   if (!/^(양호|다소|중립|부담|방어|경계|혼조|대체로)/.test(buildMarketRegime({ history: rows, credit: { hyBp: 308, hyAsOf: last } }).overall)) fail('P1399 a full history must still produce a verdict');
   if (buildSentimentModel({}).synthesis.includes('치우치지 않은')) fail('P1399 no sentiment input must not read as balanced');
+  // x-bookmarks 2026-10-18: the term card carries VIX ÷ √252 as the implied one-sigma daily move, on the ratio's own date.
+  const vixRows = Array.from({ length: 10 }, (_, i) => ({ date: `2026-10-${String(i + 1).padStart(2, '0')}`, spx: 6600, vix: 22.2, vix3m: 20 }));
+  if (!/VIX 22\.2 → S&P 500 하루 약 ±1\.4%/.test(buildSentimentModel({ history: vixRows }).cards.find((card) => card.id === 'term')?.change || '')
+    || /하루 약/.test(buildSentimentModel({}).cards.find((card) => card.id === 'term')?.change || '')) fail('x-bookmarks 2026-10-18: the VIX term card must show the implied daily move only when VIX is measured');
   if (/신용 스프레드.*(악화|경계)/.test(buildSentimentModel({ credit: { fg: 20, fgAsOf: '2026-09-30' }, history: [{ date: '2026-09-30', spx: 6600 }] }).synthesis)) fail('P1399 F&G alone must not claim credit stress');
   {
     // v57.77: 시장 폭 / 투자 심리 providers live in the page's 데이터 출처 fold (phones cannot hover), the card notes are one

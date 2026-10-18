@@ -19,6 +19,10 @@
 - **유지 판정(근거 확인 후 남김).** start-local.ps1(start-local.cmd가 호출), performance-hunt.mjs(수동 프로파일러, .gitignore 연결), reconcile-atlas-taxonomy.mjs(flowPosition의 유일한 도출기 — ci-atlas-contract-check가 요구), recover-masters-holdings-from-shards.mjs(복구 절차), 게이트 전용 src 모듈 19개(RULES 검증 수단으로 등록), `_aioShowTechnicalChart`(P1669 게이트 고정), 개발자 콘솔용 `_enableDebugLog`/`_disableDebugLog`.
 - R1 7곳 v58.19
 
+## v58.18 (2026-10-18)
+- **X 북마크 자료 반영: 분석 노트 12개와 화면 보강 (v58.18):** 10/16 원장 이후 추가된 북마크를 읽어 새로 반복되는 분석 틀 12개를 참고용 노트로 학습 경로·주장 원장에 추가했다(`packet-20261018-x-bookmarks.js`, 순위·점수 반영 차단). 스크리너에 선택 조건 '하방 과확장'(50일선 대비 n ADR 이상 하방)과 조건 3개 이상 중첩 시 안내를 넣고, 심리 화면 VIX 기간구조 카드에 VIX/√252 하루 1σ 예상 변동폭을 표시한다 (PR #45).
+- R1 7곳 v58.18
+
 ## v58.17 (2026-10-18)
 - **차트 탭 순서: 종목 차트 먼저, 시장 상태 요약은 그 아래 (v58.17):** 차트 탭에서 `#stock-chart-section`이 헤더 바로 뒤에 오고 `#tech-regime-summary`가 차트 아래, '이어서 볼 곳' 위로 이동했다. 소유자 승인(2026-10-18)에 따라 P1420 `chartFirst` 브라우저 게이트와 레거시 T806 검사도 새 순서(차트 → 요약)를 고정하도록 바꿨다 (PR #44).
 - R1 7곳 v58.17

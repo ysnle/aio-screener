@@ -43,6 +43,10 @@ export const CUSTOM_CONDITIONS = Object.freeze([
   // v57.88 (review): a stock far below its 50-day line passed as "before extension"; the floor is the 부근 band.
   { id: 'not-extended', group: '패턴', label: '50일선 부근~위 변동폭의 {n}배 이내 (확장 전)', value: 4, unit: '배', fields: ['pctSma50', 'adrPct'],
     test: ({ pctSma50, adrPct }, n) => { const multiple = extensionMultiple(pctSma50, adrPct); return multiple != null && multiple >= -RULES.technical.nearLineAdr && multiple <= n; } },
+  // 2026-10-18 bookmarks (snapback-vs-bottom): a stock stretched far below its 50-day line in ADR units. An observation for
+  // a mean-reversion read, not a bottom or an entry — the frame keeps the reversal low as the invalidation point.
+  { id: 'down-extended', group: '패턴', label: '50일선 아래로 변동폭의 {n}배 이상 (하방 과확장 · 바닥 신호 아님)', value: 4, unit: '배', fields: ['pctSma50', 'adrPct'],
+    test: ({ pctSma50, adrPct }, n) => { const multiple = extensionMultiple(pctSma50, adrPct); return multiple != null && multiple <= -n; } },
   { id: 'pocket-pivot', group: '후속·회복', label: '최근 10거래일 안 포켓 피벗 (상승일 거래량이 직전 10일의 가장 큰 하락일 거래량보다 많음)', fields: ['pocketPivots10'],
     test: ({ pocketPivots10: a }) => a >= 1 },
   { id: 'early-base', group: '후속·회복', label: '초기 베이스 (추세가 다시 시작된 뒤 {n}번째 베이스 이하)', value: 2, unit: '번째', fields: ['baseCount'],
@@ -160,6 +164,7 @@ const PARSE_RULES = [
   // v57.88 (review): the numeric form first — otherwise the rvol rule below took "거래량 실린" and inverted the request.
   [new RegExp(`(?:거래량\\s*실린\\s*)?하락일\\s*${NUM}\\s*일\\s*(?:이하|미만|까지)`), (m) => ({ id: 'few-heavy-down', value: +m[1] })],
   [/(?:거래량\s*실린\s*)?하락일\s*(?:적은|적게)/, () => ({ id: 'few-heavy-down', value: 4 })],
+  [/하방\s*과?\s*확장|과매도\s*확장|50\s*일선\s*(?:아래로?|밑으로?)\s*(?:멀리|크게)/, () => ({ id: 'down-extended', value: 4 })],
   [/확장\s*(?:전(?![체부])|안\s*된|되지\s*않은)|50\s*일선\s*(?:근처|가까운)/, () => ({ id: 'not-extended', value: 4 })],
   [new RegExp(`(?:adr|변동폭)\\s*${NUM}\\s*%?\\s*(?:이상|초과|넘는|넘게|보다\\s*큰)`, 'i'), (m) => ({ id: 'adr-min', value: +m[1] })],
   [new RegExp(`(?:forward|포워드|선행)\\s*per\\s*${NUM}\\s*배?\\s*(?:이하|미만|아래)?`, 'i'), (m) => ({ id: 'fwdpe-max', value: +m[1] })],
