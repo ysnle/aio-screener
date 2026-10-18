@@ -222,7 +222,9 @@ export function installCustomConditions(documentRef) {
       }
       const missing = counts.filter((item) => !item.withData).length;
       // role=status: only touch the text when it changes so the count is not re-announced on every render.
+      // 2026-10-18 bookmarks (volatility-base-rates): each added condition narrows the sample; the combination is not a tested rule.
       const noteText = [current.length && shown != null ? `조건을 모두 만족하고 다른 필터도 통과한 종목 ${shown}개` : '',
+        current.length >= 3 ? `조건 ${current.length}개를 겹쳤습니다 — 조건마다 남는 종목이 줄고, 이 조합은 과거 성과로 검증한 규칙이 아닙니다.` : '',
         missing ? '자료 없음 조건은 이 시장 종목에 해당 자료가 없거나(재무는 미국만) 다음 데이터 갱신부터 채워집니다.' : '', parseNote].filter(Boolean).join(' · ');
       if (note.textContent !== noteText) note.textContent = noteText;
     },

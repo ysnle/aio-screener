@@ -12,7 +12,7 @@
   ],
   "boundary": "Search index of learning surfaces; titles and short texts only. Glossary entries are searched in the page itself.",
   "counts": {
-    "frame": 59,
+    "frame": 71,
     "column": 12,
     "principles-lesson": 112,
     "principles-node": 60,
@@ -1357,6 +1357,256 @@
         "params": {
           "mode": "frames",
           "node": "evidence-grades-falsifier"
+        }
+      }
+    },
+    {
+      "id": "frame:forced-seller-chain",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "레버리지 청산·담보·위험 한도가 만든 하락을 현금흐름 재평가와 구분",
+      "text": "급락의 원인을 물을 때 ‘무엇이 나빠졌나’ 다음에 ‘누가 원하지 않는데도 팔아야 했나’를 묻습니다. 담보 가치 하락, 증거금 상향, 펀드 환매, 위험 한도(VaR) 초과는 가격과 상관없이 매도를 강제합니다. 이런 하락은 매도자가 사라지면 멈추지만, 같은 때 기업의 현…",
+      "group": "통화·신용·물가",
+      "keys": [
+        "누가 팔아야만 하는가 — 강제 매도의 사슬",
+        "correlation",
+        "credit-creation",
+        "level-vs-change"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "forced-seller-chain"
+        }
+      }
+    },
+    {
+      "id": "frame:ai-infra-credit-ladder",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "AI 클라우드 발행사의 신용 악화가 업종·전체 신용으로 번지는 단계",
+      "text": "AI 인프라 신용은 발행사 한 곳의 CDS와 무담보 채권에서 먼저 벌어지고, 같은 업종 발행사, 하이일드 평균, 투자등급 하단 순으로 번질 때 시장 전체의 문제가 됩니다. 한 단계에서 멈추면 개별 기업의 조달 문제이고, 다음 단계로 넘어갈 때마다 범위가 커집니다. 유…",
+      "group": "통화·신용·물가",
+      "keys": [
+        "AI 인프라 신용이 번지는 사다리",
+        "refinancing",
+        "credit-cost",
+        "fcf-vs-funding"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "ai-infra-credit-ladder"
+        }
+      }
+    },
+    {
+      "id": "frame:volatility-base-rates",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "하루 등락·조정 폭·급락 뒤 반등을 기대 범위와 과거 빈도에 놓기",
+      "text": "오늘의 움직임이 큰지 작은지는 기대 범위와 과거 빈도에 놓아야 압니다. VIX를 약 16(√252)으로 나누면 S&P 500의 하루 1표준편차 예상 변동이 나와, VIX 22는 하루 약 ±1.4%입니다. 연중 10%대 조정은 평범한 해에도 흔합니다. 반대로 ‘급락 뒤…",
+      "group": "금융수학·통계",
+      "keys": [
+        "변동성과 기저율로 오늘의 움직임 재기",
+        "base-rate",
+        "expected-value",
+        "pct-vs-pp"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "volatility-base-rates"
+        }
+      }
+    },
+    {
+      "id": "frame:leadership-dispersion",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "지수 안정 뒤의 순환·주도 반전과 피난성 이동의 구분",
+      "text": "지수가 고점 근처에서 조용해도 속에서는 종목들이 크게 엇갈릴 수 있습니다. 주도주가 빠지는 동안 소외주가 올라 지수가 평평하면 그것은 강세도 약세도 아닌 순환입니다. 그 순환이 방어 업종으로의 피난인지 새 주도의 등장인지는 성장 주도주가 몇 달짜리 베이스를 뚫는지, …",
+      "group": "가격·기대",
+      "keys": [
+        "지수는 조용한데 속은 도는 장",
+        "correlation",
+        "sector-rotation-cycle",
+        "base-rate"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "leadership-dispersion"
+        }
+      }
+    },
+    {
+      "id": "frame:snapback-vs-bottom",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "하방 과확장 뒤의 반등을 되돌림 셋업으로 읽고 추세 전환과 구분",
+      "text": "가격이 이동평균에서 평소 하루 변동폭(ADR)의 몇 배나 아래로 밀리면 고무줄처럼 되돌아오는 반등이 나오기 쉽습니다. 하지만 그것은 평균으로 돌아가는 되돌림이지 새 상승 추세의 시작이 아닙니다. 하락이 길고 넓을수록 반등도 크지만, 직전 구간을 강하게 되찾고 질서 있…",
+      "group": "차트·셋업 읽기",
+      "keys": [
+        "과매도 되돌림과 추세 바닥은 다르다",
+        "base-rate",
+        "expected-value"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "snapback-vs-bottom"
+        }
+      }
+    },
+    {
+      "id": "frame:narrative-ledger-check",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "매출 전 테마주의 서사를 다음 분기 공시 항목과 폐기 조건으로 시험",
+      "text": "기술 검증이 사업 검증보다 앞선 기업은 이야기가 먼저 주가에 들어갑니다. 그 이야기가 사실이 되는지는 다음 분기 보고서의 제품 매출, 재공품, 선수금, 개발 용역(NRE)과 제품 매출의 구분, 현금 소진 기간, 희석으로 확인합니다. 매수 전에 ‘이 일이 생기면 논리가…",
+      "group": "기업 수익 구조",
+      "keys": [
+        "이야기를 장부로 확인하기",
+        "nre",
+        "dilution",
+        "qualification"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "narrative-ledger-check"
+        }
+      }
+    },
+    {
+      "id": "frame:foundry-yield-learning",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "후발 파운드리와 웨이퍼급 칩의 수율 주장을 원가로 읽기",
+      "text": "파운드리의 경쟁력은 공정 하나의 성능보다 설계 도구 정확도, 검증된 IP 생태계, 수율 학습, 가동률이 함께 쌓인 결과입니다. 모두 시간과 생산 물량의 함수라서, 외부 고객 물량이 들어와야 학습이 돌고, 학습이 돌아야 수율과 원가가 따라옵니다. 업체가 내세우는 지표가…",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "파운드리 경쟁력은 시간 × 물량의 학습",
+        "cost-curve",
+        "capex",
+        "competition-moat"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "foundry-yield-learning"
+        }
+      }
+    },
+    {
+      "id": "frame:memory-cycle-lead",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "메모리 가격 수준과 주가의 선후 — 변화율·재고·추정치 수정",
+      "text": "메모리 주가는 가격이 정점일 때가 아니라 가격 상승 속도가 꺾일 때 먼저 내려가고, 가격이 아직 내리는 중에 하락 속도가 줄면 먼저 오르는 경우가 많았습니다. 그래서 가격 수준보다 계약가격 상승률의 변화, 재고, 공급 증가, 이익 추정치 수정의 방향을 함께 봅니다.",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "메모리 주가는 가격의 기울기를 먼저 읽는다",
+        "level-vs-change",
+        "inventory-effect",
+        "hbm"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "memory-cycle-lead"
+        }
+      }
+    },
+    {
+      "id": "frame:ai-adoption-lag",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "개인 생산성과 기업·경제 산출 사이의 조직 재설계 시차와 그 사이 투자 수요",
+      "text": "새 범용 기술은 쓰이기 시작한 뒤에도 생산성 통계에 늦게 나타납니다. 전기가 공장에 들어온 뒤 공장 배치를 다시 설계하기까지 수십 년이 걸린 것처럼, AI도 개인의 작업 속도보다 조직과 업무 흐름을 바꿔야 기업 산출로 이어집니다. 그 사이에는 생산성보다 투자 수요가 …",
+      "group": "미시경제 기초",
+      "keys": [
+        "AI 생산성이 숫자로 보이기까지의 시차",
+        "capex",
+        "roic",
+        "marginal"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "ai-adoption-lag"
+        }
+      }
+    },
+    {
+      "id": "frame:headline-provenance",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "자극적인 시장·AI 헤드라인을 원문·정의·공식 채널로 되짚는 순서",
+      "text": "‘속보’ 헤드라인은 원문에서 몇 단계를 거치며 단서가 떨어져 나간 경우가 많습니다. 원문을 찾고, 어떤 정의를 썼는지, ‘생각한다’가 ‘발표했다’로 바뀌지 않았는지, 공식 채널에 같은 말이 있는지 확인하면 같은 뉴스의 무게가 크게 달라집니다. 합성 지표도 입력을 바꾸…",
+      "group": "금융수학·통계",
+      "keys": [
+        "헤드라인의 출처와 정의를 거슬러 확인하기",
+        "information-asymmetry",
+        "base-rate"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "headline-provenance"
+        }
+      }
+    },
+    {
+      "id": "frame:geopolitical-shock-paths",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "제한 충격과 구조 충격을 관측 신호로 가르고, 재고가 문턱 아래로 내려가는 시점을 확인",
+      "text": "지정학 충격은 첫 행동의 성격에 따라 두 길로 갈립니다. 제한 타격 뒤 협상으로 가면 매도는 며칠 안에 끝나고 유가 프리미엄도 되돌아가는 경우가 많았고, 체제 변화나 장기 봉쇄로 가면 위험이 다시 가격에 매겨지고 유가 변동성이 구조적으로 높아집니다. 어느 길인지는 발…",
+      "group": "금리·채권·환율",
+      "keys": [
+        "지정학 충격의 두 경로와 재고 문턱",
+        "stocks-to-use",
+        "pass-through",
+        "base-rate"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "geopolitical-shock-paths"
+        }
+      }
+    },
+    {
+      "id": "frame:growth-inflation-balance",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "보유 자산이 어떤 성장·물가 환경에 기대는지와 금리·달러·에너지가 함께 조이는지",
+      "text": "자산마다 잘 되는 환경이 다릅니다. 성장이 예상보다 높거나 낮을 때, 물가가 예상보다 높거나 낮을 때의 네 환경에 대해 내 보유가 어느 쪽에 몰려 있는지 보면, 시장을 예측하지 않고도 어떤 충격에 약한지 알 수 있습니다. 금리·달러·에너지가 함께 오르면 금융 여건이 …",
+      "group": "금리·채권·환율",
+      "keys": [
+        "성장·물가 노출과 금융 여건을 함께 보기",
+        "correlation",
+        "term-premium",
+        "policy-vs-long-rate"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "growth-inflation-balance"
         }
       }
     },
