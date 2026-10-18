@@ -22,7 +22,7 @@ last_verified: 2026-10-18
 | `js/aio-core.js` | 19,003 | 1,136,651 |
 | `js/aio-data.js` | 14,063 | 887,130 |
 | `js/aio-ui.js` | 4,383 | 259,073 |
-| `js/aio-chat.js` | 6,182 | 454,713 |
+| `js/aio-chat.js` | 6,182 | 454,952 |
 | `js/aio-tests.js` | 9,068 | 724,295 |
 | `js/aio-glossary.js` | 409 | 111,312 |
 
