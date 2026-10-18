@@ -1009,7 +1009,7 @@ body {
 .briefing-block { padding: 18px 0 20px; border-top: 1px solid var(--border); }
 .briefing-h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 0 0 12px; display: flex; align-items: baseline; gap: 10px; }
 .briefing-h2-note { font-family: inherit; font-size: 12px; font-weight: 400; color: var(--text-muted); }
-.briefing-event { display: grid; grid-template-columns: 128px 1fr; gap: 14px; padding: 9px 0; border-top: 1px solid var(--border-subtle); align-items: baseline; }
+.briefing-event { display: grid; grid-template-columns: 196px 1fr; gap: 14px; padding: 9px 0; border-top: 1px solid var(--border-subtle); align-items: baseline; }
 .briefing-event:first-child { border-top: 0; }
 .briefing-event-when { font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 .briefing-event.is-today .briefing-event-when { color: var(--data-amber); font-weight: 700; }
@@ -1062,6 +1062,7 @@ body {
 .briefing-driver-read { font-size: 13px; line-height: 1.7; color: var(--text-secondary); margin: 6px 0 0; }
 .briefing-check-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
 .briefing-footnote { font-size: 12px; color: var(--text-muted); margin: 14px 0 0; }
+.briefing-footnote a { color: var(--text-secondary); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; } /* layout review 2026-10-18: was the browser's default blue link */
 .briefing-empty { font-size: 12px; color: var(--text-muted); padding: 6px 0; }
 /* P1392: six-axis regime board */
 .regime-summary-head { display: flex; align-items: baseline; gap: 12px; }
@@ -1438,7 +1439,7 @@ body.dark-theme .capex-flow-seg { filter: brightness(1.1); }
 .page .daily-block { min-width: 0; }
 .page .daily-block[hidden] { display: none; }
 .page .daily-headline { font-size: 14px; line-height: 1.7; color: var(--text-secondary); margin: 2px 0 10px; }
-.page .daily-moves { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.page .daily-moves { display: grid; grid-template-columns: repeat(auto-fit, minmax(124px, 1fr)); gap: 8px; }
 .page .daily-move { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 1px solid var(--border-subtle); border-radius: 6px; }
 .page .daily-move.is-big { border-color: var(--accent); }
 .page .daily-move-label, .page .daily-move-level { font-size: 12px; color: var(--text-muted); }
@@ -1451,7 +1452,7 @@ body.dark-theme .capex-flow-seg { filter: brightness(1.1); }
 .page .daily-name-name { font-size: 13px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .page .daily-name-day { font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
 .page .daily-name-notes { grid-column: 2 / -1; font-size: 12px; color: var(--text-muted); }
-.page .daily-event { display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: 2px 10px; font-size: 13px; }
+.page .daily-event { display: grid; grid-template-columns: 196px minmax(0, 1fr); gap: 2px 10px; font-size: 13px; }
 .page .daily-event.is-today .daily-event-when { color: var(--accent); font-weight: 600; }
 .page .daily-event-when { color: var(--text-muted); font-variant-numeric: tabular-nums; }
 .page .daily-event-why { grid-column: -2 / -1; font-size: 12px; color: var(--text-muted); } /* v57.79: last explicit column, so the one-column phone layout stacks it (column 2 added an implicit track that squeezed the time to 0px) */ .page .daily-move-live { font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
@@ -3189,9 +3190,8 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 #risk-banner button { display:none; }
 
 /* v52.89 P704: 사용설명서·용어사전·한국 5면도 13면 시안의 조용한 정보 위계를 공유한다. */
-#page-guide > .aio-section:has(.page-title) {
-  border-bottom:1px solid var(--border-strong); padding-bottom:20px; margin-bottom:22px;
-}
+/* Layout review 2026-10-18: .page-head draws the header rule on every screen; this wrapper drew a second one 20px below it. */
+#page-guide > .aio-section:has(.page-title) { margin-bottom:0; }
 #page-guide .aio-section-hd {
   border:0; padding:0 0 10px; margin:0; background:transparent;
 }
@@ -3906,7 +3906,7 @@ button[data-filter-active="true"] {
       <span id="home-hero-total" style="font-family:var(--font-display);font-size:20px;font-weight:600;color:var(--text-primary);line-height:1.2;">판정 대기</span>
     </div>
     <div class="home-hero-divider" style="width:1px;align-self:stretch;background:var(--border);min-height:64px;"></div>
-    <div style="flex:1;min-width:240px;max-width:600px;">
+    <div style="flex:1;min-width:240px;max-width:760px;">
       <div id="home-hero-headline" style="font-size:13px;color:var(--text-muted);margin-bottom:7px;">종가 기록을 불러오는 중입니다.</div>
       <div id="home-hero-desc" style="font-size:14px;color:var(--text-secondary);line-height:1.75;"></div>
     </div>

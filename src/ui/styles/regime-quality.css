@@ -186,6 +186,8 @@ body.dark-theme .sector-map .is-na { background: #36383b; color: #c8c6c0; }
 .page .xr-lead { font-size: 17px; line-height: 1.7; font-weight: 600; color: var(--text-primary); margin: 6px 0 8px; }
 .page .xr-basis, .page .xr-caveat { font-size: 13.5px; line-height: 1.7; color: var(--text-secondary); margin: 6px 0 14px; }
 .page .xr-reading { font-size: 15px; line-height: 1.75; color: var(--text-secondary); margin: 8px 0; }
+/* Layout review 2026-10-18: reading paragraphs keep the page's 920px measure (.flow-lead) instead of running the full width. */
+.page :is(.xr-lead, .xr-basis, .xr-caveat, .xr-reading) { max-width: 920px; }
 .page .xr-tension { font-size: 15px; line-height: 1.75; color: var(--text-primary); margin: 10px 0; padding: 10px 14px; border-left: 3px solid var(--data-red); background: var(--bg-elevated); border-radius: 4px; }
 .page .xr-scope-note { margin: 6px 0 0; font-size: 12px; line-height: 1.6; color: var(--text-muted); }
 .page .xr-h3 { font-size: 16px; margin: 18px 0 6px; color: var(--text-primary); }
@@ -299,6 +301,10 @@ body.dark-theme .sector-map .is-na { background: #36383b; color: #c8c6c0; }
 .page .tp-label { font-size: 13px; fill: var(--text-primary); }
 /* The map is drawn twice (640 × 360 and 320 × 300); the section width picks one, so labels stay at 12px or more. */
 .page .tp-map-wrap { container-type: inline-size; max-width: 760px; }
+/* Layout review 2026-10-18: map and reading side by side on a wide screen; stacked below 1280px. */
+.page .tp-map-row { display: grid; grid-template-columns: minmax(0, 760px) minmax(240px, 1fr); gap: 8px 32px; align-items: start; margin-bottom: 14px; }
+.page .tp-map-side { padding-top: 8px; min-width: 0; }
+@media (max-width: 1279px) { .page .tp-map-row { grid-template-columns: minmax(0, 1fr); } .page .tp-map-side { padding-top: 0; } }
 .page .tp-map.is-narrow { display: none; max-width: 480px; }
 .page .tp-map.is-narrow .tp-label, .page .tp-map.is-narrow .tp-axis-label { font-size: 13.5px; }
 .page .tp-map.is-narrow .tp-quad { font-size: 13.5px; }

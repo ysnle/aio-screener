@@ -17,6 +17,10 @@
 .page-head + .briefing-block,
 .aio-section:has(> .page-head:last-child) + .briefing-block { border-top: 0; padding-top: 4px; }
 .page-head ~ #home-score-hero { border-top: 0 !important; padding-top: 4px !important; }
+/* Layout review 2026-10-18: the six-axis chips end on the content's right edge, the same edge as the blocks below. */
+#home-score-hero > #home-hero-components { margin-left: auto; }
+#home-crossroads.xr-compact { margin: 20px 0 24px; } /* its own section now: the same breathing room as the home blocks around it */
+@media (max-width: 1100px) { #home-score-hero > #home-hero-components { flex: 1 1 100%; margin-left: 0; max-width: 560px; } } /* tablet: the chips take their own row under the reading */
 /* UI review 2026-10-18: one look for every "pick a view" toggle. The screens used four (grey square chips, outlined
    rectangles, a pill group, filled pills); all now read as outlined pills with the chosen one filled in ink. */
 .page :is(.news-sort-btn, .sector-map-tab, .stock-chart-intervals button, .regime-chart-selectors button) {
@@ -64,7 +68,18 @@
 .theme-member-table { width: 100%; font-size: 12px; }
 .theme-member-table th, .theme-member-table td { white-space: nowrap; }
 /* v57.77: 시장 폭 groups show one lead chart (capped so a lone card does not stretch to a 500px-tall chart) and fold the rest. */
-#breadth-chart-grid > .breadth-lead { width: 100%; max-width: 760px; }
+#breadth-chart-grid > .breadth-lead { grid-column: 1 / -1; width: 100%; max-width: 760px; }
+/* Layout review 2026-10-18: on a wide screen each group's reading sits beside its lead chart instead of above a half-width card. */
+@media (min-width: 1280px) {
+  #breadth-chart-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: 32px; }
+  #breadth-chart-grid > .flow-lead:not(:empty) { grid-column: 1; margin-top: 8px; }
+  #breadth-chart-grid > .flow-lead:not(:empty) + .breadth-lead { grid-column: 2; max-width: none; }
+  #breadth-chart-grid > .flow-lead:empty + .breadth-lead { grid-column: 1 / -1; }
+  /* 투자 심리: the three chart cards share one row, the same three columns as the cards below them. */
+  #sentiment-card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+/* 시장 상태 한국 참고: label and value sit close together instead of at the two ends of the page. */
+.regime-kr-metrics { max-width: 640px; }
 #breadth-chart-grid > .breadth-more { grid-column: 1 / -1; min-width: 0; }
 .breadth-more > summary { cursor: pointer; width: max-content; max-width: 100%; padding: 12px 0; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
 .breadth-more > .breadth-more-grid { margin-top: 4px; }
