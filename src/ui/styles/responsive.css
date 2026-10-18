@@ -120,7 +120,7 @@
   .page .rl-aside { order: 2; }
   .page .rl-nav { order: 3; max-height: 260px; }
   .page .rl-pages { flex-wrap: wrap; }
-  :is(.trend-grid, .briefing-driver-grid, .guide-screen-grid, .regime-board, .pf-checks-list, .kr-theme-grid, .macro-chain-branches) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  :is(.trend-grid, .guide-screen-grid, .regime-board, .pf-checks-list, .kr-theme-grid, .macro-chain-branches) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
   body #ai-panel { width: min(440px, 100vw); height: var(--aio-visual-height, 100dvh); top: var(--aio-visual-top, 0px); bottom: auto; }
   #ai-panel-msgs { min-height: 0; overscroll-behavior: contain; }
   #ai-panel .ai-input-row { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
