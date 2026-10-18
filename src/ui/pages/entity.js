@@ -295,7 +295,7 @@ function renderTickerNavigation(documentRef, state, root) {
   // search only (CSS on .is-empty), which is the one action available.
   documentRef.getElementById?.('page-ticker')?.classList.toggle('is-empty', !hasSelection);
   if (!hasSelection) {
-    if (breadcrumb) { breadcrumb.textContent = '종목 선택 대기'; breadcrumb.setAttribute('aria-label', '종목 선택 대기'); }
+    if (breadcrumb) { breadcrumb.textContent = '종목'; breadcrumb.setAttribute('aria-label', '종목'); }
     if (backButton) { backButton.textContent = '← 돌아가기'; backButton.setAttribute('aria-label', '돌아가기'); }
     return;
   }

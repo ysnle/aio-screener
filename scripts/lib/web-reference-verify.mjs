@@ -197,6 +197,8 @@ async function readBounded(response, maxBytes) {
 }
 
 export const MAX_REDIRECT_HOPS = 3;
+const fetchErrorDetail = (error) => String(error?.cause?.code || error?.code || error?.cause?.name || error?.name || '').replace(/[^\w.-]/g, '').slice(0, 48) || null;
+
 // redirect:'manual' so every hop is re-checked against the official allowlist before it is requested.
 export async function fetchOfficialPage(raw, domains, { fetchImpl = fetch, timeoutMs = 20000, maxBytes = 4 * 1024 * 1024, cache = null } = {}) {
   const url = officialUrl(raw, domains);
@@ -233,7 +235,8 @@ export async function fetchOfficialPage(raw, domains, { fetchImpl = fetch, timeo
       }
     }
   } catch (error) {
-    result = { ok: false, reason: error?.name === 'AbortError' ? 'source-timeout' : 'source-fetch-failed' };
+    // The network cause (TLS chain, reset, DNS) only goes to the run log, so a failing lane can be diagnosed.
+    result = { ok: false, reason: error?.name === 'AbortError' ? 'source-timeout' : 'source-fetch-failed', detail: fetchErrorDetail(error) };
   } finally { clearTimeout(timer); }
   cache?.set(url.href, result);
   return result;
@@ -503,7 +506,8 @@ export async function refreshReference(id, previous, { now, env, fetchImpl = fet
   let candidate;
   try { candidate = JSON.parse(result.text); } catch { return { item: failedReference(id, previous, 'model-json-invalid', attemptAt), reason: 'model-json-invalid' }; }
   const verified = await verifyCandidate(id, candidate, { fetchImpl, now, previous, cache });
-  if (!verified.ok) return { item: failedReference(id, previous, verified.reason, attemptAt), reason: verified.reason };
+  if (!verified.ok) return { item: failedReference(id, previous, verified.reason, attemptAt), reason: verified.reason,
+    detail: [def.resolveHints && !resolved.length ? 'hint-unresolved' : null, verified.detail].filter(Boolean).join(', ') || null };
   const item = { ...emptyReference(id), ...verified.fields, status: 'verified', reason: null, sourceUrl: verified.sourceUrl,
     verifiedQuote: String(verified.verifiedQuote || '').slice(0, QUOTE_MAX), checkedAt: attemptAt, verifiedAt: attemptAt, lastAttemptOk: true,
     observation: verified.observation, nextExpectedAt: nextExpectedAt(id, verified.fields) };
@@ -569,9 +573,9 @@ export async function refreshOfficialReferences({ previous = null, ledger: resto
     ledger.days[day] += 1;
     ledger.items[id] = { lastAttemptAt: new Date(now).toISOString() };
     if (persistLedger) persistLedger(ledger);
-    const { item, reason } = await refreshReference(id, before, { now, env, fetchImpl, requestImpl, cache });
+    const { item, reason, detail } = await refreshReference(id, before, { now, env, fetchImpl, requestImpl, cache });
     items[id] = item;
-    decisions[id] = reason ? `failed:${reason}` : `verified:${decision.reason}`;
+    decisions[id] = reason ? `failed:${reason}${detail ? ` (${detail})` : ''}` : `verified:${decision.reason}`;
   }
   const nowIso = new Date(now).toISOString();
   const lane = { month, callsThisMonth: calls, monthlyCallCap: cap, day, callsToday: ledger.days[day], dailyCallCap: policy.dailyCallCap,

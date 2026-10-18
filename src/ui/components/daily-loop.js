@@ -223,7 +223,8 @@ function renderSchedule(doc, host, root) {
     const li = el(doc, 'li', null, `daily-event${row.today ? ' is-today' : ''}`);
     li.append(el(doc, 'span', row.when, 'daily-event-when'), el(doc, 'span', row.label, 'daily-event-label'));
     if (row.sourceTitle) li.title = row.sourceTitle;
-    if (row.why) li.append(el(doc, 'span', row.why, 'daily-event-why'));
+    // UI review 2026-10-18: an earnings row's note ("장 전") repeated its own time column; only a note that adds something shows.
+    if (row.why && !String(row.when || '').includes(row.why)) li.append(el(doc, 'span', row.why, 'daily-event-why'));
     list.append(li);
   }
   host.append(list);

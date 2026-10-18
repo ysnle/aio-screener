@@ -1,3 +1,11 @@
+## v58.13 (2026-10-18)
+- **화면 정리: 머리말·토글·모바일 상단바·스크리너 가독성 (v58.13):** 모든 화면의 머리말을 하나의 .page-head 구조로 통일하고 제목 아래 이중 선을 없앴다. 뉴스 정렬·섹터 맵·차트 구간·국면 차트 선택 토글을 테두리 알약 하나의 모양(선택 시 잉크 채움, 포커스 링)으로 맞췄다. 휴대폰 상단바는 한 줄로 줄이고(경로 표시 숨김) 테마·홈 섹터 막대 이름표를 한 줄로 고정했다. 그린 캔버스 위 회색 사각형(RRG 산점도 등)을 없앴다. 스크리너는 1·3·6개월·50일 수익률에 색을 넣고 공통 종가일을 가격 열 머리글에 한 번만 표시하며(날짜가 다른 행만 따로 표기) 휴대폰 정렬 막대에 이름을 붙였다. 종목 허브의 중복 문구를 줄였다.
+- R1 7곳 v58.13
+
+## v58.12 (2026-10-18)
+- **공식 참조 수집 실패 원인 기록 (v58.12):** 관세청 수출 잠정치(krExports, 이슈 #19)처럼 공식 페이지 수집이 실패하면 refresh-web-research 실행 로그의 판정에 네트워크 원인 코드(예: UNABLE_TO_VERIFY_LEAF_SIGNATURE)와 보도자료 게시판 조회 결과를 함께 남긴다. 게시되는 official-references.json은 그대로다. 10/19 재시도에서 TLS·연결·DNS·지역 차단 중 어느 것인지 가릴 수 있다.
+- R1 7곳 v58.12
+
 ## v58.11 (2026-10-18)
 - **data.json 로더 이전 3·4단계 (v58.11):** js/aio-data.js _aioLoadServerData의 서버 매크로 블록 투영(FRED/BEA 22개 키와 변화량·출처·증거, HY OAS, BLS 값과 CPI NSA/SA 승격, BLS/BEA 메타, AAII 설문·설문 메타·한국 수출 웹 참조)을 src/data/server-macro.js applyServerMacro로, marketAnalysis의 증거·주장·의미·게시 게이트를 src/data/server-market-analysis.js verifyServerMarketAnalysis로 옮겼다. 같은 필드를 같은 순서로 쓰며 실데이터와 변형 입력에서 이전 블록과 차이 0건을 확인했다. 읽는 곳이 없던 _serverBlsMacro·_serverBeaMacro 전역을 제거했다. 화면 변화는 없다.
 - R1 7곳 v58.11
