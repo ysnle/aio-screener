@@ -1,3 +1,7 @@
+## v58.11 (2026-10-18)
+- **data.json 로더 이전 3·4단계 (v58.11):** js/aio-data.js _aioLoadServerData의 서버 매크로 블록 투영(FRED/BEA 22개 키와 변화량·출처·증거, HY OAS, BLS 값과 CPI NSA/SA 승격, BLS/BEA 메타, AAII 설문·설문 메타·한국 수출 웹 참조)을 src/data/server-macro.js applyServerMacro로, marketAnalysis의 증거·주장·의미·게시 게이트를 src/data/server-market-analysis.js verifyServerMarketAnalysis로 옮겼다. 같은 필드를 같은 순서로 쓰며 실데이터와 변형 입력에서 이전 블록과 차이 0건을 확인했다. 읽는 곳이 없던 _serverBlsMacro·_serverBeaMacro 전역을 제거했다. 화면 변화는 없다.
+- R1 7곳 v58.11
+
 ## v58.10 (2026-10-18)
 - **history 열 일관성 (P1915):** 풋/콜 비율(pcr)이 있는 날의 행에만 pcr 열이 생겨 history.json 열 집합이 갈라졌고, 검사 유예가 끝난 10/18부터 CI가 실패했다. pcr을 공통 열에 넣어 값이 없는 날은 null로 채우고, 게시된 history.json도 같은 정규화로 맞췄다. 화면 변화는 없다.
 - R1 7곳 v58.10
