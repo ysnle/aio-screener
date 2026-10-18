@@ -1,3 +1,7 @@
+## v58.10 (2026-10-18)
+- **history 열 일관성 (P1915):** 풋/콜 비율(pcr)이 있는 날의 행에만 pcr 열이 생겨 history.json 열 집합이 갈라졌고, 검사 유예가 끝난 10/18부터 CI가 실패했다. pcr을 공통 열에 넣어 값이 없는 날은 null로 채우고, 게시된 history.json도 같은 정규화로 맞췄다. 화면 변화는 없다.
+- R1 7곳 v58.10
+
 ## v58.09 (2026-10-17)
 - **data.json 로더 이전 2단계 (v58.09):** 서버 데이터 산출물의 fetch, reconciliation 무결성 검사, 시장 사이클 신선도 게이트(게시·tier-0 커버리지·12시간 창), _serverDataMeta 구성을 js/aio-data.js 인라인 코드에서 src/data/server-data.js(fetchServerData·readReconciliationState·assessServerCycle·buildServerDataMeta)로 옮겼다. 레거시 로더는 호환 브리지(window._aioFetchServerData·_aioBuildServerDataMeta)를 호출해 DATA_SNAPSHOT과 증거 전역을 이전과 같이 투영한다. data-refresh 감사와 데이터 파이프라인 게이트가 손으로 쓴 사본 대신 런타임 모듈을 실행한다. 화면 변화는 없다.
 - R1 7곳 v58.09

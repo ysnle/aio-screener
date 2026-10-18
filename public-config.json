@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ai-public-config.v1",
-  "appRevision": "v58.09",
+  "appRevision": "v58.10",
   "ai": {
     "chatPolicy": "shared-worker-only",
     "provider": "openai",
@@ -13,9 +13,9 @@
     "routeReason": null,
     "routeEvidence": {
       "status": "CURRENT",
-      "source": "periodic-live-health",
-      "observedAt": "2026-10-17T07:51:24.235Z",
-      "observationStatus": "SUCCESS"
+      "source": "last-observed-live-health",
+      "observedAt": "2026-10-17T23:21:48.745Z",
+      "observationStatus": "NOT_ATTEMPTED"
     }
   },
   "marketData": {
