@@ -1,7 +1,7 @@
 // P1628: offline regime condition/series/venue-date contracts. No provider calls or producer execution.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { buildMarketRegime } from '../src/domain/briefing/market-read.js';
+import { buildMarketRegime, bp } from '../src/domain/briefing/market-read.js';
 import { buildMarketScenarios, buildRegimeAxisHistory, renderMarketScenarioContext, buildKoreaIndexSeries, buildKoreaRegimeObservations } from '../src/domain/market/regime-scenarios.js';
 import { resolveMarketCalendarSession } from '../src/domain/market/market-calendar.js';
 import { renderRegimePage } from '../src/ui/components/market-regime.js';
@@ -21,6 +21,8 @@ const macroHistory = { schemaVersion: 'macro-history.v1', series: {
   hyOas: { observations: dates.map(date => [date, 3]) }, realYield10: { observations: dates.map(date => [date, 1.8]) }, breakeven10: { observations: dates.map(date => [date, 2.3]) }
 } };
 const regime = buildMarketRegime(input);
+// P1926 (v58.21): a yield difference in bp is exact to 0.01bp, so the rates latch's +10bp exit is not tripped by 9.9999bp.
+assert.ok(bp(5.10, 5.00) === 10 && bp(4.30, 4.20) === 10 && bp(5.00, 5.10) === -10 && bp(null, 5) === null, `P1926 bp(5.10, 5.00) must be exactly 10 (got ${bp(5.10, 5.00)})`);
 assert.equal(regime.axes.find(row => row.id === 'trend').state, 'favorable', 'P1628 fixture must exercise a genuine computed upward regime');
 let model = buildMarketScenarios(input, { regime });
 assert.equal(model.scenarios.find(item => item.id === 'expansion').confirmed, true, 'P1628 broad participation with trend and non-stressed credit/volatility must identify the expansion conditions');

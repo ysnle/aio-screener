@@ -230,7 +230,7 @@ function stats(series, market = 'US') {
 const pct = (now, then) => now != null && then ? (now / then - 1) * 100 : null;
 // A yield difference in bp is rounded to 0.01bp: 5.10 − 5.00 is 9.9999…bp in floating point, and the rates latch's
 // "20-session rise under +10bp" exit read it as under the line (10/16: 부담 → 중립 on a rounding artifact).
-const bp = (now, then) => now != null && then != null ? Math.round((now - then) * 1e6) / 1e4 : null;
+export const bp = (now, then) => now != null && then != null ? Math.round((now - then) * 1e6) / 1e4 : null;
 const signed = (value, digits = 1, unit = '%') => value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
 const fmt = (value, digits = 2) => value == null ? '—' : value.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
