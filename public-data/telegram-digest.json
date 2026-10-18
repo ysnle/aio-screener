@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-18T13:21:49.222Z",
-  "attemptedAt": "2026-10-18T13:21:49.222Z",
-  "lastSuccessfulAt": "2026-10-18T13:21:49.222Z",
+  "generatedAt": "2026-10-18T14:22:08.402Z",
+  "attemptedAt": "2026-10-18T14:22:08.402Z",
+  "lastSuccessfulAt": "2026-10-18T14:22:08.402Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-04T13:21:43.945Z",
-  "until": "2026-10-18T13:21:43.945Z",
+  "since": "2026-10-04T14:22:03.444Z",
+  "until": "2026-10-18T14:22:03.444Z",
   "current24hWindow": {
     "start": "2026-10-16T23:00:00.000Z",
     "end": "2026-10-17T23:00:00.000Z",
@@ -83,22 +83,22 @@
       "reachedKnown": true,
       "count": 268,
       "freshCount": 37,
-      "eligibleTextCount": 244,
+      "eligibleTextCount": 245,
       "selectedCount": 83,
       "error": null,
-      "lastPostId": 25918
+      "lastPostId": 25919
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1169,
+      "count": 1168,
       "freshCount": 39,
-      "eligibleTextCount": 918,
+      "eligibleTextCount": 921,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 66611
+      "lastPostId": 66614
     },
     {
       "channel": "bornlupin",
@@ -117,58 +117,58 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 711,
-      "freshCount": 38,
-      "eligibleTextCount": 598,
+      "count": 713,
+      "freshCount": 37,
+      "eligibleTextCount": 600,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 70622
+      "lastPostId": 70624
     }
   ],
-  "count": 2380,
-  "retainedItemCount": 502,
+  "count": 2381,
+  "retainedItemCount": 500,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2380,
-    "eligibleTextCount": 1963,
-    "mediaOnlyCount": 417,
-    "highSignalCount": 505,
+    "observedCount": 2381,
+    "eligibleTextCount": 1969,
+    "mediaOnlyCount": 412,
+    "highSignalCount": 506,
     "broadSignalCount": 1040,
     "selectedRawCount": 415,
     "selectedEligibleCount": 414,
-    "selectedRawCoveragePct": 21.1,
+    "selectedRawCoveragePct": 21,
     "selectedOfObservedPct": 17.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "healthcare": 112,
+    "geo": 341,
+    "market-note": 801,
+    "macro": 774,
+    "semi": 612,
+    "power": 325,
+    "equity": 162,
+    "earnings": 453,
+    "japan": 142,
     "ai-policy": 183,
     "credit": 98,
-    "macro": 774,
-    "semi": 611,
-    "power": 324,
-    "earnings": 452,
-    "market-note": 801,
     "flows": 164,
-    "geo": 341,
     "media-only": 59,
-    "equity": 161,
-    "healthcare": 111,
     "optical": 52,
     "insider": 44,
     "kr-market": 197,
-    "japan": 141,
     "crypto": 7
   },
   "tickerCounts": {
+    "NVDA": 82,
+    "MSFT": 40,
     "TSM": 135,
-    "NVDA": 81,
     "MU": 28,
     "005930.KS": 64,
     "000660.KS": 55,
-    "MSFT": 39,
     "GOOG": 59,
     "AMZN": 32,
     "TSLA": 26,
@@ -259,10 +259,10 @@
   "themes": [
     "Market Notes (801 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 16일 > 오후 2시~오후 9시 🇺🇸 아메리카 • 트럼프 대통령은 우크라이나의 러시아 정유시설 공격을 수치스러운 행위라고 비판하며 젤렌스키 대통령을 공개적으로...",
     "Macro/Rates (774 posts in 14-day research window): 2026년 10월 19일~23일 미국 증시 주간 브리핑 금주 미국 증시는 주요 빅테크 기업들의 실적 발표와 AI 투자 확대 지속 여부, 반도체 업황, 미국 경제지표 및 지정학적 리스크가 핵심 변수로 작용할 전망. 특히 메타, 테슬라, 램리서치, 텍사스인스트루먼트의 실적이 집중되면서 기술주 전반의 방향성을 결정할...",
-    "Semiconductors/Memory (611 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/16 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-    "Earnings/Corporate (452 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단...",
+    "Semiconductors/Memory (612 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/16 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
+    "Earnings/Corporate (453 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단...",
     "Geopolitics (341 posts in 14-day research window): 2026년 10월 17일 미국 레딧 베스트 게시물 분석 > NBIS / Neoclouds - AI 인프라 전쟁 · NBIS -31% 밈 등장 · 하루 -10%대 낙폭까지 조롱 · 레버리지 데이터센터 투자자...",
-    "AI Power/Grid (324 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터...",
+    "AI Power/Grid (325 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터...",
     "Korea Market (197 posts in 14-day research window): [NH/백준기] 스몰캡 - 엠케이전자 [NH/스몰캡(목진원)] [엠케이전자] ★큰 그림은 변한 것이 없다 3Q26 Preview: 환율이 깎은 국내 마진, 중국 법인은 순항 중 3분기 연결 실적은 매출액...",
     "AI Policy/Export Controls (183 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
   ],
@@ -274,7 +274,7 @@
     },
     {
       "key": "NVDA",
-      "count": 81,
+      "count": 82,
       "text": "2026년 10월 19일~23일 미국 증시 주간 브리핑 금주 미국 증시는 주요 빅테크 기업들의 실적 발표와 AI 투자 확대 지속 여부, 반도체 업황, 미국 경제지표 및 지정학적 리스크가 핵심 변수로 작용할 전망. 특히 메타, 테슬라, 램리서치, 텍사스인스트루먼트의 실적이 집중되면서 기술주 전반의 방향성을 결정할..."
     },
     {
@@ -299,7 +299,7 @@
     },
     {
       "key": "MSFT",
-      "count": 39,
+      "count": 40,
       "text": "AI 버블 붕괴가 아닌 단순 변동성인 이유 벤 호로위츠 & 데이비드 색스 & 차마스- All-In Podcast 1. 닷컴 버블과의 결정적 차이: \"수요 부족 vs 극심한 공급 부족\" (벤 호로위츠) 1999년 '라우드클라우드(LoudCloud)'의 트라우마: 호로위츠와 마크 안드레센은 사실상 네오클라우드의 원조..."
     },
     {
@@ -362,7 +362,7 @@
       "topics": [
         "semi"
       ],
-      "count": 611,
+      "count": 612,
       "focus": "서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/16 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -380,7 +380,7 @@
       "topics": [
         "power"
       ],
-      "count": 324,
+      "count": 325,
       "focus": "JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터..."
     },
     {
@@ -407,7 +407,7 @@
       "topics": [
         "equity"
       ],
-      "count": 161,
+      "count": 162,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 마크 저커버그 CEO가 장기적인 AI 시장 주도권 확보를 위해 최대..."
     },
     {
@@ -425,7 +425,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 452,
+      "count": 453,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단..."
     },
     {
@@ -434,7 +434,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 111,
+      "count": 112,
       "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · AbbVie · AMN Healthcare Services · Becton, Dickinson and Company · Biogen · Centene ·..."
     },
     {
@@ -443,7 +443,7 @@
       "topics": [
         "japan"
       ],
-      "count": 141,
+      "count": 142,
       "focus": "다음주 일정 (11일): 한국 1~10일 수출입 12일: 일본 휴장, IMF, 세계은행 연차총회(~18일) OCP Global Summit 2026(~15일): 주제:“Scaling Innovation for..."
     },
     {
@@ -1701,6 +1701,28 @@
   ],
   "broadItems": [
     {
+      "id": "aetherjapanresearch/25919",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25919",
+      "datetime": "2026-10-18T13:48:41.000Z",
+      "localDateKst": "2026-10-18",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "equity",
+        "earnings",
+        "japan"
+      ],
+      "score": 85,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MSFT"
+      ],
+      "summary": "텔레그래프) 마이크로소프트, AI 계약 전격 취소… 영국 데이터센터 선구자에 타격 부제: 미국 빅테크 기업이 엔스케일과의 계약을 철회하면서 수십억 달러 규모의 상장에 위협이 되고 있습니다 마이크로소프트가 영국..."
+    },
+    {
       "id": "HANAchina/70621",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70621",
@@ -2186,13 +2208,12 @@
       "datetime": "2026-10-17T23:29:01.000Z",
       "localDateKst": "2026-10-18",
       "tags": [
-        "geo",
         "japan"
       ],
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": "로이터에 따르면 트럼프 행정부가 미얀마 군부가 지원하는 정부와 비공개 접촉을 재개하고 한 달 사이 두 차례 회담을 진행. 지난주 회담은 일본 도쿄에서 개최됐으며, 앞서 9월 중순 미얀마 수도 네피도에서도 첫..."
+      "summary": "로이터에 따르면 트럼프 행정부가 미얀마 군부가 지원하는 정부와 비공개 접촉을 재개하고 한 달 사이 두 차례 회담을 진행. 지난주 회담은 일본 도쿄에서 개최됐으며, 앞서 9월 중순 미얀마 수도 네피도에서도 첫...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66568",
@@ -2262,15 +2283,14 @@
       "datetime": "2026-10-17T21:52:44.000Z",
       "localDateKst": "2026-10-18",
       "tags": [
-        "semi",
         "earnings"
       ],
       "score": 61,
       "hasText": true,
+      "summary": ">>AI 수요 호조에 대만 기업 실적 급증…상위 5개사, 1~3분기 누적 EPS 100TWD 초과 전망 (대만경제일보) •AI 수요 증가와 제품 믹스 개선, 가격 인상 효과에 힘입어 대만 상장기업의 실적이...",
       "tickers": [
         "TSM"
-      ],
-      "summary": ">>AI 수요 호조에 대만 기업 실적 급증…상위 5개사, 1~3분기 누적 EPS 100TWD 초과 전망 (대만경제일보) •AI 수요 증가와 제품 믹스 개선, 가격 인상 효과에 힘입어 대만 상장기업의 실적이..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25908",
@@ -8373,43 +8393,9 @@
         "BE",
         "178320.KQ"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25768",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25768",
-      "datetime": "2026-10-12T01:35:05.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "earnings"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "「수주가 나빠질 요소는 없다」 레이저텍 사장, 보이기 시작한 강세 전망의 이유 레이저텍의 센도다 테츠야 사장은 2026년 6월기에 매출과 이익이 모두 감소했음에도 8월 결산 설명회에서 수주가 나빠질 요소가...",
-      "tickers": [
-        "TSM",
-        "005930.KS",
-        "000660.KS"
-      ]
     }
   ],
   "current24hItems": [
-    {
-      "id": "HANAchina/70584",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70584",
-      "datetime": "2026-10-17T21:57:04.000Z",
-      "localDateKst": "2026-10-18",
-      "tags": [
-        "healthcare"
-      ],
-      "score": 49,
-      "hasText": true,
-      "tickers": [
-        "AAPL"
-      ],
-      "summary": ">>중국 스마트폰, 광군제 할인에도 부진한 수요 회복 어려울 전망 (대만경제일보) •중국의 2026년 광군제 판촉 행사가 10월 15일 시작. Apple, Xiaomi, OPPO, vivo 등 주요 브랜드는..."
-    },
     {
       "id": "HANAchina/70583",
       "channel": "HANAchina",
@@ -8417,29 +8403,14 @@
       "datetime": "2026-10-17T21:52:44.000Z",
       "localDateKst": "2026-10-18",
       "tags": [
-        "semi",
         "earnings"
       ],
       "score": 61,
       "hasText": true,
+      "summary": ">>AI 수요 호조에 대만 기업 실적 급증…상위 5개사, 1~3분기 누적 EPS 100TWD 초과 전망 (대만경제일보) •AI 수요 증가와 제품 믹스 개선, 가격 인상 효과에 힘입어 대만 상장기업의 실적이...",
       "tickers": [
         "TSM"
-      ],
-      "summary": ">>AI 수요 호조에 대만 기업 실적 급증…상위 5개사, 1~3분기 누적 EPS 100TWD 초과 전망 (대만경제일보) •AI 수요 증가와 제품 믹스 개선, 가격 인상 효과에 힘입어 대만 상장기업의 실적이..."
-    },
-    {
-      "id": "HANAchina/70582",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70582",
-      "datetime": "2026-10-17T21:49:03.000Z",
-      "localDateKst": "2026-10-18",
-      "tags": [
-        "market-note"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": ""
+      ]
     },
     {
       "id": "bornlupin/20681",
