@@ -1597,26 +1597,13 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
       return true;
     }
     var count = 0;
-    function markFallbackCanvas(canvas) {
-      try {
-        var markCtx = canvas.getContext('2d');
-        if (markCtx) {
-          markCtx.save();
-          markCtx.setTransform(1, 0, 0, 1, 0, 0);
-          markCtx.fillStyle = 'rgba(148,163,184,0.45)';
-          markCtx.fillRect(2, 2, 8, 8);
-          markCtx.restore();
-        }
-      } catch(_) {}
-    }
     Array.prototype.slice.call(page.querySelectorAll('canvas')).forEach(function(canvas) {
       var preset = presets[canvas.id];
       if (!preset) return;
       if (canvas.dataset.aioBreadthChartRenderer === 'native' || canvas.dataset.aioFxbondChartRenderer === 'native' || canvas.dataset.aioTickerChartRenderer === 'native') return; // v57.79: the native ticker chart owns one loading/error/chart state (no ghost message or grey corner square)
-      if (!isBlank(canvas)) {
-        markFallbackCanvas(canvas);
-        return;
-      }
+      // UI review 2026-10-18: a drawn canvas is left as drawn — the old grey 8px corner mark showed on every rendered
+      // chart (the 테마 · 섹터 scatter) as an unexplained square.
+      if (!isBlank(canvas)) return;
       var ok = preset.type === 'message'
         ? window.AIO.drawFallbackMessageCanvas(canvas, preset.label, { name: 'page-canvas-reference' })
         : window.AIO.drawFallbackLineChart(canvas, [{ data: preset.data, color: preset.color, width: 2 }], {
