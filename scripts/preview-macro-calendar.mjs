@@ -138,7 +138,10 @@ function createPreview({ registry, currentSchedules, fixture, asOf }) {
     if (!isRecord(entry)) throw new Error(`Current release entry ${id} is invalid`);
     const currentDates = normalizedDates(currentSchedules[id] || [], `current schedule ${id}`);
     const currentLast = entry.lastRelease == null ? null : parseIsoDate(entry.lastRelease, `current release ${id}.lastRelease`);
-    const currentNext = entry.nextRelease == null ? null : parseIsoDate(entry.nextRelease, `current release ${id}.nextRelease`);
+    if (entry.nextRelease != null) parseIsoDate(entry.nextRelease, `current release ${id}.nextRelease`);
+    // The runtime re-derives nextRelease from the schedule at boot (refreshMacroCalendarFromOfficialSchedule), so the
+    // hand-kept field is not what readers see; compare the same derived date the screen shows.
+    const currentNext = earliestOnOrAfter(currentDates, asOf);
     const hasCandidate = Object.hasOwn(fixture.schedules, id);
     if (!hasCandidate) {
       return {
@@ -171,8 +174,11 @@ function createPreview({ registry, currentSchedules, fixture, asOf }) {
       lastRelease: currentLast,
       nextRelease: currentNext
     };
-    const changed = JSON.stringify(current) !== JSON.stringify({
-      scheduleDates: proposed.scheduleDates,
+    // Dates before asOf are history: the FRED window dropping old releases or an annual file listing earlier months
+    // is not a calendar change anyone has to act on.
+    const upcoming = (dates) => dates.filter((date) => date >= asOf);
+    const changed = JSON.stringify({ ...current, scheduleDates: upcoming(current.scheduleDates) }) !== JSON.stringify({
+      scheduleDates: upcoming(proposed.scheduleDates),
       lastRelease: proposed.lastRelease,
       nextRelease: proposed.nextRelease
     });
