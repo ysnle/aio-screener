@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1938 - v58.47 - 테마 상세를 닫은 뒤 두 번째 재렌더에서 키보드 포커스가 페이지 본문으로 떨어짐 (2026-10-19)
+
+- symptom/reproduction: 테마 상세를 닫으면 포커스가 테마 트리거로 돌아오지만, 이후 저장소·갱신 재렌더가 트리거를 다시 교체하면 포커스가 <body>로 떨어졌다. #73 병합 뒤 main CI의 browser-reference-adoption이 'theme close focus not restored to financials: triggerStillMounted=false'로 실패해 Pages 배포가 건너뛰어졌고, #62 PR CI에서도 한 번 났다.
+- root_cause: src/ui/pages/themes.js onThemeDetailClosed가 MutationObserver로 트리거를 따라갔지만 첫 재포커스에 성공하면 멈추고 10초 뒤에도 멈춰, 두 번째 교체 렌더(또는 4배 CPU에서 10초 이후의 렌더)를 따라가지 못했다.
+- fix: 닫기 추적이 포커스된 트리거를 계속 따라간다. 포커스가 <body>(또는 숨겨진 패널)에 있는 동안 트리거가 제거되면 같은 테마 id의 현재 트리거로 포커스를 옮긴다. 사용자가 포커스를 다른 곳으로 옮기거나 아직 붙어 있는 트리거에서 blur하면, 상세를 다시 열면, 60초가 지나면, 또는 언마운트되면 추적을 끝낸다.
+- violated_rule: WCAG 2.4.3 포커스 순서: 닫힌 대화 상자는 포커스를 연 요소로 돌려주고, 재렌더가 그것을 빼앗지 않는다.
+- prevention: ci-reference-adoption-browser-check.mjs가 닫은 뒤 트리거를 두 번 교체하고 매번 포커스를 요구한다(이전 코드는 두 번째에서 실패).
+- verification/residual: 로컬 Chromium: 이전 코드는 두 번째 교체에서 BODY로 떨어지고, 새 코드는 세 번 교체 동안 포커스를 유지하며 사용자 blur 뒤에는 포커스를 끌어오지 않는다. reference-adoption·architecture browser·core·workspace 검사 통과.
+
 ## P1937 - v58.45 - v58.43 순위 기록 판정 문장이 유의한 음의 IC를 "우연과 구분되지 않음"으로 쓰고, 표본 수·판정 범위를 잘못 말함 (2026-10-19)
 
 - symptom/reproduction: 스크리너 "순위가 높으면 오른다" 원칙과 검증 판정이 평균 < 0, t ≤ -2인 음의 IC를 우연으로 썼다. 판단 부족 사유의 표본 수가 판정에 쓰인 미국 IC 표본 수와 달랐고, 판정 범위(기본 가중치 미국 순위)를 밝히지 않아 한국 탭·선택 프로필 순위의 검증으로 읽힐 수 있었다. 가격 이력만 실패하면 금리곡선·지수 이익 원칙 근거가 사라졌고, 신호 화면은 이익 수정 원칙에 필요한 컨센서스 파일을 요청하지 않았다.
