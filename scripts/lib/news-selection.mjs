@@ -429,6 +429,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
   const krItems = [];  // 한국 전용 (reserved slot)
   const intradayCandidates = []; // P1720: published after cycle.endMs (08:00 KST)
   const feedHealth = [];
+  const slotPool = []; // market timeline (2026-10-19): every dated candidate of the last 30 h, cut per 6 h KST slot later
   for (const feed of NEWS_FEEDS) {
     const isKr = feed.country === 'kr';
     const health = { source: feed.source, status: 'ok', parsed: 0, inWindow: 0, kept: 0, selected: 0 };
@@ -448,6 +449,10 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
       health.parsed = parsed.length;
       for (const p of parsed) {
         const t = p.ts;
+        if (isFinite(t) && t >= nowMs - 30 * 3600000 && p.title && p.link) {
+          slotPool.push({ title: p.title, link: p.link, source: p.source || feed.source, _sourceRaw: p._sourceRaw, guid: p.guid,
+            sourceArticleId: p.sourceArticleId, ts: t, topic: isKr ? 'kr' : feed.topic, country: feed.country, feedTier: feed.tier, feedSource: feed.source });
+        }
         // P1720: articles published after the 08:00 cut are kept aside for the provisional intraday slot; the
         // completed 08:00 bundle below stays the canonical window.
         if (isFinite(t) && t >= cycle.endMs) {
@@ -586,6 +591,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
   for (const row of out) { const health = feedHealth.find((h) => h.source === row.feedSource); if (health) health.selected += 1; }
   Object.defineProperty(out, 'feedHealth', { value: feedHealth, enumerable: false });
   Object.defineProperty(out, 'intraday', { value: selectNewsIntraday(intradayCandidates, { cycleEndMs: cycle.endMs, canonical: out }), enumerable: false });
+  Object.defineProperty(out, 'slotPool', { value: slotPool, enumerable: false }); // scripts/lib/market-timeline.mjs
   return out;
 }
 

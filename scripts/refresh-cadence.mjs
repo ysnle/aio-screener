@@ -27,6 +27,8 @@ export const PRE_OPEN_LEAD_MIN = 120;
 export const WEEKEND_NEWS_INTERVAL_MIN = 60;
 export const WEEKEND_NEWS_DUE_MIN = 45;
 export const DAILY_LANE_CRON = '33 7 * * *';
+// 00/06/12/18 KST = 15/21/03/09 UTC (UTC multiples of 6 h shifted by 3 h); kept inline for the sparse checkout above.
+export const latestMarketSlotEnd = (ms) => Math.floor((ms - 3 * 3600000) / (6 * 3600000)) * 6 * 3600000 + 3 * 3600000;
 const SESSION_SCAN_DAYS = 6;
 const MINUTE = 60000;
 const DAY = 86400000;
@@ -104,6 +106,9 @@ export function decideRefreshCadence({ nowMs = Date.now(), eventName = '', sched
   const lastMs = Date.parse(lastNewsAt || '');
   const ageMin = Number.isFinite(lastMs) ? Math.floor((Number(nowMs) - lastMs) / MINUTE) : null;
   if (ageMin == null || ageMin < 0 || ageMin >= WEEKEND_NEWS_DUE_MIN) return { mode: 'news', reason: `weekend-news-due-age-${ageMin ?? 'unknown'}m`, window };
+  // 2026-10-19: a market-timeline slot (06/12/18/24 KST, scripts/lib/market-timeline.mjs) ended after the last cycle —
+  // run the news cycle now so the slot is sealed at its boundary rather than up to an hour later.
+  if (lastMs < latestMarketSlotEnd(nowMs)) return { mode: 'news', reason: 'market-slot-boundary', window };
   return { mode: 'skip', reason: `weekend-news-not-due-age-${ageMin}m`, window };
 }
 

@@ -808,4 +808,9 @@ if (bokPolicyEvidence.warnings.length) console.log(`WARN | BOK policy: ${bokPoli
 const snapshotErrorSummary = summarizeSnapshotErrors(snapshotStatus.errors);
 console.log(`D1-structural | ${structuralOk ? 'yes' : 'no'} | rows=${rows.length} unknownSessions=${unknownSessions.length} tier0=${snapshot.coverage?.observed}/${snapshot.coverage?.required} snapshotFreshness=${classifySnapshotFreshness(snapshotAudit.publishedAt, now)} attempt=${snapshotStatus.attemptStatus || 'unknown'} snapshotErrors=${JSON.stringify(snapshotErrorSummary)} policyStates=${JSON.stringify({ A1: auditState.A1, B1: auditState.B1, B2: auditState.B2, B3: auditState.B3, C4: auditState.C4, E3: auditState.E3, E4: auditState.E4 })}`);
 
-if (!structuralOk || !dynamicOk) process.exit(1);
+// 2026-10-19 cadence: the six-hour market slots are judged against the artifact's own clock (scripts/lib/market-timeline.mjs).
+const { auditMarketTimeline } = await import('./lib/market-timeline.mjs');
+const timelineAudit = auditMarketTimeline(data);
+console.log(`F1-timeline | ${timelineAudit.failures.length ? 'FAIL' : timelineAudit.present ? 'PASS' : 'NOT-YET-PUBLISHED'} | slots=${timelineAudit.slots ?? 0} failures=${JSON.stringify(timelineAudit.failures)} warnings=${JSON.stringify(timelineAudit.warnings)}`);
+
+if (!structuralOk || !dynamicOk || timelineAudit.failures.length) process.exit(1);
