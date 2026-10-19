@@ -4,17 +4,25 @@
 // the same principles lesson. Installed once by bootstrap; re-renders on navigation and when closes arrive.
 import { SCREEN_LESSON_IDS, selectScreenLessons } from '../../domain/guide/lessons.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
+import { summarizeCandidateArchive } from '../../domain/screener/candidate-record.js';
 import { lessonItem } from './market-guide.js';
 import { el } from './dom.js';
 
 /** Today's state for the lessons' live sentences; an unloaded market leaves every lesson without a reason. */
 export function lessonContext(root, { nowMs = Date.now() } = {}) {
+  const rankEvidence = rankEvidenceForRoot(root);
   try {
-    if (!root?._aioHistory?.length) return { nowMs };
-    const { regime, outlook, crossroads, guide } = marketInterpretation(root, { nowMs });
-    if (!regime?.available) return { regime, nowMs };
-    return { regime, outlook, crossroads, direction: guide?.direction || null, nowMs };
-  } catch (_) { return { nowMs }; }
+    if (!root?._aioHistory?.length) return { rankEvidence, nowMs };
+    // The same stages the 오늘 guide reads, including the curve and index-earnings lessons' inputs.
+    const { regime, outlook, crossroads, guide, curve, indexEarnings } = marketInterpretation(root, { nowMs });
+    if (!regime?.available) return { regime, curve, indexEarnings, rankEvidence, nowMs };
+    return { regime, outlook, crossroads, direction: guide?.direction || null, curve, indexEarnings, rankEvidence, nowMs };
+  } catch (_) { return { rankEvidence, nowMs }; }
+}
+
+// The screener's forward record (public-data/screener-candidate-archive.json, loaded by the screener page).
+function rankEvidenceForRoot(root) {
+  try { return root?._aioCandidateArchive?.entries ? summarizeCandidateArchive(root._aioCandidateArchive).independent || null : null; } catch (_) { return null; }
 }
 
 export function renderScreenLessons({ documentRef: doc, root, routeId, ctx = null } = {}) {

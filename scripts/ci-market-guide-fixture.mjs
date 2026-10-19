@@ -86,6 +86,16 @@ assert.equal(earningsLesson.live({ indexEarnings: { available: false } }), null,
 assert.equal(selectScreenLessons('fundamental', { indexEarnings: { available: true, breadth: 0.5, up: 3, down: 1 } }).some((row) => row.reason), false, `${label}: a stock screen keeps the earnings lesson as a principle`);
 assert.doesNotMatch([curveLesson.live(curveCtx), earningsLesson.live({ indexEarnings: { available: true, breadth: -0.4, up: 10, down: 30 } })].join('\n'), /\d+(?:\.\d+)?\s*%\s*(?:확률|가능성)|매수하세요|매도하세요/, `${label}: live curve/earnings sentences carry no probability or instruction`);
 
+// The ranking lesson states only what the forward record has reached, and keeps that reason on the screener (screen-wide).
+const rankLesson = LESSON_BY_ID['rank-is-not-edge'];
+assert.doesNotMatch(rankLesson.principle, /확인되지 않았습니다|확인됐습니다/, `${label}: the ranking principle carries no fixed verdict`);
+assert.match(rankLesson.live({ rankEvidence: { decision: 'insufficient', n: 4, min: 12 } }), /4개뿐이라\(12개부터 판단\).*아직 모릅니다/, `${label}: an insufficient record says it cannot judge yet`);
+assert.match(rankLesson.live({ rankEvidence: { decision: 'not-supported', n: 14, min: 12 } }), /우연과 구분되지 않습니다/, `${label}: a not-supported record says so`);
+assert.match(rankLesson.live({ rankEvidence: { decision: 'supported', n: 14, min: 12 } }), /같은 방향이었습니다.*손실 한도/, `${label}: a supported record still keeps the rank a filter`);
+assert.match(rankLesson.live({ rankEvidence: { decision: 'insufficient', n: 0, min: 12 } }), /결과가 아직 없어/, `${label}: an empty record does not say "0개뿐"`);
+assert.equal(rankLesson.live({}), null, `${label}: no record, no sentence`);
+assert.ok(selectScreenLessons('screener', { rankEvidence: { decision: 'insufficient', n: 4, min: 12 } })[0]?.reason, `${label}: the screener shows the record's reason first`);
+
 // Past-frequency evidence (analogs ${ANALOG_METHOD}): a share is informative only beyond 2 standard errors of the base rate.
 assert.equal(pastEvidence({ n: 40, up: 22, baseUpPct: 55 }).informative, false, `${label}: a share at the base rate carries no information`);
 assert.equal(pastEvidence({ n: 40, up: 38, baseUpPct: 55 }).informative, true, `${label}: a share far beyond the base rate is informative`);
