@@ -148,6 +148,49 @@ export function forwardReturn(series, sessionDate, fwd = CANDIDATE_FWD_SESSIONS)
   return { value: end / start - 1, forwardDate: series.dates[index + fwd] };
 }
 
+// Spearman rank correlation of two equal-length arrays (average ranks for ties).
+export function spearman(xs, ys) {
+  const n = xs.length;
+  if (n < 3 || ys.length !== n) return null;
+  const ranks = (values) => {
+    const order = values.map((value, index) => [value, index]).sort((a, b) => a[0] - b[0]);
+    const out = new Array(n);
+    for (let i = 0; i < n;) {
+      let j = i; while (j + 1 < n && order[j + 1][0] === order[i][0]) j += 1;
+      for (let k = i; k <= j; k += 1) out[order[k][1]] = (i + j) / 2;
+      i = j + 1;
+    }
+    return out;
+  };
+  const rx = ranks(xs); const ry = ranks(ys);
+  const mx = (n - 1) / 2;
+  let sxy = 0; let sxx = 0; let syy = 0;
+  for (let i = 0; i < n; i += 1) { sxy += (rx[i] - mx) * (ry[i] - mx); sxx += (rx[i] - mx) ** 2; syy += (ry[i] - mx) ** 2; }
+  return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx * syy) : null;
+}
+
+// Expertise review 2026-10-19: the top-minus-bottom spread uses 40% of the list and pools two markets whose ranks are
+// computed separately. The rank information coefficient — Spearman correlation of the whole ranked order with the
+// forward returns — is measured per market (ranks are per market), with the share of listed names that could not be
+// measured (a delisted or halted name has no forward bar; it is counted, not silently dropped).
+function rankIc(entry, seriesBySymbol, fwd) {
+  const order = String(entry.universe || '').split(',').filter(Boolean);
+  if (!order.length) return null;
+  const out = {};
+  for (const market of ['US', 'KR']) {
+    const xs = []; const ys = []; let listed = 0;
+    order.forEach((symbol, index) => {
+      if (marketOfSymbol(symbol) !== market) return;
+      listed += 1;
+      const result = forwardReturn(seriesBySymbol.get(symbol), entry.sessionDates?.[market] || entry.date, fwd);
+      if (result) { xs.push(-index); ys.push(result.value); }
+    });
+    const ic = xs.length >= 30 ? spearman(xs, ys) : null;
+    if (listed) out[market] = { ic: round(ic, 4), measured: xs.length, listed, unmeasuredPct: round((1 - xs.length / listed) * 100, 1) };
+  }
+  return out;
+}
+
 function measure(entry, seriesBySymbol, fwd) {
   const legs = {};
   const forwardDates = new Set();
@@ -180,6 +223,7 @@ function outcomeOf(record, seriesBySymbol, fwd) {
     topVsUniversePct: round((legs.top.mean - legs.universe.mean) * 100, 3),
     measured: { top: legs.top.measured, bottom: legs.bottom.measured, universe: legs.universe.measured },
     listed: { top: legs.top.listed, bottom: legs.bottom.listed, universe: legs.universe.listed },
+    rankIc: rankIc(record, seriesBySymbol, fwd),
     costs: 'not-modelled'
   };
 }
@@ -227,7 +271,7 @@ export function upsertCandidateEntry(archive, entry) {
 export function emptyCandidateArchive() {
   return {
     schemaVersion: CANDIDATE_ARCHIVE_SCHEMA,
-    policy: `Each completed session: the default-profile ranking the page computes, top and bottom fifth recorded before outcomes exist; outcome = equal-weight mean adjusted-close return over each stock's next ${CANDIDATE_FWD_SESSIONS} completed sessions in its own market, no costs. Symbol lists kept ${CANDIDATE_LIST_RETENTION_DAYS} days; outcomes kept.`,
+    policy: `Each completed session: the default-profile ranking the page computes, top and bottom fifth recorded before outcomes exist; outcome = equal-weight mean adjusted-close return over each stock's next ${CANDIDATE_FWD_SESSIONS} completed sessions in its own market, no costs. Rank IC per market from the whole ranked order. Evidence counts only non-overlapping entries (each starts after the previous one's forward window ends). Symbol lists kept ${CANDIDATE_LIST_RETENTION_DAYS} days; outcomes kept.`,
     allowedUse: 'research-validation-record; not a trading signal or performance claim',
     startedAt: null,
     generatedAt: null,

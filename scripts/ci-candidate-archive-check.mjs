@@ -12,9 +12,10 @@
 import { readFile } from 'node:fs/promises';
 import {
   CANDIDATE_ARCHIVE_SCHEMA, CANDIDATE_SHADOW_MODEL, anchorSessionDates, buildCandidateEntry, buildShadowRecord, emptyCandidateArchive,
-  fillCandidateOutcomes, forwardReturn, rankPublishedScreener, signedYields, summarizeCandidateArchive, upsertCandidateEntry
+  fillCandidateOutcomes, forwardReturn, rankPublishedScreener, signedYields, spearman, summarizeCandidateArchive, upsertCandidateEntry
 } from './lib/candidate-archive.mjs';
 import { buildPopulationRankingIdentity, buildRankingIdentity } from '../src/domain/screener/model-fingerprint.js';
+import { INDEPENDENT_MIN, independentEvidence } from '../src/domain/screener/candidate-record.js';
 
 const fail = (message) => { throw new Error(`[candidate-archive] ${message}`); };
 const root = new URL('../', import.meta.url);
@@ -107,12 +108,28 @@ fillCandidateOutcomes(shadowArchive, shadowSeries);
 const shadowSummary = summarizeCandidateArchive(shadowArchive).shadow;
 if (!shadowArchive.entries[0].shadow.outcome || shadowSummary?.measured !== 1 || shadowSummary.identity !== shadow.identity) fail('shadow outcome/summary not recorded beside the default entry');
 
+// 8. (v58.XX expertise review) rank IC per market and evidence from non-overlapping entries only.
+if (spearman([1, 2, 3, 4], [10, 20, 30, 40]) !== 1 || spearman([1, 2, 3, 4], [4, 3, 2, 1]) !== -1 || spearman([1, 2], [1, 2]) !== null) fail('spearman rank correlation drifted');
+if (!outcome.rankIc || !Object.values(outcome.rankIc).every((row) => row.listed >= row.measured)) fail(`outcome must carry a per-market rank IC with listed/measured counts: ${JSON.stringify(outcome.rankIc)}`);
+{
+  const mk = (i, ic) => ({ date: `2026-${String(1 + Math.floor(i / 28)).padStart(2, '0')}-${String(1 + (i % 28)).padStart(2, '0')}`, outcome: { rankIc: { US: { ic } }, topVsUniversePct: ic } });
+  const daily = Array.from({ length: 300 }, (_, i) => mk(i, 0.02 + (i % 3) * 0.01));
+  daily.forEach((item, i) => { item.outcome.forwardDate = daily[Math.min(i + 30, daily.length - 1)].date; });
+  const ev = independentEvidence(daily);
+  if (ev.n !== 11 || ev.decision !== 'insufficient') fail(`overlapping daily entries must collapse to non-overlapping ones and stay insufficient below ${INDEPENDENT_MIN}: ${JSON.stringify({ n: ev.n, d: ev.decision })}`);
+  const spaced = Array.from({ length: 14 }, (_, i) => ({ ...mk(i * 2, i % 2 ? 0.05 : -0.05), outcome: { rankIc: { US: { ic: i % 2 ? 0.05 : -0.05 } }, forwardDate: mk(i * 2 + 1, 0).date } }));
+  if (independentEvidence(spaced).decision !== 'not-supported') fail('a zero-mean IC record must not be read as support');
+  const pos = spaced.map((item, i) => ({ ...item, outcome: { ...item.outcome, rankIc: { US: { ic: 0.04 + (i % 2) * 0.01 } } } }));
+  if (independentEvidence(pos).decision !== 'supported') fail('a consistently positive IC record must be read as support');
+}
+
 // 6. Published artifact, when the producer has written one.
 let published = null;
 try { published = JSON.parse(await readFile(new URL('public-data/screener-candidate-archive.json', root), 'utf8')); } catch (_) { /* first producer run pending */ }
 if (published) {
   if (published.schemaVersion !== CANDIDATE_ARCHIVE_SCHEMA || !Array.isArray(published.entries)) fail('published archive schema drifted');
   const recomputed = summarizeCandidateArchive(published);
+  if (!('independent' in (published.summary || {}))) delete recomputed.independent; // written by the next producer run
   if (JSON.stringify(recomputed) !== JSON.stringify(published.summary)) fail('published summary does not match its entries');
   if (published.entries.some((item) => item.outcome && item.outcome.costs !== 'not-modelled')) fail('outcome must declare costs not modelled');
 }
