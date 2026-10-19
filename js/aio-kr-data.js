@@ -399,7 +399,7 @@ function showKrThemeDetail(themeId) {
   content.innerHTML=
     // 헤더: 테마명 + 수익률 + 강도
     '<div class="krl-d-head">'+
-      '<div><div class="krl-d-title">'+(CN[themeId]||themeId)+'</div>'+
+      '<div><div class="krl-d-title">'+escHtml(CN[themeId]||themeId)+'</div>'+
         '<div class="krl-d-sub">구성종목 '+totalStocks+'개 · 상승 '+upCnt+' · 하락 '+dnCnt+'</div></div>'+
       '<div class="krl-d-end">'+
         '<div class="krl-d-avg" style="color:'+cc+';">'+(ip?'+':'')+avg.toFixed(2)+'%</div>'+
@@ -412,10 +412,10 @@ function showKrThemeDetail(themeId) {
         '<div class="krl-d-stat-v" style="color:'+(upRatio>=60?'var(--data-green)':upRatio<=40?'var(--data-red)':'var(--text-muted)')+';">'+upRatio+'%</div></div>'+
       '<div class="krl-d-stat">'+
         '<div class="krl-d-stat-l">최고 종목</div>'+
-        '<div class="krl-d-stat-name is-up">'+(topStock||'—')+'</div><div class="krl-d-stat-pct is-up">'+(topStock?(topPct>=0?'+':'')+topPct.toFixed(2)+'%':'—')+'</div></div>'+
+        '<div class="krl-d-stat-name is-up">'+escHtml(topStock||'—')+'</div><div class="krl-d-stat-pct is-up">'+(topStock?(topPct>=0?'+':'')+topPct.toFixed(2)+'%':'—')+'</div></div>'+
       '<div class="krl-d-stat">'+
         '<div class="krl-d-stat-l">최저 종목</div>'+
-        '<div class="krl-d-stat-name is-down">'+(botStock||'—')+'</div><div class="krl-d-stat-pct is-down">'+(botStock?(botPct>=0?'+':'')+botPct.toFixed(2)+'%':'—')+'</div></div>'+
+        '<div class="krl-d-stat-name is-down">'+escHtml(botStock||'—')+'</div><div class="krl-d-stat-pct is-down">'+(botStock?(botPct>=0?'+':'')+botPct.toFixed(2)+'%':'—')+'</div></div>'+
       '<div class="krl-d-stat">'+
         '<div class="krl-d-stat-l">가중평균</div>'+
         '<div class="krl-d-stat-v is-fig" style="color:'+cc+';">'+(ip?'+':'')+avg.toFixed(2)+'%</div></div>'+
@@ -424,7 +424,7 @@ function showKrThemeDetail(themeId) {
     // 촉매
     (cat?'<div class="krl-d-cat">'+
       '<div class="krl-d-cat-l">촉매 / 핵심 이슈</div>'+
-      '<div class="krl-d-cat-t">'+cat+'</div></div>':'')+
+      '<div class="krl-d-cat-t">'+escHtml(cat)+'</div></div>':'')+
 
     // 종목 테이블
     '<div style="overflow-x:auto;border:1px solid rgba(var(--ink-rgb),0.06);border-radius:4px;">'+
