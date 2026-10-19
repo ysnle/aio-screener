@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1930 - v58.30 - 화면마다 시황이 엇갈림: 판정·브리핑은 AI·반도체 주도주 조정을 중심 변수로 보는데 시나리오·AI 해설은 '유가 충격'(2/4)을 앞세우고, 오늘의 한 문장은 10/18에 멈춤 (2026-10-19)
+
+- symptom/reproduction: 10/19 실제 화면: 국면 판정·브리핑은 '주도주 조정이 지금 시장의 중심 변수', 오늘 화면 시나리오 카드·거시 화면·AI 시장 해석은 '지금은 유가 충격 쪽 조건이 더 맞습니다'(2/4). 오늘의 한 문장은 10/19 갱신 13회 동안 10/18 유가 문장 그대로. 투자 심리는 VIX/3개월 0.98을 '역전'이라 쓰고 카드는 '평탄'. 동반 약세 반증 조건은 이미 위에 있는 200일선 회복을 요구. AI 답변 표는 'VIX확인 필요F&G확인 필요'처럼 글자로 뭉개지고, DOMPurify가 없으면 <br>·<table> 태그가 그대로 보임. 오늘·국면 판정 화면의 AI에는 주도 영역 이탈·바닥 확인 조건이 전달되지 않음.
+- root_cause: (1) AI 투자 꺾임 시나리오의 핵심 조건이 20거래일 상대 부진(나스닥100 3%p·SMH 8%p)만 봐서 시장 상태의 주도 영역 이탈(같은 규칙의 5거래일 판정)과 따로 놀았다(SMH -5.9%p). (2) 문장 검증기의 매도(?!세)가 '매도 소진'을 매매 지시로 막았고, 프롬프트는 바로 그 소진 대 확인 갈림을 권했으며 탈락은 로그에 남지 않았다. (3) 심리 종합·추세 증거가 역전 기준(1)과 안정 기준(0.95) 사이를 따로 불렀다. (4) _aioSafeMD가 safeHtml 기본 목록(표 태그 없음)을 썼다. (5) 화면 기준 맥락(_aioScreenBasisContext)이 6개 지표만 넣었다.
+- fix: macro-read가 시장 상태 leadership을 실어 보내고, AI 투자 꺾임 핵심 조건이 주도 영역 이탈도 받는다(10/16 기준 3/4로 선두, 유가 충격은 대안). 문장 검증기는 매도·매수 뒤 소진·압력·우위·심리·신호·물량을 지시로 보지 않고 탈락 이유 기록은 v58.27(P1929)의 marketSentenceRejectReason을 그대로 쓴다. 심리 종합·추세 증거는 0.95~1을 평탄으로 쓴다. 동반 약세 반증은 50일선(추세 판정선)과 변동성 진정. _aioSafeMD·_appendAIMsg가 표 태그를 허용하고 DOMPurify가 없으면 원문 텍스트로 쓴다. 화면 기준 맥락에 주도 영역·바닥 확인 줄을 더한다.
+- violated_rule: 같은 시장 판단은 모든 화면이 하나의 공유 판정(시장 상태 leadership)을 근거로 쓴다.
+- prevention: ci-scenario-guidance-fixture: 주도 영역 이탈이 AI 투자 꺾임 핵심 조건을 열고 10/16 신호로 선두가 aibust. ci-data-pipeline-contract-check: '매도 소진' 통과·명령형 매도 차단·탈락 이유 이름.
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs; node scripts/ci-data-pipeline-contract-check.mjs; node scripts/qa-runner.mjs affected (135 PASS, browser-theme-research는 main에서도 CDN 제약으로 실패)
+
 ## P1929 - v58.27 - 월요일 시장 해석이 검증 실패로 막히고 오늘의 한 문장이 전날 것으로 남음, 뉴스 묶음이 같은 주기 안에서 40건에서 32건으로 줄어듦 (2026-10-19)
 
 - symptom/reproduction: 10/19 11:17Z 시장 해석이 causal-attribution-missing으로 막혀 화면에 대체 문구가 나갔다. 27분 전 검증된 해석도 intraday-time-missing:market.wti로 재검증에서 떨어졌다. 오늘의 한 문장은 10/19 내내 10/18 문장이었다. 같은 08:00 묶음이 01:21Z 40건에서 11:17Z 32건으로 줄었고, 지역 선거 소식 3건·영상 스팸·보도자료가 섞였다.

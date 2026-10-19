@@ -201,8 +201,12 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       const regime = readMarketRegime(root);
       if (!regime?.available) return '';
       const axes = (regime.axes || []).map((axis) => `- ${axis.title}: ${axis.stateLabel}${axis.basis ? ` (${axis.basis})` : ''} — ${(axis.evidence || []).map(([label, value]) => `${label} ${value}`).join(', ')}`);
+      // Screen audit 2026-10-19: the 오늘/국면 판정 screens lead with the leadership break and the bottom-watch line, but
+      // the chat on those pages received only the six axes, so "오늘 엇갈리는 신호" was answered without either.
+      const lead = regime.leadership?.available ? `- 주도 영역(나스닥 100 · 반도체): ${({ break: '이탈 확인', weak: '약세 · 시장 전반 확산 미확인', holding: '유지', unknown: '판단 보류' })[regime.leadership.state] || '판단 보류'}${regime.leadership.summary ? ` — ${regime.leadership.summary}` : ''}` : null;
+      const bottom = regime.bottomWatch?.text ? `- ${regime.bottomWatch.text}` : null;
       const typed = renderCloseBasisEvidenceContext(root._aioScreenBasisEvidence());
-      return [`Screen basis (identical to what the user sees; use these numbers for current-market facts): US close ${regime.asOf}, overall ${regime.overall}.`, ...axes, typed].filter(Boolean).join('\n');
+      return [`Screen basis (identical to what the user sees; use these numbers for current-market facts): US close ${regime.asOf}, overall ${regime.overall}.`, ...axes, lead, bottom, typed].filter(Boolean).join('\n');
     } catch (_) { return ''; }
   };
   // v57.50 C06: one Fear & Greed reader for the legacy surfaces (AI header, _liveSnap, AIO.marketState).

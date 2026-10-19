@@ -834,7 +834,12 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
 {
   // v57.71 (owner 2026-10-15): "오늘의 한 문장" — written on the analysis call's last line, validated on its own, fixed
   // once per 08:00 KST day; the Korean wire's market feed is read directly.
-  const { splitMarketSentence, validateMarketSentence, dailyMarketSentence, marketSentenceDay } = await import('./lib/market-analysis-validate.mjs');
+  const { splitMarketSentence, validateMarketSentence, dailyMarketSentence, marketSentenceDay, marketSentenceRejectReason } = await import('./lib/market-analysis-validate.mjs');
+  // Screen audit 2026-10-19: no 10/19 sentence passed and the home kept 10/18's line. 매도 소진 (the bottom-watch split the
+  // prompt invites) is a noun phrase, not an instruction; a dropped candidate names its reason for the refresh log.
+  check('v57.71 (screen audit 2026-10-19) 매도 소진 is not an instruction, and an imperative 매도 still is',
+    !!validateMarketSentence('매도 소진은 바닥의 신호인가, 더 깊은 조정의 전조인가?') && validateMarketSentence('지금 매도하세요, 조정이 깊어집니다') === null
+      && marketSentenceRejectReason('나스닥 급락은 기회인가?') === 'names-company-or-index', 'sentence validator');
   const { NEWS_FEEDS } = await import('./lib/news-selection.mjs');
   const split = splitMarketSentence('S&P 500은 1.11% 하락했다.\n코스피는 장중 급락했다.\n오늘의 한 문장: "누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다."');
   const at = (iso) => Date.parse(iso);

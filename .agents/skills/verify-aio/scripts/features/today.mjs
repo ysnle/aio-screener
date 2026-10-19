@@ -14,7 +14,7 @@ export default {
     ['수집 창 (KST)', (p) => expectText(p, '#news-window-label', { pattern: /KST|직전 수집본/ })],
     ['24시간 건수 · 소스 수', async (p) => ({
       ...(await expectText(p, '#news-24h-count', { pattern: /\d/ })),
-      ...(await expectText(p, '#news-24h-sources', { pattern: /개 소스/ }))
+      ...(await expectText(p, '#news-24h-sources', { pattern: /개 출처/ }))
     })],
     ['표시 건수', (p) => expectText(p, '#market-news-count')]
   ]

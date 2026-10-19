@@ -227,6 +227,13 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.equal(aiLag({ ndxRel20: -1, smhRel20: -9 }), true, 'P1928 SMH 9pp behind the S&P 500 over 20 sessions opens the AI 투자 꺾임 gate');
   assert.equal(aiLag({ ndxRel20: -1, smhRel20: -2 }), false, 'P1928 small NDX and SMH lags keep the gate closed');
   assert.equal(aiLag({ ndxRel20: null, smhRel20: null }), null, 'P1928 with neither series the gate is 확인 불가');
+  // Screen audit 2026-10-19: the regime's leadership break opens it too, so the scenario card cannot lead with oil (2/4)
+  // while 오늘 and 브리핑 name the AI-leader correction (10/16: SMH -5.9pp over 20 sessions, under the 8pp lag).
+  assert.equal(aiLag({ ndxRel20: -1.7, smhRel20: -5.9, leadershipBreak: true }), true, '2026-10-19 the regime leadership break opens the AI 투자 꺾임 gate');
+  assert.equal(aiLag({ ndxRel20: -1.7, smhRel20: -5.9, leadershipBreak: false }), false, '2026-10-19 no break and small lags keep it closed');
+  assert.equal(aiLag({ ndxRel20: null, smhRel20: null, leadershipBreak: false }), false, '2026-10-19 a measured holding leadership answers the gate when the lags are missing');
+  const oct16 = { ndxRel20: -1.7, smhRel20: -5.9, leadershipBreak: true, payroll3: 51, payrollPrior3: 80, hy20: 53, oilSurging: true, sentimentRank: { percentile: 13, month: '8월', value: 51.7 }, wtiPosition: 0.8 };
+  assert.equal(buildMacroCrossroads({ signals: oct16 }).leadId, 'aibust', '2026-10-19 with the leadership break the 10/16 tape leads with AI 투자 꺾임, not 유가 충격');
   // Audit 4: a past sample pointing opposite to the favoured choice carries one bridging sentence (no invented %).
   const bridged = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 20, up: 19, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20, baseUpPct: 64 } } } }).items.find((item) => item.id === 'reheat');
   const thin = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 4, up: 4, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20 } } } }).items.find((item) => item.id === 'reheat');

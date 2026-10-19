@@ -5412,8 +5412,9 @@ function _appendAIMsg(role, html, id) {
   // HTML-escapes text before applying its own bold/list/table transforms), but a prompt-
   // injection payload surfaced through a web-search result or news article is exactly the
   // kind of untrusted content this second gate exists to catch — hardening for defense in
-  // depth so both chat surfaces meet the same standard.
-  bubble.innerHTML = (typeof window.safeHtml === 'function') ? window.safeHtml(html) : html;
+  // depth so both chat surfaces meet the same standard. 2026-10-19: tables kept; without DOMPurify, text via an inert template.
+  if (typeof DOMPurify !== 'undefined' && DOMPurify.sanitize && typeof window.safeHtml === 'function') bubble.innerHTML = window.safeHtml(html, window.AIO_SAFE_MD_TAGS);
+  else { var inert = document.createElement('template'); inert.innerHTML = String(html || '').replace(/<br\s*\/?>/gi, '\n'); bubble.innerText = inert.content.textContent; }
   content.appendChild(bubble);
   msg.appendChild(content);
   msgsEl.appendChild(msg);
