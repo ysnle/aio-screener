@@ -3879,7 +3879,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!read.available || !ids.includes('narrow-rally') || !ids.includes('fear-without-credit-stress')) fail(`P1389 briefing read missed cross-asset statements: ${ids}`);
   if (buildCloseSeries(rows, 'tnx').some((point) => point.value === 0)) fail('P1389 a zero yield is a producer gap, not a close');
   if (/HY 5일/.test(read.statements.find((row) => row.id === 'fear-without-credit-stress').text)) fail('P1389 a missing HY change must not print as 0bp');
-  if (ids.some((id) => ['real-yield-led', 'breakeven-led', 'bear-steepening', 'bear-flattening'].includes(id))) fail('P1390 rate decomposition must stay silent without FRED inputs');
+  if (ids.some((id) => ['real-yield-led', 'breakeven-led', 'bear-steepening', 'bear-flattening', 'bull-steepening', 'bull-flattening'].includes(id))) fail('P1390 rate decomposition must stay silent without FRED inputs');
   const decomposed = buildMarketRead({ history: rows, credit: { hyBp: 308, hyAsOf: last, fg: 28, fgAsOf: last }, rates: { asOf: last, realYield10Delta5: 0.14, breakeven10Delta5: 0.03, dgs2Delta5: -0.02, dgs10Delta5: 0.17 } }).statements.map((row) => row.id);
   if (!decomposed.includes('real-yield-led') || !decomposed.includes('bear-steepening')) fail(`P1390 rate decomposition rules did not fire: ${decomposed}`);
   const texts = [read.headline, ...read.points.map((row) => row.text), ...read.drivers.flatMap((row) => row.reads.map((statement) => statement.text))];
@@ -5054,4 +5054,57 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (snapshot.usUnemploy !== 4.2 || '_dgs10Delta5' in snapshot || evidence.pce?.source !== 'bea-official-primary' || evidence.pce.fetchedAt !== 'b' || evidence.unemployment?.fetchedAt !== 'f' || result.fredApplied !== 1 || result.beaApplied !== 1 || result.applied !== 3) {
     fail(`server macro: unemployment mirror, misaligned Treasury delta and BEA source: ${JSON.stringify({ snapshot, evidence, result })}`);
   }
+}
+
+// ── v58.32 expertise review: curve dynamics, index earnings, chart RS line / timeframe conflict, total debt ──
+{
+  const { curveDynamics } = await load('src/domain/macro/rates-fx.js');
+  const day = (i) => new Date(Date.UTC(2026, 0, 1) + i * 86400000).toISOString().slice(0, 10);
+  const curve = (twos, tens) => ({ series: { dgs2: { observations: twos.map((v, i) => [day(i), v]) }, dgs10: { observations: tens.map((v, i) => [day(i), v]) } } });
+  const flat = (n, v) => Array.from({ length: n }, () => v);
+  const ramp = (n, from, step) => Array.from({ length: n }, (_, i) => from + i * step);
+  const kind = (twos, tens) => curveDynamics(curve(twos, tens))?.kind;
+  if (kind(ramp(30, 4.5, -0.02), flat(30, 4.3)) !== 'bull-steepening') fail('curve: short end falling must read bull-steepening');
+  if (kind(flat(30, 4), ramp(30, 4, 0.01)) !== 'bear-steepening') fail('curve: long end rising must read bear-steepening');
+  if (kind(ramp(30, 4, 0.006), ramp(30, 4.3, -0.015)) !== 'twist-flattening') fail('curve: opposite legs must read as a twist');
+  if (kind(flat(30, 4), ramp(30, 4.3, 0.002)) !== null) fail('curve: a sub-10bp move carries no direction');
+  const spreadRun = (spreads) => curveDynamics(curve(flat(spreads.length, 4), spreads.map((v) => 4 + v)));
+  const sustained = spreadRun([...flat(50, 0.2), ...flat(30, -0.3), ...flat(5, 0.1), ...flat(2, -0.01), ...flat(10, 0.2)]);
+  if (!sustained.uninverted || sustained.inversion.start !== day(50) || sustained.inversion.end !== day(80)) fail(`curve: a sustained inversion before a brief dip must be found: ${JSON.stringify(sustained.inversion)}`);
+  if (spreadRun([...flat(50, 0.2), ...flat(5, -0.1), ...flat(25, 0.1)]).uninverted) fail('curve: a five-session dip is not an inversion');
+  if (spreadRun([...flat(50, 0.2), -0.1]).uninverted) fail('curve: a curve still inverted has not un-inverted');
+  const truncated = spreadRun([...flat(5, -0.2), ...flat(30, 0.2)]);
+  if (!truncated.uninverted || truncated.inversion.start !== null || !/이전부터/.test(truncated.uninversionReading)) fail('curve: a run that starts with the history has an unknown start');
+  if (spreadRun([...flat(30, -0.2), ...flat(200, 0.2)]).uninverted) fail('curve: an inversion that ended long ago is not news');
+
+  const { buildIndexEarnings } = await load('src/domain/market/index-earnings.js');
+  const weights = { asOf: '2026-10-15', rows: [['AAA', 'Energy', 50], ['GOOGL', 'Communication Services', 25], ['GOOG', 'Communication Services', 20], ['ZZZ', 'Energy', 5]] };
+  const est = (eps, trailing, up, down) => ({ asOf: '2026-10-18T00:00:00Z', fwd: { eps, up4w: up, down4w: down }, trailing: { eps: trailing } });
+  const consensus = { rows: { AAA: est(5, 4, 3, 1), GOOGL: est(10, 8, 4, 0), GOOG: est(10, 8, 4, 0) } };
+  const rows = [{ sym: 'AAA', valuationPrice: 100 }, { sym: 'GOOGL', valuationPrice: 200 }, { sym: 'GOOG', valuationPrice: 200 }];
+  const index = buildIndexEarnings({ rows, weights, consensus, realYield10: 2 });
+  if (!index.available || index.up !== 7 || index.down !== 1 || index.members !== 2) fail(`index earnings: a dual share class must count once: ${JSON.stringify(index)}`);
+  if (Math.abs(index.earningsYield - 0.05) > 1e-9 || Math.abs(index.forwardPe - 20) > 1e-9 || Math.abs(index.erp - 3) > 1e-9) fail(`index earnings: weighted yield / P/E / ERP: ${index.earningsYield} ${index.forwardPe} ${index.erp}`);
+  if (buildIndexEarnings({ rows, weights: { rows: [...weights.rows, ['BIG', 'Energy', 100]] }, consensus, realYield10: 2 }).breadth !== null) fail('index earnings: under 80% of index weight must withhold the index figure');
+
+  const { parseSecStatements } = await load('src/domain/fundamental/sec-statements.js');
+  const fy = (val) => ({ val, end: '2025-12-31', filed: '2026-02-10', form: '10-K' });
+  const facts = (debt) => ({ facts: { 'us-gaap': { Revenues: { units: { USD: [{ ...fy(1000), start: '2025-01-01' }] } }, StockholdersEquity: { units: { USD: [fy(500)] } }, ...debt, DebtCurrent: { units: { USD: [fy(100)] } } } } });
+  const split = parseSecStatements(facts({ LongTermDebtNoncurrent: { units: { USD: [fy(400)] } } }), { symbol: 'X' }).metrics;
+  const total = parseSecStatements(facts({ LongTermDebt: { units: { USD: [fy(450)] } } }), { symbol: 'X' }).metrics;
+  if (split.debtToEquity !== 1 || split.debtBasis !== 'noncurrent+current' || total.debtToEquity !== 0.9 || total.debtBasis !== 'total-as-filed') fail(`sec debt/equity basis: ${JSON.stringify([split, total].map((m) => [m.debtToEquity, m.debtBasis]))}`);
+
+  const { analyzeChart, chartReading } = await load('src/domain/technical/chart-analysis.js');
+  const bars = []; const bench = []; let price = 100; let index2 = 100;
+  for (let i = 0; i < 300; i += 1) {
+    const date = day(i);
+    price *= i < 280 ? 1.002 : 0.995; // price peaks at bar 279, then slips below its high
+    index2 *= i < 280 ? 1.002 : 0.99; // the index falls faster, so the RS line keeps making highs
+    bars.push({ time: date, open: price, high: price * 1.01, low: price * 0.99, close: price, volume: 1e6 });
+    bench.push({ date, value: index2 });
+  }
+  const chart = analyzeChart(bars, { benchmark: bench });
+  if (!chart.rsAtHigh || !chart.rsLeadsPrice || !chartReading(chart).why.includes('상대강도선')) fail(`chart: an RS line at its high while price is under its high must read as leading: ${chart.rsFromHigh} ${chart.fromHigh}`);
+  const conflict = chartReading({ ...chart, state: 'breakout', timeframeConflict: true, weinstein: { ...chart.weinstein, stage: 4 } });
+  if (!/상위 시간대/.test(conflict.headline)) fail('chart: a breakout against a weekly downtrend must say so');
 }

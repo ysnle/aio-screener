@@ -2172,7 +2172,7 @@ function _renderFundFinancials(d) {
   html += card('FCF Yield', m.freeCashFlowYield ? (m.freeCashFlowYield * 100).toFixed(1) + '%' : (sm.fcfYield != null ? (sm.fcfYield * 100).toFixed(1) + '%' : 'N/A'), '잉여현금흐름 수익률');
   html += card('EV/EBITDA', _fn(m.enterpriseValueOverEBITDA) !== null ? m.enterpriseValueOverEBITDA.toFixed(1) + 'x' : 'N/A', '기업가치 대비');
   html += card('P/B', _fn(m.pbRatio) !== null ? m.pbRatio.toFixed(2) + 'x' : (sm.pb != null ? sm.pb.toFixed(2) + 'x' : 'N/A'), '주가순자산비율');
-  html += card('부채비율', _fn(deVal) !== null ? deVal.toFixed(2) + 'x' : 'N/A', '장기부채 ÷ 자기자본 · 업종마다 정상 범위가 다름');
+  html += card('부채비율', _fn(deVal) !== null ? deVal.toFixed(2) + 'x' : 'N/A', (!r.debtEquityRatio && sm.debtBasis === 'noncurrent+current' ? '장·단기 차입금' : '장기부채') + ' ÷ 자기자본 · 업종마다 정상 범위가 다름');
   // P1164/B01: FMP profile이 없으면 배당 원천 자체가 미수신이다. 부재를 '0%'라는 실측값으로
   // 표시하지 않는다 — 실제 무배당(lastDiv===0)만 0.00%로 남는다.
   var hasDivValue = typeof p.lastDiv === 'number' && isFinite(p.lastDiv);
@@ -2720,7 +2720,7 @@ function _renderFundValuation(d) {
   }
   // v49.0 P183: _fv/_fn으로 || 0 패턴 제거 (0.0x 오표시·Infinityx 방지)
   var _pe = _fv(mt.peRatioTTM, ma.peRatio); html += valRow('P/E (TTM)', _pe !== null ? _pe.toFixed(1) + 'x' : 'N/A');
-  html += valRow('Forward P/E', _fn(p.pe) !== null ? p.pe.toFixed(1) + 'x' : 'N/A');
+  // 2026-10-19: no 'Forward P/E' row — the profile pe is trailing; the forward multiple is on the consensus card.
   var _pb = _fv(mt.priceToBookRatioTTM, ma.pbRatio); html += valRow('P/B', _pb !== null ? _pb.toFixed(2) + 'x' : 'N/A');
   var _ps = _fv3(mt.priceToSalesRatioTTM, ma.priceToSalesRatio, ra.priceToSalesRatio); html += valRow('P/S', _ps !== null ? _ps.toFixed(2) + 'x' : 'N/A');
   var _eveb = _fv(mt.enterpriseValueOverEBITDATTM, ma.enterpriseValueOverEBITDA); html += valRow('EV/EBITDA', _eveb !== null ? _eveb.toFixed(1) + 'x' : 'N/A');
@@ -2800,14 +2800,14 @@ function _renderFundEarnings(d) {
     html += '<tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:6px;color:var(--text-muted);font-size:10px;">분기</th><th style="text-align:right;padding:6px;color:var(--text-muted);font-size:10px;">실제 EPS</th><th style="text-align:right;padding:6px;color:var(--text-muted);font-size:10px;">예상 EPS</th><th style="text-align:right;padding:6px;color:var(--text-muted);font-size:10px;">서프라이즈</th></tr>';
     d.fmpSurprises.forEach(function(s) {
       var diff = s.actualEarningResult - s.estimatedEarning;
-      var pct = s.estimatedEarning ? (diff / Math.abs(s.estimatedEarning) * 100) : 0;
+      var pct = s.estimatedEarning != null && isFinite(s.estimatedEarning) && s.estimatedEarning !== 0 ? (diff / Math.abs(s.estimatedEarning) * 100) : null; // no estimate: no figure, not 0%
       var c = diff >= 0 ? '#00e5a0' : '#ff5b50';
       var label = diff >= 0 ? 'Beat' : 'Miss';
       html += '<tr style="border-bottom:1px solid var(--surface-2);">';
       html += '<td style="padding:6px;color:var(--text-secondary);">' + (s.date||'') + '</td>';
       html += '<td style="text-align:right;padding:6px;color:var(--text-primary);font-family:var(--font-mono);">$' + (s.actualEarningResult||0).toFixed(2) + '</td>';
       html += '<td style="text-align:right;padding:6px;color:var(--text-muted);font-family:var(--font-mono);">$' + (s.estimatedEarning||0).toFixed(2) + '</td>';
-      html += '<td style="text-align:right;padding:6px;color:' + c + ';font-weight:700;">' + label + ' ' + _fmtPct(pct) + '</td>';
+      html += '<td style="text-align:right;padding:6px;color:' + c + ';font-weight:700;">' + (pct === null ? '—' : label + ' ' + _fmtPct(pct)) + '</td>';
       html += '</tr>';
     });
     html += '</table></div>';

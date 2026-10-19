@@ -599,6 +599,11 @@ export function buildMarketRead(input = {}) {
     const span = curveDate !== spx.date ? ` (${shortDate(curveDate)}까지 5거래일)` : '';
     if (ten5 >= B.curveMove5dBp && ten5 - two5 >= B.curveMove5dBp) add('bear-steepening', 72, `장기금리(10년 ${signed(ten5, 0, 'bp')})가 단기금리(2년 ${signed(two5, 0, 'bp')})보다 크게 올랐습니다${span}.`, 'rates', { reading: '연준 기대보다 장기 요인(기간 프리미엄·성장·국채 수급)이 주도하는 모양입니다. 이 경우 단기 금리가 안정돼도 위험선호 회복이 늦어질 수 있습니다.' });
     else if (two5 >= B.curveMove5dBp && two5 - ten5 >= B.curveMove5dBp) add('bear-flattening', 72, `단기금리(2년 ${signed(two5, 0, 'bp')})가 장기금리(10년 ${signed(ten5, 0, 'bp')})보다 더 올랐습니다${span}.`, 'rates', { reading: '추가 긴축 기대가 금리를 끌어올리는 모양입니다.' });
+    // Expertise review 2026-10-19: the falling-rate halves of the same rule. A bull steepening (short end leads down) is the
+    // market pulling rate cuts forward; a bull flattening (long end leads down) is lower growth/inflation expectations or a haven bid.
+    // Both legs must fall; the bear rules above are unchanged and still take an opposite-leg move first.
+    else if (two5 <= -B.curveMove5dBp && ten5 <= 0 && ten5 - two5 >= B.curveMove5dBp) add('bull-steepening', 72, `단기금리(2년 ${signed(two5, 0, 'bp')})가 장기금리(10년 ${signed(ten5, 0, 'bp')})보다 더 내렸습니다${span}.`, 'rates', { reading: '시장이 정책금리 인하를 앞당겨 반영하는 모양입니다. 성장 둔화 우려 때문인지 물가 안정 때문인지는 성장 지표로 가려야 합니다.' });
+    else if (ten5 <= -B.curveMove5dBp && two5 <= 0 && two5 - ten5 >= B.curveMove5dBp) add('bull-flattening', 72, `장기금리(10년 ${signed(ten5, 0, 'bp')})가 단기금리(2년 ${signed(two5, 0, 'bp')})보다 더 내렸습니다${span}.`, 'rates', { reading: '장기 성장·물가 기대가 낮아지거나 안전자산 수요가 커지는 모양입니다.' });
   }
   // (c) a weaker dollar with higher long rates points inward (inflation, growth, supply), not to FX.
   const dxyWeek = s.dxy ? pct(s.dxy.value, s.dxy.d5) : null;

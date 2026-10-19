@@ -54,6 +54,109 @@ export function derivedThreeMonth(macroHistory, tenYear) {
   return spread == null ? null : { id: 'dgs3mo', label: '3개월', years: 0.25, value: Math.round((tenYear.value - spread) * 100) / 100, day: null, week: null, asOf: tenYear.asOf, derived: true };
 }
 
+// Expertise review 2026-10-19: the page said only whether 2s10s was inverted. A rates desk reads which leg moved the
+// spread (bull = yields falling, bear = rising) and whether an inversion has just ended — the curve has typically
+// re-steepened out of inversion, often bull-led as the Fed is expected to cut, shortly before past U.S. recessions.
+// Both legs come from the FRED daily history paired by date; the span counts paired observations (one per session).
+// An un-inversion counts only after a sustained inversion (20+ consecutive sessions below zero; a one-day dip is noise) that
+// ended within the last ~6 months of sessions.
+export const CURVE_DYNAMICS_RULE = Object.freeze({ sessions: 20, minSpreadMoveBp: 10, minInvertedRun: 20, uninvertWithin: 130 });
+
+// The most recent sustained inversion that has ended: { start, end } where end is the first session back at or above zero.
+function endedInversion(points, rule) {
+  let runEnd = null;
+  for (let index = points.length - 1; index >= 0; index -= 1) {
+    if (points[index].value >= 0) continue;
+    if (runEnd == null) {
+      if (index === points.length - 1) return null; // still inverted
+      runEnd = index;
+    }
+    if (index > 0 && points[index - 1].value < 0) continue; // the run goes on further back
+    const end = runEnd + 1;
+    if (points.length - 1 - end >= rule.uninvertWithin) return null; // ended too long ago
+    // A run that reaches the first observation began before the history does: its start is unknown, and its length
+    // is at least what is visible, so the brief-dip rule does not apply.
+    if (index === 0) return { start: null, firstObserved: points[0].date, end: points[end].date };
+    if (runEnd - index + 1 >= rule.minInvertedRun) return { start: points[index].date, end: points[end].date };
+    runEnd = null; // a brief dip: look for a sustained run before it
+  }
+  return null;
+}
+
+function pairedObservations(macroHistory, shortKey, longKey) {
+  const short = new Map((macroHistory?.series?.[shortKey]?.observations || []).map(([date, value]) => [date, finite(value)]));
+  return (macroHistory?.series?.[longKey]?.observations || [])
+    .map(([date, value]) => ({ date, long: finite(value), short: short.get(date) ?? null }))
+    .filter((row) => isoDate(row.date) && row.long != null && row.short != null);
+}
+
+export function curveDynamics(macroHistory, rule = CURVE_DYNAMICS_RULE) {
+  const rows = pairedObservations(macroHistory, 'dgs2', 'dgs10');
+  if (rows.length <= rule.sessions) return null;
+  const last = rows[rows.length - 1];
+  const from = rows[rows.length - 1 - rule.sessions];
+  const shortBp = Math.round((last.short - from.short) * 100);
+  const longBp = Math.round((last.long - from.long) * 100);
+  const spreadBp = longBp - shortBp;
+  let kind = null;
+  if (Math.abs(spreadBp) >= rule.minSpreadMoveBp) {
+    // Both legs the same way: the leg that moved more names the move (bull when it fell, bear when it rose).
+    // Legs in opposite directions are a twist — neither a bull nor a bear move.
+    const lead = Math.abs(shortBp) >= Math.abs(longBp) ? shortBp : longBp;
+    const twist = shortBp * longBp < 0;
+    kind = `${twist ? 'twist' : lead < 0 ? 'bull' : 'bear'}-${spreadBp > 0 ? 'steepening' : 'flattening'}`;
+  }
+  const ended = endedInversion(rows.map((row) => ({ date: row.date, value: row.long - row.short })), rule);
+  // The New York Fed's model reads 10-year minus 3-month; its own un-inversion is reported beside the 2s10s one.
+  const ended3m = endedInversion((macroHistory?.series?.t10y3m?.observations || []).map(([date, value]) => ({ date, value: finite(value) })).filter((row) => row.value != null), rule);
+  const LABEL = {
+    'bull-steepening': '불 스티프닝 — 단기금리가 더 많이 내려 기울기가 가팔라졌습니다',
+    'bear-steepening': '베어 스티프닝 — 장기금리가 더 많이 올라 기울기가 가팔라졌습니다',
+    'bull-flattening': '불 플래트닝 — 장기금리가 더 많이 내려 기울기가 완만해졌습니다',
+    'bear-flattening': '베어 플래트닝 — 단기금리가 더 많이 올라 기울기가 완만해졌습니다',
+    'twist-steepening': '트위스트 스티프닝 — 단기금리는 내리고 장기금리는 올랐습니다',
+    'twist-flattening': '트위스트 플래트닝 — 단기금리는 오르고 장기금리는 내렸습니다'
+  };
+  const READING = {
+    'bull-steepening': '시장이 정책금리 인하를 앞당겨 반영하는 모양입니다. 성장 둔화 우려로 생기면 경기 방어 신호이고, 물가 안정으로 생기면 완화 기대입니다 — 성장 지표와 함께 봐야 합니다.',
+    'bear-steepening': '장기 요인(기간 프리미엄·재정 공급·성장·물가 기대)이 금리를 밀어 올리는 모양입니다. 주식 밸류에이션에는 부담입니다.',
+    'bull-flattening': '장기 성장·물가 기대가 낮아지거나 안전자산 수요가 커지는 모양입니다.',
+    'bear-flattening': '추가 긴축 기대가 단기금리를 끌어올리는 모양입니다.',
+    'twist-steepening': '완화 기대(단기)와 장기 요인(기간 프리미엄·재정·물가 기대)이 동시에 작용하는 모양입니다.',
+    'twist-flattening': '긴축 기대가 단기금리를 올리는 가운데 장기 성장·물가 기대는 낮아지는 모양입니다.'
+  };
+  const fact = `${shortDate(from.date)}→${shortDate(last.date)} ${rule.sessions}거래일: 2년 ${signed(shortBp, 0, 'bp')}, 10년 ${signed(longBp, 0, 'bp')}, 2년–10년 금리차 ${signed(spreadBp, 0, 'bp')}.`;
+  return {
+    asOf: last.date,
+    from: from.date,
+    shortBp,
+    longBp,
+    spreadBp,
+    kind,
+    label: kind ? LABEL[kind] : `기울기 변화가 ${rule.minSpreadMoveBp}bp 미만이라 방향을 붙이지 않습니다`,
+    fact,
+    reading: kind ? READING[kind] : null,
+    uninverted: !!ended,
+    inversion: ended,
+    uninverted3m: !!ended3m,
+    inversion3m: ended3m,
+    uninversion3mText: ended3m ? `뉴욕 연준 모형이 쓰는 10년–3개월 금리차는 ${inversionSince(ended3m)} 역전돼 있다가 ${longDate(ended3m.end)}에 양(+)으로 돌아섰습니다.` : null,
+    uninversionReading: ended ? `2년–10년 금리차가 ${inversionSince(ended)} 역전돼 있다가 ${longDate(ended.end)}에 양(+)으로 돌아섰습니다. 과거 미국 경기침체는 역전 자체보다 역전이 풀리며 다시 가팔라지는 시점과 더 가까웠습니다. 시차가 일정하지 않아 시점 판단에는 쓰지 않습니다.` : null
+  };
+}
+
+const inversionSince = (run) => (run.start ? `${longDate(run.start)}부터` : `자료가 시작되는 ${longDate(run.firstObserved)} 이전부터`);
+
+function longDate(date) {
+  const [year, month, day] = String(date || '').split('-').map(Number);
+  return year && month && day ? `${year}년 ${month}월 ${day}일` : String(date || '');
+}
+
+function shortDate(date) {
+  const [, month, day] = String(date || '').split('-').map(Number);
+  return month && day ? `${month}/${day}` : String(date || '');
+}
+
 export const FX_SERIES = Object.freeze([
   Object.freeze({ id: 'dxy', label: '달러 인덱스 (DXY)', digits: 2, unit: '' }),
   Object.freeze({ id: 'usdkrw', label: '원/달러', digits: 1, unit: '원' }),
@@ -163,6 +266,7 @@ function fxCard(history, basis, spec) {
 export function buildRatesFx({ macro = null, history = [], macroHistory = null } = {}) {
   const m = macro && typeof macro === 'object' ? macro : {};
   const curve = treasury(m);
+  curve.dynamics = curveDynamics(macroHistory);
   const threeMonth = derivedThreeMonth(macroHistory, curve.yields.find((row) => row.id === 'dgs10'));
   if (threeMonth) {
     curve.yields = [threeMonth, ...curve.yields];

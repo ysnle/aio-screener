@@ -1218,11 +1218,11 @@ function _aioRenderPortfolioStress(positions) {
   var ld = window._liveData || {}, db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
   var find = function(s){ for (var i=0;i<db.length;i++) if (db[i].sym===s) return db[i]; return null; };
   var SECTOR_RISK = {
-    'Technology':{eq:1.25,rate:-0.8,oil:0.0}, 'Communication Services':{eq:1.10,rate:-0.5,oil:0.0},
-    'Consumer':{eq:1.15,rate:-0.6,oil:-0.2}, 'Consumer Defensive':{eq:0.60,rate:-0.2,oil:-0.1},
-    'Financials':{eq:1.10,rate:0.5,oil:0.0}, 'Healthcare':{eq:0.80,rate:-0.3,oil:0.0}, 'Energy':{eq:1.00,rate:0.1,oil:1.2}, 'Industrials':{eq:1.10,rate:-0.2,oil:-0.3},
-    'Materials':{eq:1.10,rate:-0.2,oil:0.3}, 'Utilities':{eq:0.50,rate:-1.0,oil:-0.2}, 'Real Estate':{eq:0.90,rate:-1.2,oil:0.0}
-  }, DEF = {eq:1.0,rate:-0.4,oil:0.0};
+    'Technology':{eq:1.25}, 'Communication Services':{eq:1.10},
+    'Consumer':{eq:1.15}, 'Consumer Defensive':{eq:0.60},
+    'Financials':{eq:1.10}, 'Healthcare':{eq:0.80}, 'Energy':{eq:1.00}, 'Industrials':{eq:1.10},
+    'Materials':{eq:1.10}, 'Utilities':{eq:0.50}, 'Real Estate':{eq:0.90}
+  }, DEF = {eq:1.0};
   var base = _pfBaseValues(positions);
   if (base.blocked) { el.innerHTML = _pfBaseNote(base); return; }
   // #11: the keys match the screener's sector names (Consumer/Materials — verified against screener-universe.json).
@@ -1230,12 +1230,10 @@ function _aioRenderPortfolioStress(positions) {
   var rows = base.rows.map(function(r){ var st=find(r.sym); return { sym: r.sym, value: r.value, kr: /\.(KS|KQ)$/i.test(r.sym), sr: /\.(KS|KQ)$/i.test(r.sym) ? DEF : (st&&SECTOR_RISK[st.sector])||DEF }; });
   var total = rows.reduce(function(s,r){return s+(r.value||0);},0); if (total<=0){ el.innerHTML=_pfBaseNote(base); return; }
   rows.forEach(function(r){ r.w=r.value/total; });
-  // 시나리오: 주식충격(eq)·금리+100bp(rate)·유가+30%(oil×0.30)
   var SCEN = [
     { name:'2008 금융위기 (시장 −50%)', f:function(sr){ return sr.eq * -0.50; } },
     { name:'2020 코로나 (시장 −34%)',   f:function(sr){ return sr.eq * -0.34; } },
-    { name:'금리 +100bp',               f:function(sr){ return sr.rate * 0.01; } },
-    { name:'유가 +30%',                 f:function(sr){ return sr.oil * 0.30; } },
+    // 2026-10-19: rate/oil rows removed — hand-picked sector numbers (Tech −0.8% for +100bp), no measured sensitivity.
   ];
   // v57.81: the KOSPI's own worst recorded 5/20-session moves, applied to the Korean share only (src/domain/portfolio/kr-stress.js).
   if (rows.some(function(r){ return r.kr; }) && typeof window._aioKrIndexStress === 'function') window._aioKrIndexStress().forEach(function(k){ SCEN.push({ name:k.name, f:function(sr, r){ return r.kr ? k.shock : 0; } }); });
@@ -1247,7 +1245,7 @@ function _aioRenderPortfolioStress(positions) {
   el.innerHTML =
     '<div style="font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;">스트레스 시나리오 <span style="font-weight:400;color:var(--text-muted);">— 주식 부분 · 가정 베타</span></div>' +
     lines +
-    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">현금을 뺀 주식 부분에 미국 섹터별 주식·금리·유가 베타를 가정해 곱한 값입니다' + (rows.some(function(r){ return r.kr; }) ? '(한국 종목은 미국 충격에 시장 베타 1.0 가정 · 코스피 행은 기록된 실제 하락을 한국 보유분에만 적용)' : '') + ' — 측정된 베타가 아니며 실제 손익과 다를 수 있습니다.</div>';
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">현금을 뺀 주식 부분에 미국 섹터별 주식 베타를 가정해 곱한 값입니다. 금리·유가 충격은 측정된 민감도가 없어 싣지 않습니다' + (rows.some(function(r){ return r.kr; }) ? '(한국 종목은 미국 충격에 시장 베타 1.0 가정 · 코스피 행은 기록된 실제 하락을 한국 보유분에만 적용)' : '') + ' — 측정된 베타가 아니며 실제 손익과 다를 수 있습니다.</div>';
   el.insertAdjacentHTML('beforeend', _pfBaseNote(base)); // P1445
 }
 function _escHtmlSafe(s){ return (typeof escHtml==='function') ? escHtml(String(s)) : String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }

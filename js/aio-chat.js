@@ -3465,9 +3465,9 @@ function _formatDeepComparePrompt(tickers, deepData) {
 
     // 8. 내부자 거래 (최근 10건 요약)
     if (d.insider && Array.isArray(d.insider) && d.insider.length > 0) {
-      var buys = d.insider.filter(function(tr){return tr.acquistionOrDisposition === 'A' || (tr.transactionType||'').indexOf('Purchase') !== -1;});
-      var sells = d.insider.filter(function(tr){return tr.acquistionOrDisposition === 'D' || (tr.transactionType||'').indexOf('Sale') !== -1;});
-      out += '\n【내부자 거래 (최근)】 매수 ' + buys.length + '건 | 매도 ' + sells.length + '건';
+      var buys = d.insider.filter(function(tr){return /^P(-|$)|Purchase/.test(tr.transactionType||'');}); // 2026-10-19: open-market P/S only — 'A' is also awards/exercises
+      var sells = d.insider.filter(function(tr){return /^S(-|$)|Sale/.test(tr.transactionType||'');});
+      out += '\n【내부자 거래 (최근, 장내 매수·매도만)】 매수 ' + buys.length + '건 | 매도 ' + sells.length + '건';
       if (buys.length > sells.length) out += ' → 매수 우위 (경영진 자신감 시그널)';
       else if (sells.length > buys.length * 2) out += ' → 매도 우위 (경계 시그널)';
       out += '\n';

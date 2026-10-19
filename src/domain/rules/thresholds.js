@@ -61,7 +61,8 @@ export const RULES = Object.freeze({
   //   nearHighPct: an index or stock within 3% of its 52-week high is 고점권 (briefing and daily diff);
   //   extension: distance to the 50-day line in ADRs — 2 near the base, 4 extended, 7 stretched (setup-profile, v57.50 C20);
   //   nearLineAdr/recentDropAdr: within 1 ADR of the 50-day line is 부근; a five-session fall beyond 2 ADRs is 단기 급락;
-  //   ema8: 10% over the 8-day EMA is 과열권, 5% under it a break below the line;
+  //   ema8: 10% over the 8-day EMA is 과열권, 5% under it a break below the line; overheatAdr (expertise review 2026-10-19):
+  //   a quiet stock is stretched well before +10%, so 4 average daily ranges over the line is 과열권 as well;
   //   weinstein: 30-week average, its 4-week slope, flat inside ±1%, and 26 weeks back to tell a base from a top;
   //   template: Minervini's published 52-week rules (within 25% of the high, 30% above the low); stage2Gate: the screener's
   //   own looser moving-average gate (within 30% of the high) — a separate, separately named test;
@@ -69,7 +70,7 @@ export const RULES = Object.freeze({
   technical: Object.freeze({ rsi: Object.freeze({ overbought: 70, oversold: 30, climax: 80 }),
     atrPeriod: 14, adrPeriod: 20, rangeSessions: 252, fullYearSessions: 240, nearHighPct: 3,
     extension: Object.freeze({ nearBase: 2, extended: 4, stretched: 7 }), nearLineAdr: 1, recentDropAdr: 2,
-    ema8: Object.freeze({ overheatPct: 10, breakBelowPct: 5 }),
+    ema8: Object.freeze({ overheatPct: 10, overheatAdr: 4, breakBelowPct: 5 }),
     weinstein: Object.freeze({ maWeeks: 30, slopeWeeks: 4, flatSlopePct: 1, priorWeeks: 26 }),
     template: Object.freeze({ nearHighPct: 25, aboveLowPct: 30 }), stage2Gate: Object.freeze({ nearHighPct: 30 }),
     // Audit 2026-10-17 (owner D6): one breakout day for the chart, the screener and the legacy snapshot — O'Neil's close above
