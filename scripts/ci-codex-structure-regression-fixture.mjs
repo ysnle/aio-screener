@@ -133,7 +133,8 @@ assert.equal(dataSourceWarnings({ meta: { marketSentenceReject: 'latin-word' }, 
 // labels the news bundle and the narrative context alike.
 assert.deepEqual(health2.map((row) => [row.source, row.runs, row.keptTotal]), [['A', 2, 5], ['B', 2, 0]], 'feed runs and kept articles accumulate');
 const idle = Array.from({ length: 28 }).reduce((prev) => mergeNewsFeedHealth(prev, [{ source: 'C', status: 'ok', kept: 1, selected: 0, dropped: { 'low-quality-source': 9 } }], healthAt), null);
-assert.match(dataSourceWarnings({ meta: { newsFeedHealth: idle } }, { nowMs: Date.parse(healthAt) }).join('\n'), /"C" placed no article in 28 runs .*low-quality-source 9/, 'a feed that never places an article is named with why');
+assert.doesNotMatch(dataSourceWarnings({ meta: { newsFeedHealth: idle } }, { nowMs: Date.parse(healthAt) + 86400000 }).join('\n'), /"C" placed no article/, 'a day of refreshes is not yet an idle feed (the check is a week in time, not a run count)');
+assert.match(dataSourceWarnings({ meta: { newsFeedHealth: idle } }, { nowMs: Date.parse(healthAt) + 8 * 86400000 }).join('\n'), /"C" placed no article in 28 runs .*low-quality-source 9/, 'a feed that never places an article for a week is named with why');
 assert.equal(newsFloorDropReason({ tier: 4, score: 50, topicHits: 2 }), 'low-quality-source');
 assert.equal(newsFloorDropReason({ tier: 2, score: 0, selectionReason: 'clickbait-filter' }), 'clickbait-filter');
 assert.equal(newsFloorDropReason({ tier: 2, score: 40, topicHits: 0 }), 'no-market-topic');

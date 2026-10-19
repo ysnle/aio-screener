@@ -1,3 +1,4 @@
+import { idleNewsFeeds } from './news-selection.mjs';
 // P1596: passing blocking gates does not certify optional services or workflow cadence.
 export function summarizeOperationalChecks(checks = [], warnings = []) {
   const failed = checks.filter(check => !check.ok && check.severity === 'error');
@@ -39,9 +40,8 @@ export function dataSourceWarnings(data, { nowMs = Date.now(), feedStaleMs = 24 
     }
   }
   // 2026-10-19 pipeline redesign: a feed that answers every run but has not placed one article in the bundle for a week of
-  // refreshes costs a request and a slot guarantee for nothing; name it with the reason its articles were dropped.
-  for (const feed of (Array.isArray(meta.newsFeedHealth) ? meta.newsFeedHealth : [])) {
-    if (!(Number(feed?.runs) >= 28) || Number(feed?.selectedTotal || 0) !== 0) continue;
+  // refreshes (counted in time, NEWS_FEED_IDLE_MS) costs a request and a slot guarantee for nothing; name it with the reason its articles were dropped.
+  for (const feed of idleNewsFeeds(meta.newsFeedHealth, nowMs)) {
     const reasons = Object.entries(feed.dropped || {}).sort((a, b) => b[1] - a[1]).map(([why, n]) => `${why} ${n}`).join(', ');
     warnings.push(`news feed "${feed.source}" placed no article in ${feed.runs} runs (kept ${feed.keptTotal || 0}${reasons ? `; last run dropped: ${reasons}` : ''}) — prune or rewrite its query`);
   }

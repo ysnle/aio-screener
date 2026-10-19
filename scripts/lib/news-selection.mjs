@@ -403,14 +403,15 @@ export function mergeNewsFeedHealth(previous, current, at = new Date().toISOStri
     const prior = before.get(row.source);
     const healthy = row.status === 'ok' && row.kept > 0;
     return { ...row, missStreak: healthy ? 0 : Number(prior?.missStreak || 0) + 1, lastHealthyAt: healthy ? at : (prior?.lastHealthyAt || prior?.firstSeenAt || at), firstSeenAt: prior?.firstSeenAt || at,
-      runs: Number(prior?.runs || 0) + 1, keptTotal: Number(prior?.keptTotal || 0) + Number(row.kept || 0), selectedTotal: Number(prior?.selectedTotal || 0) + Number(row.selected || 0) };
+      countedSince: prior?.countedSince || at, runs: Number(prior?.runs || 0) + 1, keptTotal: Number(prior?.keptTotal || 0) + Number(row.kept || 0), selectedTotal: Number(prior?.selectedTotal || 0) + Number(row.selected || 0) };
   });
 }
 
-// A feed that has run for a week of refreshes and never placed an article in the bundle is a pruning candidate.
-export const NEWS_FEED_IDLE_MIN_RUNS = 28;
-export function idleNewsFeeds(feedHealth, minRuns = NEWS_FEED_IDLE_MIN_RUNS) {
-  return (Array.isArray(feedHealth) ? feedHealth : []).filter((row) => Number(row?.runs) >= minRuns && Number(row?.selectedTotal || 0) === 0);
+// A feed that has run for a week (counted from its first accumulated run, not a run count: refreshes come every 30
+// minutes on weekdays and less often on weekends) and never placed an article in the bundle is a pruning candidate.
+export const NEWS_FEED_IDLE_MS = 7 * 86400000;
+export function idleNewsFeeds(feedHealth, nowMs = Date.now(), minAgeMs = NEWS_FEED_IDLE_MS) {
+  return (Array.isArray(feedHealth) ? feedHealth : []).filter((row) => nowMs - Date.parse(row?.countedSince || '') >= minAgeMs && Number(row?.runs) > 0 && Number(row?.selectedTotal || 0) === 0);
 }
 export function staleNewsFeeds(feedHealth, nowMs = Date.now(), maxAgeMs = NEWS_FEED_STALE_MS) {
   return (Array.isArray(feedHealth) ? feedHealth : []).filter((row) => row?.missStreak > 0 && nowMs - Date.parse(row.lastHealthyAt || '') > maxAgeMs);
@@ -542,6 +543,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
   const topicCap = createNewsTopicCap();
   const topicFull = (it) => topicCap.full(cleanTitle(it));
   let carriedPicked = 0;
+  const carriedRows = new WeakSet();
   function pushItem(it) {
     if (it.carried) carriedPicked += 1;
     pickedGrams.push(newsHeadlineSignature(it.title));
@@ -564,6 +566,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
       newsCycleEnd: it.newsCycleEnd,
       newsCycleLabel: it.newsCycleLabel,
     });
+    if (it.carried) carriedRows.add(out[out.length - 1]);
   }
   // 한국 뉴스 최대 3슬롯 먼저 예약
   const KR_SLOTS = 3;
@@ -609,7 +612,9 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
   // existing consumer of `news` keeps the canonical 08:00 bundle unchanged.
   // Published rows that came only from the previous run (no feed returned them this time): the receipt's `updated`.
   Object.defineProperty(out, 'carriedCount', { value: carriedPicked, enumerable: false });
-  for (const row of out) { const health = feedHealth.find((h) => h.source === row.feedSource); if (health) health.selected += 1; }
+  // A carried article counts toward this run's bundle but not as its feed answering: a feed that fails all day must not
+  // look productive because its earlier articles are carried until the cycle rolls over.
+  for (const row of out) { if (carriedRows.has(row)) continue; const health = feedHealth.find((h) => h.source === row.feedSource); if (health) health.selected += 1; }
   Object.defineProperty(out, 'feedHealth', { value: feedHealth, enumerable: false });
   Object.defineProperty(out, 'intraday', { value: selectNewsIntraday(intradayCandidates, { cycleEndMs: cycle.endMs, canonical: out }), enumerable: false });
   Object.defineProperty(out, 'slotPool', { value: slotPool, enumerable: false }); // scripts/lib/market-timeline.mjs
