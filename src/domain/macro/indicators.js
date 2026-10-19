@@ -31,7 +31,10 @@ export const MACRO_GROUPS = Object.freeze([
       Object.freeze({ id: 'cpi', history: { field: 'cpiIndexNsa', derive: 'yoy' }, key: 'cpi', label: 'CPI (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-cpi', note: '소비자물가지수, 계절조정 전 공식 보도 기준입니다.' }),
       Object.freeze({ id: 'coreCpi', history: { field: 'coreCpiIndexNsa', derive: 'yoy' }, key: 'coreCpi', label: '근원 CPI (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-cpi', note: '식품·에너지를 뺀 CPI입니다.' }),
       Object.freeze({ id: 'pce', history: { field: 'pceIndex', derive: 'yoy' }, key: 'pce', label: 'PCE 물가 (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-pce', target: FED_PCE_TARGET, note: '연준 물가 목표(2%)가 기준으로 삼는 지표입니다.' }),
-      Object.freeze({ id: 'corePce', history: { field: 'corePceIndex', derive: 'yoy' }, key: 'corePce', label: '근원 PCE (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-pce', target: FED_PCE_TARGET, note: '식품·에너지를 뺀 PCE 물가입니다.' })
+      Object.freeze({ id: 'corePce', history: { field: 'corePceIndex', derive: 'yoy' }, key: 'corePce', label: '근원 PCE (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-pce', target: FED_PCE_TARGET, note: '식품·에너지를 뺀 PCE 물가입니다.' }),
+      // 2026-10-19 (expertise review): the two halves of sticky core CPI, read from their FRED indexes (history only).
+      Object.freeze({ id: 'shelterCpi', history: { field: 'shelterCpiIndex', derive: 'yoy' }, historyOnly: true, label: '주거비 CPI (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-cpi', note: '근원 CPI의 40% 남짓을 차지합니다. 새 임대 계약 시세를 1년가량 늦게 따라가 내려오는 속도가 느립니다.' }),
+      Object.freeze({ id: 'supercoreCpi', history: { field: 'supercoreCpiIndex', derive: 'yoy' }, historyOnly: true, label: '주거비 제외 서비스 CPI (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-cpi', note: '이른바 슈퍼코어입니다. 임금과 함께 움직이는 서비스 가격이라 연준이 끈적한 물가로 지켜봅니다.' })
     ])
   }),
   Object.freeze({
@@ -45,7 +48,8 @@ export const MACRO_GROUPS = Object.freeze([
   Object.freeze({
     id: 'activity', title: '소비 · 주택', items: Object.freeze([
       Object.freeze({ id: 'retailSales', history: { field: 'retailSales', derive: 'mom' }, key: 'retailSales', label: '소매판매 (전월 대비)', unit: '%', digits: 1, signed: true, release: 'us-retail', note: '소매·음식점 매출의 전월 대비 증감률입니다.' }),
-      Object.freeze({ id: 'housingStarts', history: { field: 'housingStarts', derive: 'level', scale: 0.1 }, key: 'housingStarts', label: '주택 착공 (연율)', unit: '만 호', scale: 100, digits: 1, deltaUnit: '만 호', note: '착공된 신규 주택 수의 연간 환산치입니다.' })
+      Object.freeze({ id: 'housingStarts', history: { field: 'housingStarts', derive: 'level', scale: 0.1 }, key: 'housingStarts', label: '주택 착공 (연율)', unit: '만 호', scale: 100, digits: 1, deltaUnit: '만 호', note: '착공된 신규 주택 수의 연간 환산치입니다.' }),
+      Object.freeze({ id: 'buildingPermits', history: { field: 'buildingPermits', derive: 'level', scale: 0.1 }, historyOnly: true, label: '건축 허가 (연율)', unit: '만 호', digits: 1, deltaUnit: '만 호', note: '착공보다 먼저 나오는 주택 경기 선행 지표입니다. 금리에 가장 먼저 반응하는 부문입니다.' })
     ])
   })
 ]);
@@ -104,7 +108,32 @@ function derivedSeries(macroHistory, spec) {
   return rows.slice(-24);
 }
 
+// 2026-10-19: an indicator published only as a FRED history (no producer snapshot key) reads its latest derived point;
+// the change is from the previous month of the same derived series.
+function buildHistoryItem(releases, schedules, item, macroHistory) {
+  const series = derivedSeries(macroHistory, item.history);
+  const last = series[series.length - 1] || null;
+  const asOf = last ? isoDate(last.date) : null;
+  const release = releaseInfo({ releases, schedules, id: item.release, asOf });
+  const base = { id: item.id, label: item.label, note: item.note, unit: item.unit, release, asOf };
+  if (!last) return { ...base, status: 'missing', valueText: '—', deltaText: null, meta: '수집된 값이 없습니다.' };
+  const prior = monthsBack(series, last.date, 1);
+  const digits = item.digits ?? 1;
+  const meta = [`${Number(asOf.slice(5, 7))}월분`, release.last ? `${monthDay(release.last)} 발표` : null, release.next ? `다음 ${monthDay(release.next)}` : null, 'FRED'].filter(Boolean).join(' · ');
+  return {
+    ...base,
+    status: macroHistory?.series?.[item.history.field]?.stale ? 'stale' : 'observed',
+    value: last.value,
+    valueText: `${last.value.toFixed(digits)}${item.unit}`,
+    deltaText: prior ? `전월 대비 ${signed(last.value - prior.value, digits)}${item.deltaUnit}` : null,
+    targetText: null,
+    ...trendOf(item, series),
+    meta
+  };
+}
+
 function buildItem(macro, releases, schedules, item, macroHistory = null) {
+  if (item.historyOnly) return buildHistoryItem(releases, schedules, item, macroHistory);
   const keys = item.range || [item.key];
   const values = keys.map((key) => finite(macro[key]));
   const blsSeries = item.blsSeries ? macro._bls?.series?.[item.blsSeries] : null;

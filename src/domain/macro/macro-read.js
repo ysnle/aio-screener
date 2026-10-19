@@ -180,6 +180,18 @@ function inflationAxis({ macro, mh }) {
   const coreCpiIndex = seriesOf(mh, 'coreCpiIndex');
   const coreCpiPace = annualised3m(coreCpiIndex);
   const coreCpiYoy = lastOf(yoySeries(coreCpiIndex));
+  // 2026-10-19 (expertise review): the composition of sticky core CPI — shelter (lags market rents by about a year) and
+  // services ex-shelter ("supercore", wage-driven). A 3-month pace within 0.3pp of the year reads as steady. Evidence only: neither part
+  // changes the axis state.
+  const parts = [['주거비', 'shelterCpiIndex'], ['주거비 제외 서비스', 'supercoreCpiIndex']].map(([name, field]) => {
+    const index = seriesOf(mh, field);
+    const yoyRow = lastOf(yoySeries(index));
+    const paceRow = annualised3m(index);
+    return yoyRow && paceRow && yoyRow.date === paceRow.date ? { name, yoy: yoyRow.value, pace: paceRow.value, date: yoyRow.date } : null;
+  });
+  const composition = parts.every(Boolean) && parts[0].date === parts[1].date
+    ? `${monthLabel(parts[0].date)} ${parts.map((row) => `${row.name} ${row.yoy.toFixed(1)}% (3개월 연율 ${row.pace.toFixed(1)}%, ${Math.abs(row.pace - row.yoy) < 0.3 ? '1년치와 비슷' : row.pace > row.yoy ? '빨라짐' : '느려짐'})`).join(' · ')} — 주거비는 임대 시세를 늦게 따라가 천천히 내려오고, 주거비 제외 서비스는 임금과 함께 움직입니다`
+    : null;
   const delta = finite(macro.corePceDelta);
   const sixMonthsAgo = corePceYoySeries.length > 6 ? corePceYoySeries[corePceYoySeries.length - 7].value : null;
   const breakeven = finite(macro.breakeven10);
@@ -229,6 +241,7 @@ function inflationAxis({ macro, mh }) {
       ['근원 PCE (전년 대비)', yoy == null ? null : `${yoy.toFixed(1)}% (목표 ${I.targetPct}% 대비 ${signed(gap, 1, '%p')})`],
       ['근원 PCE 3개월 속도 (연율)', pace ? `${pace.value.toFixed(1)}% ${pace.value > (pceYoyForPace ?? yoy) ? '— 1년치(전년 대비)보다 빠름' : '— 1년치(전년 대비)보다 느림'}` : null],
       ['근원 CPI 3개월 속도 (연율)', coreCpiPace ? `${coreCpiPace.value.toFixed(1)}%${coreCpiYoy ? ` (${monthLabel(coreCpiPace.date)} · 전년 대비 ${coreCpiYoy.value.toFixed(1)}%)` : ''}` : null],
+      ['근원 CPI 구성 (주거비 · 주거비 제외 서비스)', composition],
       ['물가 방향 (PCE·CPI)', direction.state === 'unknown' ? null : `${direction.label} — ${direction.text}`],
       ['6개월 전 근원 PCE', sixMonthsAgo == null ? null : `${sixMonthsAgo.toFixed(1)}%`],
       ['헤드라인 CPI · PCE', finite(macro.cpi) == null ? null : `${finite(macro.cpi).toFixed(1)}% · ${finite(macro.pce)?.toFixed(1) ?? '—'}%`],
@@ -238,7 +251,7 @@ function inflationAxis({ macro, mh }) {
     flip: state === 'unknown' ? null : `근원 PCE ${levelAt.toFixed(1)}% 이상(${I.missPct.toFixed(1)}% 선 + ${MACRO_SIGNAL_RULES.inflationLevelBufferPp}%p), 또는 ${I.nearTargetPct}% 이상에서 근원 PCE·CPI가 함께 재가속(3개월 속도가 1년치보다 ${I.reaccelPp}%p 이상 빠름)하면 부담 · ${I.nearTargetPct}% 이하이면서 3개월 속도가 1년치 이하(두 지표 모두 재가속 아님)면 양호`,
     link: '물가가 목표보다 높으면 연준은 금리를 높게 유지합니다. 높은 금리는 미래 이익의 현재 가치를 낮춰 성장주 밸류에이션(PER)에 특히 부담이 됩니다.',
     asOf: macro._asOf_corePce || pace?.date || null,
-    detail: { yoy, pace, paceYoy: pceYoyForPace, accelerating, direction, firedBy }
+    detail: { yoy, pace, paceYoy: pceYoyForPace, accelerating, direction, firedBy, composition: parts.every(Boolean) ? parts : null }
   });
 }
 
