@@ -2,6 +2,7 @@
 // cards — every section says what it adds to the page's conclusion, and the page ends with where the
 // same reading continues. These sentences are computed from the same series and rules the cards use;
 // a section with missing inputs says what it cannot add instead of inventing a reading.
+import { isDefensiveSector } from '../interpretation/concepts.js';
 import { RULES } from '../rules/thresholds.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 import { recordPercentile, RECORD_FULL_YEAR, recoveryCheck } from '../briefing/market-read.js';
@@ -207,7 +208,7 @@ export function briefingFlow({ read = null } = {}) {
 }
 
 // 테마 · 섹터: what the RRG quadrants say together, tied to the 시장 상태 breadth axis.
-const DEFENSIVE = new Set(['XLU', 'XLP', 'XLV', 'XLRE']);
+// The defensive set is the shared concept (src/domain/interpretation/concepts.js): XLRE trades on the rate path.
 const QUADRANT_WORDS = Object.freeze({ Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행' });
 
 // The leader names one rotation read and every link that quotes it share: "선도 기술·통신서비스 · 개선 유틸리티".
@@ -235,7 +236,7 @@ export function rotationFlow({ groups = {}, regime = null } = {}) {
   const improving = groups.Improving || [];
   const lagging = groups.Lagging || [];
   const ahead = [...lead, ...improving];
-  const defensiveAhead = ahead.filter((item) => DEFENSIVE.has(String(item.symbol || '').toUpperCase())).length;
+  const defensiveAhead = ahead.filter((item) => isDefensiveSector(item.symbol)).length;
   // Coordinator follow-up (M08 class, 2026-10-13): quadrant membership alone does not establish a "위험 선호/회피 회전"
   // verdict, so the line only counts which kinds of sectors sit ahead of the benchmark.
   const style = !ahead.length ? '시장 대비 나아진 섹터(선도·개선)가 없습니다'

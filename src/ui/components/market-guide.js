@@ -1,12 +1,12 @@
 // Owner 2026-10-19 ("시나리오·대응 가이드와 학습"): the 오늘 guide card — the shared market-guide model (situation, the
 // choices counted across the live scenarios with the opportunity cost if the reading is wrong, what to lean toward and
 // avoid) and the concept layer: the principles today's data touches, each opening its lesson in the principles library,
-// with the full set of principles folded below. Reads the same regime/outlook/crossroads models home already built.
-import { buildMarketGuide } from '../../domain/guide/market-guide.js';
+// with the full set of principles folded below. Reads the guide stage of the shared interpretation.
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { ALL_LESSONS, LESSON_KINDS } from '../../domain/guide/lessons.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { el } from './dom.js';
-import { crossroadsForRoot, refreshScenarioArtifacts } from './macro-crossroads.js';
+import { refreshScenarioArtifacts } from './macro-crossroads.js';
 
 function conceptButton(doc, root, lesson) {
   const button = el(doc, 'button', '개념 배우기 →', 'mg-concept-link');
@@ -50,15 +50,15 @@ function choiceTable(doc, direction) {
 }
 
 /** Renders (or hides) #home-guide after `anchor`; returns the model so callers and tests can read it. */
-export function renderHomeGuide({ documentRef: doc, root, regime, outlook = null, crossroads = null, anchor = null, nowMs = Date.now() } = {}) {
+export function renderHomeGuide({ documentRef: doc, root, store = null, anchor = null, nowMs = Date.now() } = {}) {
   if (!doc || !anchor) return null;
-  const guide = buildMarketGuide({ regime, outlook, crossroads, nowMs });
+  const guide = marketInterpretation(root, { store, nowMs }).guide || { available: false };
   let box = doc.getElementById('home-guide');
   if (!box) { box = el(doc, 'section', null, 'xr-section mg-guide'); box.id = 'home-guide'; box.setAttribute('aria-labelledby', 'home-guide-title'); }
   if (box.previousElementSibling !== anchor && typeof anchor.insertAdjacentElement === 'function') anchor.insertAdjacentElement('afterend', box);
   box.hidden = !guide.available;
   // The long-history outcomes and the per-refresh state can land after first paint; the guide is rebuilt with them.
-  if (!box.dataset.aioScenarioLoad) { box.dataset.aioScenarioLoad = 'on'; refreshScenarioArtifacts(root, () => renderHomeGuide({ documentRef: doc, root, regime, outlook, crossroads: crossroadsForRoot(root, { regime }), anchor, nowMs: Date.now() })); }
+  if (!box.dataset.aioScenarioLoad) { box.dataset.aioScenarioLoad = 'on'; refreshScenarioArtifacts(root, () => renderHomeGuide({ documentRef: doc, root, store, anchor, nowMs: Date.now() })); }
   if (!guide.available) return guide;
   const title = el(doc, 'h2', '오늘의 가이드 — 상황 · 시나리오 · 대응 · 배울 것', 'xr-h3'); title.id = 'home-guide-title';
   const situation = el(doc, 'dl', null, 'mg-situation');

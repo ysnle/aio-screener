@@ -10,6 +10,7 @@
 //              is read against its own break conditions
 // Rotation is read from all themes at once: which exposure tags gained and lost over the month.
 // No price, size, timing or named stock; stock-level selection stays on the theme, chart, company and screener screens.
+import { creditStable } from '../interpretation/concepts.js';
 import { EXPOSURE_TAGS, WIND_LABELS, themeProfile, windFor } from './exposures.js';
 import { THEME_STATES, THEME_STAGE_RULE, themeStateOf, frequencyText, inlineDrift, INLINE_DRIFT_LABELS } from './analogs.js';
 import { CHOICES } from '../market/macro-crossroads.js';
@@ -32,8 +33,8 @@ export const LEAD_CONFIRM_MET = 3;
 // v57.84 review: one line with leadingStageText (50%) and R708 — at 30% the stage read 주도 지속 while its own sentence
 // said "50일선 위 종목이 30%뿐이라 추세가 넓게 받쳐 주지 않습니다".
 export const ABOVE50_FLOOR = 50;
-/** The shared credit rule (scenario-outlook.js creditStable): stable only when the credit axis reads favourable. */
-export const creditStable = (credit) => (credit == null || credit === 'unknown' ? null : credit === 'favorable');
+// The shared credit rule lives with the other shared concepts (src/domain/interpretation/concepts.js).
+export { creditStable };
 
 const FAVOURED = {
   leading: { tail: ['hold'], head: ['hold'], mixed: ['hold'], none: ['hold'] },

@@ -254,7 +254,8 @@ if (!marketPageSource.includes("page.dataset.aioMacroRenderer = 'native'") || !m
     if (!macroBoardSource.includes(marker)) fail(`P1427 거시 visual marker missing: ${marker}`);
   }
   if (!read('src/domain/macro/macro-read.js').includes('function sharedGauges({ macro, rateFx, regime })')) fail('P1427 shared gauges must follow the deciding variable');
-  for (const marker of ['buildMacroRead', 'readMarketRegime', "getElementById('macro-axes')", "getElementById('macro-chain')", "getElementById('rates-axes')", "getElementById('macro-commodities')"]) {
+  // v58.31: the read is the shared interpretation's macroRead stage (scripts/ci-interpretation-boundary-check.mjs).
+  for (const marker of ['macroRead: read', 'readMarketRegime', "getElementById('macro-axes')", "getElementById('macro-chain')", "getElementById('rates-axes')", "getElementById('macro-commodities')"]) {
     if (!macroBoardSource.includes(marker)) fail(`P1426 거시 read marker missing: ${marker}`);
   }
   for (const id of ['macro-board', 'macro-regime', 'macro-axes', 'macro-chain', 'macro-commodities', 'rates-axes', 'rates-yields', 'rates-curve', 'rates-spreads', 'rates-levels', 'rates-fx-grid']) {

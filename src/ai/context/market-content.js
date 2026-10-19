@@ -4,17 +4,13 @@ import { buildGroupStrength } from '../../domain/themes/group-strength.js';
 import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/chart-scenarios.js';
 import { koreaParticipationContext } from '../../domain/market/korea-participation.js';
 import { companyAnalysisContext } from '../../domain/entity/company-analysis.js';
-import { renderMarketScenarioContext, buildMarketScenarios } from '../../domain/market/regime-scenarios.js';
+import { renderMarketScenarioModel } from '../../domain/market/regime-scenarios.js';
 import { renderScenarioOutlookContext } from '../../domain/market/scenario-outlook.js';
-import { outlookForRoot } from '../../ui/components/scenario-outlook.js';
-import { buildMarketGuide, renderMarketGuideContext } from '../../domain/guide/market-guide.js';
+import { renderMarketGuideContext } from '../../domain/guide/market-guide.js';
 import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
-import { collectMarketInputs } from '../../data/selectors/market-inputs.js';
-import { buildMarketRegime } from '../../domain/briefing/market-read.js';
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { renderMacroCrossroadsContext } from '../../domain/market/macro-crossroads.js';
-import { crossroadsForRoot } from '../../ui/components/macro-crossroads.js';
 import { renderThemePlaybookContext } from '../../domain/scenarios/theme-playbook.js';
-import { themePlaybookForRoot } from '../../ui/components/theme-playbook.js';
 import { conditionLabel, parseConditionValue } from '../../domain/screener/custom-conditions.js';
 
 // P1621: share page-independent selection between both legacy chat callers.
@@ -40,16 +36,14 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
   if (/시장|시나리오|앞으로|향후|관찰|금리|신용|변동성/.test(text) && root._aioHistory?.length) {
     // P1729: the same inputs as the 시장 상태 screen (credit, rates, macro history, now) — history alone made the AI say
     // "신용 관측이 없어 보류" while the screen judged the credit axis.
-    const scenarios = renderMarketScenarioContext(collectMarketInputs(root));
+    const scenarios = renderMarketScenarioModel(marketInterpretation(root).scenarios);
     if(scenarios) parts.push(scenarios);
   }
   // P1742: forward, rate/inflation/jobs and "what should I do" questions get the same branches the 거시 screen draws.
   if (/앞으로|향후|전망|시나리오|대응|어떻게\s*(?:해야|하지|할까|될까)|뭘\s*해야|무엇을\s*해야|금리|물가|CPI|PCE|고용|연준|FOMC|유가|경기|침체|인하|인상/i.test(text) && root._aioHistory?.length) {
     try {
-      const regime = buildMarketRegime(collectMarketInputs(root));
       // P1743: with the automated record (what changed since the last refreshes, how the latest releases scored).
-      const model = crossroadsForRoot(root, { regime });
-      const crossroads = renderMacroCrossroadsContext(model, { state: root._aioScenarioState || null });
+      const crossroads = renderMacroCrossroadsContext(marketInterpretation(root).crossroads, { state: root._aioScenarioState || null });
       if (crossroads) parts.push(crossroads);
     } catch (_) {}
   }
@@ -58,13 +52,10 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
   // the same synthesis and concept layer as the screens.
   if (/앞으로|향후|전망|시나리오|대응|어떻게\s*(?:해야|하지|할까|될까|봐야)|뭘\s*해야|무엇을\s*해야|유리|기회비용|태도|마인드|마음가짐|전략|기법|속지|믿어|믿을|조심|주의할|지향|지양|초보|배우|공부|시장\s*(?:상황|해석|어때)/i.test(text) && root._aioHistory?.length) {
     try {
-      const inputs = collectMarketInputs(root);
-      const regime = buildMarketRegime(inputs);
-      const scenarios = regime.available ? buildMarketScenarios(inputs, { regime }) : null;
-      const outlook = scenarios?.available ? outlookForRoot(root, { scenarios, regime }) : null;
+      const { outlook, guide: model } = marketInterpretation(root);
       const structure = renderScenarioOutlookContext(outlook);
       if (structure) parts.push(structure);
-      const guide = renderMarketGuideContext(buildMarketGuide({ regime, outlook, crossroads: crossroadsForRoot(root, { regime }) }));
+      const guide = model ? renderMarketGuideContext(model) : '';
       if (guide) parts.push(guide);
     } catch (_) {}
   }
@@ -72,8 +63,8 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
   // (stage × macro wind × choices × evidence × structural hypothesis), not only the themes the question names.
   if ((ctxId === 'themes' || ctxId === 'theme-detail' || /섹터|테마|업종|로테이션|순환|주도|병목|조정|반등|분할|비중|들어가|살까|담을|앞으로|향후|대응/.test(text)) && root._aioHistory?.length) {
     try {
-      const rows = screenerRows || root.SCREENER_DB || [];
-      const { playbook } = themePlaybookForRoot(root, { getState: () => ({ screener: { rows } }) });
+      // Owner 2026-10-19: the same theme stages the 테마 screen draws (shared interpretation, same rows).
+      const { playbook } = marketInterpretation(root);
       const themesBlock = renderThemePlaybookContext(playbook, { query: text });
       if (themesBlock) parts.push(themesBlock);
     } catch (_) {}
