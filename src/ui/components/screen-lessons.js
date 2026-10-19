@@ -5,6 +5,7 @@
 import { SCREEN_LESSON_IDS, selectScreenLessons } from '../../domain/guide/lessons.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { summarizeCandidateArchive } from '../../domain/screener/candidate-record.js';
+import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { lessonItem } from './market-guide.js';
 import { el } from './dom.js';
 
@@ -12,8 +13,8 @@ import { el } from './dom.js';
 export function lessonContext(root, { nowMs = Date.now() } = {}) {
   const rankEvidence = rankEvidenceForRoot(root);
   try {
-    if (!root?._aioHistory?.length) return { rankEvidence, nowMs };
-    // The same stages the 오늘 guide reads, including the curve and index-earnings lessons' inputs.
+    // The same stages the 오늘 guide reads. The curve (macro history) and index earnings (weights + consensus) do not
+    // need the price history, so a missing one leaves only the regime-based sentences silent.
     const { regime, outlook, crossroads, guide, curve, indexEarnings } = marketInterpretation(root, { nowMs });
     if (!regime?.available) return { regime, curve, indexEarnings, rankEvidence, nowMs };
     return { regime, outlook, crossroads, direction: guide?.direction || null, curve, indexEarnings, rankEvidence, nowMs };
@@ -28,6 +29,10 @@ function rankEvidenceForRoot(root) {
 export function renderScreenLessons({ documentRef: doc, root, routeId, ctx = null } = {}) {
   const page = doc?.getElementById?.(`page-${routeId}`);
   if (!page || !SCREEN_LESSON_IDS[routeId]) return null;
+  // The revision-breadth lesson reads the consensus artifact, which only 오늘 and the stock screens request.
+  if (!ctx && root && !root[CONSENSUS_KEY] && SCREEN_LESSON_IDS[routeId].includes('earnings-revisions')) {
+    requestConsensusEstimates(root, () => renderScreenLessons({ documentRef: doc, root, routeId }));
+  }
   const lessons = selectScreenLessons(routeId, ctx || lessonContext(root), { limit: 3 });
   if (!lessons.length) return null;
   const id = `screen-lessons-${routeId}`;
