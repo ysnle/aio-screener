@@ -141,6 +141,18 @@ async function findAttestedRun(runs) {
   return null;
 }
 
+// Pipeline redesign (2026-10-19): on weekdays every cycle awaits its own new commit, and a CI run that settles after the
+// 12-minute wait ended that cycle as AWAITING (green); the next cycle awaited a newer commit, so a failed data CI was
+// seen only by the 6-hour freshness watchdog. Each awaiting cycle now looks back at the newest settled dispatched data
+// CI for an earlier revision: a failure there (with nothing newer settled green) fails this cycle within ~30 minutes.
+async function previousDataCiFailure(targetSha) {
+  const payload = await api(`/repos/${REPO}/actions/workflows/ci.yml/runs?branch=main&event=workflow_dispatch&per_page=20`);
+  const earlier = (payload.workflow_runs || [])
+    .filter((run) => run.head_sha !== targetSha && run.status === 'completed' && run.conclusion !== 'cancelled' && run.conclusion !== 'skipped')
+    .sort((left, right) => Number(right.id) - Number(left.id));
+  return earlier[0] && earlier[0].conclusion === 'failure' ? earlier[0] : null;
+}
+
 async function awaitAttestedRun(sha) {
   const deadline = Date.now() + TIMEOUT_MIN * 60000;
   let attempt = 0;
@@ -182,7 +194,9 @@ try {
     const awaited = await awaitAttestedRun(report.targetSha);
     if (awaited.timedOut) {
       note(`waited ${TIMEOUT_MIN}min for an attested CI run without success; the next scheduled cycle converges`);
-      finish('AWAITING_CI_ATTESTATION');
+      const earlierFailure = await previousDataCiFailure(report.targetSha).catch(() => null);
+      if (earlierFailure) note(`the previous data revision ${String(earlierFailure.head_sha).slice(0, 12)} settled with a failed CI run ${earlierFailure.id} after its own wait`);
+      finish('AWAITING_CI_ATTESTATION', earlierFailure ? 1 : 0);
     }
     if (!awaited.attested) {
       note(awaited.settled
@@ -192,7 +206,8 @@ try {
       // for 5.7 hours while every refresh run stayed green — a dispatched CI run emits no workflow_run, so nothing alerted.
       // A revision whose CI settled with a failure now fails this job (and the alert that follows it); a run that was only
       // cancelled by a newer one stays green.
-      const ciFailed = awaited.settled && (awaited.runs || []).some((run) => run.conclusion === 'failure');
+      const ciFailed = (awaited.settled && (awaited.runs || []).some((run) => run.conclusion === 'failure'))
+        || (!awaited.settled && !!(await previousDataCiFailure(report.targetSha).catch(() => null)));
       finish(awaited.settled ? 'UNATTESTED_REVISION' : 'AWAITING_CI_ATTESTATION', ciFailed ? 1 : 0);
     }
     report.ciRunId = awaited.attested.id;
