@@ -307,7 +307,7 @@ function renderKrThemeCardsFromMap() {
     });
 
     if (extraPillsHtml) {
-      pillsHtml += '<details class="kr-theme-card-more" data-stop="1"><summary>' + (sorted.length - 5) + '개 구성 종목 더 보기</summary><div class="kr-theme-tickers" style="margin-top:6px;">' + extraPillsHtml + '</div></details>';
+      pillsHtml += '<details class="kr-theme-card-more" data-stop="1"><summary>' + (sorted.length - 5) + '개 구성 종목 더 보기</summary><div class="kr-theme-tickers krl-more-list">' + extraPillsHtml + '</div></details>';
     }
     var catalystLead = catalyst.length > 260 ? catalyst.slice(0, 260).replace(/\s+\S*$/, '') + '…' : catalyst;
     var catalystHtml = catalyst ? '<div class="kr-theme-catalyst">' + escHtml(catalystLead) + '</div>' +
@@ -322,7 +322,7 @@ function renderKrThemeCardsFromMap() {
       '</div>' +
       '<div class="kr-theme-tickers">' + pillsHtml + '</div>' +
       '<div class="kr-theme-stat" data-theme-stat="' + tid + '">' +
-        (avg == null ? '<span><b style="color:var(--text-muted);">시세 미수신 · 구성 비중만 표시</b></span>' : '<span>일간 수익률 <b style="color:' + (avg >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' + (avg >= 0 ? '+' : '') + avg.toFixed(2) + '%</b></span>') +
+        (avg == null ? '<span><b class="krl-muted">시세 미수신 · 구성 비중만 표시</b></span>' : '<span>일간 수익률 <b style="color:' + (avg >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' + (avg >= 0 ? '+' : '') + avg.toFixed(2) + '%</b></span>') +
       '</div>' +
       catalystHtml +
     '</div>';
@@ -360,7 +360,7 @@ function renderKrThemePerfBars(ld) {
   var res=[];for(var tid in KR_THEME_MAP){var t=KR_THEME_MAP[tid],ws=0,vs=0;t.forEach(function(s){var d=ld[krTickerToYahoo(s.code)];if(d&&d.pct!==undefined&&s.w>0){vs+=d.pct*s.w;ws+=s.w;}});if(ws>0)res.push({id:tid,name:N[tid]||tid,perf:vs/ws});}
   if(!res.length)return;res.sort(function(a,b){return b.perf-a.perf;});var mx=Math.max.apply(null,res.map(function(r){return Math.abs(r.perf);}));if(mx<0.01)mx=1;
   var h='';res.forEach(function(r,i){var p=r.perf>=0,bw=Math.min(Math.abs(r.perf)/mx*100,100),cl=p?'var(--data-green)':'var(--data-red)',rk=i<3?'<b style="color:'+cl+';">'+(i+1)+'</b> ':'';
-    h+='<div style="display:grid;grid-template-columns:105px 1fr 58px;align-items:center;gap:5px;padding:4px 6px;border-radius:4px;background:rgba(255,255,255,'+(i%2===0?'0.015':'0')+');cursor:pointer;" data-action="showKrThemeDetail" data-arg="'+escHtml(r.id)+'"><div style="font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+rk+r.name+'</div><div style="height:12px;background:var(--surface-2);border-radius:3px;overflow:hidden;position:relative;">'+(p?'<div style="position:absolute;left:50%;height:100%;width:'+(bw/2)+'%;background:'+cl+';border-radius:0 3px 3px 0;opacity:0.7;"></div>':'<div style="position:absolute;right:50%;height:100%;width:'+(bw/2)+'%;background:'+cl+';border-radius:3px 0 0 3px;opacity:0.7;"></div>')+'<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(var(--ink-rgb),0.12);"></div></div><div style="font-size:11px;font-weight:900;font-family:var(--font-mono);text-align:right;color:'+cl+';">'+(p?'+':'')+r.perf.toFixed(2)+'%</div></div>';});
+    h+='<div class="krl-pb-row'+(i%2===0?' is-alt':'')+'" data-action="showKrThemeDetail" data-arg="'+escHtml(r.id)+'"><div class="krl-pb-name">'+rk+r.name+'</div><div class="krl-pb-track">'+(p?'<div class="krl-pb-fill is-pos" style="width:'+(bw/2)+'%;background:'+cl+';"></div>':'<div class="krl-pb-fill is-neg" style="width:'+(bw/2)+'%;background:'+cl+';"></div>')+'<div class="krl-pb-mid"></div></div><div class="krl-pb-val" style="color:'+cl+';">'+(p?'+':'')+r.perf.toFixed(2)+'%</div></div>';});
   c.innerHTML=h;var ts=document.getElementById('kr-theme-rank-ts');if(ts)ts.textContent=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})+' 갱신';
 }
 function showKrThemeDetail(themeId) {
@@ -389,64 +389,64 @@ function showKrThemeDetail(themeId) {
     var price=d&&d.price!=null&&isFinite(Number(d.price))?Number(d.price):null,pct=d&&d.pct!=null?d.pct:null,pCol=pct!==null?(pct>=0?'var(--data-green)':'var(--data-red)'):'var(--text-muted)';
     var ps=price==null?'—':price>=1000?Math.round(price).toLocaleString()+'원':price+'원';
     var pcs=pct!==null?((pct>=0?'+':'')+pct.toFixed(2)+'%'):'—';
-    var lt=d?'<span style="color:var(--data-green);font-size:11px;">● 수신</span>':'<span style="color:var(--text-muted);font-size:11px;">○</span>';
+    var lt=d?'<span class="krl-live is-on">● 수신</span>':'<span class="krl-live">○</span>';
     var rankIcon=idx===0?' ':idx===1?' ':idx===2?' ':'';
-    rows+='<tr style="background:'+(idx%2===0?'rgba(var(--ink-rgb),0.015)':'transparent')+';border-bottom:1px solid var(--surface-2);"><td style="padding:7px 8px;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;" data-action="showTicker" data-arg="'+sym+'" title="'+(info.name||t.code)+' 분석 →">'+rankIcon+'<span style="color:var(--accent);">'+(info.name||t.code)+'</span> <span style="font-size:10px;opacity:0.6;">↗</span><div style="font-size:11px;color:var(--text-muted);font-weight:400;">'+(info.sector||'')+' · '+t.code+'</div></td><td style="padding:7px 8px;font-size:13px;font-weight:800;font-family:var(--font-mono);text-align:right;">'+ps+'</td><td style="padding:7px 8px;font-size:13px;font-weight:900;font-family:var(--font-mono);text-align:right;color:'+pCol+';">'+pcs+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;color:var(--text-muted);">'+(info.mcap||'—')+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;">'+(t.wLabel||(Math.round(t.w*10)/10)+'%')+'</td><td style="padding:7px 8px;text-align:center;">'+lt+'</td></tr>';
+    rows+='<tr class="krl-d-row'+(idx%2===0?' is-alt':'')+'"><td class="krl-d-c is-name" data-action="showTicker" data-arg="'+sym+'" title="'+(info.name||t.code)+' 분석 →">'+rankIcon+'<span class="krl-accent">'+(info.name||t.code)+'</span> <span class="krl-d-go">↗</span><div class="krl-d-meta">'+(info.sector||'')+' · '+t.code+'</div></td><td class="krl-d-c is-fig">'+ps+'</td><td class="krl-d-c is-fig is-heavy" style="color:'+pCol+';">'+pcs+'</td><td class="krl-d-c is-ctr is-xs is-muted">'+(info.mcap||'—')+'</td><td class="krl-d-c is-ctr is-xs">'+(t.wLabel||(Math.round(t.w*10)/10)+'%')+'</td><td class="krl-d-c is-ctr">'+lt+'</td></tr>';
   });
 
   var tn=(CN[themeId]||themeId).replace(/[^가-힣a-zA-Z0-9\/\s]/g,'').trim();
 
   content.innerHTML=
     // 헤더: 테마명 + 수익률 + 강도
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">'+
-      '<div><div style="font-size:18px;font-weight:900;">'+(CN[themeId]||themeId)+'</div>'+
-        '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">구성종목 '+totalStocks+'개 · 상승 '+upCnt+' · 하락 '+dnCnt+'</div></div>'+
-      '<div style="text-align:right;">'+
-        '<div style="font-size:22px;font-weight:900;font-family:var(--font-mono);color:'+cc+';">'+(ip?'+':'')+avg.toFixed(2)+'%</div>'+
-        '<div style="font-size:11px;color:'+strengthCol+';font-weight:700;">'+strength+'</div></div></div>'+
+    '<div class="krl-d-head">'+
+      '<div><div class="krl-d-title">'+escHtml(CN[themeId]||themeId)+'</div>'+
+        '<div class="krl-d-sub">구성종목 '+totalStocks+'개 · 상승 '+upCnt+' · 하락 '+dnCnt+'</div></div>'+
+      '<div class="krl-d-end">'+
+        '<div class="krl-d-avg" style="color:'+cc+';">'+(ip?'+':'')+avg.toFixed(2)+'%</div>'+
+        '<div class="krl-d-band" style="color:'+strengthCol+';">'+strength+'</div></div></div>'+
 
     // 요약 카드 4개
-    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;">'+
-      '<div style="background:var(--surface-2);border-radius:4px;padding:10px;text-align:center;border:1px solid var(--surface-4);">'+
-        '<div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">상승 비율</div>'+
-        '<div style="font-size:18px;font-weight:900;color:'+(upRatio>=60?'var(--data-green)':upRatio<=40?'var(--data-red)':'var(--text-muted)')+';">'+upRatio+'%</div></div>'+
-      '<div style="background:var(--surface-2);border-radius:4px;padding:10px;text-align:center;border:1px solid var(--surface-4);">'+
-        '<div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">최고 종목</div>'+
-        '<div style="font-size:12px;font-weight:800;color:var(--data-green);">'+(topStock||'—')+'</div><div style="font-size:10px;color:var(--data-green);">'+(topStock?(topPct>=0?'+':'')+topPct.toFixed(2)+'%':'—')+'</div></div>'+
-      '<div style="background:var(--surface-2);border-radius:4px;padding:10px;text-align:center;border:1px solid var(--surface-4);">'+
-        '<div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">최저 종목</div>'+
-        '<div style="font-size:12px;font-weight:800;color:var(--data-red);">'+(botStock||'—')+'</div><div style="font-size:10px;color:var(--data-red);">'+(botStock?(botPct>=0?'+':'')+botPct.toFixed(2)+'%':'—')+'</div></div>'+
-      '<div style="background:var(--surface-2);border-radius:4px;padding:10px;text-align:center;border:1px solid var(--surface-4);">'+
-        '<div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">가중평균</div>'+
-        '<div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:'+cc+';">'+(ip?'+':'')+avg.toFixed(2)+'%</div></div>'+
+    '<div class="krl-d-stats">'+
+      '<div class="krl-d-stat">'+
+        '<div class="krl-d-stat-l">상승 비율</div>'+
+        '<div class="krl-d-stat-v" style="color:'+(upRatio>=60?'var(--data-green)':upRatio<=40?'var(--data-red)':'var(--text-muted)')+';">'+upRatio+'%</div></div>'+
+      '<div class="krl-d-stat">'+
+        '<div class="krl-d-stat-l">최고 종목</div>'+
+        '<div class="krl-d-stat-name is-up">'+escHtml(topStock||'—')+'</div><div class="krl-d-stat-pct is-up">'+(topStock?(topPct>=0?'+':'')+topPct.toFixed(2)+'%':'—')+'</div></div>'+
+      '<div class="krl-d-stat">'+
+        '<div class="krl-d-stat-l">최저 종목</div>'+
+        '<div class="krl-d-stat-name is-down">'+escHtml(botStock||'—')+'</div><div class="krl-d-stat-pct is-down">'+(botStock?(botPct>=0?'+':'')+botPct.toFixed(2)+'%':'—')+'</div></div>'+
+      '<div class="krl-d-stat">'+
+        '<div class="krl-d-stat-l">가중평균</div>'+
+        '<div class="krl-d-stat-v is-fig" style="color:'+cc+';">'+(ip?'+':'')+avg.toFixed(2)+'%</div></div>'+
     '</div>'+
 
     // 촉매
-    (cat?'<div style="background:rgba(var(--ink-rgb),0.06);border-left:3px solid rgba(var(--ink-rgb),0.4);border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:14px;">'+
-      '<div style="font-size:10px;font-weight:700;color:var(--accent);margin-bottom:4px;">촉매 / 핵심 이슈</div>'+
-      '<div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">'+cat+'</div></div>':'')+
+    (cat?'<div class="krl-d-cat">'+
+      '<div class="krl-d-cat-l">촉매 / 핵심 이슈</div>'+
+      '<div class="krl-d-cat-t">'+escHtml(cat)+'</div></div>':'')+
 
     // 종목 테이블
     '<div style="overflow-x:auto;border:1px solid rgba(var(--ink-rgb),0.06);border-radius:4px;">'+
-      '<table style="width:100%;border-collapse:collapse;">'+
-        '<thead><tr style="background:var(--surface-2);border-bottom:2px solid var(--surface-5);">'+
-          '<th style="padding:8px;text-align:left;font-size:10px;color:var(--text-muted);font-weight:700;">종목</th>'+
-          '<th style="padding:8px;text-align:right;font-size:10px;color:var(--text-muted);font-weight:700;">현재가</th>'+
-          '<th style="padding:8px;text-align:right;font-size:10px;color:var(--text-muted);font-weight:700;">등락률</th>'+
-          '<th style="padding:8px;text-align:center;font-size:10px;color:var(--text-muted);font-weight:700;">시총</th>'+
-          '<th style="padding:8px;text-align:center;font-size:10px;color:var(--text-muted);font-weight:700;">비중</th>'+
-          '<th style="padding:8px;text-align:center;font-size:10px;color:var(--text-muted);font-weight:700;">소스</th>'+
+      '<table class="krl-d-tbl">'+
+        '<thead><tr class="krl-d-hrow">'+
+          '<th class="krl-d-th is-l">종목</th>'+
+          '<th class="krl-d-th is-r">현재가</th>'+
+          '<th class="krl-d-th is-r">등락률</th>'+
+          '<th class="krl-d-th is-ctr">시총</th>'+
+          '<th class="krl-d-th is-ctr">비중</th>'+
+          '<th class="krl-d-th is-ctr">소스</th>'+
         '</tr></thead><tbody>'+rows+'</tbody></table></div>'+
 
     // 심층 분석 섹션
     _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, totalStocks, topStock, topPct, botStock, botPct, sorted, ld, tmap) +
 
     // AI 분석 버튼
-    '<div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap;">'+
-      '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 심층 분석: 현재 모멘텀, 수급, 밸류에이션, 리스크 종합 판단해줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">AI 심층 분석</button>'+
-      '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 외국인·기관 수급 흐름과 향후 전망 분석해줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">수급 분석</button>'+
-      '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 대장주와 후발주 비교 분석하고 확인할 지표와 무효화 조건 알려줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">확인 지표</button>'+
-      '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 리스크 요인과 주의할 점 분석해줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">리스크</button>'+
+    '<div class="krl-d-ask">'+
+      '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 심층 분석: 현재 모멘텀, 수급, 밸류에이션, 리스크 종합 판단해줘" class="aio-btn-table krl-d-ask-btn">AI 심층 분석</button>'+
+      '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 외국인·기관 수급 흐름과 향후 전망 분석해줘" class="aio-btn-table krl-d-ask-btn">수급 분석</button>'+
+      '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 대장주와 후발주 비교 분석하고 확인할 지표와 무효화 조건 알려줘" class="aio-btn-table krl-d-ask-btn">확인 지표</button>'+
+      '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 리스크 요인과 주의할 점 분석해줘" class="aio-btn-table krl-d-ask-btn">리스크</button>'+
     '</div>';
 
   panel.style.display='block';panel.scrollIntoView({behavior:'smooth',block:'start'});
@@ -454,8 +454,8 @@ function showKrThemeDetail(themeId) {
 
 // ═══ 한국 테마 심층 분석 생성 ═══
 function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, topPct, botStock, botPct, sorted, ld, tmap) {
-  var h = '<div style="margin-top:14px;padding:14px;background:rgba(var(--ink-rgb),0.05);border:1px solid rgba(var(--ink-rgb),0.15);border-radius:4px;">';
-  h += '<div style="font-size:13px;font-weight:900;color:var(--accent);margin-bottom:10px;">심층 분석</div>';
+  var h = '<div class="krl-deep">';
+  h += '<div class="krl-deep-t">심층 분석</div>';
   var ss = [];
 
   // 1) 테마 온도 진단
@@ -535,12 +535,12 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
         _knIsStale = _knStaleDays > (KR_THEME_NARRATIVES_META.staleDays || 90);
       } catch(e) {}
     }
-    var _krStaleBadge = ' <span style="font-size:11px;font-weight:700;padding:2px 6px;border-radius:3px;margin-left:6px;background:' + (_knIsStale ? 'rgba(177,58,48,0.15);color:var(--data-red);border:1px solid rgba(177,58,48,0.3)' : 'rgba(var(--ink-rgb),0.1);color:var(--data-cyan);border:1px solid rgba(var(--ink-rgb),0.2)') + ';">' + (_knIsStale ? 'STALE ' : '') + (KR_THEME_NARRATIVES_META && KR_THEME_NARRATIVES_META.lastUpdated || 'N/A') + ' · 경과 ' + _knStaleDays + '일</span>';
+    var _krStaleBadge = ' <span class="krl-stale' + (_knIsStale ? ' is-stale' : '') + '">' + (_knIsStale ? 'STALE ' : '') + (KR_THEME_NARRATIVES_META && KR_THEME_NARRATIVES_META.lastUpdated || 'N/A') + ' · 경과 ' + _knStaleDays + '일</span>';
 
     ss.push('');
     ss.push(' <b>테마 스토리 · 밸류체인 (기관 리서치 톤)</b>' + _krStaleBadge);
     if (_knIsStale) {
-      ss.push('<span style="color:var(--data-red);font-size:10px;">narrative 작성일부터 ' + _knStaleDays + '일 경과 — 구체 수치는 AI 채팅/웹검색으로 crosscheck 권장</span>');
+      ss.push('<span class="krl-stale-note">narrative 작성일부터 ' + _knStaleDays + '일 경과 — 구체 수치는 AI 채팅/웹검색으로 crosscheck 권장</span>');
     }
     if (kn.why) ss.push('<b>왜 지금 HOT한가:</b> ' + kn.why);
     if (kn.valueChain) ss.push('<b>밸류체인 구조:</b> ' + kn.valueChain);
@@ -560,7 +560,7 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
           var krNewsHtml = krRecentNews.map(function(n) {
             var dt = n.pubDate ? new Date(n.pubDate) : null;
             var dtStr = dt ? (dt.getMonth()+1) + '/' + dt.getDate() : '';
-            return '&nbsp;&nbsp;<span style="color:var(--data-cyan);">[' + dtStr + ']</span> ' + (n.title || '').substring(0, 140) + (n.source ? ' <span style="color:var(--text-muted);font-size:11px;">(' + n.source + ')</span>' : '');
+            return '&nbsp;&nbsp;<span class="krl-cyan">[' + dtStr + ']</span> ' + (n.title || '').substring(0, 140) + (n.source ? ' <span class="krl-note">(' + n.source + ')</span>' : '');
           }).join('<br>');
           ss.push('<b>최근 7일 뉴스 (최근 수집, ' + krRecentNews.length + '건):</b><br>' + krNewsHtml);
         }
@@ -569,8 +569,8 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
   }
 
   h += ss.map(function(s) {
-    if (!s) return '<hr style="border:none;border-top:1px solid var(--surface-4);margin:6px 0;">';
-    return '<div style="font-size:11px;color:var(--text-secondary);line-height:1.7;margin-bottom:6px;">' + s + '</div>';
+    if (!s) return '<hr class="krl-deep-hr">';
+    return '<div class="krl-deep-p">' + s + '</div>';
   }).join('');
   h += '</div>';
   return h;
@@ -1595,31 +1595,31 @@ function _generateKrMacroAnalysis(ld) {
   // 환율 판단
   if (krw && krw.price) {
     var kp = krw.price;
-    t += '<b style="color:var(--accent);">원/달러 ' + kp.toFixed(0) + '원</b> — ';
-    t += kp > 1450 ? '<span style="color:var(--red);">1,450원 상회 구간입니다. 전일 등락·외국인 수급·수입물가·정책 발언을 별도 확인하며 원인이나 업종 수혜를 단정하지 않습니다.</span>' :
-         kp > 1380 ? '<span style="color:var(--yellow);">1,380원 상회 구간입니다. 환율 수준과 당일 방향을 구분하고 수급·금리차를 교차 확인합니다.</span>' :
-         kp > 1300 ? '<span style="color:var(--text-secondary);">1,300~1,380원 구간입니다. 수준 자체를 시장 안정이나 외국인 수급으로 환산하지 않습니다.</span>' :
-         '<span style="color:var(--green);">1,300원 미만 구간입니다. 내수 회복이나 외국인 유입 신호로 단독 해석하지 않습니다.</span>';
+    t += '<b class="krl-accent">원/달러 ' + kp.toFixed(0) + '원</b> — ';
+    t += kp > 1450 ? '<span class="krl-red">1,450원 상회 구간입니다. 전일 등락·외국인 수급·수입물가·정책 발언을 별도 확인하며 원인이나 업종 수혜를 단정하지 않습니다.</span>' :
+         kp > 1380 ? '<span class="krl-yellow">1,380원 상회 구간입니다. 환율 수준과 당일 방향을 구분하고 수급·금리차를 교차 확인합니다.</span>' :
+         kp > 1300 ? '<span class="krl-dim">1,300~1,380원 구간입니다. 수준 자체를 시장 안정이나 외국인 수급으로 환산하지 않습니다.</span>' :
+         '<span class="krl-green">1,300원 미만 구간입니다. 내수 회복이나 외국인 유입 신호로 단독 해석하지 않습니다.</span>';
     t += '<br>';
   }
   // 미국 금리 판단
   if (tnx && tnx.price) {
     var tp = tnx.price;
     t += '<b>미 10Y 금리 ' + tp.toFixed(2) + '%</b> — ';
-    t += tp > 4.8 ? '<span style="color:var(--red);">4.8% 상회 구간입니다. 할인율·달러·신용 스프레드 민감도를 함께 확인합니다.</span>' :
-         tp > 4.3 ? '<span style="color:var(--yellow);">4.3~4.8% 구간입니다. 성장주 밸류에이션 민감도를 관찰하되 자금 유출을 단정하지 않습니다.</span>' :
-         tp > 3.8 ? '<span style="color:var(--text-secondary);">3.8~4.3% 구간입니다. 인하 기대와 물가 경로를 후속 지표로 확인합니다.</span>' :
-         '<span style="color:var(--green);">3.8% 미만 구간입니다. 유동성 완화나 주가 상승을 자동 추론하지 않습니다.</span>';
+    t += tp > 4.8 ? '<span class="krl-red">4.8% 상회 구간입니다. 할인율·달러·신용 스프레드 민감도를 함께 확인합니다.</span>' :
+         tp > 4.3 ? '<span class="krl-yellow">4.3~4.8% 구간입니다. 성장주 밸류에이션 민감도를 관찰하되 자금 유출을 단정하지 않습니다.</span>' :
+         tp > 3.8 ? '<span class="krl-dim">3.8~4.3% 구간입니다. 인하 기대와 물가 경로를 후속 지표로 확인합니다.</span>' :
+         '<span class="krl-green">3.8% 미만 구간입니다. 유동성 완화나 주가 상승을 자동 추론하지 않습니다.</span>';
     t += '<br>';
   }
   // VIX 판단 (한국 영향)
   if (vix && vix.price) {
     var vp = vix.price;
     t += '<b>VIX ' + vp.toFixed(1) + '</b> — ';
-    t += vp >= 32 ? '<span style="color:var(--red);">32 이상 고변동 구간입니다. KOSPI 방향은 수급·환율과 별도 확인합니다.</span>' :
-         vp >= 25 ? '<span style="color:var(--yellow);">25~32 변동성 경계 구간입니다. 방향 신호가 아니라 예상 변동 범위 확대를 뜻합니다.</span>' :
-         vp >= 18 ? '<span style="color:var(--text-secondary);">18~25 통상 범위입니다. 한국 시장의 수급·실적을 별도 확인합니다.</span>' :
-         '<span style="color:var(--green);">18 미만 저변동 구간입니다. 안정이나 상승을 단독 예측하지 않습니다.</span>';
+    t += vp >= 32 ? '<span class="krl-red">32 이상 고변동 구간입니다. KOSPI 방향은 수급·환율과 별도 확인합니다.</span>' :
+         vp >= 25 ? '<span class="krl-yellow">25~32 변동성 경계 구간입니다. 방향 신호가 아니라 예상 변동 범위 확대를 뜻합니다.</span>' :
+         vp >= 18 ? '<span class="krl-dim">18~25 통상 범위입니다. 한국 시장의 수급·실적을 별도 확인합니다.</span>' :
+         '<span class="krl-green">18 미만 저변동 구간입니다. 안정이나 상승을 단독 예측하지 않습니다.</span>';
     t += '<br>';
   }
   // v38.5: 환율 스트레스 인덱스 (KRW 등락률 + VIX 조합)
@@ -1628,13 +1628,13 @@ function _generateKrMacroAnalysis(ld) {
     var stressLevel = krwStress > 5 ? '위험' : krwStress > 2.5 ? '주의' : '안정';
     var stressColor = krwStress > 5 ? 'var(--red)' : krwStress > 2.5 ? 'var(--yellow)' : 'var(--green)';
     t += '<br><b>【환율 스트레스 인덱스】 <span style="color:' + stressColor + ';">' + stressLevel + ' (' + krwStress.toFixed(1) + ')</span></b> — ';
-    t += '<span style="font-size:11px;color:var(--text-muted);">산출: |원/달러 등락률|×1.5 + VIX 초과분×0.3</span>';
+    t += '<span class="krl-note">산출: |원/달러 등락률|×1.5 + VIX 초과분×0.3</span>';
     if (krwStress > 5) {
-      t += '<br><span style="color:var(--red);">원/달러 절대 등락과 VIX가 함께 높은 관측입니다. 외국인 수급과 헤지 비용을 별도 확인합니다.</span>';
+      t += '<br><span class="krl-red">원/달러 절대 등락과 VIX가 함께 높은 관측입니다. 외국인 수급과 헤지 비용을 별도 확인합니다.</span>';
     } else if (krwStress > 2.5) {
-      t += '<br><span style="color:var(--yellow);">중간 수준 관측입니다. 환율·VIX의 관측시각과 외국인 수급을 교차 확인합니다.</span>';
+      t += '<br><span class="krl-yellow">중간 수준 관측입니다. 환율·VIX의 관측시각과 외국인 수급을 교차 확인합니다.</span>';
     } else {
-      t += '<br><span style="color:var(--green);">현재 입력상 낮은 수준입니다. 향후 안정이나 자산 성과를 보장하지 않습니다.</span>';
+      t += '<br><span class="krl-green">현재 입력상 낮은 수준입니다. 향후 안정이나 자산 성과를 보장하지 않습니다.</span>';
     }
     t += '<br>';
   }
@@ -1646,14 +1646,14 @@ function _generateKrMacroAnalysis(ld) {
     t += '<br><b>【수출 경기 서프라이즈 진단】</b> ';
     if (krwChg > 0.3 && kospiChg < -0.3) {
       // 원화 약세 + KOSPI 하락 = 정상 역상관 깨짐 → 진짜 위험
-      t += '<span style="color:var(--red);font-weight:700;">경고: 원화 약세(+' + krwChg.toFixed(1) + '%)인데 KOSPI도 하락(' + kospiChg.toFixed(1) + '%). ';
+      t += '<span class="krl-red krl-b">경고: 원화 약세(+' + krwChg.toFixed(1) + '%)인데 KOSPI도 하락(' + kospiChg.toFixed(1) + '%). ';
       t += '두 자산이 같은 방향으로 약세를 보인 관측입니다. 원인은 외국인 순매매·신용·실적 데이터로 별도 검증합니다.</span>';
     } else if (krwChg < -0.3 && kospiChg > 0.3) {
-      t += '<span style="color:var(--green);">원화 강세 + KOSPI 상승 동행입니다. 외국인 유입이나 실적 기대를 원인으로 단정하지 않습니다.</span>';
+      t += '<span class="krl-green">원화 강세 + KOSPI 상승 동행입니다. 외국인 유입이나 실적 기대를 원인으로 단정하지 않습니다.</span>';
     } else if (krwChg > 0.3 && kospiChg > 0.3) {
-      t += '<span style="color:var(--text-secondary);">원화 약세 + KOSPI 상승 동행입니다. 환차익 수혜 여부는 업종·기업별 실적으로 확인합니다.</span>';
+      t += '<span class="krl-dim">원화 약세 + KOSPI 상승 동행입니다. 환차익 수혜 여부는 업종·기업별 실적으로 확인합니다.</span>';
     } else {
-      t += '<span style="color:var(--text-secondary);">KOSPI ' + (kospiChg >= 0 ? '+' : '') + kospiChg.toFixed(1) + '% / 원/달러 ' + (krwChg >= 0 ? '+' : '') + krwChg.toFixed(1) + '%. 특이 디커플링 미감지.</span>';
+      t += '<span class="krl-dim">KOSPI ' + (kospiChg >= 0 ? '+' : '') + kospiChg.toFixed(1) + '% / 원/달러 ' + (krwChg >= 0 ? '+' : '') + krwChg.toFixed(1) + '%. 특이 디커플링 미감지.</span>';
     }
     t += '<br>';
   }
@@ -1666,11 +1666,11 @@ function _generateKrMacroAnalysis(ld) {
     var gapPct = kspChg - ksdqChg;
     t += '<br><b>【한국 시장 체력 진단】</b> KOSPI ' + (kspChg >= 0 ? '+' : '') + kspChg.toFixed(2) + '% / KOSDAQ ' + (ksdqChg >= 0 ? '+' : '') + ksdqChg.toFixed(2) + '% (갭 ' + (gapPct >= 0 ? '+' : '') + gapPct.toFixed(2) + '%p) — ';
     if (kspChg < 0 && ksdqChg < kspChg - 0.5) {
-      t += '<span style="color:var(--red);">KOSDAQ이 KOSPI보다 더 크게 하락했습니다. 소형주 수급·신용잔고·거래대금을 별도 확인합니다.</span>';
+      t += '<span class="krl-red">KOSDAQ이 KOSPI보다 더 크게 하락했습니다. 소형주 수급·신용잔고·거래대금을 별도 확인합니다.</span>';
     } else if (ksdqChg > kspChg + 0.5) {
-      t += '<span style="color:var(--green);">KOSDAQ이 KOSPI 대비 강세입니다. 개인 수급이나 성장주 선호를 원인으로 단정하지 않습니다.</span>';
+      t += '<span class="krl-green">KOSDAQ이 KOSPI 대비 강세입니다. 개인 수급이나 성장주 선호를 원인으로 단정하지 않습니다.</span>';
     } else {
-      t += '<span style="color:var(--text-secondary);">대형/소형주 동조. 시장 전반 방향성 일치. 특이 체력 괴리 없음.</span>';
+      t += '<span class="krl-dim">대형/소형주 동조. 시장 전반 방향성 일치. 특이 체력 괴리 없음.</span>';
     }
     t += '<br>';
   }
@@ -1681,34 +1681,34 @@ function _generateKrMacroAnalysis(ld) {
     var rateDiff = tnx.price - krRate;
     t += '<br><b>한미 금리차 ' + rateDiff.toFixed(1) + '%p</b> — ';
     if (rateDiff > 2.0) {
-      t += '<span style="color:var(--red);">극심한 금리차. 달러캐리 트레이드 유인 → 외국인 한국 채권 매도 + 주식 자금 유출. 원화 약세 가속 요인. ';
+      t += '<span class="krl-red">극심한 금리차. 달러캐리 트레이드 유인 → 외국인 한국 채권 매도 + 주식 자금 유출. 원화 약세 가속 요인. ';
       t += '→ 한은의 정책 딜레마: 금리 올리면 내수 충격, 안 올리면 자본 유출.</span>';
     } else if (rateDiff > 1.0) {
-      t += '<span style="color:var(--yellow);">금리차 확대 구간. 외국인 수급 불안정. 환헤지 비용 상승으로 외국인 채권 투자 매력 감소.</span>';
+      t += '<span class="krl-yellow">금리차 확대 구간. 외국인 수급 불안정. 환헤지 비용 상승으로 외국인 채권 투자 매력 감소.</span>';
     } else {
-      t += '<span style="color:var(--green);">금리차 안정. 외국인 자금 흐름 중립. 환율 변동성 제한적.</span>';
+      t += '<span class="krl-green">금리차 안정. 외국인 자금 흐름 중립. 환율 변동성 제한적.</span>';
     }
     t += '<br>';
     // v38.5: 금리 인하/인상 시나리오별 영향 분석
     t += '<br><b>【금리 시나리오 분석】</b> 현재 한은 기준금리 ' + krRate.toFixed(2) + '% / 미 10Y ' + tnx.price.toFixed(2) + '%<br>';
     var cutRate = krRate - 0.25;
     var hikeRate = krRate + 0.25;
-    t += '<span style="font-size:11px;"><b>한은 25bp 인하(' + cutRate.toFixed(2) + '%)시:</b> ';
+    t += '<span class="krl-sm"><b>한은 25bp 인하(' + cutRate.toFixed(2) + '%)시:</b> ';
     t += '한미 금리차 ' + (tnx.price - cutRate).toFixed(1) + '%p로 확대 → 원화 약세 압력↑, ';
     t += '단 내수·건설·중소형주 수혜. 대출금리↓ 소비회복 기대. ';
     if (tnx.price - cutRate > 2.0) {
-      t += '<span style="color:var(--red);">자본유출 위험 경계 수준 진입.</span>';
+      t += '<span class="krl-red">자본유출 위험 경계 수준 진입.</span>';
     } else {
-      t += '<span style="color:var(--yellow);">관리 가능한 수준.</span>';
+      t += '<span class="krl-yellow">관리 가능한 수준.</span>';
     }
     t += '</span><br>';
-    t += '<span style="font-size:11px;"><b>한은 25bp 인상(' + hikeRate.toFixed(2) + '%)시:</b> ';
+    t += '<span class="krl-sm"><b>한은 25bp 인상(' + hikeRate.toFixed(2) + '%)시:</b> ';
     t += '한미 금리차 ' + (tnx.price - hikeRate).toFixed(1) + '%p로 축소 → 원화 방어 효과, ';
     t += '단 내수 위축·가계부채 부담↑·중소기업 이자부담 가중. ';
     if (krw.price > 1400) {
-      t += '<span style="color:var(--yellow);">현 환율 수준에선 인상 압력 존재.</span>';
+      t += '<span class="krl-yellow">현 환율 수준에선 인상 압력 존재.</span>';
     } else {
-      t += '<span style="color:var(--text-secondary);">환율 안정적이라 인상 필요성 낮음.</span>';
+      t += '<span class="krl-dim">환율 안정적이라 인상 필요성 낮음.</span>';
     }
     t += '</span><br>';
   }
@@ -1718,12 +1718,12 @@ function _generateKrMacroAnalysis(ld) {
     var wp = wti.price;
     t += '<b>WTI $' + wp.toFixed(0) + ' → 한국 인과 체인</b> — ';
     if (wp > 90) {
-      t += '<span style="color:var(--red);">유가↑ → 수입물가↑ → CPI↑ → 한은 인하 지연 → 내수 약화 → 소비재·항공·운송 약세. ';
+      t += '<span class="krl-red">유가↑ → 수입물가↑ → CPI↑ → 한은 인하 지연 → 내수 약화 → 소비재·항공·운송 약세. ';
       t += '단, 정유(SK이노)·해운(HMM) 마진 확대 구간.</span>';
     } else if (wp > 75) {
-      t += '<span style="color:var(--yellow);">적정 범위이나 중동 변수 주시. 한국 무역수지에 중립.</span>';
+      t += '<span class="krl-yellow">적정 범위이나 중동 변수 주시. 한국 무역수지에 중립.</span>';
     } else {
-      t += '<span style="color:var(--green);">저유가 → 수입물가↓ → 무역수지 개선 → 한은 인하 여력↑ → 내수·건설·소비 수혜.</span>';
+      t += '<span class="krl-green">저유가 → 수입물가↓ → 무역수지 개선 → 한은 인하 여력↑ → 내수·건설·소비 수혜.</span>';
     }
     t += '<br>';
   }
@@ -1752,8 +1752,8 @@ function _generateKrMacroAnalysis(ld) {
   if (vixRisk) krConds.push('VIX 25 이상(변동성 경계 구간)');
   t += '<br><b>【종합 판단】</b> ';
   t += krConds.length
-    ? '<span style="font-weight:700;">해당 조건 ' + riskSum + '개/3개: ' + krConds.join(' · ') + '.</span> 예측 신호가 아니며, 업종별 영향은 실적·수급과 함께 따로 확인합니다.'
-    : '<span style="font-weight:700;">세 조건(환율 1,400원 초과 · 미국 10년 4.5% 초과 · VIX 25 이상)에 해당하지 않습니다.</span> 예측 신호가 아니며, 비중 판단은 개인 기준으로 합니다.';
+    ? '<span class="krl-b">해당 조건 ' + riskSum + '개/3개: ' + krConds.join(' · ') + '.</span> 예측 신호가 아니며, 업종별 영향은 실적·수급과 함께 따로 확인합니다.'
+    : '<span class="krl-b">세 조건(환율 1,400원 초과 · 미국 10년 4.5% 초과 · VIX 25 이상)에 해당하지 않습니다.</span> 예측 신호가 아니며, 비중 판단은 개인 기준으로 합니다.';
 
   // v40.4: 교차변수 심화 진단
   if (wti && wti.price && krw && krw.price && vix && vix.price) {
@@ -1761,19 +1761,19 @@ function _generateKrMacroAnalysis(ld) {
     var wp2 = wti.price, kp2 = krw.price, vp2 = vix.price;
     // 유가↑+원화↓ = 수입물가 이중 타격
     if (wp2 > 90 && kp2 > 1400) {
-      t += '<span style="color:var(--red);">유가 $' + wp2.toFixed(0) + ' + 원화 ' + Math.round(kp2) + '원 = 수입물가 이중 타격. 달러 기준 유가와 원화 약세가 결합하면 원화 기준 유가는 더 비쌈. 정유·에너지 수혜이나 물가↑→한은 인하 지연→내수 약화 연쇄.</span><br>';
+      t += '<span class="krl-red">유가 $' + wp2.toFixed(0) + ' + 원화 ' + Math.round(kp2) + '원 = 수입물가 이중 타격. 달러 기준 유가와 원화 약세가 결합하면 원화 기준 유가는 더 비쌈. 정유·에너지 수혜이나 물가↑→한은 인하 지연→내수 약화 연쇄.</span><br>';
     }
     // VIX↑+원화↓ = 외국인 이탈 가속
     if (vp2 > 25 && kp2 > 1400) {
-      t += '<span style="color:var(--red);">VIX ' + vp2.toFixed(0) + ' + 원화 약세 = 글로벌 위험 회피와 환손실 우려가 함께 거론되는 조합입니다. 외국인 수급은 따로 확인합니다.</span><br>';
+      t += '<span class="krl-red">VIX ' + vp2.toFixed(0) + ' + 원화 약세 = 글로벌 위험 회피와 환손실 우려가 함께 거론되는 조합입니다. 외국인 수급은 따로 확인합니다.</span><br>';
     }
     // 금리↑+원화↓ = 한은 딜레마 심화
     if (tnx && tnx.price > 4.5 && kp2 > 1400) {
-      t += '<span style="color:var(--yellow);">미국 고금리(' + tnx.price.toFixed(1) + '%) + 원화 약세 = 한은 정책 딜레마 심화. 인하하면 자본유출, 동결하면 내수 침체. "진퇴양난" 국면.</span><br>';
+      t += '<span class="krl-yellow">미국 고금리(' + tnx.price.toFixed(1) + '%) + 원화 약세 = 한은 정책 딜레마 심화. 인하하면 자본유출, 동결하면 내수 침체. "진퇴양난" 국면.</span><br>';
     }
     // 긍정 조합: VIX↓+원화↑
     if (vp2 < 18 && kp2 < 1350) {
-      t += '<span style="color:var(--green);">VIX ' + vp2.toFixed(0) + ' + 원화 강세(' + Math.round(kp2) + '원) = 과거 외국인 유입에 우호적이었던 조합(관측). 매수 타이밍 근거로는 사용하지 마세요.</span><br>';
+      t += '<span class="krl-green">VIX ' + vp2.toFixed(0) + ' + 원화 강세(' + Math.round(kp2) + '원) = 과거 외국인 유입에 우호적이었던 조합(관측). 매수 타이밍 근거로는 사용하지 마세요.</span><br>';
     }
   }
 
@@ -1806,7 +1806,7 @@ function _generateKrThemesAnalysis(ld) {
     var pct = coverage ? Math.round(coverage.weightedCoverage * 100) : 0;
     var count = coverage ? coverage.validThemeCount : 0;
     var total = coverage ? coverage.themeCount : Object.keys(KR_THEME_MAP).length;
-    el.innerHTML = '<b style="color:var(--data-amber);">테마 종합판정 보류</b> — 유효 테마 ' + count + '/' + total + ', 구성종목 가중 커버리지 ' + pct + '%. 결측 테마를 0% 또는 중립으로 간주하지 않습니다.';
+    el.innerHTML = '<b class="krl-amber">테마 종합판정 보류</b> — 유효 테마 ' + count + '/' + total + ', 구성종목 가중 커버리지 ' + pct + '%. 결측 테마를 0% 또는 중립으로 간주하지 않습니다.';
     return;
   }
   var validIds = coverage.validThemeIds;
@@ -1824,15 +1824,15 @@ function _generateKrThemesAnalysis(ld) {
   var coldCount = perfs.filter(function(p) { return p.perf <= -1; }).length;
   var avgPerf = perfs.reduce(function(s, p) { return s + p.perf; }, 0) / perfs.length;
 
-  var h = '<b style="color:var(--green);">상승 주도:</b> ' + top3.map(function(p) { return p.name + ' <b style="color:var(--green);">' + (p.perf >= 0 ? '+' : '') + p.perf.toFixed(1) + '%</b>'; }).join(', ') + '<br>';
-  h += '<b style="color:var(--red);">하락 주도:</b> ' + bot3.map(function(p) { return p.name + ' <b style="color:var(--red);">' + (p.perf >= 0 ? '+' : '') + p.perf.toFixed(1) + '%</b>'; }).join(', ') + '<br>';
+  var h = '<b class="krl-green">상승 주도:</b> ' + top3.map(function(p) { return p.name + ' <b class="krl-green">' + (p.perf >= 0 ? '+' : '') + p.perf.toFixed(1) + '%</b>'; }).join(', ') + '<br>';
+  h += '<b class="krl-red">하락 주도:</b> ' + bot3.map(function(p) { return p.name + ' <b class="krl-red">' + (p.perf >= 0 ? '+' : '') + p.perf.toFixed(1) + '%</b>'; }).join(', ') + '<br>';
   h += '<br>';
 
   // 시장 폭 판단
   h += '<b>【테마 폭 판단】</b> ';
-  if (hotCount >= perfs.length * 0.6) h += '<span style="color:var(--green);">유효 표본 내 강세 확산 ('+hotCount+'/'+perfs.length+' 상승). 진입 판단은 거래량·외국인/기관 수급·시장 지수 추세를 추가 확인.</span>';
-  else if (coldCount >= perfs.length * 0.6) h += '<span style="color:var(--red);">유효 표본 내 약세 확산 ('+coldCount+'/'+perfs.length+' 하락). 헤지는 보유 위험과 추세 확인 후 판단.</span>';
-  else h += '<span style="color:var(--yellow);">테마 차별화 장세. 순위는 관찰 신호이며 단독 매수·회피 지시가 아닙니다.</span>';
+  if (hotCount >= perfs.length * 0.6) h += '<span class="krl-green">유효 표본 내 강세 확산 ('+hotCount+'/'+perfs.length+' 상승). 진입 판단은 거래량·외국인/기관 수급·시장 지수 추세를 추가 확인.</span>';
+  else if (coldCount >= perfs.length * 0.6) h += '<span class="krl-red">유효 표본 내 약세 확산 ('+coldCount+'/'+perfs.length+' 하락). 헤지는 보유 위험과 추세 확인 후 판단.</span>';
+  else h += '<span class="krl-yellow">테마 차별화 장세. 순위는 관찰 신호이며 단독 매수·회피 지시가 아닙니다.</span>';
   h += '<br>';
 
   // 방어 vs 성장 판단
@@ -1846,8 +1846,8 @@ function _generateKrThemesAnalysis(ld) {
   if (defN > 0) defAvg /= defN;
   if (growN > 0) growAvg /= growN;
   h += '<b>【스타일 판단】</b> ';
-  if (growAvg > defAvg + 0.5) h += '<span style="color:var(--green);">성장 테마 상대우위 (성장 ' + growAvg.toFixed(1) + '% vs 방어 ' + defAvg.toFixed(1) + '%). 비중 변경 전 추세 지속성과 수급을 확인.</span>';
-  else if (defAvg > growAvg + 0.5) h += '<span style="color:var(--yellow);">방어 테마 상대우위 (방어 ' + defAvg.toFixed(1) + '% vs 성장 ' + growAvg.toFixed(1) + '%). 하루 수익률만으로 리스크오프를 확정하지 않음.</span>';
+  if (growAvg > defAvg + 0.5) h += '<span class="krl-green">성장 테마 상대우위 (성장 ' + growAvg.toFixed(1) + '% vs 방어 ' + defAvg.toFixed(1) + '%). 비중 변경 전 추세 지속성과 수급을 확인.</span>';
+  else if (defAvg > growAvg + 0.5) h += '<span class="krl-yellow">방어 테마 상대우위 (방어 ' + defAvg.toFixed(1) + '% vs 성장 ' + growAvg.toFixed(1) + '%). 하루 수익률만으로 리스크오프를 확정하지 않음.</span>';
   else h += '<span>성장·방어 균형. 모멘텀 추종보다 실적 기반 종목 선별 유효.</span>';
   h += '<br>';
 
@@ -1884,8 +1884,8 @@ function _generateKrThemesAnalysis(ld) {
     h += '<br><b>【한미 테마 연동 괴리】</b> ';
     linkAnalysis.forEach(function(la) {
       h += la.kr + ' ' + (la.krPct >= 0 ? '+' : '') + la.krPct.toFixed(1) + '% vs ' + la.us + ' ' + (la.usPct >= 0 ? '+' : '') + la.usPct.toFixed(1) + '% (괴리 ' + (la.gap >= 0 ? '+' : '') + la.gap.toFixed(1) + '%p) — ';
-      if (la.gap > 2) h += '<span style="color:var(--green);">한국 아웃퍼폼. 외국인 매수 또는 한국 고유 모멘텀(정책·수급). 지속성 확인 필요.</span>';
-      else if (la.gap < -2) h += '<span style="color:var(--red);">한국 언더퍼폼. 미국 대비 할인 — 외국인 매도 또는 원화 약세 디스카운트. 반등 시 캐치업 기회.</span>';
+      if (la.gap > 2) h += '<span class="krl-green">한국 아웃퍼폼. 외국인 매수 또는 한국 고유 모멘텀(정책·수급). 지속성 확인 필요.</span>';
+      else if (la.gap < -2) h += '<span class="krl-red">한국 언더퍼폼. 미국 대비 할인 — 외국인 매도 또는 원화 약세 디스카운트. 반등 시 캐치업 기회.</span>';
       h += '<br>';
     });
   }
@@ -1896,10 +1896,10 @@ function _generateKrThemesAnalysis(ld) {
     var topPerf = perfs[0].perf, botPerf = perfs[perfs.length - 1].perf;
     var perfRange = topPerf - botPerf;
     if (perfRange > 4) {
-      h += '<span style="color:var(--yellow);">테마 간 격차 ' + perfRange.toFixed(1) + '%p → 극단적 쏠림. 과열 테마에서 소외 테마로 순환매 전환 임박 가능. ';
+      h += '<span class="krl-yellow">테마 간 격차 ' + perfRange.toFixed(1) + '%p → 극단적 쏠림. 과열 테마에서 소외 테마로 순환매 전환 임박 가능. ';
       h += '하위 테마 중 펀더멘털 양호한 종목 관심.</span>';
     } else if (perfRange < 1.5) {
-      h += '<span style="color:var(--accent);">테마 간 격차 ' + perfRange.toFixed(1) + '%p → 동반 등락. 테마 선별보다 시장 방향성이 중요한 국면.</span>';
+      h += '<span class="krl-accent">테마 간 격차 ' + perfRange.toFixed(1) + '%p → 동반 등락. 테마 선별보다 시장 방향성이 중요한 국면.</span>';
     } else {
       h += '<span>정상적 차별화. 상위 테마 추종 + 하위 테마 역발상 병행.</span>';
     }
@@ -1912,17 +1912,17 @@ function _generateKrThemesAnalysis(ld) {
   if (krMacroVix || krMacroWti || krMacroKrw) {
     h += '<br><br><b>【거시 환경 → 테마 영향】</b><br>';
     if (krMacroWti && krMacroWti > 100) {
-      h += '<span style="color:var(--red);">유가 $' + krMacroWti.toFixed(0) + ' → 에너지·정유 수혜, 항공·운송·2차전지 역풍. 원자재 비용 부담이 테마 전반에 영향.</span><br>';
+      h += '<span class="krl-red">유가 $' + krMacroWti.toFixed(0) + ' → 에너지·정유 수혜, 항공·운송·2차전지 역풍. 원자재 비용 부담이 테마 전반에 영향.</span><br>';
     }
     if (krMacroKrw && krMacroKrw > 1400) {
-      h += '<span style="color:var(--yellow);">원화 약세(' + Math.round(krMacroKrw) + '원) → 수출테마(반도체·조선·자동차) 환율수혜 vs 수입의존(바이오원료·2차전지소재) 비용↑.</span><br>';
+      h += '<span class="krl-yellow">원화 약세(' + Math.round(krMacroKrw) + '원) → 수출테마(반도체·조선·자동차) 환율수혜 vs 수입의존(바이오원료·2차전지소재) 비용↑.</span><br>';
     }
     if (krMacroVix && krMacroVix > 25) {
-      h += '<span style="color:var(--red);">VIX ' + krMacroVix.toFixed(0) + '+ → 글로벌 공포 확산. 외국인 이탈 가속 → 소형주·테마주 변동성 극대화. 대형 방어테마(방산·원전·통신) 선호.</span><br>';
+      h += '<span class="krl-red">VIX ' + krMacroVix.toFixed(0) + '+ → 글로벌 공포 확산. 외국인 이탈 가속 → 소형주·테마주 변동성 극대화. 대형 방어테마(방산·원전·통신) 선호.</span><br>';
     }
     // 복합 시나리오
     if (krMacroWti && krMacroWti > 100 && krMacroKrw && krMacroKrw > 1400 && krMacroVix && krMacroVix > 25) {
-      h += '<span style="color:var(--red);font-weight:700;"> 삼중 부담(유가↑+원화↓+VIX↑)이 동시에 나타났습니다. 방어 테마와 현금 비중을 점검할 구간입니다.</span><br>';
+      h += '<span class="krl-red krl-b"> 삼중 부담(유가↑+원화↓+VIX↑)이 동시에 나타났습니다. 방어 테마와 현금 비중을 점검할 구간입니다.</span><br>';
     }
   }
 

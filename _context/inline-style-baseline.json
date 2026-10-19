@@ -3,8 +3,8 @@
   "generatedBy": "scripts/ci-inline-style-ratchet-check.mjs",
   "note": "Per-file inline style and sub-12px font-size counts. Shrink only; never raise a count or add a file.",
   "totals": {
-    "inline": 1989,
-    "belowFloor": 967
+    "inline": 1320,
+    "belowFloor": 696
   },
   "counts": {
     "index.html": {
@@ -12,32 +12,32 @@
       "belowFloor": 622
     },
     "js/aio-chat.js": {
-      "inline": 55,
-      "belowFloor": 18
+      "inline": 7,
+      "belowFloor": 7
     },
     "js/aio-core.js": {
-      "inline": 35,
-      "belowFloor": 20
+      "inline": 17,
+      "belowFloor": 10
     },
     "js/aio-data.js": {
-      "inline": 19,
-      "belowFloor": 13
+      "inline": 9,
+      "belowFloor": 6
     },
     "js/aio-kr-data.js": {
-      "inline": 133,
-      "belowFloor": 35
+      "inline": 15,
+      "belowFloor": 0
     },
     "js/aio-pages.js": {
-      "inline": 93,
-      "belowFloor": 40
+      "inline": 18,
+      "belowFloor": 0
     },
     "js/aio-ui.js": {
-      "inline": 261,
-      "belowFloor": 98
+      "inline": 35,
+      "belowFloor": 7
     },
     "js/aio-workspace.js": {
-      "inline": 200,
-      "belowFloor": 83
+      "inline": 26,
+      "belowFloor": 6
     },
     "src/ui/components/market-timeline.js": {
       "inline": 0,

@@ -4322,7 +4322,7 @@ function updateDataStatus() {
 
   // 프록시 stale 캐시 사용 중 표시
   const proxyStale = window._aioProxyStaleSince
-    ? ' · <span style="color:#f59e0b;">stale ' + (window._aioProxyStaleAgeMin || '?') + '분</span>'
+    ? ' · <span class="lda-st-stale">stale ' + (window._aioProxyStaleAgeMin || '?') + '분</span>'
     : '';
 
   // SW 버전 툴팁용 — 비동기 쿼리이므로 마지막으로 수신한 값 캐시
@@ -4332,8 +4332,8 @@ function updateDataStatus() {
   const appVer = (typeof APP_VERSION === 'string' ? APP_VERSION : (window.AIO && window.AIO.version) || '');
   const swMismatch = !!(swVer && appVer && swVer !== appVer);
   const swBadge = swMismatch
-    ? ' · <span style="color:#f87171;">SW ' + escHtml(swVer) + '≠' + escHtml(appVer) + '</span>'
-    : (swVer ? ' · <span style="color:var(--text-muted);">SW ' + escHtml(swVer) + '</span>' : '');
+    ? ' · <span class="lda-st-swbad">SW ' + escHtml(swVer) + '≠' + escHtml(appVer) + '</span>'
+    : (swVer ? ' · <span class="lda-st-sw">SW ' + escHtml(swVer) + '</span>' : '');
   if (swMismatch && window._aioSWMismatchLogged !== swVer + ':' + appVer) {
     window._aioSWMismatchLogged = swVer + ':' + appVer;
     if (typeof _aioLog === 'function') _aioLog('warn', 'sw', 'Service worker version mismatch: ' + swVer + ' vs app ' + appVer);
@@ -5146,8 +5146,7 @@ function _aioCheckManualFieldStaleness() {
     bar.querySelectorAll('.stale-manual-pill').forEach(function(el) { el.remove(); });
     staleResults.forEach(function(r) {
       var pill = document.createElement('span');
-      pill.className = 'stale-manual-pill';
-      pill.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:10px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;cursor:default;';
+      pill.className = 'stale-manual-pill'; // styled in legacy-data.css
       pill.title = r.label + ' — 마지막 업데이트 ' + r.date + ' (' + r.days + '일 경과). 정책 발표/공식 소스 확인 후 갱신됩니다.';
       pill.textContent = '' + r.label + ' ' + r.days + '일 경과';
       bar.appendChild(pill);
@@ -5443,9 +5442,9 @@ function _aioRenderPipelineStatus() {
     if (msgs.length === 0) { bar.style.display = 'none'; return; }
 
     var html = msgs.map(function(m) {
-      return '<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,0,0,0.25);border-left:2px solid ' + m.color + ';padding:3px 8px;border-radius:3px;font-size:10px;" title="' + m.detail.replace(/"/g,'&quot;') + '">'
+      return '<span class="lda-pipe" style="border-left-color:' + m.color + ';" title="' + m.detail.replace(/"/g,'&quot;') + '">'
            + m.icon + ' <b>' + m.text + '</b>'
-           + ' <span style="color:var(--text-muted);font-size:10px;">' + m.detail + '</span>'
+           + ' <span class="lda-pipe-detail">' + m.detail + '</span>'
            + '</span>';
     }).join('');
 
@@ -9128,10 +9127,10 @@ async function freeTranslateNews(items) {
   var _usableKo = items.filter(function(i) { return i.title && !isKoreanText(i.title) && _hasUsableTranslation(i); }).length;
   var _stillOriginal = Math.max(0, _foreignCount - _usableKo);
   var statusMsg = _usableKo === _foreignCount ? '해외 기사 ' + _foreignCount + '건 모두 한국어 제목' : '해외 기사 ' + _foreignCount + '건 중 ' + _usableKo + '건 한국어 제목';
-  if (_stillOriginal > 0) statusMsg += ' · <span style="color:#f87171;">' + _stillOriginal + '건은 원문 제목 그대로</span>';
+  if (_stillOriginal > 0) statusMsg += ' · <span class="lda-tr-left">' + _stillOriginal + '건은 원문 제목 그대로</span>';
   failed = _stillOriginal;
   statusMsg += ' · ';
-  if (statusEl) statusEl.innerHTML = statusMsg + (failed > 0 ? ' · 네트워크를 확인한 뒤 다시 시도하세요. ' : '') + '<button type="button" style="display:inline-flex;align-items:center;min-height:28px;padding:2px 6px;background:none;border:0;font:inherit;cursor:pointer;text-decoration:underline;color:#fbbf24;" data-action="openApiKeyConfig">공용 AI 연결 시 해석 추가</button>'; // P1362: native keyboard action and stable hit target.
+  if (statusEl) statusEl.innerHTML = statusMsg + (failed > 0 ? ' · 네트워크를 확인한 뒤 다시 시도하세요. ' : '') + '<button type="button" class="lda-tr-ai" data-action="openApiKeyConfig">공용 AI 연결 시 해석 추가</button>'; // P1362: native keyboard action and stable hit target.
   if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(failed > 0 ? { status: 503, message: 'translation partial failure' } : { status: 200, message: 'success' }, { source: 'translation' });
   // P4 수정: 번역 완료 후 캐시 저장
   _tcSaveToStorage();
@@ -13264,11 +13263,11 @@ function applyLiveQuotes(quotes) {
         var extLabel = q.extSession === 'pre' ? 'Pre' : 'After';
         var extColor = extPctVal != null ? (extPctVal >= 0 ? '#00e5a0' : '#ff5b50') : 'var(--text-muted)';
         if (_usS === 'pre' || _usS === 'after') {
-          _extHeroEl.innerHTML = '<span style="font-size:11px;color:#94a3b8;">종가 ' +
+          _extHeroEl.innerHTML = '<span class="lda-ext-close">종가 ' +
             price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>' +
-            '<span style="font-size:11px;color:#64748b;margin:0 4px;">→</span>' +
-            '<span style="font-size:11px;color:#a78bfa;margin-right:3px;">' + extLabel + '</span>' +
-            '<span style="font-size:10px;color:' + extColor + ';font-weight:700;font-family:var(--font-mono);">' +
+            '<span class="lda-ext-arrow">→</span>' +
+            '<span class="lda-ext-sess">' + extLabel + '</span>' +
+            '<span class="lda-ext-px" style="color:' + extColor + ';">' +
             q.extPrice.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) +
             ' (' + (extPctVal != null ? (extPctVal >= 0 ? '+' : '') + extPctVal.toFixed(2) + '%' : '—') + ')</span>';
           _extHeroEl.style.display = '';

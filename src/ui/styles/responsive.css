@@ -18,6 +18,13 @@
 @import url('./news-page.css'); /* 2026-10-19 layout system: 뉴스 page inline styles */
 @import url('./guide-page.css'); /* 2026-10-19 layout system: 가이드 search results */
 @import url('./knowledge-arrival.css'); /* 2026-10-19 layout system: research-document arrival note */
+@import url('./legacy-ui.css'); /* 2026-10-19 layout system: js/ classic-script templates (aio-ui, chat, core, data, workspace, kr-data, pages) */
+@import url('./legacy-chat.css');
+@import url('./legacy-core.css');
+@import url('./legacy-data.css');
+@import url('./legacy-workspace.css');
+@import url('./legacy-kr.css');
+@import url('./legacy-pages.css');
 /* UI review 2026-10-18: one page header for every screen. The screens had three hand-written variants
    (thin rule 8px, strong rule 20px, no rule — the subtitle then touched the first section's rule), and a
    first section that draws its own top rule doubled the header rule. */

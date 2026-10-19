@@ -104,12 +104,12 @@ function drawPositionDonut() {
     var lh = '';
     items.slice(0, 8).forEach(function(d, i) {
       var col = d.ticker === 'CASH' ? 'var(--text-muted)' : TICKER_COLORS[i % TICKER_COLORS.length];
-      lh += '<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:11px;">';
-      lh += '<span style="font-weight:600;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + col + ';margin-right:6px;vertical-align:middle;"></span>' + d.ticker + '</span>';
-      lh += '<span style="font-family:var(--font-mono);color:' + col + ';font-weight:700;">' + (d.pct * 100).toFixed(1) + '%</span>';
+      lh += '<div class="pgl-dl-row">';
+      lh += '<span class="pgl-dl-name"><span class="pgl-dl-dot" style="background:' + col + ';"></span>' + d.ticker + '</span>';
+      lh += '<span class="pgl-dl-pct" style="color:' + col + ';">' + (d.pct * 100).toFixed(1) + '%</span>';
       lh += '</div>';
     });
-    if (items.length > 8) lh += '<div style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:4px;">+' + (items.length - 8) + '개 더</div>';
+    if (items.length > 8) lh += '<div class="pgl-dl-more">+' + (items.length - 8) + '개 더</div>';
     legendEl.innerHTML = lh;
   }
 
@@ -310,7 +310,7 @@ async function loadEarningsCalendar() {
   var fromStr = monday.toISOString().slice(0, 10);
   var toStr = friday.toISOString().slice(0, 10);
 
-  body.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--text-muted);font-size:10px;"><span class="aio-spinner" style="margin-right:8px;"></span>어닝 캘린더 요청 중… (' + fromStr + ' ~ ' + toStr + ')</div>';
+  body.innerHTML = '<div class="pgl-ec-msg is-wait"><span class="aio-spinner pgl-ec-spin"></span>어닝 캘린더 요청 중… (' + fromStr + ' ~ ' + toStr + ')</div>';
 
   // v57.76: personal API keys are retired, so the Finnhub branch (always skipped) is gone; the stored
   // public-data snapshot is the only source.
@@ -329,11 +329,11 @@ async function loadEarningsCalendar() {
       }
       return;
     }
-    body.innerHTML = '<div style="grid-column:1/-1;padding:26px;text-align:center;color:var(--text-muted);font-size:10px;line-height:1.7;">이번 주 실적 발표 일정을 아직 받지 못했습니다. 다음 자동 갱신 때 다시 표시됩니다.</div>';
+    body.innerHTML = '<div class="pgl-ec-msg is-empty">이번 주 실적 발표 일정을 아직 받지 못했습니다. 다음 자동 갱신 때 다시 표시됩니다.</div>';
     var st = document.getElementById('earn-cal-status'); if (st) st.textContent = '일정 없음';
   } catch(e) {
     _aioLog('warn', 'fetch', 'earnings calendar error: ' + e.message);
-    body.innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--text-muted);font-size:10px;">실적 발표 일정을 불러오지 못했습니다</div>';
+    body.innerHTML = '<div class="pgl-ec-msg">실적 발표 일정을 불러오지 못했습니다</div>';
   }
 }
 
@@ -366,17 +366,17 @@ function _renderEarningsCalendarWeekly(body, earnings, ipos, monday, friday) {
     var dayColor = isToday ? 'var(--data-green)' : 'var(--text-muted)';
     var dayLabel = dayLabels[day.date.getDay()] + ' ' + day.date.getDate();
 
-    html += '<div class="aio-earn-day" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:6px;display:flex;flex-direction:column;gap:6px;">';
-    html += '<div style="text-align:center;padding:4px 6px;background:' + (isToday ? 'rgba(34,117,76,0.1)' : 'var(--surface-2)') + ';border-radius:3px;font-size:10px;font-weight:700;color:' + dayColor + ';font-family:var(--font-mono);">' + dayLabel + (isToday ? ' · 오늘' : '') + '</div>';
+    html += '<div class="aio-earn-day pgl-ec-day">';
+    html += '<div class="pgl-ec-dayhd' + (isToday ? ' is-today' : '') + '">' + dayLabel + (isToday ? ' · 오늘' : '') + '</div>';
 
     // IPO 섹션 (있을 때만)
     if (day.ipos.length > 0) {
-      html += '<div style="background:rgba(var(--ink-rgb),0.08);border:1px solid rgba(var(--ink-rgb),0.25);border-radius:3px;padding:4px 6px;">';
-      html += '<div style="font-size:11px;font-weight:700;color:var(--data-purple);margin-bottom:3px;">IPO · ' + day.ipos.length + '건</div>';
+      html += '<div class="pgl-ec-ipo">';
+      html += '<div class="pgl-ec-ipo-t">IPO · ' + day.ipos.length + '건</div>';
       day.ipos.slice(0, 3).forEach(function(p) {
-        html += '<div style="font-size:11px;color:var(--text-primary);font-family:var(--font-mono);line-height:1.4;">' + escHtml(p.symbol || '?') + ' <span style="color:var(--text-muted);font-size:11px;">' + escHtml((p.name||'').slice(0,18)) + '</span></div>';
+        html += '<div class="pgl-ec-ipo-sym">' + escHtml(p.symbol || '?') + ' <span class="pgl-note">' + escHtml((p.name||'').slice(0,18)) + '</span></div>';
       });
-      if (day.ipos.length > 3) html += '<div style="font-size:11px;color:var(--text-muted);">+' + (day.ipos.length - 3) + '</div>';
+      if (day.ipos.length > 3) html += '<div class="pgl-note">+' + (day.ipos.length - 3) + '</div>';
       html += '</div>';
     }
 
@@ -390,7 +390,7 @@ function _renderEarningsCalendarWeekly(body, earnings, ipos, monday, friday) {
     }
     // 빈 날
     if (day.bmo.length === 0 && day.amc.length === 0 && day.ipos.length === 0) {
-      html += '<div style="padding:20px 4px;text-align:center;color:var(--text-muted);font-size:11px;opacity:0.5;">(발표 없음)</div>';
+      html += '<div class="pgl-ec-none">(발표 없음)</div>';
     }
     html += '</div>';
   });
@@ -399,19 +399,19 @@ function _renderEarningsCalendarWeekly(body, earnings, ipos, monday, friday) {
 
 // v48.56: 어닝 섹션 (BMO/AMC) 렌더러
 function _renderEarnSection(icon, label, items, maxVisible, bgColor, borderColor, titleColor) {
-  var html = '<div style="background:' + bgColor + ';border:1px solid ' + borderColor + ';border-radius:3px;padding:4px 5px;">';
-  html += '<div style="font-size:11px;font-weight:700;color:' + titleColor + ';margin-bottom:3px;">' + icon + ' ' + label + '</div>';
-  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;">';
+  var html = '<div class="pgl-ec-sess" style="background:' + bgColor + ';border-color:' + borderColor + ';">';
+  html += '<div class="pgl-ec-sess-t" style="color:' + titleColor + ';">' + icon + ' ' + label + '</div>';
+  html += '<div class="pgl-ec-syms">';
   items.slice(0, maxVisible).forEach(function(e) {
     var sym = e.symbol || '?';
     var epsEst = e.epsEstimate != null ? '$' + parseFloat(e.epsEstimate).toFixed(2) : '';
     // v57.81: the third-party logo hotlink (a retired provider's image host) is gone; the ticker text is the card face.
-    html += '<div class="aio-earn-card" data-action="_aioNewsTickerClick" data-arg="' + escHtml(sym) + '" role="button" tabindex="0" style="background:var(--surface-4);border:1px solid var(--border);border-radius:4px;padding:3px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;transition:border-color var(--dur-fast);" title="' + escHtml(sym) + ' 어닝 ' + epsEst + '">';
-    html += '<span style="font-size:11px;font-weight:700;color:var(--text-secondary);font-family:var(--font-mono);">' + escHtml(sym) + '</span>';
+    html += '<div class="aio-earn-card pgl-ec-sym" data-action="_aioNewsTickerClick" data-arg="' + escHtml(sym) + '" role="button" tabindex="0" title="' + escHtml(sym) + ' 어닝 ' + epsEst + '">';
+    html += '<span class="pgl-ec-sym-t">' + escHtml(sym) + '</span>';
     html += '</div>';
   });
   if (items.length > maxVisible) {
-    html += '<div style="background:var(--surface-3);border:1px solid var(--border);border-radius:4px;padding:3px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--text-muted);">+' + (items.length - maxVisible) + '</div>';
+    html += '<div class="pgl-ec-more">+' + (items.length - maxVisible) + '</div>';
   }
   html += '</div></div>';
   return html;
@@ -1081,23 +1081,23 @@ function renderSectorPerfBars() {
     var isPos = chgVal >= 0;
     var barColor = s.chg != null ? (isPos ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
     var barWidth = Math.abs(chgVal) / maxAbs * 45;
-    var qBadge = s.chg == null ? '<span style="color:var(--text-muted);font-size:10px;">●대기</span>' :
-                 s.q === 'Leading' ? '<span style="color:var(--data-green);font-size:10px;">●선도</span>' :
-                 s.q === 'Improving' ? '<span style="color:var(--data-cyan);font-size:10px;">●개선</span>' :
-                 s.q === 'Weakening' ? '<span style="color:var(--data-amber);font-size:10px;">●약화</span>' :
-                 '<span style="color:var(--data-red);font-size:10px;">●후행</span>';
-    html += '<div style="display:flex;align-items:center;gap:3px;height:20px;">' +
-      '<span style="width:35px;font-size:11px;font-weight:700;color:var(--text-secondary);text-align:right;">' + s.sym + '</span>' +
-      '<span style="width:45px;font-size:10px;color:var(--text-muted);text-align:right;">' + s.name + '</span>' +
-      '<div style="flex:1;display:flex;align-items:center;position:relative;">' +
-        '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(var(--ink-rgb),0.1);"></div>' +
+    var qBadge = s.chg == null ? '<span class="pgl-sp-q is-wait">●대기</span>' :
+                 s.q === 'Leading' ? '<span class="pgl-sp-q is-lead">●선도</span>' :
+                 s.q === 'Improving' ? '<span class="pgl-sp-q is-improve">●개선</span>' :
+                 s.q === 'Weakening' ? '<span class="pgl-sp-q is-weak">●약화</span>' :
+                 '<span class="pgl-sp-q is-lag">●후행</span>';
+    html += '<div class="pgl-sp-row">' +
+      '<span class="pgl-sp-sym">' + s.sym + '</span>' +
+      '<span class="pgl-sp-name">' + s.name + '</span>' +
+      '<div class="pgl-sp-track">' +
+        '<div class="pgl-sp-zero"></div>' +
         (isPos ?
-          '<div style="margin-left:50%;height:12px;width:' + barWidth + '%;background:' + barColor + ';border-radius:0 3px 3px 0;min-width:2px;"></div>' :
-          '<div style="margin-left:calc(50% - ' + barWidth + '%);height:12px;width:' + barWidth + '%;background:' + barColor + ';border-radius:3px 0 0 3px;min-width:2px;"></div>'
+          '<div class="pgl-sp-bar is-pos" style="width:' + barWidth + '%;background:' + barColor + ';"></div>' :
+          '<div class="pgl-sp-bar is-neg" style="margin-left:calc(50% - ' + barWidth + '%);width:' + barWidth + '%;background:' + barColor + ';"></div>'
         ) +
       '</div>' +
-      '<span style="width:62px;text-align:right;font-size:12px;font-weight:700;font-family:var(--font-mono);color:' + barColor + ';flex-shrink:0;">' + (s.chg != null ? ((isPos?'+':'') + s.chg.toFixed(2) + '%') : '—') + '</span>' +
-      '<span style="width:36px;text-align:center;flex-shrink:0;">' + qBadge + '</span>' +
+      '<span class="pgl-sp-val" style="color:' + barColor + ';">' + (s.chg != null ? ((isPos?'+':'') + s.chg.toFixed(2) + '%') : '—') + '</span>' +
+      '<span class="pgl-sp-qcell">' + qBadge + '</span>' +
     '</div>';
   });
   container.innerHTML = html;
@@ -1142,13 +1142,13 @@ function showThemeDetail(themeId) {
   var isPos = hasPerf && perf.chgPct >= 0;
   var chgColor = hasPerf ? (isPos ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
 
-  var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
-    '<div><span style="font-size:13px;font-weight:900;">' + theme.nameKr + '</span>' +
-    (theme.etf ? ' <span style="font-size:13px;font-family:var(--font-mono);color:var(--text-muted);">' + theme.etf + '</span>' : '') +
+  var html = '<div class="pgl-td-head">' +
+    '<div><span class="pgl-td-name">' + theme.nameKr + '</span>' +
+    (theme.etf ? ' <span class="pgl-td-etf">' + theme.etf + '</span>' : '') +
     '</div>' +
-    '<div style="text-align:right;">' +
-      '<span style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:' + chgColor + ';">' + (hasPerf ? ((isPos?'+':'') + perf.chgPct.toFixed(2) + '%') : 'LIVE REQUIRED') + '</span>' +
-      '<div style="font-size:11px;color:var(--text-muted);">via ' + perf.source + (perf.count != null && perf.total ? ' · ' + perf.count + '/' + perf.total : '') + '</div>' +
+    '<div class="pgl-end">' +
+      '<span class="pgl-td-pct" style="color:' + chgColor + ';">' + (hasPerf ? ((isPos?'+':'') + perf.chgPct.toFixed(2) + '%') : 'LIVE REQUIRED') + '</span>' +
+      '<div class="pgl-note">via ' + perf.source + (perf.count != null && perf.total ? ' · ' + perf.count + '/' + perf.total : '') + '</div>' +
     '</div>' +
   '</div>';
 
@@ -1254,22 +1254,22 @@ function showSubThemeDetail(subThemeId) {
   var chgColor = hasPerf ? (isPos ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
 
   // ── 헤더 ──
-  var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">' +
-    '<div><span style="font-size:15px;font-weight:900;">' + st.name + '</span>' +
-    (st.etf ? ' <span style="font-size:13px;font-family:var(--font-mono);color:var(--accent);">' + st.etf + '</span>' : '') +
+  var html = '<div class="pgl-sd-head">' +
+    '<div><span class="pgl-sd-name">' + st.name + '</span>' +
+    (st.etf ? ' <span class="pgl-sd-etf">' + st.etf + '</span>' : '') +
     '</div>' +
-    '<div style="text-align:right;">' +
-      '<span style="font-size:16px;font-weight:900;font-family:var(--font-mono);color:' + chgColor + ';">' + _themeFmtPct(perf.chgPct, 2, 'LIVE REQUIRED') + '</span>' +
-      '<div style="font-size:10px;color:var(--text-muted);">via ' + perf.source + '</div>' +
+    '<div class="pgl-end">' +
+      '<span class="pgl-sd-pct" style="color:' + chgColor + ';">' + _themeFmtPct(perf.chgPct, 2, 'LIVE REQUIRED') + '</span>' +
+      '<div class="pgl-sub">via ' + perf.source + '</div>' +
     '</div>' +
   '</div>';
 
   // ── 테마 설명 ──
-  html += '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;padding:8px 10px;background:var(--surface-1);border-radius:3px;">' + st.desc + '</div>';
+  html += '<div class="pgl-sd-desc">' + st.desc + '</div>';
 
   // ── 전 종목 상세 테이블 ──
-  html += '<div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">전 종목 상세 (All ' + st.tickers.length + ' Stocks)</div>';
-  html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:4px;margin-bottom:12px;">';
+  html += '<div class="pgl-sd-h">전 종목 상세 (All ' + st.tickers.length + ' Stocks)</div>';
+  html += '<div class="pgl-sd-tickers">';
 
   // 종목별 데이터 수집 및 정렬
   var tickerData = st.tickers.map(function(t) {
@@ -1291,13 +1291,13 @@ function showSubThemeDetail(subThemeId) {
     var pctStr = !td.hasData ? '—' : ((td.pct >= 0 ? '+' : '') + td.pct.toFixed(2) + '%');
     var priceStr = !td.hasData ? '' : ('$' + (td.price >= 1000 ? td.price.toLocaleString(undefined,{maximumFractionDigits:0}) : td.price.toFixed(2)));
     var w = (st.weights && st.weights[td.ticker]) ? st.weights[td.ticker] : null;
-    var wStr = w ? '<span style="font-size:11px;color:var(--text-muted);"> ' + w + '%</span>' : '';
-    html += '<div style="background:var(--surface-1);border:1px solid var(--surface-4);border-radius:3px;padding:5px 6px;">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;">' +
-        '<span style="font-size:12px;font-weight:800;font-family:var(--font-mono);">' + td.ticker + wStr + '</span>' +
-        '<span style="font-size:11px;font-weight:700;font-family:var(--font-mono);color:' + tcol + ';">' + pctStr + '</span>' +
+    var wStr = w ? '<span class="pgl-note"> ' + w + '%</span>' : '';
+    html += '<div class="pgl-sd-tk">' +
+      '<div class="pgl-sd-tkrow">' +
+        '<span class="pgl-sd-tksym">' + td.ticker + wStr + '</span>' +
+        '<span class="pgl-sd-tkpct" style="color:' + tcol + ';">' + pctStr + '</span>' +
       '</div>' +
-      (priceStr ? '<div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">' + priceStr + '</div>' : '') +
+      (priceStr ? '<div class="pgl-sd-tkpx">' + priceStr + '</div>' : '') +
     '</div>';
   });
   html += '</div>';
@@ -1306,8 +1306,8 @@ function showSubThemeDetail(subThemeId) {
   var dataCount = tickerData.filter(function(td) { return td.hasData; }).length;
   var coveragePct = Math.round(dataCount / st.tickers.length * 100);
   if (coveragePct < 100) {
-    html += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;">데이터 수신: ' + dataCount + '/' + st.tickers.length + ' (' + coveragePct + '%) — ' +
-      (coveragePct < 50 ? '<span style="color:var(--data-amber);">장 마감 또는 데이터 지연으로 일부 종목 미수신</span>' : '대부분 수신 완료') + '</div>';
+    html += '<div class="pgl-sd-cov">데이터 수신: ' + dataCount + '/' + st.tickers.length + ' (' + coveragePct + '%) — ' +
+      (coveragePct < 50 ? '<span class="pgl-amber">장 마감 또는 데이터 지연으로 일부 종목 미수신</span>' : '대부분 수신 완료') + '</div>';
   }
 
   // ── 브레드스 ──
@@ -1323,23 +1323,23 @@ function showSubThemeDetail(subThemeId) {
   });
   if (totalValid > 0) {
     var breadth = Math.round(above / totalValid * 100);
-    html += '<div style="margin-bottom:10px;">' +
-      '<div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px;">브레드스 (종목 건강도)</div>' +
-      '<div style="display:flex;gap:8px;align-items:center;">' +
-        '<div style="flex:1;height:6px;background:var(--surface-4);border-radius:3px;overflow:hidden;display:flex;">' +
-          '<div style="width:' + breadth + '%;background:var(--data-green);"></div>' +
-          '<div style="width:' + Math.round(flat/totalValid*100) + '%;background:#888;"></div>' +
-          '<div style="width:' + Math.round(below/totalValid*100) + '%;background:var(--data-red);"></div>' +
+    html += '<div class="pgl-sd-br">' +
+      '<div class="pgl-sd-h is-tight">브레드스 (종목 건강도)</div>' +
+      '<div class="pgl-sd-brrow">' +
+        '<div class="pgl-sd-brtrack">' +
+          '<div class="pgl-sd-seg is-up" style="width:' + breadth + '%;"></div>' +
+          '<div class="pgl-sd-seg is-flat" style="width:' + Math.round(flat/totalValid*100) + '%;"></div>' +
+          '<div class="pgl-sd-seg is-down" style="width:' + Math.round(below/totalValid*100) + '%;"></div>' +
         '</div>' +
-        '<span style="font-size:11px;color:' + (breadth>50?'var(--data-green)':'var(--data-red)') + ';font-weight:700;">' + breadth + '% 상승(전일 대비)</span>' +
+        '<span class="pgl-sd-brpct' + (breadth>50?' is-up':' is-down') + '">' + breadth + '% 상승(전일 대비)</span>' +
       '</div>' +
-      '<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">상승 ' + above + ' · 보합 ' + flat + ' · 하락 ' + below + ' / ' + totalValid + '종목</div>' +
+      '<div class="pgl-sd-brfoot">상승 ' + above + ' · 보합 ' + flat + ' · 하락 ' + below + ' / ' + totalValid + '종목</div>' +
     '</div>';
   }
 
   // ── 심층 분석 ──
-  html += '<div style="margin-top:10px;padding:14px;background:rgba(var(--ink-rgb),0.05);border:1px solid rgba(var(--ink-rgb),0.15);border-radius:4px;">';
-  html += '<div style="font-size:13px;font-weight:900;color:var(--accent);margin-bottom:10px;">심층 분석 — ' + st.name + '</div>';
+  html += '<div class="pgl-deep">';
+  html += '<div class="pgl-deep-t">심층 분석 — ' + st.name + '</div>';
   var sections = [];
 
   // 1) 온도 진단
@@ -1398,12 +1398,12 @@ function showSubThemeDetail(subThemeId) {
         _snIsStale = _snStaleDays > (THEME_NARRATIVES_META.staleDays || 90);
       } catch(e) {}
     }
-    var _staleBadge = ' <span style="font-size:11px;font-weight:700;padding:2px 6px;border-radius:3px;margin-left:6px;background:' + (_snIsStale ? 'rgba(177,58,48,0.15);color:var(--data-red);border:1px solid rgba(177,58,48,0.3)' : 'rgba(var(--ink-rgb),0.1);color:var(--data-cyan);border:1px solid rgba(var(--ink-rgb),0.2)') + ';">' + (_snIsStale ? 'STALE ' : '') + (THEME_NARRATIVES_META && THEME_NARRATIVES_META.lastUpdated || 'N/A') + ' · 경과 ' + _snStaleDays + '일</span>';
+    var _staleBadge = ' <span class="pgl-stale' + (_snIsStale ? ' is-stale' : '') + '">' + (_snIsStale ? 'STALE ' : '') + (THEME_NARRATIVES_META && THEME_NARRATIVES_META.lastUpdated || 'N/A') + ' · 경과 ' + _snStaleDays + '일</span>';
 
     sections.push('');
     sections.push(' <b>테마 스토리 · 밸류체인 (기관 리서치 톤)</b>' + _staleBadge);
     if (_snIsStale) {
-      sections.push('<span style="color:var(--data-red);font-size:10px;">narrative 작성일부터 ' + _snStaleDays + '일 경과 — 구체 수치(매출·수주·시총·가이던스)는 AI 채팅/웹검색으로 crosscheck 권장</span>');
+      sections.push('<span class="pgl-stale-note">narrative 작성일부터 ' + _snStaleDays + '일 경과 — 구체 수치(매출·수주·시총·가이던스)는 AI 채팅/웹검색으로 crosscheck 권장</span>');
     }
     if (sn.why) sections.push('<b>왜 지금 HOT한가:</b> ' + sn.why);
     if (sn.valueChain) sections.push('<b>밸류체인 구조:</b> ' + sn.valueChain);
@@ -1421,7 +1421,7 @@ function showSubThemeDetail(subThemeId) {
         var newsHtml = recentNews.map(function(n) {
           var dt = n.pubDate ? new Date(n.pubDate) : null;
           var dtStr = dt ? (dt.getMonth()+1) + '/' + dt.getDate() : '';
-          return '&nbsp;&nbsp;<span style="color:var(--data-cyan);">[' + dtStr + ']</span> ' + (n.title || '').substring(0, 140) + (n.source ? ' <span style="color:var(--text-muted);font-size:11px;">(' + n.source + ')</span>' : '');
+          return '&nbsp;&nbsp;<span class="pgl-cyan">[' + dtStr + ']</span> ' + (n.title || '').substring(0, 140) + (n.source ? ' <span class="pgl-note">(' + n.source + ')</span>' : '');
         }).join('<br>');
         sections.push('<b>최근 7일 뉴스 (최근 수집, ' + recentNews.length + '건):</b><br>' + newsHtml);
       }
@@ -1429,8 +1429,8 @@ function showSubThemeDetail(subThemeId) {
   }
 
   html += sections.map(function(s) {
-    if (!s) return '<hr style="border:none;border-top:1px solid var(--surface-4);margin:6px 0;">';
-    return '<div style="font-size:11px;color:var(--text-secondary);line-height:1.7;margin-bottom:4px;">' + s + '</div>';
+    if (!s) return '<hr class="pgl-deep-hr">';
+    return '<div class="pgl-deep-p">' + s + '</div>';
   }).join('');
   html += '</div>';
 
@@ -1688,7 +1688,7 @@ function renderSubThemesGrid() {
 
   // If no items, show placeholder
   if (items.length === 0) {
-    container.innerHTML = '<div style="grid-column:span 4;text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">서브테마 데이터 준비 중…</div>';
+    container.innerHTML = '<div class="pgl-st-empty">서브테마 데이터 준비 중…</div>';
     return;
   }
 
@@ -1720,24 +1720,24 @@ function renderSubThemesGrid() {
       var tc = hasData ? d.pct : null;
       var tcol = tc === null ? 'var(--text-muted)' : (tc >= 0 ? 'var(--data-green)' : 'var(--data-red)');
       var tcStr = tc === null ? '—' : ((tc >= 0 ? '+' : '') + tc.toFixed(1) + '%');
-      leadersHtml += '<div data-action="showTicker" data-arg="'+t+'" data-stop="1" style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--surface-2);cursor:pointer;" title="'+t+' 분석 →">' +
-        '<span style="font-size:11px;font-weight:800;font-family:var(--font-mono);color:var(--accent);">' + t + ' <span style="font-size:10px;opacity:0.5;">↗</span></span>' +
-        '<span style="font-size:10px;font-weight:700;font-family:var(--font-mono);color:' + tcol + ';">' + tcStr + '</span></div>';
+      leadersHtml += '<div data-action="showTicker" data-arg="'+t+'" data-stop="1" class="pgl-st-leader" title="'+t+' 분석 →">' +
+        '<span class="pgl-st-lsym">' + t + ' <span class="pgl-st-go">↗</span></span>' +
+        '<span class="pgl-st-lpct" style="color:' + tcol + ';">' + tcStr + '</span></div>';
     });
-    if (st.leaders.length > 3) leadersHtml += '<div style="font-size:11px;color:var(--text-muted);padding-top:1px;">+' + (st.leaders.length - 3) + '개 더</div>';
+    if (st.leaders.length > 3) leadersHtml += '<div class="pgl-st-more">+' + (st.leaders.length - 3) + '개 더</div>';
 
     var barMax = 5; var barW = Math.min(Math.abs(chg) / barMax * 100, 100);
 
     // v38.3: onclick 핸들러 추가 — 세분화 테마 클릭 시 심층 분석
-    html += '<div class="aio-hover-scale-subtle" style="background:' + bgColor + ';border:1px solid rgba(var(--ink-rgb),0.06);border-radius:4px;padding:10px;transition:transform var(--dur-fast),border-color var(--dur-fast);cursor:pointer;--hover-border-color:' + st.color + '50;" data-action="showSubThemeDetail" data-arg="' + escHtml(st.id) + '">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">' +
-        '<div style="display:flex;align-items:center;gap:4px;"><span style="font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;">' + st.name + '</span></div>' +
-        '<span style="font-size:12px;font-weight:900;font-family:var(--font-mono);color:' + chgColor + ';">' + (isPos ? '+' : '') + chg.toFixed(2) + '%</span>' +
+    html += '<div class="aio-hover-scale-subtle pgl-st-tile" style="background:' + bgColor + ';--hover-border-color:' + st.color + '50;" data-action="showSubThemeDetail" data-arg="' + escHtml(st.id) + '">' +
+      '<div class="pgl-st-row">' +
+        '<div class="pgl-st-namewrap"><span class="pgl-st-name">' + st.name + '</span></div>' +
+        '<span class="pgl-st-pct" style="color:' + chgColor + ';">' + (isPos ? '+' : '') + chg.toFixed(2) + '%</span>' +
       '</div>' +
-      '<div style="height:3px;background:var(--surface-4);border-radius:2px;margin-bottom:5px;overflow:hidden;"><div style="height:100%;width:' + barW + '%;background:' + chgColor + ';border-radius:2px;transition:width 0.5s;"></div></div>' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">' +
-        '<span style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;">' + st.desc + (st.etf ? ' · ' + st.etf : '') + '</span>' +
-        '<span style="font-size:11px;font-weight:700;color:' + momColor + ';">' + momSignal + ' ' + breadthPct + '%</span>' +
+      '<div class="pgl-st-track"><div class="pgl-st-fill" style="width:' + barW + '%;background:' + chgColor + ';"></div></div>' +
+      '<div class="pgl-st-row">' +
+        '<span class="pgl-st-desc">' + st.desc + (st.etf ? ' · ' + st.etf : '') + '</span>' +
+        '<span class="pgl-st-mom" style="color:' + momColor + ';">' + momSignal + ' ' + breadthPct + '%</span>' +
       '</div>' +
       leadersHtml +
     '</div>';

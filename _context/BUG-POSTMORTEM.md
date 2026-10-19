@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1939 - v58.48 - 한국 테마 상세가 테마 제목·종목명·촉매 문구를 이스케이프 없이 innerHTML에 씀 (2026-10-19)
+
+- symptom/reproduction: js/aio-kr-data.js의 한국 테마 상세가 CN[themeId]||themeId(클릭한 행의 data-arg에서 온 값), 상·하위 종목명, 촉매 문구를 그대로 innerHTML에 넣었다. #75가 템플릿을 옮기자 CodeQL이 high(DOM 텍스트가 HTML로 재해석됨)로 표시했다.
+- root_cause: 템플릿 문자열이 외부·데이터 유래 문자열을 escHtml 없이 이어 붙였다. 기존 코드였고 템플릿 이동으로 CodeQL이 다시 스캔하며 드러났다.
+- fix: 제목·종목명·촉매 문구를 escHtml로 감싼다. 한국어 이름은 그대로 표시된다.
+- violated_rule: innerHTML에 넣는 데이터 유래 문자열은 항상 이스케이프한다.
+- prevention: CodeQL javascript 분석이 PR마다 실행되고, 인라인 스타일 래칫이 js/ 템플릿 변경을 계속 검사한다.
+- verification/residual: CodeQL 통과, 19개 라우트 계산 스타일 차이 0, qa-runner preflight/core/data
+
 ## P1938 - v58.47 - 테마 상세를 닫은 뒤 두 번째 재렌더에서 키보드 포커스가 페이지 본문으로 떨어짐 (2026-10-19)
 
 - symptom/reproduction: 테마 상세를 닫으면 포커스가 테마 트리거로 돌아오지만, 이후 저장소·갱신 재렌더가 트리거를 다시 교체하면 포커스가 <body>로 떨어졌다. #73 병합 뒤 main CI의 browser-reference-adoption이 'theme close focus not restored to financials: triggerStillMounted=false'로 실패해 Pages 배포가 건너뛰어졌고, #62 PR CI에서도 한 번 났다.

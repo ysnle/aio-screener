@@ -578,11 +578,11 @@ function _aioAppendAIPublicDisclosure(parent, meta) {
     el.style.cssText = 'margin:5px 0;padding:5px 7px;border-left:2px solid var(--data-amber);background:rgba(255,163,26,0.07);color:var(--text-muted);font-size:10px;line-height:1.45;';
     var summary = document.createElement('summary');
     summary.textContent = '답변 근거 · ' + info.status;
-    summary.style.cssText = 'cursor:pointer;font-size:12px;line-height:1.6;';
+    summary.className = 'lch-disc-sum';
     el.appendChild(summary);
     var detail = document.createElement('div');
     detail.textContent = info.text;
-    detail.style.cssText = 'padding-top:6px;font-size:12px;overflow-wrap:anywhere;white-space:pre-line;';
+    detail.className = 'lch-disc-body';
     el.appendChild(detail);
     parent.appendChild(el);
     return info;
@@ -1690,7 +1690,7 @@ function renderMarkdownLight(text) {
     return s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s"<>]+)\)/g, function(_, label, url) { var u = url.replace(/&amp;/g, '&'), hashAt = u.indexOf('#'), hash = hashAt >= 0 ? u.slice(hashAt) : '', base = hashAt >= 0 ? u.slice(0, hashAt) : u, q = base.indexOf('?'), keep = q < 0 ? [] : base.slice(q + 1).split('&').filter(function(kv) { return kv && !/^(?:utm_[a-z]+|ftag|oc|fbclid|gclid)=/i.test(kv); }); var plain = (q < 0 ? base : base.slice(0, q)) + (keep.length ? '?' + keep.join('&') : '') + hash, clean = plain.replace(/&/g, '&amp;'); var host = ''; try { host = new URL(plain).hostname.replace(/^www\./, ''); } catch (_) {} return '<a href="' + clean + '" target="_blank" rel="noopener noreferrer"' + (host ? ' title="' + host + '"' : '') + '>' + label + '</a>'; }) // v57.55 review (B5-F7): citations render as links without tracking parameters
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/`([^`]+)`/g, '<code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:0.88em">$1</code>');
+      .replace(/`([^`]+)`/g, '<code class="lch-code">$1</code>');
   }
   function isTableSep(s) { return /^\|[\s\-:|]+\|$/.test(s.trim()); }
   function isTableRow(s) { return /^\|.+\|$/.test(s.trim()); }
@@ -1703,9 +1703,9 @@ function renderMarkdownLight(text) {
     // v31.1: 5컬럼 초과 시 테이블 대신 리스트로 변환 (가로 깨짐 방지)
     if (hdr.length > 5) {
       for (var r = 1; r < tableRows.length; r++) {
-        var item = '<div style="margin:6px 0;padding:8px 10px;background:var(--surface-2);border-radius:3px;border:1px solid var(--border);">';
+        var item = '<div class="lch-row">';
         for (var c = 0; c < hdr.length; c++) {
-          if (tableRows[r][c]) item += '<div style="margin:2px 0;"><strong style="color:var(--text-muted);font-size:0.9em;">' + hdr[c] + ':</strong> ' + tableRows[r][c] + '</div>';
+          if (tableRows[r][c]) item += '<div class="lch-row-cell"><strong class="lch-row-key">' + hdr[c] + ':</strong> ' + tableRows[r][c] + '</div>';
         }
         item += '</div>';
         html.push(item);
@@ -4137,11 +4137,11 @@ function _aioCanonicalResearchUrl(value) {
 /** 검색 출처 → UI HTML */
 function _searchCitationsHTML(sr) {
   if (!sr || !sr.citations || sr.citations.length === 0) return '';
-  var html = '<div class="aio-search-sources" style="margin-top:6px;padding:8px;border-left:2px solid var(--accent);border-radius:0 4px 4px 0;font-size:12px;min-width:0;">';
+  var html = '<div class="aio-search-sources">';
   // v50.10: OpenAI 웹검색 출처도 동일 렌더 (engine === 'claude')
   var engName = sr.engine === 'claude' ? 'AI 웹검색' : 'Web Research';
-  html += '<div style="color:var(--text-secondary);font-weight:600;margin-bottom:3px;">' + engName + ' 참고 링크</div>';
-  html += '<div style="color:var(--text-muted);margin-bottom:4px;">검색된 링크이며, 답변의 근거로 검증됐다는 뜻은 아닙니다.</div>';
+  html += '<div class="lch-src-head">' + engName + ' 참고 링크</div>';
+  html += '<div class="lch-src-note">검색된 링크이며, 답변의 근거로 검증됐다는 뜻은 아닙니다.</div>';
   var seen = {};
   for (var i = 0; i < Math.min(sr.citations.length, 5); i++) {
     var url = _aioCanonicalResearchUrl(typeof sr.citations[i] === 'string' ? sr.citations[i] : sr.citations[i] && sr.citations[i].url);
@@ -4153,7 +4153,7 @@ function _searchCitationsHTML(sr) {
     // v48.91: escHtml() 적용 — API 응답 URL/domain XSS 방지
     var title = typeof sr.citations[i] === 'object' && sr.citations[i].title;
     var label = title ? String(title).slice(0, 180) + ' · ' + domain : domain;
-    html += '<a href="' + escHtml(url) + '" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline;display:block;margin:4px 0;overflow-wrap:anywhere;">[' + (i+1) + '] ' + escHtml(label) + '</a>';
+    html += '<a href="' + escHtml(url) + '" target="_blank" rel="noopener noreferrer" class="lch-src-link">[' + (i+1) + '] ' + escHtml(label) + '</a>';
   }
   html += '</div>';
   return html;
@@ -4886,7 +4886,7 @@ function _fundRecentSearches(ticker) {
   // input has no charset whitelist, so typing/persisting an HTML payload rendered unescaped
   // on next paint (stored self-XSS via this element's own localStorage-persisted history).
   el.innerHTML = arr.map(function(t) {
-    return '<span class="aio-hover-fund-ticker" data-action="fundSearchQuick" data-arg="' + escHtml(t) + '" style="font-size:11px;color:var(--accent);border-radius:4px;padding:2px 7px;cursor:pointer;font-family:var(--font-mono);font-weight:600;">' + escHtml(t) + '</span>';
+    return '<span class="aio-hover-fund-ticker" data-action="fundSearchQuick" data-arg="' + escHtml(t) + '">' + escHtml(t) + '</span>';
   }).join('');
 }
 
@@ -4909,7 +4909,7 @@ function _resetFundamentalReport(message) {
   var loading = document.getElementById('fund-rpt-loading');
   if (loading) {
     loading.style.display = 'block';
-    loading.innerHTML = '<div id="fund-rpt-progress" role="status" style="font-size:11px;color:var(--text-secondary);line-height:1.6;">' + escHtml(message || '기업 데이터 확인 중') + '</div>';
+    loading.innerHTML = '<div id="fund-rpt-progress" role="status" class="lch-fp-msg">' + escHtml(message || '기업 데이터 확인 중') + '</div>';
   }
   ['fund-growth-chart','fund-profitability-chart','fund-balance-chart','fund-cashflow-chart','fund-liquidity-chart','fund-curratio-donut','fund-workingcap-chart'].forEach(function(id) {
     if (window._aioChartRegistry && typeof window._aioChartRegistry.destroyIfExists === 'function') window._aioChartRegistry.destroyIfExists(id);
@@ -4938,7 +4938,7 @@ async function fundamentalSearch() {
     var _earlyProgressEl = document.getElementById('fund-rpt-progress');
     var _earlyContainer = document.getElementById('fund-report-container');
     if (_earlyContainer) _earlyContainer.style.display = 'block';
-    if (_earlyProgressEl) _earlyProgressEl.innerHTML = '<div style="color:#ff5b50;">올바른 티커 형식이 아닙니다 (예: AAPL, 005930.KS)</div>';
+    if (_earlyProgressEl) _earlyProgressEl.innerHTML = '<div class="lch-fp-err">올바른 티커 형식이 아닙니다 (예: AAPL, 005930.KS)</div>';
     return;
   }
   // Publish the selection before slower optional provider work starts. The native
@@ -4960,7 +4960,7 @@ async function fundamentalSearch() {
   var _cached = window._fundCache[ticker];
   if (_cached && (Date.now() - _cached._ts < 30 * 60 * 1000)) {
     var _ageMin = Math.round((Date.now() - _cached._ts) / 60000);
-    if (progressEl) progressEl.innerHTML = '<div style="color:#3ddba5;">캐시 사용: ' + _ageMin + '분 전 분석 결과 (FMP 무료 250/day 보호)</div>';
+    if (progressEl) progressEl.innerHTML = '<div class="lch-fp-ok">캐시 사용: ' + _ageMin + '분 전 분석 결과 (FMP 무료 250/day 보호)</div>';
     var collected = _cached.data;
     window._fundAnalysisData = collected;
     // v49.58 R106: 채팅 컨텍스트가 활성 종목 자동 인지 (CHAT_CONTEXTS['ticker'] / .fundamental)
@@ -4974,7 +4974,7 @@ async function fundamentalSearch() {
     } catch(_qchErr) {}
     if (loadingEl) {
       var _srcList = (collected.sources || []).map(function(s){ return escHtml(String(s || '')); });
-      loadingEl.innerHTML = '<div style="font-size:11px;font-weight:700;color:#3ddba5;margin-bottom:6px;">캐시 데이터 (' + _ageMin + '분 전) — ' + _srcList.length + '개 소스</div><div style="font-size:11px;color:var(--text-muted);">' + _srcList.join(' · ') + '</div>';
+      loadingEl.innerHTML = '<div class="lch-fp-cache">캐시 데이터 (' + _ageMin + '분 전) — ' + _srcList.length + '개 소스</div><div class="lch-fp-src">' + _srcList.join(' · ') + '</div>';
     }
     try {
       if (typeof window._aioRenderFundamentalRadar === 'function') {
@@ -5076,12 +5076,12 @@ async function fundamentalSearch() {
     if (collected.sources.length) {
       // Codex browser audit H38: "수집 완료 — 21개 소스" read as 21 valid datasets beside rows of N/A. The line now
       // says only that responses arrived; the provider list stays folded with the progress log.
-      loadHtml = '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">응답을 받은 외부 요청 ' + collected.sources.length + '건 — 받지 못한 지표는 아래 표에 N/A로 남습니다.</div>';
-      if (_progressHtml || collected.sources.length) loadHtml += '<details style="margin-top:8px;"><summary style="font-size:10px;color:var(--text-muted);cursor:pointer;">요청 내역 보기</summary><div style="font-size:10px;color:var(--text-muted);margin-top:5px;">' + escHtml(collected.sources.join(' · ')) + '</div><div id="fund-rpt-progress" style="font-size:10px;color:var(--text-secondary);line-height:1.8;margin-top:5px;">' + _progressHtml + '</div></details>';
+      loadHtml = '<div class="lch-fp-sum">응답을 받은 외부 요청 ' + collected.sources.length + '건 — 받지 못한 지표는 아래 표에 N/A로 남습니다.</div>';
+      if (_progressHtml || collected.sources.length) loadHtml += '<details class="lch-fp-log"><summary class="lch-fp-log-sum">요청 내역 보기</summary><div class="lch-fp-log-src">' + escHtml(collected.sources.join(' · ')) + '</div><div id="fund-rpt-progress" class="lch-fp-log-lines">' + _progressHtml + '</div></details>';
     } else {
-      loadHtml = '<div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:6px;">외부 데이터 수신 실패 — 빈 보고서로 단정하지 않습니다</div>';
-      loadHtml += '<div style="font-size:11px;color:var(--text-secondary);line-height:1.65;margin-bottom:6px;">네트워크·공급자 응답을 확인한 뒤 다시 시도하세요. 확보된 데이터가 없어 현재 분석은 참고용으로도 생성하지 않습니다.</div>';
-      loadHtml += '<div id="fund-rpt-progress" style="font-size:10px;color:var(--text-secondary);line-height:1.8;">' + _progressHtml + '</div>';
+      loadHtml = '<div class="lch-fp-fail">외부 데이터 수신 실패 — 빈 보고서로 단정하지 않습니다</div>';
+      loadHtml += '<div class="lch-fp-fail-txt">네트워크·공급자 응답을 확인한 뒤 다시 시도하세요. 확보된 데이터가 없어 현재 분석은 참고용으로도 생성하지 않습니다.</div>';
+      loadHtml += '<div id="fund-rpt-progress" class="lch-fp-lines">' + _progressHtml + '</div>';
     }
     loadingEl.innerHTML = loadHtml;
   }
@@ -5268,7 +5268,7 @@ function toggleAIPanel() {
     if (!_aiCurrentCtx) {
       var msgsEl = document.getElementById('ai-panel-msgs');
       if (msgsEl && !msgsEl.querySelector('.ai-no-ctx')) {
-        msgsEl.innerHTML = '<div class="ai-no-ctx" style="text-align:center;padding:32px 20px;color:var(--text-muted);font-size:12px;line-height:1.6;">AI 분석은 주요 분석 페이지에서 사용할 수 있습니다.</div>';
+        msgsEl.innerHTML = '<div class="ai-no-ctx">AI 분석은 주요 분석 페이지에서 사용할 수 있습니다.</div>';
       }
       var aiInp = document.getElementById('ai-panel-inp');
       var aiBtn = document.getElementById('ai-panel-btn');
@@ -5326,7 +5326,7 @@ function _aioRenderAiPanelBasis() {
       if (!textValue) return;
       node = document.createElement('span');
       node.id = 'ai-panel-basis';
-      node.style.cssText = 'display:block;margin-top:3px;color:var(--text-muted);';
+      node.className = 'lch-basis';
       policy.appendChild(node);
     }
     node.textContent = textValue;
@@ -5359,7 +5359,7 @@ function updateAIPanelContext(pageId) {
     if (aiBtn) aiBtn.disabled = true;
     var msgsEl = document.getElementById('ai-panel-msgs');
     if (msgsEl) {
-      msgsEl.innerHTML = '<div class="ai-no-ctx" style="text-align:center;padding:32px 20px;color:var(--text-muted);font-size:12px;line-height:1.6;">AI 분석은 주요 분석 페이지에서 사용할 수 있습니다.</div>';
+      msgsEl.innerHTML = '<div class="ai-no-ctx">AI 분석은 주요 분석 페이지에서 사용할 수 있습니다.</div>';
     }
     var titleEl = document.getElementById('ai-panel-title');
     if (titleEl) titleEl.textContent = 'AI 도우미';
@@ -5562,7 +5562,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   if (_uniRun) _uniRun.userMessage = _uniUserMessage;
   _appendAIMsg('user', renderMarkdownLight(q));
   // 로딩 표시
-  var loadBubble = _appendAIMsg('ai', '<span style="color:var(--text-muted);">분석 중...</span>', 'ai-panel-loading');
+  var loadBubble = _appendAIMsg('ai', '<span class="lch-muted">분석 중...</span>', 'ai-panel-loading');
   var aiBubble = null;
   var sysPrompt = '';
   // v52.78/WP-AI3: page-scoped reference retrieval uses the active question.
@@ -5970,7 +5970,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   if (typeof callSharedAi !== 'function') {
     _aioLog('error', 'fetch', 'callSharedAi 함수 미정의!');
     _releaseUnifiedRun();
-    _appendAIMsg('ai', '<span style="color:var(--data-red);">시스템 오류: AI 호출 기능을 찾을 수 없습니다. 페이지를 새로고침해주세요.</span>');
+    _appendAIMsg('ai', '<span class="lch-err">시스템 오류: AI 호출 기능을 찾을 수 없습니다. 페이지를 새로고침해주세요.</span>');
     return;
   }
   if (!_isCurrentUnifiedRun()) { _releaseUnifiedRun(); return; }
@@ -5999,7 +5999,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     var visible = (_uniResearchRequired && !_uniWebResult)
       ? '최신·인과성 주장에 필요한 Web Research 근거를 검증 중입니다. 검증 전 수치와 원인 단정은 표시하지 않습니다.'
       : _uniChunkResult.text;
-    if (aiBubble) aiBubble.innerHTML = _uniSafeRender(visible) + '<span style="color:var(--accent);animation:blink 0.7s infinite;">|</span>';
+    if (aiBubble) aiBubble.innerHTML = _uniSafeRender(visible) + '<span class="lch-caret">|</span>';
     var msgsEl = document.getElementById('ai-panel-msgs');
     if (msgsEl) msgsEl.scrollTop = msgsEl.scrollHeight;
   };
@@ -6057,15 +6057,15 @@ async function chatSendUnified(_aioDispatchOptions) {
       _srcBadge.style.cssText = 'font-size:11px;color:var(--text-muted);display:flex;gap:8px;flex-wrap:wrap;margin:4px 0;padding:3px 6px;background:var(--surface-1);border-radius:4px;';
       var _bItems = [];
       var _uniHasFundamentals = /PER:|FCF Yield|Balance Sheet|EV\/EBITDA|Segments|income statement|재무제표/i.test(tickerDataStr || '');
-      _bItems.push(_uniTickerData ? '<span style="color:var(--data-green);">종목 데이터</span>' : '<span style="color:var(--text-muted);">종목 데이터</span>');
-      _bItems.push(_uniHasFundamentals ? '<span style="color:var(--data-green);">재무</span>' : '<span style="color:var(--text-muted);">재무</span>');
-      if (_uniTechnicalData) _bItems.push('<span style="color:var(--data-cyan);">기술</span>');
-      if (_uniScreenerStr) _bItems.push('<span style="color:var(--data-amber);">스크리너</span>');
-      if (_uniDomainData) _bItems.push('<span style="color:var(--data-green);">페이지 데이터</span>');
-      _bItems.push(_uniNewsCtx ? '<span style="color:var(--data-green);">뉴스</span>' : '<span style="color:var(--text-muted);">뉴스</span>');
-      if (_uniWebResult) _bItems.push('<span style="color:var(--data-purple);">웹검색</span>');
-      if (_uniUseClaudeWebSearch) _bItems.push('<span style="color:var(--data-purple);">AI 웹검색</span>');
-      if (_uniDeepData) _bItems.push('<span style="color:var(--data-cyan);">심층</span>');
+      _bItems.push(_uniTickerData ? '<span class="lch-src-on">종목 데이터</span>' : '<span class="lch-src-off">종목 데이터</span>');
+      _bItems.push(_uniHasFundamentals ? '<span class="lch-src-on">재무</span>' : '<span class="lch-src-off">재무</span>');
+      if (_uniTechnicalData) _bItems.push('<span class="lch-src-cyan">기술</span>');
+      if (_uniScreenerStr) _bItems.push('<span class="lch-src-amber">스크리너</span>');
+      if (_uniDomainData) _bItems.push('<span class="lch-src-on">페이지 데이터</span>');
+      _bItems.push(_uniNewsCtx ? '<span class="lch-src-on">뉴스</span>' : '<span class="lch-src-off">뉴스</span>');
+      if (_uniWebResult) _bItems.push('<span class="lch-src-purple">웹검색</span>');
+      if (_uniUseClaudeWebSearch) _bItems.push('<span class="lch-src-purple">AI 웹검색</span>');
+      if (_uniDeepData) _bItems.push('<span class="lch-src-cyan">심층</span>');
       _srcBadge.innerHTML = _bItems.join('');
       _bubbleParent.appendChild(_srcBadge);
 
@@ -6077,9 +6077,9 @@ async function chatSendUnified(_aioDispatchOptions) {
       // v46.10: 피드백 버튼
       var _fbId = 'fb-' + Date.now();
       var _fbDiv = document.createElement('div');
-      _fbDiv.style.cssText = 'display:flex;gap:6px;justify-content:flex-end;margin:2px 0;';
-      _fbDiv.innerHTML = '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="도움됨" aria-label="도움됨">도움됨</button>' +
-        '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="-1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="부정확" aria-label="부정확">부정확</button>';
+      _fbDiv.className = 'lch-fb';
+      _fbDiv.innerHTML = '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="1" data-pass-el="1" class="lch-fb-btn" title="도움됨" aria-label="도움됨">도움됨</button>' +
+        '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="-1" data-pass-el="1" class="lch-fb-btn" title="부정확" aria-label="부정확">부정확</button>';
       _bubbleParent.appendChild(_fbDiv);
     }
 
@@ -6144,7 +6144,7 @@ async function chatSendUnified(_aioDispatchOptions) {
           // v47.8: 재시도 callSharedAi 동기 throw 방어
           state._retryCount = 0;
           _releaseUnifiedRun();
-          _appendAIMsg('ai', '<span style="color:var(--data-red);">재시도 실패: ' + _uniSafeRender(rtEx.message || '알 수 없는 오류') + '</span>');
+          _appendAIMsg('ai', '<span class="lch-err">재시도 실패: ' + _uniSafeRender(rtEx.message || '알 수 없는 오류') + '</span>');
         }
       }, 2000);
       return;
@@ -6153,7 +6153,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     var loadEl = document.getElementById('ai-panel-loading');
     if (loadEl) loadEl.parentNode.removeChild(loadEl);
     _releaseUnifiedRun();
-    _appendAIMsg('ai', '<span style="color:var(--data-red);">' + _uniSafeRender(errMsg) + '</span>');
+    _appendAIMsg('ai', '<span class="lch-err">' + _uniSafeRender(errMsg) + '</span>');
   };
 
   // v47.8: callSharedAi 호출 자체가 동기 throw 시 streaming 영구 잠김 방어
@@ -6164,7 +6164,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     _releaseUnifiedRun();
     var _loadEl = document.getElementById('ai-panel-loading');
     if (_loadEl && _loadEl.parentNode) _loadEl.parentNode.removeChild(_loadEl);
-    _appendAIMsg('ai', '<span style="color:var(--data-red);">시스템 오류: ' + _uniSafeRender(callEx.message || '알 수 없는 오류') + '</span>');
+    _appendAIMsg('ai', '<span class="lch-err">시스템 오류: ' + _uniSafeRender(callEx.message || '알 수 없는 오류') + '</span>');
   }
 }
 
