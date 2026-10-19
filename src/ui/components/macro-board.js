@@ -632,6 +632,16 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
   if (spread3m) spread3m.textContent = last3m ? `10년–3개월 금리차 ${signed(last3m.value, 2, '%p')} (${shortDate(last3m.date)} — 뉴욕 연준 경기침체 확률 모형이 쓰는 금리차)` : '';
   const reading = doc.getElementById('rates-curve-reading');
   if (reading) reading.replaceChildren(...(t.reading ? [el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(` ${t.reading}`)] : []));
+  // Expertise review 2026-10-19: which leg moved the curve over 20 sessions, and whether an inversion just ended.
+  const dynamicsHost = doc.getElementById('rates-curve-dynamics');
+  if (dynamicsHost) {
+    const d = t.dynamics;
+    const interpretation = [d?.reading, d?.uninversionReading, d?.uninversion3mText].filter(Boolean).join(' ');
+    dynamicsHost.replaceChildren(...(d ? [
+      el(doc, 'strong', `곡선 움직임: ${d.label}.`), doc.createTextNode(` ${d.fact}`),
+      ...(interpretation ? [doc.createElement('br'), el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(` ${interpretation}`)] : [])
+    ] : []));
+  }
 
   // 2. Real yield, breakeven, credit
   const levels = doc.getElementById('rates-levels');

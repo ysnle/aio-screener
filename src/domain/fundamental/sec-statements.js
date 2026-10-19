@@ -82,6 +82,12 @@ export function parseSecStatements(companyFacts, { symbol = '', price = null } =
   const earnings = finite(record?.peEarnings?.value) ?? finite(record?.netIncome);
   const [rev, ni, eq, gp, ocf, capex, debt, eps] = ['revenue', 'netIncome', 'equity', 'grossProfit', 'opCashFlow', 'capex', 'totalDebt', 'eps'].map((key) => lastOf(result[key]));
   const fcf = samePeriod(ocf, capex) ? ocf.val - Math.abs(capex.val) : null;
+  // Expertise review 2026-10-19: a noncurrent-only debt concept left out the debt due within a year, understating leverage
+  // for heavy refinancers. Current debt from the same balance sheet is added; a total concept (LongTermDebt,
+  // LongtermBorrowings) already carries its current portion and is used as filed.
+  const curDebt = lastOf(result.currentDebt);
+  const noncurrentOnly = /Noncurrent/.test(String(debt?.concept || ''));
+  const totalDebt = debt ? debt.val + (noncurrentOnly && samePeriod(debt, curDebt) ? curDebt.val : 0) : null;
   const equityNow = finite(record?.equity) ?? (eq?.val ?? null);
   result.metrics = Object.freeze({
     currency: amountUnit,
@@ -97,7 +103,8 @@ export function parseSecStatements(companyFacts, { symbol = '', price = null } =
     grossMargin: samePeriod(gp, rev) && rev.val ? gp.val / rev.val : null,
     fcf,
     fcfYield: fcf != null && marketCap ? fcf / marketCap : null,
-    debtToEquity: samePeriod(debt, eq) && eq.val > 0 ? debt.val / eq.val : null,
+    debtToEquity: samePeriod(debt, eq) && eq.val > 0 ? totalDebt / eq.val : null,
+    debtBasis: debt ? (noncurrentOnly && samePeriod(debt, curDebt) ? 'noncurrent+current' : noncurrentOnly ? 'noncurrent-only' : 'total-as-filed') : null,
     sharesCheck: record?.sharesCheck || null
   });
   return result;

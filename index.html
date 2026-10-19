@@ -1064,6 +1064,9 @@ body {
 .briefing-footnote { font-size: 12px; color: var(--text-muted); margin: 14px 0 0; }
 .briefing-footnote a { color: var(--text-secondary); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; } /* layout review 2026-10-18: was the browser's default blue link */
 .briefing-empty { font-size: 12px; color: var(--text-muted); padding: 6px 0; }
+.index-earnings-lead { font-size: 15px; line-height: 1.7; color: var(--text-primary); margin: 0 0 8px; max-width: 920px; }
+.index-earnings-facts { font-size: 13px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 10px; padding-left: 18px; max-width: 920px; }
+.index-earnings-sectors summary { font-size: 13px; color: var(--text-secondary); cursor: pointer; margin-bottom: 6px; }
 /* P1392: six-axis regime board */
 .regime-summary-head { display: flex; align-items: baseline; gap: 12px; }
 .regime-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; margin: 4px 0 18px; }
@@ -4600,6 +4603,7 @@ button[data-filter-active="true"] {
         <p class="rates-curve-fact" id="rates-curve-fact"></p>
         <p class="briefing-read-reading" id="rates-curve-reading"></p>
         <p class="rates-curve-fact" id="rates-spread-3m"></p>
+        <p class="rates-curve-fact" id="rates-curve-dynamics"></p>
       </div>
     </div>
   </section>
@@ -4970,6 +4974,7 @@ button[data-filter-active="true"] {
     </div><!-- /aio-section 섹터퍼포먼스 -->
 
   <section class="aio-section sector-map" id="sector-map" aria-label="S&amp;P 500 지도"><div class="briefing-empty">스크리너 수익률 수신 대기</div></section><!-- 2026-10-13 S&P 500 map: area = index weight, colour = return -->
+  <section class="aio-section index-earnings" id="index-earnings" aria-label="S&amp;P 500 이익 전망과 밸류에이션"><div class="briefing-empty">컨센서스 수신 대기</div></section><!-- 2026-10-19 expertise review: index revision breadth, forward P/E, ERP -->
   <!-- P1417: daily sub-theme relative strength (published screener returns) -->
   <section class="aio-section theme-strength" id="theme-strength-board" aria-label="세부 테마 상대강도 순위"><div class="briefing-empty">스크리너 수익률 수신 대기</div></section>
 

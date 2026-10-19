@@ -86,7 +86,7 @@ export function squarify(items, rect) {
  * @param {string|null} [input.expectedSession] latest completed US session (YYYY-MM-DD); a different basis is a dated reference
  */
 // GICS sector names as the holdings file writes them → the labels the rest of AIO uses.
-const GICS_KO = Object.freeze({ 'Information Technology': '기술', Communication: '통신', 'Communication Services': '통신', 'Consumer Discretionary': '경기소비재',
+export const GICS_KO = Object.freeze({ 'Information Technology': '기술', Communication: '통신', 'Communication Services': '통신', 'Consumer Discretionary': '경기소비재',
   'Consumer Staples': '필수소비재', 'Health Care': '헬스케어', Financials: '금융', Industrials: '산업재', Energy: '에너지', Utilities: '유틸리티', Materials: '소재', 'Real Estate': '부동산' });
 
 export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', expectedSession = null } = {}) {

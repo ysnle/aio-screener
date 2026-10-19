@@ -54,6 +54,82 @@ export function derivedThreeMonth(macroHistory, tenYear) {
   return spread == null ? null : { id: 'dgs3mo', label: '3개월', years: 0.25, value: Math.round((tenYear.value - spread) * 100) / 100, day: null, week: null, asOf: tenYear.asOf, derived: true };
 }
 
+// Expertise review 2026-10-19: the page said only whether 2s10s was inverted. A rates desk reads which leg moved the
+// spread (bull = yields falling, bear = rising) and whether an inversion has just ended — the curve has typically
+// re-steepened out of inversion, often bull-led as the Fed is expected to cut, shortly before past U.S. recessions.
+// Both legs come from the FRED daily history paired by date; the span counts paired observations (one per session).
+export const CURVE_DYNAMICS_RULE = Object.freeze({ sessions: 20, minSpreadMoveBp: 10, uninvertLookback: 260 });
+
+function pairedObservations(macroHistory, shortKey, longKey) {
+  const short = new Map((macroHistory?.series?.[shortKey]?.observations || []).map(([date, value]) => [date, finite(value)]));
+  return (macroHistory?.series?.[longKey]?.observations || [])
+    .map(([date, value]) => ({ date, long: finite(value), short: short.get(date) ?? null }))
+    .filter((row) => isoDate(row.date) && row.long != null && row.short != null);
+}
+
+export function curveDynamics(macroHistory, rule = CURVE_DYNAMICS_RULE) {
+  const rows = pairedObservations(macroHistory, 'dgs2', 'dgs10');
+  if (rows.length <= rule.sessions) return null;
+  const last = rows[rows.length - 1];
+  const from = rows[rows.length - 1 - rule.sessions];
+  const shortBp = Math.round((last.short - from.short) * 100);
+  const longBp = Math.round((last.long - from.long) * 100);
+  const spreadBp = longBp - shortBp;
+  const spreadNow = last.long - last.short;
+  let kind = null;
+  if (Math.abs(spreadBp) >= rule.minSpreadMoveBp) {
+    // The leg that moved more names the move: bull when it fell, bear when it rose.
+    const lead = Math.abs(shortBp) >= Math.abs(longBp) ? shortBp : longBp;
+    kind = `${lead < 0 ? 'bull' : 'bear'}-${spreadBp > 0 ? 'steepening' : 'flattening'}`;
+  }
+  const window = rows.slice(-rule.uninvertLookback);
+  let lastInverted = null;
+  for (let index = window.length - 1; index >= 0; index -= 1) {
+    if (window[index].long - window[index].short < 0) { lastInverted = window[index].date; break; }
+  }
+  const uninverted = spreadNow >= 0 && lastInverted != null;
+  // The New York Fed's model reads 10-year minus 3-month; its own un-inversion is reported beside the 2s10s one.
+  const threeMonth = (macroHistory?.series?.t10y3m?.observations || []).map(([date, value]) => ({ date, value: finite(value) })).filter((row) => row.value != null).slice(-rule.uninvertLookback);
+  const last3m = threeMonth[threeMonth.length - 1] || null;
+  const lastInverted3m = [...threeMonth].reverse().find((row) => row.value < 0)?.date || null;
+  const uninverted3m = last3m != null && last3m.value >= 0 && lastInverted3m != null;
+  const LABEL = {
+    'bull-steepening': '불 스티프닝 — 단기금리가 더 많이 내려 기울기가 가팔라졌습니다',
+    'bear-steepening': '베어 스티프닝 — 장기금리가 더 많이 올라 기울기가 가팔라졌습니다',
+    'bull-flattening': '불 플래트닝 — 장기금리가 더 많이 내려 기울기가 완만해졌습니다',
+    'bear-flattening': '베어 플래트닝 — 단기금리가 더 많이 올라 기울기가 완만해졌습니다'
+  };
+  const READING = {
+    'bull-steepening': '시장이 정책금리 인하를 앞당겨 반영하는 모양입니다. 성장 둔화 우려로 생기면 경기 방어 신호이고, 물가 안정으로 생기면 완화 기대입니다 — 성장 지표와 함께 봐야 합니다.',
+    'bear-steepening': '장기 요인(기간 프리미엄·재정 공급·성장·물가 기대)이 금리를 밀어 올리는 모양입니다. 주식 밸류에이션에는 부담입니다.',
+    'bull-flattening': '장기 성장·물가 기대가 낮아지거나 안전자산 수요가 커지는 모양입니다.',
+    'bear-flattening': '추가 긴축 기대가 단기금리를 끌어올리는 모양입니다.'
+  };
+  const fact = `${shortDate(from.date)}→${shortDate(last.date)} ${rule.sessions}거래일: 2년 ${signed(shortBp, 0, 'bp')}, 10년 ${signed(longBp, 0, 'bp')}, 2년–10년 금리차 ${signed(spreadBp, 0, 'bp')}.`;
+  return {
+    asOf: last.date,
+    from: from.date,
+    shortBp,
+    longBp,
+    spreadBp,
+    kind,
+    label: kind ? LABEL[kind] : `기울기 변화가 ${rule.minSpreadMoveBp}bp 미만이라 방향을 붙이지 않습니다`,
+    fact,
+    reading: kind ? READING[kind] : null,
+    uninverted,
+    lastInvertedDate: uninverted ? lastInverted : null,
+    uninverted3m,
+    lastInverted3mDate: uninverted3m ? lastInverted3m : null,
+    uninversion3mText: uninverted3m ? `뉴욕 연준 모형이 쓰는 10년–3개월 금리차도 ${shortDate(lastInverted3m)}까지 역전됐다가 지금은 양(+)입니다.` : null,
+    uninversionReading: uninverted ? `2년–10년 금리차가 ${shortDate(lastInverted)}까지 역전돼 있다가 지금은 양(+)입니다. 과거 미국 경기침체는 역전 자체보다 역전이 풀리며 다시 가팔라지는 시점과 더 가까웠습니다. 시차가 일정하지 않아 시점 판단에는 쓰지 않습니다.` : null
+  };
+}
+
+function shortDate(date) {
+  const [, month, day] = String(date || '').split('-').map(Number);
+  return month && day ? `${month}/${day}` : String(date || '');
+}
+
 export const FX_SERIES = Object.freeze([
   Object.freeze({ id: 'dxy', label: '달러 인덱스 (DXY)', digits: 2, unit: '' }),
   Object.freeze({ id: 'usdkrw', label: '원/달러', digits: 1, unit: '원' }),
@@ -163,6 +239,7 @@ function fxCard(history, basis, spec) {
 export function buildRatesFx({ macro = null, history = [], macroHistory = null } = {}) {
   const m = macro && typeof macro === 'object' ? macro : {};
   const curve = treasury(m);
+  curve.dynamics = curveDynamics(macroHistory);
   const threeMonth = derivedThreeMonth(macroHistory, curve.yields.find((row) => row.id === 'dgs10'));
   if (threeMonth) {
     curve.yields = [threeMonth, ...curve.yields];
