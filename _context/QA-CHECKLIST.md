@@ -4,6 +4,10 @@ last_verified: 2026-10-19
 confidence: medium
 ---
 
+## v58.39 시나리오·학습 (2026-10-19)
+
+- [ ] QA-EVIDENCE-01: 배포 뒤 라이브 거시·오늘 화면의 과거 빈도 문장이 기준선과 구별되지 않는 경우 비율 없이 건수·기준선만 말하고, 다음 시나리오 성과 갱신의 scenario-outcomes.json에 method가 기록된다. verify_by: 라이브 #macro #home 과거 빈도 문장 + public-data/scenario-outcomes.json method
+
 ## v58.38 시나리오·학습 (2026-10-19)
 
 - [ ] QA-INTERPRETATION-01: 배포 뒤 라이브 오늘·거시·브리핑·테마의 중심 시나리오 이름이 서로 같고, public-data/scenario-state.json의 crossroads.leadId와도 같다. verify_by: 라이브 #home #macro #briefing #themes + scenario-state.json leadId 비교
