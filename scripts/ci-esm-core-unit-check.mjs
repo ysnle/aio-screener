@@ -216,6 +216,34 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   });
   if (await orchestrator.sync() !== null || published) fail('screener cancellation: partial state published or abort escaped');
 }
+{
+  // Frontend redesign 2026-10-19: a quotes-only tick whose provider read reuses every row object has the same ranking
+  // input, so it neither re-ranks nor republishes; a changed row, a refresh or a new ranking context runs the full path.
+  const { createScreenerOrchestrator } = await load('src/data/orchestrators/screener.js');
+  const rowA = { sym: 'AAA', ret3m: 5 }, rowB = { sym: 'BBB', ret3m: 3 };
+  let rows = [rowA, rowB];
+  let weights = { momentum: 1 };
+  let ranked = 0, published = 0;
+  const orchestrator = createScreenerOrchestrator({
+    provider: { readCurrent: async () => ({ revision: 'r1', rows }) },
+    commands: { setData: () => { published += 1; } },
+    ranker: ({ rows: input }) => { ranked += 1; return { available: true, rows: input.map((row, index) => ({ sym: row.sym, rank: index + 1, score: 50 })) }; },
+    rankingContext: () => ({ weights, now: Date.parse('2026-10-19T00:00:00Z') }),
+    yieldImpl: async () => {}
+  });
+  await orchestrator.sync({ refresh: true });
+  const first = [ranked, published];
+  const reused = await orchestrator.sync({ refresh: false, quotesOnly: true });
+  if (reused !== null || ranked !== first[0] || published !== first[1]) fail('screener derivation: an unchanged quotes-only tick re-ranked or republished');
+  rows = [rowA, { ...rowB, price: 10 }];
+  await orchestrator.sync({ refresh: false, quotesOnly: true });
+  if (ranked !== first[0] + 1 || published !== first[1] + 1) fail('screener derivation: a changed row did not re-rank');
+  weights = { momentum: 0.5, value: 0.5 };
+  await orchestrator.sync({ refresh: false, quotesOnly: true });
+  if (ranked !== first[0] + 2) fail('screener derivation: a new ranking context did not re-rank');
+  await orchestrator.sync({ refresh: true });
+  if (ranked !== first[0] + 3) fail('screener derivation: an artifact refresh did not re-rank');
+}
 
 // ── shared knowledge capability loader ────────────────────────────────────────────────────────
 {

@@ -780,8 +780,26 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       if (!due && keys.length && keys.every((key) => key === 'quotes')) return null;
       return syncScreenerData({ refresh: due });
     });
+    // Live prices reach the table at once through the page's own liveRow overlay; this re-derivation only refreshes the
+    // ranking/screen state for rows whose quote changed. Each run re-ranks the whole universe (~5,000 rows in 확장),
+    // so ticks inside one window share a single trailing run instead of one run per tick (visible-row requests, their
+    // retries and the global refresh land seconds apart).
+    const SCREENER_QUOTE_DERIVE_MIN_MS = 10000;
+    let screenerQuoteDeriveAt = -Infinity;
+    let screenerQuoteDerivePending = false;
+    const runScreenerQuoteDerive = () => {
+      screenerQuoteDerivePending = false;
+      if (String(store.getState()?.route || router.active() || '').replace(/^page-/, '') !== 'screener') return null;
+      screenerQuoteDeriveAt = clock.now();
+      return syncScreenerData({ refresh: false, quotesOnly: true });
+    };
     const stopScreenerQuotes = legacy.on('aio:liveQuotes', () => {
-      if (String(store.getState()?.route || router.active() || '').replace(/^page-/, '') === 'screener') return syncScreenerData({ refresh: false, quotesOnly: true });
+      if (String(store.getState()?.route || router.active() || '').replace(/^page-/, '') !== 'screener' || screenerQuoteDerivePending) return null;
+      const wait = screenerQuoteDeriveAt + SCREENER_QUOTE_DERIVE_MIN_MS - clock.now();
+      if (wait <= 0) return runScreenerQuoteDerive();
+      screenerQuoteDerivePending = true;
+      deferredTasks.defer(runScreenerQuoteDerive, wait);
+      return null;
     });
     const stopScreenerShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['screener']), ({ scope }) => syncScreenerData({ scope, refresh: screenerArtifactReadDue() }), { withScope: true }));
     const stopAnalysisRefresh = compatibilityEvents.on('aio:refresh:done', syncAnalysis.sync);
