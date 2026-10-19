@@ -106,7 +106,7 @@ async function observeOnce() {
       if (!data?.meta?.marketAnalysisOk) result.warnings.push(`live LLM market analysis blocked: ${marketAnalysisDiagnostic(data)}; typed fallback is active`);
       result.warnings.push(...dataSourceWarnings(data));
       const deadFeeds = deadNewsFeeds(data);
-      check('pages-news-feeds-alive (v58.28)', deadFeeds.length === 0, deadFeeds.length ? `no usable item for 72h+: ${deadFeeds.join(', ')}` : 'every news feed produced a current item within 72h');
+      check('pages-news-feeds-alive (v58.29)', deadFeeds.length === 0, deadFeeds.length ? `no usable item for 72h+: ${deadFeeds.join(', ')}` : 'every news feed produced a current item within 72h');
     }
   } else {
     check('pages-fetch', false, pages.reason?.message || String(pages.reason));
