@@ -112,7 +112,8 @@ import { coalesceMicrotask, createDeferredTaskQueue } from './lifecycle.js';
 import { renderPageSources } from '../ui/components/page-sources.js';
 import { renderHomeKpiTrends } from '../ui/components/home-kpi-trend.js';
 import { krIndexStressRows } from '../domain/portfolio/kr-stress.js';
-import { SUPPLIED_MATERIALS_REFERENCE, SUPPLIED_MATERIAL_CLAIM_IDS } from '../domain/research/supplied-materials.js';
+import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../domain/research/reference-index.js';
+import { loadResearchCorpus } from '../domain/research/corpus-loader.js';
 import { NATHAN_PREVIOUS_THREADS_REFERENCE, NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../domain/research/nathan-previous-threads.js';
 import { NATHAN_FRAMEWORK_PACK, NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_ALIASES } from '../domain/knowledge/nathan-framework-pack.js';
 
@@ -287,12 +288,14 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // Lazy and cached: no knowledge artifact is fetched during application boot.
   // The compact index is loaded only on the first chat question and always
   // remains REFERENCE, separate from current market evidence.
-  const aiKnowledgeRetriever = createAIKnowledgeRetriever({ fetchImpl, suppliedMaterials: SUPPLIED_MATERIALS_REFERENCE });
+  // The supplied-materials corpus is a lazy chunk (corpus-loader.js); the retriever awaits it with the index.
+  const loadSuppliedMaterials = () => loadResearchCorpus().then((corpus) => corpus.SUPPLIED_MATERIALS_REFERENCE);
+  const aiKnowledgeRetriever = createAIKnowledgeRetriever({ fetchImpl, suppliedMaterials: loadSuppliedMaterials });
   // AIQ-0/AIQ-1: the legacy chat surfaces remain UI adapters, while planning and
   // dispatch ownership lives in one ESM orchestrator. This is deliberately created
   // beside the canonical evidence store so future tool adapters can consume the same
   // state without creating a second chat path.
-  const aiOrchestrator = createAIAnswerOrchestrator({ root, now: () => clock.now(), knowledgeRetriever: aiKnowledgeRetriever });
+  const aiOrchestrator = createAIAnswerOrchestrator({ root, now: () => clock.now(), knowledgeRetriever: aiKnowledgeRetriever, beforeDispatch: () => root?.AIO?.ensureResearchCorpus?.() });
 
   function ingestSnapshotEvidence(snapshot) {
     snapshotEvidence.clear();
@@ -446,8 +449,6 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     }),
     commands: screenerCommands,
     getState: () => store.getState(),
-    getSuppliedMaterialsReference: () => SUPPLIED_MATERIALS_REFERENCE,
-    getSuppliedMaterialClaimIds: () => SUPPLIED_MATERIAL_CLAIM_IDS,
     ranker: computeFactorRanks,
     rankingContext: () => {
       const profileKey = typeof root?._aioGetActiveProfile === 'function' ? root._aioGetActiveProfile() : 'balanced';
@@ -661,7 +662,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       () => syncPortfolio.sync(),
       // Server hydration commonly finishes before the staged startup reaches
       // this task. Do not rebuild and refetch that same universe a second time.
-      () => store.getState()?.screener?.rows?.length ? null : syncScreenerData()
+      () => store.getState()?.screener?.rows?.length ? null : syncScreenerData(),
+      // Reference corpus for AI answers, prefetched last so it never competes with first paint.
+      () => root?.AIO?.ensureResearchCorpus?.()
     ];
     let deferredStartupIndex = 0;
     const runDeferredStartupSync = () => {
@@ -1121,9 +1124,14 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // reads this canonical ESM registry instead of maintaining another claim
   // ledger.  Expose a frozen reference snapshot only; no current values enter
   // the runtime signal or ranking stores.
+  // The corpus itself loads on demand: ensureResearchCorpus() installs it before a chat prompt is built, and the
+  // last staged startup task prefetches it after first paint.
   root.AIO = root.AIO || {};
-  root.AIO.SUPPLIED_MATERIALS_REFERENCE = SUPPLIED_MATERIALS_REFERENCE;
   root.AIO.SUPPLIED_MATERIAL_CLAIM_IDS = SUPPLIED_MATERIAL_CLAIM_IDS;
+  root.AIO.ensureResearchCorpus = () => loadSuppliedMaterials().then((reference) => {
+    root.AIO.SUPPLIED_MATERIALS_REFERENCE = reference;
+    return reference;
+  });
   root.AIO.NATHAN_PREVIOUS_THREADS_REFERENCE = NATHAN_PREVIOUS_THREADS_REFERENCE;
   root.AIO.NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS = NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS;
   root.AIO.NATHAN_FRAMEWORK_PACK = NATHAN_FRAMEWORK_PACK;

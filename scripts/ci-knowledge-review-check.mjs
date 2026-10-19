@@ -5,7 +5,8 @@ import { readFileSync } from 'node:fs';
 import { DOMAIN_RELATIONS, RELATION_TYPES, nodeCategory, typedRelations } from '../src/domain/knowledge/atlas-relations.js';
 import { CONCEPT_CORE, conceptAliasIndex } from '../src/domain/knowledge/concept-core.js';
 import { COLUMN_FRAME, KEY_ISSUES, LESSONS, PATHS, lessonById } from '../src/domain/knowledge/learning-core.js';
-import { mergeConceptCore, searchKnowledgeIndex } from '../src/ui/knowledge/glossary-bridge.js';
+import { mergeConceptCore } from '../src/ui/knowledge/glossary-bridge.js';
+import { searchKnowledgeIndex } from '../src/ui/knowledge/knowledge-search.js';
 import { KNOWLEDGE_CADENCE, isOverdue } from '../src/domain/knowledge/knowledge-cadence.js';
 import { STYLE_FRAMES, groupManagersByStyle } from '../src/domain/masters/style-frames.js';
 

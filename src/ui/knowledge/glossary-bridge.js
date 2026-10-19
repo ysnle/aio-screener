@@ -4,13 +4,15 @@
 //     added — one definition per concept across the product.
 //  2. installGlossaryBridge: after the legacy modal renders a search, append "다른 학습 영역" results from
 //     public-data/knowledge/search-index.json (loaded on first search) with links that open the surface.
+//     The ranker (knowledge-search.js) carries the learning-core notes, so it loads with the index on first
+//     search instead of at boot.
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
 import { appendScreenTerms } from '../../domain/knowledge/screen-term-additions.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
-import { LESSONS, PATHS } from '../../domain/knowledge/learning-core.js';
 import { CONCEPT_SURFACES, SCREEN_TERMS, SCREEN_ROUTE_LABELS, screenRoutesFor } from '../../domain/knowledge/concept-surfaces.js';
 
-const normalize = (text) => String(text || '').toLowerCase().replace(/\(.*?\)/g, ' ').replace(/[·/,]/g, ' ').replace(/\s+/g, ' ').trim();
+// Shared with knowledge-search.js: one normalization for glossary merge and knowledge search.
+export const normalize = (text) => String(text || '').toLowerCase().replace(/\(.*?\)/g, ' ').replace(/[·/,]/g, ' ').replace(/\s+/g, ' ').trim();
 
 export function mergeConceptCore(glossary, concepts = CONCEPT_CORE) {
   if (!Array.isArray(glossary)) return { replaced: 0, added: 0 };
@@ -32,32 +34,6 @@ export function mergeConceptCore(glossary, concepts = CONCEPT_CORE) {
     }
   }
   return { replaced, added };
-}
-
-// Ranked matches: exact title or key > title prefix/contains > key contains > text contains.
-export function searchKnowledgeIndex(index, query, limit = 8) {
-  const q = normalize(query);
-  if (!q || q.length < 2) return [];
-  // P1606: canonical local notes remain searchable before the Actions index rebuild.
-  const entries = new Map((index?.entries || []).map((entry) => [entry.id, entry]));
-  for (const lesson of LESSONS) {
-    const id = `frame:${lesson.id}`, previous = entries.get(id);
-    entries.set(id, { ...previous, id, surface: 'frame', surfaceLabel: '분석 노트', title: lesson.issue, text: lesson.answer.slice(0, 240), group: PATHS.find((path) => path.id === lesson.path)?.title || null, keys: [...new Set([...(previous?.keys || []), lesson.title, ...(lesson.concepts || [])])], route: { page: 'principles', params: { mode: 'frames', node: lesson.id } } });
-  }
-  const scored = [];
-  for (const entry of entries.values()) {
-    const title = normalize(entry.title);
-    const keys = (entry.keys || []).map(normalize);
-    const text = normalize(entry.text);
-    let score = 0;
-    if (title === q || keys.includes(q)) score = 100;
-    else if (title.startsWith(q)) score = 80;
-    else if (title.includes(q)) score = 60;
-    else if (keys.some((key) => key.includes(q))) score = 50;
-    else if (text.includes(q)) score = 20;
-    if (score) scored.push({ entry, score: score + (entry.surface === 'frame' || entry.surface === 'column' ? 5 : 0) });
-  }
-  return scored.sort((a, b) => b.score - a.score || a.entry.title.localeCompare(b.entry.title)).slice(0, limit).map((item) => ({ ...item.entry, score: item.score }));
 }
 
 // v57.50 I18: a term that a screen measures (HY 스프레드 → 투자 심리, RSI → 차트, 시장 폭 → 시장 폭) also offers
@@ -91,12 +67,18 @@ export function installGlossaryBridge({ root = globalThis, documentRef = root.do
   try { if (Array.isArray(root.GLOSSARY)) { root._aioGlossaryScreenTerms = appendScreenTerms(root.GLOSSARY); root._aioGlossaryConceptMerge = mergeConceptCore(root.GLOSSARY); } } catch (_) { /* legacy glossary absent */ }
   let index = null;
   let loading = null;
+  let searchIndex = () => [];
   const load = () => {
     if (index || loading) return loading;
     const fetchFn = root.fetch?.bind(root);
     if (!fetchFn) return null;
     // A failed load settles to an empty index; leaving it null re-queued render() on the settled promise forever.
-    loading = fetchFn('./public-data/knowledge/search-index.json').then((response) => (response.ok ? response.json() : null)).catch(() => null).then((json) => { index = json && Array.isArray(json.entries) ? json : { entries: [] }; return index; });
+    const indexJson = fetchFn('./public-data/knowledge/search-index.json').then((response) => (response.ok ? response.json() : null)).catch(() => null);
+    loading = Promise.all([indexJson, import('./knowledge-search.js').catch(() => null)]).then(([json, search]) => {
+      searchIndex = search?.searchKnowledgeIndex || (() => []);
+      index = json && Array.isArray(json.entries) ? json : { entries: [] };
+      return index;
+    });
     return loading;
   };
   const render = () => {
@@ -107,7 +89,7 @@ export function installGlossaryBridge({ root = globalThis, documentRef = root.do
     const query = String(input.value || '').trim();
     if (query.length < 2) return;
     if (!index) { const pending = load(); if (pending) pending.then(() => render()); return; }
-    const results = searchKnowledgeIndex(index, query);
+    const results = searchIndex(index, query);
     const screens = screenLinksForQuery(query);
     const box = documentRef.createElement('section');
     box.dataset.glossaryCross = 'true';

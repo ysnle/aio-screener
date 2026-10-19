@@ -2,14 +2,14 @@ import { normalizeScreener } from '../normalize/screener.js';
 import { deriveScreenerSetupProfile } from '../../domain/screener/setup-profile.js';
 import { calculationRow, createScreenDefinition, stableHash } from '../contracts/screener.js';
 import { runScreen, summarizeScreenReadiness, SCREEN_ENGINE_VERSION } from '../../domain/screener/screen-engine.js';
-import { SUPPLIED_MATERIALS_REFERENCE, SUPPLIED_MATERIAL_CLAIM_IDS } from '../../domain/research/supplied-materials.js';
+import { SUPPLIED_MATERIALS_META, SUPPLIED_MATERIAL_CLAIM_IDS } from '../../domain/research/reference-index.js';
 import { NATHAN_PREVIOUS_THREADS_REFERENCE } from '../../domain/research/nathan-previous-threads.js';
 import { NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_CONCEPTS } from '../../domain/knowledge/nathan-framework-pack.js';
 import { CONDITIONAL_EVIDENCE_VERSION } from '../../domain/screener/conditional-evidence.js';
 import { EVIDENCE_LINEAGE_VERSION } from '../../domain/screener/evidence-lineage.js';
 import { RANKING_CONTRACTS } from '../screener-extended.js';
 
-const SCREENER_RESEARCH_MAPPING = Object.freeze(SUPPLIED_MATERIALS_REFERENCE.routeMappings?.screener || {});
+const SCREENER_RESEARCH_MAPPING = Object.freeze(SUPPLIED_MATERIALS_META.routeMappings?.screener || {});
 const SCREENER_REFERENCE_FRAMEWORK_IDS = Object.freeze([
   ...new Set([
     ...(SCREENER_RESEARCH_MAPPING.sectionIds || []),
@@ -80,7 +80,7 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
       referenceProcessingStages: NATHAN_ANALYSIS_PROTOCOL.stages,
       referenceTimeSeriesIds: SCREENER_RESEARCH_MAPPING.timeSeriesIds,
       referenceClaimIds: SUPPLIED_MATERIAL_CLAIM_IDS,
-      referenceBoundary: SUPPLIED_MATERIALS_REFERENCE.operationalUse,
+      referenceBoundary: SUPPLIED_MATERIALS_META.operationalUse,
       minCoverage: 0.8,
       regimePolicy: { mode: 'reference-only', autoPromote: false }
     });
@@ -119,20 +119,20 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
       metadata: {
         ...normalized.metadata,
         researchContext: {
-          referenceId: SUPPLIED_MATERIALS_REFERENCE.id,
-          sourceKind: SUPPLIED_MATERIALS_REFERENCE.sourceKind,
-          operationalUse: SUPPLIED_MATERIALS_REFERENCE.operationalUse,
+          referenceId: SUPPLIED_MATERIALS_META.id,
+          sourceKind: SUPPLIED_MATERIALS_META.sourceKind,
+          operationalUse: SUPPLIED_MATERIALS_META.operationalUse,
           frameworkIds: [...(screenDefinition.referenceFrameworkIds || [])],
           conceptIds: [...(screenDefinition.referenceConceptIds || [])],
           questionIds: [...(screenDefinition.referenceQuestionIds || [])],
           processingStages: [...(screenDefinition.referenceProcessingStages || [])],
           timeSeriesIds: [...(screenDefinition.referenceTimeSeriesIds || [])],
           claimIds: [...(screenDefinition.referenceClaimIds || [])],
-          sourceExtensionPacketId: SUPPLIED_MATERIALS_REFERENCE.sourceExtensions?.packetId || null,
-          pipelineVersion: SUPPLIED_MATERIALS_REFERENCE.sourceExtensions?.pipeline?.version || null,
+          sourceExtensionPacketId: SUPPLIED_MATERIALS_META.sourceExtensions?.packetId || null,
+          pipelineVersion: SUPPLIED_MATERIALS_META.sourceExtensions?.pipeline?.version || null,
           conditionalEvidenceVersion: CONDITIONAL_EVIDENCE_VERSION,
           evidenceLineageVersion: EVIDENCE_LINEAGE_VERSION,
-          requiredLineage: [...(SUPPLIED_MATERIALS_REFERENCE.sourceExtensions?.pipeline?.requiredLineage || [])],
+          requiredLineage: [...(SUPPLIED_MATERIALS_META.sourceExtensions?.pipeline?.requiredLineage || [])],
           boundary: screenDefinition.referenceBoundary,
           currentClaimsAllowed: false,
           rankingUse: 'none'

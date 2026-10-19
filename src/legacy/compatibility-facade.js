@@ -413,8 +413,6 @@ export function exposeArchitecture(root, api, { immutableState = false } = {}) {
       status: 'MIGRATION_IN_PROGRESS',
       version: api.version,
        getState: stateSnapshotCall(api.getState),
-       getSuppliedMaterialsReference: snapshotCall(api.getSuppliedMaterialsReference),
-       getSuppliedMaterialClaimIds: snapshotCall(api.getSuppliedMaterialClaimIds),
        getScreenerRows: stateSnapshotCall(legacyScreenerRows),
        getScreenerState: stateSnapshotCall(api.getScreenerState),
        // E2/S-C (P1241): the classic legacy bundle cannot import the policy module, so the declared

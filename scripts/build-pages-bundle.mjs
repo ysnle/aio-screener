@@ -19,12 +19,8 @@ import crypto from 'node:crypto';
 import zlib from 'node:zlib';
 import * as esbuild from 'esbuild';
 
-const GLOBAL_SCRIPTS = ['aio-workspace', 'aio-kr-data', 'aio-pages', 'aio-core', 'aio-data', 'aio-ui', 'aio-chat', 'aio-glossary'].map((name) => `js/${name}.js`);
-const ESM_ENTRY = 'src/app/bootstrap.js';
-// Classic scripts already require ES2020 (optional chaining); the module graph already requires ES2021 (||=).
-// Pinning the targets keeps the minifier from introducing newer syntax than the source ships today.
-const GLOBAL_TARGET = 'es2020';
-const ESM_TARGET = 'es2021';
+import { GLOBAL_SCRIPTS, ESM_ENTRY, GLOBAL_TARGET, esmBundleOptions, bootOutputs } from './lib/pages-bundle-config.mjs';
+
 const TOP_LEVEL_FN_RE = /^(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/gm;
 
 const args = process.argv.slice(2);
@@ -79,23 +75,9 @@ for (const file of GLOBAL_SCRIPTS) {
 
 // 2. Native ESM graph. Bundle from the pristine staged sources into a temp dir, then swap it in.
 const bundleOut = fs.mkdtempSync(path.join(path.dirname(dist), '.aio-esm-bundle-'));
-const build = await esbuild.build({
-  // Input paths resolve relative to the staged dir, so chunk hashes depend only on the shipped code (a data-only
-  // deploy keeps the same bytes and the service worker's code hash), not on where the runner staged it.
-  absWorkingDir: dist,
-  entryPoints: { 'app/bootstrap': ESM_ENTRY },
-  outdir: bundleOut,
-  bundle: true,
-  splitting: true,
-  format: 'esm',
-  minify: true,
-  charset: 'utf8',
-  legalComments: 'none',
-  target: ESM_TARGET,
-  chunkNames: 'chunks/[name]-[hash]',
-  metafile: true,
-  logLevel: 'error'
-});
+// Input paths resolve relative to the staged dir, so chunk hashes depend only on the shipped code (a data-only
+// deploy keeps the same bytes and the service worker's code hash), not on where the runner staged it.
+const build = await esbuild.build(esmBundleOptions({ absWorkingDir: dist, outdir: bundleOut }));
 if (build.errors.length) throw new Error(`esbuild bundle failed with ${build.errors.length} errors`);
 for (const file of listFiles(srcDir, (full) => full.endsWith('.js'))) fs.rmSync(file);
 for (const file of listFiles(bundleOut, () => true)) {
@@ -113,16 +95,7 @@ pruneEmpty(srcDir);
 
 // 3. Boot set = entry plus the chunks it imports statically (lazy page chunks load on navigation).
 const outputs = Object.fromEntries(Object.entries(build.metafile.outputs).map(([file, value]) => [rel(path.join(srcDir, path.relative(bundleOut, path.resolve(dist, file)))), value]));
-const bootModules = new Set();
-const queue = [ESM_ENTRY];
-while (queue.length) {
-  const file = queue.shift();
-  if (bootModules.has(file)) continue;
-  bootModules.add(file);
-  for (const item of outputs[file]?.imports || []) {
-    if (item.kind === 'import-statement') queue.push(rel(path.join(srcDir, path.relative(bundleOut, path.resolve(dist, item.path)))));
-  }
-}
+const bootModules = new Set(bootOutputs(build.metafile).map((file) => rel(path.join(srcDir, path.relative(bundleOut, path.resolve(dist, file))))));
 
 const builtFiles = [...GLOBAL_SCRIPTS, ...Object.keys(outputs).filter((file) => file.endsWith('.js')).sort(), 'index.html'];
 const manifest = {
