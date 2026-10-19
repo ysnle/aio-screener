@@ -377,6 +377,7 @@ export async function fetchNews(nowMs = Date.now()) {
   const items = [];    // US/글로벌 피드
   const krItems = [];  // 한국 전용 (reserved slot)
   const intradayCandidates = []; // P1720: published after cycle.endMs (08:00 KST)
+  const slotPool = []; // market timeline (2026-10-19): every dated candidate of the last 30 h, cut per 6 h KST slot later
   for (const feed of NEWS_FEEDS) {
     const isKr = feed.country === 'kr';
     try {
@@ -393,6 +394,10 @@ export async function fetchNews(nowMs = Date.now()) {
       }
       for (const p of parsed) {
         const t = p.ts;
+        if (isFinite(t) && t >= nowMs - 30 * 3600000 && p.title && p.link) {
+          slotPool.push({ title: p.title, link: p.link, source: p.source || feed.source, _sourceRaw: p._sourceRaw, guid: p.guid,
+            sourceArticleId: p.sourceArticleId, ts: t, topic: isKr ? 'kr' : feed.topic, country: feed.country, feedTier: feed.tier, feedSource: feed.source });
+        }
         // P1720: articles published after the 08:00 cut are kept aside for the provisional intraday slot; the
         // completed 08:00 bundle below stays the canonical window.
         if (isFinite(t) && t >= cycle.endMs) {
@@ -511,6 +516,7 @@ export async function fetchNews(nowMs = Date.now()) {
   // P1720: the provisional intraday slot rides on the same array without entering its JSON (non-enumerable), so every
   // existing consumer of `news` keeps the canonical 08:00 bundle unchanged.
   Object.defineProperty(out, 'intraday', { value: selectNewsIntraday(intradayCandidates, { cycleEndMs: cycle.endMs, canonical: out }), enumerable: false });
+  Object.defineProperty(out, 'slotPool', { value: slotPool, enumerable: false }); // scripts/lib/market-timeline.mjs
   return out;
 }
 
