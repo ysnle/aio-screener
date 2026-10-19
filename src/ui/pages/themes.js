@@ -1102,10 +1102,10 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
          if (performanceBarsHost) performanceBarsHost.dataset.aioThemePerformanceBarsRenderer = 'native';
          if (detailPanel) detailPanel.dataset.aioThemeDetailPanelRenderer = 'native';
         // v57.54 (CI flake, 1 in ~12 under 4x CPU): a refresh/store re-render right after the detail panel closes can
-        // replace the trigger the close handler just focused, dropping focus to <body>. Re-focus it once after render.
+        // replace the trigger the close handler just focused, dropping focus to <body>. Re-focus its replacement after render.
         let restoreDetailFocus = null;
-        let closeObserver = null; // one at a time; disconnected on success, after 10s, or on unmount
-        bag.add(() => closeObserver?.disconnect?.());
+        let stopCloseFollow = null; // one at a time; ends when focus moves on, on reopen, after 60s, or on unmount
+        bag.add(() => stopCloseFollow?.());
         // v57.61 (perf): the nine detail renderers only fill hosts inside #theme-detail-panel. While the panel is
         // closed the close handler has emptied them, so they are skipped; opening the panel renders them once.
         const renderDetail = () => {
@@ -1200,6 +1200,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           // P800: the native detail surfaces consume the normalized store selection;
           // the legacy event payload remains a compatibility notification only.
           if (deepLinkHint) deepLinkHint.hidden = true;
+          stopCloseFollow?.(); // a reopened detail ends the close-focus follow
           if (detailPanel) {
             detailPanel.style.display = 'block';
             if (event?.detail?.themeId) detailPanel.dataset.currentTheme = String(event.detail.themeId);
@@ -1220,25 +1221,46 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           trigger?.focus?.({ preventScroll: true });
           const closedAt = Date.now();
           // v57.59: CI still lost focus when the replacing render came from a host outside renderNow (or after 3s under
-          // CPU throttling), so a short-lived observer on the page also retries, for up to 10s.
-          closeObserver?.disconnect?.();
+          // CPU throttling), so a short-lived observer on the page also retries.
+          // 2026-10-19: it stopped after the first successful re-focus and after 10s, so a second replacing render (or
+          // one after 10s under 4x CPU) still dropped focus to <body> (main CI, #62, #73). It now follows the focused
+          // trigger: whenever that node is removed while focus sits on <body>, the current trigger for the same theme
+          // takes focus. It stops once the reader moves focus elsewhere (a blur onto <body> while the trigger is still
+          // mounted is the reader's own click), when a detail opens again, or after 60s.
+          stopCloseFollow?.();
           let observer = null;
-          const stop = () => { restoreDetailFocus = null; observer?.disconnect?.(); observer = null; closeObserver = null; };
+          let focused = documentRef.activeElement === trigger ? trigger : null;
+          // A blur of a still-mounted trigger (checked after the event, since a removal may also report focusout) is
+          // the reader leaving; a later replacing render must not pull focus back.
+          const onFocusOut = (event) => {
+            if (event.target !== focused) return;
+            documentRef.defaultView?.queueMicrotask?.(() => { if (focused?.isConnected && documentRef.activeElement !== focused) stop(); });
+          };
+          const stop = () => { restoreDetailFocus = null; observer?.disconnect?.(); observer = null; stopCloseFollow = null; documentRef.removeEventListener?.('focusout', onFocusOut, true); };
+          stopCloseFollow = stop;
+          documentRef.addEventListener?.('focusout', onFocusOut, true);
           restoreDetailFocus = () => {
-            if (Date.now() - closedAt > 10000) { stop(); return; }
+            if (Date.now() - closedAt > 60000) { stop(); return; }
             const active = documentRef.activeElement;
-            if (active && active !== documentRef.body) return;
+            // The panel's own close button keeps focus while hidden until something else takes it; that is not the reader moving on.
+            if (active && active !== documentRef.body && !detailPanel?.contains?.(active)) {
+              const id = active.dataset?.arg || active.dataset?.themeId;
+              if (active === focused || (id && id === detailTriggerId && page?.contains?.(active))) { focused = active; return; }
+              stop(); // focus moved to something else: the reader has gone on
+              return;
+            }
+            if (focused && documentRef.contains(focused) && !detailPanel?.contains?.(active)) { stop(); return; } // the reader blurred a still-mounted trigger
             const next = currentDetailTrigger();
             if (!next) return;
             revealTrigger(next);
             next.setAttribute?.('aria-expanded', 'false');
             next.focus?.({ preventScroll: true });
             // v57.64: a replacement still hidden mid-render refuses focus; keep watching until focus actually lands.
-            if (documentRef.activeElement === next) stop();
+            if (documentRef.activeElement === next) focused = next;
           };
           const Observer = documentRef.defaultView?.MutationObserver;
-          if (Observer && page) { observer = closeObserver = new Observer(() => restoreDetailFocus?.()); observer.observe(page, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'style', 'open', 'class'] }); }
-          documentRef.defaultView?.setTimeout?.(() => { if (closeObserver === observer) stop(); }, 10500);
+          if (Observer && page) { observer = new Observer(() => restoreDetailFocus?.()); observer.observe(page, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'style', 'open', 'class'] }); }
+          documentRef.defaultView?.setTimeout?.(() => { if (stopCloseFollow === stop) stop(); }, 60500);
           if (detailPanel) {
             detailPanel.style.display = 'none';
             delete detailPanel.dataset.currentTheme;

@@ -138,6 +138,16 @@ try {
     }), themeId);
     throw new Error(`theme close focus not restored to ${themeId}: ${JSON.stringify(state)} (triggerStillMounted=false: a re-render replaced the trigger after close; true: focus was never returned)`, { cause: error });
   }
+  // 2026-10-19: the follow used to stop after its first re-focus, so a second replacing render (main CI after #73)
+  // still dropped focus. Replace the trigger twice on purpose; focus must land on each replacement.
+  for (let round = 1; round <= 2; round += 1) {
+    await page.evaluate((id) => {
+      const node = [...document.querySelectorAll('#page-themes [data-action=showThemeDetail], #page-themes button[data-theme-id]')].find((item) => (item.dataset.arg || item.dataset.themeId) === id && !item.closest('#theme-detail-panel'));
+      node?.replaceWith(node.cloneNode(true));
+    }, themeId);
+    await page.waitForFunction((id) => (document.activeElement?.dataset.arg || document.activeElement?.dataset.themeId) === id, themeId, { timeout: 5000 })
+      .catch(() => { throw new Error(`theme close focus lost after replacing render ${round} for ${themeId}`); });
+  }
   await capture({ stepId: 'theme-close-focus', route: 'themes', stateId: 'close-focus', action: { type: 'close', target: 'theme-detail-panel' }, locator: '#page-themes', expected: 'focus returns to current trigger after rerender', actual: `trigger ${themeId} focused` });
   const errors = validateBrowserEvidence(report);
   assert.deepEqual(errors, [], 'P1603: bounded complete scenario evidence');
