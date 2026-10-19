@@ -21,7 +21,9 @@ import { isNonMetricNumber } from './lib/market-analysis-numbers.mjs';
 import { marketAnalysisLargeMove } from './lib/market-analysis-validate.mjs';
 import { discreteQuarterSeries } from '../src/domain/fundamental/sec-earnings.js';
 import { dataSourceWarnings, deadNewsFeeds } from './lib/operational-health.mjs';
-import { mergeNewsFeedHealth, carriedNewsCandidates, createNewsTopicCap, getKst0800NewsCycle } from './lib/news-selection.mjs';
+import { mergeNewsFeedHealth, carriedNewsCandidates, createNewsTopicCap, getKst0800NewsCycle, newsFloorDropReason, newsHeadlineUnverified } from './lib/news-selection.mjs';
+import { narrativeVerification } from './lib/narrative-context.mjs';
+import { reportVerification } from '../src/domain/news/report-verification.js';
 
 const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
 
@@ -127,6 +129,19 @@ const health2 = mergeNewsFeedHealth(health1, [{ source: 'A', status: 'ok', kept:
 assert.deepEqual(health2.map((row) => [row.source, row.missStreak]), [['A', 0], ['B', 2]], 'a feed without usable items accumulates a streak');
 assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: health2 } }, { nowMs: Date.parse(healthAt) }), ['B'], 'a feed never healthy since first seen 3.5 days ago is dead');
 assert.equal(dataSourceWarnings({ meta: { marketSentenceReject: 'latin-word' }, marketAnalysis: { sentence: { day: '2026-10-18' } } }, { nowMs: Date.parse(healthAt) }).length, 1, 'a rejected new-day sentence is named');
+// 2026-10-19 pipeline redesign: feed records accumulate, an idle feed is named with its drop reasons, and one rumour rule
+// labels the news bundle and the narrative context alike.
+assert.deepEqual(health2.map((row) => [row.source, row.runs, row.keptTotal]), [['A', 2, 5], ['B', 2, 0]], 'feed runs and kept articles accumulate');
+const idle = Array.from({ length: 28 }).reduce((prev) => mergeNewsFeedHealth(prev, [{ source: 'C', status: 'ok', kept: 1, selected: 0, dropped: { 'low-quality-source': 9 } }], healthAt), null);
+assert.match(dataSourceWarnings({ meta: { newsFeedHealth: idle } }, { nowMs: Date.parse(healthAt) }).join('\n'), /"C" placed no article in 28 runs .*low-quality-source 9/, 'a feed that never places an article is named with why');
+assert.equal(newsFloorDropReason({ tier: 4, score: 50, topicHits: 2 }), 'low-quality-source');
+assert.equal(newsFloorDropReason({ tier: 2, score: 0, selectionReason: 'clickbait-filter' }), 'clickbait-filter');
+assert.equal(newsFloorDropReason({ tier: 2, score: 40, topicHits: 0 }), 'no-market-topic');
+for (const [text, level] of [['CoreWeave weighs debt sale, people familiar say', 'unconfirmed'], ['삼성전자 매각설 확산', 'rumor'], ['업계 관계자들이 전했다', 'unconfirmed'], ['Market Chatter: Oracle', 'rumor'], ['Nvidia beats estimates', 'reported']]) {
+  assert.equal(reportVerification(text), level, `report verification: ${text}`);
+  assert.equal(narrativeVerification(text), level, `narrative context uses the shared rule: ${text}`);
+  assert.equal(newsHeadlineUnverified(text), level !== 'reported', `news bundle uses the shared rule: ${text}`);
+}
 
 // P1651: a KRX close aligns to the latest completed KRX session, not the US basis (10/12 -3.6% was shown as 10/8).
 const krHistory = [

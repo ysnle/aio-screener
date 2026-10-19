@@ -2,6 +2,7 @@
 // source-tier/impact scoring, same-event dedupe and topic caps, intraday selection, and per-ticker memo selection.
 // Scoring and selection are pure (unit-testable without the producer); fetchNews/fetchTickerNewsItems do the RSS I/O.
 // fetch-data.mjs imports and re-exports them.
+import { reportIsUnconfirmed } from '../../src/domain/news/report-verification.js';
 import { round } from './producer-math.mjs';
 import { _fetchRss, _fetchRssWithRetry } from './producer-http.mjs';
 import { newsArticleKey, issuerNameMentioned } from '../../src/domain/news/stories.js';
@@ -123,13 +124,10 @@ const SERVER_NEWS_PRIORITY_RULES = [
 const SERVER_NEWS_CLICKBAIT_RE = /\b(next nvidia|next tesla|must buy|guaranteed return|millionaire|hidden gem|penny stock|to the moon|won't believe|don't miss|best stocks? to buy now|fortunes? (?:are|is|was|were|could be|can be|will be) made|make you (?:rich|a fortune)|life[- ]changing (?:money|wealth|returns?)|generational wealth|set (?:you )?up for life|retire (?:rich|early|a millionaire)|turn \$?[\d,]+ into|just changed everything|changes everything)\b/i;
 // 2026-10-19 data audit: video-farm reposts ("BE Stock Just Changed EVERYTHING … (rMCZTrTnh0)") end in an 11-char video id.
 const SERVER_NEWS_VIDEO_REPOST_RE = /\([A-Za-z0-9_-]{10,11}\)\s*$/;
-const SERVER_NEWS_UNVERIFIED_RE = /\b(people familiar|sources say|according to sources|unconfirmed|rumou?rs?|reportedly|may be considering|is said to|speculation|unnamed sources|people with knowledge|market chatter)\b/i;
-// Owner 2026-10-18: rumours stay labelled as rumours. Korean wording carries no `\b` boundary, so it is a separate pattern;
-// a matching headline keeps its -8 and is published with verification 'unconfirmed' so the reader and the model see it.
-const SERVER_NEWS_UNVERIFIED_KO_RE = /(루머|소문|찌라시|미확인|관계자(?:들)?(?:에\s*따르면|를\s*인용)|소식통|설\s*(?:나와|돌아|확산))/;
+// Owner 2026-10-18: rumours stay labelled as rumours; a matching headline keeps its -8 and is published with verification
+// 'unconfirmed' so the reader and the model see it. 2026-10-19: one shared rule for every producer and screen.
 export function newsHeadlineUnverified(text) {
-  const value = String(text || '');
-  return SERVER_NEWS_UNVERIFIED_RE.test(value) || SERVER_NEWS_UNVERIFIED_KO_RE.test(value);
+  return reportIsUnconfirmed(text);
 }
 const SERVER_NEWS_TIER1_SOURCE_RE = /\b(Reuters|Bloomberg|Associated Press|AP News|Financial Times|Wall Street Journal|WSJ|CNBC)\b/i;
 // P1720: the Korean-edition feed labels these same tier-2 publishers in Korean (연합뉴스 = Yonhap), which `\b` never
@@ -390,13 +388,29 @@ export const NEWS_FEED_FLOORS = Object.freeze([['fxbond', 3], ['credit', 2], ['G
 // counts, a streak of consecutive runs without a usable current item and when it last had one; the watchdog warns when
 // a feed has had none for a day (a quiet Korean weekend morning is not a dead feed).
 export const NEWS_FEED_STALE_MS = 24 * 3600000;
+// Why an in-window article missed the selection floor (P1504). Filter reasons come from scoreServerNewsItem.
+export function newsFloorDropReason(item) {
+  if (Number(item?.tier) >= 4) return 'low-quality-source';
+  if (!(item?.score > 0)) return /^[a-z-]+-filter$/.test(String(item?.selectionReason || '')) ? item.selectionReason : 'zero-score';
+  return 'no-market-topic';
+}
+
+// 2026-10-19 pipeline redesign: runs/keptTotal/selectedTotal accumulate across runs (reset when the feed's query changes
+// name), so whether a feed earns its slot is read from its record instead of one run's snapshot.
 export function mergeNewsFeedHealth(previous, current, at = new Date().toISOString()) {
   const before = new Map((Array.isArray(previous) ? previous : []).filter((row) => row?.source).map((row) => [row.source, row]));
   return (Array.isArray(current) ? current : []).map((row) => {
     const prior = before.get(row.source);
     const healthy = row.status === 'ok' && row.kept > 0;
-    return { ...row, missStreak: healthy ? 0 : Number(prior?.missStreak || 0) + 1, lastHealthyAt: healthy ? at : (prior?.lastHealthyAt || prior?.firstSeenAt || at), firstSeenAt: prior?.firstSeenAt || at };
+    return { ...row, missStreak: healthy ? 0 : Number(prior?.missStreak || 0) + 1, lastHealthyAt: healthy ? at : (prior?.lastHealthyAt || prior?.firstSeenAt || at), firstSeenAt: prior?.firstSeenAt || at,
+      runs: Number(prior?.runs || 0) + 1, keptTotal: Number(prior?.keptTotal || 0) + Number(row.kept || 0), selectedTotal: Number(prior?.selectedTotal || 0) + Number(row.selected || 0) };
   });
+}
+
+// A feed that has run for a week of refreshes and never placed an article in the bundle is a pruning candidate.
+export const NEWS_FEED_IDLE_MIN_RUNS = 28;
+export function idleNewsFeeds(feedHealth, minRuns = NEWS_FEED_IDLE_MIN_RUNS) {
+  return (Array.isArray(feedHealth) ? feedHealth : []).filter((row) => Number(row?.runs) >= minRuns && Number(row?.selectedTotal || 0) === 0);
 }
 export function staleNewsFeeds(feedHealth, nowMs = Date.now(), maxAgeMs = NEWS_FEED_STALE_MS) {
   return (Array.isArray(feedHealth) ? feedHealth : []).filter((row) => row?.missStreak > 0 && nowMs - Date.parse(row.lastHealthyAt || '') > maxAgeMs);
@@ -432,7 +446,9 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
   const slotPool = []; // market timeline (2026-10-19): every dated candidate of the last 30 h, cut per 6 h KST slot later
   for (const feed of NEWS_FEEDS) {
     const isKr = feed.country === 'kr';
-    const health = { source: feed.source, status: 'ok', parsed: 0, inWindow: 0, kept: 0, selected: 0 };
+    // 2026-10-19 pipeline redesign: `dropped` counts why in-window articles missed the floor and `lowQualitySources`
+    // names the publishers behind 'low-quality-source', so a feed that parses 40 and keeps 0 says why.
+    const health = { source: feed.source, status: 'ok', parsed: 0, inWindow: 0, kept: 0, selected: 0, dropped: {}, lowQualitySources: {} };
     feedHealth.push(health);
     try {
       const feedUrls = [feed.url, feed.url.replace(/when%3A2d/i, 'when%3A7d')];
@@ -480,7 +496,12 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
         Object.assign(item, scoreServerNewsItem(item));
         // P1504: selection floor — off-topic headlines (a lacrosse team surfaced through a "Red Sea" query) and
         // low-quality sources are dropped before ranking instead of filling empty slots.
-        if (!(item.topicHits > 0) || item.tier >= 4 || !(item.score > 0)) continue;
+        if (!(item.topicHits > 0) || item.tier >= 4 || !(item.score > 0)) {
+          const why = newsFloorDropReason(item);
+          health.dropped[why] = (health.dropped[why] || 0) + 1;
+          if (why === 'low-quality-source') health.lowQualitySources[item.source] = (health.lowQualitySources[item.source] || 0) + 1;
+          continue;
+        }
         health.kept += 1;
         if (isKr) { krItems.push(item); } else { items.push(item); }
       }

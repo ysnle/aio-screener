@@ -38,6 +38,13 @@ export function dataSourceWarnings(data, { nowMs = Date.now(), feedStaleMs = 24 
       warnings.push(`news feed "${feed.source}" has had no usable current item for ${Math.round((nowMs - since) / 3600000)}h (${feed.missStreak} runs, last status ${feed.status})`);
     }
   }
+  // 2026-10-19 pipeline redesign: a feed that answers every run but has not placed one article in the bundle for a week of
+  // refreshes costs a request and a slot guarantee for nothing; name it with the reason its articles were dropped.
+  for (const feed of (Array.isArray(meta.newsFeedHealth) ? meta.newsFeedHealth : [])) {
+    if (!(Number(feed?.runs) >= 28) || Number(feed?.selectedTotal || 0) !== 0) continue;
+    const reasons = Object.entries(feed.dropped || {}).sort((a, b) => b[1] - a[1]).map(([why, n]) => `${why} ${n}`).join(', ');
+    warnings.push(`news feed "${feed.source}" placed no article in ${feed.runs} runs (kept ${feed.keptTotal || 0}${reasons ? `; last run dropped: ${reasons}` : ''}) — prune or rewrite its query`);
+  }
   const sentenceDay = data?.marketAnalysis?.sentence?.day;
   const today = new Date(nowMs + 3600000).toISOString().slice(0, 10); // KST day of (now - 08:00), as marketSentenceDay
   if (sentenceDay && sentenceDay < today && meta.marketSentenceReject && meta.marketSentenceReject !== 'no-new-candidate') {
