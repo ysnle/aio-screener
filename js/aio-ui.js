@@ -2720,8 +2720,7 @@ function _renderFundValuation(d) {
   }
   // v49.0 P183: _fv/_fn으로 || 0 패턴 제거 (0.0x 오표시·Infinityx 방지)
   var _pe = _fv(mt.peRatioTTM, ma.peRatio); html += valRow('P/E (TTM)', _pe !== null ? _pe.toFixed(1) + 'x' : 'N/A');
-  // Expertise review 2026-10-19: the provider profile's pe is trailing, so the 'Forward P/E' row repeated the trailing multiple.
-  // The forward multiple lives on the consensus card (consensus-read.js).
+  // 2026-10-19: no 'Forward P/E' row — the profile pe is trailing; the forward multiple is on the consensus card.
   var _pb = _fv(mt.priceToBookRatioTTM, ma.pbRatio); html += valRow('P/B', _pb !== null ? _pb.toFixed(2) + 'x' : 'N/A');
   var _ps = _fv3(mt.priceToSalesRatioTTM, ma.priceToSalesRatio, ra.priceToSalesRatio); html += valRow('P/S', _ps !== null ? _ps.toFixed(2) + 'x' : 'N/A');
   var _eveb = _fv(mt.enterpriseValueOverEBITDATTM, ma.enterpriseValueOverEBITDA); html += valRow('EV/EBITDA', _eveb !== null ? _eveb.toFixed(1) + 'x' : 'N/A');
@@ -2801,8 +2800,7 @@ function _renderFundEarnings(d) {
     html += '<tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:6px;color:var(--text-muted);font-size:10px;">분기</th><th style="text-align:right;padding:6px;color:var(--text-muted);font-size:10px;">실제 EPS</th><th style="text-align:right;padding:6px;color:var(--text-muted);font-size:10px;">예상 EPS</th><th style="text-align:right;padding:6px;color:var(--text-muted);font-size:10px;">서프라이즈</th></tr>';
     d.fmpSurprises.forEach(function(s) {
       var diff = s.actualEarningResult - s.estimatedEarning;
-      var hasEst = s.estimatedEarning != null && isFinite(s.estimatedEarning) && s.estimatedEarning !== 0; // a missing estimate is no surprise figure, not 0%
-      var pct = hasEst ? (diff / Math.abs(s.estimatedEarning) * 100) : null;
+      var pct = s.estimatedEarning != null && isFinite(s.estimatedEarning) && s.estimatedEarning !== 0 ? (diff / Math.abs(s.estimatedEarning) * 100) : null; // no estimate: no figure, not 0%
       var c = diff >= 0 ? '#00e5a0' : '#ff5b50';
       var label = diff >= 0 ? 'Beat' : 'Miss';
       html += '<tr style="border-bottom:1px solid var(--surface-2);">';

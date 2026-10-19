@@ -1230,13 +1230,10 @@ function _aioRenderPortfolioStress(positions) {
   var rows = base.rows.map(function(r){ var st=find(r.sym); return { sym: r.sym, value: r.value, kr: /\.(KS|KQ)$/i.test(r.sym), sr: /\.(KS|KQ)$/i.test(r.sym) ? DEF : (st&&SECTOR_RISK[st.sector])||DEF }; });
   var total = rows.reduce(function(s,r){return s+(r.value||0);},0); if (total<=0){ el.innerHTML=_pfBaseNote(base); return; }
   rows.forEach(function(r){ r.w=r.value/total; });
-  // 시나리오: 주식충격(eq) — 과거 시장 하락 재현
   var SCEN = [
     { name:'2008 금융위기 (시장 −50%)', f:function(sr){ return sr.eq * -0.50; } },
     { name:'2020 코로나 (시장 −34%)',   f:function(sr){ return sr.eq * -0.34; } },
-    // Expertise review 2026-10-19: the 금리 +100bp / 유가 +30% rows multiplied hand-picked sector numbers (Tech −0.8% for
-    // +100bp, an order of magnitude below observed rate shocks) — no measured sensitivity stands behind them, so they are
-    // gone until betas are estimated from the holdings' own returns. The market-drawdown rows keep their assumed equity beta.
+    // 2026-10-19: rate/oil rows removed — hand-picked sector numbers (Tech −0.8% for +100bp), no measured sensitivity.
   ];
   // v57.81: the KOSPI's own worst recorded 5/20-session moves, applied to the Korean share only (src/domain/portfolio/kr-stress.js).
   if (rows.some(function(r){ return r.kr; }) && typeof window._aioKrIndexStress === 'function') window._aioKrIndexStress().forEach(function(k){ SCEN.push({ name:k.name, f:function(sr, r){ return r.kr ? k.shock : 0; } }); });
