@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1932 - v58.35 - 주말 'skip' 갱신 실행이 열린 실패 알림을 복구로 닫고 연속 실패 횟수를 초기화함 (2026-10-19)
+
+- symptom/reproduction: 주말에 Refresh market data가 cadence 게이트로 모든 작업 job을 건너뛰면 operations-alert가 이를 성공으로 보고 열린 실패 이슈를 '복구'로 닫고 연속 실패 횟수를 0으로 되돌렸다. CI 적색으로 멈춘 갱신이 스스로 알림을 닫을 수 있었다.
+- root_cause: operations-alert.yml이 워크플로 결론(success)만 보고 실제 작업 job이 돌았는지 구분하지 않았다. 같은 계열로 같은 기사가 뉴스 묶음과 서술 맥락에서 서로 다른 루머 패턴으로 판정됐고, 한 번도 기사를 싣지 못한 피드와 갱신당 AI 요청 수·사유가 기록되지 않았다.
+- fix: Refresh market data 실행 중 cadence 게이트가 모든 작업 job을 건너뛴 실행은 알림을 그대로 두고 연속 횟수도 끊지 않는다. 루머 판정은 src/domain/news/report-verification.js 하나로 모으고, 피드별 실행·보존·선택 수와 탈락 사유를 누적해 일주일(시간 기준) 동안 기사를 싣지 못한 피드를 워치독이 이름과 사유로 알린다. meta.aiUsage(scripts/producer/ai-usage.mjs)가 AI 단계별 요청 수·실패 코드·결과를 기록하고 Worker 멱등 키에 용도를 싣는다. 거시 이력에 PERMIT·주거 CPI·슈퍼코어를 더하고 스크리너 팩터 이력을 2년으로 늘린다.
+- violated_rule: 실패 알림은 실제 작업이 성공했을 때만 복구로 닫는다; 건너뛴 실행은 상태 증거가 아니다.
+- prevention: ci-workspace-contract-check가 실제 operations-alert 스크립트를 skip 실행·작업 실행·두 실패 사이 skip 세 시나리오로 돌린다. ci-codex-structure-regression-fixture가 피드 누적·시간 기준 유휴 규칙·공유 루머 등급을 검사하고, ci-producer-dry-run이 연결 불가 Worker에서 AI 사용 기록을 확인한다.
+- verification/residual: node scripts/ci-workspace-contract-check.mjs; node scripts/ci-codex-structure-regression-fixture.mjs; node scripts/ci-producer-dry-run.mjs; qa-runner preflight/core/data
+
 ## P1931 - v58.32 - 근거 없는 숫자와 잘못된 라벨: 포트폴리오 금리·유가 스트레스, 후행 P/E를 'Forward P/E'로 표기, 스톡그랜트를 내부자 매수로 집계, 유동성 차입금을 뺀 부채비율 (2026-10-19)
 
 - symptom/reproduction: 포트폴리오 스트레스의 '금리 +100bp'가 기술주 −0.8%로 나왔다(실제 금리 충격의 약 10분의 1). 기업 화면의 'Forward P/E' 행은 공급자 프로필의 후행 P/E였다. 채팅 내부자 요약은 'A'(취득) 코드를 모두 매수로 세어 보상 지급을 '경영진 자신감'으로 읽었다. SEC 부채비율은 LongTermDebtNoncurrent만 써서 1년 안에 갚을 차입금이 빠졌다. 예상 EPS가 없는 분기는 서프라이즈 0%로 표시됐다.
