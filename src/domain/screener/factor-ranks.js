@@ -90,6 +90,15 @@ function momSixMinusOneRaw(row) {
   return r6 != null && r1 != null && r1 > -100 ? ((1 + r6 / 100) / (1 + r1 / 100) - 1) * 100 : null;
 }
 
+// 2026-10-19 (expertise review D2): 12-1 — the year to one month ago (Jegadeesh-Titman), the academic momentum signal,
+// from the same close series as ret12m and ret1m: (1+r12)/(1+r1)−1 = close[t−21]/close[t−252]−1. Missing when the
+// listing has less than a year of closes; no shorter window stands in for it.
+function momTwelveMinusOneRaw(row) {
+  const r12 = finite(row?.ret12m);
+  const r1 = finite(row?.ret1m);
+  return r12 != null && r1 != null && r1 > -100 ? ((1 + r12 / 100) / (1 + r1 / 100) - 1) * 100 : null;
+}
+
 function signedYieldValueRaw(row) {
   const parts = [];
   const earningsYield = finite(row?.earningsYieldTtm);
@@ -430,7 +439,7 @@ function computeFactorRanksForPopulation({
   topPct = 20, weightsPolicy = null, momentumDefinition = 'blend-1-3-6', valueDefinition = 'positive-multiples', qualityDefinition = 'roe-margin-growth'
 } = {}) {
   const inputRows = Array.isArray(rows) ? rows : [];
-  const momentumFn = momentumDefinition === 'six-minus-one' ? momSixMinusOneRaw : momRaw;
+  const momentumFn = momentumDefinition === 'twelve-minus-one' ? momTwelveMinusOneRaw : momentumDefinition === 'six-minus-one' ? momSixMinusOneRaw : momRaw;
   const valueFn = valueDefinition === 'signed-yields' ? signedYieldValueRaw : valueRaw;
   const qualityFn = qualityDefinition === 'profitability' ? profitabilityRaw : qualityRaw;
   const seenSymbols = new Set();
@@ -804,7 +813,7 @@ function computeFactorRanksForPopulation({
     requestedWeightCoveragePct,
     weightsPolicy: explicitWeights ? 'explicit' : 'model-default',
     coverageBasis,
-    factorDefinitions: Object.freeze({ momentum: momentumFn === momRaw ? 'blend-1-3-6' : 'six-minus-one', value: valueFn === valueRaw ? 'positive-multiples' : 'signed-yields', quality: qualityFn === qualityRaw ? 'roe-margin-growth' : 'profitability' }),
+    factorDefinitions: Object.freeze({ momentum: momentumFn === momRaw ? 'blend-1-3-6' : momentumFn === momTwelveMinusOneRaw ? 'twelve-minus-one' : 'six-minus-one', value: valueFn === valueRaw ? 'positive-multiples' : 'signed-yields', quality: qualityFn === qualityRaw ? 'roe-margin-growth' : 'profitability' }),
     rankingState: 'ranked',
     rankingUnavailableReason: null,
     inactiveFactorReasons: Object.freeze(inactiveFactorReasons),

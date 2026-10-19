@@ -164,6 +164,7 @@ const FIELD_ROWS = [
   ['price.ret1m', '1개월 수익률', 'number', 'percent', 'ret1m', 3],
   ['price.ret3m', '3개월 수익률', 'number', 'percent', 'ret3m', 3],
   ['price.ret6m', '6개월 수익률', 'number', 'percent', 'ret6m', 3],
+  ['price.ret12m', '12개월 수익률', 'number', 'percent', 'ret12m', 3],
   ['price.volatility', '실현 변동성', 'number', 'percent', 'vol', 3],
   ['price.rsi14', 'RSI(14)', 'number', 'score', 'rsi', 3],
   ['price.pctSma50', '50일선 대비', 'number', 'percent', 'pctSma50', 3],

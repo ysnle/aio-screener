@@ -39,12 +39,23 @@ export function buildDomainReceipts({ previousMeta, attemptedAt, generatedAt, sy
       eligible: symbolCount, attempted: symbolCount, updated: quotes.length, stored: quotes.length,
       failures: failed.map((symbol) => ({ symbol, status: 'TRANSIENT_PROVIDER_FAILURE', attemptedAt }))
     }),
-    news: planeReceipt('news', {
-      eligible: NEWS_FEEDS.length, attempted: NEWS_FEEDS.length,
-      updated: newsFellBack ? 0 : (Array.isArray(news) ? news.length - (news.carriedCount || 0) : 0),
-      stored: Array.isArray(news) ? news.length : 0,
-      failures: newsFellBack ? failure('news-plane') : []
-    }),
+    // Pipeline redesign (2026-10-19): every news count is in feeds. `updated` used to be articles against `eligible` feeds
+    // (29 of 12), so the receipt could never show a feed that stopped answering. A feed is updated when it answered with
+    // a usable current item this run; it is stored when the bundle still carries its articles (carried from an earlier run).
+    news: (() => {
+      const feeds = NEWS_FEEDS.map((feed) => feed.source);
+      const health = new Map((Array.isArray(news?.feedHealth) ? news.feedHealth : []).map((row) => [row.source, row]));
+      const answered = newsFellBack ? [] : feeds.filter((source) => health.get(source)?.status === 'ok' && Number(health.get(source)?.kept) > 0);
+      const inBundle = new Set((Array.isArray(news) ? news : []).map((row) => row?.feedSource).filter(Boolean));
+      const stored = feeds.filter((source) => answered.includes(source) || inBundle.has(source)).length;
+      const articles = Array.isArray(news) ? news.length : 0;
+      const fresh = newsFellBack ? 0 : articles - (news?.carriedCount || 0);
+      return planeReceipt('news', {
+        eligible: feeds.length, attempted: feeds.length, updated: answered.length, stored,
+        failures: newsFellBack ? failure('news-plane') : feeds.filter((source) => !answered.includes(source)).map((source) => ({ symbol: source, status: 'TRANSIENT_PROVIDER_FAILURE', attemptedAt })),
+        note: `counts are search feeds; the bundle holds ${articles} article(s), ${fresh} collected this run`
+      });
+    })(),
     'macro-fred': planeReceipt('macro-fred', {
       eligible: fredSeriesIds.length, attempted: fredSeriesIds.length,
       updated: fredFetchedKeys.length, stored: fredSeriesIds.length,

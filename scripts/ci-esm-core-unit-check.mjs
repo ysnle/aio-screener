@@ -1679,6 +1679,21 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     if (Math.abs(s1Before._compositeZ - s1After._compositeZ) > 1e-9) fail(`factor-ranks: adding a NaN row must not change other rows' z-scores (stats collection must exclude it) — S1 _compositeZ ${s1Before._compositeZ} vs ${s1After._compositeZ}`);
   }
 
+  // 2026-10-19 (expertise review D2): 12-1 momentum is close[t−21]/close[t−252]−1 from ret12m and ret1m; it orders by the
+  // year excluding the last month (not by the full year), and a listing without a year of closes has no momentum score.
+  {
+    const pairs = [[50, 20], [30, -10], [10, 0], [40, 40], [5, -5], [20, 10]]; // [ret12m, ret1m]
+    const expected = pairs.map(([r12, r1]) => (1 + r12 / 100) / (1 + r1 / 100) - 1);
+    const rows = pairs.map(([r12, r1], i) => ({ ...baseRow('M' + i, 'Tech', i + 1), ret12m: r12, ret1m: r1 }));
+    rows.push({ ...baseRow('YOUNG', 'Tech', 3), ret12m: null });
+    const result = computeFactorRanks({ rows, weights: { momentum: 1, lowvol: 1 }, weightsPolicy: 'explicit', momentumDefinition: 'twelve-minus-one', now: 0 });
+    const score = (sym) => result.rows.find((row) => row.sym === sym)?.factorScores?.momentum;
+    const byScore = pairs.map((_, i) => 'M' + i).sort((a, b) => score(b) - score(a));
+    const byExpected = pairs.map((_, i) => i).sort((a, b) => expected[b] - expected[a]).map((i) => 'M' + i);
+    if (result.factorDefinitions?.momentum !== 'twelve-minus-one' || JSON.stringify(byScore) !== JSON.stringify(byExpected)) fail(`factor-ranks 12-1: momentum must order by the year excluding the last month, got ${byScore} vs ${byExpected}`);
+    if (score('YOUNG') != null) fail('factor-ranks 12-1: a listing without a full year of closes must have no momentum score (no shorter window stands in)');
+  }
+
   // Missing factor evidence must be excluded then renormalized, not imputed as z=0. A row
   // with no positive-weight evidence must remain visible but stay outside the rank denominator.
   {
@@ -4453,6 +4468,33 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (split.links.some((link) => /실질금리 우위/.test(link))) fail('P1528 the chain must not claim real-yield dominance across different observation dates');
   if (breakevenOf(same) !== '5거래일 +8bp' || !same.links.some((link) => /실질금리 우위/.test(link))) fail('P1528 same-day real yield and breakeven must still be compared');
   if (breakevenOf(unknown) !== '5거래일 +8bp') fail('P1528 without observation dates the chain keeps its previous reading');
+}
+
+// 2026-10-19 (expertise review): shelter and services ex-shelter split sticky core CPI on the inflation axis (evidence only),
+// and the macro board reads a FRED-history-only indicator (building permits) from its own series.
+{
+  const { buildMacroRead } = await load('src/domain/macro/macro-read.js');
+  const { buildMacroBoard } = await load('src/domain/macro/indicators.js');
+  const months = Array.from({ length: 16 }, (_, i) => new Date(Date.UTC(2025, 5 + i, 1)).toISOString().slice(0, 10));
+  const index = (start, monthly) => months.map((date, i) => [date, start * (1 + monthly) ** i]);
+  const shelterBase = index(100, 0.003);
+  const shelter = shelterBase.map(([date, value], i) => [date, i >= 13 ? value * 0.999 ** (i - 12) : value]); // slows in the last three months
+  const series = { shelterCpiIndex: { observations: shelter }, supercoreCpiIndex: { observations: index(100, 0.004) },
+    buildingPermits: { observations: months.map((date, i) => [date, 1400 + i * 5]) } };
+  const read = buildMacroRead({ macro: { corePce: 2.8 }, macroHistory: { schemaVersion: 'macro-history.v1', series } });
+  const inflation = read.axes.find((row) => row.id === 'inflation');
+  const row = inflation.evidence.find(([label]) => label.startsWith('근원 CPI 구성'));
+  const parts = inflation.detail.composition;
+  if (!row || !parts || !(parts[0].pace < parts[0].yoy) || Math.abs(parts[1].pace - parts[1].yoy) > 0.05) fail(`composition: shelter must read slowing and supercore steady, got ${JSON.stringify(parts)}`);
+  if (!/주거비 .*느려짐/.test(row[1]) || !/26년 9월/.test(row[1])) fail(`composition text must name the month and the slowing shelter pace: ${row[1]}`);
+  const noParts = buildMacroRead({ macro: { corePce: 2.8 }, macroHistory: { schemaVersion: 'macro-history.v1', series: { shelterCpiIndex: { observations: shelter } } } });
+  if (noParts.axes.find((r) => r.id === 'inflation').evidence.some(([label]) => label.startsWith('근원 CPI 구성'))) fail('composition needs both parts on the same month');
+  if (inflation.state !== buildMacroRead({ macro: { corePce: 2.8 }, macroHistory: { schemaVersion: 'macro-history.v1', series: {} } }).axes.find((r) => r.id === 'inflation').state) fail('composition is evidence only; it must not change the axis state');
+  const board = buildMacroBoard({ macro: {}, macroHistory: { schemaVersion: 'macro-history.v1', series } });
+  const permits = board.groups.flatMap((group) => group.items).find((item) => item.id === 'buildingPermits');
+  if (permits?.status !== 'observed' || permits.valueText !== '147.5만 호' || permits.deltaText !== '전월 대비 +0.5만 호' || permits.asOf !== '2026-09-01') fail(`history-only permits card: ${JSON.stringify(permits)}`);
+  const empty = buildMacroBoard({ macro: {}, macroHistory: null }).groups.flatMap((group) => group.items).find((item) => item.id === 'supercoreCpi');
+  if (empty?.status !== 'missing') fail('a history-only card without its series reads missing');
 }
 
 // P1529: the trend chart labelled every month, so once a range grew the widest label ("26년 1월") sat on top of the

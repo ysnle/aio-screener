@@ -72,6 +72,7 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     ret1m: finite(row?.ret1m),
     ret3m: finite(row?.ret3m),
     ret6m: finite(row?.ret6m),
+    ret12m: finite(row?.ret12m),
     vol: finite(row?.vol),
     rvol20: finite(row?.rvol20 ?? row?.rvol),
     benchmarkRet: finite(row?.benchmarkRet),

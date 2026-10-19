@@ -23,6 +23,11 @@ on:
         required: false
         default: operator
         type: string
+      retry:
+        description: "set by the refresh itself on a push collision (collision); empty otherwise"
+        required: false
+        default: ''
+        type: string
 
 # Permissions are granted per job (producer writes data and dispatches CI; converge only reads and dispatches).
 permissions: {}
@@ -372,6 +377,14 @@ jobs:
         # loses the race just fails outright with no retry, silently dropping that cycle's
         # data refresh until the next scheduled run. Now rebase onto the latest main and retry
         # a bounded number of times before giving up loudly.
+        # Pipeline redesign (2026-10-19): a rebase conflict, or a clean rebase whose tree no longer matches the validated
+        # candidate (a human commit touched a file this run produced, e.g. a version bump in the release manifests), used to
+        # end the run red and drop the cycle until the next slot. The candidate cannot be republished unvalidated, so the run
+        # now dispatches one immediate refresh from the new main (trigger=scheduler: automated, weekend rule, no 13F chain;
+        # retry=collision) and ends without publishing. A retry that collides again fails loudly instead of looping.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DISPATCH_RETRY: ${{ inputs.retry }}
         run: |
           set -euo pipefail
           git config user.name "aio-data-bot"
@@ -447,6 +460,19 @@ jobs:
           # 13h+ stale while watchdog reported success). Data commits MUST run CI so the
           # deploy job publishes them; validate gating them is a feature, not a cost.
           git commit -m "data: refresh market and news data ${ts}"
+          collision_retry() {
+            reason="$1"
+            git rebase --abort >/dev/null 2>&1 || true
+            if [[ "${DISPATCH_RETRY:-}" == "collision" ]]; then
+              echo "::error::${reason} again on the collision retry — main is changing the files this refresh produces; not retrying further."
+              exit 1
+            fi
+            gh workflow run refresh-data.yml --ref main -f trigger=scheduler -f retry=collision
+            echo "::warning::${reason}; this cycle is re-run from the new main by a dispatched collision retry."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "collision=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
           node scripts/verify-refresh-candidate.mjs --expect-commit "$RUNNER_TEMP/aio-refresh-data-candidate.json"
           attempt=1
           max_attempts=5
@@ -458,8 +484,8 @@ jobs:
             echo "push rejected (attempt ${attempt}/${max_attempts}) — fetching latest main and rebasing"
             git fetch origin main
             # A conflicting concurrent edit cannot be resolved by retrying; leave no half-applied rebase behind.
-            git rebase origin/main || { conflicted="$(git diff --name-only --diff-filter=U | tr '\n' ' ')"; git rebase --abort || true; echo "::error::rebase conflict on ${conflicted:-unknown files}"; exit 1; }
-            node scripts/verify-refresh-candidate.mjs --expect-commit "$RUNNER_TEMP/aio-refresh-data-candidate.json"
+            git rebase origin/main || collision_retry "rebase conflict on $(git diff --name-only --diff-filter=U | tr '\n' ' ')"
+            node scripts/verify-refresh-candidate.mjs --expect-commit "$RUNNER_TEMP/aio-refresh-data-candidate.json" || collision_retry "the rebased tree no longer matches the validated candidate"
             attempt=$((attempt + 1))
             # Jitter so two producers that lost the same race do not retry in lockstep.
             sleep $((attempt * 3 + RANDOM % 5))

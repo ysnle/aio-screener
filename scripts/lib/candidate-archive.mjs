@@ -68,10 +68,12 @@ export async function rankPublishedScreener({ root, now }) {
 // three overlapping price signals, low volatility, signed value and quality. Weights are the proposal, not fitted.
 export const CANDIDATE_SHADOW_MODEL = Object.freeze({
   // v2 (expertise review 2026-10-19, audit D7): quality is profitability only, so the record can test growth-free quality.
-  // A new id starts a new shadow record; the v1 entries stay under their own identity.
-  id: 'candidate-v2',
+  // v3 (same review, D2): momentum is 12-1 (the year to one month ago) now that the factor history spans two years; 6-1
+  // was the stand-in while only a year of closes was fetched. A new id starts a new shadow record; earlier entries stay
+  // under their own identity.
+  id: 'candidate-v3',
   weights: Object.freeze({ momentum: 0.35, lowvol: 0.15, value: 0.25, quality: 0.25 }),
-  momentumDefinition: 'six-minus-one',
+  momentumDefinition: 'twelve-minus-one',
   valueDefinition: 'signed-yields',
   qualityDefinition: 'profitability'
 });

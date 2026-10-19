@@ -4,6 +4,7 @@
 // library (public-data/principles/lesson-library.json ids). `live(ctx)` returns the sentence that ties the lesson to
 // today's measured state, or null when today's data does not touch it — so the lesson shown always matches the
 // situation, and the same registry serves the screens, the AI context and the scenario-state producer.
+import { pastEvidence } from '../scenarios/analogs.js';
 import { hasFinalConsonant } from '../content/korean-particle.js';
 
 export const LESSON_KINDS = Object.freeze({
@@ -143,6 +144,29 @@ export const LESSONS = Object.freeze([
     }
   },
   {
+    // v58.32 expertise review: which end of the curve moved says why rates moved (curveDynamics, 20 sessions of 2y/10y).
+    id: 'read-the-curve', kind: 'strategy', concept: 'E2', title: '금리는 어느 쪽 끝이 움직였는지로 읽기',
+    principle: '"금리가 내렸다"만으로는 좋고 나쁨을 알 수 없습니다. 2년물(정책 기대)과 10년물(성장·물가·기간 프리미엄) 중 어느 쪽이 더 움직였는지가 이유를 알려 줍니다.',
+    why: '단기금리가 더 내리면 인하 기대(경기 둔화 또는 물가 안정), 장기금리가 더 오르면 재정·물가·기간 프리미엄 부담입니다. 같은 금리 하락도 이유에 따라 주식에 반대로 작용합니다.',
+    live: (ctx) => {
+      const c = ctx?.curve;
+      return c?.kind ? `${c.fact} ${c.label.split(' — ')[0]}: ${c.reading}`
+        : c?.uninverted ? c.uninversionReading : null;
+    }
+  },
+  {
+    // v58.32 expertise review: S&P 500 consensus revision breadth (buildIndexEarnings) — the direction of estimates.
+    id: 'earnings-revisions', kind: 'trust', concept: 'H2', title: '이익 전망이 고쳐지는 방향',
+    principle: '주가는 기대보다 먼저 흔들리지만, 애널리스트가 이익 전망을 올리는 회사가 많은지 내리는 회사가 많은지는 기업 현장의 변화를 더 꾸준히 보여 줍니다.',
+    why: '주가는 결국 이익을 따라갑니다. 전망을 내리는 회사가 늘어나는 동안의 반등은 오래가기 어렵고, 올리는 회사가 늘면 조정이 와도 바탕이 남습니다.',
+    live: (ctx) => {
+      const e = ctx?.indexEarnings;
+      if (!e?.available || !Number.isFinite(e.breadth) || !(e.up + e.down > 0)) return null;
+      // up/down count estimate revisions (not companies), as the index-earnings card labels them; same ±0.1 tilt.
+      return `최근 4주 S&P 500 이익 전망 수정은 상향 ${e.up}건 · 하향 ${e.down}건 — ${e.breadth >= 0.1 ? '올리는 쪽이 우세합니다' : e.breadth <= -0.1 ? '내리는 쪽이 우세합니다' : '양쪽이 비슷합니다'}.`;
+    }
+  },
+  {
     id: 'headline-rumor', kind: 'trap', concept: 'H2', title: '헤드라인과 확인 안 된 소문',
     principle: '자극적인 헤드라인과 출처가 불분명한 소문은 빠르게 퍼지지만 대부분 가격에 오래 남지 않습니다. 공식 발표·실제 수치로 확인될 때까지는 판단의 근거가 아니라 확인할 거리입니다.',
     why: '확인되지 않은 정보로 움직이면 정보가 사실로 밝혀지기 전의 변동만 떠안게 됩니다.',
@@ -157,6 +181,7 @@ export const LESSONS = Object.freeze([
       const row = lead(ctx); const past = row?.past;
       if (!past?.n) return null;
       if (past.n < 10) return `'${short(row.title)}'의 과거 비교 표본은 ${past.n}번뿐이라 비율로 말하지 않습니다.`;
+      if (pastEvidence(past).informative === false) return `'${short(row.title)}'의 과거 비교는 ${past.n}번이지만 전체 기준선과 구별되지 않아, 이 움직임만으로는 방향을 말할 수 없습니다.`;
       return row.pastConflict ? `'${short(row.title)}'의 과거 빈도는 이 시나리오의 결론과 다른 쪽을 가리킵니다(비슷한 때 ${row.pastConflict.sharePct}% 상승 · 전체 ${row.pastConflict.basePct}%).` : null;
     }
   },
@@ -188,7 +213,7 @@ export const LESSONS = Object.freeze([
     id: 'trust-base-rate', kind: 'trust', concept: 'H3', title: '기준선과 함께 보는 과거 빈도',
     principle: '"비슷한 때 이후 64% 올랐다"는 숫자는, 같은 기록 전체에서 아무 날이나 골라도 64% 올랐다면 새로운 정보가 아닙니다. 기준선과 표본 수가 함께 있을 때만 믿을 만합니다.',
     why: '주식은 장기적으로 오르는 날이 더 많아, 기준선 없이 본 상승 비율은 늘 좋아 보입니다.',
-    live: (ctx) => { const row = lead(ctx); const past = row?.past; return past?.n >= 10 && Number.isFinite(past.baseUpPct) ? `'${short(row.title)}' 비교: 비슷한 때 ${past.n}번 · 전체 기준선 ${past.baseUpPct}%.` : null; }
+    live: (ctx) => { const row = lead(ctx); const e = pastEvidence(row?.past); return e.informative ? `'${short(row.title)}' 비교: 비슷한 때 ${e.n}번 중 ${e.sharePct}% 상승 · 전체 기준선 ${e.baseUpPct}% — 이 차이가 조건이 더하는 정보입니다.` : null; }
   }
 ]);
 
@@ -254,16 +279,16 @@ export function selectLessons(ctx, { perKind = 2, limit = 7, scope = 'market' } 
 // Which principles each screen raises (the 오늘 card uses selectLessons over the whole market scope). Order is the
 // screen's own priority; a lesson today's data touches moves ahead of the rest.
 export const SCREEN_LESSON_IDS = Object.freeze({
-  signal: ['watch-participation', 'index-high', 'one-day-move', 'fear-is-not-a-signal', 'trust-credit', 'no-chasing'],
+  signal: ['watch-participation', 'earnings-revisions', 'index-high', 'one-day-move', 'fear-is-not-a-signal', 'trust-credit', 'no-chasing'],
   breadth: ['watch-participation', 'index-high', 'one-day-move', 'trust-closes'],
   sentiment: ['fear-is-not-a-signal', 'no-chasing', 'one-day-move', 'trust-credit'],
-  macro: ['rate-cut-good', 'level-vs-expectation', 'confirm-after-release', 'conditions-not-forecasts', 'count-not-probability', 'past-repeats', 'trust-base-rate'],
-  fxbond: ['level-vs-expectation', 'rate-cut-good', 'trust-credit', 'confirm-after-release'],
+  macro: ['rate-cut-good', 'read-the-curve', 'level-vs-expectation', 'confirm-after-release', 'conditions-not-forecasts', 'count-not-probability', 'past-repeats', 'trust-base-rate'],
+  fxbond: ['read-the-curve', 'level-vs-expectation', 'rate-cut-good', 'trust-credit', 'confirm-after-release'],
   themes: ['watch-participation', 'no-chasing', 'cheap-after-fall', 'past-repeats'],
   'theme-detail': ['no-chasing', 'cheap-after-fall', 'headline-rumor', 'past-repeats'],
   technical: ['breakout-without-volume', 'extended-entry', 'weekly-filters-daily', 'news-gap', 'know-when-wrong', 'cheap-after-fall'],
   ticker: ['cheap-after-fall', 'news-gap', 'headline-rumor', 'know-when-wrong'],
-  fundamental: ['cheap-after-fall', 'level-vs-expectation', 'headline-rumor'],
+  fundamental: ['cheap-after-fall', 'earnings-revisions', 'level-vs-expectation', 'headline-rumor'],
   screener: ['rank-is-not-edge', 'extended-entry', 'past-repeats', 'no-chasing'],
   portfolio: ['survive-first', 'size-by-loss', 'staged-entry', 'know-when-wrong', 'waiting-is-a-choice'],
   briefing: ['headline-rumor', 'confirm-after-release', 'one-day-move', 'level-vs-expectation'],

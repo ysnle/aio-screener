@@ -547,6 +547,7 @@ export function createScreenerProvider({
           ret1m: finite(factor.ret1m),
           ret3m: finite(factor.ret3m),
           ret6m: finite(factor.ret6m),
+          ret12m: finite(factor.ret12m), // 2026-10-19: 12-1 momentum input (shadow record), absent before the 2y factor history
           vol: finite(factor.vol),
           rvol20: finite(factor.rvol20 ?? factor.rvol),
           benchmarkRet: finite(factor.benchmarkRet) ?? (market === 'US' && symbol !== 'SPY' && usBenchmarkRet3m != null && usBenchmarkSession && factor.factorSessionDate === usBenchmarkSession ? usBenchmarkRet3m : null),
