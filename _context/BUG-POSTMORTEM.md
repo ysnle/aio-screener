@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1940 - v58.49 - screener-extended·entity-quality 게이트가 벽시계와 지연 로드된 Chart.js에 의존해 미국 장 마감 뒤 빨갛게 됨 (2026-10-19)
+
+- symptom/reproduction: 20:00Z 미국 장 마감 이후 모든 브랜치와 main CI에서 screener-extended가 실패했고, entity-quality가 티커 캔버스를 Chart.js 인계 전에 읽어 간헐 실패했다. main CI가 빨개지면 데이터 봇 converge도 멈춘다.
+- root_cause: screener-extended는 랭커가 쓰는 고정 시각이 아니라 실제 벽시계로 기준일을 읽었고, entity-quality는 지연 로드되는 Chart.js의 인계를 기다리지 않고 캔버스를 검사했다.
+- fix: screener-extended가 랭커와 같은 고정 시각으로 읽고, entity-quality는 지연 Chart.js 인계를 기다린 뒤 캔버스를 읽는다.
+- violated_rule: CI 게이트는 벽시계·데이터 나이·비동기 로드 순서에 따라 결과가 바뀌면 안 된다.
+- prevention: 두 게이트를 고정 시각과 명시적 준비 신호로 결정화했다. 같은 클래스(v58.33/34 콘텐츠·데이터 나이 의존 검사)와 함께 추적한다.
+- verification/residual: PR #76 CI·CodeQL 전부 통과(2ba4e2d7), qa-runner preflight/core/data
+
 ## P1939 - v58.48 - 한국 테마 상세가 테마 제목·종목명·촉매 문구를 이스케이프 없이 innerHTML에 씀 (2026-10-19)
 
 - symptom/reproduction: js/aio-kr-data.js의 한국 테마 상세가 CN[themeId]||themeId(클릭한 행의 data-arg에서 온 값), 상·하위 종목명, 촉매 문구를 그대로 innerHTML에 넣었다. #75가 템플릿을 옮기자 CodeQL이 high(DOM 텍스트가 HTML로 재해석됨)로 표시했다.

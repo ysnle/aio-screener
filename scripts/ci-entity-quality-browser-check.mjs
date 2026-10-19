@@ -118,7 +118,10 @@ try {
       // Enter the actual summary action first. No technical route or chart fetch is invoked beforehand.
       await page.evaluate(()=>window.showTicker('AEHR'));
       await page.waitForFunction(()=>document.getElementById('ticker-hero-price')?.textContent.includes('84.64')
-        && document.getElementById('ticker-price-chart')?.dataset.tickerChartEnd === '2026-10-09', null, {timeout:20000});
+        && document.getElementById('ticker-price-chart')?.dataset.tickerChartEnd === '2026-10-09'
+        // Chart.js loads on demand (P1756): the first draw goes to the deferred constructor and the real chart is built on
+        // the same canvas when the pinned library arrives, so wait for that hand-over instead of racing it.
+        && window.Chart?.version === '4.4.0' && !!window.Chart.getChart?.(document.getElementById('ticker-price-chart')), null, {timeout:20000});
       const summary = await page.evaluate(()=>({ price:document.getElementById('ticker-hero-price').textContent,
         basis:document.getElementById('ticker-summary-price-basis').textContent,
         business:`${document.getElementById('ticker-business-profile').dataset.issuerName || ''} ${document.getElementById('ticker-business-profile').textContent}`, // 2026-10-14 audit #10: heading reads '무엇을 하는 회사'; issuer named on the section
