@@ -192,6 +192,12 @@
   #glossary-cats { max-height: 140px; overflow-y: auto; }
   #glossary-modal button { min-height: 36px; }
 }
+@media (max-width: 380px) {
+  /* 2026-10-19: during the US session a snapshot older than 90 minutes reads "지난 시세", a wider chip than 종가/지연,
+     and at 360px it pushed the AI button 8px past the edge. The button shows "AI" here; its aria-label keeps the full name. */
+  #topbar-ai-btn { font-size: 0 !important; }
+  #topbar-ai-btn::after { content: 'AI'; font-size: 12px; }
+}
 @media (prefers-reduced-motion: reduce) {
   .sidebar, #ai-panel { transition: none; }
 }
