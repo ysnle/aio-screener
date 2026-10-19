@@ -9,6 +9,7 @@
 // weigh, never a METRIC_EVIDENCE value, and a rumour or anonymous-source item is labelled as such on its own line.
 import { readFileSync } from 'node:fs';
 import { LESSONS } from '../../src/domain/knowledge/learning-core.js';
+import { reportVerification } from '../../src/domain/news/report-verification.js';
 
 export const NARRATIVE_WINDOW_HOURS = 72;
 export const NARRATIVE_RECENT_HOURS = 24;
@@ -37,15 +38,11 @@ export const NARRATIVE_THEMES = Object.freeze([
 ]);
 
 // A rumour is named as one ("루머", "설"); an anonymous-source report is "미확인". Both stay labelled in the prompt.
-const RUMOR_RE = /루머|소문|찌라시|파산설|매각설|인수설|합병설|rumou?r|speculat/i;
-const ANONYMOUS_RE = /관계자(?:들)?\s*(?:\d+명)?\s*(?:에\s*따르면|를\s*인용|가\s*전|는\s*전)|소식통|익명|미확인|알려졌|전해졌|people familiar|sources (?:said|say)|according to (?:people|sources)|reportedly|is said to|unconfirmed/i;
+// 2026-10-19: the rule is shared with the news bundle (src/domain/news/report-verification.js).
 const CITED_RE = /블룸버그|Bloomberg|로이터|Reuters|파이낸셜\s?타임스|\bFT\b|WSJ|월스트리트저널|CNBC|폴리티코|Politico|The Information|닛케이|Nikkei|중국\s?언론|JP\s?모건|JPMorgan|모건\s?스탠리|Morgan Stanley|골드만|Goldman|BofA|노무라|Nomura|번스타인|Bernstein|씨티|Citi|도이체|Deutsche|KeyBanc|키뱅크|가트너|Gartner/gi;
 
 export function narrativeVerification(text) {
-  const value = String(text || '');
-  if (RUMOR_RE.test(value)) return 'rumor';
-  if (ANONYMOUS_RE.test(value)) return 'unconfirmed';
-  return 'reported';
+  return reportVerification(text);
 }
 
 const kst = (ms) => {

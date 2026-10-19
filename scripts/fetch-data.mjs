@@ -21,7 +21,8 @@ import { writeReconciliationStatus } from './build-reconciliation-status.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { deriveFedPolicyRate } from './lib/official-calendars.mjs';
 import { collectRotationHistory } from './lib/rotation-history.mjs';
-import { requestSharedAnalysis, requestWorkersAiTranslation, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
+import { resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
+import { createAiUsage, marketAnalysisOutcome } from './producer/ai-usage.mjs';
 import { sealMarketTimeline, summarizeMarketTimeline } from './lib/market-timeline.mjs';
 import { compareUsdKrwCrossCheck } from './lib/macro-sources.mjs';
 import { deriveCyclePublication } from './lib/news-selection.mjs';
@@ -54,6 +55,7 @@ export { HEADLINE_TRANSLATION_MAX, PRIOR_SESSION_MOVE_1D_PCT, PRIOR_SESSION_MOVE
 
 async function main() {
   const t0 = Date.now();
+  const aiUsage = createAiUsage();
   console.log(`[fetch-data] ${SYMBOLS.length} 심볼 + FRED + F&G 수집 시작`);
 
   // P1262: `previous` (the whole previous data.json) lives in main scope; the receipts read it outside the read block.
@@ -159,16 +161,20 @@ async function main() {
   try {
     const headlineTranslation = await translateHeadlines([...(data.news || []), ...(data.newsIntraday || []), ...timelineRun.newHeadlines], {
       previous: [...(previous?.news || []), ...(previous?.newsIntraday || []), ...(previous?.marketTimeline?.current?.headlines || [])],
-      request: resolveSharedAiConfig() ? (prompt) => requestSharedAnalysis(prompt) : null,
-      translate: resolveSharedAiConfig() ? (titles) => requestWorkersAiTranslation(titles) : null });
+      request: aiUsage.shared('headline-translation'),
+      translate: aiUsage.workersTranslate('headline-translation') });
     data.meta.headlineTranslation = headlineTranslation;
+    aiUsage.note('headline-translation', headlineTranslation.provider ? 'translated' : headlineTranslation.pending ? (headlineTranslation.reason || 'unparsed') : 'nothing-new');
     console.log(`[fetch-data] headline translation: reused ${headlineTranslation.reused}, new ${headlineTranslation.translated}/${headlineTranslation.pending}${headlineTranslation.provider ? ` via ${headlineTranslation.provider}` : ''}${headlineTranslation.freeReason ? ` (free path: ${headlineTranslation.freeReason})` : ''}${headlineTranslation.reason ? ` (${headlineTranslation.reason})` : ''}`);
   } catch (error) { console.warn(`[fetch-data] headline translation skipped: ${error?.message || error}`); }
-  const marketAnalysis = await genMarketAnalysis(data, marketSnapshotForConsumers, { previous: previous?.marketAnalysis || null });
+  const marketAnalysis = await genMarketAnalysis(data, marketSnapshotForConsumers, { previous: previous?.marketAnalysis || null, request: aiUsage.shared('market-analysis') });
   applyMarketAnalysis(data, marketAnalysis, { previous: previous?.marketAnalysis || null });
+  aiUsage.note('market-analysis', marketAnalysisOutcome(marketAnalysis, aiUsage.receipt().purposes['market-analysis']));
   data.meta.marketTimelineSealed = timelineRun.sealed;
-  data.meta.marketTimelineSummary = await summarizeMarketTimeline(data.marketTimeline || null, { request: resolveSharedAiConfig() ? (prompt) => requestSharedAnalysis(prompt) : null })
+  data.meta.marketTimelineSummary = await summarizeMarketTimeline(data.marketTimeline || null, { request: aiUsage.shared('slot-summary') })
     .catch((error) => `summary-error:${String(error?.message || error).slice(0, 80)}`);
+  aiUsage.note('slot-summary', data.meta.marketTimelineSummary || 'not-due');
+  data.meta.aiUsage = aiUsage.receipt();
   console.log(`[fetch-data] market timeline: sealed ${timelineRun.sealed.length ? timelineRun.sealed.join(',') : 'none'}; summary ${data.meta.marketTimelineSummary || 'not-due'}`);
   applySnapshotCycleMeta(data.meta, { marketSnapshotInfo, marketSnapshotForConsumers, quoteCount: quotes.length, requiredQuoteCount: SYMBOLS.length });
 
