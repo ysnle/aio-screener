@@ -36,6 +36,7 @@ import { collectRotationHistory } from './lib/rotation-history.mjs';
 import { updateCandidateArchive } from './lib/candidate-archive.mjs'; // P1465
 import { SHARED_AI_MODEL, requestSharedAnalysis, requestWorkersAiTranslation, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
 import { buildMarketRegime, buildCloseSeries } from '../src/domain/briefing/market-read.js'; // P1635; v57.81 session dates
+import { sealMarketTimeline, summarizeMarketTimeline } from './lib/market-timeline.mjs'; // 2026-10-19: 6h KST micro slots beside the 24h macro read
 import { readNarrativeContext } from './lib/narrative-context.mjs'; // owner 2026-10-18: Telegram + mover headlines → NARRATIVE_CONTEXT
 import { buildMarketScenarios, renderMarketScenarioContext } from '../src/domain/market/regime-scenarios.js';
 import { buildScenarioOutlook, renderScenarioOutlookContext } from '../src/domain/market/scenario-outlook.js';
@@ -49,7 +50,7 @@ import { indexReturnsByDate } from '../src/domain/technical/follow-through.js'; 
 export { deriveFactorQuality, isSessionComplete, sessionSegmentOfSymbol, listingCurrencyOf } from '../src/domain/screener/price-factors.js';
 import { fetchJSON, _fetchRss } from './lib/producer-http.mjs'; // v57.62 split
 import { FRED_SERIES, compareUsdKrwCrossCheck, fetchAaiiSentiment, fetchBeaPce, fetchBlsSeries, fetchCboePutCall, fetchFearGreed, fetchFredDexkousPublic, fetchFredHyOasPublic, fetchTreasuryYieldCurve, mergeMacroLastKnownGood, officialTreasuryDeltas } from './lib/macro-sources.mjs'; // v57.62 split
-import { MINIMUM_CURRENT_NEWS, NEWS_FEEDS, NEWS_INTRADAY_LABEL, NEWS_INTRADAY_MAX, NEWS_INTRADAY_POLICY, TICKER_NEWS_MAX_AGE_MS, deriveCyclePublication, deriveTickerNewsLineage, fetchNews, fetchTickerNewsItems, getKst0800NewsCycle, planTickerNewsTargets, selectTickerNewsMemo } from './lib/news-selection.mjs'; // v57.62 split
+import { MINIMUM_CURRENT_NEWS, NEWS_FEEDS, mergeNewsFeedHealth, NEWS_INTRADAY_LABEL, NEWS_INTRADAY_MAX, NEWS_INTRADAY_POLICY, TICKER_NEWS_MAX_AGE_MS, deriveCyclePublication, deriveTickerNewsLineage, fetchNews, fetchTickerNewsItems, getKst0800NewsCycle, planTickerNewsTargets, selectTickerNewsMemo } from './lib/news-selection.mjs'; // v57.62 split
 import { KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, marketAnalysisLargeMove, marketSentenceDay, marketSentenceRejectReason, MARKET_SENTENCE_LABEL, dailyMarketSentence, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary, LARGE_MOVE_ATTRIBUTION_PCT } from './lib/market-analysis-validate.mjs'; // v57.62 split
 export { buildMarketAnalysisEvidence, MARKET_ANALYSIS_CLOSED_SESSIONS, analysisMetricMentions, validateAnalysisMetricMentions, validateAnalysisAdmission, analysisNumberMarkedAsReference, validateMarketAnalysisText, MARKET_ANALYSIS_NEWS_CONTENT_POLICY, isMarketAnalysisNewsEligible, buildMarketAnalysisNewsEvidence, buildMarketAnalysisHeadlineContext, describeMarketAnalysisIssues, MARKET_ANALYSIS_RETAIN_MAX_MS, retainVerifiedMarketAnalysis, reusableMarketAnalysis } from './lib/market-analysis-validate.mjs';
 export { deriveCyclePublication, newsSourceLabel, serverNewsHeadlineMonthStale, scoreServerNewsItem, newsHeadlineSignature, newsSameEvent, cleanNewsTitle, newsKeyEntities, createNewsTopicCap, NEWS_INTRADAY_MAX, NEWS_INTRADAY_POLICY, NEWS_INTRADAY_LABEL, selectNewsIntraday, tickerNewsCoreName, TICKER_NEWS_WORD_SYMBOLS, tickerNewsHeadlineNamesIssuer, TICKER_NEWS_MAX_AGE_MS, selectTickerNewsMemo, TICKER_NEWS_RUN_CAP, TICKER_NEWS_FIXED_HEAD, TICKER_NEWS_ROTATION_SLOT_MS, planTickerNewsTargets, deriveTickerNewsLineage } from './lib/news-selection.mjs';
@@ -3097,6 +3098,7 @@ async function main() {
       // retained items carry ~29 distinct outlets (P1097). Publish both numbers
       // under names that say which population they count.
       newsFeedCount: NEWS_FEEDS.length,
+      newsFeedHealth: news?.feedHealth ? mergeNewsFeedHealth(previousMeta?.newsFeedHealth, news.feedHealth, attemptedAt) : (previousMeta?.newsFeedHealth || undefined), // 2026-10-19: per-feed counts + streak (watchdog)
       newsPublisherCount: new Set((Array.isArray(news) ? news : []).map(item => item && item.source).filter(Boolean)).size,
       newsCyclePolicy: newsCycle.policy,
       newsCycleStart: newsCycle.start,
@@ -3188,9 +3190,15 @@ async function main() {
   // M01: append this cycle's completed close first, so the narrative's regime context reads the same session the
   // published history (and therefore the screen) will show.
   const histInfo = await updateHistory(data, marketSnapshotForConsumers, fredDexkous);
+  // 2026-10-19 cadence: slots ending 06/12/18/24 KST are sealed once (never overwritten); their new headlines share the
+  // translation call below, and one short slot summary follows the macro reading.
+  let timelineRun = { timeline: previous?.marketTimeline || null, sealed: [], newHeadlines: [] };
+  try { timelineRun = sealMarketTimeline({ previous: previous?.marketTimeline, snapshot: marketSnapshotForConsumers, pool: news?.slotPool || null }); }
+  catch (error) { console.warn(`[fetch-data] market timeline kept previous: ${error?.message || error}`); }
+  if (timelineRun.timeline) data.marketTimeline = timelineRun.timeline;
   try {
-    const headlineTranslation = await translateHeadlines([...(data.news || []), ...(data.newsIntraday || [])], {
-      previous: [...(previous?.news || []), ...(previous?.newsIntraday || [])],
+    const headlineTranslation = await translateHeadlines([...(data.news || []), ...(data.newsIntraday || []), ...timelineRun.newHeadlines], {
+      previous: [...(previous?.news || []), ...(previous?.newsIntraday || []), ...(previous?.marketTimeline?.current?.headlines || [])],
       request: resolveSharedAiConfig() ? (prompt) => requestSharedAnalysis(prompt) : null,
       translate: resolveSharedAiConfig() ? (titles) => requestWorkersAiTranslation(titles) : null });
     data.meta.headlineTranslation = headlineTranslation;
@@ -3221,6 +3229,10 @@ async function main() {
     data.meta.marketAnalysisNewsEvidenceCount = 0;
     data.meta.marketAnalysisReason = 'analysis-unavailable';
   }
+  data.meta.marketTimelineSealed = timelineRun.sealed;
+  data.meta.marketTimelineSummary = await summarizeMarketTimeline(data.marketTimeline || null, { request: resolveSharedAiConfig() ? (prompt) => requestSharedAnalysis(prompt) : null })
+    .catch((error) => `summary-error:${String(error?.message || error).slice(0, 80)}`);
+  console.log(`[fetch-data] market timeline: sealed ${timelineRun.sealed.length ? timelineRun.sealed.join(',') : 'none'}; summary ${data.meta.marketTimelineSummary || 'not-due'}`);
   data.meta.marketSnapshotPublished = !!marketSnapshotInfo.published;
   data.meta.marketSnapshotAttemptedAt = marketSnapshotInfo.snapshot.attemptedAt || data.meta.attemptedAt;
   data.meta.marketSnapshotPublishedAt = marketSnapshotInfo.published ? marketSnapshotInfo.snapshot.generatedAt : null;

@@ -25,6 +25,10 @@ const MARKET_ANALYSIS_MACRO_DEFS = [
   // year-over-year rate and NFP as a monthly change in thousands (the validator matches these values in the same units).
   { key: 'cpi', metricId: 'macro.cpi', label: 'CPI', unit: 'percent', basis: '전년 대비, 계절조정 전(NSA)', aliases: [] },
   { key: 'fedRate', metricId: 'macro.fed-rate', label: 'FedRate', unit: 'percent', basis: '실효 연방기금금리 월평균', aliases: ['Fed rate', 'Fed funds'] },
+  // 2026-10-19 data audit: FedRate is September's monthly average (3.75) while the target range moved on 9/17 and is
+  // 3.75–4.00 as of 10/18; the model had only the lagging number for "where policy is". The daily range's upper bound
+  // is its own evidence row.
+  { key: 'fedTargetUpper', metricId: 'macro.fed-target-upper', label: 'FedTargetUpper', unit: 'percent', basis: '연준 정책금리 목표 범위 상단(일간 공시, 범위 폭 0.25%p)', aliases: ['Fed target'] },
   { key: 'nfp', blsMetricId: 'nonfarmPayroll', metricId: 'macro.nfp-mom', label: 'NFP', unit: 'thousands', basis: '전월 대비 증감, 천 명(1만 명 = 10천 명)', aliases: ['nonfarm payroll'] },
 ];
 
@@ -903,7 +907,7 @@ export function lastVerifiedMarketAnalysis(previous, nowMs = Date.now()) {
 const MARKET_ANALYSIS_PLAIN_NAMES = Object.freeze({
   'market.spx': 'S&P 500', 'market.vix': 'VIX(변동성 지수)', 'market.us10y': '미국 10년물 금리', 'market.dxy': '달러 지수',
   'market.wti': 'WTI 유가', 'market.gold': '금', 'market.kospi': '코스피', 'macro.cpi': '미국 소비자물가(전년비)',
-  'macro.fed-rate': '미국 실효 연방기금금리(월평균)', 'macro.nfp-mom': '미국 비농업 고용 증감', 'sentiment.fear-greed': '공포·탐욕 지수'
+  'macro.fed-rate': '미국 실효 연방기금금리(월평균)', 'macro.fed-target-upper': '연준 목표 범위 상단', 'macro.nfp-mom': '미국 비농업 고용 증감', 'sentiment.fear-greed': '공포·탐욕 지수'
 });
 const _plainNumber = (value, unit) => {
   const text = Number(value).toLocaleString('en-US', { maximumFractionDigits: 2 });

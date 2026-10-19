@@ -26,3 +26,34 @@ export function workflowCadence(runs, { now = Date.now(), maxAgeMinutes } = {}) 
   const latestGapMinutes = times.length > 1 ? Math.round((times[0] - times[1]) / 60000) : null;
   return { ok: ageMinutes <= maxAgeMinutes && (latestGapMinutes == null || latestGapMinutes <= maxAgeMinutes), ageMinutes, latestGapMinutes, reason: 'observed-arrivals' };
 }
+
+// 2026-10-19 data audit: a feed that stopped answering, a day's sentence that never replaced yesterday's and a receipt
+// stuck on "collection failed" were each visible only by reading the artifacts by hand. The watchdog names them.
+export function dataSourceWarnings(data, { nowMs = Date.now(), feedStaleMs = 24 * 3600000 } = {}) {
+  const warnings = [];
+  const meta = data?.meta || {};
+  for (const feed of (Array.isArray(meta.newsFeedHealth) ? meta.newsFeedHealth : [])) {
+    const since = Date.parse(feed?.lastHealthyAt || '');
+    if (feed?.missStreak > 0 && Number.isFinite(since) && nowMs - since > feedStaleMs) {
+      warnings.push(`news feed "${feed.source}" has had no usable current item for ${Math.round((nowMs - since) / 3600000)}h (${feed.missStreak} runs, last status ${feed.status})`);
+    }
+  }
+  const sentenceDay = data?.marketAnalysis?.sentence?.day;
+  const today = new Date(nowMs + 3600000).toISOString().slice(0, 10); // KST day of (now - 08:00), as marketSentenceDay
+  if (sentenceDay && sentenceDay < today && meta.marketSentenceReject && meta.marketSentenceReject !== 'no-new-candidate') {
+    warnings.push(`daily sentence still ${sentenceDay}: today's candidate was rejected (${meta.marketSentenceReject})`);
+  }
+  for (const [domain, receipt] of Object.entries(meta.domainReceipts || {})) {
+    const last = Date.parse(receipt?.lastSuccessfulObservation || '');
+    if (receipt?.publication?.status && receipt.publication.status !== 'SUCCESS' && (!Number.isFinite(last) || nowMs - last > 3 * 86400000)) {
+      warnings.push(`collection receipt "${domain}" has not succeeded for 3+ days (${receipt.publication.status})`);
+    }
+  }
+  return warnings;
+}
+// A feed with no usable item for three days is broken, not quiet: the watchdog fails, which opens the operations issue.
+export function deadNewsFeeds(data, { nowMs = Date.now(), deadMs = 72 * 3600000 } = {}) {
+  return (Array.isArray(data?.meta?.newsFeedHealth) ? data.meta.newsFeedHealth : [])
+    .filter((feed) => feed?.missStreak > 0 && nowMs - Date.parse(feed.lastHealthyAt || '') > deadMs)
+    .map((feed) => feed.source);
+}

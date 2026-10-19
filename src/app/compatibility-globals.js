@@ -76,7 +76,11 @@ export function installCompatibilityGlobals(root = globalThis) {
     }
   });
   // The legacy data.json loader fetches and gates the server artifact here (legacy unification 2026-10-17).
-  window._aioFetchServerData = () => fetchServerData({ fetch: (...args) => window.fetch(...args) });
+  // 2026-10-19: the six-hour market slots (data.json marketTimeline) are kept for the briefing's 시간대별 시황.
+  window._aioFetchServerData = () => fetchServerData({ fetch: (...args) => window.fetch(...args) }).then((result) => {
+    if (result?.ok) window._serverMarketTimeline = result.data.marketTimeline?.schemaVersion === 'market-timeline.v1' ? result.data.marketTimeline : null;
+    return result;
+  });
   window._aioBuildServerDataMeta = (data, reconciliation) => buildServerDataMeta(data, { reconciliation });
   window._aioApplyServerMacro = (data, snapshot, evidence, serverMeta) => applyServerMacro({ data, snapshot, evidence, serverMeta });
   window._aioVerifyServerMarketAnalysis = verifyServerMarketAnalysis;
