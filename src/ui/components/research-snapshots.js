@@ -6,13 +6,12 @@ export function ensureResearchSnapshots({ documentRef: doc, root, host, kind, co
   if (!host) return;
   let panel = host.querySelector(`[data-research-snapshots="${kind}"]`);
   if (panel) { panel._update(collect); return; } // Preserve a draft only for its issuer/session.
-  panel = doc.createElement('details'); panel.dataset.researchSnapshots = kind;
-  panel.style.cssText = 'margin:14px 0;padding:10px 12px;border:1px solid var(--border-subtle);font-size:12px;';
+  panel = doc.createElement('details'); panel.dataset.researchSnapshots = kind; // styles: src/ui/styles/entity-quality.css
   const title = doc.createElement('summary');
   title.textContent = kind === 'briefing' ? '브리핑 저장본 · 날짜별 확인' : '이 종목의 메모 · 당시 근거 저장';
   const note = doc.createElement('textarea'); note.rows = 2; note.maxLength = 2000;
   note.setAttribute('aria-label', kind === 'briefing' ? '브리핑 저장 메모' : '종목 근거 메모');
-  note.placeholder = '다음에 확인할 내용 (선택)'; note.style.cssText = 'display:block;width:100%;margin:8px 0;';
+  note.placeholder = '다음에 확인할 내용 (선택)';
   const save = doc.createElement('button'); save.type = 'button'; save.textContent = '현재 근거 저장';
   const status = doc.createElement('div'); status.setAttribute('role', 'status');
   const undo = doc.createElement('button'); undo.type = 'button'; undo.hidden = true; undo.textContent = '방금 삭제 되돌리기';

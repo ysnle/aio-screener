@@ -1,0 +1,7 @@
+/* 2026-10-19 layout system: the sidebar's shared-connection fold (src/ui/panels/connections.js), moved out of inline styles.
+   The sidebar's [style*=font-size] rule rendered its 10/11px text at 11px; it now takes the --fs-min floor (12px). */
+.sidebar .cnp-panel { font-size: var(--fs-min); color: var(--text-muted); line-height: 1.5; margin: 4px 0; }
+.sidebar .cnp-panel > details { margin-top: 4px; }
+.sidebar .cnp-panel summary { cursor: pointer; }
+.sidebar .cnp-panel .llm-key-save { margin-top: 4px; }
+.sidebar .cnp-note { margin-top: 3px; }

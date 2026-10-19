@@ -1,0 +1,11 @@
+/* 2026-10-19 layout system: 뉴스 page styles moved out of inline `.style.cssText` in src/ui/pages/news.js.
+   Old inline 11/12px read --fs-sm/base: the sizes index.html's [style*=font-size] rules rendered them at. The status colour stays in the renderer. */
+#page-market-news .nws-ticker { font-size: var(--fs-sm); font-weight: 800; color: var(--accent, var(--text-primary)); font-family: var(--font-mono); background: var(--data-cyan-soft); padding: 1px 4px; border-radius: 3px; margin-right: 3px; cursor: pointer; }
+#page-market-news .news-evidence { font-size: var(--fs-sm); color: var(--text-muted); margin-top: 5px; }
+#page-market-news .nws-stance { font-size: var(--fs-base); font-weight: 600; flex-shrink: 0; }
+#page-market-news .news-intraday-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+#page-market-news .news-intraday-list > li { display: flex; gap: 8px; align-items: baseline; font-size: var(--fs-base); line-height: 1.5; }
+#page-market-news .news-intraday-list time { flex: 0 0 auto; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+/* P1739: padding keeps every headline link at least 24px tall; the text colour token passes 1.4.3 in both themes (v57.77) */
+#page-market-news .nws-intraday-link { display: inline-block; min-height: 24px; padding: 3px 0; box-sizing: border-box; color: var(--text-primary); text-decoration: underline; text-underline-offset: 2px; }
+#page-market-news .nws-empty { text-align: center; padding: 30px; color: var(--text-muted); font-size: var(--fs-base); line-height: 1.7; }

@@ -43,14 +43,13 @@ export function chooseAnswerVisuals({ query = '', mode = 'analysis', canonical =
 function frame(doc, title, caption) {
   const figure = doc.createElement('figure');
   figure.className = 'aio-answer-visual';
-  figure.style.cssText = 'margin:10px 0 4px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface-1);max-width:600px;';
   const head = doc.createElement('div');
   head.textContent = title;
-  head.style.cssText = 'font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:6px;';
+  head.className = 'aav-head';
   const body = doc.createElement('div');
   const note = doc.createElement('figcaption');
   note.textContent = caption;
-  note.style.cssText = 'font-size:12px;line-height:1.5;color:var(--text-muted);margin-top:6px;';
+  note.className = 'aav-caption';
   figure.append(head, body, note);
   return { figure, body };
 }
@@ -91,7 +90,7 @@ export async function buildPriceVisual({ documentRef: doc, root, symbol }) {
   const kr = isKr(symbol);
   const ma50Last = finite(ma50[ma50.length - 1]), ma200Last = finite(ma200[ma200.length - 1]);
   const last = analysis.last.close;
-  const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(symbol)} 최근 ${span}거래일 종가와 이동평균" style="display:block;max-width:100%;height:auto;">` +
+  const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(symbol)} 최근 ${span}거래일 종가와 이동평균" class="aav-plot">` +
     axisLabels(min, max, y, W, (v) => price(v, kr)) +
     `<path d="${polyline(ma200, x, y)}" fill="none" stroke="var(--chart-3)" stroke-width="1.4" stroke-dasharray="2 3"/>` +
     `<path d="${polyline(ma50, x, y)}" fill="none" stroke="var(--chart-5)" stroke-width="1.4" stroke-dasharray="6 3"/>` +
@@ -100,7 +99,7 @@ export async function buildPriceVisual({ documentRef: doc, root, symbol }) {
     `<text x="62" y="${H - 6}" font-size="13" fill="var(--text-muted)">${esc(analysis.bars[start].time)}</text>` +
     `<text x="${W - 6}" y="${H - 6}" text-anchor="end" font-size="13" fill="var(--text-muted)">${esc(analysis.asOf)}</text>` +
     `</svg>`;
-  const legend = `<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--text-secondary);margin-top:4px;"><span><svg width="18" height="6" aria-hidden="true" style="vertical-align:middle;margin-right:4px;"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--chart-1)" stroke-width="2"/></svg>종가</span><span><svg width="18" height="6" aria-hidden="true" style="vertical-align:middle;margin-right:4px;"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--chart-5)" stroke-width="2" stroke-dasharray=\"6 3\"/></svg>50일선</span><span><svg width="18" height="6" aria-hidden="true" style="vertical-align:middle;margin-right:4px;"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--chart-3)" stroke-width="2" stroke-dasharray=\"2 3\"/></svg>200일선</span></div>`;
+  const legend = `<div class="aav-legend"><span><svg width="18" height="6" aria-hidden="true" class="aav-legend-line"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--chart-1)" stroke-width="2"/></svg>종가</span><span><svg width="18" height="6" aria-hidden="true" class="aav-legend-line"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--chart-5)" stroke-width="2" stroke-dasharray=\"6 3\"/></svg>50일선</span><span><svg width="18" height="6" aria-hidden="true" class="aav-legend-line"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--chart-3)" stroke-width="2" stroke-dasharray=\"2 3\"/></svg>200일선</span></div>`;
   const facts = [
     `${analysis.asOf} 종가 ${price(last, kr)}`,
     ma50Last ? `50일선 대비 ${signed((last / ma50Last - 1) * 100)}` : null,
@@ -147,7 +146,7 @@ export async function buildFundamentalsVisual({ documentRef: doc, root, symbol }
   });
   const first = rows[0], last = rows[rows.length - 1];
   const growth = (last.revenue / first.revenue - 1) * 100;
-  const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(symbol)} ${unit}별 매출과 순이익률" style="display:block;max-width:100%;height:auto;"><line x1="60" x2="${W - 6}" y1="${H - bottom}" y2="${H - bottom}" stroke="var(--chart-axis)"/>${bars}</svg>`;
+  const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(symbol)} ${unit}별 매출과 순이익률" class="aav-plot"><line x1="60" x2="${W - 6}" y1="${H - bottom}" y2="${H - bottom}" stroke="var(--chart-axis)"/>${bars}</svg>`;
   const { figure, body } = frame(doc, `${symbol} ${unit}별 매출과 순이익률`,
     `막대는 매출(미국 달러), 기간 아래 숫자는 그 기간의 순이익률입니다. ${first.periodEnd} → ${last.periodEnd} 매출 ${signed(growth, 0)}. 공시 기준이며 마지막 기간 종료일은 ${last.periodEnd}입니다.`);
   body.innerHTML = svg;
@@ -166,12 +165,12 @@ export async function buildRelativeVisual({ documentRef: doc, root, symbols }) {
   const W = 400, H = 190, top = 10, bottom = 26;
   const x = (i) => 62 + (i / (span - 1)) * (W - 68);
   const y = (v) => top + (1 - (v - min) / ((max - min) || 1)) * (H - top - bottom);
-  const colors = ['var(--chart-1)', 'var(--chart-4)', 'var(--chart-8)'];
-  const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(lines.map((line) => line.symbol).join(', '))} 상대 수익률" style="display:block;max-width:100%;height:auto;">` +
+  const colors = ['var(--chart-1)', 'var(--chart-4)', 'var(--chart-8)']; // legend swatches: .aav-swatch, --1, --2 in the same order (ai-answer-visuals.css)
+  const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(lines.map((line) => line.symbol).join(', '))} 상대 수익률" class="aav-plot">` +
     axisLabels(min, max, y, W, (v) => v.toFixed(0)) +
     lines.map((line, i) => `<path d="${polyline(line.values, x, y)}" fill="none" stroke="${colors[i]}" stroke-width="1.8"${i === 2 ? ' stroke-dasharray="5 3"' : ''}/>`).join('') +
     `<text x="62" y="${H - 6}" font-size="13" fill="var(--text-muted)">${esc(lines[0].from)}</text><text x="${W - 6}" y="${H - 6}" text-anchor="end" font-size="13" fill="var(--text-muted)">${esc(lines[0].to)}</text></svg>`;
-  const legend = `<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--text-secondary);margin-top:4px;">${lines.map((line, i) => `<span><span style="display:inline-block;width:14px;height:2px;vertical-align:middle;background:${colors[i]};margin-right:4px;"></span>${esc(line.symbol)} ${esc(signed(line.values[line.values.length - 1] - 100))}</span>`).join('')}</div>`;
+  const legend = `<div class="aav-legend">${lines.map((line, i) => `<span><span class="aav-swatch${i ? ` aav-swatch--${i}` : ''}"></span>${esc(line.symbol)} ${esc(signed(line.values[line.values.length - 1] - 100))}</span>`).join('')}</div>`;
   const { figure, body } = frame(doc, `최근 ${span}거래일 상대 수익률 (시작일 = 100)`,
     `${lines[0].from}~${lines[0].to} 완료된 일봉 종가 기준입니다. 통화·시장이 다르면 각 시장의 현지 가격으로 계산했습니다.`);
   body.innerHTML = svg + legend;
@@ -184,10 +183,10 @@ async function buildCrossroadsVisual({ documentRef: doc, root }) {
   if (!model?.available || model.held) return null;
   const tone = { same: '이 시나리오 쪽', against: '반대쪽', neutral: '중립', unknown: '보류' };
   const rows = [...model.items].sort((a, b) => (b.id === model.leadId) - (a.id === model.leadId) || (b.id === model.altId) - (a.id === model.altId) || b.met / b.total - a.met / a.total).slice(0, 6);
-  const dots = (item) => Array.from({ length: item.total }, (_, i) => `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:2px;border:1.5px solid var(--text-secondary);${i < item.met ? 'background:var(--text-primary);border-color:var(--text-primary);' : ''}"></span>`).join('');
+  const dots = (item) => Array.from({ length: item.total }, (_, i) => `<span class="aav-dot${i < item.met ? ' is-met' : ''}"></span>`).join('');
   const { figure, body } = frame(doc, '향후 시나리오 — 조건 충족 · 시장 가격 · 그 시나리오에서 유리한 쪽',
     `${model.asOf || ''} 관측 기준 · 확률이 아니라 맞는 조건 수와 시장 가격 방향입니다.${model.nextEvent ? ` 다음 발표 ${esc(model.nextEvent.date)} ${esc(model.nextEvent.name)}.` : ''}`);
-  body.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px;">${rows.map((item) => `<tr style="border-top:1px solid var(--border-subtle);${item.id === model.leadId ? 'font-weight:600;' : ''}"><td style="padding:4px 6px 4px 0;color:var(--text-primary);">${esc(item.title.split(' — ')[0])}${item.id === model.leadId ? ' (중심)' : item.id === model.altId ? ' (대안)' : ''}</td><td style="padding:4px 6px;white-space:nowrap;" aria-label="조건 ${item.met}/${item.total}">${dots(item)}<span style="margin-left:4px;color:var(--text-secondary);">${item.met}/${item.total}</span></td><td style="padding:4px 6px;color:var(--text-secondary);white-space:nowrap;">${esc(tone[item.pricing.tone] || '보류')}</td><td style="padding:4px 0;color:var(--text-secondary);">${esc(item.favored.map((key) => CHOICES[key].split(' (')[0]).join(' · '))}</td></tr>`).join('')}</table>`;
+  body.innerHTML = `<table class="aav-table">${rows.map((item) => `<tr${item.id === model.leadId ? ' class="aav-lead"' : ''}><td class="aav-title">${esc(item.title.split(' — ')[0])}${item.id === model.leadId ? ' (중심)' : item.id === model.altId ? ' (대안)' : ''}</td><td class="aav-dots" aria-label="조건 ${item.met}/${item.total}">${dots(item)}<span class="aav-count">${item.met}/${item.total}</span></td><td class="aav-tone">${esc(tone[item.pricing.tone] || '보류')}</td><td class="aav-favored">${esc(item.favored.map((key) => CHOICES[key].split(' (')[0]).join(' · '))}</td></tr>`).join('')}</table>`;
   return figure;
 }
 
@@ -197,12 +196,11 @@ async function buildThemesVisual({ documentRef: doc, root }) {
   const { playbook } = themePlaybookForRoot(root, store);
   if (!playbook?.available) return null;
   const pct = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
-  const color = { tail: 'var(--data-green)', head: 'var(--data-red)', mixed: 'var(--text-primary)', none: 'var(--text-muted)' };
   const { figure, body } = frame(doc, '테마 단계와 거시 영향 (모든 테마, 같은 규칙)',
     `${esc(playbook.asOf || '')} 확정 종가 · 긴 추세(미국 6개월, 한국 3개월)와 1개월 움직임 · 색은 중심 시나리오 기준 수혜(초록)·부담(빨강).`);
-  body.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;">${Object.keys(THEME_STATES).map((stage) => {
+  body.innerHTML = `<div class="aav-stages">${Object.keys(THEME_STATES).map((stage) => {
     const list = playbook.themes.filter((row) => row.state === stage).sort((a, b) => b.ret1m - a.ret1m);
-    return `<div><div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:3px;">${esc(THEME_STATES[stage].split(' (')[0])} · ${list.length}</div>${list.slice(0, 6).map((row) => `<div style="font-size:12px;color:${color[row.wind.lead]};" title="${esc(WIND_LABELS[row.wind.lead])}">${row.market === 'KR' ? '국내' : '미국'} ${esc(row.label)} ${pct(row.ret1m)}</div>`).join('')}${list.length > 6 ? `<div style="font-size:12px;color:var(--text-muted);">외 ${list.length - 6}개</div>` : ''}</div>`;
+    return `<div><div class="aav-stage-head">${esc(THEME_STATES[stage].split(' (')[0])} · ${list.length}</div>${list.slice(0, 6).map((row) => `<div class="aav-stage-row aav-wind--${row.wind.lead}" title="${esc(WIND_LABELS[row.wind.lead])}">${row.market === 'KR' ? '국내' : '미국'} ${esc(row.label)} ${pct(row.ret1m)}</div>`).join('')}${list.length > 6 ? `<div class="aav-stage-more">외 ${list.length - 6}개</div>` : ''}</div>`;
   }).join('')}</div>`;
   return figure;
 }

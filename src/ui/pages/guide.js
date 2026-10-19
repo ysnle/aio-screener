@@ -21,12 +21,12 @@ function createResultItem(documentRef, match, index, onJump) {
   const button = documentRef.createElement('button');
   button.type = 'button';
   button.dataset.guideTarget = match.element.id;
-  button.style.cssText = 'display:block;width:100%;margin-top:4px;padding:4px 8px;background:var(--surface-3);border:0;border-radius:4px;cursor:pointer;text-align:left;color:var(--text-primary);';
+  button.className = 'gd-hit'; // src/ui/styles/guide-page.css
   const label = documentRef.createElement('strong');
   label.style.color = 'var(--data-cyan)';
   label.textContent = match.label || `검색 결과 ${index + 1}`;
   const excerpt = documentRef.createElement('span');
-  excerpt.style.cssText = 'color:var(--text-muted);margin-left:6px;';
+  excerpt.className = 'gd-hit-excerpt';
   excerpt.textContent = `${match.text}...`;
   button.append(label, excerpt);
   button.addEventListener('click', () => onJump(match.element.id));

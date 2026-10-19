@@ -163,7 +163,7 @@ function createTickerBadge(documentRef, ticker, direct = false) {
   badge.textContent = /^[A-Z0-9.^=-]+$/.test(symbol) ? ticker : symbol; // Korean company names carry no $ marker
   badge.title = `${direct ? '직접 당사자' : '기사에 언급된 관련 회사'} · ${symbol} 종목 분석`;
   badge.dataset.issuerRole = direct ? 'subject' : 'mentioned';
-  badge.style.cssText = 'font-size:11px;font-weight:800;color:var(--accent, var(--text-primary));font-family:var(--font-mono);background:var(--data-cyan-soft);padding:1px 4px;border-radius:3px;margin-right:3px;cursor:pointer;';
+  badge.className = 'nws-ticker';
   return badge;
 }
 
@@ -299,7 +299,6 @@ function createNewsCard(documentRef, root, item, index) {
   const evidence = documentRef.createElement('details');
   evidence.className = 'news-evidence';
   evidence.addEventListener('click', (event) => event.stopPropagation());
-  evidence.style.cssText = 'font-size:11px;color:var(--text-muted);margin-top:5px;';
   const facts = newsEvidence(item);
   const evidenceTitle = documentRef.createElement('summary');
   evidenceTitle.textContent = [facts.kind, facts.revision, item?.storyArticles?.length > 1 ? `변경 이력 ${item.storyArticles.length}건` : '출처·시각'].filter(Boolean).join(' · ');
@@ -339,7 +338,8 @@ function createNewsCard(documentRef, root, item, index) {
 
   const stance = documentRef.createElement('span');
   stance.textContent = headlineOnly ? '' : tone.label;
-  stance.style.cssText = `font-size:12px;font-weight:600;color:${tone.color};flex-shrink:0;`;
+  stance.className = 'nws-stance';
+  stance.style.color = tone.color;
   card.append(timeColumn, body, stance);
   return card;
 }
@@ -413,22 +413,19 @@ function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now(
   heading.append(note);
   const list = documentRef.createElement('ul');
   list.className = 'news-intraday-list';
-  list.style.cssText = 'list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;';
   picked.forEach((item) => {
     const row = documentRef.createElement('li');
-    row.style.cssText = 'display:flex;gap:8px;align-items:baseline;font-size:12px;line-height:1.5;';
     const stampParts = kst(item.publishedMs);
     const time = documentRef.createElement('time');
     time.dateTime = new Date(item.publishedMs).toISOString();
     time.textContent = stampParts ? (stampParts.date === today ? stampParts.time : `${stampParts.date} ${stampParts.time}`) : '';
-    time.style.cssText = 'flex:0 0 auto;color:var(--text-muted);font-variant-numeric:tabular-nums;';
     const href = safeUrl(item.link || item.url);
     const titleNode = documentRef.createElement(href ? 'a' : 'span');
     titleNode.textContent = `${item.verification === 'unconfirmed' ? '[미확인] ' : ''}${String(item.title || '')}`;
     if (href) { titleNode.href = href; titleNode.target = '_blank'; titleNode.rel = 'noopener noreferrer'; }
     // P1739: a 12px/1.5 link was an 18-21px target; padding keeps every headline link at least 24px tall.
     // v57.77 (a11y 1.4.3): the browser-default link blue measured 1.94:1 in dark; the text colour token passes in both themes.
-    titleNode.style.cssText = 'display:inline-block;min-height:24px;padding:3px 0;box-sizing:border-box;color:var(--text-primary);text-decoration:underline;text-underline-offset:2px;';
+    titleNode.className = 'nws-intraday-link'; // src/ui/styles/news-page.css
     // Sources stay off the screen text (owner 2026-10-06): publisher and full time live in the hover.
     titleNode.title = [item.source, formatAbsoluteTime(item.publishedMs ? new Date(item.publishedMs) : null)].filter(Boolean).join(' · ');
     row.append(time, titleNode);
@@ -459,7 +456,7 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
   container.replaceChildren();
   if (!displayed.length) {
     const empty = documentRef.createElement('div');
-    empty.style.cssText = 'text-align:center;padding:30px;color:var(--text-muted);font-size:12px;line-height:1.7;';
+    empty.className = 'nws-empty';
     // P1164/B03: 창 밖에 남은 과거 수집분을 오늘 뉴스로 읽히게 두지 않는다.
     // LC-32: 분류가 피드 query에서 복사된 경우, 0건은 '해당 주제 뉴스가 없다'가 아니라
     // '이 필터가 피드 분류를 기준으로 걸러낸 결과'임을 함께 밝힌다.

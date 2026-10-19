@@ -536,12 +536,11 @@ function formatSecWatchlistValue(value, { percent = false } = {}) {
 
 function appendSecWatchlistMetric(documentRef, container, labelText, valueText) {
   const metric = documentRef.createElement('div');
-  metric.style.cssText = 'display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--text-secondary);';
+  metric.className = 'fwl-metric';
   const label = documentRef.createElement('span');
   label.textContent = labelText;
   const value = documentRef.createElement('strong');
   value.textContent = valueText;
-  value.style.cssText = 'color:var(--text-primary);font-family:var(--font-mono);text-align:right;';
   metric.append(label, value);
   container.appendChild(metric);
 }
@@ -561,7 +560,7 @@ function renderFundamentalWatchlist(documentRef, state) {
   if (!rows.length) {
     const empty = documentRef.createElement('div');
     empty.textContent = '공식 SEC 연간 공시 투영을 수신하지 못해 관심종목 비교를 표시하지 않습니다.';
-    empty.style.cssText = 'grid-column:1/-1;text-align:center;padding:24px;color:var(--text-muted);font-size:11px;';
+    empty.className = 'fwl-empty';
     grid.appendChild(empty);
     return;
   }
@@ -575,7 +574,7 @@ function renderFundamentalWatchlist(documentRef, state) {
     : '';
   notice.textContent = `연간 공시 · ${projectionState}${meta.generatedAt ? ` · ${formatKstStamp(meta.generatedAt) || String(meta.generatedAt).slice(0, 10)}` : ''}${coverageText} · 연간 공시와 시세는 서로 다른 시계로 분리`;
   notice.title = `${meta.source || 'SEC EDGAR companyfacts'} 연간 공시 요약`;
-  notice.style.cssText = `grid-column:1/-1;padding:9px 10px;border-left:2px solid ${ageHours != null && ageHours <= 48 ? 'var(--data-green)' : 'var(--data-amber)'};background:var(--surface-2);color:var(--text-secondary);font-size:10px;line-height:1.5;`;
+  notice.className = ageHours != null && ageHours <= 48 ? 'fwl-notice is-fresh' : 'fwl-notice';
   grid.appendChild(notice);
   for (const row of rows) {
     const symbol = String(row.symbol || '').trim().toUpperCase();
@@ -589,26 +588,25 @@ function renderFundamentalWatchlist(documentRef, state) {
     card.setAttribute('data-operational-use', 'reference-only');
     card.setAttribute('data-decision-eligible', 'false');
     if (row.observedAt) { card.setAttribute('data-observed-at', row.observedAt); card.setAttribute('data-cadence', 'annual'); }
-    card.style.cssText = 'appearance:none;width:100%;background:var(--bg-card);border-radius:4px;padding:14px;border:1px solid var(--border);cursor:pointer;text-align:left;color:inherit;';
 
     const heading = documentRef.createElement('div');
-    heading.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;';
+    heading.className = 'fwl-head';
     const identity = documentRef.createElement('div');
     const symbolNode = documentRef.createElement('div');
     symbolNode.textContent = symbol;
-    symbolNode.style.cssText = 'font-size:13px;font-weight:700;color:var(--text-primary);';
+    symbolNode.className = 'fwl-symbol';
     const name = documentRef.createElement('div');
     name.textContent = row.entityName || symbol;
-    name.style.cssText = 'font-size:10px;color:var(--text-muted);line-height:1.35;margin-top:2px;';
+    name.className = 'fwl-name';
     identity.append(symbolNode, name);
     const period = documentRef.createElement('span');
     period.textContent = `${row.periodType || 'FY'} · ${row.observedAt || '회계연도 말 미상'}`;
-    period.style.cssText = 'font-size:10px;color:var(--text-muted);white-space:nowrap;';
+    period.className = 'fwl-period';
     heading.append(identity, period);
     card.appendChild(heading);
 
     const metrics = documentRef.createElement('div');
-    metrics.style.cssText = 'display:grid;gap:5px;';
+    metrics.className = 'fwl-metrics';
     appendSecWatchlistMetric(documentRef, metrics, '매출', formatSecWatchlistValue(row.revenue));
     appendSecWatchlistMetric(documentRef, metrics, '순이익', formatSecWatchlistValue(row.netIncome));
     appendSecWatchlistMetric(documentRef, metrics, '매출 성장', formatSecWatchlistValue(row.revGrowth, { percent: true }));
@@ -620,7 +618,7 @@ function renderFundamentalWatchlist(documentRef, state) {
     const source = documentRef.createElement('div');
     source.textContent = `${row.form || '연간 보고서'} · 제출 ${row.filedAt || '미상'} · 추정치 없음`;
     source.title = `${row.source || meta.source || 'SEC EDGAR companyfacts'}`;
-    source.style.cssText = 'font-size:10px;color:var(--text-muted);margin-top:10px;line-height:1.35;';
+    source.className = 'fwl-source';
     card.appendChild(source);
     grid.appendChild(card);
   }
@@ -734,19 +732,19 @@ function renderFundamentalReport(documentRef, page, state) {
   if (report.metrics.length === 0) {
     const empty = documentRef.createElement('div');
     empty.textContent = unselected ? '종목을 선택하면 핵심 재무 지표가 표시됩니다.' : isKrSymbol(state?.id) ? '한국 상장 종목의 핵심 재무는 기업 요약의 한국 공시(DART) 카드에서 확인합니다.' : '공식 SEC annual fact가 수신되면 핵심 재무 지표가 표시됩니다.';
-    empty.style.cssText = 'grid-column:1/-1;color:var(--text-muted);font-size:12px;padding:8px 0;';
+    empty.className = 'fsr-empty';
     grid.appendChild(empty);
     return;
   }
   for (const metric of report.metrics) {
     const card = documentRef.createElement('div');
-    card.style.cssText = 'background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:4px;padding:9px 10px;min-width:0;';
+    card.className = 'fsr-item';
     const label = documentRef.createElement('div');
     label.textContent = metric.label;
-    label.style.cssText = 'font-size:10px;color:var(--text-muted);margin-bottom:4px;';
+    label.className = 'fsr-label';
     const value = documentRef.createElement('div');
     value.textContent = formatSecMetric(metric);
-    value.style.cssText = 'font-size:14px;font-family:var(--font-mono);font-weight:700;color:var(--text-primary);overflow-wrap:anywhere;';
+    value.className = 'fsr-value';
     card.append(label, value);
     grid.appendChild(card);
   }

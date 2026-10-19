@@ -1,0 +1,3 @@
+/* 2026-10-19 layout system: the "arrived from a research document" note at the top of a screen (src/ui/components/knowledge-arrival.js).
+   Moved out of inline `.style.cssText`; the old inline 11px reads --fs-sm, the size index.html's [style*=font-size] rule rendered it at. */
+.page > .aio-knowledge-arrival { font-size: var(--fs-sm); color: var(--accent); line-height: 1.6; margin: 0 0 8px; }

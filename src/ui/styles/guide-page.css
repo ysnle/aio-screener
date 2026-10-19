@@ -1,0 +1,4 @@
+/* 2026-10-19 layout system: 가이드 page search results (src/ui/pages/guide.js), moved out of inline `.style.cssText`.
+   The id outranks `.page button` (min-height stays from that rule, as before). */
+#guide-search-result .gd-hit { display: block; width: 100%; margin-top: 4px; padding: 4px 8px; background: var(--surface-3); border: 0; border-radius: 4px; cursor: pointer; text-align: left; color: var(--text-primary); }
+#guide-search-result .gd-hit-excerpt { color: var(--text-muted); margin-left: 6px; }

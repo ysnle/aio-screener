@@ -93,11 +93,11 @@ export function installGlossaryBridge({ root = globalThis, documentRef = root.do
     const screens = screenLinksForQuery(query);
     const box = documentRef.createElement('section');
     box.dataset.glossaryCross = 'true';
-    box.style.cssText = 'padding:12px 0 4px;border-top:2px solid var(--border-subtle);margin-top:8px;';
+    box.className = 'glx-box'; // src/ui/styles/glossary-cross.css
     if (screens.length) {
       const screenRow = documentRef.createElement('div');
       screenRow.dataset.glossaryScreens = 'true';
-      screenRow.style.cssText = 'display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:10px;font-size:12px;color:var(--text-secondary);';
+      screenRow.className = 'glx-screens';
       screenRow.append('지금 값을 보는 화면');
       for (const screen of screens) {
         const button = documentRef.createElement('button');
@@ -114,22 +114,22 @@ export function installGlossaryBridge({ root = globalThis, documentRef = root.do
       box.appendChild(screenRow);
     }
     const head = documentRef.createElement('div');
-    head.style.cssText = 'font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;';
+    head.className = 'glx-head';
     head.textContent = results.length ? `다른 학습 영역 · ${results.length}건` : '다른 학습 영역 · 일치 항목 없음';
     box.appendChild(head);
     for (const entry of results) {
       const row = documentRef.createElement('a');
       row.href = routeUrl(root, entry.route);
       row.dataset.glossaryCrossId = entry.id;
-      row.style.cssText = 'display:block;padding:7px 0;border-bottom:1px solid var(--surface-4);text-decoration:none;color:inherit;';
+      row.className = 'glx-row';
       const title = documentRef.createElement('div');
-      title.style.cssText = 'font-size:13px;font-weight:600;color:var(--text-primary);';
+      title.className = 'glx-title';
       title.textContent = entry.title;
       const meta = documentRef.createElement('div');
-      meta.style.cssText = 'font-size:11px;color:var(--text-muted);margin:2px 0;';
+      meta.className = 'glx-meta';
       meta.textContent = [entry.surfaceLabel, entry.group].filter(Boolean).join(' · ');
       const text = documentRef.createElement('div');
-      text.style.cssText = 'font-size:12px;color:var(--text-secondary);line-height:1.5;';
+      text.className = 'glx-text';
       text.textContent = entry.text;
       row.append(title, meta, text);
       row.addEventListener('click', (event) => {

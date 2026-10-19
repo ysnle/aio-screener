@@ -1,0 +1,9 @@
+/* 2026-10-19 layout system: the glossary's cross-area results (src/ui/knowledge/glossary-bridge.js), moved out of inline `.style.cssText`.
+   The glossary modal sits outside .page, so 12/13px stay literal and the old 11px meta line takes the --fs-min floor. */
+#glossary-body .glx-box { padding: 12px 0 4px; border-top: 2px solid var(--border-subtle); margin-top: 8px; }
+#glossary-body .glx-screens { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 10px; font-size: 12px; color: var(--text-secondary); }
+#glossary-body .glx-head { font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; }
+#glossary-body .glx-row { display: block; padding: 7px 0; border-bottom: 1px solid var(--surface-4); text-decoration: none; color: inherit; }
+#glossary-body .glx-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+#glossary-body .glx-meta { font-size: var(--fs-min); color: var(--text-muted); margin: 2px 0; }
+#glossary-body .glx-text { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }

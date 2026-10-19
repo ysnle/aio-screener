@@ -453,3 +453,5 @@ body.dark-theme .sector-map .is-na { background: #36383b; color: #c8c6c0; }
 .pf-stress-band { color: var(--text-muted); font-weight: 400; }
 .pf-stress-note { font-size: var(--fs-min); color: var(--text-muted); }
 .pf-stress-method { margin-top: 4px; }
+/* 2026-10-19 layout system: the Korea FX reference line after the six regime chips (src/ui/pages/analysis.js); old inline 12px reads --fs-base. */
+.page .regime-chip-reference { flex-basis: 100%; font-size: var(--fs-base); color: var(--text-muted); margin-top: 2px; }

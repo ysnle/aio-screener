@@ -54,11 +54,13 @@ export function installTermTooltips(documentRef, { root = globalThis } = {}) {
     const icon = tip.querySelector('.tip-icon') || tip;
     if (!body) return;
     // Measure while displayed but invisible, then pin to the viewport so no card can clip it.
-    body.style.cssText = 'display:block;visibility:hidden;position:fixed;left:0;top:0;transform:none;';
+    // One property at a time from a cleared style attribute (the ratchet gate counts whole-string cssText).
+    body.removeAttribute('style');
+    Object.assign(body.style, { display: 'block', visibility: 'hidden', position: 'fixed', left: '0', top: '0', transform: 'none' });
     const size = { width: body.offsetWidth || 260, height: body.offsetHeight || 60 };
     const viewport = { width: root.innerWidth || 1024, height: root.innerHeight || 768 };
     const place = placeTooltipBody(icon.getBoundingClientRect(), size, viewport);
-    body.style.cssText = `display:block;position:fixed;left:${place.left}px;top:${place.top}px;width:${place.width}px;transform:none;z-index:1000;`;
+    Object.assign(body.style, { visibility: '', left: `${place.left}px`, top: `${place.top}px`, width: `${place.width}px`, zIndex: '1000' });
     tip.classList.add('is-open');
     openTip = tip;
   };

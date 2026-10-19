@@ -43,9 +43,8 @@ export function renderKnowledgeArrival({ documentRef = globalThis.document, root
     return null;
   }
   const note = existing || documentRef.createElement('p');
-  note.className = 'aio-knowledge-arrival';
+  note.className = 'aio-knowledge-arrival'; // same look as #fund-arrival-question (src/ui/styles/knowledge-arrival.css)
   note.setAttribute('role', 'note');
-  note.style.cssText = 'font-size:11px;color:var(--accent);line-height:1.6;margin:0 0 8px;'; // same look as #fund-arrival-question
   note.textContent = '';
   const period = context.timeframe ? PERIOD_LABELS[context.timeframe] || context.timeframe : null;
   note.append(documentRef.createTextNode(`리서치 문서에서 넘어온 확인 대상: ${context.metric || context.knowledgeNode}${period ? ` · 볼 기간 ${period}` : ''}`));

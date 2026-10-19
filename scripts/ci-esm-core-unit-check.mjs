@@ -3487,14 +3487,14 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const appliedEmpty = applyLedgerPanel({ documentRef: fakeDocument, ledger: null, coverageState: { inputs: [] } });
   const readBack = readDeclaredFields(fakeDocument, ['pf-fx-from', 'pf-fx-to']);
   const statusWritten = showDeclarationStatus({ documentRef: fakeDocument, statusId: 'pf-ledger-status', kind: 'fx', phase: 'apply', result: { ok: false, reason: 'invalid-fx-leg' } });
-  const usableFxRow = fxMarkup.slice(0, fxMarkup.indexOf('opacity:0.7;'));
+  const usableFxRow = fxMarkup.slice(0, fxMarkup.indexOf('is-unusable'));
   const panelChecks = [
     ['coverage marks only the declared input', (coverage.match(/checked/g) || []).length === 1],
     ['coverage escapes the label', coverage.includes('거래&lt;x&gt;') && coverage.includes('data-field="transactions"')],
     ['ledger rows keep kind and index', ledgerMarkup.includes('data-arg="transaction:0"') && ledgerMarkup.includes('data-arg="valuation:0"') && ledgerMarkup.includes('출금')],
     ['empty ledger says so', ledgerListMarkup(null) === '입출금 기록 없음' && ledgerListMarkup({ transactions: [], valuations: [] }) === '입출금 기록 없음'],
-    ['usable fx leg stays plain', usableFxRow.includes('USD→KRW') && !usableFxRow.includes('opacity:0.7;') && !usableFxRow.includes('사용 불가')],
-    ['unusable fx leg names the declared budget', fxMarkup.includes('지금은 쓰지 않음(입력한 지 72시간이 지났거나 기준 시각 이후 관측)') && fxMarkup.includes('opacity:0.7;')],
+    ['usable fx leg stays plain', usableFxRow.includes('USD→KRW') && !usableFxRow.includes('is-unusable') && !usableFxRow.includes('사용 불가')],
+    ['unusable fx leg names the declared budget', fxMarkup.includes('지금은 쓰지 않음(입력한 지 72시간이 지났거나 기준 시각 이후 관측)') && fxMarkup.includes('is-unusable')],
     ['fx list indexes its remove buttons', fxMarkup.includes('data-arg="0"') && fxMarkup.includes('data-arg="1"')],
     ['persist failure never reads as success', persistFail.ok === false && persistFail.tone === 'var(--data-amber)' && persistFail.text.includes('영구 저장 실패')],
     ['persist failure must not borrow the invalid-entry wording', !persistFail.text.includes('FX leg는') && !persistFail.text.includes('날짜(YYYY-MM-DD)')],
