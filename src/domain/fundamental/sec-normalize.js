@@ -204,7 +204,8 @@ function latestIso(values) {
 // v5 (2026-10-16): bank net revenue = net interest income + noninterest income of one filing (sec-report.js).
 // v6 (2026-10-16): IFRS (ifrs-full) and non-USD reporting bases, ratio-only (owner decision). The terminal IFRS rows
 // recorded under 'ifrs-taxonomy-not-supported-by-us-gaap-normalizer' are rechecked once like a concept-set change.
-export const SEC_CONCEPT_SET_VERSION = 'sec-annual-concepts.v6';
+// v7 (2026-10-19): an issuer without annual revenue is anchored on annual net income (revenue/margin/growth empty).
+export const SEC_CONCEPT_SET_VERSION = 'sec-annual-concepts.v7';
 // Failure reason codes that a concept-set change can resolve (the scheduler rechecks them once per version).
 export const SEC_CONCEPT_SET_REASON_CODES = Object.freeze(['required-us-gaap-annual-concepts-unavailable', 'required-ifrs-annual-concepts-unavailable', 'ifrs-taxonomy-not-supported-by-us-gaap-normalizer']);
 
@@ -532,8 +533,17 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   // (largest primary concept, assessed-tax-inclusive only as a fallback). P1374 bank net revenue stays a
   // primary concept.
   // (annualDurationRows dedupes by period+form across concepts, so the per-concept rows are filtered here instead.)
-  const revenues = bestRevenueRowsByPeriod(revenueFactRows(companyFacts, basis).filter(isAnnualFy));
-  if (!revenues.length) return null;
+  let revenues = bestRevenueRowsByPeriod(revenueFactRows(companyFacts, basis).filter(isAnnualFy));
+  // v7 (2026-10-19 data audit): an issuer that tags no revenue (pre-revenue biotech and nuclear: OKLO, NNE, 164 drug
+  // makers; a bank whose income splits across filings) was dropped whole, so its net income, equity, ROE and P/B were
+  // unavailable as well. The fiscal year is then anchored on annual net income; revenue, margin and growth stay empty.
+  let revenueUnreported = false;
+  if (!revenues.length) {
+    const incomeAnchor = preferredRow(companyFacts, basis, concepts.income, (rows) => rows.filter(isAnnualFy)[0] || null, (list) => annualDurationRows(companyFacts, list, basis));
+    if (!incomeAnchor || finiteFact(incomeAnchor.val) == null) return null;
+    revenues = [{ ...incomeAnchor, val: null, concept: null }];
+    revenueUnreported = true;
+  }
 
   const currentRevenue = revenues[0];
   const priorRevenue = revenues.find(row => isPriorAnnualPeriod(currentRevenue, row));
@@ -542,9 +552,11 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   const currentEquity = preferredRow(companyFacts, basis, concepts.equity, (rows) => closestEnd(rows, currentRevenue.end) || null, (list) => instantRows(companyFacts, basis.taxonomy, list, basis.currency));
   const acceptedMap = acceptedAtByAccession(submissions);
 
-  const revenue = Number(currentRevenue.val);
+  const revenue = revenueUnreported ? null : Number(currentRevenue.val);
   const netIncome = finiteFact(currentIncome?.val);
   const equity = finiteFact(currentEquity?.val);
+  // Without revenue the record is worth publishing only for ROE / P/B; net income alone is not a fundamental row.
+  if (revenueUnreported && equity == null) return null;
   // v57.92: both EPS reads require a ~1-year duration (isAnnualFy). fp=FY only names the filing — a 10-K also carries the
   // Q4 EPS with the same end date, and whichever came first set the share count (annual 1.00 → 100 shares, Q4 0.20 → 500).
   // P1587: the share count is cross-checked against net income ÷ diluted EPS for the same fiscal year. PKG's
@@ -573,7 +585,7 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   // are separate. A filing arriving today does not make an old fiscal year current, and a
   // derived ratio cannot have been reproducible before its LATEST operand was public.
   const operandAvailability = {
-    revenue: pitAvailability(currentRevenue, acceptedMap),
+    revenue: revenueUnreported ? null : pitAvailability(currentRevenue, acceptedMap),
     netIncome: pitAvailability(currentIncome, acceptedMap),
     equity: pitAvailability(currentEquity, acceptedMap),
     sharesOutstanding: pitAvailability(currentShares, acceptedMap),
@@ -621,7 +633,8 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     transportFetchedAt: new Date().toISOString(),
     reportAgeDays,
     reportRecency,
-    accessionByField: { revenue: currentRevenue.accn || null, netIncome: currentIncome?.accn || null, equity: currentEquity?.accn || null, sharesOutstanding: currentShares?.accn || null },
+    ...(revenueUnreported ? { periodAnchor: 'net-income', revenueStatus: 'unreported' } : {}),
+    accessionByField: { revenue: revenueUnreported ? null : currentRevenue.accn || null, netIncome: currentIncome?.accn || null, equity: currentEquity?.accn || null, sharesOutstanding: currentShares?.accn || null },
     operandAvailability,
     derivedAvailability,
     allowedUse: 'research-relative-ranking-only',
@@ -657,12 +670,12 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     // N20: recent 8-K/10-Q/10-K filings within 30 days before this read (`fetchedAt`): date, form, Item numbers,
     // accession only — no filing text.
     recentFilings: recentFilingsFrom(submissions),
-    coverage: basis.currency !== 'USD' ? [] : ['revenue', ...(netIncome != null ? ['netIncome'] : []), ...(equity != null ? ['equity'] : []), ...(sharesOutstanding != null ? ['sharesOutstanding'] : [])],
+    coverage: basis.currency !== 'USD' ? [] : [...(revenue != null ? ['revenue'] : []), ...(netIncome != null ? ['netIncome'] : []), ...(equity != null ? ['equity'] : []), ...(sharesOutstanding != null ? ['sharesOutstanding'] : [])],
     pit: buildPointInTimeFacts(companyFacts, submissions, basis)
   };
 
   if (priorRevenue && Number(priorRevenue.val) > 0) record.revGrowth = round((revenue / Number(priorRevenue.val) - 1) * 100, 1);
-  if (netIncome != null && revenue !== 0) record.margin = round(netIncome / revenue * 100, 1);
+  if (netIncome != null && revenue != null && revenue !== 0) record.margin = round(netIncome / revenue * 100, 1);
   // F05: a margin above 100% means a revenue subtotal, not the business; withheld (value kept for audit).
   if (record.margin > SEC_MARGIN_HOLD_ABOVE_PCT) { record.marginHeld = { value: record.margin, reason: 'margin-above-100pct-revenue-subtotal' }; delete record.margin; }
   // v6: the same subtotal does not measure growth either (one rule with reconcileSecRevenueShares).

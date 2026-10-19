@@ -1222,10 +1222,13 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const secSource = readFileSync(new URL('./fetch-sec-fundamentals.mjs', import.meta.url), 'utf8');
     ok = bank?.revenueConcept === SEC_BANK_NET_REVENUE_CONCEPT && bank.revenue === 9e9 && bank.margin === 22.2 && bank.revGrowth === 12.5
       && healed?.revenue === 9e9 && !healed.revenueHealedFrom && pitConcepts.includes(SEC_BANK_NET_REVENUE_CONCEPT)
-      && SEC_PRIMARY_REVENUE_CONCEPTS.includes(SEC_BANK_NET_REVENUE_CONCEPT) && split === null && alone === null
+      && SEC_PRIMARY_REVENUE_CONCEPTS.includes(SEC_BANK_NET_REVENUE_CONCEPT)
+      // v7 (2026-10-19): an underived pair leaves revenue empty; the year is anchored on net income for ROE only
+      && split?.revenue === null && split.periodAnchor === 'net-income' && split.margin === undefined && split.revGrowth === undefined && split.roe === 10
+      && alone?.revenue === null && alone.margin === undefined
       && Number(String(SEC_CONCEPT_SET_VERSION).split('.v')[1]) >= 5 // v5 or later (P1875: v6)
       && /Number\(b\.conceptSetChanged\) - Number\(a\.conceptSetChanged\)/.test(secSource);
-    detail = JSON.stringify({ bank: bank && { c: bank.revenueConcept, rev: bank.revenue, m: bank.margin, g: bank.revGrowth }, healed: healed && healed.revenue, pitConcepts, split: !!split, alone: !!alone, v: SEC_CONCEPT_SET_VERSION });
+    detail = JSON.stringify({ bank: bank && { c: bank.revenueConcept, rev: bank.revenue, m: bank.margin, g: bank.revGrowth }, healed: healed && healed.revenue, pitConcepts, split: split && { r: split.revenue, a: split.periodAnchor, roe: split.roe, m: split.margin }, alone: alone && { r: alone.revenue, m: alone.margin }, v: SEC_CONCEPT_SET_VERSION });
   } catch (error) { detail = error.message; }
   check('P1873 SEC bank net revenue = net interest income + noninterest income of one filing, and stale concept-set failures are rechecked first', ok, detail.slice(0, 500));
 }
@@ -1274,7 +1277,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && Boolean(subtotal?.marginHeld) && subtotal.revGrowth === undefined && subtotal.revGrowthHeld?.value === 20
       && healed.revGrowth === undefined && healed.revGrowthHeld?.value === 81.7
       && bestRevenueRowsByPeriod([{ concept: 'Revenues', val: 13000, start: '2024-01-01', end: '2024-12-31', filed: 'x' }, { concept: SEC_BANK_NET_REVENUE_CONCEPT, val: 13079, start: '2024-01-01', end: '2024-12-31', filed: 'x' }])[0]?.concept === 'Revenues'
-      && SEC_CONCEPT_SET_VERSION === 'sec-annual-concepts.v6' && SEC_CONCEPT_SET_REASON_CODES.includes('ifrs-taxonomy-not-supported-by-us-gaap-normalizer')
+      && SEC_CONCEPT_SET_VERSION === 'sec-annual-concepts.v7' && SEC_CONCEPT_SET_REASON_CODES.includes('ifrs-taxonomy-not-supported-by-us-gaap-normalizer')
       && /usdReport\(record\)/.test(projectionSource);
     detail = JSON.stringify({ tsm: tsm && { std: tsm.accountingStandard, cur: tsm.reportingCurrency, rev: tsm.revenue, m: tsm.margin, roe: tsm.roe, g: tsm.revGrowth, sc: tsm.sharesCheck }, row: rowFields && { roe: rowFields.roe, held: rowFields.valuationHeldReason }, adr: adr && { m: adr.margin, sc: adr.sharesCheck }, bank: !!bank, asml: asml && { m: asml.margin, roe: asml.roe, g: asml.revGrowth }, sub: subtotal && { g: subtotal.revGrowth, held: subtotal.revGrowthHeld }, healed });
   } catch (error) { detail = error.message; }

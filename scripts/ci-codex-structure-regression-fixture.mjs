@@ -20,7 +20,8 @@ import { validateAnalysisAdmission, scoreServerNewsItem, serverNewsHeadlineMonth
 import { isNonMetricNumber } from './lib/market-analysis-numbers.mjs';
 import { marketAnalysisLargeMove } from './lib/market-analysis-validate.mjs';
 import { discreteQuarterSeries } from '../src/domain/fundamental/sec-earnings.js';
-import { carriedNewsCandidates, createNewsTopicCap, getKst0800NewsCycle } from './lib/news-selection.mjs';
+import { dataSourceWarnings, deadNewsFeeds } from './lib/operational-health.mjs';
+import { mergeNewsFeedHealth, carriedNewsCandidates, createNewsTopicCap, getKst0800NewsCycle } from './lib/news-selection.mjs';
 
 const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
 
@@ -120,6 +121,12 @@ assert.equal(marketAnalysisLargeMove(fridaySpx, new Map([['spx', -1.09]]), { met
 const q = (start, end, value) => ({ start, end, val: value, filed: '2026-02-12' });
 const lhx = discreteQuarterSeries([q('2025-01-04', '2025-03-28', 5132), q('2025-03-29', '2025-06-27', 5426), q('2025-06-28', '2025-10-03', 5659), q('2025-10-04', '2026-01-02', 21865)], [q('2025-01-04', '2026-01-02', 21865)]);
 assert.deepEqual(lhx.at(-1), { periodEnd: '2026-01-02', value: 21865 - 5132 - 5426 - 5659, derived: true, concept: null, availableAt: '2026-02-12' }, 'a quarter carrying the full-year amount is replaced by FY − Q1..Q3');
+const healthAt = '2026-10-19T12:00:00.000Z';
+const health1 = mergeNewsFeedHealth(null, [{ source: 'A', status: 'ok', kept: 3 }, { source: 'B', status: 'no-current', kept: 0 }], '2026-10-16T00:00:00.000Z');
+const health2 = mergeNewsFeedHealth(health1, [{ source: 'A', status: 'ok', kept: 2 }, { source: 'B', status: 'error', kept: 0 }], healthAt);
+assert.deepEqual(health2.map((row) => [row.source, row.missStreak]), [['A', 0], ['B', 2]], 'a feed without usable items accumulates a streak');
+assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: health2 } }, { nowMs: Date.parse(healthAt) }), ['B'], 'a feed never healthy since first seen 3.5 days ago is dead');
+assert.equal(dataSourceWarnings({ meta: { marketSentenceReject: 'latin-word' }, marketAnalysis: { sentence: { day: '2026-10-18' } } }, { nowMs: Date.parse(healthAt) }).length, 1, 'a rejected new-day sentence is named');
 
 // P1651: a KRX close aligns to the latest completed KRX session, not the US basis (10/12 -3.6% was shown as 10/8).
 const krHistory = [

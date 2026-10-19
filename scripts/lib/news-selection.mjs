@@ -385,6 +385,23 @@ export function createNewsTopicCap() {
 // screen's labels, semi/credit, so the floor cannot key on topic alone).
 export const NEWS_FEED_FLOORS = Object.freeze([['fxbond', 3], ['credit', 2], ['Google News - AI narrative/Memory', 3], ['Google News - Positioning/Sovereign/Politics', 2]]);
 
+// 2026-10-19 data audit: 4 of 11 feeds returned nothing usable in a run and nothing recorded which, so a feed that died
+// (a changed URL, a query Google stopped answering) would only show as a slowly thinner bundle. Each run publishes per-feed
+// counts, a streak of consecutive runs without a usable current item and when it last had one; the watchdog warns when
+// a feed has had none for a day (a quiet Korean weekend morning is not a dead feed).
+export const NEWS_FEED_STALE_MS = 24 * 3600000;
+export function mergeNewsFeedHealth(previous, current, at = new Date().toISOString()) {
+  const before = new Map((Array.isArray(previous) ? previous : []).filter((row) => row?.source).map((row) => [row.source, row]));
+  return (Array.isArray(current) ? current : []).map((row) => {
+    const prior = before.get(row.source);
+    const healthy = row.status === 'ok' && row.kept > 0;
+    return { ...row, missStreak: healthy ? 0 : Number(prior?.missStreak || 0) + 1, lastHealthyAt: healthy ? at : (prior?.lastHealthyAt || prior?.firstSeenAt || at), firstSeenAt: prior?.firstSeenAt || at };
+  });
+}
+export function staleNewsFeeds(feedHealth, nowMs = Date.now(), maxAgeMs = NEWS_FEED_STALE_MS) {
+  return (Array.isArray(feedHealth) ? feedHealth : []).filter((row) => row?.missStreak > 0 && nowMs - Date.parse(row.lastHealthyAt || '') > maxAgeMs);
+}
+
 /** Previous-run news rows of the same completed cycle, rebuilt as scoring candidates. */
 export function carriedNewsCandidates(carry, cycle) {
   if (!Array.isArray(carry) || !cycle) return [];
@@ -411,9 +428,12 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
   const items = [];    // US/글로벌 피드
   const krItems = [];  // 한국 전용 (reserved slot)
   const intradayCandidates = []; // P1720: published after cycle.endMs (08:00 KST)
+  const feedHealth = [];
   const slotPool = []; // market timeline (2026-10-19): every dated candidate of the last 30 h, cut per 6 h KST slot later
   for (const feed of NEWS_FEEDS) {
     const isKr = feed.country === 'kr';
+    const health = { source: feed.source, status: 'ok', parsed: 0, inWindow: 0, kept: 0, selected: 0 };
+    feedHealth.push(health);
     try {
       const feedUrls = [feed.url, feed.url.replace(/when%3A2d/i, 'when%3A7d')];
       let parsed = [];
@@ -426,6 +446,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
         });
         if (hasCurrent || feedUrl === feedUrls[feedUrls.length - 1]) break;
       }
+      health.parsed = parsed.length;
       for (const p of parsed) {
         const t = p.ts;
         if (isFinite(t) && t >= nowMs - 30 * 3600000 && p.title && p.link) {
@@ -440,6 +461,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
             feedTier: feed.tier, feedSource: feed.source });
         }
         if (!isFinite(t) || t < cycle.startMs || t >= cycle.endMs) continue;
+        health.inWindow += 1;
         const item = {
           title: p.title, link: p.link, source: p.source || feed.source, _sourceRaw: p._sourceRaw,
           guid: p.guid, sourceArticleId: p.sourceArticleId, fetchedAt: p.fetchedAt, evidenceKind: p.evidenceKind,
@@ -459,9 +481,12 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
         // P1504: selection floor — off-topic headlines (a lacrosse team surfaced through a "Red Sea" query) and
         // low-quality sources are dropped before ranking instead of filling empty slots.
         if (!(item.topicHits > 0) || item.tier >= 4 || !(item.score > 0)) continue;
+        health.kept += 1;
         if (isKr) { krItems.push(item); } else { items.push(item); }
       }
-    } catch (e) { /* 피드별 실패 무시 */ }
+      if (!health.parsed) health.status = 'empty';
+      else if (!health.inWindow) health.status = 'no-current';
+    } catch (e) { health.status = 'error'; health.error = String(e?.message || e).slice(0, 120); /* 피드별 실패 무시 */ }
   }
   // 2026-10-19 data audit: the window is closed, but every refresh re-searched it from scratch and Google's `when:2d`
   // ranking drifts as the window ages, so the 10/19 bundle shrank from 40 to 32 between 01:21Z and 11:17Z and a manual
@@ -563,6 +588,8 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
   // existing consumer of `news` keeps the canonical 08:00 bundle unchanged.
   // Published rows that came only from the previous run (no feed returned them this time): the receipt's `updated`.
   Object.defineProperty(out, 'carriedCount', { value: carriedPicked, enumerable: false });
+  for (const row of out) { const health = feedHealth.find((h) => h.source === row.feedSource); if (health) health.selected += 1; }
+  Object.defineProperty(out, 'feedHealth', { value: feedHealth, enumerable: false });
   Object.defineProperty(out, 'intraday', { value: selectNewsIntraday(intradayCandidates, { cycleEndMs: cycle.endMs, canonical: out }), enumerable: false });
   Object.defineProperty(out, 'slotPool', { value: slotPool, enumerable: false }); // scripts/lib/market-timeline.mjs
   return out;
