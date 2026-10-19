@@ -24,8 +24,35 @@ export function summarizeCandidateArchive(archive) {
     meanTopVsUniversePct: round(mean(vsUniverse), 3),
     topBeatUniverse: vsUniverse.filter((value) => value > 0).length,
     identity,
+    independent: independentEvidence(measured),
     ...shadowSummary(entries)
   };
+}
+
+// Expertise review 2026-10-19: daily entries held 21 sessions overlap, so twenty consecutive entries are about one
+// independent observation and their average t-statistic is badly inflated. Evidence uses only entries that start on
+// or after the previous chosen entry's forward date. The decision rule is fixed before the data: fewer than
+// INDEPENDENT_MIN independent entries is 'insufficient'; otherwise the rank is 'supported' only when the mean US rank
+// IC is positive with t >= 2, else 'not-supported'.
+export const INDEPENDENT_MIN = 12;
+export function independentEvidence(measured) {
+  const chosen = [];
+  for (const entry of measured) {
+    const last = chosen[chosen.length - 1];
+    if (!last || (last.outcome.forwardDate && entry.date >= last.outcome.forwardDate)) chosen.push(entry);
+  }
+  const stat = (values) => {
+    const list = values.filter(isNum);
+    if (list.length < 2) return { n: list.length, mean: list.length ? round(list[0], 4) : null, t: null };
+    const m = mean(list);
+    const sd = Math.sqrt(list.reduce((sum, value) => sum + (value - m) ** 2, 0) / (list.length - 1));
+    return { n: list.length, mean: round(m, 4), t: sd > 0 ? round(m / (sd / Math.sqrt(list.length)), 2) : null };
+  };
+  const icUS = stat(chosen.map((entry) => entry.outcome.rankIc?.US?.ic));
+  const icKR = stat(chosen.map((entry) => entry.outcome.rankIc?.KR?.ic));
+  const topVsUniverse = stat(chosen.map((entry) => entry.outcome.topVsUniversePct));
+  const decision = chosen.length < INDEPENDENT_MIN || icUS.n < INDEPENDENT_MIN ? 'insufficient' : icUS.mean > 0 && icUS.t >= 2 ? 'supported' : 'not-supported';
+  return { n: chosen.length, dates: chosen.map((entry) => entry.date), icUS, icKR, topVsUniverse, decision, min: INDEPENDENT_MIN };
 }
 
 // 2026-10-16: the candidate model recorded beside the default ranking (entry.shadow), averaged over its own latest

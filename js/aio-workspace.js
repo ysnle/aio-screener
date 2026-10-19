@@ -1152,7 +1152,7 @@ async function refreshPortfolioRisk() {
     estimate: estimate });
   if (assembled && assembled.fxIncluded === false) el.insertAdjacentHTML('beforeend', '<div style="font-size:11px;color:var(--data-amber);margin-top:6px;">해외 종목 수익률에 환율 변동이 빠져 있습니다(같은 기간 원/달러 종가 부족) — 계좌 통화 기준 전체 위험보다 작게 나올 수 있습니다.</div>'); // P1445
   try { _aioRenderPortfolioExposure(positions, returnsMap); } catch(_) {}   // v50.54 3D
-  try { _aioRenderPortfolioStress(positions); } catch(_) {}                 // v50.54 3E
+  try { _aioRenderPortfolioStress(positions, historyMap, commonDates); } catch(_) {} // v50.54 3E
   try { refreshPortfolioTechnicalRisk(); } catch(_) {}
 }
 
@@ -1212,40 +1212,13 @@ function _aioRenderPortfolioExposure(positions, returnsMap) {
   el.insertAdjacentHTML('beforeend', _pfBaseNote(base)); // P1445
 }
 // v50.54 3E: 포트폴리오 스트레스 시나리오 — 섹터 베타(주식/금리/유가) 기반 가상 충격 손익.
-function _aioRenderPortfolioStress(positions) {
+function _aioRenderPortfolioStress(positions, historyMap, commonDates) {
   var el = document.getElementById('pf-stress-panel'); if (!el) return;
-  if (!positions || !positions.length) { el.innerHTML = ''; return; }
-  var ld = window._liveData || {}, db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-  var find = function(s){ for (var i=0;i<db.length;i++) if (db[i].sym===s) return db[i]; return null; };
-  var SECTOR_RISK = {
-    'Technology':{eq:1.25}, 'Communication Services':{eq:1.10},
-    'Consumer':{eq:1.15}, 'Consumer Defensive':{eq:0.60},
-    'Financials':{eq:1.10}, 'Healthcare':{eq:0.80}, 'Energy':{eq:1.00}, 'Industrials':{eq:1.10},
-    'Materials':{eq:1.10}, 'Utilities':{eq:0.50}, 'Real Estate':{eq:0.90}
-  }, DEF = {eq:1.0};
+  if (!positions || !positions.length || typeof window._aioPortfolioStressHtml !== 'function') { el.innerHTML = ''; return; }
   var base = _pfBaseValues(positions);
   if (base.blocked) { el.innerHTML = _pfBaseNote(base); return; }
-  // #11: the keys match the screener's sector names (Consumer/Materials — verified against screener-universe.json).
-  // US sector betas do not describe KRX holdings, so those take the plain market beta (DEF) instead.
-  var rows = base.rows.map(function(r){ var st=find(r.sym); return { sym: r.sym, value: r.value, kr: /\.(KS|KQ)$/i.test(r.sym), sr: /\.(KS|KQ)$/i.test(r.sym) ? DEF : (st&&SECTOR_RISK[st.sector])||DEF }; });
-  var total = rows.reduce(function(s,r){return s+(r.value||0);},0); if (total<=0){ el.innerHTML=_pfBaseNote(base); return; }
-  rows.forEach(function(r){ r.w=r.value/total; });
-  var SCEN = [
-    { name:'2008 금융위기 (시장 −50%)', f:function(sr){ return sr.eq * -0.50; } },
-    { name:'2020 코로나 (시장 −34%)',   f:function(sr){ return sr.eq * -0.34; } },
-    // 2026-10-19: rate/oil rows removed — hand-picked sector numbers (Tech −0.8% for +100bp), no measured sensitivity.
-  ];
-  // v57.81: the KOSPI's own worst recorded 5/20-session moves, applied to the Korean share only (src/domain/portfolio/kr-stress.js).
-  if (rows.some(function(r){ return r.kr; }) && typeof window._aioKrIndexStress === 'function') window._aioKrIndexStress().forEach(function(k){ SCEN.push({ name:k.name, f:function(sr, r){ return r.kr ? k.shock : 0; } }); });
-  var lines = SCEN.map(function(sc){ var port=0, worst=null;
-    rows.forEach(function(r){ var imp=sc.f(r.sr, r); port += r.w*imp; if (worst===null || imp<worst.imp) worst={sym:r.sym, imp:imp}; });
-    var col = port<-0.15?'var(--data-red)':port<0?'var(--data-amber)':'var(--data-green)';
-    return '<div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:2px 0;"><span style="color:var(--text-secondary);">'+_escHtmlSafe(sc.name)+'</span><span style="font-weight:700;color:'+col+';">'+(port>=0?'+':'')+(port*100).toFixed(1)+'%'+(worst&&worst.imp<0?' <span style="color:var(--text-muted);font-weight:400;">('+_escHtmlSafe(worst.sym)+')</span>':'')+'</span></div>';
-  }).join('');
-  el.innerHTML =
-    '<div style="font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;">스트레스 시나리오 <span style="font-weight:400;color:var(--text-muted);">— 주식 부분 · 가정 베타</span></div>' +
-    lines +
-    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">현금을 뺀 주식 부분에 미국 섹터별 주식 베타를 가정해 곱한 값입니다. 금리·유가 충격은 측정된 민감도가 없어 싣지 않습니다' + (rows.some(function(r){ return r.kr; }) ? '(한국 종목은 미국 충격에 시장 베타 1.0 가정 · 코스피 행은 기록된 실제 하락을 한국 보유분에만 적용)' : '') + ' — 측정된 베타가 아니며 실제 손익과 다를 수 있습니다.</div>';
+  // 2026-10-19: sensitivities are regressed on the book's own weekly returns (src/ui/panels/portfolio-stress.js), not hand-set sector betas.
+  el.innerHTML = window._aioPortfolioStressHtml({ base: base, historyMap: historyMap || {}, commonDates: commonDates || [] });
   el.insertAdjacentHTML('beforeend', _pfBaseNote(base)); // P1445
 }
 function _escHtmlSafe(s){ return (typeof escHtml==='function') ? escHtml(String(s)) : String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }

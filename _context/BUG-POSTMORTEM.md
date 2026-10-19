@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1933 - v58.36 - 기존 감사의 미해결 결함: 백테스트 기준 통화 가중이 현지 통화로 표류, 진행 중인 달을 완결 월로 집계, 미확인 거래소 접미사를 달러로 처리, 장중(REGULAR) 값을 종가로 AI 근거에 전달 (2026-10-19)
+
+- symptom/reproduction: 원/달러가 움직인 다음 달의 기준 통화 백테스트 수익률이 원화 종목 비중을 환율 변동 전 값으로 두었다(감사 예시: −4.545% vs 정답 −4.329%). 이번 달 중간 수익률이 한 달치로 CAGR·변동성·VaR에 들어갔다. .L·.TO 같은 접미사 종목이 달러 상장으로 환율 1로 환산됐다. 공급자가 장 중임을 뜻하는 REGULAR 행이 '완결 종가' 목록에 있어 시장 해석 프롬프트에 장중 가격이 종가로 들어갈 수 있었다.
+- root_cause: 기준 통화 변환이 현지 통화로 표류한 realizedWeights를 그대로 썼다. 월말 키가 완결 여부를 확인하지 않았다. listingCurrency의 기본값이 USD였다. 세션 목록에 공급자 개장 플래그가 섞였다.
+- fix: src/domain/portfolio/backtest.js: 기준 통화 수익률로 비중을 표류시키고 리밸런스 때만 목표 비중으로 재설정, 보류된 달 뒤에는 다음 리밸런스까지 보류, 통화 미선언은 보류, asOf가 속한 달 제외(settings.partialMonthExcluded). src/domain/portfolio/fx.js: 알 수 없는 접미사는 통화 null·'기타 해외 상장'. scripts/lib/market-analysis-validate.mjs: REGULAR 제거, PREVIOUS_CLOSE_EXPECTED 추가.
+- violated_rule: 데이터 정직성(미확인 통화는 기준 통화가 아니다, 장중 값은 종가가 아니다)
+- prevention: 감사의 '보류' 항목을 재설계 기준으로 다시 확인. ci-esm-core-unit-check에 기준 통화 표류·진행 중인 달·접미사·세션 목록 픽스처.
+- verification/residual: qa-runner affected 통과, 2자산(KRW·USD) 픽스처에서 둘째 달 수익률이 기준 통화 비중 0.476과 일치.
+
 ## P1932 - v58.35 - 주말 'skip' 갱신 실행이 열린 실패 알림을 복구로 닫고 연속 실패 횟수를 초기화함 (2026-10-19)
 
 - symptom/reproduction: 주말에 Refresh market data가 cadence 게이트로 모든 작업 job을 건너뛰면 operations-alert가 이를 성공으로 보고 열린 실패 이슈를 '복구'로 닫고 연속 실패 횟수를 0으로 되돌렸다. CI 적색으로 멈춘 갱신이 스스로 알림을 닫을 수 있었다.
