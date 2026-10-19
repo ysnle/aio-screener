@@ -420,7 +420,7 @@ confidence: medium
 - [x] QA-UX-06: Masters at 1440×1000 shows manager cards before the ticker lookup; NVDA/AAPL/ZZZZ end in a result or an explicit no-holder state; a blocked ledger shows an error with retry. verify_by: P1325 `ci-masters-browser-check.mjs` + `ci-masters-contract-check.mjs`
 - [x] QA-DATA-57: While the US market is closed, the home/signal score is computed on the latest completed regular close, names that basis, excludes older/undated inputs and stays non-decision. verify_by: P1328/R670 `ci-esm-core-unit-check.mjs` + local Chromium home
 - [x] QA-UX-07: The topbar shows one currentness state (실시간/지연/종가/지난 시세/미수신) derived from observation times; no clock-based "실시간" and no duplicate home pill. verify_by: P1326/R671 `ci-esm-core-unit-check.mjs` + `ci-architecture-browser-check.mjs`
-- [x] QA-UX-09: A KRX stock overview links to its Korean themes and opens the visible theme detail; every Korean theme has a name; equal splits read "동일가중". verify_by: P1327/R672 `ci-esm-core-unit-check.mjs` + local Chromium 005930
+- [x] QA-UX-09: KRX 종목 개요가 한국 테마로 연결되고 보이는 한국 테마 상세를 연다(같은 id의 미국 테마가 아님); 모든 한국 테마에 이름이 있고 균등 비중은 "동일가중"으로 읽힌다. verify_by: P1327/R672 + P1934 `ci-esm-core-unit-check.mjs` openThemeDetail fixture + local Chromium 012450.KS
 
 ## v56.80 home numbers-first first screen and record-fix ledger flow (2026-09-29)
 
