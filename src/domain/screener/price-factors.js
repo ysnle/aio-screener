@@ -104,6 +104,8 @@ export function closesToFactors(closes) {
     // sector map can colour a day or a week without republishing raw prices (P715 keeps prices out).
     ret1d: _retPct(closes, 1), ret5d: _retPct(closes, 5),
     ret1m: _retPct(closes, 21), ret3m: _retPct(closes, 63), ret6m: _retPct(closes, 126),
+    // 2026-10-19 (expertise review D2): a full year (252 sessions back, so 253 closes) for 12-1 momentum; null below that.
+    ret12m: _retPct(closes, 252),
     vol: vol60, rsi: _rsi14(closes),
     pctSma50: (sma50 && sma50 > 0) ? round((price / sma50 - 1) * 100, 2) : null,
     pctSma200: (sma200 && sma200 > 0) ? round((price / sma200 - 1) * 100, 2) : null,

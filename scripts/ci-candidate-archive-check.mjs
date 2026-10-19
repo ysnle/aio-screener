@@ -9,7 +9,10 @@
 //  6. the published artifact (when present) is the declared schema with a consistent summary;
 //  7. (2026-10-16) the candidate model is ranked on the same rows, recorded beside the entry as `shadow`, measured on
 //     the entry's dates and summarized on its own identity, while the default ranking keeps its own definitions.
-import { readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile, mkdir } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import {
   CANDIDATE_ARCHIVE_SCHEMA, CANDIDATE_SHADOW_MODEL, anchorSessionDates, buildCandidateEntry, buildShadowRecord, emptyCandidateArchive,
   fillCandidateOutcomes, forwardReturn, rankPublishedScreener, signedYields, spearman, summarizeCandidateArchive, upsertCandidateEntry
@@ -23,7 +26,21 @@ const root = new URL('../', import.meta.url);
 // 1. Page-path ranking on the repository artifacts.
 const screener = JSON.parse(await readFile(new URL('public-data/screener.json', root), 'utf8'));
 const now = Date.parse(screener.asOf) + 60_000;
-const { ranking, shadowRanking } = await rankPublishedScreener({ root, now });
+// 2026-10-19: the shadow model's 12-1 momentum reads ret12m, which the factor lane publishes from the 2y history. Until
+// the repository's snapshot carries it, the fixture ranks a temporary copy where ret12m is derived from ret6m, so the
+// shadow path is still exercised; once the snapshot has the field, the published values are used unchanged.
+let rankRoot = root;
+if (!Object.values(screener.data || {}).some((row) => Number.isFinite(row?.ret12m))) {
+  const dir = await mkdtemp(join(tmpdir(), 'aio-candidate-'));
+  await mkdir(join(dir, 'public-data'));
+  for (const name of ['screener-universe.json', 'model-validation-status.json', 'sec-fiscal-history.json']) {
+    try { await writeFile(join(dir, 'public-data', name), await readFile(new URL(`public-data/${name}`, root))); } catch (_) { /* optional input */ }
+  }
+  const data = Object.fromEntries(Object.entries(screener.data || {}).map(([sym, row]) => [sym, Number.isFinite(row?.ret6m) ? { ...row, ret12m: Math.round(row.ret6m * 150) / 100 } : row]));
+  await writeFile(join(dir, 'public-data', 'screener.json'), JSON.stringify({ ...screener, data }));
+  rankRoot = pathToFileURL(`${dir}/`);
+}
+const { ranking, shadowRanking } = await rankPublishedScreener({ root: rankRoot, now });
 if (!ranking?.available || !(ranking.rows || []).some((row) => Number.isFinite(row.rank))) fail('page-path ranking did not produce ranks from the published artifacts');
 const identity = buildPopulationRankingIdentity(ranking);
 if (!identity) fail('ranking identity missing');
@@ -94,7 +111,7 @@ if (summary.measured !== 1 || summary.identity !== identity) fail('summary ident
 if (ranking.factorDefinitions?.momentum !== 'blend-1-3-6' || ranking.factorDefinitions?.value !== 'positive-multiples') fail('the default ranking must keep its own factor definitions');
 const shadow = buildShadowRecord({ shadowRanking });
 if (!shadow || shadow.model !== CANDIDATE_SHADOW_MODEL.id || !shadow.identity.startsWith(`${CANDIDATE_SHADOW_MODEL.id}:`)
-  || shadowRanking.factorDefinitions?.momentum !== 'six-minus-one' || shadowRanking.factorDefinitions?.value !== 'signed-yields' || shadowRanking.factorDefinitions?.quality !== 'profitability' || ranking.factorDefinitions?.quality !== 'roe-margin-growth') fail('shadow ranking/record missing or not the candidate model');
+  || shadowRanking.factorDefinitions?.momentum !== 'twelve-minus-one' || shadowRanking.factorDefinitions?.value !== 'signed-yields' || shadowRanking.factorDefinitions?.quality !== 'profitability' || ranking.factorDefinitions?.quality !== 'roe-margin-growth') fail('shadow ranking/record missing or not the candidate model');
 const loss = signedYields('X', { price: 10, shares: 1e6 }, { quarters: { X: '2025-03-31:1:-1:r;2025-06-30:1:-1:r;2025-09-30:1:-1:r;2025-12-31:1:-1:d' }, data: { X: '2025-12-31:4:-4:5::::1' } });
 if (loss.earningsYieldTtm !== -0.4 || loss.bookYield !== 0.5) fail(`signed yields must keep a loss negative: ${JSON.stringify(loss)}`);
 // v57.88 (review): a filer whose last quarter / fiscal year ended years ago has no current yield.
