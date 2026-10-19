@@ -5056,7 +5056,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   }
 }
 
-// ── v58.XX expertise review: curve dynamics, index earnings, chart RS line / timeframe conflict, total debt ──
+// ── v58.32 expertise review: curve dynamics, index earnings, chart RS line / timeframe conflict, total debt ──
 {
   const { curveDynamics } = await load('src/domain/macro/rates-fx.js');
   const day = (i) => new Date(Date.UTC(2026, 0, 1) + i * 86400000).toISOString().slice(0, 10);

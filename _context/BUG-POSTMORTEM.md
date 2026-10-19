@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1931 - v58.32 - 근거 없는 숫자와 잘못된 라벨: 포트폴리오 금리·유가 스트레스, 후행 P/E를 'Forward P/E'로 표기, 스톡그랜트를 내부자 매수로 집계, 유동성 차입금을 뺀 부채비율 (2026-10-19)
+
+- symptom/reproduction: 포트폴리오 스트레스의 '금리 +100bp'가 기술주 −0.8%로 나왔다(실제 금리 충격의 약 10분의 1). 기업 화면의 'Forward P/E' 행은 공급자 프로필의 후행 P/E였다. 채팅 내부자 요약은 'A'(취득) 코드를 모두 매수로 세어 보상 지급을 '경영진 자신감'으로 읽었다. SEC 부채비율은 LongTermDebtNoncurrent만 써서 1년 안에 갚을 차입금이 빠졌다. 예상 EPS가 없는 분기는 서프라이즈 0%로 표시됐다.
+- root_cause: 스트레스 민감도가 측정 없이 손으로 정한 섹터 상수였다. 라벨이 필드의 실제 의미(trailing)를 확인하지 않았다. Form 4 코드 A는 장내 매수가 아니라 취득 전반이다. 비유동 부채 개념에 같은 대차대조표의 유동성 차입금을 더하지 않았다.
+- fix: js/aio-workspace.js: 금리·유가 행과 rate/oil 상수 제거(시장 하락 재현 행만 유지). js/aio-ui.js: Forward P/E 행 제거, 예상치 없으면 서프라이즈 '—'. js/aio-chat.js: 장내 매수(P)·매도(S)만 집계. src/domain/fundamental/sec-statements.js: 비유동 전용 부채 개념이면 같은 기간 유동성 차입금을 더하고 debtBasis로 기준 표기.
+- violated_rule: 데이터 정직성(만든 숫자 금지), 라벨은 계산 근거와 일치
+- prevention: 전문가 관점 점검 보고서(/mnt/project-files/expertise-gap/REPORT.md)의 남은 항목을 후속으로 처리. 민감도는 보유 종목 수익률 회귀로 추정될 때만 다시 싣는다.
+- verification/residual: qa-runner affected 통과, ci-headless-tests 통과, sec-statements 픽스처(비유동 400 + 유동 100, 자본 500 → 1.0, noncurrent+current).
+
 ## P1930 - v58.30 - 화면마다 시황이 엇갈림: 판정·브리핑은 AI·반도체 주도주 조정을 중심 변수로 보는데 시나리오·AI 해설은 '유가 충격'(2/4)을 앞세우고, 오늘의 한 문장은 10/18에 멈춤 (2026-10-19)
 
 - symptom/reproduction: 10/19 실제 화면: 국면 판정·브리핑은 '주도주 조정이 지금 시장의 중심 변수', 오늘 화면 시나리오 카드·거시 화면·AI 시장 해석은 '지금은 유가 충격 쪽 조건이 더 맞습니다'(2/4). 오늘의 한 문장은 10/19 갱신 13회 동안 10/18 유가 문장 그대로. 투자 심리는 VIX/3개월 0.98을 '역전'이라 쓰고 카드는 '평탄'. 동반 약세 반증 조건은 이미 위에 있는 200일선 회복을 요구. AI 답변 표는 'VIX확인 필요F&G확인 필요'처럼 글자로 뭉개지고, DOMPurify가 없으면 <br>·<table> 태그가 그대로 보임. 오늘·국면 판정 화면의 AI에는 주도 영역 이탈·바닥 확인 조건이 전달되지 않음.
