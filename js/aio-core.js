@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.43';
+const APP_VERSION = 'v58.44';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -9015,15 +9015,15 @@ window.AIO_MACRO_OFFICIAL_SCHEDULES = {
   'us-ism-mfg': ['2026-07-01', '2026-08-03', '2026-09-01', '2026-10-01', '2026-11-02', '2026-12-01'], // Nov/Dec: ISM rule 1st business day (official calendar login-gated)
   'us-ism-svc': ['2026-07-06', '2026-08-05', '2026-09-03', '2026-10-05', '2026-11-04', '2026-12-03'], // Nov/Dec: ISM rule 3rd business day
   'us-retail': ['2026-07-16', '2026-08-14', '2026-09-16', '2026-10-15', '2026-11-17', '2026-12-16'], // census.gov/retail/release_schedule.html (verified 2026-10-10; Dec-data release TBA)
-  'us-fomc': ['2026-06-17', '2026-07-29', '2026-09-16', '2026-10-28', '2026-12-09'],
-  'us-fed-rate': ['2026-06-17', '2026-07-29', '2026-09-16', '2026-10-28', '2026-12-09'],
+  'us-fomc': ['2026-06-17', '2026-07-29', '2026-09-16', '2026-10-28', '2026-12-09', '2027-01-27', '2027-03-17', '2027-04-28', '2027-06-09', '2027-07-28', '2027-09-15', '2027-10-27', '2027-12-08'],
+  'us-fed-rate': ['2026-06-17', '2026-07-29', '2026-09-16', '2026-10-28', '2026-12-09', '2027-01-27', '2027-03-17', '2027-04-28', '2027-06-09', '2027-07-28', '2027-09-15', '2027-10-27', '2027-12-08'],
   'kr-bok': ['2026-07-16', '2026-08-27', '2026-10-22', '2026-11-26']
 };
 // P1736: the date each hand-kept schedule above was last checked against its official calendar (from the notes above
 // and the commit that last changed the row). The expiry registry pairs it with the last date the row covers.
 window.AIO_MACRO_OFFICIAL_SCHEDULES_ASOF = {
   'us-nfp': '2026-10-02', 'us-cpi': '2026-10-10', 'us-pce': '2026-10-01', 'us-ism-mfg': '2026-10-02', 'us-ism-svc': '2026-10-02',
-  'us-retail': '2026-10-10', 'us-fomc': '2026-09-17', 'us-fed-rate': '2026-09-17', 'kr-bok': '2026-08-29'
+  'us-retail': '2026-10-10', 'us-fomc': '2026-10-19', 'us-fed-rate': '2026-10-19', 'kr-bok': '2026-08-29'
 };
 
 // The schedule arrays above are an official-calendar artifact, not a promise
