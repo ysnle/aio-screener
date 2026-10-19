@@ -193,10 +193,9 @@ function text(documentRef, value) {
   node.textContent = value == null || value === '' ? '—' : String(value);
   return node;
 }
-function cell(documentRef, value, className = '', style = '') {
+function cell(documentRef, value, className = '') {
   const node = documentRef.createElement('td');
   if (className) node.className = className;
-  if (style) node.style.cssText = style;
   if (value && value.nodeType) node.appendChild(value);
   else node.appendChild(text(documentRef, value));
   return node;
@@ -459,7 +458,7 @@ function createRankNode(documentRef, row, hold = null) {
   if (hold) {
     const rankCellHold = documentRef.createElement('span');
     rankCellHold.textContent = '순위 보류';
-    rankCellHold.style.cssText = 'font-size:10px;color:var(--data-amber);font-weight:700;white-space:nowrap;';
+    rankCellHold.className = 'scr-rank-hold';
     rankCellHold.title = `지금 선택에 대한 순위 계산이 보류 중입니다(${hold.reason || '사유 미확인'}). 남아 있던 숫자는 이전 계산의 결과라 표시하지 않습니다.`;
     wrap.appendChild(rankCellHold);
     return wrap;
@@ -467,7 +466,7 @@ function createRankNode(documentRef, row, hold = null) {
   if (row.screenStatus === 'unavailable' || row.screenStatus === 'rejected') {
     wrap.textContent = row.screenStatus === 'rejected' ? '조건 미충족' : '근거 부족';
     wrap.title = '필수 데이터가 모두 준비되기 전에는 순위를 표시하지 않습니다.';
-    wrap.style.cssText = 'font-size:10px;color:var(--text-muted);white-space:nowrap;';
+    wrap.className = 'scr-rank-unranked';
     return wrap;
   }
   const rank = visibleRank(row);
@@ -484,11 +483,12 @@ function createRankNode(documentRef, row, hold = null) {
     wrap.dataset.rankingContract = contract.id;
     wrap.title = `${MARKET_LABELS[screenerMarket(row)]} 시장의 계산 가능한 종목 중 백분위 ${rank} · ${contract.label} — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.`;
     // v57.54: a descriptive position, not a verdict — one neutral colour, no green/red judgement.
-    value.style.cssText = 'font-family:var(--font-mono);font-weight:700;font-size:11px;color:var(--text-primary);';
+    value.className = 'scr-rank-value';
     const bar = documentRef.createElement('div');
-    bar.style.cssText = 'height:3px;background:var(--border-subtle);border-radius:2px;margin-top:3px;overflow:hidden;';
+    bar.className = 'scr-rank-bar';
     const fill = documentRef.createElement('div');
-    fill.style.cssText = `height:100%;width:${Math.max(0, Math.min(100, rank))}%;background:var(--text-muted);border-radius:2px;`;
+    fill.className = 'scr-rank-fill';
+    fill.style.width = `${Math.max(0, Math.min(100, rank))}%`;
     bar.appendChild(fill);
     wrap.append(value, bar);
   }
@@ -530,10 +530,10 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     const identity = documentRef.createElement('div');
     const symbol = documentRef.createElement('div');
     symbol.textContent = row.sym || row.symbol || '—';
-    symbol.style.cssText = 'font-weight:800;font-family:var(--font-mono);font-size:12px;';
+    symbol.className = 'scr-sym-code';
     const name = documentRef.createElement('div');
     name.textContent = row.name || '이름 미수신';
-    name.style.cssText = 'font-size:11px;color:var(--text-muted);';
+    name.className = 'scr-sym-name';
     identity.append(symbol, name);
     return identity;
   }
@@ -543,7 +543,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     const cell = documentRef.createElement('span');
     const tag = documentRef.createElement('small');
     tag.textContent = ' SIC';
-    tag.style.cssText = 'color:var(--text-muted);font-size:11px;';
+    tag.className = 'scr-sic-tag';
     cell.append(documentRef.createTextNode(row.sector), tag);
     cell.title = `SEC 산업분류${row.sic ? `(SIC ${row.sic})` : ''}에서 옮긴 섹터`;
     return cell;
@@ -576,7 +576,6 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
       note.textContent = md ? `${md} 종가` : '종가';
       note.className = 'scr-close-note';
       note.dataset.closeDay = md;
-      note.style.cssText = 'display:block;font-size:11px;color:var(--text-muted);';
       cell.appendChild(note);
       cell.title = `${currency || '통화 미확인'} · ${md ? `${md} ` : ''}확정 종가(수정 종가) · 실시간 시세가 아닙니다`;
       return cell;
@@ -597,7 +596,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     if (!observedAt) {
       const note = documentRef.createElement('small');
       note.textContent = '관측시각 미확인 · 참고';
-      note.style.cssText = 'display:block;font-size:10px;color:var(--text-muted);';
+      note.className = 'scr-cell-note';
       wrap.appendChild(note);
     }
     return wrap;
@@ -724,7 +723,8 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
     td.dataset.columnKey = column.key;
     td.dataset.label = column.label; // v57.79: the phone card row (<600px) names each value without the header row
     td.className = `scr-column-cell scr-column-${column.key}${column.sticky ? ' scr-column-sticky' : ''}`;
-    td.style.cssText = `text-align:${column.align};min-width:${column.width}px;padding:7px 8px;`;
+    td.style.textAlign = column.align;
+    td.style.minWidth = `${column.width}px`;
     if (column.sticky) td.style.left = `${stickyLeft}px`;
     if (['price', 'pctFrom52wHigh', 'rank', 'momentum', 'trend', 'lowvol', 'value', 'quality', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'kalman', 'vcpScore', 'mcap', 'fwdPe'].includes(column.key)) {
       td.style.fontFamily = 'var(--font-mono)';
@@ -742,7 +742,7 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
       if (field.status === 'CONFLICT' && fieldValueForPurpose(row, fieldId) != null) {
         const note = documentRef.createElement('small');
         note.textContent = '값 충돌 · 참고';
-        note.style.cssText = 'display:block;font-size:11px;color:var(--text-muted);';
+        note.className = 'scr-cell-note';
         td.appendChild(note);
       } else if (['STALE', 'LAST_GOOD'].includes(field.status) && fieldValueForPurpose(row, fieldId) != null) {
         // P1319/N12: every stale cell used to repeat "YYYY-MM-DD · 참고", burying the numbers.
@@ -807,7 +807,7 @@ export function syncScreenerControlAvailability(documentRef, { rows = [], listin
     if (!note && notes.length) {
       note = documentRef.createElement('p');
       note.id = 'scr-profile-availability';
-      note.style.cssText = 'margin:6px 0 0;font-size:12px;color:var(--text-secondary);line-height:1.5;';
+      note.className = 'scr-profile-note';
       fold.appendChild(note);
     }
     if (note) {
@@ -830,7 +830,7 @@ function renderStaleNote(documentRef, body) {
     note = documentRef.createElement('div');
     note.id = 'scr-stale-note';
     note.setAttribute('role', 'note');
-    note.style.cssText = 'font-size:12px;color:var(--text-secondary);background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:6px 10px;margin:0 0 8px;';
+    note.className = 'scr-stale-note';
     const anchor = table.parentElement && table.parentElement !== body.ownerDocument?.body ? table.parentElement : table;
     anchor.parentElement?.insertBefore(note, anchor);
   }
@@ -849,19 +849,22 @@ function renderFactorTab(documentRef, metadata) {
     factors.forEach((key) => {
       const item = FACTOR_LABELS[key] || { label: key, color: 'var(--text-secondary)', description: '' };
       const row = documentRef.createElement('div');
-      row.style.cssText = 'display:grid;grid-template-columns:50px 1fr 34px;gap:4px;align-items:center;';
+      row.className = 'scr-factor-row';
       row.title = item.description;
       const label = documentRef.createElement('span');
       label.textContent = item.label;
-      label.style.cssText = `font-size:10px;color:${item.color};font-weight:600;`;
+      label.className = 'scr-factor-label';
+      label.style.color = item.color;
       const track = documentRef.createElement('div');
-       track.style.cssText = 'background:var(--surface-4);border-radius:2px;height:7px;overflow:hidden;';
+       track.className = 'scr-factor-track';
       const fill = documentRef.createElement('div');
-      fill.style.cssText = `background:${item.color};height:100%;width:${Math.round((Number(weights[key]) || 0) / maxWeight * 100)}%;opacity:.8;`;
+      fill.className = 'scr-factor-fill';
+      fill.style.background = item.color;
+      fill.style.width = `${Math.round((Number(weights[key]) || 0) / maxWeight * 100)}%`;
       track.appendChild(fill);
       const value = documentRef.createElement('span');
       value.textContent = `${Math.round((Number(weights[key]) || 0) * 100)}%`;
-      value.style.cssText = 'font-size:10px;color:var(--text-muted);text-align:right;';
+      value.className = 'scr-factor-value';
       row.append(label, track, value);
       bars.appendChild(row);
     });
@@ -1060,13 +1063,13 @@ function renderConditionalEvidence(documentRef, metadata) {
   const status = statusLabels[evidenceContractValid ? evidence.status : evidence ? 'BLOCKED' : 'NO_DATA'] || '조건별 통계 미수신';
   panel.dataset.statusCode = evidenceContractValid ? evidence.status : evidence ? 'BLOCKED' : 'NO_CONDITIONAL_EVIDENCE';
   const header = documentRef.createElement('div');
-  header.style.cssText = 'display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:6px;';
+  header.className = 'scr-evidence-header';
   const title = documentRef.createElement('strong');
   title.textContent = evidence?.conditionLabel || '이 조건의 검증 자료';
   title.style.color = 'var(--text-secondary)';
   const badge = documentRef.createElement('span');
   badge.textContent = status;
-  badge.style.cssText = `font-size:10px;font-weight:700;color:${evidence?.status === 'READY' ? 'var(--data-green)' : 'var(--data-amber)'};`;
+  badge.className = `scr-evidence-badge ${evidence?.status === 'READY' ? 'scr-tone-up' : 'scr-tone-warn'}`;
   header.append(title, badge);
   panel.appendChild(header);
   if (!evidenceContractValid) {
@@ -1088,13 +1091,13 @@ function renderConditionalEvidence(documentRef, metadata) {
     return;
   }
   const query = documentRef.createElement('div');
-  query.style.cssText = 'font-size:10px;color:var(--text-muted);line-height:1.45;margin-bottom:8px;';
+  query.className = 'scr-evidence-query';
   // v57.77: plain words on screen; the source ids move to the hover title (sources stay off the numbers).
   query.textContent = `조건: ${evidence.queryEcho || '조건 내용 미수신'} · 마지막 관측: ${evidence.lastObservedAt ? String(evidence.lastObservedAt).slice(0, 16).replace('T', ' ') : '—'}`;
   query.title = `자료 출처 ${evidence.lineage?.sourceIds?.join(' · ') || '—'}`;
   panel.appendChild(query);
   const grid = documentRef.createElement('div');
-  grid.style.cssText = 'display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:8px;';
+  grid.className = 'scr-evidence-grid';
   const sample = evidence.sample || {};
   const ci = sample.confidenceInterval;
   const metricValues = [
@@ -1105,19 +1108,19 @@ function renderConditionalEvidence(documentRef, metadata) {
   ];
   metricValues.forEach(([label, value]) => {
     const card = documentRef.createElement('div');
-    card.style.cssText = 'padding:7px;border:1px solid var(--border);border-radius:4px;background:var(--surface-1);';
+    card.className = 'scr-evidence-card';
     const name = documentRef.createElement('div');
     name.textContent = label;
-    name.style.cssText = 'font-size:10px;color:var(--text-muted);';
+    name.className = 'scr-evidence-label';
     const result = documentRef.createElement('strong');
     result.textContent = String(value);
-    result.style.cssText = 'display:block;font-size:12px;color:var(--text-primary);margin-top:2px;';
+    result.className = 'scr-evidence-result';
     card.append(name, result);
     grid.appendChild(card);
   });
   panel.appendChild(grid);
   const details = documentRef.createElement('div');
-  details.style.cssText = 'font-size:10px;line-height:1.55;color:var(--text-muted);';
+  details.className = 'scr-evidence-details';
   const stability = evidence.stability || {};
   const recency = evidence.recency || {};
   const distribution = evidence.distribution || {};
@@ -1125,13 +1128,13 @@ function renderConditionalEvidence(documentRef, metadata) {
   details.textContent = `앞·뒤 절반 기간의 결과가 비슷한지 ${stability.status || '—'}${stability.intervalOverlap == null ? '' : ` · 두 기간의 범위 겹침 ${stability.intervalOverlap ? '예' : '아니오'}`} · 최근 나타난 횟수 ${recency.trials ?? '—'} · 최근 맞은 비율 ${recency.estimate == null ? '—' : `${(recency.estimate * 100).toFixed(1)}%`} · 맞은 경우의 결과 하위 25%/중앙/상위 25% ${[distribution.p25, distribution.median, distribution.p75].map((value) => value == null ? '—' : Number(value).toFixed(3)).join(' / ')} · 제외 ${evidence.excludedObservationCount ?? 0}건`;
   panel.appendChild(details);
   const boundary = documentRef.createElement('div');
-  boundary.style.cssText = 'margin-top:7px;padding-top:7px;border-top:1px solid var(--border);font-size:10px;line-height:1.5;color:var(--text-muted);';
+  boundary.className = 'scr-evidence-boundary';
   boundary.textContent = `참고용 통계 · ${evidence.blockedReasons?.length ? `보류 사유 ${evidence.blockedReasons.length}건` : evidence.lineage?.status === 'CURRENT_CANDIDATE' ? '자료 출처·이용 권리·거래 세션 확인됨' : '자료 출처 확인 전'}`;
   // v57.79: lineage tokens are machine metadata, not reader text ([title] becomes a visible basis card).
   boundary.dataset.aioLineage = `${evidence.lineage?.status || 'LINEAGE_UNCONFIRMED'} · 권리 ${evidence.lineage?.rightsIds?.join(' · ') || '미확인'} · 캘린더 ${evidence.lineage?.calendarIds?.join(' · ') || '미확인'} · ${evidence.allowedUse || 'reference-only'}${evidence.blockedReasons?.length ? ` · ${evidence.blockedReasons.join(' · ')}` : ''}`;
   panel.appendChild(boundary);
   const disclaimer = documentRef.createElement('div');
-  disclaimer.style.cssText = 'margin-top:6px;font-size:10px;color:var(--data-amber);';
+  disclaimer.className = 'scr-evidence-disclaimer';
   disclaimer.textContent = evidence.disclaimer || CONDITIONAL_EVIDENCE_DISCLAIMER;
   panel.appendChild(disclaimer);
 }
@@ -1158,7 +1161,6 @@ function shareCloseDay(documentRef, table, body) {
   if (!tag) {
     tag = documentRef.createElement('small');
     tag.className = 'scr-head-note';
-    tag.style.cssText = 'display:block;font-size:11px;font-weight:400;color:var(--text-muted);';
     header.querySelector('.scr-sort-btn')?.after(tag);
   }
   tag.textContent = `${common} 종가`;
@@ -1175,7 +1177,8 @@ function renderTableHeader(documentRef, table, visibleColumns, sortState) {
     th.scope = 'col';
     th.dataset.columnKey = column.key;
     th.className = `scr-column-header${column.sticky ? ' scr-column-sticky' : ''}`;
-    th.style.cssText = `text-align:${column.align};min-width:${column.width}px;padding:8px;`;
+    th.style.textAlign = column.align;
+    th.style.minWidth = `${column.width}px`;
     // v57.54: jargon columns carry a one-line explanation on hover.
     if (column.hint) th.title = column.hint;
     const fwdCoverage = column.key === 'fwdPe' ? consensusRoot?._aioConsensusEstimates?.coverage : null; // v57.55 E1-01
@@ -1555,11 +1558,11 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
       const scopedMessage = state?.status !== 'unavailable' && !(capFilter && capHeld > 0) && searchText
         ? `'${searchText}' — 지금 조건과 표시 필터(시장·섹터·분류 등) 안에서는 찾지 못했습니다. 전체 종목에서 찾으려면 필터를 지우세요.`
         : emptyMessage;
-      empty.appendChild(cell(documentRef, scopedMessage, '', 'text-align:center;padding:20px;color:var(--text-muted);'));
+      empty.appendChild(cell(documentRef, scopedMessage, 'scr-empty-cell'));
       empty.firstChild.colSpan = visibleColumns.length;
       if (state?.status !== 'unavailable') {
         const actions = documentRef.createElement('div');
-        actions.style.cssText = 'display:flex;gap:6px;justify-content:center;margin-top:10px;';
+        actions.className = 'scr-empty-actions';
         const action = (label, name, arg) => {
           const button = documentRef.createElement('button');
           button.type = 'button';
@@ -2395,7 +2398,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
              const compared = [...compareSymbols].map((symbol) => rows.find((row) => (row.sym || row.symbol) === symbol) || onDemandRow(symbol) || { sym: symbol, screenStatus: 'unavailable' });
              const table = documentRef.createElement('table');
              table.setAttribute('aria-label', '선택 종목 비교');
-             table.style.cssText = 'width:100%;border-collapse:collapse;font-size:12px;text-align:right;';
+             table.className = 'scr-compare-table';
              const heading = documentRef.createElement('tr');
              const label = documentRef.createElement('th');
              label.scope = 'col'; label.textContent = '동일 기준 비교'; heading.append(label);
@@ -2408,7 +2411,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
                button.addEventListener('click', () => tickerHandler(row.sym));
                th.append(button);
                // P1599 (F08): the company name under the ticker — a six-digit KRX code alone is not a name.
-               if (row.name) { const name = documentRef.createElement('div'); name.textContent = row.name; name.style.cssText = 'font-size:11px;font-weight:400;color:var(--text-muted);'; th.append(name); }
+               if (row.name) { const name = documentRef.createElement('div'); name.textContent = row.name; name.className = 'scr-compare-name'; th.append(name); }
                heading.append(th);
              }
              const head = documentRef.createElement('thead'); head.append(heading); table.append(head);
@@ -2426,9 +2429,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
                body.append(tr);
              }
              table.append(body); list.append(table);
-             if (emptyRows.length) { const note = documentRef.createElement('p'); note.style.cssText = 'font-size:11px;color:var(--text-muted);margin:6px 0 0;'; note.textContent = `비교 종목 모두 값이 없어 뺀 항목: ${emptyRows.join(' · ')}`; list.append(note); }
+             if (emptyRows.length) { const note = documentRef.createElement('p'); note.className = 'scr-compare-note'; note.textContent = `비교 종목 모두 값이 없어 뺀 항목: ${emptyRows.join(' · ')}`; list.append(note); }
              const outside = compared.filter((row) => row.screenStatus === 'on-demand');
-             if (outside.length) { const note = documentRef.createElement('p'); note.className = 'scr-compare-on-demand'; note.style.cssText = 'font-size:11px;color:var(--text-muted);margin:6px 0 0;'; note.textContent = `${outside.map((row) => row.sym).join(' · ')}: 랭킹 대상 밖 종목 — 순위 칸은 비우고, 다른 값은 ${String(outside[0].onDemandComputedAt || '').slice(0, 10)} 요청 시 같은 공식으로 계산했습니다.`; list.append(note); }
+             if (outside.length) { const note = documentRef.createElement('p'); note.className = 'scr-compare-on-demand'; note.textContent = `${outside.map((row) => row.sym).join(' · ')}: 랭킹 대상 밖 종목 — 순위 칸은 비우고, 다른 값은 ${String(outside[0].onDemandComputedAt || '').slice(0, 10)} 요청 시 같은 공식으로 계산했습니다.`; list.append(note); }
            }
          }
          const count = documentRef.getElementById('scr-compare-count');

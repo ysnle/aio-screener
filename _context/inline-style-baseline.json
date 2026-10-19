@@ -3,8 +3,8 @@
   "generatedBy": "scripts/ci-inline-style-ratchet-check.mjs",
   "note": "Per-file inline style and sub-12px font-size counts. Shrink only; never raise a count or add a file.",
   "totals": {
-    "inline": 2203,
-    "belowFloor": 1041
+    "inline": 2098,
+    "belowFloor": 997
   },
   "counts": {
     "index.html": {
@@ -36,8 +36,8 @@
       "belowFloor": 98
     },
     "js/aio-workspace.js": {
-      "inline": 207,
-      "belowFloor": 86
+      "inline": 200,
+      "belowFloor": 83
     },
     "src/app/compatibility-globals.js": {
       "inline": 2,
@@ -118,14 +118,6 @@
     "src/ui/pages/portfolio.js": {
       "inline": 20,
       "belowFloor": 11
-    },
-    "src/ui/pages/screener.js": {
-      "inline": 38,
-      "belowFloor": 20
-    },
-    "src/ui/pages/themes.js": {
-      "inline": 60,
-      "belowFloor": 21
     },
     "src/ui/panels/connections.js": {
       "inline": 5,

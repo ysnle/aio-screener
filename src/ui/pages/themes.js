@@ -299,8 +299,10 @@ function renderKrThemeArtifact({ documentRef, root, store }) {
     track.style.position = 'relative';
     const bar = el('div', null, `stock-read-bar is-stock ${theme.ret1m >= 0 ? 'is-up' : 'is-down'}`);
     const half = `${(Math.abs(theme.ret1m) / max * 50).toFixed(1)}%`;
-    bar.style.cssText = `position:absolute;top:0;width:max(2px, ${half});${theme.ret1m >= 0 ? 'left:50%' : `left:calc(50% - ${half})`};`;
-    const zero = el('span'); zero.style.cssText = 'position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--border);';
+    bar.classList.add('thp-strength-bar');
+    bar.style.width = `max(2px, ${half})`;
+    bar.style.left = theme.ret1m >= 0 ? '50%' : `calc(50% - ${half})`;
+    const zero = el('span', null, 'thp-strength-zero');
     track.append(zero, bar);
     item.append(track, el('span', `1개월 ${theme.ret1m >= 0 ? '+' : ''}${theme.ret1m.toFixed(1)}% · 3개월 ${theme.ret3m == null ? '—' : `${theme.ret3m >= 0 ? '+' : ''}${theme.ret3m.toFixed(1)}%`}${theme.above50Pct != null ? ` · 50일선 위 ${theme.above50Pct}%` : ''} · ${theme.covered}/${theme.members}종목`, 'stock-read-bar-value'));
     line.append(el('span', theme.label, 'stock-read-bar-label'), item);
@@ -338,7 +340,7 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
   if (!rows.length) {
     const empty = documentRef.createElement('div');
     empty.textContent = '섹터 성과 데이터 수신 대기';
-    empty.style.cssText = 'padding:12px;text-align:center;color:var(--text-muted);font-size:12px;';
+    empty.className = 'thp-perf-empty';
     host.appendChild(empty);
     return;
   }
@@ -347,40 +349,41 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
   if (close) {
     const basisLine = documentRef.createElement('div');
     basisLine.textContent = `${shortSession(close)} 미국 종가 기준 · 값이 없는 섹터는 대기`;
-    basisLine.style.cssText = 'font-size:11px;color:var(--text-muted);padding:0 2px 4px;';
+    basisLine.className = 'thp-perf-basis';
     host.appendChild(basisLine);
   }
   const colors = { Leading: 'var(--data-green)', Improving: 'var(--data-cyan)', Weakening: 'var(--data-amber)', Lagging: 'var(--data-red)' };
   rows.forEach((row) => {
     const line = documentRef.createElement('div');
     line.dataset.themePerformanceRow = row.symbol;
-    line.style.cssText = 'display:flex;align-items:center;gap:3px;min-height:20px;';
+    line.className = 'thp-perf-row';
     const symbol = documentRef.createElement('span');
     symbol.textContent = row.symbol;
-    symbol.style.cssText = 'width:35px;font-size:11px;font-weight:700;color:var(--text-secondary);text-align:right;';
+    symbol.className = 'thp-perf-symbol';
     const label = documentRef.createElement('span');
     label.textContent = row.label;
-    label.style.cssText = 'width:70px;font-size:11px;color:var(--text-muted);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+    label.className = 'thp-perf-label';
     const track = documentRef.createElement('span');
-    track.style.cssText = 'flex:1;display:flex;align-items:center;position:relative;min-width:40px;height:12px;';
+    track.className = 'thp-perf-track';
     const zero = documentRef.createElement('span');
-    zero.style.cssText = 'position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border);';
+    zero.className = 'thp-perf-zero';
     track.appendChild(zero);
     if (row.pct != null) {
       const bar = documentRef.createElement('span');
       const width = `${Math.abs(row.pct) / maxAbs * 45}%`;
-      const color = row.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
-      bar.style.cssText = row.pct >= 0
-        ? `margin-left:50%;height:12px;width:${width};background:${color};border-radius:0 3px 3px 0;min-width:2px;`
-        : `margin-left:calc(50% - ${width});height:12px;width:${width};background:${color};border-radius:3px 0 0 3px;min-width:2px;`;
+      bar.className = `thp-perf-bar ${row.pct >= 0 ? 'thp-perf-bar--up' : 'thp-perf-bar--down'}`;
+      bar.style.marginLeft = row.pct >= 0 ? '50%' : `calc(50% - ${width})`;
+      bar.style.width = width;
       track.appendChild(bar);
     }
     const value = documentRef.createElement('span');
     value.textContent = row.pct == null ? '—' : `${row.pct >= 0 ? '+' : ''}${row.pct.toFixed(2)}%`;
-    value.style.cssText = `width:62px;text-align:right;font-size:12px;font-weight:700;font-family:var(--font-mono);color:${row.pct == null ? 'var(--text-muted)' : row.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)'};flex-shrink:0;`;
+    value.className = 'thp-perf-value';
+    value.style.color = row.pct == null ? 'var(--text-muted)' : row.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
     const badge = documentRef.createElement('span');
     badge.textContent = row.pct == null ? '대기' : (row.quadrant === 'Border' ? '기준선 부근' : RRG_QUADRANT_WORDS[row.quadrant] || '중립');
-    badge.style.cssText = `width:68px;padding-left:6px;white-space:nowrap;flex-shrink:0;font-size:11px;color:${row.pct == null ? 'var(--text-muted)' : colors[row.quadrant] || 'var(--text-muted)'};`;
+    badge.className = 'thp-perf-badge';
+    badge.style.color = row.pct == null ? 'var(--text-muted)' : colors[row.quadrant] || 'var(--text-muted)';
     line.append(symbol, label, track, value, badge);
     host.appendChild(line);
   });
@@ -445,7 +448,7 @@ function createChip(documentRef, item, root) {
     note.style.color = 'var(--text-secondary)';
     chip.append(note);
   }
-  chip.style.cssText = `font-size:12px;border:1px ${detailId ? 'solid' : 'dashed'} var(--border-subtle);border-radius:6px;padding:4px 10px;background:var(--bg-elevated);color:var(--text-primary);font-variant-numeric:tabular-nums;${detailId ? 'cursor:pointer;text-align:left;' : ''}`; // v57.77 (a11y): the dashed border marks summary-only; opacity dropped the % below 4.5:1
+  chip.className = detailId ? 'thp-chip thp-chip--detail' : 'thp-chip'; // v57.77 (a11y): the dashed border marks summary-only; opacity dropped the % below 4.5:1
   if (detailId) {
     chip.type = 'button';
     chip.dataset.action = 'showThemeDetail';
@@ -493,13 +496,13 @@ function renderThemes({ documentRef, root, store, route }) {
   // Codex browser audit H22: the quadrant and the chip return answer different windows; the legend says which.
   // v57.76: the quadrant definition is the fold's method note (rrg-method-note); the legend keeps only the chip facts.
   legend.textContent = `칩 옆 % = 1일 등락률로, 사분면(가로 50일 평균 대비 · 세로 10거래일 전 대비)과 별개라 후행 섹터가 그날은 올랐을 수 있습니다. '최근 5거래일 상대강도'는 그 주 움직임이 평소 1주 움직임의 2배를 넘게 사분면과 반대일 때만 붙습니다. 실선 칩 ${detailCount}개는 테마 상세, 점선 칩 ${Math.max(0, items.length - detailCount)}개는 세부 테마 순위로 연결됩니다.`;
-  legend.style.cssText = 'grid-column:1/-1;font-size:12px;color:var(--text-muted);padding:2px 0 6px;';
+  legend.className = 'thp-quadrant-legend';
   if (classifiedCount) container.appendChild(legend); // P1591 (T01): no quadrant legend over an empty quadrant area
   const appendUnclassified = () => {
     const pending = items.filter((item) => !groups.has(String(item?.quadrant || 'unknown')) || String(item?.quadrant) === 'Border' || finite(item?.rsRatio) == null || finite(item?.rsMomentum) == null);
     if (!pending.length) return;
     const catalog = documentRef.createElement('section');
-    catalog.style.cssText = 'grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;padding:12px 0;';
+    catalog.className = 'thp-quadrant-catalog';
     catalog.setAttribute('aria-label', '회전 지표 미수신 테마 목록');
     pending.forEach((item) => catalog.appendChild(createChip(documentRef, item, root)));
     container.appendChild(catalog);
@@ -534,22 +537,22 @@ function renderThemes({ documentRef, root, store, route }) {
     if (quadrant.optional && !(groups.get(quadrant.key) || []).length) return; // 경계 card only when something sits on the band
     const card = documentRef.createElement('section');
     card.dataset.themeQuadrant = quadrant.key;
-    card.style.cssText = 'background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:14px 16px;min-width:0;';
+    card.className = 'thp-quadrant-card';
     const heading = documentRef.createElement('div');
     heading.textContent = quadrant.label;
-    heading.style.cssText = 'font-size:13px;font-weight:600;color:var(--text-primary);';
+    heading.className = 'thp-quadrant-heading';
     const note = documentRef.createElement('div');
     note.textContent = quadrant.note;
-    note.style.cssText = 'font-size:12px;color:var(--text-dim);margin:2px 0 10px;';
+    note.className = 'thp-quadrant-note';
     card.append(heading, note);
     const chips = documentRef.createElement('div');
-    chips.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;';
+    chips.className = 'thp-quadrant-chips';
     const group = groups.get(quadrant.key) || [];
     if (group.length) group.forEach((item) => chips.appendChild(createChip(documentRef, item, root)));
     else {
       const empty = documentRef.createElement('span');
       empty.textContent = '해당 섹터 없음';
-      empty.style.cssText = 'font-size:12px;color:var(--text-dim);';
+      empty.className = 'thp-quadrant-empty';
       chips.appendChild(empty);
     }
     card.appendChild(chips);
@@ -575,24 +578,25 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
   }
   const title = documentRef.createElement('div');
   title.textContent = detail.label;
-  title.style.cssText = 'font-size:14px;font-weight:900;color:var(--text-primary);';
+  title.className = 'thp-summary-title';
   const meta = documentRef.createElement('span');
   meta.textContent = detail.etf ? ` · ${detail.etf}` : ' · 커스텀 합산';
-  meta.style.cssText = 'font-size:11px;font-family:var(--font-mono);font-weight:700;color:var(--text-muted);';
+  meta.className = 'thp-summary-meta';
   title.appendChild(meta);
 
   const performance = documentRef.createElement('span');
   const pct = typeof detail.pct === 'number' && Number.isFinite(detail.pct) ? detail.pct : null;
   performance.textContent = pct == null ? '당일 등락 대기' : `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
-  performance.style.cssText = `font-size:13px;font-family:var(--font-mono);font-weight:900;color:${pct == null ? 'var(--text-muted)' : pct >= 0 ? 'var(--data-green)' : 'var(--data-red)'};`;
+  performance.className = 'thp-summary-pct';
+  performance.style.color = pct == null ? 'var(--text-muted)' : pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
 
   const header = documentRef.createElement('div');
-  header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 6px;';
+  header.className = 'thp-summary-header';
   header.append(title, performance);
 
   const leaders = documentRef.createElement('div');
   leaders.textContent = `대표 종목: ${(detail.leaderHighlight.length ? detail.leaderHighlight : detail.leaders.slice(0, 4)).join(' · ') || '구성 데이터 대기'}`;
-  leaders.style.cssText = 'font-size:11px;line-height:1.6;color:var(--text-secondary);';
+  leaders.className = 'thp-summary-leaders';
 
   const provenance = documentRef.createElement('div');
   const membership = detail.membershipPolicy || {};
@@ -605,7 +609,7 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
       : `확정 종가 기준${closeOf ? `(${shortSession(closeOf)})` : ''}`;
   provenance.textContent = `${quoteState} · AIO 참고 테마 분류 · ${membershipAsOf}`;
   provenance.title = `시세 출처: ${detail.source} · 구성 출처: ${membership.source || 'AIO curated taxonomy'}`;
-  provenance.style.cssText = 'font-size:12px;line-height:1.5;color:var(--text-muted);';
+  provenance.className = 'thp-summary-provenance';
   provenance.setAttribute('data-source-kind', membership.sourceKind || 'REFERENCE');
   provenance.setAttribute('data-operational-use', membership.allowedUse === 'decision' ? 'decision' : 'reference-only');
   if (membership.observedAt) provenance.setAttribute('data-observed-at', membership.observedAt);
@@ -721,7 +725,7 @@ function renderThemeDetailComposition({ documentRef, root, store, themeId = null
 
   const heading = documentRef.createElement('div');
   heading.textContent = '구성·브레드스';
-  heading.style.cssText = 'font-size:12px;font-weight:800;color:var(--text-secondary);margin:8px 0 6px;';
+  heading.className = 'thp-detail-heading thp-detail-heading--loose';
 
   const breadth = documentRef.createElement('div');
   const breadthValue = finite(detail.breadth);
@@ -729,33 +733,34 @@ function renderThemeDetailComposition({ documentRef, root, store, themeId = null
   breadth.textContent = breadthValue == null
     ? '브레드스: 시세 대기 — 충분한 구성종목 가격이 확인되면 계산됩니다.'
     : `상승 종목 비율(${closeSession ? `${shortSession(closeSession)} 종가 기준` : '전일 대비'}): ${breadthValue}% · ${detail.leaders.length}종목 기준`;
-  breadth.style.cssText = 'font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:8px;';
+  breadth.className = 'thp-breadth-line';
 
   const subThemes = documentRef.createElement('div');
-  subThemes.style.cssText = 'display:grid;gap:6px;';
+  subThemes.className = 'thp-subtheme-list';
   (detail.subThemes || []).forEach((subTheme) => {
     const card = documentRef.createElement('section');
-    card.style.cssText = 'background:var(--surface-1);border:1px solid var(--surface-4);border-radius:3px;padding:8px;';
+    card.className = 'thp-subtheme-card';
     const title = documentRef.createElement('div');
-    title.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px;';
+    title.className = 'thp-subtheme-title';
     const name = documentRef.createElement('span');
     name.textContent = subTheme.name || '세부 테마';
-    name.style.cssText = 'font-size:12px;font-weight:700;color:var(--text-primary);';
+    name.className = 'thp-subtheme-name';
     if (subTheme.etf) {
       const etfLabel = documentRef.createElement('span');
       etfLabel.textContent = ` · ${subTheme.etf}`;
-      etfLabel.style.cssText = 'font-size:10px;font-family:var(--font-mono);font-weight:700;color:var(--text-muted);';
+      etfLabel.className = 'thp-subtheme-etf';
       name.appendChild(etfLabel);
     }
     const pct = compositeDetailPct(detail, subTheme);
     const performance = documentRef.createElement('span');
     performance.textContent = pct == null ? '시세 대기' : `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
-    performance.style.cssText = `font-size:11px;font-family:var(--font-mono);font-weight:800;color:${pct == null ? 'var(--text-muted)' : pct >= 0 ? 'var(--data-green)' : 'var(--data-red)'};`;
+    performance.className = 'thp-subtheme-pct';
+    performance.style.color = pct == null ? 'var(--text-muted)' : pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
     title.append(name, performance);
     card.appendChild(title);
 
     const tickers = documentRef.createElement('div');
-    tickers.style.cssText = 'display:flex;gap:4px;flex-wrap:wrap;';
+    tickers.className = 'thp-ticker-chips';
     (subTheme.tickers || []).forEach((symbol) => {
       const quote = detailQuote(detail, symbol);
       const chip = documentRef.createElement('span');
@@ -763,13 +768,13 @@ function renderThemeDetailComposition({ documentRef, root, store, themeId = null
       chip.dataset.action = 'showTicker';
       chip.dataset.arg = symbol;
       chip.title = `${symbol} 분석`;
-      chip.style.cssText = 'font-size:10px;font-family:var(--font-mono);color:var(--text-secondary);background:var(--surface-2);padding:2px 6px;border-radius:3px;cursor:pointer;';
+      chip.className = 'thp-ticker-chip';
       tickers.appendChild(chip);
     });
     if (!tickers.childElementCount) {
       const empty = documentRef.createElement('span');
       empty.textContent = '구성종목 없음';
-      empty.style.cssText = 'font-size:10px;color:var(--text-muted);';
+      empty.className = 'thp-detail-empty';
       tickers.appendChild(empty);
     }
     card.appendChild(tickers);
@@ -779,7 +784,7 @@ function renderThemeDetailComposition({ documentRef, root, store, themeId = null
   if (!subThemes.childElementCount) {
     const empty = documentRef.createElement('div');
     empty.textContent = '세부 테마 구성 데이터가 없습니다.';
-    empty.style.cssText = 'font-size:11px;color:var(--text-muted);';
+    empty.className = 'thp-detail-empty';
     subThemes.appendChild(empty);
   }
   host.replaceChildren(heading, breadth, subThemes);
@@ -799,9 +804,9 @@ function renderThemeDetailLeaders({ documentRef, root, store, themeId = null }) 
 
   const heading = documentRef.createElement('div');
   heading.textContent = `대표 종목 상세 · ${detail.leaders.length}종목`;
-  heading.style.cssText = 'font-size:12px;font-weight:800;color:var(--text-secondary);margin:8px 0 6px;';
+  heading.className = 'thp-detail-heading thp-detail-heading--loose';
   const cards = documentRef.createElement('div');
-  cards.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;';
+  cards.className = 'thp-leader-grid';
   (detail.leaders || []).forEach((symbol) => {
     const quote = detailQuote(detail, symbol);
     const card = documentRef.createElement('button');
@@ -809,23 +814,24 @@ function renderThemeDetailLeaders({ documentRef, root, store, themeId = null }) 
     card.dataset.action = 'showTicker';
     card.dataset.arg = symbol;
     card.title = `${symbol} 상세 분석`;
-    card.style.cssText = 'text-align:left;background:var(--surface-2);border:1px solid var(--surface-5);border-radius:3px;padding:7px 8px;cursor:pointer;color:var(--text-primary);';
+    card.className = 'thp-leader-card';
     const ticker = documentRef.createElement('span');
     ticker.textContent = symbol;
-    ticker.style.cssText = 'display:block;font-size:12px;font-weight:800;font-family:var(--font-mono);color:var(--accent);';
+    ticker.className = 'thp-leader-ticker';
     const price = documentRef.createElement('span');
     price.textContent = formatQuotePrice(quote?.price, quote?.currency);
-    price.style.cssText = 'display:block;font-size:11px;font-family:var(--font-mono);color:var(--text-secondary);margin-top:2px;';
+    price.className = 'thp-leader-price';
     const pct = documentRef.createElement('span');
     pct.textContent = quote?.pct == null ? '등락률 대기' : `${quote.pct >= 0 ? '+' : ''}${quote.pct.toFixed(2)}%`;
-    pct.style.cssText = `display:block;font-size:11px;font-family:var(--font-mono);font-weight:800;color:${quote?.pct == null ? 'var(--text-muted)' : quote.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)'};margin-top:2px;`;
+    pct.className = 'thp-leader-pct';
+    pct.style.color = quote?.pct == null ? 'var(--text-muted)' : quote.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
     card.append(ticker, price, pct);
     cards.appendChild(card);
   });
   if (!cards.childElementCount) {
     const empty = documentRef.createElement('div');
     empty.textContent = '대표 종목 구성 데이터가 없습니다.';
-    empty.style.cssText = 'font-size:11px;color:var(--text-muted);';
+    empty.className = 'thp-detail-empty';
     cards.appendChild(empty);
   }
   host.replaceChildren(heading, cards);
@@ -848,7 +854,7 @@ function renderThemeDetailTemperature({ documentRef, root, store, themeId = null
   // 매도", "구조적 훼손"). Each band now names the day window it actually measured; the other claim
   // types require their own evidence.
   heading.textContent = '테마 당일 등락 구간';
-  heading.style.cssText = 'font-size:12px;font-weight:800;color:var(--text-secondary);margin:8px 0 4px;';
+  heading.className = 'thp-detail-heading';
   const body = documentRef.createElement('div');
   const pct = finite(detail.pct);
   if (pct == null) body.textContent = '시세 대기 — 구성종목 가격이 확인되면 당일 등락을 표시합니다.';
@@ -857,7 +863,8 @@ function renderThemeDetailTemperature({ documentRef, root, store, themeId = null
   else if (pct >= 0) body.textContent = '당일 보합 — 관측된 당일 등락 구간입니다. 방향은 추가 가격·거래량으로 확인합니다.';
   else if (pct >= -2) body.textContent = '당일 하락 — 관측된 당일 등락 구간입니다. 원인(수급·로테이션)은 별도 근거가 필요합니다.';
   else body.textContent = '당일 -2% 이하 — 관측된 당일 등락 구간입니다. 시계열 하락·구조 훼손은 별도 기간 근거가 필요합니다.';
-  body.style.cssText = `font-size:11px;line-height:1.7;color:${pct == null ? 'var(--text-muted)' : pct >= 0 ? 'var(--text-secondary)' : 'var(--data-amber)'};`;
+  body.className = 'thp-detail-body';
+  body.style.color = pct == null ? 'var(--text-muted)' : pct >= 0 ? 'var(--text-secondary)' : 'var(--data-amber)';
   host.replaceChildren(heading, body);
   host.hidden = false;
 }
@@ -874,13 +881,13 @@ function renderThemeDetailSpread({ documentRef, root, store, themeId = null }) {
   }
   const heading = documentRef.createElement('div');
   heading.textContent = '종목 간 퍼포먼스 격차';
-  heading.style.cssText = 'font-size:12px;font-weight:800;color:var(--text-secondary);margin:8px 0 4px;';
+  heading.className = 'thp-detail-heading';
   const rows = (detail.leaders || [])
     .map((symbol) => ({ symbol, pct: detailQuote(detail, symbol)?.pct }))
     .filter((row) => finite(row.pct) != null)
     .sort((a, b) => b.pct - a.pct);
   const body = documentRef.createElement('div');
-  body.style.cssText = 'font-size:11px;line-height:1.7;color:var(--text-secondary);';
+  body.className = 'thp-detail-body';
   if (rows.length < 2) {
     body.textContent = '시세 대기 — 최소 두 종목의 등락률이 확인되면 격차를 계산합니다.';
   } else {
@@ -891,7 +898,7 @@ function renderThemeDetailSpread({ documentRef, root, store, themeId = null }) {
     body.textContent = `등락 편차 ${spread.toFixed(1)}%p (${level})`;
     const leaders = documentRef.createElement('div');
     leaders.textContent = `최강 ${rows[0].symbol} ${rows[0].pct >= 0 ? '+' : ''}${rows[0].pct.toFixed(2)}% · 최약 ${rows[rows.length - 1].symbol} ${rows[rows.length - 1].pct >= 0 ? '+' : ''}${rows[rows.length - 1].pct.toFixed(2)}%`;
-    leaders.style.cssText = 'color:var(--text-muted);margin-top:2px;';
+    leaders.className = 'thp-spread-leaders';
     body.appendChild(leaders);
   }
   host.replaceChildren(heading, body);
@@ -912,7 +919,7 @@ function renderThemeDetailBreadthHealth({ documentRef, root, store, themeId = nu
   // LC-28: the up-ratio is an observed PRICE participation measure. The retired wording claimed a
   // buyer and a fund flow the screen never measured; the label now names only the price participation.
   heading.textContent = '가격 상승 참여 폭 (당일)';
-  heading.style.cssText = 'font-size:12px;font-weight:800;color:var(--text-secondary);margin:8px 0 4px;';
+  heading.className = 'thp-detail-heading';
   const body = documentRef.createElement('div');
   const breadth = finite(detail.breadth);
   // LC-36: the up-ratio is computed over the 리더 목록 중 가격이 확인된 종목만이다. 그 분모를 값
@@ -924,7 +931,8 @@ function renderThemeDetailBreadthHealth({ documentRef, root, store, themeId = nu
   else if (breadth >= 70) body.textContent = `상승 종목 ${breadth}%${basis} · 당일 가격 참여 폭 우수 — 관측된 당일 가격 참여이며 자금 유입·거래 주체의 증거가 아닙니다.`;
   else if (breadth >= 50) body.textContent = `상승 종목 ${breadth}%${basis} · 당일 가격 참여 폭 보통 — 일부 종목 중심인지 선별이 필요합니다.`;
   else body.textContent = `상승 종목 ${breadth}%${basis} · 당일 가격 참여 폭 취약 — 관측된 당일 가격 참여이며 추세 단정이 아닙니다.`;
-  body.style.cssText = `font-size:11px;line-height:1.7;color:${breadth == null ? 'var(--text-muted)' : breadth >= 70 ? 'var(--data-green)' : breadth >= 50 ? 'var(--text-secondary)' : 'var(--data-amber)'};`;
+  body.className = 'thp-detail-body';
+  body.style.color = breadth == null ? 'var(--text-muted)' : breadth >= 70 ? 'var(--data-green)' : breadth >= 50 ? 'var(--text-secondary)' : 'var(--data-amber)';
   host.replaceChildren(heading, body);
   host.hidden = false;
 }
@@ -941,9 +949,9 @@ function renderThemeDetailSubthemeGap({ documentRef, root, store, themeId = null
   }
   const heading = documentRef.createElement('div');
   heading.textContent = '서브테마 간 퍼포먼스 격차';
-  heading.style.cssText = 'font-size:12px;font-weight:800;color:var(--text-secondary);margin:8px 0 4px;';
+  heading.className = 'thp-detail-heading';
   const body = documentRef.createElement('div');
-  body.style.cssText = 'font-size:11px;line-height:1.7;color:var(--text-secondary);';
+  body.className = 'thp-detail-body';
   const rows = (detail.subThemes || [])
     .map((subTheme) => ({ name: subTheme.name || '서브테마', pct: compositeDetailPct(detail, subTheme) }))
     .filter((row) => finite(row.pct) != null)
@@ -974,9 +982,9 @@ function renderThemeDetailBenchmark({ documentRef, root, store, themeId = null }
   }
   const heading = documentRef.createElement('div');
   heading.textContent = 'ETF·기준자산 벤치마크 비교';
-  heading.style.cssText = 'font-size:12px;font-weight:800;color:var(--text-secondary);margin:8px 0 4px;';
+  heading.className = 'thp-detail-heading';
   const body = documentRef.createElement('div');
-  body.style.cssText = 'font-size:11px;line-height:1.7;color:var(--text-secondary);';
+  body.className = 'thp-detail-body';
   const themePct = finite(detail.pct);
   // Codex browser audit H25: when the theme's own return IS its representative ETF (반도체 = SMH), "SMH 대비
   // +0.00%p · 유사" compared SMH with itself. The comparison then moves to the broad market (SPY); without a
@@ -1013,9 +1021,9 @@ function renderThemeDetailInsights({ documentRef, root, store, themeId = null })
   }
   const heading = documentRef.createElement('div');
   heading.textContent = '테마 맞춤 인사이트';
-  heading.style.cssText = 'font-size:12px;font-weight:800;color:var(--text-secondary);margin:8px 0 4px;';
+  heading.className = 'thp-detail-heading';
   const body = documentRef.createElement('div');
-  body.style.cssText = 'display:grid;gap:4px;font-size:11px;line-height:1.7;color:var(--text-secondary);';
+  body.className = 'thp-detail-body thp-detail-body--grid';
   const insight = detail.insight || {};
   const rows = [
     ['거시 조건', insight.macro],
@@ -1298,7 +1306,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           const back = documentRef.createElement('button');
           back.type = 'button';
           back.className = 'flow-next-link theme-detail-return';
-          back.style.cssText = 'font-size:12px;margin-bottom:8px;';
           back.textContent = '← 선택한 목록으로';
           back.addEventListener('click', () => {
             const target = currentDetailTrigger() || page;
@@ -1332,7 +1339,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         if (deepLink?.requested && !store?.getState?.()?.themes?.selectedDetail && detailPanel) {
           deepLinkHint = documentRef.createElement('p');
           deepLinkHint.className = 'theme-detail-deep-link-hint';
-          deepLinkHint.style.cssText = 'font-size:12px;color:var(--text-muted);margin:0;';
           deepLinkHint.textContent = deepLinkId
             ? '주소의 테마 상세를 열지 못하면 위 섹터 카드나 세부 테마 순위에서 같은 테마를 골라 주세요.'
             : '테마 상세 — 주소에 테마가 지정되지 않았습니다. 위 섹터 카드나 세부 테마 순위에서 테마를 고르면 여기에 상세가 열립니다.';
