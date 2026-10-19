@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1935 - v58.40 - 갱신 커밋이 사람의 병합과 부딪히면 그 회차 데이터가 통째로 빠지고, 수렴 대기 뒤에 늦게 끝난 데이터 CI 실패는 6시간 뒤에야 알려짐 (2026-10-19)
+
+- symptom/reproduction: 통합 병합과 같은 시각에 Refresh market data가 push하면 rebase 충돌이나 검증 후보와 달라진 트리 때문에 그 회차가 버려지고 다음 cron까지 데이터가 비었다. 12분 수렴 대기 뒤에 끝난 데이터 CI 실패는 6시간 신선도 점검에서야 드러났다.
+- root_cause: refresh-data.yml이 push 충돌을 실패로 끝내기만 하고 새 main에서 다시 시도하지 않았다. ensure-live-convergence.mjs는 이번 회차의 CI만 기다리고 이전 리비전의 늦게 끝난 데이터 CI 결과를 보지 않았다.
+- fix: 충돌이 나면 rebase를 중단하고 새 main에서 회차를 정확히 한 번 다시 실행한다(retry=collision 입력). 두 번째 충돌은 실패로 알리고 검증되지 않은 후보는 여전히 게시하지 않는다. 다음 회차의 수렴 단계가 이전 리비전의 가장 최근 완료 데이터 CI를 찾아 실패면 단계를 실패시켜 operations-alert가 한 회차 뒤에 알게 한다(previousDataCiFailure). 뉴스 receipt는 모든 축을 검색 피드 수로 세고 기사 수는 근거 메모로 옮긴다.
+- violated_rule: 데이터 자동화는 사람의 병합과 충돌해도 회차를 잃지 않고, 실패는 다음 회차 안에 알린다.
+- prevention: ci-codex-structure-regression-fixture가 충돌 재시도·두 번째 충돌 실패·이전 데이터 CI 실패 감지를 검사하고 ci-data-continuity-check(P564)가 계약을 고정한다.
+- verification/residual: node scripts/ci-codex-structure-regression-fixture.mjs; node scripts/ci-data-continuity-check.mjs; qa-runner preflight/core/data
+
 ## P1934 - v58.37 - 한국 종목의 테마 링크가 미국 테마를 열거나 아무것도 열지 않음 (2026-10-19)
 
 - symptom/reproduction: KRX 종목(예: 012450.KS)의 종목 요약 '이 테마의 시나리오 →'와 기업 카드 테마 버튼이 KR_THEME_MAP id로 showThemeDetail을 불렀다. K-방산은 미국 방산 테마를 열었고(defense·crypto·quantum·space는 두 지도에 모두 있음), 나머지 한국 테마 링크는 아무 동작도 하지 않았다.

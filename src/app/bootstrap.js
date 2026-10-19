@@ -29,6 +29,7 @@ import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { finalizePageDecision } from '../domain/signal/page-decision.js';
 import { installRouteHubTabs, setStockSubject } from '../ui/navigation/route-hubs.js';
 import { installScreenLessons } from '../ui/components/screen-lessons.js';
+import { registerInterpretationStore } from '../data/selectors/interpretation.js';
 import { installScreenShortcuts } from '../ui/navigation/screen-shortcuts.js';
 import { installRouteScrollMemory } from '../ui/navigation/scroll-memory.js';
 import { installShellOverlays } from '../ui/components/shell-overlays.js';
@@ -628,6 +629,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
 
   function start() {
     let disposed = false;
+    const stopInterpretationStore = registerInterpretationStore(root, store); // owner 2026-10-19: one row source for the shared interpretation
     const stopColorTheme = documentRef?.body && root?.getComputedStyle ? installColorTheme(root, documentRef) : () => {};
     // P1653/P1655: web search is automatic through the shared Worker; drop the old opt-out and retired personal search keys.
     try { ['aio_web_search_enabled', 'aio_google_cse_key', 'aio_google_cse_cx', 'aio_perplexity_key'].forEach((key) => root.localStorage?.removeItem(key)); } catch (_) { /* storage unavailable */ }
@@ -1007,6 +1009,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopDecisionHeaders();
       stopHubTabs();
       stopScreenLessons();
+      stopInterpretationStore();
       stopScrollMemory();
       stopShellOverlays();
       compatibilityEvents.dispose();

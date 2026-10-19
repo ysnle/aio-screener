@@ -161,6 +161,15 @@ function runProducerChecks() {
     && refreshCommitBlock.includes('node scripts/ci-masters-contract-check.mjs --staged')
     && !refreshCommitBlock.includes('|| true'),
     refreshCommitBlock);
+  // P564/R255 (pipeline redesign 2026-10-19): a push collision re-runs the cycle from the new main once instead of dropping it.
+  const refreshPushBlock = workflow.match(/name: Commit refreshed public data if changed[\s\S]*?Pushed refreshed public-data files/)?.[0] || '';
+  check('P564 a refresh push collision dispatches one retry from the new main instead of dropping the cycle',
+    /git rebase origin\/main \|\| collision_retry/.test(refreshPushBlock)
+    && /--expect-commit "\$RUNNER_TEMP\/aio-refresh-data-candidate\.json" \|\| collision_retry/.test(refreshPushBlock)
+    && /DISPATCH_RETRY:-\}" == "collision" \]\]; then[\s\S]*?exit 1/.test(refreshPushBlock)
+    && refreshPushBlock.includes('gh workflow run refresh-data.yml --ref main -f trigger=scheduler -f retry=collision')
+    && /retry:\n\s+description:/.test(workflow),
+    'collision retry missing from the refresh commit step');
   check('P1204 refresh workflows fail closed while staging published artifacts',
     screenerCommitBlock.includes('set -euo pipefail')
     && screenerCommitBlock.includes('stage_if_exists()')

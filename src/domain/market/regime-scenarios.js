@@ -128,8 +128,12 @@ export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(in
 }
 
 export function renderMarketScenarioContext(input = {}, options = {}) {
-  const model = buildMarketScenarios(input, options);
-  if (!model.available) return '';
+  return renderMarketScenarioModel(buildMarketScenarios(input, options));
+}
+
+/** The structure-flow block from a built model (the shared interpretation's `scenarios` stage). */
+export function renderMarketScenarioModel(model) {
+  if (!model?.available) return '';
   // v57.81: the leadership-break flag is stated before the cards, so the narrative cannot say the leaders are still leading.
   const lead = model.leadership?.break ? `주도 영역 이탈(leadershipBreak): 예 — ${model.leadership.summary}. 소수 종목 주도 조건 미충족, '${TRANSITION_TITLE}'.\n`
     : model.leadership?.state === 'weak' ? `주도 영역 이탈(leadershipBreak): 확산 미확인 — ${model.leadership.summary}. 주도주는 약해졌고 시장 전반 확인은 ${model.leadership.met}/${model.leadership.total}개. 소수 종목 주도 조건 미충족.\n`

@@ -8,11 +8,10 @@
 import { deepDiveFold } from './deep-dive.js';
 import { SENTIMENT_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { alignInput, alignMarketInputs, alignmentLabel, buildCloseSeries, creditState, isUsable } from '../../domain/briefing/market-read.js';
-import { collectMarketInputs } from './briefing-read.js';
 import { createTrendChart, seriesChange } from './trend-chart.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { fearGreedBand as publishedFearGreedBand } from '../../domain/sentiment/metrics.js';
-import { buildMarketRegime } from '../../domain/briefing/market-read.js';
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { sentimentFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 import { computeCompositeFearGreed } from '../../domain/sentiment/composite-fear-greed.js';
@@ -192,13 +191,13 @@ function compositeCard(composite) {
 export function renderSentimentBoard({ documentRef: doc, root }) {
   const page = doc?.getElementById('page-sentiment');
   if (!page) return null;
-  const inputs = collectMarketInputs(root);
+  const { inputs, regime } = marketInterpretation(root); // owner 2026-10-19: the shared regime, same as 시장 상태
   const model = buildSentimentModel({ ...inputs, snapshot: root.DATA_SNAPSHOT || {}, macroHistory: root._aioMacroHistory || null });
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   set('sentiment-basis', model.asOf ? `${shortDate(model.asOf)} 미국 종가 기준${model.mixed.length ? ' · 날짜가 다른 지표는 카드에 표시' : ''} · 공포·탐욕, 변동성 구조, 신용, 옵션, 개인 설문` : '기록을 불러오는 중입니다.');
   set('sentiment-synthesis', model.synthesis);
   // P1431: tie the synthesis back to the 시장 상태 axes that use the same numbers.
-  const flow = sentimentFlow({ model, regime: buildMarketRegime({ ...inputs, macroHistory: root._aioMacroHistory || null }) });
+  const flow = sentimentFlow({ model, regime });
   set('sentiment-bridge', flow.bridge);
   renderNextSteps(doc, doc.getElementById('sentiment-next'), flow.next);
   // Charted cards share one row and the value-only cards another, so card heights match.
