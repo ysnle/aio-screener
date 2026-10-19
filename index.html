@@ -6735,7 +6735,7 @@ button[data-filter-active="true"] {
   // lightweight-charts (종목 차트) is requested when that screen opens, or via window._aioEnsureChartLibrary('lwc').
   (function coordinateChartDependency() {
   var _chartPlaceholder = document.getElementById('aio-chart-cdn');
-  var CHART_SECONDARY = { src: 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js', integrity: 'sha384-DhxhYObIMeMNGyAG7iK11OHzBIKyEIeRL0ad1iFPAOwZB8iirUlTT0O/WJJUk8+o' };
+  var CHART_PRIMARY_SRC = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'; var CHART_SECONDARY = { src: 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js', integrity: 'sha384-DhxhYObIMeMNGyAG7iK11OHzBIKyEIeRL0ad1iFPAOwZB8iirUlTT0O/WJJUk8+o' };
   var LWC_SOURCE = { src: 'https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js', integrity: 'sha384-OK7vELvjHdhUFi31JYioPIcRHTROLdcDa6ZsNWgvgLaKj+9JqhU0Ad8g4wz3CXjA' };
   var _chartFallbackTimer = null, _chartSecondaryStarted = false, _chartPromise = null, _chartResolve = null;
   var _realChart = null, _pendingCharts = [], _lwcPromise = null;
@@ -6755,7 +6755,7 @@ button[data-filter-active="true"] {
   }
   function mergeDefaults(target, recorded) {
     Object.keys(recorded || {}).forEach(function(key) {
-      var value = recorded[key];
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') return; var value = recorded[key];
       if (value && typeof value === 'object' && !Array.isArray(value) && target[key] && typeof target[key] === 'object') mergeDefaults(target[key], value);
       else target[key] = value;
     });
@@ -6791,7 +6791,7 @@ button[data-filter-active="true"] {
     if (_chartPromise) return _chartPromise;
     _chartPromise = new Promise(function(resolve) { _chartResolve = resolve; });
     if (settleChart()) return _chartPromise;
-    var primary = _chartPlaceholder && _chartPlaceholder.getAttribute('data-aio-src');
+    var primary = _chartPlaceholder && _chartPlaceholder.getAttribute('data-aio-src') === CHART_PRIMARY_SRC ? CHART_PRIMARY_SRC : null; // only the pinned URL is ever requested
     if (!primary) { loadSecondaryChart(); return _chartPromise; }
     appendScript({ src: primary, integrity: _chartPlaceholder.getAttribute('data-aio-integrity') || '' }, function() { if (!settleChart()) loadSecondaryChart(); }, loadSecondaryChart);
     if (!hasRealChart()) _chartFallbackTimer = setTimeout(loadSecondaryChart, 5000);
