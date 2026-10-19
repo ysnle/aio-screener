@@ -72,3 +72,42 @@
   .page .scr-subtabs, .page .scr-subtabs.aio-responsive-row { flex-wrap: nowrap; overflow-x: auto; gap: 0 !important; scrollbar-width: none; }
   .page .scr-subtabs > button { flex: 0 0 auto; white-space: nowrap; padding-inline: 12px !important; }
 }
+/* 2026-10-19 layout system: the screener page's inline `.style.cssText` strings moved here (src/ui/pages/screener.js).
+   Old inline 10/11/12px read --fs-xs/sm/base: the sizes index.html's [style*=font-size] rules rendered them at. Computed values
+   (column align/min-width, sticky left, bar widths, per-factor colours) stay single-property assignments in the page. */
+#screener-results-table td.scr-column-cell { padding: 7px 8px; }
+#screener-results-table th.scr-column-header { padding: 8px; }
+#screener-results-table td.scr-empty-cell { text-align: center; padding: 20px; color: var(--text-muted); }
+.scr-empty-actions { display: flex; gap: 6px; justify-content: center; margin-top: 10px; }
+.scr-tone-up { color: var(--data-green); }
+.scr-tone-warn { color: var(--data-amber); }
+.scr-rank-hold { font-size: var(--fs-xs); color: var(--data-amber); font-weight: 700; white-space: nowrap; }
+.scr-rank-unranked { font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; }
+.scr-rank-value { font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-sm); color: var(--text-primary); }
+.scr-rank-bar { height: 3px; background: var(--border-subtle); border-radius: 2px; margin-top: 3px; overflow: hidden; }
+.scr-rank-fill { height: 100%; background: var(--text-muted); border-radius: 2px; }
+.scr-sym-code { font-weight: 800; font-family: var(--font-mono); font-size: var(--fs-base); }
+.scr-sym-name { font-size: var(--fs-sm); color: var(--text-muted); }
+.scr-sic-tag { color: var(--text-muted); font-size: var(--fs-sm); }
+.scr-close-note, .scr-cell-note { display: block; font-size: var(--fs-sm); color: var(--text-muted); }
+.scr-head-note { display: block; font-size: var(--fs-sm); font-weight: 400; color: var(--text-muted); }
+.scr-profile-note { margin: 6px 0 0; font-size: var(--fs-base); color: var(--text-secondary); line-height: 1.5; }
+.scr-stale-note { font-size: var(--fs-base); color: var(--text-secondary); background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; margin: 0 0 8px; }
+.scr-factor-row { display: grid; grid-template-columns: 50px 1fr 34px; gap: 4px; align-items: center; }
+.scr-factor-label { font-size: var(--fs-xs); font-weight: 600; }
+.scr-factor-track { background: var(--surface-4); border-radius: 2px; height: 7px; overflow: hidden; }
+.scr-factor-fill { height: 100%; opacity: .8; }
+.scr-factor-value { font-size: var(--fs-xs); color: var(--text-muted); text-align: right; }
+.scr-evidence-header { display: flex; justify-content: space-between; gap: 8px; align-items: center; margin-bottom: 6px; }
+.scr-evidence-badge { font-size: var(--fs-xs); font-weight: 700; }
+.scr-evidence-query { font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.45; margin-bottom: 8px; }
+.scr-evidence-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
+.scr-evidence-card { padding: 7px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface-1); }
+.scr-evidence-label { font-size: var(--fs-xs); color: var(--text-muted); }
+.scr-evidence-result { display: block; font-size: var(--fs-base); color: var(--text-primary); margin-top: 2px; }
+.scr-evidence-details { font-size: var(--fs-xs); line-height: 1.55; color: var(--text-muted); }
+.scr-evidence-boundary { margin-top: 7px; padding-top: 7px; border-top: 1px solid var(--border); font-size: var(--fs-xs); line-height: 1.5; color: var(--text-muted); }
+.scr-evidence-disclaimer { margin-top: 6px; font-size: var(--fs-xs); color: var(--data-amber); }
+.scr-compare-table { width: 100%; border-collapse: collapse; font-size: var(--fs-base); text-align: right; }
+.scr-compare-name { font-size: var(--fs-sm); font-weight: 400; color: var(--text-muted); }
+.scr-compare-note, .scr-compare-on-demand { font-size: var(--fs-sm); color: var(--text-muted); margin: 6px 0 0; }
