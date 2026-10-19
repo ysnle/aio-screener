@@ -1,0 +1,27 @@
+/* legacy-core.css — classes for markup built in js/aio-core.js (layout cleanup 2026-10-19) instead of inline style attributes.
+   Inside .page an old inline 10/11px rendered 12/13px (index.html substring !important rules) → --fs-xs/--fs-sm. */
+
+/* Regime drift banner — in .content above the pages (not inside .page), so sizes are literal. Display stays inline (JS toggles it). */
+#aio-regime-drift-banner { margin: 0 0 10px 0; padding: 9px 12px; background: rgba(255,90,80,0.12); border: 1px solid rgba(255,90,80,0.45); border-radius: 4px; font-size: 12px; line-height: 1.55; color: var(--text-primary); }
+#aio-regime-drift-banner .lco-drift-title { color: #ff7a70; }
+#aio-regime-drift-banner .lco-drift-why { color: var(--text-secondary); }
+/* Market-analysis sinks (#home-market-analysis, #briefing-ai-analysis — both in .page: old inline 11px rendered 13px) */
+.page [data-market-analysis-sink] .ai-analysis-scope { display: table; margin: 0 0 6px; font-size: var(--fs-sm); font-weight: 400; color: var(--text-muted); line-height: 1.6; }
+.page [data-market-analysis-sink] .ai-analysis-retained { font-size: var(--fs-sm); font-weight: 600; color: var(--text-muted); }
+.page [data-market-analysis-sink] .ai-analysis-note { margin-top: 6px; font-size: var(--fs-sm); font-weight: 400; color: var(--text-muted); line-height: 1.6; }
+/* Per-page topic news strip (a direct child of each .page; hidden outside dev mode by index.html) */
+.page .aio-page-news-strip { margin: 8px 0 12px; padding: 8px 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 4px; }
+.page .aio-page-news-strip .lco-ns-line { font-size: var(--fs-sm); line-height: 1.5; margin: 2px 0; color: var(--text-secondary); }
+.page .aio-page-news-strip .lco-ns-src { color: var(--text-muted); font-size: var(--fs-xs); }
+.page .aio-page-news-strip .lco-ns-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.page .aio-page-news-strip .lco-ns-title { min-width: 0; font-size: var(--fs-xs); font-weight: 700; color: var(--accent); overflow-wrap: anywhere; }
+.page .aio-page-news-strip .lco-ns-topic { font-weight: 400; color: var(--text-muted); }
+/* the old inline 10px and `.aio-btn-table` both resolved to 12px !important, which still applies */
+.page .aio-page-news-strip .lco-ns-btn { padding: 1px 6px; flex-shrink: 0; }
+/* Source-health retry button in #snapshot-stale-warning (#page-home: old inline 11px rendered 13px) */
+#snapshot-stale-warning .lco-retry { font-size: var(--fs-sm); padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px; font-weight: 600; font-family: var(--font-mono); transition: all 0.2s; }
+#snapshot-stale-warning .lco-retry-dead { background: rgba(220,38,38,0.25); border: 1px solid rgba(220,38,38,0.5); color: #fca5a5; }
+#snapshot-stale-warning .lco-retry-warn { background: rgba(234,179,8,0.2); border: 1px solid rgba(234,179,8,0.4); color: #fbbf24; }
+/* Ticker metric strip (#ticker-mv-strip in #page-ticker) */
+#ticker-mv-strip .lco-mv-sr { color: var(--data-cyan); }
+#ticker-mv-strip .lco-mv-none { font-size: var(--fs-xs); color: var(--text-muted); }

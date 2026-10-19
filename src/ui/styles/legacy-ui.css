@@ -1,0 +1,205 @@
+/* legacy-ui.css — classes for markup built in js/aio-ui.js (layout cleanup 2026-10-19) instead of inline style attributes.
+   Inside .page an old inline 10/11/12/16px rendered 12/13/14/18px (index.html substring !important rules); the --fs-* tokens keep that size. */
+
+/* Fundamental report (#fund-report-container in #page-fundamental) */
+#fund-report-container .lu-hd-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+#fund-report-container .lu-hd-name { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; min-width: 0; }
+#fund-report-container .lu-hd-title { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--text-primary); }
+#fund-report-container .lu-hd-sub { font-size: 13px; color: var(--text-muted); }
+#fund-report-container .lu-hd-quote { display: flex; align-items: baseline; gap: 10px; flex-shrink: 0; }
+#fund-report-container .lu-hd-last { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+#fund-report-container .lu-hd-aux { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+#fund-report-container .lu-sm-mut { font-size: var(--fs-sm); color: var(--text-muted); }
+#fund-report-container .lu-red { color: var(--data-red); }
+#fund-report-container .lu-mut { color: var(--text-muted); }
+#fund-report-container .lu-q-row { display: flex; gap: 14px; }
+#fund-report-container .lu-q-lbl { font-size: var(--fs-sm); font-weight: 700; color: var(--text-dim); flex-shrink: 0; width: 64px; padding-top: 2px; }
+#fund-report-container .lu-q-txt { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+#fund-report-container .lu-bar-head { display: flex; justify-content: space-between; font-size: var(--fs-sm); margin-bottom: 5px; }
+#fund-report-container .lu-bar-track { height: 6px; background: var(--border-subtle); border-radius: 3px; overflow: hidden; }
+#fund-report-container .lu-base-mut { font-size: var(--fs-base); color: var(--text-muted); }
+#fund-report-container .lu-cols3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+#fund-report-container .lu-fact { padding: 6px 8px; background: var(--surface-1); border-radius: 3px; font-size: var(--fs-xs); }
+#fund-report-container .lu-h-xs4 { font-size: var(--fs-xs); font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+#fund-report-container .lu-filing { font-size: var(--fs-xs); padding: 4px 0; border-bottom: 1px solid var(--surface-2); display: flex; gap: 8px; align-items: center; }
+#fund-report-container .lu-filing-date { color: var(--text-muted); width: 80px; }
+#fund-report-container .lu-filing-desc { color: var(--text-secondary); flex: 1; }
+#fund-report-container .lu-filing-link { color: var(--accent); font-size: var(--fs-sm); text-decoration: none; }
+#fund-report-container .lu-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; }
+#fund-report-container .lu-sm-mut-t2 { font-size: var(--fs-sm); color: var(--text-muted); margin-top: 2px; }
+#fund-report-container .lu-span-note { grid-column: 1/-1; font-size: var(--fs-base); color: var(--text-muted); }
+#fund-report-container .lu-span-h { grid-column: 1/-1; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); font-size: var(--fs-xs); color: var(--text-secondary); font-weight: 600; }
+#fund-report-container .lu-span-top { grid-column: 1/-1; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+#fund-report-container .lu-split8 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+#fund-report-container .lu-h-base { font-size: var(--fs-base); font-weight: 700; color: var(--text-secondary); }
+#fund-report-container .lu-xs-mut { font-size: var(--fs-xs); color: var(--text-muted); }
+#fund-report-container .lu-xs-mut-b { font-size: var(--fs-xs); color: var(--text-muted); font-weight: 600; }
+#fund-report-container .lu-split-base4 { display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px; }
+#fund-report-container .lu-rank-val { font-size: 15px; font-weight: 800; color: var(--text-primary); font-family: var(--font-mono); }
+#fund-report-container .lu-xs-mut-t3 { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 3px; }
+#fund-report-container .lu-rank-meta { display: flex; gap: 8px; margin-top: 6px; font-size: var(--fs-sm); color: var(--text-muted); }
+#fund-report-container .lu-fit240 { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 8px; }
+#fund-report-container .lu-split10 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+#fund-report-container .lu-split6-sm { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: var(--fs-sm); }
+#fund-report-container .lu-rec-bar { display: flex; height: 22px; border-radius: 3px; overflow: hidden; font-size: var(--fs-xs); font-weight: 700; }
+#fund-report-container .lu-rec-legend { display: flex; justify-content: space-between; margin-top: 6px; font-size: var(--fs-xs); color: var(--text-muted); font-weight: 600; }
+#fund-report-container .lu-tgt-row { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--surface-5); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: var(--fs-sm); }
+#fund-report-container .lu-b-sec { font-weight: 700; color: var(--text-secondary); }
+#fund-report-container .lu-span-empty { grid-column: 1/-1; color: var(--text-muted); font-size: var(--fs-xs); padding: 8px; text-align: center; }
+#fund-report-container .lu-ln-dot { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px dotted rgba(255,255,255,0.05); }
+#fund-report-container .lu-ratio-note { margin-top: 4px; padding: 4px; background: rgba(255,255,255,0.04); border-radius: 4px; text-align: center; }
+#fund-report-container .lu-val-tile { background: rgba(255,255,255,0.04); border-radius: 3px; padding: 6px 4px; text-align: center; }
+#fund-report-container .lu-basis-sep { border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 4px; margin-top: 4px; }
+#fund-report-container .lu-scrollx { overflow-x: auto; }
+#fund-report-container .lu-tbl-xs { width: 100%; border-collapse: collapse; font-size: var(--fs-xs); }
+#fund-report-container .lu-bb { border-bottom: 1px solid var(--border); }
+#fund-report-container .lu-th-l6b { text-align: left; padding: 6px; color: var(--text-muted); font-weight: 600; }
+#fund-report-container .lu-th-r6b { text-align: right; padding: 6px; color: var(--text-muted); font-weight: 600; }
+#fund-report-container .lu-bb2 { border-bottom: 1px solid var(--surface-2); }
+#fund-report-container .lu-td-lbl { padding: 5px 6px; color: var(--text-secondary); }
+#fund-report-container .lu-bt2 { border-top: 2px solid var(--border); }
+#fund-report-container .lu-td-acc { padding: 5px 6px; color: var(--accent); font-weight: 700; }
+#fund-report-container .lu-td-r-mut { text-align: right; padding: 5px 6px; color: var(--text-muted); }
+#fund-report-container .lu-xs-mut-b6 { font-size: var(--fs-xs); color: var(--text-muted); margin-bottom: 6px; }
+#fund-report-container .lu-th-l6 { text-align: left; padding: 6px; color: var(--text-muted); }
+#fund-report-container .lu-th-r6m { text-align: right; padding: 6px; color: var(--text-muted); }
+#fund-report-container .lu-empty15 { padding: 15px; text-align: center; color: var(--text-muted); font-size: var(--fs-xs); }
+#fund-report-container .lu-cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#fund-report-container .lu-h-xs { font-size: var(--fs-xs); font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+#fund-report-container .lu-tag-ttm { color: #3ddba5; font-size: var(--fs-sm); }
+#fund-report-container .lu-tag-ann { color: #f59e0b; font-size: var(--fs-sm); }
+#fund-report-container .lu-val-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--surface-2); font-size: var(--fs-xs); }
+#fund-report-container .lu-sec { color: var(--text-secondary); }
+#fund-report-container .lu-val-v { color: var(--text-primary); font-family: var(--font-mono); font-weight: 600; }
+#fund-report-container .lu-wrap6 { display: flex; flex-wrap: wrap; gap: 6px; }
+#fund-report-container .lu-peer { padding: 6px 12px; background: var(--surface-3); border: 1px solid var(--border); border-radius: 3px; font-size: var(--fs-sm); color: var(--text-primary); cursor: pointer; font-weight: 600; }
+#fund-report-container .lu-sm-mut-t6 { font-size: var(--fs-sm); color: var(--text-muted); margin-top: 6px; }
+#fund-report-container .lu-mb10 { margin-bottom: 10px; }
+#fund-report-container .lu-h-sm { font-size: var(--fs-sm); font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; }
+#fund-report-container .lu-fit170 { display: grid; grid-template-columns: repeat(auto-fit,minmax(170px,1fr)); gap: 6px; }
+#fund-report-container .lu-earn-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 3px; padding: 8px 10px; }
+#fund-report-container .lu-split-base { display: flex; justify-content: space-between; align-items: baseline; }
+#fund-report-container .lu-earn-date { font-size: var(--fs-base); font-weight: 700; color: var(--accent); font-family: var(--font-mono); }
+#fund-report-container .lu-earn-hour { font-size: var(--fs-sm); color: var(--text-muted); padding: 2px 6px; background: var(--surface-3); border-radius: 4px; }
+#fund-report-container .lu-xs-sec-t3 { font-size: var(--fs-xs); color: var(--text-secondary); margin-top: 3px; }
+#fund-report-container .lu-xs-sec { font-size: var(--fs-xs); color: var(--text-secondary); }
+#fund-report-container .lu-h-sm-sep8 { font-size: var(--fs-sm); font-weight: 700; color: var(--text-secondary); margin: 10px 0 6px; padding-top: 8px; border-top: 1px solid var(--border); }
+#fund-report-container .lu-tbl-sm { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+#fund-report-container .lu-th-l6x { text-align: left; padding: 6px; color: var(--text-muted); font-size: var(--fs-xs); }
+#fund-report-container .lu-th-r6 { text-align: right; padding: 6px; color: var(--text-muted); font-size: var(--fs-xs); }
+#fund-report-container .lu-td6-lbl { padding: 6px; color: var(--text-secondary); }
+#fund-report-container .lu-td6-v { text-align: right; padding: 6px; color: var(--text-primary); font-family: var(--font-mono); }
+#fund-report-container .lu-td6-vm { text-align: right; padding: 6px; color: var(--text-muted); font-family: var(--font-mono); }
+#fund-report-container .lu-news { padding: 8px 0; border-bottom: 1px solid var(--surface-3); }
+#fund-report-container .lu-news-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+#fund-report-container .lu-news-title { flex: 1; font-size: var(--fs-base); font-weight: 700; color: var(--text-primary); text-decoration: none; line-height: 1.4; }
+#fund-report-container .lu-news-age { font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; font-family: var(--font-mono); }
+#fund-report-container .lu-news-body { display: flex; justify-content: space-between; gap: 10px; margin-top: 4px; }
+#fund-report-container .lu-news-sum { font-size: var(--fs-xs); color: var(--text-secondary); line-height: 1.5; flex: 1; }
+#fund-report-container .lu-sm-mut-t3 { font-size: var(--fs-sm); color: var(--text-muted); margin-top: 3px; }
+#fund-report-container .lu-news-more { font-size: var(--fs-xs); color: var(--text-muted); text-align: center; padding: 6px 0; }
+#fund-report-container .lu-bb2x { border-bottom: 2px solid var(--border); }
+#fund-report-container .lu-mp-th-l { text-align: left; padding: 7px 10px; color: var(--text-muted); font-size: var(--fs-xs); font-weight: 700; min-width: 110px; }
+#fund-report-container .lu-mp-th-r { text-align: right; padding: 7px 8px; color: var(--text-secondary); font-size: var(--fs-xs); font-weight: 700; white-space: nowrap; }
+#fund-report-container .lu-mp-td { padding: 6px 10px; }
+#fund-report-container .lu-sm-b-sec { font-size: var(--fs-sm); font-weight: 700; color: var(--text-secondary); }
+#fund-report-container .lu-xs-mut-t6 { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 6px; }
+#fund-report-container .lu-tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: 4px; padding: 8px 10px; }
+#fund-report-container .lu-tile-lbl { font-size: var(--fs-xs); color: var(--text-muted); font-weight: 700; margin-bottom: 3px; }
+#fund-report-container .lu-tbl-sm-b8 { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); margin-bottom: 8px; }
+#fund-report-container .lu-th-l58 { text-align: left; padding: 5px 8px; color: var(--text-muted); font-size: var(--fs-xs); }
+#fund-report-container .lu-th-r56 { text-align: right; padding: 5px 6px; color: var(--text-muted); font-size: var(--fs-xs); }
+#fund-report-container .lu-td58-lbl { padding: 5px 8px; color: var(--text-secondary); }
+#fund-report-container .lu-td56 { text-align: right; padding: 5px 6px; font-family: var(--font-mono); }
+#fund-report-container .lu-td56-b { text-align: right; padding: 5px 6px; font-family: var(--font-mono); font-weight: 700; }
+#fund-report-container .lu-h-sm-sep10 { font-size: var(--fs-sm); font-weight: 700; color: var(--text-secondary); margin: 10px 0 6px; padding-top: 10px; border-top: 1px solid var(--border); }
+#fund-report-container .lu-td58-h { padding: 5px 8px; font-size: var(--fs-sm); font-weight: 700; color: var(--text-secondary); }
+#fund-report-container .lu-td56-mut { text-align: right; padding: 5px 6px; font-family: var(--font-mono); color: var(--text-muted); }
+#fund-report-container .lu-td56-sb { text-align: right; padding: 5px 6px; font-family: var(--font-mono); font-weight: 600; }
+#fund-report-container .lu-xs-mut-t5 { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 5px; }
+
+#fund-report-container .lu-hd-pct { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+/* was an inline 11px — the `.page` 11px substring rule (0,2,0, !important) beat `.aio-btn-table` 12px !important → 13px */
+.page #fund-report-container .aio-btn-table.lu-hd-btn { font-size: var(--fs-sm) !important; }
+#fund-report-container .lu-bar-val { font-weight: 700; }
+#fund-report-container .lu-bar-fill { height: 100%; border-radius: 3px; }
+#fund-report-container .lu-filing-form { font-weight: 700; width: 60px; font-family: var(--font-mono); }
+#fund-report-container .lu-fin-v { font-size: 18px; font-weight: 800; font-family: var(--font-mono); margin-top: 2px; }
+#fund-report-container .lu-rank-top { font-size: var(--fs-sm); font-weight: 700; }
+#fund-report-container .lu-verdict { padding: 3px 10px; border-radius: 4px; font-weight: 700; }
+#fund-report-container .lu-rec-seg { display: flex; align-items: center; justify-content: center; }
+#fund-report-container .lu-sw { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; }
+#fund-report-container .lu-rec-sb { background: #10b981; }
+#fund-report-container .lu-rec-b { background: #3ddba5; }
+#fund-report-container .lu-rec-h { background: #fbbf24; }
+#fund-report-container .lu-rec-s { background: #f87171; }
+#fund-report-container .lu-rec-ss { background: #ef4444; }
+#fund-report-container .lu-rec-seg.lu-rec-sb, #fund-report-container .lu-rec-seg.lu-rec-s, #fund-report-container .lu-rec-seg.lu-rec-ss { color: #fff; }
+#fund-report-container .lu-rec-seg.lu-rec-b, #fund-report-container .lu-rec-seg.lu-rec-h { color: #0f1623; }
+#fund-report-container .lu-tgt-v { font-family: var(--font-mono); font-size: 14px; font-weight: 800; }
+#fund-report-container .lu-tgt-up { padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+#fund-report-container .lu-val-tile-v { font-size: 14px; font-weight: 800; font-family: var(--font-mono); margin-top: 2px; }
+#fund-report-container .lu-neg { color: #ff5b50; }
+#fund-report-container .lu-pri { color: var(--text-primary); }
+#fund-report-container .lu-td6-b { text-align: right; padding: 6px; font-weight: 700; }
+#fund-report-container .lu-mp-td-v { text-align: right; padding: 6px 8px; font-family: var(--font-mono); font-size: var(--fs-sm); font-weight: 600; white-space: nowrap; }
+#fund-report-container .lu-tile-v { font-size: 18px; font-weight: 800; font-family: var(--font-mono); }
+#fund-report-container .lu-up { color: var(--data-green); }
+#fund-report-container .lu-dn { color: var(--data-red); }
+#fund-report-container .lu-td56-beat { text-align: right; padding: 5px 6px; font-weight: 700; }
+
+/* Portfolio technical risk (#pf-technical-risk in #page-portfolio) */
+#pf-technical-risk .lu-pf-empty { font-size: var(--fs-sm); color: var(--text-muted); padding: 8px 0; }
+#pf-technical-risk .lu-pf-tr { border-top: 1px solid rgba(255,255,255,0.06); }
+#pf-technical-risk .lu-pf-tk { padding: 6px 4px; font-family: var(--font-mono); font-weight: 900; color: var(--text-primary); }
+#pf-technical-risk .lu-pf-r { padding: 6px 4px; text-align: right; font-family: var(--font-mono); }
+#pf-technical-risk .lu-pf-rb { padding: 6px 4px; text-align: right; font-family: var(--font-mono); font-weight: 900; }
+#pf-technical-risk .lu-pf-td { padding: 6px 4px; }
+#pf-technical-risk .lu-pf-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px; }
+#pf-technical-risk .lu-pf-obs { margin-left: 8px; font-family: var(--font-mono); font-weight: 900; color: var(--text-primary); }
+#pf-technical-risk .lu-pf-note { font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.5; margin-bottom: 8px; }
+#pf-technical-risk .lu-pf-scroll { overflow-x: auto; }
+#pf-technical-risk .lu-pf-tbl { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+#pf-technical-risk .lu-pf-thr { color: var(--text-muted); text-align: left; }
+#pf-technical-risk .lu-pf-th { padding: 4px; }
+
+#pf-technical-risk .lu-pf-th-r { text-align: right; }
+#pf-technical-risk .lu-pf-up { color: var(--data-green); }
+#pf-technical-risk .lu-pf-dn { color: var(--data-red); }
+
+/* Refresh progress layer — appended to <body>, outside .page, so no inline font-size substring rule applied. */
+#aio-refresh-progress-layer { position: fixed; right: 14px; top: 58px; z-index: 99998; width: min(360px, calc(100vw - 28px)); background: var(--surface-2,#111827); border: 1px solid var(--border,#2b3440); border-radius: 4px; box-shadow: 0 14px 34px rgba(0,0,0,.35); padding: 10px 12px; color: var(--text-primary,#e5edf5); font-family: var(--font-sans,system-ui); }
+#aio-refresh-progress-layer .lu-rp-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+#aio-refresh-progress-title { font-size: 12px; font-weight: 800; }
+#aio-refresh-progress-layer .lu-rp-track { height: 4px; background: var(--surface-4,#253040); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+#aio-refresh-progress-bar { height: 100%; width: 0%; background: var(--data-cyan,#00bcd4); transition: width .25s ease; }
+#aio-refresh-progress-list { display: grid; gap: 4px; max-height: 190px; overflow: auto; }
+#aio-refresh-progress-layer .lu-rp-state { font-family: var(--font-mono,monospace); }
+
+/* Glossary modal (#glossary-modal, outside .page): index.html/responsive.css !important rules on the item, term and tag still win. */
+#glossary-cats .lu-gl-cat { padding: 5px 12px; border-radius: 3px; border: 1px solid var(--border); background: transparent; color: var(--text-primary); font-size: 12px; cursor: pointer; }
+#glossary-cats .lu-gl-cat[aria-pressed="true"] { border-color: var(--border-strong); background: var(--surface-5); }
+#glossary-body .lu-gl-scope { padding: 8px 0; color: var(--text-muted); font-size: 12px; }
+#glossary-body .lu-gl-empty { text-align: center; color: var(--text-muted); padding: 40px; }
+#glossary-body .aio-glossary-item { padding: 12px 0; border-bottom: 1px solid var(--surface-4); }
+#glossary-body .lu-gl-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+#glossary-body .aio-glossary-term { font-weight: 600; color: #8a8271; font-size: 14px; }
+/* tag size comes from responsive.css `#glossary-body .aio-glossary-item > div:first-child > span:not(.aio-glossary-term)` (!important) */
+#glossary-body .lu-gl-tag { padding: 2px 8px; border-radius: 4px; background: var(--surface-3); }
+#glossary-body .lu-gl-def { color: var(--text-secondary); font-size: 13px; line-height: 1.5; }
+
+/* Loading watchdog fallback — its targets (#earnings-calendar-body, #last-fetch-time) sit inside .page, so old 10/11px rendered 12/13px. */
+.page .lu-ld { padding: 12px; text-align: center; color: var(--text-muted); font-size: var(--fs-sm); line-height: 1.6; }
+.page .lu-ld-hint { font-size: var(--fs-xs); }
+.page .lu-ld-btn { margin-top: 6px; padding: 4px 12px; font-size: var(--fs-xs); background: rgba(var(--ink-rgb),0.1); border: 1px solid rgba(var(--ink-rgb),0.3); color: var(--data-cyan); border-radius: 4px; cursor: pointer; }
+
+/* was an inline 12px in #page-technical — the `.page` 12px substring rule (0,2,0, !important) outranked `.aio-btn-table` → 14px */
+.page #kr-ticker-analysis-result .aio-btn-table.lu-kr-go { font-size: var(--fs-base) !important; }
+#kr-ticker-analysis-result .lu-kr-note { margin-top: 6px; }
+#ticker-ov-factor-rows .lu-tk-empty { font-size: var(--fs-sm); color: var(--text-muted); }
+
+/* First-visit disclaimer bar — appended to <body>; shell-overlays.js reads its height. */
+#aio-first-visit-disclaimer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 190; background: var(--bg-elevated,#f5f1e8); border-top: 1px solid var(--border,#d8d2c4); box-shadow: 0 -2px 12px rgba(33,29,22,0.12); padding: 10px 14px; padding: 10px max(14px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 12px; line-height: 1.6; color: var(--text-secondary,#57513f); }
+#aio-first-visit-disclaimer .lu-dc-text { flex: 1 1 200px; min-width: 0; }
+#aio-first-visit-disclaimer .lu-dc-title { color: var(--text-primary); }
+#aio-first-visit-disclaimer .lu-dc-btn { flex-shrink: 0; font-size: 13px; font-weight: 600; color: var(--text-primary,#211d16); background: var(--surface-2,#ece7db); border: 1px solid var(--border,#d8d2c4); border-radius: 6px; padding: 5px 12px; cursor: pointer; }

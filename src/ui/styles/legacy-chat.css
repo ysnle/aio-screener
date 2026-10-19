@@ -1,0 +1,46 @@
+/* legacy-chat.css — classes for markup built in js/aio-chat.js (layout cleanup 2026-10-19) instead of inline style attributes.
+   Fundamental-loader rows sit in .page (old 10/11px rendered 12/13px → --fs-xs/--fs-sm); AI panel sizes are literal. */
+
+/* Fundamental report loader (#fund-rpt-loading in #page-fundamental) */
+#fund-rpt-loading .lch-fp-msg { font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.6; }
+#fund-rpt-loading .lch-fp-err { color: #ff5b50; }
+#fund-rpt-loading .lch-fp-ok { color: #3ddba5; }
+#fund-rpt-loading .lch-fp-cache { font-size: var(--fs-sm); font-weight: 700; color: #3ddba5; margin-bottom: 6px; }
+#fund-rpt-loading .lch-fp-src { font-size: var(--fs-sm); color: var(--text-muted); }
+#fund-rpt-loading .lch-fp-sum { font-size: var(--fs-sm); color: var(--text-secondary); margin-bottom: 6px; }
+#fund-rpt-loading .lch-fp-log { margin-top: 8px; }
+#fund-rpt-loading .lch-fp-log-sum { font-size: var(--fs-xs); color: var(--text-muted); cursor: pointer; }
+#fund-rpt-loading .lch-fp-log-src { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 5px; }
+#fund-rpt-loading .lch-fp-log-lines { font-size: var(--fs-xs); color: var(--text-secondary); line-height: 1.8; margin-top: 5px; }
+#fund-rpt-loading .lch-fp-fail { font-size: var(--fs-sm); font-weight: 700; color: var(--data-amber); margin-bottom: 6px; }
+#fund-rpt-loading .lch-fp-fail-txt { font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.65; margin-bottom: 6px; }
+#fund-rpt-loading .lch-fp-lines { font-size: var(--fs-xs); color: var(--text-secondary); line-height: 1.8; }
+
+/* recent-search chips (#fund-recent-searches, inside #page-fundamental) — background/border/hover stay in index.html */
+#fund-recent-searches .aio-hover-fund-ticker { font-size: var(--fs-sm); color: var(--accent); border-radius: 4px; padding: 2px 7px; cursor: pointer; font-family: var(--font-mono); font-weight: 600; }
+
+/* AI panel (#ai-panel, a direct child of <body>, outside .page/.sidebar/.topbar): no inline font-size substring rule
+   applied, so sizes stay literal. Sub-12px items (disclosure box, model/source badges, retry notes) stay inline. */
+#ai-panel-msgs .lch-disc-sum { cursor: pointer; font-size: 12px; line-height: 1.6; }
+#ai-panel-msgs .lch-disc-body { padding-top: 6px; font-size: 12px; overflow-wrap: anywhere; white-space: pre-line; }
+#ai-panel-msgs .lch-code { background: rgba(255,255,255,0.1); padding: 1px 5px; border-radius: 3px; font-family: monospace; font-size: 0.88em; }
+#ai-panel-msgs .lch-row { margin: 6px 0; padding: 8px 10px; background: var(--surface-2); border-radius: 3px; border: 1px solid var(--border); }
+#ai-panel-msgs .lch-row-cell { margin: 2px 0; }
+#ai-panel-msgs .lch-row-key { color: var(--text-muted); font-size: 0.9em; }
+#ai-panel-msgs .aio-search-sources { margin-top: 6px; padding: 8px; border-left: 2px solid var(--accent); border-radius: 0 4px 4px 0; font-size: 12px; min-width: 0; }
+#ai-panel-msgs .lch-src-head { color: var(--text-secondary); font-weight: 600; margin-bottom: 3px; }
+#ai-panel-msgs .lch-src-note { color: var(--text-muted); margin-bottom: 4px; }
+#ai-panel-msgs .lch-src-link { color: var(--accent); text-decoration: underline; display: block; margin: 4px 0; overflow-wrap: anywhere; }
+#ai-panel-msgs .ai-no-ctx { text-align: center; padding: 32px 20px; color: var(--text-muted); font-size: 12px; line-height: 1.6; }
+#ai-panel .lch-basis { display: block; margin-top: 3px; color: var(--text-muted); }
+#ai-panel-msgs .lch-muted { color: var(--text-muted); }
+#ai-panel-msgs .lch-err { color: var(--data-red); }
+#ai-panel-msgs .lch-caret { color: var(--accent); animation: blink 0.7s infinite; }
+/* data-source badge items (the badge row itself keeps its 11px inline style) */
+#ai-panel-msgs .lch-src-on { color: var(--data-green); }
+#ai-panel-msgs .lch-src-off { color: var(--text-muted); }
+#ai-panel-msgs .lch-src-cyan { color: var(--data-cyan); }
+#ai-panel-msgs .lch-src-amber { color: var(--data-amber); }
+#ai-panel-msgs .lch-src-purple { color: var(--data-purple); }
+#ai-panel-msgs .lch-fb { display: flex; gap: 6px; justify-content: flex-end; margin: 2px 0; }
+#ai-panel-msgs .lch-fb-btn { background: none; border: none; cursor: pointer; font-size: 12px; color: var(--text-muted); padding: 2px 4px; }

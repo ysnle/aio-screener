@@ -685,8 +685,9 @@ window._aioSyncKnowledgeRouteContext = _aioSyncKnowledgeRouteContext;
     layer.id = 'aio-refresh-progress-layer';
     layer.setAttribute('role', 'status');
     layer.setAttribute('aria-live', 'polite');
-    layer.style.cssText = 'display:none;position:fixed;right:14px;top:58px;z-index:99998;width:min(360px,calc(100vw - 28px));background:var(--surface-2,#111827);border:1px solid var(--border,#2b3440);border-radius:4px;box-shadow:0 14px 34px rgba(0,0,0,.35);padding:10px 12px;color:var(--text-primary,#e5edf5);font-family:var(--font-sans,system-ui);';
-    layer.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;"><div id="aio-refresh-progress-title" style="font-size:12px;font-weight:800;">전체 데이터 최신화</div><div id="aio-refresh-progress-count" style="font-size:11px;font-family:var(--font-mono,monospace);color:var(--data-cyan,#00bcd4);">0/0</div></div><div style="height:4px;background:var(--surface-4,#253040);border-radius:4px;overflow:hidden;margin-bottom:8px;"><div id="aio-refresh-progress-bar" style="height:100%;width:0%;background:var(--data-cyan,#00bcd4);transition:width .25s ease;"></div></div><div id="aio-refresh-progress-current" style="font-size:11px;color:var(--text-muted,#8b98a5);margin-bottom:8px;">대기 중</div><div id="aio-refresh-progress-list" style="display:grid;gap:4px;max-height:190px;overflow:auto;"></div>';
+    // layout lives in legacy-ui.css (#aio-refresh-progress-layer); display stays inline — T802 reads layer.style.display
+    layer.style.display = 'none';
+    layer.innerHTML = '<div class="lu-rp-head"><div id="aio-refresh-progress-title">전체 데이터 최신화</div><div id="aio-refresh-progress-count" style="font-size:11px;font-family:var(--font-mono,monospace);color:var(--data-cyan,#00bcd4);">0/0</div></div><div class="lu-rp-track"><div id="aio-refresh-progress-bar"></div></div><div id="aio-refresh-progress-current" style="font-size:11px;color:var(--text-muted,#8b98a5);margin-bottom:8px;">대기 중</div><div id="aio-refresh-progress-list"></div>';
     document.body.appendChild(layer);
     return layer;
   }
@@ -760,7 +761,8 @@ window._aioSyncKnowledgeRouteContext = _aioSyncKnowledgeRouteContext;
         name.textContent = labels[key] || key;
         var state = document.createElement('span');
         state.textContent = txt;
-        state.style.cssText = 'font-family:var(--font-mono,monospace);color:' + statusColor(txt) + ';';
+        state.className = 'lu-rp-state';
+        state.style.color = statusColor(txt);
         row.appendChild(name);
         row.appendChild(state);
         list.appendChild(row);
@@ -1002,8 +1004,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (!document.querySelector('h1')) {
     var h1 = document.createElement('h1');
     h1.textContent = 'AIO Screener - 올인원 투자 터미널';
-    h1.className = 'sr-only';
-    h1.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+    h1.className = 'sr-only'; // .sr-only (index.html) already sets the same clip box with !important
     var mc = document.getElementById('main-content');
     if (mc) mc.insertBefore(h1, mc.firstChild);
   }
@@ -1151,25 +1152,25 @@ function renderPortfolioTechnicalRisk(result) {
   if (!el) return;
   result = result || {};
   if (!result.items || !result.items.length) {
-    el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">포지션별 OHLCV가 확보되면 기술적 매도압력과 집중 리스크를 함께 계산합니다.</div>';
+    el.innerHTML = '<div class="lu-pf-empty">포지션별 OHLCV가 확보되면 기술적 매도압력과 집중 리스크를 함께 계산합니다.</div>';
     return;
   }
   var tone = result.heatScore >= 58 ? 'risk' : result.heatScore >= 38 ? 'warn' : 'bull';
   var rows = result.items.slice().sort(function(a, b) { return (b.score || 0) - (a.score || 0); }).map(function(item) {
     var rowTone = _itbActionTone(item.action);
-    return '<tr style="border-top:1px solid rgba(255,255,255,0.06);">' +
-      '<td style="padding:6px 4px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + escHtml(item.ticker || '-') + '</td>' +
-      '<td style="padding:6px 4px;text-align:right;font-family:var(--font-mono);">' + _itbNum(item.weightPct, 1) + '%</td>' +
-      '<td style="padding:6px 4px;text-align:right;font-family:var(--font-mono);color:' + ((item.pnlPct || 0) >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' + _itbNum(item.pnlPct, 1) + '%</td>' +
-      '<td style="padding:6px 4px;text-align:right;font-family:var(--font-mono);font-weight:900;">' + _itbObservedCount(item) + '</td>' +
-      '<td style="padding:6px 4px;">' + _itbBadge(_itbActionLabel(item.action), rowTone) + '</td>' +
+    return '<tr class="lu-pf-tr">' +
+      '<td class="lu-pf-tk">' + escHtml(item.ticker || '-') + '</td>' +
+      '<td class="lu-pf-r">' + _itbNum(item.weightPct, 1) + '%</td>' +
+      '<td class="lu-pf-r ' + ((item.pnlPct || 0) >= 0 ? 'lu-pf-up' : 'lu-pf-dn') + '">' + _itbNum(item.pnlPct, 1) + '%</td>' +
+      '<td class="lu-pf-rb">' + _itbObservedCount(item) + '</td>' +
+      '<td class="lu-pf-td">' + _itbBadge(_itbActionLabel(item.action), rowTone) + '</td>' +
     '</tr>';
   }).join('');
-  el.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">' +
-    '<div>' + _itbBadge(_itbActionLabel(result.action), tone) + '<span style="margin-left:8px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbPortfolioObserved(result) + '</span></div>' +
+  el.innerHTML = '<div class="lu-pf-head">' +
+    '<div>' + _itbBadge(_itbActionLabel(result.action), tone) + '<span class="lu-pf-obs">' + _itbPortfolioObserved(result) + '</span></div>' +
     '</div>' +
-    '<div style="font-size:10px;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">10EMA/21EMA/50SMA 이탈, ATR 과열, 보유 비중을 포지션별로 나열한 관측입니다. 합산 점수는 예측 검증이 없어 표시하지 않습니다.</div>' +
-    '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="color:var(--text-muted);text-align:left;"><th style="padding:4px;">종목</th><th style="padding:4px;text-align:right;">비중</th><th style="padding:4px;text-align:right;">손익</th><th style="padding:4px;text-align:right;">확인 조건</th><th style="padding:4px;">부담 수준</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+    '<div class="lu-pf-note">10EMA/21EMA/50SMA 이탈, ATR 과열, 보유 비중을 포지션별로 나열한 관측입니다. 합산 점수는 예측 검증이 없어 표시하지 않습니다.</div>' +
+    '<div class="lu-pf-scroll"><table class="lu-pf-tbl"><thead><tr class="lu-pf-thr"><th class="lu-pf-th">종목</th><th class="lu-pf-th lu-pf-th-r">비중</th><th class="lu-pf-th lu-pf-th-r">손익</th><th class="lu-pf-th lu-pf-th-r">확인 조건</th><th class="lu-pf-th">부담 수준</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
 }
 
 window.renderDataQualityBadge = renderDataQualityBadge;
@@ -1944,28 +1945,28 @@ function _renderFundHeader(d) {
   var pctColor = d.pct != null ? (d.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
   var p = d.fmpProfile || {};
   // v52.73 아이보리 3f: 시안 구조(회사명+티커/섹터/거래소 좌 · 가격+등락 우, 한 줄 리포트 헤더)
-  var html = '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">';
-  html += '<div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;min-width:0;">';
-  html += '<span style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);">' + escHtml(d.name || d.ticker) + '</span>';
-  html += '<span style="font-size:13px;color:var(--text-muted);">' + escHtml(d.ticker) + (p.sector ? ' · ' + escHtml(p.sector) : '') + (p.exchangeShortName ? ' · ' + escHtml(p.exchangeShortName) : '') + '</span>';
+  var html = '<div class="lu-hd-row">';
+  html += '<div class="lu-hd-name">';
+  html += '<span class="lu-hd-title">' + escHtml(d.name || d.ticker) + '</span>';
+  html += '<span class="lu-hd-sub">' + escHtml(d.ticker) + (p.sector ? ' · ' + escHtml(p.sector) : '') + (p.exchangeShortName ? ' · ' + escHtml(p.exchangeShortName) : '') + '</span>';
   html += '</div>';
-  html += '<div style="display:flex;align-items:baseline;gap:10px;flex-shrink:0;">';
+  html += '<div class="lu-hd-quote">';
   if (d.price) {
-    html += '<span style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">$' + d.price.toFixed(2) + '</span>';
-    html += '<span style="font-size:13px;font-weight:600;color:' + pctColor + ';font-variant-numeric:tabular-nums;">' + _fmtPct(d.pct) + '</span>';
+    html += '<span class="lu-hd-last">$' + d.price.toFixed(2) + '</span>';
+    html += '<span class="lu-hd-pct" style="color:' + pctColor + ';">' + _fmtPct(d.pct) + '</span>';
   }
   html += '</div></div>';
 
   // 보조 행 — 시가총액 · 포트폴리오/차트 액션 · 리포트 노화 배지 (시안엔 없으나 실사용 기능이라 압축된 한 줄로 유지)
-  html += '<div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;">';
-  if (p.mktCap) html += '<span style="font-size:11px;color:var(--text-muted);">시가총액 $' + _fmtNum(p.mktCap) + '</span>';
-  html += '<button data-action="_aioAddToPortfolio" data-arg="' + escHtml(d.ticker) + '" class="aio-btn-table" style="font-size:11px;">포트폴리오에 추가</button>';
-  html += '<button data-action="_aioChartAnalyze" data-arg="' + escHtml(d.ticker) + '" class="aio-btn-table" style="font-size:11px;">차트 분석</button>';
+  html += '<div class="lu-hd-aux">';
+  if (p.mktCap) html += '<span class="lu-sm-mut">시가총액 $' + _fmtNum(p.mktCap) + '</span>';
+  html += '<button data-action="_aioAddToPortfolio" data-arg="' + escHtml(d.ticker) + '" class="aio-btn-table lu-hd-btn">포트폴리오에 추가</button>';
+  html += '<button data-action="_aioChartAnalyze" data-arg="' + escHtml(d.ticker) + '" class="aio-btn-table lu-hd-btn">차트 분석</button>';
   // v48.37: SCREENER_DB memo staleness 배지 (애널리스트 리포트 노화 경고)
   if (typeof window._aioStockStaleInfo === 'function') {
     var _staleInfo = window._aioStockStaleInfo(d.ticker);
     if (_staleInfo && _staleInfo.badge) {
-      html += '<span style="font-size:11px;color:var(--text-muted);">리포트 코멘트: ' + _staleInfo.badge + (_staleInfo.isStale ? ' <span style="color:var(--data-red);">· 최신 정보 재검증 권장</span>' : '') + '</span>';
+      html += '<span class="lu-sm-mut">리포트 코멘트: ' + _staleInfo.badge + (_staleInfo.isStale ? ' <span class="lu-red">· 최신 정보 재검증 권장</span>' : '') + '</span>';
     }
   }
   html += '</div>';
@@ -1988,13 +1989,13 @@ function _renderFundQualitative(d) {
     var desc = p.description.length > 420 ? p.description.slice(0, 420) + '...' : p.description;
     descEl.innerHTML = escHtml(desc);
   } else {
-    descEl.innerHTML = '<span style="color:var(--text-muted);">기업 소개를 아직 받지 못했습니다.</span>';
+    descEl.innerHTML = '<span class="lu-mut">기업 소개를 아직 받지 못했습니다.</span>';
   }
 
   function qrow(label, text) {
-    return '<div style="display:flex;gap:14px;">' +
-      '<span style="font-size:11px;font-weight:700;color:var(--text-dim);flex-shrink:0;width:64px;padding-top:2px;">' + escHtml(label) + '</span>' +
-      '<span style="font-size:13px;color:var(--text-secondary);line-height:1.7;">' + text + '</span></div>';
+    return '<div class="lu-q-row">' +
+      '<span class="lu-q-lbl">' + escHtml(label) + '</span>' +
+      '<span class="lu-q-txt">' + text + '</span></div>';
   }
   var rowsHtml = '';
   if (p.sector || p.industry) rowsHtml += qrow('섹터', escHtml(p.sector || '') + (p.industry ? ' · ' + escHtml(p.industry) : '') + (p.country ? ' · ' + escHtml(p.country) : ''));
@@ -2014,11 +2015,11 @@ function _renderFundQualitative(d) {
 
   function barRow(label, pct, valueText, color) {
     return '<div>' +
-      '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;">' +
-      '<span style="color:var(--text-muted);">' + escHtml(label) + '</span>' +
-      '<span style="color:' + color + ';font-weight:700;">' + valueText + '</span></div>' +
-      '<div style="height:6px;background:var(--border-subtle);border-radius:3px;overflow:hidden;">' +
-      '<div style="height:100%;width:' + Math.max(2, Math.min(100, pct)) + '%;background:' + color + ';border-radius:3px;"></div></div></div>';
+      '<div class="lu-bar-head">' +
+      '<span class="lu-mut">' + escHtml(label) + '</span>' +
+      '<span class="lu-bar-val" style="color:' + color + ';">' + valueText + '</span></div>' +
+      '<div class="lu-bar-track">' +
+      '<div class="lu-bar-fill" style="width:' + Math.max(2, Math.min(100, pct)) + '%;background:' + color + ';"></div></div></div>';
   }
 
   var barsHtml = '';
@@ -2040,7 +2041,7 @@ function _renderFundQualitative(d) {
     barsHtml += barRow('거래량 (3개월 평균 대비, 오늘 ' + Number(_vol).toLocaleString() + '주)', Math.min(100, _volRatio * 50), _volLabel + ' ' + _volRatio.toFixed(1) + 'x' + (_vol10dRatio != null ? ' · 10일 대비 ' + _vol10dRatio.toFixed(1) + 'x' : ''), _volColor);
   }
   if (p.mktCap) barsHtml += barRow('시가총액', 100, '$' + _fmtNum(p.mktCap), 'var(--text-primary)');
-  barsEl.innerHTML = barsHtml || '<span style="font-size:12px;color:var(--text-muted);">가격 포지션 데이터 없음</span>';
+  barsEl.innerHTML = barsHtml || '<span class="lu-base-mut">가격 포지션 데이터 없음</span>';
 
   sec.style.display = 'block';
 }
@@ -2051,13 +2052,13 @@ function _renderFundSEC(d) {
   if (!el || !body || !d.sec) return;
   var s = d.sec;
   // v48.91: SEC API 응답 escHtml() 처리 — XSS 방지
-  var html = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">';
-  html += '<div style="padding:6px 8px;background:var(--surface-1);border-radius:3px;font-size:10px;"><span style="color:var(--text-muted);">CIK:</span> ' + escHtml(s.cik||'N/A') + '</div>';
-  html += '<div style="padding:6px 8px;background:var(--surface-1);border-radius:3px;font-size:10px;"><span style="color:var(--text-muted);">SIC:</span> ' + escHtml(s.sicDescription||'N/A') + '</div>';
-  html += '<div style="padding:6px 8px;background:var(--surface-1);border-radius:3px;font-size:10px;"><span style="color:var(--text-muted);">거래소:</span> ' + escHtml((s.exchanges||[]).join(', ')||'N/A') + '</div>';
+  var html = '<div class="lu-cols3">';
+  html += '<div class="lu-fact"><span class="lu-mut">CIK:</span> ' + escHtml(s.cik||'N/A') + '</div>';
+  html += '<div class="lu-fact"><span class="lu-mut">SIC:</span> ' + escHtml(s.sicDescription||'N/A') + '</div>';
+  html += '<div class="lu-fact"><span class="lu-mut">거래소:</span> ' + escHtml((s.exchanges||[]).join(', ')||'N/A') + '</div>';
   html += '</div>';
   if (s.filings && s.filings.form) {
-    html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">최근 주요 공시 (10-K/10-Q/8-K/DEF 14A)</div>';
+    html += '<div class="lu-h-xs4">최근 주요 공시 (10-K/10-Q/8-K/DEF 14A)</div>';
     var shown = 0;
     for (var i = 0; i < s.filings.form.length && shown < 8; i++) {
       var form = s.filings.form[i];
@@ -2066,14 +2067,14 @@ function _renderFundSEC(d) {
       var desc = s.filings.primaryDocDescription ? s.filings.primaryDocDescription[i] : '';
       var accession = s.filings.accessionNumber ? s.filings.accessionNumber[i] : '';
       var formColor = form === '10-K' ? '#00e5a0' : form === '10-Q' ? '#00bcd4' : form === '8-K' ? '#ffa31a' : '#c084fc';
-      html += '<div style="font-size:10px;padding:4px 0;border-bottom:1px solid var(--surface-2);display:flex;gap:8px;align-items:center;">';
+      html += '<div class="lu-filing">';
       // v48.91: SEC 공시 데이터 escHtml() 적용
-      html += '<span style="color:' + formColor + ';font-weight:700;width:60px;font-family:var(--font-mono);">' + escHtml(form) + '</span>';
-      html += '<span style="color:var(--text-muted);width:80px;">' + escHtml(date) + '</span>';
-      html += '<span style="color:var(--text-secondary);flex:1;">' + escHtml(desc||'') + '</span>';
+      html += '<span class="lu-filing-form" style="color:' + formColor + ';">' + escHtml(form) + '</span>';
+      html += '<span class="lu-filing-date">' + escHtml(date) + '</span>';
+      html += '<span class="lu-filing-desc">' + escHtml(desc||'') + '</span>';
       if (accession) {
         var secUrl = 'https://www.sec.gov/Archives/edgar/data/' + (s.cik||'').replace(/^0+/,'') + '/' + accession.replace(/-/g,'') + '/' + accession + '-index.htm';
-        html += '<a href="' + secUrl + '" target="_blank" style="color:var(--accent);font-size:11px;text-decoration:none;">SEC ↗</a>';
+        html += '<a href="' + secUrl + '" target="_blank" class="lu-filing-link">SEC ↗</a>';
       }
       html += '</div>';
       shown++;
@@ -2105,10 +2106,10 @@ function _renderFundFinancials(d) {
   var _missingCards = []; // P1591 (S09): unreceived metrics collapse into one line instead of a grid of N/A cards
   function card(label, value, sub, color) {
     if (value === 'N/A' || value === '미수신') { _missingCards.push(label); return ''; }
-    return '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
-      '<div style="font-size:11px;color:var(--text-muted);">' + label + '</div>' +
-      '<div style="font-size:16px;font-weight:800;color:' + (color||'var(--text-primary)') + ';font-family:var(--font-mono);margin-top:2px;">' + value + '</div>' +
-      (sub ? '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + sub + '</div>' : '') + '</div>';
+    return '<div class="lu-box">' +
+      '<div class="lu-sm-mut">' + label + '</div>' +
+      '<div class="lu-fin-v" style="color:' + (color||'var(--text-primary)') + ';">' + value + '</div>' +
+      (sub ? '<div class="lu-sm-mut-t2">' + sub + '</div>' : '') + '</div>';
   }
 
   // 값 선택: FMP 우선, SEC XBRL 폴백
@@ -2141,7 +2142,7 @@ function _renderFundFinancials(d) {
   var hasDivValue = typeof p.lastDiv === 'number' && isFinite(p.lastDiv);
   var divYield = hasDivValue ? (d.price && d.price > 0 ? (p.lastDiv / d.price) * 100 : null) : null;
   html += card('배당수익률', divYield != null ? divYield.toFixed(2) + '%' : (hasDivValue ? 'N/A' : '미수신'), '연간 배당');
-  if (_missingCards.length) html += '<div style="grid-column:1/-1;font-size:12px;color:var(--text-muted);">아직 받지 못한 항목: ' + _missingCards.join(' · ') + '</div>';
+  if (_missingCards.length) html += '<div class="lu-span-note">아직 받지 못한 항목: ' + _missingCards.join(' · ') + '</div>';
 
   // Codex browser audit H38: provider/setup notes (API keys, release tags) are operator information, not analysis.
 
@@ -2151,7 +2152,7 @@ function _renderFundFinancials(d) {
   var lastInv = sv(lastOf(sf.inventory)), lastRcv = sv(lastOf(sf.receivables)), lastCurDebt = sv(lastOf(sf.currentDebt));
   var hasQuality = lastRd || lastSbc || lastSga || lastCash || lastInv || lastRcv || lastCurDebt;
   if (hasQuality) {
-    var qHtml = '<div style="grid-column:1/-1;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text-secondary);font-weight:600;">공시 기반 — 비용 구조와 운전자본</div>';
+    var qHtml = '<div class="lu-span-h">공시 기반 — 비용 구조와 운전자본</div>';
     if (lastRd && secRevVal) {
       var rdRatio = (lastRd / secRevVal) * 100;
       qHtml += card('R&D 강도', rdRatio.toFixed(1) + '%', 'R&D / 매출' + (rdRatio > 15 ? ' · 고투자' : rdRatio > 5 ? ' · 양호' : ''), rdRatio > 15 ? '#00bcd4' : rdRatio > 5 ? '#00e5a0' : '#7b8599');
@@ -2173,10 +2174,10 @@ function _renderFundFinancials(d) {
   //   전 US-GAAP 보고 기업 중 본 기업의 Revenues/NetIncomeLoss 순위 → 섹터 내 상대 위치 정량화
   var _sfr = d.secFrameRank || null;
   if (_sfr && (_sfr.revenue || _sfr.netIncome)) {
-    var rankHtml = '<div style="grid-column:1/-1;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">';
-    rankHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
-    rankHtml += '<div style="font-size:12px;font-weight:700;color:var(--text-secondary);">공시 기업 내 순위</div>';
-    rankHtml += '<div style="font-size:10px;color:var(--text-muted);">전 US-GAAP 보고 기업 대비</div>';
+    var rankHtml = '<div class="lu-span-top">';
+    rankHtml += '<div class="lu-split8">';
+    rankHtml += '<div class="lu-h-base">공시 기업 내 순위</div>';
+    rankHtml += '<div class="lu-xs-mut">전 US-GAAP 보고 기업 대비</div>';
     rankHtml += '</div>';
     function _rankCard(title, rr, unit) {
       if (!rr || rr.myVal == null) return '';
@@ -2187,21 +2188,21 @@ function _renderFundFinancials(d) {
       var myValStr = (unit === 'USD' || !unit) ? '$' + _fmtNum(rr.myVal) : rr.myVal.toFixed(2) + (unit||'');
       var avgStr = '$' + _fmtNum(rr.avg);
       var medStr = '$' + _fmtNum(rr.median);
-      var html = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">';
-      html += '<div style="font-size:10px;color:var(--text-muted);font-weight:600;">' + title + ' (' + (rr.period||'') + ')</div>';
-      html += '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px;">';
-      html += '<span style="font-size:15px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);">' + myValStr + '</span>';
-      html += '<span style="font-size:11px;color:' + topColor + ';font-weight:700;">' + topLabel + '</span>';
+      var html = '<div class="lu-box">';
+      html += '<div class="lu-xs-mut-b">' + title + ' (' + (rr.period||'') + ')</div>';
+      html += '<div class="lu-split-base4">';
+      html += '<span class="lu-rank-val">' + myValStr + '</span>';
+      html += '<span class="lu-rank-top" style="color:' + topColor + ';">' + topLabel + '</span>';
       html += '</div>';
-      html += '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;">' + rankLabel + '</div>';
-      html += '<div style="display:flex;gap:8px;margin-top:6px;font-size:11px;color:var(--text-muted);">';
+      html += '<div class="lu-xs-mut-t3">' + rankLabel + '</div>';
+      html += '<div class="lu-rank-meta">';
       html += '<span>평균 ' + avgStr + '</span>';
       html += '<span>중위수 ' + medStr + '</span>';
       html += '</div>';
       html += '</div>';
       return html;
     }
-    rankHtml += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;">';
+    rankHtml += '<div class="lu-fit240">';
     if (_sfr.revenue) rankHtml += _rankCard('Revenues', _sfr.revenue, 'USD');
     if (_sfr.netIncome) rankHtml += _rankCard('Net Income', _sfr.netIncome, 'USD');
     rankHtml += '</div>';
@@ -2216,10 +2217,10 @@ function _renderFundFinancials(d) {
   var _fhRec = d.finnhubRecommendation || null;
   var _ptC = d.fmpPriceTarget || null;
   if (_fhRec || _ptC) {
-    var recHtml = '<div style="grid-column:1/-1;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">';
-    recHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
-    recHtml += '<div style="font-size:12px;font-weight:700;color:var(--text-secondary);">애널리스트 컨센서스</div>';
-    if (_fhRec && _fhRec.period) recHtml += '<div style="font-size:10px;color:var(--text-muted);">Finnhub · ' + _fhRec.period + '</div>';
+    var recHtml = '<div class="lu-span-top">';
+    recHtml += '<div class="lu-split10">';
+    recHtml += '<div class="lu-h-base">애널리스트 컨센서스</div>';
+    if (_fhRec && _fhRec.period) recHtml += '<div class="lu-xs-mut">Finnhub · ' + _fhRec.period + '</div>';
     recHtml += '</div>';
 
     if (_fhRec) {
@@ -2244,25 +2245,25 @@ function _renderFundFinancials(d) {
         else if (_bullish / _total >= 0.4) { _verdict = '완만 매수'; _verdictColor = '#00e5a0'; }
         else if (_bearish / _total >= 0.4) { _verdict = '매도 우세'; _verdictColor = '#ff5b50'; }
         else { _verdict = '중립'; _verdictColor = '#ffa31a'; }
-        recHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:11px;">';
-        recHtml += '<span style="color:var(--text-muted);">총 ' + _total + '명 애널리스트</span>';
-        recHtml += '<span style="padding:3px 10px;background:' + _verdictColor + '22;border:1px solid ' + _verdictColor + ';color:' + _verdictColor + ';border-radius:4px;font-weight:700;">' + _verdict + '</span>';
+        recHtml += '<div class="lu-split6-sm">';
+        recHtml += '<span class="lu-mut">총 ' + _total + '명 애널리스트</span>';
+        recHtml += '<span class="lu-verdict" style="background:' + _verdictColor + '22;border:1px solid ' + _verdictColor + ';color:' + _verdictColor + ';">' + _verdict + '</span>';
         recHtml += '</div>';
         // 누적 바 (height 22px)
-        recHtml += '<div style="display:flex;height:22px;border-radius:3px;overflow:hidden;font-size:10px;font-weight:700;">';
-        if (_sb > 0) recHtml += '<div style="width:' + _pSB + '%;background:#10b981;color:#fff;display:flex;align-items:center;justify-content:center;" title="Strong Buy ' + _sb + '명">' + (parseFloat(_pSB) >= 8 ? _sb : '') + '</div>';
-        if (_b > 0)  recHtml += '<div style="width:' + _pB  + '%;background:#3ddba5;color:#0f1623;display:flex;align-items:center;justify-content:center;" title="Buy ' + _b + '명">' + (parseFloat(_pB) >= 8 ? _b : '') + '</div>';
-        if (_h > 0)  recHtml += '<div style="width:' + _pH  + '%;background:#fbbf24;color:#0f1623;display:flex;align-items:center;justify-content:center;" title="Hold ' + _h + '명">' + (parseFloat(_pH) >= 8 ? _h : '') + '</div>';
-        if (_s > 0)  recHtml += '<div style="width:' + _pS  + '%;background:#f87171;color:#fff;display:flex;align-items:center;justify-content:center;" title="Sell ' + _s + '명">' + (parseFloat(_pS) >= 8 ? _s : '') + '</div>';
-        if (_ss > 0) recHtml += '<div style="width:' + _pSS + '%;background:#ef4444;color:#fff;display:flex;align-items:center;justify-content:center;" title="Strong Sell ' + _ss + '명">' + (parseFloat(_pSS) >= 8 ? _ss : '') + '</div>';
+        recHtml += '<div class="lu-rec-bar">';
+        if (_sb > 0) recHtml += '<div class="lu-rec-seg lu-rec-sb" style="width:' + _pSB + '%;" title="Strong Buy ' + _sb + '명">' + (parseFloat(_pSB) >= 8 ? _sb : '') + '</div>';
+        if (_b > 0)  recHtml += '<div class="lu-rec-seg lu-rec-b" style="width:' + _pB  + '%;" title="Buy ' + _b + '명">' + (parseFloat(_pB) >= 8 ? _b : '') + '</div>';
+        if (_h > 0)  recHtml += '<div class="lu-rec-seg lu-rec-h" style="width:' + _pH  + '%;" title="Hold ' + _h + '명">' + (parseFloat(_pH) >= 8 ? _h : '') + '</div>';
+        if (_s > 0)  recHtml += '<div class="lu-rec-seg lu-rec-s" style="width:' + _pS  + '%;" title="Sell ' + _s + '명">' + (parseFloat(_pS) >= 8 ? _s : '') + '</div>';
+        if (_ss > 0) recHtml += '<div class="lu-rec-seg lu-rec-ss" style="width:' + _pSS + '%;" title="Strong Sell ' + _ss + '명">' + (parseFloat(_pSS) >= 8 ? _ss : '') + '</div>';
         recHtml += '</div>';
         // 범례
-        recHtml += '<div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--text-muted);font-weight:600;">';
-        recHtml += '<span><span style="display:inline-block;width:8px;height:8px;background:#10b981;border-radius:2px;margin-right:4px;"></span>Strong Buy ' + _sb + ' (' + _pSB + '%)</span>';
-        recHtml += '<span><span style="display:inline-block;width:8px;height:8px;background:#3ddba5;border-radius:2px;margin-right:4px;"></span>Buy ' + _b + ' (' + _pB + '%)</span>';
-        recHtml += '<span><span style="display:inline-block;width:8px;height:8px;background:#fbbf24;border-radius:2px;margin-right:4px;"></span>Hold ' + _h + ' (' + _pH + '%)</span>';
-        recHtml += '<span><span style="display:inline-block;width:8px;height:8px;background:#f87171;border-radius:2px;margin-right:4px;"></span>Sell ' + _s + ' (' + _pS + '%)</span>';
-        recHtml += '<span><span style="display:inline-block;width:8px;height:8px;background:#ef4444;border-radius:2px;margin-right:4px;"></span>Strong Sell ' + _ss + ' (' + _pSS + '%)</span>';
+        recHtml += '<div class="lu-rec-legend">';
+        recHtml += '<span><span class="lu-sw lu-rec-sb"></span>Strong Buy ' + _sb + ' (' + _pSB + '%)</span>';
+        recHtml += '<span><span class="lu-sw lu-rec-b"></span>Buy ' + _b + ' (' + _pB + '%)</span>';
+        recHtml += '<span><span class="lu-sw lu-rec-h"></span>Hold ' + _h + ' (' + _pH + '%)</span>';
+        recHtml += '<span><span class="lu-sw lu-rec-s"></span>Sell ' + _s + ' (' + _pS + '%)</span>';
+        recHtml += '<span><span class="lu-sw lu-rec-ss"></span>Strong Sell ' + _ss + ' (' + _pSS + '%)</span>';
         recHtml += '</div>';
       }
     }
@@ -2275,11 +2276,11 @@ function _renderFundFinancials(d) {
       if (_tgtC && d.price) {
         var _upside = ((_tgtC - d.price) / d.price * 100);
         var _upColor = _upside >= 15 ? '#10b981' : _upside >= 0 ? '#00e5a0' : _upside >= -10 ? '#ffa31a' : '#ff5b50';
-        recHtml += '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--surface-5);display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:11px;">';
-        recHtml += '<span style="font-weight:700;color:var(--text-secondary);">FMP 목표가 컨센서스</span>';
-        recHtml += '<span style="font-family:var(--font-mono);font-size:14px;font-weight:800;color:' + _upColor + ';">$' + _tgtC.toFixed(2) + '</span>';
-        recHtml += '<span style="padding:2px 8px;background:' + _upColor + '22;border:1px solid ' + _upColor + ';color:' + _upColor + ';border-radius:4px;font-weight:700;">' + (_upside >= 0 ? '+' : '') + _upside.toFixed(1) + '% upside</span>';
-        if (_tgtH && _tgtL) recHtml += '<span style="color:var(--text-muted);">범위 $' + _tgtL.toFixed(2) + ' ~ $' + _tgtH.toFixed(2) + '</span>';
+        recHtml += '<div class="lu-tgt-row">';
+        recHtml += '<span class="lu-b-sec">FMP 목표가 컨센서스</span>';
+        recHtml += '<span class="lu-tgt-v" style="color:' + _upColor + ';">$' + _tgtC.toFixed(2) + '</span>';
+        recHtml += '<span class="lu-tgt-up" style="background:' + _upColor + '22;border:1px solid ' + _upColor + ';color:' + _upColor + ';">' + (_upside >= 0 ? '+' : '') + _upside.toFixed(1) + '% upside</span>';
+        if (_tgtH && _tgtL) recHtml += '<span class="lu-mut">범위 $' + _tgtL.toFixed(2) + ' ~ $' + _tgtH.toFixed(2) + '</span>';
         recHtml += '</div>';
       }
     }
@@ -2356,7 +2357,7 @@ function _renderFundamentalFinancialsCharts(data) {
     // 7번째 카드 (Valuation cards) 폴백
     var vc = document.getElementById('fund-valuation-cards');
     var cb = document.getElementById('fund-calc-basis');
-    if (vc) vc.innerHTML = '<div style="grid-column:1/-1;color:var(--text-muted);font-size:10px;padding:8px;text-align:center;">5년 분기 데이터 부재 — 외부 확인 권장</div>';
+    if (vc) vc.innerHTML = '<div class="lu-span-empty">5년 분기 데이터 부재 — 외부 확인 권장</div>';
     if (cb) cb.textContent = (data && data.reason) || '데이터 미수신';
     return;
   }
@@ -2394,7 +2395,7 @@ function _renderFundamentalFinancialsCharts(data) {
   var tg = document.getElementById('fund-growth-table');
   if (tg) {
     tg.innerHTML = gRev.labels.map(function(lab, i){
-      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>R ' + _fmt(gRev.values[i]) + ' · O ' + _fmt(gOp.values[i]) + ' · N ' + _fmt(gNI.values[i]) + '</span></div>';
+      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>R ' + _fmt(gRev.values[i]) + ' · O ' + _fmt(gOp.values[i]) + ' · N ' + _fmt(gNI.values[i]) + '</span></div>';
     }).join('');
   }
 
@@ -2422,7 +2423,7 @@ function _renderFundamentalFinancialsCharts(data) {
   var tp = document.getElementById('fund-profitability-table');
   if (tp) {
     tp.innerHTML = pOpM.labels.map(function(lab, i){
-      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>OpM ' + _pct(pOpM.values[i]) + ' · NM ' + _pct(pNetM.values[i]) + ' · ROE ' + _pct(pROE.values[i]) + '</span></div>';
+      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>OpM ' + _pct(pOpM.values[i]) + ' · NM ' + _pct(pNetM.values[i]) + ' · ROE ' + _pct(pROE.values[i]) + '</span></div>';
     }).join('');
   }
 
@@ -2447,7 +2448,7 @@ function _renderFundamentalFinancialsCharts(data) {
   var tb = document.getElementById('fund-balance-table');
   if (tb) {
     tb.innerHTML = bA.labels.map(function(lab, i){
-      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>A ' + _fmt(bA.values[i]) + ' · L ' + _fmt(bL.values[i]) + ' · E ' + _fmt(bE.values[i]) + '</span></div>';
+      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>A ' + _fmt(bA.values[i]) + ' · L ' + _fmt(bL.values[i]) + ' · E ' + _fmt(bE.values[i]) + '</span></div>';
     }).join('');
   }
 
@@ -2472,7 +2473,7 @@ function _renderFundamentalFinancialsCharts(data) {
   var tc = document.getElementById('fund-cashflow-table');
   if (tc) {
     tc.innerHTML = cOp.labels.map(function(lab, i){
-      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>Op ' + _fmt(cOp.values[i]) + ' · Inv ' + _fmt(cIn.values[i]) + ' · Fin ' + _fmt(cFi.values[i]) + '</span></div>';
+      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>Op ' + _fmt(cOp.values[i]) + ' · Inv ' + _fmt(cIn.values[i]) + ' · Fin ' + _fmt(cFi.values[i]) + '</span></div>';
     }).join('');
   }
 
@@ -2511,8 +2512,8 @@ function _renderFundamentalFinancialsCharts(data) {
   var tl = document.getElementById('fund-liquidity-table');
   if (tl) {
     tl.innerHTML = lCash.labels.map(function(lab, i){
-      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>Cash ' + _fmt(lCash.values[i]) + ' · CL ' + _fmt(lCL.values[i]) + ' · TL ' + _fmt(lTL.values[i]) + '</span></div>';
-    }).join('') + (curRatio != null ? '<div style="margin-top:4px;padding:4px;background:rgba(255,255,255,0.04);border-radius:4px;text-align:center;">Current Ratio: <strong>' + curRatio.toFixed(2) + 'x</strong> · ' + (curRatio >= 2 ? '강건' : curRatio >= 1 ? '정상' : '주의') + '</div>' : '');
+      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>Cash ' + _fmt(lCash.values[i]) + ' · CL ' + _fmt(lCL.values[i]) + ' · TL ' + _fmt(lTL.values[i]) + '</span></div>';
+    }).join('') + (curRatio != null ? '<div class="lu-ratio-note">Current Ratio: <strong>' + curRatio.toFixed(2) + 'x</strong> · ' + (curRatio >= 2 ? '강건' : curRatio >= 1 ? '정상' : '주의') + '</div>' : '');
   }
 
   // ⑥ Working Capital — Receivables/Inventory/CurAssets (line)
@@ -2536,7 +2537,7 @@ function _renderFundamentalFinancialsCharts(data) {
   var tw = document.getElementById('fund-workingcap-table');
   if (tw) {
     tw.innerHTML = wR.labels.map(function(lab, i){
-      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>R ' + _fmt(wR.values[i]) + ' · I ' + _fmt(wI.values[i]) + ' · CA ' + _fmt(wA.values[i]) + '</span></div>';
+      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>R ' + _fmt(wR.values[i]) + ' · I ' + _fmt(wI.values[i]) + ' · CA ' + _fmt(wA.values[i]) + '</span></div>';
     }).join('');
   }
 
@@ -2548,9 +2549,9 @@ function _renderFundamentalFinancialsCharts(data) {
   var vcards = document.getElementById('fund-valuation-cards');
   if (vcards) {
     function _vCard(label, val, color) {
-      return '<div style="background:rgba(255,255,255,0.04);border-radius:3px;padding:6px 4px;text-align:center;">' +
-        '<div style="font-size:11px;color:var(--text-muted);">' + label + '</div>' +
-        '<div style="font-size:14px;font-weight:800;color:' + color + ';font-family:var(--font-mono);margin-top:2px;">' + (val != null && isFinite(val) ? Number(val).toFixed(2) + 'x' : '—') + '</div>' +
+      return '<div class="lu-val-tile">' +
+        '<div class="lu-sm-mut">' + label + '</div>' +
+        '<div class="lu-val-tile-v" style="color:' + color + ';">' + (val != null && isFinite(val) ? Number(val).toFixed(2) + 'x' : '—') + '</div>' +
       '</div>';
     }
     vcards.innerHTML = _vCard('P/E', pe, '#00bcd4') + _vCard('P/B', pb, '#ffa31a') + _vCard('P/S', ps, '#00e5a0');
@@ -2560,7 +2561,7 @@ function _renderFundamentalFinancialsCharts(data) {
     var ld = (window._liveData || {})[data.ticker] || {};
     var lastClose = ld.price != null ? ld.price : null;
     var latestEps = data.income && data.income[0] && (data.income[0].eps || data.income[0].epsdiluted);
-    basis.innerHTML = '<div style="border-top:1px dashed rgba(255,255,255,0.08);padding-top:4px;margin-top:4px;">' +
+    basis.innerHTML = '<div class="lu-basis-sep">' +
       '<div>· Latest close: ' + (lastClose != null ? '$' + lastClose.toFixed(2) : '—') + '</div>' +
       '<div>· Latest quarter: ' + (data.latestQuarter || '—') + '</div>' +
       '<div>· Latest EPS (Q): ' + (latestEps != null ? '$' + Number(latestEps).toFixed(2) : '—') + '</div>' +
@@ -2581,19 +2582,19 @@ function _renderFundStatements(d) {
   if (incomeData.length > 0) {
     // 연도 역순 → 정순으로
     var years = incomeData.slice(0, 5).reverse();
-    html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:10px;">';
-    html += '<tr style="border-bottom:1px solid var(--border);">';
-    html += '<th style="text-align:left;padding:6px;color:var(--text-muted);font-weight:600;">항목</th>';
-    years.forEach(function(y) { html += '<th style="text-align:right;padding:6px;color:var(--text-muted);font-weight:600;">' + (y.calendarYear || (y.date||'').slice(0,4)) + '</th>'; });
+    html += '<div class="lu-scrollx"><table class="lu-tbl-xs">';
+    html += '<tr class="lu-bb">';
+    html += '<th class="lu-th-l6b">항목</th>';
+    years.forEach(function(y) { html += '<th class="lu-th-r6b">' + (y.calendarYear || (y.date||'').slice(0,4)) + '</th>'; });
     html += '</tr>';
 
     function row(label, key, isCurrency) {
-      var r = '<tr style="border-bottom:1px solid var(--surface-2);">';
-      r += '<td style="padding:5px 6px;color:var(--text-secondary);">' + label + '</td>';
+      var r = '<tr class="lu-bb2">';
+      r += '<td class="lu-td-lbl">' + label + '</td>';
       years.forEach(function(y) {
         var v = y[key];
         var color = v != null && v < 0 ? '#ff5b50' : 'var(--text-primary)';
-        r += '<td style="text-align:right;padding:5px 6px;color:' + color + ';font-family:var(--font-mono);">' + (isCurrency ? '$' : '') + _fmtNum(v) + '</td>';
+        r += '<td class="lu-td56" style="color:' + color + ';">' + (isCurrency ? '$' : '') + _fmtNum(v) + '</td>';
       });
       r += '</tr>';
       return r;
@@ -2608,34 +2609,34 @@ function _renderFundStatements(d) {
     html += row('EBITDA', 'ebitda', true);
 
     // 성장률 행 추가
-    html += '<tr style="border-top:2px solid var(--border);"><td style="padding:5px 6px;color:var(--accent);font-weight:700;">매출 성장률</td>';
+    html += '<tr class="lu-bt2"><td class="lu-td-acc">매출 성장률</td>';
     years.forEach(function(y, i) {
-      if (i === 0) { html += '<td style="text-align:right;padding:5px 6px;color:var(--text-muted);">—</td>'; return; }
+      if (i === 0) { html += '<td class="lu-td-r-mut">—</td>'; return; }
       var prev = years[i-1].revenue;
       var cur = y.revenue;
       var growth = prev ? ((cur - prev) / Math.abs(prev) * 100) : 0;
       var gc = growth >= 0 ? '#00e5a0' : '#ff5b50';
-      html += '<td style="text-align:right;padding:5px 6px;color:' + gc + ';font-family:var(--font-mono);font-weight:700;">' + _fmtPct(growth) + '</td>';
+      html += '<td class="lu-td56-b" style="color:' + gc + ';">' + _fmtPct(growth) + '</td>';
     });
     html += '</tr>';
 
     html += '</table></div>';
   } else if (d.secFin && d.secFin.revenue && d.secFin.revenue.length > 0) {
     // SEC XBRL 폴백
-    html += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">SEC EDGAR XBRL 기반 (10-K 연간)</div>';
-    html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:10px;">';
-    html += '<tr style="border-bottom:1px solid var(--border);">';
-    html += '<th style="text-align:left;padding:6px;color:var(--text-muted);">항목</th>';
-    d.secFin.revenue.forEach(function(r) { html += '<th style="text-align:right;padding:6px;color:var(--text-muted);">' + (r.year || (r.end||'').slice(0,4)) + '</th>'; });
+    html += '<div class="lu-xs-mut-b6">SEC EDGAR XBRL 기반 (10-K 연간)</div>';
+    html += '<div class="lu-scrollx"><table class="lu-tbl-xs">';
+    html += '<tr class="lu-bb">';
+    html += '<th class="lu-th-l6">항목</th>';
+    d.secFin.revenue.forEach(function(r) { html += '<th class="lu-th-r6m">' + (r.year || (r.end||'').slice(0,4)) + '</th>'; });
     html += '</tr>';
 
     function secRow(label, arr) {
-      var r = '<tr style="border-bottom:1px solid var(--surface-2);">';
-      r += '<td style="padding:5px 6px;color:var(--text-secondary);">' + label + '</td>';
+      var r = '<tr class="lu-bb2">';
+      r += '<td class="lu-td-lbl">' + label + '</td>';
       // 2026-10-17 (D8): columns follow the revenue years; a year the field was not filed reads '—', amounts in the report currency.
       d.secFin.revenue.forEach(function(y) {
         var v = (arr || []).filter(function(x) { return x.end === y.end; })[0], val = v ? v.val : null;
-        r += '<td style="text-align:right;padding:5px 6px;color:' + (val < 0 ? '#ff5b50' : 'var(--text-primary)') + ';font-family:var(--font-mono);">' + (val == null ? '—' : (d.secFin.currency && d.secFin.currency !== 'USD' ? d.secFin.currency + ' ' : '$') + _fmtNum(val)) + '</td>';
+        r += '<td class="lu-td56' + (val < 0 ? ' lu-neg' : ' lu-pri') + '">' + (val == null ? '—' : (d.secFin.currency && d.secFin.currency !== 'USD' ? d.secFin.currency + ' ' : '$') + _fmtNum(val)) + '</td>';
       });
       r += '</tr>';
       return r;
@@ -2647,7 +2648,7 @@ function _renderFundStatements(d) {
     html += secRow('영업CF', d.secFin.opCashFlow);
     html += '</table></div>';
   } else {
-    html += '<div style="padding:15px;text-align:center;color:var(--text-muted);font-size:10px;">재무제표 데이터 없음</div>';
+    html += '<div class="lu-empty15">재무제표 데이터 없음</div>';
   }
 
   body.innerHTML = html;
@@ -2671,15 +2672,15 @@ function _renderFundValuation(d) {
   function _fv(a, b) { return _fn(a) !== null ? a : (_fn(b) !== null ? b : null); }
   function _fv3(a, b, c) { return _fn(a) !== null ? a : (_fn(b) !== null ? b : (_fn(c) !== null ? c : null)); }
 
-  var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+  var html = '<div class="lu-cols2">';
 
   // 좌측: 밸류에이션 지표 (TTM 우선)
   html += '<div>';
-  html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">핵심 배수' + (hasTTM ? ' <span style="color:#3ddba5;font-size:11px;">TTM</span>' : ' <span style="color:#f59e0b;font-size:11px;">Annual</span>') + '</div>';
+  html += '<div class="lu-h-xs">핵심 배수' + (hasTTM ? ' <span class="lu-tag-ttm">TTM</span>' : ' <span class="lu-tag-ann">Annual</span>') + '</div>';
   function valRow(label, val, bench) {
-    return '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--surface-2);font-size:10px;">' +
-      '<span style="color:var(--text-secondary);">' + label + '</span>' +
-      '<span style="color:var(--text-primary);font-family:var(--font-mono);font-weight:600;">' + val + '</span></div>';
+    return '<div class="lu-val-row">' +
+      '<span class="lu-sec">' + label + '</span>' +
+      '<span class="lu-val-v">' + val + '</span></div>';
   }
   // v49.0 P183: _fv/_fn으로 || 0 패턴 제거 (0.0x 오표시·Infinityx 방지)
   var _pe = _fv(mt.peRatioTTM, ma.peRatio); html += valRow('P/E (TTM)', _pe !== null ? _pe.toFixed(1) + 'x' : 'N/A');
@@ -2695,7 +2696,7 @@ function _renderFundValuation(d) {
 
   // 우측: 수익성 지표 (TTM 우선)
   html += '<div>';
-  html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">수익성 & 효율성' + (hasTTM ? ' <span style="color:#3ddba5;font-size:11px;">TTM</span>' : ' <span style="color:#f59e0b;font-size:11px;">Annual</span>') + '</div>';
+  html += '<div class="lu-h-xs">수익성 & 효율성' + (hasTTM ? ' <span class="lu-tag-ttm">TTM</span>' : ' <span class="lu-tag-ann">Annual</span>') + '</div>';
   html += valRow('Gross Margin', (rt.grossProfitMarginTTM || ra.grossProfitMargin) ? ((rt.grossProfitMarginTTM || ra.grossProfitMargin) * 100).toFixed(1) + '%' : 'N/A');
   html += valRow('Operating Margin', (rt.operatingProfitMarginTTM || ra.operatingProfitMargin) ? ((rt.operatingProfitMarginTTM || ra.operatingProfitMargin) * 100).toFixed(1) + '%' : 'N/A');
   html += valRow('Net Margin', (rt.netProfitMarginTTM || ra.netProfitMargin) ? ((rt.netProfitMarginTTM || ra.netProfitMargin) * 100).toFixed(1) + '%' : 'N/A');
@@ -2715,12 +2716,12 @@ function _renderFundPeers(d) {
   var el = document.getElementById('fund-rpt-peers');
   var body = document.getElementById('fund-rpt-peers-body');
   if (!el || !body || !d.peers || !d.peers.length) return;
-  var html = '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+  var html = '<div class="lu-wrap6">';
   d.peers.slice(0, 12).forEach(function(p) {
-    html += '<div style="padding:6px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:3px;font-size:11px;color:var(--text-primary);cursor:pointer;font-weight:600;" data-action="_aioFundSearchFill" data-arg="' + escHtml(p) + '">' + p + '</div>';
+    html += '<div class="lu-peer" data-action="_aioFundSearchFill" data-arg="' + escHtml(p) + '">' + p + '</div>';
   });
   html += '</div>';
-  html += '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">클릭하면 해당 기업 분석으로 이동합니다</div>';
+  html += '<div class="lu-sm-mut-t6">클릭하면 해당 기업 분석으로 이동합니다</div>';
   body.innerHTML = html;
   el.style.display = 'block';
 }
@@ -2737,20 +2738,20 @@ function _renderFundEarnings(d) {
 
   // v48.10: 향후 어닝 일정 (Finnhub /calendar/earnings) — 수집만 하던 collected.finnhubEarnings UI 노출
   if (hasUpcoming) {
-    html += '<div style="margin-bottom:10px;">';
-    html += '<div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">향후 어닝 일정 (Finnhub · v48.10)</div>';
-    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:6px;">';
+    html += '<div class="lu-mb10">';
+    html += '<div class="lu-h-sm">향후 어닝 일정 (Finnhub · v48.10)</div>';
+    html += '<div class="lu-fit170">';
     d.finnhubEarnings.slice(0, 5).forEach(function(e) {
       var hourLabel = e.hour === 'bmo' ? '장전' : e.hour === 'amc' ? '장후' : e.hour === 'dmh' ? '장중' : '';
       var quarter = (e.year && e.quarter) ? (e.year + ' Q' + e.quarter) : '';
-      html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:3px;padding:8px 10px;">';
-      html += '<div style="display:flex;justify-content:space-between;align-items:baseline;">';
-      html += '<span style="font-size:12px;font-weight:700;color:var(--accent);font-family:var(--font-mono);">' + (e.date || '-') + '</span>';
-      if (hourLabel) html += '<span style="font-size:11px;color:var(--text-muted);padding:2px 6px;background:var(--surface-3);border-radius:4px;">' + hourLabel + '</span>';
+      html += '<div class="lu-earn-box">';
+      html += '<div class="lu-split-base">';
+      html += '<span class="lu-earn-date">' + (e.date || '-') + '</span>';
+      if (hourLabel) html += '<span class="lu-earn-hour">' + hourLabel + '</span>';
       html += '</div>';
-      if (quarter) html += '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;">' + quarter + '</div>';
-      if (e.epsEstimate != null) html += '<div style="font-size:10px;color:var(--text-secondary);margin-top:3px;">예상 EPS $' + Number(e.epsEstimate).toFixed(2) + '</div>';
-      if (e.revenueEstimate != null) html += '<div style="font-size:10px;color:var(--text-secondary);">예상 매출 $' + _fmtNum(e.revenueEstimate) + '</div>';
+      if (quarter) html += '<div class="lu-xs-mut-t3">' + quarter + '</div>';
+      if (e.epsEstimate != null) html += '<div class="lu-xs-sec-t3">예상 EPS $' + Number(e.epsEstimate).toFixed(2) + '</div>';
+      if (e.revenueEstimate != null) html += '<div class="lu-xs-sec">예상 매출 $' + _fmtNum(e.revenueEstimate) + '</div>';
       html += '</div>';
     });
     html += '</div></div>';
@@ -2758,19 +2759,19 @@ function _renderFundEarnings(d) {
 
   // 기존 서프라이즈 테이블 (FMP)
   if (hasSurprises) {
-    if (hasUpcoming) html += '<div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin:10px 0 6px;padding-top:8px;border-top:1px solid var(--border);">과거 서프라이즈 (FMP)</div>';
-    html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:11px;">';
-    html += '<tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:6px;color:var(--text-muted);font-size:10px;">분기</th><th style="text-align:right;padding:6px;color:var(--text-muted);font-size:10px;">실제 EPS</th><th style="text-align:right;padding:6px;color:var(--text-muted);font-size:10px;">예상 EPS</th><th style="text-align:right;padding:6px;color:var(--text-muted);font-size:10px;">서프라이즈</th></tr>';
+    if (hasUpcoming) html += '<div class="lu-h-sm-sep8">과거 서프라이즈 (FMP)</div>';
+    html += '<div class="lu-scrollx"><table class="lu-tbl-sm">';
+    html += '<tr class="lu-bb"><th class="lu-th-l6x">분기</th><th class="lu-th-r6">실제 EPS</th><th class="lu-th-r6">예상 EPS</th><th class="lu-th-r6">서프라이즈</th></tr>';
     d.fmpSurprises.forEach(function(s) {
       var diff = s.actualEarningResult - s.estimatedEarning;
       var pct = s.estimatedEarning != null && isFinite(s.estimatedEarning) && s.estimatedEarning !== 0 ? (diff / Math.abs(s.estimatedEarning) * 100) : null; // no estimate: no figure, not 0%
       var c = diff >= 0 ? '#00e5a0' : '#ff5b50';
       var label = diff >= 0 ? 'Beat' : 'Miss';
-      html += '<tr style="border-bottom:1px solid var(--surface-2);">';
-      html += '<td style="padding:6px;color:var(--text-secondary);">' + (s.date||'') + '</td>';
-      html += '<td style="text-align:right;padding:6px;color:var(--text-primary);font-family:var(--font-mono);">$' + (s.actualEarningResult||0).toFixed(2) + '</td>';
-      html += '<td style="text-align:right;padding:6px;color:var(--text-muted);font-family:var(--font-mono);">$' + (s.estimatedEarning||0).toFixed(2) + '</td>';
-      html += '<td style="text-align:right;padding:6px;color:' + c + ';font-weight:700;">' + (pct === null ? '—' : label + ' ' + _fmtPct(pct)) + '</td>';
+      html += '<tr class="lu-bb2">';
+      html += '<td class="lu-td6-lbl">' + (s.date||'') + '</td>';
+      html += '<td class="lu-td6-v">$' + (s.actualEarningResult||0).toFixed(2) + '</td>';
+      html += '<td class="lu-td6-vm">$' + (s.estimatedEarning||0).toFixed(2) + '</td>';
+      html += '<td class="lu-td6-b" style="color:' + c + ';">' + (pct === null ? '—' : label + ' ' + _fmtPct(pct)) + '</td>';
       html += '</tr>';
     });
     html += '</table></div>';
@@ -2794,19 +2795,19 @@ function _renderFundNews(d) {
     var summarySafe = n.summary ? escHtml(n.summary.substring(0, 180)) + (n.summary.length > 180 ? '…' : '') : '';
     var sourceSafe = escHtml(n.source || '');
     var urlSafe = n.url && /^https?:\/\//.test(n.url) ? n.url : '#';
-    html += '<div style="padding:8px 0;border-bottom:1px solid var(--surface-3);">';
-    html += '<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;">';
-    html += '<a href="' + escHtml(urlSafe) + '" target="_blank" rel="noopener" style="flex:1;font-size:12px;font-weight:700;color:var(--text-primary);text-decoration:none;line-height:1.4;">' + headlineSafe + '</a>';
-    html += '<span style="font-size:10px;color:var(--text-muted);white-space:nowrap;font-family:var(--font-mono);">' + ageLabel + '</span>';
+    html += '<div class="lu-news">';
+    html += '<div class="lu-news-head">';
+    html += '<a href="' + escHtml(urlSafe) + '" target="_blank" rel="noopener" class="lu-news-title">' + headlineSafe + '</a>';
+    html += '<span class="lu-news-age">' + ageLabel + '</span>';
     html += '</div>';
-    html += '<div style="display:flex;justify-content:space-between;gap:10px;margin-top:4px;">';
-    html += '<span style="font-size:10px;color:var(--text-secondary);line-height:1.5;flex:1;">' + summarySafe + '</span>';
+    html += '<div class="lu-news-body">';
+    html += '<span class="lu-news-sum">' + summarySafe + '</span>';
     html += '</div>';
-    html += '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">' + sourceSafe + ' · ' + (n.date || '') + '</div>';
+    html += '<div class="lu-sm-mut-t3">' + sourceSafe + ' · ' + (n.date || '') + '</div>';
     html += '</div>';
   });
   if (d.finnhubNews.length > 10) {
-    html += '<div style="font-size:10px;color:var(--text-muted);text-align:center;padding:6px 0;">+ ' + (d.finnhubNews.length - 10) + '건 더 (최신 14일)</div>';
+    html += '<div class="lu-news-more">+ ' + (d.finnhubNews.length - 10) + '건 더 (최신 14일)</div>';
   }
   body.innerHTML = html;
   el.style.display = 'block';
@@ -2940,31 +2941,31 @@ function _renderFundMultiPeriod(d) {
   if (!rows.length) return;
 
   // 테이블 렌더링
-  var html = '<div style="overflow-x:auto;">';
-  html += '<table style="width:100%;border-collapse:collapse;font-size:11px;">';
+  var html = '<div class="lu-scrollx">';
+  html += '<table class="lu-tbl-sm">';
 
   // 헤더 (연도)
-  html += '<thead><tr style="border-bottom:2px solid var(--border);">';
-  html += '<th style="text-align:left;padding:7px 10px;color:var(--text-muted);font-size:10px;font-weight:700;min-width:110px;">지표</th>';
+  html += '<thead><tr class="lu-bb2x">';
+  html += '<th class="lu-mp-th-l">지표</th>';
   years.forEach(function(y) {
-    html += '<th style="text-align:right;padding:7px 8px;color:var(--text-secondary);font-size:10px;font-weight:700;white-space:nowrap;">' + y + '</th>';
+    html += '<th class="lu-mp-th-r">' + y + '</th>';
   });
   html += '</tr></thead><tbody>';
 
   // 행 렌더링
   rows.forEach(function(row, ri) {
     var bg = (ri % 2 === 0) ? 'var(--surface-1)' : 'transparent';
-    html += '<tr style="background:' + bg + ';border-bottom:1px solid var(--surface-2);">';
-    html += '<td style="padding:6px 10px;">' +
-      '<div style="font-size:11px;font-weight:700;color:var(--text-secondary);">' + row.label + '</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);">' + row.sub + '</div>' +
+    html += '<tr class="lu-bb2" style="background:' + bg + ';">';
+    html += '<td class="lu-mp-td">' +
+      '<div class="lu-sm-b-sec">' + row.label + '</div>' +
+      '<div class="lu-sm-mut">' + row.sub + '</div>' +
       '</td>';
     // 최대 years.length 열
     for (var ci = 0; ci < years.length; ci++) {
       var val = (ci < row.vals.length) ? row.vals[ci] : null;
       var formatted = row.fmt(val);
       var color = row.colorFn ? row.colorFn(val) : 'var(--text-primary)';
-      html += '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-size:11px;font-weight:600;color:' + color + ';white-space:nowrap;">' + formatted + '</td>';
+      html += '<td class="lu-mp-td-v" style="color:' + color + ';">' + formatted + '</td>';
     }
     html += '</tr>';
   });
@@ -2973,7 +2974,7 @@ function _renderFundMultiPeriod(d) {
 
   // 데이터 소스 표시
   // Codex browser audit H38: say what the table covers and why a cell is empty, not which key is unset.
-  html += '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;">연간 자료 · 최신 연도가 왼쪽 · 공시에서 얻지 못한 항목은 N/A</div>';
+  html += '<div class="lu-xs-mut-t6">연간 자료 · 최신 연도가 왼쪽 · 공시에서 얻지 못한 항목은 N/A</div>';
 
   body.innerHTML = html;
   el.style.display = 'block';
@@ -3012,32 +3013,32 @@ function _renderFundVariance(d) {
     var lastPct = last.estimatedEarning ? (lastDiff / Math.abs(last.estimatedEarning) * 100) : 0;
 
     html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px;">';
-    html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">' +
-      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">EPS Beat율</div>' +
-      '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + beatColor + ';">' + beatRate + '%</div>' +
-      '<div style="font-size:10px;color:var(--text-muted);">최근 ' + surprises.length + '분기</div></div>';
-    html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">' +
-      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">평균 서프라이즈</div>' +
-      '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + (avgSurprise >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' +
+    html += '<div class="lu-tile">' +
+      '<div class="lu-tile-lbl">EPS Beat율</div>' +
+      '<div class="lu-tile-v" style="color:' + beatColor + ';">' + beatRate + '%</div>' +
+      '<div class="lu-xs-mut">최근 ' + surprises.length + '분기</div></div>';
+    html += '<div class="lu-tile">' +
+      '<div class="lu-tile-lbl">평균 서프라이즈</div>' +
+      '<div class="lu-tile-v ' + (avgSurprise >= 0 ? 'lu-up' : 'lu-dn') + '">' +
       (avgSurprise >= 0 ? '+' : '') + avgSurprise.toFixed(1) + '%</div>' +
-      '<div style="font-size:10px;color:var(--text-muted);">EPS 컨센서스 대비</div></div>';
-    html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">' +
-      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">최근 서프라이즈</div>' +
-      '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + (lastDiff >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' +
+      '<div class="lu-xs-mut">EPS 컨센서스 대비</div></div>';
+    html += '<div class="lu-tile">' +
+      '<div class="lu-tile-lbl">최근 서프라이즈</div>' +
+      '<div class="lu-tile-v ' + (lastDiff >= 0 ? 'lu-up' : 'lu-dn') + '">' +
       (lastDiff >= 0 ? 'Beat' : 'Miss') + ' ' + (lastDiff >= 0 ? '+' : '') + lastPct.toFixed(1) + '%</div>' +
-      '<div style="font-size:10px;color:var(--text-muted);">' + (last.date || '').slice(0, 7) + '</div></div>';
+      '<div class="lu-xs-mut">' + (last.date || '').slice(0, 7) + '</div></div>';
     html += '</div>';
 
     // ── 2. EPS 분기 흐름 테이블 ──
     var sorted = surprises.slice().reverse(); // 오름차순
-    html += '<div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">EPS 분기별 흐름</div>';
-    html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;">';
-    html += '<tr style="border-bottom:1px solid var(--border);">' +
-      '<th style="text-align:left;padding:5px 8px;color:var(--text-muted);font-size:10px;">분기</th>' +
-      '<th style="text-align:right;padding:5px 6px;color:var(--text-muted);font-size:10px;">예상 EPS</th>' +
-      '<th style="text-align:right;padding:5px 6px;color:var(--text-muted);font-size:10px;">실제 EPS</th>' +
-      '<th style="text-align:right;padding:5px 6px;color:var(--text-muted);font-size:10px;">QoQ 변화</th>' +
-      '<th style="text-align:right;padding:5px 6px;color:var(--text-muted);font-size:10px;">서프라이즈</th></tr>';
+    html += '<div class="lu-h-sm">EPS 분기별 흐름</div>';
+    html += '<div class="lu-scrollx"><table class="lu-tbl-sm-b8">';
+    html += '<tr class="lu-bb">' +
+      '<th class="lu-th-l58">분기</th>' +
+      '<th class="lu-th-r56">예상 EPS</th>' +
+      '<th class="lu-th-r56">실제 EPS</th>' +
+      '<th class="lu-th-r56">QoQ 변화</th>' +
+      '<th class="lu-th-r56">서프라이즈</th></tr>';
     sorted.forEach(function(s, idx) {
       var prev = idx > 0 ? sorted[idx - 1].actualEarningResult : null;
       var qoq = (prev !== null) ? s.actualEarningResult - prev : null;
@@ -3045,13 +3046,13 @@ function _renderFundVariance(d) {
       var diffPct = s.estimatedEarning ? (diff / Math.abs(s.estimatedEarning) * 100) : 0;
       var beatC = diff >= 0 ? 'var(--data-green)' : 'var(--data-red)';
       var qoqC = qoq === null ? 'var(--text-muted)' : qoq >= 0 ? 'var(--data-green)' : 'var(--data-red)';
-      html += '<tr style="border-bottom:1px solid var(--surface-2);">';
-      html += '<td style="padding:5px 8px;color:var(--text-secondary);">' + (s.date || '').slice(0, 7) + '</td>';
-      html += '<td style="text-align:right;padding:5px 6px;font-family:var(--font-mono);">$' + (s.estimatedEarning || 0).toFixed(2) + '</td>';
-      html += '<td style="text-align:right;padding:5px 6px;font-family:var(--font-mono);font-weight:700;">$' + (s.actualEarningResult || 0).toFixed(2) + '</td>';
-      html += '<td style="text-align:right;padding:5px 6px;font-family:var(--font-mono);color:' + qoqC + ';">' +
+      html += '<tr class="lu-bb2">';
+      html += '<td class="lu-td58-lbl">' + (s.date || '').slice(0, 7) + '</td>';
+      html += '<td class="lu-td56">$' + (s.estimatedEarning || 0).toFixed(2) + '</td>';
+      html += '<td class="lu-td56-b">$' + (s.actualEarningResult || 0).toFixed(2) + '</td>';
+      html += '<td class="lu-td56" style="color:' + qoqC + ';">' +
         (qoq === null ? '—' : (qoq >= 0 ? '+' : '') + '$' + qoq.toFixed(2)) + '</td>';
-      html += '<td style="text-align:right;padding:5px 6px;font-weight:700;color:' + beatC + ';">' +
+      html += '<td class="lu-td56-beat" style="color:' + beatC + ';">' +
         (diff >= 0 ? 'Beat +' : 'Miss ') + diffPct.toFixed(1) + '%</td>';
       html += '</tr>';
     });
@@ -3081,12 +3082,12 @@ function _renderFundVariance(d) {
     var curY  = (cur.date || cur.calendarYear || '').slice(0, 4);
     var prevY = (prev_yr.date || prev_yr.calendarYear || '').slice(0, 4);
 
-    html += '<div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin:10px 0 6px;padding-top:10px;border-top:1px solid var(--border);">YoY 재무 분해 (' + prevY + ' → ' + curY + ')</div>';
-    html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:11px;">';
-    html += '<tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:5px 8px;color:var(--text-muted);font-size:10px;">항목</th>' +
-      '<th style="text-align:right;padding:5px 6px;color:var(--text-muted);font-size:10px;">' + prevY + '</th>' +
-      '<th style="text-align:right;padding:5px 6px;color:var(--text-muted);font-size:10px;">' + curY + '</th>' +
-      '<th style="text-align:right;padding:5px 6px;color:var(--text-muted);font-size:10px;">YoY</th></tr>';
+    html += '<div class="lu-h-sm-sep10">YoY 재무 분해 (' + prevY + ' → ' + curY + ')</div>';
+    html += '<div class="lu-scrollx"><table class="lu-tbl-sm">';
+    html += '<tr class="lu-bb"><th class="lu-th-l58">항목</th>' +
+      '<th class="lu-th-r56">' + prevY + '</th>' +
+      '<th class="lu-th-r56">' + curY + '</th>' +
+      '<th class="lu-th-r56">YoY</th></tr>';
     var yoyRows = [
       { label: '매출', a: cur.revenue, b: prev_yr.revenue, isVal: true },
       { label: '매출총이익률', a: curGM, b: prevGM, isMargin: true },
@@ -3114,15 +3115,15 @@ function _renderFundVariance(d) {
         bFmt = row.b ? '$' + _fmtNum(row.b) : '—';
         chgStr = fmtChg(row.a, row.b); chgC = chgColor(row.a, row.b);
       }
-      html += '<tr style="background:' + bg + ';border-bottom:1px solid var(--surface-2);">';
-      html += '<td style="padding:5px 8px;font-size:11px;font-weight:700;color:var(--text-secondary);">' + row.label + '</td>';
-      html += '<td style="text-align:right;padding:5px 6px;font-family:var(--font-mono);color:var(--text-muted);">' + bFmt + '</td>';
-      html += '<td style="text-align:right;padding:5px 6px;font-family:var(--font-mono);font-weight:600;">' + aFmt + '</td>';
-      html += '<td style="text-align:right;padding:5px 6px;font-family:var(--font-mono);font-weight:700;color:' + chgC + ';">' + chgStr + '</td>';
+      html += '<tr class="lu-bb2" style="background:' + bg + ';">';
+      html += '<td class="lu-td58-h">' + row.label + '</td>';
+      html += '<td class="lu-td56-mut">' + bFmt + '</td>';
+      html += '<td class="lu-td56-sb">' + aFmt + '</td>';
+      html += '<td class="lu-td56-b" style="color:' + chgC + ';">' + chgStr + '</td>';
       html += '</tr>';
     });
     html += '</table></div>';
-    html += '<div style="font-size:10px;color:var(--text-muted);margin-top:5px;">마진 변화: bps(1%=100bps) · 소스: FMP Annual 손익계산서</div>';
+    html += '<div class="lu-xs-mut-t5">마진 변화: bps(1%=100bps) · 소스: FMP Annual 손익계산서</div>';
   }
 
   body.innerHTML = html;
@@ -3296,7 +3297,7 @@ function renderGlossaryCats() {
   cats.forEach(function(c) {
     var active = c === _glossaryCat;
     var label = (c === 'all' ? '전체' : c) + ' ' + (c === 'all' ? GLOSSARY.length : counts[c]);
-    html += '<button data-action="_aioGlossaryCat" data-arg="' + escHtml(c) + '" aria-pressed="' + active + '" style="padding:5px 12px;border-radius:3px;border:1px solid ' + (active ? 'var(--border-strong)' : 'var(--border)') + ';background:' + (active ? 'var(--surface-5)' : 'transparent') + ';color:var(--text-primary);font-size:12px;cursor:pointer;">' + escHtml(label) + '</button>';
+    html += '<button data-action="_aioGlossaryCat" data-arg="' + escHtml(c) + '" aria-pressed="' + active + '" class="lu-gl-cat">' + escHtml(label) + '</button>';
   });
   document.getElementById('glossary-cats').innerHTML = html;
 }
@@ -3333,19 +3334,19 @@ function renderGlossaryItems(query) {
   }
   var html = '';
   if (scopeNote) {
-    html += '<div role="status" style="padding:8px 0;color:var(--text-muted);font-size:12px;">' + escHtml(scopeNote) + '</div>';
+    html += '<div role="status" class="lu-gl-scope">' + escHtml(scopeNote) + '</div>';
   }
   if (filtered.length === 0) {
-    html += '<div style="text-align:center;color:var(--text-muted);padding:40px;">검색 결과가 없습니다</div>';
+    html += '<div class="lu-gl-empty">검색 결과가 없습니다</div>';
   } else {
     filtered.forEach(function(g) {
       var catColors = {'기초':'var(--data-green)','기술적분석':'var(--data-cyan)','경제':'var(--data-amber)','외환':'var(--text-secondary)','채권':'var(--text-secondary)','거시':'var(--data-amber)','옵션':'var(--text-secondary)','한국시장':'var(--data-purple)','전략':'var(--text-secondary)','배경지식':'var(--text-secondary)','기술':'var(--data-cyan)','심화':'var(--data-green)'};
-      html += '<div class="aio-glossary-item" style="padding:12px 0;border-bottom:1px solid var(--surface-4);">';
-      html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">';
-      html += '<span class="aio-glossary-term" style="font-weight:600;color:#8a8271;font-size:14px;">' + escHtml(g.term) + '</span>';
-      html += '<span style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--surface-3);color:' + (catColors[g.cat]||'var(--text-secondary)') + ';">' + escHtml(g.cat) + '</span>';
+      html += '<div class="aio-glossary-item">';
+      html += '<div class="lu-gl-head">';
+      html += '<span class="aio-glossary-term">' + escHtml(g.term) + '</span>';
+      html += '<span class="lu-gl-tag" style="color:' + (catColors[g.cat]||'var(--text-secondary)') + ';">' + escHtml(g.cat) + '</span>';
       html += '</div>';
-      html += '<div style="color:var(--text-secondary);font-size:13px;line-height:1.5;">' + escHtml(g.def) + '</div>';
+      html += '<div class="lu-gl-def">' + escHtml(g.def) + '</div>';
       html += '</div>';
     });
   }
@@ -3387,10 +3388,10 @@ setTimeout(function() {
     var txt = (el.textContent || '').trim();
     var isLoading = loadingPatterns.some(function(p) { return txt.indexOf(p) !== -1; });
     if (isLoading && txt.length < 80) {
-      el.innerHTML = '<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:11px;line-height:1.6;">' +
+      el.innerHTML = '<div class="lu-ld">' +
         '데이터를 불러오지 못했습니다.<br>' +
-        '<span style="font-size:10px;">잠시 뒤 새로고침해 주세요. 계속되면 네트워크 연결을 확인하세요.</span><br>' +
-        '<button data-action="_aioReload" style="margin-top:6px;padding:4px 12px;font-size:10px;background:rgba(var(--ink-rgb),0.1);border:1px solid rgba(var(--ink-rgb),0.3);color:var(--data-cyan);border-radius:4px;cursor:pointer;"> 새로고침</button>' +
+        '<span class="lu-ld-hint">잠시 뒤 새로고침해 주세요. 계속되면 네트워크 연결을 확인하세요.</span><br>' +
+        '<button data-action="_aioReload" class="lu-ld-btn"> 새로고침</button>' +
         '</div>';
     }
   });
@@ -3770,9 +3771,9 @@ function analyzeKrTickerDeep(ticker) {
   var db = window.KR_STOCK_DB || {};
   var name = db[code] && db[code].name ? db[code].name : '';
   var known = typeof window._aioIsKnownTicker === 'function' ? !!window._aioIsKnownTicker(sym) : true;
-  resultEl.innerHTML = '<button type="button" data-action="showTicker" data-arg="' + escHtml(sym) + '" class="aio-btn-table" style="font-size:12px;">' +
+  resultEl.innerHTML = '<button type="button" data-action="showTicker" data-arg="' + escHtml(sym) + '" class="aio-btn-table lu-kr-go">' +
       escHtml(name ? name + ' ' + sym : sym) + ' — 종목 화면에서 보기 →</button>' +
-    (known ? '' : '<p class="trend-card-note" style="margin-top:6px;">등록된 종목 목록에 없는 코드입니다. 종목 화면에 시세가 없을 수 있습니다.</p>');
+    (known ? '' : '<p class="trend-card-note lu-kr-note">등록된 종목 목록에 없는 코드입니다. 종목 화면에 시세가 없을 수 있습니다.</p>');
 }
 
 // P1430: calculateEntryQualityLocal retired with the ticker 가격·추세 위치 점검 calculator.
@@ -4000,7 +4001,7 @@ window._aioRenderTickerOverview = function(tkr) {
       radarWrap.style.display = 'none';
     }
   } else if (rowsEl) {
-    rowsEl.innerHTML = '<span style="font-size:11px;color:var(--text-muted);">' + (scr ? '팩터 점수 미계산 — 스크리너 데이터 수신 대기' : '스크리너 유니버스 외 종목 — 팩터 정규화 점수는 섹터 상대값이라 제공되지 않습니다') + '</span>';
+    rowsEl.innerHTML = '<span class="lu-tk-empty">' + (scr ? '팩터 점수 미계산 — 스크리너 데이터 수신 대기' : '스크리너 유니버스 외 종목 — 팩터 정규화 점수는 섹터 상대값이라 제공되지 않습니다') + '</span>';
     if (radarWrap) radarWrap.style.display = 'none';
     if (radarC) radarC.dataset.sig = '';
     if (window._aioChartRegistry) window._aioChartRegistry.destroyIfExists('ticker-ov-factor-radar');
@@ -4313,14 +4314,14 @@ window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); /
     bar.id = 'aio-first-visit-disclaimer';
     bar.setAttribute('role', 'region');
     bar.setAttribute('aria-label', '투자 면책 고지');
-    bar.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:190;background:var(--bg-elevated,#f5f1e8);border-top:1px solid var(--border,#d8d2c4);box-shadow:0 -2px 12px rgba(33,29,22,0.12);padding:10px 14px;padding:10px max(14px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px));display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:12px;line-height:1.6;color:var(--text-secondary,#57513f);';
+    // bar, text and button styles: legacy-ui.css (#aio-first-visit-disclaimer)
     var txt = document.createElement('div');
-    txt.style.cssText = 'flex:1 1 200px;min-width:0;';
-    txt.innerHTML = '<b style="color:var(--text-primary);">투자 면책 고지</b> — 본 도구의 모든 수치·점수·시그널·AI 답변은 늦거나 참고용일 수 있으며 <b>투자 권유·자문·매매 지시가 아닙니다</b>. 투자 결정과 그 결과의 책임은 이용자 본인에게 있습니다.';
+    txt.className = 'lu-dc-text';
+    txt.innerHTML = '<b class="lu-dc-title">투자 면책 고지</b> — 본 도구의 모든 수치·점수·시그널·AI 답변은 늦거나 참고용일 수 있으며 <b>투자 권유·자문·매매 지시가 아닙니다</b>. 투자 결정과 그 결과의 책임은 이용자 본인에게 있습니다.';
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.textContent = '확인했습니다';
-    btn.style.cssText = 'flex-shrink:0;font-size:13px;font-weight:600;color:var(--text-primary,#211d16);background:var(--surface-2,#ece7db);border:1px solid var(--border,#d8d2c4);border-radius:6px;padding:5px 12px;cursor:pointer;';
+    btn.className = 'lu-dc-btn';
     btn.addEventListener('click', function() {
       try { localStorage.setItem('aio_disclaimer_ack_v1', '1'); } catch(_e) {}
       if (bar.parentNode) bar.parentNode.removeChild(bar);

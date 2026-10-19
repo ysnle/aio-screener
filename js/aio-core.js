@@ -2522,9 +2522,9 @@ if (typeof document !== 'undefined') {
         if (on) {
           var dateStr = drift.stamp.date || '최근';
           var reasonsHtml = drift.reasons.filter(function(r){ return r.sev === 'severe'; }).map(function(r){ return r.msg; }).join(' · ');
-          banner.style.cssText = 'display:block;margin:0 0 10px 0;padding:9px 12px;background:rgba(255,90,80,0.12);border:1px solid rgba(255,90,80,0.45);border-radius:4px;font-size:12px;line-height:1.55;color:var(--text-primary);';
-          banner.innerHTML = '<strong style="color:#ff7a70;">정적 분석 텍스트는 ' + dateStr + ' 기준입니다 — 현재 시장이 그때와 크게 다릅니다.</strong>' +
-            '<span style="color:var(--text-secondary);"> ' + reasonsHtml + '. 시나리오·해설·주간 요약 텍스트는 <b>참고용</b>으로만 보시고, 상단의 실시간 시세·지표를 우선하세요.</span>' +
+          banner.style.display = 'block'; // box styles: legacy-core.css #aio-regime-drift-banner
+          banner.innerHTML = '<strong class="lco-drift-title">정적 분석 텍스트는 ' + dateStr + ' 기준입니다 — 현재 시장이 그때와 크게 다릅니다.</strong>' +
+            '<span class="lco-drift-why"> ' + reasonsHtml + '. 시나리오·해설·주간 요약 텍스트는 <b>참고용</b>으로만 보시고, 상단의 실시간 시세·지표를 우선하세요.</span>' +
             ' <button data-action="_aioDismissRegimeDrift" style="margin-left:6px;background:none;border:1px solid rgba(255,90,80,0.5);color:#ff7a70;border-radius:3px;font-size:11px;padding:2px 8px;cursor:pointer;">닫기</button>';
         } else {
           banner.style.display = 'none';
@@ -3000,8 +3000,8 @@ if (typeof document !== 'undefined') {
         while (mode === 'full' && openCount < aiLines.length && (openCount === 0 || openChars + aiLines[openCount].length <= 230)) { openChars += aiLines[openCount].length; openCount++; }
         var bodyHtml = mode !== 'full' ? esc(txt).replace(/\n/g, '<br>') : aiLines.slice(0, openCount).map(esc).join('<br>')
           + (aiLines.length > openCount ? '<details class="ai-analysis-more"><summary>해설 이어 읽기 · ' + (aiLines.length - openCount) + '줄</summary>' + aiLines.slice(openCount).map(esc).join('<br>') + '</details>' : '');
-        var scopeHtml = scope ? '<div class="ai-analysis-scope basis-chip" style="display:table;margin:0 0 6px;font-size:11px;font-weight:400;color:var(--text-muted);line-height:1.6;">' + esc(scope) + '</div>' : '';
-        el.innerHTML = (mode === 'full' ? scopeHtml : '') + (retainedLabel ? '<span class="ai-analysis-retained" style="font-size:11px;font-weight:600;color:var(--text-muted);">' + esc(retainedLabel) + (mode === 'full' ? '</span><br>' : ' · </span>') : '') + bodyHtml + (mode === 'full' ? '' : scopeHtml) + (note ? '<div style="margin-top:6px;font-size:11px;font-weight:400;color:var(--text-muted);line-height:1.6;">' + esc(note) + '</div>' : '');
+        var scopeHtml = scope ? '<div class="ai-analysis-scope basis-chip">' + esc(scope) + '</div>' : '';
+        el.innerHTML = (mode === 'full' ? scopeHtml : '') + (retainedLabel ? '<span class="ai-analysis-retained">' + esc(retainedLabel) + (mode === 'full' ? '</span><br>' : ' · </span>') : '') + bodyHtml + (mode === 'full' ? '' : scopeHtml) + (note ? '<div class="ai-analysis-note">' + esc(note) + '</div>' : '');
         el.setAttribute('data-analysis-source', serverLLM ? 'server-llm' : 'template');
         el.setAttribute('data-analysis-ts', serverLLM && serverLLM.generatedAt ? String(serverLLM.generatedAt) : new Date().toISOString());
       });
@@ -3035,8 +3035,7 @@ if (typeof document !== 'undefined') {
       if (!host) {
         host = document.createElement('div');
         host.id = hostId;
-        host.className = 'aio-page-news-strip';
-        host.style.cssText = 'margin:8px 0 12px;padding:8px 12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;';
+        host.className = 'aio-page-news-strip'; // box styles: legacy-core.css
         var anchor = page.querySelector('.insight-box');
         while (anchor && anchor.parentElement !== page) anchor = anchor.parentElement;
         if (anchor && anchor.parentElement === page) anchor.insertAdjacentElement('afterend', host);
@@ -3049,13 +3048,13 @@ if (typeof document !== 'undefined') {
         var t = (typeof getDisplayTitle === 'function' ? getDisplayTitle(n) : (n.title || '')) || '';
         var ageH = n.ageHours != null ? Math.round(n.ageHours) : null;
         var senColor = n.sentiment === 'bull' ? 'var(--data-green)' : (n.sentiment === 'bear' || n.sentiment === 'warn') ? 'var(--data-red)' : 'var(--text-muted)';
-        return '<div style="font-size:11px;line-height:1.5;margin:2px 0;color:var(--text-secondary);">' +
+        return '<div class="lco-ns-line">' +
           '<span style="color:' + senColor + ';">●</span> ' + esc(String(t).slice(0, 84)) +
-          ' <span style="color:var(--text-muted);font-size:10px;">(' + esc(n.source || '') + (ageH != null ? ' · ' + ageH + 'h' : '') + ')</span></div>';
+          ' <span class="lco-ns-src">(' + esc(n.source || '') + (ageH != null ? ' · ' + ageH + 'h' : '') + ')</span></div>';
       }).join('');
-      host.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">' +
-          '<span style="min-width:0;font-size:10px;font-weight:700;color:var(--accent);overflow-wrap:anywhere;">관련 뉴스 ' + rows.length + '건 <span style="font-weight:400;color:var(--text-muted);">· 토픽 ' + esc(topics) + ' · 공유 뉴스캐시</span></span>' +
-          '<button data-action="showPage" data-arg="market-news" class="aio-btn-table" style="font-size:10px;padding:1px 6px;flex-shrink:0;">전체 뉴스 →</button></div>' + lines;
+      host.innerHTML = '<div class="lco-ns-head">' +
+          '<span class="lco-ns-title">관련 뉴스 ' + rows.length + '건 <span class="lco-ns-topic">· 토픽 ' + esc(topics) + ' · 공유 뉴스캐시</span></span>' +
+          '<button data-action="showPage" data-arg="market-news" class="aio-btn-table lco-ns-btn">전체 뉴스 →</button></div>' + lines;
     } catch(_){}
   };
   window._aioRenderActivePageNewsStrip = function(){
@@ -11227,20 +11226,14 @@ function _checkAllDeadBanner() {
     var nameStr = deadNames.slice(0, 4).join(', ') + (deadNames.length > 4 ? ' 외 ' + (deadNames.length - 4) + '개' : '');
     banner.innerHTML = '다수 데이터 소스 연결 실패 (' + deadCount + '/' + apis.length + '): ' + nameStr +
       ' — 캐시 데이터 표시 중 ' +
-      '<button id="btn-retry-all-apis" data-action="_retryAllFailedApis" style="' +
-      'background:rgba(220,38,38,0.25);border:1px solid rgba(220,38,38,0.5);color:#fca5a5;' +
-      'font-size:11px;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:8px;font-weight:600;' +
-      'font-family:var(--font-mono);transition:all 0.2s;"> 수동 재연결</button>';
+      '<button id="btn-retry-all-apis" data-action="_retryAllFailedApis" class="lco-retry lco-retry-dead"> 수동 재연결</button>';
     banner.style.display = 'block';
     banner.style.background = 'rgba(220,38,38,0.15)';
     banner.style.borderColor = 'rgba(220,38,38,0.3)';
     banner.style.color = '#ff5b50';
   } else if (deadCount >= 1 || warnCount >= 2) {
     banner.innerHTML = '일부 데이터 소스(' + deadCount + '개 실패, ' + warnCount + '개 불안정)가 응답하지 않습니다. 해당 항목은 마지막 수신 데이터를 표시합니다.' +
-      (deadCount >= 1 ? ' <button id="btn-retry-all-apis" data-action="_retryAllFailedApis" style="' +
-      'background:rgba(234,179,8,0.2);border:1px solid rgba(234,179,8,0.4);color:#fbbf24;' +
-      'font-size:11px;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:8px;font-weight:600;' +
-      'font-family:var(--font-mono);transition:all 0.2s;"> 재연결</button>' : '');
+      (deadCount >= 1 ? ' <button id="btn-retry-all-apis" data-action="_retryAllFailedApis" class="lco-retry lco-retry-warn"> 재연결</button>' : '');
     banner.style.display = 'block';
     banner.style.background = 'rgba(234,179,8,0.12)';
     banner.style.borderColor = 'rgba(234,179,8,0.3)';
@@ -13314,7 +13307,8 @@ window.AIO.charts = {
     container.id = containerId;
     container.className = 'lwc-chart-container';
     var h = height || parseInt(canvasEl.style.height) || canvasEl.clientHeight || 140;
-    container.style.cssText = 'width:100%;height:' + h + 'px;';
+    container.style.width = '100%';
+    container.style.height = h + 'px';
     canvasEl.parentElement.insertBefore(container, canvasEl);
     canvasEl.style.display = 'none';
     return container;
@@ -18924,13 +18918,13 @@ function showTicker(tkr) {
         var fs77 = sd77.factorScores || {};
         var mom77 = fs77.momentum != null ? fs77.momentum : null;
         mvEl.innerHTML =
-          '<span class="mv-pill"><span class="mv-pill-lbl">SR</span><span style="color:var(--data-cyan);">' + (rk77 != null ? rk77 : '—') + '</span></span>' +
+          '<span class="mv-pill"><span class="mv-pill-lbl">SR</span><span class="lco-mv-sr">' + (rk77 != null ? rk77 : '—') + '</span></span>' +
           '<span class="mv-pill-sep"></span>' +
           '<span class="mv-pill"><span class="mv-pill-lbl">RSI</span><span style="color:' + rsiCol77 + ';">' + rsi77 + '</span></span>' +
           '<span class="mv-pill"><span class="mv-pill-lbl">3M</span><span style="color:' + r3mCol77 + ';">' + r3m77 + '</span></span>' +
           (mom77 != null ? '<span class="mv-pill"><span class="mv-pill-lbl">MOM</span><span style="color:' + (mom77 >= 60 ? 'var(--data-green)' : mom77 >= 40 ? 'var(--data-amber)' : 'var(--data-red)') + ';">' + mom77 + '</span></span>' : ''); // 2026-10-01: rank-derived TPR grade and sourceless BUY/SELL 'SIG' removed
       } else {
-        mvEl.innerHTML = '<span style="font-size:10px;color:var(--text-muted);">SCREENER_DB 미등록 — 시장 데이터 기반 기본 분석 사용</span>';
+        mvEl.innerHTML = '<span class="lco-mv-none">SCREENER_DB 미등록 — 시장 데이터 기반 기본 분석 사용</span>';
       }
     }
   } catch(_) {}
