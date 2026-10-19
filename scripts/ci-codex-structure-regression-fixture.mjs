@@ -24,6 +24,8 @@ import { dataSourceWarnings, deadNewsFeeds } from './lib/operational-health.mjs'
 import { mergeNewsFeedHealth, carriedNewsCandidates, createNewsTopicCap, getKst0800NewsCycle, newsFloorDropReason, newsHeadlineUnverified } from './lib/news-selection.mjs';
 import { narrativeVerification } from './lib/narrative-context.mjs';
 import { reportVerification } from '../src/domain/news/report-verification.js';
+import { buildDomainReceipts } from './producer/receipts.mjs';
+import { NEWS_FEEDS } from './lib/news-selection.mjs';
 
 const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
 
@@ -306,3 +308,13 @@ assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes(
 }
 
 console.log('codex-structure-regression-fixture: OK');
+// Pipeline redesign (2026-10-19): the news receipt counts feeds on every axis, so a feed that stopped answering shows as
+// a failure even while its earlier articles are carried (before, 29 articles were "updated" out of 12 feeds).
+{
+  const [first, second] = NEWS_FEEDS.map((feed) => feed.source);
+  const bundle = Object.assign([{ feedSource: first }, { feedSource: first }, { feedSource: second }], { carriedCount: 1, feedHealth: [{ source: first, status: 'ok', kept: 4 }, { source: second, status: 'error', kept: 0 }] });
+  const receipt = buildDomainReceipts({ previousMeta: null, attemptedAt: '2026-10-19T00:00:00Z', generatedAt: '2026-10-19T00:00:00Z', symbolCount: 0, quotes: [], failed: [], news: bundle, previousNews: [], fredSeriesIds: [], fredFetchedKeys: [], fredFailedSeries: [], planes: { bls: null, bea: null, treasury: null, aaii: null, putCall: null } }).news;
+  assert.deepEqual([receipt.counts.eligible, receipt.counts.updated, receipt.counts.retained], [NEWS_FEEDS.length, 1, 1], 'news receipt: feeds answered vs feeds only carried');
+  assert.equal(receipt.publication.status, 'PARTIAL', 'a feed that did not answer makes the news receipt partial');
+  assert.match(receipt.publication.basis, /3 article\(s\), 2 collected this run/);
+}
