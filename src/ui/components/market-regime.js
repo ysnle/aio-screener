@@ -1,5 +1,6 @@
 // P1392: 시장 상태 = six-axis regime board (owner decision 2026-10-02: the 0-100 score and the
 // swing/day toggle are retired from user surfaces). The home card shows the same board compactly.
+import { renderHomeGuide } from './market-guide.js';
 import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { renderStressOutcomes } from './stress-outcomes.js';
 import { deepDiveFold } from './deep-dive.js';
@@ -451,7 +452,9 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
       line.append(el(doc, 'strong', `지금 시장 흐름 '${lead.title}'`), el(doc, 'span', `${lead.fit}${lead.shortfall ? ` · ${lead.shortfall}` : ''}`, 'basis-chip'), doc.createTextNode(` ${sentences[0] || ''}`));
       structure.push(line, ...(counter ? [el(doc, 'p', counter, 'xr-structure-note')] : []), ...(named ? [opportunityNode(doc, root, lead, 'home-outlook-opportunity')] : []), toStructure);
     } else if (scenarios?.held) structure.push(el(doc, 'p', `지금 구조: 판단 보류 — ${scenarios.reason}`, 'xr-structure'));
-    renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: outlookBox, id: 'home-crossroads', structure, title: '지금 흐름과 다음 발표', headingLevel: 'h2' }); // v57.77 (a11y 1.3.1): home has no h2 before this block // P1742/P1745
+    const crossroads = renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: outlookBox, id: 'home-crossroads', structure, title: '지금 흐름과 다음 발표', headingLevel: 'h2' }); // v57.77 (a11y 1.3.1): home has no h2 before this block // P1742/P1745
+    // Owner 2026-10-19: the shared guide (situation · choices across scenarios · lean/avoid · principles) right after it.
+    renderHomeGuide({ documentRef: doc, root, regime, outlook, crossroads, anchor: outlookBox.nextElementSibling || outlookBox }); // the crossroads block sits right after its anchor
   }
   hero.dataset.aioRegimeRenderer = 'native';
   hero.dataset.state = regime.available ? 'regime' : 'pending';
