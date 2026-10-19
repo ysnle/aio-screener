@@ -248,13 +248,19 @@ export async function enrichSecFundamentals(syms, priceData, priceResults = null
 // factor-ranks와 같은 신선도 예산을 공유해 처음부터 같은 판정을 쓴다 — 라벨이 다르면
 // 'CURRENT인데 차단되는' 행이 생긴다.
 
+// 2026-10-19 (expertise review D2): 12-1 momentum needs 13 months of closes, so the factor lanes (core and extended,
+// one row schema) fetch two years. Every factor reads a trailing window (52-week range = last 252 sessions, SMA200,
+// Kalman 90, backtest tail offsets), so the longer series changes no existing figure except that a year of 251 bars
+// no longer leaves the 52-week fields null.
+export const FACTOR_HISTORY_RANGE = '2y';
+
 export async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
   const computedAt = new Date().toISOString();
   const fetchOne = async (sym) => {
     // P1442 (review 2026-10-04): factors are labelled "세션 종가 기준", but a refresh 22 minutes after the
     // US open used the in-progress daily bar for returns, volume, ranges and VCP. Only bars whose session
     // has closed (isSessionComplete, the same guard the breadth path uses) enter any factor.
-    let fetched = await fetchHistory(_yhSym(sym), '1y');
+    let fetched = await fetchHistory(_yhSym(sym), FACTOR_HISTORY_RANGE);
     const providerMeta = fetched?.meta || null;
     const market = sessionSegmentOfSymbol(sym);
     let providerNullCloseDates = fetched?.nullCloseDates || [];

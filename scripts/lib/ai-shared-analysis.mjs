@@ -26,7 +26,9 @@ export function extractCompletedResponseText(payload) {
   return text || null;
 }
 
-export async function requestSharedAnalysis(prompt, { env = process.env, fetchImpl = fetch, timeoutMs = 30000 } = {}) {
+// `purpose` labels the idempotency key so the Worker's request log tells the market reading, the translation fallback and
+// the slot summary apart (all three used to be sent as market-analysis-*).
+export async function requestSharedAnalysis(prompt, { env = process.env, fetchImpl = fetch, timeoutMs = 30000, purpose = 'market-analysis' } = {}) {
   const config = resolveSharedAiConfig(env);
   if (!config) return { text: null, reason: 'shared-ai-not-configured' };
   const controller = new AbortController();
@@ -34,11 +36,12 @@ export async function requestSharedAnalysis(prompt, { env = process.env, fetchIm
   try {
     const run = String(env.GITHUB_RUN_ID || 'local-fixture').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 40);
     const attempt = String(env.GITHUB_RUN_ATTEMPT || '1').replace(/[^0-9]/g, '').slice(0, 8);
+    const label = String(purpose).replace(/[^a-zA-Z0-9-]/g, '').slice(0, 40) || 'market-analysis';
     // A fresh reservation for every actual request prevents replaying a spent reservation.
     const response = await fetchImpl(config.url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-AIO-Automation-Token': config.token,
-        'X-AIO-Idempotency-Key': `market-analysis-${run}-${attempt}-${randomUUID()}` },
+        'X-AIO-Idempotency-Key': `${label}-${run}-${attempt}-${randomUUID()}` },
       body: JSON.stringify({ model: SHARED_AI_MODEL, input: [{ role: 'user', content: prompt }],
         max_output_tokens: 1500, reasoning: { effort: 'none' }, store: false, stream: false }),
       signal: controller.signal,

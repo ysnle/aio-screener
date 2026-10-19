@@ -137,6 +137,31 @@ try {
   check(top.version && top.help && top.ai, 'phone360: version badge, help and AI buttons must stay visible (v57.54)');
   check(!top.compact || (top.after.includes(top.compact) && !/서버|기준/.test(top.compact)), 'phone360: quote time is not the compact "MM/DD HH:MM" form (v57.54)');
   check(top.tsCut === false, 'phone360: quote time is cut with an ellipsis (v57.54)');
+  // 2026-10-19: the live status depends on the data's age when CI runs ("57분 전", "10/19 21:58", the 지난 시세 chip), so
+  // the natural reading above passed or failed by the clock. Each worst-case pair is written into the bar and measured.
+  const worstCases = [
+    { label: '시세 확인 중', compact: '10/19 21:58', text: '서버 10/19 21:58 기준 · 시세 16종' },
+    { label: '지난 시세', compact: '10/19 21:58', text: '서버 10/19 21:58 기준 · 시세 16종' },
+    { label: '지난 시세', compact: '23시간 전', text: '서버 23시간 전 · 시세 16종' },
+    { label: '지난 시세', compact: '', text: '서버 23시간 전 · 시세 16종' }
+  ];
+  for (const worst of worstCases) {
+    const forced = await phone.evaluate((sample) => {
+      const bar = document.querySelector('header.topbar');
+      const ts = document.getElementById('live-quote-ts');
+      const label = document.querySelector('#topbar-live-badge .topbar-live-label');
+      if (!bar || !ts || !label) return { missing: true };
+      label.textContent = sample.label;
+      ts.textContent = sample.text;
+      ts.dataset.compact = sample.compact;
+      const shown = (id) => { const el = document.getElementById(id); if (!el) return false; const box = el.getBoundingClientRect(); return box.width > 0 && box.height > 0 && box.right <= innerWidth + 1 && getComputedStyle(el).visibility !== 'hidden'; };
+      return { sample, barOverflow: bar.scrollWidth - bar.clientWidth, docOverflow: document.documentElement.scrollWidth - innerWidth, tsCut: ts.scrollWidth > ts.clientWidth + 1, version: shown('app-version-badge'), help: shown('topbar-help-btn'), ai: shown('topbar-ai-btn') };
+    }, worst);
+    shell.push(forced);
+    if (forced.missing || forced.barOverflow > 2 || forced.docOverflow > 2 || forced.tsCut || !forced.version || !forced.help || !forced.ai) {
+      failures.push({ message: `phone360: worst-case status "${worst.label} / ${worst.compact || worst.text}" overflows, cuts the time or hides the badge/help/AI buttons (2026-10-19)`, detail: forced });
+    }
+  }
   await phone.screenshot({ path: resolve(out, 'phone360-topbar.png'), clip: { x: 0, y: 0, width: 360, height: 140 } });
   await phone.close();
 } catch (error) { failures.push({ message: error.message, stack: error.stack }); }

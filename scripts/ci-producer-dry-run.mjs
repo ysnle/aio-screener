@@ -30,7 +30,10 @@ try {
     else cpSync(from, path.join(scratch, 'public-data', entry));
   }
   const before = JSON.parse(readFileSync(path.join(scratch, 'public-data/data.json'), 'utf8'));
-  const env = { PATH: process.env.PATH, HOME: process.env.HOME, TZ: 'UTC', NODE_ENV: 'test', GITHUB_RUN_ID: 'dry-run' };
+  // The shared AI Worker is configured with an unreachable host (the stub answers 404), so every AI step runs its
+  // request, failure and fallback path and the run's AI usage receipt has something to count.
+  const env = { PATH: process.env.PATH, HOME: process.env.HOME, TZ: 'UTC', NODE_ENV: 'test', GITHUB_RUN_ID: 'dry-run',
+    AI_PROXY_URL: 'https://ai-proxy.dry-run.invalid/', AIO_AUTOMATION_TOKEN: 'dry-run-automation-token-'.padEnd(40, 'x') };
   const started = Date.now();
   const run = spawnSync(process.execPath, ['--import', './scripts/lib/producer-dry-run-fetch.mjs', 'scripts/fetch-data.mjs'], {
     cwd: scratch, env, encoding: 'utf8', timeout: 240000, maxBuffer: 64 * 1024 * 1024
@@ -51,7 +54,13 @@ try {
     for (const domain of ['market-quotes', 'news', 'macro-fred', 'macro-bls', 'macro-bea', 'treasury-curve', 'surveys-aaii', 'options-put-call']) check(`P1256 domain receipt ${domain} is published`, !!receipts[domain]);
     check('P1256 a failed news plane keeps the previous bundle', Array.isArray(data.news) && data.news.length === (Array.isArray(before.news) ? before.news.length : 0), `${data.news?.length} vs ${before.news?.length}`);
     check('P565 the FRED plane reports its missing key instead of a fresh cycle', meta.fredHasKey === false && meta.fredFetchOk === false);
-    check('P1594 the market analysis records why it did not run', meta.marketAnalysisOk === false && typeof meta.marketAnalysisReason === 'string' && meta.marketAnalysisReason.length > 0, meta.marketAnalysisReason);
+    // A provider failure either keeps the last verified reading (P1719, with the reason) or publishes the blocked reason.
+    check('P1594 the market analysis records why it did not run', (meta.marketAnalysisOk === false && typeof meta.marketAnalysisReason === 'string' && meta.marketAnalysisReason.length > 0) || (meta.marketAnalysisOk === true && typeof meta.marketAnalysisRetained?.reason === 'string'), JSON.stringify({ ok: meta.marketAnalysisOk, reason: meta.marketAnalysisReason, retained: meta.marketAnalysisRetained, ai: meta.aiUsage?.purposes?.['market-analysis'] }));
+    const ai = meta.aiUsage || {};
+    const reading = ai.purposes?.['market-analysis'] || {};
+    check('P1256/P1594 the run publishes its AI usage receipt', ai.schemaVersion === 'aio-pipeline-ai-usage.v1' && ai.configured === true, JSON.stringify(ai).slice(0, 300));
+    check('P1256/P1594 the market reading counts its requests and failure reasons', reading.requests >= 1 && reading.ok === 0 && reading.failures?.['provider-http-404'] === reading.requests && ai.sharedRequests >= reading.requests, JSON.stringify(reading));
+    check('P1256/P1594 every AI step records an outcome', ['market-analysis', 'headline-translation', 'slot-summary'].every((purpose) => typeof ai.purposes?.[purpose]?.outcome === 'string'), JSON.stringify(ai.purposes || {}).slice(0, 400));
     check('P1256 the cycle status is derived', typeof meta.cycleStatus === 'string' && meta.cycleStatus !== 'PENDING', meta.cycleStatus);
     const ops = JSON.parse(readFileSync(path.join(scratch, 'public-data/operations-status.json'), 'utf8'));
     check('P1256 operations-status.json was rebuilt for this run', JSON.stringify(ops).includes(meta.generatedAt), 'generatedAt not referenced');

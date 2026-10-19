@@ -385,6 +385,19 @@
           "script": "scripts/ci-market-session-contract-check.mjs"
         },
         {
+          "id": "boot-budget",
+          "script": "scripts/ci-boot-bundle-budget-check.mjs",
+          "remedy": "move the new static import behind import(); a budget raise in architecture/boot-budget.json needs a reason in the commit"
+        },
+        {
+          "id": "research-reference-index",
+          "script": "scripts/build-research-reference-index.mjs",
+          "remedy": "node scripts/build-research-reference-index.mjs",
+          "args": [
+            "--check"
+          ]
+        },
+        {
           "id": "decomposition",
           "script": "scripts/ci-decomp-hotspot-check.mjs",
           "remedy": "shrink: node scripts/ci-decomp-hotspot-check.mjs --write; growth needs --allow-growth + justification"

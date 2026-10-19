@@ -1,4 +1,4 @@
-import { SUPPLIED_MATERIALS_REFERENCE } from '../../domain/research/supplied-materials.js';
+import { SUPPLIED_MATERIALS_META } from '../../domain/research/reference-index.js';
 
 function element(documentRef, tag, className, text = '') {
   const node = documentRef.createElement(tag);
@@ -24,15 +24,15 @@ function unique(values = []) {
  * no user-visible provenance ever reached a page.
  */
 export function createSuppliedMaterialBridge(documentRef, { routeId = '', sectionIds = null, timeSeriesIds = null, heading = '' } = {}) {
-  const mapping = SUPPLIED_MATERIALS_REFERENCE.routeMappings?.[routeId] || {};
+  const mapping = SUPPLIED_MATERIALS_META.routeMappings?.[routeId] || {};
   const resolvedSectionIds = unique(sectionIds == null ? mapping.sectionIds : sectionIds);
   const resolvedTimeSeriesIds = unique(timeSeriesIds == null ? mapping.timeSeriesIds : timeSeriesIds);
   const section = element(documentRef, 'aside', 'aio-integrated-analysis-context');
   section.hidden = true;
   section.setAttribute('aria-hidden', 'true');
-  section.dataset.sourceKind = SUPPLIED_MATERIALS_REFERENCE.sourceKind;
-  section.dataset.operationalUse = SUPPLIED_MATERIALS_REFERENCE.operationalUse;
-  section.dataset.referenceId = SUPPLIED_MATERIALS_REFERENCE.id;
+  section.dataset.sourceKind = SUPPLIED_MATERIALS_META.sourceKind;
+  section.dataset.operationalUse = SUPPLIED_MATERIALS_META.operationalUse;
+  section.dataset.referenceId = SUPPLIED_MATERIALS_META.id;
   section.dataset.integrationMode = 'internal-protocol-only';
   section.dataset.referenceFrameworkCount = String(mapping.nathanFrameworkIds?.length || 0);
   section.dataset.referenceSectionCount = String(resolvedSectionIds.length);

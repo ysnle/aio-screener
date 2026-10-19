@@ -11,7 +11,7 @@ import { getSuppliedMaterialClaims } from '../src/domain/research/supplied-mater
 import { lessonById, PATHS, FRAME_VARIABLES } from '../src/domain/knowledge/learning-core.js';
 import { createAIKnowledgeIndex } from '../src/ai/retrieval/knowledge.js';
 import { SUPPLIED_MATERIALS_REFERENCE } from '../src/domain/research/supplied-materials.js';
-import { searchKnowledgeIndex } from '../src/ui/knowledge/glossary-bridge.js';
+import { searchKnowledgeIndex } from '../src/ui/knowledge/knowledge-search.js';
 const reasoningIndex = createAIKnowledgeIndex([], { suppliedMaterials: SUPPLIED_MATERIALS_REFERENCE });
 
 // P1605: every promoted frame must have a real source, note, learning path and retrieval consumer.
