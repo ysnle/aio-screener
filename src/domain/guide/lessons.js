@@ -253,9 +253,19 @@ const SCREEN_LESSONS = [
   },
   {
     id: 'rank-is-not-edge', kind: 'trap', scope: 'screener', concept: 'H3', title: "'순위가 높으면 오른다'",
-    principle: '스크리너의 순위는 조건에 맞는 정도를 정렬한 것이지 앞으로의 수익을 예측한 점수가 아닙니다. 우리 기록에서도 순위와 이후 수익 사이에 뚜렷한 관계가 확인되지 않았습니다.',
+    principle: '스크리너의 순위는 조건에 맞는 정도를 정렬한 것이지 앞으로의 수익을 예측한 점수가 아닙니다. 순위가 수익과 같은 방향이었는지는 순위를 먼저 적어 두고 나중에 결과를 채운 기록으로만 말할 수 있습니다.',
     why: '과거 데이터로 만든 순위는 살아남은 종목만 보는 편향과 우연에 쉽게 속습니다. 순위는 살펴볼 후보를 줄이는 도구입니다.',
-    live: () => null
+    // Expertise review 2 (2026-10-19): what the forward record says now (candidate-record independentEvidence), so the
+    // lesson never states a verdict the record has not reached. It describes the whole ranking, not one stock.
+    screenWide: true,
+    live: (ctx) => {
+      const ind = ctx?.rankEvidence;
+      if (!ind?.decision) return null;
+      if (ind.decision === 'supported') return `지금 기록(겹치지 않는 ${ind.n}개)에서는 미국 순위가 다음 21거래일 수익률과 통계적으로 같은 방향이었습니다. 그래도 순위는 후보를 줄이는 근거이고, 진입 자리와 손실 한도는 따로 정해야 합니다.`;
+      if (ind.decision === 'not-supported') return `지금 기록(겹치지 않는 ${ind.n}개)에서는 순위와 이후 수익률의 관계가 우연과 구분되지 않습니다. 순위만으로 고르지 말고 이유를 따로 확인할 것.`;
+      return ind.n ? `기간이 겹치지 않는 기록이 ${ind.n}개뿐이라(${ind.min}개부터 판단) 순위가 수익과 같은 방향인지는 아직 모릅니다.`
+        : `순위를 먼저 적어 두는 기록의 결과가 아직 없어(겹치지 않는 기록 ${ind.min}개부터 판단) 순위가 수익과 같은 방향인지는 아직 모릅니다.`;
+    }
   }
 ];
 
@@ -303,6 +313,7 @@ const STOCK_SCREENS = new Set(['technical', 'ticker', 'fundamental', 'screener']
 export function selectScreenLessons(routeId, ctx, { limit = 4 } = {}) {
   const ids = SCREEN_LESSON_IDS[routeId] || [];
   const marketReasons = !STOCK_SCREENS.has(routeId);
-  const rows = ids.map((id) => LESSON_BY_ID[id]).filter(Boolean).map((lesson) => { let reason = null; try { reason = marketReasons ? lesson.live(ctx) : null; } catch (_) { reason = null; } return { ...lesson, reason }; });
+  // screenWide lessons (the ranking's own record) describe the screen, not the company on it, so they keep their reason.
+  const rows = ids.map((id) => LESSON_BY_ID[id]).filter(Boolean).map((lesson) => { let reason = null; try { reason = marketReasons || lesson.screenWide ? lesson.live(ctx) : null; } catch (_) { reason = null; } return { ...lesson, reason }; });
   return [...rows.filter((row) => row.reason), ...rows.filter((row) => !row.reason)].slice(0, limit).map(({ live, ...row }) => row);
 }

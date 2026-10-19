@@ -4,6 +4,7 @@ import { loadJsonArtifact } from '../../data/artifact-cache.js';
 import { renderScreenerValidation } from '../components/screener-validation.js';
 import { buildPopulationRankingIdentity, liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
 import { measuredCandidateEntries, summarizeCandidateArchive } from '../../domain/screener/candidate-record.js';
+import { renderScreenLessons } from '../components/screen-lessons.js';
 import { measureFactorOverlap, overlapSentence } from '../../domain/screener/factor-overlap.js';
 
 // Row arrays from the store and the workbench are replaced, never edited in place, so one market's slice is cut once
@@ -1924,6 +1925,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
             if (longrun && typeof longrun === 'object') root._aioFactorLongrun = longrun; // P1443: 10-year study shown with its limits
             if (mountActive) {
               renderScreenerValidation({ documentRef, root }); readSignature = ''; renderRead();
+              // The ranking principle quotes this record's verdict (screen lessons render before it arrives).
+              if (candidates) renderScreenLessons({ documentRef, root, routeId: 'screener' });
               // The 10-year study and the candidate record arrive after the first render of the 검증 view.
               const latest = selectScreenerState(store?.getState?.() || {});
               renderBacktest(documentRef, { ...latest?.metadata, populationRanking: latest?.metadata?.ranking || null, selectionMarket: selectedValue(documentRef, 'scr-listing-market') || 'US', ranking: marketRankingMetadata(latest?.metadata, selectedValue(documentRef, 'scr-listing-market') || 'US') }, root, scopedRows(latest?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US'));
