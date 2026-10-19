@@ -12,7 +12,7 @@ import { createResearchCapability, validateResearchCapability } from '../researc
 
 export const AI_ANSWER_ORCHESTRATOR_VERSION = 'answer-orchestrator.v1';
 
-export function createAIAnswerOrchestrator({ root = globalThis, now = () => new Date(), knowledgeRetriever = null } = {}) {
+export function createAIAnswerOrchestrator({ root = globalThis, now = () => new Date(), knowledgeRetriever = null, beforeDispatch = null } = {}) {
   let lastPlan = null;
   const audit = [];
   const domainAnalysis = createDomainAnalysisRegistry();
@@ -37,6 +37,15 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
     if (typeof input.legacyRunner !== 'function') return Object.freeze({ ok: false, status: 'blocked', reason: 'runner-missing', plan: questionPlan });
     try {
       const runnerPlan = actionLimitations.length ? Object.freeze({ ...questionPlan, actionLimitations }) : questionPlan;
+      // Lazy reference material (the supplied-materials corpus) is installed before the UI adapter builds its prompt.
+      // It is bounded: a slow or failed chunk load never holds the answer, the prompt then omits that block.
+      if (typeof beforeDispatch === 'function') {
+        let timer;
+        await Promise.race([
+          Promise.resolve().then(beforeDispatch).catch(() => null),
+          new Promise((resolve) => { timer = setTimeout(resolve, 4000); })
+        ]).finally(() => clearTimeout(timer));
+      }
       const result = await input.legacyRunner(runnerPlan);
       return Object.freeze({
         ok: true,

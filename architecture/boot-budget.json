@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "boot-budget-v1",
+  "measuredBy": "scripts/ci-boot-bundle-budget-check.mjs",
+  "rule": "The deploy bundle's boot module set (bootstrap.js plus every chunk it reaches through static imports) is what the browser downloads and evaluates before first paint. Reference corpora load on demand and must never re-enter it.",
+  "bootModuleBudget": {
+    "rawBytes": 1500000,
+    "gzipBytes": 540000,
+    "note": "2026-10-19: 1,436 KB raw / 509 KB gzip after the supplied-materials corpus and learning-core notes moved to lazy chunks (was 1,872 KB / 672 KB). Lower the ceiling when the set shrinks; raising it needs a reason in the commit."
+  },
+  "lazyOnlyInputs": [
+    "src/domain/research/supplied-materials.js",
+    "src/domain/research/packet-*.js",
+    "src/domain/knowledge/learning-core.js",
+    "src/ui/knowledge/knowledge-search.js"
+  ]
+}
