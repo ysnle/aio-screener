@@ -250,3 +250,34 @@ export function selectLessons(ctx, { perKind = 2, limit = 7, scope = 'market' } 
   rows.filter((row) => row.base).forEach(take);
   return picked.sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind)).map(({ live, ...row }) => row);
 }
+
+// Which principles each screen raises (the 오늘 card uses selectLessons over the whole market scope). Order is the
+// screen's own priority; a lesson today's data touches moves ahead of the rest.
+export const SCREEN_LESSON_IDS = Object.freeze({
+  signal: ['watch-participation', 'index-high', 'one-day-move', 'fear-is-not-a-signal', 'trust-credit', 'no-chasing'],
+  breadth: ['watch-participation', 'index-high', 'one-day-move', 'trust-closes'],
+  sentiment: ['fear-is-not-a-signal', 'no-chasing', 'one-day-move', 'trust-credit'],
+  macro: ['rate-cut-good', 'level-vs-expectation', 'confirm-after-release', 'conditions-not-forecasts', 'count-not-probability', 'past-repeats', 'trust-base-rate'],
+  fxbond: ['level-vs-expectation', 'rate-cut-good', 'trust-credit', 'confirm-after-release'],
+  themes: ['watch-participation', 'no-chasing', 'cheap-after-fall', 'past-repeats'],
+  'theme-detail': ['no-chasing', 'cheap-after-fall', 'headline-rumor', 'past-repeats'],
+  technical: ['breakout-without-volume', 'extended-entry', 'weekly-filters-daily', 'news-gap', 'know-when-wrong', 'cheap-after-fall'],
+  ticker: ['cheap-after-fall', 'news-gap', 'headline-rumor', 'know-when-wrong'],
+  fundamental: ['cheap-after-fall', 'level-vs-expectation', 'headline-rumor'],
+  screener: ['rank-is-not-edge', 'extended-entry', 'past-repeats', 'no-chasing'],
+  portfolio: ['survive-first', 'size-by-loss', 'staged-entry', 'know-when-wrong', 'waiting-is-a-choice'],
+  briefing: ['headline-rumor', 'confirm-after-release', 'one-day-move', 'level-vs-expectation'],
+  'market-news': ['headline-rumor', 'news-gap', 'one-day-move']
+});
+
+/** The lessons a screen raises, those today's data touches first (with their reason), at most `limit`. */
+// A single stock's screens read the lesson as a principle: the live sentences describe the whole market, and a market
+// reason ("중심 시나리오가 빗나가는 조건") beside one company's chart would read as if it were about that company.
+const STOCK_SCREENS = new Set(['technical', 'ticker', 'fundamental', 'screener']);
+
+export function selectScreenLessons(routeId, ctx, { limit = 4 } = {}) {
+  const ids = SCREEN_LESSON_IDS[routeId] || [];
+  const marketReasons = !STOCK_SCREENS.has(routeId);
+  const rows = ids.map((id) => LESSON_BY_ID[id]).filter(Boolean).map((lesson) => { let reason = null; try { reason = marketReasons ? lesson.live(ctx) : null; } catch (_) { reason = null; } return { ...lesson, reason }; });
+  return [...rows.filter((row) => row.reason), ...rows.filter((row) => !row.reason)].slice(0, limit).map(({ live, ...row }) => row);
+}

@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { BRANCHES, CHOICES } from '../src/domain/market/macro-crossroads.js';
 import { buildMarketGuide, buildDirection, renderMarketGuideContext, CHOICE_KEYS } from '../src/domain/guide/market-guide.js';
-import { ALL_LESSONS, LESSON_KINDS, selectLessons } from '../src/domain/guide/lessons.js';
+import { ALL_LESSONS, LESSON_BY_ID, LESSON_KINDS, SCREEN_LESSON_IDS, selectLessons, selectScreenLessons } from '../src/domain/guide/lessons.js';
 
 const label = 'v58.29 market guide';
 const choiceKeys = new Set(Object.keys(CHOICES));
@@ -55,5 +55,20 @@ assert.ok(!calm.some((row) => row.id === 'cheap-after-fall') && calm.some((row) 
 const text = [guide.headline, ...guide.situation.map((row) => row.text), guide.direction.text, ...guide.stance.pursue, ...guide.stance.avoid, ...ALL_LESSONS.map((row) => `${row.principle} ${row.why}`)].join('\n');
 assert.doesNotMatch(text, /\d+(?:\.\d+)?\s*%\s*(?:확률|가능성)|매수하세요|매도하세요|목표가|손절가/, `${label}: no probability percentage or trade instruction`);
 assert.match(renderMarketGuideContext(guide), /확률로 바꾸지 말고/, `${label}: the AI block restates the boundary`);
+
+// Per-screen lessons: every listed id exists; stock screens never borrow a market-state reason.
+const routes = JSON.parse(readFileSync(new URL('../architecture/route-owners.json', import.meta.url), 'utf8'));
+const routeIds = new Set(Object.keys(routes.routes));
+for (const [route, ids] of Object.entries(SCREEN_LESSON_IDS)) {
+  assert.ok(routeIds.has(route), `${label}: screen lessons target a registered route (${route})`);
+  for (const id of ids) assert.ok(LESSON_BY_ID[id], `${label}: ${route} lesson ${id} exists`);
+}
+const burdenCtx = { regime: { counts: { burden: 5, favorable: 0 }, axes: [{ id: 'trend', state: 'burden' }] } };
+for (const route of ['technical', 'ticker', 'fundamental', 'screener']) {
+  const picked = selectScreenLessons(route, burdenCtx);
+  assert.ok(picked.length && picked.every((row) => !row.reason), `${label}: ${route} shows the mechanism, not a market reason`);
+}
+assert.ok(selectScreenLessons('portfolio', burdenCtx).some((row) => row.id === 'survive-first' && row.reason), `${label}: a market screen ties its lesson to today's state`);
+assert.deepEqual(selectScreenLessons('no-such-route', burdenCtx), [], `${label}: an unknown screen shows nothing`);
 
 console.log(`market guide fixture OK: ${BRANCHES.length} branches tagged, ${ALL_LESSONS.length} lessons linked, ${guide.lessons.length} selected today`);

@@ -17,15 +17,15 @@ function conceptButton(doc, root, lesson) {
   return button;
 }
 
-function lessonItem(doc, root, lesson, { withReason = true } = {}) {
+export function lessonItem(doc, root, lesson, { withReason = true } = {}) {
   const item = el(doc, 'li', null, 'mg-lesson');
   item.dataset.kind = lesson.kind;
   item.dataset.lessonId = lesson.id;
   const head = el(doc, 'div', null, 'mg-lesson-head');
   head.append(el(doc, 'span', LESSON_KINDS[lesson.kind], 'mg-kind'), el(doc, 'strong', lesson.title, 'mg-lesson-title'));
   item.append(head, el(doc, 'p', lesson.principle, 'mg-lesson-principle'));
-  if (withReason && lesson.reason) item.append(el(doc, 'p', `근거: ${lesson.reason}`, 'mg-lesson-reason'));
-  if (!withReason) item.append(el(doc, 'p', `왜: ${lesson.why}`, 'mg-lesson-reason'));
+  // Today's reason when the data touches the lesson; otherwise the mechanism behind it.
+  item.append(withReason && lesson.reason ? el(doc, 'p', `근거: ${lesson.reason}`, 'mg-lesson-reason') : el(doc, 'p', `왜: ${lesson.why}`, 'mg-lesson-why'));
   item.append(conceptButton(doc, root, lesson));
   return item;
 }
