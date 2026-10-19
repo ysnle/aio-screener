@@ -1,0 +1,98 @@
+// Macro merge (split out of fetch-data.mjs main, pipeline redesign 2026-10-19): one place decides which source wins
+// each canonical macro field. FRED (with per-field last-known-good) is the base; the official publishers then replace
+// a field only with an observation at least as new as the one already there. Every promoted field records
+// _asOf_<field> and _source_<field>, so a reader can tell where a number came from.
+import { FRED_SERIES, mergeMacroLastKnownGood, officialTreasuryDeltas } from '../lib/macro-sources.mjs';
+import { planeFresh } from './source-planes.mjs';
+
+export function mergeMacroPlanes({ macroRaw, previousMacro, bls, bea, treasury, fredHyOas }) {
+  const macro = mergeMacroLastKnownGood(macroRaw, previousMacro);
+  for (const field of Object.keys(FRED_SERIES)) {
+    if (Number.isFinite(Number(macroRaw?.[field]))) macro[`_source_${field}`] = 'fred-official-primary';
+  }
+  Object.assign(macro, bls.values || {});
+  // Promote only the successful BLS headline/core fields to the canonical
+  // `macro.cpi`/`macro.coreCpi` slots.  Those slots are consumed by the
+  // market-standard CPI cards and therefore must be CPI-U NSA, while the
+  // explicitly named `blsCpiSaYoY`/`blsCoreCpiSaYoY` values remain available
+  // for SA analysis.  A stale BLS last-known-good payload is retained under
+  // `_bls` but never silently promoted over the current FRED/previous value.
+  const blsFieldPromotions = [
+    ['cpi', 'blsCpiYoY'],
+    ['coreCpi', 'blsCoreCpiYoY']
+  ];
+  if (planeFresh('bls', bls)) {
+    for (const [macroField, blsField] of blsFieldPromotions) {
+      const metricId = macroField;
+      const seriesEvidence = bls.series?.[metricId];
+      const value = Number(bls.values?.[blsField]);
+      if (seriesEvidence?.status !== 'ok' || !Number.isFinite(value)) continue;
+      // 2026-10-19 data audit: as for HY OAS below, an older BLS month never replaces a newer FRED month (release-day lag).
+      if (macro[`_asOf_${macroField}`] && String(seriesEvidence.observedAt || '') < String(macro[`_asOf_${macroField}`])) continue;
+      macro[macroField] = value;
+      macro[`_asOf_${macroField}`] = seriesEvidence.observedAt || null;
+      macro[`_source_${macroField}`] = 'bls-official-primary';
+    }
+  }
+  macro._bls = bls;
+  macro._bea = bea;
+  macro._treasury = treasury;
+  macro._fredHyOas = fredHyOas;
+  if (planeFresh('fredHyOas', fredHyOas) && Number.isFinite(Number(fredHyOas.value))) {
+    const currentObservedAt = String(macro._asOf_hyOAS || '');
+    if (!currentObservedAt || String(fredHyOas.observedAt || '') >= currentObservedAt) {
+      macro.hyOAS = Number(fredHyOas.value);
+      macro._asOf_hyOAS = fredHyOas.observedAt;
+      macro._source_hyOAS = 'fred-official-public-csv';
+    }
+  }
+  if (planeFresh('treasury', treasury) && treasury.values) {
+    for (const field of ['dgs2', 'dgs5', 'dgs10', 'dgs20', 'dgs30', 't10y2y']) {
+      if (!Number.isFinite(Number(treasury.values[field]))) continue;
+      const fredAsOf = String(macro[`_asOf_${field}`] || '');
+      macro[field] = Number(treasury.values[field]);
+      macro[`_asOf_${field}`] = treasury.observedAt;
+      macro[`_source_${field}`] = 'us-treasury-official-primary';
+      if (field === 't10y2y') continue;
+      const official = officialTreasuryDeltas(treasury, field);
+      const fredSameDate = fredAsOf === String(treasury.observedAt || '');
+      for (const [suffix, value] of [['Delta', official.delta], ['Delta5', official.delta5]]) {
+        if (value != null) macro[`${field}${suffix}`] = value;
+        else if (!fredSameDate) delete macro[`${field}${suffix}`];
+      }
+      macro[`_deltaAsOf_${field}`] = official.delta != null || fredSameDate ? treasury.observedAt : null;
+    }
+  }
+  // BEA promotes only a collection of this run (not 'cached-fresh'), as before the split.
+  if (bea.status === 'ok' && bea.values) {
+    if (Number.isFinite(bea.values.pce)) {
+      macro.pce = bea.values.pce;
+      macro._asOf_pce = bea.observedAt;
+      macro._source_pce = 'bea-official-primary';
+    }
+    if (Number.isFinite(bea.values.corePce)) {
+      macro.corePce = bea.values.corePce;
+      macro._asOf_corePce = bea.observedAt;
+      macro._source_corePce = 'bea-official-primary';
+    }
+  }
+  return macro;
+}
+
+// Market surveys (AAII from its official table; subscriber-only surveys stay preserved/blocked, nothing synthesized).
+// `checkedAt` means the live automated check; the carried editorial snapshot time keeps its own name (P1107).
+// P1737 (2026-10-13): NAAIM is retired (undated three-month-delayed page number, not verifiable), so the carried
+// snapshot no longer brings it forward; AAII and the Investors Intelligence boundary are unchanged.
+export function buildMarketSurveys(previousMarketSurveys, aaii) {
+  const surveyAttemptedAt = aaii.attemptedAt || new Date().toISOString();
+  const { naaim: _retiredNaaim, ...carriedSurveys } = previousMarketSurveys || {};
+  return {
+    ...carriedSurveys,
+    schemaVersion: 'web-research-surveys.v2',
+    checkedAt: surveyAttemptedAt,
+    automatedCheckedAt: surveyAttemptedAt,
+    webResearchCheckedAt: previousMarketSurveys?.webResearchCheckedAt || previousMarketSurveys?.checkedAt || null,
+    policy: previousMarketSurveys?.policy || 'official-publisher-public-web; bounded relay fallback; reference-only; no synthesis',
+    aaii
+  };
+}
