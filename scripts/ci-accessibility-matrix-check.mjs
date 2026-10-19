@@ -62,7 +62,9 @@ async function main() {
         const unnamedCanvas = canvases.filter((el) => !name(el) && !el.getAttribute('aria-describedby')).map((el) => el.id || 'canvas');
         const textNodes = root ? Array.from(root.querySelectorAll('*')).filter((el) => visible(el) && (el.children.length === 0) && (el.textContent || '').trim()) : [];
         const fontUnder10 = textNodes.filter((el) => parseFloat(getComputedStyle(el).fontSize || '0') < 10).map((el) => ({ id:el.id || '', text:(el.textContent || '').trim().slice(0, 70), fontSize:getComputedStyle(el).fontSize, html:el.outerHTML.slice(0, 220) })).slice(0, 50);
-        const smallTargets = controls.filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && (r.width < 24 || r.height < 24); }).map((el) => {
+        // v58.50: a 24px min-height box at a fractional y reads 23.9999 from getBoundingClientRect (1/64px layout units), so compare with a sub-pixel tolerance.
+        const under24 = (v) => v < 24 - 0.01;
+        const smallTargets = controls.filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && (under24(r.width) || under24(r.height)); }).map((el) => {
           const r = el.getBoundingClientRect();
           const parentText = (el.parentElement?.textContent || '').replace(/\s+/g, ' ').trim();
           const inlineTextException = (el.tagName === 'A' || el.classList.contains('aio-term')) && getComputedStyle(el).display === 'inline' && parentText.length > name(el).length;

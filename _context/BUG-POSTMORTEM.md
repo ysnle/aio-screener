@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1941 - v58.50 - 접근성 매트릭스가 24px 최소 높이를 갖춘 타임라인 뉴스 링크를 부동소수점 오차로 작은 클릭 영역으로 판정함 (2026-10-19)
+
+- symptom/reproduction: v58.49 배포 직후 main CI의 browser-a11y가 briefing 라우트의 시장 타임라인 뉴스 링크(min-height 24px)를 높이 24 미만으로 잡아 실패했고, Pages 배포와 데이터 봇 converge가 멈췄다. 새 슬롯 뉴스가 늘어 링크가 소수점 y 위치에 놓이자 드러났다.
+- root_cause: getBoundingClientRect가 1/64px 레이아웃 단위 때문에 24px 박스를 23.9999로 돌려주는데, 게이트가 r.height < 24로 정확 비교했다. 결과가 뉴스 개수와 배치에 따라 바뀌었다.
+- fix: 게이트가 0.01px 허용 오차로 비교한다(24 - 0.01). 내 종목 뉴스 링크(daily-news-link)는 13px 한 줄 높이뿐이라 실제로도 24px에 못 미쳤으므로 inline-flex와 min-height 24px를 준다.
+- violated_rule: CI 게이트는 데이터 내용·배치에 따라 결과가 바뀌면 안 되고, 레이아웃 측정값은 부동소수점 오차를 허용해 비교한다.
+- prevention: 작은 클릭 영역 판정을 허용 오차 비교 한 곳으로 모았다. 데이터 의존 UI 검사 클래스(v58.33/34, v58.49)와 함께 추적한다.
+- verification/residual: 로컬 브라우저 프로브에서 타임라인 링크 높이 23.99993896 재현, 수정 후 ci-accessibility-matrix 19개 라우트 통과, PR CI browser-surface
+
 ## P1940 - v58.49 - screener-extended·entity-quality 게이트가 벽시계와 지연 로드된 Chart.js에 의존해 미국 장 마감 뒤 빨갛게 됨 (2026-10-19)
 
 - symptom/reproduction: 20:00Z 미국 장 마감 이후 모든 브랜치와 main CI에서 screener-extended가 실패했고, entity-quality가 티커 캔버스를 Chart.js 인계 전에 읽어 간헐 실패했다. main CI가 빨개지면 데이터 봇 converge도 멈춘다.
