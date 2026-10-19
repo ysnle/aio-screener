@@ -4,6 +4,10 @@ last_verified: 2026-10-19
 confidence: medium
 ---
 
+## v58.43 시나리오·학습 (2026-10-19)
+
+- [ ] QA-LESSONS-RECORD-01: 배포 뒤 라이브 #screener 화면 원칙의 '순위가 높으면 오른다' 근거 문장이 screener-candidate-archive.json의 독립 표본 판정과 같은 말을 한다. verify_by: 라이브 #screener 원칙 카드 + public-data/screener-candidate-archive.json summarize
+
 ## v58.39 시나리오·학습 (2026-10-19)
 
 - [ ] QA-EVIDENCE-01: 배포 뒤 라이브 거시·오늘 화면의 과거 빈도 문장이 기준선과 구별되지 않는 경우 비율 없이 건수·기준선만 말하고, 다음 시나리오 성과 갱신의 scenario-outcomes.json에 method가 기록된다. verify_by: 라이브 #macro #home 과거 빈도 문장 + public-data/scenario-outcomes.json method
