@@ -4,9 +4,13 @@ const CONTENT_DEPTH = Object.freeze(['FULL_TEXT', 'EXCERPT', 'SNIPPET', 'SUMMARY
 const RIGHTS = Object.freeze(['REVIEW_REQUIRED', 'PUBLIC_REFERENCE', 'LICENSED', 'BLOCKED']);
 const PRIMARY_OFFICIAL_SUFFIXES = Object.freeze([
   'sec.gov', 'federalreserve.gov', 'bls.gov', 'bea.gov', 'fred.stlouisfed.org',
-  'cboe.com', 'nasdaq.com', 'nyse.com', 'bok.or.kr', 'kosis.kr', 'krx.co.kr'
+  'cboe.com', 'nasdaq.com', 'nyse.com', 'bok.or.kr', 'kosis.kr', 'krx.co.kr',
+  // 2026-10-19 data audit: official sources the answers already cite (Treasury yields and auctions, ECB/BoJ/BoE policy,
+  // EIA oil inventories, DART filings, the KR statistics office) were graded as ordinary web pages.
+  'treasury.gov', 'treasurydirect.gov', 'ecb.europa.eu', 'boj.or.jp', 'bankofengland.co.uk', 'eia.gov', 'dart.fss.or.kr', 'customs.go.kr'
 ]);
-const TIER_1_SUFFIXES = Object.freeze(['reuters.com', 'apnews.com', 'bbc.com']);
+// The news screen's tier-1 publishers (scripts/lib/news-selection.mjs SERVER_NEWS_TIER1_SOURCE_RE), by domain.
+const TIER_1_SUFFIXES = Object.freeze(['reuters.com', 'apnews.com', 'bbc.com', 'bloomberg.com', 'ft.com', 'wsj.com', 'cnbc.com']);
 
 function text(value) { return String(value == null ? '' : value).trim(); }
 

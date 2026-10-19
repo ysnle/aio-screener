@@ -2,7 +2,7 @@ import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isTrustedDeploymentRun, resolveProvenanceRun } from './deployment-provenance.mjs';
-import { summarizeOperationalChecks, marketAnalysisDiagnostic, workflowCadence, operationalSummary } from './lib/operational-health.mjs';
+import { summarizeOperationalChecks, marketAnalysisDiagnostic, workflowCadence, operationalSummary, dataSourceWarnings, deadNewsFeeds } from './lib/operational-health.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const args = process.argv.slice(2);
@@ -104,6 +104,9 @@ async function observeOnce() {
       if (!data?.meta?.fearGreedOk) result.warnings.push('live Fear & Greed provider is degraded; static fallback is active');
       if (!data?.meta?.fredHasKey || !data?.meta?.fredFetchOk) result.warnings.push('live FRED enrichment is unavailable or degraded');
       if (!data?.meta?.marketAnalysisOk) result.warnings.push(`live LLM market analysis blocked: ${marketAnalysisDiagnostic(data)}; typed fallback is active`);
+      result.warnings.push(...dataSourceWarnings(data));
+      const deadFeeds = deadNewsFeeds(data);
+      check('pages-news-feeds-alive (v58.28)', deadFeeds.length === 0, deadFeeds.length ? `no usable item for 72h+: ${deadFeeds.join(', ')}` : 'every news feed produced a current item within 72h');
     }
   } else {
     check('pages-fetch', false, pages.reason?.message || String(pages.reason));
