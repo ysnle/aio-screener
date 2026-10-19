@@ -127,10 +127,13 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     if (isLow && !squeezeOn) events.push({ index: i, kind: 'squeeze', text: '변동성 압축', position: 'belowBar', tone: 'neutral' });
     squeezeOn = isLow;
   }
-  // (d) extension above the 8-day EMA (overheating) — the latest stretch of >= RULES.technical.ema8.overheatPct.
+  // (d) extension above the 8-day EMA (overheating) — the latest stretch of >= RULES.technical.ema8.overheatPct, or of
+  // >= overheatAdr average daily ranges (expertise review 2026-10-19: +10% is routine for a 7%-ADR stock and extreme for a 2% one).
   const extension = ema8[n] ? (closes[n] / ema8[n] - 1) * 100 : null;
+  const adrNow = adrPctOf(bars.map((bar) => bar.high), bars.map((bar) => bar.low), closes);
+  const overheated = (pct) => pct >= TECH.ema8.overheatPct || (adrNow > 0 && pct / adrNow >= TECH.ema8.overheatAdr);
   for (let i = n; i >= from; i--) {
-    if (ema8[i] && (closes[i] / ema8[i] - 1) * 100 >= TECH.ema8.overheatPct) { events.push({ index: i, kind: 'extended', text: `과열 +${((closes[i] / ema8[i] - 1) * 100).toFixed(0)}%`, position: 'aboveBar', tone: 'burden' }); break; }
+    if (ema8[i] && overheated((closes[i] / ema8[i] - 1) * 100)) { events.push({ index: i, kind: 'extended', text: `과열 +${((closes[i] / ema8[i] - 1) * 100).toFixed(0)}%`, position: 'aboveBar', tone: 'burden' }); break; }
   }
   // Keep the chart legible: the latest two of each kind within ~4 months.
   const byKind = new Map();
@@ -175,6 +178,15 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const rs = ret6 != null && b0 && b1 ? ret6 - (b1 / b0 - 1) * 100 : null;
   const strength = adx(bars);
   templateChecks[7][1] = rs == null ? null : rs > 0;
+  // Expertise review 2026-10-19: the relative-strength line (close ÷ benchmark on the same date). A line at its own high
+  // while price is still under its high is the classic leadership tell (O'Neil/Minervini: RS leads price).
+  const rsLine = benchRows.length ? bars.map((bar) => { const b = benchAt(bar.time); return b ? bar.close / b : null; }) : [];
+  const rsWindow = rsLine.slice(-TECH.rangeSessions).filter((value) => value != null);
+  const rsNow = rsLine[n] ?? null;
+  const rsHigh = rsWindow.length >= 60 ? Math.max(...rsWindow) : null;
+  const rsFromHigh = rsNow != null && rsHigh ? (rsNow / rsHigh - 1) * 100 : null;
+  const rsAtHigh = rsFromHigh != null && rsFromHigh >= -0.5;
+  const rsLeadsPrice = rsAtHigh && fromHigh <= -TECH.nearHighPct;
   const templatePass = templateChecks.filter(([, ok]) => ok === true).length;
   const lastContraction = vcp.contractions[vcp.contractions.length - 1] || null;
   // State.
@@ -194,6 +206,9 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   else if (vcp.valid && pivot != null && last.close > pivot && last.close <= pivot * ceilingPct && [n - 2, n - 1, n].some((i) => heavyUpAbove(i, true))) state = 'breakout';
   else if (vcp.valid && pivot != null && last.close > pivot * ceilingPct) state = 'extended';
   else if (vcp.valid && pivot != null && last.close >= pivot * 0.92 && last.close <= pivot) state = 'setup';
+  // Expertise review 2026-10-19: the higher timeframe filters the lower — a daily setup or breakout against a weekly
+  // downtrend (10<30-week order, or Weinstein stage 4) is flagged, not hidden.
+  const timeframeConflict = ['setup', 'breakout'].includes(state) && (weeklyTrend === '역배열' || weinstein?.stage === 4);
   // P1639 (owner materials 2026-10-12): how far price has run from the 50-day line in units of its own
   // daily range (ATR 14), where it sits above the 52-week low, and the 5/20-day EMA order used to judge
   // whether a decline has stopped. Descriptive facts, not entries.
@@ -201,7 +216,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   // same 2/4/7 bands. The chart used (close − 50-day) ÷ a 14-session simple ATR, a different unit on the same bands, so one
   // stock could read 확장 on the chart and 보통 in the screener. ATR stays as Wilder's (the published definition).
   const atr14 = atrWilder(bars);
-  const adrPct = adrPctOf(bars.map((bar) => bar.high), bars.map((bar) => bar.low), closes);
+  const adrPct = adrNow;
   const pctFrom50 = sma50[n] ? (last.close / sma50[n] - 1) * 100 : null;
   const adrFrom50 = extensionMultiple(pctFrom50, adrPct);
   const fromLow = (last.close / low52 - 1) * 100;
@@ -219,6 +234,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     ['주봉 추세 (10·30주)', weeklyTrend || '기록 부족'],
     ['Weinstein 단계 (30주선)', weinstein ? `${weinstein.stage}단계 · 30주선 4주 ${weinstein.slope >= 0 ? '+' : ''}${weinstein.slope.toFixed(1)}%` : '기록 부족'],
     [`${benchmarkLabel} 대비 6개월`, rs == null ? '—' : `${signed(rs)}p (종목 ${signed(ret6)})`],
+    ['상대강도선 (종목 ÷ 지수)', rsFromHigh == null ? '—' : rsAtHigh ? (rsLeadsPrice ? `신고가 — 가격(고점 대비 ${signed(fromHigh)})보다 먼저` : '신고가 (가격도 고점권)') : `자체 고점 대비 ${signed(rsFromHigh)} (${rsWindow.length >= TECH.fullYearSessions ? '1년' : `${rsWindow.length}거래일`} 기준)`],
     ['추세 강도 ADX', strength ? `${fmt(strength.adx, 0)} ${strength.adx >= 25 ? '(추세 뚜렷)' : strength.adx < 20 ? '(추세 약함)' : '(보통)'}` : '—'],
     ['거래량 (50일 평균 대비)', volRatio == null ? '—' : `${fmt(volRatio * 100, 0)}%${dryUp != null ? ` · 10일 평균 ${fmt(dryUp * 100, 0)}%${dryUp < 0.8 ? ' (거래 감소)' : ''}` : ''}`],
     [`${rangeLabel} 고점 대비`, signed(fromHigh)],
@@ -227,7 +243,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     ['50일선 대비 일평균 변동폭 배수', adrFrom50 == null ? '—' : `${adrFrom50 >= 0 ? '+' : ''}${adrFrom50.toFixed(1)}배 (ADR${TECH.adrPeriod} ${fmt(adrPct)}%)${EXTENSION_NOTE[extensionStateFor(adrFrom50)] || (adrFrom50 <= -TECH.nearLineAdr ? ' · 50일선 아래(부근 범위 밖)' : '')}`],
     [`${rangeLabel} 저점 대비`, `${signed(fromLow)}${fromLow < 5 ? ' (저점 5% 이내 — 바닥 다지기 전)' : ''}`],
     ['5일·20일 EMA', fiveAbove == null ? '기록 부족' : `5일 EMA가 20일 EMA ${fiveAbove ? '위' : '아래'}${crossAgo != null ? ` · ${crossAgo}거래일 전 ${fiveAbove ? '상향' : '하향'} 교차` : ''}`],
-    ['8일 EMA 대비 거리', extension == null ? '—' : `${signed(extension)}${extension >= TECH.ema8.overheatPct ? ' (과열권)' : extension <= -TECH.ema8.breakBelowPct ? ' (8일선 아래 이탈)' : ''}`],
+    ['8일 EMA 대비 거리', extension == null ? '—' : `${signed(extension)}${adrNow > 0 ? ` · 일평균 변동폭 ${(extension / adrNow).toFixed(1)}배` : ''}${overheated(extension) ? ' (과열권)' : extension <= -TECH.ema8.breakBelowPct ? ' (8일선 아래 이탈)' : ''}`],
     ['상승일·하락일 거래량 (20일)', pressure == null ? '—' : `상승일/하락일 거래량 ${pressure.toFixed(2)}배 ${pressure >= 1.3 ? '(상승일 거래량 우위)' : pressure <= 0.77 ? '(하락일 거래량 우위)' : '(비슷함)'}`],
     ['변동성 수축 (VCP)', vcp.contractions.length ? `${vcp.contractions.map((row) => `-${row.depth.toFixed(1)}%`).join(' → ')}${vcp.valid ? '' : ' (수축 순서 불충분)'}` : '수축 구간 없음'],
     ['기준 고점(피벗 · 마지막 조정의 고점)', pivot == null ? '—' : `${fmt(pivot)} (현재가 대비 ${signed((pivot / last.close - 1) * 100)})`],
@@ -247,6 +263,10 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     weinstein,
     weeklyTrend,
     rs,
+    rsFromHigh,
+    rsAtHigh,
+    rsLeadsPrice,
+    timeframeConflict,
     benchmarkLabel,
     ret6,
     pressure,
@@ -280,6 +300,7 @@ export function chartReading(analysis, regime = null) {
   if (w) parts.push(`주봉으로는 Weinstein ${w.stage}단계(${w.text.split(' — ')[0]})`);
   parts.push(`${TEMPLATE_LABEL} ${analysis.templatePass}/8`);
   if (analysis.rs != null) parts.push(`6개월 수익률이 ${analysis.benchmarkLabel || 'S&P 500'}보다 ${Math.abs(analysis.rs).toFixed(1)}%p ${analysis.rs >= 0 ? '높음' : '낮음'}`);
+  if (analysis.rsLeadsPrice) parts.push('상대강도선이 가격보다 먼저 신고가');
   const why = parts.join(', ');
   const vcp = analysis.vcp?.contractions?.length ? `변동성 수축 ${analysis.vcp.contractions.map((row) => `-${row.depth.toFixed(0)}%`).join('→')}${analysis.dryUp != null && analysis.dryUp < 0.8 ? ', 거래량도 줄어드는 중' : ''}` : null;
   const state = {
@@ -298,5 +319,6 @@ export function chartReading(analysis, regime = null) {
   }[analysis.state];
   // v57.50 D23: no unsourced "weak markets fail more setups" claim — the market state is stated, not interpreted.
   const market = regime?.available ? `시장 상태: ${regime.overall}` : null;
-  return { headline: state, why, market, flip: analysis.flip };
+  const conflict = analysis.timeframeConflict ? ` — 다만 주봉은 ${w?.stage === 4 ? 'Weinstein 4단계(하락)' : '10·30주 역배열'}이라 상위 시간대와 방향이 어긋납니다` : '';
+  return { headline: `${state}${conflict}`, why, market, flip: analysis.flip };
 }
