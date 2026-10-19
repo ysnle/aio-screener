@@ -55,6 +55,19 @@ jobs:
               core.info('Ignoring stale or unobserved completion; latest workflow state owns the alert.');
               return;
             }
+            // 2026-10-19 pipeline redesign: a run whose gate job decided there was nothing to do (the refresh cadence's
+            // weekend "skip" slots) ends success with every work job skipped. It observed nothing, so it neither closes
+            // the issue as recovered nor breaks the failure streak; before, a red-CI stall on a weekend closed its own alert.
+            const gateJobs = ['cadence'];
+            const gatedWorkflows = ['Refresh market data'];
+            const observedWork = async (id) => {
+              if (!gatedWorkflows.includes(workflow)) return true;
+              try {
+                const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, { owner, repo, run_id: id, per_page: 100 });
+                const work = jobs.filter((job) => !gateJobs.includes(job.name));
+                return !(jobs.length > work.length && work.length && work.every((job) => job.conclusion === 'skipped'));
+              } catch (_) { return true; }
+            };
 
             try {
               await github.rest.issues.getLabel({ owner, repo, name: label });
@@ -75,6 +88,10 @@ jobs:
             const runUrl = run.html_url;
             const sha = String(run.head_sha || '').slice(0, 12);
             const timestamp = new Date(run.updated_at || Date.now()).toISOString();
+            if (succeeded && !(await observedWork(run.id))) {
+              core.info('Success without work (gate skipped every job); the alert state is unchanged.');
+              return;
+            }
             if (succeeded) {
               if (existing && existing.state === 'open') {
                 await github.rest.issues.createComment({ owner, repo, issue_number: existing.number, body: `Recovered: [${workflow} run ${run.id}](${runUrl}) succeeded at ${timestamp}.` });
@@ -111,7 +128,10 @@ jobs:
               .sort((left, right) => new Date(right.updated_at) - new Date(left.updated_at));
             let consecutiveFailures = 1;
             for (const candidate of sameWorkflowRuns) {
-              if (candidate.conclusion === 'success') break;
+              if (candidate.conclusion === 'success') {
+                if (await observedWork(candidate.id)) break;
+                continue;
+              }
               consecutiveFailures += 1;
             }
             if (consecutiveFailures < 2) return;

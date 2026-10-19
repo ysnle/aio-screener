@@ -9,6 +9,7 @@ import { krFundamentalPoints, KR_FUNDAMENTALS } from '../../domain/entity/kr-fun
 import { sectorLabel } from '../../domain/screener/screener-read.js';
 import { consensusView } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
+import { openThemeDetail } from '../navigation/theme-detail.js';
 
 const EARNINGS_CALENDAR = Object.freeze({ key: '_aioEarningsCalendarArtifact', url: './public-data/earnings-calendar.json', schemas: ['earnings-calendar.v1'], maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 512 * 1024 });
 const mdOf = (date) => { const m = String(date || '').match(/^\d{4}-(\d{2})-(\d{2})/); return m ? `${Number(m[1])}/${Number(m[2])}` : ''; };
@@ -110,7 +111,7 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
     const themes=element(doc,'div',null,'company-analysis-themes');
     // P1743 / 2026-10-14 audit #5: the same stage rows as 테마 시나리오, for this listing's own market (US or KR).
     const stages=themeStagesFor(root,{symbol:id,themeIds:model.associations.map(theme=>theme.id)});
-    for (const theme of model.associations) { const stage=stages.find(row=>row.id===theme.id); const button=element(doc,'button',`${theme.name}${theme.subThemes.length ? ` · ${theme.subThemes.join(' / ')}` : ''}${stage ? ` · 테마 단계: ${stage.stateLabel}` : ''}`); button.type='button'; button.addEventListener('click',()=>root?.showThemeDetail?.(theme.id)); themes.append(button); }
+    for (const theme of model.associations) { const stage=stages.find(row=>row.id===theme.id); const button=element(doc,'button',`${theme.name}${theme.subThemes.length ? ` · ${theme.subThemes.join(' / ')}` : ''}${stage ? ` · 테마 단계: ${stage.stateLabel}` : ''}`); button.type='button'; button.addEventListener('click',()=>openThemeDetail(root,theme.id,{symbol:id})); themes.append(button); }
     identity.append(element(doc,'p','연결된 테마 · AIO 분류','company-analysis-meta'), themes);
   }
   identity.append(detail(doc,'사업·분류 근거',[`종목 등록 ${meta.registered ? '확인' : '미등록'} · 유형 검증 ${meta.verification}`,meta.currency ? `거래 통화 ${meta.currency}` : '거래 통화 미확인',model.associations.length ? '테마는 AIO의 투자 분류이며 실제 사업부문 매출 비중을 뜻하지 않습니다.' : null],model.business.sourceUrl,model.business.source));

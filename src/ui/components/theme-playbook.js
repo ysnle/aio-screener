@@ -12,6 +12,7 @@ import { refreshScenarioArtifacts } from './macro-crossroads.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { setResearchHandoff } from '../../app/research-handoff.js';
 import { el } from './dom.js';
+import { openThemeDetail } from '../navigation/theme-detail.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 const pct = (value) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);
@@ -150,9 +151,9 @@ function themeCard(doc, root, row, screenerSector = null) {
   const explore = el(doc, 'div', null, 'xr-explore');
   explore.append(el(doc, 'span', '종목은 직접 보기:', 'xr-explore-label'));
   const link = (label, onClick) => { const b = el(doc, 'button', `${label} →`, 'flow-next-link'); b.type = 'button'; b.addEventListener('click', onClick); return b; };
-  if (row.market === 'US' && typeof root?.showThemeDetail === 'function') {
-    const detail = link('테마 상세 · 구성 종목', () => root.showThemeDetail(row.id));
-    detail.dataset.themeId = row.id; // the 테마 page places the detail panel right after this section (themes.js trigger rule)
+  if (typeof (row.market === 'KR' ? root?.openKrThemeDetail : root?.showThemeDetail) === 'function') {
+    const detail = link('테마 상세 · 구성 종목', () => openThemeDetail(root, row.id, { market: row.market }));
+    if (row.market !== 'KR') detail.dataset.themeId = row.id; // the 테마 page places the US detail panel right after this section (themes.js trigger rule)
     explore.append(detail);
   }
   if (row.market === 'KR') explore.append(link('한국 테마 흐름', () => {
