@@ -390,6 +390,11 @@
           "remedy": "move the new static import behind import(); a budget raise in architecture/boot-budget.json needs a reason in the commit"
         },
         {
+          "id": "inline-style-ratchet",
+          "script": "scripts/ci-inline-style-ratchet-check.mjs",
+          "remedy": "style through a class in src/ui/styles (tokens: index.html :root, layout-primitives.css); after a shrink run --write"
+        },
+        {
           "id": "research-reference-index",
           "script": "scripts/build-research-reference-index.mjs",
           "remedy": "node scripts/build-research-reference-index.mjs",

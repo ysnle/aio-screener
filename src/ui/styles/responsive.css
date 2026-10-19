@@ -1,5 +1,6 @@
 /* P1618: preserve the desktop terminal; compact screens use a navigation drawer.
    Dense financial tables retain their columns in local, keyboard-accessible scroll regions. */
+@import url('./layout-primitives.css');
 @import url('./entity-quality.css');
 @import url('./screener-quality.css');
 @import url('./fiscal-quality.css');
@@ -7,6 +8,7 @@
 @import url('./company-analysis.css');
 @import url('./regime-quality.css');
 @import url('./chat-sessions.css');
+@import url('./reference-lens.css');
 @import url('./shell-overlays.css'); /* v57.81: update banner, disclaimer bar and safe-area offsets */
 /* UI review 2026-10-18: one page header for every screen. The screens had three hand-written variants
    (thin rule 8px, strong rule 20px, no rule — the subtitle then touched the first section's rule), and a

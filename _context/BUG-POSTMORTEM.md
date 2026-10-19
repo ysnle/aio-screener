@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1934 - v58.37 - 한국 종목의 테마 링크가 미국 테마를 열거나 아무것도 열지 않음 (2026-10-19)
+
+- symptom/reproduction: KRX 종목(예: 012450.KS)의 종목 요약 '이 테마의 시나리오 →'와 기업 카드 테마 버튼이 KR_THEME_MAP id로 showThemeDetail을 불렀다. K-방산은 미국 방산 테마를 열었고(defense·crypto·quantum·space는 두 지도에 모두 있음), 나머지 한국 테마 링크는 아무 동작도 하지 않았다.
+- root_cause: src/ui/components/stock-read.js와 company-analysis.js가 모든 테마 id를 미국 열기 함수로 보냈다. window.openKrThemeDetail(P1327)을 부르는 곳이 남아 있지 않아 QA-UX-09(KRX 종목이 한국 테마로 연결)가 조용히 회귀했다.
+- fix: src/ui/navigation/theme-detail.js의 openThemeDetail(root, id, {symbol|market})이 한국 id는 openKrThemeDetail로, 미국 id는 showThemeDetail로 보낸다. stock-read·company-analysis·테마 플레이북(한국 행에 상세 링크 추가)이 이 함수를 쓴다.
+- violated_rule: R672 (한국 테마 이름·구성은 한 소유자; KRX 종목은 한국 테마 상세로 연결)
+- prevention: ci-esm-core-unit-check.mjs P1327 블록이 KRX 종목은 KR:defense, 미국 종목은 US:defense를 열고 없는 한국 id는 false를 돌려주는지 검사한다.
+- verification/residual: Chromium: 012450.KS K-방산 버튼이 테마 화면의 #kr-theme-detail-panel을 연다; 한국 플레이북 행 링크가 한국 상세를 연다; esm-core unit check 통과.
+
 ## P1933 - v58.36 - 기존 감사의 미해결 결함: 백테스트 기준 통화 가중이 현지 통화로 표류, 진행 중인 달을 완결 월로 집계, 미확인 거래소 접미사를 달러로 처리, 장중(REGULAR) 값을 종가로 AI 근거에 전달 (2026-10-19)
 
 - symptom/reproduction: 원/달러가 움직인 다음 달의 기준 통화 백테스트 수익률이 원화 종목 비중을 환율 변동 전 값으로 두었다(감사 예시: −4.545% vs 정답 −4.329%). 이번 달 중간 수익률이 한 달치로 CAGR·변동성·VaR에 들어갔다. .L·.TO 같은 접미사 종목이 달러 상장으로 환율 1로 환산됐다. 공급자가 장 중임을 뜻하는 REGULAR 행이 '완결 종가' 목록에 있어 시장 해석 프롬프트에 장중 가격이 종가로 들어갈 수 있었다.
