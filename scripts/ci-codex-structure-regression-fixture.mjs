@@ -25,6 +25,7 @@ import { mergeNewsFeedHealth, carriedNewsCandidates, createNewsTopicCap, getKst0
 import { narrativeVerification } from './lib/narrative-context.mjs';
 import { reportVerification } from '../src/domain/news/report-verification.js';
 import { buildDomainReceipts } from './producer/receipts.mjs';
+import { spawnSync } from 'node:child_process';
 import { NEWS_FEEDS } from './lib/news-selection.mjs';
 
 const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
@@ -317,4 +318,18 @@ console.log('codex-structure-regression-fixture: OK');
   assert.deepEqual([receipt.counts.eligible, receipt.counts.updated, receipt.counts.retained], [NEWS_FEEDS.length, 1, 1], 'news receipt: feeds answered vs feeds only carried');
   assert.equal(receipt.publication.status, 'PARTIAL', 'a feed that did not answer makes the news receipt partial');
   assert.match(receipt.publication.basis, /3 article\(s\), 2 collected this run/);
+}
+// Pipeline redesign (2026-10-19): a data CI run that settles after its own 12-minute convergence wait fails the next
+// awaiting cycle (before, only the 6-hour freshness watchdog saw it). Runs the real driver against a stubbed API.
+{
+  const stub = `data:text/javascript,${encodeURIComponent(`globalThis.fetch = async (url) => { const u = new URL(url); const json = (b) => new Response(JSON.stringify(b), { status: 200 });
+    if (u.pathname.endsWith('/actions/workflows/ci.yml/runs')) return json({ workflow_runs: u.searchParams.get('head_sha') ? [{ id: 50, head_sha: 'new', status: 'in_progress' }]
+      : [{ id: 50, head_sha: 'new', status: 'in_progress' }, { id: 49, head_sha: 'old', status: 'completed', conclusion: process.env.PREV }] });
+    return new Response('', { status: 404 }); };`)}`;
+  const converge = (prev) => spawnSync(process.execPath, ['--import', stub, 'scripts/ensure-live-convergence.mjs', '--await-sha', 'new', '--timeout-min', '0.005', '--poll-ms', '5'],
+    { env: { PATH: process.env.PATH, GH_TOKEN: 'fixture', GITHUB_REPOSITORY: 'fixture/repo', PREV: prev }, encoding: 'utf8', timeout: 30000 });
+  const failed = converge('failure');
+  assert.equal(failed.status, 1, `an earlier data revision whose CI settled red fails the awaiting cycle: ${failed.stdout}${failed.stderr}`);
+  assert.match(failed.stdout, /previous data revision old settled with a failed CI run 49/);
+  assert.equal(converge('success').status, 0, 'an earlier green data revision leaves the awaiting cycle green');
 }
