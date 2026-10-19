@@ -142,6 +142,21 @@ function _analysisNumberAfterLabel(body, labels) {
 // v57.69: thresholds for the large-move rules in validateMarketAnalysisText (percent change vs the previous close).
 export const KOREA_MOVE_MENTION_PCT = RULES.largeMove.attributionKospiPct;
 export const LARGE_MOVE_ATTRIBUTION_PCT = RULES.largeMove.attributionUsPct;
+// 2026-10-19 data audit: on Monday the S&P 500 row is Friday's close (−1.09%) while HEADLINE_CONTEXT is the weekend
+// bundle (Sat 08:00 → Mon 08:00 KST, every item published after that close), so every attempt was blocked for not
+// naming a cause no headline in the window could carry. A move asks for attribution only when its session ended
+// inside the headline window or within the 12 hours before it opened (the US close before a Korean-morning cut).
+export const LARGE_MOVE_WINDOW_LEAD_MS = 12 * 3600000;
+export function marketAnalysisLargeMove(metricEvidence = [], changes = new Map(), data = null) {
+  const windowStart = Date.parse(data?.meta?.newsCycleStart || '');
+  return (Array.isArray(metricEvidence) ? metricEvidence : []).some((row) => {
+    const move = changes.get(row.evidenceId);
+    if (row.metricId !== 'market.spx' && row.metricId !== 'market.kospi') return false; // equity indices only (a 1% VIX move is noise)
+    if (!(Number.isFinite(move) && Math.abs(move) >= (row.metricId === 'market.kospi' ? KOREA_MOVE_MENTION_PCT : LARGE_MOVE_ATTRIBUTION_PCT))) return false;
+    const observed = Date.parse(row.observedAt || '');
+    return !Number.isFinite(windowStart) || !Number.isFinite(observed) || observed >= windowStart - LARGE_MOVE_WINDOW_LEAD_MS;
+  });
+}
 export const MARKET_ANALYSIS_CLOSED_SESSIONS = Object.freeze(['MARKET_CLOSED', 'CLOSED_CURRENT', 'COMPLETED', 'CLOSED', 'REGULAR']);
 const MARKET_ANALYSIS_MENTIONS = Object.freeze({
   'market.spx': ['S&P\\s?500', 'SPX', 'S&P', '에스앤피\\s?(?:오백|500)'],
@@ -567,11 +582,7 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   // v57.69 (2026-10-15 crash audit): on 10/14 (S&P 500 -1.11%, KOSPI -5%) the published reading carried no cause at all
   // while the retained headlines named hot CPI and AI selling. On a large move with headlines available, an
   // unattributed reading is blocked (the retry is told to name the headline); on a quiet day it stays a disclosure.
-  const largeMove = metricEvidence.some((row) => {
-    const move = changes.get(row.evidenceId);
-    if (row.metricId !== 'market.spx' && row.metricId !== 'market.kospi') return false; // equity indices only (a 1% VIX move is noise)
-    return Number.isFinite(move) && Math.abs(move) >= (row.metricId === 'market.kospi' ? KOREA_MOVE_MENTION_PCT : LARGE_MOVE_ATTRIBUTION_PCT);
-  });
+  const largeMove = marketAnalysisLargeMove(metricEvidence, changes, data);
   // v57.75 (AI pipeline audit): the check read the raw body, so a citation id ("[headline:...]") counted as attribution and
   // a sentence that refused to name any cause ("원인으로 단정할 수 없습니다") passed on a −7.8% KOSPI day. It now reads the
   // prose without citation brackets and needs one attributing sentence that is not a refusal.

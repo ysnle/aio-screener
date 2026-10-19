@@ -8,8 +8,14 @@ const labelPattern = labels => `(?<![A-Za-z0-9_.:-])(?:${[...new Set(labels)].so
 // (label levels here, Korean-name mentions in fetch-data validateAnalysisMetricMentions) share this one rule.
 const NON_METRIC_AFTER = /^\s*(?:일(?!본)|주(?![가식요])|월(?![가요])|개월|년|거래일|세션|배(?!럴)|명|개|종목|곳|건|위(?![로에])|번째|조건|시(?![장점가총작])|분|KST\b|ET\b)|^[:/]\d/;
 const CLOCK_BEFORE = /(?:오전|오후|한국\s?시간|미국\s?시간|현지\s?시간|뉴욕\s?시간)\s*$/;
+// 2026-10-19 data audit: "나스닥100·반도체의 50일선 회복" read 100 as a WTI level (98.64, in session) and blocked a verified
+// analysis for intraday-time-missing:market.wti. An index's constituent count glued to its name is part of the name.
+const INDEX_NAME_BEFORE = /(?:나스닥|코스피|코스닥|닛케이|러셀|유로스톡스|S&P|Nasdaq|KOSPI|KOSDAQ|Nikkei|Russell|Stoxx|FTSE|CSI)\s?$/i;
+const INDEX_CONSTITUENT_COUNTS = new Set(['50', '100', '150', '200', '225', '300', '400', '500', '600', '1000', '2000', '3000']);
 export function isNonMetricNumber(text, index, length) {
   const source = String(text);
+  const digits = source.slice(index, index + length).replace(/^[+\-±]/, '').trim();
+  if (INDEX_CONSTITUENT_COUNTS.has(digits) && INDEX_NAME_BEFORE.test(source.slice(Math.max(0, index - 12), index))) return true;
   const after = source.slice(index + length, index + length + 14);
   const prev = source[index - 1];
   return NON_METRIC_AFTER.test(after) || prev === ':' || prev === '/' || CLOCK_BEFORE.test(source.slice(Math.max(0, index - 8), index));

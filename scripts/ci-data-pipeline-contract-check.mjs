@@ -708,7 +708,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   // Review (v57.52): one news cut per run — fetchNews and meta.newsCycleEnd use the same attempt time, so a run that
   // straddles 08:00 KST cannot pick newsIntraday against the previous cut and fail P1720.
   check('P1720 fetchNews and meta.newsCycleEnd share the run attempt time',
-    /fetchNews\(Date\.parse\(attemptedAt\)\)/.test(source) && /const newsCycle = getKst0800NewsCycle\(Date\.parse\(attemptedAt\)\)/.test(source));
+    /fetchNews\(Date\.parse\(attemptedAt\)[,)]/.test(source) && /const newsCycle = getKst0800NewsCycle\(Date\.parse\(attemptedAt\)\)/.test(source));
 }
 {
   // v57.69 (2026-10-15 crash audit): on a -1.1% S&P 500 / -5.5% KOSPI morning after a hot CPI the published reading
