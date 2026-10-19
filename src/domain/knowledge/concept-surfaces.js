@@ -14,7 +14,6 @@ export const CONCEPT_SURFACES = Object.freeze({
   yield: ['atlas:foundry-capacity-yield', 'frame:semi-process'],
   'front-back-end': ['atlas:foundry-process-node', 'frame:semi-process'],
   pue: ['atlas:aidc-pue'],
-  'term-premium': ['frame:long-bond'],
   'credit-creation': ['frame:credit-money'],
   nim: ['frame:bank'], 'combined-ratio': ['frame:insurance'], 'loss-ratio': ['frame:insurance'],
   'cap-rate': ['frame:reit'], ffo: ['frame:reit'], noi: ['frame:reit'],

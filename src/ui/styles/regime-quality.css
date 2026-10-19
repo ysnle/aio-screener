@@ -405,3 +405,40 @@ body.dark-theme .sector-map .is-na { background: #36383b; color: #c8c6c0; }
 .page .regime-read-more { margin: -10px 0 14px; color: var(--text-secondary); }
 .page .regime-read-more summary { cursor: pointer; min-height: 28px; display: list-item; font-size: 13px; color: var(--text-secondary); }
 .page .regime-read-more p { margin-top: 4px; }
+/* Owner 2026-10-19: 오늘의 가이드 (src/ui/components/market-guide.js) — situation, choices across scenarios, lean/avoid, principles. */
+.page .mg-guide { margin-top: 24px; padding-top: 6px; border-top: 1px solid var(--border); }
+.page .mg-situation { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 14px; margin: 8px 0 14px; max-width: 920px; }
+.page .mg-situation dt { font-weight: 600; font-size: 14px; color: var(--text-primary); }
+.page .mg-situation dd { margin: 0; font-size: 14.5px; line-height: 1.65; color: var(--text-secondary); }
+.page .mg-choices { border-collapse: collapse; width: 100%; max-width: 920px; font-size: 14px; margin: 6px 0 8px; }
+.page .mg-choices caption { text-align: left; font-size: 12.5px; color: var(--text-muted); padding-bottom: 4px; }
+.page .mg-choices th, .page .mg-choices td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+.page .mg-choices thead th { font-size: 12.5px; color: var(--text-secondary); font-weight: 600; }
+.page .mg-choices tr[data-robust="true"] th, .page .mg-choices tr[data-robust="true"] td { color: var(--text-primary); font-weight: 600; box-shadow: inset 0 -2px 0 var(--data-green); }
+.page .mg-costs-label { font-size: 14px; font-weight: 600; color: var(--text-primary); margin: 10px 0 4px; }
+.page .mg-costs { margin: 0 0 12px; padding-left: 18px; font-size: 14px; line-height: 1.65; color: var(--text-secondary); max-width: 920px; }
+.page .mg-stance { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 8px 0 12px; }
+.page .mg-stance-col { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); }
+.page .mg-stance-col[data-kind="pursue"] { border-left: 3px solid var(--data-green); }
+.page .mg-stance-col[data-kind="avoid"] { border-left: 3px solid var(--data-amber); }
+.page .mg-stance-col ul { margin: 4px 0 0; padding-left: 18px; font-size: 14px; line-height: 1.65; color: var(--text-secondary); }
+.page .mg-lessons { list-style: none; margin: 6px 0 12px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+.page .mg-lesson { padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); display: flex; flex-direction: column; gap: 4px; }
+.page .mg-lesson-head { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: baseline; }
+.page .mg-kind { font-size: 12px; padding: 1px 6px; border-radius: 3px; border: 1px solid var(--border); color: var(--text-secondary); }
+.page .mg-lesson[data-kind="trap"] .mg-kind { color: var(--data-amber); border-color: var(--data-amber); }
+.page .mg-lesson[data-kind="trust"] .mg-kind { color: var(--data-green); border-color: var(--data-green); }
+.page .mg-lesson-title { font-size: 14.5px; color: var(--text-primary); }
+.page .mg-lesson-principle { margin: 0; font-size: 13.5px; line-height: 1.65; color: var(--text-secondary); }
+.page .mg-lesson-reason { margin: 0; font-size: 13px; line-height: 1.6; color: var(--text-primary); }
+.page .mg-lesson-why { margin: 0; font-size: 13px; line-height: 1.6; color: var(--text-muted); }
+.page .mg-concept-link { align-self: flex-start; margin-top: auto; min-height: 32px; padding: 4px 0; background: none; border: 0; color: var(--data-cyan); font-size: 13px; cursor: pointer; }
+.page .mg-concept-link:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
+.page .mg-library { margin: 4px 0 10px; }
+.page .mg-library-summary { cursor: pointer; font-size: 14px; color: var(--text-primary); min-height: 32px; padding: 4px 0; }
+@media (max-width: 640px) {
+  .page .mg-situation { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .page .mg-situation dd { margin-bottom: 6px; }
+  .page .mg-stance { grid-template-columns: minmax(0, 1fr); }
+  .page .mg-lessons { grid-template-columns: minmax(0, 1fr); }
+}

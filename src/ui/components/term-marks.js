@@ -54,7 +54,10 @@ export const TERM_MARKS = Object.freeze([
   ['3개월물', '3개월물 (국채)'],
   ['단기채', '단기채'],
   ['50일선', '이동평균 (50일선 · 200일선)'],
-  ['200일선', '이동평균 (50일선 · 200일선)']
+  ['200일선', '이동평균 (50일선 · 200일선)'],
+  // 2026-10-19 market guide: the choice words 오늘 · 시나리오 가이드 use are glossary terms.
+  ['기회비용', '기회비용'],
+  ['분할 접근', '분할 접근']
 ]);
 
 const PROSE = 'p, li, dd';

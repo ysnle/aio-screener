@@ -42,6 +42,7 @@ import { buildMarketScenarios, renderMarketScenarioContext } from '../src/domain
 import { buildScenarioOutlook, renderScenarioOutlookContext } from '../src/domain/market/scenario-outlook.js';
 import { buildMacroRead } from '../src/domain/macro/macro-read.js';
 import { buildMacroCrossroads, upcomingMacroEvents, renderMacroCrossroadsContext } from '../src/domain/market/macro-crossroads.js';
+import { buildMarketGuide, renderMarketGuideContext } from '../src/domain/guide/market-guide.js';
 import { round } from './lib/producer-math.mjs';
 import { EXTENDED_SHARD_SCHEMA, RANKING_CONTRACTS, encodeScreenerArtifact, encodeShardRows, expandScreenerArtifact, isValidShard } from '../src/data/screener-extended.js'; // v57.81; v57.95 core encoding
 import { _mean, closesToFactors, backtestFactors } from './lib/factors.mjs'; // v57.62 split
@@ -2469,7 +2470,7 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     const krDate = buildCloseSeries(input.history, 'kospi').at(-1)?.date || null;
     const sessions = krDate && regime.asOf && krDate !== regime.asOf ? `세션 기준일: 미국 ${regime.asOf.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} · 한국 ${krDate.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} — 두 시장을 한 문장에서 함께 말하면 두 날짜(M/D)를 모두 적을 것.` : '';
     return [`종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, priorSessionMoveLines(input.history), trendLine, leadershipLine, semisLine, conflicts, axes,
-      renderMarketScenarioContext(input, { regime }), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(data, input, regime)].filter(Boolean).join('\n');
+      renderMarketScenarioContext(input, { regime }), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(data, input, regime, outlook)].filter(Boolean).join('\n');
   } catch (error) {
     return '';
   }
@@ -2499,7 +2500,7 @@ export function priorSessionMoveLines(history = []) {
 
 // P1742 (owner 2026-10-13): the narrative looks forward with the same branches the 거시 screen draws — the next official
 // releases, each branch's chain, its three likelihood lines and the reader's choices with their opportunity cost.
-export function marketAnalysisCrossroadsContext(data, input, regime) {
+export function marketAnalysisCrossroadsContext(data, input, regime, outlook = null) {
   try {
     let schedules = {};
     try { schedules = JSON.parse(readFileSync(MACRO_CALENDAR_OUT, 'utf8'))?.schedules || {}; } catch (_) { schedules = {}; }
@@ -2511,7 +2512,8 @@ export function marketAnalysisCrossroadsContext(data, input, regime) {
     try { outcomes = JSON.parse(readFileSync(SCENARIO_OUTCOMES_OUT, 'utf8')); } catch (_) { outcomes = null; }
     const breadthState = regime?.axes?.find((axis) => axis.id === 'breadth')?.state || null;
     const model = buildMacroCrossroads({ read: read ? { ...read, breadthState } : read, macroHistory: input.macroHistory, history: input.history, events: upcomingMacroEvents({ schedules }), outcomes, previousLeadId: state?.crossroads?.leadId || null });
-    return [renderMacroCrossroadsContext(model, { state }), scenarioStateThemeLines(state)].filter(Boolean).join('\n');
+    // Owner 2026-10-19: the shared market guide (the 오늘 card) so the narrative explains with the same synthesis.
+    return [renderMacroCrossroadsContext(model, { state }), scenarioStateThemeLines(state), renderMarketGuideContext(buildMarketGuide({ regime, outlook, crossroads: model }))].filter(Boolean).join('\n');
   } catch (_) { return ''; }
 }
 

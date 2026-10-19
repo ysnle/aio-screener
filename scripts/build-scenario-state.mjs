@@ -23,6 +23,10 @@ import { buildThemePlaybook } from '../src/domain/scenarios/theme-playbook.js';
 import { THEME_STATES } from '../src/domain/scenarios/analogs.js';
 import { SCENARIO_STATE_CURRENT } from '../src/domain/scenarios/theme-stage.js';
 import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
+import { buildMarketScenarios } from '../src/domain/market/regime-scenarios.js';
+import { buildScenarioOutlook } from '../src/domain/market/scenario-outlook.js';
+import { buildMarketGuide, choiceName } from '../src/domain/guide/market-guide.js';
+import { LESSON_BY_ID } from '../src/domain/guide/lessons.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PD = (name) => path.join(ROOT, 'public-data', name);
@@ -73,6 +77,14 @@ export function diffSnapshots(previous, current, at) {
       push('pricing', `'${short(item.title)}'에 대한 시장 가격이 ${label[old.pricingTone] || old.pricingTone}에서 ${label[item.pricingTone] || item.pricingTone}(으)로 바뀌었습니다.`);
     }
   }
+  // Owner 2026-10-19: the market guide's cross-scenario direction and the principles today's data touches are logged too.
+  const pg = previous.guide || null, cg = current.guide || null;
+  if (pg && cg && pg.robust !== cg.robust) push('guide', cg.robust ? `여러 시나리오를 함께 볼 때 비용이 작은 쪽이 '${pg.robust ? choiceName(pg.robust) : '집계 없음'}'에서 '${choiceName(cg.robust)}'(으)로 바뀌었습니다.` : (cg.split ? '살아 있는 시나리오들이 유리한 선택지를 서로 다르게 적어 한쪽으로 세지 않습니다.' : '핵심 조건을 갖춘 시나리오가 없어 선택지 집계를 멈췄습니다.'));
+  if (pg && cg) {
+    // Only a newly relevant trap is logged (the others follow the same axes the log already records).
+    const added = (cg.lessonIds || []).filter((id) => !(pg.lessonIds || []).includes(id) && LESSON_BY_ID[id]?.kind === 'trap' && cg.reasons?.[id]);
+    if (added.length) push('lesson', `새로 조심할 함정: ${added.map((id) => LESSON_BY_ID[id].title).join(' · ')}.`);
+  }
   if (!!p.tension !== !!c.tension) push('tension', c.tension ? `금리 괴리가 생겼습니다: ${c.tension}` : '금리를 낮출 조건과 10년물 움직임의 괴리가 풀렸습니다.');
   const themesBefore = new Map((previous.themes || []).map((row) => [themeKey(row), row]));
   const stageMoves = [];
@@ -115,12 +127,20 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
   const credit = regime?.axes?.find((axis) => axis.id === 'credit')?.state || null;
   // v57.81: the close history lets each theme stage be read against the S&P 500 / KOSPI over the same windows.
   const playbook = buildThemePlaybook({ usGroups, krThemes, crossroads, credit, outcomes, labels: maps.labels, history });
+  // Owner 2026-10-19: the same market guide the 오늘 screen and the AI read (structure outlook without the live sector rows).
+  const regimeInput = { ...marketAnalysisRegimeInput(data, history, macroHistory), now: nowMs };
+  const scenarios = regime?.available ? buildMarketScenarios(regimeInput, { regime }) : null;
+  const outlook = scenarios?.available ? buildScenarioOutlook({ scenarios, regime }) : null;
+  const guide = buildMarketGuide({ regime, outlook, crossroads, nowMs });
   const snapshot = {
     crossroads: { asOf: crossroads.asOf, headline: crossroads.headline, leadId: crossroads.leadId, altId: crossroads.altId, tension: crossroads.rateHub?.tension || null,
       nextEvent: crossroads.nextEvent, pathsDown: (crossroads.rateHub?.pathsDown || []).map((row) => ({ id: row.id, label: row.label, ok: row.ok })),
       items: (crossroads.items || []).map((item) => ({ id: item.id, title: item.title, met: item.met, total: item.total, known: item.known, fit: item.fit, conditions: item.conditions, pricingTone: item.pricing?.tone || 'unknown', favored: item.favored, pastN: item.past?.n ?? 0, pastSource: item.past?.source || null })) },
     themes: (playbook.themes || []).map((row) => ({ market: row.market, id: row.id, label: row.label, state: row.state, stateLabel: row.stateLabel, ret5d: row.ret5d ?? null, ret1m: row.ret1m, ret3m: row.ret3m, ret6m: row.ret6m, above50: row.above50, basis: row.basis || null, windLead: row.wind.lead, windAlt: row.wind.alt, favored: row.favored, fit: row.fit })),
     rotation: { text: playbook.rotation?.text || '', top: playbook.rotation?.tags?.length >= 2 ? { strong: playbook.rotation.tags[0].label, weak: playbook.rotation.tags.at(-1).label, scope: playbook.rotation.market || null } : null, tags: playbook.rotation?.tags || [] },
+    guide: guide.available ? { asOf: guide.asOf, headline: guide.headline, leadId: guide.leadId, robust: guide.direction.robust, split: guide.direction.split,
+      tally: guide.direction.tally.map((row) => ({ key: row.key, favoredIn: row.favoredIn, costlyIn: row.costlyIn })), situation: guide.situation, stance: guide.stance,
+      lessonIds: guide.lessons.map((row) => row.id), reasons: Object.fromEntries(guide.lessons.filter((row) => row.reason).map((row) => [row.id, row.reason])) } : null,
     highlights: Object.fromEntries(Object.entries(playbook.highlights || {}).map(([key, list]) => [key, list.map(themeKey)]))
   };
   const transitions = [...(previous?.transitions || []), ...diffSnapshots(previous, snapshot, at)].slice(-MAX_TRANSITIONS);

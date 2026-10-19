@@ -4,7 +4,10 @@ import { buildGroupStrength } from '../../domain/themes/group-strength.js';
 import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/chart-scenarios.js';
 import { koreaParticipationContext } from '../../domain/market/korea-participation.js';
 import { companyAnalysisContext } from '../../domain/entity/company-analysis.js';
-import { renderMarketScenarioContext } from '../../domain/market/regime-scenarios.js';
+import { renderMarketScenarioContext, buildMarketScenarios } from '../../domain/market/regime-scenarios.js';
+import { renderScenarioOutlookContext } from '../../domain/market/scenario-outlook.js';
+import { outlookForRoot } from '../../ui/components/scenario-outlook.js';
+import { buildMarketGuide, renderMarketGuideContext } from '../../domain/guide/market-guide.js';
 import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
 import { collectMarketInputs } from '../../data/selectors/market-inputs.js';
 import { buildMarketRegime } from '../../domain/briefing/market-read.js';
@@ -45,8 +48,24 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
     try {
       const regime = buildMarketRegime(collectMarketInputs(root));
       // P1743: with the automated record (what changed since the last refreshes, how the latest releases scored).
-      const crossroads = renderMacroCrossroadsContext(crossroadsForRoot(root, { regime }), { state: root._aioScenarioState || null });
+      const model = crossroadsForRoot(root, { regime });
+      const crossroads = renderMacroCrossroadsContext(model, { state: root._aioScenarioState || null });
       if (crossroads) parts.push(crossroads);
+    } catch (_) {}
+  }
+  // Owner 2026-10-19: forward, "what should I do", attitude/strategy and "what not to be fooled by" questions get the
+  // shared market guide (the 오늘 card) and the structure outlook's check/caution/ignore lists, so the chat explains with
+  // the same synthesis and concept layer as the screens.
+  if (/앞으로|향후|전망|시나리오|대응|어떻게\s*(?:해야|하지|할까|될까|봐야)|뭘\s*해야|무엇을\s*해야|유리|기회비용|태도|마인드|마음가짐|전략|기법|속지|믿어|믿을|조심|주의할|지향|지양|초보|배우|공부|시장\s*(?:상황|해석|어때)/i.test(text) && root._aioHistory?.length) {
+    try {
+      const inputs = collectMarketInputs(root);
+      const regime = buildMarketRegime(inputs);
+      const scenarios = regime.available ? buildMarketScenarios(inputs, { regime }) : null;
+      const outlook = scenarios?.available ? outlookForRoot(root, { scenarios, regime }) : null;
+      const structure = renderScenarioOutlookContext(outlook);
+      if (structure) parts.push(structure);
+      const guide = renderMarketGuideContext(buildMarketGuide({ regime, outlook, crossroads: crossroadsForRoot(root, { regime }) }));
+      if (guide) parts.push(guide);
     } catch (_) {}
   }
   // P1743: theme/sector, rotation and "should I stage into X" questions get every theme read by the same rule

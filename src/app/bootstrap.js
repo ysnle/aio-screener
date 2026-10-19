@@ -28,6 +28,7 @@ import { selectForDecision, selectForDisplay, selectLastKnown, selectCompletenes
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { finalizePageDecision } from '../domain/signal/page-decision.js';
 import { installRouteHubTabs, setStockSubject } from '../ui/navigation/route-hubs.js';
+import { installScreenLessons } from '../ui/components/screen-lessons.js';
 import { installScreenShortcuts } from '../ui/navigation/screen-shortcuts.js';
 import { installRouteScrollMemory } from '../ui/navigation/scroll-memory.js';
 import { installShellOverlays } from '../ui/components/shell-overlays.js';
@@ -873,6 +874,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // W00-B: the initial route commits through the same typed boundary. router.start()
     // first so observers of aio:navigationCommitted see the very first commit.
     const stopHubTabs = installRouteHubTabs({ root, documentRef, activeRoute: () => router.active() }); // 8-screen IA
+    const stopScreenLessons = installScreenLessons({ root, documentRef, activeRoute: () => router.active() }); // owner 2026-10-19: per-screen principles
     const stopScrollMemory = installRouteScrollMemory({ root, documentRef, activeRoute: () => router.active() }); // v57.81: back restores scroll
     const stopShellOverlays = installShellOverlays({ root, documentRef }); // v57.81: banner/disclaimer offsets, glossary backdrop
     installScreenShortcuts({ root, documentRef }); // v57.54: ? help rows and 1..8 keys from ROUTE_HUBS
@@ -981,6 +983,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopTimelineStore();
       stopDecisionHeaders();
       stopHubTabs();
+      stopScreenLessons();
       stopScrollMemory();
       stopShellOverlays();
       compatibilityEvents.dispose();
