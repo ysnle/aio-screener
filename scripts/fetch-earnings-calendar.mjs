@@ -2,7 +2,7 @@
 // The browser earnings calendar (index.html loadEarningsCalendar) only renders
 // when a user key exists. This producer fills public-data/earnings-calendar.json
 // so keyless clients still see the coming week's schedule as reference data.
-// Finnhub free: 60 calls/min. Two calls per run (earnings + IPO) — no quota risk.
+// Finnhub free: 60 calls/min. Ten calls per run (week + 8 single days of earnings, IPO) — no quota risk.
 // Without FINNHUB_API_KEY the artifact is preserved with status operator-key-required.
 
 import { readFile } from 'node:fs/promises';
@@ -64,6 +64,23 @@ export function largeCapScheduleGaps(earningsRows = [], { sp500Rows = [], univer
   };
 }
 
+export function earningsCalendarDays(from, to) {
+  const days = [];
+  for (let ms = Date.parse(`${from}T00:00:00Z`); ms <= Date.parse(`${to}T00:00:00Z`); ms += 86400000) days.push(isoDay(new Date(ms)));
+  return days;
+}
+// One row per symbol and date; a later (day-query) row fills fields the week row left empty.
+export function mergeEarningsRows(...lists) {
+  const merged = new Map();
+  for (const row of lists.flat()) {
+    if (!row?.symbol || !row?.date) continue;
+    const key = `${row.symbol}|${row.date}`;
+    const prev = merged.get(key);
+    merged.set(key, prev ? Object.fromEntries(Object.keys({ ...prev, ...row }).map((k) => [k, prev[k] ?? row[k]])) : row);
+  }
+  return [...merged.values()].sort((a, b) => String(a.date).localeCompare(String(b.date)) || String(a.symbol).localeCompare(String(b.symbol)));
+}
+
 async function readJsonIf(path) {
   try { return JSON.parse(await readFile(path, 'utf8')); } catch { return null; }
 }
@@ -99,10 +116,21 @@ async function main() {
     console.warn('[earnings-calendar] published an unavailable snapshot: FINNHUB_API_KEY is not configured');
     return;
   }
-  const [earnings, ipos] = await Promise.all([
+  const [weekRows, ipos] = await Promise.all([
     fetchJSON(`${FINNHUB_BASE}/calendar/earnings?from=${from}&to=${to}&token=${FINNHUB_KEY}`).then((d) => (Array.isArray(d?.earningsCalendar) ? d.earningsCalendar : [])),
     fetchJSON(`${FINNHUB_BASE}/calendar/ipo?from=${from}&to=${to}&token=${FINNHUB_KEY}`).then((d) => (Array.isArray(d?.ipoCalendar) ? d.ipoCalendar : []))
   ]);
+  // 2026-10-19 data audit: the week query came back with 526 rows and without INTC, KO, NOW, BA, CAT or SAP in their
+  // reporting week — a capped response. One query per day (8 more calls, well inside 60/min) fills it; a failed day
+  // keeps what the week query returned.
+  const dayRows = [];
+  for (const day of earningsCalendarDays(from, to)) {
+    const rows = await fetchJSON(`${FINNHUB_BASE}/calendar/earnings?from=${day}&to=${day}&token=${FINNHUB_KEY}`)
+      .then((d) => (Array.isArray(d?.earningsCalendar) ? d.earningsCalendar : [])).catch(() => []);
+    dayRows.push(...rows);
+  }
+  const earnings = mergeEarningsRows(weekRows, dayRows);
+  console.log(`[earnings-calendar] week query ${weekRows.length} rows, day queries ${dayRows.length}, merged ${earnings.length}`);
   const sp500 = await readJsonIf(`${ROOT}/public-data/sp500-weights.json`);
   const universe = await readJsonIf(`${ROOT}/public-data/screener-universe.json`);
   const payload = {

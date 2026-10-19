@@ -66,6 +66,13 @@ export function discreteQuarterSeries(quarterRows, annualRows = []) {
     const prev = fiscal.get(rowEnd(row));
     if (!prev || rowFiled(row) > rowFiled(prev)) fiscal.set(rowEnd(row), row);
   }
+  // 2026-10-19 data audit: LHX's fourth quarters were published at the full-year revenue (21,865 against ~5.6k quarters)
+  // — a three-month row carrying the fiscal-year amount. A "quarter" worth 90%+ of the year ending the same day is the
+  // year, so it is dropped and the quarter is derived as FY − Q1..Q3 below.
+  for (const [end, fy] of fiscal) {
+    const q = byEnd.get(end);
+    if (q && rowValue(fy) > 0 && rowValue(q) >= rowValue(fy) * 0.9) { byEnd.delete(end); series.delete(end); }
+  }
   for (const [end, fy] of fiscal) {
     if (series.has(end)) continue;
     const inside = [...byEnd.values()].filter((row) => rowEnd(row) > rowStart(fy) && rowEnd(row) < end);

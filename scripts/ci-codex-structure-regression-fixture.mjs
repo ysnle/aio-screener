@@ -17,6 +17,10 @@ import { describeRankingHold, factorSessionLag } from '../src/ui/pages/screener.
 import { alignMarketInputs } from '../src/domain/briefing/market-read.js';
 import { fundamentalPeriodTooOld } from '../src/data/providers/screener.js';
 import { validateAnalysisAdmission, scoreServerNewsItem, serverNewsHeadlineMonthStale, newsHeadlineSignature, newsSameEvent } from './fetch-data.mjs';
+import { isNonMetricNumber } from './lib/market-analysis-numbers.mjs';
+import { marketAnalysisLargeMove } from './lib/market-analysis-validate.mjs';
+import { discreteQuarterSeries } from '../src/domain/fundamental/sec-earnings.js';
+import { carriedNewsCandidates, createNewsTopicCap, getKst0800NewsCycle } from './lib/news-selection.mjs';
 
 const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
 
@@ -90,6 +94,32 @@ assert.equal(serverNewsHeadlineMonthStale('Stocks rally on August 14 as Fed sign
 assert.equal(serverNewsHeadlineMonthStale('Stocks rally on October 10 as Fed signals cut', now), false);
 assert.equal(newsSameEvent(newsHeadlineSignature('Fed holds rates steady at 4.25% - Reuters'), newsHeadlineSignature('Fed holds rates steady at 4.25%, signals patience - CNBC')), true, 'the same event is deduped');
 assert.equal(newsSameEvent(newsHeadlineSignature('Oil jumps on Middle East supply fears'), newsHeadlineSignature('Apple unveils new iPhone lineup')), false);
+// 2026-10-19 data audit (v58.27): noise that reached the 10/19 bundle, same-story repeats, and the closed-cycle carry.
+const topicHitsOf = (title, source = 'X') => { const it = { title, source, scoringNowMs: now }; scoreServerNewsItem(it); return it.topicHits; };
+assert.equal(topicHitsOf('ValleyCentral Voting Guide: 2026 midterm elections'), 0, 'a voting guide is not market news');
+assert.ok(topicHitsOf('Data center backlash set to sway midterm elections') > 0, 'an election story with a market topic stays');
+assert.equal(scoreServerNewsItem({ title: 'BE Stock Just Changed EVERYTHING — Bloom Energy (rMCZTrTnh0)', source: 'X', scoringNowMs: now }).selectionReason, 'clickbait-filter');
+assert.equal(topicHitsOf('Investing in the public benefit - Anthropic', 'Anthropic'), 0, 'the publisher suffix is not topic evidence');
+assert.equal(newsSameEvent(newsHeadlineSignature('Yardeni Lowers S&P 500 Target to 7,900 Despite Maintaining 2027 Earnings Forecast'), newsHeadlineSignature('Yardeni Research Cuts S&P 500 Year-End Target to 7,900 on Lower Valuation Expectations')), true, 'a shared comma-grouped figure marks one event');
+const oilCap = createNewsTopicCap();
+oilCap.add('Oil dips as Trump waives Russia energy sanctions'); oilCap.add('Oil prices slide as sanctions relief on Russian crude raises hopes');
+assert.equal(oilCap.full('Oil slips from 5-month high as Trump\'s Russia sanctions waiver may bring more supplies'), true, '"Russian" counts toward the russia entity');
+const carryCycle = getKst0800NewsCycle(Date.parse('2026-10-19T11:17:00Z'));
+const carried = carriedNewsCandidates([
+  { title: 'Fed holds', link: 'https://e.test/a', newsCycleEnd: carryCycle.end, eventTime: '2026-10-18T20:00:00.000Z', tier: 1 },
+  { title: 'Old cycle', link: 'https://e.test/b', newsCycleEnd: '2026-10-17T23:00:00.000Z', eventTime: '2026-10-17T20:00:00.000Z' },
+  { title: 'Outside window', link: 'https://e.test/c', newsCycleEnd: carryCycle.end, eventTime: '2026-10-19T01:00:00.000Z' }
+], carryCycle);
+assert.deepEqual(carried.map((row) => row.title), ['Fed holds'], 'only the same closed cycle carries over');
+assert.equal(isNonMetricNumber('유가 종가와 나스닥100·반도체의 50일선', 10, 3), true, '나스닥100 is a name, not a WTI level');
+assert.equal(isNonMetricNumber('유가는 100달러', 4, 3), false);
+const weekendData = { meta: { newsCycleStart: '2026-10-17T23:00:00.000Z' } };
+const fridaySpx = [{ evidenceId: 'spx', metricId: 'market.spx', observedAt: '2026-10-16T20:00:00.000Z' }];
+assert.equal(marketAnalysisLargeMove(fridaySpx, new Map([['spx', -1.09]]), weekendData), false, 'a close before the weekend window asks no attribution from weekend headlines');
+assert.equal(marketAnalysisLargeMove(fridaySpx, new Map([['spx', -1.09]]), { meta: { newsCycleStart: '2026-10-16T23:00:00.000Z' } }), true, 'the next-morning bundle still attributes it');
+const q = (start, end, value) => ({ start, end, val: value, filed: '2026-02-12' });
+const lhx = discreteQuarterSeries([q('2025-01-04', '2025-03-28', 5132), q('2025-03-29', '2025-06-27', 5426), q('2025-06-28', '2025-10-03', 5659), q('2025-10-04', '2026-01-02', 21865)], [q('2025-01-04', '2026-01-02', 21865)]);
+assert.deepEqual(lhx.at(-1), { periodEnd: '2026-01-02', value: 21865 - 5132 - 5426 - 5659, derived: true, concept: null, availableAt: '2026-02-12' }, 'a quarter carrying the full-year amount is replaced by FY − Q1..Q3');
 
 // P1651: a KRX close aligns to the latest completed KRX session, not the US basis (10/12 -3.6% was shown as 10/8).
 const krHistory = [

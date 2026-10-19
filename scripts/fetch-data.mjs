@@ -50,7 +50,7 @@ export { deriveFactorQuality, isSessionComplete, sessionSegmentOfSymbol, listing
 import { fetchJSON, _fetchRss } from './lib/producer-http.mjs'; // v57.62 split
 import { FRED_SERIES, compareUsdKrwCrossCheck, fetchAaiiSentiment, fetchBeaPce, fetchBlsSeries, fetchCboePutCall, fetchFearGreed, fetchFredDexkousPublic, fetchFredHyOasPublic, fetchTreasuryYieldCurve, mergeMacroLastKnownGood, officialTreasuryDeltas } from './lib/macro-sources.mjs'; // v57.62 split
 import { MINIMUM_CURRENT_NEWS, NEWS_FEEDS, NEWS_INTRADAY_LABEL, NEWS_INTRADAY_MAX, NEWS_INTRADAY_POLICY, TICKER_NEWS_MAX_AGE_MS, deriveCyclePublication, deriveTickerNewsLineage, fetchNews, fetchTickerNewsItems, getKst0800NewsCycle, planTickerNewsTargets, selectTickerNewsMemo } from './lib/news-selection.mjs'; // v57.62 split
-import { KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, MARKET_SENTENCE_LABEL, dailyMarketSentence, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary, LARGE_MOVE_ATTRIBUTION_PCT } from './lib/market-analysis-validate.mjs'; // v57.62 split
+import { KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, marketAnalysisLargeMove, marketSentenceDay, marketSentenceRejectReason, MARKET_SENTENCE_LABEL, dailyMarketSentence, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary, LARGE_MOVE_ATTRIBUTION_PCT } from './lib/market-analysis-validate.mjs'; // v57.62 split
 export { buildMarketAnalysisEvidence, MARKET_ANALYSIS_CLOSED_SESSIONS, analysisMetricMentions, validateAnalysisMetricMentions, validateAnalysisAdmission, analysisNumberMarkedAsReference, validateMarketAnalysisText, MARKET_ANALYSIS_NEWS_CONTENT_POLICY, isMarketAnalysisNewsEligible, buildMarketAnalysisNewsEvidence, buildMarketAnalysisHeadlineContext, describeMarketAnalysisIssues, MARKET_ANALYSIS_RETAIN_MAX_MS, retainVerifiedMarketAnalysis, reusableMarketAnalysis } from './lib/market-analysis-validate.mjs';
 export { deriveCyclePublication, newsSourceLabel, serverNewsHeadlineMonthStale, scoreServerNewsItem, newsHeadlineSignature, newsSameEvent, cleanNewsTitle, newsKeyEntities, createNewsTopicCap, NEWS_INTRADAY_MAX, NEWS_INTRADAY_POLICY, NEWS_INTRADAY_LABEL, selectNewsIntraday, tickerNewsCoreName, TICKER_NEWS_WORD_SYMBOLS, tickerNewsHeadlineNamesIssuer, TICKER_NEWS_MAX_AGE_MS, selectTickerNewsMemo, TICKER_NEWS_RUN_CAP, TICKER_NEWS_FIXED_HEAD, TICKER_NEWS_ROTATION_SLOT_MS, planTickerNewsTargets, deriveTickerNewsLineage } from './lib/news-selection.mjs';
 export { parseFredHyOasCsv, fetchFredHyOasPublic, parseFredDexkousCsv, fetchFredDexkousPublic, compareUsdKrwCrossCheck, parseTreasuryYieldCurveHtml, parseTreasuryYieldCurveXml, officialTreasuryDeltas, fetchTreasuryYieldCurve, parseAaiiSentimentText, fetchAaiiSentiment, mergeMacroLastKnownGood, parseBeaPceHtml, normalizeBlsSeriesResponse, BLS_RELEASE_SCHEDULE_IDS, blsReleaseCacheBypass, fetchBlsSeries, parseCboePutCallHtml, classifyCboePutCallCurrentness } from './lib/macro-sources.mjs';
@@ -1406,7 +1406,7 @@ export async function enrichSecFundamentals(syms, priceData, priceResults = null
 
 async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
   const computedAt = new Date().toISOString();
-  const results = await mapLimit(syms, concurrency, async (sym) => {
+  const fetchOne = async (sym) => {
     // P1442 (review 2026-10-04): factors are labelled "세션 종가 기준", but a refresh 22 minutes after the
     // US open used the in-progress daily bar for returns, volume, ranges and VCP. Only bars whose session
     // has closed (isSessionComplete, the same guard the breadth path uses) enter any factor.
@@ -1425,7 +1425,20 @@ async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
     }
     // v57.81: shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
     return priceHistoryFromRows(sym, fetched, { providerMeta, nullCloseDates: providerNullCloseDates, closeReconciliation, market });
-  });
+  };
+  const results = await mapLimit(syms, concurrency, fetchOne);
+  // 2026-10-19 data audit: the extended run lost one alphabetical block every time (STLN..UNFI 260, STKE..UNTY 265,
+  // S–V on 10/17-18) — throttling late in the job, with nothing retrying it. Failed symbols get one slower second
+  // pass; a block of 20+ waits first so the throttle can lift.
+  const priceMissing = (r) => !r || r.__error || !(Array.isArray(r.closes) && r.closes.length);
+  const failedAt = results.map((r, i) => (priceMissing(r) ? i : -1)).filter((i) => i >= 0);
+  if (failedAt.length) {
+    if (failedAt.length >= 20) await new Promise((resolve) => setTimeout(resolve, 45000));
+    const retried = await mapLimit(failedAt.map((i) => syms[i]), 2, (sym) => fetchOne(sym).catch(() => null));
+    let recovered = 0;
+    failedAt.forEach((i, k) => { if (!priceMissing(retried[k])) { results[i] = retried[k]; recovered += 1; } });
+    console.log(`[fetch-data] price factors retry: ${recovered}/${failedAt.length} recovered`);
+  }
   // 2026-10-13 F13: non-USD traded value is converted session by session at that currency's daily USD
   // close (one 1y FX series per currency), so KR/JP/TW rows carry a USD figure with its basis instead of null.
   const quoteCurrencyOf = (r) => listingCurrencyOf(r?.sym, r?.providerMeta);
@@ -2591,7 +2604,11 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
   const keep = { previous, nowMs }; // v57.81: every fallback carries the last verified reading forward
   if (metricEvidence.length < 2) return buildMarketAnalysisFallback(data, 'metric-evidence-insufficient', metricEvidence, newsEvidence, keep);
   const narrativeContext = narrative || readNarrativeContext({ nowMs }); // `narrative` is a fixture seam
-  const reused = reusableMarketAnalysis(previous, { metricEvidence, newsEvidence, headlineContext: buildMarketAnalysisHeadlineContext(data), narrativeSignature: narrativeContext.signature, nowMs });
+  // 2026-10-19 data audit: a reading reused across the 08:00 KST day boundary carries no sentence candidate, so the new
+  // day's sentence could not be written until the evidence happened to change. The first run of a day whose sentence
+  // is still yesterday's writes afresh once (a reading generated earlier that same day is reusable again).
+  const sentenceDayOpen = previous?.sentence?.day !== marketSentenceDay(nowMs) && marketSentenceDay(Date.parse(previous?.generatedAt || '') || 0) !== marketSentenceDay(nowMs);
+  const reused = sentenceDayOpen ? null : reusableMarketAnalysis(previous, { metricEvidence, newsEvidence, headlineContext: buildMarketAnalysisHeadlineContext(data), narrativeSignature: narrativeContext.signature, nowMs });
   if (reused) {
     console.log(`[fetch-data] marketAnalysis evidence and headlines unchanged — reusing verified analysis from ${reused.generatedAt} (no AI call)`);
     return reused;
@@ -2626,8 +2643,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     // v57.75: a large equity move (KOSPI 3% / S&P 500 1%) lets the day's sentence be replaced once (dailyMarketSentence).
     // v57.81: computed before the prompt so the first attempt is told a cause must be attributed (the validator blocks
     // an unattributed reading on such a day; before, only the retry was told and both 10/15 05:55Z/07:52Z attempts failed).
-    const largeMove = metricEvidence.some((row) => (row.metricId === 'market.kospi' && Math.abs(changeOf.get(row.evidenceId)) >= KOREA_MOVE_MENTION_PCT)
-      || (row.metricId === 'market.spx' && Math.abs(changeOf.get(row.evidenceId)) >= LARGE_MOVE_ATTRIBUTION_PCT));
+    const largeMove = marketAnalysisLargeMove(metricEvidence, changeOf, data); // 2026-10-19: same rule and headline window as the validator
     const newsLines = newsEvidence.map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     const headlineLines = buildMarketAnalysisHeadlineContext(data).map(row => `- ${row.evidenceId} ${row.verification === 'unconfirmed' ? '[미확인 보도] ' : ''}${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     // P1719/P1720: post-08:00 headlines are the only news on a Korean session's events before the next bundle; they are
@@ -2669,7 +2685,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       'DIRECTIONAL/CAUSAL PROSE: you may offer a directional or causal reading, but attribute it to the named headline ("헤드라인에 따르면", "According to <source>") and present it as one reading among alternatives, never as a confirmed fact. End with what would invalidate the reading and what the reader should check. The final decision belongs to the reader, not to this text.',
       ...(largeMove ? ['LARGE_MOVE (S&P 500 1% 이상 또는 코스피 3% 이상): 보도된 배경을 반드시 한 문장으로 쓴다 — "헤드라인에 따르면 …이 배경으로 거론됐다"처럼 HEADLINE_CONTEXT(장중 움직임이면 08:00 이후 장중 속보) 헤드라인 하나를 이름과 함께 든다. 그 문장 안에서 "단정할 수 없다·확인되지 않았다"로 귀속을 지우지 말고, 다른 해석이 있다는 점은 다음 문장에 쓴다.'] : []),
       // v57.71 (owner 2026-10-15): the home's one-sentence line, written by the same call (no extra request).
-      `마지막에 7~9줄과 별도로 한 줄을 더 쓴다: "${MARKET_SENTENCE_LABEL} " 뒤에 지금 시장을 관통하는 긴장을 질문이나 대비로 담은 한 문장(40자 안팎). 숫자·%·종목명·티커·매매 지시 없이, 오늘의 근거(METRIC_EVIDENCE·HEADLINE_CONTEXT·REGIME_CONTEXT)에서 나온 갈림을 담는다. 갈림의 주제는 REGIME_CONTEXT에서 가장 크게 움직였거나 판정이 바뀐 영역(예: 반도체·AI 주도주 급락, 신용 확대, 유가)에서 고르고, 헤드라인이 많다는 이유만으로 고르지 않는다. 바닥 확인 조건이 있으면 그 갈림(소진 대 확인)을 담아도 된다. 문체 예시(그대로 쓰지 말 것): "오늘의 하락은 기회인가, 서사의 끝을 알리는 신호인가?" / "누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다."`,
+      `마지막에 7~9줄과 별도로 한 줄을 더 쓴다: "${MARKET_SENTENCE_LABEL} " 뒤에 지금 시장을 관통하는 긴장을 질문이나 대비로 담은 한 문장(40자 안팎). 숫자·%·종목명·지수명·티커·매매 지시 없이(영문 약어는 AI만 쓴다, 예: HBM·D램 대신 메모리), 오늘의 근거(METRIC_EVIDENCE·HEADLINE_CONTEXT·REGIME_CONTEXT)에서 나온 갈림을 담는다. 갈림의 주제는 REGIME_CONTEXT에서 가장 크게 움직였거나 판정이 바뀐 영역(예: 반도체·AI 주도주 급락, 신용 확대, 유가)에서 고르고, 헤드라인이 많다는 이유만으로 고르지 않는다. 바닥 확인 조건이 있으면 그 갈림(소진 대 확인)을 담아도 된다. 문체 예시(그대로 쓰지 말 것): "오늘의 하락은 기회인가, 서사의 끝을 알리는 신호인가?" / "누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다."`,
     ].join('\n\n');
     // v57.75: the retained text is re-checked against this run's data — on 10/15 a reading verified before the crash
     // ("원화 강세", easing inflation) would otherwise be re-served for 12 h after the evidence turned.
@@ -2771,7 +2787,7 @@ async function main() {
     mapLimit(SYMBOLS, 6, fetchQuote),
     fetchFred(process.env.FRED_API_KEY),
     fetchFearGreed(previousFearGreed),
-    fetchNews(Date.parse(attemptedAt)),
+    fetchNews(Date.parse(attemptedAt), { carry: previousNews }), // 2026-10-19: same-cycle articles stay candidates (carriedNewsCandidates)
     fetchCboePutCall(),
     fetchBlsSeries(previousBls, { releaseSchedules: blsReleaseSchedules }),
     fetchBeaPce(previousBea),
@@ -2850,6 +2866,8 @@ async function main() {
       const seriesEvidence = bls.series?.[metricId];
       const value = Number(bls.values?.[blsField]);
       if (seriesEvidence?.status !== 'ok' || !Number.isFinite(value)) continue;
+      // 2026-10-19 data audit: as for HY OAS below, an older BLS month never replaces a newer FRED month (release-day lag).
+      if (macro[`_asOf_${macroField}`] && String(seriesEvidence.observedAt || '') < String(macro[`_asOf_${macroField}`])) continue;
       macro[macroField] = value;
       macro[`_asOf_${macroField}`] = seriesEvidence.observedAt || null;
       macro[`_source_${macroField}`] = 'bls-official-primary';
@@ -2975,7 +2993,7 @@ async function main() {
   const blsFresh = ['ok', 'cached-fresh', 'partial'].includes(bls && bls.status);
   const beaFresh = ['ok', 'cached-fresh'].includes(bea && bea.status);
   const treasuryFresh = ['ok', 'cached-fresh'].includes(treasury && treasury.status);
-  const aaiiFresh = ['ok', 'cached-fresh'].includes(aaii && aaii.status);
+  const aaiiFresh = ['ok', 'cached-fresh', 'current-reference'].includes(aaii && aaii.status); // 2026-10-19: the reader's success status is current-reference; the receipt reported every run as a failure
   const putCallFresh = !!(putCall && !putCall.error && putCall.fetchedAt);
   const domainReceipts = {
     'market-quotes': planeReceipt('market-quotes', {
@@ -2984,7 +3002,7 @@ async function main() {
     }),
     news: planeReceipt('news', {
       eligible: NEWS_FEEDS.length, attempted: NEWS_FEEDS.length,
-      updated: newsFellBack ? 0 : (Array.isArray(news) ? news.length : 0),
+      updated: newsFellBack ? 0 : (Array.isArray(news) ? news.length - (news.carriedCount || 0) : 0),
       stored: Array.isArray(news) ? news.length : 0,
       failures: newsFellBack ? [{ symbol: 'news-plane', status: 'TRANSIENT_PROVIDER_FAILURE', attemptedAt }] : []
     }),
@@ -3184,6 +3202,10 @@ async function main() {
     const { sentenceCandidate = null, largeMove = false, ...analysis } = marketAnalysis;
     const inflationRising = Number(data.macro?.cpiDelta) > 0 || Number(data.macro?.coreCpiDelta) > 0;
     data.marketAnalysis = { ...analysis, sentence: dailyMarketSentence({ candidate: sentenceCandidate, previous: previous?.marketAnalysis?.sentence || null, nowMs: Date.now(), largeMove, inflationRising }) };
+    // 2026-10-19 data audit: a day's sentence that never replaced yesterday's left no trace; the run now records why.
+    data.meta.marketSentenceReject = data.marketAnalysis.sentence?.day === marketSentenceDay(Date.now()) ? null
+      : (!('sentenceCandidate' in marketAnalysis) ? 'no-new-candidate' : marketSentenceRejectReason(sentenceCandidate, { inflationRising }));
+    if (data.meta.marketSentenceReject) console.warn(`[fetch-data] daily sentence not replaced: ${data.meta.marketSentenceReject}${sentenceCandidate ? ` :: ${String(sentenceCandidate).slice(0, 120)}` : ''}`);
     data.meta.marketAnalysisOk = marketAnalysis.status === 'verified';
     // P1719: a retained previous verification is still verified prose, but this run's attempt was blocked.
     data.meta.marketAnalysisRetained = marketAnalysis.retained || null;
