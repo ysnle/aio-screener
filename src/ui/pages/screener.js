@@ -1014,8 +1014,9 @@ function renderCandidateRecord(panel, el, archive, populationRanking) {
     if (ind) {
       const ic = (stat) => (stat?.mean == null ? '—' : `${stat.mean >= 0 ? '+' : ''}${stat.mean.toFixed(3)}${stat.t != null ? ` (t ${stat.t.toFixed(1)})` : ''}`);
       const verdict = ind.decision === 'supported' ? '미국 순위가 다음 21거래일 수익률과 통계적으로 같은 방향이었습니다.'
-        : ind.decision === 'not-supported' ? `겹치지 않는 기록 ${ind.n}개로 보면 미국 순위와 이후 수익률의 관계가 우연과 구분되지 않습니다 — 순위를 매수 후보 근거로 쓰지 마세요.`
-          : `기간이 겹치지 않는 기록이 ${ind.n}개라 판단하지 않습니다(${ind.min}개부터 판단, 약 1년).`;
+        : ind.decision === 'not-supported' && ind.icUS?.mean < 0 && ind.icUS?.t <= -2 ? `겹치지 않는 기록 ${ind.icUS.n ?? ind.n}개로 보면 미국 순위가 이후 수익률과 오히려 반대 방향이었습니다 — 순위를 매수 후보 근거로 쓰지 마세요.`
+        : ind.decision === 'not-supported' ? `겹치지 않는 기록 ${ind.icUS?.n ?? ind.n}개로 보면 미국 순위와 이후 수익률의 관계가 우연과 구분되지 않습니다 — 순위를 매수 후보 근거로 쓰지 마세요.`
+          : `기간이 겹치지 않는 기록이 ${Math.min(ind.n || 0, ind.icUS?.n ?? ind.n ?? 0)}개라 판단하지 않습니다(${ind.min}개부터 판단, 약 1년).`;
       box.append(el('p', `검증 판정: ${verdict} 순위 정보계수(IC, 순위와 이후 수익률의 순위상관) — 미국 ${ic(ind.icUS)}, 한국 ${ic(ind.icKR)}.`, 'briefing-read-headline'));
     }
     box.append(el('p', `결과가 나온 ${summary.measured}일 평균: 상위 20%가 하위 20%보다 ${spread >= 0 ? '+' : ''}${spread.toFixed(2)}%p, 전체 평균보다 ${vsAll >= 0 ? '+' : ''}${vsAll.toFixed(2)}%p(21거래일, 비용 제외). 상위가 전체를 앞선 날은 ${summary.measured}일 중 ${summary.topBeatUniverse}일입니다.${summary.measured < 20 ? ' 아직 날 수가 적고 이어지는 날끼리 기간이 겹쳐, 우연과 구분할 수 없습니다.' : ' 이어지는 날끼리 21거래일 기간이 겹쳐 독립된 표본 수는 날 수보다 훨씬 적습니다.'}`, 'briefing-read-headline'));
