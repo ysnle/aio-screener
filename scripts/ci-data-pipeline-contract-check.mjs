@@ -2249,7 +2249,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   const mt = await import('./lib/market-timeline.mjs');
   const at = Date.parse('2026-10-19T03:20:00.000Z'); // 12:20 KST
   const window = mt.marketSlotWindow(mt.marketSlotEndAtOrBefore(at));
-  check('v58.27 cadence: slot boundaries fall on 00/06/12/18 KST and the 00:00 slot reads 24:00',
+  check('v58.28 cadence: slot boundaries fall on 00/06/12/18 KST and the 00:00 slot reads 24:00',
     window.label === '10/19 06:00~12:00' && window.end === '2026-10-19T03:00:00.000Z'
       && mt.marketSlotWindow(Date.parse('2026-10-19T15:00:00.000Z')).label === '10/19 18:00~24:00', JSON.stringify(window));
   const quote = (metricId, value, observedAt, extra = {}) => ({ metricId, value, unit: metricId.includes('rates') ? 'percent' : 'index', observedAt, session: 'CURRENT_SESSION', ...extra });
@@ -2261,44 +2261,44 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   ];
   const first = mt.sealMarketTimeline({ snapshot: snapA, pool, nowMs: at });
   const newest = first.timeline.slots[0];
-  check('v58.27 cadence: a first run seals the last day of slots, quotes only on the newest, headlines by window',
+  check('v58.28 cadence: a first run seals the last day of slots, quotes only on the newest, headlines by window',
     first.sealed.length === 4 && newest.label === '10/19 06:00~12:00' && newest.marks?.['market.index.kospi'] && first.timeline.slots.slice(1).every((slot) => slot.marks === null)
       && newest.headlines.length === 1 && /KOSPI/.test(newest.headlines[0].title) && first.timeline.slots[1].headlines.some((row) => /bank earnings/.test(row.title))
       && first.timeline.current.headlines.some((row) => /Hormuz/.test(row.title)) && newest.moves.length === 1 && newest.moves[0].basis === 'previous-close',
     JSON.stringify(first.timeline.slots.map((slot) => [slot.label, slot.headlineCount, slot.moves.length])));
   const again = mt.sealMarketTimeline({ previous: first.timeline, snapshot: snapA, pool: [], nowMs: at + 20 * 60000 });
-  check('v58.27 cadence: a sealed slot is never rewritten by a later run in the same slot',
+  check('v58.28 cadence: a sealed slot is never rewritten by a later run in the same slot',
     again.sealed.length === 0 && again.timeline.slots[0].sealedAt === newest.sealedAt && again.timeline.slots[0].headlines.length === 1);
   const snapB = { quotes: [quote('market.index.kospi', 5100, '2026-10-19T06:30:00.000Z'), quote('market.rates.us10y', 5.1, '2026-10-16T20:00:00.000Z')] };
   const next = mt.sealMarketTimeline({ previous: first.timeline, snapshot: snapB, pool: [], nowMs: Date.parse('2026-10-19T09:17:00.000Z') });
   const kospiMove = next.timeline.slots[0].moves.find((move) => move.metricId === 'market.index.kospi');
-  check('v58.27 cadence: the next slot measures moves from the previous sealed quotes, drops unmoved ones, and seals a thin window',
+  check('v58.28 cadence: the next slot measures moves from the previous sealed quotes, drops unmoved ones, and seals a thin window',
     next.sealed.length === 1 && kospiMove?.basis === 'previous-slot' && kospiMove.change === 2 && next.timeline.slots[0].moves.length === 1
       && next.timeline.slots[0].thin === true && /수집된 주요 헤드라인은 없습니다/.test(next.timeline.slots[0].summary.text) && next.timeline.slots[1].id === newest.id,
     JSON.stringify(next.timeline.slots[0]));
   const failed = mt.sealMarketTimeline({ previous: first.timeline, snapshot: snapB, pool: null, nowMs: Date.parse('2026-10-19T09:17:00.000Z') });
   const late = mt.sealMarketTimeline({ previous: first.timeline, snapshot: snapB, pool: null, nowMs: Date.parse('2026-10-19T12:30:00.000Z') });
-  check('v58.27 cadence: a run without fresh news waits, then seals the slot as news-unavailable after three hours',
+  check('v58.28 cadence: a run without fresh news waits, then seals the slot as news-unavailable after three hours',
     failed.sealed.length === 0 && late.sealed.length === 1 && late.timeline.slots[0].newsStatus === 'unavailable' && late.timeline.slots[0].late === true);
   let rolling = first.timeline;
   for (let step = 1; step <= 10; step += 1) rolling = mt.sealMarketTimeline({ previous: rolling, snapshot: snapB, pool: [], nowMs: at + step * 6 * 3600000 }).timeline;
-  check('v58.27 cadence: the timeline keeps the last eight slots', rolling.slots.length === mt.MARKET_SLOT_RETAIN && rolling.slots.every((slot, i, all) => !i || Date.parse(all[i - 1].end) > Date.parse(slot.end)));
+  check('v58.28 cadence: the timeline keeps the last eight slots', rolling.slots.length === mt.MARKET_SLOT_RETAIN && rolling.slots.every((slot, i, all) => !i || Date.parse(all[i - 1].end) > Date.parse(slot.end)));
   const prompts = [];
   const verdict = await mt.summarizeMarketTimeline(first.timeline, { nowMs: at, request: async (prompt) => { prompts.push(prompt); return { text: '코스피가 큰 폭으로 내렸고, 로이터 보도에 따르면 반도체주 약세가 배경으로 거론됐다. 다음 회차에는 미국 장 개장 전 선물 흐름을 확인할 필요가 있다.' }; } });
-  check('v58.27 cadence: one summary request for the newest slot, numbers kept out of the prompt answer',
+  check('v58.28 cadence: one summary request for the newest slot, numbers kept out of the prompt answer',
     verdict === 'verified' && prompts.length === 1 && first.timeline.slots[0].summary.source === 'shared-model' && /HEADLINES:/.test(prompts[0])
       && mt.validateMarketSlotSummary('코스피가 3% 내렸고 반도체주가 약했다는 보도가 이어졌다. 다음 회차를 지켜본다.') === null
       && mt.validateMarketSlotSummary('코스피가 크게 내렸고 반도체주 비중을 줄이라는 보도가 있었다. 지금 매도하세요.') === null);
   const blocked = mt.sealMarketTimeline({ snapshot: snapA, pool, nowMs: at }).timeline;
   await mt.summarizeMarketTimeline(blocked, { nowMs: at, request: async () => ({ text: 'NVDA 3% 상승' }) });
-  check('v58.27 cadence: a blocked summary keeps the deterministic line and one retry',
+  check('v58.28 cadence: a blocked summary keeps the deterministic line and one retry',
     blocked.slots[0].summary.source === 'deterministic' && blocked.slots[0].summary.retry === 1 && blocked.slots[0].summary.reason === 'validator-blocked');
-  check('v58.27 cadence: the producer seals before translation and summarises after the macro reading; the weekend cadence runs at a slot boundary',
+  check('v58.28 cadence: the producer seals before translation and summarises after the macro reading; the weekend cadence runs at a slot boundary',
     /sealMarketTimeline\(\{ previous: previous\?\.marketTimeline/.test(fetchData) && /\.\.\.timelineRun\.newHeadlines\]/.test(fetchData)
       && fetchData.indexOf('summarizeMarketTimeline(data.marketTimeline') > fetchData.indexOf('genMarketAnalysis(data, marketSnapshotForConsumers')
       && /'market-slot-boundary'/.test(read('scripts/refresh-cadence.mjs')));
   const audit = (timeline, generatedAt, meta = {}) => mt.auditMarketTimeline({ marketTimeline: timeline, meta: { generatedAt, ...meta } });
-  check('v58.27 cadence: the timeline self-audit passes a sealed artifact, flags a slot missed past the news wait, and a dropped timeline',
+  check('v58.28 cadence: the timeline self-audit passes a sealed artifact, flags a slot missed past the news wait, and a dropped timeline',
     audit(first.timeline, new Date(at).toISOString()).failures.length === 0
       && audit(first.timeline, '2026-10-19T10:50:00.000Z').warnings.some((row) => row.startsWith('market-timeline-slot-waiting'))
       && audit(first.timeline, '2026-10-19T12:30:00.000Z').failures.some((row) => row.startsWith('market-timeline-slot-missed'))
@@ -2306,7 +2306,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && audit(undefined, new Date(at).toISOString()).failures.length === 0,
     JSON.stringify([audit(first.timeline, new Date(at).toISOString()), audit(first.timeline, '2026-10-19T12:30:00.000Z')]));
   const view = (await import('../src/domain/market/market-timeline.js')).buildMarketTimelineView(next.timeline, Date.parse('2026-10-19T09:30:00.000Z'));
-  check('v58.27 cadence: the briefing view lists the in-progress slot and the sealed slots newest first by KST day',
+  check('v58.28 cadence: the briefing view lists the in-progress slot and the sealed slots newest first by KST day',
     view.available && view.current?.endLabel === '24:00' && view.groups[0]?.label === '오늘 10/19' && view.groups[0].slots[0].endLabel === '18:00'
       && view.groups.some((group) => group.label === '어제 10/18') && view.overdue === false, JSON.stringify(view.groups.map((group) => [group.label, group.slots.map((slot) => slot.endLabel)])));
 }
