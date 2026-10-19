@@ -115,10 +115,10 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
       ignore: ['후행 업종의 하루 반등 — 참여 비율이 넓어지기 전에는 흐름 전환으로 읽지 않습니다.', '지수 신고가 자체 — 참여가 좁으면 시장 전체가 강하다는 뜻이 아닙니다.']
     },
     weakness: {
-      posture: '이 흐름이라면 지수와 참여도의 약화가 신용 또는 변동성 스트레스와 함께 나타나는 국면입니다. 하루 반등보다 지수의 50일선 회복과 시장 폭 개선이 함께 확인되는지가 흐름이 바뀌었는지 가르는 근거입니다. 반증: HY 확대가 멈추고 VIX 단기 불안 비율 역전이 풀리며 S&P 500이 200일선을 되찾으면 약화 해석을 다시 봅니다.',
+      posture: '이 흐름이라면 지수와 참여도의 약화가 신용 또는 변동성 스트레스와 함께 나타나는 국면입니다. 하루 반등보다 지수의 50일선 회복과 시장 폭 개선이 함께 확인되는지가 흐름이 바뀌었는지 가르는 근거입니다. 반증: HY 확대가 멈추고 변동성이 진정되며(VIX 급등·단기 불안 비율 역전 해소) S&P 500이 50일선을 되찾으면 약화 해석을 다시 봅니다.',
       opportunity: defensiveHolding.length ? `상대적으로 버티는 방어 섹터: ${join(defensiveHolding)}` : `방어 섹터(헬스케어·필수소비재·유틸리티)의 상대강도를 섹터 회전에서 확인합니다${sectorNote}.`,
       opportunityLinks: [{ label: '상대적으로 버티는 방어 섹터', links: sectorLinks(defensiveHolding) }].filter((part) => part.links.length),
-      check: ['하이일드 스프레드 확대가 멈추는지', `VIX 단기 불안 비율 역전(${RULES.volatility.invertedRatioAt} 이상)이 풀리는지`, 'S&P 500이 200일선을 되찾는지'],
+      check: ['하이일드 스프레드 확대가 멈추는지', `VIX 단기 불안 비율 역전(${RULES.volatility.invertedRatioAt} 이상)이 풀리는지`, 'S&P 500이 50일선을 되찾는지(추세 판정이 바뀌는 선)'],
       caution: ['급락 직후 하루 반등만으로는 추세 회복을 확인할 수 없습니다 — 50일선 회복과 시장 폭 개선이 함께 필요합니다.', '"많이 빠져서 싸다"는 것은 추세 회복의 근거가 아닙니다.'],
       ignore: ['단기 과매도 지표 하나만의 신호', '하루짜리 정책·뉴스 헤드라인']
     }

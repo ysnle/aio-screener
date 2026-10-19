@@ -598,6 +598,8 @@ export function buildMacroRead({ macro = null, macroHistory = null, regime = nul
     counts: { favorable: count('favorable'), neutral: count('neutral'), burden: count('burden'), unknown: axes.length - known.length },
     chain: buildChain({ macro: m, regime, rateFx, oil, mh }),
     oil,
+    // The market regime's leadership-break test, so the scenario gates read the same AI-leadership verdict (aibust).
+    leadership: regime?.leadership || null,
     sharedGauges: gauges,
     labels: { monthDay, monthLabel }
   };

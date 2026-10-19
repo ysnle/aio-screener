@@ -978,7 +978,8 @@ export function splitMarketSentence(text) {
   return { body: lines.filter((_, i) => !drop.has(i)).join('\n').trim(), sentence: sentence || null };
 }
 // Briefing audit 2026-10-17: 부담을 and 매수세 matched 담을 / 매수, silently dropping the day's sentence.
-const SENTENCE_INSTRUCTION = /(?:사세요|사라(?![지졌진질져])|사야|매수(?!세)|매도(?!세)|팔아|팔세요|(?<![가-힣])담(?:아|을|으세요)|들어가라|들어가세요|비중을\s?(?:늘|줄)|추천|확실히|반드시\s?오른|보장)/;
+// Screen audit 2026-10-19: so did 매도 소진 — the prompt offers the bottom-watch split (소진 대 확인).
+const SENTENCE_INSTRUCTION = /(?:사세요|사라(?![지졌진질져])|사야|매수(?!세|\s?(?:소진|압력|우위|심리|신호|물량))|매도(?!세|\s?(?:소진|압력|우위|심리|신호|물량))|팔아|팔세요|(?<![가-힣])담(?:아|을|으세요)|들어가라|들어가세요|비중을\s?(?:늘|줄)|추천|확실히|반드시\s?오른|보장)/;
 // v57.75: the sentence names no company or index (the card sits above every market), states no likelihood or certainty
 // and no policy rescue, and cannot assert easing inflation while CPI is rising.
 const SENTENCE_NAMES = /코스피|코스닥|나스닥|다우|에스앤피|S&P|엔비디아|삼성|하이닉스|애플|테슬라|마이크로소프트|알파벳|구글|아마존|메타|브로드컴|TSMC|코어위브/i;

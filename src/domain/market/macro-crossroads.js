@@ -168,6 +168,8 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
         bill: pair ? pair.value - cByDate.get(pair.date) : null, billDate: pair?.date || null };
     })(),
     commodities: axis('commodities')?.state || 'unknown', breadth: read?.breadthState ?? null,
+    // 2026-10-19 screen audit: the regime's leadership break (trend axis, briefing headline) — null when the read carries none.
+    leadershipBreak: read?.leadership?.available ? !!read.leadership.break : null,
     asOf: [growth.sahm?.date, inflation.pace?.date, last(tnx)?.date].filter(Boolean).sort().at(-1) || null
   };
 }
@@ -306,8 +308,10 @@ export const BRANCHES = Object.freeze([
   // v57.75 (owner 2026-10-15, US thesis; US scenario audit): the AI-capex cycle had no branch — semiconductor, AI infra,
   // photonics and KR memory were judged only through growth/cyclical tags. Nasdaq-100 against the S&P 500 is the
   // measured proxy for AI leadership; owner 2026-10-18: semis (SMH) lagging by RULES.leadership.aiLagSemis20dPp also opens it.
+  // 2026-10-19 screen audit: so does the regime's leadership break — the briefing named the AI-leader correction the central
+  // variable while this gate (20-session lags only) stayed shut and the home and AI text led with the 2/4 oil branch.
   { id: 'aibust', shape: 'weakness', axes: ['growth', 'credit'], title: 'AI 투자 꺾임 — 이익과 고용이 함께 식는 시나리오',
-    gate: [0], conditions: [[`나스닥100이 S&P 500보다 20거래일 ${L.aiLagNdx20dPp}%p 이상, 또는 반도체(SMH)가 ${L.aiLagSemis20dPp}%p 이상 뒤처짐 (AI 주도 약화)`, (s) => has(s.ndxRel20) || has(s.smhRel20) ? (has(s.ndxRel20) && s.ndxRel20 <= -L.aiLagNdx20dPp) || (has(s.smhRel20) && s.smhRel20 <= -L.aiLagSemis20dPp) : null], ['일자리 3개월 평균이 그 전 3개월보다 적음', (s) => all(s.payroll3, s.payrollPrior3) ? s.payroll3 < s.payrollPrior3 : null], [`하이일드 스프레드 20회 관측 +${RULES.credit.widen20dBp}bp 이상 확대`, (s) => has(s.hy20) ? s.hy20 >= RULES.credit.widen20dBp : null], [`실업수당 청구 4주 평균이 1년 저점보다 ${G.claimsWatchAbovePct}% 이상 높음`, (s) => has(s.claimsUp) ? s.claimsUp >= G.claimsWatchAbovePct : null]],
+    gate: [0], conditions: [[`나스닥100이 S&P 500보다 20거래일 ${L.aiLagNdx20dPp}%p 이상, 또는 반도체(SMH)가 ${L.aiLagSemis20dPp}%p 이상 뒤처짐, 또는 시장 상태의 주도 영역 이탈 확인 (AI 주도 약화)`, (s) => s.leadershipBreak === true || (has(s.smhRel20) && s.smhRel20 <= -L.aiLagSemis20dPp) || (has(s.ndxRel20) && s.ndxRel20 <= -L.aiLagNdx20dPp) ? true : has(s.ndxRel20) || has(s.smhRel20) || s.leadershipBreak === false ? false : null], ['일자리 3개월 평균이 그 전 3개월보다 적음', (s) => all(s.payroll3, s.payrollPrior3) ? s.payroll3 < s.payrollPrior3 : null], [`하이일드 스프레드 20회 관측 +${RULES.credit.widen20dBp}bp 이상 확대`, (s) => has(s.hy20) ? s.hy20 >= RULES.credit.widen20dBp : null], [`실업수당 청구 4주 평균이 1년 저점보다 ${G.claimsWatchAbovePct}% 이상 높음`, (s) => has(s.claimsUp) ? s.claimsUp >= G.claimsWatchAbovePct : null]],
     chain: ['AI 설비투자 기대 후퇴', '반도체·데이터센터 이익 하향', '투자·고용 둔화', '금리 인하 압력 + 신용 스프레드 확대', '정책 대응은 연쇄를 막아도 이익 전망은 못 바꿈'],
     firmer: ['defensive'], weaker: ['aicapex', 'growth', 'liquidity', 'cyclical'], mixed: ['yield'],
     triggers: [['us-nfp', '일자리 5만~7.5만 명 (채용 둔화)', (a) => a.payroll >= 50 && a.payroll < 75]],

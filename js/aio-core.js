@@ -142,9 +142,9 @@ window.safeHtml = function(str, allowTags) {
       .replace(/\son[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
       .replace(/\s(?:href|src)\s*=\s*(?:"\s*javascript:[^"]*"|'\s*javascript:[^']*'|\s*javascript:[^\s>]+)/gi, '');
     if (typeof DOMPurify !== 'undefined' && DOMPurify.sanitize) {
-      // 허용 태그: 기본 텍스트 서식 (b/i/strong/em/br/span/div/p/a/code/ul/ol/li)
-      var config = allowTags ? { ALLOWED_TAGS: allowTags } : {
-        ALLOWED_TAGS: ['b', 'i', 'strong', 'em', 'br', 'span', 'div', 'p', 'a', 'code', 'pre', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote'],
+      // 허용 태그: 기본 텍스트 서식 — allowTags를 넘겨도 같은 속성 목록(target/rel)을 쓴다 (2026-10-19)
+      var config = {
+        ALLOWED_TAGS: allowTags || ['b', 'i', 'strong', 'em', 'br', 'span', 'div', 'p', 'a', 'code', 'pre', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote'],
         ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style', 'title'],
         ALLOW_DATA_ATTR: false
       };
@@ -1081,13 +1081,12 @@ window.AIO.storageAdapter = window.AIO.storageAdapter || {
 // ═══ v48.94: _aioSafeMD — AI 마크다운 DOMPurify 2차 게이트웨이 ════════════════
 // 용도: AI 응답 renderMarkdownLight() 결과에 DOMPurify 2차 통과 (P158 XSS 방어)
 // 사용: element.innerHTML = _aioSafeMD(aiResponseText)
-// 주의: renderMarkdownLight는 aio-chat.js에서 전역 선언 — 런타임 조회 안전
-window._aioSafeMD = function(rawText) {
-  var text = String(rawText || '');
+window.AIO_SAFE_MD_TAGS = ['b', 'i', 'strong', 'em', 'br', 'span', 'div', 'p', 'a', 'code', 'pre', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'table', 'thead', 'tbody', 'tr', 'th', 'td'];
+window._aioSafeMD = function(rawText) { // 2026-10-19: 표 태그 허용(답변 표가 글자로 뭉개짐) · DOMPurify 없으면 태그 대신 원문
+  var text = String(rawText || ''); if (typeof DOMPurify === 'undefined' || !DOMPurify.sanitize) return window.safeHtml(text).replace(/\n/g, '<br>');
   var rendered = (typeof renderMarkdownLight === 'function') ? renderMarkdownLight(text) : text;
-  return window.safeHtml(rendered);
+  return window.safeHtml(rendered, window.AIO_SAFE_MD_TAGS);
 };
-
 
 // v58.19: _aioRenderNum(v48.94)은 제품 호출자 0건이라 제거 — 숫자 표시는 _aioSafeFixed가 맡는다 (R675).
 window._aioSafeFixed = function(v, decimals, fallback) {
