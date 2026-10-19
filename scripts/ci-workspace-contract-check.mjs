@@ -173,18 +173,20 @@ check('operations alert body carries failed jobs/gates and a stable signature', 
   const script = operationsAlert.split('          script: |\n')[1].split('\n').map(line => line.replace(/^            /, '')).join('\n');
   const execute = new (Object.getPrototypeOf(async function () {}).constructor)('github', 'context', 'core', 'require', script);
   const run = { id: 9, workflow_id: 1, name: 'CI', head_branch: 'main', event: 'push', conclusion: 'failure', updated_at: '2026-10-10T12:00:00Z', head_repository: { full_name: 'ysnle/aio-screener' } };
-  async function scenario(current, runs, stepName = 'first') {
+  async function scenario(current, runs, stepName = 'first', jobsFor = null, existing = null) {
     const mutations = [];
     let jobReads = 0;
     const github = { rest: { actions: {
       listWorkflowRuns: async () => ({ data: { workflow_runs: runs } }),
       listJobsForWorkflowRun: () => { jobReads++; return 'jobs'; }
     }, issues: {
-      getLabel: async () => ({}), listForRepo: () => 'issues',
+      getLabel: async () => ({}), listForRepo: () => 'issues', listComments: () => 'comments',
       create: async input => mutations.push(input), createComment: async input => mutations.push(input), update: async input => mutations.push(input)
-    } }, paginate: async method => {
+    } }, paginate: async (method, params) => {
+      if (method === github.rest.issues.listForRepo) return existing ? [existing] : [];
       if (method !== github.rest.actions.listJobsForWorkflowRun) return [];
       jobReads++;
+      if (jobsFor) return jobsFor(params.run_id);
       return [{ name: 'Shared long job prefix '.repeat(8), conclusion: 'failure', steps: [{ name: stepName, conclusion: 'failure' }] }];
     } };
     await execute(github, { payload: { workflow_run: current }, repo: { owner: 'ysnle', repo: 'aio-screener' } }, { info() {} }, createRequire(import.meta.url));
@@ -199,6 +201,18 @@ check('operations alert body carries failed jobs/gates and a stable signature', 
   const skipped = await scenario({ ...run, conclusion: 'skipped' }, history);
   const recovered = await scenario({ ...run, conclusion: 'success' }, [{ ...run, conclusion: 'success' }]);
   check('P1598 stale/skipped completions cannot mutate alerts and success skips failed-job reads', !stale.mutations.length && !skipped.mutations.length && !recovered.jobReads);
+  // Pipeline redesign (2026-10-19): a refresh run whose cadence gate skipped every work job observed nothing — it neither closes the
+  // open alert as recovered nor breaks the failure streak (weekend red-CI stalls used to close their own alert).
+  const refresh = { ...run, name: 'Refresh market data' };
+  const marker = { number: 7, state: 'open', body: '<!-- aio-operations-alert:Refresh market data -->' };
+  const skipJobs = () => [{ name: 'cadence', conclusion: 'success', steps: [] }, { name: 'refresh', conclusion: 'skipped', steps: [] }, { name: 'converge', conclusion: 'skipped', steps: [] }];
+  const failJobs = () => [{ name: 'cadence', conclusion: 'success', steps: [] }, { name: 'refresh', conclusion: 'failure', steps: [{ name: 'converge', conclusion: 'failure' }] }];
+  const quiet = await scenario({ ...refresh, conclusion: 'success' }, [{ ...refresh, conclusion: 'success' }], 'first', skipJobs, marker);
+  check('P1598 a refresh run that skipped every work job does not close the open alert', !quiet.mutations.length);
+  const worked = await scenario({ ...refresh, conclusion: 'success' }, [{ ...refresh, conclusion: 'success' }], 'first', failJobs, marker);
+  check('P1598 a refresh run that did work still closes the alert as recovered', worked.mutations.some((m) => m.state === 'closed'));
+  const streak = await scenario(refresh, [refresh, { ...refresh, id: 8, conclusion: 'success', updated_at: '2026-10-10T11:30:00Z' }, { ...refresh, id: 7, updated_at: '2026-10-10T11:00:00Z' }], 'first', (id) => (id === 8 ? skipJobs() : failJobs()));
+  check('P1598 a skip run between two refresh failures does not break the failure streak', streak.mutations.some((m) => /Consecutive failures observed in latest 100 main runs: \*\*2\*\*/.test(m.body || '')));
 }
 check('operations alert does not mutate source or dispatch deployments', !/(contents:\s*write|git\s+(?:commit|push)|createWorkflowDispatch|deploy-pages)/i.test(operationsAlert));
 const liveInvariant = read('scripts/ci-live-invariant-check.mjs');

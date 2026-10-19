@@ -324,7 +324,7 @@ function createNewsCard(documentRef, root, item, index) {
         const anchor = documentRef.createElement('a');
         anchor.href = articleUrl; anchor.target = '_blank'; anchor.rel = 'noopener noreferrer'; anchor.textContent = label;
         // 2026-10-19: same-cycle carry made multi-article stories common; a 15px inline link failed the 24px target rule on ipad820.
-        anchor.style.cssText = 'display:inline-flex;align-items:center;min-height:24px;';
+        anchor.classList.add('aio-inline-target'); // --touch-min, src/ui/styles/layout-primitives.css
         row.appendChild(anchor);
       } else row.textContent = label;
       timeline.appendChild(row);

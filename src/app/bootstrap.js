@@ -113,6 +113,7 @@ import { coalesceMicrotask, createDeferredTaskQueue } from './lifecycle.js';
 import { renderPageSources } from '../ui/components/page-sources.js';
 import { renderHomeKpiTrends } from '../ui/components/home-kpi-trend.js';
 import { krIndexStressRows } from '../domain/portfolio/kr-stress.js';
+import { portfolioStressHtml } from '../ui/panels/portfolio-stress.js';
 import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../domain/research/reference-index.js';
 import { loadResearchCorpus } from '../domain/research/corpus-loader.js';
 import { NATHAN_PREVIOUS_THREADS_REFERENCE, NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../domain/research/nathan-previous-threads.js';
@@ -245,6 +246,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   };
   root._aioLatestCompletedSessionDate = (market = 'US') => (market === 'KR' ? latestCompletedKrSession(clock.now()) : latestCompletedUsSession(clock.now()))?.date || null;
   root._aioKrIndexStress = () => krIndexStressRows(root._aioHistory || [], { now: clock.now() }); // v57.81: KOSPI's own worst moves for the stress panel
+  root._aioPortfolioStressHtml = (input) => portfolioStressHtml({ ...input, history: root._aioHistory || [], now: clock.now() }); // 2026-10-19: sensitivities from the book's own weekly returns
   // P1339: when the live Yahoo 1y chart (autoUpdateMA) has not produced MAs, derive them from the
   // committed daily history so the trend input follows the close basis instead of holding the score.
   const applyHistoryMa = () => {
@@ -782,8 +784,26 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       if (!due && keys.length && keys.every((key) => key === 'quotes')) return null;
       return syncScreenerData({ refresh: due });
     });
+    // Live prices reach the table at once through the page's own liveRow overlay; this re-derivation only refreshes the
+    // ranking/screen state for rows whose quote changed. Each run re-ranks the whole universe (~5,000 rows in 확장),
+    // so ticks inside one window share a single trailing run instead of one run per tick (visible-row requests, their
+    // retries and the global refresh land seconds apart).
+    const SCREENER_QUOTE_DERIVE_MIN_MS = 10000;
+    let screenerQuoteDeriveAt = -Infinity;
+    let screenerQuoteDerivePending = false;
+    const runScreenerQuoteDerive = () => {
+      screenerQuoteDerivePending = false;
+      if (String(store.getState()?.route || router.active() || '').replace(/^page-/, '') !== 'screener') return null;
+      screenerQuoteDeriveAt = clock.now();
+      return syncScreenerData({ refresh: false, quotesOnly: true });
+    };
     const stopScreenerQuotes = legacy.on('aio:liveQuotes', () => {
-      if (String(store.getState()?.route || router.active() || '').replace(/^page-/, '') === 'screener') return syncScreenerData({ refresh: false, quotesOnly: true });
+      if (String(store.getState()?.route || router.active() || '').replace(/^page-/, '') !== 'screener' || screenerQuoteDerivePending) return null;
+      const wait = screenerQuoteDeriveAt + SCREENER_QUOTE_DERIVE_MIN_MS - clock.now();
+      if (wait <= 0) return runScreenerQuoteDerive();
+      screenerQuoteDerivePending = true;
+      deferredTasks.defer(runScreenerQuoteDerive, wait);
+      return null;
     });
     const stopScreenerShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['screener']), ({ scope }) => syncScreenerData({ scope, refresh: screenerArtifactReadDue() }), { withScope: true }));
     const stopAnalysisRefresh = compatibilityEvents.on('aio:refresh:done', syncAnalysis.sync);

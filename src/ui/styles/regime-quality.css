@@ -442,3 +442,14 @@ body.dark-theme .sector-map .is-na { background: #36383b; color: #c8c6c0; }
   .page .mg-stance { grid-template-columns: minmax(0, 1fr); }
   .page .mg-lessons { grid-template-columns: minmax(0, 1fr); }
 }
+/* v58.37: portfolio stress panel (src/ui/panels/portfolio-stress.js) — classes, never below the 12px floor. */
+.pf-stress-head { font-size: var(--fs-min); font-weight: 800; color: var(--text-secondary); margin-bottom: 6px; }
+.pf-stress-sub { font-weight: 400; color: var(--text-muted); }
+.pf-stress-row { display: flex; justify-content: space-between; gap: 8px; font-size: var(--fs-min); padding: 2px 0; }
+.pf-stress-name { color: var(--text-secondary); }
+.pf-stress-value { font-weight: 700; color: var(--data-green); }
+.pf-stress-value.is-down { color: var(--data-amber); }
+.pf-stress-value.is-severe { color: var(--data-red); }
+.pf-stress-band { color: var(--text-muted); font-weight: 400; }
+.pf-stress-note { font-size: var(--fs-min); color: var(--text-muted); }
+.pf-stress-method { margin-top: 4px; }

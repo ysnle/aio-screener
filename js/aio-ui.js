@@ -642,45 +642,8 @@ function _aioSyncKnowledgeRouteContext() {
 }
 window._aioParseRouteHash = _aioParseRouteHash;
 window._aioSyncKnowledgeRouteContext = _aioSyncKnowledgeRouteContext;
-// popstate only available outside sandboxed iframes
-// v30.14: popstate 핸들러 — 전체 9개 페이지 reinit (기존 3개만 있어서 6개 누락 수정)
-try { if (!window._aioPopstateRegistered) window.addEventListener('popstate', (e) => {
-  var parsedRoute = _aioParseRouteHash(location.hash);
-  var id = String(e.state?.page || parsedRoute.routeId || 'home').split('?')[0];
-  _aioSyncKnowledgeRouteContext();
-  // v34.5: 해시 별칭 매핑
-  var _ha = { chart: 'technical', dashboard: 'home', stock: 'fundamental', forex: 'fxbond', bond: 'fxbond', news: 'market-news', search: 'home', help: 'guide', manual: 'guide', trend: 'themes', theme: 'themes', moat: 'fundamental', korea: 'macro', 'kr-theme': 'themes', 'kr-home': 'macro', 'kr-supply': 'macro', 'kr-themes': 'themes', 'kr-macro': 'macro', 'kr-technical': 'technical' }; // v53.7 (P725)
-  if (_ha[id]) id = _ha[id];
-  // 이전 페이지 차트 정리 (메모리 누수 방지)
-  if (typeof prevPage !== 'undefined' && prevPage && prevPage !== id) {
-    destroyPageCharts(prevPage);
-  }
-  // showPage without pushing another history entry
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const pg = document.getElementById('page-' + id);
-  if (pg) pg.classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => {
-    // v48.61 R45: data-arg 기반 (getAttribute('onclick') 잔존 제거)
-    var arg = n.dataset && n.dataset.arg;
-    var legacy = n.getAttribute('onclick');
-    n.classList.toggle('active',
-      arg === id || String(n.dataset && n.dataset.hubRoutes || '').split(' ').indexOf(id) >= 0 || (legacy && legacy.includes("'" + id + "'")));
-  });
-  const parts = breadcrumbMap[id] || ['AIO', id];
-  setBreadcrumb(parts);
-  prevPage = id;
-  var _cEl = document.querySelector('.content');
-  if (_cEl) _cEl.scrollTop = 0;
-  // v39.2: aio:pageShown 이벤트 발송 — v48.14 dedup guard 경유
-  try { _firePageShown(id, 'popstate'); } catch(e) {}
-  // v48.15 (P2-A): 9개 하드코딩 if-분기 → 단일 PAGES 라우터 호출로 교체
-  // showPage와 동일 경로 재사용 (_firePageShown dedup guard가 200ms 내 중복 발사 차단)
-  if (window.PAGES && window.PAGES[id] && typeof window.PAGES[id].init === 'function') {
-    try { window.PAGES[id].init(); }
-    catch(e) { if (typeof _aioLog === 'function') _aioLog('error', 'page-init', 'popstate ' + id + ': ' + e.message); }
-  }
-});
-} catch(e) { /* sandboxed */ }
+// Back/forward: js/aio-core.js registers the one classic popstate handler (it loads first and sets
+// _aioPopstateRegistered, so a second handler here never ran); src/app/router.js applies the address part.
 
 // Load page from URL hash on first visit (e.g. bookmark #signal)
 (function initFromHash() {
