@@ -10,6 +10,8 @@
 export const INDEX_EARNINGS_MIN_WEIGHT_PCT = 80;
 // A sector line needs enough members that one company cannot set its sign.
 export const SECTOR_MIN_MEMBERS = 8;
+// Dual share classes are one issuer: their weights add, their estimate revisions are counted once.
+const SHARE_CLASS_OF = Object.freeze({ GOOG: 'GOOGL', FOX: 'FOXA', NWS: 'NWSA' });
 
 const finite = (value) => {
   const number = Number(value);
@@ -38,19 +40,21 @@ export function buildIndexEarnings({ rows = [], weights = null, consensus = null
   const all = { up: 0, down: 0, netUp: 0, netDown: 0, members: 0, weight: 0 };
   const sectors = new Map();
   let yieldWeight = 0; let yieldSum = 0; let fwdSum = 0; let trailSum = 0; let growthWeight = 0;
-  let latest = null;
+  let latest = null; let oldest = null;
   for (const member of members) {
     const sym = String(member.sym).toUpperCase();
     const est = estimates[sym] || estimates[sym.replace('-', '.')] || estimates[sym.replace('.', '-')];
     const fwd = est?.fwd;
     if (!fwd) continue;
     if (est.asOf && (!latest || est.asOf > latest)) latest = est.asOf;
-    const up = finite(fwd.up4w) ?? 0;
-    const down = finite(fwd.down4w) ?? 0;
+    if (est.asOf && (!oldest || est.asOf < oldest)) oldest = est.asOf;
+    const secondClass = Object.hasOwn(SHARE_CLASS_OF, sym) && members.some((row) => String(row.sym).toUpperCase() === SHARE_CLASS_OF[sym]);
+    const up = secondClass ? 0 : finite(fwd.up4w) ?? 0;
+    const down = secondClass ? 0 : finite(fwd.down4w) ?? 0;
     const sector = member.sector || '기타';
     const bucket = sectors.get(sector) || { sector, up: 0, down: 0, members: 0, weight: 0 };
     for (const target of [all, bucket]) {
-      target.up += up; target.down += down; target.members += 1; target.weight += member.weight;
+      target.up += up; target.down += down; target.members += secondClass ? 0 : 1; target.weight += member.weight;
     }
     if (up > down) all.netUp += 1; else if (down > up) all.netDown += 1;
     sectors.set(sector, bucket);
@@ -85,6 +89,7 @@ export function buildIndexEarnings({ rows = [], weights = null, consensus = null
   return {
     available: true,
     asOf: latest ? String(latest).slice(0, 10) : null,
+    oldestAsOf: oldest ? String(oldest).slice(0, 10) : null,
     weightsAsOf: weights?.asOf || null,
     members: all.members,
     memberTotal: members.length,

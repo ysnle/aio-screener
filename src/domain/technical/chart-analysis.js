@@ -131,6 +131,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   // >= overheatAdr average daily ranges (expertise review 2026-10-19: +10% is routine for a 7%-ADR stock and extreme for a 2% one).
   const extension = ema8[n] ? (closes[n] / ema8[n] - 1) * 100 : null;
   const adrNow = adrPctOf(bars.map((bar) => bar.high), bars.map((bar) => bar.low), closes);
+  // Past markers use today's ADR too — an approximation for older bars; the latest bar, which the reading uses, is exact.
   const overheated = (pct) => pct >= TECH.ema8.overheatPct || (adrNow > 0 && pct / adrNow >= TECH.ema8.overheatAdr);
   for (let i = n; i >= from; i--) {
     if (ema8[i] && overheated((closes[i] / ema8[i] - 1) * 100)) { events.push({ index: i, kind: 'extended', text: `과열 +${((closes[i] / ema8[i] - 1) * 100).toFixed(0)}%`, position: 'aboveBar', tone: 'burden' }); break; }
