@@ -152,7 +152,6 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   if (title && subject && subject !== sym) {
     const note = el(doc, 'span', `시장 비교 차트 · 요약·재무 탭의 종목은 ${subject} 그대로입니다 `, 'stock-chart-context');
     note.id = 'stock-chart-context';
-    note.style.cssText = 'display:block;font-size:12px;font-weight:400;color:var(--text-muted);margin-top:2px;';
     const back = el(doc, 'button', `${subject} 차트로`, 'aio-btn-table');
     back.type = 'button';
     back.addEventListener('click', () => renderStockChart({ documentRef: doc, root, symbol: subject }));

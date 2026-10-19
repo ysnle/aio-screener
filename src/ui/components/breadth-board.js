@@ -124,7 +124,7 @@ function renderDrill(doc, root, card, contributors, basis) {
         button.type = 'button';
         button.addEventListener('click', () => { if (typeof root?.showTicker === 'function') root.showTicker(symbol); });
         li.append(button, el(doc, 'span', [assetType === 'ETF' ? 'ETF' : '', nameOf(root, symbol)].filter(Boolean).join(' '), 'breadth-drill-name'), el(doc, 'span', change == null ? '' : `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`, `breadth-drill-chg ${change >= 0 ? 'is-up' : 'is-down'}`));
-        const badge = (text) => { const node = el(doc, 'span', text, 'breadth-drill-ca'); node.style.cssText = 'font-size:10px;color:var(--data-amber);line-height:1.5;'; return node; };
+        const badge = (text) => el(doc, 'span', text, 'breadth-drill-ca'); // .breadth-drill-ca: src/ui/styles/responsive.css
         if (assetType === 'ETF') li.append(badge('ETF — 개별 주식 수에 함께 집계됩니다'));
         else if (caSuspected) li.append(badge('분사·합병 가능성(공시 미확인)'));
         ul.append(li);

@@ -8,9 +8,16 @@
 @import url('./company-analysis.css');
 @import url('./regime-quality.css');
 @import url('./chat-sessions.css');
+@import url('./ai-answer-visuals.css'); /* 2026-10-19 layout system: AI answer figures moved out of inline styles */
+@import url('./connection-panel.css'); /* 2026-10-19 layout system: sidebar shared-connection fold */
 @import url('./reference-lens.css');
 @import url('./shell-overlays.css'); /* v57.81: update banner, disclaimer bar and safe-area offsets */
+@import url('./glossary-cross.css'); /* 2026-10-19 layout system: glossary cross-area results */
 @import url('./themes-page.css'); /* 2026-10-19 layout system: 테마 page styles moved out of inline cssText */
+@import url('./portfolio-page.css'); /* 2026-10-19 layout system: 포트폴리오 page and panel inline styles */
+@import url('./news-page.css'); /* 2026-10-19 layout system: 뉴스 page inline styles */
+@import url('./guide-page.css'); /* 2026-10-19 layout system: 가이드 search results */
+@import url('./knowledge-arrival.css'); /* 2026-10-19 layout system: research-document arrival note */
 /* UI review 2026-10-18: one page header for every screen. The screens had three hand-written variants
    (thin rule 8px, strong rule 20px, no rule — the subtitle then touched the first section's rule), and a
    first section that draws its own top rule doubled the header rule. */
@@ -88,6 +95,8 @@
 #breadth-chart-grid > .breadth-more { grid-column: 1 / -1; min-width: 0; }
 .breadth-more > summary { cursor: pointer; width: max-content; max-width: 100%; padding: 12px 0; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
 .breadth-more > .breadth-more-grid { margin-top: 4px; }
+/* 2026-10-19 layout system: the ETF / corporate-action note in the breadth drill list (src/ui/components/breadth-board.js); old inline 10px reads --fs-xs. */
+.page .breadth-drill-ca { font-size: var(--fs-xs); color: var(--data-amber); line-height: 1.5; }
 @media (max-width: 1100px) {
   .app { width: 100% !important; max-width: 100% !important; }
   .main { min-width: 0; width: 100%; }

@@ -83,7 +83,6 @@ function renderTechnicalHealth({ documentRef, root }) {
     const referenceNode = reference ? documentRef.createElement('div') : null;
     if (referenceNode) {
       referenceNode.className = 'regime-chip-reference';
-      referenceNode.style.cssText = 'flex-basis:100%;font-size:12px;color:var(--text-muted);margin-top:2px;';
       referenceNode.title = '한국 참고 — 위 양호·중립·부담 합계에 넣지 않습니다';
       referenceNode.textContent = `참고 · 환율(원·엔) ${reference.stateLabel || '확인 불가'}`;
     }

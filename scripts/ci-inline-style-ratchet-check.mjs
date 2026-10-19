@@ -9,6 +9,8 @@
 //   belowFloor   — any `font-size: Npx` with N < 12 (the --fs-min floor), inline or in a CSS rule
 // New styling goes in a class (src/ui/styles/*.css, tokens from index.html :root and layout-primitives.css).
 // Setting one computed property (`node.style.left = …` for a measured position) is not counted.
+// src/ (the native ESM layer) reached zero inline styles in layout cleanup 4 and is held at zero outright, so a
+// new src/ file cannot bring inline styling back even though it has no baseline entry yet.
 //
 // Usage:
 //   node scripts/ci-inline-style-ratchet-check.mjs           # verify
@@ -53,9 +55,12 @@ function measure() {
   return counts;
 }
 
+const ZERO_INLINE_PREFIX = 'src/';
+
 export function compareToBaseline(counts, baseline) {
   const failures = [];
   for (const [file, now] of Object.entries(counts)) {
+    if (file.startsWith(ZERO_INLINE_PREFIX) && now.inline > 0) failures.push(`${file}: ${now.inline} inline style(s) — src/ is held at zero; use a class in src/ui/styles`);
     const allowed = baseline[file] || { inline: 0, belowFloor: 0 };
     if (now.inline > allowed.inline) failures.push(`${file}: inline styles grew ${allowed.inline} → ${now.inline} — use a class (src/ui/styles, layout-primitives.css)`);
     if (now.belowFloor > allowed.belowFloor) failures.push(`${file}: font sizes below ${FLOOR_PX}px grew ${allowed.belowFloor} → ${now.belowFloor} — the floor is var(--fs-min)`);
@@ -79,6 +84,7 @@ if (isMain) {
     compareToBaseline({ a: { inline: 3, belowFloor: 0 } }, { a: { inline: 2, belowFloor: 0 } }).length === 1,
     compareToBaseline({ a: { inline: 1, belowFloor: 1 } }, { a: { inline: 2, belowFloor: 1 } }).length === 0,
     compareToBaseline({ b: { inline: 0, belowFloor: 1 } }, {}).length === 1,
+    compareToBaseline({ 'src/x.js': { inline: 1, belowFloor: 0 } }, { 'src/x.js': { inline: 1, belowFloor: 0 } }).length === 1,
   ];
   if (selfTest.includes(false)) {
     console.error(`FAIL inline-style ratchet self-test: ${JSON.stringify(selfTest)}`);

@@ -332,7 +332,6 @@ function renderPortfolioSurface(documentRef, page, surface) {
   if (currentNode && !documentRef.getElementById('pf-learn-links')) {
     const links = documentRef.createElement('div');
     links.id = 'pf-learn-links';
-    links.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;';
     for (const [lesson, label] of [['J3', '원리 레슨 · 포지션 사이징'], ['J4', '원리 레슨 · 손실과 생존']]) {
       const button = documentRef.createElement('button');
       button.type = 'button';
@@ -355,40 +354,41 @@ function renderPortfolioSurface(documentRef, page, surface) {
       // v57.48 expert review #24: the denominator is stated once above the bars, not on every label.
       const basisHead = documentRef.createElement('div');
       basisHead.textContent = '현금 포함 총자산 대비 비중';
-      basisHead.style.cssText = 'font-size:11px;color:var(--text-muted);margin-bottom:6px;';
+      basisHead.className = 'pfp-basis';
       sectorElement.appendChild(basisHead);
       for (const sector of surface.sectorBreakdown) {
         const row = documentRef.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:5px;';
+        row.className = 'pfp-sector-row';
         const label = documentRef.createElement('span');
         label.textContent = sectorLabel(sector.name);
         label.title = `${sectorLabel(sector.name)} · 현금 포함 총자산 대비`;
         label.dataset.basis = sector.basis || 'total-assets-including-cash';
-        label.style.cssText = 'width:64px;font-size:11px;color:var(--text-secondary);text-align:right;flex-shrink:0;font-weight:600;';
+        label.className = 'pfp-sector-label';
         const track = documentRef.createElement('div');
-        track.style.cssText = 'flex:1;height:14px;background:var(--surface-3);border-radius:4px;overflow:hidden;';
+        track.className = 'pfp-sector-track';
         const bar = documentRef.createElement('div');
-        bar.style.cssText = `height:100%;width:${Math.max(0, Math.min(100, sector.pct))}%;background:var(--text-secondary);border-radius:4px;`;
+        bar.className = 'pfp-sector-fill';
+        bar.style.width = `${Math.max(0, Math.min(100, sector.pct))}%`;
         track.appendChild(bar);
         const pct = documentRef.createElement('span');
         pct.textContent = `${sector.pct.toFixed(0)}%`;
-        pct.style.cssText = 'width:42px;font-size:12px;font-family:var(--font-mono);color:var(--text-secondary);font-weight:700;text-align:right;';
+        pct.className = 'pfp-sector-pct';
         row.append(label, track, pct);
         sectorElement.appendChild(row);
       }
     } else {
       const empty = documentRef.createElement('div');
       empty.textContent = surface.cashHeld ? '현금 합계가 보류돼 총자산 대비 섹터 비중을 계산하지 않았습니다' : surface.holdingCount ? '평가액이 확인되면 섹터 비중이 표시됩니다' : '종목을 추가하면 섹터 비중이 표시됩니다'; // v57.81
-      empty.style.cssText = 'font-size:12px;color:var(--text-muted);padding:4px 0;';
+      empty.className = 'pfp-sector-empty';
       sectorElement.appendChild(empty);
     }
   }
 }
 
-function tableCell(documentRef, headerId, value, style = '') {
+function tableCell(documentRef, headerId, value, className = 'pfp-cell') {
   const cell = documentRef.createElement('td');
   cell.setAttribute('headers', headerId);
-  cell.style.cssText = style;
+  cell.className = className;
   cell.textContent = value;
   return cell;
 }
@@ -419,21 +419,20 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     row.className = 'pf-empty-state';
     const cell = documentRef.createElement('td');
     cell.colSpan = 9;
-    cell.style.cssText = 'padding:28px 16px;text-align:center;color:var(--text-muted);font-size:12px;line-height:1.8;';
+    cell.className = 'pfp-empty';
     const heading = documentRef.createElement('div');
     heading.textContent = '포트폴리오가 비어 있습니다';
-    heading.style.cssText = 'font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;';
+    heading.className = 'pfp-empty-title';
     const body = documentRef.createElement('div');
     // v57.54: one line on what appears, no how-to prose.
     body.textContent = '종목을 추가하면 변동성·섹터 쏠림·시장 상태와의 연결이 여기에 나타납니다.';
     const addButton = documentRef.createElement('button');
-    addButton.className = 'aio-btn-table primary';
+    addButton.className = 'aio-btn-table primary pfp-add';
     addButton.setAttribute('data-action', '_aioTogglePortfolioEntry');
-    addButton.style.cssText = 'margin-top:10px;min-height:36px;padding:7px 16px;';
     addButton.textContent = '첫 종목 추가';
     const privacy = documentRef.createElement('div');
     privacy.textContent = '보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN을 설정하면 암호화해 저장합니다.'; // P1593 (F108): same scope as the page header
-    privacy.style.cssText = 'font-size:12px;color:var(--text-muted);margin:6px auto 0;max-width:60ch;'; // v57.91 (visual audit): one ~850px grey line became a readable block
+    privacy.className = 'pfp-privacy'; // v57.91 (visual audit): one ~850px grey line became a readable block
     cell.append(heading, body, addButton, privacy);
     row.appendChild(cell);
     tbody.appendChild(row);
@@ -442,12 +441,12 @@ function renderPortfolioTable(documentRef, page, state, surface) {
   rows.forEach((rowData) => {
     const { holding, symbol, shares, avgCost, price, value, pnl, pnlPct } = rowData;
     const row = documentRef.createElement('tr');
-    row.style.cssText = 'border-bottom:1px solid var(--border);cursor:pointer;';
+    row.className = 'pfp-row';
     row.setAttribute('data-action', 'showTicker');
     row.setAttribute('data-arg', symbol);
     const tickerCell = documentRef.createElement('td');
     tickerCell.setAttribute('headers', 'pf-th-ticker');
-    tickerCell.style.cssText = 'padding:8px 10px;font-size:12px;';
+    tickerCell.className = 'pfp-ticker';
     const ticker = documentRef.createElement('b');
     ticker.textContent = symbol;
     ticker.style.color = 'var(--text-primary)';
@@ -455,7 +454,7 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     if (holding?.memo) {
       const memo = documentRef.createElement('div');
       memo.textContent = String(holding.memo);
-      memo.style.cssText = 'font-size:10px;color:var(--text-muted);margin-top:2px;';
+      memo.className = 'pfp-memo';
       tickerCell.appendChild(memo);
     }
     row.appendChild(tickerCell);
@@ -470,20 +469,21 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     const money = (amount, currency) => (amount == null
       ? '—'
       : `${currency === 'USD' ? '$' : currency === 'KRW' ? '₩' : `${currency} `}${Math.abs(amount).toLocaleString('en-US', currency === 'KRW' ? { maximumFractionDigits: 0 } : { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`); // v57.55 B4-F14: won has no decimals
-    row.appendChild(tableCell(documentRef, 'pf-th-qty', shares == null ? '—' : String(shares), 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;'));
-    const costCell = tableCell(documentRef, 'pf-th-cost', money(avgCost, costCurrency), 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;');
+    row.appendChild(tableCell(documentRef, 'pf-th-qty', shares == null ? '—' : String(shares)));
+    const costCell = tableCell(documentRef, 'pf-th-cost', money(avgCost, costCurrency));
     costCell.title = `원가 통화 ${holding?.costCurrency ? costCurrency : `${costCurrency}(추정)`}`;
     row.appendChild(costCell);
     // v57.81: one failure state for a holding whose quote and close both came back empty (any listed symbol is requested).
-    const priceCellNode = tableCell(documentRef, 'pf-th-price', price == null ? '가격 없음' : money(price, priceCurrency), `text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;color:${price == null ? 'var(--text-muted)' : 'var(--text-primary)'};`);
+    const priceCellNode = tableCell(documentRef, 'pf-th-price', price == null ? '가격 없음' : money(price, priceCurrency));
+    priceCellNode.style.color = price == null ? 'var(--text-muted)' : 'var(--text-primary)';
     priceCellNode.title = price == null ? '시세와 종가를 받지 못했습니다 · 총자산과 손익 합계에서 뺐습니다' : `시세 통화 ${priceCurrency}`;
     if (price == null) priceCellNode.dataset.priceState = 'missing';
     row.appendChild(priceCellNode);
-    const pnlCell = tableCell(documentRef, 'pf-th-pnl', pnl == null ? '—' : `${pnl >= 0 ? '+' : '-'}${money(Math.abs(pnl), baseCurrency)}`, 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;font-weight:700;');
+    const pnlCell = tableCell(documentRef, 'pf-th-pnl', pnl == null ? '—' : `${pnl >= 0 ? '+' : '-'}${money(Math.abs(pnl), baseCurrency)}`, 'pfp-cell is-bold');
     if (pnl == null) pnlCell.title = '손익 보류 · 원가/시세 통화 불일치 또는 시세 미수신';
     pnlCell.style.color = pnl == null ? 'var(--text-muted)' : pnl >= 0 ? 'var(--green)' : 'var(--red)';
     row.appendChild(pnlCell);
-    const pctCell = tableCell(documentRef, 'pf-th-pct', pnlPct == null ? '—' : `${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%`, 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;font-weight:700;');
+    const pctCell = tableCell(documentRef, 'pf-th-pct', pnlPct == null ? '—' : `${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%`, 'pfp-cell is-bold');
     pctCell.style.color = pnlPct == null ? 'var(--text-muted)' : pnlPct >= 0 ? 'var(--green)' : 'var(--red)';
     row.appendChild(pctCell);
     // P1176 (22 PFR01): `finite(0)`은 0이라 미설정 표시를 통과하지 못했다. legacy 테이블은 이미
@@ -494,19 +494,20 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     // P1449: the target is entered in the position's own currency (cost currency when declared,
     // price currency otherwise) — a KRW target must not print with `$`.
     const targetCurrency = costCurrency || priceCurrency;
-    const targetCell = tableCell(documentRef, 'pf-th-target', targetSet == null ? '미설정' : money(targetSet, targetCurrency), 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;');
+    const targetCell = tableCell(documentRef, 'pf-th-target', targetSet == null ? '미설정' : money(targetSet, targetCurrency));
     if (targetSet != null && price != null && price > 0 && targetCurrency === priceCurrency) {
       const upside = (targetSet - price) / price * 100;
       const upsideNode = documentRef.createElement('div');
       upsideNode.textContent = `${upside >= 0 ? '+' : ''}${upside.toFixed(1)}%`;
-      upsideNode.style.cssText = `font-size:10px;color:${upside >= 0 ? 'var(--green)' : 'var(--red)'};font-weight:600;`;
+      upsideNode.className = 'pfp-upside';
+      upsideNode.style.color = upside >= 0 ? 'var(--green)' : 'var(--red)';
       targetCell.appendChild(upsideNode);
     }
     row.appendChild(targetCell);
-    row.appendChild(tableCell(documentRef, 'pf-th-weight', totalValue > 0 && value != null ? `${(value / totalValue * 100).toFixed(1)}% · 주식 내` : '—', 'text-align:center;padding:8px 6px;font-size:11px;font-weight:700;'));
+    row.appendChild(tableCell(documentRef, 'pf-th-weight', totalValue > 0 && value != null ? `${(value / totalValue * 100).toFixed(1)}% · 주식 내` : '—', 'pfp-cell is-bold is-sans'));
     const manageCell = documentRef.createElement('td');
     manageCell.setAttribute('headers', 'pf-th-manage');
-    manageCell.style.cssText = 'text-align:center;padding:8px 6px;white-space:nowrap;';
+    manageCell.className = 'pfp-manage';
     [['차트', '_aioTechnicalTicker'], ['수정', '_aioEditPosition'], ['삭제', '_aioRemovePosition']].forEach(([label, action]) => {
       const button = documentRef.createElement('button');
       button.setAttribute('data-action', action);
@@ -514,7 +515,7 @@ function renderPortfolioTable(documentRef, page, state, surface) {
       button.setAttribute('data-stop', '1');
       button.setAttribute('aria-label', `${symbol} ${label}`);
       button.title = label;
-      button.style.cssText = 'background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;';
+      button.className = 'pfp-manage-btn';
       button.textContent = label;
       manageCell.appendChild(button);
     });

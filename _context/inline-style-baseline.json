@@ -3,8 +3,8 @@
   "generatedBy": "scripts/ci-inline-style-ratchet-check.mjs",
   "note": "Per-file inline style and sub-12px font-size counts. Shrink only; never raise a count or add a file.",
   "totals": {
-    "inline": 2098,
-    "belowFloor": 997
+    "inline": 1989,
+    "belowFloor": 967
   },
   "counts": {
     "index.html": {
@@ -39,97 +39,21 @@
       "inline": 200,
       "belowFloor": 83
     },
-    "src/app/compatibility-globals.js": {
-      "inline": 2,
-      "belowFloor": 0
-    },
-    "src/domain/masters/style-frames.js": {
-      "inline": 1,
-      "belowFloor": 0
-    },
-    "src/ui/components/ai-answer-visuals.js": {
-      "inline": 24,
-      "belowFloor": 0
-    },
-    "src/ui/components/breadth-board.js": {
-      "inline": 1,
-      "belowFloor": 1
-    },
-    "src/ui/components/knowledge-arrival.js": {
-      "inline": 1,
-      "belowFloor": 1
-    },
     "src/ui/components/market-timeline.js": {
       "inline": 0,
       "belowFloor": 2
-    },
-    "src/ui/components/research-snapshots.js": {
-      "inline": 2,
-      "belowFloor": 0
     },
     "src/ui/components/sector-map.js": {
       "inline": 0,
       "belowFloor": 1
     },
-    "src/ui/components/stock-chart.js": {
-      "inline": 1,
-      "belowFloor": 0
-    },
-    "src/ui/components/term-tooltip.js": {
-      "inline": 2,
-      "belowFloor": 0
-    },
-    "src/ui/components/value-basis.js": {
-      "inline": 2,
-      "belowFloor": 0
-    },
     "src/ui/knowledge/analysis-frames.js": {
       "inline": 0,
       "belowFloor": 4
     },
-    "src/ui/knowledge/glossary-bridge.js": {
-      "inline": 7,
-      "belowFloor": 1
-    },
     "src/ui/knowledge/research-shell.js": {
       "inline": 0,
       "belowFloor": 14
-    },
-    "src/ui/pages/analysis.js": {
-      "inline": 1,
-      "belowFloor": 0
-    },
-    "src/ui/pages/entity.js": {
-      "inline": 15,
-      "belowFloor": 7
-    },
-    "src/ui/pages/guide.js": {
-      "inline": 2,
-      "belowFloor": 0
-    },
-    "src/ui/pages/masters.js": {
-      "inline": 1,
-      "belowFloor": 0
-    },
-    "src/ui/pages/news.js": {
-      "inline": 8,
-      "belowFloor": 2
-    },
-    "src/ui/pages/portfolio.js": {
-      "inline": 20,
-      "belowFloor": 11
-    },
-    "src/ui/panels/connections.js": {
-      "inline": 5,
-      "belowFloor": 2
-    },
-    "src/ui/panels/portfolio-base-values.js": {
-      "inline": 2,
-      "belowFloor": 1
-    },
-    "src/ui/panels/portfolio-declarations.js": {
-      "inline": 11,
-      "belowFloor": 4
     },
     "src/ui/styles/company-analysis.css": {
       "inline": 0,
@@ -138,10 +62,6 @@
     "src/ui/styles/fiscal-quality.css": {
       "inline": 0,
       "belowFloor": 1
-    },
-    "src/ui/styles/layout-primitives.css": {
-      "inline": 1,
-      "belowFloor": 0
     },
     "src/ui/styles/regime-quality.css": {
       "inline": 0,

@@ -120,6 +120,7 @@ function createMetric(documentRef, label, value) {
 // 2026-10-14 audit: the lookup field had no rule of its own (a white default box in dark mode, too narrow in
 // the 연결 column); it takes the same look as .masters-search-input and the full column width.
 const MASTERS_EXTRA_STYLE = `
+.masters-ticker-lookup{margin:0}
 .masters-ticker-lookup .masters-search{display:block;margin:6px 0 0;min-width:0}
 .masters-ticker-lookup-input{width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid var(--border);border-radius:4px;background:var(--surface-1);color:var(--text-primary);font-size:13px}
 .masters-ticker-lookup-input:focus{outline:2px solid var(--accent);outline-offset:1px}
@@ -140,7 +141,6 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
   const section = element(documentRef, 'section', 'masters-ticker-lookup');
   section.dataset.mastersTickerLookup = 'reference-only';
   section.dataset.mastersTickerLoadState = tickerIndex ? 'ready' : loadState;
-  section.style.cssText = 'margin:0;';
   section.append(
     element(documentRef, 'p', 'masters-ticker-lookup-copy', '종목을 입력하면 이 화면의 운용사 가운데 그 종목을 보유했다고 신고한 곳을 찾아 줍니다.')
   );

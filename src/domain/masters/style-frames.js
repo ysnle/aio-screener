@@ -45,8 +45,8 @@ export const STYLE_FRAMES = Object.freeze([
     sees: '상장 주식 부분', blind: '사모·부동산·인프라·헤지펀드 등 대체투자의 대부분' })
 ]);
 
-export function styleFrameOf(style = '') {
-  return STYLE_FRAMES.find((frame) => frame.match.test(String(style))) || null;
+export function styleFrameOf(styleText = '') {
+  return STYLE_FRAMES.find((frame) => frame.match.test(String(styleText))) || null;
 }
 
 // Catalog managers grouped by frame (first matching frame), for the comparison table.

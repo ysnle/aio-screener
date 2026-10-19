@@ -1,0 +1,41 @@
+/* 2026-10-19 layout system: 포트폴리오 page styles moved out of inline styles (src/ui/pages/portfolio.js, src/ui/panels/portfolio-*.js).
+   Old inline 10/11/12px read --fs-xs/sm/base: the sizes index.html's [style*=font-size] rules rendered them at. P&L colours and bar widths stay in the renderer. */
+
+/* Volatility card: research-library links under the current exposure */
+#pf-learn-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+/* Sector breakdown bars */
+#pf-sector-breakdown .pfp-basis { font-size: var(--fs-sm); color: var(--text-muted); margin-bottom: 6px; }
+#pf-sector-breakdown .pfp-sector-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+#pf-sector-breakdown .pfp-sector-label { width: 64px; font-size: var(--fs-sm); color: var(--text-secondary); text-align: right; flex-shrink: 0; font-weight: 600; }
+#pf-sector-breakdown .pfp-sector-track { flex: 1; height: 14px; background: var(--surface-3); border-radius: 4px; overflow: hidden; }
+#pf-sector-breakdown .pfp-sector-fill { height: 100%; background: var(--text-secondary); border-radius: 4px; }
+#pf-sector-breakdown .pfp-sector-pct { width: 42px; font-size: var(--fs-base); font-family: var(--font-mono); color: var(--text-secondary); font-weight: 700; text-align: right; }
+#pf-sector-breakdown .pfp-sector-empty { font-size: var(--fs-base); color: var(--text-muted); padding: 4px 0; }
+
+/* Positions table. The id outranks `.content table tbody tr` (0,1,3) and `.page table td` (0,1,2), which the inline styles beat. */
+#pf-positions-tbody td.pfp-empty { padding: 28px 16px; text-align: center; color: var(--text-muted); font-size: var(--fs-base); line-height: 1.8; }
+#pf-positions-tbody .pfp-empty-title { font-size: 13px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; }
+#pf-positions-tbody .pfp-add { margin-top: 10px; min-height: 36px; padding: 7px 16px; }
+#pf-positions-tbody .pfp-privacy { font-size: var(--fs-base); color: var(--text-muted); margin: 6px auto 0; max-width: 60ch; }
+#pf-positions-tbody > tr.pfp-row { border-bottom: 1px solid var(--border); cursor: pointer; }
+#pf-positions-tbody td.pfp-ticker { padding: 8px 10px; font-size: var(--fs-base); }
+#pf-positions-tbody .pfp-memo { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px; }
+#pf-positions-tbody td.pfp-cell { text-align: center; padding: 8px 6px; font-family: var(--font-mono); font-size: var(--fs-sm); }
+#pf-positions-tbody td.pfp-cell.is-bold { font-weight: 700; }
+#pf-positions-tbody td.pfp-cell.is-sans { font-family: inherit; }
+#pf-positions-tbody .pfp-upside { font-size: var(--fs-xs); font-weight: 600; }
+#pf-positions-tbody td.pfp-manage { text-align: center; padding: 8px 6px; white-space: nowrap; }
+#pf-positions-tbody .pfp-manage-btn { background: none; border: none; cursor: pointer; font-size: 13px; padding: 2px 4px; }
+
+/* Declared ledger coverage, ledger and FX-leg rows (src/ui/panels/portfolio-declarations.js) */
+#page-portfolio .pfp-decl-head { font-size: var(--fs-sm); color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
+#page-portfolio .pfp-decl-options { display: flex; gap: 10px; flex-wrap: wrap; }
+#page-portfolio .pfp-decl-option { display: flex; gap: 4px; align-items: center; font-size: var(--fs-sm); color: var(--text-secondary); }
+#page-portfolio .pfp-decl-row { display: flex; gap: 8px; align-items: center; padding: 2px 0; }
+#page-portfolio .pfp-decl-row.is-unusable { opacity: 0.7; }
+#page-portfolio .pfp-figure { font-family: var(--font-mono); }
+
+/* Base-currency notes under the exposure and stress panels (src/ui/panels/portfolio-base-values.js) */
+#page-portfolio .pfp-base-blocked { font-size: var(--fs-base); color: var(--text-muted); padding: 8px 0; }
+#page-portfolio .pfp-base-excluded { font-size: var(--fs-sm); color: var(--text-muted); margin-top: 4px; }

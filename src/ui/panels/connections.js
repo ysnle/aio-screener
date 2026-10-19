@@ -8,8 +8,8 @@ export function installConnectionPanel(root, documentRef) {
   const anchor = documentRef.querySelector?.('.llm-panel-header + .llm-key-row');
   const panel = documentRef.createElement?.('div');
   if (anchor && panel) {
-    panel.style.cssText = 'font-size:11px;color:var(--text-muted);line-height:1.5;margin:4px 0;';
-    panel.innerHTML = '<details style="margin-top:4px;"><summary style="cursor:pointer;">연결 상태</summary><div id="shared-connection-status" role="status" aria-live="polite">공용 AI · 연결 확인 전</div><div id="shared-data-status">공용 수집 자료 · 로드 확인 전</div><button data-action="_aioCheckSharedConnection" class="llm-key-save" style="margin-top:4px;">공용 연결 확인</button><div style="font-size:10px;margin-top:3px;">공용 AI 예산 $20/월 · 기존 근거 우선<br>개인 검색 API 키는 필요하지 않습니다.</div></details>';
+    panel.className = 'cnp-panel'; // src/ui/styles/connection-panel.css
+    panel.innerHTML = '<details><summary>연결 상태</summary><div id="shared-connection-status" role="status" aria-live="polite">공용 AI · 연결 확인 전</div><div id="shared-data-status">공용 수집 자료 · 로드 확인 전</div><button data-action="_aioCheckSharedConnection" class="llm-key-save">공용 연결 확인</button><div class="cnp-note">공용 AI 예산 $20/월 · 기존 근거 우선<br>개인 검색 API 키는 필요하지 않습니다.</div></details>';
     anchor.insertAdjacentElement('afterend', panel);
   }
   let disposed = false;

@@ -273,8 +273,7 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
     if (!hint) {
       hint = document.createElement('div');
       hint.id = 'ticker-search-hint';
-      hint.className = 'ticker-search-hint';
-      hint.style.cssText = 'margin:-4px 0 12px;font-size:13px;line-height:1.6;color:var(--text-secondary);display:grid;gap:6px;';
+      hint.className = 'ticker-search-hint'; // src/ui/styles/entity-quality.css
       hint.setAttribute('role', 'status');
       row.insertAdjacentElement('afterend', hint);
       const clear = () => hint.replaceChildren();
@@ -289,7 +288,6 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
       : '티커·종목코드·회사명을 입력해 주세요.';
     const list = document.createElement('div');
     list.className = 'ticker-search-picks';
-    list.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;';
     const addPick = (pick) => {
       const button = document.createElement('button');
       button.type = 'button';

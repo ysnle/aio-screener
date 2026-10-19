@@ -113,10 +113,11 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
     }
     card.replaceChildren(...lines);
     card.hidden = false;
-    card.style.cssText = 'left:0;top:0;visibility:hidden;';
+    card.removeAttribute('style'); // measured placement: one property at a time from a cleared style attribute
+    Object.assign(card.style, { left: '0', top: '0', visibility: 'hidden' });
     const size = { width: card.offsetWidth || 280, height: card.offsetHeight || 60 };
     const place = placeTooltipBody(el.getBoundingClientRect(), size, { width: root.innerWidth || 1024, height: root.innerHeight || 768 });
-    card.style.cssText = `left:${place.left}px;top:${place.top}px;max-width:${place.width}px;`;
+    Object.assign(card.style, { visibility: '', left: `${place.left}px`, top: `${place.top}px`, maxWidth: `${place.width}px` });
     describe(el, card.id, true);
     anchor = el;
     openedBy = via;

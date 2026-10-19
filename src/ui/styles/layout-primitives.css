@@ -1,6 +1,6 @@
 /* 2026-10-19 layout system: shared tokens and primitives that inline styles used to repeat. The color, type and
    spacing scales stay in index.html :root; this file adds what the ratchet gate (ci-inline-style-ratchet-check.mjs)
-   steers new code toward instead of a new style="" or .style.cssText. */
+   steers new code toward instead of a new inline style attribute or .style.cssText. */
 :root {
   --touch-min: 24px;  /* WCAG 2.5.8: anything a finger taps is at least this tall (browser-a11y / touch-ergonomics gates) */
 }

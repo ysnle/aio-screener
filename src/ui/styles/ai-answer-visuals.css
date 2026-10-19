@@ -1,0 +1,33 @@
+/* 2026-10-19 layout system: figures under an AI answer (src/ui/components/ai-answer-visuals.js), moved out of inline styles.
+   The AI panel sits outside .page, so the old 12px text was never raised by index.html's [style*=font-size] rules and stays 12px. */
+.aio-answer-visual { margin: 10px 0 4px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-1); max-width: 600px; }
+.aav-head { font-size: 12px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+.aav-caption { font-size: 12px; line-height: 1.5; color: var(--text-muted); margin-top: 6px; }
+.aav-plot { display: block; max-width: 100%; height: auto; }
+.aav-legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+.aav-legend-line { vertical-align: middle; margin-right: 4px; }
+.aav-swatch { display: inline-block; width: 14px; height: 2px; vertical-align: middle; margin-right: 4px; background: var(--chart-1); }
+.aav-swatch--1 { background: var(--chart-4); }
+.aav-swatch--2 { background: var(--chart-8); }
+
+/* Scenario branches: met-condition dots, filled for each condition that holds */
+.aav-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.aav-table tr { border-top: 1px solid var(--border-subtle); }
+.aav-table tr.aav-lead { font-weight: 600; }
+.aav-table .aav-title { padding: 4px 6px 4px 0; color: var(--text-primary); }
+.aav-table .aav-dots { padding: 4px 6px; white-space: nowrap; }
+.aav-table .aav-tone { padding: 4px 6px; color: var(--text-secondary); white-space: nowrap; }
+.aav-table .aav-favored { padding: 4px 0; color: var(--text-secondary); }
+.aav-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 2px; border: 1.5px solid var(--text-secondary); }
+.aav-dot.is-met { background: var(--text-primary); border-color: var(--text-primary); }
+.aav-count { margin-left: 4px; color: var(--text-secondary); }
+
+/* Theme stages: four short lists, each row coloured by its macro wind */
+.aav-stages { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+.aav-stage-head { font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
+.aav-stage-row { font-size: 12px; }
+.aav-wind--tail { color: var(--data-green); }
+.aav-wind--head { color: var(--data-red); }
+.aav-wind--mixed { color: var(--text-primary); }
+.aav-wind--none { color: var(--text-muted); }
+.aav-stage-more { font-size: 12px; color: var(--text-muted); }

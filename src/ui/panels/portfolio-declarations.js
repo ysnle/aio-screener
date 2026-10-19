@@ -40,21 +40,22 @@ export function clearDeclaredFields(documentRef, ids) {
 
 export function coverageMarkup(coverageState) {
   const inputs = coverageState && Array.isArray(coverageState.inputs) ? coverageState.inputs : [];
-  return '<div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">원장 포함 범위 선언</div>' +
-    '<div style="display:flex;gap:10px;flex-wrap:wrap;">' + inputs.map((entry) => (
-      '<label style="display:flex;gap:4px;align-items:center;font-size:11px;color:var(--text-secondary);">' +
+  return '<div class="pfp-decl-head">원장 포함 범위 선언</div>' +
+    '<div class="pfp-decl-options">' + inputs.map((entry) => (
+      '<label class="pfp-decl-option">' +
       '<input type="checkbox" aria-label="원장 포함 범위 ' + escapeMarkup(entry.label) + '" data-on-change="_aioSetLedgerCoverage" data-field="' + escapeMarkup(entry.id) + '"' +
       (entry.declared ? ' checked' : '') + '>' + escapeMarkup(entry.label) + '</label>'
     )).join('') + '</div>';
 }
 
+// Row classes: src/ui/styles/portfolio-page.css; the delete buttons take .aio-btn-table's 12px (index.html).
 export function ledgerListMarkup(ledger) {
   if (!ledger || (!ledger.transactions.length && !ledger.valuations.length)) return '입출금 기록 없음';
-  const row = (label, date, amount, action) => '<div style="display:flex;gap:8px;align-items:center;padding:2px 0;">' +
-    '<span style="font-family:var(--font-mono);">' + escapeMarkup(date) + '</span>' +
+  const row = (label, date, amount, action) => '<div class="pfp-decl-row">' +
+    '<span class="pfp-figure">' + escapeMarkup(date) + '</span>' +
     '<span>' + label + '</span>' +
-    '<span style="font-family:var(--font-mono);">' + escapeMarkup(String(amount)) + '</span>' +
-    '<button class="aio-btn-table" data-action="_aioRemoveLedgerEntry" data-arg="' + action + '" style="font-size:10px;" aria-label="원장 항목 삭제">삭제</button></div>';
+    '<span class="pfp-figure">' + escapeMarkup(String(amount)) + '</span>' +
+    '<button class="aio-btn-table" data-action="_aioRemoveLedgerEntry" data-arg="' + action + '" aria-label="원장 항목 삭제">삭제</button></div>';
   return ledger.transactions.map((tx, index) => row(tx.kind === 'withdrawal' ? '출금' : '입금', tx.date, tx.amount, `transaction:${index}`))
     .concat(ledger.valuations.map((mark, index) => row('평가액', mark.date, mark.amount, `valuation:${index}`)))
     .join('');
@@ -67,11 +68,11 @@ export function fxLegListMarkup(legsState, { maxAgeMs = null } = {}) {
   return legs.map((leg, index) => {
     const ageHours = Math.round(leg.ageMs / 3600000 * 10) / 10;
     const unusableReason = leg.usable ? '' : ' · 지금은 쓰지 않음(입력한 지 ' + (budgetHours == null ? '오래됐거나' : budgetHours + '시간이 지났거나') + ' 기준 시각 이후 관측)';
-    return '<div style="display:flex;gap:8px;align-items:center;padding:2px 0;' + (leg.usable ? '' : 'opacity:0.7;') + '">' +
-      '<span style="font-family:var(--font-mono);">' + escapeMarkup(leg.from + '→' + leg.to) + '</span>' +
-      '<span style="font-family:var(--font-mono);">' + escapeMarkup(String(leg.rate)) + '</span>' +
+    return '<div class="pfp-decl-row' + (leg.usable ? '' : ' is-unusable') + '">' +
+      '<span class="pfp-figure">' + escapeMarkup(leg.from + '→' + leg.to) + '</span>' +
+      '<span class="pfp-figure">' + escapeMarkup(String(leg.rate)) + '</span>' +
       '<span>' + escapeMarkup(String(leg.observedAt).slice(0, 10)) + ' · ' + ageHours + 'h' + unusableReason + '</span>' +
-      '<button class="aio-btn-table" data-action="_aioRemoveFxLeg" data-arg="' + index + '" style="font-size:10px;" aria-label="환율 기록 삭제">삭제</button></div>';
+      '<button class="aio-btn-table" data-action="_aioRemoveFxLeg" data-arg="' + index + '" aria-label="환율 기록 삭제">삭제</button></div>';
   }).join('');
 }
 
