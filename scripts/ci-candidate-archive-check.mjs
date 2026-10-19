@@ -94,7 +94,7 @@ if (summary.measured !== 1 || summary.identity !== identity) fail('summary ident
 if (ranking.factorDefinitions?.momentum !== 'blend-1-3-6' || ranking.factorDefinitions?.value !== 'positive-multiples') fail('the default ranking must keep its own factor definitions');
 const shadow = buildShadowRecord({ shadowRanking });
 if (!shadow || shadow.model !== CANDIDATE_SHADOW_MODEL.id || !shadow.identity.startsWith(`${CANDIDATE_SHADOW_MODEL.id}:`)
-  || shadowRanking.factorDefinitions?.momentum !== 'six-minus-one' || shadowRanking.factorDefinitions?.value !== 'signed-yields') fail('shadow ranking/record missing or not the candidate model');
+  || shadowRanking.factorDefinitions?.momentum !== 'six-minus-one' || shadowRanking.factorDefinitions?.value !== 'signed-yields' || shadowRanking.factorDefinitions?.quality !== 'profitability' || ranking.factorDefinitions?.quality !== 'roe-margin-growth') fail('shadow ranking/record missing or not the candidate model');
 const loss = signedYields('X', { price: 10, shares: 1e6 }, { quarters: { X: '2025-03-31:1:-1:r;2025-06-30:1:-1:r;2025-09-30:1:-1:r;2025-12-31:1:-1:d' }, data: { X: '2025-12-31:4:-4:5::::1' } });
 if (loss.earningsYieldTtm !== -0.4 || loss.bookYield !== 0.5) fail(`signed yields must keep a loss negative: ${JSON.stringify(loss)}`);
 // v57.88 (review): a filer whose last quarter / fiscal year ended years ago has no current yield.

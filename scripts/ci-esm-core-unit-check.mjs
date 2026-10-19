@@ -5121,6 +5121,33 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (read.kinds.squeeze.count !== 1 || read.kinds.squeeze.medianPct !== null) fail('signal history: below the minimum count no figure is printed');
 }
 
+// ── v58.XX expertise review (macro audit §6-2): backtest weights drift in the base currency; a running month is left out ──
+{
+  const { buildPortfolioBacktestLab } = await load('src/domain/portfolio/backtest.js');
+  const keys = Array.from({ length: 15 }, (_, i) => `${2024 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, '0')}`);
+  const series = (values) => ({ timestamps: keys.map((k) => `${k}-28T00:00:00Z`), adjustedCloses: values, backtestEligible: true, backtestPriceBasis: 'adjusted-close' });
+  const krw = keys.map((_, i) => (i >= 2 ? 270000 : 135000)); // flat, then +100% in the second month
+  const map = { AAA: series(krw), BBB: series(keys.map(() => 100)), SPY: series(keys.map(() => 100)) };
+  const fx = { timestamps: keys.map((k) => `${k}-28T00:00:00Z`), closes: keys.map((_, i) => (i >= 1 ? 1320 : 1200)) };
+  const positions = [{ ticker: 'AAA', qty: 1, cost: 135000, currency: 'KRW', costCurrency: 'KRW' }, { ticker: 'BBB', qty: 1, cost: 100, currency: 'USD', costCurrency: 'USD' }];
+  const opts = { baseCurrency: 'USD', rebalanceType: 'none', fxLegs: [{ from: 'KRW', to: 'USD', rate: 1 / 1350, observedAt: '2026-09-24T00:00:00Z', source: 'test-leg' }], fxSeries: { usdkrw: fx } };
+  const run = buildPortfolioBacktestLab(map, positions, { ...opts, asOfMs: Date.parse('2026-09-25T00:00:00Z') });
+  const [m1, m2] = run.baseCurrencyReturns?.months || [];
+  const w = 0.5 * (1200 / 1320) / (0.5 * (1200 / 1320) + 0.5);
+  if (Math.abs(m1?.return - 0.5 * (1200 / 1320 - 1)) > 1e-9 || Math.abs(m2?.return - w) > 1e-9) fail(`backtest: the base-currency month after a won move must weight the KRW holding by its base value (${w}), got ${JSON.stringify([m1, m2])}`);
+  const partial = buildPortfolioBacktestLab(map, positions, { ...opts, fxLegs: [{ ...opts.fxLegs[0], observedAt: '2025-03-14T00:00:00Z' }], asOfMs: Date.parse('2025-03-15T00:00:00Z') });
+  if (partial.settings?.partialMonthExcluded !== '2025-03' || (partial.baseCurrencyReturns?.months || []).some((row) => row.month === '2025-03')) fail(`backtest: the month containing asOf is still running and must be left out, got ${partial.settings?.partialMonthExcluded}`);
+}
+
+// ── v58.XX expertise review (macro audit §6-2/§5-2): unknown exchange suffixes are not dollars; open-market rows are not closes ──
+{
+  const { listingCurrency, listingRegion } = await load('src/domain/portfolio/fx.js');
+  if (listingCurrency('VOD.L') !== null || listingCurrency('SHOP.TO') !== null || listingRegion('VOD.L') === '미국 상장') fail('fx: an unknown exchange suffix must stay unknown, not USD');
+  if (listingCurrency('BRK.B') !== 'USD' || listingCurrency('AAPL') !== 'USD' || listingCurrency('005930.KS') !== 'KRW') fail('fx: share classes and known listings keep their currency');
+  const { MARKET_ANALYSIS_CLOSED_SESSIONS } = await import(new URL('./lib/market-analysis-validate.mjs', import.meta.url));
+  if (MARKET_ANALYSIS_CLOSED_SESSIONS.includes('REGULAR') || !MARKET_ANALYSIS_CLOSED_SESSIONS.includes('PREVIOUS_CLOSE_EXPECTED')) fail('market analysis: an open-market (REGULAR) row is not a completed close; a previous-close row is');
+}
+
 // ── v58.XX expertise review: portfolio stress sensitivities from the book's own weekly returns ──
 {
   const { estimateBookSensitivities, scenarioImpact, krwTranslationPct, regressOne } = await load('src/domain/portfolio/stress-sensitivity.js');
