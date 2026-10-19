@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1937 - v58.45 - v58.43 순위 기록 판정 문장이 유의한 음의 IC를 "우연과 구분되지 않음"으로 쓰고, 표본 수·판정 범위를 잘못 말함 (2026-10-19)
+
+- symptom/reproduction: 스크리너 "순위가 높으면 오른다" 원칙과 검증 판정이 평균 < 0, t ≤ -2인 음의 IC를 우연으로 썼다. 판단 부족 사유의 표본 수가 판정에 쓰인 미국 IC 표본 수와 달랐고, 판정 범위(기본 가중치 미국 순위)를 밝히지 않아 한국 탭·선택 프로필 순위의 검증으로 읽힐 수 있었다. 가격 이력만 실패하면 금리곡선·지수 이익 원칙 근거가 사라졌고, 신호 화면은 이익 수정 원칙에 필요한 컨센서스 파일을 요청하지 않았다.
+- root_cause: src/domain/guide/lessons.js와 src/ui/pages/screener.js가 판정을 지지/그 외 두 갈래로만 나눴고 전체 기록 수를 표본 수로 썼다. src/ui/components/screen-lessons.js가 가격 이력이 있을 때만 해석 파이프라인 단계를 넘겼다.
+- fix: 음의 유의 IC를 "오히려 반대 방향"으로 따로 쓰고, 표본 수는 icUS.n, 모든 분기에 "기본 가중치 미국 순위" 범위를 명시한다. 원칙 문맥은 가격 이력 없이도 curve·indexEarnings 단계를 읽고 신호 화면은 컨센서스 파일을 요청한 뒤 다시 그린다.
+- violated_rule: 근거 문장은 판정이 실제로 말하는 방향·표본·범위만 말한다.
+- prevention: ci-market-guide-fixture가 음의 IC·표본 수·범위 문구와 가격 이력 없는 원칙 문맥을 검사한다.
+- verification/residual: node scripts/ci-market-guide-fixture.mjs; qa-runner preflight/core/data
+
 ## P1936 - v58.44 - 월간 거시 일정 검토가 이미 지난 날짜 차이만으로 9개 일정을 '다름'으로 보고하고 닫힌 검토 이슈를 다시 열 수 있음 (2026-10-19)
 
 - symptom/reproduction: 이슈 #69가 9개 일정 차이를 보고했으나 8개는 지난 날짜(FRED 조회 창에서 빠진 7·8월, BOK·ISM 연간 파일의 1~6월, 2026-09-28 소매판매)뿐이었다. 'Current nextRelease' 열은 런타임이 부팅 때 덮어쓰는 수기 값(예: NFP 2026-10-02)을 보여 화면에 없는 지난 날짜가 보였다. 유일한 실제 공백은 2027 FOMC 일정이었다.
