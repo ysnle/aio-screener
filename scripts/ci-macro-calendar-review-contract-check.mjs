@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { buildMacroCalendarReview } from './build-macro-calendar-review.mjs';
 
 const workflow = readFileSync('.github/workflows/macro-calendar-review.yml', 'utf8');
@@ -95,6 +96,18 @@ partialCoverageOnly.candidates[0].sourceEvidence = {
   sourceUrl: 'https://www.bok.or.kr/eng/main/contents.do?menuNo=400020'
 };
 const partialCoverageOnlyReport = buildMacroCalendarReview(partialCoverageOnly);
+const pastOnly = structuredClone(fixture);
+pastOnly.candidates[0].current.scheduleDates = ['2026-07-30', ...pastOnly.candidates[0].current.scheduleDates];
+pastOnly.candidates[1].proposed.scheduleDates = ['2026-01-28', ...pastOnly.candidates[1].proposed.scheduleDates];
+const pastOnlyReport = buildMacroCalendarReview(pastOnly);
+const previewRun = (schedules) => {
+  const run = spawnSync(process.execPath, ['scripts/preview-macro-calendar.mjs', '--fixture', '-', '--as-of', '2026-10-19'],
+    { encoding: 'utf8', input: JSON.stringify({ asOf: '2026-10-19', schedules }) });
+  try { return JSON.parse(run.stdout || '{}'); } catch { return {}; }
+};
+const shippedSchedules = JSON.parse(readFileSync('js/aio-core.js', 'utf8')
+  .match(/window\.AIO_MACRO_OFFICIAL_SCHEDULES = (\{[\s\S]*?\n\});/)[1].replace(/\/\/.*$/gm, '').replace(/'/g, '"'));
+const historyOnlyPreview = previewRun({ 'us-cpi': shippedSchedules['us-cpi'].filter((date) => date >= '2026-09-01').concat('2026-01-13') });
 const collectorStep = workflow.slice(workflow.indexOf('- name: Collect official FRED and annual-calendar candidates'))
   .split('\n      - name:')[0];
 const issueStep = workflow.slice(workflow.indexOf('- name: Update or create this month’s review issue'));
@@ -112,6 +125,11 @@ check('P1305/R605/QA-DATA-48 later schedule changes appear in the report and sta
     && changedLaterScheduleReport.markdown.includes('2026-12-16')
     && changedLaterScheduleReport.markdown.includes('removed: 2026-12-09')
     && changedLaterScheduleReport.markdown.includes('added: 2026-12-16'));
+check('P1304 digest ignores dates already past, so a closed review is not re-filed by history alone',
+  pastOnlyReport.digest === report.digest);
+check('P1304 preview flags no change when only past dates differ, and compares the derived next release the screen shows',
+  historyOnlyPreview.candidates?.find((candidate) => candidate.id === 'us-cpi')?.changed === false
+    && historyOnlyPreview.candidates?.find((candidate) => candidate.id === 'us-cpi')?.current?.nextRelease === '2026-11-10');
 check('P1305/R605/QA-DATA-48 tentative-only annual evidence still requests human review',
   tentativeOnlyReport.reviewNeeded && tentativeOnlyReport.markdown.includes('tentative'));
 check('P1305/R605/QA-DATA-48 partial annual coverage still requests human review without other differences',

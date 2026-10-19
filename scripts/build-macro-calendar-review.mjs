@@ -60,23 +60,31 @@ export function buildMacroCalendarReview(preview) {
     || Number(preview.summary.omittedEntries || 0) > 0
     || Number(preview.summary.unknownFixtureIds || 0) > 0;
 
+  // The digest covers what still needs a decision: upcoming dates the two schedules disagree on, not dates both
+  // share or dates already past. Otherwise every passing release or FRED window shift re-files a closed review.
+  const upcoming = (dates) => scheduleDates(dates).filter((date) => date >= preview.asOf);
   const stableDigestInput = {
-    candidates: candidates.map((candidate) => ({
-      id: candidate.id,
-      currentNextRelease: safeDate(candidate.current.nextRelease),
-      currentLastRelease: safeDate(candidate.current.lastRelease),
-      currentScheduleDates: scheduleDates(candidate.current.scheduleDates),
-      proposedNextRelease: safeDate(candidate.proposed.nextRelease),
-      proposedLastRelease: safeDate(candidate.proposed.lastRelease),
-      proposedScheduleDates: scheduleDates(candidate.proposed.scheduleDates),
-      changed: candidate.changed === true,
-      evidenceStatus: candidate.sourceEvidence?.status || null,
-      years: (candidate.sourceEvidence?.years || []).map((year) => ({
-        year: Number(year.year),
-        status: year.status || null,
-        tentative: year.tentative === true
-      }))
-    })),
+    candidates: candidates.map((candidate) => {
+      const current = upcoming(candidate.current.scheduleDates);
+      const proposed = upcoming(candidate.proposed.scheduleDates);
+      const currentNext = safeDate(candidate.current.nextRelease);
+      const proposedNext = safeDate(candidate.proposed.nextRelease);
+      return {
+        id: candidate.id,
+        upcomingAdded: proposed.filter((date) => !current.includes(date)),
+        upcomingRemoved: current.filter((date) => !proposed.includes(date)),
+        nextRelease: currentNext === proposedNext ? null : [currentNext, proposedNext],
+        lastRelease: safeDate(candidate.current.lastRelease) === safeDate(candidate.proposed.lastRelease)
+          ? null : [safeDate(candidate.current.lastRelease), safeDate(candidate.proposed.lastRelease)],
+        changed: candidate.changed === true,
+        evidenceStatus: candidate.sourceEvidence?.status || null,
+        years: (candidate.sourceEvidence?.years || []).map((year) => ({
+          year: Number(year.year),
+          status: year.status || null,
+          tentative: year.tentative === true
+        }))
+      };
+    }),
     missingFiles: missingFiles.map(({ calendarId, year }) => ({ calendarId, year: Number(year) })).sort((a, b) =>
       `${a.calendarId}:${a.year}`.localeCompare(`${b.calendarId}:${b.year}`)),
     changedCandidates: Number(preview.summary.changedCandidates || 0),
