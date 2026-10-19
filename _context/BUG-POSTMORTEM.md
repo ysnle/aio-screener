@@ -1,10 +1,19 @@
 ---
-last_verified: 2026-10-18
+last_verified: 2026-10-19
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1929 - v58.27 - 월요일 시장 해석이 검증 실패로 막히고 오늘의 한 문장이 전날 것으로 남음, 뉴스 묶음이 같은 주기 안에서 40건에서 32건으로 줄어듦 (2026-10-19)
+
+- symptom/reproduction: 10/19 11:17Z 시장 해석이 causal-attribution-missing으로 막혀 화면에 대체 문구가 나갔다. 27분 전 검증된 해석도 intraday-time-missing:market.wti로 재검증에서 떨어졌다. 오늘의 한 문장은 10/19 내내 10/18 문장이었다. 같은 08:00 묶음이 01:21Z 40건에서 11:17Z 32건으로 줄었고, 지역 선거 소식 3건·영상 스팸·보도자료가 섞였다.
+- root_cause: (1) isNonMetricNumber가 '나스닥100'의 100을 WTI 수준(98.64, 장중)으로 읽었다. (2) 큰 움직임 귀속 규칙이 금요일 종가(S&P −1.09%)의 원인을 주말 헤드라인 창에서 요구했다. (3) 한 문장 후보 거절 이유가 기록되지 않았고, 날을 넘겨 재사용된 해석은 후보가 없었다. (4) 닫힌 뉴스 창을 매번 처음부터 검색해 Google 순위가 밀리면 기사가 빠졌다. (5) 선거 규칙 하나만 맞는 제목, 발행처 접미사(' - Anthropic')가 주제 근거로 통과했다.
+- fix: market-analysis-numbers.mjs: 지수 이름에 붙은 구성 종목 수는 이름. market-analysis-validate.mjs: marketAnalysisLargeMove(헤드라인 창 시작 12시간 전 이후 세션만), marketSentenceRejectReason. fetch-data.mjs: meta.marketSentenceReject, 날 경계 첫 실행 재작성, 같은 주기 뉴스 carry. news-selection.mjs: carriedNewsCandidates, 선거 단독·영상 재게시·보도자료 필터, 접미사 제외, 쉼표 숫자·형용사형 개체 중복 판정, 통신사 전용 피드. 텔레그램 24시간 목록 점수 하한·중복·공지 필터, AAII 수집표, BLS 덮어쓰기 가드, 백테스트 주말 행, 가격 재시도, 4분기=연간 보정, 실적 일정 일별 조회.
+- violated_rule: 닫힌 수집 창의 결과는 다음 실행에서 버리지 않고 이어받으며, 검증 실패·거절 사유는 항상 기록한다.
+- prevention: ci-codex-structure-regression-fixture.mjs에 나스닥100, 주말 창 큰 움직임, 선거 단독 제목, 영상 재게시, 발행처 접미사, Yardeni 7,900 중복, Russian 개체, 같은 주기 carry, LHX 4분기 단언 추가.
+- verification/residual: node scripts/ci-codex-structure-regression-fixture.mjs; node scripts/ci-data-pipeline-contract-check.mjs; npm run -s qa:contracts (144 pass)
 
 ## P1928 - v58.26 - AI 투자 꺾임 시나리오 게이트가 반도체 급락을 보지 못했고, AI 대화가 DXY를 100 고정선으로 판정했음 (2026-10-18)
 

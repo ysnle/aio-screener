@@ -1,6 +1,6 @@
 ---
 generated_by: scripts/generate-workspace-state.mjs
-generated_from_build: 2026-10-19T21:00:00+09:00
+generated_from_build: 2026-10-19T20:54:00+09:00
 auto_refresh: true
 last_verified: 2026-10-19
 ---
@@ -31,7 +31,7 @@ last_verified: 2026-10-19
 - Context documents: 77; preflight reads current state once; governance and INDEX are targeted references.
 - Skills: 9; command wrappers: 16; agent profiles: 4.
 - Workflows: 13; CI scripts: 174.
-- Ledgers: latest rule R719; latest postmortem P1928; open QA 186 unique IDs (186 rows, 3 explicitly superseded).
+- Ledgers: latest rule R719; latest postmortem P1929; open QA 186 unique IDs (186 rows, 3 explicitly superseded).
 - Canonical skills: `.claude/skills`; Codex mirror: `.agents/skills`.
 
 ## Knowledge Boundary

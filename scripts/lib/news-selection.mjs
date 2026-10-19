@@ -75,6 +75,10 @@ export function getKst0800NewsCycle(nowMs = Date.now()) {
 
 export const NEWS_FEEDS = [
   { query: 'Reuters Bloomberg CNBC market moving stocks S&P 500 Nasdaq Federal Reserve Treasury yields oil when:2d', source: 'Google News - Market movers', topic: 'macro', country: 'us', tier: 1 },
+  // 2026-10-19 data audit: the "Market movers" query names Reuters/Bloomberg/CNBC as words, which matches any outlet
+  // quoting them; wire and tier-1 publishers held 3-6 of 32-40 slots across 10/16-10/19. This feed restricts the
+  // publisher itself, so the bundle's tier-1 share no longer depends on aggregators reposting the wires.
+  { query: '(stocks OR markets OR Fed OR Treasury OR oil OR earnings OR chips) (site:reuters.com OR site:apnews.com OR site:cnbc.com OR site:ft.com OR site:wsj.com OR site:bloomberg.com) when:2d', source: 'Google News - Wires', topic: 'macro', country: 'us', tier: 1 },
   { query: 'stock market OR S&P 500 OR Nasdaq OR Federal Reserve OR Treasury yield OR inflation when:2d', source: 'Google News - US markets', topic: 'macro', country: 'us', tier: 2 },
   { query: 'Nvidia OR Micron OR semiconductor OR AI stocks OR data center OR earnings guidance when:2d', source: 'Google News - AI/Semis', topic: 'semi', country: 'us', tier: 2 },
   { query: 'Iran OR Hormuz OR Red Sea OR oil prices OR geopolitics OR sanctions when:2d', source: 'Google News - Geopolitics/Energy', topic: 'geo', country: 'global', tier: 1 },
@@ -116,8 +120,10 @@ const SERVER_NEWS_PRIORITY_RULES = [
 ];
 
 // 2026-10-13 news audit N13: "Adding Nvidia … is How Fortunes Are Made" and the same promise-of-wealth family.
-const SERVER_NEWS_CLICKBAIT_RE = /\b(next nvidia|next tesla|must buy|guaranteed return|millionaire|hidden gem|penny stock|to the moon|won't believe|don't miss|best stocks? to buy now|fortunes? (?:are|is|was|were|could be|can be|will be) made|make you (?:rich|a fortune)|life[- ]changing (?:money|wealth|returns?)|generational wealth|set (?:you )?up for life|retire (?:rich|early|a millionaire)|turn \$?[\d,]+ into)\b/i;
-const SERVER_NEWS_UNVERIFIED_RE = /\b(people familiar|sources say|according to sources|unconfirmed|rumou?rs?|reportedly|may be considering|is said to|speculation|unnamed sources|people with knowledge)\b/i;
+const SERVER_NEWS_CLICKBAIT_RE = /\b(next nvidia|next tesla|must buy|guaranteed return|millionaire|hidden gem|penny stock|to the moon|won't believe|don't miss|best stocks? to buy now|fortunes? (?:are|is|was|were|could be|can be|will be) made|make you (?:rich|a fortune)|life[- ]changing (?:money|wealth|returns?)|generational wealth|set (?:you )?up for life|retire (?:rich|early|a millionaire)|turn \$?[\d,]+ into|just changed everything|changes everything)\b/i;
+// 2026-10-19 data audit: video-farm reposts ("BE Stock Just Changed EVERYTHING … (rMCZTrTnh0)") end in an 11-char video id.
+const SERVER_NEWS_VIDEO_REPOST_RE = /\([A-Za-z0-9_-]{10,11}\)\s*$/;
+const SERVER_NEWS_UNVERIFIED_RE = /\b(people familiar|sources say|according to sources|unconfirmed|rumou?rs?|reportedly|may be considering|is said to|speculation|unnamed sources|people with knowledge|market chatter)\b/i;
 // Owner 2026-10-18: rumours stay labelled as rumours. Korean wording carries no `\b` boundary, so it is a separate pattern;
 // a matching headline keeps its -8 and is published with verification 'unconfirmed' so the reader and the model see it.
 const SERVER_NEWS_UNVERIFIED_KO_RE = /(루머|소문|찌라시|미확인|관계자(?:들)?(?:에\s*따르면|를\s*인용)|소식통|설\s*(?:나와|돌아|확산))/;
@@ -134,7 +140,7 @@ const SERVER_NEWS_TIER1_SOURCE_RE = /\b(Reuters|Bloomberg|Associated Press|AP Ne
 const SERVER_NEWS_TIER2_SOURCE_RE = /\b(?:MarketWatch|Barron's|Nikkei|Yonhap|Naver|Korea JoongAng|The Korea Herald|The Hill|Yahoo Finance|Chosunbiz)\b|^(?:연합뉴스|연합인포맥스|뉴스1|뉴시스|중앙일보|조선일보|동아일보|한겨레|코리아\s?헤럴드|한국경제|한경닷컴|매일경제|서울경제|머니투데이|이데일리|파이낸셜뉴스|헤럴드경제|아시아경제|조선비즈|이투데이|KBS\s?뉴스|MBC\s?뉴스|SBS\s?뉴스|YTN)$/i;
 // P1504: the list missed the spellings Google News actually returns ("AD HOC NEWS") and several content farms
 // that filled the 2026-10-06 cycle (TradingKey ×4, livetradingnews, BBN Times, simplywall.st).
-const SERVER_NEWS_LOW_QUALITY_SOURCE_RE = /\b(Ad[- ]?hoc[- ]?news|MSN|GuruFocus|IndexBox|Pluang|Bitget|Stocktwits|TradingPedia|The Vibes|WBFF|Benzinga|Zacks|TradingKey|livetradingnews|BBN Times|simplywall\.st|Simply Wall St(?:reet)?|Telangana Today|Goodreturns|Startup Fortune|BigGo Finance|Eurasia Business News|bitcoinmagazine|GoldSilver|Motley Fool|FX Leaders|Coinpedia|Blockchain\.News|TMGM|VT Markets|Markets\.com|Admirals?|Action Forex|Moomoo|Invezz|Capital\.com|Plus500|XTB|FXOpen|Exness|AvaTrade|eToro|MarketBeat|24\/7 Wall St|Vietnam\.vn|Univest|scanx(?:\.trade)?|NextBigFuture(?:\.com)?)\b/i;
+const SERVER_NEWS_LOW_QUALITY_SOURCE_RE = /\b(Ad[- ]?hoc[- ]?news|MSN|GuruFocus|IndexBox|Pluang|Bitget|Stocktwits|TradingPedia|The Vibes|WBFF|Benzinga|Zacks|TradingKey|livetradingnews|BBN Times|simplywall\.st|Simply Wall St(?:reet)?|Telangana Today|Goodreturns|Startup Fortune|BigGo Finance|Eurasia Business News|bitcoinmagazine|GoldSilver|Motley Fool|FX Leaders|Coinpedia|Blockchain\.News|TMGM|VT Markets|Markets\.com|Admirals?|Action Forex|Moomoo|Invezz|Capital\.com|Plus500|XTB|FXOpen|Exness|AvaTrade|eToro|MarketBeat|24\/7 Wall St|Vietnam\.vn|Univest|scanx(?:\.trade)?|NextBigFuture(?:\.com)?|Press Release Distribution\w*|Unisba Media)\b/i;
 // N12 (2026-10-13 audit): the additions after Blockchain.News are CFD-broker and trading-app marketing desks (TMGM,
 // VT Markets, Markets.com, Admirals, Action Forex, Moomoo, Invezz …) and template/listicle farms (MarketBeat,
 // 24/7 Wall St). Matching runs on the host-normalised source label, so "www.tmgm.com" is caught as well.
@@ -206,10 +212,13 @@ export function serverNewsHeadlineMonthStale(headline, nowMs = Date.now()) {
   const current = new Date(nowMs).getUTCMonth();
   return ((current - named + 12) % 12) >= 2 && ((current - named + 12) % 12) <= 9;
 }
+const SERVER_NEWS_POLITICS_MARKET_RE = /\b(stocks?|markets?|investors?|wall street|economy|economic|tax(?:es)?|spending|deficit|tariffs?|data cent(?:er|re)s?|energy|oil|fed)\b/i;
 export function scoreServerNewsItem(item) {
-  const headline = String(item.title || '');
+  // 2026-10-19 data audit: Google's raw title ends in " - <publisher>", so "… - Anthropic" or "… - Egypt Oil & Gas"
+  // matched topic rules through the publisher's name (H04: topic evidence is the headline alone).
+  const headline = cleanNewsTitle(item.title, item.source, item._sourceRaw);
   const text = `${headline} ${item.source || ''}`;
-  if (SERVER_NEWS_CLICKBAIT_RE.test(headline)) return { score: 0, selectionReason: 'clickbait-filter' };
+  if (SERVER_NEWS_CLICKBAIT_RE.test(headline) || SERVER_NEWS_VIDEO_REPOST_RE.test(headline)) return { score: 0, selectionReason: 'clickbait-filter' };
   if (SERVER_NEWS_NOT_ARTICLE_RE.test(headline)) { item.topicHits = 0; return { score: 0, selectionReason: 'not-article-filter' }; }
   if (serverNewsHeadlineMonthStale(headline, item.scoringNowMs || Date.now())) { item.topicHits = 0; return { score: 0, selectionReason: 'stale-repost-filter' }; }
   if (SERVER_NEWS_OFFTOPIC_RE.test(headline)) { item.topicHits = 0; return { score: 0, selectionReason: 'off-topic-filter' }; }
@@ -235,6 +244,9 @@ export function scoreServerNewsItem(item) {
       reasons.push(`${rule.label}+${rule.points}`);
     }
   }
+  // 2026-10-19 data audit: the 10/19 bundle carried a county voting guide, a senate rally and a protest under the
+  // midterm rule alone. An election headline is market news only when it also names a market topic.
+  if (topicHits === 1 && /politics-elections\+/.test(reasons[reasons.length - 1]) && !SERVER_NEWS_POLITICS_MARKET_RE.test(headline)) topicHits = 0;
   // P1504: a headline that touches no market topic is not market news, whatever feed returned it.
   item.topicHits = topicHits;
 
@@ -243,7 +255,7 @@ export function scoreServerNewsItem(item) {
     reasons.push('unverified-8');
     item.verification = 'unconfirmed';
   }
-  if (/\b(opinion|sponsored|partner content|advertisement)\b/i.test(text)) {
+  if (/\b(opinion|sponsored|partner content|advertisement)\b/i.test(text) || /^press release\b/i.test(headline)) {
     score -= 18;
     reasons.push('promo-opinion-18');
   }
@@ -289,11 +301,14 @@ function _parseRssXml(xml, opts) {
 }
 
 export function newsHeadlineSignature(title) {
-  const text = String(title || '').toLowerCase().replace(/\s+-\s+[^-]+$/, '').replace(/[^\p{L}\p{N}.%$ ]/gu, ' ');
+  const raw = String(title || '').toLowerCase().replace(/\s+-\s+[^-]+$/, '');
+  const text = raw.replace(/[^\p{L}\p{N}.%$ ]/gu, ' ');
   const compact = text.replace(/\s+/g, '');
   const grams = new Set();
   for (let i = 0; i < compact.length - 1; i += 1) grams.add(compact.slice(i, i + 2));
-  const figures = new Set((text.match(/\$?\d+(?:\.\d+)?\s*(?:조|억|%|bp|billion|trillion|bn)/g) || []).map((x) => x.replace(/\s/g, '')));
+  // 2026-10-19 data audit: "Yardeni Lowers S&P 500 Target to 7,900" and "Yardeni Research Cuts S&P 500 Year-End Target
+  // to 7,900" both ran; a comma-grouped figure (7,900 · $4,165) is as specific as a unit-bearing one.
+  const figures = new Set((raw.match(/\$?\d+(?:\.\d+)?\s*(?:조|억|%|bp|billion|trillion|bn)|\$?\d{1,3}(?:,\d{3})+(?:\.\d+)?/g) || []).map((x) => x.replace(/[\s$]/g, '')));
   return { grams, figures };
 }
 export function newsSameEvent(a, b) {
@@ -325,11 +340,11 @@ const NEWS_KEY_ENTITIES = [
   ['index-wrap', /\b(?:s&p 500|dow(?: jones)?|nasdaq|wall street|stock (?:index )?futures|us stocks|stock market today|new york stocks)\b|코스피|코스닥|뉴욕증시/i],
   ['bank-earnings', /\bbank(?:s'|s)? earnings\b|은행 실적/i],
   ['saudi', /\bsaudi\b|사우디/i],
-  ['iran', /\b(?:iran|tehran)\b|이란/i],
+  ['iran', /\b(?:iran|iranian|tehran)\b|이란/i],
   ['hormuz', /\bhormuz\b|호르무즈/i],
   ['houthi', /\b(?:houthis?|red sea)\b|후티|홍해/i],
-  ['russia-ukraine', /\b(?:russia|ukraine|kremlin)\b|러시아|우크라이나/i],
-  ['israel', /\b(?:israel|gaza|hezbollah|lebanon)\b|이스라엘/i],
+  ['russia-ukraine', /\b(?:russian?|ukrain(?:e|ian)|kremlin)\b|러시아|우크라이나/i],
+  ['israel', /\b(?:israeli?|gaza|hezbollah|lebanon)\b|이스라엘/i],
   ['china', /\b(?:china|chinese|beijing)\b|중국/i],
   ['tariff', /\btariffs?\b|관세/i],
   ['dollar-fx', /\b(?:dollar|dxy|yen|euro|yuan)\b|환율|원·?달러|엔화/i],
@@ -370,9 +385,28 @@ export function createNewsTopicCap() {
 // screen's labels, semi/credit, so the floor cannot key on topic alone).
 export const NEWS_FEED_FLOORS = Object.freeze([['fxbond', 3], ['credit', 2], ['Google News - AI narrative/Memory', 3], ['Google News - Positioning/Sovereign/Politics', 2]]);
 
+/** Previous-run news rows of the same completed cycle, rebuilt as scoring candidates. */
+export function carriedNewsCandidates(carry, cycle) {
+  if (!Array.isArray(carry) || !cycle) return [];
+  const out = [];
+  for (const row of carry) {
+    if (!row || !row.title || !row.link || row.newsCycleEnd !== cycle.end) continue;
+    const ts = Date.parse(row.eventTime || row.pubDate || '');
+    if (!Number.isFinite(ts) || ts < cycle.startMs || ts >= cycle.endMs) continue;
+    out.push({
+      title: row.title, link: row.link, source: row.source, _sourceRaw: '', guid: row.guid || null,
+      sourceArticleId: row.sourceArticleId || null, fetchedAt: row.fetchedAt, evidenceKind: row.evidenceKind,
+      pubDate: row.pubDate, ts, topic: row.topic, country: row.country, feedTier: row.tier, feedSource: row.feedSource,
+      scoringNowMs: cycle.endMs, newsCyclePolicy: cycle.policy, newsCycleStart: cycle.start, newsCycleEnd: cycle.end,
+      newsCycleLabel: cycle.label, carried: true,
+    });
+  }
+  return out;
+}
+
 // P1720: the caller passes the run's attempt time so the collected cycle and meta.newsCycleEnd are one cut even when a
 // run straddles 08:00 KST (23:00Z); otherwise newsIntraday is picked against the previous cut and fails the gate.
-export async function fetchNews(nowMs = Date.now()) {
+export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
   const cycle = getKst0800NewsCycle(nowMs);
   const items = [];    // US/글로벌 피드
   const krItems = [];  // 한국 전용 (reserved slot)
@@ -429,8 +463,18 @@ export async function fetchNews(nowMs = Date.now()) {
       }
     } catch (e) { /* 피드별 실패 무시 */ }
   }
+  // 2026-10-19 data audit: the window is closed, but every refresh re-searched it from scratch and Google's `when:2d`
+  // ranking drifts as the window ages, so the 10/19 bundle shrank from 40 to 32 between 01:21Z and 11:17Z and a manual
+  // re-run once found 3. Articles the previous run already published for this same cycle stay candidates (re-scored
+  // under the current rules, so a tightened filter still drops them); fresh results only add to the pool.
+  for (const row of carriedNewsCandidates(carry, cycle)) {
+    Object.assign(row, scoreServerNewsItem(row));
+    if (!(row.topicHits > 0) || row.tier >= 4 || !(row.score > 0)) continue;
+    (row.topic === 'kr' ? krItems : items).push(row);
+  }
   // US/글로벌: 점수순 정렬, 한국: 최신순 정렬
-  items.sort((a, b) => (b.score || 0) - (a.score || 0) || (b.ts || 0) - (a.ts || 0));
+  // Equal scores go to the better-tier publisher first, so a topic cap keeps Reuters over a blog repeating it.
+  items.sort((a, b) => (b.score || 0) - (a.score || 0) || (a.tier || 9) - (b.tier || 9) || (b.ts || 0) - (a.ts || 0));
   krItems.sort((a, b) => (b.score || 0) - (a.score || 0) || (b.ts || 0) - (a.ts || 0));
   const seen = new Set();
   const out = [];
@@ -451,7 +495,9 @@ export async function fetchNews(nowMs = Date.now()) {
   // N11: paraphrases of one story share key entities ("oil" + "saudi"); see createNewsTopicCap.
   const topicCap = createNewsTopicCap();
   const topicFull = (it) => topicCap.full(cleanTitle(it));
+  let carriedPicked = 0;
   function pushItem(it) {
+    if (it.carried) carriedPicked += 1;
     pickedGrams.push(newsHeadlineSignature(it.title));
     perSource.set(sourceKey(it), (perSource.get(sourceKey(it)) || 0) + 1);
     topicCap.add(cleanTitle(it));
@@ -515,6 +561,8 @@ export async function fetchNews(nowMs = Date.now()) {
   }
   // P1720: the provisional intraday slot rides on the same array without entering its JSON (non-enumerable), so every
   // existing consumer of `news` keeps the canonical 08:00 bundle unchanged.
+  // Published rows that came only from the previous run (no feed returned them this time): the receipt's `updated`.
+  Object.defineProperty(out, 'carriedCount', { value: carriedPicked, enumerable: false });
   Object.defineProperty(out, 'intraday', { value: selectNewsIntraday(intradayCandidates, { cycleEndMs: cycle.endMs, canonical: out }), enumerable: false });
   Object.defineProperty(out, 'slotPool', { value: slotPool, enumerable: false }); // scripts/lib/market-timeline.mjs
   return out;
