@@ -315,7 +315,10 @@ export function createAIKnowledgeRetriever({ fetchImpl = globalThis.fetch, index
           if (!response || response.ok === false) throw new Error(`knowledge_index_http_${response?.status || 'unknown'}`);
           return response.json();
         })
-        .then((payload) => createAIKnowledgeIndex(payload?.articles || [], { suppliedMaterials })),
+        // suppliedMaterials may be a loader: the corpus is a lazy chunk, and a failed load keeps the article index.
+        .then(async (payload) => createAIKnowledgeIndex(payload?.articles || [], {
+          suppliedMaterials: typeof suppliedMaterials === 'function' ? await Promise.resolve().then(suppliedMaterials).catch(() => null) : suppliedMaterials
+        })),
       new Promise((_, reject) => { timer = setTimeout(() => {
         reject(new Error('knowledge_index_timeout'));
         controller.abort();

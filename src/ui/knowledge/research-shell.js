@@ -3,7 +3,7 @@
 // answers and one search across every research surface; below it 목차 · 본문 · 연결 in three columns.
 // The skeleton owns layout and search only; each page fills the three columns with its own content.
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
-import { searchKnowledgeIndex } from './glossary-bridge.js';
+import { searchKnowledgeIndex } from './knowledge-search.js';
 import { createStorageGateway } from '../../platform/storage.js';
 import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
