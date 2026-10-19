@@ -1444,6 +1444,12 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const unlabeled = ids.filter((id) => !KR_THEME_LABELS[id]);
     if (!ids.length || unlabeled.length) fail(`kr themes: every KR_THEME_MAP id needs a label, missing ${unlabeled.join(',')} (P1327/R672)`);
     if (!/var CN=window\.AIO_KR_THEME_LABELS/.test(krData) || /var CN=\{'defense'/.test(krData)) fail('kr themes: the theme detail must read the single label owner (P1327/R672)');
+    // A KRX stock's theme link opens the Korean theme detail; 'defense' also names a US theme, which it used to open.
+    const { openThemeDetail } = await load('src/ui/navigation/theme-detail.js');
+    const opened = [];
+    const shell = { showThemeDetail: (id) => opened.push(`US:${id}`), openKrThemeDetail: (id) => { opened.push(`KR:${id}`); return id !== 'gone'; } };
+    const results = [openThemeDetail(shell, 'defense', { symbol: '012450.KS' }), openThemeDetail(shell, 'defense', { symbol: 'LMT' }), openThemeDetail(shell, 'gone', { market: 'KR' }), openThemeDetail({}, 'semi', { symbol: '005930.KS' })];
+    if (opened.join() !== 'KR:defense,US:defense,KR:gone' || results.join() !== 'true,true,false,false') fail(`kr themes: theme links must open the listing market's theme detail, got ${opened.join()} / ${results.join()}`);
   }
   const invalidScore = computeTradingScoreModel({ mode: 'swing', vix: -10, vvix: 0, dxy: 10, tnx: -1, oilPrice: -5, fg: 101, maCurrent: true, spx200ma: -1, spx50ma: 0, spxPrice: -10, breadthAvailable: true, breadth200: 150, pcr: -1, hyBp: -2, newsSentimentScore: 101, newsRiskSignals: [{ impact: 'bad' }] });
   {
