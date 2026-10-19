@@ -1,11 +1,11 @@
 {
- "generatedAt": "2026-10-19T11:51:09.609Z",
+ "generatedAt": "2026-10-19T12:51:29.993Z",
  "note": "Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). summary의 sampleSizeSufficient는 관측 수 바닥일 뿐이며, 이 하네스는 CI/p-value를 계산하지 않아 statistical significance는 UNKNOWN, statisticallyMeaningful은 false로 fail-closed한다.",
  "summary": {
-  "n5d": 316,
-  "corr5d": -0.234,
-  "n21d": 300,
-  "corr21d": -0.383,
+  "n5d": 282,
+  "corr5d": -0.283,
+  "n21d": 266,
+  "corr21d": -0.414,
   "sampleSizeSufficient": true,
   "significanceStatus": "UNKNOWN",
   "statisticallyMeaningful": false
@@ -934,7 +934,7 @@
     "macro": 55
    },
    "fwd5dReturn": -0.7401442961430315,
-   "fwd21dReturn": -0.9302461992950465,
+   "fwd21dReturn": 0.7072164068873971,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -958,7 +958,7 @@
     "macro": 45
    },
    "fwd5dReturn": 0.8769656475669872,
-   "fwd21dReturn": 0.30991428764257317,
+   "fwd21dReturn": 1.3882702301410592,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -982,7 +982,7 @@
     "macro": 45
    },
    "fwd5dReturn": 1.5678672979380082,
-   "fwd21dReturn": 2.042941760490606,
+   "fwd21dReturn": 0.2303104801399448,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1006,7 +1006,7 @@
     "macro": 45
    },
    "fwd5dReturn": 2.2675937396734396,
-   "fwd21dReturn": 2.1450688845342722,
+   "fwd21dReturn": 1.998610206415628,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1030,7 +1030,7 @@
     "macro": 45
    },
    "fwd5dReturn": 1.7578437690452113,
-   "fwd21dReturn": -0.17314747671522812,
+   "fwd21dReturn": 0.5357212527428432,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1054,7 +1054,7 @@
     "macro": 45
    },
    "fwd5dReturn": 1.804258016686098,
-   "fwd21dReturn": 0.7367991275524687,
+   "fwd21dReturn": -1.0779347061130449,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1078,7 +1078,7 @@
     "macro": 45
    },
    "fwd5dReturn": 1.6925203419562769,
-   "fwd21dReturn": 0.3627498337452304,
+   "fwd21dReturn": -1.5421216650364555,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1102,7 +1102,7 @@
     "macro": 55
    },
    "fwd5dReturn": 1.20572620200236,
-   "fwd21dReturn": -0.24657140729234225,
+   "fwd21dReturn": -2.149586653757356,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1126,7 +1126,7 @@
     "macro": 55
    },
    "fwd5dReturn": 0.4430638958773333,
-   "fwd21dReturn": -0.2630193235430185,
+   "fwd21dReturn": -2.211862198086252,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1150,7 +1150,7 @@
     "macro": 55
    },
    "fwd5dReturn": 0.2734136915740232,
-   "fwd21dReturn": -1.201010625850288,
+   "fwd21dReturn": -1.628847524270751,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1174,7 +1174,7 @@
     "macro": 55
    },
    "fwd5dReturn": -2.589953113827603,
-   "fwd21dReturn": -2.8311121547850595,
+   "fwd21dReturn": -1.0646353722793847,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1198,7 +1198,7 @@
     "macro": 55
    },
    "fwd5dReturn": -2.5556713456386673,
-   "fwd21dReturn": -3.1808062147695484,
+   "fwd21dReturn": -1.5359291364691454,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1222,7 +1222,7 @@
     "macro": 55
    },
    "fwd5dReturn": -2.9321478413305,
-   "fwd21dReturn": -3.315338945409722,
+   "fwd21dReturn": -1.6628601615289795,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1246,7 +1246,7 @@
     "macro": 55
    },
    "fwd5dReturn": -3.7953686150326793,
-   "fwd21dReturn": -2.6432149627731096,
+   "fwd21dReturn": -0.21512693150888043,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1270,7 +1270,7 @@
     "macro": 55
    },
    "fwd5dReturn": -2.50530371253285,
-   "fwd21dReturn": -3.0364001471458835,
+   "fwd21dReturn": -1.060874357720083,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1294,7 +1294,7 @@
     "macro": 45
    },
    "fwd5dReturn": 0.6462849450278619,
-   "fwd21dReturn": -0.4025060470709877,
+   "fwd21dReturn": 1.340377640599483,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1317,8 +1317,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.34743367635601724,
-   "fwd21dReturn": 0.46855610452988067,
+   "fwd5dReturn": 2.0060142619296193,
+   "fwd21dReturn": 1.8622066967064796,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1341,8 +1341,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.6066349427683781,
-   "fwd21dReturn": 1.5258608435488354,
+   "fwd5dReturn": 1.6881807043788555,
+   "fwd21dReturn": 2.5551501695626664,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1365,8 +1365,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 3.9534938124312844,
-   "fwd21dReturn": 2.9756474138536007,
+   "fwd5dReturn": 2.106924600143947,
+   "fwd21dReturn": 3.4175084870076935,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1389,8 +1389,8 @@
     "breadth": null,
     "macro": 55
    },
-   "fwd5dReturn": 1.5829760761667797,
-   "fwd21dReturn": 1.2028183871360318,
+   "fwd5dReturn": 1.4373233436565969,
+   "fwd21dReturn": 2.018987598555644,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1413,8 +1413,8 @@
     "breadth": null,
     "macro": 55
    },
-   "fwd5dReturn": -0.15286363648596202,
-   "fwd21dReturn": 0.6967675261657836,
+   "fwd5dReturn": 0.5561491281659314,
+   "fwd21dReturn": 1.8965317716841588,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1485,8 +1485,8 @@
     "breadth": null,
     "macro": 55
    },
-   "fwd5dReturn": -0.710986737337328,
-   "fwd21dReturn": -0.22318444221759653,
+   "fwd5dReturn": -2.4996392778143273,
+   "fwd21dReturn": -0.2716337339445471,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1509,8 +1509,8 @@
     "breadth": null,
     "macro": 55
    },
-   "fwd5dReturn": -0.14338301370593085,
-   "fwd21dReturn": -0.09984889533838791,
+   "fwd5dReturn": -2.03864817908898,
+   "fwd21dReturn": -0.7143855631810628,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1533,8 +1533,8 @@
     "breadth": null,
     "macro": 55
    },
-   "fwd5dReturn": 0.7100982466543523,
-   "fwd21dReturn": 0.8437891672618923,
+   "fwd5dReturn": -0.8437891672619044,
+   "fwd21dReturn": 0.3123947116615595,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1557,8 +1557,8 @@
     "breadth": null,
     "macro": 55
    },
-   "fwd5dReturn": -1.8014606870402006,
-   "fwd21dReturn": 0.5740889371222012,
+   "fwd5dReturn": -1.953982225374564,
+   "fwd21dReturn": 0.11492444584285336,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1653,8 +1653,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -1.5893662206485064,
-   "fwd21dReturn": 0.5693991133164479,
+   "fwd5dReturn": -0.43303772754218534,
+   "fwd21dReturn": 0.35020387298452216,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1677,8 +1677,8 @@
     "breadth": null,
     "macro": 55
    },
-   "fwd5dReturn": -0.1553195591313998,
-   "fwd21dReturn": 2.418450443013744,
+   "fwd5dReturn": 1.8179448398334879,
+   "fwd21dReturn": 0.581633733670404,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1701,8 +1701,8 @@
     "breadth": null,
     "macro": 55
    },
-   "fwd5dReturn": 1.1172539010793376,
-   "fwd21dReturn": 2.9107583083952284,
+   "fwd5dReturn": 1.6989163139998438,
+   "fwd21dReturn": 0.7306114794066949,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1725,8 +1725,8 @@
     "breadth": null,
     "macro": 55
    },
-   "fwd5dReturn": 1.9282391141544182,
-   "fwd21dReturn": 2.395925784472703,
+   "fwd5dReturn": 1.7091426559873002,
+   "fwd21dReturn": 0.7569157416455953,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1749,8 +1749,8 @@
     "breadth": null,
     "macro": 55
    },
-   "fwd5dReturn": 1.756998213222144,
-   "fwd21dReturn": 1.409705168057731,
+   "fwd5dReturn": 2.4940100788412303,
+   "fwd21dReturn": 1.01658684637789,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1821,8 +1821,8 @@
     "breadth": null,
     "macro": 55
    },
-   "fwd5dReturn": 0.5753699718967786,
-   "fwd21dReturn": 0.03830423779270088,
+   "fwd5dReturn": 0.852370091513529,
+   "fwd21dReturn": -1.6703335694308077,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1845,8 +1845,8 @@
     "breadth": null,
     "macro": 55
    },
-   "fwd5dReturn": -0.21495167587634,
-   "fwd21dReturn": 0.13121119668878606,
+   "fwd5dReturn": -0.22201894561668778,
+   "fwd21dReturn": -0.8231369076827831,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1861,16 +1861,16 @@
   },
   {
    "date": "2026-07-01",
-   "reconstructedScore": 68,
+   "reconstructedScore": 70,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 59,
+    "trend": 68,
     "breadth": null,
     "macro": 55
    },
-   "fwd5dReturn": 0.7242861705440128,
-   "fwd21dReturn": 0.2102033480195113,
+   "fwd5dReturn": 0.8072717262465642,
+   "fwd21dReturn": 0.0867272554765882,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1885,16 +1885,16 @@
   },
   {
    "date": "2026-07-02",
-   "reconstructedScore": 68,
+   "reconstructedScore": 70,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 59,
+    "trend": 68,
     "breadth": null,
     "macro": 55
    },
-   "fwd5dReturn": 0.27541546175186926,
-   "fwd21dReturn": -1.0014378798488301,
+   "fwd5dReturn": 1.231418476488801,
+   "fwd21dReturn": 1.5669683185358243,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1989,8 +1989,8 @@
     "breadth": null,
     "macro": 55
    },
-   "fwd5dReturn": 0.5036199341154748,
-   "fwd21dReturn": -1.6484398528410877,
+   "fwd5dReturn": -0.2930707150845865,
+   "fwd21dReturn": 2.641351229795834,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2005,16 +2005,16 @@
   },
   {
    "date": "2026-07-07",
-   "reconstructedScore": 67,
+   "reconstructedScore": 69,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 59,
+    "trend": 68,
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.9533772663366133,
-   "fwd21dReturn": -1.000419784510626,
+   "fwd5dReturn": 0.5295948079985578,
+   "fwd21dReturn": 2.927830380404723,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2037,8 +2037,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.4360719578869168,
-   "fwd21dReturn": -2.225931514117217,
+   "fwd5dReturn": 1.1986299081482457,
+   "fwd21dReturn": 3.03700130033103,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2061,8 +2061,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.0006628099962376505,
-   "fwd21dReturn": -1.405289754017957,
+   "fwd5dReturn": -0.13083869325683478,
+   "fwd21dReturn": 2.8368267838868237,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2085,8 +2085,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.03946991508028882,
-   "fwd21dReturn": -1.1308988712132322,
+   "fwd5dReturn": -1.5537153862705515,
+   "fwd21dReturn": 2.346017828785044,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2149,16 +2149,16 @@
   },
   {
    "date": "2026-07-13",
-   "reconstructedScore": 67,
+   "reconstructedScore": 69,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 59,
+    "trend": 68,
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.7670976961787563,
-   "fwd21dReturn": 1.1331489992468717,
+   "fwd5dReturn": -0.9588388549287243,
+   "fwd21dReturn": 2.832340253401705,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2173,16 +2173,16 @@
   },
   {
    "date": "2026-07-14",
-   "reconstructedScore": 67,
+   "reconstructedScore": 69,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 59,
+    "trend": 68,
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -1.1387151210497992,
-   "fwd21dReturn": 2.5575356030749323,
+   "fwd5dReturn": -0.4558837370535823,
+   "fwd21dReturn": 2.716345930783617,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2205,8 +2205,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -1.7051397179229821,
-   "fwd21dReturn": 1.9960646558554827,
+   "fwd5dReturn": -0.9698378321271935,
+   "fwd21dReturn": 2.992314193650628,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2229,8 +2229,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.32613153839313674,
-   "fwd21dReturn": 2.3386697496737967,
+   "fwd5dReturn": -1.665434437207404,
+   "fwd21dReturn": 3.3448061196452743,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2253,8 +2253,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.553388515746839,
-   "fwd21dReturn": 4.022022905215969,
+   "fwd5dReturn": -0.6129243773876366,
+   "fwd21dReturn": 3.8533379639003607,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2325,8 +2325,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.4205135370428116,
-   "fwd21dReturn": 4.100611558345249,
+   "fwd5dReturn": -0.40439161229994647,
+   "fwd21dReturn": 3.3383132167539102,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2349,8 +2349,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -1.2946785276727248,
-   "fwd21dReturn": 3.859132797102221,
+   "fwd5dReturn": -1.0709529643637148,
+   "fwd21dReturn": 2.6471528258669332,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2373,8 +2373,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -1.1438919530174818,
-   "fwd21dReturn": 3.8245303348731046,
+   "fwd5dReturn": -2.437804708919642,
+   "fwd21dReturn": 1.8962629484621845,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2397,8 +2397,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.27644668817406914,
-   "fwd21dReturn": 5.095096040927069,
+   "fwd5dReturn": 0.3959072931711719,
+   "fwd21dReturn": 3.591512222777151,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2421,8 +2421,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -1.2929068885776802,
-   "fwd21dReturn": 4.493805973572526,
+   "fwd5dReturn": 1.0488425494942066,
+   "fwd21dReturn": 3.2498738528706244,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2493,8 +2493,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 1.0324853841401391,
-   "fwd21dReturn": 3.075333392687073,
+   "fwd5dReturn": 2.5268508251519552,
+   "fwd21dReturn": 3.5625736863262385,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2517,8 +2517,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.8203231216969746,
-   "fwd21dReturn": 3.3059264105277064,
+   "fwd5dReturn": 4.142537536446102,
+   "fwd21dReturn": 3.323829754010754,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2541,8 +2541,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 3.886607026919901,
-   "fwd21dReturn": 4.89629108205819,
+   "fwd5dReturn": 5.5685025594062525,
+   "fwd21dReturn": 5.6701953896516635,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2565,8 +2565,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 4.018618834225423,
-   "fwd21dReturn": 2.8937981588220922,
+   "fwd5dReturn": 3.6615158323283077,
+   "fwd21dReturn": 3.685717089987,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2589,8 +2589,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 3.122012571898548,
-   "fwd21dReturn": 2.5042324679694232,
+   "fwd5dReturn": 3.577169774036947,
+   "fwd21dReturn": 2.622527944969906,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2662,7 +2662,7 @@
     "macro": 45
    },
    "fwd5dReturn": 2.0078942174856875,
-   "fwd21dReturn": 1.463851062430106,
+   "fwd21dReturn": 0.40747319255312486,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2686,7 +2686,7 @@
     "macro": 45
    },
    "fwd5dReturn": -0.10754189222028274,
-   "fwd21dReturn": -0.32004053502091656,
+   "fwd21dReturn": -0.9037655173126944,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2710,7 +2710,7 @@
     "macro": 45
    },
    "fwd5dReturn": 0.32303798123919464,
-   "fwd21dReturn": -0.4843627606476278,
+   "fwd21dReturn": 0.3128095241177937,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2734,7 +2734,7 @@
     "macro": 45
    },
    "fwd5dReturn": 1.1547401024129793,
-   "fwd21dReturn": -1.0180338159990425,
+   "fwd21dReturn": 0.11206283819890542,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2758,7 +2758,7 @@
     "macro": 45
    },
    "fwd5dReturn": 0.3624813732011268,
-   "fwd21dReturn": -1.1735527815160276,
+   "fwd21dReturn": -1.084350395223288,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2781,8 +2781,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.42112133066602364,
-   "fwd21dReturn": -0.06964946969667186,
+   "fwd5dReturn": -0.103829302047814,
+   "fwd21dReturn": -1.505847330942035,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2805,8 +2805,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.21816205584742349,
-   "fwd21dReturn": -0.12422038767111947,
+   "fwd5dReturn": -0.4715198882016459,
+   "fwd21dReturn": -1.7662586371988303,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2829,8 +2829,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.732270762082981,
-   "fwd21dReturn": -0.3858811382848246,
+   "fwd5dReturn": -0.5229399238562359,
+   "fwd21dReturn": -1.1811318319674833,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2853,8 +2853,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -1.1669459763379646,
-   "fwd21dReturn": -1.0307744977234157,
+   "fwd5dReturn": -2.023723584720585,
+   "fwd21dReturn": -2.2952972115620125,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2877,8 +2877,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -1.8572368015453902,
-   "fwd21dReturn": -1.4416062144222244,
+   "fwd5dReturn": -1.4306888473315427,
+   "fwd21dReturn": -2.569177575471125,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2925,8 +2925,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.9127108117948797,
-   "fwd21dReturn": -1.9801008642928597,
+   "fwd5dReturn": -1.1904362264462862,
+   "fwd21dReturn": -2.495138836884414,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2941,16 +2941,16 @@
   },
   {
    "date": "2026-08-18",
-   "reconstructedScore": 69,
+   "reconstructedScore": 72,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 68,
+    "trend": 82,
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.5057360084038055,
-   "fwd21dReturn": -0.45217219466026826,
+   "fwd5dReturn": -0.18825340364234547,
+   "fwd21dReturn": -0.7020499859590003,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2973,8 +2973,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.3982885269551792,
-   "fwd21dReturn": -0.6616519503164253,
+   "fwd5dReturn": -0.41878676384733415,
+   "fwd21dReturn": -0.7457206687095654,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -2997,8 +2997,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.4520256086772161,
-   "fwd21dReturn": -0.2771830455061835,
+   "fwd5dReturn": 1.1756068450339991,
+   "fwd21dReturn": 1.6167702286040337,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3021,8 +3021,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.7377804301851474,
-   "fwd21dReturn": -1.1550133756907777,
+   "fwd5dReturn": 0.4872061159417689,
+   "fwd21dReturn": 1.1762529041471865,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3069,8 +3069,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.7696469032492499,
-   "fwd21dReturn": -0.19731185465302453,
+   "fwd5dReturn": 0.4348701008511936,
+   "fwd21dReturn": 0.694772934563027,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3093,8 +3093,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.11540545609904267,
-   "fwd21dReturn": -0.34882145759956323,
+   "fwd5dReturn": -0.5966957047287516,
+   "fwd21dReturn": 0.3497332388554327,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3117,8 +3117,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.5762340893990068,
-   "fwd21dReturn": -0.32830881873965656,
+   "fwd5dReturn": -0.1185559623226475,
+   "fwd21dReturn": 0.8821345284469173,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3133,16 +3133,16 @@
   },
   {
    "date": "2026-08-27",
-   "reconstructedScore": 73,
+   "reconstructedScore": 76,
    "subScores": {
     "vol": 90,
     "mom": 70,
-    "trend": 68,
+    "trend": 82,
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.8328816878562696,
-   "fwd21dReturn": -1.0411344472053359,
+   "fwd5dReturn": 0.21627243082710307,
+   "fwd21dReturn": -0.6118233240503504,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3165,8 +3165,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.46617114640496876,
-   "fwd21dReturn": 0.6864840192122109,
+   "fwd5dReturn": 0.08869570629791572,
+   "fwd21dReturn": -0.5306181727647136,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3213,8 +3213,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.42231861506556,
-   "fwd21dReturn": 0.2587774877897022,
+   "fwd5dReturn": -0.1641916488640578,
+   "fwd21dReturn": -0.4501609390409277,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3237,8 +3237,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 1.1417197473094975,
-   "fwd21dReturn": 0.9521101439172249,
+   "fwd5dReturn": 0.0640767768201856,
+   "fwd21dReturn": 0.4583651642475114,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3253,16 +3253,16 @@
   },
   {
    "date": "2026-09-02",
-   "reconstructedScore": 62,
+   "reconstructedScore": 64,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 59,
+    "trend": 68,
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.09026165444917007,
-   "fwd21dReturn": 1.0018782772024037,
+   "fwd5dReturn": -0.9769650170871123,
+   "fwd21dReturn": 0.7320063652727401,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3277,16 +3277,16 @@
   },
   {
    "date": "2026-09-03",
-   "reconstructedScore": 68,
+   "reconstructedScore": 71,
    "subScores": {
     "vol": 90,
     "mom": 70,
-    "trend": 68,
+    "trend": 82,
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -1.4371988626316727,
-   "fwd21dReturn": -0.05550027040248256,
+   "fwd5dReturn": -1.1710557054923387,
+   "fwd21dReturn": 0.33868071985141135,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3309,8 +3309,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -1.6440805327391048,
-   "fwd21dReturn": -0.4522840929702376,
+   "fwd5dReturn": -1.2776928458528851,
+   "fwd21dReturn": 1.2998471225351738,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3381,8 +3381,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.6977241213941042,
-   "fwd21dReturn": -0.0921350305987424,
+   "fwd5dReturn": -1.1440642625548754,
+   "fwd21dReturn": 1.671332061426829,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3405,8 +3405,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.6630122204820111,
-   "fwd21dReturn": 1.1309053004311032,
+   "fwd5dReturn": -1.1072029081918515,
+   "fwd21dReturn": 1.689286518707866,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3429,8 +3429,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.5254422593095014,
-   "fwd21dReturn": 1.7258321588050165,
+   "fwd5dReturn": 0.6067152284732062,
+   "fwd21dReturn": 2.8957940909150803,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3453,8 +3453,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.2510128013916629,
-   "fwd21dReturn": 0.8585630366019069,
+   "fwd5dReturn": -0.08462866560967332,
+   "fwd21dReturn": 1.9623924837207387,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3501,8 +3501,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.40052598563251396,
-   "fwd21dReturn": 2.6108992412053675,
+   "fwd5dReturn": 1.8992175832482534,
+   "fwd21dReturn": 2.4339958897529947,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3525,8 +3525,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.8538400391261018,
-   "fwd21dReturn": 2.847979034318396,
+   "fwd5dReturn": 2.358507355257843,
+   "fwd21dReturn": 1.7560603923419373,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3541,16 +3541,16 @@
   },
   {
    "date": "2026-09-16",
-   "reconstructedScore": 54,
+   "reconstructedScore": 57,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 50,
+    "trend": 59,
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 2.819059271883156,
-   "fwd21dReturn": 2.827798898542194,
+   "fwd5dReturn": 2.042159429328854,
+   "fwd21dReturn": 2.54574731090957,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3573,8 +3573,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 1.6612200435729862,
-   "fwd21dReturn": 2.275274426009717,
+   "fwd5dReturn": 0.8689720546338179,
+   "fwd21dReturn": 0.283852857382261,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3597,8 +3597,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.7258349127507973,
-   "fwd21dReturn": 2.1049604601006466,
+   "fwd5dReturn": 1.2144304293836985,
+   "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3669,8 +3669,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.27418960165878864,
-   "fwd21dReturn": 0.5248110036446998,
+   "fwd5dReturn": -1.0433113964480303,
+   "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3693,8 +3693,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -1.042546724638885,
-   "fwd21dReturn": -0.5885655999505544,
+   "fwd5dReturn": -1.2080405530713616,
+   "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3709,16 +3709,16 @@
   },
   {
    "date": "2026-09-23",
-   "reconstructedScore": 62,
+   "reconstructedScore": 64,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 59,
+    "trend": 68,
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.4566553724810259,
-   "fwd21dReturn": 0.4935096281743084,
+   "fwd5dReturn": -0.7071085889881012,
+   "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3741,8 +3741,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.6826208799695767,
-   "fwd21dReturn": -0.5800784773881088,
+   "fwd5dReturn": -0.4890883201607487,
+   "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3757,16 +3757,16 @@
   },
   {
    "date": "2026-09-25",
-   "reconstructedScore": 65,
+   "reconstructedScore": 68,
    "subScores": {
     "vol": 90,
     "mom": 70,
-    "trend": 59,
+    "trend": 68,
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.993877374438394,
-   "fwd21dReturn": -1.0844059658470913,
+   "fwd5dReturn": -0.26719494382965125,
+   "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3813,8 +3813,8 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.5079590665422559,
-   "fwd21dReturn": -0.3156035706802331,
+   "fwd5dReturn": 1.1746960119421817,
+   "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3837,7 +3837,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.6763274947724123,
+   "fwd5dReturn": 1.930557800710224,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -3861,7 +3861,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 1.599808665967895,
+   "fwd5dReturn": 1.9633956040222031,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -3885,7 +3885,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 1.988925773989271,
+   "fwd5dReturn": 1.2901668960209727,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -3909,7 +3909,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 1.0236030828516403,
+   "fwd5dReturn": 1.1501129135848471,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -3981,7 +3981,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.4835379697579756,
+   "fwd5dReturn": 0.42822503360582415,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -4005,7 +4005,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.09451421102376319,
+   "fwd5dReturn": -0.17240210617054344,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -4029,7 +4029,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.07011229503047828,
+   "fwd5dReturn": -1.0616821567413655,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -4053,7 +4053,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.5162671144673286,
+   "fwd5dReturn": -0.2742950745361358,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -4077,7 +4077,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -1.1854256651057329,
+   "fwd5dReturn": -1.9471192620149211,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -4149,7 +4149,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -1.8931145961953288,
+   "fwd5dReturn": null,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -4173,7 +4173,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -1.8706160439180344,
+   "fwd5dReturn": null,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -4197,7 +4197,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.7708312281219961,
+   "fwd5dReturn": null,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
