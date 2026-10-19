@@ -7,7 +7,7 @@
     "targeted": "Search or read only when the task touches the named domain.",
     "explicitOnly": "Point-in-time evidence; never load by default or treat as current state."
   },
-  "documentCount": 77,
+  "documentCount": 78,
   "documents": [
     {
       "path": "_context/AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md",
@@ -742,6 +742,16 @@
       "readPolicy": "targeted",
       "bytes": 2595,
       "lines": 9,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/inline-style-baseline.json",
+      "title": "inline-style-baseline.json",
+      "kind": "machine-contract",
+      "readPolicy": "targeted",
+      "bytes": 3683,
+      "lines": 167,
       "lastVerified": null,
       "autoRefresh": false
     },
