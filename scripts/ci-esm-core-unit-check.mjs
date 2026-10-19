@@ -5109,6 +5109,18 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!/상위 시간대/.test(conflict.headline)) fail('chart: a breakout against a weekly downtrend must say so');
 }
 
+// ── v58.XX expertise review: past outcomes of the chart's own signals on the stock's history ──
+{
+  const { signalHistory, SIGNAL_MIN_COUNT } = await load('src/domain/technical/signal-history.js');
+  const closes = Array.from({ length: 200 }, (_, i) => 100 + i);
+  const rsLine = closes.map((close) => close / 100);
+  const events = [10, 12, 40, 70, 100, 130].map((index) => ({ kind: 'power-gap', index })).concat([{ kind: 'squeeze', index: 5 }]);
+  const read = signalHistory({ events, closes, rsLine });
+  const gap = read.kinds['power-gap'];
+  if (gap.count !== SIGNAL_MIN_COUNT || !(gap.medianPct > 0) || gap.upShare !== 1 || gap.beatShare !== 1) fail(`signal history: overlapping occurrences count once and the forward move is read: ${JSON.stringify(gap)}`);
+  if (read.kinds.squeeze.count !== 1 || read.kinds.squeeze.medianPct !== null) fail('signal history: below the minimum count no figure is printed');
+}
+
 // ── v58.XX expertise review: portfolio stress sensitivities from the book's own weekly returns ──
 {
   const { estimateBookSensitivities, scenarioImpact, krwTranslationPct, regressOne } = await load('src/domain/portfolio/stress-sensitivity.js');
