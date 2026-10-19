@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { readProducerSource } from './lib/producer-source.mjs';
 
 // RM-05 item 3: minimal isolated unit contracts for the new ESM core (store/router/lifecycle/
 // evidence-store/facade). ci-architecture-contract-check.mjs already exercises these together in
@@ -4813,7 +4814,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   for (const [label, a, b] of [['deriveFactorQuality', producer.deriveFactorQuality, pf.deriveFactorQuality], ['isSessionComplete', producer.isSessionComplete, pf.isSessionComplete],
     ['closesToFactors', factorsLib.closesToFactors, pf.closesToFactors], ['_calcVCPServer', factorsLib._calcVCPServer, pf._calcVCPServer], ['round', producerMath.round, pf.round],
     ['normalizeSecCompanyFacts', secProducer.normalizeSecCompanyFacts, secNorm.normalizeSecCompanyFacts]]) if (!a || a !== b) fail(`v57.81 producer ${label} must be the shared src function`);
-  const producerText = readFileSync(path.join(root, 'scripts/fetch-data.mjs'), 'utf8');
+  const producerText = readProducerSource(); // 2026-10-19: the screener lane lives in scripts/producer/screener.mjs
   for (const call of ['dailyRowsFromYahooChart(res', 'priceHistoryFromRows(sym, fetched', 'priceFactorRow(r, { computedAt, fxSeries, indexReturns })', 'secFundamentalRowFields(row,']) if (!producerText.includes(call)) fail(`v57.81 the producer must build rows through ${call}`);
   const nowMs = Date.parse('2026-10-15T12:00:00Z');
   const computedAt = new Date(nowMs).toISOString();
