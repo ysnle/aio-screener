@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1936 - v58.44 - 월간 거시 일정 검토가 이미 지난 날짜 차이만으로 9개 일정을 '다름'으로 보고하고 닫힌 검토 이슈를 다시 열 수 있음 (2026-10-19)
+
+- symptom/reproduction: 이슈 #69가 9개 일정 차이를 보고했으나 8개는 지난 날짜(FRED 조회 창에서 빠진 7·8월, BOK·ISM 연간 파일의 1~6월, 2026-09-28 소매판매)뿐이었다. 'Current nextRelease' 열은 런타임이 부팅 때 덮어쓰는 수기 값(예: NFP 2026-10-02)을 보여 화면에 없는 지난 날짜가 보였다. 유일한 실제 공백은 2027 FOMC 일정이었다.
+- root_cause: preview-macro-calendar.mjs가 전체 일정 목록을 비교했고 nextRelease를 수기 필드에서 읽었다. build-macro-calendar-review.mjs의 검토 digest가 전체 목록을 포함해, 발표가 지나거나 FRED 창이 움직일 때마다 같은 검토가 다시 열렸다.
+- fix: 미리보기는 검토일 이후 날짜와 일정에서 도출한 다음 발표일(화면이 보여 주는 값)만 비교한다. digest는 앞으로의 추가·삭제, 다음·직전 발표 불일치, 근거 상태만 담는다. 잠정·부분 범위·연간 파일 없음 근거는 여전히 사람 검토를 요구하고(P1305) 자동 적용은 없다. 2027 FOMC 회의 8회(연준 2025-09-05 발표, 잠정)를 AIO_MACRO_OFFICIAL_SCHEDULES의 us-fomc·us-fed-rate에 추가했다.
+- violated_rule: 자동 검토 알림은 실제로 화면이나 앞으로의 일정이 달라질 때만 사람을 부른다.
+- prevention: ci-macro-calendar-review-contract-check: 지난 날짜만 다른 경우 digest가 유지되고, 배포된 일정 대비 미리보기가 이력 차이를 변화로 보지 않으며 CPI 다음 발표를 2026-11-10으로 보고한다.
+- verification/residual: node scripts/ci-macro-calendar-review-contract-check.mjs; qa-runner preflight/core/data
+
 ## P1935 - v58.40 - 갱신 커밋이 사람의 병합과 부딪히면 그 회차 데이터가 통째로 빠지고, 수렴 대기 뒤에 늦게 끝난 데이터 CI 실패는 6시간 뒤에야 알려짐 (2026-10-19)
 
 - symptom/reproduction: 통합 병합과 같은 시각에 Refresh market data가 push하면 rebase 충돌이나 검증 후보와 달라진 트리 때문에 그 회차가 버려지고 다음 cron까지 데이터가 비었다. 12분 수렴 대기 뒤에 끝난 데이터 CI 실패는 6시간 신선도 점검에서야 드러났다.
