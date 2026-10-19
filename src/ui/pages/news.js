@@ -323,6 +323,8 @@ function createNewsCard(documentRef, root, item, index) {
       if (articleUrl) {
         const anchor = documentRef.createElement('a');
         anchor.href = articleUrl; anchor.target = '_blank'; anchor.rel = 'noopener noreferrer'; anchor.textContent = label;
+        // 2026-10-19: a one-line 11px link was 15px tall, under the 24px target rule (v57.81) once a story grouped two articles.
+        anchor.style.cssText = 'display:inline-block;min-height:24px;line-height:24px;';
         row.appendChild(anchor);
       } else row.textContent = label;
       timeline.appendChild(row);
