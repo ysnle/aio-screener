@@ -9,7 +9,7 @@ import { BRANCHES, CHOICES } from '../src/domain/market/macro-crossroads.js';
 import { buildMarketGuide, buildDirection, renderMarketGuideContext, CHOICE_KEYS } from '../src/domain/guide/market-guide.js';
 import { ALL_LESSONS, LESSON_BY_ID, LESSON_KINDS, SCREEN_LESSON_IDS, selectLessons, selectScreenLessons } from '../src/domain/guide/lessons.js';
 
-const label = 'v58.29 market guide';
+const label = 'v58.31 market guide';
 const choiceKeys = new Set(Object.keys(CHOICES));
 
 // Every branch names its costly choices, from the shared four, never overlapping its favoured ones.

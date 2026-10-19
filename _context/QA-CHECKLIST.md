@@ -1,8 +1,13 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-17
+last_verified: 2026-10-19
 confidence: medium
 ---
+
+## v58.31 시나리오·학습 (2026-10-19)
+
+- [ ] QA-MARKET-GUIDE-01: 배포 뒤 라이브 오늘 화면에 '오늘의 가이드' 카드가 시나리오 블록 아래 보이고, 선택지 집계·지향/지양·오늘 해당하는 원칙이 나오며 '개념 배우기'가 해당 원리 레슨을 연다. 다음 데이터 갱신 뒤 scenario-state.json에 guide 항목이 생긴다. verify_by: 라이브 #home 확인 + public-data/scenario-state.json의 guide 필드
+- [ ] QA-SCREEN-LESSONS-01: 배포 뒤 시장 상태·거시·차트·스크리너·포트폴리오 화면의 '이어서 볼 곳' 앞에 원칙 카드가 최대 3개 보이고, 차트·종목·스크리너 화면에는 시장 상태 근거 문장이 붙지 않는다. verify_by: 라이브 #signal #macro #technical #screener #portfolio 확인
 
 ## v57.99 SEC 재무 기준 (2026-10-17)
 
