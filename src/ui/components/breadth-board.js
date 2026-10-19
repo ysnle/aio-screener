@@ -8,8 +8,8 @@
 // src/domain/market/breadth-signals.js; this module only presents them.
 import { deepDiveFold } from './deep-dive.js';
 import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
-import { buildCloseSeries, buildMarketRegime, closeBasis } from '../../domain/briefing/market-read.js';
-import { collectMarketInputs } from '../../data/selectors/market-inputs.js';
+import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { createTrendChart, seriesChange } from './trend-chart.js';
 import { breadthFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps, sectionLead } from './page-flow.js';
@@ -142,8 +142,7 @@ function renderDrill(doc, root, card, contributors, basis) {
 export function renderBreadthBoard({ documentRef: doc, root }) {
   const page = doc?.getElementById('page-breadth');
   if (!page) return null;
-  const inputs = { ...collectMarketInputs(root), macroHistory: root._aioMacroHistory || null }; // T05: same credit read as 시장 상태
-  const regime = buildMarketRegime(inputs);
+  const { inputs, regime } = marketInterpretation(root); // T05 / owner 2026-10-19: the shared regime, same as 시장 상태
   const axis = regime.axes?.find((row) => row.id === 'breadth');
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   // Codex browser audit H09: the denominator is named — how many symbols were judged, and that stocks and ETFs are

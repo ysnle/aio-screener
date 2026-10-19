@@ -5,8 +5,8 @@
 // row (one list, not the map plus a second accordion of the same branches): the
 // cause→effect chain, the dated triggers, the three likelihood lines and the reader's choices with their
 // opportunity cost. Reads only published artifacts already loaded for the 거시 and 시장 상태 screens.
-import { buildMacroRead } from '../../domain/macro/macro-read.js';
-import { buildMacroCrossroads, upcomingMacroEvents, CHOICES, SHAPES, COUNT_WORDS } from '../../domain/market/macro-crossroads.js';
+import { CHOICES, SHAPES, COUNT_WORDS } from '../../domain/market/macro-crossroads.js';
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { refreshSharedArtifact, SCENARIO_OUTCOMES, SCENARIO_STATE } from '../../data/shared-artifacts.js';
 import { themesForBranch } from '../../domain/scenarios/exposures.js';
 import { krThemeLabel } from '../../domain/themes/kr-themes.js';
@@ -20,13 +20,11 @@ const TONE = { same: '시장 가격 같은 방향', against: '시장 가격 반�
 
 export { themeLinkRow };
 
-export function crossroadsForRoot(root, { regime = null, nowMs = Date.now() } = {}) {
-  const macroHistory = root?._aioMacroHistory || null;
-  const history = root?._aioHistory || [];
-  const read = buildMacroRead({ macro: root?._aioServerMacro || null, macroHistory, regime: regime?.available ? regime : null, history });
-  const breadthState = regime?.axes?.find((axis) => axis.id === 'breadth')?.state || null;
-  const events = upcomingMacroEvents({ releases: root?.AIO_MACRO_CALENDAR?.releases || {}, schedules: root?.AIO_MACRO_OFFICIAL_SCHEDULES || {}, nowMs });
-  return buildMacroCrossroads({ read: read ? { ...read, breadthState } : read, macroHistory, history, events, outcomes: root?.[SCENARIO_OUTCOMES.key] || null });
+// Owner 2026-10-19: the branches come from the shared interpretation, so 거시, 오늘, 브리핑, 테마 and the AI read one
+// model: the same regime (breadth condition), the published previous lead (a tie keeps it) and the same release dates.
+// `regime` is accepted for older callers and ignored — the interpretation builds it from the same inputs.
+export function crossroadsForRoot(root, { nowMs = Date.now() } = {}) {
+  return marketInterpretation(root, { nowMs }).crossroads;
 }
 
 /** P1743: load the weekly long-history outcomes and the per-refresh state once; repaint when either arrives. */

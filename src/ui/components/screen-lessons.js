@@ -3,12 +3,7 @@
 // market guide as 오늘, so the lesson a reader meets on 시장 상태, 거시, 차트 or 스크리너 matches today's state and opens
 // the same principles lesson. Installed once by bootstrap; re-renders on navigation and when closes arrive.
 import { SCREEN_LESSON_IDS, selectScreenLessons } from '../../domain/guide/lessons.js';
-import { buildMarketGuide } from '../../domain/guide/market-guide.js';
-import { buildMarketRegime } from '../../domain/briefing/market-read.js';
-import { buildMarketScenarios } from '../../domain/market/regime-scenarios.js';
-import { collectMarketInputs } from '../../data/selectors/market-inputs.js';
-import { crossroadsForRoot } from './macro-crossroads.js';
-import { outlookForRoot } from './scenario-outlook.js';
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { lessonItem } from './market-guide.js';
 import { el } from './dom.js';
 
@@ -16,14 +11,9 @@ import { el } from './dom.js';
 export function lessonContext(root, { nowMs = Date.now() } = {}) {
   try {
     if (!root?._aioHistory?.length) return { nowMs };
-    const inputs = collectMarketInputs(root);
-    const regime = buildMarketRegime(inputs);
+    const { regime, outlook, crossroads, guide } = marketInterpretation(root, { nowMs });
     if (!regime?.available) return { regime, nowMs };
-    const scenarios = buildMarketScenarios(inputs, { regime });
-    const outlook = scenarios?.available ? outlookForRoot(root, { scenarios, regime }) : null;
-    const crossroads = crossroadsForRoot(root, { regime, nowMs });
-    const guide = buildMarketGuide({ regime, outlook, crossroads, nowMs });
-    return { regime, outlook, crossroads, direction: guide.direction, nowMs };
+    return { regime, outlook, crossroads, direction: guide?.direction || null, nowMs };
   } catch (_) { return { nowMs }; }
 }
 

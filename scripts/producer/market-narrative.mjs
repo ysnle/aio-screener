@@ -5,13 +5,13 @@ import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import { RULES } from '../../src/domain/rules/thresholds.js';
 import { SHARED_AI_MODEL, requestSharedAnalysis, resolveSharedAiConfig } from '../lib/ai-shared-analysis.mjs';
-import { buildMarketRegime, buildCloseSeries } from '../../src/domain/briefing/market-read.js';
+import { buildCloseSeries } from '../../src/domain/briefing/market-read.js';
 import { readNarrativeContext } from '../lib/narrative-context.mjs';
-import { buildMarketScenarios, renderMarketScenarioContext } from '../../src/domain/market/regime-scenarios.js';
-import { buildScenarioOutlook, renderScenarioOutlookContext } from '../../src/domain/market/scenario-outlook.js';
-import { buildMacroRead } from '../../src/domain/macro/macro-read.js';
-import { buildMacroCrossroads, upcomingMacroEvents, renderMacroCrossroadsContext } from '../../src/domain/market/macro-crossroads.js';
-import { buildMarketGuide, renderMarketGuideContext } from '../../src/domain/guide/market-guide.js';
+import { renderMarketScenarioModel } from '../../src/domain/market/regime-scenarios.js';
+import { renderScenarioOutlookContext } from '../../src/domain/market/scenario-outlook.js';
+import { renderMacroCrossroadsContext } from '../../src/domain/market/macro-crossroads.js';
+import { renderMarketGuideContext } from '../../src/domain/guide/market-guide.js';
+import { interpretationFromArtifacts, marketAnalysisRegimeInput as regimeInputFromArtifacts } from '../lib/market-interpretation-inputs.mjs'; // owner 2026-10-19: one interpretation pipeline
 import { NEWS_INTRADAY_MAX } from '../lib/news-selection.mjs';
 import { KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, marketAnalysisLargeMove, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary } from '../lib/market-analysis-validate.mjs';
 import { HIST, SCENARIO_STATE_OUT, SCENARIO_OUTCOMES_OUT } from './paths.mjs';
@@ -37,40 +37,20 @@ function readPublishedMacroHistory() {
 }
 
 export function marketAnalysisRegimeInput(data, history = [], macroHistory = readPublishedMacroHistory()) {
-  const macro = data?.macro || {};
-  const num = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
-  const hy = num(macro.hyOAS);
-  const hyDelta5 = num(macro.hyOASDelta5);
-  // v57.50 C03: the screen's credit axis also reads the Cboe total put/call (briefing-read collectMarketInputs);
-  // the narrative gets the same value and observation date, or the two surfaces judge credit on different inputs.
-  const putCall = data?.putCall && !data.putCall.error ? data.putCall : null;
-  const pcr = num(putCall?.totalPutCall);
-  const pcrAsOf = pcr != null && /^\d{4}-\d{2}-\d{2}$/.test(String(putCall?.asOf || '')) ? putCall.asOf : null;
-  return {
-    history: Array.isArray(history) ? history : [],
-    macroHistory: macroHistory || null,
-    now: Date.now(), // M05: the narrative uses the same latest-session admission as the screen
-    credit: {
-      hyBp: hy == null ? null : Math.round(hy * 100), hyAsOf: macro._asOf_hyOAS || null,
-      hyDelta5Bp: hyDelta5 == null ? null : Math.round(hyDelta5 * 100),
-      fg: num(data?.fearGreed?.score), fgAsOf: data?.fearGreed?.asOf || null, pcr: pcrAsOf ? pcr : null, pcrAsOf, aaiiAsOf: null
-    },
-    rates: {
-      realYield10: num(macro.realYield10), realYield10Delta5: num(macro.realYield10Delta5),
-      breakeven10Delta5: num(macro.breakeven10Delta5), dgs2Delta5: num(macro.dgs2Delta5), dgs10Delta5: num(macro.dgs10Delta5),
-      asOf: macro._asOf_realYield10 || macro._asOf_dgs10 || null, realAsOf: macro._asOf_realYield10 || null, breakevenAsOf: macro._asOf_breakeven10 || null
-    }
-  };
+  return regimeInputFromArtifacts(data, history, macroHistory); // owner 2026-10-19: moved to scripts/lib/market-interpretation-inputs.mjs
 }
 
 export function buildMarketAnalysisRegimeContext(data, history = []) {
   try {
+    // Owner 2026-10-19: one shared interpretation (scripts/lib/market-interpretation-inputs.mjs), the same stages the
+    // screens and scenario-state.json read.
     const input = marketAnalysisRegimeInput(data, history);
-    const regime = buildMarketRegime(input);
+    const readJson = (file) => { try { return JSON.parse(readFileSync(file, 'utf8')); } catch (_) { return null; } };
+    const state = readJson(SCENARIO_STATE_OUT);
+    const interpretation = interpretationFromArtifacts({ data, history, macroHistory: input.macroHistory, calendar: readJson(MACRO_CALENDAR_OUT), outcomes: readJson(SCENARIO_OUTCOMES_OUT), previous: state, nowMs: input.now });
+    const { regime, scenarios, outlook } = interpretation;
     if (!regime?.available) return '';
-    const scenarios = buildMarketScenarios(input, { regime });
     const axes = (regime.axes || []).map((axis) => `${axis.label || axis.id}: ${axis.state}${axis.read ? ` — ${axis.read}` : ''}`).join('\n');
-    const outlook = buildScenarioOutlook({ scenarios, regime });
     // v57.81 (owner 2026-10-15): the trend state with the Nasdaq-100 / Russell 2000 evidence rows and the leadership-break
     // flag travel as their own lines, so the narrative cannot call the trend 양호 or say semis lead while the flag is on.
     const trend = (regime.axes || []).find((axis) => axis.id === 'trend');
@@ -89,7 +69,7 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     const krDate = buildCloseSeries(input.history, 'kospi').at(-1)?.date || null;
     const sessions = krDate && regime.asOf && krDate !== regime.asOf ? `세션 기준일: 미국 ${regime.asOf.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} · 한국 ${krDate.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} — 두 시장을 한 문장에서 함께 말하면 두 날짜(M/D)를 모두 적을 것.` : '';
     return [`종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, priorSessionMoveLines(input.history), trendLine, leadershipLine, semisLine, conflicts, axes,
-      renderMarketScenarioContext(input, { regime }), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(data, input, regime, outlook)].filter(Boolean).join('\n');
+      renderMarketScenarioModel(scenarios), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(interpretation, state)].filter(Boolean).join('\n');
   } catch (error) {
     return '';
   }
@@ -119,20 +99,14 @@ export function priorSessionMoveLines(history = []) {
 
 // P1742 (owner 2026-10-13): the narrative looks forward with the same branches the 거시 screen draws — the next official
 // releases, each branch's chain, its three likelihood lines and the reader's choices with their opportunity cost.
-export function marketAnalysisCrossroadsContext(data, input, regime, outlook = null) {
+export function marketAnalysisCrossroadsContext(interpretation, state = null) {
   try {
-    let schedules = {};
-    try { schedules = JSON.parse(readFileSync(MACRO_CALENDAR_OUT, 'utf8'))?.schedules || {}; } catch (_) { schedules = {}; }
-    const read = buildMacroRead({ macro: data?.macro || null, macroHistory: input.macroHistory, regime: regime?.available ? regime : null, history: input.history });
     // P1743: the previous refresh's scenario state (scripts/build-scenario-state.mjs runs after this producer) adds the
     // automated record — what changed, how the latest releases scored — and every theme's stage under the same branches.
-    let state = null, outcomes = null;
-    try { state = JSON.parse(readFileSync(SCENARIO_STATE_OUT, 'utf8')); } catch (_) { state = null; }
-    try { outcomes = JSON.parse(readFileSync(SCENARIO_OUTCOMES_OUT, 'utf8')); } catch (_) { outcomes = null; }
-    const breadthState = regime?.axes?.find((axis) => axis.id === 'breadth')?.state || null;
-    const model = buildMacroCrossroads({ read: read ? { ...read, breadthState } : read, macroHistory: input.macroHistory, history: input.history, events: upcomingMacroEvents({ schedules }), outcomes, previousLeadId: state?.crossroads?.leadId || null });
     // Owner 2026-10-19: the shared market guide (the 오늘 card) so the narrative explains with the same synthesis.
-    return [renderMacroCrossroadsContext(model, { state }), scenarioStateThemeLines(state), renderMarketGuideContext(buildMarketGuide({ regime, outlook, crossroads: model }))].filter(Boolean).join('\n');
+    const { crossroads, guide } = interpretation || {};
+    if (!crossroads) return '';
+    return [renderMacroCrossroadsContext(crossroads, { state }), scenarioStateThemeLines(state), guide ? renderMarketGuideContext(guide) : ''].filter(Boolean).join('\n');
   } catch (_) { return ''; }
 }
 

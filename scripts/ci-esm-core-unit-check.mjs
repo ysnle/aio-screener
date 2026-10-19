@@ -4060,7 +4060,8 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   // P1729: the AI scenario context reads the screen's inputs (credit, rates, macro history), not history alone.
   const { buildQuestionDomainContext } = await load('src/ai/context/market-content.js');
   const marketSource = readFileSync(path.join(root, 'src/ai/context/market-content.js'), 'utf8');
-  if (!/renderMarketScenarioContext\(collectMarketInputs\(root\)\)/.test(marketSource) || /renderMarketScenarioContext\(\{\s*history\s*:/.test(marketSource)) fail('P1729 the AI scenario context must be built from collectMarketInputs(root)');
+  // v58.31: through the shared interpretation, whose browser adapter collects collectMarketInputs(root).
+  if (!/renderMarketScenarioModel\(marketInterpretation\(root\)\.scenarios\)/.test(marketSource) || /renderMarketScenarioContext\(\{\s*history\s*:/.test(marketSource) || !/market: collectMarketInputs\(root\)/.test(readFileSync(path.join(root, 'src/data/selectors/interpretation.js'), 'utf8'))) fail('P1729 the AI scenario context must be built from collectMarketInputs(root)');
   if (typeof buildQuestionDomainContext !== 'function') fail('P1729 buildQuestionDomainContext export missing');
 }
 

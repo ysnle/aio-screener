@@ -1,7 +1,7 @@
 // P1389: one native owner for the briefing page — 일정 → 오늘의 해석 → 자산별 흐름 → 다음 확인.
 // Replaces the six-axis summary, the market strip, the checklist, the legacy analysis block, the
 // August research bridge and the news list (news now lives on the news screen).
-import { alignInput, buildMarketRead } from '../../domain/briefing/market-read.js';
+import { alignInput } from '../../domain/briefing/market-read.js';
 import { buildBriefingSchedule } from '../../domain/briefing/schedule.js';
 import { ensureResearchSnapshots } from './research-snapshots.js';
 import { MACRO_HISTORY, refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
@@ -14,7 +14,7 @@ import { shortDate } from '../../domain/content/date-labels.js';
 // v57.60: the market-input reader moved to the data layer (the AI context imported it from this ui file);
 // re-exported here so existing importers keep working.
 export { collectMarketInputs } from '../../data/selectors/market-inputs.js';
-import { collectMarketInputs } from '../../data/selectors/market-inputs.js';
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
 
 // Only S&P 500 members: the weekly calendar lists hundreds of micro-caps.
 function universeNames(root) {
@@ -47,7 +47,7 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
       if (changed && page.classList?.contains('active')) renderBriefingRead({ documentRef: doc, root });
     }).catch(() => {});
   }
-  const read = buildMarketRead(collectMarketInputs(root));
+  const read = marketInterpretation(root).marketRead || { available: false, statements: [], drivers: [] }; // owner 2026-10-19: the shared read
   ensureResearchSnapshots({ documentRef: doc, root, host: page, kind: 'briefing', collect: () => ({
     kind: 'briefing', sessionDate: read.asOf, publishedAt: root._serverDataMeta?.generatedAt || null,
     version: root.AIO?.version || null, headline: read.headline || (read.available ? '두드러진 교차 신호 없음' : null),
