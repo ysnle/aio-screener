@@ -216,7 +216,10 @@ const requested = [];
 const httpClient = { requestJson: async (url) => { requested.push(url); return responses[url] ? { ok: true, data: JSON.parse(JSON.stringify(responses[url])) } : { ok: false, error: 'HTTP_404' }; } };
 let scope = 'core';
 let allowFetch = true;
-const provider = createScreenerProvider({ httpClient, readUniverseScope: () => scope, allowExtendedFetch: () => allowFetch, yieldImpl: async () => {} });
+// The provider reads at the same pinned moment the ranker uses (asOf + 1h); on the wall clock the published factor
+// session goes stale once the next US session closes and every US row drops out of the ranking.
+const providerNow = Date.parse(core.asOf) + 3600000;
+const provider = createScreenerProvider({ httpClient, readUniverseScope: () => scope, allowExtendedFetch: () => allowFetch, clock: { now: () => providerNow, iso: () => new Date(providerNow).toISOString() }, yieldImpl: async () => {} });
 const coreRead = await provider.readCurrent();
 check('v57.81 default view does not request the extended shard', requested.length === 3 && !requested.includes(EXTENDED_SHARD_URL) && coreRead.metadata.universeScope === 'core' && !coreRead.rows.some((row) => 'universeTier' in row || 'membership' in row), JSON.stringify(requested));
 {
