@@ -2,7 +2,7 @@
 // Split out of scripts/fetch-data.mjs (pipeline redesign, 2026-10-19); fetch-data.mjs keeps the run order and re-exports
 // every name it exported before.
 import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { atomicWriteFile } from '../lib/atomic-write.mjs';
 import { factorScopesByMarket, listingMarketOfSymbol } from '../../src/domain/market/session-time.js';
 import { reconcileSecRecord } from '../../src/domain/fundamental/sec-report.js';
@@ -570,7 +570,7 @@ export async function enrichScreener() {
   catch (e) { console.warn('[fetch-data] backtest 실패(무시):', e && e.message || e); }
   const assetTypeOf = (sym) => universeInfo.assetType?.[sym] ?? null;
   let sp500Weights = null;
-  try { sp500Weights = JSON.parse(await readFile(new URL('../public-data/sp500-weights.json', import.meta.url), 'utf8')); } catch { /* not collected yet */ }
+  try { sp500Weights = JSON.parse(await readFile(`${REPO_ROOT}/public-data/sp500-weights.json`, 'utf8')); } catch { /* not collected yet */ }
   // v57.51 V09: a secondary share class (GOOG→GOOGL, FOX→FOXA, NWS→NWSA) is one issuer; equal-weight breadth counts it once.
   const secondaryClass = new Set(Object.keys(universeInfo.shareClassOf || {}));
   const breadthSyms = syms.filter((sym) => !secondaryClass.has(sym));
@@ -681,7 +681,7 @@ export async function enrichScreener() {
   // P1465: record today's default-profile candidates (the page's own ranking path on the files just
   // written) and fill the outcomes of entries whose 21-session window has closed. Non-fatal.
   try {
-    const archiveInfo = await updateCandidateArchive({ root: new URL('../', import.meta.url), results, write: (url, text) => atomicWriteFile(fileURLToPath(url), text) });
+    const archiveInfo = await updateCandidateArchive({ root: pathToFileURL(`${REPO_ROOT}/`), results, write: (url, text) => atomicWriteFile(fileURLToPath(url), text) });
     console.log(`[fetch-data] candidate archive: ${archiveInfo.action} ${archiveInfo.date || '-'} · entries ${archiveInfo.entries} · measured ${archiveInfo.measured} (+${archiveInfo.filled})`);
   } catch (e) { console.warn('[fetch-data] candidate archive 실패(무시):', e && e.message || e); }
   return { count: ok, universe: syms.length, asOf: payload.asOf, backtestIC: backtest && backtest.ic && backtest.ic.composite, tickerNews: tickerNewsOk, fmpOk: fmpResult.ok > 0, fmpCount: fmpResult.ok, fmpHasKey: fmpResult.hasKey, fmpPlanError: fmpResult.planError, secFundamentalsOk: secResult.ok > 0, secFundamentalsCount: secResult.ok, fundamentalCount, fundamentalCoveragePct };

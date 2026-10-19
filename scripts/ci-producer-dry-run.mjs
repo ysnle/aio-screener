@@ -5,7 +5,7 @@
 // the repository with the network stubbed (scripts/lib/producer-dry-run-fetch.mjs): Yahoo answers synthetic charts,
 // every other provider fails. It asserts the run completes, takes each plane's failure path without aborting, and
 // writes a data.json that keeps the published contract. No credentials are passed and the working tree is untouched.
-import { cpSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, mkdirSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, mkdirSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -85,6 +85,10 @@ try {
       const written = JSON.parse(readFileSync(path.join(scratch, 'public-data', artifact), 'utf8'));
       const stamp = Date.parse(written.asOf || written.computedAt || written.generatedAt || '');
       check(`P1256 the ${lane} lane rewrote ${artifact}`, stamp >= laneStarted - 1000, `${written.asOf || written.computedAt || written.generatedAt} (sample ${lane === 'screener' ? coreSample : extendedSample})`);
+      // P1256 (pipeline redesign 1): lane modules live one folder deeper than fetch-data.mjs, so a module-relative
+      // '../public-data' path resolved to scripts/public-data and the S&P weights and candidate archive went missing silently.
+      if (lane === 'screener') check('P1256 the screener lane reads the S&P 500 weights from public-data', !!written.indexWeights && !!written.breadth?.segments?.sp500, `indexWeights=${!!written.indexWeights} sp500=${!!written.breadth?.segments?.sp500}`);
+      check(`P1256 the ${lane} lane writes nothing under scripts/public-data`, !existsSync(path.join(scratch, 'scripts', 'public-data')));
     }
   }
 } finally {
