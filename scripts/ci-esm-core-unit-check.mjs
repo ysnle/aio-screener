@@ -5108,3 +5108,23 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const conflict = chartReading({ ...chart, state: 'breakout', timeframeConflict: true, weinstein: { ...chart.weinstein, stage: 4 } });
   if (!/상위 시간대/.test(conflict.headline)) fail('chart: a breakout against a weekly downtrend must say so');
 }
+
+// ── v58.XX expertise review: portfolio stress sensitivities from the book's own weekly returns ──
+{
+  const { estimateBookSensitivities, scenarioImpact, krwTranslationPct, regressOne } = await load('src/domain/portfolio/stress-sensitivity.js');
+  if (regressOne([1, 2], [2, 4]) !== null) fail('stress: fewer than the minimum weeks is no slope');
+  const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
+  const history = []; const book = {}; let spx = 100; let tnx = 4; let px = 100;
+  for (let i = 0; i < 400; i += 1) {
+    const move = Math.sin(i / 9) * 0.004;
+    spx *= 1 + move; tnx += -move * 2; px *= 1 + 1.5 * move;
+    history.push({ date: day(i), spx, tnx, wti: 70 + Math.cos(i), usdkrw: 1300 + Math.sin(i / 3) * 10, kospi: 2500 });
+    book[day(i)] = px;
+  }
+  const est = estimateBookSensitivities({ historyMap: { AAA: book }, commonDates: Object.keys(book), weights: { AAA: 1 }, history });
+  if (!est.available || Math.abs(est.fits.equity.beta - 1.5) > 0.15) fail(`stress: equity beta must be estimated from the book (got ${est.fits?.equity?.beta})`);
+  const rate = scenarioImpact(est.fits.rate, 100);
+  if (!(rate.mid < 0) || !rate.distinct) fail(`stress: a book that falls when yields rise must show a negative rate shock: ${JSON.stringify(rate)}`);
+  if (estimateBookSensitivities({ historyMap: { AAA: book }, commonDates: Object.keys(book).slice(-60), weights: { AAA: 1 }, history }).available) fail('stress: under 30 weeks of history no sensitivity is printed');
+  if (krwTranslationPct({ weights: { AAA: 0.5, '005930.KS': 0.5 }, baseCurrency: 'KRW', shockPct: 10 }) !== 5) fail('stress: a KRW book gains on USD holdings when the won weakens');
+}
