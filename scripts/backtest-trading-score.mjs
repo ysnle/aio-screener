@@ -90,8 +90,18 @@ export function reconstructScore({ vix, fg, dxy, tnx, wti, vvix, spxPrice, spx50
 }
 
 // ── history.json → 거래일(spx 존재)만 필터링, forward return + trailing MA 계산 ──
+// 2026-10-19 data audit: weekend/holiday rows repeat the last close (fieldMeta.spx.observationRelation 'carried-forward'),
+// so 30 of 180 records were one session scored twice and "5d" forward returns spanned calendar rows, not sessions.
 function buildTradingDaySeries(history) {
-  return history.filter(d => d && typeof d.spx === 'number' && Number.isFinite(d.spx));
+  const seenSessions = new Set();
+  return history.filter(d => {
+    if (!d || typeof d.spx !== 'number' || !Number.isFinite(d.spx)) return false;
+    const meta = d.fieldMeta?.spx;
+    if (meta?.observationRelation === 'carried-forward') return false;
+    const session = meta?.sessionDate;
+    if (session) { if (seenSessions.has(session)) return false; seenSessions.add(session); }
+    return true;
+  });
 }
 
 function trailingMA(series, idx, window) {

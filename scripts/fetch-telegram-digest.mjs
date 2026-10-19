@@ -273,6 +273,8 @@ const MARKET_SUBJECT = /market|stock|shares|index|rate|yield|bond|oil|crude|tari
 function isLowSignalPost(text) {
   const t = String(text || '').toLowerCase();
   if (/executive time|event schedule|holiday notice|webinar only/.test(t)) return true;
+  // 2026-10-19 data audit: a channel notice ("공지사항 안내 Speed matters…", score 55) ran as a market post.
+  if (/^\s*(?:\[?공지(?:사항)?\]?|채널\s*안내|구독\s*안내)/.test(t)) return true;
   if (/humanitarian/.test(t) && !/market|oil|rate|risk|supply|shipping/.test(t)) return true;
   if (/\bvote\b|voting|voter|ballot|endorse|campaign rally|투표|유권자|선거 유세|지지 선언/.test(t) && !MARKET_SUBJECT.test(t)) return true;
   if (t.length < 80 && /요금제|쓸\s?수\s?있네|ㅋㅋ|ㅎㅎ|구독자|이벤트 당첨|좋은 아침|굿모닝/.test(t) && !MARKET_SUBJECT.test(t)) return true;
@@ -430,10 +432,28 @@ for (const it of [...previousObservedPool, ...freshItems]) {
 }
 const observedItems = [...observedById.values()].sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
 const lowSignalDropped = items.filter(it => typeof it.text === 'string' && isLowSignalPost(it.text)).length;
-const current24hItems = items.filter(it => {
+// 2026-10-19 data audit: the carry-forward pool holds only posts scoring 50+ (top/broad), while freshly fetched posts
+// entered this list at any score — so whether a low-score post ("어어 안된다", 35) appeared depended on which page it
+// was fetched from. One floor for both, and one copy per repost (the weekly briefing ran twice, the JPM capex note in
+// two channels).
+const DIGEST_LIST_MIN_SCORE = 50;
+function digestDuplicateKey(it) {
+  return String(it?.summary || it?.text || '').replace(/https?:\/\/\S+/g, '').replace(/[^\p{L}\p{N}]+/gu, '').toLowerCase().slice(0, 60);
+}
+function dedupeDigestItems(list) {
+  const seen = new Set();
+  return list.filter((it) => {
+    const key = digestDuplicateKey(it);
+    if (key.length < 20) return true;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+const current24hItems = dedupeDigestItems(items.filter(it => {
   const d = new Date(it.datetime);
-  return d >= marketCycle.start && d < marketCycle.end && !(typeof it.text === 'string' && isLowSignalPost(it.text));
-});
+  return d >= marketCycle.start && d < marketCycle.end && Number(it.score || 0) >= DIGEST_LIST_MIN_SCORE && !(typeof it.text === 'string' && isLowSignalPost(it.text));
+}));
 console.log(`[telegram] low-signal posts left out of the reading list: ${lowSignalDropped}`);
 const current24hObservedItems = observedItems.filter(it => {
   const d = new Date(it.datetime);
@@ -498,7 +518,7 @@ function buildDynamicNarrative() {
 
 const dynamicNarrative = buildDynamicNarrative();
 const topItems = (function() {
-  const candidates = items.filter(x => x.hasText !== false && x.score >= 65).sort((a, b) => b.score - a.score);
+  const candidates = dedupeDigestItems(items.filter(x => x.hasText !== false && x.score >= 65).sort((a, b) => b.score - a.score));
   const perChannel = {}, out = [];
   for (const it of candidates) {
     const ch = it.channel || 'unknown';
@@ -510,7 +530,7 @@ const topItems = (function() {
   return out;
 })();
 const broadItems = (function() {
-  const candidates = items.filter(x => x.hasText !== false && x.score >= 50).sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+  const candidates = dedupeDigestItems(items.filter(x => x.hasText !== false && x.score >= DIGEST_LIST_MIN_SCORE).sort((a, b) => new Date(b.datetime) - new Date(a.datetime)));
   const perChannel = {}, out = [];
   for (const it of candidates) {
     const ch = it.channel || 'unknown';
