@@ -2,6 +2,9 @@
 // boot-budget gate (scripts/ci-boot-bundle-budget-check.mjs), so the gate measures exactly what ships.
 export const GLOBAL_SCRIPTS = ['aio-workspace', 'aio-kr-data', 'aio-pages', 'aio-core', 'aio-data', 'aio-ui', 'aio-chat', 'aio-glossary'].map((name) => `js/${name}.js`);
 export const ESM_ENTRY = 'src/app/bootstrap.js';
+// index.html links one stylesheet; it @imports the rest of src/ui/styles. Shipped as is, the browser finds those
+// imports only after the first file arrives (a second round trip before the page can paint); the deploy inlines them.
+export const STYLE_ENTRY = 'src/ui/styles/responsive.css';
 // Classic scripts already require ES2020 (optional chaining); the module graph already requires ES2021 (||=).
 // Pinning the targets keeps the minifier from introducing newer syntax than the source ships today.
 export const GLOBAL_TARGET = 'es2020';
@@ -40,4 +43,18 @@ export function bootOutputs(metafile) {
     for (const item of outputs[file]?.imports || []) if (item.kind === 'import-statement') queue.push(item.path);
   }
   return [...seen];
+}
+
+export function styleBundleOptions({ absWorkingDir, outfile }) {
+  return {
+    absWorkingDir,
+    entryPoints: [STYLE_ENTRY],
+    outfile,
+    bundle: true,
+    minify: true,
+    charset: 'utf8',
+    legalComments: 'none',
+    metafile: true,
+    logLevel: 'error'
+  };
 }
