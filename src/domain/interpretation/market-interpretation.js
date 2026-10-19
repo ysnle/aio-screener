@@ -2,7 +2,8 @@
 // 시장 상태, 거시, 테마, 브리핑, the AI chat, the server narrative and scenario-state.json — reads the same stages built
 // once, in one order, from one input object:
 //
-//   inputs → regime (six axes) → marketRead (briefing statements) → macroRead → crossroads (macro branches) → scenarios (structure flows)
+//   inputs → regime (six axes) → marketRead (briefing statements) → macroRead → curve (2s10s move) → indexEarnings
+//          → crossroads (macro branches) → scenarios (structure flows)
 //          → groups (US theme strength) → outlook → playbook (theme stages) → guide (shared market guide)
 //
 // Before this module each surface assembled the chain itself with different inputs: the browser's crossroads skipped
@@ -14,6 +15,8 @@
 // Pure: no DOM, no I/O. A stage that throws is recorded in `errors` and later stages see null, never a partial object.
 import { buildMarketRead, buildMarketRegime } from '../briefing/market-read.js';
 import { buildMacroRead } from '../macro/macro-read.js';
+import { curveDynamics } from '../macro/rates-fx.js';
+import { buildIndexEarnings } from '../market/index-earnings.js';
 import { buildMacroCrossroads, upcomingMacroEvents } from '../market/macro-crossroads.js';
 import { buildMarketScenarios } from '../market/regime-scenarios.js';
 import { buildScenarioOutlook, SECTOR_ETF_LABELS, sectorRecentCheck } from '../market/scenario-outlook.js';
@@ -25,7 +28,7 @@ import { buildMarketGuide } from '../guide/market-guide.js';
 import { fieldValueForPurpose } from '../../data/contracts/screener.js';
 
 export const INTERPRETATION_VERSION = 'market-interpretation.v1';
-export const INTERPRETATION_STAGES = Object.freeze(['regime', 'marketRead', 'macroRead', 'crossroads', 'scenarios', 'groups', 'outlook', 'playbook', 'guide']);
+export const INTERPRETATION_STAGES = Object.freeze(['regime', 'marketRead', 'macroRead', 'curve', 'indexEarnings', 'crossroads', 'scenarios', 'groups', 'outlook', 'playbook', 'guide']);
 
 const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;
 const axisState = (regime, id) => regime?.axes?.find((axis) => axis.id === id)?.state || null;
@@ -57,10 +60,12 @@ export function outlookSectors(rotationHistory, nowMs) {
  * @param {Array}  [input.screenerRows] screener rows (theme strength, theme stages)
  * @param {object} [input.themeMaps]   { usThemes, krThemeMap, labels }
  * @param {object} [input.rotationHistory] produced sector rotation (outlook sector rows); omitted by the producers
+ * @param {object} [input.indexEarnings] { weights, consensus, realYield10?, realYieldAsOf? } — S&P 500 forward earnings,
+ *                 revision breadth and ERP (screener index weights + consensus; the browser has both today)
  * @param {object} [input.stages]      { playbook: false } skips a stage a caller does not read
  * @param {number} [input.nowMs]
  */
-export function buildMarketInterpretation({ market = {}, macro = null, calendar = null, outcomes = null, previous = null, screenerRows = null, themeMaps = null, rotationHistory = null, stages = {}, nowMs = Date.now() } = {}) {
+export function buildMarketInterpretation({ market = {}, macro = null, calendar = null, outcomes = null, previous = null, screenerRows = null, themeMaps = null, rotationHistory = null, indexEarnings: earningsInput = null, stages = {}, nowMs = Date.now() } = {}) {
   const errors = {};
   const stage = (name, run) => { try { return run(); } catch (error) { errors[name] = String(error?.message || error); return null; } };
   const inputs = { ...market, history: Array.isArray(market.history) ? market.history : [], now: market.now ?? nowMs };
@@ -69,10 +74,13 @@ export function buildMarketInterpretation({ market = {}, macro = null, calendar 
   const marketRead = stage('marketRead', () => buildMarketRead(inputs));
   const macroRead = stage('macroRead', () => buildMacroRead({ macro, macroHistory: inputs.macroHistory || null, regime: live, history: inputs.history }));
   const breadthState = axisState(regime, 'breadth');
+  // v58.32 (expertise review 1): the 2s10s move (bull/bear, steepening/flattening, un-inversion) and index earnings.
+  const curve = stage('curve', () => curveDynamics(inputs.macroHistory || null));
   const events = stage('events', () => upcomingMacroEvents({ releases: calendar?.releases || {}, schedules: calendar?.schedules || {}, nowMs })) || [];
   const crossroads = stage('crossroads', () => buildMacroCrossroads({ read: macroRead ? { ...macroRead, breadthState } : macroRead, macroHistory: inputs.macroHistory || null, history: inputs.history, events, outcomes, previousLeadId: previous?.crossroads?.leadId || null }));
   const scenarios = regime ? stage('scenarios', () => buildMarketScenarios(inputs, { regime })) : null;
   const rows = screenerRows ? typedScreenerRows(screenerRows) : null;
+  const indexEarnings = earningsInput ? stage('indexEarnings', () => buildIndexEarnings({ rows: rows || [], ...earningsInput })) : null;
   const groups = rows ? stage('groups', () => buildGroupStrength({ themes: themeMaps?.usThemes || [], rows, sortKey: 'ret3m', now: nowMs }).groups || []) : null;
   // X03 (2026-10-13): "현재 주도" may name only themes measured on the latest completed session.
   const leadingThemes = (groups || []).filter((group) => group.ret3m != null && group.rankable !== false && group.current)
@@ -82,6 +90,6 @@ export function buildMarketInterpretation({ market = {}, macro = null, calendar 
     usGroups: groups || [], krThemes: themeMaps?.krThemeMap ? krThemeArtifactRead({ themeMap: themeMaps.krThemeMap, rows }).themes || [] : [],
     crossroads, credit: axisState(regime, 'credit'), outcomes, labels: themeMaps?.labels || {}, history: inputs.history
   })) : null;
-  const guide = regime ? stage('guide', () => buildMarketGuide({ regime, outlook, crossroads, nowMs })) : null;
-  return { version: INTERPRETATION_VERSION, asOf: regime?.asOf || null, nowMs, inputs, regime, marketRead, macroRead, events, crossroads, scenarios, groups, outlook, playbook, guide, errors };
+  const guide = regime ? stage('guide', () => buildMarketGuide({ regime, outlook, crossroads, curve, indexEarnings, nowMs })) : null;
+  return { version: INTERPRETATION_VERSION, asOf: regime?.asOf || null, nowMs, inputs, regime, marketRead, macroRead, curve, indexEarnings, events, crossroads, scenarios, groups, outlook, playbook, guide, errors };
 }

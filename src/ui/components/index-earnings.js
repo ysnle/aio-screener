@@ -1,7 +1,9 @@
 // Expertise review 2026-10-19: the S&P 500's own earnings read — revision breadth (are next-year estimates being raised or
 // cut), the forward multiple and the equity risk premium against the 10-year real yield — with a per-sector revision line.
-// Data owner: src/domain/market/index-earnings.js. Conclusion first, then the evidence, then what it means.
-import { buildIndexEarnings, INDEX_EARNINGS_MIN_WEIGHT_PCT, SECTOR_MIN_MEMBERS } from '../../domain/market/index-earnings.js';
+// Data owner: src/domain/market/index-earnings.js, built once as the interpretation pipeline's indexEarnings stage so the
+// lessons and the AI read the same revision breadth. Conclusion first, then the evidence, then what it means.
+import { INDEX_EARNINGS_MIN_WEIGHT_PCT, SECTOR_MIN_MEMBERS } from '../../domain/market/index-earnings.js';
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { GICS_KO } from '../../domain/market/sector-map.js';
 import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { el } from './dom.js';
@@ -28,15 +30,7 @@ export function renderIndexEarnings({ documentRef: doc, root, store }) {
   if (!root[CONSENSUS_KEY]) {
     requestConsensusEstimates(root, () => renderIndexEarnings({ documentRef: doc, root, store }));
   }
-  let rows = [];
-  let weights = null;
-  try {
-    const screener = store?.getState?.()?.screener;
-    rows = screener?.rows || root._aioGetCanonicalScreenerRows?.() || [];
-    weights = screener?.metadata?.indexWeights || null;
-  } catch (_) { rows = []; }
-  const macro = root._aioServerMacro || {};
-  const model = buildIndexEarnings({ rows, weights, consensus: root[CONSENSUS_KEY], realYield10: macro.realYield10, realYieldAsOf: macro._asOf_realYield10 || null });
+  const model = marketInterpretation(root, { store }).indexEarnings || { available: false, reason: '지수 이익 전망을 계산하지 못했습니다.' };
   const head = el(doc, 'h2', 'S&P 500 이익 전망과 밸류에이션', 'briefing-h2');
   if (!model.available) {
     host.replaceChildren(head, el(doc, 'div', model.reason, 'briefing-empty'));

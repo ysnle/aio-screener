@@ -1,3 +1,7 @@
+## v58.39 (2026-10-20)
+- **근거 강도 표시와 금리곡선·지수 이익 단계 (오너 요청 2026-10-19, 거시 감사 D2/D7):** 과거 빈도(같은 움직임 뒤 상승 비율)가 같은 기간 전체 상승 비율과 표본 오차(2SE) 안에서 구별되지 않으면 비율·중앙값을 숨기고 건수와 기준선만 보여 주며 '방향에 대한 정보가 없습니다'라고 말한다(src/domain/scenarios/analogs.js pastEvidence). 이 빈도는 실제 거시 조건이 아니라 지수 움직임 대리 변수로 센 것이므로 scenario-outcomes.json에 method 'market-move-proxy.v2'를 함께 기록해 이전 통계와 섞이지 않게 했다. 금리곡선 움직임(curveDynamics)과 S&P 500 이익 전망 수정(buildIndexEarnings)을 해석 파이프라인의 curve·indexEarnings 단계로 옮겨 지수 이익 카드·시장 가이드·화면별 원칙이 같은 결과를 읽고, 새 원칙 '금리는 어느 쪽 끝이 움직였는지로 읽기'(거시·금리환율)와 '이익 전망이 고쳐지는 방향'(신호·재무)을 추가했다. 시나리오 분기 조건은 바꾸지 않았다(발행 통계 보존). 검증: ci-market-guide-fixture, ci-scenario-guidance-fixture, ci-interpretation-boundary-check. (PR #62)
+- R1 7곳 v58.39
+
 ## v58.38 (2026-10-20)
 - **해석 파이프라인 통합 (오너 요청 2026-10-19 전체 구조 개편):** 시장 판정·브리핑 문장·거시 판독·거시 시나리오·시장 흐름·테마 강도·전망·테마 단계·시장 가이드를 src/domain/interpretation/market-interpretation.js 한 곳에서 한 번 만들고, 오늘·시장 상태·투자 심리·시장 폭·거시·테마·브리핑·화면별 원칙·AI 채팅·서버 해석·scenario-state.json이 모두 그 결과를 읽는다(브라우저 어댑터 src/data/selectors/interpretation.js, 생산자 어댑터 scripts/lib/market-interpretation-inputs.mjs). 화면의 거시 시나리오가 직전 중심 시나리오 유지 규칙을 빠뜨려 동점일 때 서버 해석과 다른 중심 시나리오를 낼 수 있던 문제와, 브리핑의 시나리오가 시장 폭 조건 없이 계산되던 문제가 함께 해소됐다. 신용 안정·방어 섹터 정의를 src/domain/interpretation/concepts.js로 합쳤고(테마 회전 판독에서 XLRE 제외), AI 계층의 UI 모듈 import를 없앴다. 검증: ci-interpretation-boundary-check. (PR #60)
 - R1 7곳 v58.38

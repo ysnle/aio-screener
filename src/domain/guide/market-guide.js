@@ -11,6 +11,7 @@
 //               holdings (R698).
 //   stance    — what to lean toward and what to avoid, derived from the direction, the lead's exposures and the traps
 //   lessons   — the concept layer (lessons.js) entries today's data touches, each linked to the principles library
+import { pastEvidence } from '../scenarios/analogs.js';
 import { CHOICES } from '../market/macro-crossroads.js';
 import { selectLessons, LESSON_KINDS } from './lessons.js';
 import { hasFinalConsonant } from '../content/korean-particle.js';
@@ -39,9 +40,11 @@ const ratio = (item) => (item.total ? item.met / item.total : 0);
 function evidenceOf(item) {
   const pricing = item.pricingInConditions && item.pricing?.tone === 'same' ? null
     : { same: '시장 가격도 이쪽', against: '시장 가격은 반대쪽', neutral: '시장 가격은 중립' }[item.pricing?.tone] || null;
-  const past = item.past?.n >= 10 && Number.isFinite(item.past.up) && Number.isFinite(item.past.baseUpPct)
-    ? `과거 비슷한 때 ${item.past.n}번 중 ${Math.round(item.past.up / item.past.n * 100)}% 상승 · 전체 기준선 ${item.past.baseUpPct}%${item.past.n < 30 ? ' (표본이 작음)' : ''}`
-    : item.past?.n ? `과거 비슷한 때 ${item.past.n}번 — 표본이 작아 비율로 말하지 않음` : null;
+  // Owner 2026-10-19: one reading of the past frequency (analogs.js pastEvidence) — a share only where it differs from the base.
+  const e = pastEvidence(item.past);
+  const past = e.informative ? `과거 비슷한 때 ${e.n}번 중 ${e.sharePct}% 상승 · 전체 기준선 ${e.baseUpPct}%${e.small ? ' (표본이 작음)' : ''}`
+    : e.informative === false ? `과거 비슷한 때 ${e.n}번 — 전체 기준선(${e.baseUpPct}%)과 구별되지 않음`
+      : e.n ? `과거 비슷한 때 ${e.n}번 — 표본이 작아 비율로 말하지 않음` : null;
   return { fit: item.fit, pricing, past };
 }
 
@@ -103,9 +106,11 @@ function stanceOf({ direction, leadPath, lessons }) {
  * @param {object} input.regime     buildMarketRegime()
  * @param {object} [input.outlook]  buildScenarioOutlook()
  * @param {object} [input.crossroads] buildMacroCrossroads()
+ * @param {object} [input.curve]   curveDynamics() — the 2s10s move, for the lessons
+ * @param {object} [input.indexEarnings] buildIndexEarnings() — revision breadth, for the lessons
  * @param {number} [input.nowMs]
  */
-export function buildMarketGuide({ regime = null, outlook = null, crossroads = null, nowMs = Date.now() } = {}) {
+export function buildMarketGuide({ regime = null, outlook = null, crossroads = null, curve = null, indexEarnings = null, nowMs = Date.now() } = {}) {
   if (!regime?.available) return { available: false, version: MARKET_GUIDE_VERSION, reason: '종가 기록을 불러오는 중이라 가이드를 만들지 않았습니다.' };
   const items = crossroads?.available ? crossroads.items || [] : [];
   const live = items.filter(isLive).sort((a, b) => ratio(b) - ratio(a)).map(pathOf);
@@ -122,7 +127,7 @@ export function buildMarketGuide({ regime = null, outlook = null, crossroads = n
     { id: 'driver', label: '움직이는 힘', text: leadPath ? `'${leadPath.short}' 쪽 조건이 가장 많이 맞습니다(${leadPath.fit})${leadPath.title.includes(' — ') ? ` — ${leadPath.title.split(' — ')[1]}입니다` : ''}.` : crossroads?.headline || '거시 시나리오 판단을 보류합니다.' },
     { id: 'next', label: '다음 갈림길', text: nextEvent ? `${md(nextEvent.date)} ${nextEvent.name}${decides.length ? ` — '${decides.slice(0, 3).join("'·'")}' 쪽을 가릅니다` : ''}.` : crossroads?.available && Array.isArray(crossroads.events) ? '45일 안에 예정된 주요 발표가 없습니다.' : '발표 일정을 확인하지 못했습니다.' }
   ];
-  const ctx = { regime, outlook, crossroads, direction, nowMs };
+  const ctx = { regime, outlook, crossroads, direction, curve, indexEarnings, nowMs };
   const lessons = selectLessons(ctx);
   const stance = stanceOf({ direction, leadPath, lessons });
   const headline = leadPath

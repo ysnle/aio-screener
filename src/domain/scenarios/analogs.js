@@ -149,6 +149,19 @@ export function themeStateOutcomes(closes, { horizon = 63, benchmark = null, ben
 export const BASE_RATE_SE = 2;
 export const beyondBaseRate = (share, base, n) => Math.abs(share - base) > BASE_RATE_SE * Math.sqrt(base * (1 - base) / n);
 
+// Owner 2026-10-19 (macro audit D2/D7, "전체 구조 개편"): the analogs pick past days by a market move (the branch's proxy),
+// not by the branch's own conditions, so the line is only worth reading where it differs from the base rate. One reading
+// of a frequency record for every surface (거시 branch line, 오늘 guide, lessons, AI): below 10 cases no share; at 10+ the
+// share is stated only when it sits beyond the base rate — otherwise the reader is told the move added no information.
+export const ANALOG_METHOD = 'market-move-proxy.v2';
+export function pastEvidence(freq) {
+  if (!freq || !(freq.n >= 1)) return { n: 0, informative: null, method: ANALOG_METHOD };
+  const hasBase = Number.isFinite(freq.up) && Number.isFinite(freq.baseUpPct) && freq.n >= 10;
+  const share = hasBase ? freq.up / freq.n : null;
+  return { n: freq.n, up: freq.up ?? null, sharePct: share == null ? null : Math.round(share * 100), baseUpPct: hasBase ? freq.baseUpPct : null,
+    informative: hasBase ? beyondBaseRate(share, freq.baseUpPct / 100, freq.n) : null, small: freq.n < 30, method: ANALOG_METHOD };
+}
+
 export function frequencyText(freq, label, { source = 'AIO 종가 기록' } = {}) {
   if (!freq) return `${label}: 과거 기록이 없어 빈도를 계산하지 않습니다.`;
   const span = `${String(freq.from || '').slice(0, 4)}~${String(freq.to || '').slice(0, 7)}`;
@@ -156,8 +169,9 @@ export function frequencyText(freq, label, { source = 'AIO 종가 기록' } = {}
   const signed = (value) => `${value > 0 ? '+' : ''}${value}%`;
   // v57.79: a percentage needs at least 10 non-overlapping cases; below that the counts stand alone.
   const sharePct = Math.round(freq.up / freq.n * 100);
-  const base = Number.isFinite(freq.baseUpPct) && freq.n >= 10
-    ? ` 비슷한 때 ${sharePct}% · 같은 기록 전체 거래일에서는 ${freq.baseUpPct}%가 올라, ${beyondBaseRate(freq.up / freq.n, freq.baseUpPct / 100, freq.n) ? '둘의 차이가 이 조건이 더하는 정보입니다.' : '차이는 표본 오차 범위 안이라 이 조건만의 정보로 보기 어렵습니다.'}`
-    : '';
+  const evidence = pastEvidence(freq);
+  // Not beyond the base rate: the counts and the base, without a share or median to anchor on.
+  if (evidence.informative === false) return `${label}: ${source}(${span})의 겹치지 않는 ${freq.n}번 뒤 ${freq.horizon}거래일 흐름은 같은 기록 전체 거래일(${freq.baseUpPct}% 상승)과 표본 오차 안에서 구별되지 않았습니다 — 이 움직임만으로는 방향에 대한 정보가 없습니다.${freq.n < 30 ? ' 30번 미만의 작은 표본입니다.' : ''}`;
+  const base = evidence.informative ? ` 비슷한 때 ${sharePct}% · 같은 기록 전체 거래일에서는 ${freq.baseUpPct}%가 올라, 둘의 차이가 이 조건이 더하는 정보입니다.` : '';
   return `${label}: ${source}(${span})의 겹치지 않는 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 ${hasFinalConsonant(freq.subject || 'S&P 500') ? `${freq.subject || 'S&P 500'}이` : `${freq.subject || 'S&P 500'}가`} 올랐습니다 (중앙값 ${signed(freq.median)}${freq.p25 != null && freq.n >= 8 ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''}).${base}${freq.n < 10 ? ' 표본이 작아 경향 참고용입니다.' : freq.n < 30 ? ' 30번 미만의 작은 표본이라 비율은 참고용입니다.' : ''}`; // R706: 10-29 cases carry a small-sample note (codex audit F09)
 }
