@@ -144,6 +144,17 @@ function qualityRaw(row) {
   return parts.length ? avg(parts) : null;
 }
 
+// Expertise review 2026-10-19 (screener audit D7): growth is not quality. The candidate model ranks quality on
+// profitability alone (ROE, margin) so its forward record can test the definition the default keeps.
+function profitabilityRaw(row) {
+  const parts = [];
+  const roe = finite(row?.roe);
+  const margin = finite(row?.margin);
+  if (roe != null) parts.push(Math.max(-30, Math.min(60, roe)) / 60);
+  if (margin != null) parts.push(Math.max(-20, Math.min(40, margin)) / 40);
+  return parts.length ? avg(parts) : null;
+}
+
 function kalmanRaw(row) {
   const confidence = finite(row?.kalmanVelConf);
   return confidence != null ? confidence : finite(row?.kalmanVel);
@@ -416,11 +427,12 @@ function emptyResult({ inputVersion, regimeLabel, weights, reason = 'fewer than 
 function computeFactorRanksForPopulation({
   rows = [], weights = null, regimeLabel = null, fundamentalCoveragePct = 0, fmpOk = false,
   now = Date.now(), inputVersion = 'unknown', previousRanks = null, previousRegimeLabel = null, previousWeights = null,
-  topPct = 20, weightsPolicy = null, momentumDefinition = 'blend-1-3-6', valueDefinition = 'positive-multiples'
+  topPct = 20, weightsPolicy = null, momentumDefinition = 'blend-1-3-6', valueDefinition = 'positive-multiples', qualityDefinition = 'roe-margin-growth'
 } = {}) {
   const inputRows = Array.isArray(rows) ? rows : [];
   const momentumFn = momentumDefinition === 'six-minus-one' ? momSixMinusOneRaw : momRaw;
   const valueFn = valueDefinition === 'signed-yields' ? signedYieldValueRaw : valueRaw;
+  const qualityFn = qualityDefinition === 'profitability' ? profitabilityRaw : qualityRaw;
   const seenSymbols = new Set();
   let duplicateRows = 0;
   let missingIdentityRows = 0;
@@ -457,7 +469,7 @@ function computeFactorRanksForPopulation({
     { key: 'lowvol', fn: lowvolRaw },
     { key: 'size', fn: sizeRaw },
     { key: 'value', fn: valueFn },
-    { key: 'quality', fn: qualityRaw },
+    { key: 'quality', fn: qualityFn },
     { key: 'kalman', fn: kalmanRaw }
   ];
   const working = items.map((row, index) => {
@@ -506,7 +518,7 @@ function computeFactorRanksForPopulation({
   const mcapCurrentCount = coverageRows.filter((row) => sizeRaw(row) != null && row._factorEvidence.size?.ok).length;
   const sizeActive = mcapCurrentCount >= Math.ceil(coverageRows.length * MIN_CROSS_SECTION_COVERAGE) && factorCoverage.size.coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100;
   const fundamentalCurrentCount = coverageRows.filter((row) => {
-    const hasInput = valueFn(row) != null || qualityRaw(row) != null;
+    const hasInput = valueFn(row) != null || qualityFn(row) != null;
     return hasInput && (row._factorEvidence.value?.ok || row._factorEvidence.quality?.ok);
   }).length;
   const fundamentalCurrentPct = coverageRows.length ? fundamentalCurrentCount / coverageRows.length * 100 : 0;
@@ -792,7 +804,7 @@ function computeFactorRanksForPopulation({
     requestedWeightCoveragePct,
     weightsPolicy: explicitWeights ? 'explicit' : 'model-default',
     coverageBasis,
-    factorDefinitions: Object.freeze({ momentum: momentumFn === momRaw ? 'blend-1-3-6' : 'six-minus-one', value: valueFn === valueRaw ? 'positive-multiples' : 'signed-yields' }),
+    factorDefinitions: Object.freeze({ momentum: momentumFn === momRaw ? 'blend-1-3-6' : 'six-minus-one', value: valueFn === valueRaw ? 'positive-multiples' : 'signed-yields', quality: qualityFn === qualityRaw ? 'roe-margin-growth' : 'profitability' }),
     rankingState: 'ranked',
     rankingUnavailableReason: null,
     inactiveFactorReasons: Object.freeze(inactiveFactorReasons),

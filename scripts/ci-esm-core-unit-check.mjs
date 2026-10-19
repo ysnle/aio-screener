@@ -5143,3 +5143,62 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const conflict = chartReading({ ...chart, state: 'breakout', timeframeConflict: true, weinstein: { ...chart.weinstein, stage: 4 } });
   if (!/상위 시간대/.test(conflict.headline)) fail('chart: a breakout against a weekly downtrend must say so');
 }
+
+// ── v58.XX expertise review: past outcomes of the chart's own signals on the stock's history ──
+{
+  const { signalHistory, SIGNAL_MIN_COUNT } = await load('src/domain/technical/signal-history.js');
+  const closes = Array.from({ length: 200 }, (_, i) => 100 + i);
+  const rsLine = closes.map((close) => close / 100);
+  const events = [10, 12, 40, 70, 100, 130].map((index) => ({ kind: 'power-gap', index })).concat([{ kind: 'squeeze', index: 5 }]);
+  const read = signalHistory({ events, closes, rsLine });
+  const gap = read.kinds['power-gap'];
+  if (gap.count !== SIGNAL_MIN_COUNT || !(gap.medianPct > 0) || gap.upShare !== 1 || gap.beatShare !== 1) fail(`signal history: overlapping occurrences count once and the forward move is read: ${JSON.stringify(gap)}`);
+  if (read.kinds.squeeze.count !== 1 || read.kinds.squeeze.medianPct !== null) fail('signal history: below the minimum count no figure is printed');
+}
+
+// ── v58.XX expertise review (macro audit §6-2): backtest weights drift in the base currency; a running month is left out ──
+{
+  const { buildPortfolioBacktestLab } = await load('src/domain/portfolio/backtest.js');
+  const keys = Array.from({ length: 15 }, (_, i) => `${2024 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, '0')}`);
+  const series = (values) => ({ timestamps: keys.map((k) => `${k}-28T00:00:00Z`), adjustedCloses: values, backtestEligible: true, backtestPriceBasis: 'adjusted-close' });
+  const krw = keys.map((_, i) => (i >= 2 ? 270000 : 135000)); // flat, then +100% in the second month
+  const map = { AAA: series(krw), BBB: series(keys.map(() => 100)), SPY: series(keys.map(() => 100)) };
+  const fx = { timestamps: keys.map((k) => `${k}-28T00:00:00Z`), closes: keys.map((_, i) => (i >= 1 ? 1320 : 1200)) };
+  const positions = [{ ticker: 'AAA', qty: 1, cost: 135000, currency: 'KRW', costCurrency: 'KRW' }, { ticker: 'BBB', qty: 1, cost: 100, currency: 'USD', costCurrency: 'USD' }];
+  const opts = { baseCurrency: 'USD', rebalanceType: 'none', fxLegs: [{ from: 'KRW', to: 'USD', rate: 1 / 1350, observedAt: '2026-09-24T00:00:00Z', source: 'test-leg' }], fxSeries: { usdkrw: fx } };
+  const run = buildPortfolioBacktestLab(map, positions, { ...opts, asOfMs: Date.parse('2026-09-25T00:00:00Z') });
+  const [m1, m2] = run.baseCurrencyReturns?.months || [];
+  const w = 0.5 * (1200 / 1320) / (0.5 * (1200 / 1320) + 0.5);
+  if (Math.abs(m1?.return - 0.5 * (1200 / 1320 - 1)) > 1e-9 || Math.abs(m2?.return - w) > 1e-9) fail(`backtest: the base-currency month after a won move must weight the KRW holding by its base value (${w}), got ${JSON.stringify([m1, m2])}`);
+  const partial = buildPortfolioBacktestLab(map, positions, { ...opts, fxLegs: [{ ...opts.fxLegs[0], observedAt: '2025-03-14T00:00:00Z' }], asOfMs: Date.parse('2025-03-15T00:00:00Z') });
+  if (partial.settings?.partialMonthExcluded !== '2025-03' || (partial.baseCurrencyReturns?.months || []).some((row) => row.month === '2025-03')) fail(`backtest: the month containing asOf is still running and must be left out, got ${partial.settings?.partialMonthExcluded}`);
+}
+
+// ── v58.XX expertise review (macro audit §6-2/§5-2): unknown exchange suffixes are not dollars; open-market rows are not closes ──
+{
+  const { listingCurrency, listingRegion } = await load('src/domain/portfolio/fx.js');
+  if (listingCurrency('VOD.L') !== null || listingCurrency('SHOP.TO') !== null || listingRegion('VOD.L') === '미국 상장') fail('fx: an unknown exchange suffix must stay unknown, not USD');
+  if (listingCurrency('BRK.B') !== 'USD' || listingCurrency('AAPL') !== 'USD' || listingCurrency('005930.KS') !== 'KRW') fail('fx: share classes and known listings keep their currency');
+  const { MARKET_ANALYSIS_CLOSED_SESSIONS } = await import(new URL('./lib/market-analysis-validate.mjs', import.meta.url));
+  if (MARKET_ANALYSIS_CLOSED_SESSIONS.includes('REGULAR') || !MARKET_ANALYSIS_CLOSED_SESSIONS.includes('PREVIOUS_CLOSE_EXPECTED')) fail('market analysis: an open-market (REGULAR) row is not a completed close; a previous-close row is');
+}
+
+// ── v58.XX expertise review: portfolio stress sensitivities from the book's own weekly returns ──
+{
+  const { estimateBookSensitivities, scenarioImpact, krwTranslationPct, regressOne } = await load('src/domain/portfolio/stress-sensitivity.js');
+  if (regressOne([1, 2], [2, 4]) !== null) fail('stress: fewer than the minimum weeks is no slope');
+  const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
+  const history = []; const book = {}; let spx = 100; let tnx = 4; let px = 100;
+  for (let i = 0; i < 400; i += 1) {
+    const move = Math.sin(i / 9) * 0.004;
+    spx *= 1 + move; tnx += -move * 2; px *= 1 + 1.5 * move;
+    history.push({ date: day(i), spx, tnx, wti: 70 + Math.cos(i), usdkrw: 1300 + Math.sin(i / 3) * 10, kospi: 2500 });
+    book[day(i)] = px;
+  }
+  const est = estimateBookSensitivities({ historyMap: { AAA: book }, commonDates: Object.keys(book), weights: { AAA: 1 }, history });
+  if (!est.available || Math.abs(est.fits.equity.beta - 1.5) > 0.15) fail(`stress: equity beta must be estimated from the book (got ${est.fits?.equity?.beta})`);
+  const rate = scenarioImpact(est.fits.rate, 100);
+  if (!(rate.mid < 0) || !rate.distinct) fail(`stress: a book that falls when yields rise must show a negative rate shock: ${JSON.stringify(rate)}`);
+  if (estimateBookSensitivities({ historyMap: { AAA: book }, commonDates: Object.keys(book).slice(-60), weights: { AAA: 1 }, history }).available) fail('stress: under 30 weeks of history no sensitivity is printed');
+  if (krwTranslationPct({ weights: { AAA: 0.5, '005930.KS': 0.5 }, baseCurrency: 'KRW', shockPct: 10 }) !== 5) fail('stress: a KRW book gains on USD holdings when the won weakens');
+}

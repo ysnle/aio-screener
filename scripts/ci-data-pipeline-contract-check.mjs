@@ -703,7 +703,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   }
   const source = readProducerSource();
   check('P1719 a rejected text is logged (400 chars) and never published; the run passes the previous artifact analysis',
-    /\.slice\(0, 400\)/.test(source) && /genMarketAnalysis\(data, marketSnapshotForConsumers, \{ previous: previous\?\.marketAnalysis \|\| null \}\)/.test(source)
+    /\.slice\(0, 400\)/.test(source) && /genMarketAnalysis\(data, marketSnapshotForConsumers, \{ previous: previous\?\.marketAnalysis \|\| null(?: \}|, request: aiUsage\.shared\('market-analysis'\) \})\)/.test(source)
       && /data\.meta\.marketAnalysisRetained = marketAnalysis\.retained \|\| null/.test(source));
   // Review (v57.52): one news cut per run — fetchNews and meta.newsCycleEnd use the same attempt time, so a run that
   // straddles 08:00 KST cannot pick newsIntraday against the previous cut and fail P1720.

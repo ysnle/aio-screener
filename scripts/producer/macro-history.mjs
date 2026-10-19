@@ -25,6 +25,10 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   hourlyEarnings: { id: 'CES0500000003', frequency: 'monthly', limit: 40,  unit: 'usd-per-hour', label: '평균 시간당 임금' },
   retailSales:    { id: 'RSAFS',         frequency: 'monthly', limit: 40,  unit: 'usd-millions', label: '소매판매' },
   housingStarts:  { id: 'HOUST',         frequency: 'monthly', limit: 40,  unit: 'thousands-saar', label: '주택 착공' },
+  // 2026-10-19 (expertise review): permits lead starts; shelter and services ex-shelter ("supercore") split sticky CPI.
+  buildingPermits:{ id: 'PERMIT',        frequency: 'monthly', limit: 40,  unit: 'thousands-saar', label: '건축 허가' },
+  shelterCpiIndex:{ id: 'CUSR0000SAH1',  frequency: 'monthly', limit: 40,  unit: 'index', label: 'CPI 주거비 (계절조정 지수)' },
+  supercoreCpiIndex:{ id: 'CUSR0000SASL2RS', frequency: 'monthly', limit: 40, unit: 'index', label: 'CPI 주거비 제외 서비스 (계절조정 지수)' },
   fedFunds:       { id: 'FEDFUNDS',      frequency: 'monthly', limit: 40,  unit: 'percent', label: '실효 연방기금금리' },
   initialClaims:  { id: 'ICSA',          frequency: 'weekly',  limit: 110, unit: 'claims', label: '신규 실업수당 청구' },
   fedTargetUpper: { id: 'DFEDTARU',      frequency: 'daily',   limit: 400, unit: 'percent', label: '연준 목표 상단' },

@@ -112,6 +112,7 @@ import { coalesceMicrotask, createDeferredTaskQueue } from './lifecycle.js';
 import { renderPageSources } from '../ui/components/page-sources.js';
 import { renderHomeKpiTrends } from '../ui/components/home-kpi-trend.js';
 import { krIndexStressRows } from '../domain/portfolio/kr-stress.js';
+import { portfolioStressHtml } from '../ui/panels/portfolio-stress.js';
 import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../domain/research/reference-index.js';
 import { loadResearchCorpus } from '../domain/research/corpus-loader.js';
 import { NATHAN_PREVIOUS_THREADS_REFERENCE, NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../domain/research/nathan-previous-threads.js';
@@ -244,6 +245,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   };
   root._aioLatestCompletedSessionDate = (market = 'US') => (market === 'KR' ? latestCompletedKrSession(clock.now()) : latestCompletedUsSession(clock.now()))?.date || null;
   root._aioKrIndexStress = () => krIndexStressRows(root._aioHistory || [], { now: clock.now() }); // v57.81: KOSPI's own worst moves for the stress panel
+  root._aioPortfolioStressHtml = (input) => portfolioStressHtml({ ...input, history: root._aioHistory || [], now: clock.now() }); // 2026-10-19: sensitivities from the book's own weekly returns
   // P1339: when the live Yahoo 1y chart (autoUpdateMA) has not produced MAs, derive them from the
   // committed daily history so the trend input follows the close basis instead of holding the score.
   const applyHistoryMa = () => {
