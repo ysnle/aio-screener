@@ -90,7 +90,10 @@ assert.doesNotMatch([curveLesson.live(curveCtx), earningsLesson.live({ indexEarn
 const rankLesson = LESSON_BY_ID['rank-is-not-edge'];
 assert.doesNotMatch(rankLesson.principle, /확인되지 않았습니다|확인됐습니다/, `${label}: the ranking principle carries no fixed verdict`);
 assert.match(rankLesson.live({ rankEvidence: { decision: 'insufficient', n: 4, min: 12 } }), /4개뿐이라\(12개부터 판단\).*아직 모릅니다/, `${label}: an insufficient record says it cannot judge yet`);
-assert.match(rankLesson.live({ rankEvidence: { decision: 'not-supported', n: 14, min: 12 } }), /우연과 구분되지 않습니다/, `${label}: a not-supported record says so`);
+assert.match(rankLesson.live({ rankEvidence: { decision: 'not-supported', n: 14, min: 12, icUS: { n: 14, mean: 0.01, t: 0.4 } } }), /우연과 구분되지 않습니다/, `${label}: a not-supported record says so`);
+assert.match(rankLesson.live({ rankEvidence: { decision: 'not-supported', n: 14, min: 12, icUS: { n: 14, mean: -0.08, t: -3 } } }), /반대 방향/, `${label}: a significant negative IC is not read as chance`);
+assert.match(rankLesson.live({ rankEvidence: { decision: 'insufficient', n: 14, min: 12, icUS: { n: 8 } } }), /8개뿐이라/, `${label}: the count shown is the one the decision used`);
+for (const decision of ['insufficient', 'not-supported', 'supported']) assert.match(rankLesson.live({ rankEvidence: { decision, n: 14, min: 12, icUS: { n: 14 } } }), /기본 가중치 미국 순위/, `${label}: ${decision} names the tested scope`);
 assert.match(rankLesson.live({ rankEvidence: { decision: 'supported', n: 14, min: 12 } }), /같은 방향이었습니다.*손실 한도/, `${label}: a supported record still keeps the rank a filter`);
 assert.match(rankLesson.live({ rankEvidence: { decision: 'insufficient', n: 0, min: 12 } }), /결과가 아직 없어/, `${label}: an empty record does not say "0개뿐"`);
 assert.equal(rankLesson.live({}), null, `${label}: no record, no sentence`);

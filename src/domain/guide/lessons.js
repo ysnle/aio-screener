@@ -261,10 +261,18 @@ const SCREEN_LESSONS = [
     live: (ctx) => {
       const ind = ctx?.rankEvidence;
       if (!ind?.decision) return null;
-      if (ind.decision === 'supported') return `지금 기록(겹치지 않는 ${ind.n}개)에서는 미국 순위가 다음 21거래일 수익률과 통계적으로 같은 방향이었습니다. 그래도 순위는 후보를 줄이는 근거이고, 진입 자리와 손실 한도는 따로 정해야 합니다.`;
-      if (ind.decision === 'not-supported') return `지금 기록(겹치지 않는 ${ind.n}개)에서는 순위와 이후 수익률의 관계가 우연과 구분되지 않습니다. 순위만으로 고르지 말고 이유를 따로 확인할 것.`;
-      return ind.n ? `기간이 겹치지 않는 기록이 ${ind.n}개뿐이라(${ind.min}개부터 판단) 순위가 수익과 같은 방향인지는 아직 모릅니다.`
-        : `순위를 먼저 적어 두는 기록의 결과가 아직 없어(겹치지 않는 기록 ${ind.min}개부터 판단) 순위가 수익과 같은 방향인지는 아직 모릅니다.`;
+      // The record keeps only the default-weight ranking and decides on the US rank IC alone, so every sentence names
+      // that scope (a KR tab or a selected profile is not what was tested), and the count is the one the decision used.
+      const scope = '기본 가중치 미국 순위';
+      const ic = ind.icUS || {};
+      if (ind.decision === 'supported') return `지금 기록(겹치지 않는 ${ic.n ?? ind.n}개)에서는 ${scope}가 다음 21거래일 수익률과 통계적으로 같은 방향이었습니다. 그래도 순위는 후보를 줄이는 근거이고, 진입 자리와 손실 한도는 따로 정해야 합니다.`;
+      if (ind.decision === 'not-supported') {
+        if (ic.mean < 0 && ic.t <= -2) return `지금 기록(겹치지 않는 ${ic.n ?? ind.n}개)에서는 ${scope}가 다음 21거래일 수익률과 오히려 반대 방향이었습니다. 상위 순위를 매수 후보의 근거로 쓰지 말 것.`;
+        return `지금 기록(겹치지 않는 ${ic.n ?? ind.n}개)에서는 ${scope}와 이후 수익률 사이에 같은 방향의 관계가 확인되지 않았습니다(우연과 구분되지 않습니다). 순위만으로 고르지 말고 이유를 따로 확인할 것.`;
+      }
+      const n = Math.min(ind.n || 0, ic.n ?? ind.n ?? 0);
+      return n ? `${scope}를 판단할 겹치지 않는 기록이 ${n}개뿐이라(${ind.min}개부터 판단) 순위가 수익과 같은 방향인지는 아직 모릅니다.`
+        : `순위를 먼저 적어 두는 기록의 결과가 아직 없어(겹치지 않는 기록 ${ind.min}개부터 판단) ${scope}가 수익과 같은 방향인지는 아직 모릅니다.`;
     }
   }
 ];
