@@ -216,6 +216,34 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   });
   if (await orchestrator.sync() !== null || published) fail('screener cancellation: partial state published or abort escaped');
 }
+{
+  // Frontend redesign 2026-10-19: a quotes-only tick whose provider read reuses every row object has the same ranking
+  // input, so it neither re-ranks nor republishes; a changed row, a refresh or a new ranking context runs the full path.
+  const { createScreenerOrchestrator } = await load('src/data/orchestrators/screener.js');
+  const rowA = { sym: 'AAA', ret3m: 5 }, rowB = { sym: 'BBB', ret3m: 3 };
+  let rows = [rowA, rowB];
+  let weights = { momentum: 1 };
+  let ranked = 0, published = 0;
+  const orchestrator = createScreenerOrchestrator({
+    provider: { readCurrent: async () => ({ revision: 'r1', rows }) },
+    commands: { setData: () => { published += 1; } },
+    ranker: ({ rows: input }) => { ranked += 1; return { available: true, rows: input.map((row, index) => ({ sym: row.sym, rank: index + 1, score: 50 })) }; },
+    rankingContext: () => ({ weights, now: Date.parse('2026-10-19T00:00:00Z') }),
+    yieldImpl: async () => {}
+  });
+  await orchestrator.sync({ refresh: true });
+  const first = [ranked, published];
+  const reused = await orchestrator.sync({ refresh: false, quotesOnly: true });
+  if (reused !== null || ranked !== first[0] || published !== first[1]) fail('screener derivation: an unchanged quotes-only tick re-ranked or republished');
+  rows = [rowA, { ...rowB, price: 10 }];
+  await orchestrator.sync({ refresh: false, quotesOnly: true });
+  if (ranked !== first[0] + 1 || published !== first[1] + 1) fail('screener derivation: a changed row did not re-rank');
+  weights = { momentum: 0.5, value: 0.5 };
+  await orchestrator.sync({ refresh: false, quotesOnly: true });
+  if (ranked !== first[0] + 2) fail('screener derivation: a new ranking context did not re-rank');
+  await orchestrator.sync({ refresh: true });
+  if (ranked !== first[0] + 3) fail('screener derivation: an artifact refresh did not re-rank');
+}
 
 // ── shared knowledge capability loader ────────────────────────────────────────────────────────
 {
@@ -1416,6 +1444,12 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const unlabeled = ids.filter((id) => !KR_THEME_LABELS[id]);
     if (!ids.length || unlabeled.length) fail(`kr themes: every KR_THEME_MAP id needs a label, missing ${unlabeled.join(',')} (P1327/R672)`);
     if (!/var CN=window\.AIO_KR_THEME_LABELS/.test(krData) || /var CN=\{'defense'/.test(krData)) fail('kr themes: the theme detail must read the single label owner (P1327/R672)');
+    // A KRX stock's theme link opens the Korean theme detail; 'defense' also names a US theme, which it used to open.
+    const { openThemeDetail } = await load('src/ui/navigation/theme-detail.js');
+    const opened = [];
+    const shell = { showThemeDetail: (id) => opened.push(`US:${id}`), openKrThemeDetail: (id) => { opened.push(`KR:${id}`); return id !== 'gone'; } };
+    const results = [openThemeDetail(shell, 'defense', { symbol: '012450.KS' }), openThemeDetail(shell, 'defense', { symbol: 'LMT' }), openThemeDetail(shell, 'gone', { market: 'KR' }), openThemeDetail({}, 'semi', { symbol: '005930.KS' })];
+    if (opened.join() !== 'KR:defense,US:defense,KR:gone' || results.join() !== 'true,true,false,false') fail(`kr themes: theme links must open the listing market's theme detail, got ${opened.join()} / ${results.join()}`);
   }
   const invalidScore = computeTradingScoreModel({ mode: 'swing', vix: -10, vvix: 0, dxy: 10, tnx: -1, oilPrice: -5, fg: 101, maCurrent: true, spx200ma: -1, spx50ma: 0, spxPrice: -10, breadthAvailable: true, breadth200: 150, pcr: -1, hyBp: -2, newsSentimentScore: 101, newsRiskSignals: [{ impact: 'bad' }] });
   {

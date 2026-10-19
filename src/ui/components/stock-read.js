@@ -9,11 +9,12 @@ import { marketRows, screenerMarket } from '../../domain/screener/market-scope.j
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 import { latestCompletedKrSession, latestCompletedUsSession, countOpenSessionsBetween } from '../../domain/market/market-calendar.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
-import { themeStagesFor } from '../../domain/scenarios/theme-stage.js';
+import { themeStagesFor, themeMarketOf } from '../../domain/scenarios/theme-stage.js';
 import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
 import { summarizeValidation } from './screener-validation.js';
 import { el } from './dom.js';
+import { openThemeDetail } from '../navigation/theme-detail.js';
 import { buildOutOfUniverseRead } from '../../domain/entity/out-of-universe-read.js';
 
 const TICKER_INDEX_REFERENCE_URL = './public-data/masters/ticker-index-reference.json';
@@ -243,11 +244,11 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
       for (const line of point.lines) {
         const row = el(doc, 'span', line.text, 'stock-read-theme-line');
         row.style.display = 'block';
-        if (typeof root?.showThemeDetail === 'function') {
+        if (typeof (themeMarketOf(sym) === 'KR' ? root?.openKrThemeDetail : root?.showThemeDetail) === 'function') {
           const go = el(doc, 'button', '이 테마의 시나리오 →', 'stock-read-point-link');
           go.type = 'button';
           go.setAttribute('aria-label', `${line.label} 테마의 시나리오 보기`);
-          go.addEventListener('click', () => root.showThemeDetail(line.id));
+          go.addEventListener('click', () => openThemeDetail(root, line.id, { symbol: sym }));
           row.append(doc.createTextNode(' '), go);
         }
         text.append(row);

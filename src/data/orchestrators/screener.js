@@ -17,7 +17,9 @@ const SCREENER_REFERENCE_FRAMEWORK_IDS = Object.freeze([
   ])
 ]);
 
-export function createScreenerOrchestrator({ provider, commands, getState = () => ({}), ranker = null, rankingContext = () => ({}), onRankingResult = null } = {}) {
+export function createScreenerOrchestrator({ provider, commands, getState = () => ({}), ranker = null, rankingContext = () => ({}), onRankingResult = null, yieldImpl = () => typeof globalThis.scheduler?.yield === 'function'
+  ? globalThis.scheduler.yield()
+  : new Promise((resolve) => setTimeout(resolve, 0)) } = {}) {
   if (!provider?.readCurrent || !commands?.setData) throw new Error('SCREENER_ORCHESTRATOR_DEPENDENCY_INVALID');
   // ARX-04: provider.readCurrent() now performs a real fetch (src/data/providers/screener.js),
   // so this orchestrator awaits it instead of treating it as a synchronous legacy projection.
@@ -28,6 +30,26 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
   let disposed = false;
   // Normalized rows keyed by the provider's row object: a quotes-only read hands back the rows it reused unchanged.
   let normalizedRowCache = new WeakMap();
+  // The last full derivation. A quotes-only tick whose provider read reused every row object unchanged (no quote that
+  // a row may use arrived) has the same ranking input, so re-ranking ~5,000 rows, re-running the screen and publishing
+  // an identical slice (which re-renders the page) is skipped. Any changed row, a new artifact, a different ranking
+  // context or an old derivation runs the full path. The age bound matches the provider's own row-reuse window.
+  let lastDerivation = null;
+  const calculationRowCache = new WeakMap();
+  const DERIVATION_REUSE_MAX_MS = 5 * 60 * 1000;
+  const sameRows = (left, right) => left.length === right.length && left.every((row, index) => row === right[index]);
+  // A full derivation over the 확장 universe is seconds of work on a slow device. Yielding between stages and inside the
+  // per-row passes keeps it from becoming one long task that blocks input; a newer sync or a route change then wins.
+  const ROW_CHUNK = 400;
+  async function mapInChunks(rows, mapRow, isLive) {
+    const out = new Array(rows.length);
+    for (let start = 0; start < rows.length; start += ROW_CHUNK) {
+      if (start) { await yieldImpl(); if (!isLive()) return null; }
+      const end = Math.min(rows.length, start + ROW_CHUNK);
+      for (let index = start; index < end; index += 1) out[index] = mapRow(rows[index]);
+    }
+    return out;
+  }
   async function sync({ scope, refresh = true, quotesOnly = false } = {}) {
     const thisGeneration = ++generation;
     let raw;
@@ -40,8 +62,26 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
     const normalized = normalizeScreener(raw, { rowCache: normalizedRowCache });
     if (scope && !scope.isCurrent()) return null;
     const context = rankingContext?.() || {};
+    const derivationKey = JSON.stringify([
+      normalized.revision || null, normalized.metadata?.universeScope || null, normalized.metadata?.fundamentalCoveragePct ?? null,
+      !!normalized.metadata?.fmpOk, context.weights || null, context.weightsPolicy || null, context.regimeLabel || null
+    ]);
+    const derivedAt = Number.isFinite(context.now) ? context.now : Date.now();
+    if (quotesOnly && !refresh && lastDerivation && lastDerivation.key === derivationKey
+      && derivedAt - lastDerivation.derivedAt < DERIVATION_REUSE_MAX_MS && sameRows(lastDerivation.rows, normalized.rows)) {
+      return null;
+    }
+    const isLive = () => !disposed && thisGeneration === generation && !(scope && !scope.isCurrent());
+    // calculationRow is pure on the normalized row, and a quotes-only read hands back unchanged rows as the same
+    // objects, so only rows whose quote changed are re-gated.
+    const calculationRows = await mapInChunks(normalized.rows, (row) => {
+      let calc = calculationRowCache.get(row);
+      if (!calc) { calc = calculationRow(row); calculationRowCache.set(row, calc); }
+      return calc;
+    }, isLive);
+    if (!calculationRows) return null;
     const ranking = typeof ranker === 'function' ? ranker({
-      rows: normalized.rows.map(calculationRow),
+      rows: calculationRows,
       weights: context.weights || null,
       // W07-A/P1146: only a user-profile request is explicit. The model's own neutral
       // default keeps model-default (renormalize) semantics.
@@ -59,12 +99,15 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
     }
     const bySymbol = new Map((ranking?.rows || []).map((row) => [row.sym || row.symbol, row]));
     const universeScope = normalized.metadata?.universeScope === 'extended' ? 'extended' : 'core';
-    const rankedRows = normalized.rows.map((row) => {
+    await yieldImpl();
+    if (!isLive()) return null;
+    const rankedRows = await mapInChunks(normalized.rows, (row) => {
       const result = bySymbol.get(row.sym || row.symbol);
       const merged = result ? { ...row, ...result, symbol: row.symbol, sym: row.sym } : { ...row, rank: null, score: null, factorScores: {}, quantSignal: null };
       // v57.81: under the extended contract every row says so (the ticker page labels its rank from this).
       return { ...merged, ...(universeScope === 'extended' ? { rankingUniverse: 'extended' } : {}), setupProfile: deriveScreenerSetupProfile(calculationRow(merged)) };
-    });
+    }, isLive);
+    if (!rankedRows) return null;
     const screenDefinition = createScreenDefinition({
       screenId: 'native-screener-workbench',
       version: 1,
@@ -84,6 +127,8 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
       minCoverage: 0.8,
       regimePolicy: { mode: 'reference-only', autoPromote: false }
     });
+    await yieldImpl();
+    if (!isLive()) return null;
     const screenResult = runScreen({
       definition: screenDefinition,
       rows: rankedRows,
@@ -177,6 +222,7 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
       }
     };
     commands.setData(result, { updatedAt: result.updatedAt });
+    lastDerivation = { key: derivationKey, derivedAt, rows: normalized.rows };
     return result;
   }
   function dispose() { disposed = true; }
