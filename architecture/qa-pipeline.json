@@ -512,6 +512,7 @@
             ".github/workflows/refresh-data.yml",
             ".github/workflows/refresh-screener.yml",
             "scripts/fetch-data.mjs",
+            "scripts/producer/**",
             "scripts/lib/producer-source.mjs",
             "scripts/lib/producer-math.mjs",
             "scripts/lib/producer-http.mjs",
@@ -1118,6 +1119,7 @@
             "src/domain/signal/trading-score.js",
             "src/data/contracts/operations.js",
             "scripts/fetch-data.mjs",
+            "scripts/producer/**",
             "scripts/lib/producer-source.mjs",
             "scripts/lib/producer-math.mjs",
             "scripts/lib/producer-http.mjs",
@@ -1189,6 +1191,10 @@
         {
           "id": "refresh-integrity",
           "script": "scripts/ci-refresh-artifact-integrity-check.mjs"
+        },
+        {
+          "id": "producer-dry-run",
+          "script": "scripts/ci-producer-dry-run.mjs"
         },
         {
           "id": "release-revision",
@@ -1631,6 +1637,7 @@
         "js/**",
         "src/**",
         "scripts/fetch-data.mjs",
+        "scripts/producer/**",
         "cloudflare-worker-proxy.js",
         "worker/**",
         ".github/workflows/ci.yml",
@@ -1682,6 +1689,7 @@
             "cloudflare-worker-proxy.js",
             ".github/workflows/**",
             "scripts/fetch-data.mjs",
+            "scripts/producer/**",
             "scripts/lib/producer-source.mjs",
             "scripts/lib/producer-math.mjs",
             "scripts/lib/producer-http.mjs",
@@ -1716,6 +1724,7 @@
             "js/**",
             "src/**",
             "scripts/fetch-data.mjs",
+            "scripts/producer/**",
             "cloudflare-worker-proxy.js",
             "worker/**",
             ".github/workflows/ci.yml",
@@ -2274,6 +2283,7 @@
         "src/app/bootstrap.js",
         "scripts/ci-extension-api-runtime-check.mjs",
         "scripts/fetch-data.mjs",
+        "scripts/producer/**",
         "scripts/lib/producer-source.mjs",
         "scripts/lib/producer-math.mjs",
         "scripts/lib/producer-http.mjs",
@@ -2427,6 +2437,7 @@
       "patterns": [
         "public-data/**",
         "scripts/fetch-*.mjs",
+        "scripts/producer/**",
         "scripts/lib/producer-source.mjs",
         "scripts/lib/producer-math.mjs",
         "scripts/lib/producer-http.mjs",
@@ -2595,6 +2606,7 @@
       "patterns": [
         "scripts/*data*.mjs",
         "scripts/fetch-*.mjs",
+        "scripts/producer/**",
         "scripts/*screener*.mjs",
         "scripts/*market*.mjs",
         "scripts/*operations*.mjs",
