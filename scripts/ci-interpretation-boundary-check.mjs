@@ -23,6 +23,7 @@ const STAGES = {
   buildMarketRegime: 'src/domain/briefing/market-read.js',
   buildMarketRead: 'src/domain/briefing/market-read.js',
   buildMacroRead: 'src/domain/macro/macro-read.js',
+  buildIndexEarnings: 'src/domain/market/index-earnings.js',
   buildMacroCrossroads: 'src/domain/market/macro-crossroads.js',
   buildMarketScenarios: 'src/domain/market/regime-scenarios.js',
   buildScenarioOutlook: 'src/domain/market/scenario-outlook.js',
@@ -58,7 +59,7 @@ for (const file of files) {
 }
 
 // The adapters exist and the stage order is the documented one.
-assert.deepEqual(INTERPRETATION_STAGES, ['regime', 'marketRead', 'macroRead', 'crossroads', 'scenarios', 'groups', 'outlook', 'playbook', 'guide'], `${label}: stage order`);
+assert.deepEqual(INTERPRETATION_STAGES, ['regime', 'marketRead', 'macroRead', 'curve', 'indexEarnings', 'crossroads', 'scenarios', 'groups', 'outlook', 'playbook', 'guide'], `${label}: stage order`);
 for (const adapter of ['src/data/selectors/interpretation.js', 'scripts/lib/market-interpretation-inputs.mjs']) {
   assert.match(read(adapter), /buildMarketInterpretation\(/, `${label}: ${adapter} enters the pipeline`);
 }

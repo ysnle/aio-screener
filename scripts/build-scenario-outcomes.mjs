@@ -11,7 +11,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { BRANCH_ANALOGS, analogOutcome, alignCloses, themeStateOutcomes, THEME_STAGE_RULE } from '../src/domain/scenarios/analogs.js';
+import { ANALOG_METHOD, BRANCH_ANALOGS, analogOutcome, alignCloses, themeStateOutcomes, THEME_STAGE_RULE } from '../src/domain/scenarios/analogs.js';
 import { THEME_PROXY_ETF } from '../src/domain/scenarios/exposures.js';
 import { loadThemeMaps } from './build-scenario-state.mjs';
 
@@ -83,7 +83,7 @@ async function main() {
   const stageBenchmark = completed(await dailyCloses('RSP', 2000));
   const body = buildScenarioOutcomes({ market, proxies, themeProxy, stageBenchmark });
   const payload = { schemaVersion: SCENARIO_OUTCOMES_SCHEMA, status: 'current', generatedAt: new Date().toISOString(),
-    source: 'Yahoo Finance 일봉 종가 (^GSPC, ^TNX, ^VIX, CL=F, DX-Y.NYB, RSP, 테마 대표 ETF)', sourceKind: 'T3_PUBLIC_DELAYED', sourceLabel: '장기 일봉 기록',
+    source: 'Yahoo Finance 일봉 종가 (^GSPC, ^TNX, ^VIX, CL=F, DX-Y.NYB, RSP, 테마 대표 ETF)', sourceKind: 'T3_PUBLIC_DELAYED', sourceLabel: '장기 일봉 기록', method: ANALOG_METHOD, // owner 2026-10-19: market-move proxies; a share is read only beyond the base rate
     returnBasis: '가격 수익률(배당 제외), 거래일 기준 · 겹치지 않는 표본', ...body };
   await atomicWriteFile(OUT, JSON.stringify(payload));
   console.log(`[scenario-outcomes] ${body.from}~${body.to} · branches ${Object.keys(body.branches).length} · themes ${Object.keys(body.themes).length}`);
