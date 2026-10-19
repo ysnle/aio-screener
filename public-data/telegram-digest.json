@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-19T21:21:25.558Z",
-  "attemptedAt": "2026-10-19T21:21:25.558Z",
-  "lastSuccessfulAt": "2026-10-19T21:21:25.558Z",
+  "generatedAt": "2026-10-19T21:45:33.520Z",
+  "attemptedAt": "2026-10-19T21:45:33.520Z",
+  "lastSuccessfulAt": "2026-10-19T21:45:33.520Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-05T21:21:19.280Z",
-  "until": "2026-10-19T21:21:19.280Z",
+  "since": "2026-10-05T21:45:27.589Z",
+  "until": "2026-10-19T21:45:27.589Z",
   "current24hWindow": {
     "start": "2026-10-17T23:00:00.000Z",
     "end": "2026-10-18T23:00:00.000Z",
@@ -90,15 +90,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 3,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1179,
-      "freshCount": 60,
-      "eligibleTextCount": 1046,
+      "count": 1180,
+      "freshCount": 39,
+      "eligibleTextCount": 1048,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 66744
+      "lastPostId": 66746
     },
     {
       "channel": "bornlupin",
@@ -117,7 +117,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 727,
+      "count": 725,
       "freshCount": 14,
       "eligibleTextCount": 666,
       "selectedCount": 122,
@@ -125,18 +125,18 @@
       "lastPostId": 70696
     }
   ],
-  "count": 2410,
-  "retainedItemCount": 495,
+  "count": 2409,
+  "retainedItemCount": 464,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2410,
-    "eligibleTextCount": 2196,
-    "mediaOnlyCount": 214,
+    "observedCount": 2409,
+    "eligibleTextCount": 2198,
+    "mediaOnlyCount": 211,
     "highSignalCount": 512,
-    "broadSignalCount": 1068,
+    "broadSignalCount": 1067,
     "selectedRawCount": 409,
     "selectedEligibleCount": 409,
     "selectedRawCoveragePct": 18.6,
@@ -144,29 +144,29 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "geo": 354,
-    "market-note": 804,
+    "geo": 356,
+    "macro": 796,
+    "semi": 618,
+    "market-note": 803,
     "power": 340,
-    "macro": 797,
     "earnings": 465,
-    "semi": 617,
     "kr-market": 188,
     "flows": 164,
-    "equity": 169,
-    "ai-policy": 183,
+    "equity": 168,
+    "ai-policy": 182,
     "healthcare": 122,
     "japan": 139,
-    "credit": 107,
+    "credit": 106,
     "insider": 44,
     "optical": 51,
     "media-only": 56,
     "crypto": 7
   },
   "tickerCounts": {
-    "NVDA": 92,
+    "NVDA": 93,
+    "AMZN": 37,
     "AMD": 58,
     "GOOG": 65,
-    "AMZN": 36,
     "MU": 32,
     "TSM": 131,
     "STX": 7,
@@ -259,14 +259,14 @@
     "003670.KQ": 1
   },
   "themes": [
-    "Market Notes (804 posts in 14-day research window): 2026년 10월 19일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 46분 기준 나스닥100 선물 +1.31%, S&P500 선물 +0.80%, 다우 선물...",
-    "Macro/Rates (797 posts in 14-day research window): 2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로 등장 · STX $640 calls gain 인증 · 직전 AI 폭락 공포에도 반도체 옵션 매수 재개 ·...",
-    "Semiconductors/Memory (617 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/16 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-    "Earnings/Corporate (465 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단...",
-    "Geopolitics (354 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 19일 > 오후 6시 30분~오후 3시 기준 🇺🇸 아메리카 • WSJ에 따르면 푸틴 러시아 대통령은 우크라이나 전쟁 종식을 위한 협상을 위해 11월 중 트럼프 미국...",
+    "Market Notes (803 posts in 14-day research window): 2026년 10월 19일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 46분 기준 나스닥100 선물 +1.31%, S&P500 선물 +0.80%, 다우 선물...",
+    "Macro/Rates (796 posts in 14-day research window): 2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로 등장 · STX $640 calls gain 인증 · 직전 AI 폭락 공포에도 반도체 옵션 매수 재개 ·...",
+    "Semiconductors/Memory (618 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/16 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
+    "Earnings/Corporate (465 posts in 14-day research window): [Battery Weekly 이배속 - 하나증권 2차전지 김현수/김희제] '실적 시즌 돌입, 배터리 비중 확대' 자료 링크 : 데이터 포인트 해석 및 투자 전략 : 섹터 비중 확대 -LGES의 3분기...",
+    "Geopolitics (356 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 19일 > 오후 6시 30분~오후 3시 기준 🇺🇸 아메리카 • WSJ에 따르면 푸틴 러시아 대통령은 우크라이나 전쟁 종식을 위한 협상을 위해 11월 중 트럼프 미국...",
     "AI Power/Grid (340 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터...",
     "Korea Market (188 posts in 14-day research window): JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%...",
-    "AI Policy/Export Controls (183 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
+    "AI Policy/Export Controls (182 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
   ],
   "catalysts": [
     {
@@ -276,7 +276,7 @@
     },
     {
       "key": "NVDA",
-      "count": 92,
+      "count": 93,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀. 또한 러시아·중국과의 3자 정상회담을 통해 핵무기 감축 및 비핵화 문제를 논의할 수 있다고 시사. •..."
     },
     {
@@ -306,7 +306,7 @@
     },
     {
       "key": "AMZN",
-      "count": 36,
+      "count": 37,
       "text": "2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로 등장 · STX $640 calls gain 인증 · 직전 AI 폭락 공포에도 반도체 옵션 매수 재개 ·..."
     },
     {
@@ -337,7 +337,7 @@
       "topics": [
         "macro"
       ],
-      "count": 797,
+      "count": 796,
       "focus": "2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로 등장 · STX $640 calls gain 인증 · 직전 AI 폭락 공포에도 반도체 옵션 매수 재개 ·..."
     },
     {
@@ -346,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 354,
+      "count": 356,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 19일 > 오후 6시 30분~오후 3시 기준 🇺🇸 아메리카 • WSJ에 따르면 푸틴 러시아 대통령은 우크라이나 전쟁 종식을 위한 협상을 위해 11월 중 트럼프 미국..."
     },
     {
@@ -355,7 +355,7 @@
       "topics": [
         "credit"
       ],
-      "count": 107,
+      "count": 106,
       "focus": "2026년 10월 20일 미국 증시 브리핑 미국 증시는 기술주와 반도체 중심의 매수세가 유입되며 나스닥 1.11%, S&P500 0.41%, 러셀2000 0.25% 상승한 반면 다우지수는 0.07% 하락 마감. 필라델피아 반도체지수는 8거래일 연속 하락을 끝내고 반등했으며, VIX는 7.75% 하락한 18.44를..."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 617,
+      "count": 618,
       "focus": "서학개미 순매수 미국 주식 TOP 50 (10월 누적) > 기간: 2026/10/01 ~ 2026/10/16 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -391,7 +391,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 183,
+      "count": 182,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
     },
     {
@@ -409,7 +409,7 @@
       "topics": [
         "equity"
       ],
-      "count": 169,
+      "count": 168,
       "focus": "로이터) 투자자들, 매출 성장 둔화에 앤트로픽 IPO 밸류에이션 기대치 낮춰 앤트로픽의 기존 투자자 및 IPO 참여를 검토 중인 잠재 투자자 일부가 최근 재무 공개 이후 기업가치를 낮춰 잡는 방안을 검토하고..."
     },
     {
@@ -428,7 +428,7 @@
         "earnings"
       ],
       "count": 465,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 딥마인드와 구글 클라우드가 유럽 연구자 최대 200명에게 최첨단..."
+      "focus": "[Battery Weekly 이배속 - 하나증권 2차전지 김현수/김희제] '실적 시즌 돌입, 배터리 비중 확대' 자료 링크 : 데이터 포인트 해석 및 투자 전략 : 섹터 비중 확대 -LGES의 3분기..."
     },
     {
       "id": "healthcare",
@@ -472,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 804,
+      "count": 803,
       "focus": "2026년 10월 19일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 한국시간 오후 2시 46분 기준 나스닥100 선물 +1.31%, S&P500 선물 +0.80%, 다우 선물..."
     }
   ],
@@ -825,20 +825,14 @@
       "datetime": "2026-10-19T12:10:20.000Z",
       "localDateKst": "2026-10-19",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "ai-policy",
-        "equity",
-        "healthcare",
-        "japan"
+        "macro"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 19일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • JPMorgan CEO 제이미 다이먼은 미국 경제가 강력한 기업 이익과 낮은 실업률, 대규모 AI 인프라...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 19일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • JPMorgan CEO 제이미 다이먼은 미국 경제가 강력한 기업 이익과 낮은 실업률, 대규모 AI 인프라..."
+      ]
     },
     {
       "id": "bornlupin/20703",
@@ -1683,6 +1677,25 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/66745",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66745",
+      "datetime": "2026-10-19T21:23:18.000Z",
+      "localDateKst": "2026-10-20",
+      "tags": [
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 82,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "AMZN"
+      ],
+      "summary": "10월 20일 미주인 브리핑 • 나스닥 1.11% 상승 · 반도체 8거래일 만에 반등 • 엔비디아 서버 CPU 시장 진출 · AI 사업 확장 • 앤트로픽 최대 450억 달러 클라우드 계약 협상 • 아마존..."
+    },
+    {
       "id": "insidertracking/66741",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/66741",
@@ -2095,8 +2108,8 @@
       ],
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": "공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게 전달드리겠습니다...."
+      "summary": "공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게 전달드리겠습니다....",
+      "tickers": []
     },
     {
       "id": "insidertracking/66704",
@@ -2105,12 +2118,11 @@
       "datetime": "2026-10-19T12:27:21.000Z",
       "localDateKst": "2026-10-19",
       "tags": [
-        "semi",
-        "equity",
-        "earnings"
+        "market-note"
       ],
       "score": 87,
       "hasText": true,
+      "summary": "2026년 10월 19일 프리마켓 주요 종목 동향 상승 종목 IRON (+65.34%) EPP(적혈구생성프로토포르피린증) 치료제 APOLLO 임상 3상에서 모든 1차 및 2차 평가변수 충족. CLF...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2120,8 +2132,7 @@
         "RKLB",
         "005930.KS",
         "IONQ"
-      ],
-      "summary": "2026년 10월 19일 프리마켓 주요 종목 동향 상승 종목 IRON (+65.34%) EPP(적혈구생성프로토포르피린증) 치료제 APOLLO 임상 3상에서 모든 1차 및 2차 평가변수 충족. CLF..."
+      ]
     },
     {
       "id": "insidertracking/66701",
@@ -2130,12 +2141,12 @@
       "datetime": "2026-10-19T12:23:09.000Z",
       "localDateKst": "2026-10-19",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "월스트리트저널(WSJ)에 따르면 후티 반군의 공격 재개로 사우디아라비아의 군사적 방어 취약성이 드러나고 있다는 보도. 사우디아라비아 방공망은 방어 구역을 겨냥한 후티 반군의 미사일 공격을 90% 이상 요격한..."
+      "summary": "월스트리트저널(WSJ)에 따르면 후티 반군의 공격 재개로 사우디아라비아의 군사적 방어 취약성이 드러나고 있다는 보도. 사우디아라비아 방공망은 방어 구역을 겨냥한 후티 반군의 미사일 공격을 90% 이상 요격한...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66699",
@@ -2144,14 +2155,11 @@
       "datetime": "2026-10-19T12:11:35.000Z",
       "localDateKst": "2026-10-19",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "score": 97,
       "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 녹스 시스템즈와 파트너십을 체결하고 미국 연방정부 및 국방기관의 보안 AI·소프트웨어 도입 가속화 추진....",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2160,8 +2168,7 @@
         "PLTR",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 녹스 시스템즈와 파트너십을 체결하고 미국 연방정부 및 국방기관의 보안 AI·소프트웨어 도입 가속화 추진...."
+      ]
     },
     {
       "id": "insidertracking/66698",
@@ -2170,20 +2177,14 @@
       "datetime": "2026-10-19T12:10:20.000Z",
       "localDateKst": "2026-10-19",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "ai-policy",
-        "equity",
-        "healthcare",
-        "japan"
+        "macro"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 19일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • JPMorgan CEO 제이미 다이먼은 미국 경제가 강력한 기업 이익과 낮은 실업률, 대규모 AI 인프라...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 19일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • JPMorgan CEO 제이미 다이먼은 미국 경제가 강력한 기업 이익과 낮은 실업률, 대규모 AI 인프라..."
+      ]
     },
     {
       "id": "bornlupin/20714",
@@ -2213,8 +2214,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "> The Direxion Daily Semiconductor Bull 3X ETF took in more than $7 billion last week, by far the biggest such..."
+      "summary": "> The Direxion Daily Semiconductor Bull 3X ETF took in more than $7 billion last week, by far the biggest such...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66694",
@@ -2227,10 +2228,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "팔란티어가 녹스 시스템즈와 파트너십을 체결하고 미국 연방정부 및 국방기관 전반에 보안 AI와 소프트웨어 배포 가속화 추진. • 이번 협력은 FedRAMP 및 IL5 정부 클라우드 환경에서 운영되는 핵심 임무용...",
       "tickers": [
         "PLTR"
-      ],
-      "summary": "팔란티어가 녹스 시스템즈와 파트너십을 체결하고 미국 연방정부 및 국방기관 전반에 보안 AI와 소프트웨어 배포 가속화 추진. • 이번 협력은 FedRAMP 및 IL5 정부 클라우드 환경에서 운영되는 핵심 임무용..."
+      ]
     },
     {
       "id": "bornlupin/20711",
@@ -7251,20 +7252,6 @@
       "tickers": [
         "CRWV"
       ]
-    },
-    {
-      "id": "insidertracking/66319",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66319",
-      "datetime": "2026-10-15T00:27:16.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "geo"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": "미국 트럼프 행정부가 사상 최고 수준으로 상승한 글로벌 해상 운임을 낮추기 위해 이른바 ‘그림자 선단’에 대한 제재 완화를 검토 중. 10월 15일 미국 정부 관계자에 따르면, 이번 검토 대상은 과거 러시아,...",
-      "tickers": []
     },
     {
       "id": "HANAchina/70445",
