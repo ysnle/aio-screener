@@ -13,19 +13,11 @@ import vm from 'node:vm';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { buildMarketRegime } from '../src/domain/briefing/market-read.js';
-import { marketAnalysisRegimeInput } from './fetch-data.mjs'; // the same credit/rates inputs the narrative producer and the screen read
-import { buildMacroRead } from '../src/domain/macro/macro-read.js';
-import { buildMacroCrossroads, upcomingMacroEvents, releaseActuals, actualText, scoreRelease, EVENT_NAMES } from '../src/domain/market/macro-crossroads.js';
-import { buildGroupStrength } from '../src/domain/themes/group-strength.js';
-import { krThemeArtifactRead } from '../src/domain/themes/kr-themes.js';
-import { buildThemePlaybook } from '../src/domain/scenarios/theme-playbook.js';
+import { interpretationFromArtifacts } from './lib/market-interpretation-inputs.mjs'; // owner 2026-10-19: one interpretation pipeline
+import { releaseActuals, actualText, scoreRelease, EVENT_NAMES } from '../src/domain/market/macro-crossroads.js';
 import { THEME_STATES } from '../src/domain/scenarios/analogs.js';
 import { SCENARIO_STATE_CURRENT } from '../src/domain/scenarios/theme-stage.js';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
-import { buildMarketScenarios } from '../src/domain/market/regime-scenarios.js';
-import { buildScenarioOutlook } from '../src/domain/market/scenario-outlook.js';
-import { buildMarketGuide, choiceName } from '../src/domain/guide/market-guide.js';
+import { choiceName } from '../src/domain/guide/market-guide.js';
 import { LESSON_BY_ID } from '../src/domain/guide/lessons.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -115,30 +107,19 @@ export function scoreNewReleases(macroHistory, lastScored = {}, at) {
 
 export function buildScenarioState({ data = null, history = [], macroHistory = null, calendar = null, screener = null, themeMaps = null, outcomes = null, previous = null, nowMs = Date.now() } = {}) {
   const at = new Date(nowMs).toISOString();
-  const regime = buildMarketRegime({ ...marketAnalysisRegimeInput(data, history, macroHistory), now: nowMs });
-  const read = buildMacroRead({ macro: data?.macro || null, macroHistory, regime: regime?.available ? regime : null, history });
-  const breadthState = regime?.axes?.find((axis) => axis.id === 'breadth')?.state || null;
-  const events = upcomingMacroEvents({ schedules: calendar?.schedules || {}, nowMs });
-  const crossroads = buildMacroCrossroads({ read: read ? { ...read, breadthState } : read, macroHistory, history, events, outcomes, previousLeadId: previous?.crossroads?.leadId || null });
-  const rows = Object.entries(expandScreenerArtifact(screener)?.data || {}).map(([sym, row]) => ({ sym, ...row }));
-  const maps = themeMaps || { usThemes: [], krThemeMap: {}, labels: {} };
-  const usGroups = buildGroupStrength({ themes: maps.usThemes, rows, sortKey: 'ret3m' }).groups || [];
-  const krThemes = krThemeArtifactRead({ themeMap: maps.krThemeMap, rows }).themes || [];
-  const credit = regime?.axes?.find((axis) => axis.id === 'credit')?.state || null;
-  // v57.81: the close history lets each theme stage be read against the S&P 500 / KOSPI over the same windows.
-  const playbook = buildThemePlaybook({ usGroups, krThemes, crossroads, credit, outcomes, labels: maps.labels, history });
-  // Owner 2026-10-19: the same market guide the 오늘 screen and the AI read (structure outlook without the live sector rows).
-  const regimeInput = { ...marketAnalysisRegimeInput(data, history, macroHistory), now: nowMs };
-  const scenarios = regime?.available ? buildMarketScenarios(regimeInput, { regime }) : null;
-  const outlook = scenarios?.available ? buildScenarioOutlook({ scenarios, regime }) : null;
-  const guide = buildMarketGuide({ regime, outlook, crossroads, nowMs });
+  // Owner 2026-10-19: the shared interpretation (the same stages the screens, the AI and the narrative read). The
+  // structure outlook here has no live sector rows (no rotation input), as before.
+  const interpretation = interpretationFromArtifacts({ data, history, macroHistory, calendar, outcomes, previous, screener: screener || {}, themeMaps, nowMs });
+  const { crossroads, guide } = interpretation;
+  if (!crossroads) throw new Error(`[scenario-state] crossroads stage failed: ${interpretation.errors.crossroads || 'no model'}`);
+  const playbook = interpretation.playbook || { themes: [], rotation: null, highlights: {} };
   const snapshot = {
     crossroads: { asOf: crossroads.asOf, headline: crossroads.headline, leadId: crossroads.leadId, altId: crossroads.altId, tension: crossroads.rateHub?.tension || null,
       nextEvent: crossroads.nextEvent, pathsDown: (crossroads.rateHub?.pathsDown || []).map((row) => ({ id: row.id, label: row.label, ok: row.ok })),
       items: (crossroads.items || []).map((item) => ({ id: item.id, title: item.title, met: item.met, total: item.total, known: item.known, fit: item.fit, conditions: item.conditions, pricingTone: item.pricing?.tone || 'unknown', favored: item.favored, pastN: item.past?.n ?? 0, pastSource: item.past?.source || null })) },
     themes: (playbook.themes || []).map((row) => ({ market: row.market, id: row.id, label: row.label, state: row.state, stateLabel: row.stateLabel, ret5d: row.ret5d ?? null, ret1m: row.ret1m, ret3m: row.ret3m, ret6m: row.ret6m, above50: row.above50, basis: row.basis || null, windLead: row.wind.lead, windAlt: row.wind.alt, favored: row.favored, fit: row.fit })),
     rotation: { text: playbook.rotation?.text || '', top: playbook.rotation?.tags?.length >= 2 ? { strong: playbook.rotation.tags[0].label, weak: playbook.rotation.tags.at(-1).label, scope: playbook.rotation.market || null } : null, tags: playbook.rotation?.tags || [] },
-    guide: guide.available ? { asOf: guide.asOf, headline: guide.headline, leadId: guide.leadId, robust: guide.direction.robust, split: guide.direction.split,
+    guide: guide?.available ? { asOf: guide.asOf, headline: guide.headline, leadId: guide.leadId, robust: guide.direction.robust, split: guide.direction.split,
       tally: guide.direction.tally.map((row) => ({ key: row.key, favoredIn: row.favoredIn, costlyIn: row.costlyIn })), situation: guide.situation, stance: guide.stance,
       lessonIds: guide.lessons.map((row) => row.id), reasons: Object.fromEntries(guide.lessons.filter((row) => row.reason).map((row) => [row.id, row.reason])) } : null,
     highlights: Object.fromEntries(Object.entries(playbook.highlights || {}).map(([key, list]) => [key, list.map(themeKey)]))

@@ -218,27 +218,49 @@ function _aioBtBaseCurrencyMonthlyReturns(input) {
   var fxByMonth = _aioBtFxMonthEndSeries(input.fxSeries);
   if (!fxByMonth) return build('held', 'fx-series-missing');
   var months = [];
+  // Expertise review 2026-10-19 (macro audit §6-2): row.realizedWeights drift with local-currency returns, so a month
+  // after a won move weighted a KRW holding as if the won had not moved. Here the weights drift with each holding's
+  // base-currency return and reset to the row's (target) weights only at the start and after a rebalance. A held month
+  // leaves the drift unknown, so the months up to the next rebalance are held too.
+  var baseWeights = null;
+  var driftLost = false;
   monthlyRows.forEach(function(row, idx) {
     var month = row.month;
     var prevMonth = idx === 0 ? startMonth : monthlyRows[idx - 1].month;
     var weighted = 0;
     var held = null;
     var fxUsed = [];
+    var reset = idx === 0 || monthlyRows[idx - 1].rebalanced;
+    if (reset) { baseWeights = null; driftLost = false; }
+    var baseReturns = {};
     Object.keys(row.assetReturns || {}).forEach(function(t) {
       if (held) return;
       var rLocal = Number(row.assetReturns[t]);
       if (!isFinite(rLocal)) { held = 'member-return-missing:' + t; return; }
-      var w = row.realizedWeights && typeof row.realizedWeights[t] === 'number' ? row.realizedWeights[t] : 0;
-      var pc = (currencyByTicker[t] && currencyByTicker[t].price) || null;
-      if (!pc || pc === baseCurrency) { weighted += w * rLocal; return; }
+      var w = baseWeights ? (baseWeights[t] || 0) : (row.realizedWeights && typeof row.realizedWeights[t] === 'number' ? row.realizedWeights[t] : 0);
+      var entry = currencyByTicker[t] || {};
+      var pc = entry.price || entry.cost || null;
+      // An undeclared currency is not the base currency (P1252 BT-02); the month is held, not converted at rate 1.
+      if (!pc) { held = 'member-currency-undeclared:' + t; return; }
+      if (pc === baseCurrency) { weighted += w * rLocal; baseReturns[t] = rLocal; return; }
       var isKrwUsd = (pc === 'KRW' && baseCurrency === 'USD') || (pc === 'USD' && baseCurrency === 'KRW');
       if (!isKrwUsd) { held = 'fx-series-missing:' + pc + '/' + baseCurrency; return; }
       var nowFx = fxByMonth[month], prevFx = fxByMonth[prevMonth];
       if (!nowFx || !prevFx) { held = 'fx-month-observation-missing:' + (!prevFx ? prevMonth : month); return; }
       var factor = pc === 'KRW' ? prevFx.value / nowFx.value : nowFx.value / prevFx.value;
       weighted += w * ((1 + rLocal) * factor - 1);
+      baseReturns[t] = (1 + rLocal) * factor - 1;
       fxUsed.push({ ticker: t, currency: pc, pair: pc + '/' + baseCurrency, observedAt: nowFx.observedAt, value: nowFx.value, startObservedAt: prevFx.observedAt, startValue: prevFx.value });
     });
+    // One holding has weight 1 whatever the drift.
+    if (!held && driftLost && Object.keys(row.assetReturns || {}).length > 1) held = 'drift-unknown-after-held-month';
+    if (held) driftLost = true;
+    else {
+      var start = baseWeights || row.realizedWeights || {};
+      var next = {};
+      Object.keys(baseReturns).forEach(function(t) { next[t] = (start[t] || 0) * (1 + baseReturns[t]) / (1 + weighted); });
+      baseWeights = next;
+    }
     months.push({ month: month, return: held ? null : weighted, held: held, fxUsed: fxUsed });
   });
   return build('ready', null, months);
@@ -453,6 +475,11 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
           && Math.abs(point.tsMs - benchmarkPoint.tsMs) <= maxAlignmentGapDays * 24 * 60 * 60 * 1000;
       });
   }).sort();
+  // Expertise review 2026-10-19 (macro audit §6-2): the month that contains asOf is still running; its month-to-date move
+  // counted as a full month in CAGR, volatility and VaR. It is left out until the month closes.
+  var partialMonth = _aioBtMonthKeyFromTs(asOfMs);
+  if (common.length && common[common.length - 1] === partialMonth) common = common.slice(0, -1);
+  else partialMonth = null;
   if (common.length < 14) {
     return {
       ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
@@ -857,7 +884,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       turnoverBasis: 'half-sum-absolute-target-minus-realized-end-weight-at-rebalance',
       targetWeightBasis: targetWeightBasis,
       // W07-E/P1146: state the grid the monthly statistics were actually computed on.
-      gridGaps: gridGaps, excludedMonths: excludedMonths,
+      gridGaps: gridGaps, excludedMonths: excludedMonths, partialMonthExcluded: partialMonth,
       monthlyGridBasis: gridGaps.length ? 'longest-contiguous-window' : 'contiguous'
     },
     tickers: tickers,

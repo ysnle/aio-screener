@@ -3,6 +3,7 @@
 // decision): the '개연성 높음/중간/낮음' grade became "현재 조건 충족 n/m" (a count, not a likelihood), and the
 // allocation/timing advice (현금·단기채 비중, 기다리는 쪽, 기준선 가까운 종목이 유리) was removed — each path keeps only
 // what it would mean, what confirms it and what would refute it. No price, size or timing instruction.
+import { creditStable, isDefensiveSector } from '../interpretation/concepts.js';
 import { RULES } from '../rules/thresholds.js';
 import { TRANSITION_TITLE } from './regime-scenarios.js';
 import { resolveMarketCalendarSession } from './market-calendar.js';
@@ -15,7 +16,7 @@ export const SECTOR_ETF_LABELS = Object.freeze({
   XLK: '기술', XLC: '통신', XLY: '경기소비재', XLF: '금융', XLI: '산업재', XLB: '소재', XLE: '에너지',
   XLV: '헬스케어', XLP: '필수소비재', XLU: '유틸리티', XLRE: '부동산'
 });
-const DEFENSIVE = new Set(['XLV', 'XLP', 'XLU']);
+// The defensive set and the credit rule are the shared concepts (src/domain/interpretation/concepts.js).
 
 const join = (items) => items.filter(Boolean).join(' · ');
 // v57.81: the next US session after the basis close — the transition reading names when it is checked next.
@@ -63,8 +64,8 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
   // v57.50 D01: "신용 안정" is the shared credit judgement's 'favorable' only (creditState in market-read). A neutral
   // credit axis — e.g. HY +45bp over 20 sessions — is not stable, and the unmet note says whether it is widening.
   const creditAxis = (regime.axes || []).find((axis) => axis.id === 'credit');
-  const creditStable = state.credit === 'favorable';
-  const creditNote = creditStable || state.credit === 'burden' ? null : state.credit === 'unknown' || !state.credit ? '확인 불가' : creditAxis?.widening ? '확대 중' : '신용 지표 중립';
+  const creditIsStable = creditStable(state.credit) === true;
+  const creditNote = creditIsStable || state.credit === 'burden' ? null : state.credit === 'unknown' || !state.credit ? '확인 불가' : creditAxis?.widening ? '확대 중' : '신용 지표 중립';
   const leadingRows = sectors.filter((row) => quadrantOf(row) === 'Leading' && !leaderFading(row) && !rrgBorder(row));
   const fadingRows = sectors.filter(leaderFading);
   const leading = leadingRows.map((row) => row.label);
@@ -72,7 +73,7 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
   const improvingRows = sectors.filter((row) => quadrantOf(row) === 'Improving' && !rrgBorder(row));
   const improving = improvingRows.map((row) => row.label);
   // v57.81: 약화(Weakening) is losing momentum — it is not called "버티는"; a fading 선도 is not either.
-  const defensiveHolding = sectors.filter((row) => DEFENSIVE.has(row.symbol) && (quadrantOf(row) === 'Leading' || quadrantOf(row) === 'Improving') && !leaderFading(row) && !rrgBorder(row)).map((row) => row.label);
+  const defensiveHolding = sectors.filter((row) => isDefensiveSector(row.symbol) && (quadrantOf(row) === 'Leading' || quadrantOf(row) === 'Improving') && !leaderFading(row) && !rrgBorder(row)).map((row) => row.label);
   const topThemeRows = themes.slice(0, 3);
   const topThemes = topThemeRows.map((row) => row.name);
   // v57.54 audit (9): the missing-rotation reason was developer copy on the reader's face; the sentence just points to 테마.
@@ -84,8 +85,8 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
   const transition = !scenarios.held && !!leadership.break && !scenarios.scenarios.find((item) => item.id === 'weakness')?.confirmed;
   const nextCheck = nextUsSession(scenarios.asOf);
   const checks = {
-    expansion: [['추세 양호', state.trend === 'favorable'], [`시장 폭 양호(50·200일선 위 ${RULES.breadth.broadAtLeast}% 이상)`, state.breadth === 'favorable'], ['신용 안정', creditStable, creditNote], ['변동성 안정', calm('volatility')]],
-    concentration: [['추세 양호', state.trend === 'favorable'], [`시장 폭 부담(${RULES.breadth.weakBelow}% 미만)`, state.breadth === 'burden'], ['신용 안정', creditStable, creditNote], ['변동성 안정', calm('volatility')], ['주도 영역 유지', leadersHolding, leadershipNote]],
+    expansion: [['추세 양호', state.trend === 'favorable'], [`시장 폭 양호(50·200일선 위 ${RULES.breadth.broadAtLeast}% 이상)`, state.breadth === 'favorable'], ['신용 안정', creditIsStable, creditNote], ['변동성 안정', calm('volatility')]],
+    concentration: [['추세 양호', state.trend === 'favorable'], [`시장 폭 부담(${RULES.breadth.weakBelow}% 미만)`, state.breadth === 'burden'], ['신용 안정', creditIsStable, creditNote], ['변동성 안정', calm('volatility')], ['주도 영역 유지', leadersHolding, leadershipNote]],
     weakness: [['추세 부담', state.trend === 'burden'], ['시장 폭 부담', state.breadth === 'burden'], ['신용 또는 변동성 부담', state.credit === 'burden' || state.volatility === 'burden']]
   };
   // I03: the names in "관련 섹터·테마" are also links — a sector opens 테마 · 섹터, a theme its detail page.

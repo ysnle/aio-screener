@@ -23,7 +23,7 @@ import { groupNewsStories, isNewsRevision, newsArticleKey, resolveNewsIssuers } 
 // bootstrap keeps the classic regression surface available before lazy route
 // navigation while leaving the implementation out of aio-core.js.
 import { buildPortfolioBacktestLab, _statMean, _statStdDev, _calcDailyReturns, _quantileR7, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix } from '../domain/portfolio/backtest.js';
-import { createCompositionSnapshot, deriveRiskEstimate, assessAccountPerformance } from '../domain/portfolio/risk.js';
+import { assessAccountPerformance } from '../domain/portfolio/risk.js';
 import { PORTFOLIO_ASSUMPTION_KEYS, EXPOSURE_PATHS, REBALANCE_POLICIES, normalizeCurrencyCode, normalizeAnnualRate, normalizeExposurePath, normalizeRebalancePolicy, readPortfolioAssumptions } from '../data/portfolio-assumptions.js';
 import { LEDGER_COVERAGE_INPUTS, appendLedgerTransaction, appendLedgerValuation, ledgerCoverageState, normalizeLedger, removeLedgerEntry as removeLedgerEntryFromLedger, setLedgerCoverage as setLedgerCoverageOnLedger, setLedgerFlowTiming as setLedgerFlowTimingOnLedger } from '../data/portfolio-ledger.js';
 import { FX_LEG_MAX_AGE_MS, appendFxLeg, fxLegsState, normalizeFxLegs, removeFxLeg } from '../domain/portfolio/fx.js';
@@ -36,7 +36,7 @@ import { CASH_INPUT_CURRENCIES, PORTFOLIO_CASH_KEY, LEGACY_CASH_KEY, readCashBal
 import { appUsdKrwClose } from '../domain/portfolio/cash.js';
 import { normalizeTickerInput, tickerDisplayName } from '../domain/entity/ticker-symbol.js';
 import { describeQuoteCurrentness } from '../domain/market/quote-currentness.js';
-import { KR_THEME_LABELS, krThemesForSymbol } from '../domain/themes/kr-themes.js';
+import { KR_THEME_LABELS } from '../domain/themes/kr-themes.js';
 import { MA_STRUCTURE_LABELS } from '../domain/technical/stage.js';
 import { completedBars } from '../ui/components/stock-chart.js';
 import { keywordMayMatch, textPairs } from '../domain/news/keyword-prefilter.js';
@@ -110,11 +110,6 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
   window.AIO.attachNativeSearch = attachNativeSearch;
   window.AIO.hasInternalCurrentEvidence = hasInternalCurrentEvidence;
   window.AIO.buildPortfolioBacktestLab = buildPortfolioBacktestLab;
-  window._aioBuildPortfolioBacktestLab = buildPortfolioBacktestLab;
-  // 22 W22-I/W22-J (E4): the risk/performance surfaces consume the declared
-  // domain contract — composition snapshot, risk path, account-performance hold.
-  window._pfCreateCompositionSnapshot = createCompositionSnapshot;
-  window._pfDeriveRiskEstimate = deriveRiskEstimate;
   // P1258: 위험 입력 조립(스냅샷·returnsMap·estimate 호출)의 단일 소유자 — 셸은 이 브리지를
   // 호출해 결과를 그대로 렌더한다.
   window._pfAssembleRiskEstimateInput = assembleRiskEstimateInput;
@@ -204,7 +199,6 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
   }))));
   window._aioRequestOnDemandSymbol = (symbol) => onDemandReady().then((reader) => reader.load(symbol)).catch(() => null);
   window._aioOnDemandSymbol = (symbol) => onDemandReader?.peek(symbol) || null;
-  window._aioCheckListedSymbol = checkListed;
   // v57.81: the chat's per-symbol data block carries the on-demand placement text (empty for universe/unlisted symbols).
   window._aioOnDemandChatContext = (symbol) => window._aioRequestOnDemandSymbol(symbol)
     .then((record) => (record?.status === 'ready' ? import('../domain/entity/out-of-universe-read.js').then((module) => module.outOfUniverseContext(record)) : ''))
@@ -326,11 +320,10 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
   window._aioTickerDisplayName = (symbol) => tickerDisplayName(symbol, { krStockDb: window.KR_STOCK_DB });
   // P1326/R671: one currentness vocabulary (실시간/지연/종가/지난 시세) from observation times + US calendar.
   window._aioDescribeQuoteCurrentness = describeQuoteCurrentness;
-  // P1327/R672: Korean theme names and ticker → theme membership have one owner; the ticker
-  // overview links a KRX stock to its themes and opens the theme detail on the themes page.
+  // P1327/R672: Korean theme names and ticker → theme membership have one owner; a KRX stock's theme links open the
+  // Korean theme detail through src/ui/navigation/theme-detail.js.
   window.AIO_KR_THEME_LABELS = KR_THEME_LABELS;
   window.AIO_MA_STRUCTURE_LABELS = MA_STRUCTURE_LABELS; // v57.55 (C19 wiring): the legacy SPY card reads the same moving-average order names
-  window._aioKrThemesForSymbol = (symbol) => krThemesForSymbol(symbol, window.KR_THEME_MAP);
   window.openKrThemeDetail = (themeId) => {
     if (!window.KR_THEME_MAP?.[themeId]) return false;
     if (typeof window.showPage === 'function') window.showPage('themes');

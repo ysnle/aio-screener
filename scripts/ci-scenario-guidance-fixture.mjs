@@ -242,7 +242,8 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.ok(bridged.pastConflict?.lean === 'defensive', 'v57.84 favored wait/defend with 95% up against a 64% base (n 20) is a past-sample conflict');
   // Audit D1 (owner 2026-10-17): two standard errors, shared with frequencyText — 10/12 against 64% is sampling noise now.
   const noisy = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 12, up: 10, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20, baseUpPct: 64 } } } }).items.find((item) => item.id === 'reheat');
-  assert.ok(!noisy.pastConflict && !noisy.pastBridge && /표본 오차 범위 안/.test(noisy.past.text) && /시장 움직임 기준/.test(noisy.past.text), 'audit D1/D2: within 2 SE the frequency line says sampling noise and names its market-move basis');
+  // v58.3x (macro audit D2/D7, owner 2026-10-19): within 2 SE the line gives the counts and the base, no share or median to anchor on.
+  assert.ok(!noisy.pastConflict && !noisy.pastBridge && /표본 오차 안에서 구별되지 않았습니다/.test(noisy.past.text) && !/비슷한 때 \d+%|중앙값/.test(noisy.past.text) && /시장 움직임 기준/.test(noisy.past.text), 'audit D1/D2: within 2 SE the frequency line says sampling noise and names its market-move basis');
   {
     // v57.84 (owner 2026-10-16): favored stays; audit D1 (owner 2026-10-17): a conflict needs the up-share past the base rate by two binomial standard errors.
     const { pastConflict } = await import('../src/domain/market/macro-crossroads.js');
@@ -918,7 +919,9 @@ console.log('scenario guidance fixture (basis card): PASS');
 // below 10, and drops the note from 30 cases.
 {
   const { frequencyText } = await import('../src/domain/scenarios/analogs.js');
-  const line = (n) => frequencyText({ n, up: Math.round(n * 0.6), median: 1.2, p25: -2, p75: 3, horizon: 63, from: '2015-01-02', to: '2026-10-14', baseUpPct: 57 }, '조건');
+  // v58.3x: a share is stated only beyond the base rate, so the note checks use a share that is (95% against 57%).
+  const line = (n, share = 0.95) => frequencyText({ n, up: Math.round(n * share), median: 1.2, p25: -2, p75: 3, horizon: 63, from: '2015-01-02', to: '2026-10-14', baseUpPct: 57 }, '조건');
+  for (const n of [10, 29, 30]) assert.ok(!/비슷한 때 \d+%|중앙값/.test(line(n, 0.6)) && /구별되지 않았습니다/.test(line(n, 0.6)), `v58.3x ${n} cases at 60% against 57%: no share, the base rate says it`);
   assert.ok(!/비슷한 때/.test(line(9)) && /표본이 작아/.test(line(9)), 'v57.83 below 10 cases: counts only');
   for (const n of [10, 29]) assert.ok(/비슷한 때/.test(line(n)) && /작은 표본/.test(line(n)), `v57.83 ${n} cases carry the small-sample note`);
   assert.ok(/비슷한 때/.test(line(30)) && !/작은 표본|표본이 작아/.test(line(30)), 'v57.83 30 cases need no small-sample note');

@@ -7,7 +7,7 @@
     "targeted": "Search or read only when the task touches the named domain.",
     "explicitOnly": "Point-in-time evidence; never load by default or treat as current state."
   },
-  "documentCount": 77,
+  "documentCount": 78,
   "documents": [
     {
       "path": "_context/AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md",
@@ -75,8 +75,8 @@
       "title": "AIO 현재 제품·아키텍처 헌장",
       "kind": "current-handoff",
       "readPolicy": "targeted",
-      "bytes": 17991,
-      "lines": 183,
+      "bytes": 19156,
+      "lines": 198,
       "lastVerified": "2026-10-09",
       "autoRefresh": false
     },
@@ -155,8 +155,8 @@
       "title": "2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.",
       "kind": "ledger",
       "readPolicy": "targeted",
-      "bytes": 2155490,
-      "lines": 11076,
+      "bytes": 2159032,
+      "lines": 11094,
       "lastVerified": "2026-10-19",
       "autoRefresh": false
     },
@@ -520,8 +520,8 @@
       "title": "2026-07-18 통합/압축: 검증 완료된 버전별 원장(v34.x~v53.4)을 §6 압축 원장으로 축약, 퇴역 표면(KR 독립 5페이지 등) 항목 제거.",
       "kind": "ledger",
       "readPolicy": "targeted",
-      "bytes": 456750,
-      "lines": 2547,
+      "bytes": 457599,
+      "lines": 2555,
       "lastVerified": "2026-10-19",
       "autoRefresh": false
     },
@@ -742,6 +742,16 @@
       "readPolicy": "targeted",
       "bytes": 2595,
       "lines": 9,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/inline-style-baseline.json",
+      "title": "inline-style-baseline.json",
+      "kind": "machine-contract",
+      "readPolicy": "targeted",
+      "bytes": 3683,
+      "lines": 167,
       "lastVerified": null,
       "autoRefresh": false
     },

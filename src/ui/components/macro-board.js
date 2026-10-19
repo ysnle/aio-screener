@@ -8,9 +8,10 @@
 //                              won, yen and 10Y on the completed-close basis with six-month charts.
 // Observations only: the fixed-threshold storyline, risk pill and four-axis bull/bear count are retired.
 import { alignInput, alignmentLabel, buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
-import { buildMacroRead, macroNextSteps, ratesNextSteps, seriesOf } from '../../domain/macro/macro-read.js';
+import { macroNextSteps, ratesNextSteps, seriesOf } from '../../domain/macro/macro-read.js';
 import { renderNextSteps } from './page-flow.js';
 import { readMarketRegime } from './market-regime.js';
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { buildMacroBoard } from '../../domain/macro/indicators.js';
 import { buildRatesFx, sessionPointBack, signed } from '../../domain/macro/rates-fx.js';
 import { createTrendChart } from './trend-chart.js';
@@ -463,8 +464,8 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   if (!host) return null;
   const macroHistory = root._aioMacroHistory || null;
   const board = buildMacroBoard({ macro: root._aioServerMacro || null, releases: root.AIO_MACRO_CALENDAR?.releases || {}, schedules: root.AIO_MACRO_OFFICIAL_SCHEDULES || {}, macroHistory });
-  const regime = readMarketRegime(root);
-  const read = buildMacroRead({ macro: root._aioServerMacro || null, macroHistory, regime: regime.available ? regime : null, history: root._aioHistory || [] });
+  readMarketRegime(root); // keeps the macro-history refresh request
+  const { regime, macroRead: read } = marketInterpretation(root); // owner 2026-10-19: the shared macro read (same as the branches)
   const basis = doc.getElementById('macro-board-basis');
   if (basis) basis.textContent = board.available ? '공식 발표와 미국 종가 기준 · 각 판정의 기준은 카드 아래에 표시' : '공식 발표 자료를 불러오는 중입니다.';
   renderMacroCrossroads({ documentRef: doc, root, regime }); // P1742; v57.76: the forward branches follow the chain (current state first)
@@ -588,8 +589,8 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
   const t = model.treasury;
   // P1426: the equity-impact axes for this tab — policy from the 거시 read, the rest shared with 시장 상태.
   const axesHost = doc.getElementById('rates-axes');
-  const regime = readMarketRegime(root);
-  const read = buildMacroRead({ macro: root._aioServerMacro || null, macroHistory: root._aioMacroHistory || null, regime: regime.available ? regime : null, history: root._aioHistory || [] });
+  readMarketRegime(root); // keeps the macro-history refresh request
+  const { regime, macroRead: read } = marketInterpretation(root); // owner 2026-10-19: the shared macro read
   if (axesHost) {
     const byId = Object.fromEntries(read.axes.map((row) => [row.id, row]));
     const fxAxis = regime.available ? regime.axes.find((row) => row.id === 'korea') : null;

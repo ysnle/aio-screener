@@ -3,18 +3,16 @@
 // note. One visual (the momentum map: 6-month trend × 1-month move, coloured by the macro wind), a short reading (where
 // strength moved and which combinations stand out), then folded per-stage cards with each theme's choices, opportunity
 // cost, evidence lines, structural hypothesis and what would break it. Stock selection stays on 테마 상세 and 스크리너.
-import { buildGroupStrength } from '../../domain/themes/group-strength.js';
-import { krThemeArtifactRead } from '../../domain/themes/kr-themes.js';
-import { buildThemePlaybook } from '../../domain/scenarios/theme-playbook.js';
 import { THEME_STATES } from '../../domain/scenarios/analogs.js';
 import { relativeBand } from '../../domain/themes/recent-check.js';
 import { WIND_LABELS } from '../../domain/scenarios/exposures.js';
 import { CHOICES } from '../../domain/market/macro-crossroads.js';
 import { MACRO_HISTORY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { crossroadsForRoot, refreshScenarioArtifacts } from './macro-crossroads.js';
+import { refreshScenarioArtifacts } from './macro-crossroads.js';
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { setResearchHandoff } from '../../app/research-handoff.js';
-import { readMarketRegime } from './market-regime.js';
 import { el } from './dom.js';
+import { openThemeDetail } from '../navigation/theme-detail.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 const pct = (value) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);
@@ -25,16 +23,11 @@ function svg(doc, tag, attrs = {}) {
   return node;
 }
 
-export function themePlaybookForRoot(root, store, { nowMs = Date.now() } = {}) {
-  const rows = store?.getState?.()?.screener?.rows || [];
-  const regime = readMarketRegime(root);
-  const crossroads = crossroadsForRoot(root, { regime, nowMs });
-  const usGroups = buildGroupStrength({ themes: root?.THEME_MAP || [], rows, sortKey: 'ret3m', now: nowMs }).groups || [];
-  const krThemes = root?.KR_THEME_MAP && typeof root.KR_THEME_MAP === 'object' ? krThemeArtifactRead({ themeMap: root.KR_THEME_MAP, rows }).themes : [];
-  const labels = Object.fromEntries((root?.THEME_MAP || []).map((theme) => [theme.id, theme.nameKr]));
-  const credit = regime?.axes?.find((axis) => axis.id === 'credit')?.state || null;
-  // v57.81: the shared close history lets each stage be read against the S&P 500 / KOSPI over the same windows.
-  return { crossroads, playbook: buildThemePlaybook({ usGroups, krThemes, crossroads, credit, outcomes: root?._aioScenarioOutcomes || null, labels, history: Array.isArray(root?._aioHistory) ? root._aioHistory : null }) };
+// Owner 2026-10-19: the theme stages are a stage of the shared interpretation (same rows, same theme strength and the
+// same branches as the outlook and 거시). `store` lets a caller pass its own row view (the AI chat).
+export function themePlaybookForRoot(root, store = null, { nowMs = Date.now() } = {}) {
+  const { crossroads, playbook } = marketInterpretation(root, { store, nowMs });
+  return { crossroads, playbook: playbook || { available: false, themes: [], highlights: {}, rotation: null } };
 }
 
 // Two drawings of the same map: the wide one (640 × 360) and a narrow one (320 × 300, fewer labels) shown when the
@@ -158,9 +151,9 @@ function themeCard(doc, root, row, screenerSector = null) {
   const explore = el(doc, 'div', null, 'xr-explore');
   explore.append(el(doc, 'span', '종목은 직접 보기:', 'xr-explore-label'));
   const link = (label, onClick) => { const b = el(doc, 'button', `${label} →`, 'flow-next-link'); b.type = 'button'; b.addEventListener('click', onClick); return b; };
-  if (row.market === 'US' && typeof root?.showThemeDetail === 'function') {
-    const detail = link('테마 상세 · 구성 종목', () => root.showThemeDetail(row.id));
-    detail.dataset.themeId = row.id; // the 테마 page places the detail panel right after this section (themes.js trigger rule)
+  if (typeof (row.market === 'KR' ? root?.openKrThemeDetail : root?.showThemeDetail) === 'function') {
+    const detail = link('테마 상세 · 구성 종목', () => openThemeDetail(root, row.id, { market: row.market }));
+    if (row.market !== 'KR') detail.dataset.themeId = row.id; // the 테마 page places the US detail panel right after this section (themes.js trigger rule)
     explore.append(detail);
   }
   if (row.market === 'KR') explore.append(link('한국 테마 흐름', () => {

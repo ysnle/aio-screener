@@ -6,6 +6,7 @@
 // Raschke's prior-day high/low pivots. Nothing here is a buy or sell instruction.
 import { EXTENSION_BANDS } from '../screener/setup-profile.js';
 import { RULES } from '../rules/thresholds.js';
+import { signalHistory, signalHistoryText } from './signal-history.js';
 // v57.84: moving averages, ATR, ADR, the 52-week range, the 50-day extension and the Weinstein stage come from the one
 // definitions module the screener producer and the summary also use.
 import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, extensionMultiple, extensionStateFor, weeklyCloses, weinsteinStage, detectContractions, isBreakoutDay } from './definitions.js';
@@ -106,13 +107,15 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const from = Math.max(1, n - 80);
   const avg50 = (i) => vol50[i] || null;
   // (a) 8-day EMA lost / reclaimed — the short-term trend line most swing traders watch.
-  for (let i = Math.max(from, 9); i <= n; i++) {
+  // Expertise review 2026-10-19: events (a)–(c) are found over the whole history so their past outcomes can be read
+  // (signal-history.js); the chart still marks only the last ~80 sessions.
+  for (let i = 9; i <= n; i++) {
     if (ema8[i] == null || ema8[i - 1] == null) continue;
     if (closes[i - 1] >= ema8[i - 1] && closes[i] < ema8[i]) events.push({ index: i, kind: 'ema8-lost', text: '8일 EMA 이탈', position: 'aboveBar', tone: 'burden' });
     else if (closes[i - 1] < ema8[i - 1] && closes[i] >= ema8[i]) events.push({ index: i, kind: 'ema8-reclaim', text: '8일 EMA 회복', position: 'belowBar', tone: 'favorable' });
   }
   // (b) gap up on heavy volume (earnings/news gap; O'Neil/Minervini "power gap").
-  for (let i = from; i <= n; i++) {
+  for (let i = 1; i <= n; i++) {
     const gap = (bars[i].open / bars[i - 1].close - 1) * 100;
     if (gap >= 4 && avg50(i) && volumes[i] >= 2 * avg50(i) && closes[i] > bars[i - 1].close) events.push({ index: i, kind: 'power-gap', text: `갭 +${gap.toFixed(1)}% (거래량 ${(volumes[i] / avg50(i)).toFixed(1)}배)`, position: 'belowBar', tone: 'favorable' });
   }
@@ -121,7 +124,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const sma20 = sma(closes, 20);
   const width = closes.map((_, i) => sd20[i] && sma20[i] ? (4 * sd20[i]) / sma20[i] : null);
   let squeezeOn = false;
-  for (let i = Math.max(from, 145); i <= n; i++) {
+  for (let i = 145; i <= n; i++) {
     const past = width.slice(i - 125, i).filter((v) => v != null);
     const isLow = width[i] != null && past.length > 60 && width[i] <= Math.min(...past);
     if (isLow && !squeezeOn) events.push({ index: i, kind: 'squeeze', text: '변동성 압축', position: 'belowBar', tone: 'neutral' });
@@ -138,7 +141,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   }
   // Keep the chart legible: the latest two of each kind within ~4 months.
   const byKind = new Map();
-  for (const event of events.sort((a, b) => b.index - a.index)) { const list = byKind.get(event.kind) || []; if (list.length < 2) list.push(event); byKind.set(event.kind, list); }
+  for (const event of events.filter((item) => item.index >= from).sort((a, b) => b.index - a.index)) { const list = byKind.get(event.kind) || []; if (list.length < 2) list.push(event); byKind.set(event.kind, list); }
   const chartEvents = [...byKind.values()].flat().sort((a, b) => a.index - b.index);
   // Minervini trend template (8 published criteria). v57.50 D23: the published 8th criterion is an RS rating of 70+;
   // here it is replaced by "6-month return above the S&P 500", so the template is labelled as a variant wherever shown.
@@ -188,6 +191,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const rsFromHigh = rsNow != null && rsHigh ? (rsNow / rsHigh - 1) * 100 : null;
   const rsAtHigh = rsFromHigh != null && rsFromHigh >= -0.5;
   const rsLeadsPrice = rsAtHigh && fromHigh <= -TECH.nearHighPct;
+  const signals = signalHistory({ events, closes, rsLine });
   const templatePass = templateChecks.filter(([, ok]) => ok === true).length;
   const lastContraction = vcp.contractions[vcp.contractions.length - 1] || null;
   // State.
@@ -250,7 +254,8 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     ['기준 고점(피벗 · 마지막 조정의 고점)', pivot == null ? '—' : `${fmt(pivot)} (현재가 대비 ${signed((pivot / last.close - 1) * 100)})`],
     // 2026-10-13 review S14: an observed level, not an instruction ('무효화 가격' read as a stop to act on).
     ['마지막 수축 저점', lastContraction ? `${fmt(lastContraction.low)} (현재가 대비 ${signed((lastContraction.low / last.close - 1) * 100)})` : '—'],
-    ['전일 고가 / 저가', `${fmt(prev.high)} / ${fmt(prev.low)}`]
+    ['전일 고가 / 저가', `${fmt(prev.high)} / ${fmt(prev.low)}`],
+    ['이 종목의 지난 신호 뒤 21거래일', signalHistoryText(signals, benchmarkLabel)]
   ];
   return {
     available: true,
@@ -268,6 +273,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     rsAtHigh,
     rsLeadsPrice,
     timeframeConflict,
+    signals,
     benchmarkLabel,
     ret6,
     pressure,

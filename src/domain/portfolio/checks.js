@@ -45,7 +45,7 @@ export function derivePortfolioChecks({ surface = null, assetTypeOf = () => null
     return Object.freeze({ model: PORTFOLIO_CHECKS_MODEL_VERSION, status: 'unavailable', reason: rows.length ? 'no-valued-holdings' : 'no-holdings', excluded, checks: Object.freeze([]), breakdowns: Object.freeze({}) });
   }
   const symbolOf = (row) => String(row.symbol || row.ticker || '').toUpperCase();
-  const currencyOf = (row) => String(row.convertedFrom || row.currency || '').toUpperCase() || listingCurrency(symbolOf(row));
+  const currencyOf = (row) => String(row.convertedFrom || row.currency || '').toUpperCase() || listingCurrency(symbolOf(row)) || '통화 미확인';
   const byHolding = shares(valued.map((row) => [symbolOf(row), finite(row.value)]), invested);
   const byCurrency = shares(valued.map((row) => [currencyOf(row), finite(row.value)]), invested);
   const byRegion = shares(valued.map((row) => [listingRegion(symbolOf(row)), finite(row.value)]), invested);

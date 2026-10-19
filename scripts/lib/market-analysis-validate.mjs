@@ -161,7 +161,9 @@ export function marketAnalysisLargeMove(metricEvidence = [], changes = new Map()
     return !Number.isFinite(windowStart) || !Number.isFinite(observed) || observed >= windowStart - LARGE_MOVE_WINDOW_LEAD_MS;
   });
 }
-export const MARKET_ANALYSIS_CLOSED_SESSIONS = Object.freeze(['MARKET_CLOSED', 'CLOSED_CURRENT', 'COMPLETED', 'CLOSED', 'REGULAR']);
+// Expertise review 2026-10-19 (macro audit §5-2): REGULAR is a provider's open-market flag, so an in-session price was
+// passed to the prompt as a close; PREVIOUS_CLOSE_EXPECTED (venue open, value is the prior close) is a completed close.
+export const MARKET_ANALYSIS_CLOSED_SESSIONS = Object.freeze(['MARKET_CLOSED', 'CLOSED_CURRENT', 'COMPLETED', 'CLOSED', 'PREVIOUS_CLOSE_EXPECTED']);
 const MARKET_ANALYSIS_MENTIONS = Object.freeze({
   'market.spx': ['S&P\\s?500', 'SPX', 'S&P', '에스앤피\\s?(?:오백|500)'],
   'market.vix': ['VIX', '변동성\\s?지수', '공포\\s?지수'],

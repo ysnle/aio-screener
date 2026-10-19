@@ -216,6 +216,34 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   });
   if (await orchestrator.sync() !== null || published) fail('screener cancellation: partial state published or abort escaped');
 }
+{
+  // Frontend redesign 2026-10-19: a quotes-only tick whose provider read reuses every row object has the same ranking
+  // input, so it neither re-ranks nor republishes; a changed row, a refresh or a new ranking context runs the full path.
+  const { createScreenerOrchestrator } = await load('src/data/orchestrators/screener.js');
+  const rowA = { sym: 'AAA', ret3m: 5 }, rowB = { sym: 'BBB', ret3m: 3 };
+  let rows = [rowA, rowB];
+  let weights = { momentum: 1 };
+  let ranked = 0, published = 0;
+  const orchestrator = createScreenerOrchestrator({
+    provider: { readCurrent: async () => ({ revision: 'r1', rows }) },
+    commands: { setData: () => { published += 1; } },
+    ranker: ({ rows: input }) => { ranked += 1; return { available: true, rows: input.map((row, index) => ({ sym: row.sym, rank: index + 1, score: 50 })) }; },
+    rankingContext: () => ({ weights, now: Date.parse('2026-10-19T00:00:00Z') }),
+    yieldImpl: async () => {}
+  });
+  await orchestrator.sync({ refresh: true });
+  const first = [ranked, published];
+  const reused = await orchestrator.sync({ refresh: false, quotesOnly: true });
+  if (reused !== null || ranked !== first[0] || published !== first[1]) fail('screener derivation: an unchanged quotes-only tick re-ranked or republished');
+  rows = [rowA, { ...rowB, price: 10 }];
+  await orchestrator.sync({ refresh: false, quotesOnly: true });
+  if (ranked !== first[0] + 1 || published !== first[1] + 1) fail('screener derivation: a changed row did not re-rank');
+  weights = { momentum: 0.5, value: 0.5 };
+  await orchestrator.sync({ refresh: false, quotesOnly: true });
+  if (ranked !== first[0] + 2) fail('screener derivation: a new ranking context did not re-rank');
+  await orchestrator.sync({ refresh: true });
+  if (ranked !== first[0] + 3) fail('screener derivation: an artifact refresh did not re-rank');
+}
 
 // ── shared knowledge capability loader ────────────────────────────────────────────────────────
 {
@@ -1416,6 +1444,12 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const unlabeled = ids.filter((id) => !KR_THEME_LABELS[id]);
     if (!ids.length || unlabeled.length) fail(`kr themes: every KR_THEME_MAP id needs a label, missing ${unlabeled.join(',')} (P1327/R672)`);
     if (!/var CN=window\.AIO_KR_THEME_LABELS/.test(krData) || /var CN=\{'defense'/.test(krData)) fail('kr themes: the theme detail must read the single label owner (P1327/R672)');
+    // A KRX stock's theme link opens the Korean theme detail; 'defense' also names a US theme, which it used to open.
+    const { openThemeDetail } = await load('src/ui/navigation/theme-detail.js');
+    const opened = [];
+    const shell = { showThemeDetail: (id) => opened.push(`US:${id}`), openKrThemeDetail: (id) => { opened.push(`KR:${id}`); return id !== 'gone'; } };
+    const results = [openThemeDetail(shell, 'defense', { symbol: '012450.KS' }), openThemeDetail(shell, 'defense', { symbol: 'LMT' }), openThemeDetail(shell, 'gone', { market: 'KR' }), openThemeDetail({}, 'semi', { symbol: '005930.KS' })];
+    if (opened.join() !== 'KR:defense,US:defense,KR:gone' || results.join() !== 'true,true,false,false') fail(`kr themes: theme links must open the listing market's theme detail, got ${opened.join()} / ${results.join()}`);
   }
   const invalidScore = computeTradingScoreModel({ mode: 'swing', vix: -10, vvix: 0, dxy: 10, tnx: -1, oilPrice: -5, fg: 101, maCurrent: true, spx200ma: -1, spx50ma: 0, spxPrice: -10, breadthAvailable: true, breadth200: 150, pcr: -1, hyBp: -2, newsSentimentScore: 101, newsRiskSignals: [{ impact: 'bad' }] });
   {
@@ -4060,7 +4094,8 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   // P1729: the AI scenario context reads the screen's inputs (credit, rates, macro history), not history alone.
   const { buildQuestionDomainContext } = await load('src/ai/context/market-content.js');
   const marketSource = readFileSync(path.join(root, 'src/ai/context/market-content.js'), 'utf8');
-  if (!/renderMarketScenarioContext\(collectMarketInputs\(root\)\)/.test(marketSource) || /renderMarketScenarioContext\(\{\s*history\s*:/.test(marketSource)) fail('P1729 the AI scenario context must be built from collectMarketInputs(root)');
+  // v58.31: through the shared interpretation, whose browser adapter collects collectMarketInputs(root).
+  if (!/renderMarketScenarioModel\(marketInterpretation\(root\)\.scenarios\)/.test(marketSource) || /renderMarketScenarioContext\(\{\s*history\s*:/.test(marketSource) || !/market: collectMarketInputs\(root\)/.test(readFileSync(path.join(root, 'src/data/selectors/interpretation.js'), 'utf8'))) fail('P1729 the AI scenario context must be built from collectMarketInputs(root)');
   if (typeof buildQuestionDomainContext !== 'function') fail('P1729 buildQuestionDomainContext export missing');
 }
 
@@ -5108,4 +5143,63 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!chart.rsAtHigh || !chart.rsLeadsPrice || !chartReading(chart).why.includes('상대강도선')) fail(`chart: an RS line at its high while price is under its high must read as leading: ${chart.rsFromHigh} ${chart.fromHigh}`);
   const conflict = chartReading({ ...chart, state: 'breakout', timeframeConflict: true, weinstein: { ...chart.weinstein, stage: 4 } });
   if (!/상위 시간대/.test(conflict.headline)) fail('chart: a breakout against a weekly downtrend must say so');
+}
+
+// ── v58.XX expertise review: past outcomes of the chart's own signals on the stock's history ──
+{
+  const { signalHistory, SIGNAL_MIN_COUNT } = await load('src/domain/technical/signal-history.js');
+  const closes = Array.from({ length: 200 }, (_, i) => 100 + i);
+  const rsLine = closes.map((close) => close / 100);
+  const events = [10, 12, 40, 70, 100, 130].map((index) => ({ kind: 'power-gap', index })).concat([{ kind: 'squeeze', index: 5 }]);
+  const read = signalHistory({ events, closes, rsLine });
+  const gap = read.kinds['power-gap'];
+  if (gap.count !== SIGNAL_MIN_COUNT || !(gap.medianPct > 0) || gap.upShare !== 1 || gap.beatShare !== 1) fail(`signal history: overlapping occurrences count once and the forward move is read: ${JSON.stringify(gap)}`);
+  if (read.kinds.squeeze.count !== 1 || read.kinds.squeeze.medianPct !== null) fail('signal history: below the minimum count no figure is printed');
+}
+
+// ── v58.XX expertise review (macro audit §6-2): backtest weights drift in the base currency; a running month is left out ──
+{
+  const { buildPortfolioBacktestLab } = await load('src/domain/portfolio/backtest.js');
+  const keys = Array.from({ length: 15 }, (_, i) => `${2024 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, '0')}`);
+  const series = (values) => ({ timestamps: keys.map((k) => `${k}-28T00:00:00Z`), adjustedCloses: values, backtestEligible: true, backtestPriceBasis: 'adjusted-close' });
+  const krw = keys.map((_, i) => (i >= 2 ? 270000 : 135000)); // flat, then +100% in the second month
+  const map = { AAA: series(krw), BBB: series(keys.map(() => 100)), SPY: series(keys.map(() => 100)) };
+  const fx = { timestamps: keys.map((k) => `${k}-28T00:00:00Z`), closes: keys.map((_, i) => (i >= 1 ? 1320 : 1200)) };
+  const positions = [{ ticker: 'AAA', qty: 1, cost: 135000, currency: 'KRW', costCurrency: 'KRW' }, { ticker: 'BBB', qty: 1, cost: 100, currency: 'USD', costCurrency: 'USD' }];
+  const opts = { baseCurrency: 'USD', rebalanceType: 'none', fxLegs: [{ from: 'KRW', to: 'USD', rate: 1 / 1350, observedAt: '2026-09-24T00:00:00Z', source: 'test-leg' }], fxSeries: { usdkrw: fx } };
+  const run = buildPortfolioBacktestLab(map, positions, { ...opts, asOfMs: Date.parse('2026-09-25T00:00:00Z') });
+  const [m1, m2] = run.baseCurrencyReturns?.months || [];
+  const w = 0.5 * (1200 / 1320) / (0.5 * (1200 / 1320) + 0.5);
+  if (Math.abs(m1?.return - 0.5 * (1200 / 1320 - 1)) > 1e-9 || Math.abs(m2?.return - w) > 1e-9) fail(`backtest: the base-currency month after a won move must weight the KRW holding by its base value (${w}), got ${JSON.stringify([m1, m2])}`);
+  const partial = buildPortfolioBacktestLab(map, positions, { ...opts, fxLegs: [{ ...opts.fxLegs[0], observedAt: '2025-03-14T00:00:00Z' }], asOfMs: Date.parse('2025-03-15T00:00:00Z') });
+  if (partial.settings?.partialMonthExcluded !== '2025-03' || (partial.baseCurrencyReturns?.months || []).some((row) => row.month === '2025-03')) fail(`backtest: the month containing asOf is still running and must be left out, got ${partial.settings?.partialMonthExcluded}`);
+}
+
+// ── v58.XX expertise review (macro audit §6-2/§5-2): unknown exchange suffixes are not dollars; open-market rows are not closes ──
+{
+  const { listingCurrency, listingRegion } = await load('src/domain/portfolio/fx.js');
+  if (listingCurrency('VOD.L') !== null || listingCurrency('SHOP.TO') !== null || listingRegion('VOD.L') === '미국 상장') fail('fx: an unknown exchange suffix must stay unknown, not USD');
+  if (listingCurrency('BRK.B') !== 'USD' || listingCurrency('AAPL') !== 'USD' || listingCurrency('005930.KS') !== 'KRW') fail('fx: share classes and known listings keep their currency');
+  const { MARKET_ANALYSIS_CLOSED_SESSIONS } = await import(new URL('./lib/market-analysis-validate.mjs', import.meta.url));
+  if (MARKET_ANALYSIS_CLOSED_SESSIONS.includes('REGULAR') || !MARKET_ANALYSIS_CLOSED_SESSIONS.includes('PREVIOUS_CLOSE_EXPECTED')) fail('market analysis: an open-market (REGULAR) row is not a completed close; a previous-close row is');
+}
+
+// ── v58.XX expertise review: portfolio stress sensitivities from the book's own weekly returns ──
+{
+  const { estimateBookSensitivities, scenarioImpact, krwTranslationPct, regressOne } = await load('src/domain/portfolio/stress-sensitivity.js');
+  if (regressOne([1, 2], [2, 4]) !== null) fail('stress: fewer than the minimum weeks is no slope');
+  const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
+  const history = []; const book = {}; let spx = 100; let tnx = 4; let px = 100;
+  for (let i = 0; i < 400; i += 1) {
+    const move = Math.sin(i / 9) * 0.004;
+    spx *= 1 + move; tnx += -move * 2; px *= 1 + 1.5 * move;
+    history.push({ date: day(i), spx, tnx, wti: 70 + Math.cos(i), usdkrw: 1300 + Math.sin(i / 3) * 10, kospi: 2500 });
+    book[day(i)] = px;
+  }
+  const est = estimateBookSensitivities({ historyMap: { AAA: book }, commonDates: Object.keys(book), weights: { AAA: 1 }, history });
+  if (!est.available || Math.abs(est.fits.equity.beta - 1.5) > 0.15) fail(`stress: equity beta must be estimated from the book (got ${est.fits?.equity?.beta})`);
+  const rate = scenarioImpact(est.fits.rate, 100);
+  if (!(rate.mid < 0) || !rate.distinct) fail(`stress: a book that falls when yields rise must show a negative rate shock: ${JSON.stringify(rate)}`);
+  if (estimateBookSensitivities({ historyMap: { AAA: book }, commonDates: Object.keys(book).slice(-60), weights: { AAA: 1 }, history }).available) fail('stress: under 30 weeks of history no sensitivity is printed');
+  if (krwTranslationPct({ weights: { AAA: 0.5, '005930.KS': 0.5 }, baseCurrency: 'KRW', shockPct: 10 }) !== 5) fail('stress: a KRW book gains on USD holdings when the won weakens');
 }

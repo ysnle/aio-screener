@@ -4,16 +4,15 @@ import { renderHomeGuide } from './market-guide.js';
 import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { renderStressOutcomes } from './stress-outcomes.js';
 import { deepDiveFold } from './deep-dive.js';
-import { buildCloseSeries, buildMarketRegime, buildMarketRead, closeBasis, koreaMoveRecord, koreaRecordText, KR_SHOCK_TAIL_PCT } from '../../domain/briefing/market-read.js';
+import { buildCloseSeries, closeBasis, koreaMoveRecord, koreaRecordText, KR_SHOCK_TAIL_PCT } from '../../domain/briefing/market-read.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
-import { collectMarketInputs } from './briefing-read.js';
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { regimeFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 import { createTrendChart } from './trend-chart.js';
 import { MACRO_HISTORY, refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
-import { buildRegimeAxisHistory, buildMarketScenarios, buildKoreaRegimeObservations, buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
+import { buildRegimeAxisHistory, buildKoreaRegimeObservations, buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
 import { renderRegimeRadar } from './regime-radar.js';
-import { outlookForRoot } from './scenario-outlook.js';
 import { renderCrossroadsCompact, showCrossroadsSection } from './macro-crossroads.js';
 import { el } from './dom.js';
 import { shortDate } from '../../domain/content/date-labels.js';
@@ -54,7 +53,7 @@ export function readMarketRegime(root, onHistory = null) {
   if (root && sharedArtifactIsStale(root, MACRO_HISTORY.key, MACRO_HISTORY)) {
     refreshSharedArtifact(root, MACRO_HISTORY).then(({ changed }) => { if (changed && typeof onHistory === 'function') onHistory(); }).catch(() => {});
   }
-  return buildMarketRegime(collectMarketInputs(root));
+  return marketInterpretation(root).regime;
 }
 
 function summaryLine(regime) {
@@ -203,17 +202,18 @@ function scenarioLink(doc, root) {
 export function renderRegimePage({ documentRef: doc, root, store = null }) {
   const page = doc?.getElementById('page-signal');
   if (!page) return null;
-  const inputs = collectMarketInputs(root);
-  const regime = buildMarketRegime(inputs);
+  // Owner 2026-10-19: regime, structure flows and outlook come from the shared interpretation (one build per data change).
+  const interpretation = marketInterpretation(root, { store });
+  const { inputs, regime } = interpretation;
   requestRegimeMacroHistory(root, doc, 'page-signal', () => renderRegimePage({ documentRef: doc, root, store }));
   const history = buildRegimeAxisHistory(inputs, { regime, macroHistory: root._aioMacroHistory || null });
-  const scenarios = buildMarketScenarios(inputs, { regime });
+  const scenarios = interpretation.scenarios || { available: false };
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   set('regime-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · 6개 지표의 상태와 판정이 바뀌는 조건` : '종가 기록을 불러오는 중입니다.');
   const overall = set('regime-overall', regime.available ? regime.overall : '판정 대기');
   if (overall) { overall.dataset.overall = regime.overall || ''; overall.setAttribute('aria-label', `미국 시장 판정: ${regime.available ? regime.overall : '판정 대기'}`); } // v57.77 (a11y 2.4.6)
   set('regime-counts', regime.available ? (regime.holdReason || summaryLine(regime)) : '');
-  const read = regime.available ? buildMarketRead(inputs) : null;
+  const read = interpretation.marketRead;
   set('regime-headline', read?.headline ? `${read.headline}${read.headlineReading ? ` ${read.headlineReading}` : ''}` : '');
   const conflicts = doc.getElementById('regime-conflicts');
   if (conflicts) conflicts.replaceChildren(...(regime.conflicts || []).map((text) => el(doc, 'li', text)));
@@ -292,7 +292,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   const previous = page.querySelector('[data-aio-regime-scenarios]');
   const openIds = new Set([...(previous?.querySelectorAll?.('.regime-scenario-more[open]') || [])].map(node => node.closest('.regime-scenario-card')?.dataset.scenario));
   previous?.remove();
-  root.__aioScenarioOutlook = scenarios.available ? outlookForRoot(root, { scenarios, regime, store }) : null;
+  root.__aioScenarioOutlook = interpretation.outlook;
   const scenarioNode = board ? scenarioSection(doc, root, scenarios, root.__aioScenarioOutlook, openIds) : null;
   if (scenarioNode) board.insertAdjacentElement('afterend', scenarioNode); // v57.76: the branches by release are on 거시; the section ends with a link there
   renderNextSteps(doc, doc.getElementById('regime-next'), regimeFlow({ regime, groups: root.__aioScenarioOutlook?.rotation || {} }).next); // P1431, I02
@@ -377,8 +377,8 @@ function paintFuturesCell(doc, root, cellId, futures, field, label) {
 export function renderHomeRegime({ documentRef: doc, root, store = null }) {
   const hero = doc?.getElementById('home-score-hero');
   if (!hero) return null;
-  const inputs = collectMarketInputs(root);
-  const regime = buildMarketRegime(inputs);
+  const interpretation = marketInterpretation(root, { store });
+  const { regime } = interpretation;
   requestRegimeMacroHistory(root, doc, 'page-home', () => renderHomeRegime({ documentRef: doc, root, store }));
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   set('home-hero-total', regime.available ? regime.overall : '판정 대기');
@@ -433,8 +433,8 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
     if (!outlookBox) { outlookBox = el(doc, 'div', null, 'home-outlook'); outlookBox.id = 'home-outlook'; outlookAnchor.insertAdjacentElement('afterend', outlookBox); }
     else if (outlookBox.parentElement === hero) outlookAnchor.insertAdjacentElement('afterend', outlookBox);
     outlookBox.hidden = true; // anchor only; the merged block below carries the structure line
-    const scenarios = regime.available ? buildMarketScenarios(inputs, { regime }) : null;
-    const outlook = scenarios?.available ? outlookForRoot(root, { scenarios, regime, store }) : null;
+    const scenarios = regime.available ? interpretation.scenarios : null;
+    const outlook = interpretation.outlook;
     const lead = outlook?.items?.find((item) => item.id === outlook.leadId);
     const structure = [];
     if (lead) {
@@ -452,9 +452,9 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
       line.append(el(doc, 'strong', `지금 시장 흐름 '${lead.title}'`), el(doc, 'span', `${lead.fit}${lead.shortfall ? ` · ${lead.shortfall}` : ''}`, 'basis-chip'), doc.createTextNode(` ${sentences[0] || ''}`));
       structure.push(line, ...(counter ? [el(doc, 'p', counter, 'xr-structure-note')] : []), ...(named ? [opportunityNode(doc, root, lead, 'home-outlook-opportunity')] : []), toStructure);
     } else if (scenarios?.held) structure.push(el(doc, 'p', `지금 구조: 판단 보류 — ${scenarios.reason}`, 'xr-structure'));
-    const crossroads = renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: outlookBox, id: 'home-crossroads', structure, title: '지금 흐름과 다음 발표', headingLevel: 'h2' }); // v57.77 (a11y 1.3.1): home has no h2 before this block // P1742/P1745
+    renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: outlookBox, id: 'home-crossroads', structure, title: '지금 흐름과 다음 발표', headingLevel: 'h2' }); // v57.77 (a11y 1.3.1): home has no h2 before this block // P1742/P1745
     // Owner 2026-10-19: the shared guide (situation · choices across scenarios · lean/avoid · principles) right after it.
-    renderHomeGuide({ documentRef: doc, root, regime, outlook, crossroads, anchor: outlookBox.nextElementSibling || outlookBox }); // the crossroads block sits right after its anchor
+    renderHomeGuide({ documentRef: doc, root, store, anchor: outlookBox.nextElementSibling || outlookBox }); // the crossroads block sits right after its anchor
   }
   hero.dataset.aioRegimeRenderer = 'native';
   hero.dataset.state = regime.available ? 'regime' : 'pending';

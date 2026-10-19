@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { BRANCHES, CHOICES } from '../src/domain/market/macro-crossroads.js';
 import { buildMarketGuide, buildDirection, renderMarketGuideContext, CHOICE_KEYS } from '../src/domain/guide/market-guide.js';
+import { pastEvidence, ANALOG_METHOD } from '../src/domain/scenarios/analogs.js';
 import { ALL_LESSONS, LESSON_BY_ID, LESSON_KINDS, SCREEN_LESSON_IDS, selectLessons, selectScreenLessons } from '../src/domain/guide/lessons.js';
 
 const label = 'v58.31 market guide';
@@ -70,5 +71,26 @@ for (const route of ['technical', 'ticker', 'fundamental', 'screener']) {
 }
 assert.ok(selectScreenLessons('portfolio', burdenCtx).some((row) => row.id === 'survive-first' && row.reason), `${label}: a market screen ties its lesson to today's state`);
 assert.deepEqual(selectScreenLessons('no-such-route', burdenCtx), [], `${label}: an unknown screen shows nothing`);
+
+// Curve and index-earnings lessons (interpretation stages curve / indexEarnings) speak only from their stage output.
+const curveCtx = { curve: { kind: 'bull-steepening', fact: '9/19→10/17 20거래일: 2년 −30bp.', label: '불 스티프닝 — 단기 주도 하락', reading: '인하 기대가 앞섭니다.' } };
+const curveLesson = LESSON_BY_ID['read-the-curve'];
+assert.match(curveLesson.live(curveCtx), /^9\/19→10\/17 20거래일: 2년 −30bp\. 불 스티프닝: 인하 기대가 앞섭니다\.$/, `${label}: the curve lesson quotes the measured move and its reading`);
+assert.equal(curveLesson.live({ curve: { kind: null, uninverted: true, uninversionReading: 'U' } }), 'U', `${label}: no direction but a recent un-inversion speaks to the un-inversion`);
+assert.equal(curveLesson.live({ curve: { kind: null, uninverted: false } }), null, `${label}: a flat move without un-inversion stays silent`);
+assert.equal(selectScreenLessons('macro', curveCtx)[0]?.id, 'read-the-curve', `${label}: the macro screen leads with the live curve lesson`);
+const earningsLesson = LESSON_BY_ID['earnings-revisions'];
+assert.match(earningsLesson.live({ indexEarnings: { available: true, breadth: 0.5, up: 300, down: 100 } }), /상향 300건 · 하향 100건 — 올리는 쪽이 우세합니다/, `${label}: the earnings lesson counts revisions with the card's ±0.1 tilt`);
+assert.equal(earningsLesson.live({ indexEarnings: { available: true, breadth: null, up: 3, down: 1 } }), null, `${label}: under-covered index breadth stays silent`);
+assert.equal(earningsLesson.live({ indexEarnings: { available: false } }), null, `${label}: no consensus, no sentence`);
+assert.equal(selectScreenLessons('fundamental', { indexEarnings: { available: true, breadth: 0.5, up: 3, down: 1 } }).some((row) => row.reason), false, `${label}: a stock screen keeps the earnings lesson as a principle`);
+assert.doesNotMatch([curveLesson.live(curveCtx), earningsLesson.live({ indexEarnings: { available: true, breadth: -0.4, up: 10, down: 30 } })].join('\n'), /\d+(?:\.\d+)?\s*%\s*(?:확률|가능성)|매수하세요|매도하세요/, `${label}: live curve/earnings sentences carry no probability or instruction`);
+
+// Past-frequency evidence (analogs ${ANALOG_METHOD}): a share is informative only beyond 2 standard errors of the base rate.
+assert.equal(pastEvidence({ n: 40, up: 22, baseUpPct: 55 }).informative, false, `${label}: a share at the base rate carries no information`);
+assert.equal(pastEvidence({ n: 40, up: 38, baseUpPct: 55 }).informative, true, `${label}: a share far beyond the base rate is informative`);
+assert.equal(pastEvidence({ n: 5, up: 5, baseUpPct: 55 }).informative, null, `${label}: under 10 cases nothing is tested`);
+assert.equal(pastEvidence(null).n, 0, `${label}: no record, no evidence`);
+assert.equal(pastEvidence({ n: 40, up: 22, baseUpPct: 55 }).method, ANALOG_METHOD, `${label}: evidence carries its method label`);
 
 console.log(`market guide fixture OK: ${BRANCHES.length} branches tagged, ${ALL_LESSONS.length} lessons linked, ${guide.lessons.length} selected today`);
