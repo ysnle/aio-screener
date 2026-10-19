@@ -5,6 +5,21 @@ import { readFileSync } from 'node:fs';
 
 export const PRODUCER_SOURCE_FILES = Object.freeze([
   'scripts/fetch-data.mjs',
+  // 2026-10-19 pipeline redesign: the producer's lanes moved to scripts/producer/* (fetch-data.mjs keeps the run order).
+  'scripts/producer/paths.mjs',
+  'scripts/producer/quotes.mjs',
+  'scripts/producer/fred.mjs',
+  'scripts/producer/kr-exchange.mjs',
+  'scripts/producer/history.mjs',
+  'scripts/producer/screener.mjs',
+  'scripts/producer/screener-extended.mjs',
+  'scripts/producer/screener-breadth.mjs',
+  'scripts/producer/macro-history.mjs',
+  'scripts/producer/market-narrative.mjs',
+  'scripts/producer/source-planes.mjs',
+  'scripts/producer/macro-merge.mjs',
+  'scripts/producer/receipts.mjs',
+  'scripts/producer/run-meta.mjs',
   'scripts/lib/producer-math.mjs',
   'scripts/lib/producer-http.mjs',
   'scripts/lib/macro-sources.mjs',

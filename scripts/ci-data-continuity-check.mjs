@@ -177,7 +177,7 @@ function runProducerChecks() {
     && reconciliation.includes('atomicWriteFile(RECONCILIATION_STATUS_OUT'), 'status builders can tear published JSON on write failure (P1080)');
   check('producer:source-failure-isolated', fetchData.includes('Promise.allSettled') && fetchData.includes('settledValue'), 'source planes still share a fail-fast Promise.all');
   check('producer:fred-requires-complete-series', fetchData.includes('deriveFredCycle({')
-    && fetchData.includes('fredExpectedSeries.length')
+    && fetchData.includes('fredExpectedSeriesCount: fred.expected.length') // 2026-10-19: deriveFredPlane (scripts/producer/fred.mjs)
     && fetchData.includes('fredLastSuccessfulAt'), 'FRED aggregate success does not require complete finite series evidence');
   check('producer:fred-yoy-no-period-substitution', !/monthsBetween\([^\n]+\)\s*>=\s*12\)\s*\|\|\s*obs\[obs\.length\s*-\s*1\]/.test(fetchData), 'YoY still substitutes an arbitrary oldest observation');
   check('producer:unknown-ohlcv-preserved', /volume:\s*typeof v === 'number'[^\n]+:\s*null/.test(fetchData)
