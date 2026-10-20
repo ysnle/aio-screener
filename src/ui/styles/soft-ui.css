@@ -197,6 +197,11 @@ details > summary { cursor: pointer; }
 .page tbody tr:hover > td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
 .page tbody tr:hover > td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
 
+/* v58.55: "이어서 볼 곳" links were white-space:nowrap (index.html), so a long label ran past the page edge when the
+   column narrowed — CI caught it at 1024 beside the new iPad-landscape sidebar (sentiment, +9px with CI's CJK font).
+   They wrap inside their column everywhere instead of per-page fixes. */
+.page .flow-next-link { white-space: normal; max-width: 100%; overflow-wrap: anywhere; text-align: left; }
+
 /* ═══ 4. Chips, buttons, inputs ═════════════════════════════════════════ */
 .aio-badge, .aio-source-badge, .aio-confidence-badge, .status-pill, .pill-chip, .freshness-badge {
   border-radius: 999px !important; letter-spacing: 0 !important; text-transform: none !important; font-family: var(--font-sans) !important;
