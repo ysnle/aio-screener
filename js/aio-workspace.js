@@ -1216,6 +1216,9 @@ function _aioRenderPortfolioExposure(positions, returnsMap) {
 }
 // v50.54 3E: 포트폴리오 스트레스 시나리오 — 섹터 베타(주식/금리/유가) 기반 가상 충격 손익.
 function _aioRenderPortfolioStress(positions, historyMap, commonDates) {
+  // 개편 v2 (3g): the same price records feed the 포트폴리오 hero's 시장 민감도 β (src/ui/components/portfolio-read.js).
+  window._aioPortfolioStressInput = { historyMap: historyMap || {}, commonDates: commonDates || [] };
+  try { window.dispatchEvent(new CustomEvent('aio:portfolioStressInput')); } catch (_) {}
   var el = document.getElementById('pf-stress-panel'); if (!el) return;
   if (!positions || !positions.length || typeof window._aioPortfolioStressHtml !== 'function') { el.innerHTML = ''; return; }
   var base = _pfBaseValues(positions);

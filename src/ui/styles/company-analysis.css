@@ -1,20 +1,21 @@
 /* P1624: reusable company analysis keeps all issuer facts inside their cards. */
-.company-analysis { margin:24px 0; min-width:0; }
+.company-analysis { margin:0 0 18px; min-width:0; padding:20px 22px; background:var(--bg-card); border-radius:20px; box-shadow:var(--sx-card-shadow); } /* v58.53 개편 v2: one soft card */
+.company-analysis > h2:first-child { margin-top:0; font-size:16px; font-weight:700; }
 .company-analysis-lead { font-weight:600; line-height:1.7; overflow-wrap:anywhere; }
 .company-analysis-keys { margin:4px 0 10px; font-size:13px; line-height:1.6; color:var(--text-secondary); font-variant-numeric:tabular-nums; }
 .company-analysis-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr)); gap:12px; min-width:0; }
-.company-analysis-card { min-width:0; padding:16px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; }
+.company-analysis-card { min-width:0; padding:16px 18px; background:var(--sx-ink-a03); border:0; border-radius:16px; }
 .company-analysis-card-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; flex-wrap:wrap; }
 .company-analysis-card-heading h3 { font-size:14px; margin:0; line-height:1.5; }
-.company-analysis-status { font-size:11px; color:var(--text-secondary); white-space:nowrap; }
+.company-analysis-status { font-size:12px; color:var(--text-secondary); white-space:nowrap; }
 .company-analysis-card p,.company-analysis-card li { color:var(--text-secondary); line-height:1.7; font-size:12px; overflow-wrap:anywhere; }
 .company-analysis-card ul { padding-left:18px; margin:12px 0; }
 .company-analysis-card li+li { margin-top:8px; }
 .company-analysis-identity { font-weight:600; color:var(--text-primary)!important; }
 .company-analysis-themes { display:flex; flex-wrap:wrap; gap:6px; }
-.company-analysis-themes button { color:var(--text-primary); border:1px solid var(--border); background:var(--surface-3); border-radius:5px; padding:6px 8px; max-width:100%; overflow-wrap:anywhere; text-align:left; }
+.company-analysis-themes button { color:var(--text-primary); border:0; background:var(--bg-card); border-radius:999px; padding:6px 12px; max-width:100%; overflow-wrap:anywhere; text-align:left; }
 .company-analysis-details { margin-top:12px; font-size:12px; color:var(--text-secondary); }
 .company-analysis-details summary,.company-analysis-observations summary { cursor:pointer; line-height:1.7; }
 .company-analysis-details a { color:var(--accent); }
-.company-analysis-observations { margin-top:12px; padding:12px; border:1px solid var(--border); border-radius:6px; color:var(--text-secondary); font-size:12px; line-height:1.7; }
+.company-analysis-observations { margin-top:12px; padding:12px 16px; border:0; background:var(--sx-ink-a03); border-radius:14px; color:var(--text-secondary); font-size:12px; line-height:1.7; }
 .company-analysis button:focus-visible,.company-analysis summary:focus-visible,.company-analysis a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }

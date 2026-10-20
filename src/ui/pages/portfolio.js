@@ -6,7 +6,7 @@ import { appUsdKrwClose } from '../../domain/portfolio/cash.js';
 import { vixBand } from '../../domain/sentiment/narrative.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { derivePortfolioChecks } from '../../domain/portfolio/checks.js';
-import { renderPortfolioRead } from '../components/portfolio-read.js';
+import { renderPortfolioRead, renderPortfolioLens } from '../components/portfolio-read.js';
 import { portfolioRowsForAI, portfolioSectorLabel } from '../../domain/portfolio/portfolio-read.js';
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
@@ -505,7 +505,24 @@ function renderPortfolioTable(documentRef, page, state, surface) {
       targetCell.appendChild(upsideNode);
     }
     row.appendChild(targetCell);
-    row.appendChild(tableCell(documentRef, 'pf-th-weight', totalValue > 0 && value != null ? `${(value / totalValue * 100).toFixed(1)}% · 주식 내` : '—', 'pfp-cell is-bold is-sans'));
+    // 개편 v2 (3g): the weight reads as a bar beside its number (same share of the stock part).
+    const weightPct = totalValue > 0 && value != null ? value / totalValue * 100 : null;
+    const weightCell = tableCell(documentRef, 'pf-th-weight', '', 'pfp-cell is-bold is-sans');
+    if (weightPct == null) weightCell.textContent = '—';
+    else {
+      const wrap = documentRef.createElement('span');
+      wrap.className = 'pf-weight-cell';
+      const bar = documentRef.createElement('span');
+      bar.className = 'pf-weight-bar';
+      bar.setAttribute('aria-hidden', 'true');
+      const fill = documentRef.createElement('span');
+      fill.style.width = `${Math.max(1, Math.min(100, weightPct)).toFixed(1)}%`;
+      bar.append(fill);
+      wrap.append(bar, documentRef.createTextNode(`${weightPct.toFixed(1)}%`));
+      weightCell.append(wrap);
+      weightCell.title = '주식 평가액 중 비중';
+    }
+    row.appendChild(weightCell);
     const manageCell = documentRef.createElement('td');
     manageCell.setAttribute('headers', 'pf-th-manage');
     manageCell.className = 'pfp-manage';
@@ -612,7 +629,8 @@ function render({ root, documentRef, store, charts }) {
   renderPortfolioStatus(documentRef, state, surface);
   renderPortfolioTable(documentRef, page, state, surface);
   renderPortfolioChart({ root, page, surface, charts });
-  renderPortfolioChecks(documentRef, root, surface);
+  const checks = renderPortfolioChecks(documentRef, root, surface);
+  renderPortfolioLens({ documentRef, root, surface, checks, sectorLabel: portfolioSectorLabel }); // 개편 v2 (3g)
   renderPortfolioRead({ documentRef, root, surface }); // P1438
   renderTradeJournal({ documentRef, root, surface }); // v58.52
 }
@@ -621,7 +639,7 @@ function render({ root, documentRef, store, charts }) {
 const CHECK_TONE = Object.freeze({ ok: ['양호', 'favorable'], attention: ['주의', 'burden'], info: ['참고', 'neutral'], unknown: ['측정 안 함', 'unknown'] });
 function renderPortfolioChecks(documentRef, root, surface) {
   const host = documentRef?.getElementById('pf-checks');
-  if (!host) return;
+  if (!host) return null;
   const universe = Array.isArray(root?.SCREENER_DB) ? root.SCREENER_DB : [];
   const rowOf = (symbol) => universe.find((row) => String(row?.sym || '').toUpperCase() === symbol) || null;
   const result = derivePortfolioChecks({
@@ -638,7 +656,7 @@ function renderPortfolioChecks(documentRef, root, surface) {
   host.hidden = result.status !== 'current' && result.reason !== 'currency-unconverted';
   if (result.status !== 'current') {
     host.append(el('p', result.reason === 'currency-unconverted' ? '통화가 다른 종목이 섞여 있고 환율이 선언되지 않아, 비중을 한 통화로 맞출 수 없습니다. 포트폴리오 설정에서 기준 통화와 환율을 선언하세요.' : '평가액이 있는 포지션을 추가하면 점검이 표시됩니다.', 'briefing-empty'));
-    return;
+    return result;
   }
   host.append(el('p', `투자금 ${result.currency ? `${result.currency} ` : ''}기준 비중${result.excluded ? ` · 평가액이 없는 ${result.excluded}종목 제외` : ''} · 한 종목은 내부 구간(10~25% 참고 · 25% 초과 주의), 한 통화는 공개 기본값으로 판정하고 나머지는 참고 비중으로 표시`, 'theme-strength-basis'));
   const list = el('div', null, 'pf-checks-list');
@@ -653,6 +671,7 @@ function renderPortfolioChecks(documentRef, root, surface) {
     list.append(card);
   }
   host.append(list);
+  return result;
 }
 
 export function createPortfolioPage({ root = globalThis, documentRef, store } = {}) {
@@ -677,6 +696,9 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
       // v57.81: the cash total converts with the published USD/KRW close, which arrives with the history (window event).
       root?.addEventListener?.('aio:historyLoaded', renderNow);
       bag.add(() => root?.removeEventListener?.('aio:historyLoaded', renderNow));
+      // 개편 v2 (3g): β waits for the holdings' price records the legacy stress panel gathers.
+      root?.addEventListener?.('aio:portfolioStressInput', renderNow);
+      bag.add(() => root?.removeEventListener?.('aio:portfolioStressInput', renderNow));
       // v57.81: an out-of-universe holding's on-demand row arrives after the first render.
       const onOnDemand = (event) => { const symbol = String(event?.detail?.symbol || '').toUpperCase(); if ((selectPortfolioState(store.getState())?.holdings || []).some((holding) => String(holding?.symbol || holding?.ticker || '').toUpperCase() === symbol)) renderNow(); };
       eventTarget?.addEventListener?.('aio:onDemandSymbol', onOnDemand);

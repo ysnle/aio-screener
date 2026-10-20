@@ -1,0 +1,419 @@
+/* v58.53 개편 v2 — research screens. Owned by the research screen pass (imported from responsive.css); shared components live in soft-ui.css.
+   Design ids: 3h (리서치 라이브러리 · 용어 사전), 5j (대가 · 아틀라스 · 가이드), 5n (한국 시장).
+   The research pages inject their base rules at runtime (research-shell.js / analysis-frames.js <style>, appended after this
+   file), so overrides here are scoped under .rl-shell / #page-* to win on specificity rather than order.
+   Sections: 1 research shell · 2 learning paths · 3 glossary entry (concept) · 4 documents · 5 glossary modal ·
+   6 masters · 7 atlas · 8 guide · 9 Korea · 10 breakpoints · 11 dark. */
+
+/* Declared on body too: a custom property that reads var(--ink-rgb) resolves where it is declared, and the dark ink
+   (body.dark-theme) is set on body, not :root. */
+:root, body {
+  --rs-tile: rgba(var(--ink-rgb), 0.035);
+  --rs-tile-strong: rgba(var(--ink-rgb), 0.06);
+  --rs-pick: rgba(var(--ink-rgb), 0.08);
+  --rs-ease: var(--sx-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+}
+
+/* ═══ 1. Research shell (principles · atlas · masters) ═══════════════════ */
+.rl-shell { --rl-gap: 16px; }
+.rl-shell .rl-head {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px); gap: 16px; align-items: end;
+  padding: 0; margin: 0 0 18px; border: 0;
+}
+.rl-shell .rl-head > div:first-child { display: flex; flex-direction: column-reverse; gap: 4px; }
+.rl-shell .rl-title {
+  font-family: var(--font-sans); font-size: 34px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.15; color: var(--text-primary);
+}
+.rl-shell .rl-sub { margin: 0; font-size: 13px; color: var(--text-muted); }
+.rl-shell .rl-search input {
+  height: 38px; padding: 0 14px; border: 0; border-radius: 12px; background: var(--rs-tile-strong);
+  font-size: 14px; color: var(--text-primary);
+}
+.rl-shell .rl-search input::placeholder { color: var(--text-muted); }
+.rl-shell .rl-search input:focus { outline: none; background: var(--bg-card); box-shadow: 0 0 0 3px rgba(var(--ink-rgb), 0.12); }
+.rl-shell .rl-results {
+  top: calc(100% + 6px); border: 0; border-radius: 16px; padding: 6px; background: var(--bg-card);
+  box-shadow: var(--sx-float-shadow);
+}
+.rl-shell .rl-result { border: 0; border-radius: 10px; padding: 9px 12px; transition: background 120ms var(--rs-ease); }
+.rl-shell .rl-result:hover, .rl-shell .rl-result:focus { background: var(--rs-tile); }
+.rl-shell .rl-result-summary { border: 0; padding: 6px 12px 8px; }
+
+/* Shelf: one soft card; its summary is the card head. */
+.rl-shell .rl-shelf {
+  margin: 0 0 16px; padding: 18px 22px 14px; border: 0; border-radius: 20px;
+  background: var(--bg-card); box-shadow: var(--sx-card-shadow);
+}
+.rl-shell .rl-shelf:not([open]) { padding-bottom: 4px; }
+.rl-shell .rl-shelf > summary { padding: 0 0 12px; }
+.rl-shell .rl-shelf-name { font-family: var(--font-sans); font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.rl-shell .rl-shelf-stats { font-size: 13px; color: var(--text-muted); }
+.rl-shell .rl-shelf-toggle { border: 0; font-size: 13px; color: var(--text-secondary); }
+.rl-shell .rl-picks { border-bottom: 1px solid rgba(var(--ink-rgb), 0.06); }
+.rl-shell .rl-picks-item {
+  min-height: 30px; padding: 4px 12px; border: 0; border-radius: 10px; background: var(--rs-tile);
+  transition: background 120ms var(--rs-ease);
+}
+.rl-shell .rl-picks-item:hover { background: var(--rs-tile-strong); }
+.rl-shell .rl-shelf-chip {
+  min-height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--rs-tile-strong);
+  font-size: 13px; color: var(--text-secondary); transition: background 120ms var(--rs-ease);
+}
+.rl-shell .rl-shelf-chip:hover { background: var(--rs-pick); }
+.rl-shell .rl-shelf-chip[aria-pressed="true"] { background: var(--text-primary); color: var(--bg-card); }
+.rl-shell .rl-shelf-sort { border: 0; border-radius: 10px; padding: 2px; background: var(--rs-tile-strong); }
+.rl-shell .rl-shelf-seg { min-height: 28px; border-radius: 8px; padding: 0 12px; font-size: 13px; }
+.rl-shell .rl-shelf-seg[aria-pressed="true"] { background: var(--bg-card); box-shadow: 0 1px 3px rgba(33, 29, 22, 0.12); font-weight: 600; }
+.rl-shell .rl-shelf-more, .rl-shell .rl-shelf-btn {
+  border: 0; border-radius: 999px; background: var(--rs-tile-strong); font-size: 13px; font-weight: 600; min-height: 32px;
+}
+.rl-shell .rl-shelf-btn.is-primary { background: var(--text-primary); color: var(--bg-card); }
+.rl-shell .rl-book { border: 0; border-radius: 20px; box-shadow: var(--sx-hero-shadow); }
+.rl-shell .rl-book-body h3 { font-family: var(--font-sans); font-weight: 700; letter-spacing: -0.01em; }
+.rl-shell .rl-book-tag { border: 0; background: var(--rs-tile-strong); }
+
+/* 목차 · 본문 · 연결: the open document is the hero card; contents and connections are quiet columns. */
+.rl-shell .rl-grid { grid-template-columns: minmax(200px, 232px) minmax(0, 1fr) minmax(240px, 288px); gap: 16px; }
+.rl-shell .rl-main {
+  background: var(--bg-card); border-radius: 24px; padding: 26px 30px 28px; box-shadow: var(--sx-hero-shadow);
+}
+.rl-shell .rl-nav { padding: 2px 6px 2px 0; }
+.rl-shell .rl-nav-switch { gap: 2px; margin: 0 0 12px; padding: 0 0 12px; border-bottom: 1px solid rgba(var(--ink-rgb), 0.06); }
+.rl-shell .rl-nav-title { margin: 12px 0 4px; padding: 0 10px; font-size: 12px; font-weight: 600; letter-spacing: 0; color: var(--text-muted); }
+.rl-shell .rl-nav-item {
+  min-height: 32px; padding: 6px 10px; border: 0; border-radius: 8px; font-size: 14px; color: var(--text-secondary);
+  transition: background 120ms var(--rs-ease), color 120ms var(--rs-ease);
+}
+.rl-shell .rl-nav-item:hover { background: var(--rs-tile); color: var(--text-primary); }
+.rl-shell .rl-nav-sub { padding-left: 10px; font-size: 13px; }
+.rl-shell .rl-nav-group-head { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.rl-shell .rl-nav-group-head[aria-expanded="true"],
+.rl-shell .rl-nav-item.is-active, .rl-shell .rl-nav-item[aria-pressed="true"], .rl-shell .rl-nav-item[aria-current="true"] {
+  border: 0; background: var(--rs-pick); color: var(--text-primary); font-weight: 600;
+}
+.rl-shell .rl-nav-meta { font-size: 12px; }
+.rl-shell .rl-aside { display: flex; flex-direction: column; gap: 12px; }
+.rl-shell .rl-aside-block {
+  border: 0; border-radius: 18px; padding: 16px 18px; background: var(--bg-card); box-shadow: var(--sx-card-shadow);
+}
+.rl-shell .rl-aside-block:first-child { padding-top: 16px; }
+.rl-shell .rl-aside-title { margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 0; color: var(--text-secondary); }
+.rl-shell .rl-aside .af-route {
+  padding: 8px 10px; margin: 0 -10px; width: calc(100% + 20px); border-radius: 10px; transition: background 120ms var(--rs-ease);
+}
+.rl-shell .rl-aside .af-route:hover { background: var(--rs-tile); }
+.rl-shell .rl-pager { border-top: 1px solid rgba(var(--ink-rgb), 0.06); }
+.rl-shell .rl-doc-title { font-family: var(--font-sans); font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+.rl-shell .rl-doc-lead { border-left: 0; border-radius: 14px; padding: 14px 16px; background: var(--rs-tile); }
+.rl-shell .rl-chip { border: 0; border-radius: 999px; background: var(--rs-tile-strong); padding: 2px 9px; font-size: 12px; }
+
+/* ═══ 2. Learning paths (3h: 기초 · 중급 · 심화) ══════════════════════════ */
+.rl-paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0 0 16px; }
+.rl-path {
+  display: flex; flex-direction: column; gap: 12px; padding: 20px 22px; border-radius: 20px;
+  background: var(--bg-card); box-shadow: var(--sx-card-shadow);
+}
+.rl-path-head { display: flex; justify-content: space-between; align-items: baseline; }
+.rl-path-level { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+.rl-path-count { font-size: 12px; color: var(--text-muted); }
+.rl-path-title { margin: 0; font-family: var(--font-sans) !important; font-size: 18px; font-weight: 700; letter-spacing: -0.01em !important; color: var(--text-primary); }
+.rl-path-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.rl-path-step {
+  appearance: none; display: flex; align-items: center; gap: 10px; width: calc(100% + 12px); min-height: 32px; padding: 4px 6px; margin: 0 -6px;
+  border: 0; border-radius: 10px; background: none; font: inherit; font-size: 13px; color: var(--text-primary); text-align: left; cursor: pointer;
+  transition: background 120ms var(--rs-ease);
+}
+.rl-path-step:hover { background: var(--rs-tile); }
+.rl-path-step:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 1px; }
+.rl-path-num {
+  flex: none; width: 22px; height: 22px; border-radius: 7px; background: var(--rs-tile-strong);
+  display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
+}
+
+/* ═══ 3. Glossary entry card (3h) — 개념 사전 document ═══════════════════ */
+.rl-shell .rl-entry { max-width: none; }
+.rl-entry-card { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 36px; margin: 0 0 22px; }
+.rl-shell .rl-entry .rl-entry-body { margin: 0; padding: 0; border: 0; background: none; display: flex; flex-direction: column; gap: 12px; }
+.rl-entry .rl-entry-body .af-kicker { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: 0; color: var(--text-secondary); }
+.rl-entry .rl-entry-body .af-issue { margin: 0; font-family: var(--font-sans); font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+.rl-entry-def { margin: 0; font-size: 15px; line-height: 1.75; text-wrap: pretty; color: var(--text-primary); }
+.rl-entry-formula, #glossary-body .lu-gl-formula {
+  padding: 12px 16px; border-radius: 14px; background: rgba(var(--ink-rgb), 0.04); font-size: 14px; line-height: 1.6;
+  font-variant-numeric: tabular-nums; color: var(--text-primary);
+}
+.rl-entry-limits { margin: 0; font-size: 13px; line-height: 1.7; text-wrap: pretty; color: var(--text-secondary); }
+.rl-entry-used { display: flex; flex-direction: column; gap: 10px; }
+.rl-entry-label { margin: 0; font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+.rl-used-row {
+  appearance: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%;
+  padding: 12px 14px; border: 0; border-radius: 12px; background: var(--rs-tile); font: inherit; text-align: left; cursor: pointer;
+  transition: background 120ms var(--rs-ease);
+}
+.rl-used-row::after { content: '›'; color: var(--text-muted); font-size: 16px; }
+.rl-used-row:hover { background: var(--rs-tile-strong); }
+.rl-used-row:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 1px; }
+.rl-used-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rl-used-title { font-size: 14px; color: var(--text-primary); }
+.rl-used-meta { font-size: 12px; color: var(--text-muted); }
+.rl-entry-related { margin: 4px 0 0; font-size: 12px; color: var(--text-muted); }
+
+/* ═══ 4. Documents (analysis notes, columns, lessons) inside the hero card ═ */
+.rl-shell .af-kicker { font-size: 12px; letter-spacing: 0; }
+.rl-shell .af-issue { font-family: var(--font-sans); font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+.rl-shell .af-section { font-size: 15px; letter-spacing: -0.01em; }
+.rl-shell .af-flow-step, .rl-shell .af-channel, .rl-shell .af-tag {
+  border: 0; border-radius: 999px; background: var(--rs-tile-strong); padding: 5px 11px;
+}
+.rl-shell .af-twist { border-left: 0; border-radius: 14px; padding: 14px 16px; background: var(--rs-tile); }
+.rl-shell :is(.af-calc, .af-domain-map, .af-definition, .af-model, .af-force, .af-stage, .af-formula) {
+  border: 0; border-radius: 14px; background: var(--rs-tile);
+}
+.rl-shell .af-stack-layer, .rl-shell .af-stage-node { border: 0; border-radius: 10px; background: var(--rs-tile-strong); }
+.rl-shell .af-force-sum { border: 0; border-radius: 14px; background: var(--sx-warn-bg); }
+.rl-shell .af-bar-track { border-radius: 999px; background: var(--rs-tile-strong); height: 8px; }
+.rl-shell .af-bar-fill { border-radius: 999px; background: var(--text-primary); opacity: 0.8; }
+.rl-shell .af-terms, .rl-shell .af-basis { border-top: 1px solid rgba(var(--ink-rgb), 0.06); }
+.rl-shell .af-domain-map-num { border: 0; background: var(--rs-tile-strong); border-radius: 7px; }
+
+/* ═══ 5. Glossary modal (3h · sidebar 용어 사전) ═════════════════════════ */
+#glossary-modal { background: rgba(33, 29, 22, 0.32) !important; backdrop-filter: blur(6px) !important; }
+#glossary-modal > .sh-shell-glossary-modal-stack {
+  width: min(860px, calc(100vw - 32px)); max-width: 860px !important; max-height: 86vh !important;
+  border: 0 !important; border-radius: 24px !important; overflow: hidden;
+  background: var(--bg-card) !important; box-shadow: var(--sx-float-shadow) !important;
+}
+#glossary-modal .sh-shell-glossary-modal-box { padding: 22px 26px 14px; border-bottom: 1px solid rgba(var(--ink-rgb), 0.06); }
+#glossary-modal h2.sh-shell-glossary-modal-big {
+  font-family: var(--font-sans) !important; font-size: 22px !important; font-weight: 700 !important; letter-spacing: -0.02em; color: var(--text-primary) !important;
+}
+#glossary-modal .sh-shell-glossary-modal-btn {
+  width: 36px; height: 36px; border-radius: 999px; background: var(--rs-tile-strong); font-size: 20px; line-height: 1; color: var(--text-secondary);
+  transition: background 120ms var(--rs-ease);
+}
+#glossary-modal .sh-shell-glossary-modal-btn:hover { background: var(--rs-pick); color: var(--text-primary); }
+#glossary-modal .sh-shell-glossary-search-field {
+  height: 40px; margin-top: 14px; padding: 0 14px; border: 0; border-radius: 12px; background: var(--rs-tile-strong);
+  font-size: 14px; color: var(--text-primary);
+}
+#glossary-modal .sh-shell-glossary-search-field::placeholder { color: var(--text-muted); }
+#glossary-modal .sh-shell-glossary-search-field:focus { background: var(--bg-card); box-shadow: 0 0 0 3px rgba(var(--ink-rgb), 0.12); }
+#glossary-cats .lu-gl-cat {
+  min-height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--rs-tile-strong);
+  font-size: 13px; color: var(--text-secondary); transition: background 120ms var(--rs-ease);
+}
+#glossary-cats .lu-gl-cat:hover { background: var(--rs-pick); }
+#glossary-cats .lu-gl-cat[aria-pressed="true"] { background: rgba(var(--ink-rgb), 0.14); color: var(--text-primary); font-weight: 700; }
+#glossary-modal .sh-shell-glossary-body-grow { padding: 10px 14px 18px; }
+#glossary-body .aio-glossary-item { padding: 0 !important; border: 0 !important; border-radius: 14px; transition: background var(--sx-dur, 260ms) var(--rs-ease); }
+#glossary-body .aio-glossary-item + .aio-glossary-item { margin-top: 2px; }
+#glossary-body .aio-glossary-item:hover, #glossary-body .aio-glossary-item[open] { background: var(--rs-tile); }
+#glossary-body .lu-gl-head {
+  list-style: none; display: grid; grid-template-columns: auto auto minmax(0, 1fr) 16px; align-items: baseline; gap: 4px 10px;
+  margin: 0; padding: 12px 14px; border-radius: 14px; cursor: pointer;
+}
+#glossary-body .lu-gl-head::-webkit-details-marker { display: none; }
+#glossary-body .lu-gl-head::after { content: '⌄'; justify-self: end; color: var(--text-muted); font-size: 14px; }
+#glossary-body .aio-glossary-item[open] > .lu-gl-head::after { content: '⌃'; }
+#glossary-body .lu-gl-head:focus-visible { outline: 2px solid var(--text-primary); outline-offset: -2px; }
+#glossary-body .aio-glossary-term { font-family: var(--font-sans) !important; font-size: 15px !important; font-weight: 700; color: var(--text-primary) !important; }
+#glossary-body .lu-gl-tag {
+  display: inline-flex; align-items: center; height: 22px; padding: 0 9px; border-radius: 999px;
+  background: var(--rs-tile-strong); font-size: 12px; font-weight: 600; color: var(--text-secondary);
+}
+#glossary-body .lu-gl-first { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 13px; color: var(--text-secondary); }
+#glossary-body .aio-glossary-item[open] .lu-gl-first { visibility: hidden; }
+#glossary-body .lu-gl-def { display: flex; flex-direction: column; gap: 10px; padding: 0 16px 16px; color: var(--text-secondary); font-size: 13px; line-height: 1.6; }
+#glossary-body .lu-gl-lead { margin: 0; font-size: 15px; line-height: 1.75; text-wrap: pretty; color: var(--text-primary); }
+#glossary-body .lu-gl-limits { margin: 0; font-size: 13px; line-height: 1.7; color: var(--text-secondary); text-wrap: pretty; }
+#glossary-body .lu-gl-limits b { margin-right: 4px; font-weight: 700; color: var(--text-primary); }
+#glossary-body .lu-gl-used { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+#glossary-body .lu-gl-used-label { width: 100%; font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+#glossary-body .lu-gl-route {
+  appearance: none; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 14px; border: 0; border-radius: 999px;
+  background: var(--bg-card); box-shadow: var(--sx-card-shadow); font: inherit; font-size: 13px; font-weight: 600; color: var(--text-primary); cursor: pointer;
+  transition: filter 120ms var(--rs-ease);
+}
+#glossary-body .lu-gl-route::after { content: '›'; color: var(--text-muted); }
+#glossary-body .lu-gl-route:hover { filter: brightness(0.97); }
+#glossary-body .lu-gl-basis { margin: 0; font-size: 12px; color: var(--text-muted); }
+#glossary-body .lu-gl-scope { padding: 8px 14px; }
+#glossary-body .glx-box { margin: 14px 4px 0; padding: 14px 12px 4px; border-top: 1px solid rgba(var(--ink-rgb), 0.08); }
+#glossary-body .glx-meta { font-size: 12px; }
+#glossary-body .glx-screens .flow-next-link {
+  appearance: none; min-height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--rs-tile-strong);
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--text-primary); cursor: pointer;
+}
+#glossary-body .glx-row { border: 0; border-radius: 12px; padding: 9px 10px; transition: background 120ms var(--rs-ease); }
+#glossary-body .glx-row:hover { background: var(--rs-tile); }
+
+/* A page with nothing in the connections column gives that width to the document. */
+.rl-shell .rl-grid:has(> .rl-aside:empty) { grid-template-columns: minmax(200px, 232px) minmax(0, 1fr); }
+.rl-shell .rl-grid > .rl-aside:empty { display: none; }
+
+/* ═══ 6. Masters (5j) — real 13F only; quarter-end date chip under the name ═ */
+#page-masters .masters-detail-card { min-height: 0; padding: 0; border: 0 !important; border-radius: 0 !important; background: none !important; }
+#page-masters .masters-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0; text-transform: none; color: var(--text-secondary); }
+#page-masters .masters-detail-title { margin: 6px 0 8px; font-family: var(--font-sans); font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+#page-masters .masters-quarter-chip { margin: 0 0 8px; }
+#page-masters .masters-detail-filer, #page-masters .masters-holdings-meta { font-size: 13px; color: var(--text-muted); }
+#page-masters .masters-metric-grid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 18px 0; }
+#page-masters .masters-metric { padding: 14px 16px; border-radius: 16px !important; }
+#page-masters .masters-metric-label { font-size: 12px; color: var(--text-muted); }
+#page-masters .masters-metric-value { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+#page-masters .masters-weight-bars .af-bar-row { grid-template-columns: minmax(120px, 190px) 1fr 56px; font-size: 13px; }
+#page-masters .masters-detail-tabs {
+  display: inline-flex; flex-wrap: wrap; gap: 0; padding: 2px; margin: 16px 0 12px; border-radius: 10px; background: var(--rs-tile-strong);
+}
+#page-masters .masters-detail-tab, #page-masters .masters-filter-tab {
+  min-height: 28px; padding: 0 14px; border: 0 !important; border-radius: 8px; background: transparent; font-size: 13px; color: var(--text-secondary);
+  transition: background 120ms var(--rs-ease), color 120ms var(--rs-ease);
+}
+#page-masters .masters-detail-tab:hover, #page-masters .masters-filter-tab:hover { color: var(--text-primary); background: transparent; }
+#page-masters .masters-detail-tab.is-active, #page-masters .masters-detail-tab[aria-pressed="true"],
+#page-masters .masters-filter-tab.is-active, #page-masters .masters-filter-tab[aria-pressed="true"] {
+  background: var(--bg-card); color: var(--text-primary); font-weight: 600; box-shadow: 0 1px 3px rgba(33, 29, 22, 0.12);
+}
+#page-masters .masters-route-button, #page-masters .masters-page-button {
+  min-height: 32px; padding: 0 14px; border: 0 !important; border-radius: 999px; background: var(--rs-tile-strong); font-size: 13px; font-weight: 600; color: var(--text-primary);
+  transition: background 120ms var(--rs-ease);
+}
+#page-masters .masters-route-button:hover, #page-masters .masters-page-button:hover { background: var(--rs-pick); }
+#page-masters .masters-holdings-section, #page-masters .masters-style-compare {
+  border: 0 !important; border-radius: 18px; padding: 18px 20px; background: var(--rs-tile);
+}
+#page-masters .masters-holdings-title { font-family: var(--font-sans); font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+#page-masters .masters-ticker-lookup-input { height: 38px; border: 0; border-radius: 12px; background: var(--rs-tile-strong); font-size: 14px; }
+#page-masters .masters-ticker-lookup-input:focus { outline: none; background: var(--bg-card); box-shadow: 0 0 0 3px rgba(var(--ink-rgb), 0.12); }
+#page-masters .masters-trend-bars { border-bottom-color: rgba(var(--ink-rgb), 0.08); }
+#page-masters .masters-trend-bar { border-radius: 4px 4px 0 0; }
+
+/* ═══ 7. Atlas ═══════════════════════════════════════════════════════════ */
+#page-atlas .atlas-integrated-framework-spine, #page-principles .principles-integrated-framework-spine {
+  border: 0; border-radius: 20px; padding: 20px 22px; background: var(--bg-card); box-shadow: var(--sx-card-shadow);
+}
+
+/* ═══ 8. Guide (5j: 읽는 순서 · 메뉴 지도 · 판정 기준표 · 접힘) ═══════════ */
+#page-guide .guide-steps {
+  display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); gap: 20px; align-items: center; margin: 0 0 16px;
+  padding: 20px 22px; border-radius: 20px; background: var(--bg-card); box-shadow: var(--sx-card-shadow);
+}
+#page-guide .guide-steps-title { margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+#page-guide .guide-steps-list { display: contents; list-style: none; }
+#page-guide .guide-steps-list li { display: flex; align-items: center; gap: 12px; min-width: 0; }
+#page-guide .guide-steps-num {
+  flex: none; width: 34px; height: 34px; border-radius: 11px; background: var(--rs-tile-strong);
+  display: inline-flex; align-items: center; justify-content: center; font-weight: 700;
+}
+#page-guide .guide-steps-list b { display: block; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+#page-guide .guide-steps-list small { display: block; font-size: 12px; color: var(--text-muted); }
+#page-guide .guide-nav {
+  border: 0; border-radius: 20px; padding: 16px 18px; background: var(--bg-card); box-shadow: var(--sx-card-shadow); gap: 12px;
+}
+#page-guide .guide-search input { height: 38px; border: 0; border-radius: 12px; background: var(--rs-tile-strong); font-size: 14px; padding: 0 14px; }
+#page-guide .guide-jumps .aio-btn-table, #page-guide .guide-screen-tabs .aio-btn-table { min-height: 28px; font-size: 13px; }
+#page-guide .guide-search-result { border-radius: 12px; background: var(--rs-tile); }
+#page-guide .briefing-h2 { font-family: var(--font-sans); font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+#page-guide .guide-screen-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+#page-guide .guide-screen {
+  border: 0; border-radius: 20px; padding: 18px 20px; background: var(--bg-card); box-shadow: var(--sx-card-shadow); gap: 8px;
+}
+#page-guide .guide-screen-title { font-size: 16px; }
+#page-guide .guide-screen-question { font-weight: 400; color: var(--text-secondary); }
+#page-guide .guide-rules td.is-burden, #page-guide .regime-state.is-burden { color: var(--data-amber); } /* red is price-down only, never a verdict */
+#page-guide .guide-rules th { border-bottom: 1px solid rgba(var(--ink-rgb), 0.08); }
+#page-guide .aio-guide-chapter, #page-guide .guide-ref, #page-guide #guide-public-policy {
+  margin: 12px 0 0; padding: 0 4px; border: 0 !important; border-radius: 18px; background: var(--bg-card); box-shadow: var(--sx-card-shadow);
+}
+#page-guide .aio-guide-chapter > summary, #page-guide .guide-ref > summary {
+  min-height: 52px; padding: 14px 18px; font-family: var(--font-sans); font-size: 15px; font-weight: 600; border-radius: 18px;
+  transition: background 120ms var(--rs-ease);
+}
+#page-guide .aio-guide-chapter > summary:hover { background: var(--rs-tile); }
+#page-guide .aio-guide-chapter > summary:after { content: '⌄'; color: var(--text-muted); }
+#page-guide .aio-guide-chapter[open] > summary:after { content: '⌃'; }
+#page-guide .aio-guide-chapter > .aio-section, #page-guide .aio-guide-chapter > div { padding: 0 18px; }
+#page-guide .guide-block:has(.guide-rules) { padding: 20px 22px; border-radius: 20px; background: var(--bg-card); box-shadow: var(--sx-card-shadow); }
+
+/* ═══ 9. Korea (5n) — labelled '한국', secondary to US; price moves use the Korean convention ═══
+   up = --candle-up (#d23f35) · down = --candle-down (#2a64c8), the color-theme.js / chart-quality.css tokens. These are
+   price directions only; verdict colours (green favourable / amber burden) never apply to them. */
+.kr-up { color: var(--candle-up, #d23f35) !important; }
+.kr-down { color: var(--candle-down, #2a64c8) !important; }
+.kr-market-chip { margin-right: 8px; vertical-align: 2px; }
+.trend-card .kr-index-move { flex-basis: 100%; text-align: right; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-secondary); }
+#kr-index-trends .trend-card-head { flex-wrap: wrap; }
+#kr-index-trends .trend-card-value { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+#kr-themes-artifact-read .stock-read-bar.is-up { background: var(--candle-up, #d23f35); }
+#kr-themes-artifact-read .stock-read-bar.is-down { background: var(--candle-down, #2a64c8); }
+
+#regime-kr-participation { font-size: 14px; line-height: 1.7; padding: 0; border: 0; border-radius: 0; background: none; }
+#regime-kr-participation > h2 { display: flex; align-items: center; font-family: var(--font-sans); font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+#regime-kr-participation > h3 { font-size: 14px; font-weight: 700; margin: 18px 0 8px; }
+#regime-kr-participation .flow-lead { font-size: 14px; color: var(--text-secondary); }
+#regime-kr-participation .regime-kr-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 10px; max-width: none; margin: 12px 0; }
+#regime-kr-participation .regime-kr-metrics dt { grid-row: 1; padding: 14px 16px 0; border-radius: 16px 16px 0 0; background: var(--rs-tile); font-size: 12px; color: var(--text-muted); }
+#regime-kr-participation .regime-kr-metrics dd { grid-row: 2; padding: 2px 16px 14px; border-radius: 0 0 16px 16px; background: var(--rs-tile); font-size: 18px; font-weight: 700; }
+#regime-kr-participation > ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+#regime-kr-participation > ul > li { padding: 12px 14px; border-radius: 14px; background: var(--rs-tile); }
+#regime-kr-participation > ul > li > strong { font-size: 14px; font-weight: 600; }
+#regime-kr-participation .regime-kr-heavy { margin: 4px 0 0; font-size: 13px; color: var(--text-secondary); }
+#regime-kr-participation > details { margin-top: 8px; border-radius: 14px; }
+#regime-kr-participation > details > summary { min-height: 44px; display: flex; align-items: center; padding: 0 14px; border-radius: 14px; font-size: 14px; font-weight: 600; list-style: none; }
+#regime-kr-participation > details > summary::-webkit-details-marker { display: none; }
+#regime-kr-participation > details > summary::after { content: '⌄'; margin-left: auto; color: var(--text-muted); }
+#regime-kr-participation > details[open] { background: var(--rs-tile); }
+#regime-kr-participation > details[open] > summary::after { content: '⌃'; }
+#regime-kr-participation > details > p { margin: 0; padding: 0 14px 12px; font-size: 13px; color: var(--text-secondary); }
+
+/* ═══ 10. Breakpoints (4a) ════════════════════════════════════════════════ */
+/* iPad landscape: the connections column drops under the document. */
+@media (max-width: 1279px) {
+  .rl-shell .rl-grid, .rl-shell .rl-grid:has(> .rl-aside:empty) { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr); }
+  .rl-shell .rl-aside { grid-column: 2; position: static; max-height: none; }
+  .rl-entry-card { gap: 24px; }
+}
+/* iPad portrait: one column; the contents list folds into a scroll strip above the document. */
+@media (max-width: 1023px) {
+  .rl-shell .rl-head { grid-template-columns: minmax(0, 1fr); }
+  .rl-shell .rl-grid, .rl-shell .rl-grid:has(> .rl-aside:empty) { grid-template-columns: minmax(0, 1fr); }
+  .rl-shell .rl-nav { position: static; max-height: 320px; padding: 12px; border-radius: 18px; background: var(--bg-card); box-shadow: var(--sx-card-shadow); }
+  .rl-shell .rl-aside { grid-column: 1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rl-paths { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rl-entry-card { grid-template-columns: minmax(0, 1fr); }
+  #page-guide .guide-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  #page-guide .guide-steps-title { grid-column: 1 / -1; }
+  #regime-kr-participation .regime-kr-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+/* iPhone: single column, 44px touch targets. */
+@media (max-width: 743px) {
+  .rl-shell .rl-title { font-size: 28px; }
+  .rl-shell .rl-main { padding: 20px 18px 22px; border-radius: 20px; }
+  .rl-shell .rl-shelf { padding: 14px 16px 10px; }
+  .rl-shell .rl-aside { grid-template-columns: minmax(0, 1fr); }
+  .rl-paths { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 84%; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin: 0 -16px 14px; padding: 2px 16px 10px; }
+  .rl-path { scroll-snap-align: start; }
+  .rl-path { padding: 16px 18px; }
+  .rl-path-step, .rl-used-row, .rl-shell .rl-nav-item, .rl-shell .rl-shelf-chip, .rl-shell .rl-picks-item,
+  #glossary-cats .lu-gl-cat, #glossary-body .lu-gl-route, #page-masters .masters-detail-tab, #page-masters .masters-route-button { min-height: 44px; }
+  .rl-entry .rl-entry-body .af-issue { font-size: 22px; }
+  #glossary-modal > .sh-shell-glossary-modal-stack { width: calc(100vw - 16px); max-height: 92vh !important; border-radius: 22px !important; }
+  #glossary-modal .sh-shell-glossary-modal-box { padding: 16px 16px 12px; }
+  #glossary-cats { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  #glossary-cats .lu-gl-cat { flex: none; }
+  #glossary-body .lu-gl-head { grid-template-columns: minmax(0, 1fr) auto 16px; min-height: 44px; }
+  #glossary-body .lu-gl-first { grid-column: 1 / -1; grid-row: 2; }
+  #page-masters .masters-metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #page-masters .masters-weight-bars .af-bar-row { grid-template-columns: minmax(96px, 130px) 1fr 48px; font-size: 12px; }
+  #page-guide .guide-steps { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  #page-guide .guide-search { flex-wrap: wrap; }
+  #regime-kr-participation .regime-kr-metrics { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  #regime-kr-participation .regime-kr-metrics dt { grid-row: auto; margin-top: 8px; }
+  #regime-kr-participation .regime-kr-metrics dd { grid-row: auto; }
+}
+
+/* ═══ 11. Dark ═══════════════════════════════════════════════════════════ */
+body.dark-theme .rl-shell .rl-shelf-seg[aria-pressed="true"],
+body.dark-theme #page-masters .masters-detail-tab.is-active, body.dark-theme #page-masters .masters-detail-tab[aria-pressed="true"] {
+  background: var(--bg-elevated); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+body.dark-theme #glossary-modal { background: rgba(0, 0, 0, 0.5) !important; }

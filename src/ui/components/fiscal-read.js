@@ -225,6 +225,69 @@ function peerSection(doc, root, symbol, row, rows, fundamentals) {
   return box;
 }
 
+// v58.53 개편 v2 (5g): 이익의 질 — operating cash flow ÷ net income for each filed year (the trend is only the years in
+// sec-fiscal-history; no year is estimated), the latest free-cash-flow margin and the one-year share count change.
+// Banks are skipped: their operating cash flow mixes deposits and loans, so the ratio does not read as earnings quality.
+function earningsQualityCard(doc, read) {
+  if (read.points.some((point) => point.id === 'bank')) return null;
+  const years = read.history.filter((year) => number(year.operatingCashFlow) != null && number(year.netIncome) != null).slice(-5);
+  const latest = read.history.at(-1);
+  if (!latest || number(latest.operatingCashFlow) == null) return null;
+  const ratioOf = (year) => (year.netIncome > 0 && year.operatingCashFlow > 0 ? year.operatingCashFlow / year.netIncome : null);
+  const card = el(doc, 'div', null, 'sx-card v2-fiscal-quality');
+  const head = el(doc, 'div', null, 'sx-card__head');
+  head.append(el(doc, 'h3', '이익의 질', 'sx-card__title'), el(doc, 'span', `회계연도 말 ${latest.periodEnd}`, 'sx-card__meta'));
+  card.append(head);
+  const rows = el(doc, 'div', null, 'v2-fiscal-rows');
+  const row = (name, detail, value, extra = null) => {
+    const line = el(doc, 'div', null, 'v2-fiscal-row');
+    const label = el(doc, 'span', null, 'v2-fiscal-row__label');
+    label.append(el(doc, 'span', name, 'v2-fiscal-row__name'), el(doc, 'span', detail, 'v2-fiscal-row__detail'));
+    line.append(label, el(doc, 'b', value, 'v2-fiscal-row__value'));
+    if (extra) line.append(extra);
+    rows.append(line);
+  };
+  const ratio = ratioOf(latest);
+  // The trend: one small bar per filed year (ratio capped at 2 for the drawing; the number is printed as filed).
+  let trend = null;
+  const plotted = years.map((year) => ({ year, ratio: ratioOf(year) }));
+  if (plotted.filter((item) => item.ratio != null).length >= 2) {
+    trend = el(doc, 'div', null, 'v2-fiscal-trend');
+    trend.setAttribute('role', 'img');
+    trend.setAttribute('aria-label', `영업현금흐름 ÷ 순이익 ${plotted.length}개 회계연도: ${plotted.map((item) => `${item.year.periodEnd.slice(0, 4)} ${item.ratio == null ? '해당 없음' : item.ratio.toFixed(2)}`).join(', ')}`);
+    for (const item of plotted) {
+      const col = el(doc, 'span', null, 'v2-fiscal-trend__col');
+      const bar = el(doc, 'span', null, `v2-fiscal-trend__bar${item.ratio == null ? ' is-na' : item.ratio < 0.8 ? ' is-low' : ''}`);
+      bar.style.height = `${item.ratio == null ? 4 : Math.max(6, Math.min(item.ratio, 2) / 2 * 100).toFixed(1)}%`;
+      col.title = `${item.year.periodEnd} ${item.ratio == null ? '순이익 또는 영업현금흐름이 마이너스 — 비율 해당 없음' : item.ratio.toFixed(2)}`;
+      col.append(el(doc, 'span', item.ratio == null ? '—' : item.ratio.toFixed(2), 'v2-fiscal-trend__value'), bar, el(doc, 'span', `FY${item.year.periodEnd.slice(2, 4)}`, 'v2-fiscal-trend__year'));
+      trend.append(col);
+    }
+  }
+  row('영업현금흐름 ÷ 순이익', ratio == null ? '순이익·현금흐름 중 하나가 마이너스 — 비율 해석 보류' : ratio >= 0.8 ? '1 근처 이상 — 이익이 현금으로 들어옴' : '1보다 낮음 — 장부 이익보다 현금이 적음', ratio == null ? '해당 없음' : ratio.toFixed(2), trend);
+  const capex = number(latest.capex);
+  if (capex != null && latest.revenue > 0) row('잉여현금흐름 마진', '(영업현금흐름 − 설비투자) ÷ 매출', `${((latest.operatingCashFlow - capex) / latest.revenue * 100).toFixed(1)}%`);
+  const prev = read.history.at(-2);
+  if (number(latest.shares) > 0 && number(prev?.shares) > 0) {
+    const split = shareSplitBreaks(read.history).includes(latest.periodEnd);
+    const change = (latest.shares / prev.shares - 1) * 100;
+    row('주식 수 변화 (1년)', split ? '주식 분할 해 — 분할 전후라 비교 보류' : change <= -0.5 ? '자사주 매입이 보상 주식 발행보다 많음' : change >= 0.5 ? '신주·보상 주식으로 주식 수 증가' : '거의 변하지 않음', split ? '분할' : `${change >= 0 ? '+' : '−'}${Math.abs(change).toFixed(1)}%`);
+  }
+  card.append(rows);
+  // ③ 원리 / 지금 읽기 / 한계 behind one disclosure row; ④ the evidence line.
+  const fold = el(doc, 'details', null, 'sx-disclosure v2-fiscal-principle');
+  fold.append(el(doc, 'summary', '원리 · 이익의 질'));
+  const body = el(doc, 'div', null, 'sx-disclosure__body');
+  const box = (label, text) => { const c = el(doc, 'div', null, 'sx-disclosure__card'); c.append(el(doc, 'span', label, 'sx-disclosure__label'), el(doc, 'p', text, 'sx-disclosure__text')); return c; };
+  body.append(
+    box('원리', '회계 이익은 발생주의라 현금보다 먼저 잡힐 수 있습니다. 영업현금흐름 ÷ 순이익이 1 근처면 이익이 현금으로 뒷받침되고, 발생액(순이익 − 영업현금흐름)이 큰 기업은 이후 수익률이 낮은 경향이 관측됐습니다.'),
+    box('지금 읽기', ratio == null ? `${latest.periodEnd} 회계연도는 순이익이나 영업현금흐름이 마이너스라 비율로 읽지 않고 두 금액을 따로 봅니다.` : `${latest.periodEnd} 회계연도 영업현금흐름은 순이익의 ${(ratio * 100).toFixed(0)}%입니다${plotted.length >= 2 ? ` — 위 막대는 공시된 ${plotted.length}개 회계연도의 같은 비율입니다` : ''}.`),
+    box('한계 · 함께 볼 것', '총자산 항목을 수집하지 않아 발생액을 자산으로 나눈 비율(원 연구의 정의)은 계산하지 않습니다. 운전자본이 크게 변한 해나 대규모 일회성 항목은 10-K 현금흐름표에서 확인합니다.'));
+  fold.append(body);
+  card.append(fold, el(doc, 'p', '근거 · Sloan(1996) 발생액 이상 현상 · 데이터 · SEC EDGAR XBRL 연간 공시', 'sx-evidence'));
+  return card;
+}
+
 // S12: the Korean filing button. A receipt number opens that report (DART viewer, rcpNo); without one the DART
 // disclosure search opens. The address stays in href/title, never in the body text.
 export function dartLinkHref(company) {
@@ -278,26 +341,39 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
       if (dart) host.append(dart);
     } else host.append(emptyState(doc, { title: 'SEC 연간 재무 기록이 없습니다', reason: `${symbol} — SEC 공시 대상이 아니거나 아직 수집되지 않은 종목입니다.`, next: 'ETF는 사업회사 재무와 구분합니다.', compact: true }));
   } else {
-    host.querySelector('h2').append(el(doc, 'span', `SEC 연간 · ${read.history.length}개 회계연도`, 'briefing-h2-note'));
+    // v58.53 개편 v2 (5g): ① hero (the reading in one line + basis) → ② revenue/income card beside 이익의 질 → quarters,
+    // the reading rows and peers as cards.
+    host.querySelector('h2').classList.add('sr-only');
+    const hero = el(doc, 'div', null, 'sx-card sx-card--hero v2-fiscal-hero');
+    hero.append(el(doc, 'span', `SEC 연간 · ${read.history.length}개 회계연도`, 'sx-kicker'));
     // 2026-10-14 audit #9: how old the annual figures are sits on this one basis line (it was on the SEC card).
     const fyAgeDays = /^\d{4}-\d{2}-\d{2}$/.test(String(read.latest.periodEnd || '')) ? Math.floor((Date.now() - Date.parse(read.latest.periodEnd)) / 86400000) : null;
-    const basis = el(doc, 'p', `연간 공시 · 회계연도 말 ${read.latest.periodEnd || '미상'}${fyAgeDays != null && fyAgeDays >= 0 ? ` · 회계연도 말로부터 ${fyAgeDays}일` : ''}${fundamentals?.filedAt ? ` · 제출 ${fundamentals.filedAt}` : ''} · 금액 USD`, 'fiscal-period-basis');
+    const basis = el(doc, 'p', `연간 공시 · 회계연도 말 ${read.latest.periodEnd || '미상'}${fyAgeDays != null && fyAgeDays >= 0 ? ` · 회계연도 말로부터 ${fyAgeDays}일` : ''}${fundamentals?.filedAt ? ` · 제출 ${fundamentals.filedAt}` : ''} · 금액 USD`, 'fiscal-period-basis sx-meta');
     const annualSource = sourceLink(doc, fundamentals);
     if (annualSource) basis.append(doc.createTextNode(' · '), annualSource);
-    host.append(basis);
-    if (read.headline) host.append(el(doc, 'p', `${symbol} — ${read.headline}`, 'briefing-read-headline'));
-    if (read.history.length >= 2) host.append(fiscalChart(doc, read.history));
+    if (read.headline) hero.append(el(doc, 'p', `${symbol} — ${read.headline}`, 'briefing-read-headline v2-stock-lede'));
+    hero.append(basis);
+    host.append(hero);
+    const chartCard = el(doc, 'div', null, 'sx-card v2-fiscal-chart');
+    const chartHead = el(doc, 'div', null, 'sx-card__head');
+    chartHead.append(el(doc, 'h3', '매출과 순이익', 'sx-card__title'), el(doc, 'span', '막대 = 금액 · 아래 = 순이익률', 'sx-card__meta'));
+    chartCard.append(chartHead);
+    if (read.history.length >= 2) chartCard.append(fiscalChart(doc, read.history));
     const splitNote = shareSplitBreaks(read.history).length ? ' 주식 수는 분할을 조정하지 않은 값이라, * 표시 해의 차이는 주식 분할입니다.' : '';
-    host.append(tableFold(doc, `연간 금액표 보기 · ${read.history.length}개 회계연도`, fiscalTable(doc, read.history),
+    chartCard.append(tableFold(doc, `연간 금액표 보기 · ${read.history.length}개 회계연도`, fiscalTable(doc, read.history),
       el(doc, 'p', `잉여현금흐름 = 영업현금흐름 − 설비투자. 주식 수는 회계연도 종료 뒤 공시 표지의 관측값으로, 평균 유통주식 수와 다릅니다.${splitNote}`, 'theme-strength-basis')));
     if (root._aioSecFiscalPrecision?.decimalPlaces !== 3 && series) {
       const precision = el(doc, 'details', null, 'fiscal-method-details');
       precision.append(el(doc, 'summary', '과거 기록의 표시 정밀도'),
         el(doc, 'p', `${read.latest.preciseAnnual ? '최근 연간 값은 같은 회계연도의 정확한 공시 금액으로 맞췄습니다. ' : ''}기존 연간·분기 이력은 백만 달러 단위로 반올림되어 과거 비율과 평균 자기자본 ROE에 근사 오차가 있습니다. 정밀 이력이 갱신되기 전까지 소수 금액을 복원하지 않습니다.`, 'theme-strength-basis'));
-      host.append(precision);
+      chartCard.append(precision);
     }
+    const pair = el(doc, 'div', null, 'v2-fiscal-pair');
+    const quality = earningsQualityCard(doc, read);
+    pair.append(chartCard, ...(quality ? [quality] : []));
+    host.append(pair);
     const quarterBox = quarterSection(doc, root, symbol);
-    if (quarterBox) host.append(quarterBox);
+    if (quarterBox) { quarterBox.classList.add('sx-card'); host.append(quarterBox); }
     // Codex browser audit H35: "최신" annual data is not the latest company state. Without quarters the gap after
     // the fiscal year end is named, so an old 10-K is not read as the current quarter.
     else if (read.latest?.periodEnd) {
@@ -306,6 +382,9 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
       if (quarterSource) missing.append(doc.createTextNode(' '), quarterSource);
       host.append(missing);
     }
+    const readingCard = el(doc, 'div', null, 'sx-card v2-fiscal-reading');
+    const readingHead = el(doc, 'div', null, 'sx-card__head');
+    readingHead.append(el(doc, 'h3', '공시를 문장으로 읽기', 'sx-card__title'), el(doc, 'span', '성장 · 수익성 · 현금 · 부채 · 주식 수', 'sx-card__meta'));
     const list = el(doc, 'ul', null, 'stock-read-points');
     for (const point of consensusPoint ? [...read.points, consensusPoint] : read.points) {
       const li = el(doc, 'li', null, `stock-read-point is-${point.tone}`);
@@ -320,9 +399,10 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
       li.append(el(doc, 'span', point.title, 'stock-read-point-title'), text);
       list.append(li);
     }
-    host.append(list);
+    readingCard.append(readingHead, list);
+    host.append(readingCard);
     const peerBox = peerSection(doc, root, symbol, row, rows, fundamentals);
-    if (peerBox) host.append(peerBox);
+    if (peerBox) { peerBox.classList.add('sx-card'); host.append(peerBox); }
   }
   renderNextSteps(doc, next, [
     { action: 'showTicker', arg: symbol, route: 'ticker', label: '요약', why: '실적 흐름과 주가 추세·섹터 회전이 같은 방향인지' },

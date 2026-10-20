@@ -9,8 +9,59 @@ import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
 import { normalizeTickerInput } from '../../domain/entity/ticker-symbol.js';
 import { el } from './dom.js';
+import { RULES } from '../../domain/rules/thresholds.js';
 // v57.91 (visual audit): the loading card spans the whole evidence grid instead of sitting in its last column.
 const fullRow = (node) => { if (node?.style) node.style.gridColumn = '1 / -1'; return node; };
+
+// v58.53 개편 v2 (5f): three reading cards under the chart — distance from the 50-day line, RSI 14 and the 60-session
+// volume-weighted average price — each computed from the same completed daily bars the chart draws (no other source).
+const signedPct = (value) => `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(1)}%`;
+export function wilderRsi(closes, period = 14) {
+  if (!Array.isArray(closes) || closes.length <= period) return null;
+  let gain = 0, loss = 0;
+  for (let i = 1; i <= period; i++) { const d = closes[i] - closes[i - 1]; if (d >= 0) gain += d; else loss -= d; }
+  gain /= period; loss /= period;
+  for (let i = period + 1; i < closes.length; i++) {
+    const d = closes[i] - closes[i - 1];
+    gain = (gain * (period - 1) + Math.max(d, 0)) / period;
+    loss = (loss * (period - 1) + Math.max(-d, 0)) / period;
+  }
+  return loss === 0 ? (gain === 0 ? 50 : 100) : 100 - 100 / (1 + gain / loss);
+}
+export function sessionVwap(bars, sessions = 60) {
+  const window = (bars || []).slice(-sessions);
+  let weighted = 0, volume = 0;
+  for (const bar of window) { const v = Number(bar.volume) || 0; if (v > 0) { weighted += (bar.high + bar.low + bar.close) / 3 * v; volume += v; } }
+  return window.length >= sessions && volume > 0 ? weighted / volume : null;
+}
+function chartReadCards(doc, analysis, currency) {
+  const close = analysis.last?.close;
+  const sma50 = analysis.lines?.sma50?.at(-1);
+  const cards = [];
+  const card = (name, value, detail, ref) => {
+    const box = el(doc, 'div', null, 'sx-card v2-chart-read');
+    box.append(el(doc, 'span', name, 'v2-chart-read__name'), el(doc, 'b', value, 'v2-chart-read__value'), el(doc, 'span', detail, 'v2-chart-read__detail'), el(doc, 'span', ref, 'v2-chart-read__ref'));
+    cards.push(box);
+  };
+  if (close > 0 && sma50 > 0) {
+    const pct = (close / sma50 - 1) * 100;
+    const multiple = Number.isFinite(analysis.adrFrom50) ? Math.abs(analysis.adrFrom50) : null;
+    card('50일선 대비', signedPct(pct), multiple == null ? `50일선 ${formatScreenerPrice(sma50, currency)}` : `일평균 변동폭(${analysis.adrPct.toFixed(1)}%)의 ${multiple.toFixed(1)}배 ${pct >= 0 ? '위' : '아래'} — 거리가 클수록 되돌림 폭도 커집니다`, '이동평균 규칙 · Brock·Lakonishok·LeBaron(1992)');
+  }
+  const rsi = wilderRsi(analysis.bars.map((bar) => bar.close));
+  if (rsi != null) {
+    const { overbought: hot, oversold: cold } = RULES.technical.rsi;
+    card('RSI 14일', rsi.toFixed(1), rsi >= hot ? `과열 기준(${hot}) 이상 — 강한 추세에서는 오래 머물기도 합니다` : rsi <= cold ? `과매도 기준(${cold}) 이하 — 약한 추세에서는 이어지기도 합니다` : `과열 ${hot} · 과매도 ${cold} 사이`, 'Wilder(1978) RSI');
+  }
+  const vwap = sessionVwap(analysis.bars, 60);
+  if (vwap != null && close > 0) {
+    card('거래량 가중 평균가 (60일)', formatScreenerPrice(vwap, currency), `현재가가 ${signedPct((close / vwap - 1) * 100)} ${close >= vwap ? '위' : '아래'} — 최근 60거래일 거래가 많이 일어난 가격의 평균`, 'VWAP · 일봉 전형가격 × 거래량 근사');
+  }
+  if (!cards.length) return null;
+  const row = el(doc, 'div', null, 'v2-chart-reads');
+  row.append(...cards);
+  return fullRow(row);
+}
 
 const STATE_TONE = Object.freeze({ breakout: 'favorable', setup: 'favorable', extended: 'neutral', none: 'neutral', failed: 'burden', downtrend: 'burden' });
 
@@ -264,7 +315,10 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   for (const [label, value] of [...structureRows, ...analysis.evidence, ['시장 상태', regime.available ? `${regime.overall} (양호 ${regime.counts.favorable} · 부담 ${regime.counts.burden})` : '—']]) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
   const more = el(doc, 'details', null, 'chart-evidence-more');
   more.append(el(doc, 'summary', `근거 전체 (${analysis.evidence.length + 3}개)`), list);
-  panel.replaceChildren(read, visuals, more);
+  const readCards = chartReadCards(doc, analysis, kr ? 'KRW' : payload?.meta?.currency || null);
+  const body = el(doc, 'div', null, 'v2-chart-body');
+  body.append(read, visuals, more);
+  panel.replaceChildren(...(readCards ? [readCards] : []), body);
   const forward = buildChartScenarios(analysis);
   if (forward.available) {
     const section = el(doc, 'section', null, 'chart-scenarios');
@@ -445,7 +499,7 @@ function renderIntervalButtons(doc, root, sym, active) {
   if (!head) return;
   let group = doc.getElementById('stock-chart-intervals');
   if (!group) {
-    group = el(doc, 'div', null, 'stock-chart-intervals');
+    group = el(doc, 'div', null, 'stock-chart-intervals sx-seg');
     group.id = 'stock-chart-intervals';
     group.setAttribute('role', 'group');
     group.setAttribute('aria-label', '봉 주기');

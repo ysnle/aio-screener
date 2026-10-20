@@ -6,7 +6,9 @@
 import { ROUTE_HUBS } from '../navigation/route-hubs.js';
 import { COLUMN_FRAME_LINKS, LESSONS, PATHS, lessonById } from '../../domain/knowledge/learning-core.js';
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
-import { createResearchShell, navGroup, asideBlock, el } from './research-shell.js';
+import { createResearchShell, navGroup, asideBlock, el, researchDocumentOpen } from './research-shell.js';
+import { splitDefinition } from './glossary-bridge.js';
+import { screenRoutesFor, CONCEPT_SURFACES } from '../../domain/knowledge/concept-surfaces.js';
 import { renderFrameArticle, renderFrameConnections, ensureFrameStyle, renderBasis, renderWorkedCalc } from './analysis-frames.js';
 
 const conceptById = new Map(CONCEPT_CORE.map((concept) => [concept.id, concept]));
@@ -127,22 +129,63 @@ function renderStory(doc, data, state) {
   return article;
 }
 
+// v58.53 개편 v2 (3h): the entry card reads definition → formula → limits on the left and "이 개념이 쓰이는 곳" on the
+// right (the screens that measure it today, then the analysis notes that use it). Parts are cut from concept.def.
+function routeName(routeId) {
+  const hub = ROUTE_HUBS.find((item) => item.routes.some((route) => route.id === routeId));
+  const name = hub?.routes.find((route) => route.id === routeId)?.label || routeId;
+  return [hub?.label, name].filter((label, i, all) => label && all.indexOf(label) === i).join(' · ');
+}
+function usedInRow(doc, title, meta) {
+  const row = el(doc, 'button', 'rl-used-row');
+  row.type = 'button';
+  const text = el(doc, 'span', 'rl-used-text');
+  text.appendChild(el(doc, 'span', 'rl-used-title', title));
+  if (meta) text.appendChild(el(doc, 'span', 'rl-used-meta', meta));
+  row.appendChild(text);
+  return row;
+}
+function conceptUsedIn(doc, concept) {
+  const box = el(doc, 'div', 'rl-entry-used');
+  box.appendChild(el(doc, 'p', 'rl-entry-label', '이 개념이 쓰이는 곳'));
+  for (const routeId of screenRoutesFor(concept.id)) {
+    const row = usedInRow(doc, routeName(routeId), '지금 값을 보는 화면');
+    row.dataset.action = 'showPage';
+    row.dataset.arg = routeId;
+    box.appendChild(row);
+  }
+  const frameIds = [...new Set([...(CONCEPT_SURFACES[concept.id] || []).filter((id) => id.startsWith('frame:')).map((id) => id.slice(6)), ...framesUsing(concept.id).map((lesson) => lesson.id)])];
+  frameIds.map(lessonById).filter(Boolean).slice(0, 4).forEach((lesson) => {
+    const row = usedInRow(doc, lesson.model ? lesson.title : lesson.issue.split(' — ')[0], '분석 노트');
+    row.dataset.principlesAction = 'frame';
+    row.dataset.principlesValue = lesson.id;
+    box.appendChild(row);
+  });
+  if (box.children.length === 1) box.appendChild(el(doc, 'p', 'rl-note', '이 개념을 직접 재는 화면은 아직 없습니다.'));
+  const related = [...(concept.related || []), ...(concept.contrast || [])].slice(0, 5);
+  if (related.length) box.appendChild(el(doc, 'p', 'rl-entry-related', `관련 · ${related.join(' · ')}`));
+  return box;
+}
+
 function renderConcept(doc, concept, story = null) {
-  const article = el(doc, 'article', 'af-article');
+  const article = el(doc, 'article', 'af-article rl-entry');
   article.dataset.conceptDoc = concept.id;
-  article.append(el(doc, 'p', 'af-kicker', `개념 사전 · ${concept.cat}`), el(doc, 'h2', 'af-issue', concept.term));
+  const parts = splitDefinition(concept.def);
+  const card = el(doc, 'div', 'rl-entry-card');
+  const body = el(doc, 'div', 'rl-entry-body af-definition');
+  body.append(el(doc, 'p', 'af-kicker', `개념 사전 · ${concept.cat}`), el(doc, 'h2', 'af-issue', concept.term));
+  body.appendChild(el(doc, 'p', 'rl-entry-def', parts.lead.join(' ')));
+  parts.formulas.forEach((formula) => body.appendChild(el(doc, 'div', 'rl-entry-formula', formula)));
+  if (parts.limits.length) body.appendChild(el(doc, 'p', 'rl-entry-limits', `한계: ${parts.limits.join(' ')}`));
+  card.append(body, conceptUsedIn(doc, concept));
+  article.appendChild(card);
   if (story) {
     article.appendChild(el(doc, 'p', 'af-lead', story.lead));
-    const definition = el(doc, 'div', 'af-definition');
-    definition.append(el(doc, 'strong', null, '정의'), el(doc, 'p', null, concept.def));
-    article.appendChild(definition);
     const prose = el(doc, 'div', 'af-prose');
     prose.appendChild(el(doc, 'p', null, story.use));
     article.appendChild(prose);
     if (story.table) article.appendChild(storyTable(doc, story.table));
     article.append(el(doc, 'h3', 'af-section', '자주 빗나가는 해석'), el(doc, 'p', 'af-twist', story.twist));
-  } else {
-    article.appendChild(el(doc, 'p', 'af-lead', concept.def));
   }
   const terms = conceptTermList(doc, concept);
   if (terms) article.appendChild(terms);
@@ -224,10 +267,46 @@ function conceptsInLesson(lesson) {
   return CONCEPT_CORE.filter((concept) => [concept.term.replace(/\s*\(.*$/, ''), ...concept.aliases, ...(concept.covers || [])].some((name) => name.length >= 2 && !/^[a-z]/.test(name) && text.includes(name))).slice(0, 5);
 }
 
+// v58.53 개편 v2 (3h): three reading paths over the analysis-note series (learning-core PATHS) — 기초 (numbers,
+// statements, prices), 중급 (money, rates, company returns), 심화 (industries, expectations, charts). Each step opens
+// the first note of that series; counts are the notes the series holds. Shown while browsing, not while reading.
+export const LEARNING_PATHS = Object.freeze([
+  { level: '기초', title: '숫자와 기업을 읽는 바탕', paths: ['foundation', 'accounting', 'economy'] },
+  { level: '중급', title: '돈과 금리가 기업에 닿는 길', paths: ['money', 'rates', 'business'] },
+  { level: '심화', title: '산업 · 가격 · 차트', paths: ['industry', 'market', 'chart'] }
+]);
+function learningPaths(doc) {
+  const row = el(doc, 'section', 'rl-paths');
+  row.setAttribute('aria-label', '학습 경로');
+  for (const band of LEARNING_PATHS) {
+    const series = band.paths.map((id) => PATHS.find((path) => path.id === id)).filter(Boolean);
+    if (!series.length) continue;
+    const card = el(doc, 'div', 'rl-path');
+    const head = el(doc, 'div', 'rl-path-head');
+    head.append(el(doc, 'span', 'rl-path-level', band.level), el(doc, 'span', 'rl-path-count', `${series.reduce((sum, path) => sum + path.lessons.length, 0)}개 노트`));
+    const list = el(doc, 'ol', 'rl-path-steps');
+    series.forEach((path, index) => {
+      const item = el(doc, 'li');
+      const step = el(doc, 'button', 'rl-path-step');
+      step.type = 'button';
+      step.dataset.principlesAction = 'frame';
+      step.dataset.principlesValue = path.lessons[0];
+      step.title = path.why;
+      step.append(el(doc, 'span', 'rl-path-num', String(index + 1)), el(doc, 'span', null, path.title));
+      item.appendChild(step);
+      list.appendChild(item);
+    });
+    card.append(head, el(doc, 'h2', 'rl-path-title', band.title), list);
+    row.appendChild(card);
+  }
+  return row;
+}
+
 export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside, onLocal, onNavigate, onConcept }) {
   ensureFrameStyle(doc);
   const { shell, nav, main, aside } = createResearchShell(doc, { root, route: 'principles', onLocal });
   shell.dataset.principlesView = state.view;
+  if (!researchDocumentOpen(root)) shell.querySelector('.rl-head')?.after(learningPaths(doc));
   nav.appendChild(buildNav(doc, state, data));
   const block = (title) => asideBlock(doc, title);
   if (state.view === 'frames') {
@@ -256,12 +335,6 @@ export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside
   } else if (state.view === 'concept') {
     const concept = conceptById.get(state.conceptId) || CONCEPT_CORE[0];
     main.appendChild(renderConcept(doc, concept, data.conceptStories?.[concept.id] || null));
-    const frames = framesUsing(concept.id);
-    if (frames.length) {
-      const box = block('이 개념이 쓰이는 분석 노트');
-      frames.forEach((lesson) => { const b = el(doc, 'button', 'af-route'); b.type = 'button'; b.dataset.principlesAction = 'frame'; b.dataset.principlesValue = lesson.id; b.append(el(doc, 'strong', null, lesson.issue)); box.appendChild(b); });
-      aside.appendChild(box);
-    }
     const near = CONCEPT_CORE.filter((item) => item.cat === concept.cat && item.id !== concept.id).slice(0, 6);
     if (near.length) {
       const box = block(`같은 분야 · ${concept.cat}`);

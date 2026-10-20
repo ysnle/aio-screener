@@ -18,7 +18,7 @@ export function renderKoreaParticipation({documentRef:doc,root,store=null}) {
   const model=buildKoreaParticipation({rows,themes:root.KR_THEME_MAP||{},index:kr?{date:kr.date,d1:kr.d1,d5:kr.d5}:null});root.__aioKoreaParticipation=model;
   // v57.81: the list is ranked by 3-month return, some of it negative and falling over the month — it is named by its window
   // (3개월 수익률 상위), with the 1-month return beside each theme, never as 강한 테마.
-  host.replaceChildren(el(doc,'h2','한국 종목의 참여도와 3개월 수익률 상위 테마'));
+  const title=el(doc,'h2','한국 종목의 참여도와 3개월 수익률 상위 테마');title.prepend(el(doc,'span','한국','sx-chip sx-chip--sm kr-market-chip'));host.replaceChildren(title);
   if(model.session?.text){const lead=el(doc,'p',model.session.text);lead.className='flow-lead';host.append(lead);}
   host.append(el(doc,'p',model.headline));
   if(!model.available){host.hidden=true;return model;}host.hidden=false;

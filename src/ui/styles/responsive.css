@@ -26,6 +26,12 @@
 @import url('./legacy-kr.css');
 @import url('./legacy-pages.css');
 @import url('./shell-static.css'); /* 2026-10-19 layout system: index.html static markup inline styles */
+@import url('./soft-ui.css'); /* v58.53 개편 v2: soft shell + sx-* component library (design_handoff_aio_redesign_v2 3a) */
+@import url('./v2-today.css'); /* v58.53 개편 v2: 오늘 */
+@import url('./v2-market.css'); /* v58.53 개편 v2: 시장 상태 · 거시 · 금리 */
+@import url('./v2-stock.css'); /* v58.53 개편 v2: 종목 · 테마 · 섹터 */
+@import url('./v2-screener.css'); /* v58.53 개편 v2: 스크리너 · 포트폴리오 */
+@import url('./v2-research.css'); /* v58.53 개편 v2: 리서치 · 용어 사전 · 한국 */
 /* UI review 2026-10-18: one page header for every screen. The screens had three hand-written variants
    (thin rule 8px, strong rule 20px, no rule — the subtitle then touched the first section's rule), and a
    first section that draws its own top rule doubled the header rule. */

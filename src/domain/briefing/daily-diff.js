@@ -155,3 +155,42 @@ export function buildMyNames({ symbols = [], rows = [], live = {}, holdings = []
       : `내 종목 ${names.length}개 — 아직 지표 기록이 없어 위치를 읽지 못했습니다.`;
   return { names, summary };
 }
+
+// v58.53 개편 v2 (3b "직전 판정", 시장 상태 hero): the six-axis rule run on the close five sessions earlier, with the inputs
+// that can be rebuilt for that date — the close history cut at that close, the HY spread and its 5-session change from
+// FRED's own series (macro-history), the 10-year TIPS / breakeven 5-session changes from the same series. Not a new score,
+// but the inputs are partial: the put/call ratio has no daily record, and it can only demote a 양호 credit reading, so a
+// rebuilt credit 양호 is marked `partial` (shown as —, left out of the flip summary). Without macro-history the credit axis
+// cannot be re-read and no previous verdict is shown (declared interpretation-boundary exception, like the daily flips).
+const previousCache = new WeakMap();
+export function previousRegime(inputs, regime, sessions = 5) {
+  const history = inputs?.history;
+  const macroHistory = inputs?.macroHistory;
+  if (!regime?.available || !Array.isArray(history) || !history.length || !macroHistory?.series?.hyOas) return null;
+  const cached = previousCache.get(history);
+  if (cached && cached.macroHistory === macroHistory && cached.asOf === regime.asOf) return cached.value;
+  const target = buildCloseSeries(history, 'spx', { through: regime.asOf }).at(-1 - sessions)?.date;
+  let value = null;
+  if (target) {
+    let cut = history;
+    while (cut.length && closeBasis(cut) > target) cut = cut.slice(0, -1);
+    const obs = (macroHistory.series.hyOas.observations || []).filter(([date, v]) => date <= target && Number.isFinite(v));
+    const last = obs.at(-1), prior = obs.at(-6);
+    const credit = last ? { hyBp: last[1] * 100, hyAsOf: last[0], hyDelta5Bp: prior ? (last[1] - prior[1]) * 100 : null } : {};
+    // The rates axis judges the 10-year close series in `history`; the real-yield / breakeven split only feeds its reading.
+    const at = (key) => (macroHistory.series[key]?.observations || []).filter(([date, v]) => date <= target && Number.isFinite(v));
+    const real = at('realYield10'), bei = at('breakeven10');
+    const rates = real.length > 5 && bei.length > 5 && real.at(-1)[0] === bei.at(-1)[0]
+      ? { realYield10: real.at(-1)[1], realYield10Delta5: real.at(-1)[1] - real.at(-6)[1], breakeven10Delta5: bei.at(-1)[1] - bei.at(-6)[1], asOf: real.at(-1)[0], realAsOf: real.at(-1)[0], breakevenAsOf: bei.at(-1)[0] }
+      : {};
+    try {
+      const then = buildMarketRegime({ history: cut, macroHistory, credit, rates });
+      if (then.available && then.asOf === target) {
+        const axes = then.axes.map((axis) => (axis.id === 'credit' && axis.state === 'favorable' ? { ...axis, partial: true } : axis));
+        value = { ...then, axes, partial: axes.some((axis) => axis.partial) };
+      }
+    } catch (_) { value = null; }
+  }
+  previousCache.set(history, { macroHistory, asOf: regime.asOf, value });
+  return value;
+}

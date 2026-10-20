@@ -933,6 +933,14 @@ function createTopWeightBars(documentRef, manager, holdingMeta, rows, withheld) 
   return section;
 }
 
+// 13F is due 45 days after each quarter end; a holding set is stale once the following quarter's deadline has passed.
+export function thirteenFStale(periodOfReport, now = Date.now()) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(periodOfReport || ''));
+  if (!match) return false;
+  const nextQuarterEnd = Date.UTC(Number(match[1]), Number(match[2]) + 3, 0);
+  return now > nextQuarterEnd + 45 * 86400000;
+}
+
 function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscovery, holdingMeta, compactRows, fullRows, comparisonRows, previewMeta, previewRows, state, securityMaster, referenceMaster, historyManager, historyRowsArtifact, issuerAggregates, principlesArtifact, registry, holdingManagers, rowsByManager) {
   const detail = element(documentRef, 'article', 'masters-detail-card');
   const dataStatus = holdingMeta?.status || (previewRows.length ? 'SEC_ROW_PREVIEW' : filingMeta?.status || manager.status);
@@ -956,6 +964,15 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   // 2026-10-05 리서치 라이브러리: verification badges and the how-to panel are internal; the reader sees the manager.
   void freshnessStatus;
   detail.querySelector('.masters-detail-title')?.setAttribute('tabindex', '-1');
+  // v58.53 개편 v2 (5j): the quarter-end date sits under the name; once the next 13F deadline (45 days after the next
+  // quarter end) has passed it turns amber (AGENTS freshness: 13F is stale only after the next filing is due).
+  const quarterEnd = filingMeta?.latestFiling?.periodOfReport || holdingMeta?.verification?.reportPeriod || null;
+  if (quarterEnd) {
+    const stale = thirteenFStale(quarterEnd);
+    const chip = element(documentRef, 'span', `sx-chip sx-chip--sm masters-quarter-chip${stale ? ' sx-chip--date' : ''}`, `${quarterEnd} 분기 말 기준${stale ? ' · 다음 신고 지남' : ''}`);
+    chip.dataset.mastersQuarterEnd = quarterEnd;
+    detail.querySelector('.masters-detail-filer')?.before(chip);
+  }
 
   const metrics = element(documentRef, 'div', 'masters-metric-grid');
   // Fail closed: when the SEC cover total and the parsed rows disagree, every reading built on reported-value

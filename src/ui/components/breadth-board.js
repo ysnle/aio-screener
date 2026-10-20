@@ -7,6 +7,7 @@
 // confirmation (S&P 500 distribution days and the index itself). Definitions live in
 // src/domain/market/breadth-signals.js; this module only presents them.
 import { deepDiveFold } from './deep-dive.js';
+import { splitReading } from './market-regime.js';
 import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
@@ -43,7 +44,8 @@ const signedCount = (value) => `${value > 0 ? '+' : ''}${Math.round(value).toLoc
 
 // v57.77: each group shows one lead chart beside its reading; the other measures sit in a "나머지 지표 보기" fold.
 export const BREADTH_GROUPS = Object.freeze([
-  { id: 'participation', title: '참여도 — 이동평균 위 종목 비율', lead: 'b50' },
+  // v58.53 개편 v2 (5c): the participation group shows its three horizons side by side (lead stays the 50-day ratio).
+  { id: 'participation', title: '참여도 — 이동평균 위 종목 비율', lead: 'b50', face: ['b20', 'b50', 'b200'] },
   { id: 'leadership', title: '강한 종목 수 — 신고가·신저가, 급등락', lead: 'hl' },
   { id: 'index', title: '지수 확인 — 분배일과 S&P 500', lead: 'spx' }
 ]);
@@ -161,8 +163,13 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
   // S&P 500 member read joins the participation group's reading below.
   set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? ` · 시장 폭 ${axis.basis}` : ''}${denominator}` : '종가 기록을 불러오는 중입니다.');
   const state = doc.getElementById('breadth-state');
-  if (state) { state.textContent = axis?.stateLabel || '판정 대기'; state.className = `regime-state is-${axis?.state || 'unknown'}`; }
-  set('breadth-read', axis?.read || '');
+  const tone = { favorable: 'good', burden: 'warn' }[axis?.state] || 'neutral';
+  if (state) { state.textContent = axis?.stateLabel || '판정 대기'; state.className = `regime-state is-${axis?.state || 'unknown'} sx-chip sx-chip--sm sx-chip--${tone}`; }
+  // v58.53 개편 v2 (5c): the hero keeps the reading's first sentences; the rest folds under '이어서 읽기'.
+  const { lead: readLead, rest: readRest } = splitReading(axis?.read || '');
+  set('breadth-read', readLead);
+  const restNode = doc.getElementById('breadth-read-more');
+  if (restNode) { restNode.hidden = !readRest; const body = restNode.querySelector('p'); if (body) body.textContent = readRest; }
   set('breadth-flip', axis?.flip ? `전환 조건: ${axis.flip}` : '');
   const grid = doc.getElementById('breadth-chart-grid');
   if (grid) {
@@ -202,15 +209,19 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
     const openedGroups = new Set([...grid.querySelectorAll('details.breadth-more[open]')].map((node) => node.dataset.group));
     // P1431: each group opens with what it adds to the verdict above, from the same series.
     const flow = breadthFlow({ cards, regime });
-    grid.replaceChildren(...BREADTH_GROUPS.flatMap((group) => {
+    // v58.53 개편 v2 (5c): each group is a section — participation as three horizon cards in a row, the other two groups
+    // side by side — and the teaching fold closes the page as its own card.
+    const sections = BREADTH_GROUPS.map((group) => {
       const members = cards.filter((card) => card.group === group.id);
-      if (!members.length) return [];
+      if (!members.length) return null;
       // v57.77: one lead chart per group; the rest wait in a fold so the page is three charts, not ten in a row.
-      const lead = members.find((card) => card.id === group.lead) || members[0];
-      const rest = members.filter((card) => card !== lead);
-      const leadBox = renderCard(lead);
-      leadBox.classList.add('breadth-lead');
-      const nodes = [el(doc, 'h2', group.title, 'breadth-group-title'), sectionLead(doc, `${flow.leads[group.id] || ''}${group.id === 'participation' ? sp500Read : ''}`.trim()), leadBox];
+      const face = group.face ? members.filter((card) => group.face.includes(card.id)) : [members.find((card) => card.id === group.lead) || members[0]];
+      const rest = members.filter((card) => !face.includes(card));
+      const section = el(doc, 'section', null, `bb-group bb-group--${group.id}${face.length > 1 ? ' bb-group--trio' : ''}`);
+      section.dataset.group = group.id;
+      const faceGrid = el(doc, 'div', null, 'bb-face');
+      faceGrid.append(...face.map((card) => { const box = renderCard(card); if (card.id === group.lead) box.classList.add('breadth-lead'); return box; }));
+      section.append(el(doc, 'h2', group.title, 'breadth-group-title'), sectionLead(doc, `${flow.leads[group.id] || ''}${group.id === 'participation' ? sp500Read : ''}`.trim()), faceGrid);
       if (rest.length) {
         const more = el(doc, 'details', null, 'breadth-more');
         more.dataset.group = group.id;
@@ -218,13 +229,16 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
         const body = el(doc, 'div', null, 'trend-grid breadth-more-grid');
         body.append(...rest.map(renderCard));
         more.append(el(doc, 'summary', '나머지 지표 보기', 'breadth-more-summary'), body);
-        nodes.push(more);
+        section.append(more);
       }
-      return nodes;
-    }));
+      return section;
+    }).filter(Boolean);
+    const pair = el(doc, 'div', null, 'bb-pair');
+    pair.append(...sections.filter((node) => node.dataset.group !== 'participation'));
+    grid.replaceChildren(...sections.filter((node) => node.dataset.group === 'participation'), pair);
     // P1660: the page-level teaching fold, with the link back to the 시장 상태 axis that uses these series.
     const fold = deepDiveFold(doc, root, '시장 폭', { ...AXIS_DEEP_DIVES.breadth, related: [['signal', '시장 상태에서 추세 축과 함께 보기']] });
-    if (fold) grid.append(fold);
+    if (fold) { fold.classList.add('sx-card', 'bb-principle'); grid.append(fold); }
     renderNextSteps(doc, doc.getElementById('breadth-next'), flow.next);
     for (const [metric, date] of opened) {
       const details = grid.querySelector(`[data-metric="${metric}"] details.breadth-drill`);

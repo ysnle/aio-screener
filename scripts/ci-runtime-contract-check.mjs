@@ -1521,8 +1521,8 @@ check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease witho
   const darkAmber = (html.match(/--data-amber:(#[0-9a-f]{6}) !important; --data-yellow:/) || [])[1];
   const hue = (hexValue) => { const [r, g, b] = rgbOf(hexValue).map((c) => c / 255); const max = Math.max(r, g, b), min = Math.min(r, g, b); if (max === min) return -1; const h = max === r ? ((g - b) / (max - min)) % 6 : max === g ? (b - r) / (max - min) + 2 : (r - g) / (max - min) + 4; return (h * 60 + 360) % 360; };
   const worst = (fg, bgs, ink, alphas) => Math.min(...bgs.flatMap((bg) => alphas.map((a) => ratio(rgbOf(fg), over(ink, a, rgbOf(bg))))));
-  const lightWorst = lightAmber ? worst(lightAmber, ['#fbf9f5', '#f7f4ee', '#f2eee6'], [33, 29, 22], [0, 0.10, 0.15]) : 0;
-  const darkWorst = darkAmber ? worst(darkAmber, ['#141517', '#17181a', '#1b1d20', '#202226'], [240, 240, 237], [0, 0.10, 0.15]) : 0;
+  const lightWorst = lightAmber ? worst(lightAmber, ['#fffdf9', '#f4f0e8', '#f0ebe1'], [33, 29, 22], [0, 0.10, 0.15]) : 0;
+  const darkWorst = darkAmber ? worst(darkAmber, ['#1b1914', '#201d18', '#25221c', '#2c2922'], [238, 232, 220], [0, 0.10, 0.15]) : 0;
   check(`P1758 --data-amber is a saturated amber hue, not a warm grey (light ${lightAmber}, dark ${darkAmber}) and the light override matches the base`, !!lightAmber && lightAmber === lightOverride && [lightAmber, darkAmber].every((c) => c && hue(c) >= 30 && hue(c) <= 50 && (Math.max(...rgbOf(c)) - Math.min(...rgbOf(c))) / Math.max(...rgbOf(c)) >= 0.5));
   check(`P1758 --data-amber text contrast >= 4.5:1 on ivory/dark surfaces and ink chips (light ${lightWorst.toFixed(2)}, dark ${darkWorst.toFixed(2)})`, lightWorst >= 4.5 && darkWorst >= 4.5);
   check('P1758 navigation, logo and table-header chrome use the neutral ink, not the caution amber', !/\.nav-item::before \{[^}]*--data-amber/.test(html) && !/\.nav-item:hover \.nav-icon \{[^}]*--data-amber/.test(html) && !/\.logo::after \{[^}]*--data-amber/.test(html) && !/\.gmo-sym \{[^}]*--data-amber/.test(html));

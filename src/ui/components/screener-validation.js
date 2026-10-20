@@ -90,3 +90,119 @@ export function renderScreenerValidation({ documentRef: doc, root }) {
   host.dataset.aioScreenerValidationRenderer = 'native';
   return summary;
 }
+
+// 개편 v2 (3c/5h): one reading of the validation state for the banner before the table and the 사후 검증 summary.
+// Sources: public-data/screener-validation-gate.json (gate status and blockers), the screener artifact's backtest
+// (net top-minus-bottom spread, net hit rate, per-rebalance IC) and the |t| decision rule above. A sign is never read
+// as a finding below 12 rebalances or |t| < 2 ('판단 불가'), and the tiles stay neutral until it is.
+const GATE_BLOCKER_WORDS = Object.freeze({
+  pointInTimeUniverse: '과거 시점의 종목 구성',
+  delistingAndCorporateAction: '상장폐지·기업 행위 처리',
+  filingAvailableDate: '공시 공개일',
+  turnoverModeled: '회전율',
+  transactionCostsModeled: '거래비용',
+  liquidityCapacityModeled: '유동성·체결 용량',
+  liveBacktestParity: '실제 순위와 검증 정의의 일치'
+});
+const finiteOrNull = (value) => (value == null || value === '' || !Number.isFinite(Number(value)) ? null : Number(value));
+const signedPp = (value, digits = 2) => `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(digits)}%p`;
+const CANDIDATE_LINE = '순위는 결론이 아니라 확인할 후보입니다.';
+
+export function readValidationState({ metadata = null, root = null, listingMarket = 'US' } = {}) {
+  const gate = root?._aioScreenerValidationGate || null;
+  const gateChip = !gate ? '검증 상태 없음' : gate.status === 'BLOCKED' ? '검증 미통과' : null;
+  const blockers = (Array.isArray(gate?.blockers) ? gate.blockers : []).map((key) => GATE_BLOCKER_WORDS[key] || key);
+  const base = { gate, gateChip, blockers, gateObservedAt: gate?.observedAt ? String(gate.observedAt).slice(0, 10) : null };
+  if (listingMarket === 'KR') {
+    return { ...base, state: 'kr', chips: [gateChip, '판단 불가'].filter(Boolean), sentence: `한국 순위는 아직 사후 검증 기록이 없어 판단 불가입니다 — 미국 검증을 한국 순위의 근거로 쓰지 않습니다. ${CANDIDATE_LINE}` };
+  }
+  const backtest = metadata?.backtest || null;
+  const dates = Array.isArray(backtest?.rebalanceDates) ? backtest.rebalanceDates : [];
+  const samples = finiteOrNull(backtest?.rebalancesCounted) ?? (dates.length || null);
+  const net = finiteOrNull(backtest?.quantileSpreadNet);
+  if (!backtest || samples == null || net == null) {
+    return { ...base, state: 'none', chips: [gateChip, '판단 불가'].filter(Boolean), sentence: `사후 검증 기록을 받지 못해 판단 불가입니다. ${CANDIDATE_LINE}` };
+  }
+  const netRate = finiteOrNull(backtest.netHitRate);
+  const rate = netRate ?? finiteOrNull(backtest.hitRate);
+  const wins = rate == null ? null : Math.round(rate / 100 * samples);
+  // Review fix: t comes only from the record that supplies the sample count (the screener artifact's backtest); without it
+  // the sample cannot decide.
+  const tStat = finiteOrNull(backtest.ic?.compositeT);
+  const distinguishable = samples >= VALIDATION_MIN_REBALANCES && tStat != null && Math.abs(tStat) >= VALIDATION_MIN_ABS_T;
+  const liveFingerprint = liveScreenerModelFingerprint(metadata?.ranking?.appliedFactorWeights);
+  const modelMatch = backtest.modelFingerprint != null && liveFingerprint != null && backtest.modelFingerprint === liveFingerprint;
+  const icByDate = Array.isArray(backtest.icByDate?.composite) ? backtest.icByDate.composite : [];
+  const sentence = [
+    modelMatch ? null : '지금 가중치와 다른 모델로 계산된 기록입니다.',
+    `과거 ${samples}회 시점에서 상위 20%가 하위 20%보다 앞선 건 ${wins == null ? '—' : `${wins}회`}, 평균 ${signedPp(net)}(비용 반영)입니다.`,
+    distinguishable ? null : `표본 ${samples}회로는 우연과 구별되지 않아 판단 불가입니다.`,
+    CANDIDATE_LINE
+  ].filter(Boolean).join(' ');
+  return {
+    ...base,
+    state: distinguishable ? (net > 0 ? 'favorable' : 'burden') : 'undecided',
+    chips: [gateChip, distinguishable ? null : '판단 불가'].filter(Boolean),
+    sentence,
+    samples, net, wins, winsBasis: netRate != null ? '비용 후' : '비용 전', tStat, distinguishable, modelMatch,
+    fwdDays: finiteOrNull(backtest.fwdDays) ?? 21,
+    asOf: backtest.asOf ? String(backtest.asOf).slice(0, 10) : null,
+    points: dates.map((date, index) => ({ date, ic: finiteOrNull(icByDate[index]) })).filter((point) => point.ic != null)
+  };
+}
+
+export function renderValidationHero({ documentRef: doc, read }) {
+  const host = doc?.getElementById('scr-validation-hero');
+  if (!host || !read) return;
+  const tile = (label, value, sub, className = '') => {
+    const node = el(doc, 'div', null, `sx-card sx-card--tile scr-vh-tile ${className}`.trim());
+    node.append(el(doc, 'span', label, 'scr-vh-label'), el(doc, 'strong', value, 'sx-kpi scr-vh-value'), el(doc, 'span', sub, 'sx-meta'));
+    return node;
+  };
+  const parts = [];
+  if (read.samples != null) {
+    const half = read.samples / 2;
+    const kpis = el(doc, 'div', null, 'sx-grid sx-grid--3 scr-vh-kpis');
+    kpis.append(
+      tile('상위 − 하위 평균', signedPp(read.net), `비용 반영 · ${read.fwdDays}거래일 뒤 · 같은 비중`, read.distinguishable ? `is-${read.state}` : ''),
+      tile('상위가 앞선 횟수', read.wins == null ? '—' : `${read.wins} / ${read.samples}`, read.wins == null ? '기록 없음' : `${read.winsBasis} · 동전 던지기 기댓값 ${Number.isInteger(half) ? half : half.toFixed(1)}회${read.wins < half ? '보다 적음' : read.wins > half ? '보다 많음' : '와 같음'}`),
+      tile('표본 판단', read.distinguishable ? '판단 가능' : '판단 불가', `시점 ${read.samples}회 · ${read.tStat != null ? `t ${read.tStat.toFixed(2)}` : 't 미계산'} · ${VALIDATION_MIN_REBALANCES}회·|t| ${VALIDATION_MIN_ABS_T} 이상에서 판단`)
+    );
+    parts.push(kpis);
+  } else {
+    const card = el(doc, 'div', null, 'sx-card scr-vh-empty');
+    card.append(el(doc, 'span', read.chips.join(' · '), 'sx-chip sx-chip--sm sx-chip--warn'), el(doc, 'p', read.sentence, 'sx-lede'));
+    parts.push(card);
+  }
+  if (read.points?.length) {
+    const card = el(doc, 'div', null, 'sx-card scr-vh-dates');
+    const head = el(doc, 'div', null, 'sx-card__head');
+    head.append(el(doc, 'h3', '시점별 종합 IC', 'sx-card__title'), el(doc, 'span', `순위와 ${read.fwdDays}거래일 뒤 수익률의 순위상관 · 0 = 관계 없음`, 'sx-card__meta'));
+    card.append(head);
+    const max = Math.max(0.1, ...read.points.map((point) => Math.abs(point.ic)));
+    for (const point of read.points) {
+      const line = el(doc, 'div', null, 'scr-vh-row');
+      const track = el(doc, 'span', null, 'scr-vh-track');
+      const fill = el(doc, 'span', null, `scr-vh-fill ${point.ic >= 0 ? 'is-up' : 'is-burden'}`);
+      fill.style.width = `${Math.min(50, Math.abs(point.ic) / max * 50).toFixed(1)}%`;
+      fill.style[point.ic >= 0 ? 'left' : 'right'] = '50%';
+      track.append(fill);
+      line.append(el(doc, 'span', point.date, 'scr-vh-date'), track, el(doc, 'span', `${point.ic >= 0 ? '+' : '−'}${Math.abs(point.ic).toFixed(3)}`, `scr-vh-ic ${point.ic >= 0 ? 'sx-up' : 'scr-tone-burden'}`));
+      card.append(line);
+    }
+    parts.push(card);
+  }
+  const principle = el(doc, 'div', null, 'sx-card scr-vh-principle');
+  principle.append(el(doc, 'h3', '원리 · 왜 검증을 먼저 보여주나', 'sx-card__title'));
+  const rule = `이 화면은 ${VALIDATION_MIN_REBALANCES}회 이상·|t| ${VALIDATION_MIN_ABS_T} 이상에서 앞섬·뒤처짐을 판단합니다(학술 제안인 t 3보다 느슨한 기준).`;
+  const undecided = read.samples != null && !read.distinguishable
+    ? ` 표본 ${read.samples}회${read.tStat == null ? '(t 미계산)' : `(t ${read.tStat.toFixed(2)})`}로는 이 기준에 못 미쳐, 순위는 계속 후보 목록으로 표시합니다.` : '';
+  principle.append(el(doc, 'p', `요인 점수의 예측력은 정보 계수(IC) — 점수 순위와 이후 수익률 순위의 상관 — 로 잽니다. 학술 연구에서도 '발견된' 요인 상당수가 데이터 마이닝의 산물일 수 있어, 새 요인에는 t 값 3 이상을 요구해야 한다는 제안이 있습니다. ${rule}${undecided}`, 'sx-disclosure__text'));
+  if (read.gateChip) principle.append(el(doc, 'p', read.gate ? `검증 게이트 ${read.gateChip}${read.blockers.length ? ` — 아직 확인되지 않은 항목: ${read.blockers.join(' · ')}` : ''}${read.gateObservedAt ? ` (${read.gateObservedAt} 기준)` : ''}.` : '검증 게이트 파일을 받지 못했습니다 — 없음.', 'scr-vh-gate'));
+  const evidence = el(doc, 'div', null, 'sx-evidence scr-vh-evidence');
+  evidence.append(el(doc, 'span', '근거 · Grinold(1989) 기본 법칙 · Harvey·Liu·Zhu(2016) …and the Cross-Section of Expected Returns'), el(doc, 'span', `데이터 · 스크리너 산출물 사후 검증${read.asOf ? ` ${read.asOf}` : ''} · screener-validation-gate`), el(doc, 'span', `상태 · ${read.chips.join(' · ') || '기록 있음'}`));
+  principle.append(evidence);
+  parts.push(principle);
+  host.replaceChildren(...parts);
+  host.dataset.validationState = read.state;
+}

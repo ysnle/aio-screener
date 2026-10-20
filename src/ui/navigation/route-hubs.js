@@ -87,6 +87,10 @@ export function renderHubTabs({ documentRef, routeId, root = globalThis }) {
   nav.hidden = false;
   nav.dataset.hub = hub.id;
   const subject = hub.id === 'stock' ? readStockSubject(root) : null;
+  // v58.53 개편 v2: the tabs sit in one segmented control (soft-ui.css .aio-hub-seg).
+  const seg = documentRef.createElement('span');
+  seg.className = 'aio-hub-seg';
+  nav.appendChild(seg);
   for (const tab of tabs) {
     const button = documentRef.createElement('button');
     button.type = 'button';
@@ -101,7 +105,7 @@ export function renderHubTabs({ documentRef, routeId, root = globalThis }) {
     }
     button.textContent = tab.label;
     if (tab.id === routeId || (tab.also || []).includes(routeId)) button.setAttribute('aria-current', 'page');
-    nav.appendChild(button);
+    seg.appendChild(button);
   }
   if (hub.id === 'stock') renderSubject(documentRef, nav, subject, root, routeId);
   return hub.id;

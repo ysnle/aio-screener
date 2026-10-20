@@ -107,10 +107,11 @@ function safeUrl(value) {
 // T17 (expert review 2026-10-13): the 긍정/부정/주의 badge counted bull/bear words in the headline — a grade with no
 // validated basis. Only the article's verification state is shown; an analysed article carries no badge.
 function articleStatus(item) {
-  if (isNewsAnalysisEligible(item)) return { label: '', color: 'transparent' };
+  // v58.53 개편 v2: the tone is a data attribute; its colour lives in v2-today.css (no inline style).
+  if (isNewsAnalysisEligible(item)) return { label: '', tone: 'eligible' };
   return isNewsHeadlineOnly(item)
-    ? { label: '본문 없음', color: 'var(--text-muted)' }
-    : { label: '검증 대기', color: 'var(--data-amber)' };
+    ? { label: '본문 없음', tone: 'headline-only' }
+    : { label: '검증 대기', tone: 'pending' };
 }
 
 function displayValue(root, functionName, item, fallback = '') {
@@ -226,7 +227,7 @@ function createNewsCard(documentRef, root, item, index) {
   if (link) absolute.dataset.articleUrl = link;
   const dot = documentRef.createElement('span');
   dot.className = 'news-time-dot';
-  dot.style.background = tone.color;
+  dot.dataset.tone = tone.tone;
   timeColumn.append(absolute, dot);
 
   const body = documentRef.createElement('div');
@@ -292,7 +293,8 @@ function createNewsCard(documentRef, root, item, index) {
   const branchLabel = TOPIC_BRANCHES[item?.topic || item?.feedTopic] || '';
   // Owner 2026-10-18: a rumour or anonymous-source headline is labelled where the reader sees it, not only scored down.
   const verificationLabel = item?.verification === 'unconfirmed' ? '미확인 보도(루머·익명 소식통)' : '';
-  meta.textContent = [source, verificationLabel, topicLabel, branchLabel, timeAgo]
+  // v58.53 개편 v2 (5b): the topic is the capsule on the right of the row, so the meta line no longer repeats it.
+  meta.textContent = [source, verificationLabel, branchLabel, timeAgo]
     .filter(Boolean)
     .join(' · ');
   body.appendChild(meta);
@@ -339,8 +341,17 @@ function createNewsCard(documentRef, root, item, index) {
   const stance = documentRef.createElement('span');
   stance.textContent = headlineOnly ? '' : tone.label;
   stance.className = 'nws-stance';
-  stance.style.color = tone.color;
-  card.append(timeColumn, body, stance);
+  stance.dataset.tone = tone.tone;
+  const side = documentRef.createElement('div');
+  side.className = 'news-item-side';
+  if (topicLabel) {
+    const chip = documentRef.createElement('span');
+    chip.className = 'sx-chip sx-chip--sm news-topic-chip';
+    chip.textContent = topicLabel;
+    side.append(chip);
+  }
+  side.append(stance);
+  card.append(timeColumn, body, side);
   return card;
 }
 
@@ -396,7 +407,7 @@ function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now(
   if (!section) {
     section = documentRef.createElement('section');
     section.id = 'news-intraday';
-    section.className = 'aio-section briefing-block';
+    section.className = 'aio-section briefing-block sx-card news-card news-intraday-card';
     section.setAttribute('aria-labelledby', 'news-intraday-title');
     anchor.before(section);
   }

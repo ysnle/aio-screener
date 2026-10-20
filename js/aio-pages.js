@@ -1130,6 +1130,13 @@ function showThemeDetail(themeId) {
     if (typeof window.showPage === 'function') window.showPage('theme-detail');
     return;
   }
+  // v58.53 review: the themes page can be active before its native module mounts the detail listeners; an
+  // aio:themeDetailShown fired then was lost and the panel stayed hidden. Leave the id for the mount to open.
+  if (container.dataset.aioThemeDetailPanelRenderer !== 'native') {
+    window._currentThemeId = themeId;
+    window._aioOpenThemeDetailOnThemes = themeId;
+    return;
+  }
   var legacyContainer = document.getElementById('theme-detail-legacy-content') || container;
   let ld = window._liveData || {};
 

@@ -3,12 +3,13 @@
 import { buildDailyChanges, buildMyNames } from '../../domain/briefing/daily-diff.js';
 import { buildBriefingSchedule, sp500NameMap } from '../../domain/briefing/schedule.js';
 import { readMarketRegime } from './market-regime.js';
-import { renderSectorMoves } from './sector-moves.js';
 import { emptyState } from './empty-state.js';
 import { withObjectParticle } from '../../domain/content/korean-particle.js';
 import { el } from './dom.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
+import { deriveQuotePresentation } from '../../domain/market/quote-presentation.js';
+import { formatScreenerPrice, screenerMarket } from '../../domain/screener/market-scope.js';
 
 function call(root, name, arg, fallback) {
   try { const fn = root?.[name]; return typeof fn === 'function' ? (fn(arg) ?? fallback) : fallback; } catch (_) { return fallback; }
@@ -19,6 +20,7 @@ function call(root, name, arg, fallback) {
 // delayed quote is newer than that close, adds a "지금" line on the quote's own basis. The live-strip copy of a measure a
 // tile covers ([data-close-measure]) is hidden; a measure without a tile (no comparable close) stays in the strip.
 const LIVE_SYMBOL = Object.freeze({ vix: '^VIX', tnx: '^TNX', dxy: 'DX-Y.NYB', wti: 'CL=F' });
+const WEEKDAYS = Object.freeze(['일', '월', '화', '수', '목', '금', '토']);
 const signedText = (value, digits, unit) => `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
 const observedMs = (quote) => { const parsed = Date.parse(quote?.observedAt || ''); return Number.isFinite(parsed) ? parsed : Number(quote?.ts); };
 let etDayFormat = null;
@@ -42,20 +44,34 @@ export function liveSinceClose(key, quote, closeDate, closeValue = null) {
   return { text: `지금 ${value}${change ? ` ${change}` : ''}`, pct: Number.isFinite(pct) ? pct : null };
 }
 
+// v58.53 개편 v2 (2b): the close comparison is now a folded row under the verdict, so the KPI tiles and the quote row
+// stay the visible "now" numbers — nothing is hidden behind a fold the reader has not opened. (Kept as one function so a
+// later rule can narrow it again; `covered` is the set of measures the fold compares.)
 function syncLiveStrip(doc, covered) {
-  for (const node of doc.querySelectorAll('#page-home [data-close-measure]')) node.hidden = covered.has(node.dataset.closeMeasure);
+  for (const node of doc.querySelectorAll('#page-home [data-close-measure]')) { node.hidden = false; node.dataset.closeCompared = covered.has(node.dataset.closeMeasure) ? 'true' : 'false'; }
 }
 
-function renderChanges(doc, host, history, root) {
+function renderChanges(doc, section, history, root) {
+  let host = section;
   const model = buildDailyChanges(history);
-  host.replaceChildren(el(doc, 'h2', '지난 마감 이후 변화', 'briefing-h2'));
-  host.querySelector('h2').style.flexWrap = 'wrap'; // v57.76: full-width under the verdict, the long note wraps below the title on a phone
-  if (!model.available) { syncLiveStrip(doc, new Set()); host.append(emptyState(doc, { title: '비교 대기', reason: model.reason, compact: true })); return model; }
+  // v58.53 개편 v2 (2b): one disclosure row right under the verdict — the title and the one-line change read stay on
+  // the row; the tiles open beneath it. The open state survives the frequent re-render (live quotes, history).
+  const wasOpen = !!host.querySelector(':scope > details')?.open;
+  const fold = el(doc, 'details', null, 'sx-disclosure home-changes');
+  fold.open = wasOpen;
+  const summary = el(doc, 'summary', null, 'home-changes-row');
+  const heading = el(doc, 'h2', '지난 마감 이후 변화', 'briefing-h2 home-changes-title');
+  summary.append(heading);
+  fold.append(summary);
+  host.replaceChildren(fold);
+  if (!model.available) { syncLiveStrip(doc, new Set()); summary.append(el(doc, 'span', model.reason || '비교 대기', 'home-changes-lead')); fold.append(emptyState(doc, { title: '비교 대기', reason: model.reason, compact: true })); return model; }
   const gap = Array.isArray(model.missing) && model.missing.length > 0;
-  if (gap) host.querySelector('h2').firstChild.textContent = '직전 기록과 달라진 점';
-  const note = el(doc, 'span', '', 'briefing-h2-note');
-  host.querySelector('h2').append(note);
-  host.append(el(doc, 'p', model.headline, 'daily-headline'));
+  if (gap) heading.textContent = '직전 기록과 달라진 점';
+  const note = el(doc, 'span', '', 'briefing-h2-note home-changes-note');
+  summary.append(el(doc, 'span', model.headline, 'home-changes-lead daily-headline'), note);
+  const body = el(doc, 'div', null, 'home-changes-body');
+  fold.append(body);
+  host = body;
   const grid = el(doc, 'div', null, 'daily-moves');
   let liveShown = false;
   for (const move of model.moves) {
@@ -138,13 +154,21 @@ function renderMyNames(doc, host, root, store, regime = null) {
   const rows = Array.isArray(storeRows) && storeRows.length ? storeRows : call(root, '_aioGetCanonicalScreenerRows', undefined, []);
   const breadthState = (regime || readMarketRegime(root))?.axes?.find((axis) => axis.id === 'breadth')?.state || null;
   const model = buildMyNames({ symbols, rows, live: root?._liveData || {}, holdings, breadthState });
-  host.replaceChildren(el(doc, 'h2', '내 종목', 'briefing-h2'));
+  // v58.53 개편 v2 (2b): a card head (title + count) and one row per name: symbol and name, the notes under them, the
+  // last quote and the day's change as a capsule (coloured only when the quote is current, P1579).
+  const head = el(doc, 'div', null, 'sx-card__head daily-card-head');
+  head.append(el(doc, 'h2', '내 종목', 'briefing-h2 sx-card__title'));
+  if (model.names.length) head.append(el(doc, 'span', `관심·보유 ${model.names.length}개`, 'sx-card__meta'));
+  host.replaceChildren(head);
+  host.dataset.empty = model.names.length ? 'false' : 'true';
   if (!model.names.length) {
     // v57.79: words, not the star glyph (the screener button is titled 워치리스트에 추가).
-    host.append(emptyState(doc, { title: '관심·보유 종목이 없습니다', reason: '스크리너나 종목 화면에서 관심 종목(워치리스트)에 추가한 종목이 여기에서 매일 정리됩니다.', compact: true }));
+    host.append(emptyState(doc, { title: '관심·보유 종목이 없습니다', reason: '스크리너나 종목 화면에서 관심 종목(워치리스트)에 추가한 종목이 여기에서 매일 정리됩니다.', compact: true, primary: true,
+      action: typeof root?.showPage === 'function' ? { label: '스크리너 열기', onClick: () => root.showPage('screener') } : null }));
     return model;
   }
   if (model.summary) host.append(el(doc, 'p', model.summary, 'daily-headline'));
+  const rowBySymbol = new Map((Array.isArray(rows) ? rows : []).map((entry) => [String(entry?.sym || entry?.symbol || '').toUpperCase(), entry]));
   const list = el(doc, 'ul', null, 'daily-names');
   for (const row of model.names.slice(0, 8)) {
     const li = el(doc, 'li', null, 'daily-name');
@@ -153,6 +177,7 @@ function renderMyNames(doc, host, root, store, regime = null) {
     button.dataset.action = 'showTicker';
     button.dataset.arg = row.symbol;
     li.append(button, el(doc, 'span', `${row.name || ''}${row.held ? ' · 보유' : ''}`, 'daily-name-name'));
+    li.append(namePrice(doc, row.symbol, root?._liveData?.[row.symbol], rowBySymbol.get(row.symbol)));
     li.append(el(doc, 'span', row.dayPct == null ? '' : `${row.dayPct >= 0 ? '+' : ''}${row.dayPct.toFixed(2)}%`, `daily-name-day ${row.daySignalled ? (row.dayPct > 0 ? 'is-up' : row.dayPct < 0 ? 'is-down' : '') : ''}`));
     li.append(el(doc, 'span', row.notes.join(' · ') || '지표 기록 없음', 'daily-name-notes'));
     list.append(li);
@@ -170,6 +195,26 @@ function renderMyNames(doc, host, root, store, regime = null) {
     host.append(more);
   }
   return model;
+}
+
+// Code review (v58.53): the row's price follows the same freshness rule as its change capsule (P1579) — a current or
+// delayed quote shows as is; an older quote shows with its observation date (amber, never as today's number); no
+// usable quote shows nothing. One price notation with the screener (formatScreenerPrice: ₩ whole won, $ two decimals).
+function namePrice(doc, symbol, quote, screenerRow = null) {
+  const price = Number(quote?.price);
+  const node = el(doc, 'span', '', 'daily-name-price');
+  if (!(price > 0)) return node;
+  const presentation = deriveQuotePresentation(quote, { symbol });
+  const currency = quote?.currency || screenerRow?.currency || (screenerMarket(screenerRow || { sym: symbol }) === 'KR' ? 'KRW' : 'USD');
+  const text = formatScreenerPrice(price, currency);
+  if (['current', 'delayed'].includes(presentation?.displayState)) { node.textContent = text; return node; }
+  const observed = presentation?.observedAt || (Number.isFinite(observedMs(quote)) ? new Date(observedMs(quote)).toISOString() : null);
+  if (!observed || presentation?.displayState === 'disputed') return node;
+  node.textContent = text;
+  node.append(el(doc, 'span', `${shortDate(String(observed).slice(0, 10))} 값`, 'daily-name-price-date'));
+  node.classList.add('is-stale');
+  node.title = '최근 시세가 아니라 마지막으로 받은 값입니다';
+  return node;
 }
 
 // T16 (expert review 2026-10-13): the home schedule passed names: {} so every earnings row was filtered out, and it
@@ -208,8 +253,9 @@ function renderSchedule(doc, host, root) {
     maxEarnings: 4
   });
   const schedule = fullSchedule.filter((row) => !row.passed);
-  host.replaceChildren(el(doc, 'h2', '다가오는 일정', 'briefing-h2'));
-  host.querySelector('h2').append(el(doc, 'span', '3일 · 한국 시간', 'briefing-h2-note'));
+  const head = el(doc, 'div', null, 'sx-card__head daily-card-head');
+  head.append(el(doc, 'h2', '다가오는 일정', 'briefing-h2 sx-card__title'), el(doc, 'span', '3일 · 한국 시간', 'sx-card__meta'));
+  host.replaceChildren(head);
   // Codex audit F26 (2026-10-15): "없습니다" only when the calendars were actually read — a missing macro calendar or an
   // earnings calendar still loading/failed is said as such, not merged into the empty sentence.
   const macroKnown = !!root.AIO_MACRO_CALENDAR?.releases && Object.keys(root.AIO_MACRO_CALENDAR.releases).length > 0;
@@ -222,7 +268,15 @@ function renderSchedule(doc, host, root) {
   const list = el(doc, 'ul', null, 'daily-schedule');
   for (const row of schedule.slice(0, 5)) {
     const li = el(doc, 'li', null, `daily-event${row.today ? ' is-today' : ''}`);
-    li.append(el(doc, 'span', row.when, 'daily-event-when'), el(doc, 'span', row.label, 'daily-event-label'));
+    // v58.53 개편 v2 (2b): a date tile (KST weekday + day) leads the row; the full time stays on the row's second line.
+    const day = Number.isFinite(row.atMs) ? new Date(row.atMs + 9 * 3600000) : null;
+    if (day) {
+      const tile = el(doc, 'span', null, 'daily-event-date');
+      tile.setAttribute('aria-hidden', 'true');
+      tile.append(el(doc, 'span', row.today ? '오늘' : WEEKDAYS[day.getUTCDay()], 'daily-event-dow'), el(doc, 'b', String(day.getUTCDate()), 'daily-event-day'));
+      li.append(tile);
+    }
+    li.append(el(doc, 'span', row.label, 'daily-event-label'), el(doc, 'span', row.when, 'daily-event-when'));
     if (row.sourceTitle) li.title = row.sourceTitle;
     // UI review 2026-10-18: an earnings row's note ("장 전") repeated its own time column; only a note that adds something shows.
     if (row.why && !String(row.when || '').includes(row.why)) li.append(el(doc, 'span', row.why, 'daily-event-why'));
@@ -232,7 +286,7 @@ function renderSchedule(doc, host, root) {
   // v58.52: the S&P-weight cut and the five-row list both leave reports out; the count says so.
   const hidden = (fullSchedule.omittedEarnings || 0) + Math.max(0, schedule.length - 5);
   if (hidden > 0) host.append(el(doc, 'p', `외 ${hidden}건은 생략했습니다 — 브리핑의 7일 일정에 더 많은 일정이 있습니다.`, 'daily-event-why'));
-  const more = el(doc, 'button', '7일 일정과 시장 해석 → 브리핑', 'flow-next-link');
+  const more = el(doc, 'button', '7일 일정과 시장 해석 → 브리핑', 'flow-next-link daily-card-more');
   more.type = 'button';
   more.dataset.action = 'showPage';
   more.dataset.arg = 'briefing';
@@ -271,6 +325,65 @@ function renderMyNews(doc, host, root, store, names) {
   host.append(list);
 }
 
+// v58.53 개편 v2 (2b): the hero's right tile — "판단이 바뀌는 조건". Each US axis already states the condition that would
+// change its state (regime axis.flip, the same sentence 시장 상태 shows). No distance-to-threshold is computed upstream,
+// so the tile does not rank by nearness: it lists the axes whose state is one-sided first (부담 → 나아지는 조건 ↑,
+// 양호 → 약해지는 조건 ↓), then 중립 axes (↑↓, both directions), in board order, three at most. The Korea FX reference
+// is outside the US tally and stays out of the tile.
+const FLIP_ORDER = Object.freeze({ burden: 0, favorable: 1, neutral: 2 });
+const FLIP_MARK = Object.freeze({ burden: ['↑', 'is-up', '나아지는 조건'], favorable: ['↓', 'is-down', '약해지는 조건'], neutral: ['↑↓', 'is-both', '양쪽 조건'] });
+export function heroFlipRows(regime, limit = 3) {
+  if (!regime?.available || !Array.isArray(regime.axes)) return [];
+  return regime.axes
+    .map((axis, index) => ({ axis, index }))
+    .filter(({ axis }) => axis.id !== 'korea' && axis.flip && axis.state in FLIP_ORDER)
+    .sort((a, b) => FLIP_ORDER[a.axis.state] - FLIP_ORDER[b.axis.state] || a.index - b.index)
+    .slice(0, limit)
+    .map(({ axis }) => ({ id: axis.id, title: axis.title, state: axis.state, stateLabel: axis.stateLabel, flip: String(axis.flip) }));
+}
+
+function renderHeroFlips(doc, regime) {
+  const tile = doc.getElementById('home-hero-flips');
+  if (!tile) return;
+  const rows = heroFlipRows(regime);
+  tile.hidden = !rows.length;
+  if (!rows.length) { tile.replaceChildren(); return; }
+  const title = el(doc, 'h2', '판단이 바뀌는 조건', 'sx-kicker home-flips-title');
+  title.id = 'home-hero-flips-title';
+  const list = el(doc, 'ul', null, 'home-flips');
+  for (const row of rows) {
+    const [mark, tone, words] = FLIP_MARK[row.state];
+    const li = el(doc, 'li', null, 'home-flip');
+    li.dataset.axis = row.id;
+    const badge = el(doc, 'span', mark, `home-flip-mark ${tone}`);
+    badge.setAttribute('aria-label', `${row.title} ${row.stateLabel} — ${words}`);
+    const text = el(doc, 'span', null, 'home-flip-text');
+    text.append(el(doc, 'b', `${row.title} ${row.stateLabel}`, 'home-flip-axis'), doc.createTextNode(` ${row.flip}`));
+    li.append(badge, text);
+    list.append(li);
+  }
+  const link = el(doc, 'button', '6개 축 근거 자세히', 'sx-link home-flips-link');
+  link.type = 'button';
+  link.dataset.action = 'showPage';
+  link.dataset.arg = 'signal';
+  tile.replaceChildren(title, list, link);
+}
+
+// v58.53 개편 v2 (2b): 오늘 is the 3-second/30-second summary. The forward block (#home-outlook anchor + #home-crossroads)
+// and today's guide (#home-guide) that market-regime.js renders after the close comparison are moved, in their order,
+// into the one fold at the end of the page. Once inside, renderCrossroadsCompact keeps its box in place and
+// renderHomeGuide re-anchors after the crossroads box, so they stay together in the fold.
+function foldHomeDepth(doc) {
+  const body = doc.getElementById('home-depth-body');
+  if (!body) return;
+  for (const id of ['home-outlook', 'home-crossroads', 'home-guide']) {
+    const node = doc.getElementById(id);
+    if (node && node.parentElement !== body) body.append(node);
+  }
+  const fold = doc.getElementById('home-depth-fold');
+  if (fold) fold.hidden = ![...body.children].some((node) => !node.hidden);
+}
+
 // v57.78 perf: `regime` is the one home already computed this render (renderHomeRegime returns it); without it the
 // loop reads the regime itself, so a caller that renders the loop alone sees the same breadth state.
 export function renderDailyLoop({ documentRef: doc, root, store, regime = null }) {
@@ -284,7 +397,10 @@ export function renderDailyLoop({ documentRef: doc, root, store, regime = null }
   };
   const changes = parts.changes ? renderChanges(doc, parts.changes, root?._aioHistory || [], root) : null;
   renderKoreaQuote(doc, root); // v57.79: the live-strip 코스피 chip names its basis
-  renderSectorMoves({ documentRef: doc, root, anchor: host }); // P1641: after the daily loop grid
+  // v58.53 개편 v2 (2b/5a): the sector bars moved to 브리핑 (P1641's "섹터 하루 등락"); 오늘 stays the short summary.
+  doc.getElementById('home-sector-moves')?.remove();
+  renderHeroFlips(doc, regime || readMarketRegime(root));
+  foldHomeDepth(doc);
   const names = parts.names ? renderMyNames(doc, parts.names, root, store, regime) : null;
   if (parts.schedule) renderSchedule(doc, parts.schedule, root);
   if (parts.news) renderMyNews(doc, parts.news, root, store, names?.names || []);

@@ -225,7 +225,9 @@ assert.equal(stress.bands.find((b) => b.id === 'calm').horizons[21].n, 39, 'P166
 // P1663: sentiment cards and the breadth page share the deep-dive fold renderer.
 const { SENTIMENT_DEEP_DIVES } = await import('../src/domain/content/axis-deep-dives.js');
 for (const id of ['fg', 'term', 'hy', 'pcr', 'aaii', 'composite']) assert.ok(SENTIMENT_DEEP_DIVES[id]?.blocks.length >= 2, `P1663: ${id} deep dive`);
-for (const file of ['sentiment-board.js', 'breadth-board.js', 'market-regime.js', 'macro-board.js']) assert.ok(/deepDiveFold\(/.test(fs.readFileSync(new URL(`../src/ui/components/${file}`, import.meta.url), 'utf8')), `P1663: ${file} uses the shared fold`);
+// v58.53: 시장 상태 opens each axis into the design's three cards (원리 / 지금 읽기 / 한계) built from the same
+// axis-deep-dives blocks, and keeps the shared link renderer (deepDiveLinks) — still one source, no per-board copy.
+for (const file of ['sentiment-board.js', 'breadth-board.js', 'market-regime.js', 'macro-board.js']) assert.ok(/deepDiveFold\(|deepDiveLinks\(/.test(fs.readFileSync(new URL(`../src/ui/components/${file}`, import.meta.url), 'utf8')), `P1663: ${file} uses the shared fold`);
 
 // P1664: a product-surface edit outside the knowledge routes does not pull the knowledge browser shard; viewport gates run pages together.
 const qaManifest = JSON.parse(fs.readFileSync(new URL('../architecture/qa-pipeline.json', import.meta.url), 'utf8'));

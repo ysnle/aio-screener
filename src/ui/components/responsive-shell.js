@@ -3,6 +3,8 @@ import { attachScrollCue } from './scroll-cue.js';
 const CARD_GRIDS = '#home-kpi-strip,#fund-rpt-fin-grid,#fund-cards-grid,#sub-themes-grid,#pf-hero-stats,#fund-valuation-cards';
 const LAYOUTS = '#fund-qual-grid,#fund-qual-charts,#rrg-quadrant-cards';
 const SCROLL_CUE_BOXES = '.page .aio-table-scroll,#screener-results-table .scr-registry-header';
+// v58.53 개편 v2 (4a/4b): the iPad-portrait/iPhone tab bar marks the screen a route belongs to; the rest is under 더보기.
+const TAB_FOR_ROUTE = Object.freeze({ home: 'today', briefing: 'today', 'market-news': 'today', signal: 'market', breadth: 'market', sentiment: 'market', screener: 'screener', ticker: 'stock', technical: 'stock', fundamental: 'stock' });
 const FOCUSABLE = 'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[role="button"][tabindex],[tabindex]:not([tabindex="-1"])';
 
 export function installResponsiveShell(root, doc) {
@@ -13,6 +15,8 @@ export function installResponsiveShell(root, doc) {
   const compact = root.matchMedia('(max-width: 1100px)');
   const app = doc.querySelector('.app');
   const ai = doc.getElementById('ai-panel');
+  const tabbar = doc.getElementById('aio-tabbar');
+  const moreTab = tabbar?.querySelector('[data-tab="more"]') || null;
   const previousAi = { role: ai?.getAttribute('role'), appInert: app?.inert || false };
   const backdrop = doc.createElement('button');
   backdrop.className = 'aio-navigation-backdrop'; backdrop.type = 'button';
@@ -29,6 +33,7 @@ export function installResponsiveShell(root, doc) {
     opened = compact.matches && value;
     doc.body.classList.toggle('aio-navigation-open', opened);
     toggle.setAttribute('aria-expanded', String(opened));
+    moreTab?.setAttribute('aria-expanded', String(opened));
     if (compact.matches) {
       sidebar.inert = !opened; main.inert = opened || previous.mainInert;
       sidebar.setAttribute('aria-hidden', String(!opened));
@@ -57,7 +62,7 @@ export function installResponsiveShell(root, doc) {
   };
   const onClick = (event) => {
     if (!compact.matches) return;
-    if (event.target.closest?.('#sidebar-toggle-btn')) {
+    if (event.target.closest?.('#sidebar-toggle-btn, #aio-tabbar [data-tab="more"]')) {
       event.preventDefault(); event.stopImmediatePropagation(); setOpen(!opened); return;
     }
     if (event.target === backdrop || event.target === close) { setOpen(false); return; }
@@ -133,11 +138,18 @@ export function installResponsiveShell(root, doc) {
   if (ai) aiObserver.observe(ai, { attributes: true, attributeFilter: ['class'] });
   const onMode = () => { setOpen(false); refreshViewport(); onAi(); };
   const onHash = () => { if (opened) setOpen(false, false); };
+  const markTab = (event) => {
+    if (!tabbar) return;
+    const route = event?.detail?.routeId || doc.querySelector('.page.active')?.id?.replace(/^page-/, '') || 'home';
+    const tab = TAB_FOR_ROUTE[route] || 'more';
+    tabbar.querySelectorAll('[data-tab]').forEach((item) => { if (item.dataset.tab === tab) item.setAttribute('aria-current', 'page'); else item.removeAttribute('aria-current'); });
+  };
   doc.addEventListener('click', onClick, true); doc.addEventListener('keydown', onKey);
   compact.addEventListener('change', onMode); root.addEventListener('hashchange', onHash);
+  doc.addEventListener('aio:navigationCommitted', markTab);
   root.addEventListener('resize', refreshViewport); root.visualViewport?.addEventListener('resize', refreshViewport);
   root.visualViewport?.addEventListener('scroll', refreshViewport);
-  decorate(); onMode();
+  decorate(); onMode(); markTab();
   return () => {
     disposed = true; if (frame !== null) root.cancelAnimationFrame?.(frame); if (viewportFrame !== null) root.cancelAnimationFrame?.(viewportFrame);
     observer.disconnect(); aiObserver.disconnect(); doc.querySelectorAll(SCROLL_CUE_BOXES).forEach((box) => box._aioScrollCue?.disconnect()); setOpen(false); sidebar.inert = false; main.inert = previous.mainInert;
@@ -149,6 +161,7 @@ export function installResponsiveShell(root, doc) {
     if (previous.controls) toggle.setAttribute('aria-controls', previous.controls); else toggle.removeAttribute('aria-controls');
     backdrop.remove(); close.remove(); doc.removeEventListener('click', onClick, true); doc.removeEventListener('keydown', onKey);
     compact.removeEventListener('change', onMode); root.removeEventListener('hashchange', onHash);
+    doc.removeEventListener('aio:navigationCommitted', markTab);
     root.removeEventListener('resize', refreshViewport); root.visualViewport?.removeEventListener('resize', refreshViewport);
     root.visualViewport?.removeEventListener('scroll', refreshViewport);
     doc.documentElement.style.removeProperty('--aio-visual-height'); doc.documentElement.style.removeProperty('--aio-visual-top');

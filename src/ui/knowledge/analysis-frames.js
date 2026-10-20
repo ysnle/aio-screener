@@ -17,7 +17,7 @@ function el(doc, tag, className, text) {
 
 const STYLE = `
 .af-article{max-width:760px}
-.af-kicker{font-size:11px;color:var(--text-muted);margin:0 0 6px;letter-spacing:.03em}
+.af-kicker{font-size:12px;color:var(--text-muted);margin:0 0 6px;letter-spacing:.03em}
 .af-issue{font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);margin:0 0 14px;line-height:1.35}
 .af-lead{font-size:15px;line-height:1.75;color:var(--text-primary);margin:0 0 18px}
 .af-prose p{font-size:14px;line-height:1.8;color:var(--text-secondary);margin:0 0 12px}
@@ -33,7 +33,7 @@ const STYLE = `
 .af-domain-map-step{display:grid;grid-template-columns:22px 1fr;column-gap:10px;row-gap:1px;width:100%;text-align:left;background:none;border:0;padding:6px 4px;border-radius:3px;cursor:pointer;color:var(--text-primary);font:inherit}
 .af-domain-map-step:hover{background:var(--surface-2)}
 .af-domain-map-step:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-.af-domain-map-num{grid-row:span 2;width:22px;height:22px;border-radius:50%;border:1px solid var(--border-subtle);background:var(--surface-2);font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-variant-numeric:tabular-nums}
+.af-domain-map-num{grid-row:span 2;width:22px;height:22px;border-radius:50%;border:1px solid var(--border-subtle);background:var(--surface-2);font-size:12px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-variant-numeric:tabular-nums}
 .af-domain-map-step strong{font-size:13px;line-height:1.5}
 .af-domain-map-role{grid-column:2;font-size:12px;line-height:1.5;color:var(--text-secondary)}
 .af-stack{display:flex;flex-direction:column;gap:4px;margin:6px 0 10px}
@@ -59,14 +59,14 @@ const STYLE = `
 .af-stage-node{display:block;width:100%;text-align:left;margin:4px 0;padding:6px 8px;border:1px solid var(--border-subtle);border-radius:4px;background:var(--surface-0,transparent);color:var(--text-primary);font-size:13px;cursor:pointer}
 .af-stage-node.is-active{border-color:var(--accent);font-weight:600}
 .af-links{margin:6px 0;padding-left:18px;font-size:14px;line-height:1.8}
-.af-tag{margin-left:8px;font-size:11px;color:var(--text-secondary);border:1px solid var(--border-subtle);border-radius:3px;padding:0 4px}
+.af-tag{margin-left:8px;font-size:12px;color:var(--text-secondary);border:1px solid var(--border-subtle);border-radius:3px;padding:0 4px}
 .af-definition{margin:16px 0;padding:12px 16px;border:1px solid var(--border-subtle);border-radius:8px;background:var(--surface-1)}
 .af-definition strong{display:block;font-size:12px;letter-spacing:.04em;color:var(--text-secondary);margin-bottom:4px}
 .af-definition p{margin:0;font-size:14px;line-height:1.8;color:var(--text-primary)}
 .af-model{display:grid;grid-template-columns:80px 1fr;gap:5px 12px;font-size:13px;line-height:1.55;margin:0 0 6px;padding:12px 14px;border:1px solid var(--border-subtle);border-radius:4px}
 .af-model dt{color:var(--text-muted)}
 .af-model dd{margin:0;color:var(--text-primary)}
-.af-channel{display:inline-block;font-size:11px;padding:2px 8px;margin:0 4px 4px 0;border:1px solid var(--border-subtle);border-radius:3px;color:var(--text-muted)}
+.af-channel{display:inline-block;font-size:12px;padding:2px 8px;margin:0 4px 4px 0;border:1px solid var(--border-subtle);border-radius:3px;color:var(--text-muted)}
 .af-channel.is-on{border-color:var(--accent);color:var(--text-primary);font-weight:700}
 .af-concept{margin:0 0 8px}
 .af-concept summary{cursor:pointer;font-size:13px;color:var(--text-primary);font-weight:600}

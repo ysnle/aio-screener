@@ -16,6 +16,7 @@ import { sentimentFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 import { computeCompositeFearGreed } from '../../domain/sentiment/composite-fear-greed.js';
 import { el } from './dom.js';
+import { splitReading } from './market-regime.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 
 // AAII published long-run averages (since 1987; https://www.aaii.com/sentimentsurvey): bullish 37.5%, neutral 31.5%, bearish 31.0%.
@@ -195,7 +196,12 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
   const model = buildSentimentModel({ ...inputs, snapshot: root.DATA_SNAPSHOT || {}, macroHistory: root._aioMacroHistory || null });
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   set('sentiment-basis', model.asOf ? `${shortDate(model.asOf)} 미국 종가 기준${model.mixed.length ? ' · 날짜가 다른 지표는 카드에 표시' : ''} · 공포·탐욕, 변동성 구조, 신용, 옵션, 개인 설문` : '기록을 불러오는 중입니다.');
-  set('sentiment-synthesis', model.synthesis);
+  // v58.53 개편 v2 (5d): the hero keeps the synthesis's first sentences (the rest folds) beside the F&G position bar.
+  const { lead: synthLead, rest: synthRest } = splitReading(model.synthesis);
+  set('sentiment-synthesis', synthLead);
+  const more = doc.getElementById('sentiment-synthesis-more');
+  if (more) { more.hidden = !synthRest; const body = more.querySelector('p'); if (body) body.textContent = synthRest; }
+  renderFearGreedGauge(doc, model.cards.find((card) => card.id === 'fg'));
   // P1431: tie the synthesis back to the 시장 상태 axes that use the same numbers.
   const flow = sentimentFlow({ model, regime });
   set('sentiment-bridge', flow.bridge);
@@ -213,7 +219,7 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
       head.append(el(doc, 'h3', card.title, 'trend-card-title'), el(doc, 'span', card.value, 'trend-card-value'));
       box.append(head);
       const tags = el(doc, 'div', null, 'trend-card-tags');
-      if (card.state) tags.append(el(doc, 'span', card.state.label, `regime-state is-${card.state.tone}`));
+      if (card.state) tags.append(el(doc, 'span', card.state.label, `regime-state is-${card.state.tone} sx-chip sx-chip--sm sx-chip--${CHIP_TONE[card.state.tone] || 'neutral'}`));
       if (card.value !== '—') tags.append(el(doc, 'span', card.basis, 'basis-chip'));
       box.append(tags);
       if (card.change) box.append(el(doc, 'div', card.change, 'trend-card-change'));
@@ -228,6 +234,43 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
   }
   page.dataset.aioSentimentBoardRenderer = 'native';
   return model;
+}
+
+const CHIP_TONE = Object.freeze({ favorable: 'good', burden: 'warn', neutral: 'neutral', unknown: 'neutral' });
+
+// v58.53 개편 v2 (5d): where today's F&G sits on CNN's five published bands (the same edges as fearGreedBand). A level, not
+// a verdict — every band is the neutral ink tone and only the band holding today's value is darker.
+function renderFearGreedGauge(doc, card) {
+  const gauge = doc.getElementById('sentiment-gauge');
+  if (!gauge) return;
+  const value = card?.series?.at(-1)?.value;
+  if (!Number.isFinite(value) || card.value === '—') { gauge.hidden = true; gauge.replaceChildren(); return; }
+  const { extremeFearBelow, fearBelow, greedAbove, extremeGreedAbove } = RULES.fearGreed;
+  const edges = [0, extremeFearBelow, fearBelow, greedAbove + 1, extremeGreedAbove + 1, 100];
+  const labels = ['극단 공포', '공포', '중립', '탐욕', '극단 탐욕'];
+  const shown = Math.round(value);
+  // The highlighted band is the one fearGreedBand gives the same raw value, so the bar and the card's chip always agree.
+  const bandLabel = publishedFearGreedBand(value).label;
+  const bar = el(doc, 'div', null, 'mk-fg-gauge__bar');
+  bar.setAttribute('aria-hidden', 'true');
+  const legend = el(doc, 'div', null, 'mk-fg-gauge__labels');
+  labels.forEach((label, index) => {
+    const active = label === bandLabel;
+    const seg = el(doc, 'span', null, `mk-fg-gauge__seg${active ? ' is-active' : ''}`);
+    seg.style.setProperty('--w', String(edges[index + 1] - edges[index]));
+    bar.append(seg);
+    const name = el(doc, 'span', label, active ? 'is-active' : '');
+    name.style.setProperty('--w', String(edges[index + 1] - edges[index]));
+    legend.append(name);
+  });
+  const marker = el(doc, 'span', `▲ ${shown}`, 'mk-fg-gauge__marker');
+  marker.style.setProperty('--at', `${Math.max(0, Math.min(100, value))}%`);
+  const track = el(doc, 'div', null, 'mk-fg-gauge__track');
+  track.append(marker);
+  gauge.setAttribute('role', 'img');
+  gauge.setAttribute('aria-label', `공포·탐욕 지수 ${shown} — ${bandLabel} 구간 (${card.basis})`);
+  gauge.replaceChildren(bar, track, legend);
+  gauge.hidden = false;
 }
 
 // One date range for charts compared side by side: the earliest start to the latest end.

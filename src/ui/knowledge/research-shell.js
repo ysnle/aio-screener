@@ -35,7 +35,7 @@ export const RESEARCH_PAGES = Object.freeze([
 const STYLE = `
 .rl-shell{--rl-gap:22px;color:var(--text-primary)}
 .rl-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,420px);gap:18px;align-items:end;padding:4px 0 16px;border-bottom:1px solid var(--border-subtle);margin-bottom:18px}
-.rl-kicker{font-size:11px;letter-spacing:.08em;color:var(--text-muted);margin:0 0 6px}
+.rl-kicker{font-size:12px;letter-spacing:.08em;color:var(--text-muted);margin:0 0 6px}
 .rl-title{font-family:var(--font-display);font-size:24px;font-weight:600;line-height:1.25;margin:0}
 .rl-sub{font-size:13px;color:var(--text-secondary);margin:6px 0 0}
 .rl-pages{display:flex;gap:16px;margin:10px 0 0}
@@ -49,7 +49,7 @@ const STYLE = `
 .rl-result{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--border-subtle);background:none;padding:8px 12px;cursor:pointer}
 .rl-result:hover,.rl-result:focus{background:var(--surface-2)}
 .rl-result-title{font-size:13px;font-weight:600;color:var(--text-primary)}
-.rl-result-meta{font-size:11px;color:var(--text-muted);margin-top:1px}
+.rl-result-meta{font-size:12px;color:var(--text-muted);margin-top:1px}
 .rl-result-summary{padding:6px 12px;border-bottom:1px solid var(--border-subtle);margin:0}
 .rl-result-text{font-size:12px;color:var(--text-secondary);margin-top:2px;line-height:1.45}
 .rl-grid{display:grid;grid-template-columns:minmax(200px,236px) minmax(0,1fr) minmax(240px,300px);gap:var(--rl-gap);align-items:start}
@@ -57,7 +57,7 @@ const STYLE = `
 .rl-aside{position:sticky;top:12px;max-height:calc(100vh - 140px);overflow:auto}
 .rl-main{min-width:0}
 .rl-nav-group{margin:0 0 16px}
-.rl-nav-title{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--text-secondary);margin:0 0 4px;display:flex;justify-content:space-between}
+.rl-nav-title{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--text-secondary);margin:0 0 4px;display:flex;justify-content:space-between}
 .rl-nav-title span{font-weight:400;color:var(--text-muted)}
 .rl-nav-item{display:block;width:100%;text-align:left;border:0;border-left:2px solid transparent;background:none;padding:5px 8px;font-size:13px;line-height:1.4;color:var(--text-secondary);cursor:pointer}
 .rl-nav-item:hover{background:var(--surface-2)}
@@ -69,18 +69,18 @@ const STYLE = `
 .rl-pager .rl-nav-item{width:auto;border:0}
 .rl-nav-item.is-active,.rl-nav-item[aria-pressed="true"],.rl-nav-item[aria-current="true"]{border-left-color:var(--accent);color:var(--text-primary);font-weight:700;background:var(--accent-soft)}
 .rl-nav-sub{padding-left:12px}
-.rl-nav-meta{display:block;font-size:11px;font-weight:400;color:var(--text-muted);line-height:1.35;margin-top:1px}
-.rl-doc-kicker{font-size:11px;color:var(--text-muted);margin:0 0 4px;letter-spacing:.02em}
+.rl-nav-meta{display:block;font-size:12px;font-weight:400;color:var(--text-muted);line-height:1.35;margin-top:1px}
+.rl-doc-kicker{font-size:12px;color:var(--text-muted);margin:0 0 4px;letter-spacing:.02em}
 .rl-doc-title{font-family:var(--font-display);font-size:20px;font-weight:600;margin:0 0 10px;line-height:1.35}
 .rl-doc-lead{font-size:14px;line-height:1.65;margin:0 0 14px;padding:10px 12px;border-left:3px solid var(--accent);background:var(--surface-1)}
-.rl-h{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--text-secondary);margin:18px 0 6px}
+.rl-h{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--text-secondary);margin:18px 0 6px}
 .rl-copy{font-size:13px;line-height:1.65;color:var(--text-secondary);margin:0 0 8px}
 .rl-aside-block{border-top:1px solid var(--border-subtle);padding:10px 0 6px}
 .rl-aside-block:first-child{border-top:0;padding-top:0}
-.rl-aside-title{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--text-secondary);margin:0 0 6px}
+.rl-aside-title{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--text-secondary);margin:0 0 6px}
 .rl-link{display:block;width:100%;text-align:left;border:0;background:none;padding:3px 0;font-size:13px;color:var(--text-primary);cursor:pointer;text-decoration:underline;text-underline-offset:2px;line-height:1.45}
 .rl-note{font-size:12px;color:var(--text-muted);line-height:1.5;margin:6px 0 0}
-.rl-chip{display:inline-block;font-size:11px;padding:2px 7px;margin:0 4px 4px 0;border:1px solid var(--border-subtle);border-radius:3px;color:var(--text-secondary)}
+.rl-chip{display:inline-block;font-size:12px;padding:2px 7px;margin:0 4px 4px 0;border:1px solid var(--border-subtle);border-radius:3px;color:var(--text-secondary)}
 .rl-chip.is-on{border-color:var(--accent);color:var(--text-primary);font-weight:700}
 .rl-main .af-root .af-shell{grid-template-columns:minmax(0,1fr)}
 .rl-main .af-root .af-nav,.rl-main .af-root .af-side{display:none}
@@ -98,12 +98,12 @@ const STYLE = `
 .rl-shelf-legend[hidden]{display:none}
 .rl-shelf-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border-subtle);border-radius:999px;background:var(--bg-card,#fbf9f5);padding:5px 12px 5px 10px;font:inherit;font-size:12.5px;color:var(--text-secondary);cursor:pointer;min-height:30px;transition:border-color .15s ease,background-color .15s ease}
 .rl-shelf-chip i{width:9px;height:9px;border-radius:2px;background:var(--chip-tone,var(--text-muted));flex:none}
-.rl-shelf-chip span{font-size:11.5px;color:var(--text-muted);font-variant-numeric:tabular-nums}
+.rl-shelf-chip span{font-size:12px;color:var(--text-muted);font-variant-numeric:tabular-nums}
 .rl-shelf-chip:hover{border-color:var(--text-muted)}
 .rl-shelf-chip[aria-pressed="true"]{background:var(--text-primary);border-color:var(--text-primary);color:var(--bg-card,#fbf9f5);font-weight:700}
 .rl-shelf-chip[aria-pressed="true"] span{color:inherit;opacity:.72}
 .rl-shelf-sort{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border-subtle)}
-.rl-shelf-sort-label{font-size:11.5px;color:var(--text-muted);padding:0 6px 0 5px}
+.rl-shelf-sort-label{font-size:12px;color:var(--text-muted);padding:0 6px 0 5px}
 .rl-shelf-seg{border:0;background:none;border-radius:6px;padding:4px 10px;font:inherit;font-size:12px;color:var(--text-secondary);cursor:pointer;min-height:26px}
 .rl-shelf-seg[aria-pressed="true"]{background:var(--bg-card,#fbf9f5);color:var(--text-primary);font-weight:700;box-shadow:0 1px 2px rgba(33,29,22,.14)}
 .rl-shelf-chip:focus-visible,.rl-shelf-seg:focus-visible,.rl-spine:focus-visible,.rl-shelf-btn:focus-visible,.rl-shelf-more:focus-visible,.rl-book-close:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -123,7 +123,7 @@ body.dark-theme .rl-shelf-plank{--rl-plank-top:#45403a;--rl-plank:#36322c;--rl-p
 .rl-spine[aria-current="true"]{transform:translateY(-16px);box-shadow:0 14px 18px -9px rgba(33,29,22,.6)}
 .rl-shelf-more{display:block;margin:-6px auto 4px;border:1px solid var(--border-subtle);border-radius:999px;background:var(--bg-card,#fbf9f5);padding:6px 16px;font:inherit;font-size:12px;color:var(--text-secondary);cursor:pointer;min-height:32px}
 .rl-shelf-tip{position:absolute;z-index:5;pointer-events:none;max-width:280px;padding:8px 11px;border-radius:6px;background:#211d16;color:#f7f4ee;font-size:12.5px;line-height:1.45;box-shadow:0 10px 24px rgba(0,0,0,.24)}
-.rl-shelf-tip small{display:block;margin-top:3px;font-size:11px;color:#d6cdbd}
+.rl-shelf-tip small{display:block;margin-top:3px;font-size:12px;color:#d6cdbd}
 .rl-shelf-tip[hidden]{display:none}
 body.dark-theme .rl-shelf-tip{background:#f0f0ed;color:#1b1d20}
 body.dark-theme .rl-shelf-tip small{color:#4d4a44}
@@ -131,13 +131,13 @@ body.dark-theme .rl-shelf-tip small{color:#4d4a44}
 .rl-book[hidden]{display:none}
 .rl-book-cover{display:flex;flex-direction:column;justify-content:space-between;gap:16px;padding:20px 18px 16px;color:#f6f1e7;background-color:var(--tone);background-image:radial-gradient(rgba(246,241,231,.12) 1px,transparent 1.5px),linear-gradient(90deg,rgba(0,0,0,.24),rgba(0,0,0,0) 9%);background-size:10px 10px,100% 100%}
 .rl-book-plate{border:1px solid rgba(246,241,231,.55);border-radius:4px;padding:16px 12px 14px;text-align:center;background:rgba(0,0,0,.14)}
-.rl-book-plate small{display:block;font-size:10.5px;letter-spacing:.16em;opacity:.88}
+.rl-book-plate small{display:block;font-size:12px;letter-spacing:.16em;opacity:.88}
 .rl-book-plate i{display:block;width:34px;height:1px;margin:10px auto;background:rgba(246,241,231,.6)}
 .rl-book-plate strong{display:block;font-family:var(--font-display);font-size:15px;font-weight:600;line-height:1.45}
-.rl-book-cover-foot{font-size:11.5px;line-height:1.4;opacity:.9}
+.rl-book-cover-foot{font-size:12px;line-height:1.4;opacity:.9}
 .rl-book-body{position:relative;display:flex;flex-direction:column;gap:10px;min-width:0;padding:18px 22px 18px 20px}
 .rl-book-tags{display:flex;flex-wrap:wrap;gap:6px;padding-right:34px}
-.rl-book-tag{font-size:11px;padding:2px 9px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary)}
+.rl-book-tag{font-size:12px;padding:2px 9px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary)}
 .rl-book-body h3{font-family:var(--font-display);font-size:19px;font-weight:600;line-height:1.42;margin:0;color:var(--text-primary)}
 .rl-book-body p{margin:0;font-size:13.5px;line-height:1.72;color:var(--text-secondary)}
 .rl-book-status{font-size:12px;color:var(--text-muted)}
@@ -214,6 +214,12 @@ export function openResearchRoute(root, route, { currentPage, onLocal } = {}) {
   // v57.50: pushState + showPage lost the selection (showPage strips the knowledge keys); the pending route URL keeps it.
   if (typeof root.showPage === 'function') navigateKnowledgeRoute({ root, page: route.page, params: route.params || {} });
   else root.location.assign(routeHref(root, route));
+}
+
+// Whether the URL names a chosen document (browsing vs reading); the graph view is browsing.
+export function researchDocumentOpen(root) {
+  const locationQuery = String(root?.location?.search || '');
+  return /[?&](?:node|chapter|lesson|domain|manager)=/.test(locationQuery) && !/[?&]mode=graph(?:&|$)/.test(locationQuery);
 }
 
 export function createResearchShell(doc, { root = globalThis, route, lead = null, onLocal = null } = {}) {
@@ -294,10 +300,9 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   // way in (remembered open/closed); once a document is open the text comes first and the shelf folds to its
   // one-line summary — on a phone it otherwise pushed the chosen document several screens down.
   // P1681: the graph view (mode=graph&node=…) is browsing, not reading — it keeps the shelf.
-  const locationQuery = String(root?.location?.search || '');
   // 2026-10-14 audit: on a phone the shelf starts folded unless the reader opened it before. A bare mode=frames is not
   // a chosen document (mount rewrites a fresh #principles to it), so the shelf stays the way in there.
-  const documentOpen = /[?&](?:node|chapter|lesson|domain|manager)=/.test(locationQuery) && !/[?&]mode=graph(?:&|$)/.test(locationQuery);
+  const documentOpen = researchDocumentOpen(root);
   let narrowView = false;
   try { narrowView = Boolean(root?.matchMedia?.('(max-width: 720px)')?.matches); } catch (_) { narrowView = false; }
   shelf.open = documentOpen ? false : shelfPref ? shelfPref === 'open' : !narrowView;

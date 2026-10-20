@@ -22,10 +22,10 @@
   #screener-results-table > thead > tr:not(.scr-registry-header) { display: none; }
   #screener-results-table .scr-registry-header { display: flex; flex-wrap: nowrap; overflow-x: auto; border-bottom: 1px solid var(--border); scrollbar-width: thin; }
   #screener-results-table .scr-registry-header > th { display: block; flex: 0 0 auto; min-width: 0 !important; padding: 0 2px !important; position: static; box-shadow: none; background: transparent; }
-  #screener-results-table .scr-registry-header > th:not(:has(.scr-sort-btn)) { align-self: center; padding: 0 8px !important; font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+  #screener-results-table .scr-registry-header > th:not(:has(.scr-sort-btn)) { align-self: center; padding: 0 8px !important; font-size: 12px; color: var(--text-muted); white-space: nowrap; }
   #screener-results-table > tbody > tr { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px 14px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
   #screener-results-table > tbody > tr > td { display: block; flex: 0 0 auto; min-width: 0 !important; padding: 0 !important; text-align: left !important; position: static; box-shadow: none; background: transparent; border: 0; order: 3; font-size: 12px; }
-  #screener-results-table > tbody > tr > td::before { content: attr(data-label); display: block; font-size: 11px; /* v57.81: 11px floor */ font-family: var(--font-sans, inherit); color: var(--text-muted); line-height: 1.4; }
+  #screener-results-table > tbody > tr > td::before { content: attr(data-label); display: block; font-size: 12px; /* v57.81: 11px floor */ font-family: var(--font-sans, inherit); color: var(--text-muted); line-height: 1.4; }
   #screener-results-table > tbody > tr > td[data-column-key="sym"] { order: 0; flex: 1 0 calc(100% - 128px); }
   #screener-results-table > tbody > tr > td[data-column-key="price"] { order: 1; flex: 0 0 114px; text-align: right !important; }
   #screener-results-table > tbody > tr > td:is([data-column-key="sym"], [data-column-key="price"], [data-column-key="watchlist"])::before,
@@ -40,21 +40,14 @@
   #screener-results-table .scr-close-note[hidden] { display: block !important; }
   #screener-results-table .scr-registry-header .scr-head-note { display: none !important; }
   #screener-results-table .scr-registry-header > th:not(:has(.scr-sort-btn)) { display: none; }
-  #screener-results-table .scr-registry-header::before { content: "정렬"; flex: 0 0 auto; align-self: center; padding: 0 8px 0 2px; font-size: 11px; color: var(--text-muted); }
+  #screener-results-table .scr-registry-header::before { content: "정렬"; flex: 0 0 auto; align-self: center; padding: 0 8px 0 2px; font-size: 12px; color: var(--text-muted); }
 }
 @media (max-width: 599px) {
   .scr-reading-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
   .scr-reading-row { flex-direction: column; gap: 2px !important; }
   .scr-reading-row > span:first-child { width: auto !important; }
 }
-/* v57.81 (phone/iPad parity audit): at 700px and below the Why drawer opens inline under the tapped row, as one full-width
-   table row; between 600 and 700px the table still scrolls sideways, so the drawer stays pinned to the visible area. */
-#screener-results-table > tbody > tr.scr-why-inline-row > td.scr-why-inline-cell { padding: 0 0 10px; white-space: normal; font-family: var(--font-sans, inherit); text-align: left; background: transparent; }
-.scr-why-inline-cell > .scr-why-drawer { position: sticky; left: 0; box-sizing: border-box; margin-top: 4px; }
-@media (max-width: 599px) {
-  #screener-results-table > tbody > tr.scr-why-inline-row { display: block; padding: 0 0 10px; }
-  #screener-results-table > tbody > tr.scr-why-inline-row > td.scr-why-inline-cell { display: block; padding: 0 !important; }
-}
+/* 개편 v2: the Why drawer is the inspector (≥1024px) or a bottom sheet (≤1023px) — v2-screener.css; the inline-row placement is retired. */
 .scr-why-drawer { scroll-margin-top: 12px; }
 .scr-why-drawer:focus { outline: none; }
 .scr-why-drawer:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -67,11 +60,6 @@
 .scr-compare-feedback > button { flex: 0 0 auto; min-height: 36px; }
 @media (pointer: coarse) { .scr-compare-feedback > button { min-height: 44px; } }
 .scr-compare-btn[aria-pressed="true"] { background: var(--accent-soft, var(--surface-2)); }
-/* UI review 2026-10-18: the four result tabs stay on one line on a phone (the last one wrapped under the others) and scroll sideways. */
-@media (max-width: 700px) {
-  .page .scr-subtabs, .page .scr-subtabs.aio-responsive-row { flex-wrap: nowrap; overflow-x: auto; gap: 0 !important; scrollbar-width: none; }
-  .page .scr-subtabs > button { flex: 0 0 auto; white-space: nowrap; padding-inline: 12px !important; }
-}
 /* 2026-10-19 layout system: the screener page's inline `.style.cssText` strings moved here (src/ui/pages/screener.js).
    Old inline 10/11/12px read --fs-xs/sm/base: the sizes index.html's [style*=font-size] rules rendered them at. Computed values
    (column align/min-width, sticky left, bar widths, per-factor colours) stay single-property assignments in the page. */

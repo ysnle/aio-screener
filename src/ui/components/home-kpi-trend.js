@@ -9,6 +9,7 @@
 import { buildCloseSeries, closeBasis, sessionPointBack } from '../../domain/briefing/market-read.js';
 import { countOpenSessionsBetween } from '../../domain/market/market-calendar.js';
 import { createTrendChart } from './trend-chart.js';
+import { readMarketRegime } from './market-regime.js';
 
 // C25: the second cell is the Nasdaq-100 (^NDX); the briefing's "나스닥 종합" is the Composite.
 const CELLS = Object.freeze([
@@ -30,25 +31,23 @@ export function trendPoints(history, field, sessions = SESSIONS) {
   return start ? series.filter((point) => point.date >= start.date) : [];
 }
 
-function svgLine(doc, points, width = 120, height = 26, neutral = false) {
+// v58.53 개편 v2 (2b): the line fills the tile's width (36px tall, 1.6px round stroke that does not scale, no fill).
+function svgLine(doc, points, width = 220, height = 40, neutral = false) {
   const ns = 'http://www.w3.org/2000/svg';
   const svg = doc.createElementNS(ns, 'svg');
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-  svg.setAttribute('width', String(width));
-  svg.setAttribute('height', String(height));
+  svg.setAttribute('preserveAspectRatio', 'none');
+  svg.setAttribute('class', 'sx-spark kpi-trend-line');
   svg.setAttribute('aria-hidden', 'true');
   const values = points.map((point) => point.value);
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = max - min || 1;
-  const coords = points.map((point, index) => `${(index / (points.length - 1)) * (width - 2) + 1},${height - 2 - ((point.value - min) / span) * (height - 4)}`);
-  const line = doc.createElementNS(ns, 'polyline');
-  line.setAttribute('points', coords.join(' '));
-  line.setAttribute('fill', 'none');
+  const coords = points.map((point, index) => `${((index / (points.length - 1)) * (width - 2) + 1).toFixed(1)},${(height - 2 - ((point.value - min) / span) * (height - 4)).toFixed(1)}`);
+  const line = doc.createElementNS(ns, 'path');
+  line.setAttribute('d', `M${coords.join('L')}`);
   // P1599 (F100): a yield rise is not 'good' — the rate line stays neutral instead of borrowing price up/down colours.
-  line.setAttribute('stroke', neutral ? 'var(--text-secondary)' : values[values.length - 1] >= values[0] ? 'var(--data-green)' : 'var(--data-red)');
-  line.setAttribute('stroke-width', '1.4');
-  line.setAttribute('stroke-linejoin', 'round');
+  line.setAttribute('class', neutral ? 'is-neutral' : values[values.length - 1] >= values[0] ? 'is-up' : 'is-down');
   svg.append(line);
   return svg;
 }
@@ -76,8 +75,8 @@ export function renderHomeKpiTrends({ documentRef: doc, root }) {
     const caption = doc.createElement('span');
     caption.className = 'kpi-trend-caption';
     const sessions = countOpenSessionsBetween(points[0].date, points[points.length - 1].date, 'US');
-    caption.textContent = `${sessions}거래일 ${change}`;
-    box.replaceChildren(svgLine(doc, points, 120, 26, cell.field === 'tnx'), caption);
+    caption.textContent = `${sessions}거래일 ${change}`; // 2b tile foot
+    box.replaceChildren(svgLine(doc, points, 220, 40, cell.field === 'tnx'), caption);
     const lo = Math.min(...points.map((point) => point.value));
     const hi = Math.max(...points.map((point) => point.value));
     const digits = cell.field === 'tnx' ? 2 : lo >= 100 ? 0 : 2;
@@ -86,7 +85,7 @@ export function renderHomeKpiTrends({ documentRef: doc, root }) {
     box.title = `${cell.label} ${points[0].date} 종가 → ${points[points.length - 1].date} 종가 (${sessions}거래일) · 기간 저점 ${lo.toFixed(digits)} · 고점 ${hi.toFixed(digits)} · 카드마다 세로 범위가 달라 카드끼리 높이를 비교하지 않습니다`;
     drawn += 1;
   }
-  renderHomeParticipation({ documentRef: doc, history });
+  renderHomeParticipation({ documentRef: doc, root, history });
   return drawn;
 }
 
@@ -98,11 +97,34 @@ export function homeParticipationSeries(history = []) {
   const basis = closeBasis(history);
   return { spx: buildCloseSeries(history, 'spx', { through: basis }).slice(-PARTICIPATION_SESSIONS), b50: buildCloseSeries(history, 'breadth50', { through: basis }) }; // P1623: producer declares percent, including values below 1%.
 }
-// v57.76: anchored after the close comparison (#home-daily-changes) so every completed-close block sits above the
-// "지금 시세 (실시간·지연)" heading instead of under it.
-function renderHomeParticipation({ documentRef: doc, history }) {
+// v58.53 개편 v2 (2b): one card after the daily loop — a title that says what the two lines did, the two same-period charts
+// with their end values beside the captions, the one-line read, then link rows to the screens holding the depth.
+// It sits first in #home-depth (the fold of scenarios and the guide follows it); without that host it keeps the old
+// anchor after the close comparison.
+export function participationTitle(spxMove, b0, b1) {
+  if (!Number.isFinite(b0) || !Number.isFinite(b1)) return '지수와 참여 종목 · 같은 기간';
+  if (spxMove > 0) return b1 < b0 ? '지수는 올랐는데, 참여 종목은 줄었어요' : '지수와 참여 종목이 함께 늘었어요';
+  return b1 < b0 ? '지수와 참여 종목이 함께 약해졌어요' : '지수는 약했지만, 참여 종목은 늘었어요';
+}
+
+function linkRow(doc, label, meta, onClick = null) {
+  const row = doc.createElement('button');
+  row.type = 'button';
+  row.className = 'sx-row';
+  const text = doc.createElement('span');
+  text.textContent = label;
+  const note = doc.createElement('span');
+  note.className = 'sx-row__meta';
+  note.textContent = meta;
+  row.append(text, note);
+  if (onClick) row.addEventListener('click', onClick);
+  return row;
+}
+
+function renderHomeParticipation({ documentRef: doc, root, history }) {
+  const depth = doc?.getElementById?.('home-depth');
   const anchor = doc?.getElementById?.('home-daily-changes');
-  if (!anchor) return;
+  if (!depth && !anchor) return;
   let host = doc.getElementById('home-participation');
   const { spx, b50 } = homeParticipationSeries(history);
   if (spx.length < 20) { host?.remove(); return; }
@@ -111,10 +133,10 @@ function renderHomeParticipation({ documentRef: doc, history }) {
   if (!host) {
     host = doc.createElement('section');
     host.id = 'home-participation';
-    host.className = 'home-participation';
-    host.setAttribute('aria-label', '지수와 참여 종목 — 같은 기간');
-    anchor.insertAdjacentElement('afterend', host);
+    host.className = 'sx-card home-participation';
+    host.setAttribute('aria-labelledby', 'home-participation-title');
   }
+  if (depth) { if (depth.firstElementChild !== host) depth.prepend(host); } else if (host.previousElementSibling !== anchor) anchor.insertAdjacentElement('afterend', host);
   const pct = (a, b) => ((b / a - 1) * 100);
   const spxMove = pct(spx[0].value, spx[spx.length - 1].value);
   const b0 = b50In[0]?.value;
@@ -124,36 +146,70 @@ function renderHomeParticipation({ documentRef: doc, history }) {
   const b20 = b50In.length > 21 ? b50In[b50In.length - 21].value : null;
   const recentTurn = b20 != null && b0 != null && b1 != null && Math.sign(b1 - b20) !== 0 && Math.sign(b1 - b20) !== Math.sign(b1 - b0) && Math.abs(b1 - b20) >= 3
     ? ` (최근 20거래일은 ${b20.toFixed(0)}% → ${b1.toFixed(0)}%로 ${b1 > b20 ? '다시 넓어지는 중' : '다시 줄어드는 중'})` : '';
-  const read = b50In.length >= 2
+  const hasBreadth = b50In.length >= 2;
+  const read = hasBreadth
     ? `${spx.length - 1}거래일 동안 S&P 500 ${spxMove >= 0 ? '+' : ''}${spxMove.toFixed(1)}% · 같은 기간 50일선 위 종목 ${b0.toFixed(0)}% → ${b1.toFixed(0)}%${spxMove > 0 && b1 < b0 ? ' — 지수는 올랐지만 참여 종목은 줄었습니다' : spxMove > 0 && b1 >= b0 ? ' — 지수와 참여가 함께 늘었습니다' : spxMove <= 0 && b1 < b0 ? ' — 지수와 참여가 함께 약해졌습니다' : ' — 지수는 약했지만 참여는 늘었습니다'}${recentTurn}`
     : `${spx.length - 1}거래일 S&P 500 ${spxMove >= 0 ? '+' : ''}${spxMove.toFixed(1)}% · 시장 폭 기록은 아직 같은 기간을 채우지 못했습니다`;
   const head = doc.createElement('div');
-  head.className = 'home-participation-head';
-  const title = doc.createElement('strong');
-  title.textContent = '지수와 참여 종목 · 같은 기간';
-  const note = doc.createElement('span');
+  head.className = 'sx-card__head home-participation-head';
+  const title = doc.createElement('h2');
+  title.className = 'sx-card__title';
+  title.id = 'home-participation-title';
+  title.textContent = participationTitle(spxMove, hasBreadth ? b0 : null, hasBreadth ? b1 : null);
+  const meta = doc.createElement('span');
+  meta.className = 'sx-card__meta';
+  meta.textContent = `최근 ${spx.length - 1}거래일`;
+  head.append(title, meta);
+  const note = doc.createElement('p');
+  note.className = 'home-participation-read';
   note.textContent = read;
-  head.append(title, note);
   const grid = doc.createElement('div');
   grid.className = 'home-participation-grid';
-  const card = (label, chart) => { const box = doc.createElement('div'); const caption = doc.createElement('div'); caption.className = 'home-participation-label'; caption.textContent = label; box.append(caption, chart); return box; };
+  const card = (label, value, chart) => {
+    const box = doc.createElement('div');
+    const caption = doc.createElement('div');
+    caption.className = 'home-participation-label';
+    const name = doc.createElement('span');
+    name.textContent = label;
+    const end = doc.createElement('b');
+    end.textContent = value;
+    caption.append(name, end);
+    box.append(caption, chart);
+    return box;
+  };
   grid.append(
-    card('S&P 500 종가', createTrendChart(doc, { series: spx, format: (value) => value.toFixed(0), label: 'S&P 500 종가', range })),
-    card('50일선 위 종목 비율(%) · AIO 추적 종목(미국) 기준', createTrendChart(doc, { series: b50In, refLines: [40, 60], format: (value) => `${value.toFixed(0)}%`, label: '50일선 위 종목 비율', domain: [0, 100], range }))
+    card('S&P 500 종가', `${spxMove >= 0 ? '+' : ''}${spxMove.toFixed(1)}%`, createTrendChart(doc, { series: spx, format: (value) => value.toFixed(0), label: 'S&P 500 종가', range })),
+    card('50일선 위 종목 비율 · 기준선 40%·60%', hasBreadth ? `${b0.toFixed(0)}% → ${b1.toFixed(0)}%` : '기록 수집 중', createTrendChart(doc, { series: b50In, refLines: [40, 60], format: (value) => `${value.toFixed(0)}%`, label: '50일선 위 종목 비율', domain: [0, 100], range }))
   );
   // v57.76: the five same-session breadth cards repeated the 시장 폭 screen on the home; the two charts and their
   // one-line read stay, the counting basis folds, and one link leads to the full breadth screen.
   const detail = doc.createElement('details');
+  detail.className = 'home-participation-basis';
   const label = doc.createElement('summary');
   label.textContent = '집계 기준';
   const text = doc.createElement('p');
-  text.textContent = '50일선 위 종목 비율은 ETF를 뺀 AIO 관찰 목록의 개별 주식으로 계산해 거래소 전체 집계와 다릅니다. 두 차트는 같은 기간을 쓰지만 세로축은 각자의 단위입니다.';
+  text.textContent = '50일선 위 종목 비율은 ETF를 뺀 AIO 관찰 목록(미국)의 개별 주식으로 계산해 거래소 전체 집계와 다릅니다. 두 차트는 같은 기간을 쓰지만 세로축은 각자의 단위입니다.';
   detail.append(label, text);
-  const link = doc.createElement('button');
-  link.type = 'button';
-  link.className = 'flow-next-link home-breadth-link';
-  link.textContent = '시장 폭 자세히 →';
-  link.dataset.action = 'showPage';
-  link.dataset.arg = 'breadth';
-  host.replaceChildren(head, grid, detail, link);
+  // 2b link rows: the axis board, the breadth screen, and this page's 데이터 출처 fold.
+  const regime = root ? readMarketRegime(root) : null;
+  const counts = regime?.available ? regime.counts : null;
+  const rows = doc.createElement('div');
+  rows.className = 'sx-rows home-participation-rows';
+  const axisRow = linkRow(doc, '6개 축 근거와 읽은 값', counts ? `양호 ${counts.favorable} · 중립 ${counts.neutral} · 부담 ${counts.burden}` : '시장 상태');
+  axisRow.dataset.action = 'showPage';
+  axisRow.dataset.arg = 'signal';
+  const breadthRow = linkRow(doc, '시장 폭 상세', '50일선 · 200일선 · 신고가');
+  breadthRow.classList.add('home-breadth-link');
+  breadthRow.dataset.action = 'showPage';
+  breadthRow.dataset.arg = 'breadth';
+  const [, month, day] = range[1].split('-').map(Number);
+  const sourceRow = linkRow(doc, '데이터 기준과 출처', `${month}/${day} 종가`, () => {
+    const fold = doc.querySelector('#page-home > details.page-sources');
+    if (!fold) return;
+    fold.open = true;
+    fold.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
+    fold.querySelector('summary')?.focus?.({ preventScroll: true });
+  });
+  rows.append(axisRow, breadthRow, sourceRow);
+  host.replaceChildren(head, note, grid, detail, rows);
 }

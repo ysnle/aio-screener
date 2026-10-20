@@ -131,8 +131,65 @@ function rangeVisual(doc, read) {
   marker.style.left = `${(read.position * 100).toFixed(1)}%`;
   track.append(marker);
   const scale = el(doc, 'div', null, 'stock-read-scale');
-  scale.append(el(doc, 'span', '52주 저점'), el(doc, 'span', `${Math.round(read.position * 100)}%`), el(doc, 'span', '52주 고점'));
-  box.append(track, scale);
+  scale.append(el(doc, 'span', '52주 저점'), el(doc, 'span', `현재 ${Math.round(read.position * 100)}%`), el(doc, 'span', '52주 고점'));
+  box.append(scale, track);
+  return box;
+}
+
+// v58.53 개편 v2 (3d): four check tiles — 추세 · 위치 · 재무 · 위험. Each prints a short value from the same row (or the
+// SEC annual record) the sentences use, with the sentence's own tone; nothing here is a new score.
+const TONE_WORD = Object.freeze({ favorable: '우호', burden: '부담', neutral: '중립' });
+const TONE_CHIP = Object.freeze({ favorable: 'sx-chip--good', burden: 'sx-chip--warn', neutral: 'sx-chip--neutral' });
+const signedText = (value, digits = 1, unit = '%') => `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(digits)}${unit}`;
+function checkTile(doc, { name, tone = 'neutral', chip = null, stale = false, value, detail }) {
+  const tile = el(doc, 'div', null, 'v2-stock-check');
+  tile.dataset.check = name;
+  const head = el(doc, 'div', null, 'v2-stock-check__head');
+  head.append(el(doc, 'span', name, 'v2-stock-check__name'),
+    el(doc, 'span', chip || TONE_WORD[tone] || '중립', `sx-chip sx-chip--sm ${stale ? 'sx-chip--date' : TONE_CHIP[tone] || 'sx-chip--neutral'}`));
+  tile.append(head, el(doc, 'b', value, 'v2-stock-check__value'));
+  if (detail) tile.append(el(doc, 'span', detail, 'v2-stock-check__detail'));
+  return tile;
+}
+function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null) {
+  const facts = read.facts || {};
+  const tone = (id) => read.points.find((point) => point.id === id)?.tone || 'neutral';
+  const tiles = [];
+  if (facts.trendLabel) {
+    const lines = [facts.pct50 != null ? `50일선 ${signedText(facts.pct50)}` : null, facts.pct200 != null ? `200일선 ${signedText(facts.pct200)}` : null].filter(Boolean);
+    tiles.push(checkTile(doc, { name: '추세', tone: tone('trend'), value: facts.trendLabel, detail: lines.join(' · ') }));
+  }
+  if (read.position != null) {
+    tiles.push(checkTile(doc, { name: '위치', tone: tone('range'), value: `52주 범위 ${Math.round(read.position * 100)}%`, detail: read.high != null ? `52주 고점 대비 ${signedText(read.high)}` : '' }));
+  }
+  // 재무: the SEC annual record (US); a KRX listing reads DART; an ETF (no 재무 공시 next step) has no company filings.
+  const isFund = !read.next.some((step) => step.route === 'fundamental');
+  if (/\.K[SQ]$/i.test(sym)) tiles.push(checkTile(doc, { name: '재무', chip: 'DART', value: '한국 공시 원문', detail: '사업보고서 기준 · 재무 공시 탭' }));
+  else if (!isFund) {
+    const own = fundamentals && String(fundamentals.symbol || sym).toUpperCase() === sym ? fundamentals : null;
+    const num = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
+    const growth = num(own?.revGrowth), margin = num(own?.margin), roe = num(own?.roe);
+    const fy = String(own?.fiscalPeriodEnd || '').slice(0, 10);
+    const stale = !!own?.quality?.stale;
+    if (growth != null || margin != null) {
+      tiles.push(checkTile(doc, { name: '재무', chip: fy ? `FY${fy.slice(0, 4)}` : 'SEC', stale,
+        value: growth != null ? `매출 ${signedText(growth)}` : `순이익률 ${margin.toFixed(1)}%`,
+        detail: [growth != null && margin != null ? `순이익률 ${margin.toFixed(1)}%` : null, roe != null ? `ROE ${roe.toFixed(1)}%` : null, fy ? `${fy} 마감` : null].filter(Boolean).join(' · ') }));
+    } else if (fundamentalsState === 'loading') tiles.push(checkTile(doc, { name: '재무', chip: '불러오는 중', value: 'SEC 연간 공시', detail: '공시 요약을 불러오는 중입니다' }));
+    // Review: only a loaded projection without this issuer is a confirmed absence; a failed or unknown load says so.
+    else if (fundamentalsState === 'absent') tiles.push(checkTile(doc, { name: '재무', chip: '없음', stale: true, value: 'SEC 연간 공시 없음', detail: '수집된 연간 공시에 이 종목이 없습니다 · 재무 공시 탭' }));
+    else tiles.push(checkTile(doc, { name: '재무', chip: '확인 불가', stale: true, value: 'SEC 공시 확인 불가', detail: '공시 요약을 받지 못했습니다 · 잠시 뒤 다시 확인' }));
+  }
+  // 위험: how far the price sits from its 50-day line in its own daily ranges, and the RSI — the stretch, not a forecast.
+  if (facts.pct50 != null && facts.adr > 0) {
+    tiles.push(checkTile(doc, { name: '위험', tone: tone('extension'), value: `일평균 변동폭 ${(Math.abs(facts.pct50) / facts.adr).toFixed(1)}배`,
+      detail: [facts.pct50 >= 0 ? '50일선 위 거리' : '50일선 아래 거리', facts.rsi != null ? `RSI ${facts.rsi.toFixed(1)}` : null].filter(Boolean).join(' · ') }));
+  } else if (facts.rsi != null) tiles.push(checkTile(doc, { name: '위험', value: `RSI ${facts.rsi.toFixed(1)}`, detail: '50일선 거리 자료 없음' }));
+  if (!tiles.length) return null;
+  const box = el(doc, 'div', null, 'v2-stock-checks');
+  box.setAttribute('role', 'list');
+  box.setAttribute('aria-label', '네 가지 확인');
+  tiles.forEach((tile) => { tile.setAttribute('role', 'listitem'); box.append(tile); });
   return box;
 }
 
@@ -169,7 +226,7 @@ export function relativeVisual(doc, read) {
 
 // N20: `fundamentals` is the route's SEC annual-facts record for this symbol (state.fundamentals); its recent
 // filings become one "최근 공시" line with the original-filing link.
-export function renderStockRead({ documentRef: doc, root, symbol, fundamentals = null }) {
+export function renderStockRead({ documentRef: doc, root, symbol, fundamentals = null, fundamentalsState = null }) {
   const host = doc?.getElementById('ticker-read');
   if (!host) return null;
   const sym = String(symbol || '').trim().toUpperCase();
@@ -193,7 +250,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   // v57.81 (owner 2026-10-15): a US listing outside the published universe is read on demand with the screener's own
   // formulas (src/data/on-demand-symbol.js) instead of "기록 없음"; its row has no published rank.
   const onDemand = !rawRow && list.length && screenerMarket({ sym }) !== 'KR' ? onDemandRecord(root, sym, () => {
-    if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, fundamentals });
+    if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, fundamentals, fundamentalsState });
   }) : null;
   const row = rawRow ? { ...rawRow, screenRank: rank >= 0 ? rank+1 : null } : onDemand?.status === 'ready' && onDemand.row ? { ...onDemand.row, screenRank: null } : null;
   // P1447: compare with the stock's own market index (KOSPI/KOSDAQ for KRX listings) over the same windows.
@@ -207,15 +264,15 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   const factorSession = String(row?.factorSessionDate || '').slice(0, 10);
   const sessionLag = factorSession && latestSession?.date && factorSession < latestSession.date ? { session: factorSession, latest: latestSession.date, sessions: countOpenSessionsBetween(factorSession, latestSession.date, market) } : null;
   host.dataset.aioStockReadSymbol = sym;
-  const thirteenF = /\.K[SQ]$/i.test(sym) ? null : thirteenFFor(root, sym, () => { if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, fundamentals }); });
+  const thirteenF = /\.K[SQ]$/i.test(sym) ? null : thirteenFFor(root, sym, () => { if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, fundamentals, fundamentalsState }); });
   // The screener's validation verdict only when its record is already loaded (the 스크리너 screen loads it); the
   // US validation does not describe the KR ranking.
   const validation = market === 'US' && (root?._aioScreenerBacktestHistory || []).length ? summarizeValidation(root._aioScreenerBacktestHistory, root?._aioModelValidationStatus || null, root?._aioRankingWeights || null) : null;
-  refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, fundamentals }); }).catch(() => {});
+  refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, fundamentals, fundamentalsState }); }).catch(() => {});
   const themeStages = themeStagesFor(root, { symbol: sym, themeIds: themeIdsFor(root, sym, Array.isArray(rows) ? rows : []) });
   const read = buildStockRead({ symbol: sym, row, benchmark: alignedBenchmark, rotation, themes: themesFor(root, sym), themeStages, regime: readMarketRegime(root), universeSize: ranked.length || null, validation, sessionLag, holding: holdingFor(root, sym), thirteenF, fundamentals });
   if (title && read.available && read.name && read.name !== sym) title.textContent = `종목 · ${read.name} (${sym})`;
-  host.replaceChildren(el(doc, 'h2', '이 종목의 지금', 'briefing-h2'));
+  host.replaceChildren(el(doc, 'h2', '이 종목의 지금', 'briefing-h2 sr-only'));
   if (!read.available) {
     // v57.81: an out-of-universe listing says what is happening (reading, not listed, chart unavailable), not "기록 없음".
     if (onDemand) host.append(outOfUniverseBlock(doc, root, onDemand));
@@ -223,18 +280,24 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
     renderNextSteps(doc, next, [{ route: 'technical', label: '차트', why: '일봉과 이동평균 위치' }, { route: 'fundamental', label: '재무 공시', why: '매출·이익·현금흐름' }]);
     return read;
   }
+  // v58.53 개편 v2 (3d): ① one hero card — the reading in one line, four checks (추세 · 위치 · 재무 · 위험) and the
+  // 52-week bar; ② the index comparison and the rest of the reading as two cards; ③ the sentences behind the tiles fold.
+  const hero = el(doc, 'div', null, 'sx-card sx-card--hero v2-stock-hero');
   // 2026-10-14 audit #13: the rank moved from this heading into the reading ('순위' point).
-  host.append(el(doc, 'p', `${read.name} — ${read.headline}`, 'briefing-read-headline'));
+  hero.append(el(doc, 'span', '이 종목의 지금', 'sx-kicker'), el(doc, 'p', `${read.name} — ${read.headline}`, 'briefing-read-headline v2-stock-lede'));
   // P1599 (S03): the position and returns below are completed-close figures, not the live quote at the top (which
   // can be '—'). Name that basis once, beside the figures it governs — by its date, not by its collection.
   const basisDate = String(row?.factorSessionDate || row?.priceDate || '').slice(0, 10);
-  host.append(el(doc, 'p', `아래 위치·수익률은 ${basisDate ? `${Number(basisDate.slice(5, 7))}/${Number(basisDate.slice(8, 10))} ` : '완료 '}종가 기준입니다 — 위 현재가와 시점이 다를 수 있습니다.${onDemand?.status === 'ready' ? ' 이 종목은 스크리너 랭킹 대상 밖이라 같은 공식으로 요청 시 계산했습니다.' : ''}`, 'briefing-footnote'));
-  const visuals = el(doc, 'div', null, 'stock-read-visuals');
-  if (read.position != null) visuals.append(rangeVisual(doc, read));
-  if (read.spans.some((span) => span.stock != null)) visuals.append(relativeVisual(doc, read));
-  if (visuals.childNodes.length) host.append(visuals);
+  const basisShort = basisDate ? `${Number(basisDate.slice(5, 7))}/${Number(basisDate.slice(8, 10))}` : '';
+  hero.append(el(doc, 'p', `아래 위치·수익률은 ${basisShort ? `${basisShort} ` : '완료 '}종가 기준입니다 — 위 현재가와 시점이 다를 수 있습니다.${onDemand?.status === 'ready' ? ' 이 종목은 스크리너 랭킹 대상 밖이라 같은 공식으로 요청 시 계산했습니다.' : ''}`, 'briefing-footnote sx-meta'));
+  const checks = stockChecks(doc, read, sym, fundamentals, fundamentalsState);
+  if (checks) hero.append(checks);
+  if (read.position != null) hero.append(rangeVisual(doc, read));
+  host.append(hero);
   // P1599 (F107): rows that restate a chart drawn just above (52-week position, index comparison) fold under
-  // it; the rest — trend, distance, heat, theme, market — stay as the reading.
+  // it; the rest — theme, market, filings, holding, rank — stay as the reading. v58.53: the trend, distance and heat
+  // sentences are the check tiles' long form and fold with them.
+  const tiled = new Set(['trend', 'extension', 'rsi']);
   const charted = new Set([read.position != null ? 'range' : null, read.spans.some((span) => span.stock != null) ? 'relative' : null].filter(Boolean));
   const item = (point) => {
     const li = el(doc, 'li', null, `stock-read-point is-${point.tone}`);
@@ -243,7 +306,6 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
     if (Array.isArray(point.lines)) {
       for (const line of point.lines) {
         const row = el(doc, 'span', line.text, 'stock-read-theme-line');
-        row.style.display = 'block';
         if (typeof (themeMarketOf(sym) === 'KR' ? root?.openKrThemeDetail : root?.showThemeDetail) === 'function') {
           const go = el(doc, 'button', '이 테마의 시나리오 →', 'stock-read-point-link');
           go.type = 'button';
@@ -268,18 +330,35 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
     }
     return li;
   };
-  const points = el(doc, 'ul', null, 'stock-read-points');
-  read.points.filter((point) => !charted.has(point.id)).forEach((point) => points.append(item(point)));
-  host.append(points);
-  const restated = read.points.filter((point) => charted.has(point.id));
+  const pair = el(doc, 'div', null, 'v2-stock-pair');
+  if (read.spans.some((span) => span.stock != null)) {
+    const card = el(doc, 'div', null, 'sx-card v2-stock-card');
+    const head = el(doc, 'div', null, 'sx-card__head');
+    head.append(el(doc, 'h3', `지수 대비 · ${read.benchmarkLabel}`, 'sx-card__title'), el(doc, 'span', basisShort ? `${basisShort} 종가 · 배당 포함` : '완료 종가', 'sx-card__meta'));
+    card.append(head, relativeVisual(doc, read));
+    pair.append(card);
+  }
+  const reading = read.points.filter((point) => !charted.has(point.id) && !tiled.has(point.id));
+  if (reading.length) {
+    const card = el(doc, 'div', null, 'sx-card v2-stock-card');
+    const head = el(doc, 'div', null, 'sx-card__head');
+    head.append(el(doc, 'h3', '함께 읽을 것', 'sx-card__title'), el(doc, 'span', '테마 · 시장 · 공시', 'sx-card__meta'));
+    const points = el(doc, 'ul', null, 'stock-read-points');
+    reading.forEach((point) => points.append(item(point)));
+    card.append(head, points);
+    pair.append(card);
+  }
+  if (pair.childNodes.length) host.append(pair);
+  const restated = read.points.filter((point) => charted.has(point.id) || tiled.has(point.id));
   if (restated.length) {
-    const fold = el(doc, 'details', null, 'stock-read-fold');
-    fold.append(el(doc, 'summary', '위 그림의 수치를 문장으로 읽기'));
+    const fold = el(doc, 'details', null, 'stock-read-fold sx-disclosure v2-stock-fold');
+    fold.append(el(doc, 'summary', '네 가지 확인과 그림의 수치를 문장으로 읽기'));
     const list = el(doc, 'ul', null, 'stock-read-points');
     restated.forEach((point) => list.append(item(point)));
     fold.append(list);
     host.append(fold);
   }
+  host.append(el(doc, 'p', `근거 · 이동평균 추세(50·200일선) · RSI(Wilder 1978) · 일평균 변동폭 대비 거리 · 데이터 · ${basisShort ? `${basisShort} ` : ''}완료 종가 · ${read.benchmarkLabel} 같은 기간${fundamentals?.form ? ` · SEC ${fundamentals.form}` : ''}`, 'sx-evidence v2-stock-evidence'));
   if (onDemand) host.append(outOfUniverseBlock(doc, root, onDemand));
   renderNextSteps(doc, next, read.next);
   return read;

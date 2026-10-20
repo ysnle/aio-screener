@@ -83,8 +83,10 @@ function renderCard(doc, host, def, facts) {
   host.style.display = '';
   const head = el(doc, 'div', null, 'trend-card-head');
   head.append(el(doc, 'h3', def.label, 'trend-card-title'), el(doc, 'span', close(facts.value), 'trend-card-value'));
+  // v58.53 개편 v2 (5n): the day's move under the value in the Korean convention (up red · down blue, color-theme.js tokens).
+  if (facts.d1 != null) head.append(el(doc, 'span', `하루 ${signed(facts.d1)}`, `kr-index-move ${facts.d1 > 0 ? 'kr-up' : facts.d1 < 0 ? 'kr-down' : ''}`.trim()));
   const tags = el(doc, 'div', null, 'trend-card-tags');
-  tags.append(el(doc, 'span', `${shortDate(facts.date)} 한국 종가`, 'basis-chip'));
+  tags.append(el(doc, 'span', '한국', 'sx-chip sx-chip--sm kr-market-chip'), el(doc, 'span', `${shortDate(facts.date)} 한국 종가`, 'basis-chip'));
   const position = el(doc, 'div', krIndexPositionText(facts), 'trend-card-latest');
   position.dataset.krTrendPosition = facts.field;
   const chart = createTrendChart(doc, { series: facts.series.slice(-YEAR_SESSIONS), format: (value) => level(value), label: `${def.label} 종가` });

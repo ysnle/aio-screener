@@ -10,6 +10,7 @@ import { renderNextSteps } from './page-flow.js';
 import { crossroadsForRoot, themeLinkRow } from './macro-crossroads.js';
 import { el } from './dom.js';
 import { renderMarketTimeline } from './market-timeline.js';
+import { renderSectorMoves } from './sector-moves.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 // v57.60: the market-input reader moved to the data layer (the AI context imported it from this ui file);
 // re-exported here so existing importers keep working.
@@ -109,7 +110,8 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
   const points = doc.getElementById('briefing-read-points');
   if (points) points.replaceChildren(...(read.points || []).map((row) => statementNode(doc, 'li', row)));
 
-  // 2b. 2026-10-19 cadence: six-hour market slots beside the 24h read.
+  // 2b. 2026-10-19 cadence: six-hour market slots beside the 24h read; v58.53 (5a) the day's sector bars sit beside them.
+  renderSectorMoves({ documentRef: doc, root, host: doc.getElementById('briefing-sector-moves'), nowMs });
   renderMarketTimeline({ documentRef: doc, root, nowMs });
 
   // 3. Drivers
@@ -182,7 +184,9 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
 // P1599 (F101): 1-day and 5-day moves as bars from a zero line, so which asset moved most is visible before
 // reading the numbers. Percent rows share one scale; basis-point rows get their own block and scale.
 function renderMoveChart(doc, anchor, moves) {
-  const host = anchor?.parentElement;
+  // v58.53 (5a): the driver rows sit in a fold; the bars go before the fold, on the face of the section.
+  const before = anchor?.closest?.('details') || anchor;
+  const host = before?.parentElement;
   if (!host) return;
   host.querySelector('.briefing-move-chart')?.remove();
   if (!moves.length) return;
@@ -213,7 +217,7 @@ function renderMoveChart(doc, anchor, moves) {
     }
     wrap.append(block);
   }
-  host.insertBefore(wrap, anchor);
+  host.insertBefore(wrap, before);
 }
 
 function fmtMove(value, unit) {

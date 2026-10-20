@@ -27,6 +27,13 @@ function niceStep(range, target = 4) {
   return (unit <= 1 ? 1 : unit <= 2 ? 2 : unit <= 2.5 ? 2.5 : unit <= 5 ? 5 : 10) * power;
 }
 
+// v58.53 개편 v2 (README 차트 규칙): at most three Y ticks — the next nice step up until the rounded range fits in two steps.
+function threeTickStep(lo, hi) {
+  let step = niceStep(hi - lo, 2);
+  for (let guard = 0; guard < 8 && Math.ceil(hi / step - 1e-9) - Math.floor(lo / step + 1e-9) > 2; guard += 1) step = niceStep(step * 1.01, 1);
+  return step;
+}
+
 function datedShort(date) {
   const text = String(date || '').slice(0, 10);
   return /^\d{4}-\d{2}-\d{2}$/.test(text) ? `${text.slice(2, 4)}.${text.slice(5, 7)}.${text.slice(8, 10)}` : '';
@@ -56,9 +63,9 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
   let lo = domain ? domain[0] : Math.min(...values, ...refLines);
   let hi = domain ? domain[1] : Math.max(...values, ...refLines);
   if (hi === lo) { hi += 1; lo -= 1; }
-  const step = niceStep(hi - lo);
-  lo = domain ? domain[0] : Math.floor(lo / step) * step;
-  hi = domain ? domain[1] : Math.ceil(hi / step) * step;
+  const step = domain ? (domain[1] - domain[0]) / 2 : threeTickStep(lo, hi);
+  lo = domain ? domain[0] : Math.floor(lo / step + 1e-9) * step;
+  hi = domain ? domain[1] : Math.ceil(hi / step - 1e-9) * step;
   const plotW = W - PAD.left - PAD.right;
   const plotH = H - PAD.top - PAD.bottom;
   const t0 = dayMs(start);
@@ -83,24 +90,29 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
   svg.append(svgEl(doc, 'line', { x1: PAD.left, x2: W - PAD.right, y1: PAD.top + plotH, y2: PAD.top + plotH, class: 'trend-chart-baseline' }));
   // Ticks stay monthly; labels are thinned to every k-th month with k dividing 12 so January is always labelled and the
   // widest label never collides with its neighbour. A growing range used to put "12월" and "26년 1월" on top of each other.
-  const labelEvery = [1, 2, 3, 4, 6, 12].find((k) => (plotW * MONTH_MS / span) * k >= MIN_MONTH_LABEL_SPACING) || 12;
+  // v58.53 개편 v2: at most three labelled months (README: 축 눈금 ≤3); only labelled months keep a tick mark.
+  const months = span / MONTH_MS;
+  const labelEvery = [1, 2, 3, 4, 6, 12].find((k) => (plotW * MONTH_MS / span) * k >= MIN_MONTH_LABEL_SPACING && months / k <= 3) || 12;
   const first = new Date(t0);
   for (let cursor = Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 1); cursor <= t0 + span; cursor = Date.UTC(new Date(cursor).getUTCFullYear(), new Date(cursor).getUTCMonth() + 1, 1)) {
     const month = new Date(cursor).toISOString().slice(0, 7);
     const xm = xd(`${month}-01`);
     if (xm < PAD.left + 12 || xm > W - PAD.right - 20) continue;
-    svg.append(svgEl(doc, 'line', { x1: xm, x2: xm, y1: PAD.top + plotH, y2: PAD.top + plotH + 4, class: 'trend-chart-baseline' }));
     const m = Number(month.slice(5, 7));
     if ((m - 1) % labelEvery !== 0) continue;
+    svg.append(svgEl(doc, 'line', { x1: xm, x2: xm, y1: PAD.top + plotH, y2: PAD.top + plotH + 4, class: 'trend-chart-baseline' }));
     const text = svgEl(doc, 'text', { x: xm, y: H - 8, 'text-anchor': 'middle', class: 'trend-chart-axis' });
     text.textContent = m === 1 ? `${month.slice(2, 4)}년 1월` : `${m}월`;
     svg.append(text);
   }
-  // Reference lines (thresholds), labelled at the left edge of the plot.
-  for (const ref of refLines) {
-    if (ref < lo || ref > hi) continue;
-    svg.append(svgEl(doc, 'line', { x1: PAD.left, x2: W - PAD.right, y1: y(ref), y2: y(ref), class: 'trend-chart-ref' }));
+  // Reference lines (thresholds). v58.53 개편 v2: two or more thresholds read as one soft band between the outer two
+  // (radius 6, ink 5%) instead of dashed amber lines; a single threshold stays a quiet line.
+  const shownRefs = refLines.filter((ref) => Number.isFinite(ref) && ref >= lo && ref <= hi);
+  if (shownRefs.length >= 2) {
+    const top = y(Math.max(...shownRefs)), bottom = y(Math.min(...shownRefs));
+    svg.append(svgEl(doc, 'rect', { x: PAD.left, y: top.toFixed(1), width: plotW, height: Math.max(2, bottom - top).toFixed(1), rx: 6, class: 'trend-chart-band' }));
   }
+  for (const ref of shownRefs) svg.append(svgEl(doc, 'line', { x1: PAD.left, x2: W - PAD.right, y1: y(ref), y2: y(ref), class: shownRefs.length >= 2 ? 'trend-chart-ref is-band-edge' : 'trend-chart-ref' }));
   // P1599 (M04/F46): a series that starts after the shared range marks the earlier span as 'no record yet',
   // so the empty left side reads as missing history rather than a rendering failure.
   const firstX = x(0);
@@ -117,12 +129,11 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
     const x1 = Math.max(x0 + 2, xd(span.end > end ? end : span.end));
     svg.append(svgEl(doc, 'rect', { x: x0.toFixed(1), y: PAD.top, width: (x1 - x0).toFixed(1), height: plotH, class: `trend-chart-span is-${span.tone}` }));
   }
-  // Area + line.
+  // Line only (v58.53 개편 v2: no area fill; 1.6–2px round stroke in v2-market.css).
   const line = points.map((point, index) => `${index ? 'L' : 'M'}${x(index).toFixed(1)},${y(point.value).toFixed(1)}`).join(' ');
-  svg.append(svgEl(doc, 'path', { d: `${line} L${x(points.length - 1).toFixed(1)},${PAD.top + plotH} L${x(0).toFixed(1)},${PAD.top + plotH} Z`, class: 'trend-chart-area' }));
   svg.append(svgEl(doc, 'path', { d: line, class: 'trend-chart-line' }));
   const last = points[points.length - 1];
-  svg.append(svgEl(doc, 'circle', { cx: x(points.length - 1), cy: y(last.value), r: 4, class: 'trend-chart-dot' }));
+  svg.append(svgEl(doc, 'circle', { cx: x(points.length - 1), cy: y(last.value), r: 3.5, class: 'trend-chart-dot' }));
 
   // Hover readout.
   const cursor = svgEl(doc, 'line', { x1: 0, x2: 0, y1: PAD.top, y2: PAD.top + plotH, class: 'trend-chart-cursor', visibility: 'hidden' });

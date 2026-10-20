@@ -1,0 +1,485 @@
+/* v58.53 개편 v2 — "부드럽게, 생각의 순서대로" (design_handoff_aio_redesign_v2, 3a 공통 부품).
+   Imported last from responsive.css (the one linked stylesheet), so the soft macOS-style shell and cards win over the hairline
+   ivory layer without editing every legacy rule. Tokens stay in index.html :root (values replaced, names kept);
+   this file only consumes them. Rules that must beat legacy `!important` declarations repeat it.
+
+   Sections: 1 shell · 2 page header + sub-tab segmented control · 3 surfaces (cards, tiles, tables) ·
+   4 chips, buttons, inputs · 5 sx-* component library · 6 first-visit notice + page foot · 7 AI panel ·
+   8 dark-theme alpha fixes. Breakpoints (4a) live in responsive.css. */
+
+/* Declared on body as well: a var() inside a custom property resolves where it is declared, and the dark theme
+   redefines --ink-rgb on body, so :root-only tints would stay light-ink in dark mode. */
+:root, body {
+  --sx-ink-a03: rgba(var(--ink-rgb), 0.035);
+  --sx-ink-a05: rgba(var(--ink-rgb), 0.05);
+  --sx-ink-a06: rgba(var(--ink-rgb), 0.06);
+  --sx-ink-a07: rgba(var(--ink-rgb), 0.07);
+  --sx-ink-a08: rgba(var(--ink-rgb), 0.08);
+  --sx-good-bg: rgba(34, 117, 76, 0.10);
+  --sx-warn-bg: rgba(120, 78, 0, 0.09);
+  --sx-down-bg: rgba(177, 58, 48, 0.09);
+  --sx-card-shadow: 0 1px 2px rgba(33, 29, 22, 0.04), 0 6px 20px rgba(33, 29, 22, 0.05);
+  --sx-hero-shadow: 0 1px 2px rgba(33, 29, 22, 0.04), 0 12px 32px rgba(33, 29, 22, 0.06);
+  --sx-float-shadow: 0 1px 2px rgba(33, 29, 22, 0.05), 0 16px 40px rgba(33, 29, 22, 0.10);
+  --sx-sidebar-bg: rgba(233, 227, 214, 0.6);
+  --sx-ease: var(--ease-out, cubic-bezier(0.2, 0.8, 0.2, 1));
+  --sx-dur: 260ms;
+}
+body.dark-theme {
+  --sx-good-bg: rgba(91, 191, 138, 0.14);
+  --sx-warn-bg: rgba(224, 178, 92, 0.14);
+  --sx-down-bg: rgba(236, 123, 110, 0.14);
+  --sx-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.24), 0 6px 20px rgba(0, 0, 0, 0.20);
+  --sx-hero-shadow: 0 1px 2px rgba(0, 0, 0, 0.26), 0 12px 32px rgba(0, 0, 0, 0.26);
+  --sx-float-shadow: 0 1px 2px rgba(0, 0, 0, 0.30), 0 16px 40px rgba(0, 0, 0, 0.36);
+  --sx-sidebar-bg: rgba(32, 29, 24, 0.92);
+}
+
+/* ═══ 1. Shell ═══════════════════════════════════════════════════════════ */
+body { background: var(--bg-base) !important; font-family: var(--font-sans); color: var(--text-primary); }
+.main, .content { background: var(--bg-base) !important; }
+
+.sidebar {
+  background: var(--sx-sidebar-bg) !important;
+  border-right: 1px solid rgba(var(--ink-rgb), 0.06) !important;
+  padding: 22px 12px 16px;
+  gap: 18px;
+  box-sizing: border-box;
+}
+.sidebar > * { flex-shrink: 0; }
+.logo { padding: 0 10px !important; margin: 0 !important; border: 0 !important; background: none !important; }
+.logo::after { display: none !important; }
+.logo .sh-shell-sidebar-row { display: flex; align-items: baseline; }
+.logo .sh-shell-sidebar-grow { display: flex; align-items: baseline; gap: 6px; }
+.logo-mark { display: inline !important; font-family: var(--font-sans) !important; font-size: 19px !important; font-weight: 800 !important; letter-spacing: -0.02em !important; line-height: 1.2 !important; }
+.logo-sub { display: inline !important; margin: 0 !important; font-size: 13px !important; font-weight: 400 !important; color: var(--text-secondary) !important; letter-spacing: 0 !important; }
+
+.sx-sidebar-search {
+  appearance: none; display: flex; align-items: center; justify-content: space-between; width: 100%;
+  height: 34px; padding: 0 12px; border: 0; border-radius: 10px; background: var(--sx-ink-a06);
+  font: inherit; font-size: 13px; color: var(--text-muted); cursor: pointer; text-align: left;
+  transition: background 120ms var(--sx-ease);
+}
+.sx-sidebar-search:hover { background: var(--sx-ink-a08); color: var(--text-secondary); }
+.sx-sidebar-search kbd { font: inherit; font-size: 12px; color: var(--text-muted); }
+
+.nav-section { display: flex; flex-direction: column; gap: 2px; padding: 0 !important; margin: 0 !important; border: 0 !important; }
+.nav-section + .nav-section { border-top: 0 !important; margin-top: 0 !important; }
+.nav-label { padding: 0 12px 4px !important; font-size: 12px !important; font-weight: 600 !important; color: var(--text-muted) !important; letter-spacing: 0 !important; text-transform: none !important; }
+.nav-item {
+  min-height: 32px !important; height: auto; padding: 0 12px !important; margin: 0 !important;
+  display: flex; align-items: center; border-radius: 8px !important; border: 0 !important;
+  font-size: 14px !important; font-weight: 400 !important; color: var(--text-primary) !important;
+  transition: background 120ms var(--sx-ease);
+}
+.nav-item::before, .nav-item::after { display: none !important; }
+.nav-item .nav-icon { display: none !important; }
+.nav-item:hover { background: var(--sx-ink-a05) !important; }
+.nav-item.active { background: var(--sx-ink-a08) !important; font-weight: 600 !important; color: var(--text-primary) !important; }
+.nav-divider { display: none; }
+.sh-shell-sidebar-pad4 { padding: 0 !important; }
+.sidebar-action-btn {
+  width: 100%; min-height: 32px; padding: 0 12px; border-radius: 8px !important; border: 0 !important;
+  background: transparent !important; color: var(--text-secondary) !important; font-size: 13px !important;
+  text-align: left; justify-content: flex-start;
+}
+.sidebar-action-btn:hover { background: var(--sx-ink-a05) !important; color: var(--text-primary) !important; }
+
+/* AI status: one card at the bottom (dot + line); operator controls stay folded inside it. */
+.sidebar-footer { margin-top: auto; padding: 0 !important; border: 0 !important; background: none !important; }
+.sidebar-footer .llm-panel {
+  background: rgba(255, 253, 249, 0.7); border: 0 !important; border-radius: 12px !important;
+  padding: 12px !important; display: flex; flex-direction: column; gap: 4px; box-shadow: none !important;
+}
+body.dark-theme .sidebar-footer .llm-panel { background: rgba(238, 232, 220, 0.05); }
+.llm-panel-header { display: flex; flex-direction: column; align-items: flex-start !important; gap: 2px; margin: 0 !important; padding: 0 !important; border: 0 !important; }
+.llm-panel-title { font-size: 13px !important; font-weight: 600 !important; color: var(--text-primary) !important; letter-spacing: 0 !important; text-transform: none !important; }
+.llm-switch-label { font-size: 12px !important; color: var(--text-muted) !important; }
+
+/* Topbar: no chrome bar — a quiet row of status capsules and the AI button, aligned with the page column. */
+.topbar {
+  background: transparent !important; border: 0 !important; box-shadow: none !important;
+  min-height: 52px; padding: 14px 40px 0 !important;
+}
+.topbar #breadcrumb { display: none; }
+.topbar .topbar-actions-right { margin-left: auto; gap: 8px; }
+.topbar .aio-badge, #live-quote-ts { border-radius: 999px !important; }
+#topbar-live-badge { background: var(--sx-ink-a06) !important; border: 0 !important; height: 26px; padding: 0 10px !important; font-weight: 600; letter-spacing: 0 !important; }
+#app-version-badge { background: transparent !important; border: 0 !important; color: var(--text-muted) !important; font-weight: 500; }
+#live-quote-ts { color: var(--text-muted) !important; font-size: 12px !important; }
+.topbar .aio-btn-table, #topbar-ai-btn {
+  height: 32px; min-height: 32px; padding: 0 16px !important; border-radius: 999px !important; border: 0 !important;
+  font-family: var(--font-sans) !important; font-size: 13px !important; font-weight: 600 !important; letter-spacing: 0 !important;
+  background: var(--sx-ink-a06) !important; color: var(--text-primary) !important; box-shadow: none !important;
+  transition: background 120ms var(--sx-ease), filter 120ms var(--sx-ease);
+}
+.topbar .aio-btn-table:hover { background: var(--sx-ink-a08) !important; }
+#topbar-ai-btn { background: var(--text-primary) !important; color: var(--bg-base) !important; }
+#topbar-ai-btn:hover, #topbar-ai-btn.active { filter: brightness(1.15); background: var(--text-primary) !important; color: var(--bg-base) !important; }
+
+.content { padding: 24px 40px 40px !important; }
+.page.active { max-width: 1400px; }
+
+/* ═══ 2. Page header + sub-tabs ═════════════════════════════════════════ */
+/* Kicker (기준 시각·출처, once) sits above a 34px title; no rule under the header. */
+.page-head { border: 0 !important; padding: 0 0 4px !important; margin: 0 0 20px !important; align-items: flex-end !important; gap: 16px; }
+.page-head > div:has(> .page-title) { display: flex; flex-direction: column-reverse; gap: 4px; }
+.page-title {
+  font-family: var(--font-sans) !important; font-size: 34px !important; font-weight: 700 !important;
+  letter-spacing: -0.025em !important; line-height: 1.15 !important; color: var(--text-primary) !important;
+}
+.page-subtitle { margin: 0 !important; font-size: 13px !important; font-weight: 400 !important; color: var(--text-muted) !important; }
+h2, .section-title, .widget-title, .aio-card-title, .section-header {
+  font-family: var(--font-sans) !important; letter-spacing: -0.01em !important; text-transform: none !important;
+}
+.widget-title, .aio-card-title { font-size: 16px !important; font-weight: 700 !important; color: var(--text-primary) !important; }
+
+/* The hub tab row floats right so the page header shares its line (2b/3b). */
+.aio-hub-tabs {
+  float: right; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end;
+  border: 0 !important; margin: 4px 0 12px 16px !important; padding: 0 !important; position: relative; z-index: 2;
+}
+.aio-hub-tabs[hidden] { display: none !important; }
+/* A page that opens with a full-width card (not its header) starts below the floating tabs instead of under them. */
+.aio-hub-tabs:not([hidden]) ~ .page.active > :first-child:not(.page-head) { clear: both; }
+.sx-seg, .aio-hub-seg { display: inline-flex; background: var(--sx-ink-a06); border-radius: 10px; padding: 2px; gap: 0; }
+.sx-seg > button, .sx-seg > a, .aio-hub-tab {
+  appearance: none; display: inline-flex; align-items: center; justify-content: center;
+  min-height: 28px !important; height: 28px; padding: 0 14px !important; margin: 0 !important;
+  border: 0 !important; border-radius: 8px !important; background: transparent !important;
+  font: inherit; font-size: 13px !important; font-weight: 400; color: var(--text-secondary) !important;
+  cursor: pointer; white-space: nowrap; transition: background 120ms var(--sx-ease), color 120ms var(--sx-ease);
+}
+.sx-seg > button:hover, .aio-hub-tab:hover { color: var(--text-primary) !important; }
+.sx-seg > [aria-pressed="true"], .sx-seg > [aria-current], .sx-seg > .is-active, .aio-hub-tab[aria-current="page"] {
+  background: var(--bg-card) !important; color: var(--text-primary) !important; font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(33, 29, 22, 0.12);
+}
+.aio-hub-tab:focus-visible, .sx-seg > button:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 1px; }
+.aio-hub-subject { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); }
+.aio-hub-subject strong { color: var(--text-primary); }
+.aio-hub-subject-pick {
+  appearance: none; height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--sx-ink-a06);
+  font: inherit; font-size: 13px; color: var(--text-primary); cursor: pointer;
+}
+
+/* ═══ 3. Surfaces ═══════════════════════════════════════════════════════ */
+/* Cards: no border, 20px radius, two-step shadow. Inner tiles: ink 3.5% fill, 12–16px radius. */
+.aio-card, .data-widget, .aio-widget, .kr-idx-card, .kr-theme-card, .kr-screen-card, .sx-card {
+  background: var(--bg-card) !important; border: 0 !important; border-radius: 20px !important;
+  box-shadow: var(--sx-card-shadow) !important;
+}
+.aio-card, .aio-widget, .data-widget { padding: 20px 22px; }
+.aio-card.is-interactive:hover { background: var(--bg-card) !important; box-shadow: var(--sx-hero-shadow) !important; }
+.aio-decision-header, #home-operator-note .aio-operator-note-card {
+  border: 0 !important; border-radius: 24px !important; background: var(--bg-card) !important; box-shadow: var(--sx-hero-shadow) !important;
+}
+#home-operator-note .aio-operator-note-card { padding: 22px 26px !important; }
+#home-operator-note .aio-operator-note-kicker { color: var(--text-secondary) !important; }
+.aio-decision-verdict { font-size: 26px !important; font-weight: 700 !important; letter-spacing: -0.02em !important; }
+
+.trend-card, .regime-axis, .macro-stat, .macro-tile, .temp-tile, .thp-quadrant-card, .tp-card, .capex-flow-card,
+.sector-map-tile, .masters-metric, .pf-allocation-card, .regime-scenario-card, .xr-path-card, .scr-funnel-step,
+.sh-base-panel, .sh-base-panel-s1, .empty-state, .stock-chart-evidence, .masters-detail-card, .rates-guide {
+  border: 0 !important; border-radius: 16px !important; background: var(--sx-ink-a03) !important; box-shadow: none !important;
+}
+.aio-card .aio-card, .aio-widget .aio-widget { box-shadow: none !important; background: var(--sx-ink-a03) !important; border-radius: 14px !important; }
+
+details > summary { cursor: pointer; }
+.aio-section { border-color: transparent !important; }
+
+/* Tables: hairlines go, rows become soft pills on hover. */
+.page table { border-collapse: separate; border-spacing: 0; }
+.page th { font-weight: 500 !important; color: var(--text-muted) !important; font-size: 12px !important; letter-spacing: 0 !important; text-transform: none !important; border-color: rgba(var(--ink-rgb), 0.06) !important; background: transparent !important; }
+.page td { border-color: rgba(var(--ink-rgb), 0.05) !important; }
+.page tbody tr { transition: background 120ms var(--sx-ease); }
+.page tbody tr:hover > td { background: var(--sx-ink-a03); }
+.page tbody tr:hover > td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+.page tbody tr:hover > td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+
+/* ═══ 4. Chips, buttons, inputs ═════════════════════════════════════════ */
+.aio-badge, .aio-source-badge, .aio-confidence-badge, .status-pill, .pill-chip, .freshness-badge {
+  border-radius: 999px !important; letter-spacing: 0 !important; text-transform: none !important; font-family: var(--font-sans) !important;
+}
+.aio-btn-table, .aio-btn, .btn-ghost {
+  border-radius: 999px !important; font-family: var(--font-sans) !important; letter-spacing: 0 !important;
+}
+.page .aio-btn-table { border: 0 !important; background: var(--sx-ink-a06) !important; color: var(--text-primary) !important; padding: 0 14px !important; font-weight: 600; }
+.page .aio-btn-table:hover { background: var(--sx-ink-a08) !important; }
+.page .aio-btn-table.primary, .page .aio-btn-table.is-primary { background: var(--text-primary) !important; color: var(--bg-base) !important; }
+.page input[type="text"], .page input[type="search"], .page input[type="number"], .page input:not([type]), .page select, .page textarea,
+.llm-key-input, #ai-panel-inp {
+  border: 0 !important; border-radius: 10px !important; background: var(--sx-ink-a06) !important; color: var(--text-primary) !important;
+  box-shadow: none !important; font-family: var(--font-sans) !important;
+}
+.page input:focus, .page select:focus, .page textarea:focus, #ai-panel-inp:focus {
+  outline: none; box-shadow: 0 0 0 3px rgba(var(--ink-rgb), 0.12) !important; background: var(--bg-card) !important;
+}
+
+/* Verdict colours (README): 부담 is amber, never red — red is reserved for a falling price. Legacy is-burden rules
+   in index.html and screen stylesheets drew it red; one override keeps every surface on the same meaning. */
+.regime-state.is-burden, .macro-regime-label.is-burden, .macro-tally-chip.is-burden, .macro-tile.is-burden .macro-tile-state,
+.guide-rules td.is-burden, #pf-trades .pf-trade-mirror-row.is-burden .pf-trade-mirror-state { color: var(--data-amber) !important; }
+.macro-chain-node.is-burden, .macro-tile.is-burden, .page .stock-read-point.is-burden, #pf-trades .pf-trade-notes li.is-burden { border-color: var(--data-amber) !important; }
+.page .pf-sector-bar.is-burden, .page .stock-read-bar.is-burden { background: var(--data-amber) !important; }
+.macro-quadrant-cell.is-current.is-burden { fill: var(--data-amber) !important; stroke: var(--data-amber) !important; }
+.macro-gauge-band.is-burden { fill: var(--data-amber) !important; }
+.tp-dot.is-head, .tp-swatch.is-head { fill: var(--data-amber) !important; background: var(--data-amber) !important; }
+
+/* ═══ 5. sx-* component library (3a) ═════════════════════════════════════ */
+.sx-card { padding: 20px 22px; }
+.sx-card--hero { border-radius: 24px !important; padding: 26px 30px; box-shadow: var(--sx-hero-shadow) !important; }
+.sx-card--tile { border-radius: 18px !important; padding: 18px 20px; }
+.sx-card--flush { padding: 20px 8px 8px; }
+.sx-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 0 0 10px; }
+.sx-card--flush > .sx-card__head { padding: 0 16px 10px; }
+.sx-card__title { margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; color: var(--text-primary); }
+.sx-card__meta { font-size: 13px; color: var(--text-secondary); }
+.sx-tile { background: var(--sx-ink-a03); border-radius: 16px; padding: 16px 18px; }
+.sx-kicker { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+.sx-verdict { font-size: 52px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; color: var(--text-primary); }
+.sx-lede { margin: 0; font-size: 17px; line-height: 1.6; letter-spacing: -0.01em; text-wrap: pretty; color: var(--text-primary); }
+.sx-kpi { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.sx-meta { font-size: 12px; color: var(--text-muted); }
+.sx-up { color: var(--data-green) !important; }
+.sx-down { color: var(--data-red) !important; }
+.sx-grid { display: grid; gap: 14px; }
+.sx-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sx-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.sx-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.sx-stack { display: flex; flex-direction: column; gap: 16px; }
+
+/* Capsule chips: 22–28px, verdict colours only (우호 / 부담 / 중립). Red is never a verdict colour. */
+.sx-chip {
+  display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border-radius: 999px;
+  background: var(--sx-ink-a07); color: var(--text-secondary); font-size: 13px; font-weight: 400; white-space: nowrap;
+}
+.sx-chip > b, .sx-chip__state { font-weight: 600; }
+.sx-chip--sm { height: 22px; padding: 0 9px; font-size: 12px; font-weight: 700; }
+.sx-chip--good { background: var(--sx-good-bg); }
+.sx-chip--good > b, .sx-chip--good.sx-chip--sm, .sx-chip--good .sx-chip__state { color: var(--data-green); }
+.sx-chip--warn { background: var(--sx-warn-bg); }
+.sx-chip--warn > b, .sx-chip--warn.sx-chip--sm, .sx-chip--warn .sx-chip__state { color: var(--data-amber); }
+.sx-chip--neutral > b, .sx-chip--neutral .sx-chip__state { color: var(--text-secondary); }
+.sx-chip--date { background: var(--sx-warn-bg); color: var(--data-amber); font-weight: 600; }
+.sx-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.sx-btn {
+  appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 32px; padding: 0 16px; border: 0; border-radius: 999px; font: inherit; font-size: 13px; font-weight: 600;
+  background: var(--sx-ink-a06); color: var(--text-primary); cursor: pointer; text-decoration: none;
+  transition: background 120ms var(--sx-ease), filter 120ms var(--sx-ease);
+}
+.sx-btn:hover { background: var(--sx-ink-a08); }
+.sx-btn--primary { background: var(--text-primary); color: var(--bg-base); }
+.sx-btn--primary:hover { background: var(--text-primary); filter: brightness(1.15); }
+.sx-link { appearance: none; background: none; border: 0; padding: 0; font: inherit; font-size: 13px; color: var(--text-secondary); cursor: pointer; text-decoration: none; }
+.sx-link:hover { color: var(--text-primary); }
+
+/* Disclosure row: single-open accordion row; opened row tints and shows three white cards. */
+.sx-disclosure { border-radius: 14px; transition: background var(--sx-dur) var(--sx-ease); }
+.sx-disclosure > summary, .sx-disclosure__row {
+  list-style: none; display: grid; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 14px; cursor: pointer;
+}
+.sx-disclosure > summary::-webkit-details-marker { display: none; }
+.sx-disclosure > summary::after, .sx-disclosure__row::after { content: '⌄'; justify-self: end; color: var(--text-muted); font-size: 14px; }
+.sx-disclosure[open] > summary::after, .sx-disclosure.is-open > .sx-disclosure__row::after { content: '⌃'; }
+.sx-disclosure:hover { background: var(--sx-ink-a03); }
+.sx-disclosure[open], .sx-disclosure.is-open { background: var(--sx-ink-a03); }
+.sx-disclosure__body { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 0 16px 16px; }
+.sx-disclosure__card { background: var(--bg-card); border-radius: 14px; padding: 16px 18px; }
+.sx-disclosure__label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+.sx-disclosure__text { margin: 0; font-size: 13px; line-height: 1.7; color: var(--text-primary); }
+.sx-evidence { display: flex; flex-wrap: wrap; gap: 6px 20px; padding: 0 20px 16px; font-size: 12px; color: var(--text-muted); }
+
+/* Link rows at the foot of a card ("6개 축 근거와 읽은 값 ›"). */
+.sx-rows { display: flex; flex-direction: column; }
+.sx-row {
+  appearance: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%;
+  padding: 14px 24px; border: 0; border-top: 1px solid rgba(var(--ink-rgb), 0.06); background: none;
+  font: inherit; font-size: 14px; color: var(--text-primary); text-align: left; cursor: pointer;
+}
+.sx-row:hover { background: var(--sx-ink-a03); }
+.sx-row__meta { font-size: 13px; color: var(--text-secondary); }
+.sx-row__meta::after { content: ' ›'; }
+
+/* Inspector (screener side panel) and iPhone sheet. */
+.sx-inspector {
+  width: 400px; flex: none; background: var(--bg-card); border-radius: 22px; padding: 24px;
+  box-shadow: var(--sx-float-shadow); box-sizing: border-box;
+}
+.sx-factor { display: flex; flex-direction: column; gap: 4px; }
+.sx-factor__head { display: flex; justify-content: space-between; font-size: 13px; }
+.sx-factor__bar { height: 6px; border-radius: 999px; background: var(--sx-ink-a07); overflow: hidden; }
+.sx-factor__bar > span { display: block; height: 100%; border-radius: 999px; background: var(--text-primary); }
+.sx-sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 260; max-height: 86vh; overflow-y: auto;
+  background: var(--bg-card); border-radius: 28px 28px 0 0; padding: 10px 20px max(20px, env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -8px 40px rgba(33, 29, 22, 0.16); transform: translateY(100%); transition: transform var(--sx-dur) var(--sx-ease);
+}
+.sx-sheet.is-open { transform: translateY(0); }
+.sx-sheet::before { content: ''; display: block; width: 38px; height: 5px; margin: 0 auto 14px; border-radius: 999px; background: rgba(var(--ink-rgb), 0.18); }
+.sx-sheet .sx-btn { height: 50px; border-radius: 14px; }
+
+/* Amber banner (validation state before the table). */
+.sx-banner {
+  display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 16px;
+  background: var(--sx-warn-bg); color: var(--text-primary); font-size: 13px; line-height: 1.6;
+}
+
+/* Charts: thin round strokes, no fill, reference band. */
+.sx-spark { display: block; width: 100%; height: 36px; overflow: visible; }
+.sx-spark path { fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.sx-band { fill: rgba(var(--ink-rgb), 0.05); }
+
+/* Loading skeleton appears only after 0.8s (5k). */
+.sx-skeleton { border-radius: 12px; background: var(--sx-ink-a06); opacity: 0; animation: sx-skel-in 1ms linear 800ms forwards, sx-skel-pulse 1.4s ease-in-out 800ms infinite; }
+@keyframes sx-skel-in { to { opacity: 1; } }
+@keyframes sx-skel-pulse { 50% { background: var(--sx-ink-a03); } }
+@media (prefers-reduced-motion: reduce) {
+  .sx-skeleton { animation: sx-skel-in 1ms linear 800ms forwards; }
+  .sx-sheet, .sx-disclosure { transition: none; }
+}
+
+/* ═══ 6. First-visit notice + page foot ═════════════════════════════════ */
+/* The fixed bottom bar is replaced by a floating card shown once; it does not block the page (browser gates and
+   keyboard users keep working), and one 12px line closes every page. */
+#aio-first-visit-disclaimer {
+  left: 50% !important; right: auto !important; bottom: max(20px, env(safe-area-inset-bottom, 0px)) !important;
+  transform: translateX(-50%); width: min(560px, calc(100vw - 32px)); box-sizing: border-box;
+  display: flex !important; flex-direction: column; align-items: stretch !important; gap: 14px !important;
+  padding: 22px 24px !important; border: 0 !important; border-radius: 22px !important;
+  background: var(--bg-card) !important; box-shadow: var(--sx-float-shadow), 0 0 0 1px rgba(var(--ink-rgb), 0.04) !important;
+  font-size: 14px !important; line-height: 1.65 !important; color: var(--text-secondary) !important; z-index: 250 !important; /* above the tab bar (240), below the drawer (300/310); hidden while the AI panel is open */
+}
+#aio-first-visit-disclaimer .lu-dc-text { flex: none !important; }
+#aio-first-visit-disclaimer .lu-dc-title { display: block; margin-bottom: 6px; font-size: 16px; font-weight: 700; color: var(--text-primary); }
+#aio-first-visit-disclaimer .lu-dc-btn {
+  align-self: flex-end; height: 40px; padding: 0 20px !important; border: 0 !important; border-radius: 999px !important;
+  background: var(--text-primary) !important; color: var(--bg-base) !important; font-size: 14px !important; font-weight: 600 !important;
+}
+/* Never over the AI panel; the page keeps room for the card (shell-overlays.css reserves --aio-disclaimer-h). */
+body:has(#ai-panel.open) #aio-first-visit-disclaimer { display: none !important; }
+body.aio-disclaimer-open .sidebar { padding-bottom: 16px !important; }
+
+.sx-page-foot { clear: both; max-width: 1400px; margin: 28px auto 0; text-align: center; font-size: 12px; color: var(--text-muted); }
+.sx-page-foot button { appearance: none; background: none; border: 0; padding: 0; font: inherit; color: var(--text-secondary); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+
+/* Shell overlays: boot status, update banner, scroll-top, toasts and the confirm dialog take the same soft surfaces. */
+#aio-boot-loader {
+  margin-top: 12px; padding: 10px 18px; border: 0; border-radius: 999px;
+  box-shadow: var(--sx-float-shadow); background: var(--bg-card);
+}
+#aio-boot-loader .aio-boot-spinner { border-top-color: var(--text-primary); }
+#update-banner {
+  top: 12px !important; left: 50% !important; right: auto !important; transform: translateX(-50%); width: min(560px, calc(100vw - 32px));
+  box-sizing: border-box; border: 0 !important; border-radius: 16px; background: var(--bg-card) !important; box-shadow: var(--sx-float-shadow);
+}
+body #update-banner { padding: 12px 64px 12px 20px; }
+#scroll-top-btn { border: 0; background: var(--bg-card); box-shadow: var(--sx-card-shadow); color: var(--text-primary); }
+#scroll-top-btn:hover { background: var(--bg-card); box-shadow: var(--sx-hero-shadow); }
+.aio-toast { border-radius: 999px !important; box-shadow: var(--sx-float-shadow) !important; }
+.sh-shell-confirm-modal-panel { border: 0 !important; border-radius: 22px !important; box-shadow: var(--sx-float-shadow) !important; padding: 24px !important; }
+#aio-confirm-modal { background: rgba(33, 29, 22, 0.32) !important; }
+#aio-confirm-modal button { border-radius: 999px !important; border: 0 !important; height: 40px; padding: 0 18px !important; font-size: 13px !important; }
+#aio-confirm-cancel { background: var(--sx-ink-a06) !important; color: var(--text-primary) !important; }
+#aio-confirm-ok { background: var(--data-red) !important; color: var(--bg-card) !important; }
+
+/* ═══ 7. AI panel (5l) ═══════════════════════════════════════════════════ */
+#ai-panel {
+  top: 12px !important; bottom: 12px !important; right: 12px !important; width: 400px !important;
+  border: 0 !important; border-radius: 22px !important; background: var(--bg-card) !important; overflow: hidden;
+}
+#ai-panel:not(.open) { transform: translateX(calc(100% + 24px)) !important; }
+#ai-panel.open { box-shadow: var(--sx-float-shadow) !important; }
+#ai-panel .ai-ph { border-bottom: 1px solid rgba(var(--ink-rgb), 0.06) !important; padding: 18px 20px !important; }
+#ai-panel .ai-ph-title { font-size: 16px !important; }
+#ai-panel .ai-ph-badge { border-radius: 999px !important; background: var(--sx-ink-a06) !important; color: var(--text-secondary) !important; font-family: var(--font-sans) !important; }
+#ai-panel .ai-bubble { border-radius: 16px !important; border: 0 !important; }
+#ai-panel .ai-msg.user .ai-bubble { background: var(--text-primary) !important; color: var(--bg-base) !important; border-bottom-right-radius: 6px !important; }
+#ai-panel .ai-msg.ai .ai-bubble { background: var(--sx-ink-a03) !important; color: var(--text-primary) !important; border-bottom-left-radius: 6px !important; }
+#ai-panel .ai-chip { border: 0 !important; border-radius: 999px !important; background: var(--sx-ink-a06) !important; color: var(--text-primary) !important; }
+#ai-panel .ai-input-row {
+  width: auto !important; margin: 4px 16px 16px; padding: 6px 6px 6px 4px !important; gap: 6px; align-items: center;
+  border: 0 !important; border-radius: 14px; background: var(--sx-ink-a06) !important;
+}
+#ai-panel .ai-input-row input#ai-panel-inp { background: transparent !important; box-shadow: none !important; padding: 8px 10px !important; }
+#ai-panel .ai-input-row button { height: 34px; padding: 0 14px !important; border-radius: 10px !important; font-size: 13px !important; }
+#ai-panel-policy { font-size: 12px; color: var(--text-muted); }
+
+/* ═══ 8. Dark-theme fixes for hard-coded light alphas ════════════════════ */
+body.dark-theme .sx-seg > [aria-pressed="true"], body.dark-theme .aio-hub-tab[aria-current="page"] { background: var(--bg-elevated) !important; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); }
+body.dark-theme #aio-first-visit-disclaimer { box-shadow: var(--sx-float-shadow), 0 0 0 1px rgba(238, 232, 220, 0.06) !important; }
+
+/* ═══ 9. Shell breakpoints (4a) ══════════════════════════════════════════
+   ≥1280 desktop (sidebar 232) · 1101–1279 iPad landscape (sidebar 200) · ≤1100 drawer navigation (P1618; the
+   1024 viewport keeps the drawer the responsive gate verifies — current iPads are wider than 1100 in landscape) ·
+   ≤1023 iPad portrait + iPhone: bottom tab bar (오늘 · 시장 · 스크리너 · 종목 · 더보기 → drawer) · ≤743 iPhone. */
+.sx-tabbar { display: none; }
+@media (min-width: 1101px) and (max-width: 1279px) {
+  :root { --sidebar-w: 200px; }
+  .sidebar { width: 200px; padding: 20px 10px 14px; }
+  .content { padding: 20px 28px 32px !important; }
+  .topbar { padding: 12px 28px 0 !important; }
+}
+@media (max-width: 1100px) {
+  .sidebar { padding: 8px 12px 16px !important; background: var(--bg-base) !important; }
+  .aio-navigation-close { border: 0 !important; border-radius: 999px !important; background: var(--sx-ink-a06) !important; font-size: 14px; }
+  .aio-navigation-backdrop { background: rgba(33, 29, 22, 0.32) !important; backdrop-filter: blur(2px); }
+  .content { padding: 16px 24px 32px !important; }
+  .topbar { padding: 8px 16px 0 !important; min-height: 0; }
+  .page-title { font-size: 30px !important; }
+  #ai-panel { top: 0 !important; bottom: auto !important; right: 0 !important; border-radius: 0 !important; width: min(440px, 100vw) !important; }
+}
+@media (max-width: 1023px) {
+  .sx-tabbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 240; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+    height: calc(64px + env(safe-area-inset-bottom, 0px)); padding: 6px 8px env(safe-area-inset-bottom, 0px); box-sizing: border-box;
+    background: rgba(244, 240, 232, 0.86); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(var(--ink-rgb), 0.06);
+  }
+  body.dark-theme .sx-tabbar { background: rgba(27, 25, 20, 0.86); }
+  .sx-tabbar-item {
+    appearance: none; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    min-height: 44px; padding: 12px 2px 0; border: 0; background: none; font: inherit; font-size: 12px; color: var(--text-secondary);
+    cursor: pointer;
+  }
+  .sx-tabbar-item[aria-current="page"], .sx-tabbar-item[aria-expanded="true"] { color: var(--text-primary); font-weight: 700; }
+  .sx-tabbar-item[aria-current="page"]::before { content: ''; position: absolute; top: 4px; width: 5px; height: 5px; border-radius: 50%; background: var(--text-primary); }
+  .sx-tabbar-item:focus-visible { outline: 2px solid var(--text-primary); outline-offset: -4px; border-radius: 10px; }
+  .content { padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important; }
+  #scroll-top-btn { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important; }
+  #aio-first-visit-disclaimer { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important; }
+  body.aio-disclaimer-open .content { padding-bottom: calc(var(--aio-disclaimer-h, 0px) + 96px + env(safe-area-inset-bottom, 0px)) !important; }
+  /* Toasts and the screener compare note sit above the tab bar, not under it. */
+  .aio-toast, .scr-compare-feedback { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important; z-index: 245 !important; }
+  body.aio-navigation-open .sx-tabbar, body:has(#ai-panel.open) .sx-tabbar { visibility: hidden; }
+  .sx-inspector { width: auto; }
+}
+@media (max-width: 743px) {
+  .content { padding: 12px 16px calc(88px + env(safe-area-inset-bottom, 0px)) !important; }
+  .topbar { padding: 6px 12px 0 !important; }
+  .page-title { font-size: 30px !important; }
+  .page-head { margin-bottom: 14px !important; }
+  .aio-hub-tabs { float: none; display: flex; margin: 4px 0 12px !important; justify-content: stretch; }
+  .aio-hub-seg { display: flex; width: 100%; }
+  .aio-hub-seg > .aio-hub-tab { flex: 1 1 0; padding: 0 8px !important; }
+  .aio-hub-subject { flex: 1 1 100%; flex-wrap: wrap; }
+  .sx-card, .aio-card, .aio-widget, .data-widget { border-radius: 18px !important; }
+  .sx-card { padding: 16px 18px; }
+  .sx-card--hero { padding: 20px 20px; border-radius: 22px !important; }
+  .sx-verdict { font-size: 40px; }
+  .sx-grid--3, .sx-grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sx-grid--2 { grid-template-columns: minmax(0, 1fr); }
+  .sx-disclosure__body { grid-template-columns: minmax(0, 1fr); }
+  .sx-row { padding: 14px 18px; }
+  #aio-first-visit-disclaimer { width: calc(100vw - 24px); padding: 18px 18px !important; }
+  #ai-panel { width: 100vw !important; }
+}
+@media (pointer: coarse) {
+  .sx-btn, .sx-sidebar-search { min-height: 44px; }
+  .sx-seg > button, #aio-hub-tabs .aio-hub-tab { min-height: 44px !important; height: auto; }
+  /* The repo's 44px touch rule (responsive.css, v57.81) is not !important; the redesign's compact desktop heights
+     (pills, tiles, chips, 32px nav rows) are, so the rule is restated here to win on every touch device. */
+  .page :is(button, [role="button"]):not(td *, th *, .aio-basis-btn, .aio-term), .sidebar .nav-item { min-height: 44px !important; }
+}

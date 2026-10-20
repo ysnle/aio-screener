@@ -71,9 +71,11 @@ export function renderScreenerRead({ documentRef: doc, root, rows = [] }) {
   if (!read.available) { host.append(el(doc, 'p', read.reason, 'daily-empty')); renderNextSteps(doc, doc.getElementById('screener-next'), []); return read; }
   host.append(el(doc, 'p', read.headline, 'briefing-read-headline'));
   // P1599 (F106/C01): the reasoning comes first, but the table is one click away instead of two screens down.
-  const jump = el(doc, 'button', '결과 표로 바로 가기 ↓', 'flow-next-link');
+  const jump = el(doc, 'button', '순위 표로 가기', 'flow-next-link');
   jump.type = 'button';
   jump.addEventListener('click', () => {
+    // 개편 v2: this reading sits in the 사후 검증 view; the table is the 순위 view, so switch to it first.
+    if (doc.getElementById('page-screener')?.dataset.scrView !== 'rank') doc.getElementById('scr-tab-button-ranking')?.click();
     const table = doc.getElementById('screener-results-table');
     table?.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
     table?.querySelector?.('[data-aio-screener-ticker]')?.focus?.({ preventScroll: true });

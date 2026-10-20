@@ -3339,18 +3339,47 @@ function renderGlossaryItems(query) {
   if (filtered.length === 0) {
     html += '<div class="lu-gl-empty">검색 결과가 없습니다</div>';
   } else {
-    filtered.forEach(function(g) {
-      var catColors = {'기초':'var(--data-green)','기술적분석':'var(--data-cyan)','경제':'var(--data-amber)','외환':'var(--text-secondary)','채권':'var(--text-secondary)','거시':'var(--data-amber)','옵션':'var(--text-secondary)','한국시장':'var(--data-purple)','전략':'var(--text-secondary)','배경지식':'var(--text-secondary)','기술':'var(--data-cyan)','심화':'var(--data-green)'};
-      html += '<div class="aio-glossary-item">';
-      html += '<div class="lu-gl-head">';
+    // v58.53 개편 v2 (3h): each entry is a disclosure row (term · 분류 · 첫 문장); opened, it reads definition →
+    // formula → 한계 → "이 개념이 쓰이는 화면" (parts from src/ui/knowledge/glossary-bridge.js, cut from the entry's own text).
+    var partsOf = typeof window._aioGlossaryEntryParts === 'function' ? window._aioGlossaryEntryParts : null;
+    filtered.forEach(function(g, index) {
+      var parts = null;
+      try { parts = partsOf ? partsOf(g) : null; } catch (_e) { parts = null; }
+      var lead = parts && parts.lead.length ? parts.lead.join(' ') : g.def;
+      html += '<details class="aio-glossary-item"' + (q && index === 0 ? ' open' : '') + '>';
+      html += '<summary class="lu-gl-head">';
       html += '<span class="aio-glossary-term">' + escHtml(g.term) + '</span>';
-      html += '<span class="lu-gl-tag" style="color:' + (catColors[g.cat]||'var(--text-secondary)') + ';">' + escHtml(g.cat) + '</span>';
+      html += '<span class="lu-gl-tag">' + escHtml(g.cat) + '</span>';
+      html += '<span class="lu-gl-first">' + escHtml(lead) + '</span>';
+      html += '</summary>';
+      html += '<div class="lu-gl-def">';
+      html += '<p class="lu-gl-lead">' + escHtml(lead) + '</p>';
+      if (parts) {
+        parts.formulas.forEach(function(f) { html += '<div class="lu-gl-formula">' + escHtml(f) + '</div>'; });
+        if (parts.limits.length) html += '<p class="lu-gl-limits"><b>한계 · 주의</b> ' + escHtml(parts.limits.join(' ')) + '</p>';
+        if (parts.screens.length || parts.conceptId) {
+          html += '<div class="lu-gl-used"><span class="lu-gl-used-label">이 개념이 쓰이는 화면</span>';
+          parts.screens.forEach(function(s) { html += '<button type="button" class="lu-gl-route" data-action="_aioGlossaryOpenScreen" data-arg="' + escHtml(s.route) + '">' + escHtml(s.label) + '</button>'; });
+          if (parts.conceptId) html += '<button type="button" class="lu-gl-route" data-action="_aioGlossaryOpenConcept" data-arg="' + escHtml(parts.conceptId) + '">리서치 · 개념 사전</button>';
+          html += '</div>';
+        }
+        if (parts.basis) html += '<p class="lu-gl-basis">근거 · ' + escHtml(parts.basis) + '</p>';
+      }
       html += '</div>';
-      html += '<div class="lu-gl-def">' + escHtml(g.def) + '</div>';
-      html += '</div>';
+      html += '</details>';
     });
   }
-  document.getElementById('glossary-body').innerHTML = html;
+  var body = document.getElementById('glossary-body');
+  body.innerHTML = html;
+  if (!body._aioSingleOpen) {
+    body._aioSingleOpen = true;
+    // single-open accordion: opening one entry folds the others (toggle does not bubble, so listen in capture)
+    body.addEventListener('toggle', function(e) {
+      var item = e.target;
+      if (!item || !item.open || !item.classList || !item.classList.contains('aio-glossary-item')) return;
+      body.querySelectorAll('details.aio-glossary-item[open]').forEach(function(other) { if (other !== item) other.open = false; });
+    }, true);
+  }
 }
 
 function filterGlossary(val) { renderGlossaryItems(val); }
@@ -3481,7 +3510,7 @@ document.addEventListener('keydown', function(e) {
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
     var searchInput = (document.querySelector('.page.active') || document).querySelector('#scr-text-search, #fund-search-input, #ticker-direct-search, #guide-search-input'); // P1315: .search-bar never existed
-    if (searchInput && searchInput.offsetParent !== null) searchInput.focus(); else if (typeof openGlossary === 'function') openGlossary();
+    if (searchInput && searchInput.offsetParent !== null) searchInput.focus(); else window._aioOpenStockSearch(); // v58.53: sidebar '종목 검색 ⌘K'
     return;
   }
 
@@ -4303,36 +4332,49 @@ window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); /
 
 // ── P714: 첫 방문 투자 면책 고지 (1회, 확인 시까지 유지) ──
 // 기존 면책은 guide 페이지 <details> 안에 접혀 있어 실질 도달률이 0에 가까웠다.
-// 최초 방문 시 비차단 하단 바로 승격 — 확인 후 localStorage 플래그로 재표시 안 함.
+// v58.53 개편 v2: 고정 하단 바 → 최초 1회 떠 있는 카드(비차단) + 페이지 하단 한 줄(.sx-page-foot)에서 다시 열기.
 (function() {
-  try {
-    if (localStorage.getItem('aio_disclaimer_ack_v1') === '1') return;
-  } catch(_e) { return; } // storage 불가 환경(시크릿 등)에서는 매번 띄우는 대신 조용히 생략
-  function mountDisclaimer() {
+  function mountDisclaimer(force) {
     if (document.getElementById('aio-first-visit-disclaimer')) return;
     var bar = document.createElement('div');
     bar.id = 'aio-first-visit-disclaimer';
-    bar.setAttribute('role', 'region');
-    bar.setAttribute('aria-label', '투자 면책 고지');
-    // bar, text and button styles: legacy-ui.css (#aio-first-visit-disclaimer)
+    bar.setAttribute('role', 'dialog');
+    bar.setAttribute('aria-modal', 'false');
+    bar.setAttribute('aria-labelledby', 'aio-first-visit-disclaimer-title');
+    // card, text and button styles: legacy-ui.css + soft-ui.css (#aio-first-visit-disclaimer)
     var txt = document.createElement('div');
     txt.className = 'lu-dc-text';
-    txt.innerHTML = '<b class="lu-dc-title">투자 면책 고지</b> — 본 도구의 모든 수치·점수·시그널·AI 답변은 늦거나 참고용일 수 있으며 <b>투자 권유·자문·매매 지시가 아닙니다</b>. 투자 결정과 그 결과의 책임은 이용자 본인에게 있습니다.';
+    txt.innerHTML = '<b class="lu-dc-title" id="aio-first-visit-disclaimer-title">투자 면책 고지</b>본 도구의 모든 수치·점수·시그널·AI 답변은 늦거나 참고용일 수 있으며 <b>투자 권유·자문·매매 지시가 아닙니다</b>. 투자 결정과 그 결과의 책임은 이용자 본인에게 있습니다.';
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.textContent = '확인했습니다';
     btn.className = 'lu-dc-btn';
+    // Reopened from the page foot: focus returns to that trigger on dismiss (Escape dismisses too).
+    var trigger = force ? document.activeElement : null;
     btn.addEventListener('click', function() {
       try { localStorage.setItem('aio_disclaimer_ack_v1', '1'); } catch(_e) {}
       if (bar.parentNode) bar.parentNode.removeChild(bar);
+      if (trigger && trigger.isConnected && typeof trigger.focus === 'function') trigger.focus();
     });
+    bar.addEventListener('keydown', function(e) { if (e.key === 'Escape') { e.preventDefault(); btn.click(); } });
     bar.appendChild(txt);
     bar.appendChild(btn);
     document.body.appendChild(bar);
+    if (force) btn.focus();
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mountDisclaimer);
-  else mountDisclaimer();
+  window._aioShowDisclaimer = function() { mountDisclaimer(true); };
+  try {
+    if (localStorage.getItem('aio_disclaimer_ack_v1') === '1') return;
+  } catch(_e) { return; } // storage 불가 환경(시크릿 등)에서는 매번 띄우는 대신 조용히 생략
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function() { mountDisclaimer(false); });
+  else mountDisclaimer(false);
 })();
+
+// v58.53 개편 v2: 사이드바 '종목 검색' — 종목 화면을 열고 검색 칸에 초점을 둔다(⌘K와 같은 목적지).
+window._aioOpenStockSearch = function() {
+  if (typeof showPage === 'function') showPage('ticker');
+  setTimeout(function() { var input = document.getElementById('ticker-direct-search'); if (input) input.focus(); }, 60);
+};
 
 // P1429 (owner 2026-10-04): the first-visit "처음 오셨나요?" onboarding card was removed — users are active traders; no how-to prompts.
 // ── 초기화 ──

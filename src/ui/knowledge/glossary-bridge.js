@@ -54,6 +54,36 @@ export function screenLinksForQuery(query) {
   return [...routes.values()];
 }
 
+// v58.53 개편 v2 (3h): a glossary entry reads as definition → formula → limits → "이 개념이 쓰이는 화면". The parts are
+// cut from the entry's own text (sentences), never written here: a sentence with "=" is the formula line, a later
+// sentence that states a limit or a caution goes under 한계, the rest is the definition. A figure-source row
+// (GLOSSARY_FIGURE_SOURCES) adds its condition to the limits and its source as the evidence line.
+const LIMIT_WORDS = /않|아닙|아니|없습|없고|다를|달라|다릅|주의|한계|왜곡|민감|보장|빗나|착각|오해|과장|함께 봐|함께 봅|별도|단정/;
+export function splitDefinition(def) {
+  const sentences = String(def || '').trim().split(/(?<=[.!?])\s+(?=[^\d\s])/).filter(Boolean);
+  const parts = { lead: [], formulas: [], limits: [] };
+  sentences.forEach((sentence, index) => {
+    if (/=/.test(sentence) && sentence.length <= 160) parts.formulas.push(sentence);
+    else if (index > 0 && parts.lead.length && LIMIT_WORDS.test(sentence)) parts.limits.push(sentence);
+    else parts.lead.push(sentence);
+  });
+  if (!parts.lead.length && parts.formulas.length) parts.lead.push(parts.formulas.shift());
+  return parts;
+}
+
+export function screensForEntry(entry) {
+  if (!entry) return [];
+  const own = entry.conceptId ? screenRoutesFor(entry.conceptId).filter((route) => SCREEN_ROUTE_LABELS[route]).map((route) => ({ route, label: SCREEN_ROUTE_LABELS[route] })) : [];
+  return own.length ? own : screenLinksForQuery(String(entry.term || '').replace(/\s*\(.*$/, '')).map(({ route, label }) => ({ route, label }));
+}
+
+export function glossaryEntryParts(entry, figureSources = null) {
+  const parts = splitDefinition(entry?.def);
+  const figure = figureSources?.[entry?.term] || null;
+  if (figure?.cond) parts.limits.push(`수치 기준: ${figure.cond}`);
+  return { ...parts, basis: figure ? [figure.kind, figure.src].filter(Boolean).join(' · ') : null, screens: screensForEntry(entry), conceptId: entry?.conceptId || null };
+}
+
 function routeUrl(root, route) {
   const params = new URLSearchParams();
   Object.entries(route.params || {}).forEach(([key, value]) => { if (value != null && value !== '') params.set(key, value); });
@@ -65,6 +95,19 @@ export function installGlossaryBridge({ root = globalThis, documentRef = root.do
   if (!documentRef || root._aioGlossaryBridgeInstalled) return;
   root._aioGlossaryBridgeInstalled = true;
   try { if (Array.isArray(root.GLOSSARY)) { root._aioGlossaryScreenTerms = appendScreenTerms(root.GLOSSARY); root._aioGlossaryConceptMerge = mergeConceptCore(root.GLOSSARY); } } catch (_) { /* legacy glossary absent */ }
+  // The classic renderer (js/aio-ui.js renderGlossaryItems) lays each entry out from these parts.
+  root._aioGlossaryEntryParts = (entry) => glossaryEntryParts(entry, root.GLOSSARY_FIGURE_SOURCES || null);
+  // Its "이 개념이 쓰이는 화면" buttons (data-action) close the glossary, then open the screen or the concept document.
+  root._aioGlossaryOpenScreen = (route) => {
+    if (typeof root._aioCloseGlossary === 'function') root._aioCloseGlossary();
+    root.showPage?.(route);
+  };
+  root._aioGlossaryOpenConcept = (conceptId) => {
+    if (typeof root._aioCloseGlossary === 'function') root._aioCloseGlossary();
+    const route = { page: 'principles', params: { mode: 'concept', node: conceptId } };
+    if (root.AIO?.state?.activePage === 'principles' || typeof root.showPage !== 'function') { root.location.assign(routeUrl(root, route)); return; }
+    navigateKnowledgeRoute({ root, page: route.page, params: route.params });
+  };
   let index = null;
   let loading = null;
   let searchIndex = () => [];

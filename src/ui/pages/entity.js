@@ -177,7 +177,7 @@ function renderSummaryIdentity(documentRef, root, state) {
   if (!page || !readHost) return;
   const id = String(state?.id || root?._currentTickerId || '').toUpperCase();
   let profileNode = documentRef.getElementById('ticker-business-profile');
-  if (!profileNode) { profileNode = documentRef.createElement('section'); profileNode.id = 'ticker-business-profile'; profileNode.className = 'entity-business-profile'; readHost.before(profileNode); }
+  if (!profileNode) { profileNode = documentRef.createElement('section'); profileNode.id = 'ticker-business-profile'; profileNode.className = 'entity-business-profile'; readHost.after(profileNode); } // v58.53 개편 v2 (3d): the reading leads; identity details follow it
   // 2026-10-14 audit #1: the company summary host is created once, directly at its final place (after the profile),
   // so the section order never changes between the first render and later ones.
   if (!documentRef.getElementById('ticker-company-analysis')) { const company = documentRef.createElement('section'); company.id = 'ticker-company-analysis'; profileNode.after(company); }
@@ -201,11 +201,11 @@ function renderSummaryIdentity(documentRef, root, state) {
   profileNode.dataset.issuerName = profile.name;
   profileNode.setAttribute('aria-label', `${profile.name} — ${title.textContent}`);
   // P1624: summary owns its first-load price chart; opening the technical tab is not a prerequisite.
-  const panel = documentRef.getElementById('ticker-price-panel');
-  if (panel && panel.parentElement !== readHost.parentElement) readHost.before(panel);
-  // P1640: the stock-and-company summary comes right after the identity, before the price detail.
+  // P1640: the stock-and-company summary comes before the price detail. v58.53 개편 v2 (3d): both follow the reading card.
   const company = documentRef.getElementById('ticker-company-analysis');
   if (company && profileNode.nextElementSibling !== company) profileNode.after(company);
+  const panel = documentRef.getElementById('ticker-price-panel');
+  if (panel && company && company.nextElementSibling !== panel) company.after(panel);
 }
 
 function summaryState(root, state) {
@@ -432,9 +432,9 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
     const isUp = prices.at(-1) >= prices[0];
     const chart = new ChartConstructor(canvas, {
       type: 'line',
-      data: { labels, datasets: [{ label: state?.id || '가격', data: prices, borderColor: isUp ? '#22754c' : '#b13a30', backgroundColor: isUp ? 'rgba(34,117,76,0.14)' : 'rgba(177,58,48,0.14)', borderWidth: 1.6, pointRadius: 0, tension: 0, fill: true }] }, // v57.55 review (E3-F9): no smoothing — a curve drew prices that never traded
+      data: { labels, datasets: [{ label: state?.id || '가격', data: prices, borderColor: isUp ? '#22754c' : '#b13a30', backgroundColor: 'transparent', borderWidth: 1.8, borderCapStyle: 'round', borderJoinStyle: 'round', pointRadius: 0, tension: 0, fill: false }] /* v58.53 개편 v2: thin round line, no area fill */ }, // v57.55 review (E3-F9): no smoothing — a curve drew prices that never traded
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: {
-        x: { title: { display: true, text: '관측 날짜' }, ticks: { maxTicksLimit: (canvas.clientWidth || 600) < 480 ? 4 : 8, maxRotation: 0, autoSkip: true }, grid: { display: false } },
+        x: { title: { display: true, text: '관측 날짜' }, ticks: { maxTicksLimit: (canvas.clientWidth || 600) < 480 ? 4 : 8, maxRotation: 0, autoSkip: true, callback(value) { const label = String(this.getLabelForValue(value) || ''); return /^\d{4}-\d{2}-\d{2}$/.test(label) ? `${Number(label.slice(5, 7))}/${Number(label.slice(8, 10))}` : label; } }, grid: { display: false } }, // v58.53: M/D ticks
         y: { title: { display: true, text: `가격${state?.quote?.currency ? ` (${state.quote.currency})` : ''}` },
           ticks: { maxTicksLimit: 4, callback: value => formatMoney(Number(value), state?.quote?.currency) } } } }
     });
@@ -780,7 +780,12 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
       symbol: state?.id, name: state?.name, quote: { ...state?.quote, basis: state?.quote?.changeBasis || 'unknown' } }) });
     renderTickerControls(documentRef, routeNode, activeTickerTab, tickerChartRange, state);
     renderTickerChart({ root, page: routeNode, state, charts, requestedRange: tickerChartRange });
-    renderStockRead({ documentRef, root, symbol: state?.id || root?._currentTickerId || '', fundamentals: state?.fundamentals }); // P1434; v57.51 N20 recent filings
+    // Review (v58.53): the 재무 tile tells a pending or failed SEC projection apart from a confirmed absence. The provider
+    // dispatches only after the projection settles, so a synced symbol without fundamentalsMeta means the load failed.
+    const requestedId = String(root?._currentTickerId || '').trim().toUpperCase();
+    const fundamentalsState = state?.fundamentals ? 'ready' : !state?.id || (requestedId && state.id !== requestedId) ? 'loading'
+      : root?._aioOnDemandSymbol?.(state.id)?.status === 'loading' ? 'loading' : state?.fundamentalsMeta ? 'absent' : 'failed';
+    renderStockRead({ documentRef, root, symbol: state?.id || root?._currentTickerId || '', fundamentals: state?.fundamentals, fundamentalsState }); // P1434; v57.51 N20 recent filings
     renderCompanyAnalysis({ documentRef, root, state });
   }
   if (route === 'fundamental') {

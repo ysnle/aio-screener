@@ -118,7 +118,7 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   const frameWidth = canvas.parentElement ? canvas.parentElement.clientWidth : 0;
   const width = frameWidth > 0 ? Math.round(frameWidth) : 900;
   const compact = width < 520;
-  const height = Math.max(260, Math.min(520, Math.round(width * (compact ? 0.9 : 0.55))));
+  const height = Math.max(260, Math.min(520, Math.round(width * (compact ? 0.9 : 0.72))));
   const ratio = Math.max(1, Math.min(3, Number(root?.devicePixelRatio) || 1));
   const backingWidth = Math.round(width * ratio);
   const backingHeight = Math.round(height * ratio);
@@ -136,7 +136,8 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   let style = null;
   try { style = root.getComputedStyle(documentRef.body); } catch (_) { style = null; }
   const token = (key, fallback) => style?.getPropertyValue?.(key)?.trim() || fallback;
-  const colors = { Leading: token('--data-green', '#22754c'), Improving: token('--data-cyan', '#211d16'), Weakening: token('--data-amber', '#7a5000'), Lagging: token('--data-red', '#b13a30') };
+  // v58.53 개편 v2 (3f): 선도 green, 후행 amber, 개선·약화 ink — red stays for falling prices only, never a quadrant.
+  const colors = { Leading: token('--data-green', '#22754c'), Improving: token('--text-secondary', '#57513f'), Weakening: token('--text-secondary', '#57513f'), Lagging: token('--data-amber', '#7a5000') };
   const muted = token('--text-muted', '#8a8271');
   // M09: axes span the plotted points (and the 100 baseline) instead of clipping at ±3.5.
   const domain = rrgAxisDomain(validItems);
@@ -153,7 +154,7 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   shade(colors.Lagging, plot.left, baseY, baseX, plot.bottom);
   context.strokeStyle = palette.grid;
   context.lineWidth = 1;
-  context.font = compact ? '10px Inter, sans-serif' : '12px Inter, sans-serif'; // v57.91 (visual audit): desktop ticks match the page's smallest text
+  context.font = '12px "Pretendard Variable", Pretendard, sans-serif'; // v57.91 (visual audit): desktop ticks match the page's smallest text
   context.fillStyle = palette.text;
   context.textAlign = 'center';
   // On a phone, every other x tick is labelled so neighbouring values do not overlap.
@@ -174,7 +175,7 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   context.beginPath(); context.moveTo(baseX, plot.top); context.lineTo(baseX, plot.bottom); context.stroke();
   context.beginPath(); context.moveTo(plot.left, baseY); context.lineTo(plot.right, baseY); context.stroke();
   context.setLineDash([]);
-  context.font = '11px Inter, sans-serif';
+  context.font = '12px "Pretendard Variable", Pretendard, sans-serif';
   context.textAlign = 'center';
   // v57.50 D13: 100 is the sector's own 100-session average relative price, not "the same as SPY".
   // v57.76: plain-Korean axis titles; the precise definitions sit once in the 사분면별 섹터 fold.
@@ -186,7 +187,7 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   context.restore();
   const note = documentRef.getElementById('rrg-method-note');
   if (note) note.textContent = `이 그림은 흔히 RRG(상대 회전 그래프)라 부르는 방식입니다. ${RRG_DEFINITION.ratio}. ${RRG_DEFINITION.momentum}. ${RRG_DEFINITION.benchmarkBias}`;
-  context.font = 'bold 12px Inter, sans-serif';
+  context.font = 'bold 12px "Pretendard Variable", Pretendard, sans-serif';
   context.textAlign = 'right'; context.fillStyle = colors.Leading; context.fillText('선도', plot.right - 6, plot.top + 14);
   context.fillStyle = colors.Weakening; context.fillText('약화', plot.right - 6, plot.bottom - 6);
   context.textAlign = 'left'; context.fillStyle = colors.Improving; context.fillText('개선', plot.left + 6, plot.top + 14);
@@ -217,7 +218,7 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
     // v57.91 (visual audit, XLC/XLK overlap): collisions use measured widths and include the name lines; a crowded
     // label flips below its dot before stacking further away.
     const symbol = String(item.symbol || item.id || '');
-    context.font = 'bold 11px system-ui';
+    context.font = 'bold 12px "Pretendard Variable", Pretendard, system-ui';
     const symbolWidth = context.measureText?.(symbol)?.width || symbol.length * 7;
     const hits = (ly, lw) => placed.some((spot) => Math.abs(spot.x - x) < (spot.w + lw) / 2 + 4 && Math.abs(spot.y - ly) < 13);
     const labelY = [y - 9, y + 20, y - 22, y + 33, y - 35, y - 48].find((ly) => !hits(ly, symbolWidth)) ?? y - 48;
@@ -227,7 +228,7 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
     // The Korean name under the dot is a desktop extra; on a phone it overlapped the neighbouring tickers.
     if (!compact && activeView(root) !== 'all' && labelY === y - 9) {
       const name = String(item.label || '');
-      context.font = '10px system-ui';
+      context.font = '12px "Pretendard Variable", Pretendard, system-ui';
       const nameWidth = context.measureText?.(name)?.width || name.length * 10;
       if (!hits(y + 16, nameWidth)) {
         placed.push({ x, y: y + 16, w: nameWidth });
@@ -359,7 +360,7 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
     basisLine.className = 'thp-perf-basis';
     host.appendChild(basisLine);
   }
-  const colors = { Leading: 'var(--data-green)', Improving: 'var(--data-cyan)', Weakening: 'var(--data-amber)', Lagging: 'var(--data-red)' };
+  const colors = { Leading: 'var(--data-green)', Improving: 'var(--text-secondary)', Weakening: 'var(--text-secondary)', Lagging: 'var(--data-amber)' }; // v58.53: the scatter's quadrant colours
   rows.forEach((row) => {
     const line = documentRef.createElement('div');
     line.dataset.themePerformanceRow = row.symbol;

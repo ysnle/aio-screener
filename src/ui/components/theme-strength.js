@@ -190,6 +190,38 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   }
 }
 
+// v58.53 개편 v2 (3f): the five strongest ranked sub-themes beside the sector scatter — the same model, window and rank
+// as the table below (no second computation), with the rank-movement word and a link down to the full table.
+const DIRECTION_CHIP = Object.freeze({ improving: 'sx-chip--good', steady: 'sx-chip--neutral', weakening: 'sx-chip--warn' });
+function renderTopSubthemes(doc, host, model, basis) {
+  const top = model.groups.filter((group) => group.rank != null && Number.isFinite(group[model.sortKey])).slice(0, 5);
+  host.hidden = !top.length;
+  host.replaceChildren();
+  if (!top.length) return;
+  const head = el(doc, 'div', null, 'sx-card__head');
+  head.append(el(doc, 'h3', '세부 테마 상위', 'sx-card__title'), el(doc, 'span', `${model.windowLabel} 중앙값 순`, 'sx-card__meta'));
+  host.append(head);
+  if (basis?.stale) host.append(el(doc, 'p', basis.label, 'sx-chip sx-chip--date v2-themes-top__stale'));
+  const list = el(doc, 'ol', null, 'v2-themes-top__list');
+  for (const group of top) {
+    const li = el(doc, 'li', null, 'v2-themes-top__row');
+    li.dataset.group = group.id;
+    const name = el(doc, 'span', null, 'v2-themes-top__name');
+    name.append(el(doc, 'b', group.name), el(doc, 'span', `${group.themeName} · ${group.listed}종목`, 'v2-themes-top__theme'));
+    const dir = DIRECTION[group.direction];
+    li.append(el(doc, 'span', String(group.rank), 'v2-themes-top__rank'), name,
+      dir && !basis?.stale ? el(doc, 'span', dir[0], `sx-chip sx-chip--sm ${DIRECTION_CHIP[group.direction] || 'sx-chip--neutral'}`) : el(doc, 'span', ''),
+      el(doc, 'b', pct(group[model.sortKey]), `v2-themes-top__value ${group[model.sortKey] >= 0 ? 'is-up' : 'is-down'}`));
+    list.append(li);
+  }
+  host.append(list);
+  const more = el(doc, 'button', `전체 ${model.groups.length}개 순위와 구성 종목`, 'sx-row');
+  more.type = 'button';
+  more.append(el(doc, 'span', `S&P 500 ${model.windowLabel} ${pct(model.benchmark)}`, 'sx-row__meta'));
+  more.addEventListener('click', () => doc.getElementById('theme-strength-board')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  host.append(more);
+}
+
 // A whole theme's value = the median of its sub-theme medians on the newest common session (the playbook's method in
 // src/domain/scenarios/theme-playbook.js), so the same theme never shows two different 3-month numbers on one page.
 function themeGroupValues(model, themeId) {
@@ -297,6 +329,8 @@ export function renderThemeStrength({ documentRef: doc, root, store }) {
   if (strengthHost) {
     renderStrength(doc, root, strengthHost, model, basisOf(rows, store?.getState?.()?.screener?.metadata || null, root?._aioHistory || []), (key) => { root._aioThemeStrengthSort = key; rerender(); }, !!root._aioThemeStrengthExpanded, () => { root._aioThemeStrengthExpanded = !root._aioThemeStrengthExpanded; rerender(); }, (id) => { root._aioThemeMemberGroup = root._aioThemeMemberGroup === id ? null : id; rerender(); [...strengthHost.querySelectorAll('[data-compare-group]')].find((button) => button.dataset.compareGroup === id)?.focus(); });
     strengthHost.dataset.aioThemeStrengthRenderer = 'native';
+    const topHost = doc.getElementById('themes-top-subthemes');
+    if (topHost) renderTopSubthemes(doc, topHost, model, basisOf(rows, store?.getState?.()?.screener?.metadata || null, root?._aioHistory || []));
     if(focusedGroup) [...strengthHost.querySelectorAll('[data-compare-group]')].find(button=>button.dataset.compareGroup===focusedGroup)?.focus({preventScroll:true}); // P1622 preserve comparison focus across async data repaint too.
   }
   if (flowHost) { renderCapexFlow(doc, root, flowHost, model); flowHost.dataset.aioCapexFlowRenderer = 'native'; }

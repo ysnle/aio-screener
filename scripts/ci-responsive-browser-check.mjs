@@ -81,11 +81,13 @@ try {
     // v57.81 (phone/iPad audit): a tap fired pointerout right after pointerup and closed the basis card inside the
     // same tap, so no [title]/data-basis explanation was readable on touch. A tap on a non-focusable explained element
     // inside .page (and on the topbar quote status) must leave #aio-basis-card open, inside the viewport.
+    // v58.53: a folded element is not a visible target — Chromium keeps a box size for closed <details> content
+    // (::details-content is content-visibility:hidden), so the size check alone picked cards inside a closed fold.
     await page.evaluate(() => window.showPage('macro', null));
     await settle(page, () => !!document.querySelector('#page-macro.active [title], #page-macro.active [data-basis]'));
     const basisTarget = await page.evaluate(() => {
       const focusable = 'a,button,input,select,textarea,[tabindex],summary,label';
-      const el = [...document.querySelectorAll('.page.active [title], .page.active [data-basis]')].find((node) => !node.matches(focusable) && !node.closest(focusable) && !node.querySelector(focusable) && node.getBoundingClientRect().width > 8 && node.getBoundingClientRect().height > 8);
+      const el = [...document.querySelectorAll('.page.active [title], .page.active [data-basis]')].find((node) => !node.matches(focusable) && !node.closest(focusable) && !node.closest('details:not([open])') && !node.querySelector(focusable) && node.getBoundingClientRect().width > 8 && node.getBoundingClientRect().height > 8);
       el?.scrollIntoView({ block: 'center' });
       return !!el;
     });
@@ -94,7 +96,7 @@ try {
       await page.waitForTimeout(150);
       const point = await page.evaluate(() => {
         const focusable = 'a,button,input,select,textarea,[tabindex],summary,label';
-        const el = [...document.querySelectorAll('.page.active [title], .page.active [data-basis]')].find((node) => !node.matches(focusable) && !node.closest(focusable) && !node.querySelector(focusable) && node.getBoundingClientRect().width > 8 && node.getBoundingClientRect().height > 8);
+        const el = [...document.querySelectorAll('.page.active [title], .page.active [data-basis]')].find((node) => !node.matches(focusable) && !node.closest(focusable) && !node.closest('details:not([open])') && !node.querySelector(focusable) && node.getBoundingClientRect().width > 8 && node.getBoundingClientRect().height > 8);
         const box = el.getBoundingClientRect();
         return { x: box.left + Math.min(box.width / 2, 20), y: box.top + box.height / 2 };
       });

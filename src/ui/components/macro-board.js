@@ -133,6 +133,28 @@ function bandOf(g) {
 }
 
 // P1427: a threshold gauge — the rule's bands coloured by their effect on stocks, with the current value pinned.
+
+// v58.53 (owner 2026-10-20: "실제 화면과 사용자 입장에서"): the indicator board was 3,500px on a desktop and 9,100px on a
+// phone below the six factor rows that already carry today's verdict. Every group's title and one-line fact stay on the
+// face (the 30-second read); its cards and charts open one group at a time, like the factor rows above. The reader's open
+// group is kept across repaints. Folded, not removed: every card, chart and teaching fold is still one tap away.
+function groupFold(doc, root, id, title, fact, count, body) {
+  const fold = el(doc, 'details', null, 'macro-group-fold sx-disclosure');
+  fold.dataset.fold = id;
+  fold.open = root.__aioOpenMacroGroup === id;
+  const summary = el(doc, 'summary', null, 'macro-group-summary');
+  const text = el(doc, 'span', null, 'macro-group-summary__text');
+  text.append(el(doc, 'h3', title, 'macro-group-title'), el(doc, 'p', fact, 'macro-group-fact'));
+  summary.append(text, el(doc, 'span', `지표 ${count}개`, 'macro-group-count'));
+  fold.append(summary, ...body);
+  fold.addEventListener('toggle', () => {
+    if (fold.open) {
+      root.__aioOpenMacroGroup = id;
+      fold.closest('#macro-board')?.querySelectorAll('details.macro-group-fold[open]').forEach((other) => { if (other !== fold) other.open = false; });
+    } else if (root.__aioOpenMacroGroup === id) root.__aioOpenMacroGroup = null;
+  });
+  return fold;
+}
 export function gaugeBar(doc, g) {
   if (!g) return null;
   const W = 320;
@@ -181,25 +203,54 @@ export function gaugeBar(doc, g) {
   return wrap;
 }
 
-function axisCard(doc, row, root = null) {
-  const card = el(doc, 'section', null, 'regime-axis macro-axis');
+// v58.53 개편 v2 (3e): the six factors are single-open disclosure rows — title · verdict · headline value — that open
+// into 원리 / 지금 읽기 (gauge + reading) / 주식에 주는 영향 cards, then the numbers, the rule and the evidence line.
+const MACRO_REFS = Object.freeze({
+  growth: ['Okun 1962 · Sahm 2019', 'BLS 고용 보고서 · Census 소매판매 (FRED)'],
+  inflation: ['Phillips 1958 · Friedman 1968', 'BEA PCE · BLS CPI (FRED)'],
+  policy: ['Taylor 1993 · 기대가설', '미 재무부 2년물 · FOMC 목표 범위 (FRED)'],
+  rates: ['Campbell·Shiller 1988 · Adrian·Crump·Moench 2013', '미 재무부 10년물 · DFII10 (FRED)'],
+  commodities: ['Bruno·Shin 2015', 'WTI · 달러 인덱스 종가'],
+  credit: ['Gilchrist·Zakrajšek 2012', 'ICE BofA 하이일드 OAS (FRED)']
+});
+const MACRO_OPEN_FIRST = ['inflation', 'policy', 'rates', 'growth', 'credit', 'commodities'];
+const CHIP = Object.freeze({ favorable: 'good', burden: 'warn', neutral: 'neutral', unknown: 'neutral' });
+
+function axisCard(doc, row, root = null, open = false) {
+  const card = el(doc, 'details', null, 'regime-axis macro-axis sx-disclosure mk-maxis');
   card.id = `macro-axis-${row.id}`;
   card.dataset.axis = row.id;
   card.dataset.state = row.state;
-  const head = el(doc, 'div', null, 'regime-axis-head');
-  head.append(el(doc, 'h3', row.title, 'regime-axis-title'), el(doc, 'span', row.stateLabel, `regime-state is-${row.state}`));
-  card.append(head);
-  if (row.headline) card.append(el(doc, 'div', row.headline, 'macro-axis-headline'));
+  card.open = !!open;
+  const summary = el(doc, 'summary', null, 'mk-maxis__row');
+  summary.append(el(doc, 'b', row.title, 'regime-axis-title mk-maxis__title'), el(doc, 'span', row.stateLabel, `regime-state is-${row.state} sx-chip sx-chip--sm sx-chip--${CHIP[row.state] || 'neutral'}`),
+    el(doc, 'span', row.headline || '—', 'macro-axis-headline mk-maxis__value'));
+  card.append(summary);
+  const deep = MACRO_AXIS_DEEP_DIVES[row.id] || AXIS_DEEP_DIVES[row.id];
+  const body = el(doc, 'div', null, 'sx-disclosure__body mk-maxis__body');
+  const cardOf = (label, ...nodes) => { const box = el(doc, 'div', null, 'sx-disclosure__card'); box.append(el(doc, 'span', label, 'sx-disclosure__label'), ...nodes.filter(Boolean)); return box; };
+  const now = cardOf('지금 읽기');
+  now.append(el(doc, 'p', row.read, 'regime-read sx-disclosure__text'));
+  if (row.caveat) now.append(el(doc, 'p', row.caveat, 'macro-gauge-note')); // M06: Brent against the WTI-only reading
+  body.append(cardOf('원리', deep?.blocks?.[0] ? el(doc, 'p', deep.blocks[0][1], 'sx-disclosure__text') : null), now,
+    cardOf('주식에 주는 영향', row.link ? el(doc, 'p', row.link, 'sx-disclosure__text macro-axis-link') : el(doc, 'p', '—', 'sx-disclosure__text')));
+  const facts = el(doc, 'div', null, 'mk-maxis__facts');
+  // P1427: the threshold gauge spans the full row width under the three cards (in a card column it shrank past legibility).
   const bar = gaugeBar(doc, row.gauge);
   if (bar) {
-    card.append(bar);
+    facts.append(bar);
     // A multi-condition rule can leave the drawn variable in a different band than the verdict; say so.
     const g = row.gauge;
     const band = bandOf(g);
-    if (band && row.state !== 'unknown' && band.tone !== row.state) card.append(el(doc, 'p', `막대는 ${TONE_WORD[band.tone]} 구간이지만 다른 조건 때문에 ${row.stateLabel}입니다 — 아래 판정 기준 참고.`, 'macro-gauge-note'));
+    if (band && row.state !== 'unknown' && band.tone !== row.state) facts.append(el(doc, 'p', `막대는 ${TONE_WORD[band.tone]} 구간이지만 다른 조건 때문에 ${row.stateLabel}입니다 — 아래 판정 기준 참고.`, 'macro-gauge-note'));
   }
-  card.append(el(doc, 'p', row.read, 'regime-read'));
-  if (row.caveat) card.append(el(doc, 'p', row.caveat, 'macro-gauge-note')); // M06: Brent against the WTI-only reading
+  if (row.shared) facts.append(el(doc, 'span', '시장 상태와 같은 판정', 'basis-chip'));
+  if (row.evidence?.length) {
+    const list = el(doc, 'dl', null, 'regime-evidence');
+    for (const [label, value] of row.evidence) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
+    facts.append(el(doc, 'h4', '지금 숫자'), list);
+  }
+  if (row.flip) facts.append(el(doc, 'p', `판정 기준: ${row.flip}`, 'regime-flip'));
   // The forward branches whose conditions this axis tests (BRANCHES[].axes) — each opens that branch on 거시.
   const branches = BRANCHES.filter((branch) => (branch.axes || []).includes(row.id));
   if (branches.length) {
@@ -212,25 +263,77 @@ function axisCard(doc, row, root = null) {
       button.addEventListener('click', () => openCrossroadsBranch(doc, root, branch.id));
       strip.append(button);
     }
-    card.append(strip);
+    facts.append(strip);
   }
-  // P1660: the fold teaches first (principle · reading · links), then today's numbers, the equity link and the rule.
-  const extra = [];
-  if (row.shared) extra.push(el(doc, 'span', '시장 상태와 같은 판정', 'basis-chip'));
-  if (row.evidence?.length) {
-    const list = el(doc, 'dl', null, 'regime-evidence');
-    for (const [label, value] of row.evidence) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
-    extra.push(el(doc, 'h4', '지금 숫자'), list);
+  // P1660: the rest of the teaching (how practitioners read it, links to other factors) folds one level down.
+  const fold = deepDiveFold(doc, root, row.title, deep ? { ...deep, blocks: (deep.blocks || []).slice(1) } : null);
+  if (fold) { fold.classList.add('macro-axis-more'); facts.append(fold); }
+  body.append(facts);
+  card.append(body);
+  const [refs, data] = MACRO_REFS[row.id] || [];
+  if (refs || data) {
+    const line = el(doc, 'p', null, 'sx-evidence mk-maxis__evidence');
+    line.append(el(doc, 'span', `학술 근거 · ${refs || '—'}`), el(doc, 'span', `데이터 · ${data || '—'}`));
+    card.append(line);
   }
-  if (row.link) {
-    const link = el(doc, 'p', null, 'macro-axis-link');
-    link.append(el(doc, 'span', '증시 연결', 'briefing-hypothesis-tag'), doc.createTextNode(` ${row.link}`));
-    extra.push(link);
-  }
-  if (row.flip) extra.push(el(doc, 'p', `판정 기준: ${row.flip}`, 'regime-flip'));
-  const fold = deepDiveFold(doc, root, row.title, MACRO_AXIS_DEEP_DIVES[row.id] || AXIS_DEEP_DIVES[row.id], extra);
-  if (fold) { fold.classList.add('macro-axis-more'); card.append(fold); }
+  // Single-open accordion (README: openMacro); the choice survives a repaint.
+  card.addEventListener('toggle', () => {
+    if (card.open) {
+      if (root) root.__aioOpenMacro = row.id;
+      for (const other of card.parentElement?.children || []) if (other !== card && other.open) other.open = false;
+    } else if (root?.__aioOpenMacro === row.id) root.__aioOpenMacro = '';
+  });
   return card;
+}
+
+// v58.53 개편 v2 (3e): the rate strip under the factors — the Fisher split of the 10-year yield (DGS10 ≈ DFII10 + T10YIE on
+// one shared FRED date) and the 10-year − 3-month spread (T10Y3M). The design's Taylor-rule tile has no published
+// neutral-rate / unemployment-gap source in AIO's artifacts, so it is not drawn.
+function basisValue(doc, text, explanation, asOf) {
+  const node = el(doc, 'b', text, 'mk-rate-tile__value');
+  node.title = explanation;
+  if (asOf) { node.dataset.asOf = asOf; node.dataset.cadence = 'session'; }
+  return node;
+}
+
+function renderRateStrip(doc, root) {
+  const host = doc.getElementById('macro-rate-strip');
+  if (!host) return;
+  const series = root?._aioMacroHistory?.series || {};
+  const obs = (key) => new Map((series[key]?.observations || []).filter(([, value]) => Number.isFinite(value)));
+  const nominal = obs('dgs10'), real = obs('realYield10'), bei = obs('breakeven10');
+  const common = [...nominal.keys()].filter((date) => real.has(date) && bei.has(date)).sort().at(-1) || null;
+  const spread = (series.t10y3m?.observations || []).filter(([, value]) => Number.isFinite(value)).at(-1) || null;
+  const pct = (value) => `${value.toFixed(2)}%`;
+  const dateChip = (date) => {
+    const old = date && Date.now() - Date.parse(`${date}T00:00:00Z`) > 7 * 86400000;
+    return el(doc, 'span', `${shortDate(date)} 관측`, old ? 'sx-chip sx-chip--sm sx-chip--date' : 'sx-meta');
+  };
+  const tiles = [];
+  if (common) {
+    const n = nominal.get(common), r = real.get(common), b = bei.get(common);
+    const gap = n - (r + b);
+    const tile = el(doc, 'div', null, 'mk-rate-tile');
+    // v58.53: the face values carry their basis (value-basis.js turns title + data-as-of into the tap/hover basis card).
+    const value = basisValue(doc, `${pct(n)} ≈ ${pct(r)} + ${pct(b)}`, '10년물 명목 금리를 같은 날의 10년 실질금리(TIPS)와 기대 인플레이션(BEI)으로 나눈 값입니다. 세 값이 모두 있는 가장 최근 관측일 기준입니다.', common);
+    tile.append(el(doc, 'span', '명목 금리 분해 · 피셔 방정식', 'mk-rate-tile__label'), value,
+      el(doc, 'span', `10년 실질금리(TIPS) + 기대 인플레이션(BEI)${Math.abs(gap) >= 0.005 ? ` · 나머지 ${gap >= 0 ? '+' : '−'}${Math.abs(gap).toFixed(2)}%p` : ''}`, 'mk-rate-tile__note'), dateChip(common));
+    tiles.push(tile);
+  }
+  if (spread) {
+    const [date, value] = spread;
+    const tile = el(doc, 'div', null, 'mk-rate-tile');
+    tile.append(el(doc, 'span', '장단기 금리차 · 10년 − 3개월', 'mk-rate-tile__label'), basisValue(doc, `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(2)}%p`, '10년물 금리에서 3개월물 금리를 뺀 값입니다. 0 아래면 역전입니다.', date),
+      el(doc, 'span', value >= 0 ? '역전 아님 — 경기 침체 확률 모형에 쓰이는 대표 입력' : '역전 — 과거 미국 경기 침체 대부분에 앞섰던 신호', 'mk-rate-tile__note'), dateChip(date));
+    tiles.push(tile);
+  }
+  host.hidden = !tiles.length;
+  if (!tiles.length) { host.replaceChildren(); return; }
+  const grid = el(doc, 'div', null, 'mk-rate-strip__grid');
+  grid.append(...tiles);
+  const line = el(doc, 'p', null, 'sx-evidence mk-rate-strip__evidence');
+  line.append(el(doc, 'span', '근거 · Fisher 1930 · Estrella·Mishkin 1998'), el(doc, 'span', '데이터 · FRED (DGS10 · DFII10 · T10YIE · T10Y3M)'));
+  host.replaceChildren(grid, line);
 }
 
 function chainNode(doc, node) {
@@ -331,7 +434,7 @@ function overviewTiles(doc, axes) {
     tile.type = 'button';
     tile.dataset.axis = row.id;
     tile.append(el(doc, 'span', row.title.replace(/ \(.*\)$/, ''), 'macro-tile-title'), el(doc, 'span', row.stateLabel, 'macro-tile-state'), el(doc, 'span', row.headline || '—', 'macro-tile-value'));
-    tile.addEventListener('click', () => doc.getElementById(`macro-axis-${row.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+    tile.addEventListener('click', () => { const target = doc.getElementById(`macro-axis-${row.id}`); if (target && 'open' in target) target.open = true; target?.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
     strip.append(tile);
   }
   return strip;
@@ -467,19 +570,24 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   readMarketRegime(root); // keeps the macro-history refresh request
   const { regime, macroRead: read } = marketInterpretation(root); // owner 2026-10-19: the shared macro read (same as the branches)
   const basis = doc.getElementById('macro-board-basis');
-  if (basis) basis.textContent = board.available ? '공식 발표와 미국 종가 기준 · 각 판정의 기준은 카드 아래에 표시' : '공식 발표 자료를 불러오는 중입니다.';
+  if (basis) basis.textContent = board.available ? '공식 발표와 미국 종가 기준 · 판정 기준은 각 행을 펼치면 표시' : '공식 발표 자료를 불러오는 중입니다.';
   renderMacroCrossroads({ documentRef: doc, root, regime }); // P1742; v57.76: the forward branches follow the chain (current state first)
   renderRegime(doc, read);
   const axesHost = doc.getElementById('macro-axes');
-  if (axesHost) axesHost.replaceChildren(...read.axes.map((row) => axisCard(doc, row, root)));
+  if (axesHost) {
+    // README: the default open row is the key burden factor (물가 first); a reader's own choice is kept across repaints.
+    const openId = typeof root.__aioOpenMacro === 'string' ? root.__aioOpenMacro
+      : MACRO_OPEN_FIRST.find((id) => read.axes.some((row) => row.id === id && row.state === 'burden')) || '';
+    axesHost.replaceChildren(...read.axes.map((row) => axisCard(doc, row, root, row.id === openId)));
+  }
+  renderRateStrip(doc, root);
   renderChain(doc, read.chain);
   host.replaceChildren(...board.groups.map((group) => {
     const section = el(doc, 'section', null, 'macro-group');
     section.dataset.group = group.id;
-    section.append(el(doc, 'h3', group.title, 'macro-group-title'), el(doc, 'p', group.fact, 'macro-group-fact'));
     const grid = el(doc, 'div', null, 'macro-stat-grid');
     grid.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.deltaText, item.targetText, item.trendText], meta: item.meta, note: item.note, status: item.status, series: item.series, direction: item.direction, unit: item.unit })));
-    section.append(grid);
+    section.append(groupFold(doc, root, group.id, group.title, group.fact, group.items.length, [grid]));
     return section;
   }));
   // P1654: liquidity, growth-lead and commodity/Asia-FX groups from the extended FRED lane (hidden until produced).
@@ -489,9 +597,8 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     const grid = el(doc, 'div', null, 'macro-stat-grid');
     // M13/M14: the period the observation covers, and a stale chip once the cadence's normal delay has passed.
     grid.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.changeText], meta: item.period, note: item.reading, series: item.series, unit: item.unit, format: item.format, status: item.stale ? 'stale' : 'observed', staleText: '새 값 발표 지연(평소 발표 주기보다 늦음)' })));
-    section.append(el(doc, 'h3', group.title, 'macro-group-title'), el(doc, 'p', group.fact, 'macro-group-fact'), grid);
     const fold = deepDiveFold(doc, root, group.title, MACRO_GROUP_DEEP_DIVES[group.id]); // P1660: a teaching fold
-    if (fold) section.append(fold);
+    section.append(groupFold(doc, root, group.id, group.title, group.fact, group.items.length, fold ? [grid, fold] : [grid]));
     host.append(section);
   }
   // 2026-10-14 (live review 4f): where this month sits in decades of history — a level, not a direction.
@@ -727,10 +834,44 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     ];
     grid.replaceChildren(...cards);
   }
+  renderRatesSummary(doc, model, read);
   syncOtherCurrencyNote(doc, root);
   renderNextSteps(doc, doc.getElementById('fxbond-next'), ratesNextSteps({ read, carry: model.carry })); // v57.50 I04
   page.dataset.aioRatesBoardRenderer = 'native';
   return model;
+}
+
+// v58.53 개편 v2 (5e): three tiles beside the curve — 원/달러, 엔/달러 (close-basis cards below) and 2년물 − 기준금리 (the
+// 거시 policy factor's own evidence row). Values are the same objects the cards and the factor read; a missing one is
+// shown as 없음, not dropped.
+function renderRatesSummary(doc, model, read) {
+  const host = doc.getElementById('rates-summary');
+  if (!host) return;
+  const fx = Object.fromEntries((model.fx || []).map((card) => [card.id, card]));
+  const tile = (label, value, change, note, dated = null) => {
+    const box = el(doc, 'div', null, 'mk-rsum');
+    const head = el(doc, 'div', null, 'mk-rsum__head');
+    head.append(el(doc, 'span', label, 'mk-rsum__label'), el(doc, 'span', change || '', 'mk-rsum__change'));
+    box.append(head, el(doc, 'b', value, 'mk-rsum__value'), el(doc, 'span', note, 'mk-rsum__note'));
+    if (dated) box.append(dated);
+    return box;
+  };
+  const chipFor = (asOf, suffix = '종가') => {
+    if (!asOf) return null;
+    const align = alignInput(asOf, model.basis);
+    return el(doc, 'span', `${alignmentLabel(align)} ${suffix}`, align.status === 'aligned' ? 'sx-meta' : 'sx-chip sx-chip--sm sx-chip--date');
+  };
+  const fxTile = (id, label, note) => {
+    const card = fx[id];
+    return card?.available ? tile(label, card.valueText, card.change20 == null ? '' : `20일 ${signed(card.change20, 1, '%')}`, note, chipFor(card.asOf)) : tile(label, '없음', '', '종가 기록 없음');
+  };
+  const policy = (read?.axes || []).find((row) => row.id === 'policy');
+  const gap = policy?.evidence?.find(([label]) => label.startsWith('2년물 − 기준금리'))?.[1] || null;
+  host.replaceChildren(
+    fxTile('usdkrw', '원/달러', '오르면 원화 약세 — 외국인 자금 흐름과 수입 물가에 연결됩니다.'),
+    fxTile('usdjpy', '엔/달러', '내리면 엔화 강세 — 엔으로 빌려 투자한 자금(엔 캐리)의 기준선입니다.'),
+    tile('2년물 − 기준금리 중간값', gap ? gap.replace(/\s*\(.*$/, '') : '없음', policy ? policy.stateLabel : '', gap ? '2년물에는 앞으로 1~2년 기준금리 예상과 기간·위험 프리미엄이 함께 들어 있습니다 — 거시 경제의 통화정책 판정과 같은 값입니다.' : '2년물 또는 기준금리 자료 없음', gap ? chipFor(policy?.asOf, '2년물 관측') : null)
+  );
 }
 
 // Codex browser audit H18: "그 밖의 통화 · 실시간 시세 · 지연 가능" sat above once-a-day public reference rates with

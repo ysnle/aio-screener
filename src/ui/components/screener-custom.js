@@ -9,21 +9,7 @@ import { CUSTOM_CONDITIONS, CUSTOM_RECIPES, conditionLabel, normalizeConditions,
 
 // Conditions last for the session (a screen change remounts the panel); the UI layer keeps no browser storage.
 let sessionConditions = [];
-const STYLE_ID = 'scr-custom-style';
-const STYLE = `.scr-custom{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin:10px 0 2px;padding:12px 0 0;border-top:1px solid var(--border);min-width:0;max-width:100%}.scr-custom>*{min-width:0}.scr-custom select{max-width:100%;min-width:0}
-.scr-custom-hd{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.scr-custom-hd strong{font-size:13px;color:var(--text-primary)}.scr-custom-hd span{font-size:12px;color:var(--text-muted)}
-.scr-custom-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.scr-custom-row input[type=text]{flex:1;min-width:200px}
-.scr-custom-row input,.scr-custom-row select{min-height:32px;padding:6px 9px;border:1px solid var(--border);border-radius:4px;background:var(--surface-1);color:var(--text-primary);font:inherit;font-size:13px}
-.scr-custom-recipes{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.scr-custom-recipes>span{font-size:12px;color:var(--text-muted)}
-.scr-custom-recipe{min-height:28px;padding:3px 10px;border:1px solid var(--border);border-radius:4px;background:transparent;color:var(--text-primary);font:inherit;font-size:12px;cursor:pointer}
-.scr-custom-recipe:hover{border-color:var(--text-primary)}
-.scr-custom-list{display:flex;gap:6px;flex-wrap:wrap}
-.scr-custom-chip{display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:3px 4px 3px 10px;border:1px solid var(--accent-border,var(--border));border-radius:4px;background:var(--accent-soft,var(--surface-1));font-size:12px;color:var(--text-primary)}
-.scr-custom-chip input{width:58px;min-height:24px;padding:2px 4px;border:1px solid var(--border);border-radius:3px;background:var(--surface-1);color:var(--text-primary);font:inherit;font-size:12px}
-.scr-custom-chip em{font-style:normal;color:var(--text-muted)}
-.scr-custom-chip button{min-width:28px;min-height:24px;border:0;background:transparent;color:var(--text-secondary);font:inherit;font-size:12px;cursor:pointer}
-.scr-custom-note{font-size:12px;line-height:1.6;color:var(--text-muted)}
-@media (max-width:640px){.scr-custom-row input[type=text]{min-width:0;width:100%;flex-basis:100%}.scr-custom-row select{flex:1 1 100%}}`;
+// 개편 v2 (5i): the panel's styles live in src/ui/styles/v2-screener.css (they were injected as a <style> string).
 
 const el = (doc, tag, className, text) => {
   const node = doc.createElement(tag);
@@ -39,17 +25,11 @@ export function installCustomConditions(documentRef) {
   const host = documentRef?.getElementById('scr-custom');
   const input = documentRef?.getElementById('scr-custom-conditions');
   if (!host || !input) return { update() {}, dispose() {} };
-  if (!documentRef.getElementById(STYLE_ID)) {
-    const style = el(documentRef, 'style');
-    style.id = STYLE_ID;
-    style.textContent = STYLE;
-    documentRef.head.append(style);
-  }
   host.querySelectorAll(':scope > :not(#scr-custom-conditions)').forEach((node) => node.remove());
   const head = el(documentRef, 'div', 'scr-custom-hd');
   const title = el(documentRef, 'strong', '', '맞춤 조건');
   title.id = 'scr-custom-title';
-  head.append(title, el(documentRef, 'span', '', '고른 조건을 모두 만족하는 종목만 표에 남깁니다.'));
+  head.append(title, el(documentRef, 'span', '', '고른 조건을 모두 만족하는 종목만 순위 표에 남깁니다.'));
 
   const textRow = el(documentRef, 'div', 'scr-custom-row');
   const text = el(documentRef, 'input');
@@ -71,14 +51,14 @@ export function installCustomConditions(documentRef) {
     CUSTOM_CONDITIONS.filter((item) => item.group === group).forEach((item) => optgroup.append(Object.assign(el(documentRef, 'option', '', conditionLabel({ id: item.id })), { value: item.id })));
     select.append(optgroup);
   }
-  const add = el(documentRef, 'button', 'aio-btn-table', '추가');
+  const add = el(documentRef, 'button', 'aio-btn-table scr-custom-add', '+ 조건 추가');
   add.type = 'button';
   const clear = el(documentRef, 'button', 'aio-btn-table', '모두 지우기');
   clear.type = 'button';
   pickRow.append(select, add, clear);
 
   const recipes = el(documentRef, 'div', 'scr-custom-recipes');
-  recipes.append(el(documentRef, 'span', '', '예시 조합'));
+  recipes.append(el(documentRef, 'span', '', '빠른 시작'));
   CUSTOM_RECIPES.forEach((recipe, index) => {
     const button = el(documentRef, 'button', 'scr-custom-recipe', recipe.label);
     button.type = 'button';
@@ -88,7 +68,7 @@ export function installCustomConditions(documentRef) {
   const list = el(documentRef, 'div', 'scr-custom-list');
   const note = el(documentRef, 'div', 'scr-custom-note');
   note.setAttribute('role', 'status');
-  host.append(head, textRow, recipes, pickRow, list, note);
+  host.append(head, recipes, list, pickRow, textRow, note);
 
   let current = parseConditionValue(input.value);
   if (!current.length) current = normalizeConditions(sessionConditions);

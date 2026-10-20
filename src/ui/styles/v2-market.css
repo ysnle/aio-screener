@@ -1,0 +1,335 @@
+/* v58.53 개편 v2 — market screens. Owned by the market screen pass (imported from responsive.css); shared components live in soft-ui.css.
+   Sections: 0 tokens + charts (trend-chart.js, every screen) · 1 시장 상태 · 국면 판정 (3b) · 2 시장 폭 (5c) · 3 투자 심리 (5d) ·
+   4 거시 경제 (3e) · 5 금리 · 환율 (5e) · 6 breakpoints (4a: ≤1279 iPad landscape, ≤1023 iPad portrait, ≤743 iPhone). */
+
+:root {
+  --mk-burden-bar: #c79a3e;
+  --mk-favorable-bar: var(--data-green);
+  --mk-neutral-bar: rgba(var(--ink-rgb), 0.16);
+}
+body.dark-theme { --mk-burden-bar: #c99a45; --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
+
+/* ═══ 0. Charts (README: 1.6–2px round strokes, no fill, ink 5% reference band radius 6, ≤3 ticks) ═══ */
+.trend-chart-line { stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.trend-chart-area { display: none; }
+.trend-chart-grid { stroke: rgba(var(--ink-rgb), 0.06); }
+.trend-chart-baseline { stroke: rgba(var(--ink-rgb), 0.14); }
+.trend-chart-band { fill: rgba(var(--ink-rgb), 0.05); }
+.trend-chart-ref { stroke: rgba(var(--ink-rgb), 0.28); stroke-width: 1; stroke-dasharray: 3 4; }
+.trend-chart-ref.is-band-edge { stroke: none; }
+.trend-chart-dot { stroke-width: 1.5; }
+.trend-chart-tip { border-radius: 8px; }
+.trend-card { border-radius: 18px !important; }
+.trend-card-value { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+
+/* Verdict capsules on the market screens: no outline, tinted fill; 부담 is amber, never red (README 색 규칙). */
+:is(#page-signal, #page-breadth, #page-sentiment, #page-macro, #page-fxbond) .regime-state {
+  display: inline-flex; align-items: center; height: 22px; padding: 0 9px; border: 0 !important; border-radius: 999px;
+  font-size: 12px !important; font-weight: 700; background: var(--sx-ink-a07); color: var(--text-secondary);
+}
+:is(#page-signal, #page-breadth, #page-sentiment, #page-macro, #page-fxbond) .regime-state.is-favorable { background: var(--sx-good-bg); color: var(--data-green); }
+:is(#page-signal, #page-breadth, #page-sentiment, #page-macro, #page-fxbond) .regime-state.is-burden { background: var(--sx-warn-bg); color: var(--data-amber); }
+:is(#page-signal, #page-breadth, #page-sentiment, #page-macro, #page-fxbond) .regime-state.is-unknown { background: transparent; box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.16); color: var(--text-muted); }
+
+/* ═══ 1. 시장 상태 · 국면 판정 (3b) ═══════════════════════════════════════ */
+#page-signal > .sx-card, #page-signal > .mk-pair { margin: 0 0 16px; }
+
+/* ① Hero: verdict word + one line | tally bar + previous verdict. */
+.mk-hero { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 40px; align-items: center; }
+.mk-hero__main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.mk-hero__verdict-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 14px; }
+.page .mk-hero__verdict { margin: 0; font-size: 44px !important; font-weight: 700; letter-spacing: -0.03em !important; line-height: 1.05; color: var(--text-primary); }
+.mk-hero__shape { font-size: 14px; color: var(--text-secondary); }
+.mk-hero__shape:empty { display: none; }
+.mk-hero__lede { font-size: 16px; line-height: 1.65; max-width: 44em; }
+.mk-hero__side { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.mk-tally__bar { display: flex; height: 10px; gap: 3px; }
+.mk-tally__seg { flex: 1; border-radius: 999px; background: var(--mk-neutral-bar); }
+.mk-tally__seg.is-favorable { background: var(--mk-favorable-bar); }
+.mk-tally__seg.is-burden { background: var(--mk-burden-bar); }
+.mk-tally__seg.is-unknown { background: transparent; box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.16); }
+.mk-tally__legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 10px; font-size: 13px; font-weight: 600; line-height: 1.5; }
+.mk-tally__legend .is-favorable { color: var(--data-green); }
+.mk-tally__legend .is-neutral { color: var(--text-secondary); font-weight: 500; white-space: nowrap; }
+.mk-tally__legend .is-burden { color: var(--data-amber); }
+.mk-hero__counts { font-size: 13px; color: var(--text-secondary); }
+.mk-hero__counts:empty { display: none; }
+.mk-hero__prev { margin: 0; font-size: 12px; line-height: 1.6; color: var(--text-muted); }
+
+/* ② Six-axis table; rows are single-open <details> (soft-ui .sx-disclosure). */
+.mk-axes { padding: 8px !important; }
+.mk-axes__head, .mk-axis__row {
+  display: grid; grid-template-columns: 150px 76px minmax(0, 1.2fr) minmax(0, 1.35fr) 118px 78px 18px; gap: 14px; align-items: center;
+}
+.mk-axes__head { padding: 12px 16px 8px; font-size: 12px; color: var(--text-muted); }
+.mk-axes__head > :nth-child(5), .mk-axes__head > :nth-child(6) { text-align: right; }
+#page-signal #regime-board.regime-quality-board { display: flex; flex-direction: column; gap: 0; }
+#page-signal .regime-quality-board > .mk-axis { padding: 0 !important; border-radius: 14px !important; background: transparent !important; }
+#page-signal .regime-quality-board > .mk-axis:hover, #page-signal .regime-quality-board > .mk-axis[open] { background: var(--sx-ink-a03) !important; }
+#page-signal .mk-axis > summary { padding: 14px 16px; font-size: 14px; transition: background 120ms var(--sx-ease); }
+#page-signal .mk-axis > summary:focus-visible { outline: 2px solid var(--text-primary); outline-offset: -2px; }
+.mk-axis__name { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mk-axis__name b { font-weight: 600; color: var(--text-primary); }
+.mk-axis__en { font-size: 12px; color: var(--text-muted); }
+.mk-axis__state { justify-self: start; }
+.mk-axis__value { color: var(--text-primary); line-height: 1.45; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.mk-axis__rule { font-size: 13px; line-height: 1.45; color: var(--text-secondary); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.mk-axis__prev { text-align: right; font-size: 13px; color: var(--text-secondary); }
+.mk-axis__prev.is-changed { color: var(--text-primary); font-weight: 600; }
+.mk-axis__d5 { text-align: right; font-size: 13px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+#page-signal .mk-axis .sx-disclosure__body { padding: 0 16px 12px; }
+#page-signal .mk-axis .sx-disclosure__card { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+#page-signal .mk-axis :is(.sx-disclosure__text, .sx-disclosure__card .regime-read) { margin: 0; font-size: 13px; line-height: 1.7; color: var(--text-primary); overflow-wrap: anywhere; }
+#page-signal .mk-axis .sx-disclosure__card .basis-chip { align-self: flex-start; font-size: 12px; margin: 0; }
+#page-signal .mk-axis .regime-read-more summary { font-size: 12px; color: var(--text-secondary); }
+.mk-axis__detail { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 12px; }
+.mk-axis__detail > * { background: var(--bg-card); border-radius: 14px; padding: 16px 18px; min-width: 0; }
+#page-signal .mk-axis__detail .regime-axis-history { margin: 0; }
+#page-signal .mk-axis__facts .regime-evidence { display: grid; grid-template-columns: minmax(110px, .8fr) minmax(0, 1.4fr); gap: 6px 12px; margin: 0 0 12px; font-size: 13px; line-height: 1.6; }
+#page-signal .mk-axis__facts .regime-evidence dt { color: var(--text-secondary); overflow-wrap: anywhere; }
+#page-signal .mk-axis__facts .regime-evidence dd { margin: 0; overflow-wrap: anywhere; }
+#page-signal .mk-axis__facts .regime-axis-observe { margin: 0; padding: 12px 0 0; border-top: 1px solid rgba(var(--ink-rgb), 0.06); }
+#page-signal .mk-axis__facts .regime-axis-observe p, #page-signal .mk-axis__facts .regime-read { font-size: 13px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 10px; }
+#page-signal .mk-axis__facts h4 { margin: 0 0 4px; font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+.mk-axis__links { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.mk-axis__links .flow-next-link { font-size: 13px; }
+#page-signal .mk-axis > .regime-stress-outcomes { margin: 0 16px 12px; padding: 14px 18px; background: var(--bg-card); border-radius: 14px; }
+#page-signal .mk-axis .regime-chart-selectors button { min-height: 30px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--sx-ink-a06); font-size: 13px; }
+#page-signal .mk-axis .regime-chart-selectors button[aria-pressed="true"] { background: var(--text-primary); color: var(--bg-base); }
+#page-signal .mk-axis .regime-chart-caption, #page-signal .mk-axis .regime-chart-note { font-size: 12px; line-height: 1.6; }
+.mk-axis__evidence { margin: 0; padding: 2px 20px 16px; }
+
+/* ③ 이 조합이 뜻하는 것 · 다음에 확인할 것 */
+.mk-pair { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px; }
+.mk-pair > .sx-card { display: flex; flex-direction: column; gap: 12px; padding: 22px 24px; }
+.mk-combo__list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.mk-combo__list li { font-size: 14px; line-height: 1.75; color: var(--text-primary); text-wrap: pretty; }
+.mk-combo__list li + li { padding-top: 10px; border-top: 1px solid rgba(var(--ink-rgb), 0.06); }
+.mk-watch__list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.mk-watch__item { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start; }
+.mk-watch__num { width: 28px; height: 28px; border-radius: 9px; background: var(--sx-ink-a06); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--text-secondary); }
+.mk-watch__text { display: flex; flex-direction: column; gap: 2px; padding-top: 4px; }
+.mk-watch__text b { font-size: 14px; font-weight: 600; line-height: 1.5; color: var(--text-primary); }
+.mk-watch__note { font-size: 12px; line-height: 1.5; color: var(--text-secondary); }
+
+/* Lower cards: radar (folded), three flows, 한국. */
+.mk-lower { padding: 20px 22px; }
+.mk-fold > summary { list-style: none; display: flex; align-items: baseline; gap: 12px; cursor: pointer; min-height: 28px; }
+.mk-fold > summary::-webkit-details-marker { display: none; }
+.mk-fold > summary::after { content: '⌄'; color: var(--text-muted); font-size: 14px; }
+.mk-fold[open] > summary::after { content: '⌃'; }
+.mk-fold > summary .sx-card__meta { margin-left: auto; }
+.mk-fold[open] > summary { margin-bottom: 14px; }
+#page-signal .regime-radar { margin: 0; padding: 0; }
+.mk-structure:empty { display: none; }
+#page-signal .mk-structure .regime-scenarios { margin: 0; padding: 0; border: 0; }
+#page-signal .mk-structure .regime-scenarios > .briefing-h2 { margin-top: 0; font-size: 16px; font-weight: 700; }
+#page-signal .regime-scenario-card { border: 0 !important; border-radius: 16px !important; }
+#page-signal .regime-scenario-card[data-lead="true"] { box-shadow: inset 0 0 0 1.5px rgba(var(--ink-rgb), 0.35) !important; }
+#page-signal .mk-korea > .regime-board-title { margin: 0 0 12px; font-size: 16px; }
+#page-signal .mk-korea .regime-axis { padding: 16px 18px !important; }
+#page-signal .regime-kr-participation { margin-top: 16px; }
+.mk-foot { margin: 0; padding: 0 4px; font-size: 12px !important; color: var(--text-muted) !important; }
+
+
+/* Shared sub-page hero (5c/5d): verdict chip + one reading line, the rest folded. */
+.mk-sub-hero { margin: 0 0 16px; padding: 22px 28px !important; }
+.mk-sub-hero__row { display: flex; align-items: flex-start; gap: 16px; }
+.mk-sub-hero__row > .regime-state { flex: none; margin-top: 3px; }
+.mk-sub-hero__lede { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.6; letter-spacing: -0.01em; color: var(--text-primary); text-wrap: pretty; max-width: 60em; }
+.mk-sub-hero__more { margin: 8px 0 0; font-size: 14px; line-height: 1.7; color: var(--text-secondary); }
+.mk-sub-hero__more > summary { font-size: 13px; color: var(--text-secondary); width: max-content; }
+.mk-sub-hero__more > p { margin: 6px 0 0; max-width: 60em; }
+.mk-sub-hero__flip { margin: 10px 0 0 !important; font-size: 13px !important; line-height: 1.6; color: var(--text-muted) !important; }
+.mk-sub-hero__flip:empty { display: none; }
+
+/* ═══ 2. 시장 폭 (5c) ═════════════════════════════════════════════════════ */
+#breadth-chart-grid { display: flex !important; flex-direction: column; gap: 16px; margin: 0 0 16px; }
+.bb-group { min-width: 0; }
+.bb-group > .breadth-group-title { margin: 0 0 4px; font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.bb-group > .flow-lead { margin: 0 0 12px; font-size: 13px; }
+.bb-group > .flow-lead:empty { display: none; }
+.bb-face { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.bb-group--trio > .bb-face { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+#page-breadth .trend-card { background: var(--bg-card) !important; box-shadow: var(--sx-card-shadow) !important; border-radius: 20px !important; padding: 20px 22px; }
+#page-breadth .breadth-more-grid .trend-card { box-shadow: none !important; background: var(--sx-ink-a03) !important; }
+#page-breadth .breadth-lead { max-width: none; }
+.bb-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.bb-pair > .bb-group { background: var(--bg-card); border-radius: 20px; box-shadow: var(--sx-card-shadow); padding: 20px 22px; }
+#page-breadth .bb-pair .trend-card { box-shadow: none !important; background: var(--sx-ink-a03) !important; }
+#page-breadth .breadth-more > summary { padding: 10px 0 0; }
+.bb-principle { padding: 20px 22px !important; margin: 0 !important; }
+.bb-principle > summary { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+
+/* ═══ 3. 투자 심리 (5d) ═══════════════════════════════════════════════════ */
+.mk-senti-hero { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 12px 40px; align-items: center; }
+.mk-senti-hero__main { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.mk-senti-hero .sx-kicker { margin: 0; font-size: 13px !important; }
+.mk-senti-hero > .mk-sub-hero__flip { grid-column: 1 / -1; }
+.mk-fg-gauge { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.mk-fg-gauge[hidden] { display: none; }
+.mk-fg-gauge__bar, .mk-fg-gauge__labels { display: flex; gap: 4px; }
+.mk-fg-gauge__seg { flex: var(--w, 1) 1 0; height: 12px; border-radius: 999px; background: var(--sx-ink-a07); }
+.mk-fg-gauge__seg.is-active { background: rgba(var(--ink-rgb), 0.32); }
+.mk-fg-gauge__track { position: relative; height: 18px; }
+.mk-fg-gauge__marker { position: absolute; left: var(--at, 50%); transform: translateX(-50%); font-size: 13px; font-weight: 700; color: var(--text-primary); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.mk-fg-gauge__labels > span { flex: var(--w, 1) 1 0; font-size: 12px; color: var(--text-muted); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mk-fg-gauge__labels > .is-active { color: var(--text-primary); font-weight: 600; }
+#sentiment-card-grid, #sentiment-mini-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 14px; margin: 0 0 14px; }
+#page-sentiment .trend-card { background: var(--bg-card) !important; box-shadow: var(--sx-card-shadow) !important; border-radius: 20px !important; padding: 20px 22px; }
+#page-sentiment .trend-card-head { align-items: baseline; }
+#page-sentiment .trend-card-title { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+#page-sentiment .trend-card-value { font-size: 28px; }
+#sentiment-temperature { background: var(--bg-card); border-radius: 20px; box-shadow: var(--sx-card-shadow); padding: 20px 22px; margin: 2px 0 16px !important; border: 0 !important; }
+.mk-principle { margin: 0 0 16px; padding: 22px 24px !important; }
+.mk-principle .sx-card__title { margin: 0 0 8px; }
+.mk-principle__text { margin: 0; font-size: 14px; line-height: 1.75; color: var(--text-primary); max-width: 70em; }
+.mk-principle__evidence { padding: 10px 0 0; }
+
+/* ═══ 4. 거시 경제 (3e) ═══════════════════════════════════════════════════ */
+#page-macro > .macro-section, #page-macro > .mk-rate-strip, #page-fxbond > .rates-block, #page-fxbond > .rates-guide {
+  background: var(--bg-card) !important; border-radius: 20px !important; box-shadow: var(--sx-card-shadow) !important; padding: 20px 22px !important; margin: 0 0 16px !important; border: 0 !important;
+}
+:is(#page-macro, #page-fxbond) .macro-section > .briefing-h2, :is(#page-macro, #page-fxbond) .rates-block > .briefing-h2 { margin: 0 0 6px; font-size: 16px !important; font-weight: 700; }
+.mk-macro-top { display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 14px; align-items: start; margin: 0 0 14px; }
+.mk-macro-top > .sx-card { margin: 0 !important; padding: 22px !important; }
+.mk-factor-card { padding: 16px 8px 8px !important; }
+.mk-factor-card > .briefing-h2, .mk-factor-card > .macro-section-lead { padding: 0 16px; }
+#page-macro .mk-quad-card .macro-overview { display: flex; flex-direction: column; gap: 12px; }
+#page-macro .macro-quadrant { max-width: 360px; margin: 0 auto; }
+#page-macro .macro-quadrant-cell { fill: rgba(var(--ink-rgb), 0.035) !important; fill-opacity: 1 !important; stroke: none !important; }
+#page-macro .macro-quadrant-cell.is-partial { stroke: rgba(var(--ink-rgb), 0.2) !important; stroke-width: 1 !important; stroke-dasharray: 4 3; }
+#page-macro .macro-quadrant-cell.is-current { fill: var(--sx-warn-bg) !important; stroke: var(--mk-burden-bar) !important; stroke-width: 1.5 !important; stroke-dasharray: none; }
+#page-macro .macro-quadrant-sub, #page-macro .macro-quadrant-axis, #page-macro .macro-quadrant-now { font-size: 12px; }
+#page-macro .macro-regime-label { font-family: var(--font-sans) !important; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+#page-macro .macro-regime-label.is-burden { color: var(--data-amber); }
+#page-macro .macro-tally-chip { border: 0; padding: 0 9px; height: 22px; display: inline-flex; align-items: center; background: var(--sx-ink-a07); }
+#page-macro .macro-tally-chip.is-favorable { background: var(--sx-good-bg); }
+#page-macro .macro-tally-chip.is-burden { background: var(--sx-warn-bg); color: var(--data-amber); }
+#page-macro .macro-tiles { display: flex; flex-wrap: wrap; gap: 6px; }
+#page-macro .macro-tile { flex-direction: row; align-items: center; gap: 6px; min-height: 28px; padding: 0 12px; border: 0 !important; border-radius: 999px !important; background: var(--sx-ink-a07) !important; cursor: pointer; transition: background 120ms var(--sx-ease); }
+#page-macro .macro-tile:hover { background: var(--sx-ink-a08) !important; }
+#page-macro .macro-tile.is-favorable { background: var(--sx-good-bg) !important; }
+#page-macro .macro-tile.is-burden { background: var(--sx-warn-bg) !important; }
+#page-macro .macro-tile.is-burden .macro-tile-state { color: var(--data-amber); }
+#page-macro .macro-tile-title { font-size: 13px; color: var(--text-secondary); }
+#page-macro .macro-tile-state { font-size: 13px; }
+#page-macro .macro-tile-value { display: none; }
+#page-macro #macro-axes.regime-board { display: flex !important; flex-direction: column; gap: 0; margin: 6px 0 0; }
+#page-macro .mk-maxis { padding: 0 !important; border-radius: 14px !important; background: transparent !important; box-shadow: none !important; }
+#page-macro .mk-maxis:hover, #page-macro .mk-maxis[open] { background: var(--sx-ink-a03) !important; }
+.mk-maxis__row { grid-template-columns: 130px 70px minmax(0, 1fr) 18px; gap: 14px; padding: 13px 16px !important; }
+.mk-maxis__title { font-size: 14px !important; font-weight: 600; margin: 0; }
+.mk-maxis__row > .regime-state { justify-self: start; }
+#page-macro .mk-maxis__facts .macro-gauge-wrap { max-width: 520px; margin: 0 0 8px; }
+.mk-maxis__value { font-size: 14px; color: var(--text-primary); font-variant-numeric: tabular-nums; line-height: 1.45; }
+#page-macro .mk-maxis .sx-disclosure__body { padding: 0 16px 12px; }
+#page-macro .mk-maxis .sx-disclosure__card { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+#page-macro .mk-maxis .sx-disclosure__text, #page-macro .mk-maxis .regime-read { margin: 0; font-size: 13px; line-height: 1.7; color: var(--text-primary); }
+#page-macro .mk-maxis .macro-gauge-note { font-size: 12px; margin: 0; }
+.mk-maxis__facts { grid-column: 1 / -1; background: var(--bg-card); border-radius: 14px; padding: 16px 18px; min-width: 0; }
+#page-macro .mk-maxis__facts .regime-evidence { display: grid; grid-template-columns: minmax(130px, .7fr) minmax(0, 1.5fr); gap: 6px 12px; font-size: 13px; line-height: 1.6; margin: 6px 0 12px; }
+#page-macro .mk-maxis__facts .regime-evidence dd { margin: 0; overflow-wrap: anywhere; }
+#page-macro .mk-maxis__facts h4 { margin: 10px 0 0; font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+#page-macro .mk-maxis__facts .regime-flip { font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
+.mk-maxis__evidence { margin: 0; padding: 2px 20px 14px; }
+:is(#page-macro, #page-signal, #page-breadth) .regime-axis-deep .flow-next-link, .mk-axis__links .flow-next-link { max-width: 100%; overflow-wrap: anywhere; white-space: normal; text-align: left; }
+.macro-gauge-band.is-burden { fill: var(--mk-burden-bar) !important; }
+#page-macro .macro-chain-node { border-radius: 14px; border-color: rgba(var(--ink-rgb), 0.12); }
+#page-macro .macro-chain-node.is-burden { border-color: var(--mk-burden-bar); box-shadow: inset 0 0 0 1px var(--mk-burden-bar); }
+#page-macro .macro-chain-node.is-favorable { box-shadow: inset 0 0 0 1px var(--data-green); }
+.mk-rate-strip[hidden] { display: none !important; }
+.mk-rate-strip__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.mk-rate-tile { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.mk-rate-tile__label { font-size: 12px; color: var(--text-muted); }
+.mk-rate-tile__value { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.mk-rate-tile__note { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+.mk-rate-strip__evidence { padding: 14px 0 0; }
+#page-macro .macro-stat, #page-fxbond .macro-stat { border: 0 !important; border-radius: 16px !important; background: var(--sx-ink-a03) !important; padding: 14px 16px; }
+#page-macro .macro-group { margin: 0 0 18px; }
+#page-macro #macro-commodities .trend-card { background: var(--sx-ink-a03) !important; }
+#page-macro #kr-integrated-macro { background: var(--bg-card); border-radius: 20px; box-shadow: var(--sx-card-shadow); padding: 16px 22px; margin: 0 0 16px !important; border: 0; }
+
+/* ═══ 5. 금리 · 환율 (5e) ═══════════════════════════════════════════════ */
+.mk-rates-top { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; align-items: start; margin: 0 0 16px; }
+.mk-rates-top > .mk-curve-card { margin: 0 !important; padding: 22px 24px !important; }
+#page-fxbond .mk-curve-card .rates-curve-row { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+#page-fxbond .mk-curve-card .rates-yields { border: 0; margin: 0; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); }
+#page-fxbond .mk-curve-card .rates-yield { border: 0; padding: 4px 6px; align-items: center; text-align: center; }
+#page-fxbond .mk-curve-card .rates-yield-value { font-size: 16px; }
+#page-fxbond .rates-spread { border-top: 1px solid rgba(var(--ink-rgb), 0.06); }
+#page-fxbond .rates-curve-dot { fill: var(--bg-card); stroke: var(--text-primary); stroke-width: 1.5; }
+.mk-rsum-col { display: flex; flex-direction: column; gap: 14px; }
+.mk-rsum { background: var(--bg-card); border-radius: 20px; box-shadow: var(--sx-card-shadow); padding: 18px 22px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.mk-rsum__head { display: flex; justify-content: space-between; gap: 12px; width: 100%; font-size: 13px; }
+.mk-rsum__label { color: var(--text-secondary); }
+.mk-rsum__change { font-weight: 600; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.mk-rsum__value { color: var(--text-primary); font-size: 26px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.mk-rsum__note { font-size: 12px; line-height: 1.55; color: var(--text-secondary); }
+#page-fxbond #rates-fx-grid .trend-card, #page-fxbond .macro-stat-grid .macro-stat { background: var(--sx-ink-a03) !important; }
+#page-fxbond .rates-other { border: 0; gap: 8px; }
+#page-fxbond .rates-other-cell { border: 0; border-radius: 14px; background: var(--sx-ink-a03); }
+
+/* ═══ 6. Breakpoints ═════════════════════════════════════════════════════ */
+@media (max-width: 1279px) {
+  .mk-macro-top { grid-template-columns: 340px minmax(0, 1fr); }
+  .mk-hero { grid-template-columns: minmax(0, 1fr) 300px; gap: 28px; }
+  .mk-axes__head, .mk-axis__row { grid-template-columns: 128px 70px minmax(0, 1.2fr) minmax(0, 1fr) 104px 70px 18px; gap: 12px; }
+}
+@media (max-width: 1023px) {
+  .mk-hero { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .bb-pair, .mk-macro-top, .mk-rates-top { grid-template-columns: minmax(0, 1fr); }
+  .mk-rsum-col { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .mk-senti-hero { grid-template-columns: minmax(0, 1fr); }
+  #sentiment-card-grid, #sentiment-mini-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .mk-axes__head, .mk-axis__row { grid-template-columns: 120px 64px minmax(0, 1fr) 96px 66px 18px; }
+  .mk-axes__head > :nth-child(4), .mk-axis__rule { display: none !important; }
+  #page-signal .mk-axis .sx-disclosure__body { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  #page-signal .mk-axis .sx-disclosure__body > .sx-disclosure__card:first-child { grid-column: 1 / -1; }
+  .mk-axis__detail { grid-template-columns: minmax(0, 1fr); }
+  .mk-pair { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 743px) {
+  .page .mk-hero__verdict { font-size: 36px !important; }
+  .mk-sub-hero { padding: 20px !important; }
+  .mk-sub-hero__row { flex-direction: column; gap: 10px; }
+  .mk-sub-hero__lede { font-size: 16px; }
+  .bb-group--trio > .bb-face, #sentiment-card-grid, #sentiment-mini-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  #page-breadth .trend-card, #page-sentiment .trend-card, .bb-pair > .bb-group { padding: 18px !important; }
+  .mk-rsum-col, .mk-rate-strip__grid { grid-template-columns: minmax(0, 1fr); }
+  .mk-maxis__row { grid-template-columns: minmax(0, 1fr) auto 18px; grid-template-areas: 'title state chev' 'value value value'; gap: 4px 10px; }
+  .mk-maxis__row::after { grid-area: chev; }
+  .mk-maxis__title { grid-area: title; }
+  .mk-maxis__row > .regime-state { grid-area: state; }
+  .mk-maxis__value { grid-area: value; font-size: 12px; color: var(--text-secondary); }
+  #page-macro .mk-maxis .sx-disclosure__body { grid-template-columns: minmax(0, 1fr); padding: 0 10px 10px; }
+  #page-macro > .macro-section, #page-fxbond > .rates-block, .mk-macro-top > .sx-card { padding: 18px !important; }
+  .mk-hero { padding: 22px 20px !important; }
+  .mk-axes__head { display: none; }
+  .mk-axis__row { grid-template-columns: minmax(0, 1fr) auto 18px; grid-template-areas: 'name state chev' 'value value value'; gap: 4px 10px; }
+  .mk-axis__row::after { grid-area: chev; }
+  .mk-axis__name { grid-area: name; }
+  .mk-axis__state { grid-area: state; }
+  .mk-axis__value { grid-area: value; font-size: 12px; color: var(--text-secondary); }
+  .mk-axis__prev, .mk-axis__d5 { display: none; }
+  #page-signal .mk-axis > summary { min-height: 44px; padding: 12px 14px; }
+  #page-signal .mk-axis .sx-disclosure__body { grid-template-columns: minmax(0, 1fr); padding: 0 10px 10px; }
+  .mk-axis__evidence { padding: 2px 14px 14px; }
+  #page-signal .mk-axis > .regime-stress-outcomes { margin: 0 10px 10px; }
+  .mk-pair > .sx-card, .mk-lower { padding: 18px !important; }
+}
+
+/* v58.53 (owner 2026-10-20): 경제 지표 groups as disclosure rows — title + one-line fact always visible, cards on open. */
+#page-macro #macro-board .macro-group { margin: 0; padding: 0; border: 0; background: none; }
+#page-macro #macro-board .macro-group + .macro-group { border-top: 1px solid rgba(var(--ink-rgb), 0.06); }
+#page-macro .macro-group-fold > summary.macro-group-summary { grid-template-columns: minmax(0, 1fr) auto 16px; gap: 12px; padding: 16px; }
+#page-macro .macro-group-summary__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+#page-macro .macro-group-summary .macro-group-title { margin: 0; font-size: 15px; font-weight: 700; }
+#page-macro .macro-group-summary .macro-group-fact { margin: 0; font-size: 13px; line-height: 1.55; color: var(--text-secondary); }
+#page-macro .macro-group-count { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+#page-macro .macro-group-fold > .macro-stat-grid, #page-macro .macro-group-fold > details { margin: 0 16px 16px; }
+@media (max-width: 743px) {
+  #page-macro .macro-group-fold > summary.macro-group-summary { grid-template-columns: minmax(0, 1fr) 16px; padding: 14px 12px; }
+  #page-macro .macro-group-count { display: none; }
+  #page-macro .macro-group-fold > .macro-stat-grid, #page-macro .macro-group-fold > details { margin: 0 8px 12px; }
+}

@@ -4,48 +4,14 @@
 import { buildMarketTimelineView } from '../../domain/market/market-timeline.js';
 import { el } from './dom.js';
 
-const MARKET_TIMELINE_STYLE = `
-.market-slot { border-top: 1px solid var(--border-subtle); padding: 8px 0; max-width: 920px; }
-.market-slot.is-current { border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; background: var(--bg-card); }
-.market-slot-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; min-height: 24px; cursor: default; }
-summary.market-slot-head { cursor: pointer; list-style: none; }
-summary.market-slot-head::-webkit-details-marker { display: none; }
-summary.market-slot-head::before { content: ''; align-self: center; width: 0; height: 0; border: 5px solid transparent; border-left: 6px solid var(--text-muted); border-right-width: 0; transition: transform .15s; }
-details[open] > summary.market-slot-head::before { transform: rotate(90deg); }
-.market-slot-state { font-size: 13px; font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; }
-.market-slot-label { font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
-.market-slot-meta { font-size: 12px; color: var(--text-muted); overflow-wrap: anywhere; }
-.market-slot-day { font-size: 12px; font-weight: 700; color: var(--text-muted); margin: 12px 0 2px; }
-.market-slot-body { padding: 6px 0 4px; }
-.market-slot-summary { font-size: 14px; line-height: 1.75; color: var(--text-secondary); margin: 0 0 8px; }
-.market-slot-tag { font-size: 11px; font-weight: 700; color: var(--text-muted); }
-.market-slot-moves { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; }
-.market-slot-move { font-size: 12px; display: flex; gap: 6px; }
-.market-slot-move-label { color: var(--text-muted); }
-.market-slot-move-value { color: var(--text-primary); font-variant-numeric: tabular-nums; }
-.market-slot-news { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
-.market-slot-news li { display: flex; gap: 8px; align-items: baseline; font-size: 12px; line-height: 1.5; }
-.market-slot-news-time { flex: 0 0 auto; color: var(--text-muted); font-variant-numeric: tabular-nums; }
-.market-slot-news-title { display: inline-block; min-height: 24px; padding: 3px 0; box-sizing: border-box; color: var(--text-primary); overflow-wrap: anywhere; }
-a.market-slot-news-title { text-decoration: underline; text-underline-offset: 2px; }
-.market-slot-foot { font-size: 11px; color: var(--text-muted); margin: 6px 0 0; }
-.market-slot-overdue { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin: 4px 0; }
-`;
+// v58.53 개편 v2: the slot styles moved from an injected <style> into src/ui/styles/v2-today.css (12px floor, soft cards).
 
-function ensureStyle(doc) {
-  if (!doc?.head || doc.getElementById('aio-market-timeline-style')) return;
-  const style = doc.createElement('style');
-  style.id = 'aio-market-timeline-style';
-  style.textContent = MARKET_TIMELINE_STYLE;
-  doc.head.appendChild(style);
-}
-
-// The section sits between 오늘의 시장 해석 and 자산별 흐름; it is created here so the shell stays unchanged.
 function ensureSection(doc) {
   let section = doc.getElementById('briefing-timeline');
   if (section) return section;
+  const pair = doc.getElementById('briefing-pair');
   const anchor = doc.getElementById('briefing-read');
-  if (!anchor) return null;
+  if (!pair && !anchor) return null;
   section = el(doc, 'section', null, 'aio-section briefing-block');
   section.id = 'briefing-timeline';
   section.setAttribute('aria-labelledby', 'briefing-timeline-title');
@@ -55,7 +21,7 @@ function ensureSection(doc) {
   const rows = el(doc, 'div');
   rows.id = 'briefing-timeline-rows';
   section.append(heading, rows);
-  anchor.after(section);
+  if (pair) pair.append(section); else anchor.after(section);
   return section;
 }
 
@@ -120,8 +86,10 @@ export function renderMarketTimeline({ documentRef: doc, root, nowMs = Date.now(
   const section = ensureSection(doc);
   const host = doc.getElementById('briefing-timeline-rows');
   if (!section || !host) return null;
-  ensureStyle(doc);
   section.hidden = false;
+  // v58.53: a re-render keeps the slots the reader opened or closed; only a first paint opens the newest one.
+  const opened = new Set([...host.querySelectorAll('details.market-slot')].filter((node) => node.open).map((node) => node.dataset.slotId));
+  const painted = host.querySelector('details.market-slot') != null;
   const nodes = [];
   if (view.current) {
     const current = el(doc, 'div', null, 'market-slot is-current');
@@ -138,7 +106,7 @@ export function renderMarketTimeline({ documentRef: doc, root, nowMs = Date.now(
     for (const slot of group.slots) {
       const details = el(doc, 'details', null, 'market-slot');
       details.dataset.slotId = slot.id;
-      if (first) details.open = true;
+      if (painted ? opened.has(slot.id) : first) details.open = true;
       first = false;
       const summary = el(doc, 'summary', null, 'market-slot-head');
       summary.append(el(doc, 'span', `${slot.endLabel} 회차`, 'market-slot-state'), el(doc, 'span', slot.label, 'market-slot-label'),

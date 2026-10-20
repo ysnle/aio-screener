@@ -527,7 +527,7 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
   // Colour by effect on stocks: every node rising is a headwind except valuation, where a fall is.
   const impact = (node) => node.dir === 'unknown' || node.dir === 'flat' ? node.dir : (node.id === 'valuation' ? node.dir === 'down' : node.dir === 'up') ? 'burden' : 'favorable';
   // P1599 (A04): the 'not causation' caveat is stated once, in the section lead above the chain; the legend keeps the thresholds.
-  const legend = `▲▼ 기준(시장 상태와 같음): 유가 20일 +${RULES.oil.rise20dPct}% 이상 또는 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상 / ${RULES.oil.fall20dPct}% 이하 · 기대인플레이션 5거래일 ±${RULES.breakeven.move5dBp}bp · 2년물 − 기준금리 ±${P.pricedMovePp}%p · 10년물 20일 ±${RULES.rates.move20dBp}bp · 달러 20일 ±${RULES.dollar.rise20dPct}% · 하이일드 스프레드 5거래일 ±${RULES.credit.widen5dBp}bp. 빨간 테두리는 주식에 부담, 초록은 양호.`;
+  const legend = `▲▼ 기준(시장 상태와 같음): 유가 20일 +${RULES.oil.rise20dPct}% 이상 또는 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상 / ${RULES.oil.fall20dPct}% 이하 · 기대인플레이션 5거래일 ±${RULES.breakeven.move5dBp}bp · 2년물 − 기준금리 ±${P.pricedMovePp}%p · 10년물 20일 ±${RULES.rates.move20dBp}bp · 달러 20일 ±${RULES.dollar.rise20dPct}% · 하이일드 스프레드 5거래일 ±${RULES.credit.widen5dBp}bp. 주황 테두리는 주식에 부담, 초록은 양호.`;
   return { nodes: nodes.map((node) => ({ ...node, impact: node.held ? 'unknown' : impact(node) })), links, branches: branches.map((node) => ({ ...node, impact: impact(node) })), legend };
 }
 

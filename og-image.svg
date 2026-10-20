@@ -1,9 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <rect width="1200" height="630" fill="#060b15"/>
-  <rect x="64" y="64" width="1072" height="502" rx="24" fill="#0d1828" stroke="#00bcd4" stroke-opacity=".45"/>
-  <text x="112" y="230" fill="#67d8e8" font-family="Arial,sans-serif" font-size="76" font-weight="800">AIO</text>
-  <text x="112" y="320" fill="#f0f4fc" font-family="Arial,sans-serif" font-size="54" font-weight="700">Screener</text>
-  <text x="112" y="400" fill="#a5b0c2" font-family="Arial,sans-serif" font-size="30">올인원 시장 분석 · 시그널 · 포트폴리오</text>
-  <circle cx="1010" cy="228" r="74" fill="#00bcd4" fill-opacity=".12" stroke="#00bcd4" stroke-width="4"/>
-  <path d="M970 270 L1000 238 L1024 252 L1060 190" fill="none" stroke="#10c98b" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- v58.53 개편 v2: ivory brand (bg #f4f0e8, card #fffdf9, ink #211d16, 우호 #22754c, 부담 #784e00) -->
+  <rect width="1200" height="630" fill="#f4f0e8"/>
+  <rect x="64" y="64" width="1072" height="502" rx="40" fill="#fffdf9"/>
+  <text x="120" y="232" fill="#211d16" font-family="Pretendard Variable,Pretendard,-apple-system,Helvetica,Arial,sans-serif" font-size="88" font-weight="800" letter-spacing="-2">AIO</text>
+  <text x="340" y="232" fill="#57513f" font-family="Pretendard Variable,Pretendard,-apple-system,Helvetica,Arial,sans-serif" font-size="44" font-weight="500">Screener</text>
+  <text x="120" y="318" fill="#211d16" font-family="Pretendard Variable,Pretendard,-apple-system,Helvetica,Arial,sans-serif" font-size="40" font-weight="700" letter-spacing="-1">오늘 시장 괜찮아? → 왜? → 내 종목은?</text>
+  <text x="120" y="372" fill="#625c50" font-family="Pretendard Variable,Pretendard,-apple-system,Helvetica,Arial,sans-serif" font-size="28">시장 상태 · 거시 · 종목 · 스크리너 · 포트폴리오 · 리서치</text>
+  <rect x="120" y="430" width="132" height="48" rx="24" fill="#22754c" fill-opacity=".1"/>
+  <text x="186" y="463" text-anchor="middle" fill="#22754c" font-family="Pretendard Variable,Pretendard,-apple-system,Helvetica,Arial,sans-serif" font-size="24" font-weight="700">우호</text>
+  <rect x="268" y="430" width="132" height="48" rx="24" fill="#784e00" fill-opacity=".09"/>
+  <text x="334" y="463" text-anchor="middle" fill="#784e00" font-family="Pretendard Variable,Pretendard,-apple-system,Helvetica,Arial,sans-serif" font-size="24" font-weight="700">부담</text>
+  <rect x="416" y="430" width="132" height="48" rx="24" fill="#211d16" fill-opacity=".07"/>
+  <text x="482" y="463" text-anchor="middle" fill="#57513f" font-family="Pretendard Variable,Pretendard,-apple-system,Helvetica,Arial,sans-serif" font-size="24" font-weight="700">중립</text>
+  <path d="M760 430 C 820 420, 850 380, 900 372 S 980 300, 1040 260 L 1076 238" fill="none" stroke="#211d16" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

@@ -14,20 +14,28 @@ export function deepDiveFold(doc, root, title, deep, extra = []) {
   const details = node('details', null, 'regime-axis-details regime-axis-deep');
   details.append(node('summary', `${title ? `${title} ` : ''}더 깊이 보기 · 원리와 읽는 법`));
   for (const [heading, text] of deep?.blocks || []) details.append(node('h4', heading), node('p', text));
-  details.append(...extra.filter(Boolean));
-  for (const [route, label] of deep?.related || []) {
-    const link = node('button', `${label} →`, 'flow-next-link');
-    link.type = 'button';
+  details.append(...extra.filter(Boolean), ...deepDiveLinks(doc, root, deep));
+  return details;
+}
+
+// v58.53 개편 v2: the fold's onward links on their own, for layouts that spread the teaching blocks into cards
+// (시장 상태 axis rows) and still end with the page that goes deeper and the concept note.
+export function deepDiveLinks(doc, root, deep) {
+  if (!doc || !deep) return [];
+  const links = [];
+  for (const [route, label] of deep.related || []) {
+    const link = doc.createElement('button');
+    link.textContent = `${label} →`; link.className = 'flow-next-link'; link.type = 'button';
     link.addEventListener('click', () => root?.showPage?.(route));
-    details.append(link);
+    links.push(link);
   }
-  const conceptTerm = deep?.conceptId ? CONCEPT_TERMS.get(deep.conceptId) : null;
+  const conceptTerm = deep.conceptId ? CONCEPT_TERMS.get(deep.conceptId) : null;
   if (conceptTerm) {
-    const link = node('button', `개념 노트 · ${conceptTerm} →`, 'flow-next-link');
-    link.type = 'button';
+    const link = doc.createElement('button');
+    link.textContent = `개념 노트 · ${conceptTerm} →`; link.className = 'flow-next-link'; link.type = 'button';
     link.dataset.aioConceptId = deep.conceptId;
     link.addEventListener('click', () => navigateKnowledgeRoute({ root, page: 'principles', params: { mode: 'concept', node: deep.conceptId } }));
-    details.append(link);
+    links.push(link);
   }
-  return details;
+  return links;
 }

@@ -328,5 +328,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   if (thirteenF?.covered && !isKr) {
     next.push({ route: 'masters', label: '대가 보유 종목', why: `이 종목을 신고한 운용사 — 13F 역조회 원장 ${finite(thirteenF.tickerCount) ?? '—'}개 종목 범위, 분기 지연 신고`, ctx: { ticker: symbol } });
   }
-  return { available: true, symbol, name, headline, points, position, high, spans, sector, themes: themed, ranking, next, benchmarkLabel: benchmark?.label || 'S&P 500', sessionLag: lagSessions != null && lagSessions > 0 ? lagSessions : null };
+  // v58.53 (개편 v2 3d): the raw figures behind the points, so the summary's check tiles print short values from the same row.
+  const facts = { trendLabel: trend?.label || null, pct50, pct200: finite(row.pctSma200), adr, rsi, ret1m: finite(row.ret1m), basisDate: String(row.factorSessionDate || row.priceDate || '').slice(0, 10) || null };
+  return { available: true, symbol, name, headline, points, position, high, spans, sector, themes: themed, ranking, next, facts, benchmarkLabel: benchmark?.label || 'S&P 500', sessionLag: lagSessions != null && lagSessions > 0 ? lagSessions : null };
 }

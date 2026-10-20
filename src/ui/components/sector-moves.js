@@ -30,16 +30,22 @@ export function sectorMoves(artifact, nowMs = Date.now()) {
   return { rows, session: rows[0]?.session || null };
 }
 
-export function renderSectorMoves({ documentRef: doc, root, anchor, nowMs = Date.now() }) {
-  if (!doc || !anchor) return null;
-  doc.getElementById('home-sector-moves')?.remove();
+// v58.53 개편 v2 (5a): the bars moved from 오늘 to 브리핑 ("섹터 하루 등락", beside 시간대별 시황). With `host` the block
+// renders into that static section (hidden when fewer than six sectors are current); `anchor` keeps the old placement.
+export function renderSectorMoves({ documentRef: doc, root, anchor = null, host = null, nowMs = Date.now() }) {
+  if (!doc || (!anchor && !host)) return null;
+  if (!host) doc.getElementById('home-sector-moves')?.remove();
   const model = sectorMoves(root?._serverDataMeta?.rotationHistory, nowMs);
-  if (model.rows.length < 6) return null;
-  const section = el(doc, 'section', null, 'home-sector-moves');
-  section.id = 'home-sector-moves';
+  if (model.rows.length < 6) { if (host) { host.hidden = true; host.replaceChildren(); } return null; }
+  const section = host || el(doc, 'section', null, 'home-sector-moves');
+  if (!host) section.id = 'home-sector-moves';
+  section.classList.add('sector-moves');
   section.setAttribute('data-observed-at', model.session); // P1643: the basis card dates each bar.
-  const head = el(doc, 'div', null, 'home-sector-head');
-  head.append(el(doc, 'h2', '섹터 등락', 'briefing-h2'), el(doc, 'span', `${md(model.session)} 종가 · 미국 섹터 ETF ${model.rows.length === 11 ? '11개' : `${model.rows.length}/11개 확인`}`, 'briefing-h2-note'));
+  const head = el(doc, 'div', null, 'home-sector-head sx-card__head');
+  const title = el(doc, 'h2', '섹터 하루 등락', 'briefing-h2 sx-card__title');
+  title.id = `${section.id || 'home-sector-moves'}-title`;
+  if (host) section.setAttribute('aria-labelledby', title.id);
+  head.append(title, el(doc, 'span', `${md(model.session)} 종가 · 미국 섹터 ETF ${model.rows.length === 11 ? '11개' : `${model.rows.length}/11개 확인`}`, 'briefing-h2-note sx-card__meta'));
   const top = model.rows[0], bottom = model.rows.at(-1);
   const lead = el(doc, 'p', `${top.label}(${top.daily >= 0 ? '+' : ''}${top.daily.toFixed(2)}%)${particle(top.label)} 가장 강했고 ${bottom.label}(${bottom.daily >= 0 ? '+' : ''}${bottom.daily.toFixed(2)}%)${particle(bottom.label)} 가장 약했습니다. ${model.rows.filter((row) => row.daily > 0).length}개 섹터가 올랐습니다.`, 'home-sector-lead');
   const max = Math.max(0.5, ...model.rows.map((row) => Math.abs(row.daily)));
@@ -56,7 +62,11 @@ export function renderSectorMoves({ documentRef: doc, root, anchor, nowMs = Date
     li.append(el(doc, 'span', row.label, 'home-sector-name'), bar, el(doc, 'span', `${row.daily >= 0 ? '+' : ''}${row.daily.toFixed(2)}%`, 'home-sector-value'), el(doc, 'span', row.quadrant || '', 'home-sector-quadrant'));
     list.append(li);
   }
-  section.append(head, lead, list, el(doc, 'p', `오른쪽 표시는 S&P 500 대비 상대강도 회전(선도·개선·약화·후행, 약 50일 기준)이며, 기준선(100) 근처는 '기준선 부근'으로 적습니다. 선도 섹터의 최근 5거래일 상대강도가 평소 5일 움직임의 2배 넘게 꺾였으면 회전 위치 대신 5일 상대 변화를 적습니다. 테마 단계는 1개월과 3~6개월 수익률로 따로 판정하므로 같은 섹터가 다르게 불릴 수 있습니다.`, 'theme-strength-basis'));
-  anchor.insertAdjacentElement('afterend', section);
+  // The reading rule for the right-hand label folds under the bars (conclusion first, method on request).
+  const basis = el(doc, 'details', null, 'sector-moves-basis');
+  basis.append(el(doc, 'summary', '오른쪽 표시 읽는 법'), el(doc, 'p', `오른쪽 표시는 S&P 500 대비 상대강도 회전(선도·개선·약화·후행, 약 50일 기준)이며, 기준선(100) 근처는 '기준선 부근'으로 적습니다. 선도 섹터의 최근 5거래일 상대강도가 평소 5일 움직임의 2배 넘게 꺾였으면 회전 위치 대신 5일 상대 변화를 적습니다. 테마 단계는 1개월과 3~6개월 수익률로 따로 판정하므로 같은 섹터가 다르게 불릴 수 있습니다.`, 'theme-strength-basis'));
+  section.replaceChildren(head, lead, list, basis);
+  section.hidden = false;
+  if (!host) anchor.insertAdjacentElement('afterend', section);
   return model;
 }

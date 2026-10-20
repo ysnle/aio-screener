@@ -3,13 +3,13 @@
   "generatedBy": "scripts/ci-inline-style-ratchet-check.mjs",
   "note": "Per-file inline style and sub-12px font-size counts. Shrink only; never raise a count or add a file.",
   "totals": {
-    "inline": 263,
-    "belowFloor": 314
+    "inline": 239,
+    "belowFloor": 287
   },
   "counts": {
     "index.html": {
-      "inline": 136,
-      "belowFloor": 240
+      "inline": 113,
+      "belowFloor": 238
     },
     "js/aio-chat.js": {
       "inline": 7,
@@ -32,34 +32,14 @@
       "belowFloor": 0
     },
     "js/aio-ui.js": {
-      "inline": 35,
+      "inline": 34,
       "belowFloor": 7
     },
     "js/aio-workspace.js": {
       "inline": 26,
       "belowFloor": 6
     },
-    "src/ui/components/market-timeline.js": {
-      "inline": 0,
-      "belowFloor": 2
-    },
     "src/ui/components/sector-map.js": {
-      "inline": 0,
-      "belowFloor": 1
-    },
-    "src/ui/knowledge/analysis-frames.js": {
-      "inline": 0,
-      "belowFloor": 4
-    },
-    "src/ui/knowledge/research-shell.js": {
-      "inline": 0,
-      "belowFloor": 14
-    },
-    "src/ui/styles/company-analysis.css": {
-      "inline": 0,
-      "belowFloor": 1
-    },
-    "src/ui/styles/fiscal-quality.css": {
       "inline": 0,
       "belowFloor": 1
     },
@@ -70,10 +50,6 @@
     "src/ui/styles/responsive.css": {
       "inline": 0,
       "belowFloor": 7
-    },
-    "src/ui/styles/screener-quality.css": {
-      "inline": 0,
-      "belowFloor": 3
     }
   }
 }

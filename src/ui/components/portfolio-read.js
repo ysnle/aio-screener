@@ -7,6 +7,8 @@ import { benchmarkRowFor, indexReturns } from '../../domain/market/benchmarks.js
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 import { buildCloseSeries, koreaMoveRecord } from '../../domain/briefing/market-read.js';
 import { el } from './dom.js';
+import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { estimateBookSensitivities, STRESS_MIN_WEEKS } from '../../domain/portfolio/stress-sensitivity.js';
 
 // P1466: the 3-month gap to the blended index split into sector, stock selection, FX and cash —
 // bars on one scale, the total underneath, then what the arithmetic does not claim.
@@ -122,4 +124,102 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   host.append(list);
   renderNextSteps(doc, next, read.next);
   return read;
+}
+
+// 개편 v2 (3g): 실질 종목 수 · 시장 민감도 β in the hero and the three 읽는 법 cards beside the holdings. Every figure comes
+// from the stored holdings (surface rows in the base currency), the book's own weekly regression on its home index
+// (stress-sensitivity.js, inputs handed over by the legacy stress panel) and the published S&P 500 weights
+// (public-data/sp500-weights.json, IVV holdings). No holdings → nothing renders; a missing input says 없음.
+const SECTOR_CONCENTRATION_BAND = 40; // the exposure panel's internal band (js/aio-workspace.js, >40% 섹터 집중)
+let sp500Weights = null;
+let sp500Requested = false;
+function requestSp500Weights(root, onReady) {
+  if (sp500Requested) return;
+  sp500Requested = true;
+  const fetchFn = root?.fetch || globalThis.fetch;
+  if (typeof fetchFn !== 'function') return;
+  loadJsonArtifact(fetchFn.bind(root || globalThis), './public-data/sp500-weights.json', { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 512 * 1024 })
+    .then((data) => { if (data && Array.isArray(data.rows)) { sp500Weights = data; onReady?.(); } })
+    .catch(() => {});
+}
+
+export function portfolioLens({ surface, stressInput = null, history = [], sp500 = null, sectorLabel = (name) => name } = {}) {
+  const rows = (Array.isArray(surface?.rows) ? surface.rows : []).filter((row) => Number(row?.value) > 0);
+  const total = rows.reduce((sum, row) => sum + Number(row.value), 0);
+  if (!rows.length || !(total > 0) || surface?.currencyState === 'mixed-without-conversion') return { available: false };
+  const weights = rows.map((row) => ({ symbol: String(row.symbol || '').toUpperCase(), w: Number(row.value) / total }));
+  const effectiveN = 1 / weights.reduce((sum, item) => sum + item.w * item.w, 0);
+  let beta = null;
+  let betaNote = '보유 종목 가격 기록을 받으면 계산합니다';
+  if (stressInput?.historyMap && Array.isArray(stressInput.commonDates)) {
+    const book = Object.fromEntries(weights.map((item) => [item.symbol, item.w]));
+    const est = estimateBookSensitivities({ historyMap: stressInput.historyMap, commonDates: stressInput.commonDates, weights: book, history });
+    if (est.available && est.fits?.equity) { beta = est.fits.equity.beta; betaNote = `${est.weeks}주 주간 수익률 · 설명력 R² ${est.fits.equity.r2 == null ? '—' : est.fits.equity.r2.toFixed(2)}`; }
+    else betaNote = est.reason === 'weeks-insufficient' ? `겹치는 가격 기록 ${est.weeks}주 — ${STRESS_MIN_WEEKS}주 이상 필요` : '가격 기록이 있는 종목이 80%에 못 미침';
+  }
+  // Sector shares of the stock part (the same rows and values as the weights; cash is not needed for this reading).
+  const sectorShares = new Map();
+  for (const row of rows) { const name = row.sector || 'Unclassified'; sectorShares.set(name, (sectorShares.get(name) || 0) + Number(row.value) / total * 100); }
+  const topSector = [...sectorShares.entries()].map(([name, pct]) => ({ name, pct })).sort((a, b) => b.pct - a.pct).find((item) => item.name !== 'Unclassified') || null;
+  let index = null;
+  if (sp500?.rows?.length) {
+    const bySym = new Map(sp500.rows.map((row) => [String(row.sym || '').toUpperCase(), Number(row.weight)]));
+    const top10 = [...sp500.rows].sort((a, b) => b.weight - a.weight).slice(0, 10);
+    const top10Set = new Set(top10.map((row) => String(row.sym).toUpperCase()));
+    index = {
+      asOf: sp500.asOf || null,
+      memberShare: weights.filter((item) => bySym.has(item.symbol)).reduce((sum, item) => sum + item.w, 0) * 100,
+      top10Share: weights.filter((item) => top10Set.has(item.symbol)).reduce((sum, item) => sum + item.w, 0) * 100,
+      top10IndexWeight: top10.reduce((sum, row) => sum + Number(row.weight || 0), 0)
+    };
+  }
+  return { available: true, holdings: rows.length, effectiveN, beta, betaNote, topSector: topSector ? { name: sectorLabel(topSector.name), pct: topSector.pct } : null, index };
+}
+
+export function renderPortfolioLens({ documentRef: doc, root, surface, checks = null, sectorLabel = (name) => name }) {
+  const aside = doc?.getElementById('pf-reading');
+  const set = (id, text) => { const node = doc?.getElementById(id); if (node) node.textContent = text; return node; };
+  requestSp500Weights(root, () => renderPortfolioLens({ documentRef: doc, root, surface: root?._aioPortfolioSurface || surface, checks, sectorLabel }));
+  const lens = portfolioLens({ surface, stressInput: root?._aioPortfolioStressInput || null, history: root?._aioHistory || [], sp500: sp500Weights, sectorLabel });
+  if (!lens.available) {
+    set('pf-effective-n', '—'); set('pf-beta', '—');
+    if (aside) { aside.hidden = true; aside.replaceChildren(); }
+    return lens;
+  }
+  set('pf-effective-n', `${lens.effectiveN.toFixed(1)}개`);
+  set('pf-effective-n-note', `평가액 있는 ${lens.holdings}종목 · 1 ÷ Σ비중²`);
+  set('pf-beta', lens.beta == null ? '없음' : lens.beta.toFixed(2));
+  set('pf-beta-note', lens.beta == null ? lens.betaNote : `시장 1% 움직일 때 평균 ${lens.beta.toFixed(2)}% · ${lens.betaNote}`);
+  if (!aside) return lens;
+  const card = (title, value, tone, text) => {
+    const node = el(doc, 'section', null, 'pf-reading-card');
+    const head = el(doc, 'div', null, 'pf-reading-head');
+    head.append(el(doc, 'span', title), el(doc, 'span', value, `pf-reading-value${tone ? ` is-${tone}` : ''}`));
+    node.append(head, el(doc, 'p', text));
+    return node;
+  };
+  const cards = [];
+  if (lens.topSector) {
+    const heavy = lens.topSector.pct > SECTOR_CONCENTRATION_BAND;
+    const spread = lens.effectiveN < lens.holdings - 0.5
+      ? ` 실질 종목 수가 ${lens.effectiveN.toFixed(1)}개로 보유 수(${lens.holdings}개)보다 적은 것은 비중이 몇 종목에 몰려 있기 때문입니다.`
+      : ` 비중이 고르게 나뉘어 실질 종목 수(${lens.effectiveN.toFixed(1)}개)가 보유 수와 비슷합니다.`;
+    cards.push(card(`${lens.topSector.name} 비중`, `${lens.topSector.pct.toFixed(0)}%`, heavy ? 'burden' : null, `가장 큰 섹터가 주식 평가액의 ${lens.topSector.pct.toFixed(0)}%입니다${heavy ? '(내부 구간 40% 초과)' : ''}.${spread}`));
+  }
+  if (lens.index || lens.beta != null) {
+    const parts = [];
+    if (lens.index) parts.push(`보유액의 ${lens.index.memberShare.toFixed(0)}%가 S&P 500 구성 종목이고, 지수 비중 상위 10종목(지수의 ${lens.index.top10IndexWeight.toFixed(0)}%)에 ${lens.index.top10Share.toFixed(0)}%가 있습니다.`);
+    if (lens.beta != null) parts.push(`과거 주간 기준으로 보유 시장 지수가 1% 움직일 때 이 계좌는 평균 ${lens.beta.toFixed(2)}% 움직였습니다 — 예측이 아니라 지난 관계입니다.`);
+    else parts.push(`시장 민감도 β는 없음 — ${lens.betaNote}.`);
+    cards.push(card('지수와의 관계', lens.beta != null ? `β ${lens.beta.toFixed(2)}` : lens.index ? `상위 10 ${lens.index.top10Share.toFixed(0)}%` : '없음', null, parts.join(' ')));
+  }
+  const single = checks?.checks?.find?.((check) => check.id === 'single-holding');
+  if (single) cards.push(card('한 종목 쏠림', single.value, single.status === 'attention' ? 'burden' : null, single.detail));
+  aside.replaceChildren(el(doc, 'h2', '이 포트폴리오를 읽는 법', 'sx-card__title'), ...cards);
+  const evidence = el(doc, 'div', null, 'sx-evidence pf-reading-evidence');
+  evidence.append(el(doc, 'span', '근거 · Markowitz(1952) 분산 · 허핀달 지수(실질 종목 수) · CAPM 베타'), el(doc, 'span', `지수 비중 · iShares IVV 보유 ${lens.index?.asOf || '없음'}`), el(doc, 'span', '투자 권유 아님'));
+  aside.append(evidence);
+  aside.querySelector('h2').id = 'pf-reading-title';
+  aside.hidden = cards.length === 0;
+  return lens;
 }

@@ -1,0 +1,309 @@
+/* v58.53 개편 v2 — stock screens. Owned by the stock screen pass (imported from responsive.css); shared components live in soft-ui.css.
+   Sections: 1 종목 · 요약 (3d) · 2 종목 · 차트 (5f) · 3 종목 · 재무 공시 (5g) · 4 테마 · 섹터 (3f) · 5 테마 상세 ·
+   6 shared reading rows (tone colours: green = 우호, amber = 부담, ink = 중립 — red only for a falling price) · 7 breakpoints · 8 dark. */
+
+/* ═══ 1. 종목 · 요약 (3d) ═══════════════════════════════════════════════ */
+/* Header: symbol + name on one line, the price line under it (34 / 16 / 28px). */
+#page-ticker .sh-ticker-row-baseline { flex-direction: column; align-items: flex-start; gap: 6px; }
+#page-ticker .sh-ticker-detail-name-stack { flex-direction: row; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; }
+#page-ticker #ticker-hero-name { margin: 0; }
+#page-ticker #ticker-hero-fullname { font-size: 16px !important; color: var(--text-secondary) !important; }
+#page-ticker .sh-ticker-box { margin-left: 0; text-align: left; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+#page-ticker .v2-stock-price { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+#page-ticker #ticker-hero-chg { font-size: 15px; font-weight: 600; color: var(--text-secondary); }
+#page-ticker #ticker-hero-chg.up { color: var(--data-green); }
+#page-ticker #ticker-hero-chg.down { color: var(--data-red); }
+#page-ticker .v2-stock-ext { font-size: 12px; color: var(--text-muted); }
+#page-ticker .v2-stock-ext:empty { display: none; }
+#page-ticker #ticker-hero-pnl { order: 4; font-size: 12px; color: var(--text-muted); }
+#page-ticker #ticker-summary-price-basis { order: 3; }
+#page-ticker .entity-summary-price-basis { font-size: 13px; color: var(--text-muted); max-width: none; }
+#page-ticker #ticker-back-btn-main { height: 28px; min-height: 28px; padding: 0 12px !important; font-size: 13px !important; font-weight: 500; }
+
+/* Search: one soft row; with a symbol open it steps back (no section label). */
+#page-ticker .v2-stock-search {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 16px; padding: 10px;
+  background: var(--bg-card); border-radius: 16px; box-shadow: var(--sx-card-shadow);
+}
+#page-ticker .v2-stock-search > input { flex: 1 1 220px; min-width: 0; height: 36px; padding: 0 14px !important; font-size: 14px; text-transform: uppercase; }
+#page-ticker .v2-stock-search .sh-wrap-row { display: flex; flex-wrap: wrap; gap: 6px; }
+#page-ticker .v2-stock-search .q-chip {
+  height: 28px; padding: 0 12px; border: 0 !important; border-radius: 999px !important; background: var(--sx-ink-a06) !important;
+  color: var(--text-primary) !important; font-size: 13px; transition: background 120ms var(--sx-ease);
+}
+#page-ticker .v2-stock-search .q-chip:hover { background: var(--sx-ink-a08) !important; }
+#page-ticker .v2-stock-search .sh-ticker-btn { height: 36px; border-radius: 999px !important; border: 0 !important; background: var(--text-primary) !important; color: var(--bg-base) !important; padding: 0 16px; font-weight: 600; }
+#page-ticker:not(.is-empty) .aio-section:has(> .v2-stock-search) > .aio-section-hd { display: none; }
+
+/* ① Hero: the reading in one line, four checks, the 52-week bar. */
+#page-ticker #ticker-read.stock-read { border: 0; padding: 0; margin: 0 0 18px; display: flex; flex-direction: column; gap: 14px; }
+.v2-stock-hero { display: flex; flex-direction: column; gap: 16px; }
+.v2-stock-hero .sx-kicker { margin-bottom: -8px; }
+.page .v2-stock-lede { margin: 0; max-width: 46em; font-size: 18px; font-weight: 600; line-height: 1.55; letter-spacing: -0.01em; text-wrap: pretty; }
+.v2-stock-hero .briefing-footnote { margin: -8px 0 0; }
+.v2-stock-checks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.v2-stock-check { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 14px 16px; border-radius: 16px; background: var(--sx-ink-a03); }
+.v2-stock-check__head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.v2-stock-check__name { font-size: 13px; color: var(--text-secondary); }
+.v2-stock-check__value { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: var(--text-primary); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.v2-stock-check__detail { font-size: 12px; line-height: 1.5; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.v2-stock-hero .stock-read-range { display: flex; flex-direction: column; gap: 8px; }
+.v2-stock-hero .stock-read-vis-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.page .v2-stock-hero .stock-read-scale { margin: 0; }
+.page .v2-stock-hero .stock-read-track {
+  flex: none; margin: 0 0 6px; height: 8px; border-radius: 999px;
+  background: linear-gradient(90deg, rgba(var(--ink-rgb), 0.06), rgba(var(--ink-rgb), 0.14));
+}
+.page .v2-stock-hero .stock-read-marker {
+  top: -5px; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%;
+  background: var(--bg-card); box-shadow: 0 0 0 2px var(--text-primary), 0 2px 6px rgba(33, 29, 22, 0.2);
+}
+
+/* ② Two cards: the index comparison and the rest of the reading. */
+.v2-stock-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.v2-stock-pair > :only-child { grid-column: 1 / -1; }
+.v2-stock-card .stock-read-relative { margin: 0; }
+.v2-stock-card .stock-read-vis-title { display: none; }
+.v2-stock-card .stock-read-points { gap: 10px; }
+.page .v2-stock-card .stock-read-point { grid-template-columns: 84px minmax(0, 1fr); }
+.stock-read-theme-line { display: block; }
+.stock-return-signed-track { border-radius: 999px; background: var(--sx-ink-a05); }
+.stock-return-signed-bar { border-radius: 999px; }
+.stock-return-signed-bar.is-bench { background: rgba(var(--ink-rgb), 0.28); }
+
+/* ③ Folded long form + ④ evidence line. */
+.v2-stock-fold.sx-disclosure > summary { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.v2-stock-fold.sx-disclosure > .stock-read-points { padding: 0 16px 16px; }
+.v2-stock-evidence { padding: 0 4px; margin: 0; }
+
+/* Identity, company summary and the price panel follow the reading as soft cards. */
+#page-ticker .entity-business-profile { margin: 0 0 16px; padding: 20px 22px; border: 0; border-radius: 20px; background: var(--bg-card); box-shadow: var(--sx-card-shadow); }
+#page-ticker > #ticker-price-panel { margin: 0 0 18px; }
+.company-analysis-route { border: 0 !important; border-radius: 14px !important; background: var(--sx-ink-a03) !important; transition: background 120ms var(--sx-ease); }
+.company-analysis-route:hover, .company-analysis-route:focus-visible { background: var(--sx-ink-a06) !important; }
+
+/* ═══ 2. 종목 · 차트 (5f) ═══════════════════════════════════════════════ */
+/* ① the chart is the hero card; ② three reading cards; ③ reading, scenarios and volume zones as cards; ④ evidence fold. */
+#page-technical #stock-chart-section { border: 0; padding: 0; margin: 0 0 18px; }
+#page-technical .stock-chart-head { align-items: baseline; gap: 6px 12px; margin: 0 0 10px; }
+#page-technical .stock-chart-head .briefing-h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+#page-technical #stock-chart-status { font-size: 13px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+#page-technical .stock-chart-intervals.sx-seg { display: inline-flex; flex-wrap: wrap; gap: 0; margin: 0 0 12px; }
+#page-technical .stock-chart-intervals.sx-seg > button { border: 0 !important; background: transparent; padding: 0 12px !important; }
+#page-technical .stock-chart-intervals.sx-seg > button[aria-pressed="true"] { background: var(--bg-card) !important; color: var(--text-primary) !important; font-weight: 600; box-shadow: 0 1px 3px rgba(33, 29, 22, 0.12); }
+#page-technical .stock-chart-layout { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+#page-technical .stock-chart-layout > div:first-child {
+  min-width: 0; padding: 20px 24px 14px; border-radius: 24px; background: var(--bg-card); box-shadow: var(--sx-hero-shadow);
+}
+#page-technical .stock-chart-canvas { height: 420px; }
+#page-technical .stock-chart-legend { gap: 6px 18px; }
+#page-technical #stock-chart-evidence.stock-chart-evidence {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start;
+  background: transparent !important; border-radius: 0 !important; padding: 0;
+}
+#page-technical #stock-chart-evidence > .empty-state { grid-column: 1 / -1; }
+.v2-chart-reads { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.v2-chart-read { display: flex; flex-direction: column; gap: 6px; padding: 18px 20px; }
+.v2-chart-read__name { font-size: 13px; color: var(--text-secondary); }
+.v2-chart-read__value { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+.v2-chart-read__detail { font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+.v2-chart-read__ref { font-size: 12px; color: var(--text-muted); }
+#page-technical :is(.v2-chart-body, .chart-scenarios, .chart-volume-profile) {
+  margin: 0; padding: 20px 22px; border: 0; border-radius: 20px; background: var(--bg-card); box-shadow: var(--sx-card-shadow); min-width: 0;
+}
+#page-technical .v2-chart-body { display: flex; flex-direction: column; gap: 10px; }
+#page-technical .chart-read-headline { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.55; color: var(--text-primary); }
+#page-technical :is(.chart-read-why, .chart-read-market, .regime-flip) { margin: 0; font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
+#page-technical .chart-scenarios h3, #page-technical .chart-volume-profile h3 { margin: 0 0 4px; font-size: 16px; font-weight: 700; }
+#page-technical .chart-scenario { padding: 10px 0 0; }
+#page-technical .chart-volume-track { border-radius: 999px; background: var(--sx-ink-a05); overflow: hidden; }
+#page-technical .chart-volume-track > span { border-radius: 999px; background: var(--text-primary); opacity: 0.7; }
+#page-technical .chart-analysis-logic { grid-column: 1 / -1; margin: 0; padding: 0 4px; border: 0; }
+#page-technical .chart-evidence-more > summary { font-size: 13px; color: var(--text-secondary); }
+#page-technical .chart-stage-step, #page-technical .chart-template-dot { border-radius: 10px; }
+#page-technical #tech-regime-summary { padding: 20px 22px; border-radius: 20px; background: var(--bg-card); box-shadow: var(--sx-card-shadow); }
+#page-technical .tech-regime-overall { font-family: var(--font-sans); font-size: 20px; font-weight: 700; }
+#page-technical #stock-chart-section > .briefing-footnote { margin: 10px 4px 0; font-size: 12px; color: var(--text-muted); }
+
+/* ═══ 3. 종목 · 재무 공시 (5g) ═══════════════════════════════════════════ */
+#page-fundamental #fund-flow.fiscal-read { border: 0; padding: 0; margin: 0 0 18px; display: flex; flex-direction: column; gap: 14px; }
+.v2-fiscal-hero { display: flex; flex-direction: column; gap: 10px; }
+.v2-fiscal-hero .fiscal-period-basis { margin: 0; font-size: 12px; color: var(--text-muted); }
+.v2-fiscal-pair { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+.v2-fiscal-pair > :only-child { grid-column: 1 / -1; }
+.v2-fiscal-chart, .v2-fiscal-quality, .v2-fiscal-reading { min-width: 0; }
+.page .v2-fiscal-chart .fiscal-quality-chart .fiscal-bars { grid-auto-columns: minmax(78px, 1fr); gap: 8px; }
+.page .v2-fiscal-chart .fiscal-year { white-space: normal; text-align: center; }
+#page-fundamental .fiscal-quarters.sx-card, #page-fundamental .fiscal-peers.sx-card { margin: 0; min-width: 0; }
+#page-fundamental .fiscal-quarters .briefing-read-headline, #page-fundamental .fiscal-peers .briefing-read-headline { font-size: 16px; }
+#page-fundamental .fiscal-bar { border-radius: 6px 6px 2px 2px; }
+#page-fundamental .fiscal-bar.is-revenue { background: rgba(var(--ink-rgb), 0.16); }
+#page-fundamental .fiscal-bar.is-income { background: var(--text-primary); }
+#page-fundamental .fiscal-legend .is-revenue::before { background: rgba(var(--ink-rgb), 0.16); }
+#page-fundamental .fiscal-legend .is-income::before { background: var(--text-primary); }
+.v2-fiscal-rows { display: flex; flex-direction: column; }
+.v2-fiscal-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px 12px; padding: 14px 2px; border-top: 1px solid rgba(var(--ink-rgb), 0.06); }
+.v2-fiscal-row:first-child { border-top: 0; padding-top: 4px; }
+.v2-fiscal-row__label { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.v2-fiscal-row__name { font-size: 14px; color: var(--text-primary); }
+.v2-fiscal-row__detail { font-size: 12px; color: var(--text-muted); }
+.v2-fiscal-row__value { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+.v2-fiscal-trend { grid-column: 1 / -1; display: flex; align-items: flex-end; gap: 10px; height: 92px; padding: 6px 4px 0; }
+.v2-fiscal-trend__col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%; min-width: 0; }
+.v2-fiscal-trend__bar { width: 100%; max-width: 40px; border-radius: 6px 6px 2px 2px; background: rgba(var(--ink-rgb), 0.22); }
+.v2-fiscal-trend__col:last-child .v2-fiscal-trend__bar { background: var(--text-primary); }
+.v2-fiscal-trend__bar.is-low { background: var(--data-amber) !important; opacity: 0.7; }
+.v2-fiscal-trend__bar.is-na { background: rgba(var(--ink-rgb), 0.08) !important; }
+.v2-fiscal-trend__value, .v2-fiscal-trend__year { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.v2-fiscal-trend__value { color: var(--text-secondary); font-weight: 600; }
+.v2-fiscal-principle { margin: 8px -6px 0; }
+.v2-fiscal-principle > summary { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.v2-fiscal-principle .sx-disclosure__body { grid-template-columns: minmax(0, 1fr); }
+.v2-fiscal-quality > .sx-evidence { padding: 10px 0 0; }
+/* Search and status: one soft row under the header. */
+#page-fundamental .sh-fund-row { flex: 1; }
+#page-fundamental #fund-search-input { height: 36px; width: 100%; padding: 0 14px !important; }
+#page-fundamental .sh-fund-btn { height: 36px; padding: 0 16px; border: 0 !important; border-radius: 999px !important; background: var(--text-primary) !important; color: var(--bg-base) !important; font-weight: 600; }
+#page-fundamental #fund-native-sec-report, #page-fundamental #fund-legacy-fold { border: 0 !important; border-radius: 14px !important; background: var(--sx-ink-a03) !important; padding: 12px 16px !important; margin-top: 12px; }
+
+/* ═══ 4. 테마 · 섹터 (3f) ═══════════════════════════════════════════════ */
+#page-themes .v2-themes-verdict { border: 0; padding: 0; margin: 0 0 22px; display: flex; flex-direction: column; gap: 14px; }
+.v2-themes-hero { display: flex; flex-direction: column; gap: 6px; padding: 22px 28px; }
+.v2-themes-hero .sx-kicker { margin: 0; font-size: 13px !important; font-weight: 600 !important; letter-spacing: 0 !important; }
+.v2-themes-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+.v2-themes-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.v2-themes-rrg { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+#page-themes .sh-themes-rrg-canvas-panel { border: 0; border-radius: 16px; background: transparent; }
+#page-themes .sh-themes-rrg-plot-text { margin: 0 0 6px; }
+#page-themes .sh-themes-rrg-quadrant-fold { margin-top: 6px; border-top: 1px solid rgba(var(--ink-rgb), 0.06); padding-top: 10px; }
+#page-themes .sh-themes-rrg-quadrant-cols { gap: 10px; margin-top: 10px; }
+#page-themes .thp-quadrant-card { border: 0; border-radius: 14px; background: var(--sx-ink-a03); }
+#page-themes .thp-chip { border: 0; border-radius: 999px; background: var(--bg-card); box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.08); }
+#page-themes .thp-chip.thp-chip--detail { box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.16); }
+.v2-themes-principle { display: flex; flex-direction: column; gap: 10px; }
+.v2-themes-principle .sx-disclosure__text { font-size: 13px; line-height: 1.75; text-wrap: pretty; }
+.v2-themes-principle .v2-themes-limit { color: var(--text-secondary); }
+.v2-themes-evidence { padding: 0; margin: 0; }
+.v2-themes-top { padding-bottom: 0; overflow: hidden; }
+.v2-themes-top[hidden] { display: none; }
+.v2-themes-top__stale { margin: 0 16px 8px; height: auto; min-height: 22px; white-space: normal; padding: 3px 10px; font-size: 12px; }
+.v2-themes-top__list { list-style: none; margin: 0; padding: 0 0 6px; }
+.v2-themes-top__row { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto 66px; gap: 10px; align-items: center; padding: 9px 16px; font-size: 14px; }
+.v2-themes-top__rank { font-size: 13px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.v2-themes-top__name { display: flex; flex-direction: column; min-width: 0; }
+.v2-themes-top__name > b { font-weight: 600; overflow-wrap: anywhere; }
+.v2-themes-top__theme { font-size: 12px; color: var(--text-muted); }
+.v2-themes-top__value { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.v2-themes-top__value.is-up { color: var(--data-green); }
+.v2-themes-top__value.is-down { color: var(--data-red); }
+.v2-themes-top > .sx-row { padding: 13px 16px; font-size: 13px; }
+/* The sections under the verdict: soft cards instead of hairline panels. */
+#page-themes > .aio-section > .sh-themes-panel, #page-themes > .aio-section.sector-map, #page-themes > .aio-section.theme-strength, #page-themes > .aio-section.capex-flow:not(:empty),
+#page-themes > .aio-section.index-earnings, #page-themes > .aio-section.tp-section {
+  border: 0 !important; border-radius: 20px; background: var(--bg-card) !important; box-shadow: var(--sx-card-shadow); padding: 20px 22px;
+}
+#page-themes > .aio-section:is(.sector-map, .theme-strength, .capex-flow:not(:empty), .index-earnings, .tp-section) { margin: 0 0 18px; }
+/* 테마 시나리오 map: 부담 wind is amber (red stays for falling prices). */
+:is(#page-themes, #page-theme-detail) :is(.tp-dot, .tp-swatch).is-head { fill: var(--data-amber); background: var(--data-amber); }
+#page-themes .thp-perf-row { min-height: 24px; gap: 6px; }
+#page-themes .thp-perf-bar { height: 10px; }
+#page-themes .thp-perf-bar--up { border-radius: 0 999px 999px 0; }
+#page-themes .thp-perf-bar--down { border-radius: 999px 0 0 999px; }
+#page-themes .thp-perf-value { font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
+#page-themes .thp-perf-badge { width: 84px; font-weight: 600; }
+#page-themes .theme-strength-tab { border-radius: 8px; }
+#page-themes .theme-strength-compare { border-radius: 999px; }
+#page-themes .aio-page-advanced-toggle { border-radius: 14px; }
+
+/* ═══ 5. 테마 상세 ═══════════════════════════════════════════════════════ */
+:is(#page-themes, #page-theme-detail) #theme-detail-panel, #page-theme-detail .theme-detail-native-section:not([hidden]) {
+  border: 0 !important; border-radius: 20px !important; background: var(--bg-card) !important; box-shadow: var(--sx-card-shadow);
+}
+.page .thp-subtheme-card { border: 0; border-radius: 14px; background: var(--sx-ink-a03); padding: 12px 14px; }
+.page .thp-leader-card { border: 0; border-radius: 14px; background: var(--sx-ink-a03); padding: 10px 12px; transition: background 120ms var(--sx-ease); }
+.page .thp-leader-card:hover { background: var(--sx-ink-a06); }
+.page .thp-ticker-chip { border-radius: 999px; padding: 2px 8px; }
+.page .thp-summary-title { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+#theme-detail-panel .flow-next { box-shadow: none !important; background: var(--sx-ink-a03) !important; }
+#theme-detail-panel .flow-next-list li { border-top-color: rgba(var(--ink-rgb), 0.06); }
+.page .thp-detail-heading { font-size: 13px; font-weight: 700; }
+
+/* Lessons and next steps on the stock and theme screens: soft cards and link rows (3d 'stockMore'). */
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .mg-lesson {
+  border: 0; border-radius: 18px; background: var(--bg-card); box-shadow: var(--sx-card-shadow); padding: 16px 18px; gap: 6px;
+}
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .mg-kind { border: 0 !important; border-radius: 999px; padding: 2px 9px; background: var(--sx-ink-a07); font-size: 12px; font-weight: 700; }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .mg-lesson[data-kind="trap"] .mg-kind { background: var(--sx-warn-bg); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .mg-lesson[data-kind="trust"] .mg-kind { background: var(--sx-good-bg); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next {
+  border-top: 0; margin: 24px 0 8px; padding: 18px 0 6px; background: var(--bg-card); border-radius: 20px; box-shadow: var(--sx-card-shadow); overflow: hidden;
+}
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next[hidden] { display: none; }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-title { padding: 0 24px 6px; font-size: 16px; font-weight: 700; }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-list { gap: 0; }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-list li {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 11px 48px 11px 24px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.06); transition: background 120ms var(--sx-ease);
+}
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-list li:hover { background: var(--sx-ink-a03); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-list li::after { content: '›'; position: absolute; right: 24px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 16px; }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-link { color: var(--text-primary); font-weight: 500; }
+/* the whole row answers the click: the button's hit area stretches over its row */
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-link::before { content: ''; position: absolute; inset: 0; }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-why { font-size: 12px; color: var(--text-muted); }
+
+/* ═══ 6. Shared reading rows on the stock and theme screens ════════════ */
+/* The legacy rows coloured a burden red and a neutral amber; v2 keeps red for falling prices only. */
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .stock-read-point.is-favorable { border-left-color: var(--data-green); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .stock-read-point.is-burden { border-left-color: var(--data-amber); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .stock-read-point.is-neutral { border-left-color: rgba(var(--ink-rgb), 0.14); }
+/* State capsules (셋업 상태, 시장 상태 칩, 순위 변화) read as sx chips: no outline, verdict colours without red. */
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .regime-state { border: 0; padding: 3px 10px; font-size: 12px; background: var(--sx-ink-a07); color: var(--text-secondary); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .regime-state.is-favorable { background: var(--sx-good-bg); color: var(--data-green); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .regime-state.is-burden { background: var(--sx-warn-bg); color: var(--data-amber); }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .regime-state.is-unknown { background: transparent; box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.14); color: var(--text-muted); }
+#page-fundamental .stock-read-bar.is-burden { background: var(--data-amber); }
+#page-technical .chart-template-dot.is-fail { background: var(--sx-warn-bg); color: var(--data-amber); }
+
+/* ═══ 7. Breakpoints (4a) ═══════════════════════════════════════════════ */
+@media (max-width: 1279px) {
+  .v2-stock-checks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .v2-themes-grid { grid-template-columns: minmax(0, 1fr); }
+  .v2-themes-side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+}
+@media (max-width: 1023px) {
+  .v2-stock-pair, .v2-fiscal-pair { grid-template-columns: minmax(0, 1fr); }
+  .v2-chart-reads { grid-template-columns: minmax(0, 1fr); }
+  #page-technical #stock-chart-evidence.stock-chart-evidence { grid-template-columns: minmax(0, 1fr); }
+  #page-technical .stock-chart-canvas { height: 360px; }
+}
+@media (max-width: 743px) {
+  .v2-stock-checks { gap: 8px; }
+  .v2-stock-check { padding: 12px 14px; }
+  .v2-stock-check__value { font-size: 16px; }
+  .page .v2-stock-lede { font-size: 17px; }
+  .v2-stock-hero, .v2-fiscal-hero, .v2-themes-hero { padding: 20px 18px; }
+  .v2-themes-side { display: flex; }
+  .page .v2-stock-card .stock-read-point { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  #page-ticker .v2-stock-price { font-size: 26px; }
+  #page-ticker .v2-stock-search .sh-wrap-row { width: 100%; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
+  #page-ticker .v2-stock-search .q-chip { flex: 0 0 auto; min-height: 36px; }
+  #page-technical .stock-chart-canvas { height: 300px; }
+  #page-technical .stock-chart-layout > div:first-child { padding: 14px 12px 10px; }
+  #page-technical .stock-chart-intervals.sx-seg { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+  #page-technical .stock-chart-intervals.sx-seg > button { flex: 0 0 auto; }
+  .v2-themes-top__row { grid-template-columns: 20px minmax(0, 1fr) 62px; }
+  .v2-themes-top__row > .sx-chip { display: none; }
+  #page-themes .thp-perf-badge { width: 62px; padding-left: 2px; }
+  #page-themes .thp-perf-label { width: 54px; }
+  #page-themes > .aio-section > .sh-themes-panel { padding: 16px 12px; }
+  :is(#page-ticker, #page-technical, #page-fundamental, #page-themes) .flow-next-list li { padding: 12px 40px 12px 18px; min-height: 44px; }
+  :is(#page-ticker, #page-technical, #page-fundamental, #page-themes) .flow-next-title { padding: 0 18px 6px; }
+}
+@media (pointer: coarse) {
+  #page-technical .stock-chart-intervals.sx-seg > button, .v2-themes-top > .sx-row { min-height: 44px !important; }
+}
+
+/* ═══ 8. Dark ════════════════════════════════════════════════════════════ */
+body.dark-theme .page .v2-stock-hero .stock-read-marker { box-shadow: 0 0 0 2px var(--text-primary), 0 2px 6px rgba(0, 0, 0, 0.5); }
+body.dark-theme #page-technical .stock-chart-intervals.sx-seg > button[aria-pressed="true"] { background: var(--bg-elevated) !important; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); }

@@ -1,7 +1,7 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
-import { renderScreenerValidation } from '../components/screener-validation.js';
+import { renderScreenerValidation, readValidationState, renderValidationHero } from '../components/screener-validation.js';
 import { buildPopulationRankingIdentity, liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
 import { measuredCandidateEntries, summarizeCandidateArchive } from '../../domain/screener/candidate-record.js';
 import { renderScreenLessons } from '../components/screen-lessons.js';
@@ -47,7 +47,7 @@ import { bufferedTrend, trendHeldWithMargin, modelContraryEvidence } from '../..
 import { RULES } from '../../domain/rules/thresholds.js';
 import { sectorsForEtf } from '../../domain/entity/stock-read.js';
 import { consensusView, PE_MEANINGFUL_MAX } from '../../domain/fundamental/consensus-read.js';
-import { parseConditionValue, matchesConditions, conditionCoverage, availableConditionIds } from '../../domain/screener/custom-conditions.js';
+import { parseConditionValue, matchesConditions, conditionCoverage, availableConditionIds, conditionLabel } from '../../domain/screener/custom-conditions.js';
 import { installCustomConditions } from '../components/screener-custom.js';
 import { requestConsensusEstimates, consensusRowFor, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { sectorLabel } from '../../domain/screener/screener-read.js';
@@ -110,6 +110,8 @@ const REGIME_DESCRIPTIONS = {
 // prevents the old header/cell drift (for example, VCP under the wrong label).
 export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'watchlist', label: '관심·비교', sortable: false, align: 'center', width: 96, group: 'utility' },
+  // 개편 v2 (3c): the ordinal among ranked rows (the same number the inspector and the stock summary quote).
+  { key: 'screenRank', label: '전체 순위', hint: '같은 시장에서 순위가 매겨진 종목 사이의 순서 — 조건 화면과 표시 필터는 이 순서를 바꾸지 않습니다', sortable: true, align: 'left', width: 72, group: 'ranking' },
   // P1464: the value is a percentile among rows that pass the criteria — "점수 100" read as a perfect
   // score, so the header names what it is.
   { key: 'rank', label: '백분위', sortable: true, align: 'center', width: 72, group: 'ranking' },
@@ -126,6 +128,8 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'fwdPe', label: 'Forward PER', hint: '종가 ÷ 실적 발표 전 4개 분기 컨센서스 EPS 합(조정 EPS) — 점수에 쓰지 않는 참고값, 미국 종목만', sortable: true, align: 'right', width: 92, group: 'market' },
   { key: 'price', label: '가격', sortable: true, align: 'right', width: 86, group: 'market' },
   { key: 'pctFrom52wHigh', label: '52주 고점 대비', sortable: true, align: 'right', width: 96, group: 'market' },
+  // 개편 v2 (3c): where the last close sits between the 52-week low and high (both distances come from the artifact).
+  { key: 'range52', label: '52주 위치', hint: '52주 저점(왼쪽)과 고점(오른쪽) 사이에서 마지막 종가의 위치 — 같은 산출물의 저점·고점 대비 거리로 계산', sortable: true, align: 'left', width: 120, group: 'market' },
   { key: 'ret1m', label: '1개월', sortable: true, align: 'right', width: 70, group: 'market' },
   { key: 'ret3m', label: '3개월', sortable: true, align: 'right', width: 70, group: 'market' },
   { key: 'ret6m', label: '6M', sortable: true, align: 'right', width: 70, group: 'market' },
@@ -150,6 +154,8 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
 // above says the ranking does not yet distinguish later returns. The presets show the percentile once; 'grade'
 // stays in the registry for the 전체/직접 고른 컬럼.
 const COLUMN_PRESETS = Object.freeze({
+  // 개편 v2 (3c): the first screen — order, name, close, 1·3-month returns, 52-week position, percentile; 관심·비교 last.
+  overview: ['screenRank', 'sym', 'price', 'ret1m', 'ret3m', 'range52', 'rank', 'watchlist'],
   discovery: ['watchlist', 'rank', 'sym', 'price', 'pctFrom52wHigh', 'ret1m', 'ret3m', 'rsi', 'extension', 'vcpScore', 'followThrough'],
   fundamentals: ['watchlist', 'rank', 'sym', 'value', 'quality', 'fwdPe', 'price', 'pctFrom52wHigh', 'ret3m', 'news'],
   trend: ['watchlist', 'rank', 'sym', 'momentum', 'trend', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'extension', 'kalman', 'vcpScore', 'followThrough', 'entry'],
@@ -407,6 +413,18 @@ export function extensionMultiple(row) {
   return pct != null && adr != null && adr > 0 ? pct / adr : null;
 }
 
+// 개편 v2 (3c): 0 = at the 52-week low, 1 = at the high. pctFrom52wHigh ≤ 0 and pctFrom52wLow ≥ 0 are distances from the
+// last close, so low/close = 1/(1+L) and high/close = 1/(1+H); no price is needed. Missing or inconsistent → null.
+export function range52Position(row) {
+  const high = finite(row?.pctFrom52wHigh);
+  const low = finite(row?.pctFrom52wLow);
+  if (high == null || low == null || high > 0.05 || low < -0.05 || high <= -100 || low <= -100) return null;
+  const highRatio = 1 / (1 + high / 100);
+  const lowRatio = 1 / (1 + low / 100);
+  const span = highRatio - lowRatio;
+  return span > 0 ? Math.max(0, Math.min(1, (1 - lowRatio) / span)) : null;
+}
+
 let consensusRoot = globalThis;
 export function forwardPe(row) { return consensusView(row, consensusRowFor(consensusRoot, row?.sym || row?.symbol))?.fwdPe ?? null; }
 // 2026-10-14 custom conditions: a registered field is read through its readiness (as the factor columns are); the new
@@ -441,6 +459,7 @@ function sortKey(row, sortColumn, readLiveData) {
   if (sortColumn === 'extension') return extensionMultiple({ pctSma50: displayValue(row, 'pctSma50'), adrPct: displayValue(row, 'adrPct') });
   if (sortColumn === 'fwdPe') return forwardPe({ sym: displayValue(row, 'sym'), symbol: displayValue(row, 'symbol') });
   if (sortColumn === 'rank') return visibleRank({ screenStatus: displayValue(row, 'screenStatus'), rank: displayValue(row, 'rank') });
+  if (sortColumn === 'range52') return range52Position({ pctFrom52wHigh: displayValue(row, 'pctFrom52wHigh'), pctFrom52wLow: displayValue(row, 'pctFrom52wLow') });
   if (FACTOR_SORT_COLUMNS.has(sortColumn)) return displayValue(row, 'factorScores')?.[sortColumn];
   return displayValue(row, sortColumn);
 }
@@ -533,6 +552,26 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     return wrap;
   }
   if (key === 'rank') return createRankNode(documentRef, row, rankHold);
+  if (key === 'screenRank') {
+    const ordinal = rankHold || row.screenStatus !== 'passed' ? null : finite(row.screenRank);
+    const node = text(documentRef, ordinal == null ? '—' : String(ordinal));
+    node.className = 'scr-ordinal';
+    return node;
+  }
+  if (key === 'range52') {
+    const position = range52Position(row);
+    if (position == null) return '—';
+    const wrap = documentRef.createElement('span');
+    wrap.className = 'scr-range52';
+    wrap.title = `52주 저점 대비 ${returnText(row.pctFrom52wLow)} · 고점 대비 ${returnText(row.pctFrom52wHigh)} — 저점과 고점 사이 ${Math.round(position * 100)}% 지점`;
+    wrap.setAttribute('role', 'img');
+    wrap.setAttribute('aria-label', `52주 범위의 ${Math.round(position * 100)}% 지점`);
+    const dot = documentRef.createElement('span');
+    dot.className = 'scr-range52-dot';
+    dot.style.left = `${(position * 100).toFixed(1)}%`;
+    wrap.append(dot);
+    return wrap;
+  }
   if (key === 'grade') return rankGrade(visibleRank(row)) || '—';
   if (key === 'sym') {
     const identity = documentRef.createElement('div');
@@ -826,6 +865,143 @@ export function syncScreenerControlAvailability(documentRef, { rows = [], listin
         : `${MARKET_LABELS[listingMarket] || listingMarket} 팩터 자료가 최신 종가 기준이 아니어서 가중치 프로필을 계산하지 않습니다.`;
     }
   }
+}
+
+// 개편 v2 (3c): author·year evidence for the factors the score weights. Only the listed studies; a factor without one
+// (추세, 추세 속도, 밸류) shows its definition and weight only.
+const FACTOR_EVIDENCE = Object.freeze({
+  momentum: '중기(3~12개월) 승자가 이후에도 앞서던 경향(Jegadeesh·Titman 1993) — 여기서는 1·3·6개월 수익률을 섞어 씁니다',
+  lowvol: '변동성이 낮은 종목의 위험 대비 수익이 더 높던 저변동 이상 현상(Ang 외 2006, Frazzini·Pedersen 2014)',
+  quality: '수익성이 높은 기업이 장기 초과수익을 내던 경향(Novy-Marx 2013, 매출총이익 기준) — 여기서는 ROE·마진·매출성장'
+});
+
+// 개편 v2 (3c): the row's 1·3·6-month returns beside SPY's on the same close — one diverging scale, the gap on the right.
+function renderExcessBars(documentRef, row, benchmark) {
+  const section = documentRef.getElementById('scr-why-excess');
+  const host = documentRef.getElementById('scr-why-excess-bars');
+  if (!section || !host) return;
+  const windows = [['ret1m', '1개월'], ['ret3m', '3개월'], ['ret6m', '6개월']]
+    .map(([key, label]) => ({ key, label, stock: finite(row?.[key]), index: finite(benchmark?.[key]) }))
+    .filter((item) => item.stock != null && item.index != null);
+  section.hidden = !windows.length;
+  host.replaceChildren();
+  if (!windows.length) return;
+  // Review fix: a gap is drawn only when the row and SPY close on the same session; otherwise both dates are named.
+  const md = (value) => { const day = String(value || '').slice(0, 10); return /^\d{4}-\d{2}-\d{2}$/.test(day) ? `${Number(day.slice(5, 7))}/${Number(day.slice(8, 10))}` : null; };
+  const rowDay = md(row?.factorSessionDate);
+  const indexDay = md(benchmark?.factorSessionDate);
+  if (!rowDay || !indexDay || rowDay !== indexDay) {
+    const note = documentRef.createElement('p');
+    note.className = 'sx-meta scr-excess-legend';
+    note.textContent = `종목 종가(${rowDay || '날짜 미확인'})와 S&P 500(SPY) 종가(${indexDay || '날짜 미확인'})의 기준일이 같지 않아 차이를 그리지 않습니다.`;
+    host.append(note);
+    return;
+  }
+  const max = Math.max(1, ...windows.flatMap((item) => [Math.abs(item.stock), Math.abs(item.index)]));
+  const bar = (value, kind) => {
+    const track = documentRef.createElement('span');
+    track.className = `scr-excess-track is-${kind}`;
+    const fill = documentRef.createElement('span');
+    fill.className = 'scr-excess-fill';
+    fill.style.width = `${Math.min(50, Math.abs(value) / max * 50).toFixed(1)}%`;
+    fill.style[value >= 0 ? 'left' : 'right'] = '50%';
+    track.append(fill);
+    return track;
+  };
+  for (const item of windows) {
+    const gap = item.stock - item.index;
+    const line = documentRef.createElement('div');
+    line.className = 'scr-excess-row';
+    line.title = `${item.label} 종목 ${returnText(item.stock)} · S&P 500(SPY) ${returnText(item.index)}`;
+    const label = documentRef.createElement('span');
+    label.className = 'scr-excess-label';
+    label.textContent = item.label;
+    const bars = documentRef.createElement('span');
+    bars.className = 'scr-excess-bars';
+    bars.append(bar(item.stock, 'stock'), bar(item.index, 'index'));
+    const value = documentRef.createElement('span');
+    value.className = `scr-excess-value ${gap >= 0 ? 'sx-up' : 'scr-tone-burden'}`;
+    value.textContent = `${gap >= 0 ? '+' : '−'}${Math.abs(gap).toFixed(1)}%p`;
+    line.append(label, bars, value);
+    host.append(line);
+  }
+  const legend = documentRef.createElement('p');
+  legend.className = 'sx-meta scr-excess-legend';
+  legend.textContent = `진한 막대 = 종목 · 옅은 막대 = S&P 500(SPY) · 오른쪽 = 차이 · 둘 다 ${rowDay} 종가`;
+  host.append(legend);
+}
+
+// 개편 v2 (3c/5h): the validation state before the table (amber banner) and the 사후 검증 summary. One reading of the
+// same back-test the 과거 검증 panel details: the gate file's status, the net top-minus-bottom spread, the net count of
+// rebalances the top fifth led, and whether the sample can decide (12 rebalances and |t| ≥ 2).
+function renderValidationState(documentRef, root, metadata, listingMarket) {
+  const banner = documentRef.getElementById('scr-validation-banner');
+  const read = readValidationState({ metadata, root, listingMarket });
+  if (banner) {
+    banner.hidden = false;
+    banner.dataset.validationState = read.state;
+    const chips = documentRef.createElement('span');
+    chips.className = 'sx-chips scr-banner-chips';
+    for (const label of read.chips) {
+      const chip = documentRef.createElement('span');
+      chip.className = 'sx-chip sx-chip--sm sx-chip--warn';
+      chip.textContent = label;
+      chips.append(chip);
+    }
+    const textNode = documentRef.createElement('span');
+    textNode.className = 'scr-banner-text';
+    textNode.textContent = read.sentence;
+    const link = documentRef.createElement('button');
+    link.type = 'button';
+    link.className = 'sx-link scr-banner-link';
+    link.dataset.aioScreenerAction = 'tab';
+    link.dataset.aioScreenerArg = 'backtest';
+    link.textContent = '검증 보기 ›';
+    banner.replaceChildren(chips, textNode, link);
+  }
+  renderValidationHero({ documentRef, read });
+  const compact = documentRef.getElementById('scr-backtest-summary-compact');
+  if (compact) compact.textContent = read.chips.join(' · ') || '사후 검증 보기';
+}
+
+// 개편 v2 (5i): what is left after each chosen condition, in order (판정 가능 = rows that carry the condition's data).
+let customSummarySignature = '';
+function renderCustomSummary(documentRef, { scopeRows = [], custom = [], coverage = [], shown = 0, listingMarket = 'US' } = {}) {
+  const host = documentRef.getElementById('scr-custom-summary');
+  if (!host) return;
+  const total = scopeRows.length;
+  const steps = [];
+  let remaining = scopeRows;
+  custom.forEach((condition, index) => {
+    remaining = remaining.filter((row) => matchesConditions(row, [condition], customRead));
+    const withData = coverage.find((item) => item.id === condition.id)?.withData;
+    steps.push({ label: `${index ? '+ ' : ''}${conditionLabel(condition)}${withData != null && withData < total ? ` (판정 가능 ${withData})` : ''}`, count: remaining.length });
+  });
+  const signature = JSON.stringify([listingMarket, total, steps, shown]);
+  if (signature === customSummarySignature && host.childNodes.length) return;
+  customSummarySignature = signature;
+  const make = (tag, textValue, className) => { const node = documentRef.createElement(tag); if (textValue != null) node.textContent = textValue; if (className) node.className = className; return node; };
+  const nodes = [make('span', steps.length ? '조건을 모두 충족' : '조건 없음 · 전체 종목', 'sx-meta'), make('strong', `${steps.length ? remaining.length : total}종목`, 'scr-custom-total')];
+  const bars = make('div', null, 'scr-custom-funnel');
+  for (const step of [{ label: `전체 유니버스 · ${MARKET_LABELS[listingMarket] || listingMarket}`, count: total }, ...steps]) {
+    const line = make('div', null, 'scr-custom-step');
+    const head = make('div', null, 'scr-custom-step-head');
+    head.append(make('span', step.label), make('b', String(step.count)));
+    const track = make('div', null, 'sx-factor__bar');
+    const fill = make('span');
+    fill.style.width = `${total ? Math.max(step.count ? 1 : 0, step.count / total * 100).toFixed(1) : 0}%`;
+    track.append(fill);
+    line.append(head, track);
+    bars.append(line);
+  }
+  nodes.push(bars);
+  nodes.push(make('p', steps.length ? `표에 남는 종목 ${shown}개 — 실행 통과·섹터·검색 같은 다른 필터까지 적용한 수입니다. 겹친 조건은 과거 성과로 검증한 규칙이 아닙니다.` : '조건을 고르면 조건마다 남는 종목 수가 여기에 쌓입니다.', 'sx-meta scr-custom-foot'));
+  const go = make('button', '결과 보기', 'sx-btn sx-btn--primary scr-custom-go');
+  go.type = 'button';
+  go.dataset.aioScreenerAction = 'view';
+  go.dataset.aioScreenerArg = 'rank';
+  nodes.push(go);
+  host.replaceChildren(...nodes);
 }
 
 function renderStaleNote(documentRef, body) {
@@ -1522,7 +1698,17 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     availableCache = { rows: scopeRows.length, market: listingMarket, source: rows, ids: availableConditionIds(scopeRows, customRead) };
     if (listingMarket === 'US') availableCache.ids.add('fwdpe-max');
   }
-  customPanel?.update(conditionCoverage(scopeRows, custom, customRead), filtered.length, availableCache.ids);
+  const coverageCounts = conditionCoverage(scopeRows, custom, customRead);
+  customPanel?.update(coverageCounts, filtered.length, availableCache.ids);
+  renderCustomSummary(documentRef, { scopeRows, custom, coverage: coverageCounts, shown: filtered.length, listingMarket });
+  {
+    // 개편 v2 (3c): the sector select reads as a chip; a chosen sector shows its clear button.
+    const sectorValue = selectedValue(documentRef, 'scr-sector');
+    const chip = page.querySelector('.scr-sector-chip');
+    if (chip) chip.classList.toggle('is-set', !!sectorValue);
+    const clear = page.querySelector('.scr-chip-clear');
+    if (clear) clear.hidden = !sectorValue;
+  }
   if (visibleColumns.some((column) => column.key === 'fwdPe') || sortState.column === 'fwdPe' || custom.some((item) => item.id === 'fwdpe-max')) requestConsensusEstimates(root, onDataChange);
   const table = documentRef.getElementById('screener-results-table');
   renderTableHeader(documentRef, table, visibleColumns, sortState);
@@ -1707,6 +1893,9 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   const passedCount = allRows.filter(row => row.screenStatus === 'passed').length;
   const unavailableCount = allRows.filter(row => row.screenStatus === 'unavailable').length;
   const previewConditions = preview?.definition ? describeFilterAst(preview.definition) : null;
+  // 개편 v2 (3c): the kicker states the collected and computable counts once, before the close basis.
+  const kickerCounts = documentRef.getElementById('scr-kicker-counts');
+  if (kickerCounts) kickerCounts.textContent = state?.status === 'unavailable' || !allRows.length ? '' : `${allRows.length}종목 수집 · ${readyCount}종목 필수 필드 충족 · `;
   // P1167 (15 D05): 정적 유니버스가 MIC·assetType을 발행하지 않으면 식별 미확인 행이 남는다. 가격 조회
   // 성공과 식별 metadata 확인을 같은 것으로 읽지 않도록 미확인 수와 누락 필드를 함께 표시한다.
   const identityGaps = allRows.filter((row) => row.identityValidation && row.identityValidation.ok === false);
@@ -1770,6 +1959,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   renderFactorTab(documentRef, state?.metadata);
   renderBacktest(documentRef, state?.metadata, root, scopedRows(state?.rows || [], listingMarket));
   renderConditionalEvidence(documentRef, state?.metadata);
+  renderValidationState(documentRef, root, state?.metadata, listingMarket);
   page.querySelectorAll('[data-scr-sort]').forEach((header) => {
     const arrow = header.querySelector('.scr-arrow');
     const active = header.dataset.scrSort === sortState.column;
@@ -1789,7 +1979,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
   // check (GME·AMC led the list), so it is applied when a reader picks a preset, not as the default reading.
   const sortState = { column: 'mcap', ascending: false };
   const visibleLimit = { value: 12 };
-  const columnState = { preset: 'discovery', custom: [] };
+  const columnState = { preset: 'overview', custom: [] };
   const selectedSymbols = new Set();
   const compareSymbols = new Set();
   // Controls own the visual conditions. A second mutable chip array drifted
@@ -1840,9 +2030,11 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         const summary = documentRef.createElement('summary'); summary.textContent = '순위가 계산되는 방식';
         const explanation = documentRef.createElement('p'); explanation.textContent = '모멘텀은 1개월·3개월·6개월 수익률을 40%·40%·20%로, 추세는 50일선·200일선 대비 거리를 60%·40%로 묶습니다. 각 팩터를 같은 시장의 업종 내 분포로 조정한 뒤 선택한 비중으로 합산합니다. 표본이 작은 업종은 같은 시장 전체 분포를 함께 씁니다. 높은 추세 값은 이동평균에서 멀다는 뜻도 있으므로 과열·변동폭과 함께 읽습니다. 3개월 수익률 정렬은 이 합산과 별도로 실제 수익률을 비교합니다. 필수 자료가 없거나 선택 조건을 통과하지 못하면 순위를 보류합니다.';
         method.append(summary, explanation); marketControls.append(method);
-        // 2026-10-14 audit #17: the market/sort selectors and the universe line sit under the page title, not above it.
+        // 2026-10-14 audit #17 → 개편 v2 (3c): the market/sort selectors lead the 순위 view's secondary toolbar under the filter bar.
+        const toolbar = documentRef.getElementById('scr-toolbar');
         const header = page.querySelector('.page-title')?.parentElement?.parentElement;
-        if (header && page.contains(header) && header !== page) header.after(marketControls); else page.prepend(marketControls);
+        if (toolbar) toolbar.prepend(marketControls);
+        else if (header && page.contains(header) && header !== page) header.after(marketControls); else page.prepend(marketControls);
       }
       // audit #3: why some of the population is not ranked — one folded line under the universe line.
       if (!documentRef.getElementById('scr-population-excluded')) {
@@ -1862,6 +2054,10 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         const status = documentRef.createElement('p'); status.id = 'scr-universe-status'; status.setAttribute('aria-live', 'polite'); status.hidden = true;
         documentRef.getElementById('scr-population-note')?.before(status);
       }
+      // 개편 v2 (3c): the selects stay in the toolbar; the population lines and the method fold move under the table so the
+      // table is on the first screen (same nodes, same ids).
+      const populationHolder = documentRef.getElementById('scr-population-holder');
+      if (populationHolder) populationHolder.append(...['scr-universe-status', 'scr-population-note', 'scr-population-excluded'].map((id) => documentRef.getElementById(id)).filter(Boolean), ...marketControls.querySelectorAll(':scope > .scr-ranking-method:not(#scr-population-excluded)'));
       documentRef.getElementById('scr-universe-scope').value = readUniverseScope(root);
       // P1449 (검토판 9): a link that came here with its own 조사 맥락 (e.g. 같은 섹터에서 비교)
       // fills the display search/scope from that context once, instead of surfacing whatever
@@ -1928,8 +2124,11 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
             loadJsonArtifact(fetchFn.bind(root), './public-data/backtest-history.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null),
             loadJsonArtifact(fetchFn.bind(root), './public-data/model-validation-status.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 256 * 1024 }).catch(() => null),
             loadJsonArtifact(fetchFn.bind(root), './public-data/factor-backtest-longrun.json', { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null),
-            loadJsonArtifact(fetchFn.bind(root), './public-data/screener-candidate-archive.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null)
-          ]).then(([history, status, longrun, candidates]) => {
+            loadJsonArtifact(fetchFn.bind(root), './public-data/screener-candidate-archive.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null),
+            // 개편 v2 (3c/5h): the validation gate's status and blockers drive the banner before the table.
+            loadJsonArtifact(fetchFn.bind(root), './public-data/screener-validation-gate.json', { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 64 * 1024 }).catch(() => null)
+          ]).then(([history, status, longrun, candidates, gate]) => {
+            if (gate && typeof gate === 'object') root._aioScreenerValidationGate = gate;
             if (candidates && typeof candidates === 'object') root._aioCandidateArchive = candidates; // P1465: forward candidate record
             if (Array.isArray(history)) root._aioScreenerBacktestHistory = history;
             if (status && typeof status === 'object') root._aioModelValidationStatus = status;
@@ -1941,6 +2140,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
               // The 10-year study and the candidate record arrive after the first render of the 검증 view.
               const latest = selectScreenerState(store?.getState?.() || {});
               renderBacktest(documentRef, { ...latest?.metadata, populationRanking: latest?.metadata?.ranking || null, selectionMarket: selectedValue(documentRef, 'scr-listing-market') || 'US', ranking: marketRankingMetadata(latest?.metadata, selectedValue(documentRef, 'scr-listing-market') || 'US') }, root, scopedRows(latest?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US'));
+              renderValidationState(documentRef, root, latest?.metadata, selectedValue(documentRef, 'scr-listing-market') || 'US');
             }
           });
         }
@@ -2037,8 +2237,25 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          const filterContrary = explanation.contraryEvidence || [];
          const modelContrary = modelContraryEvidence(row);
          const contrary = [...modelContrary.hits.map((hit) => `모델 점검: ${hit}`), ...filterContrary.map((hit) => `등록 조건: ${hit}`)];
-         setText('scr-why-title', `${row.sym || row.symbol || '종목'} · ${title}`);
+         // 개편 v2 (3c): the inspector leads with the ticker, its order among ranked rows and the last close.
+         setText('scr-why-title', row.sym || row.symbol || '종목');
          setText('scr-why-subtitle', row.name || '연구용 상대 순위 설명');
+         const inspectState = selectScreenerState(store.getState()) || {};
+         const rowMarket = screenerMarket(row);
+         const rankedInMarket = scopedRows(inspectState.rows || [], rowMarket).filter((item) => finite(item?.screenRank) != null).length;
+         // Review fix: the same guard as the table's 전체 순위 column (held ranking or a row that did not pass shows no order).
+         const rankHoldNow = marketRankingMetadata(inspectState.metadata, rowMarket)?.available === false || !!root?._aioRankingHold;
+         const ordinalForLine = rankHoldNow || row.screenStatus !== 'passed' ? null : finite(row.screenRank);
+         setText('scr-why-rankline', ordinalForLine == null ? '순위 계산 보류' : `전체 ${ordinalForLine}위 / ${rankedInMarket || '—'}`);
+         const inspectLive = liveRow(row, liveReader);
+         const inspectPrice = finite(inspectLive.price);
+         setText('scr-why-price', inspectPrice == null ? '—' : formatScreenerPrice(inspectPrice, String(row.instrumentRef?.currency || row.currency || '').trim().toUpperCase() || null));
+         const moveNode = documentRef.getElementById('scr-why-move');
+         if (moveNode) moveNode.textContent = finite(row.ret1m) == null ? '' : `1개월 ${returnText(row.ret1m)}`;
+         if (moveNode) moveNode.className = `scr-why-move ${finite(row.ret1m) == null ? '' : row.ret1m >= 0 ? 'sx-up' : 'sx-down'}`;
+         const benchmark = rowMarket === 'US' ? (inspectState.rows || []).find((item) => item?.sym === 'SPY') || null : null;
+         const sameSession = !!benchmark && !!row.factorSessionDate && String(benchmark.factorSessionDate || '').slice(0, 10) === String(row.factorSessionDate).slice(0, 10);
+         const excessOf = (key) => sameSession && finite(row[key]) != null && finite(benchmark[key]) != null ? row[key] - benchmark[key] : null;
           const factorConfidence = finite(row.confidence);
            // LC-40: 두 rank를 이름으로 분리한다 — 표시 순위는 통과 행의 서수, 팩터 원값은 순위
            // 입력(0~100)이다. 둘 다 'rank'라 부르면 서로 다른 숫자를 같은 값으로 오해한다.
@@ -2048,6 +2265,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           const percentileValue = finite(row.rank);
           const statusEl = documentRef.getElementById('scr-why-status');
           setText('scr-why-status', [
+            title,
             ordinalRank == null ? '순위 계산 보류' : `조건 통과 종목 중 ${ordinalRank}위`,
             percentileValue == null ? null : `전체 백분위 ${percentileValue.toFixed(0)}`,
             readiness.coveragePct == null ? null : `표시 항목 자료 ${readiness.coveragePct}% 수신`
@@ -2070,7 +2288,20 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           };
           setText('scr-why-missing', `순위 필수값 — ${missing.length ? missing.map(describeMissing).join(' · ') : '모두 있습니다'}. ${structureNote}.`);
          setText('scr-why-provenance', row.factorSessionDate ? `가격 기준 ${String(row.factorSessionDate).slice(0, 10)} 종가` : '가격 기준일 확인 필요');
-         setText('scr-why-preview', `${row.sym || row.symbol} — ${title} · ${missing.length ? `빠진 필수값 ${missing.length}개` : '빠진 필수값 없음'} · ${contrary.length ? `걸린 반대 조건 ${contrary.length}개` : row.screenStatus === 'unavailable' ? '판정 보류' : '걸린 반대 조건 없음'}`);
+         // 개편 v2 (3c): one plain reading from the row's own closes — trend position, then the 3-month gap to the S&P 500
+         // (SPY on the same close), then the completeness line that used to stand alone.
+         const above50 = finite(row.pctSma50);
+         const above200 = finite(row.pctSma200);
+         const trendWords = above50 == null || above200 == null ? null
+           : above50 >= 0 && above200 >= 0 ? '50일선과 200일선 위' : above50 < 0 && above200 < 0 ? '50일선과 200일선 아래'
+             : above50 >= 0 ? '50일선 위 · 200일선 아래' : '50일선 아래 · 200일선 위';
+         const excess3m = excessOf('ret3m');
+         setText('scr-why-preview', [
+           trendWords ? `종가가 ${trendWords}에 있습니다.` : null,
+           excess3m == null ? null : `3개월 수익률(${returnText(row.ret3m)})은 S&P 500보다 ${Math.abs(excess3m).toFixed(1)}%p ${excess3m >= 0 ? '높습니다' : '낮습니다'}.`,
+           `${missing.length ? `빠진 필수값 ${missing.length}개` : '빠진 필수값 없음'} · ${contrary.length ? `걸린 반대 조건 ${contrary.length}개` : row.screenStatus === 'unavailable' ? '판정 보류' : '걸린 반대 조건 없음'}.`
+         ].filter(Boolean).join(' '));
+         renderExcessBars(documentRef, row, benchmark);
          const factorList = documentRef.getElementById('scr-why-factor-list');
          if (factorList) {
            factorList.replaceChildren();
@@ -2080,25 +2311,32 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            const appliedWeights = marketRankingMetadata(selectScreenerState(store.getState())?.metadata, screenerMarket(row)).appliedFactorWeights || {};
            const weightSum = factors.reduce((sum, [key]) => sum + (finite(appliedWeights[key]) == null ? 0 : Number(appliedWeights[key])), 0);
            if (!factors.length) factorList.appendChild(text(documentRef, '팩터 점수 미수신'));
-           factors.slice(0, 8).forEach(([key, value]) => {
+           // 개편 v2 (3c): heaviest weight first; the author·year line appears only for a factor the score actually weights.
+           const weightOf = (key) => finite(appliedWeights[key]) ?? 0;
+           [...factors].sort((a, b) => weightOf(b[0]) - weightOf(a[0])).slice(0, 8).forEach(([key, value]) => {
              const item = documentRef.createElement('div');
-             item.className = 'scr-why-factor';
+             item.className = 'sx-factor scr-why-factor';
+             const head = documentRef.createElement('div');
+             head.className = 'sx-factor__head';
              const label = documentRef.createElement('span');
-             label.textContent = FACTOR_LABELS[key]?.label || key;
-             const track = documentRef.createElement('span');
-             track.className = 'scr-why-track';
+             label.textContent = `${FACTOR_LABELS[key]?.label || key}${FACTOR_LABELS[key]?.description ? ` · ${FACTOR_LABELS[key].description}` : ''}`;
+             const valueNode = documentRef.createElement('b');
+             valueNode.textContent = Number(value).toFixed(0);
+             head.append(label, valueNode);
+             const track = documentRef.createElement('div');
+             track.className = 'sx-factor__bar';
              const fill = documentRef.createElement('span');
-             fill.className = 'scr-why-fill';
              fill.style.width = `${Math.max(0, Math.min(100, Number(value)))}%`;
-             fill.style.background = factorScoreColor(key, Number(value), row, 'var(--text-muted)');
              track.appendChild(fill);
              const weight = finite(appliedWeights[key]);
              const share = weight != null && weightSum > 0 ? weight / weightSum : null;
              const contribution = share == null ? null : Number(value) * share;
-             const score = documentRef.createElement('span');
-             score.textContent = `${Number(value).toFixed(0)} · ${share == null ? '비중 미수신' : `비중 ${Math.round(share * 100)}%`}${contribution == null ? '' : ` · 기여 ${contribution.toFixed(1)}`}`;
+             const note = documentRef.createElement('p');
+             note.className = 'scr-why-factor-evidence';
+             const evidence = share > 0 ? FACTOR_EVIDENCE[key] : null;
+             note.textContent = `${share == null ? '비중 미수신 — 순위 합산에 쓰이지 않았습니다' : `비중 ${Math.round(share * 100)}%${contribution == null ? '' : ` · 기여 ${contribution.toFixed(1)}`}`}${evidence ? ` — ${evidence}` : ''}`;
              item.title = `${FACTOR_LABELS[key]?.description || key} · 정규화 점수 ${Number(value).toFixed(1)} · 적용 가중치 ${weight == null ? '미수신' : Number(weight).toFixed(3)} · 가중 기여 ${contribution == null ? '계산 불가' : contribution.toFixed(2)}`;
-             item.append(label, track, score);
+             item.append(head, track, note);
              factorList.appendChild(item);
            });
            // P1443 (review 2026-10-04): name the chain instead of calling different numbers '합성' —
@@ -2114,94 +2352,189 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            rankLine.textContent = factors.length
              ? `계산 순서: ① 팩터마다 같은 섹터 안에서 정규화(막대, 0~100 환산) → ② 가중 합 ${weightedSum.toFixed(1)} → ③ 계산 가능한 종목들 사이에서 그 합의 백분위 ${percentile == null ? '—' : percentile.toFixed(0)}(100 = 맨 위, 만점이라는 뜻이 아님) → ④ 조건을 통과한 종목 중 ${ordinalRank == null ? '—' : `${ordinalRank}위`}. 가중 합과 백분위가 다른 것은 ③에서 다시 줄을 세우기 때문입니다.`
              : '팩터 점수 미수신 — 순위를 해석하지 않습니다.';
-           factorList.appendChild(rankLine);
+           // 개편 v2 (3c): the calculation chain and the factor overlap fold under the bars so the inspector stays short.
+           const calc = documentRef.createElement('details');
+           calc.className = 'scr-why-calc';
+           const calcSummary = documentRef.createElement('summary');
+           calcSummary.textContent = '점수 계산 순서 · 요인 겹침';
+           calc.append(calcSummary, rankLine);
+           factorList.appendChild(calc);
            const overlap = documentRef.createElement('div');
            overlap.className = 'scr-why-factor-note';
            const screenState = selectScreenerState(store?.getState?.() || {});
            const overlapMarket = screenerMarket(row);
            overlap.textContent = `${overlapSentence(currentOverlap(screenState?.rows, marketRankingMetadata(screenState?.metadata, overlapMarket), overlapMarket))} 백분위는 기업의 질이나 상승 확률을 뜻하지 않습니다.`;
-           factorList.appendChild(overlap);
+           calc.appendChild(overlap);
          }
          const ticker = documentRef.querySelector('[data-aio-screener-action="open-ticker"]');
          if (ticker) ticker.dataset.aioScreenerArg = row.sym || row.symbol || '';
          const compare = documentRef.querySelector('[data-aio-screener-action="why-compare"]');
          if (compare) compare.dataset.aioScreenerArg = row.sym || row.symbol || '';
+         syncWhyWatchlist(row.sym || row.symbol || '');
          drawer.hidden = false;
        };
-       // v57.81 (phone/iPad parity audit): the Why drawer sat static above the table, so a row tapped further down opened
-       // it off-screen (row 6 on a phone: top -1558px). At 700px and below it opens inline under the tapped row; wider
-       // screens keep it above the table and scroll it into view. Focus moves into it and returns to the row on close.
+       // 개편 v2 (3c/4b/4c): the Why drawer is the inspector beside the table (≥1024px: 400px, iPad landscape 360px) and a
+       // bottom sheet at 1023px and below (iPad portrait, phone). Focus moves into it on a tap and returns to the row on close.
        const whyDrawerNode = documentRef.getElementById('scr-why-drawer');
-       const whyHome = whyDrawerNode ? documentRef.createComment('scr-why-drawer-home') : null;
-       const narrowWhy = () => Boolean(root?.matchMedia?.('(max-width: 700px)')?.matches);
+       const NARROW_WHY = '(max-width: 1023px)';
+       const narrowWhy = () => Boolean(root?.matchMedia?.(NARROW_WHY)?.matches);
        const selectedResultRow = () => {
          const symbol = activeRow?.sym || activeRow?.symbol;
          const body = documentRef.getElementById('screener-results-body');
          return symbol && body ? [...body.querySelectorAll('tr[data-aio-screener-ticker]')].find((node) => node.dataset.aioScreenerTicker === symbol) || null : null;
        };
-       const parkWhyDrawer = () => {
-         if (!whyDrawerNode || !whyHome?.parentNode) return;
-         if (whyDrawerNode.previousSibling !== whyHome) whyHome.after(whyDrawerNode);
-         documentRef.querySelectorAll('#screener-results-body .scr-why-inline-row').forEach((node) => node.remove());
-         whyDrawerNode.style.maxWidth = '';
-       };
-       const placeWhyDrawer = () => {
-         const row = selectedResultRow();
-         if (!whyDrawerNode || whyDrawerNode.hidden || !row || !narrowWhy()) { parkWhyDrawer(); return row; }
-         let host = row.nextElementSibling;
-         if (!host?.classList?.contains('scr-why-inline-row')) {
-           parkWhyDrawer();
-           host = documentRef.createElement('tr');
-           host.className = 'scr-why-inline-row';
-           const holder = documentRef.createElement('td');
-           holder.className = 'scr-why-inline-cell';
-           holder.colSpan = row.children.length || 1;
-           host.append(holder);
-           row.after(host);
+       let sheetScrim = null;
+       let sheetFrame = null;
+       // Review fix: only a reader's tap opens the sheet — an inspector the wide layout opened by itself closes when the
+       // screen narrows (iPad rotation) instead of turning into a sheet with a scrim nobody asked for.
+       let whyUserOpened = false;
+       const syncWhyMode = () => {
+         if (!whyDrawerNode) return;
+         const sheet = narrowWhy();
+         if (sheet && !whyDrawerNode.hidden && !whyUserOpened) whyDrawerNode.hidden = true;
+         whyDrawerNode.classList.toggle('sx-sheet', sheet);
+         whyDrawerNode.classList.toggle('sx-inspector', !sheet);
+         const open = sheet && !whyDrawerNode.hidden && page.dataset.scrView === 'rank';
+         // In sheet mode the drawer is a modal dialog (Tab stays inside, see onWhyKeydown); beside the table it is an aside.
+         if (open) { whyDrawerNode.setAttribute('role', 'dialog'); whyDrawerNode.setAttribute('aria-modal', 'true'); }
+         else { whyDrawerNode.removeAttribute('role'); whyDrawerNode.removeAttribute('aria-modal'); }
+         if (open && !sheetScrim) {
+           sheetScrim = documentRef.createElement('div');
+           sheetScrim.className = 'scr-sheet-scrim';
+           sheetScrim.addEventListener('click', () => closeWhyDrawer());
+           page.append(sheetScrim);
          }
-         if (whyDrawerNode.parentNode !== host.firstElementChild) host.firstElementChild.append(whyDrawerNode);
-         // Between 600 and 700px the table still scrolls sideways; the drawer stays as wide as the visible area.
-         const scroller = row.closest('.aio-table-scroll');
-         whyDrawerNode.style.maxWidth = scroller?.clientWidth ? `${scroller.clientWidth - 2}px` : '';
-         return row;
+         if (sheetScrim) sheetScrim.hidden = !open;
+         if (!open) { whyDrawerNode.classList.remove('is-open'); return; }
+         if (whyDrawerNode.classList.contains('is-open')) return;
+         const raise = () => { sheetFrame = null; if (!whyDrawerNode.hidden) whyDrawerNode.classList.add('is-open'); };
+         sheetFrame = root?.requestAnimationFrame ? root.requestAnimationFrame(raise) : (raise(), null);
        };
+       const placeWhyDrawer = () => { syncWhyMode(); return selectedResultRow(); };
        const revealWhyDrawer = (row) => {
          if (!whyDrawerNode || whyDrawerNode.hidden) return;
          if (!whyDrawerNode.hasAttribute('tabindex')) whyDrawerNode.tabIndex = -1;
          whyDrawerNode.focus?.({ preventScroll: true });
+         if (narrowWhy()) return; // the sheet is fixed to the bottom of the screen
          const view = root?.innerHeight || 0;
          const top = whyDrawerNode.getBoundingClientRect?.().top ?? 0;
-         if (view && top >= 48 && top <= view * 0.6) return;
+         if (view && top >= -8 && top <= view * 0.6) return;
          const smooth = !root?.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-         (narrowWhy() && row ? row : whyDrawerNode).scrollIntoView?.({ block: 'start', behavior: smooth ? 'smooth' : 'auto' });
+         whyDrawerNode.scrollIntoView?.({ block: 'nearest', behavior: smooth ? 'smooth' : 'auto' });
+         void row;
        };
        const closeWhyDrawer = () => {
          if (!whyDrawerNode) return;
          whyDrawerNode.hidden = true;
-         parkWhyDrawer();
+         syncWhyMode();
          selectedResultRow()?.focus?.();
        };
-       const onWhyKeydown = (event) => { if (event.key === 'Escape') { event.preventDefault(); closeWhyDrawer(); } };
-       if (whyHome) {
-         whyDrawerNode.before(whyHome);
+       const onWhyKeydown = (event) => {
+         if (event.key === 'Escape') { event.preventDefault(); closeWhyDrawer(); return; }
+         if (event.key !== 'Tab' || whyDrawerNode.getAttribute('aria-modal') !== 'true') return;
+         // Focus trap while the sheet is a modal dialog: Tab cycles inside it instead of reaching the page behind the scrim.
+         const focusables = [...whyDrawerNode.querySelectorAll('button, a[href], input, select, textarea, summary, [tabindex]:not([tabindex="-1"])')]
+           .filter((node) => !node.disabled && node.getClientRects().length);
+         if (!focusables.length) { event.preventDefault(); return; }
+         const first = focusables[0];
+         const last = focusables[focusables.length - 1];
+         const active = documentRef.activeElement;
+         if (event.shiftKey && (active === first || active === whyDrawerNode)) { event.preventDefault(); last.focus(); }
+         else if (!event.shiftKey && active === last) { event.preventDefault(); first.focus(); }
+       };
+       if (whyDrawerNode) {
          whyDrawerNode.addEventListener('keydown', onWhyKeydown);
-         const narrowQuery = root?.matchMedia?.('(max-width: 700px)');
-         const onNarrowChange = () => placeWhyDrawer();
+         const narrowQuery = root?.matchMedia?.(NARROW_WHY);
+         const onNarrowChange = () => syncWhyMode();
          narrowQuery?.addEventListener?.('change', onNarrowChange);
          bag.add(() => {
            narrowQuery?.removeEventListener?.('change', onNarrowChange);
            whyDrawerNode.removeEventListener('keydown', onWhyKeydown);
-           parkWhyDrawer();
-           whyHome.remove();
+           if (sheetFrame != null) root?.cancelAnimationFrame?.(sheetFrame);
+           whyDrawerNode.classList.remove('is-open');
+           sheetScrim?.remove(); sheetScrim = null;
          });
        }
+       const syncWhyWatchlist = (symbol) => {
+         const button = documentRef.querySelector('[data-aio-screener-action="why-watchlist"]');
+         if (!button) return;
+         const inList = !!symbol && watchlistReader().includes(symbol);
+         button.dataset.aioScreenerArg = symbol || '';
+         button.setAttribute('aria-pressed', inList ? 'true' : 'false');
+         button.textContent = inList ? '관심 종목에서 빼기' : '관심 종목 추가';
+       };
        const explainRow = (row) => {
+         whyUserOpened = true;
          activeRow = row;
          selectedSymbols.clear();
          if (row?.sym || row?.symbol) selectedSymbols.add(row.sym || row.symbol);
          renderWhyDrawer(row);
          renderNow();
          revealWhyDrawer(placeWhyDrawer());
+       };
+       // 개편 v2 (3c): on a wide screen the inspector starts on the table's first row (no focus move, no scroll), as the
+       // design shows one row selected; a phone or iPad portrait opens the sheet only on a tap.
+       let autoInspected = false;
+       const autoInspect = () => {
+         if (autoInspected || activeRow || !whyDrawerNode || narrowWhy() || page.dataset.scrView !== 'rank') return false;
+         const first = documentRef.querySelector('#screener-results-body tr[data-aio-screener-ticker]');
+         const symbol = first?.dataset.aioScreenerTicker;
+         const pool = activeRows || activePreview?.rows || selectScreenerState(store.getState())?.rows || [];
+         const row = symbol ? pool.find((item) => (item.sym || item.symbol) === symbol) : null;
+         if (!row) return false;
+         autoInspected = true;
+         whyUserOpened = false;
+         activeRow = row;
+         selectedSymbols.clear();
+         selectedSymbols.add(symbol);
+         renderWhyDrawer(row);
+         return true;
+       };
+       // 개편 v2: one route, three views (순위 · 사후 검증 · 맞춤 조건) on #page-screener[data-scr-view]. The tab panels keep
+       // their ids and hidden state, so a link to 과거 검증 or 조건별 과거 통계 still lands on its panel.
+       const VIEW_PANELS = Object.freeze({ rank: ['ranking'], validation: ['factors', 'backtest', 'evidence'], custom: [] });
+       const VIEW_TABS = [['scr-tab-button-ranking', 'rank'], ['scr-tab-button-backtest', 'validation'], ['scr-view-button-custom', 'custom']];
+       const setView = (view, { focusTab = false } = {}) => {
+         const next = VIEW_PANELS[view] ? view : 'rank';
+         page.dataset.scrView = next;
+         ['ranking', 'factors', 'backtest', 'evidence'].forEach((tab) => {
+           const panel = documentRef.getElementById(`scr-tab-${tab}`);
+           if (panel) panel.hidden = !VIEW_PANELS[next].includes(tab);
+         });
+         const workbenchNode = documentRef.getElementById('screener-workbench');
+         if (workbenchNode) workbenchNode.hidden = next !== 'custom';
+         for (const [id, value] of VIEW_TABS) {
+           const button = documentRef.getElementById(id);
+           if (!button) continue;
+           const on = value === next;
+           button.setAttribute('aria-selected', on ? 'true' : 'false');
+           button.tabIndex = on ? 0 : -1;
+           button.classList.toggle('is-active', on);
+           if (on && focusTab) button.focus();
+         }
+         syncWhyMode();
+       };
+       const onViewKeydown = (event) => {
+         const current = event.target.closest?.('.scr-view-seg [role="tab"]');
+         if (!current || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+         event.preventDefault();
+         const ids = VIEW_TABS.map(([id]) => id);
+         const index = ids.indexOf(current.id);
+         const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? ids.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + ids.length) % ids.length;
+         setView(VIEW_TABS[nextIndex][1], { focusTab: true });
+       };
+       // The folded builder (조건 직접 조합 · 실행 기록) belongs to 맞춤 조건; opening it from anywhere shows that view.
+       const onFoldToggle = (event) => {
+         if (event.target?.id === 'scr-workbench-advanced' && event.target.open && page.dataset.scrView !== 'custom') setView('custom');
+       };
+       page.addEventListener('keydown', onViewKeydown);
+       page.addEventListener('toggle', onFoldToggle, true);
+       bag.add(() => { page.removeEventListener('keydown', onViewKeydown); page.removeEventListener('toggle', onFoldToggle, true); });
+       const scrollToTop = () => {
+         const content = documentRef.querySelector('.content');
+         if (content && typeof content.scrollTo === 'function') content.scrollTo({ top: 0 });
+         else if (content) content.scrollTop = 0;
+         if (typeof root?.scrollTo === 'function' && (root.scrollY || 0) > 0) root.scrollTo(0, 0);
        };
        // v57.81 (phone/iPad parity audit): the "+" gave no sign near the row and the tray sits far below on a phone.
        // One status line pinned to the bottom of the screen says what changed and links to the tray.
@@ -2558,14 +2891,15 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          });
        }
        renderNow = () => {
-         // v57.81: the rows are rebuilt below; the inline Why drawer goes home first and comes back under its row after.
          const whyFocus = whyDrawerNode?.contains(documentRef.activeElement) ? documentRef.activeElement : null;
-         parkWhyDrawer();
          const preview = ensurePreview();
          syncColumnControls();
          syncBuilderHint();
          renderBuilderConditions(documentRef, readBuilderConditions());
-         render({ documentRef, root, store, readLiveData: liveReader, readWatchlist: watchlistReader, readAliases: aliasReader, sortState, visibleLimit, onExplain: explainRow, onCompare: (row) => toggleCompare(row?.sym || row?.symbol), onVisibleSymbols: requestVisibleQuotes, selectedSymbols, compareSymbols, columnPreset: columnState.preset, customColumns: columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); rerender(); }, rowsOverride: activeRows || preview?.rows || null, workbenchResult: activeResult, previewResult: preview, onDataChange: () => renderNow() });
+         const renderArgs = { documentRef, root, store, readLiveData: liveReader, readWatchlist: watchlistReader, readAliases: aliasReader, sortState, visibleLimit, onExplain: explainRow, onCompare: (row) => toggleCompare(row?.sym || row?.symbol), onVisibleSymbols: requestVisibleQuotes, selectedSymbols, compareSymbols, columnPreset: columnState.preset, customColumns: columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); rerender(); syncWhyWatchlist(activeRow?.sym || activeRow?.symbol || ''); }, rowsOverride: activeRows || preview?.rows || null, workbenchResult: activeResult, previewResult: preview, onDataChange: () => renderNow() };
+         render(renderArgs);
+         // 개편 v2 (3c): the first wide render selects the first row for the inspector, then marks it in the table once.
+         if (autoInspect()) render(renderArgs);
          // P1165 (12 U01): 실행 전 상태 줄도 선택한 정의의 미리보기를 인용한다 — 파이프라인 기본
          // 수치를 '선택한 정의의 통과'로 읽히게 두지 않는다. 실행하면 activeResult가 대신한다.
          if (!activeResult && preview && workbenchStatus) {
@@ -2706,15 +3040,21 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            const chooser = documentRef.getElementById('scr-column-chooser');
            if (chooser) chooser.hidden = !chooser.hidden;
          } else if (action === 'tab') {
-           ['ranking', 'factors', 'backtest', 'evidence'].forEach((tab) => {
-             const panel = documentRef.getElementById(`scr-tab-${tab}`);
-             if (panel) { panel.style.display = tab === argument ? '' : 'none'; panel.hidden = tab !== argument; }
-             page.querySelectorAll(`[data-aio-screener-action="tab"][data-aio-screener-arg="${tab}"]`).forEach((button) => {
-               button.style.borderBottomColor = tab === argument ? 'var(--accent)' : 'transparent';
-               button.style.color = tab === argument ? 'var(--accent)' : 'var(--text-secondary)';
-               button.setAttribute('aria-selected', tab === argument ? 'true' : 'false');
-             });
-          });
+           // 개편 v2: 랭킹 is the 순위 view; 팩터·과거 검증·조건별 통계 are sections of the one 사후 검증 view.
+           const fromSeg = !!actionNode.closest('.scr-view-seg');
+           setView(argument === 'ranking' ? 'rank' : 'validation', { focusTab: fromSeg });
+           if (argument === 'factors' || argument === 'evidence') {
+             const smooth = !root?.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+             documentRef.getElementById(`scr-tab-${argument}`)?.scrollIntoView?.({ block: 'start', behavior: smooth ? 'smooth' : 'auto' });
+           } else if (!fromSeg) scrollToTop();
+         } else if (action === 'view') {
+           const fromSeg = !!actionNode.closest('.scr-view-seg');
+           setView(argument, { focusTab: fromSeg });
+           if (!fromSeg) scrollToTop();
+           if (argument === 'custom' && !fromSeg) documentRef.querySelector('#scr-custom select')?.focus?.({ preventScroll: true });
+         } else if (action === 'why-watchlist') {
+           const symbol = argument || activeRow?.sym || activeRow?.symbol;
+           if (symbol) { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); rerender(); syncWhyWatchlist(symbol); }
          } else if (action === 'load-more') {
            visibleLimit.value += 12;
            renderNow();
@@ -2794,6 +3134,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          if (!event.target.closest?.('#page-screener')) return;
          if (event.target.matches?.('#scr-listing-market')) {
            root._aioScreenerListingMarket = event.target.value;
+           activeRow = null; autoInspected = false; // 개편 v2: the inspector restarts on the new market's first row
+           if (whyDrawerNode) whyDrawerNode.hidden = true;
            ++runGeneration; activeResult = null; activeRows = null; activePreview = null; activePreviewKey = null;
            selectedSymbols.clear(); compareSymbols.clear(); visibleLimit.value = 12; readSignature = '';
            for (const id of ['scr-market', 'scr-sector']) { const field = documentRef.getElementById(id); if (field) { field.value = ''; delete field.dataset.aioValues; } }
@@ -2897,6 +3239,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         bag.add(() => windowTarget.removeEventListener?.('aio:historyLoaded', onDataEvent));
       }
       mounted = true;
+      setView('rank');
       renderWithControls();
       renderCompareTray();
       if (returnView) {

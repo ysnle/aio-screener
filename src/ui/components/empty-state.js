@@ -1,6 +1,7 @@
 // P1429 (Codex review 2026-10-04): one way to say "this is not available" — what is missing, why, and what
 // the user can still do or when it appears — instead of large '—' cards and scattered '미수신' labels.
-export function emptyState(doc, { title, reason = '', next = '', action = null, compact = false } = {}) {
+// v58.53 개편 v2 (5k): `primary` draws the one action as the ink pill ("스크리너 열기"); the look lives in v2-today.css.
+export function emptyState(doc, { title, reason = '', next = '', action = null, compact = false, primary = false } = {}) {
   const box = doc.createElement('div');
   box.className = `empty-state${compact ? ' is-compact' : ''}`;
   box.setAttribute('role', 'status');
@@ -23,7 +24,7 @@ export function emptyState(doc, { title, reason = '', next = '', action = null, 
   if (action?.label && typeof action.onClick === 'function') {
     const button = doc.createElement('button');
     button.type = 'button';
-    button.className = 'aio-btn-table';
+    button.className = primary ? 'aio-btn-table is-primary empty-state-action' : 'aio-btn-table empty-state-action';
     button.textContent = action.label;
     button.addEventListener('click', action.onClick);
     box.append(button);
