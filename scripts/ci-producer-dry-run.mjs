@@ -9,7 +9,7 @@ import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, sta
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const failures = [];
@@ -31,13 +31,23 @@ try {
     else cpSync(from, path.join(scratch, 'public-data', entry));
   }
   const before = JSON.parse(readFileSync(path.join(scratch, 'public-data/data.json'), 'utf8'));
+  // v58.54 (P1950): the producer runs on a clock pinned just after the copied bundle was generated, inside its KST 08:00
+  // news cycle, so the gate means the same thing at any wall time (it failed between 23:00Z and the next refresh).
+  const cycleEnd = Date.parse(before.meta?.newsCycleEnd || '');
+  const nextRefresh = Date.parse(before.meta?.newsNextRefresh || '');
+  const pinned = Number.isFinite(cycleEnd) && Number.isFinite(nextRefresh)
+    ? Math.min(Math.max(Date.parse(before.meta?.generatedAt || '') + 60000 || cycleEnd, cycleEnd), nextRefresh - 120000)
+    : Date.now();
+  const clockOffset = pinned - Date.now();
+  const producerNow = () => Date.now() + clockOffset;
+  const pinnedClock = () => ({ AIO_DRY_RUN_NOW: new Date(producerNow()).toISOString() });
   // The shared AI Worker is configured with an unreachable host (the stub answers 404), so every AI step runs its
   // request, failure and fallback path and the run's AI usage receipt has something to count.
   const env = { PATH: process.env.PATH, HOME: process.env.HOME, TZ: 'UTC', NODE_ENV: 'test', GITHUB_RUN_ID: 'dry-run',
     AI_PROXY_URL: 'https://ai-proxy.dry-run.invalid/', AIO_AUTOMATION_TOKEN: 'dry-run-automation-token-'.padEnd(40, 'x') };
-  const started = Date.now();
+  const started = producerNow();
   const run = spawnSync(process.execPath, ['--import', './scripts/lib/producer-dry-run-fetch.mjs', 'scripts/fetch-data.mjs'], {
-    cwd: scratch, env, encoding: 'utf8', timeout: 240000, maxBuffer: 64 * 1024 * 1024
+    cwd: scratch, env: { ...env, ...pinnedClock() }, encoding: 'utf8', timeout: 240000, maxBuffer: 64 * 1024 * 1024
   });
   const log = `${run.stdout || ''}\n${run.stderr || ''}`;
   check('P1262 the producer run completes', run.status === 0, `exit=${run.status} signal=${run.signal || ''} :: ${log.slice(-1600)}`);
@@ -53,7 +63,16 @@ try {
     for (const key of ['macro', 'fearGreed', 'putCall', 'marketSurveys', 'news', 'newsIntraday', 'providerCrossChecks', 'policyRates', 'rotationHistory']) check(`P1256 data.json keeps ${key}`, key in data);
     const receipts = meta.domainReceipts || {};
     for (const domain of ['market-quotes', 'news', 'macro-fred', 'macro-bls', 'macro-bea', 'treasury-curve', 'surveys-aaii', 'options-put-call']) check(`P1256 domain receipt ${domain} is published`, !!receipts[domain]);
+    check('P1950 the pinned producer clock stays inside the stored news cycle', !Number.isFinite(cycleEnd) || data.meta?.newsCycleEnd === before.meta.newsCycleEnd, `${data.meta?.newsCycleEnd} vs ${before.meta?.newsCycleEnd} (pinned ${new Date(pinned).toISOString()})`);
     check('P1256 a failed news plane keeps the previous bundle', Array.isArray(data.news) && data.news.length === (Array.isArray(before.news) ? before.news.length : 0), `${data.news?.length} vs ${before.news?.length}`);
+    // P1950: once the cycle has rolled over, the previous cycle's articles are not carried into the new cycle's bundle
+    // (the receipt keeps their last date; meta would otherwise label them as the current cycle).
+    if (Number.isFinite(nextRefresh) && Array.isArray(before.news)) {
+      const { carriedNewsCandidates, getKst0800NewsCycle } = await import(pathToFileURL(path.join(scratch, 'scripts/lib/news-selection.mjs')).href);
+      const kept = carriedNewsCandidates(before.news, getKst0800NewsCycle(pinned)).length;
+      const expired = carriedNewsCandidates(before.news, getKst0800NewsCycle(nextRefresh + 60000)).length;
+      check('P1950 previous articles are candidates inside their cycle and dropped after it', kept === before.news.length && expired === 0, `in-cycle ${kept}/${before.news.length}, expired ${expired}`);
+    }
     check('P565 the FRED plane reports its missing key instead of a fresh cycle', meta.fredHasKey === false && meta.fredFetchOk === false);
     // A provider failure either keeps the last verified reading (P1719, with the reason) or publishes the blocked reason.
     check('P1594 the market analysis records why it did not run', (meta.marketAnalysisOk === false && typeof meta.marketAnalysisReason === 'string' && meta.marketAnalysisReason.length > 0) || (meta.marketAnalysisOk === true && typeof meta.marketAnalysisRetained?.reason === 'string'), JSON.stringify({ ok: meta.marketAnalysisOk, reason: meta.marketAnalysisReason, retained: meta.marketAnalysisRetained, ai: meta.aiUsage?.purposes?.['market-analysis'] }));
@@ -84,9 +103,9 @@ try {
     ['screener', { SCREENER_ONLY: '1', SCREENER_ENRICH: '1' }, 'screener.json'],
     ['screener-extended', { SCREENER_EXTENDED: '1', SCREENER_EXTENDED_FORCE: '1' }, 'screener-extended.json']
   ]) {
-    const laneStarted = Date.now();
+    const laneStarted = producerNow();
     const laneRun = spawnSync(process.execPath, ['--import', './scripts/lib/producer-dry-run-fetch.mjs', 'scripts/fetch-data.mjs'], {
-      cwd: scratch, env: { ...env, ...laneEnv }, encoding: 'utf8', timeout: 240000, maxBuffer: 64 * 1024 * 1024
+      cwd: scratch, env: { ...env, ...laneEnv, ...pinnedClock() }, encoding: 'utf8', timeout: 240000, maxBuffer: 64 * 1024 * 1024
     });
     const laneLog = `${laneRun.stdout || ''}\n${laneRun.stderr || ''}`;
     check(`P1262 the ${lane} lane completes`, laneRun.status === 0, `exit=${laneRun.status} :: ${laneLog.slice(-1200)}`);
