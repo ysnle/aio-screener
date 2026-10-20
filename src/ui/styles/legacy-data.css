@@ -12,6 +12,7 @@
 /* News translation status (#translate-status in #page-market-news) */
 #translate-status .lda-tr-left { color: #f87171; }
 #translate-status .lda-tr-ai { display: inline-flex; align-items: center; min-height: 28px; padding: 2px 6px; background: none; border: 0; font: inherit; cursor: pointer; text-decoration: underline; color: #fbbf24; }
+@media (pointer: coarse) { #translate-status .lda-tr-ai { min-height: 44px; } }
 /* Ticker hero extended-hours line (#ticker-hero-ext in #page-ticker: old inline 10/11px rendered 12/13px) */
 #ticker-hero-ext .lda-ext-close { font-size: var(--fs-sm); color: #94a3b8; }
 #ticker-hero-ext .lda-ext-arrow { font-size: var(--fs-sm); color: #64748b; margin: 0 4px; }
