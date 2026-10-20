@@ -1,15 +1,15 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-10-20T07:33:42.015Z",
+ "generatedAt": "2026-10-20T22:02:05.135Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v2",
- "eligible": 3901,
- "stored": 3545,
- "attempted": 412,
- "updated": 389,
+ "eligible": 3899,
+ "stored": 3543,
+ "attempted": 0,
+ "updated": 0,
  "failures": [
   {
    "symbol": "AACI",
@@ -4437,35 +4437,35 @@
   "TRBG",
   "TREO"
  ],
- "pointInTimeCoverage": 3545,
- "pointInTimeAcceptedCoverage": 3545,
+ "pointInTimeCoverage": 3543,
+ "pointInTimeAcceptedCoverage": 3543,
  "batchLimit": 600,
  "unsupportedRecheckPolicy": "SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches",
  "nextRefreshCandidates": 356,
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:39386372743",
-  "attemptedAt": "2026-10-20T07:31:22.940Z",
+  "runId": "gha:39504278903",
+  "attemptedAt": "2026-10-20T22:01:49.194Z",
   "sourceRevision": "sec-company-tickers:6c29e2e3db973d4479875164603c2434f81ad22e14c9f1694999aca9cca246cb",
   "inputWatermarks": {
-   "universe": "2026-10-20T07:31:21.200Z",
-   "screener": "2026-10-20T07:30:38.475Z",
-   "previousArtifact": "2026-10-19T22:32:54.693Z"
+   "universe": "2026-10-20T22:01:47.359Z",
+   "screener": "2026-10-20T22:01:09.329Z",
+   "previousArtifact": "2026-10-20T07:33:42.015Z"
   },
   "batchLimit": 600,
   "counts": {
-   "eligible": 3901,
-   "attempted": 412,
-   "updated": 389,
-   "retained": 3156,
+   "eligible": 3899,
+   "attempted": 0,
+   "updated": 0,
+   "retained": 3543,
    "pendingEligible": 356
   },
   "thisBatch": {
-   "updated": 389,
-   "terminalUnsupported": 3,
-   "transientFailed": 20,
-   "recorded": 23
+   "updated": 0,
+   "terminalUnsupported": 0,
+   "transientFailed": 0,
+   "recorded": 0
   },
   "ledger": {
    "total": 356,
@@ -4475,8 +4475,8 @@
   },
   "lastSuccessfulObservation": "2026-10-20T07:31:22.940Z",
   "publication": {
-   "status": "PARTIAL",
-   "reason": "some attempted targets were not updated",
+   "status": "NOT_ATTEMPTED",
+   "reason": "no target was due in this batch",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -8463,98 +8463,6 @@
    },
    "roeBasis": "average-equity",
    "equityPrior": 106980635
-  },
-  "ACVA": {
-   "symbol": "ACVA",
-   "cik": "0001637873",
-   "entityName": "ACV Auctions Inc.",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2025-12-31",
-   "observedAt": "2025-12-31",
-   "filedAt": "2026-02-23",
-   "acceptedAt": "2026-02-24T03:10:24.000Z",
-   "availableAt": "2026-02-24T03:10:24.000Z",
-   "transportFetchedAt": "2026-10-17T22:35:29.025Z",
-   "reportAgeDays": 291,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0001637873-26-000011",
-    "netIncome": "0001637873-26-000011",
-    "equity": "0001637873-26-000011",
-    "sharesOutstanding": "0001637873-26-000011"
-   },
-   "operandAvailability": {
-    "revenue": "2026-02-24T03:10:24.000Z",
-    "netIncome": "2026-02-24T03:10:24.000Z",
-    "equity": "2026-02-24T03:10:24.000Z",
-    "sharesOutstanding": "2026-02-24T03:10:24.000Z",
-    "priorRevenue": "2026-02-24T03:10:24.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-02-24T03:10:24.000Z",
-    "margin": "2026-02-24T03:10:24.000Z",
-    "roe": "2026-02-24T03:10:24.000Z",
-    "pe": "2026-02-24T03:10:24.000Z",
-    "pb": "2026-02-24T03:10:24.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-10-17T22:35:29.025Z",
-   "form": "10-K",
-   "accession": "0001637873-26-000011",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 759606000,
-   "netIncome": -66141000,
-   "equity": 429683000,
-   "equityBasis": "parent",
-   "sharesOutstanding": 174071580,
-   "sharesCheck": "consistent",
-   "sharesBasis": "dei-cover",
-   "sharesObservedAt": "2026-02-16",
-   "normalizerVersion": "sec-normalizer.2026-10-17",
-   "revenueConcept": "Revenues",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "sharesOutstanding",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 130,
-    "acceptedTimeCount": 130,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": 19.2,
-   "margin": -8.7,
-   "roe": -15.2,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "net-income",
-    "value": -63145000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-11T01:06:08.000Z",
-    "derivedQuarter": true
-   },
-   "roeBasis": "average-equity",
-   "equityPrior": 440004000
   },
   "ADAG": {
    "symbol": "ADAG",
@@ -25078,98 +24986,6 @@
    },
    "roeBasis": "average-equity",
    "equityPrior": 116080
-  },
-  "ATKR": {
-   "symbol": "ATKR",
-   "cik": "0001666138",
-   "entityName": "Atkore Inc.",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2025-09-30",
-   "observedAt": "2025-09-30",
-   "filedAt": "2025-11-26",
-   "acceptedAt": "2025-11-26T03:39:29.000Z",
-   "availableAt": "2025-11-26T03:39:29.000Z",
-   "transportFetchedAt": "2026-10-18T07:31:56.777Z",
-   "reportAgeDays": 383,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0001628280-25-054049",
-    "netIncome": "0001628280-25-054049",
-    "equity": "0001628280-25-054049",
-    "sharesOutstanding": "0001628280-25-054049"
-   },
-   "operandAvailability": {
-    "revenue": "2025-11-26T03:39:29.000Z",
-    "netIncome": "2025-11-26T03:39:29.000Z",
-    "equity": "2025-11-26T03:39:29.000Z",
-    "sharesOutstanding": "2025-11-26T03:39:29.000Z",
-    "priorRevenue": "2025-11-26T03:39:29.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2025-11-26T03:39:29.000Z",
-    "margin": "2025-11-26T03:39:29.000Z",
-    "roe": "2025-11-26T03:39:29.000Z",
-    "pe": "2025-11-26T03:39:29.000Z",
-    "pb": "2025-11-26T03:39:29.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-10-18T07:31:56.777Z",
-   "form": "10-K",
-   "accession": "0001628280-25-054049",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 2850378000,
-   "netIncome": -15175000,
-   "equity": 1398341000,
-   "equityBasis": "parent",
-   "sharesOutstanding": 33750486,
-   "sharesCheck": "consistent",
-   "sharesBasis": "dei-cover",
-   "sharesObservedAt": "2025-11-24",
-   "normalizerVersion": "sec-normalizer.2026-10-17",
-   "revenueConcept": "RevenueFromContractWithCustomerExcludingAssessedTax",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "sharesOutstanding",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 255,
-    "acceptedTimeCount": 255,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": -11,
-   "margin": -0.5,
-   "roe": -1,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "common",
-    "value": -161605000,
-    "through": "2026-06-26",
-    "availableAt": "2026-08-04T04:08:38.000Z",
-    "derivedQuarter": true
-   },
-   "roeBasis": "average-equity",
-   "equityPrior": 1539900000
   },
   "ATLC": {
    "symbol": "ATLC",
@@ -321651,10 +321467,10 @@
  "recordPolicy": "compact: normalized annual record without point-in-time observation arrays",
  "issuerSicPolicy": "SEC submissions sic per issuer; recorded on every submissions read plus a SIC-only pass of up to 800 issuers (missing first, then older than 30 days); a failed read keeps the previous code",
  "issuerSicCoverage": {
-  "classified": 3854,
-  "eligible": 3901,
-  "passAttempted": 42,
-  "passUpdated": 0,
+  "classified": 3853,
+  "eligible": 3899,
+  "passAttempted": 47,
+  "passUpdated": 1,
   "passFailed": 0
  },
  "issuerSic": {
@@ -322022,12 +321838,6 @@
    "sic": "3420",
    "description": "Cutlery, Handtools & General Hardware",
    "cik": "0000002098",
-   "observedAt": "2026-10-17T22:31:55.248Z"
-  },
-  "ACVA": {
-   "sic": "7389",
-   "description": "Services-Business Services, NEC",
-   "cik": "0001637873",
    "observedAt": "2026-10-17T22:31:55.248Z"
   },
   "ACXP": {
@@ -323602,12 +323412,6 @@
    "cik": "0002028516",
    "observedAt": "2026-10-19T22:30:26.357Z"
   },
-  "ATKR": {
-   "sic": "3690",
-   "description": "Miscellaneous Electrical Machinery, Equipment & Supplies",
-   "cik": "0001666138",
-   "observedAt": "2026-10-18T07:31:15.647Z"
-  },
   "ATLC": {
    "sic": "6141",
    "description": "Personal Credit Institutions",
@@ -324729,6 +324533,12 @@
    "description": "Metal Mining",
    "cik": "0001732379",
    "observedAt": "2026-10-16T05:43:02.604Z"
+  },
+  "BMMX": {
+   "sic": "1000",
+   "description": "Metal Mining",
+   "cik": "0001929908",
+   "observedAt": "2026-10-20T22:01:49.194Z"
   },
   "BMR": {
    "sic": "7372",
