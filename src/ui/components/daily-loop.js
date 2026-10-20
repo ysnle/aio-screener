@@ -194,7 +194,7 @@ function requestEarnings(doc, host, root) {
 
 function renderSchedule(doc, host, root) {
   requestEarnings(doc, host, root);
-  const schedule = buildBriefingSchedule({
+  const fullSchedule = buildBriefingSchedule({
     fomcDecisions: Array.isArray(root.AIO_MACRO_OFFICIAL_SCHEDULES?.['us-fomc']) ? root.AIO_MACRO_OFFICIAL_SCHEDULES['us-fomc'] : [],
     releases: root.AIO_MACRO_CALENDAR?.releases || {},
     snapshot: root.DATA_SNAPSHOT || {},
@@ -205,8 +205,9 @@ function renderSchedule(doc, host, root) {
     names: homeNames(root),
     nowMs: Date.now(),
     days: 3,
-    maxEarnings: 3
-  }).filter((row) => !row.passed);
+    maxEarnings: 4
+  });
+  const schedule = fullSchedule.filter((row) => !row.passed);
   host.replaceChildren(el(doc, 'h2', '다가오는 일정', 'briefing-h2'));
   host.querySelector('h2').append(el(doc, 'span', '3일 · 한국 시간', 'briefing-h2-note'));
   // Codex audit F26 (2026-10-15): "없습니다" only when the calendars were actually read — a missing macro calendar or an
@@ -228,6 +229,9 @@ function renderSchedule(doc, host, root) {
     list.append(li);
   }
   host.append(list);
+  // v58.52: the S&P-weight cut and the five-row list both leave reports out; the count says so.
+  const hidden = (fullSchedule.omittedEarnings || 0) + Math.max(0, schedule.length - 5);
+  if (hidden > 0) host.append(el(doc, 'p', `외 ${hidden}건은 생략했습니다 — 브리핑의 7일 일정에 더 많은 일정이 있습니다.`, 'daily-event-why'));
   const more = el(doc, 'button', '7일 일정과 시장 해석 → 브리핑', 'flow-next-link');
   more.type = 'button';
   more.dataset.action = 'showPage';

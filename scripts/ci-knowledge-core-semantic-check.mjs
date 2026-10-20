@@ -5,7 +5,6 @@ import { MARKET_PRINCIPLES_CATALOG } from '../src/ui/pages/principles.js';
 import { createClaimRegistry, createEvidenceRegistry, unresolvedEvidenceIds } from '../src/domain/knowledge/evidence.js';
 import { EDGE_TYPES, inspectKnowledgeGraph, normalizeKnowledgeEdge, normalizeKnowledgeEdges } from '../src/domain/knowledge/graph.js';
 import { loadKnowledgeCapabilities } from '../src/data/knowledge/load-capabilities.js';
-import { createConceptRegistry } from '../src/domain/knowledge/ontology.js';
 import { safeExternalHref } from '../src/ui/knowledge/safe-external-link.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -117,15 +116,7 @@ assert(invalidCapability.validated.status === 'fallback' && invalidCapability.va
 
 const conceptsArtifact = readJson('public-data/knowledge/concepts.json');
 const aliasesArtifact = readJson('public-data/knowledge/aliases.json');
-const ontology = createConceptRegistry(conceptsArtifact.concepts, aliasesArtifact.aliases);
 assert(conceptsArtifact.concepts.length === 212, `Canonical concept count: ${conceptsArtifact.concepts.length}`);
-assert(ontology.errors.length === 0, `Ontology errors: ${JSON.stringify(ontology.errors)}`);
-assert(ontology.resolve('defense-autonomy').length === 2, 'Cross-page duplicate legacy ID must resolve through explicit equivalence');
-assert(!('byId' in ontology), 'Ontology registry must not expose its mutable Map index');
-const mutableConcept = { canonicalId: 'fixture:mutable', title: 'before' };
-const immutableOntology = createConceptRegistry([mutableConcept], [{ alias: 'fixture:mutable', targets: ['fixture:mutable'] }]);
-mutableConcept.title = 'after';
-assert(immutableOntology.resolve('fixture:mutable')[0]?.title === 'before' && Object.isFrozen(immutableOntology.resolve('fixture:mutable')[0]), 'Ontology registry must isolate and freeze caller-owned concept objects');
 
 const knowledgeClaims = readJson('public-data/knowledge/claims.json');
 const unifiedEvidence = createEvidenceRegistry(knowledgeSources);
@@ -150,7 +141,7 @@ const report = {
   atlas: { nodes: atlasGraph.nodeCount, edges: atlasGraph.edgeCount, components: atlasGraph.components.map((component) => component.length), isolated: atlasGraph.isolatedNodes.length },
   evidence: { registered: evidence.sources.length, referenced: new Set(referencedSourceIds).size, unresolved: unresolvedSources.length, conflicts: evidence.conflicts.length },
   capabilityIsolation: { available: capabilities.available.status, missing: capabilities.missing.status },
-  ontology: { concepts: conceptsArtifact.concepts.length, aliases: aliasesArtifact.aliases.length, registryErrors: ontology.errors.length },
+  ontology: { concepts: conceptsArtifact.concepts.length, aliases: aliasesArtifact.aliases.length },
   claimDirectness: { sources: unifiedEvidence.sources.length, claims: claimRegistry.claims.length, unresolved: claimRegistry.unresolved.length, duplicates: claimRegistry.duplicates.length },
   failures
 };

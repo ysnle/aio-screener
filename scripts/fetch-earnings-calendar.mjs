@@ -133,6 +133,9 @@ async function main() {
   console.log(`[earnings-calendar] week query ${weekRows.length} rows, day queries ${dayRows.length}, merged ${earnings.length}`);
   const sp500 = await readJsonIf(`${ROOT}/public-data/sp500-weights.json`);
   const universe = await readJsonIf(`${ROOT}/public-data/screener-universe.json`);
+  // v58.52: S&P 500 weight per row so the briefing schedule keeps the market-moving reports (META, TSLA, NFLX) when a
+  // single session carries dozens of names; the screen used to keep the first six by clock time and name.
+  const indexWeightOf = new Map((Array.isArray(sp500?.rows) ? sp500.rows : []).filter((r) => r?.sym && Number.isFinite(Number(r.weight))).map((r) => [r.sym, Number(r.weight)]));
   const payload = {
     schemaVersion: 'earnings-calendar.v1',
     status: 'current-reference',
@@ -150,6 +153,7 @@ async function main() {
       hour: row.hour || null,
       epsEstimate: typeof row.epsEstimate === 'number' ? row.epsEstimate : null,
       revenueEstimate: typeof row.revenueEstimate === 'number' ? row.revenueEstimate : null,
+      indexWeight: indexWeightOf.has(row.symbol) ? indexWeightOf.get(row.symbol) : null,
       // P1382: after the report Finnhub returns the actuals; headline-only earnings news cites them.
       epsActual: typeof row.epsActual === 'number' ? row.epsActual : null,
       revenueActual: typeof row.revenueActual === 'number' ? row.revenueActual : null

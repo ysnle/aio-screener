@@ -16,6 +16,13 @@
 /* Positions table. The id outranks `.content table tbody tr` (0,1,3) and `.page table td` (0,1,2), which the inline styles beat. */
 #pf-positions-tbody td.pfp-empty { padding: 28px 16px; text-align: center; color: var(--text-muted); font-size: var(--fs-base); line-height: 1.8; }
 #pf-positions-tbody .pfp-empty-title { font-size: 13px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; }
+/* Screen audit 2026-10-20: on a phone the empty state was centred across the 680px table, so the button sat past the
+   313px scroller ("첫 종"). Below tablet width it is pinned to the visible left edge of the scroller. */
+@media (max-width: 760px) {
+  #pf-positions-tbody td.pfp-empty { text-align: left; }
+  #pf-positions-tbody td.pfp-empty > * { position: sticky; left: 16px; max-width: calc(100vw - 72px); }
+  #pf-positions-tbody td.pfp-empty > button { display: inline-block; margin: 8px 0; }
+}
 #pf-positions-tbody .pfp-add { margin-top: 10px; min-height: 36px; padding: 7px 16px; }
 #pf-positions-tbody .pfp-privacy { font-size: var(--fs-base); color: var(--text-muted); margin: 6px auto 0; max-width: 60ch; }
 #pf-positions-tbody > tr.pfp-row { border-bottom: 1px solid var(--border); cursor: pointer; }
@@ -39,3 +46,30 @@
 /* Base-currency notes under the exposure and stress panels (src/ui/panels/portfolio-base-values.js) */
 #page-portfolio .pfp-base-blocked { font-size: var(--fs-base); color: var(--text-muted); padding: 8px 0; }
 #page-portfolio .pfp-base-excluded { font-size: var(--fs-sm); color: var(--text-muted); margin-top: 4px; }
+/* v58.52 매매일지 · 복기 (src/ui/panels/portfolio-trade-journal.js) */
+#pf-trades .pf-trade-form, #pf-trades .pf-trade-rules, #pf-trades .pf-trade-fold { border: 1px solid var(--border-subtle); border-radius: 10px; padding: 10px 14px; margin: 10px 0; background: var(--bg-card, transparent); }
+#pf-trades summary { cursor: pointer; font-weight: 700; color: var(--text-secondary); min-height: 28px; display: flex; align-items: center; }
+#pf-trades .pf-trade-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px 12px; margin: 10px 0; }
+#pf-trades .pf-trade-field { display: flex; flex-direction: column; gap: 4px; font-size: var(--fs-sm, 12px); color: var(--text-muted); min-width: 0; }
+#pf-trades .pf-trade-field input, #pf-trades .pf-trade-field select, #pf-trades .pf-trade-field textarea { min-height: 36px; padding: 6px 8px; border: 1px solid var(--border-subtle); border-radius: 8px; background: var(--bg-input, var(--bg-card, transparent)); color: var(--text-primary); font: inherit; width: 100%; box-sizing: border-box; }
+#pf-trades .pf-trade-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+#pf-trades .pf-trade-actions button { min-height: 36px; padding: 6px 18px; }
+#pf-trades .pf-trade-block { margin: 14px 0; }
+#pf-trades .pf-trade-h3 { font-size: 15px; margin: 0 0 8px; color: var(--text-primary); }
+#pf-trades .pf-trade-h4 { font-size: 13px; margin: 12px 0 6px; color: var(--text-secondary); }
+#pf-trades .pf-trade-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+#pf-trades .pf-trade-card { border: 1px solid var(--border-subtle); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+#pf-trades .pf-trade-card-label, #pf-trades .pf-trade-card-sub { font-size: 12px; color: var(--text-muted); }
+#pf-trades .pf-trade-card-value { font-size: 16px; color: var(--text-primary); overflow-wrap: anywhere; }
+#pf-trades .pf-trade-notes, #pf-trades .pf-trade-mirror, #pf-trades .pf-trade-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+#pf-trades .pf-trade-notes li { line-height: 1.65; padding-left: 10px; border-left: 3px solid var(--border-subtle); }
+#pf-trades .pf-trade-notes li.is-burden { border-left-color: var(--data-red); }
+#pf-trades .pf-trade-mirror-row { line-height: 1.6; }
+#pf-trades .pf-trade-mirror-state { display: inline-block; min-width: 56px; margin-right: 6px; font-size: 12px; font-weight: 700; }
+#pf-trades .pf-trade-mirror-row.is-favorable .pf-trade-mirror-state { color: var(--data-green); }
+#pf-trades .pf-trade-mirror-row.is-burden .pf-trade-mirror-state { color: var(--data-red); }
+#pf-trades .pf-trade-mirror-row.is-unknown .pf-trade-mirror-state { color: var(--text-muted); }
+#pf-trades .pf-trade-row { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-subtle); }
+#pf-trades .pf-trade-row-main { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+#pf-trades .pf-trade-row-sub { grid-column: 1; font-size: 12px; color: var(--text-muted); overflow-wrap: anywhere; }
+#pf-trades .pf-trade-remove { grid-column: 2; grid-row: 1 / span 2; min-height: 32px; }

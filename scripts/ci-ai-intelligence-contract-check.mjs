@@ -12,7 +12,6 @@ import { buildSectorDecomposition } from '../src/ai/analysis/sector.js';
 import { buildCompanyAssessment } from '../src/ai/analysis/company.js';
 import { buildTechnicalConditions } from '../src/ai/analysis/technical.js';
 import { buildMacroFxTransmission } from '../src/ai/analysis/macro-fx.js';
-import { createBenchmarkManifest, evaluateRoutingCorpus, assertBenchmarkReady } from '../src/ai/eval/benchmark.js';
 import { createResearchDecision, validateResearchDecision } from '../src/ai/research/decision.js';
 import { createResearchPlan, validateResearchPlan } from '../src/ai/research/plan.js';
 import { createEvidenceDocument, evaluateResearchEvidenceFloor, normalizeResearchExecutionResult, normalizeSearchResults, validateClaimEvidenceBinding, verifyEvidenceBinding } from '../src/ai/research/evidence.js';
@@ -154,11 +153,7 @@ check('analysis-null-and-out-of-domain-inputs-fail-closed',
   && buildMacroFxTransmission({ macro: null, fx: null }).status === 'insufficient');
 const macroFx = buildMacroFxTransmission({ macro: { rates: 4.2 }, fx: { dxy: 104 }, edges: [{ source: 'rates', target: 'dxy', direction: 'positive', strength: 0.5, asOf: '2026-07-27', sourceKind: 'official', evidenceId: 'e-rates' }] });
 check('macro-fx-transmission', macroFx.status === 'supported' && macroFx.evidenceIds.length === 1);
-const evalManifest = createBenchmarkManifest({ snapshotRevision: 'snapshot:test', modelVersion: 'model:test', promptVersion: 'prompt:test', retrieverVersion: 'retriever:test', validatorVersion: 'validator:test', costLimitUsd: 1 });
-check('benchmark-manifest', assertBenchmarkReady(evalManifest).ok && evalManifest.reproducible);
-check('benchmark-missing-cost-is-not-zero', createBenchmarkManifest({ costLimitUsd: null }).costLimitUsd === null);
-const corpus = evaluateRoutingCorpus({ cases: cases.map(({ query, expected }, index) => ({ id: `case-${index + 1}`, query, expectedIntent: expected })), planner: (query) => createQuestionPlan({ query, route: cases.find((row) => row.query === query)?.route || 'home', now: '2026-07-28T12:00:00Z' }) });
-check('routing-corpus-evaluation', corpus.accuracy === 1 && corpus.total === cases.length);
+// v58.51: the benchmark manifest module (src/ai/eval/benchmark.js) had no product caller and is gone; routing accuracy is checked case by case above.
 const conceptPlan = createQuestionPlan({ query: 'What is a bond yield?', route: 'macro', now: '2026-07-28T12:00:00Z' });
 check('research-concept-does-not-force-search', conceptPlan.researchDecision?.requirement === 'NOT_NEEDED' && conceptPlan.researchPlan?.subQueries?.length === 0);
 check('research-concept-contract', validateResearchDecision(conceptPlan.researchDecision).ok && validateResearchPlan(conceptPlan.researchPlan).ok);
@@ -559,11 +554,10 @@ check('quote-provenance-is-persisted', core.includes('observedAt: observedAt') &
 check('sentiment-does-not-stamp-missing-observation-now', !/raw\[field\.observedAt\]\s*\|\|\s*raw\.now/.test(read('src/data/orchestrators/sentiment.js')));
 check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.sourceUrl && tamMeta\.observedAt/.test(core) && /missingProvenance:\s*'withhold-numeric-output'/.test(core) && /출처·기준일이 검증된 시장규모가 없어 숫자를 표시하지 않습니다/.test(core));
 
-// ── v57.48 expert review (2026-10-13): #7 close-basis evidence, #13 directive gate, #19 one warning line, #4 base-currency simulation ──
+// ── v57.48 expert review (2026-10-13): #7 close-basis evidence, #13 directive gate, #19 one warning line ──
 {
   const detail = (label, condition, info) => check(condition ? label : `${label} :: ${String(info).slice(0, 900)}`, condition);
   const { buildCloseBasisEvidence, closeBasisSubstituteFor } = await import('../src/ai/context/close-basis-evidence.js');
-  const { simulatePortfolioAddition } = await import('../src/ai/context/portfolio-simulation.js');
   // A deterministic close history ending on the 2026-10-12 US/KRX close (the day the live answer lost its numbers).
   const days = [];
   for (let at = Date.parse('2025-09-01T00:00:00Z'); at <= Date.parse('2026-10-12T00:00:00Z'); at += 86400000) {
@@ -649,18 +643,9 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   detail('#13 directive gate: weight, opportunity and cross-clause negation directives are replaced',
     replaced.every((text) => /개별 매매 지시는 제공하지 않습니다/.test(gate(text).text)), JSON.stringify(replaced.map(gate)));
 
-  // #4: base-currency what-if.
-  const krwUsd = { currencyState: 'mixed-without-conversion', rows: [{ symbol: 'AAPL', value: 1000, currency: 'USD' }, { symbol: '005930.KS', value: 1000000, currency: 'KRW' }] };
-  const converted = { currencyState: 'converted-with-declared-rates', baseCurrency: 'KRW', rows: [{ symbol: 'AAPL', value: 1400000, currency: 'KRW' }, { symbol: '005930.KS', value: 1000000, currency: 'KRW' }] };
-  const positions = [{ ticker: 'AAPL', qty: 5 }, { ticker: '005930.KS', qty: 10 }];
-  const heldMix = simulatePortfolioAddition({ query: 'AAPL 10% 추가하면?', target: 'AAPL', positions, surface: krwUsd });
-  const krw = simulatePortfolioAddition({ query: 'AAPL 10% 추가하면?', target: 'AAPL', positions, surface: converted });
-  const foreignNew = simulatePortfolioAddition({ query: 'NVDA 10% 추가', target: 'NVDA', positions, surface: converted, targetQuote: { price: 180, currency: 'USD' } });
-  detail('#4 the X% simulation uses base-currency values, holds an unconverted mix and labels the base currency',
-    heldMix.available === false && /환율이 선언되지 않아/.test(heldMix.reason)
-      && krw.available === true && krw.currency === 'KRW' && krw.currencySymbol === '₩' && krw.currentTotal === 2400000 && krw.weights.find((row) => row.symbol === 'AAPL').currentPct === 58.33
-      && foreignNew.available === false && /기준 통화\(KRW\)와 달라/.test(foreignNew.reason)
-      && !/현재 총 가치: \$'/.test(chatSource) && !/_pfSim\b/.test(chatSource), JSON.stringify({ heldMix, krw, foreignNew })); // v57.62: the only chat renderer (per-page chatSend) was retired
+  // #4: the base-currency what-if module (src/ai/context/portfolio-simulation.js) lost its only consumer in v57.62 and was removed in v58.51;
+  // the old chat simulator must stay retired.
+  detail('#4 retired chat portfolio simulator stays retired', !/현재 총 가치: \$'/.test(chatSource) && !/_pfSim\b/.test(chatSource), 'chat source still carries the old simulator');
   // #20: portfolio and research pages receive the close-basis block; live values carry an observation time.
   detail('#20 portfolio/research contexts get the screen basis and live values carry their observation time',
     /home\|briefing\|signal\|breadth\|sentiment\|macro\|fxbond\|themes\|market-news\|portfolio\|principles\|atlas\|masters/.test(chatSource) && /실시간 관측 ' \+ _aioPublicAIFormatAsOf/.test(chatSource), 'source');

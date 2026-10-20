@@ -27,12 +27,13 @@ function completedRows(history = []) {
 const MEASURES = Object.freeze([
   { key: 'spx', label: 'S&P 500', kind: 'pct' },
   { key: 'nasdaq', label: '나스닥 종합', kind: 'pct' }, // C25: ^IXIC (the home KPI is 나스닥 100)
-  { key: 'vix', label: 'VIX', kind: 'level', digits: 1 },
+  // Screen audit 2026-10-20: VIX '-1.5' sat among % tiles with no unit; level changes name theirs.
+  { key: 'vix', label: 'VIX', kind: 'level', digits: 1, unit: 'pt' },
   { key: 'tnx', label: '미 10년물', kind: 'bp' },
   { key: 'dxy', label: '달러 인덱스', kind: 'pct' },
   { key: 'wti', label: 'WTI', kind: 'pct' },
   { key: 'breadth50', label: '50일선 위 종목', kind: 'pp' },
-  { key: 'fg', label: '공포·탐욕', kind: 'level', digits: 0 },
+  { key: 'fg', label: '공포·탐욕', kind: 'level', digits: 0, unit: '점' },
   { key: 'kospi', label: '코스피', kind: 'pct', market: 'KR' },
   { key: 'kosdaq', label: '코스닥', kind: 'pct', market: 'KR' },
   { key: 'usdkrw', label: '원/달러', kind: 'pct' }
@@ -67,7 +68,7 @@ function measureChange(measure, history, basis, prevDate, krThrough = null) {
   // v57.86 (live review): a whole-number level (F&G) moves by the difference of the printed levels, as 심리 says (+5, not +4).
   const value = measure.kind === 'pct' ? (b / a - 1) * 100 : measure.kind === 'bp' ? (b - a) * 100 : measure.kind === 'level' && measure.digits === 0 ? Math.round(b) - Math.round(a) : (b - a) * scale;
   const text = measure.kind === 'pct' ? signed(value, 2, '%') : measure.kind === 'bp' ? signed(value, 0, 'bp')
-    : measure.kind === 'pp' ? signed(value, 1, '%p') : signed(value, measure.digits ?? 1);
+    : measure.kind === 'pp' ? signed(value, 1, '%p') : signed(value, measure.digits ?? 1, measure.unit || '');
   const level = measure.kind === 'pp' ? `${(b * scale).toFixed(0)}%` : measure.kind === 'bp' ? `${b.toFixed(2)}%`
     : measure.kind === 'level' ? b.toFixed(measure.digits ?? 1) : null;
   return { key: measure.key, label: measure.label, value, text, level, close: b };

@@ -833,7 +833,7 @@ target_version: v57.79
 
 **Rule**: `null`, blank, boolean, 비유한 값은 금융 숫자가 아니다. 인과 주 사건·대안·교차자산은 같은 관측 시간창과 sourceKind/evidenceId를 가져야 하며 reference/untrusted/unknown은 causal support가 아니다. 행 수만으로 ready가 되지 않고 source·asOf·evidence를 함께 확인한다. KR/US 혼합 질문을 한 시장의 verified session으로 표시하지 않는다. prohibited 실행 요청은 ‘교육’ 단어가 섞여도 허용하지 않는다. research minimum source floor와 query budget은 유효한 nonnegative integer가 아니면 fail closed한다. UI에 노출되는 runner/parser/retriever 오류는 bounded code를 사용하고 claim/context/audit collection은 nested row까지 외부 변경에서 격리한다. 근거 coverage는 정확도나 수익 확률이 아니다.
 
-**Validation**: `ci-ai-intelligence-contract-check.mjs`, `ci-inference-contract-check.mjs`, `ci-ai-chat-reliability-contract-check.mjs`, `ci-research-model-contract-check.mjs`, `ci-research-flow-contract-check.mjs`, `ci-knowledge-repository-contract.mjs`. Offline corpus/contract PASS는 live provider, 원문 사실성, 답변 정확도나 최신 시장값 인증이 아니다.
+**Validation**: `ci-ai-intelligence-contract-check.mjs`, `ci-inference-contract-check.mjs`, `ci-ai-chat-reliability-contract-check.mjs`, `ci-research-model-contract-check.mjs`, `ci-research-flow-contract-check.mjs`. Offline corpus/contract PASS는 live provider, 원문 사실성, 답변 정확도나 최신 시장값 인증이 아니다.
 
 ## R576. 앱·지식·금융 계산의 경계는 종료·관계 의미·결측·비용 의미를 보존한다 (v54.76, P1023~P1025)
 
@@ -1115,7 +1115,7 @@ target_version: v57.79
 
 **Rule**: chat history는 opt-in 전 저장하지 않고 저장 전 민감정보를 redaction하며 비활성화 시 기존 row를 삭제한다. 동의 wrapper나 versioned JSON repository를 Vault라 부르지 않는다. `encryptedAtRest` capability가 없는 저장소는 privacy vault read/write를 모두 거부하고 개인 portfolio는 검증된 AES-GCM 경로만 소비한다.
 
-**Validation**: `js/aio-tests.js` T962, `scripts/ci-storage-migration-check.mjs`, `scripts/ci-portfolio-vault-e2e.mjs`, `src/storage/vault.js`.
+**Validation**: `js/aio-tests.js` T962, `scripts/ci-portfolio-vault-e2e.mjs`. v58.51: the unused `src/storage/` repository·migration·vault facade was removed (no product caller); `scripts/ci-storage-migration-check.mjs` now covers only the live storage gateway.
 
 ## R530. Evidence allowedUse는 생성 이후 오직 더 제한적으로만 바뀐다 (v54.59, P967)
 
@@ -1291,7 +1291,7 @@ target_version: v57.79
 
 **Rule**: Principles and Atlas may publish structured long-form reference drafts only with an explicit review boundary. Each connected learner target must expose durable bookmark/note state and an exact professional route bridge containing route, metric, timeframe and return context. Automated length, schema and browser checks cannot be described as independent semantic, source-directness or recruited-user certification.
 
-**Validation**: the knowledge depth audit reports `completionReady:false`; route-bridge, Principles and Atlas browser contracts cover all primary targets and persisted learner state.
+**Validation**: the knowledge depth audit reports `completionReady:false`; the route-targets artifact gate (`ci-knowledge-route-bridge-contract.mjs`), Principles and Atlas browser contracts cover all primary targets and persisted learner state.
 
 ## R500. Knowledge routes load by route-owned capability and preserve interaction state (v54.38, P948)
 
@@ -1401,7 +1401,7 @@ target_version: v57.79
 
 **Rule**: Any JavaScript module imported by the deployed static application must be added to `sw.js` `SHELL_ASSETS` in the same change. A successful online import is not sufficient evidence because an old service-worker shell or offline transition can otherwise cache the importer without its new dependency. The shell entry must use the exact deployed relative path and remain covered by the architecture dependency scan.
 
-**Validation**: `ci-architecture-contract-check.mjs` derives the required runtime module set and fails when any dependency, including `src/data/contracts/source-registry.js`, is absent from `SHELL_ASSETS`; version and release-revision gates keep the service-worker cache epoch synchronized.
+**Validation**: `ci-architecture-contract-check.mjs` derives the required runtime module set and fails when any dependency is absent from `SHELL_ASSETS` (producer-only modules such as `src/data/contracts/source-registry.js`, read by `scripts/build-reconciliation-status.mjs`, are outside this set — v58.51); version and release-revision gates keep the service-worker cache epoch synchronized.
 
 ## R481. Professional data capabilities are promoted only by artifact-backed partial scopes (v54.22)
 
@@ -1469,7 +1469,7 @@ target_version: v57.79
 
 ## R471. Screener Workbench contracts must be the single lifecycle boundary (v54.12)
 
-**Rule**: Screener identity, observations, field readiness, AST definitions, ScreenRun explanations, refresh demands, provider capabilities, regime states and outcomes must cross one versioned contract boundary. Unknown, stale, conflicting, unsupported or rights-blocked values remain non-promotable; research-relative ranking must not silently become predictive validity or automatic weight promotion.
+**Rule**: Screener identity, observations, field readiness, AST definitions, ScreenRun explanations must cross one versioned contract boundary (refresh-demand, provider-capability, regime and outcome modules were never wired and were removed in v58.51; they return only with a product consumer). Unknown, stale, conflicting, unsupported or rights-blocked values remain non-promotable; research-relative ranking must not silently become predictive validity or automatic weight promotion.
 
 **Validation**: `ci-screener-workbench-contract.mjs`, `validate-screener-artifact.mjs`, `ci-data-pipeline-contract-check.mjs`, `ci-runtime-contract-check.mjs` and the final live/browser gates must pass. `public-data/model-validation-status.json` and `public-data/screener-validation-gate.json` remain `BLOCKED` until PIT, turnover, cost, liquidity and live/backtest parity evidence exists.
 
@@ -1483,7 +1483,7 @@ target_version: v57.79
 
 **Rule**: Principles and Atlas concepts must be published through the canonical knowledge manifest. Legacy IDs may resolve only through explicit aliases; cross-surface overlap is an equivalence group, never an accidental duplicate.
 
-**Validation**: `ci-knowledge-ontology-contract.mjs` must pass with the generated manifest and zero registry errors.
+**Validation**: `ci-knowledge-ontology-contract.mjs` must pass with the generated manifest: unique canonical ids, live source inventories, explicit equivalence groups and resolvable alias targets (the unused in-memory registry module was removed in v58.51).
 
 ## R465. Knowledge graph edge metadata must be explicit before runtime consumption (v54.6)
 
@@ -1507,7 +1507,7 @@ target_version: v57.79
 
 **Rule**: Shareable route state must round-trip without destructive navigation, local learning state must be namespaced and recoverable, and a missing knowledge capability must degrade to fallback without erasing connected capabilities.
 
-**Validation**: route-state, learning-state, route-bridge, repository, and renderer contract scripts must pass together.
+**Validation**: route-state, learning-state, route-targets artifact, capability-loader (`ci-knowledge-core-semantic-check.mjs`) and lesson-renderer contract scripts must pass together (v58.51: the unused route-bridge, repository and evidence/graph/path/tree renderer modules were removed).
 
 ## R469. 주식·경제·금융·기술 백과사전은 전체 corpus와 Web Research를 별도 인증한다 (v54.6, P910)
 
@@ -1959,11 +1959,11 @@ target_version: v57.79
 
 ## R320. Retrieval documents require lifecycle metadata and poisoning quarantine before AI use (v52.83, P698)
 
-**Rule**: Imported research is untrusted reference material. Every indexed document must retain document/chunk/version/time/source-tier metadata; injection/encoded/hidden content, retracted, superseded, or manually quarantined rows cannot enter active top-k or current-action evidence.
+**Rule**: Imported research is untrusted reference material. Every retrieved card must retain document/chunk/version/time/source-tier metadata; injection/encoded/hidden content, retracted, superseded, or card-flagged (`quarantined`) rows cannot enter active top-k or current-action evidence.
 
-**Required**: Reuse `AIO.indexAIRetrievalDocuments`, `AIO.evaluateAIRetrievalQuality`, `AIO.quarantineAIRetrievalDocument`, and `AIO.retrieveImportedResearch`. Record recall/precision/source-tier/temporal metrics and fail closed when a quarantined document is used by a current action path.
+**Required**: Reuse `_aioAIRetrievalSafety` inside `AIO.retrieveImportedResearch` (the product path) and `AIO.evaluateAIRetrievalQuality` (QA bundle, explicit `documents`). Record recall/precision/source-tier/temporal metrics and fail closed when a quarantined document is used by a current action path. The test-only in-memory index and manual quarantine API were retired in v58.51.
 
-**Validation**: T983~T987, WP-AI13 runtime-contract checks, and Chromium headless `1051/1051 PASS` locally. Live retrieval/model certification remains separate.
+**Validation**: T983·T984·T986·T987, WP-AI13 runtime-contract checks, and Chromium headless `1051/1051 PASS` locally (v52.83; T985 retired v58.51). Live retrieval/model certification remains separate.
 
 ## R321. Financial conduct classification must preserve P0, legal-review, and educational states (v52.83, P698)
 
@@ -1993,7 +1993,7 @@ target_version: v57.79
 
 **Rule**: A model-generated current-sensitive claim is not publishable merely because it contains a number. It must carry metric, value, unit, scale, direction, as-of, source/sourceKind, and exactly one evidenceId that resolves to the same metric/unit/scale/value/direction evidence row. Unstructured prose remains subject to the existing public action/freshness gates; structured claim envelopes additionally pass the shared WP-AI2 claim audit.
 
-**Required**: Reuse the common `_aioRunAIResponsePipeline`; do not create a parallel AI-only validator or evidence store. Block missing/duplicate evidence, future or missing as-of/source, F&G↔VIX confusion, NFP scale errors, bp↔percent errors, sign reversal, and FX quote inversion. Keep counterexample fixtures in T941~T949 and keep the prompt schema versioned.
+**Required**: Reuse the common `_aioRunAIResponsePipeline`; do not create a parallel AI-only validator or evidence store. Block missing/duplicate evidence, future or missing as-of/source, F&G↔VIX confusion, NFP scale errors, bp↔percent errors, sign reversal, and FX quote inversion. Keep counterexample fixtures in T941~T949 and keep the prompt schema versioned — since v58.51 that is the single `[AI_ANSWER_PLAN]` block (`answer-plan.v1`, aio-chat.js); the `[AI_CLAIMS_JSON]` envelope parser stays as the fallback validator.
 
 **Validation**: `AIO.createTypedClaim`, `AIO.validateTypedClaim`, `AIO.validateAIResponseClaims`, `claimAudit`, WP-AI2 runtime contract, and Chromium headless T941~T949 (`1010/1010 PASS` locally). Live model-output certification is separate.
 
@@ -2445,7 +2445,7 @@ Yahoo Finance가 가격을 반환해도 해당 기업이 실제 상장사인지 
 ### R29. AI 채팅 데이터 검증 태그 (v46.5 추가)
 ### R30. 지표 라벨/임계값 전역 통일 (v46.8 추가, P83~P104 교훈)
 ### R31. innerHTML XSS 전수 점검 (v46.8 추가, P100 교훈)
-### R33. 데이터 Freshness 추적 의무화 — DATE_ENGINE + _markFetch + _aioFeedHealth (v48.39 추가, P133 교훈)
+### R33. 데이터 Freshness 추적 의무화 — FRESHNESS_ENGINE + _markFetch + _aioFeedHealth (v48.39 추가, P133 교훈)
 ### R52. 외부 CDN 스크립트 SRI 의무 (v48.69 추가, P140 교훈, 구 R34 → R52 재번호)
 ### R53. 독립 병렬 fetch는 단일 실패 격리 (v48.69 추가, P143 교훈, 구 R35 → R53 재번호)
 ### R32. Event Delegation 의무화 — onclick 인라인 핸들러 금지 (v48.35 추가, P132 교훈)
@@ -3241,7 +3241,7 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 
 **Rule**: A routing corpus score is not live model quality. Reproducible benchmark status requires pinned snapshot/model/prompt/retriever/validator revisions, and production canary/feedback/drift/rollback status remains operator-required until external runtime evidence exists.
 
-**Validation**: `src/ai/eval/benchmark.js`, `src/ai/operations/control-plane.js`, and the AI intelligence contract must preserve the explicit operator gate.
+**Validation**: Neither a benchmark manifest nor a control-plane module ships — `src/ai/operations/control-plane.js` was retired earlier and `src/ai/eval/benchmark.js` in v58.51, both without a product caller. The AI intelligence contract checks routing case by case, and no screen or AI answer may claim benchmark, canary or drift status.
 
 ## R401. Research requirement and research capability must remain separate (v53.56, P850)
 

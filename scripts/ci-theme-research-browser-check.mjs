@@ -69,6 +69,15 @@ try {
     await page.reload(); await page.waitForFunction(() => window.AIO_ARCH);
     assert.equal(await page.locator('body').evaluate((body) => body.classList.contains('dark-theme')), mode === 'dark', 'P1604: mode survives reload');
   }
+  // v58.52 (screen audit 2026-10-20): a Korean theme link from another route lands on 테마 with the detail open and in view.
+  await page.evaluate(() => window.showPage('ticker'));
+  await page.locator('#page-ticker.active').waitFor({ state: 'visible' });
+  await page.evaluate(() => window.openKrThemeDetail('semi'));
+  await page.waitForFunction(() => document.getElementById('page-themes')?.classList.contains('active') && document.getElementById('kr-theme-detail-panel')?.closest('details')?.open
+    && /반도체/.test(document.querySelector('#kr-theme-detail-content .krl-d-title')?.textContent || ''), null, { timeout: 8000 });
+  await page.waitForTimeout(900);
+  const krDetailTop = await page.evaluate(() => document.getElementById('kr-theme-detail-panel').getBoundingClientRect().top);
+  assert.ok(krDetailTop >= -4 && krDetailTop < 400, `v58.52 the Korean theme detail is in view after the jump (top ${krDetailTop})`);
   await page.evaluate(() => window.showPage('themes'));
   // v57.54: the sector-performance section (home of the only role=button tooltip) hides when no sector has a 1-day or
   // 1-week value — always the case in this offline fixture. The tooltip mechanics are what is under test, so show it.

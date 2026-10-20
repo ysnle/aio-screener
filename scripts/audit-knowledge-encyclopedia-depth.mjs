@@ -15,7 +15,6 @@ const atlasUi = read('src/ui/pages/atlas.js');
 const learningControls = read('src/ui/knowledge/learning-controls.js');
 const routeState = read('src/app/knowledge-route-state.js');
 const learningState = read('src/domain/knowledge/learning-state.js');
-const routeBridge = read('src/domain/knowledge/route-bridge.js');
 const structuredArticles = readJson('public-data/knowledge/articles.json');
 const learningGraph = readJson('public-data/knowledge/learning-graph.json');
 const auditedAt = process.env.KNOWLEDGE_MANIFEST_DATE || new Date().toISOString().slice(0, 10);
@@ -123,7 +122,7 @@ const uiCapabilities = {
   learnerNotes: /setNote/.test(learningState),
   learnerControls: /createKnowledgeLearningControls/.test(`${principlesUi}\n${atlasUi}\n${learningControls}`),
   fullTextSearch: /knowledgeArticles|LESSON_SEARCH_EXTRA/.test(principlesUi) && /JSON\.stringify\(authored|knowledgeArticles/.test(atlasUi),
-  professionalRouteBridge: /createKnowledgeRouteBridge|knowledge-professional-bridge|routeLabel/.test(`${principlesUi}\n${atlasUi}\n${routeBridge}`)
+  professionalRouteBridge: /knowledge-professional-bridge|routeLabel/.test(`${principlesUi}\n${atlasUi}`)
 };
 const structuredReferenceArtifacts = {
   articleCount: structuredArticles.counts?.total || 0,

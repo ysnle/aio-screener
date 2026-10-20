@@ -1,4 +1,5 @@
 import { legacyCashCurrency, normalizeCashBalances } from './portfolio-cash.js';
+import { normalizeJournal } from '../domain/portfolio/trade-journal.js';
 
 /**
  * Full personal-data backup bundle (P1316/R661).
@@ -16,7 +17,7 @@ import { legacyCashCurrency, normalizeCashBalances } from './portfolio-cash.js';
 
 export const BACKUP_FORMAT = 'aio-backup';
 export const BACKUP_VERSION = 1;
-export const BACKUP_SECTIONS = Object.freeze(['positions', 'ledger', 'fxLegs', 'cash', 'cashBalances', 'assumptions', 'journal', 'watchlists', 'activeWatchlistId']);
+export const BACKUP_SECTIONS = Object.freeze(['positions', 'ledger', 'fxLegs', 'cash', 'cashBalances', 'assumptions', 'journal', 'trades', 'watchlists', 'activeWatchlistId']);
 
 const TICKER_RE = /^[A-Z0-9.\-^=]{1,12}$/i;
 const MAX_JOURNAL = 80;
@@ -109,6 +110,9 @@ export function countBackupContents(contents = {}) {
     cash: (contents.cashBalances || []).length || (contents.cash != null ? 1 : 0),
     assumptions: Object.keys(contents.assumptions || {}).length,
     journal: (contents.journal || []).length,
+    // v58.52 매매일지: trades plus one for a declared rule set (rules alone are worth keeping). A bundle without the section
+    // leaves the stored journal as it is (js/aio-workspace.js restore).
+    trades: (contents.trades?.trades || []).length + (Object.values(contents.trades?.rules || {}).some((value) => value != null) ? 1 : 0),
     watchlists: (contents.watchlists || []).length
   };
   // A declared ledger with coverage flags but no entries is still a declaration worth keeping.
@@ -124,6 +128,7 @@ export function describeBackupCounts(counts) {
     `현금 ${counts.cash ? `${counts.cash}개 통화` : '없음'}`,
     `가정 ${counts.assumptions}`,
     `일지 ${counts.journal}`,
+    ...(counts.trades ? [`매매일지 ${counts.trades}`] : []),
     `관심목록 ${counts.watchlists}`
   ].join(' · ');
 }
@@ -137,6 +142,7 @@ export function buildPortfolioBackup(snapshot = {}, meta = {}) {
     cashBalances: Array.isArray(snapshot.cashBalances) ? normalizeCashBalances(snapshot.cashBalances).map((row) => ({ ...row })) : null,
     assumptions: snapshot.assumptions && typeof snapshot.assumptions === 'object' ? { ...snapshot.assumptions } : {},
     journal: Array.isArray(snapshot.journal) ? snapshot.journal : [],
+    trades: snapshot.trades && typeof snapshot.trades === 'object' ? normalizeJournal(snapshot.trades) : null,
     watchlists: Array.isArray(snapshot.watchlists) ? snapshot.watchlists : [],
     activeWatchlistId: typeof snapshot.activeWatchlistId === 'string' && snapshot.activeWatchlistId ? snapshot.activeWatchlistId : null
   };
@@ -180,6 +186,7 @@ export function parsePortfolioBackup(text, deps = {}) {
     cashBalances: sanitizeCashBalances(raw),
     assumptions: sanitizeAssumptions(raw.assumptions, deps),
     journal: sanitizeJournal(raw.journal),
+    trades: raw.trades && typeof raw.trades === 'object' ? normalizeJournal(raw.trades) : null,
     watchlists,
     activeWatchlistId: activeId
   };

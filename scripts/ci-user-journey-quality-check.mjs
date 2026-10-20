@@ -46,17 +46,13 @@ try {
     host.querySelector('.knowledge-learning-bookmark').click();
     const draft = host.querySelector('textarea').value === 'unsaved draft'; host.querySelector('.knowledge-learning-note-save').click();
     const memory = host.querySelector('[role=status]').textContent.includes('현재 화면 세션') && learning.snapshot().notes.fixture.value === 'unsaved draft'; host.remove();
-    const prior = window._liveData;
-    window._liveData = { '^GSPC': { price: 100, source: 'snapshot:market-snapshot', observedAt: '2026-08-01' }, SPY: { price: 100, source: 'reference:fx:fixture', observedAt: '2026-08-01' } };
-    const model = window.AIO.getBriefingCanonicalObservationModel(); window._liveData = prior;
-    const source = model.metrics.spx.sourceKind === 'SNAPSHOT' && model.metrics.spy.sourceKind === 'REFERENCE' && model.metrics.spx.asOf === '2026-08-01';
     const { createLazyPage, createRouteRegistry, createLifecycleRouter } = await import('/src/app/router.js');
     let mounts = 0, cleanups = 0;
     const lazy = createLazyPage({ route: 'guide', loader: async () => ({}), factory: () => ({ mount: ({ scope }) => { mounts++; scope.add(() => cleanups++); if (mounts === 1) throw Error('partial mount'); } }) });
     const router = createLifecycleRouter({ root: new EventTarget(), registry: createRouteRegistry({ modules: { guide: lazy } }), context: { documentRef: document } });
     router.transition('guide'); await new Promise(r => setTimeout(r, 0)); const cleaned = cleanups === 1;
     router.transition('guide'); await new Promise(r => setTimeout(r, 0)); const retried = mounts === 2; router.dispose();
-    return { draft, memory, source, cleaned, retried };
+    return { draft, memory, cleaned, retried };
   });
   for (const [name, ok] of Object.entries(fixtures)) check(name, ok);
   await page.screenshot({ path: '_artifacts/structural-quality-20260906/guide.png' });

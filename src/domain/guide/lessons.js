@@ -205,7 +205,7 @@ export const LESSONS = Object.freeze([
     why: '돈줄이 마르면 이익보다 먼저 자금 조달이 막히고, 그 신호는 스프레드에 먼저 나타납니다.',
     live: (ctx) => {
       const state = axisState(ctx, 'credit');
-      return state === 'burden' ? '오늘 신용 지표가 부담입니다 — 약세의 원인이 자금 쪽에 있는지 보는 신호입니다.'
+      return state === 'burden' ? '최근 신용 지표(하이일드 스프레드는 하루 이틀 늦게 발표)가 부담입니다 — 약세의 원인이 자금 쪽에 있는지 보는 신호입니다.'
         : state === 'favorable' && axisState(ctx, 'breadth') === 'burden' ? '시장 폭은 약하지만 신용은 안정입니다 — 자금 경색이 약세를 이끄는 신호는 아직 없습니다.' : null;
     }
   },

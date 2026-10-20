@@ -322,15 +322,26 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
   // Korean theme detail through src/ui/navigation/theme-detail.js.
   window.AIO_KR_THEME_LABELS = KR_THEME_LABELS;
   window.AIO_MA_STRUCTURE_LABELS = MA_STRUCTURE_LABELS; // v57.55 (C19 wiring): the legacy SPY card reads the same moving-average order names
-  window.openKrThemeDetail = (themeId) => {
+  window.openKrThemeDetail = (themeId, { settle = false } = {}) => {
     if (!window.KR_THEME_MAP?.[themeId]) return false;
-    if (typeof window.showPage === 'function') window.showPage('themes');
+    // Screen audit 2026-10-20: from a stock page the detail was filled before the 테마 route mounted, and the mount closed
+    // the fold around it — the reader landed at the top of 테마 with nothing open. Off the route, the id waits for the
+    // themes page to mount (src/ui/pages/themes.js) and that page opens it.
+    if (!document.getElementById('page-themes')?.classList.contains('active') && typeof window.showPage === 'function') {
+      window._aioOpenKrThemeDetailOnThemes = themeId;
+      window.showPage('themes');
+      return true;
+    }
     const section = document.getElementById('kr-integrated-themes');
     const details = section?.closest('details');
     if (details) details.open = true;
     if (typeof window.showKrThemeDetail === 'function') window.showKrThemeDetail(themeId);
     const panel = document.getElementById('kr-theme-detail-panel');
-    if (panel) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    const panelFold = panel?.closest('details'); // the detail sits in the live-quote fold (#kr-themes-live), not the list's
+    if (panelFold) panelFold.open = true;
+    if (panel) panel.scrollIntoView({ block: 'start', behavior: settle ? 'auto' : 'smooth' });
+    // Right after the themes mount the sections above keep filling and push the panel down; place it once more.
+    if (panel && settle) setTimeout(() => { if (document.getElementById('page-themes')?.classList.contains('active')) panel.scrollIntoView({ block: 'start' }); }, 700);
     return true;
   };
 }

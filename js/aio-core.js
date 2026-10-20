@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.50';
+const APP_VERSION = 'v58.52';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -578,6 +578,9 @@ window.AIO.extractAIClaimEnvelope = function(rawText) {
   if (!candidate) return null;
   try {
     var parsed = JSON.parse(candidate);
+    // v58.51: without the [AI_CLAIMS_JSON] marker only a WP-AI2 envelope counts — an [AI_ANSWER_PLAN] object that
+    // failed plan validation also carries a claims array and would otherwise be audited as an envelope.
+    if (marker < 0 && parsed && parsed.schemaVersion !== _AIO_CLAIM_SCHEMA_VERSION) return null;
     if (parsed && Array.isArray(parsed.claims)) return parsed;
   } catch(_) {}
   return null;
@@ -615,11 +618,8 @@ window.AIO.validateAIResponseClaims = function(rawText, opts) {
   return window.AIO.validateAIClaimEnvelope(envelope, opts);
 };
 
-window.AIO.getAIClaimSchemaPrompt = function() {
-  return '\n\n【WP-AI2 typed claim contract】\n' +
-    '현재성 수치 주장을 할 때는 가능한 경우 다음 JSON 블록을 답변 끝에 추가하라. 각 claim은 metric/value/unit/scale/direction/asOf/source/sourceKind/evidenceId를 정확히 채우고, 하나의 claim은 정확히 하나의 evidenceId를 참조한다. evidence가 없거나 단위·부호·스케일이 불명확하면 해당 수치를 주장하지 말고 확인 필요로 표시하라.\n' +
-    '[AI_CLAIMS_JSON]{"schemaVersion":"' + _AIO_CLAIM_SCHEMA_VERSION + '","claims":[]}[\\/AI_CLAIMS_JSON]\n';
-};
+// v58.51: AIO.getAIClaimSchemaPrompt is gone — no caller since the chat prompt switched to the single [AI_ANSWER_PLAN] block
+// (aio-chat.js). The [AI_CLAIMS_JSON] parser above stays: it is the fallback validator when no answer plan parses.
 
 // v52.80/WP-AI6: automated content has a publish contract independent of the
 // chat UI. Structured claims are validated when present/required; blocked or
@@ -889,17 +889,8 @@ window.AIO.createAIReplayManifest = function(options) {
   };
 };
 window.AIO.recordAIReplayManifest = function(manifest) {
-  var row = window.AIO.createAIReplayManifest(manifest || {});
-  var rows = window._aioAIReplayManifests = window._aioAIReplayManifests || [];
-  rows.push(row);
-  if (rows.length > 100) rows.splice(0, rows.length - 100);
-  return row;
-};
-window.AIO.getAIReplayManifests = function(options) {
-  options = options || {};
-  var rows = (window._aioAIReplayManifests || []).slice();
-  if (options.requestId) rows = rows.filter(function(row) { return row.requestId === options.requestId; });
-  return JSON.parse(JSON.stringify(rows.slice(-(Number(options.limit) > 0 ? Math.min(100, Number(options.limit)) : 20))));
+  // v58.51: no separate store — the pipeline audit row keeps the manifest (aio-chat.js replayManifest).
+  return window.AIO.createAIReplayManifest(manifest || {});
 };
 window.AIO.buildAIIsolationCacheKey = function(options) {
   options = options || {};
@@ -1046,18 +1037,7 @@ window.AIO.getDecisionEvidenceBundle = function(opts) {
   return bundle;
 };
 
-window.AIO.getDecisionEvidencePromptContext = function(bundle) {
-  bundle = bundle || (window.AIO.getDecisionEvidenceBundle ? window.AIO.getDecisionEvidenceBundle() : null);
-  if (!bundle) return '';
-  var rows = (bundle.rows || []).map(function(row) {
-    return row.id + '=' + row.status + '/' + (row.source || 'none') + (row.ageMin != null ? '/ageMin=' + row.ageMin : '');
-  }).join(' | ');
-  return '\n\n【공통 매매 증거 묶음 provenance】\n' +
-    'evidenceId=' + bundle.bundleId + ' status=' + bundle.status + ' current=' + bundle.verifiedCurrent +
-    ' stale=' + bundle.staleLive + ' snapshot=' + bundle.snapshotReference + ' unavailable=' + bundle.unavailable + '\n' +
-    'inputs=' + (rows || 'none') + '\n' +
-    'rule: UI 결론·score·AI는 위 evidenceId와 상태를 유지해야 하며, missing/stale/snapshot은 현재 행동 근거로 과장하지 마라.\n';
-};
+// v58.51: AIO.getDecisionEvidencePromptContext is gone — no caller; the chat sends the same bundle rows as its evidence registry.
 
 window.AIO.buildPageDecisionAiPrompt = function(d) {
   if (!d) return '';
@@ -3225,7 +3205,7 @@ if (typeof document !== 'undefined') {
     return describe && observations.length ? describe({ observations: observations, nowMs: Date.now(), durableCount: durableCount }) : null;
   }
   function _aioWriteQuoteStatus(kind, badge, detail, title, state) {
-    var node = document.getElementById('live-quote-ts');
+    var node = document.getElementById('live-quote-ts'); if (typeof window._aioWithKrClose === 'function') detail = window._aioWithKrClose(detail); // v58.52: KR close label (src/app/bootstrap.js)
     if (node) {
       node.textContent = detail;
       node.setAttribute('title', title);
@@ -4525,55 +4505,7 @@ function _aioNormalizeUserResearchDigest(raw) {
   return true;
 };
 
-// v54.11: expose the current observation layer separately from the reference bridge.
-// A report can explain a mechanism, but it cannot promote its quoted number into
-// the decision layer. This model makes that boundary inspectable by the briefing,
-// tests, and any later page consumer.
-window.AIO.getBriefingCanonicalObservationModel = function() {
-  function metric(id, label, symbol, changeProp, unit) {
-    var live = window._liveData && window._liveData[symbol] || null;
-    var liveValue = live && live.price != null ? Number(live.price) : null;
-    var value = typeof _ldSafe === 'function' ? _ldSafe(symbol, 'price') : liveValue;
-    var change = changeProp && typeof _ldSafe === 'function' ? _ldSafe(symbol, changeProp) : null;
-    var snapshot = window.DATA_SNAPSHOT || {};
-    var snapshotGuard = window.AIO && typeof window.AIO.getSnapshotFallbackGuard === 'function' ? window.AIO.getSnapshotFallbackGuard() : { usable: false };
-    var hasSnapshotFallback = false;
-    try {
-      hasSnapshotFallback = !!(typeof _SNAP_FALLBACK !== 'undefined' && _SNAP_FALLBACK[symbol] && _SNAP_FALLBACK[symbol].price && snapshotGuard.usable && value != null && liveValue == null);
-    } catch (_) {}
-    var source = String(live && (live.source || live._source) || '').toLowerCase();
-    var sourceKind = liveValue != null && isFinite(liveValue)
-      ? (/snapshot|static/.test(source) ? 'SNAPSHOT' : /reference|stooq/.test(source) ? 'REFERENCE' : live.delayed ? 'DELAYED' : /^(live:|yahoo|finnhub|binance|coinbase)/.test(source) ? 'LIVE' : 'UNKNOWN')
-      : hasSnapshotFallback ? 'SNAPSHOT' : value != null ? 'UNKNOWN' : 'MISSING';
-    var asOf = live && (live.observedAt || live.asOf || live.ts || live.updated || live.timestamp) || (sourceKind === 'SNAPSHOT' ? (snapshot._updated || snapshot._snapshotDate || null) : null);
-    return { id: id, label: label, symbol: symbol, value: value != null && isFinite(Number(value)) ? Number(value) : null, change: change != null && isFinite(Number(change)) ? Number(change) : null, unit: unit || 'value', sourceKind: sourceKind, asOf: asOf || null };
-  }
-  var metrics = {
-    spx: metric('spx', 'S&P 500', '^GSPC', 'pct', 'index'),
-    spy: metric('spy', 'SPY', 'SPY', 'pct', 'price'),
-    qqq: metric('qqq', '나스닥100', 'QQQ', 'pct', 'price'),
-    vix: metric('vix', 'VIX', '^VIX', 'pct', 'price'),
-    tnx: metric('tnx', '미 10년물', '^TNX', 'chg', 'yield'),
-    dxy: metric('dxy', 'DXY', 'DX-Y.NYB', 'pct', 'price'),
-    wti: metric('wti', 'WTI', 'CL=F', 'pct', 'commodity'),
-    krw: metric('krw', 'USD/KRW', 'KRW=X', 'pct', 'fx'),
-    kospi: metric('kospi', 'KOSPI', '^KS11', 'pct', 'index'),
-    soxx: metric('soxx', 'SOXX', 'SOXX', 'pct', 'price'),
-    smh: metric('smh', 'SMH', 'SMH', 'pct', 'price')
-  };
-  var sourceKinds = Object.keys(metrics).map(function(k) { return metrics[k].sourceKind; }).filter(function(k) { return k !== 'MISSING'; });
-  var sourceKind = sourceKinds.length && sourceKinds.every(function(k) { return k === sourceKinds[0]; }) ? sourceKinds[0] : sourceKinds.length ? 'MIXED' : 'MISSING';
-  var cut = window.AIO && typeof window.AIO.getSharedMarketCut === 'function' ? window.AIO.getSharedMarketCut() : null;
-  var snapshot = window.DATA_SNAPSHOT || {};
-  return {
-    version: 'briefing-canonical-observation.v1',
-    sourceKind: sourceKind,
-    asOf: (cut && (cut.generatedAt || cut.end)) || snapshot._updated || snapshot._snapshotDate || null,
-    cut: cut,
-    metrics: metrics,
-    policy: 'current live/server snapshot only; user research remains reference-only'
-  };
-};
+// v58.51: AIO.getBriefingCanonicalObservationModel (v54.11) is gone — no product, page or test consumer ever read it.
 
 window.AIO.loadUserResearchDigest = async function() {
   try {
@@ -4832,51 +4764,9 @@ window.AIO.retrieveImportedResearch = function(query, ctxId, options) {
   };
 };
 
-window.AIO.indexAIRetrievalDocuments = function(documents, options) {
-  options = options || {};
-  var rows = (Array.isArray(documents) ? documents : []).map(function(document, index) {
-    var safety = _aioAIRetrievalSafety(document, index, options.digest || null);
-    var object = document && typeof document === 'object' ? document : {};
-    return {
-      documentId: safety.documentId,
-      chunkId: safety.chunkId,
-      documentVersion: safety.documentVersion,
-      publishedAt: safety.publishedAt,
-      sourceTier: safety.sourceTier,
-      text: safety.text,
-      flags: safety.flags,
-      poisoned: safety.poisoned,
-      retracted: safety.retracted,
-      superseded: safety.superseded,
-      quarantined: safety.quarantined,
-      quarantineReason: safety.quarantineReason,
-      status: object.status || (safety.quarantined ? 'quarantined' : 'active')
-    };
-  });
-  window._aioAIRetrievalDocumentIndex = rows;
-  return {
-    version: _AIO_AI_RETRIEVAL_QUALITY_VERSION,
-    count: rows.length,
-    activeCount: rows.filter(function(row) { return row.quarantined !== true; }).length,
-    quarantinedCount: rows.filter(function(row) { return row.quarantined === true; }).length,
-    documents: JSON.parse(JSON.stringify(rows))
-  };
-};
-
-window.AIO.getAIRetrievalDocumentIndex = function() {
-  return JSON.parse(JSON.stringify(window._aioAIRetrievalDocumentIndex || []));
-};
-
-window.AIO.quarantineAIRetrievalDocument = function(documentId, reason) {
-  var target = String(documentId || '');
-  var rows = window._aioAIRetrievalDocumentIndex || [];
-  var row = rows.filter(function(item) { return String(item.documentId) === target; })[0] || null;
-  if (!row) return { version: _AIO_AI_RETRIEVAL_QUALITY_VERSION, blocked: true, reason: 'document-not-found', documentId: target };
-  row.quarantined = true;
-  row.status = 'quarantined';
-  row.quarantineReason = String(reason || 'manual-quarantine').slice(0, 160);
-  return { version: _AIO_AI_RETRIEVAL_QUALITY_VERSION, blocked: false, documentId: target, quarantined: true, quarantineReason: row.quarantineReason };
-};
+// v58.51: the in-memory retrieval index (AIO.indexAIRetrievalDocuments / getAIRetrievalDocumentIndex /
+// quarantineAIRetrievalDocument) is gone — only tests wrote or read it. Product retrieval applies
+// _aioAIRetrievalSafety per card inside AIO.retrieveImportedResearch.
 
 window.AIO.compactAIContext = function(text, options) {
   options = options || {};
@@ -11299,7 +11189,7 @@ const AIO_VAULT_KDF_ITERATIONS = 310000;
 const AIO_VAULT_LEGACY_KDF_ITERATIONS = 100000;
 const AIO_VAULT_V2_MAGIC = [0x41, 0x49, 0x4f, AIO_VAULT_KDF_VERSION];
 // P1350: authentication and personal-data coverage are independent of provider credentials.
-const _AIO_PORTFOLIO_VAULT_KEYS = ['aio_portfolio_data', 'aio_portfolio_ledger', 'aio_portfolio_fx_legs'];
+const _AIO_PORTFOLIO_VAULT_KEYS = ['aio_portfolio_data', 'aio_portfolio_ledger', 'aio_portfolio_fx_legs', 'aio_portfolio_trades'];
 const _AioVault = {
   _pin: null, _derivedKey: null, _legacyDerivedKey: null, _salt: null, _publicMode: false,
   _lastDecryptVersion: null,
@@ -11478,7 +11368,7 @@ const _AIO_SENSITIVE_KEYS = new Set([
   'aio_claude_api_key', 'aio_av_key', 'aio_finnhub_key', 'aio_fmp_key',
   'aio_perplexity_key', 'aio_google_cse_key', 'aio_google_cse_cx',
   'aio_fred_key', 'aio_td_key', 'aio_newsdata_key', 'aio_rss2json_key', 'aio_bok_key', 'aio_kosis_key', 'aio_cf_worker_url',
-  'aio_portfolio_data', 'aio_portfolio_ledger', 'aio_portfolio_fx_legs'
+  'aio_portfolio_data', 'aio_portfolio_ledger', 'aio_portfolio_fx_legs', 'aio_portfolio_trades'
 ]);
 
 // 비동기 저장 (암호화)
@@ -14311,17 +14201,17 @@ if (!AIO_DEBUG) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// v48.36: DATE_ENGINE — 날짜 표준화 + Stale 감지 중앙 유틸
+// v48.36: FRESHNESS_ENGINE (v58.51: renamed from window.DATE_ENGINE, which shared its name with the calendar const DATE_ENGINE below) — 날짜 표준화 + Stale 감지 중앙 유틸
 // ─────────────────────────────────────────────────────────────────────────
 // 용도: DATA_SNAPSHOT · SCREENER_DB · _lastFetch · 뉴스 타임스탬프 등
 //       프로젝트 전체에서 **단일 진실의 원천**으로 사용.
 // 철학:
-//   - 하드코딩 날짜 문자열 금지 (DATE_ENGINE.now() / .isoNow() 사용)
+//   - 하드코딩 날짜 문자열 금지 (FRESHNESS_ENGINE.now() / .isoNow() 사용)
 //   - stale 판정은 isStale(ts, maxAgeMs)로 통일
 //   - UI 배지는 staleBadge(ts)로 자동 생성 (실시간 · N분 전 · N일 전)
 //   - 애널리스트 리포트는 staleBadge(ts, 'report')로 7일 이상이면 경고
 // ═══════════════════════════════════════════════════════════════════════════
-window.DATE_ENGINE = (function() {
+window.FRESHNESS_ENGINE = (function() {
   var MIN = 60000, HR = 3600000, DAY = 86400000;
   var LOCALE = 'ko-KR';
   var TZ_LABEL = 'Asia/Seoul';
@@ -14618,11 +14508,11 @@ window._aioFeedHealth = (function() {
 })();
 
 // v48.36: _lastFetch — API별 마지막 성공 타임스탬프 중앙 저장소
-// 각 fetch 함수가 성공 시 DATE_ENGINE.now() 값을 기록.
+// 각 fetch 함수가 성공 시 FRESHNESS_ENGINE.now() 값을 기록.
 // UI는 staleBadge(_lastFetch[apiName], category)로 freshness 표시.
 window._lastFetch = window._lastFetch || {};
 window._markFetch = function(apiName) {
-  window._lastFetch[apiName] = window.DATE_ENGINE.now();
+  window._lastFetch[apiName] = window.FRESHNESS_ENGINE.now();
 };
 
 // v48.80/P150 + v48.81/P151 + v48.82/P152: one-call operational/data/pipeline snapshot for live checks.
@@ -14748,7 +14638,7 @@ window._aioMemoStaleInfo = function(memo, opts) {
   if (dates.length === 0) return null;
   var freshest = Math.max.apply(null, dates);
   var oldest = Math.min.apply(null, dates);
-  var DE = window.DATE_ENGINE;
+  var DE = window.FRESHNESS_ENGINE;
   return {
     freshestTs: freshest,
     oldestTs: oldest,
@@ -14767,7 +14657,7 @@ window._aioStockStaleInfo = function(sym) {
   if (!entry) return null;
   // _asOf 필드 우선 (v48.37+ 수동 지정), memo 파싱 폴백
   if (entry._asOf) {
-    var DE = window.DATE_ENGINE;
+    var DE = window.FRESHNESS_ENGINE;
     return {
       freshestTs: DE ? DE.toTs(entry._asOf) : 0,
       isStale: DE ? DE.isStale(entry._asOf, 'report') : false,

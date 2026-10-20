@@ -913,8 +913,9 @@ async function main() {
     for (const [name, ok] of Object.entries(races)) check('P1350 cancelled Vault operation ' + name, ok, JSON.stringify(races));
     const security = await page.evaluate(async () => {
       localStorage.clear(); sessionStorage.clear(); _AioVault.lock(); _AioVault._publicMode = false;
-      const keys = ['aio_portfolio_data', 'aio_portfolio_ledger', 'aio_portfolio_fx_legs'];
-      const values = [JSON.stringify([{ticker:'AAPL',qty:2,cost:100,costCurrency:'USD'}]), JSON.stringify({transactions:[{amount:321}],valuations:[]}), JSON.stringify([{from:'USD',to:'KRW',rate:1400}])];
+      // v58.52: the trade journal (aio_portfolio_trades) is personal data on the same Vault path.
+      const keys = ['aio_portfolio_data', 'aio_portfolio_ledger', 'aio_portfolio_fx_legs', 'aio_portfolio_trades'];
+      const values = [JSON.stringify([{ticker:'AAPL',qty:2,cost:100,costCurrency:'USD'}]), JSON.stringify({transactions:[{amount:321}],valuations:[]}), JSON.stringify([{from:'USD',to:'KRW',rate:1400}]), JSON.stringify({version:1,trades:[{id:'t1',date:'2026-10-01',symbol:'AAPL',side:'buy',qty:2,price:100}],rules:{}})];
       keys.forEach((key, index) => localStorage.setItem(key, values[index]));
       // v57.79: the self-proxy URL is the only live credential (personal provider keys are deleted at boot).
       localStorage.setItem('aio_cf_worker_url','https://worker.fixture.invalid');

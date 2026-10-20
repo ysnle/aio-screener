@@ -62,7 +62,6 @@ current_checkpoint: P963 correlated public-AI browser request plus ticker empty-
 | `src/ai/analysis/technical.js` | 27 | AIQ-4 technical condition engine |
 | `src/ai/analysis/macro-fx.js` | 22 | AIQ-4 macro/FX transmission engine |
 | `src/ai/analysis/registry.js` | 20 | AIQ-4 intent-to-domain analysis registry |
-| `src/ai/eval/benchmark.js` | 33 | AIQ-5 pinned benchmark manifest/corpus contract |
 | `src/ai/operations/control-plane.js` | 20 | AIQ-6 canary/feedback/drift/rollback contract |
 
 > The historical v52.66 table below is retained for audit context. Use this current

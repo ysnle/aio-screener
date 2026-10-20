@@ -155,6 +155,8 @@
 .sh-home-kpi-strip-box { padding: 18px 20px 18px 0; border-right: 1px solid var(--border-subtle); cursor: pointer; }
 .sh-home-kpi-strip-box-clickable { padding: 18px 20px; border-right: 1px solid var(--border-subtle); cursor: pointer; }
 .sh-home-kpi-strip-box-pad18 { padding: 18px 0 18px 20px; cursor: pointer; }
+/* Screen audit 2026-10-20: stacked on a phone, the second card kept its 20px left padding and sat 20px right of the first. */
+@media (max-width: 600px) { .sh-home-kpi-strip-box, .sh-home-kpi-strip-box-clickable, .sh-home-kpi-strip-box-pad18 { padding-left: 0; padding-right: 0; border-right: 0; } }
 .sh-home-cross-assets-row { display: flex; align-items: baseline; gap: 7px; }
 .sh-home-action-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .sh-home-action-item-text { font-size: 12px; font-weight: 800; color: var(--accent); }

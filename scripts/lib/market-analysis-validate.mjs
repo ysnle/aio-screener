@@ -151,15 +151,24 @@ export const LARGE_MOVE_ATTRIBUTION_PCT = RULES.largeMove.attributionUsPct;
 // naming a cause no headline in the window could carry. A move asks for attribution only when its session ended
 // inside the headline window or within the 12 hours before it opened (the US close before a Korean-morning cut).
 export const LARGE_MOVE_WINDOW_LEAD_MS = 12 * 3600000;
-export function marketAnalysisLargeMove(metricEvidence = [], changes = new Map(), data = null) {
+function largeMoves(metricEvidence = [], changes = new Map(), data = null) {
   const windowStart = Date.parse(data?.meta?.newsCycleStart || '');
-  return (Array.isArray(metricEvidence) ? metricEvidence : []).some((row) => {
-    const move = changes.get(row.evidenceId);
+  return (Array.isArray(metricEvidence) ? metricEvidence : []).map((row) => ({ row, move: changes.get(row.evidenceId) })).filter(({ row, move }) => {
     if (row.metricId !== 'market.spx' && row.metricId !== 'market.kospi') return false; // equity indices only (a 1% VIX move is noise)
     if (!(Number.isFinite(move) && Math.abs(move) >= (row.metricId === 'market.kospi' ? KOREA_MOVE_MENTION_PCT : LARGE_MOVE_ATTRIBUTION_PCT))) return false;
     const observed = Date.parse(row.observedAt || '');
     return !Number.isFinite(windowStart) || !Number.isFinite(observed) || observed >= windowStart - LARGE_MOVE_WINDOW_LEAD_MS;
   });
+}
+export function marketAnalysisLargeMove(metricEvidence = [], changes = new Map(), data = null) {
+  return largeMoves(metricEvidence, changes, data).length > 0;
+}
+// Screen audit 2026-10-20: after KOSPI −3.73% gave back a two-day rebound, the day's sentence asked whether "exhaustion"
+// was building toward recovery — a bottoming frame on a breakdown day. The largest qualifying move now sets the
+// direction the sentence's tension has to start from ('down' | 'up' | null).
+export function marketAnalysisLargeMoveDirection(metricEvidence = [], changes = new Map(), data = null) {
+  const largest = largeMoves(metricEvidence, changes, data).sort((a, b) => Math.abs(b.move) - Math.abs(a.move))[0];
+  return largest ? (largest.move < 0 ? 'down' : 'up') : null;
 }
 // Expertise review 2026-10-19 (macro audit §5-2): REGULAR is a provider's open-market flag, so an in-session price was
 // passed to the prompt as a close; PREVIOUS_CLOSE_EXPECTED (venue open, value is the prior close) is a completed close.
@@ -992,7 +1001,9 @@ const SENTENCE_NAMES = /코스피|코스닥|나스닥|다우|에스앤피|S&P|�
 const SENTENCE_CERTAINTY = /가능성|확률|틀림없|분명히|바닥은\s?이미|반등만|받쳐\s?줄|떠받칠|두려워할\s?필요/;
 // 2026-10-19 data audit: the 10/18 sentence stayed on the card all of 10/19 although five runs returned verified readings;
 // every new candidate was rejected here and nothing said why. The reason is now named so the run log can carry it.
-export function marketSentenceRejectReason(sentence, { inflationRising = false } = {}) {
+const SENTENCE_DOWN_MOVE = /하락|급락|낙폭|무너|밀려|밀리|꺾|되돌|반납|반등\s?(?:실패|좌절)|재하락|다시\s?(?:내려|흔들|떨어)|흔들|약세|투매|매도세|공포|충격|붕괴|이탈|깨/;
+const SENTENCE_UP_MOVE = /상승|급등|반등|오름|올라|되찾|회복|안도|랠리|강세|치솟|돌파|만회/;
+export function marketSentenceRejectReason(sentence, { inflationRising = false, largeMoveDirection = null } = {}) {
   const text = String(sentence || '').replace(/\s+/g, ' ').trim();
   if (!text) return 'missing';
   if (text.length < 12 || text.length > 90) return 'length';
@@ -1006,6 +1017,8 @@ export function marketSentenceRejectReason(sentence, { inflationRising = false }
   if (SENTENCE_CERTAINTY.test(text)) return 'certainty';
   if (inflationRising && /물가(?:가|는)?\s?(?:둔화|안정|잡히|꺾|내려)/.test(text) && !/(?:면|라면|다면|는지|ㄹ지|을지|까)[\s?？]*$|인가|일까/.test(text)) return 'inflation-direction';
   if ((text.match(/[.?!。？！]/g) || []).length > 2) return 'too-many-sentences';
+  if (largeMoveDirection === 'down' && !SENTENCE_DOWN_MOVE.test(text)) return 'large-move-missed';
+  if (largeMoveDirection === 'up' && !SENTENCE_UP_MOVE.test(text)) return 'large-move-missed';
   return null;
 }
 export function validateMarketSentence(sentence, options = {}) {
@@ -1014,11 +1027,11 @@ export function validateMarketSentence(sentence, options = {}) {
 export const marketSentenceDay = (nowMs) => new Date(nowMs + 3600000).toISOString().slice(0, 10); // KST date of (now - 08:00)
 // v57.75: the sentence was fixed at the first run after 08:00 KST, before the Korean session — a KOSPI crash at 10:00
 // could never change it. A large move (KOSPI 3% or S&P 500 1%, see largeMove) allows one same-day replacement.
-export function dailyMarketSentence({ candidate = null, previous = null, nowMs = Date.now(), largeMove = false, inflationRising = false } = {}) {
+export function dailyMarketSentence({ candidate = null, previous = null, nowMs = Date.now(), largeMove = false, largeMoveDirection = null, inflationRising = false } = {}) {
   const day = marketSentenceDay(nowMs);
   const sameDay = previous?.day === day && previous?.text;
   if (sameDay && !(largeMove && !previous.replaced)) return previous;
-  const text = validateMarketSentence(candidate, { inflationRising });
+  const text = validateMarketSentence(candidate, { inflationRising, largeMoveDirection: largeMove ? largeMoveDirection : null });
   if (text) return { text, day, generatedAt: new Date(nowMs).toISOString(), source: 'shared-model', ...(sameDay ? { replaced: true } : {}) };
   return previous?.text ? previous : null;
 }

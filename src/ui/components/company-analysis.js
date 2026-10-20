@@ -7,7 +7,7 @@ import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
 import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
 import { krFundamentalPoints, KR_FUNDAMENTALS } from '../../domain/entity/kr-fundamentals.js';
 import { sectorLabel } from '../../domain/screener/screener-read.js';
-import { consensusView } from '../../domain/fundamental/consensus-read.js';
+import { consensusView, peMultipleText } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { openThemeDetail } from '../navigation/theme-detail.js';
 
@@ -22,9 +22,9 @@ export function keyMetricsLine(row, consensus, earnings = [], today = new Date()
   const cap = Number.isFinite(row.mcap) && row.mcap > 0 ? row.mcap : Number(row.referenceMarketCap?.billions) > 0 ? Number(row.referenceMarketCap.billions) : null;
   if (cap) parts.push(`시총 약 $${cap >= 1000 ? `${(cap / 1000).toFixed(2)}T` : `${Math.round(cap)}B`}${close ? `(${close} 종가)` : ''}`);
   const view = consensusView(row, consensus);
-  if (view?.trailingPe != null) parts.push(`직전 4개 분기 PER ${view.trailingPe.toFixed(1)}배(조정 EPS)`);
-  else if (Number(row.pe) > 0) parts.push(row._valuationPeEarningsBasis === 'ttm' && row._valuationPeEarningsThrough ? `최근 4개 분기 PER ${Number(row.pe).toFixed(1)}배(공시 순이익 · ${String(row._valuationPeEarningsThrough).slice(0, 7)} 분기까지)` : `최근 회계연도 PER ${Number(row.pe).toFixed(1)}배`);
-  if (view?.fwdPe != null) parts.push(`Forward PER ${view.fwdPe.toFixed(1)}배(예상치 ${mdOf(view.asOf)})`);
+  if (view?.trailingPe != null) parts.push(`직전 4개 분기 PER ${peMultipleText(view.trailingPe)}(조정 EPS)`);
+  else if (Number(row.pe) > 0) parts.push(row._valuationPeEarningsBasis === 'ttm' && row._valuationPeEarningsThrough ? `최근 4개 분기 PER ${peMultipleText(Number(row.pe))}(공시 순이익 · ${String(row._valuationPeEarningsThrough).slice(0, 7)} 분기까지)` : `최근 회계연도 PER ${peMultipleText(Number(row.pe))}`);
+  if (view?.fwdPe != null) parts.push(`Forward PER ${peMultipleText(view.fwdPe)}(예상치 ${mdOf(view.asOf)})`);
   const symbol = String(row.sym || row.symbol || '').toUpperCase();
   const next = (Array.isArray(earnings) ? earnings : []).filter((item) => String(item?.symbol || '').toUpperCase() === symbol && String(item?.date || '') >= today).sort((a, b) => String(a.date).localeCompare(String(b.date)))[0];
   if (next) parts.push(`다음 실적 발표 ${mdOf(next.date)}`);

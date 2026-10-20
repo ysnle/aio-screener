@@ -95,6 +95,8 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
       item.append(when, body);
       return item;
     }) : [el(doc, 'div', '7일 안에 예정된 주요 일정이 없습니다.', 'briefing-empty')]));
+    // v58.52: say how many reports the S&P-weight cut left out, instead of dropping them silently.
+    if (schedule.omittedEarnings > 0) scheduleRows.append(el(doc, 'div', `실적 발표 외 ${schedule.omittedEarnings}건 — S&P 500 비중이 큰 순서로 골라 시간순으로 보여 줍니다.`, 'briefing-event-meta'));
   }
 
   // 2. Read

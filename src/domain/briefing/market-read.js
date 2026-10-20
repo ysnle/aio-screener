@@ -867,7 +867,8 @@ export function bottomWatchOf({ s = {}, c = {}, input = {}, basis = null } = {})
   const extreme = peak && highsByDate.has(peak.date) && peak.value > highsByDate.get(peak.date);
   const b20Series = buildCloseSeries(input.history, 'breadth20', { through: basis }).slice(-(W.b20Window + 1));
   const b20Now = b20Series.at(-1)?.date === basis ? b20Series.at(-1).value : null;
-  const b20Low = b20Series.length > W.b20Window / 2 ? Math.min(...b20Series.map((point) => point.value)) : null;
+  const b20LowPoint = b20Series.length > W.b20Window / 2 ? b20Series.reduce((low, point) => (!low || point.value < low.value ? point : low), null) : null;
+  const b20Low = b20LowPoint ? b20LowPoint.value : null; // screen audit 2026-10-20: the low is dated like the new-low peak
   const up4 = on(s.breadthUp4), down4 = on(s.breadthDown4);
   const above50 = (stat) => stat?.ma50 != null ? stat.value >= stat.ma50 : null;
   const item = (label, ok, value) => ({ label, ok, value });
@@ -877,7 +878,7 @@ export function bottomWatchOf({ s = {}, c = {}, input = {}, basis = null } = {})
     item(`신저가가 최근 ${W.newLowsWindow}거래일 최고치의 ${W.newLowsShrinkShare * 100}% 이하로 줄어듦`, !peak || !lowsNow ? null : !!extreme && lowsNow.value <= peak.value * W.newLowsShrinkShare,
       !peak || !lowsNow ? null : `신저가 ${fmt(peak.value, 0)}(${shortDate(peak.date)}) → ${fmt(lowsNow.value, 0)}`),
     item(`20일선 위 종목 비율이 ${W.b20Window}거래일 저점보다 +${W.b20ReboundPp}%p 이상`, b20Now == null || b20Low == null ? null : b20Now - b20Low >= W.b20ReboundPp,
-      b20Now == null || b20Low == null ? null : `20일선 위 ${fmt(b20Low, 0)}% → ${fmt(b20Now, 0)}%`)
+      b20Now == null || b20Low == null ? null : `20일선 위 ${fmt(b20Low, 0)}%(${shortDate(b20LowPoint.date)}) → ${fmt(b20Now, 0)}%`)
   ];
   const confirmation = [
     item('나스닥 100이 50일선 위', above50(on(s.ndx)), s.ndx?.ma50 != null ? `나스닥 100 50일선 ${signed(pct(s.ndx.value, s.ndx.ma50))}` : null),

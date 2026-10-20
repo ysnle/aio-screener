@@ -475,12 +475,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const htmlError = await createHttpClient({ fetchImpl: async () => ({ ok: false, status: 503, json: async () => { throw new SyntaxError('Unexpected token <'); } }) }).requestJson('fixture');
   const badBody = await createHttpClient({ fetchImpl: async () => ({ ok: true, status: 200, json: async () => { throw new SyntaxError('bad'); } }) }).requestJson('fixture');
   if (htmlError.status !== 503 || htmlError.error !== 'HTTP_503' || badBody.ok || badBody.status !== 200 || badBody.error !== 'HTTP_PARSE_FAILED') fail(`P1408 http status lost: ${JSON.stringify([htmlError.status, htmlError.error, badBody.error])}`);
-  // P1409: unparseable valuation times and mixed horizons are not comparable.
-  const { createReturnObservation, assertComparableReturns } = await load('src/domain/screener/return-contract.js');
-  const obs = (start, end) => ({ kind: 'price', adjustment: 'split', currency: 'USD', startValuationAt: start, endValuationAt: end, value: 0.1 });
-  if (createReturnObservation(obs('nonsense', 'nope')).ok) fail('P1409 unparseable valuation times accepted');
-  if (assertComparableReturns([obs('2026-08-30', '2026-09-30'), obs('2020-09-30', '2026-09-30')]).comparable) fail('P1409 one-month and six-year returns treated as comparable');
-  if (!assertComparableReturns([obs('2026-08-29', '2026-09-30'), obs('2026-08-30', '2026-09-30')]).comparable) fail('P1409 same-horizon returns refused');
+  // P1409's return-contract fixture went with src/domain/screener/return-contract.js (v58.51, no product caller).
   // P1407: mixed-currency risk weights are valued in one base currency or held.
   const { assembleRiskEstimateInput } = await load('src/ui/panels/portfolio-risk-input.js');
   const riskDates = ['2026-09-21', '2026-09-22', '2026-09-23', '2026-09-24', '2026-09-25', '2026-09-28', '2026-09-29'];
@@ -2117,6 +2112,16 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { mergeSessions } = await load('scripts/build-market-temperature.mjs');
   const merged = mergeSessions([['2026-10-12', 6384.24], ['2026-10-13', null], ['2026-10-14', 6123.29]], [['2026-10-13', 6035.35]], 'kospi', Date.parse('2026-10-14T03:00:00Z'));
   if (JSON.stringify(merged.rows) !== JSON.stringify([['2026-10-12', 6384.24], ['2026-10-13', 6035.35]]) || merged.gaps.length) fail(`v57.54 the exchange close fills the empty provider session and today's intraday KOSPI print is not a close, got ${JSON.stringify(merged)}`);
+  // v58.52 (screen audit 2026-10-20): the portal daily series is the merged KRX + Nextrade last price, so it fills an
+  // empty KRX session but never replaces a provider KRX close (SK hynix 10/20 1,223,000 was rewritten to 1,190,000).
+  const { reconcileKrExchangeCloses } = await load('scripts/producer/kr-exchange.mjs');
+  const krRows = [{ date: '2026-10-16', close: 1272000, adjClose: 1272000, high: 1325000, low: 1247000 }, { date: '2026-10-19', close: 1277000, adjClose: 1277000, high: 1309000, low: 1208000 }, { date: '2026-10-21', close: 1250000, adjClose: 1250000, high: 1260000, low: 1240000 }];
+  const krExchange = [{ date: '2026-10-16', close: 1265000, high: 1325000, low: 1247000 }, { date: '2026-10-19', close: 1304000, high: 1309000, low: 1208000 }, { date: '2026-10-20', close: 1190000, high: 1267000, low: 1183000 }];
+  const krRec = reconcileKrExchangeCloses(krRows, krExchange, { nowMs: Date.parse('2026-10-21T09:00:00Z') });
+  // After 2026-09-13 the portal close is the merged price, so an empty KRX session stays empty (listed) instead of taking it.
+  const krOld = reconcileKrExchangeCloses([{ date: '2026-09-09', close: 100, adjClose: 100, high: 101, low: 99 }, { date: '2026-09-11', close: 102, adjClose: 102, high: 103, low: 101 }], [{ date: '2026-09-09', close: 100, high: 101, low: 99 }, { date: '2026-09-10', close: 101, high: 102, low: 100 }], { nowMs: Date.parse('2026-09-12T09:00:00Z'), nullCloseDates: ['2026-09-10'] });
+  if (krRec.rows.find((row) => row.date === '2026-10-19')?.close !== 1277000 || krRec.rows.some((row) => row.date === '2026-10-20') || krRec.report.correctedCloses !== 0 || krRec.report.divergentCloses !== 2 || krRec.report.filledSessions !== 0
+    || krOld.rows.find((row) => row.date === '2026-09-10')?.close !== 101 || krOld.report.filledSessions !== 1) fail(`v58.52 the portal series fills only a pre-Nextrade empty KRX session and never replaces a KRX close, got ${JSON.stringify({ krRec, krOld })}`);
   const gapped = mergeSessions([['2026-10-09', 69030.92], ['2026-10-13', null]], [], 'nikkei', Date.parse('2026-10-14T03:00:00Z'));
   if (gapped.rows.length !== 1 || gapped.gaps[0] !== '2026-10-13') fail(`v57.54 a session still empty after reconciliation is dropped and listed, got ${JSON.stringify(gapped)}`);
   const tempUi = await load('src/ui/components/market-temperature.js');
@@ -4004,6 +4009,13 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (labels.join('|') !== '10/8(목) 03:00 KST FOMC 의사록 (9/16 회의)|10/8(목) 15:20 KST 한국 옵션 만기|10/9(금) 09:00 KST 한국 증시 휴장 (한글날)') fail(`P1501 structure events wrong: ${JSON.stringify(labels)}`);
   const december = buildBriefingSchedule({ fomcDecisions: [], nowMs: Date.parse('2026-12-07T00:00:00Z'), days: 14 }).map((row) => row.label);
   if (!december.includes('한국 선물·옵션 동시 만기') || !december.includes('미국 지수 선물·옵션 분기 만기')) fail(`P1501 quarterly expiry missing: ${JSON.stringify(december)}`);
+  // v58.52 (screen audit 2026-10-20): an earnings-season day keeps the largest index weights, listed by time.
+  const small = ['EFX', 'GPC', 'HAS', 'KEY'].map((symbol) => ({ symbol, date: '2026-10-20', hour: 'bmo', indexWeight: 0.03 }));
+  const big = [{ symbol: 'NFLX', date: '2026-10-20', hour: 'amc', indexWeight: 0.44 }, { symbol: 'META', date: '2026-10-21', hour: 'amc', indexWeight: 2.6 }];
+  const names = Object.fromEntries([...small, ...big].map((row) => [row.symbol, row.symbol]));
+  const season = buildBriefingSchedule({ earnings: [...small, ...big], names, nowMs: Date.parse('2026-10-20T08:00:00Z'), days: 3, maxEarnings: 3 });
+  const kept = season.filter((row) => row.kind === 'earnings').map((row) => row.label.split(' ')[0]);
+  if (kept.join('|') !== 'EFX|NFLX|META' || season.omittedEarnings !== 3) fail(`v58.52 earnings rows are picked by index weight and listed by time, got ${JSON.stringify({ kept, omitted: season.omittedEarnings })}`);
 }
 
 // ── P1416: breadth signals — 4% movers, 52-week highs/lows, 40-day ratio, distribution days ────
@@ -5244,4 +5256,36 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!(rate.mid < 0) || !rate.distinct) fail(`stress: a book that falls when yields rise must show a negative rate shock: ${JSON.stringify(rate)}`);
   if (estimateBookSensitivities({ historyMap: { AAA: book }, commonDates: Object.keys(book).slice(-60), weights: { AAA: 1 }, history }).available) fail('stress: under 30 weeks of history no sensitivity is printed');
   if (krwTranslationPct({ weights: { AAA: 0.5, '005930.KS': 0.5 }, baseCurrency: 'KRW', shockPct: 10 }) !== 5) fail('stress: a KRW book gains on USD holdings when the won weakens');
+}
+
+// ── v58.52 (owner 2026-10-20): the trade journal — FIFO results, the reader's own statistics and rule mirrors ──
+{
+  const { normalizeTrade, normalizeJournal, realizeTrades, journalStats, journalReview, rulesMirror } = await load('src/domain/portfolio/trade-journal.js');
+  if (normalizeTrade({ symbol: 'NVDA', date: '2026-10-01', side: 'buy', qty: 0, price: 100 }).error !== 'qty') fail('journal: a zero quantity is rejected');
+  if (normalizeTrade({ symbol: '005930.KS', date: '2026-10-01', side: 'buy', qty: 1, price: 200000 }).currency !== 'KRW') fail('journal: a KRX listing trades in won');
+  let n = 0;
+  const t = (date, side, qty, price, extra = {}) => ({ id: `x${n += 1}`, symbol: 'AAA', date, side, qty, price, fee: 0, ...extra });
+  const journal = normalizeJournal({ trades: [
+    t('2026-01-02', 'buy', 10, 100, { reason: 'breakout', stop: 92 }), t('2026-01-05', 'buy', 10, 110, { reason: 'fomo', mood: 'fomo' }),
+    t('2026-01-09', 'sell', 15, 120, { reason: 'target' }), t('2026-03-01', 'sell', 10, 90, { reason: 'stop' }),
+    { id: 'y1', symbol: 'BBB', date: '2026-02-01', side: 'sell', qty: 5, price: 50 }
+  ], rules: { maxPositionPct: 20, minCashPct: 10, stopLossPct: 8, maxPositions: 2 } });
+  const { closed, open, unmatched } = realizeTrades(journal.trades);
+  // FIFO: 10@100 and 5@110 close at 120; the other 5@110 closes at 90 with 5 still unmatched (sold more than recorded).
+  if (closed.length !== 3 || Math.abs(closed[0].pnl - 200) > 1e-9 || Math.abs(closed[1].pnl - 50) > 1e-9 || Math.abs(closed[2].pnl - -100) > 1e-9 || open.length !== 0 || unmatched.length !== 2) fail(`journal: FIFO lots wrong ${JSON.stringify({ closed, open, unmatched })}`);
+  const stats = journalStats(closed);
+  if (stats.wins !== 2 || stats.losses !== 1 || Math.round(stats.winRate) !== 67 || stats.pnlByCurrency.USD !== 150 || !(stats.holdLossDays > stats.holdWinDays)) fail(`journal: stats wrong ${JSON.stringify(stats)}`);
+  const review = journalReview(closed, journal.rules);
+  if (!review.small || !review.notes.some((note) => note.id === 'hold-losers') || !review.notes.some((note) => note.id === 'stop-breach') || !review.notes.some((note) => note.id === 'sample')) fail(`journal: review must name the held losers, the stop breach and the small sample ${JSON.stringify(review.notes)}`);
+  if (review.notes.some((note) => /사세요|파세요|매수하|매도하|추천/.test(note.text))) fail('journal: a review line never tells the reader to trade');
+  const mirror = rulesMirror(journal.rules, { weights: [{ symbol: 'AAA', pct: 30 }, { symbol: 'BBB', pct: 5 }, { symbol: 'CCC', pct: 5 }], cashPct: 4, losses: [{ symbol: 'AAA', pnlPct: -12 }] });
+  if (mirror.map((row) => `${row.id}:${row.ok}`).join(',') !== 'max-position:false,min-cash:false,max-positions:false,stop-loss:false') fail(`journal: the rule mirror compares the declared rules with the book ${JSON.stringify(mirror)}`);
+}
+
+// ── v58.52 (screen audit 2026-10-20): the top pulse bar shows the 시장 상태 verdict, not the retired swing score ──
+{
+  const { regimePulse } = await load('src/domain/briefing/regime-pulse.js');
+  const burden = regimePulse({ available: true, overall: '부담 우세', counts: { burden: 4, favorable: 0 }, asOf: '2026-10-19' });
+  if (burden.value !== '부담 우세' || burden.label !== '부담 4 · 양호 0 · 10/19 종가' || burden.color !== 'var(--data-red)') fail(`pulse: the bar carries the regime verdict ${JSON.stringify(burden)}`);
+  if (regimePulse(null).value !== '판정 보류' || regimePulse({ available: true, overall: '판정 보류' }).label !== '종가 기록 대기') fail('pulse: no verdict is held, never a number');
 }

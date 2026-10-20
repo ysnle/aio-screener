@@ -305,7 +305,14 @@ function renderKrThemeArtifact({ documentRef, root, store }) {
     const zero = el('span', null, 'thp-strength-zero');
     track.append(zero, bar);
     item.append(track, el('span', `1개월 ${theme.ret1m >= 0 ? '+' : ''}${theme.ret1m.toFixed(1)}% · 3개월 ${theme.ret3m == null ? '—' : `${theme.ret3m >= 0 ? '+' : ''}${theme.ret3m.toFixed(1)}%`}${theme.above50Pct != null ? ` · 50일선 위 ${theme.above50Pct}%` : ''} · ${theme.covered}/${theme.members}종목`, 'stock-read-bar-value'));
-    line.append(el('span', theme.label, 'stock-read-bar-label'), item);
+    // Screen audit 2026-10-20: the Korean theme rows were not clickable, so a Korean theme's detail had no entry here.
+    const label = typeof root?.openKrThemeDetail === 'function' ? el('button', theme.label, 'stock-read-bar-label theme-strength-open') : el('span', theme.label, 'stock-read-bar-label');
+    if (label.tagName === 'BUTTON') {
+      label.type = 'button';
+      label.setAttribute('aria-label', `${theme.label} 테마 상세 열기`);
+      label.addEventListener('click', () => root.openKrThemeDetail(theme.id));
+    }
+    line.append(label, item);
     host.append(line);
   }
   host.append(el('p', `위 흐름은 ${krClose ? `${shortSession(krClose)} ` : ''}확정 종가 기준입니다. 장중 실시간 등락은 아래 접힌 칸에서 국내 시세가 들어올 때만 계산됩니다.`, 'theme-strength-basis'));
@@ -1354,6 +1361,13 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         if (pendingThemeId) {
           delete root._aioOpenThemeDetailOnThemes;
           queueMicrotask(() => requestThemeDetail(pendingThemeId));
+        }
+        const pendingKrThemeId = String(root?._aioOpenKrThemeDetailOnThemes || '').trim();
+        if (pendingKrThemeId) {
+          delete root._aioOpenKrThemeDetailOnThemes;
+          // After this mount's own renders (they reset the Korean theme fold), so the opened detail stays open.
+          const openTimer = root?.setTimeout?.(() => root.openKrThemeDetail?.(pendingKrThemeId, { settle: true }), 0);
+          bag.add(() => root?.clearTimeout?.(openTimer));
         }
         const deepLink = themeDetailDeepLink(root?.location?.hash);
         const deepLinkId = String(deepLink?.themeId || '').trim();

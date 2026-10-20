@@ -56,7 +56,7 @@ export function renderIndexEarnings({ documentRef: doc, root, store }) {
     fold.append(list);
     parts.push(fold);
   }
-  parts.push(el(doc, 'p', `상향 우위 = (상향 건수 − 하향 건수) ÷ (상향 + 하향) — 이익이 몇 % 바뀌었는지가 아니라 수정 방향의 쏠림입니다. 보통주 두 종류(GOOG·GOOGL 등)는 한 기업으로 셉니다. 지수 비중 ${INDEX_EARNINGS_MIN_WEIGHT_PCT}% 이상이 모여야 지수 값을 냅니다. 출처: Nasdaq·Zacks 컨센서스(조정 EPS 기준, 참고용), iShares IVV 보유 비중, FRED DFII10.`, 'briefing-empty'));
+  parts.push(el(doc, 'p', `상향 우위 = (상향 건수 − 하향 건수) ÷ (상향 + 하향) — 이익이 몇 % 바뀌었는지가 아니라 수정 방향의 쏠림입니다. 보통주 두 종류(GOOG·GOOGL 등)는 한 기업으로 셉니다. 지수 비중 ${INDEX_EARNINGS_MIN_WEIGHT_PCT}% 이상이 모여야 지수 값을 냅니다. 컨센서스는 조정 EPS 기준 참고값입니다(자료 출처는 아래 데이터 출처 칸).`, 'briefing-empty'));
   host.replaceChildren(...parts);
   return model;
 }

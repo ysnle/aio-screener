@@ -11,6 +11,7 @@ import { portfolioRowsForAI, portfolioSectorLabel } from '../../domain/portfolio
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
+import { renderTradeJournal, installTradeJournal } from '../panels/portfolio-trade-journal.js';
 
 // RM-01 (2026-07-19): this module used to fully repaint pf-total-value/pf-total-pnl/etc. and
 // replaceChildren() the pf-positions-tbody table with a 5-column row, while legacy
@@ -613,6 +614,7 @@ function render({ root, documentRef, store, charts }) {
   renderPortfolioChart({ root, page, surface, charts });
   renderPortfolioChecks(documentRef, root, surface);
   renderPortfolioRead({ documentRef, root, surface }); // P1438
+  renderTradeJournal({ documentRef, root, surface }); // v58.52
 }
 
 // P1418: 점검 — only rules with a published default carry a verdict; the rest are shares.
@@ -664,6 +666,7 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
       bag.add(charts.dispose);
       const renderNow = () => render({ root, documentRef, store, charts });
       renderNow();
+      bag.add(installTradeJournal({ documentRef, root, getSurface: () => root?._aioPortfolioSurface || null }));
       // v57.50 I05: what a research document sent the reader here to check (each entry to this route mounts again).
       renderKnowledgeArrival({ documentRef, root, routeId: 'portfolio' });
       bag.add(() => clearKnowledgeArrival({ documentRef, routeId: 'portfolio' }));

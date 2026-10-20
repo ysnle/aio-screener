@@ -4613,7 +4613,7 @@ window.AIO.getAutonomousLoopAudit = function(){
 
 window.AIO.evaluateAIRetrievalQuality = function(options) {
   options = options || {};
-  var documents = Array.isArray(options.documents) ? options.documents : (window._aioAIRetrievalDocumentIndex || []);
+  var documents = Array.isArray(options.documents) ? options.documents : [];
   var byId = {};
   documents.forEach(function(document, index) {
     var row = document || {};

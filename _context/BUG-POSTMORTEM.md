@@ -1,10 +1,82 @@
 ---
-last_verified: 2026-10-19
+last_verified: 2026-10-20
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1949 - v58.52 - 헤드라인 번역이 Anthropic을 '인간형 AI'로, $45 billion을 '4,500억 달러'로 옮김 (2026-10-20)
+
+- symptom/reproduction: 뉴스에 '인간형 AI와 Nscale, 2번째 수천억 달러 규모 거래 협상 중', 'Nscale, Anthropic가 4,500억 달러…'가 보였다.
+- root_cause: scripts/producer/market-narrative.mjs translateHeadlines가 다른 문자 섞임만 검사했다. 회사 이름이 형용사로 번역되거나 금액 단위가 10배·100배 바뀌어도 통과했고, 지난 실행의 번역도 같은 검사로 재사용됐다.
+- fix: isFaithfulKoreanTitle: 제목에 있는 주요 회사 이름(앤트로픽·오픈AI·엔비디아·코어위브·엔스케일·xAI)이 번역에 남아야 하고, 번역의 달러 금액(조·억·만, '1조 2,000억' 합산)이 제목의 $ million·billion·trillion 금액과 같아야 한다. 캐시된 번역에도 같은 검사를 적용한다.
+- violated_rule: 출처 문장을 바꾸지 않는 번역
+- prevention: ci-data-pipeline-contract-check: v58.52 번역은 회사 이름을 지키고 billion 금액을 키우지 않음
+- verification/residual: 게이트 통과. 거절된 제목은 브라우저 번역 경로로 넘어간다.
+
+## P1948 - v58.52 - 종목 화면의 '이 테마의 시나리오 →'(한국 테마)가 테마 화면 맨 위로만 가고 상세가 닫혀 있음 (2026-10-20)
+
+- symptom/reproduction: 005930에서 반도체 테마 링크를 누르면 #themes 맨 위에 도착하고 한국 테마 상세는 접힌 칸 안에 있어 보이지 않았다.
+- root_cause: window.openKrThemeDetail이 테마 화면이 마운트되기 전에 상세를 채웠고, 상세가 들어 있는 장중 시세 접힘(#kr-themes-live)이 아니라 목록 접힘만 열었다. 마운트 직후 스크롤도 초기화됐다.
+- fix: 다른 화면에서는 테마 id를 남기고 테마 화면이 마운트 뒤에 연다. 상세를 담은 접힘도 열고, 위쪽 섹션이 채워진 뒤 한 번 더 위치를 맞춘다. 한국 테마 흐름 막대의 이름도 상세를 여는 버튼이 됐다.
+- violated_rule: 링크는 도착한 화면에서 대상을 연다
+- prevention: ci-runtime-contract-check: v58.52 openKrThemeDetail은 테마 화면 밖에서 대기 id를 남기고 상세 접힘을 연다
+- verification/residual: 로컬 브라우저: 링크 클릭 후 상세 접힘 열림, 패널이 화면 상단(57px)에 위치.
+
+## P1947 - v58.52 - 스크리너 'MS' 검색이 0행, 'NV' 검색이 MSFT·MU·AMD까지 반환 (2026-10-20)
+
+- symptom/reproduction: MSFT가 목록에 있는데 'MS' 검색은 '찾지 못했습니다'였고, 'NV'는 NVDA 외에 이름 속 글자가 겹친 종목을 보였다.
+- root_cause: src/ui/pages/screener.js filterRows가 검색어와 정확히 같은 심볼(MS = 모건스탠리)이 전체 행에 있으면 그 행만 남겼다. 그 행이 다른 필터에 걸리면 0행이 됐다. 짧은 검색어는 이름 전체의 부분 문자열로도 일치했다.
+- fix: 5자 이하 영문 검색어는 티커 앞부분이나 이름 단어의 시작으로만 일치하고, 다른 필터 안에서 적용된다. 조건 결과가 기본 '실행 통과만' 때문에 0행이면 그 이유를 적는다.
+- violated_rule: 검색은 표시 필터 안에서 일관되게 동작
+- prevention: ci-screener-workbench-contract: v58.52 짧은 영문 검색어는 티커 앞부분·이름 단어 시작(MS→MSFT, NV→NVDA, apple→AAPL)
+- verification/residual: 게이트 통과.
+
+## P1946 - v58.52 - 모든 화면 상단 시장 상태 바가 퇴역한 0~100 스윙 점수('52 · 중립 · 신호 혼재')를 보임 (2026-10-20)
+
+- symptom/reproduction: 대시보드와 시장 상태 화면이 '부담 우세(부담 4 · 양호 0)'인데 다른 화면 상단 바는 '시장 상태 52 · 중립 · 신호 혼재'였다.
+- root_cause: js/aio-pages.js updateMarketPulse가 computeTradingScore('swing')의 옛 점수 구간을 썼다. 시장 상태 판정은 src/domain/briefing/market-read.js의 6축 판정으로 바뀌었는데 이 바만 남았다.
+- fix: 바의 첫 칸이 window._aioMarketRegimeSummary()의 판정(부담 우세 등)과 축 개수, 기준 종가일을 보인다. 상단 시각 표시는 한국 종가가 기록에 들어오면 '한국 M/D 마감'을 함께 적는다.
+- violated_rule: 한 화면 한 판정 · 근거 없는 점수 표시 금지(AGENTS)
+- prevention: ci-runtime-contract-check: v58.52 상단 펄스 바는 시장 상태 판정을 쓰고 computeTradingScore를 부르지 않음
+- verification/residual: 로컬 브라우저에서 '시장 상태 부담 우세 · 부담 4 · 양호 0 · 10/19 종가'와 '서버 10/19 마감 · 한국 10/20 마감' 확인.
+
+## P1945 - v58.52 - 실적 일정이 시각·알파벳 순으로 잘려 넷플릭스·메타·테슬라 대신 EFX·GPC·HAS가 보임 (2026-10-20)
+
+- symptom/reproduction: 10/20 브리핑 7일 일정의 실적 6건이 장 전 발표 소형주(EFX·GM·GPC·HAL·HAS·KEY)로 채워지고 3M·넷플릭스·메타·테슬라가 빠졌다.
+- root_cause: src/domain/briefing/schedule.js가 발표 시각·이름 순으로 정렬한 뒤 앞의 6건만 남겼다. 어닝 시즌에는 한 세션에 수십 건이라 장 전 발표가 자리를 모두 차지했다.
+- fix: fetch-earnings-calendar가 행마다 S&P 500 비중(indexWeight)을 싣고, 일정은 비중(없으면 매출 추정) 순으로 8건을 골라 시간순으로 보여 준다. 빠진 건수는 브리핑과 오늘 화면에 적는다.
+- violated_rule: 일정은 시장을 움직이는 순서로 고른다
+- prevention: ci-esm-core-unit-check: v58.52 실적 행은 지수 비중으로 고르고 시간순으로 나열(EFX|NFLX|META, 생략 3)
+- verification/residual: 로컬 데이터로 META·TSLA·LRCX·PG·XOM·PM 표시 확인. 비중은 다음 실적 일정 생산 실행부터 채워짐.
+
+## P1944 - v58.52 - 코스피 -3.73% 반등 실패일에 오늘의 한 문장이 '소진·회복' 바닥 프레임으로 나옴 (2026-10-20)
+
+- symptom/reproduction: 10/20 18:20 KST 생성 문장이 '소진 신호가 쌓이는 가운데, 회복 확인은 아직인가?'였다. 코스피가 이틀 반등을 모두 반납한 날인데 하락 사실이 없었고, 판정(부담 우세·동반 약세)과 반대로 읽혔다.
+- root_cause: scripts/producer/market-narrative.mjs의 문장 지시가 큰 움직임과 무관하게 '바닥 확인 조건이 있으면 소진 대 확인 갈림을 담아도 된다'고 허용했고, 검증기는 숫자·이름·확신어만 보고 방향은 보지 않았다.
+- fix: marketAnalysisLargeMoveDirection이 가장 큰 지수 움직임의 방향을 정한다. 큰 하락일에는 문장이 하락에서 출발하라고 지시하고, 소진·바닥 프레임은 큰 움직임이 없는 날에만 허용한다. marketSentenceRejectReason은 큰 하락일에 하락 어휘가 없으면 large-move-missed로 거절한다(상승일도 대칭).
+- violated_rule: 판정과 같은 방향의 문장(오늘의 한 문장 계약)
+- prevention: ci-data-pipeline-contract-check: v58.52 큰 하락일 문장은 하락에서 출발(10/20 문장 거절, 아침 문장 유지)
+- verification/residual: 게이트 통과. 실제 AI 호출은 하지 않음(공용 예산) — 다음 Actions 갱신에서 문장 확인 필요.
+
+## P1943 - v58.52 - 한국 종목 종가를 넥스트레이드 20:00 통합가로 덮어써 일간 등락률이 틀림 (SK하이닉스 -4.2%가 -7.1%로) (2026-10-20)
+
+- symptom/reproduction: 10/20 종목 화면 히어로가 삼성전자 ▼5.37%·SK하이닉스 ▼7.06%를 보였는데 같은 화면 차트 헤더는 -2.98%·-4.23%였다. 스크리너 ret1d도 히어로와 같은 값이었다.
+- root_cause: scripts/producer/kr-exchange.mjs가 포털 일별 시세(siseJson)의 종가로 Yahoo의 KRX 종가를 덮어썼다. 2026-09-14부터 이 시리즈는 KRX 종가가 아니라 넥스트레이드 애프터마켓(20:00)까지 합친 마지막 체결가를 준다(SK하이닉스 10/19 1,304,000 대 KRX 1,277,000, 포털 자신의 당일 대비도 KRX 1,277,000 기준). 종목마다 최근 25거래일 중 24일이 KRX 종가에서 벗어났다.
+- fix: reconcileKrExchangeCloses는 이제 있는 종가·고가·저가를 바꾸지 않고, Yahoo가 비워 둔 세션도 포털 종가가 KRX 종가였던 2026-09-13까지만 채운다(그 뒤 빈 세션은 비운 채 목록에 남는다). 두 시리즈가 다른 세션 수는 divergentCloses로 보고한다. source-registry 필드와 요약 basis 문구를 맞췄다.
+- violated_rule: 종가 기준 점수(AGENTS) — KRX 종가가 한국 종목의 종가다
+- prevention: ci-esm-core-unit-check: v58.52 포털 시리즈는 넥스트레이드 이전 빈 KRX 세션만 채우고 KRX 종가를 바꾸지 않음(10/19 1,277,000 유지, 10/20 빈 세션은 채우지 않음, 9/10 빈 세션은 채움)
+- verification/residual: 로컬 진단으로 005930·000660·035420 2년 비교: NXT 이전 88세션 중 차이 0~1건, 2026-09-14 이후 거의 매 세션 차이. 포털 실시간 API의 전일 대비 기준가가 Yahoo KRX 종가와 일치(추론: KRX 종가 = Yahoo). 단위 게이트 통과. 다음 refresh-screener 실행 뒤 ret1d 재확인 필요.
+
+## P1942 - v58.51 - 검증에 실패한 AI 답변 계획을 claim 묶음으로 읽어 '수치 주장을 제외했다'는 잘못된 안내 표시 (2026-10-20)
+
+- symptom/reproduction: AI 답변의 [AI_ANSWER_PLAN] 블록이 계획 검증에 실패하면, 표식 없는 claim 파서가 그 객체를 WP-AI2 claim 묶음으로 읽었다. claims에 evidenceId가 없어 차단으로 판정되고, '자동 검증되지 않았다' 대신 '출처와 대조되지 않은 수치 주장은 제외했다'는 안내가 붙었다.
+- root_cause: AIO.extractAIClaimEnvelope가 [AI_CLAIMS_JSON] 표식이 없으면 본문의 첫 {...} 중 claims 배열이 있는 객체를 무엇이든 받아들였다. 채팅 프롬프트가 단일 [AI_ANSWER_PLAN] 블록으로 바뀐 뒤에는 이 객체도 claims 배열을 가진다.
+- fix: js/aio-core.js extractAIClaimEnvelope: 표식이 없으면 schemaVersion이 wp-ai2.claim.v1인 객체만 claim 묶음으로 인정한다. 표식 있는 묶음과 표식 없는 WP-AI2 묶음(T948·T949)은 그대로 통과한다.
+- violated_rule: R312 구조화 claim 검증
+- prevention: js/aio-tests.js T948b: v58.51 표식 없는 답변 계획 객체는 claim 묶음이 아님(not-structured)
+- verification/residual: ci-runtime-contract-check 통과, headless 브라우저 테스트(affected QA)에서 T948·T948b·T949 확인.
 
 ## P1941 - v58.50 - 접근성 매트릭스가 24px 최소 높이를 갖춘 타임라인 뉴스 링크를 부동소수점 오차로 작은 클릭 영역으로 판정함 (2026-10-19)
 

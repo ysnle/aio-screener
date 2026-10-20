@@ -224,6 +224,10 @@ export function installCustomConditions(documentRef) {
       // role=status: only touch the text when it changes so the count is not re-announced on every render.
       // 2026-10-18 bookmarks (volatility-base-rates): each added condition narrows the sample; the combination is not a tested rule.
       const noteText = [current.length && shown != null ? `조건을 모두 만족하고 다른 필터도 통과한 종목 ${shown}개` : '',
+        // Screen audit 2026-10-20: 하방 과확장 matched 110 stocks yet the default table showed 0 — 실행 통과만 (on by default)
+        // keeps the table on the last run's passed set, and nothing said so.
+        current.length && shown === 0 && documentRef.getElementById('scr-passed-only')?.checked && counts.some((item) => item.pass > 0)
+          ? "'실행 통과만'이 켜져 있어 마지막 실행을 통과한 종목 안에서만 찾았습니다 — 끄면 전체 종목에서 찾습니다" : '',
         current.length >= 3 ? `조건 ${current.length}개를 겹쳤습니다 — 조건마다 남는 종목이 줄고, 이 조합은 과거 성과로 검증한 규칙이 아닙니다.` : '',
         missing ? '자료 없음 조건은 이 시장 종목에 해당 자료가 없거나(재무는 미국만) 다음 데이터 갱신부터 채워집니다.' : '', parseNote].filter(Boolean).join(' · ');
       if (note.textContent !== noteText) note.textContent = noteText;

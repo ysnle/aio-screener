@@ -166,17 +166,13 @@ function updateMarketPulse() {
   var bar = document.getElementById('market-pulse-bar');
   if (!bar) return;
 
-  // 1) 시그널 스코어
+  // 1) 시장 상태 — v58.52: the 시장 상태 verdict (src/app/bootstrap.js _aioRegimePulse), not the retired swing score.
   try {
-    var sc = computeTradingScore('swing');
-    var t = (sc && typeof sc.total === 'number' && isFinite(sc.total)) ? sc.total : null; // P1352
-    var sColor = t == null ? 'var(--text-muted)' : t >= 70 ? 'var(--data-green)' : t >= 50 ? 'var(--data-cyan)' : t >= 35 ? 'var(--data-amber)' : 'var(--data-red)';
-    var sLabel = t == null ? '산출 보류' : t >= 75 ? '스트레스 신호 적음' : t >= 60 ? '스트레스 신호 일부' : t >= 45 ? '중립 · 신호 혼재' : t >= 30 ? '주의 · 부담 점검' : '위험 · 방어 조건 점검';
-    var el1 = document.getElementById('mp-signal-score');
-    var el1b = document.getElementById('mp-signal-label');
-    if (el1) { el1.textContent = t == null ? '—' : t; el1.style.color = sColor; }
-    if (el1b) { el1b.textContent = sLabel; el1b.style.color = sColor; }
-  } catch(e) { ['mp-signal-score','mp-signal-label'].forEach(function(id, i) { var el = document.getElementById(id); if (el) { el.textContent = i ? '산출 보류' : '—'; el.style.color = 'var(--text-muted)'; } }); }
+    var pulse = typeof window._aioRegimePulse === 'function' ? window._aioRegimePulse() : { value: '판정 보류', label: '종가 기록 대기', color: 'var(--text-muted)' };
+    var el1 = document.getElementById('mp-signal-score'), el1b = document.getElementById('mp-signal-label');
+    if (el1) { el1.textContent = pulse.value; el1.style.color = pulse.color; }
+    if (el1b) { el1b.textContent = pulse.label; el1b.style.color = 'var(--text-muted)'; }
+  } catch(e) {}
 
   // P1267: 시장폭은 timestamp가 확인된 canonical AIO 5/20/50SMA evidence만 사용한다.
   // 20SMA, 스냅샷, 섹터 ETF 일간 등락률은 모집단·기간·현재성이 달라 50SMA 대신 쓰지 않는다.
@@ -457,7 +453,7 @@ var RRG_SECTORS = [
   { sym:'XLY', name:'소비재',   color:'#57513f', emoji:'' },
   { sym:'XLP', name:'필수소비', color:'#211d16', emoji:'' },
   { sym:'XLRE',name:'부동산',   color:'#211d16', emoji:'' },
-  { sym:'XLB', name:'원자재',   color:'#22754c', emoji:'' },
+  { sym:'XLB', name:'소재',     color:'#22754c', emoji:'' },
   { sym:'XLU', name:'유틸리티', color:'#211d16', emoji:'' },
   { sym:'XLC', name:'통신',     color:'#211d16', emoji:'' },
 ];

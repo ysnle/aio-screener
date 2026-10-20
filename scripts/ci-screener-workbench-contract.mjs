@@ -25,15 +25,9 @@ import {
 } from '../src/data/contracts/screener.js';
 import { captureScreenRun, createDefaultScreenDefinitions, replayScreenRun, runScreen } from '../src/domain/screener/screen-engine.js';
 import { createSavedScreen, decodeScreenSharePayload, encodeScreenSharePayload, exportSavedScreen, importSavedScreen } from '../src/domain/screener/saved-screens.js';
-import { createRefreshPlanner } from '../src/domain/screener/refresh-planner.js';
-import { DEFAULT_SCREENER_CAPABILITY_CATALOG, observationFromProvider, reconcileFieldObservations, selectProviderForField } from '../src/domain/screener/provider-capability.js';
 import { createScreenerProvider, snapshotIdentityRows } from '../src/data/providers/screener.js';
 import { createPublicationPolicy, evaluatePublicationSet } from '../src/data/providers/publication-set.js';
 import { evaluateQuoteContract } from '../src/data/providers/quote-contract.js';
-import { alignFxToValuationTime, assertComparableReturns, convertReturnToBaseCurrency, createReturnObservation, economicReturnWithSplit, holdingReturn } from '../src/domain/screener/return-contract.js';
-import { deriveRegimeState, replayRegime } from '../src/domain/screener/regime.js';
-import { createValidationGate, promotionDecision, validatePITRun } from '../src/domain/screener/pit-validation.js';
-import { calculateOutcome, expectedExitDate } from '../src/domain/screener/outcome-ledger.js';
 import { filterRows, liveRow, sortRows, extensionMultiple, forwardPe, capFilterValue, visibleRank } from '../src/ui/pages/screener.js';
 import { EXTENDED_MIN_DOLLAR_VOLUME_30D, computeFactorRanks, rankingPopulationExclusion } from '../src/domain/screener/factor-ranks.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../src/domain/fundamental/period.js';
@@ -221,6 +215,11 @@ async function run() {
   const queryRows = [{ sym: 'NVDA', name: 'NVIDIA', signal: 'BUY' }, { sym: 'QQQ', name: 'Nasdaq ETF', memo: 'NVDA exposure', signal: 'HOLD' }];
   const queryAliases = () => ({ nvda: ['NVDA'], 매수: 'BUY' });
   assert(filterRows(queryRows, queryDocument('NVDA'), { readAliases: queryAliases }).map((row) => row.sym).join(',') === 'NVDA' && filterRows(queryRows, queryDocument('매수'), { readAliases: queryAliases }).length === 0, 'G-SCR-SEARCH: alias-only queries do not match every row; retired structure-class aliases (S03, provider signal is always null) no longer filter');
+  // v58.52 (screen audit 2026-10-20): 'MS' showed only Morgan Stanley (hidden by a filter, so nothing) and 'NV' matched letters inside other names.
+  const tickerRows = [{ sym: 'MS', name: 'Morgan Stanley', sector: 'Financials' }, { sym: 'MSFT', name: 'Microsoft', sector: 'Technology' }, { sym: 'NVDA', name: 'NVIDIA', sector: 'Technology' }, { sym: 'MU', name: 'Micron Technology', sector: 'Technology' }, { sym: 'AAPL', name: 'Apple Inc.', sector: 'Technology' }];
+  const techDocument = (query) => ({ getElementById: (id) => ({ value: id === 'scr-text-search' ? query : id === 'scr-sector' ? 'Technology' : '', checked: false }) });
+  assert(filterRows(tickerRows, techDocument('MS')).map((row) => row.sym).join(',') === 'MSFT' && filterRows(tickerRows, techDocument('NV')).map((row) => row.sym).join(',') === 'NVDA'
+    && filterRows(tickerRows, techDocument('apple')).map((row) => row.sym).join(',') === 'AAPL', 'v58.52 G-SCR-SEARCH: a short Latin query is a ticker prefix or a name word start, applied inside the other filters');
   const presetsA = createDefaultScreenDefinitions();
   const presetsB = createDefaultScreenDefinitions();
   assert(presetsA.length === 6 && stableHash(presetsA) === stableHash(presetsB), 'G-SCR-PRESET: six deterministic presets are registered');
@@ -271,109 +270,8 @@ async function run() {
   try { importSavedScreen(JSON.stringify(tampered)); } catch (_) { importRejected = true; }
   assert(importRejected, 'G-SCR-IMPORT: migration cannot rehash a tampered current definition into validity');
 
-  const planner = createRefreshPlanner({ budget: { maxItems: 3, maxPerProvider: 1 }, maxAttempts: 2, baseRetryMs: 1000 });
-  const demand = { instrumentId: 'US:AAA', fieldGroup: 'price', asOfBucket: '2026-08-12T00', priority: 1, reason: 'stale' };
-  assert(planner.enqueue(demand).accepted && planner.enqueue(demand).deduped, 'G-SCR-REFRESH: duplicate refresh demand is deduped');
-  const planned = planner.plan({ providerId: 'fixture-provider', limit: 3 });
-  assert(planned.length === 1 && planned[0].idempotencyKey, 'G-SCR-REFRESH: budget and idempotency are bounded');
-  planner.resetBudget();
-  assert(planner.plan({ providerId: 'fixture-provider' }).length === 0, 'G-SCR-REFRESH: in-flight demand is not scheduled twice');
-  const failed = planner.acknowledge(planned[0], { providerId: 'fixture-provider', reason: 'timeout', lkgObservedAt: '2026-08-11T00:00:00.000Z' });
-  assert(failed.status === 'retry' && planner.snapshot().queued[0].lkgObservedAt, 'G-SCR-REFRESH: retry and last-known-good are retained');
-  planner.acknowledge(planned[0], { providerId: 'fixture-provider', reason: 'rights blocked' });
-  planner.resetBudget();
-  assert(planner.plan({ providerId: 'fixture-provider' }).length === 0, 'G-SCR-REFRESH: terminal blocked demand is not rescheduled');
-  const boundedPlanner = createRefreshPlanner({ budget: { maxItems: 1, maxPerProvider: 10 } });
-  boundedPlanner.enqueue({ instrumentId: 'US:A', fieldGroup: 'price', asOfBucket: 'a' });
-  boundedPlanner.enqueue({ instrumentId: 'US:B', fieldGroup: 'price', asOfBucket: 'b' });
-  assert(boundedPlanner.plan({ limit: NaN }).length === 1, 'G-SCR-REFRESH: malformed limit must not bypass the global budget');
-
-  const sec = selectProviderForField({ catalog: DEFAULT_SCREENER_CAPABILITY_CATALOG, fieldId: 'quality.roe', market: 'US', preferred: ['sec-edgar'] });
-  const delayed = selectProviderForField({ catalog: DEFAULT_SCREENER_CAPABILITY_CATALOG, fieldId: 'price.close', market: 'US', preferred: ['aio-yahoo-eod'] });
-  assert(sec?.providerId === 'sec-edgar' && delayed?.providerId === 'aio-yahoo-eod', 'G-SCR-CAPABILITY: provider selection is capability-based');
-  const currentA = observationFromProvider({ provider: sec, instrumentId: 'US:AAA', fieldId: 'quality.roe', value: 10, unit: 'percent', observedAt: '2026-08-12T00:00:00.000Z', fetchedAt: '2026-08-12T00:01:00.000Z', revisionId: 'r1', qualityStatus: 'CURRENT', rightsId: 'VERIFIED' });
-  const currentB = observationFromProvider({ provider: sec, instrumentId: 'US:AAA', fieldId: 'quality.roe', value: 20, unit: 'percent', observedAt: '2026-08-12T00:00:00.000Z', fetchedAt: '2026-08-12T00:01:00.000Z', revisionId: 'r2', qualityStatus: 'CURRENT', rightsId: 'VERIFIED' });
-  assert(reconcileFieldObservations([currentA, currentB], { tolerance: 1 }).status === 'CONFLICT', 'G-SCR-RECON: divergent observations fail closed');
-  const wrongUnit = { ...currentB, value: 10, unit: 'ratio' };
-  const wrongEpoch = { ...currentB, value: 10, observedAt: '2026-08-13T00:00:00.000Z' };
-  assert(reconcileFieldObservations([currentA, wrongUnit], { tolerance: 1 }).reason === 'incompatible_observation_dimensions' && reconcileFieldObservations([currentA, wrongEpoch], { tolerance: 1 }).reason === 'observation_epochs_incompatible', 'G-SCR-RECON: unlike units or observation epochs cannot be reconciled as one fact');
-
-  const baseInputs = { trendScore: 1, breadthScore: 100, volatilityScore: 100, creditScore: 1, rotationScore: 1 };
-  const on = deriveRegimeState({ inputs: baseInputs, now: Date.parse('2026-08-01T00:00:00.000Z'), minHoldMs: 0 });
-  const held = deriveRegimeState({ inputs: { trendScore: -1, breadthScore: 0, volatilityScore: 0, creditScore: -1, rotationScore: -1 }, previous: on, now: Date.parse('2026-08-02T00:00:00.000Z') });
-  const replay = replayRegime({ history: [{ now: Date.parse('2026-08-01T00:00:00.000Z'), inputs: baseInputs }, { now: Date.parse('2026-08-02T00:00:00.000Z'), inputs: baseInputs }, { now: Date.parse('2026-08-04T00:00:00.000Z'), inputs: { trendScore: -1, breadthScore: 0, volatilityScore: 0, creditScore: -1, rotationScore: -1 } }] });
-  assert(on.state === 'RISK_ON' && held.state === 'RISK_ON' && replay.autoWeightPromotion === false, 'G-SCR-REGIME: confidence/hysteresis/replay keep auto weight promotion disabled');
-  const futurePrevious = deriveRegimeState({ inputs: { trendScore: -1, breadthScore: 0, volatilityScore: 0, creditScore: -1, rotationScore: -1 }, previous: { ...on, observedAt: '2026-09-01T00:00:00.000Z' }, now: Date.parse('2026-08-02T00:00:00.000Z') });
-  assert(futurePrevious.hysteresisState === 'eligible-to-transition' && futurePrevious.state === 'NEUTRAL', 'G-SCR-REGIME: a future previous timestamp cannot freeze the current regime');
-  const pit = validatePITRun({ universe: [{ asOf: '2026-08-12T00:00:00.000Z', currentUniverse: true }], observations: [], asOf: '2026-08-12T00:00:00.000Z' });
-  const gate = createValidationGate({ observedAt: '2026-08-12T00:00:00.000Z' });
-  assert(!pit.ok && gate.status === 'BLOCKED' && gate.blockers.length >= 5, 'G-SCR-PIT: missing PIT/cost/liquidity evidence remains blocked');
-  assert(promotionDecision({ gate, regime: on, result }).promoted === false, 'G-SCR-PROMOTION: blocked validation cannot promote weights');
-  const pitReady = validatePITRun({
-    universe: [{
-      asOf: '2026-08-12T00:00:00.000Z',
-      effectiveAt: '2026-08-11T00:00:00.000Z',
-      filedAt: '2026-08-01T00:00:00.000Z',
-      availableAt: '2026-08-02T00:00:00.000Z',
-      validFrom: '2020-01-01T00:00:00.000Z',
-      turnover: 0.12,
-      liquidity: { dollarVolume30d: 4_000_000 },
-      costBps: 15
-    }],
-    observations: [{ instrumentId: 'US:AAA', observedAt: '2026-08-11T00:00:00.000Z', availableAt: '2026-08-11T01:00:00.000Z' }],
-    asOf: '2026-08-12T00:00:00.000Z',
-    benchmark: { symbol: 'SPY' },
-    costs: { roundTripBps: 15 },
-    liquidity: { dollarVolume30d: 4_000_000 },
-    liveDefinitionHash: definition.definitionHash,
-    backtestDefinitionHash: definition.definitionHash
-  });
-  const readyGate = createValidationGate({
-    pointInTimeUniverse: true,
-    delistingAndCorporateAction: true,
-    filingAvailableDate: true,
-    turnoverModeled: true,
-    transactionCostsModeled: true,
-    liquidityCapacityModeled: true,
-    liveBacktestParity: true,
-    observedAt: '2026-08-12T00:00:00.000Z'
-  });
-  const reviewDecision = promotionDecision({ gate: readyGate, regime: { allowedUse: 'reference-only', liveBacktestParity: true }, result });
-  assert(pitReady.ok && readyGate.status === 'READY_FOR_RESEARCH_PROMOTION_REVIEW', 'G-SCR-PIT: complete evidence path validates without promoting live status');
-  const temporalFixture = {
-    asOf: '2026-08-12', universe: [{ availableAt: '2026-08-01', validFrom: '2020-01-01', turnover: 0, liquidity: 100, costBps: 0 }],
-    benchmark: { symbol: 'SPY' }, costs: 0, liquidity: 100, liveDefinitionHash: 'same', backtestDefinitionHash: 'same'
-  };
-  const future = validatePITRun({ ...temporalFixture, observations: [{ instrumentId: 'US:AAA', observedAt: '2027-01-01', availableAt: '2027-01-02' }] });
-  const unavailableTime = validatePITRun({ ...temporalFixture, observations: [{ instrumentId: 'US:AAA', observedAt: '2026-08-01' }] });
-  const lateFiling = validatePITRun({ ...temporalFixture, observations: [{ instrumentId: 'US:AAA', observedAt: '2026-08-01', availableAt: '2026-08-13' }] });
-  assert(!future.ok && !unavailableTime.ok && !lateFiling.ok, 'G-SCR-PIT: future observations and unknown/late availability fail even when universe and costs pass');
-  assert(reviewDecision.promotionReviewReady && reviewDecision.promoted === false && reviewDecision.autoWeightPromotion === false, 'G-SCR-PROMOTION: ready evidence still requires human review and keeps auto promotion disabled');
-  const outcomeSessionDates = Array.from({ length: 70 }, (_, index) => new Date(Date.UTC(2026, 7, 12 + index)).toISOString());
-  const horizonOffset = { 'T+1': 1, 'T+5': 5, 'T+21': 21, 'T+63': 63 };
-  const outcomes = OUTCOME_HORIZONS.map((horizon) => {
-    const exitObservedAt = outcomeSessionDates[horizonOffset[horizon]];
-    return calculateOutcome({ runId: result.run.runId, instrumentId: 'US:AAA', horizon, entry: { value: 100, observedAt: outcomeSessionDates[0] }, exit: { value: 105, low: 98, observedAt: exitObservedAt }, benchmarkEntry: { value: 100, observedAt: outcomeSessionDates[0] }, benchmarkExit: { value: 102, observedAt: exitObservedAt }, costBps: 15, sessionDates: outcomeSessionDates });
-  });
-  assert(outcomes.length === 4 && outcomes.every((outcome) => outcome.status === 'observed' && outcome.costsApplied), 'G-SCR-OUTCOME: T+1/5/21/63 outcomes carry cost flags');
-  assert(outcomes.every((outcome) => Math.abs(outcome.rawReturn - 5) < 1e-9 && Math.abs(outcome.netReturn - 4.85) < 1e-9), 'G-SCR-OUTCOME: gross and cost-adjusted returns must remain distinct');
-  const zeroCostOutcome = calculateOutcome({ runId: result.run.runId, instrumentId: 'US:AAA', horizon: 'T+1', entry: { value: 100, observedAt: outcomeSessionDates[0] }, exit: { value: 105, observedAt: outcomeSessionDates[1] }, costBps: 0, sessionDates: outcomeSessionDates });
-  const missingCostOutcome = calculateOutcome({ runId: result.run.runId, instrumentId: 'US:AAA', horizon: 'T+1', entry: { value: 100 }, exit: { value: 105 } });
-  assert(zeroCostOutcome.status === 'observed' && zeroCostOutcome.costsApplied && missingCostOutcome.status === 'unavailable' && missingCostOutcome.liquidityFlags.includes('transaction_cost_missing'), 'G-SCR-COST: explicit zero cost is modeled while missing cost is unavailable');
-  const endpointSessions = ['2026-08-28', '2026-08-31'];
-  const endpointFixture = { runId: 'endpoint', instrumentId: 'US:AAA', horizon: 'T+1', entry: { value: 100, observedAt: '2026-08-28' }, exit: { value: 105, low: 98, observedAt: '2026-08-31' }, costBps: 0, sessionDates: endpointSessions };
-  const missingBenchmark = calculateOutcome({ ...endpointFixture, benchmarkEntry: { value: 100 }, benchmarkExit: { value: null } });
-  assert(missingBenchmark.benchmarkReturn === null && missingBenchmark.maxDrawdown === null, 'G-SCR-OUTCOME: missing benchmark and missing price path do not fabricate return or drawdown');
-  const mismatchedHorizon = calculateOutcome({ ...endpointFixture, horizon: 'T+1', sessionDates: outcomeSessionDates.slice(0, 2) });
-  const missingCalendar = calculateOutcome({ ...endpointFixture, sessionDates: [] });
-  assert(mismatchedHorizon.status === 'unavailable' && mismatchedHorizon.liquidityFlags.includes('session_calendar_missing_or_entry_unaligned')
-    && missingCalendar.status === 'unavailable', 'G-SCR-OUTCOME: an entry outside the supplied session calendar cannot produce a labeled horizon return');
-  const wrongExit = calculateOutcome({ runId: 'wrong-exit', instrumentId: 'US:AAA', horizon: 'T+5', entry: { value: 100, observedAt: outcomeSessionDates[0] }, exit: { value: 105, observedAt: outcomeSessionDates[1] }, costBps: 0, sessionDates: outcomeSessionDates });
-  assert(wrongExit.status === 'unavailable' && wrongExit.liquidityFlags.includes('horizon_exit_mismatch'), 'G-SCR-OUTCOME: an observed return cannot be relabeled as another T+n horizon');
-  assert(calculateOutcome({ ...endpointFixture, exit: { value: 105, observedAt: '2026-08-27' } }).status === 'unavailable', 'G-SCR-OUTCOME: exit cannot precede entry');
-  assert(expectedExitDate('2026-08-28', 'T+1') === null
-    && expectedExitDate('2026-08-28', 'T+1', { sessionDates: ['2026-08-28', '2026-08-31'] }) === '2026-08-31T00:00:00.000Z',
-  'G-SCR-OUTCOME: T+n uses explicit sessions and stays unavailable without a calendar');
+  // v58.51: refresh-planner, provider-capability, regime, pit-validation and outcome-ledger had no product caller and were removed
+  // with their G-SCR-REFRESH/CAPABILITY/RECON/REGIME/PIT/PROMOTION/OUTCOME/COST fixtures. The published validation gate below stays BLOCKED.
 
   const artifact = expandScreenerArtifact(readJson('public-data/screener.json'));
   const model = readJson('public-data/model-validation-status.json');
@@ -773,42 +671,7 @@ async function run() {
     }
   }
 
-  // 수익률 비교 계약 — 문서의 네 산술 fixture와 그 반대 방향.
-  const fxConverted = convertReturnToBaseCurrency({ localReturn: 0.10, fxStart: 1000, fxEnd: 900, fxDirection: 'base-per-local' });
-  assert(Math.abs(fxConverted.value + 0.01) < 1e-12, 'P1174 G-SCR-RETURN: +10% local with a -10% currency is -1%, not a 0% sum');
-  const inverseQuote = convertReturnToBaseCurrency({ localReturn: 0.10, fxStart: 1 / 1000, fxEnd: 1 / 900, fxDirection: 'local-per-base' });
-  assert(inverseQuote.ok && Math.abs(inverseQuote.value + 0.01) < 1e-12 && inverseQuote.direction === 'base-per-local',
-    'P1174 G-SCR-RETURN: an inverse quote is normalized to one direction before conversion');
-  assert(convertReturnToBaseCurrency({ localReturn: 0.1, fxStart: 1000, fxEnd: 900 }).reason === 'fx-direction-not-declared',
-    'P1174 G-SCR-RETURN: an undeclared FX direction is refused instead of assumed');
-  const splitReturn = economicReturnWithSplit({ priceBefore: 100, priceAfter: 50, sharesBefore: 1, sharesAfter: 2 });
-  assert(splitReturn.ok && Math.abs(splitReturn.value) < 1e-12,
-    'P1174 G-SCR-RETURN: a 2:1 split is not a -50% loss, and the shares are applied once');
-  const dividendReturn = holdingReturn({ priceBefore: 100, priceAfter: 98, cashPerShare: 2 });
-  assert(Math.abs(dividendReturn.priceReturn + 0.02) < 1e-12 && Math.abs(dividendReturn.holdingReturn) < 1e-12,
-    'P1174 G-SCR-RETURN: price return and cash-inclusive holding return stay distinct');
-  const fxSeries = [{ at: '2026-08-01T00:00:00Z', rate: 1000 }, { at: '2026-08-10T00:00:00Z', rate: 900 }];
-  const alignedFx = alignFxToValuationTime({ series: fxSeries, at: '2026-08-05T00:00:00Z' });
-  assert(alignedFx.ok && alignedFx.rate === 1000 && alignedFx.interpolated === false && alignedFx.usedAt === '2026-08-01T00:00:00.000Z',
-    'P1174 G-SCR-RETURN: alignment uses an observation at or before the valuation time, not an interpolation');
-  const missingFx = alignFxToValuationTime({ series: fxSeries, at: '2026-07-01T00:00:00Z' });
-  assert(!missingFx.ok && missingFx.rate === null && missingFx.reason === 'fx-observation-not-available-at-valuation-time',
-    'P1174 G-SCR-RETURN: a missing FX observation is not turned into a tradable value');
-  const declaredReturn = createReturnObservation({ kind: 'total', adjustment: 'split+dividend', currency: 'usd', startValuationAt: '2026-01-02T00:00:00Z', endValuationAt: '2026-06-30T00:00:00Z', value: 0.07 });
-  assert(declaredReturn.ok && declaredReturn.currency === 'USD', 'P1174 G-SCR-RETURN: a fully declared return observation validates');
-  const baseReturn = { kind: 'price', adjustment: 'none', currency: 'USD', startValuationAt: '2026-01-02T00:00:00Z', endValuationAt: '2026-06-30T00:00:00Z', value: 0.1 };
-  assert(createReturnObservation({ kind: 'price', currency: 'USD', startValuationAt: '2026-01-02T00:00:00Z', endValuationAt: '2026-06-30T00:00:00Z', value: 0.1, adjustedClose: true }).errors.includes('adjustment-inferred-from-field-name'),
-    'P1174 G-SCR-RETURN: a provider field name is not a declaration of what was adjusted');
-  assert(createReturnObservation({ ...baseReturn, kind: 'total' }).errors.includes('total-return-requires-dividend-adjustment'),
-    'P1174 G-SCR-RETURN: a total return without the dividend axis is refused');
-  assert(createReturnObservation({ ...baseReturn, kind: 'total', adjustment: 'split+dividend' }).ok
-    && !createReturnObservation({ ...baseReturn, kind: 'total', adjustment: 'split+dividend' }).errors.length,
-    'P1174 G-SCR-RETURN: a declared total return is accepted, so the rule is not a blanket refusal');
-  const mixedGroup = assertComparableReturns([{ ...baseReturn }, { ...baseReturn, kind: 'total', adjustment: 'split+dividend' }]);
-  assert(mixedGroup.comparable === false && mixedGroup.reason === 'price-and-total-return-mixed-without-declaration',
-    'P1174 G-SCR-RETURN: price and total returns cannot be averaged together unlabelled');
-  assert(assertComparableReturns([{ ...baseReturn }, { ...baseReturn, value: 0.12 }]).comparable === true,
-    'P1174 G-SCR-RETURN: a group that shares kind, currency and adjustment is comparable');
+  // v58.51: the return-comparison contract (src/domain/screener/return-contract.js, P1174) had no product caller and was removed.
 
   let liveReads = 0;
   const oneSnapshotProvider = createScreenerProvider({

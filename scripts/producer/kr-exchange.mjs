@@ -1,4 +1,4 @@
-// Korea exchange-close reconciliation: the KR portal daily series replaces Yahoo's KRX closes on matching dates.
+// Korea exchange-close reconciliation: the KR portal daily series fills KRX sessions Yahoo left empty.
 // Split out of scripts/fetch-data.mjs (pipeline redesign, 2026-10-19); fetch-data.mjs keeps the run order and re-exports
 // every name it exported before.
 import { round } from '../lib/producer-math.mjs';
@@ -12,7 +12,15 @@ import { _fetchRss } from '../lib/producer-http.mjs';
 // close/high/low replace Yahoo's on matching dates and fill the empty sessions. Yahoo's adjusted/raw
 // ratio is carried onto the corrected close so dividend adjustment is unchanged. If the series is
 // missing or disagrees beyond a corporate-action-sized gap, Yahoo values stay and the gap stays listed.
+// Screen audit 2026-10-20: from 2026-09-14 the portal series carries the merged KRX + Nextrade last price (after-market
+// until 20:00), not the KRX close — SK hynix 10/20 1,190,000 against the KRX close 1,223,000 that the index and the wire
+// use, and the portal's own day change (−87,000) is taken from the KRX close 1,277,000, not from its 10/19 row 1,304,000.
+// Replacing closes moved 24 of the last 25 sessions per stock off the KRX close and turned a −4.2% day into −7.1%.
+// The series now only fills a session the provider left empty, and only through KR_EXCHANGE_KRX_ONLY_THROUGH (a later
+// portal close is the merged price, so an empty KRX session after that stays empty and listed); existing closes and ranges
+// are never replaced, and the count of sessions where the two differ is kept for the report.
 export const KR_EXCHANGE_CLOSE_SOURCE = 'naver-sisejson-daily';
+export const KR_EXCHANGE_KRX_ONLY_THROUGH = '2026-09-13'; // last session where the portal close was the KRX close
 const KR_EXCHANGE_CLOSE_MAX_DEVIATION = 0.15;
 const KR_EXCHANGE_FAILURE_LIMIT = 8;
 let _krExchangeFailures = 0;
@@ -40,7 +48,7 @@ export function parseKrDailySeries(text) {
 export function reconcileKrExchangeCloses(rows, exchangeRows, { nullCloseDates = [], maxDeviation = KR_EXCHANGE_CLOSE_MAX_DEVIATION, fetchedAt = new Date().toISOString(), nowMs = Date.now() } = {}) {
   const base = Array.isArray(rows) ? rows.filter((row) => row && /^\d{4}-\d{2}-\d{2}$/.test(String(row.date || ''))) : [];
   const gaps = Array.isArray(nullCloseDates) ? [...nullCloseDates] : [];
-  const report = { source: KR_EXCHANGE_CLOSE_SOURCE, status: 'unavailable', reason: null, compared: 0, correctedCloses: 0, correctedRanges: 0, filledSessions: 0, filledDates: [], maxDeviationPct: null, providerMissingSessions: gaps };
+  const report = { source: KR_EXCHANGE_CLOSE_SOURCE, status: 'unavailable', reason: null, compared: 0, correctedCloses: 0, correctedRanges: 0, divergentCloses: 0, filledSessions: 0, filledDates: [], maxDeviationPct: null, providerMissingSessions: gaps };
   // An in-session exchange bar (KST trading hours) is a live print, not a close: it neither corrects, fills nor
   // enters the basis-mismatch comparison (an intraday 15% move must not reject the whole year's reconciliation).
   const byDate = new Map((Array.isArray(exchangeRows) ? exchangeRows : []).filter((row) => row && isSessionComplete(row.date, 'kr', nowMs)).map((row) => [row.date, row]));
@@ -60,21 +68,15 @@ export function reconcileKrExchangeCloses(rows, exchangeRows, { nullCloseDates =
   // A split or a different adjustment basis shows up as a large uniform gap; a closing auction does not.
   if (maxDev > maxDeviation) { report.status = 'rejected'; report.reason = 'adjustment-basis-mismatch'; return { rows: base, nullCloseDates: gaps, report }; }
   const ratioOf = (row) => row && row.close > 0 && typeof row.adjClose === 'number' && row.adjClose > 0 ? row.adjClose / row.close : null;
-  const out = base.map((row) => {
+  const out = base.slice();
+  for (const row of base) {
     const x = byDate.get(row.date);
-    if (!x || !(row.close > 0)) return row;
-    const closeChanged = x.close !== row.close;
-    const rangeChanged = x.high !== row.high || x.low !== row.low;
-    if (!closeChanged && !rangeChanged) return row;
-    if (closeChanged) report.correctedCloses += 1;
-    if (rangeChanged) report.correctedRanges += 1;
-    const ratio = ratioOf(row);
-    return { ...row, close: round(x.close, 2), high: round(x.high, 2), low: round(x.low, 2), adjClose: ratio == null ? row.adjClose : round(x.close * ratio, 2), closeSource: KR_EXCHANGE_CLOSE_SOURCE };
-  });
+    if (x && row.close > 0 && x.close !== row.close) report.divergentCloses += 1;
+  }
   const have = new Set(out.map((row) => row.date));
   const firstDate = out[0].date;
   for (const x of byDate.values()) {
-    if (x.date < firstDate || have.has(x.date)) continue;
+    if (x.date < firstDate || have.has(x.date) || x.date > KR_EXCHANGE_KRX_ONLY_THROUGH) continue;
     const prev = [...out].reverse().find((row) => row.date < x.date) || null;
     const next = out.find((row) => row.date > x.date) || null;
     const prevRatio = ratioOf(prev), nextRatio = ratioOf(next);
@@ -117,18 +119,20 @@ export function reconcileKrExchangeCloses(rows, exchangeRows, { nullCloseDates =
 export function summarizeKrCloseReconciliation(results) {
   const reports = (Array.isArray(results) ? results : []).filter((r) => r && r.closeReconciliation).map((r) => [r.sym, r.closeReconciliation]);
   const byStatus = {};
-  let correctedCloses = 0, filledSessions = 0;
+  let correctedCloses = 0, divergentCloses = 0, filledSessions = 0;
   for (const [, report] of reports) {
     byStatus[report.status] = (byStatus[report.status] || 0) + 1;
     correctedCloses += report.correctedCloses || 0;
+    divergentCloses += report.divergentCloses || 0;
     filledSessions += report.filledSessions || 0;
   }
   return {
     source: KR_EXCHANGE_CLOSE_SOURCE,
-    basis: 'exchange daily close/high/low replace provider values on matching sessions; provider adjusted/raw ratio kept',
+    basis: 'provider KRX closes kept; the portal daily series (merged KRX + Nextrade last price) only fills sessions the provider left empty',
     rows: reports.length,
     byStatus,
     correctedCloses,
+    divergentCloses,
     filledSessions,
     notReconciled: reports.filter(([, report]) => report.status !== 'reconciled').map(([sym, report]) => [sym, report.reason || report.status]).slice(0, 40),
   };

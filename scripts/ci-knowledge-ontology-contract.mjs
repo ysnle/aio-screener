@@ -4,7 +4,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MARKET_PRINCIPLES_CATALOG } from '../src/ui/pages/principles.js';
-import { createConceptRegistry } from '../src/domain/knowledge/ontology.js';
 import { NATHAN_KNOWLEDGE_CONCEPTS } from '../src/domain/knowledge/nathan-framework-pack.js';
 import { INTEGRATED_KNOWLEDGE_CONCEPTS } from '../src/domain/knowledge/integrated-market-ai-framework-pack.js';
 
@@ -18,7 +17,8 @@ const assert = (condition, message) => { if (!condition) failures.push(message);
 
 const concepts = conceptsArtifact.concepts || [];
 const aliases = aliasesArtifact.aliases || [];
-const registry = createConceptRegistry(concepts, aliases);
+// v58.51: the in-memory concept registry (src/domain/knowledge/ontology.js) had no product caller and was removed; the
+// artifact checks below (unique ids, live inventories, equivalence groups, alias targets) are the contract.
 const expected = [
   ...MARKET_PRINCIPLES_CATALOG.nodes.map((node) => ({ surface: 'principles', legacyId: node.id })),
   ...taxonomy.nodes.map((node) => ({ surface: 'atlas', legacyId: node.nodeId })),
@@ -33,8 +33,6 @@ assert(aliasesArtifact.schemaVersion === 'knowledge-aliases.v1', 'aliases schema
 assert(concepts.length === 212, `concept count ${concepts.length} !== 212`);
 assert(new Set(concepts.map((item) => item.canonicalId)).size === concepts.length, 'duplicate canonical concept ID');
 assert(expectedKeys.size === conceptKeys.size && [...expectedKeys].every((key) => conceptKeys.has(key)), 'canonical concepts drift from live source inventories');
-assert(registry.errors.length === 0, `ontology registry errors: ${JSON.stringify(registry.errors)}`);
-assert(registry.concepts.length === concepts.length, 'registry concept count mismatch');
 
 const groupMembers = new Map();
 for (const concept of concepts) {
@@ -60,10 +58,6 @@ for (const alias of aliases) {
     assert(structural ? alias.resolution === 'multi-framework' : alias.resolution === 'explicit-equivalence', `ambiguous alias is not explicit: ${alias.alias}`);
     if (!structural) assert(targets.every((target) => target?.equivalenceGroup) && new Set(targets.map((target) => target.equivalenceGroup)).size === 1, `ambiguous alias lacks shared equivalence: ${alias.alias}`);
   }
-}
-for (const concept of concepts) {
-  const resolved = registry.resolve(concept.canonicalId);
-  assert(resolved.length === 1 && resolved[0].canonicalId === concept.canonicalId, `canonical alias does not resolve: ${concept.canonicalId}`);
 }
 
 const report = {

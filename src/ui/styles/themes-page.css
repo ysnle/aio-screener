@@ -68,3 +68,5 @@
 /* Existing classes on the detail return link and deep-link hint; (0,3,0) outranks `.page .flow-next-link` 14px */
 .page .flow-next-link.theme-detail-return { font-size: var(--fs-base); margin-bottom: 8px; }
 .page .theme-detail-deep-link-hint { font-size: var(--fs-base); color: var(--text-muted); margin: 0; }
+/* v58.52: a Korean theme bar's name opens that theme's detail (src/ui/pages/themes.js). */
+.theme-strength-open { background: none; border: 0; padding: 0; font: inherit; color: var(--accent, inherit); text-align: left; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; min-height: 24px; }

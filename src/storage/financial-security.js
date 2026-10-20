@@ -1,7 +1,7 @@
 // P1350: shared Vault authentication, financial-section migration and AI input semantics.
 export const VERIFY_KEY = 'aio_vault_verify_v1';
 const VERIFY_TEXT = 'AIO Vault authenticated v1';
-export const PERSONAL_KEYS = Object.freeze(['aio_portfolio_data', 'aio_portfolio_ledger', 'aio_portfolio_fx_legs']);
+export const PERSONAL_KEYS = Object.freeze(['aio_portfolio_data', 'aio_portfolio_ledger', 'aio_portfolio_fx_legs', 'aio_portfolio_trades']);
 const encrypted = (value) => typeof value === 'string' && value.startsWith('aio_enc::');
 const cancelled = () => new Error('vault-operation-cancelled');
 const generationOf = (vault) => Number.isSafeInteger(vault._generation) ? vault._generation : 0;

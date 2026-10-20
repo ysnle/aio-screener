@@ -272,7 +272,7 @@ export function renderThemeDetailPlaybook({ documentRef: doc, root } = {}) {
     link('거시 시나리오의 근거', () => { root?.showPage?.('macro'); setTimeout(() => doc.getElementById('macro-crossroads-title')?.scrollIntoView?.({ block: 'start' }), 60); }));
   host.replaceChildren(el(doc, 'h4', '이 테마의 시나리오', 'xr-h4'),
     el(doc, 'p', `${row.stateLabel}${row.stateLabel.includes('5거래일') || row.ret5d == null ? '' : ` · 5거래일 ${pct(row.ret5d)}`} · 1개월 ${pct(row.ret1m)}${row.ret6m != null ? ` · 6개월 ${pct(row.ret6m)}` : ''} · ${row.fit}`, 'xr-basis'),
-    el(doc, 'p', `거시 영향: ${row.windText}. 유리한 대응: ${row.favored.map((key) => CHOICES[key]).join(' · ') || '판단 보류'} — ${row.favoredWhy}`, 'xr-reading'),
+    el(doc, 'p', `거시 영향: ${row.windText}. 이 흐름이 이어질 때 비용이 작은 쪽(따라 하라는 뜻 아님): ${row.favored.map((key) => CHOICES[key]).join(' · ') || '판단 보류'} — ${row.favoredWhy}`, 'xr-reading'),
     ...(row.thesis ? [el(doc, 'p', `핵심 논리: ${row.thesis}. 점검 신호: ${row.breaks.join(', ')}.`, 'xr-reading')] : []),
     el(doc, 'p', '아래 구성 종목·대표 종목에서 추세가 살아 있는 종목을 직접 고릅니다.', 'xr-caveat'), links);
   return row;

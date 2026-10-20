@@ -13,7 +13,7 @@ import { renderMacroCrossroadsContext } from '../../src/domain/market/macro-cros
 import { renderMarketGuideContext } from '../../src/domain/guide/market-guide.js';
 import { interpretationFromArtifacts, marketAnalysisRegimeInput as regimeInputFromArtifacts } from '../lib/market-interpretation-inputs.mjs'; // owner 2026-10-19: one interpretation pipeline
 import { NEWS_INTRADAY_MAX } from '../lib/news-selection.mjs';
-import { KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, marketAnalysisLargeMove, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary } from '../lib/market-analysis-validate.mjs';
+import { KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, marketAnalysisLargeMove, marketAnalysisLargeMoveDirection, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary } from '../lib/market-analysis-validate.mjs';
 import { HIST, SCENARIO_STATE_OUT, SCENARIO_OUTCOMES_OUT } from './paths.mjs';
 import { MACRO_HISTORY_OUT, MACRO_CALENDAR_OUT } from './macro-history.mjs';
 
@@ -152,9 +152,30 @@ export const isCleanKoreanTitle = (text) => {
   const value = String(text || '');
   return (value.match(/[가-힣]/g) || []).length >= 2 && !/[฀-๿぀-ヿ㐀-䶿一-鿿Ѐ-ӿ؀-ۿ�]/.test(value);
 };
+// Screen audit 2026-10-20: "Anthropic and Nscale in talks for second multibillion-dollar deal" came back as "인간형 AI와
+// Nscale, 2번째 수천억 달러 규모 거래" — the company name read as an adjective and the size inflated a hundredfold. A
+// translation must keep each named company (Korean or Latin spelling) and must not scale billions up.
+const HEADLINE_NAMES = Object.freeze([
+  [/\bAnthropic\b/i, /앤트로픽|앤스로픽|Anthropic/i], [/\bOpenAI\b/i, /오픈\s?AI|OpenAI/i], [/\bNvidia\b/i, /엔비디아|Nvidia/i],
+  [/\bCoreWeave\b/i, /코어위브|CoreWeave/i], [/\bNscale\b/i, /엔스케일|Nscale/i], [/\bxAI\b/, /xAI|엑스AI/i]
+]);
+// "$45 billion" also came back as "4,500억 달러" (450억): every 억/조 amount in the Korean line must equal one stated in the title.
+// Dollar amounts only, in units of 억 (1 million = 0.01억); "1조 2,000억 달러" is one amount.
+const titleAmounts = (title) => [...String(title || '').matchAll(/\$\s?(\d+(?:\.\d+)?)\s*(million|billion|bn|trillion)\b/gi)]
+  .map((m) => Number(m[1]) * (/^t/i.test(m[2]) ? 10000 : /^m/i.test(m[2]) ? 0.01 : 10));
+const koreanAmounts = (ko) => [...String(ko || '').matchAll(/(?:(\d[\d,]*(?:\.\d+)?)\s*조\s*)?(?:(\d[\d,]*(?:\.\d+)?)\s*억\s*)?(?:(\d[\d,]*)\s*만\s*)?달러/g)]
+  .filter((m) => m[1] || m[2] || m[3]).map((m) => [m[1], m[2], m[3]].map((v) => Number(String(v || '0').replace(/,/g, ''))))
+  .map(([jo, eok, man]) => jo * 10000 + eok + man / 10000);
+export const isFaithfulKoreanTitle = (title, ko) => {
+  if (!isCleanKoreanTitle(ko)) return false;
+  if (!HEADLINE_NAMES.every(([en, kr]) => !en.test(String(title || '')) || kr.test(String(ko || '')))) return false;
+  if (/multi-?billion|\bbillions?\b/i.test(String(title || '')) && !/trillion/i.test(String(title || '')) && /수천억|수조/.test(String(ko || ''))) return false;
+  const stated = titleAmounts(title);
+  return !stated.length || koreanAmounts(ko).every((amount) => stated.some((value) => Math.abs(amount - value) <= value * 0.01));
+};
 export async function translateHeadlines(items, { previous = [], request = null, translate = null } = {}) {
   const list = (Array.isArray(items) ? items : []).filter((item) => item && typeof item.title === 'string' && item.title.trim());
-  const known = new Map((Array.isArray(previous) ? previous : []).filter((item) => item?.title && isCleanKoreanTitle(item.titleKo)).map((item) => [item.title, item.titleKo]));
+  const known = new Map((Array.isArray(previous) ? previous : []).filter((item) => item?.title && isFaithfulKoreanTitle(item.title, item.titleKo)).map((item) => [item.title, item.titleKo]));
   let reused = 0;
   for (const item of list) {
     if (hasHangul(item.title) || item.titleKo) continue;
@@ -165,7 +186,7 @@ export async function translateHeadlines(items, { previous = [], request = null,
     let count = 0;
     pending.forEach((item, index) => {
       const ko = typeof strings[index] === 'string' ? strings[index].replace(/\s+/g, ' ').trim() : '';
-      if (isCleanKoreanTitle(ko) && ko.length <= 200) { item.titleKo = ko; count += 1; }
+      if (isFaithfulKoreanTitle(item.title, ko) && ko.length <= 200) { item.titleKo = ko; count += 1; }
     });
     return count;
   };
@@ -240,6 +261,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     // v57.81: computed before the prompt so the first attempt is told a cause must be attributed (the validator blocks
     // an unattributed reading on such a day; before, only the retry was told and both 10/15 05:55Z/07:52Z attempts failed).
     const largeMove = marketAnalysisLargeMove(metricEvidence, changeOf, data); // 2026-10-19: same rule and headline window as the validator
+    const largeMoveDirection = marketAnalysisLargeMoveDirection(metricEvidence, changeOf, data);
     const newsLines = newsEvidence.map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     const headlineLines = buildMarketAnalysisHeadlineContext(data).map(row => `- ${row.evidenceId} ${row.verification === 'unconfirmed' ? '[미확인 보도] ' : ''}${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     // P1719/P1720: post-08:00 headlines are the only news on a Korean session's events before the next bundle; they are
@@ -281,7 +303,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       'DIRECTIONAL/CAUSAL PROSE: you may offer a directional or causal reading, but attribute it to the named headline ("헤드라인에 따르면", "According to <source>") and present it as one reading among alternatives, never as a confirmed fact. End with what would invalidate the reading and what the reader should check. The final decision belongs to the reader, not to this text.',
       ...(largeMove ? ['LARGE_MOVE (S&P 500 1% 이상 또는 코스피 3% 이상): 보도된 배경을 반드시 한 문장으로 쓴다 — "헤드라인에 따르면 …이 배경으로 거론됐다"처럼 HEADLINE_CONTEXT(장중 움직임이면 08:00 이후 장중 속보) 헤드라인 하나를 이름과 함께 든다. 그 문장 안에서 "단정할 수 없다·확인되지 않았다"로 귀속을 지우지 말고, 다른 해석이 있다는 점은 다음 문장에 쓴다.'] : []),
       // v57.71 (owner 2026-10-15): the home's one-sentence line, written by the same call (no extra request).
-      `마지막에 7~9줄과 별도로 한 줄을 더 쓴다: "${MARKET_SENTENCE_LABEL} " 뒤에 지금 시장을 관통하는 긴장을 질문이나 대비로 담은 한 문장(40자 안팎). 숫자·%·종목명·지수명·티커·매매 지시 없이(영문 약어는 AI만 쓴다, 예: HBM·D램 대신 메모리), 오늘의 근거(METRIC_EVIDENCE·HEADLINE_CONTEXT·REGIME_CONTEXT)에서 나온 갈림을 담는다. 갈림의 주제는 REGIME_CONTEXT에서 가장 크게 움직였거나 판정이 바뀐 영역(예: 반도체·AI 주도주 급락, 신용 확대, 유가)에서 고르고, 헤드라인이 많다는 이유만으로 고르지 않는다. 바닥 확인 조건이 있으면 그 갈림(소진 대 확인)을 담아도 된다. 문체 예시(그대로 쓰지 말 것): "오늘의 하락은 기회인가, 서사의 끝을 알리는 신호인가?" / "누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다."`,
+      `마지막에 7~9줄과 별도로 한 줄을 더 쓴다: "${MARKET_SENTENCE_LABEL} " 뒤에 지금 시장을 관통하는 긴장을 질문이나 대비로 담은 한 문장(40자 안팎). 숫자·%·종목명·지수명·티커·매매 지시 없이(영문 약어는 AI만 쓴다, 예: HBM·D램 대신 메모리), 오늘의 근거(METRIC_EVIDENCE·HEADLINE_CONTEXT·REGIME_CONTEXT)에서 나온 갈림을 담는다. 갈림의 주제는 REGIME_CONTEXT에서 가장 크게 움직였거나 판정이 바뀐 영역(예: 반도체·AI 주도주 급락, 신용 확대, 유가)에서 고르고, 헤드라인이 많다는 이유만으로 고르지 않는다. ${largeMoveDirection === 'down' ? '오늘은 큰 하락이 마감됐다: 긴장은 그 하락(반등 실패·재하락·낙폭 확대 중 사실에 맞는 것)에서 출발하고, 하락이라는 사실을 문장 안에 쓴다. 소진·바닥·회복만으로 짜인 문장은 쓰지 않는다.' : largeMoveDirection === 'up' ? '오늘은 큰 상승이 마감됐다: 긴장은 그 반등·상승에서 출발하고, 상승이라는 사실을 문장 안에 쓴다.' : '큰 움직임이 없는 날에만, 바닥 확인 조건이 있으면 그 갈림(소진 대 확인)을 담아도 된다.'} 문체 예시(그대로 쓰지 말 것): "오늘의 하락은 기회인가, 서사의 끝을 알리는 신호인가?" / "누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다."`,
     ].join('\n\n');
     // v57.75: the retained text is re-checked against this run's data — on 10/15 a reading verified before the crash
     // ("원화 강세", easing inflation) would otherwise be re-served for 12 h after the evidence turned.
@@ -321,7 +343,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       }
     }
     if (!text || !semantic.ok) return retainOrFallback(semantic.issues.join(','));
-    return { ...buildStructuredMarketAnalysis({ data, text: semantic.text || text, model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic }), sentenceCandidate, largeMove,
+    return { ...buildStructuredMarketAnalysis({ data, text: semantic.text || text, model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic }), sentenceCandidate, largeMove, largeMoveDirection,
       narrativeSignature: narrativeContext.signature, narrativeThemes: narrativeContext.themes.map(({ id, label, telegramCount, recentCount, tickerCount }) => ({ id, label, telegramCount, recentCount, tickerCount })) };
   } catch (error) {
     return buildMarketAnalysisFallback(data, error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error', metricEvidence, newsEvidence, keep);
@@ -332,12 +354,12 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
 export function applyMarketAnalysis(data, marketAnalysis, { previous = null, nowMs = Date.now() } = {}) {
   if (marketAnalysis) {
     // v57.71: one sentence a day — kept from the earlier run of the same 08:00 KST day, else this run's validated line.
-    const { sentenceCandidate = null, largeMove = false, ...analysis } = marketAnalysis;
+    const { sentenceCandidate = null, largeMove = false, largeMoveDirection = null, ...analysis } = marketAnalysis;
     const inflationRising = Number(data.macro?.cpiDelta) > 0 || Number(data.macro?.coreCpiDelta) > 0;
-    data.marketAnalysis = { ...analysis, sentence: dailyMarketSentence({ candidate: sentenceCandidate, previous: previous?.sentence || null, nowMs, largeMove, inflationRising }) };
+    data.marketAnalysis = { ...analysis, sentence: dailyMarketSentence({ candidate: sentenceCandidate, previous: previous?.sentence || null, nowMs, largeMove, largeMoveDirection, inflationRising }) };
     // 2026-10-19 data audit: a day's sentence that never replaced yesterday's left no trace; the run now records why.
     data.meta.marketSentenceReject = data.marketAnalysis.sentence?.day === marketSentenceDay(nowMs) ? null
-      : (!('sentenceCandidate' in marketAnalysis) ? 'no-new-candidate' : marketSentenceRejectReason(sentenceCandidate, { inflationRising }));
+      : (!('sentenceCandidate' in marketAnalysis) ? 'no-new-candidate' : marketSentenceRejectReason(sentenceCandidate, { inflationRising, largeMoveDirection: largeMove ? largeMoveDirection : null }));
     if (data.meta.marketSentenceReject) console.warn(`[fetch-data] daily sentence not replaced: ${data.meta.marketSentenceReject}${sentenceCandidate ? ` :: ${String(sentenceCandidate).slice(0, 120)}` : ''}`);
     data.meta.marketAnalysisOk = marketAnalysis.status === 'verified';
     // P1719: a retained previous verification is still verified prose, but this run's attempt was blocked.

@@ -1,0 +1,11 @@
+{
+  "version": "v58.51",
+  "date": "2026-10-20",
+  "note": "v58.51 남은 결정 항목 권장안 적용: AI 답변 계획을 claim 묶음으로 잘못 읽는 파서 수정(P1942), 제품 미사용 src 모듈 19개·AI 보조 함수 5종 제거, skip 31건 실패 전환, FRESHNESS_ENGINE 이름 분리, R482·R320·R312 등 규칙 문구 정합.",
+  "changelog": [
+    "**제품 미사용 src 모듈 19개 제거 (v58.51):** 화면에서 도달할 수 없고 CI 게이트만 불러 쓰던 모듈을 지웠다 — 스크리너 refresh-planner·provider-capability·regime·pit-validation·outcome-ledger·return-contract, 지식 route-bridge·ontology·selectors·repository와 evidence·graph·path·tree 렌더러, src/storage repository·migrations·vault, ai/eval/benchmark, ai/context/portfolio-simulation. 같은 게이트 안의 살아 있는 검사(route-targets 산출물, 개념·별칭 산출물, lesson 렌더러, 저장소 gateway, 검증 게이트 BLOCKED)는 남겼고, 살아 있는 검사가 없던 ci-knowledge-repository-contract만 통째로 지웠다. 데이터 생산 스크립트가 쓰는 operations·reconciliation·source-registry·breadth-signals·report-verification은 유지한다. R400·R464·R468·R471·R501·R531·R577 문구를 실제 검증 수단에 맞췄다.",
+    "**AI 보조 함수 정리 (v58.51):** 호출자 0건인 `AIO.getAIClaimSchemaPrompt`(채팅은 단일 [AI_ANSWER_PLAN] 블록만 요청)·`AIO.getDecisionEvidencePromptContext`(같은 증거 묶음을 채팅이 이미 보냄)·`AIO.getBriefingCanonicalObservationModel`, 테스트만 쓰던 검색 색인(`indexAIRetrievalDocuments`·`getAIRetrievalDocumentIndex`·`quarantineAIRetrievalDocument`, 제품은 카드별 `_aioAIRetrievalSafety`로 걸러냄)과 읽는 곳 없는 replay 저장소(`getAIReplayManifests`, 같은 manifest는 파이프라인 감사 행에 남음)를 지웠다. T983은 제품 안전 경로를 직접 검사하도록 바꾸고 T985를 퇴역했다. R312·R320 문구를 맞췄다.",
+    "**회귀를 숨기던 skip 31건 실패 전환 (v58.51):** T67~T101 등에서 대상 함수가 없으면 `true`로 통과하던 분기 31곳을 `false`(missing)로 바꿔, 함수가 사라지면 테스트가 실패한다.",
+    "**DATE_ENGINE 이름 충돌 해소 (v58.51):** 신선도 도구 `window.DATE_ENGINE`(isStale·staleBadge)과 거래 달력 `const DATE_ENGINE`이 같은 이름이라 `DATE_ENGINE.isStale()`이 undefined였다. 신선도 쪽을 `window.FRESHNESS_ENGINE`으로 바꾸고 R33 제목을 맞췄다. R482 검증 문구에서 생산 전용 모듈(source-registry)을 런타임 예시로 든 오류를 고쳤다."
+  ]
+}

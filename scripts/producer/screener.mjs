@@ -540,7 +540,7 @@ export async function enrichScreener() {
 
   // 1단계: 가격 팩터 계산
   const { data, results, ok, computedAt } = await _enrichPriceFactors(syms);
-  { const kr = summarizeKrCloseReconciliation(results); console.log(`[fetch-data] KR exchange close: ${JSON.stringify(kr.byStatus)} rows ${kr.rows} · closes corrected ${kr.correctedCloses} · sessions filled ${kr.filledSessions}`); }
+  { const kr = summarizeKrCloseReconciliation(results); console.log(`[fetch-data] KR exchange close: ${JSON.stringify(kr.byStatus)} rows ${kr.rows} · closes differing from the portal ${kr.divergentCloses} · sessions filled ${kr.filledSessions}`); }
 
   // 2단계: FMP 밸류/퀄리티/어닝 병합(키 있을 때만 — 없으면 4팩터 폴백)
   let fmpResult = { data: null, hasKey: false, ok: 0, total: 0, planError: false };

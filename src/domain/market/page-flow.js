@@ -85,7 +85,9 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
       : spx20 < 0 && down ? '지수와 참여가 함께 약해지는 중입니다'
         // v57.69 (2026-10-15 audit): "healthy" sat beside six distribution days (84th percentile) on the same screen.
         : spx20 > 0 && up ? (dd != null && dd >= RULES.leadership.distributionDaysAt ? `지수는 오르고 참여도 늘었지만 분배일이 ${RULES.leadership.distributionDaysAt}회 이상이라 건강하다고 단정하지 않습니다` : '지수는 오르고 참여도 늘어나는 건강한 흐름입니다')
-          : spx20 <= 0 && up ? '지수는 쉬지만 참여는 오히려 넓어져 바닥 다지기 쪽입니다'
+          // Screen audit 2026-10-20: '바닥 다지기 쪽' sat on a card judged 부담 — a 20-session widening from a low level is one
+          // bottoming condition, not the verdict.
+          : spx20 <= 0 && up ? (regime?.axes?.find((row) => row.id === 'breadth')?.state === 'burden' ? '지수는 쉬지만 참여는 20거래일 전보다 넓어졌습니다 — 낮은 수준에서의 회복이라 참여 수준 자체는 아직 부담 판정이고, 바닥 다지기인지는 이 회복이 이어지는지로 확인합니다' : '지수는 쉬지만 참여는 오히려 넓어져 바닥 다지기 쪽입니다')
             // P1591 (M05): index up / participation down but smaller than the -10%p gap rule.
             : spx20 > 0 && down ? '지수는 올랐지만 참여는 소폭 줄었습니다 — 아직 큰 괴리(10%p 이상 감소)는 아닙니다'
               : !up && !down ? `참여 비율의 20거래일 변화가 ±${zone}%p 안이라 지수 움직임을 참여가 확인하지도 부정하지도 않습니다` : '지수와 참여가 모두 거의 변하지 않았습니다';
@@ -240,7 +242,7 @@ export function rotationFlow({ groups = {}, regime = null } = {}) {
   // Coordinator follow-up (M08 class, 2026-10-13): quadrant membership alone does not establish a "위험 선호/회피 회전"
   // verdict, so the line only counts which kinds of sectors sit ahead of the benchmark.
   const style = !ahead.length ? '시장 대비 나아진 섹터(선도·개선)가 없습니다'
-    : `선도·개선 ${ahead.length}개 중 방어 업종(유틸리티·필수소비재·헬스케어·부동산) ${defensiveAhead}개, 경기 민감 업종 ${ahead.length - defensiveAhead}개입니다`;
+    : `선도·개선 ${ahead.length}개 중 방어 업종(유틸리티·필수소비재·헬스케어) ${defensiveAhead}개, 경기 민감 업종 ${ahead.length - defensiveAhead}개입니다`;
   const concentration = lead.length <= 2 && lagging.length >= Math.ceil(total / 2)
     ? ` ${total}개 중 선도 ${lead.length}개, 후행 ${lagging.length}개입니다. 기준이 시가총액 가중 S&P 500(SPY)이라 대형 기술주 비중이 클수록 나머지 섹터가 후행에 몰리기 쉽습니다.` : '';
   const breadth = regime?.axes?.find((row) => row.id === 'breadth');

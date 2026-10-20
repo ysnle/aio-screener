@@ -46,7 +46,7 @@ import { EXTENSION_BANDS } from '../../domain/screener/setup-profile.js';
 import { bufferedTrend, trendHeldWithMargin, modelContraryEvidence } from '../../domain/technical/bands.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { sectorsForEtf } from '../../domain/entity/stock-read.js';
-import { consensusView } from '../../domain/fundamental/consensus-read.js';
+import { consensusView, PE_MEANINGFUL_MAX } from '../../domain/fundamental/consensus-read.js';
 import { parseConditionValue, matchesConditions, conditionCoverage, availableConditionIds } from '../../domain/screener/custom-conditions.js';
 import { installCustomConditions } from '../components/screener-custom.js';
 import { requestConsensusEstimates, consensusRowFor, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
@@ -311,7 +311,10 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
   const sector = selectedValue(documentRef, 'scr-sector');
   const cap = selectedValue(documentRef, 'scr-cap');
   const query = selectedValue(documentRef, 'scr-text-search').trim().toLowerCase();
-  const exactSymbol = query && rows.some((row) => row.sym?.toLowerCase() === query) ? query : null;
+  // Screen audit 2026-10-20: 'MS' matched Morgan Stanley's symbol exactly and showed only that row — hidden by the other
+  // filters, so the table said nothing was found while MSFT sat in it; 'NV' matched MSFT·MU·AMD through letters inside
+  // their names. A short Latin query is a ticker prefix (or the start of a word in the name), not a substring.
+  const tickerQuery = /^[a-z][a-z.\-]{0,4}$/.test(query);
   const minRank = Number.parseInt(selectedValue(documentRef, 'scr-min-rank'), 10) || 0;
   const rsiMin = Number.parseFloat(selectedValue(documentRef, 'scr-rsi-min'));
   const rsiMax = Number.parseFloat(selectedValue(documentRef, 'scr-rsi-max'));
@@ -362,7 +365,11 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
     if (!query) return true;
     // v57.84 review: 'ai' is both C3.ai's ticker and a theme alias of 21 names — an exact ticker joins the alias group
     // instead of hiding it (low, now, all, key, it, bio … collide the same way).
-    if (exactSymbol) return row.sym?.toLowerCase() === exactSymbol || matchedSymbols.has(row.sym);
+    if (tickerQuery) {
+      const sym = String(row.sym || '').toLowerCase();
+      const wordStart = (text) => String(text || '').toLowerCase().split(/[^a-z0-9]+/).some((word) => word.startsWith(query));
+      return sym.startsWith(query) || wordStart(row.name) || wordStart(row.sector) || matchedSymbols.has(row.sym); // 'tech' still finds Technology
+    }
     const setupText = Array.isArray(row.setupProfile?.tags) ? row.setupProfile.tags.join(' ') : '';
     // 2026-10-13 news audit N03: the headline memo is not searchable — a word in another company's headline (or in
     // this company's) is not a property of the stock, and it made searches return unrelated rows.
@@ -635,7 +642,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     // coverage is "not collected yet", not "no estimate".
     const coverage = consensusRoot?._aioConsensusEstimates?.coverage;
     const partial = !view && /^[A-Z.-]+$/.test(String(row.sym || '')) && finite(coverage?.covered) != null && coverage.covered < coverage.universeUs;
-    const node = text(documentRef, view?.fwdPe != null ? `${numberText(view.fwdPe, 1)}배` : view ? '적자 예상' : partial ? '수집 전' : '—');
+    const node = text(documentRef, view?.fwdPe != null ? (view.fwdPe > PE_MEANINGFUL_MAX ? `${PE_MEANINGFUL_MAX}배 초과` : `${numberText(view.fwdPe, 1)}배`) : view ? '적자 예상' : partial ? '수집 전' : '—');
     if (partial) node.title = `컨센서스는 실행마다 일부 종목씩 수집합니다(지금 ${coverage.covered}/${coverage.universeUs}종목). 다음 수집 차례에 채워집니다.`;
     else node.title = view ? `종가 ${view.price}${view.priceDate ? ` (${view.priceDate})` : ''} ÷ 실적 발표 전 4개 분기(${view.fwdFrom}~${view.fwdTo}) 컨센서스 EPS 합 ${view.fwdEps} · 애널리스트 최소 ${view.minEstimates ?? '?'}명 · ${view.asOf} 수집 — 참고값` : '컨센서스 자료 없음(미국 종목만, 애널리스트 추정이 있는 경우)';
     if (!view) node.style.color = 'var(--text-muted)';

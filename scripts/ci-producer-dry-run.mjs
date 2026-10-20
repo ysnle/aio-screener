@@ -26,7 +26,8 @@ try {
   mkdirSync(path.join(scratch, 'public-data'));
   for (const entry of readdirSync(path.join(root, 'public-data'))) {
     const from = path.join(root, 'public-data', entry);
-    if (statSync(from).isDirectory()) symlinkSync(from, path.join(scratch, 'public-data', entry), 'dir');
+    // v58.51: Windows needs admin rights for a 'dir' symlink; a junction links a local directory without them.
+    if (statSync(from).isDirectory()) symlinkSync(from, path.join(scratch, 'public-data', entry), process.platform === 'win32' ? 'junction' : 'dir');
     else cpSync(from, path.join(scratch, 'public-data', entry));
   }
   const before = JSON.parse(readFileSync(path.join(scratch, 'public-data/data.json'), 'utf8'));

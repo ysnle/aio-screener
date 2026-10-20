@@ -488,7 +488,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     section.dataset.group = group.id;
     const grid = el(doc, 'div', null, 'macro-stat-grid');
     // M13/M14: the period the observation covers, and a stale chip once the cadence's normal delay has passed.
-    grid.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.changeText], meta: `${item.period} · FRED`, note: item.reading, series: item.series, unit: item.unit, format: item.format, status: item.stale ? 'stale' : 'observed', staleText: '새 값 발표 지연' })));
+    grid.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.changeText], meta: item.period, note: item.reading, series: item.series, unit: item.unit, format: item.format, status: item.stale ? 'stale' : 'observed', staleText: '새 값 발표 지연(평소 발표 주기보다 늦음)' })));
     section.append(el(doc, 'h3', group.title, 'macro-group-title'), el(doc, 'p', group.fact, 'macro-group-fact'), grid);
     const fold = deepDiveFold(doc, root, group.title, MACRO_GROUP_DEEP_DIVES[group.id]); // P1660: a teaching fold
     if (fold) section.append(fold);
@@ -522,8 +522,10 @@ export function renderMacroBoard({ documentRef: doc, root }) {
 // 20→30 years and bent the curve's shape).
 function curveSvg(doc, yields) {
   const points = yields.filter((row) => row.value != null);
-  const W = 520;
-  const H = 150;
+  // Screen audit 2026-10-20: a phone scaled the 520×150 chart to about 100px tall with 8px labels; narrow screens get a taller frame.
+  const narrow = Number(doc.defaultView?.innerWidth) > 0 && doc.defaultView.innerWidth < 600;
+  const W = narrow ? 360 : 520;
+  const H = narrow ? 200 : 150;
   const pad = { top: 18, right: 24, bottom: 34, left: 54 }; // P1505: room between the lowest y label and the first tenor label
   const svg = doc.createElementNS(SVG, 'svg');
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
@@ -657,7 +659,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
         label: row.label,
         valueText: row.valueText,
         lines: [row.weekText, year == null ? null : `1년 전보다 ${signed(year, row.id === 'hyOAS' ? 0 : 2, row.id === 'hyOAS' ? 'bp' : '%p')}`],
-        meta: row.asOf ? `${shortDate(row.asOf)} · FRED` : null,
+        meta: row.asOf ? shortDate(row.asOf) : null,
         note: row.note,
         status: row.value == null ? 'missing' : row.stale ? 'stale' : 'observed',
         series: daily.length >= 20 ? daily : null,
@@ -720,7 +722,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
         lines: [tnxLast && (tc.d5Bp != null || tc.d20Bp != null) ? [tc.d5Bp == null ? null : `5일 ${signed(tc.d5Bp, 0, 'bp')}`, tc.d20Bp == null ? null : `20일 ${signed(tc.d20Bp, 0, 'bp')}`].filter(Boolean).join(' · ') : null],
         series: model.tnx,
         format: (value) => `${value.toFixed(1)}%`,
-        note: `일별 종가 기준이며 시장 상태의 10년물 5일·20일 변화와 같은 계열입니다. 위 재무부 공식 곡선${t.asOf ? `(${shortDate(t.asOf)})` : ''}과는 기준일과 소수점이 다를 수 있습니다.`
+        note: `일별 종가 기준이며 시장 상태의 10년물 5일·20일 변화와 같은 계열입니다. 위 공식 국채 곡선${t.asOf ? `(${shortDate(t.asOf)})` : ''}과는 기준일과 소수점이 다를 수 있습니다.`
       })
     ];
     grid.replaceChildren(...cards);

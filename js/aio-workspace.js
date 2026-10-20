@@ -231,6 +231,9 @@ function _pfDeclarationWrite(key, value) {
 function savePortfolioLedger(ledger) { return _pfDeclarationWrite(PF_LEDGER_KEY, ledger); }
 function getPortfolioFxLegs() { var store = _pfDeclarations(); var legs = !isPortfolioLocked() && store ? store.read(PF_FX_KEY) : null; return Array.isArray(legs) ? legs : []; }
 function savePortfolioFxLegs(legs) { return _pfDeclarationWrite(PF_FX_KEY, Array.isArray(legs) ? legs : []); }
+var PF_TRADES_KEY = 'aio_portfolio_trades'; // v58.52 매매일지·내 원칙: 같은 Vault 경로 (src/ui/panels/portfolio-trade-journal.js)
+function getPortfolioTrades() { var store = _pfDeclarations(), value = !isPortfolioLocked() && store ? store.read(PF_TRADES_KEY) : null; return value && typeof value === 'object' ? value : null; }
+window._aioPortfolioTrades = { read: getPortfolioTrades, write: function(value) { return _pfDeclarationWrite(PF_TRADES_KEY, value); } };
 function _pfLedgerRead() {
   var api = _pfLedgerApi();
   return api ? api.normalize(getPortfolioLedger()) : null;
@@ -425,7 +428,7 @@ function resetPortfolioPin() {
   var storage = _AioVault.getStorage(), hasProtection = !!storage.getItem('aio_vault_salt') || !!storage.getItem(PF_PIN_KEY);
   if (!hasProtection) { showToast('설정된 PIN이 없습니다.'); return; }
   var isUnlocked = typeof _AioVault !== 'undefined' && _AioVault.isUnlocked();
-  var warnMsg = isUnlocked ? '포지션·원장·환율 거래를 평문으로 저장하고 PIN 보호를 해제합니다. 자체 프록시 주소의 PIN 보호는 유지합니다. 계속하시겠습니까?' : 'PIN을 모르면 포지션·원장·환율 거래를 복구할 수 없어 모두 삭제합니다. 자체 프록시 주소의 PIN 보호는 유지합니다. 계속하시겠습니까?';
+  var warnMsg = isUnlocked ? '포지션·원장·환율 거래·매매일지를 평문으로 저장하고 PIN 보호를 해제합니다. 자체 프록시 주소의 PIN 보호는 유지합니다. 계속하시겠습니까?' : 'PIN을 모르면 포지션·원장·환율 거래·매매일지를 복구할 수 없어 모두 삭제합니다. 자체 프록시 주소의 PIN 보호는 유지합니다. 계속하시겠습니까?';
   showConfirmModal('PIN 보호 해제', warnMsg, async function() {
     try {
       var storage = _AioVault.getStorage(), originals = {}, values = {};
@@ -1726,10 +1729,10 @@ window._aioPortfolioAsk = function(kind) {
 // P1316/R661: 전체 백업(포지션·원장·FX·현금·가정·일지·관심목록) — 묶음 형태·검증은 src/data/portfolio-backup.js가, 셸은 복호화 스냅샷과 저장 ack만 맡는다.
 function _pfBackupSnapshot() { // v57.81: cash travels as per-currency balances (legacy single cash read as one by the bridge)
   var keys = (_pfAssumptionApi() || {}).keys || {}, assumptions = {}, cashRead = null; try { Object.keys(keys).forEach(function(n) { var v = localStorage.getItem(keys[n]); if (v != null) assumptions[n] = v; }); cashRead = window._pfPortfolioCash ? window._pfPortfolioCash.read() : null; } catch(e) {}
-  return { positions: getPortfolioData(), ledger: getPortfolioLedger(), fxLegs: getPortfolioFxLegs(), cash: null, cashBalances: cashRead && cashRead.known ? cashRead.balances : null, assumptions: assumptions, journal: _aioPortfolioJournalEntries(), watchlists: getWatchlists(), activeWatchlistId: getActiveWatchlistId() || null }; }
+  return { positions: getPortfolioData(), ledger: getPortfolioLedger(), fxLegs: getPortfolioFxLegs(), cash: null, cashBalances: cashRead && cashRead.known ? cashRead.balances : null, assumptions: assumptions, journal: _aioPortfolioJournalEntries(), trades: getPortfolioTrades(), watchlists: getWatchlists(), activeWatchlistId: getActiveWatchlistId() || null }; }
 function exportPortfolio() {
   var api = window._pfPortfolioBackup, rt = _pfVaultRuntime() || {}; // 잠긴(암호화·미해제) 섹션은 빈 값으로 읽혀 불완전한 백업이 되므로 거부한다.
-  var locked = [PF_STORAGE_KEY, PF_LEDGER_KEY, PF_FX_KEY].some(function(k) { try { var raw = _AioVault.getStorage().getItem(k); return !!raw && raw.indexOf('aio_enc::') === 0 && rt[k] === undefined; } catch(e) { return false; } });
+  var locked = [PF_STORAGE_KEY, PF_LEDGER_KEY, PF_FX_KEY, PF_TRADES_KEY].some(function(k) { try { var raw = _AioVault.getStorage().getItem(k); return !!raw && raw.indexOf('aio_enc::') === 0 && rt[k] === undefined; } catch(e) { return false; } });
   if (!api || locked) { showToast(!api ? '백업 모듈을 불러오지 못했습니다. 새로고침 후 다시 시도하세요.' : 'PIN 잠금을 해제한 뒤 내보내세요 — 잠긴 데이터는 백업에 넣을 수 없습니다.'); return; }
   var bundle = api.build(_pfBackupSnapshot(), { appVersion: typeof APP_VERSION !== 'undefined' ? APP_VERSION : null, origin: location.origin }), a = document.createElement('a');
   if (!bundle.counts.total) { showToast('내보낼 데이터가 없습니다.'); return; }
@@ -1739,7 +1742,7 @@ function exportPortfolio() {
 }
 function _pfRestoreBackupSections(c) { var keys = (_pfAssumptionApi() || {}).keys || {};
   try { Object.keys(keys).forEach(function(n) { if (c.assumptions[n] != null) localStorage.setItem(keys[n], c.assumptions[n]); else localStorage.removeItem(keys[n]); }); if (c.cashBalances != null && window._pfPortfolioCash) { if (!window._pfPortfolioCash.write(c.cashBalances).ok) throw new Error('cash-write-failed'); } else { localStorage.removeItem('aio_portfolio_cash_balances'); localStorage.removeItem('aio_portfolio_cash'); } localStorage.setItem(PF_JOURNAL_KEY, JSON.stringify(c.journal)); saveWatchlists(c.watchlists); setActiveWatchlistId(c.activeWatchlistId || ''); } catch(e) { return Promise.resolve([{ ok: false, reason: 'local-restore-failed' }]); }
-  return Promise.all([savePortfolioLedger(c.ledger), savePortfolioFxLegs(c.fxLegs)]).then(function(acks) { try { document.dispatchEvent(new CustomEvent('aio:portfolioChanged')); } catch(e) {} [renderPortfolioLedger, renderPortfolioFxLegs, window.refreshWatchlistUI].forEach(function(fn) { try { if (typeof fn === 'function') fn(); } catch(e) {} }); return acks; });
+  return Promise.all([savePortfolioLedger(c.ledger), savePortfolioFxLegs(c.fxLegs)].concat(c.trades ? [_pfDeclarationWrite(PF_TRADES_KEY, c.trades)] : [])).then(function(acks) { try { document.dispatchEvent(new CustomEvent('aio:portfolioChanged')); } catch(e) {} [renderPortfolioLedger, renderPortfolioFxLegs, window.refreshWatchlistUI].forEach(function(fn) { try { if (typeof fn === 'function') fn(); } catch(e) {} }); return acks; });
 }
 function importPortfolio(event) {
   const file = event.target.files[0], reader = new FileReader();

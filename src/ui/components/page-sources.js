@@ -32,6 +32,7 @@ export const PAGE_SOURCES = Object.freeze({
   themes: [
     '섹터·테마 ETF와 종목 일봉: Yahoo Finance (상대강도는 자체 계산)',
     'S&P 500 지도 넓이: iShares IVV 일별 보유 비중(지수 비중 근사) · 기간 수익률은 기간 시작 비중으로 역산',
+    '지수 이익 전망: Nasdaq·Zacks 컨센서스(조정 EPS) · iShares IVV 보유 비중 · 실질금리 FRED DFII10',
     'AI 설비투자 배분: BNP Paribas 추정(2026-08), a16z State of Markets II(2026-09-30) 인용 · 부품 납기: TrendForce(2026-09-14)'
   ],
   ticker: ['가격·차트: Yahoo Finance 일봉', SEC, '팩터 점수: 스크리너와 같은 자체 계산', '랭킹 대상 밖 종목: Nasdaq Trader 미국 상장 목록으로 확인 · 요청 시 같은 공식으로 계산(공개 순위 미포함)'],

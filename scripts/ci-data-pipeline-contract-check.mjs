@@ -754,6 +754,16 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     isCleanKoreanTitle('CPI 발표 후 증시 하락') && !isCleanKoreanTitle('반도체주 株價 하락') && !isCleanKoreanTitle('유가 ราคา 상승') && !isCleanKoreanTitle('Nvidia 가')
       && result.reused === 0 && items[0].titleKo === 'CPI 발표 후 증시 하락' && !items[1].titleKo && items[2].titleKo === '유가 상승',
     JSON.stringify({ result, items }));
+  const { isFaithfulKoreanTitle } = await import('./producer/market-narrative.mjs');
+  check('v58.52 (screen audit 2026-10-20) a headline translation keeps the company name and does not scale billions up',
+    !isFaithfulKoreanTitle('Anthropic and Nscale in talks for second multibillion-dollar deal', '인간형 AI와 Nscale, 2번째 수천억 달러 규모 거래 협상 중')
+      && !isFaithfulKoreanTitle('Anthropic and Nscale in talks for second multibillion-dollar deal', '앤트로픽과 Nscale, 2번째 수천억 달러 규모 거래 협상 중')
+      && isFaithfulKoreanTitle('Anthropic and Nscale in talks for second multibillion-dollar deal', '앤트로픽과 Nscale, 두 번째 수십억 달러 규모 거래 협상 중')
+      && !isFaithfulKoreanTitle('Nscale, Anthropic in Talks for $45 Billion Cloud Computing Deal', 'Nscale, 앤트로픽과 4,500억 달러 클라우드 계약 협상')
+      && isFaithfulKoreanTitle('Nscale, Anthropic in Talks for $45 Billion Cloud Computing Deal', 'Nscale, 앤트로픽과 450억 달러 클라우드 계약 협상')
+      && isFaithfulKoreanTitle('A $1.5 Trillion Anthropic IPO Still Pays Off for Google', '1.5조 달러 앤트로픽 IPO, 구글엔 여전히 이득')
+      && isFaithfulKoreanTitle('Deal worth $1.2 trillion', '1조 2,000억 달러 규모 거래') && isFaithfulKoreanTitle('$500 million and $2 billion raised', '5억 달러와 20억 달러 조달')
+      && isFaithfulKoreanTitle('Firm sells 1.5 billion shares', '15억주 매각'), 'name/magnitude guard');
 
   const end = Date.parse('2026-10-14T23:00:00.000Z');
   const kr = (title, source, hours) => ({ title: `${title} - ${source}`, link: `https://news.example/${encodeURIComponent(title)}`, source, _sourceRaw: source, ts: end + hours * 3600000, topic: 'kr', country: 'kr', feedTier: 2 });
@@ -840,6 +850,14 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('v57.71 (screen audit 2026-10-19) 매도 소진 is not an instruction, and an imperative 매도 still is',
     !!validateMarketSentence('매도 소진은 바닥의 신호인가, 더 깊은 조정의 전조인가?') && validateMarketSentence('지금 매도하세요, 조정이 깊어집니다') === null
       && marketSentenceRejectReason('나스닥 급락은 기회인가?') === 'names-company-or-index', 'sentence validator');
+  // Screen audit 2026-10-20: KOSPI −3.73% gave back a two-day rebound and the line read as bottoming.
+  const { marketAnalysisLargeMoveDirection } = await import('./lib/market-analysis-validate.mjs');
+  const kospiDown = marketAnalysisLargeMoveDirection([{ evidenceId: 'k', metricId: 'market.kospi' }, { evidenceId: 's', metricId: 'market.spx' }], new Map([['k', -3.73], ['s', 0.41]]), null);
+  const breakdownDay = dailyMarketSentence({ candidate: '소진 신호가 쌓이는 가운데, 회복 확인은 아직인가?', previous: { text: '아침 문장은 그대로 남는가?', day: '2026-10-20' }, nowMs: Date.parse('2026-10-20T09:20:00.000Z'), largeMove: true, largeMoveDirection: kospiDown });
+  check('v58.52 (screen audit 2026-10-20) on a large completed fall the sentence starts from the fall, not from bottoming',
+    kospiDown === 'down' && marketSentenceRejectReason('소진 신호가 쌓이는 가운데, 회복 확인은 아직인가?', { largeMoveDirection: 'down' }) === 'large-move-missed'
+      && !!validateMarketSentence('반등이 꺾인 자리, 투매의 끝인가 새 하락의 시작인가?', { largeMoveDirection: 'down' })
+      && !!validateMarketSentence('소진 신호가 쌓이는 가운데, 회복 확인은 아직인가?') && breakdownDay?.text === '아침 문장은 그대로 남는가?', JSON.stringify({ kospiDown, breakdownDay }));
   const { NEWS_FEEDS } = await import('./lib/news-selection.mjs');
   const split = splitMarketSentence('S&P 500은 1.11% 하락했다.\n코스피는 장중 급락했다.\n오늘의 한 문장: "누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다."');
   const at = (iso) => Date.parse(iso);

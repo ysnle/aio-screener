@@ -669,23 +669,22 @@ try {
     || signalRoute.retired.length || !signalRoute.overall.trim()
     || signalRoute.axes.length < 6 || signalRoute.axes.some((row) => row.state !== 'unknown' && (!row.evidence || !row.flip)))
     throw new Error(`P1392 signal regime board failed: ${JSON.stringify(signalRoute)}`);
-  // P1352: a blocked primary score must not become the pulse's default 50; zero remains a real observation.
+  // P1352 → v58.52: the pulse never shows a fabricated number. It shows the 시장 상태 verdict (or 판정 보류) and no longer reads
+  // the retired swing score, so a throwing computeTradingScore changes nothing.
   const pulseSemantics = await page.evaluate(() => {
-    const original = window.computeTradingScore;
+    const originalSummary = window._aioMarketRegimeSummary, originalScore = window.computeTradingScore;
     const outcomes = [];
     try {
-      for (const total of [null, 0, 75]) {
-        window.computeTradingScore = () => ({ total });
+      window.computeTradingScore = () => { throw new Error('v58.52 the pulse must not call the retired score'); };
+      for (const summary of [null, { available: true, overall: '판정 보류' }, { available: true, overall: '부담 우세', counts: { burden: 4, favorable: 0 }, asOf: '2026-10-19' }]) {
+        window._aioMarketRegimeSummary = () => summary;
         window.updateMarketPulse();
-        outcomes.push({ total, text: document.getElementById('mp-signal-score')?.textContent, label: document.getElementById('mp-signal-label')?.textContent });
+        outcomes.push({ text: document.getElementById('mp-signal-score')?.textContent, label: document.getElementById('mp-signal-label')?.textContent });
       }
-      window.computeTradingScore = () => { throw new Error('P1352 test unavailable'); };
-      window.updateMarketPulse();
-      outcomes.push({ total: 'throw', text: document.getElementById('mp-signal-score')?.textContent });
-    } finally { window.computeTradingScore = original; window.updateMarketPulse(); }
+    } finally { window._aioMarketRegimeSummary = originalSummary; window.computeTradingScore = originalScore; window.updateMarketPulse(); }
     return outcomes;
   });
-  if (pulseSemantics[0].text !== '—' || pulseSemantics[0].label !== '산출 보류' || pulseSemantics[1].text !== '0' || pulseSemantics[2].text !== '75' || pulseSemantics[3].text !== '—') throw new Error(`P1352 pulse fabricated score: ${JSON.stringify(pulseSemantics)}`);
+  if (pulseSemantics[0].text !== '판정 보류' || pulseSemantics[0].label !== '종가 기록 대기' || pulseSemantics[1].text !== '판정 보류' || pulseSemantics[2].text !== '부담 우세' || pulseSemantics[2].label !== '부담 4 · 양호 0 · 10/19 종가' || pulseSemantics.some((row) => /^\d+$/.test(row.text || ''))) throw new Error(`P1352/v58.52 pulse must show the regime verdict, never a number: ${JSON.stringify(pulseSemantics)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('home'));
   await page.waitForFunction(() => document.getElementById('page-home')?.dataset.aioArchitectureRoute === 'home');
   const homeRoute = await page.evaluate(() => {

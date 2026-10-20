@@ -55,6 +55,7 @@ import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SA
 import { classifyBreadthParticipation } from '../domain/market/breadth.js';
 import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
 import { latestCompletedUsSession, latestCompletedKrSession } from '../ai/time/market-session.js';
+import { regimePulse } from '../domain/briefing/regime-pulse.js';
 import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
 import { deriveConcentrationRisk, concentrationPenaltyForWeight } from '../domain/portfolio/concentration.js';
 import { computeFactorRanks } from '../domain/screener/factor-ranks.js';
@@ -244,6 +245,21 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         trend, leadership: regime.leadership?.state || null }) : null;
     } catch (_) { return null; }
   };
+  // Screen audit 2026-10-20: the top bar read "10/19 마감" all evening after KOSPI closed 10/20 at −3.73%. A Korean close
+  // that is already in the daily record is named beside the US close (js/aio-core.js _aioWriteQuoteStatus).
+  root._aioWithKrClose = (detail) => {
+    const text = String(detail || '');
+    if (!/마감/.test(text)) return text;
+    const krDate = latestCompletedKrSession(clock.now())?.date || null;
+    const recorded = krDate && Array.isArray(root._aioHistory) && root._aioHistory.some((row) => row?.date === krDate && Number(row.kospi) > 0);
+    const label = recorded ? `${Number(krDate.slice(5, 7))}/${Number(krDate.slice(8, 10))}` : '';
+    if (!label || text.includes(`${label} 마감`)) return text;
+    const count = text.match(/ · 시세 \d+종$/)?.[0] || '';
+    return `${count ? text.slice(0, -count.length) : text} · 한국 ${label} 마감${count}`;
+  };
+  root._aioRegimePulse = () => regimePulse(root._aioMarketRegimeSummary()); // v58.52: the top pulse bar's verdict
+  // The Korean close label needs the daily record, which loads after the first top-bar render.
+  root.addEventListener?.('aio:historyLoaded', () => { try { root.document?.dispatchEvent(new root.CustomEvent('aio:quoteTopbar', { detail: {} })); } catch (_) {} });
   root._aioLatestCompletedSessionDate = (market = 'US') => (market === 'KR' ? latestCompletedKrSession(clock.now()) : latestCompletedUsSession(clock.now()))?.date || null;
   root._aioKrIndexStress = () => krIndexStressRows(root._aioHistory || [], { now: clock.now() }); // v57.81: KOSPI's own worst moves for the stress panel
   root._aioPortfolioStressHtml = (input) => portfolioStressHtml({ ...input, history: root._aioHistory || [], now: clock.now() }); // 2026-10-19: sensitivities from the book's own weekly returns

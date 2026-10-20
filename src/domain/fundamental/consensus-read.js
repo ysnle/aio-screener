@@ -19,6 +19,12 @@ const finite = (value) => (value != null && value !== '' && Number.isFinite(Numb
 const signed = (value) => `${value >= 0 ? '+' : ''}${Math.round(value)}%`;
 const usd = (value) => `${value < 0 ? '−' : ''}$${Math.abs(value).toFixed(2)}`;
 
+// Screen audit 2026-10-20: CRWD showed "직전 4개 분기 PER 2073.6배 · Forward PER 2851.3배" (EPS $0.08) and the screener
+// TSLA 454.4배 with nothing saying the multiple no longer measures price against profit. Above this a multiple is shown
+// as not meaningful (the sort still uses the number).
+export const PE_MEANINGFUL_MAX = 200;
+export const peMultipleText = (pe, digits = 1) => (Number.isFinite(pe) ? (pe > PE_MEANINGFUL_MAX ? `${PE_MEANINGFUL_MAX}배 초과(이익이 작아 의미 낮음)` : `${pe.toFixed(digits)}배`) : '—');
+
 /** Numbers only: null when there is no fresh consensus row or no close for this listing. */
 export function consensusView(row, estimate, { now = Date.now() } = {}) {
   if (!estimate || estimate.unavailable || !estimate.fwd || !estimate.trailing) return null;
@@ -58,7 +64,7 @@ export function buildConsensusPoint(row, estimate, options = {}) {
   const range = `${view.fwdFrom}~${view.fwdTo}${firstEnded ? `, 첫 분기 ${view.fwdFrom}는 끝났고 실적 발표 전` : ''}`;
   // The visible line leads with the multiple; the stock page folds everything after the first ' — '.
   const lead = view.fwdPe != null
-    ? `Forward PER 약 ${view.fwdPe.toFixed(1)}배${view.trailingPe != null ? ` · 직전 4개 분기 조정 기준 ${view.trailingPe.toFixed(1)}배` : ''}${view.growth != null ? ` · 예상 이익 ${signed(view.growth)}` : ''}`
+    ? `Forward PER ${view.fwdPe > PE_MEANINGFUL_MAX ? '' : '약 '}${peMultipleText(view.fwdPe)}${view.trailingPe != null ? ` · 직전 4개 분기 조정 기준 ${peMultipleText(view.trailingPe)}` : ''}${view.growth != null ? ` · 예상 이익 ${signed(view.growth)}` : ''}`
     : '향후 4개 분기 적자 예상';
   const basis = `종가 ${usd(view.price)}${view.priceDate ? `(${view.priceDate})` : ''} ÷ 실적 발표 전 4개 분기(${range}) 예상 EPS 합 ${usd(view.fwdEps)}`
     + (view.growth != null ? `, 직전 4개 분기 실적 ${usd(view.trailingEps)}과 같은 조정 EPS 기준으로 비교했습니다`

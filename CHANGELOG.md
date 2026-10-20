@@ -1,3 +1,26 @@
+## v58.52 (2026-10-20)
+- **한국 종목 종가 보정 수정 (P1943):** 포털 일별 시세가 9/14부터 넥스트레이드 20:00 통합가를 주면서 KRX 종가를 덮어써 등락률이 틀리던 문제를 고쳤다. 포털 시세는 이제 종가를 바꾸지 않고, 넥스트레이드 이전(9/13까지)의 빈 세션만 채운다.
+- **오늘의 한 문장 방향 검증 (P1944):** 큰 하락(코스피 3%·S&P 500 1%)이 마감된 날에는 문장이 그 하락에서 출발해야 하고, 바닥 프레임만으로 된 문장은 거절된다.
+- **실적 일정 중요도 선택 (P1945):** 실적 발표는 S&P 500 비중이 큰 순서로 8건을 골라 시간순으로 보여 주고, 빠진 건수를 적는다.
+- **상단 시장 상태 바 통일 (P1946):** 상단 바가 옛 점수 대신 시장 상태 화면과 같은 판정을 보인다. 한국 종가가 기록에 들어오면 상단 시각 옆에 '한국 M/D 마감'을 함께 적는다.
+- **스크리너 티커 검색 (P1947):** 짧은 영문 검색어는 티커 앞부분과 이름 단어 시작으로 찾는다. 기본 '실행 통과만' 때문에 조건 결과가 0행이면 그 이유를 적는다.
+- **종목→한국 테마 이동 (P1948):** 종목 화면의 한국 테마 링크가 테마 상세를 열어 보여 준다. 한국 테마 흐름의 테마 이름을 누르면 상세가 열린다.
+- **헤드라인 번역 검증 (P1949):** 회사 이름이 빠지거나 금액 단위가 바뀐 번역은 쓰지 않는다.
+- **라벨·날짜 정리 (v58.52):** 방어 업종 문장에서 부동산을 뺐고(계산은 v58.38부터 XLU·XLP·XLV), XLB를 '소재'로 통일했다. VIX·공포·탐욕 변화 타일에 단위(pt·점)를 붙였다. 바닥 확인 조건의 20일선 저점에 날짜를, 신용 학습 문장에 발표 지연을 적었다. 시장 폭 카드가 부담 판정일 때 '바닥 다지기 쪽' 대신 낮은 수준에서의 회복이라고 쓴다. 스크리너 테마 단계 합이 종목 수보다 클 때 이유를 적고, 테마 시나리오의 '유리한 대응'을 '비용이 작은 쪽(따라 하라는 뜻 아님)'으로 바꿨다.
+- **PER 의미 낮음 표시 (v58.52):** 200배를 넘는 PER(CRWD 2,073배 등)은 숫자 대신 '200배 초과(이익이 작아 의미 낮음)'로 보인다. 정렬은 숫자를 쓴다.
+- **차트·화면 정리 (v58.52):** 한국 종목 차트 가격축을 원 단위 정수로, 날짜 눈금을 M/D로 바꿨다. 재무 공시 부제를 '미국 SEC · 한국 DART'로 고쳤다. 지수 이익 전망과 금리 곡선 옆의 출처 이름을 데이터 출처 칸으로 옮기고, 거시 카드의 '· FRED' 표기를 뺐다.
+- **휴대폰 화면 (v58.52):** 포트폴리오 빈 상태의 '첫 종목 추가' 버튼이 표 스크롤 밖으로 잘리던 것, 나스닥 100 카드가 20px 밀리던 것, 수익률 곡선이 100px로 눌리던 것을 고쳤다.
+- **포트폴리오 매매일지·내 원칙 (v58.52):** 매수·매도를 날짜·가격·수량·수수료·이유·그때 마음·손절/목표 가격과 함께 기록한다. 끝난 거래를 종목별 선입선출로 맞춰 승률·평균 이익/손실·손익비·본전 승률·실현 손익(통화별)·보유 기간을 보여 주고, 내 기록에서 보이는 습관(손실을 오래 들고 가는 기록, 손절 원칙보다 깊은 손실, 계획 없는 매수, 마음 상태·이유별 결과)을 표본 크기와 함께 적는다. '내 원칙'(한 종목 최대 비중·현금 최소 비중·손절 기준·보유 종목 수)을 정하면 지금 보유 상태가 그 원칙에서 벗어나는지 보여 준다. 매매를 권하지 않는다. 기록은 보유 종목과 같은 PIN 암호화·전체 백업 경로로 저장된다(aio_portfolio_trades).
+- R1 7곳 v58.52
+
+## v58.51 (2026-10-20)
+- **답변 계획 오인 수정 (P1942):** 검증에 실패한 AI 답변 계획을 claim 묶음으로 읽어 잘못된 '수치 제외' 안내를 붙이던 문제를 고쳤다.
+- **제품 미사용 src 모듈 19개 제거 (v58.51):** 화면에서 도달할 수 없고 CI 게이트만 불러 쓰던 모듈을 지웠다 — 스크리너 refresh-planner·provider-capability·regime·pit-validation·outcome-ledger·return-contract, 지식 route-bridge·ontology·selectors·repository와 evidence·graph·path·tree 렌더러, src/storage repository·migrations·vault, ai/eval/benchmark, ai/context/portfolio-simulation. 같은 게이트 안의 살아 있는 검사(route-targets 산출물, 개념·별칭 산출물, lesson 렌더러, 저장소 gateway, 검증 게이트 BLOCKED)는 남겼고, 살아 있는 검사가 없던 ci-knowledge-repository-contract만 통째로 지웠다. 데이터 생산 스크립트가 쓰는 operations·reconciliation·source-registry·breadth-signals·report-verification은 유지한다. R400·R464·R468·R471·R501·R531·R577 문구를 실제 검증 수단에 맞췄다.
+- **AI 보조 함수 정리 (v58.51):** 호출자 0건인 `AIO.getAIClaimSchemaPrompt`(채팅은 단일 [AI_ANSWER_PLAN] 블록만 요청)·`AIO.getDecisionEvidencePromptContext`(같은 증거 묶음을 채팅이 이미 보냄)·`AIO.getBriefingCanonicalObservationModel`, 테스트만 쓰던 검색 색인(`indexAIRetrievalDocuments`·`getAIRetrievalDocumentIndex`·`quarantineAIRetrievalDocument`, 제품은 카드별 `_aioAIRetrievalSafety`로 걸러냄)과 읽는 곳 없는 replay 저장소(`getAIReplayManifests`, 같은 manifest는 파이프라인 감사 행에 남음)를 지웠다. T983은 제품 안전 경로를 직접 검사하도록 바꾸고 T985를 퇴역했다. R312·R320 문구를 맞췄다.
+- **회귀를 숨기던 skip 31건 실패 전환 (v58.51):** T67~T101 등에서 대상 함수가 없으면 `true`로 통과하던 분기 31곳을 `false`(missing)로 바꿔, 함수가 사라지면 테스트가 실패한다.
+- **DATE_ENGINE 이름 충돌 해소 (v58.51):** 신선도 도구 `window.DATE_ENGINE`(isStale·staleBadge)과 거래 달력 `const DATE_ENGINE`이 같은 이름이라 `DATE_ENGINE.isStale()`이 undefined였다. 신선도 쪽을 `window.FRESHNESS_ENGINE`으로 바꾸고 R33 제목을 맞췄다. R482 검증 문구에서 생산 전용 모듈(source-registry)을 런타임 예시로 든 오류를 고쳤다.
+- R1 7곳 v58.51
+
 ## v58.50 (2026-10-20)
 - **접근성 매트릭스 소수점 오차와 내 종목 뉴스 링크 (P1941):** 작은 클릭 영역 판정이 0.01px 허용 오차로 비교해, 24px 최소 높이 링크가 23.9999로 측정돼 main CI가 실패하던 문제를 없앴다. 브리핑의 내 종목 뉴스 링크도 항상 24px 이상 높이를 가진다.
 - R1 7곳 v58.50
@@ -133,7 +156,7 @@
 - **보통주 기준 PER 표시 (P1923):** 우선주 배당을 뺀 이익으로 계산한 PER은 순이익으로 다시 계산하지 않고 그 근거를 그대로 표시한다.
 - **잘린 답변 정산 (P1924):** 출력 한도에서 멈춘 AI 답변도 실제 사용량으로 정산해 월 예산이 과다 차감되지 않게 한다.
 - **실적 캘린더 실패 격리 (P1925):** 실적 캘린더를 못 받아도 이전 파일을 유지하고 스크리너 갱신은 계속한다.
-- **v58.19 감사 후속 정리 (v58.20):** 제품 호출자가 0건이고 테스트·게이트만 붙잡고 있던 코드를 근거와 함께 제거했다 — 퇴역한 채팅 차트 카드 핸들러 `_aioShowTechnicalChart`(P1669 게이트를 '부재' 확인으로 전환), 어디서도 만들지 않는 `#breadth-diag-signal`/`#breadth-diag-text` 조회 3곳(market.js teardown·aio-core 재배치·빈 결론 가드), 빈 `_SECTOR_PCT_FALLBACK`, 읽히지 않는 `_scrVisibleLimit`(게이트를 screener.js의 실제 12행 한도로 재지정), `AIO.refreshAllComprehensivePages`·`AIO.getHistoryDataAudit`·`AIO.trimAIConversationContext`·`AIO.getNewsTranslationQualityAudit`(T979 삭제, T700·T796은 살아 있는 판정만 유지). QA 묶음 상수를 읽던 `AIO.getAIGoldenCorpus`는 aio-qa-audits.js로 옮겼다.
+- **v58.19 감사 후속 정리 (v58.20):** 제품 호출자가 0건이고 테스트·게이트만 붙잡고 있던 코드를 근거와 함께 제거했다 — 퇴역한 채팅 차트 카드 핸들러 `_aioShowTechnicalChart`(P1669 게이트를 '부재' 확인으로 전환), 어디서도 만들지 않는 `#breadth-diag-signal`/`#breadth-diag-text` 조회 3곳(market.js teardown·aio-core 재배치·빈 결론 가드), 빈 `_SECTOR_PCT_FALLBACK`, 읽히지 않는 `_scrVisibleLimit`(게이트를 screener.js의 실제 12행 한도로 재지정), `AIO.refreshAllComprehensivePages`·`AIO.getHistoryDataAudit`·`AIO.trimAIConversationContext`·`AIO.getNewsTranslationQualityAudit`(T979 삭제, T700·T796은 살아 있는 판정만 유지). QA 묶음 상수를 읽던 `AIO.getAIGoldenCorpus`도 호출자가 없어 삭제했다.
 - R1 7곳 v58.20
 
 ## v58.19 (2026-10-18)

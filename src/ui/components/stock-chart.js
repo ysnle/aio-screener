@@ -57,7 +57,21 @@ export function barsFromYahoo(payload) {
   })).filter((bar) => [bar.open, bar.high, bar.low, bar.close].every((v) => typeof v === 'number' && Number.isFinite(v) && v > 0));
 }
 
-function drawChart(root, host, analysis, previous) {
+// Screen audit 2026-10-20: a Korean listing's axis read "400000.00" and the phone's last date tick read "9일" with no month.
+// Won prices are whole numbers with separators; a day tick carries its month (M/D).
+function chartLocalization(kr) {
+  return {
+    locale: 'ko-KR',
+    priceFormatter: (price) => (kr ? Math.round(price).toLocaleString('ko-KR') : Number(price).toFixed(2))
+  };
+}
+function dayTickFormatter(time, type) {
+  if (type !== 2) return null; // year, month and intraday ticks keep the library's labels
+  const parts = typeof time === 'string' ? time.split('-').map(Number).slice(1) : typeof time === 'object' && time ? [time.month, time.day]
+    : (() => { const d = new Date(Number(time) * 1000); return [d.getUTCMonth() + 1, d.getUTCDate()]; })();
+  return parts.every(Number.isFinite) ? `${parts[0]}/${parts[1]}` : null;
+}
+function drawChart(root, host, analysis, previous, kr = false) {
   const LWC = root.LightweightCharts;
   if (previous?.chart) { try { previous.chart.remove(); } catch (_) {} }
   host.replaceChildren();
@@ -73,9 +87,9 @@ function drawChart(root, host, analysis, previous) {
     layout: { background: { color: 'transparent' }, textColor: text, fontFamily: 'inherit', fontSize: 12 },
     grid: { vertLines: { color: grid }, horzLines: { color: grid } },
     rightPriceScale: { borderColor: grid, scaleMargins: { top: 0.08, bottom: 0.24 } },
-    timeScale: { borderColor: grid, rightOffset: 4, barSpacing: 7, minBarSpacing: 3 },
+    timeScale: { borderColor: grid, rightOffset: 4, barSpacing: 7, minBarSpacing: 3, tickMarkFormatter: dayTickFormatter },
     crosshair: { mode: 0 },
-    localization: { locale: 'ko-KR' }
+    localization: chartLocalization(kr)
   });
   const candles = chart.addCandlestickSeries({ upColor: up, downColor: down, borderUpColor: up, borderDownColor: down, wickUpColor: up, wickDownColor: down });
   candles.setData(analysis.bars.map(({ time, open, high, low, close }) => ({ time, open, high, low, close })));
@@ -210,7 +224,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   if (badge) { badge.textContent = analysis.stateLabel; badge.className = `regime-state is-${STATE_TONE[analysis.state] || 'neutral'}`; }
   await library;
   if (ticket !== root.__aioStockChartTicket) return null;
-  root.__aioStockChartInstance = drawChart(root, host, analysis, root.__aioStockChartInstance);
+  root.__aioStockChartInstance = drawChart(root, host, analysis, root.__aioStockChartInstance, kr);
   const regime = readMarketRegime(root); // v57.55 review (E1-02): the same regime reader (and credit history) as 시장 상태
   // P1435: reading first (state → why → market → flip), two pictures (Weinstein stage, trend template),
   // and the full evidence list folded underneath.
@@ -270,7 +284,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     const max = Math.max(...profile.zones.map(zone => zone.volume));
     for (const zone of profile.zones) {
       const row = el(doc, 'div', null, 'chart-volume-zone');
-      row.append(el(doc, 'span', `${zone.low.toFixed(kr ? 0 : 2)}~${zone.high.toFixed(kr ? 0 : 2)}`));
+      row.append(el(doc, 'span', kr ? `${Math.round(zone.low).toLocaleString('ko-KR')}~${Math.round(zone.high).toLocaleString('ko-KR')}원` : `$${zone.low.toFixed(2)}~$${zone.high.toFixed(2)}`));
       const track = el(doc, 'span', null, 'chart-volume-track'), bar = el(doc, 'span'); bar.style.width = `${zone.volume / max * 100}%`; track.append(bar);
       row.append(track, el(doc, 'span', `${zone.share.toFixed(1)}%`)); section.append(row);
     }
@@ -349,6 +363,7 @@ export function intervalStructure(bars) {
 }
 
 async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
+  const kr = /\.(KS|KQ)$/.test(sym);
   const host = doc.getElementById('stock-chart-canvas');
   const panel = doc.getElementById('stock-chart-evidence');
   const set = (id, value) => { const node = doc.getElementById(id); if (node) node.textContent = value; return node; };
@@ -384,9 +399,9 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
     layout: { background: { color: 'transparent' }, textColor: text, fontFamily: 'inherit', fontSize: 12 },
     grid: { vertLines: { color: grid }, horzLines: { color: grid } },
     rightPriceScale: { borderColor: grid, scaleMargins: { top: 0.08, bottom: 0.24 } },
-    timeScale: { borderColor: grid, rightOffset: 4, barSpacing: 7, minBarSpacing: 3, timeVisible: !!spec.intraday, secondsVisible: false },
+    timeScale: { borderColor: grid, rightOffset: 4, barSpacing: 7, minBarSpacing: 3, timeVisible: !!spec.intraday, secondsVisible: false, ...(spec.intraday ? {} : { tickMarkFormatter: dayTickFormatter }) },
     crosshair: { mode: 0 },
-    localization: { locale: 'ko-KR' }
+    localization: chartLocalization(kr)
   });
   const candles = chart.addCandlestickSeries({ upColor: up, downColor: down, borderUpColor: up, borderDownColor: down, wickUpColor: up, wickDownColor: down });
   candles.setData(bars.map(({ time, open, high, low, close }) => ({ time, open, high, low, close })));
@@ -410,7 +425,6 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   } };
   const lastBar = bars.at(-1), prevBar = bars.at(-2);
   const change = (lastBar.close / prevBar.close - 1) * 100;
-  const kr = /\.(KS|KQ)$/.test(sym);
   const stamp = spec.intraday ? new Date(lastBar.time * 1000).toISOString().slice(0, 16).replace('T', ' ') : lastBar.time;
   set('stock-chart-status', `${stamp}${spec.intraday ? ' 거래소 현지 시각' : ''} ${formatScreenerPrice(lastBar.close, kr ? 'KRW' : payload?.meta?.currency || null)} (${change >= 0 ? '+' : ''}${change.toFixed(2)}% · 직전 봉 대비)`);
   const structure = intervalStructure(bars);

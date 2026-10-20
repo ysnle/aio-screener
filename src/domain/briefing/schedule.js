@@ -141,7 +141,7 @@ export function sp500NameMap(rows = []) {
   return names;
 }
 
-export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRange = null, earnings = [], earningsMeta = {}, names = {}, nowMs = Date.now(), days = 7, maxEarnings = 6, fomcDecisions = null } = {}) {
+export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRange = null, earnings = [], earningsMeta = {}, names = {}, nowMs = Date.now(), days = 7, maxEarnings = 8, fomcDecisions = null } = {}) {
   const rows = [];
   const today = kstParts(nowMs).date;
   if (Array.isArray(fomcDecisions)) {
@@ -184,9 +184,16 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
       const atMs = etWallClockToMs(row.date, hour);
       return { row, atMs };
     })
-    .filter(({ atMs }) => atMs >= nowMs - 6 * 3600000 && atMs <= nowMs + days * 86400000)
-    .sort((a, b) => a.atMs - b.atMs)
-    .slice(0, maxEarnings);
+    .filter(({ atMs }) => atMs >= nowMs - 6 * 3600000 && atMs <= nowMs + days * 86400000);
+  // v58.52: an earnings-season session carries dozens of S&P 500 reports. Keep the most market-moving ones (index weight,
+  // else the quarter's revenue estimate) and list them by time — the clock-then-name cut kept EFX·GM·GPC·HAL·HAS·KEY and
+  // dropped 3M, Netflix, Meta and Tesla on 10/20.
+  const weightOf = ({ row }) => (Number.isFinite(Number(row.indexWeight)) && Number(row.indexWeight) > 0 ? Number(row.indexWeight) : 0);
+  const revenueOf = ({ row }) => Number(row.revenueEstimate) || 0;
+  const keptEarnings = [...earningRows].sort((a, b) => weightOf(b) - weightOf(a) || revenueOf(b) - revenueOf(a) || a.atMs - b.atMs).slice(0, maxEarnings);
+  rows.omittedEarnings = Math.max(0, earningRows.length - keptEarnings.length);
+  earningRows.length = 0;
+  earningRows.push(...keptEarnings.sort((a, b) => a.atMs - b.atMs));
   for (const { row, atMs } of earningRows) {
     const when = formatKstWhen(atMs);
     const session = row.hour === 'bmo' ? '장 전' : row.hour === 'amc' ? '장 마감 후' : '시간 미정';
