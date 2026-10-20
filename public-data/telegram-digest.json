@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-20T01:52:33.447Z",
-  "attemptedAt": "2026-10-20T01:52:33.447Z",
-  "lastSuccessfulAt": "2026-10-20T01:52:33.447Z",
+  "generatedAt": "2026-10-20T02:51:39.455Z",
+  "attemptedAt": "2026-10-20T02:51:39.455Z",
+  "lastSuccessfulAt": "2026-10-20T02:51:39.455Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-06T01:52:29.408Z",
-  "until": "2026-10-20T01:52:29.408Z",
+  "since": "2026-10-06T02:51:34.916Z",
+  "until": "2026-10-20T02:51:34.916Z",
   "current24hWindow": {
     "start": "2026-10-18T23:00:00.000Z",
     "end": "2026-10-19T23:00:00.000Z",
@@ -93,19 +93,19 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1183,
-      "freshCount": 40,
+      "count": 1179,
+      "freshCount": 39,
       "eligibleTextCount": 1066,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 66766
+      "lastPostId": 66767
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 245,
+      "count": 244,
       "freshCount": 20,
       "eligibleTextCount": 239,
       "selectedCount": 91,
@@ -117,26 +117,26 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 734,
-      "freshCount": 35,
-      "eligibleTextCount": 693,
+      "count": 740,
+      "freshCount": 37,
+      "eligibleTextCount": 702,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 70729
+      "lastPostId": 70738
     }
   ],
-  "count": 2427,
-  "retainedItemCount": 473,
+  "count": 2428,
+  "retainedItemCount": 476,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2427,
-    "eligibleTextCount": 2255,
-    "mediaOnlyCount": 172,
+    "observedCount": 2428,
+    "eligibleTextCount": 2264,
+    "mediaOnlyCount": 164,
     "highSignalCount": 515,
-    "broadSignalCount": 1078,
+    "broadSignalCount": 1082,
     "selectedRawCount": 411,
     "selectedEligibleCount": 411,
     "selectedRawCoveragePct": 18.2,
@@ -144,25 +144,28 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "earnings": 467,
-    "semi": 623,
-    "market-note": 806,
-    "macro": 793,
+    "semi": 625,
+    "market-note": 804,
+    "kr-market": 191,
+    "flows": 175,
+    "macro": 795,
+    "media-only": 58,
+    "credit": 108,
+    "earnings": 466,
     "geo": 360,
     "healthcare": 127,
-    "credit": 107,
-    "power": 346,
-    "kr-market": 191,
+    "power": 345,
     "equity": 169,
-    "flows": 173,
     "insider": 44,
-    "media-only": 57,
-    "ai-policy": 181,
-    "japan": 139,
+    "ai-policy": 180,
+    "japan": 138,
     "optical": 51,
     "crypto": 7
   },
   "tickerCounts": {
+    "NVDA": 96,
+    "AMD": 59,
+    "CRWV": 21,
     "MU": 36,
     "MSFT": 49,
     "MRK": 1,
@@ -175,11 +178,8 @@
     "ORCL": 7,
     "BE": 21,
     "025560.KS": 1,
-    "NVDA": 94,
     "AMZN": 36,
-    "AMD": 58,
     "STX": 7,
-    "CRWV": 20,
     "PLTR": 7,
     "LRCX": 2,
     "DB": 1,
@@ -209,7 +209,7 @@
     "BX": 1,
     "AMAT": 2,
     "INTC": 4,
-    "016360.KS": 3,
+    "016360.KS": 2,
     "373220.KS": 6,
     "IONQ": 4,
     "009150.KS": 5,
@@ -250,7 +250,7 @@
     "103590.KS": 1,
     "000500.KS": 1,
     "VST": 1,
-    "035420.KS": 3,
+    "035420.KS": 2,
     "CMI": 1,
     "CTVA": 1,
     "PSKY": 1,
@@ -260,14 +260,14 @@
     "BLK": 1
   },
   "themes": [
-    "Market Notes (806 posts in 14-day research window): 루멘텀 $LITE CEO 마이클 헐스턴, Fox Business 인터뷰 (26.10.19) ① AI 광통신 수요 급증 — 공급 부족 끝이 보이지 않는다 Q. 향후 몇 년간 제품이 매진된 상황인데, 정확히 언제...",
-    "Macro/Rates (793 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 19일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • JPMorgan CEO 제이미 다이먼은 미국 경제가 강력한 기업 이익과 낮은 실업률, 대규모 AI 인프라...",
-    "Semiconductors/Memory (623 posts in 14-day research window): 2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로...",
-    "Earnings/Corporate (467 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 먼데이닷컴 (MNDY) — 기업 영업 전화를 자동화하는 AI 음성 에이전트 플랫폼 'Harmony'를 출시. 약 200ms의 응답...",
+    "Market Notes (804 posts in 14-day research window): 루멘텀 $LITE CEO 마이클 헐스턴, Fox Business 인터뷰 (26.10.19) ① AI 광통신 수요 급증 — 공급 부족 끝이 보이지 않는다 Q. 향후 몇 년간 제품이 매진된 상황인데, 정확히 언제...",
+    "Macro/Rates (795 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 19일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • JPMorgan CEO 제이미 다이먼은 미국 경제가 강력한 기업 이익과 낮은 실업률, 대규모 AI 인프라...",
+    "Semiconductors/Memory (625 posts in 14-day research window): 2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로...",
+    "Earnings/Corporate (466 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 먼데이닷컴 (MNDY) — 기업 영업 전화를 자동화하는 AI 음성 에이전트 플랫폼 'Harmony'를 출시. 약 200ms의 응답...",
     "Geopolitics (360 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀....",
-    "AI Power/Grid (346 posts in 14-day research window): SemiAnalysis ) 2027년 데이터센터: 가속화의 해, 단일 연도에 +50GW 구축 1. 데이터센터 구축을 둘러싼 의구심(FUD)과 실제 진실 매주 데이터센터에 대한 부정적인 억측과 불안감(FUD)이...",
+    "AI Power/Grid (345 posts in 14-day research window): SemiAnalysis ) 2027년 데이터센터: 가속화의 해, 단일 연도에 +50GW 구축 1. 데이터센터 구축을 둘러싼 의구심(FUD)과 실제 진실 매주 데이터센터에 대한 부정적인 억측과 불안감(FUD)이...",
     "Korea Market (191 posts in 14-day research window): JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%...",
-    "AI Policy/Export Controls (181 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
+    "AI Policy/Export Controls (180 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
   ],
   "catalysts": [
     {
@@ -277,7 +277,7 @@
     },
     {
       "key": "NVDA",
-      "count": 94,
+      "count": 96,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀...."
     },
     {
@@ -297,7 +297,7 @@
     },
     {
       "key": "AMD",
-      "count": 58,
+      "count": 59,
       "text": "SemiAnalysis ) 2027년 데이터센터: 가속화의 해, 단일 연도에 +50GW 구축 1. 데이터센터 구축을 둘러싼 의구심(FUD)과 실제 진실 매주 데이터센터에 대한 부정적인 억측과 불안감(FUD)이..."
     },
     {
@@ -326,9 +326,9 @@
       "text": "루멘텀 $LITE CEO 마이클 헐스턴, Fox Business 인터뷰 (26.10.19) ① AI 광통신 수요 급증 — 공급 부족 끝이 보이지 않는다 Q. 향후 몇 년간 제품이 매진된 상황인데, 정확히 언제..."
     },
     {
-      "key": "BE",
+      "key": "CRWV",
       "count": 21,
-      "text": "JP모건 BE Semiconductor(BESI) 리포트 (2026.10.19): HBM 하이브리드 본딩 도입 지연 가능성은 있으나 경쟁 구도는 불변, 단기 수주는 강할 전망 JP모건은 BESI에 대해 비중확대(Overweight) 의견을 유지했으나, 목표주가는 342유로에서 275유로로 하향했습니다(10월 16일..."
+      "text": "중신증권: 코어위브(CoreWeave)에 대한 시장 우려는 과도, 네오클라우드 기업의 단기 자금 부족분은 ‘여전히 감당 가능’ 중신증권은 10월 19일 최신 보고서 《네오클라우드(Neocloud)의 부채..."
     }
   ],
   "categories": [
@@ -338,7 +338,7 @@
       "topics": [
         "macro"
       ],
-      "count": 793,
+      "count": 795,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 19일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • JPMorgan CEO 제이미 다이먼은 미국 경제가 강력한 기업 이익과 낮은 실업률, 대규모 AI 인프라..."
     },
     {
@@ -356,7 +356,7 @@
       "topics": [
         "credit"
       ],
-      "count": 107,
+      "count": 108,
       "focus": "IREN CEO Daniel Roberts 이번 주 자금 조달과 관련해 많은 질문을 받았습니다. 이에 따라 IREN( $IREN )에서 GPU 자금 조달이 일반적으로 어떻게 이루어지는지 설명하겠습니다. 첫째, 고객이 다년간의 Take-or-Pay(의무 구매·지불) 계약을 체결하고 선급금 지급에 동의합니다. 최근..."
     },
     {
@@ -365,7 +365,7 @@
       "topics": [
         "semi"
       ],
-      "count": 623,
+      "count": 625,
       "focus": "2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로..."
     },
     {
@@ -383,7 +383,7 @@
       "topics": [
         "power"
       ],
-      "count": 346,
+      "count": 345,
       "focus": "SemiAnalysis ) 2027년 데이터센터: 가속화의 해, 단일 연도에 +50GW 구축 1. 데이터센터 구축을 둘러싼 의구심(FUD)과 실제 진실 매주 데이터센터에 대한 부정적인 억측과 불안감(FUD)이..."
     },
     {
@@ -392,7 +392,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 181,
+      "count": 180,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
     },
     {
@@ -428,7 +428,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 467,
+      "count": 466,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 먼데이닷컴 (MNDY) — 기업 영업 전화를 자동화하는 AI 음성 에이전트 플랫폼 'Harmony'를 출시. 약 200ms의 응답..."
     },
     {
@@ -446,7 +446,7 @@
       "topics": [
         "japan"
       ],
-      "count": 139,
+      "count": 138,
       "focus": "다음주 일정 (11일): 한국 1~10일 수출입 12일: 일본 휴장, IMF, 세계은행 연차총회(~18일) OCP Global Summit 2026(~15일): 주제:“Scaling Innovation for..."
     },
     {
@@ -455,8 +455,8 @@
       "topics": [
         "flows"
       ],
-      "count": 173,
-      "focus": "No retained full-text sample; 173 observed posts in the 14-day research window."
+      "count": 175,
+      "focus": "No retained full-text sample; 175 observed posts in the 14-day research window."
     },
     {
       "id": "insider",
@@ -473,7 +473,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 806,
+      "count": 804,
       "focus": "루멘텀 $LITE CEO 마이클 헐스턴, Fox Business 인터뷰 (26.10.19) ① AI 광통신 수요 급증 — 공급 부족 끝이 보이지 않는다 Q. 향후 몇 년간 제품이 매진된 상황인데, 정확히 언제..."
     }
   ],
@@ -1654,6 +1654,103 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/70738",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70738",
+      "datetime": "2026-10-20T02:48:14.000Z",
+      "localDateKst": "2026-10-20",
+      "tags": [
+        "semi"
+      ],
+      "score": 55,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "AMD"
+      ],
+      "summary": ">>엔비디아, AI 스타트업 Modal의 CPU 칩 주문 확보한 것으로 알려져… 기존에는 인텔과 AMD에 전적으로 의존 •보도에 따르면 엔비디아가 빠르게 성장하는 AI 스타트업 Modal로부터 CPU 칩..."
+    },
+    {
+      "id": "HANAchina/70736",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70736",
+      "datetime": "2026-10-20T02:44:26.000Z",
+      "localDateKst": "2026-10-20",
+      "tags": [
+        "semi",
+        "kr-market",
+        "flows"
+      ],
+      "score": 60,
+      "hasText": true,
+      "tickers": [],
+      "summary": "•중국 반도체 과창50% +1.85% 전환 •기관 매수세 유입되며 전체 지수 양전 •로봇, 반도체, 광모듈, PCB 상승 견인 •배터리 최하위, CATL -2%"
+    },
+    {
+      "id": "HANAchina/70735",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70735",
+      "datetime": "2026-10-20T02:41:22.000Z",
+      "localDateKst": "2026-10-20",
+      "tags": [
+        "macro"
+      ],
+      "score": 62,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>JPMorgan CEO: 주식시장 40% 폭락에 대비 완료 •JPMorgan 다이먼은 주식시장이 40% 폭락하는 등 극단적인 상황에 대비하고 있다고 밝혔음. 다만 이는 경기침체 시점을 예측한 것은 아니라고..."
+    },
+    {
+      "id": "HANAchina/70733",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70733",
+      "datetime": "2026-10-20T02:06:40.000Z",
+      "localDateKst": "2026-10-20",
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "score": 63,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>AI 급락 속 애플은 사상 최고치! 시가총액 5조 달러 돌파하며 엔비디아 추월, 합리적인 평가인가? (중국언론) •AI 공포로 기술주 전반이 급락하는 가운데, 애플은 AI 투자와 자본지출을 낮게 유지하는..."
+    },
+    {
+      "id": "HANAchina/70732",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70732",
+      "datetime": "2026-10-20T02:02:49.000Z",
+      "localDateKst": "2026-10-20",
+      "tags": [
+        "credit",
+        "macro"
+      ],
+      "score": 73,
+      "hasText": true,
+      "tickers": [
+        "CRWV"
+      ],
+      "summary": ">>월가, CoreWeave발 공포 진화에 총력… 한 기업의 문제로 AI 투자 사이클 전체를 부정하지 말아야 (중국언론) •바클레이즈, CoreWeave의 무담보 채권 15억 달러가 총부채 350억 달러에서..."
+    },
+    {
+      "id": "HANAchina/70730",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70730",
+      "datetime": "2026-10-20T01:54:16.000Z",
+      "localDateKst": "2026-10-20",
+      "tags": [
+        "macro",
+        "kr-market",
+        "flows"
+      ],
+      "score": 60,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>인도네시아 증권거래소, MSCI의 시장 지위 강등 막기 위해 지분 집중도 높은 기업 퇴출 •인도네시아 증권거래소는 MSCI가 인도네시아를 ‘독립 시장’으로 강등할 가능성에 대응하기 위해 지분 집중도가 높은..."
+    },
+    {
       "id": "HANAchina/70728",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70728",
@@ -2525,8 +2622,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국 실질GDP 성장률과 거시 유동성 증가율 격차 역대 최대로 확대 •가계•지방정부 관련 신용 축소가 유동성(사회융자총액) 증가율 둔화의 핵심 원인 •4분기 GDP 성장률이 전년비 4.2%만 기록해도 정부..."
+      "summary": "•중국 실질GDP 성장률과 거시 유동성 증가율 격차 역대 최대로 확대 •가계•지방정부 관련 신용 축소가 유동성(사회융자총액) 증가율 둔화의 핵심 원인 •4분기 GDP 성장률이 전년비 4.2%만 기록해도 정부...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70692",
@@ -2535,18 +2632,15 @@
       "datetime": "2026-10-19T13:27:00.000Z",
       "localDateKst": "2026-10-19",
       "tags": [
-        "semi",
-        "kr-market",
-        "insider",
-        "flows"
+        "kr-market"
       ],
       "score": 78,
       "hasText": true,
+      "summary": ">>JPMorgan : 한국 증시 올해 세 번째 급락: 누가 팔고, 누가 기다리며, 누가 더 이상 살 여력이 없는가? 지난주 한국 KOSPI는 5거래일 동안 누적 15% 넘게 하락. JPMorgan은 이번...",
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": ">>JPMorgan : 한국 증시 올해 세 번째 급락: 누가 팔고, 누가 기다리며, 누가 더 이상 살 여력이 없는가? 지난주 한국 KOSPI는 5거래일 동안 누적 15% 넘게 하락. JPMorgan은 이번..."
+      ]
     },
     {
       "id": "HANAchina/70690",
@@ -2555,13 +2649,12 @@
       "datetime": "2026-10-19T13:01:13.000Z",
       "localDateKst": "2026-10-19",
       "tags": [
-        "semi",
-        "flows"
+        "semi"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>CXMT : 허페이·베이징 양 지역 웨이퍼 공장, 높은 가동률 유지… 주문량 충분. DRAM 산업의 장기적인 발전에 대해 충분한 자신감 보유 •CXMT는 10월 19일 2026년 제2차 임시 주주총회를..."
+      "summary": ">>CXMT : 허페이·베이징 양 지역 웨이퍼 공장, 높은 가동률 유지… 주문량 충분. DRAM 산업의 장기적인 발전에 대해 충분한 자신감 보유 •CXMT는 10월 19일 2026년 제2차 임시 주주총회를...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70689",
@@ -2570,17 +2663,14 @@
       "datetime": "2026-10-19T12:59:20.000Z",
       "localDateKst": "2026-10-19",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "score": 90,
       "hasText": true,
+      "summary": ">>골드만삭스, CoreWeave 투자의견 ‘매수’로 상향… 시장이 자금 조달 비용은 과대평가하고 연산 능력의 수익 창출력은 과소평가 (중국언론) •골드만삭스는 CoreWeave의 투자의견을 ‘중립’에서...",
       "tickers": [
         "CRWV"
-      ],
-      "summary": ">>골드만삭스, CoreWeave 투자의견 ‘매수’로 상향… 시장이 자금 조달 비용은 과대평가하고 연산 능력의 수익 창출력은 과소평가 (중국언론) •골드만삭스는 CoreWeave의 투자의견을 ‘중립’에서..."
+      ]
     },
     {
       "id": "HANAchina/70688",
@@ -6592,20 +6682,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/70488",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70488",
-      "datetime": "2026-10-15T13:53:05.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 65,
-      "hasText": true,
-      "summary": ">>ESS 생산능력 확대 효과 축소, 100GWh급 업체들 장기 사이클 시장 쟁탈전 •중국 ESS 업계에서 생산능력 확대를 통한 비용 절감 효과가 축소, 100GWh급 업체들이 장주기 ESS 제품과 시스템...",
-      "tickers": []
-    },
-    {
       "id": "aetherjapanresearch/25881",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25881",
@@ -6652,21 +6728,6 @@
       "score": 57,
       "hasText": true,
       "summary": "9월 PPI • 헤드라인은 에너지 충격 2차 효과 발현, 다만 3개월 평균은 봄철 1차 충격 때보다 낮은 수준. 9월 PPI는 전월비 +1.3%(예상 0.5%), 전년비 6.3%로 2022년 12월 이후 최대...",
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/70485",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70485",
-      "datetime": "2026-10-15T13:32:57.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "ai-policy",
-        "equity"
-      ],
-      "score": 62,
-      "hasText": true,
-      "summary": ">>뉴욕시 감사관, Anthropic에 IPO 추진 중단 촉구 (CNBC) •뉴욕 감사관 마크 레빈은 인터뷰에서 Anthropic의 최고경영자 다리오 아모데이에게 서한을 보내 회사가 계획 중인 IPO를 중단할...",
       "tickers": []
     },
     {
@@ -6996,22 +7057,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/70481",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70481",
-      "datetime": "2026-10-15T08:33:47.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "중화권 마감 시황 (26.10.15, 목) 🇨🇳 중국 본토 증시는 글로벌 AI 랠리 피로감과 글로벌 매크로 압력이 겹치며 큰 폭으로 하락 마감. 장중 창업판 지수는 연중 최저치를 기록했으며, 과창50지수는...",
-      "tickers": [
-        "TSM"
-      ]
-    },
-    {
       "id": "aetherjapanresearch/25858",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25858",
@@ -7026,23 +7071,6 @@
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ]
-    },
-    {
-      "id": "HANAchina/70480",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70480",
-      "datetime": "2026-10-15T08:03:18.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 60,
-      "hasText": true,
-      "summary": ">>“신생 클라우드 업체 80% 이상 퇴출될 것”… Gartner 경고: CoreWeave 디폴트 발생 시 업계에 재앙 (중국언론) •AI 연산력 임대 업계가 밸류에이션 재평가를 겪고 있음. CoreWeave...",
-      "tickers": [
-        "CRWV",
-        "IT"
       ]
     },
     {
@@ -7123,25 +7151,6 @@
       ]
     },
     {
-      "id": "HANAchina/70479",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70479",
-      "datetime": "2026-10-15T07:06:21.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "semi",
-        "earnings",
-        "flows"
-      ],
-      "score": 65,
-      "hasText": true,
-      "summary": ">>한국 기업 실적 시즌 다음 주 시작, JPMorgan “메모리주 기대치 재조정 국면 진입”, 주가 조정은 매수 기회 (중국언론) •JPMorgan은 AI 지출의 지속 가능성과 수급 펀더멘털을 둘러싸고...",
-      "tickers": [
-        "005930.KS",
-        "000660.KS"
-      ]
-    },
-    {
       "id": "aetherjapanresearch/25856",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25856",
@@ -7204,22 +7213,6 @@
       "score": 59,
       "hasText": true,
       "summary": "TSMC, 대만 타이난에 N3(3나노) 공장 추가 건설 계획… 2028년 A14(1.4나노) 양산 목표 - 미국의 전력 공급 및 데이터센터 개발 현황을 점검하기 위해 현지에 조사팀 파견. TSMC, 이례적으로...",
-      "tickers": [
-        "TSM"
-      ]
-    },
-    {
-      "id": "HANAchina/70477",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70477",
-      "datetime": "2026-10-15T06:27:56.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "•TSMC: 4/4분기 수요가 계속 강세를 보일 것 •2027년 사업 계획 수립 시 신중한 태도를 유지 •현재 수요가 공급을 초과하고 있음 **TSMC adr 낙폭 축소",
       "tickers": [
         "TSM"
       ]
@@ -8894,8 +8887,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국 실질GDP 성장률과 거시 유동성 증가율 격차 역대 최대로 확대 •가계•지방정부 관련 신용 축소가 유동성(사회융자총액) 증가율 둔화의 핵심 원인 •4분기 GDP 성장률이 전년비 4.2%만 기록해도 정부..."
+      "summary": "•중국 실질GDP 성장률과 거시 유동성 증가율 격차 역대 최대로 확대 •가계•지방정부 관련 신용 축소가 유동성(사회융자총액) 증가율 둔화의 핵심 원인 •4분기 GDP 성장률이 전년비 4.2%만 기록해도 정부...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70692",
@@ -8904,18 +8897,15 @@
       "datetime": "2026-10-19T13:27:00.000Z",
       "localDateKst": "2026-10-19",
       "tags": [
-        "semi",
-        "kr-market",
-        "insider",
-        "flows"
+        "kr-market"
       ],
       "score": 78,
       "hasText": true,
+      "summary": ">>JPMorgan : 한국 증시 올해 세 번째 급락: 누가 팔고, 누가 기다리며, 누가 더 이상 살 여력이 없는가? 지난주 한국 KOSPI는 5거래일 동안 누적 15% 넘게 하락. JPMorgan은 이번...",
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": ">>JPMorgan : 한국 증시 올해 세 번째 급락: 누가 팔고, 누가 기다리며, 누가 더 이상 살 여력이 없는가? 지난주 한국 KOSPI는 5거래일 동안 누적 15% 넘게 하락. JPMorgan은 이번..."
+      ]
     },
     {
       "id": "HANAchina/70690",
@@ -8924,13 +8914,12 @@
       "datetime": "2026-10-19T13:01:13.000Z",
       "localDateKst": "2026-10-19",
       "tags": [
-        "semi",
-        "flows"
+        "semi"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>CXMT : 허페이·베이징 양 지역 웨이퍼 공장, 높은 가동률 유지… 주문량 충분. DRAM 산업의 장기적인 발전에 대해 충분한 자신감 보유 •CXMT는 10월 19일 2026년 제2차 임시 주주총회를..."
+      "summary": ">>CXMT : 허페이·베이징 양 지역 웨이퍼 공장, 높은 가동률 유지… 주문량 충분. DRAM 산업의 장기적인 발전에 대해 충분한 자신감 보유 •CXMT는 10월 19일 2026년 제2차 임시 주주총회를...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70689",
@@ -8939,17 +8928,14 @@
       "datetime": "2026-10-19T12:59:20.000Z",
       "localDateKst": "2026-10-19",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "score": 90,
       "hasText": true,
+      "summary": ">>골드만삭스, CoreWeave 투자의견 ‘매수’로 상향… 시장이 자금 조달 비용은 과대평가하고 연산 능력의 수익 창출력은 과소평가 (중국언론) •골드만삭스는 CoreWeave의 투자의견을 ‘중립’에서...",
       "tickers": [
         "CRWV"
-      ],
-      "summary": ">>골드만삭스, CoreWeave 투자의견 ‘매수’로 상향… 시장이 자금 조달 비용은 과대평가하고 연산 능력의 수익 창출력은 과소평가 (중국언론) •골드만삭스는 CoreWeave의 투자의견을 ‘중립’에서..."
+      ]
     },
     {
       "id": "HANAchina/70688",
