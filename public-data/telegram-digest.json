@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-20T23:21:32.402Z",
-  "attemptedAt": "2026-10-20T23:21:32.402Z",
-  "lastSuccessfulAt": "2026-10-20T23:21:32.402Z",
+  "generatedAt": "2026-10-20T23:54:49.086Z",
+  "attemptedAt": "2026-10-20T23:54:49.086Z",
+  "lastSuccessfulAt": "2026-10-20T23:54:49.086Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-06T23:21:26.183Z",
-  "until": "2026-10-20T23:21:26.183Z",
+  "since": "2026-10-06T23:54:42.822Z",
+  "until": "2026-10-20T23:54:42.822Z",
   "current24hWindow": {
     "start": "2026-10-19T23:00:00.000Z",
     "end": "2026-10-20T23:00:00.000Z",
@@ -84,7 +84,7 @@
       "count": 265,
       "freshCount": 19,
       "eligibleTextCount": 256,
-      "selectedCount": 68,
+      "selectedCount": 67,
       "error": null,
       "lastPostId": 25953
     },
@@ -93,90 +93,90 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1172,
+      "count": 1169,
       "freshCount": 40,
-      "eligibleTextCount": 1126,
+      "eligibleTextCount": 1125,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 66844
+      "lastPostId": 66845
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 239,
+      "count": 237,
       "freshCount": 40,
-      "eligibleTextCount": 239,
-      "selectedCount": 94,
+      "eligibleTextCount": 237,
+      "selectedCount": 96,
       "error": null,
-      "lastPostId": 20737
+      "lastPostId": 20739
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 737,
+      "count": 736,
       "freshCount": 39,
-      "eligibleTextCount": 736,
+      "eligibleTextCount": 735,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 70783
+      "lastPostId": 70785
     }
   ],
-  "count": 2413,
-  "retainedItemCount": 475,
+  "count": 2407,
+  "retainedItemCount": 470,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2413,
-    "eligibleTextCount": 2357,
-    "mediaOnlyCount": 56,
-    "highSignalCount": 519,
-    "broadSignalCount": 1080,
-    "selectedRawCount": 407,
-    "selectedEligibleCount": 407,
+    "observedCount": 2407,
+    "eligibleTextCount": 2353,
+    "mediaOnlyCount": 54,
+    "highSignalCount": 518,
+    "broadSignalCount": 1077,
+    "selectedRawCount": 408,
+    "selectedEligibleCount": 408,
     "selectedRawCoveragePct": 17.3,
-    "selectedOfObservedPct": 16.9,
+    "selectedOfObservedPct": 17,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 800,
-    "semi": 628,
+    "macro": 794,
+    "semi": 627,
+    "geo": 356,
     "earnings": 484,
-    "macro": 796,
-    "power": 336,
-    "ai-policy": 177,
+    "power": 334,
+    "ai-policy": 178,
     "equity": 165,
-    "credit": 111,
-    "healthcare": 125,
+    "market-note": 800,
+    "credit": 110,
+    "healthcare": 124,
     "optical": 51,
     "flows": 175,
-    "japan": 141,
-    "geo": 357,
+    "japan": 140,
     "kr-market": 186,
-    "media-only": 56,
-    "insider": 42,
+    "media-only": 54,
+    "insider": 41,
     "crypto": 6
   },
   "tickerCounts": {
-    "TSM": 127,
+    "NVDA": 112,
+    "TSM": 128,
+    "MSFT": 52,
+    "GOOG": 66,
+    "AMZN": 39,
     "TSLA": 34,
     "MU": 37,
-    "NVDA": 111,
     "T": 6,
     "SMCI": 3,
     "COHR": 7,
     "SNDK": 6,
     "ADBE": 2,
     "ORCL": 8,
-    "MSFT": 51,
-    "GOOG": 65,
-    "AMZN": 38,
-    "AMD": 54,
+    "AMD": 53,
     "AVGO": 25,
     "CRWV": 22,
     "WDC": 7,
@@ -242,30 +242,27 @@
     "WFC": 2,
     "BABA": 1,
     "006800.KS": 1,
-    "192820.KQ": 1,
-    "APO": 1,
-    "229640.KQ": 1,
-    "MTK": 1
+    "192820.KQ": 1
   },
   "themes": [
     "Market Notes (800 posts in 14-day research window): 10월 20일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.18%, S&P500 선물 +0.05%, 나스닥100 선물 -0.25%, 러셀2000 선물 +0.06% 기록. 기술주 중심의...",
-    "Macro/Rates (796 posts in 14-day research window): 2026년 10월 20일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (43.34%) 2위: PROSHARES ULTRAPRO QQQ ETF (7.17%) 3위: TESLA INC (6.56%) 4위: SPACE...",
-    "Semiconductors/Memory (628 posts in 14-day research window): 2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로...",
+    "Macro/Rates (794 posts in 14-day research window): 2026년 10월 20일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (43.34%) 2위: PROSHARES ULTRAPRO QQQ ETF (7.17%) 3위: TESLA INC (6.56%) 4위: SPACE...",
+    "Semiconductors/Memory (627 posts in 14-day research window): 2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로...",
     "Earnings/Corporate (484 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 먼데이닷컴 (MNDY) — 기업 영업 전화를 자동화하는 AI 음성 에이전트 플랫폼 'Harmony'를 출시. 약 200ms의 응답...",
-    "Geopolitics (357 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀....",
-    "AI Power/Grid (336 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터...",
+    "Geopolitics (356 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀....",
+    "AI Power/Grid (334 posts in 14-day research window): SemiAnalysis ) 2027년 데이터센터: 가속화의 해, 단일 연도에 +50GW 구축 1. 데이터센터 구축을 둘러싼 의구심(FUD)과 실제 진실 매주 데이터센터에 대한 부정적인 억측과 불안감(FUD)이...",
     "Korea Market (186 posts in 14-day research window): JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%...",
-    "AI Policy/Export Controls (177 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
+    "AI Policy/Export Controls (178 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
   ],
   "catalysts": [
     {
       "key": "TSM",
-      "count": 127,
+      "count": 128,
       "text": "2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로..."
     },
     {
       "key": "NVDA",
-      "count": 111,
+      "count": 112,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • IBM (IBM) — 기업 백오피스 업무의 에이전틱 AI 도입을 확대하기 위해 리나 AI에 전략적 투자를 진행. 기업 내부 업무 자동화와 AI 에이전트 활용 확대를 추진. • 줌 커뮤니케이션스 (ZM) — 회의 대화 내용을 실제 업무..."
     },
     {
@@ -275,7 +272,7 @@
     },
     {
       "key": "GOOG",
-      "count": 65,
+      "count": 66,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 21일 🇺🇸 아메리카 • 트럼프 대통령은 러시아가 우크라이나 종전 협상을 원하고 있다며 젤렌스키 대통령도 합의에 나서야 한다고 강조. 푸틴과 젤렌스키가 직접 만나지 않아도 평화협정 체결이 가능하다고 밝혀. • 미국은 21일 위트코프 특사가 푸틴 대통령과 회담하고 쿠슈너도..."
     },
     {
@@ -285,17 +282,17 @@
     },
     {
       "key": "AMD",
-      "count": 54,
+      "count": 53,
       "text": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두 번째 수십억 달러 규모 계약을 협상 중이라고 소식통이 CNBC에 전했습니다. 이번 계약은 지난 8월 보도된..."
     },
     {
       "key": "MSFT",
-      "count": 51,
+      "count": 52,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 21일 🇺🇸 아메리카 • 트럼프 대통령은 러시아가 우크라이나 종전 협상을 원하고 있다며 젤렌스키 대통령도 합의에 나서야 한다고 강조. 푸틴과 젤렌스키가 직접 만나지 않아도 평화협정 체결이 가능하다고 밝혀. • 미국은 21일 위트코프 특사가 푸틴 대통령과 회담하고 쿠슈너도..."
     },
     {
       "key": "AMZN",
-      "count": 38,
+      "count": 39,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 21일 🇺🇸 아메리카 • 트럼프 대통령은 러시아가 우크라이나 종전 협상을 원하고 있다며 젤렌스키 대통령도 합의에 나서야 한다고 강조. 푸틴과 젤렌스키가 직접 만나지 않아도 평화협정 체결이 가능하다고 밝혀. • 미국은 21일 위트코프 특사가 푸틴 대통령과 회담하고 쿠슈너도..."
     },
     {
@@ -326,7 +323,7 @@
       "topics": [
         "macro"
       ],
-      "count": 796,
+      "count": 794,
       "focus": "2026년 10월 20일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (43.34%) 2위: PROSHARES ULTRAPRO QQQ ETF (7.17%) 3위: TESLA INC (6.56%) 4위: SPACE..."
     },
     {
@@ -335,7 +332,7 @@
       "topics": [
         "geo"
       ],
-      "count": 357,
+      "count": 356,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀...."
     },
     {
@@ -344,7 +341,7 @@
       "topics": [
         "credit"
       ],
-      "count": 111,
+      "count": 110,
       "focus": "SpaceX 2026년 3분기 어닝콜 Q&A 세션 Q1. 아담 조나스 (Morgan Stanley) - 테라팹(Terafab) 및 자체 반도체 제조 질문: 첫째, 안전한 역내(Onshore)에서 막대한 칩을 생산하기 위해 ASML의 EUV 장비를 발주했는지, 인도 시점은 언제인지 확인해 줄 수 있는가? 둘째,..."
     },
     {
@@ -353,7 +350,7 @@
       "topics": [
         "semi"
       ],
-      "count": 628,
+      "count": 627,
       "focus": "2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로..."
     },
     {
@@ -371,8 +368,8 @@
       "topics": [
         "power"
       ],
-      "count": 336,
-      "focus": "JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터..."
+      "count": 334,
+      "focus": "SemiAnalysis ) 2027년 데이터센터: 가속화의 해, 단일 연도에 +50GW 구축 1. 데이터센터 구축을 둘러싼 의구심(FUD)과 실제 진실 매주 데이터센터에 대한 부정적인 억측과 불안감(FUD)이..."
     },
     {
       "id": "ai-policy",
@@ -380,7 +377,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 177,
+      "count": 178,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
     },
     {
@@ -425,8 +422,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 125,
-      "focus": "No retained full-text sample; 125 observed posts in the 14-day research window."
+      "count": 124,
+      "focus": "No retained full-text sample; 124 observed posts in the 14-day research window."
     },
     {
       "id": "japan",
@@ -434,7 +431,7 @@
       "topics": [
         "japan"
       ],
-      "count": 141,
+      "count": 140,
       "focus": "로이터에 따르면 트럼프 행정부가 미얀마 군부가 지원하는 정부와 비공개 접촉을 재개하고 한 달 사이 두 차례 회담을 진행. 지난주 회담은 일본 도쿄에서 개최됐으며, 앞서 9월 중순 미얀마 수도 네피도에서도 첫..."
     },
     {
@@ -452,7 +449,7 @@
       "topics": [
         "insider"
       ],
-      "count": 42,
+      "count": 41,
       "focus": ">>CXMT·Biwin Storage·Piotech 주도, 과창판 주요 기업들 자사주 매입 잇따라 발표 •10월 8~17일 일주일간 CXMT, Biwin Storage, Piotech, Orbbec,..."
     },
     {
@@ -1101,23 +1098,18 @@
       "datetime": "2026-10-19T05:52:50.000Z",
       "localDateKst": "2026-10-19",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "earnings",
-        "healthcare"
+        "power"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "SemiAnalysis ) 2027년 데이터센터: 가속화의 해, 단일 연도에 +50GW 구축 1. 데이터센터 구축을 둘러싼 의구심(FUD)과 실제 진실 매주 데이터센터에 대한 부정적인 억측과 불안감(FUD)이...",
       "tickers": [
         "NVDA",
         "AMD",
         "MSFT",
         "GOOG",
         "AMZN"
-      ],
-      "summary": "SemiAnalysis ) 2027년 데이터센터: 가속화의 해, 단일 연도에 +50GW 구축 1. 데이터센터 구축을 둘러싼 의구심(FUD)과 실제 진실 매주 데이터센터에 대한 부정적인 억측과 불안감(FUD)이..."
+      ]
     },
     {
       "id": "insidertracking/66658",
@@ -1685,6 +1677,95 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/70785",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70785",
+      "datetime": "2026-10-20T23:45:21.000Z",
+      "localDateKst": "2026-10-21",
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "score": 63,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "•엔비디아가 Firmus를 지원하기 위해 수억 달러 규모의 투자 협상을 진행중 (The Information)"
+    },
+    {
+      "id": "insidertracking/66845",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66845",
+      "datetime": "2026-10-20T23:35:11.000Z",
+      "localDateKst": "2026-10-21",
+      "tags": [
+        "geo",
+        "earnings"
+      ],
+      "score": 55,
+      "hasText": true,
+      "tickers": [],
+      "summary": "넷플릭스(NFLX) Q3 2026 어닝콜 요약 > 긍정 요인: • 글로벌 가입자 유지율 및 이용자 참여도 개선. 3분기 글로벌과 미국 시장의 가입자 이탈률(Churn)이 전년 대비 개선됐으며 회사의 기존..."
+    },
+    {
+      "id": "bornlupin/20739",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20739",
+      "datetime": "2026-10-20T23:33:08.000Z",
+      "localDateKst": "2026-10-21",
+      "tags": [
+        "semi",
+        "power",
+        "ai-policy"
+      ],
+      "score": 69,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "엔비디아 젠슨 황 CEO의 GTC Berlin 2026 기조연설 오늘 10월 21일(수요일), 한국시간 오후 6시~8시 Nebius( $NBIS ) 창업자 Arkady Volozh AI 팩토리 분야의 공식..."
+    },
+    {
+      "id": "HANAchina/70784",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70784",
+      "datetime": "2026-10-20T23:28:59.000Z",
+      "localDateKst": "2026-10-21",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "score": 56,
+      "hasText": true,
+      "tickers": [
+        "TSM"
+      ],
+      "summary": "• 골드만삭스: 애플의 첫 폴더블폰 '아이폰 듀오(iPhone Duo)'의 사전 예약이 강력한 호조를 보임에 따라, 2026년과 2027년 아이폰 듀오의 출하량 전망치를 각각 1,300만 대와 3,300만..."
+    },
+    {
+      "id": "bornlupin/20738",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20738",
+      "datetime": "2026-10-20T23:21:49.000Z",
+      "localDateKst": "2026-10-21",
+      "tags": [
+        "macro",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings"
+      ],
+      "score": 82,
+      "hasText": true,
+      "tickers": [
+        "MSFT",
+        "GOOG",
+        "AMZN"
+      ],
+      "summary": "앤스로픽, IPO 앞두고 컴퓨팅 파워에 7,500억 달러 지출 가능성-WSJ 1. 천문학적인 컴퓨팅 인프라 투자 계획 월스트리트저널(WSJ)이 입수한 IPO 투자설명서 초안에 따르면, 기업공개(IPO)를 준비..."
+    },
     {
       "id": "HANAchina/70782",
       "channel": "HANAchina",
@@ -2305,8 +2386,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "바이코(VICOR)가 2026년 3분기 실적 발표에서 시장 예상치를 상회하는 매출과 주당순이익(EPS)을 기록. • 매출: 1억 9,711만 달러로 시장 예상치 1억 8,706만 달러 대비 5.37% 상회...."
+      "summary": "바이코(VICOR)가 2026년 3분기 실적 발표에서 시장 예상치를 상회하는 매출과 주당순이익(EPS)을 기록. • 매출: 1억 9,711만 달러로 시장 예상치 1억 8,706만 달러 대비 5.37% 상회....",
+      "tickers": []
     },
     {
       "id": "HANAchina/70770",
@@ -4413,23 +4494,18 @@
       "datetime": "2026-10-19T05:52:50.000Z",
       "localDateKst": "2026-10-19",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "earnings",
-        "healthcare"
+        "power"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "SemiAnalysis ) 2027년 데이터센터: 가속화의 해, 단일 연도에 +50GW 구축 1. 데이터센터 구축을 둘러싼 의구심(FUD)과 실제 진실 매주 데이터센터에 대한 부정적인 억측과 불안감(FUD)이...",
       "tickers": [
         "NVDA",
         "AMD",
         "MSFT",
         "GOOG",
         "AMZN"
-      ],
-      "summary": "SemiAnalysis ) 2027년 데이터센터: 가속화의 해, 단일 연도에 +50GW 구축 1. 데이터센터 구축을 둘러싼 의구심(FUD)과 실제 진실 매주 데이터센터에 대한 부정적인 억측과 불안감(FUD)이..."
+      ]
     },
     {
       "id": "insidertracking/66658",
@@ -6469,36 +6545,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/70540",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70540",
-      "datetime": "2026-10-16T21:41:10.000Z",
-      "localDateKst": "2026-10-17",
-      "tags": [
-        "market-note"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>소프트뱅크 ADR 하루 만에 약 10% 폭락, 미국 최대 보안업체 Allied 인수 검토 보도 •소프트뱅크그룹이 미국 최대 보안업체 Allied Universal 인수를 놓고 초기 협상을 진행 중인 것으로...",
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/70539",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70539",
-      "datetime": "2026-10-16T21:40:29.000Z",
-      "localDateKst": "2026-10-17",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": ">>필라델피아 반도체지수 8거래일 연속 하락, 젠슨 황 “이 모든 상황은 결국 지나갈 것, AI 혁명은 이제 막 시작” •필라델피아 반도체지수가 8거래일 연속 하락하며 2008년 이후 최장 하락세를 기록했음....",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "insidertracking/66500",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/66500",
@@ -6933,22 +6979,6 @@
       "tickers": [
         "NVDA",
         "MSFT"
-      ]
-    },
-    {
-      "id": "insidertracking/66456",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66456",
-      "datetime": "2026-10-16T12:01:29.000Z",
-      "localDateKst": "2026-10-16",
-      "tags": [
-        "semi"
-      ],
-      "score": 68,
-      "hasText": true,
-      "summary": "대만이 중국에 대한 첨단 AI 반도체 공급 통제를 강화하고, 미국의 수출 제한 규정을 위반하는 행위를 형사처벌 대상으로 지정할 계획. > 동시에 미국 반도체 산업에 대한 신규 투자도 준비 중이며, 텍사스주에...",
-      "tickers": [
-        "TSM"
       ]
     },
     {
@@ -8423,48 +8453,6 @@
       "tickers": [
         "TER"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25816",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25816",
-      "datetime": "2026-10-13T12:53:29.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "semi"
-      ],
-      "score": 81,
-      "hasText": true,
-      "summary": "AMD, LPDDR5X 메모리와 최대 192코어를 탑재해 에이전틱 AI 워크로드를 가속하는 차세대 EPYC 베라노 CPU 공개 요약: AMD는 2026년 10월 12일 산호세에서 열린 OCP 글로벌 서밋에서...",
-      "tickers": [
-        "AMD"
-      ]
-    },
-    {
-      "id": "bornlupin/20597",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20597",
-      "datetime": "2026-10-13T12:52:21.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "power"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터...",
-      "tickers": [],
-      "listTickers": [
-        "MSFT",
-        "GOOG",
-        "AMZN",
-        "LITE",
-        "COHR",
-        "CLS",
-        "FN",
-        "CIEN",
-        "GLW",
-        "APH"
-      ]
     }
   ],
   "current24hItems": [
@@ -9016,8 +9004,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "바이코(VICOR)가 2026년 3분기 실적 발표에서 시장 예상치를 상회하는 매출과 주당순이익(EPS)을 기록. • 매출: 1억 9,711만 달러로 시장 예상치 1억 8,706만 달러 대비 5.37% 상회...."
+      "summary": "바이코(VICOR)가 2026년 3분기 실적 발표에서 시장 예상치를 상회하는 매출과 주당순이익(EPS)을 기록. • 매출: 1억 9,711만 달러로 시장 예상치 1억 8,706만 달러 대비 5.37% 상회....",
+      "tickers": []
     },
     {
       "id": "HANAchina/70770",

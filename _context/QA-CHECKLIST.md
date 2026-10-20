@@ -1,8 +1,12 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-19
+last_verified: 2026-10-21
 confidence: medium
 ---
+
+## v58.54 producer dry run 시계 고정 (2026-10-21)
+
+- [x] QA-DATA-63: producer dry run은 복사한 data.json의 뉴스 주기 안으로 고정한 시계에서 실행되어 벽시계(23:00Z 경계 전후)와 상관없이 같은 결과를 낸다. 고정 실행은 같은 newsCycleEnd를 발행하고, 이전 기사는 자기 주기 안에서만 후보이며 다음 주기에서는 버려진다(P1950). verify_by: `node scripts/ci-producer-dry-run.mjs` 23:00Z~정기 갱신 사이 PASS + 고정 제거 변이 FAIL
 
 ## v58.43 시나리오·학습 (2026-10-19)
 

@@ -1,10 +1,19 @@
 ---
-last_verified: 2026-10-20
+last_verified: 2026-10-21
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1950 - v58.54 - producer dry run 게이트가 벽시계로 뉴스 주기를 판정해 23:00Z 경계 뒤 정기 갱신 전까지 실패함 (923cabb 배포 차단) (2026-10-21)
+
+- symptom/reproduction: `scripts/ci-producer-dry-run.mjs`(CI data 그룹)가 간헐적으로 `P1256 a failed news plane keeps the previous bundle :: 0 vs 40`로 실패했다. 2026-10-20 커밋 923cabb의 CI가 이것으로 실패해 Deploy GitHub Pages가 건너뛰어졌고, 데이터 커밋 0980609의 CI와 이전 커밋(d36bb25, 4e97710)에서도 재현됐다. 로컬 재현: 10/20 22:40Z 번들(newsNextRefresh 23:00Z)로 23:19Z에 실행하면 실패.
+- root_cause: 게이트는 라이브 `public-data/data.json`을 복사해 네트워크를 막은 producer를 벽시계로 실행했다. 복사한 번들의 뉴스는 한 KST 08:00 주기에 속하는데, 다음 경계(23:00Z) 뒤에 실행되면 producer는 새 주기를 수집하고 `carriedNewsCandidates`가 이전 주기 기사를 정상적으로 버려 0건을 발행했다. 기대값(이전 40건 유지)은 같은 주기 안에서만 성립하므로 결과가 실행 시각에 따라 달라졌다. 제품 동작은 옳다: 주기가 지난 뒤 이전 기사를 실으면 meta가 그것을 새 주기로 표시해 지난 값을 현재처럼 보이게 된다(AGENTS Freshness). 마지막 수집일은 news domain receipt의 lastSuccessfulObservation이 지닌다.
+- fix: `scripts/lib/producer-dry-run-fetch.mjs`(게이트가 `--import`로만 싣는 스텁)가 `AIO_DRY_RUN_NOW`를 읽어 producer의 Date를 그 시각에서 출발해 흐르도록 고정한다. 게이트는 복사한 번들의 generatedAt+60초를 그 번들의 주기 [newsCycleEnd, newsNextRefresh−2분] 안으로 잘라 고정 시각으로 쓰고, 본 실행과 두 스크리너 레인에 하나의 연속된 가상 시계를 넘긴다. 'rewritten' 비교도 같은 가상 시계를 쓴다. producer 본체에는 시계 override가 없다.
+- violated_rule: CI 게이트는 벽시계·데이터 나이에 따라 결과가 바뀌면 안 된다(P1940과 같은 계열).
+- prevention: dry run에 두 assertion 추가: 고정 시계의 실행이 복사한 번들과 같은 newsCycleEnd를 발행하는지(고정이 빠지면 실패), 그리고 이전 기사가 자기 주기 안에서는 모두 후보이고 다음 주기에서는 0건인지(만료 주기 폐기라는 제품 결정을 고정). 고정을 끈 변이 실행이 두 assertion으로 실패하는 것을 확인했다.
+- verification/residual: 23:19Z(경계 뒤) 수정 전 실행 FAIL `0 vs 40` → 수정 뒤 23:2xZ에 PASS. 고정 제거 변이 → `P1950 the pinned producer clock stays inside the stored news cycle` + `0 vs 40` FAIL. `node scripts/qa-runner.mjs --group data --no-cache` 경계 뒤 PASS.
 
 ## P1949 - v58.52 - 헤드라인 번역이 Anthropic을 '인간형 AI'로, $45 billion을 '4,500억 달러'로 옮김 (2026-10-20)
 
