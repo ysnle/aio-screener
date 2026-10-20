@@ -780,6 +780,13 @@ function runGate(gate) {
           // rows after its one FAIL row), which sent the reader into a 34KB failure file to find the cause.
           const causes = failureCauseLines(redactText([stdout, stderr].filter(Boolean).join('\n'), secrets));
           if (causes.length) console.error(`[qa] CAUSE ${gate.id}: ${causes.join(' | ')}`);
+          // v58.54: on GitHub Actions the cause also becomes a check annotation — it shows on the run summary and through
+          // the checks API, where the job log and artifacts are not always reachable (redacted, bounded, one line).
+          if (process.env.GITHUB_ACTIONS === 'true') {
+            const annotation = (causes.length ? causes.join(' | ') : redactText([stderr, stdout].filter(Boolean).join('\n'), secrets).split(/\r?\n/).filter(Boolean).slice(-6).join(' | '))
+              .replace(/%/g, '%25').replace(/\r?\n/g, ' ').slice(0, 1800);
+            console.log(`::error title=qa ${gate.id}${timedOut ? ' (timeout)' : ''}::${annotation || 'failed without output'}`);
+          }
           const capturedDetail = [stderr, stdout].filter(Boolean).join('\n').split(/\r?\n/).slice(-30).join('\n');
           const detail = redactText(capturedDetail, secrets);
           const truncation = '\n...[console detail truncated; full redacted output is in the run artifact]';
