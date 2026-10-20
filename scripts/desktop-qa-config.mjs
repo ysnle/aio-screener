@@ -11,4 +11,5 @@ export const RESPONSIVE_QA_VIEWPORTS = Object.freeze([
   Object.freeze({ name: 'phone390', width: 390, height: 844 }),
   Object.freeze({ name: 'tablet768', width: 768, height: 1024 }),
   Object.freeze({ name: 'tablet1024', width: 1024, height: 768 }),
+  Object.freeze({ name: 'tablet1180', width: 1180, height: 820 }), // v58.54: current iPads in landscape (fixed sidebar)
 ]);

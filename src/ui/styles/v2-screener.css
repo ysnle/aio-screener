@@ -377,3 +377,12 @@
 body.dark-theme #page-screener .scr-preset-seg > button[aria-pressed="true"] { background: var(--bg-elevated) !important; color: var(--text-primary) !important; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important; }
 body.dark-theme #page-screener .scr-sheet-scrim { background: rgba(0, 0, 0, 0.5); }
 body.dark-theme #page-screener .scr-sector-chip.is-set .scr-chip-select { color: var(--bg-base) !important; }
+
+/* v58.54 (design 4c, user-first): beside the inspector the full table scrolled sideways and hid 백분위 on iPad landscape.
+   The inspector already shows the 1·3·6-month gaps, so 3개월 leaves the table up to 1439, and 52주 위치 up to 1279. */
+@media (min-width: 1024px) and (max-width: 1439px) {
+  #page-screener :is(th, td)[data-column-key="ret3m"] { display: none; }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  #page-screener :is(th, td)[data-column-key="range52"] { display: none; }
+}

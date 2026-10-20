@@ -412,17 +412,17 @@ body.dark-theme .sx-seg > [aria-pressed="true"], body.dark-theme .aio-hub-tab[ar
 body.dark-theme #aio-first-visit-disclaimer { box-shadow: var(--sx-float-shadow), 0 0 0 1px rgba(238, 232, 220, 0.06) !important; }
 
 /* ═══ 9. Shell breakpoints (4a) ══════════════════════════════════════════
-   ≥1280 desktop (sidebar 232) · 1101–1279 iPad landscape (sidebar 200) · ≤1100 drawer navigation (P1618; the
-   1024 viewport keeps the drawer the responsive gate verifies — current iPads are wider than 1100 in landscape) ·
-   ≤1023 iPad portrait + iPhone: bottom tab bar (오늘 · 시장 · 스크리너 · 종목 · 더보기 → drawer) · ≤743 iPhone. */
+   ≥1280 desktop (sidebar 232) · 1024–1279 iPad landscape (fixed sidebar 200, AI panel overlays — v58.54) ·
+   ≤1023 iPad portrait + iPhone: drawer navigation (P1618) + bottom tab bar (오늘 · 시장 · 스크리너 · 종목 · 더보기 → drawer) · ≤743 iPhone. */
 .sx-tabbar { display: none; }
-@media (min-width: 1101px) and (max-width: 1279px) {
+@media (min-width: 1024px) and (max-width: 1279px) {
   :root { --sidebar-w: 200px; }
   .sidebar { width: 200px; padding: 20px 10px 14px; }
   .content { padding: 20px 28px 32px !important; }
   .topbar { padding: 12px 28px 0 !important; }
+  #sidebar-toggle-btn { display: none !important; }
 }
-@media (max-width: 1100px) {
+@media (max-width: 1023px) {
   .sidebar { padding: 8px 12px 16px !important; background: var(--bg-base) !important; }
   .aio-navigation-close { border: 0 !important; border-radius: 999px !important; background: var(--sx-ink-a06) !important; font-size: 14px; }
   .aio-navigation-backdrop { background: rgba(33, 29, 22, 0.32) !important; backdrop-filter: blur(2px); }
