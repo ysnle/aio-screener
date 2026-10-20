@@ -12,7 +12,10 @@ export function installResponsiveShell(root, doc) {
   const main = doc.querySelector('.main');
   const toggle = doc.getElementById('sidebar-toggle-btn');
   if (!sidebar || !main || !toggle || !root.matchMedia || !root.MutationObserver || !root.requestAnimationFrame) return () => {};
-  const compact = root.matchMedia('(max-width: 1100px)');
+  // v58.54 (design 4a): the drawer is for iPad portrait and phones; iPad landscape keeps a fixed sidebar. The AI panel
+  // overlays the page (modal) up to 1279, where a split beside the sidebar left the page too narrow.
+  const compact = root.matchMedia('(max-width: 1023px)');
+  const aiOverlay = root.matchMedia('(max-width: 1279px)');
   const app = doc.querySelector('.app');
   const ai = doc.getElementById('ai-panel');
   const tabbar = doc.getElementById('aio-tabbar');
@@ -69,7 +72,7 @@ export function installResponsiveShell(root, doc) {
     if (opened && event.target.closest?.('.sidebar [data-action="showPage"],.sidebar [data-action="openGlossary"],.sidebar a[href^="#"]')) { setOpen(false, false); toggle.focus(); }
   };
   const onKey = (event) => {
-    const activePanel = opened ? sidebar : compact.matches && ai?.classList.contains('open') ? ai : null;
+    const activePanel = opened ? sidebar : aiOverlay.matches && ai?.classList.contains('open') ? ai : null;
     if (!activePanel) return;
     if (event.key === 'Escape') { event.preventDefault(); if (opened) setOpen(false); else ai.querySelector('.ai-ph-close')?.click(); return; }
     if (event.key !== 'Tab') return;
@@ -126,7 +129,7 @@ export function installResponsiveShell(root, doc) {
   observer.observe(doc.getElementById('main-content') || main, { childList: true, subtree: true });
   let aiWasModal = false;
   const onAi = () => {
-    const modal = compact.matches && ai?.classList.contains('open');
+    const modal = aiOverlay.matches && ai?.classList.contains('open');
     if (app) app.inert = !!modal || previousAi.appInert;
     if (!ai) return;
     if (modal) { if (opened) setOpen(false, false); ai.setAttribute('role', 'dialog'); ai.setAttribute('aria-modal', 'true'); }
@@ -145,7 +148,7 @@ export function installResponsiveShell(root, doc) {
     tabbar.querySelectorAll('[data-tab]').forEach((item) => { if (item.dataset.tab === tab) item.setAttribute('aria-current', 'page'); else item.removeAttribute('aria-current'); });
   };
   doc.addEventListener('click', onClick, true); doc.addEventListener('keydown', onKey);
-  compact.addEventListener('change', onMode); root.addEventListener('hashchange', onHash);
+  compact.addEventListener('change', onMode); aiOverlay.addEventListener('change', onAi); root.addEventListener('hashchange', onHash);
   doc.addEventListener('aio:navigationCommitted', markTab);
   root.addEventListener('resize', refreshViewport); root.visualViewport?.addEventListener('resize', refreshViewport);
   root.visualViewport?.addEventListener('scroll', refreshViewport);
@@ -160,7 +163,7 @@ export function installResponsiveShell(root, doc) {
     if (!previous.id) sidebar.removeAttribute('id');
     if (previous.controls) toggle.setAttribute('aria-controls', previous.controls); else toggle.removeAttribute('aria-controls');
     backdrop.remove(); close.remove(); doc.removeEventListener('click', onClick, true); doc.removeEventListener('keydown', onKey);
-    compact.removeEventListener('change', onMode); root.removeEventListener('hashchange', onHash);
+    compact.removeEventListener('change', onMode); aiOverlay.removeEventListener('change', onAi); root.removeEventListener('hashchange', onHash);
     doc.removeEventListener('aio:navigationCommitted', markTab);
     root.removeEventListener('resize', refreshViewport); root.visualViewport?.removeEventListener('resize', refreshViewport);
     root.visualViewport?.removeEventListener('scroll', refreshViewport);

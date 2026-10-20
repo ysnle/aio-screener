@@ -124,6 +124,16 @@ try {
     const overlayRoute = await page.evaluate(async () => { window.showPage('glossary', null); await new Promise(r => setTimeout(r, 50)); const state = { active: document.querySelector('.page.active')?.id || null, modal: document.getElementById('glossary-modal')?.style.display !== 'none' }; window._aioCloseGlossary?.(); return state; });
     check(overlayRoute.active === 'page-guide' && overlayRoute.modal, `${viewport.name}: #glossary overlay route left a blank screen (P1630)`, overlayRoute);
     await page.evaluate(() => window.showPage('home', null));
+    // v58.54 (design 4a, owner user-first): the drawer is for iPad portrait and phones (<1024); iPad landscape keeps a
+    // fixed, operable sidebar and no menu button. openNav() opens the drawer only where one exists.
+    const drawer = viewport.width < 1024;
+    const openNav = async () => { if (drawer) await page.locator('#sidebar-toggle-btn').click(); };
+    const navReturn = drawer ? '#sidebar-toggle-btn' : '.sidebar [data-action="openGlossary"]';
+    if (!drawer) {
+      check(await page.locator('.sidebar').evaluate((el) => { const box = el.getBoundingClientRect(); return !el.inert && el.getAttribute('aria-hidden') !== 'true' && box.left >= 0 && box.width >= 180 && getComputedStyle(el).visibility !== 'hidden'; }), `${viewport.name}: iPad-landscape sidebar is not a fixed, operable sidebar (v58.54)`);
+      check(!await page.locator('#sidebar-toggle-btn').isVisible(), `${viewport.name}: iPad landscape shows a drawer button beside a fixed sidebar (v58.54)`);
+    }
+    if (drawer) {
     await page.locator('#sidebar-toggle-btn').click();
     check(await page.locator('.sidebar').evaluate((el) => el.getAttribute('aria-modal') === 'true' && !el.inert), `${viewport.name}: navigation drawer did not open`);
     check(await page.locator('.main').evaluate((el) => el.inert), `${viewport.name}: background is interactive under drawer`);
@@ -134,18 +144,19 @@ try {
     await page.locator('#sidebar-toggle-btn').click();
     await page.locator('.aio-navigation-backdrop').click({ position: { x: viewport.width - 10, y: 20 }, force: true });
     check(!await page.locator('body').evaluate((el) => el.classList.contains('aio-navigation-open')), `${viewport.name}: backdrop failed to close drawer`);
+    }
     // Theme uses the existing product control; no separate responsive theme state.
-    await page.locator('#sidebar-toggle-btn').click();
+    await openNav();
     await page.locator('#sidebar-theme-btn').click();
     await page.keyboard.press('Escape');
     const firstTheme = await page.locator('body').evaluate((el) => el.classList.contains('dark-theme'));
     await snap(page, `${viewport.name}-theme-1.png`);
-    await page.locator('#sidebar-toggle-btn').click(); await page.locator('#sidebar-theme-btn').click(); await page.keyboard.press('Escape');
+    await openNav(); await page.locator('#sidebar-theme-btn').click(); await page.keyboard.press('Escape');
     const secondTheme = await page.locator('body').evaluate((el) => el.classList.contains('dark-theme'));
     check(firstTheme !== secondTheme, `${viewport.name}: theme did not change`, { firstTheme, secondTheme });
     // P1620: the actual glossary renderer must remain readable in both themes and close the drawer.
     for (const dark of [false, true]) {
-      await page.locator('#sidebar-toggle-btn').click();
+      await openNav();
       if (await page.locator('body').evaluate((el) => el.classList.contains('dark-theme')) !== dark) await page.locator('#sidebar-theme-btn').click();
       await page.locator('.sidebar [data-action="openGlossary"]').click();
       await settle(page, () => { const modal = document.getElementById('glossary-modal'); return !!modal && getComputedStyle(modal).display !== 'none' && modal.contains(document.activeElement) && !document.body.classList.contains('aio-navigation-open'); });
@@ -166,7 +177,7 @@ try {
       check(await page.locator('.aio-glossary-item').count() > 0, `${viewport.name}: glossary search unavailable (P1620)`);
       await snap(page, `${viewport.name}-glossary-${dark ? 'dark' : 'light'}.png`);
       await page.keyboard.press('Escape');
-      check(!await page.locator('#glossary-modal').isVisible() && await page.locator('#sidebar-toggle-btn').evaluate((el) => document.activeElement === el), `${viewport.name}: glossary Escape failed to restore a visible focus (P1620)`);
+      check(!await page.locator('#glossary-modal').isVisible() && await page.locator(navReturn).evaluate((el) => document.activeElement === el), `${viewport.name}: glossary Escape failed to restore a visible focus (P1620)`);
     }
     await page.evaluate(() => window.showPage('themes', null));
     await settle(page, () => !!document.querySelector('.theme-strength-table > tbody > tr[data-group]'));
@@ -206,7 +217,7 @@ try {
     await settle(page, () => document.activeElement === document.getElementById('topbar-ai-btn') && !document.querySelector('.app').inert);
     check(await page.locator('#topbar-ai-btn').evaluate((el) => document.activeElement === el && !document.querySelector('.app').inert), `${viewport.name}: AI close did not release modal background and restore focus (P1618)`);
     await page.setViewportSize(viewport);
-    await page.locator('#sidebar-toggle-btn').click();
+    await openNav();
     await page.setViewportSize({ width: 1280, height: 900 });
     await settle(page, () => { const active = document.activeElement; return !document.querySelector('.main').inert && active !== document.body && active.getClientRects().length > 0 && getComputedStyle(active).display !== 'none'; });
     check(await page.evaluate(() => { const active = document.activeElement; return !document.querySelector('.main').inert && active !== document.body && active.getClientRects().length > 0 && getComputedStyle(active).display !== 'none'; }), `${viewport.name}: compact-to-desktop transition lost visible focus (P1618)`);

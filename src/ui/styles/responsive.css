@@ -111,9 +111,13 @@
 .breadth-more > .breadth-more-grid { margin-top: 4px; }
 /* 2026-10-19 layout system: the ETF / corporate-action note in the breadth drill list (src/ui/components/breadth-board.js); old inline 10px reads --fs-xs. */
 .page .breadth-drill-ca { font-size: var(--fs-xs); color: var(--data-amber); line-height: 1.5; }
-@media (max-width: 1100px) {
+/* v58.54 (design 4a, owner 2026-10-20 user-first): iPad landscape (1024–1279) keeps a fixed 200px sidebar; the
+   navigation drawer is for iPad portrait and phones only (≤1023, with the bottom tab bar). The AI panel overlays the page
+   up to 1279 instead of splitting it — beside a sidebar a 400px split left too little room for the page. */
+@media (max-width: 1279px) {
   .app { width: 100% !important; max-width: 100% !important; }
-  .main { min-width: 0; width: 100%; }
+}
+@media (max-width: 1023px) {
   .sidebar, .sidebar.collapsed, body.aio-screener-focus .sidebar {
     position: fixed; inset: 0 auto 0 0; width: min(300px, 86vw); min-width: 0;
     height: 100dvh; z-index: 310; transform: translateX(-100%);
@@ -125,6 +129,10 @@
   .aio-navigation-backdrop { position: fixed; inset: 0; z-index: 300; border: 0; background: rgb(0 0 0 / .45); }
   body.aio-navigation-open .aio-navigation-backdrop { display: block; }
   #sidebar-toggle-btn { display: inline-flex !important; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
+}
+@media (max-width: 1100px) {
+  .app { width: 100% !important; max-width: 100% !important; }
+  .main { min-width: 0; width: 100%; }
   .topbar { padding: 6px 12px; gap: 8px; flex-wrap: wrap; }
   .topbar > div { min-width: 0; }
   .topbar-actions-right { flex-wrap: wrap; gap: 6px !important; margin-left: auto; max-width: 100%; }

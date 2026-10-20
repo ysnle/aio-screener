@@ -5,7 +5,7 @@
    banner height while it shows, so the topbar menu button is not under the banner. */
 body #update-banner { padding-left: 72px; padding-right: 72px; }
 body.aio-update-banner-open .app { padding-top: var(--aio-update-banner-h, 0px); box-sizing: border-box; }
-@media (max-width: 1100px) {
+@media (max-width: 1023px) { /* v58.54: the drawer is ≤1023 only */
   body.aio-update-banner-open .sidebar { top: var(--aio-update-banner-h, 0px); height: calc(100dvh - var(--aio-update-banner-h, 0px)); }
 }
 
