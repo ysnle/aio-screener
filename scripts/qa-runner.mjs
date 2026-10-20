@@ -783,7 +783,8 @@ function runGate(gate) {
           // v58.54: on GitHub Actions the cause also becomes a check annotation — it shows on the run summary and through
           // the checks API, where the job log and artifacts are not always reachable (redacted, bounded, one line).
           if (process.env.GITHUB_ACTIONS === 'true') {
-            const annotation = (causes.length ? causes.join(' | ') : redactText([stderr, stdout].filter(Boolean).join('\n'), secrets).split(/\r?\n/).filter(Boolean).slice(-6).join(' | '))
+            const tail = redactText([stdout, stderr].filter(Boolean).join('\n'), secrets).split(/\r?\n/).filter(Boolean).slice(-6);
+            const annotation = [...causes, ...tail.filter((line) => !causes.includes(line))].join(' | ')
               .replace(/%/g, '%25').replace(/\r?\n/g, ' ').slice(0, 1800);
             console.log(`::error title=qa ${gate.id}${timedOut ? ' (timeout)' : ''}::${annotation || 'failed without output'}`);
           }
