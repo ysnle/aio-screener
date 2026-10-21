@@ -32,6 +32,8 @@ export function analysisLevelsAfterLabels(text, labels, { allLabels = labels, un
   const values = [];
   const mentions = new RegExp(labelPattern(labels), 'gi');
   for (const label of body.matchAll(mentions)) {
+    // Live 2026-10-21: "CPI 3.7%, 근원 CPI 2.6%" read 2.6 as headline CPI. A qualified label is a different series.
+    if (/(?:근원|core)\s?$/i.test(body.slice(Math.max(0, label.index - 6), label.index))) continue;
     let clause = body.slice(label.index + label[0].length, label.index + label[0].length + 80);
     const nextMetric = clause.search(new RegExp(labelPattern(allLabels), 'i'));
     if (nextMetric >= 0) clause = clause.slice(0, nextMetric);

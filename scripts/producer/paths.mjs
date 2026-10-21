@@ -9,3 +9,4 @@ export const SCENARIO_STATE_OUT = `${REPO_ROOT}/public-data/scenario-state.json`
 export const SCENARIO_OUTCOMES_OUT = `${REPO_ROOT}/public-data/scenario-outcomes.json`;
 export const MARKET_SNAPSHOT_OUT = `${REPO_ROOT}/public-data/market-snapshot.json`;
 export const SEC_FUNDAMENTALS_OUT = `${REPO_ROOT}/public-data/sec-fundamentals.json`;
+export const EARNINGS_CALENDAR_OUT = `${REPO_ROOT}/public-data/earnings-calendar.json`; // read-only here (fetch-earnings-calendar.mjs writes it)

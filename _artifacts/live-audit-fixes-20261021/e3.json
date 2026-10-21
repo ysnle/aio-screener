@@ -1,0 +1,19 @@
+{
+  "version": "v58.59",
+  "date": "2026-10-21",
+  "r": null,
+  "status": null,
+  "qa": [],
+  "qa_section": "실화면 점검 반영 2026-10-21",
+  "note": "v58.59: 10/21 시장 해석 차단 해소·막힌 날의 한 문장·하락 압력과 반등의 이유를 날짜 붙은 헤드라인으로 묶는 해석 뼈대.",
+  "p": {
+    "title": "해석 본문이 막힌 날 새 날의 한 문장 후보가 버려져 전날 문장이 아침 내내 유지",
+    "symptom": "10/21 08:00 KST 이후 marketSentenceReject가 계속 no-new-candidate였고, 10/20 문장('오늘의 하락은 …')이 아침 내내 남았다.",
+    "root_cause": "새 날이면 AI를 다시 부르지만(2026-10-19 규칙), 본문이 막히면 retainOrFallback이 이전 해석이나 대체 요약을 돌려주면서 이번 시도의 sentenceCandidate를 싣지 않았다. 한 문장은 자기 검증(marketSentenceRejectReason)이 따로 있는데도 본문 차단과 함께 버려졌다.",
+    "fix": "각 시도의 한 문장 후보 가운데 자기 검증을 통과한 마지막 것을 보유·대체 결과에도 sentenceCandidate(그리고 largeMove·방향)로 싣는다. applyMarketAnalysis는 그 후보로 새 날 문장을 쓴다.",
+    "violated_rule": "하루 한 문장 계약(v57.71) — 새 날은 새 문장",
+    "prevention": "ci-data-pipeline-contract-check: v58.59 두 시도가 모두 막혀도 통과한 문장으로 10/21 문장이 열린다(marketSentenceReject null)",
+    "verification": "로컬 게이트 통과(스텁 응답, AI 호출 없음)."
+  },
+  "changelog": ["**막힌 날의 한 문장 ({P}):** 해석 본문이 검증에 막혀도, 자기 검증을 통과한 오늘의 한 문장 후보는 새 날 문장으로 쓴다."]
+}

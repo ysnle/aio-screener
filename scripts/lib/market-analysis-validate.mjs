@@ -232,6 +232,21 @@ const ANALYSIS_DOWN = /(?:하락|내린|내려|내렸|떨어|급락|약세|낮�
 // completed close and its own one-session change are an accepted basis too (no 장중 label needed for them). The close
 // comes from history.json, one value per market session date: the 10/15 history row repeats the 10/14 US closes
 // (cycleEnd 10/14), so "the last two rows" would give a 0% change.
+// Live 2026-10-21: the basis keyed each history value by its observedAt date, so WTI's 10/20 settle (stamped at the
+// 00:00 ET bar start, carried on the 10/21 row) was read as a 10/20 evening tick and dropped — the basis fell back to
+// 10/19 with a 0% change, and "WTI 10/20 종가 -1.80%" from REGIME_CONTEXT was blocked on every run that morning. The
+// basis is now the same close series REGIME_CONTEXT prints (buildCloseSeries: fieldMeta.sessionDate, settle-time rank,
+// carried-forward rows skipped). Futures and FX trading days end 17:00 ET, so an evening observation belongs to the
+// next trade date and that day's settle is already complete.
+const ROLLING_SESSION_FIELDS = new Set(['dxy', 'wti', 'gold']);
+const NY_HOUR = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', hourCycle: 'h23' });
+function observationSessionDate(observedAt, field, zone) {
+  const day = sessionDateInMarket(observedAt, zone);
+  if (!day || !ROLLING_SESSION_FIELDS.has(field)) return day;
+  const ms = Date.parse(observedAt);
+  if (!(Number(NY_HOUR.format(new Date(ms))) >= 17)) return day;
+  return new Date(Date.parse(`${day}T00:00:00Z`) + 86400000).toISOString().slice(0, 10);
+}
 export function buildCompletedCloseBasis(metricEvidence = [], history = []) {
   const basis = new Map();
   const rows = Array.isArray(history) ? history : [];
@@ -241,22 +256,12 @@ export function buildCompletedCloseBasis(metricEvidence = [], history = []) {
     const field = MARKET_ANALYSIS_HISTORY_FIELDS[row.metricId];
     if (!field) continue;
     const zone = MARKET_ANALYSIS_QUOTE_DEFS.find((def) => def.metricId === row.metricId)?.zone || 'America/New_York';
-    const today = sessionDateInMarket(row.observedAt, zone);
-    const byDay = new Map();
-    for (const entry of rows) {
-      const value = Number(entry?.[field]);
-      const at = entry?.fieldMeta?.[field]?.observedAt || null;
-      const day = at ? sessionDateInMarket(at, zone) : null;
-      if (!Number.isFinite(value) || !day || (today && day >= today)) continue;
-      const kept = byDay.get(day);
-      if (!kept || Date.parse(at) > Date.parse(kept.at)) byDay.set(day, { value, at });
-    }
-    const days = [...byDay.keys()].sort();
-    if (days.length < 2) continue;
-    const close = byDay.get(days[days.length - 1]);
-    const prior = byDay.get(days[days.length - 2]);
+    const today = observationSessionDate(row.observedAt, field, zone);
+    const series = buildCloseSeries(rows, field).filter((point) => !today || point.date < today);
+    if (series.length < 2) continue;
+    const close = series.at(-1), prior = series.at(-2);
     if (!(prior.value > 0)) continue;
-    basis.set(row.evidenceId, { value: close.value, changePct: (close.value / prior.value - 1) * 100, sessionDate: days[days.length - 1] });
+    basis.set(row.evidenceId, { value: close.value, changePct: (close.value / prior.value - 1) * 100, sessionDate: close.date });
   }
   return basis;
 }
@@ -416,11 +421,15 @@ const LEADER_SUBJECT = /반도체|인공지능|(?<![A-Za-z])AI(?![A-Za-z])|빅�
 const LEADS_CLAIM = /주도|이끌|이끄|견인|앞장/;
 const LEADER_DROP_NAMED = /하락|급락|약세|밀리|밀려|밀렸|떨어|꺾이|꺾여|꺾였|조정|낙폭|약해|부진|이탈|[-−]\s?\d/;
 const LEADER_CONDITIONAL = /(?:하면|한다면|할\s?경우|는지|인지|일지|할지)/;
+const LEADER_REBOUND_REPORTED = /반등|되돌|만회|반전/;
 export function leadershipClaimIssues(body, { context = '', leadershipBreak = LEADERSHIP_BREAK_FLAG.test(String(context || '')) } = {}) {
   if (!leadershipBreak) return [];
   const asserted = String(body || '').replace(/\[[^\]]*\]|「[^」]*」|'[^']*'|"[^"]*"/g, '');
+  // 2026-10-21: a reported driver of the day's rebound ("보도에 따르면 AI 설비투자 확대 전망이 반도체 반등을 이끌었다") is the
+  // news being attributed, not a claim that the leaders still lead; it is kept apart from the structural claim.
   const claim = asserted.split(/(?<=[.?!。])\s+|\n+/).some((sentence) => LEADER_SUBJECT.test(sentence) && LEADS_CLAIM.test(sentence)
-    && !LEADER_DROP_NAMED.test(sentence) && !LEADER_CONDITIONAL.test(sentence));
+    && !LEADER_DROP_NAMED.test(sentence) && !LEADER_CONDITIONAL.test(sentence)
+    && !(ATTRIBUTION_MARKER.test(sentence) && LEADER_REBOUND_REPORTED.test(sentence)));
   return claim ? ['leadership-claim-during-break'] : [];
 }
 
@@ -436,6 +445,7 @@ const AXIS_CLAIMS = Object.freeze([
 ]);
 const CLAIM_STATE = Object.freeze({ 부담: 'burden', 스트레스: 'burden', 안정: 'favorable', 양호: 'favorable' });
 const CLAIM_CONDITIONAL = /(?:하면|한다면|할\s?경우|된다면|되면|는지|인지|수\s?있|지\s?않|아니)/;
+const CLAIM_NEGATED = /^\s?(?:조건\s?)?(?:은|는|이|가)?\s?(?:아직\s?)?(?:미충족|충족되지|충족 못|빠[짐져졌]|아님)/;
 export function packetAxisStates(context = '') {
   const states = {};
   for (const match of String(context || '').matchAll(/^(trend|breadth|volatility|rates|credit|commodities|korea): (favorable|neutral|burden|unknown)\b/gm)) states[match[1]] = match[2];
@@ -449,7 +459,11 @@ export function axisStateClaimIssues(body, { context = '' } = {}) {
   for (const sentence of asserted.split(/(?<=[.?!。])\s+|\n+/)) {
     if (CLAIM_CONDITIONAL.test(sentence)) continue;
     for (const [axis, pattern] of AXIS_CLAIMS) {
-      const claimed = CLAIM_STATE[sentence.match(pattern)?.[1]];
+      const match = sentence.match(pattern);
+      // Live 2026-10-21: the packet's own condition labels ("추세 부담 미충족", "신용 안정 미충족", "추세 부담이 아직 빠짐")
+      // were read as claims of that state. A state word negated right after it is not a claim.
+      if (match && CLAIM_NEGATED.test(sentence.slice(match.index + match[0].length, match.index + match[0].length + 12))) continue;
+      const claimed = CLAIM_STATE[match?.[1]];
       if (claimed && states[axis] && states[axis] !== 'unknown' && states[axis] !== claimed) issues.push(`axis-state-contradiction:${axis}`);
     }
   }
@@ -510,6 +524,7 @@ export function themeLeadClaimIssues(body, { context = '', data = null } = {}) {
   const issues = [];
   for (const sentence of asserted.split(/(?<=[.?!。])\s+|\n+/)) {
     if (!LEADS_CLAIM.test(sentence) || LEADER_DROP_NAMED.test(sentence) || THEME_LEAD_CONDITIONAL.test(sentence)) continue;
+    if (ATTRIBUTION_MARKER.test(sentence) && LEADER_REBOUND_REPORTED.test(sentence)) continue; // a reported rebound driver (2026-10-21)
     for (const move of dropped) {
       const name = move.names.find((word) => sentence.includes(word));
       if (name) issues.push(`theme-lead-claim-after-5d-drop:${name}`);
@@ -632,6 +647,11 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   if (inflationRising && /물가\s?둔화\s?(?:경로|흐름|추세|신호)|물가(?:가|는)?\s?(?:둔화|안정|완화)(?:되고|하고)\s?있|인플레이션(?:이|은)?\s?(?:둔화|완화)(?:되고|하고)\s?있|디스인플레이션\s?(?:경로|흐름|진행)/.test(asserted)) {
     issues.push('inflation-direction-contradicts-evidence');
   }
+  // Live 2026-10-21: core CPI is no longer read as headline CPI (analysisLevelsAfterLabels); it is checked against its own value.
+  if (Number.isFinite(Number(macroNow.coreCpi))) {
+    const coreLevels = [...body.replace(/\[[^\]]*\]/g, ' ').matchAll(/(?:근원|core)\s?(?:CPI|소비자물가)(?:는|은|가|이|도)?\s?(?:전년\s?대비\s?)?(\d+(?:\.\d+)?)\s?%(?!p|포인트)/gi)].map((m) => Number(m[1]));
+    if (coreLevels.some((level) => Math.abs(level - Number(macroNow.coreCpi)) > 0.15)) issues.push('metric-value-mismatch:macro.core-cpi');
+  }
   // v57.81: while REGIME_CONTEXT carries the leadership break, "semis/AI lead" needs the recent drop in the same sentence.
   issues.push(...leadershipClaimIssues(body, { context }));
   // v57.81: axis state words follow the packet; a Korea-vs-US comparison across different sessions carries both dates.
@@ -646,6 +666,7 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
     && !/코스피|코스닥|KOSPI|KOSDAQ/i.test(body)) issues.push('korea-move-unaddressed');
   issues.push(...priorSessionMoveIssues(body, { context }));
   issues.push(...noLeadIssues(body, { context }));
+  issues.push(...reversalDriverIssues(body, { reversal: marketAnalysisReversal(metricEvidence, changes, closedBasis) }));
   return {
     ok: issues.length === 0,
     issues: Array.from(new Set(issues)),
@@ -723,8 +744,15 @@ export function buildMarketAnalysisNewsEvidence(data) {
 // Owner 2026-10-18 (data-pipeline review): the top eight by score were three Korean weekly previews, gold and four oil/
 // Hormuz items on 10/18, so the model never saw the AI-funding or memory headlines further down. At most
 // HEADLINE_CONTEXT_PER_FEED come from one feed (Korean feeds count as one) before the rest fill by score.
-export const HEADLINE_CONTEXT_MAX = 10;
+export const HEADLINE_CONTEXT_MAX = 12; // 2026-10-21: two more seats for the driver headlines below
 export const HEADLINE_CONTEXT_PER_FEED = 2;
+export const HEADLINE_CONTEXT_DRIVER_SEATS = 6;
+const HEADLINE_DRIVER = new RegExp([
+  // the broad market as subject (a single "Spotify Stock Rises" is a mover, not the market)
+  String.raw`(?:(?:^|\b(?:u\.s\.|us|global|asian|european|world|chip|tech|bank)\s)stocks|\b(?:wall street|s&p 500|nasdaq|dow|equities|stock market|markets))\b[^|]{0,40}\b(?:rall(?:y|ies|ied)|rebound|u-turn|slump|slide|tumble|plunge|surge|sink|sank|fall|fell|drop|rise|rose|climb|gain|mixed|sell-?off|rout)`,
+  String.raw`\b(?:capex|capital spending|ai spending|(?:raises|cuts|lifts|lowers) (?:its )?(?:guidance|forecast))\b`,
+  String.raw`^(?:\[[^\]]{1,8}\]\s?)?(?:코스피|코스닥|증시|뉴욕증시)[^|]{0,20}(?:급등|급락|반등|하락|상승|사이드카|출렁)`
+].join('|'), 'i');
 export function buildMarketAnalysisHeadlineContext(data) {
   const rows = Array.isArray(data?.news) ? data.news : [];
   const seen = new Set();
@@ -739,9 +767,14 @@ export function buildMarketAnalysisHeadlineContext(data) {
     });
   const feedOf = (row) => (row.topic === 'kr' ? 'kr' : String(row.feedSource || row.topic || 'general'));
   const perFeed = new Map();
-  const first = [];
+  // Live 2026-10-21: "Stocks Make a U-Turn on Hopes of U.S.-Iran Diplomacy" (WSJ) and "SpaceX says its capex could double
+  // this quarter as AI spending grows" sat below two gold items and a 3M deal, so the reading never saw why the market
+  // turned. Headlines that describe the market's own move, or a spending/guidance change, take seats first.
+  const drivers = ranked.filter((row) => HEADLINE_DRIVER.test(String(row.title))).slice(0, HEADLINE_CONTEXT_DRIVER_SEATS);
+  const first = [...drivers];
   const rest = [];
   for (const row of ranked) {
+    if (drivers.includes(row)) continue;
     const used = perFeed.get(feedOf(row)) || 0;
     if (used < HEADLINE_CONTEXT_PER_FEED) { perFeed.set(feedOf(row), used + 1); first.push(row); } else rest.push(row);
   }
@@ -834,9 +867,32 @@ export function priorSessionMoveIssues(body, { context = '' } = {}) {
 // v57.87 (10/16 audit): the screen said no flow and no central scenario qualified ("보기 이릅니다", "중심 시나리오를
 // 정하지 않습니다") while the reading named 「소수 종목 주도」 as the closest flow and a favoured choice. When the context holds
 // that verdict, the reading carries it in its own words. v57.88: phrase-level — a bare 이르 also matched 이르면 / 이른바.
+// Live 2026-10-21: the context named a flow ('소수 주도 → 동반 약세 전환 확인 중') and a lead scenario, yet every attempt was
+// blocked — a scenario's caution line ("…확산이라고 보기 이릅니다") matched the bare phrase. Only the two verdict
+// headlines (scenario-outlook / macro-crossroads) count.
+export const NO_LEAD_VERDICT = /어느 흐름이라고 보기 이릅니다|중심 시나리오를 정하지 않습니다/;
 export function noLeadIssues(body, { context = '' } = {}) {
-  if (!/보기 이릅니다|중심 시나리오를 정하지 않습니다/.test(String(context || ''))) return [];
+  if (!NO_LEAD_VERDICT.test(String(context || ''))) return [];
   return /(?:보기|정하기|판단하기|말하기|단정하기)\s?(?:는\s?)?(?:아직\s?)?(?:이르|이릅|이른)|이릅니다|이르다|정하지 않|중심\s?(?:흐름|시나리오)(?:이|가|은|는)?\s?없|핵심 조건(?:이|은|는)?\s?(?:미충족|갖춰지지|충족되지)|판단을 보류/.test(String(body || '')) ? [] : ['no-lead-overstated'];
+}
+
+// Owner 2026-10-21: KOSPI closed 10/20 -3.73% and traded +4.48% the next morning; the reading had to say why it fell and
+// why it is rebounding, each from a dated headline. A reversal is a completed close and the next in-session move, both
+// past the Korean attribution size and in opposite directions; the reading then attributes at least two sentences.
+export function marketAnalysisReversal(metricEvidence = [], changes = new Map(), closedBasis = new Map()) {
+  const row = (Array.isArray(metricEvidence) ? metricEvidence : []).find((item) => item.metricId === 'market.kospi' && item.session && !MARKET_ANALYSIS_CLOSED_SESSIONS.includes(item.session));
+  const now = row ? changes.get(row.evidenceId) : null;
+  const closed = row ? closedBasis.get(row.evidenceId) : null;
+  if (!Number.isFinite(now) || !Number.isFinite(closed?.changePct)) return null;
+  if (!(Math.abs(now) >= KOREA_MOVE_MENTION_PCT && Math.abs(closed.changePct) >= KOREA_MOVE_MENTION_PCT && Math.sign(now) !== Math.sign(closed.changePct))) return null;
+  return { market: 'kospi', closeDate: closed.sessionDate, closeChangePct: closed.changePct, nowChangePct: now, observedAt: row.observedAt };
+}
+export const REVERSAL_ATTRIBUTED_SENTENCES = 2;
+export function reversalDriverIssues(body, { reversal = null } = {}) {
+  if (!reversal) return [];
+  const attributed = String(body || '').replace(/\[[^\]]*\]/g, '').split(/(?<=[.?!。])\s+|\n+/)
+    .filter((sentence) => sentence.split(/[,，;；]|(?<=지만|으나|는데|면서)\s/).some((clause) => ATTRIBUTION_MARKER.test(clause) && !ATTRIBUTION_REFUSAL.test(clause)));
+  return attributed.length >= REVERSAL_ATTRIBUTED_SENTENCES ? [] : ['reversal-drivers-missing'];
 }
 
 // v57.69: retry guidance for the rules that carry no metric id.
@@ -844,6 +900,7 @@ const MARKET_ANALYSIS_ISSUE_HELP = Object.freeze({
   'causal-attribution-missing': 'the market moved sharply; name at least one HEADLINE_CONTEXT headline as the reported cause ("헤드라인에 따르면 …", "… 보도") and keep it one reading among alternatives',
   'inflation-direction-contradicts-evidence': 'CPI or core CPI rose in the latest release; do not describe inflation as easing — describe the rate move without an inflation-easing claim',
   'korea-move-unaddressed': 'KOSPI moved 3% or more; add one line on it with its change (장중이면 "장중 HH:MM KST 기준")',
+  'reversal-drivers-missing': 'the last completed close and the current session moved in opposite directions; give the reported reasons for the fall and for the rebound in separate sentences, each attributed to a dated headline ("10/20 WSJ 보도에 따르면 …")',
   'no-lead-overstated': 'REGIME_CONTEXT says no flow or central scenario qualifies yet; say so first ("아직 중심 흐름·시나리오를 정하기 이르다"), mention the best-matching one only with "핵심 조건 미충족", and do not name a favoured choice',
   'prior-session-move-omitted': 'REGIME_CONTEXT lists a large completed-close move (직전 완료 세션의 큰 움직임); name that index with its close date (M/D) and change in one of the first two lines, separately from any in-session move',
   'axis-state-contradiction': 'a state word (양호/안정/부담) contradicts the axis state in REGIME_CONTEXT; use the packet state for that axis',

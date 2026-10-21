@@ -6,6 +6,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1955 - v58.59 - 해석 본문이 막힌 날 새 날의 한 문장 후보가 버려져 전날 문장이 아침 내내 유지 (2026-10-21)
+
+- symptom/reproduction: 10/21 08:00 KST 이후 marketSentenceReject가 계속 no-new-candidate였고, 10/20 문장('오늘의 하락은 …')이 아침 내내 남았다.
+- root_cause: 새 날이면 AI를 다시 부르지만(2026-10-19 규칙), 본문이 막히면 retainOrFallback이 이전 해석이나 대체 요약을 돌려주면서 이번 시도의 sentenceCandidate를 싣지 않았다. 한 문장은 자기 검증(marketSentenceRejectReason)이 따로 있는데도 본문 차단과 함께 버려졌다.
+- fix: 각 시도의 한 문장 후보 가운데 자기 검증을 통과한 마지막 것을 보유·대체 결과에도 sentenceCandidate(그리고 largeMove·방향)로 싣는다. applyMarketAnalysis는 그 후보로 새 날 문장을 쓴다.
+- violated_rule: 하루 한 문장 계약(v57.71) — 새 날은 새 문장
+- prevention: ci-data-pipeline-contract-check: v58.59 두 시도가 모두 막혀도 통과한 문장으로 10/21 문장이 열린다(marketSentenceReject null)
+- verification/residual: 로컬 게이트 통과(스텁 응답, AI 호출 없음).
+
+## P1954 - v58.59 - 10/21 00:22Z부터 모든 시장 해석 시도가 검증기의 자기 근거 오독으로 차단 (2026-10-21)
+
+- symptom/reproduction: 10/21 00:22Z 이후 refresh-data의 marketAnalysis 두 시도가 매번 막혔다(session-wording-mismatch:market.wti, axis-state-contradiction:trend/credit, metric-value-mismatch:macro.cpi, leadership-claim-during-break, no-lead-overstated). 홈·브리핑에는 10/20 해석이 남았다.
+- root_cause: 검증기가 프롬프트에 준 근거와 다른 기준으로 읽었다. (1) 장중 행의 직전 종가 기준이 history 값의 observedAt 날짜로 세션을 정해, WTI 10/20 정산(00:00 ET 봉 시각)을 버리고 10/19·변화 0%를 썼다 — REGIME_CONTEXT의 'WTI 10/20 종가 -1.80%'(사실)를 그대로 쓰면 막혔다(DXY·금도 같은 0%). (2) '근원 CPI 2.6%'를 헤드라인 CPI로 읽었다. (3) 패킷 자신의 조건 문구('추세 부담 미충족', '신용 안정 미충족')를 상태 주장으로 읽었다. (4) 시나리오 주의 문장('…확산이라고 보기 이릅니다')을 '중심 흐름 없음' 판정으로 읽어, 흐름과 중심 시나리오가 있는 날에 그 판정을 요구했다.
+- fix: 직전 종가 기준을 REGIME_CONTEXT와 같은 buildCloseSeries(fieldMeta.sessionDate·정산 순위·이월 행 제외)로 바꾸고, 17:00 ET에 거래일이 바뀌는 선물·FX는 저녁 관측을 다음 거래일로 본다. '근원' 수식 라벨은 헤드라인 CPI로 읽지 않고 근원 CPI 값과 따로 대조한다. 상태어 바로 뒤의 미충족·빠짐은 주장으로 보지 않는다. 중심 흐름 없음은 두 판정 문장('어느 흐름이라고 보기 이릅니다', '중심 시나리오를 정하지 않습니다')만 본다. 보도로 귀속한 반등 문장('보도에 따르면 … 반도체 반등을 이끌었다')은 주도 주장·5거래일 하락 테마 주도 주장으로 보지 않는다.
+- violated_rule: 검증기는 프롬프트가 준 근거와 같은 기준으로 판정한다(시장 해석 계약)
+- prevention: ci-data-pipeline-contract-check: v58.59 10/21 02:21Z 픽스처(scripts/fixtures/market-analysis-20261021.json) — WTI·코스피 종가 기준, 로그된 두 시도의 오탐 소거, 잘못된 근원 CPI·신용 상태·'반도체가 주도'는 여전히 차단
+- verification/residual: 로컬 게이트 통과(실제 AI 호출 없음). 로그 원문은 400자에서 잘려 있어 leadership-claim-during-break를 낸 문장은 직접 보지 못했다 — 보도 귀속 반등 문장 예외로 다뤘고, push 뒤 QA-VERIFY-59로 확인한다.
+
 ## P1953 - v58.58 - 미국 10/20 종가가 오른 뒤에도 그날 아침 코스피 -3.73%가 오늘의 한 문장을 '오늘의 하락'으로 고정 (2026-10-21)
 
 - symptom/reproduction: 10/21 오늘 화면의 한 문장이 '오늘의 하락은 AI 투자 기대의 흔들림인가, 동반 약세의 시작인가?'였다. 문장은 미국 10/20 마감 뒤(22:41Z)에 만들어졌고 그 장은 S&P 500 +0.28%·다우 +1.02%로 끝났다. 시간외 나스닥 100 선물은 +1%였다.

@@ -2374,6 +2374,73 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && view.groups.some((group) => group.label === '어제 10/18') && view.overdue === false, JSON.stringify(view.groups.map((group) => [group.label, group.slots.map((slot) => slot.endLabel)])));
 }
 
+{
+  // v58.59 (live 2026-10-21): every refresh from 00:22Z was blocked — "WTI 10/20 종가 -1.80%" (true, quoted from REGIME_CONTEXT)
+  // failed against a close basis one session behind, "근원 CPI 2.6%" was read as headline CPI, the packet's own "추세 부담
+  // 미충족"/"신용 안정 미충족" were read as state claims, and a scenario caution ("…보기 이릅니다") set the no-lead verdict. The
+  // reading never got the market-wrap headlines (WSJ U-turn, SpaceX capex) and the blocked runs dropped the day's sentence.
+  // Fixture: run 39532499085 inputs as published (a99abe70) and its two logged attempts; no model call.
+  const fx = JSON.parse(readFileSync(join(root, 'scripts/fixtures/market-analysis-20261021.json'), 'utf8'));
+  const va = await import('./lib/market-analysis-validate.mjs');
+  const { genMarketAnalysis, applyMarketAnalysis, nextEarningsLine } = await import('./producer/market-narrative.mjs');
+  const opts = { context: fx.context, history: fx.history };
+  const issuesOf = (text) => va.validateMarketAnalysisText(text, fx.data, fx.snapshot, opts).issues;
+  const evidence = va.buildMarketAnalysisEvidence(fx.data, { snapshot: fx.snapshot });
+  const basis = va.buildCompletedCloseBasis(evidence, fx.history);
+  const wti = [...basis].find(([id]) => id.startsWith('market.commodity.wti'))?.[1];
+  const kospi = [...basis].find(([id]) => id.startsWith('market.index.kospi'))?.[1];
+  check('v58.59 the in-session close basis is the series REGIME_CONTEXT prints: WTI 10/20 settle 101.79 (-1.80%), KOSPI 10/20 5,552.74 (-3.73%)',
+    wti?.sessionDate === '2026-10-20' && Math.abs(wti.value - 101.79) < 0.01 && Math.abs(wti.changePct + 1.80) < 0.01
+      && kospi?.sessionDate === '2026-10-20' && Math.abs(kospi.changePct + 3.73) < 0.01 && /WTI 10\/20 종가 -1\.80%/.test(fx.context), JSON.stringify({ wti, kospi }));
+  // The logged texts are cut at 400 characters, so the attribution sentences after the cut are not in them; only the
+  // false blocks are checked here.
+  const falseBlocks = /session-wording-mismatch:market\.wti|metric-value-mismatch:macro\.cpi|axis-state-contradiction|no-lead-overstated/;
+  const relogged = fx.attempts.map((attempt) => ({ at: attempt.at, logged: attempt.issues, now: issuesOf(attempt.text) }));
+  check('v58.59 the 10/21 02:21Z attempts no longer hit the false blocks (WTI close wording, core CPI, packet condition labels, scenario caution as verdict)',
+    relogged.length === 2 && relogged.every((row) => row.logged.some((issue) => falseBlocks.test(issue)) && !row.now.some((issue) => falseBlocks.test(issue))),
+    JSON.stringify(relogged));
+  const reading = ['코스피는 10/20 종가 -3.73%(5거래일 -8.00%)로 밀렸고, WTI는 10/20 종가 -1.80%였지만 5거래일로는 +8.13% 올라 있었다[regime-context].',
+    '10/20 블룸버그 보도에 따르면 코어위브 채권 급락이 AI 인프라 자금 조달 우려로 번졌다 — 반도체·대형 기술주에 부담이 몰린 배경으로 거론됐다.',
+    '지금은 코스피 장중 11:01 KST 기준 +4.48%로 반대 방향이며, 10/21 연합뉴스 속보(잠정)에 따르면 매수 사이드카가 발동됐다.',
+    '10/21 Business Insider 보도에 따르면 SpaceX의 AI 설비투자 확대 전망이 반도체 반등을 이끌었고, 10/21 WSJ 보도에 따르면 미국·이란 외교 기대가 증시의 방향을 돌렸다.',
+    '시장 상태는 다소 부담이고 지금 흐름은 「소수 주도 → 동반 약세 전환 확인 중」 — 조건 충족 2/3이며, 추세 부담 조건은 아직 빠져 있다[regime-context].',
+    '확인할 것: 10/21 장 마감 후 META·TSLA·LRCX 실적과 설비투자 전망이 반도체·대형 기술주로 이어지는지, 하이일드 스프레드 확대가 멈추는지. 반증: 실적 뒤 반도체가 다시 밀리면 이번 반등은 되돌림으로 본다.'].join('\n');
+  const oneSided = '코스피는 10/20 종가 -3.73%, WTI는 10/20 종가 -1.80%였다.\n코스피 장중 11:01 KST 기준 +4.48%다.\n10/21 WSJ 보도에 따르면 외교 기대가 배경으로 거론됐다.';
+  const stillBlocked = {
+    coreCpi: issuesOf(reading.replace('추세 부담 조건은 아직 빠져 있다', '근원 CPI 3.1%로 올랐다')),
+    credit: issuesOf(reading.replace('추세 부담 조건은 아직 빠져 있다', '신용은 안정적이다')),
+    lead: issuesOf(reading.replace('시장 상태는 다소 부담이고', '반도체와 AI가 여전히 시장을 주도한다.'))
+  };
+  check('v58.59 a reversal-day reading with dated reasons for the fall and the rebound publishes; one attributed sentence, a wrong core CPI, a wrong credit state or a bare "semis lead" still block',
+    !issuesOf(reading).length && issuesOf(oneSided).includes('reversal-drivers-missing')
+      && stillBlocked.coreCpi.includes('metric-value-mismatch:macro.core-cpi') && stillBlocked.credit.includes('axis-state-contradiction:credit') && stillBlocked.lead.includes('leadership-claim-during-break'),
+    JSON.stringify({ reading: issuesOf(reading), oneSided: issuesOf(oneSided), stillBlocked }));
+  const titles = va.buildMarketAnalysisHeadlineContext(fx.data).map((row) => row.title);
+  check('v58.59 HEADLINE_CONTEXT seats the market-wrap and spending headlines before filling by feed (WSJ U-turn, SpaceX capex); single-stock movers do not take those seats',
+    titles.includes('Stocks Make a U-Turn on Hopes of U.S.-Iran Diplomacy') && titles.includes('SpaceX says its capex could double this quarter as AI spending grows')
+      && !titles.some((title) => /^(?:Spotify|Texas Instruments)/.test(title)) && titles.length === va.HEADLINE_CONTEXT_MAX, JSON.stringify(titles));
+  // Producer: both attempts blocked, each carrying a sentence that passes its own gate — the new day still gets it.
+  const sentence = '오늘의 반등은 AI 투자 기대의 복귀인가, 하락 뒤 숨 고르기인가?';
+  const prompts = [];
+  const blocked = `${fx.attempts[0].text}\n${va.MARKET_SENTENCE_LABEL} ${sentence}`;
+  const stub = async (prompt) => { prompts.push(prompt); return { text: blocked }; };
+  const nowMs = Date.parse(fx.nowMs);
+  const previous = { status: 'blocked', sentence: fx.data.marketAnalysis.sentence };
+  const warn = console.warn; const log = console.log; console.warn = () => {}; console.log = () => {};
+  let run;
+  try { run = await genMarketAnalysis(fx.data, fx.snapshot, { previous, request: stub, nowMs, history: fx.history, narrative: { text: '', signature: 'fixture', themes: [] }, earnings: fx.earnings }); } finally { console.warn = warn; console.log = log; }
+  const published = applyMarketAnalysis({ ...fx.data, meta: { ...fx.data.meta } }, run, { previous, nowMs });
+  check('v58.59 a blocked day still opens with its own sentence when the candidate passes the sentence gate (was no-new-candidate all morning)',
+    run?.status !== 'verified' && published.marketAnalysis.sentence?.day === '2026-10-21' && published.marketAnalysis.sentence?.text === sentence && published.meta.marketSentenceReject === null,
+    JSON.stringify({ status: run?.status, sentence: published.marketAnalysis.sentence, reject: published.meta.marketSentenceReject }));
+  const prompt = prompts[0] || '';
+  check('v58.59 the prompt orders pressure -> current move -> confirm/deny with dated headlines and the next large-cap earnings',
+    /^MARKET_DRIVERS /m.test(prompt) && /^- 압력: 코스피 10\/20 종가 -3\.73%/m.test(prompt) && /^- 지금: 코스피 10\/20 종가 -3\.73% 뒤 장중 11:01 KST 기준 \+4\.48%/m.test(prompt)
+      && /WTI 장중 \d\d:\d\d KST 기준 -2\.62%/.test(prompt) && /^- 확인·반증: 다음 대형주 실적\(10\/21, 미국 시각\): 장 전 TMO \/ 장 마감 후 META·TSLA·LRCX/m.test(prompt)
+      && /Stocks Make a U-Turn on Hopes of U\.S\.-Iran Diplomacy \[WSJ\] date=10\/21/.test(prompt) && /직전 미국 장 마감\(10\/20 16:00 ET\) 뒤/.test(prompt)
+      && nextEarningsLine({ earnings: [] }, '2026-10-20') === '', prompt.match(/^MARKET_DRIVERS[\s\S]{0,900}/m)?.[0] || 'no MARKET_DRIVERS');
+}
+
 if (errors.length) {
   console.error('Data pipeline contract check failed:');
   errors.forEach((error) => console.error(' - ' + error));

@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-20T12:55:08.867Z",
-  "appRevision": "v58.52",
-  "gitHead": "143f4c6e2b954754f6df1bad7b5d07bcd54d2955",
+  "observedAt": "2026-10-21T03:17:04.320Z",
+  "appRevision": "v58.59",
+  "gitHead": "427e893eb21e87e33a68a35700720b82732c3a4e",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -26,7 +26,12 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "signal",
@@ -44,7 +49,12 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "breadth",
@@ -62,7 +72,12 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "sentiment",
@@ -80,7 +95,12 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "briefing",
@@ -95,7 +115,7 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
+      "smallTargetExceptionCount": 1,
       "smallTargetExceptions": [
         {
           "id": "",
@@ -103,17 +123,15 @@
           "width": 24,
           "height": 16,
           "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "OAS",
-          "width": 23,
-          "height": 28,
-          "exception": "wcag-inline-text"
         }
       ],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "technical",
@@ -131,7 +149,12 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "macro",
@@ -149,7 +172,12 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "fxbond",
@@ -164,18 +192,15 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "OAS",
-          "width": 23,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "fundamental",
@@ -193,7 +218,12 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "themes",
@@ -211,7 +241,12 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "theme-detail",
@@ -229,7 +264,12 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "portfolio",
@@ -247,7 +287,12 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "ticker",
@@ -265,7 +310,12 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "market-news",
@@ -283,7 +333,12 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "principles",
@@ -301,7 +356,12 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "masters",
@@ -319,7 +379,12 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "atlas",
@@ -337,7 +402,12 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "guide",
@@ -363,13 +433,18 @@
         }
       ],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     },
     {
       "routeId": "screener",
       "active": true,
       "nameless": [],
-      "selectCount": 5,
+      "selectCount": 4,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -381,7 +456,12 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": []
+      "modalContracts": [
+        {
+          "id": "aio-first-visit-disclaimer",
+          "labelled": true
+        }
+      ]
     }
   ],
   "manualBoundaries": [

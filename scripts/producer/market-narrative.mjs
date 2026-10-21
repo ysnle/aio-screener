@@ -13,8 +13,8 @@ import { renderMacroCrossroadsContext } from '../../src/domain/market/macro-cros
 import { renderMarketGuideContext } from '../../src/domain/guide/market-guide.js';
 import { interpretationFromArtifacts, marketAnalysisRegimeInput as regimeInputFromArtifacts } from '../lib/market-interpretation-inputs.mjs'; // owner 2026-10-19: one interpretation pipeline
 import { NEWS_INTRADAY_MAX } from '../lib/news-selection.mjs';
-import { KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, marketAnalysisLargeMove, marketAnalysisLargeMoveDirection, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary } from '../lib/market-analysis-validate.mjs';
-import { HIST, SCENARIO_STATE_OUT, SCENARIO_OUTCOMES_OUT } from './paths.mjs';
+import { KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, buildCompletedCloseBasis, marketAnalysisReversal, marketAnalysisLargeMove, marketAnalysisLargeMoveDirection, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary } from '../lib/market-analysis-validate.mjs';
+import { HIST, SCENARIO_STATE_OUT, SCENARIO_OUTCOMES_OUT, EARNINGS_CALENDAR_OUT } from './paths.mjs';
 import { MACRO_HISTORY_OUT, MACRO_CALENDAR_OUT } from './macro-history.mjs';
 
 // v57.81: plain Korean values with their session ("10/14 종가"), never "SPX=… (ISO)"; the last verified reading rides along
@@ -95,6 +95,39 @@ export function priorSessionMoveLines(history = []) {
     lines.push(`${label} ${md(last.date)} 종가 ${signed(d1)}${d5 != null ? ` (5거래일 ${signed(d5)})` : ''}`);
   }
   return lines.length ? `직전 완료 세션의 큰 움직임: ${lines.join(' · ')} — 이후 장중 반등·하락과 별개로, 해석의 첫 두 줄 안에 이 종가 변화를 날짜(M/D)와 함께 한 번 쓸 것.` : '';
+}
+
+// Owner 2026-10-21: the reading anchored on KOSPI's 10/20 close (-3.73%) and never said why the market fell or why it was
+// rebounding +4.48% that morning, though the headlines were in the packet. MARKET_DRIVERS sets the order — the pressure
+// with its reported reasons, the current move with its reported reasons, and what would confirm or deny it — and names
+// the next large-cap earnings, so "does the follow-through reach semis and big tech" has dates to check against.
+const mdOf = (date) => String(date || '').slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/');
+const signedPct = (value) => `${value >= 0 ? '+' : ''}${Number(value).toFixed(2)}%`;
+export const NEXT_EARNINGS_MIN_WEIGHT = 0.3; // S&P 500 index weight in percent
+export function nextEarningsLine(calendar, afterDate, { max = 6 } = {}) {
+  const rows = (Array.isArray(calendar?.earnings) ? calendar.earnings : [])
+    .filter((row) => row?.symbol && afterDate && String(row.date || '') > afterDate && Number(row.indexWeight) >= NEXT_EARNINGS_MIN_WEIGHT && row.epsActual == null);
+  const date = rows.map((row) => row.date).sort()[0];
+  if (!date) return '';
+  const when = { bmo: '장 전', amc: '장 마감 후' };
+  const day = rows.filter((row) => row.date === date).sort((a, b) => Number(b.indexWeight) - Number(a.indexWeight)).slice(0, max);
+  const groups = ['bmo', 'amc', null].map((hour) => [hour, day.filter((row) => (when[row.hour] ? row.hour : null) === hour).map((row) => row.symbol)]).filter(([, symbols]) => symbols.length);
+  return `다음 대형주 실적(${mdOf(date)}, 미국 시각): ${groups.map(([hour, symbols]) => `${hour ? when[hour] : '시간 미정'} ${symbols.join('·')}`).join(' / ')}`;
+}
+export function marketDriversContext({ history = [], reversal = null, intradayRows = [], earningsLine = '' } = {}) {
+  const prior = priorSessionMoveLines(history).replace(/^직전 완료 세션의 큰 움직임: /, '').replace(/ — .*$/, '');
+  const kst = (iso) => new Date(Date.parse(iso) + 9 * 3600000).toISOString().slice(11, 16);
+  const now = reversal
+    ? `코스피 ${mdOf(reversal.closeDate)} 종가 ${signedPct(reversal.closeChangePct)} 뒤 장중 ${kst(reversal.observedAt)} KST 기준 ${signedPct(reversal.nowChangePct)} — 직전 완료 세션과 반대 방향`
+    : '';
+  const intraday = intradayRows.map((row) => `${row.label} 장중 ${kst(row.observedAt)} KST 기준 ${signedPct(row.changePct)}`).join(' · ');
+  return [
+    'MARKET_DRIVERS (해석의 뼈대 — 아래 세 칸을 이 순서로 채운다. 숫자는 METRIC_EVIDENCE·REGIME_CONTEXT·KOREA_LARGE_INTRADAY_MOVE와 아래 장중 값만 쓴다):',
+    `- 압력: ${prior || '직전 완료 세션의 큰 움직임 없음 — 가장 최근 완료 종가의 변화'} — 이 움직임에 대해 보도된 이유를 서로 다른 것으로 2~3개 쓴다. 이유마다 "10/20 WSJ 보도에 따르면 …"처럼 HEADLINE_CONTEXT 헤드라인의 날짜(M/D, date= 값)와 출처를 같은 문장에 붙이고, 그 이유가 무엇을 거쳐 어느 쪽(반도체·대형 기술주, 유가, 신용 등)에 닿았는지 한 구절로 잇는다.`,
+    `- 지금: ${[now, intraday].filter(Boolean).join(' · ') || '장중 큰 움직임 없음 — 가장 최근 세션'} — 이 움직임에 대해 보도된 이유를 1~3개, 같은 형식(날짜·출처)으로 쓴다. 장중 움직임의 이유는 08:00 이후 장중 속보(잠정)나 그 직전 미국 장 마감 뒤 헤드라인에서만 고르고 잠정이면 "잠정"을 쓴다. 압력의 이유와 지금의 이유를 한 문장에 섞지 않는다.`,
+    `- 확인·반증: ${earningsLine || '다음 대형주 실적 일정 미수집'} — 지금 움직임이 이어지려면 무엇이 확인돼야 하고(예: 실적과 설비투자 전망이 반도체·대형 기술주로 이어지는지, 유가·신용이 같은 방향인지) 무엇이 나오면 되돌림으로 보는지 쓴다. 매매 지시·목표가 없이.`,
+    '보도된 이유가 헤드라인에 없으면 지어내지 말고 "보도된 이유 미수집"이라고 쓴다. 헤드라인은 원인을 확정하지 않는다 — 한 가지 해석으로 쓴다.'
+  ].join('\n');
 }
 
 // P1742 (owner 2026-10-13): the narrative looks forward with the same branches the 거시 screen draws — the next official
@@ -215,7 +248,11 @@ export async function translateHeadlines(items, { previous = [], request = null,
   return { reused, translated: accept(parsed), pending: pending.length, provider: 'shared-openai', reason: null, ...(freeReason ? { freeReason } : {}) };
 }
 
-export async function genMarketAnalysis(data, snapshot = null, { previous = null, request = null, nowMs = Date.now(), history = null, narrative = null } = {}) {
+function readEarningsCalendar() {
+  try { return JSON.parse(readFileSync(EARNINGS_CALENDAR_OUT, 'utf8')); } catch (_) { return null; }
+}
+
+export async function genMarketAnalysis(data, snapshot = null, { previous = null, request = null, nowMs = Date.now(), history = null, narrative = null, earnings = undefined } = {}) {
   const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   const newsEvidence = buildMarketAnalysisNewsEvidence(data);
   const keep = { previous, nowMs }; // v57.81: every fallback carries the last verified reading forward
@@ -263,12 +300,21 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     const largeMove = marketAnalysisLargeMove(metricEvidence, changeOf, data); // 2026-10-19: same rule and headline window as the validator
     const largeMoveDirection = marketAnalysisLargeMoveDirection(metricEvidence, changeOf, data);
     const newsLines = newsEvidence.map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
-    const headlineLines = buildMarketAnalysisHeadlineContext(data).map(row => `- ${row.evidenceId} ${row.verification === 'unconfirmed' ? '[미확인 보도] ' : ''}${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
+    // 2026-10-21: each headline carries its KST date (date=M/D) so a reason can be cited with the day it was reported.
+    const kstDay = (iso) => { const ms = Date.parse(iso || ''); return Number.isFinite(ms) ? mdOf(new Date(ms + 9 * 3600000).toISOString().slice(0, 10)) : '날짜 미상'; };
+    const headlineLines = buildMarketAnalysisHeadlineContext(data).map(row => `- ${row.evidenceId} ${row.verification === 'unconfirmed' ? '[미확인 보도] ' : ''}${row.title} [${row.source}] date=${kstDay(row.observedAt)} observedAt=${row.observedAt}`).join('\n');
     // P1719/P1720: post-08:00 headlines are the only news on a Korean session's events before the next bundle; they are
     // labelled provisional so the model does not present them as settled.
     const intradayLines = (Array.isArray(data?.newsIntraday) ? data.newsIntraday : []).slice(0, NEWS_INTRADAY_MAX)
       .filter((row) => row && row.title && row.publishedAt)
-      .map((row) => `- [08:00 이후 장중 속보(잠정)] ${row.title} [${row.source || 'unknown'}] publishedAt=${row.publishedAt}`).join('\n');
+      .map((row) => `- [08:00 이후 장중 속보(잠정)] ${row.title} [${row.source || 'unknown'}] date=${kstDay(row.publishedAt)} publishedAt=${row.publishedAt}`).join('\n');
+    const reversal = marketAnalysisReversal(metricEvidence, changeOf, buildCompletedCloseBasis(metricEvidence, historyRows));
+    // Oil moved -2.6% in session on the Iran-talks headlines; an in-session oil move of 2% or more is offered with 장중 + time.
+    const intradayRows = metricEvidence.filter((row) => row.metricId === 'market.wti' && row.session && !MARKET_ANALYSIS_CLOSED_SESSIONS.includes(row.session) && Math.abs(changeOf.get(row.evidenceId)) >= 2)
+      .map((row) => ({ label: row.label, observedAt: row.observedAt, changePct: changeOf.get(row.evidenceId) }));
+    const usCloseDate = buildCloseSeries(historyRows, 'spx').at(-1)?.date || null;
+    const usCloseAt = usCloseDate ? `${mdOf(usCloseDate)} 16:00 ET` : null;
+    const driversContext = marketDriversContext({ history: historyRows, reversal, intradayRows, earningsLine: nextEarningsLine(earnings === undefined ? readEarningsCalendar() : earnings, usCloseDate) });
     const macroNow = data?.macro || {};
     const signed = (value) => `${Number(value) >= 0 ? '+' : ''}${value}`;
     const inflationLine = Number.isFinite(Number(macroNow.cpi)) && Number.isFinite(Number(macroNow.cpiDelta))
@@ -278,10 +324,10 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     const model = SHARED_AI_MODEL;
     const prompt = [
       '아래 근거로 시장 해석을 반드시 한국어로만 작성하라(영어 문장 금지). 제목·마크다운 헤더 없이 7~9줄 평문으로 쓴다. Write the whole answer in Korean.',
-      '순서: (1) 완료된 종가 기준으로 무엇이 얼마나 바뀌었나(METRIC_EVIDENCE의 change 값 — 절대값이 가장 큰 변화부터) (2) 그 변화가 REGIME_CONTEXT의 어느 축·흐름과 맞물리는가 (3) 지금 조건에 가장 가까운 흐름 — 반드시 흐름·시나리오 이름과 함께("「이름」 — 조건 충족 n/m"), 숫자만 단독으로 쓰지 않는다. 단 REGIME_CONTEXT가 "보기 이릅니다"·"중심 시나리오를 정하지 않습니다"라고 하면 그 판정을 먼저 그대로 쓰고, 가장 많이 맞는 흐름은 "핵심 조건 미충족"과 함께만 언급하며 그 흐름을 결론처럼 쓰지 않는다 (4) 향후 시나리오: REGIME_CONTEXT의 【향후 시나리오】에서 다음 발표(날짜)과 조건이 가장 많이 맞는 시나리오, 시장 가격이 같은 방향인지, 금리 괴리가 있으면 그 뜻 — 인과(무엇이 무엇을 거쳐 주가에 닿는지)를 한 문장으로 (5) 그 시나리오라면 선택지(관망·분할 접근·보유 유지·방어 전환)별 기회비용과 상대적으로 유리한 쪽(중심 시나리오가 없으면 "유리한 쪽"을 정하지 말고 각 시나리오로 갈 때 무엇이 바뀌는지만), 반대 시나리오로 가면 무엇이 바뀌는지, 【테마 시나리오】가 있으면 그 시나리오에서 수혜·부담인 테마와 추세 속 조정 테마를 한 문장으로 (6) 다음에 확인할 것과 이 해석이 틀렸다고 볼 반증 조건. 지표를 나열만 하거나 "두 지표는 서로 다르다"처럼 정보가 없는 문장은 쓰지 마라.',
+      '순서: (1) MARKET_DRIVERS의 압력·지금 두 칸 — 무엇이 얼마나 바뀌었고(완료 종가는 날짜 M/D와 METRIC_EVIDENCE·REGIME_CONTEXT의 change 값, 장중 값은 "장중 HH:MM KST") 그 움직임마다 보도된 이유가 무엇인가(이유마다 헤드라인 날짜·출처) (2) 그 변화가 REGIME_CONTEXT의 어느 축·흐름과 맞물리는가 (3) 지금 조건에 가장 가까운 흐름 — 반드시 흐름·시나리오 이름과 함께("「이름」 — 조건 충족 n/m"), 숫자만 단독으로 쓰지 않는다. 단 REGIME_CONTEXT의 판정 문장이 "어느 흐름이라고 보기 이릅니다"·"중심 시나리오를 정하지 않습니다"라고 하면(시나리오 설명 속 "…라고 보기 이릅니다"는 판정이 아니다) 그 판정을 먼저 그대로 쓰고, 가장 많이 맞는 흐름은 "핵심 조건 미충족"과 함께만 언급하며 그 흐름을 결론처럼 쓰지 않는다 (4) 향후 시나리오: REGIME_CONTEXT의 【향후 시나리오】에서 다음 발표(날짜)과 조건이 가장 많이 맞는 시나리오, 시장 가격이 같은 방향인지, 금리 괴리가 있으면 그 뜻 — 인과(무엇이 무엇을 거쳐 주가에 닿는지)를 한 문장으로 (5) 그 시나리오라면 선택지(관망·분할 접근·보유 유지·방어 전환)별 기회비용과 상대적으로 유리한 쪽(중심 시나리오가 없으면 "유리한 쪽"을 정하지 말고 각 시나리오로 갈 때 무엇이 바뀌는지만), 반대 시나리오로 가면 무엇이 바뀌는지, 【테마 시나리오】가 있으면 그 시나리오에서 수혜·부담인 테마와 추세 속 조정 테마를 한 문장으로 (6) MARKET_DRIVERS의 확인·반증 칸: 다음에 확인할 것(일정 포함)과 이 해석이 틀렸다고 볼 반증 조건. 지표를 나열만 하거나 "두 지표는 서로 다르다"처럼 정보가 없는 문장은 쓰지 마라.',
       '가격·수량·시점·특정 종목 매매 지시(사라/팔아라, 목표가, "비중을 늘리세요" 같은 명령)는 쓰지 않는다. 대신 시나리오별 선택지의 기회비용과 "이 시나리오라면 상대적으로 유리한 쪽"은 REGIME_CONTEXT 근거로 쓴다(소유자 2026-10-13). 가능성은 조건 충족 n/m · 시장 가격 방향 · 과거 빈도(표본 수와 함께)로만 말하고 %·확률 숫자를 만들지 마라. 세부 종목 선택은 사용자가 차트·기업·테마·스크리너에서 한다고 밝혀도 된다.',
       '각 변화율은 반드시 그 지표 이름 바로 뒤에 쓴다(예: "코스피 -1.2%"). 다른 지표의 변화율을 앞 지표 이름에 붙이지 마라. 금리(10Y)의 변화는 bp로만 쓰고 %로 쓰지 마라(금리 수준만 % 단위).',
-      'METRIC_EVIDENCE에는 완료된 종가만 들어 있다. 장중 값은 쓰지 마라. 부득이 장중 값을 언급하면 "장중"과 관측 시각(예: 13:05 KST)을 같은 문장에 쓰고 "마감·종가"라고 쓰지 마라.',
+      'METRIC_EVIDENCE에는 완료된 종가만 들어 있다. 장중 값은 KOREA_LARGE_INTRADAY_MOVE·MARKET_DRIVERS에 적힌 것만 쓴다. 장중 값을 언급하면 "장중"과 관측 시각(예: 13:05 KST)을 같은 문장에 쓰고 "마감·종가"라고 쓰지 마라.',
       'Every numeric claim must be supported by one or more supplied METRIC_EVIDENCE ids.',
       'Do not treat VIX and Fear&Greed as the same metric, and do not spend a sentence saying they differ. Do not invent missing values. Return 7-9 concise lines.',
       // v57.75: the CPI direction is stated so the model does not infer "물가 둔화" from falling yields (blocked, then retried).
@@ -292,11 +338,14 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
         // v57.75 (crash audit): HEADLINE_CONTEXT is the 08:00 bundle, written before the Korean session — on 10/15 the model
         // pinned a −7.8% intraday drop on those older headlines and called the won "강세" while USD/KRW rose. The cause may
         // only come from post-08:00 headlines; without them the line says the cause headline was not collected.
-        ? '원인은 아래 "08:00 이후 장중 속보(잠정)" 헤드라인에만 귀속하고 잠정이라고 표시하라. 08:00 이전 헤드라인을 장중 하락의 원인으로 쓰지 마라'
+        // 2026-10-21: the overnight drivers of the +4.48% rebound (WSJ "Stocks Make a U-Turn…" 05:18 KST, SpaceX capex
+        // 07:33 KST) came after the US close but before 08:00; headlines after the US close count, the day before's do not.
+        ? `원인은 아래 "08:00 이후 장중 속보(잠정)" 헤드라인(잠정이라고 표시)이나 직전 미국 장 마감(${usCloseAt || '미국 종가 시각'}) 뒤에 나온 HEADLINE_CONTEXT 헤드라인에만 귀속하라. 그보다 이전 헤드라인을 장중 움직임의 원인으로 쓰지 마라`
         : '08:00 이후 장중 헤드라인이 없다. 원인을 추정하지 말고 "장중 원인 헤드라인 미수집"이라고 쓴다') + '. 원화 방향은 USD/KRW 값으로만 판단한다(USD/KRW 상승 = 원화 약세)):\n' + koreaIntradayLines] : []),
       'NEWS_CLUSTERS (article-level evidence, may be absent):\n' + (newsLines || 'none'),
       'HEADLINE_CONTEXT (retained headlines — titles only; these are the only news material available):\n' + (headlineLines || 'none')
         + (intradayLines ? '\n08:00 이후 장중 속보(잠정 — 다음 08:00 묶음 전의 미확정 헤드라인, 인용 시 "잠정"으로 표시):\n' + intradayLines : ''),
+      driversContext,
       // Owner 2026-10-18: the stories the 08:00 bundle missed (AI funding, memory, deleveraging …) from AIO's own Telegram
       // digest and mover headlines, with the analysis note that says how to read each. Weighting, not evidence.
       ...(narrativeContext.text ? ['NARRATIVE_CONTEXT (지난 72시간 2차 자료: 리서치 텔레그램 채널 중계와 5거래일 급등락 종목의 헤드라인. 사실 확정이 아니라 지금 시장이 어떤 이야기에 무게를 두는지 보여 주는 참고다. 쓰는 법: (a) 오늘의 긴장과 (2)~(6)의 주제를 고를 때 HEADLINE_CONTEXT의 건수만 보지 말고 REGIME_CONTEXT의 움직임 크기와 여기의 언급 비중을 함께 본다 (b) 인용하면 "리서치 채널 중계에 따르면"·"…보도에 따르면"으로 귀속하고 한 가지 해석으로 제시한다 (c) [루머]·[미확인·익명 소식통] 항목은 같은 문장에 "루머" 또는 "미확인"을 쓰고 원인으로 단정하지 않는다 (d) 여기의 숫자·종목명·티커는 METRIC_EVIDENCE가 아니므로 쓰지 않는다 (e) 같은 주제에 강세 측 반론이 있으면 함께 적어 한쪽으로 기울지 않는다 (f) "읽는 틀"은 그 주제를 확인하는 순서다 — 다음에 확인할 것(6)에 활용한다):\n' + narrativeContext.text] : []),
@@ -309,17 +358,27 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     // ("원화 강세", easing inflation) would otherwise be re-served for 12 h after the evidence turned.
     // v57.81: the full result goes back so a value quoted for an observation that has since moved a little is not fatal
     // (retainedReadingIssues), and a provider failure keeps the verified reading too instead of the plain fallback.
+    // Live 2026-10-21: every run after 08:00 KST was blocked on the body, so the reading was retained without a sentence
+    // candidate (marketSentenceReject: no-new-candidate) and the 10/20 sentence stayed all morning. The sentence has its own
+    // gate (marketSentenceRejectReason); a candidate from a blocked attempt that passes it still opens the new day.
+    const inflationRising = Number(data?.macro?.cpiDelta) > 0 || Number(data?.macro?.coreCpiDelta) > 0;
+    let passingSentence = null;
+    const noteSentence = (candidate) => {
+      if (candidate && !marketSentenceRejectReason(candidate, { inflationRising, largeMoveDirection: largeMove ? largeMoveDirection : null })) passingSentence = candidate;
+    };
     const retainOrFallback = (reason) => {
+      const carry = passingSentence ? { sentenceCandidate: passingSentence, largeMove, largeMoveDirection } : {};
       const retained = retainVerifiedMarketAnalysis(previous, { reason, nowMs, revalidate: (summary) => validateMarketAnalysisText(summary, data, snapshot, { context: regimeContext, history: historyRows }) });
       if (retained) {
         console.warn(`[fetch-data] marketAnalysis retained previous verified analysis from ${retained.retained.from}`);
-        return retained;
+        return { ...retained, ...carry };
       }
-      return buildMarketAnalysisFallback(data, reason, metricEvidence, newsEvidence, keep);
+      return { ...buildMarketAnalysisFallback(data, reason, metricEvidence, newsEvidence, keep), ...carry };
     };
     const result = await ask(prompt);
     if (!result.text) return retainOrFallback(result.reason || 'provider-empty');
     let { body: text, sentence: sentenceCandidate } = splitMarketSentence(result.text);
+    noteSentence(sentenceCandidate);
     let semantic = validate(text);
     // P1719: the rejected text goes to the Actions log only (400 chars), never into a public artifact.
     // v57.81: an attribution block also logs the sentences that named news (300 chars), so the next block is diagnosable —
@@ -338,6 +397,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       const retry = await ask(retryPrompt).catch(() => ({ text: null }));
       if (retry.text) {
         ({ body: text, sentence: sentenceCandidate } = splitMarketSentence(retry.text));
+        noteSentence(sentenceCandidate);
         semantic = validate(text);
         if (!semantic.ok) logRejected('attempt-2', text, semantic.issues);
       }

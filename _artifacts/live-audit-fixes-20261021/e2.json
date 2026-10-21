@@ -1,0 +1,19 @@
+{
+  "version": "v58.59",
+  "date": "2026-10-21",
+  "r": null,
+  "status": null,
+  "qa": [{ "id": "QA-VERIFY-59", "text": "{P} push 뒤 첫 refresh-data 실행에서 marketAnalysis attempt 로그에 session-wording-mismatch:market.wti·metric-value-mismatch:macro.cpi(근원 CPI 인용)·axis-state-contradiction(조건 문구 인용)·no-lead-overstated(중심 흐름이 있는 날)가 다시 나오지 않고, public-data/data.json marketAnalysis.status가 verified다.", "verify_by": "push 뒤 다음 refresh-data 로그 grep 'marketAnalysis attempt'", "done": false }],
+  "qa_section": "실화면 점검 반영 2026-10-21",
+  "note": "v58.59: 10/21 시장 해석 차단 해소·막힌 날의 한 문장·하락 압력과 반등의 이유를 날짜 붙은 헤드라인으로 묶는 해석 뼈대.",
+  "p": {
+    "title": "10/21 00:22Z부터 모든 시장 해석 시도가 검증기의 자기 근거 오독으로 차단",
+    "symptom": "10/21 00:22Z 이후 refresh-data의 marketAnalysis 두 시도가 매번 막혔다(session-wording-mismatch:market.wti, axis-state-contradiction:trend/credit, metric-value-mismatch:macro.cpi, leadership-claim-during-break, no-lead-overstated). 홈·브리핑에는 10/20 해석이 남았다.",
+    "root_cause": "검증기가 프롬프트에 준 근거와 다른 기준으로 읽었다. (1) 장중 행의 직전 종가 기준이 history 값의 observedAt 날짜로 세션을 정해, WTI 10/20 정산(00:00 ET 봉 시각)을 버리고 10/19·변화 0%를 썼다 — REGIME_CONTEXT의 'WTI 10/20 종가 -1.80%'(사실)를 그대로 쓰면 막혔다(DXY·금도 같은 0%). (2) '근원 CPI 2.6%'를 헤드라인 CPI로 읽었다. (3) 패킷 자신의 조건 문구('추세 부담 미충족', '신용 안정 미충족')를 상태 주장으로 읽었다. (4) 시나리오 주의 문장('…확산이라고 보기 이릅니다')을 '중심 흐름 없음' 판정으로 읽어, 흐름과 중심 시나리오가 있는 날에 그 판정을 요구했다.",
+    "fix": "직전 종가 기준을 REGIME_CONTEXT와 같은 buildCloseSeries(fieldMeta.sessionDate·정산 순위·이월 행 제외)로 바꾸고, 17:00 ET에 거래일이 바뀌는 선물·FX는 저녁 관측을 다음 거래일로 본다. '근원' 수식 라벨은 헤드라인 CPI로 읽지 않고 근원 CPI 값과 따로 대조한다. 상태어 바로 뒤의 미충족·빠짐은 주장으로 보지 않는다. 중심 흐름 없음은 두 판정 문장('어느 흐름이라고 보기 이릅니다', '중심 시나리오를 정하지 않습니다')만 본다. 보도로 귀속한 반등 문장('보도에 따르면 … 반도체 반등을 이끌었다')은 주도 주장·5거래일 하락 테마 주도 주장으로 보지 않는다.",
+    "violated_rule": "검증기는 프롬프트가 준 근거와 같은 기준으로 판정한다(시장 해석 계약)",
+    "prevention": "ci-data-pipeline-contract-check: v58.59 10/21 02:21Z 픽스처(scripts/fixtures/market-analysis-20261021.json) — WTI·코스피 종가 기준, 로그된 두 시도의 오탐 소거, 잘못된 근원 CPI·신용 상태·'반도체가 주도'는 여전히 차단",
+    "verification": "로컬 게이트 통과(실제 AI 호출 없음). 로그 원문은 400자에서 잘려 있어 leadership-claim-during-break를 낸 문장은 직접 보지 못했다 — 보도 귀속 반등 문장 예외로 다뤘고, push 뒤 QA-VERIFY-59로 확인한다."
+  },
+  "changelog": ["**시장 해석 차단 해소 ({P}):** 검증기가 WTI 10/20 종가·근원 CPI·패킷의 '미충족' 문구·시나리오 주의 문장을 잘못 읽어 10/21 아침 모든 해석을 막던 문제를 고쳤다. 직전 종가는 화면·프롬프트와 같은 종가 시계열로 판정한다."]
+}

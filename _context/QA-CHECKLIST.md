@@ -4,6 +4,10 @@ last_verified: 2026-10-21
 confidence: medium
 ---
 
+## v58.59 실화면 점검 반영 2026-10-21 (2026-10-21)
+
+- [ ] QA-VERIFY-59: P1954 push 뒤 첫 refresh-data 실행에서 marketAnalysis attempt 로그에 session-wording-mismatch:market.wti·metric-value-mismatch:macro.cpi(근원 CPI 인용)·axis-state-contradiction(조건 문구 인용)·no-lead-overstated(중심 흐름이 있는 날)가 다시 나오지 않고, public-data/data.json marketAnalysis.status가 verified다. verify_by: push 뒤 다음 refresh-data 로그 grep 'marketAnalysis attempt'
+
 ## v58.54 producer dry run 시계 고정 (2026-10-21)
 
 - [x] QA-DATA-63: producer dry run은 복사한 data.json의 뉴스 주기 안으로 고정한 시계에서 실행되어 벽시계(23:00Z 경계 전후)와 상관없이 같은 결과를 낸다. 고정 실행은 같은 newsCycleEnd를 발행하고, 이전 기사는 자기 주기 안에서만 후보이며 다음 주기에서는 버려진다(P1950). verify_by: `node scripts/ci-producer-dry-run.mjs` 23:00Z~정기 갱신 사이 PASS + 고정 제거 변이 FAIL
