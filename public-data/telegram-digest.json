@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-21T06:04:42.624Z",
-  "attemptedAt": "2026-10-21T06:04:42.624Z",
-  "lastSuccessfulAt": "2026-10-21T06:04:42.624Z",
+  "generatedAt": "2026-10-21T06:52:00.382Z",
+  "attemptedAt": "2026-10-21T06:52:00.382Z",
+  "lastSuccessfulAt": "2026-10-21T06:52:00.382Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-07T06:04:38.472Z",
-  "until": "2026-10-21T06:04:38.472Z",
+  "since": "2026-10-07T06:51:55.804Z",
+  "until": "2026-10-21T06:51:55.804Z",
   "current24hWindow": {
     "start": "2026-10-19T23:00:00.000Z",
     "end": "2026-10-20T23:00:00.000Z",
@@ -93,50 +93,50 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1178,
+      "count": 1177,
       "freshCount": 38,
-      "eligibleTextCount": 1133,
+      "eligibleTextCount": 1132,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 66875
+      "lastPostId": 66876
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 233,
-      "freshCount": 19,
+      "freshCount": 39,
       "eligibleTextCount": 233,
       "selectedCount": 96,
       "error": null,
-      "lastPostId": 20748
+      "lastPostId": 20750
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 727,
-      "freshCount": 17,
-      "eligibleTextCount": 727,
+      "count": 726,
+      "freshCount": 36,
+      "eligibleTextCount": 726,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 70798
+      "lastPostId": 70799
     }
   ],
-  "count": 2405,
-  "retainedItemCount": 465,
+  "count": 2403,
+  "retainedItemCount": 479,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2405,
-    "eligibleTextCount": 2349,
+    "observedCount": 2403,
+    "eligibleTextCount": 2347,
     "mediaOnlyCount": 56,
     "highSignalCount": 514,
-    "broadSignalCount": 1071,
+    "broadSignalCount": 1067,
     "selectedRawCount": 407,
     "selectedEligibleCount": 407,
     "selectedRawCoveragePct": 17.3,
@@ -144,32 +144,34 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 799,
-    "power": 332,
-    "japan": 139,
-    "earnings": 481,
-    "macro": 792,
-    "geo": 359,
-    "semi": 620,
-    "kr-market": 186,
     "equity": 164,
+    "earnings": 481,
+    "macro": 790,
+    "semi": 618,
+    "power": 334,
+    "kr-market": 188,
+    "market-note": 798,
+    "japan": 137,
+    "geo": 358,
     "healthcare": 123,
     "media-only": 56,
     "credit": 108,
     "ai-policy": 176,
-    "optical": 50,
+    "optical": 49,
     "flows": 170,
     "insider": 40,
     "crypto": 6
   },
   "tickerCounts": {
+    "005930.KS": 68,
+    "000660.KS": 63,
     "NVDA": 113,
     "TSLA": 35,
     "META": 12,
     "SMCI": 4,
     "AMZN": 39,
     "MU": 37,
-    "TSM": 126,
+    "TSM": 125,
     "MSFT": 51,
     "GOOG": 65,
     "T": 6,
@@ -181,10 +183,8 @@
     "AVGO": 23,
     "CRWV": 22,
     "WDC": 7,
-    "005930.KS": 68,
     "2454.TW": 3,
     "UMC": 1,
-    "000660.KS": 62,
     "STX": 7,
     "MRK": 1,
     "BE": 20,
@@ -211,7 +211,7 @@
     "SMTC": 1,
     "BX": 1,
     "AMAT": 1,
-    "INTC": 3,
+    "INTC": 2,
     "016360.KS": 1,
     "373220.KS": 6,
     "IONQ": 4,
@@ -219,11 +219,11 @@
     "007660.KS": 1,
     "ASTS": 1,
     "BAC": 1,
-    "AAOI": 4,
+    "AAOI": 3,
     "UNH": 1,
     "TER": 1,
     "ACN": 2,
-    "MRVL": 6,
+    "MRVL": 5,
     "BMY": 1,
     "178320.KQ": 1,
     "QCOM": 1,
@@ -243,19 +243,19 @@
     "BABA": 1
   },
   "themes": [
-    "Market Notes (799 posts in 14-day research window): 2026년 10월 21일 미국 증시 브리핑 미국 증시는 금일 다우지수 +1.02%, S&P500 +0.28%, 나스닥 -0.02%, 러셀2000 +1.65%로 혼조 마감. 대형 기술주 중심의 매도 압력에도...",
-    "Macro/Rates (792 posts in 14-day research window): 2026년 10월 21일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 나스닥100 선물은 0.71% 상승한 29,700.90, S&P500 선물은 0.29% 오른 7,735.10, 다우 선물은 0.07% 상승한 52,533.50 기록. 반면 러셀2000 선물은 0.07% 하락하며 대형...",
-    "Semiconductors/Memory (620 posts in 14-day research window): 2026년 10월 20일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (43.34%) 2위: PROSHARES...",
+    "Market Notes (798 posts in 14-day research window): 2026년 10월 21일 미국 증시 브리핑 미국 증시는 금일 다우지수 +1.02%, S&P500 +0.28%, 나스닥 -0.02%, 러셀2000 +1.65%로 혼조 마감. 대형 기술주 중심의 매도 압력에도...",
+    "Macro/Rates (790 posts in 14-day research window): 2026년 10월 21일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 나스닥100 선물은 0.71% 상승한 29,700.90, S&P500 선물은 0.29% 오른 7,735.10, 다우 선물은 0.07% 상승한 52,533.50 기록. 반면 러셀2000 선물은 0.07% 하락하며 대형...",
+    "Semiconductors/Memory (618 posts in 14-day research window): 2026년 10월 20일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (43.34%) 2위: PROSHARES...",
     "Earnings/Corporate (481 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • IBM (IBM) — 기업 백오피스 업무의 에이전틱 AI 도입을 확대하기 위해 리나 AI에 전략적 투자를 진행. 기업 내부 업무...",
-    "Geopolitics (359 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀....",
-    "AI Power/Grid (332 posts in 14-day research window): SemiAnalysis ) 2027년 데이터센터: 가속화의 해, 단일 연도에 +50GW 구축 1. 데이터센터 구축을 둘러싼 의구심(FUD)과 실제 진실 매주 데이터센터에 대한 부정적인 억측과 불안감(FUD)이...",
-    "Korea Market (186 posts in 14-day research window): JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%...",
-    "AI Policy/Export Controls (176 posts in 14-day research window): OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게..."
+    "Geopolitics (358 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀....",
+    "AI Power/Grid (334 posts in 14-day research window): SemiAnalysis ) 2027년 데이터센터: 가속화의 해, 단일 연도에 +50GW 구축 1. 데이터센터 구축을 둘러싼 의구심(FUD)과 실제 진실 매주 데이터센터에 대한 부정적인 억측과 불안감(FUD)이...",
+    "Korea Market (188 posts in 14-day research window): JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%...",
+    "AI Policy/Export Controls (176 posts in 14-day research window): >>OpenAI, Anthropic 상장 전에 자금 조달 속도 높일 계획 (로이터) •관계자들에 따르면 OpenAI는 경쟁사 Anthropic이 11월 중순 IPO를 추진할 것으로 예상되는 가운데, 그보다..."
   ],
   "catalysts": [
     {
       "key": "TSM",
-      "count": 126,
+      "count": 125,
       "text": "2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로..."
     },
     {
@@ -275,7 +275,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 62,
+      "count": 63,
       "text": "Citi) SK하이닉스 (000660.KS) 3Q26 프리뷰: 환율 역풍에도 불구하고 견조한 3분기 실적 예상 씨티의 견해 당사는 SK하이닉스가 환율 역풍과 HBM4 관련 잡음에도 불구하고, 시장 컨센서스인 75.5조 원을 8% 상회하는 3Q26E 영업이익 81.3조 원(전분기 대비 +34%, 전년 대비..."
     },
     {
@@ -321,7 +321,7 @@
       "topics": [
         "macro"
       ],
-      "count": 792,
+      "count": 790,
       "focus": "2026년 10월 21일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 나스닥100 선물은 0.71% 상승한 29,700.90, S&P500 선물은 0.29% 오른 7,735.10, 다우 선물은 0.07% 상승한 52,533.50 기록. 반면 러셀2000 선물은 0.07% 하락하며 대형..."
     },
     {
@@ -330,7 +330,7 @@
       "topics": [
         "geo"
       ],
-      "count": 359,
+      "count": 358,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀...."
     },
     {
@@ -348,7 +348,7 @@
       "topics": [
         "semi"
       ],
-      "count": 620,
+      "count": 618,
       "focus": "2026년 10월 20일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (43.34%) 2위: PROSHARES..."
     },
     {
@@ -357,7 +357,7 @@
       "topics": [
         "optical"
       ],
-      "count": 50,
+      "count": 49,
       "focus": "모건스탠리, 광학엔진(OE) 출하량 및 FAU 시장 규모 전망 상향 Largan Precision·Genius Electronic Optical 목표주가 동반 상향 모건스탠리(Morgan Stanley)는..."
     },
     {
@@ -366,7 +366,7 @@
       "topics": [
         "power"
       ],
-      "count": 332,
+      "count": 334,
       "focus": "SemiAnalysis ) 2027년 데이터센터: 가속화의 해, 단일 연도에 +50GW 구축 1. 데이터센터 구축을 둘러싼 의구심(FUD)과 실제 진실 매주 데이터센터에 대한 부정적인 억측과 불안감(FUD)이..."
     },
     {
@@ -376,7 +376,7 @@
         "ai-policy"
       ],
       "count": 176,
-      "focus": "OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게..."
+      "focus": ">>OpenAI, Anthropic 상장 전에 자금 조달 속도 높일 계획 (로이터) •관계자들에 따르면 OpenAI는 경쟁사 Anthropic이 11월 중순 IPO를 추진할 것으로 예상되는 가운데, 그보다..."
     },
     {
       "id": "kr-market",
@@ -384,7 +384,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 186,
+      "count": 188,
       "focus": "JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%..."
     },
     {
@@ -429,7 +429,7 @@
       "topics": [
         "japan"
       ],
-      "count": 139,
+      "count": 137,
       "focus": "로이터에 따르면 트럼프 행정부가 미얀마 군부가 지원하는 정부와 비공개 접촉을 재개하고 한 달 사이 두 차례 회담을 진행. 지난주 회담은 일본 도쿄에서 개최됐으며, 앞서 9월 중순 미얀마 수도 네피도에서도 첫..."
     },
     {
@@ -456,7 +456,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 799,
+      "count": 798,
       "focus": "2026년 10월 21일 미국 증시 브리핑 미국 증시는 금일 다우지수 +1.02%, S&P500 +0.28%, 나스닥 -0.02%, 러셀2000 +1.65%로 혼조 마감. 대형 기술주 중심의 매도 압력에도..."
     }
   ],
@@ -958,14 +958,18 @@
       "datetime": "2026-10-20T01:13:44.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "semi"
+        "credit",
+        "macro",
+        "semi",
+        "power",
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "IREN CEO Daniel Roberts 이번 주 자금 조달과 관련해 많은 질문을 받았습니다. 이에 따라 IREN( $IREN )에서 GPU 자금 조달이 일반적으로 어떻게 이루어지는지 설명하겠습니다. 첫째,...",
       "tickers": [
         "MSFT"
-      ]
+      ],
+      "summary": "IREN CEO Daniel Roberts 이번 주 자금 조달과 관련해 많은 질문을 받았습니다. 이에 따라 IREN( $IREN )에서 GPU 자금 조달이 일반적으로 어떻게 이루어지는지 설명하겠습니다. 첫째,..."
     },
     {
       "id": "aetherjapanresearch/25938",
@@ -1636,6 +1640,27 @@
   ],
   "broadItems": [
     {
+      "id": "bornlupin/20750",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20750",
+      "datetime": "2026-10-21T06:35:01.000Z",
+      "localDateKst": "2026-10-21",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "kr-market",
+        "earnings"
+      ],
+      "score": 93,
+      "hasText": true,
+      "tickers": [
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": "블룸버그) AI 네오클라우드 기업 '엘리스(Elice)' CEO, 주가 반등 속 올해 매출 2배 증가 전망 한국의 AI 인프라(네오클라우드) 기업인 엘리스(Elice Inc.)가 상장 첫날의 혹독한 주가..."
+    },
+    {
       "id": "HANAchina/70798",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70798",
@@ -2101,12 +2126,13 @@
       "tags": [
         "macro",
         "ai-policy",
-        "equity"
+        "equity",
+        "earnings"
       ],
       "score": 62,
       "hasText": true,
-      "summary": ">>Anthropic IPO 준비: 상반기 순손실 807억달러 초과, 총 연산 자원 계약 지출 6,000억달러 넘어설 전망 •WSJ가 입수한 Anthropic의 IPO 투자설명서 초안에 따르면, 회사의 총...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>Anthropic IPO 준비: 상반기 순손실 807억달러 초과, 총 연산 자원 계약 지출 6,000억달러 넘어설 전망 •WSJ가 입수한 Anthropic의 IPO 투자설명서 초안에 따르면, 회사의 총..."
     },
     {
       "id": "HANAchina/70777",
@@ -2121,8 +2147,8 @@
       ],
       "score": 57,
       "hasText": true,
-      "summary": ">>SpaceX 3분기 AI 사업 급성장, 매출 830% 급증… 순이익 예상치 대폭 상회, 자본지출 약 200억달러 | 실적 •3분기 SpaceX 총매출은 전년비 161% 증가한 약 146억달러, 순이익...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>SpaceX 3분기 AI 사업 급성장, 매출 830% 급증… 순이익 예상치 대폭 상회, 자본지출 약 200억달러 | 실적 •3분기 SpaceX 총매출은 전년비 161% 증가한 약 146억달러, 순이익..."
     },
     {
       "id": "HANAchina/70776",
@@ -2136,11 +2162,11 @@
       ],
       "score": 60,
       "hasText": true,
-      "summary": ">>머스크: ASML 등 Terafab 반도체 장비 공급 가속화 •머스크는 ASML 등 주요 장비업체들이 테슬라와 SpaceX의 Terafab 프로젝트에 장비 인도를 앞당기고 있다고 밝힘. SpaceX는...",
       "tickers": [
         "TSLA",
         "TSM"
-      ]
+      ],
+      "summary": ">>머스크: ASML 등 Terafab 반도체 장비 공급 가속화 •머스크는 ASML 등 주요 장비업체들이 테슬라와 SpaceX의 Terafab 프로젝트에 장비 인도를 앞당기고 있다고 밝힘. SpaceX는..."
     },
     {
       "id": "insidertracking/66840",
@@ -2476,13 +2502,14 @@
       "localDateKst": "2026-10-20",
       "tags": [
         "macro",
+        "kr-market",
         "flows",
         "japan"
       ],
       "score": 55,
       "hasText": true,
-      "summary": ">>해외 기관, 중국 국채 5개월 연속 순매수 •해외 기관은 9월 중국 국채 보유량을 5개월 연속 늘렸음. 유럽·미국·일본 등 주요 채권시장에서 매도세가 심화하고 위안화가 강세를 유지하는 가운데, 중국 국채의...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>해외 기관, 중국 국채 5개월 연속 순매수 •해외 기관은 9월 중국 국채 보유량을 5개월 연속 늘렸음. 유럽·미국·일본 등 주요 채권시장에서 매도세가 심화하고 위안화가 강세를 유지하는 가운데, 중국 국채의..."
     },
     {
       "id": "HANAchina/70771",
@@ -2496,10 +2523,10 @@
       ],
       "score": 78,
       "hasText": true,
-      "summary": ">>CoreWeave 채권 폭락이 경고음을 울리면서 연준은 금리 인상 속도를 재검토해야 할 수도 있음 (중국언론) •CoreWeave 채권 수익률이 한때 15%까지 치솟았으며, 투기등급 및 투자등급 채권...",
       "tickers": [
         "CRWV"
-      ]
+      ],
+      "summary": ">>CoreWeave 채권 폭락이 경고음을 울리면서 연준은 금리 인상 속도를 재검토해야 할 수도 있음 (중국언론) •CoreWeave 채권 수익률이 한때 15%까지 치솟았으며, 투기등급 및 투자등급 채권..."
     },
     {
       "id": "insidertracking/66807",
@@ -2554,11 +2581,13 @@
       "datetime": "2026-10-20T12:20:50.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "semi"
+        "macro",
+        "semi",
+        "earnings",
+        "flows"
       ],
       "score": 89,
       "hasText": true,
-      "summary": ">>AI 패권은 엔비디아만의 몫이 아닐 수 있다… TSMC, 2030년 전까지 밸류에이션 재평가 가능성 (대만공상시보) •ASIC 경쟁 심화와 메모리 공급 증가 가능성을 고려하면 TSMC의 장기 투자 가치가...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2567,7 +2596,8 @@
         "AMZN",
         "MU",
         "TSM"
-      ]
+      ],
+      "summary": ">>AI 패권은 엔비디아만의 몫이 아닐 수 있다… TSMC, 2030년 전까지 밸류에이션 재평가 가능성 (대만공상시보) •ASIC 경쟁 심화와 메모리 공급 증가 가능성을 고려하면 TSMC의 장기 투자 가치가..."
     },
     {
       "id": "insidertracking/66802",
@@ -2622,12 +2652,12 @@
       "datetime": "2026-10-20T12:00:20.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "market-note"
+        "earnings"
       ],
       "score": 50,
       "hasText": true,
-      "summary": ">>(상세) JPMorgan, CATL 홍콩증시 투자의견 ‘중립’으로 하향…완성차 업체 수익성 압박 •JPMorgan은 CATL의 홍콩 상장 주식 투자의견을 ‘비중확대’에서 ‘중립’으로 하향하고, A주...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>(상세) JPMorgan, CATL 홍콩증시 투자의견 ‘중립’으로 하향…완성차 업체 수익성 압박 •JPMorgan은 CATL의 홍콩 상장 주식 투자의견을 ‘비중확대’에서 ‘중립’으로 하향하고, A주..."
     },
     {
       "id": "insidertracking/66800",
@@ -2655,17 +2685,18 @@
       "localDateKst": "2026-10-20",
       "tags": [
         "macro",
+        "semi",
         "kr-market",
         "flows"
       ],
       "score": 89,
       "hasText": true,
-      "summary": ">>외국인, 대만 주식 795억TWD(30억달러) 순매도…ETF 6개 종목 대거 매도 •대만 증시는 20일 1.13% 하락한 46,292.93pt로 마감함. 3대 기관투자자는 총 968TWD(약 29.79억...",
       "tickers": [
         "TSM",
         "2454.TW",
         "UMC"
-      ]
+      ],
+      "summary": ">>외국인, 대만 주식 795억TWD(30억달러) 순매도…ETF 6개 종목 대거 매도 •대만 증시는 20일 1.13% 하락한 46,292.93pt로 마감함. 3대 기관투자자는 총 968TWD(약 29.79억..."
     },
     {
       "id": "insidertracking/66797",
@@ -2688,12 +2719,14 @@
       "datetime": "2026-10-20T11:50:01.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "market-note"
+        "geo",
+        "semi",
+        "earnings"
       ],
       "score": 67,
       "hasText": true,
-      "summary": ">>신흥국 증시, 미국 대비 할인율 사상 최고…장기 투자 기회 (대만경제일보) •신흥국 증시의 향후 12개월 예상 PER은 9배 미만으로, 미국 S&P500의 약 19배 대비 할인율이 53%에 달함. 이는...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>신흥국 증시, 미국 대비 할인율 사상 최고…장기 투자 기회 (대만경제일보) •신흥국 증시의 향후 12개월 예상 PER은 9배 미만으로, 미국 S&P500의 약 19배 대비 할인율이 53%에 달함. 이는..."
     },
     {
       "id": "insidertracking/66796",
@@ -2754,12 +2787,13 @@
       "datetime": "2026-10-20T11:23:03.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "macro"
+        "macro",
+        "power"
       ],
       "score": 60,
       "hasText": true,
-      "summary": ">>구리 가격이 높은 수준을 유지해도 공급 부족 해소는 어려워… 기관 추산: 공급 충격을 피하려면 광산업계의 3,320억 달러 신규 투자가 필요 •글로벌 구리 광산업계가 서서히 심화되는 위기에 직면하고 있음....",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>구리 가격이 높은 수준을 유지해도 공급 부족 해소는 어려워… 기관 추산: 공급 충격을 피하려면 광산업계의 3,320억 달러 신규 투자가 필요 •글로벌 구리 광산업계가 서서히 심화되는 위기에 직면하고 있음...."
     },
     {
       "id": "insidertracking/66787",
@@ -2860,14 +2894,16 @@
       "datetime": "2026-10-20T09:34:22.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "market-note"
+        "macro",
+        "power",
+        "equity"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "아마존, 2027년 독일에 160억 유로 투자 계획 발표 아마존이 2010년 이후 독일에 누적 1,000억 유로 이상을 투자한 데 이어, 2027년 클라우드·AI·물류·우주 인터넷·콘텐츠 부문에 160억...",
       "tickers": [
         "AMZN"
-      ]
+      ],
+      "summary": "아마존, 2027년 독일에 160억 유로 투자 계획 발표 아마존이 2010년 이후 독일에 누적 1,000억 유로 이상을 투자한 데 이어, 2027년 클라우드·AI·물류·우주 인터넷·콘텐츠 부문에 160억..."
     },
     {
       "id": "bornlupin/20727",
@@ -2877,15 +2913,17 @@
       "localDateKst": "2026-10-20",
       "tags": [
         "macro",
-        "semi"
+        "semi",
+        "power",
+        "ai-policy"
       ],
       "score": 95,
       "hasText": true,
-      "summary": "[단독] 바이트댄스, 알리바바, 텐센트, 350억 달러 이상의 엔비디아 칩 주문 대규모 발주: 바이트댄스, 알리바바, 텐센트 등 중국 빅테크 3사가 엔비디아의 신형 워크스테이션용 GPU인 'RTX PRO...",
       "tickers": [
         "NVDA",
         "TSM"
-      ]
+      ],
+      "summary": "[단독] 바이트댄스, 알리바바, 텐센트, 350억 달러 이상의 엔비디아 칩 주문 대규모 발주: 바이트댄스, 알리바바, 텐센트 등 중국 빅테크 3사가 엔비디아의 신형 워크스테이션용 GPU인 'RTX PRO..."
     },
     {
       "id": "insidertracking/66779",
@@ -2986,15 +3024,19 @@
       "datetime": "2026-10-20T07:19:51.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "ai-policy",
+        "flows",
+        "healthcare"
       ],
       "score": 95,
       "hasText": true,
-      "summary": "트렌드포스) 2026년 4분기 D램 가격, 상승 폭 둔화에도 전분기 대비 20% 상승 전망; AI 수요와 공급 부족이 전망 뒷받침 1. D램 시장 및 가격 전망 장기 전망 낙관: 중국 경쟁사들의 기술 발전,...",
       "tickers": [
         "NVDA",
         "TSLA"
-      ]
+      ],
+      "summary": "트렌드포스) 2026년 4분기 D램 가격, 상승 폭 둔화에도 전분기 대비 20% 상승 전망; AI 수요와 공급 부족이 전망 뒷받침 1. D램 시장 및 가격 전망 장기 전망 낙관: 중국 경쟁사들의 기술 발전,..."
     },
     {
       "id": "HANAchina/70749",
@@ -3018,15 +3060,18 @@
       "datetime": "2026-10-20T06:34:11.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
+        "macro",
         "semi",
-        "power"
+        "power",
+        "earnings",
+        "japan"
       ],
       "score": 81,
       "hasText": true,
-      "summary": "루멘텀 연이은 매진, 증설이 이끌 성장 데이터가 오가는 모든 구간이 늘어나며 레이저 공급이 수요를 따라가지 못하는 국면 - 데이터가 이동하는 세 가지 구간(GPU 간, 랙 간, 데이터센터 간) 모두에서,...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "루멘텀 연이은 매진, 증설이 이끌 성장 데이터가 오가는 모든 구간이 늘어나며 레이저 공급이 수요를 따라가지 못하는 국면 - 데이터가 이동하는 세 가지 구간(GPU 간, 랙 간, 데이터센터 간) 모두에서,..."
     },
     {
       "id": "bornlupin/20724",
@@ -3035,12 +3080,13 @@
       "datetime": "2026-10-20T06:28:43.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "market-note"
+        "geo",
+        "semi"
       ],
       "score": 57,
       "hasText": true,
-      "summary": "개인 에이전트가 온다. 마침내 시작된 대(大) 딸깍 시대 안녕하세요 글로벌주식팀 x Tech팀 합동으로 개인 에이전트 자료를 발간했습니다. 개인 에이전트, 새로운 플랫폼의 탄생 - 개인 에이전트의 특징:...",
-      "tickers": []
+      "tickers": [],
+      "summary": "개인 에이전트가 온다. 마침내 시작된 대(大) 딸깍 시대 안녕하세요 글로벌주식팀 x Tech팀 합동으로 개인 에이전트 자료를 발간했습니다. 개인 에이전트, 새로운 플랫폼의 탄생 - 개인 에이전트의 특징:..."
     },
     {
       "id": "aetherjapanresearch/25944",
@@ -3311,14 +3357,18 @@
       "datetime": "2026-10-20T01:13:44.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "semi"
+        "credit",
+        "macro",
+        "semi",
+        "power",
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "IREN CEO Daniel Roberts 이번 주 자금 조달과 관련해 많은 질문을 받았습니다. 이에 따라 IREN( $IREN )에서 GPU 자금 조달이 일반적으로 어떻게 이루어지는지 설명하겠습니다. 첫째,...",
       "tickers": [
         "MSFT"
-      ]
+      ],
+      "summary": "IREN CEO Daniel Roberts 이번 주 자금 조달과 관련해 많은 질문을 받았습니다. 이에 따라 IREN( $IREN )에서 GPU 자금 조달이 일반적으로 어떻게 이루어지는지 설명하겠습니다. 첫째,..."
     },
     {
       "id": "HANAchina/70726",
@@ -3387,12 +3437,15 @@
       "localDateKst": "2026-10-20",
       "tags": [
         "semi",
-        "earnings"
+        "equity",
+        "earnings",
+        "flows",
+        "healthcare"
       ],
       "score": 57,
       "hasText": true,
-      "summary": "[메리츠증권 전기전자/IT부품 양승수] 코리아써키트(007810) : SoCAMM이 틔워줄 숨통 3Q26 Preview: 시장 컨센서스 소폭 상회 전망 - 3Q26 별도 기준 매출액과 영업이익 추정치를 각각...",
-      "tickers": []
+      "tickers": [],
+      "summary": "[메리츠증권 전기전자/IT부품 양승수] 코리아써키트(007810) : SoCAMM이 틔워줄 숨통 3Q26 Preview: 시장 컨센서스 소폭 상회 전망 - 3Q26 별도 기준 매출액과 영업이익 추정치를 각각..."
     },
     {
       "id": "aetherjapanresearch/25938",
@@ -3487,13 +3540,15 @@
       "datetime": "2026-10-19T23:41:17.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
+        "macro",
         "ai-policy",
-        "equity"
+        "equity",
+        "earnings"
       ],
       "score": 62,
       "hasText": true,
-      "summary": "OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게...",
-      "tickers": []
+      "tickers": [],
+      "summary": "OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게..."
     },
     {
       "id": "HANAchina/70717",
@@ -3520,11 +3575,11 @@
       ],
       "score": 61,
       "hasText": true,
-      "summary": "오라클(ORCL), 프로젝트 주피터 데이터센터 건설 빠르게 진행 중 프로젝트 주피터(Project Jupiter) 데이터센터 캠퍼스 건설이 빠르게 진행되고 있으며, 현장 공사도 순조롭게 진척되고 있습니다....",
       "tickers": [
         "ORCL",
         "BE"
-      ]
+      ],
+      "summary": "오라클(ORCL), 프로젝트 주피터 데이터센터 건설 빠르게 진행 중 프로젝트 주피터(Project Jupiter) 데이터센터 캠퍼스 건설이 빠르게 진행되고 있으며, 현장 공사도 순조롭게 진척되고 있습니다...."
     },
     {
       "id": "HANAchina/70715",
@@ -3555,8 +3610,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": "네비우스 $NBIS , GPU 플랫폼별 스팟(현물) 가격 공개 시작 B200 최근 7일 가격 +180.8%",
-      "tickers": []
+      "tickers": [],
+      "summary": "네비우스 $NBIS , GPU 플랫폼별 스팟(현물) 가격 공개 시작 B200 최근 7일 가격 +180.8%"
     },
     {
       "id": "bornlupin/20717",
@@ -3565,15 +3620,17 @@
       "datetime": "2026-10-19T23:04:49.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
+        "semi",
+        "power",
         "earnings"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "[SK증권 미래산업/미드스몰캡] Analyst 허선재/02-3773-8197 코세스(089890/KQ) / 매수(유지) / TP 5.5만원 (상향, Upside 74.6%) ★수주에서 실적으로, 다시 주목할...",
       "tickers": [
         "BE",
         "025560.KS"
-      ]
+      ],
+      "summary": "[SK증권 미래산업/미드스몰캡] Analyst 허선재/02-3773-8197 코세스(089890/KQ) / 매수(유지) / TP 5.5만원 (상향, Upside 74.6%) ★수주에서 실적으로, 다시 주목할..."
     },
     {
       "id": "HANAchina/70714",
@@ -3613,14 +3670,17 @@
       "datetime": "2026-10-19T22:51:44.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "market-note"
+        "geo",
+        "power",
+        "equity",
+        "earnings"
       ],
       "score": 67,
       "hasText": true,
-      "summary": "한국투자證 \"비나텍, 블룸에너지발 수주 확대…목표가 11만2000원 상향 \" 한국투자증권은 20일 비나텍에 대해 예상보다 빠른 증설로 슈퍼커패시터 사업의 성장 속도가 빨라질 것이라고 분석 했다. 투자의견...",
       "tickers": [
         "BE"
-      ]
+      ],
+      "summary": "한국투자證 \"비나텍, 블룸에너지발 수주 확대…목표가 11만2000원 상향 \" 한국투자증권은 20일 비나텍에 대해 예상보다 빠른 증설로 슈퍼커패시터 사업의 성장 속도가 빨라질 것이라고 분석 했다. 투자의견..."
     },
     {
       "id": "HANAchina/70712",
@@ -3726,15 +3786,16 @@
       "localDateKst": "2026-10-20",
       "tags": [
         "macro",
+        "semi",
         "power",
         "ai-policy"
       ],
       "score": 86,
       "hasText": true,
-      "summary": "엔스케일(Nscale), 앤트로픽(Anthropic)과 450억 달러 규모의 신규 AI 클라우드 계약 논의 중 ​신규 계약 추진: 데이터센터 개발업체 엔스케일(Nscale)이 AI 챗봇...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔스케일(Nscale), 앤트로픽(Anthropic)과 450억 달러 규모의 신규 AI 클라우드 계약 논의 중 ​신규 계약 추진: 데이터센터 개발업체 엔스케일(Nscale)이 AI 챗봇..."
     },
     {
       "id": "HANAchina/70702",
@@ -4245,14 +4306,15 @@
       "datetime": "2026-10-19T12:10:13.000Z",
       "localDateKst": "2026-10-19",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
       "score": 61,
       "hasText": true,
-      "summary": "지멘스(Siemens)와 엔비디아(NVIDIA)의 AI 기반 자율 공장 구축 파트너십 2026년 1월 CES에서 세계 최초의 완전 AI 기반 제조 현장을 구축하겠다고 발표한 지 10개월도 채 되지 않아 도출한...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "지멘스(Siemens)와 엔비디아(NVIDIA)의 AI 기반 자율 공장 구축 파트너십 2026년 1월 CES에서 세계 최초의 완전 AI 기반 제조 현장을 구축하겠다고 발표한 지 10개월도 채 되지 않아 도출한..."
     },
     {
       "id": "insidertracking/66695",
@@ -4296,11 +4358,11 @@
       ],
       "score": 55,
       "hasText": true,
-      "summary": "Deutsche Bank, 램리서치(Lam Research, $LRCX)에 대한 투자의견 ‘매수(Buy)’를 유지, 목표주가를 기존 320달러에서 375달러로 상향",
       "tickers": [
         "LRCX",
         "DB"
-      ]
+      ],
+      "summary": "Deutsche Bank, 램리서치(Lam Research, $LRCX)에 대한 투자의견 ‘매수(Buy)’를 유지, 목표주가를 기존 320달러에서 375달러로 상향"
     },
     {
       "id": "bornlupin/20710",
@@ -8294,21 +8356,6 @@
         "AMZN",
         "TSM"
       ]
-    },
-    {
-      "id": "bornlupin/20605",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20605",
-      "datetime": "2026-10-13T23:41:37.000Z",
-      "localDateKst": "2026-10-14",
-      "tags": [
-        "kr-market",
-        "earnings"
-      ],
-      "score": 89,
-      "hasText": true,
-      "summary": "[NH/백준기] 스몰캡 - 엠케이전자 [NH/스몰캡(목진원)] [엠케이전자] ★큰 그림은 변한 것이 없다 3Q26 Preview: 환율이 깎은 국내 마진, 중국 법인은 순항 중 3분기 연결 실적은 매출액...",
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -8379,12 +8426,13 @@
       "tags": [
         "macro",
         "ai-policy",
-        "equity"
+        "equity",
+        "earnings"
       ],
       "score": 62,
       "hasText": true,
-      "summary": ">>Anthropic IPO 준비: 상반기 순손실 807억달러 초과, 총 연산 자원 계약 지출 6,000억달러 넘어설 전망 •WSJ가 입수한 Anthropic의 IPO 투자설명서 초안에 따르면, 회사의 총...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>Anthropic IPO 준비: 상반기 순손실 807억달러 초과, 총 연산 자원 계약 지출 6,000억달러 넘어설 전망 •WSJ가 입수한 Anthropic의 IPO 투자설명서 초안에 따르면, 회사의 총..."
     },
     {
       "id": "HANAchina/70777",
@@ -8399,8 +8447,8 @@
       ],
       "score": 57,
       "hasText": true,
-      "summary": ">>SpaceX 3분기 AI 사업 급성장, 매출 830% 급증… 순이익 예상치 대폭 상회, 자본지출 약 200억달러 | 실적 •3분기 SpaceX 총매출은 전년비 161% 증가한 약 146억달러, 순이익...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>SpaceX 3분기 AI 사업 급성장, 매출 830% 급증… 순이익 예상치 대폭 상회, 자본지출 약 200억달러 | 실적 •3분기 SpaceX 총매출은 전년비 161% 증가한 약 146억달러, 순이익..."
     },
     {
       "id": "HANAchina/70776",
@@ -8414,11 +8462,11 @@
       ],
       "score": 60,
       "hasText": true,
-      "summary": ">>머스크: ASML 등 Terafab 반도체 장비 공급 가속화 •머스크는 ASML 등 주요 장비업체들이 테슬라와 SpaceX의 Terafab 프로젝트에 장비 인도를 앞당기고 있다고 밝힘. SpaceX는...",
       "tickers": [
         "TSLA",
         "TSM"
-      ]
+      ],
+      "summary": ">>머스크: ASML 등 Terafab 반도체 장비 공급 가속화 •머스크는 ASML 등 주요 장비업체들이 테슬라와 SpaceX의 Terafab 프로젝트에 장비 인도를 앞당기고 있다고 밝힘. SpaceX는..."
     },
     {
       "id": "insidertracking/66840",
@@ -8754,13 +8802,14 @@
       "localDateKst": "2026-10-20",
       "tags": [
         "macro",
+        "kr-market",
         "flows",
         "japan"
       ],
       "score": 55,
       "hasText": true,
-      "summary": ">>해외 기관, 중국 국채 5개월 연속 순매수 •해외 기관은 9월 중국 국채 보유량을 5개월 연속 늘렸음. 유럽·미국·일본 등 주요 채권시장에서 매도세가 심화하고 위안화가 강세를 유지하는 가운데, 중국 국채의...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>해외 기관, 중국 국채 5개월 연속 순매수 •해외 기관은 9월 중국 국채 보유량을 5개월 연속 늘렸음. 유럽·미국·일본 등 주요 채권시장에서 매도세가 심화하고 위안화가 강세를 유지하는 가운데, 중국 국채의..."
     },
     {
       "id": "HANAchina/70771",
@@ -8774,10 +8823,10 @@
       ],
       "score": 78,
       "hasText": true,
-      "summary": ">>CoreWeave 채권 폭락이 경고음을 울리면서 연준은 금리 인상 속도를 재검토해야 할 수도 있음 (중국언론) •CoreWeave 채권 수익률이 한때 15%까지 치솟았으며, 투기등급 및 투자등급 채권...",
       "tickers": [
         "CRWV"
-      ]
+      ],
+      "summary": ">>CoreWeave 채권 폭락이 경고음을 울리면서 연준은 금리 인상 속도를 재검토해야 할 수도 있음 (중국언론) •CoreWeave 채권 수익률이 한때 15%까지 치솟았으며, 투기등급 및 투자등급 채권..."
     },
     {
       "id": "insidertracking/66807",
@@ -8832,11 +8881,13 @@
       "datetime": "2026-10-20T12:20:50.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "semi"
+        "macro",
+        "semi",
+        "earnings",
+        "flows"
       ],
       "score": 89,
       "hasText": true,
-      "summary": ">>AI 패권은 엔비디아만의 몫이 아닐 수 있다… TSMC, 2030년 전까지 밸류에이션 재평가 가능성 (대만공상시보) •ASIC 경쟁 심화와 메모리 공급 증가 가능성을 고려하면 TSMC의 장기 투자 가치가...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -8845,7 +8896,8 @@
         "AMZN",
         "MU",
         "TSM"
-      ]
+      ],
+      "summary": ">>AI 패권은 엔비디아만의 몫이 아닐 수 있다… TSMC, 2030년 전까지 밸류에이션 재평가 가능성 (대만공상시보) •ASIC 경쟁 심화와 메모리 공급 증가 가능성을 고려하면 TSMC의 장기 투자 가치가..."
     },
     {
       "id": "insidertracking/66802",
@@ -8900,12 +8952,12 @@
       "datetime": "2026-10-20T12:00:20.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "market-note"
+        "earnings"
       ],
       "score": 50,
       "hasText": true,
-      "summary": ">>(상세) JPMorgan, CATL 홍콩증시 투자의견 ‘중립’으로 하향…완성차 업체 수익성 압박 •JPMorgan은 CATL의 홍콩 상장 주식 투자의견을 ‘비중확대’에서 ‘중립’으로 하향하고, A주...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>(상세) JPMorgan, CATL 홍콩증시 투자의견 ‘중립’으로 하향…완성차 업체 수익성 압박 •JPMorgan은 CATL의 홍콩 상장 주식 투자의견을 ‘비중확대’에서 ‘중립’으로 하향하고, A주..."
     },
     {
       "id": "insidertracking/66800",
@@ -8933,17 +8985,18 @@
       "localDateKst": "2026-10-20",
       "tags": [
         "macro",
+        "semi",
         "kr-market",
         "flows"
       ],
       "score": 89,
       "hasText": true,
-      "summary": ">>외국인, 대만 주식 795억TWD(30억달러) 순매도…ETF 6개 종목 대거 매도 •대만 증시는 20일 1.13% 하락한 46,292.93pt로 마감함. 3대 기관투자자는 총 968TWD(약 29.79억...",
       "tickers": [
         "TSM",
         "2454.TW",
         "UMC"
-      ]
+      ],
+      "summary": ">>외국인, 대만 주식 795억TWD(30억달러) 순매도…ETF 6개 종목 대거 매도 •대만 증시는 20일 1.13% 하락한 46,292.93pt로 마감함. 3대 기관투자자는 총 968TWD(약 29.79억..."
     },
     {
       "id": "insidertracking/66797",
@@ -8966,12 +9019,14 @@
       "datetime": "2026-10-20T11:50:01.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "market-note"
+        "geo",
+        "semi",
+        "earnings"
       ],
       "score": 67,
       "hasText": true,
-      "summary": ">>신흥국 증시, 미국 대비 할인율 사상 최고…장기 투자 기회 (대만경제일보) •신흥국 증시의 향후 12개월 예상 PER은 9배 미만으로, 미국 S&P500의 약 19배 대비 할인율이 53%에 달함. 이는...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>신흥국 증시, 미국 대비 할인율 사상 최고…장기 투자 기회 (대만경제일보) •신흥국 증시의 향후 12개월 예상 PER은 9배 미만으로, 미국 S&P500의 약 19배 대비 할인율이 53%에 달함. 이는..."
     },
     {
       "id": "insidertracking/66796",
@@ -9032,12 +9087,13 @@
       "datetime": "2026-10-20T11:23:03.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "macro"
+        "macro",
+        "power"
       ],
       "score": 60,
       "hasText": true,
-      "summary": ">>구리 가격이 높은 수준을 유지해도 공급 부족 해소는 어려워… 기관 추산: 공급 충격을 피하려면 광산업계의 3,320억 달러 신규 투자가 필요 •글로벌 구리 광산업계가 서서히 심화되는 위기에 직면하고 있음....",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>구리 가격이 높은 수준을 유지해도 공급 부족 해소는 어려워… 기관 추산: 공급 충격을 피하려면 광산업계의 3,320억 달러 신규 투자가 필요 •글로벌 구리 광산업계가 서서히 심화되는 위기에 직면하고 있음...."
     },
     {
       "id": "insidertracking/66787",
@@ -9138,14 +9194,16 @@
       "datetime": "2026-10-20T09:34:22.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "market-note"
+        "macro",
+        "power",
+        "equity"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "아마존, 2027년 독일에 160억 유로 투자 계획 발표 아마존이 2010년 이후 독일에 누적 1,000억 유로 이상을 투자한 데 이어, 2027년 클라우드·AI·물류·우주 인터넷·콘텐츠 부문에 160억...",
       "tickers": [
         "AMZN"
-      ]
+      ],
+      "summary": "아마존, 2027년 독일에 160억 유로 투자 계획 발표 아마존이 2010년 이후 독일에 누적 1,000억 유로 이상을 투자한 데 이어, 2027년 클라우드·AI·물류·우주 인터넷·콘텐츠 부문에 160억..."
     },
     {
       "id": "bornlupin/20727",
@@ -9155,15 +9213,17 @@
       "localDateKst": "2026-10-20",
       "tags": [
         "macro",
-        "semi"
+        "semi",
+        "power",
+        "ai-policy"
       ],
       "score": 95,
       "hasText": true,
-      "summary": "[단독] 바이트댄스, 알리바바, 텐센트, 350억 달러 이상의 엔비디아 칩 주문 대규모 발주: 바이트댄스, 알리바바, 텐센트 등 중국 빅테크 3사가 엔비디아의 신형 워크스테이션용 GPU인 'RTX PRO...",
       "tickers": [
         "NVDA",
         "TSM"
-      ]
+      ],
+      "summary": "[단독] 바이트댄스, 알리바바, 텐센트, 350억 달러 이상의 엔비디아 칩 주문 대규모 발주: 바이트댄스, 알리바바, 텐센트 등 중국 빅테크 3사가 엔비디아의 신형 워크스테이션용 GPU인 'RTX PRO..."
     },
     {
       "id": "insidertracking/66779",
@@ -9264,15 +9324,19 @@
       "datetime": "2026-10-20T07:19:51.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "ai-policy",
+        "flows",
+        "healthcare"
       ],
       "score": 95,
       "hasText": true,
-      "summary": "트렌드포스) 2026년 4분기 D램 가격, 상승 폭 둔화에도 전분기 대비 20% 상승 전망; AI 수요와 공급 부족이 전망 뒷받침 1. D램 시장 및 가격 전망 장기 전망 낙관: 중국 경쟁사들의 기술 발전,...",
       "tickers": [
         "NVDA",
         "TSLA"
-      ]
+      ],
+      "summary": "트렌드포스) 2026년 4분기 D램 가격, 상승 폭 둔화에도 전분기 대비 20% 상승 전망; AI 수요와 공급 부족이 전망 뒷받침 1. D램 시장 및 가격 전망 장기 전망 낙관: 중국 경쟁사들의 기술 발전,..."
     },
     {
       "id": "HANAchina/70749",
@@ -9296,15 +9360,18 @@
       "datetime": "2026-10-20T06:34:11.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
+        "macro",
         "semi",
-        "power"
+        "power",
+        "earnings",
+        "japan"
       ],
       "score": 81,
       "hasText": true,
-      "summary": "루멘텀 연이은 매진, 증설이 이끌 성장 데이터가 오가는 모든 구간이 늘어나며 레이저 공급이 수요를 따라가지 못하는 국면 - 데이터가 이동하는 세 가지 구간(GPU 간, 랙 간, 데이터센터 간) 모두에서,...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "루멘텀 연이은 매진, 증설이 이끌 성장 데이터가 오가는 모든 구간이 늘어나며 레이저 공급이 수요를 따라가지 못하는 국면 - 데이터가 이동하는 세 가지 구간(GPU 간, 랙 간, 데이터센터 간) 모두에서,..."
     },
     {
       "id": "bornlupin/20724",
@@ -9313,12 +9380,13 @@
       "datetime": "2026-10-20T06:28:43.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "market-note"
+        "geo",
+        "semi"
       ],
       "score": 57,
       "hasText": true,
-      "summary": "개인 에이전트가 온다. 마침내 시작된 대(大) 딸깍 시대 안녕하세요 글로벌주식팀 x Tech팀 합동으로 개인 에이전트 자료를 발간했습니다. 개인 에이전트, 새로운 플랫폼의 탄생 - 개인 에이전트의 특징:...",
-      "tickers": []
+      "tickers": [],
+      "summary": "개인 에이전트가 온다. 마침내 시작된 대(大) 딸깍 시대 안녕하세요 글로벌주식팀 x Tech팀 합동으로 개인 에이전트 자료를 발간했습니다. 개인 에이전트, 새로운 플랫폼의 탄생 - 개인 에이전트의 특징:..."
     },
     {
       "id": "aetherjapanresearch/25944",
@@ -9575,14 +9643,18 @@
       "datetime": "2026-10-20T01:13:44.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "semi"
+        "credit",
+        "macro",
+        "semi",
+        "power",
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "IREN CEO Daniel Roberts 이번 주 자금 조달과 관련해 많은 질문을 받았습니다. 이에 따라 IREN( $IREN )에서 GPU 자금 조달이 일반적으로 어떻게 이루어지는지 설명하겠습니다. 첫째,...",
       "tickers": [
         "MSFT"
-      ]
+      ],
+      "summary": "IREN CEO Daniel Roberts 이번 주 자금 조달과 관련해 많은 질문을 받았습니다. 이에 따라 IREN( $IREN )에서 GPU 자금 조달이 일반적으로 어떻게 이루어지는지 설명하겠습니다. 첫째,..."
     },
     {
       "id": "HANAchina/70726",
@@ -9651,12 +9723,15 @@
       "localDateKst": "2026-10-20",
       "tags": [
         "semi",
-        "earnings"
+        "equity",
+        "earnings",
+        "flows",
+        "healthcare"
       ],
       "score": 57,
       "hasText": true,
-      "summary": "[메리츠증권 전기전자/IT부품 양승수] 코리아써키트(007810) : SoCAMM이 틔워줄 숨통 3Q26 Preview: 시장 컨센서스 소폭 상회 전망 - 3Q26 별도 기준 매출액과 영업이익 추정치를 각각...",
-      "tickers": []
+      "tickers": [],
+      "summary": "[메리츠증권 전기전자/IT부품 양승수] 코리아써키트(007810) : SoCAMM이 틔워줄 숨통 3Q26 Preview: 시장 컨센서스 소폭 상회 전망 - 3Q26 별도 기준 매출액과 영업이익 추정치를 각각..."
     },
     {
       "id": "aetherjapanresearch/25938",
@@ -9751,13 +9826,15 @@
       "datetime": "2026-10-19T23:41:17.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
+        "macro",
         "ai-policy",
-        "equity"
+        "equity",
+        "earnings"
       ],
       "score": 62,
       "hasText": true,
-      "summary": "OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게...",
-      "tickers": []
+      "tickers": [],
+      "summary": "OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게..."
     },
     {
       "id": "HANAchina/70717",
@@ -9784,11 +9861,11 @@
       ],
       "score": 61,
       "hasText": true,
-      "summary": "오라클(ORCL), 프로젝트 주피터 데이터센터 건설 빠르게 진행 중 프로젝트 주피터(Project Jupiter) 데이터센터 캠퍼스 건설이 빠르게 진행되고 있으며, 현장 공사도 순조롭게 진척되고 있습니다....",
       "tickers": [
         "ORCL",
         "BE"
-      ]
+      ],
+      "summary": "오라클(ORCL), 프로젝트 주피터 데이터센터 건설 빠르게 진행 중 프로젝트 주피터(Project Jupiter) 데이터센터 캠퍼스 건설이 빠르게 진행되고 있으며, 현장 공사도 순조롭게 진척되고 있습니다...."
     },
     {
       "id": "HANAchina/70715",
@@ -9819,8 +9896,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": "네비우스 $NBIS , GPU 플랫폼별 스팟(현물) 가격 공개 시작 B200 최근 7일 가격 +180.8%",
-      "tickers": []
+      "tickers": [],
+      "summary": "네비우스 $NBIS , GPU 플랫폼별 스팟(현물) 가격 공개 시작 B200 최근 7일 가격 +180.8%"
     },
     {
       "id": "bornlupin/20717",
@@ -9829,15 +9906,17 @@
       "datetime": "2026-10-19T23:04:49.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
+        "semi",
+        "power",
         "earnings"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "[SK증권 미래산업/미드스몰캡] Analyst 허선재/02-3773-8197 코세스(089890/KQ) / 매수(유지) / TP 5.5만원 (상향, Upside 74.6%) ★수주에서 실적으로, 다시 주목할...",
       "tickers": [
         "BE",
         "025560.KS"
-      ]
+      ],
+      "summary": "[SK증권 미래산업/미드스몰캡] Analyst 허선재/02-3773-8197 코세스(089890/KQ) / 매수(유지) / TP 5.5만원 (상향, Upside 74.6%) ★수주에서 실적으로, 다시 주목할..."
     },
     {
       "id": "HANAchina/70714",
