@@ -13,8 +13,11 @@ export const KR_INVESTOR_LABEL = Object.freeze(Object.fromEntries(INVESTOR_ORDER
 const sum = (points) => points.reduce((s, p) => s + p.value, 0);
 const kstToday = (nowMs) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(nowMs));
 
-export function buildKrInvestorFlowView(artifact, { nowMs = Date.now() } = {}) {
-  if (!artifact || artifact.schemaVersion !== KR_INVESTOR_FLOWS.schemas[0]) return { state: 'pending' };
+// States: loading (no file yet, request in flight) · unavailable (fetch failed, unknown schema, or no matching source item)
+// · pending (the producer's 수집 전 marker, status not-collected) · ok. v58.55 review: only the marker reads as 수집 전.
+export function buildKrInvestorFlowView(artifact, { nowMs = Date.now(), loadState = 'loading' } = {}) {
+  if (!artifact) return loadState === 'failed' ? { state: 'unavailable', reason: 'fetch-failed' } : { state: 'loading' };
+  if (artifact.schemaVersion !== KR_INVESTOR_FLOWS.schemas[0]) return { state: 'unavailable', reason: 'schema' };
   if (artifact.status === 'not-collected') return { state: 'pending', reason: artifact.reason || null };
   if (artifact.status !== 'ok') return { state: 'unavailable', reason: artifact.status || 'unknown', source: artifact.source || null };
   const today = kstToday(nowMs);

@@ -40,7 +40,9 @@ check(
     && ui.indexOf('function _aioGetKstDateParts') < ui.indexOf('_aioGetKstDateParts(new Date())')
 );
 check('date label must not use shifted Date.getDay()', !/kst\.getDay\(\)/.test(ui));
-check('home date bootstrap must use KST formatter', /todayDisp = _aioGetKstDateParts/.test(ui));
+// v58.55: the home date line (#home-date-label) has one owner, market-regime.js (date · close basis, design 2b; the
+// single-writer rule is AG-DOM-WRITER). The legacy pin here matched an unused variable; the KST intent moves to the owner.
+check('v58.55 home date line must use the KST formatter', /getElementById\('home-date-label'\)[\s\S]{0,400}timeZone: 'Asia\/Seoul'/.test(read('src/ui/components/market-regime.js')));
 
 check('KOSPI previous-close sink must exist', /data-live-prev-close="\^KS11"/.test(html));
 check('KOSDAQ previous-close sink must exist', /data-live-prev-close="\^KQ11"/.test(html));

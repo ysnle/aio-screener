@@ -250,6 +250,7 @@ body.dark-theme { --mk-burden-bar: #c99a45; --mk-neutral-bar: rgba(var(--ink-rgb
 .mk-taylor__seg > button { font-size: 12px; padding: 3px 10px; }
 .mk-rate-tile__value.is-pending { color: var(--text-muted); font-weight: 600; }
 .mk-taylor__fold { margin: 14px -8px 0; }
+.mk-taylor__stale { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
 .mk-taylor__fold > summary { grid-template-columns: minmax(0, 1fr) 16px; padding: 10px 8px; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
 .mk-taylor__body { padding: 0 8px 8px; }
 .mk-taylor__body .sx-disclosure__text { margin: 0; font-size: 13px; line-height: 1.7; color: var(--text-primary); }

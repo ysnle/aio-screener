@@ -108,11 +108,18 @@ export function renderKrInvestorFlows({ documentRef: doc, root, before = null, n
   }
   if (!root.__aioKrFlowsRequested) {
     root.__aioKrFlowsRequested = true;
-    refreshSharedArtifact(root, KR_INVESTOR_FLOWS).then(({ changed }) => { root.__aioKrFlowsRequested = false; if (changed) renderKrInvestorFlows({ documentRef: doc, root }); }).catch(() => { root.__aioKrFlowsRequested = false; });
+    // v58.55 review: a failed fetch is its own state (불러오지 못함), never read as 수집 전.
+    const done = (payload, changed) => {
+      root.__aioKrFlowsRequested = false;
+      const before = root.__aioKrFlowsLoad;
+      root.__aioKrFlowsLoad = payload ? 'loaded' : 'failed';
+      if (changed || before !== root.__aioKrFlowsLoad) renderKrInvestorFlows({ documentRef: doc, root });
+    };
+    refreshSharedArtifact(root, KR_INVESTOR_FLOWS).then(({ payload, changed }) => done(payload, changed)).catch(() => done(root[KR_INVESTOR_FLOWS.key] || null, false));
   }
-  const view = buildKrInvestorFlowView(root[KR_INVESTOR_FLOWS.key] || null, { nowMs });
+  const view = buildKrInvestorFlowView(root[KR_INVESTOR_FLOWS.key] || null, { nowMs, loadState: root.__aioKrFlowsLoad || 'loading' });
   root.__aioKrInvestorFlowView = view;
-  const key = view.state === 'ok' ? `ok|${view.generatedAt}|${view.markets.map((m) => m.date).join(',')}` : view.state;
+  const key = view.state === 'ok' ? `ok|${view.generatedAt}|${view.markets.map((m) => m.date).join(',')}` : `${view.state}|${view.reason || ''}`;
   if (host.dataset.krFlowsKey === key) return view;
   host.dataset.krFlowsKey = key;
   const head = el(doc, 'div', null, 'kr-flows-head');
@@ -121,8 +128,9 @@ export function renderKrInvestorFlows({ documentRef: doc, root, before = null, n
   head.append(title);
   if (view.state !== 'ok') {
     host.removeAttribute('data-observed-at');
-    const text = view.state === 'pending'
-      ? '아직 수집되지 않았습니다. 한국은행 경제통계시스템(ECOS)의 코스피·코스닥 투자자별 순매수가 자료 갱신(6시간 주기)에 연결되면 이 자리에 날짜와 함께 표시됩니다.'
+    const text = view.state === 'loading' ? '투자자별 순매수를 불러오는 중입니다.'
+      : view.state === 'pending' ? '아직 수집되지 않았습니다. 한국은행 경제통계시스템(ECOS)의 코스피·코스닥 투자자별 순매수가 자료 갱신(6시간 주기)에 연결되면 이 자리에 날짜와 함께 표시됩니다.'
+      : view.reason === 'fetch-failed' ? '투자자별 순매수 자료를 불러오지 못했습니다. 잠시 뒤 다시 시도하며, 숫자를 대신 채우지 않습니다.'
       : `이번 수집에서 출처(${view.source || '한국은행 ECOS'})의 투자자별 순매수 항목을 찾지 못했습니다. 숫자를 대신 채우지 않습니다.`;
     host.replaceChildren(head, el(doc, 'p', text, 'kr-flows-empty'));
     return view;

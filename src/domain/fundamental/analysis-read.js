@@ -2,7 +2,7 @@
 // the Sloan (1996) accrual ratio and a reverse DCF calculator. Pure: the parsed SEC fiscal history (sec-fiscal-history.json,
 // newest last) and the screener/SEC facts in, plain reading objects out. Nothing here is a score or a verdict; a missing
 // input returns a state ('pending' = not yet collected, 'unreported' = the filer does not tag it) instead of a number.
-import { finiteFact as finite, isPriorAnnualPeriod } from './period.js';
+import { finiteFact as finite, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
 import { hasFinalConsonant, withTopicParticle } from '../content/korean-particle.js';
 
 const subject = (word) => `${word}${hasFinalConsonant(word) ? '이' : '가'}`;
@@ -26,43 +26,70 @@ function averageOf(rows, index, field) {
   return now != null && prior != null ? (now + prior) / 2 : null;
 }
 
+// v58.55 (review): an annual reading is only drawn for a current fiscal year. A record the SEC read flags stale, a latest
+// fiscal year older than the repo's one 456-day rule (period.js), or a share count observed more than that far from the
+// fiscal year end is 'stale' — Barrick's FY2010 cash flow and 2010 shares must never meet a 2026 close.
+const DAY_MS = 86400000;
+export function annualStaleReason({ periodEnd, fundamentals = null, nowMs = Date.now(), shares = false } = {}) {
+  const end = Date.parse(String(periodEnd || ''));
+  const label = periodEnd ? fyLabel(periodEnd) : '연간 공시';
+  const old = `최근 연간 공시가 오래돼 계산하지 않음 · ${label}`;
+  if (!Number.isFinite(end)) return old;
+  if (fundamentals?.quality?.stale === true) return old;
+  if ((nowMs - end) / DAY_MS > FUNDAMENTAL_MAX_PERIOD_AGE_DAYS) return old;
+  if (Number.isFinite(Number(fundamentals?.reportAgeDays)) && Number(fundamentals.reportAgeDays) > FUNDAMENTAL_MAX_PERIOD_AGE_DAYS && String(fundamentals?.observedAt || '').slice(0, 10) === String(periodEnd)) return old;
+  if (shares) {
+    const observed = Date.parse(String(fundamentals?.sharesObservedAt || ''));
+    if (!Number.isFinite(observed) || Math.abs(observed - end) / DAY_MS > FUNDAMENTAL_MAX_PERIOD_AGE_DAYS) return `주식 수 관측일이 ${label} 회계연도 말과 15개월 넘게 떨어져 시가총액을 만들지 않음`;
+  }
+  return null;
+}
+
 export const DUPONT_FACTORS = Object.freeze([
   { id: 'margin', label: '순이익률' },
   { id: 'turnover', label: '자산회전율' },
   { id: 'leverage', label: '재무 레버리지' }
 ]);
 
-// ROE = 순이익률 × 자산회전율 × 재무 레버리지 for the latest fiscal year and the year before it. Average assets and equity
-// are used when BOTH columns have them (so the two columns share one basis); otherwise year-end values for both.
-export function buildDupontRead(history) {
+// ROE = 순이익률 × 자산회전율 × 재무 레버리지 for the latest fiscal year and the year before it. v58.55 (review): each column
+// uses average assets and equity when its prior year-end exists (positive equity), else its year-end values — the same
+// rule as the 재무 공시 ROE (domain fiscal-read.js) — and names its own basis. A prior year that cannot be decomposed
+// (negative equity, missing items) is dropped and the latest year stands alone.
+export function buildDupontRead(history, { fundamentals = null, nowMs = Date.now() } = {}) {
   const rows = sorted(history);
   const chain = assetChainState(rows);
   if (chain === 'none') return { state: 'none' };
   if (chain === 'pending') return { state: 'pending' };
   const last = rows.length - 1;
   const latest = rows[last];
+  const stale = annualStaleReason({ periodEnd: latest.periodEnd, fundamentals, nowMs });
+  if (stale) return { state: 'stale', periodEnd: latest.periodEnd, reason: stale };
   const hasPrior = last > 0 && isPriorAnnualPeriod(latest, rows[last - 1]);
-  const indexes = hasPrior ? [last - 1, last] : [last];
   if (finite(latest.totalAssets) == null) return { state: 'unreported', reason: '최근 회계연도 총자산이 공시 수집본에 없습니다' };
   if (!(finite(latest.revenue) > 0)) return { state: 'unreported', reason: '매출이 공시되지 않아 순이익률과 자산회전율을 나눌 수 없습니다' };
-  const averageBasis = indexes.every((i) => averageOf(rows, i, 'totalAssets') != null && averageOf(rows, i, 'equity') != null);
-  const columns = [];
-  for (const i of indexes) {
+  const column = (i) => {
     const year = rows[i];
     const revenue = finite(year.revenue), income = finite(year.netIncome);
-    const assets = averageBasis ? averageOf(rows, i, 'totalAssets') : finite(year.totalAssets);
-    const equity = averageBasis ? averageOf(rows, i, 'equity') : finite(year.equity);
-    if (!(revenue > 0) || income == null || !(assets > 0) || equity == null) continue;
-    if (!(equity > 0)) return { state: 'negative-equity', periodEnd: year.periodEnd, reason: `${fyLabel(year.periodEnd)} 자기자본이 마이너스(자사주 매입·누적 손실)라 레버리지와 ROE를 곱셈으로 나누지 않습니다` };
+    const avgAssets = averageOf(rows, i, 'totalAssets');
+    const priorEquity = i > 0 && isPriorAnnualPeriod(year, rows[i - 1]) ? finite(rows[i - 1].equity) : null;
+    const average = avgAssets != null && finite(year.equity) > 0 && priorEquity > 0;
+    const assets = average ? avgAssets : finite(year.totalAssets);
+    const equity = average ? (finite(year.equity) + priorEquity) / 2 : finite(year.equity);
+    if (!(revenue > 0) || income == null || !(assets > 0) || equity == null) return { error: 'missing' };
+    if (!(equity > 0)) return { error: 'negative-equity', periodEnd: year.periodEnd };
     const margin = income / revenue, turnover = revenue / assets, leverage = assets / equity;
-    columns.push({ periodEnd: year.periodEnd, label: fyLabel(year.periodEnd), margin, turnover, leverage, roe: margin * turnover * leverage });
-  }
+    return { periodEnd: year.periodEnd, label: fyLabel(year.periodEnd), basis: average ? 'average' : 'year-end', margin, turnover, leverage, roe: margin * turnover * leverage };
+  };
+  const now = column(last);
+  if (now.error === 'negative-equity') return { state: 'negative-equity', periodEnd: now.periodEnd, reason: `${fyLabel(now.periodEnd)} 자기자본이 마이너스(자사주 매입·누적 손실)라 레버리지와 ROE를 곱셈으로 나누지 않습니다` };
+  const prior = hasPrior && !now.error ? column(last - 1) : null;
+  const columns = [...(prior && !prior.error ? [prior] : []), ...(now.error ? [] : [now])];
   if (!columns.length) return { state: 'unreported', reason: '순이익·자기자본 중 비어 있는 항목이 있어 분해하지 않습니다' };
-  const basis = averageBasis ? 'average' : 'year-end';
-  const [prev, now] = columns.length === 2 ? columns : [null, columns[0]];
+  const basis = columns.every((c) => c.basis === 'average') ? 'average' : columns.every((c) => c.basis === 'year-end') ? 'year-end' : 'mixed';
+  const prev = columns.length === 2 ? columns[0] : null;
   let driver = null;
   let sentence;
-  if (!prev) sentence = `${now.label} ROE ${(now.roe * 100).toFixed(1)}% — 직전 회계연도 자료가 없어 변화의 원인은 나누지 않습니다.`;
+  if (!prev) sentence = `${now.label} ROE ${(now.roe * 100).toFixed(1)}% — ${hasPrior ? '직전 회계연도는 자기자본이 마이너스이거나 항목이 비어 분해하지 않아' : '직전 회계연도 자료가 없어'} 변화의 원인은 나누지 않습니다.`;
   else if (prev.margin > 0 && now.margin > 0) {
     // ln ROE = ln 순이익률 + ln 회전율 + ln 레버리지, so each factor's share of the change is its own log change.
     const moves = DUPONT_FACTORS.map((factor) => ({ ...factor, from: prev[factor.id], to: now[factor.id], log: Math.log(now[factor.id] / prev[factor.id]) }));
@@ -143,10 +170,12 @@ export function impliedGrowth({ fcf, marketValue, discountRate, terminalGrowth, 
 // Inputs from real records only: the latest fiscal year's FCF (operating cash flow − capital spending), the SEC share
 // count and a dated completed close. Each missing piece is named; FCF ≤ 0 is not solved (no growth rate makes a negative
 // cash flow worth a positive price in this model).
-export function reverseDcfInputs({ history, fundamentals, close, financial = false }) {
+export function reverseDcfInputs({ history, fundamentals, close, financial = false, nowMs = Date.now() }) {
   if (financial) return { state: 'financial', reason: '은행·대출 금융사는 영업현금흐름에 예금·대출 증감이 섞여 잉여현금흐름으로 가치를 계산하지 않습니다.' };
   const latest = sorted(history).at(-1);
   if (!latest) return { state: 'missing', reason: 'SEC 연간 현금흐름 기록이 없어 계산하지 않습니다.' };
+  const stale = annualStaleReason({ periodEnd: latest.periodEnd, fundamentals, nowMs, shares: finite(fundamentals?.sharesOutstanding) > 0 });
+  if (stale) return { state: 'stale', periodEnd: latest.periodEnd, reason: `${stale}.` };
   const ocf = finite(latest.operatingCashFlow), capex = finite(latest.capex);
   if (ocf == null || capex == null) return { state: 'missing', reason: `${fyLabel(latest.periodEnd)} 영업현금흐름 또는 설비투자가 공시 수집본에 없어 잉여현금흐름을 만들 수 없습니다.` };
   const fcf = ocf - capex;

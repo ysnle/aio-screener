@@ -339,18 +339,19 @@ export function heroFlipRows(regime, limit = 3) {
   if (!regime?.available || !Array.isArray(regime.axes)) return [];
   const us = regime.axes.map((axis, index) => ({ axis, index })).filter(({ axis }) => axis.id !== 'korea' && axis.state in FLIP_ORDER);
   const measured = us.filter(({ axis }) => axis.flipDistance && axis.flipDistance.text);
-  if (measured.length) {
-    const rank = ({ axis }) => [axis.flipDistance.needsMore ? 1 : 0, axis.flipDistance.sessions ?? Infinity];
-    return measured
-      .sort((a, b) => { const [a1, a2] = rank(a), [b1, b2] = rank(b); return a1 - b1 || a2 - b2 || a.index - b.index; })
-      .slice(0, limit)
-      .map(({ axis }) => ({ id: axis.id, title: axis.title, state: axis.state, stateLabel: axis.stateLabel, flip: axis.flip ? String(axis.flip) : '', distance: axis.flipDistance }));
-  }
-  return us
-    .filter(({ axis }) => axis.flip)
-    .sort((a, b) => FLIP_ORDER[a.axis.state] - FLIP_ORDER[b.axis.state] || a.index - b.index)
+  const rank = ({ axis }) => [axis.flipDistance.needsMore ? 1 : 0, axis.flipDistance.sessions ?? Infinity];
+  const near = measured
+    .sort((a, b) => { const [a1, a2] = rank(a), [b1, b2] = rank(b); return a1 - b1 || a2 - b2 || a.index - b.index; })
     .slice(0, limit)
-    .map(({ axis }) => ({ id: axis.id, title: axis.title, state: axis.state, stateLabel: axis.stateLabel, flip: String(axis.flip), distance: null }));
+    .map(({ axis }) => ({ id: axis.id, title: axis.title, state: axis.state, stateLabel: axis.stateLabel, flip: axis.flip ? String(axis.flip) : '', distance: axis.flipDistance }));
+  // v58.55 review: the slots measured axes leave are filled in the v58.53 order (one-sided first, board order) with the
+  // full rule sentence, marked 거리 계산 불가 — an axis without a distance is not dropped from the tile.
+  const rest = us
+    .filter(({ axis }) => axis.flip && !near.some((row) => row.id === axis.id))
+    .sort((a, b) => FLIP_ORDER[a.axis.state] - FLIP_ORDER[b.axis.state] || a.index - b.index)
+    .slice(0, Math.max(0, limit - near.length))
+    .map(({ axis }) => ({ id: axis.id, title: axis.title, state: axis.state, stateLabel: axis.stateLabel, flip: String(axis.flip), distance: null, unmeasured: near.length > 0 }));
+  return [...near, ...rest];
 }
 
 function flipDistanceLine(doc, row) {
@@ -399,6 +400,12 @@ function renderHeroFlips(doc, regime) {
       const text = el(doc, 'span', null, 'home-flip-text');
       text.append(el(doc, 'b', `${row.title} ${row.stateLabel}`, 'home-flip-axis'), doc.createTextNode(` ${row.flip}`));
       li.append(badge, text);
+      if (row.unmeasured) {
+        li.dataset.unmeasured = 'true';
+        const none = el(doc, 'span', '거리 계산 불가', 'home-flip-none');
+        none.title = '이 지표는 기준까지의 거리를 계산할 입력이 없어 조건 문장만 보여줍니다';
+        li.append(none);
+      }
     }
     list.append(li);
   }

@@ -4,13 +4,15 @@
   "rule": "The deploy bundle's boot module set (bootstrap.js plus every chunk it reaches through static imports) is what the browser downloads and evaluates before first paint. Reference corpora load on demand and must never re-enter it.",
   "bootModuleBudget": {
     "rawBytes": 1500000,
-    "gzipBytes": 540000,
-    "note": "2026-10-19: 1,436 KB raw / 509 KB gzip after the supplied-materials corpus and learning-core notes moved to lazy chunks (was 1,872 KB / 672 KB). Lower the ceiling when the set shrinks; raising it needs a reason in the commit."
+    "gzipBytes": 548000,
+    "note": "2026-10-19: 1,436 KB raw / 509 KB gzip after the supplied-materials corpus and learning-core notes moved to lazy chunks (was 1,872 KB / 672 KB). Lower the ceiling when the set shrinks; raising it needs a reason in the commit. 2026-10-21 (v58.55, owner user-first): gzip ceiling 540→548 KB for the market-axis flip distances that 오늘 and 시장 상태 draw at first paint (+11.6 KB raw); the stock analysis cards (DuPont · 역 DCF · R&D · 발생액, ~19 KB) were moved to a lazy chunk instead of raising the raw ceiling."
   },
   "lazyOnlyInputs": [
     "src/domain/research/supplied-materials.js",
     "src/domain/research/packet-*.js",
     "src/domain/knowledge/learning-core.js",
-    "src/ui/knowledge/knowledge-search.js"
+    "src/ui/knowledge/knowledge-search.js",
+    "src/ui/components/fundamental-analysis-cards.js",
+    "src/domain/fundamental/analysis-read.js"
   ]
 }

@@ -4799,6 +4799,8 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const axis = (id, sessions, extra = {}) => ({ id, title: id, state: 'neutral', stateLabel: '중립', flip: `${id} rule`, flipDistance: { text: '+1%', sessions, direction: 'worsen', towardLabel: '부담', ...extra } });
   const rows = heroFlipRows({ available: true, axes: [axis('trend', 3), axis('breadth', 0.5), axis('rates', 0.2, { needsMore: true }), axis('credit', 1), axis('korea', 0.1)] });
   if (rows.map((row) => row.id).join(',') !== 'breadth,credit,trend') fail(`v58.55 오늘 lists the three US axes nearest to flipping, measured before assumed, Korea out: ${rows.map((row) => row.id)}`);
+  const partial = heroFlipRows({ available: true, axes: [axis('trend', 2), { id: 'credit', title: 'credit', state: 'burden', stateLabel: '부담', flip: 'credit rule', flipDistance: null }, { id: 'volatility', title: 'volatility', state: 'neutral', stateLabel: '중립', flip: 'vol rule', flipDistance: null }] });
+  if (partial.map((row) => `${row.id}:${row.distance ? 'd' : row.unmeasured ? 'u' : '?'}`).join(',') !== 'trend:d,credit:u,volatility:u') fail(`v58.55 review: axes without a distance fill the remaining slots in the one-sided order, marked unmeasured: ${JSON.stringify(partial)}`);
 }
 
 // v57.79 (UI review): the home 코스피 chip names its basis and never shows an unlabeled number that conflicts with the
@@ -5287,6 +5289,17 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (card.tone !== 'favorable' || !/하이일드 회사채 5%/.test(card.text) || !/함께 내릴 수 있습니다/.test(card.text)) fail(`bond cushion card: ${JSON.stringify(card)}`);
   const short = bondCushion({ rows: [{ symbol: 'NVDA', value: 800 }, { symbol: 'TLT', value: 200 }], stressInput: { historyMap, commonDates: commonDates.slice(-60) } });
   if (short.correlation.available || short.correlation.reason !== 'weeks-insufficient') fail('bond cushion: fewer than 30 weeks prints no correlation');
+  // v58.55 review: a KRW book of a Korean stock + TLT reads TLT in won (USD/KRW on the same dates); a flat-dollar TLT whose
+  // won value follows a USD/KRW that moves with the stock correlates positively, not 0/undefined.
+  const krMap = { '005930.KS': {}, TLT: {} }; const fxHist = [];
+  let k = 100; let fx = 1300;
+  for (let i = 0; i < 260; i += 1) { const m = Math.sin(i / 4) * 0.01; k *= 1 + m; fx *= 1 + 0.5 * m; krMap['005930.KS'][day(i)] = k; krMap.TLT[day(i)] = 90 + (i % 2) * 1e-6; fxHist.push({ date: day(i), usdkrw: fx }); }
+  const krRows = [{ symbol: '005930.KS', value: 700 }, { symbol: 'TLT', value: 300 }];
+  const won = bondCushion({ rows: krRows, stressInput: { historyMap: krMap, commonDates }, baseCurrency: 'KRW', history: fxHist });
+  if (!won.correlation.available || won.correlation.translatedTo !== 'KRW' || !(won.correlation.r > 0.9)) fail(`bond cushion: KRW base translates the dollar ETF ${JSON.stringify(won.correlation)}`);
+  if (bondCushion({ rows: krRows, stressInput: { historyMap: krMap, commonDates } }).correlation.reason !== 'currency-mixed') fail('bond cushion: mixed listing currencies without a base are not correlated');
+  if (bondCushion({ rows: krRows, stressInput: { historyMap: krMap, commonDates }, baseCurrency: 'KRW', history: [] }).correlation.reason !== 'fx-missing') fail('bond cushion: no USD/KRW record, no correlation');
+  if (!/원화 환산/.test(bondCushionCard(won).text)) fail('bond cushion card: the translation is named');
 }
 
 // ── v58.XX expertise review: portfolio stress sensitivities from the book's own weekly returns ──
@@ -5359,6 +5372,11 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const one = taylorRule({ macroHistory: { series: { ...series, naturalUnemployment: nrou } }, macro, rStar: 1 });
   if (Math.abs(one.rule - t.rule - 0.5) > 1e-9 || one.range.lo !== t.range.lo || one.rStar !== 1 || taylorRule({ macroHistory: { series: { ...series, naturalUnemployment: nrou } }, macro, rStar: 3 }).rStar !== 0.5) fail('taylor: r* is one of the two offered assumptions and shifts the rule one for one');
   if (taylorRule({ macroHistory: { series: { ...series, naturalUnemployment: nrou } }, macro: {} }).diff !== null) fail('taylor: no target range, no comparison');
+  if (t.stale || t.spreadMonths !== 1) fail(`taylor (v58.55 review): PCE and UNRATE 2026-08 with NROU 2026-07 are one month apart and current ${t.spreadMonths}`);
+  const kept = taylorRule({ macroHistory: { series: { ...series, unemployment: { ...series.unemployment, stale: true }, naturalUnemployment: nrou } }, macro });
+  if (!kept.stale || kept.staleSeries.join() !== 'unemployment') fail('taylor (v58.55 review): a series kept from an earlier run marks the reading stale');
+  const apart = taylorRule({ macroHistory: { series: { ...series, naturalUnemployment: { observations: [['2025-10-01', 4.2]] } } }, macro });
+  if (!apart.stale || apart.spreadMonths <= 3) fail('taylor (v58.55 review): inputs more than three months apart mark the reading stale');
 
   const { curveMonthAgo } = await load('src/domain/macro/rates-fx.js');
   const days = [];
