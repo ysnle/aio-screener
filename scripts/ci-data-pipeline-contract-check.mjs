@@ -870,6 +870,14 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && marketSentenceRejectReason('오늘의 하락은 AI 투자 기대의 흔들림인가, 동반 약세의 시작인가?', { largeMoveDirection: 'mixed' }) === 'large-move-one-sided'
       && !!validateMarketSentence('한쪽의 급락과 다른 쪽의 반등, 어느 쪽이 내일을 이끄는가?', { largeMoveDirection: 'mixed' })
       && !!validateMarketSentence('AI 투자 확대는 새 주도의 시작인가, 과열의 신호인가?', { largeMoveDirection: 'mixed' }), JSON.stringify({ usLaterUp, usEarlierUp, usLaterFlat }));
+  // Live 2026-10-21: the verified reading showed the prompt's section names around its citations.
+  const { normalizePromptLabels, reusableMarketAnalysis } = await import('./lib/market-analysis-validate.mjs');
+  const leaked = '코스피는 10/21 종가 +3.29%(METRIC_EVIDENCE: market.index.kospi:fbdb5f95), WTI는 -1.80%(REGIME_CONTEXT), 장중 -3.37%(MARKET_DRIVERS)였다.';
+  const cleaned = normalizePromptLabels(leaked);
+  const leakedPrevious = { status: 'verified', semanticStatus: 'verified', semanticIssues: [], generatedAt: new Date().toISOString(), full: leaked, metricEvidence: [{ evidenceId: 'a' }], newsEvidence: [], headlineContext: [] };
+  check('v58.60 (live 2026-10-21) prompt section names never reach the reading: cited ids become bracket citations and a leaked reading is not reused',
+    cleaned === '코스피는 10/21 종가 +3.29%[market.index.kospi:fbdb5f95], WTI는 -1.80%[regime-context], 장중 -3.37%였다.'
+      && reusableMarketAnalysis(leakedPrevious, { metricEvidence: [{ evidenceId: 'a' }] }) === null, cleaned);
   const { NEWS_FEEDS } = await import('./lib/news-selection.mjs');
   const split = splitMarketSentence('S&P 500은 1.11% 하락했다.\n코스피는 장중 급락했다.\n오늘의 한 문장: "누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다."');
   const at = (iso) => Date.parse(iso);

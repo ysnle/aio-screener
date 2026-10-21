@@ -1,0 +1,14 @@
+{
+  "version": "v58.60", "date": "2026-10-21", "r": null, "status": null, "qa": [], "qa_section": "실화면 점검 반영 2026-10-21",
+  "note": "v58.60: SEC 공시 요약이 1 MiB 상한을 넘어 스크리너 갱신 전체가 막히던 문제(P1956), 시장 해석에 프롬프트 내부 표기가 보이던 문제(P1957).",
+  "p": {
+    "title": "SEC 공시 요약 투영이 1 MiB 상한을 넘어 refresh-screener가 두 번 연속 실패, 한국 10/21 종가와 스크리너가 갱신되지 않음",
+    "symptom": "10/21 22:00 KST 스크리너가 05:27Z(14:27 KST) 생성본에 머물렀다. 07:25Z·12:28Z refresh-screener 실행이 모두 실패해, 15:45 KST 이후 들어와야 할 한국 10/21 종목 종가가 반영되지 않았다.",
+    "root_cause": "ci-sec-runtime-projection-check가 sec-fundamentals-summary.json 1,052,183 B(상한 1,048,576 B)로 실패했다. 새 공시·TTM 이익 등 자연 증가로 상한을 넘었고, 이 단계가 실패하면 스크리너 산출 전체가 커밋되지 않는다.",
+    "fix": "build-sec-runtime-projection이 availableAt이 acceptedAt과 같을 때만 뺀다(837건 중 832건, 약 34KB 절감). 화면의 entity provider는 불러올 때 acceptedAt으로 availableAt을 다시 채운다.",
+    "violated_rule": "1 MiB 공개 투영 상한(P1470/P1632) — 상한 근처 여유 확보",
+    "prevention": "ci-esm-core-unit-check: v58.60 entity provider는 acceptedAt으로 availableAt을 복원",
+    "verification": "로컬 추정으로 현재 투영 1,046,421 B → 1,012,309 B. 실제 생산 실행은 push 뒤 다음 refresh-screener에서 확인 필요."
+  },
+  "changelog": ["**스크리너 갱신 막힘 해소 ({P}):** SEC 공시 요약이 크기 상한을 넘어 스크리너 갱신이 멈췄던 문제를 고쳤다. 화면에서 다시 채울 수 있는 중복 날짜 필드를 요약 파일에서 뺐다."]
+}

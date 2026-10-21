@@ -153,6 +153,9 @@ const data = Object.fromEntries(Object.entries(source.data || {}).map(([symbol, 
   // P1632: producer-side availability/PIT audit fields have no page consumer and pushed the projection
   // past its 1 MiB bound (1,055,257 B), failing the whole screener/SEC lane. The canonical artifact keeps them.
   for (const field of ['operandAvailability', 'derivedAvailability', 'accessionByField', 'transportFetchedAt', 'availabilityModel', 'reportRecency', 'normalizerVersion', 'revenueConcept', 'revenueHealedFrom']) delete reconciled[field];
+  // 2026-10-21: natural growth reached 1,052,183 B and failed two screener runs. availableAt equals acceptedAt in
+  // 832/837 records; it is dropped only then, and the entity provider restores it from acceptedAt on load.
+  if (reconciled.availableAt && reconciled.availableAt === reconciled.acceptedAt) delete reconciled.availableAt;
   // 2026-10-17 (logic audit D1/D2): the page needs the P/E numerator's basis and end, not its audit fields (1 MiB bound);
   // an average-equity ROE is implied by equityPrior.
   if (reconciled.peEarnings) {

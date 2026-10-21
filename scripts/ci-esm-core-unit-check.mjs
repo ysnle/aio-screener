@@ -2276,7 +2276,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
             source: 'SEC EDGAR companyfacts',
             model: 'sec-fy-normalized-v2',
             data: {
-              AAPL: { symbol: 'AAPL', observedAt: '2026-07-28', revenue: 100 },
+              AAPL: { symbol: 'AAPL', observedAt: '2026-07-28', revenue: 100, acceptedAt: '2026-07-29T20:30:00.000Z' },
               MSFT: { symbol: 'MSFT', observedAt: '2026-06-30', revenue: 200 }
             }
           }
@@ -2290,6 +2290,8 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (failed.fundamentals !== null || requests !== 2 || retried.fundamentals?.revenue !== 100) {
     fail(`entity provider: transient empty response was cached instead of retried: ${JSON.stringify({ requests, failed: failed.fundamentals, retried: retried.fundamentals })}`);
   }
+  // v58.60: the projection drops availableAt where it equals acceptedAt (1 MiB bound); the provider restores it.
+  if (retried.fundamentals?.availableAt !== '2026-07-29T20:30:00.000Z') fail(`entity provider: availableAt not restored from acceptedAt: ${JSON.stringify(retried.fundamentals)}`);
   if (retried.fundamentalsWatchlist?.length !== 1 || retried.fundamentalsWatchlist[0]?.symbol !== 'MSFT'
     || retried.fundamentalsMeta?.model !== 'sec-fy-normalized-v2') {
     fail(`entity provider: bounded SEC watchlist projection or metadata drifted: ${JSON.stringify({ rows: retried.fundamentalsWatchlist, meta: retried.fundamentalsMeta })}`);

@@ -542,6 +542,7 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   const body = String(text || '').trim();
   const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   if (!body) issues.push('empty');
+  if (PROMPT_SECTION_LABEL.test(body)) issues.push('prompt-label-leak');
   if (metricEvidence.length < 2) issues.push('metric-evidence-insufficient');
   const changes = new Map((snapshot?.quotes || []).filter(row => row?.evidenceId && Number.isFinite(Number(row.changePct))).map(row => [row.evidenceId, Number(row.changePct)]));
   const closedBasis = buildCompletedCloseBasis(metricEvidence, history);
@@ -1036,6 +1037,7 @@ export function plainMarketFallbackSummary(metricEvidence = []) {
 export function reusableMarketAnalysis(previous, { metricEvidence = [], newsEvidence = [], headlineContext = [], narrativeSignature = null, nowMs = Date.now() } = {}) {
   if (!previous || previous.status !== 'verified' || previous.semanticStatus !== 'verified') return null;
   if (Array.isArray(previous.semanticIssues) && previous.semanticIssues.length) return null;
+  if (PROMPT_SECTION_LABEL.test(String(previous.full || previous.summary || ''))) return null; // a leaked prompt label is not reused
   const generatedMs = Date.parse(previous.generatedAt || '');
   if (!Number.isFinite(generatedMs) || generatedMs > nowMs + 5 * 60000 || nowMs - generatedMs >= MARKET_ANALYSIS_RETAIN_MAX_MS) return null;
   const idSet = (rows) => JSON.stringify([...new Set((Array.isArray(rows) ? rows : []).map((row) => String(row?.evidenceId || '')))].sort());
@@ -1056,10 +1058,20 @@ export const MARKET_SENTENCE_LABEL = '오늘의 한 문장:';
 // v57.75: the model sometimes wrote "**오늘의 한 문장:**", "오늘의 한 문장 :" or put the sentence on the next line;
 // the strict prefix match missed those and the label leaked into the reading body.
 const SENTENCE_LABEL_LINE = /^\s*(?:[-*]\s*)?(?:\*\*|__)?\s*오늘의\s*한\s*문장\s*(?:\*\*|__)?\s*[:：]\s*(?:\*\*|__)?\s*/;
+// Live 2026-10-21: the verified reading showed "(METRIC_EVIDENCE: market.index.kospi:…)", "(REGIME_CONTEXT)" and
+// "(MARKET_DRIVERS)" — the model cited the prompt's section names, and the page stripped only the id. A cited id becomes
+// the bracket citation the page already reads; a bare section name is dropped. Any label left blocks the reading.
+export const PROMPT_SECTION_LABEL = /\b(?:METRIC_EVIDENCE|REGIME_CONTEXT|MARKET_DRIVERS|HEADLINE_CONTEXT|NEWS_EVIDENCE)\b/;
+export function normalizePromptLabels(text) {
+  return String(text || '')
+    .replace(/\s*\(\s*(?:METRIC_EVIDENCE|NEWS_EVIDENCE|HEADLINE_CONTEXT)\s*[:：]\s*([^)]+?)\s*\)/g, (_, ids) => `[${ids}]`)
+    .replace(/\s*\(\s*REGIME_CONTEXT\s*\)/g, '[regime-context]')
+    .replace(/\s*\(\s*(?:METRIC_EVIDENCE|REGIME_CONTEXT|MARKET_DRIVERS|HEADLINE_CONTEXT|NEWS_EVIDENCE)\s*\)/g, '');
+}
 export function splitMarketSentence(text) {
-  const lines = String(text || '').split('\n');
+  const lines = normalizePromptLabels(text).split('\n');
   const index = lines.findIndex((line) => SENTENCE_LABEL_LINE.test(line));
-  if (index < 0) return { body: String(text || ''), sentence: null };
+  if (index < 0) return { body: lines.join('\n'), sentence: null };
   let sentence = lines[index].replace(SENTENCE_LABEL_LINE, '').trim();
   const drop = new Set([index]);
   if (!sentence && index + 1 < lines.length && lines[index + 1].trim()) { sentence = lines[index + 1].trim(); drop.add(index + 1); }

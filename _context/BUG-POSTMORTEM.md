@@ -6,6 +6,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1957 - v58.60 - 검증 통과한 시장 해석에 '(METRIC_EVIDENCE:', '(REGIME_CONTEXT)', '(MARKET_DRIVERS)' 같은 프롬프트 내부 표기가 그대로 보임 (2026-10-21)
+
+- symptom/reproduction: 10/21 21:21 KST 오늘·브리핑 화면 해석 첫 줄이 '코스피는 10/21 종가 +3.29%(METRIC_EVIDENCE:, 5거래일 …(REGIME_CONTEXT)'였다.
+- root_cause: 모델이 근거를 프롬프트 구역 이름과 함께 괄호로 인용했고, 검증기는 그 표기를 보지 않았으며, 화면은 근거 id만 지워 괄호와 구역 이름이 남았다.
+- fix: splitMarketSentence가 본문을 정리한다: '(구역: id)'는 화면이 읽는 [id] 인용으로, '(REGIME_CONTEXT)'는 [regime-context]로 바꾸고 다른 구역 이름만 있는 괄호는 지운다. 남은 표기는 prompt-label-leak으로 차단되고, 표기가 남은 이전 해석은 재사용하지 않는다.
+- violated_rule: 화면에 내부 식별자·출처 표기 금지(출처는 접힘)
+- prevention: ci-data-pipeline-contract-check: v58.60 프롬프트 구역 이름은 해석에 남지 않음(인용 변환, 누출 해석 재사용 안 함)
+- verification/residual: 게이트 통과. 실제 AI 호출은 하지 않음 — 다음 갱신에서 화면 해석 확인 필요.
+
+## P1956 - v58.60 - SEC 공시 요약 투영이 1 MiB 상한을 넘어 refresh-screener가 두 번 연속 실패, 한국 10/21 종가와 스크리너가 갱신되지 않음 (2026-10-21)
+
+- symptom/reproduction: 10/21 22:00 KST 스크리너가 05:27Z(14:27 KST) 생성본에 머물렀다. 07:25Z·12:28Z refresh-screener 실행이 모두 실패해, 15:45 KST 이후 들어와야 할 한국 10/21 종목 종가가 반영되지 않았다.
+- root_cause: ci-sec-runtime-projection-check가 sec-fundamentals-summary.json 1,052,183 B(상한 1,048,576 B)로 실패했다. 새 공시·TTM 이익 등 자연 증가로 상한을 넘었고, 이 단계가 실패하면 스크리너 산출 전체가 커밋되지 않는다.
+- fix: build-sec-runtime-projection이 availableAt이 acceptedAt과 같을 때만 뺀다(837건 중 832건, 약 34KB 절감). 화면의 entity provider는 불러올 때 acceptedAt으로 availableAt을 다시 채운다.
+- violated_rule: 1 MiB 공개 투영 상한(P1470/P1632) — 상한 근처 여유 확보
+- prevention: ci-esm-core-unit-check: v58.60 entity provider는 acceptedAt으로 availableAt을 복원
+- verification/residual: 로컬 추정으로 현재 투영 1,046,421 B → 1,012,309 B. 실제 생산 실행은 push 뒤 다음 refresh-screener에서 확인 필요.
+
 ## P1955 - v58.59 - 해석 본문이 막힌 날 새 날의 한 문장 후보가 버려져 전날 문장이 아침 내내 유지 (2026-10-21)
 
 - symptom/reproduction: 10/21 08:00 KST 이후 marketSentenceReject가 계속 no-new-candidate였고, 10/20 문장('오늘의 하락은 …')이 아침 내내 남았다.
