@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-21T04:51:40.146Z",
-  "attemptedAt": "2026-10-21T04:51:40.146Z",
-  "lastSuccessfulAt": "2026-10-21T04:51:40.146Z",
+  "generatedAt": "2026-10-21T05:51:46.685Z",
+  "attemptedAt": "2026-10-21T05:51:46.685Z",
+  "lastSuccessfulAt": "2026-10-21T05:51:46.685Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-07T04:51:34.190Z",
-  "until": "2026-10-21T04:51:34.190Z",
+  "since": "2026-10-07T05:51:41.925Z",
+  "until": "2026-10-21T05:51:41.925Z",
   "current24hWindow": {
     "start": "2026-10-19T23:00:00.000Z",
     "end": "2026-10-20T23:00:00.000Z",
@@ -81,33 +81,33 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 268,
+      "count": 267,
       "freshCount": 38,
-      "eligibleTextCount": 257,
+      "eligibleTextCount": 256,
       "selectedCount": 67,
       "error": null,
-      "lastPostId": 25959
+      "lastPostId": 25960
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1171,
-      "freshCount": 39,
-      "eligibleTextCount": 1126,
+      "count": 1176,
+      "freshCount": 38,
+      "eligibleTextCount": 1131,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 66864
+      "lastPostId": 66873
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 234,
+      "count": 233,
       "freshCount": 19,
-      "eligibleTextCount": 234,
+      "eligibleTextCount": 233,
       "selectedCount": 96,
       "error": null,
       "lastPostId": 20748
@@ -122,62 +122,63 @@
       "eligibleTextCount": 727,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 70795
+      "lastPostId": 70798
     }
   ],
-  "count": 2400,
-  "retainedItemCount": 486,
+  "count": 2403,
+  "retainedItemCount": 484,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2400,
-    "eligibleTextCount": 2344,
+    "observedCount": 2403,
+    "eligibleTextCount": 2347,
     "mediaOnlyCount": 56,
-    "highSignalCount": 516,
-    "broadSignalCount": 1073,
+    "highSignalCount": 514,
+    "broadSignalCount": 1071,
     "selectedRawCount": 407,
     "selectedEligibleCount": 407,
-    "selectedRawCoveragePct": 17.4,
-    "selectedOfObservedPct": 17,
+    "selectedRawCoveragePct": 17.3,
+    "selectedOfObservedPct": 16.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "media-only": 56,
-    "macro": 793,
+    "market-note": 797,
     "power": 332,
+    "japan": 139,
     "earnings": 481,
-    "healthcare": 124,
-    "market-note": 795,
-    "semi": 622,
-    "geo": 358,
-    "japan": 138,
+    "macro": 792,
+    "geo": 359,
+    "semi": 620,
     "kr-market": 186,
-    "credit": 110,
-    "equity": 163,
-    "ai-policy": 177,
+    "equity": 164,
+    "healthcare": 123,
+    "media-only": 56,
+    "credit": 108,
+    "ai-policy": 176,
     "optical": 50,
-    "flows": 171,
+    "flows": 170,
     "insider": 40,
     "crypto": 6
   },
   "tickerCounts": {
-    "MU": 37,
-    "NVDA": 112,
-    "TSM": 126,
-    "MSFT": 52,
-    "GOOG": 65,
+    "NVDA": 113,
+    "TSLA": 35,
+    "META": 12,
+    "SMCI": 4,
     "AMZN": 39,
-    "TSLA": 34,
+    "MU": 37,
+    "TSM": 126,
+    "MSFT": 51,
+    "GOOG": 65,
     "T": 6,
-    "SMCI": 3,
     "COHR": 7,
     "SNDK": 6,
     "ADBE": 2,
     "ORCL": 8,
     "AMD": 51,
-    "AVGO": 25,
+    "AVGO": 23,
     "CRWV": 22,
     "WDC": 7,
     "005930.KS": 68,
@@ -186,7 +187,6 @@
     "000660.KS": 62,
     "STX": 7,
     "MRK": 1,
-    "META": 11,
     "BE": 20,
     "025560.KS": 1,
     "PLTR": 7,
@@ -198,7 +198,7 @@
     "006400.KS": 4,
     "LLY": 1,
     "WMT": 1,
-    "COST": 2,
+    "COST": 1,
     "ULTA": 1,
     "MS": 4,
     "010130.KS": 1,
@@ -223,7 +223,7 @@
     "UNH": 1,
     "TER": 1,
     "ACN": 2,
-    "MRVL": 8,
+    "MRVL": 6,
     "BMY": 1,
     "178320.KQ": 1,
     "QCOM": 1,
@@ -243,14 +243,14 @@
     "BABA": 1
   },
   "themes": [
-    "Market Notes (795 posts in 14-day research window): 2026년 10월 21일 미국 증시 브리핑 미국 증시는 금일 다우지수 +1.02%, S&P500 +0.28%, 나스닥 -0.02%, 러셀2000 +1.65%로 혼조 마감. 대형 기술주 중심의 매도 압력에도...",
-    "Macro/Rates (793 posts in 14-day research window): CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두 번째 수십억 달러 규모 계약을 협상 중이라고 소식통이 CNBC에 전했습니다. 이번 계약은 지난 8월 보도된...",
-    "Semiconductors/Memory (622 posts in 14-day research window): 2026년 10월 20일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (43.34%) 2위: PROSHARES...",
+    "Market Notes (797 posts in 14-day research window): 2026년 10월 21일 미국 증시 브리핑 미국 증시는 금일 다우지수 +1.02%, S&P500 +0.28%, 나스닥 -0.02%, 러셀2000 +1.65%로 혼조 마감. 대형 기술주 중심의 매도 압력에도...",
+    "Macro/Rates (792 posts in 14-day research window): 2026년 10월 21일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 나스닥100 선물은 0.71% 상승한 29,700.90, S&P500 선물은 0.29% 오른 7,735.10, 다우 선물은 0.07% 상승한 52,533.50 기록. 반면 러셀2000 선물은 0.07% 하락하며 대형...",
+    "Semiconductors/Memory (620 posts in 14-day research window): 2026년 10월 20일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (43.34%) 2위: PROSHARES...",
     "Earnings/Corporate (481 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • IBM (IBM) — 기업 백오피스 업무의 에이전틱 AI 도입을 확대하기 위해 리나 AI에 전략적 투자를 진행. 기업 내부 업무...",
-    "Geopolitics (358 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀....",
+    "Geopolitics (359 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀....",
     "AI Power/Grid (332 posts in 14-day research window): SemiAnalysis ) 2027년 데이터센터: 가속화의 해, 단일 연도에 +50GW 구축 1. 데이터센터 구축을 둘러싼 의구심(FUD)과 실제 진실 매주 데이터센터에 대한 부정적인 억측과 불안감(FUD)이...",
     "Korea Market (186 posts in 14-day research window): JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%...",
-    "AI Policy/Export Controls (177 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
+    "AI Policy/Export Controls (176 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
   ],
   "catalysts": [
     {
@@ -260,8 +260,8 @@
     },
     {
       "key": "NVDA",
-      "count": 112,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • IBM (IBM) — 기업 백오피스 업무의 에이전틱 AI 도입을 확대하기 위해 리나 AI에 전략적 투자를 진행. 기업 내부 업무..."
+      "count": 113,
+      "text": "2026년 10월 21일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 나스닥100 선물은 0.71% 상승한 29,700.90, S&P500 선물은 0.29% 오른 7,735.10, 다우 선물은 0.07% 상승한 52,533.50 기록. 반면 러셀2000 선물은 0.07% 하락하며 대형..."
     },
     {
       "key": "005930.KS",
@@ -280,7 +280,7 @@
     },
     {
       "key": "MSFT",
-      "count": 52,
+      "count": 51,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 21일 🇺🇸 아메리카 • 트럼프 대통령은 러시아가 우크라이나 종전 협상을 원하고 있다며 젤렌스키 대통령도 합의에 나서야 한다고 강조. 푸틴과 젤렌스키가 직접 만나지..."
     },
     {
@@ -300,12 +300,12 @@
     },
     {
       "key": "TSLA",
-      "count": 34,
-      "text": "2026년 10월 19일~23일 미국 증시 주간 브리핑 금주 미국 증시는 주요 빅테크 기업들의 실적 발표와 AI 투자 확대 지속 여부, 반도체 업황, 미국 경제지표 및 지정학적 리스크가 핵심 변수로 작용할..."
+      "count": 35,
+      "text": "2026년 10월 21일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 나스닥100 선물은 0.71% 상승한 29,700.90, S&P500 선물은 0.29% 오른 7,735.10, 다우 선물은 0.07% 상승한 52,533.50 기록. 반면 러셀2000 선물은 0.07% 하락하며 대형..."
     },
     {
       "key": "AVGO",
-      "count": 25,
+      "count": 23,
       "text": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두 번째 수십억 달러 규모 계약을 협상 중이라고 소식통이 CNBC에 전했습니다. 이번 계약은 지난 8월 보도된..."
     },
     {
@@ -321,8 +321,8 @@
       "topics": [
         "macro"
       ],
-      "count": 793,
-      "focus": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두 번째 수십억 달러 규모 계약을 협상 중이라고 소식통이 CNBC에 전했습니다. 이번 계약은 지난 8월 보도된..."
+      "count": 792,
+      "focus": "2026년 10월 21일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 나스닥100 선물은 0.71% 상승한 29,700.90, S&P500 선물은 0.29% 오른 7,735.10, 다우 선물은 0.07% 상승한 52,533.50 기록. 반면 러셀2000 선물은 0.07% 하락하며 대형..."
     },
     {
       "id": "geo",
@@ -330,7 +330,7 @@
       "topics": [
         "geo"
       ],
-      "count": 358,
+      "count": 359,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀...."
     },
     {
@@ -339,7 +339,7 @@
       "topics": [
         "credit"
       ],
-      "count": 110,
+      "count": 108,
       "focus": "스페이스X(SPCX) Q3 2026 어닝콜 요약 > 긍정 요인: • 폭발적인 매출 성장과 흑자 전환. 3분기 매출은 146억달러로 전년 대비 161% 증가했으며 순이익은 44억달러를 기록. 전년 동기 11억달러 순손실에서 대규모 흑자로 전환했으며 조정 EBITDA는 88억달러로 전년 대비 306% 급증. 매출..."
     },
     {
@@ -348,7 +348,7 @@
       "topics": [
         "semi"
       ],
-      "count": 622,
+      "count": 620,
       "focus": "2026년 10월 20일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (43.34%) 2위: PROSHARES..."
     },
     {
@@ -375,7 +375,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 177,
+      "count": 176,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델..."
     },
     {
@@ -393,7 +393,7 @@
       "topics": [
         "equity"
       ],
-      "count": 163,
+      "count": 164,
       "focus": "2026년 10월 21일 미국 레딧 베스트 게시물 분석 > NBIS / CRWV / APLD - AI 인프라 Dip Buy 반격 · NBIS $246K YOLO 등장 · CRWV도 “let’s go” Bull..."
     },
     {
@@ -420,7 +420,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 124,
+      "count": 123,
       "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · AMN Healthcare Services · Arcutis Biotherapeutics · Avantor · Biogen · Eli Lilly and..."
     },
     {
@@ -429,7 +429,7 @@
       "topics": [
         "japan"
       ],
-      "count": 138,
+      "count": 139,
       "focus": "로이터에 따르면 트럼프 행정부가 미얀마 군부가 지원하는 정부와 비공개 접촉을 재개하고 한 달 사이 두 차례 회담을 진행. 지난주 회담은 일본 도쿄에서 개최됐으며, 앞서 9월 중순 미얀마 수도 네피도에서도 첫..."
     },
     {
@@ -438,8 +438,8 @@
       "topics": [
         "flows"
       ],
-      "count": 171,
-      "focus": "No retained full-text sample; 171 observed posts in the 14-day research window."
+      "count": 170,
+      "focus": "No retained full-text sample; 170 observed posts in the 14-day research window."
     },
     {
       "id": "insider",
@@ -456,7 +456,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 795,
+      "count": 797,
       "focus": "2026년 10월 21일 미국 증시 브리핑 미국 증시는 금일 다우지수 +1.02%, S&P500 +0.28%, 나스닥 -0.02%, 러셀2000 +1.65%로 혼조 마감. 대형 기술주 중심의 매도 압력에도..."
     }
   ],
@@ -700,6 +700,30 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/66869",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66869",
+      "datetime": "2026-10-21T05:04:31.000Z",
+      "localDateKst": "2026-10-21",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "kr-market",
+        "equity",
+        "earnings"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "TSLA",
+        "META",
+        "SMCI"
+      ],
+      "summary": "2026년 10월 21일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 나스닥100 선물은 0.71% 상승한 29,700.90, S&P500 선물은 0.29% 오른 7,735.10,..."
+    },
     {
       "id": "insidertracking/66846",
       "channel": "insidertracking",
@@ -1426,36 +1450,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/66385",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66385",
-      "datetime": "2026-10-15T20:37:26.000Z",
-      "localDateKst": "2026-10-16",
-      "tags": [
-        "ai-policy",
-        "equity",
-        "earnings"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 8,160억 개 파라미터를 보유하고 토큰당 약 420억 개를 활성화하는 오픈 가중치 AI 모델...",
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "TSLA",
-        "CAT",
-        "AAPL",
-        "MSFT",
-        "GOOG",
-        "META",
-        "AMZN",
-        "MU",
-        "PLTR",
-        "ADBE",
-        "SMCI"
-      ]
-    },
-    {
       "id": "bornlupin/20643",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20643",
@@ -1646,6 +1640,67 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/70798",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70798",
+      "datetime": "2026-10-21T05:22:01.000Z",
+      "localDateKst": "2026-10-21",
+      "tags": [
+        "power",
+        "earnings"
+      ],
+      "score": 53,
+      "hasText": true,
+      "tickers": [],
+      "summary": "• CATL: 3분기 매출 증가에도 불구하고 저부가가치 제품의 인도 비중 확대와 세금·비용 부담으로 수익성이 악화. 매출총이익률은 2분기 23.15%에서 3분기 20.69%로 하락했으며, 지배주주 귀속..."
+    },
+    {
+      "id": "insidertracking/66869",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66869",
+      "datetime": "2026-10-21T05:04:31.000Z",
+      "localDateKst": "2026-10-21",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "kr-market",
+        "equity",
+        "earnings"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "TSLA",
+        "META",
+        "SMCI"
+      ],
+      "summary": "2026년 10월 21일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 나스닥100 선물은 0.71% 상승한 29,700.90, S&P500 선물은 0.29% 오른 7,735.10,..."
+    },
+    {
+      "id": "insidertracking/66868",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66868",
+      "datetime": "2026-10-21T05:04:17.000Z",
+      "localDateKst": "2026-10-21",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "healthcare",
+        "japan"
+      ],
+      "score": 95,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "AMZN"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 국방부는 노스캐롤라이나주 반도체 생산시설에 15억 달러를 투자할 계획이라고 발표. 상무부는 반도체 핵심..."
+    },
     {
       "id": "aetherjapanresearch/25958",
       "channel": "aetherjapanresearch",
@@ -2153,13 +2208,12 @@
       "datetime": "2026-10-20T20:59:30.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "geo",
-        "power"
+        "geo"
       ],
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "미국이 중동 지역 군사력을 강화하기 위해 해군 장병과 해병대 약 1만 명을 추가 배치할 예정. 이번 증원에는 시어도어 루스벨트 항공모함 전투단과 제13해병원정대, 마킨 아일랜드 강습상륙함을 중심으로 한..."
+      "summary": "미국이 중동 지역 군사력을 강화하기 위해 해군 장병과 해병대 약 1만 명을 추가 배치할 예정. 이번 증원에는 시어도어 루스벨트 항공모함 전투단과 제13해병원정대, 마킨 아일랜드 강습상륙함을 중심으로 한...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66823",
@@ -2763,10 +2817,10 @@
       ],
       "score": 68,
       "hasText": true,
+      "summary": ">>엔비디아, 독일에 100억 달러 투자… 젠슨 황 “과거 기술 강국이 뒤처진 것이 매우 안타까움” •엔비디아는 베를린에서 열린 ‘독일 투자’ 정상회의에서 독일 정부와 협력 의향서에 서명하고,...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>엔비디아, 독일에 100억 달러 투자… 젠슨 황 “과거 기술 강국이 뒤처진 것이 매우 안타까움” •엔비디아는 베를린에서 열린 ‘독일 투자’ 정상회의에서 독일 정부와 협력 의향서에 서명하고,..."
+      ]
     },
     {
       "id": "HANAchina/70756",
@@ -6558,20 +6612,6 @@
       ]
     },
     {
-      "id": "HANAchina/70543",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70543",
-      "datetime": "2026-10-16T21:54:12.000Z",
-      "localDateKst": "2026-10-17",
-      "tags": [
-        "semi"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": ">>바클레이즈: AI 트레이딩의 ‘최고의 시기’는 지났음, 반도체주 폭락은 펀더멘털 붕괴가 아닌 포지션 청산 때문 •바클레이즈는 AI 투자 열풍의 황금기가 이미 끝났을 가능성이 있으며, AI 전반에 광범위하게...",
-      "tickers": []
-    },
-    {
       "id": "insidertracking/66503",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/66503",
@@ -6882,50 +6922,6 @@
         "EQNR",
         "PBR",
         "TEAM"
-      ]
-    },
-    {
-      "id": "insidertracking/66473",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66473",
-      "datetime": "2026-10-16T20:17:58.000Z",
-      "localDateKst": "2026-10-17",
-      "tags": [
-        "earnings"
-      ],
-      "score": 93,
-      "hasText": true,
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 미국에서 검색 서비스와 제미나이 앱 전반에 통합 장바구니 기능인 '유니버설 카트'를 도입하기...",
-      "tickers": [
-        "AAPL",
-        "GOOG",
-        "TSM",
-        "RKLB"
-      ]
-    },
-    {
-      "id": "insidertracking/66472",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66472",
-      "datetime": "2026-10-16T20:15:37.000Z",
-      "localDateKst": "2026-10-17",
-      "tags": [
-        "macro"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 10월 17일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 국제유가 급등, 인플레이션 압력이 맞물리며 기술주 중심으로 하락 마감. S&P500 -1.09%, 나스닥 -2.14%, 다우...",
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "TSLA",
-        "MSFT",
-        "GOOG",
-        "AMZN",
-        "MU",
-        "TSM",
-        "005930.KS",
-        "000660.KS"
       ]
     },
     {
@@ -8527,13 +8523,12 @@
       "datetime": "2026-10-20T20:59:30.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "geo",
-        "power"
+        "geo"
       ],
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "미국이 중동 지역 군사력을 강화하기 위해 해군 장병과 해병대 약 1만 명을 추가 배치할 예정. 이번 증원에는 시어도어 루스벨트 항공모함 전투단과 제13해병원정대, 마킨 아일랜드 강습상륙함을 중심으로 한..."
+      "summary": "미국이 중동 지역 군사력을 강화하기 위해 해군 장병과 해병대 약 1만 명을 추가 배치할 예정. 이번 증원에는 시어도어 루스벨트 항공모함 전투단과 제13해병원정대, 마킨 아일랜드 강습상륙함을 중심으로 한...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66823",
@@ -9137,10 +9132,10 @@
       ],
       "score": 68,
       "hasText": true,
+      "summary": ">>엔비디아, 독일에 100억 달러 투자… 젠슨 황 “과거 기술 강국이 뒤처진 것이 매우 안타까움” •엔비디아는 베를린에서 열린 ‘독일 투자’ 정상회의에서 독일 정부와 협력 의향서에 서명하고,...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>엔비디아, 독일에 100억 달러 투자… 젠슨 황 “과거 기술 강국이 뒤처진 것이 매우 안타까움” •엔비디아는 베를린에서 열린 ‘독일 투자’ 정상회의에서 독일 정부와 협력 의향서에 서명하고,..."
+      ]
     },
     {
       "id": "HANAchina/70756",
