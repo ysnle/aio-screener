@@ -325,21 +325,43 @@ function renderMyNews(doc, host, root, store, names) {
   host.append(list);
 }
 
-// v58.53 개편 v2 (2b): the hero's right tile — "판단이 바뀌는 조건". Each US axis already states the condition that would
-// change its state (regime axis.flip, the same sentence 시장 상태 shows). No distance-to-threshold is computed upstream,
-// so the tile does not rank by nearness: it lists the axes whose state is one-sided first (부담 → 나아지는 조건 ↑,
-// 양호 → 약해지는 조건 ↓), then 중립 axes (↑↓, both directions), in board order, three at most. The Korea FX reference
-// is outside the US tally and stays out of the tile.
+// v58.53 개편 v2 (2b): the hero's right tile — "판단이 바뀌는 조건".
+// v58.55 (owner 2026-10-20): each US axis now carries the distance to its nearest flip (regime axis.flipDistance, computed
+// by the axis rule itself in market-read.js). The tile lists the three axes nearest to changing — the distance divided by
+// the indicator's average daily move over 20 sessions, smallest first ("가까운 순") — each as one short line with the
+// distance chip; a distance that still needs a condition no number measures ranks after the measured ones. The full rule
+// sentences sit in a fold under the list. Without any distance (data missing) the tile falls back to the v58.53 order:
+// one-sided axes first, full rule sentence, board order. The Korea FX reference stays out (outside the US tally).
 const FLIP_ORDER = Object.freeze({ burden: 0, favorable: 1, neutral: 2 });
 const FLIP_MARK = Object.freeze({ burden: ['↑', 'is-up', '나아지는 조건'], favorable: ['↓', 'is-down', '약해지는 조건'], neutral: ['↑↓', 'is-both', '양쪽 조건'] });
+const DISTANCE_MARK = Object.freeze({ improve: ['↑', 'is-up', '나아지는 쪽'], worsen: ['↓', 'is-down', '약해지는 쪽'] });
 export function heroFlipRows(regime, limit = 3) {
   if (!regime?.available || !Array.isArray(regime.axes)) return [];
-  return regime.axes
-    .map((axis, index) => ({ axis, index }))
-    .filter(({ axis }) => axis.id !== 'korea' && axis.flip && axis.state in FLIP_ORDER)
+  const us = regime.axes.map((axis, index) => ({ axis, index })).filter(({ axis }) => axis.id !== 'korea' && axis.state in FLIP_ORDER);
+  const measured = us.filter(({ axis }) => axis.flipDistance && axis.flipDistance.text);
+  if (measured.length) {
+    const rank = ({ axis }) => [axis.flipDistance.needsMore ? 1 : 0, axis.flipDistance.sessions ?? Infinity];
+    return measured
+      .sort((a, b) => { const [a1, a2] = rank(a), [b1, b2] = rank(b); return a1 - b1 || a2 - b2 || a.index - b.index; })
+      .slice(0, limit)
+      .map(({ axis }) => ({ id: axis.id, title: axis.title, state: axis.state, stateLabel: axis.stateLabel, flip: axis.flip ? String(axis.flip) : '', distance: axis.flipDistance }));
+  }
+  return us
+    .filter(({ axis }) => axis.flip)
     .sort((a, b) => FLIP_ORDER[a.axis.state] - FLIP_ORDER[b.axis.state] || a.index - b.index)
     .slice(0, limit)
-    .map(({ axis }) => ({ id: axis.id, title: axis.title, state: axis.state, stateLabel: axis.stateLabel, flip: String(axis.flip) }));
+    .map(({ axis }) => ({ id: axis.id, title: axis.title, state: axis.state, stateLabel: axis.stateLabel, flip: String(axis.flip), distance: null }));
+}
+
+function flipDistanceLine(doc, row) {
+  const d = row.distance;
+  const text = el(doc, 'span', null, 'home-flip-text');
+  const parts = d.parts || null;
+  if (parts) text.append(doc.createTextNode(`${parts.subject} `), el(doc, 'b', parts.mark, 'home-flip-num'), doc.createTextNode(` ${parts.verb} `));
+  else text.append(doc.createTextNode(`${d.condition} `));
+  text.append(el(doc, 'b', `${row.title} → ${d.towardLabel}`, 'home-flip-axis'));
+  for (const item of d.also || []) text.append(el(doc, 'span', `함께 필요 · ${item.condition}${item.text ? ` (${item.text})` : ''}`, 'home-flip-also'));
+  return text;
 }
 
 function renderHeroFlips(doc, regime) {
@@ -348,25 +370,55 @@ function renderHeroFlips(doc, regime) {
   const rows = heroFlipRows(regime);
   tile.hidden = !rows.length;
   if (!rows.length) { tile.replaceChildren(); return; }
+  const measured = rows.some((row) => row.distance);
+  const head = el(doc, 'div', null, 'home-flips-head');
   const title = el(doc, 'h2', '판단이 바뀌는 조건', 'sx-kicker home-flips-title');
   title.id = 'home-hero-flips-title';
+  head.append(title);
+  if (measured) {
+    const order = el(doc, 'span', '가까운 순', 'home-flips-order');
+    order.title = '조건까지 남은 거리를 그 지표의 최근 20거래일 평균 하루 변동폭으로 나눠, 작은 순서로 3개를 보여줍니다';
+    head.append(order);
+  }
   const list = el(doc, 'ul', null, 'home-flips');
   for (const row of rows) {
-    const [mark, tone, words] = FLIP_MARK[row.state];
     const li = el(doc, 'li', null, 'home-flip');
     li.dataset.axis = row.id;
-    const badge = el(doc, 'span', mark, `home-flip-mark ${tone}`);
-    badge.setAttribute('aria-label', `${row.title} ${row.stateLabel} — ${words}`);
-    const text = el(doc, 'span', null, 'home-flip-text');
-    text.append(el(doc, 'b', `${row.title} ${row.stateLabel}`, 'home-flip-axis'), doc.createTextNode(` ${row.flip}`));
-    li.append(badge, text);
+    if (row.distance) {
+      const [mark, tone, words] = DISTANCE_MARK[row.distance.direction] || DISTANCE_MARK.worsen;
+      const badge = el(doc, 'span', mark, `home-flip-mark ${tone}`);
+      badge.setAttribute('aria-label', `${row.title} ${row.stateLabel} → ${row.distance.towardLabel} · ${words}`);
+      const chip = el(doc, 'span', row.distance.text, 'home-flip-chip');
+      chip.title = `지금 ${row.title} ${row.stateLabel} · 기준까지 ${row.distance.text}${row.distance.sessions != null ? ` · 최근 20거래일 평균 하루 변동폭의 ${row.distance.sessions}배` : ''}${row.distance.needsMore ? ' · 숫자로 잴 수 없는 조건이 함께 필요' : ''}`;
+      li.dataset.direction = row.distance.direction;
+      li.append(badge, flipDistanceLine(doc, row), chip);
+    } else {
+      const [mark, tone, words] = FLIP_MARK[row.state];
+      const badge = el(doc, 'span', mark, `home-flip-mark ${tone}`);
+      badge.setAttribute('aria-label', `${row.title} ${row.stateLabel} — ${words}`);
+      const text = el(doc, 'span', null, 'home-flip-text');
+      text.append(el(doc, 'b', `${row.title} ${row.stateLabel}`, 'home-flip-axis'), doc.createTextNode(` ${row.flip}`));
+      li.append(badge, text);
+    }
     list.append(li);
+  }
+  const nodes = [head, list];
+  // The full rule of each listed axis (every condition, both directions), one level down.
+  const full = rows.filter((row) => row.distance && row.flip);
+  if (full.length) {
+    const fold = el(doc, 'details', null, 'sx-disclosure home-flips-full');
+    fold.append(el(doc, 'summary', '전체 조건 보기', 'home-flips-full-summary'));
+    const rules = el(doc, 'dl', null, 'home-flips-rules');
+    for (const row of full) rules.append(el(doc, 'dt', `${row.title} ${row.stateLabel}`), el(doc, 'dd', row.flip));
+    fold.append(rules);
+    nodes.push(fold);
   }
   const link = el(doc, 'button', '6개 축 근거 자세히', 'sx-link home-flips-link');
   link.type = 'button';
   link.dataset.action = 'showPage';
   link.dataset.arg = 'signal';
-  tile.replaceChildren(title, list, link);
+  nodes.push(link);
+  tile.replaceChildren(...nodes);
 }
 
 // v58.53 개편 v2 (2b): 오늘 is the 3-second/30-second summary. The forward block (#home-outlook anchor + #home-crossroads)

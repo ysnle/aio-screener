@@ -239,12 +239,20 @@ body.dark-theme { --mk-burden-bar: #c99a45; --mk-neutral-bar: rgba(var(--ink-rgb
 #page-macro .macro-chain-node.is-burden { border-color: var(--mk-burden-bar); box-shadow: inset 0 0 0 1px var(--mk-burden-bar); }
 #page-macro .macro-chain-node.is-favorable { box-shadow: inset 0 0 0 1px var(--data-green); }
 .mk-rate-strip[hidden] { display: none !important; }
-.mk-rate-strip__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.mk-rate-strip__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; } /* v58.55: three tiles with the Taylor rule */
 .mk-rate-tile { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
 .mk-rate-tile__label { font-size: 12px; color: var(--text-muted); }
 .mk-rate-tile__value { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
 .mk-rate-tile__note { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
 .mk-rate-strip__evidence { padding: 14px 0 0; }
+/* v58.55 (3e): third tile — Taylor-rule reference with its r* switch and a formula/limits disclosure. */
+.mk-taylor__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; width: 100%; }
+.mk-taylor__seg > button { font-size: 12px; padding: 3px 10px; }
+.mk-rate-tile__value.is-pending { color: var(--text-muted); font-weight: 600; }
+.mk-taylor__fold { margin: 14px -8px 0; }
+.mk-taylor__fold > summary { grid-template-columns: minmax(0, 1fr) 16px; padding: 10px 8px; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+.mk-taylor__body { padding: 0 8px 8px; }
+.mk-taylor__body .sx-disclosure__text { margin: 0; font-size: 13px; line-height: 1.7; color: var(--text-primary); }
 #page-macro .macro-stat, #page-fxbond .macro-stat { border: 0 !important; border-radius: 16px !important; background: var(--sx-ink-a03) !important; padding: 14px 16px; }
 #page-macro .macro-group { margin: 0 0 18px; }
 #page-macro #macro-commodities .trend-card { background: var(--sx-ink-a03) !important; }
@@ -259,6 +267,16 @@ body.dark-theme { --mk-burden-bar: #c99a45; --mk-neutral-bar: rgba(var(--ink-rgb
 #page-fxbond .mk-curve-card .rates-yield-value { font-size: 16px; }
 #page-fxbond .rates-spread { border-top: 1px solid rgba(var(--ink-rgb), 0.06); }
 #page-fxbond .rates-curve-dot { fill: var(--bg-card); stroke: var(--text-primary); stroke-width: 1.5; }
+/* v58.55 (5e): the dashed curve one month (21 sessions) earlier, and its legend. */
+.rates-curve-prev { fill: none; stroke: var(--text-muted); stroke-width: 1.5; stroke-dasharray: 5 4; stroke-linejoin: round; }
+.rates-curve-legend { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 14px; margin: 0 0 4px; font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.rates-curve-key { display: inline-flex; align-items: center; gap: 6px; }
+.rates-curve-key.is-now::before, .rates-curve-key.is-prev::before { content: ''; width: 16px; border-top: 2px solid var(--text-primary); }
+.rates-curve-key.is-prev::before { border-top: 2px dashed var(--text-muted); }
+.rates-curve-key.is-pending { color: var(--text-muted); }
+/* v58.55: under 600px curveSvg draws a taller 360×200 frame, but the shared 520/150 aspect squeezed it to ~90px tall with
+   overlapping tenor labels; the box now follows the frame the renderer chose (same 600px threshold as macro-board.js). */
+@media (max-width: 599.98px) { .page .rates-curve { aspect-ratio: 360 / 200; } }
 .mk-rsum-col { display: flex; flex-direction: column; gap: 14px; }
 .mk-rsum { background: var(--bg-card); border-radius: 20px; box-shadow: var(--sx-card-shadow); padding: 18px 22px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
 .mk-rsum__head { display: flex; justify-content: space-between; gap: 12px; width: 100%; font-size: 13px; }
@@ -332,4 +350,35 @@ body.dark-theme { --mk-burden-bar: #c99a45; --mk-neutral-bar: rgba(var(--ink-rgb
   #page-macro .macro-group-fold > summary.macro-group-summary { grid-template-columns: minmax(0, 1fr) 16px; padding: 14px 12px; }
   #page-macro .macro-group-count { display: none; }
   #page-macro .macro-group-fold > .macro-stat-grid, #page-macro .macro-group-fold > details { margin: 0 8px 12px; }
+}
+
+/* ═══ v58.55 regime table: 기준까지 column (owner 2026-10-20; design 3b) ═══════════════════════════════════════
+   Owned by the regime-distance pass. Columns: 지표 · 판정 · 현재값 · 판정이 바뀌는 조건 · 기준까지 · 5거래일 전 · 5일 변화.
+   Below desktop width 5거래일 전 folds into the opened row (.mk-axis__prev-line); on iPhone 기준까지 is the row's third line. */
+.mk-axes__head, .mk-axis__row { grid-template-columns: 140px 72px minmax(0, 1.15fr) minmax(0, 1.3fr) 128px 100px 64px 18px; gap: 14px; }
+.mk-axes__head > :nth-child(n+5) { text-align: right; }
+.mk-axis__dist { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; min-width: 0; text-align: right; font-variant-numeric: tabular-nums; cursor: help; }
+.mk-axis__dist.is-empty { color: var(--text-muted); cursor: default; }
+.mk-axis__dist-value { font-size: 14px; font-weight: 700; color: var(--text-primary); white-space: nowrap; }
+.mk-axis__dist-basis { font-size: 12px; line-height: 1.4; color: var(--text-muted); overflow-wrap: anywhere; }
+#page-signal .mk-axis__facts .mk-axis__near { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+#page-signal .mk-axis__facts .mk-axis__near-item { display: flex; flex-direction: column; gap: 1px; font-size: 13px; line-height: 1.6; }
+#page-signal .mk-axis__facts .mk-axis__near-value { font-variant-numeric: tabular-nums; color: var(--text-primary); }
+#page-signal .mk-axis__facts .mk-axis__near-item[data-direction="improve"] .mk-axis__near-value { color: var(--data-green); }
+#page-signal .mk-axis__facts .mk-axis__near-item[data-direction="worsen"] .mk-axis__near-value { color: var(--data-amber); }
+#page-signal .mk-axis__facts .mk-axis__near-text { color: var(--text-secondary); overflow-wrap: anywhere; }
+#page-signal .mk-axis__facts .mk-axis__prev-line { display: none; font-size: 13px; color: var(--text-secondary); margin: 0 0 10px; }
+@media (max-width: 1279px) {
+  .mk-axes__head, .mk-axis__row { grid-template-columns: 120px 66px minmax(0, 1.2fr) minmax(0, 1fr) 124px 60px 18px; gap: 12px; }
+  .mk-axes__head > :nth-child(6), .mk-axis__prev { display: none !important; }
+  #page-signal .mk-axis__facts .mk-axis__prev-line { display: block; }
+}
+@media (max-width: 1023px) {
+  .mk-axes__head, .mk-axis__row { grid-template-columns: 116px 62px minmax(0, 1fr) 120px 60px 18px; }
+}
+@media (max-width: 743px) {
+  .mk-axis__row { grid-template-columns: minmax(0, 1fr) auto 18px; grid-template-areas: 'name state chev' 'value value value' 'dist dist dist'; gap: 4px 10px; }
+  .mk-axis__dist { grid-area: dist; flex-direction: row; flex-wrap: wrap; align-items: baseline; justify-content: flex-start; gap: 2px 8px; text-align: left; }
+  .mk-axis__dist-value { font-size: 13px; }
+  .mk-axis__dist.is-empty { display: none; }
 }

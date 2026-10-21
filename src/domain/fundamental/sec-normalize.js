@@ -3,7 +3,8 @@
 // re-exports them). Pure: companyfacts/submissions JSON in, one annual record out; no I/O.
 import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
 import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, FOREIGN_ORDINARY_SHARE_FORMS, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS, SEC_BANK_NET_REVENUE_CONCEPT, SEC_IFRS_PRIMARY_REVENUE_CONCEPTS, SEC_IFRS_FALLBACK_REVENUE_CONCEPTS } from './sec-report.js';
-import { reconcileSecEarningsBasis, SEC_COMMON_INCOME_CONCEPT } from './sec-earnings.js';
+import { reconcileSecEarningsBasis, SEC_COMMON_INCOME_CONCEPT, SEC_RD_CONCEPTS } from './sec-earnings.js';
+export { SEC_RD_CONCEPTS };
 
 function round(n, digits = 2) {
   const p = 10 ** digits;
@@ -63,7 +64,10 @@ const BASIS_CONCEPTS = Object.freeze({
     equity: ['StockholdersEquity', 'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest'],
     operatingCashFlow: ['NetCashProvidedByUsedInOperatingActivities', 'NetCashProvidedByUsedInOperatingActivitiesContinuingOperations'],
     capex: ['PaymentsToAcquirePropertyPlantAndEquipment', 'PaymentsToAcquireProductiveAssets'],
-    longTermDebt: ['LongTermDebtNoncurrent', 'LongTermDebt']
+    longTermDebt: ['LongTermDebtNoncurrent', 'LongTermDebt'],
+    // v58.55: total assets (DuPont turnover/leverage, Sloan accrual denominator) and R&D expense (R&D ÷ revenue).
+    totalAssets: ['Assets'],
+    researchAndDevelopment: SEC_RD_CONCEPTS
   },
   // Parent-attributable profit and equity first (the ROE pair), the group totals only when the parent line is absent.
   'ifrs-full': {
@@ -72,7 +76,9 @@ const BASIS_CONCEPTS = Object.freeze({
     equity: ['EquityAttributableToOwnersOfParent', 'Equity'],
     operatingCashFlow: ['CashFlowsFromUsedInOperatingActivities'],
     capex: ['PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'],
-    longTermDebt: []
+    longTermDebt: [],
+    totalAssets: ['Assets'],
+    researchAndDevelopment: ['ResearchAndDevelopmentExpense']
   }
 });
 
@@ -175,7 +181,8 @@ const REPORT_RECENCY_MAX_DAYS = FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
 // 2026-10-16: bank net revenue (v5 concept set) — stored bank records with a fee-subtotal revenue are re-read.
 // 2026-10-16b: reporting basis (IFRS / non-USD) — stale US-GAAP records of IFRS filers (TM 2013, VALE 2012) are re-read.
 // 2026-10-17: USD convenience translations read on the statements' own currency; 20-F share counts withheld (ADS ratio).
-export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-10-17';
+// v58.55 (2026-10-20): total assets and R&D expense observations (DuPont, Sloan accrual ratio, R&D ÷ revenue).
+export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-10-20';
 
 // The earliest instant a single operand could have been known: its accession acceptance time
 // when available, otherwise the filing date (which is a date, not an intraday time).
@@ -315,6 +322,11 @@ function buildPointInTimeFacts(companyFacts, submissions, basis = US_GAAP_BASIS)
   const ocfRows = amountRows(concepts.operatingCashFlow).filter(annualFy);
   const capexRows = amountRows(concepts.capex).filter(annualFy);
   const debtRows = amountRows(concepts.longTermDebt).filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
+  // v58.55: year-end total assets from annual filings (each 10-K carries the current and prior balance sheet) and annual
+  // R&D expense. Both arrays are written even when empty, so a record read by this normalizer says "not reported" apart
+  // from an older record that never looked (the projection and the cards tell 미공시 from 수집 대기 by that).
+  const assetRows = amountRows(concepts.totalAssets).filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && !row.start);
+  const rdRows = amountRows(concepts.researchAndDevelopment).filter(annualFy);
   // 2026-10-17 (logic audit D7): earnings available to common stockholders (net income less preferred dividends and
   // participating-securities allocations), annual and quarterly, for the P/E numerator; US-GAAP only.
   const commonRows = basis.taxonomy === 'us-gaap' ? amountRows([SEC_COMMON_INCOME_CONCEPT]) : [];
@@ -326,6 +338,8 @@ function buildPointInTimeFacts(companyFacts, submissions, basis = US_GAAP_BASIS)
     operatingCashFlow: compactPitRows(ocfRows, 'operatingCashFlow', acceptedMap),
     capex: compactPitRows(capexRows, 'capex', acceptedMap),
     longTermDebt: compactPitRows(debtRows, 'longTermDebt', acceptedMap),
+    totalAssets: compactPitRows(assetRows, 'totalAssets', acceptedMap, 24),
+    researchAndDevelopment: compactPitRows(rdRows, 'researchAndDevelopment', acceptedMap, 30),
     revenueQ: compactPitRows(revenueQRows, 'revenueQ', acceptedMap, 16),
     netIncomeQ: compactPitRows(incomeQRows, 'netIncomeQ', acceptedMap, 16),
     ...(commonRows.length ? {

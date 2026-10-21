@@ -9,6 +9,7 @@ import { buildCloseSeries, koreaMoveRecord } from '../../domain/briefing/market-
 import { el } from './dom.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
 import { estimateBookSensitivities, STRESS_MIN_WEEKS } from '../../domain/portfolio/stress-sensitivity.js';
+import { bondCushion, BOND_ETF_MAP, BOND_KIND_LABEL, ASSET_CLASS_MAP_VERSION } from '../../domain/portfolio/asset-class.js';
 
 // P1466: the 3-month gap to the blended index split into sector, stock selection, FX and cash —
 // bars on one scale, the total underneath, then what the arithmetic does not claim.
@@ -173,7 +174,37 @@ export function portfolioLens({ surface, stressInput = null, history = [], sp500
       top10IndexWeight: top10.reduce((sum, row) => sum + Number(row.weight || 0), 0)
     };
   }
-  return { available: true, holdings: rows.length, effectiveN, beta, betaNote, topSector: topSector ? { name: sectorLabel(topSector.name), pct: topSector.pct } : null, index };
+  const bonds = bondCushion({ rows, stressInput });
+  return { available: true, holdings: rows.length, effectiveN, beta, betaNote, topSector: topSector ? { name: sectorLabel(topSector.name), pct: topSector.pct } : null, index, bonds };
+}
+
+// v58.55 개편 v2 (3g) 채권 완충: the bond share of the holdings (0% is a reading too) and, with price records, how the bond
+// part moved in the weeks the stock part fell. Past association only — the text says rates can push both down together.
+const signedPct = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+export function bondCushionCard(bonds) {
+  if (!bonds?.available) return null;
+  const listed = Object.keys(BOND_ETF_MAP).length;
+  if (!(bonds.bondPct > 0)) {
+    return { title: '채권 완충', value: '0%', tone: null, text: `보유 ${bonds.holdings}종목 가운데 채권 ETF가 없습니다(채권 분류는 미국 상장 채권 ETF ${listed}개 고정 목록 기준). 주식이 함께 내리는 구간에 평가액을 받쳐 줄 채권 부분이 이 계좌에는 없다는 뜻입니다.` };
+  }
+  const names = bonds.bonds.slice(0, 3).map((row) => `${row.symbol}(${BOND_KIND_LABEL[row.kind] || '채권'}) ${row.pct.toFixed(0)}%`).join(' · ');
+  const parts = [`채권 ETF가 보유 평가액의 ${bonds.bondPct.toFixed(0)}%입니다 — ${names}${bonds.bonds.length > 3 ? ` 외 ${bonds.bonds.length - 3}개` : ''}.`];
+  if (bonds.highYieldPct > 0) parts.push(`이 가운데 하이일드 회사채 ${bonds.highYieldPct.toFixed(0)}%는 주식과 함께 움직이는 경향이 있어 완충으로 보기 어렵습니다.`);
+  const corr = bonds.correlation || {};
+  let tone = null;
+  if (corr.available) {
+    parts.push(`최근 ${corr.weeks}주 주간 수익률에서 채권 부분과 주식 부분의 상관은 ${corr.r.toFixed(2)}입니다.`);
+    if (corr.downWeeks > 0) parts.push(`주식 부분이 내린 ${corr.downWeeks}주에 채권 부분은 평균 ${signedPct(corr.downBondMean)}(주식 ${signedPct(corr.downStockMean)}) 움직였습니다.`);
+    parts.push('지난 관계일 뿐이며, 금리가 오르는 구간에는 주식과 채권이 함께 내릴 수 있습니다.');
+    tone = corr.r < 0 ? 'favorable' : corr.r >= 0.3 ? 'burden' : null;
+  } else if (corr.reason === 'one-sided') {
+    parts.push('보유가 모두 채권이라 주식 부분과의 관계는 계산하지 않습니다.');
+  } else if (corr.reason === 'weeks-insufficient') {
+    parts.push(`주식–채권 상관은 겹치는 가격 기록 ${corr.weeks}주 — ${STRESS_MIN_WEEKS}주 이상이면 계산합니다.`);
+  } else {
+    parts.push('주식–채권 상관은 보유 종목 가격 기록을 받으면 계산합니다.');
+  }
+  return { title: '채권 완충', value: corr.available ? `${bonds.bondPct.toFixed(0)}% · 상관 ${corr.r.toFixed(2)}` : `${bonds.bondPct.toFixed(0)}%`, tone, text: parts.join(' ') };
 }
 
 export function renderPortfolioLens({ documentRef: doc, root, surface, checks = null, sectorLabel = (name) => name }) {
@@ -215,9 +246,11 @@ export function renderPortfolioLens({ documentRef: doc, root, surface, checks = 
   }
   const single = checks?.checks?.find?.((check) => check.id === 'single-holding');
   if (single) cards.push(card('한 종목 쏠림', single.value, single.status === 'attention' ? 'burden' : null, single.detail));
+  const cushion = bondCushionCard(lens.bonds);
+  if (cushion) { const node = card(cushion.title, cushion.value, cushion.tone, cushion.text); node.dataset.pfReading = 'bond-cushion'; cards.push(node); }
   aside.replaceChildren(el(doc, 'h2', '이 포트폴리오를 읽는 법', 'sx-card__title'), ...cards);
   const evidence = el(doc, 'div', null, 'sx-evidence pf-reading-evidence');
-  evidence.append(el(doc, 'span', '근거 · Markowitz(1952) 분산 · 허핀달 지수(실질 종목 수) · CAPM 베타'), el(doc, 'span', `지수 비중 · iShares IVV 보유 ${lens.index?.asOf || '없음'}`), el(doc, 'span', '투자 권유 아님'));
+  evidence.append(el(doc, 'span', '근거 · Markowitz(1952) 분산 · 허핀달 지수(실질 종목 수) · CAPM 베타'), el(doc, 'span', `지수 비중 · iShares IVV 보유 ${lens.index?.asOf || '없음'}`), el(doc, 'span', `채권 분류 · 고정 목록 ${ASSET_CLASS_MAP_VERSION}`), el(doc, 'span', '투자 권유 아님'));
   aside.append(evidence);
   aside.querySelector('h2').id = 'pf-reading-title';
   aside.hidden = cards.length === 0;

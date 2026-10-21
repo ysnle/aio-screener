@@ -4764,12 +4764,41 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     for (const route of tabs) {
       const expected = tabs.length > 1 ? [hub.label, route.label] : [hub.label];
       if (JSON.stringify(breadcrumbs[route.id]) !== JSON.stringify(expected)) fail(`v57.79 breadcrumb for ${route.id} must be ${expected.join('/')}, got ${JSON.stringify(breadcrumbs[route.id])}`);
-      const title = tabs.length > 1 ? route.label : hub.label;
+      // v58.55 (owner 2026-10-20, design 2b): the intent is that the h1 names the screen the user is on. On a multi-tab
+      // hub that is the tab label or the hub (screen) label — 오늘's first tab is titled "오늘" with the sub-tab "요약",
+      // as the design shows; any other text is still a mismatch.
+      const allowed = tabs.length > 1 ? [route.label, hub.label] : [hub.label];
       const research = RESEARCH_PAGES.find((page) => page.route === route.id);
       const h1 = research ? research.title : staticH1(route.id);
-      if (route.id !== 'ticker' && h1 !== title) fail(`v57.79 ${route.id} page title must be "${title}", got "${h1}"`); // 요약: the h1 names the selected company
+      if (route.id !== 'ticker' && !allowed.includes(h1)) fail(`v57.79/v58.55 ${route.id} page title must be one of ${allowed.map((t) => `"${t}"`).join(' / ')}, got "${h1}"`); // 요약: the h1 names the selected company
     }
   }
+}
+
+// v58.55 (owner 2026-10-20): 판단이 바뀌는 조건까지의 거리 — the search asks the axis rule itself where the state changes.
+{
+  const { flipDistanceSearch, typicalDailyMove } = await load('src/domain/briefing/market-read.js');
+  const show = (to, current) => [to - current, '%p', 0];
+  const pt = (at) => ({ at, subject: 'X가', mark: `${at}%`, short: `${at}%`, show });
+  // A breadth-like rule: <40 부담, both >=60 양호, 부담 latched until 45.
+  const rule = (latched) => ({ a, b }, assume = new Set()) => (a < 40 || b < 40) ? 'burden' : (a >= 60 && b >= 60) ? 'favorable' : latched && Math.min(a, b) < 45 ? 'burden' : 'neutral';
+  const levers = (a, b) => [{ key: 'a', current: a, typical: 2, points: [pt(40), pt(45), pt(60)] }, { key: 'b', current: b, typical: 1, points: [pt(40), pt(45), pt(60)] }];
+  const neutral = flipDistanceSearch({ state: 'neutral', stateAt: rule(false), levers: levers(50, 44) });
+  if (neutral?.primary?.toward !== 'burden' || neutral.primary.lever !== 'b' || neutral.primary.text !== '−4%p' || neutral.primary.direction !== 'worsen') fail(`v58.55 the nearest flip (in typical moves) is reported in the lever's own unit: ${JSON.stringify(neutral?.primary)}`);
+  const up = neutral.all.find((item) => item.toward === 'favorable');
+  if (!up || up.also.length !== 1 || up.lever !== 'b' || up.also[0].text !== '+10%p') fail(`v58.55 two conditions together: the farther one is the distance, the other is named in also: ${JSON.stringify(up)}`);
+  const held = flipDistanceSearch({ state: 'burden', stateAt: rule(true), levers: levers(50, 42) });
+  if (held?.primary?.toward !== 'neutral' || held.primary.threshold !== 45 || held.primary.label !== '중립까지 +3%p') fail(`v58.55 hysteresis: from a latched 부담 the exit line (45) applies, not the entry line (40): ${JSON.stringify(held?.primary)}`);
+  if (flipDistanceSearch({ state: 'favorable', stateAt: rule(false), levers: levers(50, 44) }) !== null) fail('v58.55 a rule that disagrees with the axis state today reports no distance (drift guard)');
+  const gated = flipDistanceSearch({ state: 'neutral', stateAt: ({ a }, assume) => a >= 60 && assume.has('slope') ? 'favorable' : a < 40 ? 'burden' : 'neutral',
+    levers: [{ key: 'a', current: 55, typical: 1, points: [pt(40), pt(60)] }], assumptions: [{ key: 'slope', label: '50일선 상승 전환', holds: false }] });
+  const gatedUp = gated?.all?.find((item) => item.toward === 'favorable');
+  if (!gatedUp?.needsMore || gatedUp.also[0]?.condition !== '50일선 상승 전환' || gated.primary.toward !== 'burden') fail(`v58.55 a condition no number measures is named and ranks after measured distances: ${JSON.stringify(gated)}`);
+  if (typicalDailyMove([{ value: 1 }, { value: 3 }, { value: 2 }], 2) !== 1.5) fail('v58.55 the typical move is the mean absolute daily change');
+  const { heroFlipRows } = await load('src/ui/components/daily-loop.js');
+  const axis = (id, sessions, extra = {}) => ({ id, title: id, state: 'neutral', stateLabel: '중립', flip: `${id} rule`, flipDistance: { text: '+1%', sessions, direction: 'worsen', towardLabel: '부담', ...extra } });
+  const rows = heroFlipRows({ available: true, axes: [axis('trend', 3), axis('breadth', 0.5), axis('rates', 0.2, { needsMore: true }), axis('credit', 1), axis('korea', 0.1)] });
+  if (rows.map((row) => row.id).join(',') !== 'breadth,credit,trend') fail(`v58.55 오늘 lists the three US axes nearest to flipping, measured before assumed, Korea out: ${rows.map((row) => row.id)}`);
 }
 
 // v57.79 (UI review): the home 코스피 chip names its basis and never shows an unlabeled number that conflicts with the
@@ -5238,6 +5267,28 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (MARKET_ANALYSIS_CLOSED_SESSIONS.includes('REGULAR') || !MARKET_ANALYSIS_CLOSED_SESSIONS.includes('PREVIOUS_CLOSE_EXPECTED')) fail('market analysis: an open-market (REGULAR) row is not a completed close; a previous-close row is');
 }
 
+// ── v58.55 개편 v2 (3g) 채권 완충: exact-ticker bond map, bond share (0% is a reading), stock–bond weekly correlation ──
+{
+  const { bondCushion, assetClassOf } = await load('src/domain/portfolio/asset-class.js');
+  const { bondCushionCard } = await load('src/ui/components/portfolio-read.js');
+  if (assetClassOf('tlt')?.kind !== 'treasury' || assetClassOf('HYG')?.kind !== 'high-yield') fail('bond map: exact tickers classify');
+  if (assetClassOf('TLTW') || assetClassOf('NVDA') || assetClassOf('148070')) fail('bond map: no prefix, name or unlisted-code guessing');
+  const none = bondCushion({ rows: [{ symbol: 'NVDA', value: 600 }, { symbol: 'AAPL', value: 400 }] });
+  if (!none.available || none.bondPct !== 0 || !/^0%$/.test(bondCushionCard(none).value)) fail('bond cushion: an all-stock book reads 채권 비중 0%');
+  if (bondCushion({ rows: [] }).available) fail('bond cushion: no holdings renders nothing');
+  const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
+  const historyMap = { NVDA: {}, TLT: {}, HYG: {} }; const commonDates = [];
+  let s = 100; let b = 100; let h = 100;
+  for (let i = 0; i < 260; i += 1) { const m = Math.sin(i / 4) * 0.01; s *= 1 + m; b *= 1 - 0.5 * m; h *= 1 + 0.3 * m; historyMap.NVDA[day(i)] = s; historyMap.TLT[day(i)] = b; historyMap.HYG[day(i)] = h; commonDates.push(day(i)); }
+  const book = bondCushion({ rows: [{ symbol: 'NVDA', value: 800 }, { symbol: 'TLT', value: 150 }, { symbol: 'HYG', value: 50 }], stressInput: { historyMap, commonDates } });
+  if (Math.abs(book.bondPct - 20) > 1e-9 || Math.abs(book.governmentPct - 15) > 1e-9 || Math.abs(book.highYieldPct - 5) > 1e-9) fail(`bond cushion: shares ${JSON.stringify(book)}`);
+  if (!book.correlation.available || !(book.correlation.r < 0) || book.correlation.weeks < 30 || !(book.correlation.downBondMean > 0)) fail(`bond cushion: an opposite-moving treasury reads a negative correlation ${JSON.stringify(book.correlation)}`);
+  const card = bondCushionCard(book);
+  if (card.tone !== 'favorable' || !/하이일드 회사채 5%/.test(card.text) || !/함께 내릴 수 있습니다/.test(card.text)) fail(`bond cushion card: ${JSON.stringify(card)}`);
+  const short = bondCushion({ rows: [{ symbol: 'NVDA', value: 800 }, { symbol: 'TLT', value: 200 }], stressInput: { historyMap, commonDates: commonDates.slice(-60) } });
+  if (short.correlation.available || short.correlation.reason !== 'weeks-insufficient') fail('bond cushion: fewer than 30 weeks prints no correlation');
+}
+
 // ── v58.XX expertise review: portfolio stress sensitivities from the book's own weekly returns ──
 {
   const { estimateBookSensitivities, scenarioImpact, krwTranslationPct, regressOne } = await load('src/domain/portfolio/stress-sensitivity.js');
@@ -5288,4 +5339,41 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const burden = regimePulse({ available: true, overall: '부담 우세', counts: { burden: 4, favorable: 0 }, asOf: '2026-10-19' });
   if (burden.value !== '부담 우세' || burden.label !== '부담 4 · 양호 0 · 10/19 종가' || burden.color !== 'var(--data-red)') fail(`pulse: the bar carries the regime verdict ${JSON.stringify(burden)}`);
   if (regimePulse(null).value !== '판정 보류' || regimePulse({ available: true, overall: '판정 보류' }).label !== '종가 기록 대기') fail('pulse: no verdict is held, never a number');
+}
+
+// ── v58.55 (개편 v2 3e/5e): Taylor-rule reference and the yield curve's "1개월 전" line ──
+{
+  const { taylorRule } = await load('src/domain/macro/taylor-rule.js');
+  const months = (n, from, step) => Array.from({ length: n }, (_, i) => [new Date(Date.UTC(2025, i, 1)).toISOString().slice(0, 10), from * (1 + step) ** i]);
+  const pce = months(20, 100, 0.0025); // ~3.04% a year
+  const series = { corePceIndex: { observations: pce }, unemployment: { observations: [['2026-07-01', 4.3], ['2026-08-01', 4.4]] } };
+  const macro = { fedTargetLower: 3.75, fedTargetUpper: 4 };
+  const waiting = taylorRule({ macroHistory: { series }, macro });
+  if (waiting.available || !waiting.missing.includes('naturalUnemployment') || !waiting.inflation || waiting.rule !== undefined) fail(`taylor: without CBO NROU the rule waits and never assumes u* ${JSON.stringify(waiting)}`);
+  // NROU carries CBO projections; the quarter after the unemployment month must not be used.
+  const nrou = { observations: [['2026-04-01', 4.2], ['2026-07-01', 4.2], ['2026-10-01', 9.9]] };
+  const t = taylorRule({ macroHistory: { series: { ...series, naturalUnemployment: nrou } }, macro });
+  const pi = (pce.at(-1)[1] / pce.at(-13)[1] - 1) * 100;
+  const expected = 0.5 + pi + 0.5 * (pi - 2) + 0.5 * (-2 * (4.4 - 4.2));
+  if (!t.available || t.natural.value !== 4.2 || Math.abs(t.rule - expected) > 1e-9 || Math.abs(t.diff - (3.875 - expected)) > 1e-9) fail(`taylor: rule = r* + π + 0.5(π−2) + 0.5·(−2·(u−u*)) ${JSON.stringify(t)}`);
+  const one = taylorRule({ macroHistory: { series: { ...series, naturalUnemployment: nrou } }, macro, rStar: 1 });
+  if (Math.abs(one.rule - t.rule - 0.5) > 1e-9 || one.range.lo !== t.range.lo || one.rStar !== 1 || taylorRule({ macroHistory: { series: { ...series, naturalUnemployment: nrou } }, macro, rStar: 3 }).rStar !== 0.5) fail('taylor: r* is one of the two offered assumptions and shifts the rule one for one');
+  if (taylorRule({ macroHistory: { series: { ...series, naturalUnemployment: nrou } }, macro: {} }).diff !== null) fail('taylor: no target range, no comparison');
+
+  const { curveMonthAgo } = await load('src/domain/macro/rates-fx.js');
+  const days = [];
+  for (let ms = Date.UTC(2026, 7, 3); days.length < 45; ms += 86400000) { const d = new Date(ms); if (![0, 6].includes(d.getUTCDay())) days.push(d.toISOString().slice(0, 10)); }
+  const asOf = days.at(-1);
+  const hist = (offset) => ({ observations: days.slice(0, -1).map((date, i) => [date, 4 + offset + i * 0.001]) });
+  const mh = { series: { dgs10: hist(0.5), dgs2: hist(0), t10y3m: hist(-3.6), dgs5: hist(0.2) } };
+  const yields = [{ id: 'dgs3mo', label: '3개월', years: 0.25, value: 4.2 }, { id: 'dgs2', label: '2년', years: 2, value: 4.1 }, { id: 'dgs5', label: '5년', years: 5, value: 4.3 }, { id: 'dgs10', label: '10년', years: 10, value: 4.6 }, { id: 'dgs30', label: '30년', years: 30, value: 5 }];
+  const prev = curveMonthAgo(mh, yields, asOf);
+  if (!prev || prev.date >= asOf || prev.points.map((row) => row.id).join() !== 'dgs3mo,dgs2,dgs5,dgs10' || prev.pending.join() !== '30년') fail(`curve month-ago: one common earlier date, only tenors present on both dates ${JSON.stringify(prev)}`);
+  if (Math.abs(prev.points[0].value - 4.1) > 0.006) fail('curve month-ago: the 3-month point is 10-year minus T10Y3M on that date');
+  if (curveMonthAgo({ series: { dgs10: { observations: days.slice(-5, -1).map((date) => [date, 4]) } } }, yields, asOf) !== null) fail('curve month-ago: history shorter than 21 sessions draws no line');
+
+  const { macroHistoryUrl, MACRO_HISTORY_SERIES } = await import('./producer/macro-history.mjs');
+  const now = Date.UTC(2026, 9, 20, 12);
+  if (!macroHistoryUrl(MACRO_HISTORY_SERIES.naturalUnemployment, 'k', now).includes('series_id=NROU') || !macroHistoryUrl(MACRO_HISTORY_SERIES.naturalUnemployment, 'k', now).endsWith('&observation_end=2026-10-20')) fail('producer: NROU stops at today so CBO projections are not the latest row');
+  if (macroHistoryUrl(MACRO_HISTORY_SERIES.dgs5, 'k', now).includes('observation_end') || !(MACRO_HISTORY_SERIES.dgs30?.limit >= 45)) fail('producer: curve tenors keep a bounded window covering 21 sessions');
 }

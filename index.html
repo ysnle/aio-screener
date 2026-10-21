@@ -3851,7 +3851,7 @@ button[data-filter-active="true"] {
         </div>
         <nav id="aio-hub-tabs" class="aio-hub-tabs" aria-label="화면 안 하위 메뉴" hidden></nav>
         <!-- All pages will be inserted here -->
-          <!-- ═══════════════ PAGE: HOME (대시보드) ═══════════════ -->
+          <!-- ═══════════════ PAGE: HOME (오늘 · 요약) ═══════════════ -->
   <div class="page active" id="page-home">
 
   <!-- v51.40: 운영자 노트는 세션 시작 전 확인 카드로 최상단 배치 -->
@@ -3862,7 +3862,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div class="page-head">
     <div>
-          <h1 class="page-title">대시보드</h1>
+          <h1 class="page-title">오늘</h1>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div class="sh-home-row">
@@ -4030,7 +4030,7 @@ button[data-filter-active="true"] {
   </section>
   <section class="sx-card mk-axes" aria-labelledby="regime-axes-title">
     <h2 class="sr-only" id="regime-axes-title">미국 시장 6개 지표</h2>
-    <div class="mk-axes__head" aria-hidden="true"><span>지표</span><span>판정</span><span>현재값</span><span>판정이 바뀌는 조건</span><span>5거래일 전</span><span>5일 변화</span></div>
+    <div class="mk-axes__head" aria-hidden="true"><span>지표</span><span>판정</span><span>현재값</span><span>판정이 바뀌는 조건</span><span>기준까지</span><span>5거래일 전</span><span>5일 변화</span></div>
     <div class="regime-board" id="regime-board"></div>
   </section>
   <div class="mk-pair">
@@ -5932,6 +5932,8 @@ button[data-filter-active="true"] {
 
     <!-- P1434: 요약의 결론 — 추세·52주 위치·지수 대비·섹터 회전·시장 환경을 한 흐름으로 (native stock-read.js) -->
     <section class="briefing-block stock-read" id="ticker-read" aria-label="이 종목의 지금" hidden></section>
+    <!-- v58.55 (3d): 듀폰 분해 + 역 DCF (stock-read.js renderStockAnalysis; own host so a quote tick never resets the calculator). -->
+    <section class="stock-analysis" id="ticker-analysis" aria-label="수익성 구조와 가격이 말하는 기대" hidden></section>
 
     <!-- v57.76: 가격 흐름(entity.js가 이 종목의 지금 앞으로 옮긴다)과, 참고용으로 접은 섹터 대비 성격. -->
     <div class="aio-section" id="ticker-valley-overview">

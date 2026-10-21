@@ -34,6 +34,12 @@ const SEC_TICKERS_URL = 'https://www.sec.gov/files/company_tickers_exchange.json
 const SEC_FACTS_BASE = 'https://data.sec.gov/api/xbrl/companyfacts/CIK';
 const SEC_SUBMISSIONS_BASE = 'https://data.sec.gov/submissions/CIK';
 const DEFAULT_BATCH_LIMIT = 24;
+// v58.55: a normalizer change that adds observation fields (total assets and R&D for DuPont, Sloan accruals and R&D ÷
+// revenue) makes every stored core record due at once. At 24 per run (5 runs a day) the ~840 core issuers took about
+// a week, so records due ONLY for that backfill get extra slots on top of the normal batch: 24 + 48 = 72 issuers per
+// run (~2 SEC requests each at the 150 ms pace, about 1-2 minutes, well under SEC's 10 requests/second), which fills
+// the core ledger in about 12 runs (2-3 days). The extra slots never take failures, new issuers or regular refreshes.
+export const SEC_BACKFILL_EXTRA_DEFAULT = 48;
 const REFRESH_AFTER_MS = 28 * 86400000;
 const FAILURE_RETRY_AFTER_MS = 24 * 60 * 60 * 1000;
 const USER_AGENT = process.env.SEC_USER_AGENT || '';
@@ -187,6 +193,16 @@ export function sicBackfillTargets(eligible, issuerSic, attemptedSymbols, { limi
     .slice(0, limit);
 }
 
+// Pure (v58.55): the normal batch first, then up to `extra` stored records that are due only because their observation
+// arrays predate the current normalizer (no failure, fetched inside the regular refresh window).
+export function selectSecBatch(sorted, limit, extra = 0, nowMs = Date.now(), refreshAfterMs = REFRESH_AFTER_MS) {
+  const primary = sorted.slice(0, limit);
+  if (!(extra > 0)) return primary;
+  const backfillOnly = (row) => (row.assetChainMissing || row.normalizerOutdated) && row.fetchedAt && !row.priorFailure && !row.cashChainMissing && !row.conceptSetChanged
+    && nowMs - new Date(row.fetchedAt).getTime() < refreshAfterMs;
+  return [...primary, ...sorted.slice(limit).filter(backfillOnly).slice(0, extra)];
+}
+
 export async function refreshSecFundamentals(priceHints = null, { scope = 'core', universePath = UNIVERSE_PATH, outPath = OUT, compact = false, requireRestored = true, batchLimit = null, sicBackfillLimit = 0 } = {}) {
   const universePayload = await readJSON(universePath, { universe: [] });
   const screener = expandScreenerArtifact(await readJSON(SCREENER_PATH, { data: {} }));
@@ -247,7 +263,8 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
     row && (row.attemptedAt || row.failedAt || previous.generatedAt || null)
   ]));
   const recheckUnsupported = process.env.SEC_RECHECK_UNSUPPORTED === '1';
-  const targets = eligible
+  const backfillExtra = scope === 'core' ? Math.max(0, Math.min(100, Number(process.env.SEC_BACKFILL_EXTRA ?? SEC_BACKFILL_EXTRA_DEFAULT) || 0)) : 0;
+  const dueTargets = eligible
     .map(symbol => ({
       symbol,
       fetchedAt: previous.data && previous.data[symbol] && previous.data[symbol].fetchedAt,
@@ -259,6 +276,8 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
       // 2026-10-13 F04: a record from an older normalizer (494 of 659 lacked the P1587 share check) is due now;
       // the publish-time heal below covers what its stored observations allow until then.
       normalizerOutdated: Boolean(previous.data && previous.data[symbol] && previous.data[symbol].normalizerVersion !== SEC_NORMALIZER_VERSION),
+      // v58.55: a stored record without the total-assets / R&D observation arrays (written before they were read).
+      assetChainMissing: !compact && Boolean(previous.data && previous.data[symbol] && !Array.isArray(previous.data[symbol]?.pit?.observations?.totalAssets)),
       // P1798: a stored record without a share count leaves market cap, P/E and the value factor blank (GOOGL/META
       // waited 2-5 days behind 700 outdated records), so it is refreshed first among the due records.
       // 2026-10-17: a count withheld by policy (non-USD report, 20-F ordinary shares) is not missing — a re-read cannot fill it.
@@ -287,8 +306,8 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
     // 2026-10-16: a failure recorded under an older concept set is rechecked FIRST. It sorted last behind every due
     // record, and a normalizer bump makes ~750 records due at 24 per run, so GS/CRWD/VLO/ODFL/KHC/ARE/SJM (normalizable
     // since v3/v4) sat a month as failures. Each recheck stamps the current version, so this set is bounded.
-    .sort((a, b) => Number(b.conceptSetChanged) - Number(a.conceptSetChanged) || Number(Boolean(a.priorFailure)) - Number(Boolean(b.priorFailure)) || Number(b.sharesMissing) - Number(a.sharesMissing) || String(a.fetchedAt || '').localeCompare(String(b.fetchedAt || '')) || a.symbol.localeCompare(b.symbol))
-    .slice(0, limit);
+    .sort((a, b) => Number(b.conceptSetChanged) - Number(a.conceptSetChanged) || Number(Boolean(a.priorFailure)) - Number(Boolean(b.priorFailure)) || Number(b.sharesMissing) - Number(a.sharesMissing) || String(a.fetchedAt || '').localeCompare(String(b.fetchedAt || '')) || a.symbol.localeCompare(b.symbol));
+  const targets = selectSecBatch(dueTargets, limit, fullRebuild || force ? 0 : backfillExtra, now, REFRESH_AFTER_MS);
 
   const data = { ...(previous.data || {}) };
   const failuresBySymbol = new Map([...previousFailureRecords.entries()]);
@@ -427,6 +446,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
     pointInTimeCoverage: Object.values(data).filter(row => row?.pit?.observationCount > 0).length,
     pointInTimeAcceptedCoverage: Object.values(data).filter(row => row?.pit?.acceptedTimeCount > 0).length,
     batchLimit: limit,
+    backfillExtra,
     unsupportedRecheckPolicy: 'SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches',
     nextRefreshCandidates: Math.max(0, eligible.length - Object.keys(data).length),
     // P1169 (17 작업 단위 1 / 06 O06): 이번 batch의 수집 성과를 job exit code가 아니라 카운터로

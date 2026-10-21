@@ -314,6 +314,129 @@ export function latchedState(points = [], enter, exit) {
   return { on, since };
 }
 
+// v58.55 (owner 2026-10-20): 판단이 바뀌는 조건까지의 거리. v58.53 dropped the design's "기준까지" because an axis rule has
+// several conditions and hysteresis; each axis now hands its own rule (stateAt) and the thresholds that rule tests on one
+// of its own inputs (a lever), and this search reports the nearest threshold at which the rule itself returns another
+// state. Hypothetical values move one lever at a time with every other input held at today's value (today's averages,
+// 5/20-session bases and one-year range — the "next close" against today's lines); hysteresis is the latch as of today.
+// Two levers that must both move (시장 폭 45%/60%, 유가·달러) are searched jointly: the farther one is the distance, the
+// other is named in `also`. A condition no lever measures (50일선 방향, 주도주 약세) is an assumption: the distance is
+// reported with that condition in `also` and `needsMore`, and it ranks after every purely measured distance.
+// Nothing is reported when stateAt(today) disagrees with the axis state (a rule edit that forgot this spec hides the
+// distance rather than showing a wrong one) or when an input is missing. `sessions` = distance / the lever's average
+// absolute daily change over the last 20 sessions (its "typical move"), used only to order axes 가까운 순.
+const STATE_RANK = Object.freeze({ burden: 0, neutral: 1, favorable: 2 });
+const DISTANCE_TOWARD = Object.freeze({ favorable: '양호', neutral: '중립', burden: '부담' });
+export function typicalDailyMove(series = [], sessions = 20) {
+  const points = (Array.isArray(series) ? series : []).filter((point) => Number.isFinite(point?.value)).slice(-(sessions + 1));
+  if (points.length < Math.ceil(sessions / 2) + 1) return null;
+  let sum = 0;
+  for (let index = 1; index < points.length; index += 1) sum += Math.abs(points[index].value - points[index - 1].value);
+  const mean = sum / (points.length - 1);
+  return mean > 0 ? mean : null;
+}
+const distanceText = (value, unit, digits) => {
+  const rounded = Number(value.toFixed(digits));
+  return `${rounded > 0 ? '+' : rounded < 0 ? '−' : '±'}${Math.abs(rounded).toFixed(digits)}${unit}`;
+};
+const flipVerb = (point, dir) => dir > 0 ? (point.close ? '이상에서 마감하면' : '이상이면') : (point.close ? '아래로 마감하면' : '아래로 내려가면');
+const flipPhrase = (point, dir) => `${point.subject} ${point.mark} ${flipVerb(point, dir)}`;
+/**
+ * @param {object} spec
+ * @param {string} spec.state  the axis state today
+ * @param {Array}  spec.levers [{ key, current, typical, points: [{ at, subject, mark, short, close?, show(at, current) -> [value, unit, digits] }] }]
+ * @param {Function} spec.stateAt (values: {key: number}, assume: Set) -> state
+ * @param {Array}  [spec.assumptions] [{ key, label }] conditions no lever measures, tried only when no measured path improves
+ * @returns {{ primary, all }|null}
+ */
+export function flipDistanceSearch({ state, levers = [], stateAt, assumptions = [] } = {}) {
+  if (!(state in STATE_RANK) || typeof stateAt !== 'function') return null;
+  const live = levers.filter((lever) => Number.isFinite(lever?.current) && Array.isArray(lever.points));
+  if (!live.length) return null;
+  const base = Object.fromEntries(live.map((lever) => [lever.key, lever.current]));
+  const none = new Set();
+  if (stateAt(base, none) !== state) return null; // drift guard
+  const nudge = (at, dir) => at + dir * Math.max(Math.abs(at) * 1e-9, 1e-9);
+  // Each lever's thresholds on one side of today's value, nearest first, deduplicated.
+  const side = (lever, dir) => {
+    const seen = new Set();
+    return lever.points.filter((point) => Number.isFinite(point?.at) && (dir > 0 ? point.at >= lever.current : point.at <= lever.current))
+      .sort((a, b) => Math.abs(a.at - lever.current) - Math.abs(b.at - lever.current))
+      .filter((point) => { const key = point.at.toFixed(6); if (seen.has(key)) return false; seen.add(key); return true; });
+  };
+  const norm = (lever, at) => lever.typical > 0 ? Math.abs(at - lever.current) / lever.typical : null;
+  const describe = (lever, point, dir) => {
+    const [value, unit, digits] = point.show(point.at, lever.current);
+    return { lever: lever.key, subject: point.subject, short: point.short, threshold: point.at, current: lever.current, value: Number(value.toFixed(digits)), unit,
+      text: distanceText(value, unit, digits), condition: flipPhrase(point, dir), parts: { subject: point.subject, mark: point.mark, verb: flipVerb(point, dir) }, sessions: norm(lever, point.at) };
+  };
+  const found = new Map(); // toward -> candidate
+  const keep = (candidate) => {
+    const held = found.get(candidate.toward);
+    const key = (item) => [item.needsMore ? 1 : 0, item.sessions ?? Infinity];
+    const [a1, a2] = key(candidate), [b1, b2] = held ? key(held) : [Infinity, Infinity];
+    if (!held || a1 < b1 || (a1 === b1 && a2 < b2)) found.set(candidate.toward, candidate);
+  };
+  const single = (assume) => {
+    for (const lever of live) for (const dir of [1, -1]) {
+      for (const point of side(lever, dir)) {
+        const flipped = [point.at, nudge(point.at, dir)].map((at) => stateAt({ ...base, [lever.key]: at }, assume)).find((next) => next !== state && next in STATE_RANK);
+        if (!flipped) continue;
+        keep({ toward: flipped, ...describe(lever, point, dir), also: [], needsMore: assume.size > 0 });
+        break;
+      }
+    }
+  };
+  single(none);
+  // Two levers that must move together (only for a state no single lever reaches).
+  if (live.length === 2) {
+    const [a, b] = live;
+    const options = (lever) => [{ point: null, dir: 0 }, ...[1, -1].flatMap((dir) => side(lever, dir).map((point) => ({ point, dir })))];
+    for (const oa of options(a)) for (const ob of options(b)) {
+      if (!oa.point || !ob.point) continue;
+      const values = { ...base, [a.key]: nudge(oa.point.at, oa.dir), [b.key]: nudge(ob.point.at, ob.dir) };
+      const next = stateAt(values, none);
+      if (next === state || !(next in STATE_RANK) || (found.has(next) && !found.get(next).joint)) continue;
+      const da = describe(a, oa.point, oa.dir), db = describe(b, ob.point, ob.dir);
+      // The farther of the two (in typical moves) is the distance; the other is needed with it.
+      const [lead, other] = (da.sessions ?? Infinity) >= (db.sessions ?? Infinity) ? [da, db] : [db, da];
+      keep({ toward: next, ...lead, also: [{ subject: other.subject, short: other.short, text: other.text, condition: other.condition, value: other.value, unit: other.unit }], needsMore: false, joint: true });
+    }
+  }
+  // Conditions no lever measures: only when no measured path reaches a better state.
+  const better = [...found.keys()].some((toward) => STATE_RANK[toward] > STATE_RANK[state]);
+  const open = assumptions.filter((item) => item && !item.holds);
+  if (!better && open.length) {
+    const before = new Set(found.keys());
+    single(new Set(open.map((item) => item.key)));
+    for (const [toward, candidate] of found) {
+      if (before.has(toward) || !candidate.needsMore) continue;
+      // Keep only the assumptions this threshold actually needs.
+      const values = { ...base, [candidate.lever]: candidate.threshold };
+      const at = (assume) => [candidate.threshold, nudge(candidate.threshold, Math.sign(candidate.threshold - candidate.current) || 1)]
+        .map((value) => stateAt({ ...values, [candidate.lever]: value }, assume)).includes(toward);
+      let needed = open.map((item) => item.key);
+      for (const key of [...needed]) { const rest = new Set(needed.filter((other) => other !== key)); if (at(rest)) needed = [...rest]; }
+      candidate.also = open.filter((item) => needed.includes(item.key)).map((item) => ({ condition: item.label }));
+    }
+  }
+  const all = [...found.values()].map(({ joint, ...candidate }) => ({
+    ...candidate,
+    direction: STATE_RANK[candidate.toward] > STATE_RANK[state] ? 'improve' : 'worsen',
+    towardLabel: DISTANCE_TOWARD[candidate.toward],
+    label: `${DISTANCE_TOWARD[candidate.toward]}까지 ${candidate.text}`,
+    sessions: candidate.sessions == null ? null : Math.round(candidate.sessions * 10) / 10
+  })).sort((x, y) => (x.needsMore ? 1 : 0) - (y.needsMore ? 1 : 0) || (x.sessions ?? Infinity) - (y.sessions ?? Infinity));
+  return all.length ? { primary: all[0], all } : null;
+}
+
+// v58.55: the axis carries its nearest flip (`flipDistance`) and the nearest per target state (`flipDistances`, ≤ 2).
+function attachDistance(axis, result) {
+  axis.flipDistance = result?.primary || null;
+  axis.flipDistances = result?.all || [];
+  return axis;
+}
+
 const quantile = (values, q) => {
   const sorted = values.filter(Number.isFinite).sort((a, b) => a - b);
   if (!sorted.length) return null;
@@ -1008,7 +1131,8 @@ export function buildMarketRegime(input = {}) {
       id, title, state, stateLabel: STATE_LABELS[state], read, flip,
       evidence: shown.map((row) => [row.label, mixed && row.iso ? `${row.value} · ${shortDate(row.iso)}` : row.value]),
       basis: mixed ? `${shortDate(days[0])}~${shortDate(days[days.length - 1])}` : basisOf ? alignmentLabel(basisOf) : null,
-      basisStatus: mixed ? 'mixed' : basisOf?.status || null
+      basisStatus: mixed ? 'mixed' : basisOf?.status || null,
+      flipDistance: null, flipDistances: [] // v58.55: set by the axes whose rule has a lever (attachDistance)
     };
   };
   const staleRead = (label, alignment) => alignment?.status === 'stale' || alignment?.status === 'ahead'
@@ -1058,28 +1182,57 @@ export function buildMarketRegime(input = {}) {
     });
     const trendLatch = latchedState(daily, (point) => point.gap != null && point.gap >= buffer && point.up && !point.capped,
       (point) => point.gap == null || point.gap < holdAbovePct || !point.up || point.capped);
-    let state = 'neutral';
-    if (spx.ma50 == null || spx.ma200 == null || rising == null) state = 'unknown';
-    else if (gap50 >= buffer && spx.ma50 > spx.ma200 && rising) state = 'favorable';
-    // Audit 2026-10-17 (owner D2): the 200-day line gets the same ±bufferPct band — a close 0.1% under it was 부담.
-    const gap200 = pct(spx.value, spx.ma200);
-    const under200 = gap200 != null && gap200 <= -buffer;
-    if (state !== 'unknown' && state !== 'favorable' && (under200 || (gap50 <= -buffer && !rising))) state = 'burden';
-    // Owner 2026-10-18: S&P 500 under its 50-day line while the leadership break is confirmed (Nasdaq-100 weak plus
-    // RULES.leadership.minConfirmations market-wide signals) is a weakening trend, not a test of the line — the ±bufferPct
-    // band absorbs one index's noise, and the break already needs several independent confirmations.
-    const leaderBreakUnder50 = state === 'neutral' && gap50 != null && gap50 < 0 && !!leadership.break;
-    if (leaderBreakUnder50) state = 'burden';
-    const trendHeld = state === 'neutral' && trendLatch.on && daily.at(-1)?.date === spx.date && gap50 >= holdAbovePct && spx.ma50 > spx.ma200 && rising;
-    if (trendHeld) state = 'favorable';
     const ndx = s.ndx, rut = s.rut;
     const ndx5 = ndx ? pct(ndx.value, ndx.d5) : null;
     const smallBelow200 = rut?.ma200 != null && rut.value < rut.ma200;
     const leadersFalling = ndx5 != null && ndx5 <= -RULES.trend.leaderDrop5dPct;
-    // The cap names why the S&P 500 alone is not read as 양호; it applies whether or not the buffer already held it at 중립.
-    const capped = state !== 'burden' && state !== 'unknown' && smallBelow200 && leadersFalling;
-    if (capped && state === 'favorable') state = 'neutral';
+    const latchOn = trendLatch.on && daily.at(-1)?.date === spx.date;
+    // v58.55: the rule as a function of the S&P 500 close (today's lines held), so 판단이 바뀌는 조건 can ask it where the
+    // state changes. `assume` forces a condition no close can change (50일선 방향 · 50/200 배열 · 주도주 cap) to hold.
+    const trendAt = (price, assume = new Set()) => {
+      if (spx.ma50 == null || spx.ma200 == null || rising == null) return { state: 'unknown' };
+      const up50 = rising || assume.has('rising');
+      const over200 = spx.ma50 > spx.ma200 || assume.has('over200');
+      const g50 = pct(price, spx.ma50), g200 = pct(price, spx.ma200);
+      let st = g50 >= buffer && over200 && up50 ? 'favorable' : 'neutral';
+      // Audit 2026-10-17 (owner D2): the 200-day line gets the same ±bufferPct band — a close 0.1% under it was 부담.
+      const u200 = g200 != null && g200 <= -buffer;
+      if (st !== 'favorable' && (u200 || (g50 <= -buffer && !up50))) st = 'burden';
+      // Owner 2026-10-18: S&P 500 under its 50-day line while the leadership break is confirmed (Nasdaq-100 weak plus
+      // RULES.leadership.minConfirmations market-wide signals) is a weakening trend, not a test of the line — the ±bufferPct
+      // band absorbs one index's noise, and the break already needs several independent confirmations.
+      const lbu = st === 'neutral' && g50 != null && g50 < 0 && !!leadership.break;
+      if (lbu) st = 'burden';
+      const held = st === 'neutral' && latchOn && g50 >= holdAbovePct && over200 && up50;
+      if (held) st = 'favorable';
+      // The cap names why the S&P 500 alone is not read as 양호; it applies whether or not the buffer already held it at 중립.
+      const cap = st !== 'burden' && smallBelow200 && leadersFalling && !assume.has('uncapped');
+      if (cap && st === 'favorable') st = 'neutral';
+      return { state: st, under200: u200, leaderBreakUnder50: lbu, trendHeld: held, capped: cap };
+    };
+    const today = trendAt(spx.value);
+    let state = today.state;
+    const gap200 = pct(spx.value, spx.ma200);
+    const under200 = !!today.under200, leaderBreakUnder50 = !!today.leaderBreakUnder50, trendHeld = !!today.trendHeld, capped = !!today.capped;
     trendCap = capped ? { ndx5, rutVs200: pct(rut.value, rut.ma200), date: spx.date } : null;
+    const spxShow = (at, current) => [pct(at, current), '%', 1];
+    const spxPoint = (at, name) => ({ at, subject: 'S&P 500이', mark: `${fmt(at, 0)}(${name})`, short: `${name} ${fmt(at, 0)}`, close: true, show: spxShow });
+    const trendDistance = state === 'unknown' ? null : flipDistanceSearch({
+      state,
+      stateAt: (values, assume) => trendAt(values.spx, assume).state,
+      levers: [{ key: 'spx', current: spx.value, typical: typicalDailyMove(series), points: [
+        spxPoint(spx.ma50 * (1 + buffer / 100), `50일선+${buffer}%`),
+        spxPoint(spx.ma50 * (1 + holdAbovePct / 100), holdAbovePct ? `50일선+${holdAbovePct}%` : '50일선'),
+        spxPoint(spx.ma50, '50일선'),
+        spxPoint(spx.ma50 * (1 - buffer / 100), `50일선−${buffer}%`),
+        spxPoint(spx.ma200 * (1 - buffer / 100), `200일선−${buffer}%`)
+      ] }],
+      assumptions: [
+        { key: 'rising', label: '50일선 상승 전환', holds: !!rising },
+        { key: 'over200', label: '50일선이 200일선 위로', holds: spx.ma50 > spx.ma200 },
+        { key: 'uncapped', label: `러셀 2000 200일선 회복 또는 나스닥 100 5거래일 낙폭 ${RULES.trend.leaderDrop5dPct}% 이내`, holds: !(smallBelow200 && leadersFalling) }
+      ]
+    });
     const capRead = capped ? ` 나스닥 100이 5거래일 ${signed(ndx5)} 밀렸고 러셀 2000은 200일선 아래(${signed(trendCap.rutVs200)})라, 주도 대형주와 중소형주가 함께 약해지는 중입니다 — S&P 500 하나만 보고 추세가 양호하다고 읽지 않습니다.` : '';
     const nd20 = s.nasdaq ? pct(s.nasdaq.value, s.nasdaq.d20) : null;
     const structure = movingAverageStructure(spx);
@@ -1093,7 +1246,7 @@ export function buildMarketRegime(input = {}) {
           // T21: 중립 covers several shapes; each is named instead of a blanket "추세는 유지되지만".
           : spx.value < spx.ma200 ? `S&P 500이 200일선보다 ${fmt(Math.abs(gap200), 1)}% 아래 — 200일선 근처에서 되찾을지 가리는 구간입니다. ${buffer}% 넘게 아래로 마감하면 부담으로 봅니다.`
           : spx.ma50 < spx.ma200 ? 'S&P 500은 200일선 위지만 50일선이 200일선 아래 — 장기 추세 회복이 아직 확인되지 않은 혼조 상태입니다.'
-            : testing ? `S&P 500이 50일선보다 ${fmt(Math.abs(gap50), 1)}% ${gap50 >= 0 ? '위 — 50일선 근처에서 버티는 구간입니다' : '아래 — 50일선 근처에서 되찾을지 가리는 구간입니다'}. 50일선보다 ${buffer}% 이상 위에서 마감하면 양호로, ${buffer}% 넘게 아래면 약화로 봅니다.`
+            : testing ? `S&P 500이 50일선보다 ${fmt(Math.abs(gap50), 1)}% ${gap50 >= 0 ? '위 — 50일선 근처에서 버티는 구간입니다' : '아래 — 50일선 근처에서 되찾을지 가리는 구간입니다'}. 50일선보다 ${buffer}% 이상 위에서 마감하면 양호로, ${leadership.break && gap50 >= 0 ? '주도 영역 이탈이 확인된 지금은 50일선 아래로 마감하면 바로 부담으로' : `${buffer}% 넘게 아래면 약화로`} 봅니다.`
               : spx.value < spx.ma50 ? 'S&P 500이 오르는 50일선 아래로 내려왔지만 200일선 위 — 단기 조정인지 추세 약화인지 확인할 구간입니다.'
                 : capped ? 'S&P 500은 오르는 50일선 위입니다.'
                   : '지수는 50일선·200일선 위지만 50일선이 내려가기 시작해 상승 탄력이 약해진 상태입니다.';
@@ -1105,7 +1258,7 @@ export function buildMarketRegime(input = {}) {
       : state === 'favorable' ? `S&P 500이 50일선(${fmt(spx.ma50 * (1 + holdAbovePct / 100), 0)}) 아래로 마감하거나 50일선이 꺾이면 중립, 200일선-${buffer}%(${fmt(spx.ma200 * (1 - buffer / 100), 0)}) 아래면 부담`
         : state === 'burden' ? (leaderBreakUnder50 ? `S&P 500이 50일선(${fmt(spx.ma50, 0)}) 위로 마감하거나 주도 영역 이탈이 풀리면(나스닥 100이 50일선을 되찾고 5거래일 낙폭이 ${RULES.trend.leaderDrop5dPct}% 안) 중립으로 바뀜`
           : `S&P 500이 200일선-${buffer}%(${fmt(spx.ma200 * (1 - buffer / 100), 0)}) 위로 올라오고 하락하는 50일선보다 ${buffer}% 넘게 아래가 아니면 중립으로 바뀜`)
-          : `S&P 500이 상승하는 50일선보다 ${buffer}% 이상 위(${fmt(up, 0)} 이상)에서 마감하고 50일선이 200일선 위면 양호${capFlip} · 200일선보다 ${buffer}% 넘게 아래(${fmt(spx.ma200 * (1 - buffer / 100), 0)} 미만)이거나 하락하는 50일선보다 ${buffer}% 넘게 아래(${fmt(down, 0)} 미만)면 부담`;
+          : `S&P 500이 상승하는 50일선보다 ${buffer}% 이상 위(${fmt(up, 0)} 이상)에서 마감하고 50일선이 200일선 위면 양호${capFlip} · 200일선보다 ${buffer}% 넘게 아래(${fmt(spx.ma200 * (1 - buffer / 100), 0)} 미만)이거나 하락하는 50일선보다 ${buffer}% 넘게 아래(${fmt(down, 0)} 미만)면 부담${leadership.break && gap50 != null && gap50 >= 0 ? ` · 주도 영역 이탈이 확인된 동안은 50일선(${fmt(spx.ma50, 0)}) 아래로 마감하기만 해도 부담` : ''}`; // v58.55: the leadership-break path the rule applies is named
     const rows = [
       ['S&P 500', `${fmt(spx.value)} (20일 ${signed(pct(spx.value, spx.d20))})`, alignments.spx],
       ['50일선 대비', gap50 == null ? null : `${signed(gap50, 2)} (양호 진입 +${buffer}% 이상 · 유지 ${holdAbovePct ? `+${holdAbovePct}%` : '50일선'} 이상)`, alignments.spx],
@@ -1127,6 +1280,7 @@ export function buildMarketRegime(input = {}) {
     axes[axes.length - 1].testing = state === 'neutral' && testing;
     axes[axes.length - 1].capped = capped;
     axes[axes.length - 1].leadership = leadership;
+    attachDistance(axes[axes.length - 1], trendDistance);
   }
   // 2. Breadth — participation behind the index. Both windows must be present to call it broad.
   {
@@ -1150,6 +1304,23 @@ export function buildMarketRegime(input = {}) {
     const breadthLatch = latchedState(lowPoints, (point) => point.low < B.weakBelow, (point) => point.low >= B.holdExitAt);
     const breadthHeld = state === 'neutral' && b50 != null && breadthLatch.on && lowPoints.at(-1)?.date === s.breadth50?.date;
     if (breadthHeld) state = 'burden';
+    // v58.55: the same rule on hypothetical ratios (today's latch), for 판단이 바뀌는 조건; the state above stays the owner and
+    // the search's drift guard drops the distance if the two ever disagree.
+    const breadthLatchOn = breadthLatch.on && lowPoints.at(-1)?.date === s.breadth50?.date;
+    const breadthAt = (v50, v200) => {
+      if (v50 == null && v200 == null) return 'unknown';
+      if ((v50 != null && v50 < B.weakBelow) || (v200 != null && v200 < B.weakBelow)) return 'burden';
+      if (v50 != null && v200 != null && v50 >= B.broadAtLeast && v200 >= B.broadAtLeast) return 'favorable';
+      return v50 != null && breadthLatchOn && Math.min(v50, v200 ?? Infinity) < B.holdExitAt ? 'burden' : 'neutral';
+    };
+    const ratioLever = (key, field, value, name) => value == null ? null : {
+      key, current: value, typical: typicalDailyMove(buildCloseSeries(input.history, field, { through: basis })),
+      points: [B.weakBelow, B.holdExitAt, B.broadAtLeast].map((at) => ({ at, subject: `${name} 위 종목이`, mark: `${at}%`, short: `${name} 위 ${at}%`, show: (to, current) => [to - current, '%p', 0] }))
+    };
+    const breadthDistance = state === 'unknown' ? null : flipDistanceSearch({
+      state, stateAt: (values) => breadthAt(values.b50 ?? null, values.b200 ?? null),
+      levers: [ratioLever('b50', 'breadth50', b50, '50일선'), ratioLever('b200', 'breadth200', b200, '200일선')].filter(Boolean)
+    });
     const fromHigh = pct(spx.value, spx.yearMax);
     const narrow = state === 'burden' && fromHigh != null && fromHigh > -RULES.technical.nearHighPct;
     const members = sp500BreadthOn(input.breadthSp500, spx.date);
@@ -1191,6 +1362,7 @@ export function buildMarketRegime(input = {}) {
     // point to the S&P 500 map without re-deriving it.
     axes[axes.length - 1].narrow = narrow;
     axes[axes.length - 1].record = rec50;
+    attachDistance(axes[axes.length - 1], breadthDistance);
   }
   // 3. Volatility — level (canonical 18/25 bands), one-week change and term structure.
   {
@@ -1208,6 +1380,32 @@ export function buildMarketRegime(input = {}) {
     const rising = vix5 != null && vix5 >= V.rise5dWatchPct;
     const nearEdge = vix && vix.value >= V.calmBelow - V.calmBufferPt && !(vix5 != null && vix5 <= 0);
     if (state === 'neutral' && calmLevel && !rising && !nearEdge) state = 'favorable';
+    // v58.55: the rule on a hypothetical VIX close (3-month VIX and the 5-session base held), for 판단이 바뀌는 조건.
+    const vix3mSame = vix && s.vix3m && s.vix3m.date === vix.date ? s.vix3m.value : null;
+    const vixAt = (level) => {
+      const r = vix3mSame ? level / vix3mSame : null;
+      const r5 = vix?.d5 ? pct(level, vix.d5) : null;
+      if (level >= V.stressAt || (r != null && r >= V.invertedRatioAt) || (r5 != null && r5 >= V.spike5dPct)) return 'burden';
+      const calm = level < V.calmBelow && r != null && r < V.calmRatioBelow;
+      const up = r5 != null && r5 >= V.rise5dWatchPct;
+      const edge = level >= V.calmBelow - V.calmBufferPt && !(r5 != null && r5 <= 0);
+      return calm && !up && !edge ? 'favorable' : 'neutral';
+    };
+    const vixShow = (to, current) => [to - current, 'pt', 1];
+    const vixPoint = (at, mark, short = mark) => ({ at, subject: 'VIX가', mark, short, show: vixShow });
+    const volatilityDistance = !vix ? null : flipDistanceSearch({
+      state, stateAt: (values) => vixAt(values.vix),
+      levers: [{ key: 'vix', current: vix.value, typical: typicalDailyMove(buildCloseSeries(input.history, 'vix', { through: basis })), points: [
+        vixPoint(V.stressAt, String(V.stressAt), `VIX ${V.stressAt}`),
+        vixPoint(V.calmBelow, String(V.calmBelow), `VIX ${V.calmBelow}`),
+        vixPoint(V.calmBelow - V.calmBufferPt, String(V.calmBelow - V.calmBufferPt), `VIX ${V.calmBelow - V.calmBufferPt}`),
+        ...(vix3mSame ? [vixPoint(vix3mSame * V.invertedRatioAt, `${fmt(vix3mSame * V.invertedRatioAt)}(3개월 VIX와 역전)`, `3개월 VIX 역전 ${fmt(vix3mSame)}`),
+          vixPoint(vix3mSame * V.calmRatioBelow, `${fmt(vix3mSame * V.calmRatioBelow)}(3개월 VIX의 ${V.calmRatioBelow}배)`, `VIX/3개월 ${V.calmRatioBelow} · ${fmt(vix3mSame * V.calmRatioBelow)}`)] : []),
+        ...(vix.d5 ? [vixPoint(vix.d5 * (1 + V.spike5dPct / 100), `${fmt(vix.d5 * (1 + V.spike5dPct / 100))}(5거래일 +${V.spike5dPct}%)`, `5일 +${V.spike5dPct}% · ${fmt(vix.d5 * (1 + V.spike5dPct / 100))}`),
+          vixPoint(vix.d5 * (1 + V.rise5dWatchPct / 100), `${fmt(vix.d5 * (1 + V.rise5dWatchPct / 100))}(5거래일 +${V.rise5dWatchPct}%)`, `5일 +${V.rise5dWatchPct}% · ${fmt(vix.d5 * (1 + V.rise5dWatchPct / 100))}`),
+          vixPoint(vix.d5, `${fmt(vix.d5)}(5거래일 전 수준)`, `5거래일 전 ${fmt(vix.d5)}`)] : [])
+      ] }]
+    });
     const read = state === 'favorable' ? `변동성이 낮고 단기 불안도 작습니다${vix5 != null && vix5 > 0 ? `(VIX 5일 ${signed(vix5, 0)})` : ''}. 시장이 단기 충격을 크게 반영하지 않고 있습니다.`
       : state === 'burden' ? (ratio != null && ratio >= RULES.volatility.invertedRatioAt ? '단기 변동성이 중기보다 높은 역전 — 단기 스트레스 구간입니다.' : vix5 != null && vix5 >= 25 ? '변동성이 한 주 사이 급등했습니다.' : 'VIX 25 이상 — 경계 구간입니다.')
         : state === 'unknown' ? staleRead('VIX', alignments.vix)
@@ -1223,6 +1421,7 @@ export function buildMarketRegime(input = {}) {
       ['VIX', vix ? `${fmt(vix.value)} (5일 ${signed(vix5, 0)})` : null],
       ['VIX / 3개월 VIX', ratio == null ? null : `${fmt(ratio)} ${ratio >= V.invertedRatioAt ? '(역전)' : ratio >= V.calmRatioBelow ? '(평탄)' : '(정상)'}`]
     ], read, flip, alignments.vix));
+    attachDistance(axes[axes.length - 1], volatilityDistance);
   }
   // 4. Rates — level, direction and what drives it (real yield vs breakeven).
   {
@@ -1248,6 +1447,27 @@ export function buildMarketRegime(input = {}) {
     if (!tnx || tnx20 == null) state = 'unknown';
     else if (latch.on) state = 'burden';
     else if (tnx20 <= -R.move20dBp) state = 'favorable';
+    // v58.55: the rule on a hypothetical 10-year close (5/20-session bases and the one-year range held, the latch as of
+    // today: 부담 holds unless the exit holds), for 판단이 바뀌는 조건.
+    const ratesAt = (yieldPct) => {
+      const range = tnx.yearMax - tnx.yearMin;
+      const position = tnx.yearPosition == null || !(range > 0) ? null : Math.min(1, Math.max(0, (yieldPct - tnx.yearMin) / range));
+      const point = { d20: bp(yieldPct, tnx.d20), d5: bp(yieldPct, tnx.d5), position };
+      if (point.d20 == null) return 'unknown';
+      const on = entersBurden(point) || (latch.on && !((point.position == null || point.position < R.rangeExitAt) || point.d20 < R.exit20dBp));
+      return on ? 'burden' : point.d20 <= -R.move20dBp ? 'favorable' : 'neutral';
+    };
+    const yieldShow = (to, current) => [(to - current) * 100, 'bp', 0];
+    const changePoint = (bpLine) => ({ at: tnx.d20 + bpLine / 100, subject: '10년물 20일 변화가', mark: `${bpLine > 0 ? '+' : '−'}${Math.abs(bpLine)}bp(${fmt(tnx.d20 + bpLine / 100)}%)`, short: `20일 ${bpLine > 0 ? '+' : '−'}${Math.abs(bpLine)}bp · ${fmt(tnx.d20 + bpLine / 100)}%`, show: yieldShow });
+    const rangePoint = (share) => ({ at: tnx.yearMin + share * (tnx.yearMax - tnx.yearMin), subject: '10년물이', mark: `1년 범위 ${Math.round(share * 100)}%(${fmt(tnx.yearMin + share * (tnx.yearMax - tnx.yearMin))}%)`, short: `1년 범위 ${Math.round(share * 100)}% · ${fmt(tnx.yearMin + share * (tnx.yearMax - tnx.yearMin))}%`, show: yieldShow });
+    const ratesDistance = !tnx || tnx20 == null ? null : flipDistanceSearch({
+      state, stateAt: (values) => ratesAt(values.tnx),
+      levers: [{ key: 'tnx', current: tnx.value, typical: typicalDailyMove(tnxSeries), points: [
+        changePoint(R.move20dBp), changePoint(R.exit20dBp), changePoint(-R.move20dBp),
+        ...(tnx.d5 != null ? [{ at: tnx.d5, subject: '10년물이', mark: `5거래일 전 수준(${fmt(tnx.d5)}%)`, short: `5거래일 전 ${fmt(tnx.d5)}%`, show: yieldShow }] : []),
+        ...(tnx.yearPosition != null ? [rangePoint(R.rangeHighAt), rangePoint(R.rangeExitAt)] : [])
+      ] }]
+    });
     // Owner 2026-10-18: 중립 judges the move, not the level — a 10-year in the upper third of its year range is named, so
     // "중립" never reads as "rates are low".
     const neutralLevel = tnx?.yearPosition != null && tnx.yearPosition >= R.levelHighThird ? ` 방향은 중립이지만 10년물 ${fmt(tnx.value)}%는 1년 범위 ${fmt(tnx.yearPosition * 100, 0)}% 위치로 수준 자체는 높은 편입니다${r.realYield10 != null ? `(실질금리 ${fmt(r.realYield10)}%)` : ''}.` : '';
@@ -1273,6 +1493,7 @@ export function buildMarketRegime(input = {}) {
       ['실질금리 / 기대인플레 (5거래일)', real5 == null || bei5 == null ? null : `${signed(real5, 0, 'bp')} / ${signed(bei5, 0, 'bp')}`],
       ['실질금리 (10년 TIPS)', r.realYield10 == null ? null : `${fmt(r.realYield10)}%`]
     ], read, flip, alignments.tnx, [alignments.tnx, alignments.tnx, alignments.rates, alignments.rates]));
+    attachDistance(axes[axes.length - 1], ratesDistance);
   }
   // 5. Credit & risk appetite — the funding market and hedging demand. Calm needs the direction too.
   {
@@ -1280,6 +1501,36 @@ export function buildMarketRegime(input = {}) {
     const widening20 = hy20 != null && hy20 >= RULES.credit.widen20dBp;
     const month = hy20 == null ? '' : `, 20거래일 ${signed(hy20, 0, 'bp')}`;
     const state = creditState({ hyBp, hy5, hy20, pcr, hy20Stress: c.hy20Stress });
+    // v58.55: creditState on a hypothetical spread (the 5/20-session bases held; the 20-session stress keeps its latch:
+    // once on it holds while the change stays at widen20dBp, otherwise it enters at the record line), for 판단이 바뀌는 조건.
+    const C = RULES.credit;
+    const base5 = hy5 == null ? null : hyBp - hy5, base20 = hy20 == null ? null : hyBp - hy20;
+    const stressAt = (change) => change != null && change >= C.widen20dBp
+      && (c.hy20Record ? (c.hy20Record.stress || change >= c.hy20Record.enterBp) : change >= C.stress20dMultiple * C.widen20dBp);
+    const creditAt = (level, assume = new Set()) => {
+      const d5 = base5 == null ? null : level - base5, d20 = base20 == null ? null : level - base20;
+      return creditState({ hyBp: level, hy5: d5, hy20: d20, pcr: assume.has('pcr') ? null : pcr, hy20Stress: stressAt(d20) });
+    };
+    const hyPoint = (at, mark, short) => ({ at, subject: '하이일드 스프레드가', mark, short, show: (to, current) => [to - current, 'bp', 0] });
+    const enter20 = c.hy20Record ? c.hy20Record.enterBp : C.stress20dMultiple * C.widen20dBp;
+    const hySeries = [];
+    for (const row of input.macroHistory?.series?.hyOas?.observations || []) {
+      const date = String(Array.isArray(row) ? row[0] : row?.date || '').slice(0, 10);
+      const value = finite(Array.isArray(row) ? row[1] : row?.value);
+      if (value != null && (!basis || date <= basis)) hySeries.push({ date, value: value * 100 });
+    }
+    const creditDistance = state === 'unknown' ? null : flipDistanceSearch({
+      state, stateAt: (values, assume) => creditAt(values.hy, assume),
+      levers: [{ key: 'hy', current: hyBp, typical: typicalDailyMove(hySeries.sort((a, b) => a.date.localeCompare(b.date))), points: [
+        hyPoint(C.stressAtBp, `${C.stressAtBp}bp`, `${C.stressAtBp}bp`),
+        hyPoint(C.tightBelowBp, `${C.tightBelowBp}bp`, `${C.tightBelowBp}bp`),
+        ...(base5 != null ? [hyPoint(base5 + C.widen5dBp, `${fmt(base5 + C.widen5dBp, 0)}bp(5거래일 +${C.widen5dBp}bp)`, `5일 +${C.widen5dBp}bp · ${fmt(base5 + C.widen5dBp, 0)}bp`),
+          hyPoint(base5 + C.calm5dBp, `${fmt(base5 + C.calm5dBp, 0)}bp(5거래일 +${C.calm5dBp}bp)`, `5일 +${C.calm5dBp}bp · ${fmt(base5 + C.calm5dBp, 0)}bp`)] : []),
+        ...(base20 != null ? [hyPoint(base20 + C.widen20dBp, `${fmt(base20 + C.widen20dBp, 0)}bp(20거래일 +${C.widen20dBp}bp)`, `20일 +${C.widen20dBp}bp · ${fmt(base20 + C.widen20dBp, 0)}bp`),
+          hyPoint(base20 + enter20, `${fmt(base20 + enter20, 0)}bp(20거래일 +${fmt(enter20, 0)}bp${c.hy20Record ? ' · 자체 기록 상위 ' + (100 - C.stress20dPct) + '%' : ''})`, `20일 +${fmt(enter20, 0)}bp · ${fmt(base20 + enter20, 0)}bp`)] : [])
+      ] }],
+      assumptions: [{ key: 'pcr', label: `풋/콜 ${C.putCallHedgeAt} 미만`, holds: !(pcr != null && pcr >= C.putCallHedgeAt) }]
+    });
     const rec = c.hy20Record;
     const stress20 = state === 'burden' && hyBp < RULES.credit.stressAtBp && !(hy5 != null && hy5 >= RULES.credit.widen5dBp) && c.hy20Stress;
     const recordWord = rec?.pct != null ? hyRecordText(rec) :`+${RULES.credit.stress20dMultiple * RULES.credit.widen20dBp}bp 이상`;
@@ -1307,6 +1558,7 @@ export function buildMarketRegime(input = {}) {
     ], read, flip, alignments.hy, [alignments.hy, alignments.pcr, alignments.fg]));
     // D01: scenario checks say why a non-favorable credit state is not "안정" (widening vs a borderline level).
     axes[axes.length - 1].widening = widening20 || (hy5 != null && hy5 > 0);
+    attachDistance(axes[axes.length - 1], creditDistance);
   }
   // 6. Dollar & commodities — oil (inflation channel), the dollar and gold.
   // P1394: oil is judged against its own 1-year range and 20-day change, not a fixed $90 line.
@@ -1331,6 +1583,32 @@ export function buildMarketRegime(input = {}) {
     if (wti20 == null && dxy20 == null && !wtiHigh) state = 'unknown';
     else if (oilBurden || dollarBurden) state = 'burden';
     else if (!oilHeld && wti20 != null && dxy20 != null && wti20 <= RULES.oil.fall20dPct && dxy20 <= 0) state = 'favorable';
+    // v58.55: the rule on hypothetical WTI and dollar-index closes (20-session bases and one-year ranges held), searched one
+    // at a time and together (both must move for 중립 from a double 부담, or for 양호), for 판단이 바뀌는 조건.
+    const rangeOf = (stat, value) => stat?.yearPosition == null || !(stat.yearMax > stat.yearMin) ? null : Math.min(1, Math.max(0, (value - stat.yearMin) / (stat.yearMax - stat.yearMin)));
+    const commoditiesAt = (wtiValue, dxyValue) => {
+      const w20 = wtiValue == null ? null : pct(wtiValue, wti?.d20), d20 = dxyValue == null ? null : pct(dxyValue, s.dxy?.d20);
+      const wPos = wtiValue == null ? null : rangeOf(wti, wtiValue);
+      const high = wPos != null && wPos >= RULES.oil.rangeHighAt;
+      if (w20 == null && d20 == null && !high) return 'unknown';
+      if ((!oilHeld && (high || (w20 != null && w20 >= RULES.oil.rise20dPct))) || dollarRiseBurden(d20, dxyValue == null ? null : rangeOf(s.dxy, dxyValue)) === true) return 'burden';
+      return !oilHeld && w20 != null && d20 != null && w20 <= RULES.oil.fall20dPct && d20 <= 0 ? 'favorable' : 'neutral';
+    };
+    const changeShow = (stat) => (to, current) => [pct(to, stat.d20) - pct(current, stat.d20), '%p', 1];
+    const pricePoint = (stat, subject, name, line, digits) => ({ at: stat.d20 * (1 + line / 100), subject: `${subject} 20일 변화가`, mark: `${line > 0 ? '+' : line < 0 ? '−' : '±'}${Math.abs(line)}%(${fmt(stat.d20 * (1 + line / 100), digits)})`, short: `${name} 20일 ${line > 0 ? '+' : line < 0 ? '−' : '±'}${Math.abs(line)}% · ${fmt(stat.d20 * (1 + line / 100), digits)}`, show: changeShow(stat) });
+    const positionPoint = (stat, subject, name, share, digits) => stat.yearPosition == null ? null : { at: stat.yearMin + share * (stat.yearMax - stat.yearMin), subject, mark: `1년 범위 ${Math.round(share * 100)}%(${fmt(stat.yearMin + share * (stat.yearMax - stat.yearMin), digits)})`, short: `${name} 1년 범위 ${Math.round(share * 100)}% · ${fmt(stat.yearMin + share * (stat.yearMax - stat.yearMin), digits)}`, show: (to, current) => [pct(to, current), '%', 1] };
+    const commodityLevers = [
+      wti?.d20 ? { key: 'wti', current: wti.value, typical: typicalDailyMove(buildCloseSeries(input.history, 'wti', { through: basis })), points: [
+        pricePoint(wti, 'WTI', 'WTI', RULES.oil.rise20dPct, 2), pricePoint(wti, 'WTI', 'WTI', RULES.oil.fall20dPct, 2), positionPoint(wti, 'WTI가', 'WTI', RULES.oil.rangeHighAt, 2)
+      ].filter(Boolean) } : null,
+      s.dxy?.d20 ? { key: 'dxy', current: s.dxy.value, typical: typicalDailyMove(buildCloseSeries(input.history, 'dxy', { through: basis })), points: [
+        pricePoint(s.dxy, '달러 인덱스', '달러', D.rise20dPct + D.bufferPct, 2), pricePoint(s.dxy, '달러 인덱스', '달러', D.rise20dPct, 2), pricePoint(s.dxy, '달러 인덱스', '달러', 0, 2),
+        positionPoint(s.dxy, '달러 인덱스가', '달러', D.rangeHighAt, 2)
+      ].filter(Boolean) } : null
+    ].filter(Boolean);
+    const commoditiesDistance = state === 'unknown' ? null : flipDistanceSearch({
+      state, stateAt: (values) => commoditiesAt(values.wti ?? (wti ? wti.value : null), values.dxy ?? (s.dxy ? s.dxy.value : null)), levers: commodityLevers
+    });
     const missing = state !== 'unknown' && (wti20 == null || dxy20 == null) ? ` (${wti20 == null ? 'WTI' : '달러'} 20일 변화 미수신)` : '';
     // P1726 (P1592 pattern): a 5-session move against the 20-session direction is named beside it — a +4.8% rebound
     // was hidden under "20일 -7.5%". The state still follows the 20-session rule.
@@ -1353,6 +1631,7 @@ export function buildMarketRegime(input = {}) {
       ['달러 인덱스', s.dxy ? `${fmt(s.dxy.value)} (20일 ${signed(dxy20)}${dxyPos != null ? ` · 1년 범위 ${fmt(dxyPos * 100, 0)}%` : ''})` : null],
       ['금', s.gold ? `${fmt(s.gold.value, 0)}달러 (20일 ${signed(gold20)})` : null]
     ], read, flip, alignments.wti));
+    attachDistance(axes[axes.length - 1], commoditiesDistance);
   }
   // 7. FX — the won (foreign flows into Korea) and the yen (carry trade; a fast yen rally has
   // preceded global de-risking, e.g. August 2024). P1394 adds USD/JPY at the owner's request.

@@ -70,9 +70,12 @@ const source = JSON.parse(sourceText);
 // 재무 공시 page; the 1 MiB runtime summary stays as it was. PIT observations stay producer-side.
 // P1446: the series also carries the cash chain — operating cash flow, capital spending, long-term debt —
 // and the share count reported on the cover page after each fiscal year end (buybacks / dilution).
-const FY_FIELDS = ['revenue', 'netIncome', 'equity', 'operatingCashFlow', 'capex', 'longTermDebt'];
-const DURATION_FIELDS = new Set(['revenue', 'netIncome', 'operatingCashFlow', 'capex']);
-export const FISCAL_HISTORY_FORMAT = 'periodEnd:revenue:netIncome:equity:operatingCashFlow:capex:longTermDebt:sharesMillions (USD millions)';
+// v58.55: two more columns — year-end total assets and annual R&D expense (DuPont, Sloan accruals, R&D ÷ revenue). They are
+// written only for a record whose observations were read by the v58.55 normalizer (the arrays exist, even empty), so the
+// page can tell "not yet collected" (8 columns) from "not reported" (10 columns, empty cell).
+const FY_FIELDS = ['revenue', 'netIncome', 'equity', 'operatingCashFlow', 'capex', 'longTermDebt', 'totalAssets', 'researchAndDevelopment'];
+const DURATION_FIELDS = new Set(['revenue', 'netIncome', 'operatingCashFlow', 'capex', 'researchAndDevelopment']);
+export const FISCAL_HISTORY_FORMAT = 'periodEnd:revenue:netIncome:equity:operatingCashFlow:capex:longTermDebt:sharesMillions[:totalAssets:researchAndDevelopment] (USD millions; the bracketed columns are present once the issuer was read with total assets and R&D — absent = not yet collected, empty = not reported)';
 const usdReport = (record) => !record?.reportingCurrency || record.reportingCurrency === 'USD';
 function fiscalHistory(observations = {}) {
   const byEnd = new Map();
@@ -122,12 +125,14 @@ function fiscalHistory(observations = {}) {
     return hit ? hit.value : null;
   };
   const m = compactFiscalMillions;
+  const assetChain = Array.isArray(observations.totalAssets);
   return [...byEnd.values()]
     .filter((entry) => entry.revenue != null || entry.netIncome != null)
     .sort((x, y) => x.periodEnd.localeCompare(y.periodEnd))
     .slice(-6)
     // One compact line per issuer (see FISCAL_HISTORY_FORMAT; empty = not reported).
-    .map((entry) => [entry.periodEnd, m(entry.revenue), m(entry.netIncome), m(entry.equity), m(entry.operatingCashFlow), m(entry.capex), m(entry.longTermDebt), m(sharesAfter(entry.periodEnd))].join(':'))
+    .map((entry) => [entry.periodEnd, m(entry.revenue), m(entry.netIncome), m(entry.equity), m(entry.operatingCashFlow), m(entry.capex), m(entry.longTermDebt), m(sharesAfter(entry.periodEnd)),
+      ...(assetChain ? [m(entry.totalAssets), m(entry.researchAndDevelopment)] : [])].join(':'))
     .join(';');
 }
 // P1449: the page projection is the shipped path. reconcileSecEquity (P1402) repairs top-level

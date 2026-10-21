@@ -15,11 +15,16 @@ import { finiteFact as finite, isPriorAnnualPeriod } from './period.js';
 export const SEC_EARNINGS_BASIS_VERSION = 'sec-earnings-basis.2026-10-17';
 export const SEC_COMMON_INCOME_CONCEPT = 'NetIncomeLossAvailableToCommonStockholdersBasic';
 // The first concept of each list is the anchor when several report the latest period.
+// v58.55: R&D expense as filed, in preference order. The acquired in-process R&D variants are the same line without
+// purchased IPR&D; the plain concept is preferred, the software variant is the last fallback. ResearchAndDevelopmentInProcess
+// (purchased IPR&D alone) is not ongoing R&D and is not read.
+export const SEC_RD_CONCEPTS = Object.freeze(['ResearchAndDevelopmentExpense', 'ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost', 'ResearchAndDevelopmentExpenseSoftwareExcludingAcquiredInProcessCost']);
 export const SEC_FIELD_CONCEPT_PREFERENCE = Object.freeze({
   netIncome: ['NetIncomeLoss', 'ProfitLossAttributableToOwnersOfParent', 'ProfitLoss'],
   operatingCashFlow: ['NetCashProvidedByUsedInOperatingActivities', 'NetCashProvidedByUsedInOperatingActivitiesContinuingOperations', 'CashFlowsFromUsedInOperatingActivities'],
   capex: ['PaymentsToAcquirePropertyPlantAndEquipment', 'PaymentsToAcquireProductiveAssets', 'PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'],
-  longTermDebt: ['LongTermDebtNoncurrent', 'LongTermDebt']
+  longTermDebt: ['LongTermDebtNoncurrent', 'LongTermDebt'],
+  researchAndDevelopment: SEC_RD_CONCEPTS
 });
 
 const rowEnd = (row) => row?.periodEnd ?? row?.end ?? null;

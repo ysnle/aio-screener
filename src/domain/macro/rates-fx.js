@@ -54,6 +54,31 @@ export function derivedThreeMonth(macroHistory, tenYear) {
   return spread == null ? null : { id: 'dgs3mo', label: '3개월', years: 0.25, value: Math.round((tenYear.value - spread) * 100) / 100, day: null, week: null, asOf: tenYear.asOf, derived: true };
 }
 
+// v58.55 (개편 v2 5e): the curve about one month (21 US sessions) before the official cut, drawn dashed behind it. The
+// Treasury XML feed keeps only the current month, so the earlier curve is read from FRED's H.15 constant-maturity series
+// (the same Treasury par yields) — on one common date, and only for tenors that exist on both dates. The 3-month point is
+// derived the same way as today's (10-year − T10Y3M on that date). A tenor whose history is not collected yet is listed
+// in `pending` instead of being guessed.
+export const CURVE_COMPARE_SESSIONS = 21;
+export function curveMonthAgo(macroHistory, yields = [], asOf = null) {
+  if (!asOf) return null;
+  const obs = (key) => new Map((macroHistory?.series?.[key]?.observations || []).filter(([date, value]) => date < asOf && Number.isFinite(value)));
+  const ten = obs('dgs10');
+  const spread3m = obs('t10y3m');
+  const valueOn = (row, date) => {
+    if (row.id === 'dgs3mo') return ten.has(date) && spread3m.has(date) ? Math.round((ten.get(date) - spread3m.get(date)) * 100) / 100 : null;
+    const map = obs(row.id);
+    return map.has(date) ? map.get(date) : null;
+  };
+  const dates = [...ten.keys()].sort().map((date) => ({ date }));
+  const target = sessionPointBack([...dates, { date: asOf }], CURVE_COMPARE_SESSIONS);
+  if (!target || target.date === asOf) return null;
+  const current = yields.filter((row) => row.value != null);
+  const points = current.map((row) => ({ id: row.id, label: row.label, years: row.years, value: valueOn(row, target.date) })).filter((row) => row.value != null);
+  const pending = current.filter((row) => !points.some((point) => point.id === row.id)).map((row) => row.label);
+  return points.length >= 2 ? { date: target.date, points, pending } : null;
+}
+
 // Expertise review 2026-10-19: the page said only whether 2s10s was inverted. A rates desk reads which leg moved the
 // spread (bull = yields falling, bear = rising) and whether an inversion has just ended — the curve has typically
 // re-steepened out of inversion, often bull-led as the Fed is expected to cut, shortly before past U.S. recessions.
@@ -272,6 +297,7 @@ export function buildRatesFx({ macro = null, history = [], macroHistory = null }
     curve.yields = [threeMonth, ...curve.yields];
     curve.fact = `${curve.fact} 3개월물은 같은 날 10년물에서 10년–3개월 금리차를 빼서 구한 값입니다.`;
   }
+  curve.previous = curveMonthAgo(macroHistory, curve.yields, curve.asOf);
   const basis = closeBasis(history);
   const fx = FX_SERIES.map((spec) => fxCard(history, basis, spec));
   const yen = fx.find((card) => card.id === 'usdjpy');

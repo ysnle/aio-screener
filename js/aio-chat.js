@@ -3970,7 +3970,7 @@ function _buildAioIntegratedAnswerContext(ctxId, query, flags) {
         else if (p === 'themes' || p === 'theme-detail') pushPage('테마 · 섹터');
         else if (p === 'portfolio') pushPage('포트폴리오');
         else if (p === 'market-news' || p === 'briefing') pushPage('오늘 · 브리핑·뉴스');
-        else if (p === 'home') pushPage('오늘 · 대시보드');
+        else if (p === 'home') pushPage('오늘 · 요약');
       });
     });
     if (nav && nav.target && nav.target !== lowerCtx) pushPage('관련 페이지: ' + nav.label);

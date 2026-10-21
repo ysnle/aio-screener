@@ -21,6 +21,7 @@ import { deepDiveFold } from './deep-dive.js';
 import { renderMacroCrossroads, openCrossroadsBranch } from './macro-crossroads.js';
 import { BRANCHES } from '../../domain/market/macro-crossroads.js';
 import { longHistoryRows } from '../../domain/macro/long-history.js';
+import { taylorRule, TAYLOR_R_STAR_OPTIONS } from '../../domain/macro/taylor-rule.js';
 import { el } from './dom.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 
@@ -287,8 +288,8 @@ function axisCard(doc, row, root = null, open = false) {
 }
 
 // v58.53 개편 v2 (3e): the rate strip under the factors — the Fisher split of the 10-year yield (DGS10 ≈ DFII10 + T10YIE on
-// one shared FRED date) and the 10-year − 3-month spread (T10Y3M). The design's Taylor-rule tile has no published
-// neutral-rate / unemployment-gap source in AIO's artifacts, so it is not drawn.
+// one shared FRED date) and the 10-year − 3-month spread (T10Y3M).
+// v58.55: the design's Taylor-rule tile, now that CBO's natural rate (FRED NROU) is collected — see taylorTile below.
 function basisValue(doc, text, explanation, asOf) {
   const node = el(doc, 'b', text, 'mk-rate-tile__value');
   node.title = explanation;
@@ -327,13 +328,76 @@ function renderRateStrip(doc, root) {
       el(doc, 'span', value >= 0 ? '역전 아님 — 경기 침체 확률 모형에 쓰이는 대표 입력' : '역전 — 과거 미국 경기 침체 대부분에 앞섰던 신호', 'mk-rate-tile__note'), dateChip(date));
     tiles.push(tile);
   }
+  const taylor = taylorRule({ macroHistory: root?._aioMacroHistory || null, macro: root?._aioServerMacro || null, rStar: root?.__aioTaylorRStar });
+  if (tiles.length || taylor.inflation || taylor.unemployment) tiles.push(taylorTile(doc, root, taylor));
   host.hidden = !tiles.length;
   if (!tiles.length) { host.replaceChildren(); return; }
   const grid = el(doc, 'div', null, 'mk-rate-strip__grid');
   grid.append(...tiles);
   const line = el(doc, 'p', null, 'sx-evidence mk-rate-strip__evidence');
-  line.append(el(doc, 'span', '근거 · Fisher 1930 · Estrella·Mishkin 1998'), el(doc, 'span', '데이터 · FRED (DGS10 · DFII10 · T10YIE · T10Y3M)'));
-  host.replaceChildren(grid, line);
+  line.append(el(doc, 'span', '근거 · Fisher 1930 · Estrella·Mishkin 1998 · Taylor 1993'), el(doc, 'span', '데이터 · FRED (DGS10 · DFII10 · T10YIE · T10Y3M · PCEPILFE · UNRATE · NROU · DFEDTARL/U)'));
+  host.replaceChildren(grid, taylorFold(doc, taylor), line);
+}
+
+// v58.55 (개편 v2 3e): Taylor (1993) as a reference point for the policy rate. r* is an assumption the reader switches
+// (0.5% / 1.0%); the face shows where the actual target-range midpoint sits against the rule, never what the Fed should do.
+const STANCE_WORD = Object.freeze({ near: '준칙 근처', tighter: '준칙보다 긴축적', looser: '준칙보다 완화적' });
+function taylorTile(doc, root, t) {
+  const tile = el(doc, 'div', null, 'mk-rate-tile mk-taylor');
+  const head = el(doc, 'div', null, 'mk-taylor__head');
+  head.append(el(doc, 'span', '테일러 준칙 대비 정책금리', 'mk-rate-tile__label'));
+  const pct = (value, digits = 2) => `${value.toFixed(digits)}%`;
+  if (t.available) {
+    const seg = el(doc, 'div', null, 'sx-seg mk-taylor__seg');
+    seg.setAttribute('role', 'group');
+    seg.setAttribute('aria-label', '중립 실질금리(r*) 가정');
+    for (const option of TAYLOR_R_STAR_OPTIONS) {
+      const button = el(doc, 'button', `r* ${option.toFixed(1)}%`);
+      button.type = 'button';
+      button.setAttribute('aria-pressed', String(option === t.rStar));
+      button.addEventListener('click', () => { root.__aioTaylorRStar = option; renderRateStrip(doc, root); });
+      seg.append(button);
+    }
+    head.append(seg);
+  }
+  tile.append(head);
+  const month = (date) => `${Number(String(date).slice(5, 7))}월`;
+  const quarter = (date) => `${Math.floor((Number(String(date).slice(5, 7)) - 1) / 3) + 1}분기`;
+  const inputs = [
+    t.inflation ? `근원 PCE ${pct(t.inflation.value, 1)} (${month(t.inflation.date)})` : '근원 PCE 없음',
+    t.unemployment ? `실업률 ${pct(t.unemployment.value, 1)} (${month(t.unemployment.date)})` : '실업률 없음',
+    t.natural ? `자연실업률 ${pct(t.natural.value, 1)} (CBO ${quarter(t.natural.date)})` : null
+  ].filter(Boolean).join(' · ');
+  if (!t.available) {
+    // Until the producer's first run with NROU, the inputs that exist are shown and the rule waits — no assumed u*.
+    tile.append(el(doc, 'b', '수집 대기', 'mk-rate-tile__value is-pending'),
+      el(doc, 'span', `${t.natural ? '' : 'CBO 자연실업률(NROU)을 다음 자료 갱신부터 받아 계산합니다. '}${inputs}`, 'mk-rate-tile__note'));
+    return tile;
+  }
+  const valueText = t.diff == null ? `준칙 ${pct(t.rule)}` : `${signed(t.diff, 2)}%p ${STANCE_WORD[t.stance]}`;
+  const value = basisValue(doc, valueText, '실제 연준 목표 범위 중간값에서 테일러 준칙 금리를 뺀 값입니다. 양수면 정책금리가 준칙보다 높아(긴축적) 있고, 음수면 낮습니다. 연준이 따라야 하는 값이 아니라 비교 기준입니다.', null); // inputs carry their months below
+  const target = t.target ? `실제 목표 범위 ${t.target.lower.toFixed(2)}~${t.target.upper.toFixed(2)}% (중간 ${t.target.mid.toFixed(3).replace(/0$/, '')}%)` : '실제 목표 범위 자료 없음';
+  tile.append(value,
+    el(doc, 'span', `준칙 ${pct(t.rule)} (r* ${t.rStar.toFixed(1)}%) · r* 0.5~1.0% 가정 시 ${pct(t.range.lo)}~${pct(t.range.hi)} · ${target}`, 'mk-rate-tile__note'),
+    el(doc, 'span', `${inputs} · 실업률 갭 ${signed(t.unemploymentGap, 1)}%p`, 'mk-rate-tile__note'));
+  return tile;
+}
+
+function taylorFold(doc, t) {
+  const fold = el(doc, 'details', null, 'sx-disclosure mk-taylor__fold');
+  fold.append(el(doc, 'summary', '테일러 준칙 — 계산식과 한계'));
+  const body = el(doc, 'div', null, 'sx-disclosure__body mk-taylor__body');
+  const card = (title, text) => { const box = el(doc, 'div', null, 'sx-disclosure__card'); box.append(el(doc, 'span', title, 'sx-disclosure__label'), el(doc, 'p', text, 'sx-disclosure__text')); return box; };
+  const filled = t.available
+    ? ` 지금: ${t.rStar.toFixed(1)} + ${t.inflation.value.toFixed(2)} + 0.5×(${t.inflation.value.toFixed(2)} − 2) + 0.5×(${t.outputGap.toFixed(2)}) = ${t.rule.toFixed(2)}%.`
+    : '';
+  body.append(
+    card('계산식', `준칙 금리 = r* + 물가 + 0.5×(물가 − 2%) + 0.5×(산출 갭). 물가는 연준 목표 지표인 근원 PCE 전년 대비, 산출 갭은 오쿤의 법칙으로 실업률에서 환산합니다(산출 갭 ≈ −2 × (실업률 − CBO 자연실업률)).${filled}`),
+    card('r*는 가정입니다', 'r*(중립 실질금리)는 직접 관측되지 않는 추정값이라 0.5%와 1.0%를 바꿔 볼 수 있게 했습니다. r*가 0.5%p 달라지면 준칙 금리도 그대로 0.5%p 달라집니다.'),
+    card('한계', '존 테일러(1993)가 과거 연준 정책을 요약한 기준선입니다. 연준은 이 식을 기계적으로 따르지 않고, 자연실업률·r* 추정 오차와 금융 여건·위험 관리도 함께 봅니다. 준칙과의 차이는 정책 위치를 설명할 뿐 다음 결정을 예측하지 않습니다.')
+  );
+  fold.append(body);
+  return fold;
 }
 
 function chainNode(doc, node) {
@@ -627,7 +691,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
 
 // The Treasury par curve on a log-maturity axis (expert review M22: an evenly spaced axis drew 2→5 years as wide as
 // 20→30 years and bent the curve's shape).
-function curveSvg(doc, yields) {
+function curveSvg(doc, yields, previous = null) {
   const points = yields.filter((row) => row.value != null);
   // Screen audit 2026-10-20: a phone scaled the 520×150 chart to about 100px tall with 8px labels; narrow screens get a taller frame.
   const narrow = Number(doc.defaultView?.innerWidth) > 0 && doc.defaultView.innerWidth < 600;
@@ -640,8 +704,11 @@ function curveSvg(doc, yields) {
   svg.setAttribute('role', 'img');
   svg.style.maxHeight = '220px'; // v57.91: a wide desktop column scaled the 150-unit chart (and its text) to about 2x
   if (points.length < 2) { svg.setAttribute('aria-label', '수익률 곡선 자료 부족'); return svg; }
-  svg.setAttribute('aria-label', `미 국채 수익률 곡선: ${points.map((row) => `${row.label} ${row.value.toFixed(2)}%`).join(', ')}`);
-  const values = points.map((row) => row.value);
+  const prevLabel = previous?.points?.length ? ` · 1개월 전(${shortDate(previous.date)}): ${previous.points.map((row) => `${row.label} ${row.value.toFixed(2)}%`).join(', ')}` : '';
+  svg.setAttribute('aria-label', `미 국채 수익률 곡선: ${points.map((row) => `${row.label} ${row.value.toFixed(2)}%`).join(', ')}${prevLabel}`);
+  // v58.55 (5e): the dashed "1개월 전" curve shares the scale, so its points are part of the range.
+  const prevById = new Map((previous?.points || []).map((row) => [row.id, row.value]));
+  const values = [...points.map((row) => row.value), ...prevById.values()];
   const lo = Math.floor((Math.min(...values) - 0.1) * 10) / 10;
   const hi = Math.ceil((Math.max(...values) + 0.1) * 10) / 10;
   const logs = yields.map((row) => Math.log(row.years || 1));
@@ -659,20 +726,46 @@ function curveSvg(doc, yields) {
     add('line', { x1: pad.left, x2: W - pad.right, y1: y(value), y2: y(value), class: 'trend-chart-grid' });
     add('text', { x: pad.left - 6, y: y(value) + 4, 'text-anchor': 'end', class: 'trend-chart-axis' }, `${value.toFixed(1)}%`);
   });
+  const prevPath = yields.map((row, index) => (prevById.has(row.id) ? `${x(index)},${y(prevById.get(row.id))}` : null)).filter(Boolean);
+  if (prevPath.length >= 2) add('polyline', { points: prevPath.join(' '), class: 'rates-curve-prev' });
   const path = yields.map((row, index) => (row.value == null ? null : `${x(index)},${y(row.value)}`)).filter(Boolean).join(' ');
   add('polyline', { points: path, class: 'trend-chart-line' });
+  // v58.55: on the narrow frame 20년 sits ~24 units from 30년 and its labels ran into 10년/30년 once the chart drew at its
+  // real height; a label too close to the one kept to its right is dropped (the dot stays, the value is in the row below).
+  const minGap = narrow ? 34 : 0;
+  const labelled = new Set();
+  for (let index = yields.length - 1, kept = Infinity; index >= 0; index -= 1) {
+    if (kept - x(index) >= minGap) { labelled.add(index); kept = x(index); }
+  }
   yields.forEach((row, index) => {
     // v57.81: the last two tenors (20년·30년) sit 37 units apart; the narrow-screen label floor (responsive.css) turns them
     // away from each other instead of letting them touch. The classes do not change the drawn chart on their own.
     const edge = index === yields.length - 1 ? ' is-last' : index === yields.length - 2 ? ' is-penult' : '';
     // v57.91 (visual audit): the 20-year labels lean left of their point so they never meet the 30-year ones.
     const lean = index === yields.length - 2 ? { dx: -4, anchor: 'end' } : { dx: 0, anchor: 'middle' };
-    add('text', { x: x(index) + lean.dx, y: H - 6, 'text-anchor': lean.anchor, class: `trend-chart-axis rates-curve-tenor${edge}` }, row.label);
+    if (labelled.has(index)) add('text', { x: x(index) + lean.dx, y: H - 6, 'text-anchor': lean.anchor, class: `trend-chart-axis rates-curve-tenor${edge}` }, row.label);
     if (row.value == null) return;
     add('circle', { cx: x(index), cy: y(row.value), r: 3.5, class: 'rates-curve-dot' });
-    add('text', { x: x(index) + lean.dx, y: y(row.value) - 8, 'text-anchor': lean.anchor, class: 'rates-curve-label' }, row.value.toFixed(2));
+    if (labelled.has(index)) add('text', { x: x(index) + lean.dx, y: y(row.value) - 8, 'text-anchor': lean.anchor, class: 'rates-curve-label' }, row.value.toFixed(2));
   });
   return svg;
+}
+
+// v58.55 (5e): legend for the two curves — the official cut's date and the dashed line one month (21 sessions) earlier.
+// Tenors without collected history are named as 수집 대기 rather than drawn from a guess.
+function curveLegend(doc, t) {
+  const legend = el(doc, 'div', null, 'rates-curve-legend');
+  if (t.asOf) legend.append(el(doc, 'span', shortDate(t.asOf), 'rates-curve-key is-now'));
+  const prev = t.previous;
+  if (prev) {
+    const key = el(doc, 'span', `1개월 전 · ${shortDate(prev.date)}`, 'rates-curve-key is-prev');
+    key.title = `${prev.date} FRED H.15 국채 고정만기 금리(미 재무부 공식 곡선과 같은 값) — 이날과 오늘 모두 값이 있는 만기만 잇습니다.`;
+    legend.append(key);
+    if (prev.pending.length) legend.append(el(doc, 'span', `${prev.pending.join('·')} 1개월 전 값 수집 대기`, 'rates-curve-key is-pending'));
+  } else if (t.asOf) {
+    legend.append(el(doc, 'span', '1개월 전 곡선 수집 대기', 'rates-curve-key is-pending'));
+  }
+  return legend;
 }
 
 function trendCard(doc, { id, title, valueText, chip, chipOff, lines, series, format, note }) {
@@ -725,7 +818,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     }));
   }
   const curveHost = doc.getElementById('rates-curve');
-  if (curveHost) curveHost.replaceChildren(curveSvg(doc, t.yields));
+  if (curveHost) curveHost.replaceChildren(curveLegend(doc, t), curveSvg(doc, t.yields, t.previous));
   const spreads = doc.getElementById('rates-spreads');
   if (spreads) {
     spreads.replaceChildren(...t.curve.map((row) => {

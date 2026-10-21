@@ -9,7 +9,7 @@ import { deriveSecReport, fundamentalValueFlags } from '../../domain/fundamental
 import { canonicalEpochMs } from '../../domain/chart/contract.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { setStockSubject } from '../navigation/route-hubs.js';
-import { renderStockRead } from '../components/stock-read.js';
+import { renderStockRead, renderStockAnalysis } from '../components/stock-read.js';
 import { renderFiscalRead } from '../components/fiscal-read.js';
 import { createSummaryHydrator } from '../../domain/entity/summary-hydration.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
@@ -299,7 +299,7 @@ function renderTickerNavigation(documentRef, state, root) {
     if (backButton) { backButton.textContent = '← 돌아가기'; backButton.setAttribute('aria-label', '돌아가기'); }
     return;
   }
-  const origins = { screener: '스크리너', themes: '테마 · 섹터', portfolio: '포트폴리오', fundamental: '재무 공시', technical: '차트', 'market-news': '뉴스', briefing: '브리핑', masters: '대가 보유 종목', home: '대시보드' };
+  const origins = { screener: '스크리너', themes: '테마 · 섹터', portfolio: '포트폴리오', fundamental: '재무 공시', technical: '차트', 'market-news': '뉴스', briefing: '브리핑', masters: '대가 보유 종목', home: '오늘' };
   const requestedOrigin = root?.AIO?.state?.tickerReturnRoute;
   // P1599 (S01): with no recorded entry route (left menu, search, a shared link) there is no screen to name —
   // the old default printed '← 재무 공시' for a page the reader never came from. The tabs already move between views.
@@ -787,6 +787,15 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
       : root?._aioOnDemandSymbol?.(state.id)?.status === 'loading' ? 'loading' : state?.fundamentalsMeta ? 'absent' : 'failed';
     renderStockRead({ documentRef, root, symbol: state?.id || root?._currentTickerId || '', fundamentals: state?.fundamentals, fundamentalsState }); // P1434; v57.51 N20 recent filings
     renderCompanyAnalysis({ documentRef, root, state });
+    // v58.55 (3d): 듀폰 분해 + 역 DCF. The price is the screener's completed-session valuation close (the same close its
+    // P/E uses), else the latest dated close; never the live quote, so the calculator does not move with every tick.
+    const analysisId = String(state?.id || '').toUpperCase();
+    let analysisRow = null;
+    try { analysisRow = (root?._aioGetCanonicalScreenerRows?.() || []).find((item) => item?.sym === analysisId) || null; } catch (_) { analysisRow = null; }
+    const valuationClose = finite(analysisRow?._valuationPrice ?? analysisRow?._valuationPePrice ?? analysisRow?.valuationPrice);
+    const valuationDate = String(analysisRow?.factorSessionDate || '').slice(0, 10);
+    const analysisClose = valuationClose > 0 && /^\d{4}-\d{2}-\d{2}$/.test(valuationDate) ? { value: valuationClose, date: valuationDate } : analysisId ? lastPublishedClose(analysisId, state, root) : null;
+    renderStockAnalysis({ documentRef, root, symbol: analysisId, fundamentals: state?.id === analysisId ? state?.fundamentals : null, close: analysisClose, sector: analysisRow?.sector || null });
   }
   if (route === 'fundamental') {
     // P1430: 재무 공시 is the same company as 요약 · 차트.

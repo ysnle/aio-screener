@@ -50,6 +50,23 @@
 #page-home .home-flip-mark.is-down { background: var(--sx-warn-bg); color: var(--data-amber); }
 #page-home .home-flip-text { font-size: 13px; line-height: 1.6; color: var(--text-secondary); text-wrap: pretty; overflow-wrap: anywhere; }
 #page-home .home-flip-axis { font-weight: 600; color: var(--text-primary); }
+/* v58.55: distance rows — badge · one short sentence · the distance chip (design 2b), nearest first. */
+#page-home .home-flips-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+#page-home .home-flips-order { font-size: 12px; color: var(--text-muted); white-space: nowrap; cursor: help; }
+#page-home .home-flip[data-direction] { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 12px; align-items: start; }
+#page-home .home-flip[data-direction] .home-flip-text { color: var(--text-primary); }
+#page-home .home-flip-num { font-weight: 700; font-variant-numeric: tabular-nums; }
+#page-home .home-flip[data-direction] .home-flip-axis { white-space: nowrap; }
+#page-home .home-flip-also { display: block; font-size: 12px; line-height: 1.5; color: var(--text-muted); }
+#page-home .home-flip-chip {
+  justify-self: end; padding: 3px 9px; border-radius: 999px; background: var(--sx-ink-a07); color: var(--text-primary);
+  font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; cursor: help;
+}
+#page-home .home-flips-full { margin: 0 -8px; }
+#page-home .home-flips-full > summary { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 6px 8px; font-size: 12px; color: var(--text-secondary); min-height: 24px; }
+#page-home .home-flips-rules { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px 0; margin: 0; padding: 0 8px 10px; font-size: 12px; line-height: 1.6; }
+#page-home .home-flips-rules dt { margin-top: 6px; font-weight: 600; color: var(--text-primary); }
+#page-home .home-flips-rules dd { margin: 0; color: var(--text-secondary); overflow-wrap: anywhere; }
 #page-home .home-flips-link { align-self: flex-start; margin-top: auto; min-height: 24px; }
 #page-home .home-flips-link::after { content: ' ›'; }
 
@@ -365,7 +382,7 @@
   #page-home #home-daily-loop.daily-loop { grid-template-columns: minmax(0, 1fr); }
   #page-home #home-daily-loop .daily-name { grid-template-columns: auto minmax(0, 1fr) auto; }
   #page-home #home-daily-loop .daily-name-price { display: none; }
-  #page-home #home-daily-loop .daily-name-symbol, #page-home .home-flips-link, #page-home #home-daily-loop .flow-next-link { min-height: 44px; }
+  #page-home #home-daily-loop .daily-name-symbol, #page-home .home-flips-link, #page-home .home-flips-full > summary, #page-home #home-daily-loop .flow-next-link { min-height: 44px; }
   #page-home .home-changes > summary { grid-template-columns: minmax(0, 1fr) auto; }
   #page-home .home-changes-lead { grid-column: 1 / -1; grid-row: 2; white-space: normal; }
   #page-home .home-participation-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 8px 20px 12px; }

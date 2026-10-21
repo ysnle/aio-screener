@@ -254,6 +254,18 @@ function fiveDayChange(id, inputs, asOf) {
   return null;
 }
 
+// v58.55 (owner 2026-10-20): the design's 기준까지 column — the nearest threshold of the axis rule (regime axis.flipDistance,
+// measured in the indicator's own unit) in bold, the line it is measured to under it.
+function distanceCell(doc, row) {
+  const cell = el(doc, 'span', null, 'mk-axis__dist');
+  const d = row.flipDistance;
+  if (!d) { cell.textContent = '—'; cell.classList.add('is-empty'); return cell; }
+  cell.dataset.direction = d.direction;
+  cell.append(el(doc, 'b', d.label, 'mk-axis__dist-value'), el(doc, 'span', `${d.short}${d.also?.length ? ' · 함께 필요' : ''}`, 'mk-axis__dist-basis'));
+  cell.title = `${d.condition} ${row.title} → ${d.towardLabel}${(d.also || []).map((also) => ` · 함께 필요: ${also.condition}${also.text ? ` (${also.text})` : ''}`).join('')}`;
+  return cell;
+}
+
 function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, open }) {
   const card = el(doc, 'details', null, 'regime-axis sx-disclosure mk-axis');
   card.dataset.axis = row.id;
@@ -269,7 +281,7 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
   const rule = el(doc, 'span', row.flip || '—', 'mk-axis__rule');
   if (row.flip) rule.title = row.flip;
   summary.append(name, el(doc, 'span', row.stateLabel, `sx-chip sx-chip--sm sx-chip--${TONE[row.state] || 'neutral'} mk-axis__state`),
-    el(doc, 'span', faceValue(row) || '최신 관측 없음', 'mk-axis__value'), rule,
+    el(doc, 'span', faceValue(row) || '최신 관측 없음', 'mk-axis__value'), rule, distanceCell(doc, row),
     el(doc, 'span', prevText, `mk-axis__prev${prevShown && prevShown.state !== row.state ? ' is-changed' : ''}`),
     el(doc, 'span', fiveDayChange(row.id, inputs, asOf) || '—', 'mk-axis__d5'));
   card.append(summary);
@@ -289,7 +301,26 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
   if (chart) detail.append(chart);
   const facts = el(doc, 'div', null, 'mk-axis__facts');
   if (row.evidence.length) { const list = el(doc, 'dl', null, 'regime-evidence'); for (const [label, value] of row.evidence) list.append(el(doc, 'dt', label), el(doc, 'dd', value)); facts.append(list); }
-  if (row.flip) { const changes = el(doc, 'div', null, 'regime-axis-observe'); changes.append(el(doc, 'h4', '상태가 바뀌는 조건'), el(doc, 'p', row.flip)); facts.append(changes); }
+  if (row.flip) {
+    const changes = el(doc, 'div', null, 'regime-axis-observe');
+    // v58.55: the nearest threshold toward each other state (the rule's own numbers), then the full rule sentence.
+    if (row.flipDistances?.length) {
+      changes.append(el(doc, 'h4', '가장 가까운 기준'));
+      const near = el(doc, 'ul', null, 'mk-axis__near');
+      for (const item of row.flipDistances) {
+        const li = el(doc, 'li', null, 'mk-axis__near-item');
+        li.dataset.direction = item.direction;
+        li.append(el(doc, 'b', `${item.direction === 'improve' ? '↑' : '↓'} ${item.towardLabel}까지 ${item.text}`, 'mk-axis__near-value'),
+          el(doc, 'span', `${item.condition} ${row.title} → ${item.towardLabel}${(item.also || []).map((also) => ` · 함께 필요: ${also.condition}${also.text ? ` (${also.text})` : ''}`).join('')}`, 'mk-axis__near-text'));
+        near.append(li);
+      }
+      changes.append(near);
+    }
+    changes.append(el(doc, 'h4', '상태가 바뀌는 조건'), el(doc, 'p', row.flip));
+    // The 5거래일 전 column folds away below desktop width; the opened row keeps it.
+    changes.append(el(doc, 'p', `5거래일 전 판정 · ${prevText}`, 'mk-axis__prev-line'));
+    facts.append(changes);
+  }
   const watch = scenarios.axes?.find((axis) => axis.id === row.id);
   if (row.flip && watch?.observe) facts.append(el(doc, 'h4', '다음 확인'), el(doc, 'p', watch.observe, 'regime-read'));
   const links = deepDiveLinks(doc, root, deep);
@@ -527,6 +558,14 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
   const { regime } = interpretation;
   requestRegimeMacroHistory(root, doc, 'page-home', () => renderHomeRegime({ documentRef: doc, root, store }));
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
+  // v58.55 (design 2b): the page kicker above the 오늘 title — today's date (KST) · the close the verdict is based on.
+  const kicker = doc.getElementById('home-date-label');
+  if (kicker) {
+    let today = '';
+    try { today = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: 'long', day: 'numeric', weekday: 'long' }).format(new Date()); } catch (_) { today = ''; }
+    const text = [today, regime.available && regime.asOf ? `${shortDate(regime.asOf)} 미국 종가 기준` : ''].filter(Boolean).join(' · ');
+    if (text) kicker.textContent = text;
+  }
   set('home-hero-total', regime.available ? regime.overall : '판정 대기');
   set('home-hero-headline', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · 미국 6개 지표 ${regime.holdReason || summaryLine(regime)}` : '종가 기록을 불러오는 중입니다.');
   set('home-hero-desc', regime.conflicts?.[0] || '');

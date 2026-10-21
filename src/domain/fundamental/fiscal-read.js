@@ -169,7 +169,8 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
   if (roe != null) points.push({ id: 'roe', tone: roe >= 20 ? 'favorable' : roe < 5 ? 'burden' : 'neutral', title: '자본 효율', /* v57.84: green only where the text says 높은 (≥20) */
     // Codex browser audit H37: the generic "buybacks or debt" explanation read as this company's cause. The reading
     // now uses what is measured here (margin, equity change) and names what is not (assets, so no DuPont split).
-    text: `ROE ${roe.toFixed(1)}%(${roeBasis}) — ${roe < 0 ? '순손실로 자본이 줄어든 해' : roe >= 20 ? '자기자본 대비 높은 이익' : roe >= 10 ? '평균적인 자본 효율' : '자본 대비 이익이 낮은 편'}입니다.${roe >= 40 ? ` 이 수준에서는 순이익률${latest?.margin != null ? `(${latest.margin.toFixed(1)}%)` : ''}·자산 회전·재무 레버리지 중 무엇이 끌어올렸는지 나눠 봐야 합니다. 이 화면에는 자산 총계가 없어 그 분해는 하지 않습니다${equityChange != null ? ` — 자기자본은 전년보다 ${signed(equityChange)} 변했습니다` : ''}.` : ''}` });
+    // v58.55: with total assets collected the split is the 종목 요약 DuPont card; until then it says it is pending.
+    text: `ROE ${roe.toFixed(1)}%(${roeBasis}) — ${roe < 0 ? '순손실로 자본이 줄어든 해' : roe >= 20 ? '자기자본 대비 높은 이익' : roe >= 10 ? '평균적인 자본 효율' : '자본 대비 이익이 낮은 편'}입니다.${roe >= 40 ? ` 이 수준에서는 순이익률${latest?.margin != null ? `(${latest.margin.toFixed(1)}%)` : ''}·자산 회전·재무 레버리지 중 무엇이 끌어올렸는지 나눠 봐야 합니다. ${finite(latest?.totalAssets) > 0 ? '종목 요약의 듀폰 분해 카드가 세 요인을 나눠 보여 줍니다' : latest?.assetChain ? '총자산이 공시 수집본에 없어 그 분해는 하지 않습니다' : '총자산 수집이 끝나면 종목 요약의 듀폰 분해 카드에서 나눠 봅니다'}${equityChange != null ? ` — 자기자본은 전년보다 ${signed(equityChange)} 변했습니다` : ''}.` : ''}` });
   // P1446: the cash chain — earnings → operating cash → capital spending → free cash → debt and share count.
   const ocf = finite(latest?.operatingCashFlow);
   const capex = finite(latest?.capex);

@@ -16,6 +16,10 @@ import { summarizeValidation } from './screener-validation.js';
 import { el } from './dom.js';
 import { openThemeDetail } from '../navigation/theme-detail.js';
 import { buildOutOfUniverseRead } from '../../domain/entity/out-of-universe-read.js';
+import { requestFiscalHistory, parseFiscalHistory } from './fiscal-read.js';
+import { dupontCard, reverseDcfCard } from './fundamental-analysis-cards.js';
+import { assetChainState } from '../../domain/fundamental/analysis-read.js';
+import { isLendingFinancial } from '../../domain/fundamental/fiscal-read.js';
 
 const TICKER_INDEX_REFERENCE_URL = './public-data/masters/ticker-index-reference.json';
 
@@ -362,4 +366,34 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   if (onDemand) host.append(outOfUniverseBlock(doc, root, onDemand));
   renderNextSteps(doc, next, read.next);
   return read;
+}
+
+// v58.55 (개편 v2 3d): 종목 요약's analysis pair (3d): 듀폰 분해 beside 역 DCF, in its own host so a quote tick (which rebuilds the reading
+// card) never resets a slider the reader is moving. Rebuilt only when its inputs change.
+export function renderStockAnalysis({ documentRef: doc, root, symbol, fundamentals = null, close = null, sector = null }) {
+  const host = doc?.getElementById('ticker-analysis');
+  if (!host) return null;
+  const sym = String(symbol || '').trim().toUpperCase();
+  const own = fundamentals && String(fundamentals.symbol || sym).toUpperCase() === sym ? fundamentals : null;
+  if (!sym || /\.K[SQ]$/i.test(sym) || !own) { host.hidden = true; host.replaceChildren(); delete host.dataset.signature; return null; }
+  requestFiscalHistory(root, () => {
+    if (String(root?._currentTickerId || '').toUpperCase() === sym) renderStockAnalysis({ documentRef: doc, root, symbol: sym, fundamentals, close, sector });
+  }, 'stock-analysis');
+  const text = root?._aioSecFiscalHistory?.[sym];
+  const history = typeof text === 'string' ? parseFiscalHistory(text) : [];
+  const financial = isLendingFinancial(sym, sector);
+  const signature = JSON.stringify([sym, text || '', own.sharesOutstanding ?? null, own.observedAt ?? null, close?.value ?? null, close?.date ?? null, financial]);
+  if (host.dataset.signature === signature && host.childElementCount) return host;
+  // A history request still in flight: nothing to draw yet (the callback repaints), unless it already failed.
+  if (!history.length && root?._aioSecFiscalHistory === undefined) { host.hidden = true; return null; }
+  host.dataset.signature = signature;
+  host.hidden = false;
+  host.replaceChildren(el(doc, 'h2', '수익성 구조와 가격이 말하는 기대', 'sr-only'));
+  const pair = el(doc, 'div', null, 'v2-stock-pair v2-analysis-pair');
+  const dupont = history.length ? dupontCard(doc, history, { financial }) : null;
+  const dcf = reverseDcfCard(doc, root, { history, fundamentals: own, close, financial, symbol: sym });
+  pair.append(...[dupont, dcf].filter(Boolean));
+  host.append(pair);
+  host.dataset.assetChain = assetChainState(history);
+  return host;
 }

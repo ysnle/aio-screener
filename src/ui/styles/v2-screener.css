@@ -293,6 +293,8 @@
 #page-portfolio #pf-reading { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 #page-portfolio #pf-reading > h2, #page-portfolio #pf-reading > .pf-reading-evidence { grid-column: 1 / -1; }
 #page-portfolio #pf-reading[hidden] { display: none; }
+/* v58.55 채권 완충 makes a fourth 읽는 법 card: two even columns instead of a 3 + 1 row. */
+#page-portfolio #pf-reading:has(> .pf-reading-card:nth-of-type(4)) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 #page-portfolio .pf-reading-card { padding: 14px 16px; border-radius: 14px; background: var(--sx-ink-a03); }
 #page-portfolio .pf-reading-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin: 0 0 4px; font-size: 14px; font-weight: 700; }
 #page-portfolio .pf-reading-value { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -322,7 +324,7 @@
   #page-screener .scr-custom-summary { position: static; }
   #page-screener .scr-why-drawer.sx-sheet { max-height: 86vh; overflow-y: auto; }
   #page-portfolio .pf-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  #page-portfolio #pf-reading { grid-template-columns: minmax(0, 1fr); }
+  #page-portfolio #pf-reading, #page-portfolio #pf-reading:has(> .pf-reading-card:nth-of-type(4)) { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 1023px) {
   /* Touch targets (4a): every screener control at least 44px tall on iPad portrait and phone. */

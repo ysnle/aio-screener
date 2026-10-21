@@ -166,6 +166,60 @@
 #page-fundamental .sh-fund-btn { height: 36px; padding: 0 16px; border: 0 !important; border-radius: 999px !important; background: var(--text-primary) !important; color: var(--bg-base) !important; font-weight: 600; }
 #page-fundamental #fund-native-sec-report, #page-fundamental #fund-legacy-fold { border: 0 !important; border-radius: 14px !important; background: var(--sx-ink-a03) !important; padding: 12px 16px !important; margin-top: 12px; }
 
+/* ═══ 3b. 분석 카드 — 듀폰 · 역 DCF · R&D · 발생액 (v58.55) ════════════════ */
+#page-ticker #ticker-analysis { margin: 0 0 18px; }
+#page-ticker #ticker-analysis[hidden] { display: none; }
+.v2-analysis-card { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.v2-analysis-card > .sx-card__head { padding: 0; flex-wrap: wrap; }
+.v2-analysis-head__meta { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px 10px; }
+.v2-analysis-lede { margin: 0; font-size: 14px; line-height: 1.7; color: var(--text-primary); text-wrap: pretty; }
+.v2-analysis-unavailable { margin: 0; font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
+.v2-analysis-pending { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px 16px; border-radius: 14px; background: var(--sx-ink-a03); }
+.v2-analysis-pending .sx-chip { height: auto; min-height: 22px; white-space: normal; padding: 3px 10px; }
+.v2-analysis-pending__text { margin: 0; font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
+.v2-analysis-principle { margin: 0 -6px; }
+.v2-analysis-principle > summary { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.v2-analysis-principle .sx-disclosure__body { grid-template-columns: minmax(0, 1fr); }
+.v2-analysis-card > .sx-evidence { padding: 0; }
+.v2-dupont-eq { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.v2-dupont-eq__tile { display: flex; flex-direction: column; gap: 2px; min-width: 86px; padding: 12px 14px; border-radius: 14px; background: var(--sx-ink-a05); }
+.v2-dupont-eq__tile.is-driver { background: var(--sx-good-bg); box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.08); }
+.v2-dupont-eq__tile.is-result { background: rgba(var(--ink-rgb), 0.09); }
+.v2-dupont-eq__name { font-size: 12px; color: var(--text-secondary); }
+.v2-dupont-eq__value { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.v2-dupont-eq__op { font-size: 18px; color: var(--text-muted); }
+.v2-dupont-table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.v2-dupont-table caption { caption-side: bottom; padding-top: 8px; text-align: left; font-size: 12px; color: var(--text-muted); }
+.v2-dupont-table th, .v2-dupont-table td { padding: 8px 6px; text-align: right; border-top: 1px solid rgba(var(--ink-rgb), 0.06); color: var(--text-primary); }
+.v2-dupont-table thead th { border-top: 0; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.v2-dupont-table th[scope="row"], .v2-dupont-table thead th:first-child { text-align: left; font-weight: 500; }
+.v2-dupont-table tbody tr > * { background: transparent !important; }
+.v2-dupont-table tbody tr.is-driver > * { font-weight: 700; background: var(--sx-good-bg) !important; }
+.v2-dupont-eq__formula { display: none; margin: 0; font-size: 12px; color: var(--text-muted); }
+.v2-dupont-table tr.is-result > * { font-weight: 700; }
+.v2-rdcf-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.v2-rdcf-fact { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 12px 14px; border-radius: 14px; background: var(--sx-ink-a03); }
+.v2-rdcf-fact__name { font-size: 12px; color: var(--text-secondary); }
+.v2-rdcf-fact__value { font-size: 18px; font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.v2-rdcf-fact__detail { font-size: 12px; line-height: 1.5; color: var(--text-muted); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.v2-rdcf-result { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 14px; background: rgba(var(--ink-rgb), 0.06); }
+.v2-rdcf-result__name { font-size: 13px; color: var(--text-secondary); }
+.v2-rdcf-result__value { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.v2-rdcf-result__text { margin: 0; font-size: 14px; line-height: 1.7; color: var(--text-primary); text-wrap: pretty; }
+.v2-rdcf-result__sens { margin: 0; font-size: 12px; line-height: 1.6; color: var(--text-muted); }
+.v2-rdcf-result__sens:empty { display: none; }
+.v2-rdcf-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)) auto; align-items: end; gap: 12px 16px; }
+.v2-rdcf-control { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.v2-rdcf-control__label { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--text-secondary); }
+.v2-rdcf-control__value { color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.v2-rdcf-control__input { width: 100%; min-height: 32px; margin: 0; accent-color: var(--text-primary); }
+.v2-rdcf-control__note { font-size: 12px; color: var(--text-muted); }
+.v2-rdcf-reset { min-height: 36px; font-size: 13px; color: var(--text-secondary); text-decoration: underline; }
+.v2-rd { min-width: 0; }
+.v2-rd-none { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+.v2-rd-trend .v2-fiscal-trend__col:last-child .v2-fiscal-trend__bar { background: var(--text-primary); }
+.v2-fiscal-row.is-burden .v2-fiscal-row__value { color: var(--data-amber); }
+
 /* ═══ 4. 테마 · 섹터 (3f) ═══════════════════════════════════════════════ */
 #page-themes .v2-themes-verdict { border: 0; padding: 0; margin: 0 0 22px; display: flex; flex-direction: column; gap: 14px; }
 .v2-themes-hero { display: flex; flex-direction: column; gap: 6px; padding: 22px 28px; }
@@ -278,6 +332,14 @@
   #page-technical .stock-chart-canvas { height: 360px; }
 }
 @media (max-width: 743px) {
+  .v2-rdcf-controls { grid-template-columns: minmax(0, 1fr); }
+  .v2-rdcf-facts { grid-template-columns: minmax(0, 1fr); }
+  .v2-dupont-eq { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .v2-dupont-eq__op { display: none; }
+  .v2-dupont-eq__tile { min-width: 0; }
+  .v2-dupont-eq__formula { display: block; }
+  .v2-dupont-eq__value { font-size: 18px; }
+  .v2-rdcf-control__input { min-height: 44px; }
   .v2-stock-checks { gap: 8px; }
   .v2-stock-check { padding: 12px 14px; }
   .v2-stock-check__value { font-size: 16px; }

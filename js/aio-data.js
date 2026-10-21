@@ -5506,7 +5506,7 @@ function _aioPublicReadinessSourceText(kind, label) {
 
 function _aioPublicReadinessPageText(pageId) {
   var map = {
-    home: '대시보드',
+    home: '오늘',
     signal: '매매 시그널',
     breadth: '시장 폭',
     sentiment: '투자 심리',

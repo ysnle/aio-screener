@@ -21,6 +21,9 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   pceIndex:       { id: 'PCEPI',         frequency: 'monthly', limit: 40,  unit: 'index', label: 'PCE 물가지수' },
   corePceIndex:   { id: 'PCEPILFE',      frequency: 'monthly', limit: 40,  unit: 'index', label: '근원 PCE 물가지수' },
   unemployment:   { id: 'UNRATE',        frequency: 'monthly', limit: 40,  unit: 'percent', label: '실업률' },
+  // v58.55 (개편 v2 3e): CBO's natural rate of unemployment for the Taylor-rule reference (Okun gap). FRED also carries CBO's
+  // projections years ahead, so the request stops at today — the latest row is the current quarter's estimate, not 2036.
+  naturalUnemployment: { id: 'NROU',     frequency: 'quarterly', limit: 12, unit: 'percent', label: '자연실업률 (CBO 추정)', throughToday: true },
   payrolls:       { id: 'PAYEMS',        frequency: 'monthly', limit: 40,  unit: 'thousands', label: '비농업 고용자 수' },
   hourlyEarnings: { id: 'CES0500000003', frequency: 'monthly', limit: 40,  unit: 'usd-per-hour', label: '평균 시간당 임금' },
   retailSales:    { id: 'RSAFS',         frequency: 'monthly', limit: 40,  unit: 'usd-millions', label: '소매판매' },
@@ -34,6 +37,12 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   fedTargetUpper: { id: 'DFEDTARU',      frequency: 'daily',   limit: 400, unit: 'percent', label: '연준 목표 상단' },
   dgs2:           { id: 'DGS2',          frequency: 'daily',   limit: 280, unit: 'percent', label: '미 국채 2년' },
   dgs10:          { id: 'DGS10',         frequency: 'daily',   limit: 280, unit: 'percent', label: '미 국채 10년' },
+  // v58.55 (개편 v2 5e): the remaining tenors of the 금리 · 환율 curve, so its dashed "1개월 전" line can be drawn. The
+  // Treasury XML feed the curve reads carries only the current month (~8 sessions); FRED's H.15 constant-maturity series
+  // are the same Treasury par yields with history. 50 observations (~10 weeks with holidays) cover 21 sessions back.
+  dgs5:           { id: 'DGS5',          frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 5년' },
+  dgs20:          { id: 'DGS20',         frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 20년' },
+  dgs30:          { id: 'DGS30',         frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 30년' },
   t10y3m:         { id: 'T10Y3M',        frequency: 'daily',   limit: 280, unit: 'percentage-point', label: '10년-3개월 금리차' },
   realYield10:    { id: 'DFII10',        frequency: 'daily',   limit: 280, unit: 'percent', label: '10년 실질금리 (TIPS)' },
   breakeven10:    { id: 'T10YIE',        frequency: 'daily',   limit: 280, unit: 'percent', label: '10년 기대인플레이션' },
@@ -108,6 +117,12 @@ export async function collectMacroLongHistory(key, previousLong, { fetchFn = fet
   return { generatedAt: new Date(nowMs).toISOString(), frequency: 'monthly', columns: ['month', 'value'], failed, series };
 }
 
+// The newest `limit` observations of one series; a series with published projections (NROU) stops at today.
+export function macroHistoryUrl(spec, key, nowMs = Date.now()) {
+  const end = spec.throughToday ? `&observation_end=${new Date(nowMs).toISOString().slice(0, 10)}` : '';
+  return `https://api.stlouisfed.org/fred/series/observations?series_id=${spec.id}&api_key=${key}&file_type=json&sort_order=desc&limit=${spec.limit}${end}`;
+}
+
 export async function writeMacroHistory(key, { fetchFn = fetchJSON, nowMs = Date.now() } = {}) {
   let previous = null;
   try { previous = JSON.parse(await readFile(MACRO_HISTORY_OUT, 'utf8')); } catch { /* first producer run */ }
@@ -115,7 +130,7 @@ export async function writeMacroHistory(key, { fetchFn = fetchJSON, nowMs = Date
   const series = {};
   const failed = [];
   for (const [field, spec] of Object.entries(MACRO_HISTORY_SERIES)) {
-    const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${spec.id}&api_key=${key}&file_type=json&sort_order=desc&limit=${spec.limit}`;
+    const url = macroHistoryUrl(spec, key, nowMs);
     try {
       const observations = parseFredObservations(await fetchFn(url));
       if (observations.length < 3) throw new Error('too-few-observations');

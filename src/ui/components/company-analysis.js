@@ -54,7 +54,7 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   if (/\.K[SQ]$/.test(id)) refreshSharedArtifact(root, KR_FUNDAMENTALS).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state}); }).catch(() => {});
   requestFiscalHistory(root, () => {
     if (root?._currentTickerId === id && doc.getElementById('page-ticker')?.classList.contains('active')) renderCompanyAnalysis({documentRef:doc,root,state});
-  });
+  }, 'company');
   let rows=[]; try { rows=root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) {}
   // v57.81: an out-of-universe US listing reads its on-demand row and SEC record (same formulas, computed on request).
   const onDemand=!/\.K[SQ]$/.test(id) && typeof root?._aioOnDemandSymbol==='function' ? root._aioOnDemandSymbol(id) : null;

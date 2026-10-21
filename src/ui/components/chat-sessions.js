@@ -5,7 +5,7 @@
 import { appendTurn, consentState, deleteSession, loadSessions, newSessionId, sessionMessages, sessionWhen, setConsent, ACTIVE_KEY } from '../../ai/session/chat-sessions.js';
 import { el } from './dom.js';
 
-const SCREEN = { home: '대시보드', briefing: '브리핑', macro: '거시', fxbond: '금리·환율', themes: '테마', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리', ticker: '종목', technical: '차트', fundamental: '재무', screener: '스크리너', portfolio: '포트폴리오', 'market-news': '뉴스', principles: '개념', atlas: '산업 지도', masters: '투자 대가', guide: '안내' };
+const SCREEN = { home: '오늘', briefing: '브리핑', macro: '거시', fxbond: '금리·환율', themes: '테마', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리', ticker: '종목', technical: '차트', fundamental: '재무', screener: '스크리너', portfolio: '포트폴리오', 'market-news': '뉴스', principles: '개념', atlas: '산업 지도', masters: '투자 대가', guide: '안내' };
 
 // The device store is handed in by the app layer (ui/ai modules never open browser storage themselves).
 export function installChatSessions(root = globalThis, doc = root.document, { storage = null } = {}) {

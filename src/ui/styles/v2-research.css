@@ -364,6 +364,43 @@
 #regime-kr-participation > details[open] { background: var(--rs-tile); }
 #regime-kr-participation > details[open] > summary::after { content: '⌃'; }
 #regime-kr-participation > details > p { margin: 0; padding: 0 14px 12px; font-size: 13px; color: var(--text-secondary); }
+/* v58.55 개편 v2 (5n) 투자자별 순매수 — diverging bars on a centre line, Korean colours (net buying red · net selling blue). */
+.kr-flows { margin: 18px 0 6px; font-size: 14px; line-height: 1.6; }
+.kr-flows-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; margin: 0 0 10px; }
+.kr-flows-head > h3 { margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.kr-flows-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.kr-flows-market { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 16px 18px; border-radius: 16px; background: var(--rs-tile); }
+.kr-flows-market-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.kr-flows-market-head > strong { font-size: 15px; }
+.kr-flows-unit { font-size: 12px; color: var(--text-muted); }
+.kr-flow-row { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 28px; }
+.kr-flow-label { font-size: 14px; }
+.kr-flow-track { position: relative; height: 12px; }
+.kr-flow-track::before { content: ''; position: absolute; left: 50%; top: -4px; bottom: -4px; width: 1px; background: rgba(var(--ink-rgb), 0.22); }
+.kr-flow-fill { position: absolute; top: 0; bottom: 0; border-radius: 999px; }
+.kr-flow-fill.is-up { left: 50%; background: var(--candle-up, #d23f35); }
+.kr-flow-fill.is-down { right: 50%; background: var(--candle-down, #2a64c8); }
+.kr-flow-value { min-width: 72px; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kr-flow-trend { display: flex; flex-direction: column; gap: 6px; padding-top: 8px; border-top: 1px solid var(--sx-ink-a07); }
+.kr-flow-trend-title { font-size: 12px; color: var(--text-muted); }
+.kr-flow-cols { position: relative; display: flex; align-items: stretch; gap: 3px; height: 56px; }
+.kr-flow-cols::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(var(--ink-rgb), 0.22); }
+.kr-flow-col { position: relative; flex: 1 1 0; min-width: 0; border-radius: 2px; }
+.kr-flow-col.is-up { align-self: flex-end; margin-bottom: 28px; background: var(--candle-up, #d23f35); }
+.kr-flow-col.is-down { align-self: flex-start; margin-top: 28px; background: var(--candle-down, #2a64c8); }
+.kr-flow-sums { margin: 0; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kr-flows-note, .kr-flows-empty { margin: 10px 0 0; font-size: 13px; color: var(--text-secondary); }
+.kr-flows-basis { margin-top: 8px; border-radius: 14px; }
+.kr-flows-basis > summary { min-height: 44px; display: flex; align-items: center; padding: 0 14px; border-radius: 14px; font-size: 14px; font-weight: 600; list-style: none; cursor: pointer; }
+.kr-flows-basis > summary::-webkit-details-marker { display: none; }
+.kr-flows-basis > summary::after { content: '⌄'; margin-left: auto; color: var(--text-muted); }
+.kr-flows-basis[open] { background: var(--rs-tile); }
+.kr-flows-basis[open] > summary::after { content: '⌃'; }
+.kr-flows-basis > p { margin: 0; padding: 0 14px 12px; font-size: 13px; color: var(--text-secondary); }
+@media (max-width: 743px) {
+  .kr-flows-grid { grid-template-columns: minmax(0, 1fr); }
+  .kr-flows-market { padding: 14px; }
+}
 
 /* ═══ 10. Breakpoints (4a) ════════════════════════════════════════════════ */
 /* iPad landscape: the connections column drops under the document. */

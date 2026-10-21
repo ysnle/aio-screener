@@ -127,4 +127,96 @@ resolveHistory(response({ data: { AEHR: compact, NVDA: compact }, quarters: {} }
 for (let tick = 0; tick < 12; tick += 1) await new Promise((resolve) => setImmediate(resolve));
 assert.ok(host.textContent.includes('NVDA —'), 'P1627 the completed pending history read must render the last selected issuer');
 assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending issuer must not repaint the current screen');
-console.log('[fiscal-quality] PASS P1627: signed zero line, precise same-period annual receipt, strict ROE/gap, amount table, source links, missing quarters, compact peers, pending-issuer race. Offline; producer not executed.');
+
+// ── v58.55: total assets + R&D collection → fiscal history columns → DuPont / R&D / Sloan / reverse DCF ─────────────
+{
+  const { normalizeSecCompanyFacts } = await import('./fetch-sec-fundamentals.mjs');
+  const { selectSecBatch } = await import('./fetch-sec-fundamentals.mjs');
+  const { buildDupontRead, buildRdRead, buildAccrualRead, impliedGrowth, dcfValue, reverseDcfInputs, assetChainState } = await import('../src/domain/fundamental/analysis-read.js');
+  const fy = (year, val, extra = {}) => ({ start: `${year}-01-01`, end: `${year}-12-31`, val, form: '10-K', fp: 'FY', fy: year + 1, filed: `${year + 1}-02-20`, accn: `0000000000-${String(year).slice(2)}-000001`, ...extra });
+  const inst = (year, val) => ({ end: `${year}-12-31`, val, form: '10-K', fp: 'FY', fy: year + 1, filed: `${year + 1}-02-20`, accn: `0000000000-${String(year).slice(2)}-000001` });
+  const units = (rows) => ({ units: { USD: rows } });
+  const companyFacts = { cik: 1, facts: { 'us-gaap': {
+    Revenues: units([fy(2023, 100e9), fy(2024, 120e9), fy(2025, 150e9)]),
+    NetIncomeLoss: units([fy(2023, 10e9), fy(2024, 15e9), fy(2025, 24e9)]),
+    StockholdersEquity: units([inst(2022, 45e9), inst(2023, 50e9), inst(2024, 55e9), inst(2025, 65e9)]),
+    Assets: units([inst(2022, 95e9), inst(2023, 100e9), inst(2024, 110e9), inst(2025, 130e9)]),
+    ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost: units([fy(2023, 8e9), fy(2024, 9e9), fy(2025, 12e9)]),
+    NetCashProvidedByUsedInOperatingActivities: units([fy(2023, 12e9), fy(2024, 14e9), fy(2025, 20e9)]),
+    PaymentsToAcquirePropertyPlantAndEquipment: units([fy(2023, 2e9), fy(2024, 2e9), fy(2025, 3e9)])
+  } } };
+  const record = normalizeSecCompanyFacts('ACME', companyFacts, 50, null);
+  const obs = record.pit.observations;
+  assert.equal(obs.totalAssets.length, 4, 'v58.55 every annual year-end total assets fact must be kept for averages');
+  assert.ok(obs.researchAndDevelopment.every((row) => row.concept === 'ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost') && obs.researchAndDevelopment.length === 3, 'v58.55 the R&D alternate concept must be collected when the plain one is absent');
+  const bare = normalizeSecCompanyFacts('BARE', { cik: 2, facts: { 'us-gaap': { Revenues: companyFacts.facts['us-gaap'].Revenues, NetIncomeLoss: companyFacts.facts['us-gaap'].NetIncomeLoss, StockholdersEquity: companyFacts.facts['us-gaap'].StockholdersEquity } } }, 50, null);
+  assert.ok(Array.isArray(bare.pit.observations.totalAssets) && bare.pit.observations.researchAndDevelopment.length === 0, 'v58.55 a filer without the items gets empty arrays (not reported), not missing ones (not yet collected)');
+  const line = sandbox.fiscal(obs);
+  const legacy = sandbox.fiscal({ ...obs, totalAssets: undefined, researchAndDevelopment: undefined });
+  assert.ok(line.split(';').every((row) => row.split(':').length === 10), 'v58.55 a record read with assets/R&D ships the two extra columns');
+  assert.ok(legacy.split(';').every((row) => row.split(':').length === 8), 'v58.55 a record written before keeps the 8-column row (= not yet collected)');
+  const parsed = parseFiscalHistory(line);
+  assert.equal(parsed.at(-1).totalAssets, 130e9, 'v58.55 total assets parse from USD millions');
+  assert.equal(parsed.at(-1).researchAndDevelopment, 12e9, 'v58.55 R&D parses from USD millions');
+  assert.equal(assetChainState(parseFiscalHistory(legacy)), 'pending', 'v58.55 an 8-column history reads as pending collection');
+  assert.equal(assetChainState(parsed), 'collected', 'v58.55 a 10-column history reads as collected');
+  assert.equal(parseFiscalHistory(sandbox.fiscal(bare.pit.observations)).at(-1).researchAndDevelopment, null, 'v58.55 an empty R&D cell is missing, never zero');
+
+  const dupont = buildDupontRead(parsed);
+  assert.equal(dupont.state, 'ready');
+  assert.equal(dupont.basis, 'average', 'v58.55 both years have prior year-ends, so DuPont uses average assets and equity');
+  const [prev, now] = dupont.columns;
+  assert.ok(Math.abs(now.roe - 24e9 / ((65e9 + 55e9) / 2)) < 1e-12, 'v58.55 margin x turnover x leverage equals NI / average equity');
+  assert.ok(Math.abs(prev.turnover - 120e9 / 105e9) < 1e-12, 'v58.55 the prior year uses its own average assets');
+  const logs = ['margin', 'turnover', 'leverage'].map((id) => Math.abs(Math.log(now[id] / prev[id])));
+  assert.equal(dupont.driver, ['margin', 'turnover', 'leverage'][logs.indexOf(Math.max(...logs))], 'v58.55 the named driver is the factor with the largest log change');
+  assert.equal(buildDupontRead(parseFiscalHistory(legacy)).state, 'pending', 'v58.55 DuPont waits for collection instead of computing without assets');
+  assert.equal(buildDupontRead(parsed.map((year) => ({ ...year, equity: -1e9 }))).state, 'negative-equity', 'v58.55 negative equity is not decomposed');
+
+  const rd = buildRdRead(parsed);
+  assert.ok(rd.state === 'ready' && Math.abs(rd.latest.ratio - 0.08) < 1e-12 && rd.years.length === 3, 'v58.55 R&D / revenue per filed year');
+  assert.equal(buildRdRead(parseFiscalHistory(sandbox.fiscal(bare.pit.observations))).state, 'unreported', 'v58.55 a filer without R&D reads as not reported');
+
+  const accrual = buildAccrualRead(parsed);
+  assert.ok(Math.abs(accrual.latest.ratio - (24e9 - 20e9) / ((130e9 + 110e9) / 2)) < 1e-12 && accrual.latest.basis === 'average', 'v58.55 Sloan accrual = (NI - OCF) / average total assets');
+
+  const solved = impliedGrowth({ fcf: 17e9, marketValue: 600e9, discountRate: 0.09, terminalGrowth: 0.025 });
+  assert.equal(solved.state, 'ready');
+  assert.ok(Math.abs(dcfValue(17e9, solved.growth, 0.09, 0.025) - 600e9) / 600e9 < 1e-9, 'v58.55 the implied growth reproduces the market value');
+  assert.ok(impliedGrowth({ fcf: 17e9, marketValue: 600e9, discountRate: 0.095, terminalGrowth: 0.025 }).growth > solved.growth, 'v58.55 a higher discount rate needs more growth');
+  assert.equal(impliedGrowth({ fcf: 1e6, marketValue: 600e12, discountRate: 0.09, terminalGrowth: 0.025 }).state, 'above-range', 'v58.55 an unreachable growth is a range state, not a number');
+  const close = { value: 50, date: '2026-10-19' };
+  const facts = { sharesOutstanding: 12e9 };
+  assert.equal(reverseDcfInputs({ history: parsed, fundamentals: facts, close }).fcf, 17e9, 'v58.55 FCF = latest OCF - capex');
+  assert.equal(reverseDcfInputs({ history: parsed.map((year) => ({ ...year, capex: 30e9 })), fundamentals: facts, close }).state, 'fcf-negative', 'v58.55 FCF <= 0 is not solved');
+  assert.equal(reverseDcfInputs({ history: parsed, fundamentals: {}, close }).state, 'missing', 'v58.55 no verified share count, no market value');
+  assert.equal(reverseDcfInputs({ history: parsed, fundamentals: facts, close: { value: 50 } }).state, 'missing', 'v58.55 an undated price is not used');
+  assert.equal(reverseDcfInputs({ history: parsed, fundamentals: facts, close, financial: true }).state, 'financial', 'v58.55 lending financials are not valued on FCF');
+
+  // Scheduler: the extra backfill slots take only records due for the new observation arrays.
+  const nowMs = Date.parse('2026-10-20T00:00:00Z');
+  const recent = '2026-10-10T00:00:00Z';
+  const due = [
+    ...Array.from({ length: 30 }, (_, i) => ({ symbol: `B${i}`, fetchedAt: recent, assetChainMissing: true, normalizerOutdated: true })),
+    { symbol: 'FAIL', fetchedAt: recent, assetChainMissing: true, priorFailure: { status: 'TRANSIENT_PROVIDER_FAILURE' } },
+    { symbol: 'NEW', fetchedAt: null }
+  ];
+  const batch = selectSecBatch(due, 24, 48, nowMs);
+  assert.equal(batch.length, 30, 'v58.55 24 regular + 6 remaining backfill-only records; failures and new issuers never ride the extra slots');
+  assert.ok(!batch.some((row) => row.symbol === 'FAIL' || row.symbol === 'NEW'), 'v58.55 the extra slots exclude failures and never-fetched issuers');
+  assert.equal(selectSecBatch(due, 24, 0, nowMs).length, 24, 'v58.55 without extra slots the batch stays at its limit');
+
+  // Rendering: pending (8 columns) and collected (10 columns) through the real renderers.
+  const { dupontCard, rdCard } = await import('../src/ui/components/fundamental-analysis-cards.js');
+  const pendingDupont = dupontCard(doc, parseFiscalHistory(legacy));
+  assert.equal(pendingDupont.dataset.state, 'pending', 'v58.55 an uncollected issuer renders the pending state');
+  assert.ok(!descendants(pendingDupont).some((node) => node.className.includes('v2-dupont-eq')), 'v58.55 a pending card draws no factor values');
+  assert.equal(dupontCard(doc, parsed).dataset.state, 'ready');
+  assert.equal(rdCard(doc, parseFiscalHistory(sandbox.fiscal(bare.pit.observations))).dataset.state, 'unreported', 'v58.55 no R&D line renders as not reported');
+  const fiscalHost = new Element('section');
+  const fiscalDoc = { ...doc, getElementById: (id) => id === 'fund-flow' ? fiscalHost : id === 'fund-next' ? next : null };
+  renderFiscalRead({ documentRef: fiscalDoc, root: { _aioSecFiscalHistory: { ACME: line }, _aioSecQuarterHistory: {}, _aioSecFiscalHistoryAt: Date.now(), _aioGetCanonicalScreenerRows: () => [{ sym: 'ACME', sector: 'Technology' }] }, state: { id: 'ACME', fundamentals: null } });
+  assert.ok(descendants(fiscalHost).some((node) => node.dataset?.analysis === 'rd' && node.dataset.state === 'ready'), 'v58.55 재무 공시 renders the R&D card from the collected series');
+}
+
+console.log('[fiscal-quality] PASS P1627: signed zero line, precise same-period annual receipt, strict ROE/gap, amount table, source links, missing quarters, compact peers, pending-issuer race; v58.55 assets/R&D columns, DuPont, R&D, Sloan, reverse DCF, backfill batch, pending state. Offline; producer not executed.');

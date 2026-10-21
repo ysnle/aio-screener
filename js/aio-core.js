@@ -18156,7 +18156,7 @@ if (typeof document !== 'undefined') {
 // P845: showPage can be called by the compatibility facade before this map is
 // initialized, so the early route path must not observe a lexical TDZ.
 var breadcrumbMap = {
-  home: ['오늘','대시보드'], themes: ['테마 · 섹터'], // v57.79: <sidebar hub>/<tab-bar label>; a one-tab hub shows its label alone (pinned in ci-esm-core-unit-check)
+  home: ['오늘','요약'], themes: ['테마 · 섹터'], // v57.79: <sidebar hub>/<tab-bar label>; a one-tab hub shows its label alone (pinned in ci-esm-core-unit-check)
   portfolio: ['포트폴리오'], macro: ['거시 · 금리','거시 경제'],
   technical: ['종목','차트'], fundamental: ['종목','재무 공시'],
   briefing: ['오늘','브리핑'], fxbond: ['거시 · 금리','금리 · 환율'],
@@ -18350,7 +18350,7 @@ window._pageState = window._pageState || (function() {
 // v48.15 (P2-A): 모든 페이지의 init 로직을 PAGES 테이블로 통합 (단일 진실 원천)
 // showPage · popstate 핸들러의 복제된 if-분기 전체를 이 테이블이 대체
 window.PAGES = {
-  'home':           { label: '홈 대시보드',     init: null,                                          chatCtx: null },
+  'home':           { label: '오늘 · 요약',     init: null,                                          chatCtx: null },
   'signal':         { label: '시장 상태',       init: null, chatCtx: 'signal' },
   'breadth':        { label: '시장 폭',          init: null, chatCtx: null },
   'sentiment':      { label: '투자 심리',        init: null, chatCtx: null },  // v53.15/ARX-01: ESM renderer가 native owner; data producer cutover는 ARX-02

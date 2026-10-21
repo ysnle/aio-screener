@@ -2,7 +2,7 @@
 // screens. A screen's sub-routes are switched by the in-page tab bar below the topbar;
 // route ids, deep links and page owners stay unchanged until each screen is merged.
 export const ROUTE_HUBS = Object.freeze([
-  { id: 'today', label: '오늘', routes: [{ id: 'home', label: '대시보드' }, { id: 'briefing', label: '브리핑' }, { id: 'market-news', label: '뉴스' }] },
+  { id: 'today', label: '오늘', routes: [{ id: 'home', label: '요약' }, { id: 'briefing', label: '브리핑' }, { id: 'market-news', label: '뉴스' }] },
   { id: 'market', label: '시장 상태', routes: [{ id: 'signal', label: '국면 판정' }, { id: 'breadth', label: '시장 폭' }, { id: 'sentiment', label: '투자 심리' }] },
   { id: 'macro', label: '거시 · 금리', routes: [{ id: 'macro', label: '거시 경제' }, { id: 'fxbond', label: '금리 · 환율' }] },
   { id: 'themes', label: '테마 · 섹터', routes: [{ id: 'themes', label: '테마 · 섹터', also: ['theme-detail'] }, { id: 'theme-detail', label: '테마 상세', tab: false }] },
@@ -19,7 +19,7 @@ export function hubForRoute(routeId) {
 }
 
 // P1430: the 종목 screen names the company all three tabs are about, and where the user came from.
-const SUBJECT_ORIGINS = Object.freeze({ home: '대시보드', briefing: '브리핑', 'market-news': '뉴스', screener: '스크리너', themes: '테마', portfolio: '포트폴리오', masters: '대가 보유 종목', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리' });
+const SUBJECT_ORIGINS = Object.freeze({ home: '오늘', briefing: '브리핑', 'market-news': '뉴스', screener: '스크리너', themes: '테마', portfolio: '포트폴리오', masters: '대가 보유 종목', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리' });
 
 export function readStockSubject(root) {
   const symbol = String(root?._aioLastOpenedSymbol || '').trim().toUpperCase();

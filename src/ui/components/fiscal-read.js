@@ -10,15 +10,20 @@ import { secFilingUrl } from '../../domain/fundamental/sec-report.js';
 import { buildConsensusPoint } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { el } from './dom.js';
+import { buildAccrualRead } from '../../domain/fundamental/analysis-read.js';
+import { rdCard, COLLECTION_PENDING_LABEL } from './fundamental-analysis-cards.js';
 
 // P1436: "YYYY-MM-DD:revenue:netIncome;…" in USD millions (public-data/sec-fiscal-history.json).
 export function parseFiscalHistory(text) {
   // P1446: periodEnd:revenue:netIncome:equity:operatingCashFlow:capex:longTermDebt:sharesMillions (USD millions).
+  // v58.55: [:totalAssets:researchAndDevelopment] — present once the issuer was read with those concepts (assetChain);
+  // a row without them was written before, so its assets/R&D are "not yet collected", not "not reported".
   const num = (value, scale = 1e6) => (value === '' || value == null || !Number.isFinite(Number(value)) ? null : Number(value) * scale);
   return String(text || '').split(';').map((part) => part.split(':')).filter((cells) => /^\d{4}-\d{2}-\d{2}$/.test(cells[0] || ''))
-    .map(([periodEnd, revenue, netIncome, equity, operatingCashFlow, capex, longTermDebt, shares]) => ({
+    .map(([periodEnd, revenue, netIncome, equity, operatingCashFlow, capex, longTermDebt, shares, ...rest]) => ({
       periodEnd, revenue: num(revenue), netIncome: num(netIncome), equity: num(equity), operatingCashFlow: num(operatingCashFlow),
-      capex: num(capex), longTermDebt: num(longTermDebt), shares: num(shares)
+      capex: num(capex), longTermDebt: num(longTermDebt), shares: num(shares),
+      ...(rest.length >= 2 ? { assetChain: true, totalAssets: num(rest[0]), researchAndDevelopment: num(rest[1]) } : {})
     }));
 }
 
@@ -26,13 +31,15 @@ export function parseFiscalHistory(text) {
 // is picked up in a long-open tab.
 const FISCAL_OK_TTL_MS = 6 * 60 * 60 * 1000;
 const FISCAL_RETRY_MS = 60 * 1000;
-export function requestFiscalHistory(root, onReady) {
+export function requestFiscalHistory(root, onReady, key = 'default') {
   const age = Date.now() - Number(root._aioSecFiscalHistoryAt || 0);
   if (root._aioSecFiscalHistory && age < FISCAL_OK_TTL_MS) return;
   if (root._aioSecFiscalHistory === null && age < FISCAL_RETRY_MS) return;
   // P1627: the pending history request belongs to the most recently displayed
   // company. Its completion must not repaint the prior issuer after navigation.
-  root._aioSecFiscalHistoryOnReady = onReady;
+  // v58.55: one pending callback per caller (key) — 종목 요약 renders the company card and the analysis cards from the
+  // same request, and a single slot let the later caller drop the earlier one's repaint.
+  (root._aioSecFiscalHistoryOnReady ||= {})[key] = onReady;
   if (root._aioSecFiscalHistoryRequested) return;
   const fetchFn = root?.fetch || globalThis.fetch;
   if (typeof fetchFn !== 'function') return;
@@ -43,7 +50,7 @@ export function requestFiscalHistory(root, onReady) {
     .then((manifest) => (manifest?.fiscalHistory?.path === 'public-data/sec-fiscal-history.json' ? load('./public-data/sec-fiscal-history.json', 1024 * 1024) : null))
     .then((artifact) => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; root._aioSecQuarterHistory = artifact?.quarters && typeof artifact.quarters === 'object' ? artifact.quarters : null; root._aioSecFiscalPrecision = artifact?.precision || null; })
     .catch(() => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistory = null; })
-    .finally(() => { root._aioSecFiscalHistoryRequested = false; const ready = root._aioSecFiscalHistoryOnReady; delete root._aioSecFiscalHistoryOnReady; ready?.(); });
+    .finally(() => { root._aioSecFiscalHistoryRequested = false; const ready = Object.values(root._aioSecFiscalHistoryOnReady || {}); delete root._aioSecFiscalHistoryOnReady; ready.forEach((fn) => fn?.()); });
 }
 
 const number = (value) => value != null && value !== '' && typeof value !== 'boolean' && Number.isFinite(Number(value)) ? Number(value) : null;
@@ -246,6 +253,7 @@ function earningsQualityCard(doc, read) {
     line.append(label, el(doc, 'b', value, 'v2-fiscal-row__value'));
     if (extra) line.append(extra);
     rows.append(line);
+    return line;
   };
   const ratio = ratioOf(latest);
   // The trend: one small bar per filed year (ratio capped at 2 for the drawing; the number is printed as filed).
@@ -265,6 +273,18 @@ function earningsQualityCard(doc, read) {
     }
   }
   row('영업현금흐름 ÷ 순이익', ratio == null ? '순이익·현금흐름 중 하나가 마이너스 — 비율 해석 보류' : ratio >= 0.8 ? '1 근처 이상 — 이익이 현금으로 들어옴' : '1보다 낮음 — 장부 이익보다 현금이 적음', ratio == null ? '해당 없음' : ratio.toFixed(2), trend);
+  // v58.55: the Sloan (1996) accrual ratio on its original denominator (average total assets), now that assets are collected.
+  const accrual = buildAccrualRead(read.history);
+  const accrualLatest = accrual.state === 'ready' ? accrual.latest : null;
+  if (accrual.state === 'pending') row('발생액 비율 (Sloan)', COLLECTION_PENDING_LABEL, '대기');
+  else if (accrual.state === 'unreported') row('발생액 비율 (Sloan)', '총자산이 공시 수집본에 없어 계산하지 않음', '해당 없음');
+  else if (accrualLatest) {
+    const value = accrualLatest.ratio;
+    const line = row('발생액 비율 (Sloan)', `(순이익 − 영업현금흐름) ÷ ${accrualLatest.basis === 'average' ? '평균' : '기말'} 총자산 · ${accrualLatest.label}${accrual.latestIsNewest ? '' : ' (최근 연도 자료 없음)'} — ${Math.abs(value) < 0.01 ? '장부 이익과 현금이 거의 같음' : value < 0 ? '현금이 장부 이익보다 많이 들어옴' : value < 0.05 ? '장부 이익 일부가 아직 현금이 아님' : '장부 이익 중 현금이 아닌 부분이 자산 대비 큼'}`,
+      `${value >= 0 ? '+' : '−'}${Math.abs(value * 100).toFixed(1)}%`);
+    line.title = accrual.years.map((year) => `${year.label} ${year.ratio >= 0 ? '+' : '−'}${Math.abs(year.ratio * 100).toFixed(1)}%${year.basis === 'average' ? '' : '(기말)'}`).join(' · ');
+    if (value >= 0.05) line.classList.add('is-burden');
+  }
   const capex = number(latest.capex);
   if (capex != null && latest.revenue > 0) row('잉여현금흐름 마진', '(영업현금흐름 − 설비투자) ÷ 매출', `${((latest.operatingCashFlow - capex) / latest.revenue * 100).toFixed(1)}%`);
   const prev = read.history.at(-2);
@@ -281,8 +301,8 @@ function earningsQualityCard(doc, read) {
   const box = (label, text) => { const c = el(doc, 'div', null, 'sx-disclosure__card'); c.append(el(doc, 'span', label, 'sx-disclosure__label'), el(doc, 'p', text, 'sx-disclosure__text')); return c; };
   body.append(
     box('원리', '회계 이익은 발생주의라 현금보다 먼저 잡힐 수 있습니다. 영업현금흐름 ÷ 순이익이 1 근처면 이익이 현금으로 뒷받침되고, 발생액(순이익 − 영업현금흐름)이 큰 기업은 이후 수익률이 낮은 경향이 관측됐습니다.'),
-    box('지금 읽기', ratio == null ? `${latest.periodEnd} 회계연도는 순이익이나 영업현금흐름이 마이너스라 비율로 읽지 않고 두 금액을 따로 봅니다.` : `${latest.periodEnd} 회계연도 영업현금흐름은 순이익의 ${(ratio * 100).toFixed(0)}%입니다${plotted.length >= 2 ? ` — 위 막대는 공시된 ${plotted.length}개 회계연도의 같은 비율입니다` : ''}.`),
-    box('한계 · 함께 볼 것', '총자산 항목을 수집하지 않아 발생액을 자산으로 나눈 비율(원 연구의 정의)은 계산하지 않습니다. 운전자본이 크게 변한 해나 대규모 일회성 항목은 10-K 현금흐름표에서 확인합니다.'));
+    box('지금 읽기', `${ratio == null ? `${latest.periodEnd} 회계연도는 순이익이나 영업현금흐름이 마이너스라 비율로 읽지 않고 두 금액을 따로 봅니다.` : `${latest.periodEnd} 회계연도 영업현금흐름은 순이익의 ${(ratio * 100).toFixed(0)}%입니다${plotted.length >= 2 ? ` — 위 막대는 공시된 ${plotted.length}개 회계연도의 같은 비율입니다` : ''}.`}${accrualLatest ? ` 발생액 비율은 ${accrualLatest.label} ${accrualLatest.ratio >= 0 ? '+' : '−'}${Math.abs(accrualLatest.ratio * 100).toFixed(1)}%로, 마이너스일수록 현금이 이익보다 많이 들어왔다는 뜻입니다.` : ''}`),
+    box('한계 · 함께 볼 것', `${accrual.state === 'pending' ? '발생액을 평균 총자산으로 나눈 비율(원 연구의 정의)은 총자산 수집이 끝나면 표시됩니다. ' : '발생액 비율의 5% 구간은 이 화면의 읽기 기준이며 원 연구의 분위 경계가 아닙니다. '}운전자본이 크게 변한 해나 대규모 일회성 항목은 10-K 현금흐름표에서 확인합니다.`));
   fold.append(body);
   card.append(fold, el(doc, 'p', '근거 · Sloan(1996) 발생액 이상 현상 · 데이터 · SEC EDGAR XBRL 연간 공시', 'sx-evidence'));
   return card;
@@ -324,7 +344,7 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
   let rows = [];
   try { rows = typeof root?._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() || [] : []; } catch (_) { rows = []; }
   const row = rows.find((item) => item?.sym === symbol) || null;
-  requestFiscalHistory(root, () => renderFiscalRead({ documentRef: doc, root, state }));
+  requestFiscalHistory(root, () => renderFiscalRead({ documentRef: doc, root, state }), 'fiscal');
   const series = root?._aioSecFiscalHistory?.[symbol];
   const fundamentals = series ? { ...(state?.fundamentals || {}), fiscalHistory: parseFiscalHistory(series) } : state?.fundamentals || null;
   const quarterText = root?._aioSecQuarterHistory?.[symbol];
@@ -372,6 +392,9 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
     const quality = earningsQualityCard(doc, read);
     pair.append(chartCard, ...(quality ? [quality] : []));
     host.append(pair);
+    // v58.55 (5g): R&D ÷ revenue beside the cash reading's years (US filers with a fiscal series only).
+    const rd = series ? rdCard(doc, read.history) : null;
+    if (rd) host.append(rd);
     const quarterBox = quarterSection(doc, root, symbol);
     if (quarterBox) { quarterBox.classList.add('sx-card'); host.append(quarterBox); }
     // Codex browser audit H35: "최신" annual data is not the latest company state. Without quarters the gap after
