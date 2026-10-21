@@ -54,9 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // v48.23 (P3-1): AIO 네임스페이스 최종 바인딩 — 모든 모듈 정의 후
   try { if (window.AIO && typeof window.AIO._bindCore === 'function') window.AIO._bindCore(); } catch(_){}
 
-  // 날짜 자동 업데이트
-  const todayDisp = _aioGetKstDateParts(new Date()).dateStr;
-  const dlEl = document.getElementById('home-date-label');
 
   // v30.12 P4: 이전 번역 캐시 복원 (새로고침 시 재번역 방지)
   var _tcRestored = _tcLoadFromStorage();
@@ -421,12 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
 (function updateDateLabels() {
   const kst = _aioGetKstDateParts(new Date());
   const dateStr = kst.dateStr;
-  const timeStr = kst.hour + ':' + kst.minute;
-  const fullLabel = dateStr + ' (' + kst.weekday + ') KST';
-  
-  // Update home date label
-  const dlEl = document.getElementById('home-date-label');
-  if (dlEl) dlEl.textContent = fullLabel; // P1322: date only — freshness lives in the topbar badge, not a never-cleared "확인 중"
+  // v58.55: the home kicker (#home-date-label, date · close basis) is written by src/ui/components/market-regime.js only.
   
   // Update version badge
   const vb = document.getElementById('app-version-badge');
