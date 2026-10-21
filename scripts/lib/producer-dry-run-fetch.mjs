@@ -1,6 +1,18 @@
 // Network stub preloaded by scripts/ci-producer-dry-run.mjs (`node --import`). Yahoo chart requests get a small
 // deterministic synthetic chart so the run reaches every later stage; every other host answers 404 (a definitive
 // failure, so retry loops end at once and each source plane takes its fallback path). Nothing leaves the machine.
+// v58.54: AIO_DRY_RUN_NOW pins the producer's clock (it still advances from there). The copied data.json belongs to one
+// KST 08:00 news cycle; on the wall clock a run after the next 23:00Z boundary saw that cycle as expired and published
+// no news, so the gate failed whenever it ran between the boundary and the scheduled refresh.
+const PINNED_MS = Date.parse(process.env.AIO_DRY_RUN_NOW || '');
+if (Number.isFinite(PINNED_MS)) {
+  const RealDate = Date;
+  const offset = PINNED_MS - RealDate.now();
+  globalThis.Date = class PinnedDate extends RealDate {
+    constructor(...args) { if (args.length) super(...args); else super(RealDate.now() + offset); }
+    static now() { return RealDate.now() + offset; }
+  };
+}
 const NOW = Date.now();
 const DAY = 86400;
 
