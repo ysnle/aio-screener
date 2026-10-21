@@ -174,7 +174,7 @@ export function portfolioLens({ surface, stressInput = null, history = [], sp500
       top10IndexWeight: top10.reduce((sum, row) => sum + Number(row.weight || 0), 0)
     };
   }
-  const bonds = bondCushion({ rows, stressInput });
+  const bonds = bondCushion({ rows, stressInput, baseCurrency: surface?.baseCurrency || null, history });
   return { available: true, holdings: rows.length, effectiveN, beta, betaNote, topSector: topSector ? { name: sectorLabel(topSector.name), pct: topSector.pct } : null, index, bonds };
 }
 
@@ -193,12 +193,16 @@ export function bondCushionCard(bonds) {
   const corr = bonds.correlation || {};
   let tone = null;
   if (corr.available) {
-    parts.push(`최근 ${corr.weeks}주 주간 수익률에서 채권 부분과 주식 부분의 상관은 ${corr.r.toFixed(2)}입니다.`);
+    parts.push(`최근 ${corr.weeks}주 주간 수익률${corr.translatedTo ? `(${corr.translatedTo === 'KRW' ? '원화' : '달러'} 환산, 원/달러 종가 기준)` : ''}에서 채권 부분과 주식 부분의 상관은 ${corr.r.toFixed(2)}입니다.`);
     if (corr.downWeeks > 0) parts.push(`주식 부분이 내린 ${corr.downWeeks}주에 채권 부분은 평균 ${signedPct(corr.downBondMean)}(주식 ${signedPct(corr.downStockMean)}) 움직였습니다.`);
     parts.push('지난 관계일 뿐이며, 금리가 오르는 구간에는 주식과 채권이 함께 내릴 수 있습니다.');
     tone = corr.r < 0 ? 'favorable' : corr.r >= 0.3 ? 'burden' : null;
   } else if (corr.reason === 'one-sided') {
     parts.push('보유가 모두 채권이라 주식 부분과의 관계는 계산하지 않습니다.');
+  } else if (corr.reason === 'currency-mixed') {
+    parts.push('보유 종목의 상장 통화(원화·달러)가 섞여 있고 기준 통화가 정해지지 않아 주식–채권 상관은 계산하지 않습니다.');
+  } else if (corr.reason === 'fx-missing') {
+    parts.push('기준 통화로 환산할 원/달러 종가 기록이 없어 주식–채권 상관은 계산하지 않습니다.');
   } else if (corr.reason === 'weeks-insufficient') {
     parts.push(`주식–채권 상관은 겹치는 가격 기록 ${corr.weeks}주 — ${STRESS_MIN_WEEKS}주 이상이면 계산합니다.`);
   } else {

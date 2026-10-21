@@ -4,6 +4,7 @@
 // listed here is not a bond fund for this reading. KRX-listed bond ETFs are added only by exact 6-digit code once they
 // appear in the app's Korean registry (js/aio-kr-data.js KR_STOCK_DB holds no bond ETF as of this version).
 import { STRESS_MIN_WEEKS } from './stress-sensitivity.js';
+import { buildCloseSeries } from '../briefing/market-read.js';
 
 export const ASSET_CLASS_MAP_VERSION = '2026-10-20.v1';
 
@@ -67,9 +68,31 @@ function pearson(xs, ys) {
   return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx * syy) : null;
 }
 
-/** Weekly correlation of the bond part against the stock part, each weighted by today's values inside its own part. */
-export function stockBondCorrelation({ historyMap = {}, commonDates = [], bondWeights = {}, stockWeights = {} } = {}) {
+const listingCurrency = (sym) => /\.(KS|KQ)$/i.test(String(sym || '')) ? 'KRW' : 'USD';
+const MAX_FX_LAG_DAYS = 4; // the same as-of tolerance as stress-sensitivity.js
+function usdkrwAsOf(history) {
+  const points = buildCloseSeries(Array.isArray(history) ? history : [], 'usdkrw').filter((p) => p?.date && p.value > 0);
+  return (date) => {
+    let lo = 0; let hi = points.length - 1; let hit = null;
+    while (lo <= hi) { const mid = (lo + hi) >> 1; if (points[mid].date <= date) { hit = points[mid]; lo = mid + 1; } else hi = mid - 1; }
+    return hit && (Date.parse(date) - Date.parse(hit.date)) <= MAX_FX_LAG_DAYS * 86400000 ? hit.value : null;
+  };
+}
+
+/**
+ * Weekly correlation of the bond part against the stock part, each weighted by today's values inside its own part.
+ * v58.55 review: closes are in each listing's own currency, so a holding listed in another currency than the book's base
+ * is translated with the app's USD/KRW close on the same dates (the base-currency return a holder actually saw — a KRW
+ * book's TLT includes the won move). Mixed listing currencies without a declared base are not correlated at all.
+ */
+export function stockBondCorrelation({ historyMap = {}, commonDates = [], bondWeights = {}, stockWeights = {}, baseCurrency = null, history = [] } = {}) {
   const dates = [...(Array.isArray(commonDates) ? commonDates : [])].sort();
+  const base = String(baseCurrency || '').toUpperCase() || null;
+  const currencies = new Set([...Object.keys(bondWeights), ...Object.keys(stockWeights)].map(listingCurrency));
+  if (!base && currencies.size > 1) return { available: false, reason: 'currency-mixed' };
+  const translate = base && [...currencies].some((c) => c !== base);
+  const fxAt = translate ? usdkrwAsOf(history) : null;
+  if (translate && !dates.some((d) => fxAt(d) != null)) return { available: false, reason: 'fx-missing' };
   const usable = (weights) => Object.entries(weights).filter(([sym, w]) => w > 0 && historyMap?.[sym]);
   const bonds = usable(bondWeights); const stocks = usable(stockWeights);
   const share = (all, used) => { const total = Object.values(all).reduce((s, w) => s + w, 0); return total > 0 ? used.reduce((s, [, w]) => s + w, 0) / total : 0; };
@@ -82,7 +105,14 @@ export function stockBondCorrelation({ historyMap = {}, commonDates = [], bondWe
     for (const [sym, w] of items) {
       const pa = historyMap[sym][a]; const pb = historyMap[sym][b];
       if (!(pa > 0) || !(pb > 0)) return null;
-      ret += (w / total) * (pb / pa - 1);
+      let growth = pb / pa;
+      const local = listingCurrency(sym);
+      if (translate && local !== base) {
+        const fa = fxAt(a); const fb = fxAt(b); // KRW per USD
+        if (!(fa > 0) || !(fb > 0)) return null;
+        growth *= base === 'KRW' ? fb / fa : fa / fb;
+      }
+      ret += (w / total) * (growth - 1);
     }
     return ret * 100;
   };
@@ -98,14 +128,14 @@ export function stockBondCorrelation({ historyMap = {}, commonDates = [], bondWe
   const down = xs.map((x, i) => [x, ys[i]]).filter(([x]) => x < 0);
   const downBondMean = down.length ? down.reduce((s, [, y]) => s + y, 0) / down.length : null;
   const downStockMean = down.length ? down.reduce((s, [x]) => s + x, 0) / down.length : null;
-  return { available: true, r, weeks: xs.length, from: marks[0], to: marks[marks.length - 1], downWeeks: down.length, downBondMean, downStockMean };
+  return { available: true, r, weeks: xs.length, from: marks[0], to: marks[marks.length - 1], downWeeks: down.length, downBondMean, downStockMean, translatedTo: translate ? base : null };
 }
 
 /**
  * Bond share of the stored holdings (base-currency values) and, with price records, the stock–bond correlation.
- * @param {{ rows: Array<{symbol:string,value:number}>, stressInput?: {historyMap:object, commonDates:string[]} }} input
+ * @param {{ rows: Array<{symbol:string,value:number}>, stressInput?: {historyMap:object, commonDates:string[]}, baseCurrency?: string|null, history?: object[] }} input
  */
-export function bondCushion({ rows = [], stressInput = null } = {}) {
+export function bondCushion({ rows = [], stressInput = null, baseCurrency = null, history = [] } = {}) {
   const held = (Array.isArray(rows) ? rows : []).filter((row) => Number(row?.value) > 0);
   const total = held.reduce((s, row) => s + Number(row.value), 0);
   if (!held.length || !(total > 0)) return { available: false };
@@ -122,7 +152,7 @@ export function bondCushion({ rows = [], stressInput = null } = {}) {
   const highYieldPct = bonds.filter((row) => row.kind === 'high-yield').reduce((s, row) => s + row.pct, 0);
   let correlation = { available: false, reason: bonds.length && Object.keys(stockWeights).length ? 'history-pending' : 'one-sided' };
   if (bonds.length && Object.keys(stockWeights).length && stressInput?.historyMap && Array.isArray(stressInput.commonDates)) {
-    correlation = stockBondCorrelation({ historyMap: stressInput.historyMap, commonDates: stressInput.commonDates, bondWeights, stockWeights });
+    correlation = stockBondCorrelation({ historyMap: stressInput.historyMap, commonDates: stressInput.commonDates, bondWeights, stockWeights, baseCurrency, history });
   }
   return { available: true, version: ASSET_CLASS_MAP_VERSION, holdings: held.length, bondPct, governmentPct, highYieldPct, bonds, correlation };
 }

@@ -48,15 +48,16 @@ function unavailable(doc, text) {
 }
 
 // ── 듀폰 분해 ─────────────────────────────────────────────────────────────────────────────────────────────────────────
-export function dupontCard(doc, history, { financial = false } = {}) {
-  const read = buildDupontRead(history);
+export function dupontCard(doc, history, { financial = false, fundamentals = null } = {}) {
+  const read = buildDupontRead(history, { fundamentals });
   if (read.state === 'none') return null;
   const card = el(doc, 'section', null, 'sx-card v2-analysis-card v2-dupont');
   card.dataset.analysis = 'dupont';
   card.dataset.state = read.state;
   card.setAttribute('aria-label', '수익성의 구조 · 듀폰 분해');
   const latest = read.columns?.at(-1);
-  card.append(cardHead(doc, '수익성의 구조 · 듀폰 분해', latest ? `${latest.label} · ${read.basis === 'average' ? '평균 자산·자본' : '기말 자산·자본'}` : 'SEC 연간 공시'));
+  const basisWord = (basis) => (basis === 'average' ? '평균 자산·자본' : '기말 자산·자본');
+  card.append(cardHead(doc, '수익성의 구조 · 듀폰 분해', latest ? `${latest.label} · ${basisWord(latest.basis)}` : 'SEC 연간 공시'));
   if (read.state === 'pending') { card.append(pendingNote(doc, '듀폰 분해')); return card; }
   if (read.state !== 'ready') { card.append(unavailable(doc, read.reason)); return card; }
   // The equation for the latest year (design 3d): 순이익률 × 자산회전율 × 재무 레버리지 = ROE.
@@ -75,7 +76,7 @@ export function dupontCard(doc, history, { financial = false } = {}) {
   if (read.columns.length === 2) {
     const [prev, now] = read.columns;
     const table = el(doc, 'table', null, 'v2-dupont-table');
-    table.append(el(doc, 'caption', `${prev.label}와 ${now.label} 비교 — ${read.basis === 'average' ? '자산·자기자본은 각 해의 기초·기말 평균' : '자산·자기자본은 기말 값(평균을 만들 직전 해 자료가 없음)'}`));
+    table.append(el(doc, 'caption', `${prev.label}와 ${now.label} 비교 — ${read.basis === 'average' ? '자산·자기자본은 각 해의 기초·기말 평균' : read.basis === 'year-end' ? '자산·자기자본은 기말 값(평균을 만들 직전 해 자료가 없음)' : `${prev.label} ${basisWord(prev.basis)} · ${now.label} ${basisWord(now.basis)}(직전 해 자료가 있는 해만 평균)`}`));
     const head = el(doc, 'thead'); const hr = el(doc, 'tr');
     for (const label of ['요인', prev.label, now.label]) { const th = el(doc, 'th', label); th.scope = 'col'; hr.append(th); }
     head.append(hr); table.append(head);
@@ -92,7 +93,7 @@ export function dupontCard(doc, history, { financial = false } = {}) {
   card.append(el(doc, 'p', read.sentence, 'v2-analysis-lede'));
   card.append(disclosure(doc, '원리 · 듀폰 분해', [
     ['원리', 'ROE = 순이익 ÷ 자기자본을 순이익률(순이익 ÷ 매출) × 자산회전율(매출 ÷ 총자산) × 재무 레버리지(총자산 ÷ 자기자본)로 나눕니다. 같은 ROE라도 마진에서 오는지, 자산을 빨리 돌려서인지, 빚으로 자본을 줄여서인지에 따라 지속성과 위험이 다릅니다.'],
-    ['지금 읽기', `${read.basis === 'average' ? '두 해 모두 기초·기말 평균 총자산과 평균 자기자본을 썼습니다(ROE도 평균 자기자본 기준).' : '평균을 만들 직전 해 자료가 없어 두 해 모두 기말 값을 썼습니다.'} 가장 크게 움직인 요인은 표에서 강조했습니다.`],
+    ['지금 읽기', `${read.basis === 'average' ? '기초·기말 평균 총자산과 평균 자기자본을 썼습니다(재무 공시의 ROE와 같은 기준).' : read.basis === 'year-end' ? '평균을 만들 직전 해 자료가 없어 기말 값을 썼습니다.' : '직전 해 자료가 있는 해는 평균, 없는 해는 기말 값을 썼습니다(재무 공시의 ROE와 같은 규칙).'} 가장 크게 움직인 요인은 표에서 강조했습니다.`],
     ['한계 · 함께 볼 것', `${financial ? '은행은 예금을 부채로 쓰는 구조라 재무 레버리지가 10배 안팎이 보통이고 자산회전율은 매우 낮습니다 — 일반 기업과 같은 눈높이로 비교하지 않습니다. ' : ''}높은 수익성은 시간이 지나며 평균 쪽으로 돌아가는 경향이 관측됐습니다(Fama·French 2000). 일회성 이익·자사주 매입은 10-K 원문에서 확인합니다.`]
   ]));
   card.append(el(doc, 'p', '근거 · DuPont 분해(1920년대) · 수익성 평균 회귀(Fama·French 2000) · 데이터 · SEC EDGAR XBRL 연간 공시(10-K)', 'sx-evidence'));

@@ -10,8 +10,7 @@ import { secFilingUrl } from '../../domain/fundamental/sec-report.js';
 import { buildConsensusPoint } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { el } from './dom.js';
-import { buildAccrualRead } from '../../domain/fundamental/analysis-read.js';
-import { rdCard, COLLECTION_PENDING_LABEL } from './fundamental-analysis-cards.js';
+import { loadFundamentalAnalysis } from './fundamental-analysis-lazy.js';
 
 // P1436: "YYYY-MM-DD:revenue:netIncome;…" in USD millions (public-data/sec-fiscal-history.json).
 export function parseFiscalHistory(text) {
@@ -235,7 +234,7 @@ function peerSection(doc, root, symbol, row, rows, fundamentals) {
 // v58.53 개편 v2 (5g): 이익의 질 — operating cash flow ÷ net income for each filed year (the trend is only the years in
 // sec-fiscal-history; no year is estimated), the latest free-cash-flow margin and the one-year share count change.
 // Banks are skipped: their operating cash flow mixes deposits and loans, so the ratio does not read as earnings quality.
-function earningsQualityCard(doc, read) {
+function earningsQualityCard(doc, read, analysis) {
   if (read.points.some((point) => point.id === 'bank')) return null;
   const years = read.history.filter((year) => number(year.operatingCashFlow) != null && number(year.netIncome) != null).slice(-5);
   const latest = read.history.at(-1);
@@ -274,7 +273,9 @@ function earningsQualityCard(doc, read) {
   }
   row('영업현금흐름 ÷ 순이익', ratio == null ? '순이익·현금흐름 중 하나가 마이너스 — 비율 해석 보류' : ratio >= 0.8 ? '1 근처 이상 — 이익이 현금으로 들어옴' : '1보다 낮음 — 장부 이익보다 현금이 적음', ratio == null ? '해당 없음' : ratio.toFixed(2), trend);
   // v58.55: the Sloan (1996) accrual ratio on its original denominator (average total assets), now that assets are collected.
-  const accrual = buildAccrualRead(read.history);
+  // The analysis module loads on first use (fundamental-analysis-lazy.js); until it arrives the accrual row waits for the repaint.
+  const accrual = analysis ? analysis.buildAccrualRead(read.history) : { state: 'loading' };
+  const COLLECTION_PENDING_LABEL = analysis?.COLLECTION_PENDING_LABEL || '';
   const accrualLatest = accrual.state === 'ready' ? accrual.latest : null;
   if (accrual.state === 'pending') row('발생액 비율 (Sloan)', COLLECTION_PENDING_LABEL, '대기');
   else if (accrual.state === 'unreported') row('발생액 비율 (Sloan)', '총자산이 공시 수집본에 없어 계산하지 않음', '해당 없음');
@@ -340,11 +341,13 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
   const next = doc.getElementById('fund-next');
   if (!symbol) { host.hidden = true; host.replaceChildren(); renderNextSteps(doc, next, []); return null; }
   host.hidden = false;
+  host.dataset.fiscalSymbol = symbol;
   host.classList.add('fiscal-quality');
   let rows = [];
   try { rows = typeof root?._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() || [] : []; } catch (_) { rows = []; }
   const row = rows.find((item) => item?.sym === symbol) || null;
   requestFiscalHistory(root, () => renderFiscalRead({ documentRef: doc, root, state }), 'fiscal');
+  const analysis = loadFundamentalAnalysis(() => { if (doc.getElementById('fund-flow')?.dataset.fiscalSymbol === symbol) renderFiscalRead({ documentRef: doc, root, state }); });
   const series = root?._aioSecFiscalHistory?.[symbol];
   const fundamentals = series ? { ...(state?.fundamentals || {}), fiscalHistory: parseFiscalHistory(series) } : state?.fundamentals || null;
   const quarterText = root?._aioSecQuarterHistory?.[symbol];
@@ -389,11 +392,11 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
       chartCard.append(precision);
     }
     const pair = el(doc, 'div', null, 'v2-fiscal-pair');
-    const quality = earningsQualityCard(doc, read);
+    const quality = earningsQualityCard(doc, read, analysis);
     pair.append(chartCard, ...(quality ? [quality] : []));
     host.append(pair);
     // v58.55 (5g): R&D ÷ revenue beside the cash reading's years (US filers with a fiscal series only).
-    const rd = series ? rdCard(doc, read.history) : null;
+    const rd = series && analysis ? analysis.rdCard(doc, read.history) : null;
     if (rd) host.append(rd);
     const quarterBox = quarterSection(doc, root, symbol);
     if (quarterBox) { quarterBox.classList.add('sx-card'); host.append(quarterBox); }

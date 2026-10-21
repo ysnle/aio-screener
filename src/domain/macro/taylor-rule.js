@@ -10,6 +10,10 @@ export const TAYLOR_R_STAR_OPTIONS = Object.freeze([0.5, 1.0]);
 export const TAYLOR_INFLATION_TARGET = 2;
 export const OKUN_COEFFICIENT = 2;
 const NEAR_PP = 0.25; // within one usual 25bp step the policy rate reads as "near" the rule
+// Round-2 review (v58.55): inputs from different periods describe no single moment. PCE lags UNRATE by one month and NROU is
+// dated at its quarter's first month, so up to 3 months apart is the normal release pattern; more means a feed fell behind.
+export const TAYLOR_MAX_INPUT_SPREAD_MONTHS = 3;
+const monthIndex = (date) => { const [y, m] = String(date).split('-').map(Number); return y * 12 + (m - 1); };
 
 function finite(value) {
   const number = Number(value);
@@ -44,7 +48,12 @@ export function taylorRule({ macroHistory = null, macro = null, rStar = TAYLOR_R
     natural ? null : 'naturalUnemployment',
     target ? null : 'target'
   ].filter(Boolean);
-  const base = { rStar: r, inflation, unemployment, natural, target, missing };
+  // A series the producer kept from an earlier run (FRED failed this time) is marked stale in the artifact.
+  const staleSeries = ['corePceIndex', 'unemployment', 'naturalUnemployment'].filter((field) => macroHistory?.series?.[field]?.stale === true);
+  const dated = [inflation, unemployment, natural].filter(Boolean).map((row) => monthIndex(row.date));
+  const spreadMonths = dated.length >= 2 ? Math.max(...dated) - Math.min(...dated) : 0;
+  const stale = staleSeries.length > 0 || spreadMonths > TAYLOR_MAX_INPUT_SPREAD_MONTHS;
+  const base = { rStar: r, inflation, unemployment, natural, target, missing, stale, staleSeries, spreadMonths };
   if (!inflation || !unemployment || !natural) return { ...base, available: false };
   const unemploymentGap = unemployment.value - natural.value;
   const outputGap = -OKUN_COEFFICIENT * unemploymentGap;

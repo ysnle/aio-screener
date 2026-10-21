@@ -29,6 +29,8 @@ export const INVESTORS = Object.freeze([
   Object.freeze({ id: 'institution', label: '기관', rx: /기관/ })
 ]);
 
+const SUB_INDEX_RX = /\d{2,3}(?!\d)|대형|중형|소형|업종|섹터|스타|벤처|우량|중견|레버리지|인버스|선물|옵션|ETF|ETN|ELW|배당|지배구조|프리미어|글로벌/i;
+
 /** One ECOS item → { market, investor, factor } or { skip: reason }. Only the item's own text decides. */
 export function classifyEcosItem(item) {
   const name = String(item?.ITEM_NAME || '');
@@ -37,13 +39,18 @@ export function classifyEcosItem(item) {
   if (String(item?.CYCLE || 'D').toUpperCase() !== 'D') return { skip: 'not-daily' };
   const investors = INVESTORS.filter((inv) => inv.rx.test(context));
   if (investors.length !== 1) return { skip: investors.length ? 'investor-ambiguous' : 'investor-unnamed' };
+  // v58.55 review: KOSPI200 / KOSDAQ150 / size-tier / sector items name the market too; only the market-wide figure is used.
+  // (Item and parent names only: a group/table label can carry section numbers.)
+  if (SUB_INDEX_RX.test(`${item?.P_ITEM_NAME || ''} ${name}`)) return { skip: 'sub-index' };
   const kosdaq = /코스닥|KOSDAQ/i.test(context);
   const kospi = /코스피|KOSPI|유가증권/i.test(context);
   if (kosdaq === kospi) return { skip: 'market-ambiguous' };
   const unit = String(item?.UNIT_NAME || '').replace(/\s+/g, '');
   const factor = UNIT_TO_EOK[unit];
   if (factor == null) return { skip: `unit-unknown:${unit || 'none'}` };
-  return { market: kosdaq ? 'kosdaq' : 'kospi', investor: investors[0].id, factor, unit };
+  // Fewer leftover words = closer to the plain market-wide series; buildKrInvestorFlows keeps the most general item.
+  const generality = name.replace(/순매수|외국인|개인|기관|투자자|코스피|코스닥|KOSPI|KOSDAQ|유가증권|시장|금액|합계|전체|[\s()·,\-_/]/gi, '').length;
+  return { market: kosdaq ? 'kosdaq' : 'kospi', investor: investors[0].id, factor, unit, generality };
 }
 
 /** ECOS StatisticSearch rows → ascending { date, value(억원) }; malformed rows are dropped, never filled. */
@@ -71,10 +78,13 @@ export function buildKrInvestorFlows({ items = [], seriesByItem = {}, generatedA
     const series = parseEcosDailyRows(seriesByItem[item.ITEM_CODE], cls.factor);
     if (!series.length) { skipped.push({ itemCode: item.ITEM_CODE, itemName: item.ITEM_NAME, reason: 'series-empty' }); continue; }
     const market = (markets[cls.market] ||= { investors: {} });
-    if (market.investors[cls.investor]) { skipped.push({ itemCode: item.ITEM_CODE, itemName: item.ITEM_NAME, reason: 'duplicate-investor' }); continue; }
-    market.investors[cls.investor] = { itemCode: String(item.ITEM_CODE), itemName: String(item.ITEM_NAME), sourceUnit: cls.unit, series };
+    const held = market.investors[cls.investor];
+    if (held && held.generality <= cls.generality) { skipped.push({ itemCode: item.ITEM_CODE, itemName: item.ITEM_NAME, reason: 'less-general-duplicate' }); continue; }
+    if (held) skipped.push({ itemCode: held.itemCode, itemName: held.itemName, reason: 'less-general-duplicate' });
+    market.investors[cls.investor] = { itemCode: String(item.ITEM_CODE), itemName: String(item.ITEM_NAME), sourceUnit: cls.unit, generality: cls.generality, series };
   }
   for (const market of Object.values(markets)) {
+    for (const inv of Object.values(market.investors)) delete inv.generality;
     market.latestDate = Object.values(market.investors).map((inv) => inv.series.at(-1)?.date).filter(Boolean).sort().at(-1) || null;
   }
   const found = Object.keys(markets).length;
@@ -146,7 +156,8 @@ async function main() {
     return;
   }
   await writeArtifact(payload);
-  const summary = Object.entries(payload.markets).map(([m, v]) => `${m}:${Object.keys(v.investors).join('+')}@${v.latestDate}`).join(' ');
+  // The chosen ECOS item per market and investor, so the first Actions run can be audited against the ECOS table.
+  const summary = Object.entries(payload.markets).map(([m, v]) => `${m}@${v.latestDate}[${Object.entries(v.investors).map(([id, inv]) => `${id}=${inv.itemCode} "${inv.itemName}" (${inv.sourceUnit})`).join('; ')}]`).join(' ');
   console.log(`[kr-flows] ${payload.status} ${summary || '(none)'} · missing ${payload.missingInvestors.join(',') || 'none'}`);
 }
 

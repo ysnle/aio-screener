@@ -186,12 +186,24 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   assert.ok(impliedGrowth({ fcf: 17e9, marketValue: 600e9, discountRate: 0.095, terminalGrowth: 0.025 }).growth > solved.growth, 'v58.55 a higher discount rate needs more growth');
   assert.equal(impliedGrowth({ fcf: 1e6, marketValue: 600e12, discountRate: 0.09, terminalGrowth: 0.025 }).state, 'above-range', 'v58.55 an unreachable growth is a range state, not a number');
   const close = { value: 50, date: '2026-10-19' };
-  const facts = { sharesOutstanding: 12e9 };
+  const facts = { sharesOutstanding: 12e9, sharesObservedAt: '2026-02-10' };
   assert.equal(reverseDcfInputs({ history: parsed, fundamentals: facts, close }).fcf, 17e9, 'v58.55 FCF = latest OCF - capex');
   assert.equal(reverseDcfInputs({ history: parsed.map((year) => ({ ...year, capex: 30e9 })), fundamentals: facts, close }).state, 'fcf-negative', 'v58.55 FCF <= 0 is not solved');
   assert.equal(reverseDcfInputs({ history: parsed, fundamentals: {}, close }).state, 'missing', 'v58.55 no verified share count, no market value');
   assert.equal(reverseDcfInputs({ history: parsed, fundamentals: facts, close: { value: 50 } }).state, 'missing', 'v58.55 an undated price is not used');
   assert.equal(reverseDcfInputs({ history: parsed, fundamentals: facts, close, financial: true }).state, 'financial', 'v58.55 lending financials are not valued on FCF');
+  // v58.55 review: an old fiscal year or a far share count is 'stale', never solved against today's close (B: FY2010).
+  const at = Date.parse('2026-10-21T00:00:00Z');
+  const fy2010 = parsed.map((year, i) => ({ ...year, periodEnd: `${2008 + i}-12-31` }));
+  assert.equal(reverseDcfInputs({ history: fy2010, fundamentals: { sharesOutstanding: 1e9, sharesObservedAt: '2011-02-10' }, close, nowMs: at }).state, 'stale', 'v58.55 a fiscal year past the 456-day rule is not valued');
+  assert.equal(reverseDcfInputs({ history: parsed, fundamentals: { ...facts, quality: { stale: true } }, close, nowMs: at }).state, 'stale', 'v58.55 a record the SEC read flags stale is not valued');
+  assert.equal(reverseDcfInputs({ history: parsed, fundamentals: { ...facts, sharesObservedAt: '2023-01-05' }, close, nowMs: at }).state, 'stale', 'v58.55 a share count far from the fiscal year end is not priced');
+  assert.equal(reverseDcfInputs({ history: parsed, fundamentals: facts, close, nowMs: at }).state, 'ready');
+  assert.equal(buildDupontRead(fy2010, { nowMs: at }).state, 'stale', 'v58.55 DuPont holds an old fiscal year');
+  const priorNegative = parsed.map((year) => (year.periodEnd.startsWith('2024') ? { ...year, equity: -5e9 } : year));
+  const alone = buildDupontRead(priorNegative, { nowMs: at });
+  assert.ok(alone.state === 'ready' && alone.columns.length === 1 && alone.columns[0].basis === 'year-end', 'v58.55 a prior year with negative equity is dropped and the latest year stands alone');
+  assert.ok(buildDupontRead(parsed, { nowMs: at }).columns.every((c) => c.basis === 'average'), 'v58.55 each column names its own basis');
 
   // Scheduler: the extra backfill slots take only records due for the new observation arrays.
   const nowMs = Date.parse('2026-10-20T00:00:00Z');

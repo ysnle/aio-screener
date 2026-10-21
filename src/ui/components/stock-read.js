@@ -17,9 +17,8 @@ import { el } from './dom.js';
 import { openThemeDetail } from '../navigation/theme-detail.js';
 import { buildOutOfUniverseRead } from '../../domain/entity/out-of-universe-read.js';
 import { requestFiscalHistory, parseFiscalHistory } from './fiscal-read.js';
-import { dupontCard, reverseDcfCard } from './fundamental-analysis-cards.js';
-import { assetChainState } from '../../domain/fundamental/analysis-read.js';
-import { isLendingFinancial } from '../../domain/fundamental/fiscal-read.js';
+import { loadFundamentalAnalysis } from './fundamental-analysis-lazy.js';
+import { isLendingFinancial, reconcileFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
 
 const TICKER_INDEX_REFERENCE_URL = './public-data/masters/ticker-index-reference.json';
 
@@ -380,17 +379,24 @@ export function renderStockAnalysis({ documentRef: doc, root, symbol, fundamenta
     if (String(root?._currentTickerId || '').toUpperCase() === sym) renderStockAnalysis({ documentRef: doc, root, symbol: sym, fundamentals, close, sector });
   }, 'stock-analysis');
   const text = root?._aioSecFiscalHistory?.[sym];
-  const history = typeof text === 'string' ? parseFiscalHistory(text) : [];
+  // v58.55 (review): the same precise latest year as 재무 공시 (reconcileFiscalHistory swaps the rounded USD-million row
+  // for the issuer's exact annual receipt), so ROE and FCF agree across the two tabs.
+  const history = typeof text === 'string' ? reconcileFiscalHistory(parseFiscalHistory(text), own, sym) : [];
   const financial = isLendingFinancial(sym, sector);
-  const signature = JSON.stringify([sym, text || '', own.sharesOutstanding ?? null, own.observedAt ?? null, close?.value ?? null, close?.date ?? null, financial]);
+  const signature = JSON.stringify([sym, text || '', own.sharesOutstanding ?? null, own.observedAt ?? null, own.sharesObservedAt ?? null, own.quality?.stale ?? null, history.at(-1) ?? null, close?.value ?? null, close?.date ?? null, financial]);
   if (host.dataset.signature === signature && host.childElementCount) return host;
   // A history request still in flight: nothing to draw yet (the callback repaints), unless it already failed.
   if (!history.length && root?._aioSecFiscalHistory === undefined) { host.hidden = true; return null; }
+  const analysis = loadFundamentalAnalysis(() => {
+    if (String(root?._currentTickerId || '').toUpperCase() === sym) renderStockAnalysis({ documentRef: doc, root, symbol: sym, fundamentals, close, sector });
+  });
+  if (!analysis) return null; // first use: the cards module is loading (outside the boot bundle); the callback draws them
+  const { dupontCard, reverseDcfCard, assetChainState } = analysis;
   host.dataset.signature = signature;
   host.hidden = false;
   host.replaceChildren(el(doc, 'h2', '수익성 구조와 가격이 말하는 기대', 'sr-only'));
   const pair = el(doc, 'div', null, 'v2-stock-pair v2-analysis-pair');
-  const dupont = history.length ? dupontCard(doc, history, { financial }) : null;
+  const dupont = history.length ? dupontCard(doc, history, { financial, fundamentals: own }) : null;
   const dcf = reverseDcfCard(doc, root, { history, fundamentals: own, close, financial, symbol: sym });
   pair.append(...[dupont, dcf].filter(Boolean));
   host.append(pair);

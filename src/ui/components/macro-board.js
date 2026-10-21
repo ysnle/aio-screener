@@ -336,7 +336,11 @@ function renderRateStrip(doc, root) {
   grid.append(...tiles);
   const line = el(doc, 'p', null, 'sx-evidence mk-rate-strip__evidence');
   line.append(el(doc, 'span', '근거 · Fisher 1930 · Estrella·Mishkin 1998 · Taylor 1993'), el(doc, 'span', '데이터 · FRED (DGS10 · DFII10 · T10YIE · T10Y3M · PCEPILFE · UNRATE · NROU · DFEDTARL/U)'));
-  host.replaceChildren(grid, taylorFold(doc, taylor), line);
+  // Round-2 review (v58.55): a repaint (r* switch, data refresh) keeps the formula fold open if the reader opened it.
+  const wasOpen = !!host.querySelector?.('.mk-taylor__fold')?.open;
+  const fold = taylorFold(doc, taylor);
+  fold.open = wasOpen;
+  host.replaceChildren(grid, fold, line);
 }
 
 // v58.55 (개편 v2 3e): Taylor (1993) as a reference point for the policy rate. r* is an assumption the reader switches
@@ -355,14 +359,22 @@ function taylorTile(doc, root, t) {
       const button = el(doc, 'button', `r* ${option.toFixed(1)}%`);
       button.type = 'button';
       button.setAttribute('aria-pressed', String(option === t.rStar));
-      button.addEventListener('click', () => { root.__aioTaylorRStar = option; renderRateStrip(doc, root); });
+      button.dataset.rStar = String(option);
+      // Round-2 review (v58.55): the strip is rebuilt, so focus returns to the same option instead of dropping to <body>.
+      button.addEventListener('click', () => {
+        root.__aioTaylorRStar = option;
+        renderRateStrip(doc, root);
+        doc.querySelector?.(`.mk-taylor__seg button[data-r-star="${option}"]`)?.focus();
+      });
       seg.append(button);
     }
     head.append(seg);
   }
   tile.append(head);
-  const month = (date) => `${Number(String(date).slice(5, 7))}월`;
-  const quarter = (date) => `${Math.floor((Number(String(date).slice(5, 7)) - 1) / 3) + 1}분기`;
+  // Round-2 review (v58.55): every input names its year, so a value carried over from an older release cannot pass as current.
+  const yy = (date) => String(date).slice(2, 4);
+  const month = (date) => `${yy(date)}년 ${Number(String(date).slice(5, 7))}월`;
+  const quarter = (date) => `${yy(date)}년 ${Math.floor((Number(String(date).slice(5, 7)) - 1) / 3) + 1}분기`;
   const inputs = [
     t.inflation ? `근원 PCE ${pct(t.inflation.value, 1)} (${month(t.inflation.date)})` : '근원 PCE 없음',
     t.unemployment ? `실업률 ${pct(t.unemployment.value, 1)} (${month(t.unemployment.date)})` : '실업률 없음',
@@ -372,15 +384,30 @@ function taylorTile(doc, root, t) {
     // Until the producer's first run with NROU, the inputs that exist are shown and the rule waits — no assumed u*.
     tile.append(el(doc, 'b', '수집 대기', 'mk-rate-tile__value is-pending'),
       el(doc, 'span', `${t.natural ? '' : 'CBO 자연실업률(NROU)을 다음 자료 갱신부터 받아 계산합니다. '}${inputs}`, 'mk-rate-tile__note'));
+    if (t.stale) tile.append(taylorStaleLine(doc, t));
     return tile;
   }
   const valueText = t.diff == null ? `준칙 ${pct(t.rule)}` : `${signed(t.diff, 2)}%p ${STANCE_WORD[t.stance]}`;
   const value = basisValue(doc, valueText, '실제 연준 목표 범위 중간값에서 테일러 준칙 금리를 뺀 값입니다. 양수면 정책금리가 준칙보다 높아(긴축적) 있고, 음수면 낮습니다. 연준이 따라야 하는 값이 아니라 비교 기준입니다.', null); // inputs carry their months below
-  const target = t.target ? `실제 목표 범위 ${t.target.lower.toFixed(2)}~${t.target.upper.toFixed(2)}% (중간 ${t.target.mid.toFixed(3).replace(/0$/, '')}%)` : '실제 목표 범위 자료 없음';
+  const target = t.target ? `실제 목표 범위 ${t.target.lower.toFixed(2)}~${t.target.upper.toFixed(2)}% (중간 ${t.target.mid.toFixed(3).replace(/0$/, '')}%${t.target.asOf ? ` · ${String(t.target.asOf).slice(0, 10)} 기준` : ''})` : '실제 목표 범위 자료 없음';
   tile.append(value,
     el(doc, 'span', `준칙 ${pct(t.rule)} (r* ${t.rStar.toFixed(1)}%) · r* 0.5~1.0% 가정 시 ${pct(t.range.lo)}~${pct(t.range.hi)} · ${target}`, 'mk-rate-tile__note'),
     el(doc, 'span', `${inputs} · 실업률 갭 ${signed(t.unemploymentGap, 1)}%p`, 'mk-rate-tile__note'));
+  if (t.stale) tile.append(taylorStaleLine(doc, t));
   return tile;
+}
+
+// Round-2 review (v58.55): an input kept from an earlier run, or inputs more than three months apart, get the amber date chip
+// and a plain sentence — the number stays, but it is not presented as today's reading.
+const TAYLOR_SERIES_NAME = Object.freeze({ corePceIndex: '근원 PCE', unemployment: '실업률', naturalUnemployment: 'CBO 자연실업률' });
+function taylorStaleLine(doc, t) {
+  const line = el(doc, 'span', null, 'mk-rate-tile__note mk-taylor__stale');
+  const reasons = [
+    t.staleSeries.length ? `${t.staleSeries.map((field) => TAYLOR_SERIES_NAME[field]).join("·")}: 이번 수집에 실패해 직전 값을 씁니다` : null,
+    t.spreadMonths > 3 ? `입력 시점이 ${t.spreadMonths}개월 벌어져 있습니다` : null
+  ].filter(Boolean).join(' · ');
+  line.append(el(doc, 'span', '지난 값 포함', 'sx-chip sx-chip--sm sx-chip--date'), doc.createTextNode(` ${reasons} — 최신 값으로 보지 않습니다.`));
+  return line;
 }
 
 function taylorFold(doc, t) {
