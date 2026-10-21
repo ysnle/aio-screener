@@ -858,6 +858,18 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     kospiDown === 'down' && marketSentenceRejectReason('소진 신호가 쌓이는 가운데, 회복 확인은 아직인가?', { largeMoveDirection: 'down' }) === 'large-move-missed'
       && !!validateMarketSentence('반등이 꺾인 자리, 투매의 끝인가 새 하락의 시작인가?', { largeMoveDirection: 'down' })
       && !!validateMarketSentence('소진 신호가 쌓이는 가운데, 회복 확인은 아직인가?') && breakdownDay?.text === '아침 문장은 그대로 남는가?', JSON.stringify({ kospiDown, breakdownDay }));
+  // Live 2026-10-21: after the US 10/20 close (+0.28%) the morning KOSPI −3.73% still forced "오늘의 하락".
+  const sessionWindow = { meta: { newsCycleStart: '2026-10-19T23:00:00.000Z' } };
+  const krFall = { evidenceId: 'k', metricId: 'market.kospi', observedAt: '2026-10-20T06:30:00.000Z' };
+  const directionAfter = (spxAt, spxMove) => marketAnalysisLargeMoveDirection([krFall, { evidenceId: 's', metricId: 'market.spx', observedAt: spxAt }], new Map([['k', -3.73], ['s', spxMove]]), sessionWindow);
+  const usLaterUp = directionAfter('2026-10-20T20:45:45.000Z', 0.28);
+  const usEarlierUp = directionAfter('2026-10-19T20:44:14.000Z', 0.41);
+  const usLaterFlat = directionAfter('2026-10-20T20:45:45.000Z', 0.02);
+  check('v58.58 (live 2026-10-21) the sentence direction reads both markets\' sessions in the window: a later opposite session makes the day mixed',
+    usLaterUp === 'mixed' && usEarlierUp === 'down' && usLaterFlat === 'down'
+      && marketSentenceRejectReason('오늘의 하락은 AI 투자 기대의 흔들림인가, 동반 약세의 시작인가?', { largeMoveDirection: 'mixed' }) === 'large-move-one-sided'
+      && !!validateMarketSentence('한쪽의 급락과 다른 쪽의 반등, 어느 쪽이 내일을 이끄는가?', { largeMoveDirection: 'mixed' })
+      && !!validateMarketSentence('AI 투자 확대는 새 주도의 시작인가, 과열의 신호인가?', { largeMoveDirection: 'mixed' }), JSON.stringify({ usLaterUp, usEarlierUp, usLaterFlat }));
   const { NEWS_FEEDS } = await import('./lib/news-selection.mjs');
   const split = splitMarketSentence('S&P 500은 1.11% 하락했다.\n코스피는 장중 급락했다.\n오늘의 한 문장: "누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다."');
   const at = (iso) => Date.parse(iso);

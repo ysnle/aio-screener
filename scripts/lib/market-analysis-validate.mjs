@@ -151,24 +151,41 @@ export const LARGE_MOVE_ATTRIBUTION_PCT = RULES.largeMove.attributionUsPct;
 // naming a cause no headline in the window could carry. A move asks for attribution only when its session ended
 // inside the headline window or within the 12 hours before it opened (the US close before a Korean-morning cut).
 export const LARGE_MOVE_WINDOW_LEAD_MS = 12 * 3600000;
-function largeMoves(metricEvidence = [], changes = new Map(), data = null) {
+// Equity-index sessions inside the headline window (or the 12 hours before it), whatever their size.
+function windowSessionMoves(metricEvidence = [], changes = new Map(), data = null) {
   const windowStart = Date.parse(data?.meta?.newsCycleStart || '');
-  return (Array.isArray(metricEvidence) ? metricEvidence : []).map((row) => ({ row, move: changes.get(row.evidenceId) })).filter(({ row, move }) => {
+  return (Array.isArray(metricEvidence) ? metricEvidence : []).map((row) => ({ row, move: changes.get(row.evidenceId), observed: Date.parse(row.observedAt || '') })).filter(({ row, move, observed }) => {
     if (row.metricId !== 'market.spx' && row.metricId !== 'market.kospi') return false; // equity indices only (a 1% VIX move is noise)
-    if (!(Number.isFinite(move) && Math.abs(move) >= (row.metricId === 'market.kospi' ? KOREA_MOVE_MENTION_PCT : LARGE_MOVE_ATTRIBUTION_PCT))) return false;
-    const observed = Date.parse(row.observedAt || '');
+    if (!Number.isFinite(move)) return false;
     return !Number.isFinite(windowStart) || !Number.isFinite(observed) || observed >= windowStart - LARGE_MOVE_WINDOW_LEAD_MS;
   });
+}
+function largeMoves(metricEvidence = [], changes = new Map(), data = null) {
+  return windowSessionMoves(metricEvidence, changes, data)
+    .filter(({ row, move }) => Math.abs(move) >= (row.metricId === 'market.kospi' ? KOREA_MOVE_MENTION_PCT : LARGE_MOVE_ATTRIBUTION_PCT));
 }
 export function marketAnalysisLargeMove(metricEvidence = [], changes = new Map(), data = null) {
   return largeMoves(metricEvidence, changes, data).length > 0;
 }
 // Screen audit 2026-10-20: after KOSPI −3.73% gave back a two-day rebound, the day's sentence asked whether "exhaustion"
 // was building toward recovery — a bottoming frame on a breakdown day. The largest qualifying move now sets the
-// direction the sentence's tension has to start from ('down' | 'up' | null).
+// direction the sentence's tension has to start from ('down' | 'up' | 'mixed' | null).
+// Live 2026-10-21: the 10/20 sentence was written after the US close (S&P 500 +0.28%), yet the KOSPI −3.73% of that
+// morning forced "오늘의 하락". Both markets' sessions in the window now set it: a later session of the other market
+// that moved the other way (or two large moves in opposite directions) makes the day 'mixed'. A flat later session
+// (under FLAT_SESSION_PCT) does not cancel the move; a session with no timestamp is not assumed to be the later one.
+const FLAT_SESSION_PCT = 0.05;
 export function marketAnalysisLargeMoveDirection(metricEvidence = [], changes = new Map(), data = null) {
-  const largest = largeMoves(metricEvidence, changes, data).sort((a, b) => Math.abs(b.move) - Math.abs(a.move))[0];
-  return largest ? (largest.move < 0 ? 'down' : 'up') : null;
+  const sessions = windowSessionMoves(metricEvidence, changes, data);
+  const large = largeMoves(metricEvidence, changes, data).sort((a, b) => Math.abs(b.move) - Math.abs(a.move));
+  if (!large.length) return null;
+  const sign = large[0].move < 0 ? -1 : 1;
+  if (large.some(({ move }) => Math.sign(move) === -sign)) return 'mixed';
+  const reversedLater = sessions.some(({ row, move, observed }) => row.metricId !== large[0].row.metricId
+    && Math.abs(move) >= FLAT_SESSION_PCT && Math.sign(move) === -sign
+    && Number.isFinite(observed) && Number.isFinite(large[0].observed) && observed > large[0].observed);
+  if (reversedLater) return 'mixed';
+  return sign < 0 ? 'down' : 'up';
 }
 // Expertise review 2026-10-19 (macro audit §5-2): REGULAR is a provider's open-market flag, so an in-session price was
 // passed to the prompt as a close; PREVIOUS_CLOSE_EXPECTED (venue open, value is the prior close) is a completed close.
@@ -1019,6 +1036,8 @@ export function marketSentenceRejectReason(sentence, { inflationRising = false, 
   if ((text.match(/[.?!。？！]/g) || []).length > 2) return 'too-many-sentences';
   if (largeMoveDirection === 'down' && !SENTENCE_DOWN_MOVE.test(text)) return 'large-move-missed';
   if (largeMoveDirection === 'up' && !SENTENCE_UP_MOVE.test(text)) return 'large-move-missed';
+  // The two markets went opposite ways: a line that names only one side reads one session as the whole day.
+  if (largeMoveDirection === 'mixed' && SENTENCE_DOWN_MOVE.test(text) !== SENTENCE_UP_MOVE.test(text)) return 'large-move-one-sided';
   return null;
 }
 export function validateMarketSentence(sentence, options = {}) {

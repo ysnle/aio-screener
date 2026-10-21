@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1953 - v58.58 - 미국 10/20 종가가 오른 뒤에도 그날 아침 코스피 -3.73%가 오늘의 한 문장을 '오늘의 하락'으로 고정 (2026-10-21)
+
+- symptom/reproduction: 10/21 오늘 화면의 한 문장이 '오늘의 하락은 AI 투자 기대의 흔들림인가, 동반 약세의 시작인가?'였다. 문장은 미국 10/20 마감 뒤(22:41Z)에 만들어졌고 그 장은 S&P 500 +0.28%·다우 +1.02%로 끝났다. 시간외 나스닥 100 선물은 +1%였다.
+- root_cause: v58.52(P1944)의 marketAnalysisLargeMoveDirection이 창 안에서 가장 큰 지수 움직임 하나로만 방향을 정했다. 그래서 그날 아침 코스피 -3.73%가 뒤이은 미국 장의 반대 방향 마감보다 우선했다.
+- fix: 방향은 창 안 두 시장의 장을 함께 본다. 큰 움직임 뒤에 다른 시장이 반대로 마감했거나(0.05% 이상) 두 시장이 반대 방향으로 크게 움직였으면 'mixed'다. mixed인 날에는 프롬프트가 엇갈림에서 출발하라고 지시하고, 한쪽 방향 어휘만 쓴 문장은 large-move-one-sided로 거절한다. 시각이 없는 장은 뒤의 장으로 가정하지 않는다.
+- violated_rule: 판정과 같은 방향의 문장(오늘의 한 문장 계약)
+- prevention: ci-data-pipeline-contract-check: v58.58 뒤이은 반대 방향 장은 mixed(미국 뒤 상승 mixed · 미국 앞 상승 down · 뒤 보합 down, 10/20 문장 거절)
+- verification/residual: 게이트 통과. 실제 AI 호출은 하지 않음(공용 예산) — 다음 엇갈린 날 Actions 갱신에서 문장 확인 필요.
+
 ## P1952 - v58.57 - 자료 갱신 릴리스가 병합 커밋으로 검증된 코드를 '미검증'으로 거부 (2026-10-21)
 
 - symptom/reproduction: v58.55 배포 뒤 01:00Z·01:22Z 자료 갱신 커밋의 축소 CI가 'source commit 514c501 has no successful full push CI yet'으로 실패해 자료가 실서비스에 반영되지 않았고, 신선도 감시가 연속 실패했다.
