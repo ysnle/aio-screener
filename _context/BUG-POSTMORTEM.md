@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1952 - v58.57 - 자료 갱신 릴리스가 병합 커밋으로 검증된 코드를 '미검증'으로 거부 (2026-10-21)
+
+- symptom/reproduction: v58.55 배포 뒤 01:00Z·01:22Z 자료 갱신 커밋의 축소 CI가 'source commit 514c501 has no successful full push CI yet'으로 실패해 자료가 실서비스에 반영되지 않았고, 신선도 감시가 연속 실패했다.
+- root_cause: Attest 단계는 생성 경로를 뺀 first-parent 이력에서 마지막 코드 변경 커밋을 찾아 그 SHA의 push CI만 인정했다. 로컬 코드 커밋에 origin/main을 병합해 푸시하면, push CI가 돈 병합 커밋(a4b1b32)은 코드 커밋(514c501)과 생성물 외 트리가 같아 이력에서 건너뛰어지고, push CI가 없는 코드 커밋이 기준이 됐다.
+- fix: source 커밋부터 이번 릴리스 직전까지의 first-parent 커밋은 모두 같은 비생성 트리이므로, 그중 하나라도 full push CI가 성공했으면 검증된 것으로 인정한다(.github/workflows/ci.yml).
+- violated_rule: 검증 게이트는 '같은 코드가 테스트됐는가'를 확인해야지 특정 SHA 하나에 CI가 붙었는지만 보면 안 된다.
+- prevention: attest 단계가 후보 커밋 목록을 돌며 어느 커밋의 CI로 인정했는지 로그에 남긴다; 다음 자료 갱신 CI에서 'full push CI on <sha>' 줄로 확인.
+- verification/residual: 로컬에서 5d9713e 기준 후보 목록이 a4b1b32(full push CI 성공)·514c501로 나오는 것을 확인; 푸시 후 다음 refresh-data 축소 CI 통과로 실증.
+
 ## P1951 - v58.56 - 스크리너 프리셋 전환이 '실행 통과만'을 꺼서 탈락 행이 섞임 (2026-10-21)
 
 - symptom/reproduction: 스크리너 첫 화면은 조건 통과 종목만(243·328) 보이다가 프리셋(모멘텀·추세 등)을 한 번 누르면 조건에서 탈락한 행 904개가 표에 함께 나왔다.

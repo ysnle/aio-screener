@@ -188,12 +188,20 @@ jobs:
             echo "::error::reduced-scope CI cannot attest $EXPECTED_SHA: it changes files outside the refresh-generated paths"
             exit 1
           fi
-          full_runs="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$source_sha&event=push&status=success&per_page=1" --jq '.total_count')"
-          if ! [ "${full_runs:-0}" -ge 1 ] 2>/dev/null; then
-            echo "::error::source commit $source_sha has no successful full push CI yet; this reduced-scope release is not attested"
+          # P1952: every first-parent commit from source_sha up to (not including) this release holds the same
+          # non-generated tree, so a full push CI on any of them tests this code. A local commit merged with origin/main
+          # before the push leaves the merge commit (which push CI ran on) treesame to the code commit (which it did not),
+          # and data releases on top of it were refused (2026-10-21: v58.55 514c501 / merge a4b1b32).
+          tested=""
+          for candidate in $(git rev-list --first-parent "$EXPECTED_SHA" | sed "/^$source_sha\$/q" | grep -vx "$EXPECTED_SHA"); do
+            full_runs="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$candidate&event=push&status=success&per_page=1" --jq '.total_count')"
+            if [ "${full_runs:-0}" -ge 1 ] 2>/dev/null; then tested="$candidate"; break; fi
+          done
+          if [ -z "$tested" ]; then
+            echo "::error::source commit $source_sha (and the first-parent commits above it) has no successful full push CI yet; this reduced-scope release is not attested"
             exit 1
           fi
-          echo "Reduced-scope release $EXPECTED_SHA sits on fully tested source $source_sha"
+          echo "Reduced-scope release $EXPECTED_SHA sits on fully tested source $source_sha (full push CI on $tested)"
       - name: Build immutable release attestation
         env:
           EXPECTED_SHA: ${{ inputs.release_sha || github.sha }}
