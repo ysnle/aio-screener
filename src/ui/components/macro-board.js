@@ -21,7 +21,7 @@ import { deepDiveFold } from './deep-dive.js';
 import { renderMacroCrossroads, openCrossroadsBranch } from './macro-crossroads.js';
 import { BRANCHES } from '../../domain/market/macro-crossroads.js';
 import { longHistoryRows } from '../../domain/macro/long-history.js';
-import { taylorRule, TAYLOR_R_STAR_OPTIONS } from '../../domain/macro/taylor-rule.js';
+import { taylorRule, TAYLOR_R_STAR_OPTIONS, TAYLOR_R_STAR_SEP } from '../../domain/macro/taylor-rule.js';
 import { el } from './dom.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 
@@ -335,41 +335,50 @@ function renderRateStrip(doc, root) {
   const grid = el(doc, 'div', null, 'mk-rate-strip__grid');
   grid.append(...tiles);
   const line = el(doc, 'p', null, 'sx-evidence mk-rate-strip__evidence');
-  line.append(el(doc, 'span', '근거 · Fisher 1930 · Estrella·Mishkin 1998 · Taylor 1993'), el(doc, 'span', '데이터 · FRED (DGS10 · DFII10 · T10YIE · T10Y3M · PCEPILFE · UNRATE · NROU · DFEDTARL/U)'));
+  line.append(el(doc, 'span', '근거 · Fisher 1930 · Estrella·Mishkin 1998 · Taylor 1993'), el(doc, 'span', '데이터 · FRED (DGS10 · DFII10 · T10YIE · T10Y3M · PCEPILFE · UNRATE · NROU · FEDTARMDLR · DFEDTARL/U)'));
   // Round-2 review (v58.55): a repaint (r* switch, data refresh) keeps the formula fold open if the reader opened it.
   const wasOpen = !!host.querySelector?.('.mk-taylor__fold')?.open;
-  const fold = taylorFold(doc, taylor);
+  const fold = taylorFold(doc, root, taylor);
   fold.open = wasOpen;
   host.replaceChildren(grid, fold, line);
 }
 
-// v58.55 (개편 v2 3e): Taylor (1993) as a reference point for the policy rate. r* is an assumption the reader switches
-// (0.5% / 1.0%); the face shows where the actual target-range midpoint sits against the rule, never what the Fed should do.
+// v58.55 (개편 v2 3e): Taylor (1993) as a reference point for the policy rate; the face shows where the actual target-range
+// midpoint sits against the rule, never what the Fed should do.
+// v58.56 (re-audit #14): r* defaults to the FOMC's dated estimate (SEP longer-run median − 2%); 0.5%/1.0% moved into the
+// formula fold as alternatives, so the face no longer asks the reader to pick an assumption before seeing a number.
 const STANCE_WORD = Object.freeze({ near: '준칙 근처', tighter: '준칙보다 긴축적', looser: '준칙보다 완화적' });
+const sepMonth = (date) => `${String(date).slice(2, 4)}년 ${Number(String(date).slice(5, 7))}월`;
+function rStarText(t) {
+  if (t.rStarSource === TAYLOR_R_STAR_SEP) return `r* ${t.rStar.toFixed(2).replace(/0$/, '')}% = FOMC 장기 금리 전망 ${t.sep.longRun.toFixed(2).replace(/0$/, '')}% − 물가 목표 2%`;
+  return `r* ${t.rStar.toFixed(1)}% 가정`;
+}
+function taylorRStarSeg(doc, root, t) {
+  const seg = el(doc, 'div', null, 'sx-seg mk-taylor__seg');
+  seg.setAttribute('role', 'group');
+  seg.setAttribute('aria-label', '중립 실질금리(r*) 기준');
+  const options = [...(t.sep ? [{ key: TAYLOR_R_STAR_SEP, label: `FOMC 전망 기준 ${t.sep.rStar.toFixed(2).replace(/0$/, '')}%` }] : []), ...TAYLOR_R_STAR_OPTIONS.map((option) => ({ key: String(option), label: `r* ${option.toFixed(1)}% 가정` }))];
+  const current = t.rStarSource === TAYLOR_R_STAR_SEP ? TAYLOR_R_STAR_SEP : String(t.rStar);
+  for (const option of options) {
+    const button = el(doc, 'button', option.label);
+    button.type = 'button';
+    button.setAttribute('aria-pressed', String(option.key === current));
+    button.dataset.rStar = option.key;
+    // Round-2 review (v58.55): the strip is rebuilt, so focus returns to the same option instead of dropping to <body>.
+    button.addEventListener('click', () => {
+      root.__aioTaylorRStar = option.key === TAYLOR_R_STAR_SEP ? TAYLOR_R_STAR_SEP : Number(option.key);
+      renderRateStrip(doc, root);
+      doc.querySelector?.(`.mk-taylor__seg button[data-r-star="${option.key}"]`)?.focus();
+    });
+    seg.append(button);
+  }
+  return seg;
+}
 function taylorTile(doc, root, t) {
   const tile = el(doc, 'div', null, 'mk-rate-tile mk-taylor');
   const head = el(doc, 'div', null, 'mk-taylor__head');
   head.append(el(doc, 'span', '테일러 준칙 대비 정책금리', 'mk-rate-tile__label'));
   const pct = (value, digits = 2) => `${value.toFixed(digits)}%`;
-  if (t.available) {
-    const seg = el(doc, 'div', null, 'sx-seg mk-taylor__seg');
-    seg.setAttribute('role', 'group');
-    seg.setAttribute('aria-label', '중립 실질금리(r*) 가정');
-    for (const option of TAYLOR_R_STAR_OPTIONS) {
-      const button = el(doc, 'button', `r* ${option.toFixed(1)}%`);
-      button.type = 'button';
-      button.setAttribute('aria-pressed', String(option === t.rStar));
-      button.dataset.rStar = String(option);
-      // Round-2 review (v58.55): the strip is rebuilt, so focus returns to the same option instead of dropping to <body>.
-      button.addEventListener('click', () => {
-        root.__aioTaylorRStar = option;
-        renderRateStrip(doc, root);
-        doc.querySelector?.(`.mk-taylor__seg button[data-r-star="${option}"]`)?.focus();
-      });
-      seg.append(button);
-    }
-    head.append(seg);
-  }
   tile.append(head);
   // Round-2 review (v58.55): every input names its year, so a value carried over from an older release cannot pass as current.
   const yy = (date) => String(date).slice(2, 4);
@@ -390,8 +399,16 @@ function taylorTile(doc, root, t) {
   const valueText = t.diff == null ? `준칙 ${pct(t.rule)}` : `${signed(t.diff, 2)}%p ${STANCE_WORD[t.stance]}`;
   const value = basisValue(doc, valueText, '실제 연준 목표 범위 중간값에서 테일러 준칙 금리를 뺀 값입니다. 양수면 정책금리가 준칙보다 높아(긴축적) 있고, 음수면 낮습니다. 연준이 따라야 하는 값이 아니라 비교 기준입니다.', null); // inputs carry their months below
   const target = t.target ? `실제 목표 범위 ${t.target.lower.toFixed(2)}~${t.target.upper.toFixed(2)}% (중간 ${t.target.mid.toFixed(3).replace(/0$/, '')}%${t.target.asOf ? ` · ${String(t.target.asOf).slice(0, 10)} 기준` : ''})` : '실제 목표 범위 자료 없음';
-  tile.append(value,
-    el(doc, 'span', `준칙 ${pct(t.rule)} (r* ${t.rStar.toFixed(1)}%) · r* 0.5~1.0% 가정 시 ${pct(t.range.lo)}~${pct(t.range.hi)} · ${target}`, 'mk-rate-tile__note'),
+  const basis = el(doc, 'span', null, 'mk-rate-tile__note mk-taylor__basis');
+  basis.append(doc.createTextNode(`준칙 ${pct(t.rule)} (${rStarText(t)})`));
+  if (t.rStarSource === TAYLOR_R_STAR_SEP) {
+    // The SEP date is the estimate's own date; older than one release cycle → the amber date chip.
+    basis.append(doc.createTextNode(' '), el(doc, 'span', `${sepMonth(t.sep.date)} SEP`, t.sep.old || t.sep.stale ? 'sx-chip sx-chip--sm sx-chip--date' : 'sx-meta'));
+  } else if (!t.sep) {
+    basis.append(doc.createTextNode(' · FOMC 장기 금리 전망(SEP)은 다음 자료 갱신부터 기준으로 씁니다'));
+  }
+  tile.append(value, basis,
+    el(doc, 'span', `${target} · r* 0.5~1.0% 가정 시 준칙 ${pct(t.range.lo)}~${pct(t.range.hi)}`, 'mk-rate-tile__note'),
     el(doc, 'span', `${inputs} · 실업률 갭 ${signed(t.unemploymentGap, 1)}%p`, 'mk-rate-tile__note'));
   if (t.stale) tile.append(taylorStaleLine(doc, t));
   return tile;
@@ -410,19 +427,20 @@ function taylorStaleLine(doc, t) {
   return line;
 }
 
-function taylorFold(doc, t) {
+function taylorFold(doc, root, t) {
   const fold = el(doc, 'details', null, 'sx-disclosure mk-taylor__fold');
   fold.append(el(doc, 'summary', '테일러 준칙 — 계산식과 한계'));
   const body = el(doc, 'div', null, 'sx-disclosure__body mk-taylor__body');
   const card = (title, text) => { const box = el(doc, 'div', null, 'sx-disclosure__card'); box.append(el(doc, 'span', title, 'sx-disclosure__label'), el(doc, 'p', text, 'sx-disclosure__text')); return box; };
   const filled = t.available
-    ? ` 지금: ${t.rStar.toFixed(1)} + ${t.inflation.value.toFixed(2)} + 0.5×(${t.inflation.value.toFixed(2)} − 2) + 0.5×(${t.outputGap.toFixed(2)}) = ${t.rule.toFixed(2)}%.`
+    ? ` 지금: ${String(Math.round(t.rStar * 1000) / 1000)} + ${t.inflation.value.toFixed(2)} + 0.5×(${t.inflation.value.toFixed(2)} − 2) + 0.5×(${t.outputGap.toFixed(2)}) = ${t.rule.toFixed(2)}%.`
     : '';
   body.append(
     card('계산식', `준칙 금리 = r* + 물가 + 0.5×(물가 − 2%) + 0.5×(산출 갭). 물가는 연준 목표 지표인 근원 PCE 전년 대비, 산출 갭은 오쿤의 법칙으로 실업률에서 환산합니다(산출 갭 ≈ −2 × (실업률 − CBO 자연실업률)).${filled}`),
-    card('r*는 가정입니다', 'r*(중립 실질금리)는 직접 관측되지 않는 추정값이라 0.5%와 1.0%를 바꿔 볼 수 있게 했습니다. r*가 0.5%p 달라지면 준칙 금리도 그대로 0.5%p 달라집니다.'),
+    card('r*는 추정값입니다', `r*(중립 실질금리)는 직접 관측되지 않습니다. 기본값은 FOMC 위원들의 장기 연방기금금리 전망 중앙값(경제전망 요약 SEP, 분기마다 발표)에서 물가 목표 2%를 뺀 값${t.sep ? ` — ${t.sep.date} 발표 ${t.sep.longRun.toFixed(2).replace(/0$/, '')}% − 2% = ${t.sep.rStar.toFixed(2).replace(/0$/, '')}%` : '이며, 아직 수집 전이라 0.5% 가정으로 계산합니다'}. 아래에서 0.5%·1.0% 가정으로 바꿔 볼 수 있습니다. r*가 0.5%p 달라지면 준칙 금리도 그대로 0.5%p 달라집니다.`),
     card('한계', '존 테일러(1993)가 과거 연준 정책을 요약한 기준선입니다. 연준은 이 식을 기계적으로 따르지 않고, 자연실업률·r* 추정 오차와 금융 여건·위험 관리도 함께 봅니다. 준칙과의 차이는 정책 위치를 설명할 뿐 다음 결정을 예측하지 않습니다.')
   );
+  if (t.available) body.append(taylorRStarSeg(doc, root, t));
   fold.append(body);
   return fold;
 }
@@ -759,11 +777,18 @@ function curveSvg(doc, yields, previous = null) {
   add('polyline', { points: path, class: 'trend-chart-line' });
   // v58.55: on the narrow frame 20년 sits ~24 units from 30년 and its labels ran into 10년/30년 once the chart drew at its
   // real height; a label too close to the one kept to its right is dropped (the dot stays, the value is in the row below).
-  const minGap = narrow ? 34 : 0;
+  // v58.56 (re-audit #9): with up to eleven tenors (1개월…30년) the short end is crowded on every width, so labels are
+  // placed by priority — 30년·10년·2년·3개월·5년 first, then the rest where they fit. Every dot stays; every value is in
+  // the row of tenors below the chart and in the chart's aria-label.
+  const minGap = narrow ? 52 : 30; // narrow labels render ~45 units wide after the phone font floor
+  const PRIORITY = ['dgs30', 'dgs10', 'dgs2', 'dgs3mo', 'dgs5', 'dgs1mo', 'dgs1', 'dgs20', 'dgs6mo', 'dgs7', 'dgs3'];
+  const rank = (row) => { const at = PRIORITY.indexOf(row.id); return at < 0 ? PRIORITY.length : at; };
   const labelled = new Set();
-  for (let index = yields.length - 1, kept = Infinity; index >= 0; index -= 1) {
-    if (kept - x(index) >= minGap) { labelled.add(index); kept = x(index); }
-  }
+  yields.map((row, index) => ({ row, index })).sort((a, b) => rank(a.row) - rank(b.row)).forEach(({ index }) => {
+    // On a phone the 1개월 label would sit against 3개월 (two-character Hangul labels), so only its dot is drawn there.
+    if (narrow && yields[index].id === 'dgs1mo') return;
+    if ([...labelled].every((other) => Math.abs(x(other) - x(index)) >= minGap)) labelled.add(index);
+  });
   yields.forEach((row, index) => {
     // v57.81: the last two tenors (20년·30년) sit 37 units apart; the narrow-screen label floor (responsive.css) turns them
     // away from each other instead of letting them touch. The classes do not change the drawn chart on their own.
@@ -792,6 +817,8 @@ function curveLegend(doc, t) {
   } else if (t.asOf) {
     legend.append(el(doc, 'span', '1개월 전 곡선 수집 대기', 'rates-curve-key is-pending'));
   }
+  // v58.56: a short/middle tenor with no value on the official cut's date is named, not drawn from another day.
+  if (t.pendingTenors?.length) legend.append(el(doc, 'span', `${t.pendingTenors.join('·')} 수집 대기`, 'rates-curve-key is-pending'));
   return legend;
 }
 
@@ -837,6 +864,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     yieldRow.replaceChildren(...t.yields.map((row) => {
       const cell = el(doc, 'div', null, 'rates-yield');
       if (row.derived) cell.title = '같은 날 10년물에서 10년–3개월 금리차를 빼서 구한 값';
+      else if (row.source === 'fred') cell.title = `${row.asOf} FRED H.15 국채 고정만기 금리 — 미 재무부 공식 곡선과 같은 값입니다.`;
       else if (row.id === 'dgs10' && t.basisLabel) cell.title = `${t.basisLabel}의 변화입니다. 시장 상태와 아래 10년물 카드의 '5일' 변화는 일별 종가 기준이라 기준일이 다를 수 있습니다.`;
       cell.append(el(doc, 'span', row.label, 'rates-yield-label'), el(doc, 'span', row.value == null ? '—' : `${row.value.toFixed(2)}%`, 'rates-yield-value'));
       const changes = [row.day == null ? null : `1일 ${signed(row.day * 100, 0, 'bp')}`, row.week == null ? null : `1주 ${signed(row.week * 100, 0, 'bp')}`].filter(Boolean).join(' · ');

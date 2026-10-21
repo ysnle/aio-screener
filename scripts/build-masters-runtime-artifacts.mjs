@@ -6,6 +6,7 @@ import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
 import { readManagerRows, writeManagerRows } from './lib/masters-manager-store.mjs';
+import { buildReferenceTickerMap, normalizeCusip, resolveExactTicker } from '../src/domain/masters/ticker-exact.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mastersDir = path.join(root, 'public-data', 'masters');
@@ -25,6 +26,19 @@ const [holdings, historyIndex, historyRows, issuerAggregates, mastersIndex, fili
   readJson('manager-principles.json'),
   readJson('security-master.json')
 ]);
+
+// v58.56 (re-audit #4): rows carry `tickerExact` only when the CUSIP maps to exactly one listed symbol — the exact
+// entries of the reference crosswalk and the OpenFIGI cache (collect-13f-figi-tickers.mjs), dropped where they disagree.
+// The page shows a ticker chip (→ 종목 요약) for these rows and the readable SEC name for the rest.
+const readOptionalJson = async (name) => { try { return await readJson(name); } catch (error) { if (error?.code === 'ENOENT') return null; throw error; } };
+const [referenceMaster, figiMap] = await Promise.all([readOptionalJson('security-master-reference.json'), readOptionalJson('cusip-ticker-map.json')]);
+const referenceTickers = buildReferenceTickerMap(referenceMaster);
+const figiEntries = figiMap?.schema === 'masters-cusip-ticker-map.v1' ? figiMap.entries || {} : {};
+const tickerExactOf = (row) => {
+  const cusip = normalizeCusip(row.cusipNormalized || row.cusip);
+  return cusip ? resolveExactTicker({ titleOfClass: row.titleOfClass, reference: referenceTickers.get(cusip), figi: figiEntries[cusip] }) : null;
+};
+const withTicker = (compact, row) => { const ticker = tickerExactOf(row); return ticker ? { ...compact, tickerExact: ticker } : compact; };
 
 const generatedAt = holdings.generatedAt || [holdings.reviewedAt, historyIndex.reviewedAt, historyRows.reviewedAt, issuerAggregates.reviewedAt].filter(Boolean).sort().at(-1) || '1970-01-01';
 const MANAGER_PROJECTION_ROW_LIMIT = 200;
@@ -100,8 +114,8 @@ for (const manager of holdings.managers || []) {
     verification: manager.verification,
     fullRowsAvailable: managerRows.length,
     fullComparisonsAvailable: managerComparisons.length,
-    holdings: managerRows.slice(0, MANAGER_PROJECTION_ROW_LIMIT).map(compactProjectionRow),
-    comparisons: managerComparisons.slice(0, MANAGER_PROJECTION_ROW_LIMIT).map(compactProjectionRow)
+    holdings: managerRows.slice(0, MANAGER_PROJECTION_ROW_LIMIT).map((row) => withTicker(compactProjectionRow(row), row)),
+    comparisons: managerComparisons.slice(0, MANAGER_PROJECTION_ROW_LIMIT).map((row) => withTicker(compactProjectionRow(row), row))
   };
   const projectionText = `${JSON.stringify(projection, null, 2)}\n`;
   const projectionBytes = Buffer.byteLength(projectionText);
@@ -154,7 +168,7 @@ const compactHolding = (row) => ({
   comparisonStatus: row.comparisonStatus,
   key: row.key
 });
-const compactHoldings = (holdings.holdings || []).map(compactHolding);
+const compactHoldings = (holdings.holdings || []).map((row) => withTicker(compactHolding(row), row));
 const runtimeHoldings = {
   schema: 'masters-13f-runtime-summary.v1',
   sourceSchema: holdings.schema,
@@ -170,6 +184,10 @@ const runtimeHoldings = {
   holdings: compactHoldings,
   comparisons: [],
   managerShards,
+  tickerExactPolicy: {
+    sources: ['public-data/masters/security-master-reference.json', ...(figiMap ? ['public-data/masters/cusip-ticker-map.json'] : [])],
+    rule: 'exact CUSIP match to one listed symbol; disagreeing sources and non-common share classes are dropped'
+  },
   managerProjectionPolicy: {
     artifactRole: 'BOUNDED_WEB_PROJECTION',
     rowLimitPerCollection: MANAGER_PROJECTION_ROW_LIMIT,

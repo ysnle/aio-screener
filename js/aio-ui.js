@@ -303,7 +303,8 @@ function updateQuotaBadge() {
 
   // v57.77: AI is always on (P1653), so route readiness is the only gate — a missing route shows its label, never an OFF state.
   if (!route.ready) {
-    if (swLabel) { swLabel.textContent = route.label; swLabel.className = 'llm-switch-label'; }
+    // v58.56 (re-audit #26): the sidebar card is one line — the short state; the full sentence stays in the title.
+    if (swLabel) { swLabel.textContent = String(route.label || '').split(' · ')[0].replace(/^AI\s+/, ''); swLabel.title = route.label; swLabel.className = 'llm-switch-label'; }
     if (capEl) capEl.textContent = '—';
     if (remEl) { remEl.textContent = '—'; remEl.className = 'llm-quota-val empty'; }
     if (progEl) { progEl.style.width = '0%'; progEl.className = 'llm-prog-fill empty'; }
@@ -313,7 +314,7 @@ function updateQuotaBadge() {
     return;
   }
 
-  if (swLabel) { swLabel.textContent = 'ON'; swLabel.className = 'llm-switch-label on'; }
+  if (swLabel) { swLabel.textContent = String(route.label || '사용 가능').split(' · ')[0]; swLabel.title = route.label || '사용 가능'; swLabel.className = 'llm-switch-label on'; }
   if (capEl)   capEl.textContent = dailyLimit + '회';
   if (modelEl) modelEl.textContent = '채팅·심층·번역 GPT-6 Luna';
 

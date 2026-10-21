@@ -68,7 +68,21 @@ try {
     const defaultState = await page.evaluate(() => ({ scope: document.getElementById('scr-universe-scope').value, label: document.getElementById('scr-universe-scope').options[0].textContent, rows: window.AIO_ARCH.getScreenerState().rows.length }));
     if (defaultState.scope !== 'core' || !/^기본 \(\d+종목\)$/.test(defaultState.label) || defaultState.rows !== coreRowCount) fail(viewport.id, `default scope/label/rows wrong: ${JSON.stringify(defaultState)}`);
 
+    // v58.56 (4b): on a phone the filter controls live in a bottom sheet behind 필터 (hidden while closed), so the gate opens
+    // and closes it the way a reader does instead of typing into controls that are not on screen.
+    const filterSheet = async (open) => {
+      if (viewport.id !== 'phone') return;
+      const isOpen = await page.evaluate(() => document.getElementById('scr-filter-sheet')?.classList.contains('is-open'));
+      if (open && !isOpen) {
+        await page.click('#scr-filter-open');
+        await page.waitForFunction(() => document.getElementById('scr-filter-sheet')?.classList.contains('is-open'), { timeout: 5000 });
+      } else if (!open && isOpen) {
+        await page.click('#scr-filter-sheet .scr-filter-done');
+        await page.waitForFunction(() => !document.getElementById('scr-filter-sheet')?.classList.contains('is-open'), { timeout: 5000 });
+      }
+    };
     // 확장
+    await filterSheet(true);
     await page.selectOption('#scr-universe-scope', 'extended');
     await page.waitForFunction((count) => window.AIO_ARCH.getScreenerState()?.metadata?.universeScope === 'extended' && window.AIO_ARCH.getScreenerState().rows.length === count, coreRowCount + identityRows.length, { timeout: 30000 });
     await page.waitForFunction(() => /확장 유니버스 기준/.test(document.getElementById('scr-population-note')?.textContent || ''), { timeout: 15000 });
@@ -128,7 +142,8 @@ try {
     // Compare and the ticker link on a shard row.
     await page.fill('#scr-text-search', target);
     // Wait for the debounced search render (one row left) so the click lands on the settled table.
-    await page.waitForFunction((sym) => { const rows = [...document.querySelectorAll('#screener-results-body [data-aio-screener-ticker]')]; return rows.length === 1 && rows[0].dataset.aioScreenerTicker === sym && !!document.querySelector(`[data-aio-screener-compare="${sym}"]`); }, target, { timeout: 10000 });
+    await page.waitForFunction((sym) => { const rows = [...document.querySelectorAll('#screener-results-body [data-aio-screener-ticker]')]; return rows.length === 1 && rows[0].dataset.aioScreenerTicker === sym; }, target, { timeout: 10000 });
+    await filterSheet(false);
     // The settled table stays put: the visible-row quote request (and its retries) must not rebuild the rows
     // (the extended view used to rebuild the table every few hundred ms and detach the button under the click).
     const idleRebuilds = await page.evaluate(() => new Promise((resolve) => {
@@ -138,8 +153,13 @@ try {
       setTimeout(() => { observer.disconnect(); resolve(removed); }, 2500);
     }));
     if (idleRebuilds) fail(viewport.id, `settled table rebuilt ${idleRebuilds} time(s) with no input`);
-    await page.locator(`[data-aio-screener-compare="${target}"]`).first().click();
+    // v58.56 (#12): 비교 moved from the row's "+" to the inspector/sheet — open the row, then press 비교 추가 there.
+    await page.locator(`#screener-results-body [data-aio-screener-ticker="${target}"]`).first().click({ position: { x: 4, y: 4 } });
+    await page.waitForFunction((sym) => { const drawer = document.getElementById('scr-why-drawer'); return drawer && !drawer.hidden && document.getElementById('scr-why-title')?.textContent === sym; }, target, { timeout: 10000 });
+    await page.locator('#scr-why-drawer [data-aio-screener-action="why-compare"]').first().click();
     await page.waitForFunction((sym) => !document.getElementById('scr-compare-tray')?.hidden && (document.getElementById('scr-compare-list')?.textContent || '').includes(sym), target, { timeout: 10000 });
+    if (await page.locator(`#screener-results-body [data-aio-screener-ticker="${target}"] [data-aio-screener-compare]`).count()) fail(viewport.id, 'the row still carries a compare button (v58.56: 비교 lives in the inspector)');
+    if (await page.locator('#scr-why-drawer [data-aio-screener-action="why-compare"]').getAttribute('aria-pressed') !== 'true') fail(viewport.id, 'inspector 비교 button does not report its pressed state');
     // Core-only line in the validation tab.
     const coreOnly = await page.evaluate(() => { const note = document.querySelector('#scr-tab-backtest > .scr-core-only-note'); return note && !note.hidden ? note.textContent : ''; });
     if (!/기본 유니버스\(\d+종목\)만 다룹니다/.test(coreOnly)) fail(viewport.id, `core-only note missing: ${coreOnly}`);
@@ -148,7 +168,8 @@ try {
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       if (overflow > 1) fail(viewport.id, `horizontal scroll ${overflow}px at 375`);
     }
-    await page.locator(`#screener-results-body [data-aio-screener-ticker="${target}"]`).first().click({ position: { x: 4, y: 4 } });
+    // The inspector/sheet is still open on the target from the compare step.
+    if (await page.evaluate(() => document.getElementById('scr-why-drawer')?.hidden !== false)) await page.locator(`#screener-results-body [data-aio-screener-ticker="${target}"]`).first().click({ position: { x: 4, y: 4 } });
     await page.waitForFunction(() => document.getElementById('scr-why-drawer') && !document.getElementById('scr-why-drawer').hidden, { timeout: 10000 });
     await page.locator('#scr-why-drawer [data-aio-screener-action="open-ticker"]').first().click();
     await page.waitForFunction((sym) => (document.getElementById('ticker-page-title')?.textContent || '').includes(sym) || String(location.hash).includes(sym), target, { timeout: 15000 });
@@ -159,6 +180,16 @@ try {
     }, target);
     if (!tickerRow || tickerRow.tier !== 'extended' || tickerRow.contract !== 'extended') fail(viewport.id, `ticker page does not read the shard row: ${JSON.stringify(tickerRow)}`);
     if (passedOnly) await setPassedOnly(true);
+    // v58.56 review (preset switch): switching screens keeps '실행 통과만' — the first preset tap used to clear it.
+    if (passedOnly) {
+      const kept = await page.evaluate(() => {
+        const preset = [...document.querySelectorAll('[data-aio-screener-action="screen-preset"]')].find((node) => node.getAttribute('aria-pressed') !== 'true') || document.querySelector('[data-aio-screener-action="screen-preset"]');
+        if (!preset) return null;
+        preset.click();
+        return document.getElementById('scr-passed-only')?.checked === true;
+      });
+      if (kept === false) fail(viewport.id, "a preset switch cleared '실행 통과만'");
+    }
 
     // Reload: the choice is remembered; the shard is fetched again only once the screener shows.
     shardRequests = 0;
@@ -170,6 +201,7 @@ try {
     await page.waitForFunction(() => document.getElementById('scr-universe-scope')?.value === 'extended' && window.AIO_ARCH?.getScreenerState?.()?.metadata?.universeScope === 'extended', { timeout: 45000 });
     if (shardRequests < 1) fail(viewport.id, 'remembered 확장 did not load the shard on the screener');
     // 기본 restores the core population.
+    await filterSheet(true);
     await page.selectOption('#scr-universe-scope', 'core');
     await page.waitForFunction((count) => window.AIO_ARCH.getScreenerState()?.metadata?.universeScope === 'core' && window.AIO_ARCH.getScreenerState().rows.length === count, coreRowCount, { timeout: 30000 });
     const restored = await page.evaluate(() => ({ labelled: window.AIO_ARCH.getScreenerState().rows.some((row) => 'rankingUniverse' in row || 'universeTier' in row), contract: window.AIO_ARCH.getScreenerState().metadata.ranking?.contract, note: document.querySelector('#scr-tab-backtest > .scr-core-only-note')?.hidden !== false }));

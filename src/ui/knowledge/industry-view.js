@@ -339,7 +339,10 @@ export function renderIndustryPage(doc, { root, state, data, labels, parts, onLo
       }
       main.appendChild(article);
       // 2026-10-14 audit: the sub-areas already sit in the left TOC and in the reading-order map above;
-      // a third list in the right column repeated them, so the domain view leaves that column empty.
+      // a third list in the right column repeated them. v58.56 (#8): the column holds the value-chain layer card
+      // instead — where this domain sits among the seven layers, with the companies of each layer.
+      const layers = parts.layers?.(domain);
+      if (layers) aside.appendChild(layers);
       return shell;
     }
     const node = (domain.nodes || []).find((item) => item.id === state.selectedDomainNodeId) || domain.nodes?.[0];

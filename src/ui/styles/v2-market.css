@@ -253,6 +253,9 @@ body.dark-theme { --mk-burden-bar: #c99a45; --mk-neutral-bar: rgba(var(--ink-rgb
 .mk-taylor__stale { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
 .mk-taylor__fold > summary { grid-template-columns: minmax(0, 1fr) 16px; padding: 10px 8px; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
 .mk-taylor__body { padding: 0 8px 8px; }
+/* v58.56 (re-audit #14): the r* alternatives live in the formula fold; the face's r* line carries the SEP date chip. */
+.mk-taylor__body .mk-taylor__seg { margin-top: 10px; flex-wrap: wrap; }
+.mk-taylor__basis { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
 .mk-taylor__body .sx-disclosure__text { margin: 0; font-size: 13px; line-height: 1.7; color: var(--text-primary); }
 #page-macro .macro-stat, #page-fxbond .macro-stat { border: 0 !important; border-radius: 16px !important; background: var(--sx-ink-a03) !important; padding: 14px 16px; }
 #page-macro .macro-group { margin: 0 0 18px; }
@@ -382,4 +385,36 @@ body.dark-theme { --mk-burden-bar: #c99a45; --mk-neutral-bar: rgba(var(--ink-rgb
   .mk-axis__dist { grid-area: dist; flex-direction: row; flex-wrap: wrap; align-items: baseline; justify-content: flex-start; gap: 2px 8px; text-align: left; }
   .mk-axis__dist-value { font-size: 13px; }
   .mk-axis__dist.is-empty { display: none; }
+}
+
+/* ═══ v58.56 re-audit #16 (today/shell agent) — one-line folds on the long market screens ═══════════════════
+   거시 · 시장 상태 · 시장 폭 · 투자 심리: the closing lessons (screen-lessons.js), 이어서 볼 곳 (page-flow.js, host
+   data-fold), the 한국 시장 참고 card (시장 상태) and the chain / oil·gold sections (거시) open on demand; the
+   summary line names what is inside. */
+:is(#page-macro, #page-signal, #page-breadth, #page-sentiment) .mg-screen-lessons { margin: 16px 0 0; padding: 0; border: 0; background: none; }
+:is(#page-macro, #page-signal, #page-breadth, #page-sentiment) .mg-screen-lessons-fold { background: var(--bg-card); border-radius: 18px; box-shadow: var(--sx-card-shadow); }
+.mg-screen-lessons-fold > summary { grid-template-columns: auto minmax(0, 1fr) 16px; gap: 6px 14px; padding: 14px 20px; min-height: 44px; box-sizing: border-box; }
+.mg-screen-lessons-fold > summary .xr-h3 { margin: 0; font-size: 15px; font-weight: 700; white-space: nowrap; }
+.mg-screen-lessons-names { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: var(--text-secondary); }
+.mg-screen-lessons-fold[open] .mg-screen-lessons-names { white-space: normal; }
+.mg-screen-lessons-fold > .mg-lessons { margin: 0; padding: 0 20px 18px; }
+.page .flow-next:has(> .flow-next-fold) { margin: 12px 0 8px; padding: 0; border: 0; }
+.flow-next-fold { background: var(--bg-card); border-radius: 18px; box-shadow: var(--sx-card-shadow); }
+.flow-next-fold > summary { grid-template-columns: auto minmax(0, 1fr) 16px; gap: 6px 14px; padding: 14px 20px; min-height: 44px; box-sizing: border-box; }
+.flow-next-fold > summary .flow-next-title { margin: 0; font-size: 15px; font-weight: 700; white-space: nowrap; }
+.flow-next-names { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: var(--text-secondary); }
+.flow-next-fold[open] .flow-next-names { white-space: normal; }
+.flow-next-fold > .flow-next-list { padding: 0 20px 18px; }
+#page-signal .mk-korea .mk-fold > summary .sx-card__title { margin: 0; white-space: nowrap; }
+#page-signal .mk-korea .mk-fold > summary .sx-card__meta { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+#page-macro .macro-fold-section .mk-fold > summary { align-items: center; }
+#page-macro .macro-fold-section .mk-fold > summary .briefing-h2 { margin: 0 !important; white-space: nowrap; font-size: 16px !important; font-weight: 700; } /* the section-title rule above matches direct children only */
+#page-macro .macro-fold-section .mk-fold > summary .sx-card__meta { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 743px) {
+  :is(.mg-screen-lessons-fold, .flow-next-fold) > summary { grid-template-columns: minmax(0, 1fr) 16px; padding: 12px 16px; }
+  :is(.mg-screen-lessons-names, .flow-next-names) { grid-column: 1; grid-row: 2; }
+  .mg-screen-lessons-fold > summary .xr-h3 { white-space: normal; }
+  #page-signal .mk-korea .mk-fold > summary, #page-macro .macro-fold-section .mk-fold > summary { display: grid; grid-template-columns: minmax(0, 1fr) 16px; gap: 4px 10px; align-items: center; }
+  #page-signal .mk-korea .mk-fold > summary .sx-card__meta, #page-macro .macro-fold-section .mk-fold > summary .sx-card__meta { grid-column: 1; grid-row: 2; margin-left: 0; white-space: normal; }
+  #page-macro .macro-fold-section .mk-fold > summary .briefing-h2 { white-space: normal; }
 }

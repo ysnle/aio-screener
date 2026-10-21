@@ -45,6 +45,34 @@ export function sessionPointBack(series, sessions, market = 'US') {
   return found;
 }
 
+// v58.56 (re-audit #9): the curve's short and middle tenors. Today's points come from the same official Treasury cut as
+// the five core tenors (macro._treasury.values, parsed from the same XML entry), or else from FRED's H.15 series of the
+// same name on exactly that date; a tenor with neither is left out of the line rather than borrowed from another day.
+export const TREASURY_EXTRA_TENORS = Object.freeze([
+  Object.freeze({ id: 'dgs1mo', label: '1개월', years: 1 / 12 }),
+  Object.freeze({ id: 'dgs3mo', label: '3개월', years: 0.25 }),
+  Object.freeze({ id: 'dgs6mo', label: '6개월', years: 0.5 }),
+  Object.freeze({ id: 'dgs1', label: '1년', years: 1 }),
+  Object.freeze({ id: 'dgs3', label: '3년', years: 3 }),
+  Object.freeze({ id: 'dgs7', label: '7년', years: 7 })
+]);
+export function extraTenorPoints(macro, macroHistory, asOf) {
+  if (!asOf) return [];
+  const official = macro?._treasury && macro._treasury.observedAt === asOf ? macro._treasury : null;
+  const earlier = (official?.series || []).filter((entry) => entry?.observedAt < asOf).sort((a, b) => String(b.observedAt).localeCompare(String(a.observedAt)));
+  const change = (field, current, back) => {
+    const prior = finite(earlier[back - 1]?.values?.[field]);
+    return current != null && prior != null && earlier.length >= back ? Math.round((current - prior) * 1000) / 1000 : null;
+  };
+  return TREASURY_EXTRA_TENORS.map((tenor) => {
+    const fromFeed = finite(official?.values?.[tenor.id]);
+    if (fromFeed != null) return { ...tenor, value: fromFeed, day: change(tenor.id, fromFeed, 1), week: change(tenor.id, fromFeed, 5), asOf, source: 'treasury' };
+    const row = (macroHistory?.series?.[tenor.id]?.observations || []).find(([date]) => date === asOf);
+    const value = row ? finite(row[1]) : null;
+    return value == null ? null : { ...tenor, value, day: null, week: null, asOf, source: 'fred' };
+  }).filter(Boolean);
+}
+
 // Expert review M22: no 3-month bill yield is collected, but T10Y3M (10-year minus 3-month, same H.15 constant-maturity
 // basis) is. On a day the official curve and that spread share, 3-month = 10-year - spread; on any other day no point.
 export function derivedThreeMonth(macroHistory, tenYear) {
@@ -66,8 +94,9 @@ export function curveMonthAgo(macroHistory, yields = [], asOf = null) {
   const ten = obs('dgs10');
   const spread3m = obs('t10y3m');
   const valueOn = (row, date) => {
-    if (row.id === 'dgs3mo') return ten.has(date) && spread3m.has(date) ? Math.round((ten.get(date) - spread3m.get(date)) * 100) / 100 : null;
     const map = obs(row.id);
+    // v58.56: DGS3MO is collected now; the T10Y3M derivation stays only for history written before it.
+    if (row.id === 'dgs3mo' && !map.has(date)) return ten.has(date) && spread3m.has(date) ? Math.round((ten.get(date) - spread3m.get(date)) * 100) / 100 : null;
     return map.has(date) ? map.get(date) : null;
   };
   const dates = [...ten.keys()].sort().map((date) => ({ date }));
@@ -292,11 +321,13 @@ export function buildRatesFx({ macro = null, history = [], macroHistory = null }
   const m = macro && typeof macro === 'object' ? macro : {};
   const curve = treasury(m);
   curve.dynamics = curveDynamics(macroHistory);
-  const threeMonth = derivedThreeMonth(macroHistory, curve.yields.find((row) => row.id === 'dgs10'));
-  if (threeMonth) {
-    curve.yields = [threeMonth, ...curve.yields];
-    curve.fact = `${curve.fact} 3개월물은 같은 날 10년물에서 10년–3개월 금리차를 빼서 구한 값입니다.`;
-  }
+  // v58.56 (re-audit #9): 1개월·3개월·6개월·1년·3년·7년 join the curve on the official cut's date (sorted by maturity).
+  // The 3-month point is derived from T10Y3M only when neither the feed nor DGS3MO has it for that date.
+  const extras = curve.sameCut ? extraTenorPoints(m, macroHistory, curve.asOf) : [];
+  const threeMonth = extras.some((row) => row.id === 'dgs3mo') ? null : derivedThreeMonth(macroHistory, curve.yields.find((row) => row.id === 'dgs10'));
+  curve.yields = [...extras, ...(threeMonth ? [threeMonth] : []), ...curve.yields].sort((a, b) => a.years - b.years);
+  curve.pendingTenors = TREASURY_EXTRA_TENORS.filter((tenor) => !curve.yields.some((row) => row.id === tenor.id)).map((tenor) => tenor.label);
+  if (threeMonth) curve.fact = `${curve.fact} 3개월물은 같은 날 10년물에서 10년–3개월 금리차를 빼서 구한 값입니다.`;
   curve.previous = curveMonthAgo(macroHistory, curve.yields, curve.asOf);
   const basis = closeBasis(history);
   const fx = FX_SERIES.map((spec) => fxCard(history, basis, spec));

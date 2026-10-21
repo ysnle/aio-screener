@@ -43,6 +43,19 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   dgs5:           { id: 'DGS5',          frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 5년' },
   dgs20:          { id: 'DGS20',         frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 20년' },
   dgs30:          { id: 'DGS30',         frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 30년' },
+  // v58.56 (re-audit #9): the short and middle tenors the curve was missing (1개월·3개월·6개월·1년·3년·7년). The Treasury
+  // XML feed now carries them for today's cut (scripts/lib/macro-sources.mjs); these H.15 series give the same par yields
+  // with history for the dashed "1개월 전" line, and DGS3MO replaces the 3-month point derived from T10Y3M.
+  dgs1mo:         { id: 'DGS1MO',        frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 1개월' },
+  dgs3mo:         { id: 'DGS3MO',        frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 3개월' },
+  dgs6mo:         { id: 'DGS6MO',        frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 6개월' },
+  dgs1:           { id: 'DGS1',          frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 1년' },
+  dgs3:           { id: 'DGS3',          frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 3년' },
+  dgs7:           { id: 'DGS7',          frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 7년' },
+  // v58.56 (re-audit #14): the FOMC Summary of Economic Projections' longer-run federal funds rate median (FRED FEDTARMDLR,
+  // "Longer Run FOMC Summary of Economic Projections for the Fed Funds Rate, Median", one observation per SEP release date,
+  // four a year). The Taylor tile's default r* = this median − the 2% inflation target, shown with the SEP date.
+  sepLongRunFedFunds: { id: 'FEDTARMDLR', frequency: 'sep-release', limit: 8, unit: 'percent', label: 'FOMC 장기 연방기금금리 전망 중앙값 (SEP)' },
   t10y3m:         { id: 'T10Y3M',        frequency: 'daily',   limit: 280, unit: 'percentage-point', label: '10년-3개월 금리차' },
   realYield10:    { id: 'DFII10',        frequency: 'daily',   limit: 280, unit: 'percent', label: '10년 실질금리 (TIPS)' },
   breakeven10:    { id: 'T10YIE',        frequency: 'daily',   limit: 280, unit: 'percent', label: '10년 기대인플레이션' },

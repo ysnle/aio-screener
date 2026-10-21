@@ -133,6 +133,20 @@ export function readValidationState({ metadata = null, root = null, listingMarke
   const liveFingerprint = liveScreenerModelFingerprint(metadata?.ranking?.appliedFactorWeights);
   const modelMatch = backtest.modelFingerprint != null && liveFingerprint != null && backtest.modelFingerprint === liveFingerprint;
   const icByDate = Array.isArray(backtest.icByDate?.composite) ? backtest.icByDate.composite : [];
+  // v58.56 (#6): the producer names the dates its composite IC values belong to (a date with too few rows is skipped);
+  // records before that keep the old positional reading only when the counts match.
+  const icDates = Array.isArray(backtest.icCompositeDates) && backtest.icCompositeDates.length === icByDate.length ? backtest.icCompositeDates
+    : icByDate.length === dates.length ? dates : [];
+  // v58.56 (#6): one top-minus-bottom reading per rebalance (percent, gross; net = after the modelled turnover cost).
+  const byDate = (key) => (Array.isArray(backtest[key]) ? backtest[key] : []);
+  const spreadPoints = (Array.isArray(backtest.spreadDates) ? backtest.spreadDates : []).map((date, index) => ({
+    date,
+    gross: finiteOrNull(byDate('quantileSpreadByDate')[index]),
+    net: finiteOrNull(byDate('quantileSpreadNetByDate')[index]),
+    top: finiteOrNull(byDate('topQuintileMeanByDate')[index]),
+    bottom: finiteOrNull(byDate('bottomQuintileMeanByDate')[index]),
+    cost: finiteOrNull(byDate('transactionCostByDate')[index])
+  })).filter((point) => point.gross != null && point.top != null && point.bottom != null);
   const sentence = [
     modelMatch ? null : '지금 가중치와 다른 모델로 계산된 기록입니다.',
     `과거 ${samples}회 시점에서 상위 20%가 하위 20%보다 앞선 건 ${wins == null ? '—' : `${wins}회`}, 평균 ${signedPp(net)}(비용 반영)입니다.`,
@@ -147,7 +161,8 @@ export function readValidationState({ metadata = null, root = null, listingMarke
     samples, net, wins, winsBasis: netRate != null ? '비용 후' : '비용 전', tStat, distinguishable, modelMatch,
     fwdDays: finiteOrNull(backtest.fwdDays) ?? 21,
     asOf: backtest.asOf ? String(backtest.asOf).slice(0, 10) : null,
-    points: dates.map((date, index) => ({ date, ic: finiteOrNull(icByDate[index]) })).filter((point) => point.ic != null)
+    points: icDates.map((date, index) => ({ date, ic: finiteOrNull(icByDate[index]) })).filter((point) => point.ic != null),
+    spreadPoints
   };
 }
 
@@ -174,21 +189,59 @@ export function renderValidationHero({ documentRef: doc, read }) {
     card.append(el(doc, 'span', read.chips.join(' · '), 'sx-chip sx-chip--sm sx-chip--warn'), el(doc, 'p', read.sentence, 'sx-lede'));
     parts.push(card);
   }
-  if (read.points?.length) {
+  // v58.56 (#6, design 5h): the per-date card is the top-minus-bottom spread — what the ranking's top fifth did against its
+  // bottom fifth at each past rebalance. The IC (a rank correlation) stays below it in a fold.
+  if (read.samples != null || read.points?.length) {
     const card = el(doc, 'div', null, 'sx-card scr-vh-dates');
     const head = el(doc, 'div', null, 'sx-card__head');
-    head.append(el(doc, 'h3', '시점별 종합 IC', 'sx-card__title'), el(doc, 'span', `순위와 ${read.fwdDays}거래일 뒤 수익률의 순위상관 · 0 = 관계 없음`, 'sx-card__meta'));
+    head.append(el(doc, 'h3', '시점별 상위 20% − 하위 20%', 'sx-card__title'), el(doc, 'span', `${read.fwdDays}거래일 뒤 수익률 · 같은 비중 · 비용 전`, 'sx-card__meta'));
     card.append(head);
-    const max = Math.max(0.1, ...read.points.map((point) => Math.abs(point.ic)));
-    for (const point of read.points) {
-      const line = el(doc, 'div', null, 'scr-vh-row');
-      const track = el(doc, 'span', null, 'scr-vh-track');
-      const fill = el(doc, 'span', null, `scr-vh-fill ${point.ic >= 0 ? 'is-up' : 'is-burden'}`);
-      fill.style.width = `${Math.min(50, Math.abs(point.ic) / max * 50).toFixed(1)}%`;
-      fill.style[point.ic >= 0 ? 'left' : 'right'] = '50%';
-      track.append(fill);
-      line.append(el(doc, 'span', point.date, 'scr-vh-date'), track, el(doc, 'span', `${point.ic >= 0 ? '+' : '−'}${Math.abs(point.ic).toFixed(3)}`, `scr-vh-ic ${point.ic >= 0 ? 'sx-up' : 'scr-tone-burden'}`));
-      card.append(line);
+    const spread = read.spreadPoints || [];
+    if (spread.length) {
+      const max = Math.max(0.5, ...spread.map((point) => Math.abs(point.gross)));
+      for (const point of spread) {
+        const up = point.gross >= 0;
+        const line = el(doc, 'div', null, 'scr-vh-row scr-vh-spread-row');
+        line.title = `상위 20% 평균 ${pct(point.top)} − 하위 20% 평균 ${pct(point.bottom)} = ${signedPp(point.gross)}${point.net != null ? ` · 거래비용(회전율 기준 ${point.cost != null ? `${point.cost.toFixed(2)}%` : '—'}) 반영 ${signedPp(point.net)}` : ''}`;
+        const track = el(doc, 'span', null, 'scr-vh-track');
+        const fill = el(doc, 'span', null, `scr-vh-fill ${up ? 'is-up' : 'is-burden'}`);
+        fill.style.width = `${Math.min(50, Math.abs(point.gross) / max * 50).toFixed(1)}%`;
+        fill.style[up ? 'left' : 'right'] = '50%';
+        track.append(fill);
+        const legs = el(doc, 'span', null, 'scr-vh-legs');
+        legs.append(el(doc, 'span', `상위 ${pct(point.top)}`), el(doc, 'span', `하위 ${pct(point.bottom)}`));
+        line.append(el(doc, 'span', point.date, 'scr-vh-date'), track, legs, el(doc, 'span', signedPp(point.gross), `scr-vh-ic ${up ? 'sx-up' : 'scr-tone-burden'}`));
+        card.append(line);
+      }
+      card.append(el(doc, 'p', `막대 = 그 시점 상위 20% 평균 − 하위 20% 평균(비용 전). 위의 평균 ${signedPp(read.net)}은 시점마다 바뀐 종목만큼의 거래비용을 뺀 값입니다.`, 'sx-meta scr-vh-note'));
+    } else {
+      // Records written before the per-date arrays carry only the average; the next screener refresh adds the dates.
+      card.append(el(doc, 'p', `시점별 상위·하위 평균은 다음 스크리너 갱신부터 표시됩니다 — 지금 받은 기록${read.asOf ? `(${read.asOf})` : ''}에는 ${read.samples ?? '—'}회 평균만 있습니다.`, 'sx-meta scr-vh-note'));
+    }
+    if (read.points?.length) {
+      const fold = el(doc, 'details', null, 'sx-disclosure scr-vh-ic-fold');
+      // Open while the per-date spreads have not arrived (the IC is then the only per-date reading); a re-render keeps the reader's choice.
+      const previous = host.querySelector('.scr-vh-ic-fold');
+      if (previous?.dataset.userToggled) fold.dataset.userToggled = '1';
+      fold.open = previous?.dataset.userToggled ? previous.open : !spread.length;
+      const summary = el(doc, 'summary', null);
+      summary.append(el(doc, 'span', '시점별 종합 IC', 'scr-vh-ic-title'), el(doc, 'span', `순위와 ${read.fwdDays}거래일 뒤 수익률의 순위상관 · 0 = 관계 없음`, 'sx-meta'));
+      summary.addEventListener('click', () => { fold.dataset.userToggled = '1'; });
+      fold.append(summary);
+      const body = el(doc, 'div', null, 'scr-vh-ic-body');
+      const maxIc = Math.max(0.1, ...read.points.map((point) => Math.abs(point.ic)));
+      for (const point of read.points) {
+        const line = el(doc, 'div', null, 'scr-vh-row');
+        const track = el(doc, 'span', null, 'scr-vh-track');
+        const fill = el(doc, 'span', null, `scr-vh-fill ${point.ic >= 0 ? 'is-up' : 'is-burden'}`);
+        fill.style.width = `${Math.min(50, Math.abs(point.ic) / maxIc * 50).toFixed(1)}%`;
+        fill.style[point.ic >= 0 ? 'left' : 'right'] = '50%';
+        track.append(fill);
+        line.append(el(doc, 'span', point.date, 'scr-vh-date'), track, el(doc, 'span', `${point.ic >= 0 ? '+' : '−'}${Math.abs(point.ic).toFixed(3)}`, `scr-vh-ic ${point.ic >= 0 ? 'sx-up' : 'scr-tone-burden'}`));
+        body.append(line);
+      }
+      fold.append(body);
+      card.append(fold);
     }
     parts.push(card);
   }

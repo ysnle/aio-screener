@@ -284,6 +284,119 @@ function element(documentRef, tag, className, text) {
   return node;
 }
 
+// v58.56 (re-audit #8, design 5j "AI 산업 아틀라스 · 가치사슬 · 아래에서 위로"): the 19 domains read as seven stacked
+// layers, each with the registry companies whose taxonomy nodes fall in it (public-data/atlas/player-product-registry.json).
+// The grouping of domains into layers is structural (which layer a domain supplies), not a ranking or a bottleneck claim,
+// so no layer is highlighted as "where the profit is". The model layer has no registry company yet and says so.
+export const VALUE_CHAIN_LAYERS = Object.freeze([
+  Object.freeze({ n: 7, title: '애플리케이션', desc: '산업·업무 AI · 피지컬 AI · 방산·우주', domains: ['domain-ai-applications', 'domain-on-device-physical-ai', 'domain-physical-ai-robotics', 'domain-drone-defense', 'domain-space-aerospace'] }),
+  Object.freeze({ n: 6, title: '모델', desc: '파운데이션 모델 · 추론 서비스', domains: [], node: 'cloud-ai-service' }),
+  Object.freeze({ n: 5, title: '클라우드', desc: '연산 임대 · 플랫폼 · 네오클라우드', domains: ['domain-cloud-platform', 'domain-neocloud-finance'] }),
+  Object.freeze({ n: 4, title: '데이터센터 · 전력', desc: '서버 · 냉각 · 전력망', domains: ['domain-aidc-cooling', 'domain-power-grid'] }),
+  Object.freeze({ n: 3, title: '네트워크', desc: '스위치 · 광통신', domains: ['domain-network-photonics'] }),
+  Object.freeze({ n: 2, title: '반도체 · 메모리', desc: 'GPU · 맞춤형 칩 · HBM · SSD', domains: ['domain-compute-silicon', 'domain-memory-storage'] }),
+  Object.freeze({ n: 1, title: '장비 · 파운드리', desc: '공정 · 노광 · 패키징 · 소재', domains: ['domain-foundry-equipment', 'domain-packaging-substrate', 'domain-resources-materials'] })
+]);
+const VALUE_CHAIN_CROSS_DOMAINS = Object.freeze(['domain-ai-economics', 'domain-geopolitics-policy-security', 'domain-capital-markets-company-map', 'domain-adjacent-future-tech']);
+
+// v58.56 (#8): tickers for registry companies only where the listing is one exact symbol. US symbols carry the SEC CIK
+// so scripts/ci-atlas-contract-check.mjs can prove each pair against public-data/us-listings.json (Nasdaq Trader + SEC CIK);
+// Samsung Electronics is its KRX code (checked against public-data/screener-universe.json). No ticker: private (Shield AI), listed only
+// outside the US/Korea (KIOXIA, Siemens), or a subsidiary whose parent has two share classes (Google Cloud → Alphabet).
+// AWS is shown through its parent's single listing, labelled as the parent.
+export const ATLAS_PLAYER_LISTINGS = Object.freeze({
+  nvidia: Object.freeze({ ticker: 'NVDA', cik: '0001045810' }),
+  amd: Object.freeze({ ticker: 'AMD', cik: '0000002488' }),
+  aws: Object.freeze({ ticker: 'AMZN', cik: '0001018724', parent: 'Amazon' }),
+  tsmc: Object.freeze({ ticker: 'TSM', cik: '0001046179' }),
+  asml: Object.freeze({ ticker: 'ASML', cik: '0000937966' }),
+  micron: Object.freeze({ ticker: 'MU', cik: '0000723125' }),
+  sandisk: Object.freeze({ ticker: 'SNDK', cik: '0002023554' }),
+  synopsys: Object.freeze({ ticker: 'SNPS', cik: '0000883241' }),
+  broadcom: Object.freeze({ ticker: 'AVGO', cik: '0001730168' }),
+  coherent: Object.freeze({ ticker: 'COHR', cik: '0000820318' }),
+  vertiv: Object.freeze({ ticker: 'VRT', cik: '0001674101' }),
+  tesla: Object.freeze({ ticker: 'TSLA', cik: '0001318605' }),
+  'rocket-lab': Object.freeze({ ticker: 'RKLB', cik: '0001819994' }),
+  palantir: Object.freeze({ ticker: 'PLTR', cik: '0001321655' }),
+  'mp-materials': Object.freeze({ ticker: 'MP', cik: '0001801368' }),
+  ibm: Object.freeze({ ticker: 'IBM', cik: '0000051143' }),
+  'samsung-electronics': Object.freeze({ ticker: '005930.KS', krCode: '005930', krName: '삼성전자' })
+});
+const PLAYER_NO_TICKER_REASON = Object.freeze({ PRIVATE: '비상장', 'google-cloud': '모회사 Alphabet · 보통주 두 종류', kioxia: '도쿄 상장', siemens: '독일 상장' });
+
+export function valueChainLayerPlayers(layer, research, registry) {
+  if (layer.node) return []; // no model company in the registry; the managed-AI-service node holds cloud companies
+  const nodeIds = new Set((research?.taxonomyDomains || []).filter((domain) => layer.domains.includes(domain.id)).flatMap((domain) => (domain.nodes || []).map((node) => node.id)));
+  return (registry?.players || [])
+    .map((player) => ({ player, hits: (player.taxonomyNodeIds || []).filter((id) => nodeIds.has(id)).length }))
+    .filter((item) => item.hits > 0)
+    .sort((a, b) => b.hits - a.hits || String(a.player.name).localeCompare(String(b.player.name)))
+    .map((item) => item.player);
+}
+
+function createValueChainLayers(documentRef, research, registry, selectedDomainId) {
+  if (!research?.taxonomyDomains?.length) return null;
+  const block = element(documentRef, 'section', 'rl-aside-block atlas-layers');
+  block.dataset.atlasLayers = 'value-chain';
+  const head = element(documentRef, 'div', 'atlas-layers-head');
+  head.append(element(documentRef, 'h3', 'atlas-layers-title', 'AI 산업 아틀라스'), element(documentRef, 'span', 'atlas-layers-sub', '가치사슬 · 아래에서 위로'));
+  block.appendChild(head);
+  const list = element(documentRef, 'ol', 'atlas-layers-list');
+  VALUE_CHAIN_LAYERS.forEach((layer) => {
+    const current = layer.domains.includes(selectedDomainId);
+    const item = element(documentRef, 'li', `atlas-layer${current ? ' is-current' : ''}`);
+    item.dataset.atlasLayer = String(layer.n);
+    const open = element(documentRef, 'button', 'atlas-layer-open');
+    open.type = 'button';
+    open.dataset.atlasAction = layer.node ? 'domain-node' : 'domain';
+    open.dataset.atlasValue = layer.node || layer.domains[0];
+    if (current) open.setAttribute('aria-current', 'true');
+    open.setAttribute('aria-label', `${layer.n}층 ${layer.title} — ${layer.desc} 설명 열기`);
+    const text = element(documentRef, 'span', 'atlas-layer-text');
+    text.append(element(documentRef, 'b', 'atlas-layer-name', layer.title), element(documentRef, 'span', 'atlas-layer-desc', layer.desc));
+    open.append(element(documentRef, 'span', 'atlas-layer-n', String(layer.n)), text);
+    item.appendChild(open);
+    const players = valueChainLayerPlayers(layer, research, registry);
+    const chips = element(documentRef, 'div', 'atlas-layer-players');
+    if (!players.length) chips.appendChild(element(documentRef, 'span', 'atlas-layer-empty', layer.node ? '등록된 모델 기업 없음 · 관리형 AI 서비스에서 설명' : '등록된 기업 없음'));
+    players.slice(0, 4).forEach((player) => {
+      const listing = ATLAS_PLAYER_LISTINGS[player.playerId];
+      if (listing) {
+        const chip = element(documentRef, 'button', 'sx-chip sx-chip--sm atlas-layer-ticker', listing.krName || listing.ticker);
+        chip.type = 'button';
+        chip.dataset.action = 'showTicker';
+        chip.dataset.arg = listing.ticker;
+        chip.title = `${player.name}${listing.parent ? ` (모회사 ${listing.parent})` : ''} · 종목 요약 열기`;
+        chip.setAttribute('aria-label', chip.title);
+        chips.appendChild(chip);
+      } else {
+        const reason = PLAYER_NO_TICKER_REASON[player.playerId] || PLAYER_NO_TICKER_REASON[player.publicPrivate] || '';
+        const chip = element(documentRef, 'span', 'sx-chip sx-chip--sm atlas-layer-company', player.name);
+        if (reason) chip.title = `${player.name} · ${reason}`;
+        chips.appendChild(chip);
+      }
+    });
+    if (players.length > 4) { const more = element(documentRef, 'span', 'atlas-layer-more', `외 ${players.length - 4}곳`); more.title = players.slice(4).map((player) => player.name).join(' · '); chips.appendChild(more); }
+    item.appendChild(chips);
+    list.appendChild(item);
+  });
+  block.appendChild(list);
+  const cross = element(documentRef, 'div', 'atlas-layers-cross');
+  cross.appendChild(element(documentRef, 'span', 'atlas-layers-cross-label', '모든 층에 걸친 주제'));
+  VALUE_CHAIN_CROSS_DOMAINS.forEach((id) => {
+    const link = element(documentRef, 'button', 'atlas-layers-cross-link', DOMAIN_LABELS[id] || id);
+    link.type = 'button';
+    link.dataset.atlasAction = 'domain';
+    link.dataset.atlasValue = id;
+    if (id === selectedDomainId) link.setAttribute('aria-current', 'true');
+    cross.appendChild(link);
+  });
+  block.appendChild(cross);
+  block.appendChild(element(documentRef, 'p', 'atlas-layers-note', '층을 누르면 그 분야 설명이, 티커를 누르면 종목 요약이 열립니다. 기업은 역할 예시이며 추천이 아닙니다.'));
+  return block;
+}
+
 const ARRIVAL_METRIC_LABELS = Object.freeze({ BOTTLENECK_CAPACITY: '병목과 공급능력', CAPEX_FCF_ROIC: 'CAPEX → FCF → ROIC' });
 const ARRIVAL_TIMEFRAME_LABELS = Object.freeze({ STRUCTURAL: '구조적 장기 흐름', '3Y_5Y': '3~5년' });
 
@@ -717,6 +830,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
              story: (node) => state.nodeStories?.[node.id] || null,
              domainText: (domain) => state.domainStories?.[domain.id] || null,
              deep: (node) => stripReferenceChrome(createDeepTaxonomyView(documentRef, node, state.deepTaxonomy, state.selectedDeepTopicId)),
+             layers: (domain) => createValueChainLayers(documentRef, state.research, state.registry, domain?.id || null),
              domainStory: (domain) => stripReferenceChrome(createDomainGuide(documentRef, domain, (state.domainGuides?.guides || []).find((guide) => guide.id === domain.id), (state.domainPackets?.packets || []).find((packet) => packet.domainId === domain.id), state.claimLedger)),
              relations: (nodeId) => { const entry = coverage.find((item) => item.nodeId === nodeId); return entry ? relationList(documentRef, entry.relationGroups) : null; },
              // X07 (2026-10-13): the reading view strips the old source chrome, so domain and node documents lost every
@@ -790,6 +904,9 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
         }
         if (action === 'domain-node') {
           state.atlasView = 'node';
+          // v58.56 (#8): a node opened from outside its domain's TOC (the value-chain card) selects that domain too.
+          const owner = state.research?.taxonomyDomains?.find((item) => (item.nodes || []).some((node) => node.id === value));
+          if (owner) state.selectedDomainId = owner.id;
           state.selectedDomainNodeId = value;
           state.selectedDeepTopicId = state.deepTaxonomy?.topics?.find((topic) => topic.anchorNodeIds?.includes(value))?.id || '';
         }

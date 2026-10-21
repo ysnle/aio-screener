@@ -3953,6 +3953,13 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { buildSentimentModel } = await load('src/ui/components/sentiment-board.js');
   const sparse = buildMarketRegime({ history: [{ date: '2026-09-30', spx: 6600, wti: 70 }] });
   if (sparse.overall !== '판정 보류' || sparse.axes.find((row) => row.id === 'commodities').state === 'favorable') fail(`P1399 one S&P and one WTI value produced a verdict: ${sparse.overall}`);
+  // v58.56 (re-audit #2): a held verdict has no hero sentence; a full one has one plain sentence without rule brackets.
+  if (sparse.heroLine != null) fail(`v58.56 a held verdict must not carry a hero line: ${sparse.heroLine}`);
+  {
+    const fullRegime = buildMarketRegime({ history: rows, credit: { hyBp: 308, hyAsOf: last } });
+    const hero = fullRegime.heroLine || '';
+    if (!hero || hero.length > 45 || /[()]|\d/.test(hero) || (hero.match(/[.?!]/g) || []).length !== 1) fail(`v58.56 the 오늘 hero must be one plain sentence: ${hero}`);
+  }
   if (!/^(양호|다소|중립|부담|방어|경계|혼조|대체로)/.test(buildMarketRegime({ history: rows, credit: { hyBp: 308, hyAsOf: last } }).overall)) fail('P1399 a full history must still produce a verdict');
   if (buildSentimentModel({}).synthesis.includes('치우치지 않은')) fail('P1399 no sentiment input must not read as balanced');
   // x-bookmarks 2026-10-18: the term card carries VIX ÷ √252 as the implied one-sigma daily move, on the ratio's own date.
@@ -5394,4 +5401,44 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const now = Date.UTC(2026, 9, 20, 12);
   if (!macroHistoryUrl(MACRO_HISTORY_SERIES.naturalUnemployment, 'k', now).includes('series_id=NROU') || !macroHistoryUrl(MACRO_HISTORY_SERIES.naturalUnemployment, 'k', now).endsWith('&observation_end=2026-10-20')) fail('producer: NROU stops at today so CBO projections are not the latest row');
   if (macroHistoryUrl(MACRO_HISTORY_SERIES.dgs5, 'k', now).includes('observation_end') || !(MACRO_HISTORY_SERIES.dgs30?.limit >= 45)) fail('producer: curve tenors keep a bounded window covering 21 sessions');
+}
+
+// ── v58.56 (re-audit #9/#14): short/middle curve tenors on the official cut, and the SEP-dated r* default ──
+{
+  const { MACRO_HISTORY_SERIES } = await import('./producer/macro-history.mjs');
+  for (const [field, id] of [['dgs1mo', 'DGS1MO'], ['dgs3mo', 'DGS3MO'], ['dgs6mo', 'DGS6MO'], ['dgs1', 'DGS1'], ['dgs3', 'DGS3'], ['dgs7', 'DGS7'], ['sepLongRunFedFunds', 'FEDTARMDLR']]) {
+    if (MACRO_HISTORY_SERIES[field]?.id !== id) fail(`producer v58.56: ${field} is FRED ${id}`);
+  }
+  const { MACRO_LONG_SERIES, MACRO_CALENDAR_RELEASES } = await import('./producer/macro-history.mjs');
+  const fredRequests = Object.keys(MACRO_HISTORY_SERIES).length + Object.keys(MACRO_LONG_SERIES).length + Object.keys(MACRO_CALENDAR_RELEASES).length;
+  if (fredRequests > 100) fail(`producer v58.56: one run stays well under FRED's 120 requests/minute (${fredRequests})`);
+  const { buildRatesFx, extraTenorPoints } = await load('src/domain/macro/rates-fx.js');
+  const core = { dgs2: 4.1, dgs5: 4.2, dgs10: 4.5, dgs20: 4.9, dgs30: 4.8 };
+  const macro = Object.fromEntries(Object.entries(core).flatMap(([k, v]) => [[k, v], [`_asOf_${k}`, '2026-10-20'], [`_source_${k}`, 'us-treasury-official-primary']]));
+  macro._treasury = { observedAt: '2026-10-20', values: { ...core, dgs1mo: 4.3, dgs3mo: 4.25, dgs1: 4.0 }, series: [{ observedAt: '2026-10-20', values: { dgs3mo: 4.25 } }, { observedAt: '2026-10-17', values: { dgs3mo: 4.2 } }] };
+  const mh = { series: { dgs6mo: { observations: [['2026-10-17', 4.15], ['2026-10-20', 4.18]] }, dgs7: { observations: [['2026-10-17', 4.3]] }, t10y3m: { observations: [['2026-10-20', 0.3]] } } };
+  const curve = buildRatesFx({ macro, macroHistory: mh }).treasury;
+  const ids = curve.yields.map((row) => row.id).join();
+  if (ids !== 'dgs1mo,dgs3mo,dgs6mo,dgs1,dgs2,dgs5,dgs10,dgs20,dgs30') fail(`curve v58.56: tenors sorted by maturity from the official cut + same-date FRED, 7년 (no 10/20 value) left out ${ids}`);
+  const three = curve.yields.find((row) => row.id === 'dgs3mo');
+  if (three.value !== 4.25 || three.derived || Math.abs(three.day - 0.05) > 1e-9) fail(`curve v58.56: 3개월 is the feed's own value (not 10Y − T10Y3M) with its 1-day change ${JSON.stringify(three)}`);
+  if (curve.yields.find((row) => row.id === 'dgs6mo')?.source !== 'fred' || curve.pendingTenors.join() !== '3년,7년') fail(`curve v58.56: FRED fills a tenor only on the cut's date; the rest are named as pending ${curve.pendingTenors}`);
+  if (/10년–3개월 금리차를 빼서/.test(curve.fact)) fail('curve v58.56: no derivation sentence when the 3-month yield is observed');
+  if (extraTenorPoints({ _treasury: { observedAt: '2026-10-17', values: { dgs1mo: 4 } } }, null, '2026-10-20').length) fail('curve v58.56: a feed row from another date is never used for today');
+  const old = { ...macro, _treasury: null };
+  const legacy = buildRatesFx({ macro: old, macroHistory: { series: { t10y3m: { observations: [['2026-10-20', 0.3]] } } } }).treasury;
+  if (legacy.yields[0].id !== 'dgs3mo' || !legacy.yields[0].derived || legacy.yields[0].value !== 4.2) fail('curve v58.56: without DGS3MO the 3-month point is still 10Y − T10Y3M on the same date');
+
+  const { taylorRule } = await load('src/domain/macro/taylor-rule.js');
+  const pce = Array.from({ length: 20 }, (_, i) => [new Date(Date.UTC(2025, i, 1)).toISOString().slice(0, 10), 100 * 1.0025 ** i]);
+  const series = { corePceIndex: { observations: pce }, unemployment: { observations: [['2026-08-01', 4.4]] }, naturalUnemployment: { observations: [['2026-07-01', 4.2]] } };
+  const nowMs = Date.UTC(2026, 9, 21);
+  const withSep = { series: { ...series, sepLongRunFedFunds: { observations: [['2026-06-17', 3.0], ['2026-09-16', 3.125]] } } };
+  const def = taylorRule({ macroHistory: withSep, macro: { fedTargetLower: 3.75, fedTargetUpper: 4 }, nowMs });
+  if (def.rStarSource !== 'sep' || def.rStar !== 1.125 || def.sep.date !== '2026-09-16' || def.sep.old || Math.abs(def.rule - def.sepRule) > 1e-12) fail(`taylor v58.56: default r* = latest SEP longer-run median − 2%, with its date ${JSON.stringify(def.sep)}`);
+  const alt = taylorRule({ macroHistory: withSep, macro: {}, rStar: 0.5, nowMs });
+  if (alt.rStarSource !== 'assumed' || alt.rStar !== 0.5 || Math.abs(def.rule - alt.rule - 0.625) > 1e-9) fail('taylor v58.56: 0.5%/1.0% stay as explicit alternatives');
+  const none = taylorRule({ macroHistory: { series }, macro: {}, nowMs });
+  if (none.rStarSource !== 'assumed' || none.rStar !== 0.5 || none.sep !== null) fail('taylor v58.56: without a collected SEP median the rule falls back to the 0.5% assumption and says so');
+  if (!taylorRule({ macroHistory: withSep, macro: {}, nowMs: Date.UTC(2027, 2, 1) }).sep.old) fail('taylor v58.56: an SEP median older than one release cycle is marked old');
 }

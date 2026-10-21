@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.55';
+const APP_VERSION = 'v58.56';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -3204,12 +3204,26 @@ if (typeof document !== 'undefined') {
     var describe = typeof window._aioDescribeQuoteCurrentness === 'function' ? window._aioDescribeQuoteCurrentness : null;
     return describe && observations.length ? describe({ observations: observations, nowMs: Date.now(), durableCount: durableCount }) : null;
   }
+  // v58.56 (re-audit #13): one topbar chip per state — "LIVE 14:32", "지연 12분 전", "10/20 종가 기준",
+  // "지난 시세 10/19 21:58", or the badge word alone when no time is known (미수신, 확인 중). No 서버 prefix, no count.
+  function _aioQuoteChipText(state, badge, detail) {
+    var head = String(detail || '').split(' · ')[0].replace(/^서버\s+/, '').trim();
+    var timed = /\d/.test(head);
+    if (state === 'close') { var md = head.match(/^(\d{1,2}\/\d{1,2})\s*마감$/); return md ? md[1] + ' 종가 기준' : '종가 기준'; }
+    if (!timed) return String(badge || '');
+    if (state === 'live') return 'LIVE ' + head.replace(/\s*기준$/, '');
+    if (state === 'delayed') return '지연 ' + head;
+    if (state === 'stale') return '지난 시세 ' + head.replace(/\s*기준$/, '');
+    return String(badge || '');
+  }
   function _aioWriteQuoteStatus(kind, badge, detail, title, state) {
     var node = document.getElementById('live-quote-ts'); if (typeof window._aioWithKrClose === 'function') detail = window._aioWithKrClose(detail); // v58.52: KR close label (src/app/bootstrap.js)
     if (node) {
       node.textContent = detail;
-      node.setAttribute('title', title);
-      node.dataset.currentness = state; node.dataset.compact = String(detail || '').split(' · ')[0].replace(/^서버\s+/, '').replace(/\s*기준\s*/g, ' ').trim(); // v57.54: phone topbar shows "10/13 22:20" (no 서버/기준/count)
+      // v58.56 (re-audit #13): the topbar shows one chip (dot + data-compact, e.g. "10/20 종가 기준"); the full detail
+      // (server time, quote count, KR close) moves into the tap/hover basis card with the title.
+      node.setAttribute('title', detail + ' — ' + title);
+      node.dataset.currentness = state; node.dataset.compact = _aioQuoteChipText(state, badge, detail);
     }
     _aioRenderTopbarLiveBadge(kind, badge, title);
     return !!node;

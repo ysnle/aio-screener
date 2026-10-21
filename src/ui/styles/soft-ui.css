@@ -92,7 +92,15 @@ body { background: var(--bg-base) !important; font-family: var(--font-sans); col
   padding: 12px !important; display: flex; flex-direction: column; gap: 4px; box-shadow: none !important;
 }
 body.dark-theme .sidebar-footer .llm-panel { background: rgba(238, 232, 220, 0.05); }
-.llm-panel-header { display: flex; flex-direction: column; align-items: flex-start !important; gap: 2px; margin: 0 !important; padding: 0 !important; border: 0 !important; }
+/* v58.56 (re-audit #26): one row — dot · AI 도우미 · short state (full sentence in its title); extras in #sidebar-settings. */
+.llm-panel-header { display: flex; flex-direction: row; align-items: center !important; gap: 8px; margin: 0 !important; padding: 0 !important; border: 0 !important; min-width: 0; }
+.llm-panel-header .llm-switch-wrap { margin-left: auto; min-width: 0; }
+.llm-panel-header .llm-switch-label { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-ai-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--data-amber); }
+.llm-panel-header:has(.llm-switch-label.on) .sidebar-ai-dot { background: var(--data-green); }
+.sidebar-settings > summary { cursor: pointer; font-size: 12px; color: var(--text-muted); min-height: 24px; display: flex; align-items: center; }
+.sidebar-settings > summary:hover { color: var(--text-secondary); }
+.sidebar-settings-body { display: flex; flex-direction: column; gap: 6px; padding-top: 4px; }
 .llm-panel-title { font-size: 13px !important; font-weight: 600 !important; color: var(--text-primary) !important; letter-spacing: 0 !important; text-transform: none !important; }
 .llm-switch-label { font-size: 12px !important; color: var(--text-muted) !important; }
 
@@ -488,3 +496,31 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow: var(--sx-float-shadow)
      (pills, tiles, chips, 32px nav rows) are, so the rule is restated here to win on every touch device. */
   .page :is(button, [role="button"]):not(td *, th *, .aio-basis-btn, .aio-term), .sidebar .nav-item { min-height: 44px !important; }
 }
+
+/* ═══ 10. v58.56 re-audit — topbar chip (#13), page-foot version (#13) ═══════════════
+   The topbar keeps what a reader uses: one quote chip, 도움말, AI. The chip is the badge dot plus the writer's
+   data-compact text ("10/20 종가 기준", "LIVE 14:32", "지난 시세 10/19 21:58"); the full detail (server time, count,
+   KR close) is the element's text and title, read by the tap/hover basis card. The menu button shows from 1024px up
+   only while the sidebar is collapsed (the way back); the drawer widths keep it. */
+/* One opaque fill on both halves, so the overlap where they meet (the bar's gap differs by width) leaves no seam. */
+.topbar { --tb-chip-bg: color-mix(in srgb, var(--text-primary) 7%, var(--bg-base)); }
+.topbar #topbar-live-badge { position: relative; border-radius: 999px 0 0 999px !important; padding: 0 2px 0 10px !important; margin-inline-end: -8px; background: var(--tb-chip-bg) !important; }
+.topbar #topbar-live-badge .topbar-live-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.topbar #live-quote-ts {
+  display: inline-flex; align-items: center; min-height: 26px; box-sizing: border-box; padding: 0 10px 0 6px;
+  border-radius: 0 999px 999px 0 !important; background: var(--tb-chip-bg); color: var(--text-secondary) !important; font-weight: 600;
+}
+.topbar #live-quote-ts[data-compact]:not([data-compact=""]) { font-size: 0 !important; }
+.topbar #live-quote-ts[data-compact]:not([data-compact=""])::after { content: attr(data-compact); font-size: 12px; font-variant-numeric: tabular-nums; }
+@media (min-width: 1024px) {
+  #sidebar-toggle-btn { display: none !important; }
+  .sidebar.collapsed ~ .main #sidebar-toggle-btn { display: inline-flex !important; align-items: center; justify-content: center; }
+}
+@media (max-width: 700px) {
+  .topbar .topbar-actions-right { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+  .topbar #topbar-live-badge { margin-inline-end: -4px; padding: 0 2px 0 8px !important; }
+  .topbar #live-quote-ts { justify-self: start; text-align: left; padding: 2px 8px 2px 4px; line-height: 1.2; }
+  .topbar #topbar-help-btn { grid-column: 3; }
+  .topbar #topbar-ai-btn { grid-column: 4; }
+}
+.sx-page-foot-version { font-variant-numeric: tabular-nums; white-space: nowrap; }

@@ -377,8 +377,10 @@ function renderHeroFlips(doc, regime) {
   title.id = 'home-hero-flips-title';
   head.append(title);
   if (measured) {
-    const order = el(doc, 'span', '가까운 순', 'home-flips-order');
-    order.title = '조건까지 남은 거리를 그 지표의 최근 20거래일 평균 하루 변동폭으로 나눠, 작은 순서로 3개를 보여줍니다';
+    // v58.56 (re-audit #23): the distances are measured from the last US close, not the live quotes beside the tile
+    // (WTI 98.46 live vs the 10/20 close) — the kicker and each chip's tooltip say so.
+    const order = el(doc, 'span', `${regime.asOf ? `${shortDate(regime.asOf)} ` : ''}종가 기준 · 가까운 순`, 'home-flips-order');
+    order.title = '거리는 마지막 미국 종가로 잽니다(실시간 시세 아님) · 조건까지 남은 거리를 그 지표의 최근 20거래일 평균 하루 변동폭으로 나눠, 작은 순서로 3개를 보여줍니다';
     head.append(order);
   }
   const list = el(doc, 'ul', null, 'home-flips');
@@ -390,7 +392,7 @@ function renderHeroFlips(doc, regime) {
       const badge = el(doc, 'span', mark, `home-flip-mark ${tone}`);
       badge.setAttribute('aria-label', `${row.title} ${row.stateLabel} → ${row.distance.towardLabel} · ${words}`);
       const chip = el(doc, 'span', row.distance.text, 'home-flip-chip');
-      chip.title = `지금 ${row.title} ${row.stateLabel} · 기준까지 ${row.distance.text}${row.distance.sessions != null ? ` · 최근 20거래일 평균 하루 변동폭의 ${row.distance.sessions}배` : ''}${row.distance.needsMore ? ' · 숫자로 잴 수 없는 조건이 함께 필요' : ''}`;
+      chip.title = `${regime.asOf ? `${shortDate(regime.asOf)} ` : ''}종가 기준 · 지금 ${row.title} ${row.stateLabel} · 기준까지 ${row.distance.text}${row.distance.sessions != null ? ` · 최근 20거래일 평균 하루 변동폭의 ${row.distance.sessions}배` : ''}${row.distance.needsMore ? ' · 숫자로 잴 수 없는 조건이 함께 필요' : ''}`;
       li.dataset.direction = row.distance.direction;
       li.append(badge, flipDistanceLine(doc, row), chip);
     } else {

@@ -192,7 +192,8 @@ function screenerCloseOf(root, bySymbol, onDemand = new Map()) {
     const price = finite(row?._valuationPePrice ?? row?._valuationPbPrice ?? row?.valuationPrice ?? row?.pePrice);
     const own = onDemand.get(String(symbol || '').toUpperCase())?.lastClose;
     if ((price == null || price <= 0) && own) return { price: own.price, date: own.date };
-    return price != null && price > 0 ? { price, date: row?.factorSessionDate || null } : null;
+    if (price != null && price > 0) return { price, date: row?.factorSessionDate || null };
+    return null;
   };
 }
 // v57.54 review: holdings outside the ~30 market symbols never asked for a quote, so P&L stayed "—" (the screener
@@ -394,6 +395,53 @@ function tableCell(documentRef, headerId, value, className = 'pfp-cell') {
   return cell;
 }
 
+// v58.56 (re-audit #11): ten columns (오늘 joined). At ≥1280px the table is compact — 종목 · 손익 · 수익률 · 오늘 · 비중 —
+// and 수량·매수 단가·현재가·목표가·관리 open in a per-row disclosure (CSS hides those cells there; every cell stays in the
+// DOM with its `headers` id, so readers and the vault e2e still find them). Below 1280px the full table is unchanged.
+const PORTFOLIO_TABLE_COLUMNS = 10;
+const expandedHoldings = new Set();
+function holdingDetailRow(documentRef, { symbol, holding, items, detailId, expanded }) {
+  const row = documentRef.createElement('tr');
+  row.className = 'pfp-detail';
+  row.id = detailId;
+  row.hidden = !expanded;
+  const cell = documentRef.createElement('td');
+  cell.colSpan = PORTFOLIO_TABLE_COLUMNS;
+  const list = documentRef.createElement('dl');
+  list.className = 'pfp-detail-list';
+  for (const [label, value] of items) {
+    const item = documentRef.createElement('div');
+    const term = documentRef.createElement('dt');
+    term.textContent = label;
+    const desc = documentRef.createElement('dd');
+    desc.textContent = value;
+    item.append(term, desc);
+    list.append(item);
+  }
+  if (holding?.memo) {
+    const memo = documentRef.createElement('p');
+    memo.className = 'pfp-detail-memo';
+    memo.textContent = `메모 · ${holding.memo}`;
+    cell.append(list, memo);
+  } else cell.append(list);
+  const actions = documentRef.createElement('div');
+  actions.className = 'pfp-detail-actions';
+  [['차트', '_aioTechnicalTicker'], ['수정', '_aioEditPosition'], ['삭제', '_aioRemovePosition']].forEach(([label, action]) => {
+    const button = documentRef.createElement('button');
+    button.type = 'button';
+    button.setAttribute('data-action', action);
+    button.setAttribute('data-arg', symbol);
+    button.setAttribute('data-stop', '1');
+    button.setAttribute('aria-label', `${symbol} ${label}`);
+    button.className = 'pfp-manage-btn';
+    button.textContent = label;
+    actions.append(button);
+  });
+  cell.append(actions);
+  row.append(cell);
+  return row;
+}
+
 function renderPortfolioTable(documentRef, page, state, surface) {
   const tbody = page?.querySelector?.('#pf-positions-tbody');
   if (!tbody) return;
@@ -404,7 +452,7 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     const { symbol, shares, avgCost, price, value, cost: costValue } = item;
     const pnl = value != null && costValue != null ? value - costValue : null;
     const pnlPct = pnl != null && costValue > 0 ? pnl / costValue * 100 : null;
-    return { holding, symbol, shares, avgCost, price, value, costValue, pnl, pnlPct };
+    return { holding, symbol, shares, avgCost, price, value, costValue, pnl, pnlPct, sourceKind: item.sourceKind, closeDate: item.closeDate || null, dailyPct: item.dailyPct ?? null, dailyPctEligible: item.dailyPctEligible === true };
   });
   const totalValue = surface.positionValue;
   tbody.replaceChildren();
@@ -419,7 +467,7 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     const row = documentRef.createElement('tr');
     row.className = 'pf-empty-state';
     const cell = documentRef.createElement('td');
-    cell.colSpan = 9;
+    cell.colSpan = PORTFOLIO_TABLE_COLUMNS;
     cell.className = 'pfp-empty';
     const heading = documentRef.createElement('div');
     heading.textContent = '포트폴리오가 비어 있습니다';
@@ -457,7 +505,31 @@ function renderPortfolioTable(documentRef, page, state, surface) {
       memo.textContent = String(holding.memo);
       memo.className = 'pfp-memo';
       tickerCell.appendChild(memo);
+      // v58.56: the compact desktop table shows a quiet 메모 mark; the text is in the row's 상세.
+      const memoChip = documentRef.createElement('span');
+      memoChip.className = 'sx-chip sx-chip--sm sx-chip--neutral pfp-memo-chip';
+      memoChip.textContent = '메모';
+      memoChip.title = String(holding.memo);
+      tickerCell.appendChild(memoChip);
     }
+    const detailId = `pf-detail-${String(symbol).replace(/[^A-Za-z0-9_-]/g, '_')}`;
+    const expanded = expandedHoldings.has(symbol);
+    const more = documentRef.createElement('button');
+    more.type = 'button';
+    more.className = 'pfp-more';
+    more.textContent = '상세';
+    more.setAttribute('aria-expanded', String(expanded));
+    more.setAttribute('aria-controls', detailId);
+    more.setAttribute('aria-label', `${symbol} 수량·단가·관리 보기`);
+    more.addEventListener('click', (event) => {
+      event.stopPropagation(); // the row itself opens the stock page
+      const open = !expandedHoldings.has(symbol);
+      if (open) expandedHoldings.add(symbol); else expandedHoldings.delete(symbol);
+      more.setAttribute('aria-expanded', String(open));
+      const detail = documentRef.getElementById(detailId);
+      if (detail) detail.hidden = !open;
+    });
+    tickerCell.appendChild(more);
     row.appendChild(tickerCell);
     // LC-45: the table printed `$` for every row while the domain already declares each row's price
     // and cost currency. Print the declared code instead, so a KRW/mixed row is not relabelled as USD.
@@ -477,7 +549,8 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     // v57.81: one failure state for a holding whose quote and close both came back empty (any listed symbol is requested).
     const priceCellNode = tableCell(documentRef, 'pf-th-price', price == null ? '가격 없음' : money(price, priceCurrency));
     priceCellNode.style.color = price == null ? 'var(--text-muted)' : 'var(--text-primary)';
-    priceCellNode.title = price == null ? '시세와 종가를 받지 못했습니다 · 총자산과 손익 합계에서 뺐습니다' : `시세 통화 ${priceCurrency}`;
+    const closeDated = rowData.sourceKind === 'completed-close' && rowData.closeDate ? ` · 실시간 시세 대신 ${rowData.closeDate} 종가` : '';
+    priceCellNode.title = price == null ? '시세와 종가를 받지 못했습니다 · 총자산과 손익 합계에서 뺐습니다' : `시세 통화 ${priceCurrency}${closeDated}`;
     if (price == null) priceCellNode.dataset.priceState = 'missing';
     row.appendChild(priceCellNode);
     const pnlCell = tableCell(documentRef, 'pf-th-pnl', pnl == null ? '—' : `${pnl >= 0 ? '+' : '-'}${money(Math.abs(pnl), baseCurrency)}`, 'pfp-cell is-bold');
@@ -487,6 +560,12 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     const pctCell = tableCell(documentRef, 'pf-th-pct', pnlPct == null ? '—' : `${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%`, 'pfp-cell is-bold');
     pctCell.style.color = pnlPct == null ? 'var(--text-muted)' : pnlPct >= 0 ? 'var(--green)' : 'var(--red)';
     row.appendChild(pctCell);
+    // v58.56: today's move of the holding — only from a live quote with a stated basis (the hero's 오늘 uses the same rule).
+    const dayPct = rowData.dailyPctEligible && Number.isFinite(rowData.dailyPct) ? rowData.dailyPct : null;
+    const dayCell = tableCell(documentRef, 'pf-th-day', dayPct == null ? '—' : `${dayPct >= 0 ? '+' : ''}${dayPct.toFixed(2)}%`, 'pfp-cell');
+    dayCell.style.color = dayPct == null ? 'var(--text-muted)' : dayPct >= 0 ? 'var(--green)' : 'var(--red)';
+    if (dayPct == null) dayCell.title = rowData.sourceKind === 'completed-close' ? `${rowData.closeDate || ''} 종가로 평가 중 — 오늘 변화는 실시간 시세를 받으면 표시합니다`.trim() : '실시간 시세를 받으면 표시합니다';
+    row.appendChild(dayCell);
     // P1176 (22 PFR01): `finite(0)`은 0이라 미설정 표시를 통과하지 못했다. legacy 테이블은 이미
     // `target > 0`을 "설정됨"으로 정의하므로(js/aio-workspace.js), native도 같은 정의를 쓴다 —
     // 저장된 0은 옛 "빈 칸" sentinel이고, $0.00 + -100% 잠재수익으로 그리지 않는다.
@@ -539,6 +618,15 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     });
     row.appendChild(manageCell);
     tbody.appendChild(row);
+    tbody.appendChild(holdingDetailRow(documentRef, {
+      symbol, holding, detailId, expanded,
+      items: [
+        ['수량', shares == null ? '—' : String(shares)],
+        ['매수 단가', money(avgCost, costCurrency)],
+        ['현재가', `${price == null ? '가격 없음' : money(price, priceCurrency)}${closeDated ? ` (${rowData.closeDate} 종가)` : ''}`],
+        ['목표가(내 메모)', targetSet == null ? '미설정' : money(targetSet, targetCurrency)]
+      ]
+    }));
   });
 }
 

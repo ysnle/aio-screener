@@ -746,7 +746,7 @@ function renderPortfolio() {
 
   if (positions.length === 0) {
     // v48.3: 빈 상태 안내 강화 — 폰트 크기 상향 + 명확한 3단계 가이드
-    if (!_nativePortfolioTable) tbody.innerHTML = '<tr class="pf-empty-state"><td colspan="9" class="pfp-empty">' +
+    if (!_nativePortfolioTable) tbody.innerHTML = '<tr class="pf-empty-state"><td colspan="10" class="pfp-empty">' +
       '<div class="pfp-empty-title">포트폴리오가 비어 있습니다</div>' +
       '<div>종목을 추가하면 변동성·섹터 쏠림·시장 국면과의 연결이 여기에 나타납니다.</div>' +
       '<button class="aio-btn-table primary pfp-add" data-action="_aioTogglePortfolioEntry">첫 종목 추가</button>' +
@@ -784,6 +784,7 @@ function renderPortfolio() {
       <td headers="pf-th-price" class="pfp-cell" style="color:${priceColor};">${currentPrice == null ? '—' : _pfLegacyMoney(currentPrice, _cur)}${liveTag}</td>
       <td headers="pf-th-pnl" class="pfp-cell is-bold" style="color:${pnlColor};">${pnl == null ? '—' : pnlSign+_pfLegacyMoney(Math.abs(pnl), _cur, 0)}</td>
       <td headers="pf-th-pct" class="pfp-cell is-bold" style="color:${pnlColor};">${pnlPct == null ? '—' : pnlSign+pnlPct.toFixed(1)+'%'}</td>
+      <td headers="pf-th-day" class="pfp-cell">—</td>
       <td headers="pf-th-target" class="pfp-cell">${p.target && p.target > 0 ? (currentPrice != null ? (function(){ var upside = ((p.target - currentPrice)/currentPrice*100); var uColor = upside >= 0 ? 'var(--green)' : 'var(--red)'; return _pfLegacyMoney(p.target, _cur, 0)+'<div class="pfp-upside" style="color:'+uColor+';">'+(upside>=0?'+':'')+upside.toFixed(1)+'%</div>'; })() : _pfLegacyMoney(p.target, _cur, 0)+'<div class="wsl-sub">상승여력 대기</div>') : '<span class="wsl-sub">미설정</span>'}</td>
       <td headers="pf-th-weight" class="pfp-cell is-bold is-sans" id="pf-weight-${_eTk}">—</td>
       <td headers="pf-th-manage" class="pfp-manage">

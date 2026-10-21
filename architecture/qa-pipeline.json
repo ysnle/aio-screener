@@ -819,6 +819,10 @@
           "script": "scripts/ci-kr-investor-flows-fixture.mjs"
         },
         {
+          "id": "13f-figi-ticker-fixture",
+          "script": "scripts/ci-13f-figi-ticker-fixture.mjs"
+        },
+        {
           "id": "regime-scenarios-fixture",
           "script": "scripts/ci-regime-scenarios-fixture.mjs"
         },
@@ -1416,7 +1420,9 @@
             "src/app/routes.js",
             "src/app/vertical-slices.js",
             "src/app/bootstrap.js",
-            "public-data/telegram-digest.json"
+            "public-data/telegram-digest.json",
+            "public-data/us-listings.json",
+            "public-data/screener-universe.json"
           ]
         },
         {
@@ -3009,6 +3015,16 @@
     {
       "patterns": [
         "src/ui/navigation/route-hubs.js"
+      ],
+      "groups": [],
+      "gates": [
+        "atlas-contract"
+      ]
+    },
+    {
+      "patterns": [
+        "public-data/us-listings.json",
+        "public-data/screener-universe.json"
       ],
       "groups": [],
       "gates": [

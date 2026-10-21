@@ -13,34 +13,28 @@
 .scr-ranking-method p { padding:8px 0; }
 #screener-results-table td { vertical-align:middle; }
 #screener-results-table [data-aio-screener-ticker] { overflow-wrap:anywhere; }
-/* v57.79 review: at phone width the results table showed only the actions, percentile and symbol; price and date were
-   cut off. Under 600px each row becomes a card — symbol and name with price and date on the first line, the 관심·비교
-   actions and the remaining values as labelled chips below. The header stays as a sideways-scrolling sort bar. Desktop unchanged. */
-@media (max-width: 599px) {
-  #screener-results-table { min-width: 0 !important; display: block; }
-  #screener-results-table > thead, #screener-results-table > tbody { display: block; }
-  #screener-results-table > thead > tr:not(.scr-registry-header) { display: none; }
-  #screener-results-table .scr-registry-header { display: flex; flex-wrap: nowrap; overflow-x: auto; border-bottom: 1px solid var(--border); scrollbar-width: thin; }
-  #screener-results-table .scr-registry-header > th { display: block; flex: 0 0 auto; min-width: 0 !important; padding: 0 2px !important; position: static; box-shadow: none; background: transparent; }
-  #screener-results-table .scr-registry-header > th:not(:has(.scr-sort-btn)) { align-self: center; padding: 0 8px !important; font-size: 12px; color: var(--text-muted); white-space: nowrap; }
-  #screener-results-table > tbody > tr { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px 14px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
-  #screener-results-table > tbody > tr > td { display: block; flex: 0 0 auto; min-width: 0 !important; padding: 0 !important; text-align: left !important; position: static; box-shadow: none; background: transparent; border: 0; order: 3; font-size: 12px; }
-  #screener-results-table > tbody > tr > td::before { content: attr(data-label); display: block; font-size: 12px; /* v57.81: 11px floor */ font-family: var(--font-sans, inherit); color: var(--text-muted); line-height: 1.4; }
-  #screener-results-table > tbody > tr > td[data-column-key="sym"] { order: 0; flex: 1 0 calc(100% - 128px); }
-  #screener-results-table > tbody > tr > td[data-column-key="price"] { order: 1; flex: 0 0 114px; text-align: right !important; }
-  #screener-results-table > tbody > tr > td:is([data-column-key="sym"], [data-column-key="price"], [data-column-key="watchlist"])::before,
-  #screener-results-table > tbody > tr > td:not([data-label])::before { content: none; }
-  #screener-results-table > tbody > tr > td[data-column-key="news"], #screener-results-table > tbody > tr > td[colspan] { flex: 1 1 100%; }
-  /* v57.91 (phone audit): the 후속 확인 summary is a sentence — on one nowrap line it ran past the card (table 405px in a
-     349px frame). It takes the card's full width and wraps; so do the VCP/setup words beside it. */
-  #screener-results-table > tbody > tr > td:is([data-column-key="followThrough"], [data-column-key="vcpScore"], [data-column-key="entry"]) { flex: 1 1 100%; white-space: normal; overflow-wrap: anywhere; }
-  #screener-results-table > tbody > tr > td[data-column-key="watchlist"] { order: 2; align-self: center; }
-  /* UI review 2026-10-18: each card stands alone, so it keeps its own close date; the sort bar names itself and drops
-     the column names it cannot sort by (they read as a cut-off table header). */
-  #screener-results-table .scr-close-note[hidden] { display: block !important; }
-  #screener-results-table .scr-registry-header .scr-head-note { display: none !important; }
-  #screener-results-table .scr-registry-header > th:not(:has(.scr-sort-btn)) { display: none; }
-  #screener-results-table .scr-registry-header::before { content: "정렬"; flex: 0 0 auto; align-self: center; padding: 0 8px 0 2px; font-size: 12px; color: var(--text-muted); }
+/* v58.56 (4b, user-first): the v57.79 phone card (~180px per row: ☆ · + · 전체 순위 · 1M · 3M · 52-week bar · 백분위) showed
+   five stocks per screen. At ≤743px the default view is one line per stock — 시총 순서 · 종목(이름 아래) · 1개월 · 백분위 —
+   under a slim sortable header; a tap opens the bottom sheet with everything else (가격, 3개월, 52주 위치, 전체 순위, 관심·비교).
+   Another column preset keeps every column and scrolls sideways inside the table frame. */
+@media (max-width: 743px) {
+  #page-screener #screener-results-table { min-width: 0 !important; }
+  #page-screener #screener-results-table[data-column-preset="overview"] { width: 100%; table-layout: auto; }
+  #page-screener #screener-results-table[data-column-preset="overview"] :is(th, td)[data-column-key]:not([data-column-key="capOrder"], [data-column-key="sym"], [data-column-key="ret1m"], [data-column-key="rank"]) { display: none; }
+  #page-screener #screener-results-table[data-column-preset="overview"] :is(th, td)[data-column-key] { min-width: 0 !important; }
+  #page-screener #screener-results-table[data-column-preset="overview"] td.scr-column-cell { padding: 8px 6px !important; vertical-align: middle; }
+  #page-screener #screener-results-table[data-column-preset="overview"] th.scr-column-header { padding: 0 4px !important; }
+  #page-screener #screener-results-table[data-column-preset="overview"] .scr-sort-btn { min-height: 32px; padding: 4px 2px; font-size: 12px; }
+  #page-screener #screener-results-table[data-column-preset="overview"] :is(th, td)[data-column-key="capOrder"] { width: 30px; text-align: left !important; }
+  #page-screener #screener-results-table[data-column-preset="overview"] td[data-column-key="capOrder"] { font-size: 13px; }
+  #page-screener #screener-results-table[data-column-preset="overview"] td[data-column-key="sym"] > div { display: flex; flex-direction: column; align-items: flex-start; gap: 0; min-width: 0; line-height: 1.3; }
+  #page-screener #screener-results-table[data-column-preset="overview"] td[data-column-key="sym"] .scr-sym-name { max-width: 46vw; font-size: 12px; line-height: 1.3; }
+  #page-screener #screener-results-table[data-column-preset="overview"] td[data-column-key="sym"] .scr-sym-code { font-size: 15px; line-height: 1.3; }
+  #page-screener #screener-results-table[data-column-preset="overview"] :is(th, td)[data-column-key="ret1m"] { width: 68px; text-align: right !important; }
+  #page-screener #screener-results-table[data-column-preset="overview"] :is(th, td)[data-column-key="rank"] { width: 48px; text-align: right !important; }
+  #page-screener #screener-results-table[data-column-preset="overview"] td[data-column-key="rank"] .scr-rank-value { font-size: 16px; }
+  #page-screener #screener-results-table[data-column-preset="overview"] td[data-column-key="rank"] .scr-rank-unranked { white-space: normal; font-size: 12px; }
+  #page-screener #screener-results-table td.scr-empty-cell { white-space: normal; }
 }
 @media (max-width: 599px) {
   .scr-reading-grid { grid-template-columns: 1fr !important; gap: 24px !important; }

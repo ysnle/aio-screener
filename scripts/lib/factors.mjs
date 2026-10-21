@@ -178,6 +178,10 @@ export function backtestFactors(stockData, opts) {
   var icByDate = {};
   IC_FACTORS.forEach(function(k){ icS[k]=0; icN[k]=0; icByDate[k]=[]; });
   var spreadSum = 0, spreadNetSum = 0, costSum = 0, spreadN = 0, hit = 0, netHit = 0, hitN = 0;
+  // v58.56 (#6): the per-rebalance values behind the averaged spread, so 사후 검증 can draw one top-minus-bottom bar per
+  // date instead of only the mean. Every array below has one entry per date in spreadDates (same order).
+  var spreadDates = [], spreadByDate = [], spreadNetByDate = [], topMeanByDate = [], bottomMeanByDate = [], costByDate = [];
+  var icCompositeDates = [];
   var turnoverValues = [], liquidityCoverageValues = [], liquidityObservedRows = 0, liquidityEligibleRows = 0;
   var previousPositions = null;
   var adjustedCloseEligible = dateReadyRecords.filter(function(record){ return _hasCompleteAdjustedSeries(record.stock, record.dates.length); }).length;
@@ -271,7 +275,7 @@ export function backtestFactors(stockData, opts) {
       r.comp = r.sym && liveRank.has(String(r.sym).toUpperCase()) ? liveRank.get(String(r.sym).toUpperCase()) : null;
     });
     var icC = _spearman(rows.map(function(r){ return r.comp; }), rows.map(function(r){ return r.fwd; }));
-    if (isNum(icC)) { icS.composite += icC; icN.composite++; icByDate.composite.push(icC); }
+    if (isNum(icC)) { icS.composite += icC; icN.composite++; icByDate.composite.push(icC); icCompositeDates.push(rebalanceDate); }
     // 상하위 20% 분위 스프레드 & 방향 적중률. Rows without any observed
     // composite are excluded from portfolio construction; they cannot become
     // a hidden neutral holding through rank01's display fallback.
@@ -307,6 +311,12 @@ export function backtestFactors(stockData, opts) {
       spreadNetSum += netSpread;
       costSum += cost;
       spreadN++;
+      spreadDates.push(rebalanceDate);
+      spreadByDate.push(round(grossSpread * 100, 2));
+      spreadNetByDate.push(round(netSpread * 100, 2));
+      topMeanByDate.push(round(topM * 100, 2));
+      bottomMeanByDate.push(round(botM * 100, 2));
+      costByDate.push(round(cost * 100, 3));
       turnoverValues.push(turnover);
       hitN++;
       if (grossSpread > 0) hit++;
@@ -380,6 +390,14 @@ export function backtestFactors(stockData, opts) {
     icByDate: icByDate,
     quantileSpread: spreadN ? round(spreadSum / spreadN * 100, 2) : null,
     quantileSpreadNet: spreadN ? round(spreadNetSum / spreadN * 100, 2) : null,
+    // v58.56 (#6): per-date arrays aligned with spreadDates (percent; net = gross − modelled cost on that date's turnover).
+    spreadDates: spreadDates,
+    quantileSpreadByDate: spreadByDate,
+    quantileSpreadNetByDate: spreadNetByDate,
+    topQuintileMeanByDate: topMeanByDate,
+    bottomQuintileMeanByDate: bottomMeanByDate,
+    transactionCostByDate: costByDate,
+    icCompositeDates: icCompositeDates,
     transactionCostPct: spreadN ? round(costSum / spreadN * 100, 3) : null,
     hitRate: hitN ? round(hit / hitN * 100, 1) : null,
     netHitRate: hitN ? round(netHit / hitN * 100, 1) : null,

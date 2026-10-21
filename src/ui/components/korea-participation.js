@@ -123,31 +123,35 @@ export function renderKrInvestorFlows({ documentRef: doc, root, before = null, n
   if (host.dataset.krFlowsKey === key) return view;
   host.dataset.krFlowsKey = key;
   const head = el(doc, 'div', null, 'kr-flows-head');
-  const title = el(doc, 'h3', '투자자별 순매수');
+  // v58.56 (re-audit #15): plain words for the reader — what is shown (외국인 순매수), who publishes it (한국은행), and
+  // why 개인·기관 are absent (no public source) — instead of pipeline terms (ECOS, 수집 주기, 출처 항목).
+  const foreignOnly = view.state !== 'ok' || (view.missing.includes('개인') && view.missing.includes('기관'));
+  const title = el(doc, 'h3', foreignOnly ? '외국인 순매수' : '투자자별 순매수');
   title.id = 'regime-kr-flows-title';
   head.append(title);
   if (view.state !== 'ok') {
     host.removeAttribute('data-observed-at');
-    const text = view.state === 'loading' ? '투자자별 순매수를 불러오는 중입니다.'
-      : view.state === 'pending' ? '아직 수집되지 않았습니다. 한국은행 경제통계시스템(ECOS)의 코스피·코스닥 투자자별 순매수가 자료 갱신(6시간 주기)에 연결되면 이 자리에 날짜와 함께 표시됩니다.'
-      : view.reason === 'fetch-failed' ? '투자자별 순매수 자료를 불러오지 못했습니다. 잠시 뒤 다시 시도하며, 숫자를 대신 채우지 않습니다.'
-      : `이번 수집에서 출처(${view.source || '한국은행 ECOS'})의 투자자별 순매수 항목을 찾지 못했습니다. 숫자를 대신 채우지 않습니다.`;
+    const text = view.state === 'loading' ? '외국인 순매수를 불러오는 중입니다.'
+      : view.state === 'pending' ? '코스피·코스닥 외국인 순매수(한국은행 발표)가 들어오면 날짜와 함께 여기에 보여 드립니다. 개인·기관은 공개 출처가 없어 표시하지 않습니다.'
+      : view.reason === 'fetch-failed' ? '외국인 순매수를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다.'
+      : '이번에는 한국은행 자료에서 외국인 순매수를 찾지 못해 비워 둡니다.';
     host.replaceChildren(head, el(doc, 'p', text, 'kr-flows-empty'));
     return view;
   }
   const latest = view.markets.map((m) => m.date).sort().at(-1);
-  head.append(el(doc, 'span', `${shortDate(latest)} 한국 종가 · 한국은행 ECOS`, 'basis-chip'));
+  head.append(el(doc, 'span', `${shortDate(latest)} · 한국은행`, 'basis-chip'));
   host.setAttribute('data-observed-at', latest);
   host.setAttribute('data-source-kind', 'official-statistics');
   const grid = el(doc, 'div', null, 'kr-flows-grid');
   grid.append(...view.markets.map((market) => flowMarket(doc, market)));
   const nodes = [head, grid];
-  if (view.missing.length) nodes.push(el(doc, 'p', `${view.missing.join('·')} 순매수는 출처(한국은행 ECOS)가 게시하지 않아 비워 둡니다. ${KR_FLOW_SOURCE_NOTE}`, 'kr-flows-note'));
+  if (view.missing.length) nodes.push(el(doc, 'p', `${view.missing.join('·')}은 공개 출처 없음`, 'kr-flows-note'));
   const basis = el(doc, 'details', null, 'kr-flows-basis');
   basis.append(el(doc, 'summary', '읽는 법과 출처'),
     el(doc, 'p', '순매수는 그날 산 금액에서 판 금액을 뺀 값입니다. +는 순매수(빨강), −는 순매도(파랑)이며, 막대 길이는 같은 시장의 최근 20거래일 가운데 가장 큰 하루와 비교한 크기입니다.'),
     el(doc, 'p', '한국 증시는 외국인 보유 비중이 높아 원화가 약할 때 외국인 순매도가 지수 하락과 함께 나타나는 일이 잦습니다. 하루 수급은 다음 날 방향을 말해 주지 않습니다.'),
-    el(doc, 'p', `출처: ${view.source} · 한국거래소 집계를 한국은행이 게시한 값 · 단위 억 원.`));
+    el(doc, 'p', `출처: ${view.source} · 한국거래소 집계를 한국은행이 게시한 값 · 단위 억 원.`),
+    ...(view.missing.length ? [el(doc, 'p', `${view.missing.join('·')} 순매수가 없는 이유: ${KR_FLOW_SOURCE_NOTE}`)] : []));
   nodes.push(basis);
   host.replaceChildren(...nodes);
   return view;

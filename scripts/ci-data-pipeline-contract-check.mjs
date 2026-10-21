@@ -1487,6 +1487,23 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('Treasury curve parser selects the latest complete dated row and derives only a same-date spread', ok, detail);
 }
 {
+  // v58.56 (re-audit #9): the same XML entry's 1개월·3개월·6개월·1년·3년·7년 ride along on the official cut; a blank one is
+  // absent (never filled), and only the five core tenors decide whether a row is complete.
+  let ok = false;
+  let detail = '';
+  try {
+    const { parseTreasuryYieldCurveXml } = await import('./fetch-data.mjs');
+    const tag = (name, value) => `<d:${name} m:type="Edm.Double">${value}</d:${name}>`;
+    const entry = (date, extra) => `<entry><content><m:properties><d:NEW_DATE m:type="Edm.DateTime">${date}T00:00:00</d:NEW_DATE>${tag('BC_1MONTH', extra)}<d:BC_6MONTH m:type="Edm.Double"></d:BC_6MONTH>${tag('BC_3MONTH', 4.31)}${tag('BC_1YEAR', 4.05)}${tag('BC_2YEAR', 4.2)}${tag('BC_3YEAR', 4.22)}${tag('BC_5YEAR', 4.38)}${tag('BC_7YEAR', 4.5)}${tag('BC_10YEAR', 4.68)}${tag('BC_20YEAR', 5.24)}${tag('BC_30YEAR', 5.24)}</m:properties></content></entry>`;
+    const curve = parseTreasuryYieldCurveXml(`<feed>${entry('2026-08-11', 4.4)}${entry('2026-08-12', 4.41)}</feed>`, '2026-08-13T00:00:00.000Z');
+    const v = curve?.values || {};
+    ok = curve?.observedAt === '2026-08-12' && v.dgs1mo === 4.41 && v.dgs3mo === 4.31 && v.dgs1 === 4.05 && v.dgs3 === 4.22 && v.dgs7 === 4.5 && !('dgs6mo' in v)
+      && v.dgs2 === 4.2 && v.t10y2y === 0.48 && curve.series[1].values.dgs1mo === 4.4;
+    detail = JSON.stringify(v);
+  } catch (error) { detail = error.message; }
+  check('v58.56 Treasury curve parser carries the short and middle tenors of the same official cut', ok, detail);
+}
+{
   let ok = false;
   let detail = '';
   try {
@@ -1650,7 +1667,15 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && missingAdjusted.adjustedCloseStatus === 'partial'
       && noDates.status === 'BLOCKED'
       && noDates.readiness?.status === 'BLOCKED'
-      && noDates.blockingReason === 'rebalance-calendar-required';
+      && noDates.blockingReason === 'rebalance-calendar-required'
+      // v58.56 (#6): per-date spread arrays line up with spreadDates, average back to the means, and top − bottom = gross.
+      && Array.isArray(aligned.spreadDates) && aligned.spreadDates.length === aligned.rebalancesCounted
+      && ['quantileSpreadByDate', 'quantileSpreadNetByDate', 'topQuintileMeanByDate', 'bottomQuintileMeanByDate', 'transactionCostByDate'].every((key) => Array.isArray(aligned[key]) && aligned[key].length === aligned.spreadDates.length && aligned[key].every(Number.isFinite))
+      && aligned.spreadDates.every((date) => aligned.rebalanceDates.includes(date))
+      && Math.abs(aligned.quantileSpreadNetByDate.reduce((sum, value) => sum + value, 0) / aligned.spreadDates.length - aligned.quantileSpreadNet) <= 0.01
+      && aligned.quantileSpreadByDate.every((value, index) => Math.abs(aligned.topQuintileMeanByDate[index] - aligned.bottomQuintileMeanByDate[index] - value) <= 0.02)
+      && aligned.icCompositeDates.length === aligned.icByDate.composite.length
+      && Array.isArray(noDates.spreadDates) && noDates.spreadDates.length === 0;
     detail = JSON.stringify({ aligned: { status: aligned.status, dateAlignment: aligned.dateAlignment, rebalanceDates: aligned.rebalanceDates }, missingAdjusted: { status: missingAdjusted.status, adjustedCloseStatus: missingAdjusted.adjustedCloseStatus, adjustedCloseExcluded: missingAdjusted.adjustedCloseExcluded }, noDates: { status: noDates.status, blockingReason: noDates.blockingReason } });
   } catch (error) { detail = error.message; }
   check('factor backtest aligns cross-sections by common dates and fails closed without dates', ok, detail.slice(0, 1400));

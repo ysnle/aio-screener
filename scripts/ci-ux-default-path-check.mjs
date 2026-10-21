@@ -46,9 +46,12 @@ check(
   !/id="rally-quality-verdict"/.test(html) /* P1395: removed with the breadth rebuild */ || /id="rally-quality-verdict"[^>]*style="display:none;"[^>]*aria-hidden="true"/.test(html)
 );
 const operatorNoteIndex = html.indexOf('id="home-operator-note"');
-const staleWarningIndex = html.indexOf('id="snapshot-stale-warning"');
+const homeHeadIndex = html.indexOf('id="home-date-label"');
+const homeHeroIndex = html.indexOf('id="home-score-hero"');
 check('home operator note placeholder must exist exactly once', (html.match(/id="home-operator-note"/g) || []).length === 1);
-check('home operator note must be before the home header/status flow', operatorNoteIndex >= 0 && staleWarningIndex >= 0 && operatorNoteIndex < staleWarningIndex);
+// v58.56 (re-audit #5): the note sat above the page head, so 오늘 opened with an unlabeled sentence before the date and
+// title. It now follows the page head and precedes the verdict hero.
+check('v58.56 home operator note sits after the page head and before the verdict hero', operatorNoteIndex > homeHeadIndex && homeHeadIndex > 0 && operatorNoteIndex < homeHeroIndex);
 check('home operator note must use prominent first-screen styling', /aio-operator-note-title[\s\S]*font-size:18px/.test(html));
 // v57.76: the note is one dated sentence (v57.71); its body/tag/lead/more styles had no DOM producer and left the shell.
 check('v57.76 operator-note CSS carries no selector without a DOM producer', !/aio-operator-note-(?:body|tags?|lead|more)\b/.test(html)); // text-pin-ok: asserts removed CSS is absent

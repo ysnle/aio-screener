@@ -11,6 +11,7 @@ import { withTopicParticle } from '../../domain/content/korean-particle.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { MASTER_REGISTRY, displayActionOf, buildManagerRegistry, deriveCoverageSummary, formatReportedValue, formatCompactUsd, formatScale, formatPercent, summarizeLatestChange, formatValueDelta, formatDelta, formatQuarterLabel, formatIssuerName, isPartialAmendmentPeriod } from '../../domain/masters/holdings-format.js';
 export { displayActionOf, isPartialAmendmentPeriod } from '../../domain/masters/holdings-format.js'; // v57.60: same page exports as before
+import { EXACT_TICKER_RE, buildReferenceTickerMap, cleanIssuerName, normalizeCusip, resolveExactTicker } from '../../domain/masters/ticker-exact.js';
 
 const REVIEWED_AT = '2026-08-16';
 const FILINGS_URL = './public-data/masters/filings.json';
@@ -340,11 +341,53 @@ export function shareClassTag(title) {
   return letter ? `${letter.toUpperCase()}주` : null;
 }
 
-function issuerCell(documentRef, row) {
+// v58.56 (re-audit #4): rows named the security only by the filer's text ("BANK OF AMER CORP"), with no way to the
+// stock itself. A row gets a ticker chip that opens 종목 요약 only when its CUSIP maps to exactly one listed symbol —
+// `row.tickerExact` written by the runtime builder (reference crosswalk + OpenFIGI, scripts/collect-13f-figi-tickers.mjs),
+// or, until that build has run once, the exact entries of the reference crosswalk. Other rows keep the SEC name,
+// only made readable; nothing is matched by name.
+export function createSecurityLookup(holdings = null, referenceMaster = null) {
+  const reference = buildReferenceTickerMap(referenceMaster);
+  const builderMapped = Boolean(holdings?.tickerExactPolicy);
+  const referenceOf = (row) => reference.get(normalizeCusip(row?.cusipNormalized || row?.cusip));
+  const tickerOf = (row) => {
+    if (!row) return null;
+    if (row.tickerExact) return EXACT_TICKER_RE.test(String(row.tickerExact)) ? String(row.tickerExact) : null;
+    if (builderMapped) return null; // the builder already decided; a missing field means no exact match
+    return resolveExactTicker({ titleOfClass: row.titleOfClass, reference: referenceOf(row) });
+  };
+  const nameOf = (row) => {
+    const ticker = tickerOf(row);
+    const ref = referenceOf(row);
+    return ticker && ref?.ticker === ticker && ref.name ? ref.name : (cleanIssuerName(row?.issuer) || '—');
+  };
+  return { tickerOf, nameOf };
+}
+
+const PLAIN_LOOKUP = Object.freeze({ tickerOf: () => null, nameOf: (row) => cleanIssuerName(row?.issuer) || '—' });
+
+function tickerChip(documentRef, ticker) {
+  const chip = element(documentRef, 'button', 'sx-chip sx-chip--sm masters-ticker-chip', ticker);
+  chip.type = 'button';
+  chip.dataset.action = 'showTicker';
+  chip.dataset.arg = ticker;
+  chip.title = `${ticker} 종목 요약 열기`;
+  chip.setAttribute('aria-label', `${ticker} 종목 요약 열기`);
+  return chip;
+}
+
+function issuerCell(documentRef, row, lookup = PLAIN_LOOKUP) {
   const cusip = row.cusipNormalized || row.cusip || '';
   const tag = shareClassTag(row.titleOfClass);
-  const td = element(documentRef, 'td', '', `${row.issuer || '—'}${tag ? ` · ${tag}` : ''}`);
-  if (cusip) { td.title = `CUSIP(증권 코드) ${cusip}`; td.dataset.cusip = cusip; }
+  const name = lookup.nameOf(row);
+  const ticker = lookup.tickerOf(row);
+  const td = element(documentRef, 'td', 'masters-issuer-cell');
+  const label = element(documentRef, 'span', 'masters-issuer-name', `${name}${tag && !/\bclass\b/i.test(name) ? ` · ${tag}` : ''}`);
+  td.appendChild(label);
+  if (ticker) { td.appendChild(tickerChip(documentRef, ticker)); td.dataset.ticker = ticker; }
+  const filed = row.issuer && row.issuer !== name ? `SEC 신고 표기 ${row.issuer}` : '';
+  if (cusip || filed) td.title = [filed, cusip ? `CUSIP(증권 코드) ${cusip}` : ''].filter(Boolean).join(' · ');
+  if (cusip) td.dataset.cusip = cusip;
   return td;
 }
 
@@ -429,11 +472,11 @@ function createTable(documentRef, headers, rows, rowBuilder, className = 'master
   return table;
 }
 
-function createHoldingRow(documentRef, row, index, includeAction = true) {
+function createHoldingRow(documentRef, row, index, includeAction = true, lookup = PLAIN_LOOKUP) {
   const tr = element(documentRef, 'tr', '');
   const formatter = new Intl.NumberFormat('en-US');
   tr.appendChild(element(documentRef, 'td', '', String(row.rank || index + 1)));
-  tr.appendChild(issuerCell(documentRef, row));
+  tr.appendChild(issuerCell(documentRef, row, lookup));
   const values = [formatReportedValue(row.value), formatter.format(row.shares || 0)];
   if (includeAction) values.push(formatDelta(row.sharesDelta, formatter), formatValueDelta(row.valueDelta));
   values.push(row.putCall || '—');
@@ -447,14 +490,14 @@ function createHoldingRow(documentRef, row, index, includeAction = true) {
   return tr;
 }
 
-function createTopHoldingTable(documentRef, manager, holdingMeta, rows) {
+function createTopHoldingTable(documentRef, manager, holdingMeta, rows, lookup = PLAIN_LOOKUP) {
   const section = element(documentRef, 'section', 'masters-holdings-section');
   const heading = element(documentRef, 'div', 'masters-holdings-heading');
   heading.append(
     element(documentRef, 'h3', 'masters-holdings-title', '상위 보고 보유 종목 · 증권·주식 유형·옵션별 집계'),
     element(documentRef, 'p', 'masters-holdings-meta', `${holdingMeta?.verification?.reportPeriod || '보고분기 확인 필요'} · 상위 ${rows.length}개 · 전체 신고 행 ${holdingMeta?.verification?.fullRowCount || '—'}개`)
   );
-  const table = createTable(documentRef, ['가치 순위', '발행사', '신고 가치', '주식 수', '수량 변화', '가치 변화', '옵션', '변화 분류'], rows, (row, index) => createHoldingRow(documentRef, row, index, true));
+  const table = createTable(documentRef, ['가치 순위', '발행사', '신고 가치', '주식 수', '수량 변화', '가치 변화', '옵션', '변화 분류'], rows, (row, index) => createHoldingRow(documentRef, row, index, true, lookup));
   table.setAttribute('aria-label', `${manager.name} reported top holdings`);
   section.append(heading, table);
   return section;
@@ -494,7 +537,7 @@ function createChangeLedger(documentRef, comparisonRows, state) {
     const tr = element(documentRef, 'tr', '');
     const formatter = new Intl.NumberFormat('en-US');
     tr.appendChild(element(documentRef, 'td', '', String(start + index + 1)));
-    tr.appendChild(issuerCell(documentRef, row));
+    tr.appendChild(issuerCell(documentRef, row, state.securityLookup || PLAIN_LOOKUP));
     [formatReportedValue(row.value), formatter.format(row.shares || 0), formatDelta(row.sharesDelta, formatter), formatValueDelta(row.valueDelta)].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
     const shown = displayActionOf(row);
     tr.appendChild(element(documentRef, 'td', `masters-action masters-action-${String(shown).toLowerCase().replace(/_/g, '-')}`, `${ACTION_LABELS[shown] || shown || '비교 불가'}`));
@@ -516,17 +559,18 @@ function createFullHoldingsView(documentRef, fullRows, state, descriptor = null)
   const controls = element(documentRef, 'div', 'masters-holdings-controls');
   const search = element(documentRef, 'input', 'masters-holdings-search');
   search.type = 'search';
-  search.placeholder = '발행사·CUSIP 검색';
+  search.placeholder = '회사명·티커·CUSIP 검색';
   search.value = state.holdingsQuery;
   search.setAttribute('aria-label', '불러온 보유 행 검색');
   search.dataset.mastersAction = 'holdings-search';
   controls.appendChild(search);
-  const filtered = fullRows.filter((row) => !state.holdingsQuery || [row.issuer, row.cusipNormalized, row.titleOfClass].join(' ').toLowerCase().includes(state.holdingsQuery));
+  const lookup = state.securityLookup || PLAIN_LOOKUP;
+  const filtered = fullRows.filter((row) => !state.holdingsQuery || [row.issuer, lookup.nameOf(row), lookup.tickerOf(row), row.cusipNormalized, row.titleOfClass].join(' ').toLowerCase().includes(state.holdingsQuery));
   const pageCount = Math.max(1, Math.ceil(filtered.length / state.pageSize));
   state.page = Math.min(state.page, pageCount);
   const start = (state.page - 1) * state.pageSize;
   const pageRows = filtered.slice(start, start + state.pageSize);
-  const table = createTable(documentRef, ['#', '발행사', '신고 가치', '주식 수', '옵션'], pageRows, (row, index) => createHoldingRow(documentRef, row, start + index, false), 'masters-full-holdings-table masters-holdings-table');
+  const table = createTable(documentRef, ['#', '발행사', '신고 가치', '주식 수', '옵션'], pageRows, (row, index) => createHoldingRow(documentRef, row, start + index, false, state.securityLookup || PLAIN_LOOKUP), 'masters-full-holdings-table masters-holdings-table');
   section.append(heading, controls, table, createPagination(documentRef, state.page, pageCount, filtered.length));
   return section;
 }
@@ -817,7 +861,7 @@ function createPrinciplesView(documentRef, manager, principlesArtifact) {
   return section;
 }
 
-function createInvestorCompareView(documentRef, selectedIds, registry, holdingManagers, rowsByManager) {
+function createInvestorCompareView(documentRef, selectedIds, registry, holdingManagers, rowsByManager, lookup = PLAIN_LOOKUP) {
   const section = element(documentRef, 'section', 'masters-compare-view masters-holdings-section');
   section.append(
     element(documentRef, 'h3', 'masters-holdings-title', '2~4명 공개 신고 비교'),
@@ -877,7 +921,8 @@ function createInvestorCompareView(documentRef, selectedIds, registry, holdingMa
     const common = commonKeys.slice(0, 25).map((key) => ({ key, rows: rowMaps.map((map) => map.get(key)) }));
     section.appendChild(createTable(documentRef, ['발행사', 'CUSIP(증권 코드)', '함께 보유한 운용사 수', '보고 분기'], common, ({ rows }) => {
       const tr = element(documentRef, 'tr', '');
-      [rows[0]?.issuer || '—', rows[0]?.cusipNormalized || rows[0]?.cusip || '—', String(rows.length), [...new Set(rows.map((row) => row.reportPeriod).filter(Boolean))].join(' · ')].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
+      tr.appendChild(issuerCell(documentRef, rows[0] || {}, lookup));
+      [rows[0]?.cusipNormalized || rows[0]?.cusip || '—', String(rows.length), [...new Set(rows.map((row) => row.reportPeriod).filter(Boolean))].join(' · ')].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
       return tr;
     }));
   } else {
@@ -889,7 +934,7 @@ function createInvestorCompareView(documentRef, selectedIds, registry, holdingMa
 // 2026-10-14 audit: the card had numbers only. One visual — the top holdings' share of the quarter's reported
 // value, from the rows already loaded for the card (value / parsed total; the sum equals the published top-10
 // concentration). Withheld with the totals when the cover and rows disagree or the value scale is under review.
-function createTopWeightBars(documentRef, manager, holdingMeta, rows, withheld) {
+function createTopWeightBars(documentRef, manager, holdingMeta, rows, withheld, lookup = PLAIN_LOOKUP) {
   const verification = holdingMeta?.verification || {};
   const total = Number(verification.parsedValueTotal);
   const period = verification.reportPeriod || null;
@@ -900,7 +945,8 @@ function createTopWeightBars(documentRef, manager, holdingMeta, rows, withheld) 
   if (withheld || !(total > 0) || top.length < 2) return null;
   ensureFrameStyle(documentRef);
   ensureMastersExtraStyle(documentRef);
-  const baseLabel = (row) => `${row.issuer || row.cusipNormalized || '—'}${row.putCall ? ` ${row.putCall}` : ''}`;
+  // v58.56 (#4): the exact ticker leads the label (the part an ellipsis keeps), then the readable name.
+  const baseLabel = (row) => { const ticker = lookup.tickerOf(row); const name = row.issuer ? lookup.nameOf(row) : row.cusipNormalized || '—'; const tag = shareClassTag(row.titleOfClass); return `${ticker ? `${ticker} · ` : ''}${name}${tag && !/\bclass\b/i.test(name) ? ` · ${tag}` : ''}${row.putCall ? ` ${row.putCall}` : ''}`; };
   const repeated = new Set(top.map(baseLabel).filter((label, index, all) => all.indexOf(label) !== index));
   // Two share classes of one issuer (e.g. class A and C) are separate rows; name the class so they read apart.
   // v57.92: the full class title ("CAP STK CL A") was cut by the label ellipsis on a tablet, so both Alphabet rows read
@@ -973,6 +1019,20 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     chip.dataset.mastersQuarterEnd = quarterEnd;
     detail.querySelector('.masters-detail-filer')?.before(chip);
   }
+  // v58.56 (#4, design 5j): the manager's largest reported holdings as ticker chips that open 종목 요약 — exact
+  // CUSIP matches only, in reported-value order, options excluded. No chip row when none of the top rows has one.
+  const topTickers = [];
+  const topPeriod = holdingMeta?.verification?.reportPeriod || null;
+  [...compactRows].filter((row) => !row.putCall && (!topPeriod || row.reportPeriod === topPeriod))
+    .sort((a, b) => (Number(a.rank) || 0) - (Number(b.rank) || 0))
+    .forEach((row) => { const ticker = (state.securityLookup || PLAIN_LOOKUP).tickerOf(row); if (ticker && !topTickers.includes(ticker) && topTickers.length < 5) topTickers.push(ticker); });
+  if (topTickers.length) {
+    const chips = element(documentRef, 'div', 'sx-chips masters-top-tickers');
+    chips.dataset.mastersTopTickers = topTickers.join(',');
+    chips.appendChild(element(documentRef, 'span', 'masters-top-tickers-label', '상위 보유'));
+    topTickers.forEach((ticker) => chips.appendChild(tickerChip(documentRef, ticker)));
+    detail.querySelector('.masters-detail-filer')?.after(chips);
+  }
 
   const metrics = element(documentRef, 'div', 'masters-metric-grid');
   // Fail closed: when the SEC cover total and the parsed rows disagree, every reading built on reported-value
@@ -993,7 +1053,7 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     createMetric(documentRef, '전략 성격', manager.strategyProfile?.approach || manager.style || '—')
   );
   detail.append(metrics);
-  const weightBars = createTopWeightBars(documentRef, manager, holdingMeta, compactRows, valueMismatch);
+  const weightBars = createTopWeightBars(documentRef, manager, holdingMeta, compactRows, valueMismatch, state.securityLookup || PLAIN_LOOKUP);
   if (weightBars) detail.appendChild(weightBars);
   const reportPeriod = filingMeta?.latestFiling?.periodOfReport || holdingMeta?.verification?.reportPeriod || null;
   const reviewedAt = state?.holdings?.reviewedAt ? String(state.holdings.reviewedAt).slice(0, 10) : null;
@@ -1042,11 +1102,11 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   } else if (state.view === 'ownership') {
     detail.appendChild(createOwnershipEvents(documentRef, manager, ownershipDiscovery) || element(documentRef, 'div', 'masters-empty-state', '5% 이상 대량 보유(13D/G) 기록은 아직 제공하지 않습니다. SEC 수시 공시 정규화가 끝나면 이 탭에 표시합니다.'));
   } else if (state.view === 'compare') {
-    detail.appendChild(createInvestorCompareView(documentRef, state.compareIds, registry, holdingManagers, rowsByManager));
+    detail.appendChild(createInvestorCompareView(documentRef, state.compareIds, registry, holdingManagers, rowsByManager, state.securityLookup || PLAIN_LOOKUP));
   } else if (state.view === 'changes') {
     const summary = createChangeSummary(documentRef, holdingMeta?.verification, comparisonRows);
     if (summary) detail.appendChild(summary);
-    if (compactRows.length && !comparisonRows.length) detail.appendChild(createTopHoldingTable(documentRef, manager, holdingMeta, compactRows));
+    if (compactRows.length && !comparisonRows.length) detail.appendChild(createTopHoldingTable(documentRef, manager, holdingMeta, compactRows, state.securityLookup || PLAIN_LOOKUP));
     if (comparisonRows.length) {
       const expected = Number(holdingMeta?.verification?.comparisonRowCount) || null;
       // P1444 (review 2026-10-04): the ledger first shows the embedded preview (the full manager shard is
@@ -1183,6 +1243,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
        const render = () => {
          if (!isAlive()) return;
          const registry = buildManagerRegistry(state.catalog);
+         state.securityLookup = createSecurityLookup(state.holdings, state.referenceMaster);
          // P1325: a late artifact load re-renders the page; keep the field the user is typing in.
          const activeField = documentRef.activeElement;
          const focusSelector = activeField && activeField.tagName === 'INPUT' && page.contains(activeField)
@@ -1276,7 +1337,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         const loadNotices = [];
         if (state.filingsError) loadNotices.push(element(documentRef, 'div', 'masters-empty-state', 'SEC 공시 메타데이터를 불러오지 못했습니다. 기관 소개는 계속 볼 수 있습니다.'));
         if (state.holdingsError) loadNotices.push(element(documentRef, 'div', 'masters-empty-state', 'SEC 보유 행을 불러오지 못했습니다. 공시 메타데이터는 계속 볼 수 있습니다.'));
-         if (state.securityMasterError || state.referenceMasterError) loadNotices.push(element(documentRef, 'div', 'masters-empty-state', '종목 분류 원장을 불러오지 못해 섹터를 임의로 추정하지 않습니다.'));
+         if (state.securityMasterError || state.referenceMasterError) loadNotices.push(element(documentRef, 'div', 'masters-empty-state', '종목 분류 원장을 불러오지 못해 섹터·티커를 추정하지 않고 공시 이름만 표시합니다.'));
           if (state.historyError || state.historyRowsError) loadNotices.push(element(documentRef, 'div', 'masters-empty-state', 'SEC 과거 공시 행을 불러오지 못했습니다. 현재·직전 분기 행과 공시 메타데이터는 계속 볼 수 있습니다.'));
           if (state.issuerAggregatesError) loadNotices.push(element(documentRef, 'div', 'masters-empty-state', '종목별 과거 합산 자료를 불러오지 못했습니다. 원본 현재·직전 분기 행은 계속 볼 수 있습니다.'));
          if (state.previewsError) loadNotices.push(element(documentRef, 'div', 'masters-empty-state', '공시 행 미리보기를 불러오지 못했습니다. 전체 행 요청과 메타데이터는 계속 사용할 수 있습니다.'));
@@ -1495,6 +1556,9 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         queueMicrotask(() => page.querySelector('.masters-ticker-lookup')?.scrollIntoView?.({ block: 'start', behavior: 'auto' }));
       }
        if (typeof fetchFn === 'function') {
+          // v58.56 (#4): the reference crosswalk (29 KB) loads with the page so holdings rows show exact ticker chips
+          // from the first render; before this it loaded only for the sector view.
+          loadOptionalArtifact('referenceMaster', SECURITY_MASTER_REFERENCE_URL);
           const entries = [['holdings', HOLDINGS_URL], ['catalog', MANAGER_CATALOG_URL]];
          Promise.allSettled(entries.map(([, url]) => loadJson(url))).then((results) => {
            if (!isAlive()) return;
