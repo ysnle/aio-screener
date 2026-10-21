@@ -205,6 +205,18 @@ if (referenceMaster.status !== 'REFERENCE_MAPPING_CONNECTED' || referenceMaster.
 const referenceTickerByCusip = new Map((referenceMaster.records || []).filter((record) => record.cusipNormalized && record.tickerReference).map((record) => [record.cusipNormalized, record]));
 const expectedReferenceTickerMatches = (holdings.allHoldings || []).filter((row) => referenceTickerByCusip.has(row.cusipNormalized || row.cusip)).length;
 if (tickerIndexReference.schema !== 'masters-13f-reference-ticker-index.v1' || tickerIndexReference.artifactRole !== 'REFERENCE_ONLY_TICKER_LOOKUP' || tickerIndexReference.sourceKind !== 'SEC_EDGAR_DERIVED_REFERENCE' || tickerIndexReference.status !== 'REFERENCE_ONLY' || tickerIndexReference.coverage?.sourceCurrentRows !== holdings.allHoldings.length || tickerIndexReference.coverage?.matchedCurrentRows !== expectedReferenceTickerMatches || tickerIndexReference.coverage?.unmappedCurrentRows !== holdings.allHoldings.length - expectedReferenceTickerMatches || tickerIndexReference.coverage?.verifiedTickerRows !== 0 || tickerIndexReference.coverage?.sectorWeightsPublished !== false || tickerIndexReference.records?.length !== tickerIndexReference.coverage?.referenceTickerCount || !tickerIndexReference.policy.includes('Absence') || !tickerIndexReference.boundary.includes('unverified')) fail('reference-only 13F ticker index boundary or coverage drifted');
+// v58.56 (re-audit #4): ticker chips come only from exact CUSIP matches. A published OpenFIGI cache keeps tickers only on
+// EXACT answers, and every `tickerExact` the runtime builder embeds is a plain symbol.
+{
+  const exactSymbol = /^[A-Z]{1,5}(?:-[A-Z]{1,2})?$/;
+  if (artifactExists('public-data/masters/cusip-ticker-map.json')) {
+    const figi = JSON.parse(read('public-data/masters/cusip-ticker-map.json'));
+    const bad = Object.entries(figi.entries || {}).filter(([cusip, entry]) => !/^[0-9A-Z]{9}$/.test(cusip) || (entry.s === 'EXACT' ? !exactSymbol.test(entry.t || '') : 't' in entry));
+    if (figi.schema !== 'masters-cusip-ticker-map.v1' || bad.length) fail(`OpenFIGI CUSIP map holds a non-exact ticker: ${JSON.stringify(bad.slice(0, 3))}`);
+  }
+  const badEmbedded = (runtimeHoldings.holdings || []).filter((row) => 'tickerExact' in row && !exactSymbol.test(row.tickerExact));
+  if (badEmbedded.length) fail(`runtime summary embeds a malformed tickerExact: ${JSON.stringify(badEmbedded.slice(0, 3))}`);
+}
 if (tickerIndexReference.records?.some((record) => !record.tickerReference || record.mappingStatus !== 'REFERENCE_ONLY' || !record.rows?.length || record.rows.some((row) => !row.managerId || !row.reportPeriod || !row.cusip || row.sourceUrl == null))) fail('reference-only 13F ticker index rows are incomplete');
 if (mastersIndex.tickerIndexArtifact !== 'public-data/masters/ticker-index-reference.json' || mastersIndex.tickerIndexStatus !== 'REFERENCE_ONLY' || mastersIndex.tickerIndexReferenceCount !== tickerIndexReference.records.length || mastersIndex.tickerIndexMatchedRows !== expectedReferenceTickerMatches) fail('masters index does not expose the reference-only 13F ticker index metadata');
 if (!core.includes('mappingStatus') || !core.includes('reference-rows-found') || !core.includes('reference-mapping-not-found') || !core.includes('tickerReference is not SEC-provided')) fail('13F chat reverse lookup lacks explicit reference-only/missing-mapping boundaries');

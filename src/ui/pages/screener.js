@@ -5,6 +5,7 @@ import { renderScreenerValidation, readValidationState, renderValidationHero } f
 import { buildPopulationRankingIdentity, liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
 import { measuredCandidateEntries, summarizeCandidateArchive } from '../../domain/screener/candidate-record.js';
 import { renderScreenLessons } from '../components/screen-lessons.js';
+import { compileScreenDefinition } from '../../domain/screener/screen-engine.js';
 import { measureFactorOverlap, overlapSentence } from '../../domain/screener/factor-overlap.js';
 
 // Row arrays from the store and the workbench are replaced, never edited in place, so one market's slice is cut once
@@ -109,7 +110,11 @@ const REGIME_DESCRIPTIONS = {
 // presets all read this registry. Keeping the user label next to the row key
 // prevents the old header/cell drift (for example, VCP under the wrong label).
 export const SCREENER_COLUMN_REGISTRY = Object.freeze([
-  { key: 'watchlist', label: '관심·비교', sortable: false, align: 'center', width: 96, group: 'utility' },
+  // v58.56 (#12): the row keeps the ☆ only — 비교 is one button in the inspector/sheet, where the stock is being read.
+  { key: 'watchlist', label: '관심', sortable: false, align: 'center', width: 48, group: 'utility' },
+  // v58.56 (#3): the first column of the default view numbers the rows by market cap (1 = largest of the rows shown). The
+  // default order is market cap (v57.55), so it reads 1, 2, 3…; 전체 순위 moved beside 백분위. Its header sorts by 시총.
+  { key: 'capOrder', label: '순서', headerLabel: '#', sortAs: 'mcap', hint: '지금 정렬 기준에서의 순서 — 기본 정렬(시총 큰 순)에서는 시가총액 순서(1 = 가장 큼), 누르면 시총 순으로 정렬합니다', sortable: true, align: 'left', width: 44, group: 'identity' },
   // 개편 v2 (3c): the ordinal among ranked rows (the same number the inspector and the stock summary quote).
   { key: 'screenRank', label: '전체 순위', hint: '같은 시장에서 순위가 매겨진 종목 사이의 순서 — 조건 화면과 표시 필터는 이 순서를 바꾸지 않습니다', sortable: true, align: 'left', width: 72, group: 'ranking' },
   // P1464: the value is a percentile among rows that pass the criteria — "점수 100" read as a perfect
@@ -155,7 +160,8 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
 // stays in the registry for the 전체/직접 고른 컬럼.
 const COLUMN_PRESETS = Object.freeze({
   // 개편 v2 (3c): the first screen — order, name, close, 1·3-month returns, 52-week position, percentile; 관심·비교 last.
-  overview: ['screenRank', 'sym', 'price', 'ret1m', 'ret3m', 'range52', 'rank', 'watchlist'],
+  // v58.56 (#3): 시총 순서 first (the default order), 전체 순위 beside 백분위.
+  overview: ['capOrder', 'sym', 'price', 'ret1m', 'ret3m', 'range52', 'screenRank', 'rank', 'watchlist'],
   discovery: ['watchlist', 'rank', 'sym', 'price', 'pctFrom52wHigh', 'ret1m', 'ret3m', 'rsi', 'extension', 'vcpScore', 'followThrough'],
   fundamentals: ['watchlist', 'rank', 'sym', 'value', 'quality', 'fwdPe', 'price', 'pctFrom52wHigh', 'ret3m', 'news'],
   trend: ['watchlist', 'rank', 'sym', 'momentum', 'trend', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'extension', 'kalman', 'vcpScore', 'followThrough', 'entry'],
@@ -163,6 +169,8 @@ const COLUMN_PRESETS = Object.freeze({
   events: ['watchlist', 'rank', 'sym', 'entry', 'vcpScore', 'followThrough', 'news'],
   all: SCREENER_COLUMN_REGISTRY.map((column) => column.key)
 });
+
+const PRESET_SHORT_LABELS = Object.freeze({ 'preset-balanced': '균형', 'preset-momentum': '모멘텀', 'preset-trend': '추세', 'preset-lowvol': '저변동', 'preset-quality': '퀄리티', 'preset-breakout-observation': '돌파' });
 
 const FILTER_LABELS = Object.freeze({
   'scr-market': '지수',
@@ -522,7 +530,7 @@ function createRankNode(documentRef, row, hold = null) {
   return wrap;
 }
 
-function createColumnContent(documentRef, row, key, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, compareSymbols, rankHold } = {}) {
+function createColumnContent(documentRef, row, key, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, compareSymbols, rankHold, capOrder } = {}) {
   const live = liveRow(row, readLiveData);
   row = live;
   const inWatchlist = (readWatchlist?.() || []).includes(row.sym);
@@ -537,19 +545,15 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     star.title = inWatchlist ? '워치리스트에서 제거' : '워치리스트에 추가';
     star.setAttribute('aria-label', `워치리스트 ${inWatchlist ? '제거' : '추가'} ${row.sym}`);
     star.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); onWatchlistToggle?.(row.sym); });
-    const compare = documentRef.createElement('button');
-    compare.type = 'button';
-    compare.className = `scr-compare-btn${compareSymbols?.has(row.sym) ? ' active' : ''}`;
-    compare.textContent = compareSymbols?.has(row.sym) ? '✓' : '+';
-    compare.title = compareSymbols?.has(row.sym) ? '비교 목록에서 빼기' : '비교 목록에 넣기';
-    // v57.81: a toggle names its state with aria-pressed; the label stays the same so focus returns to it after re-render.
-    compare.setAttribute('aria-label', `${row.sym} 비교 목록`);
-    compare.setAttribute('aria-pressed', compareSymbols?.has(row.sym) ? 'true' : 'false');
-    compare.setAttribute('aria-controls', 'scr-compare-tray');
-    compare.dataset.aioScreenerCompare = row.sym;
-    compare.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); onCompare?.(row); });
-    wrap.append(star, compare);
+    wrap.append(star);
     return wrap;
+  }
+  if (key === 'capOrder') {
+    const order = capOrder?.get(row.sym || row.symbol) ?? null;
+    const node = text(documentRef, order == null ? '—' : String(order));
+    node.className = 'scr-ordinal scr-cap-order';
+    if (order == null) node.title = '시가총액 자료가 없어 시총 순서에서 빠졌습니다(표 맨 아래).'; // only under the 시총 sort
+    return node;
   }
   if (key === 'rank') return createRankNode(documentRef, row, rankHold);
   if (key === 'screenRank') {
@@ -748,7 +752,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
   return row[key] ?? '—';
 }
 
-function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold } = {}) {
+function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold, capOrder } = {}) {
   const tr = documentRef.createElement('tr');
   const symbol = row.sym || row.symbol;
   tr.className = `aio-hover-row${selectedSymbols?.has(symbol) ? ' is-selected' : ''}`;
@@ -777,7 +781,7 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
       td.style.fontFamily = 'var(--font-mono)';
       td.style.fontVariantNumeric = 'tabular-nums';
     }
-    const content = createColumnContent(documentRef, row, column.key, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, compareSymbols, rankHold });
+    const content = createColumnContent(documentRef, row, column.key, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, compareSymbols, rankHold, capOrder });
     td.appendChild(content && content.nodeType ? content : text(documentRef, content));
     const fieldId = FIELD_BY_COLUMN.get(column.key);
     const field = fieldId && row.fieldReadiness?.fields?.[fieldId];
@@ -876,6 +880,29 @@ const FACTOR_EVIDENCE = Object.freeze({
 });
 
 // 개편 v2 (3c): the row's 1·3·6-month returns beside SPY's on the same close — one diverging scale, the gap on the right.
+// v58.56 (4b): the 52-week position in the inspector/sheet — the phone row shows only order, name, 1개월 and 백분위.
+function renderWhyRange(documentRef, row) {
+  const section = documentRef.getElementById('scr-why-range');
+  const host = documentRef.getElementById('scr-why-range-body');
+  if (!section || !host) return;
+  const position = range52Position(row);
+  section.hidden = position == null;
+  if (position == null) { host.replaceChildren(); return; }
+  const bar = documentRef.createElement('span');
+  bar.className = 'scr-range52 scr-why-range-bar';
+  bar.setAttribute('role', 'img');
+  bar.setAttribute('aria-label', `52주 저점과 고점 사이 ${Math.round(position * 100)}% 지점`);
+  const dot = documentRef.createElement('span');
+  dot.className = 'scr-range52-dot';
+  dot.style.left = `${(position * 100).toFixed(1)}%`;
+  bar.append(dot);
+  const legend = documentRef.createElement('div');
+  legend.className = 'scr-why-range-legend sx-meta';
+  const part = (value) => { const node = documentRef.createElement('span'); node.textContent = value; return node; };
+  legend.append(part(`저점 대비 ${returnText(row.pctFrom52wLow)}`), part(`${Math.round(position * 100)}% 지점`), part(`고점 대비 ${returnText(row.pctFrom52wHigh)}`));
+  host.replaceChildren(bar, legend);
+}
+
 function renderExcessBars(documentRef, row, benchmark) {
   const section = documentRef.getElementById('scr-why-excess');
   const host = documentRef.getElementById('scr-why-excess-bars');
@@ -957,7 +984,15 @@ function renderValidationState(documentRef, root, metadata, listingMarket) {
     link.dataset.aioScreenerAction = 'tab';
     link.dataset.aioScreenerArg = 'backtest';
     link.textContent = '검증 보기 ›';
-    banner.replaceChildren(chips, textNode, link);
+    // v58.56 (4b): the phone shows one line — the state words and what the ranking is — and the line itself opens 사후 검증.
+    const short = documentRef.createElement('button');
+    short.type = 'button';
+    short.className = 'scr-banner-short';
+    short.dataset.aioScreenerAction = 'tab';
+    short.dataset.aioScreenerArg = 'backtest';
+    short.textContent = `${read.chips.length ? `${read.chips.join(' · ')} — ` : ''}순위는 확인할 후보 목록 ›`;
+    short.title = read.sentence;
+    banner.replaceChildren(chips, textNode, link, short);
   }
   renderValidationHero({ documentRef, read });
   const compact = documentRef.getElementById('scr-backtest-summary-compact');
@@ -1383,14 +1418,17 @@ function renderTableHeader(documentRef, table, visibleColumns, sortState) {
     if (column.sortable) {
       const button = documentRef.createElement('button');
       button.type = 'button';
-      button.dataset.scrSort = column.key;
+      // v58.56: a column can sort by another key (시총 순서 → mcap) and show a short header ('#') while its name stays whole.
+      const sortKeyName = column.sortAs || column.key;
+      button.dataset.scrSort = sortKeyName;
       button.className = 'scr-sort-btn';
-      button.textContent = column.label;
+      button.textContent = column.headerLabel || column.label;
+      button.dataset.sortLabel = column.label;
       const arrow = documentRef.createElement('span');
       arrow.className = 'scr-arrow';
       arrow.setAttribute('aria-hidden', 'true');
       button.appendChild(arrow);
-      const active = sortState.column === column.key;
+      const active = sortState.column === sortKeyName;
       button.setAttribute('aria-label', active ? `${column.label} 정렬 ${sortState.ascending ? '오름차순' : '내림차순'}` : `${column.label}로 정렬`);
       if (hintId) button.setAttribute('aria-describedby', hintId);
       th.setAttribute('aria-sort', active ? (sortState.ascending ? 'ascending' : 'descending') : 'none');
@@ -1441,6 +1479,23 @@ function renderColumnChooser(documentRef, page, columnPreset, customColumns, onC
     chooser.hidden = true;
     chooser.dataset.aioInitialized = 'true';
   }
+}
+
+// v58.56 (4b): the phone's 필터 button names how many display filters are set ('실행 통과만' counts only when switched off).
+function syncFilterCount(documentRef) {
+  const badge = documentRef.getElementById('scr-filter-count');
+  if (!badge) return;
+  const active = Object.keys(FILTER_LABELS).filter((id) => {
+    const control = documentRef.getElementById(id);
+    if (!control) return false;
+    if (id === 'scr-passed-only') return !control.checked;
+    if (control.type === 'checkbox') return control.checked;
+    const value = String(control.value || '').trim();
+    return !!value && !(id === 'scr-min-rank' && value === '0');
+  }).length;
+  badge.hidden = !active;
+  badge.textContent = active ? ` ${active}` : '';
+  badge.closest('button')?.setAttribute('aria-label', active ? `필터 ${active}개 적용됨 — 필터 열기` : '필터 열기');
 }
 
 function renderFilterChips(documentRef) {
@@ -1634,11 +1689,11 @@ function filterAndSortRows(rows, documentRef, { readWatchlist, readAliases, sort
 // and watchlist marks, rank hold, live quote fields and (with the Forward PER column) estimate. A re-render that changes
 // nothing then leaves the table alone, so focus, hover and a click in flight are not lost to a rebuilt row.
 const tableRowCache = new WeakMap();
-function tableRowInputs(row, { readLiveData, readWatchlist, selectedSymbols, compareSymbols, visibleColumns, rankHold }, columnsKey) {
+function tableRowInputs(row, { readLiveData, readWatchlist, selectedSymbols, compareSymbols, visibleColumns, rankHold, capOrder }, columnsKey) {
   const symbol = row.sym || row.symbol;
   const live = readLiveData?.()?.[row.sym] || {};
   const inputs = [row, columnsKey, !!selectedSymbols?.has(symbol), !!compareSymbols?.has(row.sym), (readWatchlist?.() || []).includes(row.sym), rankHold ? `hold:${rankHold.reason}` : '',
-    live.currency, live.marketCapCurrency, live.price, live.marketCap, live.observedAt, live.ts, live.source, live.revision];
+    live.currency, live.marketCapCurrency, live.price, live.marketCap, live.observedAt, live.ts, live.source, live.revision, capOrder?.get(symbol) ?? null];
   if (visibleColumns.some((column) => column.key === 'fwdPe')) {
     const estimates = consensusRoot?.[CONSENSUS_KEY];
     inputs.push(estimates, consensusRowFor(consensusRoot, symbol), estimates?.coverage?.covered, estimates?.coverage?.universeUs);
@@ -1663,6 +1718,182 @@ function tableRowNodes(documentRef, body, rows, options) {
   });
   tableRowCache.set(body, { owner: cache.owner, bySymbol: next });
   return nodes;
+}
+
+// v58.56 (#3): the market-cap order of the rows the table holds (1 = largest). Rows without a cap get no number.
+function capOrderMap(rows, readLiveData) {
+  const order = new Map();
+  rows.map((row) => ({ symbol: row.sym || row.symbol, cap: capFilterValue(liveRow(row, readLiveData)) }))
+    .filter((entry) => entry.symbol && entry.cap != null)
+    .sort((left, right) => right.cap - left.cap)
+    .forEach((entry, index) => order.set(entry.symbol, index + 1));
+  return order;
+}
+
+// v58.56 (#3): AMZN·GOOGL·META were silently absent because they failed the chosen screen. The line above the table
+// names the screen, the count and the order, and lists the largest caps the screen left out with the condition each
+// failed (the row's own value against the threshold — no new numbers).
+const DROPPED_CAP_POOL = 20;
+function screenLeaves(node) {
+  if (!node || typeof node !== 'object') return [];
+  if (node.type === 'and' || node.type === 'or') return (node.children || []).flatMap(screenLeaves);
+  return node.type === 'not' ? [] : [node];
+}
+function screenFieldValue(row, field) {
+  if (field === 'rank' || field === 'score') return row?.[field] ?? null;
+  const rowKey = SCREENER_FIELD_REGISTRY.get(field)?.rowKey;
+  if (rowKey && row?.[rowKey] != null) return row[rowKey];
+  return row?.fieldReadiness?.fields?.[field]?.value ?? null;
+}
+function screenFieldLabel(field) {
+  return field === 'rank' ? '백분위' : FILTER_FIELD_LABELS.get(field) || field;
+}
+function failedConditionText(row, definition, compiled) {
+  if (row.screenStatus === 'unavailable') {
+    const missing = [...new Set((row.rankExplanation?.missingEvidence || []).map(screenFieldLabel))];
+    return missing.length ? `판단 자료 부족 — ${missing.slice(0, 3).join('·')}` : '판단 자료 부족';
+  }
+  const leaves = [...(definition?.hardGates || []), ...screenLeaves(definition?.filtersAST)];
+  const failed = compiled ? leaves.filter((node) => compiled.evaluateGate(row, node).state === 'fail') : [];
+  if (!failed.length) return '조건 미충족';
+  return failed.map((node) => {
+    const label = screenFieldLabel(node.field);
+    const value = screenFieldValue(row, node.field);
+    const unit = ({ percent: '%', ratio: '배', multiple: '배' })[SCREENER_FIELD_REGISTRY.get(node.field)?.unit] || '';
+    const word = (item) => (node.field === 'technical.vcpStage' ? vcpStageLabel(item) : item);
+    const shown = finite(value) != null ? `${numberText(value, Number.isInteger(value) ? 0 : 1)}${unit}` : value != null ? word(value) : '—';
+    if (node.type === 'enum') return `${label} ${shown} — 기준 ${(node.values || []).map(word).join('·')}`;
+    const bounds = [node.min != null ? `${node.min}${unit} 이상` : null, node.max != null ? `${node.max}${unit} 이하` : null].filter(Boolean).join(' · ');
+    return `${label} ${shown} — 기준 ${bounds || '범위'}`;
+  }).join(' / ');
+}
+function sortOrderText(sortState) {
+  const { column, ascending } = sortState || {};
+  if (column === 'mcap') return ascending ? '시총 작은 순' : '시총 큰 순';
+  if (column === 'screenRank') return '조건 순위 순';
+  if (column === 'sym' || column === 'sector') return `${column === 'sym' ? '종목' : '섹터'} 이름 순`;
+  const label = SCREENER_COLUMN_REGISTRY.find((item) => item.key === column)?.label || column;
+  return `${label} ${ascending ? '낮은 순' : '높은 순'}`;
+}
+let tableStatusCompiled = { definition: null, compiled: null };
+function renderTableStatus(documentRef, { status, scopeRows, filtered, definition, sortState, passedOnly, readLiveData, onExplain }) {
+  const host = documentRef.getElementById('scr-table-status');
+  if (!host) return;
+  if (status === 'unavailable' || !scopeRows.length) { host.hidden = true; return; }
+  host.hidden = false;
+  const passed = scopeRows.filter((row) => row.screenStatus === 'passed').length;
+  // The phone line uses the screen's one-word name (균형) so the line and its 빠진 대형주 link fit one row.
+  const leadFor = (name, conditionWord) => (passedOnly
+    ? `${name}${conditionWord} 통과 ${passed}종목${filtered.length !== passed ? ` 중 ${filtered.length}종목 표시` : ''}`
+    : `${name} 기준 ${scopeRows.length}종목 전체(통과 ${passed})${filtered.length !== scopeRows.length ? ` 중 ${filtered.length}종목 표시` : ''}`);
+  const fullName = definition?.name || '선택 조건';
+  const shortName = PRESET_SHORT_LABELS[definition?.screenId] || fullName;
+  let textNode = host.querySelector('.scr-table-status-text');
+  if (!textNode) {
+    textNode = documentRef.createElement('span');
+    textNode.className = 'scr-table-status-text';
+    const full = documentRef.createElement('span');
+    full.className = 'scr-status-full';
+    const short = documentRef.createElement('span');
+    short.className = 'scr-status-short';
+    short.setAttribute('aria-hidden', 'true');
+    textNode.append(full, short);
+    host.prepend(textNode);
+  }
+  // A market-cap order over rows without caps (the Korean listing has none in the artifact) says so instead of '시총 큰 순'.
+  let order = sortOrderText(sortState);
+  let shortOrder = order;
+  if (sortState?.column === 'mcap') {
+    const withCap = filtered.filter((row) => capFilterValue(liveRow(row, readLiveData)) != null).length;
+    if (!withCap) order = shortOrder = '시총 자료 없음 · 조건 순위 순';
+    else if (withCap < filtered.length) order = `${order}(시총 확인 ${withCap}종목 먼저)`;
+  }
+  // v58.56 review: quote refreshes re-render the table, so the text is written only when it changes.
+  const fullText = `${leadFor(fullName, ' 조건')} · ${order}`;
+  const shortText = `${leadFor(shortName, '')} · ${shortOrder}`;
+  if (textNode.firstChild.textContent !== fullText) textNode.firstChild.textContent = fullText;
+  if (textNode.lastChild.textContent !== shortText) textNode.lastChild.textContent = shortText;
+  // The largest caps of this market (funds and SPACs aside) that the screen left out — only while the table hides them.
+  let dropped = [];
+  if (passedOnly && definition) {
+    if (tableStatusCompiled.definition !== definition) {
+      let compiled = null;
+      try { compiled = compileScreenDefinition(definition); } catch (_) { compiled = null; }
+      tableStatusCompiled = { definition, compiled };
+    }
+    dropped = scopeRows
+      .filter((row) => !['fund', 'spac'].includes(row?.populationExclusion) && row?.assetType !== 'ETF' && row?.index !== 'ETF')
+      .map((row) => ({ row, cap: capFilterValue(liveRow(row, readLiveData)) }))
+      .filter((entry) => entry.cap != null)
+      .sort((left, right) => right.cap - left.cap)
+      .slice(0, DROPPED_CAP_POOL)
+      .filter((entry) => entry.row.screenStatus !== 'passed')
+      .map((entry) => ({ row: entry.row, reason: failedConditionText(entry.row, definition, tableStatusCompiled.compiled) }));
+  }
+  let back = host.querySelector('.scr-passed-back');
+  if (!passedOnly && definition) {
+    if (!back) {
+      back = documentRef.createElement('button');
+      back.type = 'button';
+      back.className = 'sx-link scr-passed-back';
+      back.dataset.aioScreenerAction = 'passed-only';
+      back.textContent = '통과 종목만 보기';
+      host.append(back);
+    }
+  } else back?.remove();
+  let fold = host.querySelector('.scr-dropped');
+  if (!dropped.length) { fold?.remove(); return; }
+  if (!fold) {
+    fold = documentRef.createElement('details');
+    fold.className = 'scr-dropped';
+    fold.append(documentRef.createElement('summary'), documentRef.createElement('ul'), documentRef.createElement('p'));
+    host.append(fold);
+  }
+  const summary = fold.querySelector('summary');
+  if (summary.dataset.count !== String(dropped.length)) {
+    summary.dataset.count = String(dropped.length);
+    const summaryFull = documentRef.createElement('span');
+    summaryFull.className = 'scr-status-full';
+    summaryFull.textContent = `조건에서 빠진 대형주 ${dropped.length}개 보기`;
+    const summaryShort = documentRef.createElement('span');
+    summaryShort.className = 'scr-status-short';
+    summaryShort.setAttribute('aria-hidden', 'true');
+    summaryShort.textContent = `빠진 대형주 ${dropped.length}개`;
+    summary.replaceChildren(summaryFull, summaryShort);
+  }
+  const signature = JSON.stringify(dropped.map((entry) => [entry.row.sym || entry.row.symbol, entry.reason]));
+  if (fold.dataset.signature === signature && fold._aioOwner === onExplain) return;
+  fold.dataset.signature = signature;
+  fold._aioOwner = onExplain;
+  const list = fold.querySelector('ul');
+  list.className = 'scr-dropped-list';
+  list.replaceChildren(...dropped.map(({ row, reason }) => {
+    const item = documentRef.createElement('li');
+    const open = documentRef.createElement('button');
+    open.type = 'button';
+    open.className = 'scr-dropped-sym';
+    const code = documentRef.createElement('b');
+    code.textContent = row.sym || row.symbol;
+    const label = documentRef.createElement('span');
+    label.textContent = row.name || '';
+    open.append(code, label);
+    open.setAttribute('aria-label', `${row.sym || row.symbol} 근거 보기`);
+    open.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); onExplain?.(row); });
+    const why = documentRef.createElement('span');
+    why.className = 'scr-dropped-why';
+    why.textContent = reason;
+    item.append(open, why);
+    return item;
+  }));
+  const note = fold.querySelector('p');
+  note.className = 'scr-dropped-note';
+  const showAll = documentRef.createElement('button');
+  showAll.type = 'button';
+  showAll.className = 'sx-link scr-dropped-all';
+  showAll.dataset.aioScreenerAction = 'clear-filter';
+  showAll.dataset.aioScreenerArg = 'scr-passed-only';
+  showAll.textContent = '통과 못 한 종목도 표에 함께 보기';
+  note.replaceChildren(documentRef.createTextNode(`이 시장 시총 상위 ${DROPPED_CAP_POOL}개 중 지금 조건 화면을 통과하지 못한 종목입니다. `), showAll);
 }
 
 function render({ documentRef, root = globalThis, store, readLiveData, readWatchlist, readAliases, sortState, visibleLimit, onWatchlistToggle, onExplain, onCompare, onVisibleSymbols, selectedSymbols, compareSymbols, columnPreset = 'discovery', customColumns = [], rowsOverride = null, workbenchResult = null, previewResult = null, onDataChange = null }) {
@@ -1712,6 +1943,8 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (visibleColumns.some((column) => column.key === 'fwdPe') || sortState.column === 'fwdPe' || custom.some((item) => item.id === 'fwdpe-max')) requestConsensusEstimates(root, onDataChange);
   const table = documentRef.getElementById('screener-results-table');
   renderTableHeader(documentRef, table, visibleColumns, sortState);
+  // v58.56 (4b): the phone's one-line rows apply to the default columns only (screener-quality.css).
+  if (table) table.dataset.columnPreset = columnPreset;
   const body = documentRef.getElementById('screener-results-body');
   if (body) {
     const focusedRow = documentRef.activeElement?.closest?.('[data-aio-screener-ticker]');
@@ -1773,7 +2006,11 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
       }
       body.appendChild(empty);
     } else {
-      const nodes = tableRowNodes(documentRef, body, visible, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold: currentState.metadata.ranking.available === false ? { reason: currentState.metadata.ranking.rankingUnavailableReason } : root._aioRankingHold || null });
+      // v58.56 review: under another sort (a preset sorts by 조건 순위) a market-cap number in the first column read as the
+      // rank, so "#" is the row's place in the order the table is sorted by; under the default 시총 sort that is the cap order.
+      const capOrder = !visibleColumns.some((column) => column.key === 'capOrder') ? null
+        : sortState.column === 'mcap' ? capOrderMap(filtered, readLiveData) : new Map(filtered.map((row, index) => [row.sym || row.symbol, index + 1]));
+      const nodes = tableRowNodes(documentRef, body, visible, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, capOrder, rankHold: currentState.metadata.ranking.available === false ? { reason: currentState.metadata.ranking.rankingUnavailableReason } : root._aioRankingHold || null });
       const children = body.children;
       if (children.length !== nodes.length || nodes.some((node, index) => children[index] !== node)) body.replaceChildren(...nodes);
       shareCloseDay(documentRef, table, body);
@@ -1786,6 +2023,10 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   }
   const count = documentRef.getElementById('screener-result-count');
   if (count) count.textContent = String(filtered.length);
+  renderTableStatus(documentRef, { status: state?.status, scopeRows, filtered, definition: chosenDefinition, sortState, passedOnly: !!documentRef.getElementById('scr-passed-only')?.checked, readLiveData, onExplain });
+  syncFilterCount(documentRef);
+  const filterDone = documentRef.querySelector('#scr-filter-sheet .scr-filter-done');
+  if (filterDone) filterDone.textContent = `${filtered.length}종목 보기`;
   const summary = documentRef.getElementById('scr-visible-summary');
   if (summary) summary.textContent = `${MARKET_LABELS[listingMarket]} · ${filtered.length}종목 중 ${Math.min(visibleLimit.value, filtered.length)}개 표시`;
   renderStaleNote(documentRef, body);
@@ -1964,7 +2205,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     const arrow = header.querySelector('.scr-arrow');
     const active = header.dataset.scrSort === sortState.column;
     if (arrow) arrow.textContent = active ? (sortState.ascending ? ' ▲' : ' ▼') : '';
-    if (active) header.setAttribute('aria-label', `${header.textContent.replace(/[▲▼]/g, '').trim()} 정렬 ${sortState.ascending ? '오름차순' : '내림차순'}`);
+    if (active) header.setAttribute('aria-label', `${header.dataset.sortLabel || header.textContent.replace(/[▲▼]/g, '').trim()} 정렬 ${sortState.ascending ? '오름차순' : '내림차순'}`);
   });
   page.dataset.aioArchitectureRoute = 'screener';
   page.dataset.aioArchitectureSlice = 'screener';
@@ -2302,6 +2543,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            `${missing.length ? `빠진 필수값 ${missing.length}개` : '빠진 필수값 없음'} · ${contrary.length ? `걸린 반대 조건 ${contrary.length}개` : row.screenStatus === 'unavailable' ? '판정 보류' : '걸린 반대 조건 없음'}.`
          ].filter(Boolean).join(' '));
          renderExcessBars(documentRef, row, benchmark);
+         renderWhyRange(documentRef, row);
          const factorList = documentRef.getElementById('scr-why-factor-list');
          if (factorList) {
            factorList.replaceChildren();
@@ -2368,8 +2610,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          }
          const ticker = documentRef.querySelector('[data-aio-screener-action="open-ticker"]');
          if (ticker) ticker.dataset.aioScreenerArg = row.sym || row.symbol || '';
-         const compare = documentRef.querySelector('[data-aio-screener-action="why-compare"]');
-         if (compare) compare.dataset.aioScreenerArg = row.sym || row.symbol || '';
+         syncWhyCompare(row.sym || row.symbol || '');
          syncWhyWatchlist(row.sym || row.symbol || '');
          drawer.hidden = false;
        };
@@ -2455,6 +2696,64 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            sheetScrim?.remove(); sheetScrim = null;
          });
        }
+       // v58.56 (4b): on a phone (≤743px) the filter controls are a bottom sheet behind the 필터 button, so the first screen is
+       // the screen chips, one validation line and the rows. Wider layouts keep them inline (the wrapper is display:contents).
+       const filterSheet = documentRef.getElementById('scr-filter-sheet');
+       const filterOpenButton = documentRef.getElementById('scr-filter-open');
+       const NARROW_FILTERS = '(max-width: 743px)';
+       let filterScrim = null;
+       const setFilterSheet = (open, { returnFocus = true } = {}) => {
+         if (!filterSheet) return;
+         const on = !!open && Boolean(root?.matchMedia?.(NARROW_FILTERS)?.matches);
+         const wasOpen = filterSheet.classList.contains('is-open');
+         filterSheet.classList.toggle('is-open', on);
+         if (on) { filterSheet.setAttribute('role', 'dialog'); filterSheet.setAttribute('aria-modal', 'true'); filterSheet.setAttribute('aria-label', '필터'); }
+         else { filterSheet.removeAttribute('role'); filterSheet.removeAttribute('aria-modal'); filterSheet.removeAttribute('aria-label'); }
+         filterOpenButton?.setAttribute('aria-expanded', on ? 'true' : 'false');
+         if (on && !filterScrim) {
+           filterScrim = documentRef.createElement('div');
+           filterScrim.className = 'scr-sheet-scrim scr-filter-scrim';
+           filterScrim.addEventListener('click', () => setFilterSheet(false));
+           page.append(filterScrim);
+         }
+         if (filterScrim) filterScrim.hidden = !on;
+         if (on) { if (!filterSheet.hasAttribute('tabindex')) filterSheet.tabIndex = -1; filterSheet.focus?.({ preventScroll: true }); }
+         else if (wasOpen && returnFocus) filterOpenButton?.focus?.({ preventScroll: true });
+       };
+       const onFilterKeydown = (event) => {
+         if (!filterSheet.classList.contains('is-open')) return;
+         if (event.key === 'Escape') { event.preventDefault(); setFilterSheet(false); return; }
+         if (event.key !== 'Tab') return;
+         const focusables = [...filterSheet.querySelectorAll('button, a[href], input, select, textarea, summary, [tabindex]:not([tabindex="-1"])')]
+           .filter((node) => !node.disabled && node.getClientRects().length);
+         if (!focusables.length) { event.preventDefault(); return; }
+         const first = focusables[0];
+         const last = focusables[focusables.length - 1];
+         const active = documentRef.activeElement;
+         if (event.shiftKey && (active === first || active === filterSheet)) { event.preventDefault(); last.focus(); }
+         else if (!event.shiftKey && active === last) { event.preventDefault(); first.focus(); }
+       };
+       if (filterSheet) {
+         filterSheet.addEventListener('keydown', onFilterKeydown);
+         const filterQuery = root?.matchMedia?.(NARROW_FILTERS);
+         const onFilterMedia = () => { if (!filterQuery?.matches) setFilterSheet(false, { returnFocus: false }); };
+         filterQuery?.addEventListener?.('change', onFilterMedia);
+         bag.add(() => {
+           filterQuery?.removeEventListener?.('change', onFilterMedia);
+           filterSheet.removeEventListener('keydown', onFilterKeydown);
+           setFilterSheet(false, { returnFocus: false });
+           filterScrim?.remove(); filterScrim = null;
+         });
+       }
+       // v58.56 (#12): 비교 lives only here (the row keeps ☆); the button names its state like the watchlist one.
+       const syncWhyCompare = (symbol) => {
+         const button = documentRef.querySelector('[data-aio-screener-action="why-compare"]');
+         if (!button) return;
+         const inCompare = !!symbol && compareSymbols.has(symbol);
+         button.dataset.aioScreenerArg = symbol || '';
+         button.setAttribute('aria-pressed', inCompare ? 'true' : 'false');
+         button.textContent = inCompare ? '비교에서 빼기' : `비교 추가${compareSymbols.size ? ` (${compareSymbols.size}/5)` : ''}`;
+       };
        const syncWhyWatchlist = (symbol) => {
          const button = documentRef.querySelector('[data-aio-screener-action="why-watchlist"]');
          if (!button) return;
@@ -2677,7 +2976,21 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
              button.setAttribute('aria-pressed', screen.definition.screenId === activeScreenId ? 'true' : 'false');
              button.dataset.aioScreenerAction = 'screen-preset';
              button.dataset.aioScreenerArg = screen.definition.screenId;
-             button.textContent = screen.label;
+             // v58.56 (4b): a phone shows the one-word name (균형 · 모멘텀 · 추세 · 저변동) so the row of screens fits; the full
+             // name stays the button's accessible name and the wider layouts' label.
+             const full = documentRef.createElement('span');
+             full.className = 'scr-preset-full';
+             full.textContent = screen.label;
+             button.append(full);
+             const short = PRESET_SHORT_LABELS[screen.definition.screenId];
+             if (short) {
+               const compact = documentRef.createElement('span');
+               compact.className = 'scr-preset-short';
+               compact.setAttribute('aria-hidden', 'true');
+               compact.textContent = short;
+               button.append(compact);
+               button.classList.add('has-short');
+             }
              workbenchPresets.appendChild(button);
            });
          }
@@ -2909,6 +3222,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            workbenchStatus.title = `${preview.definition?.screenId || '—'} · ${String(preview.definition?.definitionHash || '').slice(0, 8)} · 조건 실행을 누르면 이 입력으로 고정합니다`;
          }
          renderCompareTray();
+         syncWhyCompare(activeRow?.sym || activeRow?.symbol || '');
          placeWhyDrawer();
          if (whyFocus && documentRef.activeElement !== whyFocus && whyDrawerNode?.contains(whyFocus)) whyFocus.focus?.({ preventScroll: true });
        };
@@ -2929,7 +3243,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          activeScreenId = screen.definition.screenId;
          activeResult = null;
          activeRows = null;
-         Object.keys(FILTER_LABELS).forEach(id => {
+         // v58.56: '실행 통과만' is the table's scope, not a filter of the previous screen — switching screens used to clear it,
+         // so the first preset tap showed every rejected row (904 instead of 243) after the first view had shown passes only.
+         Object.keys(FILTER_LABELS).filter((id) => id !== 'scr-passed-only').forEach(id => {
            const control = documentRef.getElementById(id);
            if (control?.type === 'checkbox') control.checked = false;
            else if (control) control.value = id === 'scr-min-rank' ? '0' : '';
@@ -2963,6 +3279,10 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         }
          const action = actionNode.dataset.aioScreenerAction;
          const argument = actionNode.dataset.aioScreenerArg;
+         if (action === 'open-filters') { setFilterSheet(true); return; }
+         if (action === 'close-filters') { setFilterSheet(false); return; }
+         // A control in the sheet that leaves the 순위 view (+ 조건 추가 → 맞춤 조건) closes the sheet first.
+         if ((action === 'view' || action === 'tab') && filterSheet?.contains(actionNode)) setFilterSheet(false, { returnFocus: false });
          if (action === 'screen-preset' || action === 'screen-select') {
            selectDefinition(argument);
          } else if (action === 'screen-new') {
@@ -3085,6 +3405,11 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            const condition = readBuilderConditions()[Number(argument)];
            const target = condition && documentRef.getElementById(condition.target);
            if (target) target.value = condition.field === 'rank' ? '0' : '';
+           visibleLimit.value = 12;
+           renderNow();
+         } else if (action === 'passed-only') {
+           const passedOnly = documentRef.getElementById('scr-passed-only');
+           if (passedOnly) passedOnly.checked = true;
            visibleLimit.value = 12;
            renderNow();
          } else if (action === 'clear-filter') {

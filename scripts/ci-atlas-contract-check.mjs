@@ -268,6 +268,24 @@ if (!atlas.includes('article identity mismatch') || !atlas.includes('validateCur
   const everyText = registry.products.flatMap((product) => product.taxonomyNodeIds || []).map((id) => groups(id).listText).join(' ');
   if (/MATURE|RAMP|ROADMAP_OPTION|MIXED_BY_GENERATION|양산/.test(everyText)) errors.push('P1524 the role block must not show production stage (withheld by the registry boundary)');
 }
+// v58.56 (re-audit #8): the value-chain layer card shows a ticker only for an exact listing. Every curated US pair
+// (ticker, CIK) must appear as that exact pair in the SEC-CIK listing file, every KRX code (with its name) in the KR screener universe, every
+// mapped player in the registry, and every layer domain in the taxonomy.
+{
+  const { ATLAS_PLAYER_LISTINGS, VALUE_CHAIN_LAYERS } = await import('../src/ui/pages/atlas.js');
+  const listings = JSON.parse(read('public-data/us-listings.json')).columns;
+  const cikBySymbol = new Map(listings.sym.map((sym, index) => [sym, listings.cik[index]]));
+  const registryPlayers = new Set((JSON.parse(read('public-data/atlas/player-product-registry.json')).players || []).map((player) => player.playerId));
+  const krUniverse = new Map((JSON.parse(read('public-data/screener-universe.json')).universe || []).map((row) => [row.sym, row.name]));
+  for (const [playerId, listing] of Object.entries(ATLAS_PLAYER_LISTINGS)) {
+    if (!registryPlayers.has(playerId)) errors.push(`v58.56 atlas ticker for unknown registry player ${playerId}`);
+    if (listing.cik && cikBySymbol.get(listing.ticker) !== listing.cik) errors.push(`v58.56 atlas ticker ${listing.ticker} is not listed with CIK ${listing.cik}`);
+    if (listing.krCode && (listing.ticker !== `${listing.krCode}.KS` || !listing.krName || krUniverse.get(listing.ticker) !== listing.krName)) errors.push(`v58.56 atlas KRX code ${listing.krCode} is not listed as ${listing.krName} in the KR universe`);
+    if (!listing.cik && !listing.krCode) errors.push(`v58.56 atlas ticker ${listing.ticker} has no exact listing key`);
+  }
+  const domainIds = new Set((research.taxonomyDomains || []).map((domain) => domain.id));
+  VALUE_CHAIN_LAYERS.flatMap((layer) => layer.domains).forEach((id) => { if (!domainIds.has(id)) errors.push(`v58.56 value-chain layer names unknown domain ${id}`); });
+}
 if (errors.length) {
   console.error(JSON.stringify({ ok: false, errors }));
   process.exit(1);

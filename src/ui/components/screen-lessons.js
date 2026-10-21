@@ -26,6 +26,9 @@ function rankEvidenceForRoot(root) {
   try { return root?._aioCandidateArchive?.entries ? summarizeCandidateArchive(root._aioCandidateArchive).independent || null : null; } catch (_) { return null; }
 }
 
+// v58.56 (re-audit #16): 거시 · 시장 상태 · 시장 폭 · 투자 심리 run 2,000-6,000px; their closing lessons fold.
+const FOLDED_ROUTES = new Set(['macro', 'signal', 'breadth', 'sentiment']);
+
 export function renderScreenLessons({ documentRef: doc, root, routeId, ctx = null } = {}) {
   const page = doc?.getElementById?.(`page-${routeId}`);
   if (!page || !SCREEN_LESSON_IDS[routeId]) return null;
@@ -49,6 +52,17 @@ export function renderScreenLessons({ documentRef: doc, root, routeId, ctx = nul
   title.id = `${id}-title`;
   const list = el(doc, 'ul', null, 'mg-lessons');
   lessons.forEach((lesson) => list.append(lessonItem(doc, root, lesson)));
+  if (FOLDED_ROUTES.has(routeId)) {
+    // v58.56 (re-audit #16): on the long market screens the lessons are one line that opens (titles in the summary).
+    const wasOpen = box.querySelector(':scope > details')?.open || false;
+    const fold = el(doc, 'details', null, 'sx-disclosure mg-screen-lessons-fold');
+    fold.open = wasOpen;
+    const summary = el(doc, 'summary', null, 'mg-screen-lessons-summary');
+    summary.append(title, el(doc, 'span', lessons.map((lesson) => lesson.title).filter(Boolean).join(' · '), 'mg-screen-lessons-names'));
+    fold.append(summary, list);
+    box.replaceChildren(fold);
+    return lessons;
+  }
   box.replaceChildren(title, list);
   return lessons;
 }

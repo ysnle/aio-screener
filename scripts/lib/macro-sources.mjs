@@ -270,6 +270,7 @@ export function parseTreasuryYieldCurveHtml(html, fetchedAt = new Date().toISOSt
   };
 }
 
+export const TREASURY_EXTRA_TENORS = Object.freeze([['dgs1mo', 'BC_1MONTH'], ['dgs3mo', 'BC_3MONTH'], ['dgs6mo', 'BC_6MONTH'], ['dgs1', 'BC_1YEAR'], ['dgs3', 'BC_3YEAR'], ['dgs7', 'BC_7YEAR']]);
 export function parseTreasuryYieldCurveXml(xml, fetchedAt = new Date().toISOString()) {
   const entries = [...String(xml || '').matchAll(/<entry\b[^>]*>([\s\S]*?)<\/entry>/gi)].map(match => match[1]);
   const parsed = entries.map((entry) => {
@@ -281,7 +282,14 @@ export function parseTreasuryYieldCurveXml(xml, fetchedAt = new Date().toISOStri
       return Number.isFinite(value) ? value : null;
     };
     const values = { dgs2: pick(2), dgs5: pick(5), dgs10: pick(10), dgs20: pick(20), dgs30: pick(30) };
-    return Object.values(values).every(Number.isFinite) ? { observedAt, values } : null;
+    if (!Object.values(values).every(Number.isFinite)) return null;
+    // v58.56 (re-audit #9): the feed's other tenors on the same official cut. Only the five above decide whether a row is
+    // complete; a short tenor the feed left blank (e.g. a new bill tenor) is simply absent, never filled in.
+    for (const [field, tag] of TREASURY_EXTRA_TENORS) {
+      const value = Number((entry.match(new RegExp(`<d:${tag}\\b[^>]*>([^<]+)<\\/d:${tag}>`, 'i')) || [])[1]);
+      if (Number.isFinite(value)) values[field] = value;
+    }
+    return { observedAt, values };
   }).filter(Boolean).sort((a, b) => b.observedAt.localeCompare(a.observedAt));
   const latest = parsed[0] || null;
   if (!latest) return null;

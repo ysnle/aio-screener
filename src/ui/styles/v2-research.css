@@ -284,6 +284,18 @@
 #page-masters .masters-holdings-title { font-family: var(--font-sans); font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
 #page-masters .masters-ticker-lookup-input { height: 38px; border: 0; border-radius: 12px; background: var(--rs-tile-strong); font-size: 14px; }
 #page-masters .masters-ticker-lookup-input:focus { outline: none; background: var(--bg-card); box-shadow: 0 0 0 3px rgba(var(--ink-rgb), 0.12); }
+/* v58.56 (#4): exact-CUSIP ticker chips (open 종목 요약) beside the readable issuer name; top holdings as chips under the name. */
+#page-masters .masters-top-tickers { align-items: center; margin: 2px 0 10px; }
+#page-masters .masters-top-tickers-label { font-size: 12px; color: var(--text-muted); margin-right: 2px; }
+#page-masters .masters-ticker-chip {
+  border: 0; cursor: pointer; font-family: var(--font-sans); color: var(--text-primary); background: var(--rs-tile-strong);
+  transition: background 120ms var(--rs-ease);
+}
+#page-masters .masters-ticker-chip:hover { background: var(--rs-pick); }
+#page-masters .masters-ticker-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+#page-masters .masters-issuer-cell { white-space: normal; }
+#page-masters .masters-issuer-cell .masters-issuer-name, #page-masters .masters-issuer-cell .masters-ticker-chip { vertical-align: middle; }
+#page-masters .masters-issuer-cell .masters-ticker-chip { margin-left: 6px; }
 #page-masters .masters-trend-bars { border-bottom-color: rgba(var(--ink-rgb), 0.08); }
 #page-masters .masters-trend-bar { border-radius: 4px 4px 0 0; }
 
@@ -291,6 +303,40 @@
 #page-atlas .atlas-integrated-framework-spine, #page-principles .principles-integrated-framework-spine {
   border: 0; border-radius: 20px; padding: 20px 22px; background: var(--bg-card); box-shadow: var(--sx-card-shadow);
 }
+
+/* v58.56 (#8, 5j): value-chain layer card in the atlas domain view's right column — seven layers, bottom-up,
+   registry companies as chips (ticker chips open 종목 요약). No layer is tinted: the grouping is not a bottleneck claim. */
+#page-atlas .atlas-layers-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 8px; margin: 0 0 10px; }
+#page-atlas .atlas-layers-title { margin: 0; font-family: var(--font-sans); font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: var(--text-primary); }
+#page-atlas .atlas-layers-sub { font-size: 12px; color: var(--text-muted); }
+#page-atlas .atlas-layers-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+#page-atlas .atlas-layer { border-radius: 12px; background: var(--rs-tile); padding: 4px 6px 8px; }
+#page-atlas .atlas-layer.is-current { background: var(--rs-pick); box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.14); }
+#page-atlas .atlas-layer-open {
+  display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; align-items: center; width: 100%; min-height: 40px;
+  padding: 4px 6px; border: 0; border-radius: 9px; background: transparent; color: var(--text-primary); font: inherit; text-align: left; cursor: pointer;
+}
+#page-atlas .atlas-layer-open:hover { background: var(--rs-tile-strong); }
+#page-atlas .atlas-layer-open:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+#page-atlas .atlas-layer-n { font-size: 12px; color: var(--text-muted); text-align: center; font-variant-numeric: tabular-nums; }
+#page-atlas .atlas-layer-text { display: flex; flex-direction: column; min-width: 0; }
+#page-atlas .atlas-layer-name { font-size: 14px; font-weight: 600; }
+#page-atlas .atlas-layer-desc { font-size: 12px; color: var(--text-muted); }
+#page-atlas .atlas-layer-players { display: flex; flex-wrap: wrap; gap: 4px; padding: 2px 6px 0 34px; }
+#page-atlas .atlas-layer-ticker { border: 0; cursor: pointer; font-family: var(--font-sans); color: var(--text-primary); background: var(--rs-tile-strong); }
+#page-atlas .atlas-layer-ticker:hover { background: var(--rs-pick); }
+#page-atlas .atlas-layer-players .sx-chip, #page-masters .masters-ticker-chip { height: 28px; min-height: 28px; padding: 0 10px; }
+#page-atlas .atlas-layer-company { font-weight: 400; background: transparent; box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.12); }
+#page-atlas .atlas-layer-empty, #page-atlas .atlas-layer-more { font-size: 12px; color: var(--text-muted); align-self: center; }
+#page-atlas .atlas-layers-cross { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: 12px 0 0; }
+#page-atlas .atlas-layers-cross-label { flex-basis: 100%; font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+#page-atlas .atlas-layers-cross-link {
+  min-height: 28px; padding: 0 10px; border: 0; border-radius: 999px; background: var(--rs-tile); color: var(--text-secondary); font: inherit; font-size: 12px; cursor: pointer;
+}
+#page-atlas .atlas-layers-cross-link:hover, #page-atlas .atlas-layers-cross-link[aria-current="true"] { background: var(--rs-pick); color: var(--text-primary); }
+/* The one-column layouts set the aside to a 2-up grid; the layer card spans it. */
+#page-atlas .rl-aside > .atlas-layers { grid-column: 1 / -1; }
+#page-atlas .atlas-layers-note { margin: 10px 0 0; font-size: 12px; line-height: 1.5; color: var(--text-muted); }
 
 /* ═══ 8. Guide (5j: 읽는 순서 · 메뉴 지도 · 판정 기준표 · 접힘) ═══════════ */
 #page-guide .guide-steps {
@@ -432,6 +478,8 @@
   .rl-path { padding: 16px 18px; }
   .rl-path-step, .rl-used-row, .rl-shell .rl-nav-item, .rl-shell .rl-shelf-chip, .rl-shell .rl-picks-item,
   #glossary-cats .lu-gl-cat, #glossary-body .lu-gl-route, #page-masters .masters-detail-tab, #page-masters .masters-route-button { min-height: 44px; }
+  #page-masters .masters-top-tickers .masters-ticker-chip, #page-atlas .atlas-layer-ticker { height: 36px; min-height: 36px; padding: 0 14px; font-size: 13px; }
+  #page-atlas .atlas-layer-company { height: 36px; min-height: 36px; }
   .rl-entry .rl-entry-body .af-issue { font-size: 22px; }
   #glossary-modal > .sh-shell-glossary-modal-stack { width: calc(100vw - 16px); max-height: 92vh !important; border-radius: 22px !important; }
   #glossary-modal .sh-shell-glossary-modal-box { padding: 16px 16px 12px; }

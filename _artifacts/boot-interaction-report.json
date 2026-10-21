@@ -1,14 +1,14 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-10-20T12:48:33.156Z",
-  "appRevision": "v58.52",
-  "gitHead": "143f4c6e2b954754f6df1bad7b5d07bcd54d2955",
+  "observedAt": "2026-10-21T01:13:54.843Z",
+  "appRevision": "v58.55",
+  "gitHead": "a4b1b32d9231167326dcad7e3a8375e7513c2666",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
-    "browserVersion": "156.0.8078.4",
-    "platform": "win32",
-    "node": "v24.18.0",
+    "browserVersion": "141.0.7390.37",
+    "platform": "linux",
+    "node": "v22.22.0",
     "viewport": "1440x1000"
   },
   "command": "node scripts/ci-boot-interaction-check.mjs",
@@ -16,29 +16,29 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "max long task 208 > 200",
-    "decoded same-origin JS 4.99MB > 1.5MB"
+    "max long task 246 > 200",
+    "decoded same-origin JS 5.01MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 936,
-    "dclMs": 735,
-    "loadMs": 745,
-    "maxLongTaskMs": 208,
-    "totalLongTaskMs": 612,
-    "longTaskCount": 6,
+    "fcpMs": 368,
+    "dclMs": 1226,
+    "loadMs": 1260,
+    "maxLongTaskMs": 246,
+    "totalLongTaskMs": 684,
+    "longTaskCount": 5,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 3892,
-    "activeRouteDomNodes": 997,
+    "domNodes": 4129,
+    "activeRouteDomNodes": 1110,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 5232650,
-    "sameOriginScripts": 218,
+    "decodedJsBytes": 5257676,
+    "sameOriginScripts": 213,
     "crossOriginScripts": 3,
-    "routeMs": 105,
-    "wallMs": 7548,
-    "totalExternalRequests": 93,
+    "routeMs": 82,
+    "wallMs": 7911,
+    "totalExternalRequests": 59,
     "quoteRequests": 28,
-    "initialExternalRequests": 6,
+    "initialExternalRequests": 5,
     "initialQuoteRequests": 0,
     "bootObservationWindowMs": 2000,
     "delayedPrimaryChart": {
@@ -54,6 +54,6 @@
       "placeholderLoads": 1,
       "direct": true
     },
-    "decodedJsMb": 4.99
+    "decodedJsMb": 5.01
   }
 }

@@ -159,6 +159,9 @@ try {
       await page.locator('.ai-ph-close').click();
 
       await page.evaluate(()=>window.showPage('screener'));
+      // v58.56 (4b): a phone keeps the screener's market/sort controls in the 필터 bottom sheet — open it like a reader.
+      await page.waitForSelector('#scr-listing-market',{state:'attached'});
+      if (await page.locator('#scr-filter-open').isVisible()) { await page.locator('#scr-filter-open').click(); await page.waitForFunction(()=>document.getElementById('scr-filter-sheet')?.classList.contains('is-open')); }
       await page.waitForSelector('#scr-listing-market');
       await page.locator('#scr-order').selectOption('ret3m');
       for (const market of ['US','KR']) {
@@ -191,6 +194,7 @@ try {
         return {usd:formatScreenerPrice(84.64,'USD'),krw:formatScreenerPrice(73000,'KRW'),missing:formatScreenerPrice(null,'USD')};});
       check(currencyFormat.usd==='$84.64' && currencyFormat.krw==='₩73,000' && currencyFormat.missing==='—',`${label}: currency formatter/absence contract failed (P1625)`,currencyFormat);
       observations.push({label,currencyFormat,priceBoundary:'Unreceived public quotes remain unavailable; no published price is promoted into a current quote.'});
+      if (await page.locator('#scr-filter-sheet.is-open').count()) { await page.locator('#scr-filter-sheet .scr-filter-done').click(); await page.waitForFunction(()=>!document.getElementById('scr-filter-sheet')?.classList.contains('is-open')); }
       await captureLayout(page,`${label}/screener`);
 
       await page.evaluate(()=>window.showTicker('AEHR'));

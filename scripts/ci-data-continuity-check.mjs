@@ -148,7 +148,8 @@ function runProducerChecks() {
     'collect-13f-history-rows.mjs',
     'build-13f-issuer-aggregates.mjs',
     'build-13f-reference-ticker-index.mjs',
-    'build-masters-runtime-artifacts.mjs'
+    'build-masters-runtime-artifacts.mjs',
+    'collect-13f-figi-tickers.mjs' // v58.56
   ]) {
     const source = fs.readFileSync(path.join(ROOT, 'scripts', script), 'utf8');
     check('producer:masters-atomic:' + script, source.includes("./lib/atomic-write.mjs") && !/\bfs\.writeFile\(/.test(source), 'Masters producer can truncate published JSON on write failure');

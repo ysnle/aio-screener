@@ -134,8 +134,10 @@ try {
   shell.push(top);
   const check = (ok, message) => { if (!ok) failures.push({ message, detail: top }); };
   check(top.docOverflow <= 2 && top.barOverflow <= 2, 'phone360: topbar overflows horizontally (v57.54)');
-  check(top.version && top.help && top.ai, 'phone360: version badge, help and AI buttons must stay visible (v57.54)');
-  check(!top.compact || (top.after.includes(top.compact) && !/서버|기준/.test(top.compact)), 'phone360: quote time is not the compact "MM/DD HH:MM" form (v57.54)');
+  check(top.version && top.help && top.ai, 'phone360: version (page foot since v58.56), help and AI buttons must stay visible (v57.54)');
+  // v58.56 (re-audit #13): the chip is the dot plus one short reading at every width ("10/20 종가 기준", "LIVE 14:32"); the
+  // state word is no longer a second capsule, so "기준" fits again. No 서버 prefix and no quote count stay the rule.
+  check(!top.compact || (top.after.includes(top.compact) && !/서버|시세 \d+종/.test(top.compact)), 'phone360: the quote chip is not its compact form (v57.54/v58.56)');
   check(top.tsCut === false, 'phone360: quote time is cut with an ellipsis (v57.54)');
   // 2026-10-19: the live status depends on the data's age when CI runs ("57분 전", "10/19 21:58", the 지난 시세 chip), so
   // the natural reading above passed or failed by the clock. Each worst-case pair is written into the bar and measured.

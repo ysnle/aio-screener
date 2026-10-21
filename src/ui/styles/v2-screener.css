@@ -56,6 +56,34 @@
 #page-screener .scr-filterbar-end { margin-left: auto; display: inline-flex; align-items: center; gap: 12px; }
 #page-screener .scr-search-field { width: 200px; height: 32px; min-height: 32px; padding: 0 14px !important; border-radius: 999px !important; font-size: 13px; }
 #page-screener .scr-result-count { white-space: nowrap; font-size: 13px; color: var(--text-secondary); }
+/* v58.56 (4b): ≥744px the filter-sheet wrapper is transparent — its controls stay in the filter bar, and the secondary
+   toolbar, column chooser and 표 범위 row take full rows of the same flex bar. ≤743px it is a bottom sheet (section 10). */
+#page-screener .scr-filter-open { display: none; }
+#page-screener .scr-filter-sheet { display: contents; }
+#page-screener .scr-filter-sheet-head, #page-screener .scr-filter-sheet-foot { display: none; }
+#page-screener .scr-filterbar { margin: 0 0 14px; }
+#page-screener .scr-filter-sheet > :is(.scr-toolbar, .scr-column-chooser, #scr-adv-filter-row) { flex: 1 1 100%; margin: 0; }
+#page-screener .scr-preset-short { display: none; }
+#page-screener .scr-banner-short { display: none; }
+/* v58.56 (#3): one line above the table — screen, count, order — and the large caps the screen left out. */
+#page-screener .scr-table-status { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; margin: 0 4px 10px; font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+#page-screener .scr-table-status[hidden], #page-screener .scr-table-status:empty { display: none; }
+#page-screener .scr-dropped > summary { display: inline; cursor: pointer; font-weight: 600; color: var(--text-primary); }
+#page-screener .scr-dropped > summary::-webkit-details-marker { display: none; }
+#page-screener .scr-dropped > summary::after { content: ' ›'; color: var(--text-muted); }
+#page-screener .scr-dropped[open] { flex: 1 1 100%; }
+#page-screener .scr-dropped[open] > summary::after { content: ' ⌃'; }
+#page-screener .scr-dropped-list { list-style: none; margin: 8px 0 4px; padding: 6px 14px; border-radius: 14px; background: var(--sx-ink-a03); }
+#page-screener .scr-dropped-list > li { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; padding: 6px 0; border-top: 1px solid rgba(var(--ink-rgb), 0.06); }
+#page-screener .scr-dropped-list > li:first-child { border-top: 0; }
+#page-screener .scr-dropped-sym { display: inline-flex; align-items: center; gap: 6px; min-width: 170px; min-height: 32px; padding: 0; border: 0; background: transparent; color: var(--text-primary); font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
+#page-screener .scr-dropped-sym > span { font-size: 12px; color: var(--text-secondary); }
+#page-screener .scr-dropped-sym:hover > b { text-decoration: underline; }
+#page-screener .scr-dropped-why { font-size: 13px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+#page-screener .scr-dropped-note { margin: 0; font-size: 12px; color: var(--text-muted); }
+#page-screener .scr-status-short { display: none; }
+#page-screener .scr-dropped-all, #page-screener .scr-passed-back { min-height: 32px; font-size: 12px; font-weight: 600; }
+#page-screener .scr-passed-back { font-size: 13px; }
 
 /* Secondary toolbar: the market-scope block (screener.js) flows into this row; its notes take their own lines. */
 #page-screener .scr-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 0 0 14px; font-size: 13px; color: var(--text-secondary); }
@@ -168,6 +196,9 @@
 #page-screener .scr-excess-track.is-index .scr-excess-fill { background: rgba(var(--ink-rgb), 0.22); }
 #page-screener .scr-excess-value { text-align: right; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
 #page-screener .scr-excess-legend { margin: 6px 0 0; }
+#page-screener .scr-why-range-bar { margin: 10px 0 10px; }
+#page-screener .scr-why-range-legend { display: flex; justify-content: space-between; gap: 8px; font-variant-numeric: tabular-nums; }
+#page-screener .scr-cap-order { color: var(--text-muted); }
 #page-screener .scr-tone-burden { color: var(--data-amber); }
 #page-screener .scr-why-more { margin: 0 0 4px; border-radius: 14px; }
 #page-screener .scr-why-more > summary { padding: 10px 0; font-size: 13px; color: var(--text-secondary); }
@@ -214,6 +245,14 @@
 #page-screener .scr-vh-fill.is-up { background: var(--data-green); }
 #page-screener .scr-vh-fill.is-burden { background: var(--data-amber); }
 #page-screener .scr-vh-ic { text-align: right; font-weight: 600; }
+/* v58.56 (#6): per-date spread rows — date · bar · 상위/하위 legs · top − bottom; the IC rows sit in a fold below. */
+#page-screener .scr-vh-spread-row { grid-template-columns: 104px minmax(0, 1fr) 128px 76px; }
+#page-screener .scr-vh-legs { display: flex; flex-direction: column; align-items: flex-end; gap: 0; font-size: 12px; line-height: 1.4; color: var(--text-secondary); }
+#page-screener .scr-vh-note { margin: 10px 0 0; line-height: 1.6; }
+#page-screener .scr-vh-ic-fold { margin: 12px 0 0; }
+#page-screener .scr-vh-ic-fold > summary { grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 10px; padding: 12px 14px; }
+#page-screener .scr-vh-ic-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+#page-screener .scr-vh-ic-body { padding: 0 14px 10px; }
 #page-screener .scr-vh-principle .sx-card__title { margin-bottom: 8px; }
 #page-screener .scr-vh-principle .sx-disclosure__text { font-size: 14px; }
 #page-screener .scr-vh-gate { margin: 10px 0 0; font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
@@ -308,6 +347,40 @@
 #page-portfolio .pf-empty-state { padding: 36px 20px !important; text-align: center; }
 #page-portfolio .pf-empty-state .pfp-empty-title, #page-portfolio .pf-empty-state strong, #page-portfolio .pf-empty-state b { font-size: 18px; font-weight: 700; color: var(--text-primary); }
 #page-portfolio #pf-holdings-table-section:has(.pf-empty-state) thead { display: none; }
+/* v58.56 (re-audit #11): the compact desktop table's row disclosure (상세) and memo mark exist only at ≥1280px. */
+#page-portfolio :is(.pfp-memo-chip, .pfp-more) { display: none; }
+#page-portfolio #pf-positions-tbody tr.pfp-detail { display: none; }
+#page-portfolio .pfp-more { align-items: center; min-height: 28px; margin: 4px 0 0 6px; padding: 0 10px; border: 0; border-radius: 999px; background: var(--sx-ink-a06); color: var(--text-secondary); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+#page-portfolio .pfp-more[aria-expanded="true"] { background: var(--text-primary); color: var(--bg-base); }
+#page-portfolio .pfp-memo-chip { margin: 4px 0 0 6px; vertical-align: middle; }
+#page-portfolio #pf-positions-tbody tr.pfp-detail > td { padding: 4px 14px 14px; background: var(--sx-ink-a03); }
+#page-portfolio .pfp-detail-list { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; }
+#page-portfolio .pfp-detail-list > div { display: flex; flex-direction: column; gap: 2px; }
+#page-portfolio .pfp-detail-list dt { font-size: 12px; color: var(--text-muted); }
+#page-portfolio .pfp-detail-list dd { margin: 0; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+#page-portfolio .pfp-detail-memo { margin: 10px 0 0; font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+#page-portfolio .pfp-detail-actions { display: flex; gap: 6px; margin: 10px 0 0; }
+#page-portfolio .pfp-detail-actions .pfp-manage-btn { min-height: 32px; padding: 0 12px; border-radius: 999px; background: var(--bg-card); box-shadow: inset 0 0 0 1px var(--border-subtle); color: var(--text-primary); }
+/* Legacy grey panels on this page (allocation, comparison, holdings analysis, entry form) read as the shared soft card. */
+#page-portfolio #pf-main > :is(#pf-entry-section, #pf-allocation-section, #pf-benchmark-section, #pf-holdings-analysis-section) { box-sizing: border-box; padding: 18px 20px; border: 0; border-radius: 20px; background: var(--bg-card); box-shadow: var(--sx-card-shadow); }
+#page-portfolio #pf-entry-section .sh-portfolio-entry-part-panel { border: 0; background: transparent; }
+#page-portfolio #pf-allocation-section .pf-allocation-card { border: 0; border-radius: 14px; background: var(--sx-ink-a03); }
+#page-portfolio #pf-main > details.aio-page-advanced-toggle { border: 0; border-radius: 16px; background: var(--bg-card); box-shadow: var(--sx-card-shadow); }
+@media (min-width: 1280px) {
+  /* Desktop: holdings and 읽는 법 side by side. #pf-main becomes a two-column grid only while 읽는 법 shows; every other
+     block spans both columns, and CSS order (unchanged) still sets the sequence — the DOM order T869 checks is untouched. */
+  #page-portfolio #pf-main:has(> #pf-reading:not([hidden])) { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); column-gap: 16px; align-items: start; }
+  #page-portfolio #pf-main:has(> #pf-reading:not([hidden])) > * { grid-column: 1 / -1; }
+  #page-portfolio #pf-main:has(> #pf-reading:not([hidden])) > #pf-holdings-table-section { grid-column: 1; }
+  #page-portfolio #pf-main:has(> #pf-reading:not([hidden])) > #pf-reading { grid-column: 2; grid-template-columns: minmax(0, 1fr) !important; }
+  /* Compact table: 종목 · 손익 · 수익률 · 오늘 · 비중. 수량·단가·현재가·목표가·관리 move into the row's 상세. */
+  #page-portfolio #pf-holdings-table-section :is(#pf-th-qty, #pf-th-cost, #pf-th-price, #pf-th-target, #pf-th-manage),
+  #page-portfolio #pf-positions-tbody td:is([headers="pf-th-qty"], [headers="pf-th-cost"], [headers="pf-th-price"], [headers="pf-th-target"], [headers="pf-th-manage"]),
+  #page-portfolio #pf-positions-tbody .pfp-memo { display: none; }
+  #page-portfolio .pfp-more { display: inline-flex; }
+  #page-portfolio .pfp-memo-chip { display: inline-flex; }
+  #page-portfolio #pf-positions-tbody tr.pfp-detail:not([hidden]) { display: table-row; }
+}
 
 /* ═══ 10. Breakpoints (4a): iPad landscape 1024–1279 · iPad portrait 744–1023 · iPhone ≤743 ═══ */
 @media (min-width: 1024px) {
@@ -348,21 +421,66 @@
   #page-screener .scr-preset-seg { width: 100%; }
   #page-screener .scr-chip-select, #page-screener .scr-add-condition { height: 44px; min-height: 44px; }
   #page-screener .scr-chip-clear { width: 36px; height: 36px; }
+  /* v58.56 (4b): title + 필터 N on one line, the view seg below; the collected/required counts leave the phone kicker. */
+  #page-screener .page-head > div:first-child { flex: 1 1 0; min-width: 0; }
+  #page-screener .scr-kicker #scr-kicker-counts { display: none; }
+  #page-screener .scr-filter-open { display: inline-flex; align-items: center; gap: 2px; align-self: flex-end; height: 44px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--sx-ink-a06); color: var(--text-primary); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+  #page-screener .scr-filter-open[aria-expanded="true"] { background: var(--text-primary); color: var(--bg-base); }
+  #page-screener .scr-filter-count { font-variant-numeric: tabular-nums; }
+  /* The preset screens keep one row of one-word names (균형 · 모멘텀 · 추세 · 저변동 …). */
+  #page-screener .scr-preset-seg > button.has-short > .scr-preset-full { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  #page-screener .scr-preset-seg > button.has-short > .scr-preset-short { display: inline; }
+  #page-screener .scr-preset-seg > button { padding: 0 12px !important; }
+  #page-screener .scr-filterbar { margin: 0 0 10px; }
+  /* The bottom sheet: 섹터 · 조건 추가 · 검색 · 시장 · 범위 · 정렬 · 지수 · 시총 · 컬럼 · 표 범위, then 결과 보기. */
+  #page-screener .scr-filter-sheet {
+    display: flex; flex-direction: column; align-items: stretch; gap: 12px; position: fixed; left: 0; right: 0; bottom: 0; z-index: 260;
+    max-height: 86vh; overflow-y: auto; overscroll-behavior: contain; box-sizing: border-box; padding: 10px 20px 0; border-radius: 28px 28px 0 0;
+    background: var(--bg-card); box-shadow: 0 -8px 40px rgba(33, 29, 22, 0.16); transform: translateY(100%); visibility: hidden;
+    transition: transform var(--sx-dur) var(--sx-ease), visibility 0s linear var(--sx-dur);
+  }
+  #page-screener .scr-filter-sheet.is-open { transform: translateY(0); visibility: visible; transition: transform var(--sx-dur) var(--sx-ease), visibility 0s; }
+  #page-screener .scr-filter-sheet::before { content: ''; display: block; flex: 0 0 auto; width: 38px; height: 5px; margin: 0 auto 2px; border-radius: 999px; background: rgba(var(--ink-rgb), 0.18); }
+  #page-screener .scr-filter-sheet:focus { outline: none; }
+  #page-screener .scr-filter-sheet-head { display: flex; justify-content: space-between; align-items: center; font-size: 18px; }
+  #page-screener .scr-filter-close { min-height: 44px; font-size: 14px; }
+  #page-screener .scr-filter-sheet-foot { display: block; position: sticky; bottom: 0; margin: 4px -20px 0; padding: 12px 20px max(20px, env(safe-area-inset-bottom, 0px)); background: var(--bg-card); box-shadow: 0 -1px 0 rgba(var(--ink-rgb), 0.06); }
+  #page-screener .scr-filter-done { width: 100%; height: 50px; border-radius: 14px; }
+  #page-screener .scr-filter-sheet .scr-sector-chip, #page-screener .scr-filter-sheet .scr-chip-select { width: 100%; max-width: none; }
+  #page-screener .scr-filter-sheet .scr-add-condition { align-self: flex-start; }
   #page-screener .scr-filterbar-end { margin-left: 0; width: 100%; }
   #page-screener .scr-search-field { flex: 1 1 auto; width: auto; height: 44px; min-height: 44px; }
-  /* One sideways-scrolling row of table settings, so the table starts on the first screen. */
-  #page-screener .scr-toolbar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: -16px; padding-right: 16px; }
-  #page-screener .scr-toolbar::-webkit-scrollbar { display: none; }
-  #page-screener .scr-toolbar > *, #page-screener .scr-toolbar .scr-market-scope > label { flex: 0 0 auto; }
-  #page-screener .scr-toolbar select { height: 44px; min-height: 44px !important; max-width: 220px; }
-  #page-screener .scr-banner { gap: 8px 10px; }
-  #page-screener .scr-banner-text { flex-basis: 100%; }
-  #page-screener .scr-toolbar .sx-link { min-height: 44px; }
-  #page-screener .scr-banner { padding: 14px 16px; }
+  #page-screener .scr-filter-sheet .scr-toolbar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  #page-screener .scr-filter-sheet .scr-toolbar .scr-market-scope > label { display: flex; flex-direction: column; align-items: stretch; gap: 4px; font-size: 12px; }
+  #page-screener .scr-filter-sheet .scr-toolbar .scr-market-scope > :is(p, details) { grid-column: 1 / -1; }
+  #page-screener .scr-filter-sheet .scr-toolbar select { width: 100%; max-width: none; height: 44px; min-height: 44px !important; align-self: end; }
+  #page-screener .scr-filter-sheet .scr-toolbar .sx-link { min-height: 44px; justify-self: start; }
+  #page-screener .scr-filter-sheet .scr-focus-toggle { display: none; }
+  #page-screener .scr-filter-sheet #scr-adv-filter-row.active { display: flex; }
+  /* One line: the state words and what the ranking is; the line opens 사후 검증. */
+  #page-screener .scr-banner { flex-wrap: nowrap; padding: 0 16px; margin: 0 0 12px; }
+  #page-screener .scr-banner > :not(.scr-banner-short) { display: none; }
+  #page-screener .scr-banner-short { display: block; flex: 1 1 auto; min-width: 0; min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--text-primary); font: inherit; font-size: 13px; font-weight: 600; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  #page-screener .scr-table-status { flex-wrap: nowrap; margin: 0 2px 8px; font-size: 12px; gap: 2px 10px; }
+  #page-screener .scr-table-status:has(.scr-dropped[open]) { flex-wrap: wrap; }
+  #page-screener .scr-table-status-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #page-screener .scr-table-status .scr-status-full { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  #page-screener .scr-table-status .scr-status-short { display: inline; }
+  #page-screener .scr-dropped { flex: 0 0 auto; }
+  #page-screener .scr-dropped > summary { display: inline-flex; align-items: center; min-height: 32px; white-space: nowrap; }
+  #page-screener .scr-dropped-list { padding: 4px 12px; }
+  #page-screener .scr-dropped-list > li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 2px 0; }
+  #page-screener .scr-dropped-sym { min-width: 0; overflow: hidden; white-space: nowrap; }
+  #page-screener .scr-dropped-sym > span { overflow: hidden; text-overflow: ellipsis; }
+  #page-screener .scr-dropped-why { font-size: 12px; text-align: right; }
   #page-screener .scr-split-main { padding: 6px 4px; }
   #page-screener td[data-column-key="range52"] { flex: 1 1 120px !important; }
   #page-screener .scr-why-actions .sx-btn { height: 50px; }
   #page-screener .scr-vh-row { grid-template-columns: 84px minmax(0, 1fr) 60px; gap: 10px; }
+  #page-screener .scr-vh-row .scr-vh-date { font-size: 12px; white-space: nowrap; }
+  #page-screener .scr-vh-dates > .sx-card__head { flex-direction: column; align-items: flex-start; gap: 4px; }
+  #page-screener .scr-vh-spread-row { grid-template-columns: 84px minmax(0, 1fr) 72px; row-gap: 2px; }
+  #page-screener .scr-vh-spread-row > .scr-vh-legs { grid-column: 2 / -1; grid-row: 2; flex-direction: row; justify-content: flex-end; gap: 12px; }
   #page-screener .scr-custom-main, #page-screener .scr-custom-summary { padding: 18px 16px; }
   #page-screener .scr-custom-chip { padding-left: 12px; }
   #page-screener .scr-custom-row input[type="text"] { min-width: 0; flex-basis: 100%; height: 44px; }

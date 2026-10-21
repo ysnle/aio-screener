@@ -71,6 +71,13 @@
 #page-home .home-flips-rules dd { margin: 0; color: var(--text-secondary); overflow-wrap: anywhere; }
 #page-home .home-flips-link { align-self: flex-start; margin-top: auto; min-height: 24px; }
 #page-home .home-flips-link::after { content: ' ›'; }
+/* v58.56 (re-audit #2): the hero reads one plain sentence; the conflict sentences with numbers and rules fold under the chips. */
+#page-home .home-hero-lede { font-size: 18px; font-weight: 600; color: var(--text-primary); line-height: 1.5; }
+#page-home .home-hero-why { margin: 2px -8px 0; }
+#page-home .home-hero-why[hidden] { display: none; }
+#page-home .home-hero-why > summary { grid-template-columns: auto auto; justify-content: start; gap: 6px; padding: 6px 8px; font-size: 13px; color: var(--text-secondary); min-height: 32px; }
+#page-home .home-hero-why-list { margin: 0; padding: 0 8px 8px 26px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; line-height: 1.65; color: var(--text-secondary); }
+#page-home .home-hero-why-list li { overflow-wrap: anywhere; text-wrap: pretty; }
 
 /* The hub tabs float right at the top (soft-ui §2); the note card keeps its own box beside them instead of running under them. */
 #page-home > #home-operator-note { contain: layout; }

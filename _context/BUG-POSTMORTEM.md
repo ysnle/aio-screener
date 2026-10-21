@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1951 - v58.56 - 스크리너 프리셋 전환이 '실행 통과만'을 꺼서 탈락 행이 섞임 (2026-10-21)
+
+- symptom/reproduction: 스크리너 첫 화면은 조건 통과 종목만(243·328) 보이다가 프리셋(모멘텀·추세 등)을 한 번 누르면 조건에서 탈락한 행 904개가 표에 함께 나왔다.
+- root_cause: selectDefinition이 화면 전환 때 FILTER_LABELS의 모든 체크박스를 끄면서, 표시 필터가 아니라 표의 범위인 #scr-passed-only까지 함께 껐다.
+- fix: selectDefinition의 초기화 대상에서 scr-passed-only를 제외해 프리셋 전환 뒤에도 통과 종목만 보기를 유지한다.
+- violated_rule: 표의 범위(무엇을 보여 줄지)와 표시 필터(그 안에서 무엇을 거를지)를 같은 초기화로 다루지 않는다.
+- prevention: ci-screener-extended-browser-check가 pc·phone에서 프리셋을 누른 뒤에도 '실행 통과만'이 켜져 있는지 확인한다(v58.56 review).
+- verification/residual: node scripts/ci-screener-extended-browser-check.mjs PASS(pc+phone); 리뷰 브라우저 프로브 328 → 243, 체크 유지.
+
 ## P1950 - v58.54 - producer dry run 게이트가 벽시계로 뉴스 주기를 판정해 23:00Z 경계 뒤 정기 갱신 전까지 실패함 (923cabb 배포 차단) (2026-10-21)
 
 - symptom/reproduction: `scripts/ci-producer-dry-run.mjs`(CI data 그룹)가 간헐적으로 `P1256 a failed news plane keeps the previous bundle :: 0 vs 40`로 실패했다. 2026-10-20 커밋 923cabb의 CI가 이것으로 실패해 Deploy GitHub Pages가 건너뛰어졌고, 데이터 커밋 0980609의 CI와 이전 커밋(d36bb25, 4e97710)에서도 재현됐다. 로컬 재현: 10/20 22:40Z 번들(newsNextRefresh 23:00Z)로 23:19Z에 실행하면 실패.

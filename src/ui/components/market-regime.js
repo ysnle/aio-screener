@@ -262,7 +262,7 @@ function distanceCell(doc, row) {
   if (!d) { cell.textContent = '—'; cell.classList.add('is-empty'); return cell; }
   cell.dataset.direction = d.direction;
   cell.append(el(doc, 'b', d.label, 'mk-axis__dist-value'), el(doc, 'span', `${d.short}${d.also?.length ? ' · 함께 필요' : ''}`, 'mk-axis__dist-basis'));
-  cell.title = `${d.condition} ${row.title} → ${d.towardLabel}${(d.also || []).map((also) => ` · 함께 필요: ${also.condition}${also.text ? ` (${also.text})` : ''}`).join('')}`;
+  cell.title = `종가 기준 · ${d.condition} ${row.title} → ${d.towardLabel}${(d.also || []).map((also) => ` · 함께 필요: ${also.condition}${also.text ? ` (${also.text})` : ''}`).join('')}`;
   return cell;
 }
 
@@ -462,6 +462,13 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       boardKr.hidden = !cards.length;
       const krSection = boardKr.closest?.('section.mk-korea');
       if (krSection) krSection.hidden = !cards.length; // the 한국 시장 참고 card goes with its board
+      // v58.56 (re-audit #16): the folded card's one line carries the latest KRX close (same record as the 오늘 line).
+      const krSummary = doc.getElementById('regime-kr-summary');
+      if (krSummary) {
+        const parts = koreaIndexParts(root._aioHistory || []);
+        krSummary.textContent = parts.kospi ? `${shortDate(parts.kospi.date)} 마감 · ${parts.kospi.text}` : '위 6개 지표 합계 제외';
+        krSummary.title = '한국 정규장 확정 종가 · 미국 6개 지표의 양호·중립·부담 합계에는 넣지 않는 참고입니다';
+      }
     }
   }
   const previousNode = page.querySelector('[data-aio-regime-scenarios]');
@@ -478,7 +485,10 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   const anchorId = handoff?.context?.anchor ? String(handoff.context.anchor) : '';
   if (/^[a-z0-9-]+$/i.test(anchorId)) {
     const section = doc.getElementById(anchorId);
-    const heading = section?.previousElementSibling?.tagName === 'H2' ? section.previousElementSibling : section;
+    // v58.56 (re-audit #16): the Korea card is folded; a link that asks for it opens the fold first.
+    const fold = section?.closest?.('details');
+    if (fold) fold.open = true;
+    const heading = fold ? fold.closest('section') || fold : section?.previousElementSibling?.tagName === 'H2' ? section.previousElementSibling : section;
     heading?.scrollIntoView?.({ block: 'start' });
   }
   page.dataset.aioRegimeRenderer = 'native';
@@ -487,11 +497,8 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
 
 // P1651: home summarized only the six US axes, so a -3.6% KOSPI day (-8.4% over five KRX sessions) after the US
 // close appeared only as a small ticker number. One line states the latest completed KRX session on its own date.
-function paintKoreaLine(doc, root) {
-  const headline = doc.getElementById('home-hero-headline');
-  if (!headline) return;
-  let line = doc.getElementById('home-kr-line');
-  const history = root._aioHistory || [];
+// v58.56: shared by the 오늘 line and the folded 한국 시장 참고 summary on 시장 상태.
+function koreaIndexParts(history) {
   const part = (field, title) => {
     const series = buildKoreaIndexSeries(history, field);
     const last = series.at(-1), prev = series.at(-2), prior5 = series.at(-6);
@@ -501,7 +508,15 @@ function paintKoreaLine(doc, root) {
     const d1 = signed(pctOf(prev)), d5 = signed(pctOf(prior5));
     return { date: last.date, text: `${title} ${last.value.toLocaleString('en-US', { maximumFractionDigits: 2 })}${d1 ? ` (${d1}${d5 ? ` · 5거래일 ${d5}` : ''})` : ''}`, d5: pctOf(prior5) };
   };
-  const kospi = part('kospi', '코스피'), kosdaq = part('kosdaq', '코스닥');
+  return { kospi: part('kospi', '코스피'), kosdaq: part('kosdaq', '코스닥') };
+}
+
+function paintKoreaLine(doc, root) {
+  const headline = doc.getElementById('home-hero-headline');
+  if (!headline) return;
+  let line = doc.getElementById('home-kr-line');
+  const history = root._aioHistory || [];
+  const { kospi, kosdaq } = koreaIndexParts(history);
   if (!kospi) { if (line) line.hidden = true; return; }
   if (!line) { line = el(doc, 'div', null, 'home-kr-line'); line.id = 'home-kr-line'; headline.insertAdjacentElement('afterend', line); }
   const [, month, day] = kospi.date.split('-').map(Number);
@@ -568,7 +583,16 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
   }
   set('home-hero-total', regime.available ? regime.overall : '판정 대기');
   set('home-hero-headline', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · 미국 6개 지표 ${regime.holdReason || summaryLine(regime)}` : '종가 기록을 불러오는 중입니다.');
-  set('home-hero-desc', regime.conflicts?.[0] || '');
+  // v58.56 (re-audit #2): the hero sentence is the regime's one plain line (heroLine); the full conflict sentences with
+  // their numbers and rules move into the 6개 축 근거 fold under the axis chips.
+  set('home-hero-desc', regime.heroLine || '');
+  const why = doc.getElementById('home-hero-why');
+  const whyList = doc.getElementById('home-hero-why-list');
+  if (why && whyList) {
+    const lines = regime.available ? (regime.conflicts || []) : [];
+    whyList.replaceChildren(...lines.map((text) => el(doc, 'li', text)));
+    why.hidden = !lines.length;
+  }
   paintKoreaLine(doc, root);
   // P1429 (Codex review): the two futures cells were the largest items on home and often empty. When a
   // futures quote is missing the cell shows the cash index's last completed close (same history as 시장 상태)

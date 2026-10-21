@@ -1019,7 +1019,12 @@ export function bottomWatchOf({ s = {}, c = {}, input = {}, basis = null } = {})
       : cf.met >= 2 ? '회복 신호는 보이지만 매도 소진 신호가 적어, 투매 없이 버티는 반등인지 지켜볼 구간입니다'
         : '매도 소진도 회복 확인도 아직 뚜렷하지 않습니다';
   const text = `바닥 확인 조건 — 소진 ${ex.met}/${ex.total}${metText(exhaustion) ? `(${metText(exhaustion)})` : ''} · 회복 확인 ${cf.met}/${cf.total}${metText(confirmation) ? `(${metText(confirmation)})` : ''}${missText(confirmation) ? ` · 남은 확인: ${missText(confirmation)}` : ''}. ${verdict}. 관례적 조건의 개수이며 바닥 예측이 아닙니다.`;
-  return { exhaustion, confirmation, exhaustionMet: ex.met, confirmationMet: cf.met, text };
+  // v58.56 (re-audit #2): one plain line for the 오늘 hero; the counts and rule stay in `text` (the 6개 축 근거 fold).
+  const line = ex.met >= 2 && cf.met >= 2 ? '매도 소진과 회복 신호가 함께 보여요.'
+    : ex.met >= 2 ? '매도 소진 신호는 쌓였지만 회복 확인은 아직이에요.'
+      : cf.met >= 2 ? '회복 신호는 보이지만 매도 소진 신호는 적어요.'
+        : '매도 소진도 회복 확인도 아직 뚜렷하지 않아요.';
+  return { exhaustion, confirmation, exhaustionMet: ex.met, confirmationMet: cf.met, text, line };
 }
 
 function leadershipSessionOf(s = {}, basis = null) {
@@ -1702,13 +1707,18 @@ export function buildMarketRegime(input = {}) {
   // Codex review 2026-10-05: '방어적 환경' read like a validated stance. The label now names only how the
   // six conventional axes split (counts beside it); it is a description, not an allocation call.
   const byId = Object.fromEntries(axes.map((row) => [row.id, row]));
+  const OVERALL_LINE = { '부담 우세': '미국 지표 대부분이 부담 쪽이에요.', '양호 우세': '미국 지표 대부분이 우호적이에요.', '다소 부담': '부담 쪽 지표가 조금 더 많아요.', '다소 양호': '우호적인 지표가 조금 더 많아요.', '혼조': '지표들이 서로 다른 방향을 가리켜요.' };
   const conflicts = [];
-  if (byId.trend?.state === 'favorable' && byId.breadth?.state === 'burden') conflicts.push('추세는 양호인데 시장 폭은 부담 — 지수는 오르는 흐름이지만 함께 오르는 종목은 적어, 몇몇 큰 종목이 지수를 떠받치고 있을 수 있습니다.'); // v57.55 beginner panel: plain words
+  // v58.56 (re-audit #2): every conflict also carries one plain declarative line (no numbers, no rule brackets) for the
+  // 오늘 hero; the full sentence with its numbers and rule stays in `conflicts` (6개 축 근거 fold, 시장 상태, AI context).
+  const conflictLines = [];
+  const addConflict = (line, text) => { conflicts.push(text); conflictLines.push(line); };
+  if (byId.trend?.state === 'favorable' && byId.breadth?.state === 'burden') addConflict('지수는 오르지만 함께 오르는 종목이 적어요.', '추세는 양호인데 시장 폭은 부담 — 지수는 오르는 흐름이지만 함께 오르는 종목은 적어, 몇몇 큰 종목이 지수를 떠받치고 있을 수 있습니다.'); // v57.55 beginner panel: plain words
   // v57.81: the leaders and the small caps breaking down together is named beside the axes (the 시장 상태 conflict list and
   // the AI context read it), so a narrow-leadership reading cannot stand while it holds.
   // v57.83: leaders weak without the market-wide confirmations — the index can hold while AI·semis fall (2026-07).
-  if (leadership.state === 'weak') conflicts.push(`주도주 약세 — ${leadership.summary}. 시장 전반의 확인 신호(신저가 우위·상승 종목 감소·분배일·러셀 2000 약세)는 ${leadership.met}/${leadership.confirmations.length}개라 아직 동반 약세로 번지지 않았지만, 지수만 보고 주도 영역이 건재하다고 읽지 않습니다.`);
-  if (leadership.break) conflicts.push(`주도 영역이 꺾이는 신호 — ${leadership.summary}(확인 ${leadership.met}/${leadership.confirmations.length}${leadership.window > 1 ? `·최근 ${leadership.window}거래일` : ''}, ${leadership.need}개 이상이면 판정${leadership.held ? '·나스닥 100 약세가 풀릴 때까지 유지' : ''}). 소수 종목이 지수를 받치던 흐름에서 함께 약해지는 흐름으로 넘어가는지 확인할 구간입니다.`);
+  if (leadership.state === 'weak') addConflict('주도주가 약해졌지만 시장 전반으로 번지진 않았어요.', `주도주 약세 — ${leadership.summary}. 시장 전반의 확인 신호(신저가 우위·상승 종목 감소·분배일·러셀 2000 약세)는 ${leadership.met}/${leadership.confirmations.length}개라 아직 동반 약세로 번지지 않았지만, 지수만 보고 주도 영역이 건재하다고 읽지 않습니다.`);
+  if (leadership.break) addConflict('지수를 받치던 주도주가 함께 약해지고 있어요.', `주도 영역이 꺾이는 신호 — ${leadership.summary}(확인 ${leadership.met}/${leadership.confirmations.length}${leadership.window > 1 ? `·최근 ${leadership.window}거래일` : ''}, ${leadership.need}개 이상이면 판정${leadership.held ? '·나스닥 100 약세가 풀릴 때까지 유지' : ''}). 소수 종목이 지수를 받치던 흐름에서 함께 약해지는 흐름으로 넘어가는지 확인할 구간입니다.`);
   // P1591 (M02): the HY clause follows the observed 5-day direction — "확대가 이어지면" read as already widening
   // when the spread had narrowed 9bp.
   const hyClause = c?.hy5 == null ? '하이일드 스프레드의 5일 방향은 아직 확인하지 못했습니다'
@@ -1717,12 +1727,12 @@ export function buildMarketRegime(input = {}) {
         // P1685: after a month of widening a 5-day narrowing is a pause, not "not widening".
         ? `하이일드 스프레드는 20거래일 동안 ${Math.round(c.hy20)}bp 넓어진 뒤 최근 5일 ${Math.abs(Math.round(c.hy5))}bp ${c.hy5 < 0 ? '좁아졌습니다' : '멈췄습니다'} — 확대가 다시 이어지면 결론이 바뀔 수 있습니다`
         : `하이일드 스프레드는 5일간 ${Math.abs(Math.round(c.hy5))}bp ${c.hy5 < 0 ? '좁아졌습니다' : '변화가 없습니다'} — 확대로 돌아서면 결론이 바뀔 수 있습니다`;
-  if (byId.volatility?.state === 'favorable' && byId.rates?.state === 'burden') conflicts.push(`금리는 부담인데 변동성은 낮음 — 금리 부담에 따른 투매는 아직 없습니다. ${hyClause}.`);
+  if (byId.volatility?.state === 'favorable' && byId.rates?.state === 'burden') addConflict('금리는 부담이지만 투매는 아직 없어요.', `금리는 부담인데 변동성은 낮음 — 금리 부담에 따른 투매는 아직 없습니다. ${hyClause}.`);
   // Owner 2026-10-18: a weak tape shows the other side too — whether selling looks exhausted and whether a rebound is
   // confirmed (bottom-type note: 소진 → 반등의 질 → 확인). Counts of conventions, not a bottom call.
   const bottomWatch = bottomWatchOf({ s, c, input, basis });
-  if (bottomWatch && (byId.trend?.state === 'burden' || byId.breadth?.state === 'burden' || leadership.break || leadership.state === 'weak')) conflicts.push(bottomWatch.text);
-  if (byId.credit?.state === 'favorable' && byId.breadth?.state === 'burden') conflicts.push(`시장 폭은 약하지만 신용은 안정${c.hy20 != null ? `(하이일드 20거래일 ${signed(c.hy20, 0, 'bp')})` : ''} — 신용 위험이 약세를 이끈다는 신호는 없습니다.`);
+  if (bottomWatch && (byId.trend?.state === 'burden' || byId.breadth?.state === 'burden' || leadership.break || leadership.state === 'weak')) addConflict(bottomWatch.line, bottomWatch.text);
+  if (byId.credit?.state === 'favorable' && byId.breadth?.state === 'burden') addConflict('시장 폭은 약하지만 신용은 안정적이에요.', `시장 폭은 약하지만 신용은 안정${c.hy20 != null ? `(하이일드 20거래일 ${signed(c.hy20, 0, 'bp')})` : ''} — 신용 위험이 약세를 이끈다는 신호는 없습니다.`);
   return {
     available: true,
     asOf: basis,
@@ -1733,6 +1743,11 @@ export function buildMarketRegime(input = {}) {
       : enough ? null : `6개 지표 중 ${known.length}개만 확인돼 전체 판정을 보류합니다(최소 ${MIN_KNOWN_AXES}개).`,
     counts: { favorable, neutral: count('neutral'), burden, unknown: us.length - known.length },
     conflicts,
+    // v58.56 (re-audit #2): the 오늘 hero sentence — one plain line from the first conflict, or from the overall split
+    // when no two axes disagree; null while the verdict is on hold (the hold reason is shown instead).
+    // v58.56 review: '혼조' is the fall-through label, so a mostly-neutral split names that instead of "서로 다른 방향".
+    heroLine: !enough ? null : conflictLines[0]
+      || (overall === '혼조' && count('neutral') * 2 > known.length ? '대부분 지표가 중립이에요.' : OVERALL_LINE[overall]) || null,
     // v57.81: the leadership-break test and the trend cap travel with the regime (scenario rules, outlook, AI context).
     leadership,
     leadershipBreak: !!leadership.break,

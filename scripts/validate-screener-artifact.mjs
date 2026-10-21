@@ -42,6 +42,24 @@ if (mixedRevision && (!contract || contract.allowedUse !== 'research-relative-ra
 if (fundamentalRows.some(row => !row.fundamentalSource || !row.fundamentalModel || !row.fundamentalObservedAt || !Number.isFinite(new Date(row.fundamentalObservedAt).getTime()))) errors.push('fundamental rows require source/model/observedAt lineage');
 if (payload.fundamentalCount != null && Number(payload.fundamentalCount) !== fundamentalRows.length) errors.push(`fundamentalCount mismatch (${payload.fundamentalCount} != ${fundamentalRows.length})`);
 
+// v58.56 (#6): the back-test's per-date spread arrays (사후 검증 draws one bar per rebalance) must line up with spreadDates,
+// sit inside rebalanceDates, and average back to the published means. Absent arrays (artifacts before v58.56) are allowed.
+const backtest = payload && payload.backtest;
+if (backtest && Array.isArray(backtest.spreadDates)) {
+  const dates = backtest.spreadDates;
+  const series = ['quantileSpreadByDate', 'quantileSpreadNetByDate', 'topQuintileMeanByDate', 'bottomQuintileMeanByDate', 'transactionCostByDate'];
+  for (const key of series) {
+    if (!Array.isArray(backtest[key]) || backtest[key].length !== dates.length) errors.push(`backtest.${key} must have one value per spreadDates entry`);
+    else if (backtest[key].some((value) => !Number.isFinite(Number(value)))) errors.push(`backtest.${key} has a non-finite value`);
+  }
+  const rebalance = new Set(Array.isArray(backtest.rebalanceDates) ? backtest.rebalanceDates : []);
+  if (dates.some((date, index) => !rebalance.has(date) || (index && date <= dates[index - 1]))) errors.push('backtest.spreadDates must be ascending rebalanceDates');
+  if (Number.isFinite(Number(backtest.rebalancesCounted)) && dates.length !== Number(backtest.rebalancesCounted)) errors.push(`backtest.spreadDates (${dates.length}) != rebalancesCounted (${backtest.rebalancesCounted})`);
+  const mean = (key) => backtest[key].reduce((sum, value) => sum + Number(value), 0) / backtest[key].length;
+  if (dates.length && Array.isArray(backtest.quantileSpreadNetByDate) && backtest.quantileSpreadNetByDate.length === dates.length && Math.abs(mean('quantileSpreadNetByDate') - Number(backtest.quantileSpreadNet)) > 0.05) errors.push('backtest.quantileSpreadNetByDate does not average to quantileSpreadNet');
+  if (dates.length && Array.isArray(backtest.quantileSpreadByDate) && backtest.quantileSpreadByDate.length === dates.length && Math.abs(mean('quantileSpreadByDate') - Number(backtest.quantileSpread)) > 0.05) errors.push('backtest.quantileSpreadByDate does not average to quantileSpread');
+}
+
 for (let i = 0; i < rows.length; i++) {
   const row = rows[i];
   // P715: raw per-symbol price must NOT be published (redistribution posture) - derived-only artifact.

@@ -118,7 +118,11 @@ try {
     check(await page.locator('#regime-board .regime-axis-history svg').count() >= 4, `${viewport.name}: dated market charts absent (P1628)`);
     check(await page.locator('.regime-scenario-card').count() === 3, `${viewport.name}: conditional market paths absent (P1628)`);
     check(!await page.locator('#regime-positioning').count(), `${viewport.name}: retired weekly positioning widget remains (P1628)`);
-    check(await page.locator('#regime-board-kr [data-market="KR"]').count() >= 2 && await page.locator('#regime-kr-participation').isVisible(), `${viewport.name}: Korean index and participation consumers absent (P1628)`);
+    // v58.56 (re-audit #16): the 한국 시장 참고 card is a one-line fold (summary = latest KOSPI close); the consumers are
+    // rendered inside it and shown once it opens.
+    await page.evaluate(() => { const fold = document.getElementById('regime-kr-fold'); if (fold) fold.open = true; });
+    check(await page.locator('#regime-kr-summary').isVisible() && await page.locator('#regime-board-kr [data-market="KR"]').count() >= 2 && await page.locator('#regime-kr-participation').isVisible(), `${viewport.name}: Korean index and participation consumers absent (P1628)`);
+    await page.evaluate(() => { const fold = document.getElementById('regime-kr-fold'); if (fold) fold.open = false; });
     check(await page.locator('.regime-scenario-card .regime-scenario-more[open]').count() === 0, `${viewport.name}: scenario conditions are not folded behind the reading (P1630)`);
     await snap(page, `${viewport.name}-market-regime.png`, { fullPage: true });
     const overlayRoute = await page.evaluate(async () => { window.showPage('glossary', null); await new Promise(r => setTimeout(r, 50)); const state = { active: document.querySelector('.page.active')?.id || null, modal: document.getElementById('glossary-modal')?.style.display !== 'none' }; window._aioCloseGlossary?.(); return state; });

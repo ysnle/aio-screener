@@ -11,6 +11,7 @@ export function sectionLead(doc, text) {
 
 export function renderNextSteps(doc, host, items = []) {
   if (!host) return null;
+  const wasOpen = !!host.querySelector?.('.flow-next-fold')?.open;
   host.replaceChildren();
   host.hidden = !items.length;
   if (!items.length) return host;
@@ -42,6 +43,25 @@ export function renderNextSteps(doc, host, items = []) {
     why.textContent = item.why || '';
     li.append(button, why);
     list.append(li);
+  }
+  // v58.56 (re-audit #16): on the long market screens (host data-fold) the list is a one-line disclosure whose summary
+  // names the destinations, so the page ends on one line instead of a ~220-320px block; the links are unchanged.
+  if (host.dataset.fold != null) {
+    const fold = doc.createElement('details');
+    fold.className = 'sx-disclosure flow-next-fold';
+    fold.open = wasOpen; // v58.56 review: a data refresh repaints the list without closing a fold the reader opened
+    const summary = doc.createElement('summary');
+    summary.className = 'flow-next-summary';
+    const label = doc.createElement('span');
+    label.className = 'flow-next-title';
+    label.textContent = '이어서 볼 곳';
+    const names = doc.createElement('span');
+    names.className = 'flow-next-names';
+    names.textContent = items.map((item) => item.label).join(' · ');
+    summary.append(label, names);
+    fold.append(summary, list);
+    host.append(fold);
+    return host;
   }
   host.append(head, list);
   return host;
