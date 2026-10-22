@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-22T14:51:48.372Z",
-  "attemptedAt": "2026-10-22T14:51:48.372Z",
-  "lastSuccessfulAt": "2026-10-22T14:51:48.372Z",
+  "generatedAt": "2026-10-22T15:21:57.710Z",
+  "attemptedAt": "2026-10-22T15:21:57.710Z",
+  "lastSuccessfulAt": "2026-10-22T15:21:57.710Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-08T14:51:45.188Z",
-  "until": "2026-10-22T14:51:45.188Z",
+  "since": "2026-10-08T15:21:51.381Z",
+  "until": "2026-10-22T15:21:51.381Z",
   "current24hWindow": {
     "start": "2026-10-20T23:00:00.000Z",
     "end": "2026-10-21T23:00:00.000Z",
@@ -78,15 +78,15 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 261,
-      "freshCount": 20,
-      "eligibleTextCount": 250,
+      "count": 262,
+      "freshCount": 39,
+      "eligibleTextCount": 251,
       "selectedCount": 66,
       "error": null,
-      "lastPostId": 25988
+      "lastPostId": 25989
     },
     {
       "channel": "insidertracking",
@@ -125,18 +125,18 @@
       "lastPostId": 70858
     }
   ],
-  "count": 2381,
-  "retainedItemCount": 426,
+  "count": 2382,
+  "retainedItemCount": 438,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2381,
-    "eligibleTextCount": 2322,
+    "observedCount": 2382,
+    "eligibleTextCount": 2323,
     "mediaOnlyCount": 59,
-    "highSignalCount": 518,
-    "broadSignalCount": 1058,
+    "highSignalCount": 519,
+    "broadSignalCount": 1059,
     "selectedRawCount": 402,
     "selectedEligibleCount": 402,
     "selectedRawCoveragePct": 17.3,
@@ -144,21 +144,21 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "credit": 113,
+    "macro": 792,
+    "earnings": 500,
+    "flows": 152,
+    "japan": 146,
     "geo": 348,
     "optical": 52,
-    "earnings": 499,
-    "macro": 791,
     "semi": 595,
-    "credit": 112,
     "power": 337,
     "equity": 166,
     "kr-market": 169,
     "healthcare": 133,
-    "japan": 145,
     "market-note": 800,
     "ai-policy": 178,
     "media-only": 59,
-    "flows": 151,
     "insider": 39,
     "crypto": 6
   },
@@ -243,12 +243,12 @@
   },
   "themes": [
     "Market Notes (800 posts in 14-day research window): 2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물...",
-    "Macro/Rates (791 posts in 14-day research window): Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템...",
+    "Macro/Rates (792 posts in 14-day research window): Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템...",
     "Semiconductors/Memory (595 posts in 14-day research window): Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에...",
-    "Earnings/Corporate (499 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용...",
+    "Earnings/Corporate (500 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용...",
     "Geopolitics (348 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀....",
     "AI Power/Grid (337 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
-    "AI Policy/Export Controls (178 posts in 14-day research window): 오픈AI가 구글 클라우드를 통해 GPT-6 아스트라 등 최첨단 AI 모델과 코덱스(Codex) 코딩 에이전트 서비스를 제공할 예정. 10월 21일 양사는 향후 몇 주 안에 오픈AI의 최신 AI 모델과 코덱스...",
+    "AI Policy/Export Controls (178 posts in 14-day research window): OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게...",
     "Korea Market (169 posts in 14-day research window): JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%..."
   ],
   "catalysts": [
@@ -300,7 +300,7 @@
     {
       "key": "AMD",
       "count": 40,
-      "text": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두..."
+      "text": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두 번째 수십억 달러 규모 계약을 협상 중이라고 소식통이 CNBC에 전했습니다. 이번 계약은 지난 8월 보도된..."
     },
     {
       "key": "CRWV",
@@ -320,7 +320,7 @@
       "topics": [
         "macro"
       ],
-      "count": 791,
+      "count": 792,
       "focus": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템..."
     },
     {
@@ -338,7 +338,7 @@
       "topics": [
         "credit"
       ],
-      "count": 112,
+      "count": 113,
       "focus": ">>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가. 여기에는 데이터센터 임대 계약 3,557억 달러와 클라우드 컴퓨팅 등 관련 계약 4,545억달러 포함 •목요일..."
     },
     {
@@ -375,7 +375,7 @@
         "ai-policy"
       ],
       "count": 178,
-      "focus": "오픈AI가 구글 클라우드를 통해 GPT-6 아스트라 등 최첨단 AI 모델과 코덱스(Codex) 코딩 에이전트 서비스를 제공할 예정. 10월 21일 양사는 향후 몇 주 안에 오픈AI의 최신 AI 모델과 코덱스..."
+      "focus": "OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게..."
     },
     {
       "id": "kr-market",
@@ -410,7 +410,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 499,
+      "count": 500,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용..."
     },
     {
@@ -428,7 +428,7 @@
       "topics": [
         "japan"
       ],
-      "count": 145,
+      "count": 146,
       "focus": ">>천연가스와 석탄 가격 급등으로 일본 전기요금 25% 상승 •전기요금 상승은 세계 최대 LNG 수입국 중 하나인 일본이 심각한 에너지 비용 압박에 직면했음을 보여줌. LNG 현물 가격은 지난 주말..."
     },
     {
@@ -437,7 +437,7 @@
       "topics": [
         "flows"
       ],
-      "count": 151,
+      "count": 152,
       "focus": "2026년 10월 21일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (11.95%) 2위: PROSHARES ULTRA QQQ ETF (7.48%)..."
     },
     {
@@ -1281,18 +1281,22 @@
       "datetime": "2026-10-20T14:23:22.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "macro"
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "japan"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두...",
       "tickers": [
         "NVDA",
         "AMD",
         "MSFT",
         "GOOG",
         "AVGO"
-      ]
+      ],
+      "summary": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두..."
     },
     {
       "id": "aetherjapanresearch/25949",
@@ -1626,6 +1630,24 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/25989",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25989",
+      "datetime": "2026-10-22T14:52:38.000Z",
+      "localDateKst": "2026-10-22",
+      "tags": [
+        "credit",
+        "macro",
+        "earnings",
+        "flows",
+        "japan"
+      ],
+      "score": 89,
+      "hasText": true,
+      "tickers": [],
+      "summary": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
+    },
     {
       "id": "HANAchina/70858",
       "channel": "HANAchina",
@@ -3373,14 +3395,15 @@
       "datetime": "2026-10-21T12:14:30.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
+        "credit",
         "ai-policy"
       ],
       "score": 71,
       "hasText": true,
-      "summary": "오픈AI가 구글 클라우드를 통해 GPT-6 아스트라 등 최첨단 AI 모델과 코덱스(Codex) 코딩 에이전트 서비스를 제공할 예정. 10월 21일 양사는 향후 몇 주 안에 오픈AI의 최신 AI 모델과 코덱스...",
       "tickers": [
         "GOOG"
-      ]
+      ],
+      "summary": "오픈AI가 구글 클라우드를 통해 GPT-6 아스트라 등 최첨단 AI 모델과 코덱스(Codex) 코딩 에이전트 서비스를 제공할 예정. 10월 21일 양사는 향후 몇 주 안에 오픈AI의 최신 AI 모델과 코덱스..."
     },
     {
       "id": "bornlupin/20753",
@@ -3447,16 +3470,20 @@
       "datetime": "2026-10-21T11:59:45.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "semi"
+        "macro",
+        "semi",
+        "optical",
+        "healthcare",
+        "japan"
       ],
       "score": 89,
       "hasText": true,
-      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] 엔비디아, 공급망 파트너와 AI 인프라 생산능력 확대 발표 확대 개요 - GTC Berlin서 암코·이비덴·KYEC·삼성전기·SPIL·유니마이크론 등과...",
       "tickers": [
         "NVDA",
         "MU",
         "009150.KS"
-      ]
+      ],
+      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] 엔비디아, 공급망 파트너와 AI 인프라 생산능력 확대 발표 확대 개요 - GTC Berlin서 암코·이비덴·KYEC·삼성전기·SPIL·유니마이크론 등과..."
     },
     {
       "id": "insidertracking/66904",
@@ -3587,10 +3614,10 @@
       ],
       "score": 66,
       "hasText": true,
-      "summary": "엔비디아, 신규 휴머노이드 로봇을 포함한 아이작(Isaac) 로보틱스 플랫폼의 대대적인 확장을 발표 \"로보틱스 분야의 ChatGPT 모먼트가 빠르게 다가오고 있습니다.\" GTC 베를린에서 엔비디아는 범용 로봇...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아, 신규 휴머노이드 로봇을 포함한 아이작(Isaac) 로보틱스 플랫폼의 대대적인 확장을 발표 \"로보틱스 분야의 ChatGPT 모먼트가 빠르게 다가오고 있습니다.\" GTC 베를린에서 엔비디아는 범용 로봇..."
     },
     {
       "id": "HANAchina/70806",
@@ -3832,14 +3859,15 @@
       "datetime": "2026-10-21T04:40:53.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
+        "macro",
         "power",
         "earnings",
         "healthcare"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "JP모건) 스페이스X 3Q26 실적이 시사하는 바: AI 인프라 모멘텀을 재확인하고 제약 우려를 완화할 것 스페이스X(더그 앤머스 커버)는 3Q26 실적을 발표하고 데이터센터 구축에 관한 여러 업데이트를...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JP모건) 스페이스X 3Q26 실적이 시사하는 바: AI 인프라 모멘텀을 재확인하고 제약 우려를 완화할 것 스페이스X(더그 앤머스 커버)는 3Q26 실적을 발표하고 데이터센터 구축에 관한 여러 업데이트를..."
     },
     {
       "id": "HANAchina/70795",
@@ -3864,12 +3892,13 @@
       "localDateKst": "2026-10-21",
       "tags": [
         "macro",
-        "power"
+        "power",
+        "earnings"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "스페이스X 사업 업데이트 및 전망 AI 데이터센터 2027년 AI 컴퓨트 용량 5~10GW → 7.5~13GW 상향. AI 컴퓨트 거래가격도 지난 분기 와트당 30~50달러 수익화 예상에서 와트당 50달러...",
-      "tickers": []
+      "tickers": [],
+      "summary": "스페이스X 사업 업데이트 및 전망 AI 데이터센터 2027년 AI 컴퓨트 용량 5~10GW → 7.5~13GW 상향. AI 컴퓨트 거래가격도 지난 분기 와트당 30~50달러 수익화 예상에서 와트당 50달러..."
     },
     {
       "id": "insidertracking/66856",
@@ -4538,18 +4567,22 @@
       "datetime": "2026-10-20T14:23:22.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "macro"
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "japan"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두...",
       "tickers": [
         "NVDA",
         "AMD",
         "MSFT",
         "GOOG",
         "AVGO"
-      ]
+      ],
+      "summary": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두..."
     },
     {
       "id": "HANAchina/70773",
@@ -4693,10 +4726,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "삼성전자, 모뎀도 2나노 간다...올해 4나노 M2700은 MX 테스트 통과 < 반도체 < 기사본문 - 디일렉(THE ELEC)",
       "tickers": [
         "005930.KS"
-      ]
+      ],
+      "summary": "삼성전자, 모뎀도 2나노 간다...올해 4나노 M2700은 MX 테스트 통과 < 반도체 < 기사본문 - 디일렉(THE ELEC)"
     },
     {
       "id": "HANAchina/70766",
@@ -8369,23 +8402,6 @@
       "tickers": [
         "TSM"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25854",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25854",
-      "datetime": "2026-10-15T06:14:21.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "score": 61,
-      "hasText": true,
-      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] TSMC FY3Q26 실적발표 FY3Q26 실적 (Non-GAAP) 매출액 $46.7B (+16% QoQ, +41% YoY): 컨센서스 +2% GPM...",
-      "tickers": [
-        "TSM"
-      ]
     }
   ],
   "current24hItems": [
@@ -8907,14 +8923,15 @@
       "datetime": "2026-10-21T12:14:30.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
+        "credit",
         "ai-policy"
       ],
       "score": 71,
       "hasText": true,
-      "summary": "오픈AI가 구글 클라우드를 통해 GPT-6 아스트라 등 최첨단 AI 모델과 코덱스(Codex) 코딩 에이전트 서비스를 제공할 예정. 10월 21일 양사는 향후 몇 주 안에 오픈AI의 최신 AI 모델과 코덱스...",
       "tickers": [
         "GOOG"
-      ]
+      ],
+      "summary": "오픈AI가 구글 클라우드를 통해 GPT-6 아스트라 등 최첨단 AI 모델과 코덱스(Codex) 코딩 에이전트 서비스를 제공할 예정. 10월 21일 양사는 향후 몇 주 안에 오픈AI의 최신 AI 모델과 코덱스..."
     },
     {
       "id": "bornlupin/20753",
@@ -8981,16 +8998,20 @@
       "datetime": "2026-10-21T11:59:45.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "semi"
+        "macro",
+        "semi",
+        "optical",
+        "healthcare",
+        "japan"
       ],
       "score": 89,
       "hasText": true,
-      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] 엔비디아, 공급망 파트너와 AI 인프라 생산능력 확대 발표 확대 개요 - GTC Berlin서 암코·이비덴·KYEC·삼성전기·SPIL·유니마이크론 등과...",
       "tickers": [
         "NVDA",
         "MU",
         "009150.KS"
-      ]
+      ],
+      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] 엔비디아, 공급망 파트너와 AI 인프라 생산능력 확대 발표 확대 개요 - GTC Berlin서 암코·이비덴·KYEC·삼성전기·SPIL·유니마이크론 등과..."
     },
     {
       "id": "insidertracking/66904",
@@ -9121,10 +9142,10 @@
       ],
       "score": 66,
       "hasText": true,
-      "summary": "엔비디아, 신규 휴머노이드 로봇을 포함한 아이작(Isaac) 로보틱스 플랫폼의 대대적인 확장을 발표 \"로보틱스 분야의 ChatGPT 모먼트가 빠르게 다가오고 있습니다.\" GTC 베를린에서 엔비디아는 범용 로봇...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아, 신규 휴머노이드 로봇을 포함한 아이작(Isaac) 로보틱스 플랫폼의 대대적인 확장을 발표 \"로보틱스 분야의 ChatGPT 모먼트가 빠르게 다가오고 있습니다.\" GTC 베를린에서 엔비디아는 범용 로봇..."
     },
     {
       "id": "HANAchina/70806",
@@ -9366,14 +9387,15 @@
       "datetime": "2026-10-21T04:40:53.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
+        "macro",
         "power",
         "earnings",
         "healthcare"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "JP모건) 스페이스X 3Q26 실적이 시사하는 바: AI 인프라 모멘텀을 재확인하고 제약 우려를 완화할 것 스페이스X(더그 앤머스 커버)는 3Q26 실적을 발표하고 데이터센터 구축에 관한 여러 업데이트를...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JP모건) 스페이스X 3Q26 실적이 시사하는 바: AI 인프라 모멘텀을 재확인하고 제약 우려를 완화할 것 스페이스X(더그 앤머스 커버)는 3Q26 실적을 발표하고 데이터센터 구축에 관한 여러 업데이트를..."
     },
     {
       "id": "HANAchina/70795",
@@ -9398,12 +9420,13 @@
       "localDateKst": "2026-10-21",
       "tags": [
         "macro",
-        "power"
+        "power",
+        "earnings"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "스페이스X 사업 업데이트 및 전망 AI 데이터센터 2027년 AI 컴퓨트 용량 5~10GW → 7.5~13GW 상향. AI 컴퓨트 거래가격도 지난 분기 와트당 30~50달러 수익화 예상에서 와트당 50달러...",
-      "tickers": []
+      "tickers": [],
+      "summary": "스페이스X 사업 업데이트 및 전망 AI 데이터센터 2027년 AI 컴퓨트 용량 5~10GW → 7.5~13GW 상향. AI 컴퓨트 거래가격도 지난 분기 와트당 30~50달러 수익화 예상에서 와트당 50달러..."
     },
     {
       "id": "insidertracking/66856",
