@@ -1,6 +1,6 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-10-22T22:07:51.613Z",
+ "generatedAt": "2026-10-22T22:32:30.067Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
@@ -8,8 +8,8 @@
  "model": "sec-fy-normalized-v2",
  "eligible": 3900,
  "stored": 3542,
- "attempted": 564,
- "updated": 542,
+ "attempted": 0,
+ "updated": 0,
  "failures": [
   {
    "symbol": "AACI",
@@ -4198,6 +4198,7 @@
   "CTAA",
   "CTY",
   "CXII",
+  "DAVI",
   "DBCA",
   "DETX",
   "DMRC",
@@ -4312,6 +4313,7 @@
   "MUZE",
   "MWH",
   "MYX",
+  "NANO",
   "NCNA",
   "NCO",
   "NEXM",
@@ -4441,9 +4443,7 @@
   "YMAT",
   "YSS",
   "YSWY",
-  "ZKP",
-  "DAVI",
-  "NANO"
+  "ZKP"
  ],
  "retryableFailures": [
   "AYA",
@@ -4475,27 +4475,27 @@
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:39861186609",
-  "attemptedAt": "2026-10-22T22:03:33.619Z",
+  "runId": "gha:39864893819",
+  "attemptedAt": "2026-10-22T22:32:17.660Z",
   "sourceRevision": "sec-company-tickers:c4c73cd3ccd0ef974d9f70462abb7d1ec84b3102d7f95e1e1cdb6497fb71e408",
   "inputWatermarks": {
-   "universe": "2026-10-22T22:03:31.955Z",
-   "screener": "2026-10-22T22:02:53.513Z",
-   "previousArtifact": "2026-10-22T07:34:49.262Z"
+   "universe": "2026-10-22T22:32:15.819Z",
+   "screener": "2026-10-22T22:31:34.709Z",
+   "previousArtifact": "2026-10-22T22:07:51.613Z"
   },
   "batchLimit": 600,
   "counts": {
    "eligible": 3900,
-   "attempted": 564,
-   "updated": 542,
-   "retained": 3000,
+   "attempted": 0,
+   "updated": 0,
+   "retained": 3542,
    "pendingEligible": 358
   },
   "thisBatch": {
-   "updated": 542,
-   "terminalUnsupported": 3,
-   "transientFailed": 19,
-   "recorded": 22
+   "updated": 0,
+   "terminalUnsupported": 0,
+   "transientFailed": 0,
+   "recorded": 0
   },
   "ledger": {
    "total": 358,
@@ -4505,8 +4505,8 @@
   },
   "lastSuccessfulObservation": "2026-10-22T22:03:33.619Z",
   "publication": {
-   "status": "PARTIAL",
-   "reason": "some attempted targets were not updated",
+   "status": "NOT_ATTEMPTED",
+   "reason": "no target was due in this batch",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -321485,7 +321485,7 @@
  "issuerSicCoverage": {
   "classified": 3854,
   "eligible": 3900,
-  "passAttempted": 24,
+  "passAttempted": 46,
   "passUpdated": 0,
   "passFailed": 0
  },
