@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-22T21:51:44.166Z",
-  "attemptedAt": "2026-10-22T21:51:44.166Z",
-  "lastSuccessfulAt": "2026-10-22T21:51:44.166Z",
+  "generatedAt": "2026-10-22T22:21:45.388Z",
+  "attemptedAt": "2026-10-22T22:21:45.388Z",
+  "lastSuccessfulAt": "2026-10-22T22:21:45.388Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-08T21:51:38.629Z",
-  "until": "2026-10-22T21:51:38.629Z",
+  "since": "2026-10-08T22:21:39.403Z",
+  "until": "2026-10-22T22:21:39.403Z",
   "current24hWindow": {
     "start": "2026-10-20T23:00:00.000Z",
     "end": "2026-10-21T23:00:00.000Z",
@@ -93,79 +93,85 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1221,
+      "count": 1207,
       "freshCount": 40,
-      "eligibleTextCount": 1171,
+      "eligibleTextCount": 1159,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67058
+      "lastPostId": 67065
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 220,
+      "count": 219,
       "freshCount": 20,
-      "eligibleTextCount": 220,
+      "eligibleTextCount": 219,
       "selectedCount": 95,
       "error": null,
       "lastPostId": 20769
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 707,
-      "freshCount": 20,
-      "eligibleTextCount": 707,
+      "count": 708,
+      "freshCount": 40,
+      "eligibleTextCount": 708,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 70863
+      "lastPostId": 70869
     }
   ],
-  "count": 2410,
-  "retainedItemCount": 431,
+  "count": 2396,
+  "retainedItemCount": 448,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2410,
-    "eligibleTextCount": 2349,
-    "mediaOnlyCount": 61,
+    "observedCount": 2396,
+    "eligibleTextCount": 2337,
+    "mediaOnlyCount": 59,
     "highSignalCount": 526,
-    "broadSignalCount": 1073,
+    "broadSignalCount": 1069,
     "selectedRawCount": 402,
     "selectedEligibleCount": 402,
-    "selectedRawCoveragePct": 17.1,
-    "selectedOfObservedPct": 16.7,
+    "selectedRawCoveragePct": 17.2,
+    "selectedOfObservedPct": 16.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "macro": 803,
-    "power": 339,
-    "earnings": 506,
-    "market-note": 806,
-    "ai-policy": 177,
-    "equity": 168,
-    "geo": 355,
-    "semi": 601,
-    "media-only": 61,
+    "earnings": 505,
+    "market-note": 802,
+    "macro": 800,
     "kr-market": 169,
-    "flows": 151,
+    "insider": 41,
+    "geo": 349,
     "healthcare": 136,
+    "semi": 600,
+    "equity": 168,
+    "ai-policy": 176,
+    "flows": 150,
+    "power": 338,
+    "media-only": 59,
     "credit": 114,
     "japan": 146,
-    "optical": 52,
-    "insider": 39,
+    "optical": 50,
     "crypto": 6
   },
   "tickerCounts": {
-    "BE": 23,
+    "SPOT": 1,
+    "000660.KS": 58,
     "AMD": 39,
-    "TSM": 116,
+    "COHR": 8,
+    "SNDK": 7,
+    "T": 5,
+    "GOOG": 73,
+    "TSM": 115,
+    "BE": 23,
     "NVDA": 134,
     "TSLA": 63,
     "009150.KS": 14,
@@ -175,7 +181,6 @@
     "ORCL": 8,
     "META": 16,
     "PLTR": 6,
-    "GOOG": 72,
     "RDDT": 1,
     "PINS": 1,
     "AMZN": 40,
@@ -186,15 +191,11 @@
     "MS": 5,
     "DB": 2,
     "WMT": 2,
-    "000660.KS": 57,
-    "AAPL": 14,
+    "AAPL": 13,
     "SMCI": 6,
     "LITE": 14,
     "005930.KS": 51,
     "DELL": 1,
-    "T": 4,
-    "COHR": 7,
-    "SNDK": 6,
     "ADBE": 2,
     "2454.TW": 3,
     "UMC": 1,
@@ -242,13 +243,13 @@
     "CRWD": 1
   },
   "themes": [
-    "Market Notes (806 posts in 14-day research window): 2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물...",
-    "Macro/Rates (803 posts in 14-day research window): 2026년 10월 22일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (19.05%) 2위: SPACE EXPLORATION TECHN-CL A (12.20%) 3위: DIREXION SHARES ETF TRUST DAILY...",
-    "Semiconductors/Memory (601 posts in 14-day research window): Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에...",
-    "Earnings/Corporate (506 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용...",
-    "Geopolitics (355 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에...",
-    "AI Power/Grid (339 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
-    "AI Policy/Export Controls (177 posts in 14-day research window): 오픈AI가 구글 클라우드를 통해 GPT-6 아스트라 등 최첨단 AI 모델과 코덱스(Codex) 코딩 에이전트 서비스를 제공할 예정. 10월 21일 양사는 향후 몇 주 안에 오픈AI의 최신 AI 모델과 코덱스...",
+    "Market Notes (802 posts in 14-day research window): 2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물...",
+    "Macro/Rates (800 posts in 14-day research window): 2026년 10월 22일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (19.05%) 2위: SPACE EXPLORATION TECHN-CL A (12.20%) 3위: DIREXION SHARES ETF TRUST DAILY...",
+    "Semiconductors/Memory (600 posts in 14-day research window): Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에...",
+    "Earnings/Corporate (505 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 데이터 분석 기업 애플로스 데이터를 최고 파트너 등급인 '뱅가드: 엘리트'로 승격. 기존 고객 대상 AI...",
+    "Geopolitics (349 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에...",
+    "AI Power/Grid (338 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
+    "AI Policy/Export Controls (176 posts in 14-day research window): 오픈AI가 구글 클라우드를 통해 GPT-6 아스트라 등 최첨단 AI 모델과 코덱스(Codex) 코딩 에이전트 서비스를 제공할 예정. 10월 21일 양사는 향후 몇 주 안에 오픈AI의 최신 AI 모델과 코덱스...",
     "Korea Market (169 posts in 14-day research window): JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%..."
   ],
   "catalysts": [
@@ -259,12 +260,12 @@
     },
     {
       "key": "TSM",
-      "count": 116,
+      "count": 115,
       "text": "2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로..."
     },
     {
       "key": "GOOG",
-      "count": 72,
+      "count": 73,
       "text": "Citi) 메타; 뮤즈 도입 확대와 핵심 광고 모멘텀 지속으로 AI 순풍 가속화; 투자 동향 주시 Citi는 Meta의 3Q26 실적 발표 이후 투자의견 매수(Buy)를 유지하고 목표주가를 895달러에서 905달러로 상향했습니다. Citi는 Meta가 여러 수익화 동력을 갖춘 AI 제품 슈퍼사이클에 진입하고 있다고..."
     },
     {
@@ -274,7 +275,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 57,
+      "count": 58,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에..."
     },
     {
@@ -320,7 +321,7 @@
       "topics": [
         "macro"
       ],
-      "count": 803,
+      "count": 800,
       "focus": "2026년 10월 22일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (19.05%) 2위: SPACE EXPLORATION TECHN-CL A (12.20%) 3위: DIREXION SHARES ETF TRUST DAILY..."
     },
     {
@@ -329,7 +330,7 @@
       "topics": [
         "geo"
       ],
-      "count": 355,
+      "count": 349,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에..."
     },
     {
@@ -347,7 +348,7 @@
       "topics": [
         "semi"
       ],
-      "count": 601,
+      "count": 600,
       "focus": "Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에..."
     },
     {
@@ -356,7 +357,7 @@
       "topics": [
         "optical"
       ],
-      "count": 52,
+      "count": 50,
       "focus": "모건스탠리, 광학엔진(OE) 출하량 및 FAU 시장 규모 전망 상향 Largan Precision·Genius Electronic Optical 목표주가 동반 상향 모건스탠리(Morgan Stanley)는..."
     },
     {
@@ -365,7 +366,7 @@
       "topics": [
         "power"
       ],
-      "count": 339,
+      "count": 338,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에..."
     },
     {
@@ -374,7 +375,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 177,
+      "count": 176,
       "focus": "오픈AI가 구글 클라우드를 통해 GPT-6 아스트라 등 최첨단 AI 모델과 코덱스(Codex) 코딩 에이전트 서비스를 제공할 예정. 10월 21일 양사는 향후 몇 주 안에 오픈AI의 최신 AI 모델과 코덱스..."
     },
     {
@@ -410,8 +411,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 506,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용..."
+      "count": 505,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 데이터 분석 기업 애플로스 데이터를 최고 파트너 등급인 '뱅가드: 엘리트'로 승격. 기존 고객 대상 AI..."
     },
     {
       "id": "healthcare",
@@ -437,7 +438,7 @@
       "topics": [
         "flows"
       ],
-      "count": 151,
+      "count": 150,
       "focus": "2026년 10월 21일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (11.95%) 2위: PROSHARES ULTRA QQQ ETF (7.48%)..."
     },
     {
@@ -446,7 +447,7 @@
       "topics": [
         "insider"
       ],
-      "count": 39,
+      "count": 41,
       "focus": ">>CXMT·Biwin Storage·Piotech 주도, 과창판 주요 기업들 자사주 매입 잇따라 발표 •10월 8~17일 일주일간 CXMT, Biwin Storage, Piotech, Orbbec,..."
     },
     {
@@ -455,7 +456,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 806,
+      "count": 802,
       "focus": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물..."
     }
   ],
@@ -828,17 +829,11 @@
       "datetime": "2026-10-22T12:10:46.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "equity",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 데이터 분석 기업 애플로스 데이터를 최고 파트너 등급인 '뱅가드: 엘리트'로 승격. 기존 고객 대상 AI...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -849,8 +844,7 @@
         "PLTR",
         "BMY",
         "009150.KS"
-      ],
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 데이터 분석 기업 애플로스 데이터를 최고 파트너 등급인 '뱅가드: 엘리트'로 승격. 기존 고객 대상 AI..."
+      ]
     },
     {
       "id": "bornlupin/20763",
@@ -1663,6 +1657,116 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/67064",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67064",
+      "datetime": "2026-10-22T22:10:55.000Z",
+      "localDateKst": "2026-10-23",
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "score": 57,
+      "hasText": true,
+      "tickers": [],
+      "summary": "록히드마틴(LMT) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 매출 및 수익성 개선. 3분기 매출은 207억달러로 전년 대비 11% 증가했으며 사업부 영업이익은 22억달러, 영업이익률은 10.8%..."
+    },
+    {
+      "id": "insidertracking/67062",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67062",
+      "datetime": "2026-10-22T22:09:53.000Z",
+      "localDateKst": "2026-10-23",
+      "tags": [
+        "macro",
+        "kr-market",
+        "insider",
+        "earnings"
+      ],
+      "score": 69,
+      "hasText": true,
+      "tickers": [
+        "SPOT"
+      ],
+      "summary": "스포티파이(SPOT) Q3 2026 어닝콜 요약 > 긍정 요인: • 매출 성장 및 가입자 확대. 3분기 매출은 50억유로로 고정환율 기준 전년 대비 14% 증가. 월간 활성 사용자(MAU)는 7억..."
+    },
+    {
+      "id": "insidertracking/67063",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67063",
+      "datetime": "2026-10-22T22:09:53.000Z",
+      "localDateKst": "2026-10-23",
+      "tags": [
+        "macro",
+        "geo",
+        "kr-market",
+        "insider",
+        "earnings",
+        "healthcare"
+      ],
+      "score": 75,
+      "hasText": true,
+      "tickers": [],
+      "summary": "프록터 앤드 갬블(PG) Q1 2027 어닝콜 요약 > 긍정 요인: • 유기적 매출 성장 및 판매량 회복. 1분기 유기적 매출은 전년 대비 4.0% 증가했으며 판매량 증가가 2.4%p, 가격 인상이 0.4%p..."
+    },
+    {
+      "id": "HANAchina/70867",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70867",
+      "datetime": "2026-10-22T22:08:39.000Z",
+      "localDateKst": "2026-10-23",
+      "tags": [
+        "semi",
+        "equity"
+      ],
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "000660.KS"
+      ],
+      "summary": "•SK하이닉스, Solidigm의 미국 IPO를 추진하지 않기로 결정 (한국경제신문)"
+    },
+    {
+      "id": "HANAchina/70866",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70866",
+      "datetime": "2026-10-22T22:06:52.000Z",
+      "localDateKst": "2026-10-23",
+      "tags": [
+        "macro",
+        "semi",
+        "equity",
+        "healthcare"
+      ],
+      "score": 81,
+      "hasText": true,
+      "tickers": [
+        "AMD",
+        "COHR",
+        "SNDK"
+      ],
+      "summary": ">>AI 거래 연이어 타격! 안전자산 선호 강화, 반도체 지수 약 7% 하락, AI 산업체인 전반 붕괴 전 개인투자자들의 기록적인 매수세 (중국언론) •사우디 피격으로 브렌트유가 배럴당 110달러를 돌파하면서..."
+    },
+    {
+      "id": "HANAchina/70865",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70865",
+      "datetime": "2026-10-22T22:03:29.000Z",
+      "localDateKst": "2026-10-23",
+      "tags": [
+        "geo",
+        "semi",
+        "kr-market",
+        "flows"
+      ],
+      "score": 79,
+      "hasText": true,
+      "tickers": [
+        "TSM"
+      ],
+      "summary": ">>대만 증시 단기 급락, 전문가들이 제시한 3대 지지선 (대만경제일보) •대만 증시는 22일 중동 긴장 고조와 태풍 휴장 가능성, 광복절 연휴에 따른 불확실성으로 매도세가 확대되며 846포인트(-1.81%)..."
+    },
+    {
       "id": "insidertracking/67058",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/67058",
@@ -2186,8 +2290,8 @@
       ],
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": "공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게 전달드리겠습니다...."
+      "summary": "공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게 전달드리겠습니다....",
+      "tickers": []
     },
     {
       "id": "insidertracking/67022",
@@ -2196,13 +2300,12 @@
       "datetime": "2026-10-22T12:30:38.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "earnings"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "경제 지표 발표 미국 신규 실업수당청구건수 (Initial Jobless Claims) ㆍ실제치(Actual): 194,000건 ㆍ예상치(Forecast): 200,000건 ㆍ이전치(Previous):..."
+      "summary": "경제 지표 발표 미국 신규 실업수당청구건수 (Initial Jobless Claims) ㆍ실제치(Actual): 194,000건 ㆍ예상치(Forecast): 200,000건 ㆍ이전치(Previous):...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70852",
@@ -2279,17 +2382,11 @@
       "datetime": "2026-10-22T12:10:46.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "equity",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 데이터 분석 기업 애플로스 데이터를 최고 파트너 등급인 '뱅가드: 엘리트'로 승격. 기존 고객 대상 AI...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2300,8 +2397,7 @@
         "PLTR",
         "BMY",
         "009150.KS"
-      ],
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 데이터 분석 기업 애플로스 데이터를 최고 파트너 등급인 '뱅가드: 엘리트'로 승격. 기존 고객 대상 AI..."
+      ]
     },
     {
       "id": "bornlupin/20765",
@@ -2331,21 +2427,17 @@
       "datetime": "2026-10-22T12:08:16.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "equity",
-        "japan"
+        "market-note"
       ],
       "score": 95,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 22일 > 오후 2시 ~오후 9시 기준 🇺🇸 아메리카 • 미국 국방부와 록히드마틴은 향후 10년간 최소 850대의 F-35 전투기를 공급하는 장기 계약을 최종...",
       "tickers": [
         "NVDA",
         "TSLA",
         "TSM",
         "009150.KS"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 22일 > 오후 2시 ~오후 9시 기준 🇺🇸 아메리카 • 미국 국방부와 록히드마틴은 향후 10년간 최소 850대의 F-35 전투기를 공급하는 장기 계약을 최종..."
+      ]
     },
     {
       "id": "bornlupin/20764",
@@ -2695,14 +2787,16 @@
       "datetime": "2026-10-22T06:16:25.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi"
+        "semi",
+        "power",
+        "healthcare"
       ],
       "score": 69,
       "hasText": true,
-      "summary": ">>TrendForce : 2027년 서버 CPU 출하량 전년 대비 40% 이상 증가, Arm 기반 제품의 시장점유율 지속 확대 •TrendForce의 최신 AI 서버 산업 보고서, AI 서비스 업체들이 AI...",
       "tickers": [
         "AMD"
-      ]
+      ],
+      "summary": ">>TrendForce : 2027년 서버 CPU 출하량 전년 대비 40% 이상 증가, Arm 기반 제품의 시장점유율 지속 확대 •TrendForce의 최신 AI 서버 산업 보고서, AI 서비스 업체들이 AI..."
     },
     {
       "id": "HANAchina/70840",
@@ -2715,8 +2809,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": "•중국 반도체 빠르게 낙폭 축소 •CXMT -4.5%에서 약보합까지 만회 •정부 개입 추정 자금은 계속 유입",
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국 반도체 빠르게 낙폭 축소 •CXMT -4.5%에서 약보합까지 만회 •정부 개입 추정 자금은 계속 유입"
     },
     {
       "id": "insidertracking/66990",
@@ -2741,16 +2835,18 @@
       "datetime": "2026-10-22T05:47:27.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
+        "credit",
+        "macro",
         "semi",
         "earnings"
       ],
       "score": 94,
       "hasText": true,
-      "summary": ">>젠슨 황, 핵심 쟁점에 답변: CoreWeave 부채, GPU 감가상각 기간, DeepSeek 추론의 높은 매출총이익률 •젠슨 황은 최근 AI 투자와 관련한 세 가지 핵심 쟁점에 답변. 첫째, GPU...",
       "tickers": [
         "NVDA",
         "CRWV"
-      ]
+      ],
+      "summary": ">>젠슨 황, 핵심 쟁점에 답변: CoreWeave 부채, GPU 감가상각 기간, DeepSeek 추론의 높은 매출총이익률 •젠슨 황은 최근 AI 투자와 관련한 세 가지 핵심 쟁점에 답변. 첫째, GPU..."
     },
     {
       "id": "HANAchina/70835",
@@ -2763,8 +2859,8 @@
       ],
       "score": 62,
       "hasText": true,
-      "summary": "•중국 증시 자금조달 / 대출 순증 비율 •역대 최고인 40%를 넘어 60% 육박 •증시에도 부담으로 작용",
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국 증시 자금조달 / 대출 순증 비율 •역대 최고인 40%를 넘어 60% 육박 •증시에도 부담으로 작용"
     },
     {
       "id": "aetherjapanresearch/25981",
@@ -2851,12 +2947,13 @@
       "datetime": "2026-10-22T03:43:22.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "market-note"
+        "geo",
+        "earnings"
       ],
       "score": 50,
       "hasText": true,
-      "summary": ">>CATL의 ‘단위 이익률 하락’은 뉴노멀인가? 모건스탠리: 그렇다, 시장의 이익 전망은 큰 폭으로 하향 조정될 것 •CATL의 3분기 순이익은 212억 위안으로 전년 대비 15% 증가했지만, 모건스탠리의...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>CATL의 ‘단위 이익률 하락’은 뉴노멀인가? 모건스탠리: 그렇다, 시장의 이익 전망은 큰 폭으로 하향 조정될 것 •CATL의 3분기 순이익은 212억 위안으로 전년 대비 15% 증가했지만, 모건스탠리의..."
     },
     {
       "id": "HANAchina/70830",
@@ -2865,14 +2962,17 @@
       "datetime": "2026-10-22T03:41:48.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi"
+        "macro",
+        "semi",
+        "power",
+        "earnings"
       ],
       "score": 76,
       "hasText": true,
-      "summary": ">>엔비디아 베를린 GTC에서 어떤 이야기가 나왔나? 골드만삭스의 정리 •골드만삭스는 젠슨 황의 GTC 연설을 직접 들은 뒤 보고서를 발표했음. 주요 내용은 세 가지로, 엔비디아 공급망의 여러 단계에서 대규모...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>엔비디아 베를린 GTC에서 어떤 이야기가 나왔나? 골드만삭스의 정리 •골드만삭스는 젠슨 황의 GTC 연설을 직접 들은 뒤 보고서를 발표했음. 주요 내용은 세 가지로, 엔비디아 공급망의 여러 단계에서 대규모..."
     },
     {
       "id": "insidertracking/66982",
@@ -6437,74 +6537,6 @@
       ]
     },
     {
-      "id": "insidertracking/66719",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66719",
-      "datetime": "2026-10-19T20:51:31.000Z",
-      "localDateKst": "2026-10-20",
-      "tags": [
-        "semi"
-      ],
-      "score": 61,
-      "hasText": true,
-      "summary": "디인포메이션에 따르면 중국 AI 스타트업 딥시크가 화웨이와 협력해 내년 출시 예정인 AI 칩 설계에 참여 중. 화웨이 엔지니어들은 딥시크의 기술적 요구사항을 칩 설계에 반영하고 있으며, 이번 협력은 엔비디아...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/66718",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66718",
-      "datetime": "2026-10-19T20:50:46.000Z",
-      "localDateKst": "2026-10-20",
-      "tags": [
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로...",
-      "tickers": [
-        "GOOG",
-        "AMZN",
-        "MU",
-        "TSM",
-        "STX"
-      ]
-    },
-    {
-      "id": "insidertracking/66716",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66716",
-      "datetime": "2026-10-19T20:48:32.000Z",
-      "localDateKst": "2026-10-20",
-      "tags": [
-        "market-note"
-      ],
-      "score": 60,
-      "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 에너지 · APA Corporation · Baytex Energy · Canadian Natural Resources · Chevron · ConocoPhillips ·...",
-      "tickers": [],
-      "listTickers": [
-        "XOM",
-        "CVX",
-        "KO",
-        "COP",
-        "EOG",
-        "PSX",
-        "MPC",
-        "KDP",
-        "MTCH",
-        "VTRS",
-        "PBR",
-        "APA",
-        "PR",
-        "OVV",
-        "RGA",
-        "RNR"
-      ]
-    },
-    {
       "id": "HANAchina/70696",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70696",
@@ -7403,20 +7435,6 @@
       ]
     },
     {
-      "id": "HANAchina/70614",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70614",
-      "datetime": "2026-10-18T11:14:59.000Z",
-      "localDateKst": "2026-10-18",
-      "tags": [
-        "market-note"
-      ],
-      "score": 67,
-      "hasText": true,
-      "summary": ">>AI 거품은 터졌는가? •AI 투자 논리가 스트레스 테스트에 직면한 가운데, 실리콘밸리의 최상위 투자자 4명은 이번 변동성이 거품 붕괴는 아니라고 판단함. 컴퓨팅 연산 능력 공급 부족은 2028년 이후까지...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20686",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20686",
@@ -7435,21 +7453,6 @@
       ]
     },
     {
-      "id": "HANAchina/70608",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70608",
-      "datetime": "2026-10-18T08:56:56.000Z",
-      "localDateKst": "2026-10-18",
-      "tags": [
-        "semi",
-        "flows"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": "하나증권 중국테마전략 김성은(T.02-3771-7520) [중국 테마 전략] 중국 반도체 수급 경쟁: YMTC 상장 VS CXMT 지수 편입 자료: [YMTC 상장에 따른 단기 수급 부담] 최근 글로벌 매크로...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20685",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20685",
@@ -7461,21 +7464,6 @@
       "score": 77,
       "hasText": true,
       "summary": "골드만삭스, 글로벌 서버 시장 TAM 전망 대폭 상향 골드만삭스가 글로벌 서버 시장의 TAM 전망치를 2027년 31%, 2028년 45% 상향 조정했습니다. 이에 따라 2028년 글로벌 서버 시장 규모는 약...",
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/70607",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70607",
-      "datetime": "2026-10-18T08:51:12.000Z",
-      "localDateKst": "2026-10-18",
-      "tags": [
-        "macro",
-        "ai-policy"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": ">>Anthropic 내부 고용 보고서 발표: AI 에이전트의 작업 시간이 인간의 6배에 달해, ‘에이전트 업무 시대’ 도래 (중국언론) •초급 기술직 채용 비중이 크게 감소했음. AI 에이전트의 작업 시간이...",
       "tickers": []
     },
     {
