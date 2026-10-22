@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-22T11:21:53.288Z",
-  "attemptedAt": "2026-10-22T11:21:53.288Z",
-  "lastSuccessfulAt": "2026-10-22T11:21:53.288Z",
+  "generatedAt": "2026-10-22T11:51:36.022Z",
+  "attemptedAt": "2026-10-22T11:51:36.022Z",
+  "lastSuccessfulAt": "2026-10-22T11:51:36.022Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-08T11:21:47.814Z",
-  "until": "2026-10-22T11:21:47.814Z",
+  "since": "2026-10-08T11:51:31.596Z",
+  "until": "2026-10-22T11:51:31.596Z",
   "current24hWindow": {
     "start": "2026-10-20T23:00:00.000Z",
     "end": "2026-10-21T23:00:00.000Z",
@@ -78,24 +78,24 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 1,
-      "reachedOlder": false,
-      "reachedKnown": true,
-      "count": 263,
-      "freshCount": 20,
-      "eligibleTextCount": 252,
-      "selectedCount": 66,
-      "error": null,
-      "lastPostId": 25985
-    },
-    {
-      "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1205,
+      "count": 264,
       "freshCount": 39,
-      "eligibleTextCount": 1157,
+      "eligibleTextCount": 253,
+      "selectedCount": 65,
+      "error": null,
+      "lastPostId": 25986
+    },
+    {
+      "channel": "insidertracking",
+      "pages": 1,
+      "reachedOlder": false,
+      "reachedKnown": true,
+      "count": 1199,
+      "freshCount": 20,
+      "eligibleTextCount": 1151,
       "selectedCount": 120,
       "error": null,
       "lastPostId": 67018
@@ -117,52 +117,54 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 706,
+      "count": 705,
       "freshCount": 20,
-      "eligibleTextCount": 706,
+      "eligibleTextCount": 705,
       "selectedCount": 122,
       "error": null,
       "lastPostId": 70851
     }
   ],
-  "count": 2395,
-  "retainedItemCount": 451,
+  "count": 2389,
+  "retainedItemCount": 450,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2395,
-    "eligibleTextCount": 2336,
+    "observedCount": 2389,
+    "eligibleTextCount": 2330,
     "mediaOnlyCount": 59,
-    "highSignalCount": 523,
-    "broadSignalCount": 1064,
-    "selectedRawCount": 403,
-    "selectedEligibleCount": 403,
+    "highSignalCount": 524,
+    "broadSignalCount": 1063,
+    "selectedRawCount": 402,
+    "selectedEligibleCount": 402,
     "selectedRawCoveragePct": 17.3,
     "selectedOfObservedPct": 16.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "media-only": 59,
-    "credit": 114,
     "macro": 792,
-    "semi": 598,
+    "geo": 347,
+    "semi": 599,
+    "ai-policy": 183,
+    "equity": 167,
+    "earnings": 497,
+    "media-only": 59,
+    "credit": 113,
     "power": 340,
-    "market-note": 805,
-    "geo": 348,
-    "earnings": 496,
+    "market-note": 802,
     "kr-market": 172,
-    "equity": 166,
     "japan": 145,
     "flows": 155,
-    "ai-policy": 182,
-    "healthcare": 137,
+    "healthcare": 136,
     "optical": 52,
     "insider": 40,
     "crypto": 6
   },
   "tickerCounts": {
+    "NVDA": 130,
+    "PLTR": 9,
     "TSLA": 59,
     "GOOG": 76,
     "RDDT": 2,
@@ -172,7 +174,6 @@
     "AMZN": 40,
     "META": 15,
     "AMD": 41,
-    "NVDA": 129,
     "CRWV": 21,
     "MSFT": 49,
     "BE": 19,
@@ -183,7 +184,6 @@
     "MS": 5,
     "DB": 2,
     "WMT": 2,
-    "PLTR": 8,
     "000660.KS": 57,
     "AAPL": 14,
     "SMCI": 6,
@@ -242,20 +242,20 @@
     "CRWD": 1
   },
   "themes": [
-    "Market Notes (805 posts in 14-day research window): 테슬라(TSLA) Q3 2026 어닝콜 요약 > 긍정 요인: • 차량 인도량 및 수주잔고. 2개 분기 연속 약 40만 8,000대의 차량을 인도했으며 수주잔고는 최근 4년 중 최고 수준 기록. 이는 강한...",
-    "Macro/Rates (792 posts in 14-day research window): Citi) 메타; 뮤즈 도입 확대와 핵심 광고 모멘텀 지속으로 AI 순풍 가속화; 투자 동향 주시 Citi는 Meta의 3Q26 실적 발표 이후 투자의견 매수(Buy)를 유지하고 목표주가를 895달러에서 905달러로 상향했습니다. Citi는 Meta가 여러 수익화 동력을 갖춘 AI 제품 슈퍼사이클에 진입하고 있다고...",
-    "Semiconductors/Memory (598 posts in 14-day research window): Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에...",
-    "Earnings/Corporate (496 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용...",
-    "Geopolitics (348 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀....",
+    "Market Notes (802 posts in 14-day research window): 2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물...",
+    "Macro/Rates (792 posts in 14-day research window): Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템...",
+    "Semiconductors/Memory (599 posts in 14-day research window): Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에...",
+    "Earnings/Corporate (497 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용...",
+    "Geopolitics (347 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀....",
     "AI Power/Grid (340 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
-    "AI Policy/Export Controls (182 posts in 14-day research window): OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게...",
+    "AI Policy/Export Controls (183 posts in 14-day research window): OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게...",
     "Korea Market (172 posts in 14-day research window): JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 129,
-      "text": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물 -0.52% 기록. VIX는 18.75로 2.81% 상승하며 위험회피 심리 확대. 아시아 증시에서도 한국 코스피가..."
+      "count": 130,
+      "text": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템..."
     },
     {
       "key": "TSM",
@@ -270,7 +270,7 @@
     {
       "key": "TSLA",
       "count": 59,
-      "text": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물 -0.52% 기록. VIX는 18.75로 2.81% 상승하며 위험회피 심리 확대. 아시아 증시에서도 한국 코스피가..."
+      "text": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물..."
     },
     {
       "key": "000660.KS",
@@ -285,7 +285,7 @@
     {
       "key": "MSFT",
       "count": 49,
-      "text": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물 -0.52% 기록. VIX는 18.75로 2.81% 상승하며 위험회피 심리 확대. 아시아 증시에서도 한국 코스피가..."
+      "text": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물..."
     },
     {
       "key": "MU",
@@ -295,7 +295,7 @@
     {
       "key": "AMD",
       "count": 41,
-      "text": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두..."
+      "text": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두 번째 수십억 달러 규모 계약을 협상 중이라고 소식통이 CNBC에 전했습니다. 이번 계약은 지난 8월 보도된..."
     },
     {
       "key": "AMZN",
@@ -310,7 +310,7 @@
     {
       "key": "AVGO",
       "count": 20,
-      "text": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두..."
+      "text": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두 번째 수십억 달러 규모 계약을 협상 중이라고 소식통이 CNBC에 전했습니다. 이번 계약은 지난 8월 보도된..."
     }
   ],
   "categories": [
@@ -321,7 +321,7 @@
         "macro"
       ],
       "count": 792,
-      "focus": "Citi) 메타; 뮤즈 도입 확대와 핵심 광고 모멘텀 지속으로 AI 순풍 가속화; 투자 동향 주시 Citi는 Meta의 3Q26 실적 발표 이후 투자의견 매수(Buy)를 유지하고 목표주가를 895달러에서 905달러로 상향했습니다. Citi는 Meta가 여러 수익화 동력을 갖춘 AI 제품 슈퍼사이클에 진입하고 있다고..."
+      "focus": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템..."
     },
     {
       "id": "geo",
@@ -329,7 +329,7 @@
       "topics": [
         "geo"
       ],
-      "count": 348,
+      "count": 347,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀...."
     },
     {
@@ -338,7 +338,7 @@
       "topics": [
         "credit"
       ],
-      "count": 114,
+      "count": 113,
       "focus": "테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정 EBITDA 39억 달러 (예상 37.1억), 전년 대비 -8% GAAP 매출총이익률 19.6% , 전년 대비..."
     },
     {
@@ -347,7 +347,7 @@
       "topics": [
         "semi"
       ],
-      "count": 598,
+      "count": 599,
       "focus": "Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에..."
     },
     {
@@ -374,7 +374,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 182,
+      "count": 183,
       "focus": "OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게..."
     },
     {
@@ -392,7 +392,7 @@
       "topics": [
         "equity"
       ],
-      "count": 166,
+      "count": 167,
       "focus": "SpaceX 2026년 3분기 어닝콜 Q&A 세션 중 테라팹(Terafab) : 내년(2027년) 5~6월경 오스틴 리서치 팹에서 라인 테스트용 첫 기능성 테스트 칩(SRAM 등)을 가동하는 것이 목표 ...."
     },
     {
@@ -410,7 +410,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 496,
+      "count": 497,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용..."
     },
     {
@@ -419,7 +419,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 137,
+      "count": 136,
       "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · AMN Healthcare Services · Avantor · BeOne Medicines · Cardinal..."
     },
     {
@@ -455,8 +455,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 805,
-      "focus": "테슬라(TSLA) Q3 2026 어닝콜 요약 > 긍정 요인: • 차량 인도량 및 수주잔고. 2개 분기 연속 약 40만 8,000대의 차량을 인도했으며 수주잔고는 최근 4년 중 최고 수준 기록. 이는 강한..."
+      "count": 802,
+      "focus": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물..."
     }
   ],
   "pageMap": {
@@ -700,6 +700,28 @@
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
     {
+      "id": "aetherjapanresearch/25986",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25986",
+      "datetime": "2026-10-22T11:49:26.000Z",
+      "localDateKst": "2026-10-22",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "equity",
+        "earnings"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "PLTR"
+      ],
+      "summary": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을..."
+    },
+    {
       "id": "aetherjapanresearch/25985",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25985",
@@ -756,26 +778,18 @@
       "datetime": "2026-10-22T05:15:32.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows",
-        "japan"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물...",
       "tickers": [
         "NVDA",
         "TSLA",
         "MSFT",
         "BE",
         "WDC"
-      ],
-      "summary": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물..."
+      ]
     },
     {
       "id": "insidertracking/66971",
@@ -1197,18 +1211,22 @@
       "datetime": "2026-10-20T14:23:22.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "macro"
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "japan"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두...",
       "tickers": [
         "NVDA",
         "AMD",
         "MSFT",
         "GOOG",
         "AVGO"
-      ]
+      ],
+      "summary": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두..."
     },
     {
       "id": "aetherjapanresearch/25949",
@@ -1217,15 +1235,19 @@
       "datetime": "2026-10-20T11:27:43.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
+        "credit",
         "macro",
-        "power"
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "Citi) 오라클 (ORCL.K); 오라클 AI 월드 프리뷰: 목표치의 상향 조정을 기대. TP $330 씨티의 견해 오라클의 AI 월드 및 애널리스트 데이(10/28)는 금리 상승과 데이터센터 지연 리스크를...",
       "tickers": [
         "ORCL"
-      ]
+      ],
+      "summary": "Citi) 오라클 (ORCL.K); 오라클 AI 월드 프리뷰: 목표치의 상향 조정을 기대. TP $330 씨티의 견해 오라클의 AI 월드 및 애널리스트 데이(10/28)는 금리 상승과 데이터센터 지연 리스크를..."
     },
     {
       "id": "aetherjapanresearch/25944",
@@ -1599,29 +1621,31 @@
         "AVGO",
         "CRWV"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25838",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25838",
-      "datetime": "2026-10-14T12:48:32.000Z",
-      "localDateKst": "2026-10-14",
-      "tags": [
-        "semi",
-        "flows"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "JP모건) 메모리에 대한 아시아 투자자 마케팅 피드백 JP모건은 최근 2주간 싱가포르, 쿠알라룸푸르, 홍콩에서 100명 이상의 투자자를 만난 결과, 탑다운 관점의 AI 지속 가능성과 바텀업 관점의 메모리 수급...",
-      "tickers": [
-        "005930.KS",
-        "009150.KS",
-        "000660.KS",
-        "007660.KS"
-      ]
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/25986",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25986",
+      "datetime": "2026-10-22T11:49:26.000Z",
+      "localDateKst": "2026-10-22",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "equity",
+        "earnings"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "PLTR"
+      ],
+      "summary": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을..."
+    },
     {
       "id": "insidertracking/67017",
       "channel": "insidertracking",
@@ -1838,15 +1862,14 @@
       "datetime": "2026-10-22T08:14:35.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
         "equity"
       ],
       "score": 61,
       "hasText": true,
+      "summary": "저커버그, 억만장자세 논란에도 캘리포니아 잔류 결정 메타(META)의 최고경영자 마크 저커버그가 캘리포니아주의 억만장자세 도입 가능성에도 불구하고 향후 8년간 캘리포니아에 거주하기로 결정함. 앞서 저커버그는...",
       "tickers": [
         "META"
-      ],
-      "summary": "저커버그, 억만장자세 논란에도 캘리포니아 잔류 결정 메타(META)의 최고경영자 마크 저커버그가 캘리포니아주의 억만장자세 도입 가능성에도 불구하고 향후 8년간 캘리포니아에 거주하기로 결정함. 앞서 저커버그는..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25982",
@@ -1935,14 +1958,14 @@
       "datetime": "2026-10-22T06:01:12.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 56,
       "hasText": true,
+      "summary": "로이터에 따르면 일론 머스크가 이번 주 스페이스X와 테슬라의 합병 검토 사실을 공개적으로 확인하고 지지 의사를 밝히면서 합병 협상이 수주간 지연될 가능성 제기. 협상에 참여한 일부 관계자들은 머스크의 공개...",
       "tickers": [
         "TSLA"
-      ],
-      "summary": "로이터에 따르면 일론 머스크가 이번 주 스페이스X와 테슬라의 합병 검토 사실을 공개적으로 확인하고 지지 의사를 밝히면서 합병 협상이 수주간 지연될 가능성 제기. 협상에 참여한 일부 관계자들은 머스크의 공개..."
+      ]
     },
     {
       "id": "HANAchina/70836",
@@ -2013,26 +2036,18 @@
       "datetime": "2026-10-22T05:15:32.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows",
-        "japan"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물...",
       "tickers": [
         "NVDA",
         "TSLA",
         "MSFT",
         "BE",
         "WDC"
-      ],
-      "summary": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물..."
+      ]
     },
     {
       "id": "insidertracking/66985",
@@ -2041,16 +2056,14 @@
       "datetime": "2026-10-22T05:15:24.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "geo",
-        "semi"
+        "geo"
       ],
       "score": 83,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 22일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국과 이스라엘은 11월 3일 중간선거 이후 이란에 대한 추가 군사 공격을 계획 중이라고 NYT가 보도....",
       "tickers": [
         "TSLA"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 22일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국과 이스라엘은 11월 3일 중간선거 이후 이란에 대한 추가 군사 공격을 계획 중이라고 NYT가 보도...."
+      ]
     },
     {
       "id": "insidertracking/66983",
@@ -2059,13 +2072,12 @@
       "datetime": "2026-10-22T04:46:10.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
         "geo"
       ],
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": "이란 전쟁이 촉발한 에너지 공급 충격, 미주 대륙이 최대 수혜자로 부상 도널드 트럼프 미국 대통령의 이란 전쟁으로 글로벌 에너지 공급망이 재편되면서 미국과 캐나다, 브라질, 아르헨티나 등 미주 대륙의..."
+      "summary": "이란 전쟁이 촉발한 에너지 공급 충격, 미주 대륙이 최대 수혜자로 부상 도널드 트럼프 미국 대통령의 이란 전쟁으로 글로벌 에너지 공급망이 재편되면서 미국과 캐나다, 브라질, 아르헨티나 등 미주 대륙의...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70831",
@@ -2104,16 +2116,15 @@
       "datetime": "2026-10-22T03:23:49.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
         "power"
       ],
       "score": 63,
       "hasText": true,
+      "summary": "CNBC에 따르면 인도에서 데이터센터 확장을 추진 중인 미국 빅테크 기업들이 전력·수자원·토지 사용 문제로 지역사회의 반발에 직면하면서, 인도 정부가 국가 차원의 데이터센터 정책 수립을 추진 중. 뭄바이 인근...",
       "tickers": [
         "GOOG",
         "AMZN"
-      ],
-      "summary": "CNBC에 따르면 인도에서 데이터센터 확장을 추진 중인 미국 빅테크 기업들이 전력·수자원·토지 사용 문제로 지역사회의 반발에 직면하면서, 인도 정부가 국가 차원의 데이터센터 정책 수립을 추진 중. 뭄바이 인근..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25980",
@@ -3309,10 +3320,10 @@
       ],
       "score": 66,
       "hasText": true,
-      "summary": "엔비디아, 신규 휴머노이드 로봇을 포함한 아이작(Isaac) 로보틱스 플랫폼의 대대적인 확장을 발표 \"로보틱스 분야의 ChatGPT 모먼트가 빠르게 다가오고 있습니다.\" GTC 베를린에서 엔비디아는 범용 로봇...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아, 신규 휴머노이드 로봇을 포함한 아이작(Isaac) 로보틱스 플랫폼의 대대적인 확장을 발표 \"로보틱스 분야의 ChatGPT 모먼트가 빠르게 다가오고 있습니다.\" GTC 베를린에서 엔비디아는 범용 로봇..."
     },
     {
       "id": "HANAchina/70806",
@@ -3554,14 +3565,15 @@
       "datetime": "2026-10-21T04:40:53.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
+        "macro",
         "power",
         "earnings",
         "healthcare"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "JP모건) 스페이스X 3Q26 실적이 시사하는 바: AI 인프라 모멘텀을 재확인하고 제약 우려를 완화할 것 스페이스X(더그 앤머스 커버)는 3Q26 실적을 발표하고 데이터센터 구축에 관한 여러 업데이트를...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JP모건) 스페이스X 3Q26 실적이 시사하는 바: AI 인프라 모멘텀을 재확인하고 제약 우려를 완화할 것 스페이스X(더그 앤머스 커버)는 3Q26 실적을 발표하고 데이터센터 구축에 관한 여러 업데이트를..."
     },
     {
       "id": "HANAchina/70795",
@@ -3586,12 +3598,13 @@
       "localDateKst": "2026-10-21",
       "tags": [
         "macro",
-        "power"
+        "power",
+        "earnings"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "스페이스X 사업 업데이트 및 전망 AI 데이터센터 2027년 AI 컴퓨트 용량 5~10GW → 7.5~13GW 상향. AI 컴퓨트 거래가격도 지난 분기 와트당 30~50달러 수익화 예상에서 와트당 50달러...",
-      "tickers": []
+      "tickers": [],
+      "summary": "스페이스X 사업 업데이트 및 전망 AI 데이터센터 2027년 AI 컴퓨트 용량 5~10GW → 7.5~13GW 상향. AI 컴퓨트 거래가격도 지난 분기 와트당 30~50달러 수익화 예상에서 와트당 50달러..."
     },
     {
       "id": "insidertracking/66856",
@@ -4260,18 +4273,22 @@
       "datetime": "2026-10-20T14:23:22.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "macro"
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "japan"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두...",
       "tickers": [
         "NVDA",
         "AMD",
         "MSFT",
         "GOOG",
         "AVGO"
-      ]
+      ],
+      "summary": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두..."
     },
     {
       "id": "HANAchina/70773",
@@ -4415,10 +4432,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "삼성전자, 모뎀도 2나노 간다...올해 4나노 M2700은 MX 테스트 통과 < 반도체 < 기사본문 - 디일렉(THE ELEC)",
       "tickers": [
         "005930.KS"
-      ]
+      ],
+      "summary": "삼성전자, 모뎀도 2나노 간다...올해 4나노 M2700은 MX 테스트 통과 < 반도체 < 기사본문 - 디일렉(THE ELEC)"
     },
     {
       "id": "HANAchina/70766",
@@ -4538,15 +4555,19 @@
       "datetime": "2026-10-20T11:27:43.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
+        "credit",
         "macro",
-        "power"
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "Citi) 오라클 (ORCL.K); 오라클 AI 월드 프리뷰: 목표치의 상향 조정을 기대. TP $330 씨티의 견해 오라클의 AI 월드 및 애널리스트 데이(10/28)는 금리 상승과 데이터센터 지연 리스크를...",
       "tickers": [
         "ORCL"
-      ]
+      ],
+      "summary": "Citi) 오라클 (ORCL.K); 오라클 AI 월드 프리뷰: 목표치의 상향 조정을 기대. TP $330 씨티의 견해 오라클의 AI 월드 및 애널리스트 데이(10/28)는 금리 상승과 데이터센터 지연 리스크를..."
     },
     {
       "id": "HANAchina/70761",
@@ -8352,21 +8373,6 @@
       "tickers": [
         "016360.KS"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25850",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25850",
-      "datetime": "2026-10-14T23:41:20.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "macro",
-        "earnings"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "2조달러 목표 상장? ======================== ~ 14일(현지시간) 파이낸셜타임스(FT)에 따르면 앤트로픽은 이날 미국 샌프란시스코 사무실에서 투자자 설명회를 열고 3분기 실적을 공개했다....",
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -9107,10 +9113,10 @@
       ],
       "score": 66,
       "hasText": true,
-      "summary": "엔비디아, 신규 휴머노이드 로봇을 포함한 아이작(Isaac) 로보틱스 플랫폼의 대대적인 확장을 발표 \"로보틱스 분야의 ChatGPT 모먼트가 빠르게 다가오고 있습니다.\" GTC 베를린에서 엔비디아는 범용 로봇...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아, 신규 휴머노이드 로봇을 포함한 아이작(Isaac) 로보틱스 플랫폼의 대대적인 확장을 발표 \"로보틱스 분야의 ChatGPT 모먼트가 빠르게 다가오고 있습니다.\" GTC 베를린에서 엔비디아는 범용 로봇..."
     },
     {
       "id": "HANAchina/70806",
@@ -9352,14 +9358,15 @@
       "datetime": "2026-10-21T04:40:53.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
+        "macro",
         "power",
         "earnings",
         "healthcare"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "JP모건) 스페이스X 3Q26 실적이 시사하는 바: AI 인프라 모멘텀을 재확인하고 제약 우려를 완화할 것 스페이스X(더그 앤머스 커버)는 3Q26 실적을 발표하고 데이터센터 구축에 관한 여러 업데이트를...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JP모건) 스페이스X 3Q26 실적이 시사하는 바: AI 인프라 모멘텀을 재확인하고 제약 우려를 완화할 것 스페이스X(더그 앤머스 커버)는 3Q26 실적을 발표하고 데이터센터 구축에 관한 여러 업데이트를..."
     },
     {
       "id": "HANAchina/70795",
@@ -9384,12 +9391,13 @@
       "localDateKst": "2026-10-21",
       "tags": [
         "macro",
-        "power"
+        "power",
+        "earnings"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "스페이스X 사업 업데이트 및 전망 AI 데이터센터 2027년 AI 컴퓨트 용량 5~10GW → 7.5~13GW 상향. AI 컴퓨트 거래가격도 지난 분기 와트당 30~50달러 수익화 예상에서 와트당 50달러...",
-      "tickers": []
+      "tickers": [],
+      "summary": "스페이스X 사업 업데이트 및 전망 AI 데이터센터 2027년 AI 컴퓨트 용량 5~10GW → 7.5~13GW 상향. AI 컴퓨트 거래가격도 지난 분기 와트당 30~50달러 수익화 예상에서 와트당 50달러..."
     },
     {
       "id": "insidertracking/66856",
